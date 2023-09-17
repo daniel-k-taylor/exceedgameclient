@@ -1,3 +1,17 @@
 Bugs:
-    ☐ focus/unfocus scaling
-    ☐ focus/unfocus when drawing new card
+
+Tasks:
+    ☐ Implement arena and characters
+    ☐ Life display
+    ☐ Gauge area
+    ☐ Boost Area
+    ☐ Discard Area
+    ☐ Implement Turn actions
+        ☐ Prepare - draw a card
+        ☐ Move - force to move
+        ☐ Change cards - force to draw
+        ☐ Exceed
+        ☐ Manual Reshuffle
+        ☐ Boost
+        ☐ Strike
+    ☐ Opponent cards/areas

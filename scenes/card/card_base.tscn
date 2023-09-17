@@ -182,5 +182,7 @@ layout_mode = 2
 texture_hover = ExtResource("5_tig0d")
 stretch_mode = 0
 
+[connection signal="button_down" from="CardContainer/Focus" to="." method="_on_focus_button_down"]
+[connection signal="button_up" from="CardContainer/Focus" to="." method="_on_focus_button_up"]
 [connection signal="mouse_entered" from="CardContainer/Focus" to="." method="_on_focus_mouse_entered"]
 [connection signal="mouse_exited" from="CardContainer/Focus" to="." method="_on_focus_mouse_exited"]

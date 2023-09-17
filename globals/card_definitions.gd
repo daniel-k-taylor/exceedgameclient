@@ -29,9 +29,9 @@ func get_card(definition_id):
 			return card
 	return null
 
-func get_effect_text(card_def):
+func get_effect_text(_card_def):
 	return "Effect text here"
-	
-func get_boost_text(card_def):
+
+func get_boost_text(_apply_changescard_def):
 	return "Boost text here"
-	
+
