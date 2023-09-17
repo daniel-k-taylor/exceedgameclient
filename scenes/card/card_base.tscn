@@ -1,0 +1,186 @@
+[gd_scene load_steps=7 format=3 uid="uid://cl8i21571i4qa"]
+
+[ext_resource type="Script" path="res://scenes/card/card_base.gd" id="1_o734l"]
+[ext_resource type="Texture2D" uid="uid://dal2ec8wws714" path="res://icon.svg" id="1_xb23j"]
+[ext_resource type="PackedScene" uid="uid://dh3sjq06r8ou2" path="res://scenes/card/stat_panel.tscn" id="2_ujv87"]
+[ext_resource type="Texture2D" uid="uid://cpolsw2tyi4m" path="res://assets/cardbacks/cardback_blue.svg" id="4_pvdi7"]
+[ext_resource type="Texture2D" uid="uid://dh8tat2r8ttx1" path="res://assets/cards/card_border_highlight.png" id="5_tig0d"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_xbdvb"]
+size = Vector2(250, 350)
+
+[node name="CardBase" type="Area2D"]
+script = ExtResource("1_o734l")
+
+[node name="Shape" type="CollisionShape2D" parent="."]
+visible = false
+shape = SubResource("RectangleShape2D_xbdvb")
+
+[node name="CardContainer" type="MarginContainer" parent="."]
+custom_minimum_size = Vector2(250, 350)
+offset_left = -125.0
+offset_top = -175.0
+offset_right = 125.0
+offset_bottom = 184.0
+pivot_offset = Vector2(125, 175)
+
+[node name="Background" type="ColorRect" parent="CardContainer"]
+layout_mode = 2
+color = Color(0, 0, 0, 1)
+
+[node name="CardBox" type="VBoxContainer" parent="CardContainer"]
+layout_mode = 2
+theme_override_constants/separation = 2
+
+[node name="TopMargin" type="MarginContainer" parent="CardContainer/CardBox"]
+custom_minimum_size = Vector2(0, 10)
+layout_mode = 2
+
+[node name="TitleRow" type="HBoxContainer" parent="CardContainer/CardBox"]
+layout_mode = 2
+theme_override_constants/separation = 5
+
+[node name="LeftMargin" type="MarginContainer" parent="CardContainer/CardBox/TitleRow"]
+layout_mode = 2
+
+[node name="TitleIcon" type="TextureRect" parent="CardContainer/CardBox/TitleRow"]
+layout_mode = 2
+texture = ExtResource("1_xb23j")
+expand_mode = 3
+
+[node name="TitlePanel" type="PanelContainer" parent="CardContainer/CardBox/TitleRow"]
+layout_mode = 2
+
+[node name="TitleBackground" type="ColorRect" parent="CardContainer/CardBox/TitleRow/TitlePanel"]
+custom_minimum_size = Vector2(200, 0)
+layout_mode = 2
+
+[node name="TitleNameBox" type="HBoxContainer" parent="CardContainer/CardBox/TitleRow/TitlePanel"]
+custom_minimum_size = Vector2(0, 24)
+layout_mode = 2
+
+[node name="TitleNameMargin" type="MarginContainer" parent="CardContainer/CardBox/TitleRow/TitlePanel/TitleNameBox"]
+layout_mode = 2
+
+[node name="TitleName" type="RichTextLabel" parent="CardContainer/CardBox/TitleRow/TitlePanel/TitleNameBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/default_color = Color(0, 0, 0, 1)
+theme_override_font_sizes/normal_font_size = 18
+text = "Super Cool Move Name"
+
+[node name="UnderTitleMargin" type="MarginContainer" parent="CardContainer/CardBox"]
+layout_mode = 2
+
+[node name="AbiltiesImagePanel" type="PanelContainer" parent="CardContainer/CardBox"]
+custom_minimum_size = Vector2(0, 200)
+layout_mode = 2
+
+[node name="ImagePanel" type="PanelContainer" parent="CardContainer/CardBox/AbiltiesImagePanel"]
+layout_mode = 2
+
+[node name="CardImage" type="TextureRect" parent="CardContainer/CardBox/AbiltiesImagePanel/ImagePanel"]
+layout_mode = 2
+size_flags_horizontal = 8
+texture = ExtResource("1_xb23j")
+expand_mode = 2
+
+[node name="StatsHBox" type="HBoxContainer" parent="CardContainer/CardBox/AbiltiesImagePanel"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="StatsLeftMargin" type="MarginContainer" parent="CardContainer/CardBox/AbiltiesImagePanel/StatsHBox"]
+layout_mode = 2
+
+[node name="StatsColumn" type="VBoxContainer" parent="CardContainer/CardBox/AbiltiesImagePanel/StatsHBox"]
+layout_mode = 2
+theme_override_constants/separation = 7
+
+[node name="RangePanel" parent="CardContainer/CardBox/AbiltiesImagePanel/StatsHBox/StatsColumn" instance=ExtResource("2_ujv87")]
+layout_mode = 2
+
+[node name="SpeedPanel" parent="CardContainer/CardBox/AbiltiesImagePanel/StatsHBox/StatsColumn" instance=ExtResource("2_ujv87")]
+layout_mode = 2
+
+[node name="PowerPanel" parent="CardContainer/CardBox/AbiltiesImagePanel/StatsHBox/StatsColumn" instance=ExtResource("2_ujv87")]
+layout_mode = 2
+
+[node name="ArmorPanel" parent="CardContainer/CardBox/AbiltiesImagePanel/StatsHBox/StatsColumn" instance=ExtResource("2_ujv87")]
+layout_mode = 2
+
+[node name="GuardPanel" parent="CardContainer/CardBox/AbiltiesImagePanel/StatsHBox/StatsColumn" instance=ExtResource("2_ujv87")]
+layout_mode = 2
+
+[node name="BelowImageMargin" type="MarginContainer" parent="CardContainer/CardBox"]
+layout_mode = 2
+
+[node name="EffectBox" type="MarginContainer" parent="CardContainer/CardBox"]
+layout_mode = 2
+
+[node name="EffectBackground" type="ColorRect" parent="CardContainer/CardBox/EffectBox"]
+custom_minimum_size = Vector2(230, 40)
+layout_mode = 2
+color = Color(0, 0, 0, 1)
+
+[node name="EffectText" type="RichTextLabel" parent="CardContainer/CardBox/EffectBox"]
+layout_mode = 2
+bbcode_enabled = true
+text = "[center][b]HIT:[/b] Do something cool
+[b]AFTER:[/b] Do something else[/center]"
+fit_content = true
+
+[node name="EffectBoostMargin" type="MarginContainer" parent="CardContainer/CardBox"]
+layout_mode = 2
+
+[node name="BoostBox" type="MarginContainer" parent="CardContainer/CardBox"]
+layout_mode = 2
+
+[node name="BoostBackground" type="ColorRect" parent="CardContainer/CardBox/BoostBox"]
+custom_minimum_size = Vector2(230, 40)
+layout_mode = 2
+color = Color(0.294118, 0, 0.294118, 1)
+
+[node name="BoostDetailsBox" type="HBoxContainer" parent="CardContainer/CardBox/BoostBox"]
+custom_minimum_size = Vector2(0, 40)
+layout_mode = 2
+
+[node name="BoostCostIcon" type="TextureRect" parent="CardContainer/CardBox/BoostBox/BoostDetailsBox"]
+custom_minimum_size = Vector2(40, 40)
+layout_mode = 2
+expand_mode = 1
+stretch_mode = 4
+
+[node name="BoostCost" type="RichTextLabel" parent="CardContainer/CardBox/BoostBox/BoostDetailsBox/BoostCostIcon"]
+layout_mode = 1
+anchors_preset = 14
+anchor_top = 0.5
+anchor_right = 1.0
+anchor_bottom = 0.5
+offset_top = -21.0
+offset_bottom = 21.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_font_sizes/normal_font_size = 32
+bbcode_enabled = true
+text = "[center]0[/center]"
+
+[node name="BoostText" type="RichTextLabel" parent="CardContainer/CardBox/BoostBox/BoostDetailsBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+bbcode_enabled = true
+text = "[center][b]HIT:[/b] Do something cool
+[b]AFTER:[/b] Do something else[/center]"
+fit_content = true
+
+[node name="CardBack" type="TextureRect" parent="CardContainer"]
+visible = false
+layout_mode = 2
+texture = ExtResource("4_pvdi7")
+
+[node name="Focus" type="TextureButton" parent="CardContainer"]
+layout_mode = 2
+texture_hover = ExtResource("5_tig0d")
+stretch_mode = 0
+
+[connection signal="mouse_entered" from="CardContainer/Focus" to="." method="_on_focus_mouse_entered"]
+[connection signal="mouse_exited" from="CardContainer/Focus" to="." method="_on_focus_mouse_exited"]

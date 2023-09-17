@@ -1,0 +1,297 @@
+[
+	{
+		"id": "normal_grab",
+		"type": "normal",
+		"display_name": "Grab",
+		"range_min": 1,
+		"range_max": 1,
+		"speed": 7,
+		"power": 3,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "hit",
+				"choice": [
+					{ "effect_type": "push", "amount": 1 },
+					{ "effect_type": "push", "amount": 2 },
+					{ "effect_type": "pull", "amount": 1 },
+					{ "effect_type": "pull", "amount": 2 }
+				]
+			}
+		],
+		"boost": {
+			"cost": 0,
+			"display_name": "Let's Rock!",
+			"effects": [
+				{
+					"timing": "now",
+					"effect_type": "draw",
+					"amount": 1
+				},
+				{
+					"timing": "hit",
+					"effect_type": "power_up",
+					"amount": 1
+				},
+				{
+					"timing": "hit",
+					"effect_type": "add_to_gauge"
+				}
+			]
+		}
+	},
+	{
+		"id": "normal_grab2",
+		"type": "normal",
+		"display_name": "Grab 2",
+		"range_min": 1,
+		"range_max": 1,
+		"speed": 7,
+		"power": 3,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "hit",
+				"choice": [
+					{ "effect_type": "push", "amount": 1 },
+					{ "effect_type": "push", "amount": 2 },
+					{ "effect_type": "pull", "amount": 1 },
+					{ "effect_type": "pull", "amount": 2 }
+				]
+			}
+		],
+		"boost": {
+			"cost": 0,
+			"display_name": "Let's Rock!",
+			"effects": [
+				{
+					"timing": "now",
+					"effect_type": "draw",
+					"amount": 1
+				},
+				{
+					"timing": "hit",
+					"effect_type": "power_up",
+					"amount": 1
+				},
+				{
+					"timing": "hit",
+					"effect_type": "add_to_gauge"
+				}
+			]
+		}
+	},
+	{
+		"id": "normal_grab3",
+		"type": "normal",
+		"display_name": "Grab 3",
+		"range_min": 1,
+		"range_max": 1,
+		"speed": 7,
+		"power": 3,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "hit",
+				"choice": [
+					{ "effect_type": "push", "amount": 1 },
+					{ "effect_type": "push", "amount": 2 },
+					{ "effect_type": "pull", "amount": 1 },
+					{ "effect_type": "pull", "amount": 2 }
+				]
+			}
+		],
+		"boost": {
+			"cost": 0,
+			"display_name": "Let's Rock!",
+			"effects": [
+				{
+					"timing": "now",
+					"effect_type": "draw",
+					"amount": 1
+				},
+				{
+					"timing": "hit",
+					"effect_type": "power_up",
+					"amount": 1
+				},
+				{
+					"timing": "hit",
+					"effect_type": "add_to_gauge"
+				}
+			]
+		}
+	},
+	{
+		"id": "normal_grab4",
+		"type": "normal",
+		"display_name": "Grab 4",
+		"range_min": 1,
+		"range_max": 1,
+		"speed": 7,
+		"power": 3,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "hit",
+				"choice": [
+					{ "effect_type": "push", "amount": 1 },
+					{ "effect_type": "push", "amount": 2 },
+					{ "effect_type": "pull", "amount": 1 },
+					{ "effect_type": "pull", "amount": 2 }
+				]
+			}
+		],
+		"boost": {
+			"cost": 0,
+			"display_name": "Let's Rock!",
+			"effects": [
+				{
+					"timing": "now",
+					"effect_type": "draw",
+					"amount": 1
+				},
+				{
+					"timing": "hit",
+					"effect_type": "power_up",
+					"amount": 1
+				},
+				{
+					"timing": "hit",
+					"effect_type": "add_to_gauge"
+				}
+			]
+		}
+	},
+	{
+		"id": "normal_grab5",
+		"type": "normal",
+		"display_name": "Grab 5",
+		"range_min": 1,
+		"range_max": 1,
+		"speed": 7,
+		"power": 3,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "hit",
+				"choice": [
+					{ "effect_type": "push", "amount": 1 },
+					{ "effect_type": "push", "amount": 2 },
+					{ "effect_type": "pull", "amount": 1 },
+					{ "effect_type": "pull", "amount": 2 }
+				]
+			}
+		],
+		"boost": {
+			"cost": 0,
+			"display_name": "Let's Rock!",
+			"effects": [
+				{
+					"timing": "now",
+					"effect_type": "draw",
+					"amount": 1
+				},
+				{
+					"timing": "hit",
+					"effect_type": "power_up",
+					"amount": 1
+				},
+				{
+					"timing": "hit",
+					"effect_type": "add_to_gauge"
+				}
+			]
+		}
+	},
+	{
+		"id": "normal_grab6",
+		"type": "normal",
+		"display_name": "Grab 6",
+		"range_min": 1,
+		"range_max": 1,
+		"speed": 7,
+		"power": 3,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "hit",
+				"choice": [
+					{ "effect_type": "push", "amount": 1 },
+					{ "effect_type": "push", "amount": 2 },
+					{ "effect_type": "pull", "amount": 1 },
+					{ "effect_type": "pull", "amount": 2 }
+				]
+			}
+		],
+		"boost": {
+			"cost": 0,
+			"display_name": "Let's Rock!",
+			"effects": [
+				{
+					"timing": "now",
+					"effect_type": "draw",
+					"amount": 1
+				},
+				{
+					"timing": "hit",
+					"effect_type": "power_up",
+					"amount": 1
+				},
+				{
+					"timing": "hit",
+					"effect_type": "add_to_gauge"
+				}
+			]
+		}
+	},
+	{
+		"id": "normal_grab7",
+		"type": "normal",
+		"display_name": "Grab 7",
+		"range_min": 1,
+		"range_max": 1,
+		"speed": 7,
+		"power": 3,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "hit",
+				"choice": [
+					{ "effect_type": "push", "amount": 1 },
+					{ "effect_type": "push", "amount": 2 },
+					{ "effect_type": "pull", "amount": 1 },
+					{ "effect_type": "pull", "amount": 2 }
+				]
+			}
+		],
+		"boost": {
+			"cost": 0,
+			"display_name": "Let's Rock!",
+			"effects": [
+				{
+					"timing": "now",
+					"effect_type": "draw",
+					"amount": 1
+				},
+				{
+					"timing": "hit",
+					"effect_type": "power_up",
+					"amount": 1
+				},
+				{
+					"timing": "hit",
+					"effect_type": "add_to_gauge"
+				}
+			]
+		}
+	}
+	
+]

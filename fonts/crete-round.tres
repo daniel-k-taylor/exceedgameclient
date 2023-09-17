@@ -1,0 +1,6 @@
+[gd_resource type="FontVariation" load_steps=2 format=3 uid="uid://d0tuo8kpxhshx"]
+
+[ext_resource type="FontFile" uid="uid://cgt8s3sckwej4" path="res://fonts/crete-round.regular.ttf" id="1_tdtgi"]
+
+[resource]
+base_font = ExtResource("1_tdtgi")

@@ -1,0 +1,34 @@
+{
+	"id": "testdeck1",
+	"display_name": "Test Deck",
+	"cards": [
+		{
+			"definition_id": "normal_grab",
+			"image": "normal_grab.png"
+		},
+		{
+			"definition_id": "normal_grab2",
+			"image": "normal_grab.png"
+		},
+		{
+			"definition_id": "normal_grab3",
+			"image": "normal_grab.png"
+		},
+		{
+			"definition_id": "normal_grab4",
+			"image": "normal_grab.png"
+		},
+		{
+			"definition_id": "normal_grab5",
+			"image": "normal_grab.png"
+		},
+		{
+			"definition_id": "normal_grab6",
+			"image": "normal_grab.png"
+		},
+		{
+			"definition_id": "normal_grab7",
+			"image": "normal_grab.png"
+		}
+	]
+}

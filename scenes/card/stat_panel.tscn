@@ -1,0 +1,40 @@
+[gd_scene load_steps=3 format=3 uid="uid://dh3sjq06r8ou2"]
+
+[ext_resource type="Script" path="res://scenes/card/stat_panel.gd" id="1_k413t"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_4pr7f"]
+bg_color = Color(1, 1, 1, 1)
+
+[node name="StatPanel" type="PanelContainer"]
+custom_minimum_size = Vector2(64, 32)
+theme_override_styles/panel = SubResource("StyleBoxFlat_4pr7f")
+script = ExtResource("1_k413t")
+
+[node name="StatVBox" type="VBoxContainer" parent="."]
+layout_mode = 2
+theme_override_constants/separation = -11
+
+[node name="StatName" type="Label" parent="StatVBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+text = "RANGE"
+horizontal_alignment = 1
+
+[node name="StatNumbersHBox" type="HBoxContainer" parent="StatVBox"]
+layout_mode = 2
+size_flags_horizontal = 4
+
+[node name="MinNum" type="Label" parent="StatVBox/StatNumbersHBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+text = "2"
+
+[node name="Dash" type="Label" parent="StatVBox/StatNumbersHBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+text = "-"
+
+[node name="MaxNum" type="Label" parent="StatVBox/StatNumbersHBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+text = "5"

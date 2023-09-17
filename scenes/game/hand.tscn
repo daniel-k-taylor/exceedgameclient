@@ -1,0 +1,3 @@
+[gd_scene format=3 uid="uid://e7dcptd4ojv7"]
+
+[node name="Hand" type="HBoxContainer"]
