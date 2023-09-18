@@ -1,0 +1,32 @@
+[gd_scene load_steps=2 format=3 uid="uid://dsc63si41lg6t"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_cxtsq"]
+size = Vector2(160, 110)
+
+[node name="BoostZone" type="Area2D"]
+
+[node name="BoostShape" type="CollisionShape2D" parent="."]
+position = Vector2(80, 55)
+shape = SubResource("RectangleShape2D_cxtsq")
+
+[node name="BoostPanel" type="PanelContainer" parent="."]
+custom_minimum_size = Vector2(160, 110)
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="BoostVBox" type="VBoxContainer" parent="BoostPanel"]
+layout_mode = 2
+
+[node name="BoostLabel" type="Label" parent="BoostPanel/BoostVBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 24
+text = "BOOST"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="BoostEffects" type="Label" parent="BoostPanel/BoostVBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 14
+text = "Summary of boost effects
+Multiline summary
++2 Power "

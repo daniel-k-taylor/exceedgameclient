@@ -1,0 +1,23 @@
+[gd_scene load_steps=4 format=3 uid="uid://u7pf7tbgppmh"]
+
+[sub_resource type="Gradient" id="Gradient_vnkru"]
+colors = PackedColorArray(0.309804, 0.592157, 1, 1, 0, 0, 0.592157, 1)
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_1jsmg"]
+gradient = SubResource("Gradient_vnkru")
+fill = 2
+fill_from = Vector2(0.491453, 0.517094)
+fill_to = Vector2(0, 1)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_r5fe8"]
+size = Vector2(100, 100)
+
+[node name="ArenaSquare" type="TextureRect"]
+custom_minimum_size = Vector2(100, 100)
+texture = SubResource("GradientTexture2D_1jsmg")
+
+[node name="ArenaSquare" type="Area2D" parent="."]
+position = Vector2(50, 50)
+
+[node name="ArenaCollisionShape" type="CollisionShape2D" parent="ArenaSquare"]
+shape = SubResource("RectangleShape2D_r5fe8")

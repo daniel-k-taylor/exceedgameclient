@@ -1,0 +1,23 @@
+[gd_scene load_steps=2 format=3 uid="uid://1624xgdxrrg5"]
+
+[ext_resource type="Script" path="res://scenes/game/life_scene.gd" id="1_y33ag"]
+
+[node name="LifeScene" type="Control"]
+layout_mode = 3
+anchors_preset = 0
+script = ExtResource("1_y33ag")
+
+[node name="LifeHBox" type="HBoxContainer" parent="."]
+layout_mode = 0
+offset_right = 109.0
+offset_bottom = 49.0
+
+[node name="Label" type="Label" parent="LifeHBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 32
+text = "LIFE:"
+
+[node name="Amount" type="Label" parent="LifeHBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 32
+text = "##"
