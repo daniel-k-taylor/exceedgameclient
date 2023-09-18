@@ -5,15 +5,17 @@ const ActualCardSize = Vector2(250,350)
 const HandCardScale = DesiredCardSize / ActualCardSize
 const CardBaseScene = preload("res://scenes/card/card_base.tscn")
 const CardBase = preload("res://scenes/card/card_base.gd")
+const GameLogic = preload("res://scenes/game/gamelogic.gd")
+
 
 var chosen_deck = null
 var NextCardId = 1
 
-var CardIdToDef = {}
-
 enum {
 	GameState_PlayerTurn_PickAction,
 }
+
+@onready var game_logic : GameLogic = $GameLogic
 
 @onready var CenterCardOval = Vector2(get_viewport().size) * Vector2(0.5, 1.25)
 @onready var HorizontalRadius = get_viewport().size.x * 0.45
@@ -22,8 +24,13 @@ enum {
 # Called when the node enters the scene tree for the first time.
 func _ready():
 	chosen_deck = CardDefinitions.decks[0]
-	for i in range(7):
-		draw_card()
+	game_logic.initialize_game(chosen_deck, chosen_deck)
+
+	for card in game_logic.player.hand:
+		draw_card(card)
+	$PlayerLife.set_life(game_logic.player.life)
+	$OpponentLife.set_life(game_logic.opponent.life)
+	$OpponentHand/OpponentHandBox/OpponentNumCards.text = str(len(game_logic.opponent.hand))
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(_delta):
@@ -35,22 +42,13 @@ func _input(event):
 			pass
 
 
-func draw_card():
-	#for deck_card in chosen_deck['cards']:
-	if NextCardId == 8: return
-	var deck_card = chosen_deck['cards'][NextCardId-1]
-	var card_definition_id = deck_card['definition_id']
-	var card_def = CardDefinitions.get_card(card_definition_id)
-	var id_for_card = NextCardId
-	NextCardId += 1
-	CardIdToDef[id_for_card] = card_def
-
-	var new_card = add_new_card_to_hand(id_for_card, card_def, deck_card['image'])
+func draw_card(card):
+	var new_card = add_new_card_to_hand(card.id, card.definition, card.image)
 
 	# Start the card at the deck.
-	var deck_position = $Deck/DeckButton.position + DesiredCardSize/2
+	var deck_position = $PlayerDeck/DeckButton.position + DesiredCardSize/2
 	new_card.position = deck_position
-	
+
 	layout_player_hand()
 
 func add_new_card_to_hand(id, card_def, image) -> CardBase:
@@ -71,6 +69,7 @@ func add_new_card_to_hand(id, card_def, image) -> CardBase:
 		card_def['boost']['cost'],
 		CardDefinitions.get_boost_text(card_def['effects'])
 	)
+	new_card.name = "Card_" + str(id)
 	new_card.raised_card.connect(on_card_raised)
 	new_card.lowered_card.connect(on_card_lowered)
 	return new_card

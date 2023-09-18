@@ -10,6 +10,8 @@ const StatPanel = preload("res://scenes/card/stat_panel.gd")
 @onready var armor_panel : StatPanel = $CardContainer/CardBox/AbiltiesImagePanel/StatsHBox/StatsColumn/ArmorPanel
 @onready var guard_panel : StatPanel = $CardContainer/CardBox/AbiltiesImagePanel/StatsHBox/StatsColumn/GuardPanel
 
+const HighlightColor = Color('#36fff3')
+
 enum {
 	InDeck,
 	InHand,
@@ -50,6 +52,7 @@ const DRAG_SCALE_FACTOR = 1.2
 func _ready():
 	flip_card_to_front(false)
 	set_hover_visible(false)
+	$CardContainer/Focus.modulate = HighlightColor
 
 func flip_card_to_front(front):
 	if front:

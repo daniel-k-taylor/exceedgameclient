@@ -1,38 +1,210 @@
-[gd_scene load_steps=3 format=3 uid="uid://3s3pkqggaa2q"]
+[gd_scene load_steps=11 format=3 uid="uid://3s3pkqggaa2q"]
 
 [ext_resource type="Script" path="res://scenes/game/game.gd" id="1_4f5jr"]
+[ext_resource type="Script" path="res://scenes/game/gamelogic.gd" id="2_cjkiw"]
 [ext_resource type="Texture2D" uid="uid://cpolsw2tyi4m" path="res://assets/cardbacks/cardback_blue.svg" id="2_x8lc6"]
+[ext_resource type="PackedScene" uid="uid://u7pf7tbgppmh" path="res://scenes/game/arena_square.tscn" id="3_xg2e8"]
+[ext_resource type="Texture2D" uid="uid://dh8tat2r8ttx1" path="res://assets/cards/card_border_highlight.png" id="4_5y76h"]
+[ext_resource type="Texture2D" uid="uid://c2ny808vipftb" path="res://assets/cardbacks/cardback_red.svg" id="5_dd21w"]
+[ext_resource type="PackedScene" uid="uid://cf6aml1lrd2yk" path="res://scenes/game/gauge.tscn" id="6_gtjck"]
+[ext_resource type="PackedScene" uid="uid://dsc63si41lg6t" path="res://scenes/game/boost_zone.tscn" id="7_gn0of"]
+[ext_resource type="PackedScene" uid="uid://1624xgdxrrg5" path="res://scenes/game/life_scene.tscn" id="8_mqi3u"]
+[ext_resource type="PackedScene" uid="uid://ckjlv124xttrc" path="res://scenes/game/character.tscn" id="9_rhsuv"]
 
 [node name="GameScene" type="Node2D"]
 script = ExtResource("1_4f5jr")
+
+[node name="GameLogic" type="Node2D" parent="."]
+script = ExtResource("2_cjkiw")
 
 [node name="Background" type="ColorRect" parent="."]
 offset_right = 1280.0
 offset_bottom = 720.0
 color = Color(0.392157, 0.392157, 0.392157, 1)
 
-[node name="Deck" type="Node2D" parent="."]
+[node name="StaticUI" type="Control" parent="."]
+custom_minimum_size = Vector2(1280, 720)
+layout_mode = 3
+anchors_preset = 0
+offset_right = 1280.0
+offset_bottom = 720.0
 
-[node name="DeckButton" type="TextureButton" parent="Deck"]
+[node name="StaticUIVBox" type="VBoxContainer" parent="StaticUI"]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_bottom = 362.0
+grow_horizontal = 2
+
+[node name="TopMargin" type="MarginContainer" parent="StaticUI/StaticUIVBox"]
+custom_minimum_size = Vector2(0, 250)
+layout_mode = 2
+
+[node name="Arena" type="HBoxContainer" parent="StaticUI/StaticUIVBox"]
+layout_mode = 2
+theme_override_constants/separation = 43
+alignment = 1
+
+[node name="ArenaSquare1" parent="StaticUI/StaticUIVBox/Arena" instance=ExtResource("3_xg2e8")]
+layout_mode = 2
+
+[node name="ArenaSquare2" parent="StaticUI/StaticUIVBox/Arena" instance=ExtResource("3_xg2e8")]
+layout_mode = 2
+
+[node name="ArenaSquare3" parent="StaticUI/StaticUIVBox/Arena" instance=ExtResource("3_xg2e8")]
+layout_mode = 2
+
+[node name="ArenaSquare4" parent="StaticUI/StaticUIVBox/Arena" instance=ExtResource("3_xg2e8")]
+layout_mode = 2
+
+[node name="ArenaSquare5" parent="StaticUI/StaticUIVBox/Arena" instance=ExtResource("3_xg2e8")]
+layout_mode = 2
+
+[node name="ArenaSquare6" parent="StaticUI/StaticUIVBox/Arena" instance=ExtResource("3_xg2e8")]
+layout_mode = 2
+
+[node name="ArenaSquare7" parent="StaticUI/StaticUIVBox/Arena" instance=ExtResource("3_xg2e8")]
+layout_mode = 2
+
+[node name="ArenaSquare8" parent="StaticUI/StaticUIVBox/Arena" instance=ExtResource("3_xg2e8")]
+layout_mode = 2
+
+[node name="ArenaSquare9" parent="StaticUI/StaticUIVBox/Arena" instance=ExtResource("3_xg2e8")]
+layout_mode = 2
+
+[node name="UnderArenaMargin" type="MarginContainer" parent="StaticUI/StaticUIVBox"]
+layout_mode = 2
+
+[node name="BottomMargin" type="MarginContainer" parent="StaticUI/StaticUIVBox"]
+layout_mode = 2
+
+[node name="PlayerDeck" type="Node2D" parent="."]
+
+[node name="DeckButton" type="TextureButton" parent="PlayerDeck"]
 anchors_preset = 3
 anchor_left = 1.0
 anchor_top = 1.0
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_left = 1120.0
-offset_top = 521.0
-offset_right = 1245.0
-offset_bottom = 696.0
+offset_left = 1060.0
+offset_top = 580.0
+offset_right = 1185.0
+offset_bottom = 755.0
 grow_horizontal = 0
 grow_vertical = 0
+scale = Vector2(0.75, 0.75)
 texture_normal = ExtResource("2_x8lc6")
 texture_pressed = ExtResource("2_x8lc6")
 texture_hover = ExtResource("2_x8lc6")
 ignore_texture_size = true
 stretch_mode = 4
 
+[node name="Discard" type="TextureButton" parent="PlayerDeck"]
+modulate = Color(0.8, 0, 0.729412, 1)
+offset_left = 1160.0
+offset_top = 575.0
+offset_right = 1410.0
+offset_bottom = 925.0
+scale = Vector2(0.4, 0.4)
+texture_normal = ExtResource("4_5y76h")
+texture_pressed = ExtResource("4_5y76h")
+texture_hover = ExtResource("4_5y76h")
+
+[node name="OpponentDeck" type="Node2D" parent="."]
+
+[node name="DeckButton" type="TextureButton" parent="OpponentDeck"]
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 1060.0
+offset_top = 15.0
+offset_right = 1185.0
+offset_bottom = 190.0
+grow_horizontal = 0
+grow_vertical = 0
+scale = Vector2(0.75, 0.75)
+texture_normal = ExtResource("5_dd21w")
+texture_pressed = ExtResource("5_dd21w")
+texture_hover = ExtResource("5_dd21w")
+ignore_texture_size = true
+stretch_mode = 4
+
+[node name="Discard" type="TextureButton" parent="OpponentDeck"]
+modulate = Color(0.8, 0, 0.729412, 1)
+offset_left = 1160.0
+offset_top = 5.0
+offset_right = 1410.0
+offset_bottom = 355.0
+scale = Vector2(0.4, 0.4)
+texture_normal = ExtResource("4_5y76h")
+texture_pressed = ExtResource("4_5y76h")
+texture_hover = ExtResource("4_5y76h")
+
 [node name="PlayerHand" type="Node2D" parent="."]
 
-[node name="Arena" type="Node2D" parent="."]
+[node name="OpponentHand" type="Node2D" parent="."]
 
-[node name="Area2D" type="Area2D" parent="Arena"]
+[node name="OpponentHandBox" type="HBoxContainer" parent="OpponentHand"]
+custom_minimum_size = Vector2(100, 50)
+offset_left = 550.0
+offset_top = 10.0
+offset_right = 650.0
+offset_bottom = 72.0
+
+[node name="OpponentHandCardIcon" type="TextureRect" parent="OpponentHand/OpponentHandBox"]
+layout_mode = 2
+texture = ExtResource("5_dd21w")
+expand_mode = 3
+
+[node name="XLabel" type="RichTextLabel" parent="OpponentHand/OpponentHandBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_font_sizes/normal_font_size = 32
+bbcode_enabled = true
+text = "X"
+fit_content = true
+scroll_active = false
+autowrap_mode = 0
+
+[node name="OpponentNumCards" type="RichTextLabel" parent="OpponentHand/OpponentHandBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_font_sizes/normal_font_size = 48
+bbcode_enabled = true
+text = "#"
+fit_content = true
+
+[node name="PlayerGauge" parent="." instance=ExtResource("6_gtjck")]
+position = Vector2(10, 10)
+
+[node name="OpponentGauge" parent="." instance=ExtResource("6_gtjck")]
+position = Vector2(10, 400)
+
+[node name="PlayerBoostZone" parent="." instance=ExtResource("7_gn0of")]
+position = Vector2(115, 400)
+
+[node name="OpponentBoostZone" parent="." instance=ExtResource("7_gn0of")]
+position = Vector2(115, 10)
+
+[node name="OpponentLife" parent="." instance=ExtResource("8_mqi3u")]
+offset_left = 1050.0
+offset_top = 150.0
+offset_right = 1050.0
+offset_bottom = 150.0
+
+[node name="PlayerLife" parent="." instance=ExtResource("8_mqi3u")]
+offset_left = 1050.0
+offset_top = 520.0
+offset_right = 1050.0
+offset_bottom = 520.0
+
+[node name="PlayerCharacter" parent="." instance=ExtResource("9_rhsuv")]
+position = Vector2(50, -68)
+scale = Vector2(0.5, 0.5)
+
+[node name="OpponentCharacter" parent="." instance=ExtResource("9_rhsuv")]
+modulate = Color(1, 0.384314, 0.54902, 1)
+position = Vector2(146, -68)
+scale = Vector2(0.5, 0.5)

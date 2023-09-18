@@ -7,7 +7,7 @@ func _ready():
 
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
-func _process(delta):
+func _process(_delta):
 	pass
 
 func _set_numbers(amount_min, amount_max):
@@ -31,6 +31,6 @@ func set_stats(stat_name, amount_min, amount_max, hidable=false):
 	else:
 		_set_show(true)
 	
-func _set_show(show):
-	var alpha = 1 if show else 0
+func _set_show(set_show):
+	var alpha = 1 if set_show else 0
 	self.modulate = Color(1, 1, 1, alpha)
