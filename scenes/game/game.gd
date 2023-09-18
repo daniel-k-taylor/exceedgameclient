@@ -11,6 +11,9 @@ const GameLogic = preload("res://scenes/game/gamelogic.gd")
 var chosen_deck = null
 var NextCardId = 1
 
+var first_run_done = false
+
+
 enum {
 	GameState_PlayerTurn_PickAction,
 }
@@ -32,14 +35,28 @@ func _ready():
 	$OpponentLife.set_life(game_logic.opponent.life)
 	$OpponentHand/OpponentHandBox/OpponentNumCards.text = str(len(game_logic.opponent.hand))
 
+
+func first_run():
+	move_character_to_arena_square($PlayerCharacter, game_logic.player.arena_location)
+	move_character_to_arena_square($OpponentCharacter, game_logic.opponent.arena_location)
+
+func move_character_to_arena_square(character, arena_square):
+	var arena = $StaticUI/StaticUIVBox/Arena
+	var target_square = arena.get_child(arena_square - 1)
+	print("Global Pos: ", target_square.global_position)
+	character.position = target_square.global_position + target_square.size/2
+
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(_delta):
+	if not first_run_done:
+		first_run()
+		first_run_done = true
 	pass
 
 func _input(event):
 	if event is InputEventMouseButton:
 		if event is InputEventMouseButton and event.is_released():
-			pass
+			move_character_to_arena_square($PlayerCharacter, game_logic.player.arena_location)
 
 
 func draw_card(card):
@@ -54,6 +71,7 @@ func draw_card(card):
 func add_new_card_to_hand(id, card_def, image) -> CardBase:
 	var new_card : CardBase = CardBaseScene.instantiate()
 	$PlayerHand.add_child(new_card)
+	$PlayerHand.move_child(new_card, $PlayerHand.get_child_count() - 1)
 	new_card.initialize_card(
 		id,
 		card_def['display_name'],

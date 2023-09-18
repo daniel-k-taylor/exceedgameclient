@@ -2,10 +2,9 @@ Bugs:
 
 Tasks:
     ☐ Implement arena and characters
-    ☐ Life display
-    ☐ Gauge area
-    ☐ Boost Area
-    ☐ Discard Area
+    ☐ Gauge area functionality
+    ☐ Boost Area functionality
+    ☐ Discard Area functionality
     ☐ Implement Turn actions
         ☐ Prepare - draw a card
         ☐ Move - force to move

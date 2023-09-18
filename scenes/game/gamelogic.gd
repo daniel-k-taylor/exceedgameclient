@@ -24,6 +24,7 @@ class Player:
 	var deck_def
 	var gauge
 	var boosts
+	var arena_location
 
 	func _init(chosen_deck, card_start_id):
 		life = MaxLife
@@ -57,7 +58,9 @@ func initialize_game(player_deck, opponent_deck):
 	opponent = Player.new(opponent_deck, 200)
 
 	active_turn_player = player
+	player.arena_location = 3
 	next_turn_player = opponent
+	opponent.arena_location = 7
 
 	player.draw(StartingHandFirstPlayer)
 	opponent.draw(StartingHandSecondPlayer)
