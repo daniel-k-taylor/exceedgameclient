@@ -75,6 +75,48 @@ layout_mode = 2
 [node name="UnderArenaMargin" type="MarginContainer" parent="StaticUI/StaticUIVBox"]
 layout_mode = 2
 
+[node name="ButtonGrid" type="GridContainer" parent="StaticUI/StaticUIVBox"]
+layout_mode = 2
+size_flags_horizontal = 8
+theme_override_constants/h_separation = 18
+theme_override_constants/v_separation = 11
+columns = 4
+
+[node name="PrepareButton" type="Button" parent="StaticUI/StaticUIVBox/ButtonGrid"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 24
+text = "Prepare"
+
+[node name="MoveButton" type="Button" parent="StaticUI/StaticUIVBox/ButtonGrid"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 24
+text = "Move"
+
+[node name="ChangeButton" type="Button" parent="StaticUI/StaticUIVBox/ButtonGrid"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 24
+text = "Change Cards"
+
+[node name="ExceedButton" type="Button" parent="StaticUI/StaticUIVBox/ButtonGrid"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 24
+text = "Exceed"
+
+[node name="ReshuffleButton" type="Button" parent="StaticUI/StaticUIVBox/ButtonGrid"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 24
+text = "Reshuffle"
+
+[node name="BoostButton" type="Button" parent="StaticUI/StaticUIVBox/ButtonGrid"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 24
+text = "Boost"
+
+[node name="StrikeButton" type="Button" parent="StaticUI/StaticUIVBox/ButtonGrid"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 24
+text = "Strike"
+
 [node name="BottomMargin" type="MarginContainer" parent="StaticUI/StaticUIVBox"]
 layout_mode = 2
 

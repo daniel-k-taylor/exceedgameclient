@@ -43,7 +43,6 @@ func first_run():
 func move_character_to_arena_square(character, arena_square):
 	var arena = $StaticUI/StaticUIVBox/Arena
 	var target_square = arena.get_child(arena_square - 1)
-	print("Global Pos: ", target_square.global_position)
 	character.position = target_square.global_position + target_square.size/2
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
@@ -56,7 +55,7 @@ func _process(_delta):
 func _input(event):
 	if event is InputEventMouseButton:
 		if event is InputEventMouseButton and event.is_released():
-			move_character_to_arena_square($PlayerCharacter, game_logic.player.arena_location)
+			pass
 
 
 func draw_card(card):
