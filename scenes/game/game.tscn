@@ -75,6 +75,33 @@ layout_mode = 2
 [node name="UnderArenaMargin" type="MarginContainer" parent="StaticUI/StaticUIVBox"]
 layout_mode = 2
 
+[node name="SelectCardsUI" type="VBoxContainer" parent="StaticUI/StaticUIVBox"]
+layout_mode = 2
+size_flags_horizontal = 8
+
+[node name="SelectInstructions" type="Label" parent="StaticUI/StaticUIVBox/SelectCardsUI"]
+custom_minimum_size = Vector2(600, 0)
+layout_mode = 2
+theme_override_font_sizes/font_size = 34
+text = "Select 2 cards from your hand to discard."
+horizontal_alignment = 1
+autowrap_mode = 2
+
+[node name="ButtonContainer" type="HBoxContainer" parent="StaticUI/StaticUIVBox/SelectCardsUI"]
+layout_mode = 2
+size_flags_horizontal = 4
+theme_override_constants/separation = 21
+
+[node name="OkButton" type="Button" parent="StaticUI/StaticUIVBox/SelectCardsUI/ButtonContainer"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 24
+text = "OK"
+
+[node name="CancelButton" type="Button" parent="StaticUI/StaticUIVBox/SelectCardsUI/ButtonContainer"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 24
+text = "Cancel"
+
 [node name="ButtonGrid" type="GridContainer" parent="StaticUI/StaticUIVBox"]
 layout_mode = 2
 size_flags_horizontal = 8
@@ -120,6 +147,18 @@ text = "Strike"
 [node name="BottomMargin" type="MarginContainer" parent="StaticUI/StaticUIVBox"]
 layout_mode = 2
 
+[node name="OpponentLife" parent="." instance=ExtResource("8_mqi3u")]
+offset_left = 1000.0
+offset_top = 150.0
+offset_right = 1000.0
+offset_bottom = 150.0
+
+[node name="PlayerLife" parent="." instance=ExtResource("8_mqi3u")]
+offset_left = 1000.0
+offset_top = 520.0
+offset_right = 1000.0
+offset_bottom = 520.0
+
 [node name="PlayerDeck" type="Node2D" parent="."]
 
 [node name="DeckButton" type="TextureButton" parent="PlayerDeck"]
@@ -141,6 +180,20 @@ texture_hover = ExtResource("2_x8lc6")
 ignore_texture_size = true
 stretch_mode = 4
 
+[node name="CardCountContainer" type="MarginContainer" parent="PlayerDeck/DeckButton"]
+custom_minimum_size = Vector2(125, 175)
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="CardCount" type="Label" parent="PlayerDeck/DeckButton/CardCountContainer"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_font_sizes/font_size = 60
+text = "88"
+horizontal_alignment = 1
+vertical_alignment = 1
+
 [node name="Discard" type="TextureButton" parent="PlayerDeck"]
 modulate = Color(0.8, 0, 0.729412, 1)
 offset_left = 1160.0
@@ -151,6 +204,8 @@ scale = Vector2(0.4, 0.4)
 texture_normal = ExtResource("4_5y76h")
 texture_pressed = ExtResource("4_5y76h")
 texture_hover = ExtResource("4_5y76h")
+
+[node name="DiscardedCards" type="Node2D" parent="PlayerDeck"]
 
 [node name="OpponentDeck" type="Node2D" parent="."]
 
@@ -172,6 +227,20 @@ texture_pressed = ExtResource("5_dd21w")
 texture_hover = ExtResource("5_dd21w")
 ignore_texture_size = true
 stretch_mode = 4
+
+[node name="CardCountContainer" type="MarginContainer" parent="OpponentDeck/DeckButton"]
+custom_minimum_size = Vector2(125, 175)
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="CardCount" type="Label" parent="OpponentDeck/DeckButton/CardCountContainer"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_font_sizes/font_size = 60
+text = "88"
+horizontal_alignment = 1
+vertical_alignment = 1
 
 [node name="Discard" type="TextureButton" parent="OpponentDeck"]
 modulate = Color(0.8, 0, 0.729412, 1)
@@ -230,18 +299,6 @@ position = Vector2(115, 400)
 [node name="OpponentBoostZone" parent="." instance=ExtResource("7_gn0of")]
 position = Vector2(115, 10)
 
-[node name="OpponentLife" parent="." instance=ExtResource("8_mqi3u")]
-offset_left = 1050.0
-offset_top = 150.0
-offset_right = 1050.0
-offset_bottom = 150.0
-
-[node name="PlayerLife" parent="." instance=ExtResource("8_mqi3u")]
-offset_left = 1050.0
-offset_top = 520.0
-offset_right = 1050.0
-offset_bottom = 520.0
-
 [node name="PlayerCharacter" parent="." instance=ExtResource("9_rhsuv")]
 position = Vector2(50, -68)
 scale = Vector2(0.5, 0.5)
@@ -250,3 +307,13 @@ scale = Vector2(0.5, 0.5)
 modulate = Color(1, 0.384314, 0.54902, 1)
 position = Vector2(146, -68)
 scale = Vector2(0.5, 0.5)
+
+[connection signal="pressed" from="StaticUI/StaticUIVBox/SelectCardsUI/ButtonContainer/OkButton" to="." method="_on_select_cards_ok_button_pressed"]
+[connection signal="pressed" from="StaticUI/StaticUIVBox/SelectCardsUI/ButtonContainer/CancelButton" to="." method="_on_select_cards_cancel_button_pressed"]
+[connection signal="pressed" from="StaticUI/StaticUIVBox/ButtonGrid/PrepareButton" to="." method="_on_prepare_button_pressed"]
+[connection signal="pressed" from="StaticUI/StaticUIVBox/ButtonGrid/MoveButton" to="." method="_on_move_button_pressed"]
+[connection signal="pressed" from="StaticUI/StaticUIVBox/ButtonGrid/ChangeButton" to="." method="_on_change_button_pressed"]
+[connection signal="pressed" from="StaticUI/StaticUIVBox/ButtonGrid/ExceedButton" to="." method="_on_exceed_button_pressed"]
+[connection signal="pressed" from="StaticUI/StaticUIVBox/ButtonGrid/ReshuffleButton" to="." method="_on_reshuffle_button_pressed"]
+[connection signal="pressed" from="StaticUI/StaticUIVBox/ButtonGrid/BoostButton" to="." method="_on_boost_button_pressed"]
+[connection signal="pressed" from="StaticUI/StaticUIVBox/ButtonGrid/StrikeButton" to="." method="_on_strike_button_pressed"]

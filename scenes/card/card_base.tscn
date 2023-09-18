@@ -182,7 +182,15 @@ layout_mode = 2
 texture_hover = ExtResource("5_tig0d")
 stretch_mode = 0
 
+[node name="SelectedBorder" type="TextureRect" parent="CardContainer"]
+visible = false
+modulate = Color(0, 0.701961, 0.0666667, 1)
+layout_mode = 2
+mouse_filter = 2
+texture = ExtResource("5_tig0d")
+
 [connection signal="button_down" from="CardContainer/Focus" to="." method="_on_focus_button_down"]
 [connection signal="button_up" from="CardContainer/Focus" to="." method="_on_focus_button_up"]
 [connection signal="mouse_entered" from="CardContainer/Focus" to="." method="_on_focus_mouse_entered"]
 [connection signal="mouse_exited" from="CardContainer/Focus" to="." method="_on_focus_mouse_exited"]
+[connection signal="pressed" from="CardContainer/Focus" to="." method="_on_focus_pressed"]

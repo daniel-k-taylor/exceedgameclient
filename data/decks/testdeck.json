@@ -29,6 +29,14 @@
 		{
 			"definition_id": "normal_grab7",
 			"image": "normal_grab.png"
+		},
+		{
+			"definition_id": "normal_grab7",
+			"image": "normal_grab.png"
+		},
+		{
+			"definition_id": "normal_grab7",
+			"image": "normal_grab.png"
 		}
 	]
 }

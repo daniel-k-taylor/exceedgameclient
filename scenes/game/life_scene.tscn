@@ -1,6 +1,7 @@
-[gd_scene load_steps=2 format=3 uid="uid://1624xgdxrrg5"]
+[gd_scene load_steps=3 format=3 uid="uid://1624xgdxrrg5"]
 
 [ext_resource type="Script" path="res://scenes/game/life_scene.gd" id="1_y33ag"]
+[ext_resource type="Texture2D" uid="uid://dal2ec8wws714" path="res://icon.svg" id="2_xwmtm"]
 
 [node name="LifeScene" type="Control"]
 layout_mode = 3
@@ -11,6 +12,11 @@ script = ExtResource("1_y33ag")
 layout_mode = 0
 offset_right = 109.0
 offset_bottom = 49.0
+
+[node name="TurnIndicator" type="TextureRect" parent="LifeHBox"]
+layout_mode = 2
+texture = ExtResource("2_xwmtm")
+expand_mode = 3
 
 [node name="Label" type="Label" parent="LifeHBox"]
 layout_mode = 2

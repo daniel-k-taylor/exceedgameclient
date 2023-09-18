@@ -6,7 +6,7 @@ Tasks:
     ☐ Boost Area functionality
     ☐ Discard Area functionality
     ☐ Implement Turn actions
-        ☐ Prepare - draw a card
+        ✔ Prepare - draw a card @done(23-09-18 01:42)
         ☐ Move - force to move
         ☐ Change cards - force to draw
         ☐ Exceed
@@ -14,3 +14,6 @@ Tasks:
         ☐ Boost
         ☐ Strike
     ☐ Opponent cards/areas
+    ☐ Game Over visuals
+    ☐ Reshuffle discard visuals
+    ☐ Draw card visual for opponent drawing

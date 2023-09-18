@@ -2,6 +2,7 @@ extends Area2D
 
 signal raised_card(card)
 signal lowered_card(card)
+signal clicked_card(card)
 
 const StatPanel = preload("res://scenes/card/stat_panel.gd")
 @onready var range_panel : StatPanel = $CardContainer/CardBox/AbiltiesImagePanel/StatsHBox/StatsColumn/RangePanel
@@ -13,12 +14,13 @@ const StatPanel = preload("res://scenes/card/stat_panel.gd")
 const HighlightColor = Color('#36fff3')
 
 enum {
+	Focusing,
 	InDeck,
 	InHand,
-	Focusing,
-	Unfocusing,
-	DrawingToHand,
+	Discarding,
 	Dragging,
+	DrawingToHand,
+	Unfocusing,
 }
 
 var state = InDeck
@@ -42,6 +44,8 @@ var resting_rotation
 var resting_scale
 var focus_pos
 var focus_rot
+
+var selected = false
 
 const DRAW_ANIMATION_LENGTH = 0.5
 const FOCUS_ANIMATION_LENGTH = 0.2
@@ -119,6 +123,17 @@ func _physics_process(delta):
 			else:
 				rotation_degrees = target_rotation
 				scale = target_scale
+		Discarding:
+			set_hover_visible(false)
+			if animation_time <= 1:
+				position = start_pos.lerp(target_pos, animation_time)
+				rotation_degrees = lerpf(start_rotation, target_rotation, animation_time)
+				scale = original_scale.lerp(target_scale, animation_time)
+				animation_time += delta / animation_length
+			else:
+				position = target_pos
+				rotation_degrees = target_rotation
+				scale = target_scale
 
 func position_card_in_hand(dst_pos, dst_rot):
 	if state == DrawingToHand:
@@ -163,6 +178,10 @@ func initialize_card(id, card_title, card_scale, _image, range_min, range_max, s
 	$CardContainer/CardBox/BoostBox/BoostDetailsBox/BoostCostIcon/BoostCost.text = "[center]%s[/center]" % boost_cost
 	$CardContainer/CardBox/BoostBox/BoostDetailsBox/BoostText.text = "[center]%s[/center]" % boost_text
 
+func set_selected(is_selected):
+	selected = is_selected
+	$CardContainer/SelectedBorder.visible = is_selected
+
 func set_resting_position(pos, rot):
 	resting_position = pos
 	resting_rotation = rot
@@ -174,6 +193,12 @@ func set_resting_position(pos, rot):
 			target_pos = pos
 			target_rotation = rot
 
+func discard_to(pos, sca):
+	set_selected(false)
+	set_resting_position(pos, 0)
+	unfocus()
+	target_scale = sca
+	change_state(Discarding)
 
 func change_state(new_state):
 	state = new_state
@@ -250,11 +275,17 @@ func _on_focus_mouse_exited():
 			unfocus()
 
 func _on_focus_button_down():
-	match state:
-		InHand, Focusing:
-			begin_drag()
+	# TODO: When to drag?
+#	match state:
+#		InHand, Focusing:
+#			begin_drag()
+	pass
 
 func _on_focus_button_up():
 	match state:
 		Dragging:
 			end_drag()
+
+
+func _on_focus_pressed():
+	emit_signal("clicked_card", self)
