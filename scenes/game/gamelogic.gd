@@ -49,7 +49,7 @@ class Card:
 
 class Player:
 	var parent
-	
+
 	var name : String
 	var life : int
 	var hand : Array
@@ -90,7 +90,7 @@ class Player:
 			else:
 				events += reshuffle_discard()
 		return events
-	
+
 	func reshuffle_discard():
 		var events : Array = []
 		if reshuffle_remaining == 0:
@@ -104,7 +104,7 @@ class Player:
 			reshuffle_remaining -= 1
 			events += [parent.create_event(EventType_ReshuffleDiscard, self, reshuffle_remaining)]
 		return events
-		
+
 	func discard(card_ids : Array):
 		var discard_cards = []
 		var events = []
@@ -136,31 +136,31 @@ func initialize_game(player_deck, opponent_deck):
 
 	player.draw(StartingHandFirstPlayer)
 	opponent.draw(StartingHandSecondPlayer)
-	
+
 	game_state = GameState_PickAction
 
 func can_do_prepare(performing_player):
 	if game_state != GameState_PickAction:
 		return false
-	if active_turn_player != performing_player: 
+	if active_turn_player != performing_player:
 		return false
 	return true
 
 func can_do_move(performing_player):
 	return false
-	
+
 func can_do_change(performing_player):
 	return false
-	
+
 func can_do_exceed(performing_player):
 	return false
 
 func can_do_reshuffle(performing_player):
 	return false
-	
+
 func can_do_boost(performing_player):
 	return false
-	
+
 func can_do_strike(performing_player):
 	return false
 
@@ -175,7 +175,7 @@ func do_prepare(performing_player):
 		events += [create_event(EventType_HandSizeExceeded, active_turn_player, len(active_turn_player.hand) - MaxHandSize)]
 	else:
 		events += advance_to_next_turn()
-		
+
 	return events
 
 func do_discard_to_max(performing_player : Player, card_ids):
@@ -185,10 +185,10 @@ func do_discard_to_max(performing_player : Player, card_ids):
 	if game_state != GameState_DiscardDownToMax:
 		print("ERROR: Tried to discard wrong game state.")
 		return []
-	
+
 	var events = performing_player.discard(card_ids)
 	events += advance_to_next_turn()
-	
+
 	return events
 
 func other_player(test_player):

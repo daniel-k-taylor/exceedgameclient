@@ -28,9 +28,9 @@ var ui_state = UIState_Initializing
 
 @onready var game_logic : GameLogic = $GameLogic
 
-@onready var CenterCardOval = Vector2(get_viewport().size) * Vector2(0.5, 1.25)
-@onready var HorizontalRadius = get_viewport().size.x * 0.45
-@onready var VerticalRadius = get_viewport().size.y * 0.4
+@onready var CenterCardOval = Vector2(get_viewport().content_scale_size) * Vector2(0.5, 1.25)
+@onready var HorizontalRadius = get_viewport().content_scale_size.x * 0.45
+@onready var VerticalRadius = get_viewport().content_scale_size.y * 0.4
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
