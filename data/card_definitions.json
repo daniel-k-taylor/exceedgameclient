@@ -21,7 +21,7 @@
 			}
 		],
 		"boost": {
-			"cost": 0,
+			"force_cost": 0,
 			"display_name": "Let's Rock!",
 			"effects": [
 				{
@@ -63,7 +63,7 @@
 			}
 		],
 		"boost": {
-			"cost": 0,
+			"force_cost": 0,
 			"display_name": "Let's Rock!",
 			"effects": [
 				{
@@ -105,7 +105,7 @@
 			}
 		],
 		"boost": {
-			"cost": 0,
+			"force_cost": 0,
 			"display_name": "Let's Rock!",
 			"effects": [
 				{
@@ -147,7 +147,7 @@
 			}
 		],
 		"boost": {
-			"cost": 0,
+			"force_cost": 0,
 			"display_name": "Let's Rock!",
 			"effects": [
 				{
@@ -189,7 +189,7 @@
 			}
 		],
 		"boost": {
-			"cost": 0,
+			"force_cost": 0,
 			"display_name": "Let's Rock!",
 			"effects": [
 				{
@@ -231,7 +231,7 @@
 			}
 		],
 		"boost": {
-			"cost": 0,
+			"force_cost": 0,
 			"display_name": "Let's Rock!",
 			"effects": [
 				{
@@ -273,7 +273,7 @@
 			}
 		],
 		"boost": {
-			"cost": 0,
+			"force_cost": 0,
 			"display_name": "Let's Rock!",
 			"effects": [
 				{

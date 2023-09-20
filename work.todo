@@ -8,12 +8,12 @@ Tasks:
     ☐ Implement Turn actions
         ✔ Prepare - draw a card @done(23-09-18 01:42)
         ☐ Move - force (gauge or discard) to move
-            ☐ Click move to go into card selection
-                ☐ or, click an arena square instead?
-            ☐ Cancellable
-            ☐ Select 1 - 8 force worth
-            ☐ Move character
-            ☐ Draw at end of turn
+            ✔ Click move to go into card selection @done(23-09-19 21:49)
+                ✔ or, click an arena square instead? @done(23-09-19 21:49)
+            ✔ Cancellable @done(23-09-19 21:49)
+            ✔ Select 1 - 8 force worth @done(23-09-19 21:49)
+            ✔ Move character @done(23-09-19 21:49)
+            ✔ Draw at end of turn @done(23-09-19 21:49)
         ☐ Change cards - force to draw
         ☐ Exceed
         ☐ Manual Reshuffle

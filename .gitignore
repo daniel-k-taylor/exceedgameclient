@@ -1,4 +1,4 @@
 .godot/
 .tmp
-
+**.import
 /export/

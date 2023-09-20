@@ -1,12 +1,15 @@
-[gd_scene load_steps=11 format=3 uid="uid://3s3pkqggaa2q"]
+[gd_scene load_steps=14 format=3 uid="uid://3s3pkqggaa2q"]
 
 [ext_resource type="Script" path="res://scenes/game/game.gd" id="1_4f5jr"]
 [ext_resource type="Script" path="res://scenes/game/gamelogic.gd" id="2_cjkiw"]
 [ext_resource type="Texture2D" uid="uid://cpolsw2tyi4m" path="res://assets/cardbacks/cardback_blue.svg" id="2_x8lc6"]
 [ext_resource type="PackedScene" uid="uid://u7pf7tbgppmh" path="res://scenes/game/arena_square.tscn" id="3_xg2e8"]
 [ext_resource type="Texture2D" uid="uid://dh8tat2r8ttx1" path="res://assets/cards/card_border_highlight.png" id="4_5y76h"]
+[ext_resource type="Texture2D" uid="uid://b433drvl0djch" path="res://assets/cards/arena_border_highlight_waiting.png" id="4_72uk1"]
 [ext_resource type="Texture2D" uid="uid://c2ny808vipftb" path="res://assets/cardbacks/cardback_red.svg" id="5_dd21w"]
+[ext_resource type="Texture2D" uid="uid://bpdpb3e74d2cu" path="res://assets/cards/arena_border_highlight_pressed.png" id="5_r5b6h"]
 [ext_resource type="PackedScene" uid="uid://cf6aml1lrd2yk" path="res://scenes/game/gauge.tscn" id="6_gtjck"]
+[ext_resource type="Texture2D" uid="uid://b08j76upbucvr" path="res://assets/cards/arena_border_highlight_selected.png" id="6_qfd2s"]
 [ext_resource type="PackedScene" uid="uid://dsc63si41lg6t" path="res://scenes/game/boost_zone.tscn" id="7_gn0of"]
 [ext_resource type="PackedScene" uid="uid://1624xgdxrrg5" path="res://scenes/game/life_scene.tscn" id="8_mqi3u"]
 [ext_resource type="PackedScene" uid="uid://ckjlv124xttrc" path="res://scenes/game/character.tscn" id="9_rhsuv"]
@@ -48,38 +51,111 @@ alignment = 1
 [node name="ArenaSquare1" parent="StaticUI/StaticUIVBox/Arena" instance=ExtResource("3_xg2e8")]
 layout_mode = 2
 
+[node name="Border" type="TextureButton" parent="StaticUI/StaticUIVBox/Arena/ArenaSquare1"]
+layout_mode = 2
+offset_right = 100.0
+offset_bottom = 100.0
+texture_normal = ExtResource("4_72uk1")
+texture_pressed = ExtResource("5_r5b6h")
+texture_hover = ExtResource("6_qfd2s")
+stretch_mode = 0
+
 [node name="ArenaSquare2" parent="StaticUI/StaticUIVBox/Arena" instance=ExtResource("3_xg2e8")]
 layout_mode = 2
+
+[node name="Border" type="TextureButton" parent="StaticUI/StaticUIVBox/Arena/ArenaSquare2"]
+offset_right = 100.0
+offset_bottom = 100.0
+texture_normal = ExtResource("4_72uk1")
+texture_pressed = ExtResource("5_r5b6h")
+texture_hover = ExtResource("6_qfd2s")
+stretch_mode = 0
 
 [node name="ArenaSquare3" parent="StaticUI/StaticUIVBox/Arena" instance=ExtResource("3_xg2e8")]
 layout_mode = 2
 
+[node name="Border" type="TextureButton" parent="StaticUI/StaticUIVBox/Arena/ArenaSquare3"]
+offset_right = 100.0
+offset_bottom = 100.0
+texture_normal = ExtResource("4_72uk1")
+texture_pressed = ExtResource("5_r5b6h")
+texture_hover = ExtResource("6_qfd2s")
+stretch_mode = 0
+
 [node name="ArenaSquare4" parent="StaticUI/StaticUIVBox/Arena" instance=ExtResource("3_xg2e8")]
 layout_mode = 2
+
+[node name="Border" type="TextureButton" parent="StaticUI/StaticUIVBox/Arena/ArenaSquare4"]
+offset_right = 100.0
+offset_bottom = 100.0
+texture_normal = ExtResource("4_72uk1")
+texture_pressed = ExtResource("5_r5b6h")
+texture_hover = ExtResource("6_qfd2s")
+stretch_mode = 0
 
 [node name="ArenaSquare5" parent="StaticUI/StaticUIVBox/Arena" instance=ExtResource("3_xg2e8")]
 layout_mode = 2
 
+[node name="Border" type="TextureButton" parent="StaticUI/StaticUIVBox/Arena/ArenaSquare5"]
+offset_right = 100.0
+offset_bottom = 100.0
+texture_normal = ExtResource("4_72uk1")
+texture_pressed = ExtResource("5_r5b6h")
+texture_hover = ExtResource("6_qfd2s")
+stretch_mode = 0
+
 [node name="ArenaSquare6" parent="StaticUI/StaticUIVBox/Arena" instance=ExtResource("3_xg2e8")]
 layout_mode = 2
+
+[node name="Border" type="TextureButton" parent="StaticUI/StaticUIVBox/Arena/ArenaSquare6"]
+offset_right = 100.0
+offset_bottom = 100.0
+texture_normal = ExtResource("4_72uk1")
+texture_pressed = ExtResource("5_r5b6h")
+texture_hover = ExtResource("6_qfd2s")
+stretch_mode = 0
 
 [node name="ArenaSquare7" parent="StaticUI/StaticUIVBox/Arena" instance=ExtResource("3_xg2e8")]
 layout_mode = 2
 
+[node name="Border" type="TextureButton" parent="StaticUI/StaticUIVBox/Arena/ArenaSquare7"]
+offset_right = 100.0
+offset_bottom = 100.0
+texture_normal = ExtResource("4_72uk1")
+texture_pressed = ExtResource("5_r5b6h")
+texture_hover = ExtResource("6_qfd2s")
+stretch_mode = 0
+
 [node name="ArenaSquare8" parent="StaticUI/StaticUIVBox/Arena" instance=ExtResource("3_xg2e8")]
 layout_mode = 2
+
+[node name="Border" type="TextureButton" parent="StaticUI/StaticUIVBox/Arena/ArenaSquare8"]
+offset_right = 100.0
+offset_bottom = 100.0
+texture_normal = ExtResource("4_72uk1")
+texture_pressed = ExtResource("5_r5b6h")
+texture_hover = ExtResource("6_qfd2s")
+stretch_mode = 0
 
 [node name="ArenaSquare9" parent="StaticUI/StaticUIVBox/Arena" instance=ExtResource("3_xg2e8")]
 layout_mode = 2
 
+[node name="Border" type="TextureButton" parent="StaticUI/StaticUIVBox/Arena/ArenaSquare9"]
+offset_right = 100.0
+offset_bottom = 100.0
+texture_normal = ExtResource("4_72uk1")
+texture_pressed = ExtResource("5_r5b6h")
+texture_hover = ExtResource("6_qfd2s")
+stretch_mode = 0
+
 [node name="UnderArenaMargin" type="MarginContainer" parent="StaticUI/StaticUIVBox"]
 layout_mode = 2
 
-[node name="SelectCardsUI" type="VBoxContainer" parent="StaticUI/StaticUIVBox"]
+[node name="InstructionsWithButtonsUI" type="VBoxContainer" parent="StaticUI/StaticUIVBox"]
 layout_mode = 2
 size_flags_horizontal = 8
 
-[node name="SelectInstructions" type="Label" parent="StaticUI/StaticUIVBox/SelectCardsUI"]
+[node name="Instructions" type="Label" parent="StaticUI/StaticUIVBox/InstructionsWithButtonsUI"]
 custom_minimum_size = Vector2(600, 0)
 layout_mode = 2
 theme_override_font_sizes/font_size = 34
@@ -87,17 +163,17 @@ text = "Select 2 cards from your hand to discard."
 horizontal_alignment = 1
 autowrap_mode = 2
 
-[node name="ButtonContainer" type="HBoxContainer" parent="StaticUI/StaticUIVBox/SelectCardsUI"]
+[node name="ButtonContainer" type="HBoxContainer" parent="StaticUI/StaticUIVBox/InstructionsWithButtonsUI"]
 layout_mode = 2
 size_flags_horizontal = 4
 theme_override_constants/separation = 21
 
-[node name="OkButton" type="Button" parent="StaticUI/StaticUIVBox/SelectCardsUI/ButtonContainer"]
+[node name="OkButton" type="Button" parent="StaticUI/StaticUIVBox/InstructionsWithButtonsUI/ButtonContainer"]
 layout_mode = 2
 theme_override_font_sizes/font_size = 24
 text = "OK"
 
-[node name="CancelButton" type="Button" parent="StaticUI/StaticUIVBox/SelectCardsUI/ButtonContainer"]
+[node name="CancelButton" type="Button" parent="StaticUI/StaticUIVBox/InstructionsWithButtonsUI/ButtonContainer"]
 layout_mode = 2
 theme_override_font_sizes/font_size = 24
 text = "Cancel"
@@ -308,8 +384,17 @@ modulate = Color(1, 0.384314, 0.54902, 1)
 position = Vector2(146, -68)
 scale = Vector2(0.5, 0.5)
 
-[connection signal="pressed" from="StaticUI/StaticUIVBox/SelectCardsUI/ButtonContainer/OkButton" to="." method="_on_select_cards_ok_button_pressed"]
-[connection signal="pressed" from="StaticUI/StaticUIVBox/SelectCardsUI/ButtonContainer/CancelButton" to="." method="_on_select_cards_cancel_button_pressed"]
+[connection signal="pressed" from="StaticUI/StaticUIVBox/Arena/ArenaSquare1/Border" to="." method="_on_arena_location_pressed" binds= [1]]
+[connection signal="pressed" from="StaticUI/StaticUIVBox/Arena/ArenaSquare2/Border" to="." method="_on_arena_location_pressed" binds= [2]]
+[connection signal="pressed" from="StaticUI/StaticUIVBox/Arena/ArenaSquare3/Border" to="." method="_on_arena_location_pressed" binds= [3]]
+[connection signal="pressed" from="StaticUI/StaticUIVBox/Arena/ArenaSquare4/Border" to="." method="_on_arena_location_pressed" binds= [4]]
+[connection signal="pressed" from="StaticUI/StaticUIVBox/Arena/ArenaSquare5/Border" to="." method="_on_arena_location_pressed" binds= [5]]
+[connection signal="pressed" from="StaticUI/StaticUIVBox/Arena/ArenaSquare6/Border" to="." method="_on_arena_location_pressed" binds= [6]]
+[connection signal="pressed" from="StaticUI/StaticUIVBox/Arena/ArenaSquare7/Border" to="." method="_on_arena_location_pressed" binds= [7]]
+[connection signal="pressed" from="StaticUI/StaticUIVBox/Arena/ArenaSquare8/Border" to="." method="_on_arena_location_pressed" binds= [8]]
+[connection signal="pressed" from="StaticUI/StaticUIVBox/Arena/ArenaSquare9/Border" to="." method="_on_arena_location_pressed" binds= [9]]
+[connection signal="pressed" from="StaticUI/StaticUIVBox/InstructionsWithButtonsUI/ButtonContainer/OkButton" to="." method="_on_instructions_ok_button_pressed"]
+[connection signal="pressed" from="StaticUI/StaticUIVBox/InstructionsWithButtonsUI/ButtonContainer/CancelButton" to="." method="_on_instructions_cancel_button_pressed"]
 [connection signal="pressed" from="StaticUI/StaticUIVBox/ButtonGrid/PrepareButton" to="." method="_on_prepare_button_pressed"]
 [connection signal="pressed" from="StaticUI/StaticUIVBox/ButtonGrid/MoveButton" to="." method="_on_move_button_pressed"]
 [connection signal="pressed" from="StaticUI/StaticUIVBox/ButtonGrid/ChangeButton" to="." method="_on_change_button_pressed"]

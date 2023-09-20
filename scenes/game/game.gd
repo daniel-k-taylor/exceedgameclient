@@ -14,14 +14,25 @@ var NextCardId = 1
 var first_run_done = false
 var select_card_require_min = 0
 var select_card_require_max = 0
-var select_card_cancel_allowed = false
+var select_card_require_force = 0
+var instructions_ok_allowed = false
+var instructions_cancel_allowed = false
 var selected_cards = []
+var arena_locations_clickable = []
+var ui_sub_state = null
+var selected_arena_location = 0
 
 enum {
 	UIState_Initializing,
 	UIState_PickTurnAction,
 	UIState_SelectCards,
+	UIState_SelectArenaLocation,
 	UIState_WaitingOnOpponent,
+}
+
+enum {
+	UISubState_SelectCards_MoveActionGenerateForce,
+	UISubState_SelectCards_DiscardCards,
 }
 
 var ui_state = UIState_Initializing
@@ -49,6 +60,11 @@ func first_run():
 	move_character_to_arena_square($PlayerCharacter, game_logic.player.arena_location)
 	move_character_to_arena_square($OpponentCharacter, game_logic.opponent.arena_location)
 	_update_buttons()
+
+func get_arena_location_button(arena_location):
+	var arena = $StaticUI/StaticUIVBox/Arena
+	var target_square = arena.get_child(arena_location - 1)
+	return target_square.get_node("Border")
 
 func move_character_to_arena_square(character, arena_square):
 	var arena = $StaticUI/StaticUIVBox/Arena
@@ -106,7 +122,7 @@ func add_new_card_to_hand(id, card_def, image) -> CardBase:
 		card_def['armor'],
 		card_def['guard'],
 		CardDefinitions.get_effect_text(card_def['effects']),
-		card_def['boost']['cost'],
+		card_def['boost']['force_cost'],
 		CardDefinitions.get_boost_text(card_def['effects'])
 	)
 	new_card.name = "Card_" + str(id)
@@ -129,6 +145,17 @@ func on_card_lowered(card):
 		$PlayerHand.move_child(card, card.saved_hand_index)
 		card.saved_hand_index = -1
 
+func can_select_card(card):
+	if ui_sub_state == UISubState_SelectCards_DiscardCards:
+		return len(selected_cards) < select_card_require_max
+	elif ui_sub_state == UISubState_SelectCards_MoveActionGenerateForce:
+		return true
+
+func deselect_all_cards():
+	for card in selected_cards:
+		card.set_selected(false)
+	selected_cards = []
+
 func on_card_clicked(card):
 	# If in selection mode, select/deselect card.
 	if ui_state == UIState_SelectCards:
@@ -140,7 +167,7 @@ func on_card_clicked(card):
 				
 		if index == -1:
 			# Selected, add to cards.
-			if len(selected_cards) < select_card_require_max:
+			if can_select_card(card):
 				selected_cards.append(card)
 				card.set_selected(true)
 		else:
@@ -185,7 +212,6 @@ func _on_advance_turn():
 		change_ui_state(UIState_PickTurnAction)
 	else:
 		change_ui_state(UIState_WaitingOnOpponent)
-	_update_buttons()
 
 func _on_discard_event(event):
 	if event['event_player'] == game_logic.player:
@@ -216,28 +242,56 @@ func _on_hand_size_exceeded(event):
 		# Just wait for the other player
 		return
 	
-	begin_discard_selection(event['number'])
+	begin_discard_cards_selection(event['number'])
 
 func change_ui_state(new_state):
 	ui_state = new_state
+	_update_buttons()
 	
-func set_select_instructions(text):
-	$StaticUI/StaticUIVBox/SelectCardsUI/SelectInstructions.text = text
+func set_instructions(text):
+	$StaticUI/StaticUIVBox/InstructionsWithButtonsUI/Instructions.text = text
 
 func update_discard_selection_message():
 	var num_remaining = select_card_require_min - len(selected_cards)
-	set_select_instructions("Select %s more card(s) from your hand to discard." % num_remaining)
+	set_instructions("Select %s more card(s) from your hand to discard." % num_remaining)
 
-func begin_discard_selection(number_to_discard):
+func get_force_in_selected_cards():
+	var force_selected = 0
+	for card in selected_cards:
+		force_selected += game_logic.get_card_force(card.card_id)
+	return force_selected
+	
+func update_force_generation_message():
+	var force_selected = get_force_in_selected_cards()
+	set_instructions("Select cards to generate %s force.\n%s force generated." % [force_selected, select_card_require_force])
+
+func enable_instructions_ui(message, can_ok, can_cancel):
+	set_instructions(message)
+	instructions_ok_allowed = can_ok
+	instructions_cancel_allowed = can_cancel
+	
+
+func begin_discard_cards_selection(number_to_discard):
 	selected_cards = []
 	select_card_require_min = number_to_discard
 	select_card_require_max = number_to_discard
-	select_card_cancel_allowed = false
+	enable_instructions_ui("", true, false)
+	ui_sub_state = UISubState_SelectCards_DiscardCards
+	change_ui_state(UIState_SelectCards)
+
+func begin_generate_force_selection(amount):
+	selected_cards = []
+	select_card_require_force = amount
+	enable_instructions_ui("", true, true)
 
 	change_ui_state(UIState_SelectCards)
-	_update_buttons()
-	
-		
+
+func _on_move_event(event):
+	if event['event_player'] == game_logic.player:
+		move_character_to_arena_square($PlayerCharacter, event['number'])
+	else:
+		move_character_to_arena_square($OpponentCharacter, event['number'])
+
 func _on_reshuffle_discard(event):
 	# TODO: Play a cool animation of discard shuffling into deck
 	#       Clear discard visuals (delete those card nodes)
@@ -257,10 +311,13 @@ func _handle_events(events):
 				_on_game_over(event)
 			game_logic.EventType_HandSizeExceeded:
 				_on_hand_size_exceeded(event)
+			game_logic.EventType_Move:
+				_on_move_event(event)
 			game_logic.EventType_ReshuffleDiscard:
 				_on_reshuffle_discard(event)
 
 func _update_buttons():
+	# Update main action selection UI
 	$StaticUI/StaticUIVBox/ButtonGrid/PrepareButton.disabled = not game_logic.can_do_prepare(game_logic.player)
 	$StaticUI/StaticUIVBox/ButtonGrid/MoveButton.disabled = not game_logic.can_do_move(game_logic.player)
 	$StaticUI/StaticUIVBox/ButtonGrid/ChangeButton.disabled = not game_logic.can_do_change(game_logic.player)
@@ -272,22 +329,46 @@ func _update_buttons():
 	var action_buttons_visible = ui_state == UIState_PickTurnAction
 	$StaticUI/StaticUIVBox/ButtonGrid.visible = action_buttons_visible
 	
-	var select_cards_ui_visible = ui_state == UIState_SelectCards
-	$StaticUI/StaticUIVBox/SelectCardsUI.visible = select_cards_ui_visible
+	# Update instructions UI visibility
+	var select_cards_ui_visible = ui_state == UIState_SelectCards or ui_state == UIState_SelectArenaLocation
+	$StaticUI/StaticUIVBox/InstructionsWithButtonsUI.visible = select_cards_ui_visible
 	
-	$StaticUI/StaticUIVBox/SelectCardsUI/ButtonContainer/OkButton.disabled = not can_press_ok()
-	$StaticUI/StaticUIVBox/SelectCardsUI/ButtonContainer/CancelButton.visible = select_card_cancel_allowed
+	# Update instructions UI Buttons
+	$StaticUI/StaticUIVBox/InstructionsWithButtonsUI/ButtonContainer/OkButton.disabled = not can_press_ok()
+	$StaticUI/StaticUIVBox/InstructionsWithButtonsUI/ButtonContainer/OkButton.visible = instructions_ok_allowed
+	$StaticUI/StaticUIVBox/InstructionsWithButtonsUI/ButtonContainer/CancelButton.visible = instructions_cancel_allowed
 
-	if ui_state == UIState_SelectCards and game_logic.GameState_DiscardDownToMax:
+	# Update instructions message
+	if ui_state == UIState_SelectCards and ui_sub_state == UISubState_SelectCards_DiscardCards:
 		update_discard_selection_message()
+	elif ui_state == UIState_SelectCards and ui_sub_state == UISubState_SelectCards_MoveActionGenerateForce:
+		update_force_generation_message()
 	
+	# Update arena location selection buttons
+	for i in range(1, 10):
+		var arena_button = get_arena_location_button(i)
+		arena_button.visible = (ui_state == UIState_SelectArenaLocation and i in arena_locations_clickable)
 
 func can_press_ok():
 	if ui_state == UIState_SelectCards:
-		var selected_count = len(selected_cards)
-		if  selected_count >= select_card_require_min && selected_count <= select_card_require_max:
-			return true
+		if ui_sub_state == UISubState_SelectCards_DiscardCards:
+			var selected_count = len(selected_cards)
+			if  selected_count >= select_card_require_min && selected_count <= select_card_require_max:
+				return true
+		elif ui_sub_state == UISubState_SelectCards_MoveActionGenerateForce:
+			var force_selected = get_force_in_selected_cards()
+			return force_selected == select_card_require_force
 	return false
+
+func begin_select_arena_location(valid_moves):
+	arena_locations_clickable = valid_moves
+	enable_instructions_ui("Select a location", false, true)
+	ui_sub_state = UISubState_SelectCards_MoveActionGenerateForce
+	change_ui_state(UIState_SelectArenaLocation)
+
+##
+## Button Handlers
+##
 
 func _on_prepare_button_pressed():
 	var events = game_logic.do_prepare(game_logic.player)
@@ -296,8 +377,12 @@ func _on_prepare_button_pressed():
 	_update_buttons()
 
 func _on_move_button_pressed():
-	pass # Replace with function body.
-
+	var valid_moves = []
+	for i in range(1, 10):
+		if game_logic.player.can_move_to(i):
+			valid_moves.append(i)
+	
+	begin_select_arena_location(valid_moves)
 
 func _on_change_button_pressed():
 	pass # Replace with function body.
@@ -318,15 +403,31 @@ func _on_boost_button_pressed():
 func _on_strike_button_pressed():
 	pass # Replace with function body.
 
+func _on_instructions_ok_button_pressed():
+	if ui_state == UIState_SelectCards and can_press_ok():
+		if ui_sub_state == UISubState_SelectCards_DiscardCards:
+			var selected_card_ids = []
+			for card in selected_cards:
+				selected_card_ids.append(card.card_id)
+			var events = game_logic.do_discard_to_max(game_logic.player, selected_card_ids)
+			_handle_events(events)
+		elif ui_sub_state == UISubState_SelectCards_MoveActionGenerateForce:
+			var selected_card_ids = []
+			for card in selected_cards:
+				selected_card_ids.append(card.card_id)
+			var events = game_logic.do_move(game_logic.player, selected_card_ids, selected_arena_location)
+			_handle_events(events)
 
-func _on_select_cards_cancel_button_pressed():
-	pass # Replace with function body.
+func _on_instructions_cancel_button_pressed():
+	if ui_state == UIState_SelectArenaLocation and instructions_cancel_allowed:
+		change_ui_state(UIState_PickTurnAction)
+	if ui_state == UIState_SelectCards and instructions_cancel_allowed:
+		deselect_all_cards()
+		change_ui_state(UIState_PickTurnAction)
 
 
-func _on_select_cards_ok_button_pressed():
-	if game_logic.game_state == game_logic.GameState_DiscardDownToMax:
-		var selected_card_ids = []
-		for card in selected_cards:
-			selected_card_ids.append(card.card_id)
-		var events = game_logic.do_discard_to_max(game_logic.player, selected_card_ids)
-		_handle_events(events)
+func _on_arena_location_pressed(location):
+	selected_arena_location = location
+	if ui_state == UIState_SelectArenaLocation:
+		if ui_sub_state == UISubState_SelectCards_MoveActionGenerateForce:
+			begin_generate_force_selection(game_logic.player.get_force_to_move_to(location))

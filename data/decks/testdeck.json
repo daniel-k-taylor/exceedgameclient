@@ -1,6 +1,11 @@
 {
 	"id": "testdeck1",
 	"display_name": "Test Deck",
+	"character": {
+		"display_name": "Test Char",
+		"exceed_cost": 2,
+		"image": "test_char.png"
+	},
 	"cards": [
 		{
 			"definition_id": "normal_grab",
