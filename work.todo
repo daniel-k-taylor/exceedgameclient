@@ -3,18 +3,19 @@ Bugs:
 Tasks:
     ☐ Implement arena and characters
     ☐ Gauge area functionality
+        ☐ Move and Change from gauge
     ☐ Boost Area functionality
     ☐ Discard Area functionality
     ☐ Implement Turn actions
         ✔ Prepare - draw a card @done(23-09-18 01:42)
-        ☐ Move - force (gauge or discard) to move
+        ✔ Move - force (gauge or discard) to move @done(23-09-20 02:07)
             ✔ Click move to go into card selection @done(23-09-19 21:49)
                 ✔ or, click an arena square instead? @done(23-09-19 21:49)
             ✔ Cancellable @done(23-09-19 21:49)
             ✔ Select 1 - 8 force worth @done(23-09-19 21:49)
             ✔ Move character @done(23-09-19 21:49)
             ✔ Draw at end of turn @done(23-09-19 21:49)
-        ☐ Change cards - force to draw
+        ✔ Change cards - force to draw @done(23-09-20 02:07)
         ☐ Exceed
         ☐ Manual Reshuffle
         ☐ Boost
@@ -23,3 +24,4 @@ Tasks:
     ☐ Game Over visuals
     ☐ Reshuffle discard visuals
     ☐ Draw card visual for opponent drawing
+    ☐ Visual for reshuffle used

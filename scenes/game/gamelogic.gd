@@ -8,6 +8,7 @@ const MaxReshuffle = 1
 
 var NextCardId = 1
 var all_cards : Array = []
+var game_over : bool = false
 
 enum {
 	GameState_NotStarted,
@@ -107,6 +108,11 @@ class Player:
 				events += [parent.create_event(EventType_Draw, self, card.id)]
 			else:
 				events += reshuffle_discard()
+				if not parent.game_over:
+					var card = deck[0]
+					hand.append(card)
+					deck.remove_at(0)
+					events += [parent.create_event(EventType_Draw, self, card.id)]
 		return events
 
 	func reshuffle_discard():
@@ -114,6 +120,7 @@ class Player:
 		if reshuffle_remaining == 0:
 			# Game Over
 			events += [parent.create_event(EventType_GameOver, self, 0)]
+			parent.game_over = true
 		else:
 			# Put discard into deck, shuffle, subtract reshuffles
 			deck += discards
@@ -124,7 +131,6 @@ class Player:
 		return events
 
 	func discard(card_ids : Array):
-		var discard_cards = []
 		var events = []
 		for discard_id in card_ids:
 			# From hand
@@ -297,9 +303,9 @@ func do_prepare(performing_player):
 		return []
 
 	var events : Array = performing_player.draw(2)
-	if len(player.hand) > MaxHandSize:
+	if len(performing_player.hand) > MaxHandSize:
 		game_state = GameState_DiscardDownToMax
-		events += [create_event(EventType_HandSizeExceeded, active_turn_player, len(active_turn_player.hand) - MaxHandSize)]
+		events += [create_event(EventType_HandSizeExceeded, performing_player, len(performing_player.hand) - MaxHandSize)]
 	else:
 		events += advance_to_next_turn()
 
@@ -329,8 +335,8 @@ func do_discard_to_max(performing_player : Player, card_ids):
 	return events
 
 func do_move(performing_player : Player, card_ids, new_arena_location):
-	if performing_player != active_turn_player:
-		print("ERROR: Tried to discard for wrong player.")
+	if not can_do_move(performing_player):
+		print("ERROR: Cannot perform the move action for this player.")
 		return []
 
 	if not performing_player.can_move_to(new_arena_location):
@@ -358,6 +364,28 @@ func do_move(performing_player : Player, card_ids, new_arena_location):
 	events += performing_player.move_to(new_arena_location)
 	events += performing_player.draw(1)
 	events += advance_to_next_turn()
+	return events
+
+func do_change(performing_player : Player, card_ids):
+	if not can_do_change(performing_player):
+		print("ERROR: Cannot do change action for this player.")
+		return []
+
+	for id in card_ids:
+		if not performing_player.is_card_in_hand(id) and not performing_player.is_card_in_gauge(id):
+			# Card not found, error
+			print("ERROR: Tried to discard cards that aren't in hand or gauge.")
+			return []
+
+	var num_cards = len(card_ids)
+	var events = performing_player.discard(card_ids)
+	events += performing_player.draw(num_cards + 1)
+	if len(performing_player.hand) > MaxHandSize:
+		game_state = GameState_DiscardDownToMax
+		events += [create_event(EventType_HandSizeExceeded, performing_player, len(performing_player.hand) - MaxHandSize)]
+	else:
+		events += advance_to_next_turn()
+
 	return events
 
 func other_player(test_player):
