@@ -1,8 +1,367 @@
 [
 	{
-		"id": "normal_grab",
+		"id": "solbadguy_heavymobcemetery",
+		"type": "ultra",
+		"display_name": "Heavy Mob Cemetery",
+		"gauge_cost": 3,
+		"range_min": 1,
+		"range_max": 1,
+		"speed": 3,
+		"power": 5,
+		"armor": 0,
+		"guard": 3,
+		"effects": [
+			{
+				"timing": "before",
+				"condition": "initiated_strike",
+				"effect_type": "close",
+				"amount": 3
+			},
+			{
+				"timing": "hit",
+				"effect_type": "draw",
+				"amount": 4
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": 1,
+			"display_name": "Find your one way",
+			"effects": [
+				{
+					"timing": "hit",
+					"effect_type": "power_up",
+					"amount": 2
+				},
+				{
+					"timing": "hit",
+					"effect_type": "draw",
+					"amount": 1
+				}
+			]
+		}
+	},
+	{
+		"id": "solbadguy_tyrantrave",
+		"type": "ultra",
+		"display_name": "Tyrant Rave",
+		"gauge_cost": 2,
+		"range_min": 1,
+		"range_max": 2,
+		"speed": 7,
+		"power": 3,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "hit",
+				"effect_type": "push",
+				"amount": 2
+			},
+			{
+				"timing": "hit",
+				"effect_type": "if_not_full_push_then_powerup",
+				"amount": 2
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": 1,
+			"display_name": "Flame of corruption",
+			"effects": [
+				{
+					"timing": "before",
+					"effect_type": "close",
+					"amount": 1
+				},
+				{
+					"timing": "before",
+					"effect_type": "if_not_full_close_then_powerup",
+					"amount": 2
+				}
+			]
+		}
+	},
+	{
+		"id": "solbadguy_wildthrow",
+		"type": "special",
+		"display_name": "Wild Throw",
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 1,
+		"speed": 3,
+		"power": 5,
+		"armor": 0,
+		"guard": 3,
+		"effects": [
+			{
+				"timing": "always",
+				"effect_type": "ignore_push_and_pull"
+			},
+			{
+				"timing": "hit",
+				"effect_type": "pull",
+				"amount": 1
+			},
+			{
+				"timing": "hit",
+				"effect_type": "gain_advantage"
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": 1,
+			"display_name": "Smell of the game",
+			"effects": [
+				{
+					"timing": "hit",
+					"effect_type": "powerup",
+					"amount": 1
+				},
+				{
+					"timing": "hit",
+					"effect_type": "add_to_gauge"
+				}
+			]
+		}
+	},
+	{
+		"id": "solbadguy_gunflame",
+		"type": "special",
+		"display_name": "Gun Flame",
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 3,
+		"speed": 5,
+		"power": 4,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "hit",
+				"effect_type": "gain_advantage"
+			},
+			{
+				"timing": "after",
+				"effect_type": "armorup",
+				"amount": 2
+			},
+			{
+				"timing": "after",
+				"effect_type": "close",
+				"amount": 2
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": 1,
+			"display_name": "Rock you",
+			"effects": [
+				{
+					"timing": "hit",
+					"effect_type": "powerup",
+					"amount": 1
+				},
+				{
+					"timing": "hit",
+					"effect_type": "draw",
+					"amount": 1
+				},
+				{
+					"timing": "after",
+					"effect_type": "gain_advantage_if_stun"
+				}
+			]
+		}
+	},
+	{
+		"id": "solbadguy_fafnir",
+		"type": "special",
+		"display_name": "Fafnir",
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 2,
+		"speed": 4,
+		"power": 5,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "before",
+				"effect_type": "close",
+				"amount": 1
+			},
+			{
+				"timing": "hit",
+				"effect_type": "push",
+				"amount": 1
+			},
+			{
+				"timing": "hit",
+				"effect_type": "close",
+				"amount": 1
+			}
+		],
+		"boost": {
+			"boost_type": "immediate",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Outrage",
+			"effects": [
+				{
+					"timing": "immediate",
+					"effect_type": "gauge_to_hand",
+					"amount": 1
+				},
+				{
+					"timing": "immediate",
+					"effect_type": "bonus_action",
+					"amount": 1
+				}
+			]
+		}
+	},
+	{
+		"id": "solbadguy_nightraidvortex",
+		"type": "special",
+		"display_name": "Night Raid Vortex",
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 1,
+		"speed": 2,
+		"power": 4,
+		"armor": 0,
+		"guard": 6,
+		"effects": [
+			{
+				"timing": "before",
+				"effect_type": "close",
+				"amount": 3
+			},
+			{
+				"timing": "before",
+				"effect_type": "if_not_full_close_then_draw",
+				"amount": 1
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": 1,
+			"display_name": "Keep yourself alive",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "armorup",
+					"amount": 2
+				},
+				{
+					"timing": "now",
+					"effect_type": "draw",
+					"amount": 2
+				}
+			]
+		}
+	},
+	{
+		"id": "solbadguy_banditbringer",
+		"type": "special",
+		"display_name": "Bandit Bringer",
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 1,
+		"speed": 3,
+		"power": 4,
+		"armor": 0,
+		"guard": 4,
+		"effects": [
+			{
+				"timing": "always",
+				"effect_type": "ignore_guard"
+			},
+			{
+				"timing": "before",
+				"effect_type": "advance",
+				"amount": 2
+			}
+		],
+		"boost": {
+			"boost_type": "immediate",
+			"force_cost": 0,
+			"cancel_cost": 1,
+			"display_name": "Free",
+			"effects": [
+				{
+					"timing": "immediate",
+					"choice": [
+						{ "effect_type": "advance", "amount": 0 },
+						{ "effect_type": "advance", "amount": 1 },
+						{ "effect_type": "advance", "amount": 2 },
+						{ "effect_type": "retreat", "amount": 1 },
+						{ "effect_type": "retreat", "amount": 2 }
+					]
+				}
+			]
+		}
+	},
+	{
+		"id": "solbadguy_volcanicviper",
+		"type": "special",
+		"display_name": "Volcanic Viper",
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 2,
+		"speed": 5,
+		"power": 3,
+		"armor": 0,
+		"guard": 3,
+		"effects": [
+			{
+				"timing": "always",
+				"condition": "initiated_strike",
+				"effect_type": "powerup",
+				"amount": 2
+			},
+			{
+				"timing": "always",
+				"condition": "not_initiated_strike",
+				"effect_type": "armorup",
+				"amount": 2
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": 1,
+			"display_name": "Bandit revolver",
+			"effects": [
+				{
+					"timing": "now",
+					"effect_type": "close",
+					"amount": 1
+				},
+				{
+					"timing": "now",
+					"effect_type": "draw",
+					"amount": 1
+				},
+				{
+					"timing": "hit",
+					"effect_type": "opponent_discard_random",
+					"amount": 1
+				}
+			]
+		}
+	},
+
+	{
+		"id": "gg_normal_grasp",
 		"type": "normal",
-		"display_name": "Grab",
+		"display_name": "Grasp",
 		"range_min": 1,
 		"range_max": 1,
 		"speed": 7,
@@ -21,7 +380,9 @@
 			}
 		],
 		"boost": {
+			"boost_type": "continuous",
 			"force_cost": 0,
+			"cancel_cost": -1,
 			"display_name": "Let's Rock!",
 			"effects": [
 				{
@@ -42,256 +403,248 @@
 		}
 	},
 	{
-		"id": "normal_grab2",
+		"id": "gg_normal_cross",
 		"type": "normal",
-		"display_name": "Grab 2",
+		"display_name": "Cross",
 		"range_min": 1,
-		"range_max": 1,
-		"speed": 7,
+		"range_max": 2,
+		"speed": 6,
 		"power": 3,
 		"armor": 0,
 		"guard": 0,
 		"effects": [
 			{
-				"timing": "hit",
-				"choice": [
-					{ "effect_type": "push", "amount": 1 },
-					{ "effect_type": "push", "amount": 2 },
-					{ "effect_type": "pull", "amount": 1 },
-					{ "effect_type": "pull", "amount": 2 }
-				]
+				"timing": "after",
+				"effect_type": "retreat",
+				"amount": 3
 			}
 		],
 		"boost": {
+			"boost_type": "immediate",
 			"force_cost": 0,
-			"display_name": "Let's Rock!",
+			"cancel_cost": 1,
+			"display_name": "Area Shift",
 			"effects": [
 				{
-					"timing": "now",
-					"effect_type": "draw",
-					"amount": 1
+					"timing": "immediate",
+					"choice": [
+						{ "effect_type": "push", "amount": 2 },
+						{ "effect_type": "pull", "amount": 2 }
+					]
 				},
 				{
-					"timing": "hit",
-					"effect_type": "power_up",
-					"amount": 1
-				},
-				{
-					"timing": "hit",
+					"timing": "immediate",
+					"condition": "pulled_past",
 					"effect_type": "add_to_gauge"
 				}
 			]
 		}
 	},
 	{
-		"id": "normal_grab3",
+		"id": "gg_normal_slash",
 		"type": "normal",
-		"display_name": "Grab 3",
+		"display_name": "Slash",
 		"range_min": 1,
 		"range_max": 1,
-		"speed": 7,
-		"power": 3,
+		"speed": 5,
+		"power": 4,
 		"armor": 0,
 		"guard": 0,
 		"effects": [
 			{
+				"timing": "before",
+				"effect_type": "close",
+				"amount": 2
+			},
+			{
 				"timing": "hit",
-				"choice": [
-					{ "effect_type": "push", "amount": 1 },
-					{ "effect_type": "push", "amount": 2 },
-					{ "effect_type": "pull", "amount": 1 },
-					{ "effect_type": "pull", "amount": 2 }
-				]
+				"effect_type": "gain_advantage"
 			}
 		],
 		"boost": {
+			"boost_type": "immediate",
 			"force_cost": 0,
-			"display_name": "Let's Rock!",
+			"cancel_cost": 1,
+			"display_name": "Dash",
 			"effects": [
 				{
-					"timing": "now",
-					"effect_type": "draw",
+					"timing": "immediate",
+					"effect_type": "advance",
+					"amount": 3
+				}
+			]
+		}
+	},
+	{
+		"id": "gg_normal_dive",
+		"type": "normal",
+		"display_name": "Dive",
+		"range_min": 1,
+		"range_max": 1,
+		"speed": 4,
+		"power": 5,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "before",
+				"effect_type": "advance",
+				"amount": 3
+			},
+			{
+				"timing": "before",
+				"effect_type": "attacks_miss",
+				"condition": "advanced_past"
+			}
+		],
+		"boost": {
+			"boost_type": "immediate",
+			"force_cost": 0,
+			"cancel_cost": 1,
+			"display_name": "Ukemi",
+			"effects": [
+				{
+					"timing": "immediate",
+					"effect_type": "discard_continuous_boost",
 					"amount": 1
+				}
+			]
+		}
+	},
+	{
+		"id": "gg_normal_dust",
+		"type": "normal",
+		"display_name": "Dust",
+		"range_min": 2,
+		"range_max": 3,
+		"speed": 3,
+		"power": 5,
+		"armor": 0,
+		"guard": 4,
+		"effects": [
+			{
+				"timing": "always",
+				"effect_type": "ignore_armor"
+			},
+			{
+				"timing": "always",
+				"effect_type": "ignore_guard"
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": 1,
+			"display_name": "Faultless Defense",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "guardup",
+					"amount": 4
 				},
 				{
-					"timing": "hit",
-					"effect_type": "power_up",
-					"amount": 1
-				},
-				{
-					"timing": "hit",
+					"timing": "start_of_next_turn",
 					"effect_type": "add_to_gauge"
 				}
 			]
 		}
 	},
 	{
-		"id": "normal_grab4",
+		"id": "gg_normal_sweep",
 		"type": "normal",
-		"display_name": "Grab 4",
+		"display_name": "Sweep",
 		"range_min": 1,
-		"range_max": 1,
-		"speed": 7,
-		"power": 3,
+		"range_max": 3,
+		"speed": 2,
+		"power": 6,
 		"armor": 0,
-		"guard": 0,
+		"guard": 6,
 		"effects": [
 			{
 				"timing": "hit",
-				"choice": [
-					{ "effect_type": "push", "amount": 1 },
-					{ "effect_type": "push", "amount": 2 },
-					{ "effect_type": "pull", "amount": 1 },
-					{ "effect_type": "pull", "amount": 2 }
-				]
+				"effect_type": "opponent_discard_random",
+				"amount": 1
 			}
 		],
 		"boost": {
+			"boost_type": "continuous",
 			"force_cost": 0,
-			"display_name": "Let's Rock!",
+			"cancel_cost": 1,
+			"display_name": "Badass",
 			"effects": [
 				{
-					"timing": "now",
-					"effect_type": "draw",
-					"amount": 1
-				},
-				{
-					"timing": "hit",
-					"effect_type": "power_up",
-					"amount": 1
-				},
-				{
-					"timing": "hit",
-					"effect_type": "add_to_gauge"
+					"timing": "during_strike",
+					"effect_type": "attack_is_ex"
 				}
 			]
 		}
 	},
 	{
-		"id": "normal_grab5",
+		"id": "gg_normal_focus",
 		"type": "normal",
-		"display_name": "Grab 5",
+		"display_name": "Focus",
 		"range_min": 1,
-		"range_max": 1,
-		"speed": 7,
-		"power": 3,
-		"armor": 0,
-		"guard": 0,
+		"range_max": 2,
+		"speed": 1,
+		"power": 4,
+		"armor": 2,
+		"guard": 5,
 		"effects": [
 			{
-				"timing": "hit",
-				"choice": [
-					{ "effect_type": "push", "amount": 1 },
-					{ "effect_type": "push", "amount": 2 },
-					{ "effect_type": "pull", "amount": 1 },
-					{ "effect_type": "pull", "amount": 2 }
-				]
+				"timing": "always",
+				"effect_type": "ignore_push_and_pull"
+			},
+			{
+				"timing": "after",
+				"effect_type": "draw",
+				"amount": 1
 			}
 		],
 		"boost": {
+			"boost_type": "continuous",
 			"force_cost": 0,
-			"display_name": "Let's Rock!",
+			"cancel_cost": 1,
+			"display_name": "Scramble",
 			"effects": [
 				{
-					"timing": "now",
-					"effect_type": "draw",
-					"amount": 1
-				},
-				{
-					"timing": "hit",
-					"effect_type": "power_up",
-					"amount": 1
-				},
-				{
-					"timing": "hit",
-					"effect_type": "add_to_gauge"
+					"timing": "when_initiate_strike",
+					"effect_type": "opponent_wild_swings"
 				}
 			]
 		}
 	},
 	{
-		"id": "normal_grab6",
+		"id": "gg_normal_block",
 		"type": "normal",
-		"display_name": "Grab 6",
-		"range_min": 1,
-		"range_max": 1,
-		"speed": 7,
-		"power": 3,
-		"armor": 0,
-		"guard": 0,
+		"display_name": "Block",
+		"range_min": -1,
+		"range_max": -1,
+		"speed": 0,
+		"power": -1,
+		"armor": 2,
+		"guard": 3,
 		"effects": [
 			{
-				"timing": "hit",
-				"choice": [
-					{ "effect_type": "push", "amount": 1 },
-					{ "effect_type": "push", "amount": 2 },
-					{ "effect_type": "pull", "amount": 1 },
-					{ "effect_type": "pull", "amount": 2 }
-				]
+				"timing": "always",
+				"effect_type": "when_hit_force_for_armor",
+				"amount": 2
+			},
+			{
+				"timing": "after",
+				"effect_type": "add_to_gauge"
 			}
 		],
 		"boost": {
+			"boost_type": "immediate",
 			"force_cost": 0,
-			"display_name": "Let's Rock!",
+			"cancel_cost": -1,
+			"display_name": "Parry",
 			"effects": [
 				{
-					"timing": "now",
-					"effect_type": "draw",
-					"amount": 1
-				},
-				{
-					"timing": "hit",
-					"effect_type": "power_up",
-					"amount": 1
-				},
-				{
-					"timing": "hit",
-					"effect_type": "add_to_gauge"
-				}
-			]
-		}
-	},
-	{
-		"id": "normal_grab7",
-		"type": "normal",
-		"display_name": "Grab 7",
-		"range_min": 1,
-		"range_max": 1,
-		"speed": 7,
-		"power": 3,
-		"armor": 0,
-		"guard": 0,
-		"effects": [
-			{
-				"timing": "hit",
-				"choice": [
-					{ "effect_type": "push", "amount": 1 },
-					{ "effect_type": "push", "amount": 2 },
-					{ "effect_type": "pull", "amount": 1 },
-					{ "effect_type": "pull", "amount": 2 }
-				]
-			}
-		],
-		"boost": {
-			"force_cost": 0,
-			"display_name": "Let's Rock!",
-			"effects": [
-				{
-					"timing": "now",
-					"effect_type": "draw",
-					"amount": 1
-				},
-				{
-					"timing": "hit",
-					"effect_type": "power_up",
-					"amount": 1
-				},
-				{
-					"timing": "hit",
-					"effect_type": "add_to_gauge"
+					"timing": "immediate",
+					"effect_type": "name_card_opponent_discards"
 				}
 			]
 		}
 	}
-	
 ]

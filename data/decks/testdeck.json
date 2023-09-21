@@ -1,46 +1,149 @@
 {
-	"id": "testdeck1",
-	"display_name": "Test Deck",
+	"id": "solbadguy",
+	"display_name": "Sol Badguy",
 	"character": {
-		"display_name": "Test Char",
-		"exceed_cost": 2,
-		"image": "test_char.png"
+		"display_name": "Sol Badguy",
+		"image": "test_char.png",
+		"exceed_cost": 3,
+		"on_exceed": "strike",
+		"ability": {
+			"timing": "strike",
+			"condition": "canceled_this_turn",
+			"effect": { "effect_type": "power_up", "amount": 1 }
+		},
+		"exceed_ability": {
+			"timing": "strike",
+			"condition": "canceled_this_turn",
+			"effect": { "effect_type": "power_up", "amount": 2 }
+		}
 	},
 	"cards": [
 		{
-			"definition_id": "normal_grab",
+			"definition_id": "solbadguy_heavymobcemetery",
 			"image": "normal_grab.png"
 		},
 		{
-			"definition_id": "normal_grab2",
+			"definition_id": "solbadguy_heavymobcemetery",
 			"image": "normal_grab.png"
 		},
 		{
-			"definition_id": "normal_grab3",
+			"definition_id": "solbadguy_tyrantrave",
 			"image": "normal_grab.png"
 		},
 		{
-			"definition_id": "normal_grab4",
+			"definition_id": "solbadguy_tyrantrave",
 			"image": "normal_grab.png"
 		},
 		{
-			"definition_id": "normal_grab5",
+			"definition_id": "solbadguy_wildthrow",
 			"image": "normal_grab.png"
 		},
 		{
-			"definition_id": "normal_grab6",
+			"definition_id": "solbadguy_wildthrow",
 			"image": "normal_grab.png"
 		},
 		{
-			"definition_id": "normal_grab7",
+			"definition_id": "solbadguy_gunflame",
 			"image": "normal_grab.png"
 		},
 		{
-			"definition_id": "normal_grab7",
+			"definition_id": "solbadguy_gunflame",
 			"image": "normal_grab.png"
 		},
 		{
-			"definition_id": "normal_grab7",
+			"definition_id": "solbadguy_fafnir",
+			"image": "normal_grab.png"
+		},
+		{
+			"definition_id": "solbadguy_fafnir",
+			"image": "normal_grab.png"
+		},
+		{
+			"definition_id": "solbadguy_nightraidvortex",
+			"image": "normal_grab.png"
+		},
+		{
+			"definition_id": "solbadguy_nightraidvortex",
+			"image": "normal_grab.png"
+		},
+		{
+			"definition_id": "solbadguy_banditbringer",
+			"image": "normal_grab.png"
+		},
+		{
+			"definition_id": "solbadguy_banditbringer",
+			"image": "normal_grab.png"
+		},
+		{
+			"definition_id": "solbadguy_volcanicviper",
+			"image": "normal_grab.png"
+		},
+		{
+			"definition_id": "solbadguy_volcanicviper",
+			"image": "normal_grab.png"
+		},
+		{
+			"definition_id": "gg_normal_grasp",
+			"image": "normal_grab.png"
+		},
+		{
+			"definition_id": "gg_normal_grasp",
+			"image": "normal_grab.png"
+		},
+		{
+			"definition_id": "gg_normal_cross",
+			"image": "normal_grab.png"
+		},
+		{
+			"definition_id": "gg_normal_cross",
+			"image": "normal_grab.png"
+		},
+		{
+			"definition_id": "gg_normal_slash",
+			"image": "normal_grab.png"
+		},
+		{
+			"definition_id": "gg_normal_slash",
+			"image": "normal_grab.png"
+		},
+		{
+			"definition_id": "gg_normal_dive",
+			"image": "normal_grab.png"
+		},
+		{
+			"definition_id": "gg_normal_dive",
+			"image": "normal_grab.png"
+		},
+		{
+			"definition_id": "gg_normal_dust",
+			"image": "normal_grab.png"
+		},
+		{
+			"definition_id": "gg_normal_dust",
+			"image": "normal_grab.png"
+		},
+		{
+			"definition_id": "gg_normal_sweep",
+			"image": "normal_grab.png"
+		},
+		{
+			"definition_id": "gg_normal_sweep",
+			"image": "normal_grab.png"
+		},
+		{
+			"definition_id": "gg_normal_focus",
+			"image": "normal_grab.png"
+		},
+		{
+			"definition_id": "gg_normal_focus",
+			"image": "normal_grab.png"
+		},
+		{
+			"definition_id": "gg_normal_block",
+			"image": "normal_grab.png"
+		},
+		{
+			"definition_id": "gg_normal_block",
 			"image": "normal_grab.png"
 		}
 	]
