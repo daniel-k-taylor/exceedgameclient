@@ -325,7 +325,7 @@ func do_discard_to_max(performing_player : Player, card_ids):
 			print("ERROR: Tried to discard cards that aren't in hand.")
 			return []
 
-	if len(performing_player) - len(card_ids) > MaxHandSize:
+	if len(performing_player.hand) - len(card_ids) > MaxHandSize:
 		print("ERROR: Not discarding enough cards")
 		return []
 

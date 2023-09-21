@@ -54,7 +54,6 @@ func _ready():
 	$PlayerLife.set_life(game_logic.player.life)
 	$OpponentLife.set_life(game_logic.opponent.life)
 	_on_advance_turn()
-	$OpponentHand/OpponentHandBox/OpponentNumCards.text = str(len(game_logic.opponent.hand))
 
 
 func first_run():
@@ -101,9 +100,10 @@ func draw_card(card):
 	new_card.position = deck_position
 
 	layout_player_hand()
-	update_card_counts()
 
 func update_card_counts():
+	$OpponentHand/OpponentHandBox/OpponentNumCards.text = str(len(game_logic.opponent.hand))
+	
 	$PlayerDeck/DeckButton/CardCountContainer/CardCount.text = str(len(game_logic.player.deck))
 	$OpponentDeck/DeckButton/CardCountContainer/CardCount.text = str(len(game_logic.opponent.deck))
 
@@ -222,6 +222,7 @@ func _on_discard_event(event):
 	else:
 		# Discard card visual for opponent.
 		pass
+	update_card_counts()
 
 func _on_draw_event(event):
 	if event['event_player'] == game_logic.player:
@@ -233,20 +234,22 @@ func _on_draw_event(event):
 	else:
 		# Draw card visual for opponent.
 		pass
+	update_card_counts()
 		
 func _on_game_over(event):
 	print("GAME OVER for ", event['event_player'].name)
 	# TODO: Do something useful
 
 func _on_hand_size_exceeded(event):
-	if game_logic.active_turn_player != game_logic.player:
-		# Just wait for the other player
-		return
-	
-	begin_discard_cards_selection(event['number'])
+	if game_logic.active_turn_player == game_logic.player:
+		begin_discard_cards_selection(event['number'])
+	else:
+		# AI or other player wait
+		ai_discard(event)
 
 func change_ui_state(new_state):
 	ui_state = new_state
+	update_card_counts()
 	_update_buttons()
 	
 func set_instructions(text):
@@ -446,3 +449,20 @@ func _on_arena_location_pressed(location):
 	if ui_state == UIState_SelectArenaLocation:
 		if ui_sub_state == UISubState_SelectCards_MoveActionGenerateForce:
 			begin_generate_force_selection(game_logic.player.get_force_to_move_to(location))
+
+
+func _on_ai_move_button_pressed():
+	if game_logic.active_turn_player != game_logic.player and game_logic.game_state == game_logic.GameState_PickAction:
+		take_ai_turn()
+
+func take_ai_turn():
+	var events = game_logic.do_prepare(game_logic.opponent)
+	_handle_events(events)
+		
+func ai_discard(event):
+	var to_discard = []
+	for i in range(event['number']):
+		to_discard.append(game_logic.opponent.hand[i].id)
+	var events = game_logic.do_discard_to_max(game_logic.opponent, to_discard)
+	_handle_events(events)
+		
