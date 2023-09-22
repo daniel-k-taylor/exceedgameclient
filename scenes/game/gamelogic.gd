@@ -19,7 +19,8 @@ var decision_choice
 
 enum DecisionType {
 	DecisionType_EffectChoice,
-	DecisionType_PayStrikeCost,
+	DecisionType_PayStrikeCost_Required,
+	DecisionType_PayStrikeCost_CanWild,
 	DecisionType_ForceForArmor,
 }
 
@@ -29,6 +30,7 @@ enum GameState {
 	GameState_DiscardDownToMax,
 	GameState_Strike_Opponent_Response,
 	GameState_Strike_PlayerDecision,
+	GameState_Strike_Processing,
 }
 var game_state : GameState = GameState.GameState_NotStarted
 
@@ -61,6 +63,7 @@ enum EventType {
 	EventType_Strike_Started,
 	EventType_Strike_Stun,
 	EventType_Strike_TookDamage,
+	EventType_Strike_WildStrike,
 }
 
 func printlog(text):
@@ -102,8 +105,10 @@ class Strike:
 	var initiator_card : Card
 	var defender_card : Card
 	var initiator_first : bool
+	var initiator_wild_strike : bool = false
+	var defender_wild_strike : bool = false
 	var strike_state
-	var effects_resolved_in_state : int
+	var effects_resolved_in_state : int = 0
 	var player1_hit : bool = false
 	var player1_stunned : bool = false
 	var player2_hit : bool = false
@@ -129,6 +134,11 @@ class Strike:
 		if performing_player == initiator:
 			return initiator_card
 		return defender_card
+
+	func get_player_wild_strike(performing_player : Player) -> bool:
+		if performing_player == initiator:
+			return initiator_wild_strike
+		return defender_wild_strike
 
 class Card:
 	var id
@@ -218,6 +228,39 @@ class Player:
 				return true
 		return false
 
+	func can_pay_cost_with(card_ids : Array, card : Card):
+		var gauge_generated = 0
+		var force_generated = 0
+		for card_id in card_ids:
+			if is_card_in_hand(card_id):
+				force_generated += parent.get_card_force(card_id)
+			elif is_card_in_gauge(card_id):
+				force_generated += parent.get_card_force(card_id)
+				gauge_generated += 1
+			else:
+				print("ERROR: Card not in hand or gauge")
+				return false
+
+		var gauge_cost = card.definition['gauge_cost']
+		var force_cost = card.definition['force_cost']
+		if gauge_generated < gauge_cost:
+			return false
+		if force_generated < force_cost:
+			return false
+
+		return true
+
+	func can_pay_cost(card : Card):
+		var available_force = get_available_force()
+		var available_gauge = get_available_gauge()
+		var gauge_cost = card.definition['gauge_cost']
+		var force_cost = card.definition['force_cost']
+		if available_gauge < gauge_cost:
+			return false
+		if available_force < force_cost:
+			return false
+		return true
+
 	func draw(num_to_draw : int):
 		var events : Array = []
 		for i in range(num_to_draw):
@@ -277,7 +320,23 @@ class Player:
 		for i in range(amount):
 			if len(hand) > 0:
 				var random_card_id = hand[randi() % len(hand)].id
-				events += discard(random_card_id)
+				events += discard([random_card_id])
+		return events
+
+	func wild_strike():
+		var events = []
+		# Get top card of deck (reshuffle if needed)
+		if len(deck) == 0:
+			events += reshuffle_discard()
+		var card_id = deck[0].id
+		if parent.active_strike.initiator == self:
+			parent.active_strike.initiator_card = deck[0]
+			parent.active_strike.initiator_wild_strike = true
+		else:
+			parent.active_strike.defender_card = deck[0]
+			parent.active_strike.defender_wild_strike = true
+		deck.remove_at(0)
+		events += [parent.create_event(EventType.EventType_Strike_WildStrike, self, card_id)]
 		return events
 
 	func add_to_gauge(card):
@@ -495,12 +554,13 @@ func begin_resolve_strike():
 	events = continue_strike_activation()
 	return events
 
-func is_effect_condition_met(effect, global_conditions : GlobalStrikeConditions, local_conditions : LocalStrikeConditions):
+func is_effect_condition_met(performing_player : Player, effect, local_conditions : LocalStrikeConditions):
+	var initiated_strike = active_strike.initiator == performing_player
 	if "condition" in effect:
 		var condition = effect['condition']
-		if condition == "initiated_strike" and global_conditions.initiated_strike:
+		if condition == "initiated_strike" and initiated_strike:
 			return true
-		elif condition == "not_initiated_strike" and not global_conditions.initiated_strike:
+		elif condition == "not_initiated_strike" and not initiated_strike:
 			return true
 		elif condition == "not_full_close" and not local_conditions.fully_closed:
 			return true
@@ -514,9 +574,6 @@ func is_effect_condition_met(effect, global_conditions : GlobalStrikeConditions,
 		return false
 	return true
 
-class GlobalStrikeConditions:
-	var initiated_strike : bool
-
 class LocalStrikeConditions:
 	var fully_closed : bool = false
 	var fully_retreated : bool = false
@@ -524,7 +581,7 @@ class LocalStrikeConditions:
 	var advanced_through : bool = false
 	var pulled_past : bool = false
 
-func handle_strike_effect(effect, performing_player : Player, global_conditions : GlobalStrikeConditions):
+func handle_strike_effect(effect, performing_player : Player):
 	printlog("STRIKE: Handling effect %s" % [effect])
 	var events = []
 	var local_conditions = LocalStrikeConditions.new()
@@ -595,17 +652,17 @@ func handle_strike_effect(effect, performing_player : Player, global_conditions 
 
 	if not game_state == GameState.GameState_Strike_PlayerDecision and "bonus_effect" in effect:
 		var bonus_effect = effect['bonus_effect']
-		if is_effect_condition_met(bonus_effect, global_conditions, local_conditions):
-			events += handle_strike_effect(bonus_effect, performing_player, global_conditions)
+		if is_effect_condition_met(performing_player, bonus_effect, local_conditions):
+			events += handle_strike_effect(bonus_effect, performing_player)
 
 	return events
 
-func do_effects_for_state(state_name : String, performing_player : Player, card : Card, global_conditions : GlobalStrikeConditions, next_state):
+func do_effects_for_state(state_name : String, performing_player : Player, card : Card, next_state):
 	var events = []
 	var effects = get_card_effects(card, state_name)
 	for i in range(active_strike.effects_resolved_in_state, len(effects)):
-		if is_effect_condition_met(effects[i], global_conditions, null):
-			events += handle_strike_effect(effects[i], performing_player, global_conditions)
+		if is_effect_condition_met(performing_player, effects[i], null):
+			events += handle_strike_effect(effects[i], performing_player)
 		active_strike.effects_resolved_in_state += 1
 		if game_state == GameState.GameState_Strike_PlayerDecision:
 			break
@@ -656,7 +713,10 @@ func ask_for_cost(performing_player, card, next_state):
 	else:
 		change_game_state(GameState.GameState_Strike_PlayerDecision)
 		decision_player = performing_player
-		decision_type = DecisionType.DecisionType_PayStrikeCost
+		if active_strike.get_player_wild_strike(performing_player):
+			decision_type = DecisionType.DecisionType_PayStrikeCost_CanWild
+		else:
+			decision_type = DecisionType.DecisionType_PayStrikeCost_Required
 
 		if gauge_cost > 0:
 			events += [create_event(EventType.EventType_Strike_PayCost, performing_player, card.id)]
@@ -665,31 +725,6 @@ func ask_for_cost(performing_player, card, next_state):
 	return events
 
 func continue_strike_activation():
-	# Activate 1
-	# Activate 2 (if not stunned)
-	# cleanup
-	# End of turn
-
-	# Active steps:
-	# BEFORE triggers
-	# Check range
-	# Perform HIT triggers if range
-	# Apply damage if range
-	# AFTER triggers - always
-
-
-	#TODO:
-
-# "timing": "hit",
-# "choice": [
-# 	{ "effect_type": "push", "amount": 1 },
-# 	{ "effect_type": "push", "amount": 2 },
-# 	{ "effect_type": "pull", "amount": 1 },
-# 	{ "effect_type": "pull", "amount": 2 }
-# ]
-#
-# ],
-
 	var events = []
 
 	var card1 = active_strike.get_card(1)
@@ -697,8 +732,7 @@ func continue_strike_activation():
 	var player1 = active_strike.get_player(1)
 	var player2 = active_strike.get_player(2)
 
-	var global_conditions = GlobalStrikeConditions.new()
-	global_conditions.initiated_strike = active_strike.initiator_first
+	change_game_state(GameState.GameState_Strike_Processing)
 
 	while true:
 		if game_state == GameState.GameState_Strike_PlayerDecision:
@@ -712,11 +746,11 @@ func continue_strike_activation():
 			StrikeState.StrikeState_Card2_PayCosts:
 				events += ask_for_cost(player2, card2, StrikeState.StrikeState_DuringStrikeBonuses)
 			StrikeState.StrikeState_DuringStrikeBonuses:
-				events += do_effects_for_state("during_strike", player1, card1, global_conditions, StrikeState.StrikeState_DuringStrikeBonuses)
-				events += do_effects_for_state("during_strike", player2, card2, global_conditions, StrikeState.StrikeState_Card1_Before)
+				events += do_effects_for_state("during_strike", player1, card1, StrikeState.StrikeState_DuringStrikeBonuses)
+				events += do_effects_for_state("during_strike", player2, card2, StrikeState.StrikeState_Card1_Before)
 				active_strike.strike_state = StrikeState.StrikeState_Card1_Before
 			StrikeState.StrikeState_Card1_Before:
-				events += do_effects_for_state("before", player1, card1, global_conditions, StrikeState.StrikeState_Card1_DetermineHit)
+				events += do_effects_for_state("before", player1, card1, StrikeState.StrikeState_Card1_DetermineHit)
 			StrikeState.StrikeState_Card1_DetermineHit:
 				if in_range(player1, player2, card1):
 					active_strike.player1_hit = true
@@ -725,7 +759,7 @@ func continue_strike_activation():
 					events += [create_event(EventType.EventType_Strike_Miss, player1, 0)]
 					active_strike.strike_state = StrikeState.StrikeState_Card1_After
 			StrikeState.StrikeState_Card1_Hit:
-				events += do_effects_for_state("hit", player1, card1, global_conditions, StrikeState.StrikeState_Card1_ApplyDamage)
+				events += do_effects_for_state("hit", player1, card1, StrikeState.StrikeState_Card1_ApplyDamage)
 				if player2.strike_stat_boosts.when_hit_force_for_armor:
 					change_game_state(GameState.GameState_Strike_PlayerDecision)
 					decision_player = player2
@@ -737,12 +771,12 @@ func continue_strike_activation():
 				if game_over:
 					active_strike.strike_state = StrikeState.StrikeState_Cleanup
 			StrikeState.StrikeState_Card1_After:
-				events += do_effects_for_state("after", player1, card1, global_conditions, StrikeState.StrikeState_Card2_Before)
+				events += do_effects_for_state("after", player1, card1, StrikeState.StrikeState_Card2_Before)
 			StrikeState.StrikeState_Card2_Before:
 				if active_strike.player2_stunned:
 					active_strike.strike_state = StrikeState.StrikeState_Cleanup
 				else:
-					events += do_effects_for_state("before", player2, card2, global_conditions, StrikeState.StrikeState_Card2_DetermineHit)
+					events += do_effects_for_state("before", player2, card2, StrikeState.StrikeState_Card2_DetermineHit)
 			StrikeState.StrikeState_Card2_DetermineHit:
 				if in_range(player2, player1, card2):
 					active_strike.player2_hit = true
@@ -751,14 +785,14 @@ func continue_strike_activation():
 					events += [create_event(EventType.EventType_Strike_Miss, player2, 0)]
 					active_strike.strike_state = StrikeState.StrikeState_Card2_After
 			StrikeState.StrikeState_Card2_Hit:
-				events += do_effects_for_state("hit", player2, card2, global_conditions, StrikeState.StrikeState_Card2_ApplyDamage)
+				events += do_effects_for_state("hit", player2, card2, StrikeState.StrikeState_Card2_ApplyDamage)
 			StrikeState.StrikeState_Card2_ApplyDamage:
 				events += apply_damage(player2, player1, card2, card1)
 				active_strike.strike_state = StrikeState.StrikeState_Card2_After
 				if game_over:
 					active_strike.strike_state = StrikeState.StrikeState_Cleanup
 			StrikeState.StrikeState_Card2_After:
-				events += do_effects_for_state("after", player2, card2, global_conditions, StrikeState.StrikeState_Cleanup)
+				events += do_effects_for_state("after", player2, card2, StrikeState.StrikeState_Cleanup)
 			StrikeState.StrikeState_Cleanup:
 				# If hit, move card to gauge, otherwise move to discard.
 				if active_strike.player1_hit or player1.strike_stat_boosts.always_add_to_gauge:
@@ -943,7 +977,7 @@ func do_change(performing_player : Player, card_ids):
 
 	return events
 
-func do_strike(performing_player : Player, card_id : int):
+func do_strike(performing_player : Player, card_id : int, wild_strike: bool):
 	printlog("Starting strike player %s card %d" % [performing_player.name, get_card_name(card_id)])
 	if game_state == GameState.GameState_PickAction:
 		if performing_player != active_turn_player:
@@ -965,68 +999,97 @@ func do_strike(performing_player : Player, card_id : int):
 	if game_state == GameState.GameState_PickAction:
 		active_strike = Strike.new()
 		active_strike.initiator = performing_player
-		active_strike.initiator_card = get_card(card_id)
+		if wild_strike:
+			events += performing_player.wild_strike()
+			card_id = active_strike.initiator_card.id
+		else:
+			active_strike.initiator_card = get_card(card_id)
+			performing_player.remove_card_from_hand(card_id)
 		active_strike.defender = other_player(performing_player)
-		performing_player.remove_card_from_hand(card_id)
 		events += [create_event(EventType.EventType_Strike_Started, performing_player, card_id)]
 		change_game_state(GameState.GameState_Strike_Opponent_Response)
 	elif game_state == GameState.GameState_Strike_Opponent_Response:
-		active_strike.defender_card = get_card(card_id)
-		performing_player.remove_card_from_hand(card_id)
+		if wild_strike:
+			events += performing_player.wild_strike()
+			card_id = active_strike.defender_card.id
+		else:
+			active_strike.defender_card = get_card(card_id)
+			performing_player.remove_card_from_hand(card_id)
 		events += [create_event(EventType.EventType_Strike_Response, performing_player, card_id)]
 		events += begin_resolve_strike()
 	return events
 
-func do_pay_strike_costs(performing_player : Player, card_ids : Array):
+func do_pay_cost(performing_player : Player, card_ids : Array, wild_strike : bool):
 	if game_state != GameState.GameState_Strike_PlayerDecision:
 		print("ERROR: Tried to pay costs but not in decision state.")
 		return []
-	if decision_type != DecisionType.DecisionType_PayStrikeCost:
-		print("ERROR: Tried to pay costs but not in pay costs decision.")
+	if decision_type != DecisionType.DecisionType_PayStrikeCost_CanWild and decision_type != DecisionType.DecisionType_PayStrikeCost_Required:
+		print("ERROR: Tried to pay costs but not in correct decision type.")
 		return []
-	if performing_player != decision_player:
+	if decision_type == DecisionType.DecisionType_PayStrikeCost_Required and wild_strike:
+		# Only allowed if you can't pay the cost.
+		var card = active_strike.get_player_card(performing_player)
+		if performing_player.can_pay_cost(card):
+			print("ERROR: Tried to wild strike when not allowed.")
+			return []
+	if decision_player != performing_player:
 		print("ERROR: Tried to pay costs for wrong player.")
 		return []
 
-	var card = active_strike.get_player_card(performing_player)
-	var force_cost = card.definition['force_cost']
-	var gauge_cost = card.definition['gauge_cost']
-	if force_cost > 0:
-		var force_generated = 0
-		for card_id in card_ids:
-			if performing_player.is_card_in_hand(card_id) or performing_player.is_card_in_gauge(card_id):
-				force_generated += get_card_force(card_id)
-			else:
-				print("ERROR: Tried to use force card not in hand or gauge.")
-				return []
-		if force_generated < force_cost:
-			print("ERROR: Not generating enough force for this strike.")
-			return []
-	elif gauge_cost > 0:
-		var gauge_generated = 0
-		for card_id in card_ids:
-			if performing_player.is_card_in_gauge(card_id):
-				gauge_generated += 1
-			else:
-				print("ERROR: Tried to use card not in gauge.")
-				return []
-		if gauge_generated < gauge_cost:
-			print("ERROR: Not generating enough gauge for this strike.")
-			return []
-
-	# Discard cards
 	var events = []
-	events += performing_player.discard(card_ids)
-
-	# Continue strike
-	match active_strike.strike_state:
-		StrikeState.StrikeState_Card1_PayCosts:
-			active_strike.strike_state = StrikeState.StrikeState_Card2_PayCosts
-		StrikeState.StrikeState_Card2_PayCosts:
-			active_strike.strike_state = StrikeState.StrikeState_DuringStrikeBonuses
-
+	if wild_strike:
+		# Replace existing card with a wild strike
+		events += performing_player.wild_strike()
+	else:
+		var card = active_strike.get_player_card(performing_player)
+		if performing_player.can_pay_cost_with(card_ids, card):
+			events += performing_player.discard(card_ids)
+			match active_strike.strike_state:
+				StrikeState.StrikeState_Card1_PayCosts:
+					active_strike.strike_state = StrikeState.StrikeState_Card2_PayCosts
+				StrikeState.StrikeState_Card2_PayCosts:
+					active_strike.strike_state = StrikeState.StrikeState_DuringStrikeBonuses
+		else:
+			print("ERROR: Tried to pay costs but not correct cards.")
+			return []
 	events += continue_strike_activation()
-
 	return events
 
+func do_force_for_armor(performing_player : Player, card_ids : Array):
+	if game_state != GameState.GameState_Strike_PlayerDecision or decision_type != DecisionType.DecisionType_ForceForArmor:
+		print("ERROR: Tried to force for armor but not in decision state.")
+		return []
+	if decision_player != performing_player:
+		print("ERROR: Tried to force for armor for wrong player.")
+		return []
 
+	var events = []
+	for card_id in card_ids:
+		if not performing_player.is_card_in_hand(card_id) and not performing_player.is_card_in_gauge(card_id):
+			print("ERROR: Tried to force for armor with card not in hand or gauge.")
+			return []
+
+	var force_generated = 0
+	for card_id in card_ids:
+		force_generated += get_card_force(card_id)
+	if force_generated > 0:
+		events += performing_player.discard(card_ids)
+		events += handle_strike_effect({'effect_type': 'armorup', 'amount': force_generated * 2}, performing_player)
+	events += continue_strike_activation()
+	return events
+
+func do_choice(performing_player : Player, choice_index : int):
+	if decision_player != performing_player:
+		print("ERROR: Tried to force for armor for wrong player.")
+		return []
+	if game_state != GameState.GameState_Strike_PlayerDecision:
+		print("ERROR: Tried to make a choice but not in decision state.")
+		return []
+	if choice_index >= len(decision_choice):
+		print("ERROR: Tried to make a choice that doesn't exist.")
+		return []
+
+	var effect = decision_choice[choice_index]
+	var events = handle_strike_effect(effect, performing_player)
+	events += continue_strike_activation()
+	return events

@@ -319,7 +319,7 @@ func begin_strike_choosing(strike_response : bool):
 	change_ui_state(UIState_SelectCards)
 
 func complete_strike_choosing(card_id : int):
-	var events = game_logic.do_strike(game_logic.player, card_id)
+	var events = game_logic.do_strike(game_logic.player, card_id, false)
 	_handle_events(events)
 
 func _on_move_event(event):
@@ -351,7 +351,6 @@ func _on_effect_choice(event):
 
 func _on_pay_cost(event):
 	if event['event_player'] == game_logic.player:
-		# UI to select cards to pay cost or wild swing
 		printlog("TODO: UI to pay costs")
 	else:
 		ai_pay_cost(event)
@@ -422,6 +421,8 @@ func _handle_events(events):
 				printlog("TODO: Animate strike stun")
 			game_logic.EventType.EventType_Strike_TookDamage:
 				_on_damage(event)
+			game_logic.EventType.EventType_Strike_WildStrike:
+				printlog("TODO: Animate strike wild strike")
 
 func _update_buttons():
 	# Update main action selection UI
@@ -560,6 +561,10 @@ func _on_arena_location_pressed(location):
 			begin_generate_force_selection(game_logic.player.get_force_to_move_to(location))
 
 
+
+#
+# AI Functions
+#
 func _on_ai_move_button_pressed():
 	if game_logic.active_turn_player != game_logic.player and game_logic.game_state == game_logic.GameState.GameState_PickAction:
 		ai_take_turn()
@@ -570,18 +575,21 @@ func ai_take_turn():
 	var events = game_logic.do_prepare(game_logic.opponent)
 	_handle_events(events)
 
-func ai_pay_cost(event):
-	printlog("TODO: AI pay cost")
+func ai_pay_cost(_event):
+	var events = game_logic.do_pay_cost(game_logic.opponent, [], true)
+	_handle_events(events)
 
-func ai_effect_choice(event):
-	printlog("TODO: AI choose effect")
+func ai_effect_choice(_event):
+	var events = game_logic.do_choice(game_logic.opponent, 0)
+	_handle_events(events)
 
-func ai_force_for_armor(event):
-	printlog("TODO: AI force for armor")
+func ai_force_for_armor(_event):
+	var events = game_logic.do_force_for_armor(game_logic.opponent, [])
+	_handle_events(events)
 
 func ai_strike_response():
 	var card = game_logic.opponent.hand[0]
-	var events = game_logic.do_strike(game_logic.opponent, card.id)
+	var events = game_logic.do_strike(game_logic.opponent, card.id, false)
 	_handle_events(events)
 
 func ai_discard(event):

@@ -1,7 +1,8 @@
 Bugs:
 
 In progress:
-    strike - implementing conditions and before/now/after
+    ☐ strike
+    ☐ Tests
 
 Tasks:
     ☐ Implement arena and characters
@@ -23,12 +24,15 @@ Tasks:
         ☐ Manual Reshuffle
         ☐ Boost
         ☐ Strike
-            ☐ Wild Swing
+            ☐ Wild Swing - pickable
             ☐ EX
-            ☐ when_hit_force_for_armor
-            ☐ choice
             ☐ Boosts
-            ☐ bluff with card you can't pay for
+            Highest priority strike items:
+                ☐ UI: TODO: Play strike animation
+                ☐ UI: TODO: Animate strike response
+                ☐ UI: TODO: Animate card going to discard
+                ☐ UI: TODO: Animate card going to gauge
+
     ☐ Opponent cards/areas
     ☐ Game Over visuals
     ☐ Reshuffle discard visuals
