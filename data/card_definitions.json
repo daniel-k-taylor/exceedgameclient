@@ -3,6 +3,7 @@
 		"id": "solbadguy_heavymobcemetery",
 		"type": "ultra",
 		"display_name": "Heavy Mob Cemetery",
+		"force_cost": 0,
 		"gauge_cost": 3,
 		"range_min": 1,
 		"range_max": 1,
@@ -46,6 +47,7 @@
 		"id": "solbadguy_tyrantrave",
 		"type": "ultra",
 		"display_name": "Tyrant Rave",
+		"force_cost": 0,
 		"gauge_cost": 2,
 		"range_min": 1,
 		"range_max": 2,
@@ -57,12 +59,12 @@
 			{
 				"timing": "hit",
 				"effect_type": "push",
-				"amount": 2
-			},
-			{
-				"timing": "hit",
-				"effect_type": "if_not_full_push_then_powerup",
-				"amount": 2
+				"amount": 2,
+				"bonus_effect": {
+					"effect_type": "powerup",
+					"condition": "not_full_push",
+					"amount": 2
+				}
 			}
 		],
 		"boost": {
@@ -74,12 +76,12 @@
 				{
 					"timing": "before",
 					"effect_type": "close",
-					"amount": 1
-				},
-				{
-					"timing": "before",
-					"effect_type": "if_not_full_close_then_powerup",
-					"amount": 2
+					"amount": 1,
+					"bonus_effect": {
+						"effect_type": "powerup",
+						"condition": "not_full_close",
+						"amount": 2
+					}
 				}
 			]
 		}
@@ -88,6 +90,7 @@
 		"id": "solbadguy_wildthrow",
 		"type": "special",
 		"display_name": "Wild Throw",
+		"force_cost": 0,
 		"gauge_cost": 0,
 		"range_min": 1,
 		"range_max": 1,
@@ -97,7 +100,7 @@
 		"guard": 3,
 		"effects": [
 			{
-				"timing": "always",
+				"timing": "during_strike",
 				"effect_type": "ignore_push_and_pull"
 			},
 			{
@@ -132,6 +135,7 @@
 		"id": "solbadguy_gunflame",
 		"type": "special",
 		"display_name": "Gun Flame",
+		"force_cost": 0,
 		"gauge_cost": 0,
 		"range_min": 1,
 		"range_max": 3,
@@ -182,6 +186,7 @@
 		"id": "solbadguy_fafnir",
 		"type": "special",
 		"display_name": "Fafnir",
+		"force_cost": 0,
 		"gauge_cost": 0,
 		"range_min": 1,
 		"range_max": 2,
@@ -229,6 +234,7 @@
 		"id": "solbadguy_nightraidvortex",
 		"type": "special",
 		"display_name": "Night Raid Vortex",
+		"force_cost": 0,
 		"gauge_cost": 0,
 		"range_min": 1,
 		"range_max": 1,
@@ -240,12 +246,12 @@
 			{
 				"timing": "before",
 				"effect_type": "close",
-				"amount": 3
-			},
-			{
-				"timing": "before",
-				"effect_type": "if_not_full_close_then_draw",
-				"amount": 1
+				"amount": 3,
+				"bonus_effect": {
+					"effect_type": "draw",
+					"condition": "not_full_close",
+					"amount": 1
+				}
 			}
 		],
 		"boost": {
@@ -271,6 +277,7 @@
 		"id": "solbadguy_banditbringer",
 		"type": "special",
 		"display_name": "Bandit Bringer",
+		"force_cost": 0,
 		"gauge_cost": 0,
 		"range_min": 1,
 		"range_max": 1,
@@ -280,7 +287,7 @@
 		"guard": 4,
 		"effects": [
 			{
-				"timing": "always",
+				"timing": "during_strike",
 				"effect_type": "ignore_guard"
 			},
 			{
@@ -297,6 +304,7 @@
 			"effects": [
 				{
 					"timing": "immediate",
+					"effect_type": "choice",
 					"choice": [
 						{ "effect_type": "advance", "amount": 0 },
 						{ "effect_type": "advance", "amount": 1 },
@@ -312,6 +320,7 @@
 		"id": "solbadguy_volcanicviper",
 		"type": "special",
 		"display_name": "Volcanic Viper",
+		"force_cost": 0,
 		"gauge_cost": 0,
 		"range_min": 1,
 		"range_max": 2,
@@ -321,13 +330,13 @@
 		"guard": 3,
 		"effects": [
 			{
-				"timing": "always",
+				"timing": "during_strike",
 				"condition": "initiated_strike",
 				"effect_type": "powerup",
 				"amount": 2
 			},
 			{
-				"timing": "always",
+				"timing": "during_strike",
 				"condition": "not_initiated_strike",
 				"effect_type": "armorup",
 				"amount": 2
@@ -362,6 +371,8 @@
 		"id": "gg_normal_grasp",
 		"type": "normal",
 		"display_name": "Grasp",
+		"force_cost": 0,
+		"gauge_cost": 0,
 		"range_min": 1,
 		"range_max": 1,
 		"speed": 7,
@@ -371,6 +382,7 @@
 		"effects": [
 			{
 				"timing": "hit",
+				"effect_type": "choice",
 				"choice": [
 					{ "effect_type": "push", "amount": 1 },
 					{ "effect_type": "push", "amount": 2 },
@@ -406,6 +418,8 @@
 		"id": "gg_normal_cross",
 		"type": "normal",
 		"display_name": "Cross",
+		"force_cost": 0,
+		"gauge_cost": 0,
 		"range_min": 1,
 		"range_max": 2,
 		"speed": 6,
@@ -427,6 +441,7 @@
 			"effects": [
 				{
 					"timing": "immediate",
+					"effect_type": "choice",
 					"choice": [
 						{ "effect_type": "push", "amount": 2 },
 						{ "effect_type": "pull", "amount": 2 }
@@ -444,6 +459,8 @@
 		"id": "gg_normal_slash",
 		"type": "normal",
 		"display_name": "Slash",
+		"force_cost": 0,
+		"gauge_cost": 0,
 		"range_min": 1,
 		"range_max": 1,
 		"speed": 5,
@@ -479,6 +496,8 @@
 		"id": "gg_normal_dive",
 		"type": "normal",
 		"display_name": "Dive",
+		"force_cost": 0,
+		"gauge_cost": 0,
 		"range_min": 1,
 		"range_max": 1,
 		"speed": 4,
@@ -489,12 +508,11 @@
 			{
 				"timing": "before",
 				"effect_type": "advance",
-				"amount": 3
-			},
-			{
-				"timing": "before",
-				"effect_type": "attacks_miss",
-				"condition": "advanced_past"
+				"amount": 3,
+				"bonus_effect": {
+					"effect_type": "dodge_attacks",
+					"condition": "advanced_through"
+				}
 			}
 		],
 		"boost": {
@@ -515,6 +533,8 @@
 		"id": "gg_normal_dust",
 		"type": "normal",
 		"display_name": "Dust",
+		"force_cost": 0,
+		"gauge_cost": 0,
 		"range_min": 2,
 		"range_max": 3,
 		"speed": 3,
@@ -523,11 +543,11 @@
 		"guard": 4,
 		"effects": [
 			{
-				"timing": "always",
+				"timing": "during_strike",
 				"effect_type": "ignore_armor"
 			},
 			{
-				"timing": "always",
+				"timing": "during_strike",
 				"effect_type": "ignore_guard"
 			}
 		],
@@ -553,6 +573,8 @@
 		"id": "gg_normal_sweep",
 		"type": "normal",
 		"display_name": "Sweep",
+		"force_cost": 0,
+		"gauge_cost": 0,
 		"range_min": 1,
 		"range_max": 3,
 		"speed": 2,
@@ -583,6 +605,8 @@
 		"id": "gg_normal_focus",
 		"type": "normal",
 		"display_name": "Focus",
+		"force_cost": 0,
+		"gauge_cost": 0,
 		"range_min": 1,
 		"range_max": 2,
 		"speed": 1,
@@ -591,7 +615,7 @@
 		"guard": 5,
 		"effects": [
 			{
-				"timing": "always",
+				"timing": "during_strike",
 				"effect_type": "ignore_push_and_pull"
 			},
 			{
@@ -617,6 +641,8 @@
 		"id": "gg_normal_block",
 		"type": "normal",
 		"display_name": "Block",
+		"force_cost": 0,
+		"gauge_cost": 0,
 		"range_min": -1,
 		"range_max": -1,
 		"speed": 0,
@@ -625,7 +651,7 @@
 		"guard": 3,
 		"effects": [
 			{
-				"timing": "always",
+				"timing": "during_strike",
 				"effect_type": "when_hit_force_for_armor",
 				"amount": 2
 			},

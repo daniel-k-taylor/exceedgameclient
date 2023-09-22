@@ -1,5 +1,8 @@
 Bugs:
 
+In progress:
+    strike - implementing conditions and before/now/after
+
 Tasks:
     ☐ Implement arena and characters
     ☐ Gauge area functionality
@@ -20,6 +23,12 @@ Tasks:
         ☐ Manual Reshuffle
         ☐ Boost
         ☐ Strike
+            ☐ Wild Swing
+            ☐ EX
+            ☐ when_hit_force_for_armor
+            ☐ choice
+            ☐ Boosts
+            ☐ bluff with card you can't pay for
     ☐ Opponent cards/areas
     ☐ Game Over visuals
     ☐ Reshuffle discard visuals
