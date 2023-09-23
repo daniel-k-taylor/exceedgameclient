@@ -177,8 +177,8 @@ class Player:
 
 	var name : String
 	var life : int
-	var hand : Array
-	var deck : Array
+	var hand : Array[Card]
+	var deck : Array[Card]
 	var discards : Array
 	var deck_def : Dictionary
 	var gauge : Array
@@ -219,7 +219,7 @@ class Player:
 	func remove_card_from_hand(id : int):
 		for i in range(len(hand)):
 			if hand[i].id == id:
-				hand.remove_at(id)
+				hand.remove_at(i)
 				break
 
 	func is_card_in_gauge(id : int):
@@ -493,6 +493,7 @@ func initialize_game(player_deck, opponent_deck):
 	next_turn_player = opponent
 	opponent.arena_location = 7
 
+func draw_starting_hands_and_begin():
 	player.draw(StartingHandFirstPlayer)
 	opponent.draw(StartingHandSecondPlayer)
 
@@ -551,7 +552,7 @@ func begin_resolve_strike():
 	active_strike.strike_state = StrikeState.StrikeState_Card1_PayCosts
 	active_strike.effects_resolved_in_state = 0
 
-	events = continue_strike_activation()
+	events += continue_strike_activation()
 	return events
 
 func is_effect_condition_met(performing_player : Player, effect, local_conditions : LocalStrikeConditions):

@@ -28,10 +28,13 @@ Tasks:
             ☐ EX
             ☐ Boosts
             Highest priority strike items:
-                ☐ UI: TODO: Play strike animation
-                ☐ UI: TODO: Animate strike response
-                ☐ UI: TODO: Animate card going to discard
+                ✔ UI: TODO: Play strike animation @done(23-09-22 19:51)
+                ✔ UI: TODO: Animate strike response @done(23-09-22 19:51)
+                ✔ UI: TODO: Animate card going to discard @done(23-09-22 19:51)
                 ☐ UI: TODO: Animate card going to gauge
+                ☐ Player pay costs
+                ☐ Player select choice
+                ☐ Player force for armor
 
     ☐ Opponent cards/areas
     ☐ Game Over visuals

@@ -13,18 +13,20 @@ const StatPanel = preload("res://scenes/card/stat_panel.gd")
 
 const HighlightColor = Color('#36fff3')
 
-enum {
-	Focusing,
-	InDeck,
-	InHand,
-	Discarding,
-	Dragging,
-	DrawingToHand,
-	Unfocusing,
+enum CardState {
+	CardState_Focusing,
+	CardState_InDeck,
+	CardState_InHand,
+	CardState_Discarding,
+	CardState_Discarded,
+	CardState_InStrike,
+	CardState_Dragging,
+	CardState_DrawingToHand,
+	CardState_Unfocusing,
 }
 
-var state = InDeck
-var return_state = InDeck
+var state : CardState = CardState.CardState_InDeck
+var return_state : CardState = CardState.CardState_InDeck
 var card_id : int = -1
 var start_pos = 0
 var target_pos = 0
@@ -35,6 +37,7 @@ var original_scale = 1
 var target_scale = 1
 var animate_flip = false
 var animation_length = 0
+var manual_flip_needed = false
 
 var follow_mouse = false
 var saved_hand_index = -1
@@ -76,9 +79,9 @@ func set_hover_visible(hover_visible):
 
 func _physics_process(delta):
 	match state:
-		InHand:
+		CardState.CardState_InHand:
 			set_hover_visible(true)
-		Focusing:
+		CardState.CardState_Focusing:
 			if animation_time <= 1:
 				position = start_pos.lerp(target_pos, animation_time)
 				rotation_degrees = lerpf(start_rotation, target_rotation, animation_time)
@@ -88,7 +91,7 @@ func _physics_process(delta):
 				position = target_pos
 				rotation_degrees = target_rotation
 				scale = target_scale
-		Unfocusing:
+		CardState.CardState_Unfocusing:
 			if animation_time <= 1:
 				position = start_pos.lerp(target_pos, animation_time)
 				rotation_degrees = lerpf(start_rotation, target_rotation, animation_time)
@@ -99,21 +102,21 @@ func _physics_process(delta):
 				rotation_degrees = target_rotation
 				scale = target_scale
 				change_state(return_state)
-		DrawingToHand: # animate from deck to hand
+		CardState.CardState_DrawingToHand: # animate from deck to hand
 			if animation_time <= 1:
 				position = start_pos.lerp(target_pos, animation_time)
 				rotation_degrees = lerpf(start_rotation, target_rotation, animation_time)
 				if animate_flip:
 					scale.x = original_scale.x * abs(1 - 2*animation_time)
-				if animation_time >= 0.5:
+				if animation_time >= 0.5 and not manual_flip_needed:
 					flip_card_to_front(true)
 				animation_time += delta / animation_length
 			else:
 				position = target_pos
 				rotation_degrees = target_rotation
 				scale.x = original_scale.x
-				change_state(InHand)
-		Dragging:
+				change_state(CardState.CardState_InHand)
+		CardState.CardState_Dragging:
 			var mouse_pos = get_viewport().get_mouse_position()
 			position = Vector2(mouse_pos.x, mouse_pos.y)
 			if animation_time <= 1:
@@ -123,7 +126,7 @@ func _physics_process(delta):
 			else:
 				rotation_degrees = target_rotation
 				scale = target_scale
-		Discarding:
+		CardState.CardState_Discarding:
 			set_hover_visible(false)
 			if animation_time <= 1:
 				position = start_pos.lerp(target_pos, animation_time)
@@ -134,15 +137,16 @@ func _physics_process(delta):
 				position = target_pos
 				rotation_degrees = target_rotation
 				scale = target_scale
+				change_state(return_state)
 
 func position_card_in_hand(dst_pos, dst_rot):
-	if state == DrawingToHand:
+	if state == CardState.CardState_DrawingToHand:
 		target_pos = dst_pos
 		target_rotation = dst_rot
 	else:
-		change_state(DrawingToHand)
+		change_state(CardState.CardState_DrawingToHand)
 
-		animate_flip = not is_front_showing()
+		animate_flip = not manual_flip_needed and not is_front_showing()
 		original_scale = scale
 		start_pos = position
 		target_pos = dst_pos
@@ -187,25 +191,26 @@ func set_resting_position(pos, rot):
 	resting_rotation = rot
 
 	match state:
-		InDeck, InHand, DrawingToHand:
+		CardState.CardState_InDeck, CardState.CardState_InHand, CardState.CardState_DrawingToHand:
 			position_card_in_hand(pos, rot)
-		Unfocusing:
+		CardState.CardState_Unfocusing:
 			target_pos = pos
 			target_rotation = rot
 
-func discard_to(pos, sca):
+func discard_to(pos, sca, target_state):
 	set_selected(false)
 	set_resting_position(pos, 0)
-	unfocus()
+	unfocus() # Sets animation_time to 0
 	target_scale = sca
-	change_state(Discarding)
+	return_state = target_state
+	change_state(CardState.CardState_Discarding)
 
 func change_state(new_state):
 	state = new_state
 
 func focus():
 
-	if state == Unfocusing:
+	if state == CardState.CardState_Unfocusing:
 		# Switch the start/target
 		start_pos = position
 		start_rotation = rotation_degrees
@@ -218,7 +223,7 @@ func focus():
 
 		focus_pos = position
 		focus_rot = 0
-		if state == InHand:
+		if state == CardState.CardState_InHand:
 			focus_pos.y -= 100
 
 		return_state = state
@@ -230,7 +235,7 @@ func focus():
 	animation_length = FOCUS_ANIMATION_LENGTH
 
 	emit_signal("raised_card", self)
-	change_state(Focusing)
+	change_state(CardState.CardState_Focusing)
 
 func unfocus():
 	target_pos = resting_position
@@ -244,7 +249,7 @@ func unfocus():
 	animation_time = 0
 	animation_length = FOCUS_ANIMATION_LENGTH
 
-	change_state(Unfocusing)
+	change_state(CardState.CardState_Unfocusing)
 	emit_signal("lowered_card", self)
 
 func begin_drag():
@@ -255,9 +260,9 @@ func begin_drag():
 	target_rotation = 0
 	animation_time = 0
 	animation_length = FOCUS_ANIMATION_LENGTH
-	return_state = InHand
+	return_state = CardState.CardState_InHand
 	emit_signal("raised_card", self)
-	change_state(Dragging)
+	change_state(CardState.CardState_Dragging)
 
 func end_drag():
 	follow_mouse = false
@@ -265,13 +270,13 @@ func end_drag():
 
 func _on_focus_mouse_entered():
 	match state:
-		InHand, Unfocusing:
+		CardState.CardState_InHand, CardState.CardState_Unfocusing, CardState.CardState_InStrike:
 			focus()
 
 
 func _on_focus_mouse_exited():
 	match state:
-		Focusing:
+		CardState.CardState_Focusing:
 			unfocus()
 
 func _on_focus_button_down():
@@ -283,7 +288,7 @@ func _on_focus_button_down():
 
 func _on_focus_button_up():
 	match state:
-		Dragging:
+		CardState.CardState_Dragging:
 			end_drag()
 
 

@@ -295,8 +295,6 @@ texture_normal = ExtResource("4_5y76h")
 texture_pressed = ExtResource("4_5y76h")
 texture_hover = ExtResource("4_5y76h")
 
-[node name="DiscardedCards" type="Node2D" parent="PlayerDeck"]
-
 [node name="OpponentDeck" type="Node2D" parent="."]
 
 [node name="DeckButton" type="TextureButton" parent="OpponentDeck"]
@@ -343,15 +341,39 @@ texture_normal = ExtResource("4_5y76h")
 texture_pressed = ExtResource("4_5y76h")
 texture_hover = ExtResource("4_5y76h")
 
-[node name="PlayerHand" type="Node2D" parent="."]
+[node name="PlayerStrike" type="Node2D" parent="."]
+
+[node name="StrikeZone" type="TextureButton" parent="PlayerStrike"]
+modulate = Color(0.8, 0, 0.729412, 1)
+offset_left = 590.0
+offset_top = 373.0
+offset_right = 840.0
+offset_bottom = 723.0
+scale = Vector2(0.4, 0.4)
+texture_normal = ExtResource("4_5y76h")
+texture_pressed = ExtResource("4_5y76h")
+texture_hover = ExtResource("4_5y76h")
+
+[node name="OpponentStrike" type="Node2D" parent="."]
+
+[node name="StrikeZone" type="TextureButton" parent="OpponentStrike"]
+modulate = Color(0.8, 0, 0.729412, 1)
+offset_left = 590.0
+offset_top = 74.0
+offset_right = 840.0
+offset_bottom = 424.0
+scale = Vector2(0.4, 0.4)
+texture_normal = ExtResource("4_5y76h")
+texture_pressed = ExtResource("4_5y76h")
+texture_hover = ExtResource("4_5y76h")
 
 [node name="OpponentHand" type="Node2D" parent="."]
 
 [node name="OpponentHandBox" type="HBoxContainer" parent="OpponentHand"]
 custom_minimum_size = Vector2(100, 50)
-offset_left = 550.0
+offset_left = 950.0
 offset_top = 10.0
-offset_right = 650.0
+offset_right = 1050.0
 offset_bottom = 72.0
 
 [node name="OpponentHandCardIcon" type="TextureRect" parent="OpponentHand/OpponentHandBox"]
@@ -377,6 +399,17 @@ bbcode_enabled = true
 text = "#"
 fit_content = true
 
+[node name="HandSpawn" type="TextureButton" parent="OpponentHand"]
+modulate = Color(0.8, 0, 0.729412, 1)
+offset_left = 590.0
+offset_top = -100.0
+offset_right = 840.0
+offset_bottom = 250.0
+scale = Vector2(0.4, 0.4)
+texture_normal = ExtResource("4_5y76h")
+texture_pressed = ExtResource("4_5y76h")
+texture_hover = ExtResource("4_5y76h")
+
 [node name="PlayerGauge" parent="." instance=ExtResource("6_gtjck")]
 position = Vector2(10, 10)
 
@@ -397,6 +430,30 @@ scale = Vector2(0.5, 0.5)
 modulate = Color(1, 0.384314, 0.54902, 1)
 position = Vector2(146, -68)
 scale = Vector2(0.5, 0.5)
+
+[node name="AllCards" type="Node2D" parent="."]
+
+[node name="PlayerHand" type="Node2D" parent="AllCards"]
+
+[node name="OpponentHand" type="Node2D" parent="AllCards"]
+
+[node name="Striking" type="Node2D" parent="AllCards"]
+
+[node name="PlayerBoosts" type="Node2D" parent="AllCards"]
+
+[node name="OpponentBoosts" type="Node2D" parent="AllCards"]
+
+[node name="PlayerGauge" type="Node2D" parent="AllCards"]
+
+[node name="OpponentGauge" type="Node2D" parent="AllCards"]
+
+[node name="PlayerDiscards" type="Node2D" parent="AllCards"]
+
+[node name="OpponentDiscards" type="Node2D" parent="AllCards"]
+
+[node name="PlayerDeck" type="Node2D" parent="AllCards"]
+
+[node name="OpponentDeck" type="Node2D" parent="AllCards"]
 
 [connection signal="pressed" from="StaticUI/StaticUIVBox/TopMargin/AIMoveButton" to="." method="_on_ai_move_button_pressed"]
 [connection signal="pressed" from="StaticUI/StaticUIVBox/Arena/ArenaSquare1/Border" to="." method="_on_arena_location_pressed" binds= [1]]
