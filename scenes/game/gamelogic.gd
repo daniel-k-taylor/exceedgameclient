@@ -57,6 +57,7 @@ enum EventType {
 	EventType_Strike_IgnoredPushPull,
 	EventType_Strike_Miss,
 	EventType_Strike_PayCost,
+	EventType_Strike_PayCost_Unable,
 	EventType_Strike_PowerUp,
 	EventType_Strike_Response,
 	EventType_Strike_Reveal,
@@ -631,7 +632,7 @@ func handle_strike_effect(effect, performing_player : Player):
 			events += performing_player.draw(effect['amount'])
 		"dodge_attacks":
 			performing_player.strike_stat_boosts.dodge_attacks = true
-			events += [create_event(EventType.EventType_Strike_DodgeAttacks, performing_player, effect['amount'])]
+			events += [create_event(EventType.EventType_Strike_DodgeAttacks, performing_player, 0)]
 		"opponent_discard_random":
 			events += opposing_player.discard_random(effect['amount'])
 		"ignore_push_and_pull":
@@ -712,30 +713,36 @@ func ask_for_cost(performing_player, card, next_state):
 	if gauge_cost == 0 and force_cost == 0:
 		active_strike.strike_state = next_state
 	else:
-		change_game_state(GameState.GameState_Strike_PlayerDecision)
-		decision_player = performing_player
-		if active_strike.get_player_wild_strike(performing_player):
-			decision_type = DecisionType.DecisionType_PayStrikeCost_CanWild
-		else:
-			decision_type = DecisionType.DecisionType_PayStrikeCost_Required
+		if performing_player.can_pay_cost(card):
+			change_game_state(GameState.GameState_Strike_PlayerDecision)
+			decision_player = performing_player
+			if active_strike.get_player_wild_strike(performing_player):
+				decision_type = DecisionType.DecisionType_PayStrikeCost_CanWild
+			else:
+				decision_type = DecisionType.DecisionType_PayStrikeCost_Required
 
-		if gauge_cost > 0:
-			events += [create_event(EventType.EventType_Strike_PayCost, performing_player, card.id)]
-		elif force_cost > 0:
-			events += [create_event(EventType.EventType_Strike_PayCost, performing_player, card.id)]
+			if gauge_cost > 0:
+				events += [create_event(EventType.EventType_Strike_PayCost, performing_player, card.id)]
+			elif force_cost > 0:
+				events += [create_event(EventType.EventType_Strike_PayCost, performing_player, card.id)]
+		else:
+			# Failed to pay the cost by default.
+			events += [create_event(EventType.EventType_Strike_PayCost_Unable, performing_player, card.id)]
+			events += performing_player.add_to_discards(card)
+			events += performing_player.wild_strike();
 	return events
 
 func continue_strike_activation():
 	var events = []
-
-	var card1 = active_strike.get_card(1)
-	var card2 = active_strike.get_card(2)
-	var player1 = active_strike.get_player(1)
-	var player2 = active_strike.get_player(2)
-
 	change_game_state(GameState.GameState_Strike_Processing)
 
 	while true:
+		# Cards might change due to paying costs, so get them every loop.
+		var card1 = active_strike.get_card(1)
+		var card2 = active_strike.get_card(2)
+		var player1 = active_strike.get_player(1)
+		var player2 = active_strike.get_player(2)
+
 		if game_state == GameState.GameState_Strike_PlayerDecision:
 			printlog("STRIKE: Breaking for decision %s %s" % [decision_player.name, DecisionType.keys()[decision_type]])
 			break
@@ -1040,6 +1047,8 @@ func do_pay_cost(performing_player : Player, card_ids : Array, wild_strike : boo
 	var events = []
 	if wild_strike:
 		# Replace existing card with a wild strike
+		var current_card = active_strike.get_player_card(performing_player)
+		performing_player.add_to_discards(current_card)
 		events += performing_player.wild_strike()
 	else:
 		var card = active_strike.get_player_card(performing_player)

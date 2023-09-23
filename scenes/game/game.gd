@@ -112,9 +112,8 @@ func _input(event):
 
 func discard_card(card, discard_location, new_parent, is_player : bool):
 	var discard_pos = discard_location.global_position + discard_location.size * discard_location.scale /2
-	if not is_player:
-		# Make sure the card is faceup.
-		card.flip_card_to_front(true)
+	# Make sure the card is faceup.
+	card.flip_card_to_front(true)
 	card.discard_to(discard_pos, discard_location.scale, CardBase.CardState.CardState_Discarded)
 	reparent_to_zone(card, new_parent)
 	layout_player_hand(is_player)
@@ -148,6 +147,12 @@ func update_card_counts():
 
 	$PlayerDeck/DeckButton/CardCountContainer/CardCount.text = str(len(game_logic.player.deck))
 	$OpponentDeck/DeckButton/CardCountContainer/CardCount.text = str(len(game_logic.opponent.deck))
+
+	$PlayerDeck/DiscardCount.text = str(len(game_logic.player.discards))
+	$OpponentDeck/DiscardCount.text = str(len(game_logic.opponent.discards))
+
+	$PlayerGauge/GaugePanel/GaugeVBox/GaugeAmount.text = str(len(game_logic.player.gauge))
+	$OpponentGauge/GaugePanel/GaugeVBox/GaugeAmount.text = str(len(game_logic.opponent.gauge))
 
 func get_card_node_name(id):
 	return "Card_" + str(id)
@@ -439,6 +444,9 @@ func _on_pay_cost(event):
 	else:
 		ai_pay_cost(event)
 
+func _on_pay_cost_failed(_event):
+	printlog("TODO: Animation for pay costs failed")
+
 func _on_force_for_armor(event):
 	if event['event_player'] == game_logic.player:
 		# UI to select cards to use force for armor
@@ -493,6 +501,8 @@ func _handle_events(events):
 				printlog("TODO: Animate strike miss")
 			game_logic.EventType.EventType_Strike_PayCost:
 				_on_pay_cost(event)
+			game_logic.EventType.EventType_Strike_PayCost_Unable:
+				_on_pay_cost_failed(event)
 			game_logic.EventType.EventType_Strike_PowerUp:
 				printlog("TODO: Animate strike power up")
 			game_logic.EventType.EventType_Strike_Response:

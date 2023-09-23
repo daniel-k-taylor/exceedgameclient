@@ -42,6 +42,7 @@ var manual_flip_needed = false
 var follow_mouse = false
 var saved_hand_index = -1
 
+var default_scale = 1
 var resting_position
 var resting_rotation
 var resting_scale
@@ -79,7 +80,7 @@ func set_hover_visible(hover_visible):
 
 func _physics_process(delta):
 	match state:
-		CardState.CardState_InHand:
+		CardState.CardState_InHand, CardState.CardState_InStrike:
 			set_hover_visible(true)
 		CardState.CardState_Focusing:
 			if animation_time <= 1:
@@ -166,6 +167,7 @@ func _process(_delta):
 func initialize_card(id, card_title, card_scale, _image, range_min, range_max, speed, power, armor, guard, effect_text, boost_cost, boost_text):
 	self.card_id = id
 	$CardContainer/CardBox/TitleRow/TitlePanel/TitleNameBox/TitleName.text = card_title
+	self.default_scale = card_scale
 	self.resting_scale = card_scale
 	scale = card_scale
 	# TODO: Set image
@@ -192,6 +194,8 @@ func set_resting_position(pos, rot):
 
 	match state:
 		CardState.CardState_InDeck, CardState.CardState_InHand, CardState.CardState_DrawingToHand:
+			resting_scale = default_scale
+			scale = resting_scale
 			position_card_in_hand(pos, rot)
 		CardState.CardState_Unfocusing:
 			target_pos = pos
@@ -202,6 +206,7 @@ func discard_to(pos, sca, target_state):
 	set_resting_position(pos, 0)
 	unfocus() # Sets animation_time to 0
 	target_scale = sca
+	resting_scale = target_scale
 	return_state = target_state
 	change_state(CardState.CardState_Discarding)
 
@@ -234,6 +239,8 @@ func focus():
 	animation_time = 0
 	animation_length = FOCUS_ANIMATION_LENGTH
 
+	z_index = 10
+
 	emit_signal("raised_card", self)
 	change_state(CardState.CardState_Focusing)
 
@@ -248,6 +255,8 @@ func unfocus():
 
 	animation_time = 0
 	animation_length = FOCUS_ANIMATION_LENGTH
+
+	z_index = 0
 
 	change_state(CardState.CardState_Unfocusing)
 	emit_signal("lowered_card", self)

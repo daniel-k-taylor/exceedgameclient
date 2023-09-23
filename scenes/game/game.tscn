@@ -295,6 +295,17 @@ texture_normal = ExtResource("4_5y76h")
 texture_pressed = ExtResource("4_5y76h")
 texture_hover = ExtResource("4_5y76h")
 
+[node name="DiscardCount" type="Label" parent="PlayerDeck"]
+offset_left = 1178.0
+offset_top = 500.0
+offset_right = 1242.0
+offset_bottom = 581.0
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_font_sizes/font_size = 60
+text = "88"
+horizontal_alignment = 1
+vertical_alignment = 1
+
 [node name="OpponentDeck" type="Node2D" parent="."]
 
 [node name="DeckButton" type="TextureButton" parent="OpponentDeck"]
@@ -340,6 +351,17 @@ scale = Vector2(0.4, 0.4)
 texture_normal = ExtResource("4_5y76h")
 texture_pressed = ExtResource("4_5y76h")
 texture_hover = ExtResource("4_5y76h")
+
+[node name="DiscardCount" type="Label" parent="OpponentDeck"]
+offset_left = 1178.0
+offset_top = 132.0
+offset_right = 1242.0
+offset_bottom = 213.0
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_font_sizes/font_size = 60
+text = "88"
+horizontal_alignment = 1
+vertical_alignment = 1
 
 [node name="PlayerStrike" type="Node2D" parent="."]
 
