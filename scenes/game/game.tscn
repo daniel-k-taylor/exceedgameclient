@@ -196,6 +196,11 @@ layout_mode = 2
 theme_override_font_sizes/font_size = 24
 text = "Cancel"
 
+[node name="WildSwingButton" type="Button" parent="StaticUI/StaticUIVBox/InstructionsWithButtonsUI/ButtonContainer"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 24
+text = "Wild Swing"
+
 [node name="ButtonGrid" type="GridContainer" parent="StaticUI/StaticUIVBox"]
 layout_mode = 2
 size_flags_horizontal = 8
@@ -525,6 +530,7 @@ texture_hover = ExtResource("17_rr8uh")
 [connection signal="pressed" from="StaticUI/StaticUIVBox/Arena/ArenaSquare9/Border" to="." method="_on_arena_location_pressed" binds= [9]]
 [connection signal="pressed" from="StaticUI/StaticUIVBox/InstructionsWithButtonsUI/ButtonContainer/OkButton" to="." method="_on_instructions_ok_button_pressed"]
 [connection signal="pressed" from="StaticUI/StaticUIVBox/InstructionsWithButtonsUI/ButtonContainer/CancelButton" to="." method="_on_instructions_cancel_button_pressed"]
+[connection signal="pressed" from="StaticUI/StaticUIVBox/InstructionsWithButtonsUI/ButtonContainer/WildSwingButton" to="." method="_on_wild_swing_button_pressed"]
 [connection signal="pressed" from="StaticUI/StaticUIVBox/ButtonGrid/PrepareButton" to="." method="_on_prepare_button_pressed"]
 [connection signal="pressed" from="StaticUI/StaticUIVBox/ButtonGrid/MoveButton" to="." method="_on_move_button_pressed"]
 [connection signal="pressed" from="StaticUI/StaticUIVBox/ButtonGrid/ChangeButton" to="." method="_on_change_button_pressed"]

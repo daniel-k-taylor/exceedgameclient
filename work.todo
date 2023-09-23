@@ -25,7 +25,7 @@ Tasks:
         ☐ Manual Reshuffle
         ☐ Boost
         ☐ Strike
-            ☐ Wild Swing - pickable
+            ✔ Wild Swing - pickable @done(23-09-23 13:26)
             ☐ EX
             ☐ Boosts
             Highest priority strike items:
@@ -33,7 +33,7 @@ Tasks:
                 ✔ UI: TODO: Animate strike response @done(23-09-22 19:51)
                 ✔ UI: TODO: Animate card going to discard @done(23-09-22 19:51)
                 ✔ UI: TODO: Animate card going to gauge @done(23-09-23 02:53)
-                ☐ Player pay costs
+                ✔ Player pay costs @done(23-09-23 14:00)
                 ☐ Player select choice
                 ☐ Player force for armor
 
@@ -42,3 +42,4 @@ Tasks:
     ☐ Reshuffle discard visuals
     ✔ Draw card visual for opponent drawing @done(23-09-23 12:25)
     ☐ Visual for reshuffle used
+    ☐ Allow spending ultra for 1 force

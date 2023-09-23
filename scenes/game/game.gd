@@ -15,6 +15,7 @@ var select_card_require_max = 0
 var select_card_require_force = 0
 var instructions_ok_allowed = false
 var instructions_cancel_allowed = false
+var instructions_wild_swing_allowed = false
 var selected_cards = []
 var arena_locations_clickable = []
 var selected_arena_location = 0
@@ -32,6 +33,7 @@ enum UISubState {
 	UISubState_SelectCards_MoveActionGenerateForce,
 	UISubState_SelectCards_DiscardCards,
 	UISubState_SelectCards_ForceForChange,
+	UISubState_SelectCards_StrikeGauge,
 	UISubState_SelectCards_StrikeCard,
 	UISubState_SelectCards_StrikeResponseCard,
 	UISubState_SelectCards_ForceForArmor,
@@ -68,7 +70,7 @@ func _ready():
 func finish_initialization():
 	spawn_all_cards()
 	draw_and_begin()
-	#test_init()
+	test_init()
 
 func test_draw_and_add():
 	var events = game_logic.player.draw(1)
@@ -78,7 +80,7 @@ func test_draw_and_add():
 	events = game_logic.player.add_to_gauge(card)
 	_handle_events(events)
 func test_init():
-	for i in range(5):
+	for i in range(4):
 		test_draw_and_add()
 	layout_player_hand(true)
 	_update_buttons()
@@ -231,7 +233,7 @@ func on_card_lowered(card):
 
 func can_select_card(_card):
 	match ui_sub_state:
-		UISubState.UISubState_SelectCards_DiscardCards:
+		UISubState.UISubState_SelectCards_DiscardCards, UISubState.UISubState_SelectCards_StrikeGauge:
 			return len(selected_cards) < select_card_require_max
 		UISubState.UISubState_SelectCards_MoveActionGenerateForce, UISubState.UISubState_SelectCards_ForceForChange:
 			return true
@@ -310,6 +312,13 @@ func _on_advance_turn():
 	else:
 		change_ui_state(UIState.UIState_WaitingOnOpponent)
 
+	clear_selected_cards()
+
+func clear_selected_cards():
+	for card in selected_cards:
+		card.set_selected(false)
+	selected_cards = []
+
 func _on_discard_event(event):
 	var discard_id = event['number']
 	var card = find_card_on_board(discard_id)
@@ -367,8 +376,18 @@ func _on_hand_size_exceeded(event):
 		# AI or other player wait
 		ai_discard(event)
 
-func change_ui_state(new_state):
-	ui_state = new_state
+func change_ui_state(new_state, new_sub_state = null):
+	if new_state:
+		printlog("UI: State change %s to %s" % [UIState.keys()[ui_state], UIState.keys()[new_state]])
+		ui_state = new_state
+	else:
+		printlog("UI: State = %s" % UIState.keys()[ui_state])
+
+	if new_sub_state:
+		printlog("UI: Sub state change %s to %s" % [UISubState.keys()[ui_sub_state], UISubState.keys()[new_sub_state]])
+		ui_sub_state = new_sub_state
+	else:
+		printlog("UI: Sub state = %s" % UISubState.keys()[ui_sub_state])
 	update_card_counts()
 	_update_buttons()
 
@@ -378,6 +397,10 @@ func set_instructions(text):
 func update_discard_selection_message():
 	var num_remaining = select_card_require_min - len(selected_cards)
 	set_instructions("Select %s more card(s) from your hand to discard." % num_remaining)
+
+func update_gauge_selection_message():
+	var num_remaining = select_card_require_min - len(selected_cards)
+	set_instructions("Select %s more gauge card(s)." % num_remaining)
 
 func get_force_in_selected_cards():
 	var force_selected = 0
@@ -393,19 +416,18 @@ func update_force_generation_message():
 		UISubState.UISubState_SelectCards_ForceForChange:
 			set_instructions("Select cards to generate force to draw new cards.\n%s force generated." % [force_selected])
 
-func enable_instructions_ui(message, can_ok, can_cancel):
+func enable_instructions_ui(message, can_ok, can_cancel, can_wild_swing = false):
 	set_instructions(message)
 	instructions_ok_allowed = can_ok
 	instructions_cancel_allowed = can_cancel
-
+	instructions_wild_swing_allowed = can_wild_swing
 
 func begin_discard_cards_selection(number_to_discard):
 	selected_cards = []
 	select_card_require_min = number_to_discard
 	select_card_require_max = number_to_discard
 	enable_instructions_ui("", true, false)
-	ui_sub_state = UISubState.UISubState_SelectCards_DiscardCards
-	change_ui_state(UIState.UIState_SelectCards)
+	change_ui_state(UIState.UIState_SelectCards, UISubState.UISubState_SelectCards_DiscardCards)
 
 func begin_generate_force_selection(amount):
 	selected_cards = []
@@ -414,17 +436,25 @@ func begin_generate_force_selection(amount):
 
 	change_ui_state(UIState.UIState_SelectCards)
 
+func begin_gauge_selection(amount, wild_swing_allowed):
+	selected_cards = []
+	select_card_require_min = amount
+	select_card_require_max = amount
+	enable_instructions_ui("", true, false, wild_swing_allowed)
+
+	change_ui_state(UIState.UIState_SelectCards, UISubState.UISubState_SelectCards_StrikeGauge)
 
 func begin_strike_choosing(strike_response : bool):
 	selected_cards = []
 	select_card_require_min = 1
 	select_card_require_max = 1
-	enable_instructions_ui("Select a card to strike with.", true, not strike_response)
+	enable_instructions_ui("Select a card to strike with.", true, not strike_response, true)
+	var new_sub_state
 	if strike_response:
-		ui_sub_state = UISubState.UISubState_SelectCards_StrikeResponseCard
+		new_sub_state = UISubState.UISubState_SelectCards_StrikeResponseCard
 	else:
-		ui_sub_state = UISubState.UISubState_SelectCards_StrikeCard
-	change_ui_state(UIState.UIState_SelectCards)
+		new_sub_state = UISubState.UISubState_SelectCards_StrikeCard
+	change_ui_state(UIState.UIState_SelectCards, new_sub_state)
 
 func complete_strike_choosing(card_id : int):
 	var events = game_logic.do_strike(game_logic.player, card_id, false)
@@ -468,9 +498,13 @@ func _on_effect_choice(event):
 	else:
 		ai_effect_choice(event)
 
-func _on_pay_cost(event):
+func _on_pay_cost_gauge(event):
 	if event['event_player'] == game_logic.player:
-		printlog("TODO: UI to pay costs")
+		# Show the gauge window.
+		_on_player_gauge_gauge_clicked()
+		var wild_swing_allowed = game_logic.decision_type == game_logic.DecisionType.DecisionType_PayStrikeCost_CanWild
+		var gauge_cost = game_logic.get_card_gauge_cost(event['number'])
+		begin_gauge_selection(gauge_cost, wild_swing_allowed)
 	else:
 		ai_pay_cost(event)
 
@@ -529,8 +563,10 @@ func _handle_events(events):
 				printlog("TODO: Animate strike ignored push/pull")
 			game_logic.EventType.EventType_Strike_Miss:
 				printlog("TODO: Animate strike miss")
-			game_logic.EventType.EventType_Strike_PayCost:
-				_on_pay_cost(event)
+			game_logic.EventType.EventType_Strike_PayCost_Gauge:
+				_on_pay_cost_gauge(event)
+			game_logic.EventType.EventType_Strike_PayCost_Force:
+				printlog("TODO: UI Pay force costs on card")
 			game_logic.EventType.EventType_Strike_PayCost_Unable:
 				_on_pay_cost_failed(event)
 			game_logic.EventType.EventType_Strike_PowerUp:
@@ -569,6 +605,7 @@ func _update_buttons():
 	$StaticUI/StaticUIVBox/InstructionsWithButtonsUI/ButtonContainer/OkButton.disabled = not can_press_ok()
 	$StaticUI/StaticUIVBox/InstructionsWithButtonsUI/ButtonContainer/OkButton.visible = instructions_ok_allowed
 	$StaticUI/StaticUIVBox/InstructionsWithButtonsUI/ButtonContainer/CancelButton.visible = instructions_cancel_allowed
+	$StaticUI/StaticUIVBox/InstructionsWithButtonsUI/ButtonContainer/WildSwingButton.visible = instructions_wild_swing_allowed
 
 	# Update instructions message
 	if ui_state == UIState.UIState_SelectCards:
@@ -579,6 +616,8 @@ func _update_buttons():
 				update_force_generation_message()
 			UISubState.UISubState_SelectCards_ForceForChange:
 				update_force_generation_message()
+			UISubState.UISubState_SelectCards_StrikeGauge:
+				update_gauge_selection_message()
 
 	# Update arena location selection buttons
 	for i in range(1, 10):
@@ -588,7 +627,7 @@ func _update_buttons():
 func can_press_ok():
 	if ui_state == UIState.UIState_SelectCards:
 		match ui_sub_state:
-			UISubState.UISubState_SelectCards_DiscardCards:
+			UISubState.UISubState_SelectCards_DiscardCards, UISubState.UISubState_SelectCards_StrikeGauge:
 				var selected_count = len(selected_cards)
 				if  selected_count >= select_card_require_min && selected_count <= select_card_require_max:
 					return true
@@ -605,8 +644,7 @@ func can_press_ok():
 func begin_select_arena_location(valid_moves):
 	arena_locations_clickable = valid_moves
 	enable_instructions_ui("Select a location", false, true)
-	ui_sub_state = UISubState.UISubState_SelectCards_MoveActionGenerateForce
-	change_ui_state(UIState.UIState_SelectArenaLocation)
+	change_ui_state(UIState.UIState_SelectArenaLocation, UISubState.UISubState_SelectCards_MoveActionGenerateForce)
 
 ##
 ## Button Handlers
@@ -627,7 +665,7 @@ func _on_move_button_pressed():
 	begin_select_arena_location(valid_moves)
 
 func _on_change_button_pressed():
-	ui_sub_state = UISubState.UISubState_SelectCards_ForceForChange
+	change_ui_state(null, UISubState.UISubState_SelectCards_ForceForChange)
 	begin_generate_force_selection(-1)
 
 func _on_exceed_button_pressed():
@@ -654,6 +692,13 @@ func _on_instructions_ok_button_pressed():
 					selected_card_ids.append(card.card_id)
 				var events = game_logic.do_discard_to_max(game_logic.player, selected_card_ids)
 				_handle_events(events)
+			UISubState.UISubState_SelectCards_StrikeGauge:
+				var selected_card_ids = []
+				for card in selected_cards:
+					selected_card_ids.append(card.card_id)
+				_on_gauge_popout_close_window()
+				var events = game_logic.do_pay_cost(game_logic.player, selected_card_ids, false)
+				_handle_events(events)
 			UISubState.UISubState_SelectCards_MoveActionGenerateForce:
 				var selected_card_ids = []
 				for card in selected_cards:
@@ -677,6 +722,15 @@ func _on_instructions_cancel_button_pressed():
 		deselect_all_cards()
 		change_ui_state(UIState.UIState_PickTurnAction)
 
+func _on_wild_swing_button_pressed():
+	if ui_state == UIState.UIState_SelectCards:
+		if ui_sub_state == UISubState.UISubState_SelectCards_StrikeCard:
+			var events = game_logic.do_strike(game_logic.player, -1, true)
+			_handle_events(events)
+		elif ui_sub_state == UISubState.UISubState_SelectCards_StrikeGauge:
+			_on_gauge_popout_close_window()
+			var events = game_logic.do_pay_cost(game_logic.player, [], true)
+			_handle_events(events)
 
 func _on_arena_location_pressed(location):
 	selected_arena_location = location
@@ -723,14 +777,21 @@ func ai_discard(event):
 	var events = game_logic.do_discard_to_max(game_logic.opponent, to_discard)
 	_handle_events(events)
 
+func card_in_selected_cards(card):
+	for selected_card in selected_cards:
+		if selected_card.card_id == card.card_id:
+			return true
+	return false
+
 # Popout Functions
 func _update_popout_cards(popout, amount : int, cards_in_popout : Array, not_visible_position : Vector2, card_return_state : CardBase.CardState):
 	popout.set_amount(amount)
 	if popout.visible:
+		# Clear first which sets the size/positions correctly.
 		await popout.clear(len(cards_in_popout))
 		for i in range(len(cards_in_popout)):
 			var card = cards_in_popout[i]
-			card.set_selected(false)
+			card.set_selected(card_in_selected_cards(card))
 			# Assign positions
 			var pos = popout.get_slot_position(i)
 			card.position = pos + CardBase.SmallCardScale * CardBase.ActualCardSize / 2
@@ -746,15 +807,6 @@ func _update_popout_cards(popout, amount : int, cards_in_popout : Array, not_vis
 			card.change_state(card_return_state)
 			card.set_resting_position(card.position, 0)
 		await popout.clear(0)
-	for i in range(len(cards_in_popout)):
-		var card = cards_in_popout[i]
-		card.set_selected(false)
-		if popout.visible:
-			# Assign positions
-			var pos = popout.get_slot_position(i)
-			card.position = pos + CardBase.SmallCardScale * CardBase.ActualCardSize / 2
-			card.change_state(CardBase.CardState.CardState_InPopout)
-			card.set_resting_position(card.position, 0)
 
 func clear_gauge_popout():
 	await _update_popout_cards(
@@ -813,7 +865,11 @@ func _on_opponent_gauge_gauge_clicked():
 	show_popout(gauge_popout, clear_gauge_popout, $AllCards/OpponentGauge, $OpponentGauge.get_center_pos(), CardBase.CardState.CardState_InGauge)
 
 func _on_player_discard_button_pressed():
+	await _on_gauge_popout_close_window()
 	show_popout(discard_popout, clear_discard_popout, $AllCards/PlayerDiscards, get_discard_location($PlayerDeck/Discard), CardBase.CardState.CardState_Discarded)
 
 func _on_opponent_discard_button_pressed():
+	await _on_gauge_popout_close_window()
 	show_popout(discard_popout, clear_discard_popout, $AllCards/OpponentDiscards, get_discard_location($OpponentDeck/Discard), CardBase.CardState.CardState_Discarded)
+
+

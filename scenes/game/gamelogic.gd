@@ -56,7 +56,8 @@ enum EventType {
 	EventType_Strike_GuardUp,
 	EventType_Strike_IgnoredPushPull,
 	EventType_Strike_Miss,
-	EventType_Strike_PayCost,
+	EventType_Strike_PayCost_Gauge,
+	EventType_Strike_PayCost_Force,
 	EventType_Strike_PayCost_Unable,
 	EventType_Strike_PowerUp,
 	EventType_Strike_Response,
@@ -722,9 +723,9 @@ func ask_for_cost(performing_player, card, next_state):
 				decision_type = DecisionType.DecisionType_PayStrikeCost_Required
 
 			if gauge_cost > 0:
-				events += [create_event(EventType.EventType_Strike_PayCost, performing_player, card.id)]
+				events += [create_event(EventType.EventType_Strike_PayCost_Gauge, performing_player, card.id)]
 			elif force_cost > 0:
-				events += [create_event(EventType.EventType_Strike_PayCost, performing_player, card.id)]
+				events += [create_event(EventType.EventType_Strike_PayCost_Force, performing_player, card.id)]
 		else:
 			# Failed to pay the cost by default.
 			events += [create_event(EventType.EventType_Strike_PayCost_Unable, performing_player, card.id)]
@@ -986,7 +987,7 @@ func do_change(performing_player : Player, card_ids):
 	return events
 
 func do_strike(performing_player : Player, card_id : int, wild_strike: bool):
-	printlog("Starting strike player %s card %d" % [performing_player.name, get_card_name(card_id)])
+	printlog("Starting strike player %s card %d wild %s" % [performing_player.name, get_card_name(card_id), str(wild_strike)])
 	if game_state == GameState.GameState_PickAction:
 		if performing_player != active_turn_player:
 			print("ERROR: Tried to strike but not current player")
@@ -996,7 +997,7 @@ func do_strike(performing_player : Player, card_id : int, wild_strike: bool):
 			print("ERROR: Strike response from wrong player.")
 			return []
 
-	if not performing_player.is_card_in_hand(card_id):
+	if not wild_strike and not performing_player.is_card_in_hand(card_id):
 		print("ERROR: Tried to strike with a card not in hand.")
 		return []
 
@@ -1048,7 +1049,7 @@ func do_pay_cost(performing_player : Player, card_ids : Array, wild_strike : boo
 	if wild_strike:
 		# Replace existing card with a wild strike
 		var current_card = active_strike.get_player_card(performing_player)
-		performing_player.add_to_discards(current_card)
+		events += performing_player.add_to_discards(current_card)
 		events += performing_player.wild_strike()
 	else:
 		var card = active_strike.get_player_card(performing_player)
