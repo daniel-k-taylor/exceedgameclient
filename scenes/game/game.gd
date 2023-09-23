@@ -128,8 +128,12 @@ func _input(event):
 		if event is InputEventMouseButton and event.is_released():
 			pass
 
-func discard_card(card, discard_location, new_parent, is_player : bool):
-	var discard_pos = discard_location.global_position + discard_location.size * discard_location.scale /2
+func get_discard_location(discard_node):
+	var discard_pos = discard_node.global_position + discard_node.size * discard_node.scale /2
+	return discard_pos
+
+func discard_card(card, discard_node, new_parent, is_player : bool):
+	var discard_pos = get_discard_location(discard_node)
 	# Make sure the card is faceup.
 	card.flip_card_to_front(true)
 	card.discard_to(discard_pos, CardBase.CardState.CardState_Discarded)
@@ -720,63 +724,96 @@ func ai_discard(event):
 	_handle_events(events)
 
 # Popout Functions
-
-func _toggle_popout(popout):
-	popout.visible = not popout.visible
-
-func _update_gauge_for_player(amount : int, gauge_cards, gauge_panel : GaugePanel):
-	gauge_popout.set_amount(amount)
-	if gauge_popout.visible:
-		await gauge_popout.clear(len(gauge_cards))
-		for i in range(len(gauge_cards)):
-			var card = gauge_cards[i]
+func _update_popout_cards(popout, amount : int, cards_in_popout : Array, not_visible_position : Vector2, card_return_state : CardBase.CardState):
+	popout.set_amount(amount)
+	if popout.visible:
+		await popout.clear(len(cards_in_popout))
+		for i in range(len(cards_in_popout)):
+			var card = cards_in_popout[i]
 			card.set_selected(false)
 			# Assign positions
-			var pos = gauge_popout.get_slot_position(i)
+			var pos = popout.get_slot_position(i)
 			card.position = pos + CardBase.SmallCardScale * CardBase.ActualCardSize / 2
-			card.change_state(CardBase.CardState.CardState_InGauge_Popout)
+			card.change_state(CardBase.CardState.CardState_InPopout)
 			card.set_resting_position(card.position, 0)
 	else:
 		# When clearing, set the cards first before awaiting.
-		for i in range(len(gauge_cards)):
-			var card = gauge_cards[i]
+		for i in range(len(cards_in_popout)):
+			var card = cards_in_popout[i]
 			card.set_selected(false)
 			# Assign back to gauge
-			card.position = gauge_panel.get_center_pos()
-			card.change_state(CardBase.CardState.CardState_InGauge)
+			card.position = not_visible_position
+			card.change_state(card_return_state)
 			card.set_resting_position(card.position, 0)
-		await gauge_popout.clear(0)
-	for i in range(len(gauge_cards)):
-		var card = gauge_cards[i]
+		await popout.clear(0)
+	for i in range(len(cards_in_popout)):
+		var card = cards_in_popout[i]
 		card.set_selected(false)
-		if gauge_popout.visible:
+		if popout.visible:
 			# Assign positions
-			var pos = gauge_popout.get_slot_position(i)
+			var pos = popout.get_slot_position(i)
 			card.position = pos + CardBase.SmallCardScale * CardBase.ActualCardSize / 2
-			card.change_state(CardBase.CardState.CardState_InGauge_Popout)
+			card.change_state(CardBase.CardState.CardState_InPopout)
 			card.set_resting_position(card.position, 0)
 
 func clear_gauge_popout():
-	await _update_gauge_for_player(len(game_logic.player.gauge), $AllCards/PlayerGauge.get_children(), $PlayerGauge)
-	await _update_gauge_for_player(len(game_logic.opponent.gauge), $AllCards/OpponentGauge.get_children(), $OpponentGauge)
+	await _update_popout_cards(
+		gauge_popout,
+		len(game_logic.player.gauge),
+		$AllCards/PlayerGauge.get_children(),
+		$PlayerGauge.get_center_pos(),
+		CardBase.CardState.CardState_InGauge
+	)
+	await _update_popout_cards(
+		gauge_popout,
+		len(game_logic.opponent.gauge),
+		$AllCards/OpponentGauge.get_children(),
+		$OpponentGauge.get_center_pos(),
+		CardBase.CardState.CardState_InGauge
+	)
+
+func clear_discard_popout():
+	await _update_popout_cards(
+		discard_popout,
+		len(game_logic.player.discards),
+		$AllCards/PlayerDiscards.get_children(),
+		get_discard_location($PlayerDeck/Discard),
+		CardBase.CardState.CardState_Discarded
+	)
+	await _update_popout_cards(
+		discard_popout,
+		len(game_logic.player.discards),
+		$AllCards/OpponentDiscards.get_children(),
+		get_discard_location($OpponentDeck/Discard),
+		CardBase.CardState.CardState_Discarded
+	)
 
 func _on_gauge_popout_close_window():
-	_toggle_popout(gauge_popout)
-	clear_gauge_popout()
+	gauge_popout.visible = false
+	await clear_gauge_popout()
 
 func _on_discard_popout_close_window():
-	_toggle_popout(discard_popout)
+	discard_popout.visible = false
+	await clear_discard_popout()
+
+func show_popout(popout, clear_func, card_node, card_rest_position : Vector2, card_rest_state : CardBase.CardState):
+	if popout.visible:
+		popout.visible = false
+		await clear_func.call()
+	popout.visible = true
+	var cards = card_node.get_children()
+	_update_popout_cards(popout, len(cards), cards, card_rest_position, card_rest_state)
 
 func _on_player_gauge_gauge_clicked():
-	if gauge_popout.visible:
-		_toggle_popout(gauge_popout)
-		await clear_gauge_popout()
-	_toggle_popout(gauge_popout)
-	_update_gauge_for_player(len(game_logic.player.gauge), $AllCards/PlayerGauge.get_children(), $PlayerGauge)
+	await _on_discard_popout_close_window()
+	show_popout(gauge_popout, clear_gauge_popout, $AllCards/PlayerGauge, $PlayerGauge.get_center_pos(), CardBase.CardState.CardState_InGauge)
 
 func _on_opponent_gauge_gauge_clicked():
-	if gauge_popout.visible:
-		_toggle_popout(gauge_popout)
-		await clear_gauge_popout()
-	_toggle_popout(gauge_popout)
-	_update_gauge_for_player(len(game_logic.opponent.gauge), $AllCards/OpponentGauge.get_children(), $OpponentGauge)
+	await _on_discard_popout_close_window()
+	show_popout(gauge_popout, clear_gauge_popout, $AllCards/OpponentGauge, $OpponentGauge.get_center_pos(), CardBase.CardState.CardState_InGauge)
+
+func _on_player_discard_button_pressed():
+	show_popout(discard_popout, clear_discard_popout, $AllCards/PlayerDiscards, get_discard_location($PlayerDeck/Discard), CardBase.CardState.CardState_Discarded)
+
+func _on_opponent_discard_button_pressed():
+	show_popout(discard_popout, clear_discard_popout, $AllCards/OpponentDiscards, get_discard_location($OpponentDeck/Discard), CardBase.CardState.CardState_Discarded)

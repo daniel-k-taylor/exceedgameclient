@@ -1,11 +1,15 @@
-[gd_scene load_steps=3 format=3 uid="uid://dxtsdthw5sxbc"]
+[gd_scene load_steps=4 format=3 uid="uid://dxtsdthw5sxbc"]
 
 [ext_resource type="Texture2D" uid="uid://dh8tat2r8ttx1" path="res://assets/cards/card_border_highlight.png" id="1_jo5c8"]
 [ext_resource type="Script" path="res://scenes/game/card_popout.gd" id="1_n2e25"]
 
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_r26q8"]
+bg_color = Color(0.227451, 0.227451, 0.227451, 1)
+
 [node name="CardPopout" type="PanelContainer"]
 offset_right = 250.0
 offset_bottom = 350.0
+theme_override_styles/panel = SubResource("StyleBoxFlat_r26q8")
 script = ExtResource("1_n2e25")
 
 [node name="PopoutVBox" type="VBoxContainer" parent="."]

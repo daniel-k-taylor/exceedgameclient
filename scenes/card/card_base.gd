@@ -22,7 +22,7 @@ enum CardState {
 	CardState_InDeck,
 	CardState_InHand,
 	CardState_InGauge,
-	CardState_InGauge_Popout,
+	CardState_InPopout,
 	CardState_Discarding,
 	CardState_Discarded,
 	CardState_InStrike,
@@ -92,7 +92,7 @@ func update_visibility():
 			visible = true
 
 	match state:
-		CardState.CardState_InHand, CardState.CardState_InStrike, CardState.CardState_InGauge_Popout, CardState.CardState_Focusing:
+		CardState.CardState_InHand, CardState.CardState_InStrike, CardState.CardState_InPopout, CardState.CardState_Focusing:
 			set_hover_visible(true)
 		_:
 			set_hover_visible(false)
@@ -297,7 +297,7 @@ func end_drag():
 
 func _on_focus_mouse_entered():
 	match state:
-		CardState.CardState_InHand, CardState.CardState_Unfocusing, CardState.CardState_InStrike, CardState.CardState_InGauge_Popout:
+		CardState.CardState_InHand, CardState.CardState_Unfocusing, CardState.CardState_InStrike, CardState.CardState_InPopout:
 			focus()
 
 

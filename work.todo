@@ -1,5 +1,4 @@
 Bugs:
-☐ Gauge cards not showing up right
 
 In progress:
     ☐ strike
@@ -7,11 +6,11 @@ In progress:
 
 Tasks:
     ☐ Show card text and cost
-    ☐ Implement arena and characters
-    ☐ Gauge area functionality
+    ✔ Implement arena and characters @done(23-09-23 12:25)
+    ✔ Gauge area functionality @done(23-09-23 12:25)
         ☐ Move and Change from gauge
     ☐ Boost Area functionality
-    ☐ Discard Area functionality
+    ✔ Discard Area functionality @done(23-09-23 12:25)
     ☐ Implement Turn actions
         ✔ Prepare - draw a card @done(23-09-18 01:42)
         ✔ Move - force (gauge or discard) to move @done(23-09-20 02:07)
@@ -38,8 +37,8 @@ Tasks:
                 ☐ Player select choice
                 ☐ Player force for armor
 
-    ☐ Opponent cards/areas
+    ✔ Opponent cards/areas @done(23-09-23 12:25)
     ☐ Game Over visuals
     ☐ Reshuffle discard visuals
-    ☐ Draw card visual for opponent drawing
+    ✔ Draw card visual for opponent drawing @done(23-09-23 12:25)
     ☐ Visual for reshuffle used
