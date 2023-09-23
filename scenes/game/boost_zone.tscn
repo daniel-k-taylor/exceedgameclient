@@ -1,13 +1,6 @@
-[gd_scene load_steps=2 format=3 uid="uid://dsc63si41lg6t"]
+[gd_scene format=3 uid="uid://dsc63si41lg6t"]
 
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_cxtsq"]
-size = Vector2(160, 110)
-
-[node name="BoostZone" type="Area2D"]
-
-[node name="BoostShape" type="CollisionShape2D" parent="."]
-position = Vector2(80, 55)
-shape = SubResource("RectangleShape2D_cxtsq")
+[node name="BoostZone" type="Node2D"]
 
 [node name="BoostPanel" type="PanelContainer" parent="."]
 custom_minimum_size = Vector2(160, 110)

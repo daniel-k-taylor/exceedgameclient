@@ -1,0 +1,383 @@
+[gd_scene load_steps=3 format=3 uid="uid://dxtsdthw5sxbc"]
+
+[ext_resource type="Texture2D" uid="uid://dh8tat2r8ttx1" path="res://assets/cards/card_border_highlight.png" id="1_jo5c8"]
+[ext_resource type="Script" path="res://scenes/game/card_popout.gd" id="1_n2e25"]
+
+[node name="CardPopout" type="PanelContainer"]
+offset_right = 250.0
+offset_bottom = 350.0
+script = ExtResource("1_n2e25")
+
+[node name="PopoutVBox" type="VBoxContainer" parent="."]
+layout_mode = 2
+
+[node name="CloseWindowButton" type="Button" parent="PopoutVBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 28
+text = "CLOSE WINDOW"
+
+[node name="HBoxContainer" type="HBoxContainer" parent="PopoutVBox"]
+layout_mode = 2
+
+[node name="LeftMargin" type="MarginContainer" parent="PopoutVBox/HBoxContainer"]
+custom_minimum_size = Vector2(20, 0)
+layout_mode = 2
+
+[node name="TitleLabel" type="Label" parent="PopoutVBox/HBoxContainer"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 38
+text = "GAUGE"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Buffer" type="MarginContainer" parent="PopoutVBox/HBoxContainer"]
+custom_minimum_size = Vector2(20, 0)
+layout_mode = 2
+
+[node name="TitleAmount" type="Label" parent="PopoutVBox/HBoxContainer"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 38
+text = "##"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Buffer2" type="MarginContainer" parent="PopoutVBox/HBoxContainer"]
+custom_minimum_size = Vector2(20, 0)
+layout_mode = 2
+
+[node name="Margin" type="MarginContainer" parent="PopoutVBox"]
+layout_mode = 2
+size_flags_horizontal = 0
+size_flags_vertical = 0
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 10
+
+[node name="Row" type="HBoxContainer" parent="PopoutVBox/Margin"]
+layout_mode = 2
+size_flags_horizontal = 0
+size_flags_vertical = 0
+theme_override_constants/separation = 20
+
+[node name="Col1" type="VBoxContainer" parent="PopoutVBox/Margin/Row"]
+visible = false
+layout_mode = 2
+size_flags_vertical = 0
+theme_override_constants/separation = 20
+
+[node name="Spot1" type="TextureRect" parent="PopoutVBox/Margin/Row/Col1"]
+modulate = Color(1, 1, 1, 0)
+layout_mode = 2
+texture = ExtResource("1_jo5c8")
+
+[node name="Spot2" type="TextureRect" parent="PopoutVBox/Margin/Row/Col1"]
+modulate = Color(1, 1, 1, 0)
+layout_mode = 2
+texture = ExtResource("1_jo5c8")
+
+[node name="Col2" type="VBoxContainer" parent="PopoutVBox/Margin/Row"]
+visible = false
+layout_mode = 2
+size_flags_vertical = 0
+theme_override_constants/separation = 20
+
+[node name="Spot1" type="TextureRect" parent="PopoutVBox/Margin/Row/Col2"]
+modulate = Color(1, 1, 1, 0)
+layout_mode = 2
+texture = ExtResource("1_jo5c8")
+
+[node name="Spot2" type="TextureRect" parent="PopoutVBox/Margin/Row/Col2"]
+modulate = Color(1, 1, 1, 0)
+layout_mode = 2
+texture = ExtResource("1_jo5c8")
+
+[node name="Col3" type="VBoxContainer" parent="PopoutVBox/Margin/Row"]
+visible = false
+layout_mode = 2
+size_flags_vertical = 0
+theme_override_constants/separation = 20
+
+[node name="Spot1" type="TextureRect" parent="PopoutVBox/Margin/Row/Col3"]
+modulate = Color(1, 1, 1, 0)
+layout_mode = 2
+texture = ExtResource("1_jo5c8")
+
+[node name="Spot2" type="TextureRect" parent="PopoutVBox/Margin/Row/Col3"]
+modulate = Color(1, 1, 1, 0)
+layout_mode = 2
+texture = ExtResource("1_jo5c8")
+
+[node name="Col4" type="VBoxContainer" parent="PopoutVBox/Margin/Row"]
+visible = false
+layout_mode = 2
+size_flags_vertical = 0
+theme_override_constants/separation = 20
+
+[node name="Spot1" type="TextureRect" parent="PopoutVBox/Margin/Row/Col4"]
+modulate = Color(1, 1, 1, 0)
+layout_mode = 2
+texture = ExtResource("1_jo5c8")
+
+[node name="Spot2" type="TextureRect" parent="PopoutVBox/Margin/Row/Col4"]
+modulate = Color(1, 1, 1, 0)
+layout_mode = 2
+texture = ExtResource("1_jo5c8")
+
+[node name="Col5" type="VBoxContainer" parent="PopoutVBox/Margin/Row"]
+visible = false
+layout_mode = 2
+size_flags_vertical = 0
+theme_override_constants/separation = 20
+
+[node name="Spot1" type="TextureRect" parent="PopoutVBox/Margin/Row/Col5"]
+modulate = Color(1, 1, 1, 0)
+layout_mode = 2
+texture = ExtResource("1_jo5c8")
+
+[node name="Spot2" type="TextureRect" parent="PopoutVBox/Margin/Row/Col5"]
+modulate = Color(1, 1, 1, 0)
+layout_mode = 2
+texture = ExtResource("1_jo5c8")
+
+[node name="Col6" type="VBoxContainer" parent="PopoutVBox/Margin/Row"]
+visible = false
+layout_mode = 2
+size_flags_vertical = 0
+theme_override_constants/separation = 20
+
+[node name="Spot1" type="TextureRect" parent="PopoutVBox/Margin/Row/Col6"]
+modulate = Color(1, 1, 1, 0)
+layout_mode = 2
+texture = ExtResource("1_jo5c8")
+
+[node name="Spot2" type="TextureRect" parent="PopoutVBox/Margin/Row/Col6"]
+modulate = Color(1, 1, 1, 0)
+layout_mode = 2
+texture = ExtResource("1_jo5c8")
+
+[node name="Col7" type="VBoxContainer" parent="PopoutVBox/Margin/Row"]
+visible = false
+layout_mode = 2
+size_flags_vertical = 0
+theme_override_constants/separation = 20
+
+[node name="Spot1" type="TextureRect" parent="PopoutVBox/Margin/Row/Col7"]
+modulate = Color(1, 1, 1, 0)
+layout_mode = 2
+texture = ExtResource("1_jo5c8")
+
+[node name="Spot2" type="TextureRect" parent="PopoutVBox/Margin/Row/Col7"]
+modulate = Color(1, 1, 1, 0)
+layout_mode = 2
+texture = ExtResource("1_jo5c8")
+
+[node name="Col8" type="VBoxContainer" parent="PopoutVBox/Margin/Row"]
+visible = false
+layout_mode = 2
+size_flags_vertical = 0
+theme_override_constants/separation = 20
+
+[node name="Spot1" type="TextureRect" parent="PopoutVBox/Margin/Row/Col8"]
+modulate = Color(1, 1, 1, 0)
+layout_mode = 2
+texture = ExtResource("1_jo5c8")
+
+[node name="Spot2" type="TextureRect" parent="PopoutVBox/Margin/Row/Col8"]
+modulate = Color(1, 1, 1, 0)
+layout_mode = 2
+texture = ExtResource("1_jo5c8")
+
+[node name="Col9" type="VBoxContainer" parent="PopoutVBox/Margin/Row"]
+visible = false
+layout_mode = 2
+size_flags_vertical = 0
+theme_override_constants/separation = 20
+
+[node name="Spot1" type="TextureRect" parent="PopoutVBox/Margin/Row/Col9"]
+modulate = Color(1, 1, 1, 0)
+layout_mode = 2
+texture = ExtResource("1_jo5c8")
+
+[node name="Spot2" type="TextureRect" parent="PopoutVBox/Margin/Row/Col9"]
+modulate = Color(1, 1, 1, 0)
+layout_mode = 2
+texture = ExtResource("1_jo5c8")
+
+[node name="Col10" type="VBoxContainer" parent="PopoutVBox/Margin/Row"]
+visible = false
+layout_mode = 2
+size_flags_vertical = 0
+theme_override_constants/separation = 20
+
+[node name="Spot1" type="TextureRect" parent="PopoutVBox/Margin/Row/Col10"]
+modulate = Color(1, 1, 1, 0)
+layout_mode = 2
+texture = ExtResource("1_jo5c8")
+
+[node name="Spot2" type="TextureRect" parent="PopoutVBox/Margin/Row/Col10"]
+modulate = Color(1, 1, 1, 0)
+layout_mode = 2
+texture = ExtResource("1_jo5c8")
+
+[node name="Col11" type="VBoxContainer" parent="PopoutVBox/Margin/Row"]
+visible = false
+layout_mode = 2
+size_flags_vertical = 0
+theme_override_constants/separation = 20
+
+[node name="Spot1" type="TextureRect" parent="PopoutVBox/Margin/Row/Col11"]
+modulate = Color(1, 1, 1, 0)
+layout_mode = 2
+texture = ExtResource("1_jo5c8")
+
+[node name="Spot2" type="TextureRect" parent="PopoutVBox/Margin/Row/Col11"]
+modulate = Color(1, 1, 1, 0)
+layout_mode = 2
+texture = ExtResource("1_jo5c8")
+
+[node name="Col12" type="VBoxContainer" parent="PopoutVBox/Margin/Row"]
+visible = false
+layout_mode = 2
+size_flags_vertical = 0
+theme_override_constants/separation = 20
+
+[node name="Spot1" type="TextureRect" parent="PopoutVBox/Margin/Row/Col12"]
+modulate = Color(1, 1, 1, 0)
+layout_mode = 2
+texture = ExtResource("1_jo5c8")
+
+[node name="Spot2" type="TextureRect" parent="PopoutVBox/Margin/Row/Col12"]
+modulate = Color(1, 1, 1, 0)
+layout_mode = 2
+texture = ExtResource("1_jo5c8")
+
+[node name="Col13" type="VBoxContainer" parent="PopoutVBox/Margin/Row"]
+visible = false
+layout_mode = 2
+size_flags_vertical = 0
+theme_override_constants/separation = 20
+
+[node name="Spot1" type="TextureRect" parent="PopoutVBox/Margin/Row/Col13"]
+modulate = Color(1, 1, 1, 0)
+layout_mode = 2
+texture = ExtResource("1_jo5c8")
+
+[node name="Spot2" type="TextureRect" parent="PopoutVBox/Margin/Row/Col13"]
+modulate = Color(1, 1, 1, 0)
+layout_mode = 2
+texture = ExtResource("1_jo5c8")
+
+[node name="Col14" type="VBoxContainer" parent="PopoutVBox/Margin/Row"]
+visible = false
+layout_mode = 2
+size_flags_vertical = 0
+theme_override_constants/separation = 20
+
+[node name="Spot1" type="TextureRect" parent="PopoutVBox/Margin/Row/Col14"]
+modulate = Color(1, 1, 1, 0)
+layout_mode = 2
+texture = ExtResource("1_jo5c8")
+
+[node name="Spot2" type="TextureRect" parent="PopoutVBox/Margin/Row/Col14"]
+modulate = Color(1, 1, 1, 0)
+layout_mode = 2
+texture = ExtResource("1_jo5c8")
+
+[node name="Col15" type="VBoxContainer" parent="PopoutVBox/Margin/Row"]
+visible = false
+layout_mode = 2
+size_flags_vertical = 0
+theme_override_constants/separation = 20
+
+[node name="Spot1" type="TextureRect" parent="PopoutVBox/Margin/Row/Col15"]
+modulate = Color(1, 1, 1, 0)
+layout_mode = 2
+texture = ExtResource("1_jo5c8")
+
+[node name="Spot2" type="TextureRect" parent="PopoutVBox/Margin/Row/Col15"]
+modulate = Color(1, 1, 1, 0)
+layout_mode = 2
+texture = ExtResource("1_jo5c8")
+
+[node name="Col16" type="VBoxContainer" parent="PopoutVBox/Margin/Row"]
+visible = false
+layout_mode = 2
+size_flags_vertical = 0
+theme_override_constants/separation = 20
+
+[node name="Spot1" type="TextureRect" parent="PopoutVBox/Margin/Row/Col16"]
+modulate = Color(1, 1, 1, 0)
+layout_mode = 2
+texture = ExtResource("1_jo5c8")
+
+[node name="Spot2" type="TextureRect" parent="PopoutVBox/Margin/Row/Col16"]
+modulate = Color(1, 1, 1, 0)
+layout_mode = 2
+texture = ExtResource("1_jo5c8")
+
+[node name="Col17" type="VBoxContainer" parent="PopoutVBox/Margin/Row"]
+visible = false
+layout_mode = 2
+size_flags_vertical = 0
+theme_override_constants/separation = 20
+
+[node name="Spot1" type="TextureRect" parent="PopoutVBox/Margin/Row/Col17"]
+modulate = Color(1, 1, 1, 0)
+layout_mode = 2
+texture = ExtResource("1_jo5c8")
+
+[node name="Spot2" type="TextureRect" parent="PopoutVBox/Margin/Row/Col17"]
+modulate = Color(1, 1, 1, 0)
+layout_mode = 2
+texture = ExtResource("1_jo5c8")
+
+[node name="Col18" type="VBoxContainer" parent="PopoutVBox/Margin/Row"]
+visible = false
+layout_mode = 2
+size_flags_vertical = 0
+theme_override_constants/separation = 20
+
+[node name="Spot1" type="TextureRect" parent="PopoutVBox/Margin/Row/Col18"]
+modulate = Color(1, 1, 1, 0)
+layout_mode = 2
+texture = ExtResource("1_jo5c8")
+
+[node name="Spot2" type="TextureRect" parent="PopoutVBox/Margin/Row/Col18"]
+modulate = Color(1, 1, 1, 0)
+layout_mode = 2
+texture = ExtResource("1_jo5c8")
+
+[node name="Col19" type="VBoxContainer" parent="PopoutVBox/Margin/Row"]
+visible = false
+layout_mode = 2
+size_flags_vertical = 0
+theme_override_constants/separation = 20
+
+[node name="Spot1" type="TextureRect" parent="PopoutVBox/Margin/Row/Col19"]
+modulate = Color(1, 1, 1, 0)
+layout_mode = 2
+texture = ExtResource("1_jo5c8")
+
+[node name="Spot2" type="TextureRect" parent="PopoutVBox/Margin/Row/Col19"]
+modulate = Color(1, 1, 1, 0)
+layout_mode = 2
+texture = ExtResource("1_jo5c8")
+
+[node name="Col20" type="VBoxContainer" parent="PopoutVBox/Margin/Row"]
+visible = false
+layout_mode = 2
+size_flags_vertical = 0
+theme_override_constants/separation = 20
+
+[node name="Spot1" type="TextureRect" parent="PopoutVBox/Margin/Row/Col20"]
+modulate = Color(1, 1, 1, 0)
+layout_mode = 2
+texture = ExtResource("1_jo5c8")
+
+[node name="Spot2" type="TextureRect" parent="PopoutVBox/Margin/Row/Col20"]
+modulate = Color(1, 1, 1, 0)
+layout_mode = 2
+texture = ExtResource("1_jo5c8")
+
+[connection signal="pressed" from="PopoutVBox/CloseWindowButton" to="." method="_on_close_window_button_pressed"]

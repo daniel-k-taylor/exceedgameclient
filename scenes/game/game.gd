@@ -1,12 +1,10 @@
 extends Node2D
 
-const DesiredCardSize = Vector2(125, 175)
-const ActualCardSize = Vector2(250,350)
-const HandCardScale = DesiredCardSize / ActualCardSize
 const CardBaseScene = preload("res://scenes/card/card_base.tscn")
 const CardBase = preload("res://scenes/card/card_base.gd")
 const GameLogic = preload("res://scenes/game/gamelogic.gd")
-
+const CardPopout = preload("res://scenes/game/card_popout.gd")
+const GaugePanel = preload("res://scenes/game/gauge_panel.gd")
 
 var chosen_deck = null
 var NextCardId = 1
@@ -44,6 +42,8 @@ var ui_state : UIState = UIState.UIState_Initializing
 var ui_sub_state : UISubState = UISubState.UISubState_None
 
 @onready var game_logic : GameLogic = $GameLogic
+@onready var gauge_popout : CardPopout = $GaugePopout
+@onready var discard_popout : CardPopout = $DiscardPopout
 
 @onready var CenterCardOval = Vector2(get_viewport().content_scale_size) * Vector2(0.5, 1.25)
 @onready var HorizontalRadius = get_viewport().content_scale_size.x * 0.45
@@ -60,11 +60,29 @@ func _ready():
 	$PlayerLife.set_life(game_logic.player.life)
 	$OpponentLife.set_life(game_logic.opponent.life)
 
+	gauge_popout.set_title("GAUGE")
+	discard_popout.set_title("DISCARD")
+
 	finish_initialization()
 
 func finish_initialization():
 	spawn_all_cards()
 	draw_and_begin()
+	#test_init()
+
+func test_draw_and_add():
+	var events = game_logic.player.draw(1)
+	_handle_events(events)
+	var card = game_logic.player.hand[0]
+	game_logic.player.remove_card_from_hand(card.id)
+	events = game_logic.player.add_to_gauge(card)
+	_handle_events(events)
+func test_init():
+	for i in range(5):
+		test_draw_and_add()
+	layout_player_hand(true)
+	_update_buttons()
+	update_card_counts()
 
 func first_run():
 	move_character_to_arena_square($PlayerCharacter, game_logic.player.arena_location)
@@ -114,7 +132,7 @@ func discard_card(card, discard_location, new_parent, is_player : bool):
 	var discard_pos = discard_location.global_position + discard_location.size * discard_location.scale /2
 	# Make sure the card is faceup.
 	card.flip_card_to_front(true)
-	card.discard_to(discard_pos, discard_location.scale, CardBase.CardState.CardState_Discarded)
+	card.discard_to(discard_pos, CardBase.CardState.CardState_Discarded)
 	reparent_to_zone(card, new_parent)
 	layout_player_hand(is_player)
 
@@ -137,7 +155,7 @@ func draw_card(card_id : int, is_player : bool):
 
 	# Start the card at the deck.
 	var deck_button = get_deck_button(is_player)
-	var deck_position = deck_button.position + DesiredCardSize/2
+	var deck_position = deck_button.position + (deck_button.size * deck_button.scale)/2
 	card.position = deck_position
 
 	layout_player_hand(is_player)
@@ -151,8 +169,8 @@ func update_card_counts():
 	$PlayerDeck/DiscardCount.text = str(len(game_logic.player.discards))
 	$OpponentDeck/DiscardCount.text = str(len(game_logic.opponent.discards))
 
-	$PlayerGauge/GaugePanel/GaugeVBox/GaugeAmount.text = str(len(game_logic.player.gauge))
-	$OpponentGauge/GaugePanel/GaugeVBox/GaugeAmount.text = str(len(game_logic.opponent.gauge))
+	$PlayerGauge.set_details(len(game_logic.player.gauge))
+	$OpponentGauge.set_details(len(game_logic.opponent.gauge))
 
 func get_card_node_name(id):
 	return "Card_" + str(id)
@@ -165,7 +183,6 @@ func create_card(id, parent) -> CardBase:
 	new_card.initialize_card(
 		id,
 		card_def['display_name'],
-		HandCardScale,
 		logic_card.image,
 		card_def['range_min'],
 		card_def['range_max'],
@@ -222,7 +239,7 @@ func deselect_all_cards():
 		card.set_selected(false)
 	selected_cards = []
 
-func on_card_clicked(card):
+func on_card_clicked(card : CardBase):
 	# If in selection mode, select/deselect card.
 	if ui_state == UIState.UIState_SelectCards:
 		var index = -1
@@ -263,7 +280,6 @@ func layout_player_hand(is_player : bool):
 
 			angle -= angle_change_amount
 	else:
-		# Opponent cards just chill in one spot for now.
 		var spawn_spot = $OpponentHand/HandSpawn
 		var hand_center = spawn_spot.global_position + spawn_spot.size * spawn_spot.scale /2
 		var min_x = hand_center.x - 200
@@ -318,7 +334,17 @@ func _on_add_to_discard(event):
 	_on_discard_event(event)
 
 func _on_add_to_gauge(event):
-	pass
+	var card = find_card_on_board(event['number'])
+	card.flip_card_to_front(true)
+	var gauge_panel = $PlayerGauge
+	var gauge_card_loc = $AllCards/PlayerGauge
+	if event['event_player'] == game_logic.opponent:
+		gauge_panel = $OpponentGauge
+		gauge_card_loc = $AllCards/OpponentGauge
+
+	var pos = gauge_panel.get_center_pos()
+	card.discard_to(pos, CardBase.CardState.CardState_InGauge)
+	reparent_to_zone(card, gauge_card_loc)
 
 func _on_draw_event(event):
 	var card_drawn_id = event['number']
@@ -413,7 +439,7 @@ func _on_reshuffle_discard(event):
 
 func _move_card_to_strike_area(card, strike_area, new_parent, is_player : bool):
 	var pos = strike_area.global_position + strike_area.size * strike_area.scale /2
-	card.discard_to(pos, strike_area.scale, CardBase.CardState.CardState_InStrike)
+	card.discard_to(pos, CardBase.CardState.CardState_InStrike)
 	card.get_parent().remove_child(card)
 	new_parent.add_child(card)
 	layout_player_hand(is_player)
@@ -693,3 +719,64 @@ func ai_discard(event):
 	var events = game_logic.do_discard_to_max(game_logic.opponent, to_discard)
 	_handle_events(events)
 
+# Popout Functions
+
+func _toggle_popout(popout):
+	popout.visible = not popout.visible
+
+func _update_gauge_for_player(amount : int, gauge_cards, gauge_panel : GaugePanel):
+	gauge_popout.set_amount(amount)
+	if gauge_popout.visible:
+		await gauge_popout.clear(len(gauge_cards))
+		for i in range(len(gauge_cards)):
+			var card = gauge_cards[i]
+			card.set_selected(false)
+			# Assign positions
+			var pos = gauge_popout.get_slot_position(i)
+			card.position = pos + CardBase.SmallCardScale * CardBase.ActualCardSize / 2
+			card.change_state(CardBase.CardState.CardState_InGauge_Popout)
+			card.set_resting_position(card.position, 0)
+	else:
+		# When clearing, set the cards first before awaiting.
+		for i in range(len(gauge_cards)):
+			var card = gauge_cards[i]
+			card.set_selected(false)
+			# Assign back to gauge
+			card.position = gauge_panel.get_center_pos()
+			card.change_state(CardBase.CardState.CardState_InGauge)
+			card.set_resting_position(card.position, 0)
+		await gauge_popout.clear(0)
+	for i in range(len(gauge_cards)):
+		var card = gauge_cards[i]
+		card.set_selected(false)
+		if gauge_popout.visible:
+			# Assign positions
+			var pos = gauge_popout.get_slot_position(i)
+			card.position = pos + CardBase.SmallCardScale * CardBase.ActualCardSize / 2
+			card.change_state(CardBase.CardState.CardState_InGauge_Popout)
+			card.set_resting_position(card.position, 0)
+
+func clear_gauge_popout():
+	await _update_gauge_for_player(len(game_logic.player.gauge), $AllCards/PlayerGauge.get_children(), $PlayerGauge)
+	await _update_gauge_for_player(len(game_logic.opponent.gauge), $AllCards/OpponentGauge.get_children(), $OpponentGauge)
+
+func _on_gauge_popout_close_window():
+	_toggle_popout(gauge_popout)
+	clear_gauge_popout()
+
+func _on_discard_popout_close_window():
+	_toggle_popout(discard_popout)
+
+func _on_player_gauge_gauge_clicked():
+	if gauge_popout.visible:
+		_toggle_popout(gauge_popout)
+		await clear_gauge_popout()
+	_toggle_popout(gauge_popout)
+	_update_gauge_for_player(len(game_logic.player.gauge), $AllCards/PlayerGauge.get_children(), $PlayerGauge)
+
+func _on_opponent_gauge_gauge_clicked():
+	if gauge_popout.visible:
+		_toggle_popout(gauge_popout)
+		await clear_gauge_popout()
+	_toggle_popout(gauge_popout)
+	_update_gauge_for_player(len(game_logic.opponent.gauge), $AllCards/OpponentGauge.get_children(), $OpponentGauge)

@@ -1,4 +1,4 @@
-[gd_scene load_steps=14 format=3 uid="uid://3s3pkqggaa2q"]
+[gd_scene load_steps=15 format=3 uid="uid://3s3pkqggaa2q"]
 
 [ext_resource type="Script" path="res://scenes/game/game.gd" id="1_4f5jr"]
 [ext_resource type="Script" path="res://scenes/game/gamelogic.gd" id="2_cjkiw"]
@@ -8,11 +8,12 @@
 [ext_resource type="Texture2D" uid="uid://b433drvl0djch" path="res://assets/cards/arena_border_highlight_waiting.png" id="4_72uk1"]
 [ext_resource type="Texture2D" uid="uid://c2ny808vipftb" path="res://assets/cardbacks/cardback_red.svg" id="5_dd21w"]
 [ext_resource type="Texture2D" uid="uid://bpdpb3e74d2cu" path="res://assets/cards/arena_border_highlight_pressed.png" id="5_r5b6h"]
-[ext_resource type="PackedScene" uid="uid://cf6aml1lrd2yk" path="res://scenes/game/gauge.tscn" id="6_gtjck"]
+[ext_resource type="PackedScene" uid="uid://cf6aml1lrd2yk" path="res://scenes/game/gauge_panel.tscn" id="6_gtjck"]
 [ext_resource type="Texture2D" uid="uid://b08j76upbucvr" path="res://assets/cards/arena_border_highlight_selected.png" id="6_qfd2s"]
 [ext_resource type="PackedScene" uid="uid://dsc63si41lg6t" path="res://scenes/game/boost_zone.tscn" id="7_gn0of"]
 [ext_resource type="PackedScene" uid="uid://1624xgdxrrg5" path="res://scenes/game/life_scene.tscn" id="8_mqi3u"]
 [ext_resource type="PackedScene" uid="uid://ckjlv124xttrc" path="res://scenes/game/character.tscn" id="9_rhsuv"]
+[ext_resource type="PackedScene" uid="uid://dxtsdthw5sxbc" path="res://scenes/game/card_popout.tscn" id="14_lyeqj"]
 
 [node name="GameScene" type="Node2D"]
 script = ExtResource("1_4f5jr")
@@ -433,10 +434,10 @@ texture_pressed = ExtResource("4_5y76h")
 texture_hover = ExtResource("4_5y76h")
 
 [node name="PlayerGauge" parent="." instance=ExtResource("6_gtjck")]
-position = Vector2(10, 10)
+position = Vector2(10, 400)
 
 [node name="OpponentGauge" parent="." instance=ExtResource("6_gtjck")]
-position = Vector2(10, 400)
+position = Vector2(10, 10)
 
 [node name="PlayerBoostZone" parent="." instance=ExtResource("7_gn0of")]
 position = Vector2(115, 400)
@@ -451,6 +452,26 @@ scale = Vector2(0.5, 0.5)
 [node name="OpponentCharacter" parent="." instance=ExtResource("9_rhsuv")]
 modulate = Color(1, 0.384314, 0.54902, 1)
 position = Vector2(146, -68)
+scale = Vector2(0.5, 0.5)
+
+[node name="GaugePopout" parent="." instance=ExtResource("14_lyeqj")]
+visible = false
+offset_left = 50.0
+offset_top = 60.0
+offset_right = 293.0
+offset_bottom = 185.0
+scale = Vector2(0.5, 0.5)
+
+[node name="DiscardPopout" parent="." instance=ExtResource("14_lyeqj")]
+visible = false
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = 590.0
+offset_top = 60.0
+offset_right = 1940.0
+offset_bottom = 905.0
+grow_horizontal = 0
 scale = Vector2(0.5, 0.5)
 
 [node name="AllCards" type="Node2D" parent="."]
@@ -496,3 +517,7 @@ scale = Vector2(0.5, 0.5)
 [connection signal="pressed" from="StaticUI/StaticUIVBox/ButtonGrid/ReshuffleButton" to="." method="_on_reshuffle_button_pressed"]
 [connection signal="pressed" from="StaticUI/StaticUIVBox/ButtonGrid/BoostButton" to="." method="_on_boost_button_pressed"]
 [connection signal="pressed" from="StaticUI/StaticUIVBox/ButtonGrid/StrikeButton" to="." method="_on_strike_button_pressed"]
+[connection signal="gauge_clicked" from="PlayerGauge" to="." method="_on_player_gauge_gauge_clicked"]
+[connection signal="gauge_clicked" from="OpponentGauge" to="." method="_on_opponent_gauge_gauge_clicked"]
+[connection signal="close_window" from="GaugePopout" to="." method="_on_gauge_popout_close_window"]
+[connection signal="close_window" from="DiscardPopout" to="." method="_on_discard_popout_close_window"]

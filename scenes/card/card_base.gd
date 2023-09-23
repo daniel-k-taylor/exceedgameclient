@@ -11,12 +11,18 @@ const StatPanel = preload("res://scenes/card/stat_panel.gd")
 @onready var armor_panel : StatPanel = $CardContainer/CardBox/AbiltiesImagePanel/StatsHBox/StatsColumn/ArmorPanel
 @onready var guard_panel : StatPanel = $CardContainer/CardBox/AbiltiesImagePanel/StatsHBox/StatsColumn/GuardPanel
 
+const DesiredCardSize = Vector2(125, 175)
+const ActualCardSize = Vector2(250,350)
+const HandCardScale = DesiredCardSize / ActualCardSize
+const SmallCardScale = Vector2(0.4, 0.4)
 const HighlightColor = Color('#36fff3')
 
 enum CardState {
 	CardState_Focusing,
 	CardState_InDeck,
 	CardState_InHand,
+	CardState_InGauge,
+	CardState_InGauge_Popout,
 	CardState_Discarding,
 	CardState_Discarded,
 	CardState_InStrike,
@@ -78,10 +84,23 @@ func is_front_showing():
 func set_hover_visible(hover_visible):
 	$CardContainer/Focus.visible = hover_visible
 
-func _physics_process(delta):
+func update_visibility():
 	match state:
-		CardState.CardState_InHand, CardState.CardState_InStrike:
+		CardState.CardState_InGauge:
+			visible = false
+		_:
+			visible = true
+
+	match state:
+		CardState.CardState_InHand, CardState.CardState_InStrike, CardState.CardState_InGauge_Popout, CardState.CardState_Focusing:
 			set_hover_visible(true)
+		_:
+			set_hover_visible(false)
+
+func _physics_process(delta):
+	update_visibility()
+
+	match state:
 		CardState.CardState_Focusing:
 			if animation_time <= 1:
 				position = start_pos.lerp(target_pos, animation_time)
@@ -128,7 +147,6 @@ func _physics_process(delta):
 				rotation_degrees = target_rotation
 				scale = target_scale
 		CardState.CardState_Discarding:
-			set_hover_visible(false)
 			if animation_time <= 1:
 				position = start_pos.lerp(target_pos, animation_time)
 				rotation_degrees = lerpf(start_rotation, target_rotation, animation_time)
@@ -164,12 +182,12 @@ func position_card_in_hand(dst_pos, dst_rot):
 func _process(_delta):
 	pass
 
-func initialize_card(id, card_title, card_scale, _image, range_min, range_max, speed, power, armor, guard, effect_text, boost_cost, boost_text):
+func initialize_card(id, card_title, _image, range_min, range_max, speed, power, armor, guard, effect_text, boost_cost, boost_text):
 	self.card_id = id
 	$CardContainer/CardBox/TitleRow/TitlePanel/TitleNameBox/TitleName.text = card_title
-	self.default_scale = card_scale
-	self.resting_scale = card_scale
-	scale = card_scale
+	self.default_scale = HandCardScale
+	self.resting_scale = HandCardScale
+	scale = HandCardScale
 	# TODO: Set image
 
 	# Set Stats
@@ -201,11 +219,11 @@ func set_resting_position(pos, rot):
 			target_pos = pos
 			target_rotation = rot
 
-func discard_to(pos, sca, target_state):
+func discard_to(pos, target_state):
 	set_selected(false)
 	set_resting_position(pos, 0)
 	unfocus() # Sets animation_time to 0
-	target_scale = sca
+	target_scale = SmallCardScale
 	resting_scale = target_scale
 	return_state = target_state
 	change_state(CardState.CardState_Discarding)
@@ -279,7 +297,7 @@ func end_drag():
 
 func _on_focus_mouse_entered():
 	match state:
-		CardState.CardState_InHand, CardState.CardState_Unfocusing, CardState.CardState_InStrike:
+		CardState.CardState_InHand, CardState.CardState_Unfocusing, CardState.CardState_InStrike, CardState.CardState_InGauge_Popout:
 			focus()
 
 
