@@ -28,6 +28,7 @@ enum GameState {
 	GameState_NotStarted,
 	GameState_PickAction,
 	GameState_DiscardDownToMax,
+	GameState_WaitForStrike,
 	GameState_Strike_Opponent_Response,
 	GameState_Strike_PlayerDecision,
 	GameState_Strike_Processing,
@@ -44,6 +45,8 @@ enum EventType {
 	EventType_AdvanceTurn,
 	EventType_Discard,
 	EventType_Draw,
+	EventType_Exceed,
+	EventType_ForceStartStrike,
 	EventType_GameOver,
 	EventType_HandSizeExceeded,
 	EventType_Move,
@@ -91,11 +94,13 @@ enum StrikeState {
 	StrikeState_Card1_Before,
 	StrikeState_Card1_DetermineHit,
 	StrikeState_Card1_Hit,
+	StrikeState_Card1_Hit_Response,
 	StrikeState_Card1_ApplyDamage,
 	StrikeState_Card1_After,
 	StrikeState_Card2_Before,
 	StrikeState_Card2_DetermineHit,
 	StrikeState_Card2_Hit,
+	StrikeState_Card2_Hit_Response,
 	StrikeState_Card2_ApplyDamage,
 	StrikeState_Card2_After,
 	StrikeState_Cleanup,
@@ -141,6 +146,17 @@ class Strike:
 		if performing_player == initiator:
 			return initiator_wild_strike
 		return defender_wild_strike
+
+	func is_player_stunned(question_player : Player) -> bool:
+		if get_player(1) == question_player:
+			return player1_stunned
+		return player2_stunned
+
+	func set_player_stunned(stunned_player : Player):
+		if get_player(1) == stunned_player:
+			player1_stunned = true
+		else:
+			player2_stunned = true
 
 class Card:
 	var id
@@ -211,6 +227,17 @@ class Player:
 		discards = []
 		reshuffle_remaining = MaxReshuffle
 		exceeded = false
+
+	func exceed():
+		exceeded = true
+		var events = []
+		events += [parent.create_event(EventType.EventType_Exceed, self, 0)]
+
+		if deck_def['character']['on_exceed'] == "strike":
+			events += [parent.create_event(EventType.EventType_ForceStartStrike, self, 0)]
+			parent.change_game_state(GameState.GameState_WaitForStrike)
+			parent.decision_player = self
+		return events
 
 	func is_card_in_hand(id : int):
 		for card in hand:
@@ -574,8 +601,7 @@ func is_effect_condition_met(performing_player : Player, effect, local_condition
 		elif condition == "pulled_past" and local_conditions.pulled_past:
 			return true
 		elif condition == "opponent_stunned":
-			# TODO: Implement
-			return false
+			return active_strike.is_player_stunned(other_player(performing_player))
 		# Unmet condition
 		return false
 	return true
@@ -704,6 +730,7 @@ func apply_damage(offense_player : Player, defense_player : Player, offense_card
 	events += [create_event(EventType.EventType_Strike_TookDamage, defense_player, damage_after_armor)]
 	if damage_after_armor > guard:
 		events += [create_event(EventType.EventType_Strike_Stun, defense_player, damage_after_armor-guard)]
+		active_strike.strike_state.set_player_stunned(defense_player)
 
 	if defense_player.life <= 0:
 		events += [create_event(EventType.EventType_GameOver, defense_player, 0)]
@@ -734,6 +761,17 @@ func ask_for_cost(performing_player, card, next_state):
 			events += [create_event(EventType.EventType_Strike_PayCost_Unable, performing_player, card.id)]
 			events += performing_player.add_to_discards(card)
 			events += performing_player.wild_strike();
+	return events
+
+func do_hit_response_effects(hit_player : Player, next_state : StrikeState):
+	# If more of these are added, need to sequence them to ensure all handled correctly.
+	var events = []
+	active_strike.strike_state = next_state
+	if hit_player.strike_stat_boosts.when_hit_force_for_armor:
+		change_game_state(GameState.GameState_Strike_PlayerDecision)
+		decision_player = hit_player
+		decision_type = DecisionType.DecisionType_ForceForArmor
+		events += [create_event(EventType.EventType_Strike_ForceForArmor, decision_player, 0)]
 	return events
 
 func continue_strike_activation():
@@ -771,12 +809,9 @@ func continue_strike_activation():
 					events += [create_event(EventType.EventType_Strike_Miss, player1, 0)]
 					active_strike.strike_state = StrikeState.StrikeState_Card1_After
 			StrikeState.StrikeState_Card1_Hit:
-				events += do_effects_for_state("hit", player1, card1, StrikeState.StrikeState_Card1_ApplyDamage)
-				if player2.strike_stat_boosts.when_hit_force_for_armor:
-					change_game_state(GameState.GameState_Strike_PlayerDecision)
-					decision_player = player2
-					decision_type = DecisionType.DecisionType_ForceForArmor
-					events += [create_event(EventType.EventType_Strike_ForceForArmor, decision_player, 0)]
+				events += do_effects_for_state("hit", player1, card1, StrikeState.StrikeState_Card1_Hit_Response)
+			StrikeState.StrikeState_Card1_Hit_Response:
+				events += do_hit_response_effects(player2, StrikeState.StrikeState_Card1_ApplyDamage)
 			StrikeState.StrikeState_Card1_ApplyDamage:
 				events += apply_damage(player1, player2, card1, card2)
 				active_strike.strike_state = StrikeState.StrikeState_Card1_After
@@ -797,7 +832,9 @@ func continue_strike_activation():
 					events += [create_event(EventType.EventType_Strike_Miss, player2, 0)]
 					active_strike.strike_state = StrikeState.StrikeState_Card2_After
 			StrikeState.StrikeState_Card2_Hit:
-				events += do_effects_for_state("hit", player2, card2, StrikeState.StrikeState_Card2_ApplyDamage)
+				events += do_effects_for_state("hit", player2, card2, StrikeState.StrikeState_Card2_Hit_Response)
+			StrikeState.StrikeState_Card2_Hit_Response:
+				events += do_hit_response_effects(player1, StrikeState.StrikeState_Card2_ApplyDamage)
 			StrikeState.StrikeState_Card2_ApplyDamage:
 				events += apply_damage(player2, player1, card2, card1)
 				active_strike.strike_state = StrikeState.StrikeState_Card2_After
@@ -889,6 +926,8 @@ func can_do_boost(performing_player : Player):
 	return false
 
 func can_do_strike(performing_player : Player):
+	if game_state != GameState.GameState_WaitForStrike and decision_player == performing_player:
+		return true
 	if game_state != GameState.GameState_PickAction:
 		return false
 	if active_turn_player != performing_player:
@@ -978,15 +1017,37 @@ func do_change(performing_player : Player, card_ids):
 			print("ERROR: Tried to discard cards that aren't in hand or gauge.")
 			return []
 
-	var num_cards = len(card_ids)
 	var events = performing_player.discard(card_ids)
-	events += performing_player.draw(num_cards + 1)
+	var force_generated = 0
+	for id in card_ids:
+		force_generated += get_card_force(id)
+	events += performing_player.draw(force_generated + 1)
 	if len(performing_player.hand) > MaxHandSize:
 		change_game_state(GameState.GameState_DiscardDownToMax)
 		events += [create_event(EventType.EventType_HandSizeExceeded, performing_player, len(performing_player.hand) - MaxHandSize)]
 	else:
 		events += advance_to_next_turn()
 
+	return events
+
+func do_exceed(performing_player : Player, card_ids : Array):
+	if game_state != GameState.GameState_PickAction:
+		print("ERROR: Tried to exceed but not in correct game state.")
+		return []
+	if performing_player != active_turn_player:
+		print("ERROR: Tried to exceed for wrong player.")
+		return []
+	for id in card_ids:
+		if not performing_player.is_card_in_gauge(id):
+			# Card not found, error
+			print("ERROR: Tried to exced with cards that not in gauge.")
+			return []
+	if len(card_ids) < performing_player.exceed_cost:
+		print("ERROR: Tried to exceed with too few cards.")
+		return []
+
+	var events = performing_player.discard(card_ids)
+	events += performing_player.exceed()
 	return events
 
 func do_strike(performing_player : Player, card_id : int, wild_strike: bool):
@@ -999,6 +1060,10 @@ func do_strike(performing_player : Player, card_id : int, wild_strike: bool):
 		if performing_player != other_player(active_turn_player):
 			print("ERROR: Strike response from wrong player.")
 			return []
+	elif game_state == GameState.GameState_WaitForStrike:
+		if performing_player != decision_player:
+			print("ERROR: Strike response from wrong player.")
+			return []
 
 	if not wild_strike and not performing_player.is_card_in_hand(card_id):
 		print("ERROR: Tried to strike with a card not in hand.")
@@ -1008,27 +1073,28 @@ func do_strike(performing_player : Player, card_id : int, wild_strike: bool):
 	var events = []
 
 	# Lay down the strike
-	if game_state == GameState.GameState_PickAction:
-		active_strike = Strike.new()
-		active_strike.initiator = performing_player
-		if wild_strike:
-			events += performing_player.wild_strike()
-			card_id = active_strike.initiator_card.id
-		else:
-			active_strike.initiator_card = get_card(card_id)
-			performing_player.remove_card_from_hand(card_id)
-		active_strike.defender = other_player(performing_player)
-		events += [create_event(EventType.EventType_Strike_Started, performing_player, card_id)]
-		change_game_state(GameState.GameState_Strike_Opponent_Response)
-	elif game_state == GameState.GameState_Strike_Opponent_Response:
-		if wild_strike:
-			events += performing_player.wild_strike()
-			card_id = active_strike.defender_card.id
-		else:
-			active_strike.defender_card = get_card(card_id)
-			performing_player.remove_card_from_hand(card_id)
-		events += [create_event(EventType.EventType_Strike_Response, performing_player, card_id)]
-		events += begin_resolve_strike()
+	match game_state:
+		GameState.GameState_PickAction, GameState.GameState_WaitForStrike:
+			active_strike = Strike.new()
+			active_strike.initiator = performing_player
+			if wild_strike:
+				events += performing_player.wild_strike()
+				card_id = active_strike.initiator_card.id
+			else:
+				active_strike.initiator_card = get_card(card_id)
+				performing_player.remove_card_from_hand(card_id)
+			active_strike.defender = other_player(performing_player)
+			events += [create_event(EventType.EventType_Strike_Started, performing_player, card_id)]
+			change_game_state(GameState.GameState_Strike_Opponent_Response)
+		GameState.GameState_Strike_Opponent_Response:
+			if wild_strike:
+				events += performing_player.wild_strike()
+				card_id = active_strike.defender_card.id
+			else:
+				active_strike.defender_card = get_card(card_id)
+				performing_player.remove_card_from_hand(card_id)
+			events += [create_event(EventType.EventType_Strike_Response, performing_player, card_id)]
+			events += begin_resolve_strike()
 	return events
 
 func do_pay_cost(performing_player : Player, card_ids : Array, wild_strike : bool):

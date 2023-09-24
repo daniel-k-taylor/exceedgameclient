@@ -11,7 +11,7 @@ Tasks:
     ☐ Show card cost
     ✔ Implement arena and characters @done(23-09-23 12:25)
     ✔ Gauge area functionality @done(23-09-23 12:25)
-        ☐ Move and Change from gauge
+        ✔ Move and Change from gauge @done(23-09-23 19:09)
     ☐ Boost Area functionality
     ✔ Discard Area functionality @done(23-09-23 12:25)
     ☐ Implement Turn actions
@@ -24,21 +24,15 @@ Tasks:
             ✔ Move character @done(23-09-19 21:49)
             ✔ Draw at end of turn @done(23-09-19 21:49)
         ✔ Change cards - force to draw @done(23-09-20 02:07)
-        ☐ Exceed
+        ✔ Exceed @done(23-09-23 20:33)
+            ☐ Show character ability somewhere
+            ✔ Implement ability @done(23-09-23 20:33)
         ☐ Manual Reshuffle
         ☐ Boost
         ☐ Strike
             ✔ Wild Swing - pickable @done(23-09-23 13:26)
             ☐ EX
             ☐ Boosts
-            Highest priority strike items:
-                ✔ UI: TODO: Play strike animation @done(23-09-22 19:51)
-                ✔ UI: TODO: Animate strike response @done(23-09-22 19:51)
-                ✔ UI: TODO: Animate card going to discard @done(23-09-22 19:51)
-                ✔ UI: TODO: Animate card going to gauge @done(23-09-23 02:53)
-                ✔ Player pay costs @done(23-09-23 14:00)
-                ☐ Player select choice
-                ☐ Player force for armor
 
     ✔ Opponent cards/areas @done(23-09-23 12:25)
     ☐ Game Over visuals

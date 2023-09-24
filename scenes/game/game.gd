@@ -34,6 +34,7 @@ enum UISubState {
 	UISubState_SelectCards_MoveActionGenerateForce,
 	UISubState_SelectCards_DiscardCards,
 	UISubState_SelectCards_ForceForChange,
+	UISubState_SelectCards_Exceed,
 	UISubState_SelectCards_StrikeGauge,
 	UISubState_SelectCards_StrikeCard,
 	UISubState_SelectCards_StrikeResponseCard,
@@ -232,14 +233,18 @@ func on_card_lowered(card):
 		parent.move_child(card, card.saved_hand_index)
 		card.saved_hand_index = -1
 
-func can_select_card(_card):
+func can_select_card(card):
+	var in_gauge = game_logic.player.is_card_in_gauge(card.card_id)
+	var in_hand = game_logic.player.is_card_in_hand(card.card_id)
 	match ui_sub_state:
-		UISubState.UISubState_SelectCards_DiscardCards, UISubState.UISubState_SelectCards_StrikeGauge:
-			return len(selected_cards) < select_card_require_max
-		UISubState.UISubState_SelectCards_MoveActionGenerateForce, UISubState.UISubState_SelectCards_ForceForChange:
-			return true
+		UISubState.UISubState_SelectCards_DiscardCards:
+			return in_hand and len(selected_cards) < select_card_require_max
+		UISubState.UISubState_SelectCards_StrikeGauge, UISubState.UISubState_SelectCards_Exceed:
+			return in_gauge and len(selected_cards) < select_card_require_max
+		UISubState.UISubState_SelectCards_MoveActionGenerateForce, UISubState.UISubState_SelectCards_ForceForChange, UISubState.UISubState_SelectCards_ForceForArmor:
+			return in_gauge or in_hand
 		UISubState.UISubState_SelectCards_StrikeCard, UISubState.UISubState_SelectCards_StrikeResponseCard:
-			return true
+			return in_hand
 
 func deselect_all_cards():
 	for card in selected_cards:
@@ -249,10 +254,6 @@ func deselect_all_cards():
 func on_card_clicked(card : CardBase):
 	# If in selection mode, select/deselect card.
 	if ui_state == UIState.UIState_SelectCards:
-		if ui_sub_state == UISubState.UISubState_SelectCards_StrikeGauge and not game_logic.player.is_card_in_gauge(card.card_id):
-			# Must select gauge cards from gauge!
-			return
-
 		var index = -1
 		for i in range(len(selected_cards)):
 			if selected_cards[i].card_id == card.card_id:
@@ -372,6 +373,20 @@ func _on_draw_event(event):
 	draw_card(card_drawn_id, is_player)
 	update_card_counts()
 
+func _on_exceed_event(event):
+	var player = event['event_player']
+	if player == game_logic.player:
+		$PlayerCharacter.modulate = Color(float(98)/255, float(250)/255, 0, 1)
+	else:
+		$OpponentCharacter.modulate = Color(float(66)/255, float(0)/255, float(24)/255, 1)
+
+func _on_force_start_strike(event):
+	var player = event['event_player']
+	if player == game_logic.player:
+		begin_strike_choosing(false, false)
+	else:
+		ai_do_strike()
+
 func _on_game_over(event):
 	printlog("GAME OVER for %s" % event['event_player'].name)
 	# TODO: Do something useful
@@ -422,12 +437,14 @@ func update_force_generation_message():
 			set_instructions("Select cards to generate %s force.\n%s force generated." % [select_card_require_force, force_selected])
 		UISubState.UISubState_SelectCards_ForceForChange:
 			set_instructions("Select cards to generate force to draw new cards.\n%s force generated." % [force_selected])
+		UISubState.UISubState_SelectCards_ForceForArmor:
+			set_instructions("Select cards to generate force for +2 Armor each.\n%s force generated." % [force_selected])
 
 func get_effect_text(effect):
 	var effect_text = CardDefinitions.get_effect_text(effect)
 	return effect_text
 
-func enable_instructions_ui(message, can_ok, can_cancel, can_wild_swing = false, choices = []):
+func enable_instructions_ui(message, can_ok, can_cancel, can_wild_swing : bool = false, choices = []):
 	set_instructions(message)
 	instructions_ok_allowed = can_ok
 	instructions_cancel_allowed = can_cancel
@@ -454,23 +471,25 @@ func begin_generate_force_selection(amount):
 
 	change_ui_state(UIState.UIState_SelectCards)
 
-func begin_gauge_selection(amount, wild_swing_allowed):
+func begin_gauge_selection(amount : int, wild_swing_allowed : bool, sub_state : UISubState):
 	selected_cards = []
 	select_card_require_min = amount
 	select_card_require_max = amount
-	enable_instructions_ui("", true, false, wild_swing_allowed)
+	var cancel_allowed = sub_state == UISubState.UISubState_SelectCards_Exceed
+	enable_instructions_ui("", true, cancel_allowed, wild_swing_allowed)
 
-	change_ui_state(UIState.UIState_SelectCards, UISubState.UISubState_SelectCards_StrikeGauge)
+	change_ui_state(UIState.UIState_SelectCards, sub_state)
 
 func begin_effect_choice(choices):
-	enable_instructions_ui("Select an effect:", false, false, choices)
+	enable_instructions_ui("Select an effect:", false, false, false, choices)
 	change_ui_state(UIState.UIState_MakeChoice, UISubState.UISubState_None)
 
-func begin_strike_choosing(strike_response : bool):
+func begin_strike_choosing(strike_response : bool, cancel_allowed : bool):
 	selected_cards = []
 	select_card_require_min = 1
 	select_card_require_max = 1
-	enable_instructions_ui("Select a card to strike with.", true, not strike_response, true)
+	var can_cancel = cancel_allowed and not strike_response
+	enable_instructions_ui("Select a card to strike with.", true, can_cancel, true)
 	var new_sub_state
 	if strike_response:
 		new_sub_state = UISubState.UISubState_SelectCards_StrikeResponseCard
@@ -506,8 +525,9 @@ func _on_strike_started(event):
 		_move_card_to_strike_area(card, $PlayerStrike/StrikeZone, $AllCards/Striking, true)
 		ai_strike_response()
 	else:
+		# Opponent started strike, player has to respond.
 		_move_card_to_strike_area(card, $OpponentStrike/StrikeZone, $AllCards/Striking, false)
-		begin_strike_choosing(true)
+		begin_strike_choosing(true, false)
 
 func _on_strike_reveal(_event):
 	var strike_cards = $AllCards/Striking.get_children()
@@ -526,7 +546,7 @@ func _on_pay_cost_gauge(event):
 		_on_player_gauge_gauge_clicked()
 		var wild_swing_allowed = game_logic.decision_type == game_logic.DecisionType.DecisionType_PayStrikeCost_CanWild
 		var gauge_cost = game_logic.get_card_gauge_cost(event['number'])
-		begin_gauge_selection(gauge_cost, wild_swing_allowed)
+		begin_gauge_selection(gauge_cost, wild_swing_allowed, UISubState.UISubState_SelectCards_StrikeGauge)
 	else:
 		ai_pay_cost(event)
 
@@ -535,8 +555,8 @@ func _on_pay_cost_failed(_event):
 
 func _on_force_for_armor(event):
 	if event['event_player'] == game_logic.player:
-		# UI to select cards to use force for armor
-		printlog("TODO: Force for armor")
+		change_ui_state(null, UISubState.UISubState_SelectCards_ForceForArmor)
+		begin_generate_force_selection(-1)
 	else:
 		ai_force_for_armor(event)
 
@@ -561,6 +581,10 @@ func _handle_events(events):
 				_on_discard_event(event)
 			game_logic.EventType.EventType_Draw:
 				_on_draw_event(event)
+			game_logic.EventType.EventType_Exceed:
+				_on_exceed_event(event)
+			game_logic.EventType.EventType_ForceStartStrike:
+				_on_force_start_strike(event)
 			game_logic.EventType.EventType_GameOver:
 				_on_game_over(event)
 			game_logic.EventType.EventType_HandSizeExceeded:
@@ -642,9 +666,12 @@ func _update_buttons():
 				update_force_generation_message()
 			UISubState.UISubState_SelectCards_ForceForChange:
 				update_force_generation_message()
+			UISubState.UISubState_SelectCards_ForceForArmor:
+				update_force_generation_message()
 			UISubState.UISubState_SelectCards_StrikeGauge:
 				update_gauge_selection_message()
-
+			UISubState.UISubState_SelectCards_Exceed:
+				update_gauge_selection_message()
 	# Update arena location selection buttons
 	for i in range(1, 10):
 		var arena_button = get_arena_location_button(i)
@@ -653,7 +680,7 @@ func _update_buttons():
 func can_press_ok():
 	if ui_state == UIState.UIState_SelectCards:
 		match ui_sub_state:
-			UISubState.UISubState_SelectCards_DiscardCards, UISubState.UISubState_SelectCards_StrikeGauge:
+			UISubState.UISubState_SelectCards_DiscardCards, UISubState.UISubState_SelectCards_StrikeGauge, UISubState.UISubState_SelectCards_Exceed:
 				var selected_count = len(selected_cards)
 				if  selected_count >= select_card_require_min && selected_count <= select_card_require_max:
 					return true
@@ -665,6 +692,8 @@ func can_press_ok():
 				return force_selected > 0
 			UISubState.UISubState_SelectCards_StrikeCard, UISubState.UISubState_SelectCards_StrikeResponseCard:
 				return len(selected_cards) == 1
+			UISubState.UISubState_SelectCards_ForceForArmor:
+				return true
 	return false
 
 func begin_select_arena_location(valid_moves):
@@ -695,7 +724,7 @@ func _on_change_button_pressed():
 	begin_generate_force_selection(-1)
 
 func _on_exceed_button_pressed():
-	pass # Replace with function body.
+	begin_gauge_selection(game_logic.player.exceed_cost, false, UISubState.UISubState_SelectCards_Exceed)
 
 
 func _on_reshuffle_button_pressed():
@@ -706,8 +735,11 @@ func _on_boost_button_pressed():
 	pass # Replace with function body.
 
 func _on_strike_button_pressed():
-	begin_strike_choosing(false)
+	begin_strike_choosing(false, true)
 
+func _on_choice_pressed(choice):
+	var events = game_logic.do_choice(game_logic.player, choice)
+	_handle_events(events)
 
 func _on_instructions_ok_button_pressed():
 	if ui_state == UIState.UIState_SelectCards and can_press_ok():
@@ -725,6 +757,13 @@ func _on_instructions_ok_button_pressed():
 				_on_gauge_popout_close_window()
 				var events = game_logic.do_pay_cost(game_logic.player, selected_card_ids, false)
 				_handle_events(events)
+			UISubState.UISubState_SelectCards_Exceed:
+				var selected_card_ids = []
+				for card in selected_cards:
+					selected_card_ids.append(card.card_id)
+				_on_gauge_popout_close_window()
+				var events = game_logic.do_exceed(game_logic.player, selected_card_ids)
+				_handle_events(events)
 			UISubState.UISubState_SelectCards_MoveActionGenerateForce:
 				var selected_card_ids = []
 				for card in selected_cards:
@@ -740,8 +779,22 @@ func _on_instructions_ok_button_pressed():
 			UISubState.UISubState_SelectCards_StrikeCard, UISubState.UISubState_SelectCards_StrikeResponseCard:
 				var card = selected_cards[0]
 				complete_strike_choosing(card.card_id)
+			UISubState.UISubState_SelectCards_ForceForArmor:
+				var selected_card_ids = []
+				for card in selected_cards:
+					selected_card_ids.append(card.card_id)
+				var events = game_logic.do_force_for_armor(game_logic.player, selected_card_ids)
+				_handle_events(events)
 
 func _on_instructions_cancel_button_pressed():
+	match ui_sub_state:
+		UISubState.UISubState_SelectCards_ForceForArmor:
+				var selected_card_ids = []
+				deselect_all_cards()
+				var events = game_logic.do_force_for_armor(game_logic.player, selected_card_ids)
+				_handle_events(events)
+				return
+
 	if ui_state == UIState.UIState_SelectArenaLocation and instructions_cancel_allowed:
 		change_ui_state(UIState.UIState_PickTurnAction)
 	if ui_state == UIState.UIState_SelectCards and instructions_cancel_allowed:
@@ -801,6 +854,17 @@ func ai_discard(event):
 	for i in range(event['number']):
 		to_discard.append(game_logic.opponent.hand[i].id)
 	var events = game_logic.do_discard_to_max(game_logic.opponent, to_discard)
+	_handle_events(events)
+
+func ai_do_strike():
+	var hand = game_logic.opponent.hand
+	var events = []
+	if len(hand) > 0:
+		var card = hand[0]
+		events = game_logic.do_strike(game_logic.opponent, card.id, false)
+	else:
+		events = game_logic.do_strike(game_logic.opponent, -1, true)
+
 	_handle_events(events)
 
 func card_in_selected_cards(card):
