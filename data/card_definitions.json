@@ -347,12 +347,12 @@
 				{
 					"timing": "now",
 					"effect_type": "close",
-					"amount": 1
-				},
-				{
-					"timing": "now",
-					"effect_type": "draw",
-					"amount": 1
+					"amount": 1,
+					"and": {
+						"timing": "now",
+						"effect_type": "draw",
+						"amount": 1
+					}
 				},
 				{
 					"timing": "hit",

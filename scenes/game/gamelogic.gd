@@ -730,7 +730,7 @@ func apply_damage(offense_player : Player, defense_player : Player, offense_card
 	events += [create_event(EventType.EventType_Strike_TookDamage, defense_player, damage_after_armor)]
 	if damage_after_armor > guard:
 		events += [create_event(EventType.EventType_Strike_Stun, defense_player, damage_after_armor-guard)]
-		active_strike.strike_state.set_player_stunned(defense_player)
+		active_strike.set_player_stunned(defense_player)
 
 	if defense_player.life <= 0:
 		events += [create_event(EventType.EventType_GameOver, defense_player, 0)]
