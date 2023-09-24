@@ -1,11 +1,14 @@
 Bugs:
+    ☐ Effect text needs work
+    ☐ Drawing more than 7 looks bad
+    ☐ Zoom cards doesn't work well on end cards
 
 In progress:
     ☐ strike
     ☐ Tests
 
 Tasks:
-    ☐ Show card text and cost
+    ☐ Show card cost
     ✔ Implement arena and characters @done(23-09-23 12:25)
     ✔ Gauge area functionality @done(23-09-23 12:25)
         ☐ Move and Change from gauge

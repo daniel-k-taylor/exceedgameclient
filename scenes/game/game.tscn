@@ -201,6 +201,42 @@ layout_mode = 2
 theme_override_font_sizes/font_size = 24
 text = "Wild Swing"
 
+[node name="ChoiceButtons" type="HBoxContainer" parent="StaticUI/StaticUIVBox/InstructionsWithButtonsUI/ButtonContainer"]
+layout_mode = 2
+
+[node name="Choice0" type="Button" parent="StaticUI/StaticUIVBox/InstructionsWithButtonsUI/ButtonContainer/ChoiceButtons"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 24
+text = "Choice0"
+
+[node name="Choice1" type="Button" parent="StaticUI/StaticUIVBox/InstructionsWithButtonsUI/ButtonContainer/ChoiceButtons"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 24
+
+[node name="Choice2" type="Button" parent="StaticUI/StaticUIVBox/InstructionsWithButtonsUI/ButtonContainer/ChoiceButtons"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 24
+
+[node name="Choice3" type="Button" parent="StaticUI/StaticUIVBox/InstructionsWithButtonsUI/ButtonContainer/ChoiceButtons"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 24
+
+[node name="Choice4" type="Button" parent="StaticUI/StaticUIVBox/InstructionsWithButtonsUI/ButtonContainer/ChoiceButtons"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 24
+
+[node name="Choice5" type="Button" parent="StaticUI/StaticUIVBox/InstructionsWithButtonsUI/ButtonContainer/ChoiceButtons"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 24
+
+[node name="Choice6" type="Button" parent="StaticUI/StaticUIVBox/InstructionsWithButtonsUI/ButtonContainer/ChoiceButtons"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 24
+
+[node name="Choice7" type="Button" parent="StaticUI/StaticUIVBox/InstructionsWithButtonsUI/ButtonContainer/ChoiceButtons"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 24
+
 [node name="ButtonGrid" type="GridContainer" parent="StaticUI/StaticUIVBox"]
 layout_mode = 2
 size_flags_horizontal = 8

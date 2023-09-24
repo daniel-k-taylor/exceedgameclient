@@ -23,6 +23,7 @@ var selected_arena_location = 0
 enum UIState {
 	UIState_Initializing,
 	UIState_PickTurnAction,
+	UIState_MakeChoice,
 	UIState_SelectCards,
 	UIState_SelectArenaLocation,
 	UIState_WaitingOnOpponent,
@@ -196,9 +197,9 @@ func create_card(id, parent) -> CardBase:
 		card_def['power'],
 		card_def['armor'],
 		card_def['guard'],
-		CardDefinitions.get_effect_text(card_def['effects']),
+		CardDefinitions.get_effects_text(card_def['effects']),
 		card_def['boost']['force_cost'],
-		CardDefinitions.get_boost_text(card_def['effects'])
+		CardDefinitions.get_boost_text(card_def['boost']['effects'])
 	)
 	new_card.name = get_card_node_name(id)
 	new_card.raised_card.connect(on_card_raised)
@@ -248,6 +249,10 @@ func deselect_all_cards():
 func on_card_clicked(card : CardBase):
 	# If in selection mode, select/deselect card.
 	if ui_state == UIState.UIState_SelectCards:
+		if ui_sub_state == UISubState.UISubState_SelectCards_StrikeGauge and not game_logic.player.is_card_in_gauge(card.card_id):
+			# Must select gauge cards from gauge!
+			return
+
 		var index = -1
 		for i in range(len(selected_cards)):
 			if selected_cards[i].card_id == card.card_id:
@@ -313,6 +318,8 @@ func _on_advance_turn():
 		change_ui_state(UIState.UIState_WaitingOnOpponent)
 
 	clear_selected_cards()
+	_on_gauge_popout_close_window()
+	_on_discard_popout_close_window()
 
 func clear_selected_cards():
 	for card in selected_cards:
@@ -416,11 +423,22 @@ func update_force_generation_message():
 		UISubState.UISubState_SelectCards_ForceForChange:
 			set_instructions("Select cards to generate force to draw new cards.\n%s force generated." % [force_selected])
 
-func enable_instructions_ui(message, can_ok, can_cancel, can_wild_swing = false):
+func get_effect_text(effect):
+	var effect_text = CardDefinitions.get_effect_text(effect)
+	return effect_text
+
+func enable_instructions_ui(message, can_ok, can_cancel, can_wild_swing = false, choices = []):
 	set_instructions(message)
 	instructions_ok_allowed = can_ok
 	instructions_cancel_allowed = can_cancel
 	instructions_wild_swing_allowed = can_wild_swing
+	var choice_buttons = $StaticUI/StaticUIVBox/InstructionsWithButtonsUI/ButtonContainer/ChoiceButtons.get_children()
+	for i in len(choice_buttons):
+		if i < len(choices):
+			choice_buttons[i].visible = true
+			choice_buttons[i].text = CardDefinitions.get_effect_text(choices[i])
+		else:
+			choice_buttons[i].visible = false
 
 func begin_discard_cards_selection(number_to_discard):
 	selected_cards = []
@@ -443,6 +461,10 @@ func begin_gauge_selection(amount, wild_swing_allowed):
 	enable_instructions_ui("", true, false, wild_swing_allowed)
 
 	change_ui_state(UIState.UIState_SelectCards, UISubState.UISubState_SelectCards_StrikeGauge)
+
+func begin_effect_choice(choices):
+	enable_instructions_ui("Select an effect:", false, false, choices)
+	change_ui_state(UIState.UIState_MakeChoice, UISubState.UISubState_None)
 
 func begin_strike_choosing(strike_response : bool):
 	selected_cards = []
@@ -494,7 +516,7 @@ func _on_strike_reveal(_event):
 
 func _on_effect_choice(event):
 	if event['event_player'] == game_logic.player:
-		printlog("TODO: UI to select effect")
+		begin_effect_choice(game_logic.decision_choice)
 	else:
 		ai_effect_choice(event)
 
@@ -598,8 +620,12 @@ func _update_buttons():
 	$StaticUI/StaticUIVBox/ButtonGrid.visible = action_buttons_visible
 
 	# Update instructions UI visibility
-	var select_cards_ui_visible = ui_state == UIState.UIState_SelectCards or ui_state == UIState.UIState_SelectArenaLocation
-	$StaticUI/StaticUIVBox/InstructionsWithButtonsUI.visible = select_cards_ui_visible
+	var instructions_visible = false
+	match ui_state:
+		UIState.UIState_SelectCards, UIState.UIState_SelectArenaLocation, UIState.UIState_MakeChoice:
+			instructions_visible = true
+
+	$StaticUI/StaticUIVBox/InstructionsWithButtonsUI.visible = instructions_visible
 
 	# Update instructions UI Buttons
 	$StaticUI/StaticUIVBox/InstructionsWithButtonsUI/ButtonContainer/OkButton.disabled = not can_press_ok()
@@ -804,7 +830,8 @@ func _update_popout_cards(popout, amount : int, cards_in_popout : Array, not_vis
 			card.set_selected(false)
 			# Assign back to gauge
 			card.position = not_visible_position
-			card.change_state(card_return_state)
+			if card.state == CardBase.CardState.CardState_InPopout:
+				card.change_state(card_return_state)
 			card.set_resting_position(card.position, 0)
 		await popout.clear(0)
 

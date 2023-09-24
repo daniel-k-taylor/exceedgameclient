@@ -573,6 +573,9 @@ func is_effect_condition_met(performing_player : Player, effect, local_condition
 			return true
 		elif condition == "pulled_past" and local_conditions.pulled_past:
 			return true
+		elif condition == "opponent_stunned":
+			# TODO: Implement
+			return false
 		# Unmet condition
 		return false
 	return true

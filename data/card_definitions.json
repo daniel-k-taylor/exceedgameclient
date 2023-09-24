@@ -32,13 +32,12 @@
 			"effects": [
 				{
 					"timing": "hit",
-					"effect_type": "power_up",
-					"amount": 2
-				},
-				{
-					"timing": "hit",
-					"effect_type": "draw",
-					"amount": 1
+					"effect_type": "powerup",
+					"amount": 1,
+					"and": {
+						"effect_type": "draw",
+						"amount": 2
+					}
 				}
 			]
 		}
@@ -106,11 +105,10 @@
 			{
 				"timing": "hit",
 				"effect_type": "pull",
-				"amount": 1
-			},
-			{
-				"timing": "hit",
-				"effect_type": "gain_advantage"
+				"amount": 1,
+				"and": {
+					"effect_type": "gain_advantage"
+				}
 			}
 		],
 		"boost": {
@@ -122,11 +120,11 @@
 				{
 					"timing": "hit",
 					"effect_type": "powerup",
-					"amount": 1
-				},
-				{
-					"timing": "hit",
-					"effect_type": "add_to_gauge"
+					"amount": 1,
+					"and": {
+						"timing": "hit",
+						"effect_type": "add_to_gauge"
+					}
 				}
 			]
 		}
@@ -151,12 +149,11 @@
 			{
 				"timing": "after",
 				"effect_type": "armorup",
-				"amount": 2
-			},
-			{
-				"timing": "after",
-				"effect_type": "close",
-				"amount": 2
+				"amount": 2,
+				"and": {
+					"effect_type": "close",
+					"amount": 2
+				}
 			}
 		],
 		"boost": {
@@ -168,16 +165,16 @@
 				{
 					"timing": "hit",
 					"effect_type": "powerup",
-					"amount": 1
-				},
-				{
-					"timing": "hit",
-					"effect_type": "draw",
-					"amount": 1
+					"amount": 1,
+					"and": 	{
+						"effect_type": "draw",
+						"amount": 1
+					}
 				},
 				{
 					"timing": "after",
-					"effect_type": "gain_advantage_if_stun"
+					"condition": "opponent_stunned",
+					"effect_type": "gain_advantage"
 				}
 			]
 		}
@@ -203,12 +200,11 @@
 			{
 				"timing": "hit",
 				"effect_type": "push",
-				"amount": 1
-			},
-			{
-				"timing": "hit",
-				"effect_type": "close",
-				"amount": 1
+				"amount": 1,
+				"and": {
+					"effect_type": "close",
+					"amount": 1
+				}
 			}
 		],
 		"boost": {
@@ -219,7 +215,7 @@
 			"effects": [
 				{
 					"timing": "immediate",
-					"effect_type": "gauge_to_hand",
+					"effect_type": "gauge_from_hand",
 					"amount": 1
 				},
 				{
@@ -404,12 +400,11 @@
 				},
 				{
 					"timing": "hit",
-					"effect_type": "power_up",
-					"amount": 1
-				},
-				{
-					"timing": "hit",
-					"effect_type": "add_to_gauge"
+					"effect_type": "powerup",
+					"amount": 1,
+					"and": {
+						"effect_type": "add_to_gauge"
+					}
 				}
 			]
 		}
@@ -445,12 +440,11 @@
 					"choice": [
 						{ "effect_type": "push", "amount": 2 },
 						{ "effect_type": "pull", "amount": 2 }
-					]
-				},
-				{
-					"timing": "immediate",
-					"condition": "pulled_past",
-					"effect_type": "add_to_gauge"
+					],
+					"bonus_effect": {
+						"condition": "pulled_past",
+						"effect_type": "add_to_gauge"
+					}
 				}
 			]
 		}
@@ -544,11 +538,10 @@
 		"effects": [
 			{
 				"timing": "during_strike",
-				"effect_type": "ignore_armor"
-			},
-			{
-				"timing": "during_strike",
-				"effect_type": "ignore_guard"
+				"effect_type": "ignore_armor",
+				"and": {
+					"effect_type": "ignore_guard"
+				}
 			}
 		],
 		"boost": {
@@ -631,7 +624,8 @@
 			"display_name": "Scramble",
 			"effects": [
 				{
-					"timing": "when_initiate_strike",
+					"timing": "during_strike",
+					"condition": "initiated_strike",
 					"effect_type": "opponent_wild_swings"
 				}
 			]
