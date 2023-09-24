@@ -197,7 +197,7 @@ class Player:
 	var life : int
 	var hand : Array[Card]
 	var deck : Array[Card]
-	var discards : Array
+	var discards : Array[Card]
 	var deck_def : Dictionary
 	var gauge : Array
 	var boosts : Array
@@ -368,11 +368,11 @@ class Player:
 		events += [parent.create_event(EventType.EventType_Strike_WildStrike, self, card_id)]
 		return events
 
-	func add_to_gauge(card):
+	func add_to_gauge(card: Card):
 		gauge.append(card)
 		return [parent.create_event(EventType.EventType_AddToGauge, self, card.id)]
 
-	func add_to_discards(card):
+	func add_to_discards(card : Card):
 		discards.append(card)
 		return [parent.create_event(EventType.EventType_AddToDiscard, self, card.id)]
 
@@ -937,18 +937,22 @@ func can_do_strike(performing_player : Player):
 
 	return true
 
+func check_hand_size_advance_turn(performing_player : Player):
+	var events = []
+	if len(performing_player.hand) > MaxHandSize:
+		change_game_state(GameState.GameState_DiscardDownToMax)
+		events += [create_event(EventType.EventType_HandSizeExceeded, performing_player, len(performing_player.hand) - MaxHandSize)]
+	else:
+		events += advance_to_next_turn()
+	return events
+
 func do_prepare(performing_player):
 	if not can_do_prepare(performing_player):
 		print("ERROR: Tried to Prepare but can't.")
 		return []
 
 	var events : Array = performing_player.draw(2)
-	if len(performing_player.hand) > MaxHandSize:
-		change_game_state(GameState.GameState_DiscardDownToMax)
-		events += [create_event(EventType.EventType_HandSizeExceeded, performing_player, len(performing_player.hand) - MaxHandSize)]
-	else:
-		events += advance_to_next_turn()
-
+	events += check_hand_size_advance_turn(performing_player)
 	return events
 
 func do_discard_to_max(performing_player : Player, card_ids):
@@ -972,6 +976,16 @@ func do_discard_to_max(performing_player : Player, card_ids):
 	var events = performing_player.discard(card_ids)
 	events += advance_to_next_turn()
 
+	return events
+
+func do_reshuffle(performing_player : Player):
+	if not can_do_reshuffle(performing_player):
+		print("ERROR: Tried to reshuffle but can't.")
+		return []
+
+	var events = performing_player.reshuffle_discard()
+	events += performing_player.draw(1)
+	events += check_hand_size_advance_turn(performing_player)
 	return events
 
 func do_move(performing_player : Player, card_ids, new_arena_location):
@@ -1003,7 +1017,7 @@ func do_move(performing_player : Player, card_ids, new_arena_location):
 	var events = performing_player.discard(card_ids)
 	events += performing_player.move_to(new_arena_location)
 	events += performing_player.draw(1)
-	events += advance_to_next_turn()
+	events += check_hand_size_advance_turn(performing_player)
 	return events
 
 func do_change(performing_player : Player, card_ids):
@@ -1022,11 +1036,7 @@ func do_change(performing_player : Player, card_ids):
 	for id in card_ids:
 		force_generated += get_card_force(id)
 	events += performing_player.draw(force_generated + 1)
-	if len(performing_player.hand) > MaxHandSize:
-		change_game_state(GameState.GameState_DiscardDownToMax)
-		events += [create_event(EventType.EventType_HandSizeExceeded, performing_player, len(performing_player.hand) - MaxHandSize)]
-	else:
-		events += advance_to_next_turn()
+	events += check_hand_size_advance_turn(performing_player)
 
 	return events
 
@@ -1048,6 +1058,8 @@ func do_exceed(performing_player : Player, card_ids : Array):
 
 	var events = performing_player.discard(card_ids)
 	events += performing_player.exceed()
+	events += performing_player.draw(1)
+	events += check_hand_size_advance_turn(performing_player)
 	return events
 
 func do_strike(performing_player : Player, card_id : int, wild_strike: bool):

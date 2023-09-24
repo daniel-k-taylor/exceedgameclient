@@ -1,7 +1,3 @@
-Bugs:
-    ☐ Effect text needs work
-    ☐ Drawing more than 7 looks bad
-    ☐ Zoom cards doesn't work well on end cards
 
 In progress:
 
@@ -13,9 +9,6 @@ Tasks:
         ☐ Panel area
     Exceed:
         ☐ Show character ability next to deck (or as deck?)
-    Manual Reshuffle:
-        ☐ Visuals for manual and auto
-        ☐ Visual showing you have shuffled once
     Strike:
         ☐ EX
         ☐ Boosts take effect
@@ -37,3 +30,9 @@ Tasks:
         ☐ Build out server that is game logic host (use python?)
     Misc/Low pri:
         ☐ Allow spending ultra for 1 force
+        Manual Reshuffle:
+            ☐ Visual showing you have shuffled once
+
+Bugs:
+    ☐ Drawing more than 7 looks bad
+    ☐ Zoom cards doesn't work well on end cards, position should be higher/more visible

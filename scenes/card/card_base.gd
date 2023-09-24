@@ -183,19 +183,19 @@ func _process(_delta):
 	pass
 
 func initialize_card(id, card_title, _image, range_min, range_max, speed, power, armor, guard, effect_text, boost_cost, boost_text, card_cost):
-	self.card_id = id
+	card_id = id
 	$CardContainer/CardBox/TitleRow/TitlePanel/TitleNameBox/TitleName.text = card_title
-	self.default_scale = HandCardScale
-	self.resting_scale = HandCardScale
+	default_scale = HandCardScale
+	resting_scale = HandCardScale
 	scale = HandCardScale
 	# TODO: Set image
 
 	# Set Stats
-	self.range_panel.set_stats("RANGE", range_min, range_max)
-	self.speed_panel.set_stats("SPEED", speed, speed)
-	self.power_panel.set_stats("POWER", power, power, true)
-	self.armor_panel.set_stats("ARMOR", armor, armor, true)
-	self.guard_panel.set_stats("GUARD", guard, guard, true)
+	range_panel.set_stats("RANGE", range_min, range_max)
+	speed_panel.set_stats("SPEED", speed, speed)
+	power_panel.set_stats("POWER", power, power, true)
+	armor_panel.set_stats("ARMOR", armor, armor, true)
+	guard_panel.set_stats("GUARD", guard, guard, true)
 
 	# Set Effect and Boost
 	$CardContainer/CardBox/EffectBox/EffectText.text = "[center]%s[/center]" % effect_text
@@ -204,6 +204,12 @@ func initialize_card(id, card_title, _image, range_min, range_max, speed, power,
 	$CardContainer/CardBox/TitleRow/TitleIcon.visible = card_cost == 0
 	$CardContainer/CardBox/TitleRow/CardCost.visible = card_cost != 0
 	$CardContainer/CardBox/TitleRow/CardCost.text = "  " + str(card_cost)
+
+func reset():
+	resting_scale = HandCardScale
+	scale = HandCardScale
+	change_state(CardState.CardState_InDeck)
+	selected = false
 
 func set_selected(is_selected):
 	selected = is_selected

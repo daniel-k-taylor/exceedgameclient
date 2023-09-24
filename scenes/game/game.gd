@@ -6,6 +6,8 @@ const GameLogic = preload("res://scenes/game/gamelogic.gd")
 const CardPopout = preload("res://scenes/game/card_popout.gd")
 const GaugePanel = preload("res://scenes/game/gauge_panel.gd")
 
+const OffScreen = Vector2(-1000, -1000)
+
 var chosen_deck = null
 var NextCardId = 1
 
@@ -94,7 +96,6 @@ func first_run():
 	_update_buttons()
 
 func spawn_all_cards():
-	const OffScreen = Vector2(-1000, -1000)
 	for card in game_logic.player.deck:
 		var new_card = create_card(card.id, $AllCards/PlayerDeck)
 		new_card.position = OffScreen
@@ -513,8 +514,22 @@ func _on_move_event(event):
 
 func _on_reshuffle_discard(event):
 	# TODO: Play a cool animation of discard shuffling into deck
-	#       Clear discard visuals (delete those card nodes)
-	printlog("Unimplemented event: %s" % event)
+	printlog("UI: TODO: Play reshuffle animation and update reshuffle count/icon.")
+	if event['event_player'] == game_logic.player:
+		var cards = $AllCards/PlayerDiscards.get_children()
+		for card in cards:
+			card.get_parent().remove_child(card)
+			$AllCards/PlayerDeck.add_child(card)
+			card.position = OffScreen
+			card.reset()
+	else:
+		var cards = $AllCards/OpponentDiscards.get_children()
+		for card in cards:
+			card.get_parent().remove_child(card)
+			$AllCards/OpponentDeck.add_child(card)
+			card.position = OffScreen
+			card.reset()
+	_on_discard_popout_close_window()
 
 func _move_card_to_strike_area(card, strike_area, new_parent, is_player : bool):
 	var pos = strike_area.global_position + strike_area.size * strike_area.scale /2
@@ -730,10 +745,9 @@ func _on_change_button_pressed():
 func _on_exceed_button_pressed():
 	begin_gauge_selection(game_logic.player.exceed_cost, false, UISubState.UISubState_SelectCards_Exceed)
 
-
 func _on_reshuffle_button_pressed():
-	pass # Replace with function body.
-
+	var events = game_logic.do_reshuffle(game_logic.player)
+	_handle_events(events)
 
 func _on_boost_button_pressed():
 	pass # Replace with function body.
