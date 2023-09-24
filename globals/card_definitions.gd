@@ -74,17 +74,17 @@ func get_timing_text(timing):
 	var text = ""
 	match timing:
 		"after":
-			text += "After: "
+			text += "[b]After:[/b] "
 		"before":
-			text += "Before: "
+			text += "[b]Before:[/b] "
 		"during_strike":
 			text += ""
 		"hit":
-			text += "Hit: "
+			text += "[b]Hit:[/b] "
 		"immediate":
 			text += ""
 		"now":
-			text += "Now: "
+			text += "[b]Now:[/b] "
 		"start_of_next_turn":
 			text += "At start of next turn: "
 		_:
@@ -116,6 +116,8 @@ func get_effect_type_heading(effect):
 	var effect_str = ""
 	var effect_type = effect['effect_type']
 	match effect_type:
+		"advance":
+			effect_str += "Advance "
 		"close":
 			effect_str += "Close "
 		"draw":

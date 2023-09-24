@@ -188,6 +188,9 @@ func create_card(id, parent) -> CardBase:
 	var card_def = logic_card.definition
 	var new_card : CardBase = CardBaseScene.instantiate()
 	parent.add_child(new_card)
+	var cost = card_def['gauge_cost']
+	if cost == 0:
+		cost = card_def['force_cost']
 	new_card.initialize_card(
 		id,
 		card_def['display_name'],
@@ -200,7 +203,8 @@ func create_card(id, parent) -> CardBase:
 		card_def['guard'],
 		CardDefinitions.get_effects_text(card_def['effects']),
 		card_def['boost']['force_cost'],
-		CardDefinitions.get_boost_text(card_def['boost']['effects'])
+		CardDefinitions.get_boost_text(card_def['boost']['effects']),
+		cost
 	)
 	new_card.name = get_card_node_name(id)
 	new_card.raised_card.connect(on_card_raised)

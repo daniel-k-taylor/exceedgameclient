@@ -182,7 +182,7 @@ func position_card_in_hand(dst_pos, dst_rot):
 func _process(_delta):
 	pass
 
-func initialize_card(id, card_title, _image, range_min, range_max, speed, power, armor, guard, effect_text, boost_cost, boost_text):
+func initialize_card(id, card_title, _image, range_min, range_max, speed, power, armor, guard, effect_text, boost_cost, boost_text, card_cost):
 	self.card_id = id
 	$CardContainer/CardBox/TitleRow/TitlePanel/TitleNameBox/TitleName.text = card_title
 	self.default_scale = HandCardScale
@@ -199,8 +199,11 @@ func initialize_card(id, card_title, _image, range_min, range_max, speed, power,
 
 	# Set Effect and Boost
 	$CardContainer/CardBox/EffectBox/EffectText.text = "[center]%s[/center]" % effect_text
-	$CardContainer/CardBox/BoostBox/BoostDetailsBox/BoostCostIcon/BoostCost.text = "[center]%s[/center]" % boost_cost
-	$CardContainer/CardBox/BoostBox/BoostDetailsBox/BoostText.text = "[center]%s[/center]" % boost_text
+	$CardContainer/CardBox/BoostBox/BoostDetailsBox/BoostCostIcon/BoostCost.text = "  %s" % boost_cost
+	$CardContainer/CardBox/BoostBox/BoostDetailsBox/BoostText.text = "%s" % boost_text
+	$CardContainer/CardBox/TitleRow/TitleIcon.visible = card_cost == 0
+	$CardContainer/CardBox/TitleRow/CardCost.visible = card_cost != 0
+	$CardContainer/CardBox/TitleRow/CardCost.text = "  " + str(card_cost)
 
 func set_selected(is_selected):
 	selected = is_selected

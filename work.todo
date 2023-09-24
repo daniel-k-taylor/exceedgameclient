@@ -4,39 +4,36 @@ Bugs:
     ☐ Zoom cards doesn't work well on end cards
 
 In progress:
-    ☐ strike
-    ☐ Tests
 
 Tasks:
-    ☐ Show card cost
-    ✔ Implement arena and characters @done(23-09-23 12:25)
-    ✔ Gauge area functionality @done(23-09-23 12:25)
-        ✔ Move and Change from gauge @done(23-09-23 19:09)
-    ☐ Boost Area functionality
-    ✔ Discard Area functionality @done(23-09-23 12:25)
-    ☐ Implement Turn actions
-        ✔ Prepare - draw a card @done(23-09-18 01:42)
-        ✔ Move - force (gauge or discard) to move @done(23-09-20 02:07)
-            ✔ Click move to go into card selection @done(23-09-19 21:49)
-                ✔ or, click an arena square instead? @done(23-09-19 21:49)
-            ✔ Cancellable @done(23-09-19 21:49)
-            ✔ Select 1 - 8 force worth @done(23-09-19 21:49)
-            ✔ Move character @done(23-09-19 21:49)
-            ✔ Draw at end of turn @done(23-09-19 21:49)
-        ✔ Change cards - force to draw @done(23-09-20 02:07)
-        ✔ Exceed @done(23-09-23 20:33)
-            ☐ Show character ability next to deck
-            ✔ Implement ability @done(23-09-23 20:33)
-        ☐ Manual Reshuffle
-        ☐ Boost
+    Boost:
+        ☐ Cancel mechanics - ask as you play boost
+            ☐ Exceed power
+        ☐ Abilities
+        ☐ Panel area
+    Exceed:
+        ☐ Show character ability next to deck (or as deck?)
+    Manual Reshuffle:
+        ☐ Visuals for manual and auto
+        ☐ Visual showing you have shuffled once
+    Strike:
+        ☐ EX
+        ☐ Boosts take effect
+    Card Visuals are poor:
+        ☐ Effect text is ugly
+        ☐ Hard to read anything
+        ☐ Ultra distinguish
+    Game Flow:
+        ☐ Game Over visuals
+    Tests:
         ☐ Strike
-            ✔ Wild Swing - pickable @done(23-09-23 13:26)
-            ☐ EX
-            ☐ Boosts
-
-    ✔ Opponent cards/areas @done(23-09-23 12:25)
-    ☐ Game Over visuals
-    ☐ Reshuffle discard visuals
-    ✔ Draw card visual for opponent drawing @done(23-09-23 12:25)
-    ☐ Visual for reshuffle used
-    ☐ Allow spending ultra for 1 force
+        ☐ Boost
+        ☐ Move
+        ☐ Prepare
+        ☐ Exceed
+        ☐ Reshuffle
+        ☐ Change cards
+    Networking:
+        ☐ Build out server that is game logic host (use python?)
+    Misc/Low pri:
+        ☐ Allow spending ultra for 1 force

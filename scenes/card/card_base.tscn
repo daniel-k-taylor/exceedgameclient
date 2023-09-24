@@ -43,7 +43,15 @@ theme_override_constants/separation = 5
 [node name="LeftMargin" type="MarginContainer" parent="CardContainer/CardBox/TitleRow"]
 layout_mode = 2
 
+[node name="CardCost" type="Label" parent="CardContainer/CardBox/TitleRow"]
+layout_mode = 2
+size_flags_vertical = 1
+theme_override_font_sizes/font_size = 16
+text = "  8"
+horizontal_alignment = 1
+
 [node name="TitleIcon" type="TextureRect" parent="CardContainer/CardBox/TitleRow"]
+visible = false
 layout_mode = 2
 texture = ExtResource("1_xb23j")
 expand_mode = 3
@@ -116,6 +124,7 @@ layout_mode = 2
 
 [node name="EffectBox" type="MarginContainer" parent="CardContainer/CardBox"]
 layout_mode = 2
+theme_override_constants/margin_left = 20
 
 [node name="EffectBackground" type="ColorRect" parent="CardContainer/CardBox/EffectBox"]
 custom_minimum_size = Vector2(230, 40)
@@ -125,8 +134,8 @@ color = Color(0, 0, 0, 1)
 [node name="EffectText" type="RichTextLabel" parent="CardContainer/CardBox/EffectBox"]
 layout_mode = 2
 bbcode_enabled = true
-text = "[center][b]HIT:[/b] Do something cool
-[b]AFTER:[/b] Do something else[/center]"
+text = "[b]HIT:[/b] Do something cool
+[b]AFTER:[/b] Do something else"
 fit_content = true
 
 [node name="EffectBoostMargin" type="MarginContainer" parent="CardContainer/CardBox"]
@@ -143,10 +152,13 @@ color = Color(0.294118, 0, 0.294118, 1)
 [node name="BoostDetailsBox" type="HBoxContainer" parent="CardContainer/CardBox/BoostBox"]
 custom_minimum_size = Vector2(0, 40)
 layout_mode = 2
+theme_override_constants/separation = 5
 
 [node name="BoostCostIcon" type="TextureRect" parent="CardContainer/CardBox/BoostBox/BoostDetailsBox"]
-custom_minimum_size = Vector2(40, 40)
+custom_minimum_size = Vector2(30, 40)
 layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
 expand_mode = 1
 stretch_mode = 4
 
@@ -162,14 +174,14 @@ grow_horizontal = 2
 grow_vertical = 2
 theme_override_font_sizes/normal_font_size = 32
 bbcode_enabled = true
-text = "[center]0[/center]"
+text = "  8"
 
 [node name="BoostText" type="RichTextLabel" parent="CardContainer/CardBox/BoostBox/BoostDetailsBox"]
 layout_mode = 2
 size_flags_horizontal = 3
 bbcode_enabled = true
-text = "[center][b]HIT:[/b] Do something cool
-[b]AFTER:[/b] Do something else[/center]"
+text = "[b]HIT:[/b] Do something cool
+[b]AFTER:[/b] Do something else"
 fit_content = true
 
 [node name="CardBack" type="TextureRect" parent="CardContainer"]
