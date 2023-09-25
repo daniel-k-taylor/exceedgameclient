@@ -1,8 +1,8 @@
 [gd_scene load_steps=4 format=3 uid="uid://cf6aml1lrd2yk"]
 
 [ext_resource type="Script" path="res://scenes/game/gauge_panel.gd" id="1_6vj7f"]
-[ext_resource type="Texture2D" uid="uid://bpdpb3e74d2cu" path="res://assets/cards/arena_border_highlight_pressed.png" id="2_6ksjy"]
-[ext_resource type="Texture2D" uid="uid://b08j76upbucvr" path="res://assets/cards/arena_border_highlight_selected.png" id="3_smhup"]
+[ext_resource type="Texture2D" uid="uid://cy0pcorknc8op" path="res://assets/cards/border_thin_pressed.png" id="2_s5ifx"]
+[ext_resource type="Texture2D" uid="uid://kwcp6d7oulcg" path="res://assets/cards/border_thin_hover.png" id="3_lr7n5"]
 
 [node name="Gauge" type="Node2D"]
 script = ExtResource("1_6vj7f")
@@ -31,7 +31,7 @@ vertical_alignment = 1
 
 [node name="Focus" type="TextureButton" parent="GaugePanel"]
 layout_mode = 2
-texture_pressed = ExtResource("2_6ksjy")
-texture_hover = ExtResource("3_smhup")
+texture_pressed = ExtResource("2_s5ifx")
+texture_hover = ExtResource("3_lr7n5")
 
 [connection signal="pressed" from="GaugePanel/Focus" to="." method="_on_focus_pressed"]

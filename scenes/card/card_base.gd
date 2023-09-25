@@ -22,6 +22,7 @@ enum CardState {
 	CardState_InDeck,
 	CardState_InHand,
 	CardState_InGauge,
+	CardState_InBoost,
 	CardState_InPopout,
 	CardState_Discarding,
 	CardState_Discarded,
@@ -86,7 +87,7 @@ func set_hover_visible(hover_visible):
 
 func update_visibility():
 	match state:
-		CardState.CardState_InGauge:
+		CardState.CardState_InGauge, CardState.CardState_InBoost:
 			visible = false
 		_:
 			visible = true

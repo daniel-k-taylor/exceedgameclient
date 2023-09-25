@@ -482,10 +482,10 @@ position = Vector2(10, 400)
 position = Vector2(10, 10)
 
 [node name="PlayerBoostZone" parent="." instance=ExtResource("7_gn0of")]
-position = Vector2(115, 400)
+position = Vector2(155, 400)
 
 [node name="OpponentBoostZone" parent="." instance=ExtResource("7_gn0of")]
-position = Vector2(115, 10)
+position = Vector2(155, 10)
 
 [node name="PlayerCharacter" parent="." instance=ExtResource("9_rhsuv")]
 position = Vector2(50, -68)
@@ -576,6 +576,8 @@ texture_hover = ExtResource("17_rr8uh")
 [connection signal="pressed" from="StaticUI/StaticUIVBox/ButtonGrid/StrikeButton" to="." method="_on_strike_button_pressed"]
 [connection signal="gauge_clicked" from="PlayerGauge" to="." method="_on_player_gauge_gauge_clicked"]
 [connection signal="gauge_clicked" from="OpponentGauge" to="." method="_on_opponent_gauge_gauge_clicked"]
+[connection signal="clicked_zone" from="PlayerBoostZone" to="." method="_on_player_boost_zone_clicked_zone"]
+[connection signal="clicked_zone" from="OpponentBoostZone" to="." method="_on_opponent_boost_zone_clicked_zone"]
 [connection signal="close_window" from="CardPopout" to="." method="_on_popout_close_window"]
 [connection signal="pressed" from="PlayerDiscardButton" to="." method="_on_player_discard_button_pressed"]
 [connection signal="pressed" from="OpponentDiscardButton" to="." method="_on_opponent_discard_button_pressed"]

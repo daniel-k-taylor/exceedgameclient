@@ -8,7 +8,7 @@ const MaxReshuffle = 1
 const WildSwingCardId = 7
 const MinArenaLocation = 1
 const MaxArenaLocation = 9
-const ShuffleEnabled = false
+const ShuffleEnabled = true
 
 var NextCardId = 1
 var all_cards : Array = []

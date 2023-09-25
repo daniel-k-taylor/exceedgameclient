@@ -532,6 +532,7 @@ func complete_strike_choosing():
 	var ex_card_id = -1
 	if len(selected_cards) == 2:
 		ex_card_id = selected_cards[1].card_id
+	deselect_all_cards()
 	var events = game_logic.do_strike(game_logic.player, card_id, false, ex_card_id)
 	_handle_events(events)
 
@@ -952,8 +953,8 @@ func card_in_selected_cards(card):
 	return false
 
 # Popout Functions
-func _update_popout_cards(amount : int, cards_in_popout : Array, not_visible_position : Vector2, card_return_state : CardBase.CardState):
-	card_popout.set_amount(amount)
+func _update_popout_cards(cards_in_popout : Array, not_visible_position : Vector2, card_return_state : CardBase.CardState):
+	card_popout.set_amount(len(cards_in_popout))
 	if card_popout.visible:
 		# Clear first which sets the size/positions correctly.
 		await card_popout.clear(len(cards_in_popout))
@@ -978,30 +979,40 @@ func _update_popout_cards(amount : int, cards_in_popout : Array, not_visible_pos
 		await card_popout.clear(0)
 
 func clear_card_popout():
+	# Gauges
 	await _update_popout_cards(
-		len(game_logic.player.gauge),
 		$AllCards/PlayerGauge.get_children(),
 		$PlayerGauge.get_center_pos(),
 		CardBase.CardState.CardState_InGauge
 	)
 	await _update_popout_cards(
-		len(game_logic.opponent.gauge),
 		$AllCards/OpponentGauge.get_children(),
 		$OpponentGauge.get_center_pos(),
 		CardBase.CardState.CardState_InGauge
 	)
 
+	# Discards
 	await _update_popout_cards(
-		len(game_logic.player.discards),
 		$AllCards/PlayerDiscards.get_children(),
 		get_discard_location($PlayerDeck/Discard),
 		CardBase.CardState.CardState_Discarded
 	)
 	await _update_popout_cards(
-		len(game_logic.player.discards),
 		$AllCards/OpponentDiscards.get_children(),
 		get_discard_location($OpponentDeck/Discard),
 		CardBase.CardState.CardState_Discarded
+	)
+
+	# Boosts
+	await _update_popout_cards(
+		$AllCards/PlayerBoosts.get_children(),
+		get_boost_zone_center($PlayerBoostZone),
+		CardBase.CardState.CardState_InBoost
+	)
+	await _update_popout_cards(
+		$AllCards/OpponentBoosts.get_children(),
+		get_boost_zone_center($OpponentBoostZone),
+		CardBase.CardState.CardState_InBoost
 	)
 
 func close_popout():
@@ -1015,23 +1026,35 @@ func show_popout(popout_title : String, card_node, card_rest_position : Vector2,
 		await clear_card_popout()
 	card_popout.visible = true
 	var cards = card_node.get_children()
-	_update_popout_cards(len(cards), cards, card_rest_position, card_rest_state)
+	_update_popout_cards(cards, card_rest_position, card_rest_state)
+
+func get_boost_zone_center(zone):
+	var pos = zone.global_position + CardBase.DesiredCardSize * CardBase.SmallCardScale / 2
+	return pos
 
 func _on_player_gauge_gauge_clicked():
 	await close_popout()
-	show_popout("GAUGE", $AllCards/PlayerGauge, $PlayerGauge.get_center_pos(), CardBase.CardState.CardState_InGauge)
+	show_popout("YOUR GAUGE", $AllCards/PlayerGauge, $PlayerGauge.get_center_pos(), CardBase.CardState.CardState_InGauge)
 
 func _on_opponent_gauge_gauge_clicked():
 	await close_popout()
-	show_popout("GAUGE", $AllCards/OpponentGauge, $OpponentGauge.get_center_pos(), CardBase.CardState.CardState_InGauge)
+	show_popout("THEIR GAUGE", $AllCards/OpponentGauge, $OpponentGauge.get_center_pos(), CardBase.CardState.CardState_InGauge)
 
 func _on_player_discard_button_pressed():
 	await close_popout()
-	show_popout("DISCARD", $AllCards/PlayerDiscards, get_discard_location($PlayerDeck/Discard), CardBase.CardState.CardState_Discarded)
+	show_popout("YOUR DISCARDS", $AllCards/PlayerDiscards, get_discard_location($PlayerDeck/Discard), CardBase.CardState.CardState_Discarded)
 
 func _on_opponent_discard_button_pressed():
 	await close_popout()
-	show_popout("DISCARD", $AllCards/OpponentDiscards, get_discard_location($OpponentDeck/Discard), CardBase.CardState.CardState_Discarded)
+	show_popout("THEIR DISCARD", $AllCards/OpponentDiscards, get_discard_location($OpponentDeck/Discard), CardBase.CardState.CardState_Discarded)
+
+func _on_player_boost_zone_clicked_zone():
+	await close_popout()
+	show_popout("YOUR BOOSTS", $AllCards/PlayerBoosts, get_boost_zone_center($PlayerBoostZone), CardBase.CardState.CardState_InBoost)
+
+func _on_opponent_boost_zone_clicked_zone():
+	await close_popout()
+	show_popout("THEIR BOOSTS", $AllCards/OpponentBoosts, get_boost_zone_center($OpponentBoostZone), CardBase.CardState.CardState_InBoost)
 
 func _on_popout_close_window():
 	await close_popout()

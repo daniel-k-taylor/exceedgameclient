@@ -1,23 +1,36 @@
-[gd_scene format=3 uid="uid://dsc63si41lg6t"]
+[gd_scene load_steps=4 format=3 uid="uid://dsc63si41lg6t"]
+
+[ext_resource type="Script" path="res://scenes/game/boost_zone.gd" id="1_552js"]
+[ext_resource type="Texture2D" uid="uid://cy0pcorknc8op" path="res://assets/cards/border_thin_pressed.png" id="2_j5kdi"]
+[ext_resource type="Texture2D" uid="uid://kwcp6d7oulcg" path="res://assets/cards/border_thin_hover.png" id="3_vyivb"]
 
 [node name="BoostZone" type="Node2D"]
+script = ExtResource("1_552js")
 
-[node name="BoostPanel" type="PanelContainer" parent="."]
+[node name="OuterMargin" type="MarginContainer" parent="."]
 custom_minimum_size = Vector2(160, 150)
 offset_right = 40.0
 offset_bottom = 40.0
 
-[node name="BoostVBox" type="VBoxContainer" parent="BoostPanel"]
+[node name="BoostPanel" type="PanelContainer" parent="OuterMargin"]
 layout_mode = 2
 
-[node name="BoostLabel" type="Label" parent="BoostPanel/BoostVBox"]
+[node name="InnerMargin" type="MarginContainer" parent="OuterMargin/BoostPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 5
+theme_override_constants/margin_right = 5
+
+[node name="BoostVBox" type="VBoxContainer" parent="OuterMargin/BoostPanel/InnerMargin"]
+layout_mode = 2
+
+[node name="BoostLabel" type="Label" parent="OuterMargin/BoostPanel/InnerMargin/BoostVBox"]
 layout_mode = 2
 theme_override_font_sizes/font_size = 24
 text = "BOOSTS"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="BoostEffects" type="Label" parent="BoostPanel/BoostVBox"]
+[node name="BoostEffects" type="Label" parent="OuterMargin/BoostPanel/InnerMargin/BoostVBox"]
 layout_mode = 2
 theme_override_font_sizes/font_size = 14
 text = "Summary of boost effects
@@ -26,3 +39,11 @@ Multiline summary
 Next line
 One more
 Last line"
+
+[node name="Focus" type="TextureButton" parent="OuterMargin"]
+layout_mode = 2
+texture_pressed = ExtResource("2_j5kdi")
+texture_hover = ExtResource("3_vyivb")
+stretch_mode = 0
+
+[connection signal="pressed" from="OuterMargin/Focus" to="." method="_on_focus_pressed"]
