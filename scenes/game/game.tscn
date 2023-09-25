@@ -496,15 +496,7 @@ modulate = Color(1, 0.384314, 0.54902, 1)
 position = Vector2(146, -68)
 scale = Vector2(0.5, 0.5)
 
-[node name="GaugePopout" parent="." instance=ExtResource("14_lyeqj")]
-visible = false
-offset_left = 50.0
-offset_top = 60.0
-offset_right = 293.0
-offset_bottom = 185.0
-scale = Vector2(0.5, 0.5)
-
-[node name="DiscardPopout" parent="." instance=ExtResource("14_lyeqj")]
+[node name="CardPopout" parent="." instance=ExtResource("14_lyeqj")]
 visible = false
 offset_left = 50.0
 offset_top = 60.0
@@ -584,7 +576,6 @@ texture_hover = ExtResource("17_rr8uh")
 [connection signal="pressed" from="StaticUI/StaticUIVBox/ButtonGrid/StrikeButton" to="." method="_on_strike_button_pressed"]
 [connection signal="gauge_clicked" from="PlayerGauge" to="." method="_on_player_gauge_gauge_clicked"]
 [connection signal="gauge_clicked" from="OpponentGauge" to="." method="_on_opponent_gauge_gauge_clicked"]
-[connection signal="close_window" from="GaugePopout" to="." method="_on_gauge_popout_close_window"]
-[connection signal="close_window" from="DiscardPopout" to="." method="_on_discard_popout_close_window"]
+[connection signal="close_window" from="CardPopout" to="." method="_on_popout_close_window"]
 [connection signal="pressed" from="PlayerDiscardButton" to="." method="_on_player_discard_button_pressed"]
 [connection signal="pressed" from="OpponentDiscardButton" to="." method="_on_opponent_discard_button_pressed"]

@@ -6,18 +6,22 @@
 		"image": "test_char.png",
 		"exceed_cost": 3,
 		"on_exceed": "strike",
-		"ability": {
-			"timing": "strike",
-			"condition": "canceled_this_turn",
-			"effect_type": "power_up",
-			"amount": 1
-		},
-		"exceed_ability": {
-			"timing": "strike",
-			"condition": "canceled_this_turn",
-			"effect_type": "power_up",
-			"amount": 2
-		}
+		"ability_effects": [
+			{
+				"timing": "strike",
+				"condition": "canceled_this_turn",
+				"effect_type": "power_up",
+				"amount": 1
+			}
+		],
+		"exceed_ability_effects": [
+			{
+				"timing": "strike",
+				"condition": "canceled_this_turn",
+				"effect_type": "power_up",
+				"amount": 2
+			}
+		]
 	},
 	"cards": [
 		{

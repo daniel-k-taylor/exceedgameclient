@@ -2,21 +2,14 @@
 In progress:
     New Events to handle in UI:
         ☐ EventType_Boost_CancelDecision
-        ☐ EventType_Boost_Play
-        ☐ EventType_Boost_Canceled
         ☐ EventType_Boost_Continuous_Added
-        ☐ EventType_Strike_ForceWildSwing
         ☐ EventType_CardFromHandToGauge_Choice
-        ☐ EventType_Boost_ActionAfterBoost
         ☐ EventType_Boost_DiscardContinuousChoice
         ☐ EventType_Boost_NameCardOpponentDiscards
             ☐ Implement card reference that player picks from
 Tasks:
     Main Features:
         Boost:
-            ☐ Cancel mechanics - ask as you play boost
-                ☐ Exceed power
-            ☐ Abilities
             ☐ Panel area
         Exceed:
             ☐ Show character ability next to deck (or as deck?)

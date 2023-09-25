@@ -3,7 +3,7 @@
 [node name="BoostZone" type="Node2D"]
 
 [node name="BoostPanel" type="PanelContainer" parent="."]
-custom_minimum_size = Vector2(160, 110)
+custom_minimum_size = Vector2(160, 150)
 offset_right = 40.0
 offset_bottom = 40.0
 
@@ -13,7 +13,7 @@ layout_mode = 2
 [node name="BoostLabel" type="Label" parent="BoostPanel/BoostVBox"]
 layout_mode = 2
 theme_override_font_sizes/font_size = 24
-text = "BOOST"
+text = "BOOSTS"
 horizontal_alignment = 1
 vertical_alignment = 1
 
@@ -22,4 +22,7 @@ layout_mode = 2
 theme_override_font_sizes/font_size = 14
 text = "Summary of boost effects
 Multiline summary
-+2 Power "
++2 Power
+Next line
+One more
+Last line"

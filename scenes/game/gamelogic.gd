@@ -54,7 +54,7 @@ enum EventType {
 	EventType_Boost_ActionAfterBoost,
 	EventType_Boost_CancelDecision,
 	EventType_Boost_DiscardContinuousChoice,
-	EventType_Boost_Play,
+	EventType_Boost_Played,
 	EventType_Boost_Canceled,
 	EventType_Boost_Continuous_Added,
 	EventType_Boost_NameCardOpponentDiscards,
@@ -626,11 +626,11 @@ class Player:
 
 	func get_character_effects_at_timing(timing_name : String):
 		var effects = []
-		var ability_label = "ability"
+		var ability_label = "ability_effects"
 		if exceeded:
-			ability_label = "exceed_ability"
+			ability_label = "exceed_ability_effects"
 
-		for effect in deck_def['character'][ability_label]['effects']:
+		for effect in deck_def['character'][ability_label]:
 			if effect['timing'] == timing_name:
 				effects.append(effect)
 		return effects
@@ -1165,13 +1165,12 @@ func continue_resolve_strike():
 
 func begin_resolve_boost(performing_player : Player, card_id : int):
 	var events = []
-	# Boost is just beginning.
-	events += [create_event(EventType.EventType_Boost_Play, performing_player, card_id)]
 
 	active_boost = Boost.new()
 	active_boost.playing_player = performing_player
 	active_boost.card = get_card(card_id)
 	performing_player.remove_card_from_hand(card_id)
+	events += [create_event(EventType.EventType_Boost_Played, performing_player, card_id)]
 
 	# Resolve all immediate/now effects
 	# If continuous, put it into continous boost tracking.
@@ -1579,7 +1578,7 @@ func do_force_for_armor(performing_player : Player, card_ids : Array):
 	events += continue_resolve_strike()
 	return events
 
-func do_boost_cancel(performing_player : Player, gauge_card_ids : Array):
+func do_boost_cancel(performing_player : Player, gauge_card_ids : Array, doing_cancel : bool):
 	if game_state != GameState.GameState_PlayerDecision or decision_type != DecisionType.DecisionType_BoostCancel:
 		printlog("ERROR: Tried to cancel boost but not in decision state.")
 		return []
@@ -1589,7 +1588,7 @@ func do_boost_cancel(performing_player : Player, gauge_card_ids : Array):
 	if not active_boost:
 		printlog("ERROR: Tried to cancel boost but no active boost.")
 		return []
-	if len(gauge_card_ids) < get_card_cancel_cost(active_boost.card.id):
+	if doing_cancel and len(gauge_card_ids) < get_card_cancel_cost(active_boost.card.id):
 		printlog("ERROR: Tried to cancel boost with too few cards.")
 		return []
 	for id in gauge_card_ids:
@@ -1599,12 +1598,11 @@ func do_boost_cancel(performing_player : Player, gauge_card_ids : Array):
 			return []
 
 	var events = []
-	events += performing_player.discard(gauge_card_ids)
+	if doing_cancel:
+		events += performing_player.discard(gauge_card_ids)
+		events += performing_player.on_cancel_boost()
+		active_boost.action_after_boost = true
 	events += boost_play_cleanup(performing_player)
-	events += performing_player.on_cancel_boost()
-
-	# Player gets another turn
-	change_game_state(GameState.GameState_PickAction)
 
 	return events
 
