@@ -833,7 +833,7 @@ func _on_instructions_ok_button_pressed():
 				_handle_events(events)
 			UISubState.UISubState_SelectCards_PlayBoost:
 				var card = selected_cards[0]
-				if game_logic.get_card_force_cost(card.id) > 0:
+				if game_logic.get_card_force_cost(card.card_id) > 0:
 					printlog("ERROR: TODO: Force cost not implemented.")
 				else:
 					var events = game_logic.do_boost(game_logic.player, card.card_id)

@@ -9,9 +9,8 @@ In progress:
         ☐ EventType_CardFromHandToGauge_Choice
         ☐ EventType_Boost_ActionAfterBoost
         ☐ EventType_Boost_DiscardContinuousChoice
-    Boost effects to implement:
-        ☐ name_card_opponent_discards
-            ☐ Implement card reference here too
+        ☐ EventType_Boost_NameCardOpponentDiscards
+            ☐ Implement card reference that player picks from
 Tasks:
     Main Features:
         Boost:
@@ -19,11 +18,8 @@ Tasks:
                 ☐ Exceed power
             ☐ Abilities
             ☐ Panel area
-            ☐ Paying force cost for boosts
         Exceed:
             ☐ Show character ability next to deck (or as deck?)
-        Strike:
-            ☐ Boosts take effect
         Game Flow:
             ☐ Game Over visuals
         Manual Reshuffle:
@@ -40,11 +36,11 @@ Tasks:
         ☐ Build out server that is game logic host (use python?)
     Misc/Low pri:
         ☐ Allow spending ultra for 1 force
-        ☐ Need to call free() for new()?
+        ☐ Paying force cost for boosts - no cards in GG have force cost boosts
         Card Visuals are poor:
-            ☐ Effect text is ugly
-            ☐ Hard to read anything
-            ☐ Ultra distinguish
+        ☐ Effect text is ugly
+        ☐ Hard to read anything
+        ☐ Ultra distinguish
 
 Bugs:
     ☐ Drawing more than 7 looks bad

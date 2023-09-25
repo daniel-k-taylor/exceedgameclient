@@ -9,12 +9,14 @@
 		"ability": {
 			"timing": "strike",
 			"condition": "canceled_this_turn",
-			"effect": { "effect_type": "power_up", "amount": 1 }
+			"effect_type": "power_up",
+			"amount": 1
 		},
 		"exceed_ability": {
 			"timing": "strike",
 			"condition": "canceled_this_turn",
-			"effect": { "effect_type": "power_up", "amount": 2 }
+			"effect_type": "power_up",
+			"amount": 2
 		}
 	},
 	"cards": [

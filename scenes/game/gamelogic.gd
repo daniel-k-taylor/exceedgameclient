@@ -16,6 +16,7 @@ var game_over : bool = false
 var active_strike : Strike = null
 var decision_player : Player = null
 var decision_type : DecisionType
+var decision_effect_type
 var decision_choice
 var decision_choice_card_id : int
 var active_boost : Boost = null
@@ -24,6 +25,7 @@ enum DecisionType {
 	DecisionType_BoostCancel,
 	DecisionType_ChooseDiscardContinuousBoost,
 	DecisionType_EffectChoice,
+	DecisionType_NameCard_OpponentDiscards,
 	DecisionType_PayStrikeCost_Required,
 	DecisionType_PayStrikeCost_CanWild,
 	DecisionType_ForceForArmor,
@@ -55,6 +57,7 @@ enum EventType {
 	EventType_Boost_Play,
 	EventType_Boost_Canceled,
 	EventType_Boost_Continuous_Added,
+	EventType_Boost_NameCardOpponentDiscards,
 	EventType_CardFromHandToGauge_Choice,
 	EventType_Discard,
 	EventType_Draw,
@@ -621,6 +624,17 @@ class Player:
 					return true
 		return false
 
+	func get_character_effects_at_timing(timing_name : String):
+		var effects = []
+		var ability_label = "ability"
+		if exceeded:
+			ability_label = "exceed_ability"
+
+		for effect in deck_def['character'][ability_label]['effects']:
+			if effect['timing'] == timing_name:
+				effects.append(effect)
+		return effects
+
 var player : Player
 var opponent : Player
 
@@ -758,6 +772,8 @@ func is_effect_condition_met(performing_player : Player, effect, local_condition
 		elif condition == "not_initiated_strike":
 			var initiated_strike = active_strike.initiator == performing_player
 			return not initiated_strike
+		elif condition == "canceled_this_turn":
+			return performing_player.canceled_this_turn
 		elif condition == "not_full_close" and not local_conditions.fully_closed:
 			return true
 		elif condition == "advanced_through" and local_conditions.advanced_through:
@@ -768,6 +784,7 @@ func is_effect_condition_met(performing_player : Player, effect, local_condition
 			return true
 		elif condition == "opponent_stunned":
 			return active_strike.is_player_stunned(other_player(performing_player))
+
 		# Unmet condition
 		return false
 	return true
@@ -784,7 +801,7 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 	var events = []
 	var local_conditions = LocalStrikeConditions.new()
 	var performing_start = performing_player.arena_location
-	var opposing_player = other_player(performing_player)
+	var opposing_player : Player = other_player(performing_player)
 	var other_start = opposing_player.arena_location
 	match effect['effect_type']:
 		"add_boost_to_gauge_on_strike_cleanup":
@@ -834,6 +851,7 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 				# Player gets to pick which continuous boost to discard.
 				change_game_state(GameState.GameState_PlayerDecision)
 				decision_type = DecisionType.DecisionType_ChooseDiscardContinuousBoost
+				decision_effect_type = "discard_continuous_boost_INTERNAL"
 				decision_choice_card_id = card_id
 				decision_player = performing_player
 				events += [create_event(EventType.EventType_Boost_DiscardContinuousChoice, performing_player, 1)]
@@ -859,7 +877,12 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 		"ignore_push_and_pull":
 			performing_player.strike_stat_boosts.ignore_push_and_pull = true
 		"name_card_opponent_discards":
-			pass
+			change_game_state(GameState.GameState_PlayerDecision)
+			decision_type = DecisionType.DecisionType_NameCard_OpponentDiscards
+			decision_player = performing_player
+			events += [create_event(EventType.EventType_Boost_NameCardOpponentDiscards, performing_player, 1)]
+		"name_card_opponent_discards_internal":
+			events += opposing_player.discard(effect['card_id'])
 		"opponent_discard_random":
 			events += opposing_player.discard_random(effect['amount'])
 		"powerup":
@@ -924,9 +947,14 @@ func do_effects_for_timing(timing_name : String, performing_player : Player, car
 	var effects = get_card_effects(card, timing_name)
 	var boost_effects = get_boost_effects_at_timing(timing_name, performing_player)
 	var boost_card_ids = get_boost_card_ids_for_effects_at_timing(timing_name, performing_player)
+	var character_effects = performing_player.get_character_effects_at_timing(timing_name)
+	# Effects are resolved in the order:
+	# Card > Continuous Boost > Character
 	while true:
 		var boost_effects_resolved = active_strike.effects_resolved_in_timing - len(effects)
+		var character_effects_resolved = boost_effects_resolved - len(boost_effects)
 		if active_strike.effects_resolved_in_timing < len(effects):
+			# Resolve card effects
 			var effect = effects[active_strike.effects_resolved_in_timing]
 			if is_effect_condition_met(performing_player, effect, null):
 				events += handle_strike_effect(card.id, effect, performing_player)
@@ -937,12 +965,22 @@ func do_effects_for_timing(timing_name : String, performing_player : Player, car
 			# Effect was resolved, continue loop to resolve more.
 			active_strike.effects_resolved_in_timing += 1
 		elif boost_effects_resolved < len(boost_effects):
-			# All effects on the cards have been resolved.
-			# Do effects on continuous boosts then cleanup.
+			# Resolve boost effects
 			var effect = boost_effects[boost_effects_resolved]
 			var boost_card_id = boost_card_ids[boost_effects_resolved]
 			if is_effect_condition_met(performing_player, effect, null):
 				events += handle_strike_effect(boost_card_id, effect, performing_player)
+			if game_state == GameState.GameState_PlayerDecision:
+				# Player has a decision to make, so stop mid-effect resolve.
+				break
+
+			# Effect was resolved, continue loop to resolve more.
+			active_strike.effects_resolved_in_timing += 1
+		elif character_effects_resolved < len(character_effects):
+			# Resolve character effects
+			var effect = character_effects[character_effects_resolved]
+			if is_effect_condition_met(performing_player, effect, null):
+				events += handle_strike_effect(card.id, effect, performing_player)
 			if game_state == GameState.GameState_PlayerDecision:
 				# Player has a decision to make, so stop mid-effect resolve.
 				break
@@ -1588,22 +1626,16 @@ func do_card_from_hand_to_gauge(performing_player : Player, card_id : int):
 
 	return events
 
-func do_discard_continuous_boost_choice(performing_player : Player, card_id : int):
+func do_boost_name_card_choice_effect(performing_player : Player, card_id : int):
 	if decision_player != performing_player:
 		printlog("ERROR: Tried to force for armor for wrong player.")
 		return []
 	if game_state != GameState.GameState_PlayerDecision:
 		printlog("ERROR: Tried to make a choice but not in decision state.")
 		return []
-	if not other_player(performing_player).is_card_in_continuous_boosts(card_id):
-		printlog("ERROR: Tried to discard continuous boost that doesn't exist.")
-		return []
-	if not active_boost:
-		printlog("ERROR: Tried to discard continuous boost but no active boost.")
-		return []
 
 	var effect = {
-		"effect_type": "discard_continuous_boost_INTERNAL",
+		"effect_type": decision_effect_type,
 		"card_id": card_id,
 	}
 
