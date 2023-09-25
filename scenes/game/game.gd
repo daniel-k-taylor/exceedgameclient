@@ -806,10 +806,23 @@ func _update_buttons():
 				update_gauge_selection_for_cancel_message()
 			UISubState.UISubState_SelectCards_Exceed:
 				update_gauge_selection_message()
+
 	# Update arena location selection buttons
 	for i in range(1, 10):
 		var arena_button = get_arena_location_button(i)
 		arena_button.visible = (ui_state == UIState.UIState_SelectArenaLocation and i in arena_locations_clickable)
+
+	# Update boost zones
+	update_boost_summary(game_logic.player, $PlayerBoostZone)
+	update_boost_summary(game_logic.opponent, $OpponentBoostZone)
+
+func update_boost_summary(summary_player, zone):
+	var player_boost_effects = summary_player.get_all_non_immediate_continuous_boost_effects()
+	var boost_summary = ""
+	for effect in player_boost_effects:
+		boost_summary += CardDefinitions.get_effect_text(effect) + "\n"
+	zone.set_text(boost_summary)
+
 
 func selected_cards_between_min_and_max() -> bool:
 	var selected_count = len(selected_cards)

@@ -34,6 +34,7 @@ enum DecisionType {
 
 enum GameState {
 	GameState_NotStarted,
+	GameState_Boost_Processing,
 	GameState_PickAction,
 	GameState_DiscardDownToMax,
 	GameState_WaitForStrike,
@@ -588,6 +589,14 @@ class Player:
 				break
 		return events
 
+	func get_all_non_immediate_continuous_boost_effects():
+		var effects = []
+		for card in continuous_boosts:
+			for effect in card.definition['boost']['effects']:
+				if effect['timing'] != "now":
+					effects.append(effect)
+		return effects
+
 	func is_card_in_continuous_boosts(id : int):
 		for card in continuous_boosts:
 			if card.id == id:
@@ -813,8 +822,6 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 			performing_player.strike_stat_boosts.always_add_to_gauge = true
 		"add_to_gauge_boost_play_cleanup":
 			active_boost.cleanup_to_gauge_card_ids.append(card_id)
-		"add_to_gauge_immediately":
-			pass
 		"advance":
 			events += performing_player.advance(effect['amount'])
 			var new_location = performing_player.arena_location
@@ -1180,6 +1187,8 @@ func begin_resolve_boost(performing_player : Player, card_id : int):
 
 func continue_resolve_boost():
 	var events = []
+
+	change_game_state(GameState.GameState_Boost_Processing)
 
 	var effects = get_card_boost_effects_now_immediate(active_boost.card)
 	while true:
