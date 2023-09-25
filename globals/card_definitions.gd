@@ -200,7 +200,7 @@ func get_effect_type_text(effect):
 			effect_str += "MISSING EFFECT"
 	return effect_str
 
-func get_effect_text(effect):
+func get_effect_text(effect, short = false):
 	var effect_str = ""
 	if 'timing' in effect:
 		effect_str += get_timing_text(effect['timing'])
@@ -210,10 +210,10 @@ func get_effect_text(effect):
 
 	effect_str += get_effect_type_text(effect)
 
-	if 'bonus_effect' in effect:
+	if not short and 'bonus_effect' in effect:
 		effect_str += "; " + get_effect_text(effect['bonus_effect'])
 	if 'and' in effect:
-		effect_str += ", " + get_effect_text(effect['and'])
+		effect_str += ", " + get_effect_text(effect['and'], short)
 	return effect_str
 
 func get_effects_text(effects):

@@ -1,10 +1,6 @@
 
 In progress:
     New Events to handle in UI:
-        ☐ EventType_Boost_CancelDecision
-        ☐ EventType_Boost_Continuous_Added
-        ☐ EventType_CardFromHandToGauge_Choice
-        ☐ EventType_Boost_DiscardContinuousChoice
         ☐ EventType_Boost_NameCardOpponentDiscards
             ☐ Implement card reference that player picks from
 Tasks:

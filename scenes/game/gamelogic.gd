@@ -862,11 +862,12 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 			next_turn_player = performing_player
 			events += [create_event(EventType.EventType_Strike_GainAdvantage, performing_player, 0)]
 		"gauge_from_hand":
-			change_game_state(GameState.GameState_PlayerDecision)
-			decision_type = DecisionType.DecisionType_CardFromHandToGauge
-			decision_player = performing_player
-			decision_choice_card_id = card_id
-			events += [create_event(EventType.EventType_CardFromHandToGauge_Choice, performing_player, 1)]
+			if len(performing_player.hand) > 0:
+				change_game_state(GameState.GameState_PlayerDecision)
+				decision_type = DecisionType.DecisionType_CardFromHandToGauge
+				decision_player = performing_player
+				decision_choice_card_id = card_id
+				events += [create_event(EventType.EventType_CardFromHandToGauge_Choice, performing_player, 1)]
 		"guardup":
 			performing_player.strike_stat_boosts.guard += effect['amount']
 			events += [create_event(EventType.EventType_Strike_GuardUp, performing_player, effect['amount'])]
@@ -1210,7 +1211,7 @@ func boost_play_cleanup(performing_player : Player):
 	# All boost immediate/now effects are done.
 	# If continuous, add to player.
 	# If immediate, add to discard.
-	if active_boost.card.definition['boost_type'] == "continuous":
+	if active_boost.card.definition['boost']['boost_type'] == "continuous":
 		events += performing_player.add_to_continuous_boosts(active_boost.card)
 	else:
 		if active_boost.card.id in active_boost.cleanup_to_gauge_card_ids:
