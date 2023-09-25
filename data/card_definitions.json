@@ -123,7 +123,7 @@
 					"amount": 1,
 					"and": {
 						"timing": "hit",
-						"effect_type": "add_to_gauge"
+						"effect_type": "add_boost_to_gauge_on_strike_cleanup"
 					}
 				}
 			]
@@ -403,7 +403,7 @@
 					"effect_type": "powerup",
 					"amount": 1,
 					"and": {
-						"effect_type": "add_to_gauge"
+						"effect_type": "add_boost_to_gauge_on_strike_cleanup"
 					}
 				}
 			]
@@ -438,13 +438,19 @@
 					"timing": "immediate",
 					"effect_type": "choice",
 					"choice": [
-						{ "effect_type": "push", "amount": 2 },
-						{ "effect_type": "pull", "amount": 2 }
-					],
-					"bonus_effect": {
-						"condition": "pulled_past",
-						"effect_type": "add_to_gauge"
-					}
+						{
+							"effect_type": "push",
+							"amount": 2
+						},
+						{
+							"effect_type": "pull",
+							"amount": 2,
+							"bonus_effect": {
+								"condition": "pulled_past",
+								"effect_type": "add_to_gauge_boost_play_cleanup"
+							}
+						}
+					]
 				}
 			]
 		}
@@ -557,7 +563,7 @@
 				},
 				{
 					"timing": "start_of_next_turn",
-					"effect_type": "add_to_gauge"
+					"effect_type": "add_to_gauge_immediately"
 				}
 			]
 		}
@@ -624,8 +630,7 @@
 			"display_name": "Scramble",
 			"effects": [
 				{
-					"timing": "during_strike",
-					"condition": "initiated_strike",
+					"timing": "on_initiate_strike",
 					"effect_type": "opponent_wild_swings"
 				}
 			]
@@ -651,7 +656,7 @@
 			},
 			{
 				"timing": "after",
-				"effect_type": "add_to_gauge"
+				"effect_type": "add_strike_to_gauge_after_cleanup"
 			}
 		],
 		"boost": {

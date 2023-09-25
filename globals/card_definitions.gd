@@ -85,6 +85,10 @@ func get_timing_text(timing):
 			text += ""
 		"now":
 			text += "[b]Now:[/b] "
+		"on_initiate_strike":
+			text += "When you initiate a strike, "
+		"on_reveal":
+			text += ""
 		"start_of_next_turn":
 			text += "At start of next turn: "
 		_:
@@ -136,8 +140,14 @@ func get_effect_type_text(effect):
 	var effect_str = ""
 	var effect_type = effect['effect_type']
 	match effect_type:
-		"add_to_gauge":
+		"add_boost_to_gauge_on_strike_cleanup":
+			effect_str += "Add card to gauge."
+		"add_strike_to_gauge_after_cleanup":
 			effect_str += "Add card to gauge after strike."
+		"add_to_gauge_boost_play_cleanup":
+			effect_str += "Add card to gauge."
+		"add_to_gauge_immediately":
+			effect_str += "Add card to gauge."
 		"advance":
 			effect_str += "Advance " + str(effect['amount'])
 		"armorup":
@@ -173,7 +183,7 @@ func get_effect_type_text(effect):
 		"opponent_discard_random":
 			effect_str += "Opponent discards " + str(effect['amount']) + " random cards."
 		"opponent_wild_swings":
-			effect_str += "Opponent wild swings next Strike."
+			effect_str += "Opponent wild swings."
 		"powerup":
 			effect_str += "+" + str(effect['amount']) + " Power"
 		"pull":
