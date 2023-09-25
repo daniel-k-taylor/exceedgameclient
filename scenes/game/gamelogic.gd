@@ -68,6 +68,7 @@ enum EventType {
 	EventType_HandSizeExceeded,
 	EventType_Move,
 	EventType_ReshuffleDiscard,
+	EventType_RevealHand,
 	EventType_Strike_ArmorUp,
 	EventType_Strike_DodgeAttacks,
 	EventType_Strike_EffectChoice,
@@ -244,6 +245,7 @@ class Player:
 	var life : int
 	var hand : Array[Card]
 	var deck : Array[Card]
+	var deck_copy : Array[Card]
 	var discards : Array[Card]
 	var deck_def : Dictionary
 	var gauge : Array
@@ -264,11 +266,13 @@ class Player:
 		deck_def = chosen_deck
 		exceed_cost = deck_def['character']['exceed_cost']
 		deck = []
+		deck_copy = []
 		strike_stat_boosts = StrikeStatBoosts.new()
 		for deck_card_def in deck_def['cards']:
 			var card_def = CardDefinitions.get_card(deck_card_def['definition_id'])
 			var card = Card.new(card_start_id, card_def, deck_card_def['image'])
 			deck.append(card)
+			deck_copy.append(card)
 			card_start_id += 1
 		if ShuffleEnabled:
 			deck.shuffle()
@@ -413,6 +417,15 @@ class Player:
 					break
 		return events
 
+	func discard_matching_or_reveal(card_definition_id : String):
+		var events = []
+		for card in hand:
+			if card.definition['id'] == card_definition_id:
+				events = discard([card.id])
+				return events
+		# Not found
+		events += [parent.create_event(EventType.EventType_RevealHand, self, 0)]
+		return events
 	func discard_random(amount):
 		var events = []
 		for i in range(amount):
@@ -887,10 +900,16 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 		"name_card_opponent_discards":
 			change_game_state(GameState.GameState_PlayerDecision)
 			decision_type = DecisionType.DecisionType_NameCard_OpponentDiscards
+			decision_effect_type = "name_card_opponent_discards_internal"
+			decision_choice_card_id = card_id
 			decision_player = performing_player
 			events += [create_event(EventType.EventType_Boost_NameCardOpponentDiscards, performing_player, 1)]
 		"name_card_opponent_discards_internal":
-			events += opposing_player.discard(effect['card_id'])
+			var named_card = get_card(effect['card_id'])
+			# named_card is the individual card but
+			# this should discard "by name", so instead of using that
+			# match card.definition['id']'s instead.
+			events += opposing_player.discard_matching_or_reveal(named_card.definition['id'])
 		"opponent_discard_random":
 			events += opposing_player.discard_random(effect['amount'])
 		"powerup":

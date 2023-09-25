@@ -1,8 +1,6 @@
 
 In progress:
-    New Events to handle in UI:
-        ☐ EventType_Boost_NameCardOpponentDiscards
-            ☐ Implement card reference that player picks from
+
 Tasks:
     Main Features:
         Exceed:
@@ -25,10 +23,10 @@ Tasks:
         ☐ Allow spending ultra for 1 force
         ☐ Paying force cost for boosts - no cards in GG have force cost boosts
         Card Visuals are poor:
-        ☐ Effect text is ugly
-        ☐ Hard to read anything
-        ☐ Ultra distinguish
+            ☐ Effect text is ugly
+            ☐ Hard to read anything
+            ☐ Ultra/Special/Normal distinguishing factor
+            ☐ Model after hearthstone!
 
 Bugs:
     ☐ Drawing more than 7 looks bad
-    ☐ Zoom cards doesn't work well on end cards, position should be higher/more visible

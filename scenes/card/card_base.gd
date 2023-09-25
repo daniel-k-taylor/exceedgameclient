@@ -24,6 +24,7 @@ enum CardState {
 	CardState_InGauge,
 	CardState_InBoost,
 	CardState_InPopout,
+	CardState_Offscreen,
 	CardState_Discarding,
 	CardState_Discarded,
 	CardState_InStrike,
@@ -55,6 +56,7 @@ var resting_rotation
 var resting_scale
 var focus_pos
 var focus_rot
+var focus_y_pos
 
 var selected = false
 
@@ -87,7 +89,7 @@ func set_hover_visible(hover_visible):
 
 func update_visibility():
 	match state:
-		CardState.CardState_InGauge, CardState.CardState_InBoost:
+		CardState.CardState_InGauge, CardState.CardState_InBoost, CardState.CardState_Offscreen:
 			visible = false
 		_:
 			visible = true
@@ -183,7 +185,7 @@ func position_card_in_hand(dst_pos, dst_rot):
 func _process(_delta):
 	pass
 
-func initialize_card(id, card_title, _image, range_min, range_max, speed, power, armor, guard, effect_text, boost_cost, boost_text, card_cost):
+func initialize_card(id, card_title, _image, range_min, range_max, speed, power, armor, guard, effect_text, boost_cost, boost_text, card_cost, hand_focus_y_pos):
 	card_id = id
 	$CardContainer/CardBox/TitleRow/TitlePanel/TitleNameBox/TitleName.text = card_title
 	default_scale = HandCardScale
@@ -205,6 +207,8 @@ func initialize_card(id, card_title, _image, range_min, range_max, speed, power,
 	$CardContainer/CardBox/TitleRow/TitleIcon.visible = card_cost == 0
 	$CardContainer/CardBox/TitleRow/CardCost.visible = card_cost != 0
 	$CardContainer/CardBox/TitleRow/CardCost.text = "  " + str(card_cost)
+
+	focus_y_pos = hand_focus_y_pos
 
 func reset():
 	resting_scale = HandCardScale
@@ -257,7 +261,7 @@ func focus():
 		focus_pos = position
 		focus_rot = 0
 		if state == CardState.CardState_InHand:
-			focus_pos.y -= 100
+			focus_pos.y = focus_y_pos
 
 		return_state = state
 

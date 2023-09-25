@@ -7,6 +7,10 @@ const CardPopout = preload("res://scenes/game/card_popout.gd")
 const GaugePanel = preload("res://scenes/game/gauge_panel.gd")
 
 const OffScreen = Vector2(-1000, -1000)
+const ReferenceScreenIdRangeStart = 90000
+
+const PlayerHandFocusYPos = 720 - (CardBase.DesiredCardSize.y + 20)
+const OpponentHandFocusYPos = CardBase.DesiredCardSize.y
 
 var chosen_deck = null
 var NextCardId = 1
@@ -35,6 +39,7 @@ enum UISubState {
 	UISubState_None,
 	UISubState_SelectCards_BoostCancel,
 	UISubState_SelectCards_DiscardContinuousBoost,
+	UISubState_SelectCards_DiscardFromReference,
 	UISubState_SelectCards_MoveActionGenerateForce,
 	UISubState_SelectCards_PlayBoost,
 	UISubState_SelectCards_DiscardCards,
@@ -95,13 +100,27 @@ func first_run():
 	move_character_to_arena_square($OpponentCharacter, game_logic.opponent.arena_location)
 	_update_buttons()
 
+func spawn_deck(deck, deck_copy, deck_card_zone, copy_zone, hand_focus_y_pos):
+	for card in deck:
+		var logic_card : GameLogic.Card = game_logic.get_card(card.id)
+		var new_card = create_card(card.id, logic_card.definition, logic_card.image, deck_card_zone, hand_focus_y_pos)
+		new_card.position = OffScreen
+
+	var previous_def_id = ""
+	for card in deck_copy:
+		var logic_card : GameLogic.Card = game_logic.get_card(card.id)
+		if previous_def_id != logic_card.definition['id']:
+			var copy_card = create_card(card.id + ReferenceScreenIdRangeStart, logic_card.definition, logic_card.image, copy_zone, 0)
+			copy_card.position = OffScreen
+			copy_card.resting_scale = CardBase.SmallCardScale
+			copy_card.scale = CardBase.SmallCardScale
+			copy_card.change_state(CardBase.CardState.CardState_Offscreen)
+			copy_card.flip_card_to_front(true)
+			previous_def_id = card.definition['id']
+
 func spawn_all_cards():
-	for card in game_logic.player.deck:
-		var new_card = create_card(card.id, $AllCards/PlayerDeck)
-		new_card.position = OffScreen
-	for card in game_logic.opponent.deck:
-		var new_card = create_card(card.id, $AllCards/OpponentDeck)
-		new_card.position = OffScreen
+	spawn_deck(game_logic.player.deck, game_logic.player.deck_copy, $AllCards/PlayerDeck, $AllCards/PlayerAllCopy, PlayerHandFocusYPos)
+	spawn_deck(game_logic.opponent.deck, game_logic.opponent.deck_copy, $AllCards/OpponentDeck, $AllCards/OpponentAllCopy, OpponentHandFocusYPos)
 
 func draw_and_begin():
 	game_logic.draw_starting_hands_and_begin()
@@ -184,9 +203,7 @@ func update_card_counts():
 func get_card_node_name(id):
 	return "Card_" + str(id)
 
-func create_card(id, parent) -> CardBase:
-	var logic_card : GameLogic.Card = game_logic.get_card(id)
-	var card_def = logic_card.definition
+func create_card(id, card_def, image, parent, hand_focus_y_pos) -> CardBase:
 	var new_card : CardBase = CardBaseScene.instantiate()
 	parent.add_child(new_card)
 	var cost = card_def['gauge_cost']
@@ -195,7 +212,7 @@ func create_card(id, parent) -> CardBase:
 	new_card.initialize_card(
 		id,
 		card_def['display_name'],
-		logic_card.image,
+		image,
 		card_def['range_min'],
 		card_def['range_max'],
 		card_def['speed'],
@@ -205,7 +222,8 @@ func create_card(id, parent) -> CardBase:
 		CardDefinitions.get_effects_text(card_def['effects']),
 		card_def['boost']['force_cost'],
 		CardDefinitions.get_boost_text(card_def['boost']['effects']),
-		cost
+		cost,
+		hand_focus_y_pos
 	)
 	new_card.name = get_card_node_name(id)
 	new_card.raised_card.connect(on_card_raised)
@@ -238,10 +256,17 @@ func on_card_lowered(card):
 		parent.move_child(card, card.saved_hand_index)
 		card.saved_hand_index = -1
 
+func is_card_in_player_reference(reference_cards, card_id):
+	for card in reference_cards:
+		if card.card_id == card_id:
+			return true
+	return false
+
 func can_select_card(card):
 	var in_gauge = game_logic.player.is_card_in_gauge(card.card_id)
 	var in_hand = game_logic.player.is_card_in_hand(card.card_id)
 	var in_opponent_boosts = game_logic.opponent.is_card_in_continuous_boosts(card.card_id)
+	var in_opponent_reference = is_card_in_player_reference($AllCards/OpponentAllCopy.get_children(), card.card_id)
 	match ui_sub_state:
 		UISubState.UISubState_SelectCards_DiscardCards, UISubState.UISubState_SelectCards_DiscardCardsToGauge:
 			return in_hand and len(selected_cards) < select_card_require_max
@@ -255,6 +280,8 @@ func can_select_card(card):
 			return len(selected_cards) == 0 and in_hand and game_logic.can_player_boost(game_logic.player, card.card_id)
 		UISubState.UISubState_SelectCards_DiscardContinuousBoost:
 			return in_opponent_boosts and len(selected_cards) < select_card_require_max
+		UISubState.UISubState_SelectCards_DiscardFromReference:
+			return in_opponent_reference and len(selected_cards) < select_card_require_max
 
 func deselect_all_cards():
 	for card in selected_cards:
@@ -373,6 +400,20 @@ func _on_discard_continuous_boost_begin(event):
 		change_ui_state(UIState.UIState_SelectCards, UISubState.UISubState_SelectCards_DiscardContinuousBoost)
 	else:
 		ai_discard_continuous_boost()
+
+func _on_name_opponent_card_begin(event):
+	if event['event_player'] == game_logic.player:
+		# Show the boost window.
+		_on_opponent_reference_button_pressed()
+		selected_cards = []
+		select_card_require_min = 1
+		select_card_require_max = 1
+		var cancel_allowed = false
+		enable_instructions_ui("Name opponent card.", true, cancel_allowed, false)
+
+		change_ui_state(UIState.UIState_SelectCards, UISubState.UISubState_SelectCards_DiscardFromReference)
+	else:
+		ai_name_opponent_card()
 
 func _on_boost_played(event):
 	var player = event['event_player']
@@ -608,6 +649,15 @@ func _on_reshuffle_discard(event):
 			card.reset()
 	close_popout()
 
+func _on_reveal_hand(event):
+	if event['event_player'] == game_logic.opponent:
+		var cards = $AllCards/OpponentHand.get_children()
+		for card in cards:
+			card.flip_card_to_front(true)
+	else:
+		# Nothing for AI here.
+		pass
+
 func _move_card_to_strike_area(card, strike_area, new_parent, is_player : bool, is_ex : bool):
 	var pos = strike_area.global_position + strike_area.size * strike_area.scale /2
 	if is_ex:
@@ -685,6 +735,8 @@ func _handle_events(events):
 				_on_continuous_boost_added(event)
 			game_logic.EventType.EventType_Boost_DiscardContinuousChoice:
 				_on_discard_continuous_boost_begin(event)
+			game_logic.EventType.EventType_Boost_NameCardOpponentDiscards:
+				_on_name_opponent_card_begin(event)
 			game_logic.EventType.EventType_Boost_Played:
 				_on_boost_played(event)
 			game_logic.EventType.EventType_CardFromHandToGauge_Choice:
@@ -707,6 +759,8 @@ func _handle_events(events):
 				_on_move_event(event)
 			game_logic.EventType.EventType_ReshuffleDiscard:
 				_on_reshuffle_discard(event)
+			game_logic.EventType.EventType_RevealHand:
+				_on_reveal_hand(event)
 			game_logic.EventType.EventType_Strike_ArmorUp:
 				printlog("TODO: Animate strike armor up")
 			game_logic.EventType.EventType_Strike_DodgeAttacks:
@@ -833,7 +887,7 @@ func can_press_ok():
 		match ui_sub_state:
 			UISubState.UISubState_SelectCards_DiscardCards, UISubState.UISubState_SelectCards_StrikeGauge, UISubState.UISubState_SelectCards_Exceed:
 				return selected_cards_between_min_and_max()
-			UISubState.UISubState_SelectCards_BoostCancel, UISubState.UISubState_SelectCards_DiscardContinuousBoost:
+			UISubState.UISubState_SelectCards_BoostCancel, UISubState.UISubState_SelectCards_DiscardContinuousBoost, UISubState.UISubState_SelectCards_DiscardFromReference:
 				return selected_cards_between_min_and_max()
 			UISubState.UISubState_SelectCards_DiscardCardsToGauge:
 				return selected_cards_between_min_and_max()
@@ -919,6 +973,8 @@ func _on_instructions_ok_button_pressed():
 				events = game_logic.do_boost_cancel(game_logic.player, selected_card_ids, true)
 			UISubState.UISubState_SelectCards_DiscardContinuousBoost:
 				events = game_logic.do_boost_name_card_choice_effect(game_logic.player, single_card_id)
+			UISubState.UISubState_SelectCards_DiscardFromReference:
+				events = game_logic.do_boost_name_card_choice_effect(game_logic.player, single_card_id - ReferenceScreenIdRangeStart)
 			UISubState.UISubState_SelectCards_DiscardCards:
 				events = game_logic.do_discard_to_max(game_logic.player, selected_card_ids)
 			UISubState.UISubState_SelectCards_DiscardCardsToGauge:
@@ -981,6 +1037,8 @@ func _on_arena_location_pressed(location):
 
 
 
+
+
 #
 # AI Functions
 #
@@ -1036,6 +1094,12 @@ func ai_boost_cancel_decision():
 func ai_discard_continuous_boost():
 	var card_id = game_logic.player.continuous_boosts[0].id
 	var events = game_logic.do_boost_name_card_choice_effect(game_logic.opponent, card_id)
+	_handle_events(events)
+
+func ai_name_opponent_card():
+	var card : CardBase = $AllCards/PlayerAllCopy.get_child(0)
+	var real_id = card.card_id - ReferenceScreenIdRangeStart
+	var events = game_logic.do_boost_name_card_choice_effect(game_logic.opponent, real_id)
 	_handle_events(events)
 
 func ai_choose_card_hand_to_gauge():
@@ -1112,6 +1176,18 @@ func clear_card_popout():
 		CardBase.CardState.CardState_InBoost
 	)
 
+	# Reference
+	await _update_popout_cards(
+		$AllCards/PlayerAllCopy.get_children(),
+		OffScreen,
+		CardBase.CardState.CardState_Offscreen
+	)
+	await _update_popout_cards(
+		$AllCards/OpponentAllCopy.get_children(),
+		OffScreen,
+		CardBase.CardState.CardState_Offscreen
+	)
+
 func close_popout():
 	card_popout.visible = false
 	await clear_card_popout()
@@ -1155,3 +1231,11 @@ func _on_opponent_boost_zone_clicked_zone():
 
 func _on_popout_close_window():
 	await close_popout()
+
+func _on_player_reference_button_pressed():
+	await close_popout()
+	show_popout("YOUR DECK REFERENCE", $AllCards/PlayerAllCopy, OffScreen, CardBase.CardState.CardState_Offscreen)
+
+func _on_opponent_reference_button_pressed():
+	await close_popout()
+	show_popout("THEIR DECK REFERENCE", $AllCards/OpponentAllCopy, OffScreen, CardBase.CardState.CardState_Offscreen)

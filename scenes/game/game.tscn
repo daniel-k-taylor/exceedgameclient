@@ -350,6 +350,15 @@ text = "88"
 horizontal_alignment = 1
 vertical_alignment = 1
 
+[node name="ReferenceButton" type="Button" parent="PlayerDeck"]
+offset_left = 10.0
+offset_top = 540.0
+offset_right = 128.0
+offset_bottom = 610.0
+theme_override_font_sizes/font_size = 24
+text = "Card
+Reference"
+
 [node name="OpponentDeck" type="Node2D" parent="."]
 
 [node name="DeckButton" type="TextureButton" parent="OpponentDeck"]
@@ -405,6 +414,15 @@ theme_override_font_sizes/font_size = 60
 text = "88"
 horizontal_alignment = 1
 vertical_alignment = 1
+
+[node name="ReferenceButton" type="Button" parent="OpponentDeck"]
+offset_left = 10.0
+offset_top = 150.0
+offset_right = 128.0
+offset_bottom = 220.0
+theme_override_font_sizes/font_size = 24
+text = "Card
+Reference"
 
 [node name="PlayerStrike" type="Node2D" parent="."]
 
@@ -528,6 +546,10 @@ scale = Vector2(0.5, 0.5)
 
 [node name="OpponentDeck" type="Node2D" parent="AllCards"]
 
+[node name="PlayerAllCopy" type="Node2D" parent="AllCards"]
+
+[node name="OpponentAllCopy" type="Node2D" parent="AllCards"]
+
 [node name="PlayerDiscardButton" type="TextureButton" parent="."]
 offset_left = 1160.0
 offset_top = 575.0
@@ -574,6 +596,8 @@ texture_hover = ExtResource("17_rr8uh")
 [connection signal="pressed" from="StaticUI/StaticUIVBox/ButtonGrid/ReshuffleButton" to="." method="_on_reshuffle_button_pressed"]
 [connection signal="pressed" from="StaticUI/StaticUIVBox/ButtonGrid/BoostButton" to="." method="_on_boost_button_pressed"]
 [connection signal="pressed" from="StaticUI/StaticUIVBox/ButtonGrid/StrikeButton" to="." method="_on_strike_button_pressed"]
+[connection signal="pressed" from="PlayerDeck/ReferenceButton" to="." method="_on_player_reference_button_pressed"]
+[connection signal="pressed" from="OpponentDeck/ReferenceButton" to="." method="_on_opponent_reference_button_pressed"]
 [connection signal="gauge_clicked" from="PlayerGauge" to="." method="_on_player_gauge_gauge_clicked"]
 [connection signal="gauge_clicked" from="OpponentGauge" to="." method="_on_opponent_gauge_gauge_clicked"]
 [connection signal="clicked_zone" from="PlayerBoostZone" to="." method="_on_player_boost_zone_clicked_zone"]
