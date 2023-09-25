@@ -21,7 +21,8 @@ Tasks:
         ☐ Build out server that is game logic host (use python?)
     Misc/Low pri:
         ☐ Allow spending ultra for 1 force
-        ☐ Paying force cost for boosts - no cards in GG have force cost boosts
+        ☐ Sum continuous boost stat bonuses into a single line
+        ☐ Delay between events so you can see what happens
         Card Visuals are poor:
             ☐ Effect text is ugly
             ☐ Hard to read anything
@@ -30,3 +31,6 @@ Tasks:
 
 Bugs:
     ☐ Drawing more than 7 looks bad
+
+Later:
+    ☐ Paying force cost for boosts - no cards in GG have force cost boosts

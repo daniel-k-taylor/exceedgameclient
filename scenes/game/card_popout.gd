@@ -10,6 +10,7 @@ const DefaultSeparation = 20
 const MinSeparation = -220
 
 var used_slots = 0
+var total_cols = 0
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
@@ -36,21 +37,39 @@ func adjust_spacing():
 	shrink_size()
 
 func clear(visible_slots : int):
-	used_slots = visible_slots
-	for i in range(MaxSlotCount):
+	# For the currently visible spots, set them invisible.
+	for i in range(used_slots):
 		var spot = get_spot(i)
-		spot.visible = i < visible_slots
+		spot.visible = false
 		if i % 2 == 0:
 			spot.get_parent().visible = spot.visible
+
+	# Update the used slots and column count.
+	used_slots = visible_slots
+	@warning_ignore("integer_division")
+	total_cols = floor((used_slots + 1) / 2)
+
+	# Now set the new used slots visible.
+	for i in range(used_slots):
+		var spot = get_spot(i)
+		spot.visible = true
+		spot.get_parent().visible = true
+
+	# Fix up spacing and wait a couple frames to let the container adjust.
 	adjust_spacing()
 	await get_tree().process_frame
 	await get_tree().process_frame
 
 func get_spot(slot_index):
-	var col_num = (slot_index / 2) + 1
-	var spot_num : int = (slot_index % 2) + 1
-	var col = $PopoutVBox/Margin/Row.get_node("Col%s" % str(col_num))
-	var spot = col.get_node("Spot%s" % str(spot_num))
+	# Slots should be given out in the order first row then second row.
+	var row_num = 0
+	var col_num = 0
+	@warning_ignore("integer_division")
+	if used_slots > 0:
+		row_num = floor(slot_index / total_cols)
+		col_num = (slot_index % total_cols)
+	var col = $PopoutVBox/Margin/Row.get_node("Col%s" % str(col_num + 1))
+	var spot = col.get_node("Spot%s" % str(row_num + 1))
 	return spot
 
 func get_slot_position(slot_index : int) -> Vector2:
