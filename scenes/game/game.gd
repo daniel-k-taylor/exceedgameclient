@@ -1123,7 +1123,16 @@ func ai_take_turn():
 	_handle_events(events)
 
 func ai_pay_cost(_event):
-	var events = game_logic.do_pay_strike_cost(game_logic.opponent, [], true)
+	var gauge_cost = game_logic.get_card_gauge_cost(_event['number'])
+	var events = []
+	if len(game_logic.opponent.gauge) >= gauge_cost:
+		var selected_card_ids = []
+		for i in range(gauge_cost):
+			selected_card_ids.append(game_logic.opponent.gauge[i].id)
+		events = game_logic.do_pay_strike_cost(game_logic.opponent, selected_card_ids, false)
+		_handle_events(events)
+	else:
+		events = game_logic.do_pay_strike_cost(game_logic.opponent, [], true)
 	_handle_events(events)
 
 func ai_effect_choice(_event):
@@ -1280,6 +1289,7 @@ func show_popout(popout_title : String, card_node, card_rest_position : Vector2,
 
 func get_boost_zone_center(zone):
 	var pos = zone.global_position + CardBase.DesiredCardSize / 2
+	pos.x += CardBase.DesiredCardSize.x / 2
 	return pos
 
 func _on_player_gauge_gauge_clicked():

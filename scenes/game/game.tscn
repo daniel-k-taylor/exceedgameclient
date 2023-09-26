@@ -5,7 +5,6 @@
 [ext_resource type="PackedScene" uid="uid://u7pf7tbgppmh" path="res://scenes/game/arena_square.tscn" id="3_xg2e8"]
 [ext_resource type="Texture2D" uid="uid://dh8tat2r8ttx1" path="res://assets/cards/card_border_highlight.png" id="4_5y76h"]
 [ext_resource type="Texture2D" uid="uid://b433drvl0djch" path="res://assets/cards/arena_border_highlight_waiting.png" id="4_72uk1"]
-[ext_resource type="Texture2D" uid="uid://c2ny808vipftb" path="res://assets/cardbacks/cardback_red.svg" id="5_dd21w"]
 [ext_resource type="Texture2D" uid="uid://bpdpb3e74d2cu" path="res://assets/cards/arena_border_highlight_pressed.png" id="5_r5b6h"]
 [ext_resource type="PackedScene" uid="uid://cf6aml1lrd2yk" path="res://scenes/game/gauge_panel.tscn" id="6_gtjck"]
 [ext_resource type="Texture2D" uid="uid://b08j76upbucvr" path="res://assets/cards/arena_border_highlight_selected.png" id="6_qfd2s"]
@@ -13,6 +12,7 @@
 [ext_resource type="PackedScene" uid="uid://1624xgdxrrg5" path="res://scenes/game/life_scene.tscn" id="8_mqi3u"]
 [ext_resource type="Texture2D" uid="uid://60aipui45hh3" path="res://assets/cards/card_border_highlight_discard_pile.png" id="9_dpbn3"]
 [ext_resource type="PackedScene" uid="uid://ckjlv124xttrc" path="res://scenes/game/character.tscn" id="9_rhsuv"]
+[ext_resource type="Texture2D" uid="uid://dbijqidxd2ned" path="res://assets/icons/cards.png" id="11_nsv2h"]
 [ext_resource type="PackedScene" uid="uid://dxtsdthw5sxbc" path="res://scenes/game/card_popout.tscn" id="14_lyeqj"]
 [ext_resource type="Texture2D" uid="uid://ded5jrn5yju2j" path="res://assets/cards/card_border_highlight_pressed.png" id="16_laiwo"]
 [ext_resource type="Texture2D" uid="uid://mn1hj4i3k7l7" path="res://assets/cards/card_border_highlight_selected.png" id="17_rr8uh"]
@@ -299,6 +299,7 @@ offset_bottom = 520.0
 [node name="PlayerCharacterCard" parent="PlayerDeck" instance=ExtResource("18_imast")]
 position = Vector2(1058, 574)
 scale = Vector2(0.4, 0.4)
+anchor_top = false
 
 [node name="DeckButton" type="TextureButton" parent="PlayerDeck"]
 anchors_preset = 3
@@ -313,6 +314,8 @@ offset_bottom = 755.0
 grow_horizontal = 0
 grow_vertical = 0
 scale = Vector2(0.75, 0.75)
+focus_mode = 0
+mouse_filter = 2
 ignore_texture_size = true
 stretch_mode = 4
 
@@ -321,10 +324,12 @@ custom_minimum_size = Vector2(125, 175)
 layout_mode = 0
 offset_right = 40.0
 offset_bottom = 40.0
+mouse_filter = 2
 theme_override_constants/margin_top = -20
 
 [node name="VBoxContainer" type="VBoxContainer" parent="PlayerDeck/DeckButton/CardCountContainer"]
 layout_mode = 2
+mouse_filter = 2
 
 [node name="CardCount" type="Label" parent="PlayerDeck/DeckButton/CardCountContainer/VBoxContainer"]
 layout_mode = 2
@@ -383,6 +388,7 @@ offset_bottom = 190.0
 grow_horizontal = 0
 grow_vertical = 0
 scale = Vector2(0.75, 0.75)
+mouse_filter = 2
 ignore_texture_size = true
 stretch_mode = 4
 
@@ -391,10 +397,12 @@ custom_minimum_size = Vector2(125, 175)
 layout_mode = 0
 offset_right = 40.0
 offset_bottom = 40.0
+mouse_filter = 2
 theme_override_constants/margin_top = -20
 
 [node name="VBoxContainer" type="VBoxContainer" parent="OpponentDeck/DeckButton/CardCountContainer"]
 layout_mode = 2
+mouse_filter = 2
 
 [node name="CardCount" type="Label" parent="OpponentDeck/DeckButton/CardCountContainer/VBoxContainer"]
 layout_mode = 2
@@ -464,19 +472,22 @@ texture_hover = ExtResource("4_5y76h")
 
 [node name="OpponentHandBox" type="HBoxContainer" parent="OpponentHand"]
 custom_minimum_size = Vector2(100, 50)
-offset_left = 950.0
+offset_left = 935.0
 offset_top = 10.0
-offset_right = 1050.0
+offset_right = 1052.0
 offset_bottom = 72.0
+mouse_filter = 2
 
 [node name="OpponentHandCardIcon" type="TextureRect" parent="OpponentHand/OpponentHandBox"]
 layout_mode = 2
-texture = ExtResource("5_dd21w")
+mouse_filter = 2
+texture = ExtResource("11_nsv2h")
 expand_mode = 3
 
 [node name="XLabel" type="RichTextLabel" parent="OpponentHand/OpponentHandBox"]
 layout_mode = 2
 size_flags_horizontal = 3
+mouse_filter = 2
 theme_override_font_sizes/normal_font_size = 32
 bbcode_enabled = true
 text = "X"
@@ -485,8 +496,10 @@ scroll_active = false
 autowrap_mode = 0
 
 [node name="OpponentNumCards" type="RichTextLabel" parent="OpponentHand/OpponentHandBox"]
+custom_minimum_size = Vector2(25, 0)
 layout_mode = 2
 size_flags_horizontal = 3
+mouse_filter = 2
 theme_override_font_sizes/normal_font_size = 48
 bbcode_enabled = true
 text = "#"

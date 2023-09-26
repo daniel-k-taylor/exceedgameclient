@@ -8,7 +8,7 @@
 script = ExtResource("1_552js")
 
 [node name="OuterMargin" type="MarginContainer" parent="."]
-custom_minimum_size = Vector2(160, 150)
+custom_minimum_size = Vector2(190, 150)
 offset_right = 40.0
 offset_bottom = 40.0
 
@@ -30,15 +30,18 @@ text = "BOOSTS"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="BoostEffects" type="Label" parent="OuterMargin/BoostPanel/InnerMargin/BoostVBox"]
+[node name="BoostEffects" type="RichTextLabel" parent="OuterMargin/BoostPanel/InnerMargin/BoostVBox"]
 layout_mode = 2
-theme_override_font_sizes/font_size = 14
+size_flags_vertical = 3
+bbcode_enabled = true
 text = "Summary of boost effects
-Multiline summary
+Multiline summary of th
 +2 Power
 Next line
 One more
 Last line"
+fit_content = true
+scroll_active = false
 
 [node name="Focus" type="TextureButton" parent="OuterMargin"]
 layout_mode = 2

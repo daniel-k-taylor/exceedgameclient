@@ -1,12 +1,9 @@
 
 In progress:
-    ☐ On hover, make character card large
 
 
 Tasks:
     Main Features:
-        Exceed:
-            ☐ Show character ability next to deck (or as deck?)
         Game Flow:
             ☐ Game Over visuals
     Tests:
@@ -24,6 +21,8 @@ Tasks:
         ☐ Sum continuous boost stat bonuses into a single line
         ☐ Delay between events so you can see what happens
         ☐ Visual showing you have shuffled once
+        ☐ Boost zone panel formatting/change size with text. - Should scroll?
+        ☐ Animated sprites for characters on arena
         Card Visuals are poor:
             ☐ Effect text is ugly
             ☐ Hard to read anything
