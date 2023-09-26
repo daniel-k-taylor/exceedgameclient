@@ -1,4 +1,4 @@
-[gd_scene load_steps=8 format=3 uid="uid://cl8i21571i4qa"]
+[gd_scene load_steps=9 format=3 uid="uid://cl8i21571i4qa"]
 
 [ext_resource type="Script" path="res://scenes/card/card_base.gd" id="1_o734l"]
 [ext_resource type="Texture2D" uid="uid://dal2ec8wws714" path="res://icon.svg" id="1_xb23j"]
@@ -6,6 +6,7 @@
 [ext_resource type="Texture2D" uid="uid://cpolsw2tyi4m" path="res://assets/cardbacks/cardback_blue.svg" id="4_pvdi7"]
 [ext_resource type="Texture2D" uid="uid://kwcp6d7oulcg" path="res://assets/cards/border_thin_hover.png" id="5_i47k7"]
 [ext_resource type="Texture2D" uid="uid://cy0pcorknc8op" path="res://assets/cards/border_thin_pressed.png" id="6_h5u6x"]
+[ext_resource type="Texture2D" uid="uid://c7ojn7hf8n4li" path="res://assets/icons/stopwatch.png" id="7_rrupl"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_xbdvb"]
 size = Vector2(250, 350)
@@ -189,6 +190,7 @@ fit_content = true
 visible = false
 layout_mode = 2
 texture = ExtResource("4_pvdi7")
+expand_mode = 5
 
 [node name="Focus" type="TextureButton" parent="CardContainer"]
 layout_mode = 2
@@ -200,6 +202,22 @@ visible = false
 layout_mode = 2
 mouse_filter = 2
 texture = ExtResource("6_h5u6x")
+
+[node name="CancelContainer" type="Node2D" parent="."]
+
+[node name="Stopwatch" type="Sprite2D" parent="CancelContainer"]
+position = Vector2(74, 52)
+scale = Vector2(0.06, 0.06)
+texture = ExtResource("7_rrupl")
+
+[node name="CancelCost" type="Label" parent="CancelContainer"]
+offset_left = 86.0
+offset_top = 6.0
+offset_right = 126.0
+offset_bottom = 93.0
+theme_override_font_sizes/font_size = 65
+text = "8"
+horizontal_alignment = 1
 
 [connection signal="button_down" from="CardContainer/Focus" to="." method="_on_focus_button_down"]
 [connection signal="button_up" from="CardContainer/Focus" to="." method="_on_focus_button_up"]

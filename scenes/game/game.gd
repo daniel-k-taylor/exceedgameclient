@@ -123,17 +123,17 @@ func first_run():
 
 	finish_initialization()
 
-func spawn_deck(deck, deck_copy, deck_card_zone, copy_zone, hand_focus_y_pos):
+func spawn_deck(deck, deck_copy, deck_card_zone, copy_zone, card_back_image, hand_focus_y_pos):
 	for card in deck:
 		var logic_card : GameLogic.Card = game_logic.get_card(card.id)
-		var new_card = create_card(card.id, logic_card.definition, logic_card.image, deck_card_zone, hand_focus_y_pos)
+		var new_card = create_card(card.id, logic_card.definition, logic_card.image, card_back_image, deck_card_zone, hand_focus_y_pos)
 		new_card.position = OffScreen
 
 	var previous_def_id = ""
 	for card in deck_copy:
 		var logic_card : GameLogic.Card = game_logic.get_card(card.id)
 		if previous_def_id != logic_card.definition['id']:
-			var copy_card = create_card(card.id + ReferenceScreenIdRangeStart, logic_card.definition, logic_card.image, copy_zone, 0)
+			var copy_card = create_card(card.id + ReferenceScreenIdRangeStart, logic_card.definition, logic_card.image, card_back_image, copy_zone, 0)
 			copy_card.position = OffScreen
 			copy_card.resting_scale = CardBase.SmallCardScale
 			copy_card.scale = CardBase.SmallCardScale
@@ -142,8 +142,9 @@ func spawn_deck(deck, deck_copy, deck_card_zone, copy_zone, hand_focus_y_pos):
 			previous_def_id = card.definition['id']
 
 func spawn_all_cards():
-	spawn_deck(game_logic.player.deck, game_logic.player.deck_copy, $AllCards/PlayerDeck, $AllCards/PlayerAllCopy, PlayerHandFocusYPos)
-	spawn_deck(game_logic.opponent.deck, game_logic.opponent.deck_copy, $AllCards/OpponentDeck, $AllCards/OpponentAllCopy, OpponentHandFocusYPos)
+	var card_back_image = "res://assets/character_images/" + game_logic.player.deck_def['character']['image']
+	spawn_deck(game_logic.player.deck, game_logic.player.deck_copy, $AllCards/PlayerDeck, $AllCards/PlayerAllCopy, card_back_image, PlayerHandFocusYPos)
+	spawn_deck(game_logic.opponent.deck, game_logic.opponent.deck_copy, $AllCards/OpponentDeck, $AllCards/OpponentAllCopy, card_back_image, OpponentHandFocusYPos)
 
 func draw_and_begin():
 	var events = game_logic.draw_starting_hands_and_begin()
@@ -225,16 +226,17 @@ func update_card_counts():
 func get_card_node_name(id):
 	return "Card_" + str(id)
 
-func create_card(id, card_def, image, parent, hand_focus_y_pos) -> CardBase:
+func create_card(id, card_def, image, card_back_image, parent, hand_focus_y_pos) -> CardBase:
 	var new_card : CardBase = CardBaseScene.instantiate()
 	parent.add_child(new_card)
-	var cost = card_def['gauge_cost']
-	if cost == 0:
-		cost = card_def['force_cost']
+	var strike_cost = card_def['gauge_cost']
+	if strike_cost == 0:
+		strike_cost = card_def['force_cost']
 	new_card.initialize_card(
 		id,
 		card_def['display_name'],
 		image,
+		card_back_image,
 		card_def['range_min'],
 		card_def['range_max'],
 		card_def['speed'],
@@ -244,7 +246,8 @@ func create_card(id, card_def, image, parent, hand_focus_y_pos) -> CardBase:
 		CardDefinitions.get_effects_text(card_def['effects']),
 		card_def['boost']['force_cost'],
 		CardDefinitions.get_boost_text(card_def['boost']['effects']),
-		cost,
+		strike_cost,
+		card_def['boost']['cancel_cost'],
 		hand_focus_y_pos
 	)
 	new_card.name = get_card_node_name(id)
