@@ -5,6 +5,7 @@ const CardBase = preload("res://scenes/card/card_base.gd")
 const GameLogic = preload("res://scenes/game/gamelogic.gd")
 const CardPopout = preload("res://scenes/game/card_popout.gd")
 const GaugePanel = preload("res://scenes/game/gauge_panel.gd")
+const CharacterCardBase = preload("res://scenes/card/character_card_base.gd")
 
 const OffScreen = Vector2(-1000, -1000)
 const ReferenceScreenIdRangeStart = 90000
@@ -15,7 +16,7 @@ const OpponentHandFocusYPos = CardBase.DesiredCardSize.y
 var chosen_deck = null
 var NextCardId = 1
 
-const Test_StartWithGauge = false
+const Test_StartWithGauge = true
 
 var first_run_done = false
 var select_card_require_min = 0
@@ -61,6 +62,10 @@ var ui_sub_state : UISubState = UISubState.UISubState_None
 
 @onready var game_logic : GameLogic = $GameLogic
 @onready var card_popout : CardPopout = $CardPopout
+@onready var player_character_card : CharacterCardBase  = $PlayerDeck/PlayerCharacterCard
+@onready var opponent_character_card : CharacterCardBase  = $OpponentDeck/OpponentCharacterCard
+@onready var player_card_count = $PlayerDeck/DeckButton/CardCountContainer/VBoxContainer/CardCount
+@onready var opponent_card_count = $OpponentDeck/DeckButton/CardCountContainer/VBoxContainer/CardCount
 
 @onready var CenterCardOval = Vector2(get_viewport().content_scale_size) * Vector2(0.5, 1.25)
 @onready var HorizontalRadius = get_viewport().content_scale_size.x * 0.45
@@ -76,6 +81,21 @@ func _ready():
 
 	$PlayerLife.set_life(game_logic.player.life)
 	$OpponentLife.set_life(game_logic.opponent.life)
+
+	setup_character_cards(chosen_deck, chosen_deck)
+
+func setup_character_cards(player_deck, opponent_deck):
+	setup_character_card(player_character_card, player_deck['character'])
+	setup_character_card(opponent_character_card, opponent_deck['character'])
+
+func setup_character_card(character_card, character):
+	character_card.set_name_text(character['display_name'])
+	character_card.set_image(character['image'], character['exceed_image'])
+	var on_exceed_text = CardDefinitions.get_on_exceed_text(character['on_exceed'])
+	var effect_text = on_exceed_text + CardDefinitions.get_effects_text(character['ability_effects'])
+	var exceed_text = CardDefinitions.get_effects_text(character['exceed_ability_effects'])
+	character_card.set_effect(effect_text, exceed_text)
+	character_card.set_cost(character['exceed_cost'])
 
 func finish_initialization():
 	spawn_all_cards()
@@ -193,8 +213,8 @@ func draw_card(card_id : int, is_player : bool):
 func update_card_counts():
 	$OpponentHand/OpponentHandBox/OpponentNumCards.text = str(len(game_logic.opponent.hand))
 
-	$PlayerDeck/DeckButton/CardCountContainer/CardCount.text = str(len(game_logic.player.deck))
-	$OpponentDeck/DeckButton/CardCountContainer/CardCount.text = str(len(game_logic.opponent.deck))
+	player_card_count.text = str(len(game_logic.player.deck))
+	opponent_card_count.text = str(len(game_logic.opponent.deck))
 
 	$PlayerDeck/DiscardCount.text = str(len(game_logic.player.discards))
 	$OpponentDeck/DiscardCount.text = str(len(game_logic.opponent.discards))
@@ -501,8 +521,10 @@ func _on_exceed_event(event):
 	var player = event['event_player']
 	if player == game_logic.player:
 		$PlayerCharacter.modulate = Color(float(98)/255, float(250)/255, 0, 1)
+		player_character_card.exceed(true)
 	else:
 		$OpponentCharacter.modulate = Color(float(66)/255, float(0)/255, float(24)/255, 1)
+		$OpponentCharacterCard.exceed(true)
 
 func _on_force_start_strike(event):
 	var player = event['event_player']
@@ -702,12 +724,12 @@ func _on_strike_started(event, is_ex : bool):
 	var card = find_card_on_board(event['number'])
 	if event['event_player'] == game_logic.player:
 		_move_card_to_strike_area(card, $PlayerStrike/StrikeZone, $AllCards/Striking, true, is_ex)
-		if not is_ex:
+		if not is_ex and game_logic.game_state == game_logic.GameState.GameState_Strike_Opponent_Response:
 			ai_strike_response()
 	else:
 		# Opponent started strike, player has to respond.
 		_move_card_to_strike_area(card, $OpponentStrike/StrikeZone, $AllCards/Striking, false, is_ex)
-		if not is_ex:
+		if not is_ex and game_logic.game_state == game_logic.GameState.GameState_Strike_Opponent_Response:
 			begin_strike_choosing(true, false)
 
 func _on_strike_reveal(_event):

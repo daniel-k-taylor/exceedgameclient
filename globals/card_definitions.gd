@@ -100,6 +100,8 @@ func get_condition_text(condition):
 	match condition:
 		"advanced_through":
 			text += "If advanced past opponent, "
+		"canceled_this_turn":
+			text += "If canceled this turn, "
 		"initiated_strike":
 			text += "If initiated strike, "
 		"not_full_push":
@@ -222,6 +224,13 @@ func get_effects_text(effects):
 		effects_str += get_effect_text(effect) + "\n"
 	return effects_str
 
+func get_on_exceed_text(on_exceed_ability):
+	if on_exceed_ability == "strike":
+		return "When you Exceed: Strike\n"
+	elif on_exceed_ability == "":
+		return ""
+	else:
+		return "MISSING_EXCEED_EFFECT\n"
 
 func get_boost_text(effects):
 	return get_effects_text(effects)

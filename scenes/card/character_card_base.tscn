@@ -1,0 +1,148 @@
+[gd_scene load_steps=9 format=3 uid="uid://dvan4a8ftuplj"]
+
+[ext_resource type="Texture2D" uid="uid://b61gro3gblok8" path="res://assets/character_images/sol.png" id="1_1coex"]
+[ext_resource type="Script" path="res://scenes/card/character_card_base.gd" id="1_mmbsg"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_63mev"]
+bg_color = Color(0, 0, 0, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ilwpo"]
+bg_color = Color(0.262745, 0, 0, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_rx5ku"]
+bg_color = Color(0.14902, 0.14902, 0.14902, 0.85098)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_thb3r"]
+bg_color = Color(0.984314, 0, 0.0117647, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_g4hbx"]
+bg_color = Color(0.435294, 0.435294, 0.435294, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_u4gyc"]
+bg_color = Color(0.27451, 0.27451, 0.27451, 1)
+
+[node name="CharacterCard" type="Node2D"]
+script = ExtResource("1_mmbsg")
+
+[node name="MainPanelContainer" type="PanelContainer" parent="."]
+custom_minimum_size = Vector2(250, 350)
+offset_right = 40.0
+offset_bottom = 40.0
+theme_override_styles/panel = SubResource("StyleBoxFlat_63mev")
+
+[node name="BackgroundContainer" type="MarginContainer" parent="MainPanelContainer"]
+layout_mode = 2
+
+[node name="ExceedBackground" type="Panel" parent="MainPanelContainer/BackgroundContainer"]
+visible = false
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_ilwpo")
+
+[node name="MainContainer" type="MarginContainer" parent="MainPanelContainer"]
+layout_mode = 2
+theme_override_constants/margin_left = 5
+theme_override_constants/margin_top = 5
+theme_override_constants/margin_right = 5
+theme_override_constants/margin_bottom = 5
+
+[node name="VerticalLayout" type="VBoxContainer" parent="MainPanelContainer/MainContainer"]
+layout_mode = 2
+theme_override_constants/separation = -80
+
+[node name="ImageMarginContainer" type="MarginContainer" parent="MainPanelContainer/MainContainer/VerticalLayout"]
+custom_minimum_size = Vector2(0, 100)
+layout_mode = 2
+
+[node name="ImageHBox" type="HBoxContainer" parent="MainPanelContainer/MainContainer/VerticalLayout/ImageMarginContainer"]
+layout_mode = 2
+theme_override_constants/separation = 3
+
+[node name="LeftCharacterMargin" type="MarginContainer" parent="MainPanelContainer/MainContainer/VerticalLayout/ImageMarginContainer/ImageHBox"]
+layout_mode = 2
+
+[node name="CharacterImage" type="TextureRect" parent="MainPanelContainer/MainContainer/VerticalLayout/ImageMarginContainer/ImageHBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+texture = ExtResource("1_1coex")
+expand_mode = 5
+
+[node name="CharacterExceedImage" type="TextureRect" parent="MainPanelContainer/MainContainer/VerticalLayout/ImageMarginContainer/ImageHBox"]
+visible = false
+layout_mode = 2
+size_flags_horizontal = 3
+texture = ExtResource("1_1coex")
+expand_mode = 5
+
+[node name="RightCharacterMargin" type="MarginContainer" parent="MainPanelContainer/MainContainer/VerticalLayout/ImageMarginContainer/ImageHBox"]
+layout_mode = 2
+
+[node name="TextMarginContainer" type="MarginContainer" parent="MainPanelContainer/MainContainer/VerticalLayout"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="TextPanelBacking" type="PanelContainer" parent="MainPanelContainer/MainContainer/VerticalLayout/TextMarginContainer"]
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_rx5ku")
+
+[node name="TextVLayout" type="VBoxContainer" parent="MainPanelContainer/MainContainer/VerticalLayout/TextMarginContainer/TextPanelBacking"]
+layout_mode = 2
+theme_override_constants/separation = -2
+
+[node name="CharacterNameLabel" type="Label" parent="MainPanelContainer/MainContainer/VerticalLayout/TextMarginContainer/TextPanelBacking/TextVLayout"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 19
+text = "CHARACTER NAME"
+horizontal_alignment = 1
+
+[node name="BufferPanelExceed" type="Panel" parent="MainPanelContainer/MainContainer/VerticalLayout/TextMarginContainer/TextPanelBacking/TextVLayout"]
+visible = false
+custom_minimum_size = Vector2(0, 10)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_thb3r")
+
+[node name="BufferPanelNormal" type="Panel" parent="MainPanelContainer/MainContainer/VerticalLayout/TextMarginContainer/TextPanelBacking/TextVLayout"]
+custom_minimum_size = Vector2(0, 10)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_g4hbx")
+
+[node name="EffectLabel" type="RichTextLabel" parent="MainPanelContainer/MainContainer/VerticalLayout/TextMarginContainer/TextPanelBacking/TextVLayout"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_font_sizes/normal_font_size = 18
+bbcode_enabled = true
+text = "[center]When you Exceed, Strike.
+When you Strike, if you Canceled this turn, +2 Power.
+This is trying out
+Some cooler stuff[/center]"
+scroll_active = false
+
+[node name="EffectLabelExceed" type="RichTextLabel" parent="MainPanelContainer/MainContainer/VerticalLayout/TextMarginContainer/TextPanelBacking/TextVLayout"]
+visible = false
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_font_sizes/normal_font_size = 18
+bbcode_enabled = true
+text = "[center]When you Exceed, Strike.
+When you Strike, if you Canceled this turn, +2 Power.
+This is trying out
+Some cooler stuff[/center]"
+scroll_active = false
+
+[node name="ExceedCostPanel" type="PanelContainer" parent="."]
+offset_left = 5.0
+offset_top = 170.0
+offset_right = 37.0
+offset_bottom = 225.0
+theme_override_styles/panel = SubResource("StyleBoxFlat_u4gyc")
+
+[node name="CostMargin" type="MarginContainer" parent="ExceedCostPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 7
+theme_override_constants/margin_right = 7
+theme_override_constants/margin_bottom = 3
+
+[node name="ExceedCostLabel" type="Label" parent="ExceedCostPanel/CostMargin"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 38
+text = "0"
+horizontal_alignment = 1

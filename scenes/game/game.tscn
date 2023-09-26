@@ -2,7 +2,6 @@
 
 [ext_resource type="Script" path="res://scenes/game/game.gd" id="1_4f5jr"]
 [ext_resource type="Script" path="res://scenes/game/gamelogic.gd" id="2_cjkiw"]
-[ext_resource type="Texture2D" uid="uid://cpolsw2tyi4m" path="res://assets/cardbacks/cardback_blue.svg" id="2_x8lc6"]
 [ext_resource type="PackedScene" uid="uid://u7pf7tbgppmh" path="res://scenes/game/arena_square.tscn" id="3_xg2e8"]
 [ext_resource type="Texture2D" uid="uid://dh8tat2r8ttx1" path="res://assets/cards/card_border_highlight.png" id="4_5y76h"]
 [ext_resource type="Texture2D" uid="uid://b433drvl0djch" path="res://assets/cards/arena_border_highlight_waiting.png" id="4_72uk1"]
@@ -17,6 +16,7 @@
 [ext_resource type="PackedScene" uid="uid://dxtsdthw5sxbc" path="res://scenes/game/card_popout.tscn" id="14_lyeqj"]
 [ext_resource type="Texture2D" uid="uid://ded5jrn5yju2j" path="res://assets/cards/card_border_highlight_pressed.png" id="16_laiwo"]
 [ext_resource type="Texture2D" uid="uid://mn1hj4i3k7l7" path="res://assets/cards/card_border_highlight_selected.png" id="17_rr8uh"]
+[ext_resource type="PackedScene" uid="uid://dvan4a8ftuplj" path="res://scenes/card/character_card_base.tscn" id="18_imast"]
 
 [node name="GameScene" type="Node2D"]
 script = ExtResource("1_4f5jr")
@@ -296,6 +296,10 @@ offset_bottom = 520.0
 
 [node name="PlayerDeck" type="Node2D" parent="."]
 
+[node name="PlayerCharacterCard" parent="PlayerDeck" instance=ExtResource("18_imast")]
+position = Vector2(1058, 574)
+scale = Vector2(0.4, 0.4)
+
 [node name="DeckButton" type="TextureButton" parent="PlayerDeck"]
 anchors_preset = 3
 anchor_left = 1.0
@@ -309,9 +313,6 @@ offset_bottom = 755.0
 grow_horizontal = 0
 grow_vertical = 0
 scale = Vector2(0.75, 0.75)
-texture_normal = ExtResource("2_x8lc6")
-texture_pressed = ExtResource("2_x8lc6")
-texture_hover = ExtResource("2_x8lc6")
 ignore_texture_size = true
 stretch_mode = 4
 
@@ -320,8 +321,12 @@ custom_minimum_size = Vector2(125, 175)
 layout_mode = 0
 offset_right = 40.0
 offset_bottom = 40.0
+theme_override_constants/margin_top = -20
 
-[node name="CardCount" type="Label" parent="PlayerDeck/DeckButton/CardCountContainer"]
+[node name="VBoxContainer" type="VBoxContainer" parent="PlayerDeck/DeckButton/CardCountContainer"]
+layout_mode = 2
+
+[node name="CardCount" type="Label" parent="PlayerDeck/DeckButton/CardCountContainer/VBoxContainer"]
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 1, 1, 1)
 theme_override_font_sizes/font_size = 60
@@ -361,6 +366,10 @@ Reference"
 
 [node name="OpponentDeck" type="Node2D" parent="."]
 
+[node name="OpponentCharacterCard" parent="OpponentDeck" instance=ExtResource("18_imast")]
+position = Vector2(1058, 10)
+scale = Vector2(0.4, 0.4)
+
 [node name="DeckButton" type="TextureButton" parent="OpponentDeck"]
 anchors_preset = 3
 anchor_left = 1.0
@@ -374,9 +383,6 @@ offset_bottom = 190.0
 grow_horizontal = 0
 grow_vertical = 0
 scale = Vector2(0.75, 0.75)
-texture_normal = ExtResource("5_dd21w")
-texture_pressed = ExtResource("5_dd21w")
-texture_hover = ExtResource("5_dd21w")
 ignore_texture_size = true
 stretch_mode = 4
 
@@ -385,8 +391,12 @@ custom_minimum_size = Vector2(125, 175)
 layout_mode = 0
 offset_right = 40.0
 offset_bottom = 40.0
+theme_override_constants/margin_top = -20
 
-[node name="CardCount" type="Label" parent="OpponentDeck/DeckButton/CardCountContainer"]
+[node name="VBoxContainer" type="VBoxContainer" parent="OpponentDeck/DeckButton/CardCountContainer"]
+layout_mode = 2
+
+[node name="CardCount" type="Label" parent="OpponentDeck/DeckButton/CardCountContainer/VBoxContainer"]
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 1, 1, 1)
 theme_override_font_sizes/font_size = 60

@@ -1494,8 +1494,9 @@ func do_exceed(performing_player : Player, card_ids : Array):
 
 	var events = performing_player.discard(card_ids)
 	events += performing_player.exceed()
-	events += performing_player.draw(1)
-	events += check_hand_size_advance_turn(performing_player)
+	if game_state != GameState.GameState_WaitForStrike:
+		events += performing_player.draw(1)
+		events += check_hand_size_advance_turn(performing_player)
 	return events
 
 func do_boost(performing_player : Player, card_id : int):

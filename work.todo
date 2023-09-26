@@ -1,6 +1,7 @@
 
 In progress:
-
+    ☐ Cancel cost indicator on card
+    ☐ On hover, make character card large
 
 
 Tasks:
@@ -9,8 +10,6 @@ Tasks:
             ☐ Show character ability next to deck (or as deck?)
         Game Flow:
             ☐ Game Over visuals
-        Manual Reshuffle:
-            ☐ Visual showing you have shuffled once
     Tests:
         ☐ Strike
         ☐ Boost
@@ -25,12 +24,12 @@ Tasks:
         ☐ Allow spending ultra for 1 force
         ☐ Sum continuous boost stat bonuses into a single line
         ☐ Delay between events so you can see what happens
+        ☐ Visual showing you have shuffled once
         Card Visuals are poor:
             ☐ Effect text is ugly
             ☐ Hard to read anything
             ☐ Ultra/Special/Normal distinguishing factor
             ☐ Model after hearthstone!
-
 Bugs:
     ☐ Drawing more than 7 looks bad
 

@@ -3,22 +3,23 @@
 	"display_name": "Sol Badguy",
 	"character": {
 		"display_name": "Sol Badguy",
-		"image": "test_char.png",
+		"image": "sol.png",
+		"exceed_image": "sol.png",
 		"exceed_cost": 3,
 		"on_exceed": "strike",
 		"ability_effects": [
 			{
-				"timing": "strike",
+				"timing": "during_strike",
 				"condition": "canceled_this_turn",
-				"effect_type": "power_up",
+				"effect_type": "powerup",
 				"amount": 1
 			}
 		],
 		"exceed_ability_effects": [
 			{
-				"timing": "strike",
+				"timing": "during_strike",
 				"condition": "canceled_this_turn",
-				"effect_type": "power_up",
+				"effect_type": "powerup",
 				"amount": 2
 			}
 		]
