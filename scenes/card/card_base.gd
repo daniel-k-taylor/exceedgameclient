@@ -89,7 +89,7 @@ func set_hover_visible(hover_visible):
 
 func update_visibility():
 	match state:
-		CardState.CardState_InGauge, CardState.CardState_InBoost, CardState.CardState_Offscreen:
+		CardState.CardState_InDeck, CardState.CardState_InGauge, CardState.CardState_InBoost, CardState.CardState_Offscreen:
 			visible = false
 		_:
 			visible = true

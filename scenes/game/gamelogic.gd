@@ -37,6 +37,7 @@ enum GameState {
 	GameState_Boost_Processing,
 	GameState_PickAction,
 	GameState_DiscardDownToMax,
+	GameState_Mulligan,
 	GameState_WaitForStrike,
 	GameState_PlayerDecision,
 	GameState_Strike_Opponent_Response,
@@ -51,6 +52,7 @@ func change_game_state(new_state : GameState):
 enum EventType {
 	EventType_AddToGauge,
 	EventType_AddToDiscard,
+	EventType_AddToDeck,
 	EventType_AdvanceTurn,
 	EventType_Boost_ActionAfterBoost,
 	EventType_Boost_CancelDecision,
@@ -67,6 +69,8 @@ enum EventType {
 	EventType_GameOver,
 	EventType_HandSizeExceeded,
 	EventType_Move,
+	EventType_MulliganDecision,
+	EventType_ReshuffleDeck,
 	EventType_ReshuffleDiscard,
 	EventType_RevealHand,
 	EventType_Strike_ArmorUp,
@@ -257,6 +261,7 @@ class Player:
 	var exceed_cost : int
 	var strike_stat_boosts : StrikeStatBoosts
 	var canceled_this_turn : bool
+	var mulligan_complete : bool
 
 	func _init(player_name, parent_ref, chosen_deck, card_start_id):
 		name = player_name
@@ -283,6 +288,7 @@ class Player:
 		exceeded = false
 		canceled_this_turn = false
 		cleanup_boost_to_gauge_cards = []
+		mulligan_complete = false
 
 	func exceed():
 		exceeded = true
@@ -293,6 +299,16 @@ class Player:
 			events += [parent.create_event(EventType.EventType_ForceStartStrike, self, 0)]
 			parent.change_game_state(GameState.GameState_WaitForStrike)
 			parent.decision_player = self
+		return events
+
+	func mulligan(card_ids : Array[int]):
+		var events = []
+		events += draw(len(card_ids))
+		for id in card_ids:
+			events += move_card_from_hand_to_deck(id)
+		deck.shuffle()
+		events += [parent.create_event(EventType.EventType_ReshuffleDeck, self, reshuffle_remaining)]
+		mulligan_complete = true
 		return events
 
 	func is_card_in_hand(id : int):
@@ -306,6 +322,17 @@ class Player:
 			if hand[i].id == id:
 				hand.remove_at(i)
 				break
+
+	func move_card_from_hand_to_deck(id : int):
+		var events = []
+		for i in range(len(hand)):
+			var card = hand[i]
+			if card.id == id:
+				deck.insert(0, card)
+				hand.remove_at(i)
+				events += [parent.create_event(EventType.EventType_AddToDeck, self, card.id)]
+				break
+		return events
 
 	func move_card_from_hand_to_gauge(id : int):
 		var events = []
@@ -426,6 +453,7 @@ class Player:
 		# Not found
 		events += [parent.create_event(EventType.EventType_RevealHand, self, 0)]
 		return events
+
 	func discard_random(amount):
 		var events = []
 		for i in range(amount):
@@ -678,10 +706,12 @@ func initialize_game(player_deck, opponent_deck):
 	opponent.arena_location = 7
 
 func draw_starting_hands_and_begin():
-	player.draw(StartingHandFirstPlayer)
-	opponent.draw(StartingHandSecondPlayer)
-
-	change_game_state(GameState.GameState_PickAction)
+	var events = []
+	events += player.draw(StartingHandFirstPlayer)
+	events += opponent.draw(StartingHandSecondPlayer)
+	change_game_state(GameState.GameState_Mulligan)
+	events += [create_event(EventType.EventType_MulliganDecision, player, 0)]
+	return events
 
 func get_card(id : int):
 	for card in all_cards:
@@ -1692,4 +1722,27 @@ func do_choice(performing_player : Player, choice_index : int):
 		events += continue_resolve_boost()
 	else:
 		printlog("ERROR: Tried to make choice but no active strike or boost.")
+	return events
+
+func do_mulligan(performing_player : Player, card_ids : Array[int]):
+	if performing_player.mulligan_complete:
+		printlog("ERROR: Tried to mulligan but already done.")
+		return []
+	if game_state != GameState.GameState_Mulligan:
+		printlog("ERROR: Tried to mulligan but not in correct game state.")
+		return []
+
+	for card_id in card_ids:
+		if not performing_player.is_card_in_hand(card_id):
+			printlog("ERROR: Tried to mulligan with card not in hand.")
+			return []
+
+	var events = []
+	events += performing_player.mulligan(card_ids)
+
+	if player.mulligan_complete and opponent.mulligan_complete:
+		change_game_state(GameState.GameState_PickAction)
+		events += [create_event(EventType.EventType_AdvanceTurn, active_turn_player, 0)]
+	else:
+		events += [create_event(EventType.EventType_MulliganDecision, other_player(performing_player), 0)]
 	return events

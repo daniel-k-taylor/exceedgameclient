@@ -15,6 +15,8 @@ const OpponentHandFocusYPos = CardBase.DesiredCardSize.y
 var chosen_deck = null
 var NextCardId = 1
 
+const Test_StartWithGauge = false
+
 var first_run_done = false
 var select_card_require_min = 0
 var select_card_require_max = 0
@@ -46,6 +48,7 @@ enum UISubState {
 	UISubState_SelectCards_DiscardCardsToGauge,
 	UISubState_SelectCards_ForceForChange,
 	UISubState_SelectCards_Exceed,
+	UISubState_SelectCards_Mulligan,
 	UISubState_SelectCards_StrikeGauge,
 	UISubState_SelectCards_StrikeCard,
 	UISubState_SelectCards_StrikeResponseCard,
@@ -74,8 +77,6 @@ func _ready():
 	$PlayerLife.set_life(game_logic.player.life)
 	$OpponentLife.set_life(game_logic.opponent.life)
 
-	finish_initialization()
-
 func finish_initialization():
 	spawn_all_cards()
 	draw_and_begin()
@@ -89,16 +90,18 @@ func test_draw_and_add():
 	events = game_logic.player.add_to_gauge(card)
 	_handle_events(events)
 func test_init():
-	for i in range(4):
-		test_draw_and_add()
-	layout_player_hand(true)
-	_update_buttons()
-	update_card_counts()
+	if Test_StartWithGauge:
+		for i in range(4):
+			test_draw_and_add()
+		layout_player_hand(true)
+		_update_buttons()
 
 func first_run():
 	move_character_to_arena_square($PlayerCharacter, game_logic.player.arena_location)
 	move_character_to_arena_square($OpponentCharacter, game_logic.opponent.arena_location)
 	_update_buttons()
+
+	finish_initialization()
 
 func spawn_deck(deck, deck_copy, deck_card_zone, copy_zone, hand_focus_y_pos):
 	for card in deck:
@@ -123,12 +126,8 @@ func spawn_all_cards():
 	spawn_deck(game_logic.opponent.deck, game_logic.opponent.deck_copy, $AllCards/OpponentDeck, $AllCards/OpponentAllCopy, OpponentHandFocusYPos)
 
 func draw_and_begin():
-	game_logic.draw_starting_hands_and_begin()
-	for card in game_logic.player.hand:
-		draw_card(card.id, true)
-	for card in game_logic.opponent.hand:
-		draw_card(card.id, false)
-	_on_advance_turn()
+	var events = game_logic.draw_starting_hands_and_begin()
+	_handle_events(events)
 
 func get_arena_location_button(arena_location):
 	var arena = $StaticUI/StaticUIVBox/Arena
@@ -172,6 +171,11 @@ func get_deck_button(is_player : bool):
 	else:
 		return $OpponentDeck/DeckButton
 
+func get_deck_button_position(is_player : bool):
+	var button = get_deck_button(is_player)
+	var deck_position = button.position + (button.size * button.scale)/2
+	return deck_position
+
 func get_hand_zone(is_player : bool):
 	if is_player:
 		return $AllCards/PlayerHand
@@ -182,9 +186,7 @@ func draw_card(card_id : int, is_player : bool):
 	var card = add_card_to_hand(card_id, is_player)
 
 	# Start the card at the deck.
-	var deck_button = get_deck_button(is_player)
-	var deck_position = deck_button.position + (deck_button.size * deck_button.scale)/2
-	card.position = deck_position
+	card.position = get_deck_button_position(is_player)
 
 	layout_player_hand(is_player)
 
@@ -274,7 +276,7 @@ func can_select_card(card):
 			return in_gauge and len(selected_cards) < select_card_require_max
 		UISubState.UISubState_SelectCards_MoveActionGenerateForce, UISubState.UISubState_SelectCards_ForceForChange, UISubState.UISubState_SelectCards_ForceForArmor:
 			return in_gauge or in_hand
-		UISubState.UISubState_SelectCards_StrikeCard, UISubState.UISubState_SelectCards_StrikeResponseCard:
+		UISubState.UISubState_SelectCards_StrikeCard, UISubState.UISubState_SelectCards_StrikeResponseCard, UISubState.UISubState_SelectCards_Mulligan:
 			return in_hand
 		UISubState.UISubState_SelectCards_PlayBoost:
 			return len(selected_cards) == 0 and in_hand and game_logic.can_player_boost(game_logic.player, card.card_id)
@@ -474,6 +476,21 @@ func _on_add_to_gauge(event):
 	card.discard_to(pos, CardBase.CardState.CardState_InGauge)
 	reparent_to_zone(card, gauge_card_loc)
 
+func get_deck_zone(is_player : bool):
+	if is_player:
+		return $AllCards/PlayerDeck
+	else:
+		return $AllCards/OpponentDeck
+
+func _on_add_to_deck(event):
+	var is_player = event['event_player'] == game_logic.player
+	var card = find_card_on_board(event['number'])
+	card.flip_card_to_front(false)
+	var deck_position = get_deck_button_position(is_player)
+	card.discard_to(deck_position, CardBase.CardState.CardState_InDeck)
+	reparent_to_zone(card, get_deck_zone(is_player))
+	layout_player_hand(is_player)
+
 func _on_draw_event(event):
 	var card_drawn_id = event['number']
 	var is_player = event['event_player'] == game_logic.player
@@ -630,6 +647,17 @@ func _on_move_event(event):
 	else:
 		move_character_to_arena_square($OpponentCharacter, event['number'])
 
+func _on_mulligan_decision(event):
+	if event['event_player'] == game_logic.player:
+		selected_cards = []
+		select_card_require_min = 1
+		select_card_require_max = len(game_logic.player.hand)
+		var can_cancel = true
+		enable_instructions_ui("Select cards to mulligan.", true, can_cancel)
+		change_ui_state(UIState.UIState_SelectCards, UISubState.UISubState_SelectCards_Mulligan)
+	else:
+		ai_mulligan_decision()
+
 func _on_reshuffle_discard(event):
 	# TODO: Play a cool animation of discard shuffling into deck
 	printlog("UI: TODO: Play reshuffle animation and update reshuffle count/icon.")
@@ -648,6 +676,9 @@ func _on_reshuffle_discard(event):
 			card.position = OffScreen
 			card.reset()
 	close_popout()
+
+func _on_reshuffle_deck(_event):
+	printlog("UI: TODO: In place reshuffle deck. No cards actually move though.")
 
 func _on_reveal_hand(event):
 	if event['event_player'] == game_logic.opponent:
@@ -721,6 +752,8 @@ func _handle_events(events):
 		match event['event_type']:
 			game_logic.EventType.EventType_AddToGauge:
 				_on_add_to_gauge(event)
+			game_logic.EventType.EventType_AddToDeck:
+				_on_add_to_deck(event)
 			game_logic.EventType.EventType_AddToDiscard:
 				_on_discard_event(event)
 			game_logic.EventType.EventType_AdvanceTurn:
@@ -757,8 +790,12 @@ func _handle_events(events):
 				_on_hand_size_exceeded(event)
 			game_logic.EventType.EventType_Move:
 				_on_move_event(event)
+			game_logic.EventType.EventType_MulliganDecision:
+				_on_mulligan_decision(event)
 			game_logic.EventType.EventType_ReshuffleDiscard:
 				_on_reshuffle_discard(event)
+			game_logic.EventType.EventType_ReshuffleDeck:
+				_on_reshuffle_deck(event)
 			game_logic.EventType.EventType_RevealHand:
 				_on_reveal_hand(event)
 			game_logic.EventType.EventType_Strike_ArmorUp:
@@ -836,7 +873,7 @@ func _update_buttons():
 	$StaticUI/StaticUIVBox/InstructionsWithButtonsUI/ButtonContainer/WildSwingButton.visible = instructions_wild_swing_allowed
 
 	match ui_sub_state:
-		UISubState.UISubState_SelectCards_BoostCancel:
+		UISubState.UISubState_SelectCards_BoostCancel, UISubState.UISubState_SelectCards_Mulligan:
 			$StaticUI/StaticUIVBox/InstructionsWithButtonsUI/ButtonContainer/CancelButton.text = "Pass"
 		_:
 			$StaticUI/StaticUIVBox/InstructionsWithButtonsUI/ButtonContainer/CancelButton.text = "Cancel"
@@ -889,7 +926,7 @@ func can_press_ok():
 				return selected_cards_between_min_and_max()
 			UISubState.UISubState_SelectCards_BoostCancel, UISubState.UISubState_SelectCards_DiscardContinuousBoost, UISubState.UISubState_SelectCards_DiscardFromReference:
 				return selected_cards_between_min_and_max()
-			UISubState.UISubState_SelectCards_DiscardCardsToGauge:
+			UISubState.UISubState_SelectCards_DiscardCardsToGauge, UISubState.UISubState_SelectCards_Mulligan:
 				return selected_cards_between_min_and_max()
 			UISubState.UISubState_SelectCards_MoveActionGenerateForce:
 				var force_selected = get_force_in_selected_cards()
@@ -956,7 +993,7 @@ func _on_choice_pressed(choice):
 
 func _on_instructions_ok_button_pressed():
 	if ui_state == UIState.UIState_SelectCards and can_press_ok():
-		var selected_card_ids = []
+		var selected_card_ids : Array[int] = []
 		for card in selected_cards:
 			selected_card_ids.append(card.card_id)
 		var single_card_id = -1
@@ -991,6 +1028,8 @@ func _on_instructions_ok_button_pressed():
 				events = game_logic.do_strike(game_logic.player, single_card_id, false, ex_card_id)
 			UISubState.UISubState_SelectCards_ForceForArmor:
 				events = game_logic.do_force_for_armor(game_logic.player, selected_card_ids)
+			UISubState.UISubState_SelectCards_Mulligan:
+				events = game_logic.do_mulligan(game_logic.player, selected_card_ids)
 			UISubState.UISubState_SelectCards_PlayBoost:
 				if game_logic.get_card_boost_force_cost(single_card_id) > 0:
 					printlog("ERROR: TODO: Force cost not implemented.")
@@ -1002,11 +1041,17 @@ func _on_instructions_ok_button_pressed():
 func _on_instructions_cancel_button_pressed():
 	match ui_sub_state:
 		UISubState.UISubState_SelectCards_ForceForArmor:
-				var selected_card_ids = []
-				deselect_all_cards()
-				var events = game_logic.do_force_for_armor(game_logic.player, selected_card_ids)
-				_handle_events(events)
-				return
+			deselect_all_cards()
+			close_popout()
+			var events = game_logic.do_force_for_armor(game_logic.player, [])
+			_handle_events(events)
+			return
+		UISubState.UISubState_SelectCards_Mulligan:
+			deselect_all_cards()
+			close_popout()
+			var events = game_logic.do_mulligan(game_logic.player, [])
+			_handle_events(events)
+			return
 
 	if ui_state == UIState.UIState_SelectArenaLocation and instructions_cancel_allowed:
 		change_ui_state(UIState.UIState_PickTurnAction)
@@ -1105,6 +1150,13 @@ func ai_name_opponent_card():
 func ai_choose_card_hand_to_gauge():
 	var card_id = game_logic.opponent.hand[0].id
 	var events = game_logic.do_card_from_hand_to_gauge(game_logic.opponent, card_id)
+	_handle_events(events)
+
+func ai_mulligan_decision():
+	var ids : Array[int] = []
+	for card in game_logic.opponent.hand:
+		ids.append(card.id)
+	var events = game_logic.do_mulligan(game_logic.opponent, ids)
 	_handle_events(events)
 
 func card_in_selected_cards(card):
