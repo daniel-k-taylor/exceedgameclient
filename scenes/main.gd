@@ -12,6 +12,5 @@ func _process(_delta):
 
 
 func _on_main_menu_start_game():
-	$MainMenu.queue_free()
 	game = load("res://scenes/game/game.tscn").instantiate()
 	add_child(game)

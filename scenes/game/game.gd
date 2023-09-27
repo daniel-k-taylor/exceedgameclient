@@ -16,7 +16,7 @@ const OpponentHandFocusYPos = CardBase.DesiredCardSize.y
 var chosen_deck = null
 var NextCardId = 1
 
-const Test_StartWithGauge = true
+const Test_StartWithGauge = false
 
 var first_run_done = false
 var select_card_require_min = 0
@@ -31,6 +31,7 @@ var selected_arena_location = 0
 
 enum UIState {
 	UIState_Initializing,
+	UIState_GameOver,
 	UIState_PickTurnAction,
 	UIState_MakeChoice,
 	UIState_SelectCards,
@@ -66,6 +67,8 @@ var ui_sub_state : UISubState = UISubState.UISubState_None
 @onready var opponent_character_card : CharacterCardBase  = $OpponentDeck/OpponentCharacterCard
 @onready var player_card_count = $PlayerDeck/DeckButton/CardCountContainer/VBoxContainer/CardCount
 @onready var opponent_card_count = $OpponentDeck/DeckButton/CardCountContainer/VBoxContainer/CardCount
+@onready var game_over_stuff = $GameOverStuff
+@onready var game_over_label = $GameOverStuff/GameOverLabel
 
 @onready var CenterCardOval = Vector2(get_viewport().content_scale_size) * Vector2(0.5, 1.25)
 @onready var HorizontalRadius = get_viewport().content_scale_size.x * 0.45
@@ -81,6 +84,7 @@ func _ready():
 
 	$PlayerLife.set_life(game_logic.player.life)
 	$OpponentLife.set_life(game_logic.opponent.life)
+	game_over_stuff.visible = false
 
 	setup_character_cards(chosen_deck, chosen_deck)
 
@@ -544,7 +548,12 @@ func _on_force_wild_swing(_event):
 
 func _on_game_over(event):
 	printlog("GAME OVER for %s" % event['event_player'].name)
-	# TODO: Do something useful
+	game_over_stuff.visible = true
+	change_ui_state(UIState.UIState_GameOver, UISubState.UISubState_None)
+	if event['event_player'] == game_logic.player:
+		game_over_label.text = "DEFEAT"
+	else:
+		game_over_label.text = "WIN!"
 
 func _on_hand_size_exceeded(event):
 	if game_logic.active_turn_player == game_logic.player:
@@ -1329,3 +1338,6 @@ func _on_player_reference_button_pressed():
 func _on_opponent_reference_button_pressed():
 	await close_popout()
 	show_popout("THEIR DECK REFERENCE", $AllCards/OpponentAllCopy, OffScreen, CardBase.CardState.CardState_Offscreen)
+
+func _on_exit_to_menu_pressed():
+	queue_free()

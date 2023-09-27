@@ -2,7 +2,7 @@ extends Node2D
 
 const StartingHandFirstPlayer = 5
 const StartingHandSecondPlayer = 6
-const MaxLife = 30
+const MaxLife = 1
 const MaxHandSize = 7
 const MaxReshuffle = 1
 const WildSwingCardId = 7
@@ -35,6 +35,7 @@ enum DecisionType {
 enum GameState {
 	GameState_NotStarted,
 	GameState_Boost_Processing,
+	GameState_GameOver,
 	GameState_PickAction,
 	GameState_DiscardDownToMax,
 	GameState_Mulligan,
@@ -1224,7 +1225,10 @@ func continue_resolve_strike():
 				events += player2.cleanup_continuous_boosts()
 
 				active_strike = null
-				events += advance_to_next_turn()
+				if game_over:
+					change_game_state(GameState.GameState_GameOver)
+				else:
+					events += advance_to_next_turn()
 				break
 	return events
 
