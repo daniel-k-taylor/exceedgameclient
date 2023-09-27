@@ -1,0 +1,55 @@
+[gd_resource type="SpriteFrames" load_steps=7 format=3 uid="uid://r2pne3sp7vsf"]
+
+[ext_resource type="Texture2D" uid="uid://dgwn4v4pb0ppp" path="res://assets/character_animations/sol/idle/sol_idle_sheet.png" id="1_hb2pg"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_ym7gc"]
+atlas = ExtResource("1_hb2pg")
+region = Rect2(0, 0, 144, 288)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_c6kyq"]
+atlas = ExtResource("1_hb2pg")
+region = Rect2(144, 0, 144, 288)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_jrsjp"]
+atlas = ExtResource("1_hb2pg")
+region = Rect2(288, 0, 144, 288)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_1h0d6"]
+atlas = ExtResource("1_hb2pg")
+region = Rect2(0, 288, 144, 288)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_gos38"]
+atlas = ExtResource("1_hb2pg")
+region = Rect2(144, 288, 144, 288)
+
+[resource]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_ym7gc")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_c6kyq")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_jrsjp")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_1h0d6")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_gos38")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_1h0d6")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_jrsjp")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_c6kyq")
+}],
+"loop": true,
+"name": &"idle",
+"speed": 5.0
+}]

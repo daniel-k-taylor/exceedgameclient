@@ -1,7 +1,6 @@
 
 In progress:
 
-
 Tasks:
     Main Features:
         Game Flow:
@@ -16,13 +15,16 @@ Tasks:
         ☐ Change cards
     Networking:
         ☐ Build out server that is game logic host (use python?)
+    Easy visual polish:
+        ☐ Make exceed show a visual effect behind character (power aura on floor?)
+        ☐ Make the arena look more like a flat rectangle instead of square
     Misc/Low pri:
         ☐ Allow spending ultra for 1 force
         ☐ Sum continuous boost stat bonuses into a single line
         ☐ Delay between events so you can see what happens
         ☐ Visual showing you have shuffled once
         ☐ Boost zone panel formatting/change size with text. - Should scroll?
-        ☐ Animated sprites for characters on arena
+        ☐ Highlight cards based on mouse position in the zone instead of hovering the actual card
         Card Visuals are poor:
             ☐ Effect text is ugly
             ☐ Hard to read anything

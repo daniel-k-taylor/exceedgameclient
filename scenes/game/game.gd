@@ -117,8 +117,8 @@ func test_init():
 		_update_buttons()
 
 func first_run():
-	move_character_to_arena_square($PlayerCharacter, game_logic.player.arena_location)
-	move_character_to_arena_square($OpponentCharacter, game_logic.opponent.arena_location)
+	move_character_to_arena_square($PlayerCharacter, game_logic.player.arena_location, $OpponentCharacter)
+	move_character_to_arena_square($OpponentCharacter, game_logic.opponent.arena_location, $PlayerCharacter)
 	_update_buttons()
 
 	finish_initialization()
@@ -155,10 +155,13 @@ func get_arena_location_button(arena_location):
 	var target_square = arena.get_child(arena_location - 1)
 	return target_square.get_node("Border")
 
-func move_character_to_arena_square(character, arena_square):
+func move_character_to_arena_square(character, arena_square, other_character):
 	var arena = $StaticUI/StaticUIVBox/Arena
 	var target_square = arena.get_child(arena_square - 1)
 	character.position = target_square.global_position + target_square.size/2
+	var to_left = character.position.x < other_character.position.x
+	character.set_facing(to_left)
+	other_character.set_facing(not to_left)
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(_delta):
@@ -668,9 +671,9 @@ func begin_boost_choosing():
 
 func _on_move_event(event):
 	if event['event_player'] == game_logic.player:
-		move_character_to_arena_square($PlayerCharacter, event['number'])
+		move_character_to_arena_square($PlayerCharacter, event['number'], $OpponentCharacter)
 	else:
-		move_character_to_arena_square($OpponentCharacter, event['number'])
+		move_character_to_arena_square($OpponentCharacter, event['number'], $PlayerCharacter)
 
 func _on_mulligan_decision(event):
 	if event['event_player'] == game_logic.player:
@@ -876,7 +879,7 @@ func _update_buttons():
 	$StaticUI/StaticUIVBox/ButtonGrid/MoveButton.disabled = not game_logic.can_do_move(game_logic.player)
 	$StaticUI/StaticUIVBox/ButtonGrid/ChangeButton.disabled = not game_logic.can_do_change(game_logic.player)
 	$StaticUI/StaticUIVBox/ButtonGrid/ExceedButton.disabled = not game_logic.can_do_exceed(game_logic.player)
-	$StaticUI/StaticUIVBox/ButtonGrid/ReshuffleButton.disabled = not game_logic.can_do_reshuffle(game_logic.player)
+	$StaticUI/StaticUIVBox/ButtonGrid/ReshuffleButton.visible = game_logic.can_do_reshuffle(game_logic.player)
 	$StaticUI/StaticUIVBox/ButtonGrid/BoostButton.disabled = not game_logic.can_do_boost(game_logic.player)
 	$StaticUI/StaticUIVBox/ButtonGrid/StrikeButton.disabled = not game_logic.can_do_strike(game_logic.player)
 

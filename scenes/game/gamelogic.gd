@@ -534,18 +534,22 @@ class Player:
 
 	func advance(amount):
 		var events = []
-		var other_location = parent.other_player(self).arena_location
+		var other_player_location = parent.other_player(self).arena_location
 		var new_location
-		if arena_location < other_location:
+		if arena_location < other_player_location:
 			new_location = arena_location + amount
-			if new_location >= other_location:
+			if new_location >= other_player_location:
 				new_location += 1
 			new_location = min(new_location, MaxArenaLocation)
+			if other_player_location == new_location:
+				new_location -= 1
 		else:
 			new_location = arena_location - amount
-			if new_location <= other_location:
+			if new_location <= other_player_location:
 				new_location -= 1
 			new_location = max(new_location, MinArenaLocation)
+			if other_player_location == new_location:
+				new_location += 1
 
 		arena_location = new_location
 		events += [parent.create_event(EventType.EventType_Move, self, new_location)]
@@ -594,18 +598,22 @@ class Player:
 		if other_player.strike_stat_boosts.ignore_push_and_pull:
 			events += [parent.create_event(EventType.EventType_Strike_IgnoredPushPull, other_player, 0)]
 		else:
-			var other_location = other_player.arena_location
+			var other_player_location = other_player.arena_location
 			var new_location
-			if arena_location < other_location:
-				new_location = other_location - amount
+			if arena_location < other_player_location:
+				new_location = other_player_location - amount
 				if arena_location >= new_location:
 					new_location -= 1
 				new_location = max(new_location, MinArenaLocation)
+				if other_player_location == new_location:
+					new_location += 1
 			else:
-				new_location = other_location + amount
+				new_location = other_player_location + amount
 				if arena_location <= new_location:
 					new_location += 1
 				new_location = min(new_location, MaxArenaLocation)
+				if other_player_location == new_location:
+					new_location -= 1
 
 			other_player.arena_location = new_location
 			events += [parent.create_event(EventType.EventType_Move, other_player, new_location)]

@@ -1,6 +1,10 @@
-[gd_scene load_steps=2 format=3 uid="uid://ckjlv124xttrc"]
+[gd_scene load_steps=3 format=3 uid="uid://ckjlv124xttrc"]
 
-[ext_resource type="Texture2D" uid="uid://dal2ec8wws714" path="res://icon.svg" id="1_3bswy"]
+[ext_resource type="SpriteFrames" uid="uid://r2pne3sp7vsf" path="res://assets/character_animations/sol/sol.tres" id="1_6pa2q"]
+[ext_resource type="Script" path="res://scenes/game/character.gd" id="2_e6ero"]
 
-[node name="Character" type="Sprite2D"]
-texture = ExtResource("1_3bswy")
+[node name="Sprite" type="AnimatedSprite2D"]
+sprite_frames = ExtResource("1_6pa2q")
+animation = &"idle"
+autoplay = "idle"
+script = ExtResource("2_e6ero")
