@@ -2,7 +2,7 @@ extends Node2D
 
 const StartingHandFirstPlayer = 5
 const StartingHandSecondPlayer = 6
-const MaxLife = 1
+const MaxLife = 30
 const MaxHandSize = 7
 const MaxReshuffle = 1
 const WildSwingCardId = 7
@@ -727,6 +727,9 @@ func get_card(id : int):
 		if card.id == id:
 			return card
 	return null
+
+func _test_insert_card(card):
+	all_cards.append(card)
 
 func get_card_name(id : int):
 	for card in all_cards:
