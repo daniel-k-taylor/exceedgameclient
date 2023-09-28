@@ -126,7 +126,6 @@ func determine_possible_turn_actions(game_logic : GameLogic, me : GameLogic.Play
 	possible_actions += get_reshuffle_actions(game_logic, me, opponent)
 	possible_actions += get_boost_actions(game_logic, me, opponent)
 	possible_actions += get_strike_actions(game_logic, me, opponent)
-
 	return possible_actions
 
 func get_prepare_actions(_game_logic : GameLogic, me : GameLogic.Player, _opponent : GameLogic.Player):
@@ -153,7 +152,7 @@ func get_move_actions(_game_logic : GameLogic, me : GameLogic.Player, opponent :
 			var combinations = []
 			generate_force_combinations(_game_logic, all_force_option_ids, force_to_move_here, [], 0, combinations)
 			for combo in combinations:
-				possible_move_actions += [MoveAction.new(i, combo)]
+				possible_move_actions.append(MoveAction.new(i, combo))
 	return possible_move_actions
 
 func generate_force_combinations(game_logic, cards, force_target, current_combination, current_index, combinations):
@@ -181,11 +180,8 @@ func generate_card_count_combinations(cards, hand_size, current_combination, cur
 
 func get_change_cards_actions(_game_logic : GameLogic, me : GameLogic.Player, _opponent : GameLogic.Player):
 	var possible_actions = []
-	var deck_remaining = len(me.deck)
 	var total_change_card_options = len(me.hand) + len(me.gauge)
-	if me.reshuffle_remaining == 0:
-		# Don't allow insta-lose.
-		total_change_card_options = min(total_change_card_options, deck_remaining - 1)
+	possible_actions.append(ChangeCardsAction.new([]))
 
 	if total_change_card_options > 0:
 		# Create the combined list.
@@ -196,19 +192,19 @@ func get_change_cards_actions(_game_logic : GameLogic, me : GameLogic.Player, _o
 			all_change_card_ids.append(card.id)
 
 		# Calculate every permutation of moves at this point.
-		var combinations = []
-		for i in range(1, total_change_card_options):
-			generate_card_count_combinations(all_change_card_ids, i, [], 0, combinations)
+		for target_size in range(1, total_change_card_options + 1):
+			var combinations = []
+			generate_card_count_combinations(all_change_card_ids, target_size, [], 0, combinations)
 			for combination in combinations:
-				possible_actions += [ChangeCardsAction.new(combination)]
+				possible_actions.append(ChangeCardsAction.new(combination))
 
 	return possible_actions
 
 func get_combinations_to_pay_gauge(me : GameLogic.Player, gauge_cost : int):
-	var combinations = []
 	var gauge_card_options = []
 	for card in me.gauge:
 		gauge_card_options.append(card.id)
+	var combinations = []
 	generate_card_count_combinations(gauge_card_options, gauge_cost, [], 0, combinations)
 	return combinations
 
@@ -221,7 +217,7 @@ func get_exceed_actions(_game_logic : GameLogic, me : GameLogic.Player, _opponen
 
 	var combinations = get_combinations_to_pay_gauge(me, me.exceed_cost)
 	for combination in combinations:
-		possible_actions += [ExceedAction.new(combination)]
+		possible_actions.append(ExceedAction.new(combination))
 	return possible_actions
 
 func get_reshuffle_actions(_game_logic : GameLogic, me : GameLogic.Player, _opponent : GameLogic.Player):
@@ -255,15 +251,15 @@ func get_boost_options_for_card(game_logic : GameLogic, me : GameLogic.Player, _
 
 func get_boost_actions(game_logic : GameLogic, me : GameLogic.Player, opponent : GameLogic.Player):
 	var possible_actions = []
-	if me.hand.size() == 0:
-		# Can't boost with no cards.
-		return []
-
 	for card in me.hand:
 		if does_boost_work(game_logic, me, opponent, card.id):
 			var option_count = get_boost_options_for_card(game_logic, me, opponent, card.id)
-			for i in range(0, option_count):
-				possible_actions += [BoostAction.new(card.id, i)]
+			if option_count > 0:
+				for i in range(0, option_count):
+					possible_actions.append(BoostAction.new(card.id, i))
+			else:
+				# No choices, just boost normally.
+				possible_actions.append(BoostAction.new(card.id, 0))
 
 	return possible_actions
 
@@ -357,7 +353,7 @@ func determine_force_for_armor_actions(game_logic : GameLogic, me : GameLogic.Pl
 		var combinations = []
 		generate_force_combinations(game_logic, all_force_option_ids, target_force, [], 0, combinations)
 		for combo in combinations:
-			possible_actions += [ForceForArmorAction.new(combo)]
+			possible_actions.append(ForceForArmorAction.new(combo))
 	return possible_actions
 
 func pick_strike(game_logic : GameLogic, me : GameLogic.Player, _opponent: GameLogic.Player):
@@ -387,7 +383,7 @@ func determine_discard_to_max_options(me : GameLogic.Player, to_discard_count: i
 	var combinations = []
 	generate_card_count_combinations(all_card_ids, to_discard_count, [], 0, combinations)
 	for combo in combinations:
-		possible_actions += [DiscardToMaxAction.new(combo)]
+		possible_actions.append(DiscardToMaxAction.new(combo))
 	return possible_actions
 
 func pick_cancel(_game_logic : GameLogic, me : GameLogic.Player, _opponent: GameLogic.Player, gauge_cost : int):
