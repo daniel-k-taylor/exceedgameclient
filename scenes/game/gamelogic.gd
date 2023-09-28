@@ -302,7 +302,7 @@ class Player:
 			parent.decision_player = self
 		return events
 
-	func mulligan(card_ids : Array[int]):
+	func mulligan(card_ids : Array):
 		var events = []
 		events += draw(len(card_ids))
 		for id in card_ids:
@@ -797,7 +797,10 @@ func advance_to_next_turn():
 				if effect['effect_type'] == 'add_to_gauge_immediately':
 					active_turn_player.remove_from_continuous_boosts(card, true)
 
-	change_game_state(GameState.GameState_PickAction)
+	if game_over:
+		change_game_state(GameState.GameState_GameOver)
+	else:
+		change_game_state(GameState.GameState_PickAction)
 	return [create_event(EventType.EventType_AdvanceTurn, active_turn_player, 0)]
 
 func begin_resolve_strike():
@@ -1390,6 +1393,7 @@ func check_hand_size_advance_turn(performing_player : Player):
 	return events
 
 func do_prepare(performing_player):
+	printlog("MainAction: PREPARE by %s" % [performing_player.name])
 	if not can_do_prepare(performing_player):
 		printlog("ERROR: Tried to Prepare but can't.")
 		return []
@@ -1399,6 +1403,7 @@ func do_prepare(performing_player):
 	return events
 
 func do_discard_to_max(performing_player : Player, card_ids):
+	printlog("SubAction: DISCARD_TO_MAX by %s - %s" % [performing_player.name, card_ids])
 	if performing_player != active_turn_player:
 		printlog("ERROR: Tried to discard for wrong player.")
 		return []
@@ -1422,6 +1427,7 @@ func do_discard_to_max(performing_player : Player, card_ids):
 	return events
 
 func do_reshuffle(performing_player : Player):
+	printlog("MainAction: RESHUFFLE by %s" % [performing_player.name])
 	if not can_do_reshuffle(performing_player):
 		printlog("ERROR: Tried to reshuffle but can't.")
 		return []
@@ -1432,6 +1438,7 @@ func do_reshuffle(performing_player : Player):
 	return events
 
 func do_move(performing_player : Player, card_ids, new_arena_location):
+	printlog("MainAction: MOVE by %s to %s" % [performing_player.name, str(new_arena_location)])
 	if not can_do_move(performing_player):
 		printlog("ERROR: Cannot perform the move action for this player.")
 		return []
@@ -1464,6 +1471,7 @@ func do_move(performing_player : Player, card_ids, new_arena_location):
 	return events
 
 func do_change(performing_player : Player, card_ids):
+	printlog("MainAction: CHANGE_CARDS by %s - %s" % [performing_player.name, card_ids])
 	if not can_do_change(performing_player):
 		printlog("ERROR: Cannot do change action for this player.")
 		return []
@@ -1484,6 +1492,7 @@ func do_change(performing_player : Player, card_ids):
 	return events
 
 func do_exceed(performing_player : Player, card_ids : Array):
+	printlog("MainAction: EXCEED by %s - %s" % [performing_player.name, card_ids])
 	if game_state != GameState.GameState_PickAction:
 		printlog("ERROR: Tried to exceed but not in correct game state.")
 		return []
@@ -1507,7 +1516,7 @@ func do_exceed(performing_player : Player, card_ids : Array):
 	return events
 
 func do_boost(performing_player : Player, card_id : int):
-	printlog("Boosting player %s card %s" % [performing_player.name, get_card_name(card_id)])
+	printlog("MainAction: BOOST by %s - %s" % [performing_player.name, get_card_name(card_id)])
 	if game_state != GameState.GameState_PickAction or performing_player != active_turn_player:
 		printlog("ERROR: Tried to boost but not your turn")
 		return []
@@ -1519,7 +1528,7 @@ func do_boost(performing_player : Player, card_id : int):
 	return events
 
 func do_strike(performing_player : Player, card_id : int, wild_strike: bool, ex_card_id : int):
-	printlog("Starting strike player %s card %s wild %s" % [performing_player.name, get_card_name(card_id), str(wild_strike)])
+	printlog("MainAction: STRIKE by %s card %s wild %s" % [performing_player.name, get_card_name(card_id), str(wild_strike)])
 	if game_state == GameState.GameState_PickAction:
 		if performing_player != active_turn_player:
 			printlog("ERROR: Tried to strike but not current player")
@@ -1588,6 +1597,7 @@ func do_strike(performing_player : Player, card_id : int, wild_strike: bool, ex_
 	return events
 
 func do_pay_strike_cost(performing_player : Player, card_ids : Array, wild_strike : bool):
+	printlog("SubAction: PAY_STRIKE by %s cards %s wild %s" % [performing_player.name, card_ids, str(wild_strike)])
 	if game_state != GameState.GameState_PlayerDecision:
 		printlog("ERROR: Tried to pay costs but not in decision state.")
 		return []
@@ -1626,6 +1636,7 @@ func do_pay_strike_cost(performing_player : Player, card_ids : Array, wild_strik
 	return events
 
 func do_force_for_armor(performing_player : Player, card_ids : Array):
+	printlog("SubAction: FORCEARMOR by %s cards %s" % [performing_player.name, card_ids])
 	if game_state != GameState.GameState_PlayerDecision or decision_type != DecisionType.DecisionType_ForceForArmor:
 		printlog("ERROR: Tried to force for armor but not in decision state.")
 		return []
@@ -1649,6 +1660,7 @@ func do_force_for_armor(performing_player : Player, card_ids : Array):
 	return events
 
 func do_boost_cancel(performing_player : Player, gauge_card_ids : Array, doing_cancel : bool):
+	printlog("SubAction: BOOST_CANCEL by %s cards %s cancel %s" % [performing_player.name, gauge_card_ids, str(doing_cancel)])
 	if game_state != GameState.GameState_PlayerDecision or decision_type != DecisionType.DecisionType_BoostCancel:
 		printlog("ERROR: Tried to cancel boost but not in decision state.")
 		return []
@@ -1677,6 +1689,7 @@ func do_boost_cancel(performing_player : Player, gauge_card_ids : Array, doing_c
 	return events
 
 func do_card_from_hand_to_gauge(performing_player : Player, card_id : int):
+	printlog("SubAction: CARD_HAND_TO_GAUGE by %s card %s" % [performing_player.name, get_card_name(card_id)])
 	if decision_player != performing_player:
 		printlog("ERROR: Tried to do_card_from_hand_to_gauge for wrong player.")
 		return []
@@ -1695,6 +1708,7 @@ func do_card_from_hand_to_gauge(performing_player : Player, card_id : int):
 	return events
 
 func do_boost_name_card_choice_effect(performing_player : Player, card_id : int):
+	printlog("SubAction: BOOST_NAME_CARD by %s card %s" % [performing_player.name, get_card_name(card_id)])
 	if decision_player != performing_player:
 		printlog("ERROR: Tried to force for armor for wrong player.")
 		return []
@@ -1713,6 +1727,7 @@ func do_boost_name_card_choice_effect(performing_player : Player, card_id : int)
 	return events
 
 func do_choice(performing_player : Player, choice_index : int):
+	printlog("SubAction: CHOICE by %s card %s" % [performing_player.name, str(choice_index)])
 	if decision_player != performing_player:
 		printlog("ERROR: Tried to force for armor for wrong player.")
 		return []
@@ -1735,7 +1750,8 @@ func do_choice(performing_player : Player, choice_index : int):
 		printlog("ERROR: Tried to make choice but no active strike or boost.")
 	return events
 
-func do_mulligan(performing_player : Player, card_ids : Array[int]):
+func do_mulligan(performing_player : Player, card_ids : Array):
+	printlog("InitialAction: MULLIGAN by %s cards %s" % [performing_player.name, card_ids])
 	if performing_player.mulligan_complete:
 		printlog("ERROR: Tried to mulligan but already done.")
 		return []

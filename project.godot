@@ -19,6 +19,10 @@ config/icon="res://icon.svg"
 
 CardDefinitions="*res://globals/card_definitions.gd"
 
+[debug]
+
+file_logging/enable_file_logging=true
+
 [display]
 
 window/size/viewport_width=1280

@@ -2,7 +2,7 @@ extends Node2D
 
 const GameLogic = preload("res://scenes/game/gamelogic.gd")
 
-var test = 1
+var game_player : GameLogic.Player
 
 class AIPlayerState:
 	var life
@@ -232,7 +232,7 @@ func does_boost_work(_game_logic : GameLogic, _me : GameLogic.Player, _opponent 
 	# Draw when it kills you.
 	return true
 
-func get_boost_options_for_card(game_logic : GameLogic, me : GameLogic.Player, _opponent : GameLogic.Player, card_id):
+func get_boost_options_for_card(game_logic : GameLogic, me : GameLogic.Player, opponent : GameLogic.Player, card_id):
 	# Examine the boost effect of the card to see how many options it has.
 	# For example, Push 1-2 or Push 1-2 has 4 options.
 	var card = game_logic.get_card(card_id)
@@ -243,6 +243,11 @@ func get_boost_options_for_card(game_logic : GameLogic, me : GameLogic.Player, _
 			choices += len(effect['choice'])
 		elif effect['effect_type'] == "gauge_from_hand":
 			choices += me.hand.size() - 1 # -1 for this card.
+		elif effect['effect_type'] == "name_card_opponent_discards":
+			@warning_ignore("integer_division")
+			choices += opponent.deck_copy.size() / 2
+		elif effect['effect_type'] == "discard_continuous_boost":
+			choices += len(opponent.continuous_boosts)
 
 		if 'and' in effect and effect['and']['effect_type'] == "choice":
 			choices += len(effect['and']['choice'])
@@ -297,7 +302,7 @@ func get_strike_actions(game_logic : GameLogic, me : GameLogic.Player, _opponent
 
 	return possible_actions
 
-func pay_strike_gauge_cost(_game_logic : GameLogic, me : GameLogic.Player, _opponent : GameLogic.Player, gauge_cost : int, wild_swing_allowed : bool):
+func pay_strike_gauge_cost(_game_logic : GameLogic, me : GameLogic.Player, _opponent : GameLogic.Player, gauge_cost : int, wild_swing_allowed : bool) -> PayStrikeCostAction:
 	# Decide which action makes the most sense to take.
 	var possible_actions = determine_pay_strike_gauge_cost_actions(me, gauge_cost, wild_swing_allowed)
 
@@ -318,7 +323,7 @@ func determine_pay_strike_gauge_cost_actions(me : GameLogic.Player, gauge_cost :
 	return possible_actions
 
 
-func pick_effect_choice(game_logic : GameLogic, me : GameLogic.Player, _opponent: GameLogic.Player):
+func pick_effect_choice(game_logic : GameLogic, me : GameLogic.Player, _opponent: GameLogic.Player) -> EffectChoiceAction:
 	# Decide which action makes the most sense to take.
 	var possible_actions = determine_effect_choice_actions(game_logic, me)
 
@@ -333,7 +338,7 @@ func determine_effect_choice_actions(game_logic : GameLogic, _me : GameLogic.Pla
 		possible_actions.append(EffectChoiceAction.new(i))
 	return possible_actions
 
-func pick_force_for_armor(game_logic : GameLogic, me : GameLogic.Player, _opponent: GameLogic.Player):
+func pick_force_for_armor(game_logic : GameLogic, me : GameLogic.Player, _opponent: GameLogic.Player) -> ForceForArmorAction:
 	var possible_actions = determine_force_for_armor_actions(game_logic, me)
 
 	# Choose random action
@@ -356,20 +361,20 @@ func determine_force_for_armor_actions(game_logic : GameLogic, me : GameLogic.Pl
 			possible_actions.append(ForceForArmorAction.new(combo))
 	return possible_actions
 
-func pick_strike(game_logic : GameLogic, me : GameLogic.Player, _opponent: GameLogic.Player):
+func pick_strike(game_logic : GameLogic, me : GameLogic.Player, _opponent: GameLogic.Player) -> StrikeAction:
 	var possible_actions = get_strike_actions(game_logic, me, _opponent)
 	# Choose random action
 	var action = possible_actions[randi() % len(possible_actions)]
 	return action
 
-func pick_strike_response(game_logic : GameLogic, me : GameLogic.Player, _opponent: GameLogic.Player):
+func pick_strike_response(game_logic : GameLogic, me : GameLogic.Player, _opponent: GameLogic.Player) -> StrikeAction:
 	var possible_actions = get_strike_actions(game_logic, me, _opponent)
 	# Choose random action
 	var action = possible_actions[randi() % len(possible_actions)]
 	return action
 
 
-func pick_discard_to_max(_game_logic : GameLogic, me : GameLogic.Player, _opponent: GameLogic.Player, to_discard_count : int):
+func pick_discard_to_max(_game_logic : GameLogic, me : GameLogic.Player, _opponent: GameLogic.Player, to_discard_count : int) -> DiscardToMaxAction:
 	var possible_actions = determine_discard_to_max_options( me, to_discard_count)
 	# Choose random action
 	var action = possible_actions[randi() % len(possible_actions)]
@@ -386,7 +391,7 @@ func determine_discard_to_max_options(me : GameLogic.Player, to_discard_count: i
 		possible_actions.append(DiscardToMaxAction.new(combo))
 	return possible_actions
 
-func pick_cancel(_game_logic : GameLogic, me : GameLogic.Player, _opponent: GameLogic.Player, gauge_cost : int):
+func pick_cancel(_game_logic : GameLogic, me : GameLogic.Player, _opponent: GameLogic.Player, gauge_cost : int) -> CancelAction:
 	var possible_actions = []
 	possible_actions.append(CancelAction.new(false, []))
 	var combinations = get_combinations_to_pay_gauge(me, gauge_cost)
@@ -396,7 +401,7 @@ func pick_cancel(_game_logic : GameLogic, me : GameLogic.Player, _opponent: Game
 	var action = possible_actions[randi() % len(possible_actions)]
 	return action
 
-func pick_discard_continuous(_game_logic : GameLogic, _me : GameLogic.Player, opponent: GameLogic.Player):
+func pick_discard_continuous(_game_logic : GameLogic, _me : GameLogic.Player, opponent: GameLogic.Player) -> DiscardContinuousBoostAction:
 	var possible_actions = []
 	for card in opponent.continuous_boosts:
 		possible_actions.append(DiscardContinuousBoostAction.new(card.id))
@@ -404,7 +409,7 @@ func pick_discard_continuous(_game_logic : GameLogic, _me : GameLogic.Player, op
 	var action = possible_actions[randi() % len(possible_actions)]
 	return action
 
-func pick_name_opponent_card(_game_logic : GameLogic, _me : GameLogic.Player, opponent: GameLogic.Player):
+func pick_name_opponent_card(_game_logic : GameLogic, _me : GameLogic.Player, opponent: GameLogic.Player) -> NameCardAction:
 	var possible_actions = []
 	for i in range(0, opponent.deck_copy.size(), 2):
 		# Skip every other card to avoid dupes.
@@ -415,7 +420,7 @@ func pick_name_opponent_card(_game_logic : GameLogic, _me : GameLogic.Player, op
 	var action = possible_actions[randi() % len(possible_actions)]
 	return action
 
-func pick_card_hand_to_gauge(_game_logic : GameLogic, me : GameLogic.Player, _opponent: GameLogic.Player):
+func pick_card_hand_to_gauge(_game_logic : GameLogic, me : GameLogic.Player, _opponent: GameLogic.Player) -> HandToGaugeAction:
 	var possible_actions = []
 	for i in range(me.hand.size()):
 		var card = me.hand[i]
@@ -425,14 +430,17 @@ func pick_card_hand_to_gauge(_game_logic : GameLogic, me : GameLogic.Player, _op
 	var action = possible_actions[randi() % len(possible_actions)]
 	return action
 
-func pick_mulligan(_game_logic : GameLogic, me : GameLogic.Player, _opponent: GameLogic.Player):
+func pick_mulligan(_game_logic : GameLogic, me : GameLogic.Player, _opponent: GameLogic.Player) -> MulliganAction:
 	var possible_actions = []
 	var combinations = []
 	# Always can mulligan 0 cards.
 	possible_actions.append(MulliganAction.new([]))
 	var hand_size = me.hand.size()
+	var all_card_ids = []
+	for card in me.hand:
+		all_card_ids.append(card.id)
 	for target_size in range(1, hand_size + 1):
-		generate_card_count_combinations(me.hand, target_size, [], 0, combinations)
+		generate_card_count_combinations(all_card_ids, target_size, [], 0, combinations)
 		for combo in combinations:
 			possible_actions.append(MulliganAction.new(combo))
 	# Choose random action

@@ -538,6 +538,18 @@ modulate = Color(1, 0.384314, 0.54902, 1)
 position = Vector2(146, -68)
 scale = Vector2(0.5, 0.5)
 
+[node name="GameOverStuff" type="Node2D" parent="."]
+
+[node name="GameOverLabel" type="Label" parent="GameOverStuff"]
+offset_left = 356.0
+offset_top = 375.0
+offset_right = 584.0
+offset_bottom = 461.0
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_font_sizes/font_size = 64
+text = "DEFEAT"
+horizontal_alignment = 1
+
 [node name="CardPopout" parent="." instance=ExtResource("14_lyeqj")]
 visible = false
 offset_left = 50.0
@@ -599,18 +611,6 @@ offset_right = 156.0
 offset_bottom = 685.0
 theme_override_font_sizes/font_size = 24
 text = "Exit to Menu"
-
-[node name="GameOverStuff" type="Node2D" parent="."]
-
-[node name="GameOverLabel" type="Label" parent="GameOverStuff"]
-offset_left = 356.0
-offset_top = 375.0
-offset_right = 584.0
-offset_bottom = 461.0
-theme_override_colors/font_color = Color(1, 1, 1, 1)
-theme_override_font_sizes/font_size = 64
-text = "DEFEAT"
-horizontal_alignment = 1
 
 [node name="AIPlayer" type="Node2D" parent="."]
 script = ExtResource("18_hlntt")
