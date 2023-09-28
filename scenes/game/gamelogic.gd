@@ -1263,10 +1263,12 @@ func continue_resolve_boost():
 		else:
 			# After all effects are resolved, check for cancel.
 			if active_boost.playing_player.can_cancel(active_boost.card):
+				var cancel_cost = get_card_cancel_cost(active_boost.card.id)
 				change_game_state(GameState.GameState_PlayerDecision)
 				decision_type = DecisionType.DecisionType_BoostCancel
 				decision_player = active_boost.playing_player
-				events += [create_event(EventType.EventType_Boost_CancelDecision, active_boost.playing_player, get_card_cancel_cost(active_boost.card.id))]
+				decision_choice = cancel_cost
+				events += [create_event(EventType.EventType_Boost_CancelDecision, active_boost.playing_player, cancel_cost)]
 				break
 			else:
 				events += boost_play_cleanup(active_boost.playing_player)

@@ -1,15 +1,23 @@
 extends Node2D
 
 const GameLogic = preload("res://scenes/game/gamelogic.gd")
+const AIPolicyRandom = preload("res://scenes/game/ai/ai_policy_random.gd")
 
 var game_player : GameLogic.Player
+@onready var game_state : AIGameState = AIGameState.new()
+
+@onready var ai_policy = AIPolicyRandom.new()
+
+func set_ai_policy(new_policy):
+	ai_policy = new_policy
 
 class AIPlayerState:
 	var life
 	var deck
+	var full_deck
 	var hand
 	var discards
-	var boosts
+	var continuous_boosts
 	var gauge
 	var arena_location
 	var exceed_cost
@@ -17,8 +25,8 @@ class AIPlayerState:
 	var reshuffle_remaining
 
 class AIGameState:
-	var my_state
-	var opponent_state
+	var my_state = AIPlayerState.new()
+	var opponent_state = AIPlayerState.new()
 
 class PrepareAction:
 	pass
@@ -108,13 +116,48 @@ class MulliganAction:
 	func _init(card_id_combination):
 		card_ids = card_id_combination
 
+func create_sanitized_card_id_array(card_array):
+	var card_ids = []
+	for i in range(card_array.size()):
+		card_ids.append(-1)
+	return card_ids
+
+func create_card_id_array(card_array):
+	var card_ids = []
+	for card in card_array:
+		card_ids.append(card.id)
+	return card_ids
+
+func update_ai_state(_game_logic : GameLogic, me : GameLogic.Player, opponent : GameLogic.Player):
+	game_state.my_state.life = me.life
+	game_state.my_state.deck = create_sanitized_card_id_array(me.deck)
+	game_state.my_state.full_deck = create_card_id_array(me.deck_copy)
+	game_state.my_state.hand = create_card_id_array(me.hand)
+	game_state.my_state.discards = create_card_id_array(me.discards)
+	game_state.my_state.continuous_boosts = create_card_id_array(me.continuous_boosts)
+	game_state.my_state.gauge = create_card_id_array(me.gauge)
+	game_state.my_state.arena_location = me.arena_location
+	game_state.my_state.exceed_cost = me.exceed_cost
+	game_state.my_state.exceeded = me.exceeded
+	game_state.my_state.reshuffle_remaining = me.reshuffle_remaining
+
+	game_state.opponent_state.life = opponent.life
+	game_state.opponent_state.deck = create_sanitized_card_id_array(opponent.deck)
+	game_state.opponent_state.full_deck = create_card_id_array(opponent.deck_copy)
+	game_state.opponent_state.hand = create_sanitized_card_id_array(opponent.hand)
+	game_state.opponent_state.discards = create_card_id_array(opponent.discards)
+	game_state.opponent_state.continuous_boosts = create_card_id_array(opponent.continuous_boosts)
+	game_state.opponent_state.gauge = create_card_id_array(opponent.gauge)
+	game_state.opponent_state.arena_location = opponent.arena_location
+	game_state.opponent_state.exceed_cost = opponent.exceed_cost
+	game_state.opponent_state.exceeded = opponent.exceeded
+	game_state.opponent_state.reshuffle_remaining = opponent.reshuffle_remaining
+
 func take_turn(game_logic : GameLogic, me : GameLogic.Player, opponent : GameLogic.Player):
 	# Decide which action makes the most sense to take.
 	var possible_actions = determine_possible_turn_actions(game_logic, me, opponent)
-
-	# Choose random action
-	var action = possible_actions[randi() % len(possible_actions)]
-	return action
+	update_ai_state(game_logic, me, opponent)
+	return ai_policy.pick_turn_action(possible_actions, game_state)
 
 func determine_possible_turn_actions(game_logic : GameLogic, me : GameLogic.Player, opponent : GameLogic.Player):
 	var possible_actions = []
@@ -302,13 +345,11 @@ func get_strike_actions(game_logic : GameLogic, me : GameLogic.Player, _opponent
 
 	return possible_actions
 
-func pay_strike_gauge_cost(_game_logic : GameLogic, me : GameLogic.Player, _opponent : GameLogic.Player, gauge_cost : int, wild_swing_allowed : bool) -> PayStrikeCostAction:
+func pay_strike_gauge_cost(game_logic : GameLogic, me : GameLogic.Player, opponent : GameLogic.Player, gauge_cost : int, wild_swing_allowed : bool) -> PayStrikeCostAction:
 	# Decide which action makes the most sense to take.
 	var possible_actions = determine_pay_strike_gauge_cost_actions(me, gauge_cost, wild_swing_allowed)
-
-	# Choose random action
-	var action = possible_actions[randi() % len(possible_actions)]
-	return action
+	update_ai_state(game_logic, me, opponent)
+	return ai_policy.pick_pay_strike_gauge_cost(possible_actions, game_state)
 
 func determine_pay_strike_gauge_cost_actions(me : GameLogic.Player, gauge_cost : int, wild_swing_allowed : bool):
 	var possible_actions = []
@@ -323,13 +364,11 @@ func determine_pay_strike_gauge_cost_actions(me : GameLogic.Player, gauge_cost :
 	return possible_actions
 
 
-func pick_effect_choice(game_logic : GameLogic, me : GameLogic.Player, _opponent: GameLogic.Player) -> EffectChoiceAction:
+func pick_effect_choice(game_logic : GameLogic, me : GameLogic.Player, opponent: GameLogic.Player) -> EffectChoiceAction:
 	# Decide which action makes the most sense to take.
 	var possible_actions = determine_effect_choice_actions(game_logic, me)
-
-	# Choose random action
-	var action = possible_actions[randi() % len(possible_actions)]
-	return action
+	update_ai_state(game_logic, me, opponent)
+	return ai_policy.pick_effect_choice(possible_actions, game_state)
 
 func determine_effect_choice_actions(game_logic : GameLogic, _me : GameLogic.Player):
 	var choice_count = len(game_logic.decision_choice)
@@ -338,12 +377,10 @@ func determine_effect_choice_actions(game_logic : GameLogic, _me : GameLogic.Pla
 		possible_actions.append(EffectChoiceAction.new(i))
 	return possible_actions
 
-func pick_force_for_armor(game_logic : GameLogic, me : GameLogic.Player, _opponent: GameLogic.Player) -> ForceForArmorAction:
+func pick_force_for_armor(game_logic : GameLogic, me : GameLogic.Player, opponent: GameLogic.Player) -> ForceForArmorAction:
 	var possible_actions = determine_force_for_armor_actions(game_logic, me)
-
-	# Choose random action
-	var action = possible_actions[randi() % len(possible_actions)]
-	return action
+	update_ai_state(game_logic, me, opponent)
+	return ai_policy.pick_force_for_armor(possible_actions, game_state)
 
 func determine_force_for_armor_actions(game_logic : GameLogic, me : GameLogic.Player):
 	var possible_actions = []
@@ -361,24 +398,20 @@ func determine_force_for_armor_actions(game_logic : GameLogic, me : GameLogic.Pl
 			possible_actions.append(ForceForArmorAction.new(combo))
 	return possible_actions
 
-func pick_strike(game_logic : GameLogic, me : GameLogic.Player, _opponent: GameLogic.Player) -> StrikeAction:
-	var possible_actions = get_strike_actions(game_logic, me, _opponent)
-	# Choose random action
-	var action = possible_actions[randi() % len(possible_actions)]
-	return action
+func pick_strike(game_logic : GameLogic, me : GameLogic.Player, opponent: GameLogic.Player) -> StrikeAction:
+	var possible_actions = get_strike_actions(game_logic, me, opponent)
+	update_ai_state(game_logic, me, opponent)
+	return ai_policy.pick_strike(possible_actions, game_state)
 
-func pick_strike_response(game_logic : GameLogic, me : GameLogic.Player, _opponent: GameLogic.Player) -> StrikeAction:
-	var possible_actions = get_strike_actions(game_logic, me, _opponent)
-	# Choose random action
-	var action = possible_actions[randi() % len(possible_actions)]
-	return action
+func pick_strike_response(game_logic : GameLogic, me : GameLogic.Player, opponent: GameLogic.Player) -> StrikeAction:
+	var possible_actions = get_strike_actions(game_logic, me, opponent)
+	update_ai_state(game_logic, me, opponent)
+	return ai_policy.pick_strike_response(possible_actions, game_state)
 
-
-func pick_discard_to_max(_game_logic : GameLogic, me : GameLogic.Player, _opponent: GameLogic.Player, to_discard_count : int) -> DiscardToMaxAction:
+func pick_discard_to_max(game_logic : GameLogic, me : GameLogic.Player, opponent: GameLogic.Player, to_discard_count : int) -> DiscardToMaxAction:
 	var possible_actions = determine_discard_to_max_options( me, to_discard_count)
-	# Choose random action
-	var action = possible_actions[randi() % len(possible_actions)]
-	return action
+	update_ai_state(game_logic, me, opponent)
+	return ai_policy.pick_discard_to_max(possible_actions, game_state)
 
 func determine_discard_to_max_options(me : GameLogic.Player, to_discard_count: int):
 	var possible_actions = []
@@ -391,46 +424,42 @@ func determine_discard_to_max_options(me : GameLogic.Player, to_discard_count: i
 		possible_actions.append(DiscardToMaxAction.new(combo))
 	return possible_actions
 
-func pick_cancel(_game_logic : GameLogic, me : GameLogic.Player, _opponent: GameLogic.Player, gauge_cost : int) -> CancelAction:
+func pick_cancel(game_logic : GameLogic, me : GameLogic.Player, opponent: GameLogic.Player, gauge_cost : int) -> CancelAction:
 	var possible_actions = []
 	possible_actions.append(CancelAction.new(false, []))
 	var combinations = get_combinations_to_pay_gauge(me, gauge_cost)
 	for combo in combinations:
 		possible_actions.append(CancelAction.new(true, combo))
-	# Choose random action
-	var action = possible_actions[randi() % len(possible_actions)]
-	return action
+	update_ai_state(game_logic, me, opponent)
+	return ai_policy.pick_cancel(possible_actions, game_state)
 
-func pick_discard_continuous(_game_logic : GameLogic, _me : GameLogic.Player, opponent: GameLogic.Player) -> DiscardContinuousBoostAction:
+func pick_discard_continuous(game_logic : GameLogic, me : GameLogic.Player, opponent: GameLogic.Player) -> DiscardContinuousBoostAction:
 	var possible_actions = []
 	for card in opponent.continuous_boosts:
 		possible_actions.append(DiscardContinuousBoostAction.new(card.id))
-	# Choose random action
-	var action = possible_actions[randi() % len(possible_actions)]
-	return action
+	update_ai_state(game_logic, me, opponent)
+	return ai_policy.pick_discard_continuous(possible_actions, game_state)
 
-func pick_name_opponent_card(_game_logic : GameLogic, _me : GameLogic.Player, opponent: GameLogic.Player) -> NameCardAction:
+func pick_name_opponent_card(game_logic : GameLogic, me : GameLogic.Player, opponent: GameLogic.Player) -> NameCardAction:
 	var possible_actions = []
 	for i in range(0, opponent.deck_copy.size(), 2):
 		# Skip every other card to avoid dupes.
 		var card = opponent.deck_copy[i]
 		possible_actions.append(NameCardAction.new(card.id))
 
-	# Choose random action
-	var action = possible_actions[randi() % len(possible_actions)]
-	return action
+	update_ai_state(game_logic, me, opponent)
+	return ai_policy.pick_name_opponent_card(possible_actions, game_state)
 
-func pick_card_hand_to_gauge(_game_logic : GameLogic, me : GameLogic.Player, _opponent: GameLogic.Player) -> HandToGaugeAction:
+func pick_card_hand_to_gauge(game_logic : GameLogic, me : GameLogic.Player, opponent: GameLogic.Player) -> HandToGaugeAction:
 	var possible_actions = []
 	for i in range(me.hand.size()):
 		var card = me.hand[i]
 		possible_actions.append(HandToGaugeAction.new(card.id))
 
-	# Choose random action
-	var action = possible_actions[randi() % len(possible_actions)]
-	return action
+	update_ai_state(game_logic, me, opponent)
+	return ai_policy.pick_card_hand_to_gauge(possible_actions, game_state)
 
-func pick_mulligan(_game_logic : GameLogic, me : GameLogic.Player, _opponent: GameLogic.Player) -> MulliganAction:
+func pick_mulligan(game_logic : GameLogic, me : GameLogic.Player, opponent: GameLogic.Player) -> MulliganAction:
 	var possible_actions = []
 	var combinations = []
 	# Always can mulligan 0 cards.
@@ -443,6 +472,5 @@ func pick_mulligan(_game_logic : GameLogic, me : GameLogic.Player, _opponent: Ga
 		generate_card_count_combinations(all_card_ids, target_size, [], 0, combinations)
 		for combo in combinations:
 			possible_actions.append(MulliganAction.new(combo))
-	# Choose random action
-	var action = possible_actions[randi() % len(possible_actions)]
-	return action
+	update_ai_state(game_logic, me, opponent)
+	return ai_policy.pick_mulligan(possible_actions, game_state)

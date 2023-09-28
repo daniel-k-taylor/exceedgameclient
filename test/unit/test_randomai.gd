@@ -160,7 +160,7 @@ func handle_strike(game: GameLogic, aiplayer : AIPlayer, otherai : AIPlayer, act
 				events += game.do_force_for_armor(decision_ai.game_player, forceforarmor_action.card_ids)
 			GameLogic.DecisionType.DecisionType_CardFromHandToGauge:
 				var cardfromhandtogauge_action = decision_ai.pick_card_hand_to_gauge(game, game.decision_player, game.other_player(game.decision_player))
-				events += game.do_card_from_hand_to_gauge(decision_ai.game_player, cardfromhandtogauge_action.card_index)
+				events += game.do_card_from_hand_to_gauge(decision_ai.game_player, cardfromhandtogauge_action.card_id)
 
 	assert_eq(game.game_state, GameLogic.GameState.GameState_PickAction)
 

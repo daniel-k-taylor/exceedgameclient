@@ -367,11 +367,16 @@ func layout_player_hand(is_player : bool):
 		var hand_center = spawn_spot.global_position + spawn_spot.size * spawn_spot.scale /2
 		var min_x = hand_center.x - 200
 		var max_x = hand_center.x + 200
-		var step = (max_x - min_x) / (num_cards - 1)
-		for i in range(num_cards):
-			var pos = Vector2(min_x + step * i, hand_center.y)
-			var card : CardBase = hand_zone.get_child(i)
+		if num_cards == 1:
+			var pos = Vector2(hand_center.x, hand_center.y)
+			var card : CardBase = hand_zone.get_child(0)
 			card.set_resting_position(pos, 0)
+		elif num_cards > 1:
+			var step = (max_x - min_x) / (num_cards - 1)
+			for i in range(num_cards):
+				var pos = Vector2(min_x + step * i, hand_center.y)
+				var card : CardBase = hand_zone.get_child(i)
+				card.set_resting_position(pos, 0)
 
 	update_card_counts()
 
@@ -385,9 +390,9 @@ func _on_advance_turn():
 	$OpponentLife.set_turn_indicator(game_logic.active_turn_player == game_logic.opponent)
 
 	if game_logic.active_turn_player == game_logic.player:
-		change_ui_state(UIState.UIState_PickTurnAction)
+		change_ui_state(UIState.UIState_PickTurnAction, UISubState.UISubState_None)
 	else:
-		change_ui_state(UIState.UIState_WaitingOnOpponent)
+		change_ui_state(UIState.UIState_WaitingOnOpponent, UISubState.UISubState_None)
 
 	clear_selected_cards()
 	close_popout()
@@ -395,7 +400,7 @@ func _on_advance_turn():
 func _on_post_boost_action(event):
 	var player = event['event_player']
 	if player == game_logic.player:
-		change_ui_state(UIState.UIState_PickTurnAction)
+		change_ui_state(UIState.UIState_PickTurnAction, UISubState.UISubState_None)
 		clear_selected_cards()
 		close_popout()
 	else:
@@ -543,7 +548,7 @@ func _on_force_start_strike(event):
 	if player == game_logic.player:
 		begin_strike_choosing(false, false)
 	else:
-		ai_do_strike()
+		ai_forced_strike()
 
 func _on_force_wild_swing(_event):
 	printlog("UI: TODO: Play something to indicate forced wild swing.")
@@ -565,13 +570,13 @@ func _on_hand_size_exceeded(event):
 		ai_discard(event)
 
 func change_ui_state(new_state, new_sub_state = null):
-	if new_state:
+	if new_state != null:
 		printlog("UI: State change %s to %s" % [UIState.keys()[ui_state], UIState.keys()[new_state]])
 		ui_state = new_state
 	else:
 		printlog("UI: State = %s" % UIState.keys()[ui_state])
 
-	if new_sub_state:
+	if new_sub_state != null:
 		printlog("UI: Sub state change %s to %s" % [UISubState.keys()[ui_sub_state], UISubState.keys()[new_sub_state]])
 		ui_sub_state = new_sub_state
 	else:
@@ -1094,7 +1099,7 @@ func _on_instructions_cancel_button_pressed():
 			return
 
 	if ui_state == UIState.UIState_SelectArenaLocation and instructions_cancel_allowed:
-		change_ui_state(UIState.UIState_PickTurnAction)
+		change_ui_state(UIState.UIState_PickTurnAction, UISubState.UISubState_None)
 	if ui_state == UIState.UIState_SelectCards and instructions_cancel_allowed:
 		deselect_all_cards()
 		close_popout()
@@ -1102,7 +1107,7 @@ func _on_instructions_cancel_button_pressed():
 			var events = game_logic.do_boost_cancel(game_logic.player, [], false)
 			_handle_events(events)
 		else:
-			change_ui_state(UIState.UIState_PickTurnAction)
+			change_ui_state(UIState.UIState_PickTurnAction, UISubState.UISubState_None)
 
 func _on_wild_swing_button_pressed():
 	if ui_state == UIState.UIState_SelectCards:
@@ -1133,90 +1138,148 @@ func _on_ai_move_button_pressed():
 	elif game_logic.game_state == game_logic.GameState.GameState_Strike_Opponent_Response and game_logic.active_strike.defender == game_logic.opponent:
 		ai_strike_response()
 
+func ai_handle_prepare(game : GameLogic, gameplayer : GameLogic.Player):
+	var events = game.do_prepare(gameplayer)
+	return events
+
+func ai_handle_move(game: GameLogic, gameplayer : GameLogic.Player, action : AIPlayer.MoveAction):
+	var events = []
+	var location = action.location
+	var card_ids = action.force_card_ids
+	events += game.do_move(gameplayer, card_ids, location)
+	return events
+
+func ai_handle_change_cards(game: GameLogic, gameplayer : GameLogic.Player, action : AIPlayer.ChangeCardsAction):
+	var events = []
+	var card_ids = action.card_ids
+	events += game.do_change(gameplayer, card_ids)
+	return events
+
+func ai_handle_exceed(game: GameLogic, gameplayer : GameLogic.Player, action : AIPlayer.ExceedAction):
+	var events = []
+	var card_ids = action.card_ids
+	events += game.do_exceed(gameplayer, card_ids)
+	return events
+
+func ai_handle_reshuffle(game: GameLogic, gameplayer : GameLogic.Player):
+	var events = []
+	events += game.do_reshuffle(gameplayer)
+	return events
+
+func ai_handle_boost_reponse(_events, aiplayer : AIPlayer, game : GameLogic, gameplayer : GameLogic.Player, otherplayer : GameLogic.Player, choice_index):
+	while game.game_state == GameLogic.GameState.GameState_PlayerDecision:
+		if game.decision_type == GameLogic.DecisionType.DecisionType_EffectChoice:
+			_events += game.do_choice(gameplayer, choice_index)
+		elif game.decision_type == GameLogic.DecisionType.DecisionType_CardFromHandToGauge:
+			_events += game.do_card_from_hand_to_gauge(gameplayer, gameplayer.hand[choice_index].id)
+		elif game.decision_type == GameLogic.DecisionType.DecisionType_NameCard_OpponentDiscards:
+			var index = choice_index * 2
+			var card_id = otherplayer.deck_copy[index].id
+			_events += game.do_boost_name_card_choice_effect(gameplayer, card_id)
+			#TODO: Do something with EventType_RevealHand so AI can consume new info.
+		elif game.decision_type == GameLogic.DecisionType.DecisionType_ChooseDiscardContinuousBoost:
+			var card_id = otherplayer.continuous_boosts[choice_index].id
+			_events += game.do_boost_name_card_choice_effect(gameplayer, card_id)
+		elif game.decision_type == GameLogic.DecisionType.DecisionType_BoostCancel:
+			var cost = game.decision_choice
+			var cancel_action = aiplayer.pick_cancel(game, gameplayer, otherplayer, cost)
+			_events += game.do_boost_cancel(gameplayer, cancel_action.card_ids, cancel_action.cancel)
+
+func ai_handle_boost(game: GameLogic, _aiplayer : AIPlayer, gameplayer : GameLogic.Player, _otherplayer : GameLogic.Player, action : AIPlayer.BoostAction):
+	var events = []
+	var card_id = action.card_id
+	#var boost_choice_index = action.boost_choice_index
+	events += game.do_boost(gameplayer, card_id)
+	#TODO: Should this be grouped somehow? Save the choice from the original decision instead of asking again?
+	#ai_handle_boost_reponse(events, aiplayer, game, gameplayer, otherplayer, boost_choice_index)
+	return events
+
+func ai_handle_strike(game: GameLogic, gameplayer : GameLogic.Player, action : AIPlayer.StrikeAction):
+	var events = []
+	var card_id = action.card_id
+	var ex_card_id = action.ex_card_id
+	var wild_swing = action.wild_swing
+	events += game.do_strike(gameplayer, card_id, wild_swing, ex_card_id)
+	return events
+
 func ai_take_turn():
-	ai_player.take_turn(game_logic, game_logic.opponent, game_logic.player)
-	var events = game_logic.do_prepare(game_logic.opponent)
+	var events = []
+	var turn_action = ai_player.take_turn(game_logic, game_logic.opponent, game_logic.player)
+	if turn_action is AIPlayer.PrepareAction:
+		events += ai_handle_prepare(game_logic, game_logic.opponent)
+	elif turn_action is AIPlayer.MoveAction:
+		events += ai_handle_move(game_logic, game_logic.opponent, turn_action)
+	elif turn_action is AIPlayer.ChangeCardsAction:
+		events += ai_handle_change_cards(game_logic, game_logic.opponent, turn_action)
+	elif turn_action is AIPlayer.ExceedAction:
+		events += ai_handle_exceed(game_logic, game_logic.opponent, turn_action)
+	elif turn_action is AIPlayer.ReshuffleAction:
+		events += ai_handle_reshuffle(game_logic, game_logic.opponent)
+	elif turn_action is AIPlayer.BoostAction:
+		events += ai_handle_boost(game_logic, ai_player, game_logic.opponent, game_logic.player, turn_action)
+	elif turn_action is AIPlayer.StrikeAction:
+		events += ai_handle_strike(game_logic, game_logic.opponent, turn_action)
+	else:
+		assert(false, "Unknown turn action: %s" % turn_action)
+
 	_handle_events(events)
 
 func ai_pay_cost(event):
-	var gauge_cost = game_logic.get_card_gauge_cost(event['number'])
-	ai_player.pay_strike_gauge_cost(game_logic, game_logic.opponent, game_logic.player, gauge_cost, game_logic.decision_type == game_logic.DecisionType.DecisionType_PayStrikeCost_CanWild)
 	var events = []
-	if len(game_logic.opponent.gauge) >= gauge_cost:
-		var selected_card_ids = []
-		for i in range(gauge_cost):
-			selected_card_ids.append(game_logic.opponent.gauge[i].id)
-		events = game_logic.do_pay_strike_cost(game_logic.opponent, selected_card_ids, false)
-	else:
-		events = game_logic.do_pay_strike_cost(game_logic.opponent, [], true)
+	var can_wild = game_logic.decision_type == GameLogic.DecisionType.DecisionType_PayStrikeCost_CanWild
+	var cost = game_logic.get_card_gauge_cost(event['number'])
+	var pay_action = ai_player.pay_strike_gauge_cost(game_logic, game_logic.opponent, game_logic.player, cost, can_wild)
+	events += game_logic.do_pay_strike_cost(game_logic.decision_player, pay_action.card_ids, pay_action.wild_swing)
 	_handle_events(events)
 
 func ai_effect_choice(_event):
-	ai_player.pick_effect_choice(game_logic, game_logic.opponent, game_logic.player)
-	var events = game_logic.do_choice(game_logic.opponent, 0)
+	var effect_action = ai_player.pick_effect_choice(game_logic, game_logic.opponent, game_logic.player)
+	var events = game_logic.do_choice(game_logic.opponent, effect_action.choice)
 	_handle_events(events)
 
 func ai_force_for_armor(_event):
-	ai_player.pick_force_for_armor(game_logic, game_logic.opponent, game_logic.player)
-	var events = game_logic.do_force_for_armor(game_logic.opponent, [])
+	var forceforarmor_action = ai_player.pick_force_for_armor(game_logic, game_logic.opponent, game_logic.player)
+	var events = game_logic.do_force_for_armor(game_logic.opponent, forceforarmor_action.card_ids)
 	_handle_events(events)
 
 func ai_strike_response():
-	ai_player.pick_strike_response(game_logic, game_logic.opponent, game_logic.player)
-	var card = game_logic.opponent.hand[0]
-	var events = game_logic.do_strike(game_logic.opponent, card.id, false, -1)
+	var response_action = ai_player.pick_strike_response(game_logic, game_logic.opponent, game_logic.player)
+	var events = game_logic.do_strike(game_logic.opponent, response_action.card_id, response_action.wild_swing, response_action.ex_card_id)
 	_handle_events(events)
 
 func ai_discard(event):
-	ai_player.pick_discard_to_max(game_logic, game_logic.opponent, game_logic.player, event['number'])
-	var to_discard = []
-	for i in range(event['number']):
-		to_discard.append(game_logic.opponent.hand[i].id)
-	var events = game_logic.do_discard_to_max(game_logic.opponent, to_discard)
+	var discard_action = ai_player.pick_discard_to_max(game_logic, game_logic.opponent, game_logic.player, event['number'])
+	var events = game_logic.do_discard_to_max(game_logic.opponent, discard_action.card_ids)
 	_handle_events(events)
 
-func ai_do_strike():
-	ai_player.pick_strike(game_logic, game_logic.opponent, game_logic.player)
-	var hand = game_logic.opponent.hand
-	var events = []
-	if len(hand) > 0:
-		var card = hand[0]
-		events = game_logic.do_strike(game_logic.opponent, card.id, false, -1)
-	else:
-		events = game_logic.do_strike(game_logic.opponent, -1, true, -1)
-
+func ai_forced_strike():
+	var strike_action = ai_player.pick_strike(game_logic, game_logic.opponent, game_logic.player)
+	var events = ai_handle_strike(game_logic, game_logic.opponent, strike_action)
 	_handle_events(events)
 
 func ai_boost_cancel_decision(gauge_cost):
-	ai_player.pick_cancel(game_logic, game_logic.opponent, game_logic.player, gauge_cost)
-	var events = game_logic.do_boost_cancel(game_logic.opponent, [], false)
+	var cancel_action = ai_player.pick_cancel(game_logic, game_logic.opponent, game_logic.player, gauge_cost)
+	var events = game_logic.do_boost_cancel(game_logic.opponent, cancel_action.card_ids, cancel_action.cancel)
 	_handle_events(events)
 
 func ai_discard_continuous_boost():
-	ai_player.pick_discard_continuous(game_logic, game_logic.opponent, game_logic.player)
-	var card_id = game_logic.player.continuous_boosts[0].id
-	var events = game_logic.do_boost_name_card_choice_effect(game_logic.opponent, card_id)
+	var pick_action = ai_player.pick_discard_continuous(game_logic, game_logic.opponent, game_logic.player)
+	var events = game_logic.do_boost_name_card_choice_effect(game_logic.opponent, pick_action.card_id)
 	_handle_events(events)
 
 func ai_name_opponent_card():
-	ai_player.pick_name_opponent_card(game_logic, game_logic.opponent, game_logic.player)
-	var card : CardBase = $AllCards/PlayerAllCopy.get_child(0)
-	var real_id = card.card_id - ReferenceScreenIdRangeStart
-	var events = game_logic.do_boost_name_card_choice_effect(game_logic.opponent, real_id)
+	var pick_action = ai_player.pick_name_opponent_card(game_logic, game_logic.opponent, game_logic.player)
+	var events = game_logic.do_boost_name_card_choice_effect(game_logic.opponent, pick_action.card_id)
 	_handle_events(events)
 
 func ai_choose_card_hand_to_gauge():
-	ai_player.pick_card_hand_to_gauge(game_logic, game_logic.opponent, game_logic.player)
-	var card_id = game_logic.opponent.hand[0].id
-	var events = game_logic.do_card_from_hand_to_gauge(game_logic.opponent, card_id)
+	var cardfromhandtogauge_action = ai_player.pick_card_hand_to_gauge(game_logic, game_logic.opponent, game_logic.player)
+	var events = game_logic.do_card_from_hand_to_gauge(game_logic.opponent, cardfromhandtogauge_action.card_id)
 	_handle_events(events)
 
 func ai_mulligan_decision():
-	ai_player.pick_mulligan(game_logic, game_logic.opponent, game_logic.player)
-	var ids : Array[int] = []
-	for card in game_logic.opponent.hand:
-		ids.append(card.id)
-	var events = game_logic.do_mulligan(game_logic.opponent, ids)
+	var mulligan_action = ai_player.pick_mulligan(game_logic, game_logic.opponent, game_logic.player)
+	var events = game_logic.do_mulligan(game_logic.opponent, mulligan_action.card_ids)
 	_handle_events(events)
 
 # Popout Functions
