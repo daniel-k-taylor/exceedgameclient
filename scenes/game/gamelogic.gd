@@ -993,19 +993,11 @@ func get_boost_effects_at_timing(timing_name : String, performing_player : Playe
 		for effect in boost_card.definition['boost']['effects']:
 			if effect['timing'] == timing_name:
 				effects.append(effect)
-	for boost_card in other_player(performing_player).continuous_boosts:
-		for effect in boost_card.definition['boost']['effects']:
-			if effect['timing'] == timing_name:
-				effects.append(effect)
 	return effects
 
 func get_boost_card_ids_for_effects_at_timing(timing_name : String, performing_player : Player):
 	var card_ids = []
 	for boost_card in performing_player.continuous_boosts:
-		for effect in boost_card.definition['boost']['effects']:
-			if effect['timing'] == timing_name:
-				card_ids.append(boost_card.id)
-	for boost_card in other_player(performing_player).continuous_boosts:
 		for effect in boost_card.definition['boost']['effects']:
 			if effect['timing'] == timing_name:
 				card_ids.append(boost_card.id)

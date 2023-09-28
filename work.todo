@@ -4,6 +4,7 @@ In progress:
 
 Tasks:
     Main Features:
+        ☐ Delay between events so you can see what happens
     Tests:
         ☐ Strike
         ☐ Boost
@@ -20,7 +21,6 @@ Tasks:
     Misc/Low pri:
         ☐ Allow spending ultra for 1 force
         ☐ Sum continuous boost stat bonuses into a single line
-        ☐ Delay between events so you can see what happens
         ☐ Visual showing you have shuffled once
         ☐ Boost zone panel formatting/change size with text. - Should scroll?
         ☐ Highlight cards based on mouse position in the zone instead of hovering the actual card

@@ -6,6 +6,7 @@ const GameLogic = preload("res://scenes/game/gamelogic.gd")
 const CardPopout = preload("res://scenes/game/card_popout.gd")
 const GaugePanel = preload("res://scenes/game/gauge_panel.gd")
 const CharacterCardBase = preload("res://scenes/card/character_card_base.gd")
+const AIPlayer = preload("res://scenes/game/ai_player.gd")
 
 const OffScreen = Vector2(-1000, -1000)
 const ReferenceScreenIdRangeStart = 90000
@@ -69,6 +70,7 @@ var ui_sub_state : UISubState = UISubState.UISubState_None
 @onready var opponent_card_count = $OpponentDeck/DeckButton/CardCountContainer/VBoxContainer/CardCount
 @onready var game_over_stuff = $GameOverStuff
 @onready var game_over_label = $GameOverStuff/GameOverLabel
+@onready var ai_player : AIPlayer = $AIPlayer
 
 @onready var CenterCardOval = Vector2(get_viewport().content_scale_size) * Vector2(0.5, 1.25)
 @onready var HorizontalRadius = get_viewport().content_scale_size.x * 0.45
@@ -1131,6 +1133,7 @@ func _on_ai_move_button_pressed():
 		ai_strike_response()
 
 func ai_take_turn():
+	ai_player.take_turn(game_logic, game_logic.opponent, game_logic.player)
 	var events = game_logic.do_prepare(game_logic.opponent)
 	_handle_events(events)
 
@@ -1205,13 +1208,13 @@ func ai_mulligan_decision():
 	var events = game_logic.do_mulligan(game_logic.opponent, ids)
 	_handle_events(events)
 
+# Popout Functions
 func card_in_selected_cards(card):
 	for selected_card in selected_cards:
 		if selected_card.card_id == card.card_id:
 			return true
 	return false
 
-# Popout Functions
 func _update_popout_cards(cards_in_popout : Array, not_visible_position : Vector2, card_return_state : CardBase.CardState):
 	card_popout.set_amount(len(cards_in_popout))
 	if card_popout.visible:

@@ -1,4 +1,4 @@
-[gd_scene load_steps=18 format=3 uid="uid://3s3pkqggaa2q"]
+[gd_scene load_steps=19 format=3 uid="uid://3s3pkqggaa2q"]
 
 [ext_resource type="Script" path="res://scenes/game/game.gd" id="1_4f5jr"]
 [ext_resource type="Script" path="res://scenes/game/gamelogic.gd" id="2_cjkiw"]
@@ -16,6 +16,7 @@
 [ext_resource type="PackedScene" uid="uid://dxtsdthw5sxbc" path="res://scenes/game/card_popout.tscn" id="14_lyeqj"]
 [ext_resource type="Texture2D" uid="uid://ded5jrn5yju2j" path="res://assets/cards/card_border_highlight_pressed.png" id="16_laiwo"]
 [ext_resource type="Texture2D" uid="uid://mn1hj4i3k7l7" path="res://assets/cards/card_border_highlight_selected.png" id="17_rr8uh"]
+[ext_resource type="Script" path="res://scenes/game/ai_player.gd" id="18_hlntt"]
 [ext_resource type="PackedScene" uid="uid://dvan4a8ftuplj" path="res://scenes/card/character_card_base.tscn" id="18_imast"]
 
 [node name="GameScene" type="Node2D"]
@@ -610,6 +611,9 @@ theme_override_colors/font_color = Color(1, 1, 1, 1)
 theme_override_font_sizes/font_size = 64
 text = "DEFEAT"
 horizontal_alignment = 1
+
+[node name="AIPlayer" type="Node2D" parent="."]
+script = ExtResource("18_hlntt")
 
 [connection signal="pressed" from="StaticUI/StaticUIVBox/TopMargin/AIMoveButton" to="." method="_on_ai_move_button_pressed"]
 [connection signal="pressed" from="StaticUI/StaticUIVBox/Arena/ArenaSquare1/Border" to="." method="_on_arena_location_pressed" binds= [1]]
