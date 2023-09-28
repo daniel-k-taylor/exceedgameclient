@@ -1539,6 +1539,9 @@ func do_strike(performing_player : Player, card_id : int, wild_strike: bool, ex_
 	if ex_card_id != -1 and not performing_player.is_card_in_hand(ex_card_id):
 		printlog("ERROR: Tried to strike with a ex card not in hand.")
 		return []
+	if ex_card_id != -1 and not are_same_card(card_id, ex_card_id):
+		printlog("ERROR: Tried to strike with a ex card that doesn't match.")
+		return []
 
 	# Begin the strike
 	var events = []

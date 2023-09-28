@@ -403,11 +403,11 @@ func _on_post_boost_action(event):
 
 func _on_boost_cancel_decision(event):
 	var player = event['event_player']
+	var gauge_cost = event['number']
 	if player == game_logic.player:
-		var gauge_cost = event['number']
 		begin_gauge_selection(gauge_cost, false, UISubState.UISubState_SelectCards_BoostCancel)
 	else:
-		ai_boost_cancel_decision()
+		ai_boost_cancel_decision(gauge_cost)
 
 func _on_continuous_boost_added(event):
 	var card = find_card_on_board(event['number'])
@@ -712,6 +712,7 @@ func _on_reshuffle_discard(event):
 		for card in cards:
 			card.get_parent().remove_child(card)
 			$AllCards/OpponentDeck.add_child(card)
+			card.flip_card_to_front(false)
 			card.position = OffScreen
 			card.reset()
 	close_popout()
@@ -1137,33 +1138,37 @@ func ai_take_turn():
 	var events = game_logic.do_prepare(game_logic.opponent)
 	_handle_events(events)
 
-func ai_pay_cost(_event):
-	var gauge_cost = game_logic.get_card_gauge_cost(_event['number'])
+func ai_pay_cost(event):
+	var gauge_cost = game_logic.get_card_gauge_cost(event['number'])
+	ai_player.pay_strike_gauge_cost(game_logic, game_logic.opponent, game_logic.player, gauge_cost, game_logic.decision_type == game_logic.DecisionType.DecisionType_PayStrikeCost_CanWild)
 	var events = []
 	if len(game_logic.opponent.gauge) >= gauge_cost:
 		var selected_card_ids = []
 		for i in range(gauge_cost):
 			selected_card_ids.append(game_logic.opponent.gauge[i].id)
 		events = game_logic.do_pay_strike_cost(game_logic.opponent, selected_card_ids, false)
-		_handle_events(events)
 	else:
 		events = game_logic.do_pay_strike_cost(game_logic.opponent, [], true)
 	_handle_events(events)
 
 func ai_effect_choice(_event):
+	ai_player.pick_effect_choice(game_logic, game_logic.opponent, game_logic.player)
 	var events = game_logic.do_choice(game_logic.opponent, 0)
 	_handle_events(events)
 
 func ai_force_for_armor(_event):
+	ai_player.pick_force_for_armor(game_logic, game_logic.opponent, game_logic.player)
 	var events = game_logic.do_force_for_armor(game_logic.opponent, [])
 	_handle_events(events)
 
 func ai_strike_response():
+	ai_player.pick_strike_response(game_logic, game_logic.opponent, game_logic.player)
 	var card = game_logic.opponent.hand[0]
 	var events = game_logic.do_strike(game_logic.opponent, card.id, false, -1)
 	_handle_events(events)
 
 func ai_discard(event):
+	ai_player.pick_discard_to_max(game_logic, game_logic.opponent, game_logic.player, event['number'])
 	var to_discard = []
 	for i in range(event['number']):
 		to_discard.append(game_logic.opponent.hand[i].id)
@@ -1171,6 +1176,7 @@ func ai_discard(event):
 	_handle_events(events)
 
 func ai_do_strike():
+	ai_player.pick_strike(game_logic, game_logic.opponent, game_logic.player)
 	var hand = game_logic.opponent.hand
 	var events = []
 	if len(hand) > 0:
@@ -1181,27 +1187,32 @@ func ai_do_strike():
 
 	_handle_events(events)
 
-func ai_boost_cancel_decision():
+func ai_boost_cancel_decision(gauge_cost):
+	ai_player.pick_cancel(game_logic, game_logic.opponent, game_logic.player, gauge_cost)
 	var events = game_logic.do_boost_cancel(game_logic.opponent, [], false)
 	_handle_events(events)
 
 func ai_discard_continuous_boost():
+	ai_player.pick_discard_continuous(game_logic, game_logic.opponent, game_logic.player)
 	var card_id = game_logic.player.continuous_boosts[0].id
 	var events = game_logic.do_boost_name_card_choice_effect(game_logic.opponent, card_id)
 	_handle_events(events)
 
 func ai_name_opponent_card():
+	ai_player.pick_name_opponent_card(game_logic, game_logic.opponent, game_logic.player)
 	var card : CardBase = $AllCards/PlayerAllCopy.get_child(0)
 	var real_id = card.card_id - ReferenceScreenIdRangeStart
 	var events = game_logic.do_boost_name_card_choice_effect(game_logic.opponent, real_id)
 	_handle_events(events)
 
 func ai_choose_card_hand_to_gauge():
+	ai_player.pick_card_hand_to_gauge(game_logic, game_logic.opponent, game_logic.player)
 	var card_id = game_logic.opponent.hand[0].id
 	var events = game_logic.do_card_from_hand_to_gauge(game_logic.opponent, card_id)
 	_handle_events(events)
 
 func ai_mulligan_decision():
+	ai_player.pick_mulligan(game_logic, game_logic.opponent, game_logic.player)
 	var ids : Array[int] = []
 	for card in game_logic.opponent.hand:
 		ids.append(card.id)
