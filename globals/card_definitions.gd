@@ -49,7 +49,7 @@ func get_choice_summary(choice):
 			effect_summaries.append(current_summary)
 
 		if 'amount' in effect:
-			if not current_summary.min_value:
+			if current_summary.min_value == null:
 				current_summary.min_value = effect['amount']
 				current_summary.max_value = effect['amount']
 			else:
@@ -63,7 +63,7 @@ func get_choice_summary(choice):
 		var effect_summary = effect_summaries[i]
 		if i > 0:
 			summary_text += " or "
-		if effect_summary.min_value:
+		if effect_summary.min_value != null:
 			summary_text += get_effect_type_heading(effect_summary.effect) + str(effect_summary.min_value) + "-" + str(effect_summary.max_value)
 		else:
 			# No amount, so just use the full effect text
@@ -164,7 +164,7 @@ func get_effect_type_text(effect):
 			effect_str += "Close " + str(effect['amount'])
 		"discard_continuous_boost":
 			effect_str += "Discard a continuous boost."
-		"dodge_sttacks":
+		"dodge_attacks":
 			effect_str += "Opponent misses."
 		"draw":
 			effect_str += "Draw " + str(effect['amount'])

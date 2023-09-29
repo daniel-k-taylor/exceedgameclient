@@ -1,29 +1,74 @@
-[gd_scene load_steps=3 format=3 uid="uid://1624xgdxrrg5"]
+[gd_scene load_steps=7 format=3 uid="uid://1624xgdxrrg5"]
 
 [ext_resource type="Script" path="res://scenes/game/life_scene.gd" id="1_y33ag"]
 [ext_resource type="Texture2D" uid="uid://dal2ec8wws714" path="res://icon.svg" id="2_xwmtm"]
+[ext_resource type="PackedScene" uid="uid://e4xwxbolj4qq" path="res://scenes/game/health_bar.tscn" id="3_oy06u"]
+[ext_resource type="Texture2D" uid="uid://d4h7c1xe0swhb" path="res://assets/icons/deck.png" id="4_klaii"]
+[ext_resource type="Texture2D" uid="uid://b5vet26fq1tu3" path="res://assets/icons/heart.png" id="4_seqfq"]
+[ext_resource type="Texture2D" uid="uid://6sicwpq2w288" path="res://assets/icons/discard.png" id="5_nefgv"]
 
 [node name="LifeScene" type="Control"]
 layout_mode = 3
 anchors_preset = 0
 script = ExtResource("1_y33ag")
 
-[node name="LifeHBox" type="HBoxContainer" parent="."]
-layout_mode = 0
-offset_right = 109.0
-offset_bottom = 49.0
-
-[node name="TurnIndicator" type="TextureRect" parent="LifeHBox"]
+[node name="TurnIndicator" type="TextureRect" parent="."]
 layout_mode = 2
+offset_left = -55.0
+offset_top = -9.0
+offset_right = -6.0
+offset_bottom = 40.0
 texture = ExtResource("2_xwmtm")
 expand_mode = 3
 
-[node name="Label" type="Label" parent="LifeHBox"]
-layout_mode = 2
-theme_override_font_sizes/font_size = 32
-text = "LIFE:"
+[node name="HealthBar" parent="." instance=ExtResource("3_oy06u")]
 
-[node name="Amount" type="Label" parent="LifeHBox"]
+[node name="CardInfoBox" type="HBoxContainer" parent="."]
+custom_minimum_size = Vector2(0, 48)
+layout_mode = 0
+offset_top = 38.0
+offset_right = 266.0
+offset_bottom = 86.0
+scale = Vector2(0.75, 0.75)
+
+[node name="HPIcon" type="TextureRect" parent="CardInfoBox"]
 layout_mode = 2
+tooltip_text = "Health"
+texture = ExtResource("4_seqfq")
+expand_mode = 3
+stretch_mode = 4
+
+[node name="HPLabel" type="Label" parent="CardInfoBox"]
+layout_mode = 2
+tooltip_text = "Health"
+mouse_filter = 1
 theme_override_font_sizes/font_size = 32
-text = "##"
+text = "88"
+
+[node name="DeckIcon" type="TextureRect" parent="CardInfoBox"]
+layout_mode = 2
+tooltip_text = "Cards in Deck"
+texture = ExtResource("4_klaii")
+expand_mode = 3
+stretch_mode = 4
+
+[node name="DeckLabel" type="Label" parent="CardInfoBox"]
+layout_mode = 2
+tooltip_text = "Cards in Deck"
+mouse_filter = 1
+theme_override_font_sizes/font_size = 32
+text = "88"
+
+[node name="DiscardIcon" type="TextureRect" parent="CardInfoBox"]
+layout_mode = 2
+tooltip_text = "Cards in Discard"
+texture = ExtResource("5_nefgv")
+expand_mode = 2
+stretch_mode = 4
+
+[node name="DiscardLabel" type="Label" parent="CardInfoBox"]
+layout_mode = 2
+tooltip_text = "Cards in Discard"
+mouse_filter = 1
+theme_override_font_sizes/font_size = 32
+text = "88"

@@ -274,11 +274,11 @@ func draw_card(card_id : int, is_player : bool):
 func update_card_counts():
 	$OpponentHand/OpponentHandBox/OpponentNumCards.text = str(len(game_logic.opponent.hand))
 
-	player_card_count.text = str(len(game_logic.player.deck))
-	opponent_card_count.text = str(len(game_logic.opponent.deck))
+	$PlayerLife.set_deck_size(len(game_logic.player.deck))
+	$OpponentLife.set_deck_size(len(game_logic.opponent.deck))
 
-	$PlayerDeck/DiscardCount.text = str(len(game_logic.player.discards))
-	$OpponentDeck/DiscardCount.text = str(len(game_logic.opponent.discards))
+	$PlayerLife.set_discard_size(len(game_logic.player.discards))
+	$OpponentLife.set_discard_size(len(game_logic.opponent.discards))
 
 	$PlayerGauge.set_details(len(game_logic.player.gauge))
 	$OpponentGauge.set_details(len(game_logic.opponent.gauge))
@@ -424,6 +424,10 @@ func layout_player_hand(is_player : bool):
 			card.set_resting_position(pos, 0)
 		elif num_cards > 1:
 			var step = (max_x - min_x) / (num_cards - 1)
+			step = min(step, 100)
+			var new_diff = step * (num_cards - 1)
+			max_x = hand_center.x + new_diff / 2
+			min_x = hand_center.x - new_diff / 2
 			for i in range(num_cards):
 				var pos = Vector2(min_x + step * i, hand_center.y)
 				var card : CardBase = hand_zone.get_child(i)

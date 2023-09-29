@@ -1,0 +1,50 @@
+[gd_scene load_steps=8 format=3 uid="uid://e4xwxbolj4qq"]
+
+[ext_resource type="Script" path="res://scenes/game/health_bar.gd" id="1_xx7dr"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_j7rgd"]
+bg_color = Color(0.0980392, 0.0980392, 0.0980392, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_rlm1w"]
+bg_color = Color(0.364706, 0.364706, 0.364706, 0.8)
+
+[sub_resource type="Gradient" id="Gradient_q3nqv"]
+colors = PackedColorArray(1, 0.518123, 0.45217, 1, 0.82154, 0.71184, 0.264684, 1)
+
+[sub_resource type="GradientTexture1D" id="GradientTexture1D_14u7n"]
+gradient = SubResource("Gradient_q3nqv")
+
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_m3qji"]
+content_margin_left = 5.0
+content_margin_top = 5.0
+content_margin_right = 5.0
+content_margin_bottom = 5.0
+texture = SubResource("GradientTexture1D_14u7n")
+
+[sub_resource type="Theme" id="Theme_2b0hr"]
+ProgressBar/styles/background = SubResource("StyleBoxFlat_rlm1w")
+ProgressBar/styles/fill = SubResource("StyleBoxTexture_m3qji")
+
+[node name="HealthBar" type="Node2D"]
+script = ExtResource("1_xx7dr")
+
+[node name="BackgroundPanel" type="PanelContainer" parent="."]
+offset_right = 200.0
+offset_bottom = 35.0
+theme_override_styles/panel = SubResource("StyleBoxFlat_j7rgd")
+
+[node name="Margin" type="MarginContainer" parent="BackgroundPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 5
+theme_override_constants/margin_top = 5
+theme_override_constants/margin_right = 5
+theme_override_constants/margin_bottom = 5
+
+[node name="HealthProgressBar" type="ProgressBar" parent="BackgroundPanel/Margin"]
+layout_mode = 2
+size_flags_vertical = 1
+theme = SubResource("Theme_2b0hr")
+theme_override_font_sizes/font_size = 20
+max_value = 30.0
+step = 1.0
+show_percentage = false

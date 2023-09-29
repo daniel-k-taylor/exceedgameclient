@@ -1,8 +1,8 @@
 
 In progress:
-    ☐ Health bar for life
-        ☐ Icon under it for reshuffles
-
+    Easy visual polish:
+        ☐ Make exceed show a visual effect behind character (power aura on floor?)
+        ☐ Make the arena look more like a flat rectangle instead of square
 Tasks:
     Main Features:
 
@@ -16,17 +16,15 @@ Tasks:
         ☐ Change cards
     Networking:
         ☐ Build out server that is game logic host (use python?)
-    Easy visual polish:
-        ☐ Make exceed show a visual effect behind character (power aura on floor?)
-        ☐ Make the arena look more like a flat rectangle instead of square
     Misc/Low pri:
         ☐ Allow spending ultra for 1 force
             ☐ minus button above selected ultra card
         ☐ Sum continuous boost stat bonuses into a single line
-        ☐ Visual showing you have shuffled once
+        ☐ Visual showing you have shuffled once (near health bar?)
         ☐ Boost zone panel formatting/change size with text. - Should scroll?
         ☐ Highlight cards based on mouse position in the zone instead of hovering the actual card
         ☐ Tweak timings on animation lengths
+        ☐ red temp health when damaged that slowly goes away
         Card Visuals are poor:
             ☐ Effect text is ugly
             ☐ Hard to read anything
