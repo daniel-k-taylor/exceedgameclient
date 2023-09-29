@@ -38,7 +38,9 @@ func before_each():
 
 func after_each():
 	game_logic.free()
+	ai1.ai_policy.free()
 	ai1.free()
+	ai2.ai_policy.free()
 	ai2.free()
 	gut.p("ran teardown", 2)
 

@@ -4,9 +4,9 @@ const GameLogic = preload("res://scenes/game/gamelogic.gd")
 const AIPolicyRandom = preload("res://scenes/game/ai/ai_policy_random.gd")
 
 var game_player : GameLogic.Player
-@onready var game_state : AIGameState = AIGameState.new()
+var game_state : AIGameState = AIGameState.new()
 
-@onready var ai_policy = AIPolicyRandom.new()
+var ai_policy = AIPolicyRandom.new()
 
 func set_ai_policy(new_policy):
 	ai_policy = new_policy

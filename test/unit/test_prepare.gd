@@ -59,11 +59,11 @@ func test_prepare_action():
 	var events = game_logic.do_prepare(current_player)
 
 	# Validate
-	assert_eq(len(events), 3)
-	if len(events) != 3: return
-	validate_draw_event_for_player(events[0], current_player, expected_cards[0])
-	validate_draw_event_for_player(events[1], current_player, expected_cards[1])
-	validate_advance_turn(events[2], game_logic.other_player(current_player))
+	assert_eq(len(events), 4)
+	if len(events) != 4: return
+	validate_draw_event_for_player(events[1], current_player, expected_cards[0])
+	validate_draw_event_for_player(events[2], current_player, expected_cards[1])
+	validate_advance_turn(events[3], game_logic.other_player(current_player))
 	assert_eq(game_logic.game_state, game_logic.GameState.GameState_PickAction)
 	assert_ne(current_player, game_logic.active_turn_player)
 	assert_eq(len(current_player.hand), len(hand_cards) + 2)
@@ -81,12 +81,12 @@ func test_prepare_action():
 	expected_cards.append(other_player.deck[0])
 	expected_cards.append(other_player.deck[1])
 	events = game_logic.do_prepare(other_player)
-	assert_eq(len(events), 3)
-	if len(events) != 3: return
-	validate_draw_event_for_player(events[0], other_player, expected_cards[0])
-	validate_draw_event_for_player(events[1], other_player, expected_cards[1])
+	assert_eq(len(events), 4)
+	if len(events) != 4: return
+	validate_draw_event_for_player(events[1], other_player, expected_cards[0])
+	validate_draw_event_for_player(events[2], other_player, expected_cards[1])
 	assert_eq(game_logic.game_state, game_logic.GameState.GameState_DiscardDownToMax)
-	validate_hand_exceeded(events[2], other_player, 1)
+	validate_hand_exceeded(events[3], other_player, 1)
 	for card in expected_cards:
 		assert_true(card in other_player.hand)
 	for card in hand_cards:
@@ -115,12 +115,12 @@ func test_prepare_action():
 	expected_cards.append(current_player.deck[0])
 	expected_cards.append(current_player.deck[1])
 	events = game_logic.do_prepare(current_player)
-	assert_eq(len(events), 3)
-	if len(events) != 3: return
-	validate_draw_event_for_player(events[0], current_player, expected_cards[0])
-	validate_draw_event_for_player(events[1], current_player, expected_cards[1])
+	assert_eq(len(events), 4)
+	if len(events) != 4: return
+	validate_draw_event_for_player(events[1], current_player, expected_cards[0])
+	validate_draw_event_for_player(events[2], current_player, expected_cards[1])
 	assert_eq(game_logic.game_state, game_logic.GameState.GameState_DiscardDownToMax)
-	validate_hand_exceeded(events[2], current_player, 2)
+	validate_hand_exceeded(events[3], current_player, 2)
 	for card in expected_cards:
 		assert_true(card in current_player.hand)
 	for card in hand_cards:

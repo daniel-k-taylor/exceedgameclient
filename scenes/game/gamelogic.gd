@@ -479,15 +479,16 @@ class Player:
 		# Get top card of deck (reshuffle if needed)
 		if len(deck) == 0:
 			events += reshuffle_discard()
-		var card_id = deck[0].id
-		if parent.active_strike.initiator == self:
-			parent.active_strike.initiator_card = deck[0]
-			parent.active_strike.initiator_wild_strike = true
-		else:
-			parent.active_strike.defender_card = deck[0]
-			parent.active_strike.defender_wild_strike = true
-		deck.remove_at(0)
-		events += [parent.create_event(EventType.EventType_Strike_WildStrike, self, card_id)]
+		if not parent.game_over:
+			var card_id = deck[0].id
+			if parent.active_strike.initiator == self:
+				parent.active_strike.initiator_card = deck[0]
+				parent.active_strike.initiator_wild_strike = true
+			else:
+				parent.active_strike.defender_card = deck[0]
+				parent.active_strike.defender_wild_strike = true
+			deck.remove_at(0)
+			events += [parent.create_event(EventType.EventType_Strike_WildStrike, self, card_id)]
 		return events
 
 	func add_to_gauge(card: Card):
@@ -1586,6 +1587,8 @@ func do_strike(performing_player : Player, card_id : int, wild_strike: bool, ex_
 			active_strike.initiator = performing_player
 			if wild_strike:
 				events += performing_player.wild_strike()
+				if game_over:
+					return events
 				card_id = active_strike.initiator_card.id
 			else:
 				active_strike.initiator_card = get_card(card_id)
@@ -1605,6 +1608,8 @@ func do_strike(performing_player : Player, card_id : int, wild_strike: bool, ex_
 		GameState.GameState_Strike_Opponent_Response:
 			if wild_strike:
 				events += performing_player.wild_strike()
+				if game_over:
+					return events
 				card_id = active_strike.defender_card.id
 			else:
 				active_strike.defender_card = get_card(card_id)
