@@ -1,4 +1,4 @@
-[gd_scene load_steps=7 format=3 uid="uid://1624xgdxrrg5"]
+[gd_scene load_steps=8 format=3 uid="uid://1624xgdxrrg5"]
 
 [ext_resource type="Script" path="res://scenes/game/life_scene.gd" id="1_y33ag"]
 [ext_resource type="Texture2D" uid="uid://dal2ec8wws714" path="res://icon.svg" id="2_xwmtm"]
@@ -6,6 +6,7 @@
 [ext_resource type="Texture2D" uid="uid://d4h7c1xe0swhb" path="res://assets/icons/deck.png" id="4_klaii"]
 [ext_resource type="Texture2D" uid="uid://b5vet26fq1tu3" path="res://assets/icons/heart.png" id="4_seqfq"]
 [ext_resource type="Texture2D" uid="uid://6sicwpq2w288" path="res://assets/icons/discard.png" id="5_nefgv"]
+[ext_resource type="Texture2D" uid="uid://bbb0fvvpbx3bs" path="res://assets/icons/discard_x.png" id="7_rvxxq"]
 
 [node name="LifeScene" type="Control"]
 layout_mode = 3
@@ -61,8 +62,17 @@ text = "88"
 
 [node name="DiscardIcon" type="TextureRect" parent="CardInfoBox"]
 layout_mode = 2
-tooltip_text = "Cards in Discard"
+tooltip_text = "Cards in Discard
+Reshuffle Available"
 texture = ExtResource("5_nefgv")
+expand_mode = 2
+stretch_mode = 4
+
+[node name="DiscardXIcon" type="TextureRect" parent="CardInfoBox"]
+layout_mode = 2
+tooltip_text = "Cards in discard
+No Reshuffles"
+texture = ExtResource("7_rvxxq")
 expand_mode = 2
 stretch_mode = 4
 

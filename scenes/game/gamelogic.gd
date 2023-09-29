@@ -104,18 +104,17 @@ enum EventType {
 func printlog(text):
 	print(text)
 
-func create_event(event_type : EventType, event_player : Player, num : int):
+func create_event(event_type : EventType, event_player : Player, num : int, reason: String = "", extra_info = null):
 	var card_name = get_card_name(num)
 	printlog("Event %s %s %d (card=%s)" % [EventType.keys()[event_type], event_player.name, num, card_name])
 	return {
 		"event_type": event_type,
 		"event_player": event_player,
 		"number": num,
-		"early_exit": event_type == EventType.EventType_GameOver
+		"reason": reason,
+		"extra_info": extra_info,
 	}
 
-func should_exit(events):
-	return events[len(events) - 1]['early_exit']
 
 enum StrikeState {
 	StrikeState_Initiator_PayCosts,
@@ -530,7 +529,7 @@ class Player:
 	func move_to(new_arena_location):
 		var events = []
 		arena_location = new_arena_location
-		events += [parent.create_event(EventType.EventType_Move, self, new_arena_location)]
+		events += [parent.create_event(EventType.EventType_Move, self, new_arena_location, "move")]
 		return events
 
 	func close(amount):
@@ -542,7 +541,7 @@ class Player:
 		else:
 			new_location = max(other_location+1, arena_location-amount)
 		arena_location = new_location
-		events += [parent.create_event(EventType.EventType_Move, self, new_location)]
+		events += [parent.create_event(EventType.EventType_Move, self, new_location, "close", amount)]
 		return events
 
 	func advance(amount):
@@ -565,7 +564,7 @@ class Player:
 				new_location += 1
 
 		arena_location = new_location
-		events += [parent.create_event(EventType.EventType_Move, self, new_location)]
+		events += [parent.create_event(EventType.EventType_Move, self, new_location, "advance", amount)]
 
 		return events
 
@@ -581,7 +580,7 @@ class Player:
 			new_location = min(new_location, MaxArenaLocation)
 
 		arena_location = new_location
-		events += [parent.create_event(EventType.EventType_Move, self, new_location)]
+		events += [parent.create_event(EventType.EventType_Move, self, new_location, "retreat", amount)]
 
 		return events
 
@@ -601,7 +600,7 @@ class Player:
 				new_location = max(new_location, MinArenaLocation)
 
 			other_player.arena_location = new_location
-			events += [parent.create_event(EventType.EventType_Move, other_player, new_location)]
+			events += [parent.create_event(EventType.EventType_Move, other_player, new_location, "push", amount)]
 
 		return events
 
@@ -629,7 +628,7 @@ class Player:
 					new_location -= 1
 
 			other_player.arena_location = new_location
-			events += [parent.create_event(EventType.EventType_Move, other_player, new_location)]
+			events += [parent.create_event(EventType.EventType_Move, other_player, new_location, "pull", amount)]
 
 		return events
 

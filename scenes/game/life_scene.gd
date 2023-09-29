@@ -18,5 +18,8 @@ func set_turn_indicator(show_indicator):
 func set_deck_size(amount):
 	$CardInfoBox/DeckLabel.text = str(amount)
 
-func set_discard_size(amount):
+func set_discard_size(amount, reshuffles_remaining : int):
 	$CardInfoBox/DiscardLabel.text = str(amount)
+	$CardInfoBox/DiscardIcon.visible = reshuffles_remaining > 0
+	$CardInfoBox/DiscardXIcon.visible = reshuffles_remaining <= 0
+	

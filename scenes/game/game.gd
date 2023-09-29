@@ -277,8 +277,8 @@ func update_card_counts():
 	$PlayerLife.set_deck_size(len(game_logic.player.deck))
 	$OpponentLife.set_deck_size(len(game_logic.opponent.deck))
 
-	$PlayerLife.set_discard_size(len(game_logic.player.discards))
-	$OpponentLife.set_discard_size(len(game_logic.opponent.discards))
+	$PlayerLife.set_discard_size(len(game_logic.player.discards), game_logic.player.reshuffle_remaining)
+	$OpponentLife.set_discard_size(len(game_logic.opponent.discards), game_logic.player.reshuffle_remaining)
 
 	$PlayerGauge.set_details(len(game_logic.player.gauge))
 	$OpponentGauge.set_details(len(game_logic.opponent.gauge))
@@ -826,6 +826,21 @@ func begin_boost_choosing():
 
 func _on_move_event(event):
 	var player = event['event_player']
+	var extra = event['extra_info']
+	match event['reason']:
+		"advance":
+			spawn_damage_popup("Advance %s" % str(extra), player)
+		"close":
+			spawn_damage_popup("Close %s" % str(extra), player)
+		"move":
+			spawn_damage_popup("Move", player)
+		"push":
+			spawn_damage_popup("Pushed %s" % str(extra), player)
+		"pull":
+			spawn_damage_popup("Pulled %s" % str(extra), player)
+		"retreat":
+			spawn_damage_popup("Retreat %s" % str(extra), player)
+
 	#spawn_damage_popup("Move", player)
 	if player == game_logic.player:
 		move_character_to_arena_square($PlayerCharacter, event['number'])
