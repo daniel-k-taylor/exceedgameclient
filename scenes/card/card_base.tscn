@@ -1,4 +1,4 @@
-[gd_scene load_steps=9 format=3 uid="uid://cl8i21571i4qa"]
+[gd_scene load_steps=12 format=3 uid="uid://cl8i21571i4qa"]
 
 [ext_resource type="Script" path="res://scenes/card/card_base.gd" id="1_o734l"]
 [ext_resource type="Texture2D" uid="uid://dal2ec8wws714" path="res://icon.svg" id="1_xb23j"]
@@ -7,9 +7,16 @@
 [ext_resource type="Texture2D" uid="uid://kwcp6d7oulcg" path="res://assets/cards/border_thin_hover.png" id="5_i47k7"]
 [ext_resource type="Texture2D" uid="uid://cy0pcorknc8op" path="res://assets/cards/border_thin_pressed.png" id="6_h5u6x"]
 [ext_resource type="Texture2D" uid="uid://c7ojn7hf8n4li" path="res://assets/icons/stopwatch.png" id="7_rrupl"]
+[ext_resource type="Texture2D" uid="uid://xusjesyfjald" path="res://assets/icons/x.png" id="8_wk1ir"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_xbdvb"]
 size = Vector2(250, 350)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_as8ve"]
+bg_color = Color(1, 0.905882, 0.133333, 0.815686)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_btcod"]
+bg_color = Color(0.164706, 0.164706, 0.164706, 1)
 
 [node name="CardBase" type="Area2D"]
 script = ExtResource("1_o734l")
@@ -17,6 +24,21 @@ script = ExtResource("1_o734l")
 [node name="Shape" type="CollisionShape2D" parent="."]
 visible = false
 shape = SubResource("RectangleShape2D_xbdvb")
+
+[node name="Backlight" type="Panel" parent="."]
+visible = false
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -137.5
+offset_top = -187.5
+offset_right = 137.5
+offset_bottom = 187.5
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_as8ve")
 
 [node name="CardContainer" type="MarginContainer" parent="."]
 custom_minimum_size = Vector2(250, 350)
@@ -218,6 +240,43 @@ offset_bottom = 93.0
 theme_override_font_sizes/font_size = 65
 text = "8"
 horizontal_alignment = 1
+
+[node name="StunIndicator" type="Node2D" parent="."]
+visible = false
+
+[node name="XOut" type="TextureRect" parent="StunIndicator"]
+modulate = Color(1, 0, 0, 1)
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -135.0
+offset_top = -195.0
+offset_right = 135.0
+offset_bottom = 195.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("8_wk1ir")
+
+[node name="StunPanel" type="PanelContainer" parent="StunIndicator"]
+offset_left = -91.5
+offset_top = -220.0
+offset_right = 91.5
+offset_bottom = -168.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_btcod")
+
+[node name="StunMargin" type="MarginContainer" parent="StunIndicator/StunPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 5
+theme_override_constants/margin_right = 5
+
+[node name="StunLabel" type="Label" parent="StunIndicator/StunPanel/StunMargin"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 38
+text = "STUNNED"
 
 [connection signal="button_down" from="CardContainer/Focus" to="." method="_on_focus_button_down"]
 [connection signal="button_up" from="CardContainer/Focus" to="." method="_on_focus_button_up"]

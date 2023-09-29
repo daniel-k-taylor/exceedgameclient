@@ -7,9 +7,22 @@ const CardPopout = preload("res://scenes/game/card_popout.gd")
 const GaugePanel = preload("res://scenes/game/gauge_panel.gd")
 const CharacterCardBase = preload("res://scenes/card/character_card_base.gd")
 const AIPlayer = preload("res://scenes/game/ai_player.gd")
+const DamagePopup = preload("res://scenes/game/damage_popup.gd")
+
+@onready var damage_popup_template = preload("res://scenes/game/damage_popup.tscn")
 
 const OffScreen = Vector2(-1000, -1000)
 const ReferenceScreenIdRangeStart = 90000
+const NoticeOffsetY = 50
+
+const StrikeRevealDelay : float = 3.0
+const MoveDelay : float = 1.0
+const BoostDelay : float = 3.0
+const SmallNoticeDelay : float = 1.0
+var remaining_delay = 0
+var events_to_process = []
+
+var damage_popup_pool:Array[DamagePopup] = []
 
 const PlayerHandFocusYPos = 720 - (CardBase.DesiredCardSize.y + 20)
 const OpponentHandFocusYPos = CardBase.DesiredCardSize.y
@@ -38,6 +51,7 @@ enum UIState {
 	UIState_SelectCards,
 	UIState_SelectArenaLocation,
 	UIState_WaitingOnOpponent,
+	UIState_PlayingAnimation,
 }
 
 enum UISubState {
@@ -51,7 +65,7 @@ enum UISubState {
 	UISubState_SelectCards_DiscardCardsToGauge,
 	UISubState_SelectCards_ForceForChange,
 	UISubState_SelectCards_Exceed,
-	UISubState_SelectCards_Mulligan,
+	UISubState_SelectCards_Mulligan, # 10
 	UISubState_SelectCards_StrikeGauge,
 	UISubState_SelectCards_StrikeCard,
 	UISubState_SelectCards_StrikeResponseCard,
@@ -123,8 +137,8 @@ func test_init():
 		_update_buttons()
 
 func first_run():
-	move_character_to_arena_square($PlayerCharacter, game_logic.player.arena_location, $OpponentCharacter)
-	move_character_to_arena_square($OpponentCharacter, game_logic.opponent.arena_location, $PlayerCharacter)
+	move_character_to_arena_square($PlayerCharacter, game_logic.player.arena_location, true)
+	move_character_to_arena_square($OpponentCharacter, game_logic.opponent.arena_location, true)
 	_update_buttons()
 
 	finish_initialization()
@@ -147,6 +161,23 @@ func spawn_deck(deck, deck_copy, deck_card_zone, copy_zone, card_back_image, han
 			copy_card.flip_card_to_front(true)
 			previous_def_id = card.definition['id']
 
+func spawn_damage_popup(value:String, notice_player : GameLogic.Player):
+	var popup = get_damage_popup()
+	var pos = get_notice_position(notice_player)
+	pos.y -= NoticeOffsetY
+	var height = NoticeOffsetY
+	add_child(popup)
+	popup.set_values_and_animate(value, pos, height)
+
+func get_damage_popup() -> DamagePopup:
+	if damage_popup_pool.size() > 0:
+		return damage_popup_pool.pop_front()
+	else:
+		var new_popup = damage_popup_template.instantiate()
+		new_popup.tree_exiting.connect(
+			func():damage_popup_pool.append(new_popup))
+		return new_popup
+
 func spawn_all_cards():
 	var card_back_image = "res://assets/character_images/" + game_logic.player.deck_def['character']['image']
 	spawn_deck(game_logic.player.deck, game_logic.player.deck_copy, $AllCards/PlayerDeck, $AllCards/PlayerAllCopy, card_back_image, PlayerHandFocusYPos)
@@ -161,25 +192,45 @@ func get_arena_location_button(arena_location):
 	var target_square = arena.get_child(arena_location - 1)
 	return target_square.get_node("Border")
 
-func move_character_to_arena_square(character, arena_square, other_character):
+func move_character_to_arena_square(character, arena_square, immediate: bool = false):
 	var arena = $StaticUI/StaticUIVBox/Arena
 	var target_square = arena.get_child(arena_square - 1)
-	character.position = target_square.global_position + target_square.size/2
+	var target_position = target_square.global_position + target_square.size/2
+	if immediate:
+		character.position = target_position
+		update_character_facing()
+	else:
+		character.move_to(target_position)
+
+func update_character_facing():
+	var character = $PlayerCharacter
+	var other_character = $OpponentCharacter
 	var to_left = character.position.x < other_character.position.x
 	character.set_facing(to_left)
 	other_character.set_facing(not to_left)
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
-func _process(_delta):
+func _process(delta):
 	if not first_run_done:
 		first_run()
 		first_run_done = true
-	pass
+	if ui_state == UIState.UIState_PlayingAnimation:
+		remaining_delay -= delta
+		if remaining_delay <= 0:
+			# Animation is finished playing.
+			update_character_facing()
+			remaining_delay = 0
+			if len(events_to_process) > 0:
+				var temp_events = events_to_process
+				events_to_process = []
+				_handle_events(temp_events)
+			else:
+				change_ui_state(UIState.UIState_PickTurnAction, UISubState.UISubState_None)
 
-func _input(event):
-	if event is InputEventMouseButton:
-		if event is InputEventMouseButton and event.is_released():
-			pass
+func begin_delay(delay : float, remaining_events : Array):
+	change_ui_state(UIState.UIState_PlayingAnimation, UISubState.UISubState_None)
+	remaining_delay = delay
+	events_to_process = remaining_events
 
 func get_discard_location(discard_node):
 	var discard_pos = discard_node.global_position + discard_node.size * discard_node.scale /2
@@ -385,6 +436,46 @@ func _log_event(event):
 	var card_name = game_logic.get_card_name(num)
 	printlog("Event %s num=%s (card=%s)" % [game_logic.EventType.keys()[event['event_type']], event['number'], card_name])
 
+func get_notice_position(notice_player):
+	if notice_player == game_logic.player:
+		return $PlayerCharacter.position
+	else:
+		return $OpponentCharacter.position
+
+func _stat_notice_event(event):
+	var player = event['event_player']
+	var number = event['number']
+	var notice_text = ""
+	match event['event_type']:
+		GameLogic.EventType.EventType_Strike_ArmorUp:
+			notice_text = "%d Armor" % number
+		GameLogic.EventType.EventType_Strike_DodgeAttacks:
+			notice_text = "Dodge Attacks!"
+		GameLogic.EventType.EventType_Strike_ExUp:
+			notice_text = "EX Strike!"
+		GameLogic.EventType.EventType_Strike_GainAdvantage:
+			notice_text = "Advantage!"
+		GameLogic.EventType.EventType_Strike_GuardUp:
+			notice_text = "%d Guard" % number
+		GameLogic.EventType.EventType_Strike_IgnoredPushPull:
+			notice_text = "Unmoved!"
+		GameLogic.EventType.EventType_Strike_Miss:
+			notice_text = "Miss!"
+		GameLogic.EventType.EventType_Strike_PowerUp:
+			notice_text = "%d Power" % number
+		GameLogic.EventType.EventType_Strike_Stun:
+			notice_text = "Stunned!"
+		GameLogic.EventType.EventType_Strike_WildStrike:
+			notice_text = "Wild Swing!"
+
+	spawn_damage_popup(notice_text, player)
+	return SmallNoticeDelay
+
+func _on_stunned(event):
+	var card = find_card_on_board(event['number'])
+	card.set_stun(true)
+	return _stat_notice_event(event)
+
 func _on_advance_turn():
 	$PlayerLife.set_turn_indicator(game_logic.active_turn_player == game_logic.player)
 	$OpponentLife.set_turn_indicator(game_logic.active_turn_player == game_logic.opponent)
@@ -396,9 +487,16 @@ func _on_advance_turn():
 
 	clear_selected_cards()
 	close_popout()
+	for zone in $AllCards.get_children():
+		for card in zone.get_children():
+			card.set_backlight_visible(false)
+			card.set_stun(false)
+
+	spawn_damage_popup("Ready!", game_logic.active_turn_player)
 
 func _on_post_boost_action(event):
 	var player = event['event_player']
+	spawn_damage_popup("Bonus Action", player)
 	if player == game_logic.player:
 		change_ui_state(UIState.UIState_PickTurnAction, UISubState.UISubState_None)
 		clear_selected_cards()
@@ -409,22 +507,31 @@ func _on_post_boost_action(event):
 func _on_boost_cancel_decision(event):
 	var player = event['event_player']
 	var gauge_cost = event['number']
+	spawn_damage_popup("Cancel?", player)
 	if player == game_logic.player:
 		begin_gauge_selection(gauge_cost, false, UISubState.UISubState_SelectCards_BoostCancel)
 	else:
 		ai_boost_cancel_decision(gauge_cost)
 
+func _on_boost_canceled(event):
+	var player = event['event_player']
+	spawn_damage_popup("Cancel!", player)
+	return SmallNoticeDelay
+
 func _on_continuous_boost_added(event):
+	var player = event['event_player']
 	var card = find_card_on_board(event['number'])
 	var boost_zone = $PlayerBoostZone
 	var boost_card_loc = $AllCards/PlayerBoosts
-	if event['event_player'] == game_logic.opponent:
+
+	if player == game_logic.opponent:
 		boost_zone = $OpponentBoostZone
 		boost_card_loc = $AllCards/OpponentBoosts
 
 	var pos = get_boost_zone_center(boost_zone)
 	card.discard_to(pos, CardBase.CardState.CardState_InBoost)
 	reparent_to_zone(card, boost_card_loc)
+	spawn_damage_popup("+ Continuous Boost", player)
 
 func _on_discard_continuous_boost_begin(event):
 	if event['event_player'] == game_logic.player:
@@ -459,10 +566,11 @@ func _on_boost_played(event):
 	var card = find_card_on_board(event['number'])
 	var target_zone = $PlayerStrike/StrikeZone
 	var is_player = player == game_logic.player
-	if not player:
+	if not is_player:
 		target_zone = $OpponentStrike/StrikeZone
 		card.flip_card_to_front(true)
 	_move_card_to_strike_area(card, target_zone, $AllCards/Striking, is_player, false)
+	return BoostDelay
 
 func _on_choose_card_hand_to_gauge(event):
 	var player = event['event_player']
@@ -477,13 +585,15 @@ func clear_selected_cards():
 	selected_cards = []
 
 func _on_discard_event(event):
+	var player = event['event_player']
 	var discard_id = event['number']
 	var card = find_card_on_board(discard_id)
-	if event['event_player'] == game_logic.player:
+	if player == game_logic.player:
 		discard_card(card, $PlayerDeck/Discard, $AllCards/PlayerDiscards, true)
 	else:
 		discard_card(card, $OpponentDeck/Discard, $AllCards/OpponentDiscards, false)
 	update_card_counts()
+	#spawn_damage_popup("Discard", player)
 
 func find_card_on_board(card_id) -> CardBase:
 	# Find a given card among the Hand, Strike, Gauge, Boost, and Discard areas.
@@ -501,17 +611,20 @@ func reparent_to_zone(card, zone):
 	zone.add_child(card)
 
 func _on_add_to_gauge(event):
+	var player = event['event_player']
 	var card = find_card_on_board(event['number'])
 	card.flip_card_to_front(true)
 	var gauge_panel = $PlayerGauge
 	var gauge_card_loc = $AllCards/PlayerGauge
-	if event['event_player'] == game_logic.opponent:
+	if player == game_logic.opponent:
 		gauge_panel = $OpponentGauge
 		gauge_card_loc = $AllCards/OpponentGauge
 
 	var pos = gauge_panel.get_center_pos()
 	card.discard_to(pos, CardBase.CardState.CardState_InGauge)
 	reparent_to_zone(card, gauge_card_loc)
+	spawn_damage_popup("+ Gauge", player)
+	return SmallNoticeDelay
 
 func get_deck_zone(is_player : bool):
 	if is_player:
@@ -529,10 +642,12 @@ func _on_add_to_deck(event):
 	layout_player_hand(is_player)
 
 func _on_draw_event(event):
+	var player = event['event_player']
 	var card_drawn_id = event['number']
-	var is_player = event['event_player'] == game_logic.player
+	var is_player = player == game_logic.player
 	draw_card(card_drawn_id, is_player)
 	update_card_counts()
+	#spawn_damage_popup("Draw", player)
 
 func _on_exceed_event(event):
 	var player = event['event_player']
@@ -543,24 +658,41 @@ func _on_exceed_event(event):
 		$OpponentCharacter.modulate = Color(float(66)/255, float(0)/255, float(24)/255, 1)
 		$OpponentCharacterCard.exceed(true)
 
+	spawn_damage_popup("Exceed!", player)
+	return SmallNoticeDelay
+
 func _on_force_start_strike(event):
 	var player = event['event_player']
+	spawn_damage_popup("Strike!", player)
 	if player == game_logic.player:
 		begin_strike_choosing(false, false)
 	else:
 		ai_forced_strike()
 
-func _on_force_wild_swing(_event):
-	printlog("UI: TODO: Play something to indicate forced wild swing.")
+func _on_force_wild_swing(event):
+	var player = event['event_player']
+	spawn_damage_popup("Wild Swing!", player)
+	return SmallNoticeDelay
 
 func _on_game_over(event):
 	printlog("GAME OVER for %s" % event['event_player'].name)
 	game_over_stuff.visible = true
 	change_ui_state(UIState.UIState_GameOver, UISubState.UISubState_None)
+	_update_buttons()
 	if event['event_player'] == game_logic.player:
 		game_over_label.text = "DEFEAT"
 	else:
 		game_over_label.text = "WIN!"
+
+func _on_prepare(event):
+	var player = event['event_player']
+	spawn_damage_popup("Prepare!", player)
+	return SmallNoticeDelay
+
+func _on_change_cards(event):
+	var player = event['event_player']
+	spawn_damage_popup("Change Cards!", player)
+	return SmallNoticeDelay
 
 func _on_hand_size_exceeded(event):
 	if game_logic.active_turn_player == game_logic.player:
@@ -570,6 +702,9 @@ func _on_hand_size_exceeded(event):
 		ai_discard(event)
 
 func change_ui_state(new_state, new_sub_state = null):
+	if ui_state == UIState.UIState_GameOver:
+		return
+
 	if new_state != null:
 		printlog("UI: State change %s to %s" % [UIState.keys()[ui_state], UIState.keys()[new_state]])
 		ui_state = new_state
@@ -686,10 +821,13 @@ func begin_boost_choosing():
 	change_ui_state(UIState.UIState_SelectCards, UISubState.UISubState_SelectCards_PlayBoost)
 
 func _on_move_event(event):
-	if event['event_player'] == game_logic.player:
-		move_character_to_arena_square($PlayerCharacter, event['number'], $OpponentCharacter)
+	var player = event['event_player']
+	#spawn_damage_popup("Move", player)
+	if player == game_logic.player:
+		move_character_to_arena_square($PlayerCharacter, event['number'])
 	else:
-		move_character_to_arena_square($OpponentCharacter, event['number'], $PlayerCharacter)
+		move_character_to_arena_square($OpponentCharacter, event['number'])
+	return MoveDelay
 
 func _on_mulligan_decision(event):
 	if event['event_player'] == game_logic.player:
@@ -703,9 +841,11 @@ func _on_mulligan_decision(event):
 		ai_mulligan_decision()
 
 func _on_reshuffle_discard(event):
+	var player = event['event_player']
+	spawn_damage_popup("Reshuffle!", player)
 	# TODO: Play a cool animation of discard shuffling into deck
 	printlog("UI: TODO: Play reshuffle animation and update reshuffle count/icon.")
-	if event['event_player'] == game_logic.player:
+	if player == game_logic.player:
 		var cards = $AllCards/PlayerDiscards.get_children()
 		for card in cards:
 			card.get_parent().remove_child(card)
@@ -721,20 +861,29 @@ func _on_reshuffle_discard(event):
 			card.position = OffScreen
 			card.reset()
 	close_popout()
+	return SmallNoticeDelay
 
-func _on_reshuffle_deck(_event):
-	printlog("UI: TODO: In place reshuffle deck. No cards actually move though.")
+func _on_reshuffle_deck_mulligan(_event):
+	#printlog("UI: TODO: In place reshuffle deck. No cards actually move though.")
+	pass
 
 func _on_reveal_hand(event):
-	if event['event_player'] == game_logic.opponent:
+	var player = event['event_player']
+	spawn_damage_popup("Hand Revealed!", player)
+	if player == game_logic.opponent:
 		var cards = $AllCards/OpponentHand.get_children()
 		for card in cards:
 			card.flip_card_to_front(true)
 	else:
 		# Nothing for AI here.
 		pass
+	return SmallNoticeDelay
 
 func _move_card_to_strike_area(card, strike_area, new_parent, is_player : bool, is_ex : bool):
+	if card.position == OffScreen:
+		# Position it at the appropriate deck.
+		card.position = get_deck_button_position(is_player)
+
 	var pos = strike_area.global_position + strike_area.size * strike_area.scale /2
 	if is_ex:
 		pos.x += CardBase.DesiredCardSize.x
@@ -759,6 +908,14 @@ func _on_strike_reveal(_event):
 	var strike_cards = $AllCards/Striking.get_children()
 	for card in strike_cards:
 		card.flip_card_to_front(true)
+	return StrikeRevealDelay
+
+func _on_strike_card_activation(event):
+	var strike_cards = $AllCards/Striking.get_children()
+	var card_id = event['number']
+	for card in strike_cards:
+		card.set_backlight_visible(card.card_id == card_id)
+	return SmallNoticeDelay
 
 func _on_effect_choice(event):
 	if event['event_player'] == game_logic.player:
@@ -774,8 +931,9 @@ func _on_pay_cost_gauge(event):
 	else:
 		ai_pay_cost(event)
 
-func _on_pay_cost_failed(_event):
-	printlog("TODO: Animation for pay costs failed")
+func _on_pay_cost_failed(event):
+	# Do the wild swing deal.
+	return _on_strike_started(event, false)
 
 func _on_force_for_armor(event):
 	if event['event_player'] == game_logic.player:
@@ -785,18 +943,23 @@ func _on_force_for_armor(event):
 		ai_force_for_armor(event)
 
 func _on_damage(event):
-	printlog("TODO: Took damage %s. Use damage number in event to play animation." % event['number'])
-	if event['event_player'] == game_logic.player:
+	var player = event['event_player']
+	var damage_taken = event['number']
+	if player == game_logic.player:
 		$PlayerLife.set_life(game_logic.player.life)
 	else:
 		$OpponentLife.set_life(game_logic.opponent.life)
+	spawn_damage_popup("%s Damage" % str(damage_taken), player)
+	return SmallNoticeDelay
 
 func _handle_events(events):
-	for event in events:
+	var delay = 0
+	for event_index in range(events.size()):
+		var event = events[event_index]
 		_log_event(event)
 		match event['event_type']:
 			game_logic.EventType.EventType_AddToGauge:
-				_on_add_to_gauge(event)
+				delay = _on_add_to_gauge(event)
 			game_logic.EventType.EventType_AddToDeck:
 				_on_add_to_deck(event)
 			game_logic.EventType.EventType_AddToDiscard:
@@ -808,7 +971,7 @@ func _handle_events(events):
 			game_logic.EventType.EventType_Boost_CancelDecision:
 				_on_boost_cancel_decision(event)
 			game_logic.EventType.EventType_Boost_Canceled:
-				printlog("UI: TODO: Play a cool cancel animation.")
+				delay = _on_boost_canceled(event)
 			game_logic.EventType.EventType_Boost_Continuous_Added:
 				_on_continuous_boost_added(event)
 			game_logic.EventType.EventType_Boost_DiscardContinuousChoice:
@@ -816,51 +979,57 @@ func _handle_events(events):
 			game_logic.EventType.EventType_Boost_NameCardOpponentDiscards:
 				_on_name_opponent_card_begin(event)
 			game_logic.EventType.EventType_Boost_Played:
-				_on_boost_played(event)
+				delay = _on_boost_played(event)
 			game_logic.EventType.EventType_CardFromHandToGauge_Choice:
 				_on_choose_card_hand_to_gauge(event)
+			game_logic.EventType.EventType_ChangeCards:
+				delay = _on_change_cards(event)
 			game_logic.EventType.EventType_Discard:
 				_on_discard_event(event)
 			game_logic.EventType.EventType_Draw:
 				_on_draw_event(event)
 			game_logic.EventType.EventType_Exceed:
-				_on_exceed_event(event)
+				delay = _on_exceed_event(event)
 			game_logic.EventType.EventType_ForceStartStrike:
 				_on_force_start_strike(event)
 			game_logic.EventType.EventType_Strike_ForceWildSwing:
-				_on_force_wild_swing(event)
+				delay = _on_force_wild_swing(event)
 			game_logic.EventType.EventType_GameOver:
 				_on_game_over(event)
 			game_logic.EventType.EventType_HandSizeExceeded:
 				_on_hand_size_exceeded(event)
 			game_logic.EventType.EventType_Move:
-				_on_move_event(event)
+				delay = _on_move_event(event)
 			game_logic.EventType.EventType_MulliganDecision:
 				_on_mulligan_decision(event)
+			game_logic.EventType.EventType_Prepare:
+				delay = _on_prepare(event)
 			game_logic.EventType.EventType_ReshuffleDiscard:
-				_on_reshuffle_discard(event)
-			game_logic.EventType.EventType_ReshuffleDeck:
-				_on_reshuffle_deck(event)
+				delay = _on_reshuffle_discard(event)
+			game_logic.EventType.EventType_ReshuffleDeck_Mulligan:
+				_on_reshuffle_deck_mulligan(event)
 			game_logic.EventType.EventType_RevealHand:
-				_on_reveal_hand(event)
+				delay = _on_reveal_hand(event)
 			game_logic.EventType.EventType_Strike_ArmorUp:
-				printlog("TODO: Animate strike armor up")
+				delay = _stat_notice_event(event)
+			game_logic.EventType.EventType_Strike_CardActivation:
+				delay = _on_strike_card_activation(event)
 			game_logic.EventType.EventType_Strike_DodgeAttacks:
-				printlog("TODO: Animate strike dodge attacks")
+				delay = _stat_notice_event(event)
 			game_logic.EventType.EventType_Strike_EffectChoice:
 				_on_effect_choice(event)
 			game_logic.EventType.EventType_Strike_ExUp:
-				printlog("TODO: Animate Ex up")
+				delay = _stat_notice_event(event)
 			game_logic.EventType.EventType_Strike_ForceForArmor:
 				_on_force_for_armor(event)
 			game_logic.EventType.EventType_Strike_GainAdvantage:
-				printlog("TODO: Animate strike gain advantage")
+				delay = _stat_notice_event(event)
 			game_logic.EventType.EventType_Strike_GuardUp:
-				printlog("TODO: Animate strike guard up")
+				delay = _stat_notice_event(event)
 			game_logic.EventType.EventType_Strike_IgnoredPushPull:
-				printlog("TODO: Animate strike ignored push/pull")
+				delay = _stat_notice_event(event)
 			game_logic.EventType.EventType_Strike_Miss:
-				printlog("TODO: Animate strike miss")
+				delay = _stat_notice_event(event)
 			game_logic.EventType.EventType_Strike_PayCost_Gauge:
 				_on_pay_cost_gauge(event)
 			game_logic.EventType.EventType_Strike_PayCost_Force:
@@ -869,26 +1038,34 @@ func _handle_events(events):
 			game_logic.EventType.EventType_Strike_PayCost_Unable:
 				_on_pay_cost_failed(event)
 			game_logic.EventType.EventType_Strike_PowerUp:
-				printlog("TODO: Animate strike power up")
+				delay = _stat_notice_event(event)
 			game_logic.EventType.EventType_Strike_Response:
 				_on_strike_started(event, false)
 			game_logic.EventType.EventType_Strike_Response_Ex:
 				_on_strike_started(event, true)
 			game_logic.EventType.EventType_Strike_Reveal:
-				_on_strike_reveal(event)
+				delay = _on_strike_reveal(event)
 			game_logic.EventType.EventType_Strike_Started:
 				_on_strike_started(event, false)
 			game_logic.EventType.EventType_Strike_Started_Ex:
 				_on_strike_started(event, true)
 			game_logic.EventType.EventType_Strike_Stun:
-				printlog("TODO: Animate strike stun")
+				delay = _on_stunned(event)
 			game_logic.EventType.EventType_Strike_TookDamage:
-				_on_damage(event)
+				delay = _on_damage(event)
 			game_logic.EventType.EventType_Strike_WildStrike:
-				printlog("TODO: Animate strike wild strike")
+				delay = _stat_notice_event(event)
 			_:
 				printlog("ERROR: UNHANDLED EVENT")
 				assert(false)
+
+		# If a UI animation needs to play or pause events,
+		# break off the remaining events and handle them later.
+		if delay != 0:
+			var remaining_events = events.slice(event_index + 1)
+			begin_delay(delay, remaining_events)
+			break
+
 
 func _update_buttons():
 	# Update main action selection UI
@@ -1046,6 +1223,7 @@ func _on_instructions_ok_button_pressed():
 		if len(selected_card_ids) == 1:
 			single_card_id = selected_card_ids[0]
 		if len(selected_card_ids) == 2:
+			single_card_id = selected_card_ids[0]
 			ex_card_id = selected_card_ids[1]
 		deselect_all_cards()
 		close_popout()
@@ -1111,7 +1289,7 @@ func _on_instructions_cancel_button_pressed():
 
 func _on_wild_swing_button_pressed():
 	if ui_state == UIState.UIState_SelectCards:
-		if ui_sub_state == UISubState.UISubState_SelectCards_StrikeCard:
+		if ui_sub_state == UISubState.UISubState_SelectCards_StrikeCard or ui_sub_state == UISubState.UISubState_SelectCards_StrikeResponseCard:
 			var events = game_logic.do_strike(game_logic.player, -1, true, -1)
 			_handle_events(events)
 		elif ui_sub_state == UISubState.UISubState_SelectCards_StrikeGauge:

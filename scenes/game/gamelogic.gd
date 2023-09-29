@@ -63,6 +63,7 @@ enum EventType {
 	EventType_Boost_Continuous_Added,
 	EventType_Boost_NameCardOpponentDiscards,
 	EventType_CardFromHandToGauge_Choice,
+	EventType_ChangeCards,
 	EventType_Discard,
 	EventType_Draw,
 	EventType_Exceed,
@@ -71,10 +72,12 @@ enum EventType {
 	EventType_HandSizeExceeded,
 	EventType_Move,
 	EventType_MulliganDecision,
-	EventType_ReshuffleDeck,
+	EventType_Prepare,
+	EventType_ReshuffleDeck_Mulligan,
 	EventType_ReshuffleDiscard,
 	EventType_RevealHand,
 	EventType_Strike_ArmorUp,
+	EventType_Strike_CardActivation,
 	EventType_Strike_DodgeAttacks,
 	EventType_Strike_EffectChoice,
 	EventType_Strike_ExUp,
@@ -118,12 +121,14 @@ enum StrikeState {
 	StrikeState_Initiator_PayCosts,
 	StrikeState_Defender_PayCosts,
 	StrikeState_DuringStrikeBonuses,
+	StrikeState_Card1_Activation,
 	StrikeState_Card1_Before,
 	StrikeState_Card1_DetermineHit,
 	StrikeState_Card1_Hit,
 	StrikeState_Card1_Hit_Response,
 	StrikeState_Card1_ApplyDamage,
 	StrikeState_Card1_After,
+	StrikeState_Card2_Activation,
 	StrikeState_Card2_Before,
 	StrikeState_Card2_DetermineHit,
 	StrikeState_Card2_Hit,
@@ -291,6 +296,12 @@ class Player:
 		cleanup_boost_to_gauge_cards = []
 		mulligan_complete = false
 
+	func owns_card(card_id: int):
+		for card in deck_copy:
+			if card.id == card_id:
+				return true
+		return false
+
 	func exceed():
 		exceeded = true
 		var events = []
@@ -308,7 +319,7 @@ class Player:
 		for id in card_ids:
 			events += move_card_from_hand_to_deck(id)
 		deck.shuffle()
-		events += [parent.create_event(EventType.EventType_ReshuffleDeck, self, reshuffle_remaining)]
+		events += [parent.create_event(EventType.EventType_ReshuffleDeck_Mulligan, self, reshuffle_remaining)]
 		mulligan_complete = true
 		return events
 
@@ -1084,7 +1095,7 @@ func apply_damage(offense_player : Player, defense_player : Player, offense_card
 	defense_player.life -= damage_after_armor
 	events += [create_event(EventType.EventType_Strike_TookDamage, defense_player, damage_after_armor)]
 	if damage_after_armor > guard:
-		events += [create_event(EventType.EventType_Strike_Stun, defense_player, damage_after_armor-guard)]
+		events += [create_event(EventType.EventType_Strike_Stun, defense_player, defense_card.id)]
 		active_strike.set_player_stunned(defense_player)
 
 	if defense_player.life <= 0:
@@ -1113,9 +1124,10 @@ func ask_for_cost(performing_player, card, next_state):
 				events += [create_event(EventType.EventType_Strike_PayCost_Force, performing_player, card.id)]
 		else:
 			# Failed to pay the cost by default.
-			events += [create_event(EventType.EventType_Strike_PayCost_Unable, performing_player, card.id)]
 			events += performing_player.add_to_discards(card)
 			events += performing_player.wild_strike();
+			var wild_card_id = active_strike.get_player_card(performing_player).id
+			events += [create_event(EventType.EventType_Strike_PayCost_Unable, performing_player, wild_card_id)]
 	return events
 
 func do_hit_response_effects(hit_player : Player, next_state : StrikeState):
@@ -1155,8 +1167,11 @@ func continue_resolve_strike():
 			StrikeState.StrikeState_DuringStrikeBonuses:
 				events += do_effects_for_timing("during_strike", active_strike.initiator, active_strike.initiator_card, StrikeState.StrikeState_DuringStrikeBonuses)
 				# Should never be interrupted by player decisions.
-				events += do_effects_for_timing("during_strike", active_strike.defender, active_strike.defender_card, StrikeState.StrikeState_Card1_Before)
+				events += do_effects_for_timing("during_strike", active_strike.defender, active_strike.defender_card, StrikeState.StrikeState_Card1_Activation)
 				strike_determine_order()
+			StrikeState.StrikeState_Card1_Activation:
+				events += [create_event(EventType.EventType_Strike_CardActivation, active_strike.get_player(1), card1.id)]
+				active_strike.strike_state = StrikeState.StrikeState_Card1_Before
 			StrikeState.StrikeState_Card1_Before:
 				events += do_effects_for_timing("before", player1, card1, StrikeState.StrikeState_Card1_DetermineHit)
 			StrikeState.StrikeState_Card1_DetermineHit:
@@ -1176,12 +1191,15 @@ func continue_resolve_strike():
 				if game_over:
 					active_strike.strike_state = StrikeState.StrikeState_Cleanup
 			StrikeState.StrikeState_Card1_After:
-				events += do_effects_for_timing("after", player1, card1, StrikeState.StrikeState_Card2_Before)
-			StrikeState.StrikeState_Card2_Before:
+				events += do_effects_for_timing("after", player1, card1, StrikeState.StrikeState_Card2_Activation)
+			StrikeState.StrikeState_Card2_Activation:
 				if active_strike.player2_stunned:
 					active_strike.strike_state = StrikeState.StrikeState_Cleanup
 				else:
-					events += do_effects_for_timing("before", player2, card2, StrikeState.StrikeState_Card2_DetermineHit)
+					events += [create_event(EventType.EventType_Strike_CardActivation, active_strike.get_player(2), card2.id)]
+					active_strike.strike_state = StrikeState.StrikeState_Card2_Before
+			StrikeState.StrikeState_Card2_Before:
+				events += do_effects_for_timing("before", player2, card2, StrikeState.StrikeState_Card2_DetermineHit)
 			StrikeState.StrikeState_Card2_DetermineHit:
 				if in_range(player2, player1, card2):
 					active_strike.player2_hit = true
@@ -1400,7 +1418,9 @@ func do_prepare(performing_player):
 		printlog("ERROR: Tried to Prepare but can't.")
 		return []
 
-	var events : Array = performing_player.draw(2)
+	var events : Array = []
+	events += [create_event(EventType.EventType_Prepare, performing_player, 0)]
+	events += performing_player.draw(2)
 	events += check_hand_size_advance_turn(performing_player)
 	return events
 
@@ -1484,7 +1504,9 @@ func do_change(performing_player : Player, card_ids):
 			printlog("ERROR: Tried to discard cards that aren't in hand or gauge.")
 			return []
 
-	var events = performing_player.discard(card_ids)
+	var events = []
+	events += [create_event(EventType.EventType_ChangeCards, performing_player, 0)]
+	events += performing_player.discard(card_ids)
 	var force_generated = 0
 	for id in card_ids:
 		force_generated += get_card_force(id)

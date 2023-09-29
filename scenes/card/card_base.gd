@@ -85,6 +85,12 @@ func flip_card_to_front(front):
 		$CardContainer/CardBox.visible = false
 		cancel_container.visible = false
 
+func set_backlight_visible(backlight_visible):
+	$Backlight.visible = backlight_visible
+
+func set_stun(stun_visible):
+	$StunIndicator.visible = stun_visible
+
 func is_front_showing():
 	return not $CardContainer/CardBack.visible
 

@@ -1,10 +1,24 @@
 
 In progress:
-    ☐ Basic AI
+    ✔ Delay between events so you can see what happens @done(23-09-28 20:56)
+        ✔ Pause on strike reveal @done(23-09-28 19:14)
+        ✔ Backlight up which move goes first @done(23-09-28 19:14)
+        ✔ Animation for movement @started(23-09-28 19:30) @done(23-09-28 19:30) @lasted(18s)
+        ✔ Animation for damage dealt @done(23-09-28 20:39)
+        ✔ Animation for Miss @done(23-09-28 20:39)
+        ✔ Animation for Stun @done(23-09-28 20:39)
+            ✔ Stun text + X through their card @done(23-09-28 20:56)
+        ✔ Animation for cancel @done(23-09-28 20:12)
+        ✔ Animation for Stat up/Ex/Ignore effects/advantage @done(23-09-28 20:39)
+        ✔ Animation for Wild @done(23-09-28 20:39)
+        ✔ Animation for forced discard @done(23-09-28 20:40)
+    ✔ Pause on boost played @done(23-09-28 20:40)
+    ☐ Health bar for life
+        ☐ Icon under it for reshuffles
 
 Tasks:
     Main Features:
-        ☐ Delay between events so you can see what happens
+
     Tests:
         ☐ Strike
         ☐ Boost
@@ -20,6 +34,7 @@ Tasks:
         ☐ Make the arena look more like a flat rectangle instead of square
     Misc/Low pri:
         ☐ Allow spending ultra for 1 force
+            ☐ minus button above selected ultra card
         ☐ Sum continuous boost stat bonuses into a single line
         ☐ Visual showing you have shuffled once
         ☐ Boost zone panel formatting/change size with text. - Should scroll?
