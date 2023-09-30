@@ -19,6 +19,9 @@ func _ready():
 func set_facing(to_left):
 	flip_h = to_left
 
+func get_size():
+	return self.sprite_frames.get_frame_texture("idle", 0).get_size()
+
 func move_to(pos):
 	current_position = position
 	target_position = pos

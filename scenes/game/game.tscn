@@ -1,13 +1,12 @@
-[gd_scene load_steps=19 format=3 uid="uid://3s3pkqggaa2q"]
+[gd_scene load_steps=20 format=3 uid="uid://3s3pkqggaa2q"]
 
 [ext_resource type="Script" path="res://scenes/game/game.gd" id="1_4f5jr"]
 [ext_resource type="Script" path="res://scenes/game/gamelogic.gd" id="2_cjkiw"]
-[ext_resource type="PackedScene" uid="uid://u7pf7tbgppmh" path="res://scenes/game/arena_square.tscn" id="3_xg2e8"]
 [ext_resource type="Texture2D" uid="uid://dh8tat2r8ttx1" path="res://assets/cards/card_border_highlight.png" id="4_5y76h"]
-[ext_resource type="Texture2D" uid="uid://b433drvl0djch" path="res://assets/cards/arena_border_highlight_waiting.png" id="4_72uk1"]
-[ext_resource type="Texture2D" uid="uid://bpdpb3e74d2cu" path="res://assets/cards/arena_border_highlight_pressed.png" id="5_r5b6h"]
+[ext_resource type="Texture2D" uid="uid://dy8icxprppala" path="res://assets/icons/yellowsquare.png" id="4_koa6g"]
+[ext_resource type="Texture2D" uid="uid://fb43lfd3e3yn" path="res://assets/icons/greensquare.png" id="5_j7n2t"]
+[ext_resource type="Texture2D" uid="uid://c2vj33yjnslmx" path="res://assets/icons/cyansquare.png" id="6_3ysab"]
 [ext_resource type="PackedScene" uid="uid://cf6aml1lrd2yk" path="res://scenes/game/gauge_panel.tscn" id="6_gtjck"]
-[ext_resource type="Texture2D" uid="uid://b08j76upbucvr" path="res://assets/cards/arena_border_highlight_selected.png" id="6_qfd2s"]
 [ext_resource type="PackedScene" uid="uid://dsc63si41lg6t" path="res://scenes/game/boost_zone.tscn" id="7_gn0of"]
 [ext_resource type="PackedScene" uid="uid://1624xgdxrrg5" path="res://scenes/game/life_scene.tscn" id="8_mqi3u"]
 [ext_resource type="Texture2D" uid="uid://60aipui45hh3" path="res://assets/cards/card_border_highlight_discard_pile.png" id="9_dpbn3"]
@@ -18,6 +17,18 @@
 [ext_resource type="Texture2D" uid="uid://mn1hj4i3k7l7" path="res://assets/cards/card_border_highlight_selected.png" id="17_rr8uh"]
 [ext_resource type="Script" path="res://scenes/game/ai_player.gd" id="18_hlntt"]
 [ext_resource type="PackedScene" uid="uid://dvan4a8ftuplj" path="res://scenes/card/character_card_base.tscn" id="18_imast"]
+
+[sub_resource type="Gradient" id="Gradient_einub"]
+offsets = PackedFloat32Array(0, 0.883721, 1)
+colors = PackedColorArray(0, 0.545098, 0.933333, 1, 0.0509804, 0.109804, 0.576471, 1, 0, 0, 0, 0)
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_84l44"]
+gradient = SubResource("Gradient_einub")
+width = 100
+height = 48
+fill = 1
+fill_from = Vector2(0.5, 0.5)
+fill_to = Vector2(0.900312, 0.797508)
 
 [node name="GameScene" type="Node2D"]
 script = ExtResource("1_4f5jr")
@@ -31,7 +42,206 @@ script = ExtResource("18_hlntt")
 [node name="Background" type="ColorRect" parent="."]
 offset_right = 1280.0
 offset_bottom = 720.0
+mouse_filter = 2
 color = Color(0.392157, 0.392157, 0.392157, 1)
+
+[node name="ArenaNode" type="Node2D" parent="."]
+position = Vector2(0, 325)
+
+[node name="RowButtons" type="HBoxContainer" parent="ArenaNode"]
+offset_top = -15.0
+offset_right = 1280.0
+offset_bottom = 49.0
+theme_override_constants/separation = 33
+alignment = 1
+
+[node name="ArenaSquare1" type="MarginContainer" parent="ArenaNode/RowButtons"]
+custom_minimum_size = Vector2(110, 48)
+layout_mode = 2
+
+[node name="Button" type="TextureButton" parent="ArenaNode/RowButtons/ArenaSquare1"]
+custom_minimum_size = Vector2(110, 48)
+layout_mode = 2
+texture_normal = ExtResource("4_koa6g")
+texture_pressed = ExtResource("5_j7n2t")
+texture_hover = ExtResource("6_3ysab")
+ignore_texture_size = true
+stretch_mode = 0
+
+[node name="ArenaSquare2" type="MarginContainer" parent="ArenaNode/RowButtons"]
+custom_minimum_size = Vector2(110, 48)
+layout_mode = 2
+
+[node name="Button" type="TextureButton" parent="ArenaNode/RowButtons/ArenaSquare2"]
+custom_minimum_size = Vector2(110, 48)
+layout_mode = 2
+texture_normal = ExtResource("4_koa6g")
+texture_pressed = ExtResource("5_j7n2t")
+texture_hover = ExtResource("6_3ysab")
+ignore_texture_size = true
+stretch_mode = 0
+
+[node name="ArenaSquare3" type="MarginContainer" parent="ArenaNode/RowButtons"]
+custom_minimum_size = Vector2(110, 48)
+layout_mode = 2
+
+[node name="Button" type="TextureButton" parent="ArenaNode/RowButtons/ArenaSquare3"]
+custom_minimum_size = Vector2(110, 48)
+layout_mode = 2
+texture_normal = ExtResource("4_koa6g")
+texture_pressed = ExtResource("5_j7n2t")
+texture_hover = ExtResource("6_3ysab")
+ignore_texture_size = true
+stretch_mode = 0
+
+[node name="ArenaSquare4" type="MarginContainer" parent="ArenaNode/RowButtons"]
+custom_minimum_size = Vector2(110, 48)
+layout_mode = 2
+
+[node name="Button" type="TextureButton" parent="ArenaNode/RowButtons/ArenaSquare4"]
+custom_minimum_size = Vector2(110, 48)
+layout_mode = 2
+texture_normal = ExtResource("4_koa6g")
+texture_pressed = ExtResource("5_j7n2t")
+texture_hover = ExtResource("6_3ysab")
+ignore_texture_size = true
+stretch_mode = 0
+
+[node name="ArenaSquare5" type="MarginContainer" parent="ArenaNode/RowButtons"]
+custom_minimum_size = Vector2(110, 48)
+layout_mode = 2
+
+[node name="Button" type="TextureButton" parent="ArenaNode/RowButtons/ArenaSquare5"]
+custom_minimum_size = Vector2(110, 48)
+layout_mode = 2
+texture_normal = ExtResource("4_koa6g")
+texture_pressed = ExtResource("5_j7n2t")
+texture_hover = ExtResource("6_3ysab")
+ignore_texture_size = true
+stretch_mode = 0
+
+[node name="ArenaSquare6" type="MarginContainer" parent="ArenaNode/RowButtons"]
+custom_minimum_size = Vector2(110, 48)
+layout_mode = 2
+
+[node name="Button" type="TextureButton" parent="ArenaNode/RowButtons/ArenaSquare6"]
+custom_minimum_size = Vector2(110, 48)
+layout_mode = 2
+texture_normal = ExtResource("4_koa6g")
+texture_pressed = ExtResource("5_j7n2t")
+texture_hover = ExtResource("6_3ysab")
+ignore_texture_size = true
+stretch_mode = 0
+
+[node name="ArenaSquare7" type="MarginContainer" parent="ArenaNode/RowButtons"]
+custom_minimum_size = Vector2(110, 48)
+layout_mode = 2
+
+[node name="Button" type="TextureButton" parent="ArenaNode/RowButtons/ArenaSquare7"]
+custom_minimum_size = Vector2(110, 48)
+layout_mode = 2
+texture_normal = ExtResource("4_koa6g")
+texture_pressed = ExtResource("5_j7n2t")
+texture_hover = ExtResource("6_3ysab")
+ignore_texture_size = true
+stretch_mode = 0
+
+[node name="ArenaSquare8" type="MarginContainer" parent="ArenaNode/RowButtons"]
+custom_minimum_size = Vector2(110, 48)
+layout_mode = 2
+
+[node name="Button" type="TextureButton" parent="ArenaNode/RowButtons/ArenaSquare8"]
+custom_minimum_size = Vector2(110, 48)
+layout_mode = 2
+texture_normal = ExtResource("4_koa6g")
+texture_pressed = ExtResource("5_j7n2t")
+texture_hover = ExtResource("6_3ysab")
+ignore_texture_size = true
+stretch_mode = 0
+
+[node name="ArenaSquare9" type="MarginContainer" parent="ArenaNode/RowButtons"]
+custom_minimum_size = Vector2(110, 48)
+layout_mode = 2
+
+[node name="Button" type="TextureButton" parent="ArenaNode/RowButtons/ArenaSquare9"]
+custom_minimum_size = Vector2(110, 48)
+layout_mode = 2
+texture_normal = ExtResource("4_koa6g")
+texture_pressed = ExtResource("5_j7n2t")
+texture_hover = ExtResource("6_3ysab")
+ignore_texture_size = true
+stretch_mode = 0
+
+[node name="RowPlatforms" type="HBoxContainer" parent="ArenaNode"]
+custom_minimum_size = Vector2(1280, 0)
+offset_right = 40.0
+offset_bottom = 40.0
+mouse_filter = 2
+theme_override_constants/separation = 43
+alignment = 1
+
+[node name="ArenaSquare1" type="TextureRect" parent="ArenaNode/RowPlatforms"]
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+mouse_filter = 2
+texture = SubResource("GradientTexture2D_84l44")
+
+[node name="ArenaSquare2" type="TextureRect" parent="ArenaNode/RowPlatforms"]
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+mouse_filter = 2
+texture = SubResource("GradientTexture2D_84l44")
+
+[node name="ArenaSquare3" type="TextureRect" parent="ArenaNode/RowPlatforms"]
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+mouse_filter = 2
+texture = SubResource("GradientTexture2D_84l44")
+
+[node name="ArenaSquare4" type="TextureRect" parent="ArenaNode/RowPlatforms"]
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+mouse_filter = 2
+texture = SubResource("GradientTexture2D_84l44")
+
+[node name="ArenaSquare5" type="TextureRect" parent="ArenaNode/RowPlatforms"]
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+mouse_filter = 2
+texture = SubResource("GradientTexture2D_84l44")
+
+[node name="ArenaSquare6" type="TextureRect" parent="ArenaNode/RowPlatforms"]
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+mouse_filter = 2
+texture = SubResource("GradientTexture2D_84l44")
+
+[node name="ArenaSquare7" type="TextureRect" parent="ArenaNode/RowPlatforms"]
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+mouse_filter = 2
+texture = SubResource("GradientTexture2D_84l44")
+
+[node name="ArenaSquare8" type="TextureRect" parent="ArenaNode/RowPlatforms"]
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+mouse_filter = 2
+texture = SubResource("GradientTexture2D_84l44")
+
+[node name="ArenaSquare9" type="TextureRect" parent="ArenaNode/RowPlatforms"]
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+mouse_filter = 2
+texture = SubResource("GradientTexture2D_84l44")
 
 [node name="StaticUI" type="Control" parent="."]
 custom_minimum_size = Vector2(1280, 720)
@@ -39,6 +249,7 @@ layout_mode = 3
 anchors_preset = 0
 offset_right = 1280.0
 offset_bottom = 720.0
+mouse_filter = 2
 
 [node name="StaticUIVBox" type="VBoxContainer" parent="StaticUI"]
 layout_mode = 1
@@ -46,136 +257,22 @@ anchors_preset = 10
 anchor_right = 1.0
 offset_bottom = 362.0
 grow_horizontal = 2
+mouse_filter = 2
 
 [node name="TopMargin" type="MarginContainer" parent="StaticUI/StaticUIVBox"]
-custom_minimum_size = Vector2(0, 250)
+custom_minimum_size = Vector2(0, 350)
 layout_mode = 2
-
-[node name="AIMoveButton" type="Button" parent="StaticUI/StaticUIVBox/TopMargin"]
-layout_mode = 2
-size_flags_horizontal = 4
-size_flags_vertical = 8
-text = "AI Move"
-
-[node name="Arena" type="HBoxContainer" parent="StaticUI/StaticUIVBox"]
-layout_mode = 2
-theme_override_constants/separation = 43
-alignment = 1
-
-[node name="ArenaSquare1" parent="StaticUI/StaticUIVBox/Arena" instance=ExtResource("3_xg2e8")]
-layout_mode = 2
-
-[node name="Border" type="TextureButton" parent="StaticUI/StaticUIVBox/Arena/ArenaSquare1"]
-layout_mode = 2
-offset_right = 100.0
-offset_bottom = 100.0
-texture_normal = ExtResource("4_72uk1")
-texture_pressed = ExtResource("5_r5b6h")
-texture_hover = ExtResource("6_qfd2s")
-stretch_mode = 0
-
-[node name="ArenaSquare2" parent="StaticUI/StaticUIVBox/Arena" instance=ExtResource("3_xg2e8")]
-layout_mode = 2
-
-[node name="Border" type="TextureButton" parent="StaticUI/StaticUIVBox/Arena/ArenaSquare2"]
-layout_mode = 0
-offset_right = 100.0
-offset_bottom = 100.0
-texture_normal = ExtResource("4_72uk1")
-texture_pressed = ExtResource("5_r5b6h")
-texture_hover = ExtResource("6_qfd2s")
-stretch_mode = 0
-
-[node name="ArenaSquare3" parent="StaticUI/StaticUIVBox/Arena" instance=ExtResource("3_xg2e8")]
-layout_mode = 2
-
-[node name="Border" type="TextureButton" parent="StaticUI/StaticUIVBox/Arena/ArenaSquare3"]
-layout_mode = 0
-offset_right = 100.0
-offset_bottom = 100.0
-texture_normal = ExtResource("4_72uk1")
-texture_pressed = ExtResource("5_r5b6h")
-texture_hover = ExtResource("6_qfd2s")
-stretch_mode = 0
-
-[node name="ArenaSquare4" parent="StaticUI/StaticUIVBox/Arena" instance=ExtResource("3_xg2e8")]
-layout_mode = 2
-
-[node name="Border" type="TextureButton" parent="StaticUI/StaticUIVBox/Arena/ArenaSquare4"]
-layout_mode = 0
-offset_right = 100.0
-offset_bottom = 100.0
-texture_normal = ExtResource("4_72uk1")
-texture_pressed = ExtResource("5_r5b6h")
-texture_hover = ExtResource("6_qfd2s")
-stretch_mode = 0
-
-[node name="ArenaSquare5" parent="StaticUI/StaticUIVBox/Arena" instance=ExtResource("3_xg2e8")]
-layout_mode = 2
-
-[node name="Border" type="TextureButton" parent="StaticUI/StaticUIVBox/Arena/ArenaSquare5"]
-layout_mode = 0
-offset_right = 100.0
-offset_bottom = 100.0
-texture_normal = ExtResource("4_72uk1")
-texture_pressed = ExtResource("5_r5b6h")
-texture_hover = ExtResource("6_qfd2s")
-stretch_mode = 0
-
-[node name="ArenaSquare6" parent="StaticUI/StaticUIVBox/Arena" instance=ExtResource("3_xg2e8")]
-layout_mode = 2
-
-[node name="Border" type="TextureButton" parent="StaticUI/StaticUIVBox/Arena/ArenaSquare6"]
-layout_mode = 0
-offset_right = 100.0
-offset_bottom = 100.0
-texture_normal = ExtResource("4_72uk1")
-texture_pressed = ExtResource("5_r5b6h")
-texture_hover = ExtResource("6_qfd2s")
-stretch_mode = 0
-
-[node name="ArenaSquare7" parent="StaticUI/StaticUIVBox/Arena" instance=ExtResource("3_xg2e8")]
-layout_mode = 2
-
-[node name="Border" type="TextureButton" parent="StaticUI/StaticUIVBox/Arena/ArenaSquare7"]
-layout_mode = 0
-offset_right = 100.0
-offset_bottom = 100.0
-texture_normal = ExtResource("4_72uk1")
-texture_pressed = ExtResource("5_r5b6h")
-texture_hover = ExtResource("6_qfd2s")
-stretch_mode = 0
-
-[node name="ArenaSquare8" parent="StaticUI/StaticUIVBox/Arena" instance=ExtResource("3_xg2e8")]
-layout_mode = 2
-
-[node name="Border" type="TextureButton" parent="StaticUI/StaticUIVBox/Arena/ArenaSquare8"]
-layout_mode = 0
-offset_right = 100.0
-offset_bottom = 100.0
-texture_normal = ExtResource("4_72uk1")
-texture_pressed = ExtResource("5_r5b6h")
-texture_hover = ExtResource("6_qfd2s")
-stretch_mode = 0
-
-[node name="ArenaSquare9" parent="StaticUI/StaticUIVBox/Arena" instance=ExtResource("3_xg2e8")]
-layout_mode = 2
-
-[node name="Border" type="TextureButton" parent="StaticUI/StaticUIVBox/Arena/ArenaSquare9"]
-layout_mode = 0
-offset_right = 100.0
-offset_bottom = 100.0
-texture_normal = ExtResource("4_72uk1")
-texture_pressed = ExtResource("5_r5b6h")
-texture_hover = ExtResource("6_qfd2s")
-stretch_mode = 0
+mouse_filter = 2
 
 [node name="UnderArenaMargin" type="MarginContainer" parent="StaticUI/StaticUIVBox"]
 layout_mode = 2
+mouse_filter = 2
+theme_override_constants/margin_top = 10
 
 [node name="InstructionsWithButtonsUI" type="VBoxContainer" parent="StaticUI/StaticUIVBox"]
 layout_mode = 2
 size_flags_horizontal = 8
+mouse_filter = 2
 
 [node name="Instructions" type="Label" parent="StaticUI/StaticUIVBox/InstructionsWithButtonsUI"]
 custom_minimum_size = Vector2(600, 0)
@@ -285,6 +382,13 @@ text = "Strike"
 
 [node name="BottomMargin" type="MarginContainer" parent="StaticUI/StaticUIVBox"]
 layout_mode = 2
+
+[node name="AIMoveButton" type="Button" parent="."]
+offset_left = 922.0
+offset_top = 156.0
+offset_right = 989.0
+offset_bottom = 185.0
+text = "AI Move"
 
 [node name="OpponentLife" parent="." instance=ExtResource("8_mqi3u")]
 offset_left = 1053.0
@@ -554,16 +658,15 @@ offset_bottom = 685.0
 theme_override_font_sizes/font_size = 24
 text = "Exit to Menu"
 
-[connection signal="pressed" from="StaticUI/StaticUIVBox/TopMargin/AIMoveButton" to="." method="_on_ai_move_button_pressed"]
-[connection signal="pressed" from="StaticUI/StaticUIVBox/Arena/ArenaSquare1/Border" to="." method="_on_arena_location_pressed" binds= [1]]
-[connection signal="pressed" from="StaticUI/StaticUIVBox/Arena/ArenaSquare2/Border" to="." method="_on_arena_location_pressed" binds= [2]]
-[connection signal="pressed" from="StaticUI/StaticUIVBox/Arena/ArenaSquare3/Border" to="." method="_on_arena_location_pressed" binds= [3]]
-[connection signal="pressed" from="StaticUI/StaticUIVBox/Arena/ArenaSquare4/Border" to="." method="_on_arena_location_pressed" binds= [4]]
-[connection signal="pressed" from="StaticUI/StaticUIVBox/Arena/ArenaSquare5/Border" to="." method="_on_arena_location_pressed" binds= [5]]
-[connection signal="pressed" from="StaticUI/StaticUIVBox/Arena/ArenaSquare6/Border" to="." method="_on_arena_location_pressed" binds= [6]]
-[connection signal="pressed" from="StaticUI/StaticUIVBox/Arena/ArenaSquare7/Border" to="." method="_on_arena_location_pressed" binds= [7]]
-[connection signal="pressed" from="StaticUI/StaticUIVBox/Arena/ArenaSquare8/Border" to="." method="_on_arena_location_pressed" binds= [8]]
-[connection signal="pressed" from="StaticUI/StaticUIVBox/Arena/ArenaSquare9/Border" to="." method="_on_arena_location_pressed" binds= [9]]
+[connection signal="pressed" from="ArenaNode/RowButtons/ArenaSquare1/Button" to="." method="_on_arena_location_pressed" binds= [1]]
+[connection signal="pressed" from="ArenaNode/RowButtons/ArenaSquare2/Button" to="." method="_on_arena_location_pressed" binds= [2]]
+[connection signal="pressed" from="ArenaNode/RowButtons/ArenaSquare3/Button" to="." method="_on_arena_location_pressed" binds= [3]]
+[connection signal="pressed" from="ArenaNode/RowButtons/ArenaSquare4/Button" to="." method="_on_arena_location_pressed" binds= [4]]
+[connection signal="pressed" from="ArenaNode/RowButtons/ArenaSquare5/Button" to="." method="_on_arena_location_pressed" binds= [5]]
+[connection signal="pressed" from="ArenaNode/RowButtons/ArenaSquare6/Button" to="." method="_on_arena_location_pressed" binds= [6]]
+[connection signal="pressed" from="ArenaNode/RowButtons/ArenaSquare7/Button" to="." method="_on_arena_location_pressed" binds= [7]]
+[connection signal="pressed" from="ArenaNode/RowButtons/ArenaSquare8/Button" to="." method="_on_arena_location_pressed" binds= [8]]
+[connection signal="pressed" from="ArenaNode/RowButtons/ArenaSquare9/Button" to="." method="_on_arena_location_pressed" binds= [9]]
 [connection signal="pressed" from="StaticUI/StaticUIVBox/InstructionsWithButtonsUI/ButtonContainer/OkButton" to="." method="_on_instructions_ok_button_pressed"]
 [connection signal="pressed" from="StaticUI/StaticUIVBox/InstructionsWithButtonsUI/ButtonContainer/CancelButton" to="." method="_on_instructions_cancel_button_pressed"]
 [connection signal="pressed" from="StaticUI/StaticUIVBox/InstructionsWithButtonsUI/ButtonContainer/WildSwingButton" to="." method="_on_wild_swing_button_pressed"]
@@ -582,6 +685,7 @@ text = "Exit to Menu"
 [connection signal="pressed" from="StaticUI/StaticUIVBox/ButtonGrid/ReshuffleButton" to="." method="_on_reshuffle_button_pressed"]
 [connection signal="pressed" from="StaticUI/StaticUIVBox/ButtonGrid/BoostButton" to="." method="_on_boost_button_pressed"]
 [connection signal="pressed" from="StaticUI/StaticUIVBox/ButtonGrid/StrikeButton" to="." method="_on_strike_button_pressed"]
+[connection signal="pressed" from="AIMoveButton" to="." method="_on_ai_move_button_pressed"]
 [connection signal="pressed" from="PlayerDeck/ReferenceButton" to="." method="_on_player_reference_button_pressed"]
 [connection signal="pressed" from="OpponentDeck/ReferenceButton" to="." method="_on_opponent_reference_button_pressed"]
 [connection signal="gauge_clicked" from="PlayerGauge" to="." method="_on_player_gauge_gauge_clicked"]

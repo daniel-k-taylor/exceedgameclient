@@ -10,6 +10,7 @@ const AIPlayer = preload("res://scenes/game/ai_player.gd")
 const DamagePopup = preload("res://scenes/game/damage_popup.gd")
 
 @onready var damage_popup_template = preload("res://scenes/game/damage_popup.tscn")
+@onready var arena_layout = $ArenaNode/RowButtons
 
 const OffScreen = Vector2(-1000, -1000)
 const ReferenceScreenIdRangeStart = 90000
@@ -188,14 +189,15 @@ func draw_and_begin():
 	_handle_events(events)
 
 func get_arena_location_button(arena_location):
-	var arena = $StaticUI/StaticUIVBox/Arena
-	var target_square = arena.get_child(arena_location - 1)
-	return target_square.get_node("Border")
+	var target_square = arena_layout.get_child(arena_location - 1)
+	var button = target_square.get_node("Button")
+	return button
 
-func move_character_to_arena_square(character, arena_square, immediate: bool = false):
-	var arena = $StaticUI/StaticUIVBox/Arena
-	var target_square = arena.get_child(arena_square - 1)
+func move_character_to_arena_square(character, arena_location, immediate: bool = false):
+	var target_square = arena_layout.get_child(arena_location - 1)
 	var target_position = target_square.global_position + target_square.size/2
+	var offset_y = $ArenaNode/RowButtons.position.y
+	target_position.y -= character.get_size().y * character.scale.y / 2 + offset_y
 	if immediate:
 		character.position = target_position
 		update_character_facing()
@@ -536,6 +538,7 @@ func _on_continuous_boost_added(event):
 	card.discard_to(pos, CardBase.CardState.CardState_InBoost)
 	reparent_to_zone(card, boost_card_loc)
 	spawn_damage_popup("+ Continuous Boost", player)
+	return SmallNoticeDelay
 
 func _on_discard_continuous_boost_begin(event):
 	if event['event_player'] == game_logic.player:
@@ -552,7 +555,9 @@ func _on_discard_continuous_boost_begin(event):
 		ai_discard_continuous_boost()
 
 func _on_name_opponent_card_begin(event):
-	if event['event_player'] == game_logic.player:
+	var player = event['event_player']
+	spawn_damage_popup("Naming Card", player)
+	if player == game_logic.player:
 		# Show the boost window.
 		_on_opponent_reference_button_pressed()
 		selected_cards = []
@@ -574,6 +579,7 @@ func _on_boost_played(event):
 		target_zone = $OpponentStrike/StrikeZone
 		card.flip_card_to_front(true)
 	_move_card_to_strike_area(card, target_zone, $AllCards/Striking, is_player, false)
+	spawn_damage_popup("Boost!", player)
 	return BoostDelay
 
 func _on_choose_card_hand_to_gauge(event):
@@ -992,7 +998,7 @@ func _handle_events(events):
 			game_logic.EventType.EventType_Boost_Canceled:
 				delay = _on_boost_canceled(event)
 			game_logic.EventType.EventType_Boost_Continuous_Added:
-				_on_continuous_boost_added(event)
+				delay = _on_continuous_boost_added(event)
 			game_logic.EventType.EventType_Boost_DiscardContinuousChoice:
 				_on_discard_continuous_boost_begin(event)
 			game_logic.EventType.EventType_Boost_NameCardOpponentDiscards:
