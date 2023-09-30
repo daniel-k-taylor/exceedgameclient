@@ -37,6 +37,7 @@ func exceed(is_exceed : bool):
 	$MainPanelContainer/MainContainer/VerticalLayout/TextMarginContainer/TextPanelBacking/TextVLayout/BufferPanelExceed.visible = is_exceed
 	$MainPanelContainer/MainContainer/VerticalLayout/TextMarginContainer/TextPanelBacking/TextVLayout/EffectLabel.visible = not is_exceed
 	$MainPanelContainer/MainContainer/VerticalLayout/TextMarginContainer/TextPanelBacking/TextVLayout/EffectLabelExceed.visible = is_exceed
+	$ExceedCostPanel.visible = not is_exceed
 
 func set_image(image_name, exceed_image_name):
 	var image_path = PathPrefix + image_name

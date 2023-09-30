@@ -662,10 +662,11 @@ func _on_draw_event(event):
 func _on_exceed_event(event):
 	var player = event['event_player']
 	if player == game_logic.player:
-		$PlayerCharacter.modulate = Color(float(98)/255, float(250)/255, 0, 1)
+		$PlayerCharacter.set_exceed(true)
 		player_character_card.exceed(true)
+
 	else:
-		$OpponentCharacter.modulate = Color(float(66)/255, float(0)/255, float(24)/255, 1)
+		$OpponentCharacter.set_exceed(true)
 		$OpponentCharacterCard.exceed(true)
 
 	spawn_damage_popup("Exceed!", player)
@@ -919,6 +920,9 @@ func _move_card_to_strike_area(card, strike_area, new_parent, is_player : bool, 
 
 func _on_strike_started(event, is_ex : bool):
 	var card = find_card_on_board(event['number'])
+	var reveal_immediately = event['event_type'] == game_logic.EventType.EventType_Strike_PayCost_Unable
+	if reveal_immediately:
+		card.flip_card_to_front(true)
 	if event['event_player'] == game_logic.player:
 		_move_card_to_strike_area(card, $PlayerStrike/StrikeZone, $AllCards/Striking, true, is_ex)
 		if not is_ex and game_logic.game_state == game_logic.GameState.GameState_Strike_Opponent_Response:
