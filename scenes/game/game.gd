@@ -8,6 +8,7 @@ const GaugePanel = preload("res://scenes/game/gauge_panel.gd")
 const CharacterCardBase = preload("res://scenes/card/character_card_base.gd")
 const AIPlayer = preload("res://scenes/game/ai_player.gd")
 const DamagePopup = preload("res://scenes/game/damage_popup.gd")
+const Character = preload("res://scenes/game/character.gd")
 
 @onready var damage_popup_template = preload("res://scenes/game/damage_popup.tscn")
 @onready var arena_layout = $ArenaNode/RowButtons
@@ -138,8 +139,8 @@ func test_init():
 		_update_buttons()
 
 func first_run():
-	move_character_to_arena_square($PlayerCharacter, game_logic.player.arena_location, true)
-	move_character_to_arena_square($OpponentCharacter, game_logic.opponent.arena_location, true)
+	move_character_to_arena_square($PlayerCharacter, game_logic.player.arena_location, true, Character.CharacterAnim.CharacterAnim_None)
+	move_character_to_arena_square($OpponentCharacter, game_logic.opponent.arena_location, true, Character.CharacterAnim.CharacterAnim_None)
 	_update_buttons()
 
 	finish_initialization()
@@ -193,7 +194,7 @@ func get_arena_location_button(arena_location):
 	var button = target_square.get_node("Button")
 	return button
 
-func move_character_to_arena_square(character, arena_location, immediate: bool = false):
+func move_character_to_arena_square(character, arena_location, immediate: bool, move_anim : Character.CharacterAnim):
 	var target_square = arena_layout.get_child(arena_location - 1)
 	var target_position = target_square.global_position + target_square.size/2
 	var offset_y = $ArenaNode/RowButtons.position.y
@@ -202,7 +203,7 @@ func move_character_to_arena_square(character, arena_location, immediate: bool =
 		character.position = target_position
 		update_character_facing()
 	else:
-		character.move_to(target_position)
+		character.move_to(target_position, move_anim)
 
 func update_character_facing():
 	var character = $PlayerCharacter
@@ -479,7 +480,13 @@ func _stat_notice_event(event):
 
 func _on_stunned(event):
 	var card = find_card_on_board(event['number'])
+	var player = event['event_player']
+	var is_player = player == game_logic.player
 	card.set_stun(true)
+	if is_player:
+		$PlayerCharacter.play_stunned()
+	else:
+		$OpponentCharacter.play_stunned()
 	return _stat_notice_event(event)
 
 func _on_advance_turn():
@@ -833,26 +840,52 @@ func begin_boost_choosing():
 
 func _on_move_event(event):
 	var player = event['event_player']
-	var extra = event['extra_info']
+	var other_player = game_logic.other_player(player)
+	var move_amount = event['extra_info']
+	var destination = event['number']
+	var move_anim = Character.CharacterAnim.CharacterAnim_WalkForward
+	var original_position = event['extra_info2']
+	var is_far = abs(original_position - destination) >= 2
+	var is_forward = ((destination > original_position and other_player.arena_location > original_position)
+		or (destination < original_position and other_player.arena_location < original_position))
 	match event['reason']:
 		"advance":
-			spawn_damage_popup("Advance %s" % str(extra), player)
+			spawn_damage_popup("Advance %s" % str(move_amount), player)
+			move_anim = Character.CharacterAnim.CharacterAnim_WalkForward
+			if is_far:
+				move_anim = Character.CharacterAnim.CharacterAnim_Run
 		"close":
-			spawn_damage_popup("Close %s" % str(extra), player)
+			spawn_damage_popup("Close %s" % str(move_amount), player)
+			move_anim = Character.CharacterAnim.CharacterAnim_WalkForward
+			if is_far:
+				move_anim = Character.CharacterAnim.CharacterAnim_Run
 		"move":
 			spawn_damage_popup("Move", player)
+			if is_forward:
+				move_anim = Character.CharacterAnim.CharacterAnim_WalkForward
+				if is_far:
+					move_anim = Character.CharacterAnim.CharacterAnim_Run
+			else:
+				move_anim = Character.CharacterAnim.CharacterAnim_WalkBackward
+				if is_far:
+					move_anim = Character.CharacterAnim.CharacterAnim_DashBack
 		"push":
-			spawn_damage_popup("Pushed %s" % str(extra), player)
+			spawn_damage_popup("Pushed %s" % str(move_amount), player)
+			move_anim = Character.CharacterAnim.CharacterAnim_Pushed
 		"pull":
-			spawn_damage_popup("Pulled %s" % str(extra), player)
+			spawn_damage_popup("Pulled %s" % str(move_amount), player)
+			move_anim = Character.CharacterAnim.CharacterAnim_Pulled
 		"retreat":
-			spawn_damage_popup("Retreat %s" % str(extra), player)
+			spawn_damage_popup("Retreat %s" % str(move_amount), player)
+			move_anim = Character.CharacterAnim.CharacterAnim_WalkBackward
+			if is_far:
+				move_anim = Character.CharacterAnim.CharacterAnim_DashBack
 
 	#spawn_damage_popup("Move", player)
 	if player == game_logic.player:
-		move_character_to_arena_square($PlayerCharacter, event['number'])
+		move_character_to_arena_square($PlayerCharacter, destination, false,  move_anim)
 	else:
-		move_character_to_arena_square($OpponentCharacter, event['number'])
+		move_character_to_arena_square($OpponentCharacter, destination, false, move_anim)
 	return MoveDelay
 
 func _on_mulligan_decision(event):
@@ -976,8 +1009,10 @@ func _on_damage(event):
 	var damage_taken = event['number']
 	if player == game_logic.player:
 		$PlayerLife.set_life(game_logic.player.life)
+		$PlayerCharacter.play_hit()
 	else:
 		$OpponentLife.set_life(game_logic.opponent.life)
+		$OpponentCharacter.play_hit()
 	spawn_damage_popup("%s Damage" % str(damage_taken), player)
 	return SmallNoticeDelay
 

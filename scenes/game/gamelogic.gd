@@ -104,7 +104,7 @@ enum EventType {
 func printlog(text):
 	print(text)
 
-func create_event(event_type : EventType, event_player : Player, num : int, reason: String = "", extra_info = null):
+func create_event(event_type : EventType, event_player : Player, num : int, reason: String = "", extra_info = null, extra_info2 = null):
 	var card_name = get_card_name(num)
 	printlog("Event %s %s %d (card=%s)" % [EventType.keys()[event_type], event_player.name, num, card_name])
 	return {
@@ -113,6 +113,7 @@ func create_event(event_type : EventType, event_player : Player, num : int, reas
 		"number": num,
 		"reason": reason,
 		"extra_info": extra_info,
+		"extra_info2": extra_info2,
 	}
 
 
@@ -528,12 +529,15 @@ class Player:
 
 	func move_to(new_arena_location):
 		var events = []
+		var previous_location = arena_location
+		var distance = abs(arena_location - new_arena_location)
 		arena_location = new_arena_location
-		events += [parent.create_event(EventType.EventType_Move, self, new_arena_location, "move")]
+		events += [parent.create_event(EventType.EventType_Move, self, new_arena_location, "move", distance, previous_location)]
 		return events
 
 	func close(amount):
 		var events = []
+		var previous_location = arena_location
 		var other_location = parent.other_player(self).arena_location
 		var new_location
 		if arena_location < other_location:
@@ -541,11 +545,12 @@ class Player:
 		else:
 			new_location = max(other_location+1, arena_location-amount)
 		arena_location = new_location
-		events += [parent.create_event(EventType.EventType_Move, self, new_location, "close", amount)]
+		events += [parent.create_event(EventType.EventType_Move, self, new_location, "close", amount, previous_location)]
 		return events
 
 	func advance(amount):
 		var events = []
+		var previous_location = arena_location
 		var other_player_location = parent.other_player(self).arena_location
 		var new_location
 		if arena_location < other_player_location:
@@ -564,12 +569,13 @@ class Player:
 				new_location += 1
 
 		arena_location = new_location
-		events += [parent.create_event(EventType.EventType_Move, self, new_location, "advance", amount)]
+		events += [parent.create_event(EventType.EventType_Move, self, new_location, "advance", amount, previous_location)]
 
 		return events
 
 	func retreat(amount):
 		var events = []
+		var previous_location = arena_location
 		var other_location = parent.other_player(self).arena_location
 		var new_location
 		if arena_location < other_location:
@@ -580,12 +586,13 @@ class Player:
 			new_location = min(new_location, MaxArenaLocation)
 
 		arena_location = new_location
-		events += [parent.create_event(EventType.EventType_Move, self, new_location, "retreat", amount)]
+		events += [parent.create_event(EventType.EventType_Move, self, new_location, "retreat", amount, previous_location)]
 
 		return events
 
 	func push(amount):
 		var events = []
+		var previous_location = arena_location
 		var other_player = parent.other_player(self)
 		if other_player.strike_stat_boosts.ignore_push_and_pull:
 			events += [parent.create_event(EventType.EventType_Strike_IgnoredPushPull, other_player, 0)]
@@ -600,12 +607,13 @@ class Player:
 				new_location = max(new_location, MinArenaLocation)
 
 			other_player.arena_location = new_location
-			events += [parent.create_event(EventType.EventType_Move, other_player, new_location, "push", amount)]
+			events += [parent.create_event(EventType.EventType_Move, other_player, new_location, "push", amount, previous_location)]
 
 		return events
 
 	func pull(amount):
 		var events = []
+		var previous_location = arena_location
 		var other_player = parent.other_player(self)
 		if other_player.strike_stat_boosts.ignore_push_and_pull:
 			events += [parent.create_event(EventType.EventType_Strike_IgnoredPushPull, other_player, 0)]
@@ -628,7 +636,7 @@ class Player:
 					new_location -= 1
 
 			other_player.arena_location = new_location
-			events += [parent.create_event(EventType.EventType_Move, other_player, new_location, "pull", amount)]
+			events += [parent.create_event(EventType.EventType_Move, other_player, new_location, "pull", amount, previous_location)]
 
 		return events
 

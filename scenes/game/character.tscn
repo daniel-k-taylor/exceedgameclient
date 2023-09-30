@@ -14,5 +14,5 @@ texture = ExtResource("2_tnqi4")
 
 [node name="Animation" type="AnimatedSprite2D" parent="."]
 sprite_frames = ExtResource("1_6pa2q")
-animation = &"idle"
+animation = &"stunned"
 autoplay = "idle"
