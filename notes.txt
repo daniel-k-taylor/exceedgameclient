@@ -1,0 +1,17 @@
+State:
+player hand, player gauge, player discards, player deck, player life, player exceeded, in play boosts, reshuffles remaining
+
+Phases:
+Turn action - 7 main actions
+Discard to max
+Change cards discard
+Move Discard
+Boost choices? Or included in turn action
+Cancel after boost
+Strike choices
+Strike paying
+Strike response
+Exceed paying
+
+
+
