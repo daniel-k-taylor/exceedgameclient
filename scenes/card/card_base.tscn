@@ -1,4 +1,4 @@
-[gd_scene load_steps=12 format=3 uid="uid://cl8i21571i4qa"]
+[gd_scene load_steps=13 format=3 uid="uid://cl8i21571i4qa"]
 
 [ext_resource type="Script" path="res://scenes/card/card_base.gd" id="1_o734l"]
 [ext_resource type="Texture2D" uid="uid://dal2ec8wws714" path="res://icon.svg" id="1_xb23j"]
@@ -8,6 +8,7 @@
 [ext_resource type="Texture2D" uid="uid://cy0pcorknc8op" path="res://assets/cards/border_thin_pressed.png" id="6_h5u6x"]
 [ext_resource type="Texture2D" uid="uid://c7ojn7hf8n4li" path="res://assets/icons/stopwatch.png" id="7_rrupl"]
 [ext_resource type="Texture2D" uid="uid://xusjesyfjald" path="res://assets/icons/x.png" id="8_wk1ir"]
+[ext_resource type="Texture2D" uid="uid://cj7nvglef8cu" path="res://assets/cards/sol/normals.tres" id="9_4hc8s"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_xbdvb"]
 size = Vector2(250, 350)
@@ -207,6 +208,13 @@ bbcode_enabled = true
 text = "[b]HIT:[/b] Do something cool
 [b]AFTER:[/b] Do something else"
 fit_content = true
+
+[node name="FancyCard" type="TextureRect" parent="CardContainer"]
+visible = false
+layout_mode = 2
+mouse_filter = 2
+texture = ExtResource("9_4hc8s")
+expand_mode = 1
 
 [node name="CardBack" type="TextureRect" parent="CardContainer"]
 visible = false
