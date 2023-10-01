@@ -64,10 +64,15 @@ func get_choice_summary(choice):
 		if i > 0:
 			summary_text += " or "
 		if effect_summary.min_value != null:
-			summary_text += get_effect_type_heading(effect_summary.effect) + str(effect_summary.min_value) + "-" + str(effect_summary.max_value)
+			if effect_summary.min_value == effect_summary.max_value:
+				summary_text += get_effect_type_heading(effect_summary.effect) + str(effect_summary.min_value)
+			else:
+				summary_text += get_effect_type_heading(effect_summary.effect) + str(effect_summary.min_value) + "-" + str(effect_summary.max_value)
 		else:
 			# No amount, so just use the full effect text
 			summary_text += get_effect_type_text(effect_summary.effect)
+		if 'bonus_effect' in effect_summary.effect:
+			summary_text += "; " + get_effect_text(effect_summary.effect['bonus_effect'])
 	return summary_text
 
 func get_timing_text(timing):

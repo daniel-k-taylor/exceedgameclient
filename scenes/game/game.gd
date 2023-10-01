@@ -902,8 +902,6 @@ func _on_mulligan_decision(event):
 func _on_reshuffle_discard(event):
 	var player = event['event_player']
 	spawn_damage_popup("Reshuffle!", player)
-	# TODO: Play a cool animation of discard shuffling into deck
-	printlog("UI: TODO: Play reshuffle animation and update reshuffle count/icon.")
 	if player == game_logic.player:
 		var cards = $AllCards/PlayerDiscards.get_children()
 		for card in cards:
@@ -920,6 +918,7 @@ func _on_reshuffle_discard(event):
 			card.position = OffScreen
 			card.reset()
 	close_popout()
+	update_card_counts()
 	return SmallNoticeDelay
 
 func _on_reshuffle_deck_mulligan(_event):

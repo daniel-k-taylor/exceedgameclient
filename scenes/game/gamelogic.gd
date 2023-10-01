@@ -1757,6 +1757,7 @@ func do_boost_name_card_choice_effect(performing_player : Player, card_id : int)
 		"card_id": card_id,
 	}
 
+	game_state = GameState.GameState_Boost_Processing
 	var events = handle_strike_effect(decision_choice_card_id, effect, performing_player)
 	active_boost.effects_resolved += 1
 	events += continue_resolve_boost()
@@ -1775,7 +1776,13 @@ func do_choice(performing_player : Player, choice_index : int):
 		return []
 
 	var effect = decision_choice[choice_index]
+	if active_strike:
+		game_state = GameState.GameState_Strike_Processing
+	elif active_boost:
+		game_state = GameState.GameState_Boost_Processing
+
 	var events = handle_strike_effect(decision_choice_card_id, effect, performing_player)
+
 	if active_strike:
 		active_strike.effects_resolved_in_timing += 1
 		events += continue_resolve_strike()
