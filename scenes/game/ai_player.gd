@@ -131,7 +131,7 @@ func create_card_id_array(card_array):
 func update_ai_state(_game_logic : GameLogic, me : GameLogic.Player, opponent : GameLogic.Player):
 	game_state.my_state.life = me.life
 	game_state.my_state.deck = create_sanitized_card_id_array(me.deck)
-	game_state.my_state.full_deck = create_card_id_array(me.deck_copy)
+	game_state.my_state.full_deck = me.deck_copy
 	game_state.my_state.hand = create_card_id_array(me.hand)
 	game_state.my_state.discards = create_card_id_array(me.discards)
 	game_state.my_state.continuous_boosts = create_card_id_array(me.continuous_boosts)
@@ -143,7 +143,7 @@ func update_ai_state(_game_logic : GameLogic, me : GameLogic.Player, opponent : 
 
 	game_state.opponent_state.life = opponent.life
 	game_state.opponent_state.deck = create_sanitized_card_id_array(opponent.deck)
-	game_state.opponent_state.full_deck = create_card_id_array(opponent.deck_copy)
+	game_state.opponent_state.full_deck = opponent.deck_copy
 	game_state.opponent_state.hand = create_sanitized_card_id_array(opponent.hand)
 	game_state.opponent_state.discards = create_card_id_array(opponent.discards)
 	game_state.opponent_state.continuous_boosts = create_card_id_array(opponent.continuous_boosts)
