@@ -101,7 +101,8 @@ var sent_message = false
 
 func _notification(what):
 	if what == NOTIFICATION_WM_CLOSE_REQUEST:
-		_socket.close()
+		if _socket:
+			_socket.close()
 
 func _handle_sockets():
 	if _socket:
