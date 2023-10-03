@@ -3,12 +3,12 @@
 [ext_resource type="Script" path="res://scenes/card/card_base.gd" id="1_o734l"]
 [ext_resource type="Texture2D" uid="uid://dal2ec8wws714" path="res://icon.svg" id="1_xb23j"]
 [ext_resource type="PackedScene" uid="uid://dh3sjq06r8ou2" path="res://scenes/card/stat_panel.tscn" id="2_ujv87"]
+[ext_resource type="Texture2D" uid="uid://cj7nvglef8cu" path="res://assets/cards/solbadguy/normal_grasp.tres" id="4_krtfi"]
 [ext_resource type="Texture2D" uid="uid://cpolsw2tyi4m" path="res://assets/cardbacks/cardback_blue.svg" id="4_pvdi7"]
 [ext_resource type="Texture2D" uid="uid://kwcp6d7oulcg" path="res://assets/cards/border_thin_hover.png" id="5_i47k7"]
 [ext_resource type="Texture2D" uid="uid://cy0pcorknc8op" path="res://assets/cards/border_thin_pressed.png" id="6_h5u6x"]
 [ext_resource type="Texture2D" uid="uid://c7ojn7hf8n4li" path="res://assets/icons/stopwatch.png" id="7_rrupl"]
 [ext_resource type="Texture2D" uid="uid://xusjesyfjald" path="res://assets/icons/x.png" id="8_wk1ir"]
-[ext_resource type="Texture2D" uid="uid://cj7nvglef8cu" path="res://assets/cards/sol/normals.tres" id="9_4hc8s"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_xbdvb"]
 size = Vector2(250, 350)
@@ -213,7 +213,7 @@ fit_content = true
 visible = false
 layout_mode = 2
 mouse_filter = 2
-texture = ExtResource("9_4hc8s")
+texture = ExtResource("4_krtfi")
 expand_mode = 1
 
 [node name="CardBack" type="TextureRect" parent="CardContainer"]

@@ -143,17 +143,19 @@ func _ready():
 	setup_character_cards(chosen_deck, chosen_deck)
 
 func setup_character_cards(player_deck, opponent_deck):
-	setup_character_card(player_character_card, player_deck['character'])
-	setup_character_card(opponent_character_card, opponent_deck['character'])
+	setup_character_card(player_character_card, player_deck)
+	setup_character_card(opponent_character_card, opponent_deck)
 
-func setup_character_card(character_card, character):
-	character_card.set_name_text(character['display_name'])
-	character_card.set_image(character['image'], character['exceed_image'])
-	var on_exceed_text = CardDefinitions.get_on_exceed_text(character['on_exceed'])
-	var effect_text = on_exceed_text + CardDefinitions.get_effects_text(character['ability_effects'])
-	var exceed_text = CardDefinitions.get_effects_text(character['exceed_ability_effects'])
+func setup_character_card(character_card, deck):
+	character_card.set_name_text(deck['display_name'])
+	var character_default_path = "res://assets/cards/" + deck['id'] + "/character_default.jpg"
+	var character_exceeded_path = "res://assets/cards/" + deck['id'] + "/character_exceeded.jpg"
+	character_card.set_image(character_default_path, character_exceeded_path)
+	var on_exceed_text = CardDefinitions.get_on_exceed_text(deck['on_exceed'])
+	var effect_text = on_exceed_text + CardDefinitions.get_effects_text(deck['ability_effects'])
+	var exceed_text = CardDefinitions.get_effects_text(deck['exceed_ability_effects'])
 	character_card.set_effect(effect_text, exceed_text)
-	character_card.set_cost(character['exceed_cost'])
+	character_card.set_cost(deck['exceed_cost'])
 
 func finish_initialization():
 	spawn_all_cards()
@@ -181,17 +183,20 @@ func first_run():
 
 	finish_initialization()
 
-func spawn_deck(deck, deck_copy, deck_card_zone, copy_zone, card_back_image, hand_focus_y_pos):
+func spawn_deck(deck_id, deck, deck_copy, deck_card_zone, copy_zone, card_back_image, hand_focus_y_pos):
+	var card_root_path = "res://assets/cards/" + deck_id + "/"
 	for card in deck:
 		var logic_card : GameLogic.Card = game_logic.get_card(card.id)
-		var new_card = create_card(card.id, logic_card.definition, logic_card.image, card_back_image, deck_card_zone, hand_focus_y_pos)
+		var image_path = card_root_path + logic_card.image
+		var new_card = create_card(card.id, logic_card.definition, image_path, card_back_image, deck_card_zone, hand_focus_y_pos)
 		new_card.position = OffScreen
 
 	var previous_def_id = ""
 	for card in deck_copy:
 		var logic_card : GameLogic.Card = game_logic.get_card(card.id)
+		var image_path = card_root_path + logic_card.image
 		if previous_def_id != logic_card.definition['id']:
-			var copy_card = create_card(card.id + ReferenceScreenIdRangeStart, logic_card.definition, logic_card.image, card_back_image, copy_zone, 0)
+			var copy_card = create_card(card.id + ReferenceScreenIdRangeStart, logic_card.definition, image_path, card_back_image, copy_zone, 0)
 			copy_card.position = OffScreen
 			copy_card.resting_scale = CardBase.SmallCardScale
 			copy_card.scale = CardBase.SmallCardScale
@@ -217,9 +222,13 @@ func get_damage_popup() -> DamagePopup:
 		return new_popup
 
 func spawn_all_cards():
-	var card_back_image = "res://assets/character_images/" + game_logic.player.deck_def['character']['image']
-	spawn_deck(game_logic.player.deck, game_logic.player.deck_copy, $AllCards/PlayerDeck, $AllCards/PlayerAllCopy, card_back_image, PlayerHandFocusYPos)
-	spawn_deck(game_logic.opponent.deck, game_logic.opponent.deck_copy, $AllCards/OpponentDeck, $AllCards/OpponentAllCopy, card_back_image, OpponentHandFocusYPos)
+	var player_deck_id = game_logic.player.deck_def['id']
+	var opponent_deck_id = game_logic.opponent.deck_def['id']
+	var player_cardback = "res://assets/cardbacks/" + game_logic.player.deck_def['cardback']
+	var opponent_cardback = "res://assets/cardbacks/" + game_logic.opponent.deck_def['cardback']
+
+	spawn_deck(player_deck_id, game_logic.player.deck, game_logic.player.deck_copy, $AllCards/PlayerDeck, $AllCards/PlayerAllCopy, player_cardback, PlayerHandFocusYPos)
+	spawn_deck(opponent_deck_id, game_logic.opponent.deck, game_logic.opponent.deck_copy, $AllCards/OpponentDeck, $AllCards/OpponentAllCopy, opponent_cardback, OpponentHandFocusYPos)
 
 func draw_and_begin():
 	var events = game_logic.draw_starting_hands_and_begin()

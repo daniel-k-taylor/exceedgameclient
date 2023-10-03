@@ -1,6 +1,9 @@
 extends Node2D
 
-const PathPrefix = "res://assets/character_images/"
+@onready var fancy_card = $MainPanelContainer/FancyCard
+@onready var fancy_exceed_card = $MainPanelContainer/FancyExceedCard
+@onready var main_container = $MainPanelContainer/MainContainer
+@onready var exceed_cost_panel = $ExceedCostPanel
 
 enum CardState {
 	CardState_Unfocused,
@@ -30,21 +33,27 @@ func _ready():
 	target_scale = scale
 
 func exceed(is_exceed : bool):
-	$MainPanelContainer/MainContainer/VerticalLayout/ImageMarginContainer/ImageHBox/CharacterImage.visible = not is_exceed
-	$MainPanelContainer/MainContainer/VerticalLayout/ImageMarginContainer/ImageHBox/CharacterExceedImage.visible = is_exceed
-	$MainPanelContainer/BackgroundContainer/ExceedBackground.visible = is_exceed
-	$MainPanelContainer/MainContainer/VerticalLayout/TextMarginContainer/TextPanelBacking/TextVLayout/BufferPanelNormal.visible = not is_exceed
-	$MainPanelContainer/MainContainer/VerticalLayout/TextMarginContainer/TextPanelBacking/TextVLayout/BufferPanelExceed.visible = is_exceed
-	$MainPanelContainer/MainContainer/VerticalLayout/TextMarginContainer/TextPanelBacking/TextVLayout/EffectLabel.visible = not is_exceed
-	$MainPanelContainer/MainContainer/VerticalLayout/TextMarginContainer/TextPanelBacking/TextVLayout/EffectLabelExceed.visible = is_exceed
-	$ExceedCostPanel.visible = not is_exceed
+	#$MainPanelContainer/MainContainer/VerticalLayout/ImageMarginContainer/ImageHBox/CharacterImage.visible = not is_exceed
+	#$MainPanelContainer/MainContainer/VerticalLayout/ImageMarginContainer/ImageHBox/CharacterExceedImage.visible = is_exceed
+	#$MainPanelContainer/BackgroundContainer/ExceedBackground.visible = is_exceed
+	#$MainPanelContainer/MainContainer/VerticalLayout/TextMarginContainer/TextPanelBacking/TextVLayout/BufferPanelNormal.visible = not is_exceed
+	#$MainPanelContainer/MainContainer/VerticalLayout/TextMarginContainer/TextPanelBacking/TextVLayout/BufferPanelExceed.visible = is_exceed
+	#$MainPanelContainer/MainContainer/VerticalLayout/TextMarginContainer/TextPanelBacking/TextVLayout/EffectLabel.visible = not is_exceed
+	#$MainPanelContainer/MainContainer/VerticalLayout/TextMarginContainer/TextPanelBacking/TextVLayout/EffectLabelExceed.visible = is_exceed
+	#exceed_cost_panel.visible = not is_exceed
+	fancy_card.visible = not is_exceed
+	fancy_exceed_card.visible = is_exceed
 
-func set_image(image_name, exceed_image_name):
-	var image_path = PathPrefix + image_name
-	var exceed_image_path = PathPrefix + exceed_image_name
-	$MainPanelContainer/MainContainer/VerticalLayout/ImageMarginContainer/ImageHBox/CharacterImage.texture = load(image_path)
-	$MainPanelContainer/MainContainer/VerticalLayout/ImageMarginContainer/ImageHBox/CharacterExceedImage.texture = load(exceed_image_path)
-	
+func set_image(image_path, exceed_image_path):
+	#$MainPanelContainer/MainContainer/VerticalLayout/ImageMarginContainer/ImageHBox/CharacterImage.texture = load(image_path)
+	#$MainPanelContainer/MainContainer/VerticalLayout/ImageMarginContainer/ImageHBox/CharacterExceedImage.texture = load(exceed_image_path)
+	fancy_card.texture = load(image_path)
+	fancy_exceed_card.texture = load(exceed_image_path)
+	main_container.visible = false
+	fancy_card.visible = true
+	fancy_exceed_card.visible = false
+	exceed_cost_panel.visible = false
+
 func set_name_text(name_text):
 	$MainPanelContainer/MainContainer/VerticalLayout/TextMarginContainer/TextPanelBacking/TextVLayout/CharacterNameLabel.text = name_text
 
@@ -75,7 +84,7 @@ func focus():
 		target_pos.y += $MainPanelContainer.size.y * target_scale.y
 	else:
 		target_pos.y -= $MainPanelContainer.size.y * target_scale.y
-	
+
 	target_scale = focus_scale
 	animation_time = 0
 	animation_length = FOCUS_ANIMATION_LENGTH
@@ -85,7 +94,7 @@ func focus():
 func unfocus():
 	start_pos = position
 	start_scale = scale
-	
+
 	target_pos = unfocused_pos
 	target_scale = unfocused_scale
 

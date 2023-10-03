@@ -10,7 +10,6 @@ const MinArenaLocation = 1
 const MaxArenaLocation = 9
 const ShuffleEnabled = true
 
-var NextCardId = 1
 var all_cards : Array = []
 var game_over : bool = false
 var active_strike : Strike = null
@@ -275,7 +274,7 @@ class Player:
 		life = MaxLife
 		hand = []
 		deck_def = chosen_deck
-		exceed_cost = deck_def['character']['exceed_cost']
+		exceed_cost = deck_def['exceed_cost']
 		deck = []
 		deck_copy = []
 		strike_stat_boosts = StrikeStatBoosts.new()
@@ -307,7 +306,7 @@ class Player:
 		var events = []
 		events += [parent.create_event(EventType.EventType_Exceed, self, 0)]
 
-		if deck_def['character']['on_exceed'] == "strike":
+		if deck_def['on_exceed'] == "strike":
 			events += [parent.create_event(EventType.EventType_ForceStartStrike, self, 0)]
 			parent.change_game_state(GameState.GameState_WaitForStrike)
 			parent.decision_player = self
@@ -708,7 +707,7 @@ class Player:
 		if exceeded:
 			ability_label = "exceed_ability_effects"
 
-		for effect in deck_def['character'][ability_label]:
+		for effect in deck_def[ability_label]:
 			if effect['timing'] == timing_name:
 				effects.append(effect)
 		return effects
@@ -802,6 +801,7 @@ func other_player(test_player : Player) -> Player:
 	return player
 
 func advance_to_next_turn():
+	var events = []
 	player.canceled_this_turn = false
 	opponent.canceled_this_turn = false
 
@@ -814,13 +814,14 @@ func advance_to_next_turn():
 		for effect in card.definition['boost']['effects']:
 			if effect['timing'] == "start_of_next_turn":
 				if effect['effect_type'] == 'add_to_gauge_immediately':
-					active_turn_player.remove_from_continuous_boosts(card, true)
+					events += active_turn_player.remove_from_continuous_boosts(card, true)
 
 	if game_over:
 		change_game_state(GameState.GameState_GameOver)
 	else:
 		change_game_state(GameState.GameState_PickAction)
-	return [create_event(EventType.EventType_AdvanceTurn, active_turn_player, 0)]
+		events += [create_event(EventType.EventType_AdvanceTurn, active_turn_player, 0)]
+	return events
 
 func begin_resolve_strike():
 	var events = []

@@ -10,9 +10,11 @@ const StatPanel = preload("res://scenes/card/stat_panel.gd")
 @onready var power_panel : StatPanel = $CardContainer/CardBox/AbiltiesImagePanel/StatsHBox/StatsColumn/PowerPanel
 @onready var armor_panel : StatPanel = $CardContainer/CardBox/AbiltiesImagePanel/StatsHBox/StatsColumn/ArmorPanel
 @onready var guard_panel : StatPanel = $CardContainer/CardBox/AbiltiesImagePanel/StatsHBox/StatsColumn/GuardPanel
+@onready var card_box = $CardContainer/CardBox
 @onready var cancel_container = $CancelContainer
 @onready var cancel_cost_label = $CancelContainer/CancelCost
 @onready var card_back = $CardContainer/CardBack
+@onready var fancy_card = $CardContainer/FancyCard
 
 const DesiredCardSize = Vector2(125, 175)
 const ActualCardSize = Vector2(250,350)
@@ -61,6 +63,7 @@ var focus_pos
 var focus_rot
 var focus_y_pos
 var cancel_visible_on_front
+var use_custom_card_image = false
 
 var selected = false
 
@@ -78,11 +81,13 @@ func _ready():
 func flip_card_to_front(front):
 	if front:
 		$CardContainer/CardBack.visible = false
-		$CardContainer/CardBox.visible = true
+		card_box.visible = use_custom_card_image
+		fancy_card.visible = not use_custom_card_image
 		cancel_container.visible = cancel_visible_on_front
 	else:
 		$CardContainer/CardBack.visible = true
-		$CardContainer/CardBox.visible = false
+		card_box.visible = false
+		fancy_card.visible = false
 		cancel_container.visible = false
 
 func set_backlight_visible(backlight_visible):
@@ -195,13 +200,19 @@ func position_card_in_hand(dst_pos, dst_rot):
 func _process(_delta):
 	pass
 
-func initialize_card(id, card_title, _image, card_back_image, range_min, range_max, speed, power, armor, guard, effect_text, boost_cost, boost_text, strike_cost, cancel_cost, hand_focus_y_pos):
+func initialize_card(id, card_title, image, card_back_image, range_min, range_max, speed, power, armor, guard, effect_text, boost_cost, boost_text, strike_cost, cancel_cost, hand_focus_y_pos):
 	card_id = id
 	$CardContainer/CardBox/TitleRow/TitlePanel/TitleNameBox/TitleName.text = card_title
 	default_scale = HandCardScale
 	resting_scale = HandCardScale
 	scale = HandCardScale
-	# TODO: Set image
+	if image != "":
+		use_custom_card_image = false
+		fancy_card.texture = load(image)
+		fancy_card.visible = true
+		card_box.visible = false
+	else:
+		use_custom_card_image = true
 	card_back.texture = load(card_back_image)
 
 	# Set Stats
@@ -211,7 +222,7 @@ func initialize_card(id, card_title, _image, card_back_image, range_min, range_m
 	armor_panel.set_stats("ARMOR", armor, armor, true)
 	guard_panel.set_stats("GUARD", guard, guard, true)
 
-	cancel_visible_on_front = cancel_cost != -1
+	cancel_visible_on_front = use_custom_card_image and cancel_cost != -1
 	cancel_cost_label.text = str(cancel_cost)
 
 	# Set Effect and Boost
