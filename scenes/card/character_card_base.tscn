@@ -1,9 +1,10 @@
-[gd_scene load_steps=11 format=3 uid="uid://dvan4a8ftuplj"]
+[gd_scene load_steps=12 format=3 uid="uid://dvan4a8ftuplj"]
 
 [ext_resource type="Texture2D" uid="uid://b61gro3gblok8" path="res://assets/character_images/sol.png" id="1_1coex"]
 [ext_resource type="Script" path="res://scenes/card/character_card_base.gd" id="1_mmbsg"]
 [ext_resource type="Texture2D" uid="uid://cwlap1h8ius6o" path="res://assets/cards/solbadguy/character_default.jpg" id="3_wh1pl"]
 [ext_resource type="Texture2D" uid="uid://kwcp6d7oulcg" path="res://assets/cards/border_thin_hover.png" id="4_7csga"]
+[ext_resource type="Texture2D" uid="uid://cy0pcorknc8op" path="res://assets/cards/border_thin_pressed.png" id="4_vb7wr"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_63mev"]
 bg_color = Color(0, 0, 0, 1)
@@ -144,6 +145,8 @@ expand_mode = 1
 
 [node name="Focus" type="TextureButton" parent="MainPanelContainer"]
 layout_mode = 2
+tooltip_text = "Open Deck Reference"
+texture_pressed = ExtResource("4_vb7wr")
 texture_hover = ExtResource("4_7csga")
 stretch_mode = 0
 
@@ -168,3 +171,4 @@ horizontal_alignment = 1
 
 [connection signal="mouse_entered" from="MainPanelContainer/Focus" to="." method="_on_focus_mouse_entered"]
 [connection signal="mouse_exited" from="MainPanelContainer/Focus" to="." method="_on_focus_mouse_exited"]
+[connection signal="pressed" from="MainPanelContainer/Focus" to="." method="_on_focus_pressed"]

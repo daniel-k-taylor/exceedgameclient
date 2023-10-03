@@ -198,8 +198,8 @@ func spawn_deck(deck_id, deck, deck_copy, deck_card_zone, copy_zone, card_back_i
 		if previous_def_id != logic_card.definition['id']:
 			var copy_card = create_card(card.id + ReferenceScreenIdRangeStart, logic_card.definition, image_path, card_back_image, copy_zone, 0)
 			copy_card.position = OffScreen
-			copy_card.resting_scale = CardBase.SmallCardScale
-			copy_card.scale = CardBase.SmallCardScale
+			copy_card.resting_scale = CardBase.ReferenceCardScale
+			copy_card.scale = CardBase.ReferenceCardScale
 			copy_card.change_state(CardBase.CardState.CardState_Offscreen)
 			copy_card.flip_card_to_front(true)
 			previous_def_id = card.definition['id']
@@ -1586,7 +1586,7 @@ func _update_popout_cards(cards_in_popout : Array, not_visible_position : Vector
 			card.set_selected(card_in_selected_cards(card))
 			# Assign positions
 			var pos = card_popout.get_slot_position(i)
-			card.position = pos + CardBase.SmallCardScale * CardBase.ActualCardSize / 2
+			card.position = pos + CardBase.ReferenceCardScale * CardBase.ActualCardSize / 2
 			card.change_state(CardBase.CardState.CardState_InPopout)
 			card.set_resting_position(card.position, 0)
 	else:

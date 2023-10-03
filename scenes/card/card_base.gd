@@ -16,10 +16,11 @@ const StatPanel = preload("res://scenes/card/stat_panel.gd")
 @onready var card_back = $CardContainer/CardBack
 @onready var fancy_card = $CardContainer/FancyCard
 
+#const DesiredCardSize = Vector2(125, 175)
 const DesiredCardSize = Vector2(125, 175)
 const ActualCardSize = Vector2(250,350)
 const HandCardScale = DesiredCardSize / ActualCardSize
-const SmallCardScale = Vector2(0.4, 0.4)
+const ReferenceCardScale = Vector2(0.4, 0.4)
 const HighlightColor = Color('#36fff3')
 
 enum CardState {
@@ -262,7 +263,7 @@ func discard_to(pos, target_state):
 	set_selected(false)
 	set_resting_position(pos, 0)
 	unfocus() # Sets animation_time to 0
-	target_scale = SmallCardScale
+	target_scale = ReferenceCardScale
 	resting_scale = target_scale
 	return_state = target_state
 	change_state(CardState.CardState_Discarding)

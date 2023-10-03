@@ -2,11 +2,13 @@ extends Node2D
 
 signal gauge_clicked()
 
+@onready var gauge_panel = $BackgroundPanel/GaugePanel
+
 func set_details(num : int):
-	$GaugePanel/GaugeVBox/GaugeAmount.text = str(num)
+	$BackgroundPanel/GaugePanel/GaugeVBox/GaugeAmount.text = str(num)
 
 func get_center_pos() -> Vector2:
-	return $GaugePanel.global_position + $GaugePanel.size/2
+	return gauge_panel.global_position + gauge_panel.size/2
 
 func _on_focus_pressed():
 	gauge_clicked.emit()

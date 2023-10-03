@@ -438,15 +438,6 @@ texture_normal = ExtResource("9_dpbn3")
 texture_pressed = ExtResource("9_dpbn3")
 texture_hover = ExtResource("9_dpbn3")
 
-[node name="ReferenceButton" type="Button" parent="PlayerDeck"]
-offset_left = 10.0
-offset_top = 540.0
-offset_right = 128.0
-offset_bottom = 610.0
-theme_override_font_sizes/font_size = 24
-text = "Card
-Reference"
-
 [node name="OpponentDeck" type="Node2D" parent="."]
 
 [node name="OpponentCharacterCard" parent="OpponentDeck" instance=ExtResource("18_imast")]
@@ -479,15 +470,6 @@ scale = Vector2(0.4, 0.4)
 texture_normal = ExtResource("9_dpbn3")
 texture_pressed = ExtResource("9_dpbn3")
 texture_hover = ExtResource("9_dpbn3")
-
-[node name="ReferenceButton" type="Button" parent="OpponentDeck"]
-offset_left = 10.0
-offset_top = 150.0
-offset_right = 128.0
-offset_bottom = 220.0
-theme_override_font_sizes/font_size = 24
-text = "Card
-Reference"
 
 [node name="PlayerStrike" type="Node2D" parent="."]
 
@@ -564,16 +546,16 @@ texture_pressed = ExtResource("4_5y76h")
 texture_hover = ExtResource("4_5y76h")
 
 [node name="PlayerGauge" parent="." instance=ExtResource("6_gtjck")]
-position = Vector2(10, 400)
+position = Vector2(200, 380)
 
 [node name="OpponentGauge" parent="." instance=ExtResource("6_gtjck")]
-position = Vector2(10, 10)
+position = Vector2(200, 5)
 
 [node name="PlayerBoostZone" parent="." instance=ExtResource("7_gn0of")]
-position = Vector2(155, 400)
+position = Vector2(5, 380)
 
 [node name="OpponentBoostZone" parent="." instance=ExtResource("7_gn0of")]
-position = Vector2(155, 10)
+position = Vector2(5, 5)
 
 [node name="PlayerCharacter" parent="." instance=ExtResource("9_rhsuv")]
 position = Vector2(50, -68)
@@ -651,10 +633,10 @@ texture_pressed = ExtResource("16_laiwo")
 texture_hover = ExtResource("17_rr8uh")
 
 [node name="ExitToMenu" type="Button" parent="."]
-offset_left = 11.0
-offset_top = 646.0
-offset_right = 156.0
-offset_bottom = 685.0
+offset_left = 7.0
+offset_top = 652.0
+offset_right = 152.0
+offset_bottom = 691.0
 theme_override_font_sizes/font_size = 24
 text = "Exit to Menu"
 
@@ -686,8 +668,8 @@ text = "Exit to Menu"
 [connection signal="pressed" from="StaticUI/StaticUIVBox/ButtonGrid/BoostButton" to="." method="_on_boost_button_pressed"]
 [connection signal="pressed" from="StaticUI/StaticUIVBox/ButtonGrid/StrikeButton" to="." method="_on_strike_button_pressed"]
 [connection signal="pressed" from="AIMoveButton" to="." method="_on_ai_move_button_pressed"]
-[connection signal="pressed" from="PlayerDeck/ReferenceButton" to="." method="_on_player_reference_button_pressed"]
-[connection signal="pressed" from="OpponentDeck/ReferenceButton" to="." method="_on_opponent_reference_button_pressed"]
+[connection signal="pressed" from="PlayerDeck/PlayerCharacterCard" to="." method="_on_player_reference_button_pressed"]
+[connection signal="pressed" from="OpponentDeck/OpponentCharacterCard" to="." method="_on_opponent_reference_button_pressed"]
 [connection signal="gauge_clicked" from="PlayerGauge" to="." method="_on_player_gauge_gauge_clicked"]
 [connection signal="gauge_clicked" from="OpponentGauge" to="." method="_on_opponent_gauge_gauge_clicked"]
 [connection signal="clicked_zone" from="PlayerBoostZone" to="." method="_on_player_boost_zone_clicked_zone"]

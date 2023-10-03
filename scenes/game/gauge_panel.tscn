@@ -7,31 +7,43 @@
 [node name="Gauge" type="Node2D"]
 script = ExtResource("1_6vj7f")
 
-[node name="GaugePanel" type="PanelContainer" parent="."]
-custom_minimum_size = Vector2(90, 90)
-offset_right = 53.0
-offset_bottom = 78.0
+[node name="BackgroundPanel" type="PanelContainer" parent="."]
+offset_right = 135.0
+offset_bottom = 60.0
 
-[node name="GaugeVBox" type="VBoxContainer" parent="GaugePanel"]
+[node name="GaugePanel" type="MarginContainer" parent="BackgroundPanel"]
 layout_mode = 2
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 5
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 5
 
-[node name="GaugeLabel" type="Label" parent="GaugePanel/GaugeVBox"]
+[node name="GaugeVBox" type="HBoxContainer" parent="BackgroundPanel/GaugePanel"]
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+theme_override_constants/separation = 15
+alignment = 1
+
+[node name="GaugeLabel" type="Label" parent="BackgroundPanel/GaugePanel/GaugeVBox"]
 layout_mode = 2
 theme_override_font_sizes/font_size = 24
 text = "GAUGE"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="GaugeAmount" type="Label" parent="GaugePanel/GaugeVBox"]
+[node name="GaugeAmount" type="Label" parent="BackgroundPanel/GaugePanel/GaugeVBox"]
 layout_mode = 2
 theme_override_font_sizes/font_size = 36
 text = "0"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="Focus" type="TextureButton" parent="GaugePanel"]
+[node name="Focus" type="TextureButton" parent="BackgroundPanel"]
 layout_mode = 2
 texture_pressed = ExtResource("2_s5ifx")
 texture_hover = ExtResource("3_lr7n5")
+ignore_texture_size = true
+stretch_mode = 0
 
-[connection signal="pressed" from="GaugePanel/Focus" to="." method="_on_focus_pressed"]
+[connection signal="pressed" from="BackgroundPanel/Focus" to="." method="_on_focus_pressed"]

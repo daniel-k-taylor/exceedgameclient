@@ -1,7 +1,5 @@
 
 In progress:
-    ☐ Make gauge part of health bar
-    ☐ Make card ref an icon button
     ☐ Make cards a little bigger, zoom and unzoomed
     ☐ Switch to nearby cards after mouse exiting the inner part
 
@@ -25,6 +23,7 @@ Tasks:
         ☐ Boost zone panel formatting/change size with text. - Should scroll?
         ☐ Highlight cards based on mouse position in the zone instead of hovering the actual card
         ☐ Tweak timings on animation lengths
+        ☐ Make card ref an icon button
         Card Visuals are poor:
             ☐ Effect text is ugly
             ☐ Hard to read anything

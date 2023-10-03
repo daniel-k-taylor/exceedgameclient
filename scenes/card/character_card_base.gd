@@ -1,5 +1,7 @@
 extends Node2D
 
+signal pressed
+
 @onready var fancy_card = $MainPanelContainer/FancyCard
 @onready var fancy_exceed_card = $MainPanelContainer/FancyExceedCard
 @onready var main_container = $MainPanelContainer/MainContainer
@@ -15,7 +17,9 @@ var card_state : CardState = CardState.CardState_Unfocused
 var unfocused_pos
 var unfocused_scale
 @export var anchor_top : bool = true
-var focus_scale = Vector2(1.2, 1.2)
+var focus_scale
+
+const FOCUS_SCALE_FACTOR = 4
 
 var start_pos
 var target_pos
@@ -31,6 +35,7 @@ func _ready():
 	unfocused_scale = scale
 	target_pos = position
 	target_scale = scale
+	focus_scale = scale * FOCUS_SCALE_FACTOR
 
 func exceed(is_exceed : bool):
 	#$MainPanelContainer/MainContainer/VerticalLayout/ImageMarginContainer/ImageHBox/CharacterImage.visible = not is_exceed
@@ -79,13 +84,16 @@ func focus():
 
 	start_pos = position
 	start_scale = scale
-	target_pos = unfocused_pos - $MainPanelContainer.size * target_scale
-	if anchor_top:
-		target_pos.y += $MainPanelContainer.size.y * target_scale.y
-	else:
-		target_pos.y -= $MainPanelContainer.size.y * target_scale.y
-
 	target_scale = focus_scale
+	var size_at_scale = $MainPanelContainer.size * focus_scale
+	target_pos = unfocused_pos - size_at_scale
+	target_pos.x += size_at_scale.x/2
+	target_pos.y += size_at_scale.y/4
+	if anchor_top:
+		target_pos.y += size_at_scale.y - size_at_scale.y / 4
+	#else:
+		#target_pos.y -= $MainPanelContainer.size.y * target_scale.y
+
 	animation_time = 0
 	animation_length = FOCUS_ANIMATION_LENGTH
 
@@ -109,3 +117,7 @@ func _on_focus_mouse_entered():
 
 func _on_focus_mouse_exited():
 	unfocus()
+
+
+func _on_focus_pressed():
+	pressed.emit()
