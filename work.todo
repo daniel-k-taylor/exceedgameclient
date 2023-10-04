@@ -4,10 +4,10 @@ In progress:
 Tasks:
     Main Features:
         ☐ Add Ky - new mechanics
-            ☐ Not advanced through
+            ✔ Not advanced through @done(23-10-04 10:19)
             ☐ Exceed ability choice after cancel
-            ☐ Hit, Range 2 (need to add range check)
-            ☐ Range 2 during ability, should be same condition check
+            ✔ Hit, Range 2 (need to add range check) @done(23-10-04 10:19)
+            ✔ Range 2 during ability, should be same condition check @done(23-10-04 10:19)
             ✔ plus range boost (min-max) @done(23-10-04 01:04)
         ☐ Add Ky - Character and animations, char cards, card backs, cards
 
