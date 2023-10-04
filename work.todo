@@ -8,7 +8,7 @@ Tasks:
             ☐ Exceed ability choice after cancel
             ☐ Hit, Range 2 (need to add range check)
             ☐ Range 2 during ability, should be same condition check
-            ☐ plus range boost (min-max)
+            ✔ plus range boost (min-max) @done(23-10-04 01:04)
         ☐ Add Ky - Character and animations, char cards, card backs, cards
 
     Tests:

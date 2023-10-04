@@ -1,5 +1,101 @@
 [
+
 	{
+		"NOTE": "KY KISUKE CARDS START",
+		"id": "kykisuke_ridethelightning",
+		"type": "ultra",
+		"display_name": "Ride the Lightning",
+		"force_cost": 0,
+		"gauge_cost": 4,
+		"range_min": 1,
+		"range_max": 1,
+		"speed": 1,
+		"power": 6,
+		"armor": 2,
+		"guard": 6,
+		"effects": [
+			{
+				"timing": "before",
+				"effect_type": "close",
+				"amount": 4
+			},
+			{
+				"timing": "hit",
+				"effect_type": "push",
+				"amount": 2,
+				"and": {
+					"effect_type": "gain_advantage"
+				}
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": 1,
+			"display_name": "Thunderseal",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "rangeup",
+					"amount": 0,
+					"amount2": 1
+				},
+				{
+					"timing": "during_strike",
+					"effect_type": "powerup",
+					"amount": 1
+				}
+			]
+		}
+	},
+	{
+		"id": "kykisuke_sacrededge",
+		"type": "ultra",
+		"display_name": "Sacred Edge",
+		"force_cost": 0,
+		"gauge_cost": 4,
+		"range_min": 2,
+		"range_max": 6,
+		"speed": 6,
+		"power": 5,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "hit",
+				"effect_type": "choice",
+				"choice": [
+					{ "effect_type": "close", "amount": 0 },
+					{ "effect_type": "close", "amount": 1 },
+					{ "effect_type": "close", "amount": 2 },
+					{ "effect_type": "close", "amount": 3 },
+					{ "effect_type": "close", "amount": 4 }
+				]
+			},
+			{
+				"timing": "hit",
+				"effect_type": "gain_advantage"
+			}
+		],
+		"boost": {
+			"boost_type": "immediate",
+			"force_cost": 0,
+			"cancel_cost": 1,
+			"display_name": "Roar of the Spark",
+			"effects": [
+				{
+					"timing": "immediate",
+					"effect_type": "draw",
+					"amount": 2
+				}
+			]
+		}
+	},
+
+
+
+	{
+		"NOTE": "SOL BADGUY CARDS START",
 		"id": "solbadguy_heavymobcemetery",
 		"type": "ultra",
 		"display_name": "Heavy Mob Cemetery",
@@ -317,6 +413,7 @@
 		}
 	},
 	{
+		"NOTE": "SOL BADGUY CARDS END",
 		"id": "solbadguy_volcanicviper",
 		"type": "special",
 		"display_name": "Volcanic Viper",
@@ -367,7 +464,9 @@
 		}
 	},
 
+
 	{
+		"NOTE": "GG NORMALS START",
 		"id": "gg_normal_grasp",
 		"type": "normal",
 		"display_name": "Grasp",
@@ -641,6 +740,7 @@
 		}
 	},
 	{
+		"NOTE": "GG NORMALS END",
 		"id": "gg_normal_block",
 		"type": "normal",
 		"display_name": "Block",

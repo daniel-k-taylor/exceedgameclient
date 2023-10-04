@@ -197,6 +197,8 @@ func get_effect_type_text(effect):
 			effect_str += "Pull " + str(effect['amount'])
 		"push":
 			effect_str += "Push " + str(effect['amount'])
+		"rangeup":
+			effect_str += "+" + str(effect['amount']) + "-" + str(effect['amount2']) + " Range"
 		"retreat":
 			effect_str += "Retreat " + str(effect['amount'])
 		"speedup":

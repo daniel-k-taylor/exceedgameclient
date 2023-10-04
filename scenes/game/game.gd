@@ -528,6 +528,9 @@ func _stat_notice_event(event):
 			notice_text = "Miss!"
 		GameLogic.EventType.EventType_Strike_PowerUp:
 			notice_text = "%d Power" % number
+		GameLogic.EventType.EventType_Strike_RangeUp:
+			var number2 = event['extra_info']
+			notice_text = "%d-%d Range" % [number, number2]
 		GameLogic.EventType.EventType_Strike_Stun:
 			notice_text = "Stunned!"
 		GameLogic.EventType.EventType_Strike_WildStrike:
@@ -1159,6 +1162,8 @@ func _handle_events(events):
 			game_logic.EventType.EventType_Strike_PayCost_Unable:
 				_on_pay_cost_failed(event)
 			game_logic.EventType.EventType_Strike_PowerUp:
+				delay = _stat_notice_event(event)
+			game_logic.EventType.EventType_Strike_RangeUp:
 				delay = _stat_notice_event(event)
 			game_logic.EventType.EventType_Strike_Response:
 				_on_strike_started(event, false)

@@ -91,6 +91,7 @@ enum EventType {
 	EventType_Strike_PayCost_Force,
 	EventType_Strike_PayCost_Unable,
 	EventType_Strike_PowerUp,
+	EventType_Strike_RangeUp,
 	EventType_Strike_Response,
 	EventType_Strike_Response_Ex,
 	EventType_Strike_Reveal,
@@ -991,6 +992,10 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 			var new_location = opposing_player.arena_location
 			var push_amount = abs(other_start - new_location)
 			local_conditions.fully_pushed = push_amount == effect['amount']
+		"rangeup":
+			performing_player.strike_stat_boosts.min_range += effect['amount']
+			performing_player.strike_stat_boosts.max_range += effect['amount2']
+			events += [create_event(EventType.EventType_Strike_RangeUp, performing_player, effect['amount'], "", effect['amount2'])]
 		"retreat":
 			events += performing_player.retreat(effect['amount'])
 			var new_location = performing_player.arena_location
@@ -1083,8 +1088,8 @@ func do_effects_for_timing(timing_name : String, performing_player : Player, car
 func in_range(atacking_player, defending_player, card):
 	if defending_player.strike_stat_boosts.dodge_attacks:
 		return false
-	var min_range = card.definition['range_min']
-	var max_range = card.definition['range_max']
+	var min_range = card.definition['range_min'] + atacking_player.strike_stat_boosts.min_range
+	var max_range = card.definition['range_max'] + atacking_player.strike_stat_boosts.max_range
 	var distance = abs(atacking_player.arena_location - defending_player.arena_location)
 	if min_range <= distance and distance <= max_range:
 		return true
