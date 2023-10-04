@@ -1,7 +1,5 @@
 
 In progress:
-    ☐ Card popout has choice buttons in it
-    ☐ If making a decision, minimizing card popout has a blinking icon to reopen it
 
 Tasks:
     Main Features:
@@ -12,7 +10,6 @@ Tasks:
             ☐ Range 2 during ability, should be same condition check
             ☐ plus range boost (min-max)
         ☐ Add Ky - Character and animations, char cards, card backs, cards
-
 
     Tests:
         ☐ Strike
@@ -32,6 +29,8 @@ Tasks:
         ☐ Highlight cards based on mouse position in the zone instead of hovering the actual card
         ☐ Tweak timings on animation lengths
         ☐ Make card ref an icon button
+        ☐ Card popout has choice buttons in it
+        ☐ If making a decision, minimizing card popout has a blinking icon to reopen it
         Card Visuals are poor:
             ☐ Effect text is ugly
             ☐ Hard to read anything

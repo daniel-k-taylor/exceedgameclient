@@ -1085,6 +1085,8 @@ func _handle_events(events):
 				_on_discard_event(event)
 			game_logic.EventType.EventType_AdvanceTurn:
 				_on_advance_turn()
+			game_logic.EventType.EventType_AIPause:
+				delay = SmallNoticeDelay
 			game_logic.EventType.EventType_Boost_ActionAfterBoost:
 				_on_post_boost_action(event)
 			game_logic.EventType.EventType_Boost_CancelDecision:
@@ -1555,8 +1557,10 @@ func ai_forced_strike():
 	_handle_events(events)
 
 func ai_boost_cancel_decision(gauge_cost):
+	var events = []
+	events += [game_logic.create_event(game_logic.EventType.EventType_AIPause, game_logic.opponent, 0)]
 	var cancel_action = ai_player.pick_cancel(game_logic, game_logic.opponent, game_logic.player, gauge_cost)
-	var events = game_logic.do_boost_cancel(game_logic.opponent, cancel_action.card_ids, cancel_action.cancel)
+	events += game_logic.do_boost_cancel(game_logic.opponent, cancel_action.card_ids, cancel_action.cancel)
 	_handle_events(events)
 
 func ai_discard_continuous_boost():

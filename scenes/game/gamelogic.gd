@@ -54,6 +54,7 @@ enum EventType {
 	EventType_AddToDiscard,
 	EventType_AddToDeck,
 	EventType_AdvanceTurn,
+	EventType_AIPause,
 	EventType_Boost_ActionAfterBoost,
 	EventType_Boost_CancelDecision,
 	EventType_Boost_DiscardContinuousChoice,
