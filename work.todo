@@ -1,10 +1,19 @@
 
 In progress:
-    ☐ Make cards a little bigger, zoom and unzoomed
     ☐ Switch to nearby cards after mouse exiting the inner part
+    ☐ Card popout has choice buttons in it
+    ☐ If making a decision, minimizing card popout has a blinking icon to reopen it
 
 Tasks:
     Main Features:
+        ☐ Add Ky - new mechanics
+            ☐ Not advanced through
+            ☐ Exceed ability choice after cancel
+            ☐ Hit, Range 2 (need to add range check)
+            ☐ Range 2 during ability, should be same condition check
+            ☐ plus range boost (min-max)
+        ☐ Add Ky - Character and animations, char cards, card backs, cards
+
 
     Tests:
         ☐ Strike

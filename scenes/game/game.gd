@@ -26,8 +26,8 @@ var events_to_process = []
 
 var damage_popup_pool:Array[DamagePopup] = []
 
-const PlayerHandFocusYPos = 720 - (CardBase.DesiredCardSize.y + 20)
-const OpponentHandFocusYPos = CardBase.DesiredCardSize.y
+var PlayerHandFocusYPos = 720 - (CardBase.get_hand_card_size().y + 20)
+var OpponentHandFocusYPos = CardBase.get_opponent_hand_card_size().y
 
 var chosen_deck = null
 var NextCardId = 1
@@ -79,17 +79,15 @@ var ui_state : UIState = UIState.UIState_Initializing
 var ui_sub_state : UISubState = UISubState.UISubState_None
 
 @onready var game_logic : GameLogic = $GameLogic
-@onready var card_popout : CardPopout = $CardPopout
+@onready var card_popout : CardPopout = $AllCards/CardPopout
 @onready var player_character_card : CharacterCardBase  = $PlayerDeck/PlayerCharacterCard
 @onready var opponent_character_card : CharacterCardBase  = $OpponentDeck/OpponentCharacterCard
-@onready var player_card_count = $PlayerDeck/DeckButton/CardCountContainer/VBoxContainer/CardCount
-@onready var opponent_card_count = $OpponentDeck/DeckButton/CardCountContainer/VBoxContainer/CardCount
 @onready var game_over_stuff = $GameOverStuff
 @onready var game_over_label = $GameOverStuff/GameOverLabel
 @onready var ai_player : AIPlayer = $AIPlayer
 
-@onready var CenterCardOval = Vector2(get_viewport().content_scale_size) * Vector2(0.5, 1.25)
-@onready var HorizontalRadius = get_viewport().content_scale_size.x * 0.45
+@onready var CenterCardOval = Vector2(get_viewport().content_scale_size) * Vector2(0.5, 1.35)
+@onready var HorizontalRadius = get_viewport().content_scale_size.x * 0.55
 @onready var VerticalRadius = get_viewport().content_scale_size.y * 0.4
 
 func printlog(text):
@@ -183,12 +181,12 @@ func first_run():
 
 	finish_initialization()
 
-func spawn_deck(deck_id, deck, deck_copy, deck_card_zone, copy_zone, card_back_image, hand_focus_y_pos):
+func spawn_deck(deck_id, deck, deck_copy, deck_card_zone, copy_zone, card_back_image, hand_focus_y_pos, is_opponent):
 	var card_root_path = "res://assets/cards/" + deck_id + "/"
 	for card in deck:
 		var logic_card : GameLogic.Card = game_logic.get_card(card.id)
 		var image_path = card_root_path + logic_card.image
-		var new_card = create_card(card.id, logic_card.definition, image_path, card_back_image, deck_card_zone, hand_focus_y_pos)
+		var new_card = create_card(card.id, logic_card.definition, image_path, card_back_image, deck_card_zone, hand_focus_y_pos, is_opponent)
 		new_card.position = OffScreen
 
 	var previous_def_id = ""
@@ -196,7 +194,7 @@ func spawn_deck(deck_id, deck, deck_copy, deck_card_zone, copy_zone, card_back_i
 		var logic_card : GameLogic.Card = game_logic.get_card(card.id)
 		var image_path = card_root_path + logic_card.image
 		if previous_def_id != logic_card.definition['id']:
-			var copy_card = create_card(card.id + ReferenceScreenIdRangeStart, logic_card.definition, image_path, card_back_image, copy_zone, 0)
+			var copy_card = create_card(card.id + ReferenceScreenIdRangeStart, logic_card.definition, image_path, card_back_image, copy_zone, 0, is_opponent)
 			copy_card.position = OffScreen
 			copy_card.resting_scale = CardBase.ReferenceCardScale
 			copy_card.scale = CardBase.ReferenceCardScale
@@ -227,8 +225,8 @@ func spawn_all_cards():
 	var player_cardback = "res://assets/cardbacks/" + game_logic.player.deck_def['cardback']
 	var opponent_cardback = "res://assets/cardbacks/" + game_logic.opponent.deck_def['cardback']
 
-	spawn_deck(player_deck_id, game_logic.player.deck, game_logic.player.deck_copy, $AllCards/PlayerDeck, $AllCards/PlayerAllCopy, player_cardback, PlayerHandFocusYPos)
-	spawn_deck(opponent_deck_id, game_logic.opponent.deck, game_logic.opponent.deck_copy, $AllCards/OpponentDeck, $AllCards/OpponentAllCopy, opponent_cardback, OpponentHandFocusYPos)
+	spawn_deck(player_deck_id, game_logic.player.deck, game_logic.player.deck_copy, $AllCards/PlayerDeck, $AllCards/PlayerAllCopy, player_cardback, PlayerHandFocusYPos, false)
+	spawn_deck(opponent_deck_id, game_logic.opponent.deck, game_logic.opponent.deck_copy, $AllCards/OpponentDeck, $AllCards/OpponentAllCopy, opponent_cardback, OpponentHandFocusYPos, true)
 
 func draw_and_begin():
 	var events = game_logic.draw_starting_hands_and_begin()
@@ -335,7 +333,7 @@ func update_card_counts():
 func get_card_node_name(id):
 	return "Card_" + str(id)
 
-func create_card(id, card_def, image, card_back_image, parent, hand_focus_y_pos) -> CardBase:
+func create_card(id, card_def, image, card_back_image, parent, hand_focus_y_pos, is_opponent : bool) -> CardBase:
 	var new_card : CardBase = CardBaseScene.instantiate()
 	parent.add_child(new_card)
 	var strike_cost = card_def['gauge_cost']
@@ -357,7 +355,8 @@ func create_card(id, card_def, image, card_back_image, parent, hand_focus_y_pos)
 		CardDefinitions.get_boost_text(card_def['boost']['effects']),
 		strike_cost,
 		card_def['boost']['cancel_cost'],
-		hand_focus_y_pos
+		hand_focus_y_pos,
+		is_opponent
 	)
 	new_card.name = get_card_node_name(id)
 	new_card.raised_card.connect(on_card_raised)
@@ -445,42 +444,56 @@ func on_card_clicked(card : CardBase):
 func layout_player_hand(is_player : bool):
 	var hand_zone = get_hand_zone(is_player)
 	var num_cards = len(hand_zone.get_children())
-	if is_player:
-		var angle = deg_to_rad(90)
-		var HandAngleChange = 0.2
-		var angle_change_amount = 0.2
-		if num_cards > 7:
-			var normal_total_angle = 0.2 * 7
-			angle_change_amount  = normal_total_angle / num_cards
-		angle += HandAngleChange * (num_cards - 1)/2
-		for i in range(num_cards):
-			var card : CardBase = hand_zone.get_child(i)
+	if num_cards > 0:
+		if is_player:
+			if num_cards == 1:
+				var card : CardBase = hand_zone.get_child(0)
+				var angle = deg_to_rad(90)
+				var ovalAngleVector = Vector2(HorizontalRadius * cos(angle), -VerticalRadius * sin(angle))
+				var dst_pos = CenterCardOval + ovalAngleVector
+				card.set_resting_position(dst_pos, 0)
+			else:
+				var min_angle = deg_to_rad(60)
+				var max_angle = deg_to_rad(120)
+				var max_angle_diff = deg_to_rad(10)
 
-			var ovalAngleVector = Vector2(HorizontalRadius * cos(angle), -VerticalRadius * sin(angle))
-			var dst_pos = CenterCardOval + ovalAngleVector # - size/2
-			var dst_rot = (90 - rad_to_deg(angle)) / 4
-			card.set_resting_position(dst_pos, dst_rot)
+				var angle_diff = (max_angle - min_angle) / (num_cards - 1)
+				if angle_diff > max_angle_diff:
+					angle_diff = max_angle_diff
+					var total_angle = min_angle + angle_diff * (num_cards - 1)
+					var extra_angle = (max_angle - total_angle) / 2
+					min_angle += extra_angle
+					max_angle -= extra_angle
 
-			angle -= angle_change_amount
-	else:
-		var spawn_spot = $OpponentHand/HandSpawn
-		var hand_center = spawn_spot.global_position + spawn_spot.size * spawn_spot.scale /2
-		var min_x = hand_center.x - 200
-		var max_x = hand_center.x + 200
-		if num_cards == 1:
-			var pos = Vector2(hand_center.x, hand_center.y)
-			var card : CardBase = hand_zone.get_child(0)
-			card.set_resting_position(pos, 0)
-		elif num_cards > 1:
-			var step = (max_x - min_x) / (num_cards - 1)
-			step = min(step, 100)
-			var new_diff = step * (num_cards - 1)
-			max_x = hand_center.x + new_diff / 2
-			min_x = hand_center.x - new_diff / 2
-			for i in range(num_cards):
-				var pos = Vector2(min_x + step * i, hand_center.y)
-				var card : CardBase = hand_zone.get_child(i)
+				for i in range(num_cards):
+					var card : CardBase = hand_zone.get_child(num_cards - i - 1)
+
+					# Calculate the angle for this card, distributing the cards evenly between min_angle and max_angle
+					var angle = min_angle + i * (max_angle - min_angle) / (num_cards - 1)
+
+					var ovalAngleVector = Vector2(HorizontalRadius * cos(angle), -VerticalRadius * sin(angle))
+					var dst_pos = CenterCardOval + ovalAngleVector # - size/2
+					var dst_rot = (90 - rad_to_deg(angle)) / 4
+					card.set_resting_position(dst_pos, dst_rot)
+		else:
+			var spawn_spot = $OpponentHand/HandSpawn
+			var hand_center = spawn_spot.global_position + spawn_spot.size * spawn_spot.scale /2
+			var min_x = hand_center.x - 200
+			var max_x = hand_center.x + 200
+			if num_cards == 1:
+				var pos = Vector2(hand_center.x, hand_center.y)
+				var card : CardBase = hand_zone.get_child(0)
 				card.set_resting_position(pos, 0)
+			elif num_cards > 1:
+				var step = (max_x - min_x) / (num_cards - 1)
+				step = min(step, CardBase.get_opponent_hand_card_size().x / 1.5)
+				var new_diff = step * (num_cards - 1)
+				max_x = hand_center.x + new_diff / 2
+				min_x = hand_center.x - new_diff / 2
+				for i in range(num_cards):
+					var pos = Vector2(min_x + step * i, hand_center.y)
+					var card : CardBase = hand_zone.get_child(i)
+					card.set_resting_position(pos, 0)
 
 	update_card_counts()
 
@@ -547,9 +560,10 @@ func _on_advance_turn():
 	clear_selected_cards()
 	close_popout()
 	for zone in $AllCards.get_children():
-		for card in zone.get_children():
-			card.set_backlight_visible(false)
-			card.set_stun(false)
+		if zone is Node2D:
+			for card in zone.get_children():
+				card.set_backlight_visible(false)
+				card.set_stun(false)
 
 	spawn_damage_popup("Ready!", game_logic.active_turn_player)
 
@@ -662,10 +676,11 @@ func find_card_on_board(card_id) -> CardBase:
 	# Find a given card among the Hand, Strike, Gauge, Boost, and Discard areas.
 	var zones = $AllCards.get_children()
 	for zone in zones:
-		var zone_cards = zone.get_children()
-		for zone_card in zone_cards:
-			if zone_card.card_id == card_id:
-				return zone_card
+		if zone is Node2D:
+			var zone_cards = zone.get_children()
+			for zone_card in zone_cards:
+				if zone_card.card_id == card_id:
+					return zone_card
 	assert(false, "ERROR: Unable to find card %s on board." % card_id)
 	return null
 
@@ -990,7 +1005,7 @@ func _move_card_to_strike_area(card, strike_area, new_parent, is_player : bool, 
 
 	var pos = strike_area.global_position + strike_area.size * strike_area.scale /2
 	if is_ex:
-		pos.x += CardBase.DesiredCardSize.x
+		pos.x += CardBase.get_hand_card_size().x
 	card.discard_to(pos, CardBase.CardState.CardState_InStrike)
 	card.get_parent().remove_child(card)
 	new_parent.add_child(card)
@@ -1664,8 +1679,8 @@ func show_popout(popout_title : String, card_node, card_rest_position : Vector2,
 	_update_popout_cards(cards, card_rest_position, card_rest_state)
 
 func get_boost_zone_center(zone):
-	var pos = zone.global_position + CardBase.DesiredCardSize / 2
-	pos.x += CardBase.DesiredCardSize.x / 2
+	var pos = zone.global_position + CardBase.get_hand_card_size() / 2
+	pos.x += CardBase.get_hand_card_size().x / 2
 	return pos
 
 func _on_player_gauge_gauge_clicked():

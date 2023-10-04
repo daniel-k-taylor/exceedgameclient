@@ -80,19 +80,32 @@ func _physics_process(delta):
 		position = target_pos
 		scale = target_scale
 
+func clamp_to_screen(pos : Vector2, size: Vector2) -> Vector2:
+	var screen_size = get_viewport().content_scale_size
+	var new_pos = pos
+	if new_pos.x < 0:
+		new_pos.x = 0
+	if new_pos.x + size.x > screen_size.x:
+		new_pos.x = screen_size.x - size.x
+	if new_pos.y < 0:
+		new_pos.y = 0
+	if new_pos.y + size.y > screen_size.y:
+		new_pos.y = screen_size.y - size.y
+	return new_pos
+
 func focus():
 
 	start_pos = position
 	start_scale = scale
 	target_scale = focus_scale
 	var size_at_scale = $MainPanelContainer.size * focus_scale
-	target_pos = unfocused_pos - size_at_scale
-	target_pos.x += size_at_scale.x/2
-	target_pos.y += size_at_scale.y/4
-	if anchor_top:
-		target_pos.y += size_at_scale.y - size_at_scale.y / 4
-	#else:
-		#target_pos.y -= $MainPanelContainer.size.y * target_scale.y
+	target_pos = unfocused_pos# - size_at_scale
+	# target_pos.x += size_at_scale.x/2
+	# target_pos.y += size_at_scale.y/4
+	# if anchor_top:
+	# 	target_pos.y += size_at_scale.y - size_at_scale.y / 4
+
+	target_pos = clamp_to_screen(target_pos, size_at_scale)
 
 	animation_time = 0
 	animation_length = FOCUS_ANIMATION_LENGTH

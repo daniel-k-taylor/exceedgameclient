@@ -578,14 +578,6 @@ theme_override_font_sizes/font_size = 64
 text = "DEFEAT"
 horizontal_alignment = 1
 
-[node name="CardPopout" parent="." instance=ExtResource("14_lyeqj")]
-visible = false
-offset_left = 50.0
-offset_top = 60.0
-offset_right = 293.0
-offset_bottom = 185.0
-scale = Vector2(0.5, 0.5)
-
 [node name="AllCards" type="Node2D" parent="."]
 
 [node name="PlayerHand" type="Node2D" parent="AllCards"]
@@ -593,6 +585,12 @@ scale = Vector2(0.5, 0.5)
 [node name="OpponentHand" type="Node2D" parent="AllCards"]
 
 [node name="Striking" type="Node2D" parent="AllCards"]
+
+[node name="CardPopout" parent="AllCards" instance=ExtResource("14_lyeqj")]
+visible = false
+offset_right = 243.0
+offset_bottom = 125.0
+scale = Vector2(0.6, 0.6)
 
 [node name="PlayerBoosts" type="Node2D" parent="AllCards"]
 
@@ -674,7 +672,7 @@ text = "Exit to Menu"
 [connection signal="gauge_clicked" from="OpponentGauge" to="." method="_on_opponent_gauge_gauge_clicked"]
 [connection signal="clicked_zone" from="PlayerBoostZone" to="." method="_on_player_boost_zone_clicked_zone"]
 [connection signal="clicked_zone" from="OpponentBoostZone" to="." method="_on_opponent_boost_zone_clicked_zone"]
-[connection signal="close_window" from="CardPopout" to="." method="_on_popout_close_window"]
+[connection signal="close_window" from="AllCards/CardPopout" to="." method="_on_popout_close_window"]
 [connection signal="pressed" from="PlayerDiscardButton" to="." method="_on_player_discard_button_pressed"]
 [connection signal="pressed" from="OpponentDiscardButton" to="." method="_on_opponent_discard_button_pressed"]
 [connection signal="pressed" from="ExitToMenu" to="." method="_on_exit_to_menu_pressed"]

@@ -53,9 +53,9 @@ layout_mode = 2
 layout_mode = 2
 size_flags_horizontal = 0
 size_flags_vertical = 0
-theme_override_constants/margin_left = 10
+theme_override_constants/margin_left = 20
 theme_override_constants/margin_top = 10
-theme_override_constants/margin_right = 10
+theme_override_constants/margin_right = 20
 theme_override_constants/margin_bottom = 10
 
 [node name="Row" type="HBoxContainer" parent="PopoutVBox/Margin"]
@@ -65,7 +65,6 @@ size_flags_vertical = 0
 theme_override_constants/separation = 20
 
 [node name="Col1" type="VBoxContainer" parent="PopoutVBox/Margin/Row"]
-visible = false
 layout_mode = 2
 size_flags_vertical = 0
 theme_override_constants/separation = 20
@@ -383,5 +382,9 @@ texture = ExtResource("1_jo5c8")
 modulate = Color(1, 1, 1, 0)
 layout_mode = 2
 texture = ExtResource("1_jo5c8")
+
+[node name="BottomMargin" type="MarginContainer" parent="PopoutVBox"]
+custom_minimum_size = Vector2(0, 10)
+layout_mode = 2
 
 [connection signal="pressed" from="PopoutVBox/CloseWindowButton" to="." method="_on_close_window_button_pressed"]

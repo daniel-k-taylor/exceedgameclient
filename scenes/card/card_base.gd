@@ -16,12 +16,22 @@ const StatPanel = preload("res://scenes/card/stat_panel.gd")
 @onready var card_back = $CardContainer/CardBack
 @onready var fancy_card = $CardContainer/FancyCard
 
-#const DesiredCardSize = Vector2(125, 175)
-const DesiredCardSize = Vector2(125, 175)
+
+
 const ActualCardSize = Vector2(250,350)
-const HandCardScale = DesiredCardSize / ActualCardSize
-const ReferenceCardScale = Vector2(0.4, 0.4)
+const HandCardScale = Vector2(0.7, 0.7)
+const OpponentHandCardScale = Vector2(0.3, 0.3)
+const FocusScale = Vector2(1.4, 1.4)
+const ReferenceCardScale = Vector2(0.6, 0.6)
+const StrikeCardScale = Vector2(0.4, 0.4)
+const DiscardCardScale = Vector2(0.4, 0.4)
 const HighlightColor = Color('#36fff3')
+
+static func get_hand_card_size() -> Vector2:
+	return ActualCardSize * HandCardScale
+
+static func get_opponent_hand_card_size() -> Vector2:
+	return ActualCardSize * OpponentHandCardScale
 
 enum CardState {
 	CardState_Focusing,
@@ -56,7 +66,7 @@ var manual_flip_needed = false
 var follow_mouse = false
 var saved_hand_index = -1
 
-var default_scale = 1
+var default_scale = Vector2(1, 1)
 var resting_position
 var resting_rotation
 var resting_scale
@@ -70,7 +80,6 @@ var selected = false
 
 const DRAW_ANIMATION_LENGTH = 0.5
 const FOCUS_ANIMATION_LENGTH = 0.2
-const FOCUS_SCALE_FACTOR = 2
 const DRAG_SCALE_FACTOR = 1.2
 
 # Called when the node enters the scene tree for the first time.
@@ -201,12 +210,15 @@ func position_card_in_hand(dst_pos, dst_rot):
 func _process(_delta):
 	pass
 
-func initialize_card(id, card_title, image, card_back_image, range_min, range_max, speed, power, armor, guard, effect_text, boost_cost, boost_text, strike_cost, cancel_cost, hand_focus_y_pos):
+func initialize_card(id, card_title, image, card_back_image, range_min, range_max, speed, power, armor, guard, effect_text, boost_cost, boost_text, strike_cost, cancel_cost, hand_focus_y_pos, is_opponent: bool):
 	card_id = id
 	$CardContainer/CardBox/TitleRow/TitlePanel/TitleNameBox/TitleName.text = card_title
-	default_scale = HandCardScale
-	resting_scale = HandCardScale
-	scale = HandCardScale
+	var starting_scale = HandCardScale
+	if is_opponent:
+		starting_scale = OpponentHandCardScale
+	default_scale = starting_scale
+	resting_scale = starting_scale
+	scale = starting_scale
 	if image != "":
 		use_custom_card_image = false
 		fancy_card.texture = load(image)
@@ -237,8 +249,8 @@ func initialize_card(id, card_title, image, card_back_image, range_min, range_ma
 	focus_y_pos = hand_focus_y_pos
 
 func reset():
-	resting_scale = HandCardScale
-	scale = HandCardScale
+	resting_scale = default_scale
+	scale = default_scale
 	change_state(CardState.CardState_InDeck)
 	selected = false
 
@@ -258,18 +270,44 @@ func set_resting_position(pos, rot):
 		CardState.CardState_Unfocusing:
 			target_pos = pos
 			target_rotation = rot
+		CardState.CardState_InPopout:
+			resting_scale = ReferenceCardScale
+			scale = resting_scale
+		CardState.CardState_Discarded:
+			resting_scale = DiscardCardScale
+			scale = resting_scale
 
 func discard_to(pos, target_state):
 	set_selected(false)
 	set_resting_position(pos, 0)
 	unfocus() # Sets animation_time to 0
-	target_scale = ReferenceCardScale
+	if target_state == CardState.CardState_InStrike:
+		target_scale = StrikeCardScale
+	elif target_state == CardState.CardState_Discarded:
+		target_scale = DiscardCardScale
+	else:
+		target_scale = ReferenceCardScale
 	resting_scale = target_scale
 	return_state = target_state
 	change_state(CardState.CardState_Discarding)
 
 func change_state(new_state):
 	state = new_state
+
+func clamp_to_screen(center_pos : Vector2, size: Vector2) -> Vector2:
+	var screen_size = get_viewport().content_scale_size
+	var top_left = center_pos - size / 2
+	var new_top_left = top_left
+	if new_top_left.x < 0:
+		new_top_left.x = 0
+	if new_top_left.x + size.x > screen_size.x:
+		new_top_left.x = screen_size.x - size.x
+	if new_top_left.y < 0:
+		new_top_left.y = 0
+	if new_top_left.y + size.y > screen_size.y:
+		new_top_left.y = screen_size.y - size.y
+	var new_center = new_top_left + size / 2
+	return new_center
 
 func focus():
 
@@ -286,14 +324,15 @@ func focus():
 
 		focus_pos = position
 		focus_rot = 0
-		if state == CardState.CardState_InHand:
-			focus_pos.y = focus_y_pos
+		#if state == CardState.CardState_InHand:
+		#	focus_pos.y = focus_y_pos
 
 		return_state = state
 
-	target_pos = focus_pos
 	target_rotation = focus_rot
-	target_scale = resting_scale * FOCUS_SCALE_FACTOR
+	target_scale = FocusScale
+	var size_at_scale = $CardContainer.size * target_scale
+	target_pos = clamp_to_screen(focus_pos, size_at_scale)
 	animation_time = 0
 	animation_length = FOCUS_ANIMATION_LENGTH
 
