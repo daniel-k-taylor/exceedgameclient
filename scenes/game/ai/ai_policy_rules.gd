@@ -35,7 +35,17 @@ func get_hand_card_probabilities():
 func evaluate_card_matchup(_card1, _card2):
 	pass
 
-func pick_turn_action(possible_actions : Array, _ai_game_state : AIPlayer.AIGameState):
+func pick_turn_action(possible_actions : Array, ai_game_state : AIPlayer.AIGameState):
+
+	var has_more_cards = ai_game_state.my_state.hand.size() > ai_game_state.opponent_state.hand.size()
+	if has_more_cards:
+		pass
+		# Press the attack?
+	else:
+		pass
+		# Prepare?
+
+
 	return possible_actions[randi() % len(possible_actions)]
 
 func pick_pay_strike_gauge_cost(possible_actions : Array, _ai_game_state : AIPlayer.AIGameState):
