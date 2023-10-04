@@ -187,7 +187,7 @@ func spawn_deck(deck_id, deck, deck_copy, deck_card_zone, copy_zone, card_back_i
 		var logic_card : GameLogic.Card = game_logic.get_card(card.id)
 		var image_path = card_root_path + logic_card.image
 		var new_card = create_card(card.id, logic_card.definition, image_path, card_back_image, deck_card_zone, hand_focus_y_pos, is_opponent)
-		new_card.position = OffScreen
+		new_card.set_card_and_focus(OffScreen, 0, null)
 
 	var previous_def_id = ""
 	for card in deck_copy:
@@ -195,9 +195,8 @@ func spawn_deck(deck_id, deck, deck_copy, deck_card_zone, copy_zone, card_back_i
 		var image_path = card_root_path + logic_card.image
 		if previous_def_id != logic_card.definition['id']:
 			var copy_card = create_card(card.id + ReferenceScreenIdRangeStart, logic_card.definition, image_path, card_back_image, copy_zone, 0, is_opponent)
-			copy_card.position = OffScreen
+			copy_card.set_card_and_focus(OffScreen, 0, CardBase.ReferenceCardScale)
 			copy_card.resting_scale = CardBase.ReferenceCardScale
-			copy_card.scale = CardBase.ReferenceCardScale
 			copy_card.change_state(CardBase.CardState.CardState_Offscreen)
 			copy_card.flip_card_to_front(true)
 			previous_def_id = card.definition['id']
@@ -314,7 +313,7 @@ func draw_card(card_id : int, is_player : bool):
 	var card = add_card_to_hand(card_id, is_player)
 
 	# Start the card at the deck.
-	card.position = get_deck_button_position(is_player)
+	card.set_card_and_focus(get_deck_button_position(is_player), null, null)
 
 	layout_player_hand(is_player)
 
@@ -968,16 +967,14 @@ func _on_reshuffle_discard(event):
 		for card in cards:
 			card.get_parent().remove_child(card)
 			$AllCards/PlayerDeck.add_child(card)
-			card.position = OffScreen
-			card.reset()
+			card.reset(OffScreen)
 	else:
 		var cards = $AllCards/OpponentDiscards.get_children()
 		for card in cards:
 			card.get_parent().remove_child(card)
 			$AllCards/OpponentDeck.add_child(card)
 			card.flip_card_to_front(false)
-			card.position = OffScreen
-			card.reset()
+			card.reset(OffScreen)
 	close_popout()
 	update_card_counts()
 	return SmallNoticeDelay
@@ -999,9 +996,7 @@ func _on_reveal_hand(event):
 	return SmallNoticeDelay
 
 func _move_card_to_strike_area(card, strike_area, new_parent, is_player : bool, is_ex : bool):
-	if card.position == OffScreen:
-		# Position it at the appropriate deck.
-		card.position = get_deck_button_position(is_player)
+	card.set_position_if_at_position(OffScreen, get_deck_button_position(is_player))
 
 	var pos = strike_area.global_position + strike_area.size * strike_area.scale /2
 	if is_ex:
@@ -1601,19 +1596,20 @@ func _update_popout_cards(cards_in_popout : Array, not_visible_position : Vector
 			card.set_selected(card_in_selected_cards(card))
 			# Assign positions
 			var pos = card_popout.get_slot_position(i)
-			card.position = pos + CardBase.ReferenceCardScale * CardBase.ActualCardSize / 2
+			var adjusted_pos = pos + CardBase.ReferenceCardScale * CardBase.ActualCardSize / 2
+			card.set_card_and_focus(adjusted_pos, null, null)
 			card.change_state(CardBase.CardState.CardState_InPopout)
-			card.set_resting_position(card.position, 0)
+			card.set_resting_position(adjusted_pos, 0)
 	else:
 		# When clearing, set the cards first before awaiting.
 		for i in range(len(cards_in_popout)):
 			var card = cards_in_popout[i]
 			card.set_selected(false)
 			# Assign back to gauge
-			card.position = not_visible_position
+			card.set_card_and_focus(not_visible_position, null, null)
 			if card.state == CardBase.CardState.CardState_InPopout:
 				card.change_state(card_return_state)
-			card.set_resting_position(card.position, 0)
+			card.set_resting_position(not_visible_position, 0)
 		await card_popout.clear(0)
 
 func clear_card_popout():

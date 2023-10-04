@@ -1,21 +1,24 @@
-extends Area2D
+extends Node2D
 
 signal raised_card(card)
 signal lowered_card(card)
 signal clicked_card(card)
 
 const StatPanel = preload("res://scenes/card/stat_panel.gd")
-@onready var range_panel : StatPanel = $CardContainer/CardBox/AbiltiesImagePanel/StatsHBox/StatsColumn/RangePanel
-@onready var speed_panel : StatPanel = $CardContainer/CardBox/AbiltiesImagePanel/StatsHBox/StatsColumn/SpeedPanel
-@onready var power_panel : StatPanel = $CardContainer/CardBox/AbiltiesImagePanel/StatsHBox/StatsColumn/PowerPanel
-@onready var armor_panel : StatPanel = $CardContainer/CardBox/AbiltiesImagePanel/StatsHBox/StatsColumn/ArmorPanel
-@onready var guard_panel : StatPanel = $CardContainer/CardBox/AbiltiesImagePanel/StatsHBox/StatsColumn/GuardPanel
-@onready var card_box = $CardContainer/CardBox
-@onready var cancel_container = $CancelContainer
-@onready var cancel_cost_label = $CancelContainer/CancelCost
-@onready var card_back = $CardContainer/CardBack
-@onready var fancy_card = $CardContainer/FancyCard
-
+@onready var range_panel : StatPanel = $CardFocusFeatures/CardContainer/CardBox/AbiltiesImagePanel/StatsHBox/StatsColumn/RangePanel
+@onready var speed_panel : StatPanel = $CardFocusFeatures/CardContainer/CardBox/AbiltiesImagePanel/StatsHBox/StatsColumn/SpeedPanel
+@onready var power_panel : StatPanel = $CardFocusFeatures/CardContainer/CardBox/AbiltiesImagePanel/StatsHBox/StatsColumn/PowerPanel
+@onready var armor_panel : StatPanel = $CardFocusFeatures/CardContainer/CardBox/AbiltiesImagePanel/StatsHBox/StatsColumn/ArmorPanel
+@onready var guard_panel : StatPanel = $CardFocusFeatures/CardContainer/CardBox/AbiltiesImagePanel/StatsHBox/StatsColumn/GuardPanel
+@onready var card_box = $CardFocusFeatures/CardContainer/CardBox
+@onready var cancel_container = $CardFocusFeatures/CancelContainer
+@onready var cancel_cost_label = $CardFocusFeatures/CancelContainer/CancelCost
+@onready var card_back = $CardFocusFeatures/CardContainer/CardBack
+@onready var fancy_card = $CardFocusFeatures/CardContainer/FancyCard
+@onready var backlight = $CardFocusFeatures/Backlight
+@onready var stun_indicator = $CardFocusFeatures/StunIndicator
+@onready var card_features = $CardFocusFeatures
+@onready var focus_feature = $FocusFeatures
 
 
 const ActualCardSize = Vector2(250,350)
@@ -44,7 +47,6 @@ enum CardState {
 	CardState_Discarding,
 	CardState_Discarded,
 	CardState_InStrike,
-	CardState_Dragging,
 	CardState_DrawingToHand,
 	CardState_Unfocusing,
 }
@@ -80,37 +82,36 @@ var selected = false
 
 const DRAW_ANIMATION_LENGTH = 0.5
 const FOCUS_ANIMATION_LENGTH = 0.2
-const DRAG_SCALE_FACTOR = 1.2
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
 	flip_card_to_front(false)
 	set_hover_visible(false)
-	$CardContainer/Focus.modulate = HighlightColor
+	#$CardContainer/Focus.modulate = HighlightColor
 
 func flip_card_to_front(front):
 	if front:
-		$CardContainer/CardBack.visible = false
+		card_back.visible = false
 		card_box.visible = use_custom_card_image
 		fancy_card.visible = not use_custom_card_image
 		cancel_container.visible = cancel_visible_on_front
 	else:
-		$CardContainer/CardBack.visible = true
+		card_back.visible = true
 		card_box.visible = false
 		fancy_card.visible = false
 		cancel_container.visible = false
 
 func set_backlight_visible(backlight_visible):
-	$Backlight.visible = backlight_visible
+	backlight.visible = backlight_visible
 
 func set_stun(stun_visible):
-	$StunIndicator.visible = stun_visible
+	stun_indicator.visible = stun_visible
 
 func is_front_showing():
-	return not $CardContainer/CardBack.visible
+	return not card_back.visible
 
 func set_hover_visible(hover_visible):
-	$CardContainer/Focus.visible = hover_visible
+	focus_feature.visible = hover_visible
 
 func update_visibility():
 	match state:
@@ -131,59 +132,48 @@ func _physics_process(delta):
 	match state:
 		CardState.CardState_Focusing:
 			if animation_time <= 1:
-				position = start_pos.lerp(target_pos, animation_time)
-				rotation_degrees = lerpf(start_rotation, target_rotation, animation_time)
-				scale = original_scale.lerp(target_scale, animation_time)
+				card_features.position = start_pos.lerp(target_pos, animation_time)
+				card_features.rotation_degrees = lerpf(start_rotation, target_rotation, animation_time)
+				card_features.scale = original_scale.lerp(target_scale, animation_time)
 				animation_time += delta / animation_length
 			else:
-				position = target_pos
-				rotation_degrees = target_rotation
-				scale = target_scale
+				card_features.position = target_pos
+				card_features.rotation_degrees = target_rotation
+				card_features.scale = target_scale
 		CardState.CardState_Unfocusing:
 			if animation_time <= 1:
-				position = start_pos.lerp(target_pos, animation_time)
-				rotation_degrees = lerpf(start_rotation, target_rotation, animation_time)
-				scale = original_scale.lerp(target_scale, animation_time)
+				card_features.position = start_pos.lerp(target_pos, animation_time)
+				card_features.rotation_degrees = lerpf(start_rotation, target_rotation, animation_time)
+				card_features.scale = original_scale.lerp(target_scale, animation_time)
 				animation_time += delta / animation_length
 			else:
-				position = target_pos
-				rotation_degrees = target_rotation
-				scale = target_scale
+				card_features.position = target_pos
+				card_features.rotation_degrees = target_rotation
+				card_features.scale = target_scale
 				change_state(return_state)
 		CardState.CardState_DrawingToHand: # animate from deck to hand
 			if animation_time <= 1:
-				position = start_pos.lerp(target_pos, animation_time)
-				rotation_degrees = lerpf(start_rotation, target_rotation, animation_time)
+				var lerp_pos = start_pos.lerp(target_pos, animation_time)
+				var lerp_rot = lerpf(start_rotation, target_rotation, animation_time)
+				var lerp_sca = original_scale
 				if animate_flip:
-					scale.x = original_scale.x * abs(1 - 2*animation_time)
+					lerp_sca.x = original_scale.x * abs(1 - 2*animation_time)
 				if animation_time >= 0.5 and not manual_flip_needed:
 					flip_card_to_front(true)
 				animation_time += delta / animation_length
+				set_card_and_focus(lerp_pos, lerp_rot, lerp_sca)
 			else:
-				position = target_pos
-				rotation_degrees = target_rotation
-				scale.x = original_scale.x
+				set_card_and_focus(target_pos, target_rotation, original_scale)
 				change_state(CardState.CardState_InHand)
-		CardState.CardState_Dragging:
-			var mouse_pos = get_viewport().get_mouse_position()
-			position = Vector2(mouse_pos.x, mouse_pos.y)
-			if animation_time <= 1:
-				rotation_degrees = lerpf(start_rotation, target_rotation, animation_time)
-				scale = original_scale.lerp(target_scale, animation_time)
-				animation_time += delta / animation_length
-			else:
-				rotation_degrees = target_rotation
-				scale = target_scale
 		CardState.CardState_Discarding:
 			if animation_time <= 1:
-				position = start_pos.lerp(target_pos, animation_time)
-				rotation_degrees = lerpf(start_rotation, target_rotation, animation_time)
-				scale = original_scale.lerp(target_scale, animation_time)
+				var lerp_pos = start_pos.lerp(target_pos, animation_time)
+				var lerp_rot = lerpf(start_rotation, target_rotation, animation_time)
+				var lerp_sca =  original_scale.lerp(target_scale, animation_time)
+				set_card_and_focus(lerp_pos, lerp_rot, lerp_sca)
 				animation_time += delta / animation_length
 			else:
-				position = target_pos
-				rotation_degrees = target_rotation
-				scale = target_scale
+				set_card_and_focus(target_pos, target_rotation, target_scale)
 				change_state(return_state)
 
 func position_card_in_hand(dst_pos, dst_rot):
@@ -194,16 +184,15 @@ func position_card_in_hand(dst_pos, dst_rot):
 		change_state(CardState.CardState_DrawingToHand)
 
 		animate_flip = not manual_flip_needed and not is_front_showing()
-		original_scale = scale
-		start_pos = position
+		original_scale = card_features.scale
+		start_pos = card_features.position
 		target_pos = dst_pos
-		start_rotation = rotation_degrees
+		start_rotation = card_features.rotation_degrees
 		target_rotation = dst_rot
 		animation_time = 0
 		animation_length = DRAW_ANIMATION_LENGTH
 
-		position = start_pos
-		rotation_degrees = start_rotation
+		set_card_and_focus(start_pos, start_rotation, original_scale)
 
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
@@ -212,13 +201,14 @@ func _process(_delta):
 
 func initialize_card(id, card_title, image, card_back_image, range_min, range_max, speed, power, armor, guard, effect_text, boost_cost, boost_text, strike_cost, cancel_cost, hand_focus_y_pos, is_opponent: bool):
 	card_id = id
-	$CardContainer/CardBox/TitleRow/TitlePanel/TitleNameBox/TitleName.text = card_title
+	$CardFocusFeatures/CardContainer/CardBox/TitleRow/TitlePanel/TitleNameBox/TitleName.text = card_title
 	var starting_scale = HandCardScale
 	if is_opponent:
 		starting_scale = OpponentHandCardScale
 	default_scale = starting_scale
 	resting_scale = starting_scale
-	scale = starting_scale
+	card_features.scale = starting_scale
+	focus_feature.scale = starting_scale
 	if image != "":
 		use_custom_card_image = false
 		fancy_card.texture = load(image)
@@ -239,24 +229,39 @@ func initialize_card(id, card_title, image, card_back_image, range_min, range_ma
 	cancel_cost_label.text = str(cancel_cost)
 
 	# Set Effect and Boost
-	$CardContainer/CardBox/EffectBox/EffectText.text = "[center]%s[/center]" % effect_text
-	$CardContainer/CardBox/BoostBox/BoostDetailsBox/BoostCostIcon/BoostCost.text = "  %s" % boost_cost
-	$CardContainer/CardBox/BoostBox/BoostDetailsBox/BoostText.text = "%s" % boost_text
-	$CardContainer/CardBox/TitleRow/TitleIcon.visible = strike_cost == 0
-	$CardContainer/CardBox/TitleRow/CardCost.visible = strike_cost != 0
-	$CardContainer/CardBox/TitleRow/CardCost.text = "  " + str(strike_cost)
+	$CardFocusFeatures/CardContainer/CardBox/EffectBox/EffectText.text = "[center]%s[/center]" % effect_text
+	$CardFocusFeatures/CardContainer/CardBox/BoostBox/BoostDetailsBox/BoostCostIcon/BoostCost.text = "  %s" % boost_cost
+	$CardFocusFeatures/CardContainer/CardBox/BoostBox/BoostDetailsBox/BoostText.text = "%s" % boost_text
+	$CardFocusFeatures/CardContainer/CardBox/TitleRow/TitleIcon.visible = strike_cost == 0
+	$CardFocusFeatures/CardContainer/CardBox/TitleRow/CardCost.visible = strike_cost != 0
+	$CardFocusFeatures/CardContainer/CardBox/TitleRow/CardCost.text = "  " + str(strike_cost)
 
 	focus_y_pos = hand_focus_y_pos
 
-func reset():
+func set_card_and_focus(pos, rot, sca):
+	if pos != null:
+		card_features.position = pos
+		focus_feature.position = pos
+	if rot != null:
+		card_features.rotation_degrees = rot
+		focus_feature.rotation_degrees = rot
+	if sca != null:
+		card_features.scale = sca
+		focus_feature.scale = sca
+
+func reset(pos):
 	resting_scale = default_scale
-	scale = default_scale
+	set_card_and_focus(pos, 0, default_scale)
 	change_state(CardState.CardState_InDeck)
 	selected = false
 
+func set_position_if_at_position(check_pos : Vector2, pos : Vector2):
+	if card_features.position == check_pos:
+		set_card_and_focus(pos, null, null)
+
 func set_selected(is_selected):
 	selected = is_selected
-	$CardContainer/SelectedBorder.visible = is_selected
+	$CardFocusFeatures/CardContainer/SelectedBorder.visible = is_selected
 
 func set_resting_position(pos, rot):
 	resting_position = pos
@@ -265,17 +270,17 @@ func set_resting_position(pos, rot):
 	match state:
 		CardState.CardState_InDeck, CardState.CardState_InHand, CardState.CardState_DrawingToHand:
 			resting_scale = default_scale
-			scale = resting_scale
+			set_card_and_focus(null, null, resting_scale)
 			position_card_in_hand(pos, rot)
 		CardState.CardState_Unfocusing:
 			target_pos = pos
 			target_rotation = rot
 		CardState.CardState_InPopout:
 			resting_scale = ReferenceCardScale
-			scale = resting_scale
+			set_card_and_focus(null, null, resting_scale)
 		CardState.CardState_Discarded:
 			resting_scale = DiscardCardScale
-			scale = resting_scale
+			set_card_and_focus(null, null, resting_scale)
 
 func discard_to(pos, target_state):
 	set_selected(false)
@@ -313,25 +318,23 @@ func focus():
 
 	if state == CardState.CardState_Unfocusing:
 		# Switch the start/target
-		start_pos = position
-		start_rotation = rotation_degrees
-		original_scale = scale
+		start_pos = card_features.position
+		start_rotation = card_features.rotation_degrees
+		original_scale = card_features.scale
 		# Return state stays the same.
 	else:
-		start_pos = position
-		start_rotation = rotation_degrees
-		original_scale = scale
+		start_pos = card_features.position
+		start_rotation = card_features.rotation_degrees
+		original_scale = card_features.scale
 
-		focus_pos = position
+		focus_pos = card_features.position
 		focus_rot = 0
-		#if state == CardState.CardState_InHand:
-		#	focus_pos.y = focus_y_pos
 
 		return_state = state
 
 	target_rotation = focus_rot
 	target_scale = FocusScale
-	var size_at_scale = $CardContainer.size * target_scale
+	var size_at_scale = $CardFocusFeatures/CardContainer.size * target_scale
 	target_pos = clamp_to_screen(focus_pos, size_at_scale)
 	animation_time = 0
 	animation_length = FOCUS_ANIMATION_LENGTH
@@ -346,9 +349,9 @@ func unfocus():
 	target_rotation = resting_rotation
 	target_scale = resting_scale
 
-	start_pos = position
-	start_rotation = rotation_degrees
-	original_scale = scale
+	start_pos = card_features.position
+	start_rotation = card_features.rotation_degrees
+	original_scale = card_features.scale
 
 	animation_time = 0
 	animation_length = FOCUS_ANIMATION_LENGTH
@@ -358,27 +361,10 @@ func unfocus():
 	change_state(CardState.CardState_Unfocusing)
 	emit_signal("lowered_card", self)
 
-func begin_drag():
-	follow_mouse = true
-	original_scale = scale
-	target_scale = resting_scale * DRAG_SCALE_FACTOR
-	start_rotation = rotation_degrees
-	target_rotation = 0
-	animation_time = 0
-	animation_length = FOCUS_ANIMATION_LENGTH
-	return_state = CardState.CardState_InHand
-	emit_signal("raised_card", self)
-	change_state(CardState.CardState_Dragging)
-
-func end_drag():
-	follow_mouse = false
-	unfocus()
-
 func _on_focus_mouse_entered():
 	match state:
 		CardState.CardState_InHand, CardState.CardState_Unfocusing, CardState.CardState_InStrike, CardState.CardState_InPopout:
 			focus()
-
 
 func _on_focus_mouse_exited():
 	match state:
@@ -386,17 +372,10 @@ func _on_focus_mouse_exited():
 			unfocus()
 
 func _on_focus_button_down():
-	# TODO: When to drag?
-#	match state:
-#		InHand, Focusing:
-#			begin_drag()
 	pass
 
 func _on_focus_button_up():
-	match state:
-		CardState.CardState_Dragging:
-			end_drag()
-
+	pass
 
 func _on_focus_pressed():
 	emit_signal("clicked_card", self)

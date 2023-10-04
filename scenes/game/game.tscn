@@ -535,6 +535,7 @@ text = "#"
 fit_content = true
 
 [node name="HandSpawn" type="TextureButton" parent="OpponentHand"]
+visible = false
 modulate = Color(0.8, 0, 0.729412, 1)
 offset_left = 590.0
 offset_top = -100.0
