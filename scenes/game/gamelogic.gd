@@ -95,6 +95,7 @@ enum EventType {
 	EventType_Strike_Response,
 	EventType_Strike_Response_Ex,
 	EventType_Strike_Reveal,
+	EventType_Strike_SpeedUp,
 	EventType_Strike_Started,
 	EventType_Strike_Started_Ex,
 	EventType_Strike_Stun,
@@ -867,13 +868,18 @@ func is_effect_condition_met(performing_player : Player, effect, local_condition
 			return true
 		elif condition == "advanced_through" and local_conditions.advanced_through:
 			return true
+		elif condition == "not_advanced_through" and not local_conditions.advanced_through:
+			return true
 		elif condition == "not_full_push" and not local_conditions.fully_pushed:
 			return true
 		elif condition == "pulled_past" and local_conditions.pulled_past:
 			return true
 		elif condition == "opponent_stunned":
 			return active_strike.is_player_stunned(other_player(performing_player))
-
+		elif condition == "range":
+			var amount = effect['condition_amount']
+			var distance = abs(performing_player.arena_location - other_player(performing_player).arena_location)
+			return amount == distance
 		# Unmet condition
 		return false
 	return true
@@ -1001,6 +1007,9 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 			var new_location = performing_player.arena_location
 			var retreat_amount = abs(performing_start - new_location)
 			local_conditions.fully_retreated = retreat_amount == effect['amount']
+		"speedup":
+			performing_player.strike_stat_boosts.speed += effect['amount']
+			events += [create_event(EventType.EventType_Strike_SpeedUp, performing_player, effect['amount'])]
 		"when_hit_force_for_armor":
 			performing_player.strike_stat_boosts.when_hit_force_for_armor = true
 

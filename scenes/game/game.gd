@@ -513,24 +513,26 @@ func _stat_notice_event(event):
 	var notice_text = ""
 	match event['event_type']:
 		GameLogic.EventType.EventType_Strike_ArmorUp:
-			notice_text = "%d Armor" % number
+			notice_text = "+%d Armor" % number
 		GameLogic.EventType.EventType_Strike_DodgeAttacks:
 			notice_text = "Dodge Attacks!"
 		GameLogic.EventType.EventType_Strike_ExUp:
 			notice_text = "EX Strike!"
 		GameLogic.EventType.EventType_Strike_GainAdvantage:
-			notice_text = "Advantage!"
+			notice_text = "+Advantage!"
 		GameLogic.EventType.EventType_Strike_GuardUp:
-			notice_text = "%d Guard" % number
+			notice_text = "+%d Guard" % number
 		GameLogic.EventType.EventType_Strike_IgnoredPushPull:
 			notice_text = "Unmoved!"
 		GameLogic.EventType.EventType_Strike_Miss:
 			notice_text = "Miss!"
 		GameLogic.EventType.EventType_Strike_PowerUp:
-			notice_text = "%d Power" % number
+			notice_text = "+%d Power" % number
 		GameLogic.EventType.EventType_Strike_RangeUp:
 			var number2 = event['extra_info']
-			notice_text = "%d-%d Range" % [number, number2]
+			notice_text = "+%d-%d Range" % [number, number2]
+		GameLogic.EventType.EventType_Strike_SpeedUp:
+			notice_text = "+%d Speed" % number
 		GameLogic.EventType.EventType_Strike_Stun:
 			notice_text = "Stunned!"
 		GameLogic.EventType.EventType_Strike_WildStrike:
@@ -1171,6 +1173,8 @@ func _handle_events(events):
 				_on_strike_started(event, true)
 			game_logic.EventType.EventType_Strike_Reveal:
 				delay = _on_strike_reveal(event)
+			game_logic.EventType.EventType_Strike_SpeedUp:
+				delay = _stat_notice_event(event)
 			game_logic.EventType.EventType_Strike_Started:
 				_on_strike_started(event, false)
 			game_logic.EventType.EventType_Strike_Started_Ex:
