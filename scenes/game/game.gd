@@ -141,13 +141,13 @@ func _ready():
 	$OpponentLife.set_life(game_logic.opponent.life)
 	game_over_stuff.visible = false
 
-	setup_characters(player_deck, opponent_deck)
-		
+	setup_characters()
+
 func set_characters(player_char_index: int, opponent_char_index: int):
 	player_deck = CardDefinitions.get_deck_from_selector_index(player_char_index)
 	opponent_deck = CardDefinitions.get_deck_from_selector_index(opponent_char_index)
 
-func setup_characters(player_deck, opponent_deck):
+func setup_characters():
 	$PlayerCharacter.load_character(player_deck['id'])
 	$OpponentCharacter.load_character(opponent_deck['id'])
 	setup_character_card(player_character_card, player_deck)
