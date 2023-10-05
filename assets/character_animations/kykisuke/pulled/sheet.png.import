@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://cnqwq11y6dwmm"
-path="res://.godot/imported/sol_hit_sheet.png-db38ee8216a52277bd66c20ed6d4d733.ctex"
+uid="uid://cyxghu8qmfacj"
+path="res://.godot/imported/sheet.png-9e50afa5b9231a56b01deaad4ca10f86.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/character_animations/sol/hit/sol_hit_sheet.png"
-dest_files=["res://.godot/imported/sol_hit_sheet.png-db38ee8216a52277bd66c20ed6d4d733.ctex"]
+source_file="res://assets/character_animations/kykisuke/pulled/sheet.png"
+dest_files=["res://.godot/imported/sheet.png-9e50afa5b9231a56b01deaad4ca10f86.ctex"]
 
 [params]
 

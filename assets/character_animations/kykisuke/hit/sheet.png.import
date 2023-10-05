@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://bwsyaa4u1jssr"
-path="res://.godot/imported/sol_stunned_sheet.png-a92648c6b7a9017f30ae753af331e747.ctex"
+uid="uid://c3wkkqgou8eu2"
+path="res://.godot/imported/sheet.png-a9956e55070aa87b854b062bc7823798.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/character_animations/sol/stunned/sol_stunned_sheet.png"
-dest_files=["res://.godot/imported/sol_stunned_sheet.png-a92648c6b7a9017f30ae753af331e747.ctex"]
+source_file="res://assets/character_animations/kykisuke/hit/sheet.png"
+dest_files=["res://.godot/imported/sheet.png-a9956e55070aa87b854b062bc7823798.ctex"]
 
 [params]
 

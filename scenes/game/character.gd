@@ -54,6 +54,11 @@ func _ready():
 	animation.play("idle")
 	exceed_icon.visible = false
 
+func load_character(char_id : String):
+	var path = "res://assets/character_animations/" + char_id + "/animations.tres"
+	animation.sprite_frames = load(path)
+	animation.play("idle")
+
 func set_facing(to_left : bool):
 	animation.flip_h = to_left
 

@@ -65,7 +65,7 @@
 				"timing": "hit",
 				"effect_type": "choice",
 				"choice": [
-					{ "effect_type": "close", "amount": 0 },
+					{ "effect_type": "pass" },
 					{ "effect_type": "close", "amount": 1 },
 					{ "effect_type": "close", "amount": 2 },
 					{ "effect_type": "close", "amount": 3 },
@@ -113,7 +113,8 @@
 				"timing": "hit",
 				"condition": "range",
 				"condition_amount": 2,
-				"effect_type": "opponent_discard_random"
+				"effect_type": "opponent_discard_random",
+				"amount": 1
 			}
 		],
 		"boost": {
@@ -287,8 +288,9 @@
 			},
 			{
 				"timing": "after",
+				"effect_type": "choice",
 				"choice": [
-					{ "effect_type": "advance", "amount": 0 },
+					{ "effect_type": "pass" },
 					{ "effect_type": "advance", "amount": 1 },
 					{ "effect_type": "advance", "amount": 2 }
 				]
@@ -627,7 +629,7 @@
 					"timing": "immediate",
 					"effect_type": "choice",
 					"choice": [
-						{ "effect_type": "advance", "amount": 0 },
+						{ "effect_type": "pass" },
 						{ "effect_type": "advance", "amount": 1 },
 						{ "effect_type": "advance", "amount": 2 },
 						{ "effect_type": "retreat", "amount": 1 },

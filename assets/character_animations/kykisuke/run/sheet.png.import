@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://bya36b1haffnj"
-path="res://.godot/imported/sol_walk_forward_sheet.png-14aad4635d04828606adda27b18d998d.ctex"
+uid="uid://3rr355yditf0"
+path="res://.godot/imported/sheet.png-4904594ec4aee69832745c14ec083b8d.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/character_animations/sol/walk_forward/sol_walk_forward_sheet.png"
-dest_files=["res://.godot/imported/sol_walk_forward_sheet.png-14aad4635d04828606adda27b18d998d.ctex"]
+source_file="res://assets/character_animations/kykisuke/run/sheet.png"
+dest_files=["res://.godot/imported/sheet.png-4904594ec4aee69832745c14ec083b8d.ctex"]
 
 [params]
 

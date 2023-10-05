@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://dgwn4v4pb0ppp"
-path="res://.godot/imported/sol_idle_sheet.png-7c533644fc6761bff5bbf769500107f4.ctex"
+uid="uid://bu8trb3436ptc"
+path="res://.godot/imported/sheet.png-7ce3c78418fd075f9fd03dae695b0277.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/character_animations/sol/idle/sol_idle_sheet.png"
-dest_files=["res://.godot/imported/sol_idle_sheet.png-7c533644fc6761bff5bbf769500107f4.ctex"]
+source_file="res://assets/character_animations/kykisuke/pushed/sheet.png"
+dest_files=["res://.godot/imported/sheet.png-7ce3c78418fd075f9fd03dae695b0277.ctex"]
 
 [params]
 

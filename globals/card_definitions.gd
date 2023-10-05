@@ -90,6 +90,8 @@ func get_timing_text(timing):
 			text += ""
 		"now":
 			text += "[b]Now:[/b] "
+		"on_cancel":
+			text += "When you cancel, "
 		"on_initiate_strike":
 			text += "When you initiate a strike, "
 		"on_reveal":
@@ -109,6 +111,8 @@ func get_condition_text(condition):
 			text += "If canceled this turn, "
 		"initiated_strike":
 			text += "If initiated strike, "
+		"not_canceled_this_turn":
+			text += "If not canceled this turn, "
 		"not_full_push":
 			text += "If not full push, "
 		"not_full_close":
@@ -133,6 +137,8 @@ func get_effect_type_heading(effect):
 			effect_str += "Close "
 		"draw":
 			effect_str += "Draw "
+		"pass":
+			effect_str += ""
 		"pull":
 			effect_str += "Pull "
 		"push":
@@ -191,6 +197,8 @@ func get_effect_type_text(effect):
 			effect_str += "Opponent discards " + str(effect['amount']) + " random cards."
 		"opponent_wild_swings":
 			effect_str += "Opponent wild swings."
+		"pass":
+			effect_str += "Pass"
 		"powerup":
 			effect_str += "+" + str(effect['amount']) + " Power"
 		"pull":

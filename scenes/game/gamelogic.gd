@@ -120,6 +120,7 @@ func create_event(event_type : EventType, event_player : Player, num : int, reas
 
 
 enum StrikeState {
+	StrikeState_None,
 	StrikeState_Initiator_PayCosts,
 	StrikeState_Defender_PayCosts,
 	StrikeState_DuringStrikeBonuses,
@@ -309,7 +310,7 @@ class Player:
 		var events = []
 		events += [parent.create_event(EventType.EventType_Exceed, self, 0)]
 
-		if deck_def['on_exceed'] == "strike":
+		if 'on_exceed' in deck_def and deck_def['on_exceed'] == "strike":
 			events += [parent.create_event(EventType.EventType_ForceStartStrike, self, 0)]
 			parent.change_game_state(GameState.GameState_WaitForStrike)
 			parent.decision_player = self
@@ -679,10 +680,15 @@ class Player:
 
 	func on_cancel_boost():
 		var events = []
-		if not canceled_this_turn:
-			canceled_this_turn = true
-
 		events += [parent.create_event(EventType.EventType_Boost_Canceled, self, 0)]
+		if not canceled_this_turn:
+			# Create a strike state just to track completing effects at this timing.
+			var effects = get_character_effects_at_timing("on_cancel_boost")
+			# NOTE: Only 1 choice currently allowed.
+			for effect in effects:
+				if parent.is_effect_condition_met(self, effect, null):
+					events += parent.handle_strike_effect(-1, effect, self)
+			canceled_this_turn = true
 
 		return events
 
@@ -782,6 +788,8 @@ func get_card_cancel_cost(id : int):
 	return card.definition['boost']['cancel_cost']
 
 func get_card_effects(card : Card, effect_type):
+	if card == null:
+		return []
 	var relevant_effects = []
 	for effect in card['definition']['effects']:
 		if effect['timing'] == effect_type:
@@ -864,6 +872,8 @@ func is_effect_condition_met(performing_player : Player, effect, local_condition
 			return not initiated_strike
 		elif condition == "canceled_this_turn":
 			return performing_player.canceled_this_turn
+		elif condition == "not_canceled_this_turn":
+			return not performing_player.canceled_this_turn
 		elif condition == "not_full_close" and not local_conditions.fully_closed:
 			return true
 		elif condition == "advanced_through" and local_conditions.advanced_through:
@@ -985,6 +995,9 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 			events += opposing_player.discard_matching_or_reveal(named_card.definition['id'])
 		"opponent_discard_random":
 			events += opposing_player.discard_random(effect['amount'])
+		"pass":
+			# Do nothing.
+			pass
 		"powerup":
 			performing_player.strike_stat_boosts.power += effect['amount']
 			events += [create_event(EventType.EventType_Strike_PowerUp, performing_player, effect['amount'])]
@@ -1304,7 +1317,7 @@ func continue_resolve_boost():
 			active_boost.effects_resolved += 1
 		else:
 			# After all effects are resolved, check for cancel.
-			if active_boost.playing_player.can_cancel(active_boost.card):
+			if active_boost.effects_resolved == len(effects) and active_boost.playing_player.can_cancel(active_boost.card):
 				var cancel_cost = get_card_cancel_cost(active_boost.card.id)
 				change_game_state(GameState.GameState_PlayerDecision)
 				decision_type = DecisionType.DecisionType_BoostCancel
@@ -1731,12 +1744,17 @@ func do_boost_cancel(performing_player : Player, gauge_card_ids : Array, doing_c
 			printlog("ERROR: Tried to cancel boost with cards that aren't in gauge.")
 			return []
 
+	change_game_state(GameState.GameState_Boost_Processing)
+
 	var events = []
 	if doing_cancel:
 		events += performing_player.discard(gauge_card_ids)
 		events += performing_player.on_cancel_boost()
 		active_boost.action_after_boost = true
-	events += boost_play_cleanup(performing_player)
+
+	# Ky, for example, has a choice after canceling the first time.
+	if game_state != GameState.GameState_PlayerDecision:
+		events += boost_play_cleanup(performing_player)
 
 	return events
 

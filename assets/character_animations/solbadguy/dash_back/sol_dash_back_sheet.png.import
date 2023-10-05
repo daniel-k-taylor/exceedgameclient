@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://dk8tmmblncxif"
-path="res://.godot/imported/sol_walk_backward_sheet.png-49ebafcbf024a091153de4a24be2be6b.ctex"
+uid="uid://b31cxvm8kmy2r"
+path="res://.godot/imported/sol_dash_back_sheet.png-318e1d788a79425f5e917ed1e6af2f22.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/character_animations/sol/walk_backward/sol_walk_backward_sheet.png"
-dest_files=["res://.godot/imported/sol_walk_backward_sheet.png-49ebafcbf024a091153de4a24be2be6b.ctex"]
+source_file="res://assets/character_animations/solbadguy/dash_back/sol_dash_back_sheet.png"
+dest_files=["res://.godot/imported/sol_dash_back_sheet.png-318e1d788a79425f5e917ed1e6af2f22.ctex"]
 
 [params]
 

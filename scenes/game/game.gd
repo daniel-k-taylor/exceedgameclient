@@ -1,5 +1,7 @@
 extends Node2D
 
+const Test_StartWithGauge = false
+
 const CardBaseScene = preload("res://scenes/card/card_base.tscn")
 const CardBase = preload("res://scenes/card/card_base.gd")
 const GameLogic = preload("res://scenes/game/gamelogic.gd")
@@ -30,9 +32,6 @@ var PlayerHandFocusYPos = 720 - (CardBase.get_hand_card_size().y + 20)
 var OpponentHandFocusYPos = CardBase.get_opponent_hand_card_size().y
 
 var chosen_deck = null
-var NextCardId = 1
-
-const Test_StartWithGauge = false
 
 var first_run_done = false
 var select_card_require_min = 0
@@ -138,9 +137,11 @@ func _ready():
 	$OpponentLife.set_life(game_logic.opponent.life)
 	game_over_stuff.visible = false
 
-	setup_character_cards(chosen_deck, chosen_deck)
+	setup_characters(chosen_deck, chosen_deck)
 
-func setup_character_cards(player_deck, opponent_deck):
+func setup_characters(player_deck, opponent_deck):
+	$PlayerCharacter.load_character(player_deck['id'])
+	$OpponentCharacter.load_character(opponent_deck['id'])
 	setup_character_card(player_character_card, player_deck)
 	setup_character_card(opponent_character_card, opponent_deck)
 
@@ -149,7 +150,9 @@ func setup_character_card(character_card, deck):
 	var character_default_path = "res://assets/cards/" + deck['id'] + "/character_default.jpg"
 	var character_exceeded_path = "res://assets/cards/" + deck['id'] + "/character_exceeded.jpg"
 	character_card.set_image(character_default_path, character_exceeded_path)
-	var on_exceed_text = CardDefinitions.get_on_exceed_text(deck['on_exceed'])
+	var on_exceed_text = ""
+	if 'on_exceed' in deck:
+		on_exceed_text = CardDefinitions.get_on_exceed_text(deck['on_exceed'])
 	var effect_text = on_exceed_text + CardDefinitions.get_effects_text(deck['ability_effects'])
 	var exceed_text = CardDefinitions.get_effects_text(deck['exceed_ability_effects'])
 	character_card.set_effect(effect_text, exceed_text)
@@ -158,7 +161,6 @@ func setup_character_card(character_card, deck):
 func finish_initialization():
 	spawn_all_cards()
 	draw_and_begin()
-	test_init()
 
 func test_draw_and_add():
 	var events = game_logic.player.draw(1)
@@ -1591,6 +1593,7 @@ func ai_mulligan_decision():
 	var mulligan_action = ai_player.pick_mulligan(game_logic, game_logic.opponent, game_logic.player)
 	var events = game_logic.do_mulligan(game_logic.opponent, mulligan_action.card_ids)
 	_handle_events(events)
+	test_init()
 
 # Popout Functions
 func card_in_selected_cards(card):

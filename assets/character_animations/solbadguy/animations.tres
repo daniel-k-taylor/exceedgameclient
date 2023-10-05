@@ -1,14 +1,14 @@
 [gd_resource type="SpriteFrames" load_steps=77 format=3 uid="uid://r2pne3sp7vsf"]
 
-[ext_resource type="Texture2D" uid="uid://b31cxvm8kmy2r" path="res://assets/character_animations/sol/dash_back/sol_dash_back_sheet.png" id="1_7svld"]
-[ext_resource type="Texture2D" uid="uid://dgwn4v4pb0ppp" path="res://assets/character_animations/sol/idle/sol_idle_sheet.png" id="1_hb2pg"]
-[ext_resource type="Texture2D" uid="uid://cnqwq11y6dwmm" path="res://assets/character_animations/sol/hit/sol_hit_sheet.png" id="1_ytveu"]
-[ext_resource type="Texture2D" uid="uid://dk8tmmblncxif" path="res://assets/character_animations/sol/walk_backward/sol_walk_backward_sheet.png" id="2_7ujs2"]
-[ext_resource type="Texture2D" uid="uid://b35e87m8g1n0w" path="res://assets/character_animations/sol/pulled/sol_pulled_sheet.png" id="3_aok6s"]
-[ext_resource type="Texture2D" uid="uid://bya36b1haffnj" path="res://assets/character_animations/sol/walk_forward/sol_walk_forward_sheet.png" id="3_plker"]
-[ext_resource type="Texture2D" uid="uid://7x1t4p3o1wo2" path="res://assets/character_animations/sol/pushed/sol_pushed_sheet.png" id="4_1plrp"]
-[ext_resource type="Texture2D" uid="uid://lyy2cja4mmb7" path="res://assets/character_animations/sol/run/sol_run_sheet.png" id="5_xjxwa"]
-[ext_resource type="Texture2D" uid="uid://bwsyaa4u1jssr" path="res://assets/character_animations/sol/stunned/sol_stunned_sheet.png" id="6_nqxir"]
+[ext_resource type="Texture2D" uid="uid://b31cxvm8kmy2r" path="res://assets/character_animations/solbadguy/dash_back/sol_dash_back_sheet.png" id="1_7svld"]
+[ext_resource type="Texture2D" uid="uid://dgwn4v4pb0ppp" path="res://assets/character_animations/solbadguy/idle/sol_idle_sheet.png" id="1_hb2pg"]
+[ext_resource type="Texture2D" uid="uid://cnqwq11y6dwmm" path="res://assets/character_animations/solbadguy/hit/sol_hit_sheet.png" id="1_ytveu"]
+[ext_resource type="Texture2D" uid="uid://dk8tmmblncxif" path="res://assets/character_animations/solbadguy/walk_backward/sol_walk_backward_sheet.png" id="2_7ujs2"]
+[ext_resource type="Texture2D" uid="uid://b35e87m8g1n0w" path="res://assets/character_animations/solbadguy/pulled/sol_pulled_sheet.png" id="3_aok6s"]
+[ext_resource type="Texture2D" uid="uid://bya36b1haffnj" path="res://assets/character_animations/solbadguy/walk_forward/sol_walk_forward_sheet.png" id="3_plker"]
+[ext_resource type="Texture2D" uid="uid://7x1t4p3o1wo2" path="res://assets/character_animations/solbadguy/pushed/sol_pushed_sheet.png" id="4_1plrp"]
+[ext_resource type="Texture2D" uid="uid://lyy2cja4mmb7" path="res://assets/character_animations/solbadguy/run/sol_run_sheet.png" id="5_xjxwa"]
+[ext_resource type="Texture2D" uid="uid://bwsyaa4u1jssr" path="res://assets/character_animations/solbadguy/stunned/sol_stunned_sheet.png" id="6_nqxir"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_tlghb"]
 atlas = ExtResource("1_7svld")
