@@ -65,6 +65,7 @@ size_flags_vertical = 0
 theme_override_constants/separation = 20
 
 [node name="Col1" type="VBoxContainer" parent="PopoutVBox/Margin/Row"]
+visible = false
 layout_mode = 2
 size_flags_vertical = 0
 theme_override_constants/separation = 20
