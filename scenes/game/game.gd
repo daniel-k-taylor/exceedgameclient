@@ -509,7 +509,7 @@ func layout_player_hand(is_player : bool):
 func _log_event(event):
 	var num = event['number']
 	var card_name = game_logic.get_card_name(num)
-	printlog("Event %s num=%s (card=%s)" % [game_logic.EventType.keys()[event['event_type']], event['number'], card_name])
+	printlog("Event %s num=%s (card=%s)" % [GameLogic.EventType.keys()[event['event_type']], event['number'], card_name])
 
 func get_notice_position(notice_player):
 	if notice_player == game_logic.player:
@@ -1023,17 +1023,17 @@ func _move_card_to_strike_area(card, strike_area, new_parent, is_player : bool, 
 
 func _on_strike_started(event, is_ex : bool):
 	var card = find_card_on_board(event['number'])
-	var reveal_immediately = event['event_type'] == game_logic.EventType.EventType_Strike_PayCost_Unable
+	var reveal_immediately = event['event_type'] == GameLogic.EventType.EventType_Strike_PayCost_Unable
 	if reveal_immediately:
 		card.flip_card_to_front(true)
 	if event['event_player'] == game_logic.player:
 		_move_card_to_strike_area(card, $PlayerStrike/StrikeZone, $AllCards/Striking, true, is_ex)
-		if not is_ex and game_logic.game_state == game_logic.GameState.GameState_Strike_Opponent_Response:
+		if not is_ex and game_logic.game_state == GameLogic.GameState.GameState_Strike_Opponent_Response:
 			ai_strike_response()
 	else:
 		# Opponent started strike, player has to respond.
 		_move_card_to_strike_area(card, $OpponentStrike/StrikeZone, $AllCards/Striking, false, is_ex)
-		if not is_ex and game_logic.game_state == game_logic.GameState.GameState_Strike_Opponent_Response:
+		if not is_ex and game_logic.game_state == GameLogic.GameState.GameState_Strike_Opponent_Response:
 			begin_strike_choosing(true, false)
 
 func _on_strike_reveal(_event):
@@ -1451,9 +1451,9 @@ func _on_arena_location_pressed(location):
 # AI Functions
 #
 func _on_ai_move_button_pressed():
-	if game_logic.active_turn_player != game_logic.player and game_logic.game_state == game_logic.GameState.GameState_PickAction:
+	if game_logic.active_turn_player != game_logic.player and game_logic.game_state == GameLogic.GameState.GameState_PickAction:
 		ai_take_turn()
-	elif game_logic.game_state == game_logic.GameState.GameState_Strike_Opponent_Response and game_logic.active_strike.defender == game_logic.opponent:
+	elif game_logic.game_state == GameLogic.GameState.GameState_Strike_Opponent_Response and game_logic.active_strike.defender == game_logic.opponent:
 		ai_strike_response()
 
 func ai_handle_prepare(game : GameLogic, gameplayer : GameLogic.Player):
@@ -1577,7 +1577,7 @@ func ai_forced_strike():
 
 func ai_boost_cancel_decision(gauge_cost):
 	var events = []
-	events += [game_logic.create_event(game_logic.EventType.EventType_AIPause, game_logic.opponent, 0)]
+	events += [game_logic.create_event(GameLogic.EventType.EventType_AIPause, game_logic.opponent, 0)]
 	var cancel_action = ai_player.pick_cancel(game_logic, game_logic.opponent, game_logic.player, gauge_cost)
 	events += game_logic.do_boost_cancel(game_logic.opponent, cancel_action.card_ids, cancel_action.cancel)
 	_handle_events(events)
