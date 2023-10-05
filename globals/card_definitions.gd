@@ -6,6 +6,16 @@ var card_definitions_path = "res://data/card_definitions.json"
 var decks_path = "res://data/decks"
 var decks = []
 
+const SelectorIndexToDeckId = {
+	0: "solbadguy",
+	1: "kykisuke",
+}
+
+func get_deck_from_selector_index(index : int):
+	for deck in decks:
+		if deck['id'] == SelectorIndexToDeckId[index]:
+			return deck
+
 func load_json_file(file_path : String):
 	if FileAccess.file_exists(file_path):
 		var data = FileAccess.open(file_path, FileAccess.READ)

@@ -1,6 +1,10 @@
-[gd_scene load_steps=2 format=3 uid="uid://o8vjxrpicjsm"]
+[gd_scene load_steps=6 format=3 uid="uid://o8vjxrpicjsm"]
 
 [ext_resource type="Script" path="res://scenes/menu/main_menu.gd" id="1_bk4ch"]
+[ext_resource type="Texture2D" uid="uid://coh1i2m8ikmem" path="res://assets/references/charselect.png" id="2_xgi35"]
+[ext_resource type="Texture2D" uid="uid://bpdpb3e74d2cu" path="res://assets/cards/arena_border_highlight_pressed.png" id="3_lbblc"]
+[ext_resource type="Texture2D" uid="uid://b08j76upbucvr" path="res://assets/cards/arena_border_highlight_selected.png" id="4_r6ms0"]
+[ext_resource type="Texture2D" uid="uid://cpmd0ltu8sbu4" path="res://assets/cards/arena_border_x.png" id="5_vi5nt"]
 
 [node name="main_menu" type="Control"]
 layout_mode = 3
@@ -50,6 +54,293 @@ text = "Start"
 layout_mode = 2
 theme_override_font_sizes/font_size = 60
 text = "Quit"
+
+[node name="CharSelect" type="Sprite2D" parent="."]
+visible = false
+position = Vector2(243, 358)
+scale = Vector2(0.5, 0.5)
+texture = ExtResource("2_xgi35")
+
+[node name="SolSelect" type="TextureButton" parent="CharSelect"]
+offset_left = -246.0
+offset_top = -170.0
+offset_right = -81.0
+offset_bottom = -5.0
+toggle_mode = true
+texture_pressed = ExtResource("3_lbblc")
+texture_hover = ExtResource("4_r6ms0")
+texture_disabled = ExtResource("5_vi5nt")
+stretch_mode = 0
+
+[node name="KySelect" type="TextureButton" parent="CharSelect"]
+offset_left = 80.0
+offset_top = -168.0
+offset_right = 245.0
+offset_bottom = -3.0
+texture_pressed = ExtResource("3_lbblc")
+texture_hover = ExtResource("4_r6ms0")
+texture_disabled = ExtResource("5_vi5nt")
+stretch_mode = 0
+
+[node name="Testament" type="TextureButton" parent="CharSelect"]
+offset_left = -242.0
+offset_top = -496.0
+offset_right = -77.0
+offset_bottom = -331.0
+disabled = true
+texture_pressed = ExtResource("3_lbblc")
+texture_hover = ExtResource("4_r6ms0")
+texture_disabled = ExtResource("5_vi5nt")
+stretch_mode = 0
+
+[node name="HappyChaos" type="TextureButton" parent="CharSelect"]
+offset_left = 88.0
+offset_top = -498.0
+offset_right = 253.0
+offset_bottom = -333.0
+disabled = true
+texture_pressed = ExtResource("3_lbblc")
+texture_hover = ExtResource("4_r6ms0")
+texture_disabled = ExtResource("5_vi5nt")
+stretch_mode = 0
+
+[node name="Millia" type="TextureButton" parent="CharSelect"]
+offset_left = -326.0
+offset_top = -332.0
+offset_right = -161.0
+offset_bottom = -167.0
+disabled = true
+texture_pressed = ExtResource("3_lbblc")
+texture_hover = ExtResource("4_r6ms0")
+texture_disabled = ExtResource("5_vi5nt")
+stretch_mode = 0
+
+[node name="Nago" type="TextureButton" parent="CharSelect"]
+offset_left = -156.0
+offset_top = -334.0
+offset_right = 9.0
+offset_bottom = -169.0
+disabled = true
+texture_pressed = ExtResource("3_lbblc")
+texture_hover = ExtResource("4_r6ms0")
+texture_disabled = ExtResource("5_vi5nt")
+stretch_mode = 0
+
+[node name="Ino" type="TextureButton" parent="CharSelect"]
+offset_left = 2.0
+offset_top = -336.0
+offset_right = 167.0
+offset_bottom = -171.0
+disabled = true
+texture_pressed = ExtResource("3_lbblc")
+texture_hover = ExtResource("4_r6ms0")
+texture_disabled = ExtResource("5_vi5nt")
+stretch_mode = 0
+
+[node name="Zato" type="TextureButton" parent="CharSelect"]
+offset_left = 160.0
+offset_top = -332.0
+offset_right = 325.0
+offset_bottom = -167.0
+disabled = true
+texture_pressed = ExtResource("3_lbblc")
+texture_hover = ExtResource("4_r6ms0")
+texture_disabled = ExtResource("5_vi5nt")
+stretch_mode = 0
+
+[node name="Chip" type="TextureButton" parent="CharSelect"]
+offset_left = -330.0
+offset_top = -2.0
+offset_right = -165.0
+offset_bottom = 163.0
+disabled = true
+texture_pressed = ExtResource("3_lbblc")
+texture_hover = ExtResource("4_r6ms0")
+texture_disabled = ExtResource("5_vi5nt")
+stretch_mode = 0
+
+[node name="Axl" type="TextureButton" parent="CharSelect"]
+offset_left = -166.0
+offset_top = 2.0
+offset_right = -1.0
+offset_bottom = 167.0
+disabled = true
+texture_pressed = ExtResource("3_lbblc")
+texture_hover = ExtResource("4_r6ms0")
+texture_disabled = ExtResource("5_vi5nt")
+stretch_mode = 0
+
+[node name="Potemkin" type="TextureButton" parent="CharSelect"]
+offset_left = 2.0
+offset_top = -6.0
+offset_right = 167.0
+offset_bottom = 159.0
+disabled = true
+texture_pressed = ExtResource("3_lbblc")
+texture_hover = ExtResource("4_r6ms0")
+texture_disabled = ExtResource("5_vi5nt")
+stretch_mode = 0
+
+[node name="May" type="TextureButton" parent="CharSelect"]
+offset_left = 180.0
+offset_top = -4.0
+offset_right = 345.0
+offset_bottom = 161.0
+disabled = true
+texture_pressed = ExtResource("3_lbblc")
+texture_hover = ExtResource("4_r6ms0")
+texture_disabled = ExtResource("5_vi5nt")
+stretch_mode = 0
+
+[node name="Leo" type="TextureButton" parent="CharSelect"]
+offset_left = -326.0
+offset_top = 166.0
+offset_right = -161.0
+offset_bottom = 331.0
+disabled = true
+texture_pressed = ExtResource("3_lbblc")
+texture_hover = ExtResource("4_r6ms0")
+texture_disabled = ExtResource("5_vi5nt")
+stretch_mode = 0
+
+[node name="Faust" type="TextureButton" parent="CharSelect"]
+offset_left = -160.0
+offset_top = 166.0
+offset_right = 5.0
+offset_bottom = 331.0
+disabled = true
+texture_pressed = ExtResource("3_lbblc")
+texture_hover = ExtResource("4_r6ms0")
+texture_disabled = ExtResource("5_vi5nt")
+stretch_mode = 0
+
+[node name="Ram" type="TextureButton" parent="CharSelect"]
+offset_left = 6.0
+offset_top = 162.0
+offset_right = 171.0
+offset_bottom = 327.0
+disabled = true
+texture_pressed = ExtResource("3_lbblc")
+texture_hover = ExtResource("4_r6ms0")
+texture_disabled = ExtResource("5_vi5nt")
+stretch_mode = 0
+
+[node name="Jacko" type="TextureButton" parent="CharSelect"]
+offset_left = 174.0
+offset_top = 164.0
+offset_right = 339.0
+offset_bottom = 329.0
+disabled = true
+texture_pressed = ExtResource("3_lbblc")
+texture_hover = ExtResource("4_r6ms0")
+texture_disabled = ExtResource("5_vi5nt")
+stretch_mode = 0
+
+[node name="Anji" type="TextureButton" parent="CharSelect"]
+offset_left = -324.0
+offset_top = 328.0
+offset_right = -159.0
+offset_bottom = 493.0
+disabled = true
+texture_pressed = ExtResource("3_lbblc")
+texture_hover = ExtResource("4_r6ms0")
+texture_disabled = ExtResource("5_vi5nt")
+stretch_mode = 0
+
+[node name="Baiken" type="TextureButton" parent="CharSelect"]
+offset_left = -158.0
+offset_top = 330.0
+offset_right = 7.0
+offset_bottom = 495.0
+disabled = true
+texture_pressed = ExtResource("3_lbblc")
+texture_hover = ExtResource("4_r6ms0")
+texture_disabled = ExtResource("5_vi5nt")
+stretch_mode = 0
+
+[node name="Gio" type="TextureButton" parent="CharSelect"]
+offset_left = 2.0
+offset_top = 334.0
+offset_right = 167.0
+offset_bottom = 499.0
+disabled = true
+texture_pressed = ExtResource("3_lbblc")
+texture_hover = ExtResource("4_r6ms0")
+texture_disabled = ExtResource("5_vi5nt")
+stretch_mode = 0
+
+[node name="Goldlewis" type="TextureButton" parent="CharSelect"]
+offset_left = 164.0
+offset_top = 326.0
+offset_right = 329.0
+offset_bottom = 491.0
+disabled = true
+texture_pressed = ExtResource("3_lbblc")
+texture_hover = ExtResource("4_r6ms0")
+texture_disabled = ExtResource("5_vi5nt")
+stretch_mode = 0
+
+[node name="PlayerChooser" type="PanelContainer" parent="."]
+layout_mode = 0
+offset_left = 200.0
+offset_top = 244.0
+offset_right = 240.0
+offset_bottom = 284.0
+
+[node name="Margin" type="MarginContainer" parent="PlayerChooser"]
+layout_mode = 2
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 10
+
+[node name="VBox" type="VBoxContainer" parent="PlayerChooser/Margin"]
+layout_mode = 2
+
+[node name="Instruction" type="Label" parent="PlayerChooser/Margin/VBox"]
+layout_mode = 2
+text = "Choose your character:"
+
+[node name="PlayerCharSelect" type="OptionButton" parent="PlayerChooser/Margin/VBox"]
+layout_mode = 2
+item_count = 2
+selected = 0
+allow_reselect = true
+popup/item_0/text = "Sol Badguy"
+popup/item_0/id = 0
+popup/item_1/text = "Ky Kisuke"
+popup/item_1/id = 1
+
+[node name="OpponentChooser" type="PanelContainer" parent="."]
+layout_mode = 0
+offset_left = 912.0
+offset_top = 253.0
+offset_right = 952.0
+offset_bottom = 293.0
+
+[node name="Margin" type="MarginContainer" parent="OpponentChooser"]
+layout_mode = 2
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 10
+
+[node name="VBox" type="VBoxContainer" parent="OpponentChooser/Margin"]
+layout_mode = 2
+
+[node name="Instruction" type="Label" parent="OpponentChooser/Margin/VBox"]
+layout_mode = 2
+text = "Choose your opponent:"
+
+[node name="OpponentCharSelect" type="OptionButton" parent="OpponentChooser/Margin/VBox"]
+layout_mode = 2
+item_count = 2
+selected = 1
+allow_reselect = true
+popup/item_0/text = "Sol Badguy"
+popup/item_0/id = 0
+popup/item_1/text = "Ky Kisuke"
+popup/item_1/id = 1
 
 [connection signal="pressed" from="MenuList/StartButton" to="." method="_on_start_button_pressed"]
 [connection signal="pressed" from="MenuList/QuitButton" to="." method="_on_quit_button_pressed"]

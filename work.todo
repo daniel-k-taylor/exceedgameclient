@@ -1,6 +1,5 @@
 
 In progress:
-    ☐ Deck selector
 
 Tasks:
     Main Features:
@@ -20,18 +19,19 @@ Tasks:
             ☐ minus button above selected ultra card
         ☐ Sum continuous boost stat bonuses into a single line
         ☐ Boost zone panel formatting/change size with text. - Should scroll?
-        ☐ Highlight cards based on mouse position in the zone instead of hovering the actual card
         ☐ Tweak timings on animation lengths
         ☐ Make card ref an icon button
         ☐ Card popout has choice buttons in it
         ☐ If making a decision, minimizing card popout has a blinking icon to reopen it
-        Card Visuals are poor:
-            ☐ Effect text is ugly
-            ☐ Hard to read anything
-            ☐ Ultra/Special/Normal distinguishing factor
-            ☐ Model after hearthstone!
+
 Bugs:
     ☐ Drawing more than 7 looks bad
 
 Later:
     ☐ Paying force cost for boosts - no cards in GG have force cost boosts
+    ☐ Make Deck selector cool with images of characters
+    Programmatic Card Visuals are poor:
+        ☐ Effect text is ugly
+        ☐ Hard to read anything
+        ☐ Ultra/Special/Normal distinguishing factor
+        ☐ Model after hearthstone!

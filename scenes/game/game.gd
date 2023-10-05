@@ -31,8 +31,6 @@ var damage_popup_pool:Array[DamagePopup] = []
 var PlayerHandFocusYPos = 720 - (CardBase.get_hand_card_size().y + 20)
 var OpponentHandFocusYPos = CardBase.get_opponent_hand_card_size().y
 
-var chosen_deck = null
-
 var first_run_done = false
 var select_card_require_min = 0
 var select_card_require_max = 0
@@ -43,6 +41,9 @@ var instructions_wild_swing_allowed = false
 var selected_cards = []
 var arena_locations_clickable = []
 var selected_arena_location = 0
+
+var player_deck
+var opponent_deck
 
 enum UIState {
 	UIState_Initializing,
@@ -125,19 +126,26 @@ func _handle_sockets():
 				print("WebSocket closed with code: %d, reason %s. Clean: %s" % [code, reason, code != -1])
 				_socket = null
 
-
 # Called when the node enters the scene tree for the first time.
 func _ready():
 	if _socket:
 		_socket.connect_to_url("ws://localhost:8765")
-	chosen_deck = CardDefinitions.decks[0]
-	game_logic.initialize_game(chosen_deck, chosen_deck)
+
+	if player_deck == null:
+		player_deck = CardDefinitions.get_deck_from_selector_index(0)
+		opponent_deck = CardDefinitions.get_deck_from_selector_index(0)
+
+	game_logic.initialize_game(player_deck, opponent_deck)
 
 	$PlayerLife.set_life(game_logic.player.life)
 	$OpponentLife.set_life(game_logic.opponent.life)
 	game_over_stuff.visible = false
 
-	setup_characters(chosen_deck, chosen_deck)
+	setup_characters(player_deck, opponent_deck)
+		
+func set_characters(player_char_index: int, opponent_char_index: int):
+	player_deck = CardDefinitions.get_deck_from_selector_index(player_char_index)
+	opponent_deck = CardDefinitions.get_deck_from_selector_index(opponent_char_index)
 
 func setup_characters(player_deck, opponent_deck):
 	$PlayerCharacter.load_character(player_deck['id'])
