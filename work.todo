@@ -1,5 +1,8 @@
 
 In progress:
+    ☐ Add in a NetworkLayer/NetworkGame that sits between Game and GameLogic.
+    ☐ UI mostly needs state from player/opponent and get_card
+    ☐ Has a set of APIs it calls and then waits for event updates from NetworkGame.
 
 Tasks:
     Main Features:
@@ -12,6 +15,9 @@ Tasks:
         ☐ Exceed
         ☐ Reshuffle
         ☐ Change cards
+    AI:
+        ☐ Simple rule based
+        ☐ Something more
     Networking:
         ☐ Build out server that is game logic host (use python?)
     Misc/Low pri:

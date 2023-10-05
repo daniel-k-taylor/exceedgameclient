@@ -1092,108 +1092,108 @@ func _handle_events(events):
 		var event = events[event_index]
 		_log_event(event)
 		match event['event_type']:
-			game_logic.EventType.EventType_AddToGauge:
+			GameLogic.EventType.EventType_AddToGauge:
 				delay = _on_add_to_gauge(event)
-			game_logic.EventType.EventType_AddToDeck:
+			GameLogic.EventType.EventType_AddToDeck:
 				_on_add_to_deck(event)
-			game_logic.EventType.EventType_AddToDiscard:
+			GameLogic.EventType.EventType_AddToDiscard:
 				_on_discard_event(event)
-			game_logic.EventType.EventType_AdvanceTurn:
+			GameLogic.EventType.EventType_AdvanceTurn:
 				_on_advance_turn()
-			game_logic.EventType.EventType_AIPause:
+			GameLogic.EventType.EventType_AIPause:
 				delay = SmallNoticeDelay
-			game_logic.EventType.EventType_Boost_ActionAfterBoost:
+			GameLogic.EventType.EventType_Boost_ActionAfterBoost:
 				_on_post_boost_action(event)
-			game_logic.EventType.EventType_Boost_CancelDecision:
+			GameLogic.EventType.EventType_Boost_CancelDecision:
 				_on_boost_cancel_decision(event)
-			game_logic.EventType.EventType_Boost_Canceled:
+			GameLogic.EventType.EventType_Boost_Canceled:
 				delay = _on_boost_canceled(event)
-			game_logic.EventType.EventType_Boost_Continuous_Added:
+			GameLogic.EventType.EventType_Boost_Continuous_Added:
 				delay = _on_continuous_boost_added(event)
-			game_logic.EventType.EventType_Boost_DiscardContinuousChoice:
+			GameLogic.EventType.EventType_Boost_DiscardContinuousChoice:
 				_on_discard_continuous_boost_begin(event)
-			game_logic.EventType.EventType_Boost_NameCardOpponentDiscards:
+			GameLogic.EventType.EventType_Boost_NameCardOpponentDiscards:
 				_on_name_opponent_card_begin(event)
-			game_logic.EventType.EventType_Boost_Played:
+			GameLogic.EventType.EventType_Boost_Played:
 				delay = _on_boost_played(event)
-			game_logic.EventType.EventType_CardFromHandToGauge_Choice:
+			GameLogic.EventType.EventType_CardFromHandToGauge_Choice:
 				_on_choose_card_hand_to_gauge(event)
-			game_logic.EventType.EventType_ChangeCards:
+			GameLogic.EventType.EventType_ChangeCards:
 				delay = _on_change_cards(event)
-			game_logic.EventType.EventType_Discard:
+			GameLogic.EventType.EventType_Discard:
 				_on_discard_event(event)
-			game_logic.EventType.EventType_Draw:
+			GameLogic.EventType.EventType_Draw:
 				_on_draw_event(event)
-			game_logic.EventType.EventType_Exceed:
+			GameLogic.EventType.EventType_Exceed:
 				delay = _on_exceed_event(event)
-			game_logic.EventType.EventType_ForceStartStrike:
+			GameLogic.EventType.EventType_ForceStartStrike:
 				_on_force_start_strike(event)
-			game_logic.EventType.EventType_Strike_ForceWildSwing:
+			GameLogic.EventType.EventType_Strike_ForceWildSwing:
 				delay = _on_force_wild_swing(event)
-			game_logic.EventType.EventType_GameOver:
+			GameLogic.EventType.EventType_GameOver:
 				_on_game_over(event)
-			game_logic.EventType.EventType_HandSizeExceeded:
+			GameLogic.EventType.EventType_HandSizeExceeded:
 				_on_hand_size_exceeded(event)
-			game_logic.EventType.EventType_Move:
+			GameLogic.EventType.EventType_Move:
 				delay = _on_move_event(event)
-			game_logic.EventType.EventType_MulliganDecision:
+			GameLogic.EventType.EventType_MulliganDecision:
 				_on_mulligan_decision(event)
-			game_logic.EventType.EventType_Prepare:
+			GameLogic.EventType.EventType_Prepare:
 				delay = _on_prepare(event)
-			game_logic.EventType.EventType_ReshuffleDiscard:
+			GameLogic.EventType.EventType_ReshuffleDiscard:
 				delay = _on_reshuffle_discard(event)
-			game_logic.EventType.EventType_ReshuffleDeck_Mulligan:
+			GameLogic.EventType.EventType_ReshuffleDeck_Mulligan:
 				_on_reshuffle_deck_mulligan(event)
-			game_logic.EventType.EventType_RevealHand:
+			GameLogic.EventType.EventType_RevealHand:
 				delay = _on_reveal_hand(event)
-			game_logic.EventType.EventType_Strike_ArmorUp:
+			GameLogic.EventType.EventType_Strike_ArmorUp:
 				delay = _stat_notice_event(event)
-			game_logic.EventType.EventType_Strike_CardActivation:
+			GameLogic.EventType.EventType_Strike_CardActivation:
 				delay = _on_strike_card_activation(event)
-			game_logic.EventType.EventType_Strike_DodgeAttacks:
+			GameLogic.EventType.EventType_Strike_DodgeAttacks:
 				delay = _stat_notice_event(event)
-			game_logic.EventType.EventType_Strike_EffectChoice:
+			GameLogic.EventType.EventType_Strike_EffectChoice:
 				_on_effect_choice(event)
-			game_logic.EventType.EventType_Strike_ExUp:
+			GameLogic.EventType.EventType_Strike_ExUp:
 				delay = _stat_notice_event(event)
-			game_logic.EventType.EventType_Strike_ForceForArmor:
+			GameLogic.EventType.EventType_Strike_ForceForArmor:
 				_on_force_for_armor(event)
-			game_logic.EventType.EventType_Strike_GainAdvantage:
+			GameLogic.EventType.EventType_Strike_GainAdvantage:
 				delay = _stat_notice_event(event)
-			game_logic.EventType.EventType_Strike_GuardUp:
+			GameLogic.EventType.EventType_Strike_GuardUp:
 				delay = _stat_notice_event(event)
-			game_logic.EventType.EventType_Strike_IgnoredPushPull:
+			GameLogic.EventType.EventType_Strike_IgnoredPushPull:
 				delay = _stat_notice_event(event)
-			game_logic.EventType.EventType_Strike_Miss:
+			GameLogic.EventType.EventType_Strike_Miss:
 				delay = _stat_notice_event(event)
-			game_logic.EventType.EventType_Strike_PayCost_Gauge:
+			GameLogic.EventType.EventType_Strike_PayCost_Gauge:
 				_on_pay_cost_gauge(event)
-			game_logic.EventType.EventType_Strike_PayCost_Force:
+			GameLogic.EventType.EventType_Strike_PayCost_Force:
 				printlog("TODO: UI Pay force costs on card")
 				assert(false)
-			game_logic.EventType.EventType_Strike_PayCost_Unable:
+			GameLogic.EventType.EventType_Strike_PayCost_Unable:
 				_on_pay_cost_failed(event)
-			game_logic.EventType.EventType_Strike_PowerUp:
+			GameLogic.EventType.EventType_Strike_PowerUp:
 				delay = _stat_notice_event(event)
-			game_logic.EventType.EventType_Strike_RangeUp:
+			GameLogic.EventType.EventType_Strike_RangeUp:
 				delay = _stat_notice_event(event)
-			game_logic.EventType.EventType_Strike_Response:
+			GameLogic.EventType.EventType_Strike_Response:
 				_on_strike_started(event, false)
-			game_logic.EventType.EventType_Strike_Response_Ex:
+			GameLogic.EventType.EventType_Strike_Response_Ex:
 				_on_strike_started(event, true)
-			game_logic.EventType.EventType_Strike_Reveal:
+			GameLogic.EventType.EventType_Strike_Reveal:
 				delay = _on_strike_reveal(event)
-			game_logic.EventType.EventType_Strike_SpeedUp:
+			GameLogic.EventType.EventType_Strike_SpeedUp:
 				delay = _stat_notice_event(event)
-			game_logic.EventType.EventType_Strike_Started:
+			GameLogic.EventType.EventType_Strike_Started:
 				_on_strike_started(event, false)
-			game_logic.EventType.EventType_Strike_Started_Ex:
+			GameLogic.EventType.EventType_Strike_Started_Ex:
 				_on_strike_started(event, true)
-			game_logic.EventType.EventType_Strike_Stun:
+			GameLogic.EventType.EventType_Strike_Stun:
 				delay = _on_stunned(event)
-			game_logic.EventType.EventType_Strike_TookDamage:
+			GameLogic.EventType.EventType_Strike_TookDamage:
 				delay = _on_damage(event)
-			game_logic.EventType.EventType_Strike_WildStrike:
+			GameLogic.EventType.EventType_Strike_WildStrike:
 				delay = _stat_notice_event(event)
 			_:
 				printlog("ERROR: UNHANDLED EVENT")
