@@ -1,5 +1,9 @@
 extends Node2D
 
+const Enums = preload("res://scenes/game/enums.gd")
+const CardDatabase = preload("res://scenes/game/card_database.gd")
+
+# Game Settings
 const StartingHandFirstPlayer = 5
 const StartingHandSecondPlayer = 6
 const MaxLife = 30
@@ -9,6 +13,7 @@ const MinArenaLocation = 1
 const MaxArenaLocation = 9
 const ShuffleEnabled = true
 
+var card_db : CardDatabase
 var all_cards : Array = []
 var game_over : bool = false
 var active_strike : Strike = null
@@ -727,13 +732,14 @@ var active_turn_player : Player
 var next_turn_player : Player
 
 func initialize_game(player_deck, opponent_deck):
+	card_db = CardDatabase.new()
 	player = Player.new("Player", self, player_deck, 100)
 	opponent = Player.new("Opponent", self, opponent_deck, 200)
 
 	for card in player.deck:
-		all_cards.append(card)
+		card_db.add_card(card)
 	for card in opponent.deck:
-		all_cards.append(card)
+		card_db.add_card(card)
 
 	active_turn_player = player
 	player.arena_location = 3
@@ -748,62 +754,9 @@ func draw_starting_hands_and_begin():
 	events += [create_event(EventType.EventType_MulliganDecision, player, 0)]
 	return events
 
-func get_card(id : int):
-	for card in all_cards:
-		if card.id == id:
-			return card
-	return null
+func get_card_database() -> CardDatabase:
+	return card_db
 
-func _test_insert_card(card):
-	all_cards.append(card)
-
-func get_card_name(id : int):
-	for card in all_cards:
-		if card.id == id:
-			return card.definition['id']
-	return "MISSING CARD"
-
-func are_same_card(id1 : int, id2 : int):
-	var card1 = get_card(id1)
-	var card2 = get_card(id2)
-	return card1.definition['id'] == card2.definition['id']
-
-func get_card_force(id : int):
-	var card = get_card(id)
-	if card.definition['type'] == 'ultra':
-		return 2
-	return 1
-
-func get_card_boost_force_cost(id : int):
-	var card = get_card(id)
-	return card.definition['boost']['force_cost']
-
-func get_card_gauge_cost(id : int):
-	var card = get_card(id)
-	return card.definition['gauge_cost']
-
-func get_card_cancel_cost(id : int):
-	var card = get_card(id)
-	return card.definition['boost']['cancel_cost']
-
-func get_card_effects(card : Card, effect_type):
-	if card == null:
-		return []
-	var relevant_effects = []
-	for effect in card['definition']['effects']:
-		if effect['timing'] == effect_type:
-			relevant_effects.append(effect)
-	return relevant_effects
-
-func get_card_boost_effects(card : Card):
-	return card.definition['boost']['effects']
-
-func get_card_boost_effects_now_immediate(card : Card):
-	var relevant_effects = []
-	for effect in card['definition']['boost']['effects']:
-		if effect['timing'] == "now" or effect['timing'] == "immediate":
-			relevant_effects.append(effect)
-	return relevant_effects
 
 func other_player(test_player : Player) -> Player:
 	if test_player == player:

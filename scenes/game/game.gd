@@ -4,6 +4,7 @@ const Test_StartWithGauge = false
 
 const CardBaseScene = preload("res://scenes/card/card_base.tscn")
 const CardBase = preload("res://scenes/card/card_base.gd")
+const Enums = preload("res://scenes/game/enums.gd")
 const GameLogic = preload("res://scenes/game/gamelogic.gd")
 const CardPopout = preload("res://scenes/game/card_popout.gd")
 const GaugePanel = preload("res://scenes/game/gauge_panel.gd")
