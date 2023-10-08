@@ -33,6 +33,9 @@ func get_active_player() -> Enums.PlayerId:
 func get_decision_info() -> DecisionInfo:
 	return current_game.decision_info
 
+func get_player_name(id):
+	return _get_player(id).name
+
 func get_player_life(id):
 	return _get_player(id).life
 
@@ -205,11 +208,3 @@ func submit_mulligan(player : Enums.PlayerId, card_ids : Array) -> bool:
 func submit_boost(player : Enums.PlayerId, card_id : int) -> bool:
 	var game_player = _get_player(player)
 	return current_game.do_boost(game_player, card_id)
-
-
-
-# do_choice
-# all do_ functions in ok press
-
-
-

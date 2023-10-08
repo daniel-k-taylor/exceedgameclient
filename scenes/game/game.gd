@@ -91,6 +91,7 @@ var ui_sub_state : UISubState = UISubState.UISubState_None
 @onready var game_over_stuff = $GameOverStuff
 @onready var game_over_label = $GameOverStuff/GameOverLabel
 @onready var ai_player : AIPlayer = $AIPlayer
+@onready var opponent_name_label : Label = $OpponentDeck/OpponentName
 
 @onready var CenterCardOval = Vector2(get_viewport().content_scale_size) * Vector2(0.5, 1.35)
 @onready var HorizontalRadius = get_viewport().content_scale_size.x * 0.55
@@ -173,6 +174,7 @@ func setup_character_card(character_card, deck):
 	character_card.set_cost(deck['exceed_cost'])
 
 func finish_initialization():
+	opponent_name_label.text = game_wrapper.get_player_name(Enums.PlayerId.PlayerId_Opponent)
 	spawn_all_cards()
 
 func test_init():
@@ -772,7 +774,7 @@ func _on_force_wild_swing(event):
 	return SmallNoticeDelay
 
 func _on_game_over(event):
-	printlog("GAME OVER for %s" % event['event_player'].name)
+	printlog("GAME OVER for %s" % game_wrapper.get_player_name(event['event_player']))
 	game_over_stuff.visible = true
 	change_ui_state(UIState.UIState_GameOver, UISubState.UISubState_None)
 	_update_buttons()
@@ -1504,7 +1506,7 @@ func ai_handle_exceed(action : AIPlayer.ExceedAction):
 	return success
 
 func ai_handle_reshuffle():
-	var success = game_wrapper.do_reshuffle(Enums.PlayerId.PlayerId_Opponent)
+	var success = game_wrapper.submit_reshuffle(Enums.PlayerId.PlayerId_Opponent)
 	if not success:
 		print("FAILED AI RESHUFFLE")
 	return success
@@ -1512,7 +1514,7 @@ func ai_handle_reshuffle():
 func ai_handle_boost(action : AIPlayer.BoostAction):
 	var card_id = action.card_id
 	#var boost_choice_index = action.boost_choice_index
-	var success = game_wrapper.do_boost(Enums.PlayerId.PlayerId_Opponent, card_id)
+	var success = game_wrapper.submit_boost(Enums.PlayerId.PlayerId_Opponent, card_id)
 	# TODO: Should this be grouped somehow? Save the choice from the original decision instead of asking again?
 	if not success:
 		print("FAILED AI BOOST")

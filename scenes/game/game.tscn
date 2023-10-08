@@ -471,6 +471,15 @@ texture_normal = ExtResource("9_dpbn3")
 texture_pressed = ExtResource("9_dpbn3")
 texture_hover = ExtResource("9_dpbn3")
 
+[node name="OpponentName" type="Label" parent="OpponentDeck"]
+offset_left = 717.0
+offset_top = 90.0
+offset_right = 1045.0
+offset_bottom = 132.0
+theme_override_font_sizes/font_size = 30
+text = "OPPONENT NAME HERE"
+horizontal_alignment = 2
+
 [node name="PlayerStrike" type="Node2D" parent="."]
 
 [node name="StrikeZone" type="TextureButton" parent="PlayerStrike"]
