@@ -4,9 +4,14 @@ const GameCard = preload("res://scenes/game/game_card.gd")
 
 var all_cards : Array[GameCard] = []
 
+func teardown():
+	for card in all_cards:
+		card.free()
+	all_cards = []
+
 func add_card(card : GameCard) -> void:
 	all_cards.append(card)
-	
+
 func get_card(id : int):
 	for card in all_cards:
 		if card.id == id:

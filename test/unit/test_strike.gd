@@ -1,23 +1,27 @@
 extends GutTest
 
-const GameLogic = preload("res://scenes/game/gamelogic.gd")
-var game_logic : GameLogic
-var default_deck = CardDefinitions.decks[0]
+const LocalGame = preload("res://scenes/game/local_game.gd")
+const GameCard = preload("res://scenes/game/game_card.gd")
+const Enums = preload("res://scenes/game/enums.gd")
+var game_logic : LocalGame
+var default_deck = CardDefinitions.get_deck_from_selector_index(0)
 const TestCardId1 = 50001
 const TestCardId2 = 50002
 const TestCardId3 = 50003
 
 func default_game_setup():
-	game_logic = GameLogic.new()
+	game_logic = LocalGame.new()
 	game_logic.initialize_game(default_deck, default_deck)
 	game_logic.draw_starting_hands_and_begin()
-	game_logic.do_mulligan(game_logic.active_turn_player, [])
-	game_logic.do_mulligan(game_logic.next_turn_player, [])
+	game_logic.do_mulligan(game_logic.player, [])
+	game_logic.do_mulligan(game_logic.opponent, [])
+	game_logic.get_latest_events()
 
 func give_player_specific_card(player, def_id, card_id):
+	var card_db = game_logic.get_card_database()
 	var card_def = CardDefinitions.get_card(def_id)
-	var card = game_logic.Card.new(card_id, card_def, "image")
-	game_logic._test_insert_card(card)
+	var card = GameCard.new(card_id, card_def, "image")
+	card_db._test_insert_card(card)
 	player.hand.append(card)
 
 func give_specific_cards(player1, id1, player2, id2):
@@ -38,7 +42,7 @@ func give_gauge(player, amount):
 func validate_has_event(events, event_type, event_player, number = null):
 	for event in events:
 		if event['event_type'] == event_type:
-			assert_eq(event['event_player'], event_player)
+			assert_eq(event['event_player'], event_player.my_id)
 			if number != null:
 				assert_eq(event['number'], number)
 			return
@@ -50,6 +54,7 @@ func before_each():
 	gut.p("ran setup", 2)
 
 func after_each():
+	game_logic.teardown()
 	game_logic.free()
 	gut.p("ran teardown", 2)
 
@@ -61,12 +66,14 @@ func after_all():
 
 func do_and_validate_strike(player, card_id):
 	assert_true(game_logic.can_do_strike(player))
-	var events = game_logic.do_strike(player, card_id, false, -1)
-	validate_has_event(events, game_logic.EventType.EventType_Strike_Started, player, card_id)
-	assert_eq(game_logic.game_state, game_logic.GameState.GameState_Strike_Opponent_Response)
+	assert_true(game_logic.do_strike(player, card_id, false, -1))
+	var events = game_logic.get_latest_events()
+	validate_has_event(events, Enums.EventType.EventType_Strike_Started, player, card_id)
+	assert_eq(game_logic.game_state, Enums.GameState.GameState_Strike_Opponent_Response)
 
 func do_strike_response(player, card_id, ex_card = -1):
-	var events = game_logic.do_strike(player, card_id, false, ex_card)
+	assert_true(game_logic.do_strike(player, card_id, false, ex_card))
+	var events = game_logic.get_latest_events()
 	return events
 
 func validate_gauge(player, amount, id):
@@ -98,12 +105,13 @@ func test_strike_initiator_wins_ties():
 	do_and_validate_strike(initiator, TestCardId1)
 	var events = do_strike_response(defender, TestCardId2)
 	# Expect grasp choice
-	assert_eq(game_logic.game_state, game_logic.GameState.GameState_PlayerDecision)
-	validate_has_event(events, game_logic.EventType.EventType_Strike_EffectChoice, initiator)
-	events = game_logic.do_choice(initiator, 0) # push 1
+	assert_eq(game_logic.game_state, Enums.GameState.GameState_PlayerDecision)
+	validate_has_event(events, Enums.EventType.EventType_Strike_EffectChoice, initiator)
+	assert_true(game_logic.do_choice(initiator, 0)) # push 1
+	events = game_logic.get_latest_events()
 	assert_eq(defender.arena_location, 5)
-	assert_eq(game_logic.game_state, game_logic.GameState.GameState_PickAction)
-	assert_eq(game_logic.active_turn_player, defender)
+	assert_eq(game_logic.game_state, Enums.GameState.GameState_PickAction)
+	assert_eq(game_logic.active_turn_player, defender.my_id)
 	validate_gauge(initiator, 1, TestCardId1)
 	validate_gauge(defender, 0, TestCardId2)
 	validate_discard(initiator, 0, TestCardId1)
@@ -120,12 +128,13 @@ func test_ex_grasp_mirror():
 	do_and_validate_strike(initiator, TestCardId1)
 	var events = do_strike_response(defender, TestCardId2, TestCardId3)
 	# Expect grasp choice
-	assert_eq(game_logic.game_state, game_logic.GameState.GameState_PlayerDecision)
-	validate_has_event(events, game_logic.EventType.EventType_Strike_EffectChoice, defender)
-	events = game_logic.do_choice(defender, 3) # pull 2
+	assert_eq(game_logic.game_state, Enums.GameState.GameState_PlayerDecision)
+	validate_has_event(events, Enums.EventType.EventType_Strike_EffectChoice, defender)
+	assert_true(game_logic.do_choice(defender, 3)) # pull 2
+	events = game_logic.get_latest_events()
 	assert_eq(initiator.arena_location, 6)
-	assert_eq(game_logic.game_state, game_logic.GameState.GameState_PickAction)
-	assert_eq(game_logic.active_turn_player, defender)
+	assert_eq(game_logic.game_state, Enums.GameState.GameState_PickAction)
+	assert_eq(game_logic.active_turn_player, defender.my_id)
 	validate_gauge(initiator, 0, TestCardId1)
 	validate_gauge(defender, 1, TestCardId2)
 	validate_discard(initiator, 1, TestCardId1)

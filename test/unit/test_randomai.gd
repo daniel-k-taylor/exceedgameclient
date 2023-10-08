@@ -1,20 +1,23 @@
 extends GutTest
 
-const GameLogic = preload("res://scenes/game/gamelogic.gd")
+const LocalGame = preload("res://scenes/game/local_game.gd")
+const GameCard = preload("res://scenes/game/game_card.gd")
+const Enums = preload("res://scenes/game/enums.gd")
 const AIPlayer = preload("res://scenes/game/ai_player.gd")
 
-var game_logic : GameLogic
-var default_deck = CardDefinitions.decks[0]
+var game_logic : LocalGame
+var default_deck = CardDefinitions.get_deck_from_selector_index(0)
 
-var player1 : GameLogic.Player
-var player2 : GameLogic.Player
+var player1 : LocalGame.Player
+var player2 : LocalGame.Player
 var ai1 : AIPlayer
 var ai2 : AIPlayer
 
 func default_game_setup():
-	game_logic = GameLogic.new()
+	game_logic = LocalGame.new()
 	game_logic.initialize_game(default_deck, default_deck)
 	game_logic.draw_starting_hands_and_begin()
+	game_logic.get_latest_events()
 	player1 = game_logic.player
 	player2 = game_logic.opponent
 	ai1 = AIPlayer.new()
@@ -25,7 +28,7 @@ func default_game_setup():
 func validate_has_event(events, event_type, event_player, number = null):
 	for event in events:
 		if event['event_type'] == event_type:
-			assert_eq(event['event_player'], event_player)
+			assert_eq(event['event_player'], event_player.my_id)
 			if number != null:
 				assert_eq(event['number'], number)
 			return
@@ -37,6 +40,7 @@ func before_each():
 	gut.p("ran setup", 2)
 
 func after_each():
+	game_logic.teardown()
 	game_logic.free()
 	ai1.ai_policy.free()
 	ai1.free()
@@ -53,10 +57,10 @@ func after_all():
 
 func do_and_validate_strike(player, card_id):
 	assert_true(game_logic.can_do_strike(player))
-	var events = game_logic.do_strike(player, card_id, false, -1)
-	validate_has_event(events, game_logic.EventType.EventType_Strike_Started, player, card_id)
-	assert_eq(game_logic.game_state, game_logic.GameState.GameState_Strike_Opponent_Response)
-
+	assert_true(game_logic.do_strike(player, card_id, false, -1))
+	var events = game_logic.get_latest_events()
+	validate_has_event(events, Enums.EventType.EventType_Strike_Started, player, card_id)
+	assert_eq(game_logic.game_state, Enums.GameState.GameState_Strike_Opponent_Response)
 
 func get_event(events, event_type):
 	for event in events:
@@ -64,71 +68,74 @@ func get_event(events, event_type):
 			return event
 	fail_test("Event not found: %s" % event_type)
 
-func handle_discard_event(events, game : GameLogic, aiplayer : AIPlayer, gameplayer : GameLogic.Player, otherplayer : GameLogic.Player):
-	if game.game_state == GameLogic.GameState.GameState_DiscardDownToMax:
-		var event = get_event(events, GameLogic.EventType.EventType_HandSizeExceeded)
+func handle_discard_event(events, game : LocalGame, aiplayer : AIPlayer, gameplayer : LocalGame.Player):
+	if game.game_state == Enums.GameState.GameState_DiscardDownToMax:
+		var event = get_event(events, Enums.EventType.EventType_HandSizeExceeded)
 		var discard_required_count = event['number']
-		var discard_action = aiplayer.pick_discard_to_max(game, gameplayer, otherplayer, discard_required_count)
-		events += game.do_discard_to_max(gameplayer, discard_action.card_ids)
+		var discard_action = aiplayer.pick_discard_to_max(game, gameplayer.my_id, discard_required_count)
+		assert_true(game.do_discard_to_max(gameplayer, discard_action.card_ids))
+		events += game.get_latest_events()
 
-func handle_prepare(game : GameLogic, gameplayer : GameLogic.Player):
-	var events = game.do_prepare(gameplayer)
-	return events
+func handle_prepare(game : LocalGame, gameplayer : LocalGame.Player):
+	assert_true(game.do_prepare(gameplayer))
+	return game.get_latest_events()
 
-func handle_move(game: GameLogic, gameplayer : GameLogic.Player, action : AIPlayer.MoveAction):
-	var events = []
+func handle_move(game: LocalGame, gameplayer : LocalGame.Player, action : AIPlayer.MoveAction):
 	var location = action.location
 	var card_ids = action.force_card_ids
-	events += game.do_move(gameplayer, card_ids, location)
-	return events
+	assert_true(game.do_move(gameplayer, card_ids, location))
+	return game.get_latest_events()
 
-func handle_change_cards(game: GameLogic, gameplayer : GameLogic.Player, action : AIPlayer.ChangeCardsAction):
-	var events = []
+func handle_change_cards(game: LocalGame, gameplayer : LocalGame.Player, action : AIPlayer.ChangeCardsAction):
 	var card_ids = action.card_ids
-	events += game.do_change(gameplayer, card_ids)
-	return events
+	assert_true(game.do_change(gameplayer, card_ids))
+	return game.get_latest_events()
 
-func handle_exceed(game: GameLogic, gameplayer : GameLogic.Player, action : AIPlayer.ExceedAction):
-	var events = []
+func handle_exceed(game: LocalGame, gameplayer : LocalGame.Player, action : AIPlayer.ExceedAction):
 	var card_ids = action.card_ids
-	events += game.do_exceed(gameplayer, card_ids)
-	return events
+	assert_true(game.do_exceed(gameplayer, card_ids))
+	return game.get_latest_events()
 
-func handle_reshuffle(game: GameLogic, gameplayer : GameLogic.Player):
-	var events = []
-	events += game.do_reshuffle(gameplayer)
-	return events
+func handle_reshuffle(game: LocalGame, gameplayer : LocalGame.Player):
+	assert_true(game.do_reshuffle(gameplayer))
+	return game.get_latest_events()
 
-func handle_boost_reponse(_events, aiplayer : AIPlayer, game : GameLogic, gameplayer : GameLogic.Player, otherplayer : GameLogic.Player, choice_index):
-	while game.game_state == GameLogic.GameState.GameState_PlayerDecision:
-		if game.decision_type == GameLogic.DecisionType.DecisionType_EffectChoice:
-			_events += game.do_choice(gameplayer, choice_index)
-		elif game.decision_type == GameLogic.DecisionType.DecisionType_CardFromHandToGauge:
-			_events += game.do_card_from_hand_to_gauge(gameplayer, gameplayer.hand[choice_index].id)
-		elif game.decision_type == GameLogic.DecisionType.DecisionType_NameCard_OpponentDiscards:
+func handle_boost_reponse(_events, aiplayer : AIPlayer, game : LocalGame, gameplayer : LocalGame.Player, otherplayer : LocalGame.Player, choice_index):
+	while game.game_state == Enums.GameState.GameState_PlayerDecision:
+		if game.decision_info.type == Enums.DecisionType.DecisionType_EffectChoice:
+			assert_true(game.do_choice(gameplayer, choice_index))
+			_events += game.get_latest_events()
+		elif game.decision_info.type == Enums.DecisionType.DecisionType_CardFromHandToGauge:
+			assert_true(game.do_card_from_hand_to_gauge(gameplayer, gameplayer.hand[choice_index].id))
+			_events += game.get_latest_events()
+		elif game.decision_info.type == Enums.DecisionType.DecisionType_NameCard_OpponentDiscards:
 			var index = choice_index * 2
-			var card_id = otherplayer.deck_copy[index].id
-			_events += game.do_boost_name_card_choice_effect(gameplayer, card_id)
+			var card_id = otherplayer.deck_list[index].id
+			assert_true(game.do_boost_name_card_choice_effect(gameplayer, card_id))
+			_events += game.get_latest_events()
 			#TODO: Do something with EventType_RevealHand so AI can consume new info.
-		elif game.decision_type == GameLogic.DecisionType.DecisionType_ChooseDiscardContinuousBoost:
+		elif game.decision_info.type == Enums.DecisionType.DecisionType_ChooseDiscardContinuousBoost:
 			var card_id = otherplayer.continuous_boosts[choice_index].id
-			_events += game.do_boost_name_card_choice_effect(gameplayer, card_id)
-		elif game.decision_type == GameLogic.DecisionType.DecisionType_BoostCancel:
-			var event = get_event(_events, GameLogic.EventType.EventType_Boost_CancelDecision)
+			assert_true(game.do_boost_name_card_choice_effect(gameplayer, card_id))
+			_events += game.get_latest_events()
+		elif game.decision_info.type == Enums.DecisionType.DecisionType_BoostCancel:
+			var event = get_event(_events, Enums.EventType.EventType_Boost_CancelDecision)
 			var cost = event['number']
-			var cancel_action = aiplayer.pick_cancel(game, gameplayer, otherplayer, cost)
-			_events += game.do_boost_cancel(gameplayer, cancel_action.card_ids, cancel_action.cancel)
+			var cancel_action = aiplayer.pick_cancel(game, gameplayer.my_id, cost)
+			assert_true(game.do_boost_cancel(gameplayer, cancel_action.card_ids, cancel_action.cancel))
+			_events += game.get_latest_events()
 
 
-func handle_boost(game: GameLogic, aiplayer : AIPlayer, gameplayer : GameLogic.Player, otherplayer : GameLogic.Player, action : AIPlayer.BoostAction):
+func handle_boost(game: LocalGame, aiplayer : AIPlayer, gameplayer : LocalGame.Player, otherplayer : LocalGame.Player, action : AIPlayer.BoostAction):
 	var events = []
 	var card_id = action.card_id
 	var boost_choice_index = action.boost_choice_index
-	events += game.do_boost(gameplayer, card_id)
+	assert_true(game.do_boost(gameplayer, card_id))
+	events += game.get_latest_events()
 	handle_boost_reponse(events, aiplayer, game, gameplayer, otherplayer, boost_choice_index)
 	return events
 
-func handle_strike(game: GameLogic, aiplayer : AIPlayer, otherai : AIPlayer, action : AIPlayer.StrikeAction):
+func handle_strike(game: LocalGame, aiplayer : AIPlayer, otherai : AIPlayer, action : AIPlayer.StrikeAction):
 	var events = []
 	var card_id = action.card_id
 	var ex_card_id = action.ex_card_id
@@ -137,56 +144,65 @@ func handle_strike(game: GameLogic, aiplayer : AIPlayer, otherai : AIPlayer, act
 	var gameplayer = aiplayer.game_player
 	var otherplayer = otherai.game_player
 
-	events += game.do_strike(gameplayer, card_id, wild_swing, ex_card_id)
-	if game.game_state == GameLogic.GameState.GameState_Strike_Opponent_Response:
-		var response_action = otherai.pick_strike_response(game, otherplayer, gameplayer)
-		events += game.do_strike(otherplayer, response_action.card_id, response_action.wild_swing, response_action.ex_card_id)
+	assert_true(game.do_strike(gameplayer, card_id, wild_swing, ex_card_id))
+	events += game.get_latest_events()
+	if game.game_state == Enums.GameState.GameState_Strike_Opponent_Response:
+		var response_action = otherai.pick_strike_response(game, otherplayer.my_id)
+		assert_true(game.do_strike(otherplayer, response_action.card_id, response_action.wild_swing, response_action.ex_card_id))
+		events += game.get_latest_events()
 
 	# Pay costs
-	while game.game_state == GameLogic.GameState.GameState_PlayerDecision:
+	while game.game_state == Enums.GameState.GameState_PlayerDecision:
 		var decision_ai = aiplayer
-		if game.decision_player == otherplayer:
+		var decision_player = game._get_player(game.decision_info.player)
+		if decision_player == otherplayer:
 			decision_ai = otherai
-		match game.decision_type:
-			GameLogic.DecisionType.DecisionType_PayStrikeCost_Required, GameLogic.DecisionType.DecisionType_PayStrikeCost_CanWild:
-				var can_wild = game.decision_type == GameLogic.DecisionType.DecisionType_PayStrikeCost_CanWild
-				var card = game.active_strike.get_player_card(game.decision_player)
-				var cost = game.get_card_gauge_cost(card)
-				var pay_action = decision_ai.pay_strike_gauge_cost(game, game.decision_player, game.other_player(game.decision_player), cost, can_wild)
-				events += game.do_pay_strike_cost(game.decision_player, pay_action.card_ids, pay_action.wild_swing)
-			GameLogic.DecisionType.DecisionType_EffectChoice:
-				var effect_action = decision_ai.pick_effect_choice(game, game.decision_player, game.other_player(game.decision_player))
-				events += game.do_choice(decision_ai.game_player, effect_action.choice)
-			GameLogic.DecisionType.DecisionType_ForceForArmor:
-				var forceforarmor_action = decision_ai.pick_force_for_armor(game, game.decision_player, game.other_player(game.decision_player))
-				events += game.do_force_for_armor(decision_ai.game_player, forceforarmor_action.card_ids)
-			GameLogic.DecisionType.DecisionType_CardFromHandToGauge:
-				var cardfromhandtogauge_action = decision_ai.pick_card_hand_to_gauge(game, game.decision_player, game.other_player(game.decision_player))
-				events += game.do_card_from_hand_to_gauge(decision_ai.game_player, cardfromhandtogauge_action.card_id)
+		match game.decision_info.type:
+			Enums.DecisionType.DecisionType_PayStrikeCost_Required, Enums.DecisionType.DecisionType_PayStrikeCost_CanWild:
+				var can_wild = game.decision_info.type == Enums.DecisionType.DecisionType_PayStrikeCost_CanWild
+				var card = game.active_strike.get_player_card(decision_player)
+				var cost = game.card_db.get_card_gauge_cost(card.id)
+				var pay_action = decision_ai.pay_strike_gauge_cost(game, decision_player.my_id, cost, can_wild)
+				assert_true(game.do_pay_strike_cost(decision_player, pay_action.card_ids, pay_action.wild_swing))
+				events += game.get_latest_events()
+			Enums.DecisionType.DecisionType_EffectChoice:
+				var effect_action = decision_ai.pick_effect_choice(game, decision_player.my_id)
+				assert_true(game.do_choice(decision_ai.game_player, effect_action.choice))
+				events += game.get_latest_events()
+			Enums.DecisionType.DecisionType_ForceForArmor:
+				var forceforarmor_action = decision_ai.pick_force_for_armor(game, decision_player.my_id)
+				assert_true(game.do_force_for_armor(decision_ai.game_player, forceforarmor_action.card_ids))
+				events += game.get_latest_events()
+			Enums.DecisionType.DecisionType_CardFromHandToGauge:
+				var cardfromhandtogauge_action = decision_ai.pick_card_hand_to_gauge(game, decision_player.my_id)
+				assert_true(game.do_card_from_hand_to_gauge(decision_ai.game_player, cardfromhandtogauge_action.card_id))
+				events += game.get_latest_events()
 
-	assert_eq(game.game_state, GameLogic.GameState.GameState_PickAction)
+	assert_eq(game.game_state, Enums.GameState.GameState_PickAction)
 
 	return events
 
-func test_random_ai_players():
+func run_ai_game():
 	var events = []
 
-	var mulligan_action = ai1.pick_mulligan(game_logic, player1, player2)
-	events += game_logic.do_mulligan(player1, mulligan_action.card_ids)
-	mulligan_action = ai2.pick_mulligan(game_logic, player2, player1)
-	events += game_logic.do_mulligan(player2, mulligan_action.card_ids)
+	var mulligan_action = ai1.pick_mulligan(game_logic, player1.my_id)
+	assert_true(game_logic.do_mulligan(player1, mulligan_action.card_ids))
+	events += game_logic.get_latest_events()
+	mulligan_action = ai2.pick_mulligan(game_logic, player2.my_id)
+	assert_true(game_logic.do_mulligan(player2, mulligan_action.card_ids))
+	events += game_logic.get_latest_events()
 
 	while not game_logic.game_over:
 		var current_ai = ai1
 		var other_ai = ai2
-		var current_player = game_logic.active_turn_player
-		var other_player = game_logic.other_player(game_logic.active_turn_player)
-		if game_logic.active_turn_player == player2:
+		var current_player = game_logic._get_player(game_logic.active_turn_player)
+		var other_player = game_logic._get_player(game_logic.get_other_player(game_logic.active_turn_player))
+		if game_logic.active_turn_player == player2.my_id:
 			current_ai = ai2
 			other_ai = ai1
 
 		var turn_events = []
-		var turn_action = current_ai.take_turn(game_logic, current_player, other_player)
+		var turn_action = current_ai.take_turn(game_logic, current_player.my_id)
 		if turn_action is AIPlayer.PrepareAction:
 			turn_events += handle_prepare(game_logic, current_player)
 		elif turn_action is AIPlayer.MoveAction:
@@ -204,16 +220,32 @@ func test_random_ai_players():
 		else:
 			fail_test("Unknown turn action: %s" % turn_action)
 
-		if game_logic.game_state == GameLogic.GameState.GameState_WaitForStrike:
+		if game_logic.game_state == Enums.GameState.GameState_WaitForStrike:
 			# Can theoretically get here after a boost or an exceed.
-			var strike_action = current_ai.pick_strike(game_logic, current_player, other_player)
+			var strike_action = current_ai.pick_strike(game_logic, current_player.my_id)
 			turn_events += handle_strike(game_logic, current_ai, other_ai, strike_action)
 
-		handle_discard_event(turn_events, game_logic, current_ai, current_player, other_player)
+		handle_discard_event(turn_events, game_logic, current_ai, current_player)
 
 		events += turn_events
+
+	assert_true(events.size() > 0)
+	return events
+
+func test_random_ai_players():
+	var events = run_ai_game()
 
 	print("!!! GAME OVER !!!")
 	for event in events:
 		print(event)
+	pass_test("Finished match")
+
+func test_random_ai_100():
+	for i in range(100):
+		print("==== RUNNING TEST %d ====" % i)
+		run_ai_game()
+		after_each()
+		before_each()
+
+
 	pass_test("Finished match")

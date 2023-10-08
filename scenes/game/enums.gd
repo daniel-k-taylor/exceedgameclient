@@ -1,5 +1,9 @@
 extends Node
 
+enum PlayerId {
+	PlayerId_Player,
+	PlayerId_Opponent,
+}
 
 enum CardZone {
 	CardZone_PlayerHand,
@@ -19,6 +23,7 @@ enum DecisionType {
 	DecisionType_PayStrikeCost_CanWild,
 	DecisionType_ForceForArmor,
 	DecisionType_CardFromHandToGauge,
+	DecisionType_StrikeNow,
 }
 
 enum GameState {
@@ -39,7 +44,6 @@ enum EventType {
 	EventType_AddToDiscard,
 	EventType_AddToDeck,
 	EventType_AdvanceTurn,
-	EventType_AIPause,
 	EventType_Boost_ActionAfterBoost,
 	EventType_Boost_CancelDecision,
 	EventType_Boost_DiscardContinuousChoice,

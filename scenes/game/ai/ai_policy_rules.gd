@@ -1,6 +1,5 @@
 extends Node
 
-const GameLogic = preload("res://scenes/game/gamelogic.gd")
 const AIPlayer = preload("res://scenes/game/ai_player.gd")
 
 func _factorial(n: int) -> int:
