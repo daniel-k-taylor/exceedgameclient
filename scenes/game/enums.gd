@@ -32,11 +32,16 @@ enum GameState {
 	GameState_GameOver,
 	GameState_PickAction,
 	GameState_DiscardDownToMax,
-	GameState_Mulligan,
+	GameState_Mulligan,				#5
 	GameState_WaitForStrike,
 	GameState_PlayerDecision,
 	GameState_Strike_Opponent_Response,
 	GameState_Strike_Processing,
+}
+
+enum GameOverReason {
+	GameOverReason_Life,
+	GameOverReason_Decked,
 }
 
 enum EventType {
@@ -45,22 +50,22 @@ enum EventType {
 	EventType_AddToDeck,
 	EventType_AdvanceTurn,
 	EventType_Boost_ActionAfterBoost,
-	EventType_Boost_CancelDecision,
+	EventType_Boost_CancelDecision, 			# 5
 	EventType_Boost_DiscardContinuousChoice,
 	EventType_Boost_Played,
 	EventType_Boost_Canceled,
 	EventType_Boost_Continuous_Added,
-	EventType_Boost_NameCardOpponentDiscards,
+	EventType_Boost_NameCardOpponentDiscards, 	# 10
 	EventType_CardFromHandToGauge_Choice,
 	EventType_ChangeCards,
 	EventType_Discard,
 	EventType_Draw,
-	EventType_Exceed,
+	EventType_Exceed, 							# 15
 	EventType_ForceStartStrike,
 	EventType_GameOver,
 	EventType_HandSizeExceeded,
 	EventType_Move,
-	EventType_MulliganDecision,
+	EventType_MulliganDecision, 				# 20
 	EventType_Prepare,
 	EventType_ReshuffleDeck_Mulligan,
 	EventType_ReshuffleDiscard,
@@ -70,7 +75,7 @@ enum EventType {
 	EventType_Strike_DodgeAttacks,
 	EventType_Strike_EffectChoice,
 	EventType_Strike_ExUp,
-	EventType_Strike_ForceForArmor,
+	EventType_Strike_ForceForArmor, # 30
 	EventType_Strike_ForceWildSwing,
 	EventType_Strike_GainAdvantage,
 	EventType_Strike_GuardUp,
@@ -80,12 +85,12 @@ enum EventType {
 	EventType_Strike_PayCost_Force,
 	EventType_Strike_PayCost_Unable,
 	EventType_Strike_PowerUp,
-	EventType_Strike_RangeUp,
+	EventType_Strike_RangeUp, # 40
 	EventType_Strike_Response,
 	EventType_Strike_Response_Ex,
 	EventType_Strike_Reveal,
 	EventType_Strike_SpeedUp,
-	EventType_Strike_Started,
+	EventType_Strike_Started, # 45
 	EventType_Strike_Started_Ex,
 	EventType_Strike_Stun,
 	EventType_Strike_TookDamage,

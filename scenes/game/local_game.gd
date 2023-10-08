@@ -38,8 +38,9 @@ func teardown():
 	decision_info.free()
 
 func change_game_state(new_state : Enums.GameState):
-	printlog("game_state update from %s to %s" % [Enums.GameState.keys()[game_state], Enums.GameState.keys()[new_state]])
-	game_state = new_state
+	if game_state != Enums.GameState.GameState_GameOver:
+		printlog("game_state update from %s to %s" % [Enums.GameState.keys()[game_state], Enums.GameState.keys()[new_state]])
+		game_state = new_state
 
 func printlog(text):
 	print(text)
@@ -58,6 +59,13 @@ func create_event(event_type : Enums.EventType, event_player : Enums.PlayerId, n
 		"extra_info": extra_info,
 		"extra_info2": extra_info2,
 	}
+
+func trigger_game_over(event_player : Enums.PlayerId, reason : Enums.GameOverReason):
+	var events = []
+	events += [create_event(Enums.EventType.EventType_GameOver, event_player, reason)]
+	game_over = true
+	change_game_state(Enums.GameState.GameState_GameOver)
+	return events
 
 enum StrikeState {
 	StrikeState_None,
@@ -362,8 +370,7 @@ class Player:
 		var events : Array = []
 		if reshuffle_remaining == 0:
 			# Game Over
-			events += [parent.create_event(Enums.EventType.EventType_GameOver, my_id, 0)]
-			parent.game_over = true
+			events += parent.trigger_game_over(my_id, Enums.GameOverReason.GameOverReason_Decked)
 		else:
 			# Put discard into deck, shuffle, subtract reshuffles
 			deck += discards
@@ -1039,8 +1046,7 @@ func apply_damage(offense_player : Player, defense_player : Player, offense_card
 		active_strike.set_player_stunned(defense_player)
 
 	if defense_player.life <= 0:
-		events += [create_event(Enums.EventType.EventType_GameOver, defense_player.my_id, 0)]
-		game_over = true
+		events += trigger_game_over(defense_player.my_id, Enums.GameOverReason.GameOverReason_Life)
 	return events
 
 func ask_for_cost(performing_player, card, next_state):
@@ -1295,8 +1301,7 @@ func can_do_change(performing_player : Player):
 	if active_turn_player != performing_player.my_id:
 		return false
 
-	var force_available = performing_player.get_available_force()
-	return force_available > 0
+	return true
 
 func can_do_exceed(performing_player : Player):
 	if game_state != Enums.GameState.GameState_PickAction:
