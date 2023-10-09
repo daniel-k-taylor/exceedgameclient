@@ -50,6 +50,12 @@ layout_mode = 2
 theme_override_font_sizes/font_size = 60
 text = "Start"
 
+[node name="JoinButton" type="Button" parent="MenuList"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 60
+disabled = true
+text = "Join Game"
+
 [node name="QuitButton" type="Button" parent="MenuList"]
 layout_mode = 2
 theme_override_font_sizes/font_size = 60
@@ -342,5 +348,28 @@ popup/item_0/id = 0
 popup/item_1/text = "Ky Kisuke"
 popup/item_1/id = 1
 
+[node name="PlayerNameBox" type="TextEdit" parent="."]
+custom_minimum_size = Vector2(100, 50)
+layout_mode = 0
+offset_left = 157.0
+offset_top = 169.0
+offset_right = 438.0
+offset_bottom = 230.0
+theme_override_font_sizes/font_size = 34
+placeholder_text = "Player Name"
+editable = false
+
+[node name="RoomNameBox" type="TextEdit" parent="."]
+custom_minimum_size = Vector2(100, 50)
+layout_mode = 0
+offset_left = 144.0
+offset_top = 344.0
+offset_right = 425.0
+offset_bottom = 405.0
+theme_override_font_sizes/font_size = 34
+text = "DefaultRoom"
+placeholder_text = "Room Name"
+
 [connection signal="pressed" from="MenuList/StartButton" to="." method="_on_start_button_pressed"]
+[connection signal="pressed" from="MenuList/JoinButton" to="." method="_on_join_button_pressed"]
 [connection signal="pressed" from="MenuList/QuitButton" to="." method="_on_quit_button_pressed"]

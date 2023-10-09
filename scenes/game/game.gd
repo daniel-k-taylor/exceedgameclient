@@ -100,44 +100,8 @@ var ui_sub_state : UISubState = UISubState.UISubState_None
 func printlog(text):
 	print("UI: %s" % text)
 
-
-var _socket = null #WebSocketPeer.new()
-var sent_message = false
-
-func _notification(what):
-	if what == NOTIFICATION_WM_CLOSE_REQUEST:
-		if _socket:
-			_socket.close()
-
-func _handle_sockets():
-	if _socket:
-		_socket.poll()
-		var state = _socket.get_ready_state()
-		match state:
-			WebSocketPeer.STATE_OPEN:
-				while _socket.get_available_packet_count():
-					var packet = _socket.get_packet()
-					print("Packet: ", packet)
-					if _socket.was_string_packet():
-						var strpacket = packet.get_string_from_utf8()
-						print("Strpacket: ", strpacket)
-				if not sent_message:
-					var res2 = _socket.send_text("SUPER COOL TEST")
-					sent_message = true
-					print("  send result: ", res2)
-			WebSocketPeer.STATE_CLOSING:
-				pass
-			WebSocketPeer.STATE_CLOSED:
-				var code = _socket.get_close_code()
-				var reason = _socket.get_close_reason()
-				print("WebSocket closed with code: %d, reason %s. Clean: %s" % [code, reason, code != -1])
-				_socket = null
-
 # Called when the node enters the scene tree for the first time.
 func _ready():
-	if _socket:
-		_socket.connect_to_url("ws://localhost:8765")
-
 	if player_deck == null:
 		player_deck = CardDefinitions.get_deck_from_selector_index(0)
 		opponent_deck = CardDefinitions.get_deck_from_selector_index(0)
@@ -265,7 +229,6 @@ func update_character_facing():
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta):
-	_handle_sockets()
 	if not first_run_done:
 		first_run()
 		first_run_done = true

@@ -1,9 +1,10 @@
 
 In progress:
-    ☐ Add in a NetworkLayer/NetworkGame that sits between Game and GameLogic.
-    ☐ UI mostly needs state from player/opponent and get_card
-    ☐ Has a set of APIs it calls and then waits for event updates from NetworkGame.
-
+    Networking!:
+        ☐ On join game, start the game scene with the right decks
+        ☐ Server picks who goes first
+        ☐ Wait for both players to send mulligan choices, then start game
+        ☐ Send actions as events mirrored to both players, room is dumb server for now
 Tasks:
     Main Features:
 
