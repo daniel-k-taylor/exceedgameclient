@@ -1,8 +1,13 @@
 
 In progress:
+    Lobby:
+        ☐ Update name
+        ☐ See rooms/players online
+        ☐ Select localhost or remote server
 Tasks:
     Main Features:
-        ☐ Select localhost or remote server
+        ☐ Make join room look better/preload somehow?
+            ☐ Have a P1 VS P2 loading screen
     Tests:
         ☐ Strike
         ☐ Boost
