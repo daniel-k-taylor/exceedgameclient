@@ -42,6 +42,8 @@ enum GameState {
 enum GameOverReason {
 	GameOverReason_Life,
 	GameOverReason_Decked,
+	GameOverReason_Disconnect,
+	GameOverReason_Quit,
 }
 
 enum EventType {

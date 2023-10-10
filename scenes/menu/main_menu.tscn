@@ -48,13 +48,19 @@ grow_vertical = 2
 [node name="StartButton" type="Button" parent="MenuList"]
 layout_mode = 2
 theme_override_font_sizes/font_size = 60
-text = "Start"
+text = "Start vs AI"
 
 [node name="JoinButton" type="Button" parent="MenuList"]
 layout_mode = 2
 theme_override_font_sizes/font_size = 60
 disabled = true
-text = "Join Game"
+text = "Join Room"
+
+[node name="CancelButton" type="Button" parent="MenuList"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 60
+disabled = true
+text = "Leave Room"
 
 [node name="QuitButton" type="Button" parent="MenuList"]
 layout_mode = 2
@@ -372,4 +378,5 @@ placeholder_text = "Room Name"
 
 [connection signal="pressed" from="MenuList/StartButton" to="." method="_on_start_button_pressed"]
 [connection signal="pressed" from="MenuList/JoinButton" to="." method="_on_join_button_pressed"]
+[connection signal="pressed" from="MenuList/CancelButton" to="." method="_on_cancel_button_pressed"]
 [connection signal="pressed" from="MenuList/QuitButton" to="." method="_on_quit_button_pressed"]

@@ -16,6 +16,11 @@ func get_deck_from_selector_index(index : int):
 		if deck['id'] == SelectorIndexToDeckId[index]:
 			return deck
 
+func get_deck_from_str_id(str_id : String):
+	for deck in decks:
+		if deck['id'] == str_id:
+			return deck
+
 func load_json_file(file_path : String):
 	if FileAccess.file_exists(file_path):
 		var data = FileAccess.open(file_path, FileAccess.READ)

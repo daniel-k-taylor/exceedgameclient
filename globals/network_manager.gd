@@ -2,6 +2,10 @@ extends Node
 
 signal disconnected_from_server
 signal connected_to_server(server_name)
+signal room_join_failed
+signal game_started(data)
+signal game_message_received(message)
+signal other_player_quit(is_disconnect)
 
 enum NetworkState {
 	NetworkState_NotConnected,
@@ -81,8 +85,12 @@ func _handle_server_response(data):
 			_handle_room_join_failed(data_obj)
 		"game_start":
 			_handle_game_start(data_obj)
+		"game_message":
+			_handle_game_message(data_obj)
 		"player_disconnect":
-			_handle_disconnect(data_obj)
+			_handle_player_disconnect(data_obj)
+		"player_quit":
+			_handle_player_quit(data_obj)
 
 func _handle_server_hello(hello_message):
 	var player_name = hello_message["player_name"]
@@ -95,6 +103,7 @@ func _handle_room_waiting_for_opponent(_waiting_message):
 func _handle_room_join_failed(failed_message):
 	var reason = failed_message["reason"]
 	print("Failed to join room: ", reason)
+	room_join_failed.emit()
 
 func _handle_game_start(game_start_message):
 	var player1_id = game_start_message["player1_id"]
@@ -102,13 +111,24 @@ func _handle_game_start(game_start_message):
 	var player2_id = game_start_message["player2_id"]
 	var player2_name = game_start_message["player2_name"]
 	print("Game started between [%s] %s and [%s] %s" % [player1_id, player1_name, player2_id, player2_name])
+	game_started.emit(game_start_message)
 
-func _handle_disconnect(disconnect_message):
-	var id = disconnect_message["id"]
-	var player_name = disconnect_message["name"]
+func _handle_player_disconnect(message):
+	var id = message["id"]
+	var player_name = message["name"]
 	print("Player [%s] %s disconnected" % [id, player_name])
+	other_player_quit.emit(true)
 
+func _handle_player_quit(message):
+	var id = message["id"]
+	var player_name = message["name"]
+	print("Player [%s] %s quit" % [id, player_name])
+	other_player_quit.emit(false)
 
+func _handle_game_message(game_message):
+	game_message_received.emit(game_message)
+
+### Commands ###
 
 func join_room(player_name, room_name, deck_index):
 	var deck = CardDefinitions.get_deck_from_selector_index(deck_index)
@@ -119,4 +139,16 @@ func join_room(player_name, room_name, deck_index):
 		"deck_id": deck["id"],
 	}
 	var json = JSON.stringify(join_room_message)
+	_socket.send_text(json)
+
+func leave_room():
+	var leave_room_message = {
+		"type": "leave_room",
+	}
+	var json = JSON.stringify(leave_room_message)
+	_socket.send_text(json)
+
+func submit_game_message(message):
+	message['type'] = "game_message"
+	var json = JSON.stringify(message)
 	_socket.send_text(json)

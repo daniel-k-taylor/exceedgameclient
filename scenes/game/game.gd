@@ -84,7 +84,7 @@ enum UISubState {
 var ui_state : UIState = UIState.UIState_Initializing
 var ui_sub_state : UISubState = UISubState.UISubState_None
 
-@onready var game_wrapper : GameWrapper = $GameWrapper
+var game_wrapper : GameWrapper = GameWrapper.new()
 @onready var card_popout : CardPopout = $AllCards/CardPopout
 @onready var player_character_card : CharacterCardBase  = $PlayerDeck/PlayerCharacterCard
 @onready var opponent_character_card : CharacterCardBase  = $OpponentDeck/OpponentCharacterCard
@@ -103,10 +103,11 @@ func printlog(text):
 # Called when the node enters the scene tree for the first time.
 func _ready():
 	if player_deck == null:
-		player_deck = CardDefinitions.get_deck_from_selector_index(0)
-		opponent_deck = CardDefinitions.get_deck_from_selector_index(0)
+		# Started this scene directly.
+		begin_local_game(0, 0)
 
-	game_wrapper.initialize_local_game(player_deck, opponent_deck)
+	if not game_wrapper.is_ai_game():
+		$AIMoveButton.visible = false
 
 	$PlayerLife.set_life(game_wrapper.get_player_life(Enums.PlayerId.PlayerId_Player))
 	$OpponentLife.set_life(game_wrapper.get_player_life(Enums.PlayerId.PlayerId_Opponent))
@@ -114,9 +115,44 @@ func _ready():
 
 	setup_characters()
 
-func set_characters(player_char_index: int, opponent_char_index: int):
+func begin_local_game(player_char_index: int, opponent_char_index: int):
 	player_deck = CardDefinitions.get_deck_from_selector_index(player_char_index)
 	opponent_deck = CardDefinitions.get_deck_from_selector_index(opponent_char_index)
+	game_wrapper.initialize_local_game(player_deck, opponent_deck)
+
+func begin_remote_game(game_start_message):
+	var player1_info = {
+		'name': game_start_message['player1_name'],
+		'id': game_start_message['player1_id'],
+		'deck_id': game_start_message['player1_deck_id'],
+		'deck': CardDefinitions.get_deck_from_str_id(game_start_message['player1_deck_id']),
+	}
+	var player2_info = {
+		'name': game_start_message['player2_name'],
+		'id': game_start_message['player2_id'],
+		'deck_id': game_start_message['player2_deck_id'],
+		'deck': CardDefinitions.get_deck_from_str_id(game_start_message['player2_deck_id']),
+	}
+	var seed_value = game_start_message['seed_value']
+	var starting_player = Enums.PlayerId.PlayerId_Player
+	var my_player_info
+	var opponent_player_info
+	if game_start_message['your_player_id'] == game_start_message['player1_id']:
+		my_player_info = player1_info
+		player_deck = player1_info['deck']
+		opponent_player_info = player2_info
+		opponent_deck = player2_info['deck']
+		if game_start_message['starting_player_id'] == game_start_message['player2_id']:
+			starting_player = Enums.PlayerId.PlayerId_Opponent
+	else:
+		my_player_info = player2_info
+		player_deck = player2_info['deck']
+		opponent_player_info = player1_info
+		opponent_deck = player1_info['deck']
+		if game_start_message['starting_player_id'] == game_start_message['player1_id']:
+			starting_player = Enums.PlayerId.PlayerId_Opponent
+
+	game_wrapper.initialize_remote_game(my_player_info, opponent_player_info, starting_player, seed_value)
 
 func setup_characters():
 	$PlayerCharacter.load_character(player_deck['id'])
@@ -244,7 +280,7 @@ func _process(delta):
 				_handle_events(temp_events)
 			else:
 				change_ui_state(UIState.UIState_PickTurnAction, UISubState.UISubState_None)
-	elif ui_state == UIState.UIState_WaitForGameServer:
+	else: # ui_state == UIState.UIState_WaitForGameServer:
 		var events = game_wrapper.poll_for_events()
 		_handle_events(events)
 
@@ -718,7 +754,7 @@ func _on_exceed_event(event):
 
 	else:
 		$OpponentCharacter.set_exceed(true)
-		$OpponentCharacterCard.exceed(true)
+		opponent_character_card.exceed(true)
 
 	spawn_damage_popup("Exceed!", player)
 	return SmallNoticeDelay
@@ -1398,17 +1434,19 @@ func _on_instructions_cancel_button_pressed():
 			deselect_all_cards()
 			close_popout()
 			success = game_wrapper.submit_mulligan(Enums.PlayerId.PlayerId_Player, [])
-		UIState.UIState_SelectArenaLocation:
-			if instructions_cancel_allowed:
-				change_ui_state(UIState.UIState_PickTurnAction, UISubState.UISubState_None)
-		UIState.UIState_SelectCards:
-			if instructions_cancel_allowed:
-				deselect_all_cards()
-				close_popout()
-				if ui_sub_state == UISubState.UISubState_SelectCards_BoostCancel:
-					success = game_wrapper.submit_boost_cancel(Enums.PlayerId.PlayerId_Player, [], false)
-				else:
-					change_ui_state(UIState.UIState_PickTurnAction, UISubState.UISubState_None)
+		_:
+			match ui_state:
+				UIState.UIState_SelectArenaLocation:
+					if instructions_cancel_allowed:
+						change_ui_state(UIState.UIState_PickTurnAction, UISubState.UISubState_None)
+				UIState.UIState_SelectCards:
+					if instructions_cancel_allowed:
+						deselect_all_cards()
+						close_popout()
+						if ui_sub_state == UISubState.UISubState_SelectCards_BoostCancel:
+							success = game_wrapper.submit_boost_cancel(Enums.PlayerId.PlayerId_Player, [], false)
+						else:
+							change_ui_state(UIState.UIState_PickTurnAction, UISubState.UISubState_None)
 	if success:
 		change_ui_state(UIState.UIState_WaitForGameServer)
 	_update_buttons()
@@ -1436,6 +1474,7 @@ func _on_arena_location_pressed(location):
 # AI Functions
 #
 func _on_ai_move_button_pressed():
+	if not game_wrapper.is_ai_game(): return
 	var game_state = game_wrapper.get_game_state()
 	if game_wrapper.get_active_player() == Enums.PlayerId.PlayerId_Opponent and game_state == Enums.GameState.GameState_PickAction:
 		ai_take_turn()
@@ -1493,6 +1532,7 @@ func ai_handle_strike(action : AIPlayer.StrikeAction):
 	return success
 
 func ai_take_turn():
+	if not game_wrapper.is_ai_game(): return
 	var success = false
 	var turn_action = ai_player.take_turn(game_wrapper.current_game, Enums.PlayerId.PlayerId_Opponent)
 	if turn_action is AIPlayer.PrepareAction:
@@ -1518,6 +1558,7 @@ func ai_take_turn():
 		print("FAILED AI TURN")
 
 func ai_pay_cost(event):
+	if not game_wrapper.is_ai_game(): return
 	var can_wild = game_wrapper.get_decision_info().type == Enums.DecisionType.DecisionType_PayStrikeCost_CanWild
 	var cost = game_wrapper.get_card_database().get_card_gauge_cost(event['number'])
 	var pay_action = ai_player.pay_strike_gauge_cost(game_wrapper.current_game, Enums.PlayerId.PlayerId_Opponent, cost, can_wild)
@@ -1528,6 +1569,7 @@ func ai_pay_cost(event):
 		print("FAILED AI PAY COST")
 
 func ai_effect_choice(_event):
+	if not game_wrapper.is_ai_game(): return
 	var effect_action = ai_player.pick_effect_choice(game_wrapper.current_game, Enums.PlayerId.PlayerId_Opponent)
 	var success = game_wrapper.submit_choice(Enums.PlayerId.PlayerId_Opponent, effect_action.choice)
 	if success:
@@ -1536,6 +1578,7 @@ func ai_effect_choice(_event):
 		print("FAILED AI EFFECT CHOICE")
 
 func ai_force_for_armor(_event):
+	if not game_wrapper.is_ai_game(): return
 	var forceforarmor_action = ai_player.pick_force_for_armor(game_wrapper.current_game, Enums.PlayerId.PlayerId_Opponent)
 	var success = game_wrapper.submit_force_for_armor(Enums.PlayerId.PlayerId_Opponent, forceforarmor_action.card_ids)
 	if success:
@@ -1544,6 +1587,7 @@ func ai_force_for_armor(_event):
 		print("FAILED AI FORCE FOR ARMOR")
 
 func ai_strike_response():
+	if not game_wrapper.is_ai_game(): return
 	var response_action = ai_player.pick_strike_response(game_wrapper.current_game, Enums.PlayerId.PlayerId_Opponent)
 	var success = game_wrapper.submit_strike(Enums.PlayerId.PlayerId_Opponent, response_action.card_id, response_action.wild_swing, response_action.ex_card_id)
 	if success:
@@ -1552,6 +1596,7 @@ func ai_strike_response():
 		print("FAILED AI STRIKE RESPONSE")
 
 func ai_discard(event):
+	if not game_wrapper.is_ai_game(): return
 	var discard_action = ai_player.pick_discard_to_max(game_wrapper.current_game, Enums.PlayerId.PlayerId_Opponent, event['number'])
 	var success = game_wrapper.submit_discard_to_max(Enums.PlayerId.PlayerId_Opponent, discard_action.card_ids)
 	if success:
@@ -1560,10 +1605,12 @@ func ai_discard(event):
 		print("FAILED AI DISCARD")
 
 func ai_forced_strike():
+	if not game_wrapper.is_ai_game(): return
 	var strike_action = ai_player.pick_strike(game_wrapper.current_game, Enums.PlayerId.PlayerId_Opponent)
 	ai_handle_strike(strike_action)
 
 func ai_boost_cancel_decision(gauge_cost):
+	if not game_wrapper.is_ai_game(): return
 	var cancel_action = ai_player.pick_cancel(game_wrapper.current_game, Enums.PlayerId.PlayerId_Opponent, gauge_cost)
 	var success = game_wrapper.submit_boost_cancel(Enums.PlayerId.PlayerId_Opponent, cancel_action.card_ids, cancel_action.cancel)
 	if success:
@@ -1572,6 +1619,7 @@ func ai_boost_cancel_decision(gauge_cost):
 		print("FAILED AI BOOST CANCEL")
 
 func ai_discard_continuous_boost():
+	if not game_wrapper.is_ai_game(): return
 	var pick_action = ai_player.pick_discard_continuous(game_wrapper.current_game, Enums.PlayerId.PlayerId_Opponent)
 	var success = game_wrapper.submit_boost_name_card_choice_effect(Enums.PlayerId.PlayerId_Opponent, pick_action.card_id)
 	if success:
@@ -1580,6 +1628,7 @@ func ai_discard_continuous_boost():
 		print("FAILED AI DISCARD CONTINUOUS")
 
 func ai_name_opponent_card():
+	if not game_wrapper.is_ai_game(): return
 	var pick_action = ai_player.pick_name_opponent_card(game_wrapper.current_game, Enums.PlayerId.PlayerId_Opponent)
 	var success = game_wrapper.submit_boost_name_card_choice_effect(Enums.PlayerId.PlayerId_Opponent, pick_action.card_id)
 	if success:
@@ -1588,6 +1637,7 @@ func ai_name_opponent_card():
 		print("FAILED AI NAME OPPONENT CARD")
 
 func ai_choose_card_hand_to_gauge():
+	if not game_wrapper.is_ai_game(): return
 	var cardfromhandtogauge_action = ai_player.pick_card_hand_to_gauge(game_wrapper.current_game, Enums.PlayerId.PlayerId_Opponent)
 	var success = game_wrapper.submit_card_from_hand_to_gauge(Enums.PlayerId.PlayerId_Opponent, cardfromhandtogauge_action.card_id)
 	if success:
@@ -1596,6 +1646,7 @@ func ai_choose_card_hand_to_gauge():
 		print("FAILED AI CHOOSE CARD HAND TO GAUGE")
 
 func ai_mulligan_decision():
+	if not game_wrapper.is_ai_game(): return
 	var mulligan_action = ai_player.pick_mulligan(game_wrapper.current_game, Enums.PlayerId.PlayerId_Opponent)
 	var success = game_wrapper.submit_mulligan(Enums.PlayerId.PlayerId_Opponent, mulligan_action.card_ids)
 	if success:
@@ -1740,4 +1791,5 @@ func _on_opponent_reference_button_pressed():
 	show_popout("THEIR DECK REFERENCE", $AllCards/OpponentAllCopy, OffScreen, CardBase.CardState.CardState_Offscreen)
 
 func _on_exit_to_menu_pressed():
+	NetworkManager.leave_room()
 	queue_free()

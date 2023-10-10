@@ -13,5 +13,11 @@ func _process(_delta):
 
 func _on_main_menu_start_game(player_char_index : int, opponent_char_index : int):
 	game = load("res://scenes/game/game.tscn").instantiate()
-	game.set_characters(player_char_index, opponent_char_index)
+	game.begin_local_game(player_char_index, opponent_char_index)
+	add_child(game)
+
+
+func _on_main_menu_start_remote_game(data):
+	game = load("res://scenes/game/game.tscn").instantiate()
+	game.begin_remote_game(data)
 	add_child(game)

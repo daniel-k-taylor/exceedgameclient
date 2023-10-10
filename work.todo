@@ -1,13 +1,8 @@
 
 In progress:
-    Networking!:
-        ☐ On join game, start the game scene with the right decks
-        ☐ Server picks who goes first
-        ☐ Wait for both players to send mulligan choices, then start game
-        ☐ Send actions as events mirrored to both players, room is dumb server for now
 Tasks:
     Main Features:
-
+        ☐ Select localhost or remote server
     Tests:
         ☐ Strike
         ☐ Boost
@@ -19,8 +14,6 @@ Tasks:
     AI:
         ☐ Simple rule based
         ☐ Something more
-    Networking:
-        ☐ Build out server that is game logic host (use python?)
     Misc/Low pri:
         ☐ Allow spending ultra for 1 force
             ☐ minus button above selected ultra card
@@ -42,3 +35,4 @@ Later:
         ☐ Hard to read anything
         ☐ Ultra/Special/Normal distinguishing factor
         ☐ Model after hearthstone!
+    ☐ Networking - make server smart, validate moves, and hide card ids from client

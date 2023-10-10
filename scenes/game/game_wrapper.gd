@@ -1,6 +1,7 @@
 extends Node
 
 const LocalGame = preload("res://scenes/game/local_game.gd")
+const RemoteGame = preload("res://scenes/game/remote_game.gd")
 const Enums = preload("res://scenes/game/enums.gd")
 const CardDatabase = preload("res://scenes/game/card_database.gd")
 const DecisionInfo = preload("res://scenes/game/decision_info.gd")
@@ -10,28 +11,33 @@ var current_game
 func poll_for_events() -> Array:
 	return current_game.get_latest_events()
 
+func is_ai_game() -> bool:
+	return current_game is LocalGame
+
 func initialize_local_game(player_deck, opponent_deck):
 	current_game = LocalGame.new()
-	current_game.initialize_game(player_deck, opponent_deck)
+	var seed_value = randi()
+	current_game.initialize_game(player_deck, opponent_deck, "Player", "Opponent", Enums.PlayerId.PlayerId_Player, seed_value)
 	current_game.draw_starting_hands_and_begin()
+
+func initialize_remote_game(player_info, opponent_info, starting_player : Enums.PlayerId, seed_value : int):
+	current_game = RemoteGame.new()
+	current_game.initialize_game(player_info, opponent_info, starting_player, seed_value)
 
 func _test_add_to_gauge(amount):
 	current_game._test_add_to_gauge(amount)
 
 func _get_player(id):
-	if id == Enums.PlayerId.PlayerId_Player:
-		return current_game.player
-	else:
-		return current_game.opponent
+	return current_game._get_player(id)
 
 func get_game_state() -> Enums.GameState:
-	return current_game.game_state
+	return current_game.get_game_state()
 
 func get_active_player() -> Enums.PlayerId:
-	return current_game.active_turn_player
+	return current_game.get_active_player()
 
 func get_decision_info() -> DecisionInfo:
-	return current_game.decision_info
+	return current_game.get_decision_info()
 
 func get_player_name(id):
 	return _get_player(id).name
@@ -148,6 +154,8 @@ func can_do_strike(player : Enums.PlayerId) -> bool:
 func can_move_to(player_id : Enums.PlayerId, location : int) -> bool:
 	var game_player = _get_player(player_id)
 	return game_player.can_move_to(location)
+
+### Action Functions ###
 
 func submit_prepare(player : Enums.PlayerId) -> bool:
 	var game_player = _get_player(player)

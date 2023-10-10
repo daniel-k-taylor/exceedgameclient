@@ -42,6 +42,12 @@ func change_game_state(new_state : Enums.GameState):
 		printlog("game_state update from %s to %s" % [Enums.GameState.keys()[game_state], Enums.GameState.keys()[new_state]])
 		game_state = new_state
 
+func get_game_state() -> Enums.GameState:
+	return game_state
+
+func get_decision_info() -> DecisionInfo:
+	return decision_info
+
 func printlog(text):
 	print(text)
 
@@ -231,8 +237,6 @@ class Player:
 			deck.append(card)
 			deck_list.append(card)
 			card_start_id += 1
-		if ShuffleEnabled:
-			deck.shuffle()
 		gauge = []
 		continuous_boosts = []
 		discards = []
@@ -241,6 +245,13 @@ class Player:
 		canceled_this_turn = false
 		cleanup_boost_to_gauge_cards = []
 		mulligan_complete = false
+
+	func initial_shuffle():
+		if ShuffleEnabled:
+			random_shuffle_deck()
+
+	func random_shuffle_deck():
+		parent.shuffle_array(deck)
 
 	func owns_card(card_id: int):
 		for card in deck_list:
@@ -265,7 +276,7 @@ class Player:
 		events += draw(len(card_ids))
 		for id in card_ids:
 			events += move_card_from_hand_to_deck(id)
-		deck.shuffle()
+		random_shuffle_deck()
 		events += [parent.create_event(Enums.EventType.EventType_ReshuffleDeck_Mulligan, my_id, reshuffle_remaining)]
 		mulligan_complete = true
 		return events
@@ -416,7 +427,7 @@ class Player:
 		var events = []
 		for i in range(amount):
 			if len(hand) > 0:
-				var random_card_id = hand[randi() % len(hand)].id
+				var random_card_id = hand[parent.get_random_int() % len(hand)].id
 				events += discard([random_card_id])
 		return events
 
@@ -670,20 +681,51 @@ var opponent : Player
 var active_turn_player : Enums.PlayerId
 var next_turn_player : Enums.PlayerId
 
-func initialize_game(player_deck, opponent_deck):
-	card_db = CardDatabase.new()
-	player = Player.new(Enums.PlayerId.PlayerId_Player, "Player", self, card_db, player_deck, 100)
-	opponent = Player.new(Enums.PlayerId.PlayerId_Opponent, "Opponent", self, card_db, opponent_deck, 200)
+func get_active_player() -> Enums.PlayerId:
+	return active_turn_player
 
-	active_turn_player = Enums.PlayerId.PlayerId_Player
-	player.arena_location = 3
-	next_turn_player = Enums.PlayerId.PlayerId_Opponent
-	opponent.arena_location = 7
+var random_number_generator : RandomNumberGenerator = RandomNumberGenerator.new()
+
+func shuffle_array(arr) -> void:
+	var n = arr.size()
+	for i in range(n - 1, 0, -1):
+		var j = get_random_int() % (i + 1)
+		var temp = arr[j]
+		arr[j] = arr[i]
+		arr[i] = temp
+
+func get_random_int() -> int:
+	return random_number_generator.randi()
+
+func get_random_int_range(from : int, to : int) -> int:
+	return random_number_generator.randi_range(from, to)
+
+func initialize_game(player_deck, opponent_deck, player_name : String, opponent_name : String, first_player : Enums.PlayerId, seed_value : int):
+	random_number_generator.seed = seed_value
+	card_db = CardDatabase.new()
+	var player_card_id_start = 100
+	var opponent_card_id_start = 200
+	if first_player == Enums.PlayerId.PlayerId_Opponent:
+		player_card_id_start = 200
+		opponent_card_id_start = 100
+	player = Player.new(Enums.PlayerId.PlayerId_Player, player_name, self, card_db, player_deck, player_card_id_start)
+	opponent = Player.new(Enums.PlayerId.PlayerId_Opponent, opponent_name, self, card_db, opponent_deck, opponent_card_id_start)
+
+	active_turn_player = first_player
+	next_turn_player = get_other_player(first_player)
+	var starting_player = _get_player(active_turn_player)
+	var second_player = _get_player(next_turn_player)
+	starting_player.arena_location = 3
+	second_player.arena_location = 7
+	starting_player.initial_shuffle()
+	second_player.initial_shuffle()
 
 func draw_starting_hands_and_begin():
 	var events = []
-	events += player.draw(StartingHandFirstPlayer)
-	events += opponent.draw(StartingHandSecondPlayer)
+	var starting_player = _get_player(active_turn_player)
+	var second_player = _get_player(next_turn_player)
+	events += starting_player.draw(StartingHandFirstPlayer)
+	events += second_player.draw(StartingHandSecondPlayer)
 	change_game_state(Enums.GameState.GameState_Mulligan)
 	events += [create_event(Enums.EventType.EventType_MulliganDecision, player.my_id, 0)]
 	event_queue += events
@@ -1774,5 +1816,16 @@ func do_mulligan(performing_player : Player, card_ids : Array) -> bool:
 		events += [create_event(Enums.EventType.EventType_AdvanceTurn, active_turn_player, 0)]
 	else:
 		events += [create_event(Enums.EventType.EventType_MulliganDecision, get_other_player(performing_player.my_id), 0)]
+	event_queue += events
+	return true
+
+func do_quit(player_id : Enums.PlayerId, reason : Enums.GameOverReason):
+	printlog("InitialAction: QUIT by %s" % [get_player_name(player_id)])
+	if game_state == Enums.GameState.GameState_GameOver:
+		printlog("ERROR: Game already over.")
+		return false
+
+	var events = []
+	events += [create_event(Enums.EventType.EventType_GameOver, player_id, reason)]
 	event_queue += events
 	return true
