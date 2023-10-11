@@ -6,6 +6,7 @@ signal room_join_failed
 signal game_started(data)
 signal game_message_received(message)
 signal other_player_quit(is_disconnect)
+signal players_update(players)
 
 enum NetworkState {
 	NetworkState_NotConnected,
@@ -14,6 +15,7 @@ enum NetworkState {
 }
 
 var network_state = NetworkState.NetworkState_NotConnected
+var cached_players = []
 
 const azure_url = "wss://fightingcardslinux.azurewebsites.net"
 const local_url = "ws://localhost:8080"
@@ -91,6 +93,8 @@ func _handle_server_response(data):
 			_handle_player_disconnect(data_obj)
 		"player_quit":
 			_handle_player_quit(data_obj)
+		"players_update":
+			_handle_players_update(data_obj)
 
 func _handle_server_hello(hello_message):
 	var player_name = hello_message["player_name"]
@@ -128,6 +132,22 @@ func _handle_player_quit(message):
 func _handle_game_message(game_message):
 	game_message_received.emit(game_message)
 
+func _handle_players_update(message):
+	var players = message["players"]
+	var player_list = []
+	for player in players:
+		var id = player["player_id"]
+		var player_name = player["player_name"]
+		var room_name = player["room_name"]
+		player_list.append({
+			"player_id": id,
+			"player_name": player_name,
+			"room_name": room_name,
+		})
+	cached_players = player_list
+	players_update.emit(player_list)
+
+
 ### Commands ###
 
 func join_room(player_name, room_name, deck_index):
@@ -152,3 +172,14 @@ func submit_game_message(message):
 	message['type'] = "game_message"
 	var json = JSON.stringify(message)
 	_socket.send_text(json)
+
+func set_player_name(player_name):
+	var message = {
+		"type": "set_name",
+		"player_name": player_name,
+	}
+	var json = JSON.stringify(message)
+	_socket.send_text(json)
+
+func get_player_list():
+	return cached_players

@@ -1,5 +1,7 @@
 extends Node2D
 
+signal returning_from_game
+
 const Test_StartWithGauge = false
 
 const CardBaseScene = preload("res://scenes/card/card_base.tscn")
@@ -1792,4 +1794,5 @@ func _on_opponent_reference_button_pressed():
 
 func _on_exit_to_menu_pressed():
 	NetworkManager.leave_room()
+	returning_from_game.emit()
 	queue_free()

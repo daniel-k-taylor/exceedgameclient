@@ -1,13 +1,10 @@
 
 In progress:
-    Lobby:
-        ☐ Update name
-        ☐ See rooms/players online
-        ☐ Select localhost or remote server
+    ☐ Make join room look better/preload somehow?
+        ☐ Have a P1 VS P2 loading screen
 Tasks:
     Main Features:
-        ☐ Make join room look better/preload somehow?
-            ☐ Have a P1 VS P2 loading screen
+
     Tests:
         ☐ Strike
         ☐ Boost
@@ -28,6 +25,7 @@ Tasks:
         ☐ Make card ref an icon button
         ☐ Card popout has choice buttons in it
         ☐ If making a decision, minimizing card popout has a blinking icon to reopen it
+    ☐ Only connect to server if you enter Multiplayer
 
 Bugs:
     ☐ Drawing more than 7 looks bad
