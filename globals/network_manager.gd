@@ -20,15 +20,19 @@ var cached_players = []
 const azure_url = "wss://fightingcardslinux.azurewebsites.net"
 const local_url = "ws://localhost:8080"
 
-var _socket = WebSocketPeer.new()
+var _socket = null
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
 	pass # Replace with function body.
 
+func is_server_connected() -> bool:
+	return _socket != null
 
-func connect_to_server(local : bool):
-	if local:
+func connect_to_server():
+	if _socket != null: return
+	_socket = WebSocketPeer.new()
+	if OS.is_debug_build():
 		_socket.connect_to_url(local_url)
 	else:
 		_socket.connect_to_url(azure_url)
@@ -151,6 +155,7 @@ func _handle_players_update(message):
 ### Commands ###
 
 func join_room(player_name, room_name, deck_index):
+	if not _socket: return
 	var deck = CardDefinitions.get_deck_from_selector_index(deck_index)
 	var join_room_message = {
 		"type": "join_room",
@@ -162,6 +167,7 @@ func join_room(player_name, room_name, deck_index):
 	_socket.send_text(json)
 
 func leave_room():
+	if not _socket: return
 	var leave_room_message = {
 		"type": "leave_room",
 	}
@@ -169,11 +175,13 @@ func leave_room():
 	_socket.send_text(json)
 
 func submit_game_message(message):
+	if not _socket: return
 	message['type'] = "game_message"
 	var json = JSON.stringify(message)
 	_socket.send_text(json)
 
 func set_player_name(player_name):
+	if not _socket: return
 	var message = {
 		"type": "set_name",
 		"player_name": player_name,

@@ -159,6 +159,8 @@ func begin_remote_game(game_start_message):
 func setup_characters():
 	$PlayerCharacter.load_character(player_deck['id'])
 	$OpponentCharacter.load_character(opponent_deck['id'])
+	if player_deck['id'] == opponent_deck['id']:
+		$OpponentCharacter.modulate = Color(1, 0.38, 0.55)
 	setup_character_card(player_character_card, player_deck)
 	setup_character_card(opponent_character_card, opponent_deck)
 

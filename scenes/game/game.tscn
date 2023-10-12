@@ -568,7 +568,6 @@ position = Vector2(50, -68)
 scale = Vector2(0.55, 0.55)
 
 [node name="OpponentCharacter" parent="." instance=ExtResource("9_rhsuv")]
-modulate = Color(1, 0.384314, 0.54902, 1)
 position = Vector2(146, -68)
 scale = Vector2(0.5, 0.5)
 

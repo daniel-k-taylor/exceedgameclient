@@ -403,8 +403,19 @@ offset_bottom = 99.0
 theme_override_font_sizes/font_size = 34
 text = "Player    -      Room"
 
+[node name="ReconnectToServerButton" type="Button" parent="."]
+layout_mode = 0
+offset_left = 56.0
+offset_top = 529.0
+offset_right = 348.0
+offset_bottom = 621.0
+theme_override_font_sizes/font_size = 32
+text = "Reconnect to 
+Server"
+
 [connection signal="pressed" from="MenuList/VSAIBox/StartButton" to="." method="_on_start_button_pressed"]
 [connection signal="pressed" from="MenuList/JoinButton" to="." method="_on_join_button_pressed"]
 [connection signal="pressed" from="MenuList/CancelButton" to="." method="_on_cancel_button_pressed"]
 [connection signal="pressed" from="MenuList/QuitButton" to="." method="_on_quit_button_pressed"]
 [connection signal="pressed" from="UpdateNameButton" to="." method="_on_update_name_button_pressed"]
+[connection signal="pressed" from="ReconnectToServerButton" to="." method="_on_reconnect_to_server_button_pressed"]

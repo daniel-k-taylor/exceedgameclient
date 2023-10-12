@@ -1,7 +1,7 @@
 extends Control
 
-signal start_game(player_char_index, opponent_char_index)
-signal start_remote_game(data)
+signal start_game(vs_info, player_char_index, opponent_char_index)
+signal start_remote_game(vs_info, data)
 
 @onready var player_select : OptionButton = $PlayerChooser/Margin/VBox/PlayerCharSelect
 @onready var opponent_select : OptionButton = $MenuList/VSAIBox/OpponentChooser/Margin/VBox/OpponentCharSelect
@@ -14,10 +14,12 @@ signal start_remote_game(data)
 # Called when the node enters the scene tree for the first time.
 func _ready():
 	NetworkManager.connect("connected_to_server", _on_connected)
+	NetworkManager.connect("disconnected_from_server", _on_disconnected)
 	NetworkManager.connect("game_started", _on_remote_game_started)
 	NetworkManager.connect("players_update", _on_players_update)
 	NetworkManager.connect("room_join_failed", _on_join_failed)
 	$MenuList/CancelButton.visible = false
+	$ReconnectToServerButton.visible = false
 	_on_players_update(NetworkManager.get_player_list())
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
@@ -29,7 +31,11 @@ func returned_from_game():
 	update_buttons(false)
 
 func _on_start_button_pressed():
-	start_game.emit(player_select.selected, opponent_select.selected)
+	var player_deck = CardDefinitions.get_deck_from_selector_index(player_select.selected)
+	var opponent_deck = CardDefinitions.get_deck_from_selector_index(opponent_select.selected)
+	var player_name = get_player_name()
+	var opponent_name = "CPU"
+	start_game.emit(get_vs_info(player_name, player_deck, opponent_name, opponent_deck), player_select.selected, opponent_select.selected)
 
 func _on_quit_button_pressed():
 	get_tree().quit()
@@ -38,9 +44,36 @@ func _on_connected(player_name):
 	$MenuList/JoinButton.disabled = false
 	$PlayerNameBox.editable = true
 	$PlayerNameBox.text = player_name
+	$ReconnectToServerButton.visible = false
+
+func _on_disconnected():
+	update_buttons(false)
+	$MenuList/JoinButton.disabled = true
+	$ReconnectToServerButton.visible = true
+	$ReconnectToServerButton.disabled = false
+
+func get_vs_info(player_name, player_deck, opponent_name, opponent_deck):
+	return {
+		'player_name': player_name,
+		'player_deck': player_deck,
+		'opponent_name': opponent_name,
+		'opponent_deck': opponent_deck,
+	}
 
 func _on_remote_game_started(data):
-	start_remote_game.emit(data)
+	var player_deck = data['player1_deck_id']
+	var player_name = data['player1_name']
+	var opponent_deck = data['player2_deck_id']
+	var opponent_name = data['player2_name']
+	if data['your_player_id'] != data['player1_id']:
+		player_deck = data['player2_deck_id']
+		player_name = data['player2_name']
+		opponent_deck = data['player1_deck_id']
+		opponent_name = data['player1_name']
+	
+	player_deck = CardDefinitions.get_deck_from_str_id(player_deck)
+	opponent_deck = CardDefinitions.get_deck_from_str_id(opponent_deck)
+	start_remote_game.emit(get_vs_info(player_name, player_deck, opponent_name, opponent_deck), data)
 
 func _on_players_update(players):
 	player_list.clear()
@@ -74,3 +107,8 @@ func _on_cancel_button_pressed():
 func _on_update_name_button_pressed():
 	var player_name = get_player_name()
 	NetworkManager.set_player_name(player_name)
+
+
+func _on_reconnect_to_server_button_pressed():
+	NetworkManager.connect_to_server()
+	$ReconnectToServerButton.disabled = true
