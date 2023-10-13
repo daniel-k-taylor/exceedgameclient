@@ -1,9 +1,7 @@
 
 In progress:
-    ☐ Card popout has choice buttons in it
 Tasks:
     Main Features:
-
     Tests:
         ☐ Strike
         ☐ Boost
@@ -24,6 +22,7 @@ Tasks:
         ☐ Make card ref an icon button
         ☐ If making a decision, minimizing card popout has a blinking icon to reopen it
     ☐ Only connect to server if you enter Multiplayer
+    ☐ Card popout has choice buttons for gauge selection
 
 Bugs:
     ☐ Drawing more than 7 looks bad

@@ -1,6 +1,8 @@
 extends PanelContainer
 
 signal close_window
+signal pressed_ok
+signal pressed_cancel
 
 const ColsAtMaxSize = 5
 const SlotsAtExpectedCols = 10
@@ -11,6 +13,11 @@ const MinSeparation = -220
 
 var used_slots = 0
 var total_cols = 0
+
+@onready var instruction_box = $PopoutVBox/HBoxContainer/RestOfThing
+@onready var instruction_label = $PopoutVBox/HBoxContainer/RestOfThing/InstructionLabel
+@onready var instruction_button_ok = $PopoutVBox/HBoxContainer/RestOfThing/InstructionButtonOk
+@onready var instruction_button_cancel = $PopoutVBox/HBoxContainer/RestOfThing/InstructionButtonCancel
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
@@ -24,6 +31,22 @@ func set_title(text : String):
 
 func set_amount(num : int):
 	$PopoutVBox/HBoxContainer/TitleAmount.text = str(num)
+
+func set_instructions(instruction_info):
+	if instruction_info == null:
+		instruction_box.visible = false
+	else:
+		instruction_box.visible = true
+		var instruction_text = instruction_info['instruction_text']
+		var ok_text = instruction_info['ok_text']
+		var cancel_text = instruction_info['cancel_text']
+		var ok_enabled = instruction_info['ok_enabled']
+		var cancel_visible = instruction_info['cancel_visible']
+		instruction_label.text = instruction_text
+		instruction_button_ok.text = ok_text
+		instruction_button_ok.disabled = not ok_enabled
+		instruction_button_cancel.visible = cancel_visible
+		instruction_button_cancel.text = cancel_text
 
 func adjust_spacing():
 	if used_slots > SlotsAtExpectedCols:
@@ -79,3 +102,11 @@ func get_slot_position(slot_index : int) -> Vector2:
 
 func _on_close_window_button_pressed():
 	close_window.emit()
+
+
+func _on_instruction_button_ok_pressed():
+	pressed_ok.emit()
+
+
+func _on_instruction_button_cancel_pressed():
+	pressed_cancel.emit()

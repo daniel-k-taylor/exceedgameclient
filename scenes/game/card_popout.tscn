@@ -49,6 +49,31 @@ vertical_alignment = 1
 custom_minimum_size = Vector2(20, 0)
 layout_mode = 2
 
+[node name="RestOfThing" type="HBoxContainer" parent="PopoutVBox/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+alignment = 2
+
+[node name="InstructionLabel" type="Label" parent="PopoutVBox/HBoxContainer/RestOfThing"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 38
+text = "Name a card."
+
+[node name="InstructionButtonOk" type="Button" parent="PopoutVBox/HBoxContainer/RestOfThing"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 38
+text = "OK"
+
+[node name="InstructionButtonCancel" type="Button" parent="PopoutVBox/HBoxContainer/RestOfThing"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 38
+text = "Cancel"
+
+[node name="Buffer2" type="MarginContainer" parent="PopoutVBox/HBoxContainer/RestOfThing"]
+custom_minimum_size = Vector2(20, 0)
+layout_mode = 2
+theme_override_constants/margin_right = 20
+
 [node name="Margin" type="MarginContainer" parent="PopoutVBox"]
 layout_mode = 2
 size_flags_horizontal = 0
@@ -389,3 +414,5 @@ custom_minimum_size = Vector2(0, 10)
 layout_mode = 2
 
 [connection signal="pressed" from="PopoutVBox/CloseWindowButton" to="." method="_on_close_window_button_pressed"]
+[connection signal="pressed" from="PopoutVBox/HBoxContainer/RestOfThing/InstructionButtonOk" to="." method="_on_instruction_button_ok_pressed"]
+[connection signal="pressed" from="PopoutVBox/HBoxContainer/RestOfThing/InstructionButtonCancel" to="." method="_on_instruction_button_cancel_pressed"]
