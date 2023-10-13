@@ -65,8 +65,7 @@ func _handle_sockets():
 			WebSocketPeer.STATE_CLOSING:
 				pass
 			WebSocketPeer.STATE_CLOSED:
-				if network_state == NetworkState.NetworkState_Connected:
-					disconnected_from_server.emit()
+				disconnected_from_server.emit()
 				network_state = NetworkState.NetworkState_NotConnected
 				var code = _socket.get_close_code()
 				var reason = _socket.get_close_reason()

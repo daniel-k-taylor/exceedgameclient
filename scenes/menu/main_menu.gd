@@ -45,12 +45,14 @@ func _on_connected(player_name):
 	$PlayerNameBox.editable = true
 	$PlayerNameBox.text = player_name
 	$ReconnectToServerButton.visible = false
+	$ServerStatusLabel.text = "Connected to server."
 
 func _on_disconnected():
 	update_buttons(false)
 	$MenuList/JoinButton.disabled = true
 	$ReconnectToServerButton.visible = true
 	$ReconnectToServerButton.disabled = false
+	$ServerStatusLabel.text = "Disconnected from server."
 
 func get_vs_info(player_name, player_deck, opponent_name, opponent_deck):
 	return {
@@ -110,5 +112,6 @@ func _on_update_name_button_pressed():
 
 
 func _on_reconnect_to_server_button_pressed():
+	$ServerStatusLabel.text = "Reconnecting to server..."
 	NetworkManager.connect_to_server()
 	$ReconnectToServerButton.disabled = true

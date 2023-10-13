@@ -413,6 +413,15 @@ theme_override_font_sizes/font_size = 32
 text = "Reconnect to 
 Server"
 
+[node name="ServerStatusLabel" type="Label" parent="."]
+layout_mode = 0
+offset_left = 465.0
+offset_top = 614.0
+offset_right = 796.0
+offset_bottom = 659.0
+theme_override_font_sizes/font_size = 32
+text = "Connecting to server...."
+
 [connection signal="pressed" from="MenuList/VSAIBox/StartButton" to="." method="_on_start_button_pressed"]
 [connection signal="pressed" from="MenuList/JoinButton" to="." method="_on_join_button_pressed"]
 [connection signal="pressed" from="MenuList/CancelButton" to="." method="_on_cancel_button_pressed"]
