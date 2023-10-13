@@ -1,5 +1,6 @@
 
 In progress:
+    ☐ Card popout has choice buttons in it
 Tasks:
     Main Features:
 
@@ -21,7 +22,6 @@ Tasks:
         ☐ Boost zone panel formatting/change size with text. - Should scroll?
         ☐ Tweak timings on animation lengths
         ☐ Make card ref an icon button
-        ☐ Card popout has choice buttons in it
         ☐ If making a decision, minimizing card popout has a blinking icon to reopen it
     ☐ Only connect to server if you enter Multiplayer
 

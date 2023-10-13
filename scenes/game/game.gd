@@ -21,6 +21,7 @@ const DecisionInfo = preload("res://scenes/game/decision_info.gd")
 @onready var arena_layout = $ArenaNode/RowButtons
 
 const OffScreen = Vector2(-1000, -1000)
+const RevealCopyIdRangestart = 80000
 const ReferenceScreenIdRangeStart = 90000
 const NoticeOffsetY = 50
 
@@ -1016,9 +1017,20 @@ func _on_reveal_hand(event):
 	var player = event['event_player']
 	spawn_damage_popup("Hand Revealed!", player)
 	if player == Enums.PlayerId.PlayerId_Opponent:
+		var current_children = $AllCards/OpponentRevealed.get_children()
+		for i in range(len(current_children)-1, -1, -1):
+			var card = current_children[i]
+			card.get_parent().remove_child(card)
+			card.queue_free()
+		var card_db = game_wrapper.get_card_database()
 		var cards = $AllCards/OpponentHand.get_children()
 		for card in cards:
-			card.flip_card_to_front(true)
+			var logic_card : GameCard = card_db.get_card(card.card_id)
+			var copy_card = create_card(card.card_id + RevealCopyIdRangestart, logic_card.definition, card.card_image, card.cardback_image, $AllCards/OpponentRevealed, 0, true)
+			copy_card.set_card_and_focus(OffScreen, 0, CardBase.ReferenceCardScale)
+			copy_card.resting_scale = CardBase.ReferenceCardScale
+			copy_card.change_state(CardBase.CardState.CardState_Offscreen)
+			copy_card.flip_card_to_front(true)
 	else:
 		# Nothing for AI here.
 		pass
@@ -1687,8 +1699,10 @@ func _update_popout_cards(cards_in_popout : Array, not_visible_position : Vector
 			card.set_selected(false)
 			# Assign back to gauge
 			card.set_card_and_focus(not_visible_position, null, null)
-			if card.state == CardBase.CardState.CardState_InPopout:
-				card.change_state(card_return_state)
+			match card.state:
+				CardBase.CardState.CardState_InPopout, CardBase.CardState.CardState_Unfocusing, CardBase.CardState.CardState_Focusing:
+					card.unfocus()
+					card.change_state(card_return_state)
 			card.set_resting_position(not_visible_position, 0)
 		await card_popout.clear(0)
 
@@ -1737,6 +1751,13 @@ func clear_card_popout():
 	)
 	await _update_popout_cards(
 		$AllCards/OpponentAllCopy.get_children(),
+		OffScreen,
+		CardBase.CardState.CardState_Offscreen
+	)
+
+	# Revealed
+	await _update_popout_cards(
+		$AllCards/OpponentRevealed.get_children(),
 		OffScreen,
 		CardBase.CardState.CardState_Offscreen
 	)
@@ -1798,3 +1819,7 @@ func _on_exit_to_menu_pressed():
 	NetworkManager.leave_room()
 	returning_from_game.emit()
 	queue_free()
+
+func _on_revealed_cards_button_pressed():
+	await close_popout()
+	show_popout("LAST REVEALED CARDS", $AllCards/OpponentRevealed, OffScreen, CardBase.CardState.CardState_Offscreen)

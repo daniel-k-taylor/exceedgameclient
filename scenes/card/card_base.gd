@@ -77,6 +77,8 @@ var focus_rot
 var focus_y_pos
 var cancel_visible_on_front
 var use_custom_card_image = false
+var card_image
+var cardback_image
 
 var selected = false
 
@@ -209,6 +211,8 @@ func initialize_card(id, card_title, image, card_back_image, range_min, range_ma
 	resting_scale = starting_scale
 	card_features.scale = starting_scale
 	focus_feature.scale = starting_scale
+	card_image = image
+	cardback_image = card_back_image
 	if image != "":
 		use_custom_card_image = false
 		fancy_card.texture = load(image)

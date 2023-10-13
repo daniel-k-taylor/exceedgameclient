@@ -386,6 +386,15 @@ offset_right = 989.0
 offset_bottom = 185.0
 text = "AI Move"
 
+[node name="RevealedCardsButton" type="Button" parent="."]
+offset_left = 200.0
+offset_top = 70.0
+offset_right = 273.0
+offset_bottom = 141.0
+theme_override_font_sizes/font_size = 24
+text = "Revealed
+Cards"
+
 [node name="OpponentLife" parent="." instance=ExtResource("8_mqi3u")]
 offset_left = 1053.0
 offset_top = 156.0
@@ -617,6 +626,8 @@ scale = Vector2(0.6, 0.6)
 
 [node name="OpponentAllCopy" type="Node2D" parent="AllCards"]
 
+[node name="OpponentRevealed" type="Node2D" parent="AllCards"]
+
 [node name="PlayerDiscardButton" type="TextureButton" parent="."]
 offset_left = 1160.0
 offset_top = 575.0
@@ -671,6 +682,7 @@ text = "Exit to Menu"
 [connection signal="pressed" from="StaticUI/StaticUIVBox/ButtonGrid/BoostButton" to="." method="_on_boost_button_pressed"]
 [connection signal="pressed" from="StaticUI/StaticUIVBox/ButtonGrid/StrikeButton" to="." method="_on_strike_button_pressed"]
 [connection signal="pressed" from="AIMoveButton" to="." method="_on_ai_move_button_pressed"]
+[connection signal="pressed" from="RevealedCardsButton" to="." method="_on_revealed_cards_button_pressed"]
 [connection signal="pressed" from="PlayerDeck/PlayerCharacterCard" to="." method="_on_player_reference_button_pressed"]
 [connection signal="pressed" from="OpponentDeck/OpponentCharacterCard" to="." method="_on_opponent_reference_button_pressed"]
 [connection signal="gauge_clicked" from="PlayerGauge" to="." method="_on_player_gauge_gauge_clicked"]
