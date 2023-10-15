@@ -1273,7 +1273,8 @@ func continue_resolve_boost():
 
 			active_boost.effects_resolved += 1
 		else:
-			# After all effects are resolved, check for cancel.
+			# After all effects are resolved, discard/move the card then check for cancel.
+			events += boost_finish_resolving_card(active_boost.playing_player)
 			if active_boost.effects_resolved == len(effects) and active_boost.playing_player.can_cancel(active_boost.card):
 				var cancel_cost = card_db.get_card_cancel_cost(active_boost.card.id)
 				change_game_state(Enums.GameState.GameState_PlayerDecision)
@@ -1288,7 +1289,7 @@ func continue_resolve_boost():
 
 	return events
 
-func boost_play_cleanup(performing_player : Player):
+func boost_finish_resolving_card(performing_player : Player):
 	var events = []
 	# All boost immediate/now effects are done.
 	# If continuous, add to player.
@@ -1300,7 +1301,10 @@ func boost_play_cleanup(performing_player : Player):
 			events += performing_player.add_to_gauge(active_boost.card)
 		else:
 			events += performing_player.add_to_discards(active_boost.card)
+	return events
 
+func boost_play_cleanup(performing_player : Player):
+	var events = []
 	if active_boost.action_after_boost:
 		events += [create_event(Enums.EventType.EventType_Boost_ActionAfterBoost, performing_player.my_id, 0)]
 		change_game_state(Enums.GameState.GameState_PickAction)
