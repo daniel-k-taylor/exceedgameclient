@@ -1,4 +1,4 @@
-[gd_scene load_steps=19 format=3 uid="uid://3s3pkqggaa2q"]
+[gd_scene load_steps=19 format=3 uid="uid://dh7wmx6cbb55x"]
 
 [ext_resource type="Script" path="res://scenes/game/game.gd" id="1_4f5jr"]
 [ext_resource type="Texture2D" uid="uid://dh8tat2r8ttx1" path="res://assets/cards/card_border_highlight.png" id="4_5y76h"]
@@ -380,6 +380,7 @@ text = "Strike"
 layout_mode = 2
 
 [node name="AIMoveButton" type="Button" parent="."]
+visible = false
 offset_left = 922.0
 offset_top = 156.0
 offset_right = 989.0

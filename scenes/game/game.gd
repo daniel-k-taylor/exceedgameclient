@@ -74,7 +74,7 @@ enum UIState {
 	UIState_PickTurnAction,
 	UIState_MakeChoice,
 	UIState_SelectCards,
-	UIState_SelectArenaLocation,
+	UIState_SelectArenaLocation, # 5
 	UIState_WaitingOnOpponent,
 	UIState_PlayingAnimation,
 	UIState_WaitForGameServer,
@@ -101,6 +101,9 @@ enum UISubState {
 
 var ui_state : UIState = UIState.UIState_Initializing
 var ui_sub_state : UISubState = UISubState.UISubState_None
+
+var previous_ui_state : UIState = UIState.UIState_Initializing
+var previous_ui_sub_state : UISubState = UISubState.UISubState_None
 
 var game_wrapper : GameWrapper = GameWrapper.new()
 @onready var card_popout : CardPopout = $AllCards/CardPopout
@@ -299,13 +302,19 @@ func _process(delta):
 				events_to_process = []
 				_handle_events(temp_events)
 			else:
-				change_ui_state(UIState.UIState_PickTurnAction, UISubState.UISubState_None)
-	else: # ui_state == UIState.UIState_WaitForGameServer:
+				change_ui_state(previous_ui_state, previous_ui_sub_state)
+	else:
 		var events = game_wrapper.poll_for_events()
-		_handle_events(events)
+		if events.size() > 0:
+			_handle_events(events)
+		elif ui_state == UIState.UIState_WaitingOnOpponent:
+			# Advance the AI game automatically.
+			_on_ai_move_button_pressed()
 
 
 func begin_delay(delay : float, remaining_events : Array):
+	previous_ui_state = ui_state
+	previous_ui_sub_state = ui_sub_state
 	change_ui_state(UIState.UIState_PlayingAnimation, UISubState.UISubState_None)
 	remaining_delay = delay
 	events_to_process = remaining_events
@@ -603,6 +612,7 @@ func _on_advance_turn():
 				card.set_stun(false)
 
 	spawn_damage_popup("Ready!", active_player)
+	return SmallNoticeDelay
 
 func _on_post_boost_action(event):
 	var player = event['event_player']
@@ -806,7 +816,7 @@ func _on_force_start_strike(event):
 
 func _on_force_wild_swing(event):
 	var player = event['event_player']
-	spawn_damage_popup("Wild Swing!", player)
+	spawn_damage_popup("Force Wild Swing!", player)
 	return SmallNoticeDelay
 
 func _on_game_over(event):
@@ -1163,11 +1173,11 @@ func _handle_events(events):
 			Enums.EventType.EventType_AddToDiscard:
 				_on_discard_event(event)
 			Enums.EventType.EventType_AdvanceTurn:
-				_on_advance_turn()
+				delay = _on_advance_turn()
 			Enums.EventType.EventType_Boost_ActionAfterBoost:
-				_on_post_boost_action(event)
+				delay = _on_post_boost_action(event)
 			Enums.EventType.EventType_Boost_CancelDecision:
-				_on_boost_cancel_decision(event)
+				delay = _on_boost_cancel_decision(event)
 			Enums.EventType.EventType_Boost_Canceled:
 				delay = _on_boost_canceled(event)
 			Enums.EventType.EventType_Boost_Continuous_Added:
@@ -1331,15 +1341,24 @@ func _update_buttons():
 		arena_button.visible = (ui_state == UIState.UIState_SelectArenaLocation and i in arena_locations_clickable)
 
 	# Update boost zones
-	update_boost_summary(Enums.PlayerId.PlayerId_Player, $PlayerBoostZone)
-	update_boost_summary(Enums.PlayerId.PlayerId_Opponent, $OpponentBoostZone)
+	update_boost_summary($AllCards/PlayerBoosts, $PlayerBoostZone)
+	update_boost_summary($AllCards/OpponentBoosts, $OpponentBoostZone)
 
-func update_boost_summary(summary_player, zone):
-	var player_boost_effects = game_wrapper.get_all_non_immediate_continuous_boost_effects(summary_player)
+func update_boost_summary(boosts_card_holder, boost_box):
+	var card_ids = []
+	var card_db = game_wrapper.get_card_database()
+	for card in boosts_card_holder.get_children():
+		card_ids.append(card.card_id)
+	var effects = []
+	for card_id in card_ids:
+		var card = card_db.get_card(card_id)
+		for effect in card.definition['boost']['effects']:
+			if effect['timing'] != "now":
+				effects.append(effect)
 	var boost_summary = ""
-	for effect in player_boost_effects:
+	for effect in effects:
 		boost_summary += CardDefinitions.get_effect_text(effect) + "\n"
-	zone.set_text(boost_summary)
+	boost_box.set_text(boost_summary)
 
 
 func selected_cards_between_min_and_max() -> bool:

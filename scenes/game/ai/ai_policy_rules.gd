@@ -142,7 +142,7 @@ func pick_turn_action(possible_actions : Array, ai_game_state : AIPlayer.AIGameS
 				if action is AIPlayer.MoveAction:
 					var new_distance = abs(action.location - ai_game_state.opponent_state.arena_location)
 					if new_distance < current_distance:
-						if abs(new_distance - current_distance) == 1:
+						if abs(new_distance - current_distance) == 1 and abs(ai_game_state.my_state.arena_location - action.location) <= 2:
 							return action
 
 		# Boost

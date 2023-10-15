@@ -22,8 +22,3 @@ func _ready():
 	me_tween.tween_property($MeNameBox, "position", final_me_position, tween_duration)
 	var you_tween = get_tree().create_tween()
 	you_tween.tween_property($YouNameBox, "position", final_you_position, tween_duration)
-
-
-# Called every frame. 'delta' is the elapsed time since the previous frame.
-func _process(delta):
-	pass
