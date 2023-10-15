@@ -23,10 +23,9 @@ Tasks:
         ☐ If making a decision, minimizing card popout has a blinking icon to reopen it
     ☐ Only connect to server if you enter Multiplayer
     ☐ Card popout has choice buttons for gauge selection
-    ☐ Order before/after effects
+    ☐ Allow ordering of multiple before/after effects
 
 Bugs:
-    ☐ Drawing more than 7 looks bad
 
 Later:
     ☐ Paying force cost for boosts - no cards in GG have force cost boosts
