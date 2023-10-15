@@ -313,8 +313,9 @@ func _process(delta):
 
 
 func begin_delay(delay : float, remaining_events : Array):
-	previous_ui_state = ui_state
-	previous_ui_sub_state = ui_sub_state
+	if ui_state != UIState.UIState_PlayingAnimation:
+		previous_ui_state = ui_state
+		previous_ui_sub_state = ui_sub_state
 	change_ui_state(UIState.UIState_PlayingAnimation, UISubState.UISubState_None)
 	remaining_delay = delay
 	events_to_process = remaining_events
@@ -1022,12 +1023,13 @@ func _on_move_event(event):
 func _on_mulligan_decision(event):
 	var player = event['event_player']
 	if player == Enums.PlayerId.PlayerId_Player:
-		selected_cards = []
-		select_card_require_min = 1
-		select_card_require_max = game_wrapper.get_player_hand_size(player)
-		var can_cancel = true
-		enable_instructions_ui("Select cards to mulligan.", true, can_cancel)
-		change_ui_state(UIState.UIState_SelectCards, UISubState.UISubState_SelectCards_Mulligan)
+		if not game_wrapper.get_player_mulligan_complete(player) and ui_sub_state != UISubState.UISubState_SelectCards_Mulligan:
+			selected_cards = []
+			select_card_require_min = 1
+			select_card_require_max = game_wrapper.get_player_hand_size(player)
+			var can_cancel = true
+			enable_instructions_ui("Select cards to mulligan.", true, can_cancel)
+			change_ui_state(UIState.UIState_SelectCards, UISubState.UISubState_SelectCards_Mulligan)
 	else:
 		ai_mulligan_decision()
 

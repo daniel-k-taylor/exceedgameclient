@@ -20,7 +20,7 @@ enum DecisionType {
 	DecisionType_EffectChoice,
 	DecisionType_NameCard_OpponentDiscards,
 	DecisionType_PayStrikeCost_Required,
-	DecisionType_PayStrikeCost_CanWild,
+	DecisionType_PayStrikeCost_CanWild, # 5
 	DecisionType_ForceForArmor,
 	DecisionType_CardFromHandToGauge,
 	DecisionType_StrikeNow,

@@ -72,6 +72,9 @@ func get_player_reshuffle_remaining(id):
 func get_player_exceed_cost(id):
 	return _get_player(id).exceed_cost
 
+func get_player_mulligan_complete(id):
+	return _get_player(id).mulligan_complete
+
 func get_all_non_immediate_continuous_boost_effects(id):
 	var game_player = _get_player(id)
 	return game_player.get_all_non_immediate_continuous_boost_effects()

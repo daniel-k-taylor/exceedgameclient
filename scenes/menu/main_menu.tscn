@@ -92,6 +92,7 @@ theme_override_font_sizes/font_size = 60
 text = "Leave Room"
 
 [node name="QuitButton" type="Button" parent="MenuList"]
+visible = false
 layout_mode = 2
 theme_override_font_sizes/font_size = 60
 text = "Quit"
