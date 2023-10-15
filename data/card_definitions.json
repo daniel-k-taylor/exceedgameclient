@@ -677,7 +677,6 @@
 					"effect_type": "close",
 					"amount": 1,
 					"and": {
-						"timing": "now",
 						"effect_type": "draw",
 						"amount": 1
 					}

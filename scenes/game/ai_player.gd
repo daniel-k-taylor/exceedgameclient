@@ -2,17 +2,20 @@ extends Node2D
 
 const LocalGame = preload("res://scenes/game/local_game.gd")
 const AIPolicyRandom = preload("res://scenes/game/ai/ai_policy_random.gd")
+const AIPolicyRules = preload("res://scenes/game/ai/ai_policy_rules.gd")
 const Enums = preload("res://scenes/game/enums.gd")
+const CardDatabase = preload("res://scenes/game/card_database.gd")
 
 var game_player : LocalGame.Player
 var game_state : AIGameState = AIGameState.new()
 
-var ai_policy = AIPolicyRandom.new()
+var ai_policy = AIPolicyRules.new()
 
 func set_ai_policy(new_policy):
 	ai_policy = new_policy
 
 class AIPlayerState:
+	var player_id : Enums.PlayerId
 	var life
 	var deck
 	var full_deck
@@ -25,9 +28,19 @@ class AIPlayerState:
 	var exceeded
 	var reshuffle_remaining
 
+class AIStrikeState:
+	var active : bool = false
+	var initiator : Enums.PlayerId
+	var initiator_card_id : int
+	var initiator_ex_card_id : int
+	var defender_card_id : int
+	var defender_ex_card_id : int
+
 class AIGameState:
 	var my_state = AIPlayerState.new()
 	var opponent_state = AIPlayerState.new()
+	var active_strike = AIStrikeState.new()
+	var card_db : CardDatabase
 
 class PrepareAction:
 	pass
@@ -130,6 +143,9 @@ func create_card_id_array(card_array):
 	return card_ids
 
 func update_ai_state(_game_logic : LocalGame, me : LocalGame.Player, opponent : LocalGame.Player):
+	game_state.card_db = _game_logic.get_card_database()
+
+	game_state.my_state.player_id = me.my_id
 	game_state.my_state.life = me.life
 	game_state.my_state.deck = create_sanitized_card_id_array(me.deck)
 	game_state.my_state.full_deck = me.deck_list
@@ -142,6 +158,7 @@ func update_ai_state(_game_logic : LocalGame, me : LocalGame.Player, opponent : 
 	game_state.my_state.exceeded = me.exceeded
 	game_state.my_state.reshuffle_remaining = me.reshuffle_remaining
 
+	game_state.opponent_state.player_id = opponent.my_id
 	game_state.opponent_state.life = opponent.life
 	game_state.opponent_state.deck = create_sanitized_card_id_array(opponent.deck)
 	game_state.opponent_state.full_deck = opponent.deck_list
@@ -153,6 +170,23 @@ func update_ai_state(_game_logic : LocalGame, me : LocalGame.Player, opponent : 
 	game_state.opponent_state.exceed_cost = opponent.exceed_cost
 	game_state.opponent_state.exceeded = opponent.exceeded
 	game_state.opponent_state.reshuffle_remaining = opponent.reshuffle_remaining
+
+	game_state.active_strike.active = _game_logic.active_strike != null
+	if game_state.active_strike.active:
+		game_state.active_strike.initiator = _game_logic.active_strike.initiator.my_id
+		game_state.active_strike.initiator_card_id = -1
+		if _game_logic.active_strike.initiator_card:
+			game_state.active_strike.initiator_card_id = _game_logic.active_strike.initiator_card.id
+		game_state.active_strike.initiator_ex_card_id = -1
+		if _game_logic.active_strike.initiator_ex_card:
+			game_state.active_strike.initiator_ex_card_id = _game_logic.active_strike.initiator_ex_card.id
+		game_state.active_strike.defender_card_id = -1
+		if _game_logic.active_strike.defender_card:
+			game_state.active_strike.defender_card_id = _game_logic.active_strike.defender_card.id
+		game_state.active_strike.defender_ex_card_id = -1
+		if _game_logic.active_strike.defender_ex_card:
+			game_state.active_strike.defender_ex_card_id = _game_logic.active_strike.defender_ex_card.id
+
 
 func take_turn(game_logic : LocalGame, my_id : Enums.PlayerId):
 	var me = game_logic._get_player(my_id)

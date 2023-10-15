@@ -98,9 +98,9 @@ enum StrikeState {
 class Strike:
 	var initiator : Player
 	var defender : Player
-	var initiator_card : GameCard
+	var initiator_card : GameCard = null
 	var initiator_ex_card : GameCard = null
-	var defender_card : GameCard
+	var defender_card : GameCard = null
 	var defender_ex_card : GameCard = null
 	var initiator_first : bool
 	var initiator_wild_strike : bool = false
