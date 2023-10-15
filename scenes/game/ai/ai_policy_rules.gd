@@ -226,7 +226,7 @@ func pick_strike_response(possible_actions : Array, ai_game_state : AIPlayer.AIG
 	var wild_action
 	for action in possible_actions:
 		if action is AIPlayer.StrikeAction:
-			if action.card_id == -1:
+			if action.wild_swing:
 				wild_action = action
 				continue
 			if can_card_hit(action.card_id, action.ex_card_id, ai_game_state):
