@@ -9,7 +9,8 @@ var default_deck = CardDefinitions.get_deck_from_selector_index(0)
 
 func default_game_setup():
 	game_logic = LocalGame.new()
-	game_logic.initialize_game(default_deck, default_deck)
+	var seed_value = randi()
+	game_logic.initialize_game(default_deck, default_deck, "p1", "p2", Enums.PlayerId.PlayerId_Player, seed_value)
 	game_logic.draw_starting_hands_and_begin()
 	game_logic.do_mulligan(game_logic.player, [])
 	game_logic.do_mulligan(game_logic.opponent, [])

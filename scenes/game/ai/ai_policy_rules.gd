@@ -146,14 +146,16 @@ func pick_turn_action(possible_actions : Array, ai_game_state : AIPlayer.AIGameS
 							return action
 
 		# Boost
-		for action in possible_actions:
-			var continuous_choices = []
-			if action is AIPlayer.BoostAction:
-				var card : GameCard = ai_game_state.card_db.get_card(action.card_id)
-				if card.definition['boost']['boost_type'] == "continuous":
-					continuous_choices.append(action)
-			if continuous_choices.size() > 0:
-				return continuous_choices[randi() % continuous_choices.size()]
+		# Don't boost if you already have 3. That's enough.
+		if ai_game_state.my_state.continuous_boosts.size() < 3:
+			for action in possible_actions:
+				var continuous_choices = []
+				if action is AIPlayer.BoostAction:
+					var card : GameCard = ai_game_state.card_db.get_card(action.card_id)
+					if card.definition['boost']['boost_type'] == "continuous":
+						continuous_choices.append(action)
+				if continuous_choices.size() > 0:
+					return continuous_choices[randi() % continuous_choices.size()]
 
 		# Strike
 		var strike_choices = []
@@ -167,7 +169,7 @@ func pick_turn_action(possible_actions : Array, ai_game_state : AIPlayer.AIGameS
 		if ai_game_state.my_state.hand.size() < 3:
 			var highest_change_cards_value = 0
 			var highest_change_cards_action = null
-			var prepare_action
+			var prepare_action = null
 			for action in possible_actions:
 				if action is AIPlayer.ChangeCardsAction:
 					var force_value = 0
@@ -180,7 +182,7 @@ func pick_turn_action(possible_actions : Array, ai_game_state : AIPlayer.AIGameS
 					prepare_action = action
 			if highest_change_cards_value > 3:
 				return highest_change_cards_action
-			else:
+			elif prepare_action:
 				return prepare_action
 		else:
 			for action in possible_actions:
