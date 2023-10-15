@@ -613,6 +613,7 @@ func _on_post_boost_action(event):
 		close_popout()
 	else:
 		ai_take_turn()
+	return SmallNoticeDelay
 
 func _on_boost_cancel_decision(event):
 	var player = event['event_player']
