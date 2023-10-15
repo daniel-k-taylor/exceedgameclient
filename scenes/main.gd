@@ -19,6 +19,7 @@ func _process(_delta):
 	pass
 
 func _on_return_from_game():
+	$MainMenu.visible = true
 	$MainMenu.returned_from_game()
 
 func _on_splash_timeout():
@@ -36,15 +37,18 @@ func create_versus_splash(vs_info):
 	timer.connect("timeout", _on_splash_timeout)
 	add_child(timer)
 	timer.start()
-	
+
 
 func _on_main_menu_start_game(vs_info, player_char_index : int, opponent_char_index : int):
+	$MainMenu.visible = false
 	game = GameScene.instantiate()
+	game.connect("returning_from_game", _on_return_from_game)
 	game.begin_local_game(player_char_index, opponent_char_index)
 	add_child(game)
 	create_versus_splash(vs_info)
 
 func _on_main_menu_start_remote_game(vs_info, data):
+	$MainMenu.visible = false
 	game = GameScene.instantiate()
 	game.connect("returning_from_game", _on_return_from_game)
 	game.begin_remote_game(data)
