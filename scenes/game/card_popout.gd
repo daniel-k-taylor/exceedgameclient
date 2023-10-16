@@ -26,6 +26,12 @@ func _ready():
 func shrink_size():
 	reset_size()
 
+func _input(event):
+	if (event is InputEventMouseButton) and event.pressed:
+		var evLocal = make_input_local(event)
+		if !Rect2(Vector2(0,0),size).has_point(evLocal.position):
+			close_window.emit()
+
 func set_title(text : String):
 	$PopoutVBox/HBoxContainer/TitleLabel.text = text
 
