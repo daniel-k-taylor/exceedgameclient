@@ -504,6 +504,13 @@ func layout_player_hand(is_player : bool):
 					min_angle += extra_angle
 					max_angle -= extra_angle
 
+				# Force lower all the cards so we don't get any weirdness when they reposition
+				var cards = []
+				for card in hand_zone.get_children():
+					cards.append(card)
+				for card in cards:
+					on_card_lowered(card)
+
 				for i in range(num_cards):
 					var card : CardBase = hand_zone.get_child(num_cards - i - 1)
 
@@ -513,6 +520,7 @@ func layout_player_hand(is_player : bool):
 					var ovalAngleVector = Vector2(HorizontalRadius * cos(angle), -VerticalRadius * sin(angle))
 					var dst_pos = CenterCardOval + ovalAngleVector # - size/2
 					var dst_rot = (90 - rad_to_deg(angle)) / 4
+					card.change_state(CardBase.CardState.CardState_InHand)
 					card.set_resting_position(dst_pos, dst_rot)
 		else:
 			var spawn_spot = $OpponentHand/HandSpawn

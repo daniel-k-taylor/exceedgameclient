@@ -185,13 +185,13 @@ func test_ex_wildthrow_vs_focus():
 	validate_has_event(events, Enums.EventType.EventType_Strike_Stun, player2)
 	validate_positions(player1, 3, player2, 4)
 	validate_life(player1, 30, player2, 24)
-	
+
 func test_boost_wildthrow_into_focus_vs_slash():
 	var initiator = game_logic.player
 	var defender = game_logic.opponent
 	give_player_specific_card(initiator, "solbadguy_wildthrow", TestCardId3)
 	give_specific_cards(initiator, "gg_normal_focus", defender, "gg_normal_slash")
-	
+
 	position_players(player1, 3, player2, 4)
 	assert_true(game_logic.do_boost(initiator, TestCardId3))
 	var events = game_logic.get_latest_events()
@@ -210,3 +210,34 @@ func test_boost_wildthrow_into_focus_vs_slash():
 	validate_has_event(events, Enums.EventType.EventType_Strike_Stun, player2)
 	validate_positions(player1, 3, player2, 4)
 	validate_life(player1, 28, player2, 25)
+
+func test_double_boost_ride_stun_vs_cross():
+	var initiator = game_logic.player
+	var defender = game_logic.opponent
+	give_gauge(initiator, 3)
+	give_player_specific_card(initiator, "kykisuke_ridethelightning", TestCardId3)
+	give_player_specific_card(initiator, "kykisuke_ridethelightning", TestCardId4)
+	give_specific_cards(initiator, "kykisuke_stunedge", defender, "gg_normal_cross")
+
+	position_players(player1, 2, player2, 4)
+	assert_true(game_logic.do_boost(initiator, TestCardId3))
+	assert_true(game_logic.do_boost_cancel(initiator, [initiator.gauge[0].id], true))
+	assert_true(game_logic.do_boost(initiator, TestCardId4))
+	assert_true(game_logic.do_boost_cancel(initiator, [initiator.gauge[0].id], false))
+	var events = game_logic.get_latest_events()
+	validate_has_event(events, Enums.EventType.EventType_AdvanceTurn, defender)
+	assert_true(game_logic.do_change(defender, []))
+	events = game_logic.get_latest_events()
+	assert_eq(game_logic.game_state, Enums.GameState.GameState_DiscardDownToMax)
+	# Draw to 8 because had 7 to start and did change 0.
+	assert_eq(defender.hand.size(), 8)
+	assert_true(game_logic.do_discard_to_max(defender, [defender.hand[0].id]))
+	events = game_logic.get_latest_events()
+	validate_has_event(events, Enums.EventType.EventType_AdvanceTurn, initiator)
+
+	events = execute_strike(player1, player2, "kykisuke_stunedge", "gg_normal_cross", [], [], false, false)
+	validate_has_event(events, Enums.EventType.EventType_Strike_TookDamage, player1, 3)
+	validate_has_event(events, Enums.EventType.EventType_Strike_TookDamage, player2, 5)
+	validate_has_event(events, Enums.EventType.EventType_Strike_Stun, player2)
+	validate_positions(player1, 2, player2, 7)
+	validate_life(player1, 27, player2, 25)

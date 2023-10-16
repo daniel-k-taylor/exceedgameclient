@@ -42,7 +42,7 @@ enum CardState {
 	CardState_InHand,
 	CardState_InGauge,
 	CardState_InBoost,
-	CardState_InPopout,
+	CardState_InPopout,  # 5
 	CardState_Offscreen,
 	CardState_Discarding,
 	CardState_Discarded,
