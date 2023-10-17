@@ -143,7 +143,49 @@ func test_ex_grasp_mirror():
 	validate_life(initiator, 26)
 	validate_life(defender, 30)
 
+func test_grasp_pull_edge_arena_begin():
+	var initiator = game_logic.player
+	var defender = game_logic.opponent
+	give_specific_cards(initiator, "gg_normal_grasp", defender, "gg_normal_grasp")
+	position_players(initiator, 1, defender, 2)
+	do_and_validate_strike(initiator, TestCardId1)
+	var events = do_strike_response(defender, TestCardId2)
+	# Expect grasp choice
+	assert_eq(game_logic.game_state, Enums.GameState.GameState_PlayerDecision)
+	validate_has_event(events, Enums.EventType.EventType_Strike_EffectChoice, initiator)
+	assert_true(game_logic.do_choice(initiator, 3)) # pull 2
+	events = game_logic.get_latest_events()
+	assert_eq(initiator.arena_location, 1)
+	assert_eq(defender.arena_location, 2)
+	assert_eq(game_logic.game_state, Enums.GameState.GameState_PickAction)
+	assert_eq(game_logic.active_turn_player, defender.my_id)
+	validate_gauge(initiator, 1, TestCardId1)
+	validate_gauge(defender, 0, TestCardId2)
+	validate_discard(defender, 1, TestCardId2)
+	validate_life(initiator, 30)
+	validate_life(defender, 27)
 
+func test_grasp_pull_edge_arena_end():
+	var initiator = game_logic.player
+	var defender = game_logic.opponent
+	give_specific_cards(initiator, "gg_normal_grasp", defender, "gg_normal_grasp")
+	position_players(initiator, 9, defender, 8)
+	do_and_validate_strike(initiator, TestCardId1)
+	var events = do_strike_response(defender, TestCardId2)
+	# Expect grasp choice
+	assert_eq(game_logic.game_state, Enums.GameState.GameState_PlayerDecision)
+	validate_has_event(events, Enums.EventType.EventType_Strike_EffectChoice, initiator)
+	assert_true(game_logic.do_choice(initiator, 2)) # pull 1
+	events = game_logic.get_latest_events()
+	assert_eq(initiator.arena_location, 9)
+	assert_eq(defender.arena_location, 8)
+	assert_eq(game_logic.game_state, Enums.GameState.GameState_PickAction)
+	assert_eq(game_logic.active_turn_player, defender.my_id)
+	validate_gauge(initiator, 1, TestCardId1)
+	validate_gauge(defender, 0, TestCardId2)
+	validate_discard(defender, 1, TestCardId2)
+	validate_life(initiator, 30)
+	validate_life(defender, 27)
 
 
 

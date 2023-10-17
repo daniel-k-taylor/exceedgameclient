@@ -549,12 +549,12 @@ class Player:
 
 	func push(amount):
 		var events = []
-		var previous_location = arena_location
 		var other_player = parent._get_player(parent.get_other_player(my_id))
 		if other_player.strike_stat_boosts.ignore_push_and_pull:
 			events += [parent.create_event(Enums.EventType.EventType_Strike_IgnoredPushPull, other_player.my_id, 0)]
 		else:
 			var other_location = other_player.arena_location
+			var previous_location = other_location
 			var new_location
 			if arena_location < other_location:
 				new_location = other_location + amount
@@ -570,26 +570,26 @@ class Player:
 
 	func pull(amount):
 		var events = []
-		var previous_location = arena_location
 		var other_player = parent._get_player(parent.get_other_player(my_id))
 		if other_player.strike_stat_boosts.ignore_push_and_pull:
 			events += [parent.create_event(Enums.EventType.EventType_Strike_IgnoredPushPull, other_player.my_id, 0)]
 		else:
 			var other_player_location = other_player.arena_location
+			var previous_location = other_player_location
 			var new_location
 			if arena_location < other_player_location:
 				new_location = other_player_location - amount
 				if arena_location >= new_location:
 					new_location -= 1
 				new_location = max(new_location, MinArenaLocation)
-				if other_player_location == new_location:
+				if arena_location == new_location:
 					new_location += 1
 			else:
 				new_location = other_player_location + amount
 				if arena_location <= new_location:
 					new_location += 1
 				new_location = min(new_location, MaxArenaLocation)
-				if other_player_location == new_location:
+				if arena_location == new_location:
 					new_location -= 1
 
 			other_player.arena_location = new_location
