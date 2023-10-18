@@ -142,6 +142,9 @@ func _handle_players_update(message):
 		var id = player["player_id"]
 		var player_name = player["player_name"]
 		var room_name = player["room_name"]
+		# If the room name starts with "custom_" remove that from the string.
+		if room_name.find("custom_") == 0:
+			room_name = room_name.substr(7)
 		player_list.append({
 			"player_id": id,
 			"player_name": player_name,
@@ -163,6 +166,17 @@ func join_room(player_name, room_name, deck_index):
 		"deck_id": deck["id"],
 	}
 	var json = JSON.stringify(join_room_message)
+	_socket.send_text(json)
+
+func join_matchmaking(player_name, deck_index):
+	if not _socket: return
+	var deck = CardDefinitions.get_deck_from_selector_index(deck_index)
+	var message = {
+		"type": "join_matchmaking",
+		"player_name": player_name,
+		"deck_id": deck["id"],
+	}
+	var json = JSON.stringify(message)
 	_socket.send_text(json)
 
 func leave_room():

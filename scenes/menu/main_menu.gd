@@ -42,6 +42,7 @@ func _on_quit_button_pressed():
 
 func _on_connected(player_name):
 	$MenuList/JoinButton.disabled = false
+	$MenuList/MatchmakeButton.disabled = false
 	$PlayerNameBox.editable = true
 	$PlayerNameBox.text = player_name
 	$ReconnectToServerButton.visible = false
@@ -50,6 +51,7 @@ func _on_connected(player_name):
 func _on_disconnected():
 	update_buttons(false)
 	$MenuList/JoinButton.disabled = true
+	$MenuList/MatchmakeButton.disabled = true
 	$ReconnectToServerButton.visible = true
 	$ReconnectToServerButton.disabled = false
 	$ServerStatusLabel.text = "Disconnected from server."
@@ -99,6 +101,7 @@ func update_buttons(joining : bool):
 	char_select.disabled = joining
 	room_select.editable = not joining
 	$MenuList/JoinButton.visible = not joining
+	$MenuList/MatchmakeButton.visible = not joining
 	$MenuList/CancelButton.visible = joining
 
 func _on_cancel_button_pressed():
@@ -115,3 +118,8 @@ func _on_reconnect_to_server_button_pressed():
 	$ServerStatusLabel.text = "Reconnecting to server..."
 	NetworkManager.connect_to_server()
 	$ReconnectToServerButton.disabled = true
+
+func _on_matchmake_button_pressed():
+	var player_name = get_player_name()
+	NetworkManager.join_matchmaking(player_name, player_select.selected)
+	update_buttons(true)

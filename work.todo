@@ -1,8 +1,10 @@
 
 In progress:
+    ☐ Try out instant card view midscreen, don't zoom cards
     ☐ Combat log/history - below your gauge
 Tasks:
     Main Features:
+        ☐ Observers on server
     Tests:
         ☐ Strike
         ☐ Boost

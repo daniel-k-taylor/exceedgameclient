@@ -51,6 +51,8 @@ enum CardState {
 	CardState_Unfocusing,
 }
 
+const CharacterCardReferenceId = -2
+
 var state : CardState = CardState.CardState_InDeck
 var return_state : CardState = CardState.CardState_InDeck
 var card_id : int = -1
