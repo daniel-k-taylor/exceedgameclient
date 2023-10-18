@@ -1,4 +1,4 @@
-[gd_scene load_steps=19 format=3 uid="uid://dh7wmx6cbb55x"]
+[gd_scene load_steps=20 format=3 uid="uid://dh7wmx6cbb55x"]
 
 [ext_resource type="Script" path="res://scenes/game/game.gd" id="1_4f5jr"]
 [ext_resource type="Texture2D" uid="uid://dh8tat2r8ttx1" path="res://assets/cards/card_border_highlight.png" id="4_5y76h"]
@@ -13,6 +13,7 @@
 [ext_resource type="Texture2D" uid="uid://dbijqidxd2ned" path="res://assets/icons/cards.png" id="11_nsv2h"]
 [ext_resource type="PackedScene" uid="uid://dxtsdthw5sxbc" path="res://scenes/game/card_popout.tscn" id="14_lyeqj"]
 [ext_resource type="Texture2D" uid="uid://ded5jrn5yju2j" path="res://assets/cards/card_border_highlight_pressed.png" id="16_laiwo"]
+[ext_resource type="Texture2D" uid="uid://cj7nvglef8cu" path="res://assets/cards/solbadguy/normal_grasp.tres" id="17_acwgt"]
 [ext_resource type="Texture2D" uid="uid://mn1hj4i3k7l7" path="res://assets/cards/card_border_highlight_selected.png" id="17_rr8uh"]
 [ext_resource type="Script" path="res://scenes/game/ai_player.gd" id="18_hlntt"]
 [ext_resource type="PackedScene" uid="uid://dvan4a8ftuplj" path="res://scenes/card/character_card_base.tscn" id="18_imast"]
@@ -654,6 +655,13 @@ offset_right = 152.0
 offset_bottom = 691.0
 theme_override_font_sizes/font_size = 24
 text = "Exit to Menu"
+
+[node name="HugeCard" type="Sprite2D" parent="."]
+visible = false
+z_index = 20
+position = Vector2(640, 300)
+scale = Vector2(0.5, 0.5)
+texture = ExtResource("17_acwgt")
 
 [connection signal="pressed" from="ArenaNode/RowButtons/ArenaSquare1/Button" to="." method="_on_arena_location_pressed" binds= [1]]
 [connection signal="pressed" from="ArenaNode/RowButtons/ArenaSquare2/Button" to="." method="_on_arena_location_pressed" binds= [2]]

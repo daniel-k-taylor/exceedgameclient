@@ -2,6 +2,8 @@ extends Node2D
 
 signal returning_from_game
 
+const UseHugeCard = false
+
 const Test_StartWithGauge = false
 
 const CardBaseScene = preload("res://scenes/card/card_base.tscn")
@@ -19,6 +21,8 @@ const DecisionInfo = preload("res://scenes/game/decision_info.gd")
 
 @onready var damage_popup_template = preload("res://scenes/game/damage_popup.tscn")
 @onready var arena_layout = $ArenaNode/RowButtons
+
+@onready var huge_card : Sprite2D = $HugeCard
 
 const OffScreen = Vector2(-1000, -1000)
 const RevealCopyIdRangestart = 80000
@@ -220,7 +224,7 @@ func create_character_reference_card(path_root : String, exceeded : bool, zone):
 	var image_path = path_root + "character_default.jpg"
 	if exceeded:
 		image_path = path_root + "character_exceeded.jpg"
-	
+
 	var new_card : CardBase = CardBaseScene.instantiate()
 	zone.add_child(new_card)
 	new_card.initialize_card(
@@ -245,12 +249,12 @@ func create_character_reference_card(path_root : String, exceeded : bool, zone):
 	new_card.name = "Character Card"
 	new_card.raised_card.connect(on_card_raised)
 	new_card.lowered_card.connect(on_card_lowered)
-	
+
 	new_card.set_card_and_focus(OffScreen, 0, CardBase.ReferenceCardScale)
 	new_card.resting_scale = CardBase.ReferenceCardScale
 	new_card.change_state(CardBase.CardState.CardState_Offscreen)
 	new_card.flip_card_to_front(true)
-	
+
 func spawn_deck(deck_id, deck_list, deck_card_zone, copy_zone, card_back_image, hand_focus_y_pos, is_opponent):
 	var card_db = game_wrapper.get_card_database()
 	var card_root_path = "res://assets/cards/" + deck_id + "/"
@@ -259,10 +263,10 @@ func spawn_deck(deck_id, deck_list, deck_card_zone, copy_zone, card_back_image, 
 		var image_path = card_root_path + logic_card.image
 		var new_card = create_card(card.id, logic_card.definition, image_path, card_back_image, deck_card_zone, hand_focus_y_pos, is_opponent)
 		new_card.set_card_and_focus(OffScreen, 0, null)
-	
+
 	create_character_reference_card(card_root_path, false, copy_zone)
 	create_character_reference_card(card_root_path, true, copy_zone)
-	
+
 	var previous_def_id = ""
 	for card in deck_list:
 		var logic_card : GameCard = card_db.get_card(card.id)
@@ -454,12 +458,17 @@ func on_card_raised(card):
 	# Get card's position in the PlayerHand node's children.
 	var parent = card.get_parent()
 	if parent == $AllCards/PlayerHand or parent == $AllCards/Striking:
+		if UseHugeCard:
+			huge_card.visible = true
+			huge_card.texture = card.fancy_card.texture
 		card.saved_hand_index = card.get_index()
 
 		# Move card to the end of the children list.
 		parent.move_child(card, parent.get_child_count() - 1)
 
 func on_card_lowered(card):
+	if UseHugeCard:
+		huge_card.visible = false
 	if card.saved_hand_index != -1:
 		# Move card back to its saved position.
 		var parent = card.get_parent()

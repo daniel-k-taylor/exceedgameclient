@@ -85,7 +85,7 @@ var cardback_image
 var selected = false
 
 const DRAW_ANIMATION_LENGTH = 0.5
-const FOCUS_ANIMATION_LENGTH = 0.2
+const FOCUS_ANIMATION_LENGTH = 0.1
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
@@ -338,10 +338,17 @@ func focus():
 
 		return_state = state
 
-	target_rotation = focus_rot
-	target_scale = FocusScale
-	var size_at_scale = $CardFocusFeatures/CardContainer.size * target_scale
-	target_pos = clamp_to_screen(focus_pos, size_at_scale)
+	# NOTE: If you don't want it to animate a focus and want to leave
+	# it where it is and use HugeCard, use this instead.
+	if false and return_state == CardState.CardState_InHand:
+		target_pos = card_features.position
+		target_rotation = card_features.rotation_degrees
+		target_scale = card_features.scale
+	else:
+		target_rotation = focus_rot
+		target_scale = FocusScale
+		var size_at_scale = $CardFocusFeatures/CardContainer.size * target_scale
+		target_pos = clamp_to_screen(focus_pos, size_at_scale)
 	animation_time = 0
 	animation_length = FOCUS_ANIMATION_LENGTH
 
