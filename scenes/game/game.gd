@@ -349,6 +349,7 @@ func _process(delta):
 		var events = game_wrapper.poll_for_events()
 		if events.size() > 0:
 			_handle_events(events)
+			$CombatLog.set_text(game_wrapper.get_combat_log())
 		elif ui_state == UIState.UIState_WaitingOnOpponent:
 			# Advance the AI game automatically.
 			_on_ai_move_button_pressed()
@@ -594,7 +595,7 @@ func layout_player_hand(is_player : bool):
 func _log_event(event):
 	var num = event['number']
 	var card_db = game_wrapper.get_card_database()
-	var card_name = card_db.get_card_name(num)
+	var card_name = card_db.get_card_id(num)
 	printlog("Event %s num=%s (card=%s)" % [Enums.EventType.keys()[event['event_type']], event['number'], card_name])
 
 func get_notice_position(notice_player : Enums.PlayerId):
@@ -1950,3 +1951,11 @@ func _on_card_popout_pressed_ok():
 
 func _on_card_popout_pressed_cancel():
 	_on_instructions_cancel_button_pressed()
+
+
+func _on_combat_log_button_pressed():
+	$CombatLog.set_text(game_wrapper.get_combat_log())
+	$CombatLog.visible = true
+
+func _on_combat_log_close_button_pressed():
+	$CombatLog.visible = false

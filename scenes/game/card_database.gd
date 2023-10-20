@@ -24,6 +24,12 @@ func _test_insert_card(card : GameCard):
 func get_card_name(id : int) -> String:
 	for card in all_cards:
 		if card.id == id:
+			return card.definition['display_name']
+	return "MISSING CARD"
+
+func get_card_id(id : int) -> String:
+	for card in all_cards:
+		if card.id == id:
 			return card.definition['id']
 	return "MISSING CARD"
 

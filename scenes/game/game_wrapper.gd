@@ -11,6 +11,9 @@ var current_game
 func poll_for_events() -> Array:
 	return current_game.get_latest_events()
 
+func get_combat_log() -> String:
+	return current_game.get_combat_log()
+
 func is_ai_game() -> bool:
 	return current_game is LocalGame
 

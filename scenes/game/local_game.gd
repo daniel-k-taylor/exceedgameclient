@@ -25,12 +25,21 @@ func get_latest_events() -> Array:
 var card_db : CardDatabase
 var all_cards : Array = []
 var game_over : bool = false
+var game_over_winning_player : Player = null
 var active_strike : Strike = null
 
 var decision_info : DecisionInfo = DecisionInfo.new()
 var active_boost : Boost = null
 
 var game_state : Enums.GameState = Enums.GameState.GameState_NotStarted
+
+var combat_log : String = ""
+
+func get_combat_log() -> String:
+	return combat_log
+
+func _append_log(text):
+	combat_log += text + "\n"
 
 func teardown():
 	card_db.teardown()
@@ -41,6 +50,8 @@ func change_game_state(new_state : Enums.GameState):
 	if game_state != Enums.GameState.GameState_GameOver:
 		printlog("game_state update from %s to %s" % [Enums.GameState.keys()[game_state], Enums.GameState.keys()[new_state]])
 		game_state = new_state
+	else:
+		_append_log("GAME OVER - WINNER - %s" % [game_over_winning_player.name])
 
 func get_game_state() -> Enums.GameState:
 	return game_state
@@ -70,6 +81,7 @@ func trigger_game_over(event_player : Enums.PlayerId, reason : Enums.GameOverRea
 	var events = []
 	events += [create_event(Enums.EventType.EventType_GameOver, event_player, reason)]
 	game_over = true
+	game_over_winning_player = _get_player(get_other_player(event_player))
 	change_game_state(Enums.GameState.GameState_GameOver)
 	return events
 
@@ -381,9 +393,11 @@ class Player:
 		var events : Array = []
 		if reshuffle_remaining == 0:
 			# Game Over
+			parent._append_log("%s ran out of cards." % [name])
 			events += parent.trigger_game_over(my_id, Enums.GameOverReason.GameOverReason_Decked)
 		else:
 			# Put discard into deck, shuffle, subtract reshuffles
+			parent._append_log("%s reshuffled." % [name])
 			deck += discards
 			discards = []
 			deck.shuffle()
@@ -398,6 +412,7 @@ class Player:
 			for i in range(len(hand)-1, -1, -1):
 				var card = hand[i]
 				if card.id == discard_id:
+					parent._append_log("%s discarded %s from hand." % [name, parent.card_db.get_card_name(card.id)])
 					discards.append(card)
 					hand.remove_at(i)
 					events += [parent.create_event(Enums.EventType.EventType_Discard, my_id, card.id)]
@@ -407,6 +422,7 @@ class Player:
 			for i in range(len(gauge)-1, -1, -1):
 				var card = gauge[i]
 				if card.id == discard_id:
+					parent._append_log("%s discarded %s from gauge." % [name, parent.card_db.get_card_name(card.id)])
 					discards.append(card)
 					gauge.remove_at(i)
 					events += [parent.create_event(Enums.EventType.EventType_Discard, my_id, card.id)]
@@ -417,9 +433,16 @@ class Player:
 		var events = []
 		for card in hand:
 			if card.definition['id'] == card_definition_id:
+				parent._append_log("%s discarded matching card %s." % [name, parent.card_db.get_card_name(card.id)])
 				events = discard([card.id])
 				return events
 		# Not found
+		var card_names = ""
+		if hand.size() > 0:
+			card_names = parent.card_db.get_card_name(hand[0].id)
+		for i in range (1, hand.size()):
+			card_names += ", " + parent.card_db.get_card_name(hand[i].id)
+		parent._append_log("%s revealed hand: %s." % [name, card_names])
 		events += [parent.create_event(Enums.EventType.EventType_RevealHand, my_id, 0)]
 		return events
 
@@ -428,6 +451,7 @@ class Player:
 		for i in range(amount):
 			if len(hand) > 0:
 				var random_card_id = hand[parent.get_random_int() % len(hand)].id
+				parent._append_log("%s discarded random card %s." % [name, parent.card_db.get_card_name(random_card_id)])
 				events += discard([random_card_id])
 		return events
 
@@ -599,6 +623,9 @@ class Player:
 
 	func add_to_continuous_boosts(card : GameCard):
 		var events = []
+		for boost_card in continuous_boosts:
+			if boost_card.id == card.id:
+				assert(false, "Should not have boost already here.")
 		continuous_boosts.append(card)
 		events += [parent.create_event(Enums.EventType.EventType_Boost_Continuous_Added, my_id, card.id)]
 		return events
@@ -630,6 +657,7 @@ class Player:
 		return false
 
 	func add_boost_to_gauge_on_strike_cleanup(card_id):
+		parent._append_log("%s boost %s added to gauge." % [name, parent.card_db.get_card_name(card_id)])
 		cleanup_boost_to_gauge_cards.append(card_id)
 
 	func on_cancel_boost():
@@ -651,8 +679,10 @@ class Player:
 		for boost_card in continuous_boosts:
 			if boost_card.id in cleanup_boost_to_gauge_cards:
 				events += add_to_gauge(boost_card)
+				parent._append_log("%s continuous boost %s added to gauge." % [name, parent.card_db.get_card_name(boost_card.id)])
 			else:
 				events += add_to_discards(boost_card)
+				parent._append_log("%s continuous boost %s discarded from play." % [name, parent.card_db.get_card_name(boost_card.id)])
 		continuous_boosts = []
 		cleanup_boost_to_gauge_cards = []
 		return events
@@ -724,6 +754,7 @@ func draw_starting_hands_and_begin():
 	var events = []
 	var starting_player = _get_player(active_turn_player)
 	var second_player = _get_player(next_turn_player)
+	_append_log("Game Start - %s (1st) vs %s (2nd)" % [starting_player.name, second_player.name])
 	events += starting_player.draw(StartingHandFirstPlayer)
 	events += second_player.draw(StartingHandSecondPlayer)
 	change_game_state(Enums.GameState.GameState_Mulligan)
@@ -775,11 +806,13 @@ func advance_to_next_turn():
 		for effect in card.definition['boost']['effects']:
 			if effect['timing'] == "start_of_next_turn":
 				if effect['effect_type'] == 'add_to_gauge_immediately':
+					_append_log("%s Start of turn card %s goes to gauge." % [starting_turn_player.name, card_db.get_card_name(card.id)])
 					events += starting_turn_player.remove_from_continuous_boosts(card, true)
 
 	if game_over:
 		change_game_state(Enums.GameState.GameState_GameOver)
 	else:
+		_append_log("%s Turn Start" % [starting_turn_player.name])
 		change_game_state(Enums.GameState.GameState_PickAction)
 		events += [create_event(Enums.EventType.EventType_AdvanceTurn, active_turn_player, 0)]
 	return events
@@ -788,6 +821,17 @@ func begin_resolve_strike():
 	var events = []
 	# Strike is just beginning.
 	events += [create_event(Enums.EventType.EventType_Strike_Reveal, active_strike.initiator.my_id, 0)]
+	var initiator_name = active_strike.initiator.name
+	var defender_name = active_strike.defender.name
+	var initiator_card = card_db.get_card_name(active_strike.initiator_card.id)
+	var defender_card = card_db.get_card_name(active_strike.defender_card.id)
+	var initiator_ex = ""
+	if active_strike.initiator_ex_card != null:
+		initiator_ex = "EX "
+	var defender_ex = ""
+	if active_strike.defender_ex_card != null:
+		defender_ex = "EX "
+	_append_log("Strike Reveal - %s %s%s vs %s %s%s." % [initiator_name, initiator_ex, initiator_card, defender_name, defender_ex, defender_card])
 
 	active_strike.initiator.strike_stat_boosts.clear()
 	active_strike.defender.strike_stat_boosts.clear()
@@ -810,6 +854,17 @@ func strike_determine_order():
 	var initiator_speed = active_strike.initiator_card.definition['speed'] + active_strike.initiator.strike_stat_boosts.speed
 	var defender_speed = active_strike.defender_card.definition['speed'] + active_strike.defender.strike_stat_boosts.speed
 	active_strike.initiator_first = initiator_speed >= defender_speed
+	var first_player_name = active_strike.initiator.name
+	var first_player_card = card_db.get_card_name(active_strike.initiator_card.id)
+	var first_player_speed = initiator_speed
+	var second_player_speed = defender_speed
+	if not active_strike.initiator_first:
+		first_player_name = active_strike.defender.name
+		first_player_card = card_db.get_card_name(active_strike.defender_card.id)
+		first_player_speed = defender_speed
+		second_player_speed = initiator_speed
+
+	_append_log("%s %s activates first at speed %s vs speed %s." % [first_player_name, first_player_card, first_player_speed, second_player_speed])
 
 func is_effect_condition_met(performing_player : Player, effect, local_conditions : LocalStrikeConditions):
 	var other_player = _get_player(get_other_player(performing_player.my_id))
@@ -870,10 +925,12 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 		"add_to_gauge_boost_play_cleanup":
 			active_boost.cleanup_to_gauge_card_ids.append(card_id)
 		"advance":
+			var previous_location = performing_player.arena_location
 			events += performing_player.advance(effect['amount'])
 			var new_location = performing_player.arena_location
 			if (performing_start < other_start and new_location > other_start) or (performing_start > other_start and new_location < other_start):
 				local_conditions.advanced_through = true
+			_append_log("%s Advance %s - Moved from %s to %s." % [performing_player.name, str(effect['amount']), str(previous_location), str(new_location)])
 		"armorup":
 			performing_player.strike_stat_boosts.armor += effect['amount']
 			events += [create_event(Enums.EventType.EventType_Strike_ArmorUp, performing_player.my_id, effect['amount'])]
@@ -890,13 +947,16 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 			decision_info.choice_card_id = card_id
 			events += [create_event(Enums.EventType.EventType_Strike_EffectChoice, performing_player.my_id, 0)]
 		"close":
+			var previous_location = performing_player.arena_location
 			events += performing_player.close(effect['amount'])
 			var new_location = performing_player.arena_location
 			var close_amount = abs(performing_start - new_location)
 			local_conditions.fully_closed = close_amount == effect['amount']
+			_append_log("%s Close %s - Moved from %s to %s." % [performing_player.name, str(effect['amount']), str(previous_location), str(new_location)])
 		"dodge_attacks":
 			performing_player.strike_stat_boosts.dodge_attacks = true
 			events += [create_event(Enums.EventType.EventType_Strike_DodgeAttacks, performing_player.my_id, 0)]
+			_append_log("%s is now dodging attacks." % [performing_player.name])
 		"draw":
 			events += performing_player.draw(effect['amount'])
 		"discard_continuous_boost":
@@ -916,6 +976,7 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 		"gain_advantage":
 			next_turn_player = performing_player.my_id
 			events += [create_event(Enums.EventType.EventType_Strike_GainAdvantage, performing_player.my_id, 0)]
+			_append_log("%s gains Advantage." % [performing_player.name])
 		"gauge_from_hand":
 			if len(performing_player.hand) > 0:
 				change_game_state(Enums.GameState.GameState_PlayerDecision)
@@ -954,24 +1015,30 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 			performing_player.strike_stat_boosts.power += effect['amount']
 			events += [create_event(Enums.EventType.EventType_Strike_PowerUp, performing_player.my_id, effect['amount'])]
 		"pull":
+			var previous_location = opposing_player.arena_location
 			events += performing_player.pull(effect['amount'])
 			var new_location = opposing_player.arena_location
 			if (other_start < performing_start and new_location > performing_start) or (other_start > performing_start and new_location < performing_start):
 				local_conditions.pulled_past = true
+			_append_log("%s Pull %s - %s moved from %s to %s." % [performing_player.name, str(effect['amount']), _get_player(get_other_player(performing_player.my_id)).name, str(previous_location), str(new_location)])
 		"push":
+			var previous_location = opposing_player.arena_location
 			events += performing_player.push(effect['amount'])
 			var new_location = opposing_player.arena_location
 			var push_amount = abs(other_start - new_location)
 			local_conditions.fully_pushed = push_amount == effect['amount']
+			_append_log("%s Push %s - %s moved from %s to %s." % [performing_player.name, str(effect['amount']), _get_player(get_other_player(performing_player.my_id)).name, str(previous_location), str(new_location)])
 		"rangeup":
 			performing_player.strike_stat_boosts.min_range += effect['amount']
 			performing_player.strike_stat_boosts.max_range += effect['amount2']
 			events += [create_event(Enums.EventType.EventType_Strike_RangeUp, performing_player.my_id, effect['amount'], "", effect['amount2'])]
 		"retreat":
+			var previous_location = performing_player.arena_location
 			events += performing_player.retreat(effect['amount'])
 			var new_location = performing_player.arena_location
 			var retreat_amount = abs(performing_start - new_location)
 			local_conditions.fully_retreated = retreat_amount == effect['amount']
+			_append_log("%s Retreat %s - Moved from %s to %s." % [performing_player.name, str(effect['amount']), str(previous_location), str(new_location)])
 		"speedup":
 			performing_player.strike_stat_boosts.speed += effect['amount']
 			events += [create_event(Enums.EventType.EventType_Strike_SpeedUp, performing_player.my_id, effect['amount'])]
@@ -1082,12 +1149,19 @@ func apply_damage(offense_player : Player, defense_player : Player, offense_card
 
 	var damage_after_armor = max(damage - armor, 0)
 	defense_player.life -= damage_after_armor
+
+	_append_log("%s %s has %s total power." % [offense_player.name, card_db.get_card_name(offense_card.id), str(damage)])
+	_append_log("%s %s has %s total armor and %s total guard." % [defense_player.name, card_db.get_card_name(defense_card.id), str(armor), str(guard)])
+	_append_log("%s takes %s damage. Life is now %s." % [defense_player.name, str(damage_after_armor), str(defense_player.life)])
 	events += [create_event(Enums.EventType.EventType_Strike_TookDamage, defense_player.my_id, damage_after_armor)]
 	if damage_after_armor > guard:
+		_append_log("%s is stunned." % [defense_player.name])
 		events += [create_event(Enums.EventType.EventType_Strike_Stun, defense_player.my_id, defense_card.id)]
 		active_strike.set_player_stunned(defense_player)
 
+
 	if defense_player.life <= 0:
+		_append_log("%s is defeated." % [defense_player.name])
 		events += trigger_game_over(defense_player.my_id, Enums.GameOverReason.GameOverReason_Life)
 	return events
 
@@ -1132,6 +1206,22 @@ func do_hit_response_effects(hit_player : Player, next_state : StrikeState):
 		events += [create_event(Enums.EventType.EventType_Strike_ForceForArmor, hit_player.my_id, 0)]
 	return events
 
+func log_boosts_in_play():
+	var card_names = "None"
+	if len(active_strike.initiator.continuous_boosts) > 0:
+		card_names = card_db.get_card_name(active_strike.initiator.continuous_boosts[0].id)
+		for i in range(1, active_strike.initiator.continuous_boosts.size()):
+			var card = active_strike.initiator.continuous_boosts[i]
+			card_names += ", " + card_db.get_card_name(card.id)
+	_append_log("%s boosts in play: %s" % [active_strike.initiator.name, card_names])
+	card_names = "None"
+	if len(active_strike.defender.continuous_boosts) > 0:
+		card_names = card_db.get_card_name(active_strike.defender.continuous_boosts[0].id)
+		for i in range(1, active_strike.defender.continuous_boosts.size()):
+			var card = active_strike.defender.continuous_boosts[i]
+			card_names += ", " + card_db.get_card_name(card.id)
+	_append_log("%s boosts in play: %s" % [active_strike.defender.name, card_names])
+
 func continue_resolve_strike():
 	var events = []
 	change_game_state(Enums.GameState.GameState_Strike_Processing)
@@ -1159,20 +1249,25 @@ func continue_resolve_strike():
 			StrikeState.StrikeState_Defender_PayCosts:
 				events += ask_for_cost(active_strike.defender, active_strike.defender_card, StrikeState.StrikeState_DuringStrikeBonuses)
 			StrikeState.StrikeState_DuringStrikeBonuses:
+				log_boosts_in_play()
 				events += do_effects_for_timing("during_strike", active_strike.initiator, active_strike.initiator_card, StrikeState.StrikeState_DuringStrikeBonuses)
 				# Should never be interrupted by player decisions.
 				events += do_effects_for_timing("during_strike", active_strike.defender, active_strike.defender_card, StrikeState.StrikeState_Card1_Activation)
 				strike_determine_order()
 			StrikeState.StrikeState_Card1_Activation:
+				_append_log("%s %s activates." % [player1.name, card_db.get_card_name(card1.id)])
 				events += [create_event(Enums.EventType.EventType_Strike_CardActivation, active_strike.get_player(1).my_id, card1.id)]
 				active_strike.strike_state = StrikeState.StrikeState_Card1_Before
 			StrikeState.StrikeState_Card1_Before:
 				events += do_effects_for_timing("before", player1, card1, StrikeState.StrikeState_Card1_DetermineHit)
 			StrikeState.StrikeState_Card1_DetermineHit:
+				_append_log("Range Check: %s (%s) vs %s (%s)." % [player1.name, player1.arena_location, player2.name, player2.arena_location])
 				if in_range(player1, player2, card1):
+					_append_log("%s %s hits." % [player1.name, card_db.get_card_name(card1.id)])
 					active_strike.player1_hit = true
 					active_strike.strike_state = StrikeState.StrikeState_Card1_Hit
 				else:
+					_append_log("%s %s misses." % [player1.name, card_db.get_card_name(card1.id)])
 					events += [create_event(Enums.EventType.EventType_Strike_Miss, player1.my_id, 0)]
 					active_strike.strike_state = StrikeState.StrikeState_Card1_After
 			StrikeState.StrikeState_Card1_Hit:
@@ -1188,17 +1283,22 @@ func continue_resolve_strike():
 				events += do_effects_for_timing("after", player1, card1, StrikeState.StrikeState_Card2_Activation)
 			StrikeState.StrikeState_Card2_Activation:
 				if active_strike.player2_stunned:
+					_append_log("%s is stunned. %s does not activate." % [player2.name, card_db.get_card_name(card2.id)])
 					active_strike.strike_state = StrikeState.StrikeState_Cleanup
 				else:
+					_append_log("%s %s activates." % [player2.name, card_db.get_card_name(card2.id)])
 					events += [create_event(Enums.EventType.EventType_Strike_CardActivation, active_strike.get_player(2).my_id, card2.id)]
 					active_strike.strike_state = StrikeState.StrikeState_Card2_Before
 			StrikeState.StrikeState_Card2_Before:
 				events += do_effects_for_timing("before", player2, card2, StrikeState.StrikeState_Card2_DetermineHit)
 			StrikeState.StrikeState_Card2_DetermineHit:
+				_append_log("Range Check: %s (%s) vs %s (%s)." % [player2.name, player2.arena_location, player1.name, player1.arena_location])
 				if in_range(player2, player1, card2):
+					_append_log("%s %s hits." % [player2.name, card_db.get_card_name(card2.id)])
 					active_strike.player2_hit = true
 					active_strike.strike_state = StrikeState.StrikeState_Card2_Hit
 				else:
+					_append_log("%s %s misses." % [player2.name, card_db.get_card_name(card2.id)])
 					events += [create_event(Enums.EventType.EventType_Strike_Miss, player2.my_id, 0)]
 					active_strike.strike_state = StrikeState.StrikeState_Card2_After
 			StrikeState.StrikeState_Card2_Hit:
@@ -1215,13 +1315,17 @@ func continue_resolve_strike():
 			StrikeState.StrikeState_Cleanup:
 				# If hit, move card to gauge, otherwise move to discard.
 				if active_strike.player1_hit or player1.strike_stat_boosts.always_add_to_gauge:
+					_append_log("%s %s goes to gauge after the attack." % [player1.name, card_db.get_card_name(card1.id)])
 					events += player1.add_to_gauge(card1)
 				else:
+					_append_log("%s %s discarded after the attack." % [player1.name, card_db.get_card_name(card1.id)])
 					events += player1.add_to_discards(card1)
 
 				if active_strike.player2_hit or player2.strike_stat_boosts.always_add_to_gauge:
+					_append_log("%s %s goes to gauge after the attack." % [player2.name, card_db.get_card_name(card2.id)])
 					events += player2.add_to_gauge(card2)
 				else:
+					_append_log("%s %s discarded after the attack." % [player2.name, card_db.get_card_name(card2.id)])
 					events += player2.add_to_discards(card2)
 
 				# Discard any EX cards
@@ -1272,10 +1376,11 @@ func continue_resolve_boost():
 				break
 
 			active_boost.effects_resolved += 1
-		else:
+		elif active_boost.effects_resolved < len(effects) + 1:
 			# After all effects are resolved, discard/move the card then check for cancel.
 			events += boost_finish_resolving_card(active_boost.playing_player)
-			if active_boost.effects_resolved == len(effects) and active_boost.playing_player.can_cancel(active_boost.card):
+			active_boost.effects_resolved += 1
+			if active_boost.playing_player.can_cancel(active_boost.card):
 				var cancel_cost = card_db.get_card_cancel_cost(active_boost.card.id)
 				change_game_state(Enums.GameState.GameState_PlayerDecision)
 				decision_info.type = Enums.DecisionType.DecisionType_BoostCancel
@@ -1283,9 +1388,9 @@ func continue_resolve_boost():
 				decision_info.choice = cancel_cost
 				events += [create_event(Enums.EventType.EventType_Boost_CancelDecision, active_boost.playing_player.my_id, cancel_cost)]
 				break
-			else:
-				events += boost_play_cleanup(active_boost.playing_player)
-				break
+		else:
+			events += boost_play_cleanup(active_boost.playing_player)
+			break
 
 	return events
 
@@ -1412,6 +1517,7 @@ func do_prepare(performing_player) -> bool:
 	var events : Array = []
 	events += [create_event(Enums.EventType.EventType_Prepare, performing_player.my_id, 0)]
 	events += performing_player.draw(2)
+	_append_log("%s Turn Action - Prepare - Now %s cards in hand." % [performing_player.name, str(performing_player.hand.size())])
 	events += check_hand_size_advance_turn(performing_player)
 	event_queue += events
 	return true
@@ -1435,6 +1541,11 @@ func do_discard_to_max(performing_player : Player, card_ids) -> bool:
 		printlog("ERROR: Not discarding enough cards")
 		return false
 
+	var card_names = card_db.get_card_name(card_ids[0])
+	for i in range(1, card_ids.size()):
+		card_names += ", " + card_db.get_card_name(card_ids[i])
+	_append_log("%s discarded %s to get to max hand size." % [performing_player.name, card_names])
+
 	var events = performing_player.discard(card_ids)
 	events += advance_to_next_turn()
 
@@ -1447,6 +1558,7 @@ func do_reshuffle(performing_player : Player) -> bool:
 		printlog("ERROR: Tried to reshuffle but can't.")
 		return false
 
+	_append_log("%s Turn Action - Manual Reshuffle." % [performing_player.name])
 	var events = performing_player.reshuffle_discard()
 	events += performing_player.draw(1)
 	events += check_hand_size_advance_turn(performing_player)
@@ -1483,6 +1595,10 @@ func do_move(performing_player : Player, card_ids, new_arena_location) -> bool:
 	var events = performing_player.discard(card_ids)
 	events += performing_player.move_to(new_arena_location)
 	events += performing_player.draw(1)
+	var card_names = card_db.get_card_name(card_ids[0])
+	for i in range(1, card_ids.size()):
+		card_names += ", " + card_db.get_card_name(card_ids[i])
+	_append_log("%s Turn Action - Move - to position %s by generating force with %s." % [performing_player.name, str(new_arena_location), card_names])
 	events += check_hand_size_advance_turn(performing_player)
 	event_queue += events
 	return true
@@ -1506,6 +1622,7 @@ func do_change(performing_player : Player, card_ids) -> bool:
 	for id in card_ids:
 		force_generated += card_db.get_card_force_value(id)
 	events += performing_player.draw(force_generated + 1)
+	_append_log("%s Turn Action - Change Cards - for %s and now has %s cards." % [performing_player.name, str(force_generated), str(performing_player.hand.size())])
 	events += check_hand_size_advance_turn(performing_player)
 
 	event_queue += events
@@ -1528,6 +1645,7 @@ func do_exceed(performing_player : Player, card_ids : Array) -> bool:
 		printlog("ERROR: Tried to exceed with too few cards.")
 		return false
 
+	_append_log("%s Turn Action - Exceed" % [performing_player.name])
 	var events = performing_player.discard(card_ids)
 	events += performing_player.exceed()
 	if game_state != Enums.GameState.GameState_WaitForStrike:
@@ -1537,18 +1655,19 @@ func do_exceed(performing_player : Player, card_ids : Array) -> bool:
 	return true
 
 func do_boost(performing_player : Player, card_id : int) -> bool:
-	printlog("MainAction: BOOST by %s - %s" % [get_player_name(performing_player.my_id), card_db.get_card_name(card_id)])
+	printlog("MainAction: BOOST by %s - %s" % [get_player_name(performing_player.my_id), card_db.get_card_id(card_id)])
 	if game_state != Enums.GameState.GameState_PickAction or performing_player.my_id != active_turn_player:
 		printlog("ERROR: Tried to boost but not your turn")
 		return false
 
+	_append_log("%s Turn Action - Boost - %s." % [performing_player.name, card_db.get_card_name(card_id)])
 	var events = []
 	events += begin_resolve_boost(performing_player, card_id)
 	event_queue += events
 	return true
 
 func do_strike(performing_player : Player, card_id : int, wild_strike: bool, ex_card_id : int) -> bool:
-	printlog("MainAction: STRIKE by %s card %s wild %s" % [get_player_name(performing_player.my_id), card_db.get_card_name(card_id), str(wild_strike)])
+	printlog("MainAction: STRIKE by %s card %s wild %s" % [get_player_name(performing_player.my_id), card_db.get_card_id(card_id), str(wild_strike)])
 	if game_state == Enums.GameState.GameState_PickAction:
 		if performing_player.my_id != active_turn_player:
 			printlog("ERROR: Tried to strike but not current player")
@@ -1581,6 +1700,7 @@ func do_strike(performing_player : Player, card_id : int, wild_strike: bool, ex_
 			active_strike = Strike.new()
 			active_strike.initiator = performing_player
 			if wild_strike:
+				_append_log("%s Turn Action - Strike - Wild Swing" % [performing_player.name])
 				events += performing_player.wild_strike()
 				if game_over:
 					event_queue += events
@@ -1590,8 +1710,11 @@ func do_strike(performing_player : Player, card_id : int, wild_strike: bool, ex_
 				active_strike.initiator_card = card_db.get_card(card_id)
 				performing_player.remove_card_from_hand(card_id)
 				if ex_card_id != -1:
+					_append_log("%s Turn Action - Strike - EX" % [performing_player.name])
 					active_strike.initiator_ex_card = card_db.get_card(ex_card_id)
 					performing_player.remove_card_from_hand(ex_card_id)
+				else:
+					_append_log("%s Turn Action - Strike" % [performing_player.name])
 			active_strike.defender = _get_player(get_other_player(performing_player.my_id))
 			# Send the EX first as that is visual and logic is triggered off the regular one.
 			if ex_card_id != -1:
@@ -1606,6 +1729,7 @@ func do_strike(performing_player : Player, card_id : int, wild_strike: bool, ex_
 				do_strike(_get_player(get_other_player(performing_player.my_id)), -1, true, -1)
 		Enums.GameState.GameState_Strike_Opponent_Response:
 			if wild_strike:
+				_append_log("%s Strike Response - Wild Swing" % [performing_player.name])
 				events += performing_player.wild_strike()
 				if game_over:
 					event_queue += events
@@ -1615,8 +1739,11 @@ func do_strike(performing_player : Player, card_id : int, wild_strike: bool, ex_
 				active_strike.defender_card = card_db.get_card(card_id)
 				performing_player.remove_card_from_hand(card_id)
 				if ex_card_id != -1:
+					_append_log("%s Strike Response - EX" % [performing_player.name])
 					active_strike.defender_ex_card = card_db.get_card(ex_card_id)
 					performing_player.remove_card_from_hand(ex_card_id)
+				else:
+					_append_log("%s Strike Response" % [performing_player.name])
 			# Send the EX first as that is visual and logic is triggered off the regular one.
 			if ex_card_id != -1:
 				events += [create_event(Enums.EventType.EventType_Strike_Response_Ex, performing_player.my_id, ex_card_id)]
@@ -1645,14 +1772,19 @@ func do_pay_strike_cost(performing_player : Player, card_ids : Array, wild_strik
 		return false
 
 	var events = []
+	var card = active_strike.get_player_card(performing_player)
 	if wild_strike:
+		_append_log("%s did a wild swing instead of validating %s." % [performing_player.name, card_db.get_card_name(card.id)])
 		# Replace existing card with a wild strike
 		var current_card = active_strike.get_player_card(performing_player)
 		events += performing_player.add_to_discards(current_card)
 		events += performing_player.wild_strike()
 	else:
-		var card = active_strike.get_player_card(performing_player)
 		if performing_player.can_pay_cost_with(card_ids, card):
+			var card_names = card_db.get_card_name(card_ids[0])
+			for i in range(1, card_ids.size()):
+				card_names += ", " + card_db.get_card_name(card_ids[0])
+			_append_log("%s paid for %s with %s." % [performing_player.name, card_db.get_card_name(card.id), card_names])
 			events += performing_player.discard(card_ids)
 			match active_strike.strike_state:
 				StrikeState.StrikeState_Initiator_PayCosts:
@@ -1685,6 +1817,10 @@ func do_force_for_armor(performing_player : Player, card_ids : Array) -> bool:
 	for card_id in card_ids:
 		force_generated += card_db.get_card_force_value(card_id)
 	if force_generated > 0:
+		var card_names = card_db.get_card_name(card_ids[0])
+		for i in range(1, card_ids.size()):
+			card_names += ", " + card_db.get_card_name(card_ids[i])
+		_append_log("%s generated force for armor with %s." % [performing_player.name, card_names])
 		events += performing_player.discard(card_ids)
 		events += handle_strike_effect(decision_info.choice_card_id, {'effect_type': 'armorup', 'amount': force_generated * 2}, performing_player)
 	events += continue_resolve_strike()
@@ -1715,6 +1851,10 @@ func do_boost_cancel(performing_player : Player, gauge_card_ids : Array, doing_c
 
 	var events = []
 	if doing_cancel:
+		var card_names = card_db.get_card_name(gauge_card_ids[0])
+		for i in range(1, gauge_card_ids.size()):
+			card_names += ", " + card_db.get_card_name(gauge_card_ids[i])
+		_append_log("%s canceled using %s." % [performing_player.name, card_names])
 		events += performing_player.discard(gauge_card_ids)
 		events += performing_player.on_cancel_boost()
 		active_boost.action_after_boost = true
@@ -1727,7 +1867,8 @@ func do_boost_cancel(performing_player : Player, gauge_card_ids : Array, doing_c
 	return true
 
 func do_card_from_hand_to_gauge(performing_player : Player, card_id : int) -> bool:
-	printlog("SubAction: CARD_HAND_TO_GAUGE by %s card %s" % [get_player_name(performing_player.my_id), card_db.get_card_name(card_id)])
+	var card_name = card_db.get_card_name(card_id)
+	printlog("SubAction: CARD_HAND_TO_GAUGE by %s card %s" % [get_player_name(performing_player.my_id), card_name])
 	if decision_info.player != performing_player.my_id:
 		printlog("ERROR: Tried to do_card_from_hand_to_gauge for wrong player.")
 		return false
@@ -1738,7 +1879,7 @@ func do_card_from_hand_to_gauge(performing_player : Player, card_id : int) -> bo
 		printlog("ERROR: Tried to do_card_from_hand_to_gauge with card not in hand.")
 		return false
 	var events = []
-
+	_append_log("%s moved card %s from hand to gauge." % [performing_player.name, card_name])
 	events += performing_player.move_card_from_hand_to_gauge(card_id)
 	active_boost.effects_resolved += 1
 	events += continue_resolve_boost()
@@ -1747,7 +1888,8 @@ func do_card_from_hand_to_gauge(performing_player : Player, card_id : int) -> bo
 	return true
 
 func do_boost_name_card_choice_effect(performing_player : Player, card_id : int) -> bool:
-	printlog("SubAction: BOOST_NAME_CARD by %s card %s" % [get_player_name(performing_player.my_id), card_db.get_card_name(card_id)])
+	var card_name = card_db.get_card_name(card_id)
+	printlog("SubAction: BOOST_NAME_CARD by %s card %s" % [get_player_name(performing_player.my_id), card_name])
 	if decision_info.player != performing_player.my_id:
 		printlog("ERROR: Tried to force for armor for wrong player.")
 		return false
@@ -1759,7 +1901,7 @@ func do_boost_name_card_choice_effect(performing_player : Player, card_id : int)
 		"effect_type": decision_info.effect_type,
 		"card_id": card_id,
 	}
-
+	_append_log("%s named %s." % [performing_player.name, card_name])
 	game_state = Enums.GameState.GameState_Boost_Processing
 	var events = handle_strike_effect(decision_info.choice_card_id, effect, performing_player)
 	active_boost.effects_resolved += 1
@@ -1814,7 +1956,7 @@ func do_mulligan(performing_player : Player, card_ids : Array) -> bool:
 
 	var events = []
 	events += performing_player.mulligan(card_ids)
-
+	_append_log("%s mulligan for %s cards." % [performing_player.name, str(len(card_ids))])
 	if player.mulligan_complete and opponent.mulligan_complete:
 		change_game_state(Enums.GameState.GameState_PickAction)
 		events += [create_event(Enums.EventType.EventType_AdvanceTurn, active_turn_player, 0)]
@@ -1829,6 +1971,8 @@ func do_quit(player_id : Enums.PlayerId, reason : Enums.GameOverReason):
 		printlog("ERROR: Game already over.")
 		return false
 
+	var performing_player = _get_player(player_id)
+	_append_log("%s quit." % [performing_player.name])
 	var events = []
 	events += [create_event(Enums.EventType.EventType_GameOver, player_id, reason)]
 	event_queue += events

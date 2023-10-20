@@ -14,6 +14,9 @@ var _opponent_info
 func get_latest_events() -> Array:
 	return local_game.get_latest_events()
 
+func get_combat_log() -> String:
+	return local_game.get_combat_log()
+
 func _get_player(id):
 	return local_game._get_player(id)
 

@@ -1,4 +1,4 @@
-[gd_scene load_steps=20 format=3 uid="uid://dh7wmx6cbb55x"]
+[gd_scene load_steps=21 format=3 uid="uid://dh7wmx6cbb55x"]
 
 [ext_resource type="Script" path="res://scenes/game/game.gd" id="1_4f5jr"]
 [ext_resource type="Texture2D" uid="uid://dh8tat2r8ttx1" path="res://assets/cards/card_border_highlight.png" id="4_5y76h"]
@@ -17,6 +17,7 @@
 [ext_resource type="Texture2D" uid="uid://mn1hj4i3k7l7" path="res://assets/cards/card_border_highlight_selected.png" id="17_rr8uh"]
 [ext_resource type="Script" path="res://scenes/game/ai_player.gd" id="18_hlntt"]
 [ext_resource type="PackedScene" uid="uid://dvan4a8ftuplj" path="res://scenes/card/character_card_base.tscn" id="18_imast"]
+[ext_resource type="PackedScene" uid="uid://w87ls4e8oasj" path="res://scenes/game/combat_log.tscn" id="18_k7mnw"]
 
 [sub_resource type="Gradient" id="Gradient_einub"]
 offsets = PackedFloat32Array(0, 0.883721, 1)
@@ -663,6 +664,20 @@ position = Vector2(640, 300)
 scale = Vector2(0.5, 0.5)
 texture = ExtResource("17_acwgt")
 
+[node name="CombatLogButton" type="Button" parent="."]
+offset_left = 200.0
+offset_top = 452.0
+offset_right = 330.0
+offset_bottom = 544.0
+theme_override_font_sizes/font_size = 32
+text = "Combat
+Log"
+
+[node name="CombatLog" parent="." instance=ExtResource("18_k7mnw")]
+visible = false
+offset_right = 1280.0
+offset_bottom = 720.0
+
 [connection signal="pressed" from="ArenaNode/RowButtons/ArenaSquare1/Button" to="." method="_on_arena_location_pressed" binds= [1]]
 [connection signal="pressed" from="ArenaNode/RowButtons/ArenaSquare2/Button" to="." method="_on_arena_location_pressed" binds= [2]]
 [connection signal="pressed" from="ArenaNode/RowButtons/ArenaSquare3/Button" to="." method="_on_arena_location_pressed" binds= [3]]
@@ -704,3 +719,5 @@ texture = ExtResource("17_acwgt")
 [connection signal="pressed" from="PlayerDiscardButton" to="." method="_on_player_discard_button_pressed"]
 [connection signal="pressed" from="OpponentDiscardButton" to="." method="_on_opponent_discard_button_pressed"]
 [connection signal="pressed" from="ExitToMenu" to="." method="_on_exit_to_menu_pressed"]
+[connection signal="pressed" from="CombatLogButton" to="." method="_on_combat_log_button_pressed"]
+[connection signal="close_button_pressed" from="CombatLog" to="." method="_on_combat_log_close_button_pressed"]
