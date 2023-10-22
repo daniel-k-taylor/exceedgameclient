@@ -582,10 +582,12 @@
 				},
 				{
 					"timing": "now",
-					"effect_type": "force_for_draw",
-					"cost_min": 0,
-					"cost_max": 2,
-					"amount": 2
+					"effect_type": "force_for_effect",
+					"per_force_effect": "draw",
+					"overall_effect": "",
+					"amount": 2,
+					"force_min": 0,
+					"force_max": 2
 				}
 			]
 		}

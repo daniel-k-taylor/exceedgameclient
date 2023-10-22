@@ -322,3 +322,17 @@ func process_choose_from_discard(action_message) -> void:
 	var game_player = _get_player_from_remote_id(action_message['player_id'])
 	var card_id = action_message['card_id']
 	local_game.do_choose_from_discard(game_player, card_id)
+
+func do_force_for_effect(player : LocalGame.Player, card_ids : Array) -> bool:
+	var action_message = {
+		'action_type': 'action_force_for_effect',
+		'player_id': _get_player_remote_id(player),
+		'card_ids': card_ids,
+	}
+	NetworkManager.submit_game_message(action_message)
+	return true
+
+func process_force_for_effect(action_message) -> void:
+	var game_player = _get_player_from_remote_id(action_message['player_id'])
+	var card_ids = action_message['card_ids']
+	local_game.do_force_for_effect(game_player, card_ids)

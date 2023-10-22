@@ -48,6 +48,7 @@ var first_run_done = false
 var select_card_require_min = 0
 var select_card_require_max = 0
 var select_card_require_force = 0
+var select_card_up_to_force = 0
 var instructions_ok_allowed = false
 var instructions_cancel_allowed = false
 var instructions_wild_swing_allowed = false
@@ -101,6 +102,7 @@ enum UISubState {
 	UISubState_SelectCards_StrikeCard,
 	UISubState_SelectCards_StrikeResponseCard,
 	UISubState_SelectCards_ForceForArmor,
+	UISubState_SelectCards_ForceForEffect,
 	UISubState_SelectArena_MoveResponse,
 }
 
@@ -496,6 +498,11 @@ func can_select_card(card):
 			return in_gauge and len(selected_cards) < select_card_require_max
 		UISubState.UISubState_SelectCards_MoveActionGenerateForce, UISubState.UISubState_SelectCards_ForceForChange, UISubState.UISubState_SelectCards_ForceForArmor:
 			return in_gauge or in_hand
+		UISubState.UISubState_SelectCards_ForceForEffect:
+			var force_selected = get_force_in_selected_cards()
+			var new_force = game_wrapper.get_card_database().get_card_force_value(card.card_id)
+			var total_force = force_selected + new_force
+			return (in_gauge or in_hand) and total_force <= select_card_up_to_force
 		UISubState.UISubState_SelectCards_StrikeCard, UISubState.UISubState_SelectCards_StrikeResponseCard, UISubState.UISubState_SelectCards_Mulligan:
 			return in_hand
 		UISubState.UISubState_SelectCards_PlayBoost:
@@ -1009,6 +1016,18 @@ func update_force_generation_message():
 			set_instructions("Select cards to generate force to draw new cards.\n%s force generated." % [force_selected])
 		UISubState.UISubState_SelectCards_ForceForArmor:
 			set_instructions("Select cards to generate force for +2 Armor each.\n%s force generated." % [force_selected])
+		UISubState.UISubState_SelectCards_ForceForEffect:
+			var effect_str = ""
+			var effect_type = ""
+			var effect = game_wrapper.get_decision_info().effect
+			if effect['per_force_effect']:
+				effect_type = effect['per_force_effect']
+				effect_str = "Generate up to %s force to %s %s per force." % [effect['force_max'], effect_type, effect['amount']]
+			elif effect['overall_effect']:
+				effect_type = effect['overall_effect']
+				effect_str = "Generate %s force to %s %s." % [effect['force_max'], effect_type, effect['amount']]
+			effect_str += "\n%s force generated." % [force_selected]
+			set_instructions(effect_str)
 
 func enable_instructions_ui(message, can_ok, can_cancel, can_wild_swing : bool = false, choices = []):
 	set_instructions(message)
@@ -1256,6 +1275,19 @@ func _on_force_for_armor(event):
 	else:
 		ai_force_for_armor(event)
 
+func _on_force_for_effect(event):
+	var player = event['event_player']
+	if player == Enums.PlayerId.PlayerId_Player:
+		change_ui_state(null, UISubState.UISubState_SelectCards_ForceForEffect)
+		var effect = game_wrapper.get_decision_info().effect
+		select_card_up_to_force = effect['force_max']
+		var require_max = -1
+		if effect['overall_effect']:
+			require_max = select_card_up_to_force
+		begin_generate_force_selection(require_max)
+	else:
+		ai_force_for_effect(event)
+
 func _on_damage(event):
 	var player = event['event_player']
 	var life = game_wrapper.get_player_life(player)
@@ -1313,6 +1345,8 @@ func _handle_events(events):
 				delay = _on_exceed_event(event)
 			Enums.EventType.EventType_ForceStartStrike:
 				_on_force_start_strike(event)
+			Enums.EventType.EventType_ForceForEffect:
+				_on_force_for_effect(event)
 			Enums.EventType.EventType_Strike_ForceWildSwing:
 				delay = _on_force_wild_swing(event)
 			Enums.EventType.EventType_GameOver:
@@ -1423,7 +1457,7 @@ func _update_buttons():
 	$StaticUI/StaticUIVBox/InstructionsWithButtonsUI/ButtonContainer/WildSwingButton.visible = instructions_wild_swing_allowed
 
 	match ui_sub_state:
-		UISubState.UISubState_SelectCards_BoostCancel, UISubState.UISubState_SelectCards_Mulligan:
+		UISubState.UISubState_SelectCards_BoostCancel, UISubState.UISubState_SelectCards_Mulligan, UISubState.UISubState_SelectCards_ForceForEffect:
 			$StaticUI/StaticUIVBox/InstructionsWithButtonsUI/ButtonContainer/CancelButton.text = "Pass"
 		_:
 			$StaticUI/StaticUIVBox/InstructionsWithButtonsUI/ButtonContainer/CancelButton.text = "Cancel"
@@ -1440,6 +1474,8 @@ func _update_buttons():
 			UISubState.UISubState_SelectCards_ForceForChange:
 				update_force_generation_message()
 			UISubState.UISubState_SelectCards_ForceForArmor:
+				update_force_generation_message()
+			UISubState.UISubState_SelectCards_ForceForEffect:
 				update_force_generation_message()
 			UISubState.UISubState_SelectCards_StrikeGauge:
 				update_gauge_selection_message()
@@ -1505,6 +1541,11 @@ func can_press_ok():
 				return len(selected_cards) == 1
 			UISubState.UISubState_SelectCards_ForceForArmor:
 				return true
+			UISubState.UISubState_SelectCards_ForceForEffect:
+				var force_selected = get_force_in_selected_cards()
+				if select_card_require_force == -1:
+					return force_selected <= select_card_up_to_force
+				return force_selected == select_card_require_force
 			UISubState.UISubState_SelectCards_PlayBoost:
 				return len(selected_cards) == 1
 	return false
@@ -1589,6 +1630,8 @@ func _on_instructions_ok_button_pressed():
 				success = game_wrapper.submit_pay_strike_cost(Enums.PlayerId.PlayerId_Player, selected_card_ids, false)
 			UISubState.UISubState_SelectCards_Exceed:
 				success = game_wrapper.submit_exceed(Enums.PlayerId.PlayerId_Player, selected_card_ids)
+			UISubState.UISubState_SelectCards_ForceForEffect:
+				success = game_wrapper.submit_force_for_effect(Enums.PlayerId.PlayerId_Player, selected_card_ids)
 			UISubState.UISubState_SelectCards_MoveActionGenerateForce:
 				success = game_wrapper.submit_move(Enums.PlayerId.PlayerId_Player, selected_card_ids, selected_arena_location)
 			UISubState.UISubState_SelectCards_ForceForChange:
@@ -1618,6 +1661,10 @@ func _on_instructions_cancel_button_pressed():
 			deselect_all_cards()
 			close_popout()
 			success = game_wrapper.submit_force_for_armor(Enums.PlayerId.PlayerId_Player, [])
+		UISubState.UISubState_SelectCards_ForceForEffect:
+			deselect_all_cards()
+			close_popout()
+			success = game_wrapper.submit_force_for_effect(Enums.PlayerId.PlayerId_Player, [])
 		UISubState.UISubState_SelectCards_Mulligan:
 			deselect_all_cards()
 			close_popout()
@@ -1774,6 +1821,15 @@ func ai_force_for_armor(_event):
 		change_ui_state(UIState.UIState_WaitForGameServer)
 	else:
 		print("FAILED AI FORCE FOR ARMOR")
+
+func ai_force_for_effect(_event):
+	if not game_wrapper.is_ai_game(): return
+	var forceforeffect_action = ai_player.pick_force_for_effect(game_wrapper.current_game, Enums.PlayerId.PlayerId_Opponent)
+	var success = game_wrapper.submit_force_for_effect(Enums.PlayerId.PlayerId_Opponent, forceforeffect_action.card_ids)
+	if success:
+		change_ui_state(UIState.UIState_WaitForGameServer)
+	else:
+		print("FAILED AI FORCE FOR EFFECT")
 
 func ai_strike_response():
 	if not game_wrapper.is_ai_game(): return

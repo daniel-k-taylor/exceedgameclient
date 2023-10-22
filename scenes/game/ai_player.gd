@@ -98,6 +98,11 @@ class ForceForArmorAction:
 	func _init(card_id_combination):
 		card_ids = card_id_combination
 
+class ForceForEffectAction:
+	var card_ids
+	func _init(card_id_combination):
+		card_ids = card_id_combination
+
 class DiscardToMaxAction:
 	var card_ids
 	func _init(card_id_combination):
@@ -448,6 +453,26 @@ func determine_force_for_armor_actions(game_logic : LocalGame, me : LocalGame.Pl
 			possible_actions.append(ForceForArmorAction.new(combo))
 	return possible_actions
 
+func determine_force_for_effect_actions(game_logic: LocalGame, me : LocalGame.Player):
+	var possible_actions = []
+	var available_force = me.get_available_force()
+	var all_force_option_ids = []
+	for card in me.hand:
+		all_force_option_ids.append(card.id)
+	for card in me.gauge:
+		all_force_option_ids.append(card.id)
+
+	var max_force = game_logic.decision_info.effect['force_max']
+	max_force = min(max_force, available_force)
+
+	for target_force in range(0, max_force + 1):
+		# Generate an action for every possible combination of cards that can get here.
+		var combinations = []
+		generate_force_combinations(game_logic, all_force_option_ids, target_force, [], 0, combinations)
+		for combo in combinations:
+			possible_actions.append(ForceForArmorAction.new(combo))
+	return possible_actions
+
 func pick_strike(game_logic : LocalGame, my_id : Enums.PlayerId) -> StrikeAction:
 	var me = game_logic._get_player(my_id)
 	var opponent = game_logic._get_player(game_logic.get_other_player(my_id))
@@ -557,3 +582,10 @@ func pick_choose_from_discard(game_logic : LocalGame, my_id : Enums.PlayerId) ->
 			possible_actions.append(ChooseFromDiscardAction.new(card.id))
 	update_ai_state(game_logic, me, opponent)
 	return ai_policy.pick_choose_from_discard(possible_actions, game_state)
+
+func pick_force_for_effect(game_logic : LocalGame, my_id : Enums.PlayerId) -> ForceForEffectAction:
+	var me = game_logic._get_player(my_id)
+	var opponent = game_logic._get_player(game_logic.get_other_player(my_id))
+	var possible_actions = determine_force_for_effect_actions(game_logic, me)
+	update_ai_state(game_logic, me, opponent)
+	return ai_policy.pick_force_for_effect(possible_actions, game_state)

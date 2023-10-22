@@ -1047,6 +1047,13 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 			var boost_to_discard_id = effect['card_id']
 			var card = card_db.get_card(boost_to_discard_id)
 			events += _get_player(get_other_player(performing_player.my_id)).remove_from_continuous_boosts(card, false)
+		"force_for_effect":
+			change_game_state(Enums.GameState.GameState_PlayerDecision)
+			decision_info.player = performing_player.my_id
+			decision_info.type = Enums.DecisionType.DecisionType_ForceForEffect
+			decision_info.choice_card_id = card_id
+			decision_info.effect = effect
+			events += [create_event(Enums.EventType.EventType_ForceForEffect, performing_player.my_id, 0)]
 		"gain_advantage":
 			next_turn_player = performing_player.my_id
 			events += [create_event(Enums.EventType.EventType_Strike_GainAdvantage, performing_player.my_id, 0)]
@@ -2103,6 +2110,61 @@ func do_choose_from_discard(performing_player : Player, card_id : int) -> bool:
 		printlog("ERROR: When is this choose from discard happening?")
 		assert(false, "When is this choose from discard happening?")
 
+	event_queue += events
+	return true
+
+func do_force_for_effect(performing_player : Player, card_ids : Array) -> bool:
+	printlog("SubAction: FORCE_FOR_EFFECT by %s cards %s" % [performing_player.name, card_ids])
+	if game_state != Enums.GameState.GameState_PlayerDecision or decision_info.type != Enums.DecisionType.DecisionType_ForceForEffect:
+		printlog("ERROR: Tried to force for effect but not in decision state.")
+		return false
+	if decision_info.player != performing_player.my_id:
+		printlog("ERROR: Tried to force for armor for wrong player.")
+		return false
+
+	var events = []
+	for card_id in card_ids:
+		if not performing_player.is_card_in_hand(card_id) and not performing_player.is_card_in_gauge(card_id):
+			printlog("ERROR: Tried to force for effect with card not in hand or gauge.")
+			return false
+
+	var force_generated = 0
+	for card_id in card_ids:
+		force_generated += card_db.get_card_force_value(card_id)
+
+	if force_generated > decision_info.effect['force_max']:
+		printlog("ERROR: Tried to force for effect with too much force.")
+		return false
+	if force_generated > 0:
+		var card_names = card_db.get_card_name(card_ids[0])
+		for i in range(1, card_ids.size()):
+			card_names += ", " + card_db.get_card_name(card_ids[i])
+
+		var effect_str = ""
+		var effect_type = ""
+		var amount = 0
+		if decision_info.effect['per_force_effect']:
+			effect_type = decision_info.effect['per_force_effect']
+			amount = force_generated * decision_info.effect['amount']
+			effect_str = effect_type + " " + str(amount)
+		elif decision_info.effect['overall_effect']:
+			effect_type = decision_info.effect['overall_effect']
+			amount = decision_info.effect['amount']
+			effect_str = effect_type + " " + str(amount)
+
+		_append_log("%s generated force to %s with %s." % [performing_player.name, effect_str, card_names])
+		events += performing_player.discard(card_ids)
+		events += handle_strike_effect(decision_info.choice_card_id, {'effect_type': effect_type, 'amount': amount}, performing_player)
+
+	if active_strike:
+		active_strike.effects_resolved_in_timing += 1
+		events += continue_resolve_strike()
+	elif active_boost:
+		active_boost.effects_resolved += 1
+		events += continue_resolve_boost()
+	else:
+		printlog("ERROR: When is this force for effect happening?")
+		assert(false, "When is this force for effect happening?")
 	event_queue += events
 	return true
 
