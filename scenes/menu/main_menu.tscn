@@ -345,7 +345,6 @@ text = "Choose your character:"
 
 [node name="PlayerCharSelect" type="OptionButton" parent="PlayerChooser/Margin/VBox"]
 layout_mode = 2
-selected = 0
 allow_reselect = true
 
 [node name="PlayerNameBox" type="TextEdit" parent="."]

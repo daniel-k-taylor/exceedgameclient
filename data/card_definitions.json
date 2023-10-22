@@ -373,7 +373,9 @@
 			{
 				"timing": "after",
 				"condition": "initiated_strike",
-				"effect_type": "gauge_from_discard"
+				"effect_type": "choose_discard",
+				"limitation": "none",
+				"destination": "gauge"
 			}
 		],
 		"boost": {
@@ -428,7 +430,9 @@
 			"effects": [
 				{
 					"timing": "immediate",
-					"effect_type": "return_special_from_discard"
+					"effect_type": "choose_discard",
+					"limitation": "special",
+					"destination": "gauge"
 				},
 				{
 					"timing": "immediate",

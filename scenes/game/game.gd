@@ -842,6 +842,14 @@ func _on_add_to_deck(event):
 	reparent_to_zone(card, get_deck_zone(is_player))
 	layout_player_hand(is_player)
 
+func _on_add_to_hand(event):
+	var player = event['event_player']
+	var is_player = player == Enums.PlayerId.PlayerId_Player
+	var card = find_card_on_board(event['number'])
+	card.flip_card_to_front(is_player)
+	add_card_to_hand(card.id, is_player)
+	layout_player_hand(is_player)
+
 func _on_draw_event(event):
 	var player = event['event_player']
 	var card_drawn_id = event['number']
@@ -1230,6 +1238,8 @@ func _handle_events(events):
 				_on_add_to_deck(event)
 			Enums.EventType.EventType_AddToDiscard:
 				_on_discard_event(event)
+			Enums.EventType.EventType_AddToHand:
+				_on_add_to_hand(event)
 			Enums.EventType.EventType_AdvanceTurn:
 				delay = _on_advance_turn()
 			Enums.EventType.EventType_Boost_ActionAfterBoost:

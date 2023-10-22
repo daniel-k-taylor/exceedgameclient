@@ -10,12 +10,17 @@ const SelectorIndexToDeckId = {
 	0: "ramlethal",
 	1: "kykisuke",
 	2: "solbadguy",
+	3: "random",
 }
 
 func get_deck_from_selector_index(index : int):
 	for deck in decks:
 		if deck['id'] == SelectorIndexToDeckId[index]:
 			return deck
+
+	# Randomize
+	var random_index = randi() % len(decks)
+	return decks[random_index]
 
 func get_deck_from_str_id(str_id : String):
 	for deck in decks:

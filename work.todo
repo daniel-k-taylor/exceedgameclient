@@ -1,15 +1,23 @@
 
 In progress:
+    ☐ Reorder opponent hand if they gain known cards to hand, or just shuffle it every layout, only on UI side
+
     Implement Ram:
         ☐ "timing": "set_strike",
         ☐ "effect_type": "ram_force_for_range",
-        ☐ return_all_cards_gauge_to_hand
-        ☐ gauge_from_discard
-        ☐ return_special_from_discard
+        ✔ return_all_cards_gauge_to_hand @done(23-10-22 01:23)
+            ☐ EventType_AddToHand @started(23-10-22 01:23)
+        ☐ choose_discard
+            ☐ limitation
+            ☐ destination
+            ☐ EventType_ChooseFromDiscard
+            ☐ Add a do_choose_from_discard function
         ☐ immediate strike boost
         ☐ gauge_from_hand as hit effect
         ☐ add_top_deck_to_gauge
         ☐ force_for_draw
+            ☐ force_for_effect, min, max, per_force_effect, overall_effect
+
 Tasks:
     Main Features:
         ☐ Observers on server

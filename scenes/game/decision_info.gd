@@ -7,3 +7,5 @@ var type : Enums.DecisionType
 var effect_type
 var choice
 var choice_card_id : int
+var limitation
+var destination

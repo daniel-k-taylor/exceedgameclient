@@ -331,6 +331,13 @@ class Player:
 				break
 		return events
 
+	func return_all_cards_gauge_to_hand():
+		var events = []
+		for card in gauge:
+			events += add_to_hand(card)
+		gauge = []
+		return events
+
 	func is_card_in_gauge(id : int):
 		for card in gauge:
 			if card.id == id:
@@ -484,6 +491,10 @@ class Player:
 	func add_to_discards(card : GameCard):
 		discards.append(card)
 		return [parent.create_event(Enums.EventType.EventType_AddToDiscard, my_id, card.id)]
+
+	func add_to_hand(card : GameCard):
+		hand.append(card)
+		return [parent.create_event(Enums.EventType.EventType_AddToHand, my_id, card.id)]
 
 	func get_available_force():
 		var force = 0
@@ -951,6 +962,14 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 			decision_info.choice = effect['choice']
 			decision_info.choice_card_id = card_id
 			events += [create_event(Enums.EventType.EventType_Strike_EffectChoice, performing_player.my_id, 0)]
+		"choose_discard":
+			change_game_state(Enums.GameState.GameState_PlayerDecision)
+			decision_info.type = Enums.DecisionType.DecisionType_ChooseFromDiscard
+			decision_info.player = performing_player.my_id
+			decision_info.choice_card_id = card_id
+			decision_info.limitation = effect['limitation']
+			decision_info.destination = effect['destination']
+			events += [create_event(Enums.EventType.EventType_ChooseFromDiscard, performing_player.my_id, 0)]
 		"close":
 			var previous_location = performing_player.arena_location
 			events += performing_player.close(effect['amount'])
@@ -1044,6 +1063,8 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 			var retreat_amount = abs(performing_start - new_location)
 			local_conditions.fully_retreated = retreat_amount == effect['amount']
 			_append_log("%s Retreat %s - Moved from %s to %s." % [performing_player.name, str(effect['amount']), str(previous_location), str(new_location)])
+		"return_all_cards_gauge_to_hand":
+			events += performing_player.return_all_cards_gauge_to_hand()
 		"speedup":
 			performing_player.strike_stat_boosts.speed += effect['amount']
 			events += [create_event(Enums.EventType.EventType_Strike_SpeedUp, performing_player.my_id, effect['amount'])]
