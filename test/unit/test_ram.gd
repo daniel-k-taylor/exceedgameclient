@@ -9,6 +9,7 @@ const TestCardId1 = 50001
 const TestCardId2 = 50002
 const TestCardId3 = 50003
 const TestCardId4 = 50004
+const TestCardId5 = 50005
 
 var player1 : LocalGame.Player
 var player2 : LocalGame.Player
@@ -84,6 +85,15 @@ func do_strike_response(player, card_id, ex_card = -1):
 	var events = game_logic.get_latest_events()
 	return events
 
+func advance_turn(player):
+	assert_true(game_logic.do_prepare(player))
+	if player.hand.size() > 7:
+		var cards = []
+		var to_discard = player.hand.size() - 7
+		for i in range(to_discard):
+			cards.append(player.hand[i].id)
+		assert_true(game_logic.do_discard_to_max(player, cards))
+
 func validate_gauge(player, amount, id):
 	assert_eq(len(player.gauge), amount)
 	if len(player.gauge) != amount: return
@@ -102,7 +112,7 @@ func validate_discard(player, amount, id):
 			return
 	fail_test("Didn't have required card in discard.")
 
-func execute_strike(initiator, defender, init_card, def_card, init_choices, def_choices, init_ex = false, def_ex = false):
+func execute_strike(initiator, defender, init_card : String, def_card : String, init_choices, def_choices, init_ex = false, def_ex = false):
 	var all_events = []
 	give_specific_cards(initiator, init_card, defender, def_card)
 	if init_ex:
@@ -117,17 +127,32 @@ func execute_strike(initiator, defender, init_card, def_card, init_choices, def_
 	else:
 		all_events += do_strike_response(defender, TestCardId2)
 
+	# Pay any costs from gauge
+	if game_logic.active_strike and game_logic.active_strike.strike_state == game_logic.StrikeState.StrikeState_Initiator_PayCosts:
+		var cost = game_logic.active_strike.initiator_card.definition['gauge_cost']
+		var cards = []
+		for i in range(cost):
+			cards.append(initiator.gauge[i].id)
+		game_logic.do_pay_strike_cost(initiator, cards, false)
+
+	# Pay any costs from gauge
+	if game_logic.active_strike and game_logic.active_strike.strike_state == game_logic.StrikeState.StrikeState_Defender_PayCosts:
+		var cost = game_logic.active_strike.defender_card.definition['gauge_cost']
+		var cards = []
+		for i in range(cost):
+			cards.append(defender.gauge[i].id)
+		game_logic.do_pay_strike_cost(defender, cards, false)
+
 	for i in range(init_choices.size()):
 		assert_eq(game_logic.game_state, Enums.GameState.GameState_PlayerDecision)
 		assert_true(game_logic.do_choice(initiator, init_choices[i]))
-		var events = game_logic.get_latest_events()
-		all_events += events
+
 	for i in range(def_choices.size()):
 		assert_eq(game_logic.game_state, Enums.GameState.GameState_PlayerDecision)
 		assert_true(game_logic.do_choice(defender, def_choices[i]))
-		var events = game_logic.get_latest_events()
-		all_events += events
 
+	var events = game_logic.get_latest_events()
+	all_events += events
 	return all_events
 
 func validate_positions(p1, l1, p2, l2):
@@ -144,7 +169,7 @@ func test_mortobato_boost():
 	var gauge_cards = []
 	for card in player1.gauge:
 		gauge_cards.append(card)
-	
+
 	give_player_specific_card(player1, "ramlethal_mortobato", TestCardId3)
 	assert_true(game_logic.do_boost(player1, TestCardId3))
 	var events = game_logic.get_latest_events()
@@ -160,3 +185,62 @@ func test_mortobato_boost():
 			fail_test("Card was not in hand from gauge after Mortobato boost")
 	pass_test("test passed")
 
+func test_calvados_initiated_hit():
+	position_players(player1, 3, player2, 4)
+	give_gauge(player1, 2)
+	give_player_specific_card(player1, "gg_normal_grasp", TestCardId3)
+	player1.discard([TestCardId3])
+	var events = execute_strike(player1, player2, "ramlethal_calvados","gg_normal_cross", [], [], false, false)
+	validate_has_event(events, Enums.EventType.EventType_ChooseFromDiscard, player1)
+	assert_true(game_logic.do_choose_from_discard(player1, TestCardId3))
+	events = game_logic.get_latest_events()
+	validate_positions(player1, 3, player2, 9)
+	validate_life(player1, 28, player2, 26)
+	assert_true(player1.is_card_in_gauge(TestCardId3))
+
+func test_calvados_boost():
+	position_players(player1, 3, player2, 4)
+	give_player_specific_card(player1, "ramlethal_calvados", TestCardId3)
+	assert_true(game_logic.do_boost(player1, TestCardId3))
+	var events = game_logic.get_latest_events()
+	validate_has_event(events, Enums.EventType.EventType_Move, player2, 6)
+	validate_positions(player1, 3, player2, 6)
+	advance_turn(player2)
+
+	events = execute_strike(player1, player2, "gg_normal_slash","gg_normal_dive", [], [], false, false)
+	validate_positions(player1, 5, player2, 6)
+	validate_life(player1, 30, player2, 26)
+	assert_eq(player1.gauge.size(), 2)
+
+func test_dauro_boost_no_specials():
+	position_players(player1, 3, player2, 4)
+	give_player_specific_card(player1, "gg_normal_grasp", TestCardId4)
+	player1.discard([TestCardId4])
+	give_player_specific_card(player1, "ramlethal_dauro", TestCardId3)
+	assert_true(game_logic.do_boost(player1, TestCardId3))
+	var events = game_logic.get_latest_events()
+	validate_has_event(events, Enums.EventType.EventType_ForceStartStrike, player1)
+	assert_eq(game_logic.decision_info.type, Enums.DecisionType.DecisionType_StrikeNow)
+	assert_eq(game_logic.game_state, Enums.GameState.GameState_WaitForStrike)
+	events = execute_strike(player1, player2, "gg_normal_slash","gg_normal_dive", [], [], false, false)
+	validate_positions(player1, 3, player2, 4)
+	validate_life(player1, 30, player2, 26)
+
+func test_dauro_boost_with_specials():
+	position_players(player1, 3, player2, 4)
+	give_player_specific_card(player1, "gg_normal_grasp", TestCardId4)
+	give_player_specific_card(player1, "ramlethal_bajoneto", TestCardId5)
+	player1.discard([TestCardId4, TestCardId5])
+	give_player_specific_card(player1, "ramlethal_dauro", TestCardId3)
+	assert_true(game_logic.do_boost(player1, TestCardId3))
+	var events = game_logic.get_latest_events()
+	validate_has_event(events, Enums.EventType.EventType_ChooseFromDiscard, player1)
+	assert_true(game_logic.do_choose_from_discard(player1, TestCardId5))
+	events = game_logic.get_latest_events()
+	assert_true(player1.is_card_in_hand(TestCardId5))
+	validate_has_event(events, Enums.EventType.EventType_ForceStartStrike, player1)
+	assert_eq(game_logic.decision_info.type, Enums.DecisionType.DecisionType_StrikeNow)
+	assert_eq(game_logic.game_state, Enums.GameState.GameState_WaitForStrike)
+	events = execute_strike(player1, player2, "gg_normal_slash","gg_normal_dive", [], [], false, false)
+	validate_positions(player1, 3, player2, 4)
+	validate_life(player1, 30, player2, 26)

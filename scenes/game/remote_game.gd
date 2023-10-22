@@ -115,7 +115,7 @@ func do_reshuffle(player : LocalGame.Player) -> bool:
 
 func process_reshuffle(action_message) -> void:
 	var game_player = _get_player_from_remote_id(action_message['player_id'])
-	return local_game.do_reshuffle(game_player)
+	local_game.do_reshuffle(game_player)
 
 func do_choice(player : LocalGame.Player, choice_index : int) -> bool:
 	var action_message = {
@@ -129,7 +129,7 @@ func do_choice(player : LocalGame.Player, choice_index : int) -> bool:
 func process_choice(action_message) -> void:
 	var game_player = _get_player_from_remote_id(action_message['player_id'])
 	var choice_index = action_message['choice_index']
-	return local_game.do_choice(game_player, choice_index)
+	local_game.do_choice(game_player, choice_index)
 
 func do_boost_cancel(player : LocalGame.Player, gauge_card_ids : Array, doing_cancel : bool) -> bool:
 	var action_message = {
@@ -145,7 +145,7 @@ func process_boost_cancel(action_message) -> void:
 	var game_player = _get_player_from_remote_id(action_message['player_id'])
 	var gauge_card_ids = action_message['gauge_card_ids']
 	var doing_cancel = action_message['doing_cancel']
-	return local_game.do_boost_cancel(game_player, gauge_card_ids, doing_cancel)
+	local_game.do_boost_cancel(game_player, gauge_card_ids, doing_cancel)
 
 func do_boost_name_card_choice_effect(player : LocalGame.Player, card_id : int) -> bool:
 	var action_message = {
@@ -156,10 +156,10 @@ func do_boost_name_card_choice_effect(player : LocalGame.Player, card_id : int) 
 	NetworkManager.submit_game_message(action_message)
 	return true
 
-func process_boost_name_card_choice_effect(action_message) -> bool:
+func process_boost_name_card_choice_effect(action_message) -> void:
 	var game_player = _get_player_from_remote_id(action_message['player_id'])
 	var card_id = action_message['card_id']
-	return local_game.do_boost_name_card_choice_effect(game_player, card_id)
+	local_game.do_boost_name_card_choice_effect(game_player, card_id)
 
 func do_discard_to_max(player : LocalGame.Player, card_ids : Array) -> bool:
 	var action_message = {
@@ -173,7 +173,7 @@ func do_discard_to_max(player : LocalGame.Player, card_ids : Array) -> bool:
 func process_discard_to_max(action_message) -> void:
 	var game_player = _get_player_from_remote_id(action_message['player_id'])
 	var card_ids = action_message['card_ids']
-	return local_game.do_discard_to_max(game_player, card_ids)
+	local_game.do_discard_to_max(game_player, card_ids)
 
 func do_card_from_hand_to_gauge(player : LocalGame.Player, card_id : int) -> bool:
 	var action_message = {
@@ -187,7 +187,7 @@ func do_card_from_hand_to_gauge(player : LocalGame.Player, card_id : int) -> boo
 func process_card_from_hand_to_gauge(action_message) -> void:
 	var game_player = _get_player_from_remote_id(action_message['player_id'])
 	var card_id = action_message['card_id']
-	return local_game.do_card_from_hand_to_gauge(game_player, card_id)
+	local_game.do_card_from_hand_to_gauge(game_player, card_id)
 
 func do_pay_strike_cost(player : LocalGame.Player, card_ids : Array, wild_strike : bool) -> bool:
 	var action_message = {
@@ -203,7 +203,7 @@ func process_pay_strike_cost(action_message) -> void:
 	var game_player = _get_player_from_remote_id(action_message['player_id'])
 	var card_ids = action_message['card_ids']
 	var wild_strike = action_message['wild_strike']
-	return local_game.do_pay_strike_cost(game_player, card_ids, wild_strike)
+	local_game.do_pay_strike_cost(game_player, card_ids, wild_strike)
 
 func do_exceed(player : LocalGame.Player, card_ids : Array) -> bool:
 	var action_message = {
@@ -217,7 +217,7 @@ func do_exceed(player : LocalGame.Player, card_ids : Array) -> bool:
 func process_exceed(action_message) -> void:
 	var game_player = _get_player_from_remote_id(action_message['player_id'])
 	var card_ids = action_message['card_ids']
-	return local_game.do_exceed(game_player, card_ids)
+	local_game.do_exceed(game_player, card_ids)
 
 func do_move(player : LocalGame.Player, card_ids : Array, new_arena_location : int) -> bool:
 	var action_message = {
@@ -233,7 +233,7 @@ func process_move(action_message) -> void:
 	var game_player = _get_player_from_remote_id(action_message['player_id'])
 	var card_ids = action_message['card_ids']
 	var new_arena_location = action_message['new_arena_location']
-	return local_game.do_move(game_player, card_ids, new_arena_location)
+	local_game.do_move(game_player, card_ids, new_arena_location)
 
 func do_change(player : LocalGame.Player, card_ids : Array) -> bool:
 	var action_message = {
@@ -247,7 +247,7 @@ func do_change(player : LocalGame.Player, card_ids : Array) -> bool:
 func process_change(action_message) -> void:
 	var game_player = _get_player_from_remote_id(action_message['player_id'])
 	var card_ids = action_message['card_ids']
-	return local_game.do_change(game_player, card_ids)
+	local_game.do_change(game_player, card_ids)
 
 func do_strike(player : LocalGame.Player, card_id : int, wild_strike: bool, ex_card_id : int) -> bool:
 	var action_message = {
@@ -265,7 +265,7 @@ func process_strike(action_message) -> void:
 	var card_id = action_message['card_id']
 	var wild_strike = action_message['wild_strike']
 	var ex_card_id = action_message['ex_card_id']
-	return local_game.do_strike(game_player, card_id, wild_strike, ex_card_id)
+	local_game.do_strike(game_player, card_id, wild_strike, ex_card_id)
 
 func do_force_for_armor(player : LocalGame.Player, card_ids : Array) -> bool:
 	var action_message = {
@@ -279,7 +279,7 @@ func do_force_for_armor(player : LocalGame.Player, card_ids : Array) -> bool:
 func process_force_for_armor(action_message) -> void:
 	var game_player = _get_player_from_remote_id(action_message['player_id'])
 	var card_ids = action_message['card_ids']
-	return local_game.do_force_for_armor(game_player, card_ids)
+	local_game.do_force_for_armor(game_player, card_ids)
 
 func do_mulligan(player : LocalGame.Player, card_ids : Array) -> bool:
 	var action_message = {
@@ -293,7 +293,7 @@ func do_mulligan(player : LocalGame.Player, card_ids : Array) -> bool:
 func process_mulligan(action_message) -> void:
 	var game_player = _get_player_from_remote_id(action_message['player_id'])
 	var card_ids = action_message['card_ids']
-	return local_game.do_mulligan(game_player, card_ids)
+	local_game.do_mulligan(game_player, card_ids)
 
 func do_boost(player : LocalGame.Player, card_id : int) -> bool:
 	var action_message = {
@@ -307,4 +307,18 @@ func do_boost(player : LocalGame.Player, card_id : int) -> bool:
 func process_boost(action_message) -> void:
 	var game_player = _get_player_from_remote_id(action_message['player_id'])
 	var card_id = action_message['card_id']
-	return local_game.do_boost(game_player, card_id)
+	local_game.do_boost(game_player, card_id)
+
+func do_choose_from_discard(player : LocalGame.Player, card_id : int) -> bool:
+	var action_message = {
+		'action_type': 'action_choose_from_discard',
+		'player_id': _get_player_remote_id(player),
+		'card_id': card_id,
+	}
+	NetworkManager.submit_game_message(action_message)
+	return true
+
+func process_choose_from_discard(action_message) -> void:
+	var game_player = _get_player_from_remote_id(action_message['player_id'])
+	var card_id = action_message['card_id']
+	local_game.do_choose_from_discard(game_player, card_id)

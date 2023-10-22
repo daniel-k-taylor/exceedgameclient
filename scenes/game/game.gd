@@ -87,6 +87,7 @@ enum UIState {
 enum UISubState {
 	UISubState_None,
 	UISubState_SelectCards_BoostCancel,
+	UISubState_SelectCards_ChooseDiscardToDestination,
 	UISubState_SelectCards_DiscardContinuousBoost,
 	UISubState_SelectCards_DiscardFromReference,
 	UISubState_SelectCards_MoveActionGenerateForce,
@@ -94,8 +95,8 @@ enum UISubState {
 	UISubState_SelectCards_DiscardCards,
 	UISubState_SelectCards_DiscardCardsToGauge,
 	UISubState_SelectCards_ForceForChange,
-	UISubState_SelectCards_Exceed,
-	UISubState_SelectCards_Mulligan, # 10
+	UISubState_SelectCards_Exceed, # 10
+	UISubState_SelectCards_Mulligan,
 	UISubState_SelectCards_StrikeGauge,
 	UISubState_SelectCards_StrikeCard,
 	UISubState_SelectCards_StrikeResponseCard,
@@ -485,6 +486,7 @@ func is_card_in_player_reference(reference_cards, card_id):
 func can_select_card(card):
 	var in_gauge = game_wrapper.is_card_in_gauge(Enums.PlayerId.PlayerId_Player, card.card_id)
 	var in_hand = game_wrapper.is_card_in_hand(Enums.PlayerId.PlayerId_Player, card.card_id)
+	var in_discard = game_wrapper.is_card_in_discards(Enums.PlayerId.PlayerId_Player, card.card_id)
 	var in_opponent_boosts = game_wrapper.is_card_in_boosts(Enums.PlayerId.PlayerId_Opponent, card.card_id)
 	var in_opponent_reference = is_card_in_player_reference($AllCards/OpponentAllCopy.get_children(), card.card_id)
 	match ui_sub_state:
@@ -502,6 +504,17 @@ func can_select_card(card):
 			return in_opponent_boosts and len(selected_cards) < select_card_require_max
 		UISubState.UISubState_SelectCards_DiscardFromReference:
 			return in_opponent_reference and len(selected_cards) < select_card_require_max
+		UISubState.UISubState_SelectCards_ChooseDiscardToDestination:
+			var card_db = game_wrapper.get_card_database()
+			var card_type = card_db.get_card(card.card_id).definition['type']
+			var limitation = game_wrapper.get_decision_info().limitation
+			var meets_limitation = false
+			match limitation:
+				"special":
+					meets_limitation = card_type == "special"
+				_:
+					meets_limitation = true
+			return in_discard and len(selected_cards) < select_card_require_max and meets_limitation
 
 func deselect_all_cards():
 	for card in selected_cards:
@@ -779,6 +792,32 @@ func _on_choose_card_hand_to_gauge(event):
 	else:
 		ai_choose_card_hand_to_gauge()
 
+func _on_choose_from_discard(event):
+	var player = event['event_player']
+	var limitation = game_wrapper.get_decision_info().limitation
+	var destination = game_wrapper.get_decision_info().destination
+	if player == Enums.PlayerId.PlayerId_Player:
+		# Show the discard window.
+		_on_player_discard_button_pressed()
+		selected_cards = []
+		select_card_require_min = 1
+		select_card_require_max = 1
+		limitation = limitation + " "
+		var instruction = "Select %s %scard to move to %s." % [select_card_require_min, limitation, destination]
+		popout_instruction_info = {
+			"popout_type": CardPopoutType.CardPopoutType_DiscardPlayer,
+			"instruction_text": instruction,
+			"ok_text": "OK",
+			"cancel_text": "",
+			"ok_enabled": true,
+			"cancel_visible": false,
+		}
+
+		enable_instructions_ui(instruction, true, false)
+		change_ui_state(UIState.UIState_SelectCards, UISubState.UISubState_SelectCards_ChooseDiscardToDestination)
+	else:
+		ai_choose_from_discard()
+
 func clear_selected_cards():
 	for card in selected_cards:
 		card.set_selected(false)
@@ -821,8 +860,12 @@ func _on_add_to_gauge(event):
 		gauge_card_loc = $AllCards/OpponentGauge
 
 	var pos = gauge_panel.get_center_pos()
+	var is_player = player == Enums.PlayerId.PlayerId_Player
+	if card.get_parent() == $AllCards/PlayerDeck or card.get_parent() == $AllCards/OpponentDeck:
+		card.set_card_and_focus(get_deck_button_position(is_player), null, null)
 	card.discard_to(pos, CardBase.CardState.CardState_InGauge)
 	reparent_to_zone(card, gauge_card_loc)
+	layout_player_hand(is_player)
 	spawn_damage_popup("+ Gauge", player)
 	return SmallNoticeDelay
 
@@ -847,7 +890,7 @@ func _on_add_to_hand(event):
 	var is_player = player == Enums.PlayerId.PlayerId_Player
 	var card = find_card_on_board(event['number'])
 	card.flip_card_to_front(is_player)
-	add_card_to_hand(card.id, is_player)
+	add_card_to_hand(card.card_id, is_player)
 	layout_player_hand(is_player)
 
 func _on_draw_event(event):
@@ -1260,6 +1303,8 @@ func _handle_events(events):
 				_on_choose_card_hand_to_gauge(event)
 			Enums.EventType.EventType_ChangeCards:
 				delay = _on_change_cards(event)
+			Enums.EventType.EventType_ChooseFromDiscard:
+				_on_choose_from_discard(event)
 			Enums.EventType.EventType_Discard:
 				_on_discard_event(event)
 			Enums.EventType.EventType_Draw:
@@ -1440,6 +1485,8 @@ func can_press_ok():
 				return selected_cards_between_min_and_max()
 			UISubState.UISubState_SelectCards_BoostCancel, UISubState.UISubState_SelectCards_DiscardContinuousBoost, UISubState.UISubState_SelectCards_DiscardFromReference:
 				return selected_cards_between_min_and_max()
+			UISubState.UISubState_SelectCards_ChooseDiscardToDestination:
+				return selected_cards_between_min_and_max()
 			UISubState.UISubState_SelectCards_DiscardCardsToGauge, UISubState.UISubState_SelectCards_Mulligan:
 				return selected_cards_between_min_and_max()
 			UISubState.UISubState_SelectCards_MoveActionGenerateForce:
@@ -1528,6 +1575,8 @@ func _on_instructions_ok_button_pressed():
 		match ui_sub_state:
 			UISubState.UISubState_SelectCards_BoostCancel:
 				success = game_wrapper.submit_boost_cancel(Enums.PlayerId.PlayerId_Player, selected_card_ids, true)
+			UISubState.UISubState_SelectCards_ChooseDiscardToDestination:
+				success = game_wrapper.submit_choose_from_discard(Enums.PlayerId.PlayerId_Player, single_card_id)
 			UISubState.UISubState_SelectCards_DiscardContinuousBoost:
 				success = game_wrapper.submit_boost_name_card_choice_effect(Enums.PlayerId.PlayerId_Player, single_card_id)
 			UISubState.UISubState_SelectCards_DiscardFromReference:
@@ -1784,6 +1833,15 @@ func ai_choose_card_hand_to_gauge():
 		change_ui_state(UIState.UIState_WaitForGameServer)
 	else:
 		print("FAILED AI CHOOSE CARD HAND TO GAUGE")
+
+func ai_choose_from_discard():
+	if not game_wrapper.is_ai_game(): return
+	var discard_action = ai_player.pick_choose_from_discard(game_wrapper.current_game, Enums.PlayerId.PlayerId_Opponent)
+	var success = game_wrapper.submit_choose_from_discard(Enums.PlayerId.PlayerId_Opponent, discard_action.card_id)
+	if success:
+		change_ui_state(UIState.UIState_WaitForGameServer)
+	else:
+		print("FAILED AI CHOOSE FROM DISCARD")
 
 func ai_mulligan_decision():
 	if not game_wrapper.is_ai_game(): return

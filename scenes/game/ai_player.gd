@@ -130,6 +130,11 @@ class MulliganAction:
 	func _init(card_id_combination):
 		card_ids = card_id_combination
 
+class ChooseFromDiscardAction:
+	var card_id
+	func _init(chosen_id):
+		card_id = chosen_id
+
 func create_sanitized_card_id_array(card_array):
 	var card_ids = []
 	for i in range(card_array.size()):
@@ -535,3 +540,20 @@ func pick_mulligan(game_logic : LocalGame, my_id : Enums.PlayerId) -> MulliganAc
 			possible_actions.append(MulliganAction.new(combo))
 	update_ai_state(game_logic, me, opponent)
 	return ai_policy.pick_mulligan(possible_actions, game_state)
+
+func pick_choose_from_discard(game_logic : LocalGame, my_id : Enums.PlayerId) -> ChooseFromDiscardAction:
+	var me = game_logic._get_player(my_id)
+	var opponent = game_logic._get_player(game_logic.get_other_player(my_id))
+	var possible_actions = []
+	var limitation = game_logic.decision_info.limitation
+	for card in me.discards:
+		var can_choose = false
+		match limitation:
+			"special":
+				can_choose = card.definition['type'] == "special"
+			_:
+				can_choose = true
+		if can_choose:
+			possible_actions.append(ChooseFromDiscardAction.new(card.id))
+	update_ai_state(game_logic, me, opponent)
+	return ai_policy.pick_choose_from_discard(possible_actions, game_state)

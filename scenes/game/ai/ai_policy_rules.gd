@@ -256,3 +256,6 @@ func pick_card_hand_to_gauge(possible_actions : Array, _ai_game_state : AIPlayer
 
 func pick_mulligan(possible_actions : Array, _ai_game_state : AIPlayer.AIGameState):
 	return possible_actions[randi() % len(possible_actions)]
+
+func pick_choose_from_discard(possible_actions : Array, _ai_game_state : AIPlayer.AIGameState):
+	return possible_actions[randi() % len(possible_actions)]

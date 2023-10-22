@@ -103,6 +103,13 @@ func is_card_in_boosts(player_id : Enums.PlayerId, card_id : int):
 			return true
 	return false
 
+func is_card_in_discards(player_id : Enums.PlayerId, card_id : int):
+	var player = _get_player(player_id)
+	for card in player.discards:
+		if card.id == card_id:
+			return true
+	return false
+
 func get_player_available_force(player_id : Enums.PlayerId):
 	return _get_player(player_id).get_available_force()
 
@@ -222,3 +229,7 @@ func submit_mulligan(player : Enums.PlayerId, card_ids : Array) -> bool:
 func submit_boost(player : Enums.PlayerId, card_id : int) -> bool:
 	var game_player = _get_player(player)
 	return current_game.do_boost(game_player, card_id)
+
+func submit_choose_from_discard(player: Enums.PlayerId, card_id : int) -> bool:
+	var game_player = _get_player(player)
+	return current_game.do_choose_from_discard(game_player, card_id)
