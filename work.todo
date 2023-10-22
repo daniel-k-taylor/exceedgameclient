@@ -5,6 +5,7 @@ In progress:
     Implement Ram:
         ☐ "timing": "set_strike",
         ☐ "effect_type": "ram_force_for_range",
+        ☐ Need to put a location for UA bonuses in the UI
 
         ☐ force_for_draw
             ☐ force_for_effect, min, max, per_force_effect, overall_effect

@@ -244,3 +244,23 @@ func test_dauro_boost_with_specials():
 	events = execute_strike(player1, player2, "gg_normal_slash","gg_normal_dive", [], [], false, false)
 	validate_positions(player1, 3, player2, 4)
 	validate_life(player1, 30, player2, 26)
+
+func test_erarlumo_hit():
+	position_players(player1, 3, player2, 4)
+	var events = execute_strike(player1, player2, "ramlethal_erarlumo","gg_normal_dive", [], [], false, false)
+	validate_has_event(events, Enums.EventType.EventType_CardFromHandToGauge_Choice, player1)
+	assert_eq(game_logic.game_state, Enums.GameState.GameState_PlayerDecision)
+	var card_to_choose = player1.hand[0]
+	assert_true(game_logic.do_card_from_hand_to_gauge(player1, card_to_choose.id))
+	events = game_logic.get_latest_events()
+	assert_true(player1.is_card_in_gauge(card_to_choose.id))
+	validate_positions(player1, 3, player2, 4)
+	validate_life(player1, 30, player2, 27)
+
+func test_agresaordono_hit():
+	position_players(player1, 3, player2, 4)
+	var card_on_top_deck = player1.deck[0]
+	var events = execute_strike(player1, player2, "ramlethal_agresaordono","gg_normal_cross", [0], [], false, false)
+	assert_true(player1.is_card_in_gauge(card_on_top_deck.id))
+	validate_positions(player1, 4, player2, 7)
+	validate_life(player1, 27, player2, 26)
