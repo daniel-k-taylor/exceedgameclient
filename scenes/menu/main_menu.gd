@@ -11,8 +11,20 @@ signal start_remote_game(vs_info, data)
 @onready var char_select = $PlayerChooser/Margin/VBox/PlayerCharSelect
 @onready var room_select = $RoomNameBox
 
+func _initialize_character_select():
+	player_select.clear()
+	opponent_select.clear()
+	var num_chars = CardDefinitions.SelectorIndexToDeckId.size()
+	for i in range(num_chars):
+		player_select.add_item(CardDefinitions.SelectorIndexToDeckId[i], i)
+		opponent_select.add_item(CardDefinitions.SelectorIndexToDeckId[i], i)
+
+	player_select.selected = 0
+	opponent_select.selected = 1
+
 # Called when the node enters the scene tree for the first time.
 func _ready():
+	_initialize_character_select()
 	NetworkManager.connect("connected_to_server", _on_connected)
 	NetworkManager.connect("disconnected_from_server", _on_disconnected)
 	NetworkManager.connect("game_started", _on_remote_game_started)

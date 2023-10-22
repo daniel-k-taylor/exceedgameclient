@@ -51,16 +51,21 @@ var animation_map = {
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
-	animation.play("idle")
 	exceed_icon.visible = false
 
 func load_character(char_id : String):
 	var path = "res://assets/character_animations/" + char_id + "/animations.tres"
 	animation.sprite_frames = load(path)
 	animation.play("idle")
+	var scaling = animation.sprite_frames.get_meta("scaling")
+	if scaling:
+		scale = scale * scaling
+		$ExceedIcon.scale = $ExceedIcon.scale / scaling
 
 func set_facing(to_left : bool):
 	animation.flip_h = to_left
+	if animation.sprite_frames.get_meta("flip"):
+		animation.flip_h = not animation.flip_h
 
 func set_exceed(is_exceed : bool):
 	exceed_icon.visible = is_exceed

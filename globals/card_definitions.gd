@@ -7,8 +7,9 @@ var decks_path = "res://data/decks"
 var decks = []
 
 const SelectorIndexToDeckId = {
-	0: "solbadguy",
+	0: "ramlethal",
 	1: "kykisuke",
+	2: "solbadguy",
 }
 
 func get_deck_from_selector_index(index : int):
@@ -255,12 +256,16 @@ func get_effects_text(effects):
 	return effects_str
 
 func get_on_exceed_text(on_exceed_ability):
-	if on_exceed_ability == "strike":
-		return "When you Exceed: Strike\n"
-	elif on_exceed_ability == "":
+	if not on_exceed_ability:
 		return ""
-	else:
-		return "MISSING_EXCEED_EFFECT\n"
+	var effect_type = on_exceed_ability['effect_type']
+	match effect_type:
+		"strike":
+			return "When you Exceed: Strike\n"
+		"draw":
+			return "When you Exceed: Draw %s" % on_exceed_ability['amount'] + "\n"
+		_:
+			return "MISSING_EXCEED_EFFECT\n"
 
 func get_boost_text(effects):
 	return get_effects_text(effects)

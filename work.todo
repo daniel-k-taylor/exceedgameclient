@@ -1,5 +1,15 @@
 
 In progress:
+    Implement Ram:
+        ☐ "timing": "set_strike",
+        ☐ "effect_type": "ram_force_for_range",
+        ☐ return_all_cards_gauge_to_hand
+        ☐ gauge_from_discard
+        ☐ return_special_from_discard
+        ☐ immediate strike boost
+        ☐ gauge_from_hand as hit effect
+        ☐ add_top_deck_to_gauge
+        ☐ force_for_draw
 Tasks:
     Main Features:
         ☐ Observers on server

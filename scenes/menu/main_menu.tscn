@@ -72,13 +72,7 @@ text = "Choose your opponent:"
 
 [node name="OpponentCharSelect" type="OptionButton" parent="MenuList/VSAIBox/OpponentChooser/Margin/VBox"]
 layout_mode = 2
-item_count = 2
-selected = 1
 allow_reselect = true
-popup/item_0/text = "Sol Badguy"
-popup/item_0/id = 0
-popup/item_1/text = "Ky Kisuke"
-popup/item_1/id = 1
 
 [node name="MatchmakeButton" type="Button" parent="MenuList"]
 layout_mode = 2
@@ -351,13 +345,8 @@ text = "Choose your character:"
 
 [node name="PlayerCharSelect" type="OptionButton" parent="PlayerChooser/Margin/VBox"]
 layout_mode = 2
-item_count = 2
 selected = 0
 allow_reselect = true
-popup/item_0/text = "Sol Badguy"
-popup/item_0/id = 0
-popup/item_1/text = "Ky Kisuke"
-popup/item_1/id = 1
 
 [node name="PlayerNameBox" type="TextEdit" parent="."]
 custom_minimum_size = Vector2(100, 50)

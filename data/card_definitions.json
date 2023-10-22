@@ -319,6 +319,322 @@
 	},
 
 
+	{
+		"NOTE": "RAMLETHAL CARDS START",
+		"id": "ramlethal_mortobato",
+		"type": "ultra",
+		"display_name": "Mortobato",
+		"force_cost": 0,
+		"gauge_cost": 3,
+		"range_min": 1,
+		"range_max": 2,
+		"speed": 7,
+		"power": 4,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+		],
+		"boost": {
+			"boost_type": "immediate",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Necessary Discrepancy",
+			"effects": [
+				{
+					"timing": "immediate",
+					"effect_type": "return_all_cards_gauge_to_hand"
+				},
+				{
+					"timing": "immediate",
+					"effect_type": "bonus_action",
+					"amount": 1
+				}
+			]
+		}
+	},
+	{
+		"id": "ramlethal_calvados",
+		"type": "ultra",
+		"display_name": "Calvados",
+		"force_cost": 0,
+		"gauge_cost": 1,
+		"range_min": 1,
+		"range_max": 5,
+		"speed": 1,
+		"power": 4,
+		"armor": 1,
+		"guard": 5,
+		"effects": [
+			{
+				"timing": "hit",
+				"effect_type": "push",
+				"amount": 2
+			},
+			{
+				"timing": "after",
+				"condition": "initiated_strike",
+				"effect_type": "gauge_from_discard"
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": 1,
+			"display_name": "Diva of Despair",
+			"effects": [
+				{
+					"timing": "now",
+					"condition": "range",
+					"condition_amount": 1,
+					"effect_type": "push",
+					"amount": 2
+				},
+				{
+					"timing": "hit",
+					"effect_type": "add_boost_to_gauge_on_strike_cleanup"
+				}
+			]
+		}
+	},
+	{
+		"id": "ramlethal_dauro",
+		"type": "special",
+		"display_name": "Dauro",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 1,
+		"speed": 6,
+		"power": 2,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "before",
+				"effect_type": "close",
+				"amount": 2
+			},
+			{
+				"timing": "hit",
+				"effect_type": "push",
+				"amount": 1
+			}
+		],
+		"boost": {
+			"boost_type": "immediate",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Lucifero",
+			"effects": [
+				{
+					"timing": "immediate",
+					"effect_type": "return_special_from_discard"
+				},
+				{
+					"timing": "immediate",
+					"effect_type": "strike"
+				}
+			]
+		}
+	},
+	{
+		"id": "ramlethal_bajoneto",
+		"type": "special",
+		"display_name": "Bajoneto",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 2,
+		"range_max": 4,
+		"speed": 5,
+		"power": 3,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "hit",
+				"effect_type": "push",
+				"amount": 2,
+				"bonus_effect": {
+					"condition": "not_full_push",
+					"effect_type": "powerup",
+					"amount": 2
+				}
+			},
+			{
+				"timing": "after",
+				"effect_type": "close",
+				"amount": 2,
+				"and": {
+					"effect_type": "gain_advantage"
+				}
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": 1,
+			"display_name": "Brigadier Sword",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "rangeup",
+					"amount": 0,
+					"amount2": 1
+				},
+				{
+					"timing": "hit",
+					"effect_type": "add_boost_to_gauge_on_strike_cleanup"
+				}
+			]
+		}
+	},
+	{
+		"id": "ramlethal_erarlumo",
+		"type": "special",
+		"display_name": "Erarlumo",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 1,
+		"speed": 5,
+		"power": 3,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "before",
+				"effect_type": "close",
+				"amount": 2
+			},
+			{
+				"timing": "hit",
+				"effect_type": "draw",
+				"amount": 2,
+				"and": {
+					"effect_type": "gauge_from_hand"
+				}
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Delayed Explosion",
+			"effects": [
+				{
+					"timing": "now",
+					"effect_type": "draw",
+					"amount": 2
+				},
+				{
+					"timing": "hit",
+					"effect_type": "push",
+					"amount": 1,
+					"bonus_effect": {
+						"condition": "not_full_push",
+						"effect_type": "powerup",
+						"amount": 2
+					}
+				}
+			]
+		}
+	},
+	{
+		"id": "ramlethal_agresaordono",
+		"type": "special",
+		"display_name": "Agresa Ordono",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 4,
+		"speed": 3,
+		"power": 4,
+		"armor": 0,
+		"guard": 3,
+		"effects": [
+			{
+				"timing": "hit",
+				"effect_type": "choice",
+				"choice": [
+					{ "effect_type": "close", "amount": 1 },
+					{ "effect_type": "retreat", "amount": 1 }
+				]
+			},
+			{
+				"timing": "hit",
+				"effect_type": "add_top_deck_to_gauge"
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Efficient",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "guardup",
+					"amount": 4
+				},
+				{
+					"timing": "now",
+					"effect_type": "force_for_draw",
+					"cost_min": 0,
+					"cost_max": 2,
+					"amount": 2
+				}
+			]
+		}
+	},
+	{
+		"NOTE": "RAMLETHAL CARDS END",
+		"id": "ramlethal_sabrobato",
+		"type": "special",
+		"display_name": "Sabrobato",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 2,
+		"speed": 2,
+		"power": 4,
+		"armor": 0,
+		"guard": 5,
+		"effects": [
+			{
+				"timing": "hit",
+				"effect_type": "push",
+				"amount": 1,
+				"bonus_effect": {
+					"condition": "not_full_push",
+					"effect_type": "powerup",
+					"amount": 2,
+					"and": {
+						"effect_type": "draw",
+						"amount": 1
+					}
+				}
+			}
+		],
+		"boost": {
+			"boost_type": "immediate",
+			"force_cost": 0,
+			"cancel_cost": 1,
+			"display_name": "Impose",
+			"effects": [
+				{
+					"timing": "immediate",
+					"effect_type": "close",
+					"amount": 1
+				},
+				{
+					"timing": "immediate",
+					"effect_type": "draw",
+					"amount": 2
+				}
+			]
+		},
+		"NOTEEND": "RAMLETHAL CARDS END"
+	},
 
 
 	{
