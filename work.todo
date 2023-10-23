@@ -1,6 +1,13 @@
 
 In progress:
-
+    Anji:
+        ☐ look_at_top_opponent_deck
+        ☐ opponent_discard_choose
+        ☐ stun_immunity
+        ☐ was_hit condition
+        ☐ reading_normal
+        ☐ multi-effect on exceed
+        ☐ speeddown
 Tasks:
     Main Features:
         ☐ Observers on server
