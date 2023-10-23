@@ -8,7 +8,7 @@ const AIPolicyRandom = preload("res://scenes/game/ai/ai_policy_random.gd")
 const AIPolicyRules = preload("res://scenes/game/ai/ai_policy_rules.gd")
 
 var game_logic : LocalGame
-var default_deck = CardDefinitions.get_deck_from_selector_index(0)
+var default_deck = CardDefinitions.get_deck_from_str_id("solbadguy")
 
 var player1 : LocalGame.Player
 var player2 : LocalGame.Player
@@ -267,7 +267,16 @@ func test_sol_100():
 	pass_test("Finished match")
 
 func test_ky_100():
-	default_deck = CardDefinitions.get_deck_from_selector_index(1)
+	default_deck = CardDefinitions.get_deck_from_str_id("kykisuke")
+	for i in range(100):
+		print("==== RUNNING TEST %d ====" % i)
+		run_ai_game()
+		game_teardown()
+		game_setup()
+	pass_test("Finished match")
+
+func test_ram_100():
+	default_deck = CardDefinitions.get_deck_from_str_id("ramlethal")
 	for i in range(100):
 		print("==== RUNNING TEST %d ====" % i)
 		run_ai_game()

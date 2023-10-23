@@ -1,14 +1,5 @@
 
 In progress:
-    ☐ Reorder opponent hand if they gain known cards to hand, or just shuffle it every layout, only on UI side
-
-    Implement Ram:
-        ☐ "timing": "set_strike",
-        ☐ "effect_type": "ram_force_for_range",
-        ☐ Need to put a location for UA bonuses in the UI
-
-        ☐ force_for_draw
-            ☐ force_for_effect, min, max, per_force_effect, overall_effect
 
 Tasks:
     Main Features:
@@ -35,6 +26,7 @@ Tasks:
     ☐ Only connect to server if you enter Multiplayer
     ☐ Card popout has choice buttons for gauge selection
     ☐ Allow ordering of multiple before/after effects
+    ☐ Reorder opponent hand in a way that you can't keep track with effort
 
 Bugs:
 

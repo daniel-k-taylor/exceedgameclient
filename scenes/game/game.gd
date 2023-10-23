@@ -29,9 +29,9 @@ const RevealCopyIdRangestart = 80000
 const ReferenceScreenIdRangeStart = 90000
 const NoticeOffsetY = 50
 
-const StrikeRevealDelay : float = 3.0
+const StrikeRevealDelay : float = 2.0
 const MoveDelay : float = 1.0
-const BoostDelay : float = 3.0
+const BoostDelay : float = 2.0
 const SmallNoticeDelay : float = 1.0
 var remaining_delay = 0
 var events_to_process = []
@@ -120,6 +120,10 @@ var game_wrapper : GameWrapper = GameWrapper.new()
 @onready var game_over_label = $GameOverStuff/GameOverLabel
 @onready var ai_player : AIPlayer = $AIPlayer
 @onready var opponent_name_label : Label = $OpponentDeck/OpponentName
+@onready var player_bonus_panel = $PlayerStrike/CharBonusPanel
+@onready var opponent_bonus_panel = $OpponentStrike/CharBonusPanel
+@onready var player_bonus_label = $PlayerStrike/CharBonusPanel/MarginContainer/VBox/AbilityLabel
+@onready var opponent_bonus_label = $OpponentStrike/CharBonusPanel/MarginContainer/VBox/AbilityLabel
 
 @onready var CenterCardOval = Vector2(get_viewport().content_scale_size) * Vector2(0.5, 1.35)
 @onready var HorizontalRadius = get_viewport().content_scale_size.x * 0.55
@@ -132,7 +136,11 @@ func printlog(text):
 func _ready():
 	if player_deck == null:
 		# Started this scene directly.
-		begin_local_game(0, 0)
+		var vs_info = {
+			'player_deck': CardDefinitions.get_deck_from_selector_index(0),
+			'opponent_deck': CardDefinitions.get_deck_from_selector_index(0),
+		}
+		begin_local_game(vs_info)
 
 	if not game_wrapper.is_ai_game():
 		$AIMoveButton.visible = false
@@ -141,11 +149,14 @@ func _ready():
 	$OpponentLife.set_life(game_wrapper.get_player_life(Enums.PlayerId.PlayerId_Opponent))
 	game_over_stuff.visible = false
 
+	player_bonus_panel.visible = false
+	opponent_bonus_panel.visible = false
+
 	setup_characters()
 
-func begin_local_game(player_char_index: int, opponent_char_index: int):
-	player_deck = CardDefinitions.get_deck_from_selector_index(player_char_index)
-	opponent_deck = CardDefinitions.get_deck_from_selector_index(opponent_char_index)
+func begin_local_game(vs_info):
+	player_deck = vs_info['player_deck']
+	opponent_deck = vs_info['opponent_deck']
 	game_wrapper.initialize_local_game(player_deck, opponent_deck)
 
 func begin_remote_game(game_start_message):
@@ -356,6 +367,9 @@ func _process(delta):
 		elif ui_state == UIState.UIState_WaitingOnOpponent:
 			# Advance the AI game automatically.
 			_on_ai_move_button_pressed()
+		elif ui_state == UIState.UIState_WaitForGameServer:
+			if game_wrapper.get_game_state() == Enums.GameState.GameState_Strike_Opponent_Response:
+				ai_strike_response()
 
 
 func begin_delay(delay : float, remaining_events : Array):
@@ -412,8 +426,8 @@ func update_card_counts():
 	$PlayerLife.set_discard_size(game_wrapper.get_player_discards_size(Enums.PlayerId.PlayerId_Player), game_wrapper.get_player_reshuffle_remaining(Enums.PlayerId.PlayerId_Player))
 	$OpponentLife.set_discard_size(game_wrapper.get_player_discards_size(Enums.PlayerId.PlayerId_Opponent), game_wrapper.get_player_reshuffle_remaining(Enums.PlayerId.PlayerId_Opponent))
 
-	$PlayerGauge.set_details(game_wrapper.get_player_gauge_size(Enums.PlayerId.PlayerId_Player))
-	$OpponentGauge.set_details(game_wrapper.get_player_gauge_size(Enums.PlayerId.PlayerId_Opponent))
+	$PlayerGauge.set_details($AllCards/PlayerGauge.get_child_count())
+	$OpponentGauge.set_details($AllCards/OpponentGauge.get_child_count())
 
 func get_card_node_name(id):
 	return "Card_" + str(id)
@@ -605,6 +619,11 @@ func layout_player_hand(is_player : bool):
 				var new_diff = step * (num_cards - 1)
 				max_x = hand_center.x + new_diff / 2
 				min_x = hand_center.x - new_diff / 2
+				# Shuffle children in hand_zone
+				var children = hand_zone.get_children()
+				for child in children:
+					hand_zone.move_child(child, randi() % num_cards)
+
 				for i in range(num_cards):
 					var pos = Vector2(min_x + step * i, hand_center.y)
 					var card : CardBase = hand_zone.get_child(i)
@@ -674,6 +693,9 @@ func _on_advance_turn():
 	var is_local_player_active = active_player == Enums.PlayerId.PlayerId_Player
 	$PlayerLife.set_turn_indicator(is_local_player_active)
 	$OpponentLife.set_turn_indicator(not is_local_player_active)
+
+	player_bonus_panel.visible = false
+	opponent_bonus_panel.visible = false
 
 	if is_local_player_active:
 		change_ui_state(UIState.UIState_PickTurnAction, UISubState.UISubState_None)
@@ -1018,14 +1040,15 @@ func update_force_generation_message():
 			set_instructions("Select cards to generate force for +2 Armor each.\n%s force generated." % [force_selected])
 		UISubState.UISubState_SelectCards_ForceForEffect:
 			var effect_str = ""
-			var effect_type = ""
-			var effect = game_wrapper.get_decision_info().effect
-			if effect['per_force_effect']:
-				effect_type = effect['per_force_effect']
-				effect_str = "Generate up to %s force to %s %s per force." % [effect['force_max'], effect_type, effect['amount']]
-			elif effect['overall_effect']:
-				effect_type = effect['overall_effect']
-				effect_str = "Generate %s force to %s %s." % [effect['force_max'], effect_type, effect['amount']]
+			var decision_effect = game_wrapper.get_decision_info().effect
+			if decision_effect['per_force_effect']:
+				var effect = decision_effect['per_force_effect']
+				var effect_text = CardDefinitions.get_effect_text(effect)
+				effect_str = "Generate up to %s force for %s per force." % [decision_effect['force_max'], effect_text]
+			elif decision_effect['overall_effect']:
+				var effect = decision_effect['overall_effect']
+				var effect_text = CardDefinitions.get_effect_text(effect)
+				effect_str = "Generate %s force for %s." % [decision_effect['force_max'], effect_text]
 			effect_str += "\n%s force generated." % [force_selected]
 			set_instructions(effect_str)
 
@@ -1224,6 +1247,7 @@ func _on_strike_started(event, is_ex : bool):
 	if reveal_immediately:
 		card.flip_card_to_front(true)
 	if player == Enums.PlayerId.PlayerId_Player:
+		card.flip_card_to_front(true)
 		_move_card_to_strike_area(card, $PlayerStrike/StrikeZone, $AllCards/Striking, true, is_ex)
 		if not is_ex and game_wrapper.get_game_state() == Enums.GameState.GameState_Strike_Opponent_Response:
 			ai_strike_response()
@@ -1245,6 +1269,23 @@ func _on_strike_card_activation(event):
 	for card in strike_cards:
 		card.set_backlight_visible(card.card_id == card_id)
 	return SmallNoticeDelay
+
+func _on_strike_character_effect(event):
+	var player = event['event_player']
+	var is_player = player == Enums.PlayerId.PlayerId_Player
+	var bonus_panel = player_bonus_panel
+	var bonus_label = player_bonus_label
+	if not is_player:
+		bonus_panel = opponent_bonus_panel
+		bonus_label = opponent_bonus_label
+
+	bonus_panel.visible = true
+	var effects = game_wrapper.get_player_active_character_effects(player)
+	var label_text = ""
+	for effect in effects:
+		label_text += CardDefinitions.get_effect_text(effect, false, true) + "\n"
+	label_text = label_text.replace(",", "\n")
+	bonus_label.text = label_text
 
 func _on_effect_choice(event):
 	var player = event['event_player']
@@ -1369,6 +1410,8 @@ func _handle_events(events):
 				delay = _stat_notice_event(event)
 			Enums.EventType.EventType_Strike_CardActivation:
 				delay = _on_strike_card_activation(event)
+			Enums.EventType.EventType_Strike_CharacterEffect:
+				_on_strike_character_effect(event)
 			Enums.EventType.EventType_Strike_DodgeAttacks:
 				delay = _stat_notice_event(event)
 			Enums.EventType.EventType_Strike_EffectChoice:

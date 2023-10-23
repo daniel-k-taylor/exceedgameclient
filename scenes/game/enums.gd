@@ -79,10 +79,11 @@ enum EventType {
 	EventType_RevealHand,
 	EventType_Strike_ArmorUp,
 	EventType_Strike_CardActivation,
+	EventType_Strike_CharacterEffect,
 	EventType_Strike_DodgeAttacks,
 	EventType_Strike_EffectChoice,
 	EventType_Strike_ExUp,
-	EventType_Strike_ForceForArmor, # 33
+	EventType_Strike_ForceForArmor, # 34
 	EventType_Strike_ForceWildSwing,
 	EventType_Strike_GainAdvantage,
 	EventType_Strike_GuardUp,
@@ -92,12 +93,12 @@ enum EventType {
 	EventType_Strike_PayCost_Force,
 	EventType_Strike_PayCost_Unable,
 	EventType_Strike_PowerUp,
-	EventType_Strike_RangeUp, # 43
+	EventType_Strike_RangeUp, # 44
 	EventType_Strike_Response,
 	EventType_Strike_Response_Ex,
 	EventType_Strike_Reveal,
 	EventType_Strike_SpeedUp,
-	EventType_Strike_Started, # 48
+	EventType_Strike_Started, # 49
 	EventType_Strike_Started_Ex,
 	EventType_Strike_Stun,
 	EventType_Strike_TookDamage,

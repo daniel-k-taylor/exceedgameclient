@@ -8,7 +8,8 @@
 	},
 	"ability_effects": [
 		{
-			"timing": "during_strike",
+			"character_effect": true,
+			"timing": "set_strike",
 			"condition": "canceled_this_turn",
 			"effect_type": "powerup",
 			"amount": 1
@@ -16,7 +17,8 @@
 	],
 	"exceed_ability_effects": [
 		{
-			"timing": "during_strike",
+			"character_effect": true,
+			"timing": "set_strike",
 			"condition": "canceled_this_turn",
 			"effect_type": "powerup",
 			"amount": 2

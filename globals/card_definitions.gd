@@ -119,6 +119,8 @@ func get_timing_text(timing):
 			text += ""
 		"start_of_next_turn":
 			text += "At start of next turn: "
+		"set_strike":
+			text += "When you set a strike, "
 		_:
 			text += "MISSING TIMING"
 	return text
@@ -238,12 +240,12 @@ func get_effect_type_text(effect):
 			effect_str += "MISSING EFFECT"
 	return effect_str
 
-func get_effect_text(effect, short = false):
+func get_effect_text(effect, short = false, skip_condition_and_timing = false):
 	var effect_str = ""
-	if 'timing' in effect:
+	if 'timing' in effect and not skip_condition_and_timing:
 		effect_str += get_timing_text(effect['timing'])
 
-	if 'condition' in effect:
+	if 'condition' in effect and not skip_condition_and_timing:
 		effect_str += get_condition_text(effect['condition'])
 
 	effect_str += get_effect_type_text(effect)

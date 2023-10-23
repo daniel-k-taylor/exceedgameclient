@@ -275,7 +275,7 @@ mouse_filter = 2
 [node name="Instructions" type="Label" parent="StaticUI/StaticUIVBox/InstructionsWithButtonsUI"]
 custom_minimum_size = Vector2(600, 0)
 layout_mode = 2
-theme_override_font_sizes/font_size = 34
+theme_override_font_sizes/font_size = 28
 text = "Select 2 cards from your hand to discard."
 horizontal_alignment = 1
 autowrap_mode = 2
@@ -491,7 +491,7 @@ horizontal_alignment = 2
 [node name="PlayerStrike" type="Node2D" parent="."]
 
 [node name="StrikeZone" type="TextureButton" parent="PlayerStrike"]
-modulate = Color(0.8, 0, 0.729412, 1)
+modulate = Color(0.8, 0, 0.729412, 0)
 offset_left = 590.0
 offset_top = 373.0
 offset_right = 840.0
@@ -501,18 +501,72 @@ texture_normal = ExtResource("4_5y76h")
 texture_pressed = ExtResource("4_5y76h")
 texture_hover = ExtResource("4_5y76h")
 
+[node name="CharBonusPanel" type="PanelContainer" parent="PlayerStrike"]
+offset_left = 350.0
+offset_top = 380.0
+offset_right = 532.0
+offset_bottom = 529.0
+
+[node name="MarginContainer" type="MarginContainer" parent="PlayerStrike/CharBonusPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 5
+theme_override_constants/margin_top = 5
+theme_override_constants/margin_right = 5
+theme_override_constants/margin_bottom = 5
+
+[node name="VBox" type="VBoxContainer" parent="PlayerStrike/CharBonusPanel/MarginContainer"]
+layout_mode = 2
+
+[node name="UniqueLabel" type="Label" parent="PlayerStrike/CharBonusPanel/MarginContainer/VBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 32
+text = "Char. Bonus"
+
+[node name="AbilityLabel" type="Label" parent="PlayerStrike/CharBonusPanel/MarginContainer/VBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 32
+text = "+0-1 range
++1 power"
+
 [node name="OpponentStrike" type="Node2D" parent="."]
 
 [node name="StrikeZone" type="TextureButton" parent="OpponentStrike"]
-modulate = Color(0.8, 0, 0.729412, 1)
+modulate = Color(0.8, 0, 0.729412, 0)
 offset_left = 590.0
-offset_top = 74.0
+offset_top = 75.0
 offset_right = 840.0
-offset_bottom = 424.0
+offset_bottom = 425.0
 scale = Vector2(0.4, 0.4)
 texture_normal = ExtResource("4_5y76h")
 texture_pressed = ExtResource("4_5y76h")
 texture_hover = ExtResource("4_5y76h")
+
+[node name="CharBonusPanel" type="PanelContainer" parent="OpponentStrike"]
+offset_left = 350.0
+offset_top = 75.0
+offset_right = 532.0
+offset_bottom = 224.0
+
+[node name="MarginContainer" type="MarginContainer" parent="OpponentStrike/CharBonusPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 5
+theme_override_constants/margin_top = 5
+theme_override_constants/margin_right = 5
+theme_override_constants/margin_bottom = 5
+
+[node name="VBox" type="VBoxContainer" parent="OpponentStrike/CharBonusPanel/MarginContainer"]
+layout_mode = 2
+
+[node name="UniqueLabel" type="Label" parent="OpponentStrike/CharBonusPanel/MarginContainer/VBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 32
+text = "Char. Bonus"
+
+[node name="AbilityLabel" type="Label" parent="OpponentStrike/CharBonusPanel/MarginContainer/VBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 32
+text = "+0-1 range
++1 power"
 
 [node name="OpponentHand" type="Node2D" parent="."]
 

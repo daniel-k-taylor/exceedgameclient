@@ -78,7 +78,10 @@ func do_and_validate_strike(player, card_id, ex_card_id = -1):
 	assert_true(game_logic.do_strike(player, card_id, false, ex_card_id))
 	var events = game_logic.get_latest_events()
 	validate_has_event(events, Enums.EventType.EventType_Strike_Started, player, card_id)
-	assert_eq(game_logic.game_state, Enums.GameState.GameState_Strike_Opponent_Response)
+	if game_logic.game_state == Enums.GameState.GameState_Strike_Opponent_Response or game_logic.game_state == Enums.GameState.GameState_PlayerDecision:
+		pass
+	else:
+		fail_test("Unexpected game state after strike")
 
 func do_strike_response(player, card_id, ex_card = -1):
 	assert_true(game_logic.do_strike(player, card_id, false, ex_card))
@@ -112,7 +115,7 @@ func validate_discard(player, amount, id):
 			return
 	fail_test("Didn't have required card in discard.")
 
-func execute_strike(initiator, defender, init_card : String, def_card : String, init_choices, def_choices, init_ex = false, def_ex = false):
+func execute_strike(initiator, defender, init_card : String, def_card : String, init_choices, def_choices, init_ex = false, def_ex = false, init_force_discard = [], def_force_discard = []):
 	var all_events = []
 	give_specific_cards(initiator, init_card, defender, def_card)
 	if init_ex:
@@ -121,12 +124,18 @@ func execute_strike(initiator, defender, init_card : String, def_card : String, 
 	else:
 		do_and_validate_strike(initiator, TestCardId1)
 
+	if game_logic.game_state == Enums.GameState.GameState_PlayerDecision and game_logic.active_strike.strike_state == game_logic.StrikeState.StrikeState_Initiator_SetEffects:
+		game_logic.do_force_for_effect(initiator, init_force_discard)
+		
 	if def_ex:
 		give_player_specific_card(defender, def_card, TestCardId4)
 		all_events += do_strike_response(defender, TestCardId2, TestCardId4)
 	else:
 		all_events += do_strike_response(defender, TestCardId2)
 
+	if game_logic.game_state == Enums.GameState.GameState_PlayerDecision and game_logic.active_strike.strike_state == game_logic.StrikeState.StrikeState_Defender_SetEffects:
+		game_logic.do_force_for_effect(defender, def_force_discard)
+		
 	# Pay any costs from gauge
 	if game_logic.active_strike and game_logic.active_strike.strike_state == game_logic.StrikeState.StrikeState_Initiator_PayCosts:
 		var cost = game_logic.active_strike.initiator_card.definition['gauge_cost']
@@ -162,6 +171,46 @@ func validate_positions(p1, l1, p2, l2):
 func validate_life(p1, l1, p2, l2):
 	assert_eq(p1.life, l1)
 	assert_eq(p2.life, l2)
+
+func test_ram_ability_basic_no_use():
+	position_players(player1, 3, player2, 7)
+	var events = execute_strike(player1, player2, "gg_normal_slash","gg_normal_grasp", [], [], false, false)
+	validate_has_event(events, Enums.EventType.EventType_Strike_Miss, player1)
+	validate_has_event(events, Enums.EventType.EventType_Strike_Miss, player2)
+	validate_positions(player1, 5, player2, 7)
+	validate_life(player1, 30, player2, 30)
+	
+func test_ram_ability_basic():
+	position_players(player1, 3, player2, 7)
+	give_player_specific_card(player1, "ramlethal_calvados", TestCardId3)
+	var events = execute_strike(player1, player2, "gg_normal_slash","gg_normal_grasp", [], [], false, false, [TestCardId3], [])
+	validate_has_event(events, Enums.EventType.EventType_Strike_Miss, player2)
+	validate_has_event(events, Enums.EventType.EventType_Strike_TookDamage, player2, 4)
+	validate_positions(player1, 5, player2, 7)
+	validate_life(player1, 30, player2, 26)
+
+func test_ram_ability_basic_player2():
+	position_players(player1, 4, player2, 7)
+	give_player_specific_card(player1, "ramlethal_calvados", TestCardId3)
+	give_player_specific_card(player2, "gg_normal_slash", TestCardId4)
+	give_player_specific_card(player2, "gg_normal_block", TestCardId5)
+	var events = execute_strike(player1, player2, "gg_normal_slash","gg_normal_cross", [], [], false, false, [TestCardId3], [TestCardId4, TestCardId5])
+	validate_has_event(events, Enums.EventType.EventType_Strike_Stun, player1)
+	validate_has_event(events, Enums.EventType.EventType_Strike_TookDamage, player1, 3)
+	validate_positions(player1, 4, player2, 9)
+	validate_life(player1, 27, player2, 30)
+
+func test_ram_ability_basic_player2_exceed():
+	position_players(player1, 4, player2, 7)
+	player2.exceed()
+	give_player_specific_card(player1, "ramlethal_calvados", TestCardId3)
+	give_player_specific_card(player2, "gg_normal_slash", TestCardId4)
+	give_player_specific_card(player2, "gg_normal_block", TestCardId5)
+	var events = execute_strike(player1, player2, "gg_normal_slash","gg_normal_cross", [], [], false, false, [TestCardId3], [TestCardId4, TestCardId5])
+	validate_has_event(events, Enums.EventType.EventType_Strike_Stun, player1)
+	validate_has_event(events, Enums.EventType.EventType_Strike_TookDamage, player1, 4)
+	validate_positions(player1, 4, player2, 9)
+	validate_life(player1, 26, player2, 30)
 
 func test_mortobato_boost():
 	position_players(player1, 3, player2, 4)

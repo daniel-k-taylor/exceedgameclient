@@ -1,6 +1,6 @@
 extends Control
 
-signal start_game(vs_info, player_char_index, opponent_char_index)
+signal start_game(vs_info)
 signal start_remote_game(vs_info, data)
 
 @onready var player_select : OptionButton = $PlayerChooser/Margin/VBox/PlayerCharSelect
@@ -47,7 +47,7 @@ func _on_start_button_pressed():
 	var opponent_deck = CardDefinitions.get_deck_from_selector_index(opponent_select.selected)
 	var player_name = get_player_name()
 	var opponent_name = "CPU"
-	start_game.emit(get_vs_info(player_name, player_deck, opponent_name, opponent_deck), player_select.selected, opponent_select.selected)
+	start_game.emit(get_vs_info(player_name, player_deck, opponent_name, opponent_deck))
 
 func _on_quit_button_pressed():
 	get_tree().quit()
@@ -86,7 +86,7 @@ func _on_remote_game_started(data):
 		player_name = data['player2_name']
 		opponent_deck = data['player1_deck_id']
 		opponent_name = data['player1_name']
-	
+
 	player_deck = CardDefinitions.get_deck_from_str_id(player_deck)
 	opponent_deck = CardDefinitions.get_deck_from_str_id(opponent_deck)
 	start_remote_game.emit(get_vs_info(player_name, player_deck, opponent_name, opponent_deck), data)

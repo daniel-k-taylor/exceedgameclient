@@ -10,21 +10,24 @@
 	"ability_effects": [
 		{
 			"timing": "set_strike",
-			"effect_type": "ram_force_for_range",
-			"cost": 2,
-			"effect": {
+			"effect_type": "force_for_effect",
+			"per_force_effect": null,
+			"overall_effect": {
+				"character_effect": true,
 				"effect_type": "rangeup",
 				"amount": 0,
 				"amount2": 1
-			}
+			},
+			"force_max": 2
 		}
 	],
 	"exceed_ability_effects": [
 		{
 			"timing": "set_strike",
-			"effect_type": "ram_force_for_range",
-			"cost": 2,
-			"effect": {
+			"effect_type": "force_for_effect",
+			"per_force_effect": null,
+			"overall_effect": {
+				"character_effect": true,
 				"effect_type": "rangeup",
 				"amount": 0,
 				"amount2": 1,
@@ -32,7 +35,8 @@
 					"effect_type": "powerup",
 					"amount": 1
 				}
-			}
+			},
+			"force_max": 2
 		}
 	],
 	"cards": [

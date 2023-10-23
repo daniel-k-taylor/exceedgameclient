@@ -87,6 +87,8 @@ func trigger_game_over(event_player : Enums.PlayerId, reason : Enums.GameOverRea
 
 enum StrikeState {
 	StrikeState_None,
+	StrikeState_Initiator_SetEffects,
+	StrikeState_Defender_SetEffects,
 	StrikeState_Initiator_PayCosts,
 	StrikeState_Defender_PayCosts,
 	StrikeState_DuringStrikeBonuses,
@@ -118,6 +120,7 @@ class Strike:
 	var initiator_wild_strike : bool = false
 	var defender_wild_strike : bool = false
 	var strike_state
+	var in_setup : bool = true
 	var effects_resolved_in_timing : int = 0
 	var player1_hit : bool = false
 	var player1_stunned : bool = false
@@ -183,6 +186,7 @@ class StrikeStatBoosts:
 	var always_add_to_gauge : bool = false
 	var when_hit_force_for_armor : bool = false
 	var is_ex : bool = false
+	var active_character_effects = []
 
 	func clear():
 		power = 0
@@ -198,6 +202,7 @@ class StrikeStatBoosts:
 		always_add_to_gauge = false
 		when_hit_force_for_armor = false
 		is_ex = false
+		active_character_effects = []
 
 	func set_ex():
 		if not is_ex:
@@ -297,6 +302,9 @@ class Player:
 		events += [parent.create_event(Enums.EventType.EventType_ReshuffleDeck_Mulligan, my_id, reshuffle_remaining)]
 		mulligan_complete = true
 		return events
+
+	func get_active_character_effects():
+		return strike_stat_boosts.active_character_effects
 
 	func is_card_in_hand(id : int):
 		for card in hand:
@@ -767,6 +775,14 @@ class Player:
 				effects.append(effect)
 		return effects
 
+	func get_set_strike_effects() -> Array:
+		var effects = []
+
+		# Maybe later get them from boosts, but for now, just character ability.
+		effects = get_character_effects_at_timing("set_strike")
+
+		return effects
+
 var player : Player
 var opponent : Player
 
@@ -879,9 +895,55 @@ func advance_to_next_turn():
 		events += [create_event(Enums.EventType.EventType_AdvanceTurn, active_turn_player, 0)]
 	return events
 
+func initialize_new_strike():
+	active_strike = Strike.new()
+	active_strike.strike_state = StrikeState.StrikeState_Initiator_SetEffects
+	active_strike.effects_resolved_in_timing = 0
+
+	player.strike_stat_boosts.clear()
+	opponent.strike_stat_boosts.clear()
+
+func continue_setup_strike(events):
+	if active_strike.strike_state == StrikeState.StrikeState_Initiator_SetEffects:
+		var initiator_set_strike_effects = active_strike.initiator.get_set_strike_effects()
+		while active_strike.effects_resolved_in_timing < initiator_set_strike_effects.size():
+			var effect = initiator_set_strike_effects[active_strike.effects_resolved_in_timing]
+			if is_effect_condition_met(active_strike.initiator, effect, null):
+				events += handle_strike_effect(-1, effect, active_strike.initiator)
+			if game_state == Enums.GameState.GameState_PlayerDecision:
+				return events
+
+			active_strike.effects_resolved_in_timing += 1
+
+		# All effects resolved, move to next state.
+		active_strike.effects_resolved_in_timing = 0
+		active_strike.strike_state = StrikeState.StrikeState_Defender_SetEffects
+		change_game_state(Enums.GameState.GameState_Strike_Opponent_Response)
+		if active_strike.initiator.force_opponent_respond_wild_swing():
+			events += [create_event(Enums.EventType.EventType_Strike_ForceWildSwing, active_strike.initiator.my_id, 0)]
+			# Queue any events so far, then empty this tally and call do_strike.
+			event_queue += events
+			events = []
+			do_strike(_get_player(get_other_player(active_strike.initiator.my_id)), -1, true, -1)
+	elif active_strike.strike_state == StrikeState.StrikeState_Defender_SetEffects:
+		var defender_set_strike_effects = active_strike.defender.get_set_strike_effects()
+		while active_strike.effects_resolved_in_timing < defender_set_strike_effects.size():
+			var effect = defender_set_strike_effects[active_strike.effects_resolved_in_timing]
+			if is_effect_condition_met(active_strike.defender, effect, null):
+				events += handle_strike_effect(-1, effect, active_strike.defender)
+			if game_state == Enums.GameState.GameState_PlayerDecision:
+				return events
+			active_strike.effects_resolved_in_timing += 1
+
+		# All effects resolved, move to next state.
+		active_strike.effects_resolved_in_timing = 0
+		events += begin_resolve_strike()
+	return events
+
 func begin_resolve_strike():
 	var events = []
-	# Strike is just beginning.
+	# Strike is beginning, setup has been completed.
+	active_strike.in_setup = false
 	events += [create_event(Enums.EventType.EventType_Strike_Reveal, active_strike.initiator.my_id, 0)]
 	var initiator_name = active_strike.initiator.name
 	var defender_name = active_strike.defender.name
@@ -894,9 +956,6 @@ func begin_resolve_strike():
 	if active_strike.defender_ex_card != null:
 		defender_ex = "EX "
 	_append_log("Strike Reveal - %s %s%s vs %s %s%s." % [initiator_name, initiator_ex, initiator_card, defender_name, defender_ex, defender_card])
-
-	active_strike.initiator.strike_stat_boosts.clear()
-	active_strike.defender.strike_stat_boosts.clear()
 
 	# Handle EX
 	if active_strike.initiator_ex_card != null:
@@ -972,6 +1031,9 @@ class LocalStrikeConditions:
 func handle_strike_effect(card_id :int, effect, performing_player : Player):
 	printlog("STRIKE: Handling effect %s" % [effect])
 	var events = []
+	if 'character_effect' in effect and effect['character_effect']:
+		performing_player.strike_stat_boosts.active_character_effects.append(effect)
+		events += [create_event(Enums.EventType.EventType_Strike_CharacterEffect, performing_player.my_id, card_id)]
 	var local_conditions = LocalStrikeConditions.new()
 	var performing_start = performing_player.arena_location
 	var opposing_player : Player = _get_player(get_other_player(performing_player.my_id))
@@ -1317,6 +1379,9 @@ func log_boosts_in_play():
 	_append_log("%s boosts in play: %s" % [active_strike.defender.name, card_names])
 
 func continue_resolve_strike():
+	if active_strike.in_setup:
+		return continue_setup_strike([])
+
 	var events = []
 	change_game_state(Enums.GameState.GameState_Strike_Processing)
 
@@ -1792,7 +1857,7 @@ func do_strike(performing_player : Player, card_id : int, wild_strike: bool, ex_
 	# Lay down the strike
 	match game_state:
 		Enums.GameState.GameState_PickAction, Enums.GameState.GameState_WaitForStrike:
-			active_strike = Strike.new()
+			initialize_new_strike()
 			active_strike.initiator = performing_player
 			if wild_strike:
 				_append_log("%s Turn Action - Strike - Wild Swing" % [performing_player.name])
@@ -1815,13 +1880,7 @@ func do_strike(performing_player : Player, card_id : int, wild_strike: bool, ex_
 			if ex_card_id != -1:
 				events += [create_event(Enums.EventType.EventType_Strike_Started_Ex, performing_player.my_id, ex_card_id)]
 			events += [create_event(Enums.EventType.EventType_Strike_Started, performing_player.my_id, card_id)]
-			change_game_state(Enums.GameState.GameState_Strike_Opponent_Response)
-			if performing_player.force_opponent_respond_wild_swing():
-				events += [create_event(Enums.EventType.EventType_Strike_ForceWildSwing, performing_player.my_id, 0)]
-				# Queue any events so far, then empty this tally and call do_strike.
-				event_queue += events
-				events = []
-				do_strike(_get_player(get_other_player(performing_player.my_id)), -1, true, -1)
+			events += continue_setup_strike(events)
 		Enums.GameState.GameState_Strike_Opponent_Response:
 			if wild_strike:
 				_append_log("%s Strike Response - Wild Swing" % [performing_player.name])
@@ -1843,8 +1902,7 @@ func do_strike(performing_player : Player, card_id : int, wild_strike: bool, ex_
 			if ex_card_id != -1:
 				events += [create_event(Enums.EventType.EventType_Strike_Response_Ex, performing_player.my_id, ex_card_id)]
 			events += [create_event(Enums.EventType.EventType_Strike_Response, performing_player.my_id, card_id)]
-
-			events += begin_resolve_strike()
+			events += continue_setup_strike(events)
 	event_queue += events
 	return true
 
@@ -2140,21 +2198,23 @@ func do_force_for_effect(performing_player : Player, card_ids : Array) -> bool:
 		for i in range(1, card_ids.size()):
 			card_names += ", " + card_db.get_card_name(card_ids[i])
 
-		var effect_str = ""
-		var effect_type = ""
-		var amount = 0
+		var effect_text = ""
+		var decision_effect = null
+		var effect_times = 0
 		if decision_info.effect['per_force_effect']:
-			effect_type = decision_info.effect['per_force_effect']
-			amount = force_generated * decision_info.effect['amount']
-			effect_str = effect_type + " " + str(amount)
+			decision_effect = decision_info.effect['per_force_effect']
+			effect_text = CardDefinitions.get_effect_text(decision_effect) + " per force"
+			effect_times = force_generated
 		elif decision_info.effect['overall_effect']:
-			effect_type = decision_info.effect['overall_effect']
-			amount = decision_info.effect['amount']
-			effect_str = effect_type + " " + str(amount)
+			decision_effect = decision_info.effect['overall_effect']
+			effect_text = CardDefinitions.get_effect_text(decision_effect)
+			effect_times = 1
 
-		_append_log("%s generated force to %s with %s." % [performing_player.name, effect_str, card_names])
+		_append_log("%s generated %s force for %s with %s." % [performing_player.name, str(force_generated), effect_text, card_names])
 		events += performing_player.discard(card_ids)
-		events += handle_strike_effect(decision_info.choice_card_id, {'effect_type': effect_type, 'amount': amount}, performing_player)
+		change_game_state(Enums.GameState.GameState_Strike_Processing)
+		for i in range(0, effect_times):
+			events += handle_strike_effect(decision_info.choice_card_id, decision_effect, performing_player)
 
 	if active_strike:
 		active_strike.effects_resolved_in_timing += 1

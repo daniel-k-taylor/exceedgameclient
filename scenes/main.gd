@@ -39,11 +39,11 @@ func create_versus_splash(vs_info):
 	timer.start()
 
 
-func _on_main_menu_start_game(vs_info, player_char_index : int, opponent_char_index : int):
+func _on_main_menu_start_game(vs_info):
 	$MainMenu.visible = false
 	game = GameScene.instantiate()
 	game.connect("returning_from_game", _on_return_from_game)
-	game.begin_local_game(player_char_index, opponent_char_index)
+	game.begin_local_game(vs_info)
 	add_child(game)
 	create_versus_splash(vs_info)
 

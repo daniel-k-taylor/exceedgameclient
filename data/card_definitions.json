@@ -583,10 +583,11 @@
 				{
 					"timing": "now",
 					"effect_type": "force_for_effect",
-					"per_force_effect": "draw",
-					"overall_effect": "",
-					"amount": 2,
-					"force_min": 0,
+					"per_force_effect": {
+						"effect_type": "draw",
+						"amount": 2
+					},
+					"overall_effect": null,
 					"force_max": 2
 				}
 			]
