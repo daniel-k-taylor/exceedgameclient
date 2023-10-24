@@ -18,6 +18,14 @@ func get_card(id : int):
 			return card
 	return null
 
+func get_card_names(card_ids) -> String:
+	var card_names = ""
+	for id in card_ids:
+		card_names += get_card_name(id) + ", "
+	if card_names:
+		card_names = card_names.substr(0, card_names.length() - 2)
+	return card_names
+
 func _test_insert_card(card : GameCard):
 	all_cards.append(card)
 
@@ -43,6 +51,10 @@ func get_card_force_value(id : int) -> int:
 	if card.definition['type'] == 'ultra':
 		return 2
 	return 1
+
+func is_normal_card(id : int) -> bool:
+	var card = get_card(id)
+	return card.definition['type'] == 'normal'
 
 func get_card_boost_force_cost(id : int) -> int:
 	var card = get_card(id)

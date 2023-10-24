@@ -62,10 +62,10 @@
 				"timing": "before",
 				"condition": "was_hit",
 				"effect_type": "powerup",
-				"amount": "6",
+				"amount": 6,
 				"and": {
 					"effect_type": "close",
-					"amount": "3"
+					"amount": 3
 				}
 			}
 		],

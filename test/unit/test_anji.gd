@@ -215,3 +215,91 @@ func test_anji_do_exceed_use():
 	validate_has_event(events, Enums.EventType.EventType_Strike_Stun, player1)
 	validate_positions(player1, 3, player2, 4)
 	validate_life(player1, 28, player2, 30)
+
+func test_anji_fuujin_was_hit():
+	position_players(player1, 3, player2, 4)
+	var events = execute_strike(player1, player2, "anji_fuujin","gg_normal_cross", [], [], false, false, [])
+	validate_positions(player1, 5, player2, 7)
+	validate_life(player1, 27, player2, 25)
+
+func test_anji_fuujin_not_hit():
+	position_players(player1, 3, player2, 6)
+	var events = execute_strike(player1, player2, "anji_fuujin","gg_normal_focus", [], [], false, false, [])
+	validate_positions(player1, 5, player2, 6)
+	validate_life(player1, 26, player2, 29)
+	assert_eq(player1.hand.size(), 6)
+	assert_eq(game_logic.active_turn_player, player1.my_id)
+	assert_eq(game_logic.game_state, Enums.GameState.GameState_PickAction)
+
+func test_anji_nagiha_boost_draw():
+	position_players(player1, 3, player2, 6)
+	give_player_specific_card(player1, "anji_nagiha", TestCardId3)
+	assert_true(game_logic.do_boost(player1, TestCardId3))
+	validate_positions(player1, 4, player2, 6)
+	assert_eq(game_logic.decision_info.type, Enums.DecisionType.DecisionType_EffectChoice)
+	assert_true(game_logic.do_choice(player1, 0))
+	assert_eq(player1.hand.size(), 7)
+	assert_eq(game_logic.game_state, Enums.GameState.GameState_PickAction)
+	assert_eq(game_logic.active_turn_player, player2.my_id)
+
+func test_anji_nagiha_boost_strike():
+	position_players(player1, 3, player2, 6)
+	give_player_specific_card(player1, "anji_nagiha", TestCardId3)
+	assert_true(game_logic.do_boost(player1, TestCardId3))
+	validate_positions(player1, 4, player2, 6)
+	assert_eq(game_logic.decision_info.type, Enums.DecisionType.DecisionType_EffectChoice)
+	assert_true(game_logic.do_choice(player1, 1))
+	assert_eq(game_logic.game_state, Enums.GameState.GameState_WaitForStrike)
+	assert_eq(player1.hand.size(), 5)
+
+func test_anji_kou_was_hit():
+	position_players(player1, 3, player2, 4)
+	var events = execute_strike(player1, player2, "anji_kou","gg_normal_cross", [], [], false, false, [])
+	validate_positions(player1, 6, player2, 7)
+	validate_life(player1, 27, player2, 24)
+
+func test_anji_isseiougi_hit():
+	give_gauge(player1, 3)
+	position_players(player1, 3, player2, 4)
+	assert_eq(player1.hand.size(), 5)
+	assert_eq(player2.hand.size(), 6)
+	var events = execute_strike(player1, player2, "anji_isseiougisai","gg_normal_slash", [], [], false, false, [])
+	assert_eq(game_logic.game_state, Enums.GameState.GameState_PlayerDecision)
+	var remaining_cards = [player2.hand[1].id, player2.hand[3].id, player2.hand[5].id]
+	var card_ids = [player2.hand[0].id, player2.hand[4].id, player2.hand[2].id]
+	assert_true(game_logic.do_choose_to_discard(player2, card_ids))
+	assert_eq(player1.hand.size(), 8)
+	assert_eq(player2.hand.size(), 3)
+	for card in player2.hand:
+		for i in range(remaining_cards.size()):
+			if remaining_cards[i] == card.id:
+				remaining_cards.remove_at(i)
+				break
+	assert_eq(remaining_cards.size(), 0)
+	validate_positions(player1, 3, player2, 4)
+	validate_life(player1, 29, player2, 27)
+
+func test_anji_isseiougi_boost():
+	position_players(player1, 3, player2, 4)
+	give_player_specific_card(player1, "anji_isseiougisai", TestCardId3)
+	assert_true(game_logic.do_boost(player1, TestCardId3))
+	var events = game_logic.get_latest_events()
+	var topdeck = player2.deck[0].id
+	validate_has_event(events, Enums.EventType.EventType_RevealTopDeck, player2, topdeck)
+	assert_eq(game_logic.game_state, Enums.GameState.GameState_PickAction)
+
+func test_anji_kachoufuugetsu_stun_immune():
+	give_gauge(player1, 2)
+	position_players(player1, 3, player2, 4)
+	var events = execute_strike(player1, player2, "anji_kachoufuugetsukai","gg_normal_cross", [], [], false, false, [])
+	validate_has_event(events, Enums.EventType.EventType_Strike_Stun_Immunity, player1)
+	validate_positions(player1, 6, player2, 7)
+	validate_life(player1, 27, player2, 24)
+
+func test_anji_kachoufuugetsu_not_hit():
+	give_gauge(player1, 2)
+	position_players(player1, 3, player2, 4)
+	var events = execute_strike(player1, player2, "anji_kachoufuugetsukai","gg_normal_sweep", [], [], false, false, [])
+	validate_has_event(events, Enums.EventType.EventType_Strike_Stun_Immunity, player1)
+	validate_positions(player1, 3, player2, 4)
+	validate_life(player1, 24, player2, 30)

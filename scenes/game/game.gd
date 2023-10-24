@@ -94,6 +94,7 @@ enum UISubState {
 	UISubState_SelectCards_MoveActionGenerateForce,
 	UISubState_SelectCards_PlayBoost,
 	UISubState_SelectCards_DiscardCards,
+	UISubState_SelectCards_DiscardCards_Choose,
 	UISubState_SelectCards_DiscardCardsToGauge,
 	UISubState_SelectCards_ForceForChange,
 	UISubState_SelectCards_Exceed, # 10
@@ -506,7 +507,7 @@ func can_select_card(card):
 	var in_opponent_boosts = game_wrapper.is_card_in_boosts(Enums.PlayerId.PlayerId_Opponent, card.card_id)
 	var in_opponent_reference = is_card_in_player_reference($AllCards/OpponentAllCopy.get_children(), card.card_id)
 	match ui_sub_state:
-		UISubState.UISubState_SelectCards_DiscardCards, UISubState.UISubState_SelectCards_DiscardCardsToGauge:
+		UISubState.UISubState_SelectCards_DiscardCards, UISubState.UISubState_SelectCards_DiscardCardsToGauge, UISubState.UISubState_SelectCards_DiscardCards_Choose:
 			return in_hand and len(selected_cards) < select_card_require_max
 		UISubState.UISubState_SelectCards_StrikeGauge, UISubState.UISubState_SelectCards_Exceed, UISubState.UISubState_SelectCards_BoostCancel:
 			return in_gauge and len(selected_cards) < select_card_require_max
@@ -677,6 +678,8 @@ func _stat_notice_event(event):
 			notice_text = text
 		Enums.EventType.EventType_Strike_Stun:
 			notice_text = "Stunned!"
+		Enums.EventType.EventType_Strike_Stun_Immunity:
+			notice_text = "Stun Immune!"
 		Enums.EventType.EventType_Strike_WildStrike:
 			notice_text = "Wild Swing!"
 
@@ -787,6 +790,7 @@ func _on_discard_continuous_boost_begin(event):
 func _on_name_opponent_card_begin(event):
 	var player = event['event_player']
 	spawn_damage_popup("Naming Card", player)
+	var normal_only = event['event_type'] == Enums.EventType.EventType_ReadingNormal
 	if player == Enums.PlayerId.PlayerId_Player:
 		# Show the boost window.
 		_on_opponent_reference_button_pressed()
@@ -801,12 +805,13 @@ func _on_name_opponent_card_begin(event):
 			"cancel_text": "",
 			"ok_enabled": true,
 			"cancel_visible": false,
+			"normal_only": normal_only,
 		}
 		enable_instructions_ui("Name opponent card.", true, cancel_allowed, false)
 
 		change_ui_state(UIState.UIState_SelectCards, UISubState.UISubState_SelectCards_DiscardFromReference)
 	else:
-		ai_name_opponent_card()
+		ai_name_opponent_card(normal_only)
 
 func _on_boost_played(event):
 	var player = event['event_player']
@@ -990,6 +995,19 @@ func _on_hand_size_exceeded(event):
 	else:
 		# AI or other player wait
 		ai_discard(event)
+
+func _on_choose_to_discard(event, informative_only : bool):
+	var player = event['event_player']
+	var amount = event['number']
+	spawn_damage_popup("Forced Discard %s" % str(amount), player)
+	if not informative_only:
+		if player == Enums.PlayerId.PlayerId_Player:
+			begin_discard_cards_selection(event['number'], UISubState.UISubState_SelectCards_DiscardCards_Choose)
+		else:
+			# AI or other player wait
+			ai_choose_to_discard(amount)
+	return SmallNoticeDelay
+
 
 func change_ui_state(new_state, new_sub_state = null):
 	if ui_state == UIState.UIState_GameOver:
@@ -1235,6 +1253,29 @@ func _on_reveal_hand(event):
 		pass
 	return SmallNoticeDelay
 
+func _on_reveal_topdeck(event):
+	var player = event['event_player']
+	var card_id = event['number']
+	spawn_damage_popup("Top Deck Revealed!", player)
+	if player == Enums.PlayerId.PlayerId_Opponent:
+		var current_children = $AllCards/OpponentRevealed.get_children()
+		for i in range(len(current_children)-1, -1, -1):
+			var card = current_children[i]
+			card.get_parent().remove_child(card)
+			card.queue_free()
+		var card_db = game_wrapper.get_card_database()
+		var logic_card : GameCard = card_db.get_card(card_id)
+		var card = find_card_on_board(card_id)
+		var copy_card = create_card(card.card_id + RevealCopyIdRangestart, logic_card.definition, card.card_image, card.cardback_image, $AllCards/OpponentRevealed, 0, true)
+		copy_card.set_card_and_focus(OffScreen, 0, CardBase.ReferenceCardScale)
+		copy_card.resting_scale = CardBase.ReferenceCardScale
+		copy_card.change_state(CardBase.CardState.CardState_Offscreen)
+		copy_card.flip_card_to_front(true)
+	else:
+		# Nothing for AI here.
+		pass
+	return SmallNoticeDelay
+
 func _move_card_to_strike_area(card, strike_area, new_parent, is_player : bool, is_ex : bool):
 	card.set_position_if_at_position(OffScreen, get_deck_button_position(is_player))
 
@@ -1406,18 +1447,26 @@ func _handle_events(events):
 				_on_mulligan_decision(event)
 			Enums.EventType.EventType_Prepare:
 				delay = _on_prepare(event)
+			Enums.EventType.EventType_ReadingNormal:
+				_on_name_opponent_card_begin(event)
 			Enums.EventType.EventType_ReshuffleDiscard:
 				delay = _on_reshuffle_discard(event)
 			Enums.EventType.EventType_ReshuffleDeck_Mulligan:
 				_on_reshuffle_deck_mulligan(event)
 			Enums.EventType.EventType_RevealHand:
 				delay = _on_reveal_hand(event)
+			Enums.EventType.EventType_RevealTopDeck:
+				delay = _on_reveal_topdeck(event)
 			Enums.EventType.EventType_Strike_ArmorUp:
 				delay = _stat_notice_event(event)
 			Enums.EventType.EventType_Strike_CardActivation:
 				delay = _on_strike_card_activation(event)
 			Enums.EventType.EventType_Strike_CharacterEffect:
 				_on_strike_character_effect(event)
+			Enums.EventType.EventType_Strike_ChooseToDiscard:
+				_on_choose_to_discard(event, false)
+			Enums.EventType.EventType_Strike_ChooseToDiscard_Info:
+				_on_choose_to_discard(event, true)
 			Enums.EventType.EventType_Strike_DodgeAttacks:
 				delay = _stat_notice_event(event)
 			Enums.EventType.EventType_Strike_EffectChoice:
@@ -1459,6 +1508,8 @@ func _handle_events(events):
 				_on_strike_started(event, true)
 			Enums.EventType.EventType_Strike_Stun:
 				delay = _on_stunned(event)
+			Enums.EventType.EventType_Strike_Stun_Immunity:
+				delay = _stat_notice_event(event)
 			Enums.EventType.EventType_Strike_TookDamage:
 				delay = _on_damage(event)
 			Enums.EventType.EventType_Strike_WildStrike:
@@ -1514,7 +1565,7 @@ func _update_buttons():
 	# Update instructions message
 	if ui_state == UIState.UIState_SelectCards:
 		match ui_sub_state:
-			UISubState.UISubState_SelectCards_DiscardCards:
+			UISubState.UISubState_SelectCards_DiscardCards, UISubState.UISubState_SelectCards_DiscardCards_Choose:
 				update_discard_selection_message()
 			UISubState.UISubState_SelectCards_DiscardCardsToGauge:
 				update_discard_to_gauge_selection_message()
@@ -1570,7 +1621,7 @@ func can_press_ok():
 				return selected_cards_between_min_and_max()
 			UISubState.UISubState_SelectCards_BoostCancel, UISubState.UISubState_SelectCards_DiscardContinuousBoost, UISubState.UISubState_SelectCards_DiscardFromReference:
 				return selected_cards_between_min_and_max()
-			UISubState.UISubState_SelectCards_ChooseDiscardToDestination:
+			UISubState.UISubState_SelectCards_ChooseDiscardToDestination, UISubState.UISubState_SelectCards_DiscardCards_Choose:
 				return selected_cards_between_min_and_max()
 			UISubState.UISubState_SelectCards_DiscardCardsToGauge, UISubState.UISubState_SelectCards_Mulligan:
 				return selected_cards_between_min_and_max()
@@ -1673,6 +1724,8 @@ func _on_instructions_ok_button_pressed():
 				success = game_wrapper.submit_boost_name_card_choice_effect(Enums.PlayerId.PlayerId_Player, single_card_id - ReferenceScreenIdRangeStart)
 			UISubState.UISubState_SelectCards_DiscardCards:
 				success = game_wrapper.submit_discard_to_max(Enums.PlayerId.PlayerId_Player, selected_card_ids)
+			UISubState.UISubState_SelectCards_DiscardCards_Choose:
+				success = game_wrapper.submit_choose_to_discard(Enums.PlayerId.PlayerId_Player, selected_card_ids)
 			UISubState.UISubState_SelectCards_DiscardCardsToGauge:
 				success = game_wrapper.submit_card_from_hand_to_gauge(Enums.PlayerId.PlayerId_Player, single_card_id)
 			UISubState.UISubState_SelectCards_StrikeGauge:
@@ -1921,9 +1974,9 @@ func ai_discard_continuous_boost():
 	else:
 		print("FAILED AI DISCARD CONTINUOUS")
 
-func ai_name_opponent_card():
+func ai_name_opponent_card(normal_only : bool):
 	if not game_wrapper.is_ai_game(): return
-	var pick_action = ai_player.pick_name_opponent_card(game_wrapper.current_game, Enums.PlayerId.PlayerId_Opponent)
+	var pick_action = ai_player.pick_name_opponent_card(game_wrapper.current_game, Enums.PlayerId.PlayerId_Opponent, normal_only)
 	var success = game_wrapper.submit_boost_name_card_choice_effect(Enums.PlayerId.PlayerId_Opponent, pick_action.card_id)
 	if success:
 		change_ui_state(UIState.UIState_WaitForGameServer)
@@ -1958,6 +2011,15 @@ func ai_mulligan_decision():
 		print("FAILED AI MULLIGAN")
 	test_init()
 
+func ai_choose_to_discard(amount):
+	if not game_wrapper.is_ai_game(): return
+	var discard_action = ai_player.pick_choose_to_discard(game_wrapper.current_game, Enums.PlayerId.PlayerId_Opponent, amount)
+	var success = game_wrapper.submit_choose_to_discard(Enums.PlayerId.PlayerId_Opponent, discard_action.card_ids)
+	if success:
+		change_ui_state(UIState.UIState_WaitForGameServer)
+	else:
+		print("FAILED AI CHOOSE TO DISCARD")
+
 # Popout Functions
 func card_in_selected_cards(card):
 	for selected_card in selected_cards:
@@ -1970,8 +2032,13 @@ func _update_popout_cards(cards_in_popout : Array, not_visible_position : Vector
 	if card_popout.visible:
 		# Clear first which sets the size/positions correctly.
 		await card_popout.clear(len(cards_in_popout))
-		for i in range(len(cards_in_popout)):
-			var card = cards_in_popout[i]
+		var card_subset = []
+		for card in cards_in_popout:
+			if popout_show_normal_only() and not game_wrapper.get_card_database().is_normal_card(card.card_id):
+				continue
+			card_subset.append(card)
+		for i in range(len(card_subset)):
+			var card = card_subset[i]
 			card.set_selected(card_in_selected_cards(card))
 			# Assign positions
 			var pos = card_popout.get_slot_position(i)
@@ -1984,7 +2051,7 @@ func _update_popout_cards(cards_in_popout : Array, not_visible_position : Vector
 		for i in range(len(cards_in_popout)):
 			var card = cards_in_popout[i]
 			card.set_selected(false)
-			# Assign back to gauge
+			# Assign back to hidden area.
 			card.set_card_and_focus(not_visible_position, null, null)
 			match card.state:
 				CardBase.CardState.CardState_InPopout, CardBase.CardState.CardState_Unfocusing, CardBase.CardState.CardState_Focusing:
@@ -2058,6 +2125,11 @@ func update_popout_instructions():
 		card_popout.set_instructions(popout_instruction_info)
 	else:
 		card_popout.set_instructions(null)
+
+func popout_show_normal_only() -> bool:
+	if popout_instruction_info and 'normal_only' in popout_instruction_info:
+		return popout_instruction_info['normal_only']
+	return false
 
 func show_popout(popout_type : CardPopoutType, popout_title : String, card_node, card_rest_position : Vector2, card_rest_state : CardBase.CardState):
 	popout_type_showing = popout_type

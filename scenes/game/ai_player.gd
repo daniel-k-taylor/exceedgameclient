@@ -140,6 +140,11 @@ class ChooseFromDiscardAction:
 	func _init(chosen_id):
 		card_id = chosen_id
 
+class ChooseToDiscardAction:
+	var card_ids
+	func _init(card_id_combination):
+		card_ids = card_id_combination
+
 func create_sanitized_card_id_array(card_array):
 	var card_ids = []
 	for i in range(card_array.size()):
@@ -340,6 +345,8 @@ func get_boost_options_for_card(game_logic : LocalGame, me : LocalGame.Player, o
 			choices += opponent.deck_list.size() / 2
 		elif effect['effect_type'] == "discard_continuous_boost":
 			choices += len(opponent.continuous_boosts)
+		elif effect['effect_type'] == "reading_normal":
+			choices = 8
 
 		if 'and' in effect and effect['and']['effect_type'] == "choice":
 			choices += len(effect['and']['choice'])
@@ -473,6 +480,18 @@ func determine_force_for_effect_actions(game_logic: LocalGame, me : LocalGame.Pl
 			possible_actions.append(ForceForEffectAction.new(combo))
 	return possible_actions
 
+func determine_choose_to_discard_options(me : LocalGame.Player, to_discard_count : int):
+	var possible_actions = []
+	var all_card_ids = []
+	to_discard_count = min(to_discard_count, me.hand.size())
+	for card in me.hand:
+		all_card_ids.append(card.id)
+	var combinations = []
+	generate_card_count_combinations(all_card_ids, to_discard_count, [], 0, combinations)
+	for combo in combinations:
+		possible_actions.append(ChooseToDiscardAction.new(combo))
+	return possible_actions
+
 func pick_strike(game_logic : LocalGame, my_id : Enums.PlayerId) -> StrikeAction:
 	var me = game_logic._get_player(my_id)
 	var opponent = game_logic._get_player(game_logic.get_other_player(my_id))
@@ -525,13 +544,15 @@ func pick_discard_continuous(game_logic : LocalGame, my_id : Enums.PlayerId) -> 
 	update_ai_state(game_logic, me, opponent)
 	return ai_policy.pick_discard_continuous(possible_actions, game_state)
 
-func pick_name_opponent_card(game_logic : LocalGame, my_id : Enums.PlayerId) -> NameCardAction:
+func pick_name_opponent_card(game_logic : LocalGame, my_id : Enums.PlayerId, normal_only : bool) -> NameCardAction:
 	var me = game_logic._get_player(my_id)
 	var opponent = game_logic._get_player(game_logic.get_other_player(my_id))
 	var possible_actions = []
 	for i in range(0, opponent.deck_list.size(), 2):
 		# Skip every other card to avoid dupes.
 		var card = opponent.deck_list[i]
+		if normal_only and card.definition['type'] != "normal":
+			continue
 		possible_actions.append(NameCardAction.new(card.id))
 
 	update_ai_state(game_logic, me, opponent)
@@ -589,3 +610,10 @@ func pick_force_for_effect(game_logic : LocalGame, my_id : Enums.PlayerId) -> Fo
 	var possible_actions = determine_force_for_effect_actions(game_logic, me)
 	update_ai_state(game_logic, me, opponent)
 	return ai_policy.pick_force_for_effect(possible_actions, game_state)
+
+func pick_choose_to_discard(game_logic : LocalGame, my_id : Enums.PlayerId, to_discard_count : int) -> ChooseToDiscardAction:
+	var me = game_logic._get_player(my_id)
+	var opponent = game_logic._get_player(game_logic.get_other_player(my_id))
+	var possible_actions = determine_choose_to_discard_options(me, to_discard_count)
+	update_ai_state(game_logic, me, opponent)
+	return ai_policy.pick_choose_to_discard(possible_actions, game_state)

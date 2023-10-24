@@ -40,7 +40,7 @@ func game_teardown():
 	ai_policy.free()
 	ai1.free()
 	ai2.free()
-	
+
 func validate_has_event(events, event_type, event_player, number = null):
 	for event in events:
 		if event['event_type'] == event_type:
@@ -132,6 +132,18 @@ func handle_boost_reponse(events, aiplayer : AIPlayer, game : LocalGame, gamepla
 				var card_id = otherplayer.continuous_boosts[choice_index].id
 				assert_true(game.do_boost_name_card_choice_effect(gameplayer, card_id), "do boost name 2 failed")
 				events += game.get_latest_events()
+			Enums.DecisionType.DecisionType_ReadingNormal:
+				var index = 0
+				var card_id = -1
+				for card_index in range(0, otherplayer.deck_list.size(), 2):
+					var card = otherplayer.deck_list[card_index]
+					if game.get_card_database().is_normal_card(card.id):
+						if index == choice_index:
+							card_id = card.id
+							break
+						index += 1
+				assert_true(game.do_boost_name_card_choice_effect(gameplayer, card_id), "do boost name 3 failed")
+				events += game.get_latest_events()
 			Enums.DecisionType.DecisionType_BoostCancel:
 				var event = get_event(events, Enums.EventType.EventType_Boost_CancelDecision)
 				var cost = event['number']
@@ -145,6 +157,10 @@ func handle_boost_reponse(events, aiplayer : AIPlayer, game : LocalGame, gamepla
 			Enums.DecisionType.DecisionType_ChooseFromDiscard:
 				var chooseaction = aiplayer.pick_choose_from_discard(game, gameplayer.my_id)
 				assert_true(game.do_choose_from_discard(gameplayer, chooseaction.card_id), "do choose from discard failed")
+			Enums.DecisionType.DecisionType_ChooseToDiscard:
+				var amount = game.decision_info.effect['amount']
+				var chooseaction = aiplayer.pick_choose_to_discard(game, gameplayer.my_id, amount)
+				assert_true(game.do_choose_to_discard(gameplayer, chooseaction.card_id), "do choose to discard failed")
 			_:
 				assert(false, "Unimplemented decision type")
 
@@ -208,6 +224,10 @@ func handle_strike(game: LocalGame, aiplayer : AIPlayer, otherai : AIPlayer, act
 			Enums.DecisionType.DecisionType_ChooseFromDiscard:
 				var chooseaction = decision_ai.pick_choose_from_discard(game, decision_player.my_id)
 				assert_true(game.do_choose_from_discard(decision_ai.game_player, chooseaction.card_id), "do choose from discard failed")
+			Enums.DecisionType.DecisionType_ChooseToDiscard:
+				var amount = game.decision_info.effect['amount']
+				var chooseaction = decision_ai.pick_choose_to_discard(game, decision_player.my_id, amount)
+				assert_true(game.do_choose_to_discard(decision_ai.game_player, chooseaction.card_id), "do choose to discard failed")
 			_:
 				assert(false, "Unimplemented decision type")
 
