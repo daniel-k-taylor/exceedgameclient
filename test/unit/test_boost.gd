@@ -4,7 +4,7 @@ const LocalGame = preload("res://scenes/game/local_game.gd")
 const GameCard = preload("res://scenes/game/game_card.gd")
 const Enums = preload("res://scenes/game/enums.gd")
 var game_logic : LocalGame
-var default_deck = CardDefinitions.get_deck_from_selector_index(0)
+var default_deck = CardDefinitions.get_deck_from_str_id("solbadguy")
 const TestCardId1 = 50001
 const TestCardId2 = 50002
 const TestCardId3 = 50003

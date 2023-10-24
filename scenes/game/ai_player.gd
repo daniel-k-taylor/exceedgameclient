@@ -470,7 +470,7 @@ func determine_force_for_effect_actions(game_logic: LocalGame, me : LocalGame.Pl
 		var combinations = []
 		generate_force_combinations(game_logic, all_force_option_ids, target_force, [], 0, combinations)
 		for combo in combinations:
-			possible_actions.append(ForceForArmorAction.new(combo))
+			possible_actions.append(ForceForEffectAction.new(combo))
 	return possible_actions
 
 func pick_strike(game_logic : LocalGame, my_id : Enums.PlayerId) -> StrikeAction:

@@ -5,7 +5,7 @@ const GameCard = preload("res://scenes/game/game_card.gd")
 const Enums = preload("res://scenes/game/enums.gd")
 
 var game_logic : LocalGame
-var default_deck = CardDefinitions.get_deck_from_selector_index(0)
+var default_deck = CardDefinitions.get_deck_from_str_id("solbadguy")
 
 func default_game_setup():
 	game_logic = LocalGame.new()

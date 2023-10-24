@@ -2180,12 +2180,19 @@ func do_force_for_effect(performing_player : Player, card_ids : Array) -> bool:
 			return false
 
 	var force_generated = 0
+	var ultras = 0
 	for card_id in card_ids:
-		force_generated += card_db.get_card_force_value(card_id)
+		var force_value = card_db.get_card_force_value(card_id)
+		if force_value == 2:
+			ultras += 1
+		force_generated += force_value
 
 	if force_generated > decision_info.effect['force_max']:
-		printlog("ERROR: Tried to force for effect with too much force.")
-		return false
+		if force_generated - ultras <= decision_info.effect['force_max']:
+			force_generated = decision_info.effect['force_max']
+		else:
+			printlog("ERROR: Tried to force for effect with too much force.")
+			return false
 	if force_generated > 0:
 		var card_names = card_db.get_card_name(card_ids[0])
 		for i in range(1, card_ids.size()):

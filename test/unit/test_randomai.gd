@@ -52,7 +52,6 @@ func validate_has_event(events, event_type, event_player, number = null):
 	assert(false, "Validate Event not found: %s" % str(event_type))
 
 func before_each():
-	default_deck = CardDefinitions.get_deck_from_selector_index(0)
 	game_setup()
 
 	gut.p("ran setup", 2)
@@ -116,28 +115,38 @@ func handle_reshuffle(game: LocalGame, gameplayer : LocalGame.Player):
 
 func handle_boost_reponse(events, aiplayer : AIPlayer, game : LocalGame, gameplayer : LocalGame.Player, otherplayer : LocalGame.Player, choice_index):
 	while game.game_state == Enums.GameState.GameState_PlayerDecision:
-		if game.decision_info.type == Enums.DecisionType.DecisionType_EffectChoice:
-			assert_true(game.do_choice(gameplayer, choice_index), "do choice failed")
-			events += game.get_latest_events()
-		elif game.decision_info.type == Enums.DecisionType.DecisionType_CardFromHandToGauge:
-			assert_true(game.do_card_from_hand_to_gauge(gameplayer, gameplayer.hand[choice_index].id), "do card gauge failed")
-			events += game.get_latest_events()
-		elif game.decision_info.type == Enums.DecisionType.DecisionType_NameCard_OpponentDiscards:
-			var index = choice_index * 2
-			var card_id = otherplayer.deck_list[index].id
-			assert_true(game.do_boost_name_card_choice_effect(gameplayer, card_id), "do boost name failed")
-			events += game.get_latest_events()
-			#TODO: Do something with EventType_RevealHand so AI can consume new info.
-		elif game.decision_info.type == Enums.DecisionType.DecisionType_ChooseDiscardContinuousBoost:
-			var card_id = otherplayer.continuous_boosts[choice_index].id
-			assert_true(game.do_boost_name_card_choice_effect(gameplayer, card_id), "do boost name 2 failed")
-			events += game.get_latest_events()
-		elif game.decision_info.type == Enums.DecisionType.DecisionType_BoostCancel:
-			var event = get_event(events, Enums.EventType.EventType_Boost_CancelDecision)
-			var cost = event['number']
-			var cancel_action = aiplayer.pick_cancel(game, gameplayer.my_id, cost)
-			assert_true(game.do_boost_cancel(gameplayer, cancel_action.card_ids, cancel_action.cancel), "do boost cancel failed")
-			events += game.get_latest_events()
+		match game.decision_info.type:
+			Enums.DecisionType.DecisionType_EffectChoice:
+				assert_true(game.do_choice(gameplayer, choice_index), "do choice failed")
+				events += game.get_latest_events()
+			Enums.DecisionType.DecisionType_CardFromHandToGauge:
+				assert_true(game.do_card_from_hand_to_gauge(gameplayer, gameplayer.hand[choice_index].id), "do card gauge failed")
+				events += game.get_latest_events()
+			Enums.DecisionType.DecisionType_NameCard_OpponentDiscards:
+				var index = choice_index * 2
+				var card_id = otherplayer.deck_list[index].id
+				assert_true(game.do_boost_name_card_choice_effect(gameplayer, card_id), "do boost name failed")
+				events += game.get_latest_events()
+				#TODO: Do something with EventType_RevealHand so AI can consume new info.
+			Enums.DecisionType.DecisionType_ChooseDiscardContinuousBoost:
+				var card_id = otherplayer.continuous_boosts[choice_index].id
+				assert_true(game.do_boost_name_card_choice_effect(gameplayer, card_id), "do boost name 2 failed")
+				events += game.get_latest_events()
+			Enums.DecisionType.DecisionType_BoostCancel:
+				var event = get_event(events, Enums.EventType.EventType_Boost_CancelDecision)
+				var cost = event['number']
+				var cancel_action = aiplayer.pick_cancel(game, gameplayer.my_id, cost)
+				assert_true(game.do_boost_cancel(gameplayer, cancel_action.card_ids, cancel_action.cancel), "do boost cancel failed")
+				events += game.get_latest_events()
+			Enums.DecisionType.DecisionType_ForceForEffect:
+				var forceforeffect_action = aiplayer.pick_force_for_effect(game, gameplayer.my_id)
+				assert_true(game.do_force_for_effect(gameplayer, forceforeffect_action.card_ids), "do force effect failed")
+				events += game.get_latest_events()
+			Enums.DecisionType.DecisionType_ChooseFromDiscard:
+				var chooseaction = aiplayer.pick_choose_from_discard(game, gameplayer.my_id)
+				assert_true(game.do_choose_from_discard(gameplayer, chooseaction.card_id), "do choose from discard failed")
+			_:
+				assert(false, "Unimplemented decision type")
 
 	return events
 
@@ -192,6 +201,20 @@ func handle_strike(game: LocalGame, aiplayer : AIPlayer, otherai : AIPlayer, act
 				var cardfromhandtogauge_action = decision_ai.pick_card_hand_to_gauge(game, decision_player.my_id)
 				assert_true(game.do_card_from_hand_to_gauge(decision_ai.game_player, cardfromhandtogauge_action.card_id), "do card hand strike failed")
 				events += game.get_latest_events()
+			Enums.DecisionType.DecisionType_ForceForEffect:
+				var forceforeffect_action = decision_ai.pick_force_for_effect(game, decision_player.my_id)
+				assert_true(game.do_force_for_effect(decision_ai.game_player, forceforeffect_action.card_ids), "do force effect failed")
+				events += game.get_latest_events()
+			Enums.DecisionType.DecisionType_ChooseFromDiscard:
+				var chooseaction = decision_ai.pick_choose_from_discard(game, decision_player.my_id)
+				assert_true(game.do_choose_from_discard(decision_ai.game_player, chooseaction.card_id), "do choose from discard failed")
+			_:
+				assert(false, "Unimplemented decision type")
+
+		if game.game_state == Enums.GameState.GameState_Strike_Opponent_Response:
+			var response_action = otherai.pick_strike_response(game, otherplayer.my_id)
+			assert_true(game.do_strike(otherplayer, response_action.card_id, response_action.wild_swing, response_action.ex_card_id), "do strike resp failed")
+			events += game.get_latest_events()
 
 	assert_true(game.game_state == Enums.GameState.GameState_PickAction or game.game_state == Enums.GameState.GameState_GameOver, "Unexpected game state %s" % str(game.game_state))
 
