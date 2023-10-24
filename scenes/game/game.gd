@@ -668,7 +668,13 @@ func _stat_notice_event(event):
 			var number2 = event['extra_info']
 			notice_text = "+%d-%d Range" % [number, number2]
 		Enums.EventType.EventType_Strike_SpeedUp:
-			notice_text = "+%d Speed" % number
+			var text = ""
+			if number > 0:
+				text += "+"
+			else:
+				text += "-"
+			text += "%d Speed" % number
+			notice_text = text
 		Enums.EventType.EventType_Strike_Stun:
 			notice_text = "Stunned!"
 		Enums.EventType.EventType_Strike_WildStrike:

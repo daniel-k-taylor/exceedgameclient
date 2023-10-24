@@ -234,7 +234,11 @@ func get_effect_type_text(effect):
 		"retreat":
 			effect_str += "Retreat " + str(effect['amount'])
 		"speedup":
-			effect_str += "+" + str(effect['amount']) + " Speed"
+			if effect['amount'] > 0:
+				effect_str += "+"
+			else:
+				effect_str += "-"
+			effect_str += str(effect['amount']) + " Speed"
 		"when_hit_force_for_armor":
 			effect_str += "When hit, generate force for " + str(effect['amount']) + " armor each."
 		_:

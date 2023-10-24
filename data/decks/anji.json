@@ -17,8 +17,8 @@
 			"per_force_effect": null,
 			"overall_effect": {
 				"character_effect": true,
-				"effect_type": "speeddown",
-				"amount": 1,
+				"effect_type": "speedup",
+				"amount": -1,
 				"and": {
 					"effect_type": "guardup",
 					"amount": 2
@@ -34,8 +34,8 @@
 			"per_force_effect": null,
 			"overall_effect": {
 				"character_effect": true,
-				"effect_type": "speeddown",
-				"amount": 1,
+				"effect_type": "speedup",
+				"amount": -1,
 				"and": {
 					"effect_type": "armorup",
 					"amount": 2

@@ -282,15 +282,8 @@ class Player:
 		events += [parent.create_event(Enums.EventType.EventType_Exceed, my_id, 0)]
 
 		if 'on_exceed' in deck_def:
-			var effect_type = deck_def['on_exceed']['effect_type']
-			match effect_type:
-				"strike":
-					events += [parent.create_event(Enums.EventType.EventType_ForceStartStrike, my_id, 0)]
-					parent.change_game_state(Enums.GameState.GameState_WaitForStrike)
-					parent.decision_info.type = Enums.DecisionType.DecisionType_StrikeNow
-					parent.decision_info.player = my_id
-				"draw":
-					events += draw(deck_def['on_exceed']['amount'])
+			var effect = deck_def['on_exceed']
+			events += parent.handle_strike_effect(-1, effect, self)
 		return events
 
 	func mulligan(card_ids : Array):
