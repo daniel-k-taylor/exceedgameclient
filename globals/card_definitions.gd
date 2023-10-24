@@ -7,10 +7,11 @@ var decks_path = "res://data/decks"
 var decks = []
 
 const SelectorIndexToDeckId = {
-	0: "ramlethal",
-	1: "kykisuke",
-	2: "solbadguy",
-	3: "random",
+	0: "anji",
+	1: "ramlethal",
+	2: "kykisuke",
+	3: "solbadguy",
+	4: "random",
 }
 
 func get_deck_from_selector_index(index : int):
