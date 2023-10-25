@@ -1,0 +1,298 @@
+[gd_scene load_steps=6 format=3 uid="uid://cqs72exlwm6at"]
+
+[ext_resource type="Script" path="res://scenes/menu/char_select.gd" id="1_f3x24"]
+[ext_resource type="Texture2D" uid="uid://coh1i2m8ikmem" path="res://assets/references/charselect.png" id="1_ihc85"]
+[ext_resource type="Texture2D" uid="uid://ded5jrn5yju2j" path="res://assets/cards/card_border_highlight_pressed.png" id="3_ro1fy"]
+[ext_resource type="Texture2D" uid="uid://mn1hj4i3k7l7" path="res://assets/cards/card_border_highlight_selected.png" id="4_hqlo8"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_dfjb0"]
+
+[node name="CharSelect" type="Control"]
+layout_mode = 3
+anchors_preset = 0
+offset_right = 1280.0
+offset_bottom = 720.0
+script = ExtResource("1_f3x24")
+
+[node name="BackgroundButton" type="Button" parent="."]
+modulate = Color(1, 1, 1, 0)
+custom_minimum_size = Vector2(1280, 720)
+layout_mode = 0
+offset_right = 8.0
+offset_bottom = 8.0
+
+[node name="PanelContainer" type="PanelContainer" parent="."]
+custom_minimum_size = Vector2(1280, 720)
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxEmpty_dfjb0")
+
+[node name="CharactersImage" type="TextureRect" parent="PanelContainer"]
+layout_mode = 2
+mouse_filter = 2
+texture = ExtResource("1_ihc85")
+expand_mode = 3
+stretch_mode = 5
+
+[node name="VBoxContainer" type="VBoxContainer" parent="PanelContainer"]
+layout_mode = 2
+mouse_filter = 2
+
+[node name="MarginContainer" type="MarginContainer" parent="PanelContainer/VBoxContainer"]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/margin_top = 76
+
+[node name="Row1" type="HBoxContainer" parent="PanelContainer/VBoxContainer"]
+layout_mode = 2
+mouse_filter = 2
+
+[node name="MarginContainer" type="MarginContainer" parent="PanelContainer/VBoxContainer/Row1"]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/margin_left = 497
+
+[node name="TextureButton" type="TextureButton" parent="PanelContainer/VBoxContainer/Row1"]
+custom_minimum_size = Vector2(90, 90)
+layout_mode = 2
+texture_pressed = ExtResource("3_ro1fy")
+texture_hover = ExtResource("4_hqlo8")
+ignore_texture_size = true
+stretch_mode = 0
+
+[node name="TextureButton2" type="TextureButton" parent="PanelContainer/VBoxContainer/Row1"]
+custom_minimum_size = Vector2(90, 90)
+layout_mode = 2
+disabled = true
+ignore_texture_size = true
+stretch_mode = 0
+
+[node name="TextureButton3" type="TextureButton" parent="PanelContainer/VBoxContainer/Row1"]
+custom_minimum_size = Vector2(90, 90)
+layout_mode = 2
+texture_pressed = ExtResource("3_ro1fy")
+texture_hover = ExtResource("4_hqlo8")
+ignore_texture_size = true
+stretch_mode = 0
+
+[node name="Row2" type="HBoxContainer" parent="PanelContainer/VBoxContainer"]
+layout_mode = 2
+mouse_filter = 2
+
+[node name="MarginContainer" type="MarginContainer" parent="PanelContainer/VBoxContainer/Row2"]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/margin_left = 450
+
+[node name="TextureButton" type="TextureButton" parent="PanelContainer/VBoxContainer/Row2"]
+custom_minimum_size = Vector2(90, 90)
+layout_mode = 2
+texture_pressed = ExtResource("3_ro1fy")
+texture_hover = ExtResource("4_hqlo8")
+ignore_texture_size = true
+stretch_mode = 0
+
+[node name="TextureButton2" type="TextureButton" parent="PanelContainer/VBoxContainer/Row2"]
+custom_minimum_size = Vector2(90, 90)
+layout_mode = 2
+texture_pressed = ExtResource("3_ro1fy")
+texture_hover = ExtResource("4_hqlo8")
+ignore_texture_size = true
+stretch_mode = 0
+
+[node name="TextureButton3" type="TextureButton" parent="PanelContainer/VBoxContainer/Row2"]
+custom_minimum_size = Vector2(90, 90)
+layout_mode = 2
+texture_pressed = ExtResource("3_ro1fy")
+texture_hover = ExtResource("4_hqlo8")
+ignore_texture_size = true
+stretch_mode = 0
+
+[node name="TextureButton4" type="TextureButton" parent="PanelContainer/VBoxContainer/Row2"]
+custom_minimum_size = Vector2(90, 90)
+layout_mode = 2
+texture_pressed = ExtResource("3_ro1fy")
+texture_hover = ExtResource("4_hqlo8")
+ignore_texture_size = true
+stretch_mode = 0
+
+[node name="Row3" type="HBoxContainer" parent="PanelContainer/VBoxContainer"]
+layout_mode = 2
+mouse_filter = 2
+
+[node name="MarginContainer" type="MarginContainer" parent="PanelContainer/VBoxContainer/Row3"]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/margin_left = 497
+
+[node name="TextureButton" type="TextureButton" parent="PanelContainer/VBoxContainer/Row3"]
+custom_minimum_size = Vector2(90, 90)
+layout_mode = 2
+texture_pressed = ExtResource("3_ro1fy")
+texture_hover = ExtResource("4_hqlo8")
+ignore_texture_size = true
+stretch_mode = 0
+
+[node name="TextureButton2" type="TextureButton" parent="PanelContainer/VBoxContainer/Row3"]
+custom_minimum_size = Vector2(90, 90)
+layout_mode = 2
+texture_pressed = ExtResource("3_ro1fy")
+texture_hover = ExtResource("4_hqlo8")
+ignore_texture_size = true
+stretch_mode = 0
+
+[node name="TextureButton3" type="TextureButton" parent="PanelContainer/VBoxContainer/Row3"]
+custom_minimum_size = Vector2(90, 90)
+layout_mode = 2
+texture_pressed = ExtResource("3_ro1fy")
+texture_hover = ExtResource("4_hqlo8")
+ignore_texture_size = true
+stretch_mode = 0
+
+[node name="Row4" type="HBoxContainer" parent="PanelContainer/VBoxContainer"]
+layout_mode = 2
+mouse_filter = 2
+
+[node name="MarginContainer" type="MarginContainer" parent="PanelContainer/VBoxContainer/Row4"]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/margin_left = 450
+
+[node name="TextureButton" type="TextureButton" parent="PanelContainer/VBoxContainer/Row4"]
+custom_minimum_size = Vector2(90, 90)
+layout_mode = 2
+texture_pressed = ExtResource("3_ro1fy")
+texture_hover = ExtResource("4_hqlo8")
+ignore_texture_size = true
+stretch_mode = 0
+
+[node name="TextureButton2" type="TextureButton" parent="PanelContainer/VBoxContainer/Row4"]
+custom_minimum_size = Vector2(90, 90)
+layout_mode = 2
+texture_pressed = ExtResource("3_ro1fy")
+texture_hover = ExtResource("4_hqlo8")
+ignore_texture_size = true
+stretch_mode = 0
+
+[node name="TextureButton3" type="TextureButton" parent="PanelContainer/VBoxContainer/Row4"]
+custom_minimum_size = Vector2(90, 90)
+layout_mode = 2
+texture_pressed = ExtResource("3_ro1fy")
+texture_hover = ExtResource("4_hqlo8")
+ignore_texture_size = true
+stretch_mode = 0
+
+[node name="TextureButton4" type="TextureButton" parent="PanelContainer/VBoxContainer/Row4"]
+custom_minimum_size = Vector2(90, 90)
+layout_mode = 2
+texture_pressed = ExtResource("3_ro1fy")
+texture_hover = ExtResource("4_hqlo8")
+ignore_texture_size = true
+stretch_mode = 0
+
+[node name="Row5" type="HBoxContainer" parent="PanelContainer/VBoxContainer"]
+layout_mode = 2
+mouse_filter = 2
+
+[node name="MarginContainer" type="MarginContainer" parent="PanelContainer/VBoxContainer/Row5"]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/margin_left = 450
+
+[node name="TextureButton" type="TextureButton" parent="PanelContainer/VBoxContainer/Row5"]
+custom_minimum_size = Vector2(90, 90)
+layout_mode = 2
+texture_pressed = ExtResource("3_ro1fy")
+texture_hover = ExtResource("4_hqlo8")
+ignore_texture_size = true
+stretch_mode = 0
+
+[node name="TextureButton2" type="TextureButton" parent="PanelContainer/VBoxContainer/Row5"]
+custom_minimum_size = Vector2(90, 90)
+layout_mode = 2
+texture_pressed = ExtResource("3_ro1fy")
+texture_hover = ExtResource("4_hqlo8")
+ignore_texture_size = true
+stretch_mode = 0
+
+[node name="TextureButton3" type="TextureButton" parent="PanelContainer/VBoxContainer/Row5"]
+custom_minimum_size = Vector2(90, 90)
+layout_mode = 2
+texture_pressed = ExtResource("3_ro1fy")
+texture_hover = ExtResource("4_hqlo8")
+ignore_texture_size = true
+stretch_mode = 0
+
+[node name="TextureButton4" type="TextureButton" parent="PanelContainer/VBoxContainer/Row5"]
+custom_minimum_size = Vector2(90, 90)
+layout_mode = 2
+texture_pressed = ExtResource("3_ro1fy")
+texture_hover = ExtResource("4_hqlo8")
+ignore_texture_size = true
+stretch_mode = 0
+
+[node name="Row6" type="HBoxContainer" parent="PanelContainer/VBoxContainer"]
+layout_mode = 2
+mouse_filter = 2
+
+[node name="MarginContainer" type="MarginContainer" parent="PanelContainer/VBoxContainer/Row6"]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/margin_left = 450
+
+[node name="TextureButton" type="TextureButton" parent="PanelContainer/VBoxContainer/Row6"]
+custom_minimum_size = Vector2(90, 90)
+layout_mode = 2
+texture_pressed = ExtResource("3_ro1fy")
+texture_hover = ExtResource("4_hqlo8")
+ignore_texture_size = true
+stretch_mode = 0
+
+[node name="TextureButton2" type="TextureButton" parent="PanelContainer/VBoxContainer/Row6"]
+custom_minimum_size = Vector2(90, 90)
+layout_mode = 2
+texture_pressed = ExtResource("3_ro1fy")
+texture_hover = ExtResource("4_hqlo8")
+ignore_texture_size = true
+stretch_mode = 0
+
+[node name="TextureButton3" type="TextureButton" parent="PanelContainer/VBoxContainer/Row6"]
+custom_minimum_size = Vector2(90, 90)
+layout_mode = 2
+texture_pressed = ExtResource("3_ro1fy")
+texture_hover = ExtResource("4_hqlo8")
+ignore_texture_size = true
+stretch_mode = 0
+
+[node name="TextureButton4" type="TextureButton" parent="PanelContainer/VBoxContainer/Row6"]
+custom_minimum_size = Vector2(90, 90)
+layout_mode = 2
+texture_pressed = ExtResource("3_ro1fy")
+texture_hover = ExtResource("4_hqlo8")
+ignore_texture_size = true
+stretch_mode = 0
+
+[connection signal="pressed" from="BackgroundButton" to="." method="_on_background_button_pressed"]
+[connection signal="pressed" from="PanelContainer/VBoxContainer/Row1/TextureButton" to="." method="_on_character_button_pressed" binds= ["testament"]]
+[connection signal="pressed" from="PanelContainer/VBoxContainer/Row1/TextureButton3" to="." method="_on_character_button_pressed" binds= ["happychaos"]]
+[connection signal="pressed" from="PanelContainer/VBoxContainer/Row2/TextureButton" to="." method="_on_character_button_pressed" binds= ["millia"]]
+[connection signal="pressed" from="PanelContainer/VBoxContainer/Row2/TextureButton2" to="." method="_on_character_button_pressed" binds= ["nago"]]
+[connection signal="pressed" from="PanelContainer/VBoxContainer/Row2/TextureButton3" to="." method="_on_character_button_pressed" binds= ["ino"]]
+[connection signal="pressed" from="PanelContainer/VBoxContainer/Row2/TextureButton4" to="." method="_on_character_button_pressed" binds= ["zato"]]
+[connection signal="pressed" from="PanelContainer/VBoxContainer/Row3/TextureButton" to="." method="_on_character_button_pressed" binds= ["solbadguy"]]
+[connection signal="pressed" from="PanelContainer/VBoxContainer/Row3/TextureButton2" to="." method="_on_character_button_pressed" binds= ["random"]]
+[connection signal="pressed" from="PanelContainer/VBoxContainer/Row3/TextureButton3" to="." method="_on_character_button_pressed" binds= ["kykisuke"]]
+[connection signal="pressed" from="PanelContainer/VBoxContainer/Row4/TextureButton" to="." method="_on_character_button_pressed" binds= ["chipp"]]
+[connection signal="pressed" from="PanelContainer/VBoxContainer/Row4/TextureButton2" to="." method="_on_character_button_pressed" binds= ["axl"]]
+[connection signal="pressed" from="PanelContainer/VBoxContainer/Row4/TextureButton3" to="." method="_on_character_button_pressed" binds= ["potemkin"]]
+[connection signal="pressed" from="PanelContainer/VBoxContainer/Row4/TextureButton4" to="." method="_on_character_button_pressed" binds= ["may"]]
+[connection signal="pressed" from="PanelContainer/VBoxContainer/Row5/TextureButton" to="." method="_on_character_button_pressed" binds= ["leo"]]
+[connection signal="pressed" from="PanelContainer/VBoxContainer/Row5/TextureButton2" to="." method="_on_character_button_pressed" binds= ["faust"]]
+[connection signal="pressed" from="PanelContainer/VBoxContainer/Row5/TextureButton3" to="." method="_on_character_button_pressed" binds= ["ramlethal"]]
+[connection signal="pressed" from="PanelContainer/VBoxContainer/Row5/TextureButton4" to="." method="_on_character_button_pressed" binds= ["jacko"]]
+[connection signal="pressed" from="PanelContainer/VBoxContainer/Row6/TextureButton" to="." method="_on_character_button_pressed" binds= ["anji"]]
+[connection signal="pressed" from="PanelContainer/VBoxContainer/Row6/TextureButton2" to="." method="_on_character_button_pressed" binds= ["baiken"]]
+[connection signal="pressed" from="PanelContainer/VBoxContainer/Row6/TextureButton3" to="." method="_on_character_button_pressed" binds= ["giovanna"]]
+[connection signal="pressed" from="PanelContainer/VBoxContainer/Row6/TextureButton4" to="." method="_on_character_button_pressed" binds= ["goldlewis"]]

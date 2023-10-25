@@ -135,3 +135,11 @@ func _on_matchmake_button_pressed():
 	var player_name = get_player_name()
 	NetworkManager.join_matchmaking(player_name, player_select.selected)
 	update_buttons(true)
+
+
+func _on_char_select_close_character_select():
+	pass # Replace with function body.
+
+
+func _on_char_select_select_character(char_id):
+	pass # Replace with function body.
