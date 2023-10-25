@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://eslptvdeuw4a"
-path="res://.godot/imported/sheet.png-9d0009c6e3b4af5542656d33fe0e17d6.ctex"
+uid="uid://cl3ai5psqfunj"
+path="res://.godot/imported/sheet.png-d5daac9c41dab964286cb988f97ff380.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/character_animations/ramlethal/idle/sheet.png"
-dest_files=["res://.godot/imported/sheet.png-9d0009c6e3b4af5542656d33fe0e17d6.ctex"]
+source_file="res://assets/character_animations/anji/idle/sheet.png"
+dest_files=["res://.godot/imported/sheet.png-d5daac9c41dab964286cb988f97ff380.ctex"]
 
 [params]
 

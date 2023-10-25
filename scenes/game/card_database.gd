@@ -53,6 +53,7 @@ func get_card_force_value(id : int) -> int:
 	return 1
 
 func is_normal_card(id : int) -> bool:
+	if id < 0: return false
 	var card = get_card(id)
 	return card.definition['type'] == 'normal'
 

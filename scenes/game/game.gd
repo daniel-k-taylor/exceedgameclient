@@ -370,7 +370,11 @@ func _process(delta):
 			_on_ai_move_button_pressed()
 		elif ui_state == UIState.UIState_WaitForGameServer:
 			if game_wrapper.get_game_state() == Enums.GameState.GameState_Strike_Opponent_Response:
-				ai_strike_response()
+				if game_wrapper.get_active_player() == Enums.PlayerId.PlayerId_Opponent:
+					# Our turn to respond.
+					begin_strike_choosing(true, false)
+				else:
+					ai_strike_response()
 
 
 func begin_delay(delay : float, remaining_events : Array):
@@ -1296,13 +1300,16 @@ func _on_strike_started(event, is_ex : bool):
 	if player == Enums.PlayerId.PlayerId_Player:
 		card.flip_card_to_front(true)
 		_move_card_to_strike_area(card, $PlayerStrike/StrikeZone, $AllCards/Striking, true, is_ex)
-		if not is_ex and game_wrapper.get_game_state() == Enums.GameState.GameState_Strike_Opponent_Response:
-			ai_strike_response()
 	else:
 		# Opponent started strike, player has to respond.
 		_move_card_to_strike_area(card, $OpponentStrike/StrikeZone, $AllCards/Striking, false, is_ex)
-		if not is_ex and game_wrapper.get_game_state() == Enums.GameState.GameState_Strike_Opponent_Response:
-			begin_strike_choosing(true, false)
+
+func _on_strike_do_response_now(event):
+	var player = event['event_player']
+	if player == Enums.PlayerId.PlayerId_Player:
+		begin_strike_choosing(true, false)
+	else:
+		ai_strike_response()
 
 func _on_strike_reveal(_event):
 	var strike_cards = $AllCards/Striking.get_children()
@@ -1469,6 +1476,8 @@ func _handle_events(events):
 				_on_choose_to_discard(event, true)
 			Enums.EventType.EventType_Strike_DodgeAttacks:
 				delay = _stat_notice_event(event)
+			Enums.EventType.EventType_Strike_DoResponseNow:
+				_on_strike_do_response_now(event)
 			Enums.EventType.EventType_Strike_EffectChoice:
 				_on_effect_choice(event)
 			Enums.EventType.EventType_Strike_ExUp:
@@ -2027,14 +2036,14 @@ func card_in_selected_cards(card):
 			return true
 	return false
 
-func _update_popout_cards(cards_in_popout : Array, not_visible_position : Vector2, card_return_state : CardBase.CardState):
+func _update_popout_cards(cards_in_popout : Array, not_visible_position : Vector2, card_return_state : CardBase.CardState, filtering_allowed : bool = false):
 	card_popout.set_amount(len(cards_in_popout))
 	if card_popout.visible:
 		# Clear first which sets the size/positions correctly.
 		await card_popout.clear(len(cards_in_popout))
 		var card_subset = []
 		for card in cards_in_popout:
-			if popout_show_normal_only() and not game_wrapper.get_card_database().is_normal_card(card.card_id):
+			if filtering_allowed and popout_show_normal_only() and not game_wrapper.get_card_database().is_normal_card(card.card_id - ReferenceScreenIdRangeStart):
 				continue
 			card_subset.append(card)
 		for i in range(len(card_subset)):
@@ -2140,7 +2149,8 @@ func show_popout(popout_type : CardPopoutType, popout_title : String, card_node,
 		await clear_card_popout()
 	card_popout.visible = true
 	var cards = card_node.get_children()
-	_update_popout_cards(cards, card_rest_position, card_rest_state)
+	var filtering_allowed = popout_type == CardPopoutType.CardPopoutType_ReferenceOpponent
+	_update_popout_cards(cards, card_rest_position, card_rest_state, filtering_allowed)
 
 func get_boost_zone_center(zone):
 	var pos = zone.global_position + CardBase.get_hand_card_size() / 2

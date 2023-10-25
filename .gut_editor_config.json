@@ -41,5 +41,5 @@
  "show_help": false,
  "suffix": ".gd",
  "tests": [],
- "unit_test_name": "test_anji_isseiougi_boost"
+ "unit_test_name": "test_anji_kachoufuugetsu_reading_incorrect"
 }

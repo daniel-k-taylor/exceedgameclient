@@ -57,14 +57,15 @@ func load_character(char_id : String):
 	var path = "res://assets/character_animations/" + char_id + "/animations.tres"
 	animation.sprite_frames = load(path)
 	animation.play("idle")
-	var scaling = animation.sprite_frames.get_meta("scaling")
-	if scaling:
-		scale = scale * scaling
-		$ExceedIcon.scale = $ExceedIcon.scale / scaling
+	if animation.sprite_frames.has_meta("scaling"):
+		var scaling = animation.sprite_frames.get_meta("scaling")
+		if scaling:
+			scale = scale * scaling
+			$ExceedIcon.scale = $ExceedIcon.scale / scaling
 
 func set_facing(to_left : bool):
 	animation.flip_h = to_left
-	if animation.sprite_frames.get_meta("flip"):
+	if animation.sprite_frames.has_meta("flip") and animation.sprite_frames.get_meta("flip"):
 		animation.flip_h = not animation.flip_h
 
 func set_exceed(is_exceed : bool):

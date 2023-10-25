@@ -275,7 +275,7 @@ mouse_filter = 2
 [node name="Instructions" type="Label" parent="StaticUI/StaticUIVBox/InstructionsWithButtonsUI"]
 custom_minimum_size = Vector2(600, 0)
 layout_mode = 2
-theme_override_font_sizes/font_size = 28
+theme_override_font_sizes/font_size = 24
 text = "Select 2 cards from your hand to discard."
 horizontal_alignment = 1
 autowrap_mode = 2
@@ -649,6 +649,15 @@ theme_override_font_sizes/font_size = 64
 text = "DEFEAT"
 horizontal_alignment = 1
 
+[node name="CombatLogButton" type="Button" parent="."]
+offset_left = 200.0
+offset_top = 452.0
+offset_right = 330.0
+offset_bottom = 544.0
+theme_override_font_sizes/font_size = 32
+text = "Combat
+Log"
+
 [node name="AllCards" type="Node2D" parent="."]
 
 [node name="PlayerHand" type="Node2D" parent="AllCards"]
@@ -718,15 +727,6 @@ position = Vector2(640, 300)
 scale = Vector2(0.5, 0.5)
 texture = ExtResource("17_acwgt")
 
-[node name="CombatLogButton" type="Button" parent="."]
-offset_left = 200.0
-offset_top = 452.0
-offset_right = 330.0
-offset_bottom = 544.0
-theme_override_font_sizes/font_size = 32
-text = "Combat
-Log"
-
 [node name="CombatLog" parent="." instance=ExtResource("18_k7mnw")]
 visible = false
 offset_right = 1280.0
@@ -767,11 +767,11 @@ offset_bottom = 720.0
 [connection signal="gauge_clicked" from="OpponentGauge" to="." method="_on_opponent_gauge_gauge_clicked"]
 [connection signal="clicked_zone" from="PlayerBoostZone" to="." method="_on_player_boost_zone_clicked_zone"]
 [connection signal="clicked_zone" from="OpponentBoostZone" to="." method="_on_opponent_boost_zone_clicked_zone"]
+[connection signal="pressed" from="CombatLogButton" to="." method="_on_combat_log_button_pressed"]
 [connection signal="close_window" from="AllCards/CardPopout" to="." method="_on_popout_close_window"]
 [connection signal="pressed_cancel" from="AllCards/CardPopout" to="." method="_on_card_popout_pressed_cancel"]
 [connection signal="pressed_ok" from="AllCards/CardPopout" to="." method="_on_card_popout_pressed_ok"]
 [connection signal="pressed" from="PlayerDiscardButton" to="." method="_on_player_discard_button_pressed"]
 [connection signal="pressed" from="OpponentDiscardButton" to="." method="_on_opponent_discard_button_pressed"]
 [connection signal="pressed" from="ExitToMenu" to="." method="_on_exit_to_menu_pressed"]
-[connection signal="pressed" from="CombatLogButton" to="." method="_on_combat_log_button_pressed"]
 [connection signal="close_button_pressed" from="CombatLog" to="." method="_on_combat_log_close_button_pressed"]

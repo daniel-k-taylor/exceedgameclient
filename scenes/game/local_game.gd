@@ -465,7 +465,7 @@ class Player:
 			parent._append_log("%s reshuffled." % [name])
 			deck += discards
 			discards = []
-			deck.shuffle()
+			random_shuffle_deck()
 			reshuffle_remaining -= 1
 			events += [parent.create_event(Enums.EventType.EventType_ReshuffleDiscard, my_id, reshuffle_remaining)]
 		return events
@@ -943,12 +943,14 @@ func continue_setup_strike(events):
 		active_strike.effects_resolved_in_timing = 0
 		active_strike.strike_state = StrikeState.StrikeState_Defender_SetEffects
 		change_game_state(Enums.GameState.GameState_Strike_Opponent_Response)
+		var ask_for_response = true
 		if active_strike.initiator.force_opponent_respond_wild_swing():
 			events += [create_event(Enums.EventType.EventType_Strike_ForceWildSwing, active_strike.initiator.my_id, 0)]
 			# Queue any events so far, then empty this tally and call do_strike.
 			event_queue += events
 			events = []
 			do_strike(defender, -1, true, -1)
+			ask_for_response = false
 		elif defender.reading_card_id:
 			# The Reading effect goes here and will either force the player to strike
 			# with the named card or to reveal their hand.
@@ -959,8 +961,11 @@ func continue_setup_strike(events):
 				event_queue += events
 				events = []
 				do_strike(defender, reading_card.id, false, -1)
+				ask_for_response = false
 			else:
 				events += defender.reveal_hand()
+		if ask_for_response:
+			events += [create_event(Enums.EventType.EventType_Strike_DoResponseNow, defender.my_id, 0)]
 	elif active_strike.strike_state == StrikeState.StrikeState_Defender_SetEffects:
 		var defender_set_strike_effects = active_strike.defender.get_set_strike_effects()
 		while active_strike.effects_resolved_in_timing < defender_set_strike_effects.size():
@@ -1037,16 +1042,16 @@ func is_effect_condition_met(performing_player : Player, effect, local_condition
 			return performing_player.canceled_this_turn
 		elif condition == "not_canceled_this_turn":
 			return not performing_player.canceled_this_turn
-		elif condition == "not_full_close" and not local_conditions.fully_closed:
-			return true
-		elif condition == "advanced_through" and local_conditions.advanced_through:
-			return true
-		elif condition == "not_advanced_through" and not local_conditions.advanced_through:
-			return true
-		elif condition == "not_full_push" and not local_conditions.fully_pushed:
-			return true
-		elif condition == "pulled_past" and local_conditions.pulled_past:
-			return true
+		elif condition == "not_full_close":
+			return  not local_conditions.fully_closed
+		elif condition == "advanced_through":
+			return local_conditions.advanced_through
+		elif condition == "not_advanced_through":
+			return not local_conditions.advanced_through
+		elif condition == "not_full_push":
+			return not local_conditions.fully_pushed
+		elif condition == "pulled_past":
+			return local_conditions.pulled_past
 		elif condition == "opponent_stunned":
 			return active_strike.is_player_stunned(other_player)
 		elif condition == "range":
@@ -1652,6 +1657,9 @@ func boost_finish_resolving_card(performing_player : Player):
 			events += performing_player.add_to_gauge(active_boost.card)
 		else:
 			events += performing_player.add_to_discards(active_boost.card)
+
+	if game_state == Enums.GameState.GameState_WaitForStrike:
+		active_boost.strike_after_boost = true
 	return events
 
 func boost_play_cleanup(performing_player : Player):
@@ -1968,7 +1976,7 @@ func do_strike(performing_player : Player, card_id : int, wild_strike: bool, ex_
 			if ex_card_id != -1:
 				events += [create_event(Enums.EventType.EventType_Strike_Started_Ex, performing_player.my_id, ex_card_id)]
 			events += [create_event(Enums.EventType.EventType_Strike_Started, performing_player.my_id, card_id)]
-			events += continue_setup_strike(events)
+			events = continue_setup_strike(events)
 		Enums.GameState.GameState_Strike_Opponent_Response:
 			if wild_strike:
 				_append_log("%s Strike Response - Wild Swing" % [performing_player.name])
@@ -1990,7 +1998,7 @@ func do_strike(performing_player : Player, card_id : int, wild_strike: bool, ex_
 			if ex_card_id != -1:
 				events += [create_event(Enums.EventType.EventType_Strike_Response_Ex, performing_player.my_id, ex_card_id)]
 			events += [create_event(Enums.EventType.EventType_Strike_Response, performing_player.my_id, card_id)]
-			events += continue_setup_strike(events)
+			events = continue_setup_strike(events)
 	event_queue += events
 	return true
 

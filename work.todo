@@ -1,14 +1,5 @@
 
 In progress:
-    Anji:
-        ✔ look_at_top_opponent_deck @started(23-10-23 20:44) @done(23-10-23 23:00) @lasted(2h16m28s)
-            ☐ Test in UI
-        ✔ opponent_discard_choose @started(23-10-23 21:39) @done(23-10-23 23:01) @lasted(1h22m8s)
-            ☐ Test in UI
-        ✔ stun_immunity @started(23-10-23 20:48) @done(23-10-23 23:01) @lasted(2h13m27s)
-            ☐ Validate shows up in UI
-        ✔ was_hit condition @started(23-10-23 20:50) @done(23-10-23 23:01) @lasted(2h11m28s)
-        ☐ reading_normal @started(23-10-23 22:25)
 Tasks:
     Main Features:
         ☐ Observers on server

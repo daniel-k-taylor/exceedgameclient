@@ -130,7 +130,7 @@ func execute_strike(initiator, defender, init_card : String, def_card : String, 
 	if def_ex:
 		give_player_specific_card(defender, def_card, TestCardId4)
 		all_events += do_strike_response(defender, TestCardId2, TestCardId4)
-	else:
+	elif def_card:
 		all_events += do_strike_response(defender, TestCardId2)
 
 	if game_logic.game_state == Enums.GameState.GameState_PlayerDecision and game_logic.active_strike.strike_state == game_logic.StrikeState.StrikeState_Defender_SetEffects:
@@ -303,3 +303,34 @@ func test_anji_kachoufuugetsu_not_hit():
 	validate_has_event(events, Enums.EventType.EventType_Strike_Stun_Immunity, player1)
 	validate_positions(player1, 3, player2, 4)
 	validate_life(player1, 24, player2, 30)
+
+func test_anji_kachoufuugetsu_reading_correct():
+	position_players(player1, 3, player2, 4)
+	give_player_specific_card(player2, "gg_normal_slash", TestCardId4)
+	give_player_specific_card(player1, "anji_kachoufuugetsukai", TestCardId3)
+	assert_true(game_logic.do_boost(player1, TestCardId3))
+	assert_eq(game_logic.decision_info.type, Enums.DecisionType.DecisionType_ReadingNormal)
+	assert_true(game_logic.do_boost_name_card_choice_effect(player1, TestCardId4))
+	assert_eq(game_logic.game_state, Enums.GameState.GameState_WaitForStrike)
+	var events = execute_strike(player1, player2, "gg_normal_cross","", [], [], false, false, [])
+	validate_positions(player1, 1, player2, 4)
+	validate_life(player1, 30, player2, 27)
+	var found = false
+	for card in player2.discards:
+		if card.definition['id'] == game_logic.get_card_database().get_card(TestCardId4).definition['id']:
+			found = true
+	assert_true(found)
+
+func test_anji_kachoufuugetsu_reading_incorrect():
+	position_players(player1, 3, player2, 4)
+	var name_card_id = player2.hand[0].id
+	player2.hand = []
+	give_player_specific_card(player1, "anji_kachoufuugetsukai", TestCardId3)
+	assert_true(game_logic.do_boost(player1, TestCardId3))
+	assert_eq(game_logic.decision_info.type, Enums.DecisionType.DecisionType_ReadingNormal)
+	assert_true(game_logic.do_boost_name_card_choice_effect(player1, name_card_id))
+	assert_eq(game_logic.game_state, Enums.GameState.GameState_WaitForStrike)
+	var events = execute_strike(player1, player2, "gg_normal_slash","gg_normal_cross", [], [], false, false, [])
+	validate_has_event(events, Enums.EventType.EventType_RevealHand, player2)
+	validate_positions(player1, 3, player2, 7)
+	validate_life(player1, 27, player2, 30)
