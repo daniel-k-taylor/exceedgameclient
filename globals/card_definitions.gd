@@ -18,12 +18,16 @@ func get_deck_from_selector_index(index : int):
 	for deck in decks:
 		if deck['id'] == SelectorIndexToDeckId[index]:
 			return deck
-
+	return get_random_deck()
+	
+func get_random_deck():
 	# Randomize
 	var random_index = randi() % len(decks)
 	return decks[random_index]
 
 func get_deck_from_str_id(str_id : String):
+	if str_id == "random":
+		return get_random_deck()
 	for deck in decks:
 		if deck['id'] == str_id:
 			return deck

@@ -3,28 +3,25 @@ extends Control
 signal start_game(vs_info)
 signal start_remote_game(vs_info, data)
 
-@onready var player_select : OptionButton = $PlayerChooser/Margin/VBox/PlayerCharSelect
-@onready var opponent_select : OptionButton = $MenuList/VSAIBox/OpponentChooser/Margin/VBox/OpponentCharSelect
 @onready var player_list : ItemList = $PlayerList
+@onready var player_selected_character : String = "solbadguy"
+@onready var opponent_selected_character : String = "kykisuke"
+@onready var selecting_player : bool = true
 
 @onready var start_ai_button : Button = $MenuList/VSAIBox/StartButton
-@onready var char_select = $PlayerChooser/Margin/VBox/PlayerCharSelect
-@onready var room_select = $RoomNameBox
+@onready var room_select = $MenuList/JoinBox/RoomNameBox
+@onready var join_room_button = $MenuList/JoinBox/JoinButton
+@onready var join_box = $MenuList/JoinBox
 
-func _initialize_character_select():
-	player_select.clear()
-	opponent_select.clear()
-	var num_chars = CardDefinitions.SelectorIndexToDeckId.size()
-	for i in range(num_chars):
-		player_select.add_item(CardDefinitions.SelectorIndexToDeckId[i], i)
-		opponent_select.add_item(CardDefinitions.SelectorIndexToDeckId[i], i)
+@onready var char_select = $CharSelect
+@onready var player_char_label : Label = $PlayerChooser/MarginContainer/VBoxContainer/HBoxContainer/CharName
+@onready var player_char_portrait : TextureRect = $PlayerChooser/MarginContainer/VBoxContainer/HBoxContainer/CharPortrait
 
-	player_select.selected = 0
-	opponent_select.selected = 1
+@onready var opponent_char_label : Label = $MenuList/VSAIBox/OpponentChooser/MarginContainer/VBoxContainer/HBoxContainer/CharName
+@onready var opponent_char_portrait : TextureRect = $MenuList/VSAIBox/OpponentChooser/MarginContainer/VBoxContainer/HBoxContainer/CharPortrait
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
-	_initialize_character_select()
 	NetworkManager.connect("connected_to_server", _on_connected)
 	NetworkManager.connect("disconnected_from_server", _on_disconnected)
 	NetworkManager.connect("game_started", _on_remote_game_started)
@@ -33,6 +30,8 @@ func _ready():
 	$MenuList/CancelButton.visible = false
 	$ReconnectToServerButton.visible = false
 	_on_players_update(NetworkManager.get_player_list())
+	selecting_player = false
+	_on_char_select_select_character(opponent_selected_character)
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(_delta):
@@ -43,8 +42,8 @@ func returned_from_game():
 	update_buttons(false)
 
 func _on_start_button_pressed():
-	var player_deck = CardDefinitions.get_deck_from_selector_index(player_select.selected)
-	var opponent_deck = CardDefinitions.get_deck_from_selector_index(opponent_select.selected)
+	var player_deck = CardDefinitions.get_deck_from_str_id(player_selected_character)
+	var opponent_deck = CardDefinitions.get_deck_from_str_id(opponent_selected_character)
 	var player_name = get_player_name()
 	var opponent_name = "CPU"
 	start_game.emit(get_vs_info(player_name, player_deck, opponent_name, opponent_deck))
@@ -53,7 +52,7 @@ func _on_quit_button_pressed():
 	get_tree().quit()
 
 func _on_connected(player_name):
-	$MenuList/JoinButton.disabled = false
+	join_room_button.disabled = false
 	$MenuList/MatchmakeButton.disabled = false
 	$PlayerNameBox.editable = true
 	$PlayerNameBox.text = player_name
@@ -62,7 +61,7 @@ func _on_connected(player_name):
 
 func _on_disconnected():
 	update_buttons(false)
-	$MenuList/JoinButton.disabled = true
+	join_room_button.disabled = true
 	$MenuList/MatchmakeButton.disabled = true
 	$ReconnectToServerButton.visible = true
 	$ReconnectToServerButton.disabled = false
@@ -104,15 +103,14 @@ func get_player_name() -> String:
 
 func _on_join_button_pressed():
 	var player_name = get_player_name()
-	var room_name = $RoomNameBox.text
-	NetworkManager.join_room(player_name, room_name, player_select.selected)
+	var room_name = room_select.text
+	NetworkManager.join_room(player_name, room_name, player_selected_character)
 	update_buttons(true)
 
 func update_buttons(joining : bool):
 	start_ai_button.disabled = joining
-	char_select.disabled = joining
 	room_select.editable = not joining
-	$MenuList/JoinButton.visible = not joining
+	join_box.visible = not joining
 	$MenuList/MatchmakeButton.visible = not joining
 	$MenuList/CancelButton.visible = joining
 
@@ -133,13 +131,24 @@ func _on_reconnect_to_server_button_pressed():
 
 func _on_matchmake_button_pressed():
 	var player_name = get_player_name()
-	NetworkManager.join_matchmaking(player_name, player_select.selected)
+	NetworkManager.join_matchmaking(player_name, player_selected_character)
 	update_buttons(true)
 
-
 func _on_char_select_close_character_select():
-	pass # Replace with function body.
-
+	char_select.visible = false
 
 func _on_char_select_select_character(char_id):
-	pass # Replace with function body.
+	var deck = CardDefinitions.get_deck_from_str_id(char_id)
+	if selecting_player:
+		player_selected_character = deck['id']
+		player_char_label.text = deck['display_name']
+		player_char_portrait.texture = load("res://assets/portraits/" + deck['id'] + ".png")
+	else:
+		opponent_selected_character = deck['id']
+		opponent_char_label.text = deck['display_name']
+		opponent_char_portrait.texture = load("res://assets/portraits/" + deck['id'] + ".png")
+	_on_char_select_close_character_select()
+
+func _on_change_player_character_button_pressed(is_player : bool):
+	char_select.visible = true
+	selecting_player = is_player

@@ -1,7 +1,18 @@
-[gd_scene load_steps=3 format=3 uid="uid://o8vjxrpicjsm"]
+[gd_scene load_steps=9 format=3 uid="uid://o8vjxrpicjsm"]
 
 [ext_resource type="Script" path="res://scenes/menu/main_menu.gd" id="1_bk4ch"]
 [ext_resource type="PackedScene" uid="uid://cqs72exlwm6at" path="res://scenes/menu/char_select.tscn" id="2_6qq11"]
+[ext_resource type="Texture2D" uid="uid://8pvgp7ipunso" path="res://assets/portraits/solbadguy.png" id="3_n1nv2"]
+[ext_resource type="Texture2D" uid="uid://mn1hj4i3k7l7" path="res://assets/cards/card_border_highlight_selected.png" id="4_ekoth"]
+[ext_resource type="Texture2D" uid="uid://ded5jrn5yju2j" path="res://assets/cards/card_border_highlight_pressed.png" id="5_xie03"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_0f2dl"]
+
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_i6bch"]
+texture = ExtResource("4_ekoth")
+
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_tii02"]
+texture = ExtResource("5_xie03")
 
 [node name="main_menu" type="Control"]
 layout_mode = 3
@@ -24,7 +35,7 @@ offset_top = 20.0
 offset_bottom = 101.0
 grow_horizontal = 2
 theme_override_font_sizes/font_size = 76
-text = "Card Game"
+text = "Exceed GG Fan Game"
 horizontal_alignment = 1
 vertical_alignment = 1
 
@@ -53,23 +64,50 @@ text = "Start vs AI"
 [node name="OpponentChooser" type="PanelContainer" parent="MenuList/VSAIBox"]
 layout_mode = 2
 
-[node name="Margin" type="MarginContainer" parent="MenuList/VSAIBox/OpponentChooser"]
+[node name="MarginContainer" type="MarginContainer" parent="MenuList/VSAIBox/OpponentChooser"]
+custom_minimum_size = Vector2(250, 120)
 layout_mode = 2
 theme_override_constants/margin_left = 10
 theme_override_constants/margin_top = 10
 theme_override_constants/margin_right = 10
 theme_override_constants/margin_bottom = 10
 
-[node name="VBox" type="VBoxContainer" parent="MenuList/VSAIBox/OpponentChooser/Margin"]
+[node name="VBoxContainer" type="VBoxContainer" parent="MenuList/VSAIBox/OpponentChooser/MarginContainer"]
 layout_mode = 2
 
-[node name="Instruction" type="Label" parent="MenuList/VSAIBox/OpponentChooser/Margin/VBox"]
+[node name="MarginContainer" type="MarginContainer" parent="MenuList/VSAIBox/OpponentChooser/MarginContainer/VBoxContainer"]
 layout_mode = 2
-text = "Choose your opponent:"
 
-[node name="OpponentCharSelect" type="OptionButton" parent="MenuList/VSAIBox/OpponentChooser/Margin/VBox"]
+[node name="Label" type="Label" parent="MenuList/VSAIBox/OpponentChooser/MarginContainer/VBoxContainer/MarginContainer"]
 layout_mode = 2
-allow_reselect = true
+theme_override_font_sizes/font_size = 24
+text = "Choose AI Fighter"
+horizontal_alignment = 1
+
+[node name="HBoxContainer" type="HBoxContainer" parent="MenuList/VSAIBox/OpponentChooser/MarginContainer/VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="CharPortrait" type="TextureRect" parent="MenuList/VSAIBox/OpponentChooser/MarginContainer/VBoxContainer/HBoxContainer"]
+layout_mode = 2
+texture = ExtResource("3_n1nv2")
+expand_mode = 3
+stretch_mode = 4
+
+[node name="MarginContainer" type="MarginContainer" parent="MenuList/VSAIBox/OpponentChooser/MarginContainer/VBoxContainer/HBoxContainer"]
+layout_mode = 2
+theme_override_constants/margin_left = 10
+
+[node name="CharName" type="Label" parent="MenuList/VSAIBox/OpponentChooser/MarginContainer/VBoxContainer/HBoxContainer"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 32
+text = "Sol Badguy"
+
+[node name="ChangePlayerCharacterButton" type="Button" parent="MenuList/VSAIBox/OpponentChooser"]
+layout_mode = 2
+theme_override_styles/normal = SubResource("StyleBoxEmpty_0f2dl")
+theme_override_styles/hover = SubResource("StyleBoxTexture_i6bch")
+theme_override_styles/pressed = SubResource("StyleBoxTexture_tii02")
 
 [node name="MatchmakeButton" type="Button" parent="MenuList"]
 layout_mode = 2
@@ -77,11 +115,22 @@ theme_override_font_sizes/font_size = 60
 disabled = true
 text = "Join Next Match"
 
-[node name="JoinButton" type="Button" parent="MenuList"]
+[node name="JoinBox" type="HBoxContainer" parent="MenuList"]
+layout_mode = 2
+
+[node name="JoinButton" type="Button" parent="MenuList/JoinBox"]
 layout_mode = 2
 theme_override_font_sizes/font_size = 60
 disabled = true
 text = "Join Room"
+
+[node name="RoomNameBox" type="TextEdit" parent="MenuList/JoinBox"]
+custom_minimum_size = Vector2(100, 50)
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 34
+text = "DefaultRoom"
+placeholder_text = "Room Name"
 
 [node name="CancelButton" type="Button" parent="MenuList"]
 layout_mode = 2
@@ -94,71 +143,84 @@ layout_mode = 2
 theme_override_font_sizes/font_size = 60
 text = "Quit"
 
-[node name="CharSelect" parent="." instance=ExtResource("2_6qq11")]
-visible = false
-
 [node name="PlayerChooser" type="PanelContainer" parent="."]
 layout_mode = 0
-offset_left = 100.0
-offset_top = 244.0
-offset_right = 285.0
-offset_bottom = 321.0
+offset_left = 20.0
+offset_top = 260.0
+offset_right = 282.0
+offset_bottom = 380.0
 
-[node name="Margin" type="MarginContainer" parent="PlayerChooser"]
+[node name="MarginContainer" type="MarginContainer" parent="PlayerChooser"]
+custom_minimum_size = Vector2(250, 120)
 layout_mode = 2
 theme_override_constants/margin_left = 10
 theme_override_constants/margin_top = 10
 theme_override_constants/margin_right = 10
 theme_override_constants/margin_bottom = 10
 
-[node name="VBox" type="VBoxContainer" parent="PlayerChooser/Margin"]
+[node name="VBoxContainer" type="VBoxContainer" parent="PlayerChooser/MarginContainer"]
 layout_mode = 2
 
-[node name="Instruction" type="Label" parent="PlayerChooser/Margin/VBox"]
+[node name="MarginContainer" type="MarginContainer" parent="PlayerChooser/MarginContainer/VBoxContainer"]
 layout_mode = 2
-text = "Choose your character:"
 
-[node name="PlayerCharSelect" type="OptionButton" parent="PlayerChooser/Margin/VBox"]
+[node name="Label" type="Label" parent="PlayerChooser/MarginContainer/VBoxContainer/MarginContainer"]
 layout_mode = 2
-allow_reselect = true
+theme_override_font_sizes/font_size = 24
+text = "Choose Your Fighter"
+horizontal_alignment = 1
+
+[node name="HBoxContainer" type="HBoxContainer" parent="PlayerChooser/MarginContainer/VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="CharPortrait" type="TextureRect" parent="PlayerChooser/MarginContainer/VBoxContainer/HBoxContainer"]
+layout_mode = 2
+texture = ExtResource("3_n1nv2")
+expand_mode = 3
+stretch_mode = 4
+
+[node name="MarginContainer" type="MarginContainer" parent="PlayerChooser/MarginContainer/VBoxContainer/HBoxContainer"]
+layout_mode = 2
+theme_override_constants/margin_left = 10
+
+[node name="CharName" type="Label" parent="PlayerChooser/MarginContainer/VBoxContainer/HBoxContainer"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 32
+text = "Sol Badguy"
+
+[node name="ChangePlayerCharacterButton" type="Button" parent="PlayerChooser"]
+layout_mode = 2
+theme_override_styles/normal = SubResource("StyleBoxEmpty_0f2dl")
+theme_override_styles/hover = SubResource("StyleBoxTexture_i6bch")
+theme_override_styles/pressed = SubResource("StyleBoxTexture_tii02")
 
 [node name="PlayerNameBox" type="TextEdit" parent="."]
 custom_minimum_size = Vector2(100, 50)
 layout_mode = 0
-offset_left = 46.0
-offset_top = 99.0
-offset_right = 327.0
-offset_bottom = 160.0
+offset_left = 20.0
+offset_top = 120.0
+offset_right = 300.0
+offset_bottom = 181.0
 theme_override_font_sizes/font_size = 34
 placeholder_text = "Player Name"
 editable = false
 
-[node name="RoomNameBox" type="TextEdit" parent="."]
-custom_minimum_size = Vector2(100, 50)
-layout_mode = 0
-offset_left = 99.0
-offset_top = 377.0
-offset_right = 380.0
-offset_bottom = 438.0
-theme_override_font_sizes/font_size = 34
-text = "DefaultRoom"
-placeholder_text = "Room Name"
-
 [node name="UpdateNameButton" type="Button" parent="."]
 layout_mode = 0
-offset_left = 80.0
-offset_top = 167.0
-offset_right = 284.0
-offset_bottom = 217.0
+offset_left = 60.0
+offset_top = 190.0
+offset_right = 264.0
+offset_bottom = 240.0
 theme_override_font_sizes/font_size = 32
 text = "Update Name"
 
 [node name="PlayerList" type="ItemList" parent="."]
 layout_mode = 0
 offset_left = 950.0
-offset_top = 110.0
+offset_top = 170.0
 offset_right = 1253.0
-offset_bottom = 472.0
+offset_bottom = 532.0
 theme_override_font_sizes/font_size = 24
 item_count = 2
 item_0/text = "Player"
@@ -167,18 +229,18 @@ item_1/text = "Player 2"
 [node name="PlayerListLabel" type="Label" parent="."]
 layout_mode = 0
 offset_left = 952.0
-offset_top = 52.0
-offset_right = 1063.0
-offset_bottom = 99.0
+offset_top = 120.0
+offset_right = 1216.0
+offset_bottom = 167.0
 theme_override_font_sizes/font_size = 34
 text = "Player    -      Room"
 
 [node name="ReconnectToServerButton" type="Button" parent="."]
 layout_mode = 0
-offset_left = 56.0
-offset_top = 529.0
-offset_right = 348.0
-offset_bottom = 621.0
+offset_left = 43.0
+offset_top = 581.0
+offset_right = 335.0
+offset_bottom = 673.0
 theme_override_font_sizes/font_size = 32
 text = "Reconnect to 
 Server"
@@ -192,12 +254,17 @@ offset_bottom = 659.0
 theme_override_font_sizes/font_size = 32
 text = "Connecting to server...."
 
+[node name="CharSelect" parent="." instance=ExtResource("2_6qq11")]
+visible = false
+
 [connection signal="pressed" from="MenuList/VSAIBox/StartButton" to="." method="_on_start_button_pressed"]
+[connection signal="pressed" from="MenuList/VSAIBox/OpponentChooser/ChangePlayerCharacterButton" to="." method="_on_change_player_character_button_pressed" binds= [false]]
 [connection signal="pressed" from="MenuList/MatchmakeButton" to="." method="_on_matchmake_button_pressed"]
-[connection signal="pressed" from="MenuList/JoinButton" to="." method="_on_join_button_pressed"]
+[connection signal="pressed" from="MenuList/JoinBox/JoinButton" to="." method="_on_join_button_pressed"]
 [connection signal="pressed" from="MenuList/CancelButton" to="." method="_on_cancel_button_pressed"]
 [connection signal="pressed" from="MenuList/QuitButton" to="." method="_on_quit_button_pressed"]
-[connection signal="close_character_select" from="CharSelect" to="." method="_on_char_select_close_character_select"]
-[connection signal="select_character" from="CharSelect" to="." method="_on_char_select_select_character"]
+[connection signal="pressed" from="PlayerChooser/ChangePlayerCharacterButton" to="." method="_on_change_player_character_button_pressed" binds= [true]]
 [connection signal="pressed" from="UpdateNameButton" to="." method="_on_update_name_button_pressed"]
 [connection signal="pressed" from="ReconnectToServerButton" to="." method="_on_reconnect_to_server_button_pressed"]
+[connection signal="close_character_select" from="CharSelect" to="." method="_on_char_select_close_character_select"]
+[connection signal="select_character" from="CharSelect" to="." method="_on_char_select_select_character"]

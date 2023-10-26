@@ -156,25 +156,23 @@ func _handle_players_update(message):
 
 ### Commands ###
 
-func join_room(player_name, room_name, deck_index):
+func join_room(player_name, room_name, deck_id_str : String):
 	if not _socket: return
-	var deck = CardDefinitions.get_deck_from_selector_index(deck_index)
 	var join_room_message = {
 		"type": "join_room",
 		"player_name": player_name,
 		"room_id": room_name,
-		"deck_id": deck["id"],
+		"deck_id": deck_id_str,
 	}
 	var json = JSON.stringify(join_room_message)
 	_socket.send_text(json)
 
-func join_matchmaking(player_name, deck_index):
+func join_matchmaking(player_name, deck_id_str : String):
 	if not _socket: return
-	var deck = CardDefinitions.get_deck_from_selector_index(deck_index)
 	var message = {
 		"type": "join_matchmaking",
 		"player_name": player_name,
-		"deck_id": deck["id"],
+		"deck_id": deck_id_str,
 	}
 	var json = JSON.stringify(message)
 	_socket.send_text(json)
