@@ -3,13 +3,15 @@ extends Control
 signal start_game(vs_info)
 signal start_remote_game(vs_info, data)
 
+const RoomMaxLen = 16
+
 @onready var player_list : ItemList = $PlayerList
 @onready var player_selected_character : String = "solbadguy"
 @onready var opponent_selected_character : String = "kykisuke"
 @onready var selecting_player : bool = true
 
 @onready var start_ai_button : Button = $MenuList/VSAIBox/StartButton
-@onready var room_select = $MenuList/JoinBox/RoomNameBox
+@onready var room_select : LineEdit = $MenuList/JoinBox/RoomNameBox
 @onready var join_room_button = $MenuList/JoinBox/JoinButton
 @onready var join_box = $MenuList/JoinBox
 
@@ -152,3 +154,17 @@ func _on_char_select_select_character(char_id):
 func _on_change_player_character_button_pressed(is_player : bool):
 	char_select.visible = true
 	selecting_player = is_player
+
+func cropLineToMaxLength(new_text : String, max_length: int) -> void:
+	if new_text.length() > max_length:
+		var col = room_select.caret_column
+		if col != 0:
+			new_text = new_text.substr(0, col-1) + new_text.substr(col)
+		else:
+			new_text = new_text.substr(1)
+		new_text = new_text.substr(0, max_length)
+		room_select.text = new_text
+		room_select.caret_column = col - 1
+		
+func _on_room_name_box_text_changed(new_text):
+	cropLineToMaxLength(new_text, RoomMaxLen)

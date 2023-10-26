@@ -124,13 +124,14 @@ theme_override_font_sizes/font_size = 60
 disabled = true
 text = "Join Room"
 
-[node name="RoomNameBox" type="TextEdit" parent="MenuList/JoinBox"]
+[node name="RoomNameBox" type="LineEdit" parent="MenuList/JoinBox"]
 custom_minimum_size = Vector2(100, 50)
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_font_sizes/font_size = 34
+theme_override_font_sizes/font_size = 24
 text = "DefaultRoom"
 placeholder_text = "Room Name"
+alignment = 1
 
 [node name="CancelButton" type="Button" parent="MenuList"]
 layout_mode = 2
@@ -261,6 +262,7 @@ visible = false
 [connection signal="pressed" from="MenuList/VSAIBox/OpponentChooser/ChangePlayerCharacterButton" to="." method="_on_change_player_character_button_pressed" binds= [false]]
 [connection signal="pressed" from="MenuList/MatchmakeButton" to="." method="_on_matchmake_button_pressed"]
 [connection signal="pressed" from="MenuList/JoinBox/JoinButton" to="." method="_on_join_button_pressed"]
+[connection signal="text_changed" from="MenuList/JoinBox/RoomNameBox" to="." method="_on_room_name_box_text_changed"]
 [connection signal="pressed" from="MenuList/CancelButton" to="." method="_on_cancel_button_pressed"]
 [connection signal="pressed" from="MenuList/QuitButton" to="." method="_on_quit_button_pressed"]
 [connection signal="pressed" from="PlayerChooser/ChangePlayerCharacterButton" to="." method="_on_change_player_character_button_pressed" binds= [true]]
