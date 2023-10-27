@@ -1634,6 +1634,10 @@ func continue_resolve_strike():
 				events += player1.cleanup_continuous_boosts()
 				events += player2.cleanup_continuous_boosts()
 
+				# Remove all stat boosts.
+				player.strike_stat_boosts.clear()
+				opponent.strike_stat_boosts.clear()
+
 				active_strike = null
 				if game_over:
 					change_game_state(Enums.GameState.GameState_GameOver)
