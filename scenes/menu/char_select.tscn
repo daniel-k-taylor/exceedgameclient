@@ -1,10 +1,18 @@
-[gd_scene load_steps=6 format=3 uid="uid://cqs72exlwm6at"]
+[gd_scene load_steps=13 format=3 uid="uid://cqs72exlwm6at"]
 
 [ext_resource type="Script" path="res://scenes/menu/char_select.gd" id="1_f3x24"]
 [ext_resource type="Texture2D" uid="uid://coh1i2m8ikmem" path="res://assets/references/charselect.png" id="1_ihc85"]
 [ext_resource type="Texture2D" uid="uid://ded5jrn5yju2j" path="res://assets/cards/card_border_highlight_pressed.png" id="3_ro1fy"]
 [ext_resource type="Texture2D" uid="uid://mn1hj4i3k7l7" path="res://assets/cards/card_border_highlight_selected.png" id="4_hqlo8"]
 [ext_resource type="Texture2D" uid="uid://xusjesyfjald" path="res://assets/icons/x.png" id="5_o831i"]
+[ext_resource type="PackedScene" uid="uid://nwqxp8pdh1jk" path="res://scenes/menu/char_select_button.tscn" id="6_3lmwy"]
+[ext_resource type="Texture2D" uid="uid://dckqq8p1ihy7o" path="res://assets/portraits/anji.png" id="6_h5jn6"]
+[ext_resource type="Texture2D" uid="uid://8pvgp7ipunso" path="res://assets/portraits/solbadguy.png" id="7_3jr2w"]
+[ext_resource type="Texture2D" uid="uid://1egthlu75owp" path="res://assets/portraits/ramlethal.png" id="8_o0338"]
+[ext_resource type="Texture2D" uid="uid://bn3hol65r7ylf" path="res://assets/portraits/random.png" id="8_vlgsf"]
+[ext_resource type="Texture2D" uid="uid://crv3kw2rfgg8g" path="res://assets/portraits/kykisuke.png" id="9_0auwh"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_8u80i"]
 
 [node name="CharSelect" type="Control"]
 layout_mode = 3
@@ -13,14 +21,8 @@ offset_right = 1280.0
 offset_bottom = 720.0
 script = ExtResource("1_f3x24")
 
-[node name="BackgroundButton" type="Button" parent="."]
-modulate = Color(1, 1, 1, 0)
-custom_minimum_size = Vector2(1280, 720)
-layout_mode = 0
-offset_right = 8.0
-offset_bottom = 8.0
-
 [node name="PanelContainer" type="PanelContainer" parent="."]
+visible = false
 custom_minimum_size = Vector2(1280, 720)
 layout_mode = 0
 offset_right = 40.0
@@ -306,7 +308,101 @@ texture_disabled = ExtResource("5_o831i")
 ignore_texture_size = true
 stretch_mode = 0
 
-[connection signal="pressed" from="BackgroundButton" to="." method="_on_background_button_pressed"]
+[node name="Panel" type="Panel" parent="."]
+custom_minimum_size = Vector2(1280, 720)
+layout_mode = 2
+offset_right = 1280.0
+offset_bottom = 720.0
+
+[node name="HoverBox" type="VBoxContainer" parent="."]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="MarginContainer" type="MarginContainer" parent="HoverBox"]
+layout_mode = 2
+theme_override_constants/margin_top = 150
+
+[node name="HBoxContainer" type="HBoxContainer" parent="HoverBox"]
+layout_mode = 2
+
+[node name="MarginContainer" type="MarginContainer" parent="HoverBox/HBoxContainer"]
+layout_mode = 2
+theme_override_constants/margin_left = 100
+
+[node name="VBoxContainer" type="VBoxContainer" parent="HoverBox/HBoxContainer"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="HoverBox/HBoxContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 42
+text = "Sol Badguy"
+
+[node name="Portrait" type="TextureRect" parent="HoverBox/HBoxContainer/VBoxContainer"]
+layout_mode = 2
+texture = ExtResource("6_h5jn6")
+stretch_mode = 5
+
+[node name="HBoxContainer2" type="HBoxContainer" parent="HoverBox"]
+layout_mode = 2
+
+[node name="MarginContainer" type="MarginContainer" parent="HoverBox/HBoxContainer2"]
+layout_mode = 2
+theme_override_constants/margin_left = 100
+
+[node name="CenterContainer" type="CenterContainer" parent="."]
+custom_minimum_size = Vector2(1280, 720)
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="BackgroundButton" type="Button" parent="CenterContainer"]
+modulate = Color(1, 1, 1, 0)
+custom_minimum_size = Vector2(1280, 720)
+layout_mode = 2
+
+[node name="CharactersPanel" type="PanelContainer" parent="CenterContainer"]
+layout_mode = 2
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxEmpty_8u80i")
+
+[node name="Rows" type="VBoxContainer" parent="CenterContainer/CharactersPanel"]
+layout_mode = 2
+mouse_filter = 2
+alignment = 1
+
+[node name="Row1" type="HBoxContainer" parent="CenterContainer/CharactersPanel/Rows"]
+layout_mode = 2
+
+[node name="Sol" parent="CenterContainer/CharactersPanel/Rows/Row1" instance=ExtResource("6_3lmwy")]
+layout_mode = 2
+char_id = "solbadguy"
+portrait_texture = ExtResource("7_3jr2w")
+
+[node name="Random" parent="CenterContainer/CharactersPanel/Rows/Row1" instance=ExtResource("6_3lmwy")]
+layout_mode = 2
+char_id = "random"
+portrait_texture = ExtResource("8_vlgsf")
+
+[node name="Ky" parent="CenterContainer/CharactersPanel/Rows/Row1" instance=ExtResource("6_3lmwy")]
+layout_mode = 2
+char_id = "kykisuke"
+portrait_texture = ExtResource("9_0auwh")
+
+[node name="Row2" type="HBoxContainer" parent="CenterContainer/CharactersPanel/Rows"]
+layout_mode = 2
+size_flags_horizontal = 4
+
+[node name="Anji" parent="CenterContainer/CharactersPanel/Rows/Row2" instance=ExtResource("6_3lmwy")]
+layout_mode = 2
+char_id = "anji"
+portrait_texture = ExtResource("6_h5jn6")
+
+[node name="Ram" parent="CenterContainer/CharactersPanel/Rows/Row2" instance=ExtResource("6_3lmwy")]
+layout_mode = 2
+char_id = "ramlethal"
+portrait_texture = ExtResource("8_o0338")
+
 [connection signal="pressed" from="PanelContainer/VBoxContainer/Row1/TextureButton" to="." method="_on_character_button_pressed" binds= ["testament"]]
 [connection signal="pressed" from="PanelContainer/VBoxContainer/Row1/TextureButton3" to="." method="_on_character_button_pressed" binds= ["happychaos"]]
 [connection signal="pressed" from="PanelContainer/VBoxContainer/Row2/TextureButton" to="." method="_on_character_button_pressed" binds= ["millia"]]
@@ -328,3 +424,14 @@ stretch_mode = 0
 [connection signal="pressed" from="PanelContainer/VBoxContainer/Row6/TextureButton2" to="." method="_on_character_button_pressed" binds= ["baiken"]]
 [connection signal="pressed" from="PanelContainer/VBoxContainer/Row6/TextureButton3" to="." method="_on_character_button_pressed" binds= ["giovanna"]]
 [connection signal="pressed" from="PanelContainer/VBoxContainer/Row6/TextureButton4" to="." method="_on_character_button_pressed" binds= ["goldlewis"]]
+[connection signal="pressed" from="CenterContainer/BackgroundButton" to="." method="_on_background_button_pressed"]
+[connection signal="on_hover" from="CenterContainer/CharactersPanel/Rows/Row1/Sol" to="." method="_on_char_hover"]
+[connection signal="on_pressed" from="CenterContainer/CharactersPanel/Rows/Row1/Sol" to="." method="_on_char_button_on_pressed"]
+[connection signal="on_hover" from="CenterContainer/CharactersPanel/Rows/Row1/Random" to="." method="_on_char_hover"]
+[connection signal="on_pressed" from="CenterContainer/CharactersPanel/Rows/Row1/Random" to="." method="_on_char_button_on_pressed"]
+[connection signal="on_hover" from="CenterContainer/CharactersPanel/Rows/Row1/Ky" to="." method="_on_char_hover"]
+[connection signal="on_pressed" from="CenterContainer/CharactersPanel/Rows/Row1/Ky" to="." method="_on_char_button_on_pressed"]
+[connection signal="on_hover" from="CenterContainer/CharactersPanel/Rows/Row2/Anji" to="." method="_on_char_hover"]
+[connection signal="on_pressed" from="CenterContainer/CharactersPanel/Rows/Row2/Anji" to="." method="_on_char_button_on_pressed"]
+[connection signal="on_hover" from="CenterContainer/CharactersPanel/Rows/Row2/Ram" to="." method="_on_char_hover"]
+[connection signal="on_pressed" from="CenterContainer/CharactersPanel/Rows/Row2/Ram" to="." method="_on_char_button_on_pressed"]

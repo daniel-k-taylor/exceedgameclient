@@ -106,7 +106,8 @@ func get_player_name() -> String:
 func _on_join_button_pressed():
 	var player_name = get_player_name()
 	var room_name = room_select.text
-	NetworkManager.join_room(player_name, room_name, player_selected_character)
+	var chosen_deck = CardDefinitions.get_deck_from_str_id(player_selected_character)
+	NetworkManager.join_room(player_name, room_name, chosen_deck['id'])
 	update_buttons(true)
 
 func update_buttons(joining : bool):
@@ -133,25 +134,35 @@ func _on_reconnect_to_server_button_pressed():
 
 func _on_matchmake_button_pressed():
 	var player_name = get_player_name()
-	NetworkManager.join_matchmaking(player_name, player_selected_character)
+	var chosen_deck = CardDefinitions.get_deck_from_str_id(player_selected_character)
+	NetworkManager.join_matchmaking(player_name, chosen_deck['id'])
 	update_buttons(true)
 
 func _on_char_select_close_character_select():
 	char_select.visible = false
 
+func update_char(label, portrait, char_id):
+	var display_name = "Random"
+	if char_id != "random":
+		var deck = CardDefinitions.get_deck_from_str_id(char_id)
+		display_name = deck['id']
+	label.text = display_name
+	portrait.texture = load("res://assets/portraits/" + char_id + ".png")
+
 func _on_char_select_select_character(char_id):
-	var deck = CardDefinitions.get_deck_from_str_id(char_id)
 	if selecting_player:
-		player_selected_character = deck['id']
-		player_char_label.text = deck['display_name']
-		player_char_portrait.texture = load("res://assets/portraits/" + deck['id'] + ".png")
+		player_selected_character = char_id
+		update_char(player_char_label, player_char_portrait, char_id)
 	else:
-		opponent_selected_character = deck['id']
-		opponent_char_label.text = deck['display_name']
-		opponent_char_portrait.texture = load("res://assets/portraits/" + deck['id'] + ".png")
+		opponent_selected_character =char_id
+		update_char(opponent_char_label, opponent_char_portrait, char_id)
 	_on_char_select_close_character_select()
 
 func _on_change_player_character_button_pressed(is_player : bool):
+	var char_id = player_selected_character
+	if not is_player:
+		char_id = opponent_selected_character
+	char_select.show_char_select(char_id)
 	char_select.visible = true
 	selecting_player = is_player
 
