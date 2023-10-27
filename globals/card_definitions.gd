@@ -7,11 +7,12 @@ var decks_path = "res://data/decks"
 var decks = []
 
 const SelectorIndexToDeckId = {
-	0: "anji",
-	1: "ramlethal",
-	2: "kykisuke",
-	3: "solbadguy",
-	4: "random",
+	0: "potemkin",
+	1: "anji",
+	2: "ramlethal",
+	3: "kykisuke",
+	4: "solbadguy",
+	5: "random",
 }
 
 func get_deck_from_selector_index(index : int):
@@ -19,7 +20,7 @@ func get_deck_from_selector_index(index : int):
 		if deck['id'] == SelectorIndexToDeckId[index]:
 			return deck
 	return get_random_deck()
-	
+
 func get_random_deck():
 	# Randomize
 	var random_index = randi() % len(decks)

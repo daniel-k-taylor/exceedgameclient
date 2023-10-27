@@ -657,6 +657,8 @@ func _stat_notice_event(event):
 			notice_text = "+%d Armor" % number
 		Enums.EventType.EventType_Strike_DodgeAttacks:
 			notice_text = "Dodge Attacks!"
+		Enums.EventType.EventType_Strike_DodgeAttacksAtRange:
+			notice_text = "Dodge at range %s-%s" % [number, event['extra_info']]
 		Enums.EventType.EventType_Strike_ExUp:
 			notice_text = "EX Strike!"
 		Enums.EventType.EventType_Strike_GainAdvantage:
@@ -1474,7 +1476,7 @@ func _handle_events(events):
 				_on_choose_to_discard(event, false)
 			Enums.EventType.EventType_Strike_ChooseToDiscard_Info:
 				_on_choose_to_discard(event, true)
-			Enums.EventType.EventType_Strike_DodgeAttacks:
+			Enums.EventType.EventType_Strike_DodgeAttacks, Enums.EventType.EventType_Strike_DodgeAttacksAtRange:
 				delay = _stat_notice_event(event)
 			Enums.EventType.EventType_Strike_DoResponseNow:
 				_on_strike_do_response_now(event)

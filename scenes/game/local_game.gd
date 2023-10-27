@@ -120,6 +120,7 @@ class Strike:
 	var initiator_wild_strike : bool = false
 	var defender_wild_strike : bool = false
 	var strike_state
+	var starting_distance : int = -1
 	var in_setup : bool = true
 	var effects_resolved_in_timing : int = 0
 	var player1_hit : bool = false
@@ -181,6 +182,8 @@ class StrikeStatBoosts:
 	var min_range : int = 0
 	var max_range : int = 0
 	var dodge_attacks : bool = false
+	var dodge_at_range_min : int = -1
+	var dodge_at_range_max : int = -1
 	var ignore_armor : bool = false
 	var ignore_guard : bool = false
 	var ignore_push_and_pull : bool = false
@@ -199,6 +202,8 @@ class StrikeStatBoosts:
 		min_range = 0
 		max_range = 0
 		dodge_attacks = false
+		dodge_at_range_min = -1
+		dodge_at_range_max = -1
 		ignore_armor = false
 		ignore_guard = false
 		ignore_push_and_pull = false
@@ -714,6 +719,27 @@ class Player:
 
 		return events
 
+	func pull_not_past(amount):
+		var events = []
+		var other_player = parent._get_player(parent.get_other_player(my_id))
+		if other_player.strike_stat_boosts.ignore_push_and_pull:
+			events += [parent.create_event(Enums.EventType.EventType_Strike_IgnoredPushPull, other_player.my_id, 0)]
+		else:
+			var other_player_location = other_player.arena_location
+			var previous_location = other_player_location
+			var new_location
+			if arena_location < other_player_location:
+				new_location = other_player_location - amount
+				new_location = min(new_location, arena_location + 1)
+			else:
+				new_location = other_player_location + amount
+				new_location = max(new_location, arena_location - 1)
+
+			other_player.arena_location = new_location
+			events += [parent.create_event(Enums.EventType.EventType_Move, other_player.my_id, new_location, "pull", amount, previous_location)]
+
+		return events
+
 	func add_to_continuous_boosts(card : GameCard):
 		var events = []
 		for boost_card in continuous_boosts:
@@ -926,6 +952,8 @@ func initialize_new_strike():
 	player.strike_stat_boosts.clear()
 	opponent.strike_stat_boosts.clear()
 
+	active_strike.starting_distance = abs(player.arena_location - opponent.arena_location)
+
 func continue_setup_strike(events):
 	if active_strike.strike_state == StrikeState.StrikeState_Initiator_SetEffects:
 		var initiator_set_strike_effects = active_strike.initiator.get_set_strike_effects()
@@ -1038,6 +1066,12 @@ func is_effect_condition_met(performing_player : Player, effect, local_condition
 		elif condition == "not_initiated_strike":
 			var initiated_strike = active_strike.initiator == performing_player
 			return not initiated_strike
+		elif condition == "initiated_at_range":
+			var range_min = effect['range_min']
+			var range_max = effect['range_max']
+			var initiated_strike = active_strike.initiator == performing_player
+			var starting_distance = active_strike.starting_distance
+			return initiated_strike and starting_distance >= range_min and starting_distance <= range_max
 		elif condition == "canceled_this_turn":
 			return performing_player.canceled_this_turn
 		elif condition == "not_canceled_this_turn":
@@ -1134,6 +1168,11 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 			var close_amount = abs(performing_start - new_location)
 			local_conditions.fully_closed = close_amount == effect['amount']
 			_append_log("%s Close %s - Moved from %s to %s." % [performing_player.name, str(effect['amount']), str(previous_location), str(new_location)])
+		"dodge_at_range":
+			performing_player.strike_stat_boosts.dodge_at_range_min = effect['range_min']
+			performing_player.strike_stat_boosts.dodge_at_range_max = effect['range_max']
+			events += [create_event(Enums.EventType.EventType_Strike_DodgeAttacksAtRange, performing_player.my_id, effect['range_min'], "", effect['range_max'])]
+			_append_log("%s is now dodging attacks at range %s-%s." % [performing_player.name, str(effect['range_min']), str(effect['range_max'])])
 		"dodge_attacks":
 			performing_player.strike_stat_boosts.dodge_attacks = true
 			events += [create_event(Enums.EventType.EventType_Strike_DodgeAttacks, performing_player.my_id, 0)]
@@ -1230,6 +1269,11 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 			if (other_start < performing_start and new_location > performing_start) or (other_start > performing_start and new_location < performing_start):
 				local_conditions.pulled_past = true
 			_append_log("%s Pull %s - %s moved from %s to %s." % [performing_player.name, str(effect['amount']), _get_player(get_other_player(performing_player.my_id)).name, str(previous_location), str(new_location)])
+		"pull_not_past":
+			var previous_location = opposing_player.arena_location
+			events += performing_player.pull_not_past(effect['amount'])
+			var new_location = opposing_player.arena_location
+			_append_log("%s Pull %s (without pulling past) - %s moved from %s to %s." % [performing_player.name, str(effect['amount']), _get_player(get_other_player(performing_player.my_id)).name, str(previous_location), str(new_location)])
 		"push":
 			var previous_location = opposing_player.arena_location
 			events += performing_player.push(effect['amount'])
@@ -1369,6 +1413,9 @@ func in_range(atacking_player, defending_player, card):
 	var min_range = card.definition['range_min'] + atacking_player.strike_stat_boosts.min_range
 	var max_range = card.definition['range_max'] + atacking_player.strike_stat_boosts.max_range
 	var distance = abs(atacking_player.arena_location - defending_player.arena_location)
+	if defending_player.strike_stat_boosts.dodge_at_range_min != -1:
+		if defending_player.strike_stat_boosts.dodge_at_range_min <= distance and distance <= defending_player.strike_stat_boosts.dodge_at_range_max:
+			return false
 	if min_range <= distance and distance <= max_range:
 		return true
 	return false
