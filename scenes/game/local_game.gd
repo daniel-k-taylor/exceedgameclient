@@ -730,10 +730,10 @@ class Player:
 			var new_location
 			if arena_location < other_player_location:
 				new_location = other_player_location - amount
-				new_location = min(new_location, arena_location + 1)
+				new_location = max(new_location, arena_location + 1)
 			else:
 				new_location = other_player_location + amount
-				new_location = max(new_location, arena_location - 1)
+				new_location = min(new_location, arena_location - 1)
 
 			other_player.arena_location = new_location
 			events += [parent.create_event(Enums.EventType.EventType_Move, other_player.my_id, new_location, "pull", amount, previous_location)]

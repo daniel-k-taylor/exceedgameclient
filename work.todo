@@ -1,12 +1,5 @@
 In progress:
 
-    ☐ Write tests
-    Potemkin:
-        ☐ Attacks at range 4+ miss - dodge_at_range @started(23-10-26 21:21)
-            ☐ EventType_Strike_DodgeAttacksAtRange @started(23-10-26 21:24)
-        ☐ initiated_at_range condition - exceed @started(23-10-26 21:38)
-        ☐ pull_not_past @started(23-10-26 21:28)
-
 Tasks:
     Main Features:
         ☐ Observers on server
