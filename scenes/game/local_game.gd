@@ -499,6 +499,14 @@ class Player:
 					break
 		return events
 
+	func discard_hand():
+		var events = []
+		var card_ids = []
+		for card in hand:
+			card_ids.append(card.id)
+		events += discard(card_ids)
+		return events
+
 	func discard_matching_or_reveal(card_definition_id : String):
 		var events = []
 		for card in hand:
@@ -532,6 +540,10 @@ class Player:
 
 	func reveal_topdeck():
 		var events = []
+		if deck.size() == 0:
+			parent._append_log("%s deck is empty, can't reveal top of deck." % [name])
+			return events
+			
 		var card_name = parent.card_db.get_card_name(deck[0].id)
 		if self == parent.player:
 			parent._append_log("%s revealed top of deck to opponent." % [name])
@@ -1193,6 +1205,9 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 			var boost_to_discard_id = effect['card_id']
 			var card = card_db.get_card(boost_to_discard_id)
 			events += _get_player(get_other_player(performing_player.my_id)).remove_from_continuous_boosts(card, false)
+		"discard_hand":
+			_append_log("%s discards hand." % [performing_player.name])
+			events += performing_player.discard_hand()
 		"force_for_effect":
 			change_game_state(Enums.GameState.GameState_PlayerDecision)
 			decision_info.player = performing_player.my_id

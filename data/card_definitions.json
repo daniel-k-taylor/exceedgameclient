@@ -966,7 +966,7 @@
 				{
 					"timing": "now",
 					"effect_type": "choice",
-					"choie": [
+					"choice": [
 						{ "effect_type": "advance", "amount": 2 },
 						{ "effect_type": "retreat", "amount": 2 }
 					]

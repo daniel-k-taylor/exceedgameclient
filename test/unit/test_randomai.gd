@@ -227,7 +227,7 @@ func handle_strike(game: LocalGame, aiplayer : AIPlayer, otherai : AIPlayer, act
 			Enums.DecisionType.DecisionType_ChooseToDiscard:
 				var amount = game.decision_info.effect['amount']
 				var chooseaction = decision_ai.pick_choose_to_discard(game, decision_player.my_id, amount)
-				assert_true(game.do_choose_to_discard(decision_ai.game_player, chooseaction.card_id), "do choose to discard failed")
+				assert_true(game.do_choose_to_discard(decision_ai.game_player, chooseaction.card_ids), "do choose to discard failed")
 			_:
 				assert(false, "Unimplemented decision type")
 
@@ -320,6 +320,33 @@ func test_ky_100():
 
 func test_ram_100():
 	default_deck = CardDefinitions.get_deck_from_str_id("ramlethal")
+	for i in range(100):
+		print("==== RUNNING TEST %d ====" % i)
+		run_ai_game()
+		game_teardown()
+		game_setup()
+	pass_test("Finished match")
+
+func test_anji_100():
+	default_deck = CardDefinitions.get_deck_from_str_id("anji")
+	for i in range(100):
+		print("==== RUNNING TEST %d ====" % i)
+		run_ai_game()
+		game_teardown()
+		game_setup()
+	pass_test("Finished match")
+	
+func test_pot_100():
+	default_deck = CardDefinitions.get_deck_from_str_id("potemkin")
+	for i in range(100):
+		print("==== RUNNING TEST %d ====" % i)
+		run_ai_game()
+		game_teardown()
+		game_setup()
+	pass_test("Finished match")
+	
+func test_may_100():
+	default_deck = CardDefinitions.get_deck_from_str_id("may")
 	for i in range(100):
 		print("==== RUNNING TEST %d ====" % i)
 		run_ai_game()
