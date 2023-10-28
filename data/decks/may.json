@@ -40,60 +40,60 @@
 	],
 	"cards": [
 		{
-			"definition_id": "anji_isseiougisai",
-			"image": "anji_isseiougisai.tres"
+			"definition_id": "may_goshogawara",
+			"image": "may_goshogawara.tres"
 		},
 		{
-			"definition_id": "anji_isseiougisai",
-			"image": "anji_isseiougisai.tres"
+			"definition_id": "may_goshogawara",
+			"image": "may_goshogawara.tres"
 		},
 		{
-			"definition_id": "anji_kachoufuugetsukai",
-			"image": "anji_kachoufuugetsukai.tres"
+			"definition_id": "may_yamada",
+			"image": "may_yamada.tres"
 		},
 		{
-			"definition_id": "anji_kachoufuugetsukai",
-			"image": "anji_kachoufuugetsukai.tres"
+			"definition_id": "may_yamada",
+			"image": "may_yamada.tres"
 		},
 		{
-			"definition_id": "anji_fuujin",
-			"image": "anji_fuujin.tres"
+			"definition_id": "may_totsugeki",
+			"image": "may_totsugeki.tres"
 		},
 		{
-			"definition_id": "anji_fuujin",
-			"image": "anji_fuujin.tres"
+			"definition_id": "may_totsugeki",
+			"image": "may_totsugeki.tres"
 		},
 		{
-			"definition_id": "anji_nagiha",
-			"image": "anji_nagiha.tres"
+			"definition_id": "may_arisugawasparkle",
+			"image": "may_arisugawasparkle.tres"
 		},
 		{
-			"definition_id": "anji_nagiha",
-			"image": "anji_nagiha.tres"
+			"definition_id": "may_arisugawasparkle",
+			"image": "may_arisugawasparkle.tres"
 		},
 		{
-			"definition_id": "anji_kou",
-			"image": "anji_kou.tres"
+			"definition_id": "may_mrdolphin",
+			"image": "may_mrdolphin.tres"
 		},
 		{
-			"definition_id": "anji_kou",
-			"image": "anji_kou.tres"
+			"definition_id": "may_mrdolphin",
+			"image": "may_mrdolphin.tres"
 		},
 		{
-			"definition_id": "anji_rin",
-			"image": "anji_rin.tres"
+			"definition_id": "may_overheadkiss",
+			"image": "may_overheadkiss.tres"
 		},
 		{
-			"definition_id": "anji_rin",
-			"image": "anji_rin.tres"
+			"definition_id": "may_overheadkiss",
+			"image": "may_overheadkiss.tres"
 		},
 		{
-			"definition_id": "anji_shitsu",
-			"image": "anji_shitsu.tres"
+			"definition_id": "may_anchorswing",
+			"image": "may_anchorswing.tres"
 		},
 		{
-			"definition_id": "anji_shitsu",
-			"image": "anji_shitsu.tres"
+			"definition_id": "may_anchorswing",
+			"image": "may_anchorswing.tres"
 		},
 		{
 			"definition_id": "gg_normal_grasp",

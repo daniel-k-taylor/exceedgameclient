@@ -1,4 +1,4 @@
-[gd_scene load_steps=14 format=3 uid="uid://cqs72exlwm6at"]
+[gd_scene load_steps=15 format=3 uid="uid://cqs72exlwm6at"]
 
 [ext_resource type="Script" path="res://scenes/menu/char_select.gd" id="1_f3x24"]
 [ext_resource type="Texture2D" uid="uid://coh1i2m8ikmem" path="res://assets/references/charselect.png" id="1_ihc85"]
@@ -11,6 +11,7 @@
 [ext_resource type="Texture2D" uid="uid://1egthlu75owp" path="res://assets/portraits/ramlethal.png" id="8_o0338"]
 [ext_resource type="Texture2D" uid="uid://bn3hol65r7ylf" path="res://assets/portraits/random.png" id="8_vlgsf"]
 [ext_resource type="Texture2D" uid="uid://crv3kw2rfgg8g" path="res://assets/portraits/kykisuke.png" id="9_0auwh"]
+[ext_resource type="Texture2D" uid="uid://bwrjf0kdg6pt8" path="res://assets/portraits/may.png" id="12_305dm"]
 [ext_resource type="Texture2D" uid="uid://g32sibw8hpwj" path="res://assets/portraits/potemkin.png" id="12_keamw"]
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_8u80i"]
@@ -374,6 +375,7 @@ alignment = 1
 
 [node name="Row1" type="HBoxContainer" parent="CenterContainer/CharactersPanel/Rows"]
 layout_mode = 2
+alignment = 1
 
 [node name="Sol" parent="CenterContainer/CharactersPanel/Rows/Row1" instance=ExtResource("6_3lmwy")]
 layout_mode = 2
@@ -393,6 +395,7 @@ portrait_texture = ExtResource("9_0auwh")
 [node name="Row2" type="HBoxContainer" parent="CenterContainer/CharactersPanel/Rows"]
 layout_mode = 2
 size_flags_horizontal = 4
+alignment = 1
 
 [node name="Anji" parent="CenterContainer/CharactersPanel/Rows/Row2" instance=ExtResource("6_3lmwy")]
 layout_mode = 2
@@ -403,6 +406,11 @@ portrait_texture = ExtResource("6_h5jn6")
 layout_mode = 2
 char_id = "ramlethal"
 portrait_texture = ExtResource("8_o0338")
+
+[node name="May" parent="CenterContainer/CharactersPanel/Rows/Row2" instance=ExtResource("6_3lmwy")]
+layout_mode = 2
+char_id = "may"
+portrait_texture = ExtResource("12_305dm")
 
 [node name="Potemkin" parent="CenterContainer/CharactersPanel/Rows/Row2" instance=ExtResource("6_3lmwy")]
 layout_mode = 2
@@ -441,5 +449,7 @@ portrait_texture = ExtResource("12_keamw")
 [connection signal="on_pressed" from="CenterContainer/CharactersPanel/Rows/Row2/Anji" to="." method="_on_char_button_on_pressed"]
 [connection signal="on_hover" from="CenterContainer/CharactersPanel/Rows/Row2/Ram" to="." method="_on_char_hover"]
 [connection signal="on_pressed" from="CenterContainer/CharactersPanel/Rows/Row2/Ram" to="." method="_on_char_button_on_pressed"]
+[connection signal="on_hover" from="CenterContainer/CharactersPanel/Rows/Row2/May" to="." method="_on_char_hover"]
+[connection signal="on_pressed" from="CenterContainer/CharactersPanel/Rows/Row2/May" to="." method="_on_char_button_on_pressed"]
 [connection signal="on_hover" from="CenterContainer/CharactersPanel/Rows/Row2/Potemkin" to="." method="_on_char_hover"]
 [connection signal="on_pressed" from="CenterContainer/CharactersPanel/Rows/Row2/Potemkin" to="." method="_on_char_button_on_pressed"]
