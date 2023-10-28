@@ -1,4 +1,10 @@
 In progress:
+    May:
+        ☐ make atlases
+        ☐ make animation sprite
+        ☐ add to charselect
+        ☐ Yamada boost
+        ☐ discard_hand
 
 Tasks:
     Main Features:
@@ -39,3 +45,86 @@ Later:
         ☐ Ultra/Special/Normal distinguishing factor
         ☐ Model after hearthstone!
     ☐ Networking - make server smart, validate moves, and hide card ids from client
+
+
+Character:
+
+    Axl:
+        ☐ permanent char ability boost - just make it a set_strike effect
+        ☐ hit may spend gauge
+        ☐ play as boost and sustain
+        ☐ discard from play and take 3 actions
+        ☐ lose all armor
+        ☐ look at top 3 of deck, boost/strike with one, discard the rest
+    Baiken:
+        ☐ Gauge action ability
+        ☐ 3 or fewer cards
+        ☐ nonlethal damage
+        ☐ plus power for each damage taken
+    Chipp:
+        ☐ After char ability
+        ☐ opponent powerup
+        ☐ after return this to hand
+        ☐ edge of arena condition
+        ☐ after add this to gauge cancels boost effect
+        ☐ Spend up to X gauge for bonuses
+    Faust:
+        ☐ action - boost top card then strike
+            ☐ reveal top 2 and choose
+        ☐ snip snip - give to opponent
+        ☐ condition boost in play
+        ☐ may discard boost
+        ☐ opponent spend force to discard
+        ☐ pull, if range 1 effect
+        ☐ both players have effect
+        ☐ boost and sustain top 2 deck
+        ☐ higher speed misses
+    Giovanna:
+        ☐ action strike and effect
+        ☐ action - gauge
+    Goldlewis:
+        ☐ max hand is 9, draw 2 at start
+        ☐ specials have draw 2 hit
+        ☐ lose all armor
+        ☐ at start of turn boost effect
+        ☐ opponent can't advance past
+        ☐ EX attack bonus
+    HappyChaos:
+    Ino:
+        ☐ Force action
+        ☐ condition - initiated after moving 2+
+        ☐ opponent discard hand
+        ☐ discard from opponent's gauge
+        ☐ Pay gauge to sustain
+        ☐ lose all armor
+    Jacko:
+        ☐ Boost from hand or gauge
+        ☐ hit may add to gauge
+        ☐ lose all armor
+        ☐ if boost in play
+        ☐ play and sustain
+        ☐ for each boost bonus
+        ☐ sustain a boost
+    Leo:
+        ☐ after exceed if stunned
+        ☐ wild swing bonus, revert if no strike
+        ☐ reveal your hand
+        ☐ double bonuses if wild
+        ☐ cleanup exceed revert
+        ☐ hand to top deck
+        ☐ exceed as boost
+        ☐ exceed only effect
+        ☐ if invalid effect
+
+    Millia:
+        ☐ if stunned exceed choice
+        ☐ return to hand
+    Nago:
+    Testament:
+        ☐ normals permanent bonus
+        ☐ hit play this as boost and sustain
+        ☐ gauge to hand
+        ☐ look at opponents top and may discard
+        ☐ cleanup not stunned return attack
+        ☐ after opponent set ability
+    Zato:
