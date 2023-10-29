@@ -6,18 +6,9 @@ var card_definitions_path = "res://data/card_definitions.json"
 var decks_path = "res://data/decks"
 var decks = []
 
-const SelectorIndexToDeckId = {
-	0: "potemkin",
-	1: "anji",
-	2: "ramlethal",
-	3: "kykisuke",
-	4: "solbadguy",
-	5: "random",
-}
-
-func get_deck_from_selector_index(index : int):
+func get_deck_test_deck():
 	for deck in decks:
-		if deck['id'] == SelectorIndexToDeckId[index]:
+		if deck['id'] == "millia":
 			return deck
 	return get_random_deck()
 

@@ -1,11 +1,8 @@
 In progress:
-    May:
-        ✔ make atlases @done(23-10-28 11:28)
-        ✔ make animation sprite @done(23-10-28 11:33)
-        ✔ add to charselect @done(23-10-28 11:36)
-        ✔ Yamada boost @done(23-10-28 11:52)
-        ✔ discard_hand @done(23-10-28 11:57)
-
+    Millia:
+        ☐ if stunned exceed choice
+        ☐ return_this_to_hand
+        ☐ hit force effect @started(23-10-28 20:12)
 Tasks:
     Main Features:
         ☐ Observers on server
@@ -116,9 +113,7 @@ Character:
         ☐ exceed only effect
         ☐ if invalid effect
 
-    Millia:
-        ☐ if stunned exceed choice
-        ☐ return to hand
+
     Nago:
     Testament:
         ☐ normals permanent bonus

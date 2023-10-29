@@ -138,8 +138,8 @@ func _ready():
 	if player_deck == null:
 		# Started this scene directly.
 		var vs_info = {
-			'player_deck': CardDefinitions.get_deck_from_selector_index(0),
-			'opponent_deck': CardDefinitions.get_deck_from_selector_index(0),
+			'player_deck': CardDefinitions.get_deck_test_deck(),
+			'opponent_deck': CardDefinitions.get_deck_test_deck(),
 		}
 		begin_local_game(vs_info)
 

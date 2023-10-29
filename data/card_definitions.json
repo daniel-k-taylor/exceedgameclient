@@ -981,6 +981,357 @@
 		"NOTEEND": "MAY CARDS END"
 	},
 
+	{
+		"NOTE": "MILLIA CARDS START",
+		"id": "millia_septemvoices",
+		"type": "ultra",
+		"display_name": "Septem Voices",
+		"force_cost": 0,
+		"gauge_cost": 2,
+		"range_min": 2,
+		"range_max": 4,
+		"speed": 5,
+		"power": 4,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "hit",
+				"effect_type": "choice",
+				"choice": [
+					{ "effect_type": "push", "amount": 1 },
+					{ "effect_type": "pull", "amount": 1 }
+				]
+			},
+			{
+				"timing": "hit",
+				"effect_type": "draw",
+				"amount": 1
+			},
+			{
+				"timing": "hit",
+				"effect_type": "opponent_discard_random",
+				"amount": 1
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": 1,
+			"display_name": "Writhe in Pain",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "powerup",
+					"amount": 1
+				},
+				{
+					"timing": "hit",
+					"effect_type": "choice",
+					"choice": [
+						{ "effect_type": "push", "amount": 1 },
+						{ "effect_type": "pull", "amount": 1 }
+					]
+				},
+				{
+					"timing": "hit",
+					"effect_type": "opponent_discard_random",
+					"amount": 1
+				}
+			]
+		}
+	},
+	{
+		"id": "millia_winger",
+		"type": "ultra",
+		"display_name": "Winger",
+		"force_cost": 0,
+		"gauge_cost": 3,
+		"range_min": 1,
+		"range_max": 2,
+		"speed": 5,
+		"power": 5,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "hit",
+				"condition": "range",
+				"condition_amount": 1,
+				"effect_type": "powerup",
+				"amount": 2
+			},
+			{
+				"timing": "after",
+				"effect_type": "advance",
+				"amount": 2
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": 1,
+			"display_name": "Love the Subhuman Self",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "speedup",
+					"amount": 1
+				},
+				{
+					"timing": "hit",
+					"effect_type": "choice",
+					"choice": [
+						{ "effect_type": "draw", "amount": 1 },
+						{ "effect_type": "gain_advantage" }
+					]
+				}
+			]
+		}
+	},
+	{
+		"id": "millia_lowkick",
+		"type": "special",
+		"display_name": "Low Kick",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 1,
+		"speed": 7,
+		"power": 2,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "hit",
+				"effect_type": "gain_advantage"
+			}
+		],
+		"boost": {
+			"boost_type": "immediate",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Mirazh",
+			"effects": [
+				{
+					"timing": "immediate",
+					"effect_type": "advance",
+					"amount": 1
+				},
+				{
+					"timing": "immediate",
+					"effect_type": "draw",
+					"amount": 1
+				},
+				{
+					"timing": "immediate",
+					"effect_type": "bonus_action",
+					"amount": 1
+				}
+			]
+		}
+	},
+	{
+		"id": "millia_badmoon",
+		"type": "special",
+		"display_name": "Bad Moon",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 1,
+		"speed": 6,
+		"power": 4,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "during_strike",
+				"condition": "initiated_strike",
+				"effect_type": "ignore_armor"
+			},
+			{
+				"timing": "before",
+				"effect_type": "choice",
+				"choice": [
+					{ "effect_type": "advance", "amount": 1 },
+					{ "effect_type": "advance", "amount": 2 }
+				]
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": 1,
+			"display_name": "Lust Shaker",
+			"effects": [
+				{
+					"timing": "now",
+					"effect_type": "draw",
+					"amount": 1
+				},
+				{
+					"timing": "hit",
+					"effect_type": "force_for_effect",
+					"per_force_effect": {
+						"effect_type": "powerup",
+						"amount": 1,
+						"and": {
+							"effect_type": "push",
+							"amount": 1
+						}
+					},
+					"overall_effect": null,
+					"force_max": 3
+				}
+			]
+		}
+	},
+	{
+		"id": "millia_swingbraid",
+		"type": "special",
+		"display_name": "Swing Braid",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 2,
+		"speed": 5,
+		"power": 3,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "before",
+				"effect_type": "advance",
+				"amount": 2,
+				"bonus_effect": {
+					"condition": "advanced_through",
+					"effect_type": "ignore_guard"
+				}
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": 1,
+			"display_name": "The Spider's Thread",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "speedup",
+					"amount": 1
+				},
+				{
+					"timing": "now",
+					"effect_type": "choice",
+					"choice": [
+						{ "effect_type": "pass" },
+						{ "effect_type": "pull", "amount": 1 }
+					]
+				}
+			]
+		}
+	},
+	{
+		"id": "millia_tandemtop",
+		"type": "special",
+		"display_name": "Tandem Top",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 2,
+		"range_max": 4,
+		"speed": 4,
+		"power": 3,
+		"armor": 0,
+		"guard": 4,
+		"effects": [
+			{
+				"timing": "hit",
+				"effect_type": "draw",
+				"amount": 2
+			},
+			{
+				"timing": "after",
+				"effect_type": "choice",
+				"choice": [
+					{ "effect_type": "pass" },
+					{ "effect_type": "advance", "amount": 2 },
+					{ "effect_type": "retreat", "amount": 2 }
+				]
+			}
+		],
+		"boost": {
+			"boost_type": "immediate",
+			"force_cost": 0,
+			"cancel_cost": 1,
+			"display_name": "Kapel",
+			"effects": [
+				{
+					"timing": "immediate",
+					"effect_type": "choice",
+					"choice": [
+						{ "effect_type": "advance", "amount": 2, "bonus_effect": {
+							"condition": "advanced_through",
+							"effect_type": "draw",
+							"amount": 1,
+							"and": {
+								"effect_type": "return_this_to_hand"
+							}
+						}},
+						{ "effect_type": "retreat", "amount": 2 }
+					]
+				}
+			]
+		}
+	},
+	{
+		"NOTE": "MILLIA CARDS END",
+		"id": "millia_ironsavior",
+		"type": "special",
+		"display_name": "Iron Savior",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 2,
+		"speed": 2,
+		"power": 5,
+		"armor": 0,
+		"guard": 5,
+		"effects": [
+			{
+				"timing": "before",
+				"effect_type": "close",
+				"amount": 3
+			},
+			{
+				"timing": "after",
+				"condition": "opponent_stunned",
+				"effect_type": "opponent_discard_random",
+				"amount": 1
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": 1,
+			"display_name": "Turbo Fall",
+			"effects": [
+				{
+					"timing": "now",
+					"effect_type": "before",
+					"choice": [
+						{ "effect_type": "advance", "amount": 1 },
+						{ "effect_type": "retreat", "amount": 1 }
+					]
+				},
+				{
+					"timing": "hit",
+					"effect_type": "gain_advantage"
+				}
+			]
+		},
+		"NOTEEND": "MILLIA CARDS END"
+	},
+
 
 	{
 		"NOTE": "RAMLETHAL CARDS START",

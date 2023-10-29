@@ -1,0 +1,153 @@
+{
+	"id": "millia",
+	"display_name": "Millia Rage",
+	"cardback": "cardback_millia.jpg",
+	"exceed_cost": 3,
+	"ability_effects": [
+		{
+			"timing": "after",
+			"condition": "opponent_stunned",
+			"effect_type": "choice",
+			"choice": [
+				{ "effect_type": "draw", "amount": 1 },
+				{ "effect_type": "advance", "amount": 2 },
+				{ "effect_type": "retreat", "amount": 2 }
+			]
+		}
+	],
+	"exceed_ability_effects": [
+		{
+			"timing": "after",
+			"condition": "opponent_stunned",
+			"effect_type": "choice",
+			"choice": [
+				{ "effect_type": "draw", "amount": 1 },
+				{ "effect_type": "advance", "amount": 2 },
+				{ "effect_type": "retreat", "amount": 2 },
+				{ "effect_type": "gain_advantage" }
+			]
+		}
+	],
+	"cards": [
+		{
+			"definition_id": "millia_septemvoices",
+			"image": "millia_septemvoices.tres"
+		},
+		{
+			"definition_id": "millia_septemvoices",
+			"image": "millia_septemvoices.tres"
+		},
+		{
+			"definition_id": "millia_winger",
+			"image": "millia_winger.tres"
+		},
+		{
+			"definition_id": "millia_winger",
+			"image": "millia_winger.tres"
+		},
+		{
+			"definition_id": "millia_lowkick",
+			"image": "millia_lowkick.tres"
+		},
+		{
+			"definition_id": "millia_lowkick",
+			"image": "millia_lowkick.tres"
+		},
+		{
+			"definition_id": "millia_badmoon",
+			"image": "millia_badmoon.tres"
+		},
+		{
+			"definition_id": "millia_badmoon",
+			"image": "millia_badmoon.tres"
+		},
+		{
+			"definition_id": "millia_swingbraid",
+			"image": "millia_swingbraid.tres"
+		},
+		{
+			"definition_id": "millia_swingbraid",
+			"image": "millia_swingbraid.tres"
+		},
+		{
+			"definition_id": "millia_tandemtop",
+			"image": "millia_tandemtop.tres"
+		},
+		{
+			"definition_id": "millia_tandemtop",
+			"image": "millia_tandemtop.tres"
+		},
+		{
+			"definition_id": "millia_ironsavior",
+			"image": "millia_ironsavior.tres"
+		},
+		{
+			"definition_id": "millia_ironsavior",
+			"image": "millia_ironsavior.tres"
+		},
+		{
+			"definition_id": "gg_normal_grasp",
+			"image": "normal_grasp.tres"
+		},
+		{
+			"definition_id": "gg_normal_grasp",
+			"image": "normal_grasp.tres"
+		},
+		{
+			"definition_id": "gg_normal_cross",
+			"image": "normal_cross.tres"
+		},
+		{
+			"definition_id": "gg_normal_cross",
+			"image": "normal_cross.tres"
+		},
+		{
+			"definition_id": "gg_normal_slash",
+			"image": "normal_assault.tres"
+		},
+		{
+			"definition_id": "gg_normal_slash",
+			"image": "normal_assault.tres"
+		},
+		{
+			"definition_id": "gg_normal_dive",
+			"image": "normal_dive.tres"
+		},
+		{
+			"definition_id": "gg_normal_dive",
+			"image": "normal_dive.tres"
+		},
+		{
+			"definition_id": "gg_normal_dust",
+			"image": "normal_spike.tres"
+		},
+		{
+			"definition_id": "gg_normal_dust",
+			"image": "normal_spike.tres"
+		},
+		{
+			"definition_id": "gg_normal_sweep",
+			"image": "normal_sweep.tres"
+		},
+		{
+			"definition_id": "gg_normal_sweep",
+			"image": "normal_sweep.tres"
+		},
+		{
+			"definition_id": "gg_normal_focus",
+			"image": "normal_focus.tres"
+		},
+		{
+			"definition_id": "gg_normal_focus",
+			"image": "normal_focus.tres"
+		},
+		{
+			"definition_id": "gg_normal_block",
+			"image": "normal_block.tres"
+		},
+		{
+			"definition_id": "gg_normal_block",
+			"image": "normal_block.tres"
+		}
+	]
+}
