@@ -1139,6 +1139,8 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 		"add_strike_to_gauge_after_cleanup":
 			performing_player.strike_stat_boosts.always_add_to_gauge = true
 		"add_to_gauge_boost_play_cleanup":
+			var card_name = card_db.get_card_name(card_id)
+			_append_log("%s - %s goes to gauge." % [performing_player.name, card_name])
 			active_boost.cleanup_to_gauge_card_ids.append(card_id)
 		"add_top_deck_to_gauge":
 			events += performing_player.add_top_deck_to_gauge()
@@ -1330,6 +1332,8 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 			_append_log("%s - Returned cards %s from gauge to hand." % [performing_player.name, card_names])
 			events += performing_player.return_all_cards_gauge_to_hand()
 		"return_this_to_hand":
+			var card_name = card_db.get_card_name(card_id)
+			_append_log("%s - %s returned to hand." % [performing_player.name, card_name])
 			active_boost.cleanup_to_hand_card_ids.append(card_id)
 		"speedup":
 			performing_player.strike_stat_boosts.speed += effect['amount']

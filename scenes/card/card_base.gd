@@ -255,7 +255,9 @@ func set_card_and_focus(pos, rot, sca):
 		card_features.scale = sca
 		focus_feature.scale = sca
 
-func reset(pos):
+func reset(pos = null):
+	if not pos:
+		pos = card_features.position
 	resting_scale = default_scale
 	set_card_and_focus(pos, 0, default_scale)
 	change_state(CardState.CardState_InDeck)

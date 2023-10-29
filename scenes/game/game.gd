@@ -632,6 +632,7 @@ func layout_player_hand(is_player : bool):
 				for i in range(num_cards):
 					var pos = Vector2(min_x + step * i, hand_center.y)
 					var card : CardBase = hand_zone.get_child(i)
+					card.change_state(CardBase.CardState.CardState_InHand)
 					card.set_resting_position(pos, 0)
 
 	update_card_counts()
@@ -935,6 +936,7 @@ func _on_add_to_hand(event):
 	var player = event['event_player']
 	var is_player = player == Enums.PlayerId.PlayerId_Player
 	var card = find_card_on_board(event['number'])
+	card.reset()
 	card.flip_card_to_front(is_player)
 	add_card_to_hand(card.card_id, is_player)
 	layout_player_hand(is_player)
