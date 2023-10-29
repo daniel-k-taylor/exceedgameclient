@@ -15,7 +15,7 @@ dest_files=["res://.godot/imported/cardback_anji.jpg-f08aad7f9f3ce624161e5fb5d20
 
 [params]
 
-compress/mode=0
+compress/mode=1
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/hdr_compression=1

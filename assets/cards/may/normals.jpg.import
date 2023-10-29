@@ -15,7 +15,7 @@ dest_files=["res://.godot/imported/normals.jpg-ef51223064d62a317155afd6c2e5c982.
 
 [params]
 
-compress/mode=0
+compress/mode=1
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/hdr_compression=1

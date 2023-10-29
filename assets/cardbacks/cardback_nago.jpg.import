@@ -15,7 +15,7 @@ dest_files=["res://.godot/imported/cardback_nago.jpg-1923b64c50db13084136db88f77
 
 [params]
 
-compress/mode=0
+compress/mode=1
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/hdr_compression=1

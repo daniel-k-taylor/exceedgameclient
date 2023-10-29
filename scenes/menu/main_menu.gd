@@ -145,7 +145,7 @@ func update_char(label, portrait, char_id):
 	var display_name = "Random"
 	if char_id != "random":
 		var deck = CardDefinitions.get_deck_from_str_id(char_id)
-		display_name = deck['id']
+		display_name = deck['display_name']
 	label.text = display_name
 	portrait.texture = load("res://assets/portraits/" + char_id + ".png")
 

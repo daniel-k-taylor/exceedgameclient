@@ -15,7 +15,7 @@ dest_files=["res://.godot/imported/character_exceeded.jpg-f6dd6dc588597b30685925
 
 [params]
 
-compress/mode=0
+compress/mode=1
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/hdr_compression=1
