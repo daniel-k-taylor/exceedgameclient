@@ -1,9 +1,4 @@
 In progress:
-    Millia:
-        ✔ if stunned exceed choice @done(23-10-28 20:32)
-        ✔ return_this_to_hand @started(23-10-28 20:36) @done(23-10-28 20:49) @lasted(13m36s)
-        ✔ bad moon boost - hit force effect @started(23-10-28 20:12) @done(23-10-28 20:47) @lasted(35m54s)
-        ☐ check tandem top flips back on opponent's screen
 Tasks:
     Main Features:
         ☐ Observers on server
@@ -16,7 +11,6 @@ Tasks:
         ☐ Reshuffle
         ☐ Change cards
     AI:
-        ☐ Simple rule based
         ☐ Something more
     Misc/Low pri:
         ☐ Allow spending ultra for 1 force
@@ -113,8 +107,6 @@ Character:
         ☐ exceed as boost
         ☐ exceed only effect
         ☐ if invalid effect
-
-
     Nago:
     Testament:
         ☐ normals permanent bonus
