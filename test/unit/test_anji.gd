@@ -126,7 +126,7 @@ func execute_strike(initiator, defender, init_card : String, def_card : String, 
 
 	if game_logic.game_state == Enums.GameState.GameState_PlayerDecision and game_logic.active_strike.strike_state == game_logic.StrikeState.StrikeState_Initiator_SetEffects:
 		game_logic.do_force_for_effect(initiator, init_force_discard)
-		
+
 	if def_ex:
 		give_player_specific_card(defender, def_card, TestCardId4)
 		all_events += do_strike_response(defender, TestCardId2, TestCardId4)
@@ -135,7 +135,7 @@ func execute_strike(initiator, defender, init_card : String, def_card : String, 
 
 	if game_logic.game_state == Enums.GameState.GameState_PlayerDecision and game_logic.active_strike.strike_state == game_logic.StrikeState.StrikeState_Defender_SetEffects:
 		game_logic.do_force_for_effect(defender, def_force_discard)
-		
+
 	# Pay any costs from gauge
 	if game_logic.active_strike and game_logic.active_strike.strike_state == game_logic.StrikeState.StrikeState_Initiator_PayCosts:
 		var cost = game_logic.active_strike.initiator_card.definition['gauge_cost']
@@ -218,13 +218,13 @@ func test_anji_do_exceed_use():
 
 func test_anji_fuujin_was_hit():
 	position_players(player1, 3, player2, 4)
-	var events = execute_strike(player1, player2, "anji_fuujin","gg_normal_cross", [], [], false, false, [])
+	execute_strike(player1, player2, "anji_fuujin","gg_normal_cross", [], [], false, false, [])
 	validate_positions(player1, 5, player2, 7)
 	validate_life(player1, 27, player2, 25)
 
 func test_anji_fuujin_not_hit():
 	position_players(player1, 3, player2, 6)
-	var events = execute_strike(player1, player2, "anji_fuujin","gg_normal_focus", [], [], false, false, [])
+	execute_strike(player1, player2, "anji_fuujin","gg_normal_focus", [], [], false, false, [])
 	validate_positions(player1, 5, player2, 6)
 	validate_life(player1, 26, player2, 29)
 	assert_eq(player1.hand.size(), 6)
@@ -254,7 +254,7 @@ func test_anji_nagiha_boost_strike():
 
 func test_anji_kou_was_hit():
 	position_players(player1, 3, player2, 4)
-	var events = execute_strike(player1, player2, "anji_kou","gg_normal_cross", [], [], false, false, [])
+	execute_strike(player1, player2, "anji_kou","gg_normal_cross", [], [], false, false, [])
 	validate_positions(player1, 6, player2, 7)
 	validate_life(player1, 27, player2, 24)
 
@@ -263,7 +263,7 @@ func test_anji_isseiougi_hit():
 	position_players(player1, 3, player2, 4)
 	assert_eq(player1.hand.size(), 5)
 	assert_eq(player2.hand.size(), 6)
-	var events = execute_strike(player1, player2, "anji_isseiougisai","gg_normal_slash", [], [], false, false, [])
+	execute_strike(player1, player2, "anji_isseiougisai","gg_normal_slash", [], [], false, false, [])
 	assert_eq(game_logic.game_state, Enums.GameState.GameState_PlayerDecision)
 	var remaining_cards = [player2.hand[1].id, player2.hand[3].id, player2.hand[5].id]
 	var card_ids = [player2.hand[0].id, player2.hand[4].id, player2.hand[2].id]
@@ -312,7 +312,7 @@ func test_anji_kachoufuugetsu_reading_correct():
 	assert_eq(game_logic.decision_info.type, Enums.DecisionType.DecisionType_ReadingNormal)
 	assert_true(game_logic.do_boost_name_card_choice_effect(player1, TestCardId4))
 	assert_eq(game_logic.game_state, Enums.GameState.GameState_WaitForStrike)
-	var events = execute_strike(player1, player2, "gg_normal_cross","", [], [], false, false, [])
+	execute_strike(player1, player2, "gg_normal_cross","", [], [], false, false, [])
 	validate_positions(player1, 1, player2, 4)
 	validate_life(player1, 30, player2, 27)
 	var found = false
