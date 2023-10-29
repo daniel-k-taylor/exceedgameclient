@@ -1,8 +1,9 @@
 In progress:
     Millia:
-        ☐ if stunned exceed choice
-        ☐ return_this_to_hand
-        ☐ hit force effect @started(23-10-28 20:12)
+        ✔ if stunned exceed choice @done(23-10-28 20:32)
+        ✔ return_this_to_hand @started(23-10-28 20:36) @done(23-10-28 20:49) @lasted(13m36s)
+        ✔ bad moon boost - hit force effect @started(23-10-28 20:12) @done(23-10-28 20:47) @lasted(35m54s)
+        ☐ check tandem top flips back on opponent's screen
 Tasks:
     Main Features:
         ☐ Observers on server

@@ -93,6 +93,15 @@ func get_choice_summary(choice):
 			summary_text += "; " + get_effect_text(effect_summary.effect['bonus_effect'])
 	return summary_text
 
+func get_force_for_effect_summary(effect) -> String:
+	var effect_str = ""
+	var force_limit = effect['force_max']
+	if "per_force_effect" in effect and effect['per_force_effect'] != null:
+		effect_str += "Spend up to %s force. For each, %s" % [str(force_limit), get_effect_text(effect['per_force_effect'], false, true)]
+	elif 'overall_effect' in effect and effect['overall_effect'] != null:
+		effect_str += "You may spend %s force to " % [str(force_limit), get_effect_text(effect['overall_effect'], false, true)]
+	return effect_str
+
 func get_timing_text(timing):
 	var text = ""
 	match timing:
@@ -199,6 +208,8 @@ func get_effect_type_text(effect):
 			effect_str += "Opponent misses."
 		"draw":
 			effect_str += "Draw " + str(effect['amount'])
+		"force_for_effect":
+			effect_str += get_force_for_effect_summary(effect)
 		"gain_advantage":
 			effect_str += "Gain Advantage."
 		"gauge_from_hand":

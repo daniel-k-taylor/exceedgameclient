@@ -173,6 +173,7 @@ class Boost:
 	var strike_after_boost = false
 	var cancel_resolved = false
 	var cleanup_to_gauge_card_ids = []
+	var cleanup_to_hand_card_ids = []
 
 class StrikeStatBoosts:
 	var power : int = 0
@@ -543,7 +544,7 @@ class Player:
 		if deck.size() == 0:
 			parent._append_log("%s deck is empty, can't reveal top of deck." % [name])
 			return events
-			
+
 		var card_name = parent.card_db.get_card_name(deck[0].id)
 		if self == parent.player:
 			parent._append_log("%s revealed top of deck to opponent." % [name])
@@ -1328,6 +1329,8 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 				card_names = card_names.substr(0, card_names.length() - 2)
 			_append_log("%s - Returned cards %s from gauge to hand." % [performing_player.name, card_names])
 			events += performing_player.return_all_cards_gauge_to_hand()
+		"return_this_to_hand":
+			active_boost.cleanup_to_hand_card_ids.append(card_id)
 		"speedup":
 			performing_player.strike_stat_boosts.speed += effect['amount']
 			events += [create_event(Enums.EventType.EventType_Strike_SpeedUp, performing_player.my_id, effect['amount'])]
@@ -1721,6 +1724,8 @@ func boost_finish_resolving_card(performing_player : Player):
 	else:
 		if active_boost.card.id in active_boost.cleanup_to_gauge_card_ids:
 			events += performing_player.add_to_gauge(active_boost.card)
+		elif active_boost.card.id in active_boost.cleanup_to_hand_card_ids:
+			events += performing_player.add_to_hand(active_boost.card)
 		else:
 			events += performing_player.add_to_discards(active_boost.card)
 
