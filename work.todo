@@ -1,7 +1,16 @@
 In progress:
+    Baiken:
+        ☐ Gauge action ability
+        ☐ gauge from hand min/max amount, optional
+        ☐ 3 or fewer cards - max_cards_in_hand condition
+        ☐ nonlethal damage - take_nonlethal_damage effect
+        ☐ plus power for each damage taken - powerup_damagetaken effect
+        ☐ display choice with and effect
+
 Tasks:
     Main Features:
         ☐ Observers on server
+        ☐ In matchmaking indicator
     Tests:
         ☐ Strike
         ☐ Boost
@@ -48,11 +57,6 @@ Character:
         ☐ discard from play and take 3 actions
         ☐ lose all armor
         ☐ look at top 3 of deck, boost/strike with one, discard the rest
-    Baiken:
-        ☐ Gauge action ability
-        ☐ 3 or fewer cards
-        ☐ nonlethal damage
-        ☐ plus power for each damage taken
     Chipp:
         ☐ After char ability
         ☐ opponent powerup
