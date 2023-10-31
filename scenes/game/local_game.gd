@@ -127,6 +127,8 @@ class Strike:
 	var player1_stunned : bool = false
 	var player2_hit : bool = false
 	var player2_stunned : bool = false
+	var initiator_damage_taken = 0
+	var defender_damage_taken = 0
 
 	func get_card(num : int):
 		if initiator_first:
@@ -164,6 +166,17 @@ class Strike:
 			player1_stunned = true
 		else:
 			player2_stunned = true
+
+	func add_damage_taken(performing_player : Player, damage : int) -> void:
+		if performing_player == initiator:
+			initiator_damage_taken += damage
+		else:
+			defender_damage_taken += damage
+
+	func get_damage_taken(performing_player : Player) -> int:
+		if performing_player == initiator:
+			return initiator_damage_taken
+		return defender_damage_taken
 
 class Boost:
 	var playing_player : Player
@@ -1099,6 +1112,9 @@ func is_effect_condition_met(performing_player : Player, effect, local_condition
 			return not local_conditions.fully_pushed
 		elif condition == "pulled_past":
 			return local_conditions.pulled_past
+		elif condition == "max_cards_in_hand":
+			var amount = effect['condition_amount']
+			return performing_player.hand.size() <= amount
 		elif condition == "opponent_stunned":
 			return active_strike.is_player_stunned(other_player)
 		elif condition == "range":
@@ -1280,6 +1296,12 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 		"powerup":
 			performing_player.strike_stat_boosts.power += effect['amount']
 			events += [create_event(Enums.EventType.EventType_Strike_PowerUp, performing_player.my_id, effect['amount'])]
+		"powerup_damagetaken":
+			var power_per_damage = effect['amount']
+			var total_powerup = power_per_damage * active_strike.get_damage_taken(performing_player)
+			if total_powerup > 0:
+				performing_player.strike_stat_boosts.power += total_powerup
+				events += [create_event(Enums.EventType.EventType_Strike_PowerUp, performing_player.my_id, total_powerup)]
 		"pull":
 			var previous_location = opposing_player.arena_location
 			events += performing_player.pull(effect['amount'])
@@ -1345,6 +1367,15 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 			decision_info.player = performing_player.my_id
 		"stun_immunity":
 			performing_player.strike_stat_boosts.stun_immunity = true
+		"take_nonlethal_damage":
+			var damage = effect['amount']
+			if damage >= performing_player.life:
+				damage = performing_player.life - 1
+			performing_player.life -= damage
+			if active_strike:
+				active_strike.add_damage_taken(performing_player, damage)
+			_append_log("%s takes %s non-lethal damage. Life is now %s." % [performing_player.name, str(damage), str(performing_player.life)])
+			events += [create_event(Enums.EventType.EventType_Strike_TookDamage, performing_player.my_id, damage)]
 		"when_hit_force_for_armor":
 			performing_player.strike_stat_boosts.when_hit_force_for_armor = true
 
@@ -1457,6 +1488,7 @@ func apply_damage(offense_player : Player, defense_player : Player, offense_card
 
 	var damage_after_armor = max(damage - armor, 0)
 	defense_player.life -= damage_after_armor
+	active_strike.add_damage_taken(defense_player, damage_after_armor)
 
 	_append_log("%s %s has %s total power." % [offense_player.name, card_db.get_card_name(offense_card.id), str(damage)])
 	_append_log("%s %s has %s total armor and %s total guard." % [defense_player.name, card_db.get_card_name(defense_card.id), str(armor), str(guard)])

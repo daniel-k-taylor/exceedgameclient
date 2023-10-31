@@ -3,33 +3,35 @@
 	"display_name": "Baiken",
 	"cardback": "cardback_baiken.jpg",
 	"exceed_cost": 3,
-	"ability_effects": [
-		{
-			"timing": "unique_action",
-			"gauge_cost": 1,
-			"force_cost": 0,
+	"character_action_default": {
+		"gauge_cost": 1,
+		"force_cost": 0,
+		"effect": {
 			"effect_type": "pull_not_past",
 			"amount": 2,
 			"and": {
 				"effect_type": "strike"
 			}
 		}
-	],
-	"exceed_ability_effects": [
-		{
-			"timing": "unique_action",
-			"gauge_cost": 1,
-			"force_cost": 0,
+	},
+	"character_action_exceeded": {
+		"gauge_cost": 1,
+		"force_cost": 0,
+		"effect": {
 			"effect_type": "pull",
 			"amount": 2,
 			"and": {
-				"effect_type": "strike",
-				"bonus_effect": {
-					"timing": "during_strike",
-					"effect_type": "powerup",
-					"amount": 1
-				}
+				"effect_type": "strike"
 			}
+		}
+	},
+	"ability_effects": [],
+	"exceed_ability_effects": [
+		{
+			"timing": "during_strike",
+			"condition": "used_character_action",
+			"effect_type": "powerup",
+			"amount": 1
 		}
 	],
 	"cards": [
