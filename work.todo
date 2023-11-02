@@ -1,17 +1,4 @@
 In progress:
-    Baiken:
-        ✔ EventType_CharacterAction @started(23-11-01 23:04) @done(23-11-01 23:39) @lasted(35m29s)
-
-        ✔ Gauge action ability @started(23-11-01 22:41) @done(23-11-01 23:39) @lasted(58m27s)
-            ✔ Add to player a used_character_action member @done(23-11-01 22:41)
-            ✔ Clear it on advance turn @done(23-11-01 22:41)
-        ✔ gauge from hand min/max amount, optional @started(23-11-01 23:03) @done(23-11-01 23:16) @lasted(13m18s)
-            ✔ test in UI @done(23-11-01 23:39)
-        ✔ 3 or fewer cards - max_cards_in_hand condition @started(23-10-30 21:45) @done(23-11-01 23:26) @lasted(2d1h41m9s)
-        ✔ nonlethal damage - take_nonlethal_damage effect @started(23-10-30 21:47) @done(23-11-01 23:26) @lasted(2d1h39m11s)
-        ✔ plus power for each damage taken - powerup_damagetaken effect @started(23-10-30 21:54) @done(23-11-01 23:26) @lasted(2d1h32m13s)
-        ☐ Kabari - display choice with and effect
-
 Tasks:
     Main Features:
         ☐ Deck reference shows remaining cards in hand/deck

@@ -232,6 +232,8 @@ func get_effect_type_text(effect):
 			effect_str += "Pass"
 		"powerup":
 			effect_str += "+" + str(effect['amount']) + " Power"
+		"powerup_damagetaken":
+			effect_str += "+" + str(effect['amount']) + " Power per damage taken this strike."
 		"pull":
 			effect_str += "Pull " + str(effect['amount'])
 		"push":
@@ -246,6 +248,8 @@ func get_effect_type_text(effect):
 			else:
 				effect_str += "-"
 			effect_str += str(effect['amount']) + " Speed"
+		"stun_immunity":
+			effect_str += "Stun Immunity"
 		"when_hit_force_for_armor":
 			effect_str += "When hit, generate force for " + str(effect['amount']) + " armor each."
 		_:

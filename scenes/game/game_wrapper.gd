@@ -81,6 +81,9 @@ func get_player_mulligan_complete(id):
 func get_player_active_character_effects(id):
 	return _get_player(id).get_active_character_effects()
 
+func get_player_character_action(id):
+	return _get_player(id).get_character_action()
+
 func get_all_non_immediate_continuous_boost_effects(id):
 	var game_player = _get_player(id)
 	return game_player.get_all_non_immediate_continuous_boost_effects()

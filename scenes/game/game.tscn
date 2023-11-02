@@ -378,6 +378,11 @@ layout_mode = 2
 theme_override_font_sizes/font_size = 24
 text = "Strike"
 
+[node name="CharacterAction" type="Button" parent="StaticUI/StaticUIVBox/ButtonGrid"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 24
+text = "Character Action"
+
 [node name="BottomMargin" type="MarginContainer" parent="StaticUI/StaticUIVBox"]
 layout_mode = 2
 
@@ -759,6 +764,7 @@ offset_bottom = 720.0
 [connection signal="pressed" from="StaticUI/StaticUIVBox/ButtonGrid/ReshuffleButton" to="." method="_on_reshuffle_button_pressed"]
 [connection signal="pressed" from="StaticUI/StaticUIVBox/ButtonGrid/BoostButton" to="." method="_on_boost_button_pressed"]
 [connection signal="pressed" from="StaticUI/StaticUIVBox/ButtonGrid/StrikeButton" to="." method="_on_strike_button_pressed"]
+[connection signal="pressed" from="StaticUI/StaticUIVBox/ButtonGrid/CharacterAction" to="." method="_on_character_action_pressed"]
 [connection signal="pressed" from="AIMoveButton" to="." method="_on_ai_move_button_pressed"]
 [connection signal="pressed" from="RevealedCardsButton" to="." method="_on_revealed_cards_button_pressed"]
 [connection signal="pressed" from="PlayerDeck/PlayerCharacterCard" to="." method="_on_player_reference_button_pressed"]

@@ -463,7 +463,6 @@ class Player:
 		elif not exceeded and 'character_action_default' in deck_def:
 			var action = deck_def['character_action_default']
 			return action
-		assert(false, "No character action but trying to use it.")
 		return null
 
 	func can_do_character_action() -> bool:

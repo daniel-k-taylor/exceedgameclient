@@ -88,6 +88,8 @@ enum UIState {
 enum UISubState {
 	UISubState_None,
 	UISubState_SelectCards_BoostCancel,
+	UISubState_SelectCards_CharacterAction_Force,
+	UISubState_SelectCards_CharacterAction_Gauge,
 	UISubState_SelectCards_ChooseDiscardToDestination,
 	UISubState_SelectCards_DiscardContinuousBoost,
 	UISubState_SelectCards_DiscardFromReference,
@@ -97,7 +99,7 @@ enum UISubState {
 	UISubState_SelectCards_DiscardCards_Choose,
 	UISubState_SelectCards_DiscardCardsToGauge,
 	UISubState_SelectCards_ForceForChange,
-	UISubState_SelectCards_Exceed, # 10
+	UISubState_SelectCards_Exceed, # 12
 	UISubState_SelectCards_Mulligan,
 	UISubState_SelectCards_StrikeGauge,
 	UISubState_SelectCards_StrikeCard,
@@ -517,6 +519,13 @@ func can_select_card(card):
 			return in_gauge and len(selected_cards) < select_card_require_max
 		UISubState.UISubState_SelectCards_MoveActionGenerateForce, UISubState.UISubState_SelectCards_ForceForChange, UISubState.UISubState_SelectCards_ForceForArmor:
 			return in_gauge or in_hand
+		UISubState.UISubState_SelectCards_CharacterAction_Force:
+			var force_selected = get_force_in_selected_cards()
+			var new_force = game_wrapper.get_card_database().get_card_force_value(card.card_id)
+			var total_force = force_selected + new_force
+			return (in_gauge or in_hand) and total_force <= select_card_require_force
+		UISubState.UISubState_SelectCards_CharacterAction_Gauge:
+			return in_gauge and len(selected_cards) < select_card_require_max
 		UISubState.UISubState_SelectCards_ForceForEffect:
 			var force_selected = get_force_in_selected_cards()
 			var new_force = game_wrapper.get_card_database().get_card_force_value(card.card_id)
@@ -1072,7 +1081,7 @@ func get_force_in_selected_cards():
 func update_force_generation_message():
 	var force_selected = get_force_in_selected_cards()
 	match ui_sub_state:
-		UISubState.UISubState_SelectCards_MoveActionGenerateForce:
+		UISubState.UISubState_SelectCards_MoveActionGenerateForce, UISubState.UISubState_SelectCards_CharacterAction_Force:
 			set_instructions("Select cards to generate %s force.\n%s force generated." % [select_card_require_force, force_selected])
 		UISubState.UISubState_SelectCards_ForceForChange:
 			set_instructions("Select cards to generate force to draw new cards.\n%s force generated." % [force_selected])
@@ -1128,7 +1137,7 @@ func begin_gauge_selection(amount : int, wild_swing_allowed : bool, sub_state : 
 	select_card_require_max = amount
 	var cancel_allowed = false
 	match sub_state:
-		UISubState.UISubState_SelectCards_Exceed, UISubState.UISubState_SelectCards_BoostCancel:
+		UISubState.UISubState_SelectCards_Exceed, UISubState.UISubState_SelectCards_BoostCancel, UISubState.UISubState_SelectCards_CharacterAction_Gauge:
 			cancel_allowed = true
 	enable_instructions_ui("", true, cancel_allowed, wild_swing_allowed)
 
@@ -1559,6 +1568,7 @@ func _update_buttons():
 	$StaticUI/StaticUIVBox/ButtonGrid/ReshuffleButton.visible = game_wrapper.can_do_reshuffle(Enums.PlayerId.PlayerId_Player)
 	$StaticUI/StaticUIVBox/ButtonGrid/BoostButton.disabled = not game_wrapper.can_do_boost(Enums.PlayerId.PlayerId_Player)
 	$StaticUI/StaticUIVBox/ButtonGrid/StrikeButton.disabled = not game_wrapper.can_do_strike(Enums.PlayerId.PlayerId_Player)
+	$StaticUI/StaticUIVBox/ButtonGrid/CharacterAction.visible = game_wrapper.can_do_character_action(Enums.PlayerId.PlayerId_Player)
 
 	var action_buttons_visible = ui_state == UIState.UIState_PickTurnAction
 	$StaticUI/StaticUIVBox/ButtonGrid.visible = action_buttons_visible
@@ -1593,7 +1603,7 @@ func _update_buttons():
 				update_discard_selection_message()
 			UISubState.UISubState_SelectCards_DiscardCardsToGauge:
 				update_discard_to_gauge_selection_message()
-			UISubState.UISubState_SelectCards_MoveActionGenerateForce:
+			UISubState.UISubState_SelectCards_MoveActionGenerateForce, UISubState.UISubState_SelectCards_CharacterAction_Force:
 				update_force_generation_message()
 			UISubState.UISubState_SelectCards_ForceForChange:
 				update_force_generation_message()
@@ -1605,7 +1615,7 @@ func _update_buttons():
 				update_gauge_selection_message()
 			UISubState.UISubState_SelectCards_BoostCancel:
 				update_gauge_selection_for_cancel_message()
-			UISubState.UISubState_SelectCards_Exceed:
+			UISubState.UISubState_SelectCards_Exceed, UISubState.UISubState_SelectCards_CharacterAction_Gauge:
 				update_gauge_selection_message()
 
 	# Update arena location selection buttons
@@ -1647,9 +1657,9 @@ func can_press_ok():
 				return selected_cards_between_min_and_max()
 			UISubState.UISubState_SelectCards_ChooseDiscardToDestination, UISubState.UISubState_SelectCards_DiscardCards_Choose:
 				return selected_cards_between_min_and_max()
-			UISubState.UISubState_SelectCards_DiscardCardsToGauge, UISubState.UISubState_SelectCards_Mulligan:
+			UISubState.UISubState_SelectCards_DiscardCardsToGauge, UISubState.UISubState_SelectCards_Mulligan, UISubState.UISubState_SelectCards_CharacterAction_Gauge:
 				return selected_cards_between_min_and_max()
-			UISubState.UISubState_SelectCards_MoveActionGenerateForce:
+			UISubState.UISubState_SelectCards_MoveActionGenerateForce, UISubState.UISubState_SelectCards_CharacterAction_Force:
 				var force_selected = get_force_in_selected_cards()
 				return force_selected == select_card_require_force
 			UISubState.UISubState_SelectCards_ForceForChange:
@@ -1716,6 +1726,22 @@ func _on_boost_button_pressed():
 func _on_strike_button_pressed():
 	begin_strike_choosing(false, true)
 
+func _on_character_action_pressed():
+	var character_action = game_wrapper.get_player_character_action(Enums.PlayerId.PlayerId_Player)
+	if not character_action:
+		assert(false, "Character action button should not be visible")
+		return
+
+	var force_cost = character_action['force_cost']
+	var gauge_cost = character_action['gauge_cost']
+	if force_cost > 0:
+		change_ui_state(null, UISubState.UISubState_SelectCards_CharacterAction_Force)
+		begin_generate_force_selection(force_cost)
+	elif gauge_cost > 0:
+		begin_gauge_selection(gauge_cost, false, UISubState.UISubState_SelectCards_CharacterAction_Gauge)
+	else:
+		game_wrapper.submit_character_action(Enums.PlayerId.PlayerId_Player, [])
+
 func _on_choice_pressed(choice):
 	var success = game_wrapper.submit_choice(Enums.PlayerId.PlayerId_Player, choice)
 	if success:
@@ -1742,6 +1768,8 @@ func _on_instructions_ok_button_pressed():
 				success = game_wrapper.submit_boost_cancel(Enums.PlayerId.PlayerId_Player, selected_card_ids, true)
 			UISubState.UISubState_SelectCards_ChooseDiscardToDestination:
 				success = game_wrapper.submit_choose_from_discard(Enums.PlayerId.PlayerId_Player, single_card_id)
+			UISubState.UISubState_SelectCards_CharacterAction_Force, UISubState.UISubState_SelectCards_CharacterAction_Gauge:
+				success = game_wrapper.submit_character_action(Enums.PlayerId.PlayerId_Player, selected_card_ids)
 			UISubState.UISubState_SelectCards_DiscardContinuousBoost:
 				success = game_wrapper.submit_boost_name_card_choice_effect(Enums.PlayerId.PlayerId_Player, single_card_id)
 			UISubState.UISubState_SelectCards_DiscardFromReference:
@@ -1751,10 +1779,7 @@ func _on_instructions_ok_button_pressed():
 			UISubState.UISubState_SelectCards_DiscardCards_Choose:
 				success = game_wrapper.submit_choose_to_discard(Enums.PlayerId.PlayerId_Player, selected_card_ids)
 			UISubState.UISubState_SelectCards_DiscardCardsToGauge:
-				var card_ids = []
-				for card in selected_cards:
-					card_ids.append(card.card_id)
-				success = game_wrapper.submit_card_from_hand_to_gauge(Enums.PlayerId.PlayerId_Player, card_ids)
+				success = game_wrapper.submit_card_from_hand_to_gauge(Enums.PlayerId.PlayerId_Player, selected_card_ids)
 			UISubState.UISubState_SelectCards_StrikeGauge:
 				success = game_wrapper.submit_pay_strike_cost(Enums.PlayerId.PlayerId_Player, selected_card_ids, false)
 			UISubState.UISubState_SelectCards_Exceed:
@@ -1851,7 +1876,7 @@ func _on_ai_move_button_pressed():
 func ai_handle_prepare():
 	var success = game_wrapper.submit_prepare(Enums.PlayerId.PlayerId_Opponent)
 	if not success:
-		print("FAILED AI PREPARE")
+		printlog("FAILED AI PREPARE")
 	return success
 
 func ai_handle_move(action : AIPlayer.MoveAction):
@@ -1859,27 +1884,27 @@ func ai_handle_move(action : AIPlayer.MoveAction):
 	var card_ids = action.force_card_ids
 	var success = game_wrapper.submit_move(Enums.PlayerId.PlayerId_Opponent, card_ids, location)
 	if not success:
-		print("FAILED AI MOVE")
+		printlog("FAILED AI MOVE")
 	return success
 
 func ai_handle_change_cards(action : AIPlayer.ChangeCardsAction):
 	var card_ids = action.card_ids
 	var success = game_wrapper.submit_change(Enums.PlayerId.PlayerId_Opponent, card_ids)
 	if not success:
-		print("FAILED AI CHANGE CARDS")
+		printlog("FAILED AI CHANGE CARDS")
 	return success
 
 func ai_handle_exceed(action : AIPlayer.ExceedAction):
 	var card_ids = action.card_ids
 	var success = game_wrapper.submit_exceed(Enums.PlayerId.PlayerId_Opponent, card_ids)
 	if not success:
-		print("FAILED AI EXCEED")
+		printlog("FAILED AI EXCEED")
 	return success
 
 func ai_handle_reshuffle():
 	var success = game_wrapper.submit_reshuffle(Enums.PlayerId.PlayerId_Opponent)
 	if not success:
-		print("FAILED AI RESHUFFLE")
+		printlog("FAILED AI RESHUFFLE")
 	return success
 
 func ai_handle_boost(action : AIPlayer.BoostAction):
@@ -1888,7 +1913,7 @@ func ai_handle_boost(action : AIPlayer.BoostAction):
 	var success = game_wrapper.submit_boost(Enums.PlayerId.PlayerId_Opponent, card_id)
 	# TODO: Should this be grouped somehow? Save the choice from the original decision instead of asking again?
 	if not success:
-		print("FAILED AI BOOST")
+		printlog("FAILED AI BOOST")
 	return success
 
 func ai_handle_strike(action : AIPlayer.StrikeAction):
@@ -1897,7 +1922,13 @@ func ai_handle_strike(action : AIPlayer.StrikeAction):
 	var wild_swing = action.wild_swing
 	var success = game_wrapper.submit_strike(Enums.PlayerId.PlayerId_Opponent, card_id, wild_swing, ex_card_id)
 	if not success:
-		print("FAILED AI STRIKE")
+		printlog("FAILED AI STRIKE")
+	return success
+
+func ai_handle_character_action(action : AIPlayer.CharacterActionAction):
+	var success = game_wrapper.submit_character_action(Enums.PlayerId.PlayerId_Opponent, action.card_ids)
+	if not success:
+		printlog("FAILED AI CHARACTER ACTION")
 	return success
 
 func ai_take_turn():
@@ -1918,6 +1949,8 @@ func ai_take_turn():
 		success = ai_handle_boost(turn_action)
 	elif turn_action is AIPlayer.StrikeAction:
 		success = ai_handle_strike(turn_action)
+	elif turn_action is AIPlayer.CharacterActionAction:
+		success = ai_handle_character_action(turn_action)
 	else:
 		assert(false, "Unknown turn action: %s" % turn_action)
 
@@ -2017,7 +2050,7 @@ func ai_name_opponent_card(normal_only : bool):
 func ai_choose_card_hand_to_gauge(min_amount, max_amount):
 	if not game_wrapper.is_ai_game(): return
 	var cardfromhandtogauge_action = ai_player.pick_card_hand_to_gauge(game_wrapper.current_game, Enums.PlayerId.PlayerId_Opponent, min_amount, max_amount)
-	var success = game_wrapper.submit_card_from_hand_to_gauge(Enums.PlayerId.PlayerId_Opponent, [cardfromhandtogauge_action.card_id])
+	var success = game_wrapper.submit_card_from_hand_to_gauge(Enums.PlayerId.PlayerId_Opponent, cardfromhandtogauge_action.card_ids)
 	if success:
 		change_ui_state(UIState.UIState_WaitForGameServer)
 	else:
@@ -2236,3 +2269,4 @@ func _on_combat_log_button_pressed():
 
 func _on_combat_log_close_button_pressed():
 	$CombatLog.visible = false
+
