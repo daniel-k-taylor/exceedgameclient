@@ -28,7 +28,8 @@
 	"ability_effects": [],
 	"exceed_ability_effects": [
 		{
-			"timing": "during_strike",
+			"character_effect": true,
+			"timing": "set_strike",
 			"condition": "used_character_action",
 			"effect_type": "powerup",
 			"amount": 1

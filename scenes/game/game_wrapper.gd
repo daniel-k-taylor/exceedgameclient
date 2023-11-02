@@ -171,6 +171,10 @@ func can_move_to(player_id : Enums.PlayerId, location : int) -> bool:
 	var game_player = _get_player(player_id)
 	return game_player.can_move_to(location)
 
+func can_do_character_action(player_id : Enums.PlayerId) -> bool:
+	var game_player = _get_player(player_id)
+	return game_player.can_do_character_action()
+
 ### Action Functions ###
 
 func submit_prepare(player : Enums.PlayerId) -> bool:
@@ -197,9 +201,9 @@ func submit_discard_to_max(player : Enums.PlayerId, card_ids : Array) -> bool:
 	var game_player = _get_player(player)
 	return current_game.do_discard_to_max(game_player, card_ids)
 
-func submit_card_from_hand_to_gauge(player : Enums.PlayerId, card_id : int) -> bool:
+func submit_card_from_hand_to_gauge(player : Enums.PlayerId, card_ids : Array) -> bool:
 	var game_player = _get_player(player)
-	return current_game.do_card_from_hand_to_gauge(game_player, card_id)
+	return current_game.do_card_from_hand_to_gauge(game_player, card_ids)
 
 func submit_pay_strike_cost(player : Enums.PlayerId, card_ids : Array, wild_strike : bool) -> bool:
 	var game_player = _get_player(player)
@@ -244,3 +248,7 @@ func submit_force_for_effect(player: Enums.PlayerId, card_ids : Array) -> bool:
 func submit_choose_to_discard(player: Enums.PlayerId, card_ids : Array) -> bool:
 	var game_player = _get_player(player)
 	return current_game.do_choose_to_discard(game_player, card_ids)
+
+func submit_character_action(player: Enums.PlayerId, card_ids : Array) -> bool:
+	var game_player = _get_player(player)
+	return current_game.do_character_action(game_player, card_ids)

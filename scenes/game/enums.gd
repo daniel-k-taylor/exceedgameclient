@@ -65,16 +65,17 @@ enum EventType {
 	EventType_Boost_NameCardOpponentDiscards, 	# 11
 	EventType_CardFromHandToGauge_Choice,
 	EventType_ChangeCards,
+	EventType_CharacterAction,
 	EventType_ChooseFromDiscard,
 	EventType_Discard,
 	EventType_Draw,
-	EventType_Exceed, 							# 17
+	EventType_Exceed, 							# 18
 	EventType_ForceForEffect,
 	EventType_ForceStartStrike,
 	EventType_GameOver,
 	EventType_HandSizeExceeded,
 	EventType_Move,
-	EventType_MulliganDecision, 				# 23
+	EventType_MulliganDecision, 				# 24
 	EventType_Prepare,
 	EventType_ReadingNormal,
 	EventType_ReshuffleDeck_Mulligan,
@@ -89,7 +90,7 @@ enum EventType {
 	EventType_Strike_DoResponseNow,
 	EventType_Strike_EffectChoice,
 	EventType_Strike_ExUp,
-	EventType_Strike_ForceForArmor, # 38
+	EventType_Strike_ForceForArmor, # 39
 	EventType_Strike_ForceWildSwing,
 	EventType_Strike_GainAdvantage,
 	EventType_Strike_GuardUp,
@@ -106,7 +107,7 @@ enum EventType {
 	EventType_Strike_Response_Ex,
 	EventType_Strike_Reveal,
 	EventType_Strike_SpeedUp,
-	EventType_Strike_Started, # 55
+	EventType_Strike_Started, # 56
 	EventType_Strike_Started_Ex,
 	EventType_Strike_Stun,
 	EventType_Strike_Stun_Immunity,

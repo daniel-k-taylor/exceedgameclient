@@ -126,9 +126,9 @@ class NameCardAction:
 		card_id = named_id
 
 class HandToGaugeAction:
-	var card_id
-	func _init(chosen_id):
-		card_id = chosen_id
+	var card_ids
+	func _init(chosen_ids):
+		card_ids = chosen_ids
 
 class MulliganAction:
 	var card_ids
@@ -141,6 +141,11 @@ class ChooseFromDiscardAction:
 		card_id = chosen_id
 
 class ChooseToDiscardAction:
+	var card_ids
+	func _init(card_id_combination):
+		card_ids = card_id_combination
+
+class CharacterActionAction:
 	var card_ids
 	func _init(card_id_combination):
 		card_ids = card_id_combination
@@ -221,6 +226,7 @@ func determine_possible_turn_actions(game_logic : LocalGame, me : LocalGame.Play
 	possible_actions += get_reshuffle_actions(game_logic, me, opponent)
 	possible_actions += get_boost_actions(game_logic, me, opponent)
 	possible_actions += get_strike_actions(game_logic, me, opponent)
+	possible_actions += get_character_action_actions(game_logic, me, opponent)
 	return possible_actions
 
 func get_prepare_actions(_game_logic : LocalGame, me : LocalGame.Player, _opponent : LocalGame.Player):
@@ -402,6 +408,31 @@ func get_strike_actions(game_logic : LocalGame, me : LocalGame.Player, _opponent
 
 	return possible_actions
 
+func get_character_action_actions(game_logic : LocalGame, me : LocalGame.Player, _opponent : LocalGame.Player):
+	var possible_actions = []
+	if me.can_do_character_action():
+		var action = me.get_character_action()
+		var force_cost = action['force_cost']
+		var gauge_cost = action['gauge_cost']
+		if force_cost > 0:
+			var all_force_option_ids = []
+			for card in me.hand:
+				all_force_option_ids.append(card.id)
+			for card in me.gauge:
+				all_force_option_ids.append(card.id)
+			var combinations = []
+			generate_force_combinations(game_logic, all_force_option_ids, force_cost, [], 0, combinations)
+			for combo in combinations:
+				possible_actions.append(CharacterActionAction.new(combo))
+		elif gauge_cost > 0:
+			var combinations = get_combinations_to_pay_gauge(me, gauge_cost)
+			for combination in combinations:
+				possible_actions.append(CharacterActionAction.new(combination))
+		else:
+			# No cost.
+			possible_actions.append(CharacterActionAction.new([]))
+	return possible_actions
+
 func pay_strike_gauge_cost(game_logic : LocalGame, my_id : Enums.PlayerId, gauge_cost : int, wild_swing_allowed : bool) -> PayStrikeCostAction:
 	var me = game_logic._get_player(my_id)
 	var opponent = game_logic._get_player(game_logic.get_other_player(my_id))
@@ -558,13 +589,21 @@ func pick_name_opponent_card(game_logic : LocalGame, my_id : Enums.PlayerId, nor
 	update_ai_state(game_logic, me, opponent)
 	return ai_policy.pick_name_opponent_card(possible_actions, game_state)
 
-func pick_card_hand_to_gauge(game_logic : LocalGame, my_id : Enums.PlayerId) -> HandToGaugeAction:
+func pick_card_hand_to_gauge(game_logic : LocalGame, my_id : Enums.PlayerId, min_amount : int, max_amount : int) -> HandToGaugeAction:
 	var me = game_logic._get_player(my_id)
 	var opponent = game_logic._get_player(game_logic.get_other_player(my_id))
 	var possible_actions = []
-	for i in range(me.hand.size()):
-		var card = me.hand[i]
-		possible_actions.append(HandToGaugeAction.new(card.id))
+	for i in range(min_amount, max_amount + 1):
+		if i == 0:
+			possible_actions.append(HandToGaugeAction.new([]))
+			continue
+		var all_card_ids = []
+		for card in me.hand:
+			all_card_ids.append(card.id)
+		var combinations = []
+		generate_card_count_combinations(all_card_ids, i, [], 0, combinations)
+		for combo in combinations:
+			possible_actions.append(HandToGaugeAction.new(combo))
 
 	update_ai_state(game_logic, me, opponent)
 	return ai_policy.pick_card_hand_to_gauge(possible_actions, game_state)

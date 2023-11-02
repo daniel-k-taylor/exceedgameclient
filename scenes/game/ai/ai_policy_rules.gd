@@ -157,6 +157,12 @@ func pick_turn_action(possible_actions : Array, ai_game_state : AIPlayer.AIGameS
 				if continuous_choices.size() > 0:
 					return continuous_choices[randi() % continuous_choices.size()]
 
+		# Try to character action.
+		for action in possible_actions:
+			if action is AIPlayer.CharacterActionAction:
+				if randi() % 2 == 0:
+					return action
+
 		# Strike
 		var strike_choices = []
 		for action in possible_actions:

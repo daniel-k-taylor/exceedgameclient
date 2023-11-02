@@ -257,6 +257,7 @@ class Player:
 	var exceed_cost : int
 	var strike_stat_boosts : StrikeStatBoosts
 	var canceled_this_turn : bool
+	var used_character_action : bool
 	var mulligan_complete : bool
 	var reading_card_id : String = ""
 
@@ -285,6 +286,7 @@ class Player:
 		reshuffle_remaining = MaxReshuffle
 		exceeded = false
 		canceled_this_turn = false
+		used_character_action = false
 		cleanup_boost_to_gauge_cards = []
 		mulligan_complete = false
 
@@ -416,7 +418,7 @@ class Player:
 					count += 1
 		return count
 
-	func can_pay_cost_with(card_ids : Array, card : GameCard):
+	func can_pay_cost_with(card_ids : Array, force_cost : int, gauge_cost : int):
 		var gauge_generated = 0
 		var force_generated = 0
 		for card_id in card_ids:
@@ -429,8 +431,6 @@ class Player:
 				parent.printlog("ERROR: Card not in hand or gauge")
 				return false
 
-		var gauge_cost = card.definition['gauge_cost']
-		var force_cost = card.definition['force_cost']
 		if gauge_generated < gauge_cost:
 			return false
 		if force_generated < force_cost:
@@ -455,6 +455,33 @@ class Player:
 		if cancel_cost == -1: return false
 		if available_gauge < cancel_cost: return false
 		return true
+
+	func get_character_action():
+		if exceeded and 'character_action_exceeded' in deck_def:
+			var action = deck_def['character_action_exceeded']
+			return action
+		elif not exceeded and 'character_action_default' in deck_def:
+			var action = deck_def['character_action_default']
+			return action
+		assert(false, "No character action but trying to use it.")
+		return null
+
+	func can_do_character_action() -> bool:
+		if exceeded and 'character_action_exceeded' in deck_def:
+			var action = deck_def['character_action_exceeded']
+			var gauge_cost = action['gauge_cost']
+			var force_cost = action['force_cost']
+			if get_available_gauge() < gauge_cost: return false
+			if get_available_force() < force_cost: return false
+			return true
+		elif not exceeded and 'character_action_default' in deck_def:
+			var action = deck_def['character_action_default']
+			var gauge_cost = action['gauge_cost']
+			var force_cost = action['force_cost']
+			if get_available_gauge() < gauge_cost: return false
+			if get_available_force() < force_cost: return false
+			return true
+		return false
 
 	func draw(num_to_draw : int):
 		var events : Array = []
@@ -948,6 +975,8 @@ func advance_to_next_turn():
 	var events = []
 	player.canceled_this_turn = false
 	opponent.canceled_this_turn = false
+	player.used_character_action = false
+	opponent.used_character_action = false
 
 	active_turn_player = next_turn_player
 	next_turn_player = get_other_player(active_turn_player)
@@ -1102,6 +1131,8 @@ func is_effect_condition_met(performing_player : Player, effect, local_condition
 			return performing_player.canceled_this_turn
 		elif condition == "not_canceled_this_turn":
 			return not performing_player.canceled_this_turn
+		elif condition == "used_character_action":
+			return performing_player.used_character_action
 		elif condition == "not_full_close":
 			return  not local_conditions.fully_closed
 		elif condition == "advanced_through":
@@ -1244,7 +1275,13 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 				decision_info.type = Enums.DecisionType.DecisionType_CardFromHandToGauge
 				decision_info.player = performing_player.my_id
 				decision_info.choice_card_id = card_id
-				events += [create_event(Enums.EventType.EventType_CardFromHandToGauge_Choice, performing_player.my_id, 1)]
+				var min_amount = effect['min_amount']
+				var max_amount = effect['max_amount']
+				decision_info.effect = {
+					"min_amount": min_amount,
+					"max_amount": max_amount,
+				}
+				events += [create_event(Enums.EventType.EventType_CardFromHandToGauge_Choice, performing_player.my_id, min_amount, "", max_amount)]
 		"guardup":
 			performing_player.strike_stat_boosts.guard += effect['amount']
 			events += [create_event(Enums.EventType.EventType_Strike_GuardUp, performing_player.my_id, effect['amount'])]
@@ -2136,7 +2173,9 @@ func do_pay_strike_cost(performing_player : Player, card_ids : Array, wild_strik
 		events += performing_player.add_to_discards(current_card)
 		events += performing_player.wild_strike()
 	else:
-		if performing_player.can_pay_cost_with(card_ids, card):
+		var force_cost = card.definition['force_cost']
+		var gauge_cost = card.definition['gauge_cost']
+		if performing_player.can_pay_cost_with(card_ids, force_cost, gauge_cost):
 			var card_names = card_db.get_card_name(card_ids[0])
 			for i in range(1, card_ids.size()):
 				card_names += ", " + card_db.get_card_name(card_ids[0])
@@ -2222,21 +2261,27 @@ func do_boost_cancel(performing_player : Player, gauge_card_ids : Array, doing_c
 	event_queue += events
 	return true
 
-func do_card_from_hand_to_gauge(performing_player : Player, card_id : int) -> bool:
-	var card_name = card_db.get_card_name(card_id)
-	printlog("SubAction: CARD_HAND_TO_GAUGE by %s card %s" % [get_player_name(performing_player.my_id), card_name])
+func do_card_from_hand_to_gauge(performing_player : Player, card_ids : Array) -> bool:
+	printlog("SubAction: CARD_HAND_TO_GAUGE by %s: %s" % [get_player_name(performing_player.my_id), card_ids])
 	if decision_info.player != performing_player.my_id:
 		printlog("ERROR: Tried to do_card_from_hand_to_gauge for wrong player.")
 		return false
 	if game_state != Enums.GameState.GameState_PlayerDecision or decision_info.type != Enums.DecisionType.DecisionType_CardFromHandToGauge:
 		printlog("ERROR: Tried to do_card_from_hand_to_gauge but not in decision state.")
 		return false
-	if not performing_player.is_card_in_hand(card_id):
-		printlog("ERROR: Tried to do_card_from_hand_to_gauge with card not in hand.")
-		return false
+	for card_id in card_ids:
+		if not performing_player.is_card_in_hand(card_id):
+			printlog("ERROR: Tried to do_card_from_hand_to_gauge with card not in hand.")
+			return false
 	var events = []
-	_append_log("%s moved card %s from hand to gauge." % [performing_player.name, card_name])
-	events += performing_player.move_card_from_hand_to_gauge(card_id)
+	if card_ids.size() > 0:
+		var card_names = card_db.get_card_name(card_ids[0])
+		for i in range(1, card_ids.size()):
+			card_names += ", " + card_db.get_card_name(card_ids[i])
+		_append_log("%s moved cards (%s) from hand to gauge." % [performing_player.name, card_names])
+		for card_id in card_ids:
+			events += performing_player.move_card_from_hand_to_gauge(card_id)
+
 	if active_strike:
 		active_strike.effects_resolved_in_timing += 1
 		events += continue_resolve_strike()
@@ -2474,6 +2519,42 @@ func do_choose_to_discard(performing_player : Player, card_ids):
 		events = handle_strike_effect(decision_info.choice_card_id, effect, performing_player)
 		active_boost.effects_resolved += 1
 		events += continue_resolve_boost()
+	event_queue += events
+	return true
+
+func do_character_action(performing_player : Player, card_ids):
+	printlog("MainAction: CHARACTER_ACTION by %s" % [get_player_name(performing_player.my_id)])
+	if game_state != Enums.GameState.GameState_PickAction:
+		printlog("ERROR: Tried to character action but not in correct game state.")
+		return false
+
+	if performing_player.my_id != active_turn_player:
+		printlog("ERROR: Tried to character action but not current player")
+		return false
+
+	var action = performing_player.get_character_action()
+	var force_cost = action['force_cost']
+	var gauge_cost = action['gauge_cost']
+	if not performing_player.can_pay_cost_with(card_ids, force_cost, gauge_cost):
+		printlog("ERROR: Tried to character action but can't pay cost with these cards.")
+		return false
+
+	var events = []
+	# Spend the cards used to pay the cost.
+	if card_ids.size() > 0:
+		var card_names = card_db.get_card_name(card_ids[0])
+		for i in range(1, card_ids.size()):
+			card_names += ", " + card_db.get_card_name(card_ids[0])
+		_append_log("%s paid for character action with %s." % [performing_player.name, card_names])
+		events += performing_player.discard(card_ids)
+
+	# Do the character action effects.
+	events += [create_event(Enums.EventType.EventType_CharacterAction, performing_player.my_id, 0)]
+	performing_player.used_character_action = true
+	events += handle_strike_effect(-1, action['effect'], performing_player)
+	if game_state != Enums.GameState.GameState_WaitForStrike:
+		events += performing_player.draw(1)
+		events += check_hand_size_advance_turn(performing_player)
 	event_queue += events
 	return true
 

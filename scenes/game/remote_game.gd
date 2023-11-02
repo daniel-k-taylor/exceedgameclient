@@ -175,19 +175,19 @@ func process_discard_to_max(action_message) -> void:
 	var card_ids = action_message['card_ids']
 	local_game.do_discard_to_max(game_player, card_ids)
 
-func do_card_from_hand_to_gauge(player : LocalGame.Player, card_id : int) -> bool:
+func do_card_from_hand_to_gauge(player : LocalGame.Player, card_ids : Array) -> bool:
 	var action_message = {
 		'action_type': 'action_card_from_hand_to_gauge',
 		'player_id': _get_player_remote_id(player),
-		'card_id': card_id,
+		'card_ids': card_ids,
 	}
 	NetworkManager.submit_game_message(action_message)
 	return true
 
 func process_card_from_hand_to_gauge(action_message) -> void:
 	var game_player = _get_player_from_remote_id(action_message['player_id'])
-	var card_id = action_message['card_id']
-	local_game.do_card_from_hand_to_gauge(game_player, card_id)
+	var card_ids = action_message['card_ids']
+	local_game.do_card_from_hand_to_gauge(game_player, card_ids)
 
 func do_pay_strike_cost(player : LocalGame.Player, card_ids : Array, wild_strike : bool) -> bool:
 	var action_message = {
@@ -350,3 +350,17 @@ func process_choose_to_discard(action_message) -> void:
 	var game_player = _get_player_from_remote_id(action_message['player_id'])
 	var card_ids = action_message['card_ids']
 	local_game.do_choose_to_discard(game_player, card_ids)
+
+func do_character_action(player : LocalGame.Player, card_ids : Array) -> bool:
+	var action_message = {
+		'action_type': 'action_character_action',
+		'player_id': _get_player_remote_id(player),
+		'card_ids': card_ids,
+	}
+	NetworkManager.submit_game_message(action_message)
+	return true
+
+func process_character_action(action_message) -> void:
+	var game_player = _get_player_from_remote_id(action_message['player_id'])
+	var card_ids = action_message['card_ids']
+	local_game.do_character_action(game_player, card_ids)

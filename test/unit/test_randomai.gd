@@ -120,7 +120,8 @@ func handle_boost_reponse(events, aiplayer : AIPlayer, game : LocalGame, gamepla
 				assert_true(game.do_choice(gameplayer, choice_index), "do choice failed")
 				events += game.get_latest_events()
 			Enums.DecisionType.DecisionType_CardFromHandToGauge:
-				assert_true(game.do_card_from_hand_to_gauge(gameplayer, gameplayer.hand[choice_index].id), "do card gauge failed")
+				var cardfromhandtogauge_action = aiplayer.pick_card_hand_to_gauge(game, gameplayer.my_id, game.decision_info.effect['min_amount'], game.decision_info.effect['max_amount'])
+				assert_true(game.do_card_from_hand_to_gauge(gameplayer, cardfromhandtogauge_action.card_ids), "do card hand boost failed")
 				events += game.get_latest_events()
 			Enums.DecisionType.DecisionType_NameCard_OpponentDiscards:
 				var index = choice_index * 2
@@ -214,8 +215,8 @@ func handle_strike(game: LocalGame, aiplayer : AIPlayer, otherai : AIPlayer, act
 				assert_true(game.do_force_for_armor(decision_ai.game_player, forceforarmor_action.card_ids), "do force armor failed")
 				events += game.get_latest_events()
 			Enums.DecisionType.DecisionType_CardFromHandToGauge:
-				var cardfromhandtogauge_action = decision_ai.pick_card_hand_to_gauge(game, decision_player.my_id)
-				assert_true(game.do_card_from_hand_to_gauge(decision_ai.game_player, cardfromhandtogauge_action.card_id), "do card hand strike failed")
+				var cardfromhandtogauge_action = decision_ai.pick_card_hand_to_gauge(game, decision_player.my_id, game.decision_info.effect['min_amount'], game.decision_info.effect['max_amount'])
+				assert_true(game.do_card_from_hand_to_gauge(decision_ai.game_player, cardfromhandtogauge_action.card_ids), "do card hand strike failed")
 				events += game.get_latest_events()
 			Enums.DecisionType.DecisionType_ForceForEffect:
 				var forceforeffect_action = decision_ai.pick_force_for_effect(game, decision_player.my_id)
@@ -238,6 +239,13 @@ func handle_strike(game: LocalGame, aiplayer : AIPlayer, otherai : AIPlayer, act
 
 	assert_true(game.game_state == Enums.GameState.GameState_PickAction or game.game_state == Enums.GameState.GameState_GameOver, "Unexpected game state %s" % str(game.game_state))
 
+	return events
+
+func handle_character_action(game: LocalGame, aiplayer : AIPlayer, otherai : AIPlayer, action : AIPlayer.CharacterActionAction):
+	assert_true(game.do_character_action(aiplayer.game_player, action.card_ids), "character action failed")
+	var events = []
+	
+	events += game.get_latest_events()
 	return events
 
 func run_ai_game():
@@ -275,6 +283,8 @@ func run_ai_game():
 			turn_events += handle_boost(game_logic, current_ai, current_player, other_player, turn_action)
 		elif turn_action is AIPlayer.StrikeAction:
 			turn_events += handle_strike(game_logic, current_ai, other_ai, turn_action)
+		elif turn_action is AIPlayer.CharacterActionAction:
+			turn_events += handle_character_action(game_logic, current_ai, other_ai, turn_action)
 		else:
 			fail_test("Unknown turn action: %s" % turn_action)
 			assert(false, "Unknown turn action: %s" % turn_action)
@@ -356,6 +366,15 @@ func test_may_100():
 
 func test_millia_100():
 	default_deck = CardDefinitions.get_deck_from_str_id("millia")
+	for i in range(100):
+		print("==== RUNNING TEST %d ====" % i)
+		run_ai_game()
+		game_teardown()
+		game_setup()
+	pass_test("Finished match")
+
+func test_baiken_100():
+	default_deck = CardDefinitions.get_deck_from_str_id("baiken")
 	for i in range(100):
 		print("==== RUNNING TEST %d ====" % i)
 		run_ai_game()

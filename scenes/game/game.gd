@@ -656,6 +656,8 @@ func _stat_notice_event(event):
 	match event['event_type']:
 		Enums.EventType.EventType_Strike_ArmorUp:
 			notice_text = "+%d Armor" % number
+		Enums.EventType.EventType_CharacterAction:
+			notice_text = "Character Action"
 		Enums.EventType.EventType_Strike_DodgeAttacks:
 			notice_text = "Dodge Attacks!"
 		Enums.EventType.EventType_Strike_DodgeAttacksAtRange:
@@ -834,10 +836,12 @@ func _on_boost_played(event):
 
 func _on_choose_card_hand_to_gauge(event):
 	var player = event['event_player']
+	var min_amount = event['number']
+	var max_amount = event['extra_info']
 	if player == Enums.PlayerId.PlayerId_Player:
-		begin_discard_cards_selection(event['number'], UISubState.UISubState_SelectCards_DiscardCardsToGauge)
+		begin_discard_cards_selection(min_amount, max_amount, UISubState.UISubState_SelectCards_DiscardCardsToGauge)
 	else:
-		ai_choose_card_hand_to_gauge()
+		ai_choose_card_hand_to_gauge(min_amount, max_amount)
 
 func _on_choose_from_discard(event):
 	var player = event['event_player']
@@ -999,7 +1003,7 @@ func _on_change_cards(event):
 func _on_hand_size_exceeded(event):
 	var active_player = game_wrapper.get_active_player()
 	if active_player == Enums.PlayerId.PlayerId_Player:
-		begin_discard_cards_selection(event['number'], UISubState.UISubState_SelectCards_DiscardCards)
+		begin_discard_cards_selection(event['number'], event['number'],UISubState.UISubState_SelectCards_DiscardCards)
 	else:
 		# AI or other player wait
 		ai_discard(event)
@@ -1010,7 +1014,7 @@ func _on_choose_to_discard(event, informative_only : bool):
 	spawn_damage_popup("Forced Discard %s" % str(amount), player)
 	if not informative_only:
 		if player == Enums.PlayerId.PlayerId_Player:
-			begin_discard_cards_selection(event['number'], UISubState.UISubState_SelectCards_DiscardCards_Choose)
+			begin_discard_cards_selection(event['number'], event['number'],UISubState.UISubState_SelectCards_DiscardCards_Choose)
 		else:
 			# AI or other player wait
 			ai_choose_to_discard(amount)
@@ -1043,8 +1047,12 @@ func update_discard_selection_message():
 	set_instructions("Select %s more card(s) from your hand to discard." % num_remaining)
 
 func update_discard_to_gauge_selection_message():
-	var num_remaining = select_card_require_min - len(selected_cards)
-	set_instructions("Select %s more card(s) from your hand to put in gauge." % num_remaining)
+	if select_card_require_min == select_card_require_max:
+		var num_remaining = select_card_require_min - len(selected_cards)
+		set_instructions("Select %s more card(s) from your hand to put in gauge." % num_remaining)
+	else:
+		var num_remaining = select_card_require_max - len(selected_cards)
+		set_instructions("Select up to %s more card(s) from your hand to put in gauge." % [num_remaining])
 
 func update_gauge_selection_message():
 	var num_remaining = select_card_require_min - len(selected_cards)
@@ -1097,11 +1105,12 @@ func enable_instructions_ui(message, can_ok, can_cancel, can_wild_swing : bool =
 		else:
 			choice_buttons[i].visible = false
 
-func begin_discard_cards_selection(number_to_discard, next_sub_state):
+func begin_discard_cards_selection(number_to_discard_min, number_to_discard_max, next_sub_state):
 	selected_cards = []
-	select_card_require_min = number_to_discard
-	select_card_require_max = number_to_discard
-	enable_instructions_ui("", true, false)
+	select_card_require_min = number_to_discard_min
+	select_card_require_max = number_to_discard_max
+	var cancel_allowed = number_to_discard_min == 0
+	enable_instructions_ui("", true, cancel_allowed)
 	change_ui_state(UIState.UIState_SelectCards, next_sub_state)
 
 func begin_generate_force_selection(amount):
@@ -1434,6 +1443,8 @@ func _handle_events(events):
 				_on_choose_card_hand_to_gauge(event)
 			Enums.EventType.EventType_ChangeCards:
 				delay = _on_change_cards(event)
+			Enums.EventType.EventType_CharacterAction:
+				delay = _stat_notice_event(event)
 			Enums.EventType.EventType_ChooseFromDiscard:
 				_on_choose_from_discard(event)
 			Enums.EventType.EventType_Discard:
@@ -1570,7 +1581,7 @@ func _update_buttons():
 	$StaticUI/StaticUIVBox/InstructionsWithButtonsUI/ButtonContainer/WildSwingButton.visible = instructions_wild_swing_allowed
 
 	match ui_sub_state:
-		UISubState.UISubState_SelectCards_BoostCancel, UISubState.UISubState_SelectCards_Mulligan, UISubState.UISubState_SelectCards_ForceForEffect:
+		UISubState.UISubState_SelectCards_BoostCancel, UISubState.UISubState_SelectCards_Mulligan, UISubState.UISubState_SelectCards_ForceForEffect, UISubState.UISubState_SelectCards_DiscardCardsToGauge:
 			$StaticUI/StaticUIVBox/InstructionsWithButtonsUI/ButtonContainer/CancelButton.text = "Pass"
 		_:
 			$StaticUI/StaticUIVBox/InstructionsWithButtonsUI/ButtonContainer/CancelButton.text = "Cancel"
@@ -1740,7 +1751,10 @@ func _on_instructions_ok_button_pressed():
 			UISubState.UISubState_SelectCards_DiscardCards_Choose:
 				success = game_wrapper.submit_choose_to_discard(Enums.PlayerId.PlayerId_Player, selected_card_ids)
 			UISubState.UISubState_SelectCards_DiscardCardsToGauge:
-				success = game_wrapper.submit_card_from_hand_to_gauge(Enums.PlayerId.PlayerId_Player, single_card_id)
+				var card_ids = []
+				for card in selected_cards:
+					card_ids.append(card.card_id)
+				success = game_wrapper.submit_card_from_hand_to_gauge(Enums.PlayerId.PlayerId_Player, card_ids)
 			UISubState.UISubState_SelectCards_StrikeGauge:
 				success = game_wrapper.submit_pay_strike_cost(Enums.PlayerId.PlayerId_Player, selected_card_ids, false)
 			UISubState.UISubState_SelectCards_Exceed:
@@ -1784,6 +1798,10 @@ func _on_instructions_cancel_button_pressed():
 			deselect_all_cards()
 			close_popout()
 			success = game_wrapper.submit_mulligan(Enums.PlayerId.PlayerId_Player, [])
+		UISubState.UISubState_SelectCards_DiscardCardsToGauge:
+			deselect_all_cards()
+			close_popout()
+			success = game_wrapper.submit_card_from_hand_to_gauge(Enums.PlayerId.PlayerId_Player, [])
 		_:
 			match ui_state:
 				UIState.UIState_SelectArenaLocation:
@@ -1996,10 +2014,10 @@ func ai_name_opponent_card(normal_only : bool):
 	else:
 		print("FAILED AI NAME OPPONENT CARD")
 
-func ai_choose_card_hand_to_gauge():
+func ai_choose_card_hand_to_gauge(min_amount, max_amount):
 	if not game_wrapper.is_ai_game(): return
-	var cardfromhandtogauge_action = ai_player.pick_card_hand_to_gauge(game_wrapper.current_game, Enums.PlayerId.PlayerId_Opponent)
-	var success = game_wrapper.submit_card_from_hand_to_gauge(Enums.PlayerId.PlayerId_Opponent, cardfromhandtogauge_action.card_id)
+	var cardfromhandtogauge_action = ai_player.pick_card_hand_to_gauge(game_wrapper.current_game, Enums.PlayerId.PlayerId_Opponent, min_amount, max_amount)
+	var success = game_wrapper.submit_card_from_hand_to_gauge(Enums.PlayerId.PlayerId_Opponent, [cardfromhandtogauge_action.card_id])
 	if success:
 		change_ui_state(UIState.UIState_WaitForGameServer)
 	else:
