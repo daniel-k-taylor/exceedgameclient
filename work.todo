@@ -81,6 +81,14 @@ Character:
         ☐ opponent can't advance past
         ☐ EX attack bonus
     HappyChaos:
+        ☐ sealed area
+        ☐ Hit seal ultra
+        ☐ exceed - strike with deus ex machina - hit shuffle sealed into deck
+        ☐ special deck size
+        ☐ return card from sealed to hand
+        ☐ spend life to draw
+        ☐ seal this after effect
+        ☐ initiate face up
     Ino:
         ☐ Force action
         ☐ condition - initiated after moving 2+
@@ -107,6 +115,16 @@ Character:
         ☐ exceed only effect
         ☐ if invalid effect
     Nago:
+        ☐ exceed on reshuffle
+        ☐ specials cleanup draw 4 discard 2
+        ☐ exceeded - specials invalid
+        ☐ cleanup lose armor, take 2 nonlethal damage
+        ☐ strike face up
+        ☐ shuffle 2 cards from discard to deck
+        ☐ you choose discard boost effect
+        ☐ add 3 from hand to gauge
+        ☐ exceed condition
+        ☐ revert
     Testament:
         ☐ normals permanent bonus
         ☐ hit play this as boost and sustain
@@ -115,3 +133,11 @@ Character:
         ☐ cleanup not stunned return attack
         ☐ after opponent set ability
     Zato:
+        ☐ Eddie
+        ☐ place eddie
+        ☐ push from attack source
+        ☐ if eddie in play condition
+        ☐ pull towards zato
+        ☐ do not remove eddie on cleanup
+        ☐ return 2 specials from discard
+        ☐ condition opponent between eddie and zato
