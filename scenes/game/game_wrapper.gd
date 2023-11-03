@@ -78,9 +78,6 @@ func get_player_exceed_cost(id):
 func get_player_mulligan_complete(id):
 	return _get_player(id).mulligan_complete
 
-func get_player_active_character_effects(id):
-	return _get_player(id).get_active_character_effects()
-
 func get_player_character_action(id):
 	return _get_player(id).get_character_action()
 

@@ -1356,10 +1356,9 @@ func _on_strike_character_effect(event):
 		bonus_label = opponent_bonus_label
 
 	bonus_panel.visible = true
-	var effects = game_wrapper.get_player_active_character_effects(player)
+	var effect = event['extra_info']
 	var label_text = ""
-	for effect in effects:
-		label_text += CardDefinitions.get_effect_text(effect, false, true) + "\n"
+	label_text += CardDefinitions.get_effect_text(effect, false, true) + "\n"
 	label_text = label_text.replace(",", "\n")
 	bonus_label.text = label_text
 

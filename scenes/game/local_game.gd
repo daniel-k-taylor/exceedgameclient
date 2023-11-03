@@ -323,9 +323,6 @@ class Player:
 		mulligan_complete = true
 		return events
 
-	func get_active_character_effects():
-		return strike_stat_boosts.active_character_effects
-
 	func is_card_in_hand(id : int):
 		for card in hand:
 			if card.id == id:
@@ -1171,7 +1168,7 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 	var events = []
 	if 'character_effect' in effect and effect['character_effect']:
 		performing_player.strike_stat_boosts.active_character_effects.append(effect)
-		events += [create_event(Enums.EventType.EventType_Strike_CharacterEffect, performing_player.my_id, card_id)]
+		events += [create_event(Enums.EventType.EventType_Strike_CharacterEffect, performing_player.my_id, card_id, "", effect)]
 	var local_conditions = LocalStrikeConditions.new()
 	var performing_start = performing_player.arena_location
 	var opposing_player : Player = _get_player(get_other_player(performing_player.my_id))

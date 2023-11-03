@@ -33,9 +33,9 @@ func give_player_specific_card(player, def_id, card_id):
 	player.hand.append(card)
 
 func give_specific_cards(p1, id1, p2, id2):
-	if p1:
+	if p1 and id1:
 		give_player_specific_card(p1, id1, TestCardId1)
-	if p2:
+	if p2 and id2:
 		give_player_specific_card(p2, id2, TestCardId2)
 
 func position_players(p1, loc1, p2, loc2):
@@ -73,7 +73,7 @@ func before_all():
 func after_all():
 	gut.p("ran run teardown", 2)
 
-func do_and_validate_strike(player, card_id, ex_card_id = -1):
+func do_and_validate_strike(player, card_id, ex_card_id = -1, expect_wild : bool = false):
 	assert_true(game_logic.can_do_strike(player))
 	assert_true(game_logic.do_strike(player, card_id, false, ex_card_id))
 	var events = game_logic.get_latest_events()
@@ -81,7 +81,11 @@ func do_and_validate_strike(player, card_id, ex_card_id = -1):
 	if game_logic.game_state == Enums.GameState.GameState_Strike_Opponent_Response or game_logic.game_state == Enums.GameState.GameState_PlayerDecision:
 		pass
 	else:
-		fail_test("Unexpected game state after strike")
+		if expect_wild:
+			assert_eq(game_logic.game_state, Enums.GameState.GameState_PickAction, "Not in pick action after wild strike")
+		else:
+			fail_test("Unexpected game state after strike")
+	return events
 
 func do_strike_response(player, card_id, ex_card = -1):
 	assert_true(game_logic.do_strike(player, card_id, false, ex_card))
@@ -117,12 +121,13 @@ func validate_discard(player, amount, id):
 
 func execute_strike(initiator, defender, init_card : String, def_card : String, init_choices, def_choices, init_ex = false, def_ex = false, init_force_discard = [], def_force_discard = []):
 	var all_events = []
+	var expect_wild = def_card == ""
 	give_specific_cards(initiator, init_card, defender, def_card)
 	if init_ex:
 		give_player_specific_card(initiator, init_card, TestCardId3)
-		do_and_validate_strike(initiator, TestCardId1, TestCardId3)
+		all_events += do_and_validate_strike(initiator, TestCardId1, TestCardId3, expect_wild)
 	else:
-		do_and_validate_strike(initiator, TestCardId1)
+		all_events += do_and_validate_strike(initiator, TestCardId1, -1, expect_wild)
 
 	if game_logic.game_state == Enums.GameState.GameState_PlayerDecision and game_logic.active_strike.strike_state == game_logic.StrikeState.StrikeState_Initiator_SetEffects:
 		game_logic.do_force_for_effect(initiator, init_force_discard)
@@ -130,7 +135,7 @@ func execute_strike(initiator, defender, init_card : String, def_card : String, 
 	if def_ex:
 		give_player_specific_card(defender, def_card, TestCardId4)
 		all_events += do_strike_response(defender, TestCardId2, TestCardId4)
-	elif def_card:
+	elif def_card and not expect_wild:
 		all_events += do_strike_response(defender, TestCardId2)
 
 	if game_logic.game_state == Enums.GameState.GameState_PlayerDecision and game_logic.active_strike.strike_state == game_logic.StrikeState.StrikeState_Defender_SetEffects:
@@ -165,8 +170,8 @@ func execute_strike(initiator, defender, init_card : String, def_card : String, 
 	return all_events
 
 func validate_positions(p1, l1, p2, l2):
-	assert_eq(p1.arena_location, l1)
-	assert_eq(p2.arena_location, l2)
+	assert_eq(p1.arena_location, l1, "p1 not at expected position")
+	assert_eq(p2.arena_location, l2, "p2 not at expected position")
 
 func validate_life(p1, l1, p2, l2):
 	assert_eq(p1.life, l1)
@@ -217,3 +222,18 @@ func test_pot_giganter_tooclose():
 	validate_positions(player1, 3, player2, 4)
 	validate_life(player1, 30, player2, 30)
 	assert_eq(player1.hand.size(), 4)
+
+func test_pot_char_ability_boost_scramble():
+	give_gauge(player1, 2)
+	give_player_specific_card(player2, "gg_normal_slash", TestCardId4)
+	var card = player2.hand[player2.hand.size() - 1]
+	player2.hand.remove_at(player2.hand.size() - 1)
+	player2.deck.push_front(card)
+	give_player_specific_card(player1, "gg_normal_focus", TestCardId3)
+	position_players(player1, 3, player2, 4)
+	assert_true(game_logic.do_boost(player1, TestCardId3))
+	assert_true(game_logic.do_boost_cancel(player1, [player1.gauge[0].id], true))
+	var events = execute_strike(player1, player2, "gg_normal_slash","", [], [], false, false)
+	validate_has_event(events, Enums.EventType.EventType_Strike_CharacterEffect, player1)
+	validate_positions(player1, 3, player2, 4)
+	validate_life(player1, 30, player2, 25)

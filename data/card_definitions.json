@@ -2289,7 +2289,7 @@
 				{
 					"timing": "during_strike",
 					"condition": "initiated_strike",
-					"effect_type": "speed",
+					"effect_type": "speedup",
 					"amount": 1
 				},
 				{
