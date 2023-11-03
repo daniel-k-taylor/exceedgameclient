@@ -1,4 +1,9 @@
 In progress:
+    Giovanna:
+        ☐ test exceed gauge_from_hand
+            ☐ doesn't work
+        ☐ test char ability
+        ☐ write tests for cards
 Tasks:
     Main Features:
         ☐ Deck reference shows remaining cards in hand/deck
@@ -68,9 +73,6 @@ Character:
         ☐ both players have effect
         ☐ boost and sustain top 2 deck
         ☐ higher speed misses
-    Giovanna:
-        ☐ action strike and effect
-        ☐ action - gauge
     Goldlewis:
         ☐ max hand is 9, draw 2 at start
         ☐ specials have draw 2 hit
