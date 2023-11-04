@@ -1,14 +1,11 @@
 In progress:
-    Giovanna:
-        ☐ test exceed gauge_from_hand
-            ☐ doesn't work
-        ☐ test char ability
-        ☐ write tests for cards
+    ☐ Deck reference shows remaining cards in hand/deck
+    ☐ In matchmaking indicator
+    ☐ Allow ordering of multiple before/after effects
+
 Tasks:
     Main Features:
-        ☐ Deck reference shows remaining cards in hand/deck
         ☐ Observers on server
-        ☐ In matchmaking indicator
     Tests:
         ☐ Strike
         ☐ Boost
@@ -30,7 +27,6 @@ Tasks:
         ☐ If making a decision, minimizing card popout has a blinking icon to reopen it
     ☐ Only connect to server if you enter Multiplayer
     ☐ Card popout has choice buttons for gauge selection
-    ☐ Allow ordering of multiple before/after effects
     ☐ Reorder opponent hand in a way that you can't keep track with effort
 
 Bugs:

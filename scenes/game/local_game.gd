@@ -27,6 +27,7 @@ var all_cards : Array = []
 var game_over : bool = false
 var game_over_winning_player : Player = null
 var active_strike : Strike = null
+var active_exceed : bool = false
 
 var decision_info : DecisionInfo = DecisionInfo.new()
 var active_boost : Boost = null
@@ -2044,9 +2045,12 @@ func do_exceed(performing_player : Player, card_ids : Array) -> bool:
 	_append_log("%s Turn Action - Exceed" % [performing_player.name])
 	var events = performing_player.discard(card_ids)
 	events += performing_player.exceed()
-	if game_state != Enums.GameState.GameState_WaitForStrike:
+	if game_state != Enums.GameState.GameState_WaitForStrike and game_state != Enums.GameState.GameState_PlayerDecision:
 		events += performing_player.draw(1)
 		events += check_hand_size_advance_turn(performing_player)
+	else:
+		# Some other player action will result in the end turn finishing.
+		active_exceed = true
 	event_queue += events
 	return true
 
@@ -2284,7 +2288,12 @@ func do_card_from_hand_to_gauge(performing_player : Player, card_ids : Array) ->
 	elif active_boost:
 		active_boost.effects_resolved += 1
 		events += continue_resolve_boost()
+	elif active_exceed:
+		active_exceed = false
+		events += performing_player.draw(1)
+		events += check_hand_size_advance_turn(performing_player)
 	else:
+		# Could be exceeding.
 		printlog("ERROR: do_card_from_hand_to_gauge but no active strike or boost.")
 
 	event_queue += events
