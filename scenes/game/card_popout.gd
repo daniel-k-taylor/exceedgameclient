@@ -35,8 +35,8 @@ func _input(event):
 func set_title(text : String):
 	$PopoutVBox/HBoxContainer/TitleLabel.text = text
 
-func set_amount(num : int):
-	$PopoutVBox/HBoxContainer/TitleAmount.text = str(num)
+func set_amount(text : String):
+	$PopoutVBox/HBoxContainer/TitleAmount.text = text
 
 func set_instructions(instruction_info):
 	if instruction_info == null:

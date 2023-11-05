@@ -227,6 +227,21 @@ layout_mode = 2
 mouse_filter = 2
 texture = ExtResource("6_h5u6x")
 
+[node name="RemainingCount" type="Node2D" parent="CardFocusFeatures"]
+position = Vector2(0, -190)
+
+[node name="RemainingCountLabel" type="Label" parent="CardFocusFeatures/RemainingCount"]
+offset_left = -31.5
+offset_top = -20.0
+offset_right = 31.5
+offset_bottom = 20.0
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_horizontal = 4
+theme_override_font_sizes/font_size = 28
+text = "x2"
+horizontal_alignment = 1
+
 [node name="CancelContainer" type="Node2D" parent="CardFocusFeatures"]
 
 [node name="Stopwatch" type="Sprite2D" parent="CardFocusFeatures/CancelContainer"]

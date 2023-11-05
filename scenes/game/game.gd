@@ -2126,8 +2126,11 @@ func card_in_selected_cards(card):
 			return true
 	return false
 
-func _update_popout_cards(cards_in_popout : Array, not_visible_position : Vector2, card_return_state : CardBase.CardState, filtering_allowed : bool = false):
-	card_popout.set_amount(len(cards_in_popout))
+func _update_popout_cards(cards_in_popout : Array, not_visible_position : Vector2, card_return_state : CardBase.CardState, filtering_allowed : bool = false, show_amount : bool = true):
+	if show_amount:
+		card_popout.set_amount(str(len(cards_in_popout)))
+	else:
+		card_popout.set_amount("")
 	if card_popout.visible:
 		# Clear first which sets the size/positions correctly.
 		await card_popout.clear(len(cards_in_popout))
@@ -2230,7 +2233,7 @@ func popout_show_normal_only() -> bool:
 		return popout_instruction_info['normal_only']
 	return false
 
-func show_popout(popout_type : CardPopoutType, popout_title : String, card_node, card_rest_position : Vector2, card_rest_state : CardBase.CardState):
+func show_popout(popout_type : CardPopoutType, popout_title : String, card_node, card_rest_position : Vector2, card_rest_state : CardBase.CardState, show_amount : bool = true):
 	popout_type_showing = popout_type
 	update_popout_instructions()
 	card_popout.set_title(popout_title)
@@ -2240,7 +2243,7 @@ func show_popout(popout_type : CardPopoutType, popout_title : String, card_node,
 	card_popout.visible = true
 	var cards = card_node.get_children()
 	var filtering_allowed = popout_type == CardPopoutType.CardPopoutType_ReferenceOpponent
-	_update_popout_cards(cards, card_rest_position, card_rest_state, filtering_allowed)
+	_update_popout_cards(cards, card_rest_position, card_rest_state, filtering_allowed, show_amount)
 
 func get_boost_zone_center(zone):
 	var pos = zone.global_position + CardBase.get_hand_card_size() / 2
@@ -2276,11 +2279,17 @@ func _on_popout_close_window():
 
 func _on_player_reference_button_pressed():
 	await close_popout()
-	show_popout(CardPopoutType.CardPopoutType_ReferencePlayer, "YOUR DECK REFERENCE", $AllCards/PlayerAllCopy, OffScreen, CardBase.CardState.CardState_Offscreen)
+	for card in $AllCards/PlayerAllCopy.get_children():
+		var id = card.card_id - ReferenceScreenIdRangeStart
+		# TODO: Look up card definition id, and count
+		card.set_remaining_count(2)
+	show_popout(CardPopoutType.CardPopoutType_ReferencePlayer, "YOUR DECK REFERENCE (showing remaining card counts in deck+hand)", $AllCards/PlayerAllCopy, OffScreen, CardBase.CardState.CardState_Offscreen, false)
 
 func _on_opponent_reference_button_pressed():
 	await close_popout()
-	show_popout(CardPopoutType.CardPopoutType_ReferenceOpponent, "THEIR DECK REFERENCE", $AllCards/OpponentAllCopy, OffScreen, CardBase.CardState.CardState_Offscreen)
+	for card in $AllCards/OpponentAllCopy.get_children():
+		card.set_remaining_count(2)
+	show_popout(CardPopoutType.CardPopoutType_ReferenceOpponent, "THEIR DECK REFERENCE (showing remaining card counts in deck+hand)", $AllCards/OpponentAllCopy, OffScreen, CardBase.CardState.CardState_Offscreen, false)
 
 func _on_exit_to_menu_pressed():
 	NetworkManager.leave_room()

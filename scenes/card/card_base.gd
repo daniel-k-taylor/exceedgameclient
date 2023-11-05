@@ -19,6 +19,7 @@ const StatPanel = preload("res://scenes/card/stat_panel.gd")
 @onready var stun_indicator = $CardFocusFeatures/StunIndicator
 @onready var card_features = $CardFocusFeatures
 @onready var focus_feature = $FocusFeatures
+@onready var remaining_count_label : Label = $CardFocusFeatures/RemainingCount/RemainingCountLabel
 
 
 const ActualCardSize = Vector2(250,350)
@@ -91,7 +92,11 @@ const FOCUS_ANIMATION_LENGTH = 0.1
 func _ready():
 	flip_card_to_front(false)
 	set_hover_visible(false)
+	remaining_count_label.text = ""
 	#$CardContainer/Focus.modulate = HighlightColor
+
+func set_remaining_count(count : int):
+	remaining_count_label.text = "x%s" % count
 
 func flip_card_to_front(front):
 	if front:
