@@ -249,8 +249,8 @@ func get_effect_type_text(effect):
 		"speedup":
 			if effect['amount'] > 0:
 				effect_str += "+"
-			else:
-				effect_str += "-"
+			#else: str() converts it to - already.
+				#effect_str += "-"
 			effect_str += str(effect['amount']) + " Speed"
 		"stun_immunity":
 			effect_str += "Stun Immunity"
