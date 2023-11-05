@@ -18,9 +18,10 @@ enum DecisionType {
 	DecisionType_BoostCancel,
 	DecisionType_ChooseDiscardContinuousBoost,
 	DecisionType_ChooseFromDiscard,
+	DecisionType_ChooseSimultaneousEffect,
 	DecisionType_EffectChoice,
 	DecisionType_ForceForEffect,
-	DecisionType_NameCard_OpponentDiscards, # 5
+	DecisionType_NameCard_OpponentDiscards, # 6
 	DecisionType_ChooseToDiscard,
 	DecisionType_PayStrikeCost_Required,
 	DecisionType_PayStrikeCost_CanWild,

@@ -115,6 +115,13 @@ func validate_discard(player, amount, id):
 			return
 	fail_test("Didn't have required card in discard.")
 
+func handle_simultaneous_effects(initiator, defender):
+	while game_logic.game_state == Enums.GameState.GameState_PlayerDecision and game_logic.decision_info.type == Enums.DecisionType.DecisionType_ChooseSimultaneousEffect:
+		var decider = initiator
+		if game_logic.decision_info.player == defender.my_id:
+			decider = defender
+		assert_true(game_logic.do_choice(decider, 0), "Failed simuleffect choice")
+
 func execute_strike(initiator, defender, init_card : String, def_card : String, init_choices, def_choices, init_ex = false, def_ex = false, init_force_discard = [], def_force_discard = []):
 	var all_events = []
 	give_specific_cards(initiator, init_card, defender, def_card)
@@ -152,13 +159,19 @@ func execute_strike(initiator, defender, init_card : String, def_card : String, 
 			cards.append(defender.gauge[i].id)
 		game_logic.do_pay_strike_cost(defender, cards, false)
 
+	handle_simultaneous_effects(initiator, defender)
+
 	for i in range(init_choices.size()):
 		assert_eq(game_logic.game_state, Enums.GameState.GameState_PlayerDecision)
 		assert_true(game_logic.do_choice(initiator, init_choices[i]))
+		handle_simultaneous_effects(initiator, defender)
+
+	handle_simultaneous_effects(initiator, defender)
 
 	for i in range(def_choices.size()):
 		assert_eq(game_logic.game_state, Enums.GameState.GameState_PlayerDecision)
 		assert_true(game_logic.do_choice(defender, def_choices[i]))
+		handle_simultaneous_effects(initiator, defender)
 
 	var events = game_logic.get_latest_events()
 	all_events += events

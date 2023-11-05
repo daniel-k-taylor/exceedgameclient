@@ -206,7 +206,7 @@ func handle_strike(game: LocalGame, aiplayer : AIPlayer, otherai : AIPlayer, act
 				var pay_action = decision_ai.pay_strike_gauge_cost(game, decision_player.my_id, cost, can_wild)
 				assert_true(game.do_pay_strike_cost(decision_player, pay_action.card_ids, pay_action.wild_swing), "do pay failed")
 				events += game.get_latest_events()
-			Enums.DecisionType.DecisionType_EffectChoice:
+			Enums.DecisionType.DecisionType_EffectChoice, Enums.DecisionType.DecisionType_ChooseSimultaneousEffect:
 				var effect_action = decision_ai.pick_effect_choice(game, decision_player.my_id)
 				assert_true(game.do_choice(decision_ai.game_player, effect_action.choice), "do strike choice failed")
 				events += game.get_latest_events()

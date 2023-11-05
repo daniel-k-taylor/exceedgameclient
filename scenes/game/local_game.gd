@@ -123,6 +123,7 @@ class Strike:
 	var strike_state
 	var starting_distance : int = -1
 	var in_setup : bool = true
+	var remaining_effect_list : Array = []
 	var effects_resolved_in_timing : int = 0
 	var player1_hit : bool = false
 	var player1_stunned : bool = false
@@ -1209,7 +1210,7 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 			decision_info.player = performing_player.my_id
 			decision_info.choice = effect['choice']
 			decision_info.choice_card_id = card_id
-			events += [create_event(Enums.EventType.EventType_Strike_EffectChoice, performing_player.my_id, 0)]
+			events += [create_event(Enums.EventType.EventType_Strike_EffectChoice, performing_player.my_id, 0, "EffectOption")]
 		"choose_discard":
 			var choice_count = performing_player.get_discard_count_of_type(effect['limitation'])
 			if choice_count > 0:
@@ -1430,22 +1431,58 @@ func get_boost_effects_at_timing(timing_name : String, performing_player : Playe
 	for boost_card in performing_player.continuous_boosts:
 		for effect in boost_card.definition['boost']['effects']:
 			if effect['timing'] == timing_name:
-				effects.append(effect)
+				var effect_with_id = effect.duplicate(true)
+				effect_with_id['card_id'] = boost_card.id
+				effects.append(effect_with_id)
 	return effects
 
-func get_boost_card_ids_for_effects_at_timing(timing_name : String, performing_player : Player):
-	var card_ids = []
-	for boost_card in performing_player.continuous_boosts:
-		for effect in boost_card.definition['boost']['effects']:
-			if effect['timing'] == timing_name:
-				card_ids.append(boost_card.id)
-	return card_ids
+func get_all_effects_for_timing(timing_name : String, performing_player : Player, card : GameCard) -> Array:
+	var effects = card_db.get_card_effects_at_timing(card, timing_name)
+	for effect in effects:
+		effect['card_id'] = card.id
+	var boost_effects = get_boost_effects_at_timing(timing_name, performing_player)
+	var character_effects = performing_player.get_character_effects_at_timing(timing_name)
+	for effect in character_effects:
+		effect['card_id'] = card.id
+	var all_effects = []
+	for effect in effects:
+		if is_effect_condition_met(performing_player, effect, null):
+			all_effects.append(effect)
+	for effect in boost_effects:
+		if is_effect_condition_met(performing_player, effect, null):
+			all_effects.append(effect)
+	for effect in character_effects:
+		if is_effect_condition_met(performing_player, effect, null):
+			all_effects.append(effect)
+	return all_effects
+
+func do_remaining_effects(performing_player : Player, next_state):
+	var events = []
+	while active_strike.remaining_effect_list.size() > 0:
+		var remaining_effect_count = active_strike.remaining_effect_list.size()
+		if remaining_effect_count > 1:
+			# Send choice to player
+			change_game_state(Enums.GameState.GameState_PlayerDecision)
+			decision_info.type = Enums.DecisionType.DecisionType_ChooseSimultaneousEffect
+			decision_info.player = performing_player.my_id
+			decision_info.choice = active_strike.remaining_effect_list
+			events += [create_event(Enums.EventType.EventType_Strike_EffectChoice, performing_player.my_id, 0, "EffectOrder")]
+			break
+		else:
+			var effect = active_strike.remaining_effect_list[0]
+			active_strike.remaining_effect_list = []
+			if is_effect_condition_met(performing_player, effect, null):
+				events += handle_strike_effect(effect['card_id'], effect, performing_player)
+
+	if active_strike.remaining_effect_list.size() == 0 and not game_state == Enums.GameState.GameState_PlayerDecision:
+		active_strike.effects_resolved_in_timing = 0
+		active_strike.strike_state = next_state
+	return events
 
 func do_effects_for_timing(timing_name : String, performing_player : Player, card : GameCard, next_state):
 	var events = []
 	var effects = card_db.get_card_effects_at_timing(card, timing_name)
 	var boost_effects = get_boost_effects_at_timing(timing_name, performing_player)
-	var boost_card_ids = get_boost_card_ids_for_effects_at_timing(timing_name, performing_player)
 	var character_effects = performing_player.get_character_effects_at_timing(timing_name)
 	# Effects are resolved in the order:
 	# Card > Continuous Boost > Character
@@ -1466,9 +1503,8 @@ func do_effects_for_timing(timing_name : String, performing_player : Player, car
 		elif boost_effects_resolved < len(boost_effects):
 			# Resolve boost effects
 			var effect = boost_effects[boost_effects_resolved]
-			var boost_card_id = boost_card_ids[boost_effects_resolved]
 			if is_effect_condition_met(performing_player, effect, null):
-				events += handle_strike_effect(boost_card_id, effect, performing_player)
+				events += handle_strike_effect(effect['card_id'], effect, performing_player)
 			if game_state == Enums.GameState.GameState_PlayerDecision:
 				# Player has a decision to make, so stop mid-effect resolve.
 				break
@@ -1638,29 +1674,36 @@ func continue_resolve_strike():
 				_append_log("%s %s activates." % [player1.name, card_db.get_card_name(card1.id)])
 				events += [create_event(Enums.EventType.EventType_Strike_CardActivation, active_strike.get_player(1).my_id, card1.id)]
 				active_strike.strike_state = StrikeState.StrikeState_Card1_Before
+				active_strike.remaining_effect_list = get_all_effects_for_timing("before", player1, card1)
 			StrikeState.StrikeState_Card1_Before:
-				events += do_effects_for_timing("before", player1, card1, StrikeState.StrikeState_Card1_DetermineHit)
+				events += do_remaining_effects(player1, StrikeState.StrikeState_Card1_DetermineHit)
+				#events += do_effects_for_timing("before", player1, card1, StrikeState.StrikeState_Card1_DetermineHit)
 			StrikeState.StrikeState_Card1_DetermineHit:
 				_append_log("Range Check: %s (%s) vs %s (%s)." % [player1.name, player1.arena_location, player2.name, player2.arena_location])
 				if in_range(player1, player2, card1):
 					_append_log("%s %s hits." % [player1.name, card_db.get_card_name(card1.id)])
 					active_strike.player1_hit = true
 					active_strike.strike_state = StrikeState.StrikeState_Card1_Hit
+					active_strike.remaining_effect_list = get_all_effects_for_timing("hit", player1, card1)
 				else:
 					_append_log("%s %s misses." % [player1.name, card_db.get_card_name(card1.id)])
 					events += [create_event(Enums.EventType.EventType_Strike_Miss, player1.my_id, 0)]
 					active_strike.strike_state = StrikeState.StrikeState_Card1_After
+					active_strike.remaining_effect_list = get_all_effects_for_timing("after", player1, card1)
 			StrikeState.StrikeState_Card1_Hit:
-				events += do_effects_for_timing("hit", player1, card1, StrikeState.StrikeState_Card1_Hit_Response)
+				events += do_remaining_effects(player1, StrikeState.StrikeState_Card1_Hit_Response)
+				#events += do_effects_for_timing("hit", player1, card1, StrikeState.StrikeState_Card1_Hit_Response)
 			StrikeState.StrikeState_Card1_Hit_Response:
 				events += do_hit_response_effects(player2, StrikeState.StrikeState_Card1_ApplyDamage)
 			StrikeState.StrikeState_Card1_ApplyDamage:
 				events += apply_damage(player1, player2, card1, card2)
 				active_strike.strike_state = StrikeState.StrikeState_Card1_After
+				active_strike.remaining_effect_list = get_all_effects_for_timing("after", player1, card1)
 				if game_over:
 					active_strike.strike_state = StrikeState.StrikeState_Cleanup
 			StrikeState.StrikeState_Card1_After:
-				events += do_effects_for_timing("after", player1, card1, StrikeState.StrikeState_Card2_Activation)
+				events += do_remaining_effects(player1, StrikeState.StrikeState_Card2_Activation)
+				#events += do_effects_for_timing("after", player1, card1, StrikeState.StrikeState_Card2_Activation)
 			StrikeState.StrikeState_Card2_Activation:
 				if active_strike.player2_stunned:
 					_append_log("%s is stunned. %s does not activate." % [player2.name, card_db.get_card_name(card2.id)])
@@ -1669,29 +1712,36 @@ func continue_resolve_strike():
 					_append_log("%s %s activates." % [player2.name, card_db.get_card_name(card2.id)])
 					events += [create_event(Enums.EventType.EventType_Strike_CardActivation, active_strike.get_player(2).my_id, card2.id)]
 					active_strike.strike_state = StrikeState.StrikeState_Card2_Before
+					active_strike.remaining_effect_list = get_all_effects_for_timing("before", player2, card2)
 			StrikeState.StrikeState_Card2_Before:
-				events += do_effects_for_timing("before", player2, card2, StrikeState.StrikeState_Card2_DetermineHit)
+				events += do_remaining_effects(player2, StrikeState.StrikeState_Card2_DetermineHit)
+				#events += do_effects_for_timing("before", player2, card2, StrikeState.StrikeState_Card2_DetermineHit)
 			StrikeState.StrikeState_Card2_DetermineHit:
 				_append_log("Range Check: %s (%s) vs %s (%s)." % [player2.name, player2.arena_location, player1.name, player1.arena_location])
 				if in_range(player2, player1, card2):
 					_append_log("%s %s hits." % [player2.name, card_db.get_card_name(card2.id)])
 					active_strike.player2_hit = true
 					active_strike.strike_state = StrikeState.StrikeState_Card2_Hit
+					active_strike.remaining_effect_list = get_all_effects_for_timing("hit", player2, card2)
 				else:
 					_append_log("%s %s misses." % [player2.name, card_db.get_card_name(card2.id)])
 					events += [create_event(Enums.EventType.EventType_Strike_Miss, player2.my_id, 0)]
 					active_strike.strike_state = StrikeState.StrikeState_Card2_After
+					active_strike.remaining_effect_list = get_all_effects_for_timing("after", player2, card2)
 			StrikeState.StrikeState_Card2_Hit:
-				events += do_effects_for_timing("hit", player2, card2, StrikeState.StrikeState_Card2_Hit_Response)
+				events += do_remaining_effects(player2, StrikeState.StrikeState_Card2_Hit_Response)
+				#events += do_effects_for_timing("hit", player2, card2, StrikeState.StrikeState_Card2_Hit_Response)
 			StrikeState.StrikeState_Card2_Hit_Response:
 				events += do_hit_response_effects(player1, StrikeState.StrikeState_Card2_ApplyDamage)
 			StrikeState.StrikeState_Card2_ApplyDamage:
 				events += apply_damage(player2, player1, card2, card1)
 				active_strike.strike_state = StrikeState.StrikeState_Card2_After
+				active_strike.remaining_effect_list = get_all_effects_for_timing("after", player2, card2)
 				if game_over:
 					active_strike.strike_state = StrikeState.StrikeState_Cleanup
 			StrikeState.StrikeState_Card2_After:
-				events += do_effects_for_timing("after", player2, card2, StrikeState.StrikeState_Cleanup)
+				events += do_remaining_effects(player2, StrikeState.StrikeState_Cleanup)
+				#events += do_effects_for_timing("after", player2, card2, StrikeState.StrikeState_Cleanup)
 			StrikeState.StrikeState_Cleanup:
 				# If hit, move card to gauge, otherwise move to discard.
 				if active_strike.player1_hit or player1.strike_stat_boosts.always_add_to_gauge:
@@ -2339,16 +2389,21 @@ func do_choice(performing_player : Player, choice_index : int) -> bool:
 	elif active_boost:
 		game_state = Enums.GameState.GameState_Boost_Processing
 
-	var events = handle_strike_effect(decision_info.choice_card_id, effect, performing_player)
+	if decision_info.type == Enums.DecisionType.DecisionType_ChooseSimultaneousEffect:
+		# This was the player choosing what to do next.
+		# Remove this effect from the remaining effects.
+		active_strike.remaining_effect_list.erase(effect)
 
-	if active_strike:
-		active_strike.effects_resolved_in_timing += 1
-		events += continue_resolve_strike()
-	elif active_boost:
-		active_boost.effects_resolved += 1
-		events += continue_resolve_boost()
-	else:
-		printlog("ERROR: Tried to make choice but no active strike or boost.")
+	var events = handle_strike_effect(decision_info.choice_card_id, effect, performing_player)
+	if game_state != Enums.GameState.GameState_PlayerDecision:
+		if active_strike:
+			active_strike.effects_resolved_in_timing += 1
+			events += continue_resolve_strike()
+		elif active_boost:
+			active_boost.effects_resolved += 1
+			events += continue_resolve_boost()
+		else:
+			printlog("ERROR: Tried to make choice but no active strike or boost.")
 	event_queue += events
 	return true
 

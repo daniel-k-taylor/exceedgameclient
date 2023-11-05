@@ -1,4 +1,4 @@
-[gd_scene load_steps=21 format=3 uid="uid://dh7wmx6cbb55x"]
+[gd_scene load_steps=22 format=3 uid="uid://dh7wmx6cbb55x"]
 
 [ext_resource type="Script" path="res://scenes/game/game.gd" id="1_4f5jr"]
 [ext_resource type="Texture2D" uid="uid://dh8tat2r8ttx1" path="res://assets/cards/card_border_highlight.png" id="4_5y76h"]
@@ -13,6 +13,7 @@
 [ext_resource type="Texture2D" uid="uid://dbijqidxd2ned" path="res://assets/icons/cards.png" id="11_nsv2h"]
 [ext_resource type="PackedScene" uid="uid://dxtsdthw5sxbc" path="res://scenes/game/card_popout.tscn" id="14_lyeqj"]
 [ext_resource type="Texture2D" uid="uid://ded5jrn5yju2j" path="res://assets/cards/card_border_highlight_pressed.png" id="16_laiwo"]
+[ext_resource type="PackedScene" uid="uid://dal56iqk5k8rh" path="res://scenes/game/action_menu.tscn" id="17_8hgvk"]
 [ext_resource type="Texture2D" uid="uid://cj7nvglef8cu" path="res://assets/cards/solbadguy/normal_grasp.tres" id="17_acwgt"]
 [ext_resource type="Texture2D" uid="uid://mn1hj4i3k7l7" path="res://assets/cards/card_border_highlight_selected.png" id="17_rr8uh"]
 [ext_resource type="Script" path="res://scenes/game/ai_player.gd" id="18_hlntt"]
@@ -240,151 +241,6 @@ size_flags_horizontal = 4
 size_flags_vertical = 4
 mouse_filter = 2
 texture = SubResource("GradientTexture2D_84l44")
-
-[node name="StaticUI" type="Control" parent="."]
-custom_minimum_size = Vector2(1280, 720)
-layout_mode = 3
-anchors_preset = 0
-offset_right = 1280.0
-offset_bottom = 720.0
-mouse_filter = 2
-
-[node name="StaticUIVBox" type="VBoxContainer" parent="StaticUI"]
-layout_mode = 1
-anchors_preset = 10
-anchor_right = 1.0
-offset_bottom = 362.0
-grow_horizontal = 2
-mouse_filter = 2
-
-[node name="TopMargin" type="MarginContainer" parent="StaticUI/StaticUIVBox"]
-custom_minimum_size = Vector2(0, 350)
-layout_mode = 2
-mouse_filter = 2
-
-[node name="UnderArenaMargin" type="MarginContainer" parent="StaticUI/StaticUIVBox"]
-layout_mode = 2
-mouse_filter = 2
-theme_override_constants/margin_top = 10
-
-[node name="InstructionsWithButtonsUI" type="VBoxContainer" parent="StaticUI/StaticUIVBox"]
-layout_mode = 2
-size_flags_horizontal = 8
-mouse_filter = 2
-
-[node name="Instructions" type="Label" parent="StaticUI/StaticUIVBox/InstructionsWithButtonsUI"]
-custom_minimum_size = Vector2(600, 0)
-layout_mode = 2
-theme_override_font_sizes/font_size = 24
-text = "Select 2 cards from your hand to discard."
-horizontal_alignment = 1
-autowrap_mode = 2
-
-[node name="ButtonContainer" type="HBoxContainer" parent="StaticUI/StaticUIVBox/InstructionsWithButtonsUI"]
-layout_mode = 2
-size_flags_horizontal = 4
-theme_override_constants/separation = 21
-
-[node name="OkButton" type="Button" parent="StaticUI/StaticUIVBox/InstructionsWithButtonsUI/ButtonContainer"]
-layout_mode = 2
-theme_override_font_sizes/font_size = 24
-text = "OK"
-
-[node name="CancelButton" type="Button" parent="StaticUI/StaticUIVBox/InstructionsWithButtonsUI/ButtonContainer"]
-layout_mode = 2
-theme_override_font_sizes/font_size = 24
-text = "Cancel"
-
-[node name="WildSwingButton" type="Button" parent="StaticUI/StaticUIVBox/InstructionsWithButtonsUI/ButtonContainer"]
-layout_mode = 2
-theme_override_font_sizes/font_size = 24
-text = "Wild Swing"
-
-[node name="ChoiceButtons" type="HBoxContainer" parent="StaticUI/StaticUIVBox/InstructionsWithButtonsUI/ButtonContainer"]
-layout_mode = 2
-
-[node name="Choice0" type="Button" parent="StaticUI/StaticUIVBox/InstructionsWithButtonsUI/ButtonContainer/ChoiceButtons"]
-layout_mode = 2
-theme_override_font_sizes/font_size = 24
-text = "Choice0"
-
-[node name="Choice1" type="Button" parent="StaticUI/StaticUIVBox/InstructionsWithButtonsUI/ButtonContainer/ChoiceButtons"]
-layout_mode = 2
-theme_override_font_sizes/font_size = 24
-
-[node name="Choice2" type="Button" parent="StaticUI/StaticUIVBox/InstructionsWithButtonsUI/ButtonContainer/ChoiceButtons"]
-layout_mode = 2
-theme_override_font_sizes/font_size = 24
-
-[node name="Choice3" type="Button" parent="StaticUI/StaticUIVBox/InstructionsWithButtonsUI/ButtonContainer/ChoiceButtons"]
-layout_mode = 2
-theme_override_font_sizes/font_size = 24
-
-[node name="Choice4" type="Button" parent="StaticUI/StaticUIVBox/InstructionsWithButtonsUI/ButtonContainer/ChoiceButtons"]
-layout_mode = 2
-theme_override_font_sizes/font_size = 24
-
-[node name="Choice5" type="Button" parent="StaticUI/StaticUIVBox/InstructionsWithButtonsUI/ButtonContainer/ChoiceButtons"]
-layout_mode = 2
-theme_override_font_sizes/font_size = 24
-
-[node name="Choice6" type="Button" parent="StaticUI/StaticUIVBox/InstructionsWithButtonsUI/ButtonContainer/ChoiceButtons"]
-layout_mode = 2
-theme_override_font_sizes/font_size = 24
-
-[node name="Choice7" type="Button" parent="StaticUI/StaticUIVBox/InstructionsWithButtonsUI/ButtonContainer/ChoiceButtons"]
-layout_mode = 2
-theme_override_font_sizes/font_size = 24
-
-[node name="ButtonGrid" type="GridContainer" parent="StaticUI/StaticUIVBox"]
-layout_mode = 2
-size_flags_horizontal = 8
-theme_override_constants/h_separation = 18
-theme_override_constants/v_separation = 11
-columns = 4
-
-[node name="PrepareButton" type="Button" parent="StaticUI/StaticUIVBox/ButtonGrid"]
-layout_mode = 2
-theme_override_font_sizes/font_size = 24
-text = "Prepare"
-
-[node name="MoveButton" type="Button" parent="StaticUI/StaticUIVBox/ButtonGrid"]
-layout_mode = 2
-theme_override_font_sizes/font_size = 24
-text = "Move"
-
-[node name="ChangeButton" type="Button" parent="StaticUI/StaticUIVBox/ButtonGrid"]
-layout_mode = 2
-theme_override_font_sizes/font_size = 24
-text = "Change Cards"
-
-[node name="ExceedButton" type="Button" parent="StaticUI/StaticUIVBox/ButtonGrid"]
-layout_mode = 2
-theme_override_font_sizes/font_size = 24
-text = "Exceed"
-
-[node name="ReshuffleButton" type="Button" parent="StaticUI/StaticUIVBox/ButtonGrid"]
-layout_mode = 2
-theme_override_font_sizes/font_size = 24
-text = "Reshuffle"
-
-[node name="BoostButton" type="Button" parent="StaticUI/StaticUIVBox/ButtonGrid"]
-layout_mode = 2
-theme_override_font_sizes/font_size = 24
-text = "Boost"
-
-[node name="StrikeButton" type="Button" parent="StaticUI/StaticUIVBox/ButtonGrid"]
-layout_mode = 2
-theme_override_font_sizes/font_size = 24
-text = "Strike"
-
-[node name="CharacterAction" type="Button" parent="StaticUI/StaticUIVBox/ButtonGrid"]
-layout_mode = 2
-theme_override_font_sizes/font_size = 24
-text = "Character Action"
-
-[node name="BottomMargin" type="MarginContainer" parent="StaticUI/StaticUIVBox"]
-layout_mode = 2
 
 [node name="AIMoveButton" type="Button" parent="."]
 visible = false
@@ -671,6 +527,17 @@ Log"
 
 [node name="Striking" type="Node2D" parent="AllCards"]
 
+[node name="ActionMenu" parent="AllCards" instance=ExtResource("17_8hgvk")]
+anchors_preset = 0
+anchor_right = 0.0
+anchor_bottom = 0.0
+offset_left = 655.0
+offset_top = 10.0
+offset_right = 966.0
+offset_bottom = 188.0
+grow_horizontal = 1
+grow_vertical = 1
+
 [node name="CardPopout" parent="AllCards" instance=ExtResource("14_lyeqj")]
 visible = false
 offset_right = 243.0
@@ -746,25 +613,6 @@ offset_bottom = 720.0
 [connection signal="pressed" from="ArenaNode/RowButtons/ArenaSquare7/Button" to="." method="_on_arena_location_pressed" binds= [7]]
 [connection signal="pressed" from="ArenaNode/RowButtons/ArenaSquare8/Button" to="." method="_on_arena_location_pressed" binds= [8]]
 [connection signal="pressed" from="ArenaNode/RowButtons/ArenaSquare9/Button" to="." method="_on_arena_location_pressed" binds= [9]]
-[connection signal="pressed" from="StaticUI/StaticUIVBox/InstructionsWithButtonsUI/ButtonContainer/OkButton" to="." method="_on_instructions_ok_button_pressed"]
-[connection signal="pressed" from="StaticUI/StaticUIVBox/InstructionsWithButtonsUI/ButtonContainer/CancelButton" to="." method="_on_instructions_cancel_button_pressed"]
-[connection signal="pressed" from="StaticUI/StaticUIVBox/InstructionsWithButtonsUI/ButtonContainer/WildSwingButton" to="." method="_on_wild_swing_button_pressed"]
-[connection signal="pressed" from="StaticUI/StaticUIVBox/InstructionsWithButtonsUI/ButtonContainer/ChoiceButtons/Choice0" to="." method="_on_choice_pressed" binds= [0]]
-[connection signal="pressed" from="StaticUI/StaticUIVBox/InstructionsWithButtonsUI/ButtonContainer/ChoiceButtons/Choice1" to="." method="_on_choice_pressed" binds= [1]]
-[connection signal="pressed" from="StaticUI/StaticUIVBox/InstructionsWithButtonsUI/ButtonContainer/ChoiceButtons/Choice2" to="." method="_on_choice_pressed" binds= [2]]
-[connection signal="pressed" from="StaticUI/StaticUIVBox/InstructionsWithButtonsUI/ButtonContainer/ChoiceButtons/Choice3" to="." method="_on_choice_pressed" binds= [3]]
-[connection signal="pressed" from="StaticUI/StaticUIVBox/InstructionsWithButtonsUI/ButtonContainer/ChoiceButtons/Choice4" to="." method="_on_choice_pressed" binds= [4]]
-[connection signal="pressed" from="StaticUI/StaticUIVBox/InstructionsWithButtonsUI/ButtonContainer/ChoiceButtons/Choice5" to="." method="_on_choice_pressed" binds= [5]]
-[connection signal="pressed" from="StaticUI/StaticUIVBox/InstructionsWithButtonsUI/ButtonContainer/ChoiceButtons/Choice6" to="." method="_on_choice_pressed" binds= [6]]
-[connection signal="pressed" from="StaticUI/StaticUIVBox/InstructionsWithButtonsUI/ButtonContainer/ChoiceButtons/Choice7" to="." method="_on_choice_pressed" binds= [7]]
-[connection signal="pressed" from="StaticUI/StaticUIVBox/ButtonGrid/PrepareButton" to="." method="_on_prepare_button_pressed"]
-[connection signal="pressed" from="StaticUI/StaticUIVBox/ButtonGrid/MoveButton" to="." method="_on_move_button_pressed"]
-[connection signal="pressed" from="StaticUI/StaticUIVBox/ButtonGrid/ChangeButton" to="." method="_on_change_button_pressed"]
-[connection signal="pressed" from="StaticUI/StaticUIVBox/ButtonGrid/ExceedButton" to="." method="_on_exceed_button_pressed"]
-[connection signal="pressed" from="StaticUI/StaticUIVBox/ButtonGrid/ReshuffleButton" to="." method="_on_reshuffle_button_pressed"]
-[connection signal="pressed" from="StaticUI/StaticUIVBox/ButtonGrid/BoostButton" to="." method="_on_boost_button_pressed"]
-[connection signal="pressed" from="StaticUI/StaticUIVBox/ButtonGrid/StrikeButton" to="." method="_on_strike_button_pressed"]
-[connection signal="pressed" from="StaticUI/StaticUIVBox/ButtonGrid/CharacterAction" to="." method="_on_character_action_pressed"]
 [connection signal="pressed" from="AIMoveButton" to="." method="_on_ai_move_button_pressed"]
 [connection signal="pressed" from="RevealedCardsButton" to="." method="_on_revealed_cards_button_pressed"]
 [connection signal="pressed" from="PlayerDeck/PlayerCharacterCard" to="." method="_on_player_reference_button_pressed"]
@@ -774,6 +622,7 @@ offset_bottom = 720.0
 [connection signal="clicked_zone" from="PlayerBoostZone" to="." method="_on_player_boost_zone_clicked_zone"]
 [connection signal="clicked_zone" from="OpponentBoostZone" to="." method="_on_opponent_boost_zone_clicked_zone"]
 [connection signal="pressed" from="CombatLogButton" to="." method="_on_combat_log_button_pressed"]
+[connection signal="choice_selected" from="AllCards/ActionMenu" to="." method="_on_action_menu_choice_selected"]
 [connection signal="close_window" from="AllCards/CardPopout" to="." method="_on_popout_close_window"]
 [connection signal="pressed_cancel" from="AllCards/CardPopout" to="." method="_on_card_popout_pressed_cancel"]
 [connection signal="pressed_ok" from="AllCards/CardPopout" to="." method="_on_card_popout_pressed_ok"]

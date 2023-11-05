@@ -97,9 +97,9 @@ func get_force_for_effect_summary(effect) -> String:
 	var effect_str = ""
 	var force_limit = effect['force_max']
 	if "per_force_effect" in effect and effect['per_force_effect'] != null:
-		effect_str += "Spend up to %s force. For each, %s" % [str(force_limit), get_effect_text(effect['per_force_effect'], false, true)]
+		effect_str += "Spend up to %s force. For each, %s" % [str(force_limit), get_effect_text(effect['per_force_effect'], false, true, true)]
 	elif 'overall_effect' in effect and effect['overall_effect'] != null:
-		effect_str += "You may spend %s force to " % [str(force_limit), get_effect_text(effect['overall_effect'], false, true)]
+		effect_str += "You may spend %s force to " % [str(force_limit), get_effect_text(effect['overall_effect'], false, true, true)]
 	return effect_str
 
 func get_timing_text(timing):
@@ -204,6 +204,8 @@ func get_effect_type_text(effect):
 			effect_str += "Close " + str(effect['amount'])
 		"discard_continuous_boost":
 			effect_str += "Discard a continuous boost."
+		"dodge_at_range":
+			effect_str += "Opponent attacks miss at range %s-%s." % [effect['range_min'], effect['range_max']]
 		"dodge_attacks":
 			effect_str += "Opponent misses."
 		"draw":
@@ -242,6 +244,8 @@ func get_effect_type_text(effect):
 			effect_str += "+" + str(effect['amount']) + "-" + str(effect['amount2']) + " Range"
 		"retreat":
 			effect_str += "Retreat " + str(effect['amount'])
+		"return_this_to_hand":
+			effect_str += "Return this card to hand."
 		"speedup":
 			if effect['amount'] > 0:
 				effect_str += "+"
@@ -256,12 +260,12 @@ func get_effect_type_text(effect):
 			effect_str += "MISSING EFFECT"
 	return effect_str
 
-func get_effect_text(effect, short = false, skip_condition_and_timing = false):
+func get_effect_text(effect, short = false, skip_timing = false, skip_condition = false):
 	var effect_str = ""
-	if 'timing' in effect and not skip_condition_and_timing:
+	if 'timing' in effect and not skip_timing:
 		effect_str += get_timing_text(effect['timing'])
 
-	if 'condition' in effect and not skip_condition_and_timing:
+	if 'condition' in effect and not skip_condition:
 		effect_str += get_condition_text(effect['condition'])
 
 	effect_str += get_effect_type_text(effect)

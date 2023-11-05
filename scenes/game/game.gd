@@ -18,6 +18,7 @@ const Character = preload("res://scenes/game/character.gd")
 const GameWrapper = preload("res://scenes/game/game_wrapper.gd")
 const GameCard = preload("res://scenes/game/game_card.gd")
 const DecisionInfo = preload("res://scenes/game/decision_info.gd")
+const ActionMenu = preload("res://scenes/game/action_menu.gd")
 
 @onready var damage_popup_template = preload("res://scenes/game/damage_popup.tscn")
 @onready var arena_layout = $ArenaNode/RowButtons
@@ -127,6 +128,10 @@ var game_wrapper : GameWrapper = GameWrapper.new()
 @onready var opponent_bonus_panel = $OpponentStrike/CharBonusPanel
 @onready var player_bonus_label = $PlayerStrike/CharBonusPanel/MarginContainer/VBox/AbilityLabel
 @onready var opponent_bonus_label = $OpponentStrike/CharBonusPanel/MarginContainer/VBox/AbilityLabel
+@onready var action_menu : ActionMenu = $AllCards/ActionMenu
+var current_instruction_text : String = ""
+var current_action_menu_choices : Array = []
+var current_effect_choices : Array = []
 
 @onready var CenterCardOval = Vector2(get_viewport().content_scale_size) * Vector2(0.5, 1.35)
 @onready var HorizontalRadius = get_viewport().content_scale_size.x * 0.55
@@ -1049,7 +1054,7 @@ func change_ui_state(new_state, new_sub_state = null):
 	_update_buttons()
 
 func set_instructions(text):
-	$StaticUI/StaticUIVBox/InstructionsWithButtonsUI/Instructions.text = text
+	current_instruction_text = text
 
 func update_discard_selection_message():
 	var num_remaining = select_card_require_min - len(selected_cards)
@@ -1106,13 +1111,7 @@ func enable_instructions_ui(message, can_ok, can_cancel, can_wild_swing : bool =
 	instructions_ok_allowed = can_ok
 	instructions_cancel_allowed = can_cancel
 	instructions_wild_swing_allowed = can_wild_swing
-	var choice_buttons = $StaticUI/StaticUIVBox/InstructionsWithButtonsUI/ButtonContainer/ChoiceButtons.get_children()
-	for i in len(choice_buttons):
-		if i < len(choices):
-			choice_buttons[i].visible = true
-			choice_buttons[i].text = CardDefinitions.get_effect_text(choices[i], true)
-		else:
-			choice_buttons[i].visible = false
+	current_effect_choices = choices
 
 func begin_discard_cards_selection(number_to_discard_min, number_to_discard_max, next_sub_state):
 	selected_cards = []
@@ -1143,8 +1142,8 @@ func begin_gauge_selection(amount : int, wild_swing_allowed : bool, sub_state : 
 
 	change_ui_state(UIState.UIState_SelectCards, sub_state)
 
-func begin_effect_choice(choices):
-	enable_instructions_ui("Select an effect:", false, false, false, choices)
+func begin_effect_choice(choices, instruction_text : String):
+	enable_instructions_ui(instruction_text, false, false, false, choices)
 	change_ui_state(UIState.UIState_MakeChoice, UISubState.UISubState_None)
 
 func begin_strike_choosing(strike_response : bool, cancel_allowed : bool):
@@ -1358,14 +1357,17 @@ func _on_strike_character_effect(event):
 	bonus_panel.visible = true
 	var effect = event['extra_info']
 	var label_text = ""
-	label_text += CardDefinitions.get_effect_text(effect, false, true) + "\n"
+	label_text += CardDefinitions.get_effect_text(effect, false, true, true) + "\n"
 	label_text = label_text.replace(",", "\n")
 	bonus_label.text = label_text
 
 func _on_effect_choice(event):
 	var player = event['event_player']
 	if player == Enums.PlayerId.PlayerId_Player:
-		begin_effect_choice(game_wrapper.get_decision_info().choice)
+		var instruction_text = "Select an effect:"
+		if event['reason'] == "EffectOrder":
+			instruction_text = "Select which effect to resolve first:"
+		begin_effect_choice(game_wrapper.get_decision_info().choice, instruction_text)
 	else:
 		ai_effect_choice(event)
 
@@ -1559,18 +1561,34 @@ func _handle_events(events):
 
 
 func _update_buttons():
+	var button_choices = []
 	# Update main action selection UI
-	$StaticUI/StaticUIVBox/ButtonGrid/PrepareButton.disabled = not game_wrapper.can_do_prepare(Enums.PlayerId.PlayerId_Player)
-	$StaticUI/StaticUIVBox/ButtonGrid/MoveButton.disabled = not game_wrapper.can_do_move(Enums.PlayerId.PlayerId_Player)
-	$StaticUI/StaticUIVBox/ButtonGrid/ChangeButton.disabled = not game_wrapper.can_do_change(Enums.PlayerId.PlayerId_Player)
-	$StaticUI/StaticUIVBox/ButtonGrid/ExceedButton.disabled = not game_wrapper.can_do_exceed(Enums.PlayerId.PlayerId_Player)
-	$StaticUI/StaticUIVBox/ButtonGrid/ReshuffleButton.visible = game_wrapper.can_do_reshuffle(Enums.PlayerId.PlayerId_Player)
-	$StaticUI/StaticUIVBox/ButtonGrid/BoostButton.disabled = not game_wrapper.can_do_boost(Enums.PlayerId.PlayerId_Player)
-	$StaticUI/StaticUIVBox/ButtonGrid/StrikeButton.disabled = not game_wrapper.can_do_strike(Enums.PlayerId.PlayerId_Player)
-	$StaticUI/StaticUIVBox/ButtonGrid/CharacterAction.visible = game_wrapper.can_do_character_action(Enums.PlayerId.PlayerId_Player)
 
 	var action_buttons_visible = ui_state == UIState.UIState_PickTurnAction
-	$StaticUI/StaticUIVBox/ButtonGrid.visible = action_buttons_visible
+	if action_buttons_visible:
+		set_instructions("Choose an action:")
+		instructions_ok_allowed = false
+		instructions_cancel_allowed = false
+		instructions_wild_swing_allowed = false
+		button_choices.append({ "text": "Prepare", "action": _on_prepare_button_pressed, "disabled": not game_wrapper.can_do_prepare(Enums.PlayerId.PlayerId_Player) })
+		button_choices.append({ "text": "Move", "action": _on_move_button_pressed, "disabled": not game_wrapper.can_do_move(Enums.PlayerId.PlayerId_Player) })
+		button_choices.append({ "text": "Change Cards", "action": _on_change_button_pressed, "disabled": not game_wrapper.can_do_change(Enums.PlayerId.PlayerId_Player) })
+		var exceed_cost = game_wrapper.get_player_exceed_cost(Enums.PlayerId.PlayerId_Player)
+		button_choices.append({ "text": "Exceed (%s Gauge)" % exceed_cost, "action": _on_exceed_button_pressed, "disabled": not game_wrapper.can_do_exceed(Enums.PlayerId.PlayerId_Player) })
+		if game_wrapper.can_do_reshuffle(Enums.PlayerId.PlayerId_Player):
+			button_choices.append({ "text": "Manual Reshuffle", "action": _on_reshuffle_button_pressed, "disabled": false })
+		button_choices.append({ "text": "Boost", "action": _on_boost_button_pressed, "disabled": not game_wrapper.can_do_boost(Enums.PlayerId.PlayerId_Player) })
+		button_choices.append({ "text": "Strike", "action": _on_strike_button_pressed, "disabled": not game_wrapper.can_do_strike(Enums.PlayerId.PlayerId_Player) })
+		if game_wrapper.can_do_character_action(Enums.PlayerId.PlayerId_Player):
+			var char_action = game_wrapper.get_player_character_action(Enums.PlayerId.PlayerId_Player)
+			var force_cost = char_action['force_cost']
+			var gauge_cost = char_action['gauge_cost']
+			var additional_text = ""
+			if force_cost > 0:
+				additional_text += " (%s Force)" % force_cost
+			if gauge_cost > 0:
+				additional_text += " (%s Gauge)" % gauge_cost
+			button_choices.append({ "text": "Character Action%s" % additional_text, "action": _on_character_action_pressed, "disabled": false })
 
 	# Update instructions UI visibility
 	var instructions_visible = false
@@ -1578,22 +1596,24 @@ func _update_buttons():
 		UIState.UIState_SelectCards, UIState.UIState_SelectArenaLocation, UIState.UIState_MakeChoice:
 			instructions_visible = true
 
-	$StaticUI/StaticUIVBox/InstructionsWithButtonsUI.visible = instructions_visible
-
 	# Update instructions UI Buttons
 	if popout_instruction_info:
 		popout_instruction_info['ok_enabled'] = can_press_ok()
 	update_popout_instructions()
-	$StaticUI/StaticUIVBox/InstructionsWithButtonsUI/ButtonContainer/OkButton.disabled = not can_press_ok()
-	$StaticUI/StaticUIVBox/InstructionsWithButtonsUI/ButtonContainer/OkButton.visible = instructions_ok_allowed
-	$StaticUI/StaticUIVBox/InstructionsWithButtonsUI/ButtonContainer/CancelButton.visible = instructions_cancel_allowed
-	$StaticUI/StaticUIVBox/InstructionsWithButtonsUI/ButtonContainer/WildSwingButton.visible = instructions_wild_swing_allowed
+	if instructions_ok_allowed:
+		button_choices.append({ "text": "OK", "action": _on_instructions_ok_button_pressed, "disabled": not can_press_ok() })
 
+	var cancel_text = "Cancel"
 	match ui_sub_state:
 		UISubState.UISubState_SelectCards_BoostCancel, UISubState.UISubState_SelectCards_Mulligan, UISubState.UISubState_SelectCards_ForceForEffect, UISubState.UISubState_SelectCards_DiscardCardsToGauge:
-			$StaticUI/StaticUIVBox/InstructionsWithButtonsUI/ButtonContainer/CancelButton.text = "Pass"
+			cancel_text = "Pass"
 		_:
-			$StaticUI/StaticUIVBox/InstructionsWithButtonsUI/ButtonContainer/CancelButton.text = "Cancel"
+			cancel_text = "Cancel"
+
+	if instructions_cancel_allowed:
+		button_choices.append({ "text": cancel_text, "action": _on_instructions_cancel_button_pressed })
+	if instructions_wild_swing_allowed:
+		button_choices.append({ "text": "Wild Swing", "action": _on_wild_swing_button_pressed })
 
 	# Update instructions message
 	if ui_state == UIState.UIState_SelectCards:
@@ -1625,6 +1645,21 @@ func _update_buttons():
 	# Update boost zones
 	update_boost_summary($AllCards/PlayerBoosts, $PlayerBoostZone)
 	update_boost_summary($AllCards/OpponentBoosts, $OpponentBoostZone)
+
+	for i in range(current_effect_choices.size()):
+		var choice = current_effect_choices[i]
+		button_choices.append({ "text": CardDefinitions.get_effect_text(choice, false, true), "action": func(): _on_choice_pressed(i) })
+
+	# Set the Action Menu state
+	var action_menu_hidden = false
+	match ui_state:
+		UIState.UIState_PlayingAnimation, UIState.UIState_WaitForGameServer, UIState.UIState_GameOver:
+			action_menu_hidden = true
+		UIState.UIState_WaitingOnOpponent:
+			action_menu_hidden = true
+	action_menu.visible = not action_menu_hidden and (button_choices.size() > 0 or instructions_visible)
+	action_menu.set_choices(current_instruction_text, button_choices)
+	current_action_menu_choices = button_choices
 
 func update_boost_summary(boosts_card_holder, boost_box):
 	var card_ids = []
@@ -1742,6 +1777,7 @@ func _on_character_action_pressed():
 		game_wrapper.submit_character_action(Enums.PlayerId.PlayerId_Player, [])
 
 func _on_choice_pressed(choice):
+	current_effect_choices = []
 	var success = game_wrapper.submit_choice(Enums.PlayerId.PlayerId_Player, choice)
 	if success:
 		change_ui_state(UIState.UIState_WaitForGameServer)
@@ -2269,3 +2305,7 @@ func _on_combat_log_button_pressed():
 func _on_combat_log_close_button_pressed():
 	$CombatLog.visible = false
 
+
+func _on_action_menu_choice_selected(choice_index):
+	var action = current_action_menu_choices[choice_index]['action']
+	action.call()
