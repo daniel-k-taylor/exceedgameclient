@@ -61,7 +61,8 @@ func get_decision_info() -> DecisionInfo:
 	return decision_info
 
 func printlog(text):
-	print(text)
+	if OS.is_debug_build():
+		print(text)
 
 func create_event(event_type : Enums.EventType, event_player : Enums.PlayerId, num : int, reason: String = "", extra_info = null, extra_info2 = null):
 	var card_name = card_db.get_card_name(num)

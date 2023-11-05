@@ -1,6 +1,4 @@
 In progress:
-    ☐ In matchmaking indicator
-
 Tasks:
     Main Features:
         ☐ Observers on server
@@ -31,7 +29,6 @@ Bugs:
 
 Later:
     ☐ Paying force cost for boosts - no cards in GG have force cost boosts
-    ☐ Make Deck selector cool with images of characters
     Programmatic Card Visuals are poor:
         ☐ Effect text is ugly
         ☐ Hard to read anything
