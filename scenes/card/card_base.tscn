@@ -1,4 +1,4 @@
-[gd_scene load_steps=11 format=3 uid="uid://cl8i21571i4qa"]
+[gd_scene load_steps=12 format=3 uid="uid://cl8i21571i4qa"]
 
 [ext_resource type="Script" path="res://scenes/card/card_base.gd" id="1_o734l"]
 [ext_resource type="Texture2D" uid="uid://dal2ec8wws714" path="res://icon.svg" id="1_xb23j"]
@@ -11,6 +11,9 @@
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_as8ve"]
 bg_color = Color(1, 0.905882, 0.133333, 0.815686)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_yky1r"]
+bg_color = Color(0.105882, 0.105882, 0.105882, 0.862745)
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_btcod"]
 bg_color = Color(0.164706, 0.164706, 0.164706, 1)
@@ -228,18 +231,32 @@ mouse_filter = 2
 texture = ExtResource("6_h5u6x")
 
 [node name="RemainingCount" type="Node2D" parent="CardFocusFeatures"]
-position = Vector2(0, -190)
+position = Vector2(0, -110)
 
-[node name="RemainingCountLabel" type="Label" parent="CardFocusFeatures/RemainingCount"]
-offset_left = -31.5
+[node name="PanelContainer" type="PanelContainer" parent="CardFocusFeatures/RemainingCount"]
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -20.0
 offset_top = -20.0
-offset_right = 31.5
+offset_right = 20.0
 offset_bottom = 20.0
 grow_horizontal = 2
 grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_yky1r")
+
+[node name="MarginContainer" type="MarginContainer" parent="CardFocusFeatures/RemainingCount/PanelContainer"]
+layout_mode = 2
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_right = 10
+
+[node name="RemainingCountLabel" type="Label" parent="CardFocusFeatures/RemainingCount/PanelContainer/MarginContainer"]
+layout_mode = 2
 size_flags_horizontal = 4
 theme_override_font_sizes/font_size = 28
-text = "x2"
+text = "2 left"
 horizontal_alignment = 1
 
 [node name="CancelContainer" type="Node2D" parent="CardFocusFeatures"]

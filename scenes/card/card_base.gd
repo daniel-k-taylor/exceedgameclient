@@ -19,7 +19,8 @@ const StatPanel = preload("res://scenes/card/stat_panel.gd")
 @onready var stun_indicator = $CardFocusFeatures/StunIndicator
 @onready var card_features = $CardFocusFeatures
 @onready var focus_feature = $FocusFeatures
-@onready var remaining_count_label : Label = $CardFocusFeatures/RemainingCount/RemainingCountLabel
+@onready var remaining_count_obj = $CardFocusFeatures/RemainingCount
+@onready var remaining_count_label : Label = $CardFocusFeatures/RemainingCount/PanelContainer/MarginContainer/RemainingCountLabel
 
 
 const ActualCardSize = Vector2(250,350)
@@ -30,6 +31,8 @@ const ReferenceCardScale = Vector2(0.6, 0.6)
 const StrikeCardScale = Vector2(0.4, 0.4)
 const DiscardCardScale = Vector2(0.4, 0.4)
 const HighlightColor = Color('#36fff3')
+const GreyedOutColor = Color(0.5, 0.5, 0.5)
+const NormalColor = Color(1, 1, 1)
 
 static func get_hand_card_size() -> Vector2:
 	return ActualCardSize * HandCardScale
@@ -92,11 +95,18 @@ const FOCUS_ANIMATION_LENGTH = 0.1
 func _ready():
 	flip_card_to_front(false)
 	set_hover_visible(false)
+	remaining_count_obj.visible = false
 	remaining_count_label.text = ""
 	#$CardContainer/Focus.modulate = HighlightColor
 
 func set_remaining_count(count : int):
-	remaining_count_label.text = "x%s" % count
+	remaining_count_obj.visible = true
+	if count == 0:
+		remaining_count_label.text = "None"
+		fancy_card.modulate = GreyedOutColor
+	else:
+		remaining_count_label.text = "%s Left" % count
+		fancy_card.modulate = NormalColor
 
 func flip_card_to_front(front):
 	if front:

@@ -85,6 +85,17 @@ func get_all_non_immediate_continuous_boost_effects(id):
 	var game_player = _get_player(id)
 	return game_player.get_all_non_immediate_continuous_boost_effects()
 
+func count_cards_in_deck_and_hand(player_id : Enums.PlayerId, card_str_id : String):
+	var player = _get_player(player_id)
+	var count = 0
+	for card in player.deck:
+		if card.definition['id'] == card_str_id:
+			count += 1
+	for card in player.hand:
+		if card.definition['id'] == card_str_id:
+			count += 1
+	return count
+
 func is_card_in_gauge(player_id : Enums.PlayerId, card_id : int):
 	var player = _get_player(player_id)
 	for card in player.gauge:

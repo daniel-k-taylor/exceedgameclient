@@ -528,14 +528,14 @@ Log"
 [node name="Striking" type="Node2D" parent="AllCards"]
 
 [node name="ActionMenu" parent="AllCards" instance=ExtResource("17_8hgvk")]
-anchors_preset = 0
-anchor_right = 0.0
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
 anchor_bottom = 0.0
-offset_left = 655.0
-offset_top = 10.0
-offset_right = 966.0
-offset_bottom = 188.0
-grow_horizontal = 1
+offset_left = 633.0
+offset_top = 0.0
+offset_right = 944.0
+offset_bottom = 178.0
 grow_vertical = 1
 
 [node name="CardPopout" parent="AllCards" instance=ExtResource("14_lyeqj")]

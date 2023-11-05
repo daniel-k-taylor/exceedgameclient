@@ -2280,15 +2280,25 @@ func _on_popout_close_window():
 func _on_player_reference_button_pressed():
 	await close_popout()
 	for card in $AllCards/PlayerAllCopy.get_children():
+		if card.card_id < 0:
+			continue
 		var id = card.card_id - ReferenceScreenIdRangeStart
-		# TODO: Look up card definition id, and count
-		card.set_remaining_count(2)
+		var logic_card = game_wrapper.get_card_database().get_card(id)
+		var card_str_id = logic_card.definition['id']
+		var count = game_wrapper.count_cards_in_deck_and_hand(Enums.PlayerId.PlayerId_Player, card_str_id)
+		card.set_remaining_count(count)
 	show_popout(CardPopoutType.CardPopoutType_ReferencePlayer, "YOUR DECK REFERENCE (showing remaining card counts in deck+hand)", $AllCards/PlayerAllCopy, OffScreen, CardBase.CardState.CardState_Offscreen, false)
 
 func _on_opponent_reference_button_pressed():
 	await close_popout()
 	for card in $AllCards/OpponentAllCopy.get_children():
-		card.set_remaining_count(2)
+		if card.card_id < 0:
+			continue
+		var id = card.card_id - ReferenceScreenIdRangeStart
+		var logic_card = game_wrapper.get_card_database().get_card(id)
+		var card_str_id = logic_card.definition['id']
+		var count = game_wrapper.count_cards_in_deck_and_hand(Enums.PlayerId.PlayerId_Opponent, card_str_id)
+		card.set_remaining_count(count)
 	show_popout(CardPopoutType.CardPopoutType_ReferenceOpponent, "THEIR DECK REFERENCE (showing remaining card counts in deck+hand)", $AllCards/OpponentAllCopy, OffScreen, CardBase.CardState.CardState_Offscreen, false)
 
 func _on_exit_to_menu_pressed():
