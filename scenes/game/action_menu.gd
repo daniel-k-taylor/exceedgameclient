@@ -3,6 +3,11 @@ extends PanelContainer
 signal choice_selected(choice_index : int)
 
 func set_choices(instructions_text : String, choices : Array):
+	var col_count = 1
+	if choices.size() > 4:
+		col_count = 2
+	$OuterMargin/MainVBox/ChoiceButtons.columns = col_count
+		
 	$OuterMargin/MainVBox/InstructionsLabel.text = instructions_text
 	var choice_buttons = $OuterMargin/MainVBox/ChoiceButtons.get_children()
 	var total_choices = choices.size()
