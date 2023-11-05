@@ -6,7 +6,7 @@ signal room_join_failed
 signal game_started(data)
 signal game_message_received(message)
 signal other_player_quit(is_disconnect)
-signal players_update(players)
+signal players_update(players, match_available)
 
 enum NetworkState {
 	NetworkState_NotConnected,
@@ -16,6 +16,7 @@ enum NetworkState {
 
 var network_state = NetworkState.NetworkState_NotConnected
 var cached_players = []
+var cached_match_available : bool = false
 
 const azure_url = "wss://fightingcardslinux.azurewebsites.net"
 const local_url = "ws://localhost:8080"
@@ -137,6 +138,7 @@ func _handle_game_message(game_message):
 
 func _handle_players_update(message):
 	var players = message["players"]
+	var match_available = message['match_available']
 	var player_list = []
 	for player in players:
 		var id = player["player_id"]
@@ -151,7 +153,8 @@ func _handle_players_update(message):
 			"room_name": room_name,
 		})
 	cached_players = player_list
-	players_update.emit(player_list)
+	cached_match_available = match_available
+	players_update.emit(player_list, match_available)
 
 
 ### Commands ###
@@ -202,3 +205,6 @@ func set_player_name(player_name):
 
 func get_player_list():
 	return cached_players
+
+func get_match_available():
+	return cached_match_available

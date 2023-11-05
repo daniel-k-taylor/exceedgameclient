@@ -14,6 +14,7 @@ const RoomMaxLen = 16
 @onready var room_select : LineEdit = $MenuList/JoinBox/RoomNameBox
 @onready var join_room_button = $MenuList/JoinBox/JoinButton
 @onready var join_box = $MenuList/JoinBox
+@onready var matchmake_button = $MenuList/MatchmakeButton
 
 @onready var char_select = $CharSelect
 @onready var player_char_label : Label = $PlayerChooser/MarginContainer/VBoxContainer/HBoxContainer/CharName
@@ -31,7 +32,7 @@ func _ready():
 	NetworkManager.connect("room_join_failed", _on_join_failed)
 	$MenuList/CancelButton.visible = false
 	$ReconnectToServerButton.visible = false
-	_on_players_update(NetworkManager.get_player_list())
+	_on_players_update(NetworkManager.get_player_list(), NetworkManager.get_match_available())
 	selecting_player = false
 	_on_char_select_select_character(opponent_selected_character)
 
@@ -40,7 +41,7 @@ func _process(_delta):
 	pass
 
 func returned_from_game():
-	_on_players_update(NetworkManager.get_player_list())
+	_on_players_update(NetworkManager.get_player_list(), NetworkManager.get_match_available())
 	update_buttons(false)
 
 func _on_start_button_pressed():
@@ -55,7 +56,7 @@ func _on_quit_button_pressed():
 
 func _on_connected(player_name):
 	join_room_button.disabled = false
-	$MenuList/MatchmakeButton.disabled = false
+	matchmake_button.disabled = false
 	$PlayerNameBox.editable = true
 	$PlayerNameBox.text = player_name
 	$ReconnectToServerButton.visible = false
@@ -64,7 +65,7 @@ func _on_connected(player_name):
 func _on_disconnected():
 	update_buttons(false)
 	join_room_button.disabled = true
-	$MenuList/MatchmakeButton.disabled = true
+	matchmake_button.disabled = true
 	$ReconnectToServerButton.visible = true
 	$ReconnectToServerButton.disabled = false
 	$ServerStatusLabel.text = "Disconnected from server."
@@ -92,10 +93,15 @@ func _on_remote_game_started(data):
 	opponent_deck = CardDefinitions.get_deck_from_str_id(opponent_deck)
 	start_remote_game.emit(get_vs_info(player_name, player_deck, opponent_name, opponent_deck), data)
 
-func _on_players_update(players):
+func _on_players_update(players, match_available : bool):
 	player_list.clear()
 	for player in players:
 		player_list.add_item(player['player_name'] + " - " + player['room_name'])
+
+	if match_available:
+		matchmake_button.text = "Join Match Now"
+	else:
+		matchmake_button.text = "Start Matchmaking"
 
 func _on_join_failed():
 	update_buttons(false)
@@ -114,7 +120,7 @@ func update_buttons(joining : bool):
 	start_ai_button.disabled = joining
 	room_select.editable = not joining
 	join_box.visible = not joining
-	$MenuList/MatchmakeButton.visible = not joining
+	matchmake_button.visible = not joining
 	$MenuList/CancelButton.visible = joining
 
 func _on_cancel_button_pressed():
@@ -176,6 +182,6 @@ func cropLineToMaxLength(new_text : String, max_length: int) -> void:
 		new_text = new_text.substr(0, max_length)
 		room_select.text = new_text
 		room_select.caret_column = col - 1
-		
+
 func _on_room_name_box_text_changed(new_text):
 	cropLineToMaxLength(new_text, RoomMaxLen)
