@@ -56,6 +56,7 @@ var instructions_wild_swing_allowed = false
 var selected_cards = []
 var arena_locations_clickable = []
 var selected_arena_location = 0
+var force_for_armor_incoming_damage = 0
 
 var player_deck
 var opponent_deck
@@ -1092,7 +1093,8 @@ func update_force_generation_message():
 		UISubState.UISubState_SelectCards_ForceForChange:
 			set_instructions("Select cards to generate force to draw new cards.\n%s force generated." % [force_selected])
 		UISubState.UISubState_SelectCards_ForceForArmor:
-			set_instructions("Select cards to generate force for +2 Armor each.\n%s force generated." % [force_selected])
+			var damage_after_armor = max(0, force_for_armor_incoming_damage - 2 * force_selected)
+			set_instructions("Select cards to generate force for +2 Armor each.\n%s force generated.\nYou will take %s damage." % [force_selected, damage_after_armor])
 		UISubState.UISubState_SelectCards_ForceForEffect:
 			var effect_str = ""
 			var decision_effect = game_wrapper.get_decision_info().effect
@@ -1388,6 +1390,7 @@ func _on_pay_cost_failed(event):
 
 func _on_force_for_armor(event):
 	var player = event['event_player']
+	force_for_armor_incoming_damage = event['number']
 	if player == Enums.PlayerId.PlayerId_Player:
 		change_ui_state(null, UISubState.UISubState_SelectCards_ForceForArmor)
 		begin_generate_force_selection(-1)

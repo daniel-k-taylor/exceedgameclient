@@ -1544,6 +1544,14 @@ func in_range(atacking_player, defending_player, card):
 		return true
 	return false
 
+func calculate_damage(offense_player : Player, defense_player : Player, offense_card : GameCard, defense_card : GameCard) -> int:
+	var damage = offense_card.definition['power'] + offense_player.strike_stat_boosts.power
+	var armor = defense_card.definition['armor'] + defense_player.strike_stat_boosts.armor
+	if offense_player.strike_stat_boosts.ignore_armor:
+		armor = 0
+	var damage_after_armor = max(damage - armor, 0)
+	return damage_after_armor
+
 func apply_damage(offense_player : Player, defense_player : Player, offense_card : GameCard, defense_card : GameCard):
 	var events = []
 	var damage = offense_card.definition['power'] + offense_player.strike_stat_boosts.power
@@ -1608,16 +1616,16 @@ func ask_for_cost(performing_player, card, next_state):
 			events += [create_event(Enums.EventType.EventType_Strike_PayCost_Unable, performing_player.my_id, wild_card_id)]
 	return events
 
-func do_hit_response_effects(hit_player : Player, next_state : StrikeState):
+func do_hit_response_effects(offense_player : Player, defense_player : Player, incoming_damage : int, next_state : StrikeState):
 	# If more of these are added, need to sequence them to ensure all handled correctly.
 	var events = []
 	active_strike.strike_state = next_state
-	if hit_player.strike_stat_boosts.when_hit_force_for_armor:
+	if not offense_player.strike_stat_boosts.ignore_armor and defense_player.strike_stat_boosts.when_hit_force_for_armor:
 		change_game_state(Enums.GameState.GameState_PlayerDecision)
-		decision_info.player = hit_player.my_id
+		decision_info.player = defense_player.my_id
 		decision_info.type = Enums.DecisionType.DecisionType_ForceForArmor
-		decision_info.choice_card_id = active_strike.get_player_card(hit_player).id
-		events += [create_event(Enums.EventType.EventType_Strike_ForceForArmor, hit_player.my_id, 0)]
+		decision_info.choice_card_id = active_strike.get_player_card(defense_player).id
+		events += [create_event(Enums.EventType.EventType_Strike_ForceForArmor, defense_player.my_id, incoming_damage)]
 	return events
 
 func log_boosts_in_play():
@@ -1695,7 +1703,8 @@ func continue_resolve_strike():
 				events += do_remaining_effects(player1, StrikeState.StrikeState_Card1_Hit_Response)
 				#events += do_effects_for_timing("hit", player1, card1, StrikeState.StrikeState_Card1_Hit_Response)
 			StrikeState.StrikeState_Card1_Hit_Response:
-				events += do_hit_response_effects(player2, StrikeState.StrikeState_Card1_ApplyDamage)
+				var incoming_damage = calculate_damage(player1, player2, card1, card2)
+				events += do_hit_response_effects(player1, player2, incoming_damage, StrikeState.StrikeState_Card1_ApplyDamage)
 			StrikeState.StrikeState_Card1_ApplyDamage:
 				events += apply_damage(player1, player2, card1, card2)
 				active_strike.strike_state = StrikeState.StrikeState_Card1_After
@@ -1733,7 +1742,8 @@ func continue_resolve_strike():
 				events += do_remaining_effects(player2, StrikeState.StrikeState_Card2_Hit_Response)
 				#events += do_effects_for_timing("hit", player2, card2, StrikeState.StrikeState_Card2_Hit_Response)
 			StrikeState.StrikeState_Card2_Hit_Response:
-				events += do_hit_response_effects(player1, StrikeState.StrikeState_Card2_ApplyDamage)
+				var incoming_damage = calculate_damage(player2, player1, card2, card1)
+				events += do_hit_response_effects(player2, player1, incoming_damage, StrikeState.StrikeState_Card2_ApplyDamage)
 			StrikeState.StrikeState_Card2_ApplyDamage:
 				events += apply_damage(player2, player1, card2, card1)
 				active_strike.strike_state = StrikeState.StrikeState_Card2_After
