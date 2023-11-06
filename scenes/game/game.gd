@@ -2306,6 +2306,7 @@ func _on_opponent_reference_button_pressed():
 	show_popout(CardPopoutType.CardPopoutType_ReferenceOpponent, "THEIR DECK REFERENCE (showing remaining card counts in deck+hand)", $AllCards/OpponentAllCopy, OffScreen, CardBase.CardState.CardState_Offscreen, false)
 
 func _on_exit_to_menu_pressed():
+	game_wrapper.end_game()
 	NetworkManager.leave_room()
 	returning_from_game.emit()
 	queue_free()

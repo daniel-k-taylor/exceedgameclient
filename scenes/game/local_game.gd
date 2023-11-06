@@ -2394,7 +2394,10 @@ func do_choice(performing_player : Player, choice_index : int) -> bool:
 		printlog("ERROR: Tried to make a choice that doesn't exist.")
 		return false
 
+	var card_id = decision_info.choice_card_id
 	var effect = decision_info.choice[choice_index]
+	if 'card_id' in effect:
+		card_id = effect['card_id']
 	if active_strike:
 		game_state = Enums.GameState.GameState_Strike_Processing
 	elif active_boost:
@@ -2405,7 +2408,7 @@ func do_choice(performing_player : Player, choice_index : int) -> bool:
 		# Remove this effect from the remaining effects.
 		active_strike.remaining_effect_list.erase(effect)
 
-	var events = handle_strike_effect(decision_info.choice_card_id, effect, performing_player)
+	var events = handle_strike_effect(card_id, effect, performing_player)
 	if game_state != Enums.GameState.GameState_PlayerDecision:
 		if active_strike:
 			active_strike.effects_resolved_in_timing += 1

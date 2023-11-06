@@ -271,9 +271,9 @@ func get_effect_text(effect, short = false, skip_timing = false, skip_condition 
 	effect_str += get_effect_type_text(effect)
 
 	if not short and 'bonus_effect' in effect:
-		effect_str += "; " + get_effect_text(effect['bonus_effect'])
+		effect_str += "; " + get_effect_text(effect['bonus_effect'], skip_timing)
 	if 'and' in effect:
-		effect_str += ", " + get_effect_text(effect['and'], short)
+		effect_str += ", " + get_effect_text(effect['and'], short, skip_timing)
 	return effect_str
 
 func get_effects_text(effects):

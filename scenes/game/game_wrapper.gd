@@ -9,7 +9,9 @@ const DecisionInfo = preload("res://scenes/game/decision_info.gd")
 var current_game
 
 func poll_for_events() -> Array:
-	return current_game.get_latest_events()
+	if current_game:
+		return current_game.get_latest_events()
+	return []
 
 func get_combat_log() -> String:
 	return current_game.get_combat_log()
@@ -26,6 +28,10 @@ func initialize_local_game(player_deck, opponent_deck):
 func initialize_remote_game(player_info, opponent_info, starting_player : Enums.PlayerId, seed_value : int):
 	current_game = RemoteGame.new()
 	current_game.initialize_game(player_info, opponent_info, starting_player, seed_value)
+
+func end_game():
+	current_game.free()
+	current_game = null
 
 func _test_add_to_gauge(amount):
 	current_game._test_add_to_gauge(amount)

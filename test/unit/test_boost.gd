@@ -71,6 +71,15 @@ func before_all():
 func after_all():
 	gut.p("ran run teardown", 2)
 
+func advance_turn(player):
+	assert_true(game_logic.do_prepare(player))
+	if player.hand.size() > 7:
+		var cards = []
+		var to_discard = player.hand.size() - 7
+		for i in range(to_discard):
+			cards.append(player.hand[i].id)
+		assert_true(game_logic.do_discard_to_max(player, cards))
+		
 func do_and_validate_strike(player, card_id, ex_card_id = -1):
 	assert_true(game_logic.can_do_strike(player))
 	assert_true(game_logic.do_strike(player, card_id, false, ex_card_id))
@@ -116,19 +125,30 @@ func execute_strike(initiator, defender, init_card, def_card, init_choices, def_
 	else:
 		all_events += do_strike_response(defender, TestCardId2)
 
+	handle_simultaneous_effects(initiator, defender)
 	for i in range(init_choices.size()):
 		assert_eq(game_logic.game_state, Enums.GameState.GameState_PlayerDecision)
 		assert_true(game_logic.do_choice(initiator, init_choices[i]))
+		handle_simultaneous_effects(initiator, defender)
 		var events = game_logic.get_latest_events()
 		all_events += events
 	for i in range(def_choices.size()):
 		assert_eq(game_logic.game_state, Enums.GameState.GameState_PlayerDecision)
 		assert_true(game_logic.do_choice(defender, def_choices[i]))
+		handle_simultaneous_effects(initiator, defender)
 		var events = game_logic.get_latest_events()
 		all_events += events
 
 	return all_events
 
+func handle_simultaneous_effects(initiator, defender):
+	while game_logic.game_state == Enums.GameState.GameState_PlayerDecision and game_logic.decision_info.type == Enums.DecisionType.DecisionType_ChooseSimultaneousEffect:
+		var decider = initiator
+		if game_logic.decision_info.player == defender.my_id:
+			decider = defender
+		assert_true(game_logic.do_choice(decider, 0), "Failed simuleffect choice")
+		
+		
 func validate_positions(p1, l1, p2, l2):
 	assert_eq(p1.arena_location, l1)
 	assert_eq(p2.arena_location, l2)
@@ -241,3 +261,15 @@ func test_double_boost_ride_stun_vs_cross():
 	validate_has_event(events, Enums.EventType.EventType_Strike_Stun, player2)
 	validate_positions(player1, 2, player2, 7)
 	validate_life(player1, 27, player2, 25)
+
+func test_wildthrow_boost_grasp_vs_grasp():
+	position_players(player1, 3, player2, 4)
+	player1.discard([player1.hand[0].id])
+	give_player_specific_card(player1, "gg_normal_grasp", TestCardId3)
+	assert_true(game_logic.do_boost(player1, TestCardId3))
+	advance_turn(player2)
+	var events = execute_strike(player1, player2, "solbadguy_wildthrow", "gg_normal_grasp", [], [0], false, false)
+	validate_has_event(events, Enums.EventType.EventType_Strike_IgnoredPushPull, player1)
+	assert_eq(player1.gauge.size(), 2)
+	validate_positions(player1, 3, player2, 2)
+	validate_life(player1, 27, player2, 24)
