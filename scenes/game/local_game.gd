@@ -61,7 +61,7 @@ func get_decision_info() -> DecisionInfo:
 	return decision_info
 
 func printlog(text):
-	if OS.is_debug_build():
+	if GlobalSettings.is_logging_enabled():
 		print(text)
 
 func create_event(event_type : Enums.EventType, event_player : Enums.PlayerId, num : int, reason: String = "", extra_info = null, extra_info2 = null):

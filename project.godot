@@ -19,6 +19,7 @@ config/icon="res://icon.svg"
 
 CardDefinitions="*res://globals/card_definitions.gd"
 NetworkManager="*res://globals/network_manager.gd"
+GlobalSettings="*res://globals/global_settings.gd"
 
 [debug]
 

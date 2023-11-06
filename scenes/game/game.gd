@@ -139,7 +139,7 @@ var current_effect_choices : Array = []
 @onready var VerticalRadius = get_viewport().content_scale_size.y * 0.4
 
 func printlog(text):
-	if OS.is_debug_build():
+	if GlobalSettings.is_logging_enabled():
 		print("UI: %s" % text)
 
 # Called when the node enters the scene tree for the first time.
