@@ -152,6 +152,8 @@ func get_condition_text(condition):
 			text += "If opponent stunned, "
 		"pulled_past":
 			text += "If pulled opponent past you, "
+		"used_character_action":
+			text += ""
 		_:
 			text += "MISSING CONDITION"
 	return text
