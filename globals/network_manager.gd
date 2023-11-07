@@ -33,10 +33,8 @@ func is_server_connected() -> bool:
 func connect_to_server():
 	if _socket != null: return
 	_socket = WebSocketPeer.new()
-	if OS.is_debug_build():
-		_socket.connect_to_url(local_url)
-	else:
-		_socket.connect_to_url(azure_url)
+	var server_url = GlobalSettings.get_server_url()
+	_socket.connect_to_url(server_url)
 	print("Connecting to server...")
 	network_state = NetworkState.NetworkState_Connecting
 

@@ -101,7 +101,7 @@ enum UISubState {
 	UISubState_SelectCards_DiscardCards_Choose,
 	UISubState_SelectCards_DiscardCardsToGauge,
 	UISubState_SelectCards_ForceForChange,
-	UISubState_SelectCards_Exceed, # 12
+	UISubState_SelectCards_Exceed, # 13
 	UISubState_SelectCards_Mulligan,
 	UISubState_SelectCards_StrikeGauge,
 	UISubState_SelectCards_StrikeCard,
@@ -1999,6 +1999,7 @@ func ai_take_turn():
 		print("FAILED AI TURN")
 
 func ai_pay_cost(event):
+	change_ui_state(UIState.UIState_WaitForGameServer)
 	if not game_wrapper.is_ai_game(): return
 	var can_wild = game_wrapper.get_decision_info().type == Enums.DecisionType.DecisionType_PayStrikeCost_CanWild
 	var cost = game_wrapper.get_card_database().get_card_gauge_cost(event['number'])
@@ -2010,6 +2011,7 @@ func ai_pay_cost(event):
 		print("FAILED AI PAY COST")
 
 func ai_effect_choice(_event):
+	change_ui_state(UIState.UIState_WaitForGameServer)
 	if not game_wrapper.is_ai_game(): return
 	var effect_action = ai_player.pick_effect_choice(game_wrapper.current_game, Enums.PlayerId.PlayerId_Opponent)
 	var success = game_wrapper.submit_choice(Enums.PlayerId.PlayerId_Opponent, effect_action.choice)
@@ -2019,6 +2021,7 @@ func ai_effect_choice(_event):
 		print("FAILED AI EFFECT CHOICE")
 
 func ai_force_for_armor(_event):
+	change_ui_state(UIState.UIState_WaitForGameServer)
 	if not game_wrapper.is_ai_game(): return
 	var forceforarmor_action = ai_player.pick_force_for_armor(game_wrapper.current_game, Enums.PlayerId.PlayerId_Opponent)
 	var success = game_wrapper.submit_force_for_armor(Enums.PlayerId.PlayerId_Opponent, forceforarmor_action.card_ids)
@@ -2028,6 +2031,7 @@ func ai_force_for_armor(_event):
 		print("FAILED AI FORCE FOR ARMOR")
 
 func ai_force_for_effect(_event):
+	change_ui_state(UIState.UIState_WaitForGameServer)
 	if not game_wrapper.is_ai_game(): return
 	var forceforeffect_action = ai_player.pick_force_for_effect(game_wrapper.current_game, Enums.PlayerId.PlayerId_Opponent)
 	var success = game_wrapper.submit_force_for_effect(Enums.PlayerId.PlayerId_Opponent, forceforeffect_action.card_ids)
@@ -2037,6 +2041,7 @@ func ai_force_for_effect(_event):
 		print("FAILED AI FORCE FOR EFFECT")
 
 func ai_strike_response():
+	change_ui_state(UIState.UIState_WaitForGameServer)
 	if not game_wrapper.is_ai_game(): return
 	var response_action = ai_player.pick_strike_response(game_wrapper.current_game, Enums.PlayerId.PlayerId_Opponent)
 	var success = game_wrapper.submit_strike(Enums.PlayerId.PlayerId_Opponent, response_action.card_id, response_action.wild_swing, response_action.ex_card_id)
@@ -2046,6 +2051,7 @@ func ai_strike_response():
 		print("FAILED AI STRIKE RESPONSE")
 
 func ai_discard(event):
+	change_ui_state(UIState.UIState_WaitForGameServer)
 	if not game_wrapper.is_ai_game(): return
 	var discard_action = ai_player.pick_discard_to_max(game_wrapper.current_game, Enums.PlayerId.PlayerId_Opponent, event['number'])
 	var success = game_wrapper.submit_discard_to_max(Enums.PlayerId.PlayerId_Opponent, discard_action.card_ids)
@@ -2055,11 +2061,13 @@ func ai_discard(event):
 		print("FAILED AI DISCARD")
 
 func ai_forced_strike():
+	change_ui_state(UIState.UIState_WaitForGameServer)
 	if not game_wrapper.is_ai_game(): return
 	var strike_action = ai_player.pick_strike(game_wrapper.current_game, Enums.PlayerId.PlayerId_Opponent)
 	ai_handle_strike(strike_action)
 
 func ai_boost_cancel_decision(gauge_cost):
+	change_ui_state(UIState.UIState_WaitForGameServer)
 	if not game_wrapper.is_ai_game(): return
 	var cancel_action = ai_player.pick_cancel(game_wrapper.current_game, Enums.PlayerId.PlayerId_Opponent, gauge_cost)
 	var success = game_wrapper.submit_boost_cancel(Enums.PlayerId.PlayerId_Opponent, cancel_action.card_ids, cancel_action.cancel)
@@ -2069,6 +2077,7 @@ func ai_boost_cancel_decision(gauge_cost):
 		print("FAILED AI BOOST CANCEL")
 
 func ai_discard_continuous_boost():
+	change_ui_state(UIState.UIState_WaitForGameServer)
 	if not game_wrapper.is_ai_game(): return
 	var pick_action = ai_player.pick_discard_continuous(game_wrapper.current_game, Enums.PlayerId.PlayerId_Opponent)
 	var success = game_wrapper.submit_boost_name_card_choice_effect(Enums.PlayerId.PlayerId_Opponent, pick_action.card_id)
@@ -2078,6 +2087,7 @@ func ai_discard_continuous_boost():
 		print("FAILED AI DISCARD CONTINUOUS")
 
 func ai_name_opponent_card(normal_only : bool):
+	change_ui_state(UIState.UIState_WaitForGameServer)
 	if not game_wrapper.is_ai_game(): return
 	var pick_action = ai_player.pick_name_opponent_card(game_wrapper.current_game, Enums.PlayerId.PlayerId_Opponent, normal_only)
 	var success = game_wrapper.submit_boost_name_card_choice_effect(Enums.PlayerId.PlayerId_Opponent, pick_action.card_id)
@@ -2087,6 +2097,7 @@ func ai_name_opponent_card(normal_only : bool):
 		print("FAILED AI NAME OPPONENT CARD")
 
 func ai_choose_card_hand_to_gauge(min_amount, max_amount):
+	change_ui_state(UIState.UIState_WaitForGameServer)
 	if not game_wrapper.is_ai_game(): return
 	var cardfromhandtogauge_action = ai_player.pick_card_hand_to_gauge(game_wrapper.current_game, Enums.PlayerId.PlayerId_Opponent, min_amount, max_amount)
 	var success = game_wrapper.submit_card_from_hand_to_gauge(Enums.PlayerId.PlayerId_Opponent, cardfromhandtogauge_action.card_ids)
@@ -2096,6 +2107,7 @@ func ai_choose_card_hand_to_gauge(min_amount, max_amount):
 		print("FAILED AI CHOOSE CARD HAND TO GAUGE")
 
 func ai_choose_from_discard():
+	change_ui_state(UIState.UIState_WaitForGameServer)
 	if not game_wrapper.is_ai_game(): return
 	var discard_action = ai_player.pick_choose_from_discard(game_wrapper.current_game, Enums.PlayerId.PlayerId_Opponent)
 	var success = game_wrapper.submit_choose_from_discard(Enums.PlayerId.PlayerId_Opponent, discard_action.card_id)
@@ -2105,6 +2117,7 @@ func ai_choose_from_discard():
 		print("FAILED AI CHOOSE FROM DISCARD")
 
 func ai_mulligan_decision():
+	change_ui_state(UIState.UIState_WaitForGameServer)
 	if not game_wrapper.is_ai_game(): return
 	var mulligan_action = ai_player.pick_mulligan(game_wrapper.current_game, Enums.PlayerId.PlayerId_Opponent)
 	var success = game_wrapper.submit_mulligan(Enums.PlayerId.PlayerId_Opponent, mulligan_action.card_ids)
@@ -2115,6 +2128,7 @@ func ai_mulligan_decision():
 	test_init()
 
 func ai_choose_to_discard(amount):
+	change_ui_state(UIState.UIState_WaitForGameServer)
 	if not game_wrapper.is_ai_game(): return
 	var discard_action = ai_player.pick_choose_to_discard(game_wrapper.current_game, Enums.PlayerId.PlayerId_Opponent, amount)
 	var success = game_wrapper.submit_choose_to_discard(Enums.PlayerId.PlayerId_Opponent, discard_action.card_ids)
