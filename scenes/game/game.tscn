@@ -1,4 +1,4 @@
-[gd_scene load_steps=22 format=3 uid="uid://dh7wmx6cbb55x"]
+[gd_scene load_steps=23 format=3 uid="uid://dh7wmx6cbb55x"]
 
 [ext_resource type="Script" path="res://scenes/game/game.gd" id="1_4f5jr"]
 [ext_resource type="Texture2D" uid="uid://dh8tat2r8ttx1" path="res://assets/cards/card_border_highlight.png" id="4_5y76h"]
@@ -8,6 +8,7 @@
 [ext_resource type="PackedScene" uid="uid://cf6aml1lrd2yk" path="res://scenes/game/gauge_panel.tscn" id="6_gtjck"]
 [ext_resource type="PackedScene" uid="uid://dsc63si41lg6t" path="res://scenes/game/boost_zone.tscn" id="7_gn0of"]
 [ext_resource type="PackedScene" uid="uid://1624xgdxrrg5" path="res://scenes/game/life_scene.tscn" id="8_mqi3u"]
+[ext_resource type="Texture2D" uid="uid://b2ojnoth6qto0" path="res://assets/icons/donut.png" id="9_2vlik"]
 [ext_resource type="Texture2D" uid="uid://60aipui45hh3" path="res://assets/cards/card_border_highlight_discard_pile.png" id="9_dpbn3"]
 [ext_resource type="PackedScene" uid="uid://ckjlv124xttrc" path="res://scenes/game/character.tscn" id="9_rhsuv"]
 [ext_resource type="Texture2D" uid="uid://dbijqidxd2ned" path="res://assets/icons/cards.png" id="11_nsv2h"]
@@ -349,6 +350,15 @@ theme_override_font_sizes/font_size = 30
 text = "OPPONENT NAME HERE"
 horizontal_alignment = 2
 
+[node name="ThinkingIndicator" type="TextureProgressBar" parent="OpponentDeck"]
+offset_left = 927.0
+offset_top = 139.0
+offset_right = 991.0
+offset_bottom = 203.0
+value = 30.0
+fill_mode = 4
+texture_progress = ExtResource("9_2vlik")
+
 [node name="PlayerStrike" type="Node2D" parent="."]
 
 [node name="StrikeZone" type="TextureButton" parent="PlayerStrike"]
@@ -528,6 +538,7 @@ Log"
 [node name="Striking" type="Node2D" parent="AllCards"]
 
 [node name="ActionMenu" parent="AllCards" instance=ExtResource("17_8hgvk")]
+visible = false
 anchors_preset = 5
 anchor_left = 0.5
 anchor_right = 0.5

@@ -133,6 +133,8 @@ var game_wrapper : GameWrapper = GameWrapper.new()
 var current_instruction_text : String = ""
 var current_action_menu_choices : Array = []
 var current_effect_choices : Array = []
+var show_thinking_spinner_in : float = 0
+const ThinkingSpinnerWaitBeforeShowTime = 1.0
 
 @onready var CenterCardOval = Vector2(get_viewport().content_scale_size) * Vector2(0.5, 1.35)
 @onready var HorizontalRadius = get_viewport().content_scale_size.x * 0.55
@@ -385,6 +387,18 @@ func _process(delta):
 				else:
 					ai_strike_response()
 
+	# Update opponent thinking spinner
+	if ui_state == UIState.UIState_WaitingOnOpponent or ui_state == UIState.UIState_WaitForGameServer:
+		if not $OpponentDeck/ThinkingIndicator.visible and show_thinking_spinner_in < 0:
+			# Start the countdown
+			show_thinking_spinner_in = ThinkingSpinnerWaitBeforeShowTime
+		else:
+			show_thinking_spinner_in -= delta
+			if show_thinking_spinner_in < 0:
+				$OpponentDeck/ThinkingIndicator.visible = true
+				$OpponentDeck/ThinkingIndicator.radial_initial_angle += delta * 360
+	else:
+		$OpponentDeck/ThinkingIndicator.visible = false
 
 func begin_delay(delay : float, remaining_events : Array):
 	if ui_state != UIState.UIState_PlayingAnimation:

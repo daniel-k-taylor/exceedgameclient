@@ -241,10 +241,10 @@ func handle_strike(game: LocalGame, aiplayer : AIPlayer, otherai : AIPlayer, act
 
 	return events
 
-func handle_character_action(game: LocalGame, aiplayer : AIPlayer, otherai : AIPlayer, action : AIPlayer.CharacterActionAction):
+func handle_character_action(game: LocalGame, aiplayer : AIPlayer, _otherai : AIPlayer, action : AIPlayer.CharacterActionAction):
 	assert_true(game.do_character_action(aiplayer.game_player, action.card_ids), "character action failed")
 	var events = []
-	
+
 	events += game.get_latest_events()
 	return events
 
@@ -345,7 +345,7 @@ func test_anji_100():
 		game_teardown()
 		game_setup()
 	pass_test("Finished match")
-	
+
 func test_pot_100():
 	default_deck = CardDefinitions.get_deck_from_str_id("potemkin")
 	for i in range(100):
@@ -354,7 +354,7 @@ func test_pot_100():
 		game_teardown()
 		game_setup()
 	pass_test("Finished match")
-	
+
 func test_may_100():
 	default_deck = CardDefinitions.get_deck_from_str_id("may")
 	for i in range(100):
