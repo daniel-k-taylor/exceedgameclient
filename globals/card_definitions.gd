@@ -192,6 +192,8 @@ func get_effect_type_text(effect):
 			effect_str += "Add card to gauge."
 		"add_to_gauge_immediately":
 			effect_str += "Add card to gauge."
+		"add_top_deck_to_gauge":
+			effect_str += "Add top card of deck to gauge."
 		"advance":
 			effect_str += "Advance " + str(effect['amount'])
 		"armorup":
@@ -202,6 +204,11 @@ func get_effect_type_text(effect):
 			effect_str += "Take another action."
 		"choice":
 			effect_str += "Choose: " + get_choice_summary(effect['choice'])
+		"choose_discard":
+			if effect['limitation']:
+				effect_str += "Choose a %s card from discard to move to %s" % [effect['limitation'], effect['destination']]
+			else:
+				effect_str += "Choose a card from discard to move to %s" % [effect['destination']]
 		"close":
 			effect_str += "Close " + str(effect['amount'])
 		"discard_continuous_boost":
@@ -228,6 +235,8 @@ func get_effect_type_text(effect):
 			effect_str += "Ignore Push and Pull."
 		"name_card_opponent_discards":
 			effect_str += "Name a card. Opponent discards it or reveals not in hand."
+		"opponent_discard_choose":
+			effect_str += "Opponent discards " + str(effect['amount']) + " cards."
 		"opponent_discard_random":
 			effect_str += "Opponent discards " + str(effect['amount']) + " random cards."
 		"opponent_wild_swings":
@@ -248,6 +257,8 @@ func get_effect_type_text(effect):
 			effect_str += "Retreat " + str(effect['amount'])
 		"return_this_to_hand":
 			effect_str += "Return this card to hand."
+		"return_all_cards_gauge_to_hand":
+			effect_str += "Return all cards in gauge to hand."
 		"speedup":
 			if effect['amount'] > 0:
 				effect_str += "+"

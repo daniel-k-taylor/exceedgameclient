@@ -32,6 +32,9 @@ func _get_player_from_remote_id(remote_id : int):
 	else:
 		return _get_player(Enums.PlayerId.PlayerId_Opponent)
 
+func get_striking_card_ids_for_player(player : LocalGame.Player) -> Array:
+	return local_game.get_striking_card_ids_for_player(player)
+
 func initialize_game(player_info, opponent_info, starting_player : Enums.PlayerId, seed_value : int):
 
 	NetworkManager.connect("game_message_received", _on_remote_game_message)

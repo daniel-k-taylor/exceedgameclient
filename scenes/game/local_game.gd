@@ -1427,6 +1427,21 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 
 	return events
 
+func get_striking_card_ids_for_player(check_player : Player) -> Array:
+	var card_ids = []
+	if active_strike:
+		if active_strike.initiator == check_player:
+			if active_strike.initiator_card:
+				card_ids.append(active_strike.initiator_card.definition['id'])
+			if active_strike.initiator_ex_card:
+				card_ids.append(active_strike.initiator_ex_card.definition['id'])
+		elif active_strike.defender == check_player:
+			if active_strike.defender_card:
+				card_ids.append(active_strike.defender_card.definition['id'])
+			if active_strike.defender_ex_card:
+				card_ids.append(active_strike.defender_ex_card.definition['id'])
+	return card_ids
+
 func get_boost_effects_at_timing(timing_name : String, performing_player : Player):
 	var effects = []
 	for boost_card in performing_player.continuous_boosts:
