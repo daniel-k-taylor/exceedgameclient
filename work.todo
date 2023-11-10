@@ -13,14 +13,13 @@ Tasks:
     AI:
         ☐ Something more
     Misc/Low pri:
-        ☐ Allow spending ultra for 1 force
-            ☐ minus button above selected ultra card
         ☐ Allow EX'ing when hit with Reading
         ☐ Sum continuous boost stat bonuses into a single line
         ☐ Boost zone panel formatting/change size with text. - Should scroll?
         ☐ Tweak timings on animation lengths
         ☐ Make card ref an icon button
         ☐ If making a decision, minimizing card popout has a blinking icon to reopen it
+        ☐ Allow spending ultra for 1 force for change cards or spending less on effects
     ☐ Only connect to server if you enter Multiplayer
     ☐ Card popout has choice buttons for gauge selection
     ☐ Reorder opponent hand in a way that you can't keep track with effort

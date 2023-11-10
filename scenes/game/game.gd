@@ -541,17 +541,15 @@ func can_select_card(card):
 		UISubState.UISubState_SelectCards_MoveActionGenerateForce, UISubState.UISubState_SelectCards_ForceForChange, UISubState.UISubState_SelectCards_ForceForArmor:
 			return in_gauge or in_hand
 		UISubState.UISubState_SelectCards_CharacterAction_Force:
-			var force_selected = get_force_in_selected_cards()
 			var new_force = game_wrapper.get_card_database().get_card_force_value(card.card_id)
-			var total_force = force_selected + new_force
-			return (in_gauge or in_hand) and total_force <= select_card_require_force
+			return (in_gauge or in_hand) and can_selected_cards_pay_force(select_card_require_force, new_force)
 		UISubState.UISubState_SelectCards_CharacterAction_Gauge:
 			return in_gauge and len(selected_cards) < select_card_require_max
 		UISubState.UISubState_SelectCards_ForceForEffect:
 			var force_selected = get_force_in_selected_cards()
 			var new_force = game_wrapper.get_card_database().get_card_force_value(card.card_id)
 			var total_force = force_selected + new_force
-			return (in_gauge or in_hand) and total_force <= select_card_up_to_force
+			return (in_gauge or in_hand) and (total_force <= select_card_up_to_force or can_selected_cards_pay_force(select_card_up_to_force, new_force))
 		UISubState.UISubState_SelectCards_StrikeCard, UISubState.UISubState_SelectCards_StrikeResponseCard, UISubState.UISubState_SelectCards_Mulligan:
 			return in_hand
 		UISubState.UISubState_SelectCards_PlayBoost:
@@ -1099,6 +1097,25 @@ func get_force_in_selected_cards():
 		force_selected += card_db.get_card_force_value(card.card_id)
 	return force_selected
 
+func can_selected_cards_pay_force(force_cost : int, bonus_card_force_value : int = 0):
+	var max_force_selected = 0
+	var ultras = 0
+	var card_db = game_wrapper.get_card_database()
+	for card in selected_cards:
+		var value_of_card = card_db.get_card_force_value(card.card_id)
+		max_force_selected += value_of_card
+		if value_of_card == 2:
+			ultras += 1
+	if bonus_card_force_value == 2:
+		ultras += 1
+	max_force_selected += bonus_card_force_value
+	var min_force_selected = max_force_selected - ultras
+	for i in range(min_force_selected, max_force_selected + 1):
+		if i == force_cost:
+			return true
+	return false
+
+
 func update_force_generation_message():
 	var force_selected = get_force_in_selected_cards()
 	match ui_sub_state:
@@ -1336,7 +1353,6 @@ func _on_strike_started(event, is_ex : bool):
 	if reveal_immediately:
 		card.flip_card_to_front(true)
 	if player == Enums.PlayerId.PlayerId_Player:
-		card.flip_card_to_front(true)
 		_move_card_to_strike_area(card, $PlayerStrike/StrikeZone, $AllCards/Striking, true, is_ex)
 	else:
 		# Opponent started strike, player has to respond.
@@ -1712,8 +1728,7 @@ func can_press_ok():
 			UISubState.UISubState_SelectCards_DiscardCardsToGauge, UISubState.UISubState_SelectCards_Mulligan, UISubState.UISubState_SelectCards_CharacterAction_Gauge:
 				return selected_cards_between_min_and_max()
 			UISubState.UISubState_SelectCards_MoveActionGenerateForce, UISubState.UISubState_SelectCards_CharacterAction_Force:
-				var force_selected = get_force_in_selected_cards()
-				return force_selected == select_card_require_force
+				return can_selected_cards_pay_force(select_card_require_force)
 			UISubState.UISubState_SelectCards_ForceForChange:
 				var force_selected = get_force_in_selected_cards()
 				return force_selected >= 0
@@ -1730,8 +1745,8 @@ func can_press_ok():
 			UISubState.UISubState_SelectCards_ForceForEffect:
 				var force_selected = get_force_in_selected_cards()
 				if select_card_require_force == -1:
-					return force_selected <= select_card_up_to_force
-				return force_selected == select_card_require_force
+					return force_selected <= select_card_up_to_force or can_selected_cards_pay_force(select_card_up_to_force)
+				return can_selected_cards_pay_force(select_card_require_force)
 			UISubState.UISubState_SelectCards_PlayBoost:
 				return len(selected_cards) == 1
 	return false
