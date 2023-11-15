@@ -1,4 +1,6 @@
 In progress:
+    ☐ Triple Kick - should draw 2 first then do the other parts
+        ☐ Maybe just resolve all draw effects first?
 Tasks:
     Main Features:
         ☐ Observers on server
@@ -131,3 +133,18 @@ Character:
         ☐ do not remove eddie on cleanup
         ☐ return 2 specials from discard
         ☐ condition opponent between eddie and zato
+
+
+BlazBlue:
+    ☐ Overdrive
+    ☐ Astral Heat - get it on reshuffle, seal after use
+    ☐ Force cost boosts
+    Normals:
+        ☐ Different boosts from GG
+    Nu13:
+        ☐ Retreat and strike at range 4-5 boost
+        ☐ Opponents cannot advance/retreat boost
+        ☐ min range decredase boost
+        ☐ Shuffle hand to deck boost
+
+
