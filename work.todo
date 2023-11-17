@@ -1,6 +1,33 @@
 In progress:
-    ☐ Triple Kick - should draw 2 first then do the other parts
-        ☐ Maybe just resolve all draw effects first?
+    Nago:
+        ☐ exceed not visible if cost -1
+        ☐ "effect_type": "discard_from_hand",
+        ☐ "timing": "cleanup",
+        ☐ "timing": "on_reshuffle",   "effect_type": "exceed_end_of_turn"
+        ☐ "effect_type": "lose_all_armor",
+        ☐ "condition": "normal_type", and special_type
+        ☐ "effect_type": "invalid"
+        ☐ "condition": "exceeded",
+        ☐ "effect_type": "revert"
+        ☐ nested ands
+        ☐ "effect_type": "strike_faceup"
+        ☐ choose_discard amount, destination deck
+        ☐ discard_continuous_boost from force effect works
+
+
+
+
+
+        ☐ exceed on reshuffle
+        ☐ specials cleanup draw 4 discard 2
+        ☐ exceeded - specials invalid
+        ☐ cleanup lose armor, take 2 nonlethal damage
+        ☐ strike face up
+        ☐ shuffle 2 cards from discard to deck
+        ☐ you choose discard boost effect
+        ☐ add 3 from hand to gauge
+        ☐ exceed condition revert
+
 Tasks:
     Main Features:
         ☐ Observers on server
@@ -106,17 +133,6 @@ Character:
         ☐ exceed as boost
         ☐ exceed only effect
         ☐ if invalid effect
-    Nago:
-        ☐ exceed on reshuffle
-        ☐ specials cleanup draw 4 discard 2
-        ☐ exceeded - specials invalid
-        ☐ cleanup lose armor, take 2 nonlethal damage
-        ☐ strike face up
-        ☐ shuffle 2 cards from discard to deck
-        ☐ you choose discard boost effect
-        ☐ add 3 from hand to gauge
-        ☐ exceed condition
-        ☐ revert
     Testament:
         ☐ normals permanent bonus
         ☐ hit play this as boost and sustain

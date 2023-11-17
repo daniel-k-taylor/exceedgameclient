@@ -16,12 +16,11 @@
 			{
 				"timing": "hit",
 				"effect_type": "draw",
-				"amount": 3
-			},
-			{
-				"timing": "hit",
-				"effect_type": "opponent_discard_choose",
-				"amount": 3
+				"amount": 3,
+				"and": {
+					"effect_type": "opponent_discard_choose",
+					"amount": 3
+				}
 			}
 		],
 		"boost": {
@@ -807,17 +806,16 @@
 			{
 				"timing": "hit",
 				"effect_type": "draw",
-				"amount": 2
-			},
-			{
-				"timing": "hit",
-				"effect_type": "force_for_effect",
-				"per_force_effect": {
-					"effect_type": "powerup",
-					"amount": 1
-				},
-				"overall_effect": null,
-				"force_max": 3
+				"amount": 2,
+				"and": {
+					"effect_type": "force_for_effect",
+					"per_force_effect": {
+						"effect_type": "powerup",
+						"amount": 1
+					},
+					"overall_effect": null,
+					"force_max": 3
+				}
 			}
 		],
 		"boost": {
@@ -1638,12 +1636,11 @@
 			{
 				"timing": "hit",
 				"effect_type": "draw",
-				"amount": 1
-			},
-			{
-				"timing": "hit",
-				"effect_type": "opponent_discard_random",
-				"amount": 1
+				"amount": 1,
+				"and": {
+					"effect_type": "opponent_discard_random",
+					"amount": 1
+				}
 			}
 		],
 		"boost": {
@@ -1961,6 +1958,337 @@
 			]
 		},
 		"NOTEEND": "MILLIA CARDS END"
+	},
+
+
+	{
+		"NOTE": "NAGO CARDS START",
+		"id": "nago_wasureyuki",
+		"type": "ultra",
+		"display_name": "Wasureyuki",
+		"force_cost": 0,
+		"gauge_cost": 3,
+		"range_min": 1,
+		"range_max": 2,
+		"speed": 6,
+		"power": 5,
+		"armor": 0,
+		"guard": 4,
+		"effects": [
+			{
+				"timing": "hit",
+				"effect_type": "choose_discard",
+				"limitation": "",
+				"destination": "hand"
+			}
+		],
+		"boost": {
+			"boost_type": "immediate",
+			"force_cost": 0,
+			"cancel_cost": 1,
+			"display_name": "Nightless",
+			"effects": [
+				{
+					"timing": "immediate",
+					"effect_type": "gauge_from_hand",
+					"min_amount": 0,
+					"max_amount": 3
+				}
+			]
+		}
+	},
+	{
+		"id": "nago_zansetsu",
+		"type": "ultra",
+		"display_name": "Zansetsu",
+		"force_cost": 0,
+		"gauge_cost": 4,
+		"range_min": 3,
+		"range_max": 6,
+		"speed": 3,
+		"power": 0,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "before",
+				"condition": "exceeded",
+				"effect_type": "powerup",
+				"amount": 6,
+				"and": { 
+					"effect_type": "draw",
+					"amount": 2,
+					"and": {
+						"effect_type": "revert"
+					}
+				}
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Crawl",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "rangeup",
+					"amount": 0,
+					"amount2": 1
+				},
+				{
+					"timing": "hit",
+					"effect_type": "gain_advantage"
+				}
+			]
+		}
+	},
+	{
+		"id": "nago_kamuriyuki",
+		"type": "special",
+		"display_name": "Kamuriyuki",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 1,
+		"speed": 5,
+		"power": 4,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "before",
+				"effect_type": "close",
+				"amount": 3
+			},
+			{
+				"timing": "after",
+				"effect_type": "gain_advantage"
+			}
+		],
+		"boost": {
+			"boost_type": "immediate",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "What do you fight for?",
+			"effects": [
+				{
+					"timing": "immediate",
+					"effect_type": "choose_discard",
+					"limitation": "",
+					"destination": "hand"
+				}
+			]
+		}
+	},
+	{
+		"id": "nago_kirioroshi",
+		"type": "special",
+		"display_name": "Kirioroshi",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 2,
+		"speed": 4,
+		"power": 4,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "before",
+				"effect_type": "force_for_effect",
+				"per_force_effect": null,
+				"overall_effect": {
+					"effect_type": "powerup",
+					"amount": 3,
+					"and": {
+						"effect_type": "ignore_armor"
+					}
+				},
+				"force_max": 2
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Honour",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "powerup",
+					"amount": 1
+				},
+				{
+					"timing": "during_strike",
+					"effect_type": "armorup",
+					"amount": 1
+				},
+				{
+					"timing": "now",
+					"effect_type": "strike_faceup"
+				}
+			]
+		}
+	},
+	{
+		"id": "nago_bloodsuckinguniverse",
+		"type": "special",
+		"display_name": "Bloodsucking Universe",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 1,
+		"speed": 4,
+		"power": 4,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "during_strike",
+				"effect_type": "ignore_guard"
+			},
+			{
+				"timing": "hit",
+				"effect_type": "choose_discard",
+				"limitation": "",
+				"destination": "deck",
+				"amount": 2
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Disciplined",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "speedup",
+					"amount": 1
+				},
+				{
+					"timing": "now",
+					"effect_type": "force_for_effect",
+					"per_force_effect": null,
+					"overall_effect": {
+						"effect_type": "discard_continuous_boost",
+						"amount": 1
+					},
+					"force_max": 1
+				}
+			]
+		}
+	},
+	{
+		"id": "nago_shizuriyuki",
+		"type": "special",
+		"display_name": "Tandem Top",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 3,
+		"speed": 3,
+		"power": 3,
+		"armor": 0,
+		"guard": 5,
+		"effects": [
+			{
+				"timing": "hit",
+				"effect_type": "force_for_effect",
+				"per_force_effect": null,
+				"overall_effect": {
+					"effect_type": "powerup",
+					"amount": 3,
+					"and": {
+						"effect_type": "draw",
+						"amount": 2
+					}
+				},
+				"force_max": 2
+			}
+		],
+		"boost": {
+			"boost_type": "immediate",
+			"force_cost": 0,
+			"cancel_cost": 1,
+			"display_name": "Fukyo",
+			"effects": [
+				{
+					"timing": "immediate",
+					"effect_type": "choice",
+					"choice": [
+						{ "effect_type": "advance", "amount": 2 },
+						{ "effect_type": "retreat", "amount": 2 }
+					]
+				},
+				{
+					"timing": "immediate",
+					"effect_type": "draw",
+					"amount": 2
+				},
+				{
+					"timing": "immediate",
+					"effect_type": "discard_from_hand",
+					"amount": 1
+				}
+			]
+		}
+	},
+	{
+		"NOTE": "NAGO CARDS END",
+		"id": "nago_zarameyuki",
+		"type": "special",
+		"display_name": "Zarameyuki",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 2,
+		"range_max": 5,
+		"speed": 2,
+		"power": 5,
+		"armor": 0,
+		"guard": 6,
+		"effects": [
+			{
+				"timing": "after",
+				"effect_type": "force_for_effect",
+				"per_force_effect": null,
+				"overall_effect": {
+					"effect_type": "armorup",
+					"amount": 3,
+					"and": {
+						"effect_type": "close",
+						"amount": 2
+					}
+				},
+				"force_max": 2
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": 1,
+			"display_name": "Drawing Stance",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "rangeup",
+					"amount": 0,
+					"amount2": 2
+				},
+				{
+					"timing": "during_strike",
+					"effect_type": "speedup",
+					"amount": -2
+				},
+				{
+					"timing": "hit",
+					"effect_type": "draw",
+					"amount": 1
+				}
+			]
+		},
+		"NOTEEND": "NAGO CARDS END"
 	},
 
 
