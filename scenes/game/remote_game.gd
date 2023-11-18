@@ -312,19 +312,19 @@ func process_boost(action_message) -> void:
 	var card_id = action_message['card_id']
 	local_game.do_boost(game_player, card_id)
 
-func do_choose_from_discard(player : LocalGame.Player, card_id : int) -> bool:
+func do_choose_from_discard(player : LocalGame.Player, card_ids : Array) -> bool:
 	var action_message = {
 		'action_type': 'action_choose_from_discard',
 		'player_id': _get_player_remote_id(player),
-		'card_id': card_id,
+		'card_ids': card_ids,
 	}
 	NetworkManager.submit_game_message(action_message)
 	return true
 
 func process_choose_from_discard(action_message) -> void:
 	var game_player = _get_player_from_remote_id(action_message['player_id'])
-	var card_id = action_message['card_id']
-	local_game.do_choose_from_discard(game_player, card_id)
+	var card_id = action_message['card_ids']
+	local_game.do_choose_from_discard(game_player, card_ids)
 
 func do_force_for_effect(player : LocalGame.Player, card_ids : Array) -> bool:
 	var action_message = {

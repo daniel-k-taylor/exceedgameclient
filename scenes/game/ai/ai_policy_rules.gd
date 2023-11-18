@@ -252,7 +252,14 @@ func pick_cancel(possible_actions : Array, _ai_game_state : AIPlayer.AIGameState
 	return possible_actions[randi() % len(possible_actions)]
 
 func pick_discard_continuous(possible_actions : Array, _ai_game_state : AIPlayer.AIGameState):
-	return possible_actions[randi() % len(possible_actions)]
+	var only_yours = []
+	for action in possible_actions:
+		if action is AIPlayer.DiscardContinuousBoostAction:
+			if not action.mine:
+				only_yours.appned(action)
+	if only_yours.size() > 0:
+		only_yours = possible_actions
+	return only_yours[randi() % len(only_yours)]
 
 func pick_name_opponent_card(possible_actions : Array, _ai_game_state : AIPlayer.AIGameState):
 	return possible_actions[randi() % len(possible_actions)]

@@ -109,6 +109,10 @@ enum StrikeState {
 	StrikeState_Card2_ApplyDamage,
 	StrikeState_Card2_After,
 	StrikeState_Cleanup,
+	StrikeState_Cleanup_Player1Effects,
+	StrikeState_Cleanup_Player1EffectsComplete,
+	StrikeState_Cleanup_Player2Effects,
+	StrikeState_Cleanup_Complete
 }
 
 class Strike:
@@ -266,7 +270,8 @@ class Player:
 	var exceed_at_end_of_turn : bool
 	var specials_invalid : bool
 	var mulligan_complete : bool
-	var reading_card_id : String = ""
+	var reading_card_id : String
+	var next_strike_faceup : bool
 
 	func _init(id, player_name, parent_ref, card_db_ref, chosen_deck, card_start_id):
 		my_id = id
@@ -298,6 +303,8 @@ class Player:
 		specials_invalid = false
 		cleanup_boost_to_gauge_cards = []
 		mulligan_complete = false
+		reading_card_id = ""
+		next_strike_faceup = false
 
 	func initial_shuffle():
 		if ShuffleEnabled:
@@ -377,6 +384,18 @@ class Player:
 			if card.id == id:
 				events += add_to_gauge(card)
 				hand.remove_at(i)
+				break
+		return events
+
+	func move_card_from_discard_to_deck(id : int):
+		var events = []
+		for i in range(len(discards)):
+			var card = discards[i]
+			if card.id == id:
+				deck.insert(0, card)
+				discards.remove_at(i)
+				random_shuffle_deck()
+				events += [parent.create_event(Enums.EventType.EventType_AddToDeck, my_id, card.id)]
 				break
 		return events
 
@@ -1159,6 +1178,8 @@ func is_effect_condition_met(performing_player : Player, effect, local_condition
 			return initiated_strike and starting_distance >= range_min and starting_distance <= range_max
 		elif condition == "is_normal_attack":
 			return active_strike.get_player_card(performing_player).definition['type'] == "normal"
+		elif condition == "is_special_attack":
+			return active_strike.get_player_card(performing_player).definition['type'] == "special"
 		elif condition == "canceled_this_turn":
 			return performing_player.canceled_this_turn
 		elif condition == "not_canceled_this_turn":
@@ -1256,7 +1277,11 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 				decision_info.choice_card_id = card_id
 				decision_info.limitation = effect['limitation']
 				decision_info.destination = effect['destination']
-				events += [create_event(Enums.EventType.EventType_ChooseFromDiscard, performing_player.my_id, 1)]
+				var amount = 1
+				if 'amount' in effect:
+					amount = min(choice_count, effect['amount'])
+				decision_info.amount = amount
+				events += [create_event(Enums.EventType.EventType_ChooseFromDiscard, performing_player.my_id, amount)]
 		"close":
 			var previous_location = performing_player.arena_location
 			events += performing_player.close(effect['amount'])
@@ -1276,8 +1301,9 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 		"draw":
 			events += performing_player.draw(effect['amount'])
 		"discard_continuous_boost":
-			var boosts = _get_player(get_other_player(performing_player.my_id)).continuous_boosts
-			if len(boosts) > 0:
+			var my_boosts = performing_player.continuous_boosts
+			var opponent_boosts = _get_player(get_other_player(performing_player.my_id)).continuous_boosts
+			if len(my_boosts) > 0 or len(opponent_boosts) > 0:
 				# Player gets to pick which continuous boost to discard.
 				change_game_state(Enums.GameState.GameState_PlayerDecision)
 				decision_info.type = Enums.DecisionType.DecisionType_ChooseDiscardContinuousBoost
@@ -1288,7 +1314,10 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 		"discard_continuous_boost_INTERNAL":
 			var boost_to_discard_id = effect['card_id']
 			var card = card_db.get_card(boost_to_discard_id)
-			events += _get_player(get_other_player(performing_player.my_id)).remove_from_continuous_boosts(card, false)
+			if performing_player.is_card_in_continuous_boosts(boost_to_discard_id):
+				events += performing_player.remove_from_continuous_boosts(card, false)
+			else:
+				events += _get_player(get_other_player(performing_player.my_id)).remove_from_continuous_boosts(card, false)
 		"discard_hand":
 			_append_log("%s discards hand." % [performing_player.name])
 			events += performing_player.discard_hand()
@@ -1463,6 +1492,12 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 			change_game_state(Enums.GameState.GameState_WaitForStrike)
 			decision_info.type = Enums.DecisionType.DecisionType_StrikeNow
 			decision_info.player = performing_player.my_id
+		"strike_faceup":
+			events += [create_event(Enums.EventType.EventType_ForceStartStrike, performing_player.my_id, 0)]
+			change_game_state(Enums.GameState.GameState_WaitForStrike)
+			decision_info.type = Enums.DecisionType.DecisionType_StrikeNow
+			decision_info.player = performing_player.my_id
+			performing_player.next_strike_faceup = true
 		"stun_immunity":
 			performing_player.strike_stat_boosts.stun_immunity = true
 		"take_nonlethal_damage":
@@ -1840,6 +1875,16 @@ func continue_resolve_strike():
 				events += do_remaining_effects(player2, StrikeState.StrikeState_Cleanup)
 				#events += do_effects_for_timing("after", player2, card2, StrikeState.StrikeState_Cleanup)
 			StrikeState.StrikeState_Cleanup:
+				active_strike.strike_state = StrikeState.StrikeState_Cleanup_Player1Effects
+				active_strike.remaining_effect_list = get_all_effects_for_timing("cleanup", player1, card1)
+			StrikeState.StrikeState_Cleanup_Player1Effects:
+				events += do_remaining_effects(player2, StrikeState.StrikeState_Cleanup_Player1EffectsComplete)
+			StrikeState.StrikeState_Cleanup_Player1EffectsComplete:
+				active_strike.strike_state = StrikeState.StrikeState_Cleanup_Player2Effects
+				active_strike.remaining_effect_list = get_all_effects_for_timing("cleanup", player2, card2)
+			StrikeState.StrikeState_Cleanup_Player2Effects:
+				events += do_remaining_effects(player2, StrikeState.StrikeState_Cleanup_Complete)
+			StrikeState.StrikeState_Cleanup_Complete:
 				# If hit, move card to gauge, otherwise move to discard.
 				if active_strike.player1_hit or player1.strike_stat_boosts.always_add_to_gauge:
 					_append_log("%s %s goes to gauge after the attack." % [player1.name, card_db.get_card_name(card1.id)])
@@ -1872,7 +1917,7 @@ func continue_resolve_strike():
 				# Remove all stat boosts.
 				player.strike_stat_boosts.clear()
 				opponent.strike_stat_boosts.clear()
-
+				
 				active_strike = null
 				if game_over:
 					change_game_state(Enums.GameState.GameState_GameOver)
@@ -2263,10 +2308,16 @@ func do_strike(performing_player : Player, card_id : int, wild_strike: bool, ex_
 				else:
 					_append_log("%s Turn Action - Strike" % [performing_player.name])
 			active_strike.defender = _get_player(get_other_player(performing_player.my_id))
+
+			var reveal_immediately = false
+			if active_strike.initiator.next_strike_faceup:
+				reveal_immediately = true
+				active_strike.initiator.next_strike_faceup = false
+
 			# Send the EX first as that is visual and logic is triggered off the regular one.
 			if ex_card_id != -1:
-				events += [create_event(Enums.EventType.EventType_Strike_Started_Ex, performing_player.my_id, ex_card_id)]
-			events += [create_event(Enums.EventType.EventType_Strike_Started, performing_player.my_id, card_id)]
+				events += [create_event(Enums.EventType.EventType_Strike_Started_Ex, performing_player.my_id, ex_card_id, "", reveal_immediately)]
+			events += [create_event(Enums.EventType.EventType_Strike_Started, performing_player.my_id, card_id, "", reveal_immediately)]
 			events = continue_setup_strike(events)
 		Enums.GameState.GameState_Strike_Opponent_Response:
 			if wild_strike:
@@ -2532,42 +2583,47 @@ func do_mulligan(performing_player : Player, card_ids : Array) -> bool:
 	event_queue += events
 	return true
 
-func do_choose_from_discard(performing_player : Player, card_id : int) -> bool:
-	printlog("SubAction: CHOOSE FROM DISCARD by %s card %s" % [performing_player.name, str(card_id)])
+func do_choose_from_discard(performing_player : Player, card_ids : Array) -> bool:
+	printlog("SubAction: CHOOSE FROM DISCARD by %s cards: %s" % [performing_player.name, str(card_ids)])
 	if game_state != Enums.GameState.GameState_PlayerDecision or decision_info.type != Enums.DecisionType.DecisionType_ChooseFromDiscard:
 		printlog("ERROR: Tried to choose from discard but not in correct game state.")
 		return false
 
-	if not performing_player.is_card_in_discards(card_id):
-		printlog("ERROR: Tried to choose from discard with card not in discard.")
-		return false
-
-	var card = card_db.get_card(card_id)
-	var limitation = decision_info.limitation
-	match limitation:
-		"special":
-			if card.definition['type'] != "special":
-				printlog("ERROR: Tried to choose from discard with card that doesn't meet limitation special.")
-				return false
-		_:
-			pass
-
-	var events = []
-	var destination = decision_info.destination
-	match destination:
-		"deck":
-			# TODO: Implement
-			pass
-		"gauge":
-			events += performing_player.move_card_from_discard_to_gauge(card_id)
-		"hand":
-			events += performing_player.move_card_from_discard_to_hand(card_id)
-		_:
-			printlog("ERROR: Choose from discard destination not implemented.")
-			assert(false, "Choose from discard destination not implemented.")
+	# Validation.
+	for card_id in card_ids:
+		if not performing_player.is_card_in_discards(card_id):
+			printlog("ERROR: Tried to choose from discard with card not in discard.")
 			return false
+			
+	for card_id in card_ids:
+		var card = card_db.get_card(card_id)
+		var limitation = decision_info.limitation
+		match limitation:
+			"special":
+				if card.definition['type'] != "special":
+					printlog("ERROR: Tried to choose from discard with card that doesn't meet limitation special.")
+					return false
+			_:
+				pass
+				
+	# Move the cards.
+	var events = []
+	for card_id in card_ids:
+		var card = card_db.get_card(card_id)
+		var destination = decision_info.destination
+		match destination:
+			"deck":
+				events += performing_player.move_card_from_discard_to_deck(card_id)
+			"gauge":
+				events += performing_player.move_card_from_discard_to_gauge(card_id)
+			"hand":
+				events += performing_player.move_card_from_discard_to_hand(card_id)
+			_:
+				printlog("ERROR: Choose from discard destination not implemented.")
+				assert(false, "Choose from discard destination not implemented.")
+				return false
 
-	_append_log("%s chose %s to put from discard to %s." % [performing_player.name, card_db.get_card_name(card_id), destination])
+		_append_log("%s chose %s to put from discard to %s." % [performing_player.name, card_db.get_card_name(card_id), destination])
 
 	if active_strike:
 		active_strike.effects_resolved_in_timing += 1

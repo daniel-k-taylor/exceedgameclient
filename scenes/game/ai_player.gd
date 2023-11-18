@@ -117,8 +117,10 @@ class CancelAction:
 
 class DiscardContinuousBoostAction:
 	var card_id
-	func _init(boost_card_id):
+	var mine : bool
+	func _init(boost_card_id, is_mine : bool):
 		card_id = boost_card_id
+		mine = is_mine
 
 class NameCardAction:
 	var card_id
@@ -136,9 +138,9 @@ class MulliganAction:
 		card_ids = card_id_combination
 
 class ChooseFromDiscardAction:
-	var card_id
-	func _init(chosen_id):
-		card_id = chosen_id
+	var card_ids
+	func _init(chosen_ids):
+		card_ids = chosen_ids
 
 class ChooseToDiscardAction:
 	var card_ids
@@ -350,7 +352,7 @@ func get_boost_options_for_card(game_logic : LocalGame, me : LocalGame.Player, o
 			@warning_ignore("integer_division")
 			choices += opponent.deck_list.size() / 2
 		elif effect['effect_type'] == "discard_continuous_boost":
-			choices += len(opponent.continuous_boosts)
+			choices += len(opponent.continuous_boosts) + len(player.continuous_boosts)
 		elif effect['effect_type'] == "reading_normal":
 			choices = 8
 
@@ -570,8 +572,10 @@ func pick_discard_continuous(game_logic : LocalGame, my_id : Enums.PlayerId) -> 
 	var me = game_logic._get_player(my_id)
 	var opponent = game_logic._get_player(game_logic.get_other_player(my_id))
 	var possible_actions = []
+	for card in player.continuous_boosts:
+		possible_actions.append(DiscardContinuousBoostAction.new(card.id, true))
 	for card in opponent.continuous_boosts:
-		possible_actions.append(DiscardContinuousBoostAction.new(card.id))
+		possible_actions.append(DiscardContinuousBoostAction.new(card.id, false))
 	update_ai_state(game_logic, me, opponent)
 	return ai_policy.pick_discard_continuous(possible_actions, game_state)
 
@@ -626,11 +630,12 @@ func pick_mulligan(game_logic : LocalGame, my_id : Enums.PlayerId) -> MulliganAc
 	update_ai_state(game_logic, me, opponent)
 	return ai_policy.pick_mulligan(possible_actions, game_state)
 
-func pick_choose_from_discard(game_logic : LocalGame, my_id : Enums.PlayerId) -> ChooseFromDiscardAction:
+func pick_choose_from_discard(game_logic : LocalGame, my_id : Enums.PlayerId, choose_count : int) -> ChooseFromDiscardAction:
 	var me = game_logic._get_player(my_id)
 	var opponent = game_logic._get_player(game_logic.get_other_player(my_id))
 	var possible_actions = []
 	var limitation = game_logic.decision_info.limitation
+	var possible_choice_cards = []
 	for card in me.discards:
 		var can_choose = false
 		match limitation:
@@ -639,7 +644,12 @@ func pick_choose_from_discard(game_logic : LocalGame, my_id : Enums.PlayerId) ->
 			_:
 				can_choose = true
 		if can_choose:
-			possible_actions.append(ChooseFromDiscardAction.new(card.id))
+			possible_choice_cards.append(card.id)
+
+	var combinations = []
+	generate_card_count_combinations(possible_choice_cards, choose_count, [], 0, combinations)
+	for combo in combinations:
+		possible_actions.append(ChooseFromDiscardAction.new(combo))
 	update_ai_state(game_logic, me, opponent)
 	return ai_policy.pick_choose_from_discard(possible_actions, game_state)
 

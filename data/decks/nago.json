@@ -20,6 +20,7 @@
 		{
 			"character_effect": true,
 			"timing": "cleanup",
+			"condition": "is_special_attack",
 			"effect_type": "draw",
 			"amount": 4,
 			"and": {

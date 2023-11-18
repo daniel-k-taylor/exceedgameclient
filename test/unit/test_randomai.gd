@@ -156,8 +156,8 @@ func handle_boost_reponse(events, aiplayer : AIPlayer, game : LocalGame, gamepla
 				assert_true(game.do_force_for_effect(gameplayer, forceforeffect_action.card_ids), "do force effect failed")
 				events += game.get_latest_events()
 			Enums.DecisionType.DecisionType_ChooseFromDiscard:
-				var chooseaction = aiplayer.pick_choose_from_discard(game, gameplayer.my_id)
-				assert_true(game.do_choose_from_discard(gameplayer, chooseaction.card_id), "do choose from discard failed")
+				var chooseaction = aiplayer.pick_choose_from_discard(game, gameplayer.my_id, game.decision_info.amount)
+				assert_true(game.do_choose_from_discard(gameplayer, chooseaction.card_ids), "do choose from discard failed")
 			Enums.DecisionType.DecisionType_ChooseToDiscard:
 				var amount = game.decision_info.effect['amount']
 				var chooseaction = aiplayer.pick_choose_to_discard(game, gameplayer.my_id, amount)
@@ -223,8 +223,8 @@ func handle_strike(game: LocalGame, aiplayer : AIPlayer, otherai : AIPlayer, act
 				assert_true(game.do_force_for_effect(decision_ai.game_player, forceforeffect_action.card_ids), "do force effect failed")
 				events += game.get_latest_events()
 			Enums.DecisionType.DecisionType_ChooseFromDiscard:
-				var chooseaction = decision_ai.pick_choose_from_discard(game, decision_player.my_id)
-				assert_true(game.do_choose_from_discard(decision_ai.game_player, chooseaction.card_id), "do choose from discard failed")
+				var chooseaction = decision_ai.pick_choose_from_discard(game, decision_player.my_id, game.decision_info.amount)
+				assert_true(game.do_choose_from_discard(decision_ai.game_player, chooseaction.card_ids), "do choose from discard failed")
 			Enums.DecisionType.DecisionType_ChooseToDiscard:
 				var amount = game.decision_info.effect['amount']
 				var chooseaction = decision_ai.pick_choose_to_discard(game, decision_player.my_id, amount)
