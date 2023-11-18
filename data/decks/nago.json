@@ -13,7 +13,6 @@
 	},
 	"ability_effects": [
 		{
-			"character_effect": true,
 			"timing": "on_reshuffle",
 			"effect_type": "exceed_end_of_turn"
 		},
@@ -38,7 +37,6 @@
 			"amount": 1
 		},
 		{
-			"character_effect": true,
 			"timing": "cleanup",
 			"effect_type": "lose_all_armor",
 			"and": {

@@ -27,6 +27,11 @@ func get_card_names(card_ids) -> String:
 	return card_names
 
 func _test_insert_card(card : GameCard):
+	for check_card in all_cards:
+		if card.id == check_card.id:
+			all_cards.erase(check_card)
+			check_card.free()
+			break
 	all_cards.append(card)
 
 func get_card_name(id : int) -> String:

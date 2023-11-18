@@ -323,7 +323,7 @@ func do_choose_from_discard(player : LocalGame.Player, card_ids : Array) -> bool
 
 func process_choose_from_discard(action_message) -> void:
 	var game_player = _get_player_from_remote_id(action_message['player_id'])
-	var card_id = action_message['card_ids']
+	var card_ids = action_message['card_ids']
 	local_game.do_choose_from_discard(game_player, card_ids)
 
 func do_force_for_effect(player : LocalGame.Player, card_ids : Array) -> bool:

@@ -352,7 +352,7 @@ func get_boost_options_for_card(game_logic : LocalGame, me : LocalGame.Player, o
 			@warning_ignore("integer_division")
 			choices += opponent.deck_list.size() / 2
 		elif effect['effect_type'] == "discard_continuous_boost":
-			choices += len(opponent.continuous_boosts) + len(player.continuous_boosts)
+			choices += len(opponent.continuous_boosts) + len(me.continuous_boosts)
 		elif effect['effect_type'] == "reading_normal":
 			choices = 8
 
@@ -572,7 +572,7 @@ func pick_discard_continuous(game_logic : LocalGame, my_id : Enums.PlayerId) -> 
 	var me = game_logic._get_player(my_id)
 	var opponent = game_logic._get_player(game_logic.get_other_player(my_id))
 	var possible_actions = []
-	for card in player.continuous_boosts:
+	for card in me.continuous_boosts:
 		possible_actions.append(DiscardContinuousBoostAction.new(card.id, true))
 	for card in opponent.continuous_boosts:
 		possible_actions.append(DiscardContinuousBoostAction.new(card.id, false))

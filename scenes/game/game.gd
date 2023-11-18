@@ -1363,7 +1363,7 @@ func _move_card_to_strike_area(card, strike_area, new_parent, is_player : bool, 
 func _on_strike_started(event, is_ex : bool):
 	var player = event['event_player']
 	var card = find_card_on_board(event['number'])
-	var reveal_immediately = event['extra_info'] == Enums.EventType.EventType_Strike_PayCost_Unable or event['extra_info'] == true
+	var reveal_immediately = event['event_type'] == Enums.EventType.EventType_Strike_PayCost_Unable or event['extra_info'] == true
 	if reveal_immediately:
 		card.flip_card_to_front(true)
 	if player == Enums.PlayerId.PlayerId_Player:

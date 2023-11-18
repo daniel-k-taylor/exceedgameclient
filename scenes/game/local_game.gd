@@ -1878,7 +1878,7 @@ func continue_resolve_strike():
 				active_strike.strike_state = StrikeState.StrikeState_Cleanup_Player1Effects
 				active_strike.remaining_effect_list = get_all_effects_for_timing("cleanup", player1, card1)
 			StrikeState.StrikeState_Cleanup_Player1Effects:
-				events += do_remaining_effects(player2, StrikeState.StrikeState_Cleanup_Player1EffectsComplete)
+				events += do_remaining_effects(player1, StrikeState.StrikeState_Cleanup_Player1EffectsComplete)
 			StrikeState.StrikeState_Cleanup_Player1EffectsComplete:
 				active_strike.strike_state = StrikeState.StrikeState_Cleanup_Player2Effects
 				active_strike.remaining_effect_list = get_all_effects_for_timing("cleanup", player2, card2)
@@ -2609,7 +2609,6 @@ func do_choose_from_discard(performing_player : Player, card_ids : Array) -> boo
 	# Move the cards.
 	var events = []
 	for card_id in card_ids:
-		var card = card_db.get_card(card_id)
 		var destination = decision_info.destination
 		match destination:
 			"deck":

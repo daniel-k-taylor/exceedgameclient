@@ -259,6 +259,8 @@ func get_effect_type_text(effect):
 			effect_str += "Return this card to hand."
 		"return_all_cards_gauge_to_hand":
 			effect_str += "Return all cards in gauge to hand."
+		"self_discard_choose":
+			effect_str += "Discard " + str(effect['amount']) + " cards."
 		"speedup":
 			if effect['amount'] > 0:
 				effect_str += "+"

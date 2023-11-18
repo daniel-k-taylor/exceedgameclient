@@ -147,15 +147,26 @@ func pick_turn_action(possible_actions : Array, ai_game_state : AIPlayer.AIGameS
 
 		# Boost
 		# Don't boost if you already have 3. That's enough.
-		if ai_game_state.my_state.continuous_boosts.size() < 3:
-			for action in possible_actions:
+		var boost_chance = 0.5
+		var should_boost = randf() < boost_chance
+		var only_boost_continuous = false
+		if should_boost and ai_game_state.my_state.continuous_boosts.size() < 3:
+			if only_boost_continuous:
 				var continuous_choices = []
-				if action is AIPlayer.BoostAction:
-					var card : GameCard = ai_game_state.card_db.get_card(action.card_id)
-					if card.definition['boost']['boost_type'] == "continuous":
-						continuous_choices.append(action)
+				for action in possible_actions:
+					if action is AIPlayer.BoostAction:
+						var card : GameCard = ai_game_state.card_db.get_card(action.card_id)
+						if card.definition['boost']['boost_type'] == "continuous":
+							continuous_choices.append(action)
 				if continuous_choices.size() > 0:
 					return continuous_choices[randi() % continuous_choices.size()]
+			else:
+				var boost_choices = []
+				for action in possible_actions:
+					if action is AIPlayer.BoostAction:
+						boost_choices.append(action)
+				if boost_choices.size() > 0:
+					return boost_choices[randi() % boost_choices.size()]
 
 		# Try to character action.
 		for action in possible_actions:
