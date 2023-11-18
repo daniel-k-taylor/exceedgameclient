@@ -1,21 +1,20 @@
 In progress:
     Nago:
-        ☐ exceed not visible if cost -1
-        ☐ "effect_type": "discard_from_hand",
+        ☐ "effect_type": "self_discard_choose", @started(23-11-17 19:07)
         ☐ "timing": "cleanup",
-        ☐ "timing": "on_reshuffle",   "effect_type": "exceed_end_of_turn"
-        ☐ "effect_type": "lose_all_armor",
-        ☐ "condition": "normal_type", and special_type
-        ☐ "effect_type": "invalid"
-        ☐ "condition": "exceeded",
-        ☐ "effect_type": "revert"
-        ☐ nested ands
+        ☐ "timing": "on_reshuffle",   "effect_type": "exceed_end_of_turn" @started(23-11-17 18:58)
+        ☐ "effect_type": "lose_all_armor", @started(23-11-17 19:02)
+        ☐ "condition": "normal_type", and special_type @started(23-11-17 19:26)
+        ☐ "specials_invalid" @started(23-11-17 19:26)
+        ☐ "condition": "exceeded", @started(23-11-17 19:04)
+        ☐ "effect_type": "revert" @started(23-11-17 19:28)
+        ☐ nested ands - zansetsu @started(23-11-17 19:30)
         ☐ "effect_type": "strike_faceup"
         ☐ choose_discard amount, destination deck
         ☐ discard_continuous_boost from force effect works
 
 
-
+        ☐ EventType_ExceedRevert
 
 
         ☐ exceed on reshuffle

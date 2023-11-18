@@ -2229,7 +2229,7 @@
 				},
 				{
 					"timing": "immediate",
-					"effect_type": "discard_from_hand",
+					"effect_type": "self_discard_choose",
 					"amount": 1
 				}
 			]

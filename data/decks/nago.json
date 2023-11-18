@@ -3,6 +3,14 @@
 	"display_name": "Nagoriyuki",
 	"cardback": "cardback_nago.jpg",
 	"exceed_cost": -1,
+	"on_exceed": {
+		"effect_type": "specials_invalid",
+		"enabled": true
+	},
+	"on_revert": {
+		"effect_type": "specials_invalid",
+		"enabled": false
+	},
 	"ability_effects": [
 		{
 			"character_effect": true,
@@ -15,7 +23,7 @@
 			"effect_type": "draw",
 			"amount": 4,
 			"and": {
-				"effect_type": "discard_from_hand",
+				"effect_type": "self_discard_choose",
 				"amount": 2
 			}
 		}
@@ -24,15 +32,9 @@
 		{
 			"character_effect": true,
 			"timing": "during_strike",
-			"condition": "normal_type",
+			"condition": "is_normal_attack",
 			"effect_type": "powerup",
 			"amount": 1
-		},
-		{
-			"character_effect": true,
-			"timing": "during_strike",
-			"condition": "special_type",
-			"effect_type": "invalid"
 		},
 		{
 			"character_effect": true,

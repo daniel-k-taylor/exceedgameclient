@@ -71,12 +71,13 @@ enum EventType {
 	EventType_Discard,
 	EventType_Draw,
 	EventType_Exceed, 							# 18
+	EventType_ExceedRevert,
 	EventType_ForceForEffect,
 	EventType_ForceStartStrike,
 	EventType_GameOver,
 	EventType_HandSizeExceeded,
 	EventType_Move,
-	EventType_MulliganDecision, 				# 24
+	EventType_MulliganDecision, 				# 25
 	EventType_Prepare,
 	EventType_ReadingNormal,
 	EventType_ReshuffleDeck_Mulligan,
@@ -91,7 +92,7 @@ enum EventType {
 	EventType_Strike_DoResponseNow,
 	EventType_Strike_EffectChoice,
 	EventType_Strike_ExUp,
-	EventType_Strike_ForceForArmor, # 39
+	EventType_Strike_ForceForArmor, # 40
 	EventType_Strike_ForceWildSwing,
 	EventType_Strike_GainAdvantage,
 	EventType_Strike_GuardUp,
@@ -108,7 +109,7 @@ enum EventType {
 	EventType_Strike_Response_Ex,
 	EventType_Strike_Reveal,
 	EventType_Strike_SpeedUp,
-	EventType_Strike_Started, # 56
+	EventType_Strike_Started, # 57
 	EventType_Strike_Started_Ex,
 	EventType_Strike_Stun,
 	EventType_Strike_Stun_Immunity,

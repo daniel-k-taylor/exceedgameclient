@@ -204,6 +204,7 @@ class StrikeStatBoosts:
 	var ignore_armor : bool = false
 	var ignore_guard : bool = false
 	var ignore_push_and_pull : bool = false
+	var lose_all_armor : bool = false
 	var always_add_to_gauge : bool = false
 	var when_hit_force_for_armor : bool = false
 	var stun_immunity : bool = false
@@ -224,6 +225,7 @@ class StrikeStatBoosts:
 		ignore_armor = false
 		ignore_guard = false
 		ignore_push_and_pull = false
+		lose_all_armor = false
 		always_add_to_gauge = false
 		when_hit_force_for_armor = false
 		stun_immunity = false
@@ -261,6 +263,8 @@ class Player:
 	var strike_stat_boosts : StrikeStatBoosts
 	var canceled_this_turn : bool
 	var used_character_action : bool
+	var exceed_at_end_of_turn : bool
+	var specials_invalid : bool
 	var mulligan_complete : bool
 	var reading_card_id : String = ""
 
@@ -290,6 +294,8 @@ class Player:
 		exceeded = false
 		canceled_this_turn = false
 		used_character_action = false
+		exceed_at_end_of_turn = false
+		specials_invalid = false
 		cleanup_boost_to_gauge_cards = []
 		mulligan_complete = false
 
@@ -313,6 +319,15 @@ class Player:
 
 		if 'on_exceed' in deck_def:
 			var effect = deck_def['on_exceed']
+			events += parent.handle_strike_effect(-1, effect, self)
+		return events
+
+	func revert_exceed():
+		exceeded = false
+		var events = []
+		events += [parent.create_event(Enums.EventType.EventType_ExceedRevert, my_id, 0)]
+		if 'on_revert' in deck_def:
+			var effect = deck_def['on_revert']
 			events += parent.handle_strike_effect(-1, effect, self)
 		return events
 
@@ -513,6 +528,10 @@ class Player:
 			random_shuffle_deck()
 			reshuffle_remaining -= 1
 			events += [parent.create_event(Enums.EventType.EventType_ReshuffleDiscard, my_id, reshuffle_remaining)]
+			var effects = get_character_effects_at_timing("on_reshuffle")
+			for effect in effects:
+				if parent.is_effect_condition_met(self, effect, null):
+					events += parent.handle_strike_effect(-1, effect, self)
 		return events
 
 	func discard(card_ids : Array):
@@ -977,9 +996,13 @@ func advance_to_next_turn():
 	player.used_character_action = false
 	opponent.used_character_action = false
 
+	var player_ending_turn = _get_player(active_turn_player)
+	var other_player = _get_player(get_other_player(active_turn_player))
+
 	active_turn_player = next_turn_player
 	next_turn_player = get_other_player(active_turn_player)
 
+	# Handle any end of turn boost effects.
 	# Iterate in reverse as items can be removed.
 	var starting_turn_player = _get_player(active_turn_player)
 	for i in range(len(starting_turn_player.continuous_boosts) - 1, -1, -1):
@@ -989,6 +1012,14 @@ func advance_to_next_turn():
 				if effect['effect_type'] == 'add_to_gauge_immediately':
 					_append_log("%s Start of turn card %s goes to gauge." % [starting_turn_player.name, card_db.get_card_name(card.id)])
 					events += starting_turn_player.remove_from_continuous_boosts(card, true)
+
+	# Handle any end of turn exceed.
+	if player_ending_turn.exceed_at_end_of_turn:
+		events += player_ending_turn.exceed()
+		player_ending_turn.exceed_at_end_of_turn = false
+	if other_player.exceed_at_end_of_turn:
+		events += other_player.exceed()
+		other_player.exceed_at_end_of_turn = false
 
 	if game_over:
 		change_game_state(Enums.GameState.GameState_GameOver)
@@ -1126,6 +1157,8 @@ func is_effect_condition_met(performing_player : Player, effect, local_condition
 			var initiated_strike = active_strike.initiator == performing_player
 			var starting_distance = active_strike.starting_distance
 			return initiated_strike and starting_distance >= range_min and starting_distance <= range_max
+		elif condition == "is_normal_attack":
+			return active_strike.get_player_card(performing_player).definition['type'] == "normal"
 		elif condition == "canceled_this_turn":
 			return performing_player.canceled_this_turn
 		elif condition == "not_canceled_this_turn":
@@ -1142,6 +1175,8 @@ func is_effect_condition_met(performing_player : Player, effect, local_condition
 			return not local_conditions.fully_pushed
 		elif condition == "pulled_past":
 			return local_conditions.pulled_past
+		elif condition == "exceeded":
+			return performing_player.exceeded
 		elif condition == "max_cards_in_hand":
 			var amount = effect['condition_amount']
 			return performing_player.hand.size() <= amount
@@ -1257,6 +1292,8 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 		"discard_hand":
 			_append_log("%s discards hand." % [performing_player.name])
 			events += performing_player.discard_hand()
+		"exceed_end_of_turn":
+			performing_player.exceed_at_end_of_turn = true
 		"force_for_effect":
 			change_game_state(Enums.GameState.GameState_PlayerDecision)
 			decision_info.player = performing_player.my_id
@@ -1292,6 +1329,8 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 			performing_player.strike_stat_boosts.ignore_push_and_pull = true
 		"look_at_top_opponent_deck":
 			events += opposing_player.reveal_topdeck()
+		"lose_all_armor":
+			performing_player.strike_stat_boosts.lose_all_armor = true
 		"name_card_opponent_discards":
 			change_game_state(Enums.GameState.GameState_PlayerDecision)
 			decision_info.type = Enums.DecisionType.DecisionType_NameCard_OpponentDiscards
@@ -1393,6 +1432,29 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 			var card_name = card_db.get_card_name(card_id)
 			_append_log("%s - %s returned to hand." % [performing_player.name, card_name])
 			active_boost.cleanup_to_hand_card_ids.append(card_id)
+		"revert":
+			events += performing_player.revert_exceed()
+		"self_discard_choose":
+			if performing_player.hand.size() > effect['amount']:
+				change_game_state(Enums.GameState.GameState_PlayerDecision)
+				decision_info.type = Enums.DecisionType.DecisionType_ChooseToDiscard
+				decision_info.effect_type = "self_discard_choose_internal"
+				decision_info.effect = effect
+				decision_info.choice_card_id = card_id
+				decision_info.player = performing_player.my_id
+				events += [create_event(Enums.EventType.EventType_Strike_ChooseToDiscard, performing_player.my_id, effect['amount'])]
+			else:
+				events += [create_event(Enums.EventType.EventType_Strike_ChooseToDiscard_Info, performing_player.my_id, effect['amount'])]
+				# Forced to discard whole hand.
+				var card_ids = []
+				for card in performing_player.hand:
+					card_ids.append(card.id)
+				events += performing_player.discard(card_ids)
+		"self_discard_choose_internal":
+			var cards = effect['card_ids']
+			events += performing_player.discard(cards)
+		"specials_invalid":
+			performing_player.specials_invalid = effect['enabled']
 		"speedup":
 			performing_player.strike_stat_boosts.speed += effect['amount']
 			events += [create_event(Enums.EventType.EventType_Strike_SpeedUp, performing_player.my_id, effect['amount'])]
@@ -1562,7 +1624,7 @@ func in_range(atacking_player, defending_player, card):
 func calculate_damage(offense_player : Player, defense_player : Player, offense_card : GameCard, defense_card : GameCard) -> int:
 	var damage = offense_card.definition['power'] + offense_player.strike_stat_boosts.power
 	var armor = defense_card.definition['armor'] + defense_player.strike_stat_boosts.armor
-	if offense_player.strike_stat_boosts.ignore_armor:
+	if offense_player.strike_stat_boosts.ignore_armor or defense_player.strike_stat_boosts.lose_all_armor:
 		armor = 0
 	var damage_after_armor = max(damage - armor, 0)
 	return damage_after_armor
@@ -1577,10 +1639,10 @@ func apply_damage(offense_player : Player, defense_player : Player, offense_card
 
 	if offense_player.strike_stat_boosts.ignore_guard:
 		guard = 0
-	if offense_player.strike_stat_boosts.ignore_armor:
+	if offense_player.strike_stat_boosts.ignore_armor or defense_player.strike_stat_boosts.lose_all_armor:
 		armor = 0
 
-	var damage_after_armor = max(damage - armor, 0)
+	var damage_after_armor = calculate_damage(offense_player, defense_player, offense_card, defense_card)
 	defense_player.life -= damage_after_armor
 	active_strike.add_damage_taken(defense_player, damage_after_armor)
 
@@ -1606,10 +1668,12 @@ func ask_for_cost(performing_player, card, next_state):
 	var events = []
 	var gauge_cost = card.definition['gauge_cost']
 	var force_cost = card.definition['force_cost']
-	if gauge_cost == 0 and force_cost == 0:
+	var is_special = card.definition['type'] == "special"
+	var card_forced_invalid = (is_special and performing_player.specials_invalid)
+	if gauge_cost == 0 and force_cost == 0 and not card_forced_invalid:
 		active_strike.strike_state = next_state
 	else:
-		if performing_player.can_pay_cost(card):
+		if not card_forced_invalid and performing_player.can_pay_cost(card):
 			change_game_state(Enums.GameState.GameState_PlayerDecision)
 			decision_info.player = performing_player.my_id
 			if active_strike.get_player_wild_strike(performing_player):
@@ -1624,11 +1688,18 @@ func ask_for_cost(performing_player, card, next_state):
 		else:
 			# Failed to pay the cost by default.
 			events += performing_player.add_to_discards(card)
-			events += performing_player.wild_strike();
-			if game_over:
-				return events
-			var wild_card_id = active_strike.get_player_card(performing_player).id
-			events += [create_event(Enums.EventType.EventType_Strike_PayCost_Unable, performing_player.my_id, wild_card_id)]
+			var new_wild_card = null
+			while new_wild_card == null:
+				events += performing_player.wild_strike();
+				if game_over:
+					return events
+				new_wild_card = active_strike.get_player_card(performing_player)
+				is_special = new_wild_card.definition['type'] == "special"
+				card_forced_invalid = (is_special and performing_player.specials_invalid)
+				if card_forced_invalid:
+					events += performing_player.add_to_discards(new_wild_card)
+					new_wild_card = null
+			events += [create_event(Enums.EventType.EventType_Strike_PayCost_Unable, performing_player.my_id, new_wild_card.id)]
 	return events
 
 func do_hit_response_effects(offense_player : Player, defense_player : Player, incoming_damage : int, next_state : StrikeState):
@@ -2484,6 +2555,9 @@ func do_choose_from_discard(performing_player : Player, card_id : int) -> bool:
 	var events = []
 	var destination = decision_info.destination
 	match destination:
+		"deck":
+			# TODO: Implement
+			pass
 		"gauge":
 			events += performing_player.move_card_from_discard_to_gauge(card_id)
 		"hand":
