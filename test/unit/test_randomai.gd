@@ -104,10 +104,13 @@ func handle_change_cards(game: LocalGame, gameplayer : LocalGame.Player, action 
 	assert_true(game.do_change(gameplayer, card_ids), "do change failed")
 	return game.get_latest_events()
 
-func handle_exceed(game: LocalGame, gameplayer : LocalGame.Player, action : AIPlayer.ExceedAction):
+func handle_exceed(game: LocalGame, aiplayer : AIPlayer, gameplayer : LocalGame.Player, otherplayer : LocalGame.Player, action : AIPlayer.ExceedAction):
 	var card_ids = action.card_ids
+	var events = []
 	assert_true(game.do_exceed(gameplayer, card_ids), "do exceed failed")
-	return game.get_latest_events()
+	events += game.get_latest_events()
+	events = handle_boost_reponse(events, aiplayer, game, gameplayer, otherplayer, -1)
+	return events
 
 func handle_reshuffle(game: LocalGame, gameplayer : LocalGame.Player):
 	assert_true(game.do_reshuffle(gameplayer), "do reshuffle failed")
@@ -130,7 +133,11 @@ func handle_boost_reponse(events, aiplayer : AIPlayer, game : LocalGame, gamepla
 				events += game.get_latest_events()
 				#TODO: Do something with EventType_RevealHand so AI can consume new info.
 			Enums.DecisionType.DecisionType_ChooseDiscardContinuousBoost:
-				var card_id = otherplayer.continuous_boosts[choice_index].id
+				var card_id = -1
+				if choice_index < otherplayer.continuous_boosts.size():
+					card_id = otherplayer.continuous_boosts[choice_index].id
+				else:
+					card_id = gameplayer.continuous_boosts[choice_index - otherplayer.continuous_boosts.size()].id
 				assert_true(game.do_boost_name_card_choice_effect(gameplayer, card_id), "do boost name 2 failed")
 				events += game.get_latest_events()
 			Enums.DecisionType.DecisionType_ReadingNormal:
@@ -158,10 +165,12 @@ func handle_boost_reponse(events, aiplayer : AIPlayer, game : LocalGame, gamepla
 			Enums.DecisionType.DecisionType_ChooseFromDiscard:
 				var chooseaction = aiplayer.pick_choose_from_discard(game, gameplayer.my_id, game.decision_info.amount)
 				assert_true(game.do_choose_from_discard(gameplayer, chooseaction.card_ids), "do choose from discard failed")
+				events += game.get_latest_events()
 			Enums.DecisionType.DecisionType_ChooseToDiscard:
 				var amount = game.decision_info.effect['amount']
 				var chooseaction = aiplayer.pick_choose_to_discard(game, gameplayer.my_id, amount)
-				assert_true(game.do_choose_to_discard(gameplayer, chooseaction.card_id), "do choose to discard failed")
+				assert_true(game.do_choose_to_discard(gameplayer, chooseaction.card_ids), "do choose to discard failed")
+				events += game.get_latest_events()
 			_:
 				assert(false, "Unimplemented decision type")
 
@@ -276,7 +285,7 @@ func run_ai_game():
 		elif turn_action is AIPlayer.ChangeCardsAction:
 			turn_events += handle_change_cards(game_logic, current_player, turn_action)
 		elif turn_action is AIPlayer.ExceedAction:
-			turn_events += handle_exceed(game_logic, current_player, turn_action)
+			turn_events += handle_exceed(game_logic, current_ai, current_player, other_player, turn_action)
 		elif turn_action is AIPlayer.ReshuffleAction:
 			turn_events += handle_reshuffle(game_logic, current_player)
 		elif turn_action is AIPlayer.BoostAction:
@@ -375,6 +384,24 @@ func test_millia_100():
 
 func test_baiken_100():
 	default_deck = CardDefinitions.get_deck_from_str_id("baiken")
+	for i in range(100):
+		print("==== RUNNING TEST %d ====" % i)
+		run_ai_game()
+		game_teardown()
+		game_setup()
+	pass_test("Finished match")
+
+func test_giovanna_100():
+	default_deck = CardDefinitions.get_deck_from_str_id("giovanna")
+	for i in range(100):
+		print("==== RUNNING TEST %d ====" % i)
+		run_ai_game()
+		game_teardown()
+		game_setup()
+	pass_test("Finished match")
+	
+func test_nago_100():
+	default_deck = CardDefinitions.get_deck_from_str_id("nago")
 	for i in range(100):
 		print("==== RUNNING TEST %d ====" % i)
 		run_ai_game()

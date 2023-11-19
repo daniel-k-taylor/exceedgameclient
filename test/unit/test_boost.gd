@@ -9,6 +9,7 @@ const TestCardId1 = 50001
 const TestCardId2 = 50002
 const TestCardId3 = 50003
 const TestCardId4 = 50004
+const TestCardId5 = 50005
 
 var player1 : LocalGame.Player
 var player2 : LocalGame.Player
@@ -210,7 +211,7 @@ func test_boost_wildthrow_into_focus_vs_slash():
 	var initiator = game_logic.player
 	var defender = game_logic.opponent
 	give_player_specific_card(initiator, "solbadguy_wildthrow", TestCardId3)
-	give_specific_cards(initiator, "gg_normal_focus", defender, "gg_normal_slash")
+	give_player_specific_card(defender, "gg_normal_slash", TestCardId4)
 
 	position_players(player1, 3, player2, 4)
 	assert_true(game_logic.do_boost(initiator, TestCardId3))
@@ -237,7 +238,7 @@ func test_double_boost_ride_stun_vs_cross():
 	give_gauge(initiator, 3)
 	give_player_specific_card(initiator, "kykisuke_ridethelightning", TestCardId3)
 	give_player_specific_card(initiator, "kykisuke_ridethelightning", TestCardId4)
-	give_specific_cards(initiator, "kykisuke_stunedge", defender, "gg_normal_cross")
+	give_player_specific_card(defender, "gg_normal_slash", TestCardId5)
 
 	position_players(player1, 2, player2, 4)
 	assert_true(game_logic.do_boost(initiator, TestCardId3))

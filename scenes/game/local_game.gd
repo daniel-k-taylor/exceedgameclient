@@ -2667,6 +2667,7 @@ func do_force_for_effect(performing_player : Player, card_ids : Array) -> bool:
 		else:
 			printlog("ERROR: Tried to force for effect with too much force.")
 			return false
+	change_game_state(Enums.GameState.GameState_Strike_Processing)
 	if force_generated > 0:
 		var card_names = card_db.get_card_name(card_ids[0])
 		for i in range(1, card_ids.size()):
@@ -2686,7 +2687,6 @@ func do_force_for_effect(performing_player : Player, card_ids : Array) -> bool:
 
 		_append_log("%s generated %s force for %s with %s." % [performing_player.name, str(force_generated), effect_text, card_names])
 		events += performing_player.discard(card_ids)
-		change_game_state(Enums.GameState.GameState_Strike_Processing)
 		for i in range(0, effect_times):
 			events += handle_strike_effect(decision_info.choice_card_id, decision_effect, performing_player)
 

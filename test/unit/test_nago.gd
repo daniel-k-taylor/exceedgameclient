@@ -276,4 +276,35 @@ func test_nago_discard_boost():
 	assert_eq(game_logic.game_state, Enums.GameState.GameState_PickAction)
 	assert_eq(game_logic.active_turn_player, player1.my_id)
 	assert_eq(player1.continuous_boosts.size(), 0)
+
+func test_nago_boost_nago_shizuriyuki():
+	position_players(player1, 4, player2, 5)
+	give_player_specific_card(player1, "nago_shizuriyuki", TestCardId3)
+	assert_true(game_logic.do_boost(player1, TestCardId3))
+	assert_eq(game_logic.game_state, Enums.GameState.GameState_PlayerDecision)
+	assert_true(game_logic.do_choice(player1, 0))
+	validate_positions(player1, 7, player2, 5)
+	assert_eq(player1.hand.size(), 7)
+	assert_eq(game_logic.game_state, Enums.GameState.GameState_PlayerDecision)
+	assert_true(game_logic.do_choose_to_discard(player1, [player1.hand[0].id]))
+	assert_eq(game_logic.game_state, Enums.GameState.GameState_PickAction)
+	assert_eq(game_logic.active_turn_player, player2.my_id)
+	
+func test_nago_boost_nago_shizuriyuki_cancel():
+	position_players(player1, 4, player2, 5)
+	give_gauge(player1, 2)
+	give_player_specific_card(player1, "nago_shizuriyuki", TestCardId3)
+	assert_true(game_logic.do_boost(player1, TestCardId3))
+	assert_eq(game_logic.game_state, Enums.GameState.GameState_PlayerDecision)
+	assert_true(game_logic.do_choice(player1, 0))
+	validate_positions(player1, 7, player2, 5)
+	assert_eq(player1.hand.size(), 7)
+	assert_eq(game_logic.game_state, Enums.GameState.GameState_PlayerDecision)
+	assert_true(game_logic.do_choose_to_discard(player1, [player1.hand[0].id]))
+	assert_eq(game_logic.game_state, Enums.GameState.GameState_PlayerDecision)
+	var events = game_logic.get_latest_events()
+	assert_eq(game_logic.decision_info.type, Enums.DecisionType.DecisionType_BoostCancel)
+	validate_has_event(events, Enums.EventType.EventType_Boost_CancelDecision, player1)
+	
+	
 	
