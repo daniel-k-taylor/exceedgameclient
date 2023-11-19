@@ -880,10 +880,16 @@ func _on_choose_from_discard(event):
 		# Show the discard window.
 		_on_player_discard_button_pressed()
 		selected_cards = []
-		select_card_require_min = 1
+		select_card_require_min = game_wrapper.get_decision_info().amount
 		select_card_require_max = game_wrapper.get_decision_info().amount
-		limitation = limitation + " "
-		var instruction = "Select %s %scard to move to %s." % [select_card_require_min, limitation, destination]
+		if limitation:
+			limitation = limitation + " "
+		var card_select_count_str = "1 %scard" % limitation
+		if select_card_require_min == select_card_require_max and select_card_require_min > 1:
+			card_select_count_str = "%s %scards" % [select_card_require_min, limitation]
+		elif select_card_require_max > 1:
+			card_select_count_str = "1-%s %scards" % [select_card_require_max, limitation]
+		var instruction = "Select %s to move to %s." % [card_select_count_str, destination]
 		popout_instruction_info = {
 			"popout_type": CardPopoutType.CardPopoutType_DiscardPlayer,
 			"instruction_text": instruction,
