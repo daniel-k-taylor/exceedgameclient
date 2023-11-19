@@ -233,7 +233,7 @@ func test_nago_wildswing_cantpay():
 	player1.hand.remove_at(player1.hand.size()-1)
 	player1.deck[0] = wild_cantpay_card
 	player1.deck[1] = wild_accepted_card
-	var events = execute_strike(player1, player2, "nago_zansetsu", "gg_normal_slash", [], [], false, false)
+	execute_strike(player1, player2, "nago_zansetsu", "gg_normal_slash", [], [], false, false)
 	assert_eq(game_logic.game_state, Enums.GameState.GameState_PlayerDecision)
 	assert_eq(game_logic.active_strike.initiator_card.id, TestCardId4)
 	assert_true(game_logic.do_choice(player1, 0))
@@ -254,7 +254,7 @@ func test_nago_wildswing_cantpay_wild():
 	assert_true(game_logic.do_strike(player1, -1, true, -1))
 	give_player_specific_card(player2, "gg_normal_slash", TestCardId2)
 	assert_true(game_logic.do_strike(player2, TestCardId2, false, -1))
-	var events = game_logic.get_latest_events()
+	game_logic.get_latest_events()
 	assert_eq(game_logic.game_state, Enums.GameState.GameState_PlayerDecision)
 	assert_true(game_logic.do_pay_strike_cost(player1, [], true))
 	assert_eq(game_logic.game_state, Enums.GameState.GameState_PlayerDecision)
