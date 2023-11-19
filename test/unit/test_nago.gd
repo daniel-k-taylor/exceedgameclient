@@ -222,3 +222,58 @@ func test_nago_special_draw_exceed():
 	validate_life(player1, 30, player2, 26)
 	events = execute_strike(player1, player2, "gg_normal_slash", "gg_normal_slash", [], [], false, false)
 	validate_life(player1, 28, player2, 21)
+
+func test_nago_wildswing_cantpay():
+	position_players(player1, 4, player2, 5)
+	give_player_specific_card(player1, "nago_wasureyuki", TestCardId3)
+	var wild_cantpay_card = player1.hand[player1.hand.size()-1]
+	player1.hand.remove_at(player1.hand.size()-1)
+	give_player_specific_card(player1, "gg_normal_grasp", TestCardId4)
+	var wild_accepted_card = player1.hand[player1.hand.size()-1]
+	player1.hand.remove_at(player1.hand.size()-1)
+	player1.deck[0] = wild_cantpay_card
+	player1.deck[1] = wild_accepted_card
+	var events = execute_strike(player1, player2, "nago_zansetsu", "gg_normal_slash", [], [], false, false)
+	assert_eq(game_logic.game_state, Enums.GameState.GameState_PlayerDecision)
+	assert_eq(game_logic.active_strike.initiator_card.id, TestCardId4)
+	assert_true(game_logic.do_choice(player1, 0))
+	position_players(player1, 4, player2, 6)
+	validate_life(player1, 30, player2, 27)
+
+func test_nago_wildswing_cantpay_wild():
+	position_players(player1, 4, player2, 5)
+	give_gauge(player1, 4)
+	give_player_specific_card(player1, "nago_wasureyuki", TestCardId3)
+	var wild_cantpay_card = player1.hand[player1.hand.size()-1]
+	player1.hand.remove_at(player1.hand.size()-1)
+	give_player_specific_card(player1, "gg_normal_grasp", TestCardId4)
+	var wild_accepted_card = player1.hand[player1.hand.size()-1]
+	player1.hand.remove_at(player1.hand.size()-1)
+	player1.deck[0] = wild_cantpay_card
+	player1.deck[1] = wild_accepted_card
+	assert_true(game_logic.do_strike(player1, -1, true, -1))
+	give_player_specific_card(player2, "gg_normal_slash", TestCardId2)
+	assert_true(game_logic.do_strike(player2, TestCardId2, false, -1))
+	var events = game_logic.get_latest_events()
+	assert_eq(game_logic.game_state, Enums.GameState.GameState_PlayerDecision)
+	assert_true(game_logic.do_pay_strike_cost(player1, [], true))
+	assert_eq(game_logic.game_state, Enums.GameState.GameState_PlayerDecision)
+	assert_eq(game_logic.active_strike.initiator_card.id, TestCardId4)
+	assert_true(game_logic.do_choice(player1, 0))
+	position_players(player1, 4, player2, 6)
+	validate_life(player1, 30, player2, 27)
+	
+func test_nago_discard_boost():
+	position_players(player1, 4, player2, 5)
+	give_player_specific_card(player1, "gg_normal_sweep", TestCardId3)
+	assert_true(game_logic.do_boost(player1, TestCardId3))
+	give_player_specific_card(player2, "nago_bloodsuckinguniverse", TestCardId4)
+	assert_true(game_logic.do_boost(player2, TestCardId4))
+	assert_eq(game_logic.game_state, Enums.GameState.GameState_PlayerDecision)
+	assert_true(game_logic.do_force_for_effect(player2, [player2.hand[0].id]))
+	assert_eq(game_logic.decision_info.effect_type, "discard_continuous_boost_INTERNAL")
+	assert_true(game_logic.do_boost_name_card_choice_effect(player2, TestCardId3))
+	assert_eq(game_logic.game_state, Enums.GameState.GameState_PickAction)
+	assert_eq(game_logic.active_turn_player, player1.my_id)
+	assert_eq(player1.continuous_boosts.size(), 0)
+	

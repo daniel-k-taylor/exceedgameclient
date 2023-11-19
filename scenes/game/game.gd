@@ -1350,8 +1350,10 @@ func _on_reveal_topdeck(event):
 	return SmallNoticeDelay
 
 func _move_card_to_strike_area(card, strike_area, new_parent, is_player : bool, is_ex : bool):
-	card.set_position_if_at_position(OffScreen, get_deck_button_position(is_player))
+	if card.state == CardBase.CardState.CardState_InStrike:
+		return
 
+	card.set_position_if_at_position(OffScreen, get_deck_button_position(is_player))
 	var pos = strike_area.global_position + strike_area.size * strike_area.scale /2
 	if is_ex:
 		pos.x += CardBase.get_hand_card_size().x
@@ -1363,7 +1365,11 @@ func _move_card_to_strike_area(card, strike_area, new_parent, is_player : bool, 
 func _on_strike_started(event, is_ex : bool):
 	var player = event['event_player']
 	var card = find_card_on_board(event['number'])
-	var reveal_immediately = event['event_type'] == Enums.EventType.EventType_Strike_PayCost_Unable or event['extra_info'] == true
+	var immediate_reveal_event = false
+	match event['event_type']:
+		Enums.EventType.EventType_Strike_PayCost_Unable:
+			immediate_reveal_event = true
+	var reveal_immediately = immediate_reveal_event or event['extra_info'] == true
 	if reveal_immediately:
 		card.flip_card_to_front(true)
 	if player == Enums.PlayerId.PlayerId_Player:
@@ -1597,6 +1603,7 @@ func _handle_events(events):
 			Enums.EventType.EventType_Strike_TookDamage:
 				delay = _on_damage(event)
 			Enums.EventType.EventType_Strike_WildStrike:
+				_on_strike_started(event, false)
 				delay = _stat_notice_event(event)
 			_:
 				printlog("ERROR: UNHANDLED EVENT")

@@ -343,7 +343,8 @@ class Player:
 		events += draw(len(card_ids))
 		for id in card_ids:
 			events += move_card_from_hand_to_deck(id)
-		random_shuffle_deck()
+		if ShuffleEnabled:
+			random_shuffle_deck()
 		events += [parent.create_event(Enums.EventType.EventType_ReshuffleDeck_Mulligan, my_id, reshuffle_remaining)]
 		mulligan_complete = true
 		return events
@@ -639,7 +640,7 @@ class Player:
 				events += discard([random_card_id])
 		return events
 
-	func wild_strike():
+	func wild_strike(is_immediate_reveal : bool = false):
 		var events = []
 		# Get top card of deck (reshuffle if needed)
 		if len(deck) == 0:
@@ -653,7 +654,7 @@ class Player:
 				parent.active_strike.defender_card = deck[0]
 				parent.active_strike.defender_wild_strike = true
 			deck.remove_at(0)
-			events += [parent.create_event(Enums.EventType.EventType_Strike_WildStrike, my_id, card_id)]
+			events += [parent.create_event(Enums.EventType.EventType_Strike_WildStrike, my_id, card_id, "", is_immediate_reveal)]
 		return events
 
 	func add_to_gauge(card: GameCard):
@@ -1725,7 +1726,7 @@ func ask_for_cost(performing_player, card, next_state):
 			events += performing_player.add_to_discards(card)
 			var new_wild_card = null
 			while new_wild_card == null:
-				events += performing_player.wild_strike();
+				events += performing_player.wild_strike(true);
 				if game_over:
 					return events
 				new_wild_card = active_strike.get_player_card(performing_player)
@@ -2369,7 +2370,7 @@ func do_pay_strike_cost(performing_player : Player, card_ids : Array, wild_strik
 		# Replace existing card with a wild strike
 		var current_card = active_strike.get_player_card(performing_player)
 		events += performing_player.add_to_discards(current_card)
-		events += performing_player.wild_strike()
+		events += performing_player.wild_strike(true)
 	else:
 		var force_cost = card.definition['force_cost']
 		var gauge_cost = card.definition['gauge_cost']
@@ -2689,15 +2690,19 @@ func do_force_for_effect(performing_player : Player, card_ids : Array) -> bool:
 		for i in range(0, effect_times):
 			events += handle_strike_effect(decision_info.choice_card_id, decision_effect, performing_player)
 
-	if active_strike:
-		active_strike.effects_resolved_in_timing += 1
-		events += continue_resolve_strike()
-	elif active_boost:
-		active_boost.effects_resolved += 1
-		events += continue_resolve_boost()
+	if game_state != Enums.GameState.GameState_PlayerDecision:
+		if active_strike:
+			active_strike.effects_resolved_in_timing += 1
+			events += continue_resolve_strike()
+		elif active_boost:
+			active_boost.effects_resolved += 1
+			events += continue_resolve_boost()
+		else:
+			printlog("ERROR: When is this force for effect happening?")
+			assert(false, "When is this force for effect happening?")
 	else:
-		printlog("ERROR: When is this force for effect happening?")
-		assert(false, "When is this force for effect happening?")
+		# Some other effect will result in this continuing.
+		pass
 	event_queue += events
 	return true
 

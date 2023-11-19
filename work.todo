@@ -1,9 +1,4 @@
 In progress:
-    Nago:
-        ☐ "effect_type": "revert" @started(23-11-17 19:28)
-        ☐ discard_continuous_boost from force effect works @started(23-11-17 20:38)
-        ☐ EventType_ExceedRevert @started(23-11-17 20:40)
-        ☐ "effect_type": "strike_faceup" @started(23-11-17 20:51)
 
 Tasks:
     Main Features:
