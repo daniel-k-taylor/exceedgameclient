@@ -1,17 +1,11 @@
 In progress:
-    Goldlewis:
-        ☐ "gauge_cost_ex": 4, @started(23-11-19 23:26)
-        ☐ "alt_hand_size": 9, @started(23-11-19 22:53)
-        ☐ "bonus_starting_hand": 2, @started(23-11-19 22:53)
-        ☐ "condition": "is_ex_strike", @started(23-11-19 22:56)
-        ☐ amount_min on choose_discard @started(23-11-19 23:03)
-        ☐ start of turn "effect_type": "discard_this" @started(23-11-19 23:05)
-        ☐ effect_type": "opponent_cant_move_past" @started(23-11-19 23:12)
-        ☐ EventType_Strike_OpponentCantMovePast @started(23-11-19 23:13)
-
-        ☐ Testing!
-
-
+    Ino:
+        ☐ Force action
+        ☐ condition - initiated after moving 2+
+        ☐ opponent discard hand
+        ☐ discard from opponent's gauge
+        ☐ Pay gauge to sustain
+        ☐ lose all armor
 Tasks:
     Main Features:
         ☐ Observers on server
@@ -86,13 +80,7 @@ Character:
         ☐ spend life to draw
         ☐ seal this after effect
         ☐ initiate face up
-    Ino:
-        ☐ Force action
-        ☐ condition - initiated after moving 2+
-        ☐ opponent discard hand
-        ☐ discard from opponent's gauge
-        ☐ Pay gauge to sustain
-        ☐ lose all armor
+
     Jacko:
         ☐ Boost from hand or gauge
         ☐ hit may add to gauge

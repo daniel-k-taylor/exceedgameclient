@@ -1057,12 +1057,8 @@ func advance_to_next_turn():
 		var card = starting_turn_player.continuous_boosts[i]
 		for effect in card.definition['boost']['effects']:
 			if effect['timing'] == "start_of_next_turn":
-				if effect['effect_type'] == 'add_to_gauge_immediately':
-					_append_log("%s Start of turn card %s goes to gauge." % [starting_turn_player.name, card_db.get_card_name(card.id)])
-					events += starting_turn_player.remove_from_continuous_boosts(card, true)
-				elif effect['effect_type'] == "discard_this":
-					_append_log("%s Start of turn card %s goes to discard." % [starting_turn_player.name, card_db.get_card_name(card.id)])
-					events += starting_turn_player.remove_from_continuous_boosts(card, false)
+				if is_effect_condition_met(starting_turn_player, effect, null):
+					events += handle_strike_effect(card.id, effect, starting_turn_player)
 
 	# Handle any end of turn exceed.
 	if player_ending_turn.exceed_at_end_of_turn:
@@ -1213,7 +1209,7 @@ func is_effect_condition_met(performing_player : Player, effect, local_condition
 		elif condition == "is_special_attack":
 			return active_strike.get_player_card(performing_player).definition['type'] == "special"
 		elif condition == "is_ex_strike":
-			return performing_player.strike_stat_boosts.is_ex
+			return active_strike.will_be_ex(performing_player)
 		elif condition == "canceled_this_turn":
 			return performing_player.canceled_this_turn
 		elif condition == "not_canceled_this_turn":
@@ -1278,6 +1274,10 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 			var card_name = card_db.get_card_name(card_id)
 			_append_log("%s - %s goes to gauge." % [performing_player.name, card_name])
 			active_boost.cleanup_to_gauge_card_ids.append(card_id)
+		"add_to_gauge_immediately":
+			var card = card_db.get_card(card_id)
+			_append_log("%s Start of turn card %s goes to gauge." % [performing_player.name, card_db.get_card_name(card.id)])
+			events += performing_player.remove_from_continuous_boosts(card, true)
 		"add_top_deck_to_gauge":
 			events += performing_player.add_top_deck_to_gauge()
 		"advance":
@@ -1326,6 +1326,10 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 			var close_amount = abs(performing_start - new_location)
 			local_conditions.fully_closed = close_amount == effect['amount']
 			_append_log("%s Close %s - Moved from %s to %s." % [performing_player.name, str(effect['amount']), str(previous_location), str(new_location)])
+		"discard_this":
+			var card = card_db.get_card(card_id)
+			_append_log("%s Start of turn card %s goes to discard." % [performing_player.name, card_db.get_card_name(card.id)])
+			events += performing_player.remove_from_continuous_boosts(card, false)
 		"dodge_at_range":
 			performing_player.strike_stat_boosts.dodge_at_range_min = effect['range_min']
 			performing_player.strike_stat_boosts.dodge_at_range_max = effect['range_max']
@@ -2643,7 +2647,7 @@ func do_choose_from_discard(performing_player : Player, card_ids : Array) -> boo
 		return false
 
 	# Validation.
-	if card_ids.size() < decision_info.amount_min or card_ids.size() > decision_info.amount_max:
+	if card_ids.size() < decision_info.amount_min or card_ids.size() > decision_info.amount:
 		printlog("ERROR: Tried to choose from discard with wrong number of cards.")
 		return false
 

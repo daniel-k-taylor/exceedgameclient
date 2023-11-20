@@ -989,7 +989,7 @@
 				"timing": "during_strike",
 				"condition": "is_ex_strike",
 				"effect_type": "powerup",
-				"amount": 2
+				"amount": 4
 			}
 		],
 		"boost": {

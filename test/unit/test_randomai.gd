@@ -212,6 +212,9 @@ func handle_strike(game: LocalGame, aiplayer : AIPlayer, otherai : AIPlayer, act
 				var can_wild = game.decision_info.type == Enums.DecisionType.DecisionType_PayStrikeCost_CanWild
 				var card = game.active_strike.get_player_card(decision_player)
 				var cost = game.card_db.get_card_gauge_cost(card.id)
+				var is_ex = game.active_strike.will_be_ex(decision_player)
+				if 'gauge_cost_ex' in card.definition and is_ex:
+					cost = card.definition['gauge_cost_ex']
 				var pay_action = decision_ai.pay_strike_gauge_cost(game, decision_player.my_id, cost, can_wild)
 				assert_true(game.do_pay_strike_cost(decision_player, pay_action.card_ids, pay_action.wild_swing), "do pay failed")
 				events += game.get_latest_events()
@@ -402,6 +405,15 @@ func test_giovanna_100():
 	
 func test_nago_100():
 	default_deck = CardDefinitions.get_deck_from_str_id("nago")
+	for i in range(100):
+		print("==== RUNNING TEST %d ====" % i)
+		run_ai_game()
+		game_teardown()
+		game_setup()
+	pass_test("Finished match")
+
+func test_goldlewis_100():
+	default_deck = CardDefinitions.get_deck_from_str_id("goldlewis")
 	for i in range(100):
 		print("==== RUNNING TEST %d ====" % i)
 		run_ai_game()
