@@ -272,6 +272,9 @@ func pick_discard_continuous(possible_actions : Array, _ai_game_state : AIPlayer
 		only_yours = possible_actions
 	return only_yours[randi() % len(only_yours)]
 
+func pick_discard_opponent_gauge(possible_actions : Array, _ai_game_state : AIPlayer.AIGameState):
+	return possible_actions[randi() % len(possible_actions)]
+
 func pick_name_opponent_card(possible_actions : Array, _ai_game_state : AIPlayer.AIGameState):
 	return possible_actions[randi() % len(possible_actions)]
 
@@ -285,6 +288,9 @@ func pick_choose_from_discard(possible_actions : Array, _ai_game_state : AIPlaye
 	return possible_actions[randi() % len(possible_actions)]
 
 func pick_force_for_effect(possible_actions : Array, _ai_game_state : AIPlayer.AIGameState):
+	return possible_actions[randi() % len(possible_actions)]
+
+func pick_gauge_for_effect(possible_actions : Array, _ai_game_state : AIPlayer.AIGameState):
 	return possible_actions[randi() % len(possible_actions)]
 
 func pick_choose_to_discard(possible_actions : Array, _ai_game_state : AIPlayer.AIGameState):

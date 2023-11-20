@@ -287,6 +287,8 @@ class Player:
 	var next_strike_faceup : bool
 	var max_hand_size : int
 	var starting_hand_size_bonus : int
+	var pre_strike_movement : int
+	var sustained_boosts : Array[int]
 
 	func _init(id, player_name, parent_ref, card_db_ref, chosen_deck, card_start_id):
 		my_id = id
@@ -320,6 +322,8 @@ class Player:
 		mulligan_complete = false
 		reading_card_id = ""
 		next_strike_faceup = false
+		pre_strike_movement = 0
+		sustained_boosts = []
 
 		max_hand_size = MaxHandSize	
 		if 'alt_hand_size' in deck_def:
@@ -735,6 +739,8 @@ class Player:
 			new_location = min(other_location-1, arena_location+amount)
 		else:
 			new_location = max(other_location+1, arena_location-amount)
+		if not parent.active_strike:
+			pre_strike_movement += abs(arena_location - new_location)
 		arena_location = new_location
 		events += [parent.create_event(Enums.EventType.EventType_Move, my_id, new_location, "close", amount, previous_location)]
 		return events
@@ -766,6 +772,8 @@ class Player:
 			if other_player_location == new_location:
 				new_location += 1
 
+		if not parent.active_strike:
+			pre_strike_movement += abs(arena_location - new_location)
 		arena_location = new_location
 		events += [parent.create_event(Enums.EventType.EventType_Move, my_id, new_location, "advance", amount, previous_location)]
 
@@ -783,6 +791,8 @@ class Player:
 			new_location = arena_location + amount
 			new_location = min(new_location, MaxArenaLocation)
 
+		if not parent.active_strike:
+			pre_strike_movement += abs(arena_location - new_location)
 		arena_location = new_location
 		events += [parent.create_event(Enums.EventType.EventType_Move, my_id, new_location, "retreat", amount, previous_location)]
 
@@ -914,14 +924,20 @@ class Player:
 
 	func cleanup_continuous_boosts():
 		var events = []
+		var sustained_cards = []
 		for boost_card in continuous_boosts:
 			if boost_card.id in cleanup_boost_to_gauge_cards:
 				events += add_to_gauge(boost_card)
 				parent._append_log("%s continuous boost %s added to gauge." % [name, parent.card_db.get_card_name(boost_card.id)])
 			else:
-				events += add_to_discards(boost_card)
-				parent._append_log("%s continuous boost %s discarded from play." % [name, parent.card_db.get_card_name(boost_card.id)])
-		continuous_boosts = []
+				if boost_card.id in sustained_boosts:
+					sustained_cards.append(boost_card)
+					parent._append_log("%s continuous boost %s sustained." % [name, parent.card_db.get_card_name(boost_card.id)])
+				else:
+					events += add_to_discards(boost_card)
+					parent._append_log("%s continuous boost %s discarded from play." % [name, parent.card_db.get_card_name(boost_card.id)])
+		continuous_boosts = sustained_cards
+		sustained_boosts = []
 		cleanup_boost_to_gauge_cards = []
 		return events
 
@@ -1041,6 +1057,8 @@ func advance_to_next_turn():
 	var events = []
 	player.canceled_this_turn = false
 	opponent.canceled_this_turn = false
+	player.pre_strike_movement = 0
+	opponent.pre_strike_movement = 0
 	player.used_character_action = false
 	opponent.used_character_action = false
 
@@ -1204,6 +1222,10 @@ func is_effect_condition_met(performing_player : Player, effect, local_condition
 			var initiated_strike = active_strike.initiator == performing_player
 			var starting_distance = active_strike.starting_distance
 			return initiated_strike and starting_distance >= range_min and starting_distance <= range_max
+		elif condition == "initiated_after_moving":
+			var initiated_strike = active_strike.initiator == performing_player
+			var required_amount = effect['condition_amount']
+			return initiated_strike and performing_player.pre_strike_movement >= required_amount
 		elif condition == "is_normal_attack":
 			return active_strike.get_player_card(performing_player).definition['type'] == "normal"
 		elif condition == "is_special_attack":
@@ -1343,7 +1365,7 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 			events += performing_player.draw(effect['amount'])
 		"discard_continuous_boost":
 			var my_boosts = performing_player.continuous_boosts
-			var opponent_boosts = _get_player(get_other_player(performing_player.my_id)).continuous_boosts
+			var opponent_boosts = opposing_player.continuous_boosts
 			if len(my_boosts) > 0 or len(opponent_boosts) > 0:
 				# Player gets to pick which continuous boost to discard.
 				change_game_state(Enums.GameState.GameState_PlayerDecision)
@@ -1358,10 +1380,23 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 			if performing_player.is_card_in_continuous_boosts(boost_to_discard_id):
 				events += performing_player.remove_from_continuous_boosts(card, false)
 			else:
-				events += _get_player(get_other_player(performing_player.my_id)).remove_from_continuous_boosts(card, false)
+				events += opposing_player.remove_from_continuous_boosts(card, false)
 		"discard_hand":
 			_append_log("%s discards hand." % [performing_player.name])
 			events += performing_player.discard_hand()
+		"discard_opponent_gauge":
+			if opposing_player.gauge.size() > 0:
+				# Player gets to pick which gauge to discard.
+				change_game_state(Enums.GameState.GameState_PlayerDecision)
+				decision_info.type = Enums.DecisionType.DecisionType_ChooseDiscardOpponentGauge
+				decision_info.effect_type = "discard_opponent_gauge_INTERNAL"
+				decision_info.choice_card_id = card_id
+				decision_info.player = performing_player.my_id
+				decision_info.amount = effect['amount2']
+				events += [create_event(Enums.EventType.EventType_Boost_DiscardOpponentGauge, performing_player.my_id, 0)]
+		"discard_opponent_gauge_INTERNAL":
+			var chosen_card_id = effect['card_id']
+			events += opposing_player.discard([chosen_card_id])
 		"exceed_end_of_turn":
 			performing_player.exceed_at_end_of_turn = true
 		"force_for_effect":
@@ -1371,6 +1406,13 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 			decision_info.choice_card_id = card_id
 			decision_info.effect = effect
 			events += [create_event(Enums.EventType.EventType_ForceForEffect, performing_player.my_id, 0)]
+		"gauge_for_effect":
+			change_game_state(Enums.GameState.GameState_PlayerDecision)
+			decision_info.player = performing_player.my_id
+			decision_info.type = Enums.DecisionType.DecisionType_GaugeForEffect
+			decision_info.choice_card_id = card_id
+			decision_info.effect = effect
+			events += [create_event(Enums.EventType.EventType_GaugeForEffect, performing_player.my_id, 0)]
 		"gain_advantage":
 			next_turn_player = performing_player.my_id
 			events += [create_event(Enums.EventType.EventType_Strike_GainAdvantage, performing_player.my_id, 0)]
@@ -1437,6 +1479,9 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 		"opponent_discard_choose_internal":
 			var cards = effect['card_ids']
 			events += performing_player.discard(cards)
+		"opponent_discard_hand":
+			_append_log("%s discards hand." % [opposing_player.name])
+			events += opposing_player.discard_hand()
 		"opponent_discard_random":
 			events += opposing_player.discard_random(effect['amount'])
 		"pass":
@@ -1545,6 +1590,9 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 			performing_player.next_strike_faceup = true
 		"stun_immunity":
 			performing_player.strike_stat_boosts.stun_immunity = true
+		"sustain_this":
+			performing_player.sustained_boosts.append(card_id)
+			events += [create_event(Enums.EventType.EventType_SustainBoost, performing_player.my_id, card_id)]
 		"take_nonlethal_damage":
 			var damage = effect['amount']
 			if damage >= performing_player.life:
@@ -2760,6 +2808,65 @@ func do_force_for_effect(performing_player : Player, card_ids : Array) -> bool:
 		else:
 			printlog("ERROR: When is this force for effect happening?")
 			assert(false, "When is this force for effect happening?")
+	else:
+		# Some other effect will result in this continuing.
+		pass
+	event_queue += events
+	return true
+
+func do_gauge_for_effect(performing_player : Player, card_ids : Array) -> bool:
+	printlog("SubAction: GAUGE_FOR_EFFECT by %s cards %s" % [performing_player.name, card_ids])
+	if game_state != Enums.GameState.GameState_PlayerDecision or decision_info.type != Enums.DecisionType.DecisionType_GaugeForEffect:
+		printlog("ERROR: Tried to gauge for effect but not in decision state.")
+		return false
+	if decision_info.player != performing_player.my_id:
+		printlog("ERROR: Tried to gauge for armor for wrong player.")
+		return false
+
+	var events = []
+	for card_id in card_ids:
+		if not performing_player.is_card_in_gauge(card_id):
+			printlog("ERROR: Tried to gauge for effect with card not in gauge.")
+			return false
+
+	var gauge_generated = len(card_ids)
+
+	if gauge_generated > decision_info.effect['gauge_max']:
+		printlog("ERROR: Tried to gauge for effect with too many cards.")
+		return false
+	change_game_state(Enums.GameState.GameState_Strike_Processing)
+	if gauge_generated > 0:
+		var card_names = card_db.get_card_name(card_ids[0])
+		for i in range(1, card_ids.size()):
+			card_names += ", " + card_db.get_card_name(card_ids[i])
+
+		var effect_text = ""
+		var decision_effect = null
+		var effect_times = 0
+		if decision_info.effect['per_gauge_effect']:
+			decision_effect = decision_info.effect['per_gauge_effect']
+			effect_text = CardDefinitions.get_effect_text(decision_effect) + " per gauge"
+			effect_times = gauge_generated
+		elif decision_info.effect['overall_effect']:
+			decision_effect = decision_info.effect['overall_effect']
+			effect_text = CardDefinitions.get_effect_text(decision_effect)
+			effect_times = 1
+
+		_append_log("%s spent %s gauge for %s with %s." % [performing_player.name, str(gauge_generated), effect_text, card_names])
+		events += performing_player.discard(card_ids)
+		for i in range(0, effect_times):
+			events += handle_strike_effect(decision_info.choice_card_id, decision_effect, performing_player)
+
+	if game_state != Enums.GameState.GameState_PlayerDecision:
+		if active_strike:
+			active_strike.effects_resolved_in_timing += 1
+			events += continue_resolve_strike()
+		elif active_boost:
+			active_boost.effects_resolved += 1
+			events += continue_resolve_boost()
+		else:
+			printlog("ERROR: When is this gauge for effect happening?")
+			assert(false, "When is this gauge for effect happening?")
 	else:
 		# Some other effect will result in this continuing.
 		pass

@@ -1485,7 +1485,7 @@
 					"choice": [
 						{
 							"effect_type": "discard_opponent_gauge",
-							"amount": 0,
+							"amount": 0,	
 							"amount2": 1
 						},
 						{
@@ -1535,13 +1535,12 @@
 				},
 				{
 					"timing": "hit",
-					"effect_type": "force_for_effect",
-					"use_gauge": true,
-					"per_force_effect": null,
+					"effect_type": "gauge_for_effect",
+					"per_gauge_effect": null,
 					"overall_effect": {
 						"effect_type": "sustain_this"
 					},
-					"force_max": 2
+					"gauge_max": 2
 				}
 			]
 		}

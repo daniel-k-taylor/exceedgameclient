@@ -140,6 +140,10 @@ func handle_boost_reponse(events, aiplayer : AIPlayer, game : LocalGame, gamepla
 					card_id = gameplayer.continuous_boosts[choice_index - otherplayer.continuous_boosts.size()].id
 				assert_true(game.do_boost_name_card_choice_effect(gameplayer, card_id), "do boost name 2 failed")
 				events += game.get_latest_events()
+			Enums.DecisionType.DecisionType_ChooseDiscardOpponentGauge:
+				var card_id = otherplayer.gauge_list[choice_index].id
+				assert_true(game.do_boost_name_card_choice_effect(gameplayer, card_id), "do boost name 2 failed")
+				events += game.get_latest_events()
 			Enums.DecisionType.DecisionType_ReadingNormal:
 				var index = 0
 				var card_id = -1

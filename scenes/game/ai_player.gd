@@ -103,6 +103,11 @@ class ForceForEffectAction:
 	func _init(card_id_combination):
 		card_ids = card_id_combination
 
+class GaugeForEffectAction:
+	var card_ids
+	func _init(card_id_combination):
+		card_ids = card_id_combination
+		
 class DiscardToMaxAction:
 	var card_ids
 	func _init(card_id_combination):
@@ -121,6 +126,11 @@ class DiscardContinuousBoostAction:
 	func _init(boost_card_id, is_mine : bool):
 		card_id = boost_card_id
 		mine = is_mine
+
+class DiscardGaugeAction:
+	var card_id
+	func _init(chosen_id):
+		card_id = chosen_id
 
 class NameCardAction:
 	var card_id
@@ -493,7 +503,7 @@ func determine_force_for_armor_actions(game_logic : LocalGame, me : LocalGame.Pl
 			possible_actions.append(ForceForArmorAction.new(combo))
 	return possible_actions
 
-func determine_force_for_effect_actions(game_logic: LocalGame, me : LocalGame.Player):
+func determine_force_for_effect_actions(game_logic: LocalGame, me : LocalGame.Player, options : Array):
 	var possible_actions = []
 	var available_force = me.get_available_force()
 	var all_force_option_ids = []
@@ -504,13 +514,33 @@ func determine_force_for_effect_actions(game_logic: LocalGame, me : LocalGame.Pl
 
 	var max_force = game_logic.decision_info.effect['force_max']
 	max_force = min(max_force, available_force)
-
-	for target_force in range(0, max_force + 1):
+	for target_force in options:
+		if target_force > max_force:
+			continue
 		# Generate an action for every possible combination of cards that can get here.
 		var combinations = []
 		generate_force_combinations(game_logic, all_force_option_ids, target_force, [], 0, combinations)
 		for combo in combinations:
 			possible_actions.append(ForceForEffectAction.new(combo))
+	return possible_actions
+
+func determine_gauge_for_effect_actions(game_logic: LocalGame, me : LocalGame.Player, options : Array):
+	var possible_actions = []
+	var available_gauge = me.gauge.size()
+	var all_option_ids = []
+	for card in me.gauge:
+		all_option_ids.append(card.id)
+
+	var max_gauge = game_logic.decision_info.effect['gauge_max']
+	max_gauge = min(max_gauge, available_gauge)
+
+	for target_gauge in options:
+		if target_gauge > max_gauge:
+			continue
+		# Generate an action for every possible combination of cards that can get here.
+		var combinations = get_combinations_to_pay_gauge(me, target_gauge)
+		for combo in combinations:
+			possible_actions.append(GaugeForEffectAction.new(combo))
 	return possible_actions
 
 func determine_choose_to_discard_options(me : LocalGame.Player, to_discard_count : int):
@@ -578,6 +608,15 @@ func pick_discard_continuous(game_logic : LocalGame, my_id : Enums.PlayerId) -> 
 		possible_actions.append(DiscardContinuousBoostAction.new(card.id, false))
 	update_ai_state(game_logic, me, opponent)
 	return ai_policy.pick_discard_continuous(possible_actions, game_state)
+
+func pick_discard_opponent_gauge(game_logic : LocalGame, my_id : Enums.PlayerId) -> DiscardGaugeAction:
+	var me = game_logic._get_player(my_id)
+	var opponent = game_logic._get_player(game_logic.get_other_player(my_id))
+	var possible_actions = []
+	for card in opponent.gauge:
+		possible_actions.append(DiscardGaugeAction.new(card.id))
+	update_ai_state(game_logic, me, opponent)
+	return ai_policy.pick_discard_opponent_gauge(possible_actions, game_state)
 
 func pick_name_opponent_card(game_logic : LocalGame, my_id : Enums.PlayerId, normal_only : bool) -> NameCardAction:
 	var me = game_logic._get_player(my_id)
@@ -653,13 +692,20 @@ func pick_choose_from_discard(game_logic : LocalGame, my_id : Enums.PlayerId, ch
 	update_ai_state(game_logic, me, opponent)
 	return ai_policy.pick_choose_from_discard(possible_actions, game_state)
 
-func pick_force_for_effect(game_logic : LocalGame, my_id : Enums.PlayerId) -> ForceForEffectAction:
+func pick_force_for_effect(game_logic : LocalGame, my_id : Enums.PlayerId, options : Array) -> ForceForEffectAction:
 	var me = game_logic._get_player(my_id)
 	var opponent = game_logic._get_player(game_logic.get_other_player(my_id))
-	var possible_actions = determine_force_for_effect_actions(game_logic, me)
+	var possible_actions = determine_force_for_effect_actions(game_logic, me, options)
 	update_ai_state(game_logic, me, opponent)
 	return ai_policy.pick_force_for_effect(possible_actions, game_state)
 
+func pick_gauge_for_effect(game_logic : LocalGame, my_id : Enums.PlayerId, options : Array) -> GaugeForEffectAction:
+	var me = game_logic._get_player(my_id)
+	var opponent = game_logic._get_player(game_logic.get_other_player(my_id))
+	var possible_actions = determine_gauge_for_effect_actions(game_logic, me, options)
+	update_ai_state(game_logic, me, opponent)
+	return ai_policy.pick_gauge_for_effect(possible_actions, game_state)
+	
 func pick_choose_to_discard(game_logic : LocalGame, my_id : Enums.PlayerId, to_discard_count : int) -> ChooseToDiscardAction:
 	var me = game_logic._get_player(my_id)
 	var opponent = game_logic._get_player(game_logic.get_other_player(my_id))

@@ -13,6 +13,8 @@ func add_card(card : GameCard) -> void:
 	all_cards.append(card)
 
 func get_card(id : int):
+	if id == -1:
+		return "(NO CARD)"
 	for card in all_cards:
 		if card.id == id:
 			return card

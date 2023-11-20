@@ -217,6 +217,8 @@ func get_effect_type_text(effect):
 			effect_str += "Close " + str(effect['amount'])
 		"discard_continuous_boost":
 			effect_str += "Discard a continuous boost."
+		"discard_opponent_gauge":
+			effect_str += "Discard a card from opponent's gauge."
 		"dodge_at_range":
 			effect_str += "Opponent attacks miss at range %s-%s." % [effect['range_min'], effect['range_max']]
 		"dodge_attacks":

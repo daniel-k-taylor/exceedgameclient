@@ -17,11 +17,13 @@ enum CardZone {
 enum DecisionType {
 	DecisionType_BoostCancel,
 	DecisionType_ChooseDiscardContinuousBoost,
+	DecisionType_ChooseDiscardOpponentGauge,
 	DecisionType_ChooseFromDiscard,
 	DecisionType_ChooseSimultaneousEffect,
 	DecisionType_EffectChoice,
 	DecisionType_ForceForEffect,
-	DecisionType_NameCard_OpponentDiscards, # 6
+	DecisionType_GaugeForEffect,
+	DecisionType_NameCard_OpponentDiscards, # 7
 	DecisionType_ChooseToDiscard,
 	DecisionType_PayStrikeCost_Required,
 	DecisionType_PayStrikeCost_CanWild,
@@ -60,24 +62,26 @@ enum EventType {
 	EventType_Boost_ActionAfterBoost,
 	EventType_Boost_CancelDecision, 			# 6
 	EventType_Boost_DiscardContinuousChoice,
+	EventType_Boost_DiscardOpponentGauge,
 	EventType_Boost_Played,
 	EventType_Boost_Canceled,
 	EventType_Boost_Continuous_Added,
-	EventType_Boost_NameCardOpponentDiscards, 	# 11
+	EventType_Boost_NameCardOpponentDiscards, 	# 12
 	EventType_CardFromHandToGauge_Choice,
 	EventType_ChangeCards,
 	EventType_CharacterAction,
 	EventType_ChooseFromDiscard,
 	EventType_Discard,
 	EventType_Draw,
-	EventType_Exceed, 							# 18
+	EventType_Exceed, 							# 19
 	EventType_ExceedRevert,
 	EventType_ForceForEffect,
+	EventType_GaugeForEffect,
 	EventType_ForceStartStrike,
 	EventType_GameOver,
 	EventType_HandSizeExceeded,
 	EventType_Move,
-	EventType_MulliganDecision, 				# 25
+	EventType_MulliganDecision, 				# 27
 	EventType_Prepare,
 	EventType_ReadingNormal,
 	EventType_ReshuffleDeck_Mulligan,
@@ -92,7 +96,7 @@ enum EventType {
 	EventType_Strike_DoResponseNow,
 	EventType_Strike_EffectChoice,
 	EventType_Strike_ExUp,
-	EventType_Strike_ForceForArmor, # 40
+	EventType_Strike_ForceForArmor, 			# 42
 	EventType_Strike_ForceWildSwing,
 	EventType_Strike_GainAdvantage,
 	EventType_Strike_GuardUp,
@@ -110,10 +114,11 @@ enum EventType {
 	EventType_Strike_Response_Ex,
 	EventType_Strike_Reveal,
 	EventType_Strike_SpeedUp,
-	EventType_Strike_Started, # 58
+	EventType_Strike_Started, 					# 61
 	EventType_Strike_Started_Ex,
 	EventType_Strike_Stun,
 	EventType_Strike_Stun_Immunity,
 	EventType_Strike_TookDamage,
 	EventType_Strike_WildStrike,
+	EventType_SustainBoost,
 }
