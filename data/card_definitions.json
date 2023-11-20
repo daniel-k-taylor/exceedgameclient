@@ -1450,6 +1450,338 @@
 	},
 
 
+	
+	{
+		"NOTE": "INO CARDS START",
+		"id": "ino_megalomania",
+		"type": "ultra",
+		"display_name": "Megalomania",
+		"force_cost": 0,
+		"gauge_cost": 5,
+		"range_min": 2,
+		"range_max": 3,
+		"speed": 6,
+		"power": 4,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "hit",
+				"effect_type": "gain_advantage",
+				"and": {
+					"effect_type": "opponent_discard_hand"
+				}
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": 1,
+			"display_name": "The Midnight Carnival",
+			"effects": [
+				{
+					"timing": "hit",
+					"effect_type": "choice",
+					"choice": [
+						{
+							"effect_type": "discard_opponent_gauge",
+							"amount": 0,
+							"amount2": 1
+						},
+						{
+							"effect_type": "draw",
+							"amount": 1,
+							"and": {
+								"effect_type": "add_to_gauge_boost_play_cleanup"
+							}
+						}
+					]
+				}
+			]
+		}
+	},
+	{
+		"id": "ino_ultimatefortissimo",
+		"type": "ultra",
+		"display_name": "Ultimate Fortissimo",
+		"force_cost": 0,
+		"gauge_cost": 3,
+		"range_min": 1,
+		"range_max": 3,
+		"speed": 3,
+		"power": 4,
+		"armor": 6,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "after",
+				"effect_type": "lose_all_armor"
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": 1,
+			"display_name": "Requiem",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "powerup",
+					"amount": 1,
+					"and": {
+						"effect_type": "speedup",
+						"amount": 1
+					}
+				},
+				{
+					"timing": "hit",
+					"effect_type": "force_for_effect",
+					"use_gauge": true,
+					"per_force_effect": null,
+					"overall_effect": {
+						"effect_type": "sustain_this"
+					},
+					"force_max": 2
+				}
+			]
+		}
+	},
+	{
+		"id": "ino_chemicallove",
+		"type": "special",
+		"display_name": "Chemical Love",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 2,
+		"range_max": 4,
+		"speed": 6,
+		"power": 2,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "hit",
+				"effect_type": "pull",
+				"amount": 1,
+				"and": {
+					"effect_type": "draw",
+					"amount": 1
+				}
+			}
+		],
+		"boost": {
+			"boost_type": "immediate",
+			"force_cost": 0,
+			"cancel_cost": 1,
+			"display_name": "Hover Dash",
+			"effects": [
+				{
+					"timing": "immediate",
+					"effect_type": "choice",
+					"choice": [
+						{ "effect_type": "advance", "amount": 2 },
+						{ "effect_type": "retreat", "amount": 2 }
+					]
+				},
+				{
+					"timing": "immediate",
+					"effect_type": "draw",
+					"amount": 2
+				}
+			]
+		}
+	},
+	{
+		"id": "ino_antidepressantscale",
+		"type": "special",
+		"display_name": "Antidepressant Scale",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 2,
+		"range_max": 3,
+		"speed": 5,
+		"power": 3,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "before",
+				"condition": "initiated_after_moving",
+				"condition_amount": 2,
+				"effect_type": "powerup",
+				"amount": 2
+			},
+			{
+				"timing": "hit",
+				"effect_type": "retreat",
+				"amount": 1,
+				"and": {
+					"effect_type": "gain_advantage"
+				}
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": 1,
+			"display_name": "Marlene",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "guardup",
+					"amount": 4
+				},
+				{
+					"timing": "hit",
+					"effect_type": "gain_advantage"
+				}
+			]
+		}
+	},
+	{
+		"id": "ino_strokethebigtree",
+		"type": "special",
+		"display_name": "Stroke the Big Tree",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 1,
+		"speed": 5,
+		"power": 3,
+		"armor": 0,
+		"guard": 3,
+		"effects": [
+			{
+				"timing": "before",
+				"effect_type": "close",
+				"amount": 2,
+				"bonus_effect": {
+					"condition": "not_full_close",
+					"effect_type": "ignore_guard"
+				}
+			},
+			{
+				"timing": "hit",
+				"effect_type": "gain_advantage"
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Sadism",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "powerup",
+					"amount": 2
+				},
+				{
+					"timing": "after",
+					"condition": "opponent_stunned",
+					"effect_type": "opponent_discard_random",
+					"amount": 2
+				}
+			]
+		}
+	},
+	{
+		"id": "ino_sultryperformance",
+		"type": "special",
+		"display_name": "Sultry Performance",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 2,
+		"speed": 4,
+		"power": 4,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "before",
+				"effect_type": "advance",
+				"amount": 3
+			},
+			{
+				"timing": "hit",
+				"effect_type": "draw",
+				"amount": 2,
+				"and": {
+					"effect_type": "choice",
+					"choice": [
+						{ "effect_type": "advance", "amount": 1 },
+						{ "effect_type": "retreat", "amount": 1 }
+					]
+				}
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": 1,
+			"display_name": "Smell of the Game",
+			"effects": [
+				{
+					"timing": "hit",
+					"effect_type": "powerup",
+					"amount": 1,
+					"and": {
+						"effect_type": "add_boost_to_gauge_on_strike_cleanup"
+					}
+				}
+			]
+		}
+	},
+	{
+		"NOTE": "INO CARDS END",
+		"id": "ino_guitarstamping",
+		"type": "special",
+		"display_name": "Guitar Stamping",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 2,
+		"speed": 4,
+		"power": 5,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "before",
+				"effect_type": "advance",
+				"amount": 1
+			},
+			{
+				"timing": "hit",
+				"effect_type": "retreat",
+				"amount": 3,
+				"and": {
+					"effect_type": "add_top_deck_to_gauge"
+				}
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Gatling",
+			"effects": [
+				{
+					"timing": "now",
+					"effect_type": "draw",
+					"amount": 2
+				},
+				{
+					"timing": "hit",
+					"effect_type": "gain_advantage"
+				}
+			]
+		},
+		"NOTEEND": "INO CARDS END"
+	},
+
+
 	{
 		"NOTE": "KY KISUKE CARDS START",
 		"id": "kykisuke_ridethelightning",
@@ -3580,14 +3912,13 @@
 			"boost_type": "continuous",
 			"force_cost": 0,
 			"cancel_cost": 1,
-			"display_name": "Smell of the game",
+			"display_name": "Smell of the Game",
 			"effects": [
 				{
 					"timing": "hit",
 					"effect_type": "powerup",
 					"amount": 1,
 					"and": {
-						"timing": "hit",
 						"effect_type": "add_boost_to_gauge_on_strike_cleanup"
 					}
 				}

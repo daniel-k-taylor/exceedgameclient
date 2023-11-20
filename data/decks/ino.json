@@ -1,35 +1,31 @@
 {
-	"id": "giovanna",
-	"display_name": "Giovanna",
-	"cardback": "cardback_giovanna.jpg",
+	"id": "ino",
+	"display_name": "I-No",
+	"cardback": "cardback_ino.jpg",
 	"exceed_cost": 3,
-	"on_exceed": {
-		"effect_type": "gauge_from_hand",
-		"min_amount": 0,
-		"max_amount": 1
-	},
 	"character_action_default": {
 		"gauge_cost": 0,
-		"force_cost": 0,
+		"force_cost": 2,
 		"effect": {
-			"effect_type": "strike"
+			"effect_type": "advance",
+			"amount": 2,
+			"and": {
+				"effect_type": "strike"
+			}
 		}
 	},
 	"character_action_exceeded": {
-		"gauge_cost": 1,
-		"force_cost": 0,
+		"gauge_cost": 0,
+		"force_cost": 2,
 		"effect": {
-			"effect_type": "strike"
+			"effect_type": "advance",
+			"amount": 2,
+			"and": {
+				"effect_type": "strike"
+			}
 		}
 	},
 	"ability_effects": [
-		{
-			"character_effect": true,
-			"timing": "hit",
-			"condition": "used_character_action",
-			"effect_type": "draw",
-			"amount": 1
-		}
 	],
 	"exceed_ability_effects": [
 		{
@@ -38,71 +34,64 @@
 			"condition": "used_character_action",
 			"effect_type": "powerup",
 			"amount": 1
-		},
-		{
-			"character_effect": true,
-			"timing": "hit",
-			"condition": "used_character_action",
-			"effect_type": "draw",
-			"amount": 2
 		}
 	],
 	"cards": [
 		{
-			"definition_id": "giovanna_ventania",
-			"image": "giovanna_ventania.tres"
+			"definition_id": "ino_megalomania",
+			"image": "ino_megalomania.tres"
 		},
 		{
-			"definition_id": "giovanna_ventania",
-			"image": "giovanna_ventania.tres"
+			"definition_id": "ino_megalomania",
+			"image": "ino_megalomania.tres"
 		},
 		{
-			"definition_id": "giovanna_tempestade",
-			"image": "giovanna_tempestade.tres"
+			"definition_id": "ino_ultimatefortissimo",
+			"image": "ino_ultimatefortissimo.tres"
 		},
 		{
-			"definition_id": "giovanna_tempestade",
-			"image": "giovanna_tempestade.tres"
+			"definition_id": "ino_ultimatefortissimo",
+			"image": "ino_ultimatefortissimo.tres"
 		},
 		{
-			"definition_id": "giovanna_solnascente",
-			"image": "giovanna_solnascente.tres"
+			"definition_id": "ino_chemicallove",
+			"image": "ino_chemicallove.tres"
 		},
 		{
-			"definition_id": "giovanna_solnascente",
-			"image": "giovanna_solnascente.tres"
+			"definition_id": "ino_chemicallove",
+			"image": "ino_chemicallove.tres"
 		},
 		{
-			"definition_id": "giovanna_triplekick",
-			"image": "giovanna_triplekick.tres"
+			"definition_id": "ino_antidepressantscale",
+			"image": "ino_antidepressantscale.tres"
 		},
 		{
-			"definition_id": "giovanna_triplekick",
-			"image": "giovanna_triplekick.tres"
+			"definition_id": "ino_antidepressantscale",
+			"image": "ino_antidepressantscale.tres"
 		},
 		{
-			"definition_id": "giovanna_sepultura",
-			"image": "giovanna_sepultura.tres"
+			"definition_id": "ino_strokethebigtree",
+			"image": "ino_strokethebigtree.tres"
 		},
 		{
-			"definition_id": "giovanna_sepultura",
-			"image": "giovanna_sepultura.tres"
+			"definition_id": "ino_strokethebigtree",
+			"image": "ino_strokethebigtree.tres"
 		},
 		{
-			"definition_id": "giovanna_solpoente",
-			"image": "giovanna_solpoente.tres"
+			"definition_id": "ino_sultryperformance",
+			"image": "ino_sultryperformance.tres"
 		},
 		{
-			"definition_id": "giovanna_solpoente",
-			"image": "giovanna_solpoente.tres"
+			"definition_id": "ino_sultryperformance",
+			"image": "ino_sultryperformance.tres"
 		},
 		{
-			"definition_id": "giovanna_trovao",
-			"image": "giovanna_trovao.tres"
+			"definition_id": "ino_guitarstamping",
+			"image": "ino_guitarstamping.tres"
 		},
 		{
-			"definition_id": "giovanna_trovao",
-			"image": "giovanna_trovao.tres"
+			"definition_id": "ino_guitarstamping",
+			"image": "ino_guitarstamping.tres"
 		},
 		{
 			"definition_id": "gg_normal_grasp",

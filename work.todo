@@ -6,6 +6,14 @@ In progress:
         ☐ discard from opponent's gauge
         ☐ Pay gauge to sustain
         ☐ lose all armor
+
+        ☐ character action force cost
+        ☐ opponent_discard_hand
+        ☐ effect_type": "discard_opponent_gauge",
+        ☐ sustain_this
+        ☐ force_for_effect - use gauge
+        ☐ "condition": "initiated_after_moving",
+
 Tasks:
     Main Features:
         ☐ Observers on server
