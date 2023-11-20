@@ -154,6 +154,10 @@ func get_condition_text(condition):
 			text += "If pulled opponent past you, "
 		"used_character_action":
 			text += ""
+		"is_special_attack":
+			text += ""
+		"is_normal_attack":
+			text += ""
 		_:
 			text += "MISSING CONDITION"
 	return text
