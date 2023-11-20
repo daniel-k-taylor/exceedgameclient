@@ -11,3 +11,4 @@ var choice_card_id : int
 var limitation
 var destination
 var amount : int
+var amount_min : int

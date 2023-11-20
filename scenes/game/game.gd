@@ -701,6 +701,8 @@ func _stat_notice_event(event):
 			notice_text = "Unmoved!"
 		Enums.EventType.EventType_Strike_Miss:
 			notice_text = "Miss!"
+		Enums.EventType.EventType_Strike_OpponentCantMovePast:
+			notice_text = "Blocking Advance!"
 		Enums.EventType.EventType_Strike_PowerUp:
 			notice_text = "+%d Power" % number
 		Enums.EventType.EventType_Strike_RangeUp:
@@ -880,7 +882,7 @@ func _on_choose_from_discard(event):
 		# Show the discard window.
 		_on_player_discard_button_pressed()
 		selected_cards = []
-		select_card_require_min = game_wrapper.get_decision_info().amount
+		select_card_require_min = game_wrapper.get_decision_info().amount_min
 		select_card_require_max = game_wrapper.get_decision_info().amount
 		if limitation:
 			limitation = limitation + " "
@@ -888,7 +890,7 @@ func _on_choose_from_discard(event):
 		if select_card_require_min == select_card_require_max and select_card_require_min > 1:
 			card_select_count_str = "%s %scards" % [select_card_require_min, limitation]
 		elif select_card_require_max > 1:
-			card_select_count_str = "1-%s %scards" % [select_card_require_max, limitation]
+			card_select_count_str = "%s-%s %scards" % [select_card_require_min, select_card_require_max, limitation]
 		var instruction = "Select %s to move to %s." % [card_select_count_str, destination]
 		popout_instruction_info = {
 			"popout_type": CardPopoutType.CardPopoutType_DiscardPlayer,
@@ -898,8 +900,11 @@ func _on_choose_from_discard(event):
 			"ok_enabled": true,
 			"cancel_visible": false,
 		}
+		var cancel_allowed = false
+		if select_card_require_min == 0:
+			cancel_allowed = true
 
-		enable_instructions_ui(instruction, true, false)
+		enable_instructions_ui(instruction, true, cancel_allowed)
 		change_ui_state(UIState.UIState_SelectCards, UISubState.UISubState_SelectCards_ChooseDiscardToDestination)
 	else:
 		ai_choose_from_discard(game_wrapper.get_decision_info().amount)
@@ -1579,6 +1584,8 @@ func _handle_events(events):
 				delay = _stat_notice_event(event)
 			Enums.EventType.EventType_Strike_Miss:
 				delay = _stat_notice_event(event)
+			Enums.EventType.EventType_Strike_OpponentCantMovePast:
+				delay = _stat_notice_event(event)
 			Enums.EventType.EventType_Strike_PayCost_Gauge:
 				_on_pay_cost_gauge(event)
 			Enums.EventType.EventType_Strike_PayCost_Force:
@@ -1669,7 +1676,7 @@ func _update_buttons():
 
 	var cancel_text = "Cancel"
 	match ui_sub_state:
-		UISubState.UISubState_SelectCards_BoostCancel, UISubState.UISubState_SelectCards_Mulligan, UISubState.UISubState_SelectCards_ForceForEffect, UISubState.UISubState_SelectCards_DiscardCardsToGauge:
+		UISubState.UISubState_SelectCards_BoostCancel, UISubState.UISubState_SelectCards_Mulligan, UISubState.UISubState_SelectCards_ForceForEffect, UISubState.UISubState_SelectCards_DiscardCardsToGauge, UISubState.UISubState_SelectCards_ChooseDiscardToDestination:
 			cancel_text = "Pass"
 		_:
 			cancel_text = "Cancel"
@@ -1925,6 +1932,10 @@ func _on_instructions_cancel_button_pressed():
 			deselect_all_cards()
 			close_popout()
 			success = game_wrapper.submit_card_from_hand_to_gauge(Enums.PlayerId.PlayerId_Player, [])
+		UISubState.UISubState_SelectCards_ChooseDiscardToDestination:
+			deselect_all_cards()
+			close_popout()
+			success = game_wrapper.submit_choose_from_discard(Enums.PlayerId.PlayerId_Player, [])
 		_:
 			match ui_state:
 				UIState.UIState_SelectArenaLocation:

@@ -185,6 +185,17 @@ class Strike:
 			return initiator_damage_taken
 		return defender_damage_taken
 
+	func will_be_ex(performing_player : Player) -> bool:
+		for boost_card in performing_player.continuous_boosts:
+			var effects = boost_card.definition['boost']['effects']
+			for effect in effects:
+				if effect['timing'] == 'during_strike' and effect['effect_type'] == "attack_is_ex":
+					return true
+		if performing_player == initiator:
+			return initiator_ex_card != null
+		else:
+			return defender_ex_card != null
+
 class Boost:
 	var playing_player : Player
 	var card : GameCard
@@ -214,6 +225,7 @@ class StrikeStatBoosts:
 	var stun_immunity : bool = false
 	var was_hit : bool = false
 	var is_ex : bool = false
+	var opponent_cant_move_past : bool = false
 	var active_character_effects = []
 
 	func clear():
@@ -235,6 +247,7 @@ class StrikeStatBoosts:
 		stun_immunity = false
 		was_hit = false
 		is_ex = false
+		opponent_cant_move_past = false
 		active_character_effects = []
 
 	func set_ex():
@@ -272,6 +285,8 @@ class Player:
 	var mulligan_complete : bool
 	var reading_card_id : String
 	var next_strike_faceup : bool
+	var max_hand_size : int
+	var starting_hand_size_bonus : int
 
 	func _init(id, player_name, parent_ref, card_db_ref, chosen_deck, card_start_id):
 		my_id = id
@@ -305,6 +320,14 @@ class Player:
 		mulligan_complete = false
 		reading_card_id = ""
 		next_strike_faceup = false
+
+		max_hand_size = MaxHandSize	
+		if 'alt_hand_size' in deck_def:
+			max_hand_size = deck_def['alt_hand_size']
+		
+		starting_hand_size_bonus = 0
+		if 'bonus_starting_hand' in deck_def:
+			starting_hand_size_bonus = deck_def['bonus_starting_hand']
 
 	func initial_shuffle():
 		if ShuffleEnabled:
@@ -473,11 +496,9 @@ class Player:
 
 		return true
 
-	func can_pay_cost(card : GameCard):
+	func can_pay_cost(force_cost : int, gauge_cost : int):
 		var available_force = get_available_force()
 		var available_gauge = get_available_gauge()
-		var gauge_cost = card.definition['gauge_cost']
-		var force_cost = card.definition['force_cost']
 		if available_gauge < gauge_cost:
 			return false
 		if available_force < force_cost:
@@ -722,19 +743,26 @@ class Player:
 		var events = []
 		var previous_location = arena_location
 		var other_player_location = parent._get_player(parent.get_other_player(my_id)).arena_location
+		var blocked_from_passing = parent._get_player(parent.get_other_player(my_id)).strike_stat_boosts.opponent_cant_move_past
 		var new_location
 		if arena_location < other_player_location:
 			new_location = arena_location + amount
 			if new_location >= other_player_location:
 				new_location += 1
-			new_location = min(new_location, MaxArenaLocation)
+			var max_position = MaxArenaLocation
+			if blocked_from_passing:
+				max_position = other_player_location
+			new_location = min(new_location, max_position)
 			if other_player_location == new_location:
 				new_location -= 1
 		else:
 			new_location = arena_location - amount
 			if new_location <= other_player_location:
 				new_location -= 1
-			new_location = max(new_location, MinArenaLocation)
+			var min_position = MinArenaLocation
+			if blocked_from_passing:
+				min_position = other_player_location
+			new_location = max(new_location, min_position)
 			if other_player_location == new_location:
 				new_location += 1
 
@@ -973,8 +1001,8 @@ func draw_starting_hands_and_begin():
 	var starting_player = _get_player(active_turn_player)
 	var second_player = _get_player(next_turn_player)
 	_append_log("Game Start - %s (1st) vs %s (2nd)" % [starting_player.name, second_player.name])
-	events += starting_player.draw(StartingHandFirstPlayer)
-	events += second_player.draw(StartingHandSecondPlayer)
+	events += starting_player.draw(StartingHandFirstPlayer + starting_player.starting_hand_size_bonus)
+	events += second_player.draw(StartingHandSecondPlayer + second_player.starting_hand_size_bonus)
 	change_game_state(Enums.GameState.GameState_Mulligan)
 	events += [create_event(Enums.EventType.EventType_MulliganDecision, player.my_id, 0)]
 	event_queue += events
@@ -1032,6 +1060,9 @@ func advance_to_next_turn():
 				if effect['effect_type'] == 'add_to_gauge_immediately':
 					_append_log("%s Start of turn card %s goes to gauge." % [starting_turn_player.name, card_db.get_card_name(card.id)])
 					events += starting_turn_player.remove_from_continuous_boosts(card, true)
+				elif effect['effect_type'] == "discard_this":
+					_append_log("%s Start of turn card %s goes to discard." % [starting_turn_player.name, card_db.get_card_name(card.id)])
+					events += starting_turn_player.remove_from_continuous_boosts(card, false)
 
 	# Handle any end of turn exceed.
 	if player_ending_turn.exceed_at_end_of_turn:
@@ -1181,6 +1212,8 @@ func is_effect_condition_met(performing_player : Player, effect, local_condition
 			return active_strike.get_player_card(performing_player).definition['type'] == "normal"
 		elif condition == "is_special_attack":
 			return active_strike.get_player_card(performing_player).definition['type'] == "special"
+		elif condition == "is_ex_strike":
+			return performing_player.strike_stat_boosts.is_ex
 		elif condition == "canceled_this_turn":
 			return performing_player.canceled_this_turn
 		elif condition == "not_canceled_this_turn":
@@ -1282,6 +1315,9 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 				if 'amount' in effect:
 					amount = min(choice_count, effect['amount'])
 				decision_info.amount = amount
+				decision_info.amount_min = amount
+				if 'amount_min' in effect:
+					decision_info.amount_min = effect['amount_min']
 				events += [create_event(Enums.EventType.EventType_ChooseFromDiscard, performing_player.my_id, amount)]
 		"close":
 			var previous_location = performing_player.arena_location
@@ -1374,6 +1410,10 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 			# this should discard "by name", so instead of using that
 			# match card.definition['id']'s instead.
 			events += opposing_player.discard_matching_or_reveal(named_card.definition['id'])
+		"opponent_cant_move_past":
+			performing_player.strike_stat_boosts.opponent_cant_move_past = true
+			events += [create_event(Enums.EventType.EventType_Strike_OpponentCantMovePast, performing_player.my_id, 0)]
+			_append_log("%s is blocking opponent from advancing past." % [performing_player.name])
 		"opponent_discard_choose":
 			if opposing_player.hand.size() > effect['amount']:
 				change_game_state(Enums.GameState.GameState_PlayerDecision)
@@ -1703,13 +1743,17 @@ func apply_damage(offense_player : Player, defense_player : Player, offense_card
 func ask_for_cost(performing_player, card, next_state):
 	var events = []
 	var gauge_cost = card.definition['gauge_cost']
+	var is_ex = active_strike.will_be_ex(performing_player)
+	if 'gauge_cost_ex' in card.definition and is_ex:
+		gauge_cost = card.definition['gauge_cost_ex']
 	var force_cost = card.definition['force_cost']
 	var is_special = card.definition['type'] == "special"
+	
 	var card_forced_invalid = (is_special and performing_player.specials_invalid)
 	if gauge_cost == 0 and force_cost == 0 and not card_forced_invalid:
 		active_strike.strike_state = next_state
 	else:
-		if not card_forced_invalid and performing_player.can_pay_cost(card):
+		if not card_forced_invalid and performing_player.can_pay_cost(force_cost, gauge_cost):
 			change_game_state(Enums.GameState.GameState_PlayerDecision)
 			decision_info.player = performing_player.my_id
 			if active_strike.get_player_wild_strike(performing_player):
@@ -2091,9 +2135,9 @@ func can_do_strike(performing_player : Player):
 
 func check_hand_size_advance_turn(performing_player : Player):
 	var events = []
-	if len(performing_player.hand) > MaxHandSize:
+	if len(performing_player.hand) > performing_player.max_hand_size:
 		change_game_state(Enums.GameState.GameState_DiscardDownToMax)
-		events += [create_event(Enums.EventType.EventType_HandSizeExceeded, performing_player.my_id, len(performing_player.hand) - MaxHandSize)]
+		events += [create_event(Enums.EventType.EventType_HandSizeExceeded, performing_player.my_id, len(performing_player.hand) - performing_player.max_hand_size)]
 	else:
 		events += advance_to_next_turn()
 	return events
@@ -2127,7 +2171,7 @@ func do_discard_to_max(performing_player : Player, card_ids) -> bool:
 			printlog("ERROR: Tried to discard cards that aren't in hand.")
 			return false
 
-	if len(performing_player.hand) - len(card_ids) > MaxHandSize:
+	if len(performing_player.hand) - len(card_ids) > performing_player.max_hand_size:
 		printlog("ERROR: Not discarding enough cards")
 		return false
 
@@ -2356,7 +2400,12 @@ func do_pay_strike_cost(performing_player : Player, card_ids : Array, wild_strik
 	if decision_info.type == Enums.DecisionType.DecisionType_PayStrikeCost_Required and wild_strike:
 		# Only allowed if you can't pay the cost.
 		var card = active_strike.get_player_card(performing_player)
-		if performing_player.can_pay_cost(card):
+		var force_cost = card.definition['force_cost']
+		var gauge_cost = card.definition['gauge_cost']
+		var is_ex = active_strike.will_be_ex(performing_player)
+		if 'gauge_cost_ex' in card.definition and is_ex:
+			gauge_cost = card.definition['gauge_cost_ex']
+		if performing_player.can_pay_cost(force_cost, gauge_cost):
 			printlog("ERROR: Tried to wild strike when not allowed.")
 			return false
 	if decision_info.player != performing_player.my_id:
@@ -2374,6 +2423,9 @@ func do_pay_strike_cost(performing_player : Player, card_ids : Array, wild_strik
 	else:
 		var force_cost = card.definition['force_cost']
 		var gauge_cost = card.definition['gauge_cost']
+		var is_ex = active_strike.will_be_ex(performing_player)
+		if 'gauge_cost_ex' in card.definition and is_ex:
+			gauge_cost = card.definition['gauge_cost_ex']
 		if performing_player.can_pay_cost_with(card_ids, force_cost, gauge_cost):
 			var card_names = card_db.get_card_name(card_ids[0])
 			for i in range(1, card_ids.size()):
@@ -2591,6 +2643,10 @@ func do_choose_from_discard(performing_player : Player, card_ids : Array) -> boo
 		return false
 
 	# Validation.
+	if card_ids.size() < decision_info.amount_min or card_ids.size() > decision_info.amount_max:
+		printlog("ERROR: Tried to choose from discard with wrong number of cards.")
+		return false
+
 	for card_id in card_ids:
 		if not performing_player.is_card_in_discards(card_id):
 			printlog("ERROR: Tried to choose from discard with card not in discard.")

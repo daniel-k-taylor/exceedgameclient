@@ -1,4 +1,4 @@
-[gd_scene load_steps=19 format=3 uid="uid://cqs72exlwm6at"]
+[gd_scene load_steps=20 format=3 uid="uid://cqs72exlwm6at"]
 
 [ext_resource type="Script" path="res://scenes/menu/char_select.gd" id="1_f3x24"]
 [ext_resource type="Texture2D" uid="uid://coh1i2m8ikmem" path="res://assets/references/charselect.png" id="1_ihc85"]
@@ -17,6 +17,7 @@
 [ext_resource type="Texture2D" uid="uid://e0tnn730b3fj" path="res://assets/portraits/millia.png" id="14_ui4sm"]
 [ext_resource type="Texture2D" uid="uid://c7xyes2u01quq" path="res://assets/portraits/giovanna.png" id="15_joo7j"]
 [ext_resource type="Texture2D" uid="uid://otdwoejmwsf1" path="res://assets/portraits/nago.png" id="17_v8770"]
+[ext_resource type="Texture2D" uid="uid://baeok8iwnd55t" path="res://assets/portraits/goldlewis.png" id="18_nhabj"]
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_8u80i"]
 
@@ -446,6 +447,16 @@ layout_mode = 2
 char_id = "nago"
 portrait_texture = ExtResource("17_v8770")
 
+[node name="Row4" type="HBoxContainer" parent="CenterContainer/CharactersPanel/Rows"]
+layout_mode = 2
+size_flags_horizontal = 4
+alignment = 1
+
+[node name="Goldlewis" parent="CenterContainer/CharactersPanel/Rows/Row4" instance=ExtResource("6_3lmwy")]
+layout_mode = 2
+char_id = "goldlewis"
+portrait_texture = ExtResource("18_nhabj")
+
 [connection signal="pressed" from="PanelContainer/VBoxContainer/Row1/TextureButton" to="." method="_on_character_button_pressed" binds= ["testament"]]
 [connection signal="pressed" from="PanelContainer/VBoxContainer/Row1/TextureButton3" to="." method="_on_character_button_pressed" binds= ["happychaos"]]
 [connection signal="pressed" from="PanelContainer/VBoxContainer/Row2/TextureButton" to="." method="_on_character_button_pressed" binds= ["millia"]]
@@ -490,3 +501,5 @@ portrait_texture = ExtResource("17_v8770")
 [connection signal="on_pressed" from="CenterContainer/CharactersPanel/Rows/Row3/Millia" to="." method="_on_char_button_on_pressed"]
 [connection signal="on_hover" from="CenterContainer/CharactersPanel/Rows/Row3/Nago" to="." method="_on_char_hover"]
 [connection signal="on_pressed" from="CenterContainer/CharactersPanel/Rows/Row3/Nago" to="." method="_on_char_button_on_pressed"]
+[connection signal="on_hover" from="CenterContainer/CharactersPanel/Rows/Row4/Goldlewis" to="." method="_on_char_hover"]
+[connection signal="on_pressed" from="CenterContainer/CharactersPanel/Rows/Row4/Goldlewis" to="." method="_on_char_button_on_pressed"]

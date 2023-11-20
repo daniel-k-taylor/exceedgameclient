@@ -100,6 +100,7 @@ enum EventType {
 	EventType_Strike_Miss,
 	EventType_Strike_ChooseToDiscard,
 	EventType_Strike_ChooseToDiscard_Info,
+	EventType_Strike_OpponentCantMovePast,
 	EventType_Strike_PayCost_Gauge,
 	EventType_Strike_PayCost_Force,
 	EventType_Strike_PayCost_Unable,
@@ -109,7 +110,7 @@ enum EventType {
 	EventType_Strike_Response_Ex,
 	EventType_Strike_Reveal,
 	EventType_Strike_SpeedUp,
-	EventType_Strike_Started, # 57
+	EventType_Strike_Started, # 58
 	EventType_Strike_Started_Ex,
 	EventType_Strike_Stun,
 	EventType_Strike_Stun_Immunity,
