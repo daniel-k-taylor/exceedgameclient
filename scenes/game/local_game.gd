@@ -924,7 +924,7 @@ class Player:
 
 	func cleanup_continuous_boosts():
 		var events = []
-		var sustained_cards = []
+		var sustained_cards : Array[GameCard] = []
 		for boost_card in continuous_boosts:
 			if boost_card.id in cleanup_boost_to_gauge_cards:
 				events += add_to_gauge(boost_card)
@@ -2619,8 +2619,12 @@ func do_boost_name_card_choice_effect(performing_player : Player, card_id : int)
 	_append_log("%s named %s." % [performing_player.name, card_name])
 	game_state = Enums.GameState.GameState_Boost_Processing
 	var events = handle_strike_effect(decision_info.choice_card_id, effect, performing_player)
-	active_boost.effects_resolved += 1
-	events += continue_resolve_boost()
+	if active_strike:
+		active_strike.effects_resolved_in_timing += 1
+		events += continue_resolve_strike()
+	elif active_boost:
+		active_boost.effects_resolved += 1
+		events += continue_resolve_boost()
 	event_queue += events
 	return true
 

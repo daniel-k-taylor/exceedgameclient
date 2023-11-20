@@ -1492,7 +1492,7 @@
 							"effect_type": "draw",
 							"amount": 1,
 							"and": {
-								"effect_type": "add_to_gauge_boost_play_cleanup"
+								"effect_type": "add_boost_to_gauge_on_strike_cleanup"
 							}
 						}
 					]

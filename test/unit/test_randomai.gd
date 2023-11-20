@@ -163,8 +163,28 @@ func handle_boost_reponse(events, aiplayer : AIPlayer, game : LocalGame, gamepla
 				assert_true(game.do_boost_cancel(gameplayer, cancel_action.card_ids, cancel_action.cancel), "do boost cancel failed")
 				events += game.get_latest_events()
 			Enums.DecisionType.DecisionType_ForceForEffect:
-				var forceforeffect_action = aiplayer.pick_force_for_effect(game, gameplayer.my_id)
+				var effect = game.decision_info.effect
+				var options = []
+				if effect['per_force_effect'] != null:
+					for i in range(effect['force_max'] + 1):
+						options.append(i)
+				else:
+					options.append(0)
+					options.append(effect['force_max'])
+				var forceforeffect_action = aiplayer.pick_force_for_effect(game, gameplayer.my_id, options)
 				assert_true(game.do_force_for_effect(gameplayer, forceforeffect_action.card_ids), "do force effect failed")
+				events += game.get_latest_events()
+			Enums.DecisionType.DecisionType_GaugeForEffect:
+				var effect = game.decision_info.effect
+				var options = []
+				if effect['per_gauge_effect'] != null:
+					for i in range(effect['gauge_max'] + 1):
+						options.append(i)
+				else:
+					options.append(0)
+					options.append(effect['gauge_max'])
+				var gauge_action = aiplayer.pick_gauge_for_effect(game, gameplayer.my_id, options)
+				assert_true(game.do_gauge_for_effect(gameplayer, gauge_action.card_ids), "do gauge effect failed")
 				events += game.get_latest_events()
 			Enums.DecisionType.DecisionType_ChooseFromDiscard:
 				var chooseaction = aiplayer.pick_choose_from_discard(game, gameplayer.my_id, game.decision_info.amount)
@@ -235,8 +255,28 @@ func handle_strike(game: LocalGame, aiplayer : AIPlayer, otherai : AIPlayer, act
 				assert_true(game.do_card_from_hand_to_gauge(decision_ai.game_player, cardfromhandtogauge_action.card_ids), "do card hand strike failed")
 				events += game.get_latest_events()
 			Enums.DecisionType.DecisionType_ForceForEffect:
-				var forceforeffect_action = decision_ai.pick_force_for_effect(game, decision_player.my_id)
+				var effect = game.decision_info.effect
+				var options = []
+				if effect['per_force_effect'] != null:
+					for i in range(effect['force_max'] + 1):
+						options.append(i)
+				else:
+					options.append(0)
+					options.append(effect['force_max'])
+				var forceforeffect_action = decision_ai.pick_force_for_effect(game, decision_player.my_id, options)
 				assert_true(game.do_force_for_effect(decision_ai.game_player, forceforeffect_action.card_ids), "do force effect failed")
+				events += game.get_latest_events()
+			Enums.DecisionType.DecisionType_GaugeForEffect:
+				var effect = game.decision_info.effect
+				var options = []
+				if effect['per_gauge_effect'] != null:
+					for i in range(effect['gauge_max'] + 1):
+						options.append(i)
+				else:
+					options.append(0)
+					options.append(effect['gauge_max'])
+				var gauge_action = decision_ai.pick_gauge_for_effect(game, decision_player.my_id, options)
+				assert_true(game.do_gauge_for_effect(decision_ai.game_player, gauge_action.card_ids), "do gauge effect failed")
 				events += game.get_latest_events()
 			Enums.DecisionType.DecisionType_ChooseFromDiscard:
 				var chooseaction = decision_ai.pick_choose_from_discard(game, decision_player.my_id, game.decision_info.amount)
@@ -245,6 +285,9 @@ func handle_strike(game: LocalGame, aiplayer : AIPlayer, otherai : AIPlayer, act
 				var amount = game.decision_info.effect['amount']
 				var chooseaction = decision_ai.pick_choose_to_discard(game, decision_player.my_id, amount)
 				assert_true(game.do_choose_to_discard(decision_ai.game_player, chooseaction.card_ids), "do choose to discard failed")
+			Enums.DecisionType.DecisionType_ChooseDiscardOpponentGauge:
+				var decision_action = decision_ai.pick_discard_opponent_gauge(game, decision_player.my_id)
+				assert_true(game.do_boost_name_card_choice_effect(decision_player, decision_action.card_id), "do discard opponent gauge failed")
 			_:
 				assert(false, "Unimplemented decision type")
 
@@ -418,6 +461,15 @@ func test_nago_100():
 
 func test_goldlewis_100():
 	default_deck = CardDefinitions.get_deck_from_str_id("goldlewis")
+	for i in range(100):
+		print("==== RUNNING TEST %d ====" % i)
+		run_ai_game()
+		game_teardown()
+		game_setup()
+	pass_test("Finished match")
+
+func test_ino_100():
+	default_deck = CardDefinitions.get_deck_from_str_id("ino")
 	for i in range(100):
 		print("==== RUNNING TEST %d ====" % i)
 		run_ai_game()
