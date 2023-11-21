@@ -1,4 +1,4 @@
-[gd_scene load_steps=21 format=3 uid="uid://cqs72exlwm6at"]
+[gd_scene load_steps=22 format=3 uid="uid://cqs72exlwm6at"]
 
 [ext_resource type="Script" path="res://scenes/menu/char_select.gd" id="1_f3x24"]
 [ext_resource type="Texture2D" uid="uid://coh1i2m8ikmem" path="res://assets/references/charselect.png" id="1_ihc85"]
@@ -19,6 +19,7 @@
 [ext_resource type="Texture2D" uid="uid://otdwoejmwsf1" path="res://assets/portraits/nago.png" id="17_v8770"]
 [ext_resource type="Texture2D" uid="uid://baeok8iwnd55t" path="res://assets/portraits/goldlewis.png" id="18_nhabj"]
 [ext_resource type="Texture2D" uid="uid://dbblpgfbefvym" path="res://assets/portraits/ino.png" id="19_rfshm"]
+[ext_resource type="Texture2D" uid="uid://dqjwr4cib12qo" path="res://assets/portraits/chipp.png" id="20_aekjf"]
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_8u80i"]
 
@@ -463,6 +464,11 @@ layout_mode = 2
 char_id = "ino"
 portrait_texture = ExtResource("19_rfshm")
 
+[node name="Chipp" parent="CenterContainer/CharactersPanel/Rows/Row4" instance=ExtResource("6_3lmwy")]
+layout_mode = 2
+char_id = "chipp"
+portrait_texture = ExtResource("20_aekjf")
+
 [connection signal="pressed" from="PanelContainer/VBoxContainer/Row1/TextureButton" to="." method="_on_character_button_pressed" binds= ["testament"]]
 [connection signal="pressed" from="PanelContainer/VBoxContainer/Row1/TextureButton3" to="." method="_on_character_button_pressed" binds= ["happychaos"]]
 [connection signal="pressed" from="PanelContainer/VBoxContainer/Row2/TextureButton" to="." method="_on_character_button_pressed" binds= ["millia"]]
@@ -511,3 +517,5 @@ portrait_texture = ExtResource("19_rfshm")
 [connection signal="on_pressed" from="CenterContainer/CharactersPanel/Rows/Row4/Goldlewis" to="." method="_on_char_button_on_pressed"]
 [connection signal="on_hover" from="CenterContainer/CharactersPanel/Rows/Row4/Ino" to="." method="_on_char_hover"]
 [connection signal="on_pressed" from="CenterContainer/CharactersPanel/Rows/Row4/Ino" to="." method="_on_char_button_on_pressed"]
+[connection signal="on_hover" from="CenterContainer/CharactersPanel/Rows/Row4/Chipp" to="." method="_on_char_hover"]
+[connection signal="on_pressed" from="CenterContainer/CharactersPanel/Rows/Row4/Chipp" to="." method="_on_char_button_on_pressed"]

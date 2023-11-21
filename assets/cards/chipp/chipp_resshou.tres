@@ -1,0 +1,7 @@
+[gd_resource type="AtlasTexture" load_steps=2 format=3 uid="uid://qpsec8bpuec2"]
+
+[ext_resource type="Texture2D" uid="uid://dqn42kugv7lw5" path="res://assets/cards/chipp/specials.jpg" id="1_25poq"]
+
+[resource]
+atlas = ExtResource("1_25poq")
+region = Rect2(1500, 0, 750, 1024)
