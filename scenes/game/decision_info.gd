@@ -12,3 +12,4 @@ var limitation
 var destination
 var amount : int
 var amount_min : int
+var cost : int

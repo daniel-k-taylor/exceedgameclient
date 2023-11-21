@@ -1489,13 +1489,12 @@ func _on_effect_choice(event):
 
 func _on_pay_cost_gauge(event):
 	var player = event['event_player']
+	var gauge_cost = game_wrapper.get_decision_info().cost
 	if player == Enums.PlayerId.PlayerId_Player:
-		var card_db = game_wrapper.get_card_database()
 		var wild_swing_allowed = game_wrapper.get_decision_info().type == Enums.DecisionType.DecisionType_PayStrikeCost_CanWild
-		var gauge_cost = card_db.get_card_gauge_cost(event['number'])
 		begin_gauge_selection(gauge_cost, wild_swing_allowed, UISubState.UISubState_SelectCards_StrikeGauge)
 	else:
-		ai_pay_cost(event)
+		ai_pay_cost(gauge_cost)
 
 func _on_pay_cost_failed(event):
 	# Do the wild swing deal.
@@ -2153,11 +2152,10 @@ func ai_take_turn():
 	else:
 		print("FAILED AI TURN")
 
-func ai_pay_cost(event):
+func ai_pay_cost(cost):
 	change_ui_state(UIState.UIState_WaitForGameServer)
 	if not game_wrapper.is_ai_game(): return
 	var can_wild = game_wrapper.get_decision_info().type == Enums.DecisionType.DecisionType_PayStrikeCost_CanWild
-	var cost = game_wrapper.get_card_database().get_card_gauge_cost(event['number'])
 	var pay_action = ai_player.pay_strike_gauge_cost(game_wrapper.current_game, Enums.PlayerId.PlayerId_Opponent, cost, can_wild)
 	var success = game_wrapper.submit_pay_strike_cost(Enums.PlayerId.PlayerId_Opponent, pay_action.card_ids, pay_action.wild_swing)
 	if success:

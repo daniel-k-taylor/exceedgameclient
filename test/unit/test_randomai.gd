@@ -234,11 +234,7 @@ func handle_strike(game: LocalGame, aiplayer : AIPlayer, otherai : AIPlayer, act
 		match game.decision_info.type:
 			Enums.DecisionType.DecisionType_PayStrikeCost_Required, Enums.DecisionType.DecisionType_PayStrikeCost_CanWild:
 				var can_wild = game.decision_info.type == Enums.DecisionType.DecisionType_PayStrikeCost_CanWild
-				var card = game.active_strike.get_player_card(decision_player)
-				var cost = game.card_db.get_card_gauge_cost(card.id)
-				var is_ex = game.active_strike.will_be_ex(decision_player)
-				if 'gauge_cost_ex' in card.definition and is_ex:
-					cost = card.definition['gauge_cost_ex']
+				var cost = game.decision_info.cost
 				var pay_action = decision_ai.pay_strike_gauge_cost(game, decision_player.my_id, cost, can_wild)
 				assert_true(game.do_pay_strike_cost(decision_player, pay_action.card_ids, pay_action.wild_swing), "do pay failed")
 				events += game.get_latest_events()

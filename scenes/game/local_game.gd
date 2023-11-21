@@ -1828,8 +1828,10 @@ func ask_for_cost(performing_player, card, next_state):
 				decision_info.type = Enums.DecisionType.DecisionType_PayStrikeCost_Required
 
 			if gauge_cost > 0:
+				decision_info.cost = gauge_cost
 				events += [create_event(Enums.EventType.EventType_Strike_PayCost_Gauge, performing_player.my_id, card.id)]
 			elif force_cost > 0:
+				decision_info.cost = force_cost
 				events += [create_event(Enums.EventType.EventType_Strike_PayCost_Force, performing_player.my_id, card.id)]
 		else:
 			# Failed to pay the cost by default.
