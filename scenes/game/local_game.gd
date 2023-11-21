@@ -221,6 +221,7 @@ class StrikeStatBoosts:
 	var ignore_push_and_pull : bool = false
 	var lose_all_armor : bool = false
 	var always_add_to_gauge : bool = false
+	var return_attack_to_hand : bool = false
 	var when_hit_force_for_armor : bool = false
 	var stun_immunity : bool = false
 	var was_hit : bool = false
@@ -243,6 +244,7 @@ class StrikeStatBoosts:
 		ignore_push_and_pull = false
 		lose_all_armor = false
 		always_add_to_gauge = false
+		return_attack_to_hand = false
 		when_hit_force_for_armor = false
 		stun_immunity = false
 		was_hit = false
@@ -1232,6 +1234,8 @@ func is_effect_condition_met(performing_player : Player, effect, local_condition
 			return active_strike.get_player_card(performing_player).definition['type'] == "special"
 		elif condition == "is_ex_strike":
 			return active_strike.will_be_ex(performing_player)
+		elif condition == "at_edge_of_arena":
+			return performing_player.arena_location == MaxArenaLocation or performing_player.arena_location == MinArenaLocation
 		elif condition == "canceled_this_turn":
 			return performing_player.canceled_this_turn
 		elif condition == "not_canceled_this_turn":
@@ -1300,6 +1304,16 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 			var card = card_db.get_card(card_id)
 			_append_log("%s Start of turn card %s goes to gauge." % [performing_player.name, card_db.get_card_name(card.id)])
 			events += performing_player.remove_from_continuous_boosts(card, true)
+		"add_to_gauge_immediately_mid_strike_undo_effects":
+			var card = card_db.get_card(card_id)
+			_append_log("%s added %s to gauge." % [performing_player.name, card_db.get_card_name(card.id)])
+			events += performing_player.remove_from_continuous_boosts(card, true)
+			if 'undo_effect' in effect:
+				var undo_effect = effect['undo_effect']
+				if undo_effect == "dodge_at_range":
+					performing_player.strike_stat_boosts.dodge_at_range_min = -1
+					performing_player.strike_stat_boosts.dodge_at_range_max = -1
+					_append_log("%s is no longer dodging attacks from %s." % [performing_player.name, card_db.get_card_name(card.id)])
 		"add_top_deck_to_gauge":
 			events += performing_player.add_top_deck_to_gauge()
 		"advance":
@@ -1510,6 +1524,9 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 			if total_powerup > 0:
 				performing_player.strike_stat_boosts.power += total_powerup
 				events += [create_event(Enums.EventType.EventType_Strike_PowerUp, performing_player.my_id, total_powerup)]
+		"powerup_opponent":
+			opposing_player.strike_stat_boosts.power += effect['amount']
+			events += [create_event(Enums.EventType.EventType_Strike_PowerUp, opposing_player.my_id, effect['amount'])]
 		"pull":
 			var previous_location = opposing_player.arena_location
 			events += performing_player.pull(effect['amount'])
@@ -1564,7 +1581,10 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 		"return_this_to_hand":
 			var card_name = card_db.get_card_name(card_id)
 			_append_log("%s - %s returned to hand." % [performing_player.name, card_name])
-			active_boost.cleanup_to_hand_card_ids.append(card_id)
+			if active_strike:
+				performing_player.strike_stat_boosts.return_attack_to_hand = true
+			if active_boost:
+				active_boost.cleanup_to_hand_card_ids.append(card_id)
 		"revert":
 			events += performing_player.revert_exceed()
 		"self_discard_choose":
@@ -1999,14 +2019,18 @@ func continue_resolve_strike():
 				events += do_remaining_effects(player2, StrikeState.StrikeState_Cleanup_Complete)
 			StrikeState.StrikeState_Cleanup_Complete:
 				# If hit, move card to gauge, otherwise move to discard.
-				if active_strike.player1_hit or player1.strike_stat_boosts.always_add_to_gauge:
+				if player1.strike_stat_boosts.return_attack_to_hand:
+					events += player1.add_to_hand(card1)
+				elif active_strike.player1_hit or player1.strike_stat_boosts.always_add_to_gauge:
 					_append_log("%s %s goes to gauge after the attack." % [player1.name, card_db.get_card_name(card1.id)])
 					events += player1.add_to_gauge(card1)
 				else:
 					_append_log("%s %s discarded after the attack." % [player1.name, card_db.get_card_name(card1.id)])
 					events += player1.add_to_discards(card1)
 
-				if active_strike.player2_hit or player2.strike_stat_boosts.always_add_to_gauge:
+				if player2.strike_stat_boosts.return_attack_to_hand:
+					events += player2.add_to_hand(card2)
+				elif active_strike.player2_hit or player2.strike_stat_boosts.always_add_to_gauge:
 					_append_log("%s %s goes to gauge after the attack." % [player2.name, card_db.get_card_name(card2.id)])
 					events += player2.add_to_gauge(card2)
 				else:

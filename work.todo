@@ -8,10 +8,10 @@ In progress:
         ☐ Spend up to X gauge for bonuses
 
 
-        ☐ "effect_type": "powerup_opponent",
-        ☐ "effect_type": "return_this_to_hand" on a strike instead of just boost
-        ☐ "condition": "at_edge_of_arena",
-        ☐ "effect_type": "add_to_gauge_immediately_mid_strike_undo_effects"
+        ☐ "effect_type": "powerup_opponent", @started(23-11-21 15:42)
+        ☐ "effect_type": "return_this_to_hand" on a strike instead of just boost @started(23-11-21 15:52)
+        ☐ "condition": "at_edge_of_arena", @started(23-11-21 15:43)
+        ☐ "effect_type": "add_to_gauge_immediately_mid_strike_undo_effects" @started(23-11-21 15:47)
 
 
 Tasks:
