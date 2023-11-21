@@ -1400,19 +1400,33 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 		"exceed_end_of_turn":
 			performing_player.exceed_at_end_of_turn = true
 		"force_for_effect":
-			change_game_state(Enums.GameState.GameState_PlayerDecision)
-			decision_info.player = performing_player.my_id
-			decision_info.type = Enums.DecisionType.DecisionType_ForceForEffect
-			decision_info.choice_card_id = card_id
-			decision_info.effect = effect
-			events += [create_event(Enums.EventType.EventType_ForceForEffect, performing_player.my_id, 0)]
+			var available_force = performing_player.get_available_force()
+			var can_do_something = false
+			if effect['per_force_effect'] and available_force > 0:
+				can_do_something = true
+			elif effect['overall_effect'] and available_force >= effect['force_max']:
+				can_do_something = true
+			if can_do_something:
+				change_game_state(Enums.GameState.GameState_PlayerDecision)
+				decision_info.player = performing_player.my_id
+				decision_info.type = Enums.DecisionType.DecisionType_ForceForEffect
+				decision_info.choice_card_id = card_id
+				decision_info.effect = effect
+				events += [create_event(Enums.EventType.EventType_ForceForEffect, performing_player.my_id, 0)]
 		"gauge_for_effect":
-			change_game_state(Enums.GameState.GameState_PlayerDecision)
-			decision_info.player = performing_player.my_id
-			decision_info.type = Enums.DecisionType.DecisionType_GaugeForEffect
-			decision_info.choice_card_id = card_id
-			decision_info.effect = effect
-			events += [create_event(Enums.EventType.EventType_GaugeForEffect, performing_player.my_id, 0)]
+			var available_gauge = performing_player.get_available_gauge()
+			var can_do_something = false
+			if effect['per_gauge_effect'] and available_gauge > 0:
+				can_do_something = true
+			elif effect['overall_effect'] and available_gauge >= effect['gauge_max']:
+				can_do_something = true
+			if can_do_something:
+				change_game_state(Enums.GameState.GameState_PlayerDecision)
+				decision_info.player = performing_player.my_id
+				decision_info.type = Enums.DecisionType.DecisionType_GaugeForEffect
+				decision_info.choice_card_id = card_id
+				decision_info.effect = effect
+				events += [create_event(Enums.EventType.EventType_GaugeForEffect, performing_player.my_id, 0)]
 		"gain_advantage":
 			next_turn_player = performing_player.my_id
 			events += [create_event(Enums.EventType.EventType_Strike_GainAdvantage, performing_player.my_id, 0)]
@@ -2785,16 +2799,17 @@ func do_force_for_effect(performing_player : Player, card_ids : Array) -> bool:
 		for i in range(1, card_ids.size()):
 			card_names += ", " + card_db.get_card_name(card_ids[i])
 
+		var source_card_name = card_db.get_card_name(decision_info.choice_card_id)
 		var effect_text = ""
 		var decision_effect = null
 		var effect_times = 0
 		if decision_info.effect['per_force_effect']:
 			decision_effect = decision_info.effect['per_force_effect']
-			effect_text = CardDefinitions.get_effect_text(decision_effect) + " per force"
+			effect_text = CardDefinitions.get_effect_text(decision_effect, false, false, false, source_card_name) + " per force"
 			effect_times = force_generated
 		elif decision_info.effect['overall_effect']:
 			decision_effect = decision_info.effect['overall_effect']
-			effect_text = CardDefinitions.get_effect_text(decision_effect)
+			effect_text = CardDefinitions.get_effect_text(decision_effect, false, false, false, source_card_name)
 			effect_times = 1
 
 		_append_log("%s generated %s force for %s with %s." % [performing_player.name, str(force_generated), effect_text, card_names])
@@ -2844,16 +2859,17 @@ func do_gauge_for_effect(performing_player : Player, card_ids : Array) -> bool:
 		for i in range(1, card_ids.size()):
 			card_names += ", " + card_db.get_card_name(card_ids[i])
 
+		var source_card_name = card_db.get_card_name(decision_info.choice_card_id)
 		var effect_text = ""
 		var decision_effect = null
 		var effect_times = 0
 		if decision_info.effect['per_gauge_effect']:
 			decision_effect = decision_info.effect['per_gauge_effect']
-			effect_text = CardDefinitions.get_effect_text(decision_effect) + " per gauge"
+			effect_text = CardDefinitions.get_effect_text(decision_effect, false, false, false, source_card_name) + " per gauge"
 			effect_times = gauge_generated
 		elif decision_info.effect['overall_effect']:
 			decision_effect = decision_info.effect['overall_effect']
-			effect_text = CardDefinitions.get_effect_text(decision_effect)
+			effect_text = CardDefinitions.get_effect_text(decision_effect, false, false, false, source_card_name)
 			effect_times = 1
 
 		_append_log("%s spent %s gauge for %s with %s." % [performing_player.name, str(gauge_generated), effect_text, card_names])

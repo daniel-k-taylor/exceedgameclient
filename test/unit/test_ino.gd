@@ -4,7 +4,7 @@ const LocalGame = preload("res://scenes/game/local_game.gd")
 const GameCard = preload("res://scenes/game/game_card.gd")
 const Enums = preload("res://scenes/game/enums.gd")
 var game_logic : LocalGame
-var default_deck = CardDefinitions.get_deck_from_str_id("baiken")
+var default_deck = CardDefinitions.get_deck_from_str_id("ino")
 const TestCardId1 = 50001
 const TestCardId2 = 50002
 const TestCardId3 = 50003
@@ -122,7 +122,7 @@ func handle_simultaneous_effects(initiator, defender):
 			decider = defender
 		assert_true(game_logic.do_choice(decider, 0), "Failed simuleffect choice")
 		
-func execute_strike(initiator, defender, init_card : String, def_card : String, init_choices, def_choices, init_ex = false, def_ex = false, init_force_discard = [], def_force_discard = []):
+func execute_strike(initiator, defender, init_card : String, def_card : String, init_choices, def_choices, init_ex = false, def_ex = false, init_force_discard = [], def_force_discard = [], init_extra_cost = 0):
 	var all_events = []
 	give_specific_cards(initiator, init_card, defender, def_card)
 	if init_ex:
@@ -145,7 +145,7 @@ func execute_strike(initiator, defender, init_card : String, def_card : String, 
 		
 	# Pay any costs from gauge
 	if game_logic.active_strike and game_logic.active_strike.strike_state == game_logic.StrikeState.StrikeState_Initiator_PayCosts:
-		var cost = game_logic.active_strike.initiator_card.definition['gauge_cost']
+		var cost = game_logic.active_strike.initiator_card.definition['gauge_cost'] + init_extra_cost
 		var cards = []
 		for i in range(cost):
 			cards.append(initiator.gauge[i].id)
@@ -160,12 +160,11 @@ func execute_strike(initiator, defender, init_card : String, def_card : String, 
 		game_logic.do_pay_strike_cost(defender, cards, false)
 
 	handle_simultaneous_effects(initiator, defender)
-	
+
 	for i in range(init_choices.size()):
 		assert_eq(game_logic.game_state, Enums.GameState.GameState_PlayerDecision)
 		assert_true(game_logic.do_choice(initiator, init_choices[i]))
 		handle_simultaneous_effects(initiator, defender)
-
 	handle_simultaneous_effects(initiator, defender)
 
 	for i in range(def_choices.size()):
@@ -185,151 +184,118 @@ func validate_life(p1, l1, p2, l2):
 	assert_eq(p1.life, l1)
 	assert_eq(p2.life, l2)
 
+func get_cards_from_hand(player : LocalGame.Player, amount : int):
+	var card_ids = []
+	for i in range(amount):
+		card_ids.append(player.hand[i].id)
+	return card_ids
+
+func get_cards_from_gauge(player : LocalGame.Player, amount : int):
+	var card_ids = []
+	for i in range(amount):
+		card_ids.append(player.gauge[i].id)
+	return card_ids
+	
 ##
 ## Tests start here
 ##
 
-func test_baiken_charaction_default():
+func test_ino_char_action():
 	position_players(player1, 3, player2, 5)
-	give_gauge(player1, 2)
-	assert_true(game_logic.do_character_action(player1, [player1.gauge[0].id]))
-	validate_positions(player1, 3, player2, 4)
+	assert_true(game_logic.do_character_action(player1, get_cards_from_hand(player1, 1)))
+	validate_positions(player1, 6, player2, 5)
 	assert_eq(game_logic.game_state, Enums.GameState.GameState_WaitForStrike)
-	execute_strike(player1, player2, "gg_normal_slash","gg_normal_dive", [], [], false, false)
+	execute_strike(player1, player2, "gg_normal_slash", "gg_normal_slash", [], [])
 	validate_life(player1, 30, player2, 26)
-	validate_positions(player1, 3, player2, 4)
-	
-func test_baiken_charaction_exceeded():
+
+func test_ino_char_action_exceed():
+	position_players(player1, 1, player2, 5)
 	player1.exceed()
-	position_players(player1, 3, player2, 5)
-	give_gauge(player1, 2)
-	assert_true(game_logic.do_character_action(player1, [player1.gauge[0].id]))
-	validate_positions(player1, 3, player2, 2)
-	assert_eq(game_logic.game_state, Enums.GameState.GameState_WaitForStrike)
-	execute_strike(player1, player2, "gg_normal_slash","gg_normal_dive", [], [], false, false)
-	validate_life(player1, 30, player2, 25)
-	validate_positions(player1, 3, player2, 2)
-
-func test_baiken_kabari_hit_choice_0():
-	position_players(player1, 3, player2, 5)
-	execute_strike(player1, player2, "baiken_kabari","gg_normal_dust", [0], [], false, false)
-	validate_positions(player1, 6, player2, 4)
-	validate_life(player1, 25, player2, 27)
-	assert_eq(game_logic.game_state, Enums.GameState.GameState_PickAction)
-	assert_eq(game_logic.active_turn_player, player1.my_id)
-
-func test_baiken_kabari_hit_choice_1():
-	position_players(player1, 3, player2, 5)
-	execute_strike(player1, player2, "baiken_kabari","gg_normal_dust", [1], [], false, false)
-	validate_positions(player1, 3, player2, 4)
-	validate_life(player1, 30, player2, 25)
-	assert_eq(game_logic.game_state, Enums.GameState.GameState_PickAction)
-	assert_eq(game_logic.active_turn_player, player2.my_id)
-
-func test_baiken_kabari_boost_pass():
-	position_players(player1, 3, player2, 5)
-	give_player_specific_card(player1, "baiken_kabari", TestCardId3)
-	assert_true(game_logic.do_boost(player1, TestCardId3))
-	assert_eq(game_logic.game_state, Enums.GameState.GameState_PlayerDecision)
-	assert_true(game_logic.do_card_from_hand_to_gauge(player1, []))
-	assert_eq(game_logic.game_state, Enums.GameState.GameState_PickAction)
-	assert_eq(game_logic.active_turn_player, player2.my_id)
-
-func test_baiken_kabari_boost_add_card():
-	position_players(player1, 3, player2, 5)
-	give_player_specific_card(player1, "baiken_kenjyu", TestCardId4)
-	give_player_specific_card(player1, "baiken_kabari", TestCardId3)
-	assert_true(game_logic.do_boost(player1, TestCardId3))
-	assert_eq(game_logic.game_state, Enums.GameState.GameState_PlayerDecision)
-	assert_true(game_logic.do_card_from_hand_to_gauge(player1, [TestCardId4]))
-	assert_eq(player1.gauge.size(), 1)
-	assert_true(game_logic.do_boost_cancel(player1, [], false))
-	assert_eq(player1.hand.size(), 6)
-	assert_eq(game_logic.game_state, Enums.GameState.GameState_PickAction)
-	assert_eq(game_logic.active_turn_player, player2.my_id)
-
-func test_baiken_youzansen_more_cards():
-	position_players(player1, 3, player2, 5)
-	execute_strike(player1, player2, "baiken_youzansen","gg_normal_slash", [], [], false, false)
-	validate_positions(player1, 3, player2, 4)
-	validate_life(player1, 26, player2, 30)
-	assert_eq(game_logic.game_state, Enums.GameState.GameState_PickAction)
-	assert_eq(game_logic.active_turn_player, player2.my_id)
-
-func test_baiken_youzansen_3_cards():
-	position_players(player1, 3, player2, 5)
-	player1.discard([player1.hand[0].id, player1.hand[1].id])
-	assert_eq(player1.hand.size(), 3)
-	execute_strike(player1, player2, "baiken_youzansen","gg_normal_slash", [], [], false, false)
+	assert_true(game_logic.do_character_action(player1, get_cards_from_hand(player1, 1)))
 	validate_positions(player1, 3, player2, 5)
+	assert_eq(game_logic.game_state, Enums.GameState.GameState_WaitForStrike)
+	execute_strike(player1, player2, "ino_antidepressantscale", "gg_normal_dust", [], [])
+	validate_life(player1, 30, player2, 24)
+	validate_positions(player1, 2, player2, 5)
+	assert_eq(game_logic.game_state, Enums.GameState.GameState_PickAction)
+	assert_eq(game_logic.active_turn_player, player1.my_id)
+
+func test_ino_chemical_love_boost():
+	position_players(player1, 3, player2, 5)
+	give_player_specific_card(player1, "ino_chemicallove", TestCardId3)
+	assert_eq(player1.hand.size(), 6)
+	assert_true(game_logic.do_boost(player1, TestCardId3))
+	assert_eq(player1.hand.size(), 5)
+	assert_true(game_logic.do_choice(player1, 0))
+	assert_eq(player1.hand.size(), 8)
+	validate_positions(player1, 6, player2, 5)
+
+func test_ino_megalomania_hit():
+	position_players(player1, 3, player2, 5)
+	give_gauge(player1, 5)
+	execute_strike(player1, player2, "ino_megalomania", "gg_normal_slash", [], [])
+	assert_eq(player2.hand.size(), 0)
+
+func test_ino_megalomania_boost_1():
+	position_players(player1, 3, player2, 5)
+	give_gauge(player1, 5)
+	give_gauge(player2, 5)
+	give_player_specific_card(player1, "ino_megalomania", TestCardId3)
+	assert_true(game_logic.do_boost(player1, TestCardId3))
+	assert_true(game_logic.do_boost_cancel(player1, [player1.gauge[0].id], true))
+	execute_strike(player1, player2, "gg_normal_slash", "gg_normal_slash", [0], [])
+	assert_true(game_logic.do_boost_name_card_choice_effect(player1, player2.gauge[0].id))
+	validate_life(player1, 30, player2, 26)
+	assert_eq(player2.gauge.size(), 4)
+
+func test_ino_megalomania_boost_2():
+	position_players(player1, 3, player2, 5)
+	give_gauge(player1, 5)
+	give_gauge(player2, 5)
+	give_player_specific_card(player1, "ino_megalomania", TestCardId3)
+	assert_true(game_logic.do_boost(player1, TestCardId3))
+	assert_true(game_logic.do_boost_cancel(player1, [player1.gauge[0].id], true))
+	assert_eq(player1.hand.size(), 5)
+	execute_strike(player1, player2, "gg_normal_slash", "gg_normal_slash", [1], [])
+	validate_life(player1, 30, player2, 26)
+	assert_eq(player1.gauge.size(), 6)
+	assert_eq(player2.gauge.size(), 5)
+	assert_eq(player1.hand.size(), 6)
+
+func test_ino_fortissimo_boost():
+	position_players(player1, 3, player2, 5)
+	give_gauge(player1, 5)
+	give_gauge(player2, 5)
+	give_player_specific_card(player1, "ino_ultimatefortissimo", TestCardId3)
+	assert_true(game_logic.do_boost(player1, TestCardId3))
+	assert_true(game_logic.do_boost_cancel(player1, [player1.gauge[0].id], true))
+	assert_eq(player1.hand.size(), 5)
+	assert_eq(player1.gauge.size(), 4)
+	execute_strike(player1, player2, "gg_normal_slash", "gg_normal_cross", [], [])
+	assert_true(game_logic.do_gauge_for_effect(player1, get_cards_from_gauge(player1, 2)))
+	assert_eq(player1.gauge.size(), 3) # slash will be in there
 	validate_life(player1, 30, player2, 25)
 	assert_eq(game_logic.game_state, Enums.GameState.GameState_PickAction)
-	assert_eq(game_logic.active_turn_player, player2.my_id)
+	assert_eq(game_logic.active_turn_player, player1.my_id)
+	assert_eq(player1.continuous_boosts.size(), 1)
+	execute_strike(player1, player2, "gg_normal_slash", "gg_normal_cross", [], [])
+	assert_true(game_logic.do_gauge_for_effect(player1, []))
+	assert_eq(player1.gauge.size(), 4) # slash will be in there
+	validate_life(player1, 30, player2, 20)
 
-func test_baiken_youzansen_boost():
+func test_ino_fortissimo_boost_no_pay():
 	position_players(player1, 3, player2, 5)
-	give_player_specific_card(player1, "baiken_youzansen", TestCardId3)
+	give_gauge(player1, 5)
+	give_gauge(player2, 5)
+	give_player_specific_card(player1, "ino_ultimatefortissimo", TestCardId3)
 	assert_true(game_logic.do_boost(player1, TestCardId3))
-	assert_eq(player1.hand.size(), 7)
-	validate_life(player1, 27, player2, 30)
-	assert_eq(game_logic.game_state, Enums.GameState.GameState_PickAction)
-	assert_eq(game_logic.active_turn_player, player2.my_id)
-
-func test_baiken_youzansen_boost_doesnt_kill():
-	position_players(player1, 3, player2, 5)
-	player1.life = 2
-	give_player_specific_card(player1, "baiken_youzansen", TestCardId3)
-	assert_true(game_logic.do_boost(player1, TestCardId3))
-	assert_eq(player1.hand.size(), 7)
-	validate_life(player1, 1, player2, 30)
-	assert_eq(game_logic.game_state, Enums.GameState.GameState_PickAction)
-	assert_eq(game_logic.active_turn_player, player2.my_id)
-
-func test_baiken_karatakewari_3_cards():
-	position_players(player1, 3, player2, 4)
-	player1.discard([player1.hand[0].id, player1.hand[1].id])
-	assert_eq(player1.hand.size(), 3)
-	execute_strike(player1, player2, "baiken_karatakewari","gg_normal_sweep", [], [], false, false)
-	validate_positions(player1, 3, player2, 6)
-	validate_life(player1, 30, player2, 23)
-	assert_eq(game_logic.game_state, Enums.GameState.GameState_PickAction)
-	assert_eq(game_logic.active_turn_player, player2.my_id)
-	
-func test_baiken_karatakewari_1_cards():
-	position_players(player1, 3, player2, 4)
-	player1.discard([player1.hand[0].id, player1.hand[1].id, player1.hand[2].id, player1.hand[3].id])
-	assert_eq(player1.hand.size(), 1)
-	execute_strike(player1, player2, "baiken_karatakewari","gg_normal_sweep", [], [], false, false)
-	validate_positions(player1, 3, player2, 6)
-	validate_life(player1, 30, player2, 23)
-	assert_eq(game_logic.game_state, Enums.GameState.GameState_PickAction)
-	assert_eq(game_logic.active_turn_player, player2.my_id)
-
-func test_baiken_tatami_boost():
-	position_players(player1, 3, player2, 5)
-	player1.discard([player1.hand[0].id, player1.hand[1].id, player1.hand[2].id, player1.hand[3].id])
-	give_player_specific_card(player1, "baiken_tatamigaeshi", TestCardId3)
-	assert_true(game_logic.do_boost(player1, TestCardId3))
-	assert_eq(player1.hand.size(), 2)
+	assert_true(game_logic.do_boost_cancel(player1, [player1.gauge[0].id], true))
+	assert_eq(player1.hand.size(), 5)
+	assert_eq(player1.gauge.size(), 4)
+	execute_strike(player1, player2, "gg_normal_slash", "gg_normal_cross", [], [])
+	assert_true(game_logic.do_gauge_for_effect(player1, []))
+	assert_eq(player1.gauge.size(), 5) # slash will be in there
+	validate_life(player1, 30, player2, 25)
 	assert_eq(game_logic.game_state, Enums.GameState.GameState_PickAction)
 	assert_eq(game_logic.active_turn_player, player1.my_id)
-
-func test_baiken_hiiragi_0_cards():
-	position_players(player1, 3, player2, 4)
-	player1.discard([player1.hand[0].id, player1.hand[1].id, player1.hand[2].id, player1.hand[3].id, player1.hand[4].id])
-	assert_eq(player1.hand.size(), 0)
-	execute_strike(player1, player2, "baiken_hiiragi","gg_normal_slash", [], [], false, false)
-	validate_positions(player1, 3, player2, 4)
-	validate_life(player1, 28, player2, 23)
-	assert_eq(game_logic.game_state, Enums.GameState.GameState_PickAction)
-	assert_eq(game_logic.active_turn_player, player2.my_id)
-
-func test_baiken_tsurane_boost():
-	position_players(player1, 3, player2, 5)
-	give_player_specific_card(player1, "baiken_tsurane", TestCardId3)
-	assert_true(game_logic.do_boost(player1, TestCardId3))
-	execute_strike(player2, player1, "baiken_youzansen","baiken_tatamigaeshi", [], [], false, false)
-	validate_positions(player1, 5, player2, 6)
-	validate_life(player1, 25, player2, 21)
-	assert_eq(game_logic.game_state, Enums.GameState.GameState_PickAction)
-	assert_eq(game_logic.active_turn_player, player1.my_id)
+	assert_eq(player1.continuous_boosts.size(), 0)

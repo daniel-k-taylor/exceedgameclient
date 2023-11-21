@@ -1147,13 +1147,14 @@ func update_gauge_selection_message():
 func update_gauge_for_effect_message():
 	var effect_str = ""
 	var decision_effect = game_wrapper.get_decision_info().effect
+	var source_card_name = game_wrapper.get_card_database().get_card_name(game_wrapper.get_decision_info().choice_card_id)
 	if decision_effect['per_gauge_effect']:
 		var effect = decision_effect['per_gauge_effect']
-		var effect_text = CardDefinitions.get_effect_text(effect)
+		var effect_text = CardDefinitions.get_effect_text(effect, false, false, false, source_card_name)
 		effect_str = "Spend up to %s gauge for %s per card." % [decision_effect['gauge_max'], effect_text]
 	elif decision_effect['overall_effect']:
 		var effect = decision_effect['overall_effect']
-		var effect_text = CardDefinitions.get_effect_text(effect)
+		var effect_text = CardDefinitions.get_effect_text(effect, false, false, false, source_card_name)
 		effect_str = "Spend %s gauge for %s." % [decision_effect['gauge_max'], effect_text]
 	effect_str += "\n%s gauge selected." % [selected_cards.size()]
 	set_instructions(effect_str)
@@ -1201,13 +1202,14 @@ func update_force_generation_message():
 		UISubState.UISubState_SelectCards_ForceForEffect:
 			var effect_str = ""
 			var decision_effect = game_wrapper.get_decision_info().effect
+			var source_card_name = game_wrapper.get_card_database().get_card_name(game_wrapper.get_decision_info().choice_card_id)
 			if decision_effect['per_force_effect']:
 				var effect = decision_effect['per_force_effect']
-				var effect_text = CardDefinitions.get_effect_text(effect)
+				var effect_text = CardDefinitions.get_effect_text(effect, false, false, false, source_card_name)
 				effect_str = "Generate up to %s force for %s per force." % [decision_effect['force_max'], effect_text]
 			elif decision_effect['overall_effect']:
 				var effect = decision_effect['overall_effect']
-				var effect_text = CardDefinitions.get_effect_text(effect)
+				var effect_text = CardDefinitions.get_effect_text(effect, false, false, false, source_card_name)
 				effect_str = "Generate %s force for %s." % [decision_effect['force_max'], effect_text]
 			effect_str += "\n%s force generated." % [force_selected]
 			set_instructions(effect_str)
@@ -1600,6 +1602,8 @@ func _handle_events(events):
 				_on_force_start_strike(event)
 			Enums.EventType.EventType_ForceForEffect:
 				_on_force_for_effect(event)
+			Enums.EventType.EventType_GaugeForEffect:
+				_on_gauge_for_effect(event)
 			Enums.EventType.EventType_Strike_ForceWildSwing:
 				delay = _on_force_wild_swing(event)
 			Enums.EventType.EventType_GameOver:
@@ -1789,7 +1793,7 @@ func _update_buttons():
 
 	for i in range(current_effect_choices.size()):
 		var choice = current_effect_choices[i]
-		button_choices.append({ "text": CardDefinitions.get_effect_text(choice, false, true), "action": func(): _on_choice_pressed(i) })
+		button_choices.append({ "text": CardDefinitions.get_effect_text(choice, false, true, false), "action": func(): _on_choice_pressed(i) })
 
 	# Set the Action Menu state
 	var action_menu_hidden = false

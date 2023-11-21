@@ -1,23 +1,4 @@
 In progress:
-    Ino:
-        ☐ Force action
-        ☐ condition - initiated after moving 2+
-        ☐ opponent discard hand
-        ☐ discard from opponent's gauge
-        ☐ Pay gauge to sustain
-        ☐ lose all armor
-
-        ☐ character action force cost @started(23-11-20 15:02)
-        ☐ opponent_discard_hand @started(23-11-20 15:03)
-        ☐ effect_type": "discard_opponent_gauge", @started(23-11-20 15:25)
-            ☐ DecisionType_ChooseDiscardOpponentGauge @started(23-11-20 15:25)
-            ☐ EventType_Boost_DiscardOpponentGauge @started(23-11-20 15:25)
-        ☐ sustain_this @started(23-11-20 16:35)
-        ☐ gauge_for_effect @started(23-11-20 16:28)
-        ☐ "condition": "initiated_after_moving", @started(23-11-20 15:32)
-
-        ☐ AI force/gauge for effect overall vs per @started(23-11-20 16:35)
-
 Tasks:
     Main Features:
         ☐ Observers on server
@@ -82,7 +63,6 @@ Character:
         ☐ both players have effect
         ☐ boost and sustain top 2 deck
         ☐ higher speed misses
-
     HappyChaos:
         ☐ sealed area
         ☐ Hit seal ultra
@@ -92,7 +72,6 @@ Character:
         ☐ spend life to draw
         ☐ seal this after effect
         ☐ initiate face up
-
     Jacko:
         ☐ Boost from hand or gauge
         ☐ hit may add to gauge

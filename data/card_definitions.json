@@ -1485,6 +1485,7 @@
 					"choice": [
 						{
 							"effect_type": "discard_opponent_gauge",
+							"UI_skip_summary": true,
 							"amount": 0,	
 							"amount2": 1
 						},

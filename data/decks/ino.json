@@ -5,7 +5,7 @@
 	"exceed_cost": 3,
 	"character_action_default": {
 		"gauge_cost": 0,
-		"force_cost": 2,
+		"force_cost": 1,
 		"effect": {
 			"effect_type": "advance",
 			"amount": 2,
@@ -16,7 +16,7 @@
 	},
 	"character_action_exceeded": {
 		"gauge_cost": 0,
-		"force_cost": 2,
+		"force_cost": 1,
 		"effect": {
 			"effect_type": "advance",
 			"amount": 2,

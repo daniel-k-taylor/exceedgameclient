@@ -52,7 +52,7 @@ class EffectSummary:
 	var min_value = null
 	var max_value = null
 
-func get_choice_summary(choice):
+func get_choice_summary(choice, card_name_source : String):
 	var summary_text = ""
 	var effect_summaries = []
 	for effect in choice:
@@ -66,7 +66,7 @@ func get_choice_summary(choice):
 			current_summary.effect = effect
 			effect_summaries.append(current_summary)
 
-		if 'amount' in effect:
+		if 'amount' in effect and not 'UI_skip_summary' in effect:
 			if current_summary.min_value == null:
 				current_summary.min_value = effect['amount']
 				current_summary.max_value = effect['amount']
@@ -88,18 +88,27 @@ func get_choice_summary(choice):
 				summary_text += get_effect_type_heading(effect_summary.effect) + str(effect_summary.min_value) + "-" + str(effect_summary.max_value)
 		else:
 			# No amount, so just use the full effect text
-			summary_text += get_effect_type_text(effect_summary.effect)
+			summary_text += get_effect_type_text(effect_summary.effect, card_name_source)
 		if 'bonus_effect' in effect_summary.effect:
-			summary_text += "; " + get_effect_text(effect_summary.effect['bonus_effect'])
+			summary_text += "; " + get_effect_text(effect_summary.effect['bonus_effect'], false, false, false, card_name_source)
 	return summary_text
 
-func get_force_for_effect_summary(effect) -> String:
+func get_force_for_effect_summary(effect, card_name_source : String) -> String:
 	var effect_str = ""
 	var force_limit = effect['force_max']
 	if "per_force_effect" in effect and effect['per_force_effect'] != null:
-		effect_str += "Spend up to %s force. For each, %s" % [str(force_limit), get_effect_text(effect['per_force_effect'], false, true, true)]
+		effect_str += "Spend up to %s force. For each, %s" % [str(force_limit), get_effect_text(effect['per_force_effect'], false, true, true, card_name_source)]
 	elif 'overall_effect' in effect and effect['overall_effect'] != null:
-		effect_str += "You may spend %s force to " % [str(force_limit), get_effect_text(effect['overall_effect'], false, true, true)]
+		effect_str += "You may spend %s force to %s" % [str(force_limit), get_effect_text(effect['overall_effect'], false, true, true, card_name_source)]
+	return effect_str
+
+func get_gauge_for_effect_summary(effect, card_name_source : String) -> String:
+	var effect_str = ""
+	var gauge_limit = effect['gauge_max']
+	if "per_gauge_effect" in effect and effect['per_gauge_effect'] != null:
+		effect_str += "Spend up to %s gauge. For each, %s" % [str(gauge_limit), get_effect_text(effect['per_gauge_effect'], false, true, true, card_name_source)]
+	elif 'overall_effect' in effect and effect['overall_effect'] != null:
+		effect_str += "You may spend %s gauge to %s" % [str(gauge_limit), get_effect_text(effect['overall_effect'], false, true, true, card_name_source)]
 	return effect_str
 
 func get_timing_text(timing):
@@ -184,7 +193,7 @@ func get_effect_type_heading(effect):
 			effect_str += "MISSING EFFECT HEADING"
 	return effect_str
 
-func get_effect_type_text(effect):
+func get_effect_type_text(effect, card_name_source : String = ""):
 	var effect_str = ""
 	var effect_type = effect['effect_type']
 	match effect_type:
@@ -207,7 +216,7 @@ func get_effect_type_text(effect):
 		"bonus_action":
 			effect_str += "Take another action."
 		"choice":
-			effect_str += "Choose: " + get_choice_summary(effect['choice'])
+			effect_str += "Choose: " + get_choice_summary(effect['choice'], card_name_source)
 		"choose_discard":
 			if effect['limitation']:
 				effect_str += "Choose a %s card from discard to move to %s" % [effect['limitation'], effect['destination']]
@@ -226,7 +235,9 @@ func get_effect_type_text(effect):
 		"draw":
 			effect_str += "Draw " + str(effect['amount'])
 		"force_for_effect":
-			effect_str += get_force_for_effect_summary(effect)
+			effect_str += get_force_for_effect_summary(effect, card_name_source)
+		"gauge_for_effect":
+			effect_str += get_gauge_for_effect_summary(effect, card_name_source)
 		"gain_advantage":
 			effect_str += "Gain Advantage."
 		"gauge_from_hand":
@@ -275,13 +286,18 @@ func get_effect_type_text(effect):
 			effect_str += str(effect['amount']) + " Speed"
 		"stun_immunity":
 			effect_str += "Stun Immunity"
+		"sustain_this":
+			if card_name_source:
+				effect_str += "Sustain %s" % card_name_source
+			else:
+				effect_str += "Sustain this"
 		"when_hit_force_for_armor":
 			effect_str += "When hit, generate force for " + str(effect['amount']) + " armor each."
 		_:
 			effect_str += "MISSING EFFECT"
 	return effect_str
 
-func get_effect_text(effect, short = false, skip_timing = false, skip_condition = false):
+func get_effect_text(effect, short = false, skip_timing = false, skip_condition = false, card_name_source : String = ""):
 	var effect_str = ""
 	if 'timing' in effect and not skip_timing:
 		effect_str += get_timing_text(effect['timing'])
@@ -289,12 +305,12 @@ func get_effect_text(effect, short = false, skip_timing = false, skip_condition 
 	if 'condition' in effect and not skip_condition:
 		effect_str += get_condition_text(effect['condition'])
 
-	effect_str += get_effect_type_text(effect)
+	effect_str += get_effect_type_text(effect, card_name_source)
 
 	if not short and 'bonus_effect' in effect:
-		effect_str += "; " + get_effect_text(effect['bonus_effect'], skip_timing)
+		effect_str += "; " + get_effect_text(effect['bonus_effect'], skip_timing, false, card_name_source)
 	if 'and' in effect:
-		effect_str += ", " + get_effect_text(effect['and'], short, skip_timing)
+		effect_str += ", " + get_effect_text(effect['and'], short, skip_timing, false, card_name_source)
 	return effect_str
 
 func get_effects_text(effects):
