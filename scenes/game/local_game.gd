@@ -545,7 +545,7 @@ class Player:
 			return false
 		if parent.active_strike:
 			return false
-			
+
 		var available_gauge = get_available_gauge()
 		var cancel_cost = card.definition['boost']['cancel_cost']
 		if cancel_cost == -1: return false
@@ -1416,6 +1416,10 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 				if 'amount_min' in effect:
 					decision_info.amount_min = effect['amount_min']
 				events += [create_event(Enums.EventType.EventType_ChooseFromDiscard, performing_player.my_id, amount)]
+		"choose_sustain_boost":
+			# New decision state to pick a card from the continuous boosts.
+			# Very similar to choose from discard.
+			pass
 		"close":
 			var previous_location = performing_player.arena_location
 			events += performing_player.close(effect['amount'])
@@ -1653,10 +1657,10 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 		"return_this_to_hand":
 			var card_name = card_db.get_card_name(card_id)
 			_append_log("%s - %s returned to hand." % [performing_player.name, card_name])
-			if active_strike:
-				performing_player.strike_stat_boosts.return_attack_to_hand = true
 			if active_boost:
 				active_boost.cleanup_to_hand_card_ids.append(card_id)
+			elif active_strike:
+				performing_player.strike_stat_boosts.return_attack_to_hand = true
 		"revert":
 			events += performing_player.revert_exceed()
 		"self_discard_choose":
@@ -2223,8 +2227,12 @@ func boost_play_cleanup(performing_player : Player):
 		events += [create_event(Enums.EventType.EventType_Boost_ActionAfterBoost, performing_player.my_id, 0)]
 		change_game_state(Enums.GameState.GameState_PickAction)
 	else:
-		events += performing_player.draw(1)
-		events += check_hand_size_advance_turn(performing_player)
+		if active_strike:
+			active_strike.effects_resolved_in_timing += 1
+			events += continue_resolve_strike()
+		else:
+			events += performing_player.draw(1)
+			events += check_hand_size_advance_turn(performing_player)
 	active_boost = null
 	return events
 
@@ -2704,12 +2712,12 @@ func do_card_from_hand_to_gauge(performing_player : Player, card_ids : Array) ->
 		for card_id in card_ids:
 			events += performing_player.move_card_from_hand_to_gauge(card_id)
 
-	if active_strike:
-		active_strike.effects_resolved_in_timing += 1
-		events += continue_resolve_strike()
-	elif active_boost:
+	if active_boost:
 		active_boost.effects_resolved += 1
 		events += continue_resolve_boost()
+	elif active_strike:
+		active_strike.effects_resolved_in_timing += 1
+		events += continue_resolve_strike()
 	elif active_exceed:
 		active_exceed = false
 		events += performing_player.draw(1)
@@ -2738,12 +2746,13 @@ func do_boost_name_card_choice_effect(performing_player : Player, card_id : int)
 	_append_log("%s named %s." % [performing_player.name, card_name])
 	game_state = Enums.GameState.GameState_Boost_Processing
 	var events = handle_strike_effect(decision_info.choice_card_id, effect, performing_player)
-	if active_strike:
-		active_strike.effects_resolved_in_timing += 1
-		events += continue_resolve_strike()
-	elif active_boost:
+	if active_boost:
 		active_boost.effects_resolved += 1
 		events += continue_resolve_boost()
+	elif active_strike:
+		active_strike.effects_resolved_in_timing += 1
+		events += continue_resolve_strike()
+	
 	event_queue += events
 	return true
 
@@ -2763,10 +2772,11 @@ func do_choice(performing_player : Player, choice_index : int) -> bool:
 	var effect = decision_info.choice[choice_index]
 	if 'card_id' in effect:
 		card_id = effect['card_id']
-	if active_strike:
-		game_state = Enums.GameState.GameState_Strike_Processing
-	elif active_boost:
+
+	if active_boost:
 		game_state = Enums.GameState.GameState_Boost_Processing
+	elif active_strike:
+		game_state = Enums.GameState.GameState_Strike_Processing
 
 	if decision_info.type == Enums.DecisionType.DecisionType_ChooseSimultaneousEffect:
 		# This was the player choosing what to do next.
@@ -2775,12 +2785,12 @@ func do_choice(performing_player : Player, choice_index : int) -> bool:
 
 	var events = handle_strike_effect(card_id, effect, performing_player)
 	if game_state != Enums.GameState.GameState_PlayerDecision:
-		if active_strike:
-			active_strike.effects_resolved_in_timing += 1
-			events += continue_resolve_strike()
-		elif active_boost:
+		if active_boost:
 			active_boost.effects_resolved += 1
 			events += continue_resolve_boost()
+		elif active_strike:
+			active_strike.effects_resolved_in_timing += 1
+			events += continue_resolve_strike()
 		else:
 			printlog("ERROR: Tried to make choice but no active strike or boost.")
 	event_queue += events
@@ -2856,12 +2866,12 @@ func do_choose_from_discard(performing_player : Player, card_ids : Array) -> boo
 
 		_append_log("%s chose %s to put from discard to %s." % [performing_player.name, card_db.get_card_name(card_id), destination])
 
-	if active_strike:
-		active_strike.effects_resolved_in_timing += 1
-		events += continue_resolve_strike()
-	elif active_boost:
+	if active_boost:
 		active_boost.effects_resolved += 1
 		events += continue_resolve_boost()
+	elif active_strike:
+		active_strike.effects_resolved_in_timing += 1
+		events += continue_resolve_strike()
 	else:
 		printlog("ERROR: When is this choose from discard happening?")
 		assert(false, "When is this choose from discard happening?")
@@ -2923,12 +2933,13 @@ func do_force_for_effect(performing_player : Player, card_ids : Array) -> bool:
 			events += handle_strike_effect(decision_info.choice_card_id, decision_effect, performing_player)
 
 	if game_state != Enums.GameState.GameState_PlayerDecision:
-		if active_strike:
-			active_strike.effects_resolved_in_timing += 1
-			events += continue_resolve_strike()
-		elif active_boost:
+		
+		if active_boost:
 			active_boost.effects_resolved += 1
 			events += continue_resolve_boost()
+		elif active_strike:
+			active_strike.effects_resolved_in_timing += 1
+			events += continue_resolve_strike()
 		else:
 			printlog("ERROR: When is this force for effect happening?")
 			assert(false, "When is this force for effect happening?")
@@ -2983,12 +2994,12 @@ func do_gauge_for_effect(performing_player : Player, card_ids : Array) -> bool:
 			events += handle_strike_effect(decision_info.choice_card_id, decision_effect, performing_player)
 
 	if game_state != Enums.GameState.GameState_PlayerDecision:
-		if active_strike:
-			active_strike.effects_resolved_in_timing += 1
-			events += continue_resolve_strike()
-		elif active_boost:
+		if active_boost:
 			active_boost.effects_resolved += 1
 			events += continue_resolve_boost()
+		elif active_strike:
+			active_strike.effects_resolved_in_timing += 1
+			events += continue_resolve_strike()
 		else:
 			printlog("ERROR: When is this gauge for effect happening?")
 			assert(false, "When is this gauge for effect happening?")
@@ -3024,16 +3035,16 @@ func do_choose_to_discard(performing_player : Player, card_ids):
 	}
 	_append_log("%s discarding chosen cards: %s." % [performing_player.name, card_names])
 	var events = []
-	if active_strike:
-		game_state = Enums.GameState.GameState_Strike_Processing
-		events = handle_strike_effect(decision_info.choice_card_id, effect, performing_player)
-		active_strike.effects_resolved_in_timing += 1
-		events += continue_resolve_strike()
-	elif active_boost:
+	if active_boost:
 		game_state = Enums.GameState.GameState_Boost_Processing
 		events = handle_strike_effect(decision_info.choice_card_id, effect, performing_player)
 		active_boost.effects_resolved += 1
 		events += continue_resolve_boost()
+	elif active_strike:
+		game_state = Enums.GameState.GameState_Strike_Processing
+		events = handle_strike_effect(decision_info.choice_card_id, effect, performing_player)
+		active_strike.effects_resolved_in_timing += 1
+		events += continue_resolve_strike()
 	event_queue += events
 	return true
 

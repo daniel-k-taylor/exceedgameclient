@@ -12,7 +12,8 @@ In progress:
         ☐ "effect_type": "choose_sustain_boost",
         ☐ "effect_type": "rangeup_per_boost_in_play", @started(23-11-21 23:58)
         ☐ "effect_type": "powerup_per_boost_in_play", @started(23-11-21 23:58)
-        ☐ "effect_type": "sustain_next_boost", @started(23-11-22 00:38)
+        ☐ "effect_type": "boost_then_sustain", @started(23-11-22 00:38)
+            ☐ needs to have boost cleanup continue resolve strike @started(23-11-22 02:29)
         ☐ "condition": "boost_in_play", @started(23-11-21 23:48)
         ☐ "effect_type": "sustain_this", @started(23-11-21 23:50)
     Leo:
