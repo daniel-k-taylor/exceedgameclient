@@ -7,6 +7,21 @@ In progress:
         ☐ play and sustain
         ☐ for each boost bonus
         ☐ sustain a boost
+
+        ☐ "effect_type": "boost_from_hand_then_strike" and boost_from_hand_or_gauge_then_strike
+        ☐ "effect_type": "sustain_boost",
+        "effect_type": "add_to_gauge_optional",
+            "card_name": "Iron Pumpkin"
+        ☐ "effect_type": "rangeup_per_boost_in_play",
+        ☐ "effect_type": "powerup_per_boost_in_play",
+        "effect_type": "play_and_sustain_boost",
+            "from": "hand_or_gauge",
+            "restriction": "continuous"
+        ☐ "condition": "boost_in_play",
+
+
+        "effect_type": "sustain_this",
+            "card_name": "Ultimate Fortissimo"
     Leo:
         ☐ after exceed if stunned
         ☐ wild swing bonus, revert if no strike
@@ -26,6 +41,13 @@ In progress:
         ☐ do not remove eddie on cleanup
         ☐ return 2 specials from discard
         ☐ condition opponent between eddie and zato
+    Testament:
+        ☐ normals permanent bonus
+        ☐ hit play this as boost and sustain
+        ☐ gauge to hand
+        ☐ look at opponents top and may discard
+        ☐ cleanup not stunned return attack
+        ☐ after opponent set ability
 
 Tasks:
     Main Features:
@@ -99,13 +121,7 @@ Character:
         ☐ spend life to draw
         ☐ seal this after effect
         ☐ initiate face up
-    Testament:
-        ☐ normals permanent bonus
-        ☐ hit play this as boost and sustain
-        ☐ gauge to hand
-        ☐ look at opponents top and may discard
-        ☐ cleanup not stunned return attack
-        ☐ after opponent set ability
+
 
 
 

@@ -1,0 +1,150 @@
+{
+	"id": "jacko",
+	"display_name": "Jack-O",
+	"cardback": "cardback_jacko.jpg",
+	"exceed_cost": 2,
+	"on_exceed": {
+		"effect_type": "draw",
+		"amount": 3
+	},
+	"character_action_default": {
+		"gauge_cost": 0,
+		"force_cost": 1,
+		"effect": {
+			"effect_type": "boost_from_hand_then_strike"
+		}
+	},
+	"character_action_exceeded": {
+		"gauge_cost": 0,
+		"force_cost": 1,
+		"effect": {
+			"effect_type": "boost_from_hand_or_gauge_then_strike"
+		}
+	},
+	"ability_effects": [
+	],
+	"exceed_ability_effects": [
+	],
+	"cards": [
+		{
+			"definition_id": "jacko_cheerservanton",
+			"image": "jacko_cheerservanton.tres"
+		},
+		{
+			"definition_id": "jacko_cheerservanton",
+			"image": "jacko_cheerservanton.tres"
+		},
+		{
+			"definition_id": "jacko_foreverelysiondriver",
+			"image": "jacko_foreverelysiondriver.tres"
+		},
+		{
+			"definition_id": "jacko_foreverelysiondriver",
+			"image": "jacko_foreverelysiondriver.tres"
+		},
+		{
+			"definition_id": "jacko_ironpumpkin",
+			"image": "jacko_ironpumpkin.tres"
+		},
+		{
+			"definition_id": "jacko_ironpumpkin",
+			"image": "jacko_ironpumpkin.tres"
+		},
+		{
+			"definition_id": "jacko_chainofchiron",
+			"image": "jacko_chainofchiron.tres"
+		},
+		{
+			"definition_id": "jacko_chainofchiron",
+			"image": "jacko_chainofchiron.tres"
+		},
+		{
+			"definition_id": "jacko_servantshoot",
+			"image": "jacko_servantshoot.tres"
+		},
+		{
+			"definition_id": "jacko_servantshoot",
+			"image": "jacko_servantshoot.tres"
+		},
+		{
+			"definition_id": "jacko_throwservant",
+			"image": "jacko_throwservant.tres"
+		},
+		{
+			"definition_id": "jacko_throwservant",
+			"image": "jacko_throwservant.tres"
+		},
+		{
+			"definition_id": "jacko_countdown",
+			"image": "jacko_countdown.tres"
+		},
+		{
+			"definition_id": "jacko_countdown",
+			"image": "jacko_countdown.tres"
+		},
+		{
+			"definition_id": "gg_normal_grasp",
+			"image": "normal_grasp.tres"
+		},
+		{
+			"definition_id": "gg_normal_grasp",
+			"image": "normal_grasp.tres"
+		},
+		{
+			"definition_id": "gg_normal_cross",
+			"image": "normal_cross.tres"
+		},
+		{
+			"definition_id": "gg_normal_cross",
+			"image": "normal_cross.tres"
+		},
+		{
+			"definition_id": "gg_normal_slash",
+			"image": "normal_assault.tres"
+		},
+		{
+			"definition_id": "gg_normal_slash",
+			"image": "normal_assault.tres"
+		},
+		{
+			"definition_id": "gg_normal_dive",
+			"image": "normal_dive.tres"
+		},
+		{
+			"definition_id": "gg_normal_dive",
+			"image": "normal_dive.tres"
+		},
+		{
+			"definition_id": "gg_normal_dust",
+			"image": "normal_spike.tres"
+		},
+		{
+			"definition_id": "gg_normal_dust",
+			"image": "normal_spike.tres"
+		},
+		{
+			"definition_id": "gg_normal_sweep",
+			"image": "normal_sweep.tres"
+		},
+		{
+			"definition_id": "gg_normal_sweep",
+			"image": "normal_sweep.tres"
+		},
+		{
+			"definition_id": "gg_normal_focus",
+			"image": "normal_focus.tres"
+		},
+		{
+			"definition_id": "gg_normal_focus",
+			"image": "normal_focus.tres"
+		},
+		{
+			"definition_id": "gg_normal_block",
+			"image": "normal_block.tres"
+		},
+		{
+			"definition_id": "gg_normal_block",
+			"image": "normal_block.tres"
+		}
+	]
+}

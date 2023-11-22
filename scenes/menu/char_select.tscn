@@ -1,4 +1,4 @@
-[gd_scene load_steps=22 format=3 uid="uid://cqs72exlwm6at"]
+[gd_scene load_steps=29 format=3 uid="uid://cqs72exlwm6at"]
 
 [ext_resource type="Script" path="res://scenes/menu/char_select.gd" id="1_f3x24"]
 [ext_resource type="Texture2D" uid="uid://coh1i2m8ikmem" path="res://assets/references/charselect.png" id="1_ihc85"]
@@ -20,6 +20,13 @@
 [ext_resource type="Texture2D" uid="uid://baeok8iwnd55t" path="res://assets/portraits/goldlewis.png" id="18_nhabj"]
 [ext_resource type="Texture2D" uid="uid://dbblpgfbefvym" path="res://assets/portraits/ino.png" id="19_rfshm"]
 [ext_resource type="Texture2D" uid="uid://dqjwr4cib12qo" path="res://assets/portraits/chipp.png" id="20_aekjf"]
+[ext_resource type="Texture2D" uid="uid://bbghefkulfxtj" path="res://assets/portraits/axl.png" id="21_5m1ro"]
+[ext_resource type="Texture2D" uid="uid://cn3mh2d8x8xon" path="res://assets/portraits/testament.png" id="21_cebtd"]
+[ext_resource type="Texture2D" uid="uid://cuioxl3i2sx0p" path="res://assets/portraits/jacko.png" id="21_s6sfk"]
+[ext_resource type="Texture2D" uid="uid://cbd201lgc8mu8" path="res://assets/portraits/leo.png" id="21_tu1g4"]
+[ext_resource type="Texture2D" uid="uid://d17x6tser3eeq" path="res://assets/portraits/zato.png" id="25_wi4bn"]
+[ext_resource type="Texture2D" uid="uid://dypqpmufue3as" path="res://assets/portraits/faust.png" id="26_j4iqn"]
+[ext_resource type="Texture2D" uid="uid://bwp8gexqjcuwc" path="res://assets/portraits/happychaos.png" id="27_0fy1k"]
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_8u80i"]
 
@@ -469,6 +476,52 @@ layout_mode = 2
 char_id = "chipp"
 portrait_texture = ExtResource("20_aekjf")
 
+[node name="HappyChaos" parent="CenterContainer/CharactersPanel/Rows/Row4" instance=ExtResource("6_3lmwy")]
+visible = false
+layout_mode = 2
+char_id = "happychaos"
+portrait_texture = ExtResource("27_0fy1k")
+
+[node name="Testament" parent="CenterContainer/CharactersPanel/Rows/Row4" instance=ExtResource("6_3lmwy")]
+visible = false
+layout_mode = 2
+char_id = "testament"
+portrait_texture = ExtResource("21_cebtd")
+
+[node name="Row5" type="HBoxContainer" parent="CenterContainer/CharactersPanel/Rows"]
+layout_mode = 2
+size_flags_horizontal = 4
+alignment = 1
+
+[node name="Jacko" parent="CenterContainer/CharactersPanel/Rows/Row5" instance=ExtResource("6_3lmwy")]
+layout_mode = 2
+char_id = "jacko"
+portrait_texture = ExtResource("21_s6sfk")
+
+[node name="Leo" parent="CenterContainer/CharactersPanel/Rows/Row5" instance=ExtResource("6_3lmwy")]
+visible = false
+layout_mode = 2
+char_id = "leo"
+portrait_texture = ExtResource("21_tu1g4")
+
+[node name="Axl" parent="CenterContainer/CharactersPanel/Rows/Row5" instance=ExtResource("6_3lmwy")]
+visible = false
+layout_mode = 2
+char_id = "axl"
+portrait_texture = ExtResource("21_5m1ro")
+
+[node name="Faust" parent="CenterContainer/CharactersPanel/Rows/Row5" instance=ExtResource("6_3lmwy")]
+visible = false
+layout_mode = 2
+char_id = "faust"
+portrait_texture = ExtResource("26_j4iqn")
+
+[node name="Zato" parent="CenterContainer/CharactersPanel/Rows/Row5" instance=ExtResource("6_3lmwy")]
+visible = false
+layout_mode = 2
+char_id = "zato"
+portrait_texture = ExtResource("25_wi4bn")
+
 [connection signal="pressed" from="PanelContainer/VBoxContainer/Row1/TextureButton" to="." method="_on_character_button_pressed" binds= ["testament"]]
 [connection signal="pressed" from="PanelContainer/VBoxContainer/Row1/TextureButton3" to="." method="_on_character_button_pressed" binds= ["happychaos"]]
 [connection signal="pressed" from="PanelContainer/VBoxContainer/Row2/TextureButton" to="." method="_on_character_button_pressed" binds= ["millia"]]
@@ -519,3 +572,17 @@ portrait_texture = ExtResource("20_aekjf")
 [connection signal="on_pressed" from="CenterContainer/CharactersPanel/Rows/Row4/Ino" to="." method="_on_char_button_on_pressed"]
 [connection signal="on_hover" from="CenterContainer/CharactersPanel/Rows/Row4/Chipp" to="." method="_on_char_hover"]
 [connection signal="on_pressed" from="CenterContainer/CharactersPanel/Rows/Row4/Chipp" to="." method="_on_char_button_on_pressed"]
+[connection signal="on_hover" from="CenterContainer/CharactersPanel/Rows/Row4/HappyChaos" to="." method="_on_char_hover"]
+[connection signal="on_pressed" from="CenterContainer/CharactersPanel/Rows/Row4/HappyChaos" to="." method="_on_char_button_on_pressed"]
+[connection signal="on_hover" from="CenterContainer/CharactersPanel/Rows/Row4/Testament" to="." method="_on_char_hover"]
+[connection signal="on_pressed" from="CenterContainer/CharactersPanel/Rows/Row4/Testament" to="." method="_on_char_button_on_pressed"]
+[connection signal="on_hover" from="CenterContainer/CharactersPanel/Rows/Row5/Jacko" to="." method="_on_char_hover"]
+[connection signal="on_pressed" from="CenterContainer/CharactersPanel/Rows/Row5/Jacko" to="." method="_on_char_button_on_pressed"]
+[connection signal="on_hover" from="CenterContainer/CharactersPanel/Rows/Row5/Leo" to="." method="_on_char_hover"]
+[connection signal="on_pressed" from="CenterContainer/CharactersPanel/Rows/Row5/Leo" to="." method="_on_char_button_on_pressed"]
+[connection signal="on_hover" from="CenterContainer/CharactersPanel/Rows/Row5/Axl" to="." method="_on_char_hover"]
+[connection signal="on_pressed" from="CenterContainer/CharactersPanel/Rows/Row5/Axl" to="." method="_on_char_button_on_pressed"]
+[connection signal="on_hover" from="CenterContainer/CharactersPanel/Rows/Row5/Faust" to="." method="_on_char_hover"]
+[connection signal="on_pressed" from="CenterContainer/CharactersPanel/Rows/Row5/Faust" to="." method="_on_char_button_on_pressed"]
+[connection signal="on_hover" from="CenterContainer/CharactersPanel/Rows/Row5/Zato" to="." method="_on_char_hover"]
+[connection signal="on_pressed" from="CenterContainer/CharactersPanel/Rows/Row5/Zato" to="." method="_on_char_button_on_pressed"]
