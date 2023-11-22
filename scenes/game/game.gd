@@ -698,7 +698,10 @@ func _stat_notice_event(event):
 		Enums.EventType.EventType_Strike_DodgeAttacks:
 			notice_text = "Dodge Attacks!"
 		Enums.EventType.EventType_Strike_DodgeAttacksAtRange:
-			notice_text = "Dodge at range %s-%s" % [number, event['extra_info']]
+			if number == event['extra_info']:
+				notice_text = "Dodge at range %s" % number
+			else:
+				notice_text = "Dodge at range %s-%s" % [number, event['extra_info']]
 		Enums.EventType.EventType_Strike_ExUp:
 			notice_text = "EX Strike!"
 		Enums.EventType.EventType_Strike_GainAdvantage:

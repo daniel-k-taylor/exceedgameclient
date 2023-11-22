@@ -11,14 +11,15 @@
 		"gauge_cost": 0,
 		"force_cost": 1,
 		"effect": {
-			"effect_type": "boost_from_hand_then_strike"
+			"effect_type": "boost_then_strike"
 		}
 	},
 	"character_action_exceeded": {
 		"gauge_cost": 0,
 		"force_cost": 1,
 		"effect": {
-			"effect_type": "boost_from_hand_or_gauge_then_strike"
+			"effect_type": "boost_then_strike",
+			"allow_gauge": true
 		}
 	},
 	"ability_effects": [

@@ -8,8 +8,8 @@ In progress:
         ☐ for each boost bonus
         ☐ sustain a boost
 
-        ☐ "effect_type": "boost_from_hand_then_strike" and boost_from_hand_or_gauge_then_strike
-        ☐ "effect_type": "sustain_boost",
+        ☐ "effect_type": "boost_then_strike" and allow_gauge
+        ☐ "effect_type": "choose_sustain_boost",
         "effect_type": "add_to_gauge_optional",
             "card_name": "Iron Pumpkin"
         ☐ "effect_type": "rangeup_per_boost_in_play",
@@ -32,6 +32,17 @@ In progress:
         ☐ exceed as boost
         ☐ exceed only effect
         ☐ if invalid effect
+
+        ☐ "effect_type": "exceed_now"
+        ☐ "condition": "was_wild"
+        ☐ "timing": "at_end_of_turn",
+			☐ "condition": "no_strike_this_turn",
+
+        ☐ "effect_type": "multiply_speed_bonuses",
+        ☐ "effect_type": "reveal_hand"
+
+        ☐ "effect_type": "hand_to_top_deck",
+
     Zato:
         ☐ Eddie
         ☐ place eddie

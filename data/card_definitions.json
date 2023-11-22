@@ -2127,7 +2127,7 @@
 				"timing": "hit",
 				"effect_type": "gain_advantage",
 				"and": {
-					"effect_type": "sustain_boost",
+					"effect_type": "choose_sustain_boost",
 					"amount_min": 0,
 					"amount_max": 1
 				}
@@ -2193,7 +2193,7 @@
 		"display_name": "Iron Pumpkin",
 		"force_cost": 0,
 		"gauge_cost": 0,
-		"range_min": 4,
+		"range_min": 3,
 		"range_max": 4,
 		"speed": 6,
 		"power": 2,
@@ -2712,6 +2712,335 @@
 			]
 		},
 		"NOTEEND": "KY KISUKE CARDS END"
+	},
+
+
+	{
+		"NOTE": "LEO CARDS START",
+		"id": "leo_stahlwirbel",
+		"type": "ultra",
+		"display_name": "Stahlwirbel",
+		"force_cost": 0,
+		"gauge_cost": 4,
+		"range_min": 2,
+		"range_max": 8,
+		"speed": 0,
+		"power": 6,
+		"armor": 0,
+		"guard": 0,
+		"on_invalid": {
+			"effect_type": "draw",
+			"amount": 1
+		},
+		"effects": [
+			{
+				"timing": "during_strike",
+				"condition": "exceeded",
+				"effect_type": "multiply_speed_bonuses",
+				"amount": 10
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Bared Fangs",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"condition": "was_wild",
+					"effect_type": "speedup",
+					"amount": 2
+				},
+				{
+					"timing": "now",
+					"effect_type": "strike"
+				}
+			]
+		}
+	},
+	{
+		"id": "leo_leidenschaft",
+		"type": "ultra",
+		"display_name": "Leidenschaft des Dirigenten",
+		"force_cost": 0,
+		"gauge_cost": 3,
+		"range_min": 1,
+		"range_max": 2,
+		"speed": 0,
+		"power": 6,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "during_strike",
+				"effect_type": "dodge_at_range",
+				"range_min": 2,
+				"range_max": 2
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Roar of the Lion",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"condition": "was_wild",
+					"effect_type": "powerup",
+					"amount": 2
+				},
+				{
+					"timing": "now",
+					"effect_type": "strike"
+				}
+			]
+		}
+	},
+	{
+		"id": "leo_zweites",
+		"type": "special",
+		"display_name": "Zweites Kaltes Gestober",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 2,
+		"speed": 5,
+		"power": 3,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "before",
+				"effect_type": "advance",
+				"amount": 2,
+				"bonus_effect": {
+					"condition": "advanced_through",
+					"effect_type": "exceed_now"
+				}
+			},
+			{
+				"timing": "hit",
+				"effect_type": "gain_advantage"
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": 1,
+			"display_name": "Hellfire",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "powerup",
+					"amount": 1,
+					"and": {
+						"effect_type": "speedup",
+						"amount": 1
+					}
+				},
+				{
+					"timing": "now",
+					"effect_type": "reveal_hand"
+				}
+			]
+		}
+	},
+	{
+		"id": "leo_blitzschlag",
+		"type": "special",
+		"display_name": "Blitzschlag",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 3,
+		"speed": 4,
+		"power": 5,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "during_strike",
+				"condition": "was_wild",
+				"effect_type": "multiply_speed_bonuses",
+				"amount": 2
+			},
+			{
+				"timing": "hit",
+				"effect_type": "gain_advantage"
+			}
+		],
+		"boost": {
+			"boost_type": "immediate",
+			"force_cost": 0,
+			"cancel_cost": 1,
+			"display_name": "Pride",
+			"effects": [
+				{
+					"timing": "immediate",
+					"effect_type": "choice",
+					"choice": [
+						{ "effect_type": "advance", "amount": 1 },
+						{ "effect_type": "advance", "amount": 2 },
+						{ "effect_type": "retreat", "amount": 1 },
+						{ "effect_type": "retreat", "amount": 2 }
+					]
+				}
+			]
+		}
+	},
+	{
+		"id": "leo_eisensturm",
+		"type": "special",
+		"display_name": "Eisensturm",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 2,
+		"speed": 3,
+		"power": 5,
+		"armor": 1,
+		"guard": 4,
+		"effects": [
+			{
+				"timing": "after",
+				"effect_type": "close",
+				"amount": 1
+			},
+			{
+				"timing": "cleanup",
+				"condition": "exceeded",
+				"effect_type": "draw",
+				"amount": 1,
+				"and": {
+					"effect_type": "revert"
+				}
+			}
+		],
+		"boost": {
+			"boost_type": "immediate",
+			"force_cost": 0,
+			"cancel_cost": 1,
+			"display_name": "Stolz",
+			"effects": [
+				{
+					"timing": "immediate",
+					"effect_type": "draw",
+					"amount": 2
+				},
+				{
+					"timing": "immediate",
+					"effect_type": "hand_to_top_deck",
+					"amount_min": 0,
+					"amount": 1
+				}
+			]
+		}
+	},
+	{
+		"id": "leo_gravierte",
+		"type": "special",
+		"display_name": "Gravierte Wurde",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 2,
+		"range_max": 6,
+		"speed": 2,
+		"power": 5,
+		"armor": 0,
+		"guard": 5,
+		"effects": [
+			{
+				"timing": "after",
+				"effect_type": "close",
+				"amount": 2
+			},
+			{
+				"timing": "cleanup",
+				"condition": "exceeded",
+				"effect_type": "draw",
+				"amount": 1,
+				"and": {
+					"effect_type": "revert"
+				}
+
+			}
+		],
+		"boost": {
+			"boost_type": "immediate",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Brynhildr Stance",
+			"effects": [
+				{
+					"timing": "immediate",
+					"effect_type": "exceed_now"
+				},
+				{
+					"timing": "immediate",
+					"effect_type": "add_to_gauge_boost_play_cleanup"
+				},
+				{
+					"timing": "immediate",
+					"effect_type": "bonus_action"
+				}
+			]
+		}
+	},
+	{
+		"NOTE": "LEO CARDS END",
+		"id": "leo_kahnschild",
+		"type": "special",
+		"display_name": "Kahn Schild",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 2,
+		"speed": 1,
+		"power": 3,
+		"armor": 0,
+		"guard": 6,
+		"effects": [
+			{
+				"timing": "during_strike",
+				"condition": "exceeded",
+				"effect_type": "speedup",
+				"amount": -2,
+				"and": {
+					"effect_type": "armorup",
+					"amount": 2
+				}
+			},
+			{
+				"timing": "before",
+				"condition": "was_hit",
+				"effect_type": "choice",
+				"choice": [
+					{ "effect_type": "pass" },
+					{ "effect_type": "close", "amount": 1 },
+					{ "effect_type": "close", "amount": 2 }
+				]
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": 1,
+			"display_name": "Hail to the King",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "stun_immunity"
+				},
+				{
+					"timing": "now",
+					"effect_type": "draw",
+					"amount": 2
+				}
+			]
+		},
+		"NOTEEND": "LEO CARDS END"
 	},
 
 	{
