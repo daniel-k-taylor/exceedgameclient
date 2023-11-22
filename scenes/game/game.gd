@@ -60,6 +60,7 @@ var selected_cards = []
 var arena_locations_clickable = []
 var selected_arena_location = 0
 var force_for_armor_incoming_damage = 0
+var popout_exlude_card_ids = []
 
 var player_deck
 var opponent_deck
@@ -95,6 +96,7 @@ enum UISubState {
 	UISubState_SelectCards_BoostCancel,
 	UISubState_SelectCards_CharacterAction_Force,
 	UISubState_SelectCards_CharacterAction_Gauge,
+	UISubState_SelectCards_ChooseBoostsToSustain,
 	UISubState_SelectCards_ChooseDiscardToDestination,
 	UISubState_SelectCards_DiscardContinuousBoost,
 	UISubState_SelectCards_DiscardOpponentGauge,
@@ -105,7 +107,7 @@ enum UISubState {
 	UISubState_SelectCards_DiscardCards_Choose,
 	UISubState_SelectCards_DiscardCardsToGauge,
 	UISubState_SelectCards_ForceForChange,
-	UISubState_SelectCards_Exceed, # 14
+	UISubState_SelectCards_Exceed, # 15
 	UISubState_SelectCards_Mulligan,
 	UISubState_SelectCards_StrikeGauge,
 	UISubState_SelectCards_StrikeCard,
@@ -538,6 +540,7 @@ func can_select_card(card):
 	var in_hand = game_wrapper.is_card_in_hand(Enums.PlayerId.PlayerId_Player, card.card_id)
 	var in_discard = game_wrapper.is_card_in_discards(Enums.PlayerId.PlayerId_Player, card.card_id)
 	var in_player_boosts = game_wrapper.is_card_in_boosts(Enums.PlayerId.PlayerId_Player, card.card_id)
+	var is_sustained = game_wrapper.is_card_sustained(Enums.PlayerId.PlayerId_Player, card.card_id)
 	var in_opponent_boosts = game_wrapper.is_card_in_boosts(Enums.PlayerId.PlayerId_Opponent, card.card_id)
 	var in_opponent_reference = is_card_in_player_reference($AllCards/OpponentAllCopy.get_children(), card.card_id)
 	match ui_sub_state:
@@ -547,6 +550,8 @@ func can_select_card(card):
 			return in_gauge and len(selected_cards) < select_card_require_max
 		UISubState.UISubState_SelectCards_MoveActionGenerateForce, UISubState.UISubState_SelectCards_ForceForChange, UISubState.UISubState_SelectCards_ForceForArmor:
 			return in_gauge or in_hand
+		UISubState.UISubState_SelectCards_ChooseBoostsToSustain:
+			return in_player_boosts and not is_sustained and len(selected_cards) < select_card_require_max
 		UISubState.UISubState_SelectCards_CharacterAction_Force:
 			var new_force = game_wrapper.get_card_database().get_card_force_value(card.card_id)
 			return (in_gauge or in_hand) and can_selected_cards_pay_force(select_card_require_force, new_force)
@@ -913,6 +918,21 @@ func _on_choose_card_hand_to_gauge(event):
 	else:
 		ai_choose_card_hand_to_gauge(min_amount, max_amount)
 
+func _on_choose_from_boosts(event):
+	var player = event['event_player']
+	select_card_require_min = game_wrapper.get_decision_info().amount_min
+	select_card_require_max = game_wrapper.get_decision_info().amount
+	if player == Enums.PlayerId.PlayerId_Player:
+		_on_player_boost_zone_clicked_zone(game_wrapper.get_player_sustained_boosts(Enums.PlayerId.PlayerId_Player))
+		selected_cards = []
+		var cancel_allowed = false
+		if select_card_require_min == 0:
+			cancel_allowed = true
+		enable_instructions_ui("", true, cancel_allowed)
+		change_ui_state(UIState.UIState_SelectCards, UISubState.UISubState_SelectCards_ChooseBoostsToSustain)
+	else:
+		ai_choose_from_boosts(select_card_require_max)
+
 func _on_choose_from_discard(event):
 	var player = event['event_player']
 	var limitation = game_wrapper.get_decision_info().limitation
@@ -1148,6 +1168,14 @@ func set_instructions(text):
 func update_discard_selection_message():
 	var num_remaining = select_card_require_min - len(selected_cards)
 	set_instructions("Select %s more card(s) from your hand to discard." % num_remaining)
+
+func update_sustain_selection_message():
+	if select_card_require_min == select_card_require_max:
+		var num_remaining = select_card_require_min - len(selected_cards)
+		set_instructions("Select %s more card(s) from your boosts to sustain." % num_remaining)
+	else:
+		var num_remaining = select_card_require_max - len(selected_cards)
+		set_instructions("Select up to %s more card(s) from your boosts to sustain." % [num_remaining])
 
 func update_discard_to_gauge_selection_message():
 	if select_card_require_min == select_card_require_max:
@@ -1613,6 +1641,8 @@ func _handle_events(events):
 				delay = _on_change_cards(event)
 			Enums.EventType.EventType_CharacterAction:
 				delay = _stat_notice_event(event)
+			Enums.EventType.EventType_ChooseFromBoosts:
+				_on_choose_from_boosts(event)
 			Enums.EventType.EventType_ChooseFromDiscard:
 				_on_choose_from_discard(event)
 			Enums.EventType.EventType_Discard:
@@ -1777,6 +1807,8 @@ func _update_buttons():
 	match ui_sub_state:
 		UISubState.UISubState_SelectCards_BoostCancel, UISubState.UISubState_SelectCards_Mulligan, UISubState.UISubState_SelectCards_ForceForEffect, UISubState.UISubState_SelectCards_DiscardCardsToGauge, UISubState.UISubState_SelectCards_ChooseDiscardToDestination:
 			cancel_text = "Pass"
+		UISubState.UISubState_SelectCards_ChooseBoostsToSustain:
+			cancel_text = "Pass"
 		_:
 			cancel_text = "Cancel"
 
@@ -1790,6 +1822,8 @@ func _update_buttons():
 		match ui_sub_state:
 			UISubState.UISubState_SelectCards_DiscardCards, UISubState.UISubState_SelectCards_DiscardCards_Choose:
 				update_discard_selection_message()
+			UISubState.UISubState_SelectCards_ChooseBoostsToSustain:
+				update_sustain_selection_message()
 			UISubState.UISubState_SelectCards_DiscardCardsToGauge:
 				update_discard_to_gauge_selection_message()
 			UISubState.UISubState_SelectCards_MoveActionGenerateForce, UISubState.UISubState_SelectCards_CharacterAction_Force:
@@ -1867,6 +1901,8 @@ func can_press_ok():
 			UISubState.UISubState_SelectCards_ChooseDiscardToDestination, UISubState.UISubState_SelectCards_DiscardCards_Choose, UISubState.UISubState_SelectCards_DiscardOpponentGauge:
 				return selected_cards_between_min_and_max()
 			UISubState.UISubState_SelectCards_DiscardCardsToGauge, UISubState.UISubState_SelectCards_Mulligan, UISubState.UISubState_SelectCards_CharacterAction_Gauge:
+				return selected_cards_between_min_and_max()
+			UISubState.UISubState_SelectCards_ChooseBoostsToSustain:
 				return selected_cards_between_min_and_max()
 			UISubState.UISubState_SelectCards_MoveActionGenerateForce, UISubState.UISubState_SelectCards_CharacterAction_Force:
 				return can_selected_cards_pay_force(select_card_require_force)
@@ -1992,6 +2028,8 @@ func _on_instructions_ok_button_pressed():
 				success = game_wrapper.submit_discard_to_max(Enums.PlayerId.PlayerId_Player, selected_card_ids)
 			UISubState.UISubState_SelectCards_DiscardCards_Choose:
 				success = game_wrapper.submit_choose_to_discard(Enums.PlayerId.PlayerId_Player, selected_card_ids)
+			UISubState.UISubState_SelectCards_ChooseBoostsToSustain:
+				success = game_wrapper.submit_choose_from_boosts(Enums.PlayerId.PlayerId_Player, selected_card_ids)
 			UISubState.UISubState_SelectCards_DiscardCardsToGauge:
 				success = game_wrapper.submit_card_from_hand_to_gauge(Enums.PlayerId.PlayerId_Player, selected_card_ids)
 			UISubState.UISubState_SelectCards_StrikeGauge:
@@ -2047,6 +2085,10 @@ func _on_instructions_cancel_button_pressed():
 			deselect_all_cards()
 			close_popout()
 			success = game_wrapper.submit_card_from_hand_to_gauge(Enums.PlayerId.PlayerId_Player, [])
+		UISubState.UISubState_SelectCards_ChooseBoostsToSustain:
+			deselect_all_cards()
+			close_popout()
+			success = game_wrapper.submit_choose_from_boosts(Enums.PlayerId.PlayerId_Player, [])
 		UISubState.UISubState_SelectCards_ChooseDiscardToDestination:
 			deselect_all_cards()
 			close_popout()
@@ -2335,6 +2377,16 @@ func ai_choose_card_hand_to_gauge(min_amount, max_amount):
 	else:
 		print("FAILED AI CHOOSE CARD HAND TO GAUGE")
 
+func ai_choose_from_boosts(amount : int):
+	change_ui_state(UIState.UIState_WaitForGameServer)
+	if not game_wrapper.is_ai_game(): return
+	var choose_action = ai_player.pick_choose_from_boosts(game_wrapper.current_game, Enums.PlayerId.PlayerId_Opponent, amount)
+	var success = game_wrapper.submit_choose_from_boosts(Enums.PlayerId.PlayerId_Opponent, choose_action.card_ids)
+	if success:
+		change_ui_state(UIState.UIState_WaitForGameServer)
+	else:
+		print("FAILED AI CHOOSE FROM BOOSTS")
+
 func ai_choose_from_discard(amount : int):
 	change_ui_state(UIState.UIState_WaitForGameServer)
 	if not game_wrapper.is_ai_game(): return
@@ -2373,7 +2425,7 @@ func card_in_selected_cards(card):
 			return true
 	return false
 
-func _update_popout_cards(cards_in_popout : Array, not_visible_position : Vector2, card_return_state : CardBase.CardState, filtering_allowed : bool = false, show_amount : bool = true):
+func _update_popout_cards(cards_in_popout : Array, not_visible_position : Vector2, card_return_state : CardBase.CardState, filtering_allowed : bool = false, show_amount : bool = true, exclude_card_ids : Array[int] = []):
 	if show_amount:
 		card_popout.set_amount(str(len(cards_in_popout)))
 	else:
@@ -2384,6 +2436,8 @@ func _update_popout_cards(cards_in_popout : Array, not_visible_position : Vector
 		var card_subset = []
 		for card in cards_in_popout:
 			if filtering_allowed and popout_show_normal_only() and not game_wrapper.get_card_database().is_normal_card(card.card_id - ReferenceScreenIdRangeStart):
+				continue
+			if card.card_id in exclude_card_ids:
 				continue
 			card_subset.append(card)
 		for i in range(len(card_subset)):
@@ -2480,7 +2534,7 @@ func popout_show_normal_only() -> bool:
 		return popout_instruction_info['normal_only']
 	return false
 
-func show_popout(popout_type : CardPopoutType, popout_title : String, card_node, card_rest_position : Vector2, card_rest_state : CardBase.CardState, show_amount : bool = true):
+func show_popout(popout_type : CardPopoutType, popout_title : String, card_node, card_rest_position : Vector2, card_rest_state : CardBase.CardState, show_amount : bool = true, exclude_card_ids : Array[int] = []):
 	popout_type_showing = popout_type
 	update_popout_instructions()
 	card_popout.set_title(popout_title)
@@ -2490,7 +2544,7 @@ func show_popout(popout_type : CardPopoutType, popout_title : String, card_node,
 	card_popout.visible = true
 	var cards = card_node.get_children()
 	var filtering_allowed = popout_type == CardPopoutType.CardPopoutType_ReferenceOpponent
-	_update_popout_cards(cards, card_rest_position, card_rest_state, filtering_allowed, show_amount)
+	_update_popout_cards(cards, card_rest_position, card_rest_state, filtering_allowed, show_amount, exclude_card_ids)
 
 func get_boost_zone_center(zone):
 	var pos = zone.global_position + CardBase.get_hand_card_size() / 2
@@ -2513,9 +2567,9 @@ func _on_opponent_discard_button_pressed():
 	await close_popout()
 	show_popout(CardPopoutType.CardPopoutType_DiscardOpponent, "THEIR DISCARD", $AllCards/OpponentDiscards, get_discard_location($OpponentDeck/Discard), CardBase.CardState.CardState_Discarded)
 
-func _on_player_boost_zone_clicked_zone():
+func _on_player_boost_zone_clicked_zone(exclude_card_ids : Array[int] = []):
 	await close_popout()
-	show_popout(CardPopoutType.CardPopoutType_BoostPlayer, "YOUR BOOSTS", $AllCards/PlayerBoosts, get_boost_zone_center($PlayerBoostZone), CardBase.CardState.CardState_InBoost)
+	show_popout(CardPopoutType.CardPopoutType_BoostPlayer, "YOUR BOOSTS", $AllCards/PlayerBoosts, get_boost_zone_center($PlayerBoostZone), CardBase.CardState.CardState_InBoost, false, exclude_card_ids)
 
 func _on_opponent_boost_zone_clicked_zone():
 	await close_popout()

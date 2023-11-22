@@ -147,6 +147,11 @@ class MulliganAction:
 	func _init(card_id_combination):
 		card_ids = card_id_combination
 
+class ChooseFromBoostsAction:
+	var card_ids
+	func _init(chosen_ids):
+		card_ids = chosen_ids
+
 class ChooseFromDiscardAction:
 	var card_ids
 	func _init(chosen_ids):
@@ -689,6 +694,23 @@ func pick_mulligan(game_logic : LocalGame, my_id : Enums.PlayerId) -> MulliganAc
 			possible_actions.append(MulliganAction.new(combo))
 	update_ai_state(game_logic, me, opponent)
 	return ai_policy.pick_mulligan(possible_actions, game_state)
+
+func pick_choose_from_boosts(game_logic : LocalGame, my_id : Enums.PlayerId, choose_count : int) -> ChooseFromBoostsAction:
+	var me = game_logic._get_player(my_id)
+	var opponent = game_logic._get_player(game_logic.get_other_player(my_id))
+	var possible_actions = []
+	var possible_choice_cards = []
+	for card in me.continuous_boosts:
+		if card.id in me.sustained_boosts:
+			continue
+		possible_choice_cards.append(card.id)
+
+	var combinations = []
+	generate_card_count_combinations(possible_choice_cards, choose_count, [], 0, combinations)
+	for combo in combinations:
+		possible_actions.append(ChooseFromBoostsAction.new(combo))
+	update_ai_state(game_logic, me, opponent)
+	return ai_policy.pick_choose_from_boosts(possible_actions, game_state)
 
 func pick_choose_from_discard(game_logic : LocalGame, my_id : Enums.PlayerId, choose_count : int) -> ChooseFromDiscardAction:
 	var me = game_logic._get_player(my_id)

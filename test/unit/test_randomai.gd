@@ -186,6 +186,10 @@ func handle_boost_reponse(events, aiplayer : AIPlayer, game : LocalGame, gamepla
 				var gauge_action = aiplayer.pick_gauge_for_effect(game, gameplayer.my_id, options)
 				assert_true(game.do_gauge_for_effect(gameplayer, gauge_action.card_ids), "do gauge effect failed")
 				events += game.get_latest_events()
+			Enums.DecisionType.DecisionType_ChooseFromBoosts:
+				var chooseaction = aiplayer.pick_choose_from_boosts(game, gameplayer.my_id, game.decision_info.amount)
+				assert_true(game.do_choose_from_boosts(gameplayer, chooseaction.card_ids), "do choose from boosts failed")
+				events += game.get_latest_events()
 			Enums.DecisionType.DecisionType_ChooseFromDiscard:
 				var chooseaction = aiplayer.pick_choose_from_discard(game, gameplayer.my_id, game.decision_info.amount)
 				assert_true(game.do_choose_from_discard(gameplayer, chooseaction.card_ids), "do choose from discard failed")
@@ -274,6 +278,9 @@ func handle_strike(game: LocalGame, aiplayer : AIPlayer, otherai : AIPlayer, act
 				var gauge_action = decision_ai.pick_gauge_for_effect(game, decision_player.my_id, options)
 				assert_true(game.do_gauge_for_effect(decision_ai.game_player, gauge_action.card_ids), "do gauge effect failed")
 				events += game.get_latest_events()
+			Enums.DecisionType.DecisionType_ChooseFromBoosts:
+				var chooseaction = decision_ai.pick_choose_from_boosts(game, decision_player.my_id, game.decision_info.amount)
+				assert_true(game.do_choose_from_boosts(decision_ai.game_player, chooseaction.card_ids), "do choose from boosts failed")
 			Enums.DecisionType.DecisionType_ChooseFromDiscard:
 				var chooseaction = decision_ai.pick_choose_from_discard(game, decision_player.my_id, game.decision_info.amount)
 				assert_true(game.do_choose_from_discard(decision_ai.game_player, chooseaction.card_ids), "do choose from discard failed")

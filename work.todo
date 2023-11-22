@@ -9,7 +9,7 @@ In progress:
         ☐ sustain a boost
 
         ☐ "effect_type": "boost_then_strike" and allow_gauge @started(23-11-21 23:47)
-        ☐ "effect_type": "choose_sustain_boost",
+        ☐ "effect_type": "choose_sustain_boost", @started(23-11-22 13:11)
         ☐ "effect_type": "rangeup_per_boost_in_play", @started(23-11-21 23:58)
         ☐ "effect_type": "powerup_per_boost_in_play", @started(23-11-21 23:58)
         ☐ "effect_type": "boost_then_sustain", @started(23-11-22 00:38)

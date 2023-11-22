@@ -1417,9 +1417,23 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 					decision_info.amount_min = effect['amount_min']
 				events += [create_event(Enums.EventType.EventType_ChooseFromDiscard, performing_player.my_id, amount)]
 		"choose_sustain_boost":
-			# New decision state to pick a card from the continuous boosts.
-			# Very similar to choose from discard.
-			pass
+			var choice_count = performing_player.continuous_boosts.size()
+			choice_count -= performing_player.sustained_boosts.size()
+			if choice_count > 0:
+				change_game_state(Enums.GameState.GameState_PlayerDecision)
+				decision_info.type = Enums.DecisionType.DecisionType_ChooseFromBoosts
+				decision_info.player = performing_player.my_id
+				decision_info.choice_card_id = card_id
+				decision_info.limitation = effect['limitation']
+				decision_info.destination = effect['destination']
+				var amount = 1
+				if 'amount' in effect:
+					amount = min(choice_count, effect['amount'])
+				decision_info.amount = amount
+				decision_info.amount_min = amount
+				if 'amount_min' in effect:
+					decision_info.amount_min = effect['amount_min']
+				events += [create_event(Enums.EventType.EventType_ChooseFromBoosts, performing_player.my_id, amount)]
 		"close":
 			var previous_location = performing_player.arena_location
 			events += performing_player.close(effect['amount'])
@@ -2818,6 +2832,42 @@ func do_mulligan(performing_player : Player, card_ids : Array) -> bool:
 		events += [create_event(Enums.EventType.EventType_AdvanceTurn, active_turn_player, 0)]
 	else:
 		events += [create_event(Enums.EventType.EventType_MulliganDecision, get_other_player(performing_player.my_id), 0)]
+	event_queue += events
+	return true
+
+func do_choose_from_boosts(performing_player : Player, card_ids : Array) -> bool:
+	printlog("SubAction: CHOOSE FROM BOOSTS by %s cards: %s" % [performing_player.name, str(card_ids)])
+	if game_state != Enums.GameState.GameState_PlayerDecision or decision_info.type != Enums.DecisionType.DecisionType_ChooseFromBoosts:
+		printlog("ERROR: Tried to choose from boosts but not in correct game state.")
+		return false
+
+	# Validation.
+	if card_ids.size() < decision_info.amount_min or card_ids.size() > decision_info.amount:
+		printlog("ERROR: Tried to choose from boosts with wrong number of cards.")
+		return false
+
+	for card_id in card_ids:
+		if not performing_player.is_card_in_continuous_boosts(card_id):
+			printlog("ERROR: Tried to choose from boosts with card not in boosts.")
+			return false
+			
+	# Move the cards.
+	var events = []
+	for card_id in card_ids:
+		events += [create_event(Enums.EventType.EventType_SustainBoost, performing_player.my_id, card_id)]
+		performing_player.sustained_boosts.append(card_id)
+		_append_log("%s sustained %s." % [performing_player.name, card_db.get_card_name(card_id)])
+
+	if active_boost:
+		active_boost.effects_resolved += 1
+		events += continue_resolve_boost()
+	elif active_strike:
+		active_strike.effects_resolved_in_timing += 1
+		events += continue_resolve_strike()
+	else:
+		printlog("ERROR: When is this choose from boosts happening?")
+		assert(false, "When is this choose from boosts happening?")
+
 	event_queue += events
 	return true
 
