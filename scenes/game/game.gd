@@ -51,6 +51,8 @@ var select_card_require_max = 0
 var select_card_must_be_max_or_min = false
 var select_card_require_force = 0
 var select_card_up_to_force = 0
+var select_boost_from_gauge = false
+var select_boost_limitation = ""
 var instructions_ok_allowed = false
 var instructions_cancel_allowed = false
 var instructions_wild_swing_allowed = false
@@ -560,7 +562,8 @@ func can_select_card(card):
 		UISubState.UISubState_SelectCards_StrikeCard, UISubState.UISubState_SelectCards_StrikeResponseCard, UISubState.UISubState_SelectCards_Mulligan:
 			return in_hand
 		UISubState.UISubState_SelectCards_PlayBoost:
-			return len(selected_cards) == 0 and in_hand and game_wrapper.can_player_boost(Enums.PlayerId.PlayerId_Player, card.card_id)
+			var valid_card = game_wrapper.can_player_boost(Enums.PlayerId.PlayerId_Player, card.card_id, select_boost_from_gauge, select_boost_limitation)
+			return len(selected_cards) == 0 and valid_card
 		UISubState.UISubState_SelectCards_DiscardContinuousBoost:
 			return (in_player_boosts or in_opponent_boosts) and len(selected_cards) < select_card_require_max
 		UISubState.UISubState_SelectCards_DiscardOpponentGauge:
@@ -1055,6 +1058,17 @@ func _on_exceed_revert_event(event):
 	spawn_damage_popup("Revert!", player)
 	return SmallNoticeDelay
 
+func _on_force_start_boost(event):
+	var player = event['event_player']
+	var allow_gauge = event['extra_info']
+	var limitation = event['extra_info2']
+	spawn_damage_popup("Boost!", player)
+	if player == Enums.PlayerId.PlayerId_Player:
+		begin_boost_choosing(false, allow_gauge, limitation)
+	else:
+		ai_do_boost(allow_gauge, limitation)
+	return SmallNoticeDelay
+
 func _on_force_start_strike(event):
 	var player = event['event_player']
 	spawn_damage_popup("Strike!", player)
@@ -1273,12 +1287,21 @@ func begin_strike_choosing(strike_response : bool, cancel_allowed : bool):
 		new_sub_state = UISubState.UISubState_SelectCards_StrikeCard
 	change_ui_state(UIState.UIState_SelectCards, new_sub_state)
 
-func begin_boost_choosing():
+func begin_boost_choosing(can_cancel : bool, allow_gauge : bool, limitation : String):
 	selected_cards = []
 	select_card_require_min = 1
 	select_card_require_max = 1
-	var can_cancel = true
-	enable_instructions_ui("Select a card to boost.", true, can_cancel)
+	select_boost_from_gauge = allow_gauge
+	select_boost_limitation = limitation
+	var limitation_str = "card"
+	if limitation:
+		limitation_str = limitation + " boost"
+	var instructions = "Select a %s to boost." % limitation_str
+	if allow_gauge:
+		_on_player_gauge_gauge_clicked()
+		instructions += "Select a %s to boost from hand or gauge." % limitation_str
+
+	enable_instructions_ui(instructions, true, can_cancel)
 	change_ui_state(UIState.UIState_SelectCards, UISubState.UISubState_SelectCards_PlayBoost)
 
 func _on_move_event(event):
@@ -1600,6 +1623,8 @@ func _handle_events(events):
 				delay = _on_exceed_event(event)
 			Enums.EventType.EventType_ExceedRevert:
 				delay = _on_exceed_revert_event(event)
+			Enums.EventType.EventType_ForceStartBoost:
+				_on_force_start_boost(event)
 			Enums.EventType.EventType_ForceStartStrike:
 				_on_force_start_strike(event)
 			Enums.EventType.EventType_ForceForEffect:
@@ -1795,7 +1820,10 @@ func _update_buttons():
 
 	for i in range(current_effect_choices.size()):
 		var choice = current_effect_choices[i]
-		button_choices.append({ "text": CardDefinitions.get_effect_text(choice, false, true, false), "action": func(): _on_choice_pressed(i) })
+		var card_name = null
+		if 'card_name' in choice:
+			card_name = choice['card_name']
+		button_choices.append({ "text": CardDefinitions.get_effect_text(choice, false, true, false, card_name), "action": func(): _on_choice_pressed(i) })
 
 	# Set the Action Menu state
 	var action_menu_hidden = false
@@ -1906,7 +1934,7 @@ func _on_reshuffle_button_pressed():
 	_update_buttons()
 
 func _on_boost_button_pressed():
-	begin_boost_choosing()
+	begin_boost_choosing(true, false, "")
 
 func _on_strike_button_pressed():
 	begin_strike_choosing(false, true)
@@ -2128,6 +2156,7 @@ func ai_handle_character_action(action : AIPlayer.CharacterActionAction):
 	return success
 
 func ai_take_turn():
+	change_ui_state(UIState.UIState_WaitForGameServer)
 	if not game_wrapper.is_ai_game(): return
 	var success = false
 	var turn_action = ai_player.take_turn(game_wrapper.current_game, Enums.PlayerId.PlayerId_Opponent)
@@ -2154,6 +2183,16 @@ func ai_take_turn():
 		change_ui_state(UIState.UIState_WaitForGameServer)
 	else:
 		print("FAILED AI TURN")
+
+func ai_do_boost(allow_gauge : bool, limitation : String):
+	change_ui_state(UIState.UIState_WaitForGameServer)
+	if not game_wrapper.is_ai_game(): return
+	var boost_action = ai_player.take_boost(game_wrapper.current_game, Enums.PlayerId.PlayerId_Opponent, allow_gauge, limitation)
+	var success = ai_handle_boost(boost_action)
+	if success:
+		change_ui_state(UIState.UIState_WaitForGameServer)
+	else:
+		print("FAILED AI DO BOOST")
 
 func ai_pay_cost(cost):
 	change_ui_state(UIState.UIState_WaitForGameServer)

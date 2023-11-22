@@ -11,7 +11,8 @@
 		"gauge_cost": 0,
 		"force_cost": 1,
 		"effect": {
-			"effect_type": "boost_then_strike"
+			"effect_type": "boost_then_strike",
+			"limitation": "continuous"
 		}
 	},
 	"character_action_exceeded": {
@@ -19,7 +20,8 @@
 		"force_cost": 1,
 		"effect": {
 			"effect_type": "boost_then_strike",
-			"allow_gauge": true
+			"allow_gauge": true,
+			"limitation": "continuous"
 		}
 	},
 	"ability_effects": [

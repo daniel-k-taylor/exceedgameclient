@@ -9,8 +9,8 @@ animations = [{
 "texture": ExtResource("1_2fifv")
 }],
 "loop": true,
-"name": &"default",
+"name": &"idle",
 "speed": 5.0
 }]
 metadata/flip = true
-metadata/scaling = 0.4
+metadata/scaling = 1.5

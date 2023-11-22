@@ -8,20 +8,13 @@ In progress:
         ☐ for each boost bonus
         ☐ sustain a boost
 
-        ☐ "effect_type": "boost_then_strike" and allow_gauge
+        ☐ "effect_type": "boost_then_strike" and allow_gauge @started(23-11-21 23:47)
         ☐ "effect_type": "choose_sustain_boost",
-        "effect_type": "add_to_gauge_optional",
-            "card_name": "Iron Pumpkin"
-        ☐ "effect_type": "rangeup_per_boost_in_play",
-        ☐ "effect_type": "powerup_per_boost_in_play",
-        "effect_type": "play_and_sustain_boost",
-            "from": "hand_or_gauge",
-            "restriction": "continuous"
-        ☐ "condition": "boost_in_play",
-
-
-        "effect_type": "sustain_this",
-            "card_name": "Ultimate Fortissimo"
+        ☐ "effect_type": "rangeup_per_boost_in_play", @started(23-11-21 23:58)
+        ☐ "effect_type": "powerup_per_boost_in_play", @started(23-11-21 23:58)
+        ☐ "effect_type": "sustain_next_boost", @started(23-11-22 00:38)
+        ☐ "condition": "boost_in_play", @started(23-11-21 23:48)
+        ☐ "effect_type": "sustain_this", @started(23-11-21 23:50)
     Leo:
         ☐ after exceed if stunned
         ☐ wild swing bonus, revert if no strike

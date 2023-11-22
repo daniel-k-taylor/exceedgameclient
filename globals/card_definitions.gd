@@ -148,6 +148,8 @@ func get_condition_text(condition):
 			text += "If advanced past opponent, "
 		"at_edge_of_arena":
 			text += "If at arena edge, "
+		"boost_in_play":
+			text += "If a boost is in play, "
 		"canceled_this_turn":
 			text += "If canceled this turn, "
 		"initiated_strike":
@@ -201,7 +203,10 @@ func get_effect_type_text(effect, card_name_source : String = ""):
 	var effect_type = effect['effect_type']
 	match effect_type:
 		"add_boost_to_gauge_on_strike_cleanup":
-			effect_str += "Add card to gauge."
+			if card_name_source:
+				effect_str += "Add %s to gauge." % card_name_source
+			else:
+				effect_str += "Add card to gauge."
 		"add_strike_to_gauge_after_cleanup":
 			effect_str += "Add card to gauge after strike."
 		"add_to_gauge_boost_play_cleanup":
@@ -220,6 +225,14 @@ func get_effect_type_text(effect, card_name_source : String = ""):
 			effect_str += "Next Strike is EX."
 		"bonus_action":
 			effect_str += "Take another action."
+		"boost_then_sustain":
+			var limitation_str = "boost"
+			if effect['limitation']:
+				limitation_str = effect['limitation'] + "boost"
+			if effect['allow_gauge']:
+				effect_str += "Play and sustain a %s from hand or gauge." % limitation_str
+			else:
+				effect_str += "Play and sustain a %s from hand." % limitation_str
 		"choice":
 			effect_str += "Choose: " + get_choice_summary(effect['choice'], card_name_source)
 		"choose_discard":
@@ -227,6 +240,8 @@ func get_effect_type_text(effect, card_name_source : String = ""):
 				effect_str += "Choose a %s card from discard to move to %s" % [effect['limitation'], effect['destination']]
 			else:
 				effect_str += "Choose a card from discard to move to %s" % [effect['destination']]
+		"choose_sustain_boost":
+			effect_str += "Choose a boost to sustain."
 		"close":
 			effect_str += "Close " + str(effect['amount'])
 		"discard_continuous_boost":
@@ -270,6 +285,8 @@ func get_effect_type_text(effect, card_name_source : String = ""):
 			effect_str += "Pass"
 		"powerup":
 			effect_str += "+" + str(effect['amount']) + " Power"
+		"powerup_per_boost_in_play":
+			effect_str += "+" + str(effect['amount']) + " Power per boost in play."
 		"powerup_damagetaken":
 			effect_str += "+" + str(effect['amount']) + " Power per damage taken this strike."
 		"powerup_opponent":
@@ -280,6 +297,8 @@ func get_effect_type_text(effect, card_name_source : String = ""):
 			effect_str += "Push " + str(effect['amount'])
 		"rangeup":
 			effect_str += "+" + str(effect['amount']) + "-" + str(effect['amount2']) + " Range"
+		"rangeup_per_boost_in_play":
+			effect_str += "+" + str(effect['amount']) + "-" + str(effect['amount2']) + " Range per boost in play."
 		"retreat":
 			effect_str += "Retreat " + str(effect['amount'])
 		"return_this_to_hand":
