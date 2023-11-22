@@ -45,6 +45,7 @@ func get_card(definition_id):
 	for card in card_data:
 		if card['id'] == definition_id:
 			return card
+	assert(false, "Missing card definition: " + definition_id)
 	return null
 
 class EffectSummary:
@@ -145,6 +146,8 @@ func get_condition_text(condition):
 	match condition:
 		"advanced_through":
 			text += "If advanced past opponent, "
+		"at_edge_of_arena":
+			text += "If at arena edge, "
 		"canceled_this_turn":
 			text += "If canceled this turn, "
 		"initiated_strike":
@@ -205,6 +208,8 @@ func get_effect_type_text(effect, card_name_source : String = ""):
 			effect_str += "Add card to gauge."
 		"add_to_gauge_immediately":
 			effect_str += "Add card to gauge."
+		"add_to_gauge_immediately_mid_strike_undo_effects":
+			effect_str += "Add card to gauge (and cancel its effects)."
 		"add_top_deck_to_gauge":
 			effect_str += "Add top card of deck to gauge."
 		"advance":
@@ -229,7 +234,10 @@ func get_effect_type_text(effect, card_name_source : String = ""):
 		"discard_opponent_gauge":
 			effect_str += "Discard a card from opponent's gauge."
 		"dodge_at_range":
-			effect_str += "Opponent attacks miss at range %s-%s." % [effect['range_min'], effect['range_max']]
+			if effect['range_min'] == effect['range_max']:
+				effect_str += "Opponent attacks miss at range %s." % effect['range_min']
+			else:
+				effect_str += "Opponent attacks miss at range %s-%s." % [effect['range_min'], effect['range_max']]
 		"dodge_attacks":
 			effect_str += "Opponent misses."
 		"draw":
@@ -264,6 +272,8 @@ func get_effect_type_text(effect, card_name_source : String = ""):
 			effect_str += "+" + str(effect['amount']) + " Power"
 		"powerup_damagetaken":
 			effect_str += "+" + str(effect['amount']) + " Power per damage taken this strike."
+		"powerup_opponent":
+			effect_str += "+" + str(effect['amount']) + " Opponent's Power"
 		"pull":
 			effect_str += "Pull " + str(effect['amount'])
 		"push":

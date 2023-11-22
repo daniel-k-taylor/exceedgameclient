@@ -472,3 +472,12 @@ func test_ino_100():
 		game_teardown()
 		game_setup()
 	pass_test("Finished match")
+
+func test_chipp_100():
+	default_deck = CardDefinitions.get_deck_from_str_id("chipp")
+	for i in range(100):
+		print("==== RUNNING TEST %d ====" % i)
+		run_ai_game()
+		game_teardown()
+		game_setup()
+	pass_test("Finished match")

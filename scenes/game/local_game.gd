@@ -913,14 +913,14 @@ class Player:
 	func on_cancel_boost():
 		var events = []
 		events += [parent.create_event(Enums.EventType.EventType_Boost_Canceled, my_id, 0)]
-		if not canceled_this_turn:
-			# Create a strike state just to track completing effects at this timing.
-			var effects = get_character_effects_at_timing("on_cancel_boost")
-			# NOTE: Only 1 choice currently allowed.
-			for effect in effects:
-				if parent.is_effect_condition_met(self, effect, null):
-					events += parent.handle_strike_effect(-1, effect, self)
-			canceled_this_turn = true
+		
+		# Create a strike state just to track completing effects at this timing.
+		var effects = get_character_effects_at_timing("on_cancel_boost")
+		# NOTE: Only 1 choice currently allowed.
+		for effect in effects:
+			if parent.is_effect_condition_met(self, effect, null):
+				events += parent.handle_strike_effect(-1, effect, self)
+		canceled_this_turn = true
 
 		return events
 

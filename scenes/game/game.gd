@@ -1632,9 +1632,9 @@ func _handle_events(events):
 			Enums.EventType.EventType_Strike_CharacterEffect:
 				_on_strike_character_effect(event)
 			Enums.EventType.EventType_Strike_ChooseToDiscard:
-				_on_choose_to_discard(event, false)
+				delay = _on_choose_to_discard(event, false)
 			Enums.EventType.EventType_Strike_ChooseToDiscard_Info:
-				_on_choose_to_discard(event, true)
+				delay = _on_choose_to_discard(event, true)
 			Enums.EventType.EventType_Strike_DodgeAttacks, Enums.EventType.EventType_Strike_DodgeAttacksAtRange:
 				delay = _stat_notice_event(event)
 			Enums.EventType.EventType_Strike_DoResponseNow:
