@@ -1,21 +1,4 @@
 In progress:
-    Jacko:
-        ☐ Boost from hand or gauge
-        ☐ hit may add to gauge
-        ☐ lose all armor
-        ☐ if boost in play
-        ☐ play and sustain
-        ☐ for each boost bonus
-        ☐ sustain a boost
-
-        ☐ "effect_type": "boost_then_strike" and allow_gauge @started(23-11-21 23:47)
-        ☐ "effect_type": "choose_sustain_boost", @started(23-11-22 13:11)
-        ☐ "effect_type": "rangeup_per_boost_in_play", @started(23-11-21 23:58)
-        ☐ "effect_type": "powerup_per_boost_in_play", @started(23-11-21 23:58)
-        ☐ "effect_type": "boost_then_sustain", @started(23-11-22 00:38)
-            ☐ needs to have boost cleanup continue resolve strike @started(23-11-22 02:29)
-        ☐ "condition": "boost_in_play", @started(23-11-21 23:48)
-        ☐ "effect_type": "sustain_this", @started(23-11-21 23:50)
     Leo:
         ☐ after exceed if stunned
         ☐ wild swing bonus, revert if no strike
@@ -27,15 +10,16 @@ In progress:
         ☐ exceed only effect
         ☐ if invalid effect
 
-        ☐ "effect_type": "exceed_now"
-        ☐ "condition": "was_wild"
-        ☐ "timing": "at_end_of_turn",
-			☐ "condition": "no_strike_this_turn",
 
-        ☐ "effect_type": "multiply_speed_bonuses",
-        ☐ "effect_type": "reveal_hand"
+        ☐ "effect_type": "exceed_now" @started(23-11-23 01:05)
+        ☐ "condition": "was_wild_swing" @started(23-11-23 01:11)
+        ☐ "timing": "at_end_of_turn", @started(23-11-23 01:19)
+			☐ "condition": "no_strike_this_turn", @started(23-11-23 01:19)
 
-        ☐ "effect_type": "hand_to_top_deck",
+        ☐ "effect_type": "multiply_speed_bonuses", @started(23-11-23 01:23)
+        ☐ "effect_type": "reveal_hand" @started(23-11-23 01:25)
+
+        ☐ "effect_type": "hand_to_top_deck", @started(23-11-23 01:49)
 
     Zato:
         ☐ Eddie

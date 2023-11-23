@@ -172,6 +172,8 @@ func get_condition_text(condition):
 			text += ""
 		"is_normal_attack":
 			text += ""
+		"was_wild_swing":
+			text += "If this was a wild swing, "
 		_:
 			text += "MISSING CONDITION"
 	return text
@@ -257,6 +259,8 @@ func get_effect_type_text(effect, card_name_source : String = ""):
 			effect_str += "Opponent misses."
 		"draw":
 			effect_str += "Draw " + str(effect['amount'])
+		"exceed_now":
+			effect_str += "Exceed"
 		"force_for_effect":
 			effect_str += get_force_for_effect_summary(effect, card_name_source)
 		"gauge_for_effect":
@@ -307,6 +311,8 @@ func get_effect_type_text(effect, card_name_source : String = ""):
 			effect_str += "Return this card to hand."
 		"return_all_cards_gauge_to_hand":
 			effect_str += "Return all cards in gauge to hand."
+		"reveal_hand":
+			effect_str += "Reveal your hand"
 		"self_discard_choose":
 			effect_str += "Discard " + str(effect['amount']) + " cards."
 		"speedup":
@@ -322,6 +328,8 @@ func get_effect_type_text(effect, card_name_source : String = ""):
 				effect_str += "Sustain %s" % card_name_source
 			else:
 				effect_str += "Sustain this"
+		"topdeck_from_hand":
+			effect_str += "Put a card from your hand on top of your deck"
 		"when_hit_force_for_armor":
 			effect_str += "When hit, generate force for " + str(effect['amount']) + " armor each."
 		_:

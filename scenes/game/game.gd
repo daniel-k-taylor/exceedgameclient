@@ -51,6 +51,7 @@ var select_card_require_max = 0
 var select_card_must_be_max_or_min = false
 var select_card_require_force = 0
 var select_card_up_to_force = 0
+var select_card_destination = ""
 var select_boost_from_gauge = false
 var select_boost_limitation = ""
 var instructions_ok_allowed = false
@@ -913,6 +914,7 @@ func _on_choose_card_hand_to_gauge(event):
 	var player = event['event_player']
 	var min_amount = event['number']
 	var max_amount = event['extra_info']
+	select_card_destination = game_wrapper.get_decision_info().destination
 	if player == Enums.PlayerId.PlayerId_Player:
 		begin_discard_cards_selection(min_amount, max_amount, UISubState.UISubState_SelectCards_DiscardCardsToGauge)
 	else:
@@ -1178,12 +1180,15 @@ func update_sustain_selection_message():
 		set_instructions("Select up to %s more card(s) from your boosts to sustain." % [num_remaining])
 
 func update_discard_to_gauge_selection_message():
+	var phrase = "in your gauge"
+	if select_card_destination == "topdeck":
+		phrase = "on top of your deck"
 	if select_card_require_min == select_card_require_max:
 		var num_remaining = select_card_require_min - len(selected_cards)
-		set_instructions("Select %s more card(s) from your hand to put in gauge." % num_remaining)
+		set_instructions("Select %s more card(s) from your hand to put %s." % [num_remaining, phrase])
 	else:
 		var num_remaining = select_card_require_max - len(selected_cards)
-		set_instructions("Select up to %s more card(s) from your hand to put in gauge." % [num_remaining])
+		set_instructions("Select up to %s more card(s) from your hand to put %s." % [num_remaining, phrase])
 
 func update_gauge_selection_message():
 	var num_remaining = select_card_require_min - len(selected_cards)

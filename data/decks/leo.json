@@ -14,7 +14,7 @@
 		{
 			"character_effect": true,
 			"timing": "set_strike",
-			"condition": "was_wild",
+			"condition": "was_wild_swing",
 			"effect_type": "powerup",
 			"amount": 1,
 			"and": {

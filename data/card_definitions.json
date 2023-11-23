@@ -2769,7 +2769,7 @@
 			"effects": [
 				{
 					"timing": "during_strike",
-					"condition": "was_wild",
+					"condition": "was_wild_swing",
 					"effect_type": "speedup",
 					"amount": 2
 				},
@@ -2808,7 +2808,7 @@
 			"effects": [
 				{
 					"timing": "during_strike",
-					"condition": "was_wild",
+					"condition": "was_wild_swing",
 					"effect_type": "powerup",
 					"amount": 2
 				},
@@ -2883,7 +2883,7 @@
 		"effects": [
 			{
 				"timing": "during_strike",
-				"condition": "was_wild",
+				"condition": "was_wild_swing",
 				"effect_type": "multiply_speed_bonuses",
 				"amount": 2
 			},
@@ -2952,9 +2952,9 @@
 				},
 				{
 					"timing": "immediate",
-					"effect_type": "hand_to_top_deck",
-					"amount_min": 0,
-					"amount": 1
+					"effect_type": "topdeck_from_hand",
+					"min_amount": 0,
+					"max_amount": 1
 				}
 			]
 		}

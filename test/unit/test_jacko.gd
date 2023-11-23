@@ -210,6 +210,21 @@ func test_jacko_servant_shoot():
 	validate_positions(player1, 3, player2, 6)
 	validate_life(player1, 30, player2, 25)
 
+func test_jacko_exceed_char_servant_shoot():
+	position_players(player1, 3, player2, 6)
+	player1.exceed()
+	give_player_specific_card(player1, "jacko_ironpumpkin", TestCardId3)
+	var card = player1.hand[player1.hand.size()-1]
+	player1.remove_card_from_hand(TestCardId3)
+	player1.gauge.append(card)
+	assert_true(game_logic.do_character_action(player1, [player1.hand[0].id]))
+	assert_true(game_logic.do_boost(player1, TestCardId3))
+	execute_strike(player1, player2, "jacko_servantshoot", "gg_normal_dive", [0], [])
+	assert_eq(player1.gauge.size(), 2)
+	assert_eq(player1.continuous_boosts.size(), 0)
+	validate_positions(player1, 3, player2, 6)
+	validate_life(player1, 30, player2, 25)
+
 func test_jacko_throwservant():
 	position_players(player1, 3, player2, 6)
 	give_player_specific_card(player1, "jacko_ironpumpkin", TestCardId3)

@@ -227,6 +227,7 @@ class StrikeStatBoosts:
 	var was_hit : bool = false
 	var is_ex : bool = false
 	var opponent_cant_move_past : bool = false
+	var speed_bonus_multiplier : int = 1
 	var active_character_effects = []
 
 	func clear():
@@ -250,6 +251,7 @@ class StrikeStatBoosts:
 		was_hit = false
 		is_ex = false
 		opponent_cant_move_past = false
+		speed_bonus_multiplier = 1
 		active_character_effects = []
 
 	func set_ex():
@@ -280,6 +282,7 @@ class Player:
 	var exceeded : bool
 	var exceed_cost : int
 	var strike_stat_boosts : StrikeStatBoosts
+	var did_strike_this_turn : bool
 	var canceled_this_turn : bool
 	var used_character_action : bool
 	var exceed_at_end_of_turn : bool
@@ -318,6 +321,7 @@ class Player:
 		discards = []
 		reshuffle_remaining = MaxReshuffle
 		exceeded = false
+		did_strike_this_turn = false
 		canceled_this_turn = false
 		used_character_action = false
 		exceed_at_end_of_turn = false
@@ -1097,6 +1101,19 @@ func get_other_player(test_player : Enums.PlayerId) -> Enums.PlayerId:
 
 func advance_to_next_turn():
 	var events = []
+
+	var player_ending_turn = _get_player(active_turn_player)
+	var other_player = _get_player(get_other_player(active_turn_player))
+
+	# Do any end of turn effects.
+	var effects = player_ending_turn.get_character_effects_at_timing("end_of_turn")
+	for effect in effects:
+		if is_effect_condition_met(player_ending_turn, effect, null):
+			events += handle_strike_effect(-1, effect, player_ending_turn)
+
+	# Turn is over, reset state.
+	player.did_strike_this_turn = false
+	opponent.did_strike_this_turn = false
 	player.canceled_this_turn = false
 	opponent.canceled_this_turn = false
 	player.pre_strike_movement = 0
@@ -1104,9 +1121,7 @@ func advance_to_next_turn():
 	player.used_character_action = false
 	opponent.used_character_action = false
 
-	var player_ending_turn = _get_player(active_turn_player)
-	var other_player = _get_player(get_other_player(active_turn_player))
-
+	# Figure out next turn's player.
 	active_turn_player = next_turn_player
 	next_turn_player = get_other_player(active_turn_player)
 
@@ -1228,13 +1243,18 @@ func begin_resolve_strike():
 	active_strike.strike_state = StrikeState.StrikeState_Initiator_PayCosts
 	active_strike.effects_resolved_in_timing = 0
 
+	active_strike.initiator.did_strike_this_turn = true
+	active_strike.defender.did_strike_this_turn = true
+
 	events += continue_resolve_strike()
 	return events
 
 func strike_determine_order():
 	# Determine activation
-	var initiator_speed = active_strike.initiator_card.definition['speed'] + active_strike.initiator.strike_stat_boosts.speed
-	var defender_speed = active_strike.defender_card.definition['speed'] + active_strike.defender.strike_stat_boosts.speed
+	var initiator_bonus_speed = active_strike.initiator.strike_stat_boosts.speed * active_strike.initiator.strike_stat_boosts.speed_bonus_multiplier
+	var initiator_speed = active_strike.initiator_card.definition['speed'] + initiator_bonus_speed
+	var defender_bonus_speed = active_strike.defender.strike_stat_boosts.speed * active_strike.defender.strike_stat_boosts.speed_bonus_multiplier
+	var defender_speed = active_strike.defender_card.definition['speed'] + defender_bonus_speed
 	active_strike.initiator_first = initiator_speed >= defender_speed
 	var first_player_name = active_strike.initiator.name
 	var first_player_card = card_db.get_card_name(active_strike.initiator_card.id)
@@ -1299,6 +1319,8 @@ func is_effect_condition_met(performing_player : Player, effect, local_condition
 		elif condition == "max_cards_in_hand":
 			var amount = effect['condition_amount']
 			return performing_player.hand.size() <= amount
+		elif condition == "no_strike_this_turn":
+			return not performing_player.did_strike_this_turn
 		elif condition == "opponent_stunned":
 			return active_strike.is_player_stunned(other_player)
 		elif condition == "range":
@@ -1307,6 +1329,8 @@ func is_effect_condition_met(performing_player : Player, effect, local_condition
 			return amount == distance
 		elif condition == "was_hit":
 			return performing_player.strike_stat_boosts.was_hit
+		elif condition == "was_wild_swing":
+			return active_strike.get_player_wild_strike(performing_player)
 		else:
 			assert(false, "Unimplemented condition")
 		# Unmet condition
@@ -1499,6 +1523,8 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 			events += opposing_player.discard([chosen_card_id])
 		"exceed_end_of_turn":
 			performing_player.exceed_at_end_of_turn = true
+		"exceed_now":
+			events += performing_player.exceed()
 		"force_for_effect":
 			var available_force = performing_player.get_available_force()
 			var can_do_something = false
@@ -1537,6 +1563,7 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 				decision_info.type = Enums.DecisionType.DecisionType_CardFromHandToGauge
 				decision_info.player = performing_player.my_id
 				decision_info.choice_card_id = card_id
+				decision_info.destination = "gauge"
 				var min_amount = effect['min_amount']
 				var max_amount = effect['max_amount']
 				decision_info.effect = {
@@ -1570,6 +1597,10 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 			# this should discard "by name", so instead of using that
 			# match card.definition['id']'s instead.
 			events += opposing_player.discard_matching_or_reveal(named_card.definition['id'])
+		"reveal_hand":
+			events += performing_player.reveal_hand()
+		"speed_bonus_multiplier":
+			performing_player.strike_stat_boosts.speed_bonus_multiplier = max(effect['amount'], performing_player.strike_stat_boosts.speed_bonus_multiplier)
 		"opponent_cant_move_past":
 			performing_player.strike_stat_boosts.opponent_cant_move_past = true
 			events += [create_event(Enums.EventType.EventType_Strike_OpponentCantMovePast, performing_player.my_id, 0)]
@@ -1733,6 +1764,20 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 				active_strike.add_damage_taken(performing_player, damage)
 			_append_log("%s takes %s non-lethal damage. Life is now %s." % [performing_player.name, str(damage), str(performing_player.life)])
 			events += [create_event(Enums.EventType.EventType_Strike_TookDamage, performing_player.my_id, damage)]
+		"topdeck_from_hand":
+			if len(performing_player.hand) > 0:
+				change_game_state(Enums.GameState.GameState_PlayerDecision)
+				decision_info.type = Enums.DecisionType.DecisionType_CardFromHandToGauge
+				decision_info.player = performing_player.my_id
+				decision_info.choice_card_id = card_id
+				decision_info.destination = "topdeck"
+				var min_amount = effect['min_amount']
+				var max_amount = effect['max_amount']
+				decision_info.effect = {
+					"min_amount": min_amount,
+					"max_amount": max_amount,
+				}
+				events += [create_event(Enums.EventType.EventType_CardFromHandToGauge_Choice, performing_player.my_id, min_amount, "", max_amount)]
 		"when_hit_force_for_armor":
 			performing_player.strike_stat_boosts.when_hit_force_for_armor = true
 
@@ -2732,7 +2777,12 @@ func do_card_from_hand_to_gauge(performing_player : Player, card_ids : Array) ->
 			card_names += ", " + card_db.get_card_name(card_ids[i])
 		_append_log("%s moved cards (%s) from hand to gauge." % [performing_player.name, card_names])
 		for card_id in card_ids:
-			events += performing_player.move_card_from_hand_to_gauge(card_id)
+			if decision_info.destination == "gauge":
+				events += performing_player.move_card_from_hand_to_gauge(card_id)
+			elif decision_info.destination == "topdeck":
+				events += performing_player.move_card_from_hand_to_deck(card_id)
+			else:
+				assert(false, "Unknown destination for do_card_from_hand_to_gauge")
 
 	if active_boost:
 		active_boost.effects_resolved += 1
