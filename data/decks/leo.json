@@ -23,7 +23,7 @@
 			}
 		},
 		{
-			"timing": "at_end_of_turn",
+			"timing": "end_of_turn",
 			"condition": "no_strike_this_turn",
 			"effect_type": "revert"
 		}
