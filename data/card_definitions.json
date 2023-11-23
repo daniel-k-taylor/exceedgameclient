@@ -438,15 +438,14 @@
 			{
 				"timing": "hit",
 				"effect_type": "pull_not_past",
-				"amount": 3
-			},
-			{
-				"timing": "hit",
-				"effect_type": "choice",
-				"choice": [
-					{ "effect_type": "advance", "amount": 2, "and": { "effect_type": "gain_advantage" } },
-					{ "effect_type": "powerup", "amount": 2 }
-				]
+				"amount": 3,
+				"and": {
+					"effect_type": "choice",
+					"choice": [
+						{ "effect_type": "advance", "amount": 2, "and": { "effect_type": "gain_advantage" } },
+						{ "effect_type": "powerup", "amount": 2 }
+					]
+				}
 			}
 		],
 		"boost": {
@@ -5195,11 +5194,9 @@
 				"per_gauge_effect": null,
 				"overall_effect": {
 					"effect_type": "powerup",
-					"amount": 2,
-					"and": {
-						"effect_type": "spent_cards_to_hand"
-					}
+					"amount": 2
 				},
+				"spent_cards_to_hand": true,
 				"gauge_max": 1
 			}
 		],
@@ -5213,6 +5210,7 @@
 					"timing": "immediate",
 					"effect_type": "strike_effect_after_opponent_sets",
 					"after_set_effect": {
+						"for_other_player": true,
 						"effect_type": "choice",
 						"choice": [
 							{ "effect_type": "draw", "amount": 1 },
@@ -5227,7 +5225,7 @@
 	{
 		"id": "testament_unholydiver",
 		"type": "special",
-		"display_name": "Wild Throw",
+		"display_name": "Unholy Diver",
 		"force_cost": 0,
 		"gauge_cost": 0,
 		"range_min": 2,
@@ -5240,7 +5238,20 @@
 			{
 				"timing": "after",
 				"condition": "hit_opponent",
-				"effect_type": "boost_this_then_sustain"
+				"effect_type": "choice",
+				"choice": [
+					{ 
+						"effect_type": "boost_this_then_sustain",
+						"boost_effect": {
+							"effect_type": "choice",
+							"choice": [
+								{ "effect_type": "advance", "amount": 1 },
+								{ "effect_type": "retreat", "amount": 1 }
+							]
+						}
+				 	},
+					{ "effect_type": "pass" }
+				]
 			}
 		],
 		"boost": {
@@ -5300,7 +5311,14 @@
 			"effects": [
 				{
 					"timing": "immediate",
-					"effect_type": "gauge_to_hand"
+					"effect_type": "gauge_for_effect",
+					"per_gauge_effect": null,
+					"overall_effect": {
+						"effect_type": "nothing"
+					},
+					"spent_cards_to_hand": true,
+					"required": true,
+					"gauge_max": 1
 				},
 				{
 					"timing": "immediate",

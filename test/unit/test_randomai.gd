@@ -183,7 +183,8 @@ func handle_boost_reponse(events, aiplayer : AIPlayer, game : LocalGame, gamepla
 					for i in range(effect['gauge_max'] + 1):
 						options.append(i)
 				else:
-					options.append(0)
+					if not ('required' in effect and effect['required']):
+						options.append(0)
 					options.append(effect['gauge_max'])
 				var gauge_action = aiplayer.pick_gauge_for_effect(game, gameplayer.my_id, options)
 				assert_true(game.do_gauge_for_effect(gameplayer, gauge_action.card_ids), "do gauge effect failed")
@@ -278,7 +279,8 @@ func handle_strike(game: LocalGame, aiplayer : AIPlayer, otherai : AIPlayer, act
 					for i in range(effect['gauge_max'] + 1):
 						options.append(i)
 				else:
-					options.append(0)
+					if not ('required' in effect and effect['required']):
+						options.append(0)
 					options.append(effect['gauge_max'])
 				var gauge_action = decision_ai.pick_gauge_for_effect(game, decision_player.my_id, options)
 				assert_true(game.do_gauge_for_effect(decision_ai.game_player, gauge_action.card_ids), "do gauge effect failed")
@@ -525,6 +527,15 @@ func test_jacko_100():
 	
 func test_leo_100():
 	default_deck = CardDefinitions.get_deck_from_str_id("leo")
+	for i in range(RandomIterations):
+		print("==== RUNNING TEST %d ====" % i)
+		run_ai_game()
+		game_teardown()
+		game_setup()
+	pass_test("Finished match")
+	
+func test_testament_100():
+	default_deck = CardDefinitions.get_deck_from_str_id("testament")
 	for i in range(RandomIterations):
 		print("==== RUNNING TEST %d ====" % i)
 		run_ai_game()

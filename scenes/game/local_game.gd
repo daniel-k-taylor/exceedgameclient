@@ -174,6 +174,11 @@ class Strike:
 		else:
 			player2_stunned = true
 
+	func did_player_hit_opponent(check_player : Player):
+		if get_player(1) == check_player:
+			return player1_hit
+		return player2_hit
+
 	func add_damage_taken(performing_player : Player, damage : int) -> void:
 		if performing_player == initiator:
 			initiator_damage_taken += damage
@@ -222,6 +227,7 @@ class StrikeStatBoosts:
 	var lose_all_armor : bool = false
 	var always_add_to_gauge : bool = false
 	var return_attack_to_hand : bool = false
+	var move_strike_to_boosts : bool = false
 	var when_hit_force_for_armor : bool = false
 	var stun_immunity : bool = false
 	var was_hit : bool = false
@@ -246,6 +252,7 @@ class StrikeStatBoosts:
 		lose_all_armor = false
 		always_add_to_gauge = false
 		return_attack_to_hand = false
+		move_strike_to_boosts = false
 		when_hit_force_for_armor = false
 		stun_immunity = false
 		was_hit = false
@@ -296,6 +303,7 @@ class Player:
 	var pre_strike_movement : int
 	var sustained_boosts : Array[int]
 	var sustain_next_boost : bool
+	var extra_effect_after_set_strike
 
 	func _init(id, player_name, parent_ref, card_db_ref, chosen_deck, card_start_id):
 		my_id = id
@@ -334,6 +342,7 @@ class Player:
 		pre_strike_movement = 0
 		sustained_boosts = []
 		sustain_next_boost = false
+		extra_effect_after_set_strike = null
 
 		max_hand_size = MaxHandSize	
 		if 'alt_hand_size' in deck_def:
@@ -428,6 +437,16 @@ class Player:
 			if card.id == id:
 				events += add_to_gauge(card)
 				hand.remove_at(i)
+				break
+		return events
+
+	func move_card_from_gauge_to_hand(id : int):
+		var events = []
+		for i in range(len(gauge)):
+			var card = gauge[i]
+			if card.id == id:
+				events += add_to_hand(card)
+				gauge.remove_at(i)
 				break
 		return events
 
@@ -666,6 +685,15 @@ class Player:
 				return events
 		# Not found
 		events += reveal_hand()
+		return events
+
+	func discard_topdeck():
+		var events = []
+		if deck.size() > 0:
+			var card = deck[0]
+			parent._append_log("%s discarded top of deck: %s." % [name, parent.card_db.get_card_name(card.id)])
+			deck.remove_at(0)
+			events += add_to_discards(card)
 		return events
 
 	func next_strike_with_or_reveal(card_definition_id : String) -> void:
@@ -1018,6 +1046,8 @@ class Player:
 
 		# Maybe later get them from boosts, but for now, just character ability.
 		effects = get_character_effects_at_timing("set_strike")
+		if extra_effect_after_set_strike:
+			effects.append(extra_effect_after_set_strike)
 
 		return effects
 
@@ -1254,6 +1284,11 @@ func begin_resolve_strike():
 	active_strike.initiator.did_strike_this_turn = true
 	active_strike.defender.did_strike_this_turn = true
 
+	# Clear any setup stuff.
+	player.extra_effect_after_set_strike = null
+	opponent.extra_effect_after_set_strike = null
+				
+
 	events += continue_resolve_strike()
 	return events
 
@@ -1312,6 +1347,8 @@ func is_effect_condition_met(performing_player : Player, effect, local_condition
 			return not performing_player.canceled_this_turn
 		elif condition == "used_character_action":
 			return performing_player.used_character_action
+		elif condition == "hit_opponent":
+			return active_strike.did_player_hit_opponent(performing_player)
 		elif condition == "not_full_close":
 			return  not local_conditions.fully_closed
 		elif condition == "advanced_through":
@@ -1329,6 +1366,8 @@ func is_effect_condition_met(performing_player : Player, effect, local_condition
 			return performing_player.hand.size() <= amount
 		elif condition == "no_strike_this_turn":
 			return not performing_player.did_strike_this_turn
+		elif condition == "not_stunned":
+			return not active_strike.is_player_stunned(performing_player)
 		elif condition == "opponent_stunned":
 			return active_strike.is_player_stunned(other_player)
 		elif condition == "range":
@@ -1357,6 +1396,8 @@ func wait_for_mid_strike_boost():
 
 func handle_strike_effect(card_id :int, effect, performing_player : Player):
 	printlog("STRIKE: Handling effect %s" % [effect])
+	if 'for_other_player' in effect:
+		performing_player = _get_player(get_other_player(performing_player.my_id))
 	var events = []
 	if 'character_effect' in effect and effect['character_effect']:
 		performing_player.strike_stat_boosts.active_character_effects.append(effect)
@@ -1408,6 +1449,10 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 			events += [create_event(Enums.EventType.EventType_Strike_ExUp, performing_player.my_id, card_id)]
 		"bonus_action":
 			active_boost.action_after_boost = true
+		"boost_this_then_sustain":
+			performing_player.strike_stat_boosts.move_strike_to_boosts = true
+			var boost_effect = effect['boost_effect']
+			events += handle_strike_effect(card_id, boost_effect, performing_player)
 		"boost_then_sustain":
 			var allow_gauge = 'allow_gauge' in effect and effect['allow_gauge']
 			if performing_player.can_boost_something(allow_gauge, effect['limitation']):
@@ -1484,6 +1529,8 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 			var card = card_db.get_card(card_id)
 			_append_log("%s Start of turn card %s goes to discard." % [performing_player.name, card_db.get_card_name(card.id)])
 			events += performing_player.remove_from_continuous_boosts(card, false)
+		"discard_opponent_topdeck":
+			events += opposing_player.discard_topdeck()
 		"dodge_at_range":
 			performing_player.strike_stat_boosts.dodge_at_range_min = effect['range_min']
 			performing_player.strike_stat_boosts.dodge_at_range_max = effect['range_max']
@@ -1607,7 +1654,7 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 			events += opposing_player.discard_matching_or_reveal(named_card.definition['id'])
 		"reveal_hand":
 			events += performing_player.reveal_hand()
-		"speed_bonus_multiplier":
+		"multiply_speed_bonuses":
 			performing_player.strike_stat_boosts.speed_bonus_multiplier = max(effect['amount'], performing_player.strike_stat_boosts.speed_bonus_multiplier)
 		"opponent_cant_move_past":
 			performing_player.strike_stat_boosts.opponent_cant_move_past = true
@@ -1714,6 +1761,8 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 				card_names = card_names.substr(0, card_names.length() - 2)
 			_append_log("%s - Returned cards %s from gauge to hand." % [performing_player.name, card_names])
 			events += performing_player.return_all_cards_gauge_to_hand()
+		"return_attack_to_hand":
+			performing_player.strike_stat_boosts.return_attack_to_hand = true
 		"return_this_to_hand":
 			var card_name = card_db.get_card_name(card_id)
 			_append_log("%s - %s returned to hand." % [performing_player.name, card_name])
@@ -1752,6 +1801,12 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 			change_game_state(Enums.GameState.GameState_WaitForStrike)
 			decision_info.type = Enums.DecisionType.DecisionType_StrikeNow
 			decision_info.player = performing_player.my_id
+		"strike_effect_after_opponent_sets":
+			events += [create_event(Enums.EventType.EventType_ForceStartStrike, performing_player.my_id, 0)]
+			change_game_state(Enums.GameState.GameState_WaitForStrike)
+			decision_info.type = Enums.DecisionType.DecisionType_StrikeNow
+			decision_info.player = performing_player.my_id
+			opposing_player.extra_effect_after_set_strike = effect['after_set_effect']
 		"strike_faceup":
 			events += [create_event(Enums.EventType.EventType_ForceStartStrike, performing_player.my_id, 0)]
 			change_game_state(Enums.GameState.GameState_WaitForStrike)
@@ -2173,6 +2228,8 @@ func continue_resolve_strike():
 				# If hit, move card to gauge, otherwise move to discard.
 				if player1.strike_stat_boosts.return_attack_to_hand:
 					events += player1.add_to_hand(card1)
+				elif player1.strike_stat_boosts.move_strike_to_boosts:
+					events += player1.add_to_continuous_boosts(card1)
 				elif active_strike.player1_hit or player1.strike_stat_boosts.always_add_to_gauge:
 					_append_log("%s %s goes to gauge after the attack." % [player1.name, card_db.get_card_name(card1.id)])
 					events += player1.add_to_gauge(card1)
@@ -2182,6 +2239,8 @@ func continue_resolve_strike():
 
 				if player2.strike_stat_boosts.return_attack_to_hand:
 					events += player2.add_to_hand(card2)
+				elif player2.strike_stat_boosts.move_strike_to_boosts:
+					events += player2.add_to_continuous_boosts(card2)
 				elif active_strike.player2_hit or player2.strike_stat_boosts.always_add_to_gauge:
 					_append_log("%s %s goes to gauge after the attack." % [player2.name, card_db.get_card_name(card2.id)])
 					events += player2.add_to_gauge(card2)
@@ -3107,8 +3166,18 @@ func do_gauge_for_effect(performing_player : Player, card_ids : Array) -> bool:
 			effect_text = CardDefinitions.get_effect_text(decision_effect, false, false, false, source_card_name)
 			effect_times = 1
 
-		_append_log("%s spent %s gauge for %s with %s." % [performing_player.name, str(gauge_generated), effect_text, card_names])
-		events += performing_player.discard(card_ids)
+		var to_hand = 'spent_cards_to_hand' in decision_effect and decision_effect['spent_cards_to_hand']
+		if to_hand:
+			_append_log("%s returned %s gauge to hand for %s with %s." % [performing_player.name, str(gauge_generated), effect_text, card_names])
+		else:
+			_append_log("%s spent %s gauge for %s with %s." % [performing_player.name, str(gauge_generated), effect_text, card_names])
+
+		# Move the spent cards to the right place.
+		if to_hand:
+			for card_id in card_ids:
+				events += performing_player.move_card_from_gauge_to_hand(card_id)
+		else:
+			events += performing_player.discard(card_ids)
 		for i in range(0, effect_times):
 			events += handle_strike_effect(decision_info.choice_card_id, decision_effect, performing_player)
 

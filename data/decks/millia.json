@@ -11,7 +11,8 @@
 			"choice": [
 				{ "effect_type": "draw", "amount": 1 },
 				{ "effect_type": "advance", "amount": 2 },
-				{ "effect_type": "retreat", "amount": 2 }
+				{ "effect_type": "retreat", "amount": 2 },
+				{ "effect_type": "pass" }
 			]
 		}
 	],
@@ -24,7 +25,8 @@
 				{ "effect_type": "draw", "amount": 1 },
 				{ "effect_type": "advance", "amount": 2 },
 				{ "effect_type": "retreat", "amount": 2 },
-				{ "effect_type": "gain_advantage" }
+				{ "effect_type": "gain_advantage" },
+				{ "effect_type": "pass" }
 			]
 		}
 	],

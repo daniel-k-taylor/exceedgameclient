@@ -105,11 +105,18 @@ func get_force_for_effect_summary(effect, card_name_source : String) -> String:
 
 func get_gauge_for_effect_summary(effect, card_name_source : String) -> String:
 	var effect_str = ""
+	var to_hand = 'spent_cards_to_hand' in effect and effect['spent_cards_to_hand']
 	var gauge_limit = effect['gauge_max']
 	if "per_gauge_effect" in effect and effect['per_gauge_effect'] != null:
-		effect_str += "Spend up to %s gauge. For each, %s" % [str(gauge_limit), get_effect_text(effect['per_gauge_effect'], false, true, true, card_name_source)]
+		if to_hand:
+			effect_str += "Return up to %s gauge to your hand. For each, %s" % [str(gauge_limit), get_effect_text(effect['per_gauge_effect'], false, true, true, card_name_source)]
+		else:
+			effect_str += "Spend up to %s gauge. For each, %s" % [str(gauge_limit), get_effect_text(effect['per_gauge_effect'], false, true, true, card_name_source)]
 	elif 'overall_effect' in effect and effect['overall_effect'] != null:
-		effect_str += "You may spend %s gauge to %s" % [str(gauge_limit), get_effect_text(effect['overall_effect'], false, true, true, card_name_source)]
+		if to_hand:
+			effect_str += "You may return %s gauge to your hand to %s" % [str(gauge_limit), get_effect_text(effect['overall_effect'], false, true, true, card_name_source)]
+		else:
+			effect_str += "You may spend %s gauge to %s" % [str(gauge_limit), get_effect_text(effect['overall_effect'], false, true, true, card_name_source)]
 	return effect_str
 
 func get_timing_text(timing):
@@ -154,6 +161,8 @@ func get_condition_text(condition):
 			text += "If canceled this turn, "
 		"initiated_strike":
 			text += "If initiated strike, "
+		"hit_opponent":
+			text += "If hit opponent, "
 		"not_canceled_this_turn":
 			text += "If not canceled this turn, "
 		"not_full_push":
@@ -162,6 +171,8 @@ func get_condition_text(condition):
 			text += "If not full close, "
 		"not_initiated_strike":
 			text += "If opponent initiated strike, "
+		"not_stunned":
+			text += "If not stunned, "
 		"opponent_stunned":
 			text += "If opponent stunned, "
 		"pulled_past":
@@ -192,6 +203,8 @@ func get_effect_type_heading(effect):
 			effect_str += ""
 		"pull":
 			effect_str += "Pull "
+		"pull_not_past":
+			effect_str += "Pull without pulling past "
 		"push":
 			effect_str += "Push "
 		"retreat":
@@ -227,6 +240,11 @@ func get_effect_type_text(effect, card_name_source : String = ""):
 			effect_str += "Next Strike is EX."
 		"bonus_action":
 			effect_str += "Take another action."
+		"boost_this_then_sustain":
+			if card_name_source:
+				effect_str += "Boost and sustain %s" % card_name_source
+			else:
+				effect_str += "Boost and sustain this"
 		"boost_then_sustain":
 			var limitation_str = "boost"
 			if effect['limitation']:
@@ -250,6 +268,8 @@ func get_effect_type_text(effect, card_name_source : String = ""):
 			effect_str += "Discard a continuous boost."
 		"discard_opponent_gauge":
 			effect_str += "Discard a card from opponent's gauge."
+		"discard_opponent_topdeck":
+			effect_str += "Discard a card from the top of the opponent's deck"
 		"dodge_at_range":
 			if effect['range_min'] == effect['range_max']:
 				effect_str += "Opponent attacks miss at range %s." % effect['range_min']
@@ -281,6 +301,8 @@ func get_effect_type_text(effect, card_name_source : String = ""):
 			effect_str += "Lose all armor"
 		"name_card_opponent_discards":
 			effect_str += "Name a card. Opponent discards it or reveals not in hand."
+		"nothing":
+			effect_str += ""
 		"opponent_discard_choose":
 			effect_str += "Opponent discards " + str(effect['amount']) + " cards."
 		"opponent_discard_random":
@@ -307,6 +329,8 @@ func get_effect_type_text(effect, card_name_source : String = ""):
 			effect_str += "+" + str(effect['amount']) + "-" + str(effect['amount2']) + " Range per boost in play."
 		"retreat":
 			effect_str += "Retreat " + str(effect['amount'])
+		"return_attack_to_hand":
+			effect_str += "Return the attack to your hand."
 		"return_this_to_hand":
 			effect_str += "Return this card to hand."
 		"return_all_cards_gauge_to_hand":

@@ -17,14 +17,14 @@ In progress:
         ☐ cleanup not stunned return attack
         ☐ after opponent set ability
 
-        ☐ "effect_type": "spent_cards_to_hand"
-        ☐ "effect_type": "strike_effect_after_opponent_sets",
-        ☐ "condition": "hit_opponent",
-        ☐ "effect_type": "boost_this_then_sustain"
-        ☐ "effect_type": "gauge_to_hand"
-        ☐ "effect_type": "discard_opponent_topdeck"
-        ☐ "condition": "not_stunned",
-        ☐ "effect_type": "return_attack_to_hand",
+        ☐ "effect_type": "spent_cards_to_hand" @started(23-11-23 16:41)
+        ☐ "effect_type": "strike_effect_after_opponent_sets", @started(23-11-23 17:44)
+        ☐ "condition": "hit_opponent", @started(23-11-23 16:26)
+        ☐ "effect_type": "boost_this_then_sustain" @started(23-11-23 18:09)
+        ☐ "effect_type": "gauge_to_hand" @started(23-11-23 17:57)
+        ☐ "effect_type": "discard_opponent_topdeck" @started(23-11-23 17:10)
+        ☐ "condition": "not_stunned", @started(23-11-23 16:27)
+        ☐ "effect_type": "return_attack_to_hand", @started(23-11-23 17:12)
 
 Tasks:
     Main Features:

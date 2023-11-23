@@ -4,7 +4,7 @@ const LocalGame = preload("res://scenes/game/local_game.gd")
 const GameCard = preload("res://scenes/game/game_card.gd")
 const Enums = preload("res://scenes/game/enums.gd")
 var game_logic : LocalGame
-var default_deck = CardDefinitions.get_deck_from_str_id("leo")
+var default_deck = CardDefinitions.get_deck_from_str_id("testament")
 const TestCardId1 = 50001
 const TestCardId2 = 50002
 const TestCardId3 = 50003
@@ -201,73 +201,5 @@ func get_cards_from_gauge(player : LocalGame.Player, amount : int):
 ## Tests start here
 ##
 
-func test_leo_zweites_exceed():
+func test_testament_():
 	position_players(player1, 3, player2, 4)
-	execute_strike(player1, player2, "leo_zweites", "gg_normal_dive", [], [])
-	assert_eq(player1.gauge.size(), 1)
-	validate_positions(player1, 6, player2, 4)
-	validate_life(player1, 30, player2, 27)
-	assert_true(player1.exceeded)
-	var card = give_player_specific_card(player1, "leo_blitzschlag", TestCardId3)
-	player1.hand.erase(card)
-	player1.deck.insert(0, card)
-	assert_true(game_logic.do_strike(player1, -1, true, -1))
-	give_player_specific_card(player2, "gg_normal_slash", TestCardId4)
-	assert_true(game_logic.do_strike(player2, TestCardId4, false, -1))
-	validate_positions(player1, 6, player2, 4)
-	validate_life(player1, 30, player2, 21)
-
-func test_leo_gravierte_boost():
-	position_players(player1, 3, player2, 4)
-	give_player_specific_card(player1, "leo_gravierte", TestCardId3)
-	assert_true(game_logic.do_boost(player1, TestCardId3))
-	assert_true(player1.exceeded)
-	assert_eq(player1.gauge.size(), 1)
-	advance_turn(player1)
-	assert_false(player1.exceeded)
-
-func test_leo_stahl_invalid():
-	position_players(player1, 3, player2, 5)
-	var card = give_player_specific_card(player1, "gg_normal_slash", TestCardId3)
-	player1.hand.erase(card)
-	player1.deck.insert(1, card)
-	card = give_player_specific_card(player1, "leo_stahlwirbel", TestCardId4)
-	player1.hand.erase(card)
-	player1.deck.insert(0, card)
-	card = give_player_specific_card(player2, "gg_normal_slash", TestCardId5)
-	player2.hand.erase(card)
-	player2.deck.insert(0, card)
-	assert_eq(player1.hand.size(), 5)
-	assert_true(game_logic.do_strike(player1, -1, true, -1))
-	assert_true(game_logic.do_strike(player2, -1, true, -1))
-	assert_eq(player1.hand.size(), 6)
-	validate_life(player1, 30, player2, 26)
-	validate_positions(player1, 4, player2, 5)
-
-func test_leo_kahnschild():
-	position_players(player1, 3, player2, 5)
-	execute_strike(player1, player2, "leo_kahnschild", "gg_normal_focus", [], [])
-	assert_eq(game_logic.game_state, Enums.GameState.GameState_PickAction)
-	validate_life(player1, 26, player2, 29)
-	validate_positions(player1, 3, player2, 5)
-	
-func test_leo_kahnschild_exceeded():
-	position_players(player1, 3, player2, 5)
-	player1.exceed()
-	execute_strike(player1, player2, "leo_kahnschild", "gg_normal_focus", [1], [])
-	assert_eq(game_logic.game_state, Enums.GameState.GameState_PickAction)
-	validate_life(player1, 28, player2, 29)
-	validate_positions(player1, 4, player2, 5)
-	
-func test_leo_blitz_exceed_wild():
-	position_players(player1, 3, player2, 5)
-	player1.exceed()
-	var card = give_player_specific_card(player1, "leo_blitzschlag", TestCardId3)
-	player1.hand.erase(card)
-	player1.deck.insert(0, card)
-	assert_true(game_logic.do_strike(player1, -1, true, -1))
-	give_player_specific_card(player2, "gg_normal_cross", TestCardId4)
-	assert_true(game_logic.do_strike(player2, TestCardId4, false, -1))
-	validate_life(player1, 30, player2, 24)
-	validate_positions(player1, 3, player2, 5)
-	advance_turn(player1)

@@ -1198,15 +1198,25 @@ func update_gauge_selection_message():
 func update_gauge_for_effect_message():
 	var effect_str = ""
 	var decision_effect = game_wrapper.get_decision_info().effect
+	var to_hand = 'spent_cards_to_hand' in decision_effect and decision_effect['spent_cards_to_hand']
 	var source_card_name = game_wrapper.get_card_database().get_card_name(game_wrapper.get_decision_info().choice_card_id)
 	if decision_effect['per_gauge_effect']:
 		var effect = decision_effect['per_gauge_effect']
 		var effect_text = CardDefinitions.get_effect_text(effect, false, false, false, source_card_name)
-		effect_str = "Spend up to %s gauge for %s per card." % [decision_effect['gauge_max'], effect_text]
+		if to_hand:
+			effect_str = "Return up to %s gauge to your hand for %s per card." % [decision_effect['gauge_max'], effect_text]
+		else:
+			effect_str = "Spend up to %s gauge for %s per card." % [decision_effect['gauge_max'], effect_text]
 	elif decision_effect['overall_effect']:
 		var effect = decision_effect['overall_effect']
 		var effect_text = CardDefinitions.get_effect_text(effect, false, false, false, source_card_name)
-		effect_str = "Spend %s gauge for %s." % [decision_effect['gauge_max'], effect_text]
+		if to_hand:
+			if effect_text:
+				effect_str = "Return %s gauge to your hand for %s." % [decision_effect['gauge_max'], effect_text]
+			else:
+				effect_str = "Return %s gauge to your hand." % [decision_effect['gauge_max']]
+		else:
+			effect_str = "Spend %s gauge for %s." % [decision_effect['gauge_max'], effect_text]
 	effect_str += "\n%s gauge selected." % [selected_cards.size()]
 	set_instructions(effect_str)
 
@@ -1299,7 +1309,7 @@ func begin_gauge_selection(amount : int, wild_swing_allowed : bool, sub_state : 
 		UISubState.UISubState_SelectCards_Exceed, UISubState.UISubState_SelectCards_BoostCancel, UISubState.UISubState_SelectCards_CharacterAction_Gauge:
 			cancel_allowed = true
 		UISubState.UISubState_SelectCards_GaugeForEffect:
-			cancel_allowed = true
+			cancel_allowed = select_card_require_min == 0
 	enable_instructions_ui("", true, cancel_allowed, wild_swing_allowed)
 
 	change_ui_state(UIState.UIState_SelectCards, sub_state)
@@ -1587,6 +1597,8 @@ func _on_gauge_for_effect(event):
 	var effect = game_wrapper.get_decision_info().effect
 	if player == Enums.PlayerId.PlayerId_Player:
 		select_card_require_min = 0
+		if 'required' in effect and effect['required']:
+			select_card_require_min = effect['gauge_max']
 		select_card_require_max = effect['gauge_max']
 		if effect['overall_effect']:
 			select_card_must_be_max_or_min = true
