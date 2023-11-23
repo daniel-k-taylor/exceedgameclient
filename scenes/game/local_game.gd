@@ -711,6 +711,14 @@ class Player:
 				events += discard([random_card_id])
 		return events
 
+	func invalidate_card(card : GameCard):
+		var events = []
+		if 'on_invalid' in card.definition:
+			var invalid_effect = card.definition['on_invalid']
+			if parent.is_effect_condition_met(self, invalid_effect, null):
+				events += parent.handle_strike_effect(card.id, invalid_effect, self)
+		return events
+
 	func wild_strike(is_immediate_reveal : bool = false):
 		var events = []
 		# Get top card of deck (reshuffle if needed)
@@ -1997,6 +2005,7 @@ func ask_for_cost(performing_player, card, next_state):
 				events += [create_event(Enums.EventType.EventType_Strike_PayCost_Force, performing_player.my_id, card.id)]
 		else:
 			# Failed to pay the cost by default.
+			events += performing_player.invalidate_card(card)
 			events += performing_player.add_to_discards(card)
 			var new_wild_card = null
 			while new_wild_card == null:
@@ -2007,6 +2016,7 @@ func ask_for_cost(performing_player, card, next_state):
 				is_special = new_wild_card.definition['type'] == "special"
 				card_forced_invalid = (is_special and performing_player.specials_invalid)
 				if card_forced_invalid:
+					events += performing_player.invalidate_card(new_wild_card)
 					events += performing_player.add_to_discards(new_wild_card)
 					new_wild_card = null
 			events += [create_event(Enums.EventType.EventType_Strike_PayCost_Unable, performing_player.my_id, new_wild_card.id)]
@@ -2664,6 +2674,7 @@ func do_pay_strike_cost(performing_player : Player, card_ids : Array, wild_strik
 		_append_log("%s did a wild swing instead of validating %s." % [performing_player.name, card_db.get_card_name(card.id)])
 		# Replace existing card with a wild strike
 		var current_card = active_strike.get_player_card(performing_player)
+		events += performing_player.invalidate_card(current_card)
 		events += performing_player.add_to_discards(current_card)
 		events += performing_player.wild_strike(true)
 	else:

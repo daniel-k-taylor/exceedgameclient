@@ -25,7 +25,7 @@ enum DecisionType {
 	DecisionType_EffectChoice,
 	DecisionType_ForceForEffect,
 	DecisionType_GaugeForEffect,
-	DecisionType_NameCard_OpponentDiscards, # 9
+	DecisionType_NameCard_OpponentDiscards, # 10
 	DecisionType_ChooseToDiscard,
 	DecisionType_PayStrikeCost_Required,
 	DecisionType_PayStrikeCost_CanWild,
