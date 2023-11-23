@@ -483,7 +483,6 @@ char_id = "happychaos"
 portrait_texture = ExtResource("27_0fy1k")
 
 [node name="Testament" parent="CenterContainer/CharactersPanel/Rows/Row4" instance=ExtResource("6_3lmwy")]
-visible = false
 layout_mode = 2
 char_id = "testament"
 portrait_texture = ExtResource("21_cebtd")

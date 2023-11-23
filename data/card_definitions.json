@@ -5127,6 +5127,347 @@
 		"NOTEEND": "SOL BADGUY CARDS END"
 	},
 
+	
+	{
+		"NOTE": "TESTAMENT CARDS START",
+		"id": "testament_nostrovia",
+		"type": "ultra",
+		"display_name": "Nostrovia",
+		"force_cost": 0,
+		"gauge_cost": 4,
+		"range_min": 3,
+		"range_max": 3,
+		"speed": 4,
+		"power": 5,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "hit",
+				"effect_type": "push",
+				"amount": 2,
+				"bonus_effect": {
+					"condition": "not_full_push",
+					"effect_type": "powerup",
+					"amount": 2
+				}
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Like a Weed, Naturally",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "rangeup",
+					"amount": 0,
+					"amount2": 1
+				},
+				{
+					"timing": "now",
+					"effect_type": "add_top_deck_to_gauge",
+					"and": {
+						"effect_type": "retreat",
+						"amount": 1
+					}
+				}
+			]
+		}
+	},
+	{
+		"id": "testament_calamityone",
+		"type": "ultra",
+		"display_name": "Calamity One",
+		"force_cost": 0,
+		"gauge_cost": 2,
+		"range_min": 1,
+		"range_max": 2,
+		"speed": 3,
+		"power": 5,
+		"armor": 0,
+		"guard": 4,
+		"effects": [
+			{
+				"timing": "before",
+				"effect_type": "gauge_for_effect",
+				"per_gauge_effect": null,
+				"overall_effect": {
+					"effect_type": "powerup",
+					"amount": 2,
+					"and": {
+						"effect_type": "spent_cards_to_hand"
+					}
+				},
+				"gauge_max": 1
+			}
+		],
+		"boost": {
+			"boost_type": "immediate",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Possession",
+			"effects": [
+				{
+					"timing": "immediate",
+					"effect_type": "strike_effect_after_opponent_sets",
+					"after_set_effect": {
+						"effect_type": "choice",
+						"choice": [
+							{ "effect_type": "draw", "amount": 1 },
+							{ "effect_type": "advance", "amount": 2 },
+							{ "effect_type": "pass" }
+						]
+					}
+				}
+			]
+		}
+	},
+	{
+		"id": "testament_unholydiver",
+		"type": "special",
+		"display_name": "Wild Throw",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 2,
+		"range_max": 3,
+		"speed": 6,
+		"power": 1,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "after",
+				"condition": "hit_opponent",
+				"effect_type": "boost_this_then_sustain"
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Bloodstained Lineage",
+			"effects": [
+				{
+					"timing": "now",
+					"effect_type": "choice",
+					"choice": [
+						{ "effect_type": "advance", "amount": 1 },
+						{ "effect_type": "retreat", "amount": 1 }
+					]
+				},
+				{
+					"timing": "hit",
+					"effect_type": "powerup",
+					"amount": 1,
+					"and": {
+						"effect_type": "gain_advantage"
+					}
+				}
+			]
+		}
+	},
+	{
+		"id": "testament_arbitersignrising",
+		"type": "special",
+		"display_name": "Arbiter Sign - Rising",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 3,
+		"range_max": 6,
+		"speed": 5,
+		"power": 3,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "hit",
+				"effect_type": "draw",
+				"amount": 1
+			},
+			{
+				"timing": "after",
+				"condition": "opponent_stunned",
+				"effect_type": "gain_advantage"
+			}
+		],
+		"boost": {
+			"boost_type": "immediate",
+			"force_cost": 0,
+			"cancel_cost": 1,
+			"display_name": "As a matter of course",
+			"effects": [
+				{
+					"timing": "immediate",
+					"effect_type": "gauge_to_hand"
+				},
+				{
+					"timing": "immediate",
+					"effect_type": "add_to_gauge_boost_play_cleanup"
+				}
+			]
+		}
+	},
+	{
+		"id": "testament_gravereaper",
+		"type": "special",
+		"display_name": "Grave Reaper",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 5,
+		"speed": 4,
+		"power": 4,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "before",
+				"condition": "range",
+				"condition_amount": 1,
+				"effect_type": "push",
+				"amount": 3
+			},
+			{
+				"timing": "hit",
+				"effect_type": "draw",
+				"amount": 2,
+				"and": {
+					"effect_type": "gauge_from_hand",
+					"min_amount": 1,
+					"max_amount": 1
+				}
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": 1,
+			"display_name": "Exe Beast",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "guardup",
+					"amount": 4
+				},
+				{
+					"timing": "now",
+					"effect_type": "choice",
+					"choice": [
+						{ "effect_type": "retreat", "amount": 1 },
+						{ "effect_type": "retreat", "amount": 2 },
+						{ "effect_type": "pass" }
+					]
+				}
+			]
+		}
+	},
+	{
+		"id": "testament_arbitersignfalling",
+		"type": "special",
+		"display_name": "Arbiter Sign - Falling",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 3,
+		"range_max": 6,
+		"speed": 3,
+		"power": 5,
+		"armor": 0,
+		"guard": 3,
+		"effects": [
+			{
+				"timing": "during_strike",
+				"effect_type": "ignore_armor"
+			},
+			{
+				"timing": "hit",
+				"effect_type": "opponent_discard_random",
+				"amount": 1
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": 1,
+			"display_name": "Elegance",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "speedup",
+					"amount": 1
+				},
+				{
+					"timing": "now",
+					"effect_type": "look_at_top_opponent_deck",
+					"and": {
+						"effect_type": "choice",
+						"choice": [
+							{ "effect_type": "discard_opponent_topdeck" },
+							{ "effect_type": "pass" }
+						]
+					}
+				}
+			]
+		}
+	},
+	{
+		"NOTE": "TESTAMENT CARDS END",
+		"id": "testament_scytheswing",
+		"type": "special",
+		"display_name": "Scythe Swing",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 2,
+		"range_max": 4,
+		"speed": 2,
+		"power": 5,
+		"armor": 0,
+		"guard": 5,
+		"effects": [
+			{
+				"timing": "hit",
+				"effect_type": "choice",
+				"choice": [
+					{ "effect_type": "push", "amount": 1 },
+					{ "effect_type": "pull", "amount": 1 }
+				]
+			},
+			{
+				"timing": "after",
+				"effect_type": "choice",
+				"choice": [
+					{ "effect_type": "close", "amount": 1 },
+					{ "effect_type": "retreat", "amount": 1 }
+				]
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": 1,
+			"display_name": "Courtesy",
+			"effects": [
+				{
+					"timing": "cleanup",
+					"condition": "not_stunned",
+					"effect_type": "choice",
+					"choice": [
+						{ 
+							"effect_type": "return_attack_to_hand",
+							"and": {
+								"effect_type": "add_boost_to_gauge_on_strike_cleanup",
+								"card_name": "Scythe Swing"
+							}
+					    },
+						{ "effect_type": "pass" }
+					]
+				}
+			]
+		},
+		"NOTEEND": "TESTAMENT CARDS END"
+	},
+
 
 	{
 		"NOTE": "GG NORMALS START",

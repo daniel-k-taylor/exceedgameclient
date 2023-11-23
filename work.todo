@@ -1,26 +1,4 @@
 In progress:
-    Leo:
-        ☐ after exceed if stunned
-        ☐ wild swing bonus, revert if no strike
-        ☐ reveal your hand
-        ☐ double bonuses if wild
-        ☐ cleanup exceed revert
-        ☐ hand to top deck
-        ☐ exceed as boost
-        ☐ exceed only effect
-        ☐ if invalid effect
-
-
-        ☐ "effect_type": "exceed_now" @started(23-11-23 01:05)
-        ☐ "condition": "was_wild_swing" @started(23-11-23 01:11)
-        ☐ "timing": "at_end_of_turn", @started(23-11-23 01:19)
-			☐ "condition": "no_strike_this_turn", @started(23-11-23 01:19)
-
-        ☐ "effect_type": "multiply_speed_bonuses", @started(23-11-23 01:23)
-        ☐ "effect_type": "reveal_hand" @started(23-11-23 01:25)
-
-        ☐ "effect_type": "hand_to_top_deck", @started(23-11-23 01:49)
-
     Zato:
         ☐ Eddie
         ☐ place eddie
@@ -30,6 +8,7 @@ In progress:
         ☐ do not remove eddie on cleanup
         ☐ return 2 specials from discard
         ☐ condition opponent between eddie and zato
+
     Testament:
         ☐ normals permanent bonus
         ☐ hit play this as boost and sustain
@@ -37,6 +16,15 @@ In progress:
         ☐ look at opponents top and may discard
         ☐ cleanup not stunned return attack
         ☐ after opponent set ability
+
+        ☐ "effect_type": "spent_cards_to_hand"
+        ☐ "effect_type": "strike_effect_after_opponent_sets",
+        ☐ "condition": "hit_opponent",
+        ☐ "effect_type": "boost_this_then_sustain"
+        ☐ "effect_type": "gauge_to_hand"
+        ☐ "effect_type": "discard_opponent_topdeck"
+        ☐ "condition": "not_stunned",
+        ☐ "effect_type": "return_attack_to_hand",
 
 Tasks:
     Main Features:
