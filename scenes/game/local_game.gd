@@ -2230,6 +2230,7 @@ func continue_resolve_strike():
 					events += player1.add_to_hand(card1)
 				elif player1.strike_stat_boosts.move_strike_to_boosts:
 					events += player1.add_to_continuous_boosts(card1)
+					player1.sustained_boosts.append(card1.id)
 				elif active_strike.player1_hit or player1.strike_stat_boosts.always_add_to_gauge:
 					_append_log("%s %s goes to gauge after the attack." % [player1.name, card_db.get_card_name(card1.id)])
 					events += player1.add_to_gauge(card1)
@@ -2241,6 +2242,7 @@ func continue_resolve_strike():
 					events += player2.add_to_hand(card2)
 				elif player2.strike_stat_boosts.move_strike_to_boosts:
 					events += player2.add_to_continuous_boosts(card2)
+					player1.sustained_boosts.append(card2.id)
 				elif active_strike.player2_hit or player2.strike_stat_boosts.always_add_to_gauge:
 					_append_log("%s %s goes to gauge after the attack." % [player2.name, card_db.get_card_name(card2.id)])
 					events += player2.add_to_gauge(card2)
@@ -3168,9 +3170,12 @@ func do_gauge_for_effect(performing_player : Player, card_ids : Array) -> bool:
 
 		var to_hand = 'spent_cards_to_hand' in decision_effect and decision_effect['spent_cards_to_hand']
 		if to_hand:
-			_append_log("%s returned %s gauge to hand for %s with %s." % [performing_player.name, str(gauge_generated), effect_text, card_names])
+			if effect_text:
+				_append_log("%s returned %s gauge to hand for %s: %s." % [performing_player.name, str(gauge_generated), effect_text, card_names])
+			else:
+				_append_log("%s returned %s gauge to hand: %s." % [performing_player.name, str(gauge_generated), card_names])
 		else:
-			_append_log("%s spent %s gauge for %s with %s." % [performing_player.name, str(gauge_generated), effect_text, card_names])
+			_append_log("%s spent %s gauge for %s: %s." % [performing_player.name, str(gauge_generated), effect_text, card_names])
 
 		# Move the spent cards to the right place.
 		if to_hand:

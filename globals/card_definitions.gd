@@ -126,6 +126,8 @@ func get_timing_text(timing):
 			text += "[b]After:[/b] "
 		"before":
 			text += "[b]Before:[/b] "
+		"cleanup":
+			text += "[b]Cleanup:[/b] "
 		"during_strike":
 			text += ""
 		"hit":
@@ -330,7 +332,7 @@ func get_effect_type_text(effect, card_name_source : String = ""):
 		"retreat":
 			effect_str += "Retreat " + str(effect['amount'])
 		"return_attack_to_hand":
-			effect_str += "Return the attack to your hand."
+			effect_str += "Return the attack to your hand"
 		"return_this_to_hand":
 			effect_str += "Return this card to hand."
 		"return_all_cards_gauge_to_hand":

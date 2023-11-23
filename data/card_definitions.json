@@ -5194,7 +5194,8 @@
 				"per_gauge_effect": null,
 				"overall_effect": {
 					"effect_type": "powerup",
-					"amount": 2
+					"amount": 2,
+					"spent_cards_to_hand": true
 				},
 				"spent_cards_to_hand": true,
 				"gauge_max": 1
@@ -5240,7 +5241,8 @@
 				"condition": "hit_opponent",
 				"effect_type": "choice",
 				"choice": [
-					{ 
+					{
+						"card_name": "Unholy Diver",
 						"effect_type": "boost_this_then_sustain",
 						"boost_effect": {
 							"effect_type": "choice",
@@ -5314,7 +5316,8 @@
 					"effect_type": "gauge_for_effect",
 					"per_gauge_effect": null,
 					"overall_effect": {
-						"effect_type": "nothing"
+						"effect_type": "nothing",
+						"spent_cards_to_hand": true
 					},
 					"spent_cards_to_hand": true,
 					"required": true,
