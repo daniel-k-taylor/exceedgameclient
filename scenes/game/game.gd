@@ -923,7 +923,7 @@ func _on_choose_from_boosts(event):
 	select_card_require_min = game_wrapper.get_decision_info().amount_min
 	select_card_require_max = game_wrapper.get_decision_info().amount
 	if player == Enums.PlayerId.PlayerId_Player:
-		_on_player_boost_zone_clicked_zone(game_wrapper.get_player_sustained_boosts(Enums.PlayerId.PlayerId_Player))
+		_on_player_boost_zone_clicked_zone()
 		selected_cards = []
 		var cancel_allowed = false
 		if select_card_require_min == 0:
@@ -1327,7 +1327,7 @@ func begin_boost_choosing(can_cancel : bool, allow_gauge : bool, limitation : St
 	var instructions = "Select a %s to boost." % limitation_str
 	if allow_gauge:
 		_on_player_gauge_gauge_clicked()
-		instructions += "Select a %s to boost from hand or gauge." % limitation_str
+		instructions = "Select a %s to boost from hand or gauge." % limitation_str
 
 	enable_instructions_ui(instructions, true, can_cancel)
 	change_ui_state(UIState.UIState_SelectCards, UISubState.UISubState_SelectCards_PlayBoost)
@@ -1854,7 +1854,7 @@ func _update_buttons():
 
 	for i in range(current_effect_choices.size()):
 		var choice = current_effect_choices[i]
-		var card_name = null
+		var card_name = ""
 		if 'card_name' in choice:
 			card_name = choice['card_name']
 		button_choices.append({ "text": CardDefinitions.get_effect_text(choice, false, true, false, card_name), "action": func(): _on_choice_pressed(i) })
@@ -2425,7 +2425,7 @@ func card_in_selected_cards(card):
 			return true
 	return false
 
-func _update_popout_cards(cards_in_popout : Array, not_visible_position : Vector2, card_return_state : CardBase.CardState, filtering_allowed : bool = false, show_amount : bool = true, exclude_card_ids : Array[int] = []):
+func _update_popout_cards(cards_in_popout : Array, not_visible_position : Vector2, card_return_state : CardBase.CardState, filtering_allowed : bool = false, show_amount : bool = true):
 	if show_amount:
 		card_popout.set_amount(str(len(cards_in_popout)))
 	else:
@@ -2436,8 +2436,6 @@ func _update_popout_cards(cards_in_popout : Array, not_visible_position : Vector
 		var card_subset = []
 		for card in cards_in_popout:
 			if filtering_allowed and popout_show_normal_only() and not game_wrapper.get_card_database().is_normal_card(card.card_id - ReferenceScreenIdRangeStart):
-				continue
-			if card.card_id in exclude_card_ids:
 				continue
 			card_subset.append(card)
 		for i in range(len(card_subset)):
@@ -2534,7 +2532,7 @@ func popout_show_normal_only() -> bool:
 		return popout_instruction_info['normal_only']
 	return false
 
-func show_popout(popout_type : CardPopoutType, popout_title : String, card_node, card_rest_position : Vector2, card_rest_state : CardBase.CardState, show_amount : bool = true, exclude_card_ids : Array[int] = []):
+func show_popout(popout_type : CardPopoutType, popout_title : String, card_node, card_rest_position : Vector2, card_rest_state : CardBase.CardState, show_amount : bool = true):
 	popout_type_showing = popout_type
 	update_popout_instructions()
 	card_popout.set_title(popout_title)
@@ -2544,7 +2542,7 @@ func show_popout(popout_type : CardPopoutType, popout_title : String, card_node,
 	card_popout.visible = true
 	var cards = card_node.get_children()
 	var filtering_allowed = popout_type == CardPopoutType.CardPopoutType_ReferenceOpponent
-	_update_popout_cards(cards, card_rest_position, card_rest_state, filtering_allowed, show_amount, exclude_card_ids)
+	_update_popout_cards(cards, card_rest_position, card_rest_state, filtering_allowed, show_amount)
 
 func get_boost_zone_center(zone):
 	var pos = zone.global_position + CardBase.get_hand_card_size() / 2
@@ -2567,9 +2565,15 @@ func _on_opponent_discard_button_pressed():
 	await close_popout()
 	show_popout(CardPopoutType.CardPopoutType_DiscardOpponent, "THEIR DISCARD", $AllCards/OpponentDiscards, get_discard_location($OpponentDeck/Discard), CardBase.CardState.CardState_Discarded)
 
-func _on_player_boost_zone_clicked_zone(exclude_card_ids : Array[int] = []):
+func _on_player_boost_zone_clicked_zone():
 	await close_popout()
-	show_popout(CardPopoutType.CardPopoutType_BoostPlayer, "YOUR BOOSTS", $AllCards/PlayerBoosts, get_boost_zone_center($PlayerBoostZone), CardBase.CardState.CardState_InBoost, false, exclude_card_ids)
+	var sustained_card_ids = game_wrapper.get_player_sustained_boosts(Enums.PlayerId.PlayerId_Player)
+	for card in $AllCards/PlayerBoosts.get_children():
+		if card.card_id in sustained_card_ids:
+			card.set_label("Sustained")
+		else:
+			card.clear_label()
+	show_popout(CardPopoutType.CardPopoutType_BoostPlayer, "YOUR BOOSTS", $AllCards/PlayerBoosts, get_boost_zone_center($PlayerBoostZone), CardBase.CardState.CardState_InBoost)
 
 func _on_opponent_boost_zone_clicked_zone():
 	await close_popout()

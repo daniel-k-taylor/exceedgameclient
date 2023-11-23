@@ -204,19 +204,19 @@ func get_effect_type_text(effect, card_name_source : String = ""):
 	match effect_type:
 		"add_boost_to_gauge_on_strike_cleanup":
 			if card_name_source:
-				effect_str += "Add %s to gauge." % card_name_source
+				effect_str += "Add %s to gauge" % card_name_source
 			else:
-				effect_str += "Add card to gauge."
+				effect_str += "Add card to gauge"
 		"add_strike_to_gauge_after_cleanup":
 			effect_str += "Add card to gauge after strike."
 		"add_to_gauge_boost_play_cleanup":
-			effect_str += "Add card to gauge."
+			effect_str += "Add card to gauge"
 		"add_to_gauge_immediately":
-			effect_str += "Add card to gauge."
+			effect_str += "Add card to gauge"
 		"add_to_gauge_immediately_mid_strike_undo_effects":
 			effect_str += "Add card to gauge (and cancel its effects)."
 		"add_top_deck_to_gauge":
-			effect_str += "Add top card of deck to gauge."
+			effect_str += "Add top card of deck to gauge"
 		"advance":
 			effect_str += "Advance " + str(effect['amount'])
 		"armorup":
@@ -228,7 +228,7 @@ func get_effect_type_text(effect, card_name_source : String = ""):
 		"boost_then_sustain":
 			var limitation_str = "boost"
 			if effect['limitation']:
-				limitation_str = effect['limitation'] + "boost"
+				limitation_str = effect['limitation'] + " boost"
 			if effect['allow_gauge']:
 				effect_str += "Play and sustain a %s from hand or gauge." % limitation_str
 			else:
@@ -273,6 +273,8 @@ func get_effect_type_text(effect, card_name_source : String = ""):
 			effect_str += "Ignore guard."
 		"ignore_push_and_pull":
 			effect_str += "Ignore Push and Pull."
+		"lose_all_armor":
+			effect_str += "Lose all armor"
 		"name_card_opponent_discards":
 			effect_str += "Name a card. Opponent discards it or reveals not in hand."
 		"opponent_discard_choose":
@@ -327,6 +329,9 @@ func get_effect_type_text(effect, card_name_source : String = ""):
 	return effect_str
 
 func get_effect_text(effect, short = false, skip_timing = false, skip_condition = false, card_name_source : String = ""):
+	if not card_name_source:
+		if 'card_name' in effect:
+			card_name_source = effect['card_name']
 	var effect_str = ""
 	if 'timing' in effect and not skip_timing:
 		effect_str += get_timing_text(effect['timing'])

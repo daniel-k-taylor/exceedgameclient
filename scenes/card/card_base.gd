@@ -108,6 +108,14 @@ func set_remaining_count(count : int):
 		remaining_count_label.text = "%s Left" % count
 		fancy_card.modulate = NormalColor
 
+func set_label(label : String):
+	remaining_count_obj.visible = true
+	remaining_count_label.text = label
+
+func clear_label():
+	remaining_count_obj.visible = false
+	remaining_count_label.text = ""
+
 func flip_card_to_front(front):
 	if front:
 		card_back.visible = false

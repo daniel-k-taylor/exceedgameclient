@@ -2217,6 +2217,11 @@
 			"display_name": "Atack Command",
 			"effects": [
 				{
+					"timing": "during_strike",
+					"effect_type": "speedup",
+					"amount": 1
+				},
+				{
 					"timing": "hit",
 					"effect_type": "choice",
 					"choice": [
@@ -2309,7 +2314,7 @@
 					"timing": "during_strike",
 					"effect_type": "rangeup",
 					"amount": 0,
-					"amount2": 3
+					"amount2": 1
 				},
 				{
 					"timing": "now",

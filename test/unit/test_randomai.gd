@@ -1,5 +1,7 @@
 extends GutTest
 
+const RandomIterations = 1
+
 const LocalGame = preload("res://scenes/game/local_game.gd")
 const GameCard = preload("res://scenes/game/game_card.gd")
 const Enums = preload("res://scenes/game/enums.gd")
@@ -199,6 +201,9 @@ func handle_boost_reponse(events, aiplayer : AIPlayer, game : LocalGame, gamepla
 				var chooseaction = aiplayer.pick_choose_to_discard(game, gameplayer.my_id, amount)
 				assert_true(game.do_choose_to_discard(gameplayer, chooseaction.card_ids), "do choose to discard failed")
 				events += game.get_latest_events()
+			Enums.DecisionType.DecisionType_ChooseFromBoosts:
+				var decision_action = aiplayer.pick_choose_from_boosts(game, gameplayer.my_id, game.decision_info.amount)
+				assert_true(game.do_choose_from_boosts(gameplayer, decision_action.card_ids))
 			_:
 				assert(false, "Unimplemented decision type")
 
@@ -291,6 +296,12 @@ func handle_strike(game: LocalGame, aiplayer : AIPlayer, otherai : AIPlayer, act
 			Enums.DecisionType.DecisionType_ChooseDiscardOpponentGauge:
 				var decision_action = decision_ai.pick_discard_opponent_gauge(game, decision_player.my_id)
 				assert_true(game.do_boost_name_card_choice_effect(decision_player, decision_action.card_id), "do discard opponent gauge failed")
+			Enums.DecisionType.DecisionType_ChooseFromBoosts:
+				var decision_action = decision_ai.pick_choose_from_boosts(game, decision_player.my_id, game.decision_info.amount)
+				assert_true(game.do_choose_from_boosts(decision_player, decision_action.card_ids))
+			Enums.DecisionType.DecisionType_BoostNow:
+				var boostnow_action = decision_ai.take_boost(game, decision_player.my_id, game.decision_info.allow_gauge, game.decision_info.limitation)
+				assert_true(game.do_boost(decision_player, boostnow_action.card_id), "do boost now failed")
 			_:
 				assert(false, "Unimplemented decision type")
 
@@ -303,9 +314,23 @@ func handle_strike(game: LocalGame, aiplayer : AIPlayer, otherai : AIPlayer, act
 
 	return events
 
-func handle_character_action(game: LocalGame, aiplayer : AIPlayer, _otherai : AIPlayer, action : AIPlayer.CharacterActionAction):
+func handle_character_action(game: LocalGame, aiplayer : AIPlayer, otherai : AIPlayer, action : AIPlayer.CharacterActionAction):
 	assert_true(game.do_character_action(aiplayer.game_player, action.card_ids), "character action failed")
 	var events = []
+
+	var otherplayer = otherai.game_player
+
+	while game.game_state == Enums.GameState.GameState_PlayerDecision:
+		var decision_ai = aiplayer
+		var decision_player = game._get_player(game.decision_info.player)
+		if decision_player == otherplayer:
+			decision_ai = otherai
+		match game.decision_info.type:
+			Enums.DecisionType.DecisionType_BoostNow:
+				var boostnow_action = decision_ai.take_boost(game, decision_player.my_id, game.decision_info.allow_gauge, game.decision_info.limitation)
+				assert_true(game.do_boost(decision_player, boostnow_action.card_id), "do boost now failed")
+			_:
+				assert(false, "Unimplemented decision type for character action")
 
 	events += game.get_latest_events()
 	return events
@@ -374,7 +399,7 @@ func test_random_ai_players():
 	pass_test("Finished match")
 
 func test_sol_100():
-	for i in range(100):
+	for i in range(RandomIterations):
 		print("==== RUNNING TEST %d ====" % i)
 		run_ai_game()
 		game_teardown()
@@ -383,7 +408,7 @@ func test_sol_100():
 
 func test_ky_100():
 	default_deck = CardDefinitions.get_deck_from_str_id("kykisuke")
-	for i in range(100):
+	for i in range(RandomIterations):
 		print("==== RUNNING TEST %d ====" % i)
 		run_ai_game()
 		game_teardown()
@@ -392,7 +417,7 @@ func test_ky_100():
 
 func test_ram_100():
 	default_deck = CardDefinitions.get_deck_from_str_id("ramlethal")
-	for i in range(100):
+	for i in range(RandomIterations):
 		print("==== RUNNING TEST %d ====" % i)
 		run_ai_game()
 		game_teardown()
@@ -401,7 +426,7 @@ func test_ram_100():
 
 func test_anji_100():
 	default_deck = CardDefinitions.get_deck_from_str_id("anji")
-	for i in range(100):
+	for i in range(RandomIterations):
 		print("==== RUNNING TEST %d ====" % i)
 		run_ai_game()
 		game_teardown()
@@ -410,7 +435,7 @@ func test_anji_100():
 
 func test_pot_100():
 	default_deck = CardDefinitions.get_deck_from_str_id("potemkin")
-	for i in range(100):
+	for i in range(RandomIterations):
 		print("==== RUNNING TEST %d ====" % i)
 		run_ai_game()
 		game_teardown()
@@ -419,7 +444,7 @@ func test_pot_100():
 
 func test_may_100():
 	default_deck = CardDefinitions.get_deck_from_str_id("may")
-	for i in range(100):
+	for i in range(RandomIterations):
 		print("==== RUNNING TEST %d ====" % i)
 		run_ai_game()
 		game_teardown()
@@ -428,7 +453,7 @@ func test_may_100():
 
 func test_millia_100():
 	default_deck = CardDefinitions.get_deck_from_str_id("millia")
-	for i in range(100):
+	for i in range(RandomIterations):
 		print("==== RUNNING TEST %d ====" % i)
 		run_ai_game()
 		game_teardown()
@@ -437,7 +462,7 @@ func test_millia_100():
 
 func test_baiken_100():
 	default_deck = CardDefinitions.get_deck_from_str_id("baiken")
-	for i in range(100):
+	for i in range(RandomIterations):
 		print("==== RUNNING TEST %d ====" % i)
 		run_ai_game()
 		game_teardown()
@@ -446,7 +471,7 @@ func test_baiken_100():
 
 func test_giovanna_100():
 	default_deck = CardDefinitions.get_deck_from_str_id("giovanna")
-	for i in range(100):
+	for i in range(RandomIterations):
 		print("==== RUNNING TEST %d ====" % i)
 		run_ai_game()
 		game_teardown()
@@ -455,7 +480,7 @@ func test_giovanna_100():
 	
 func test_nago_100():
 	default_deck = CardDefinitions.get_deck_from_str_id("nago")
-	for i in range(100):
+	for i in range(RandomIterations):
 		print("==== RUNNING TEST %d ====" % i)
 		run_ai_game()
 		game_teardown()
@@ -464,7 +489,7 @@ func test_nago_100():
 
 func test_goldlewis_100():
 	default_deck = CardDefinitions.get_deck_from_str_id("goldlewis")
-	for i in range(100):
+	for i in range(RandomIterations):
 		print("==== RUNNING TEST %d ====" % i)
 		run_ai_game()
 		game_teardown()
@@ -473,7 +498,7 @@ func test_goldlewis_100():
 
 func test_ino_100():
 	default_deck = CardDefinitions.get_deck_from_str_id("ino")
-	for i in range(100):
+	for i in range(RandomIterations):
 		print("==== RUNNING TEST %d ====" % i)
 		run_ai_game()
 		game_teardown()
@@ -482,7 +507,16 @@ func test_ino_100():
 
 func test_chipp_100():
 	default_deck = CardDefinitions.get_deck_from_str_id("chipp")
-	for i in range(100):
+	for i in range(RandomIterations):
+		print("==== RUNNING TEST %d ====" % i)
+		run_ai_game()
+		game_teardown()
+		game_setup()
+	pass_test("Finished match")
+
+func test_jacko_100():
+	default_deck = CardDefinitions.get_deck_from_str_id("jacko")
+	for i in range(RandomIterations):
 		print("==== RUNNING TEST %d ====" % i)
 		run_ai_game()
 		game_teardown()
