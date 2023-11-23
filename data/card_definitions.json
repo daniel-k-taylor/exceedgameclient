@@ -1269,7 +1269,7 @@
 		"speed": 2,
 		"power": 4,
 		"armor": 0,
-		"guard": 0,
+		"guard": 5,
 		"effects": [
 			{
 				"timing": "before",
