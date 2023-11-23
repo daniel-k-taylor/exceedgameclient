@@ -1098,6 +1098,7 @@ func _on_force_start_strike(event):
 		begin_strike_choosing(false, false)
 	else:
 		ai_forced_strike()
+	return SmallNoticeDelay
 
 func _on_force_wild_swing(event):
 	var player = event['event_player']
@@ -1659,9 +1660,9 @@ func _handle_events(events):
 			Enums.EventType.EventType_ExceedRevert:
 				delay = _on_exceed_revert_event(event)
 			Enums.EventType.EventType_ForceStartBoost:
-				_on_force_start_boost(event)
+				delay = _on_force_start_boost(event)
 			Enums.EventType.EventType_ForceStartStrike:
-				_on_force_start_strike(event)
+				delay = _on_force_start_strike(event)
 			Enums.EventType.EventType_ForceForEffect:
 				_on_force_for_effect(event)
 			Enums.EventType.EventType_GaugeForEffect:
