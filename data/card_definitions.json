@@ -1335,6 +1335,642 @@
 		"NOTEEND": "CHIPP CARDS END"
 	},
 
+
+	{
+		"NOTE": "FAUST CARDS START",
+		"id": "faust_whatcouldthisbe",
+		"type": "ultra",
+		"display_name": "W-W-What Could This Be?",
+		"force_cost": 0,
+		"gauge_cost": 2,
+		"range_min": 2,
+		"range_max": 5,
+		"speed": 6,
+		"power": 3,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "before",
+				"effect_type": "boost_then_sustain_topdeck",
+				"amount": 2
+			}
+		],
+		"boost": {
+			"boost_type": "immediate",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Alone Infection",
+			"effects": [
+				{
+					"timing": "immediate",
+					"effect_type": "choice",
+					"choice": [
+						{ "effect_type": "advance", "amount": 2 },
+						{ "effect_type": "retreat", "amount": 2 }
+					]
+				},
+				{
+					"timing": "immediate",
+					"effect_type": "draw",
+					"amount": 1
+				}
+			]
+		}
+	},
+	{
+		"id": "faust_bonecrushingexcitement",
+		"type": "ultra",
+		"display_name": "Bone-Crushing Excitement",
+		"force_cost": 0,
+		"gauge_cost": 4,
+		"range_min": 1,
+		"range_max": 1,
+		"speed": 3,
+		"power": 7,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "during_strike",
+				"effect_type": "higher_speed_misses"
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Mini Faust",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "rangeup",
+					"amount": 0,
+					"amount2": 1
+				},
+				{
+					"timing": "both_players_effects",
+					"effects": [
+						{
+							"timing": "before",
+							"effect_type": "powerup",
+							"amount": 1
+						}
+					]
+				}
+			]
+		}
+	},
+	{
+		"id": "faust_snipsnipsnip",
+		"type": "special",
+		"display_name": "Snip Snip Snip",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 1,
+		"speed": 6,
+		"power": 3,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "during_strike",
+				"effect_type": "ignore_guard"
+			},
+			{
+				"timing": "after",
+				"condition": "hit_opponent",
+				"effect_type": "give_to_player"
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Afro",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "guardup",
+					"amount": -6
+				},
+				{
+					"timing": "now",
+					"effect_type": "draw",
+					"amount": 2
+				}
+			]
+		}
+	},
+	{
+		"id": "faust_scarecrow",
+		"type": "special",
+		"display_name": "Scarecrow",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 1,
+		"speed": 4,
+		"power": 4,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "during_strike",
+				"condition": "boost_in_play",
+				"effect_type": "powerup",
+				"amount": 2,
+				"and": {
+					"effect_type": "speedup",
+					"amount": -2
+				}
+			},
+			{
+				"timing": "before",
+				"effect_type": "close",
+				"amount": 8
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "100t Weight",
+			"effects": [
+				{
+					"timing": "now",
+					"effect_type": "push",
+					"amount": 1,
+					"and": {
+						"effect_type": "retreat",
+						"amount": 1,
+						"and": {
+							"effect_type": "draw",
+							"amount": 1
+						}
+					}
+				},
+				{
+					"timing": "hit",
+					"effect_type": "add_boost_to_gauge_on_strike_cleanup",
+					"card_name": "Scarecrow"
+				}
+			]
+		}
+	},
+	{
+		"id": "faust_love",
+		"type": "special",
+		"display_name": "Love",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 2,
+		"range_max": 4,
+		"speed": 4,
+		"power": 4,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "before",
+				"effect_type": "discard_own_boost_for_effect",
+				"overall_effect": {
+					"effect_type": "powerup",
+					"amount": 2
+				}
+			},
+			{
+				"timing": "after",
+				"effect_type": "retreat",
+				"amount": 1
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": 1,
+			"display_name": "Fanfare",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "attack_is_ex"
+				},
+				{
+					"timing": "now",
+					"effect_type": "opponent_force_for_effect",
+					"per_force_effect": null,
+					"overall_effect": {
+						"effect_type": "discard_this"
+					},
+					"force_max": 2
+				}
+			]
+		}
+	},
+	{
+		"id": "faust_thrust",
+		"type": "special",
+		"display_name": "Thrust",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 5,
+		"speed": 3,
+		"power": 4,
+		"armor": 0,
+		"guard": 4,
+		"effects": [
+			{
+				"timing": "hit",
+				"effect_type": "pull",
+				"amount": 2,
+				"and": {
+					"condition": "range",
+					"condition_amount": 1,
+					"effect_type": "powerup",
+					"amount": 3,
+					"and": {
+						"effect_type": "push",
+						"amount": 2
+					}
+				}
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": 1,
+			"display_name": "Banana Peel",
+			"effects": [
+				{
+					"timing": "both_players_effects",
+					"effects": [
+						{
+							"timing": "before",
+							"effect_type": "advance",
+							"amount": 1
+						},
+						{
+							"timing": "after",
+							"effect_type": "discard_this",
+							"card_name": "Thrust"
+						}
+					]
+				}
+			]
+		}
+	},
+	{
+		"NOTE": "FAUST CARDS END",
+		"id": "faust_mixmixmix",
+		"type": "special",
+		"display_name": "Mix Mix Mix",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 2,
+		"speed": 2,
+		"power": 4,
+		"armor": 0,
+		"guard": 5,
+		"effects": [
+			{
+				"timing": "before",
+				"effect_type": "choice",
+				"choice": [
+					{ "effect_type": "advance", "amount": 2 },
+					{ "effect_type": "retreat", "amount": 2 }
+				]
+			},
+			{
+				"timing": "after",
+				"effect_type": "choice",
+				"choice": [
+					{ "effect_type": "advance", "amount": 2 },
+					{ "effect_type": "retreat", "amount": 2 }
+				]
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Bomb",
+			"effects": [
+				{
+					"timing": "now",
+					"effect_type": "draw",
+					"amount": 2
+				},
+				{
+					"timing": "both_players_effects",
+					"effects": [
+						{
+							"timing": "after",
+							"effect_type": "take_nonlethal_damage",
+							"amount": 3,
+							"and": {
+								"effect_type": "discard_this",
+								"card_name": "Mix Mix Mix"
+							}
+						}
+					]
+				}
+			]
+		},
+		"NOTEEND": "FAUST CARDS END"
+	},
+
+
+
+	{
+		"NOTE": "HAPPYCHAOS CARDS START",
+		"id": "happychaos_cheapshot",
+		"type": "ultra",
+		"display_name": "Cheap Shot",
+		"force_cost": 0,
+		"gauge_cost": 1,
+		"range_min": 1,
+		"range_max": 4,
+		"speed": 6,
+		"power": 0,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "hit",
+				"effect_type": "choice",
+				"choice": [
+					{ "effect_type": "push", "amount": 1 },
+					{ "effect_type": "pull", "amount": 1 }
+				]
+			},
+			{
+				"timing": "after",
+				"condition": "opponent_stunned",
+				"effect_type": "opponent_discard_choose",
+				"amount": 2
+			}
+		],
+		"boost": {
+			"boost_type": "immediate",
+			"force_cost": 0,
+			"cancel_cost": 1,
+			"display_name": "Super Focus",
+			"effects": [
+				{
+					"timing": "immediate",
+					"effect_type": "return_sealed_to_hand"
+				}
+			]
+		}
+	},
+	{
+		"id": "happychaos_gundown",
+		"type": "ultra",
+		"display_name": "Gun Down",
+		"force_cost": 0,
+		"gauge_cost": 1,
+		"range_min": 2,
+		"range_max": 5,
+		"speed": 5,
+		"power": 3,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "during_strike",
+				"effect_type": "ignore_guard"
+			},
+			{
+				"timing": "hit",
+				"effect_type": "opponent_discard_choose",
+				"amount": 1
+			},
+			{
+				"timing": "after",
+				"effect_type": "seal_this",
+				"card_name": "Gun Down"
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Curse",
+			"effects": [
+				{
+					"timing": "now",
+					"effect_type": "choice",
+					"choice": [
+						{ "effect_type": "retreat", "amount": 1 },
+						{ "effect_type": "retreat", "amount": 2 }
+					]
+				},
+				{
+					"timing": "now",
+					"effect_type": "force_for_effect",
+					"per_force_effect": null,
+					"overall_effect": {
+						"effect_type": "strike"
+					},
+					"force_max": 1
+				},
+				{
+					"timing": "hit",
+					"effect_type": "add_boost_to_gauge_on_strike_cleanup",
+					"card_name": "Gun Down"
+				}
+			]
+		}
+	},
+	{
+		"id": "happychaos_steadyaim",
+		"type": "ultra",
+		"display_name": "Steady Aim",
+		"force_cost": 0,
+		"gauge_cost": 1,
+		"range_min": 3,
+		"range_max": 8,
+		"speed": 2,
+		"power": 4,
+		"armor": 0,
+		"guard": 6,
+		"effects": [
+			{
+				"timing": "set_strike",
+				"condition": "initiated_strike",
+				"effect_type": "choice",
+				"choice": [
+					{ 
+						"effect_type": "reveal_strike",
+						"and": {
+							"effect_type": "powerup",
+							"amount": 2,
+							"and": {
+								"effect_type": "ignore_armor"
+							}
+						}
+					},
+					{ "effect_type": "pass" }
+				]
+			},
+			{
+				"timing": "after",
+				"effect_type": "seal_this"
+			}
+		],
+		"boost": {
+			"boost_type": "immediate",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Drift",
+			"effects": [
+				{
+					"timing": "immediate",
+					"effect_type": "advance",
+					"amount": 3,
+					"bonus_effect": {
+						"condition": "advanced_through",
+						"effect_type": "seal_this",
+						"and": {
+							"effect_type": "bonus_action"
+						}
+					}
+				}
+			]
+		}
+	},
+	{
+		"id": "happychaos_attheready",
+		"type": "special",
+		"display_name": "At the Ready",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 2,
+		"speed": 6,
+		"power": 2,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "hit",
+				"effect_type": "choice",
+				"choice": [
+					{ "effect_type": "draw", "amount": 2 },
+					{ "effect_type": "return_sealed_to_hand" }
+				]
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Love You",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "powerup",
+					"amount": 1
+				},
+				{
+					"timing": "now",
+					"effect_type": "force_for_effect",
+					"per_force_effect": null,
+					"overall_effect": {
+						"effect_type": "discard_continuous_boost",
+						"amount": 1
+					},
+					"force_max": 1
+				}
+			]
+		}
+	},
+	{
+		"id": "happychaos_fire",
+		"type": "special",
+		"display_name": "Fire",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 2,
+		"range_max": 5,
+		"speed": 4,
+		"power": 2,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "hit",
+				"effect_type": "force_for_effect",
+				"per_force_effect": {
+					"effect_type": "powerup",
+					"amount": 1,
+					"and": {
+						"effect_type": "draw",
+						"amount": 1
+					}
+				},
+				"overall_effect": null,
+				"force_max": 3
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Scapegoat",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "armorup",
+					"amount": 2
+				},
+				{
+					"timing": "now",
+					"effect_type": "choice",
+					"choice": [
+						{ "effect_type": "spend_life", "amount": 1, "and": { "effect_type": "draw", "amount": 1 } },
+						{ "effect_type": "spend_life", "amount": 2, "and": { "effect_type": "draw", "amount": 2 } },
+						{ "effect_type": "spend_life", "amount": 3, "and": { "effect_type": "draw", "amount": 3 } },
+						{ "effect_type": "pass" }
+					]
+				}
+			]
+		}
+	},
+	{
+		"NOTE": "HAPPYCHAOS CARDS END",
+		"id": "happychaos_deusexmachine",
+		"type": "special",
+		"display_name": "Deus Ex Machina",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 5,
+		"speed": 4,
+		"power": 4,
+		"armor": 0,
+		"guard": 5,
+		"effects": [
+			{
+				"timing": "hit",
+				"effect_type": "shuffle_sealed_to_deck"
+			}
+		],
+		"boost": {
+			"boost_type": "immediate",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Nothing",
+			"effects": [
+			]
+		},
+		"NOTEEND": "HAPPYCHAOS CARDS END"
+	},
+
+
 	{
 		"NOTE": "GIOVANNA CARDS START",
 		"id": "giovanna_ventania",

@@ -37,6 +37,8 @@ func _ready():
 	card_data = load_json_file(card_definitions_path)
 	var deck_files = DirAccess.get_files_at(decks_path)
 	for deck_file in deck_files:
+		if deck_file[0] == "_":
+			continue
 		var deck_data = load_json_file(decks_path + "/" + deck_file)
 		if deck_data:
 			decks.append(deck_data)
@@ -296,7 +298,9 @@ func get_effect_type_text(effect, card_name_source : String = ""):
 		"gauge_from_hand":
 			effect_str += "Add a card from hand to gauge"
 		"guardup":
-			effect_str += "+" + str(effect['amount']) + " Guard"
+			if effect['amount'] > 0:
+				effect_str += "+"
+			effect_str += str(effect['amount']) + " Guard"
 		"ignore_armor":
 			effect_str += "Ignore armor"
 		"ignore_guard":
@@ -318,7 +322,9 @@ func get_effect_type_text(effect, card_name_source : String = ""):
 		"pass":
 			effect_str += "Pass"
 		"powerup":
-			effect_str += "+" + str(effect['amount']) + " Power"
+			if effect['amount'] > 0:
+				effect_str += "+"
+			effect_str += str(effect['amount']) + " Power"
 		"powerup_per_boost_in_play":
 			effect_str += "+" + str(effect['amount']) + " Power per boost in play."
 		"powerup_damagetaken":
