@@ -1526,7 +1526,7 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 				decision_info.amount = amount
 				decision_info.amount_min = amount
 				if 'amount_min' in effect:
-					decision_info.amount_min = effect['amount_min']
+					decision_info.amount_min = min(effect['amount_min'], amount)
 				events += [create_event(Enums.EventType.EventType_ChooseFromDiscard, performing_player.my_id, amount)]
 		"choose_sustain_boost":
 			var choice_count = performing_player.continuous_boosts.size()

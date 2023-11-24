@@ -14,6 +14,18 @@ In progress:
         ☐ discard from play and take 3 actions
         ☐ lose all armor
         ☐ look at top 3 of deck, boost/strike with one, discard the rest
+
+        ☐ "effect_type": "place_eddie_in_attack_range"
+        ☐ "effect_type": "place_eddie_in_any_space"
+        ☐ "condition": "is_eddie_special_attack",
+        ☐ "effect_type": "calculate_range_from_eddie"
+        ☐ "effect_type": "remove_eddie"
+        ☐ "effect_type": "do_not_remove_eddie"
+        ☐ "condition": "opponent_between_eddie",
+        ☐ "effect_type": "push_from_source",
+        ☐ "effect_type": "place_eddie_onto_self",
+        ☐ "condition": "eddie_in_play",
+
     Faust:
         ☐ action - boost top card then strike
             ☐ reveal top 2 and choose
