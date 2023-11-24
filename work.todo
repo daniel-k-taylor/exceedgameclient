@@ -8,7 +8,6 @@ In progress:
         ☐ do not remove eddie on cleanup
         ☐ return 2 specials from discard
         ☐ condition opponent between eddie and zato
-    Axl:
         ☐ permanent char ability boost - just make it a set_strike effect
         ☐ hit may spend gauge
         ☐ play as boost and sustain
@@ -17,32 +16,11 @@ In progress:
         ☐ look at top 3 of deck, boost/strike with one, discard the rest
 
 
-        ☐ action timing effect - adds action to menu @started(23-11-23 20:56)
-            ☐ allow AI to take bonus actions
-        ☐ "effect_type": "take_bonus_actions", - use a 'cancel_disabled_this_turn' flag on player @started(23-11-23 20:38)
-        ☐ "effect_type": "choose_cards_from_top_deck", - also use cancel disabled @started(23-11-23 22:19)
-            ☐ random AI handling new decision type
-            ☐ UI for choosing the cards and buttons to strike/boost/pass
-
 
 
 Write tests for:
+    Axl:
     Testament:
-        ☐ normals permanent bonus
-        ☐ hit play this as boost and sustain
-        ☐ gauge to hand
-        ☐ look at opponents top and may discard
-        ☐ cleanup not stunned return attack
-        ☐ after opponent set ability
-
-        ☐ "effect_type": "spent_cards_to_hand" @started(23-11-23 16:41)
-        ☐ "effect_type": "strike_effect_after_opponent_sets", @started(23-11-23 17:44)
-        ☐ "condition": "hit_opponent", @started(23-11-23 16:26)
-        ☐ "effect_type": "boost_this_then_sustain" @started(23-11-23 18:09)
-        ☐ "effect_type": "gauge_to_hand" @started(23-11-23 17:57)
-        ☐ "effect_type": "discard_opponent_topdeck" @started(23-11-23 17:10)
-        ☐ "condition": "not_stunned", @started(23-11-23 16:27)
-        ☐ "effect_type": "return_attack_to_hand", @started(23-11-23 17:12)
 
 Tasks:
     Main Features:
@@ -58,6 +36,7 @@ Tasks:
     AI:
         ☐ Something more
     Misc/Low pri:
+        ☐ allow AI to take bonus turn actions
         ☐ Allow EX'ing when hit with Reading
         ☐ Sum continuous boost stat bonuses into a single line
         ☐ Boost zone panel formatting/change size with text. - Should scroll?

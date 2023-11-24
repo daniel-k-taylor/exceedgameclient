@@ -76,6 +76,7 @@ enum CardPopoutType {
 	CardPopoutType_ReferencePlayer,
 	CardPopoutType_ReferenceOpponent,
 	CardPopoutType_RevealedOpponent,
+	CardPopoutType_ChoiceZone,
 }
 
 var popout_type_showing : CardPopoutType = CardPopoutType.CardPopoutType_GaugePlayer
@@ -99,6 +100,7 @@ enum UISubState {
 	UISubState_SelectCards_CharacterAction_Gauge,
 	UISubState_SelectCards_ChooseBoostsToSustain,
 	UISubState_SelectCards_ChooseDiscardToDestination,
+	UISubState_SelectCards_ChooseFromTopdeck,
 	UISubState_SelectCards_DiscardContinuousBoost,
 	UISubState_SelectCards_DiscardOpponentGauge,
 	UISubState_SelectCards_DiscardFromReference,
@@ -138,6 +140,7 @@ var game_wrapper : GameWrapper = GameWrapper.new()
 @onready var player_bonus_label = $PlayerStrike/CharBonusPanel/MarginContainer/VBox/AbilityLabel
 @onready var opponent_bonus_label = $OpponentStrike/CharBonusPanel/MarginContainer/VBox/AbilityLabel
 @onready var action_menu : ActionMenu = $AllCards/ActionMenu
+@onready var choice_popout_button : Button = $ChoicePopoutShowButton
 var current_instruction_text : String = ""
 var current_action_menu_choices : Array = []
 var current_effect_choices : Array = []
@@ -544,6 +547,7 @@ func can_select_card(card):
 	var is_sustained = game_wrapper.is_card_sustained(Enums.PlayerId.PlayerId_Player, card.card_id)
 	var in_opponent_boosts = game_wrapper.is_card_in_boosts(Enums.PlayerId.PlayerId_Opponent, card.card_id)
 	var in_opponent_reference = is_card_in_player_reference($AllCards/OpponentAllCopy.get_children(), card.card_id)
+	var in_choice_zone = is_card_in_player_reference($AllCards/ChoiceZone.get_children(), card.card_id)
 	match ui_sub_state:
 		UISubState.UISubState_SelectCards_DiscardCards, UISubState.UISubState_SelectCards_DiscardCardsToGauge, UISubState.UISubState_SelectCards_DiscardCards_Choose:
 			return in_hand and len(selected_cards) < select_card_require_max
@@ -587,6 +591,8 @@ func can_select_card(card):
 				_:
 					meets_limitation = true
 			return in_discard and len(selected_cards) < select_card_require_max and meets_limitation
+		UISubState.UISubState_SelectCards_ChooseFromTopdeck:
+			return in_choice_zone and len(selected_cards) < select_card_require_max
 
 func deselect_all_cards():
 	for card in selected_cards:
@@ -973,14 +979,39 @@ func _on_choose_from_discard(event):
 func _on_choose_from_topdeck(event):
 	var player = event['event_player']
 	var decision_info = game_wrapper.get_decision_info()
-	var destination_unchosen = decision_info.destination
 	var action_choices = decision_info.action
 	var can_pass = decision_info.can_pass
 	var look_amount = decision_info.amount
 	if player == Enums.PlayerId.PlayerId_Player:
-		pass
+		begin_choose_from_topdeck(action_choices, look_amount, can_pass)
 	else:
 		ai_choose_from_topdeck(action_choices, look_amount, can_pass)
+
+func begin_choose_from_topdeck(_action_choices, look_amount, can_pass):
+	
+	var card_ids = game_wrapper.get_player_top_cards(Enums.PlayerId.PlayerId_Player, look_amount)
+	for card_id in card_ids:
+		var card = find_card_on_board(card_id)
+		card.flip_card_to_front(true)
+		reparent_to_zone(card, $AllCards/ChoiceZone)
+
+	selected_cards = []
+	select_card_require_min = 1
+	select_card_require_max = 1
+	var cancel_allowed = can_pass
+	popout_instruction_info = {
+		"popout_type": CardPopoutType.CardPopoutType_ChoiceZone,
+		"instruction_text": "Choose a card:",
+		"ok_text": "Boost",
+		"ok2_text": "Strike",
+		"cancel_text": "Pass",
+		"ok_enabled": true,
+		"cancel_visible": can_pass,
+	}
+	enable_instructions_ui("Choose a card to strike or boost.", false, cancel_allowed, false)
+	_on_choice_popout_show_button_pressed()
+
+	change_ui_state(UIState.UIState_SelectCards, UISubState.UISubState_SelectCards_ChooseFromTopdeck)
 
 func clear_selected_cards():
 	for card in selected_cards:
@@ -1839,13 +1870,13 @@ func _update_buttons():
 		popout_instruction_info['ok_enabled'] = can_press_ok()
 	update_popout_instructions()
 	if instructions_ok_allowed:
-		button_choices.append({ "text": "OK", "action": _on_instructions_ok_button_pressed, "disabled": not can_press_ok() })
+		button_choices.append({ "text": "OK", "action": func(): _on_instructions_ok_button_pressed(0), "disabled": not can_press_ok() })
 
 	var cancel_text = "Cancel"
 	match ui_sub_state:
 		UISubState.UISubState_SelectCards_BoostCancel, UISubState.UISubState_SelectCards_Mulligan, UISubState.UISubState_SelectCards_ForceForEffect, UISubState.UISubState_SelectCards_DiscardCardsToGauge, UISubState.UISubState_SelectCards_ChooseDiscardToDestination:
 			cancel_text = "Pass"
-		UISubState.UISubState_SelectCards_ChooseBoostsToSustain:
+		UISubState.UISubState_SelectCards_ChooseBoostsToSustain, UISubState.UISubState_SelectCards_ChooseFromTopdeck:
 			cancel_text = "Pass"
 		_:
 			cancel_text = "Cancel"
@@ -1889,6 +1920,8 @@ func _update_buttons():
 	# Update boost zones
 	update_boost_summary($AllCards/PlayerBoosts, $PlayerBoostZone)
 	update_boost_summary($AllCards/OpponentBoosts, $OpponentBoostZone)
+
+	choice_popout_button.visible = ui_sub_state == UISubState.UISubState_SelectCards_ChooseFromTopdeck
 
 	for i in range(current_effect_choices.size()):
 		var choice = current_effect_choices[i]
@@ -1941,6 +1974,8 @@ func can_press_ok():
 			UISubState.UISubState_SelectCards_DiscardCardsToGauge, UISubState.UISubState_SelectCards_Mulligan, UISubState.UISubState_SelectCards_CharacterAction_Gauge:
 				return selected_cards_between_min_and_max()
 			UISubState.UISubState_SelectCards_ChooseBoostsToSustain:
+				return selected_cards_between_min_and_max()
+			UISubState.UISubState_SelectCards_ChooseFromTopdeck:
 				return selected_cards_between_min_and_max()
 			UISubState.UISubState_SelectCards_MoveActionGenerateForce, UISubState.UISubState_SelectCards_CharacterAction_Force:
 				return can_selected_cards_pay_force(select_card_require_force)
@@ -2043,7 +2078,7 @@ func _on_choice_pressed(choice):
 		change_ui_state(UIState.UIState_WaitForGameServer)
 	_update_buttons()
 
-func _on_instructions_ok_button_pressed():
+func _on_instructions_ok_button_pressed(index : int):
 	if ui_state == UIState.UIState_SelectCards and can_press_ok():
 		var selected_card_ids : Array[int] = []
 		for card in selected_cards:
@@ -2061,6 +2096,10 @@ func _on_instructions_ok_button_pressed():
 		match ui_sub_state:
 			UISubState.UISubState_SelectCards_BoostCancel:
 				success = game_wrapper.submit_boost_cancel(Enums.PlayerId.PlayerId_Player, selected_card_ids, true)
+			UISubState.UISubState_SelectCards_ChooseFromTopdeck:
+				var action_choices = game_wrapper.get_decision_info().action
+				var chosen_action = action_choices[index]
+				success = game_wrapper.submit_choose_from_topdeck(Enums.PlayerId.PlayerId_Player, single_card_id, chosen_action)
 			UISubState.UISubState_SelectCards_ChooseDiscardToDestination:
 				success = game_wrapper.submit_choose_from_discard(Enums.PlayerId.PlayerId_Player, selected_card_ids)
 			UISubState.UISubState_SelectCards_CharacterAction_Force, UISubState.UISubState_SelectCards_CharacterAction_Gauge:
@@ -2138,6 +2177,10 @@ func _on_instructions_cancel_button_pressed():
 			deselect_all_cards()
 			close_popout()
 			success = game_wrapper.submit_choose_from_discard(Enums.PlayerId.PlayerId_Player, [])
+		UISubState.UISubState_SelectCards_ChooseFromTopdeck:
+			deselect_all_cards()
+			close_popout()
+			success = game_wrapper.submit_choose_from_topdeck(Enums.PlayerId.PlayerId_Player, -1, "pass")
 		_:
 			match ui_state:
 				UIState.UIState_SelectArenaLocation:
@@ -2572,6 +2615,13 @@ func clear_card_popout():
 		CardBase.CardState.CardState_Offscreen
 	)
 
+	# Choice Zone
+	await _update_popout_cards(
+		$AllCards/ChoiceZone.get_children(),
+		OffScreen,
+		CardBase.CardState.CardState_InDeck
+	)
+
 func close_popout():
 	card_popout.visible = false
 	await clear_card_popout()
@@ -2671,8 +2721,8 @@ func _on_revealed_cards_button_pressed():
 	await close_popout()
 	show_popout(CardPopoutType.CardPopoutType_RevealedOpponent, "LAST REVEALED CARDS", $AllCards/OpponentRevealed, OffScreen, CardBase.CardState.CardState_Offscreen)
 
-func _on_card_popout_pressed_ok():
-	_on_instructions_ok_button_pressed()
+func _on_card_popout_pressed_ok(index):
+	_on_instructions_ok_button_pressed(index)
 
 func _on_card_popout_pressed_cancel():
 	_on_instructions_cancel_button_pressed()
@@ -2689,3 +2739,8 @@ func _on_combat_log_close_button_pressed():
 func _on_action_menu_choice_selected(choice_index):
 	var action = current_action_menu_choices[choice_index]['action']
 	action.call()
+
+func _on_choice_popout_show_button_pressed():
+	await close_popout()
+	show_popout(CardPopoutType.CardPopoutType_ChoiceZone, "TOP OF DECK", $AllCards/ChoiceZone, OffScreen, CardBase.CardState.CardState_InDeck)
+

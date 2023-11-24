@@ -1,6 +1,6 @@
 {
 	"id": "axl",
-	"display_name": "axl",
+	"display_name": "Axl",
 	"cardback": "cardback_axl.jpg",
 	"exceed_cost": 3,
 	"on_exceed": {

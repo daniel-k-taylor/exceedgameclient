@@ -141,6 +141,14 @@ func is_card_in_discards(player_id : Enums.PlayerId, card_id : int):
 			return true
 	return false
 
+func get_player_top_cards(player_id : Enums.PlayerId, count : int) -> Array[int]:
+	var player = _get_player(player_id)
+	var top_cards : Array[int] = []
+	for i in range(count):
+		if player.deck.size() > i:
+			top_cards.append(player.deck[i].id)
+	return top_cards
+
 func get_player_sustained_boosts(player_id : Enums.PlayerId) -> Array[int]:
 	return _get_player(player_id).sustained_boosts
 	

@@ -1,7 +1,7 @@
 extends PanelContainer
 
 signal close_window
-signal pressed_ok
+signal pressed_ok(index)
 signal pressed_cancel
 
 const ColsAtMaxSize = 5
@@ -17,6 +17,7 @@ var total_cols = 0
 @onready var instruction_box = $PopoutVBox/HBoxContainer/RestOfThing
 @onready var instruction_label = $PopoutVBox/HBoxContainer/RestOfThing/InstructionLabel
 @onready var instruction_button_ok = $PopoutVBox/HBoxContainer/RestOfThing/InstructionButtonOk
+@onready var instruction_button_ok2 = $PopoutVBox/HBoxContainer/RestOfThing/InstructionButtonOk2
 @onready var instruction_button_cancel = $PopoutVBox/HBoxContainer/RestOfThing/InstructionButtonCancel
 
 # Called when the node enters the scene tree for the first time.
@@ -48,9 +49,15 @@ func set_instructions(instruction_info):
 		var cancel_text = instruction_info['cancel_text']
 		var ok_enabled = instruction_info['ok_enabled']
 		var cancel_visible = instruction_info['cancel_visible']
+		var ok2_text = ""
+		if 'ok2_text' in instruction_info:
+			ok2_text = instruction_info['ok2_text']
 		instruction_label.text = instruction_text
 		instruction_button_ok.text = ok_text
 		instruction_button_ok.disabled = not ok_enabled
+		instruction_button_ok2.visible = ok2_text != ""
+		instruction_button_ok2.text = ok2_text
+		instruction_button_ok2.disabled = not ok_enabled
 		instruction_button_cancel.visible = cancel_visible
 		instruction_button_cancel.text = cancel_text
 
@@ -111,8 +118,13 @@ func _on_close_window_button_pressed():
 
 
 func _on_instruction_button_ok_pressed():
-	pressed_ok.emit()
+	pressed_ok.emit(0)
 
+func _on_instruction_button_ok2_pressed():
+	pressed_ok.emit(1)
 
 func _on_instruction_button_cancel_pressed():
 	pressed_cancel.emit()
+
+
+

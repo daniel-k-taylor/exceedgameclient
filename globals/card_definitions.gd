@@ -241,9 +241,9 @@ func get_effect_type_text(effect, card_name_source : String = ""):
 		"armorup":
 			effect_str += "+" + str(effect['amount']) + " Armor"
 		"attack_is_ex":
-			effect_str += "Next Strike is EX."
+			effect_str += "Next Strike is EX"
 		"bonus_action":
-			effect_str += "Take another action."
+			effect_str += "Take another action"
 		"boost_this_then_sustain":
 			if card_name_source:
 				effect_str += "Boost and sustain %s" % card_name_source
@@ -271,7 +271,7 @@ func get_effect_type_text(effect, card_name_source : String = ""):
 		"discard_this":
 			effect_str += "Discard this"
 		"discard_continuous_boost":
-			effect_str += "Discard a continuous boost."
+			effect_str += "Discard a continuous boost"
 		"discard_opponent_gauge":
 			effect_str += "Discard a card from opponent's gauge."
 		"discard_opponent_topdeck":
@@ -292,17 +292,17 @@ func get_effect_type_text(effect, card_name_source : String = ""):
 		"gauge_for_effect":
 			effect_str += get_gauge_for_effect_summary(effect, card_name_source)
 		"gain_advantage":
-			effect_str += "Gain Advantage."
+			effect_str += "Gain Advantage"
 		"gauge_from_hand":
-			effect_str += "Add a card from hand to gauge."
+			effect_str += "Add a card from hand to gauge"
 		"guardup":
 			effect_str += "+" + str(effect['amount']) + " Guard"
 		"ignore_armor":
-			effect_str += "Ignore armor."
+			effect_str += "Ignore armor"
 		"ignore_guard":
-			effect_str += "Ignore guard."
+			effect_str += "Ignore guard"
 		"ignore_push_and_pull":
-			effect_str += "Ignore Push and Pull."
+			effect_str += "Ignore Push and Pull"
 		"lose_all_armor":
 			effect_str += "Lose all armor"
 		"name_card_opponent_discards":

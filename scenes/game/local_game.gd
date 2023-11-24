@@ -2954,6 +2954,8 @@ func do_choice(performing_player : Player, choice_index : int) -> bool:
 		game_state = Enums.GameState.GameState_Boost_Processing
 	elif active_strike:
 		game_state = Enums.GameState.GameState_Strike_Processing
+	elif active_exceed:
+		game_state = Enums.GameState.GameState_Boost_Processing
 
 	if decision_info.type == Enums.DecisionType.DecisionType_ChooseSimultaneousEffect:
 		# This was the player choosing what to do next.
@@ -2968,6 +2970,9 @@ func do_choice(performing_player : Player, choice_index : int) -> bool:
 		elif active_strike:
 			active_strike.effects_resolved_in_timing += 1
 			events += continue_resolve_strike()
+		elif active_exceed:
+			active_exceed = false
+			events += check_hand_size_advance_turn(performing_player)
 		else:
 			printlog("ERROR: Tried to make choice but no active strike or boost.")
 	event_queue += events
@@ -3328,7 +3333,7 @@ func do_bonus_turn_action(performing_player : Player, action_index : int):
 
 	# Do the bonus action effects.
 	var events = []
-	events += handle_strike_effect(-1, chosen_action, performing_player)
+	events += handle_strike_effect(chosen_action['card_id'], chosen_action, performing_player)
 	if game_state != Enums.GameState.GameState_WaitForStrike:
 		events += check_hand_size_advance_turn(performing_player)
 	event_queue += events
@@ -3345,34 +3350,26 @@ func do_choose_from_topdeck(performing_player : Player, chosen_card_id : int, ac
 	
 	if action == "pass":
 		chosen_card_id = -1
-	var chosen_card = null
-	var leftover_cards = []
-	for i in range(look_amount):
-		var card = performing_player.deck[0]
-		if card.id == chosen_card_id:
-			chosen_card = card
-		else:
-			leftover_cards.append(card)
-	
-	for i in range(look_amount):
-		performing_player.deck.remove_at(0)
 
+	var leftover_card_ids = []
+	for i in range(look_amount):
+		var id = performing_player.deck[i].id
+		if chosen_card_id != id:
+			leftover_card_ids.append(id)
+	
 	var events = []
+	events += performing_player.draw(look_amount)
 	match destination:
 		"discard":
-			for card in leftover_cards:
-				events += performing_player.add_to_discards(card)
+			events += performing_player.discard(leftover_card_ids)
 		_:
-			assert(false, "Unknown destination for choose from topdeck.")
+			printlog("ERROR: Choose from topdeck destination not implemented.")
+			assert(false, "Choose from topdeck destination not implemented.")
+			return false
 
 	active_boost.action_after_boost = true
 	active_boost.effects_resolved += 1
 	events += continue_resolve_boost()
-
-	if not chosen_card:
-		action = "pass"
-	else:
-		events += performing_player.add_to_hand(chosen_card)
 
 	# Now the boost is done and we are in the pick action state.
 	match action:

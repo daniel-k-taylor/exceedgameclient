@@ -205,31 +205,43 @@ func handle_boost_reponse(events, aiplayer : AIPlayer, game : LocalGame, gamepla
 			Enums.DecisionType.DecisionType_ChooseFromBoosts:
 				var decision_action = aiplayer.pick_choose_from_boosts(game, gameplayer.my_id, game.decision_info.amount)
 				assert_true(game.do_choose_from_boosts(gameplayer, decision_action.card_ids))
+			Enums.DecisionType.DecisionType_ChooseFromTopDeck:
+				var decision_info = game.decision_info
+				var action_choices = decision_info.action
+				var look_amount = decision_info.amount
+				var can_pass = decision_info.can_pass
+				var decision_action = aiplayer.pick_choose_from_topdeck(game, gameplayer.my_id, action_choices, look_amount, can_pass)
+				assert_true(game.do_choose_from_topdeck(gameplayer, decision_action.card_id, decision_action.action), "do choose from topdeck failed")
 			_:
 				assert(false, "Unimplemented decision type")
 
 	return events
 
-func handle_boost(game: LocalGame, aiplayer : AIPlayer, gameplayer : LocalGame.Player, otherplayer : LocalGame.Player, action : AIPlayer.BoostAction):
+func handle_boost(game: LocalGame, aiplayer : AIPlayer, otherai : AIPlayer, gameplayer : LocalGame.Player, otherplayer : LocalGame.Player, action : AIPlayer.BoostAction):
 	var events = []
 	var card_id = action.card_id
 	var boost_choice_index = action.boost_choice_index
 	assert_true(game.do_boost(gameplayer, card_id), "do boost failed")
 	events += game.get_latest_events()
 	events = handle_boost_reponse(events, aiplayer, game, gameplayer, otherplayer, boost_choice_index)
+
+	if game.active_strike:
+		events += handle_strike(game, aiplayer, otherai, null, true)
 	return events
 
-func handle_strike(game: LocalGame, aiplayer : AIPlayer, otherai : AIPlayer, action : AIPlayer.StrikeAction):
+func handle_strike(game: LocalGame, aiplayer : AIPlayer, otherai : AIPlayer, action : AIPlayer.StrikeAction, already_mid_strike : bool = false):
 	var events = []
-	var card_id = action.card_id
-	var ex_card_id = action.ex_card_id
-	var wild_swing = action.wild_swing
-
 	var gameplayer = aiplayer.game_player
 	var otherplayer = otherai.game_player
 
-	assert_true(game.do_strike(gameplayer, card_id, wild_swing, ex_card_id), "do strike failed")
-	events += game.get_latest_events()
+	if not already_mid_strike:
+		var card_id = action.card_id
+		var ex_card_id = action.ex_card_id
+		var wild_swing = action.wild_swing
+
+		assert_true(game.do_strike(gameplayer, card_id, wild_swing, ex_card_id), "do strike failed")
+		events += game.get_latest_events()
+
 	if game.game_state == Enums.GameState.GameState_Strike_Opponent_Response:
 		var response_action = otherai.pick_strike_response(game, otherplayer.my_id)
 		assert_true(game.do_strike(otherplayer, response_action.card_id, response_action.wild_swing, response_action.ex_card_id), "do strike resp failed")
@@ -304,6 +316,13 @@ func handle_strike(game: LocalGame, aiplayer : AIPlayer, otherai : AIPlayer, act
 			Enums.DecisionType.DecisionType_BoostNow:
 				var boostnow_action = decision_ai.take_boost(game, decision_player.my_id, game.decision_info.allow_gauge, game.decision_info.limitation)
 				assert_true(game.do_boost(decision_player, boostnow_action.card_id), "do boost now failed")
+			Enums.DecisionType.DecisionType_ChooseFromTopDeck:
+				var decision_info = game.decision_info
+				var action_choices = decision_info.action
+				var look_amount = decision_info.amount
+				var can_pass = decision_info.can_pass
+				var decision_action = decision_ai.pick_choose_from_topdeck(game, decision_player.my_id, action_choices, look_amount, can_pass)
+				assert_true(game.do_choose_from_topdeck(decision_player, decision_action.card_id, decision_action.action), "do choose from topdeck failed")
 			_:
 				assert(false, "Unimplemented decision type")
 
@@ -369,7 +388,7 @@ func run_ai_game():
 		elif turn_action is AIPlayer.ReshuffleAction:
 			turn_events += handle_reshuffle(game_logic, current_player)
 		elif turn_action is AIPlayer.BoostAction:
-			turn_events += handle_boost(game_logic, current_ai, current_player, other_player, turn_action)
+			turn_events += handle_boost(game_logic, current_ai, other_ai, current_player, other_player, turn_action)
 		elif turn_action is AIPlayer.StrikeAction:
 			turn_events += handle_strike(game_logic, current_ai, other_ai, turn_action)
 		elif turn_action is AIPlayer.CharacterActionAction:
