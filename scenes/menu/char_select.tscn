@@ -503,7 +503,6 @@ char_id = "leo"
 portrait_texture = ExtResource("21_tu1g4")
 
 [node name="Axl" parent="CenterContainer/CharactersPanel/Rows/Row5" instance=ExtResource("6_3lmwy")]
-visible = false
 layout_mode = 2
 char_id = "axl"
 portrait_texture = ExtResource("21_5m1ro")

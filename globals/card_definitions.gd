@@ -354,6 +354,9 @@ func get_effect_type_text(effect, card_name_source : String = ""):
 				effect_str += "Sustain %s" % card_name_source
 			else:
 				effect_str += "Sustain this"
+		"take_bonus_actions":
+			var amount = effect['amount']
+			effect_str += "Take %s actions. Cannot cancel and striking ends turn." % str(amount)
 		"topdeck_from_hand":
 			effect_str += "Put a card from your hand on top of your deck"
 		"when_hit_force_for_armor":

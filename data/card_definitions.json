@@ -340,6 +340,338 @@
 
 
 	{
+		"NOTE": "AXL CARDS START",
+		"id": "axl_onevision",
+		"type": "ultra",
+		"display_name": "One Vision",
+		"force_cost": 0,
+		"gauge_cost": 4,
+		"range_min": 1,
+		"range_max": 2,
+		"speed": 5,
+		"power": 5,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "hit",
+				"effect_type": "draw",
+				"amount": 4,
+				"and": {
+					"effect_type": "gain_advantage"
+				}
+			},
+			{
+				"timing": "after",
+				"effect_type": "boost_this_then_sustain"
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Out of the Box",
+			"effects": [
+				{
+					"timing": "action",
+					"effect_type": "take_bonus_actions",
+					"amount": 3
+				}
+			]
+		}
+	},
+	{
+		"id": "axl_sicklestorm",
+		"type": "ultra",
+		"display_name": "Sickle Storm",
+		"force_cost": 0,
+		"gauge_cost": 2,
+		"range_min": 1,
+		"range_max": 2,
+		"speed": 4,
+		"power": 5,
+		"armor": 3,
+		"guard": 3,
+		"effects": [
+			{
+				"timing": "before",
+				"effect_type": "close",
+				"amount": 1,
+				"and": {
+					"effect_type": "lose_all_armor"
+				}
+			},
+			{
+				"timing": "after",
+				"condition": "opponent_stunned",
+				"effect_type": "push",
+				"amount": 2
+			}
+		],
+		"boost": {
+			"boost_type": "immediate",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Idealism",
+			"effects": [
+				{
+					"timing": "immediate",
+					"effect_type": "choose_cards_from_top_deck",
+					"choose_amount": 1,
+					"look_amount": 3,
+					"action": "boost_or_strike",
+					"unchosen": "discard"
+				},
+				{
+					"timing": "immediate",
+					"effect_type": "strike"
+				}
+			]
+		}
+	},
+	{
+		"id": "axl_snail",
+		"type": "special",
+		"display_name": "Snail",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 2,
+		"range_max": 3,
+		"speed": 6,
+		"power": 3,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "hit",
+				"effect_type": "push",
+				"amount": 1,
+				"and": {
+					"effect_type": "draw",
+					"amount": 1
+				}
+			}
+		],
+		"boost": {
+			"boost_type": "immediate",
+			"force_cost": 0,
+			"cancel_cost": 1,
+			"display_name": "Dogs on the Run",
+			"effects": [
+				{
+					"timing": "immediate",
+					"effect_type": "choice",
+					"choice": [
+						{ "effect_type": "advance", "amount": 2 },
+						{ "effect_type": "advance", "amount": 3 }
+					]
+				}
+			]
+		}
+	},
+	{
+		"id": "axl_sickleflash",
+		"type": "special",
+		"display_name": "Sickle Flash",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 3,
+		"range_max": 8,
+		"speed": 5,
+		"power": 2,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "hit",
+				"effect_type": "push",
+				"amount": 1,
+				"bonus_effect": {
+					"condition": "not_full_push",
+					"effect_type": "powerup",
+					"amount": 2
+				}
+			}
+		],
+		"boost": {
+			"boost_type": "immediate",
+			"force_cost": 0,
+			"cancel_cost": 1,
+			"display_name": "A Slow Walker",
+			"effects": [
+				{
+					"timing": "immediate",
+					"effect_type": "choice",
+					"choice": [
+						{ "effect_type": "retreat", "amount": 2 },
+						{ "effect_type": "retreat", "amount": 3 }
+					]
+				}
+			]
+		}
+	},
+	{
+		"id": "axl_rainwater",
+		"type": "special",
+		"display_name": "Rainwater",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 2,
+		"range_max": 4,
+		"speed": 4,
+		"power": 4,
+		"armor": 0,
+		"guard": 3,
+		"effects": [
+			{
+				"timing": "before",
+				"effect_type": "choice",
+				"choice": [
+					{ "effect_type": "retreat", "amount": 1 },
+					{ "effect_type": "pass" }
+				]
+			},
+			{
+				"timing": "hit",
+				"effect_type": "retreat",
+				"amount": 1
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": 1,
+			"display_name": "Make Oneself",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "speedup",
+					"amount": 1
+				},
+				{
+					"timing": "now",
+					"effect_type": "choice",
+					"choice": [
+						{ "effect_type": "advance", "amount": 1 },
+						{ "effect_type": "retreat", "amount": 1 }
+					]
+				}
+			]
+		}
+	},
+	{
+		"id": "axl_axlbomber",
+		"type": "special",
+		"display_name": "Axl Bomber",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 2,
+		"speed": 3,
+		"power": 4,
+		"armor": 0,
+		"guard": 5,
+		"effects": [
+			{
+				"timing": "during_strike",
+				"condition": "initiated_strike",
+				"effect_type": "powerup",
+				"amount": 2
+			},
+			{
+				"timing": "hit",
+				"effect_type": "advance",
+				"amount": 2,
+				"and": {
+					"effect_type": "gauge_for_effect",
+					"per_gauge_effect": null,
+					"overall_effect": {
+						"effect_type": "gain_advantage"
+					},
+					"gauge_max": 1
+				}
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": 1,
+			"display_name": "Wise Remarks",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "powerup",
+					"amount": 1
+				},
+				{
+					"timing": "after",
+					"condition": "opponent_stunned",
+					"effect_type": "draw",
+					"amount": 1
+				}
+			]
+		}
+	},
+	{
+		"NOTE": "AXL CARDS END",
+		"id": "axl_wintermantis",
+		"type": "special",
+		"display_name": "Winter Mantis",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 2,
+		"speed": 2,
+		"power": 5,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "during_strike",
+				"effect_type": "ignore_armor"
+			},
+			{
+				"timing": "during_strike",
+				"effect_type": "ignore_guard"
+			},
+			{
+				"timing": "before",
+				"effect_type": "pull_not_past",
+				"amount": 8
+			},
+			{
+				"timing": "hit",
+				"effect_type": "advance",
+				"amount": 2
+			}
+		],
+		"boost": {
+			"boost_type": "immediate",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "The March of the Wicked King",
+			"effects": [
+				{
+					"timing": "immediate",
+					"effect_type": "force_for_effect",
+					"per_force_effect": {
+						"effect_type": "push",
+						"amount": 1,
+						"and": {
+							"effect_type": "draw",
+							"amount": 2
+						}
+					},
+					"overall_effect": null,
+					"force_max": 2
+				}
+			]
+		},
+		"NOTEEND": "AXL CARDS END"
+	},
+
+
+	{
 		"NOTE": "Baiken CARDS START",
 		"id": "baiken_kenjyu",
 		"type": "ultra",

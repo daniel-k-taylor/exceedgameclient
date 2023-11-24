@@ -8,7 +8,21 @@ In progress:
         ☐ do not remove eddie on cleanup
         ☐ return 2 specials from discard
         ☐ condition opponent between eddie and zato
+    Axl:
+        ☐ permanent char ability boost - just make it a set_strike effect
+        ☐ hit may spend gauge
+        ☐ play as boost and sustain
+        ☐ discard from play and take 3 actions
+        ☐ lose all armor
+        ☐ look at top 3 of deck, boost/strike with one, discard the rest
 
+
+        ☐ "effect_type": "take_bonus_actions", - use a 'cancel_disabled_this_turn' flag on player
+        ☐ "effect_type": "choose_cards_from_top_deck", - also use cancel disabled
+        
+
+
+Write tests for:
     Testament:
         ☐ normals permanent bonus
         ☐ hit play this as boost and sustain
@@ -71,13 +85,7 @@ Character:
             ☐ Faust
             ☐ Testament
 
-    Axl:
-        ☐ permanent char ability boost - just make it a set_strike effect
-        ☐ hit may spend gauge
-        ☐ play as boost and sustain
-        ☐ discard from play and take 3 actions
-        ☐ lose all armor
-        ☐ look at top 3 of deck, boost/strike with one, discard the rest
+
     Faust:
         ☐ action - boost top card then strike
             ☐ reveal top 2 and choose

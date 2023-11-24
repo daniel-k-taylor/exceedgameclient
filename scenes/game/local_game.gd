@@ -1451,8 +1451,9 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 			active_boost.action_after_boost = true
 		"boost_this_then_sustain":
 			performing_player.strike_stat_boosts.move_strike_to_boosts = true
-			var boost_effect = effect['boost_effect']
-			events += handle_strike_effect(card_id, boost_effect, performing_player)
+			if 'boost_effect' in effect:
+				var boost_effect = effect['boost_effect']
+				events += handle_strike_effect(card_id, boost_effect, performing_player)
 		"boost_then_sustain":
 			var allow_gauge = 'allow_gauge' in effect and effect['allow_gauge']
 			if performing_player.can_boost_something(allow_gauge, effect['limitation']):
