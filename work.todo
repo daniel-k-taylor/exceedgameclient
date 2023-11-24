@@ -17,9 +17,13 @@ In progress:
         ☐ look at top 3 of deck, boost/strike with one, discard the rest
 
 
-        ☐ "effect_type": "take_bonus_actions", - use a 'cancel_disabled_this_turn' flag on player
-        ☐ "effect_type": "choose_cards_from_top_deck", - also use cancel disabled
-        
+        ☐ action timing effect - adds action to menu @started(23-11-23 20:56)
+            ☐ allow AI to take bonus actions
+        ☐ "effect_type": "take_bonus_actions", - use a 'cancel_disabled_this_turn' flag on player @started(23-11-23 20:38)
+        ☐ "effect_type": "choose_cards_from_top_deck", - also use cancel disabled @started(23-11-23 22:19)
+            ☐ random AI handling new decision type
+            ☐ UI for choosing the cards and buttons to strike/boost/pass
+
 
 
 Write tests for:

@@ -87,6 +87,9 @@ func get_player_mulligan_complete(id):
 func get_player_character_action(id):
 	return _get_player(id).get_character_action()
 
+func get_bonus_actions(id):
+	return _get_player(id).get_bonus_actions()
+
 func get_all_non_immediate_continuous_boost_effects(id):
 	var game_player = _get_player(id)
 	return game_player.get_all_non_immediate_continuous_boost_effects()
@@ -290,3 +293,11 @@ func submit_choose_to_discard(player: Enums.PlayerId, card_ids : Array) -> bool:
 func submit_character_action(player: Enums.PlayerId, card_ids : Array) -> bool:
 	var game_player = _get_player(player)
 	return current_game.do_character_action(game_player, card_ids)
+
+func submit_bonus_turn_action(player: Enums.PlayerId, action_index : int) -> bool:
+	var game_player = _get_player(player)
+	return current_game.do_bonus_turn_action(game_player, action_index)
+
+func submit_choose_from_topdeck(player: Enums.PlayerId, card_id : int, action : String) -> bool:
+	var game_player = _get_player(player)
+	return current_game.do_choose_from_topdeck(game_player, card_id, action)

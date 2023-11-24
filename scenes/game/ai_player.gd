@@ -162,6 +162,13 @@ class ChooseToDiscardAction:
 	func _init(card_id_combination):
 		card_ids = card_id_combination
 
+class ChooseFromTopdeckAction:
+	var card_id
+	var action
+	func _init(chosen_card_id : int, chosen_action : String):
+		card_id = chosen_card_id
+		action = chosen_action
+
 class CharacterActionAction:
 	var card_ids
 	func _init(card_id_combination):
@@ -755,3 +762,18 @@ func pick_choose_to_discard(game_logic : LocalGame, my_id : Enums.PlayerId, to_d
 	var possible_actions = determine_choose_to_discard_options(me, to_discard_count)
 	update_ai_state(game_logic, me, opponent)
 	return ai_policy.pick_choose_to_discard(possible_actions, game_state)
+
+func pick_choose_from_topdeck(game_logic : LocalGame, my_id : Enums.PlayerId, action_choices : Array[String], look_amount : int, can_pass : bool) -> ChooseFromTopdeckAction:
+	var me = game_logic._get_player(my_id)
+	var opponent = game_logic._get_player(game_logic.get_other_player(my_id))
+	var possible_actions = []
+	if can_pass:
+		possible_actions.append(ChooseFromTopdeckAction.new(-1, "pass"))
+
+	for i in range(0, look_amount):
+		var card = me.deck[i]
+		for action_choice in action_choices:
+			possible_actions.append(ChooseFromTopdeckAction.new(card.id, action_choice))
+
+	update_ai_state(game_logic, me, opponent)
+	return ai_policy.pick_choose_from_topdeck(possible_actions, game_state)

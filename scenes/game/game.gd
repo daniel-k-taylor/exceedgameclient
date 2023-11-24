@@ -970,6 +970,18 @@ func _on_choose_from_discard(event):
 	else:
 		ai_choose_from_discard(game_wrapper.get_decision_info().amount)
 
+func _on_choose_from_topdeck(event):
+	var player = event['event_player']
+	var decision_info = game_wrapper.get_decision_info()
+	var destination_unchosen = decision_info.destination
+	var action_choices = decision_info.action
+	var can_pass = decision_info.can_pass
+	var look_amount = decision_info.amount
+	if player == Enums.PlayerId.PlayerId_Player:
+		pass
+	else:
+		ai_choose_from_topdeck(action_choices, look_amount, can_pass)
+
 func clear_selected_cards():
 	for card in selected_cards:
 		card.set_selected(false)
@@ -1663,6 +1675,8 @@ func _handle_events(events):
 				_on_choose_from_boosts(event)
 			Enums.EventType.EventType_ChooseFromDiscard:
 				_on_choose_from_discard(event)
+			Enums.EventType.EventType_ChooseFromTopDeck:
+				_on_choose_from_topdeck(event)
 			Enums.EventType.EventType_Discard:
 				_on_discard_event(event)
 			Enums.EventType.EventType_Draw:
@@ -1807,6 +1821,12 @@ func _update_buttons():
 			if gauge_cost > 0:
 				additional_text += " (%s Gauge)" % gauge_cost
 			button_choices.append({ "text": "Character Action%s" % additional_text, "action": _on_character_action_pressed, "disabled": false })
+		var bonus_available_actions = game_wrapper.get_bonus_actions(Enums.PlayerId.PlayerId_Player)
+		for i in range(bonus_available_actions.size()):
+			var bonus_action = bonus_available_actions[i]
+			var action_text = bonus_action['text']
+			var bonus_index = i
+			button_choices.append({ "text": action_text, "action": func(): _on_bonus_action_pressed(bonus_index), "disabled": false })
 
 	# Update instructions UI visibility
 	var instructions_visible = false
@@ -1993,6 +2013,11 @@ func _on_boost_button_pressed():
 func _on_strike_button_pressed():
 	begin_strike_choosing(false, true)
 
+func _on_bonus_action_pressed(index : int):
+	game_wrapper.submit_bonus_turn_action(Enums.PlayerId.PlayerId_Player, index)
+	change_ui_state(UIState.UIState_WaitForGameServer)
+	_update_buttons()
+
 func _on_character_action_pressed():
 	var character_action = game_wrapper.get_player_character_action(Enums.PlayerId.PlayerId_Player)
 	if not character_action:
@@ -2008,6 +2033,8 @@ func _on_character_action_pressed():
 		begin_gauge_selection(gauge_cost, false, UISubState.UISubState_SelectCards_CharacterAction_Gauge)
 	else:
 		game_wrapper.submit_character_action(Enums.PlayerId.PlayerId_Player, [])
+		change_ui_state(UIState.UIState_WaitForGameServer)
+		_update_buttons()
 
 func _on_choice_pressed(choice):
 	current_effect_choices = []
@@ -2435,6 +2462,16 @@ func ai_choose_to_discard(amount):
 		change_ui_state(UIState.UIState_WaitForGameServer)
 	else:
 		print("FAILED AI CHOOSE TO DISCARD")
+
+func ai_choose_from_topdeck(action_choices : Array[String], look_amount : int, can_pass : bool):
+	change_ui_state(UIState.UIState_WaitForGameServer)
+	if not game_wrapper.is_ai_game(): return
+	var choose_topdeck_action = ai_player.pick_choose_from_topdeck(game_wrapper.current_game, Enums.PlayerId.PlayerId_Opponent, action_choices, look_amount, can_pass)
+	var success = game_wrapper.submit_choose_from_topdeck(Enums.PlayerId.PlayerId_Opponent, choose_topdeck_action.card_id, choose_topdeck_action.action)
+	if success:
+		change_ui_state(UIState.UIState_WaitForGameServer)
+	else:
+		print("FAILED AI CHOOSE FROM TOPDECK")
 
 # Popout Functions
 func card_in_selected_cards(card):

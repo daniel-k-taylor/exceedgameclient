@@ -122,6 +122,8 @@ func get_gauge_for_effect_summary(effect, card_name_source : String) -> String:
 func get_timing_text(timing):
 	var text = ""
 	match timing:
+		"action":
+			text += "[b]Action:[/b] "
 		"after":
 			text += "[b]After:[/b] "
 		"before":
@@ -266,6 +268,8 @@ func get_effect_type_text(effect, card_name_source : String = ""):
 			effect_str += "Choose a boost to sustain."
 		"close":
 			effect_str += "Close " + str(effect['amount'])
+		"discard_this":
+			effect_str += "Discard this"
 		"discard_continuous_boost":
 			effect_str += "Discard a continuous boost."
 		"discard_opponent_gauge":

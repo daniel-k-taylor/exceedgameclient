@@ -395,3 +395,33 @@ func process_character_action(action_message) -> void:
 	var game_player = _get_player_from_remote_id(action_message['player_id'])
 	var card_ids = action_message['card_ids']
 	local_game.do_character_action(game_player, card_ids)
+
+func do_bonus_turn_action(player : LocalGame.Player, action_index : int) -> bool:
+	var action_message = {
+		'action_type': 'action_bonus_action',
+		'player_id': _get_player_remote_id(player),
+		'action_index': action_index,
+	}
+	NetworkManager.submit_game_message(action_message)
+	return true
+
+func process_bonus_action(action_message) -> void:
+	var game_player = _get_player_from_remote_id(action_message['player_id'])
+	var action_index = action_message['action_index']
+	local_game.do_bonus_turn_action(game_player, action_index)
+
+func do_choose_from_topdeck(player : LocalGame.Player, card_id : int, action : String) -> bool:
+	var action_message = {
+		'action_type': 'action_choose_from_topdeck',
+		'player_id': _get_player_remote_id(player),
+		'card_id': card_id,
+		'action': action,
+	}
+	NetworkManager.submit_game_message(action_message)
+	return true
+
+func process_choose_from_topdeck(action_message) -> void:
+	var game_player = _get_player_from_remote_id(action_message['player_id'])
+	var card_id = action_message['card_id']
+	var action = action_message['action']
+	local_game.do_choose_from_topdeck(game_player, card_id, action)

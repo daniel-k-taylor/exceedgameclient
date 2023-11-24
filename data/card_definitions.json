@@ -374,8 +374,12 @@
 			"effects": [
 				{
 					"timing": "action",
-					"effect_type": "take_bonus_actions",
-					"amount": 3
+					"text": "Take 3 bonus actions",
+					"effect_type": "discard_this",
+					"and": {
+						"effect_type": "take_bonus_actions",
+						"amount": 3
+					}
 				}
 			]
 		}
@@ -417,14 +421,13 @@
 				{
 					"timing": "immediate",
 					"effect_type": "choose_cards_from_top_deck",
-					"choose_amount": 1,
 					"look_amount": 3,
-					"action": "boost_or_strike",
-					"unchosen": "discard"
-				},
-				{
-					"timing": "immediate",
-					"effect_type": "strike"
+					"action_choices": [
+						"boost",
+						"strike"
+					],
+					"can_pass": true,
+					"destination_unchosen": "discard"
 				}
 			]
 		}

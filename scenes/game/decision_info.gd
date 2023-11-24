@@ -15,3 +15,5 @@ var amount_min : int
 var cost : int
 var allow_gauge : bool
 var strike_after : bool
+var action
+var can_pass : bool
