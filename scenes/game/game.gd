@@ -119,6 +119,7 @@ enum UISubState {
 	UISubState_SelectCards_ForceForEffect,
 	UISubState_SelectCards_GaugeForEffect,
 	UISubState_SelectArena_MoveResponse,
+	UISubState_SelectArena_EffectChoice,
 }
 
 var ui_state : UIState = UIState.UIState_Initializing
@@ -130,7 +131,9 @@ var previous_ui_sub_state : UISubState = UISubState.UISubState_None
 var game_wrapper : GameWrapper = GameWrapper.new()
 @onready var card_popout : CardPopout = $AllCards/CardPopout
 @onready var player_character_card : CharacterCardBase  = $PlayerDeck/PlayerCharacterCard
+@onready var player_buddy_character_card : CharacterCardBase  = $PlayerDeck/PlayerBuddyCharacterCard
 @onready var opponent_character_card : CharacterCardBase  = $OpponentDeck/OpponentCharacterCard
+@onready var opponent_buddy_character_card : CharacterCardBase  = $OpponentDeck/OpponentBuddyCharacterCard
 @onready var game_over_stuff = $GameOverStuff
 @onready var game_over_label = $GameOverStuff/GameOverLabel
 @onready var ai_player : AIPlayer = $AIPlayer
@@ -219,12 +222,19 @@ func begin_remote_game(game_start_message):
 func setup_characters():
 	$PlayerCharacter.load_character(player_deck['id'])
 	$OpponentCharacter.load_character(opponent_deck['id'])
+	if 'buddy_card' in player_deck:
+		$PlayerBuddy.visible = false
+		$PlayerBuddy.load_character(player_deck['buddy_card'])
+	if 'buddy_card' in opponent_deck:
+		$OpponentBuddy.visible = false
+		$OpponentBuddy.load_character(opponent_deck['buddy_card'])
 	if player_deck['id'] == opponent_deck['id']:
 		$OpponentCharacter.modulate = Color(1, 0.38, 0.55)
-	setup_character_card(player_character_card, player_deck)
-	setup_character_card(opponent_character_card, opponent_deck)
+		$OpponentBuddy.modulate = Color(1, 0.38, 0.55)
+	setup_character_card(player_character_card, player_deck, player_buddy_character_card)
+	setup_character_card(opponent_character_card, opponent_deck, opponent_buddy_character_card)
 
-func setup_character_card(character_card, deck):
+func setup_character_card(character_card, deck, buddy_character_card):
 	character_card.set_name_text(deck['display_name'])
 	var character_default_path = "res://assets/cards/" + deck['id'] + "/character_default.jpg"
 	var character_exceeded_path = "res://assets/cards/" + deck['id'] + "/character_exceeded.jpg"
@@ -236,6 +246,15 @@ func setup_character_card(character_card, deck):
 	var exceed_text = CardDefinitions.get_effects_text(deck['exceed_ability_effects'])
 	character_card.set_effect(effect_text, exceed_text)
 	character_card.set_cost(deck['exceed_cost'])
+
+	# Setup buddy if they have one.
+	if 'buddy_card' in deck:
+		buddy_character_card.visible = true
+		buddy_character_card.hide_focus()
+		var buddy_path = "res://assets/cards/" + deck['id'] + "/" + deck['buddy_card'] + ".jpg"
+		buddy_character_card.set_image(buddy_path, buddy_path)
+	else:
+		buddy_character_card.visible = false
 
 func finish_initialization():
 	opponent_name_label.text = game_wrapper.get_player_name(Enums.PlayerId.PlayerId_Opponent)
@@ -364,6 +383,13 @@ func update_character_facing():
 	var to_left = character.position.x < other_character.position.x
 	character.set_facing(to_left)
 	other_character.set_facing(not to_left)
+
+	if $PlayerBuddy.visible:
+		to_left = $PlayerBuddy.position.x < other_character.position.x
+		$PlayerBuddy.set_facing(to_left)
+	if $OpponentBuddy.visible:
+		to_left = $OpponentBuddy.position.x < character.position.x
+		$OpponentBuddy.set_facing(to_left)
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta):
@@ -1664,6 +1690,29 @@ func _on_damage(event):
 	spawn_damage_popup("%s Damage" % str(damage_taken), player)
 	return SmallNoticeDelay
 
+func _on_place_buddy(event):
+	var player = event['event_player']
+	var buddy_location = event['number']
+	var action_text = "Place"
+	if buddy_location == -1:
+		action_text = "Remove"
+	if player == Enums.PlayerId.PlayerId_Player:
+		if buddy_location == -1:
+			$PlayerBuddy.visible = false
+		else:
+			var immediate = not $PlayerBuddy.visible
+			$PlayerBuddy.visible = true
+			move_character_to_arena_square($PlayerBuddy, buddy_location, immediate, Character.CharacterAnim.CharacterAnim_WalkForward)
+	else:
+		if buddy_location == -1:
+			$OpponentBuddy.visible = false
+		else:
+			var immediate = not $OpponentBuddy.visible
+			$OpponentBuddy.visible = true
+			move_character_to_arena_square($OpponentBuddy, buddy_location, immediate, Character.CharacterAnim.CharacterAnim_WalkForward)
+	spawn_damage_popup("%s %s" % [action_text, game_wrapper.get_buddy_name(player)], player)
+	return SmallNoticeDelay
+
 func _handle_events(events):
 	var delay = 0
 	for event_index in range(events.size()):
@@ -1702,6 +1751,8 @@ func _handle_events(events):
 				delay = _on_change_cards(event)
 			Enums.EventType.EventType_CharacterAction:
 				delay = _stat_notice_event(event)
+			Enums.EventType.EventType_ChooseArenaLocationForEffect:
+				_on_choose_arena_location_for_effect(event)
 			Enums.EventType.EventType_ChooseFromBoosts:
 				_on_choose_from_boosts(event)
 			Enums.EventType.EventType_ChooseFromDiscard:
@@ -1734,6 +1785,8 @@ func _handle_events(events):
 				delay = _on_move_event(event)
 			Enums.EventType.EventType_MulliganDecision:
 				_on_mulligan_decision(event)
+			Enums.EventType.EventType_PlaceBuddy:
+				delay = _on_place_buddy(event)
 			Enums.EventType.EventType_Prepare:
 				delay = _on_prepare(event)
 			Enums.EventType.EventType_ReadingNormal:
@@ -2011,6 +2064,21 @@ func begin_select_arena_location(valid_moves):
 	enable_instructions_ui("Select a location", false, true)
 	change_ui_state(UIState.UIState_SelectArenaLocation, UISubState.UISubState_SelectCards_MoveActionGenerateForce)
 
+func _on_choose_arena_location_for_effect(event):
+	var player = event['event_player']
+	var decision_info = game_wrapper.get_decision_info()
+	var effect_type = decision_info.effect_type
+	if player == Enums.PlayerId.PlayerId_Player:
+		arena_locations_clickable = decision_info.limitation
+		var instruction_str = "Select a location"
+		match effect_type:
+			"place_eddie_into_space":
+				instruction_str = "Select a location to place Eddie"
+		enable_instructions_ui(instruction_str, false, false)
+		change_ui_state(UIState.UIState_SelectArenaLocation, UISubState.UISubState_SelectArena_EffectChoice)
+	else:
+		ai_choose_arena_location_for_effect(decision_info.limitation)
+
 ##
 ## Button Handlers
 ##
@@ -2216,7 +2284,14 @@ func _on_arena_location_pressed(location):
 	if ui_state == UIState.UIState_SelectArenaLocation:
 		if ui_sub_state == UISubState.UISubState_SelectCards_MoveActionGenerateForce:
 			begin_generate_force_selection(game_wrapper.get_force_to_move_to(Enums.PlayerId.PlayerId_Player, location))
-
+		elif ui_sub_state == UISubState.UISubState_SelectArena_EffectChoice:
+			var decision_info = game_wrapper.get_decision_info()
+			var choice_index = 0
+			for i in range(decision_info.limitation.size()):
+				if decision_info.limitation[i] == location:
+					choice_index = i
+					break
+			_on_choice_pressed(choice_index)
 
 #
 # AI Functions
@@ -2515,6 +2590,22 @@ func ai_choose_from_topdeck(action_choices : Array[String], look_amount : int, c
 		change_ui_state(UIState.UIState_WaitForGameServer)
 	else:
 		print("FAILED AI CHOOSE FROM TOPDECK")
+
+func ai_choose_arena_location_for_effect(location_choices : Array):
+	change_ui_state(UIState.UIState_WaitForGameServer)
+	if not game_wrapper.is_ai_game(): return
+	var choose_location_action = ai_player.pick_choose_arena_location_for_effect(game_wrapper.current_game, Enums.PlayerId.PlayerId_Opponent, location_choices)
+	var chosen_location = choose_location_action.location
+	var choice_index = 0
+	for i in range(len(location_choices)):
+		if location_choices[i] == chosen_location:
+			choice_index = i
+			break
+	var success = game_wrapper.submit_choice(Enums.PlayerId.PlayerId_Opponent, choice_index)
+	if success:
+		change_ui_state(UIState.UIState_WaitForGameServer)
+	else:
+		print("FAILED AI CHOOSE ARENA LOCATION FOR EFFECT")
 
 # Popout Functions
 func card_in_selected_cards(card):

@@ -3,6 +3,8 @@
 	"display_name": "Zato-1",
 	"cardback": "cardback_zato.jpg",
 	"exceed_cost": 2,
+	"buddy_card": "eddie",
+	"buddy_display_name": "Eddie",
 	"ability_effects": [
 		{
 			"timing": "after",

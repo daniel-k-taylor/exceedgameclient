@@ -233,6 +233,7 @@ class StrikeStatBoosts:
 	var was_hit : bool = false
 	var is_ex : bool = false
 	var opponent_cant_move_past : bool = false
+	var calculate_range_from_buddy : bool = false
 	var speed_bonus_multiplier : int = 1
 	var active_character_effects = []
 
@@ -258,6 +259,7 @@ class StrikeStatBoosts:
 		was_hit = false
 		is_ex = false
 		opponent_cant_move_past = false
+		calculate_range_from_buddy = false
 		speed_bonus_multiplier = 1
 		active_character_effects = []
 
@@ -305,6 +307,8 @@ class Player:
 	var pre_strike_movement : int
 	var sustained_boosts : Array[int]
 	var sustain_next_boost : bool
+	var buddy_location : int
+	var do_not_cleanup_buddy_this_turn : bool
 	var extra_effect_after_set_strike
 
 	func _init(id, player_name, parent_ref, card_db_ref, chosen_deck, card_start_id):
@@ -346,6 +350,8 @@ class Player:
 		pre_strike_movement = 0
 		sustained_boosts = []
 		sustain_next_boost = false
+		buddy_location = -1
+		do_not_cleanup_buddy_this_turn = false
 		extra_effect_after_set_strike = null
 
 		max_hand_size = MaxHandSize	
@@ -518,6 +524,28 @@ class Player:
 				_:
 					count += 1
 		return count
+
+	func get_buddy_name():
+		return deck_def['buddy_display_name']
+
+	func is_buddy_in_play():
+		return buddy_location != -1
+
+	func get_buddy_location():
+		return buddy_location
+
+	func place_buddy(new_location : int):
+		var events = []
+		buddy_location = new_location
+		events += [parent.create_event(Enums.EventType.EventType_PlaceBuddy, my_id, buddy_location)]
+		return events
+	
+	func remove_buddy():
+		var events = []
+		if not do_not_cleanup_buddy_this_turn:
+			buddy_location = -1
+			events += [parent.create_event(Enums.EventType.EventType_PlaceBuddy, my_id, buddy_location)]
+		return events
 
 	func can_pay_cost_with(card_ids : Array, force_cost : int, gauge_cost : int):
 		var gauge_generated = 0
@@ -1162,6 +1190,8 @@ func advance_to_next_turn():
 	opponent.did_strike_this_turn = false
 	player.canceled_this_turn = false
 	opponent.canceled_this_turn = false
+	player.do_not_cleanup_buddy_this_turn = false
+	opponent.do_not_cleanup_buddy_this_turn = false
 	player.cancel_blocked_this_turn = false
 	opponent.cancel_blocked_this_turn = false
 	player.pre_strike_movement = 0
@@ -1345,6 +1375,8 @@ func is_effect_condition_met(performing_player : Player, effect, local_condition
 			return initiated_strike and performing_player.pre_strike_movement >= required_amount
 		elif condition == "is_normal_attack":
 			return active_strike.get_player_card(performing_player).definition['type'] == "normal"
+		elif condition == "is_eddie_special_attack":
+			return performing_player.is_buddy_in_play() and active_strike.get_player_card(performing_player).definition['type'] == "special"
 		elif condition == "is_special_attack":
 			return active_strike.get_player_card(performing_player).definition['type'] == "special"
 		elif condition == "is_ex_strike":
@@ -1380,6 +1412,18 @@ func is_effect_condition_met(performing_player : Player, effect, local_condition
 			return not performing_player.did_strike_this_turn
 		elif condition == "not_stunned":
 			return not active_strike.is_player_stunned(performing_player)
+		elif condition == "eddie_in_play":
+			return performing_player.is_buddy_in_play()
+		elif condition == "opponent_between_eddie":
+			if not performing_player.is_buddy_in_play():
+				return false
+			var pos1 = performing_player.arena_location
+			var pos2 = performing_player.get_buddy_location()
+			var other_pos = other_player.arena_location
+			if pos1 < pos2: # Eddie is on the right
+				return other_pos > pos1 and other_pos < pos2
+			else: # Eddie is on the left
+				return other_pos > pos2 and other_pos < pos1
 		elif condition == "opponent_stunned":
 			return active_strike.is_player_stunned(other_player)
 		elif condition == "range":
@@ -1713,6 +1757,43 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 		"pass":
 			# Do nothing.
 			pass
+		"place_eddie_into_space":
+			var space = effect['amount']
+			events += performing_player.place_buddy(space)
+		"place_eddie_in_any_space":
+			change_game_state(Enums.GameState.GameState_PlayerDecision)
+			decision_info.type = Enums.DecisionType.DecisionType_ChooseArenaLocationForEffect
+			decision_info.player = performing_player.my_id
+			decision_info.choice_card_id = card_id
+			decision_info.effect_type = "place_eddie_into_space"
+			decision_info.choice = []
+			decision_info.limitation = []
+			for i in range(MinArenaLocation, MaxArenaLocation + 1):
+				decision_info.limitation.append(i)
+				decision_info.choice.append({
+					"effect_type": "place_eddie_into_space",
+					"amount": i
+				})
+			events += [create_event(Enums.EventType.EventType_ChooseArenaLocationForEffect, performing_player.my_id, 0)]
+		"place_eddie_in_attack_range":
+			change_game_state(Enums.GameState.GameState_PlayerDecision)
+			decision_info.type = Enums.DecisionType.DecisionType_ChooseArenaLocationForEffect
+			decision_info.player = performing_player.my_id
+			decision_info.choice_card_id = card_id
+			decision_info.effect_type = "place_eddie_into_space"
+			decision_info.choice = []
+			decision_info.limitation = []
+			var attack_card = active_strike.get_player_card(performing_player)
+			for i in range(MinArenaLocation, MaxArenaLocation + 1):
+				if is_location_in_range(performing_player, attack_card, i):
+					decision_info.limitation.append(i)
+					decision_info.choice.append({
+						"effect_type": "place_eddie_into_space",
+						"amount": i
+					})
+			events += [create_event(Enums.EventType.EventType_ChooseArenaLocationForEffect, performing_player.my_id, 0)]
+		"place_eddie_onto_self":
+			events += performing_player.place_buddy(performing_player.arena_location)
 		"powerup":
 			performing_player.strike_stat_boosts.power += effect['amount']
 			events += [create_event(Enums.EventType.EventType_Strike_PowerUp, performing_player.my_id, effect['amount'])]
@@ -1749,6 +1830,50 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 			var push_amount = abs(other_start - new_location)
 			local_conditions.fully_pushed = push_amount == effect['amount']
 			_append_log("%s Push %s - %s moved from %s to %s." % [performing_player.name, str(effect['amount']), _get_player(get_other_player(performing_player.my_id)).name, str(previous_location), str(new_location)])
+		"push_from_source":
+			var attack_source_location = performing_player.arena_location
+			if performing_player.strike_stat_boosts.calculate_range_from_buddy:
+				attack_source_location = performing_player.get_buddy_location()
+			
+			var previous_location = opposing_player.arena_location
+			if attack_source_location == previous_location:
+				# Make choice to push or pull.
+				var choice_effect = {
+					"effect_type": "choice",
+					"choice": [
+						{ "effect_type": "push", "amount": effect['amount'] },
+						{ "effect_type": "pull", "amount": effect['amount'] }
+					]
+				}
+				for choice in choice_effect['choice']:
+					if 'and' in choice:
+						choice['and'] = effect['and']
+					if 'bonus_effect' in choice:
+						choice['bonus_effect'] = effect['bonus_effect']
+				events += handle_strike_effect(card_id, choice_effect, performing_player)
+			else:
+				# Convert this to a regular push or pull.
+				if attack_source_location < previous_location:
+					# Source to the left of opponent. Move to the right.
+					if performing_player.arena_location < previous_location:
+						# Player to the left of opponent. Push to move opponent right.
+						events += performing_player.push(effect['amount'])
+					else:
+						# Player to the right of opponent. Pull to move opponent right.
+						events += performing_player.pull(effect['amount'])
+					pass
+				else:
+					# Source to the right of opponent. Move to the left.
+					if performing_player.arena_location < previous_location:
+						# Player to the left of opponent. Pull to move opponent left.
+						events += performing_player.pull(effect['amount'])
+					else:
+						# Player to the right of opponent. Push to move opponent left.
+						events += performing_player.push(effect['amount'])
+				var new_location = opposing_player.arena_location
+				var push_amount = abs(other_start - new_location)
+				local_conditions.fully_pushed = push_amount == effect['amount']
+				_append_log("%s Push from attack source %s - %s moved from %s to %s." % [performing_player.name, str(effect['amount']), _get_player(get_other_player(performing_player.my_id)).name, str(previous_location), str(new_location)])
 		"rangeup":
 			performing_player.strike_stat_boosts.min_range += effect['amount']
 			performing_player.strike_stat_boosts.max_range += effect['amount2']
@@ -1772,6 +1897,12 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 			# this should discard "by name", so instead of using that
 			# match card.definition['id']'s instead.
 			opposing_player.next_strike_with_or_reveal(named_card.definition['id'])
+		"remove_eddie":
+			events += performing_player.remove_buddy()
+		"do_not_remove_eddie":
+			performing_player.do_not_cleanup_buddy_this_turn = true
+		"calculate_range_from_eddie":
+			performing_player.strike_stat_boosts.calculate_range_from_buddy = true
 		"retreat":
 			var previous_location = performing_player.arena_location
 			events += performing_player.retreat(effect['amount'])
@@ -2006,12 +2137,26 @@ func do_effects_for_timing(timing_name : String, performing_player : Player, car
 
 	return events
 
-func in_range(atacking_player, defending_player, card):
+func is_location_in_range(attacking_player, card, test_location : int):
+	var min_range = card.definition['range_min'] + attacking_player.strike_stat_boosts.min_range
+	var max_range = card.definition['range_max'] + attacking_player.strike_stat_boosts.max_range
+	var attack_source_location = attacking_player.arena_location
+	if attacking_player.strike_stat_boosts.calculate_range_from_buddy:
+		attack_source_location = attacking_player.buddy_location
+	var distance = abs(attack_source_location - test_location)
+	if min_range <= distance and distance <= max_range:
+		return true
+	return false
+
+func in_range(attacking_player, defending_player, card):
 	if defending_player.strike_stat_boosts.dodge_attacks:
 		return false
-	var min_range = card.definition['range_min'] + atacking_player.strike_stat_boosts.min_range
-	var max_range = card.definition['range_max'] + atacking_player.strike_stat_boosts.max_range
-	var distance = abs(atacking_player.arena_location - defending_player.arena_location)
+	var min_range = card.definition['range_min'] + attacking_player.strike_stat_boosts.min_range
+	var max_range = card.definition['range_max'] + attacking_player.strike_stat_boosts.max_range
+	var attack_source_location = attacking_player.arena_location
+	if attacking_player.strike_stat_boosts.calculate_range_from_buddy:
+		attack_source_location = attacking_player.buddy_location
+	var distance = abs(attack_source_location - defending_player.arena_location)
 	if defending_player.strike_stat_boosts.dodge_at_range_min != -1:
 		if defending_player.strike_stat_boosts.dodge_at_range_min <= distance and distance <= defending_player.strike_stat_boosts.dodge_at_range_max:
 			return false

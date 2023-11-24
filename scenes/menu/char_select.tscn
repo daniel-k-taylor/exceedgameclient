@@ -514,7 +514,6 @@ char_id = "faust"
 portrait_texture = ExtResource("26_j4iqn")
 
 [node name="Zato" parent="CenterContainer/CharactersPanel/Rows/Row5" instance=ExtResource("6_3lmwy")]
-visible = false
 layout_mode = 2
 char_id = "zato"
 portrait_texture = ExtResource("25_wi4bn")

@@ -189,6 +189,12 @@ func get_condition_text(condition):
 			text += ""
 		"is_normal_attack":
 			text += ""
+		"eddie_in_play":
+			text += "If Eddie is in play, "
+		"opponent_between_eddie":
+			text += "If opponent is between you and Eddie, "
+		"is_eddie_special_attack":
+			text += ""
 		"was_wild_swing":
 			text += "If this was a wild swing, "
 		_:
@@ -285,6 +291,16 @@ func get_effect_type_text(effect, card_name_source : String = ""):
 				effect_str += "Opponent attacks miss at range %s-%s." % [effect['range_min'], effect['range_max']]
 		"dodge_attacks":
 			effect_str += "Opponent misses."
+		"do_not_remove_eddie":
+			effect_str += "Do not remove Eddie from play."
+		"remove_eddie":
+			effect_str += "Remove Eddie from play."
+		"place_eddie_in_any_space":
+			effect_str += "Place Eddie in any space."
+		"place_eddie_in_attack_range":
+			effect_str += "Place Eddie in the attack's range."
+		"calculate_range_from_eddie":
+			effect_str += "Calculate range from Eddie."
 		"draw":
 			effect_str += "Draw " + str(effect['amount'])
 		"exceed_now":
@@ -321,6 +337,8 @@ func get_effect_type_text(effect, card_name_source : String = ""):
 			effect_str += "Opponent wild swings."
 		"pass":
 			effect_str += "Pass"
+		"place_eddie_onto_self":
+			effect_str += "Place Eddie onto your space"
 		"powerup":
 			if effect['amount'] > 0:
 				effect_str += "+"
@@ -335,6 +353,8 @@ func get_effect_type_text(effect, card_name_source : String = ""):
 			effect_str += "Pull " + str(effect['amount'])
 		"push":
 			effect_str += "Push " + str(effect['amount'])
+		"push_from_source":
+			effect_str += "Push " + str(effect['amount']) + " from attack source"
 		"rangeup":
 			effect_str += "+" + str(effect['amount']) + "-" + str(effect['amount2']) + " Range"
 		"rangeup_per_boost_in_play":

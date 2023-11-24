@@ -174,6 +174,11 @@ class CharacterActionAction:
 	func _init(card_id_combination):
 		card_ids = card_id_combination
 
+class ChooseArenaLocationAction:
+	var location
+	func _init(chosen_location):
+		location = chosen_location
+
 func create_sanitized_card_id_array(card_array):
 	var card_ids = []
 	for i in range(card_array.size()):
@@ -777,3 +782,12 @@ func pick_choose_from_topdeck(game_logic : LocalGame, my_id : Enums.PlayerId, ac
 
 	update_ai_state(game_logic, me, opponent)
 	return ai_policy.pick_choose_from_topdeck(possible_actions, game_state)
+
+func pick_choose_arena_location_for_effect(game_logic : LocalGame, my_id : Enums.PlayerId, options : Array) -> ChooseArenaLocationAction:
+	var me = game_logic._get_player(my_id)
+	var opponent = game_logic._get_player(game_logic.get_other_player(my_id))
+	var possible_actions = []
+	for option in options:
+		possible_actions.append(ChooseArenaLocationAction.new(option))
+	update_ai_state(game_logic, me, opponent)
+	return ai_policy.pick_choose_arena_location_for_effect(possible_actions, game_state)

@@ -308,6 +308,11 @@ texture_normal = ExtResource("9_dpbn3")
 texture_pressed = ExtResource("9_dpbn3")
 texture_hover = ExtResource("9_dpbn3")
 
+[node name="PlayerBuddyCharacterCard" parent="PlayerDeck" instance=ExtResource("18_imast")]
+position = Vector2(350, 375)
+scale = Vector2(0.4, 0.4)
+anchor_top = false
+
 [node name="OpponentDeck" type="Node2D" parent="."]
 
 [node name="OpponentCharacterCard" parent="OpponentDeck" instance=ExtResource("18_imast")]
@@ -359,14 +364,19 @@ value = 30.0
 fill_mode = 4
 texture_progress = ExtResource("9_2vlik")
 
+[node name="OpponentBuddyCharacterCard" parent="OpponentDeck" instance=ExtResource("18_imast")]
+position = Vector2(350, 50)
+scale = Vector2(0.4, 0.4)
+anchor_top = false
+
 [node name="PlayerStrike" type="Node2D" parent="."]
 
 [node name="StrikeZone" type="TextureButton" parent="PlayerStrike"]
 modulate = Color(0.8, 0, 0.729412, 0)
 offset_left = 590.0
-offset_top = 373.0
+offset_top = 375.0
 offset_right = 840.0
-offset_bottom = 723.0
+offset_bottom = 725.0
 scale = Vector2(0.4, 0.4)
 texture_normal = ExtResource("4_5y76h")
 texture_pressed = ExtResource("4_5y76h")
@@ -499,6 +509,16 @@ position = Vector2(5, 380)
 
 [node name="OpponentBoostZone" parent="." instance=ExtResource("7_gn0of")]
 position = Vector2(5, 5)
+
+[node name="PlayerBuddy" parent="." instance=ExtResource("9_rhsuv")]
+visible = false
+position = Vector2(75, -102)
+scale = Vector2(0.25, 0.25)
+
+[node name="OpponentBuddy" parent="." instance=ExtResource("9_rhsuv")]
+visible = false
+position = Vector2(183.5, -119)
+scale = Vector2(0.125, 0.125)
 
 [node name="PlayerCharacter" parent="." instance=ExtResource("9_rhsuv")]
 position = Vector2(50, -68)

@@ -158,6 +158,9 @@ func get_player_available_force(player_id : Enums.PlayerId):
 func get_force_to_move_to(player_id : Enums.PlayerId, location : int):
 	return _get_player(player_id).get_force_to_move_to(location)
 
+func get_buddy_name(player_id : Enums.PlayerId):
+	return _get_player(player_id).get_buddy_name()
+
 func other_player(id : Enums.PlayerId) -> Enums.PlayerId:
 	if id == Enums.PlayerId.PlayerId_Player:
 		return Enums.PlayerId.PlayerId_Opponent

@@ -212,6 +212,15 @@ func handle_boost_reponse(events, aiplayer : AIPlayer, game : LocalGame, gamepla
 				var can_pass = decision_info.can_pass
 				var decision_action = aiplayer.pick_choose_from_topdeck(game, gameplayer.my_id, action_choices, look_amount, can_pass)
 				assert_true(game.do_choose_from_topdeck(gameplayer, decision_action.card_id, decision_action.action), "do choose from topdeck failed")
+			Enums.DecisionType.DecisionType_ChooseArenaLocationForEffect:
+				var decision_info = game.decision_info
+				var decision_action = aiplayer.pick_choose_arena_location_for_effect(game, gameplayer.my_id, decision_info.limitation)
+				var ai_choice_index = 0
+				for i in range(len(decision_info.limitation)):
+					if decision_info.limitation[i] == decision_action.location:
+						ai_choice_index = i
+						break
+				assert_true(game.do_choice(gameplayer, ai_choice_index), "do arena location for effect failed")
 			_:
 				assert(false, "Unimplemented decision type")
 
@@ -323,6 +332,15 @@ func handle_strike(game: LocalGame, aiplayer : AIPlayer, otherai : AIPlayer, act
 				var can_pass = decision_info.can_pass
 				var decision_action = decision_ai.pick_choose_from_topdeck(game, decision_player.my_id, action_choices, look_amount, can_pass)
 				assert_true(game.do_choose_from_topdeck(decision_player, decision_action.card_id, decision_action.action), "do choose from topdeck failed")
+			Enums.DecisionType.DecisionType_ChooseArenaLocationForEffect:
+				var decision_info = game.decision_info
+				var decision_action = decision_ai.pick_choose_arena_location_for_effect(game, decision_player.my_id, decision_info.limitation)
+				var choice_index = 0
+				for i in range(len(decision_info.limitation)):
+					if decision_info.limitation[i] == decision_action.location:
+						choice_index = i
+						break
+				assert_true(game.do_choice(decision_player, choice_index), "do arena location for effect failed")
 			_:
 				assert(false, "Unimplemented decision type")
 

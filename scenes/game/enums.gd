@@ -17,6 +17,7 @@ enum CardZone {
 enum DecisionType {
 	DecisionType_BoostCancel,
 	DecisionType_BoostNow,
+	DecisionType_ChooseArenaLocationForEffect,
 	DecisionType_ChooseDiscardContinuousBoost,
 	DecisionType_ChooseDiscardOpponentGauge,
 	DecisionType_ChooseFromBoosts,
@@ -26,7 +27,7 @@ enum DecisionType {
 	DecisionType_EffectChoice,
 	DecisionType_ForceForEffect,
 	DecisionType_GaugeForEffect,
-	DecisionType_NameCard_OpponentDiscards, # 11
+	DecisionType_NameCard_OpponentDiscards, # 12
 	DecisionType_ChooseToDiscard,
 	DecisionType_PayStrikeCost_Required,
 	DecisionType_PayStrikeCost_CanWild,
@@ -73,12 +74,13 @@ enum EventType {
 	EventType_CardFromHandToGauge_Choice,
 	EventType_ChangeCards,
 	EventType_CharacterAction,
+	EventType_ChooseArenaLocationForEffect,
 	EventType_ChooseFromBoosts,
 	EventType_ChooseFromDiscard,
 	EventType_ChooseFromTopDeck,
 	EventType_Discard,
 	EventType_Draw,
-	EventType_Exceed, 							# 21
+	EventType_Exceed, 							# 22
 	EventType_ExceedRevert,
 	EventType_ForceForEffect,
 	EventType_GaugeForEffect,
@@ -87,7 +89,8 @@ enum EventType {
 	EventType_GameOver,
 	EventType_HandSizeExceeded,
 	EventType_Move,
-	EventType_MulliganDecision, 				# 30
+	EventType_MulliganDecision, 				# 31
+	EventType_PlaceBuddy,
 	EventType_Prepare,
 	EventType_ReadingNormal,
 	EventType_ReshuffleDeck_Mulligan,
@@ -102,7 +105,7 @@ enum EventType {
 	EventType_Strike_DoResponseNow,
 	EventType_Strike_EffectChoice,
 	EventType_Strike_ExUp,
-	EventType_Strike_ForceForArmor, 			# 45
+	EventType_Strike_ForceForArmor, 			# 47
 	EventType_Strike_ForceWildSwing,
 	EventType_Strike_GainAdvantage,
 	EventType_Strike_GuardUp,
@@ -120,7 +123,7 @@ enum EventType {
 	EventType_Strike_Response_Ex,
 	EventType_Strike_Reveal,
 	EventType_Strike_SpeedUp,
-	EventType_Strike_Started, 					# 64
+	EventType_Strike_Started, 					# 66
 	EventType_Strike_Started_Ex,
 	EventType_Strike_Stun,
 	EventType_Strike_Stun_Immunity,
