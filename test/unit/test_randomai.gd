@@ -122,7 +122,8 @@ func handle_boost_reponse(events, aiplayer : AIPlayer, game : LocalGame, gamepla
 	while game.game_state == Enums.GameState.GameState_PlayerDecision:
 		match game.decision_info.type:
 			Enums.DecisionType.DecisionType_EffectChoice:
-				assert_true(game.do_choice(gameplayer, choice_index), "do choice failed")
+				var effect_action = aiplayer.pick_effect_choice(game, gameplayer.my_id)
+				assert_true(game.do_choice(gameplayer, effect_action.choice), "do boost choice failed")
 				events += game.get_latest_events()
 			Enums.DecisionType.DecisionType_CardFromHandToGauge:
 				var cardfromhandtogauge_action = aiplayer.pick_card_hand_to_gauge(game, gameplayer.my_id, game.decision_info.effect['min_amount'], game.decision_info.effect['max_amount'])
@@ -205,6 +206,7 @@ func handle_boost_reponse(events, aiplayer : AIPlayer, game : LocalGame, gamepla
 			Enums.DecisionType.DecisionType_ChooseFromBoosts:
 				var decision_action = aiplayer.pick_choose_from_boosts(game, gameplayer.my_id, game.decision_info.amount)
 				assert_true(game.do_choose_from_boosts(gameplayer, decision_action.card_ids))
+				events += game.get_latest_events()
 			Enums.DecisionType.DecisionType_ChooseFromTopDeck:
 				var decision_info = game.decision_info
 				var action_choices = decision_info.action
@@ -212,6 +214,7 @@ func handle_boost_reponse(events, aiplayer : AIPlayer, game : LocalGame, gamepla
 				var can_pass = decision_info.can_pass
 				var decision_action = aiplayer.pick_choose_from_topdeck(game, gameplayer.my_id, action_choices, look_amount, can_pass)
 				assert_true(game.do_choose_from_topdeck(gameplayer, decision_action.card_id, decision_action.action), "do choose from topdeck failed")
+				events += game.get_latest_events()
 			Enums.DecisionType.DecisionType_ChooseArenaLocationForEffect:
 				var decision_info = game.decision_info
 				var decision_action = aiplayer.pick_choose_arena_location_for_effect(game, gameplayer.my_id, decision_info.limitation)
@@ -221,6 +224,7 @@ func handle_boost_reponse(events, aiplayer : AIPlayer, game : LocalGame, gamepla
 						ai_choice_index = i
 						break
 				assert_true(game.do_choice(gameplayer, ai_choice_index), "do arena location for effect failed")
+				events += game.get_latest_events()
 			_:
 				assert(false, "Unimplemented decision type")
 
@@ -582,6 +586,15 @@ func test_testament_100():
 
 func test_axl_100():
 	default_deck = CardDefinitions.get_deck_from_str_id("axl")
+	for i in range(RandomIterations):
+		print("==== RUNNING TEST %d ====" % i)
+		run_ai_game()
+		game_teardown()
+		game_setup()
+	pass_test("Finished match")
+
+func test_zato_100():
+	default_deck = CardDefinitions.get_deck_from_str_id("zato")
 	for i in range(RandomIterations):
 		print("==== RUNNING TEST %d ====" % i)
 		run_ai_game()

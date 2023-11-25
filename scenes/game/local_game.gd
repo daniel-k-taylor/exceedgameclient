@@ -1777,11 +1777,6 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 				})
 			events += [create_event(Enums.EventType.EventType_ChooseArenaLocationForEffect, performing_player.my_id, 0)]
 		"place_eddie_in_attack_range":
-			change_game_state(Enums.GameState.GameState_PlayerDecision)
-			decision_info.type = Enums.DecisionType.DecisionType_ChooseArenaLocationForEffect
-			decision_info.player = performing_player.my_id
-			decision_info.choice_card_id = card_id
-			decision_info.effect_type = "place_eddie_into_space"
 			decision_info.choice = []
 			decision_info.limitation = []
 			var attack_card = active_strike.get_player_card(performing_player)
@@ -1792,7 +1787,13 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 						"effect_type": "place_eddie_into_space",
 						"amount": i
 					})
-			events += [create_event(Enums.EventType.EventType_ChooseArenaLocationForEffect, performing_player.my_id, 0)]
+			if decision_info.limitation.size() > 0:
+				decision_info.type = Enums.DecisionType.DecisionType_ChooseArenaLocationForEffect
+				decision_info.player = performing_player.my_id
+				decision_info.choice_card_id = card_id
+				decision_info.effect_type = "place_eddie_into_space"
+				change_game_state(Enums.GameState.GameState_PlayerDecision)
+				events += [create_event(Enums.EventType.EventType_ChooseArenaLocationForEffect, performing_player.my_id, 0)]
 		"place_eddie_onto_self":
 			events += performing_player.place_buddy(performing_player.arena_location)
 		"powerup":
@@ -2139,6 +2140,8 @@ func do_effects_for_timing(timing_name : String, performing_player : Player, car
 	return events
 
 func is_location_in_range(attacking_player, card, test_location : int):
+	if card.definition['range_min'] == -1:
+		return false
 	var min_range = card.definition['range_min'] + attacking_player.strike_stat_boosts.min_range
 	var max_range = card.definition['range_max'] + attacking_player.strike_stat_boosts.max_range
 	var attack_source_location = attacking_player.arena_location
