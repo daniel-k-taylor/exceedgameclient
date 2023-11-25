@@ -158,7 +158,7 @@ func get_timing_text(timing):
 			text += "MISSING TIMING"
 	return text
 
-func get_condition_text(condition):
+func get_condition_text(condition, amount):
 	var text = ""
 	match condition:
 		"advanced_through":
@@ -189,6 +189,8 @@ func get_condition_text(condition):
 			text += "If pulled opponent past you, "
 		"used_character_action":
 			text += ""
+		"range":
+			text += "If the opponent is at range %s, " % amount
 		"is_special_attack":
 			text += ""
 		"is_normal_attack":
@@ -400,6 +402,8 @@ func get_effect_type_text(effect, card_name_source : String = ""):
 		"take_bonus_actions":
 			var amount = effect['amount']
 			effect_str += "Take %s actions. Cannot cancel and striking ends turn." % str(amount)
+		"take_nonlethal_damage":
+			effect_str += "Take %s nonlethal damage" % str(effect['amount'])
 		"topdeck_from_hand":
 			effect_str += "Put a card from your hand on top of your deck"
 		"when_hit_force_for_armor":
@@ -417,7 +421,10 @@ func get_effect_text(effect, short = false, skip_timing = false, skip_condition 
 		effect_str += get_timing_text(effect['timing'])
 
 	if 'condition' in effect and not skip_condition:
-		effect_str += get_condition_text(effect['condition'])
+		var amount = 0
+		if 'condition_amount' in effect:
+			amount = effect['condition_amount']
+		effect_str += get_condition_text(effect['condition'], amount)
 
 	effect_str += get_effect_type_text(effect, card_name_source)
 

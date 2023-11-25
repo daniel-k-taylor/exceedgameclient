@@ -106,183 +106,62 @@ func handle_change_cards(game: LocalGame, gameplayer : LocalGame.Player, action 
 	assert_true(game.do_change(gameplayer, card_ids), "do change failed")
 	return game.get_latest_events()
 
-func handle_exceed(game: LocalGame, aiplayer : AIPlayer, gameplayer : LocalGame.Player, otherplayer : LocalGame.Player, action : AIPlayer.ExceedAction):
+func handle_exceed(game: LocalGame, gameplayer : LocalGame.Player, action : AIPlayer.ExceedAction):
 	var card_ids = action.card_ids
 	var events = []
 	assert_true(game.do_exceed(gameplayer, card_ids), "do exceed failed")
 	events += game.get_latest_events()
-	events = handle_boost_reponse(events, aiplayer, game, gameplayer, otherplayer, -1)
+	events += handle_decisions(game)
 	return events
 
 func handle_reshuffle(game: LocalGame, gameplayer : LocalGame.Player):
 	assert_true(game.do_reshuffle(gameplayer), "do reshuffle failed")
 	return game.get_latest_events()
 
-func handle_boost_reponse(events, aiplayer : AIPlayer, game : LocalGame, gameplayer : LocalGame.Player, otherplayer : LocalGame.Player, choice_index):
-	while game.game_state == Enums.GameState.GameState_PlayerDecision:
-		match game.decision_info.type:
-			Enums.DecisionType.DecisionType_EffectChoice:
-				var effect_action = aiplayer.pick_effect_choice(game, gameplayer.my_id)
-				assert_true(game.do_choice(gameplayer, effect_action.choice), "do boost choice failed")
-				events += game.get_latest_events()
-			Enums.DecisionType.DecisionType_CardFromHandToGauge:
-				var cardfromhandtogauge_action = aiplayer.pick_card_hand_to_gauge(game, gameplayer.my_id, game.decision_info.effect['min_amount'], game.decision_info.effect['max_amount'])
-				assert_true(game.do_card_from_hand_to_gauge(gameplayer, cardfromhandtogauge_action.card_ids), "do card hand boost failed")
-				events += game.get_latest_events()
-			Enums.DecisionType.DecisionType_NameCard_OpponentDiscards:
-				var index = choice_index * 2
-				var card_id = otherplayer.deck_list[index].id
-				assert_true(game.do_boost_name_card_choice_effect(gameplayer, card_id), "do boost name failed")
-				events += game.get_latest_events()
-				#TODO: Do something with EventType_RevealHand so AI can consume new info.
-			Enums.DecisionType.DecisionType_ChooseDiscardContinuousBoost:
-				var limitation = game.decision_info.limitation
-				var can_pass = game.decision_info.can_pass
-				var choose_action = aiplayer.pick_discard_continuous(game, gameplayer.my_id, limitation, can_pass)
-				assert_true(game.do_boost_name_card_choice_effect(gameplayer, choose_action.card_id), "do boost name 2 failed")
-				events += game.get_latest_events()
-			Enums.DecisionType.DecisionType_ChooseDiscardOpponentGauge:
-				var card_id = otherplayer.gauge_list[choice_index].id
-				assert_true(game.do_boost_name_card_choice_effect(gameplayer, card_id), "do boost name 2 failed")
-				events += game.get_latest_events()
-			Enums.DecisionType.DecisionType_ReadingNormal:
-				var index = 0
-				var card_id = -1
-				for card_index in range(0, otherplayer.deck_list.size(), 2):
-					var card = otherplayer.deck_list[card_index]
-					if game.get_card_database().is_normal_card(card.id):
-						if index == choice_index:
-							card_id = card.id
-							break
-						index += 1
-				assert_true(game.do_boost_name_card_choice_effect(gameplayer, card_id), "do boost name 3 failed")
-				events += game.get_latest_events()
-			Enums.DecisionType.DecisionType_BoostCancel:
-				var event = get_event(events, Enums.EventType.EventType_Boost_CancelDecision)
-				var cost = event['number']
-				var cancel_action = aiplayer.pick_cancel(game, gameplayer.my_id, cost)
-				assert_true(game.do_boost_cancel(gameplayer, cancel_action.card_ids, cancel_action.cancel), "do boost cancel failed")
-				events += game.get_latest_events()
-			Enums.DecisionType.DecisionType_ForceForEffect:
-				var effect = game.decision_info.effect
-				var options = []
-				if effect['per_force_effect'] != null:
-					for i in range(effect['force_max'] + 1):
-						options.append(i)
-				else:
-					options.append(0)
-					options.append(effect['force_max'])
-				var forceforeffect_action = aiplayer.pick_force_for_effect(game, gameplayer.my_id, options)
-				assert_true(game.do_force_for_effect(gameplayer, forceforeffect_action.card_ids), "do force effect failed")
-				events += game.get_latest_events()
-			Enums.DecisionType.DecisionType_GaugeForEffect:
-				var effect = game.decision_info.effect
-				var options = []
-				if effect['per_gauge_effect'] != null:
-					for i in range(effect['gauge_max'] + 1):
-						options.append(i)
-				else:
-					if not ('required' in effect and effect['required']):
-						options.append(0)
-					options.append(effect['gauge_max'])
-				var gauge_action = aiplayer.pick_gauge_for_effect(game, gameplayer.my_id, options)
-				assert_true(game.do_gauge_for_effect(gameplayer, gauge_action.card_ids), "do gauge effect failed")
-				events += game.get_latest_events()
-			Enums.DecisionType.DecisionType_ChooseFromBoosts:
-				var chooseaction = aiplayer.pick_choose_from_boosts(game, gameplayer.my_id, game.decision_info.amount)
-				assert_true(game.do_choose_from_boosts(gameplayer, chooseaction.card_ids), "do choose from boosts failed")
-				events += game.get_latest_events()
-			Enums.DecisionType.DecisionType_ChooseFromDiscard:
-				var chooseaction = aiplayer.pick_choose_from_discard(game, gameplayer.my_id, game.decision_info.amount)
-				assert_true(game.do_choose_from_discard(gameplayer, chooseaction.card_ids), "do choose from discard failed")
-				events += game.get_latest_events()
-			Enums.DecisionType.DecisionType_ChooseToDiscard:
-				var amount = game.decision_info.effect['amount']
-				var chooseaction = aiplayer.pick_choose_to_discard(game, gameplayer.my_id, amount)
-				assert_true(game.do_choose_to_discard(gameplayer, chooseaction.card_ids), "do choose to discard failed")
-				events += game.get_latest_events()
-			Enums.DecisionType.DecisionType_ChooseFromBoosts:
-				var decision_action = aiplayer.pick_choose_from_boosts(game, gameplayer.my_id, game.decision_info.amount)
-				assert_true(game.do_choose_from_boosts(gameplayer, decision_action.card_ids))
-				events += game.get_latest_events()
-			Enums.DecisionType.DecisionType_ChooseFromTopDeck:
-				var decision_info = game.decision_info
-				var action_choices = decision_info.action
-				var look_amount = decision_info.amount
-				var can_pass = decision_info.can_pass
-				var decision_action = aiplayer.pick_choose_from_topdeck(game, gameplayer.my_id, action_choices, look_amount, can_pass)
-				assert_true(game.do_choose_from_topdeck(gameplayer, decision_action.card_id, decision_action.action), "do choose from topdeck failed")
-				events += game.get_latest_events()
-			Enums.DecisionType.DecisionType_ChooseArenaLocationForEffect:
-				var decision_info = game.decision_info
-				var decision_action = aiplayer.pick_choose_arena_location_for_effect(game, gameplayer.my_id, decision_info.limitation)
-				var ai_choice_index = 0
-				for i in range(len(decision_info.limitation)):
-					if decision_info.limitation[i] == decision_action.location:
-						ai_choice_index = i
-						break
-				assert_true(game.do_choice(gameplayer, ai_choice_index), "do arena location for effect failed")
-				events += game.get_latest_events()
-			_:
-				assert(false, "Unimplemented decision type")
-
-	return events
-
-func handle_boost(game: LocalGame, aiplayer : AIPlayer, otherai : AIPlayer, gameplayer : LocalGame.Player, otherplayer : LocalGame.Player, action : AIPlayer.BoostAction):
+func handle_boost(game: LocalGame, aiplayer : AIPlayer, otherai : AIPlayer, gameplayer : LocalGame.Player, action : AIPlayer.BoostAction):
 	var events = []
 	var card_id = action.card_id
-	var boost_choice_index = action.boost_choice_index
 	assert_true(game.do_boost(gameplayer, card_id), "do boost failed")
 	events += game.get_latest_events()
-	events = handle_boost_reponse(events, aiplayer, game, gameplayer, otherplayer, boost_choice_index)
+	events += handle_decisions(game)
 
 	if game.active_strike:
 		events += handle_strike(game, aiplayer, otherai, null, true)
 	return events
 
-func handle_strike(game: LocalGame, aiplayer : AIPlayer, otherai : AIPlayer, action : AIPlayer.StrikeAction, already_mid_strike : bool = false):
+func handle_decisions(game: LocalGame):
 	var events = []
-	var gameplayer = aiplayer.game_player
-	var otherplayer = otherai.game_player
-
-	if not already_mid_strike:
-		var card_id = action.card_id
-		var ex_card_id = action.ex_card_id
-		var wild_swing = action.wild_swing
-
-		assert_true(game.do_strike(gameplayer, card_id, wild_swing, ex_card_id), "do strike failed")
-		events += game.get_latest_events()
-
-	if game.game_state == Enums.GameState.GameState_Strike_Opponent_Response:
-		var response_action = otherai.pick_strike_response(game, otherplayer.my_id)
-		assert_true(game.do_strike(otherplayer, response_action.card_id, response_action.wild_swing, response_action.ex_card_id), "do strike resp failed")
-		events += game.get_latest_events()
-
-	# Pay costs
 	while game.game_state == Enums.GameState.GameState_PlayerDecision:
-		var decision_ai = aiplayer
 		var decision_player = game._get_player(game.decision_info.player)
-		if decision_player == otherplayer:
-			decision_ai = otherai
+		var decision_ai = ai1
+		if decision_player.my_id != ai1.game_player.my_id:
+			decision_ai = ai2
 		match game.decision_info.type:
+			Enums.DecisionType.DecisionType_BoostCancel:
+				var cancel_action = decision_ai.pick_cancel(game, decision_player.my_id, 1)
+				assert_true(game.do_boost_cancel(decision_player, cancel_action.card_ids, cancel_action.cancel), "do boost cancel failed")
+			Enums.DecisionType.DecisionType_NameCard_OpponentDiscards:
+				var pick_action = decision_ai.pick_name_opponent_card(game, decision_player.my_id, false)
+				assert_true(game.do_boost_name_card_choice_effect(decision_player, pick_action.card_id), "do boost name failed")
+				#TODO: Do something with EventType_RevealHand so AI can consume new info.
+			Enums.DecisionType.DecisionType_ReadingNormal:
+				var pick_action = decision_ai.pick_name_opponent_card(game, decision_player.my_id, true)
+				assert_true(game.do_boost_name_card_choice_effect(decision_player, pick_action.card_id), "do boost name failed")
+				#TODO: Do something with EventType_RevealHand so AI can consume new info.
 			Enums.DecisionType.DecisionType_PayStrikeCost_Required, Enums.DecisionType.DecisionType_PayStrikeCost_CanWild:
 				var can_wild = game.decision_info.type == Enums.DecisionType.DecisionType_PayStrikeCost_CanWild
 				var cost = game.decision_info.cost
 				var pay_action = decision_ai.pay_strike_gauge_cost(game, decision_player.my_id, cost, can_wild)
 				assert_true(game.do_pay_strike_cost(decision_player, pay_action.card_ids, pay_action.wild_swing), "do pay failed")
-				events += game.get_latest_events()
 			Enums.DecisionType.DecisionType_EffectChoice, Enums.DecisionType.DecisionType_ChooseSimultaneousEffect:
 				var effect_action = decision_ai.pick_effect_choice(game, decision_player.my_id)
 				assert_true(game.do_choice(decision_ai.game_player, effect_action.choice), "do strike choice failed")
-				events += game.get_latest_events()
 			Enums.DecisionType.DecisionType_ForceForArmor:
 				var forceforarmor_action = decision_ai.pick_force_for_armor(game, decision_player.my_id)
 				assert_true(game.do_force_for_armor(decision_ai.game_player, forceforarmor_action.card_ids), "do force armor failed")
-				events += game.get_latest_events()
 			Enums.DecisionType.DecisionType_CardFromHandToGauge:
 				var cardfromhandtogauge_action = decision_ai.pick_card_hand_to_gauge(game, decision_player.my_id, game.decision_info.effect['min_amount'], game.decision_info.effect['max_amount'])
 				assert_true(game.do_card_from_hand_to_gauge(decision_ai.game_player, cardfromhandtogauge_action.card_ids), "do card hand strike failed")
-				events += game.get_latest_events()
 			Enums.DecisionType.DecisionType_ForceForEffect:
 				var effect = game.decision_info.effect
 				var options = []
@@ -294,7 +173,6 @@ func handle_strike(game: LocalGame, aiplayer : AIPlayer, otherai : AIPlayer, act
 					options.append(effect['force_max'])
 				var forceforeffect_action = decision_ai.pick_force_for_effect(game, decision_player.my_id, options)
 				assert_true(game.do_force_for_effect(decision_ai.game_player, forceforeffect_action.card_ids), "do force effect failed")
-				events += game.get_latest_events()
 			Enums.DecisionType.DecisionType_GaugeForEffect:
 				var effect = game.decision_info.effect
 				var options = []
@@ -307,7 +185,6 @@ func handle_strike(game: LocalGame, aiplayer : AIPlayer, otherai : AIPlayer, act
 					options.append(effect['gauge_max'])
 				var gauge_action = decision_ai.pick_gauge_for_effect(game, decision_player.my_id, options)
 				assert_true(game.do_gauge_for_effect(decision_ai.game_player, gauge_action.card_ids), "do gauge effect failed")
-				events += game.get_latest_events()
 			Enums.DecisionType.DecisionType_ChooseFromBoosts:
 				var chooseaction = decision_ai.pick_choose_from_boosts(game, decision_player.my_id, game.decision_info.amount)
 				assert_true(game.do_choose_from_boosts(decision_ai.game_player, chooseaction.card_ids), "do choose from boosts failed")
@@ -321,9 +198,6 @@ func handle_strike(game: LocalGame, aiplayer : AIPlayer, otherai : AIPlayer, act
 			Enums.DecisionType.DecisionType_ChooseDiscardOpponentGauge:
 				var decision_action = decision_ai.pick_discard_opponent_gauge(game, decision_player.my_id)
 				assert_true(game.do_boost_name_card_choice_effect(decision_player, decision_action.card_id), "do discard opponent gauge failed")
-			Enums.DecisionType.DecisionType_ChooseFromBoosts:
-				var decision_action = decision_ai.pick_choose_from_boosts(game, decision_player.my_id, game.decision_info.amount)
-				assert_true(game.do_choose_from_boosts(decision_player, decision_action.card_ids))
 			Enums.DecisionType.DecisionType_BoostNow:
 				var boostnow_action = decision_ai.take_boost(game, decision_player.my_id, game.decision_info.allow_gauge, game.decision_info.limitation)
 				assert_true(game.do_boost(decision_player, boostnow_action.card_id), "do boost now failed")
@@ -348,38 +222,48 @@ func handle_strike(game: LocalGame, aiplayer : AIPlayer, otherai : AIPlayer, act
 				var can_pass = game.decision_info.can_pass
 				var choose_action = decision_ai.pick_discard_continuous(game, decision_player.my_id, limitation, can_pass)
 				assert_true(game.do_boost_name_card_choice_effect(decision_player, choose_action.card_id), "do boost name strike s2 failed")
-				events += game.get_latest_events()
 			_:
 				assert(false, "Unimplemented decision type")
 
 		if game.game_state == Enums.GameState.GameState_Strike_Opponent_Response:
-			var response_action = otherai.pick_strike_response(game, otherplayer.my_id)
-			assert_true(game.do_strike(otherplayer, response_action.card_id, response_action.wild_swing, response_action.ex_card_id), "do strike resp failed")
-			events += game.get_latest_events()
+			var defender_id = game.active_strike.defender.my_id
+			var defender_ai = ai1
+			if defender_id != ai1.game_player.my_id:
+				defender_ai = ai2
+			var response_action = defender_ai.pick_strike_response(game, defender_id)
+			assert_true(game.do_strike(defender_ai.game_player, response_action.card_id, response_action.wild_swing, response_action.ex_card_id), "do strike resp failed")
+
+	events += game.get_latest_events()
+	return events
+
+func handle_strike(game: LocalGame, aiplayer : AIPlayer, otherai : AIPlayer, action : AIPlayer.StrikeAction, already_mid_strike : bool = false):
+	var events = []
+	var gameplayer = aiplayer.game_player
+	var otherplayer = otherai.game_player
+
+	if not already_mid_strike:
+		var card_id = action.card_id
+		var ex_card_id = action.ex_card_id
+		var wild_swing = action.wild_swing
+
+		assert_true(game.do_strike(gameplayer, card_id, wild_swing, ex_card_id), "do strike failed")
+		events += game.get_latest_events()
+
+	if game.game_state == Enums.GameState.GameState_Strike_Opponent_Response:
+		var response_action = otherai.pick_strike_response(game, otherplayer.my_id)
+		assert_true(game.do_strike(otherplayer, response_action.card_id, response_action.wild_swing, response_action.ex_card_id), "do strike resp failed")
+
+	events += handle_decisions(game)
 
 	assert_true(game.game_state == Enums.GameState.GameState_PickAction or game.game_state == Enums.GameState.GameState_GameOver, "Unexpected game state %s" % str(game.game_state))
 
 	return events
 
-func handle_character_action(game: LocalGame, aiplayer : AIPlayer, otherai : AIPlayer, action : AIPlayer.CharacterActionAction):
+func handle_character_action(game: LocalGame, aiplayer : AIPlayer, action : AIPlayer.CharacterActionAction):
 	assert_true(game.do_character_action(aiplayer.game_player, action.card_ids), "character action failed")
 	var events = []
-
-	var otherplayer = otherai.game_player
-
-	while game.game_state == Enums.GameState.GameState_PlayerDecision:
-		var decision_ai = aiplayer
-		var decision_player = game._get_player(game.decision_info.player)
-		if decision_player == otherplayer:
-			decision_ai = otherai
-		match game.decision_info.type:
-			Enums.DecisionType.DecisionType_BoostNow:
-				var boostnow_action = decision_ai.take_boost(game, decision_player.my_id, game.decision_info.allow_gauge, game.decision_info.limitation)
-				assert_true(game.do_boost(decision_player, boostnow_action.card_id), "do boost now failed")
-			_:
-				assert(false, "Unimplemented decision type for character action")
-
 	events += game.get_latest_events()
+	events += handle_decisions(game)
 	return events
 
 func run_ai_game():
@@ -396,7 +280,6 @@ func run_ai_game():
 		var current_ai = ai1
 		var other_ai = ai2
 		var current_player = game_logic._get_player(game_logic.active_turn_player)
-		var other_player = game_logic._get_player(game_logic.get_other_player(game_logic.active_turn_player))
 		if game_logic.active_turn_player == player2.my_id:
 			current_ai = ai2
 			other_ai = ai1
@@ -410,15 +293,15 @@ func run_ai_game():
 		elif turn_action is AIPlayer.ChangeCardsAction:
 			turn_events += handle_change_cards(game_logic, current_player, turn_action)
 		elif turn_action is AIPlayer.ExceedAction:
-			turn_events += handle_exceed(game_logic, current_ai, current_player, other_player, turn_action)
+			turn_events += handle_exceed(game_logic, current_player, turn_action)
 		elif turn_action is AIPlayer.ReshuffleAction:
 			turn_events += handle_reshuffle(game_logic, current_player)
 		elif turn_action is AIPlayer.BoostAction:
-			turn_events += handle_boost(game_logic, current_ai, other_ai, current_player, other_player, turn_action)
+			turn_events += handle_boost(game_logic, current_ai, other_ai, current_player, turn_action)
 		elif turn_action is AIPlayer.StrikeAction:
 			turn_events += handle_strike(game_logic, current_ai, other_ai, turn_action)
 		elif turn_action is AIPlayer.CharacterActionAction:
-			turn_events += handle_character_action(game_logic, current_ai, other_ai, turn_action)
+			turn_events += handle_character_action(game_logic, current_ai, turn_action)
 		else:
 			fail_test("Unknown turn action: %s" % turn_action)
 			assert(false, "Unknown turn action: %s" % turn_action)
@@ -599,6 +482,15 @@ func test_axl_100():
 
 func test_zato_100():
 	default_deck = CardDefinitions.get_deck_from_str_id("zato")
+	for i in range(RandomIterations):
+		print("==== RUNNING TEST %d ====" % i)
+		run_ai_game()
+		game_teardown()
+		game_setup()
+	pass_test("Finished match")
+	
+func test_faust_100():
+	default_deck = CardDefinitions.get_deck_from_str_id("faust")
 	for i in range(RandomIterations):
 		print("==== RUNNING TEST %d ====" % i)
 		run_ai_game()

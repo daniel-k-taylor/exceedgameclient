@@ -273,7 +273,8 @@ func pick_discard_continuous(possible_actions : Array, _ai_game_state : AIPlayer
 				only_yours.append(action)
 	if only_yours.size() > 0:
 		only_yours = possible_actions
-	return only_yours[randi() % len(only_yours)]
+		return only_yours[randi() % len(only_yours)]
+	return possible_actions[randi() % len(possible_actions)]
 
 func pick_discard_opponent_gauge(possible_actions : Array, _ai_game_state : AIPlayer.AIGameState):
 	return possible_actions[randi() % len(possible_actions)]

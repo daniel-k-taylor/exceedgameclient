@@ -750,7 +750,10 @@ func _stat_notice_event(event):
 		Enums.EventType.EventType_Strike_GainAdvantage:
 			notice_text = "+Advantage!"
 		Enums.EventType.EventType_Strike_GuardUp:
-			notice_text = "+%d Guard" % number
+			var text = ""
+			if number > 0:
+				text += "+"
+			notice_text = "%s%s Guard" % [text, number]
 		Enums.EventType.EventType_Strike_IgnoredPushPull:
 			notice_text = "Unmoved!"
 		Enums.EventType.EventType_Strike_Miss:
@@ -758,7 +761,10 @@ func _stat_notice_event(event):
 		Enums.EventType.EventType_Strike_OpponentCantMovePast:
 			notice_text = "Blocking Advance!"
 		Enums.EventType.EventType_Strike_PowerUp:
-			notice_text = "+%d Power" % number
+			var text = ""
+			if number > 0:
+				text += "+"
+			notice_text = "%s%s Power" % [text, number]
 		Enums.EventType.EventType_Strike_RangeUp:
 			var number2 = event['extra_info']
 			notice_text = "+%d-%d Range" % [number, number2]
@@ -766,10 +772,7 @@ func _stat_notice_event(event):
 			var text = ""
 			if number > 0:
 				text += "+"
-			else:
-				text += "-"
-			text += "%d Speed" % number
-			notice_text = text
+			notice_text = "%s%s Speed" % [text, number]
 		Enums.EventType.EventType_Strike_Stun:
 			notice_text = "Stunned!"
 		Enums.EventType.EventType_Strike_Stun_Immunity:
@@ -847,6 +850,7 @@ func _on_boost_canceled(event):
 func _on_continuous_boost_added(event):
 	var player = event['event_player']
 	var card = find_card_on_board(event['number'])
+	card.flip_card_to_front(true)
 	var boost_zone = $PlayerBoostZone
 	var boost_card_loc = $AllCards/PlayerBoosts
 
@@ -943,11 +947,11 @@ func _on_name_opponent_card_begin(event):
 func _on_boost_played(event):
 	var player = event['event_player']
 	var card = find_card_on_board(event['number'])
+	card.flip_card_to_front(true)
 	var target_zone = $PlayerStrike/StrikeZone
 	var is_player = player == Enums.PlayerId.PlayerId_Player
 	if not is_player:
 		target_zone = $OpponentStrike/StrikeZone
-		card.flip_card_to_front(true)
 	_move_card_to_strike_area(card, target_zone, $AllCards/Striking, is_player, false)
 	spawn_damage_popup("Boost!", player)
 	return BoostDelay
@@ -1023,13 +1027,26 @@ func _on_choose_from_topdeck(event):
 	else:
 		ai_choose_from_topdeck(action_choices, look_amount, can_pass)
 
-func begin_choose_from_topdeck(_action_choices, look_amount, can_pass):
+func get_string_for_action_choice(choice):
+	match choice:
+		"strike":
+			return "Strike"
+		"boost":
+			return "Boost"
+	return ""
+
+func begin_choose_from_topdeck(action_choices, look_amount, can_pass):
 	
 	var card_ids = game_wrapper.get_player_top_cards(Enums.PlayerId.PlayerId_Player, look_amount)
 	for card_id in card_ids:
 		var card = find_card_on_board(card_id)
 		card.flip_card_to_front(true)
 		reparent_to_zone(card, $AllCards/ChoiceZone)
+
+	var button1 = get_string_for_action_choice(action_choices[0])
+	var button2 = ""
+	if action_choices.size() > 1:
+		button2 = get_string_for_action_choice(action_choices[1])
 
 	selected_cards = []
 	select_card_require_min = 1
@@ -1038,13 +1055,13 @@ func begin_choose_from_topdeck(_action_choices, look_amount, can_pass):
 	popout_instruction_info = {
 		"popout_type": CardPopoutType.CardPopoutType_ChoiceZone,
 		"instruction_text": "Choose a card:",
-		"ok_text": "Boost",
-		"ok2_text": "Strike",
+		"ok_text": button1,
+		"ok2_text": button2,
 		"cancel_text": "Pass",
 		"ok_enabled": true,
 		"cancel_visible": can_pass,
 	}
-	enable_instructions_ui("Choose a card to strike or boost.", false, cancel_allowed, false)
+	enable_instructions_ui("Choose a card:", false, cancel_allowed, false)
 	_on_choice_popout_show_button_pressed()
 
 	change_ui_state(UIState.UIState_SelectCards, UISubState.UISubState_SelectCards_ChooseFromTopdeck)

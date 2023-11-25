@@ -20,7 +20,7 @@ enum DecisionType {
 	DecisionType_ChooseArenaLocationForEffect,
 	DecisionType_ChooseDiscardContinuousBoost,
 	DecisionType_ChooseDiscardOpponentGauge,
-	DecisionType_ChooseFromBoosts,
+	DecisionType_ChooseFromBoosts,			# 5
 	DecisionType_ChooseFromDiscard,
 	DecisionType_ChooseFromTopDeck,
 	DecisionType_ChooseSimultaneousEffect,
