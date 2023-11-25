@@ -11,14 +11,15 @@ In progress:
         ☐ boost and sustain top 2 deck
         ☐ higher speed misses
 
-        ☐ "effect_type": "boost_then_sustain_topdeck",
-        ☐ "effect_type": "higher_speed_misses"
-        ☐ "timing": "both_players_effects",
-        ☐ "effect_type": "give_to_player"
-        ☐ "effect_type": "discard_own_boost_for_effect",
-        ☐ "effect_type": "opponent_force_for_effect",
+        ☐ "effect_type": "boost_then_sustain_topdeck", @started(23-11-24 21:55)
+        ☐ "effect_type": "higher_speed_misses" @started(23-11-24 20:19)
+        ☐ "timing": "both_players_before", and after @started(23-11-24 20:24)
+        ☐ "effect_type": "give_to_player" @started(23-11-24 20:49)
+        ☐ "effect_type": "discard_own_boost_for_effect", @started(23-11-24 21:25)
+        ☐ "effect_type": "opponent_force_for_effect", @started(23-11-24 20:04)
 
-        ☐ "strike_after": true   on the character actions
+        ☐ "strike_after": true   on the character actions @started(23-11-24 20:12)
+            ☐ Make 1 look at and 1 action choice and not can_pass choose it automatically
 
 
 

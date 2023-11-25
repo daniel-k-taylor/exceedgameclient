@@ -69,6 +69,9 @@ func get_player_hand_size(id):
 func get_player_deck_size(id):
 	return _get_player(id).deck.size()
 
+func get_player_continuous_boost_count(id):
+	return _get_player(id).continuous_boosts.size()
+
 func get_player_discards_size(id):
 	return _get_player(id).discards.size()
 

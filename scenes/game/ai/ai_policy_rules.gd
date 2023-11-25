@@ -270,7 +270,7 @@ func pick_discard_continuous(possible_actions : Array, _ai_game_state : AIPlayer
 	for action in possible_actions:
 		if action is AIPlayer.DiscardContinuousBoostAction:
 			if not action.mine:
-				only_yours.appned(action)
+				only_yours.append(action)
 	if only_yours.size() > 0:
 		only_yours = possible_actions
 	return only_yours[randi() % len(only_yours)]

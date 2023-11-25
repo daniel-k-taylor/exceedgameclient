@@ -128,6 +128,10 @@ func get_timing_text(timing):
 			text += "[b]Action:[/b] "
 		"after":
 			text += "[b]After:[/b] "
+		"both_players_after":
+			text += "[b]Both players after:[/b] "
+		"both_players_before":
+			text += "[b]Both players before:[/b] "
 		"before":
 			text += "[b]Before:[/b] "
 		"cleanup":
@@ -267,6 +271,8 @@ func get_effect_type_text(effect, card_name_source : String = ""):
 				effect_str += "Play and sustain a %s from hand or gauge." % limitation_str
 			else:
 				effect_str += "Play and sustain a %s from hand." % limitation_str
+		"boost_then_sustain_topdeck":
+			effect_str += "Play and sustain %s card(s) from the top of your deck." % effect['amount']
 		"choice":
 			effect_str += "Choose: " + get_choice_summary(effect['choice'], card_name_source)
 		"choose_discard":
@@ -281,7 +287,10 @@ func get_effect_type_text(effect, card_name_source : String = ""):
 		"discard_this":
 			effect_str += "Discard this"
 		"discard_continuous_boost":
-			effect_str += "Discard a continuous boost"
+			if 'limitation' in effect and effect['limitation'] == 'mine' and 'overall_effect' in effect:
+				effect_str += "You may discard one of your continuous boosts for %s" % [get_effect_text(effect['overall_effect'])]
+			else:
+				effect_str += "Discard a continuous boost"
 		"discard_opponent_gauge":
 			effect_str += "Discard a card from opponent's gauge."
 		"discard_opponent_topdeck":

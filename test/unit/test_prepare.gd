@@ -46,7 +46,7 @@ func validate_hand_exceeded(event, player, by_amount):
 	assert_eq(event['number'], by_amount)
 
 func validate_discard_card(event, player, card_id):
-	assert_eq(event['event_type'], Enums.EventType.EventType_Discard)
+	assert_eq(event['event_type'], Enums.EventType.EventType_AddToDiscard)
 	assert_eq(event['event_player'], player.my_id)
 	assert_eq(event['number'], card_id)
 

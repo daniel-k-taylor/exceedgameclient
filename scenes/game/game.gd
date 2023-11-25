@@ -603,7 +603,7 @@ func can_select_card(card):
 			var valid_card = game_wrapper.can_player_boost(Enums.PlayerId.PlayerId_Player, card.card_id, select_boost_from_gauge, select_boost_limitation)
 			return len(selected_cards) == 0 and valid_card
 		UISubState.UISubState_SelectCards_DiscardContinuousBoost:
-			return (in_player_boosts or in_opponent_boosts) and len(selected_cards) < select_card_require_max
+			return (in_player_boosts or (not game_wrapper.get_decision_info().limitation and in_opponent_boosts)) and len(selected_cards) < select_card_require_max
 		UISubState.UISubState_SelectCards_DiscardOpponentGauge:
 			return in_opponent_gauge and len(selected_cards) < select_card_require_max
 		UISubState.UISubState_SelectCards_DiscardFromReference:
@@ -862,26 +862,34 @@ func _on_continuous_boost_added(event):
 
 func _on_discard_continuous_boost_begin(event):
 	var player = event['event_player']
+	var decision_info = game_wrapper.get_decision_info()
+	var limitation = decision_info.limitation
+	var can_pass = decision_info.can_pass
 	if player == Enums.PlayerId.PlayerId_Player:
 		# Show the boost window.
-		_on_opponent_boost_zone_clicked_zone()
+		var instruction_qualifier = "a"
+		if limitation == "mine" or game_wrapper.get_player_continuous_boost_count(player) == 0:
+			instruction_qualifier = "your"
 		selected_cards = []
 		select_card_require_min = 1
 		select_card_require_max = 1
-		var cancel_allowed = false
+		var instruction_text = "Discard %s continuous boost." % [instruction_qualifier]
 		popout_instruction_info = {
 			"popout_type": CardPopoutType.CardPopoutType_BoostOpponent,
-			"instruction_text": "Discard a continuous boost.",
+			"instruction_text": instruction_text,
 			"ok_text": "OK",
-			"cancel_text": "",
+			"cancel_text": "Pass",
 			"ok_enabled": true,
-			"cancel_visible": false,
+			"cancel_visible": can_pass,
 		}
-		enable_instructions_ui("Select a continuous boost to discard.", true, cancel_allowed, false)
-
+		enable_instructions_ui(instruction_text, true, can_pass, false)
+		if limitation == "mine" or game_wrapper.get_player_continuous_boost_count(Enums.PlayerId.PlayerId_Opponent) == 0:
+			_on_player_boost_zone_clicked_zone()
+		else:
+			_on_opponent_boost_zone_clicked_zone()
 		change_ui_state(UIState.UIState_SelectCards, UISubState.UISubState_SelectCards_DiscardContinuousBoost)
 	else:
-		ai_discard_continuous_boost()
+		ai_discard_continuous_boost(limitation, can_pass)
 
 func _on_discard_opponent_gauge(event):
 	var player = event['event_player']
@@ -1761,8 +1769,6 @@ func _handle_events(events):
 				_on_choose_from_discard(event)
 			Enums.EventType.EventType_ChooseFromTopDeck:
 				_on_choose_from_topdeck(event)
-			Enums.EventType.EventType_Discard:
-				_on_discard_event(event)
 			Enums.EventType.EventType_Draw:
 				_on_draw_event(event)
 			Enums.EventType.EventType_Exceed:
@@ -2247,6 +2253,10 @@ func _on_instructions_cancel_button_pressed():
 			deselect_all_cards()
 			close_popout()
 			success = game_wrapper.submit_choose_from_discard(Enums.PlayerId.PlayerId_Player, [])
+		UISubState.UISubState_SelectCards_DiscardContinuousBoost:
+			deselect_all_cards()
+			close_popout()
+			success = game_wrapper.submit_boost_name_card_choice_effect(Enums.PlayerId.PlayerId_Player, -1)
 		UISubState.UISubState_SelectCards_ChooseFromTopdeck:
 			deselect_all_cards()
 			close_popout()
@@ -2502,10 +2512,10 @@ func ai_boost_cancel_decision(gauge_cost):
 	else:
 		print("FAILED AI BOOST CANCEL")
 
-func ai_discard_continuous_boost():
+func ai_discard_continuous_boost(limitation, can_pass):
 	change_ui_state(UIState.UIState_WaitForGameServer)
 	if not game_wrapper.is_ai_game(): return
-	var pick_action = ai_player.pick_discard_continuous(game_wrapper.current_game, Enums.PlayerId.PlayerId_Opponent)
+	var pick_action = ai_player.pick_discard_continuous(game_wrapper.current_game, Enums.PlayerId.PlayerId_Opponent,limitation, can_pass)
 	var success = game_wrapper.submit_boost_name_card_choice_effect(Enums.PlayerId.PlayerId_Opponent, pick_action.card_id)
 	if success:
 		change_ui_state(UIState.UIState_WaitForGameServer)

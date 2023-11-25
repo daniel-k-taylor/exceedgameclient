@@ -1409,14 +1409,9 @@
 					"amount2": 1
 				},
 				{
-					"timing": "both_players_effects",
-					"effects": [
-						{
-							"timing": "before",
-							"effect_type": "powerup",
-							"amount": 1
-						}
-					]
+					"timing": "both_players_before",
+					"effect_type": "powerup",
+					"amount": 1
 				}
 			]
 		}
@@ -1534,7 +1529,10 @@
 		"effects": [
 			{
 				"timing": "before",
-				"effect_type": "discard_own_boost_for_effect",
+				"effect_type": "discard_continuous_boost",
+				"required": false,
+				"limitation": "mine",
+				"amount": 1,
 				"overall_effect": {
 					"effect_type": "powerup",
 					"amount": 2
@@ -1558,7 +1556,8 @@
 				},
 				{
 					"timing": "now",
-					"effect_type": "opponent_force_for_effect",
+					"effect_type": "force_for_effect",
+					"other_player": true,
 					"per_force_effect": null,
 					"overall_effect": {
 						"effect_type": "discard_this"
@@ -1604,19 +1603,14 @@
 			"display_name": "Banana Peel",
 			"effects": [
 				{
-					"timing": "both_players_effects",
-					"effects": [
-						{
-							"timing": "before",
-							"effect_type": "advance",
-							"amount": 1
-						},
-						{
-							"timing": "after",
-							"effect_type": "discard_this",
-							"card_name": "Thrust"
-						}
-					]
+					"timing": "both_players_before",
+					"effect_type": "advance",
+					"amount": 1
+				},
+				{
+					"timing": "both_players_after",
+					"effect_type": "discard_this",
+					"card_name": "Thrust"
 				}
 			]
 		}
@@ -1664,18 +1658,13 @@
 					"amount": 2
 				},
 				{
-					"timing": "both_players_effects",
-					"effects": [
-						{
-							"timing": "after",
-							"effect_type": "take_nonlethal_damage",
-							"amount": 3,
-							"and": {
-								"effect_type": "discard_this",
-								"card_name": "Mix Mix Mix"
-							}
-						}
-					]
+					"timing": "both_players_after",
+					"effect_type": "take_nonlethal_damage",
+					"amount": 3,
+					"and": {
+						"effect_type": "discard_this",
+						"card_name": "Mix Mix Mix"
+					}
 				}
 			]
 		},
@@ -1881,6 +1870,7 @@
 					"per_force_effect": null,
 					"overall_effect": {
 						"effect_type": "discard_continuous_boost",
+						"required": true,
 						"amount": 1
 					},
 					"force_max": 1
@@ -4920,6 +4910,7 @@
 					"per_force_effect": null,
 					"overall_effect": {
 						"effect_type": "discard_continuous_boost",
+						"required": true,
 						"amount": 1
 					},
 					"force_max": 1
@@ -6999,6 +6990,7 @@
 				{
 					"timing": "immediate",
 					"effect_type": "discard_continuous_boost",
+					"required": true,
 					"amount": 1
 				}
 			]

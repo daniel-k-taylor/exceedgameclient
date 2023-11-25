@@ -136,12 +136,10 @@ func handle_boost_reponse(events, aiplayer : AIPlayer, game : LocalGame, gamepla
 				events += game.get_latest_events()
 				#TODO: Do something with EventType_RevealHand so AI can consume new info.
 			Enums.DecisionType.DecisionType_ChooseDiscardContinuousBoost:
-				var card_id = -1
-				if choice_index < otherplayer.continuous_boosts.size():
-					card_id = otherplayer.continuous_boosts[choice_index].id
-				else:
-					card_id = gameplayer.continuous_boosts[choice_index - otherplayer.continuous_boosts.size()].id
-				assert_true(game.do_boost_name_card_choice_effect(gameplayer, card_id), "do boost name 2 failed")
+				var limitation = game.decision_info.limitation
+				var can_pass = game.decision_info.can_pass
+				var choose_action = aiplayer.pick_discard_continuous(game, gameplayer.my_id, limitation, can_pass)
+				assert_true(game.do_boost_name_card_choice_effect(gameplayer, choose_action.card_id), "do boost name 2 failed")
 				events += game.get_latest_events()
 			Enums.DecisionType.DecisionType_ChooseDiscardOpponentGauge:
 				var card_id = otherplayer.gauge_list[choice_index].id
@@ -345,6 +343,12 @@ func handle_strike(game: LocalGame, aiplayer : AIPlayer, otherai : AIPlayer, act
 						choice_index = i
 						break
 				assert_true(game.do_choice(decision_player, choice_index), "do arena location for effect failed")
+			Enums.DecisionType.DecisionType_ChooseDiscardContinuousBoost:
+				var limitation = game.decision_info.limitation
+				var can_pass = game.decision_info.can_pass
+				var choose_action = decision_ai.pick_discard_continuous(game, decision_player.my_id, limitation, can_pass)
+				assert_true(game.do_boost_name_card_choice_effect(decision_player, choose_action.card_id), "do boost name strike s2 failed")
+				events += game.get_latest_events()
 			_:
 				assert(false, "Unimplemented decision type")
 

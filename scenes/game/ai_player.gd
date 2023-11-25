@@ -636,14 +636,17 @@ func pick_cancel(game_logic : LocalGame, my_id : Enums.PlayerId, gauge_cost : in
 	update_ai_state(game_logic, me, opponent)
 	return ai_policy.pick_cancel(possible_actions, game_state)
 
-func pick_discard_continuous(game_logic : LocalGame, my_id : Enums.PlayerId) -> DiscardContinuousBoostAction:
+func pick_discard_continuous(game_logic : LocalGame, my_id : Enums.PlayerId, limitation, can_pass) -> DiscardContinuousBoostAction:
 	var me = game_logic._get_player(my_id)
 	var opponent = game_logic._get_player(game_logic.get_other_player(my_id))
 	var possible_actions = []
+	if can_pass:
+		possible_actions.append(DiscardContinuousBoostAction.new(-1, true))
 	for card in me.continuous_boosts:
 		possible_actions.append(DiscardContinuousBoostAction.new(card.id, true))
-	for card in opponent.continuous_boosts:
-		possible_actions.append(DiscardContinuousBoostAction.new(card.id, false))
+	if limitation != "mine":
+		for card in opponent.continuous_boosts:
+			possible_actions.append(DiscardContinuousBoostAction.new(card.id, false))
 	update_ai_state(game_logic, me, opponent)
 	return ai_policy.pick_discard_continuous(possible_actions, game_state)
 
