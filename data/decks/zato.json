@@ -13,17 +13,17 @@
 		},
 		{
 			"timing": "during_strike",
-			"condition": "is_eddie_special_attack",
+			"condition": "is_eddie_special_or_ultra_attack",
 			"effect_type": "calculate_range_from_eddie"
 		},
 		{
 			"timing": "hit",
-			"condition": "is_eddie_special_attack",
+			"condition": "is_eddie_special_or_ultra_attack",
 			"effect_type": "gain_advantage"
 		},
 		{
 			"timing": "cleanup",
-			"condition": "is_eddie_special_attack",
+			"condition": "is_eddie_special_or_ultra_attack",
 			"effect_type": "remove_eddie"
 		}
 	],
@@ -35,17 +35,17 @@
 		},
 		{
 			"timing": "during_strike",
-			"condition": "is_eddie_special_attack",
+			"condition": "is_eddie_special_or_ultra_attack",
 			"effect_type": "calculate_range_from_eddie"
 		},
 		{
 			"timing": "hit",
-			"condition": "is_eddie_special_attack",
+			"condition": "is_eddie_special_or_ultra_attack",
 			"effect_type": "gain_advantage"
 		},
 		{
 			"timing": "cleanup",
-			"condition": "is_eddie_special_attack",
+			"condition": "is_eddie_special_or_ultra_attack",
 			"effect_type": "remove_eddie"
 		}
 	],

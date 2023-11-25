@@ -1375,8 +1375,9 @@ func is_effect_condition_met(performing_player : Player, effect, local_condition
 			return initiated_strike and performing_player.pre_strike_movement >= required_amount
 		elif condition == "is_normal_attack":
 			return active_strike.get_player_card(performing_player).definition['type'] == "normal"
-		elif condition == "is_eddie_special_attack":
-			return performing_player.is_buddy_in_play() and active_strike.get_player_card(performing_player).definition['type'] == "special"
+		elif condition == "is_eddie_special_or_ultra_attack":
+			var attack_type = active_strike.get_player_card(performing_player).definition['type']
+			return performing_player.is_buddy_in_play() and (attack_type == "special" or attack_type == "ultra")
 		elif condition == "is_special_attack":
 			return active_strike.get_player_card(performing_player).definition['type'] == "special"
 		elif condition == "is_ex_strike":

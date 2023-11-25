@@ -518,7 +518,7 @@ scale = Vector2(0.25, 0.25)
 [node name="OpponentBuddy" parent="." instance=ExtResource("9_rhsuv")]
 visible = false
 position = Vector2(183.5, -119)
-scale = Vector2(0.125, 0.125)
+scale = Vector2(0.25, 0.25)
 
 [node name="PlayerCharacter" parent="." instance=ExtResource("9_rhsuv")]
 position = Vector2(50, -68)

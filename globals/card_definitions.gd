@@ -189,6 +189,8 @@ func get_condition_text(condition):
 			text += ""
 		"is_normal_attack":
 			text += ""
+		"is_eddie_special_or_ultra_attack":
+			text += ""
 		"eddie_in_play":
 			text += "If Eddie is in play, "
 		"opponent_between_eddie":
@@ -377,6 +379,8 @@ func get_effect_type_text(effect, card_name_source : String = ""):
 			#else: str() converts it to - already.
 				#effect_str += "-"
 			effect_str += str(effect['amount']) + " Speed"
+		"strike":
+			effect_str += "Strike"
 		"stun_immunity":
 			effect_str += "Stun Immunity"
 		"sustain_this":

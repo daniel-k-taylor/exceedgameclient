@@ -366,11 +366,13 @@ func get_arena_location_button(arena_location):
 	var button = target_square.get_node("Button")
 	return button
 
-func move_character_to_arena_square(character, arena_location, immediate: bool, move_anim : Character.CharacterAnim):
+func move_character_to_arena_square(character, arena_location, immediate: bool, move_anim : Character.CharacterAnim, buddy_offset : int = 0):
 	var target_square = arena_layout.get_child(arena_location - 1)
 	var target_position = target_square.global_position + target_square.size/2
 	var offset_y = $ArenaNode/RowButtons.position.y
 	target_position.y -= character.get_size().y * character.scale.y / 2 + offset_y
+	if buddy_offset != 0:
+		target_position.x += buddy_offset * (character.get_size().x * character.scale.x /4)
 	if immediate:
 		character.position = target_position
 		update_character_facing()
@@ -1702,14 +1704,14 @@ func _on_place_buddy(event):
 		else:
 			var immediate = not $PlayerBuddy.visible
 			$PlayerBuddy.visible = true
-			move_character_to_arena_square($PlayerBuddy, buddy_location, immediate, Character.CharacterAnim.CharacterAnim_WalkForward)
+			move_character_to_arena_square($PlayerBuddy, buddy_location, immediate, Character.CharacterAnim.CharacterAnim_WalkForward, -1)
 	else:
 		if buddy_location == -1:
 			$OpponentBuddy.visible = false
 		else:
 			var immediate = not $OpponentBuddy.visible
 			$OpponentBuddy.visible = true
-			move_character_to_arena_square($OpponentBuddy, buddy_location, immediate, Character.CharacterAnim.CharacterAnim_WalkForward)
+			move_character_to_arena_square($OpponentBuddy, buddy_location, immediate, Character.CharacterAnim.CharacterAnim_WalkForward, 1)
 	spawn_damage_popup("%s %s" % [action_text, game_wrapper.get_buddy_name(player)], player)
 	return SmallNoticeDelay
 

@@ -1,19 +1,4 @@
 In progress:
-    Zato:
-        ☐ "effect_type": "place_eddie_in_attack_range" @started(23-11-24 18:07)
-        ☐ "effect_type": "place_eddie_in_any_space" @started(23-11-24 18:07)
-        ☐ "condition": "is_eddie_special_attack", @started(23-11-24 14:26)
-        ☐ "effect_type": "calculate_range_from_eddie" @started(23-11-24 14:40)
-        ☐ "effect_type": "remove_eddie" @started(23-11-24 14:33)
-        ☐ "effect_type": "do_not_remove_eddie" @started(23-11-24 14:34)
-        ☐ "condition": "opponent_between_eddie", @started(23-11-24 14:28)
-        ☐ "effect_type": "push_from_source", @started(23-11-24 14:56)
-        ☐ "effect_type": "place_eddie_onto_self", @started(23-11-24 14:31)
-        ☐ "condition": "eddie_in_play", @started(23-11-24 14:29)
-
-        ☐ EventType_PlaceBuddy @started(23-11-24 18:08)
-        ☐ DecisionType_ChooseArenaLocationForEffect @started(23-11-24 18:08)
-
     Faust:
         ☐ action - boost top card then strike
             ☐ reveal top 2 and choose
@@ -63,6 +48,7 @@ In progress:
 Write tests for:
     Axl:
     Testament:
+    Zato:
 
 Tasks:
     Main Features:
