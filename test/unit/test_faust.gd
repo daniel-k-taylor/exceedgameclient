@@ -234,4 +234,10 @@ func test_faust_whatcouldthisbe():
 	validate_positions(player1, 3, player2, 1)
 	validate_life(player1, 30, player2, 26)
 	assert_eq(player1.gauge.size(), 3)
-	
+
+func test_faust_bonecrushing():
+	position_players(player1, 2, player2, 1)
+	give_gauge(player1, 4)
+	execute_strike(player1, player2, "faust_bonecrushingexcitement", "gg_normal_slash", [], [], false, false)
+	validate_positions(player1, 2, player2, 1)
+	validate_life(player1, 30, player2, 23)

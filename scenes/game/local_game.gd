@@ -1409,8 +1409,6 @@ func is_effect_condition_met(performing_player : Player, effect, local_condition
 			return not performing_player.canceled_this_turn
 		elif condition == "used_character_action":
 			return performing_player.used_character_action
-		elif condition == "higher_speed_misses":
-			performing_player.strike_stat_boosts.higher_speed_misses = true
 		elif condition == "hit_opponent":
 			return active_strike.did_player_hit_opponent(performing_player)
 		elif condition == "not_full_close":
@@ -1760,6 +1758,8 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 		"guardup":
 			performing_player.strike_stat_boosts.guard += effect['amount']
 			events += [create_event(Enums.EventType.EventType_Strike_GuardUp, performing_player.my_id, effect['amount'])]
+		"higher_speed_misses":
+			performing_player.strike_stat_boosts.higher_speed_misses = true
 		"ignore_armor":
 			performing_player.strike_stat_boosts.ignore_armor = true
 		"ignore_guard":
