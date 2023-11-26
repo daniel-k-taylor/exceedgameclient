@@ -1392,6 +1392,11 @@
 		"guard": 0,
 		"effects": [
 			{
+				"timing": "before",
+				"effect_type": "advance",
+				"amount": 3
+			},
+			{
 				"timing": "during_strike",
 				"effect_type": "higher_speed_misses"
 			}
