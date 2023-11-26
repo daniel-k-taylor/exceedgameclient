@@ -390,6 +390,8 @@ func get_effect_type_text(effect, card_name_source : String = ""):
 			#else: str() converts it to - already.
 				#effect_str += "-"
 			effect_str += str(effect['amount']) + " Speed"
+		"spend_life":
+			effect_str += "Spend " + str(effect['amount']) + " life"
 		"strike":
 			effect_str += "Strike"
 		"stun_immunity":

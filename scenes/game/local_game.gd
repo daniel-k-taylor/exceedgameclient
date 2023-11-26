@@ -2026,6 +2026,13 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 		"speedup":
 			performing_player.strike_stat_boosts.speed += effect['amount']
 			events += [create_event(Enums.EventType.EventType_Strike_SpeedUp, performing_player.my_id, effect['amount'])]
+		"spend_life":
+			var amount = effect['amount']
+			performing_player.life -= amount
+			_append_log("%s spent %s life, life is now %s." % [performing_player.name, amount, performing_player.life])
+			if performing_player.life <= 0:
+				_append_log("%s is defeated." % [performing_player.name])
+				events += trigger_game_over(performing_player.my_id, Enums.GameOverReason.GameOverReason_Life)
 		"strike":
 			events += [create_event(Enums.EventType.EventType_ForceStartStrike, performing_player.my_id, 0)]
 			change_game_state(Enums.GameState.GameState_WaitForStrike)
@@ -2177,6 +2184,9 @@ func do_remaining_effects(performing_player : Player, next_state):
 			active_strike.remaining_effect_list = []
 			if is_effect_condition_met(performing_player, effect, null):
 				events += handle_strike_effect(effect['card_id'], effect, performing_player)
+		
+		if game_over:
+			return events
 
 	if active_strike.remaining_effect_list.size() == 0 and not game_state == Enums.GameState.GameState_PlayerDecision:
 		active_strike.effects_resolved_in_timing = 0
@@ -2633,6 +2643,9 @@ func continue_resolve_boost(events):
 				break
 		else:
 			events = boost_play_cleanup(events, active_boost.playing_player)
+			break
+		
+		if game_over:
 			break
 
 	return events
