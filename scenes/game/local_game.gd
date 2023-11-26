@@ -1829,6 +1829,11 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 			decision_info.effect_type = "place_eddie_into_space"
 			decision_info.choice = []
 			decision_info.limitation = []
+			if 'optional' in effect and effect['optional']:
+				decision_info.limitation.append(0)
+				decision_info.choice.append({
+					"effect_type": "pass"
+				})
 			for i in range(MinArenaLocation, MaxArenaLocation + 1):
 				decision_info.limitation.append(i)
 				decision_info.choice.append({
@@ -1840,6 +1845,12 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 			decision_info.choice = []
 			decision_info.limitation = []
 			var attack_card = active_strike.get_player_card(performing_player)
+			var optional = 'optional' in effect and effect['optional']
+			if optional:
+				decision_info.limitation.append(0)
+				decision_info.choice.append({
+					"effect_type": "pass"
+				})
 			for i in range(MinArenaLocation, MaxArenaLocation + 1):
 				if is_location_in_range(performing_player, attack_card, i):
 					decision_info.limitation.append(i)
@@ -1847,7 +1858,7 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 						"effect_type": "place_eddie_into_space",
 						"amount": i
 					})
-			if decision_info.limitation.size() > 0:
+			if decision_info.limitation.size() > 1 or (not optional and decision_info.limitation.size() > 0):
 				decision_info.type = Enums.DecisionType.DecisionType_ChooseArenaLocationForEffect
 				decision_info.player = performing_player.my_id
 				decision_info.choice_card_id = card_id

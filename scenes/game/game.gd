@@ -1956,6 +1956,8 @@ func _update_buttons():
 			cancel_text = "Pass"
 		UISubState.UISubState_SelectCards_ChooseBoostsToSustain, UISubState.UISubState_SelectCards_ChooseFromTopdeck:
 			cancel_text = "Pass"
+		UISubState.UISubState_SelectArena_EffectChoice:
+			cancel_text = "Pass"
 		_:
 			cancel_text = "Cancel"
 
@@ -2093,13 +2095,14 @@ func _on_choose_arena_location_for_effect(event):
 	var player = event['event_player']
 	var decision_info = game_wrapper.get_decision_info()
 	var effect_type = decision_info.effect_type
+	var can_pass = decision_info.limitation[0] == 0
 	if player == Enums.PlayerId.PlayerId_Player:
 		arena_locations_clickable = decision_info.limitation
 		var instruction_str = "Select a location"
 		match effect_type:
 			"place_eddie_into_space":
 				instruction_str = "Select a location to place Eddie"
-		enable_instructions_ui(instruction_str, false, false)
+		enable_instructions_ui(instruction_str, false, can_pass)
 		change_ui_state(UIState.UIState_SelectArenaLocation, UISubState.UISubState_SelectArena_EffectChoice)
 	else:
 		ai_choose_arena_location_for_effect(decision_info.limitation)
@@ -2282,7 +2285,10 @@ func _on_instructions_cancel_button_pressed():
 			match ui_state:
 				UIState.UIState_SelectArenaLocation:
 					if instructions_cancel_allowed:
-						change_ui_state(UIState.UIState_PickTurnAction, UISubState.UISubState_None)
+						if ui_sub_state == UISubState.UISubState_SelectArena_EffectChoice:
+							success = game_wrapper.submit_choice(Enums.PlayerId.PlayerId_Player, 0)
+						else:
+							change_ui_state(UIState.UIState_PickTurnAction, UISubState.UISubState_None)
 				UIState.UIState_SelectCards:
 					if instructions_cancel_allowed:
 						deselect_all_cards()
