@@ -106,11 +106,17 @@ func handle_change_cards(game: LocalGame, gameplayer : LocalGame.Player, action 
 	assert_true(game.do_change(gameplayer, card_ids), "do change failed")
 	return game.get_latest_events()
 
-func handle_exceed(game: LocalGame, gameplayer : LocalGame.Player, action : AIPlayer.ExceedAction):
+func handle_exceed(game: LocalGame, otherai, gameplayer : LocalGame.Player, action : AIPlayer.ExceedAction):
 	var card_ids = action.card_ids
 	var events = []
 	assert_true(game.do_exceed(gameplayer, card_ids), "do exceed failed")
 	events += game.get_latest_events()
+
+	if game.game_state == Enums.GameState.GameState_Strike_Opponent_Response:
+		var otherplayer = otherai.game_player
+		var response_action = otherai.pick_strike_response(game, otherplayer.my_id)
+		assert_true(game.do_strike(otherplayer, response_action.card_id, response_action.wild_swing, response_action.ex_card_id), "do strike resp failed")
+
 	events += handle_decisions(game)
 	return events
 
@@ -193,7 +199,9 @@ func handle_decisions(game: LocalGame):
 				assert_true(game.do_choose_from_discard(decision_ai.game_player, chooseaction.card_ids), "do choose from discard failed")
 			Enums.DecisionType.DecisionType_ChooseToDiscard:
 				var amount = game.decision_info.effect['amount']
-				var chooseaction = decision_ai.pick_choose_to_discard(game, decision_player.my_id, amount)
+				var limitation = game.decision_info.limitation
+				var can_pass = game.decision_info.can_pass
+				var chooseaction = decision_ai.pick_choose_to_discard(game, decision_player.my_id, amount, limitation, can_pass)
 				assert_true(game.do_choose_to_discard(decision_ai.game_player, chooseaction.card_ids), "do choose to discard failed")
 			Enums.DecisionType.DecisionType_ChooseDiscardOpponentGauge:
 				var decision_action = decision_ai.pick_discard_opponent_gauge(game, decision_player.my_id)
@@ -293,7 +301,7 @@ func run_ai_game():
 		elif turn_action is AIPlayer.ChangeCardsAction:
 			turn_events += handle_change_cards(game_logic, current_player, turn_action)
 		elif turn_action is AIPlayer.ExceedAction:
-			turn_events += handle_exceed(game_logic, current_player, turn_action)
+			turn_events += handle_exceed(game_logic, other_ai, current_player, turn_action)
 		elif turn_action is AIPlayer.ReshuffleAction:
 			turn_events += handle_reshuffle(game_logic, current_player)
 		elif turn_action is AIPlayer.BoostAction:
@@ -491,6 +499,15 @@ func test_zato_100():
 	
 func test_faust_100():
 	default_deck = CardDefinitions.get_deck_from_str_id("faust")
+	for i in range(RandomIterations):
+		print("==== RUNNING TEST %d ====" % i)
+		run_ai_game()
+		game_teardown()
+		game_setup()
+	pass_test("Finished match")
+
+func test_happychaos_100():
+	default_deck = CardDefinitions.get_deck_from_str_id("happychaos")
 	for i in range(RandomIterations):
 		print("==== RUNNING TEST %d ====" % i)
 		run_ai_game()

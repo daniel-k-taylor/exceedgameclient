@@ -1,8 +1,14 @@
 extends Node2D
 
+@export var label_text : String
+
 signal gauge_clicked()
 
 @onready var gauge_panel = $BackgroundPanel/GaugePanel
+
+func _ready():
+	if label_text:
+		$BackgroundPanel/GaugePanel/GaugeVBox/GaugeLabel.text = label_text
 
 func set_details(num : int):
 	$BackgroundPanel/GaugePanel/GaugeVBox/GaugeAmount.text = str(num)

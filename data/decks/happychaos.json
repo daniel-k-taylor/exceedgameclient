@@ -2,6 +2,7 @@
 	"id": "happychaos",
 	"display_name": "Happy Chaos",
 	"cardback": "cardback_happychaos.jpg",
+	"has_sealed_area": true,
 	"exceed_cost": 3,
 	"on_exceed": {
 		"effect_type": "strike_with_deus_ex_machina"
@@ -9,15 +10,18 @@
 	"ability_effects": [
 		{
 			"timing": "hit",
-			"effect_type": "seal_ultra_for_effect",
-			"overall_effect": {
+			"effect_type": "self_discard_choose",
+			"optional": true,
+			"amount": 1,
+			"limitation": "ultra",
+			"destination": "seal",
+			"discard_effect": {
 				"effect_type": "powerup",
 				"amount": 1,
 				"and": {
 					"effect_type": "gain_advantage"
 				}
-			},
-			"seal_max": 1
+			}
 		}
 	],
 	"exceed_ability_effects": [
@@ -28,6 +32,12 @@
 	],
 	"cards": [
 		{
+			"set_aside": true,
+			"hide_from_reference": true,
+			"definition_id": "happychaos_deusexmachina",
+			"image": "happychaos_deusexmachina.tres"
+		},
+		{
 			"definition_id": "happychaos_cheapshot",
 			"image": "happychaos_cheapshot.tres"
 		},
@@ -64,12 +74,12 @@
 			"image": "happychaos_steadyaim.tres"
 		},
 		{
-			"definition_id": "happychaos_atthready",
-			"image": "happychaos_atthready.tres"
+			"definition_id": "happychaos_attheready",
+			"image": "happychaos_attheready.tres"
 		},
 		{
-			"definition_id": "happychaos_atthready",
-			"image": "happychaos_atthready.tres"
+			"definition_id": "happychaos_attheready",
+			"image": "happychaos_attheready.tres"
 		},
 		{
 			"definition_id": "happychaos_fire",

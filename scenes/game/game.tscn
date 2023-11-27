@@ -504,6 +504,14 @@ position = Vector2(200, 380)
 [node name="OpponentGauge" parent="." instance=ExtResource("6_gtjck")]
 position = Vector2(200, 5)
 
+[node name="PlayerSealed" parent="." instance=ExtResource("6_gtjck")]
+position = Vector2(200, 550)
+label_text = "SEALED"
+
+[node name="OpponentSealed" parent="." instance=ExtResource("6_gtjck")]
+position = Vector2(200, 150)
+label_text = "SEALED"
+
 [node name="PlayerBoostZone" parent="." instance=ExtResource("7_gn0of")]
 position = Vector2(5, 380)
 
@@ -592,6 +600,10 @@ scale = Vector2(0.6, 0.6)
 
 [node name="OpponentGauge" type="Node2D" parent="AllCards"]
 
+[node name="PlayerSealed" type="Node2D" parent="AllCards"]
+
+[node name="OpponentSealed" type="Node2D" parent="AllCards"]
+
 [node name="PlayerDiscards" type="Node2D" parent="AllCards"]
 
 [node name="OpponentDiscards" type="Node2D" parent="AllCards"]
@@ -599,6 +611,10 @@ scale = Vector2(0.6, 0.6)
 [node name="PlayerDeck" type="Node2D" parent="AllCards"]
 
 [node name="OpponentDeck" type="Node2D" parent="AllCards"]
+
+[node name="PlayerSetAside" type="Node2D" parent="AllCards"]
+
+[node name="OpponentSetAside" type="Node2D" parent="AllCards"]
 
 [node name="PlayerAllCopy" type="Node2D" parent="AllCards"]
 
@@ -661,6 +677,8 @@ offset_bottom = 720.0
 [connection signal="pressed" from="OpponentDeck/OpponentCharacterCard" to="." method="_on_opponent_reference_button_pressed"]
 [connection signal="gauge_clicked" from="PlayerGauge" to="." method="_on_player_gauge_gauge_clicked"]
 [connection signal="gauge_clicked" from="OpponentGauge" to="." method="_on_opponent_gauge_gauge_clicked"]
+[connection signal="gauge_clicked" from="PlayerSealed" to="." method="_on_player_sealed_clicked"]
+[connection signal="gauge_clicked" from="OpponentSealed" to="." method="_on_opponent_sealed_clicked"]
 [connection signal="clicked_zone" from="PlayerBoostZone" to="." method="_on_player_boost_zone_clicked_zone"]
 [connection signal="clicked_zone" from="OpponentBoostZone" to="." method="_on_opponent_boost_zone_clicked_zone"]
 [connection signal="pressed" from="ChoicePopoutShowButton" to="." method="_on_choice_popout_show_button_pressed"]

@@ -39,6 +39,7 @@ enum DecisionType {
 }
 
 enum GameState {
+	GameState_AutoStrike,
 	GameState_NotStarted,
 	GameState_Boost_Processing,
 	GameState_GameOver,
@@ -96,16 +97,19 @@ enum EventType {
 	EventType_ReshuffleDeck_Mulligan,
 	EventType_ReshuffleDiscard,
 	EventType_RevealHand,
+	EventType_RevealStrike_OnePlayer,
 	EventType_RevealTopDeck,
+	EventType_Seal,
+	EventType_SetCardAside,
 	EventType_Strike_ArmorUp,
 	EventType_Strike_CardActivation,
 	EventType_Strike_CharacterEffect,
 	EventType_Strike_DodgeAttacks,
 	EventType_Strike_DodgeAttacksAtRange,
-	EventType_Strike_DoResponseNow,
+	EventType_Strike_DoResponseNow,             # 46
 	EventType_Strike_EffectChoice,
 	EventType_Strike_ExUp,
-	EventType_Strike_ForceForArmor, 			# 46
+	EventType_Strike_ForceForArmor,
 	EventType_Strike_ForceWildSwing,
 	EventType_Strike_GainAdvantage,
 	EventType_Strike_GuardUp,
@@ -117,13 +121,13 @@ enum EventType {
 	EventType_Strike_PayCost_Gauge,
 	EventType_Strike_PayCost_Force,
 	EventType_Strike_PayCost_Unable,
-	EventType_Strike_PowerUp,
+	EventType_Strike_PowerUp,					# 61
 	EventType_Strike_RangeUp,
 	EventType_Strike_Response,
 	EventType_Strike_Response_Ex,
 	EventType_Strike_Reveal,
 	EventType_Strike_SpeedUp,
-	EventType_Strike_Started, 					# 65
+	EventType_Strike_Started,
 	EventType_Strike_Started_Ex,
 	EventType_Strike_Stun,
 	EventType_Strike_Stun_Immunity,

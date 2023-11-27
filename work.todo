@@ -1,26 +1,21 @@
 In progress:
     HappyChaos:
-        ☐ sealed area
-        ☐ Hit seal ultra
-        ☐ exceed - strike with deus ex machina - hit shuffle sealed into deck
-        ☐ special deck size
-        ☐ return card from sealed to hand
-        ☐ spend life to draw
-        ☐ seal this after effect
-        ☐ initiate face up
-
-        ☐ "effect_type": "return_sealed_to_hand"
-        ☐ "effect_type": "seal_this",
-        ☐ set_strike card effect
-        ☐ "effect_type": "reveal_strike",
+        ☐ "effect_type": "return_sealed_to_hand" @started(23-11-27 01:06)
+        ☐ "effect_type": "seal_this", @started(23-11-26 14:27)
+        ☐ set_strike card effect @started(23-11-27 01:12)
+        ☐ "effect_type": "reveal_strike", @started(23-11-27 01:22)
         ☐ "effect_type": "spend_life" @started(23-11-26 01:18)
 
-        ☐ "effect_type": "strike_with_deus_ex_machina"
-        ☐ "effect_type": "seal_ultra_for_effect",
-        ☐ cleanup exceed ability
-        ☐ "effect_type": "shuffle_sealed_to_deck"
+        ☐ "effect_type": "strike_with_deus_ex_machina" @started(23-11-27 01:58)
+        ☐ "effect_type": "seal_ultra_for_effect", @started(23-11-26 14:21)
+        ☐ cleanup exceed ability @started(23-11-27 01:23)
+        ☐ "effect_type": "shuffle_sealed_to_deck" @started(23-11-26 14:20)
+
+        ☐ EventType_Seal @started(23-11-27 00:44)
 
 
+
+    ☐ Investigate web browser tab running in background
 
 Write tests for:
     Axl:

@@ -69,6 +69,9 @@ func get_player_hand_size(id):
 func get_player_deck_size(id):
 	return _get_player(id).deck.size()
 
+func get_player_sealed_size(id):
+	return _get_player(id).sealed.size()
+
 func get_player_continuous_boost_count(id):
 	return _get_player(id).continuous_boosts.size()
 
@@ -143,6 +146,17 @@ func is_card_in_discards(player_id : Enums.PlayerId, card_id : int):
 		if card.id == card_id:
 			return true
 	return false
+
+func is_card_in_sealed(player_id : Enums.PlayerId, card_id : int):
+	var player = _get_player(player_id)
+	for card in player.sealed:
+		if card.id == card_id:
+			return true
+	return false
+
+func does_card_belong_to_player(player_id : Enums.PlayerId, card_id : int):
+	var player = _get_player(player_id)
+	return player.owns_card(card_id)
 
 func get_player_top_cards(player_id : Enums.PlayerId, count : int) -> Array[int]:
 	var player = _get_player(player_id)

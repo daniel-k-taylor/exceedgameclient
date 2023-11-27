@@ -278,10 +278,13 @@ func get_effect_type_text(effect, card_name_source : String = ""):
 		"choice":
 			effect_str += "Choose: " + get_choice_summary(effect['choice'], card_name_source)
 		"choose_discard":
+			var source = "discard"
+			if 'source' in effect:
+				source = effect['source']
 			if effect['limitation']:
-				effect_str += "Choose a %s card from discard to move to %s" % [effect['limitation'], effect['destination']]
+				effect_str += "Choose a %s card from %s to move to %s" % [effect['limitation'], source, effect['destination']]
 			else:
-				effect_str += "Choose a card from discard to move to %s" % [effect['destination']]
+				effect_str += "Choose a card from %s to move to %s" % [source, effect['destination']]
 		"choose_sustain_boost":
 			effect_str += "Choose a boost to sustain."
 		"close":
@@ -382,8 +385,31 @@ func get_effect_type_text(effect, card_name_source : String = ""):
 			effect_str += "Return all cards in gauge to hand."
 		"reveal_hand":
 			effect_str += "Reveal your hand"
+		"reveal_strike":
+			effect_str += "Initiate face-up"
+		"seal_this":
+			if card_name_source:
+				effect_str += "Seal %s" % card_name_source
+			else:
+				effect_str += "Seal this"
 		"self_discard_choose":
-			effect_str += "Discard " + str(effect['amount']) + " cards."
+			var destination = effect['destination']
+			var limitation = ""
+			if 'limitation' in effect:
+				limitation = " " + effect['limitation']
+			var bonus = ""
+			var optional = 'optional' in effect and effect['optional']
+			var optional_text = ""
+			if optional:
+				optional_text = "You may: "
+			if 'discard_effect' in effect:
+				bonus= "\nfor: " + get_effect_text(effect['discard_effect'], false, false, false)
+			if destination == "sealed":
+				effect_str += optional_text + "Seal " + str(effect['amount']) + limitation + " card(s)" + bonus
+			else:
+				effect_str += optional_text + "Discard " + str(effect['amount']) + limitation + " card(s)" + bonus
+		"shuffle_sealed_to_deck":
+			effect_str += "Shuffle sealed cards into deck"
 		"speedup":
 			if effect['amount'] > 0:
 				effect_str += "+"

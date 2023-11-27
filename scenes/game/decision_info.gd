@@ -17,3 +17,5 @@ var allow_gauge : bool
 var strike_after : bool
 var action
 var can_pass : bool
+var bonus_effect
+var source

@@ -1715,7 +1715,12 @@
 			"effects": [
 				{
 					"timing": "immediate",
-					"effect_type": "return_sealed_to_hand"
+					"effect_type": "choose_discard",
+					"source": "sealed",
+					"limitation": "",
+					"destination": "hand",
+					"amount": 1,
+					"amount_min": 1
 				}
 			]
 		}
@@ -1854,7 +1859,14 @@
 				"effect_type": "choice",
 				"choice": [
 					{ "effect_type": "draw", "amount": 2 },
-					{ "effect_type": "return_sealed_to_hand" }
+					{
+						"effect_type": "choose_discard",
+						"source": "sealed",
+						"limitation": "",
+						"destination": "hand",
+						"amount": 1,
+						"amount_min": 1
+					}
 				]
 			}
 		],
