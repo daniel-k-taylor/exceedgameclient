@@ -1963,7 +1963,11 @@
 		"effects": [
 			{
 				"timing": "hit",
-				"effect_type": "shuffle_sealed_to_deck"
+				"effect_type": "shuffle_sealed_to_deck",
+				"and": {
+					"effect_type": "draw",
+					"amount": 3
+				}
 			}
 		],
 		"boost": {
