@@ -1315,11 +1315,8 @@ func _on_choose_to_discard(event, informative_only : bool):
 		spawn_damage_popup("Forced Discard %s" % str(amount), player)
 	if not informative_only:
 		var limitation = decision_info.limitation
-		var min_cards = event['number']
-		if can_pass:
-			min_cards = 0
 		if player == Enums.PlayerId.PlayerId_Player:
-			begin_discard_cards_selection(min_cards, event['number'],UISubState.UISubState_SelectCards_DiscardCards_Choose)
+			begin_discard_cards_selection(event['number'], event['number'],UISubState.UISubState_SelectCards_DiscardCards_Choose, can_pass)
 		else:
 			# AI or other player wait
 			ai_choose_to_discard(amount, limitation, can_pass)
@@ -1475,11 +1472,11 @@ func enable_instructions_ui(message, can_ok, can_cancel, can_wild_swing : bool =
 	instructions_wild_swing_allowed = can_wild_swing
 	current_effect_choices = choices
 
-func begin_discard_cards_selection(number_to_discard_min, number_to_discard_max, next_sub_state):
+func begin_discard_cards_selection(number_to_discard_min, number_to_discard_max, next_sub_state, can_cancel_always : bool = false):
 	selected_cards = []
 	select_card_require_min = number_to_discard_min
 	select_card_require_max = number_to_discard_max
-	var cancel_allowed = number_to_discard_min == 0
+	var cancel_allowed = number_to_discard_min == 0 or can_cancel_always
 	enable_instructions_ui("", true, cancel_allowed)
 	change_ui_state(UIState.UIState_SelectCards, next_sub_state)
 
