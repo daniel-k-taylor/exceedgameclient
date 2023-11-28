@@ -70,12 +70,30 @@ BlazBlue:
     ☐ Overdrive
     ☐ Astral Heat - get it on reshuffle, seal after use
     ☐ Force cost boosts
-    Normals:
-        ☐ Different boosts from GG
     Nu13:
         ☐ Retreat and strike at range 4-5 boost
         ☐ Opponents cannot advance/retreat boost
         ☐ min range decredase boost
         ☐ Shuffle hand to deck boost
+
+        Other:
+            ☐ Character anim
+            ☐ cardback
+            ☐ card art
+
+        Effects:
+            ☐ manual reshuffle draw set aside astral
+            ☐ "effect_type": "enter_overdrive",
+            ☐ implement force cost on boosts
+            ☐ "overdrive_effect": revert if 0 left in overdrive after this
+            ☐ "effect_type": "shuffle_hand_to_deck"
+            ☐ "effect_type": "move_to_any_space"
+            ☐ "condition": "range_greater_or_equal"
+            ☐ "condition": "range_multiple",
+                ☐ "condition_amount_min": 4,
+                ☐ "condition_amount_max": 5
+            ☐ "negative_condition_effect"
+            ☐ "effect_type": "block_opponent_advance_or_retreat"
+            ☐ rangeup -2
 
 
