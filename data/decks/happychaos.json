@@ -14,7 +14,7 @@
 			"optional": true,
 			"amount": 1,
 			"limitation": "ultra",
-			"destination": "seal",
+			"destination": "sealed",
 			"discard_effect": {
 				"effect_type": "powerup",
 				"amount": 1,

@@ -2175,7 +2175,7 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 			if effect['destination'] == "discard":
 				_append_log("%s discarding chosen cards: %s." % [performing_player.name, card_names])
 				events += performing_player.discard(card_ids)
-			elif effect['destination'] == "seal":
+			elif effect['destination'] == "sealed":
 				_append_log("%s sealing chosen cards: %s." % [performing_player.name, card_names])
 				events += performing_player.seal_from_hand(card_ids)
 		"shuffle_sealed_to_deck":

@@ -1860,6 +1860,7 @@
 				"choice": [
 					{ "effect_type": "draw", "amount": 2 },
 					{
+						"UI_skip_summary": true,
 						"effect_type": "choose_discard",
 						"source": "sealed",
 						"limitation": "",
@@ -4734,6 +4735,7 @@
 		"guard": 4,
 		"effects": [
 			{
+				"UI_skip_summary": true,
 				"timing": "hit",
 				"effect_type": "choose_discard",
 				"limitation": "",
@@ -4907,6 +4909,7 @@
 				"effect_type": "ignore_guard"
 			},
 			{
+				"UI_skip_summary": true,
 				"timing": "hit",
 				"effect_type": "choose_discard",
 				"limitation": "",
@@ -5102,6 +5105,7 @@
 				"amount": 2
 			},
 			{
+				"UI_skip_summary": true,
 				"timing": "after",
 				"condition": "initiated_strike",
 				"effect_type": "choose_discard",
