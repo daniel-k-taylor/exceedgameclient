@@ -3,19 +3,22 @@
 	"display_name": "Nu-13",
 	"cardback": "cardback_defaultexceed.jpg",
 	"exceed_cost": 3,
+	"exceed_to_overdrive": true,
 	"on_exceed": {
-		"effect_type": "enter_overdrive",
-		"amount": 3,
-		"and": {
-			"effect_type": "draw",
-			"amount": 1
-		}
+		"effect_type": "draw",
+		"amount": 1
 	},
 	"overdrive_effect": {
 		"effect_type": "retreat",
 		"amount": 1
 	},
 	"ability_effects": [
+		{
+			"timing": "on_reshuffle",
+			"condition": "manual_reshuffle",
+			"effect_type": "add_set_aside_card_to_deck",
+			"id": "nu13_swordofdestruction"
+		},
 		{
 			"timing": "set_strike",
 			"effect_type": "force_for_effect",

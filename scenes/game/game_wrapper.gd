@@ -72,6 +72,9 @@ func get_player_deck_size(id):
 func get_player_sealed_size(id):
 	return _get_player(id).sealed.size()
 
+func get_player_overdrive_size(id):
+	return _get_player(id).overdrive.size()
+
 func get_player_continuous_boost_count(id):
 	return _get_player(id).continuous_boosts.size()
 
@@ -95,6 +98,9 @@ func get_player_character_action(id):
 
 func get_bonus_actions(id):
 	return _get_player(id).get_bonus_actions()
+
+func is_player_in_overdrive(id):
+	return _get_player(id).overdrive.size() > 0
 
 func get_all_non_immediate_continuous_boost_effects(id):
 	var game_player = _get_player(id)
@@ -150,6 +156,13 @@ func is_card_in_discards(player_id : Enums.PlayerId, card_id : int):
 func is_card_in_sealed(player_id : Enums.PlayerId, card_id : int):
 	var player = _get_player(player_id)
 	for card in player.sealed:
+		if card.id == card_id:
+			return true
+	return false
+
+func is_card_in_overdrive(player_id : Enums.PlayerId, card_id : int):
+	var player = _get_player(player_id)
+	for card in player.overdrive:
 		if card.id == card_id:
 			return true
 	return false
@@ -294,9 +307,9 @@ func submit_mulligan(player : Enums.PlayerId, card_ids : Array) -> bool:
 	var game_player = _get_player(player)
 	return current_game.do_mulligan(game_player, card_ids)
 
-func submit_boost(player : Enums.PlayerId, card_id : int) -> bool:
+func submit_boost(player : Enums.PlayerId, card_id : int, payment_card_ids) -> bool:
 	var game_player = _get_player(player)
-	return current_game.do_boost(game_player, card_id)
+	return current_game.do_boost(game_player, card_id, payment_card_ids)
 
 func submit_choose_from_boosts(player: Enums.PlayerId, card_ids : Array) -> bool:
 	var game_player = _get_player(player)

@@ -1,4 +1,4 @@
-[gd_scene load_steps=29 format=3 uid="uid://cqs72exlwm6at"]
+[gd_scene load_steps=30 format=3 uid="uid://cqs72exlwm6at"]
 
 [ext_resource type="Script" path="res://scenes/menu/char_select.gd" id="1_f3x24"]
 [ext_resource type="Texture2D" uid="uid://coh1i2m8ikmem" path="res://assets/references/charselect.png" id="1_ihc85"]
@@ -8,6 +8,7 @@
 [ext_resource type="PackedScene" uid="uid://nwqxp8pdh1jk" path="res://scenes/menu/char_select_button.tscn" id="6_3lmwy"]
 [ext_resource type="Texture2D" uid="uid://dckqq8p1ihy7o" path="res://assets/portraits/anji.png" id="6_h5jn6"]
 [ext_resource type="Texture2D" uid="uid://8pvgp7ipunso" path="res://assets/portraits/solbadguy.png" id="7_3jr2w"]
+[ext_resource type="Texture2D" uid="uid://b3mbau05vu0ua" path="res://assets/portraits/nu13.png" id="8_f1r6m"]
 [ext_resource type="Texture2D" uid="uid://1egthlu75owp" path="res://assets/portraits/ramlethal.png" id="8_o0338"]
 [ext_resource type="Texture2D" uid="uid://bn3hol65r7ylf" path="res://assets/portraits/random.png" id="8_vlgsf"]
 [ext_resource type="Texture2D" uid="uid://crv3kw2rfgg8g" path="res://assets/portraits/kykisuke.png" id="9_0auwh"]
@@ -391,6 +392,11 @@ alignment = 1
 layout_mode = 2
 alignment = 1
 
+[node name="Nu13" parent="CenterContainer/CharactersPanel/Rows/Row1" instance=ExtResource("6_3lmwy")]
+layout_mode = 2
+char_id = "nu13"
+portrait_texture = ExtResource("8_f1r6m")
+
 [node name="Sol" parent="CenterContainer/CharactersPanel/Rows/Row1" instance=ExtResource("6_3lmwy")]
 layout_mode = 2
 char_id = "solbadguy"
@@ -538,6 +544,8 @@ portrait_texture = ExtResource("25_wi4bn")
 [connection signal="pressed" from="PanelContainer/VBoxContainer/Row6/TextureButton3" to="." method="_on_character_button_pressed" binds= ["giovanna"]]
 [connection signal="pressed" from="PanelContainer/VBoxContainer/Row6/TextureButton4" to="." method="_on_character_button_pressed" binds= ["goldlewis"]]
 [connection signal="pressed" from="CenterContainer/BackgroundButton" to="." method="_on_background_button_pressed"]
+[connection signal="on_hover" from="CenterContainer/CharactersPanel/Rows/Row1/Nu13" to="." method="_on_char_hover"]
+[connection signal="on_pressed" from="CenterContainer/CharactersPanel/Rows/Row1/Nu13" to="." method="_on_char_button_on_pressed"]
 [connection signal="on_hover" from="CenterContainer/CharactersPanel/Rows/Row1/Sol" to="." method="_on_char_hover"]
 [connection signal="on_pressed" from="CenterContainer/CharactersPanel/Rows/Row1/Sol" to="." method="_on_char_button_on_pressed"]
 [connection signal="on_hover" from="CenterContainer/CharactersPanel/Rows/Row1/Random" to="." method="_on_char_hover"]

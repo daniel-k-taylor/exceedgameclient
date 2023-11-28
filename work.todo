@@ -1,4 +1,9 @@
 In progress:
+
+    ☐ Fix nu cardback
+    ☐ Test astral heat drawing
+    
+
     HappyChaos:
         ☐ "effect_type": "return_sealed_to_hand" @started(23-11-27 01:06)
         ☐ "effect_type": "seal_this", @started(23-11-26 14:27)
@@ -82,18 +87,17 @@ BlazBlue:
             ☐ card art
 
         Effects:
-            ☐ manual reshuffle draw set aside astral
-            ☐ "effect_type": "enter_overdrive",
-            ☐ implement force cost on boosts
-            ☐ "overdrive_effect": revert if 0 left in overdrive after this
-            ☐ "effect_type": "shuffle_hand_to_deck"
-            ☐ "effect_type": "move_to_any_space"
-            ☐ "condition": "range_greater_or_equal"
-            ☐ "condition": "range_multiple",
-                ☐ "condition_amount_min": 4,
-                ☐ "condition_amount_max": 5
-            ☐ "negative_condition_effect"
-            ☐ "effect_type": "block_opponent_advance_or_retreat"
-            ☐ rangeup -2
+            ☐ manual reshuffle draw set aside astral @started(23-11-28 15:11)
+            ☐ implement force cost on boosts @started(23-11-28 17:41)
+            ☐ "overdrive_effect": revert if 0 left in overdrive after this @started(23-11-28 17:13)
+            ☐ "effect_type": "shuffle_hand_to_deck" @started(23-11-28 15:25)
+            ☐ "effect_type": "move_to_any_space" @started(23-11-28 16:11)
+            ☐ "condition": "range_greater_or_equal" @started(23-11-28 15:28)
+            ☐ "condition": "range_multiple", @started(23-11-28 15:28)
+            ☐ "negative_condition_effect" @started(23-11-28 15:36)
+            ☐ "effect_type": "block_opponent_move" @started(23-11-28 15:59)
+            ☐ rangeup -2 @started(23-11-28 15:43)
 
+            ☐ EventType_AddToOverdrive @started(23-11-28 16:40)
+            ☐ EventType_BlockMovement @started(23-11-28 16:40)
 

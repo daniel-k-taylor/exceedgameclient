@@ -64,15 +64,17 @@ enum EventType {
 	EventType_AddToDiscard,
 	EventType_AddToDeck,
 	EventType_AddToHand,
+	EventType_AddToOverdrive,
 	EventType_AdvanceTurn,
+	EventType_BlockMovement,
 	EventType_Boost_ActionAfterBoost,
-	EventType_Boost_CancelDecision, 			# 6
+	EventType_Boost_CancelDecision, 			# 8
 	EventType_Boost_DiscardContinuousChoice,
 	EventType_Boost_DiscardOpponentGauge,
 	EventType_Boost_Played,
 	EventType_Boost_Canceled,
 	EventType_Boost_Continuous_Added,
-	EventType_Boost_NameCardOpponentDiscards, 	# 12
+	EventType_Boost_NameCardOpponentDiscards, 	# 14
 	EventType_CardFromHandToGauge_Choice,
 	EventType_ChangeCards,
 	EventType_CharacterAction,
@@ -81,7 +83,7 @@ enum EventType {
 	EventType_ChooseFromDiscard,
 	EventType_ChooseFromTopDeck,
 	EventType_Draw,
-	EventType_Exceed, 							# 21
+	EventType_Exceed, 							# 23
 	EventType_ExceedRevert,
 	EventType_ForceForEffect,
 	EventType_GaugeForEffect,
@@ -90,7 +92,7 @@ enum EventType {
 	EventType_GameOver,
 	EventType_HandSizeExceeded,
 	EventType_Move,
-	EventType_MulliganDecision, 				# 30
+	EventType_MulliganDecision, 				# 32
 	EventType_PlaceBuddy,
 	EventType_Prepare,
 	EventType_ReadingNormal,
@@ -106,7 +108,7 @@ enum EventType {
 	EventType_Strike_CharacterEffect,
 	EventType_Strike_DodgeAttacks,
 	EventType_Strike_DodgeAttacksAtRange,
-	EventType_Strike_DoResponseNow,             # 46
+	EventType_Strike_DoResponseNow,             # 48
 	EventType_Strike_EffectChoice,
 	EventType_Strike_ExUp,
 	EventType_Strike_ForceForArmor,
@@ -121,7 +123,7 @@ enum EventType {
 	EventType_Strike_PayCost_Gauge,
 	EventType_Strike_PayCost_Force,
 	EventType_Strike_PayCost_Unable,
-	EventType_Strike_PowerUp,					# 61
+	EventType_Strike_PowerUp,					# 63
 	EventType_Strike_RangeUp,
 	EventType_Strike_Response,
 	EventType_Strike_Response_Ex,

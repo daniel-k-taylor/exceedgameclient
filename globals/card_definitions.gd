@@ -158,7 +158,7 @@ func get_timing_text(timing):
 			text += "MISSING TIMING"
 	return text
 
-func get_condition_text(condition, amount):
+func get_condition_text(condition, amount, amount2):
 	var text = ""
 	match condition:
 		"advanced_through":
@@ -191,6 +191,10 @@ func get_condition_text(condition, amount):
 			text += ""
 		"range":
 			text += "If the opponent is at range %s, " % amount
+		"range_greater_or_equal":
+			text += "If the opponent is at range %s+, " % amount
+		"range_multiple":
+			text += "If the opponent is at range %s-%s, " % [amount, amount2]
 		"is_special_attack":
 			text += ""
 		"is_normal_attack":
@@ -258,6 +262,10 @@ func get_effect_type_text(effect, card_name_source : String = ""):
 			effect_str += "+" + str(effect['amount']) + " Armor"
 		"attack_is_ex":
 			effect_str += "Next Strike is EX"
+		"block_opponent_move":
+			effect_str += "Opponent cannot move"
+		"remove_block_opponent_move":
+			effect_str += ""
 		"bonus_action":
 			effect_str += "Take another action"
 		"boost_this_then_sustain":
@@ -372,7 +380,12 @@ func get_effect_type_text(effect, card_name_source : String = ""):
 		"push_from_source":
 			effect_str += "Push " + str(effect['amount']) + " from attack source"
 		"rangeup":
-			effect_str += "+" + str(effect['amount']) + "-" + str(effect['amount2']) + " Range"
+			if effect['amount'] >= 0:
+				effect_str += "+"
+			effect_str += str(effect['amount']) + " - "
+			if effect['amount2'] >= 0:
+				effect_str += "+"
+			effect_str += str(effect['amount2']) + " Range"
 		"rangeup_per_boost_in_play":
 			effect_str += "+" + str(effect['amount']) + "-" + str(effect['amount2']) + " Range per boost in play."
 		"retreat":
@@ -408,6 +421,8 @@ func get_effect_type_text(effect, card_name_source : String = ""):
 				effect_str += optional_text + "Seal " + str(effect['amount']) + limitation + " card(s)" + bonus
 			else:
 				effect_str += optional_text + "Discard " + str(effect['amount']) + limitation + " card(s)" + bonus
+		"shuffle_hand_to_deck":
+			effect_str += "Shuffle hand into deck"	
 		"shuffle_sealed_to_deck":
 			effect_str += "Shuffle sealed cards into deck"
 		"speedup":
@@ -450,9 +465,16 @@ func get_effect_text(effect, short = false, skip_timing = false, skip_condition 
 
 	if 'condition' in effect and not skip_condition:
 		var amount = 0
+		var amount2 = 0
 		if 'condition_amount' in effect:
 			amount = effect['condition_amount']
-		effect_str += get_condition_text(effect['condition'], amount)
+		if 'condition_amount_min' in effect:
+			amount = effect['condition_amount_min']
+		if 'condition_amount_max' in effect:
+			amount2 = effect['condition_amount_max']
+		if 'condition_amount2' in effect:
+			amount2 = effect['condition_amount2']
+		effect_str += get_condition_text(effect['condition'], amount, amount2)
 
 	effect_str += get_effect_type_text(effect, card_name_source)
 
@@ -460,6 +482,8 @@ func get_effect_text(effect, short = false, skip_timing = false, skip_condition 
 		effect_str += "; " + get_effect_text(effect['bonus_effect'], skip_timing, false, card_name_source)
 	if 'and' in effect:
 		effect_str += ", " + get_effect_text(effect['and'], short, skip_timing, false, card_name_source)
+	if 'negative_condition_effect' in effect:
+		effect_str += ", otherwise " + get_effect_text(effect['negative_condition_effect'], short, skip_timing, false, card_name_source)
 	return effect_str
 
 func get_effects_text(effects):

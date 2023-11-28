@@ -298,11 +298,12 @@ func process_mulligan(action_message) -> void:
 	var card_ids = action_message['card_ids']
 	local_game.do_mulligan(game_player, card_ids)
 
-func do_boost(player : LocalGame.Player, card_id : int) -> bool:
+func do_boost(player : LocalGame.Player, card_id : int, payment_card_ids = []) -> bool:
 	var action_message = {
 		'action_type': 'action_boost',
 		'player_id': _get_player_remote_id(player),
 		'card_id': card_id,
+		'payment_card_ids': payment_card_ids,
 	}
 	NetworkManager.submit_game_message(action_message)
 	return true
@@ -310,7 +311,8 @@ func do_boost(player : LocalGame.Player, card_id : int) -> bool:
 func process_boost(action_message) -> void:
 	var game_player = _get_player_from_remote_id(action_message['player_id'])
 	var card_id = action_message['card_id']
-	local_game.do_boost(game_player, card_id)
+	var payment_card_ids = action_message['payment_card_ids']
+	local_game.do_boost(game_player, card_id, payment_card_ids)
 
 func do_choose_from_boosts(player : LocalGame.Player, card_ids : Array) -> bool:
 	var action_message = {

@@ -5092,7 +5092,7 @@
 				},
 				{
 					"timing": "immediate",
-					"amount": "bonus_action"
+					"effect_type": "bonus_action"
 				}
 			]
 		}
@@ -5354,11 +5354,18 @@
 			"effects": [
 				{
 					"timing": "during_strike",
-					"effect_type": "block_opponent_advance_or_retreat"
+					"effect_type": "block_opponent_move"
+				},
+				{
+					"timing": "now",
+					"effect_type": "block_opponent_move"
 				},
 				{
 					"timing": "start_of_next_turn",
-					"effect_type": "add_to_gauge_immediately"
+					"effect_type": "add_to_gauge_immediately",
+					"and": {
+						"effect_type": "remove_block_opponent_move"
+					}
 				}
 			]
 		}

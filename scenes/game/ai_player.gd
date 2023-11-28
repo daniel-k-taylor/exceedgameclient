@@ -67,10 +67,10 @@ class ReshuffleAction:
 
 class BoostAction:
 	var card_id
-	var boost_choice_index
-	func _init(boost_card_id, boost_decision_choice_index):
+	var payment_card_ids
+	func _init(boost_card_id, boost_payment_card_ids):
 		card_id = boost_card_id
-		boost_choice_index = boost_decision_choice_index
+		payment_card_ids = boost_payment_card_ids
 
 class StrikeAction:
 	var card_id
@@ -402,25 +402,39 @@ func get_boost_actions(game_logic : LocalGame, me : LocalGame.Player, opponent :
 		if limitation and card.definition['boost']['boost_type'] != limitation:
 			continue
 		if does_boost_work(game_logic, me, opponent, card.id):
-			var option_count = get_boost_options_for_card(game_logic, me, opponent, card.id)
-			if option_count > 0:
-				for i in range(0, option_count):
-					possible_actions.append(BoostAction.new(card.id, i))
+			var cost = card.definition['boost']['force_cost']
+			if cost > 0:
+				var all_force_option_ids = []
+				for payment_card in me.hand:
+					all_force_option_ids.append(payment_card.id)
+				for payment_card in me.gauge:
+					all_force_option_ids.append(payment_card.id)
+				all_force_option_ids.erase(card.id)
+				var combinations = []
+				generate_force_combinations(game_logic, all_force_option_ids, cost, [], 0, combinations)
+				for combo in combinations:
+					possible_actions.append(BoostAction.new(card.id, combo))
 			else:
-				# No choices, just boost normally.
-				possible_actions.append(BoostAction.new(card.id, 0))
+				possible_actions.append(BoostAction.new(card.id, []))
 	if allow_gauge:
 		for card in me.gauge:
 			if limitation and card.definition['boost']['boost_type'] != limitation:
 				continue
 			if does_boost_work(game_logic, me, opponent, card.id):
-				var option_count = get_boost_options_for_card(game_logic, me, opponent, card.id)
-				if option_count > 0:
-					for i in range(0, option_count):
-						possible_actions.append(BoostAction.new(card.id, i))
+				var cost = card.definition['boost']['force_cost']
+				if cost > 0:
+					var all_force_option_ids = []
+					for payment_card in me.hand:
+						all_force_option_ids.append(payment_card.id)
+					for payment_card in me.gauge:
+						all_force_option_ids.append(payment_card.id)
+					all_force_option_ids.erase(card.id)
+					var combinations = []
+					generate_force_combinations(game_logic, all_force_option_ids, cost, [], 0, combinations)
+					for combo in combinations:
+						possible_actions.append(BoostAction.new(card.id, combo))
 				else:
-					# No choices, just boost normally.
-					possible_actions.append(BoostAction.new(card.id, 0))
+					possible_actions.append(BoostAction.new(card.id, []))
 	return possible_actions
 
 func get_ex_option_in_hand(game_logic : LocalGame, me : LocalGame.Player, card_id : int):
