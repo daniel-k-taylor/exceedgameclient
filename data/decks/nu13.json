@@ -1,7 +1,7 @@
 {
 	"id": "nu13",
 	"display_name": "Nu-13",
-	"cardback": "cardback_defaultexceed.jpg",
+	"cardback": "cardback_defaultexceed.png",
 	"exceed_cost": 3,
 	"exceed_to_overdrive": true,
 	"on_exceed": {

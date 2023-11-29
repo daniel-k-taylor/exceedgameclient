@@ -275,6 +275,8 @@ func get_prepare_actions(_game_logic : LocalGame, me : LocalGame.Player, _oppone
 func get_move_actions(game_logic : LocalGame, me : LocalGame.Player, opponent : LocalGame.Player):
 	var possible_move_actions = []
 	var available_force = me.get_available_force()
+	if me.cannot_move:
+		return possible_move_actions
 
 	for i in range(1, 10):
 		if me.arena_location == i or opponent.arena_location == i:
@@ -756,6 +758,8 @@ func pick_choose_from_discard(game_logic : LocalGame, my_id : Enums.PlayerId, ch
 	var source_cards = me.discards
 	if source == "sealed":
 		source_cards = me.sealed
+	elif source == "overdrive":
+		source_cards = me.overdrive
 	for card in source_cards:
 		var can_choose = false
 		match limitation:

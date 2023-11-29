@@ -45,7 +45,7 @@ enum GameState {
 	GameState_GameOver,
 	GameState_PickAction,
 	GameState_DiscardDownToMax,
-	GameState_Mulligan,				#5
+	GameState_Mulligan,				#6
 	GameState_WaitForStrike,
 	GameState_PlayerDecision,
 	GameState_Strike_Opponent_Response,

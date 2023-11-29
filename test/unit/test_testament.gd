@@ -203,3 +203,4 @@ func get_cards_from_gauge(player : LocalGame.Player, amount : int):
 
 func test_testament_():
 	position_players(player1, 3, player2, 4)
+	validate_positions(player1, 3, player2, 4)

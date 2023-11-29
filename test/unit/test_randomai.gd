@@ -127,7 +127,7 @@ func handle_reshuffle(game: LocalGame, gameplayer : LocalGame.Player):
 func handle_boost(game: LocalGame, aiplayer : AIPlayer, otherai : AIPlayer, gameplayer : LocalGame.Player, action : AIPlayer.BoostAction):
 	var events = []
 	var card_id = action.card_id
-	assert_true(game.do_boost(gameplayer, card_id), "do boost failed")
+	assert_true(game.do_boost(gameplayer, card_id, action.payment_card_ids), "do boost failed")
 	events += game.get_latest_events()
 	events += handle_decisions(game)
 
@@ -196,7 +196,9 @@ func handle_decisions(game: LocalGame):
 				assert_true(game.do_choose_from_boosts(decision_ai.game_player, chooseaction.card_ids), "do choose from boosts failed")
 			Enums.DecisionType.DecisionType_ChooseFromDiscard:
 				var chooseaction = decision_ai.pick_choose_from_discard(game, decision_player.my_id, game.decision_info.amount)
-				assert_true(game.do_choose_from_discard(decision_ai.game_player, chooseaction.card_ids), "do choose from discard failed")
+				var success = game.do_choose_from_discard(decision_ai.game_player, chooseaction.card_ids)
+				assert(success)
+				assert_true(success, "do choose from discard failed")
 			Enums.DecisionType.DecisionType_ChooseToDiscard:
 				var amount = game.decision_info.effect['amount']
 				var limitation = game.decision_info.limitation
@@ -208,7 +210,7 @@ func handle_decisions(game: LocalGame):
 				assert_true(game.do_boost_name_card_choice_effect(decision_player, decision_action.card_id), "do discard opponent gauge failed")
 			Enums.DecisionType.DecisionType_BoostNow:
 				var boostnow_action = decision_ai.take_boost(game, decision_player.my_id, game.decision_info.allow_gauge, game.decision_info.limitation)
-				assert_true(game.do_boost(decision_player, boostnow_action.card_id), "do boost now failed")
+				assert_true(game.do_boost(decision_player, boostnow_action.card_id, boostnow_action.payment_card_ids), "do boost now failed")
 			Enums.DecisionType.DecisionType_ChooseFromTopDeck:
 				var decision_info = game.decision_info
 				var action_choices = decision_info.action
@@ -314,6 +316,7 @@ func run_ai_game():
 			fail_test("Unknown turn action: %s" % turn_action)
 			assert(false, "Unknown turn action: %s" % turn_action)
 
+		turn_events += handle_decisions(game_logic)
 		if game_logic.game_state == Enums.GameState.GameState_WaitForStrike:
 			# Can theoretically get here after a boost or an exceed.
 			var strike_action = current_ai.pick_strike(game_logic, current_player.my_id)
@@ -508,6 +511,15 @@ func test_faust_100():
 
 func test_happychaos_100():
 	default_deck = CardDefinitions.get_deck_from_str_id("happychaos")
+	for i in range(RandomIterations):
+		print("==== RUNNING TEST %d ====" % i)
+		run_ai_game()
+		game_teardown()
+		game_setup()
+	pass_test("Finished match")
+
+func test_nu13_100():
+	default_deck = CardDefinitions.get_deck_from_str_id("nu13")
 	for i in range(RandomIterations):
 		print("==== RUNNING TEST %d ====" % i)
 		run_ai_game()
