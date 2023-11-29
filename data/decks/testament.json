@@ -1,5 +1,6 @@
 {
 	"id": "testament",
+	"season": 7,
 	"display_name": "Testament",
 	"cardback": "cardback_testament.jpg",
 	"exceed_cost": 2,

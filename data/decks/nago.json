@@ -1,5 +1,6 @@
 {
 	"id": "nago",
+	"season": 7,
 	"display_name": "Nagoriyuki",
 	"cardback": "cardback_nago.jpg",
 	"exceed_cost": -1,

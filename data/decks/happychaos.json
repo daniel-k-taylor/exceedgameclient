@@ -1,5 +1,6 @@
 {
 	"id": "happychaos",
+	"season": 7,
 	"display_name": "Happy Chaos",
 	"cardback": "cardback_happychaos.jpg",
 	"has_sealed_area": true,

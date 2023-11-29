@@ -1,5 +1,6 @@
 {
 	"id": "axl",
+	"season": 7,
 	"display_name": "Axl",
 	"cardback": "cardback_axl.jpg",
 	"exceed_cost": 3,

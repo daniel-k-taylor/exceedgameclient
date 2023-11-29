@@ -12,6 +12,12 @@ signal on_hover(char_id : String, enter : bool)
 func _ready():
 	portrait.texture = portrait_texture
 
+func set_selected(is_selected : bool):
+	if is_selected:
+		$Button.texture_normal = $Button.texture_pressed
+	else:
+		$Button.texture_normal = null
+
 func _on_button_pressed():
 	on_pressed.emit(char_id)
 

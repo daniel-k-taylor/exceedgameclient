@@ -1,5 +1,6 @@
 {
 	"id": "solbadguy",
+	"season": 7,
 	"display_name": "Sol Badguy",
 	"cardback": "cardback_sol.jpg",
 	"exceed_cost": 3,

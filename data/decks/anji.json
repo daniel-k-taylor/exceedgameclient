@@ -1,5 +1,6 @@
 {
 	"id": "anji",
+	"season": 7,
 	"display_name": "Anji Mito",
 	"cardback": "cardback_anji.jpg",
 	"exceed_cost": 3,

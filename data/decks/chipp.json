@@ -1,5 +1,6 @@
 {
 	"id": "chipp",
+	"season": 7,
 	"display_name": "Chipp",
 	"cardback": "cardback_chipp.jpg",
 	"exceed_cost": 2,

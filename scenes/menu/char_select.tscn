@@ -1,10 +1,6 @@
-[gd_scene load_steps=30 format=3 uid="uid://cqs72exlwm6at"]
+[gd_scene load_steps=27 format=3 uid="uid://cqs72exlwm6at"]
 
 [ext_resource type="Script" path="res://scenes/menu/char_select.gd" id="1_f3x24"]
-[ext_resource type="Texture2D" uid="uid://coh1i2m8ikmem" path="res://assets/references/charselect.png" id="1_ihc85"]
-[ext_resource type="Texture2D" uid="uid://ded5jrn5yju2j" path="res://assets/cards/card_border_highlight_pressed.png" id="3_ro1fy"]
-[ext_resource type="Texture2D" uid="uid://mn1hj4i3k7l7" path="res://assets/cards/card_border_highlight_selected.png" id="4_hqlo8"]
-[ext_resource type="Texture2D" uid="uid://xusjesyfjald" path="res://assets/icons/x.png" id="5_o831i"]
 [ext_resource type="PackedScene" uid="uid://nwqxp8pdh1jk" path="res://scenes/menu/char_select_button.tscn" id="6_3lmwy"]
 [ext_resource type="Texture2D" uid="uid://dckqq8p1ihy7o" path="res://assets/portraits/anji.png" id="6_h5jn6"]
 [ext_resource type="Texture2D" uid="uid://8pvgp7ipunso" path="res://assets/portraits/solbadguy.png" id="7_3jr2w"]
@@ -28,6 +24,7 @@
 [ext_resource type="Texture2D" uid="uid://d17x6tser3eeq" path="res://assets/portraits/zato.png" id="25_wi4bn"]
 [ext_resource type="Texture2D" uid="uid://dypqpmufue3as" path="res://assets/portraits/faust.png" id="26_j4iqn"]
 [ext_resource type="Texture2D" uid="uid://bwp8gexqjcuwc" path="res://assets/portraits/happychaos.png" id="27_0fy1k"]
+[ext_resource type="Texture2D" uid="uid://brjpxxwwioeo8" path="res://assets/portraits/blazbluelogo2.png" id="29_7gojn"]
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_8u80i"]
 
@@ -37,293 +34,6 @@ anchors_preset = 0
 offset_right = 1280.0
 offset_bottom = 720.0
 script = ExtResource("1_f3x24")
-
-[node name="PanelContainer" type="PanelContainer" parent="."]
-visible = false
-custom_minimum_size = Vector2(1280, 720)
-layout_mode = 0
-offset_right = 40.0
-offset_bottom = 40.0
-mouse_filter = 2
-
-[node name="CharactersImage" type="TextureRect" parent="PanelContainer"]
-layout_mode = 2
-mouse_filter = 2
-texture = ExtResource("1_ihc85")
-expand_mode = 3
-stretch_mode = 5
-
-[node name="VBoxContainer" type="VBoxContainer" parent="PanelContainer"]
-layout_mode = 2
-mouse_filter = 2
-
-[node name="MarginContainer" type="MarginContainer" parent="PanelContainer/VBoxContainer"]
-layout_mode = 2
-mouse_filter = 2
-theme_override_constants/margin_top = 76
-
-[node name="Row1" type="HBoxContainer" parent="PanelContainer/VBoxContainer"]
-layout_mode = 2
-mouse_filter = 2
-
-[node name="MarginContainer" type="MarginContainer" parent="PanelContainer/VBoxContainer/Row1"]
-layout_mode = 2
-mouse_filter = 2
-theme_override_constants/margin_left = 497
-
-[node name="TextureButton" type="TextureButton" parent="PanelContainer/VBoxContainer/Row1"]
-custom_minimum_size = Vector2(90, 90)
-layout_mode = 2
-disabled = true
-texture_pressed = ExtResource("3_ro1fy")
-texture_hover = ExtResource("4_hqlo8")
-texture_disabled = ExtResource("5_o831i")
-ignore_texture_size = true
-stretch_mode = 0
-
-[node name="TextureButton2" type="TextureButton" parent="PanelContainer/VBoxContainer/Row1"]
-custom_minimum_size = Vector2(90, 90)
-layout_mode = 2
-disabled = true
-ignore_texture_size = true
-stretch_mode = 0
-
-[node name="TextureButton3" type="TextureButton" parent="PanelContainer/VBoxContainer/Row1"]
-custom_minimum_size = Vector2(90, 90)
-layout_mode = 2
-disabled = true
-texture_pressed = ExtResource("3_ro1fy")
-texture_hover = ExtResource("4_hqlo8")
-texture_disabled = ExtResource("5_o831i")
-ignore_texture_size = true
-stretch_mode = 0
-
-[node name="Row2" type="HBoxContainer" parent="PanelContainer/VBoxContainer"]
-layout_mode = 2
-mouse_filter = 2
-
-[node name="MarginContainer" type="MarginContainer" parent="PanelContainer/VBoxContainer/Row2"]
-layout_mode = 2
-mouse_filter = 2
-theme_override_constants/margin_left = 450
-
-[node name="TextureButton" type="TextureButton" parent="PanelContainer/VBoxContainer/Row2"]
-custom_minimum_size = Vector2(90, 90)
-layout_mode = 2
-disabled = true
-texture_pressed = ExtResource("3_ro1fy")
-texture_hover = ExtResource("4_hqlo8")
-texture_disabled = ExtResource("5_o831i")
-ignore_texture_size = true
-stretch_mode = 0
-
-[node name="TextureButton2" type="TextureButton" parent="PanelContainer/VBoxContainer/Row2"]
-custom_minimum_size = Vector2(90, 90)
-layout_mode = 2
-disabled = true
-texture_pressed = ExtResource("3_ro1fy")
-texture_hover = ExtResource("4_hqlo8")
-texture_disabled = ExtResource("5_o831i")
-ignore_texture_size = true
-stretch_mode = 0
-
-[node name="TextureButton3" type="TextureButton" parent="PanelContainer/VBoxContainer/Row2"]
-custom_minimum_size = Vector2(90, 90)
-layout_mode = 2
-disabled = true
-texture_pressed = ExtResource("3_ro1fy")
-texture_hover = ExtResource("4_hqlo8")
-texture_disabled = ExtResource("5_o831i")
-ignore_texture_size = true
-stretch_mode = 0
-
-[node name="TextureButton4" type="TextureButton" parent="PanelContainer/VBoxContainer/Row2"]
-custom_minimum_size = Vector2(90, 90)
-layout_mode = 2
-disabled = true
-texture_pressed = ExtResource("3_ro1fy")
-texture_hover = ExtResource("4_hqlo8")
-texture_disabled = ExtResource("5_o831i")
-ignore_texture_size = true
-stretch_mode = 0
-
-[node name="Row3" type="HBoxContainer" parent="PanelContainer/VBoxContainer"]
-layout_mode = 2
-mouse_filter = 2
-
-[node name="MarginContainer" type="MarginContainer" parent="PanelContainer/VBoxContainer/Row3"]
-layout_mode = 2
-mouse_filter = 2
-theme_override_constants/margin_left = 497
-
-[node name="TextureButton" type="TextureButton" parent="PanelContainer/VBoxContainer/Row3"]
-custom_minimum_size = Vector2(90, 90)
-layout_mode = 2
-texture_pressed = ExtResource("3_ro1fy")
-texture_hover = ExtResource("4_hqlo8")
-ignore_texture_size = true
-stretch_mode = 0
-
-[node name="TextureButton2" type="TextureButton" parent="PanelContainer/VBoxContainer/Row3"]
-custom_minimum_size = Vector2(90, 90)
-layout_mode = 2
-texture_pressed = ExtResource("3_ro1fy")
-texture_hover = ExtResource("4_hqlo8")
-ignore_texture_size = true
-stretch_mode = 0
-
-[node name="TextureButton3" type="TextureButton" parent="PanelContainer/VBoxContainer/Row3"]
-custom_minimum_size = Vector2(90, 90)
-layout_mode = 2
-texture_pressed = ExtResource("3_ro1fy")
-texture_hover = ExtResource("4_hqlo8")
-ignore_texture_size = true
-stretch_mode = 0
-
-[node name="Row4" type="HBoxContainer" parent="PanelContainer/VBoxContainer"]
-layout_mode = 2
-mouse_filter = 2
-
-[node name="MarginContainer" type="MarginContainer" parent="PanelContainer/VBoxContainer/Row4"]
-layout_mode = 2
-mouse_filter = 2
-theme_override_constants/margin_left = 450
-
-[node name="TextureButton" type="TextureButton" parent="PanelContainer/VBoxContainer/Row4"]
-custom_minimum_size = Vector2(90, 90)
-layout_mode = 2
-disabled = true
-texture_pressed = ExtResource("3_ro1fy")
-texture_hover = ExtResource("4_hqlo8")
-texture_disabled = ExtResource("5_o831i")
-ignore_texture_size = true
-stretch_mode = 0
-
-[node name="TextureButton2" type="TextureButton" parent="PanelContainer/VBoxContainer/Row4"]
-custom_minimum_size = Vector2(90, 90)
-layout_mode = 2
-disabled = true
-texture_pressed = ExtResource("3_ro1fy")
-texture_hover = ExtResource("4_hqlo8")
-texture_disabled = ExtResource("5_o831i")
-ignore_texture_size = true
-stretch_mode = 0
-
-[node name="TextureButton3" type="TextureButton" parent="PanelContainer/VBoxContainer/Row4"]
-custom_minimum_size = Vector2(90, 90)
-layout_mode = 2
-disabled = true
-texture_pressed = ExtResource("3_ro1fy")
-texture_hover = ExtResource("4_hqlo8")
-texture_disabled = ExtResource("5_o831i")
-ignore_texture_size = true
-stretch_mode = 0
-
-[node name="TextureButton4" type="TextureButton" parent="PanelContainer/VBoxContainer/Row4"]
-custom_minimum_size = Vector2(90, 90)
-layout_mode = 2
-disabled = true
-texture_pressed = ExtResource("3_ro1fy")
-texture_hover = ExtResource("4_hqlo8")
-texture_disabled = ExtResource("5_o831i")
-ignore_texture_size = true
-stretch_mode = 0
-
-[node name="Row5" type="HBoxContainer" parent="PanelContainer/VBoxContainer"]
-layout_mode = 2
-mouse_filter = 2
-
-[node name="MarginContainer" type="MarginContainer" parent="PanelContainer/VBoxContainer/Row5"]
-layout_mode = 2
-mouse_filter = 2
-theme_override_constants/margin_left = 450
-
-[node name="TextureButton" type="TextureButton" parent="PanelContainer/VBoxContainer/Row5"]
-custom_minimum_size = Vector2(90, 90)
-layout_mode = 2
-disabled = true
-texture_pressed = ExtResource("3_ro1fy")
-texture_hover = ExtResource("4_hqlo8")
-texture_disabled = ExtResource("5_o831i")
-ignore_texture_size = true
-stretch_mode = 0
-
-[node name="TextureButton2" type="TextureButton" parent="PanelContainer/VBoxContainer/Row5"]
-custom_minimum_size = Vector2(90, 90)
-layout_mode = 2
-disabled = true
-texture_pressed = ExtResource("3_ro1fy")
-texture_hover = ExtResource("4_hqlo8")
-texture_disabled = ExtResource("5_o831i")
-ignore_texture_size = true
-stretch_mode = 0
-
-[node name="TextureButton3" type="TextureButton" parent="PanelContainer/VBoxContainer/Row5"]
-custom_minimum_size = Vector2(90, 90)
-layout_mode = 2
-texture_pressed = ExtResource("3_ro1fy")
-texture_hover = ExtResource("4_hqlo8")
-texture_disabled = ExtResource("5_o831i")
-ignore_texture_size = true
-stretch_mode = 0
-
-[node name="TextureButton4" type="TextureButton" parent="PanelContainer/VBoxContainer/Row5"]
-custom_minimum_size = Vector2(90, 90)
-layout_mode = 2
-disabled = true
-texture_pressed = ExtResource("3_ro1fy")
-texture_hover = ExtResource("4_hqlo8")
-texture_disabled = ExtResource("5_o831i")
-ignore_texture_size = true
-stretch_mode = 0
-
-[node name="Row6" type="HBoxContainer" parent="PanelContainer/VBoxContainer"]
-layout_mode = 2
-mouse_filter = 2
-
-[node name="MarginContainer" type="MarginContainer" parent="PanelContainer/VBoxContainer/Row6"]
-layout_mode = 2
-mouse_filter = 2
-theme_override_constants/margin_left = 450
-
-[node name="TextureButton" type="TextureButton" parent="PanelContainer/VBoxContainer/Row6"]
-custom_minimum_size = Vector2(90, 90)
-layout_mode = 2
-texture_pressed = ExtResource("3_ro1fy")
-texture_hover = ExtResource("4_hqlo8")
-texture_disabled = ExtResource("5_o831i")
-ignore_texture_size = true
-stretch_mode = 0
-
-[node name="TextureButton2" type="TextureButton" parent="PanelContainer/VBoxContainer/Row6"]
-custom_minimum_size = Vector2(90, 90)
-layout_mode = 2
-disabled = true
-texture_pressed = ExtResource("3_ro1fy")
-texture_hover = ExtResource("4_hqlo8")
-texture_disabled = ExtResource("5_o831i")
-ignore_texture_size = true
-stretch_mode = 0
-
-[node name="TextureButton3" type="TextureButton" parent="PanelContainer/VBoxContainer/Row6"]
-custom_minimum_size = Vector2(90, 90)
-layout_mode = 2
-disabled = true
-texture_pressed = ExtResource("3_ro1fy")
-texture_hover = ExtResource("4_hqlo8")
-texture_disabled = ExtResource("5_o831i")
-ignore_texture_size = true
-stretch_mode = 0
-
-[node name="TextureButton4" type="TextureButton" parent="PanelContainer/VBoxContainer/Row6"]
-custom_minimum_size = Vector2(90, 90)
-layout_mode = 2
-disabled = true
-texture_pressed = ExtResource("3_ro1fy")
-texture_hover = ExtResource("4_hqlo8")
-texture_disabled = ExtResource("5_o831i")
-ignore_texture_size = true
-stretch_mode = 0
 
 [node name="Panel" type="Panel" parent="."]
 custom_minimum_size = Vector2(1280, 720)
@@ -378,213 +88,249 @@ modulate = Color(1, 1, 1, 0)
 custom_minimum_size = Vector2(1280, 720)
 layout_mode = 2
 
-[node name="CharactersPanel" type="PanelContainer" parent="CenterContainer"]
+[node name="GGCharacterSelect" type="PanelContainer" parent="CenterContainer"]
 layout_mode = 2
 mouse_filter = 2
 theme_override_styles/panel = SubResource("StyleBoxEmpty_8u80i")
 
-[node name="Rows" type="VBoxContainer" parent="CenterContainer/CharactersPanel"]
+[node name="Rows" type="VBoxContainer" parent="CenterContainer/GGCharacterSelect"]
 layout_mode = 2
 mouse_filter = 2
 alignment = 1
 
-[node name="Row1" type="HBoxContainer" parent="CenterContainer/CharactersPanel/Rows"]
+[node name="Buffer" type="HBoxContainer" parent="CenterContainer/GGCharacterSelect/Rows"]
+custom_minimum_size = Vector2(0, 50)
+layout_mode = 2
+
+[node name="Row1" type="HBoxContainer" parent="CenterContainer/GGCharacterSelect/Rows"]
 layout_mode = 2
 alignment = 1
 
-[node name="Nu13" parent="CenterContainer/CharactersPanel/Rows/Row1" instance=ExtResource("6_3lmwy")]
-layout_mode = 2
-char_id = "nu13"
-portrait_texture = ExtResource("8_f1r6m")
-
-[node name="Sol" parent="CenterContainer/CharactersPanel/Rows/Row1" instance=ExtResource("6_3lmwy")]
+[node name="Sol" parent="CenterContainer/GGCharacterSelect/Rows/Row1" instance=ExtResource("6_3lmwy")]
 layout_mode = 2
 char_id = "solbadguy"
 portrait_texture = ExtResource("7_3jr2w")
 
-[node name="Random" parent="CenterContainer/CharactersPanel/Rows/Row1" instance=ExtResource("6_3lmwy")]
+[node name="Random" parent="CenterContainer/GGCharacterSelect/Rows/Row1" instance=ExtResource("6_3lmwy")]
 layout_mode = 2
-char_id = "random"
+char_id = "random_s7"
 portrait_texture = ExtResource("8_vlgsf")
 
-[node name="Ky" parent="CenterContainer/CharactersPanel/Rows/Row1" instance=ExtResource("6_3lmwy")]
+[node name="Ky" parent="CenterContainer/GGCharacterSelect/Rows/Row1" instance=ExtResource("6_3lmwy")]
 layout_mode = 2
 char_id = "kykisuke"
 portrait_texture = ExtResource("9_0auwh")
 
-[node name="Row2" type="HBoxContainer" parent="CenterContainer/CharactersPanel/Rows"]
+[node name="Row2" type="HBoxContainer" parent="CenterContainer/GGCharacterSelect/Rows"]
 layout_mode = 2
 size_flags_horizontal = 4
 alignment = 1
 
-[node name="Anji" parent="CenterContainer/CharactersPanel/Rows/Row2" instance=ExtResource("6_3lmwy")]
+[node name="Anji" parent="CenterContainer/GGCharacterSelect/Rows/Row2" instance=ExtResource("6_3lmwy")]
 layout_mode = 2
 char_id = "anji"
 portrait_texture = ExtResource("6_h5jn6")
 
-[node name="Ram" parent="CenterContainer/CharactersPanel/Rows/Row2" instance=ExtResource("6_3lmwy")]
+[node name="Ram" parent="CenterContainer/GGCharacterSelect/Rows/Row2" instance=ExtResource("6_3lmwy")]
 layout_mode = 2
 char_id = "ramlethal"
 portrait_texture = ExtResource("8_o0338")
 
-[node name="May" parent="CenterContainer/CharactersPanel/Rows/Row2" instance=ExtResource("6_3lmwy")]
+[node name="May" parent="CenterContainer/GGCharacterSelect/Rows/Row2" instance=ExtResource("6_3lmwy")]
 layout_mode = 2
 char_id = "may"
 portrait_texture = ExtResource("12_305dm")
 
-[node name="Potemkin" parent="CenterContainer/CharactersPanel/Rows/Row2" instance=ExtResource("6_3lmwy")]
+[node name="Potemkin" parent="CenterContainer/GGCharacterSelect/Rows/Row2" instance=ExtResource("6_3lmwy")]
 layout_mode = 2
 char_id = "potemkin"
 portrait_texture = ExtResource("12_keamw")
 
-[node name="Row3" type="HBoxContainer" parent="CenterContainer/CharactersPanel/Rows"]
+[node name="Row3" type="HBoxContainer" parent="CenterContainer/GGCharacterSelect/Rows"]
 layout_mode = 2
 size_flags_horizontal = 4
 alignment = 1
 
-[node name="Baiken" parent="CenterContainer/CharactersPanel/Rows/Row3" instance=ExtResource("6_3lmwy")]
+[node name="Baiken" parent="CenterContainer/GGCharacterSelect/Rows/Row3" instance=ExtResource("6_3lmwy")]
 layout_mode = 2
 char_id = "baiken"
 portrait_texture = ExtResource("14_mxl0r")
 
-[node name="Giovanna" parent="CenterContainer/CharactersPanel/Rows/Row3" instance=ExtResource("6_3lmwy")]
+[node name="Giovanna" parent="CenterContainer/GGCharacterSelect/Rows/Row3" instance=ExtResource("6_3lmwy")]
 layout_mode = 2
 char_id = "giovanna"
 portrait_texture = ExtResource("15_joo7j")
 
-[node name="Millia" parent="CenterContainer/CharactersPanel/Rows/Row3" instance=ExtResource("6_3lmwy")]
+[node name="Millia" parent="CenterContainer/GGCharacterSelect/Rows/Row3" instance=ExtResource("6_3lmwy")]
 layout_mode = 2
 char_id = "millia"
 portrait_texture = ExtResource("14_ui4sm")
 
-[node name="Nago" parent="CenterContainer/CharactersPanel/Rows/Row3" instance=ExtResource("6_3lmwy")]
+[node name="Nago" parent="CenterContainer/GGCharacterSelect/Rows/Row3" instance=ExtResource("6_3lmwy")]
 layout_mode = 2
 char_id = "nago"
 portrait_texture = ExtResource("17_v8770")
 
-[node name="Row4" type="HBoxContainer" parent="CenterContainer/CharactersPanel/Rows"]
+[node name="Row4" type="HBoxContainer" parent="CenterContainer/GGCharacterSelect/Rows"]
 layout_mode = 2
 size_flags_horizontal = 4
 alignment = 1
 
-[node name="Goldlewis" parent="CenterContainer/CharactersPanel/Rows/Row4" instance=ExtResource("6_3lmwy")]
+[node name="Goldlewis" parent="CenterContainer/GGCharacterSelect/Rows/Row4" instance=ExtResource("6_3lmwy")]
 layout_mode = 2
 char_id = "goldlewis"
 portrait_texture = ExtResource("18_nhabj")
 
-[node name="Ino" parent="CenterContainer/CharactersPanel/Rows/Row4" instance=ExtResource("6_3lmwy")]
+[node name="Ino" parent="CenterContainer/GGCharacterSelect/Rows/Row4" instance=ExtResource("6_3lmwy")]
 layout_mode = 2
 char_id = "ino"
 portrait_texture = ExtResource("19_rfshm")
 
-[node name="Chipp" parent="CenterContainer/CharactersPanel/Rows/Row4" instance=ExtResource("6_3lmwy")]
+[node name="Chipp" parent="CenterContainer/GGCharacterSelect/Rows/Row4" instance=ExtResource("6_3lmwy")]
 layout_mode = 2
 char_id = "chipp"
 portrait_texture = ExtResource("20_aekjf")
 
-[node name="HappyChaos" parent="CenterContainer/CharactersPanel/Rows/Row4" instance=ExtResource("6_3lmwy")]
+[node name="HappyChaos" parent="CenterContainer/GGCharacterSelect/Rows/Row4" instance=ExtResource("6_3lmwy")]
 layout_mode = 2
 char_id = "happychaos"
 portrait_texture = ExtResource("27_0fy1k")
 
-[node name="Testament" parent="CenterContainer/CharactersPanel/Rows/Row4" instance=ExtResource("6_3lmwy")]
+[node name="Testament" parent="CenterContainer/GGCharacterSelect/Rows/Row4" instance=ExtResource("6_3lmwy")]
 layout_mode = 2
 char_id = "testament"
 portrait_texture = ExtResource("21_cebtd")
 
-[node name="Row5" type="HBoxContainer" parent="CenterContainer/CharactersPanel/Rows"]
+[node name="Row5" type="HBoxContainer" parent="CenterContainer/GGCharacterSelect/Rows"]
 layout_mode = 2
 size_flags_horizontal = 4
 alignment = 1
 
-[node name="Jacko" parent="CenterContainer/CharactersPanel/Rows/Row5" instance=ExtResource("6_3lmwy")]
+[node name="Jacko" parent="CenterContainer/GGCharacterSelect/Rows/Row5" instance=ExtResource("6_3lmwy")]
 layout_mode = 2
 char_id = "jacko"
 portrait_texture = ExtResource("21_s6sfk")
 
-[node name="Leo" parent="CenterContainer/CharactersPanel/Rows/Row5" instance=ExtResource("6_3lmwy")]
+[node name="Leo" parent="CenterContainer/GGCharacterSelect/Rows/Row5" instance=ExtResource("6_3lmwy")]
 layout_mode = 2
 char_id = "leo"
 portrait_texture = ExtResource("21_tu1g4")
 
-[node name="Axl" parent="CenterContainer/CharactersPanel/Rows/Row5" instance=ExtResource("6_3lmwy")]
+[node name="Axl" parent="CenterContainer/GGCharacterSelect/Rows/Row5" instance=ExtResource("6_3lmwy")]
 layout_mode = 2
 char_id = "axl"
 portrait_texture = ExtResource("21_5m1ro")
 
-[node name="Faust" parent="CenterContainer/CharactersPanel/Rows/Row5" instance=ExtResource("6_3lmwy")]
+[node name="Faust" parent="CenterContainer/GGCharacterSelect/Rows/Row5" instance=ExtResource("6_3lmwy")]
 layout_mode = 2
 char_id = "faust"
 portrait_texture = ExtResource("26_j4iqn")
 
-[node name="Zato" parent="CenterContainer/CharactersPanel/Rows/Row5" instance=ExtResource("6_3lmwy")]
+[node name="Zato" parent="CenterContainer/GGCharacterSelect/Rows/Row5" instance=ExtResource("6_3lmwy")]
 layout_mode = 2
 char_id = "zato"
 portrait_texture = ExtResource("25_wi4bn")
 
-[connection signal="pressed" from="PanelContainer/VBoxContainer/Row1/TextureButton" to="." method="_on_character_button_pressed" binds= ["testament"]]
-[connection signal="pressed" from="PanelContainer/VBoxContainer/Row1/TextureButton3" to="." method="_on_character_button_pressed" binds= ["happychaos"]]
-[connection signal="pressed" from="PanelContainer/VBoxContainer/Row2/TextureButton" to="." method="_on_character_button_pressed" binds= ["millia"]]
-[connection signal="pressed" from="PanelContainer/VBoxContainer/Row2/TextureButton2" to="." method="_on_character_button_pressed" binds= ["nago"]]
-[connection signal="pressed" from="PanelContainer/VBoxContainer/Row2/TextureButton3" to="." method="_on_character_button_pressed" binds= ["ino"]]
-[connection signal="pressed" from="PanelContainer/VBoxContainer/Row2/TextureButton4" to="." method="_on_character_button_pressed" binds= ["zato"]]
-[connection signal="pressed" from="PanelContainer/VBoxContainer/Row3/TextureButton" to="." method="_on_character_button_pressed" binds= ["solbadguy"]]
-[connection signal="pressed" from="PanelContainer/VBoxContainer/Row3/TextureButton2" to="." method="_on_character_button_pressed" binds= ["random"]]
-[connection signal="pressed" from="PanelContainer/VBoxContainer/Row3/TextureButton3" to="." method="_on_character_button_pressed" binds= ["kykisuke"]]
-[connection signal="pressed" from="PanelContainer/VBoxContainer/Row4/TextureButton" to="." method="_on_character_button_pressed" binds= ["chipp"]]
-[connection signal="pressed" from="PanelContainer/VBoxContainer/Row4/TextureButton2" to="." method="_on_character_button_pressed" binds= ["axl"]]
-[connection signal="pressed" from="PanelContainer/VBoxContainer/Row4/TextureButton3" to="." method="_on_character_button_pressed" binds= ["potemkin"]]
-[connection signal="pressed" from="PanelContainer/VBoxContainer/Row4/TextureButton4" to="." method="_on_character_button_pressed" binds= ["may"]]
-[connection signal="pressed" from="PanelContainer/VBoxContainer/Row5/TextureButton" to="." method="_on_character_button_pressed" binds= ["leo"]]
-[connection signal="pressed" from="PanelContainer/VBoxContainer/Row5/TextureButton2" to="." method="_on_character_button_pressed" binds= ["faust"]]
-[connection signal="pressed" from="PanelContainer/VBoxContainer/Row5/TextureButton3" to="." method="_on_character_button_pressed" binds= ["ramlethal"]]
-[connection signal="pressed" from="PanelContainer/VBoxContainer/Row5/TextureButton4" to="." method="_on_character_button_pressed" binds= ["jacko"]]
-[connection signal="pressed" from="PanelContainer/VBoxContainer/Row6/TextureButton" to="." method="_on_character_button_pressed" binds= ["anji"]]
-[connection signal="pressed" from="PanelContainer/VBoxContainer/Row6/TextureButton2" to="." method="_on_character_button_pressed" binds= ["baiken"]]
-[connection signal="pressed" from="PanelContainer/VBoxContainer/Row6/TextureButton3" to="." method="_on_character_button_pressed" binds= ["giovanna"]]
-[connection signal="pressed" from="PanelContainer/VBoxContainer/Row6/TextureButton4" to="." method="_on_character_button_pressed" binds= ["goldlewis"]]
+[node name="BBCharacterSelect" type="PanelContainer" parent="CenterContainer"]
+layout_mode = 2
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxEmpty_8u80i")
+
+[node name="Rows" type="VBoxContainer" parent="CenterContainer/BBCharacterSelect"]
+layout_mode = 2
+mouse_filter = 2
+alignment = 1
+
+[node name="Row1" type="HBoxContainer" parent="CenterContainer/BBCharacterSelect/Rows"]
+layout_mode = 2
+alignment = 1
+
+[node name="Nu13" parent="CenterContainer/BBCharacterSelect/Rows/Row1" instance=ExtResource("6_3lmwy")]
+layout_mode = 2
+char_id = "nu13"
+portrait_texture = ExtResource("8_f1r6m")
+
+[node name="RandomBB" parent="CenterContainer/BBCharacterSelect/Rows/Row1" instance=ExtResource("6_3lmwy")]
+layout_mode = 2
+char_id = "random_s5"
+portrait_texture = ExtResource("29_7gojn")
+
+[node name="TabSelect" type="VBoxContainer" parent="."]
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -50.0
+offset_right = 50.0
+offset_bottom = 100.0
+grow_horizontal = 2
+alignment = 1
+
+[node name="Buffer" type="HBoxContainer" parent="TabSelect"]
+custom_minimum_size = Vector2(0, 10)
+layout_mode = 2
+
+[node name="CategoriesHBox" type="HBoxContainer" parent="TabSelect"]
+layout_mode = 2
+
+[node name="Season5" parent="TabSelect/CategoriesHBox" instance=ExtResource("6_3lmwy")]
+layout_mode = 2
+char_id = "season5"
+portrait_texture = ExtResource("29_7gojn")
+
+[node name="Season7" parent="TabSelect/CategoriesHBox" instance=ExtResource("6_3lmwy")]
+layout_mode = 2
+char_id = "season7"
+portrait_texture = ExtResource("8_vlgsf")
+
 [connection signal="pressed" from="CenterContainer/BackgroundButton" to="." method="_on_background_button_pressed"]
-[connection signal="on_hover" from="CenterContainer/CharactersPanel/Rows/Row1/Nu13" to="." method="_on_char_hover"]
-[connection signal="on_pressed" from="CenterContainer/CharactersPanel/Rows/Row1/Nu13" to="." method="_on_char_button_on_pressed"]
-[connection signal="on_hover" from="CenterContainer/CharactersPanel/Rows/Row1/Sol" to="." method="_on_char_hover"]
-[connection signal="on_pressed" from="CenterContainer/CharactersPanel/Rows/Row1/Sol" to="." method="_on_char_button_on_pressed"]
-[connection signal="on_hover" from="CenterContainer/CharactersPanel/Rows/Row1/Random" to="." method="_on_char_hover"]
-[connection signal="on_pressed" from="CenterContainer/CharactersPanel/Rows/Row1/Random" to="." method="_on_char_button_on_pressed"]
-[connection signal="on_hover" from="CenterContainer/CharactersPanel/Rows/Row1/Ky" to="." method="_on_char_hover"]
-[connection signal="on_pressed" from="CenterContainer/CharactersPanel/Rows/Row1/Ky" to="." method="_on_char_button_on_pressed"]
-[connection signal="on_hover" from="CenterContainer/CharactersPanel/Rows/Row2/Anji" to="." method="_on_char_hover"]
-[connection signal="on_pressed" from="CenterContainer/CharactersPanel/Rows/Row2/Anji" to="." method="_on_char_button_on_pressed"]
-[connection signal="on_hover" from="CenterContainer/CharactersPanel/Rows/Row2/Ram" to="." method="_on_char_hover"]
-[connection signal="on_pressed" from="CenterContainer/CharactersPanel/Rows/Row2/Ram" to="." method="_on_char_button_on_pressed"]
-[connection signal="on_hover" from="CenterContainer/CharactersPanel/Rows/Row2/May" to="." method="_on_char_hover"]
-[connection signal="on_pressed" from="CenterContainer/CharactersPanel/Rows/Row2/May" to="." method="_on_char_button_on_pressed"]
-[connection signal="on_hover" from="CenterContainer/CharactersPanel/Rows/Row2/Potemkin" to="." method="_on_char_hover"]
-[connection signal="on_pressed" from="CenterContainer/CharactersPanel/Rows/Row2/Potemkin" to="." method="_on_char_button_on_pressed"]
-[connection signal="on_hover" from="CenterContainer/CharactersPanel/Rows/Row3/Baiken" to="." method="_on_char_hover"]
-[connection signal="on_pressed" from="CenterContainer/CharactersPanel/Rows/Row3/Baiken" to="." method="_on_char_button_on_pressed"]
-[connection signal="on_hover" from="CenterContainer/CharactersPanel/Rows/Row3/Giovanna" to="." method="_on_char_hover"]
-[connection signal="on_pressed" from="CenterContainer/CharactersPanel/Rows/Row3/Giovanna" to="." method="_on_char_button_on_pressed"]
-[connection signal="on_hover" from="CenterContainer/CharactersPanel/Rows/Row3/Millia" to="." method="_on_char_hover"]
-[connection signal="on_pressed" from="CenterContainer/CharactersPanel/Rows/Row3/Millia" to="." method="_on_char_button_on_pressed"]
-[connection signal="on_hover" from="CenterContainer/CharactersPanel/Rows/Row3/Nago" to="." method="_on_char_hover"]
-[connection signal="on_pressed" from="CenterContainer/CharactersPanel/Rows/Row3/Nago" to="." method="_on_char_button_on_pressed"]
-[connection signal="on_hover" from="CenterContainer/CharactersPanel/Rows/Row4/Goldlewis" to="." method="_on_char_hover"]
-[connection signal="on_pressed" from="CenterContainer/CharactersPanel/Rows/Row4/Goldlewis" to="." method="_on_char_button_on_pressed"]
-[connection signal="on_hover" from="CenterContainer/CharactersPanel/Rows/Row4/Ino" to="." method="_on_char_hover"]
-[connection signal="on_pressed" from="CenterContainer/CharactersPanel/Rows/Row4/Ino" to="." method="_on_char_button_on_pressed"]
-[connection signal="on_hover" from="CenterContainer/CharactersPanel/Rows/Row4/Chipp" to="." method="_on_char_hover"]
-[connection signal="on_pressed" from="CenterContainer/CharactersPanel/Rows/Row4/Chipp" to="." method="_on_char_button_on_pressed"]
-[connection signal="on_hover" from="CenterContainer/CharactersPanel/Rows/Row4/HappyChaos" to="." method="_on_char_hover"]
-[connection signal="on_pressed" from="CenterContainer/CharactersPanel/Rows/Row4/HappyChaos" to="." method="_on_char_button_on_pressed"]
-[connection signal="on_hover" from="CenterContainer/CharactersPanel/Rows/Row4/Testament" to="." method="_on_char_hover"]
-[connection signal="on_pressed" from="CenterContainer/CharactersPanel/Rows/Row4/Testament" to="." method="_on_char_button_on_pressed"]
-[connection signal="on_hover" from="CenterContainer/CharactersPanel/Rows/Row5/Jacko" to="." method="_on_char_hover"]
-[connection signal="on_pressed" from="CenterContainer/CharactersPanel/Rows/Row5/Jacko" to="." method="_on_char_button_on_pressed"]
-[connection signal="on_hover" from="CenterContainer/CharactersPanel/Rows/Row5/Leo" to="." method="_on_char_hover"]
-[connection signal="on_pressed" from="CenterContainer/CharactersPanel/Rows/Row5/Leo" to="." method="_on_char_button_on_pressed"]
-[connection signal="on_hover" from="CenterContainer/CharactersPanel/Rows/Row5/Axl" to="." method="_on_char_hover"]
-[connection signal="on_pressed" from="CenterContainer/CharactersPanel/Rows/Row5/Axl" to="." method="_on_char_button_on_pressed"]
-[connection signal="on_hover" from="CenterContainer/CharactersPanel/Rows/Row5/Faust" to="." method="_on_char_hover"]
-[connection signal="on_pressed" from="CenterContainer/CharactersPanel/Rows/Row5/Faust" to="." method="_on_char_button_on_pressed"]
-[connection signal="on_hover" from="CenterContainer/CharactersPanel/Rows/Row5/Zato" to="." method="_on_char_hover"]
-[connection signal="on_pressed" from="CenterContainer/CharactersPanel/Rows/Row5/Zato" to="." method="_on_char_button_on_pressed"]
+[connection signal="on_hover" from="CenterContainer/GGCharacterSelect/Rows/Row1/Sol" to="." method="_on_char_hover"]
+[connection signal="on_pressed" from="CenterContainer/GGCharacterSelect/Rows/Row1/Sol" to="." method="_on_char_button_on_pressed"]
+[connection signal="on_hover" from="CenterContainer/GGCharacterSelect/Rows/Row1/Random" to="." method="_on_char_hover"]
+[connection signal="on_pressed" from="CenterContainer/GGCharacterSelect/Rows/Row1/Random" to="." method="_on_char_button_on_pressed"]
+[connection signal="on_hover" from="CenterContainer/GGCharacterSelect/Rows/Row1/Ky" to="." method="_on_char_hover"]
+[connection signal="on_pressed" from="CenterContainer/GGCharacterSelect/Rows/Row1/Ky" to="." method="_on_char_button_on_pressed"]
+[connection signal="on_hover" from="CenterContainer/GGCharacterSelect/Rows/Row2/Anji" to="." method="_on_char_hover"]
+[connection signal="on_pressed" from="CenterContainer/GGCharacterSelect/Rows/Row2/Anji" to="." method="_on_char_button_on_pressed"]
+[connection signal="on_hover" from="CenterContainer/GGCharacterSelect/Rows/Row2/Ram" to="." method="_on_char_hover"]
+[connection signal="on_pressed" from="CenterContainer/GGCharacterSelect/Rows/Row2/Ram" to="." method="_on_char_button_on_pressed"]
+[connection signal="on_hover" from="CenterContainer/GGCharacterSelect/Rows/Row2/May" to="." method="_on_char_hover"]
+[connection signal="on_pressed" from="CenterContainer/GGCharacterSelect/Rows/Row2/May" to="." method="_on_char_button_on_pressed"]
+[connection signal="on_hover" from="CenterContainer/GGCharacterSelect/Rows/Row2/Potemkin" to="." method="_on_char_hover"]
+[connection signal="on_pressed" from="CenterContainer/GGCharacterSelect/Rows/Row2/Potemkin" to="." method="_on_char_button_on_pressed"]
+[connection signal="on_hover" from="CenterContainer/GGCharacterSelect/Rows/Row3/Baiken" to="." method="_on_char_hover"]
+[connection signal="on_pressed" from="CenterContainer/GGCharacterSelect/Rows/Row3/Baiken" to="." method="_on_char_button_on_pressed"]
+[connection signal="on_hover" from="CenterContainer/GGCharacterSelect/Rows/Row3/Giovanna" to="." method="_on_char_hover"]
+[connection signal="on_pressed" from="CenterContainer/GGCharacterSelect/Rows/Row3/Giovanna" to="." method="_on_char_button_on_pressed"]
+[connection signal="on_hover" from="CenterContainer/GGCharacterSelect/Rows/Row3/Millia" to="." method="_on_char_hover"]
+[connection signal="on_pressed" from="CenterContainer/GGCharacterSelect/Rows/Row3/Millia" to="." method="_on_char_button_on_pressed"]
+[connection signal="on_hover" from="CenterContainer/GGCharacterSelect/Rows/Row3/Nago" to="." method="_on_char_hover"]
+[connection signal="on_pressed" from="CenterContainer/GGCharacterSelect/Rows/Row3/Nago" to="." method="_on_char_button_on_pressed"]
+[connection signal="on_hover" from="CenterContainer/GGCharacterSelect/Rows/Row4/Goldlewis" to="." method="_on_char_hover"]
+[connection signal="on_pressed" from="CenterContainer/GGCharacterSelect/Rows/Row4/Goldlewis" to="." method="_on_char_button_on_pressed"]
+[connection signal="on_hover" from="CenterContainer/GGCharacterSelect/Rows/Row4/Ino" to="." method="_on_char_hover"]
+[connection signal="on_pressed" from="CenterContainer/GGCharacterSelect/Rows/Row4/Ino" to="." method="_on_char_button_on_pressed"]
+[connection signal="on_hover" from="CenterContainer/GGCharacterSelect/Rows/Row4/Chipp" to="." method="_on_char_hover"]
+[connection signal="on_pressed" from="CenterContainer/GGCharacterSelect/Rows/Row4/Chipp" to="." method="_on_char_button_on_pressed"]
+[connection signal="on_hover" from="CenterContainer/GGCharacterSelect/Rows/Row4/HappyChaos" to="." method="_on_char_hover"]
+[connection signal="on_pressed" from="CenterContainer/GGCharacterSelect/Rows/Row4/HappyChaos" to="." method="_on_char_button_on_pressed"]
+[connection signal="on_hover" from="CenterContainer/GGCharacterSelect/Rows/Row4/Testament" to="." method="_on_char_hover"]
+[connection signal="on_pressed" from="CenterContainer/GGCharacterSelect/Rows/Row4/Testament" to="." method="_on_char_button_on_pressed"]
+[connection signal="on_hover" from="CenterContainer/GGCharacterSelect/Rows/Row5/Jacko" to="." method="_on_char_hover"]
+[connection signal="on_pressed" from="CenterContainer/GGCharacterSelect/Rows/Row5/Jacko" to="." method="_on_char_button_on_pressed"]
+[connection signal="on_hover" from="CenterContainer/GGCharacterSelect/Rows/Row5/Leo" to="." method="_on_char_hover"]
+[connection signal="on_pressed" from="CenterContainer/GGCharacterSelect/Rows/Row5/Leo" to="." method="_on_char_button_on_pressed"]
+[connection signal="on_hover" from="CenterContainer/GGCharacterSelect/Rows/Row5/Axl" to="." method="_on_char_hover"]
+[connection signal="on_pressed" from="CenterContainer/GGCharacterSelect/Rows/Row5/Axl" to="." method="_on_char_button_on_pressed"]
+[connection signal="on_hover" from="CenterContainer/GGCharacterSelect/Rows/Row5/Faust" to="." method="_on_char_hover"]
+[connection signal="on_pressed" from="CenterContainer/GGCharacterSelect/Rows/Row5/Faust" to="." method="_on_char_button_on_pressed"]
+[connection signal="on_hover" from="CenterContainer/GGCharacterSelect/Rows/Row5/Zato" to="." method="_on_char_hover"]
+[connection signal="on_pressed" from="CenterContainer/GGCharacterSelect/Rows/Row5/Zato" to="." method="_on_char_button_on_pressed"]
+[connection signal="on_hover" from="CenterContainer/BBCharacterSelect/Rows/Row1/Nu13" to="." method="_on_char_hover"]
+[connection signal="on_pressed" from="CenterContainer/BBCharacterSelect/Rows/Row1/Nu13" to="." method="_on_char_button_on_pressed"]
+[connection signal="on_hover" from="CenterContainer/BBCharacterSelect/Rows/Row1/RandomBB" to="." method="_on_char_hover"]
+[connection signal="on_pressed" from="CenterContainer/BBCharacterSelect/Rows/Row1/RandomBB" to="." method="_on_char_button_on_pressed"]
+[connection signal="on_hover" from="TabSelect/CategoriesHBox/Season5" to="." method="_on_char_hover"]
+[connection signal="on_pressed" from="TabSelect/CategoriesHBox/Season5" to="." method="_on_char_button_on_pressed"]
+[connection signal="on_hover" from="TabSelect/CategoriesHBox/Season7" to="." method="_on_char_hover"]
+[connection signal="on_pressed" from="TabSelect/CategoriesHBox/Season7" to="." method="_on_char_button_on_pressed"]

@@ -10,16 +10,29 @@ func get_deck_test_deck():
 	for deck in decks:
 		if deck['id'] == "millia":
 			return deck
-	return get_random_deck()
+	return get_random_deck(-1)
 
-func get_random_deck():
+func get_random_deck(season : int):
 	# Randomize
-	var random_index = randi() % len(decks)
-	return decks[random_index]
+	if season == -1:
+		var random_index = randi() % len(decks)
+		return decks[random_index]
+	else:
+		var season_decks = []
+		for deck in decks:
+			if deck['season'] == season:
+				season_decks.append(deck)
+		var random_index = randi() % len(season_decks)
+		return season_decks[random_index]
+
 
 func get_deck_from_str_id(str_id : String):
+	if str_id == "random_s7":
+		return get_random_deck(7)
+	if str_id == "random_s5":
+		return get_random_deck(5)
 	if str_id == "random":
-		return get_random_deck()
+		return get_random_deck(-1)
 	for deck in decks:
 		if deck['id'] == str_id:
 			return deck

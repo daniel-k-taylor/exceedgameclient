@@ -1,6 +1,4 @@
 In progress:
-    ☐ BlazBlue char select tab
-    
     ☐ Investigate web browser tab running in background
 
 Write tests for:
@@ -24,10 +22,9 @@ Tasks:
         ☐ Exceed
         ☐ Reshuffle
         ☐ Change cards
-    AI:
-        ☐ Something more
     Misc/Low pri:
-        ☐ allow AI to take bonus turn actions
+        ☐ Add an AllSeasonRandom button
+        ☐ allow AI to take bonus turn actions (like axl's boost thing)
         ☐ Allow EX'ing when hit with Reading
         ☐ Sum continuous boost stat bonuses into a single line
         ☐ Boost zone panel formatting/change size with text. - Should scroll?

@@ -1,5 +1,6 @@
 {
 	"id": "nu13",
+	"season": 5,
 	"display_name": "Nu-13",
 	"cardback": "cardback_defaultexceed.png",
 	"exceed_cost": 3,

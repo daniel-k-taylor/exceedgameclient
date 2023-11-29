@@ -1,5 +1,6 @@
 {
 	"id": "faust",
+	"season": 7,
 	"display_name": "Faust",
 	"cardback": "cardback_faust.jpg",
 	"exceed_cost": 2,

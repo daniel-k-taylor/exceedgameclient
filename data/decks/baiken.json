@@ -1,5 +1,6 @@
 {
 	"id": "baiken",
+	"season": 7,
 	"display_name": "Baiken",
 	"cardback": "cardback_baiken.jpg",
 	"exceed_cost": 3,

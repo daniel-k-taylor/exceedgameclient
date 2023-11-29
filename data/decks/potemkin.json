@@ -1,5 +1,6 @@
 {
 	"id": "potemkin",
+	"season": 7,
 	"display_name": "Potemkin",
 	"cardback": "cardback_potemkin.jpg",
 	"exceed_cost": 4,

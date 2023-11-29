@@ -1,5 +1,6 @@
 {
 	"id": "may",
+	"season": 7,
 	"display_name": "May",
 	"cardback": "cardback_may.jpg",
 	"exceed_cost": 3,
