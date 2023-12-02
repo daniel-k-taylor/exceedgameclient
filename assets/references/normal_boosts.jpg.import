@@ -15,7 +15,7 @@ dest_files=["res://.godot/imported/normal_boosts.jpg-04386f086b37a41ebf7a33cfd2d
 
 [params]
 
-compress/mode=0
+compress/mode=1
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/hdr_compression=1

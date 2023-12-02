@@ -1,0 +1,7 @@
+[gd_resource type="AtlasTexture" load_steps=2 format=3 uid="uid://557qki42dc7s"]
+
+[ext_resource type="Texture2D" uid="uid://cabu8y4n0nje1" path="res://assets/cards/nago/specials.jpg" id="1_elwud"]
+
+[resource]
+atlas = ExtResource("1_elwud")
+region = Rect2(2250, 0, 750, 1024)

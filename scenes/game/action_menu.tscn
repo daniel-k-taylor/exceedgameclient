@@ -1,0 +1,105 @@
+[gd_scene load_steps=3 format=3 uid="uid://dal56iqk5k8rh"]
+
+[ext_resource type="Script" path="res://scenes/game/action_menu.gd" id="1_lxy8k"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_cmck5"]
+bg_color = Color(0.235294, 0.235294, 0.235294, 0.882353)
+border_width_left = 5
+border_width_top = 5
+border_width_right = 5
+border_width_bottom = 5
+border_color = Color(0.0784314, 0.0784314, 0.0784314, 1)
+
+[node name="ActionMenu" type="PanelContainer"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -155.5
+offset_top = -89.0
+offset_right = -1124.5
+offset_bottom = -631.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_cmck5")
+script = ExtResource("1_lxy8k")
+
+[node name="OuterMargin" type="MarginContainer" parent="."]
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 0
+theme_override_constants/margin_left = 5
+theme_override_constants/margin_top = 5
+theme_override_constants/margin_right = 5
+theme_override_constants/margin_bottom = 5
+
+[node name="MainVBox" type="VBoxContainer" parent="OuterMargin"]
+layout_mode = 2
+theme_override_constants/separation = 2
+
+[node name="InstructionsLabel" type="Label" parent="OuterMargin/MainVBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 20
+text = "Instructions go here to tell you what to do:"
+horizontal_alignment = 1
+
+[node name="Spacing" type="MarginContainer" parent="OuterMargin/MainVBox"]
+layout_mode = 2
+
+[node name="ChoiceButtons" type="GridContainer" parent="OuterMargin/MainVBox"]
+layout_mode = 2
+size_flags_vertical = 2
+theme_override_constants/h_separation = 5
+theme_override_constants/v_separation = 5
+
+[node name="Choice0" type="Button" parent="OuterMargin/MainVBox/ChoiceButtons"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Choice 0"
+
+[node name="Choice1" type="Button" parent="OuterMargin/MainVBox/ChoiceButtons"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Choice 1"
+
+[node name="Choice2" type="Button" parent="OuterMargin/MainVBox/ChoiceButtons"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="Choice3" type="Button" parent="OuterMargin/MainVBox/ChoiceButtons"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="Choice4" type="Button" parent="OuterMargin/MainVBox/ChoiceButtons"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="Choice5" type="Button" parent="OuterMargin/MainVBox/ChoiceButtons"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="Choice6" type="Button" parent="OuterMargin/MainVBox/ChoiceButtons"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="Choice7" type="Button" parent="OuterMargin/MainVBox/ChoiceButtons"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="Choice8" type="Button" parent="OuterMargin/MainVBox/ChoiceButtons"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="Choice9" type="Button" parent="OuterMargin/MainVBox/ChoiceButtons"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[connection signal="pressed" from="OuterMargin/MainVBox/ChoiceButtons/Choice0" to="." method="_on_choice_pressed" binds= [0]]
+[connection signal="pressed" from="OuterMargin/MainVBox/ChoiceButtons/Choice1" to="." method="_on_choice_pressed" binds= [1]]
+[connection signal="pressed" from="OuterMargin/MainVBox/ChoiceButtons/Choice2" to="." method="_on_choice_pressed" binds= [2]]
+[connection signal="pressed" from="OuterMargin/MainVBox/ChoiceButtons/Choice3" to="." method="_on_choice_pressed" binds= [3]]
+[connection signal="pressed" from="OuterMargin/MainVBox/ChoiceButtons/Choice4" to="." method="_on_choice_pressed" binds= [4]]
+[connection signal="pressed" from="OuterMargin/MainVBox/ChoiceButtons/Choice5" to="." method="_on_choice_pressed" binds= [5]]
+[connection signal="pressed" from="OuterMargin/MainVBox/ChoiceButtons/Choice6" to="." method="_on_choice_pressed" binds= [6]]
+[connection signal="pressed" from="OuterMargin/MainVBox/ChoiceButtons/Choice7" to="." method="_on_choice_pressed" binds= [7]]
+[connection signal="pressed" from="OuterMargin/MainVBox/ChoiceButtons/Choice8" to="." method="_on_choice_pressed" binds= [8]]
+[connection signal="pressed" from="OuterMargin/MainVBox/ChoiceButtons/Choice9" to="." method="_on_choice_pressed" binds= [9]]

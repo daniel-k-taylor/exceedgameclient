@@ -19,6 +19,8 @@ const StatPanel = preload("res://scenes/card/stat_panel.gd")
 @onready var stun_indicator = $CardFocusFeatures/StunIndicator
 @onready var card_features = $CardFocusFeatures
 @onready var focus_feature = $FocusFeatures
+@onready var remaining_count_obj = $CardFocusFeatures/RemainingCount
+@onready var remaining_count_label : Label = $CardFocusFeatures/RemainingCount/PanelContainer/MarginContainer/RemainingCountLabel
 
 
 const ActualCardSize = Vector2(250,350)
@@ -29,6 +31,8 @@ const ReferenceCardScale = Vector2(0.6, 0.6)
 const StrikeCardScale = Vector2(0.4, 0.4)
 const DiscardCardScale = Vector2(0.4, 0.4)
 const HighlightColor = Color('#36fff3')
+const GreyedOutColor = Color(0.5, 0.5, 0.5)
+const NormalColor = Color(1, 1, 1)
 
 static func get_hand_card_size() -> Vector2:
 	return ActualCardSize * HandCardScale
@@ -42,7 +46,7 @@ enum CardState {
 	CardState_InHand,
 	CardState_InGauge,
 	CardState_InBoost,
-	CardState_InPopout,
+	CardState_InPopout,  # 5
 	CardState_Offscreen,
 	CardState_Discarding,
 	CardState_Discarded,
@@ -50,6 +54,8 @@ enum CardState {
 	CardState_DrawingToHand,
 	CardState_Unfocusing,
 }
+
+const CharacterCardReferenceId = -2
 
 var state : CardState = CardState.CardState_InDeck
 var return_state : CardState = CardState.CardState_InDeck
@@ -77,17 +83,38 @@ var focus_rot
 var focus_y_pos
 var cancel_visible_on_front
 var use_custom_card_image = false
+var card_image
+var cardback_image
 
 var selected = false
 
 const DRAW_ANIMATION_LENGTH = 0.5
-const FOCUS_ANIMATION_LENGTH = 0.2
+const FOCUS_ANIMATION_LENGTH = 0.1
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
 	flip_card_to_front(false)
 	set_hover_visible(false)
+	remaining_count_obj.visible = false
+	remaining_count_label.text = ""
 	#$CardContainer/Focus.modulate = HighlightColor
+
+func set_remaining_count(count : int):
+	remaining_count_obj.visible = true
+	if count == 0:
+		remaining_count_label.text = "None"
+		fancy_card.modulate = GreyedOutColor
+	else:
+		remaining_count_label.text = "%s Left" % count
+		fancy_card.modulate = NormalColor
+
+func set_label(label : String):
+	remaining_count_obj.visible = true
+	remaining_count_label.text = label
+
+func clear_label():
+	remaining_count_obj.visible = false
+	remaining_count_label.text = ""
 
 func flip_card_to_front(front):
 	if front:
@@ -209,6 +236,8 @@ func initialize_card(id, card_title, image, card_back_image, range_min, range_ma
 	resting_scale = starting_scale
 	card_features.scale = starting_scale
 	focus_feature.scale = starting_scale
+	card_image = image
+	cardback_image = card_back_image
 	if image != "":
 		use_custom_card_image = false
 		fancy_card.texture = load(image)
@@ -249,7 +278,9 @@ func set_card_and_focus(pos, rot, sca):
 		card_features.scale = sca
 		focus_feature.scale = sca
 
-func reset(pos):
+func reset(pos = null):
+	if not pos:
+		pos = card_features.position
 	resting_scale = default_scale
 	set_card_and_focus(pos, 0, default_scale)
 	change_state(CardState.CardState_InDeck)
@@ -332,10 +363,17 @@ func focus():
 
 		return_state = state
 
-	target_rotation = focus_rot
-	target_scale = FocusScale
-	var size_at_scale = $CardFocusFeatures/CardContainer.size * target_scale
-	target_pos = clamp_to_screen(focus_pos, size_at_scale)
+	# NOTE: If you don't want it to animate a focus and want to leave
+	# it where it is and use HugeCard, use this instead.
+	if false and return_state == CardState.CardState_InHand:
+		target_pos = card_features.position
+		target_rotation = card_features.rotation_degrees
+		target_scale = card_features.scale
+	else:
+		target_rotation = focus_rot
+		target_scale = FocusScale
+		var size_at_scale = $CardFocusFeatures/CardContainer.size * target_scale
+		target_pos = clamp_to_screen(focus_pos, size_at_scale)
 	animation_time = 0
 	animation_length = FOCUS_ANIMATION_LENGTH
 

@@ -9,3 +9,4 @@ script = ExtResource("1_28q6k")
 [node name="MainMenu" parent="." instance=ExtResource("2_x1b8u")]
 
 [connection signal="start_game" from="MainMenu" to="." method="_on_main_menu_start_game"]
+[connection signal="start_remote_game" from="MainMenu" to="." method="_on_main_menu_start_remote_game"]

@@ -49,12 +49,43 @@ vertical_alignment = 1
 custom_minimum_size = Vector2(20, 0)
 layout_mode = 2
 
+[node name="RestOfThing" type="HBoxContainer" parent="PopoutVBox/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+alignment = 2
+
+[node name="InstructionLabel" type="Label" parent="PopoutVBox/HBoxContainer/RestOfThing"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 38
+text = "Name a card."
+
+[node name="InstructionButtonOk" type="Button" parent="PopoutVBox/HBoxContainer/RestOfThing"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 38
+text = "OK"
+
+[node name="InstructionButtonOk2" type="Button" parent="PopoutVBox/HBoxContainer/RestOfThing"]
+visible = false
+layout_mode = 2
+theme_override_font_sizes/font_size = 38
+text = "Option2"
+
+[node name="InstructionButtonCancel" type="Button" parent="PopoutVBox/HBoxContainer/RestOfThing"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 38
+text = "Cancel"
+
+[node name="Buffer2" type="MarginContainer" parent="PopoutVBox/HBoxContainer/RestOfThing"]
+custom_minimum_size = Vector2(20, 0)
+layout_mode = 2
+theme_override_constants/margin_right = 20
+
 [node name="Margin" type="MarginContainer" parent="PopoutVBox"]
 layout_mode = 2
 size_flags_horizontal = 0
 size_flags_vertical = 0
 theme_override_constants/margin_left = 20
-theme_override_constants/margin_top = 10
+theme_override_constants/margin_top = 20
 theme_override_constants/margin_right = 20
 theme_override_constants/margin_bottom = 10
 
@@ -68,7 +99,7 @@ theme_override_constants/separation = 20
 visible = false
 layout_mode = 2
 size_flags_vertical = 0
-theme_override_constants/separation = 20
+theme_override_constants/separation = 40
 
 [node name="Spot1" type="TextureRect" parent="PopoutVBox/Margin/Row/Col1"]
 modulate = Color(1, 1, 1, 0)
@@ -84,7 +115,7 @@ texture = ExtResource("1_jo5c8")
 visible = false
 layout_mode = 2
 size_flags_vertical = 0
-theme_override_constants/separation = 20
+theme_override_constants/separation = 40
 
 [node name="Spot1" type="TextureRect" parent="PopoutVBox/Margin/Row/Col2"]
 modulate = Color(1, 1, 1, 0)
@@ -100,7 +131,7 @@ texture = ExtResource("1_jo5c8")
 visible = false
 layout_mode = 2
 size_flags_vertical = 0
-theme_override_constants/separation = 20
+theme_override_constants/separation = 40
 
 [node name="Spot1" type="TextureRect" parent="PopoutVBox/Margin/Row/Col3"]
 modulate = Color(1, 1, 1, 0)
@@ -116,7 +147,7 @@ texture = ExtResource("1_jo5c8")
 visible = false
 layout_mode = 2
 size_flags_vertical = 0
-theme_override_constants/separation = 20
+theme_override_constants/separation = 40
 
 [node name="Spot1" type="TextureRect" parent="PopoutVBox/Margin/Row/Col4"]
 modulate = Color(1, 1, 1, 0)
@@ -132,7 +163,7 @@ texture = ExtResource("1_jo5c8")
 visible = false
 layout_mode = 2
 size_flags_vertical = 0
-theme_override_constants/separation = 20
+theme_override_constants/separation = 40
 
 [node name="Spot1" type="TextureRect" parent="PopoutVBox/Margin/Row/Col5"]
 modulate = Color(1, 1, 1, 0)
@@ -148,7 +179,7 @@ texture = ExtResource("1_jo5c8")
 visible = false
 layout_mode = 2
 size_flags_vertical = 0
-theme_override_constants/separation = 20
+theme_override_constants/separation = 40
 
 [node name="Spot1" type="TextureRect" parent="PopoutVBox/Margin/Row/Col6"]
 modulate = Color(1, 1, 1, 0)
@@ -164,7 +195,7 @@ texture = ExtResource("1_jo5c8")
 visible = false
 layout_mode = 2
 size_flags_vertical = 0
-theme_override_constants/separation = 20
+theme_override_constants/separation = 40
 
 [node name="Spot1" type="TextureRect" parent="PopoutVBox/Margin/Row/Col7"]
 modulate = Color(1, 1, 1, 0)
@@ -180,7 +211,7 @@ texture = ExtResource("1_jo5c8")
 visible = false
 layout_mode = 2
 size_flags_vertical = 0
-theme_override_constants/separation = 20
+theme_override_constants/separation = 40
 
 [node name="Spot1" type="TextureRect" parent="PopoutVBox/Margin/Row/Col8"]
 modulate = Color(1, 1, 1, 0)
@@ -196,7 +227,7 @@ texture = ExtResource("1_jo5c8")
 visible = false
 layout_mode = 2
 size_flags_vertical = 0
-theme_override_constants/separation = 20
+theme_override_constants/separation = 40
 
 [node name="Spot1" type="TextureRect" parent="PopoutVBox/Margin/Row/Col9"]
 modulate = Color(1, 1, 1, 0)
@@ -212,7 +243,7 @@ texture = ExtResource("1_jo5c8")
 visible = false
 layout_mode = 2
 size_flags_vertical = 0
-theme_override_constants/separation = 20
+theme_override_constants/separation = 40
 
 [node name="Spot1" type="TextureRect" parent="PopoutVBox/Margin/Row/Col10"]
 modulate = Color(1, 1, 1, 0)
@@ -228,7 +259,7 @@ texture = ExtResource("1_jo5c8")
 visible = false
 layout_mode = 2
 size_flags_vertical = 0
-theme_override_constants/separation = 20
+theme_override_constants/separation = 40
 
 [node name="Spot1" type="TextureRect" parent="PopoutVBox/Margin/Row/Col11"]
 modulate = Color(1, 1, 1, 0)
@@ -244,7 +275,7 @@ texture = ExtResource("1_jo5c8")
 visible = false
 layout_mode = 2
 size_flags_vertical = 0
-theme_override_constants/separation = 20
+theme_override_constants/separation = 40
 
 [node name="Spot1" type="TextureRect" parent="PopoutVBox/Margin/Row/Col12"]
 modulate = Color(1, 1, 1, 0)
@@ -260,7 +291,7 @@ texture = ExtResource("1_jo5c8")
 visible = false
 layout_mode = 2
 size_flags_vertical = 0
-theme_override_constants/separation = 20
+theme_override_constants/separation = 40
 
 [node name="Spot1" type="TextureRect" parent="PopoutVBox/Margin/Row/Col13"]
 modulate = Color(1, 1, 1, 0)
@@ -276,7 +307,7 @@ texture = ExtResource("1_jo5c8")
 visible = false
 layout_mode = 2
 size_flags_vertical = 0
-theme_override_constants/separation = 20
+theme_override_constants/separation = 40
 
 [node name="Spot1" type="TextureRect" parent="PopoutVBox/Margin/Row/Col14"]
 modulate = Color(1, 1, 1, 0)
@@ -292,7 +323,7 @@ texture = ExtResource("1_jo5c8")
 visible = false
 layout_mode = 2
 size_flags_vertical = 0
-theme_override_constants/separation = 20
+theme_override_constants/separation = 40
 
 [node name="Spot1" type="TextureRect" parent="PopoutVBox/Margin/Row/Col15"]
 modulate = Color(1, 1, 1, 0)
@@ -308,7 +339,7 @@ texture = ExtResource("1_jo5c8")
 visible = false
 layout_mode = 2
 size_flags_vertical = 0
-theme_override_constants/separation = 20
+theme_override_constants/separation = 40
 
 [node name="Spot1" type="TextureRect" parent="PopoutVBox/Margin/Row/Col16"]
 modulate = Color(1, 1, 1, 0)
@@ -324,7 +355,7 @@ texture = ExtResource("1_jo5c8")
 visible = false
 layout_mode = 2
 size_flags_vertical = 0
-theme_override_constants/separation = 20
+theme_override_constants/separation = 40
 
 [node name="Spot1" type="TextureRect" parent="PopoutVBox/Margin/Row/Col17"]
 modulate = Color(1, 1, 1, 0)
@@ -340,7 +371,7 @@ texture = ExtResource("1_jo5c8")
 visible = false
 layout_mode = 2
 size_flags_vertical = 0
-theme_override_constants/separation = 20
+theme_override_constants/separation = 40
 
 [node name="Spot1" type="TextureRect" parent="PopoutVBox/Margin/Row/Col18"]
 modulate = Color(1, 1, 1, 0)
@@ -356,7 +387,7 @@ texture = ExtResource("1_jo5c8")
 visible = false
 layout_mode = 2
 size_flags_vertical = 0
-theme_override_constants/separation = 20
+theme_override_constants/separation = 40
 
 [node name="Spot1" type="TextureRect" parent="PopoutVBox/Margin/Row/Col19"]
 modulate = Color(1, 1, 1, 0)
@@ -372,7 +403,7 @@ texture = ExtResource("1_jo5c8")
 visible = false
 layout_mode = 2
 size_flags_vertical = 0
-theme_override_constants/separation = 20
+theme_override_constants/separation = 40
 
 [node name="Spot1" type="TextureRect" parent="PopoutVBox/Margin/Row/Col20"]
 modulate = Color(1, 1, 1, 0)
@@ -389,3 +420,6 @@ custom_minimum_size = Vector2(0, 10)
 layout_mode = 2
 
 [connection signal="pressed" from="PopoutVBox/CloseWindowButton" to="." method="_on_close_window_button_pressed"]
+[connection signal="pressed" from="PopoutVBox/HBoxContainer/RestOfThing/InstructionButtonOk" to="." method="_on_instruction_button_ok_pressed"]
+[connection signal="pressed" from="PopoutVBox/HBoxContainer/RestOfThing/InstructionButtonOk2" to="." method="_on_instruction_button_ok2_pressed"]
+[connection signal="pressed" from="PopoutVBox/HBoxContainer/RestOfThing/InstructionButtonCancel" to="." method="_on_instruction_button_cancel_pressed"]

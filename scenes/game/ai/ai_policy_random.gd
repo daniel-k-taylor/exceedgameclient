@@ -1,11 +1,13 @@
 extends Node
 
-const GameLogic = preload("res://scenes/game/gamelogic.gd")
 const AIPlayer = preload("res://scenes/game/ai_player.gd")
 
 func pick_turn_action(possible_actions : Array, _ai_game_state : AIPlayer.AIGameState):
 	return possible_actions[randi() % len(possible_actions)]
 
+func pick_boost_action(possible_actions : Array, _ai_game_state : AIPlayer.AIGameState):
+	return possible_actions[randi() % len(possible_actions)]
+	
 func pick_pay_strike_gauge_cost(possible_actions : Array, _ai_game_state : AIPlayer.AIGameState):
 	return possible_actions[randi() % len(possible_actions)]
 
@@ -30,6 +32,9 @@ func pick_cancel(possible_actions : Array, _ai_game_state : AIPlayer.AIGameState
 func pick_discard_continuous(possible_actions : Array, _ai_game_state : AIPlayer.AIGameState):
 	return possible_actions[randi() % len(possible_actions)]
 
+func pick_discard_opponent_gauge(possible_actions : Array, _ai_game_state : AIPlayer.AIGameState):
+	return possible_actions[randi() % len(possible_actions)]
+
 func pick_name_opponent_card(possible_actions : Array, _ai_game_state : AIPlayer.AIGameState):
 	return possible_actions[randi() % len(possible_actions)]
 
@@ -37,4 +42,25 @@ func pick_card_hand_to_gauge(possible_actions : Array, _ai_game_state : AIPlayer
 	return possible_actions[randi() % len(possible_actions)]
 
 func pick_mulligan(possible_actions : Array, _ai_game_state : AIPlayer.AIGameState):
+	return possible_actions[randi() % len(possible_actions)]
+
+func pick_choose_from_boosts(possible_actions : Array, _ai_game_state : AIPlayer.AIGameState):
+	return possible_actions[randi() % len(possible_actions)]
+
+func pick_choose_from_discard(possible_actions : Array, _ai_game_state : AIPlayer.AIGameState):
+	return possible_actions[randi() % len(possible_actions)]
+
+func pick_force_for_effect(possible_actions : Array, _ai_game_state : AIPlayer.AIGameState):
+	return possible_actions[randi() % len(possible_actions)]
+
+func pick_gauge_for_effect(possible_actions : Array, _ai_game_state : AIPlayer.AIGameState):
+	return possible_actions[randi() % len(possible_actions)]
+	
+func pick_choose_to_discard(possible_actions : Array, _ai_game_state : AIPlayer.AIGameState):
+	return possible_actions[randi() % len(possible_actions)]
+
+func pick_choose_from_topdeck(possible_actions : Array, _ai_game_state : AIPlayer.AIGameState):
+	return possible_actions[randi() % len(possible_actions)]
+
+func pick_choose_arena_location_for_effect(possible_actions : Array, _ai_game_state : AIPlayer.AIGameState):
 	return possible_actions[randi() % len(possible_actions)]

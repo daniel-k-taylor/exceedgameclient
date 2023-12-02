@@ -1,0 +1,336 @@
+[gd_scene load_steps=27 format=3 uid="uid://cqs72exlwm6at"]
+
+[ext_resource type="Script" path="res://scenes/menu/char_select.gd" id="1_f3x24"]
+[ext_resource type="PackedScene" uid="uid://nwqxp8pdh1jk" path="res://scenes/menu/char_select_button.tscn" id="6_3lmwy"]
+[ext_resource type="Texture2D" uid="uid://dckqq8p1ihy7o" path="res://assets/portraits/anji.png" id="6_h5jn6"]
+[ext_resource type="Texture2D" uid="uid://8pvgp7ipunso" path="res://assets/portraits/solbadguy.png" id="7_3jr2w"]
+[ext_resource type="Texture2D" uid="uid://b3mbau05vu0ua" path="res://assets/portraits/nu13.png" id="8_f1r6m"]
+[ext_resource type="Texture2D" uid="uid://1egthlu75owp" path="res://assets/portraits/ramlethal.png" id="8_o0338"]
+[ext_resource type="Texture2D" uid="uid://bn3hol65r7ylf" path="res://assets/portraits/random.png" id="8_vlgsf"]
+[ext_resource type="Texture2D" uid="uid://crv3kw2rfgg8g" path="res://assets/portraits/kykisuke.png" id="9_0auwh"]
+[ext_resource type="Texture2D" uid="uid://bwrjf0kdg6pt8" path="res://assets/portraits/may.png" id="12_305dm"]
+[ext_resource type="Texture2D" uid="uid://g32sibw8hpwj" path="res://assets/portraits/potemkin.png" id="12_keamw"]
+[ext_resource type="Texture2D" uid="uid://qnhb30sjxi2p" path="res://assets/portraits/baiken.png" id="14_mxl0r"]
+[ext_resource type="Texture2D" uid="uid://e0tnn730b3fj" path="res://assets/portraits/millia.png" id="14_ui4sm"]
+[ext_resource type="Texture2D" uid="uid://c7xyes2u01quq" path="res://assets/portraits/giovanna.png" id="15_joo7j"]
+[ext_resource type="Texture2D" uid="uid://otdwoejmwsf1" path="res://assets/portraits/nago.png" id="17_v8770"]
+[ext_resource type="Texture2D" uid="uid://baeok8iwnd55t" path="res://assets/portraits/goldlewis.png" id="18_nhabj"]
+[ext_resource type="Texture2D" uid="uid://dbblpgfbefvym" path="res://assets/portraits/ino.png" id="19_rfshm"]
+[ext_resource type="Texture2D" uid="uid://dqjwr4cib12qo" path="res://assets/portraits/chipp.png" id="20_aekjf"]
+[ext_resource type="Texture2D" uid="uid://bbghefkulfxtj" path="res://assets/portraits/axl.png" id="21_5m1ro"]
+[ext_resource type="Texture2D" uid="uid://cn3mh2d8x8xon" path="res://assets/portraits/testament.png" id="21_cebtd"]
+[ext_resource type="Texture2D" uid="uid://cuioxl3i2sx0p" path="res://assets/portraits/jacko.png" id="21_s6sfk"]
+[ext_resource type="Texture2D" uid="uid://cbd201lgc8mu8" path="res://assets/portraits/leo.png" id="21_tu1g4"]
+[ext_resource type="Texture2D" uid="uid://d17x6tser3eeq" path="res://assets/portraits/zato.png" id="25_wi4bn"]
+[ext_resource type="Texture2D" uid="uid://dypqpmufue3as" path="res://assets/portraits/faust.png" id="26_j4iqn"]
+[ext_resource type="Texture2D" uid="uid://bwp8gexqjcuwc" path="res://assets/portraits/happychaos.png" id="27_0fy1k"]
+[ext_resource type="Texture2D" uid="uid://brjpxxwwioeo8" path="res://assets/portraits/blazbluelogo2.png" id="29_7gojn"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_8u80i"]
+
+[node name="CharSelect" type="Control"]
+layout_mode = 3
+anchors_preset = 0
+offset_right = 1280.0
+offset_bottom = 720.0
+script = ExtResource("1_f3x24")
+
+[node name="Panel" type="Panel" parent="."]
+custom_minimum_size = Vector2(1280, 720)
+layout_mode = 2
+offset_right = 1280.0
+offset_bottom = 720.0
+
+[node name="HoverBox" type="VBoxContainer" parent="."]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="MarginContainer" type="MarginContainer" parent="HoverBox"]
+layout_mode = 2
+theme_override_constants/margin_top = 150
+
+[node name="HBoxContainer" type="HBoxContainer" parent="HoverBox"]
+layout_mode = 2
+
+[node name="MarginContainer" type="MarginContainer" parent="HoverBox/HBoxContainer"]
+layout_mode = 2
+theme_override_constants/margin_left = 100
+
+[node name="VBoxContainer" type="VBoxContainer" parent="HoverBox/HBoxContainer"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="HoverBox/HBoxContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 42
+text = "Sol Badguy"
+
+[node name="Portrait" type="TextureRect" parent="HoverBox/HBoxContainer/VBoxContainer"]
+layout_mode = 2
+texture = ExtResource("6_h5jn6")
+stretch_mode = 5
+
+[node name="HBoxContainer2" type="HBoxContainer" parent="HoverBox"]
+layout_mode = 2
+
+[node name="MarginContainer" type="MarginContainer" parent="HoverBox/HBoxContainer2"]
+layout_mode = 2
+theme_override_constants/margin_left = 100
+
+[node name="CenterContainer" type="CenterContainer" parent="."]
+custom_minimum_size = Vector2(1280, 720)
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="BackgroundButton" type="Button" parent="CenterContainer"]
+modulate = Color(1, 1, 1, 0)
+custom_minimum_size = Vector2(1280, 720)
+layout_mode = 2
+
+[node name="GGCharacterSelect" type="PanelContainer" parent="CenterContainer"]
+layout_mode = 2
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxEmpty_8u80i")
+
+[node name="Rows" type="VBoxContainer" parent="CenterContainer/GGCharacterSelect"]
+layout_mode = 2
+mouse_filter = 2
+alignment = 1
+
+[node name="Buffer" type="HBoxContainer" parent="CenterContainer/GGCharacterSelect/Rows"]
+custom_minimum_size = Vector2(0, 50)
+layout_mode = 2
+
+[node name="Row1" type="HBoxContainer" parent="CenterContainer/GGCharacterSelect/Rows"]
+layout_mode = 2
+alignment = 1
+
+[node name="Sol" parent="CenterContainer/GGCharacterSelect/Rows/Row1" instance=ExtResource("6_3lmwy")]
+layout_mode = 2
+char_id = "solbadguy"
+portrait_texture = ExtResource("7_3jr2w")
+
+[node name="Random" parent="CenterContainer/GGCharacterSelect/Rows/Row1" instance=ExtResource("6_3lmwy")]
+layout_mode = 2
+char_id = "random_s7"
+portrait_texture = ExtResource("8_vlgsf")
+
+[node name="Ky" parent="CenterContainer/GGCharacterSelect/Rows/Row1" instance=ExtResource("6_3lmwy")]
+layout_mode = 2
+char_id = "kykisuke"
+portrait_texture = ExtResource("9_0auwh")
+
+[node name="Row2" type="HBoxContainer" parent="CenterContainer/GGCharacterSelect/Rows"]
+layout_mode = 2
+size_flags_horizontal = 4
+alignment = 1
+
+[node name="Anji" parent="CenterContainer/GGCharacterSelect/Rows/Row2" instance=ExtResource("6_3lmwy")]
+layout_mode = 2
+char_id = "anji"
+portrait_texture = ExtResource("6_h5jn6")
+
+[node name="Ram" parent="CenterContainer/GGCharacterSelect/Rows/Row2" instance=ExtResource("6_3lmwy")]
+layout_mode = 2
+char_id = "ramlethal"
+portrait_texture = ExtResource("8_o0338")
+
+[node name="May" parent="CenterContainer/GGCharacterSelect/Rows/Row2" instance=ExtResource("6_3lmwy")]
+layout_mode = 2
+char_id = "may"
+portrait_texture = ExtResource("12_305dm")
+
+[node name="Potemkin" parent="CenterContainer/GGCharacterSelect/Rows/Row2" instance=ExtResource("6_3lmwy")]
+layout_mode = 2
+char_id = "potemkin"
+portrait_texture = ExtResource("12_keamw")
+
+[node name="Row3" type="HBoxContainer" parent="CenterContainer/GGCharacterSelect/Rows"]
+layout_mode = 2
+size_flags_horizontal = 4
+alignment = 1
+
+[node name="Baiken" parent="CenterContainer/GGCharacterSelect/Rows/Row3" instance=ExtResource("6_3lmwy")]
+layout_mode = 2
+char_id = "baiken"
+portrait_texture = ExtResource("14_mxl0r")
+
+[node name="Giovanna" parent="CenterContainer/GGCharacterSelect/Rows/Row3" instance=ExtResource("6_3lmwy")]
+layout_mode = 2
+char_id = "giovanna"
+portrait_texture = ExtResource("15_joo7j")
+
+[node name="Millia" parent="CenterContainer/GGCharacterSelect/Rows/Row3" instance=ExtResource("6_3lmwy")]
+layout_mode = 2
+char_id = "millia"
+portrait_texture = ExtResource("14_ui4sm")
+
+[node name="Nago" parent="CenterContainer/GGCharacterSelect/Rows/Row3" instance=ExtResource("6_3lmwy")]
+layout_mode = 2
+char_id = "nago"
+portrait_texture = ExtResource("17_v8770")
+
+[node name="Row4" type="HBoxContainer" parent="CenterContainer/GGCharacterSelect/Rows"]
+layout_mode = 2
+size_flags_horizontal = 4
+alignment = 1
+
+[node name="Goldlewis" parent="CenterContainer/GGCharacterSelect/Rows/Row4" instance=ExtResource("6_3lmwy")]
+layout_mode = 2
+char_id = "goldlewis"
+portrait_texture = ExtResource("18_nhabj")
+
+[node name="Ino" parent="CenterContainer/GGCharacterSelect/Rows/Row4" instance=ExtResource("6_3lmwy")]
+layout_mode = 2
+char_id = "ino"
+portrait_texture = ExtResource("19_rfshm")
+
+[node name="Chipp" parent="CenterContainer/GGCharacterSelect/Rows/Row4" instance=ExtResource("6_3lmwy")]
+layout_mode = 2
+char_id = "chipp"
+portrait_texture = ExtResource("20_aekjf")
+
+[node name="HappyChaos" parent="CenterContainer/GGCharacterSelect/Rows/Row4" instance=ExtResource("6_3lmwy")]
+layout_mode = 2
+char_id = "happychaos"
+portrait_texture = ExtResource("27_0fy1k")
+
+[node name="Testament" parent="CenterContainer/GGCharacterSelect/Rows/Row4" instance=ExtResource("6_3lmwy")]
+layout_mode = 2
+char_id = "testament"
+portrait_texture = ExtResource("21_cebtd")
+
+[node name="Row5" type="HBoxContainer" parent="CenterContainer/GGCharacterSelect/Rows"]
+layout_mode = 2
+size_flags_horizontal = 4
+alignment = 1
+
+[node name="Jacko" parent="CenterContainer/GGCharacterSelect/Rows/Row5" instance=ExtResource("6_3lmwy")]
+layout_mode = 2
+char_id = "jacko"
+portrait_texture = ExtResource("21_s6sfk")
+
+[node name="Leo" parent="CenterContainer/GGCharacterSelect/Rows/Row5" instance=ExtResource("6_3lmwy")]
+layout_mode = 2
+char_id = "leo"
+portrait_texture = ExtResource("21_tu1g4")
+
+[node name="Axl" parent="CenterContainer/GGCharacterSelect/Rows/Row5" instance=ExtResource("6_3lmwy")]
+layout_mode = 2
+char_id = "axl"
+portrait_texture = ExtResource("21_5m1ro")
+
+[node name="Faust" parent="CenterContainer/GGCharacterSelect/Rows/Row5" instance=ExtResource("6_3lmwy")]
+layout_mode = 2
+char_id = "faust"
+portrait_texture = ExtResource("26_j4iqn")
+
+[node name="Zato" parent="CenterContainer/GGCharacterSelect/Rows/Row5" instance=ExtResource("6_3lmwy")]
+layout_mode = 2
+char_id = "zato"
+portrait_texture = ExtResource("25_wi4bn")
+
+[node name="BBCharacterSelect" type="PanelContainer" parent="CenterContainer"]
+layout_mode = 2
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxEmpty_8u80i")
+
+[node name="Rows" type="VBoxContainer" parent="CenterContainer/BBCharacterSelect"]
+layout_mode = 2
+mouse_filter = 2
+alignment = 1
+
+[node name="Row1" type="HBoxContainer" parent="CenterContainer/BBCharacterSelect/Rows"]
+layout_mode = 2
+alignment = 1
+
+[node name="Nu13" parent="CenterContainer/BBCharacterSelect/Rows/Row1" instance=ExtResource("6_3lmwy")]
+layout_mode = 2
+char_id = "nu13"
+portrait_texture = ExtResource("8_f1r6m")
+
+[node name="RandomBB" parent="CenterContainer/BBCharacterSelect/Rows/Row1" instance=ExtResource("6_3lmwy")]
+layout_mode = 2
+char_id = "random_s5"
+portrait_texture = ExtResource("29_7gojn")
+
+[node name="TabSelect" type="VBoxContainer" parent="."]
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -50.0
+offset_right = 50.0
+offset_bottom = 100.0
+grow_horizontal = 2
+alignment = 1
+
+[node name="Buffer" type="HBoxContainer" parent="TabSelect"]
+custom_minimum_size = Vector2(0, 10)
+layout_mode = 2
+
+[node name="CategoriesHBox" type="HBoxContainer" parent="TabSelect"]
+layout_mode = 2
+
+[node name="Season5" parent="TabSelect/CategoriesHBox" instance=ExtResource("6_3lmwy")]
+layout_mode = 2
+char_id = "season5"
+portrait_texture = ExtResource("29_7gojn")
+
+[node name="Season7" parent="TabSelect/CategoriesHBox" instance=ExtResource("6_3lmwy")]
+layout_mode = 2
+char_id = "season7"
+portrait_texture = ExtResource("8_vlgsf")
+
+[connection signal="pressed" from="CenterContainer/BackgroundButton" to="." method="_on_background_button_pressed"]
+[connection signal="on_hover" from="CenterContainer/GGCharacterSelect/Rows/Row1/Sol" to="." method="_on_char_hover"]
+[connection signal="on_pressed" from="CenterContainer/GGCharacterSelect/Rows/Row1/Sol" to="." method="_on_char_button_on_pressed"]
+[connection signal="on_hover" from="CenterContainer/GGCharacterSelect/Rows/Row1/Random" to="." method="_on_char_hover"]
+[connection signal="on_pressed" from="CenterContainer/GGCharacterSelect/Rows/Row1/Random" to="." method="_on_char_button_on_pressed"]
+[connection signal="on_hover" from="CenterContainer/GGCharacterSelect/Rows/Row1/Ky" to="." method="_on_char_hover"]
+[connection signal="on_pressed" from="CenterContainer/GGCharacterSelect/Rows/Row1/Ky" to="." method="_on_char_button_on_pressed"]
+[connection signal="on_hover" from="CenterContainer/GGCharacterSelect/Rows/Row2/Anji" to="." method="_on_char_hover"]
+[connection signal="on_pressed" from="CenterContainer/GGCharacterSelect/Rows/Row2/Anji" to="." method="_on_char_button_on_pressed"]
+[connection signal="on_hover" from="CenterContainer/GGCharacterSelect/Rows/Row2/Ram" to="." method="_on_char_hover"]
+[connection signal="on_pressed" from="CenterContainer/GGCharacterSelect/Rows/Row2/Ram" to="." method="_on_char_button_on_pressed"]
+[connection signal="on_hover" from="CenterContainer/GGCharacterSelect/Rows/Row2/May" to="." method="_on_char_hover"]
+[connection signal="on_pressed" from="CenterContainer/GGCharacterSelect/Rows/Row2/May" to="." method="_on_char_button_on_pressed"]
+[connection signal="on_hover" from="CenterContainer/GGCharacterSelect/Rows/Row2/Potemkin" to="." method="_on_char_hover"]
+[connection signal="on_pressed" from="CenterContainer/GGCharacterSelect/Rows/Row2/Potemkin" to="." method="_on_char_button_on_pressed"]
+[connection signal="on_hover" from="CenterContainer/GGCharacterSelect/Rows/Row3/Baiken" to="." method="_on_char_hover"]
+[connection signal="on_pressed" from="CenterContainer/GGCharacterSelect/Rows/Row3/Baiken" to="." method="_on_char_button_on_pressed"]
+[connection signal="on_hover" from="CenterContainer/GGCharacterSelect/Rows/Row3/Giovanna" to="." method="_on_char_hover"]
+[connection signal="on_pressed" from="CenterContainer/GGCharacterSelect/Rows/Row3/Giovanna" to="." method="_on_char_button_on_pressed"]
+[connection signal="on_hover" from="CenterContainer/GGCharacterSelect/Rows/Row3/Millia" to="." method="_on_char_hover"]
+[connection signal="on_pressed" from="CenterContainer/GGCharacterSelect/Rows/Row3/Millia" to="." method="_on_char_button_on_pressed"]
+[connection signal="on_hover" from="CenterContainer/GGCharacterSelect/Rows/Row3/Nago" to="." method="_on_char_hover"]
+[connection signal="on_pressed" from="CenterContainer/GGCharacterSelect/Rows/Row3/Nago" to="." method="_on_char_button_on_pressed"]
+[connection signal="on_hover" from="CenterContainer/GGCharacterSelect/Rows/Row4/Goldlewis" to="." method="_on_char_hover"]
+[connection signal="on_pressed" from="CenterContainer/GGCharacterSelect/Rows/Row4/Goldlewis" to="." method="_on_char_button_on_pressed"]
+[connection signal="on_hover" from="CenterContainer/GGCharacterSelect/Rows/Row4/Ino" to="." method="_on_char_hover"]
+[connection signal="on_pressed" from="CenterContainer/GGCharacterSelect/Rows/Row4/Ino" to="." method="_on_char_button_on_pressed"]
+[connection signal="on_hover" from="CenterContainer/GGCharacterSelect/Rows/Row4/Chipp" to="." method="_on_char_hover"]
+[connection signal="on_pressed" from="CenterContainer/GGCharacterSelect/Rows/Row4/Chipp" to="." method="_on_char_button_on_pressed"]
+[connection signal="on_hover" from="CenterContainer/GGCharacterSelect/Rows/Row4/HappyChaos" to="." method="_on_char_hover"]
+[connection signal="on_pressed" from="CenterContainer/GGCharacterSelect/Rows/Row4/HappyChaos" to="." method="_on_char_button_on_pressed"]
+[connection signal="on_hover" from="CenterContainer/GGCharacterSelect/Rows/Row4/Testament" to="." method="_on_char_hover"]
+[connection signal="on_pressed" from="CenterContainer/GGCharacterSelect/Rows/Row4/Testament" to="." method="_on_char_button_on_pressed"]
+[connection signal="on_hover" from="CenterContainer/GGCharacterSelect/Rows/Row5/Jacko" to="." method="_on_char_hover"]
+[connection signal="on_pressed" from="CenterContainer/GGCharacterSelect/Rows/Row5/Jacko" to="." method="_on_char_button_on_pressed"]
+[connection signal="on_hover" from="CenterContainer/GGCharacterSelect/Rows/Row5/Leo" to="." method="_on_char_hover"]
+[connection signal="on_pressed" from="CenterContainer/GGCharacterSelect/Rows/Row5/Leo" to="." method="_on_char_button_on_pressed"]
+[connection signal="on_hover" from="CenterContainer/GGCharacterSelect/Rows/Row5/Axl" to="." method="_on_char_hover"]
+[connection signal="on_pressed" from="CenterContainer/GGCharacterSelect/Rows/Row5/Axl" to="." method="_on_char_button_on_pressed"]
+[connection signal="on_hover" from="CenterContainer/GGCharacterSelect/Rows/Row5/Faust" to="." method="_on_char_hover"]
+[connection signal="on_pressed" from="CenterContainer/GGCharacterSelect/Rows/Row5/Faust" to="." method="_on_char_button_on_pressed"]
+[connection signal="on_hover" from="CenterContainer/GGCharacterSelect/Rows/Row5/Zato" to="." method="_on_char_hover"]
+[connection signal="on_pressed" from="CenterContainer/GGCharacterSelect/Rows/Row5/Zato" to="." method="_on_char_button_on_pressed"]
+[connection signal="on_hover" from="CenterContainer/BBCharacterSelect/Rows/Row1/Nu13" to="." method="_on_char_hover"]
+[connection signal="on_pressed" from="CenterContainer/BBCharacterSelect/Rows/Row1/Nu13" to="." method="_on_char_button_on_pressed"]
+[connection signal="on_hover" from="CenterContainer/BBCharacterSelect/Rows/Row1/RandomBB" to="." method="_on_char_hover"]
+[connection signal="on_pressed" from="CenterContainer/BBCharacterSelect/Rows/Row1/RandomBB" to="." method="_on_char_button_on_pressed"]
+[connection signal="on_hover" from="TabSelect/CategoriesHBox/Season5" to="." method="_on_char_hover"]
+[connection signal="on_pressed" from="TabSelect/CategoriesHBox/Season5" to="." method="_on_char_button_on_pressed"]
+[connection signal="on_hover" from="TabSelect/CategoriesHBox/Season7" to="." method="_on_char_hover"]
+[connection signal="on_pressed" from="TabSelect/CategoriesHBox/Season7" to="." method="_on_char_button_on_pressed"]

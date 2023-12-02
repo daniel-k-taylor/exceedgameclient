@@ -15,7 +15,7 @@ dest_files=["res://.godot/imported/cardback_sol.jpg-2f8f7863c969d6e95ceeff7bc44c
 
 [params]
 
-compress/mode=0
+compress/mode=1
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/hdr_compression=1

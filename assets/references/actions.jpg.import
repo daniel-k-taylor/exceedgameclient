@@ -15,7 +15,7 @@ dest_files=["res://.godot/imported/actions.jpg-be480af0e86a8995e0ae1a1d119141b8.
 
 [params]
 
-compress/mode=0
+compress/mode=1
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/hdr_compression=1

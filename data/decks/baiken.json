@@ -1,0 +1,161 @@
+{
+	"id": "baiken",
+	"season": 7,
+	"display_name": "Baiken",
+	"cardback": "cardback_baiken.jpg",
+	"exceed_cost": 3,
+	"character_action_default": {
+		"gauge_cost": 1,
+		"force_cost": 0,
+		"effect": {
+			"effect_type": "pull_not_past",
+			"amount": 2,
+			"and": {
+				"effect_type": "strike"
+			}
+		}
+	},
+	"character_action_exceeded": {
+		"gauge_cost": 1,
+		"force_cost": 0,
+		"effect": {
+			"effect_type": "pull",
+			"amount": 2,
+			"and": {
+				"effect_type": "strike"
+			}
+		}
+	},
+	"ability_effects": [],
+	"exceed_ability_effects": [
+		{
+			"character_effect": true,
+			"timing": "set_strike",
+			"condition": "used_character_action",
+			"effect_type": "powerup",
+			"amount": 1
+		}
+	],
+	"cards": [
+		{
+			"definition_id": "baiken_kenjyu",
+			"image": "baiken_kenjyu.tres"
+		},
+		{
+			"definition_id": "baiken_kenjyu",
+			"image": "baiken_kenjyu.tres"
+		},
+		{
+			"definition_id": "baiken_tsurane",
+			"image": "baiken_tsurane.tres"
+		},
+		{
+			"definition_id": "baiken_tsurane",
+			"image": "baiken_tsurane.tres"
+		},
+		{
+			"definition_id": "baiken_kabari",
+			"image": "baiken_kabari.tres"
+		},
+		{
+			"definition_id": "baiken_kabari",
+			"image": "baiken_kabari.tres"
+		},
+		{
+			"definition_id": "baiken_youzansen",
+			"image": "baiken_youzansen.tres"
+		},
+		{
+			"definition_id": "baiken_youzansen",
+			"image": "baiken_youzansen.tres"
+		},
+		{
+			"definition_id": "baiken_karatakewari",
+			"image": "baiken_karatakewari.tres"
+		},
+		{
+			"definition_id": "baiken_karatakewari",
+			"image": "baiken_karatakewari.tres"
+		},
+		{
+			"definition_id": "baiken_tatamigaeshi",
+			"image": "baiken_tatamigaeshi.tres"
+		},
+		{
+			"definition_id": "baiken_tatamigaeshi",
+			"image": "baiken_tatamigaeshi.tres"
+		},
+		{
+			"definition_id": "baiken_hiiragi",
+			"image": "baiken_hiiragi.tres"
+		},
+		{
+			"definition_id": "baiken_hiiragi",
+			"image": "baiken_hiiragi.tres"
+		},
+		{
+			"definition_id": "gg_normal_grasp",
+			"image": "normal_grasp.tres"
+		},
+		{
+			"definition_id": "gg_normal_grasp",
+			"image": "normal_grasp.tres"
+		},
+		{
+			"definition_id": "gg_normal_cross",
+			"image": "normal_cross.tres"
+		},
+		{
+			"definition_id": "gg_normal_cross",
+			"image": "normal_cross.tres"
+		},
+		{
+			"definition_id": "gg_normal_slash",
+			"image": "normal_assault.tres"
+		},
+		{
+			"definition_id": "gg_normal_slash",
+			"image": "normal_assault.tres"
+		},
+		{
+			"definition_id": "gg_normal_dive",
+			"image": "normal_dive.tres"
+		},
+		{
+			"definition_id": "gg_normal_dive",
+			"image": "normal_dive.tres"
+		},
+		{
+			"definition_id": "gg_normal_dust",
+			"image": "normal_spike.tres"
+		},
+		{
+			"definition_id": "gg_normal_dust",
+			"image": "normal_spike.tres"
+		},
+		{
+			"definition_id": "gg_normal_sweep",
+			"image": "normal_sweep.tres"
+		},
+		{
+			"definition_id": "gg_normal_sweep",
+			"image": "normal_sweep.tres"
+		},
+		{
+			"definition_id": "gg_normal_focus",
+			"image": "normal_focus.tres"
+		},
+		{
+			"definition_id": "gg_normal_focus",
+			"image": "normal_focus.tres"
+		},
+		{
+			"definition_id": "gg_normal_block",
+			"image": "normal_block.tres"
+		},
+		{
+			"definition_id": "gg_normal_block",
+			"image": "normal_block.tres"
+		}
+	]
+}

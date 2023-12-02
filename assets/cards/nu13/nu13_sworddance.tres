@@ -1,0 +1,7 @@
+[gd_resource type="AtlasTexture" load_steps=2 format=3 uid="uid://bbokdgeniu8sc"]
+
+[ext_resource type="Texture2D" uid="uid://dk62i3nhg7xwk" path="res://assets/cards/nu13/specials.jpg" id="1_saspi"]
+
+[resource]
+atlas = ExtResource("1_saspi")
+region = Rect2(2250, 0, 750, 1024)

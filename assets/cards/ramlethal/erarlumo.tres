@@ -1,0 +1,7 @@
+[gd_resource type="AtlasTexture" load_steps=2 format=3 uid="uid://2ouq883bj2ec"]
+
+[ext_resource type="Texture2D" uid="uid://bdqb1qcqv6dm" path="res://assets/cards/ramlethal/specials.jpg" id="1_rni2n"]
+
+[resource]
+atlas = ExtResource("1_rni2n")
+region = Rect2(2250, 0, 750, 1024)

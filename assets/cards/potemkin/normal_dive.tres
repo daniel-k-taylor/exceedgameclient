@@ -1,0 +1,7 @@
+[gd_resource type="AtlasTexture" load_steps=2 format=3 uid="uid://bxuruklwv2srg"]
+
+[ext_resource type="Texture2D" uid="uid://fyphlw48sljp" path="res://assets/cards/potemkin/normals.jpg" id="1_ma3ok"]
+
+[resource]
+atlas = ExtResource("1_ma3ok")
+region = Rect2(2250, 0, 750, 1024)

@@ -1,12 +1,16 @@
 {
 	"id": "solbadguy",
+	"season": 7,
 	"display_name": "Sol Badguy",
 	"cardback": "cardback_sol.jpg",
 	"exceed_cost": 3,
-	"on_exceed": "strike",
+	"on_exceed": {
+		"effect_type": "strike"
+	},
 	"ability_effects": [
 		{
-			"timing": "during_strike",
+			"character_effect": true,
+			"timing": "set_strike",
 			"condition": "canceled_this_turn",
 			"effect_type": "powerup",
 			"amount": 1
@@ -14,7 +18,8 @@
 	],
 	"exceed_ability_effects": [
 		{
-			"timing": "during_strike",
+			"character_effect": true,
+			"timing": "set_strike",
 			"condition": "canceled_this_turn",
 			"effect_type": "powerup",
 			"amount": 2
