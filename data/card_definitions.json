@@ -1327,8 +1327,7 @@
 				},
 				{
 					"timing": "after",
-					"effect_type": "add_to_gauge_immediately_mid_strike_undo_effects",
-					"undo_effect": "dodge_at_range"
+					"effect_type": "add_to_gauge_immediately_mid_strike_undo_effects"
 				}
 			]
 		},
@@ -1721,6 +1720,10 @@
 					"destination": "hand",
 					"amount": 1,
 					"amount_min": 1
+				},
+				{
+					"timing": "immediate",
+					"effect_type": "add_to_gauge_boost_play_cleanup"
 				}
 			]
 		}
@@ -1802,7 +1805,7 @@
 				"condition": "initiated_strike",
 				"effect_type": "choice",
 				"choice": [
-					{ 
+					{
 						"effect_type": "reveal_strike",
 						"and": {
 							"effect_type": "powerup",
@@ -2280,7 +2283,7 @@
 		"NOTEEND": "GIOVANNA CARDS END"
 	},
 
-	
+
 	{
 		"NOTE": "GOLDLEWIS CARDS START",
 		"id": "goldlewis_downwiththesystem",
@@ -2761,7 +2764,7 @@
 	},
 
 
-	
+
 	{
 		"NOTE": "INO CARDS START",
 		"id": "ino_megalomania",
@@ -2797,7 +2800,7 @@
 						{
 							"effect_type": "discard_opponent_gauge",
 							"UI_skip_summary": true,
-							"amount": 0,	
+							"amount": 0,
 							"amount2": 1
 						},
 						{
@@ -4775,7 +4778,7 @@
 				"condition": "exceeded",
 				"effect_type": "powerup",
 				"amount": 6,
-				"and": { 
+				"and": {
 					"effect_type": "draw",
 					"amount": 2,
 					"and": {
@@ -6484,7 +6487,7 @@
 		"NOTEEND": "SOL BADGUY CARDS END"
 	},
 
-	
+
 	{
 		"NOTE": "TESTAMENT CARDS START",
 		"id": "testament_nostrovia",
@@ -6832,13 +6835,13 @@
 					"condition": "not_stunned",
 					"effect_type": "choice",
 					"choice": [
-						{ 
+						{
 							"effect_type": "return_attack_to_hand",
 							"and": {
 								"effect_type": "add_boost_to_gauge_on_strike_cleanup",
 								"card_name": "Scythe Swing"
 							}
-					    },
+						},
 						{ "effect_type": "pass" }
 					]
 				}
@@ -6847,7 +6850,7 @@
 		"NOTEEND": "TESTAMENT CARDS END"
 	},
 
-	
+
 	{
 		"NOTE": "ZATO CARDS START",
 		"id": "zato_sunvoid",

@@ -7,7 +7,7 @@ func pick_turn_action(possible_actions : Array, _ai_game_state : AIPlayer.AIGame
 
 func pick_boost_action(possible_actions : Array, _ai_game_state : AIPlayer.AIGameState):
 	return possible_actions[randi() % len(possible_actions)]
-	
+
 func pick_pay_strike_gauge_cost(possible_actions : Array, _ai_game_state : AIPlayer.AIGameState):
 	return possible_actions[randi() % len(possible_actions)]
 
@@ -55,7 +55,7 @@ func pick_force_for_effect(possible_actions : Array, _ai_game_state : AIPlayer.A
 
 func pick_gauge_for_effect(possible_actions : Array, _ai_game_state : AIPlayer.AIGameState):
 	return possible_actions[randi() % len(possible_actions)]
-	
+
 func pick_choose_to_discard(possible_actions : Array, _ai_game_state : AIPlayer.AIGameState):
 	return possible_actions[randi() % len(possible_actions)]
 
