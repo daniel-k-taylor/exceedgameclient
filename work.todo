@@ -1,12 +1,14 @@
 In progress:
 
-    ☐ Faust remove sweep from play should undo-ex
-        ☐ Sweep
-        ☐ Love
-        ☐ Snip
-        ☐ BoneCrushing - revert range, - remove mid-before effects
-        ☐ Dust
-        ☐ Thrust - remove mid-before effects
+    ☐ Faust Unit tests!
+        ☐ Whatcouldthisbe interactions
+        ☐ Love removing stuff
+            ☐ Sweep
+            ☐ Love
+            ☐ Snip
+            ☐ BoneCrushing - revert range, - remove mid-before effects
+            ☐ Dust
+            ☐ Thrust - remove mid-before effects
 
 
     ☐ Investigate web browser tab running in background

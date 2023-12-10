@@ -15,7 +15,7 @@ dest_files=["res://.godot/imported/card_border_highlight.png-0551443892ec71f94e6
 
 [params]
 
-compress/mode=0
+compress/mode=1
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/hdr_compression=1

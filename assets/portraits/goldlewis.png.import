@@ -15,7 +15,7 @@ dest_files=["res://.godot/imported/goldlewis.png-b2b596e995993a4e0ce83fb53b46887
 
 [params]
 
-compress/mode=0
+compress/mode=1
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/hdr_compression=1

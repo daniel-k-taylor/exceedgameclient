@@ -15,7 +15,7 @@ dest_files=["res://.godot/imported/sheet.png-9d0009c6e3b4af5542656d33fe0e17d6.ct
 
 [params]
 
-compress/mode=0
+compress/mode=1
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/hdr_compression=1

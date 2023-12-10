@@ -15,7 +15,7 @@ dest_files=["res://.godot/imported/sol_run_sheet.png-43664b34f1afaee7649de442479
 
 [params]
 
-compress/mode=0
+compress/mode=1
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/hdr_compression=1

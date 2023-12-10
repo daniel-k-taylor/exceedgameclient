@@ -2799,7 +2799,7 @@ func ai_choose_to_discard(amount, limitation, can_pass):
 	else:
 		print("FAILED AI CHOOSE TO DISCARD")
 
-func ai_choose_from_topdeck(action_choices : Array[String], look_amount : int, can_pass : bool):
+func ai_choose_from_topdeck(action_choices : Array, look_amount : int, can_pass : bool):
 	change_ui_state(UIState.UIState_WaitForGameServer)
 	if not game_wrapper.is_ai_game(): return
 	var choose_topdeck_action = ai_player.pick_choose_from_topdeck(game_wrapper.current_game, Enums.PlayerId.PlayerId_Opponent, action_choices, look_amount, can_pass)

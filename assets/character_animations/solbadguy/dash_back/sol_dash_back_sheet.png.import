@@ -15,7 +15,7 @@ dest_files=["res://.godot/imported/sol_dash_back_sheet.png-318e1d788a79425f5e917
 
 [params]
 
-compress/mode=0
+compress/mode=1
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/hdr_compression=1

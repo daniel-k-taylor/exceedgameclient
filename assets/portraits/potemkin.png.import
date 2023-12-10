@@ -15,7 +15,7 @@ dest_files=["res://.godot/imported/potemkin.png-6ec7622768bd83b3ad9f21104f18283c
 
 [params]
 
-compress/mode=0
+compress/mode=1
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/hdr_compression=1

@@ -15,7 +15,7 @@ dest_files=["res://.godot/imported/questionmark.png-756d74a585a3ea7a834364530b28
 
 [params]
 
-compress/mode=0
+compress/mode=1
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/hdr_compression=1

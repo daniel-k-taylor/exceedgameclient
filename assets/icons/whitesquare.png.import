@@ -15,7 +15,7 @@ dest_files=["res://.godot/imported/whitesquare.png-e6f166146dcb669ea75b29758bec2
 
 [params]
 
-compress/mode=0
+compress/mode=1
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/hdr_compression=1

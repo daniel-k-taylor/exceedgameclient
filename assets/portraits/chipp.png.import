@@ -15,7 +15,7 @@ dest_files=["res://.godot/imported/chipp.png-599bd884ff9bb37897acda6c0f16de9f.ct
 
 [params]
 
-compress/mode=0
+compress/mode=1
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/hdr_compression=1

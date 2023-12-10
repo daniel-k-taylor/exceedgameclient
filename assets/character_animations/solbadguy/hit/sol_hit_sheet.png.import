@@ -15,7 +15,7 @@ dest_files=["res://.godot/imported/sol_hit_sheet.png-bf0d98cb1bb0a5cb6294a5e9155
 
 [params]
 
-compress/mode=0
+compress/mode=1
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/hdr_compression=1

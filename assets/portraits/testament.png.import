@@ -15,7 +15,7 @@ dest_files=["res://.godot/imported/testament.png-6d5daf7b6e90e2ba47c0a7a49a62974
 
 [params]
 
-compress/mode=0
+compress/mode=1
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/hdr_compression=1

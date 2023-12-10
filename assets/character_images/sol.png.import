@@ -15,7 +15,7 @@ dest_files=["res://.godot/imported/sol.png-88a4030fe8ae86979c7ffc9f0f214d0d.ctex
 
 [params]
 
-compress/mode=0
+compress/mode=1
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/hdr_compression=1

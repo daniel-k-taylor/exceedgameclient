@@ -15,7 +15,7 @@ dest_files=["res://.godot/imported/discard.png-fc80dcce1f337069f62fc64f58fc0cb0.
 
 [params]
 
-compress/mode=0
+compress/mode=1
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/hdr_compression=1
