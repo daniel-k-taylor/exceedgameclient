@@ -6497,8 +6497,8 @@
 		"gauge_cost": 4,
 		"range_min": 3,
 		"range_max": 3,
-		"speed": 4,
-		"power": 5,
+		"speed": 5,
+		"power": 6,
 		"armor": 0,
 		"guard": 0,
 		"effects": [
