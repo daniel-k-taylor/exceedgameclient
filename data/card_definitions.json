@@ -7570,12 +7570,25 @@
 			"boost_type": "continuous",
 			"force_cost": 0,
 			"cancel_cost": -1,
-			"display_name": "Fierce",
+			"display_name": "Respect",
 			"effects": [
 				{
-					"timing": "during_strike",
-					"effect_type": "powerup",
-					"amount": 2
+					"timing": "now",
+					"effect_type": "choice",
+					"choice": [
+						{ "effect_type": "advance", "amount": 1 },
+						{ "effect_type": "advance", "amount": 2 },
+						{ "effect_type": "advance", "amount": 3 },
+						{ "effect_type": "pass" }
+					]
+				},
+				{
+					"timing": "start_of_next_turn",
+					"effect_type": "draw",
+					"amount": 2,
+					"and": {
+						"effect_type": "discard_this"
+					}
 				}
 			]
 		}

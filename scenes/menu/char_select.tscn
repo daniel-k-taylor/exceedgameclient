@@ -231,6 +231,30 @@ layout_mode = 2
 char_id = "zato"
 portrait_texture = ExtResource("25_wi4bn")
 
+[node name="UNICharacterSelect" type="PanelContainer" parent="CenterContainer"]
+layout_mode = 2
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxEmpty_8u80i")
+
+[node name="Rows" type="VBoxContainer" parent="CenterContainer/UNICharacterSelect"]
+layout_mode = 2
+mouse_filter = 2
+alignment = 1
+
+[node name="Row1" type="HBoxContainer" parent="CenterContainer/UNICharacterSelect/Rows"]
+layout_mode = 2
+alignment = 1
+
+[node name="Yuzu" parent="CenterContainer/UNICharacterSelect/Rows/Row1" instance=ExtResource("6_3lmwy")]
+layout_mode = 2
+char_id = "yuzu"
+portrait_texture = ExtResource("8_f1r6m")
+
+[node name="RandomBB" parent="CenterContainer/UNICharacterSelect/Rows/Row1" instance=ExtResource("6_3lmwy")]
+layout_mode = 2
+char_id = "random_s5"
+portrait_texture = ExtResource("29_7gojn")
+
 [node name="BBCharacterSelect" type="PanelContainer" parent="CenterContainer"]
 layout_mode = 2
 mouse_filter = 2
@@ -276,6 +300,11 @@ layout_mode = 2
 [node name="Season5" parent="TabSelect/CategoriesHBox" instance=ExtResource("6_3lmwy")]
 layout_mode = 2
 char_id = "season5"
+portrait_texture = ExtResource("29_7gojn")
+
+[node name="Season6" parent="TabSelect/CategoriesHBox" instance=ExtResource("6_3lmwy")]
+layout_mode = 2
+char_id = "season6"
 portrait_texture = ExtResource("29_7gojn")
 
 [node name="Season7" parent="TabSelect/CategoriesHBox" instance=ExtResource("6_3lmwy")]
@@ -326,11 +355,17 @@ portrait_texture = ExtResource("8_vlgsf")
 [connection signal="on_pressed" from="CenterContainer/GGCharacterSelect/Rows/Row5/Faust" to="." method="_on_char_button_on_pressed"]
 [connection signal="on_hover" from="CenterContainer/GGCharacterSelect/Rows/Row5/Zato" to="." method="_on_char_hover"]
 [connection signal="on_pressed" from="CenterContainer/GGCharacterSelect/Rows/Row5/Zato" to="." method="_on_char_button_on_pressed"]
+[connection signal="on_hover" from="CenterContainer/UNICharacterSelect/Rows/Row1/Yuzu" to="." method="_on_char_hover"]
+[connection signal="on_pressed" from="CenterContainer/UNICharacterSelect/Rows/Row1/Yuzu" to="." method="_on_char_button_on_pressed"]
+[connection signal="on_hover" from="CenterContainer/UNICharacterSelect/Rows/Row1/RandomBB" to="." method="_on_char_hover"]
+[connection signal="on_pressed" from="CenterContainer/UNICharacterSelect/Rows/Row1/RandomBB" to="." method="_on_char_button_on_pressed"]
 [connection signal="on_hover" from="CenterContainer/BBCharacterSelect/Rows/Row1/Nu13" to="." method="_on_char_hover"]
 [connection signal="on_pressed" from="CenterContainer/BBCharacterSelect/Rows/Row1/Nu13" to="." method="_on_char_button_on_pressed"]
 [connection signal="on_hover" from="CenterContainer/BBCharacterSelect/Rows/Row1/RandomBB" to="." method="_on_char_hover"]
 [connection signal="on_pressed" from="CenterContainer/BBCharacterSelect/Rows/Row1/RandomBB" to="." method="_on_char_button_on_pressed"]
 [connection signal="on_hover" from="TabSelect/CategoriesHBox/Season5" to="." method="_on_char_hover"]
 [connection signal="on_pressed" from="TabSelect/CategoriesHBox/Season5" to="." method="_on_char_button_on_pressed"]
+[connection signal="on_hover" from="TabSelect/CategoriesHBox/Season6" to="." method="_on_char_hover"]
+[connection signal="on_pressed" from="TabSelect/CategoriesHBox/Season6" to="." method="_on_char_button_on_pressed"]
 [connection signal="on_hover" from="TabSelect/CategoriesHBox/Season7" to="." method="_on_char_hover"]
 [connection signal="on_pressed" from="TabSelect/CategoriesHBox/Season7" to="." method="_on_char_button_on_pressed"]

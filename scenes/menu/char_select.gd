@@ -7,9 +7,11 @@ signal close_character_select
 @onready var hover_portrait : TextureRect = $HoverBox/HBoxContainer/VBoxContainer/Portrait
 
 @onready var charselect_s5 = $CenterContainer/BBCharacterSelect
+@onready var charselect_s6 = $CenterContainer/UNICharacterSelect
 @onready var charselect_s7 = $CenterContainer/GGCharacterSelect
 
 @onready var season_button_s5 = $TabSelect/CategoriesHBox/Season5
+@onready var season_button_s6 = $TabSelect/CategoriesHBox/Season6
 @onready var season_button_s7 = $TabSelect/CategoriesHBox/Season7
 
 var default_char_id : String = "random"
@@ -41,10 +43,12 @@ func _on_background_button_pressed():
 
 func show_season(node, selector_button):
 	charselect_s5.visible = false
+	charselect_s6.visible = false
 	charselect_s7.visible = false
 	node.visible = true
 
 	season_button_s5.set_selected(false)
+	season_button_s6.set_selected(false)
 	season_button_s7.set_selected(false)
 	selector_button.set_selected(true)
 
@@ -53,6 +57,8 @@ func _on_char_button_on_pressed(character_id : String):
 		# Get the int season from the last character of the str.
 		if character_id == "season5":
 			show_season(charselect_s5, season_button_s5)
+		elif character_id == "season6":
+			show_season(charselect_s6, season_button_s6)
 		elif character_id == "season7":
 			show_season(charselect_s7, season_button_s7)
 	else:

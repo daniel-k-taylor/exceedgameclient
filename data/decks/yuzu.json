@@ -2,7 +2,7 @@
 	"id": "yuzu",
 	"season": 6,
 	"display_name": "Yuzuriha",
-	"cardback": "cardback_defaultexceed.jpg",
+	"cardback": "cardback_defaultexceed.png",
 	"exceed_cost": 1,
 	"character_action_default": {
 		"gauge_cost": 0,
@@ -110,11 +110,11 @@
 			"image": "normal_cross.tres"
 		},
 		{
-			"definition_id": "uni_normal_slash",
+			"definition_id": "uni_normal_assault",
 			"image": "normal_assault.tres"
 		},
 		{
-			"definition_id": "uni_normal_slash",
+			"definition_id": "uni_normal_assault",
 			"image": "normal_assault.tres"
 		},
 		{
@@ -126,11 +126,11 @@
 			"image": "normal_dive.tres"
 		},
 		{
-			"definition_id": "uni_normal_dust",
+			"definition_id": "uni_normal_spike",
 			"image": "normal_spike.tres"
 		},
 		{
-			"definition_id": "uni_normal_dust",
+			"definition_id": "uni_normal_spike",
 			"image": "normal_spike.tres"
 		},
 		{
