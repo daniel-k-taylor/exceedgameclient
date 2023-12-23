@@ -7613,20 +7613,14 @@
 			}
 		],
 		"boost": {
-			"boost_type": "immediate",
+			"boost_type": "continuous",
 			"force_cost": 0,
 			"cancel_cost": -1,
-			"display_name": "Run",
+			"display_name": "Superior",
 			"effects": [
 				{
-					"timing": "immediate",
-					"effect_type": "choice",
-					"choice": [
-						{ "effect_type": "advance", "amount": 1 },
-						{ "effect_type": "advance", "amount": 2 },
-						{ "effect_type": "advance", "amount": 3 },
-						{ "effect_type": "pass" }
-					]
+					"timing": "during_strike",
+					"effect_type": "attack_is_ex"
 				}
 			]
 		}
@@ -7658,17 +7652,14 @@
 			"boost_type": "immediate",
 			"force_cost": 0,
 			"cancel_cost": -1,
-			"display_name": "Backstep",
+			"display_name": "Air Dash",
 			"effects": [
 				{
 					"timing": "immediate",
 					"effect_type": "choice",
 					"choice": [
-						{ "effect_type": "retreat", "amount": 1 },
-						{ "effect_type": "retreat", "amount": 2 },
-						{ "effect_type": "retreat", "amount": 3 },
-						{ "effect_type": "retreat", "amount": 4 },
-						{ "effect_type": "pass" }
+						{ "effect_type": "close", "amount": 3 },
+						{ "effect_type": "retreat", "amount": 3 }
 					]
 				}
 			]
@@ -7701,13 +7692,15 @@
 			"boost_type": "immediate",
 			"force_cost": 0,
 			"cancel_cost": -1,
-			"display_name": "Tech",
+			"display_name": "Reading",
 			"effects": [
 				{
 					"timing": "immediate",
-					"effect_type": "discard_continuous_boost",
-					"required": true,
-					"amount": 1
+					"effect_type": "reading_normal"
+				},
+				{
+					"timing": "immediate",
+					"effect_type": "strike"
 				}
 			]
 		}
@@ -7734,20 +7727,26 @@
 			}
 		],
 		"boost": {
-			"boost_type": "continuous",
+			"boost_type": "immediate",
 			"force_cost": 0,
 			"cancel_cost": -1,
-			"display_name": "Defend",
+			"display_name": "Mixup",
 			"effects": [
 				{
-					"timing": "during_strike",
-					"effect_type": "armorup",
-					"amount": 1
+					"timing": "immediate",
+					"effect_type": "choice",
+					"choice": [
+						{ "effect_type": "close", "amount": 1 },
+						{ "effect_type": "retreat", "amount": 1 }
+					]
 				},
 				{
-					"timing": "during_strike",
-					"effect_type": "guardup",
-					"amount": 3
+					"timing": "immediate",
+					"effect_type": "strike_effect_after_setting",
+					"after_set_effect": {
+						"effect_type": "draw",
+						"amount": 1
+					}
 				}
 			]
 		}
@@ -7775,12 +7774,20 @@
 			"boost_type": "continuous",
 			"force_cost": 0,
 			"cancel_cost": -1,
-			"display_name": "Light",
+			"display_name": "Just Defense",
 			"effects": [
 				{
 					"timing": "during_strike",
-					"effect_type": "speedup",
-					"amount": 2
+					"effect_type": "armorup",
+					"amount": 3
+				},
+				{
+					"timing": "immediate",
+					"effect_type": "strike"
+				},
+				{
+					"timing": "after",
+					"effect_type": "lose_all_armor"
 				}
 			]
 		}
@@ -7812,15 +7819,15 @@
 			"boost_type": "immediate",
 			"force_cost": 0,
 			"cancel_cost": -1,
-			"display_name": "Reading",
+			"display_name": "Veil Off",
 			"effects": [
 				{
 					"timing": "immediate",
-					"effect_type": "reading_normal"
+					"effect_type": "exceed_now"
 				},
 				{
 					"timing": "immediate",
-					"effect_type": "strike"
+					"effect_type": "add_to_gauge_boost_play_cleanup"
 				}
 			]
 		}
@@ -7853,11 +7860,17 @@
 			"boost_type": "immediate",
 			"force_cost": 0,
 			"cancel_cost": -1,
-			"display_name": "Parry",
+			"display_name": "Tech Hit",
 			"effects": [
 				{
 					"timing": "immediate",
-					"effect_type": "name_card_opponent_discards"
+					"effect_type": "discard_continuous_boost",
+					"required": true,
+					"amount": 1
+				},
+				{
+					"timing": "immediate",
+					"effect_type": "strike"
 				}
 			]
 		},
