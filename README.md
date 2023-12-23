@@ -17,3 +17,6 @@ This project is paired with a game server written in nodeJS.
         - ai - ai related scripts
 - test - GUT automated tests
 
+# Server
+See server project:
+https://github.com/daniel-k-taylor/exceedgameserver
