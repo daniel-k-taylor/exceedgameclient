@@ -7540,6 +7540,316 @@
 		},
 		"NOTEEND": "GG NORMALS END"
 	},
+	
+	{
+		"NOTE": "UNI NORMALS START",
+		"id": "uni_normal_grasp",
+		"type": "normal",
+		"display_name": "Grasp",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 1,
+		"speed": 7,
+		"power": 3,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "hit",
+				"effect_type": "choice",
+				"choice": [
+					{ "effect_type": "push", "amount": 1 },
+					{ "effect_type": "push", "amount": 2 },
+					{ "effect_type": "pull", "amount": 1 },
+					{ "effect_type": "pull", "amount": 2 }
+				]
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Fierce",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "powerup",
+					"amount": 2
+				}
+			]
+		}
+	},
+	{
+		"id": "uni_normal_cross",
+		"type": "normal",
+		"display_name": "Cross",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 2,
+		"speed": 6,
+		"power": 3,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "after",
+				"effect_type": "retreat",
+				"amount": 3
+			}
+		],
+		"boost": {
+			"boost_type": "immediate",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Run",
+			"effects": [
+				{
+					"timing": "immediate",
+					"effect_type": "choice",
+					"choice": [
+						{ "effect_type": "advance", "amount": 1 },
+						{ "effect_type": "advance", "amount": 2 },
+						{ "effect_type": "advance", "amount": 3 },
+						{ "effect_type": "pass" }
+					]
+				}
+			]
+		}
+	},
+	{
+		"id": "uni_normal_assault",
+		"type": "normal",
+		"display_name": "Assault",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 1,
+		"speed": 5,
+		"power": 4,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "before",
+				"effect_type": "close",
+				"amount": 2
+			},
+			{
+				"timing": "hit",
+				"effect_type": "gain_advantage"
+			}
+		],
+		"boost": {
+			"boost_type": "immediate",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Backstep",
+			"effects": [
+				{
+					"timing": "immediate",
+					"effect_type": "choice",
+					"choice": [
+						{ "effect_type": "retreat", "amount": 1 },
+						{ "effect_type": "retreat", "amount": 2 },
+						{ "effect_type": "retreat", "amount": 3 },
+						{ "effect_type": "retreat", "amount": 4 },
+						{ "effect_type": "pass" }
+					]
+				}
+			]
+		}
+	},
+	{
+		"id": "uni_normal_dive",
+		"type": "normal",
+		"display_name": "Dive",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 1,
+		"speed": 4,
+		"power": 5,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "before",
+				"effect_type": "advance",
+				"amount": 3,
+				"bonus_effect": {
+					"effect_type": "dodge_attacks",
+					"condition": "advanced_through"
+				}
+			}
+		],
+		"boost": {
+			"boost_type": "immediate",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Tech",
+			"effects": [
+				{
+					"timing": "immediate",
+					"effect_type": "discard_continuous_boost",
+					"required": true,
+					"amount": 1
+				}
+			]
+		}
+	},
+	{
+		"id": "uni_normal_spike",
+		"type": "normal",
+		"display_name": "Spike",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 2,
+		"range_max": 3,
+		"speed": 3,
+		"power": 5,
+		"armor": 0,
+		"guard": 4,
+		"effects": [
+			{
+				"timing": "during_strike",
+				"effect_type": "ignore_armor",
+				"and": {
+					"effect_type": "ignore_guard"
+				}
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Defend",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "armorup",
+					"amount": 1
+				},
+				{
+					"timing": "during_strike",
+					"effect_type": "guardup",
+					"amount": 3
+				}
+			]
+		}
+	},
+	{
+		"id": "uni_normal_sweep",
+		"type": "normal",
+		"display_name": "Sweep",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 3,
+		"speed": 2,
+		"power": 6,
+		"armor": 0,
+		"guard": 6,
+		"effects": [
+			{
+				"timing": "hit",
+				"effect_type": "opponent_discard_random",
+				"amount": 1
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Light",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "speedup",
+					"amount": 2
+				}
+			]
+		}
+	},
+	{
+		"id": "uni_normal_focus",
+		"type": "normal",
+		"display_name": "Focus",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 2,
+		"speed": 1,
+		"power": 4,
+		"armor": 2,
+		"guard": 5,
+		"effects": [
+			{
+				"timing": "during_strike",
+				"effect_type": "ignore_push_and_pull"
+			},
+			{
+				"timing": "after",
+				"effect_type": "draw",
+				"amount": 1
+			}
+		],
+		"boost": {
+			"boost_type": "immediate",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Reading",
+			"effects": [
+				{
+					"timing": "immediate",
+					"effect_type": "reading_normal"
+				},
+				{
+					"timing": "immediate",
+					"effect_type": "strike"
+				}
+			]
+		}
+	},
+	{
+		"NOTE": "UNI NORMALS END",
+		"id": "uni_normal_block",
+		"type": "normal",
+		"display_name": "Block",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": -1,
+		"range_max": -1,
+		"speed": 0,
+		"power": -1,
+		"armor": 2,
+		"guard": 3,
+		"effects": [
+			{
+				"timing": "during_strike",
+				"effect_type": "when_hit_force_for_armor",
+				"amount": 2
+			},
+			{
+				"timing": "after",
+				"effect_type": "add_strike_to_gauge_after_cleanup"
+			}
+		],
+		"boost": {
+			"boost_type": "immediate",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Parry",
+			"effects": [
+				{
+					"timing": "immediate",
+					"effect_type": "name_card_opponent_discards"
+				}
+			]
+		},
+		"NOTEEND": "UNI NORMALS END"
+	},
 
 	{
 		"NOTE": "STANDARD NORMALS START",
