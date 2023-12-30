@@ -27,9 +27,11 @@ var all_cards : Array = []
 var game_over : bool = false
 var game_over_winning_player : Player = null
 var active_strike : Strike = null
+var active_character_action : bool = false
 var active_exceed : bool = false
 var active_overdrive : bool = false
 var remaining_overdrive_effects = []
+var remaining_character_action_effects = []
 
 var decision_info : DecisionInfo = DecisionInfo.new()
 var active_boost : Boost = null
@@ -1649,6 +1651,9 @@ func is_effect_condition_met(performing_player : Player, effect, local_condition
 		elif condition == "max_cards_in_hand":
 			var amount = effect['condition_amount']
 			return performing_player.hand.size() <= amount
+		elif condition == "min_cards_in_gauge":
+			var amount = effect['condition_amount']
+			return performing_player.gauge.size() >= amount
 		elif condition == "manual_reshuffle":
 			return local_conditions.manual_reshuffle
 		elif condition == "no_strike_this_turn":
@@ -2445,13 +2450,19 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 		"when_hit_force_for_armor":
 			performing_player.strike_stat_boosts.when_hit_force_for_armor = true
 
-	if not game_state == Enums.GameState.GameState_PlayerDecision and "and" in effect:
-		var and_effect = effect['and']
-		events += do_effect_if_condition_met(performing_player, card_id, and_effect, local_conditions)
+	if "and" in effect:
+		if not game_state == Enums.GameState.GameState_PlayerDecision:
+			var and_effect = effect['and']
+			events += do_effect_if_condition_met(performing_player, card_id, and_effect, local_conditions)
+		elif active_character_action:
+			remaining_character_action_effects.append(effect['and'])
 
-	if not game_state == Enums.GameState.GameState_PlayerDecision and "bonus_effect" in effect:
-		var bonus_effect = effect['bonus_effect']
-		events += do_effect_if_condition_met(performing_player, card_id, bonus_effect, local_conditions)
+	if "bonus_effect" in effect:
+		if not game_state == Enums.GameState.GameState_PlayerDecision:
+			var bonus_effect = effect['bonus_effect']
+			events += do_effect_if_condition_met(performing_player, card_id, bonus_effect, local_conditions)
+		elif active_character_action:
+			remaining_character_action_effects.append(effect['bonus_effect'])
 
 	return events
 
@@ -2573,6 +2584,22 @@ func do_remaining_overdrive(performing_player : Player):
 		change_game_state(Enums.GameState.GameState_PickAction)
 		events += [create_event(Enums.EventType.EventType_AdvanceTurn, active_turn_player, 0)]
 
+	return events
+	
+func do_remaining_character_action(performing_player : Player):
+	var events = []
+	change_game_state(Enums.GameState.GameState_Boost_Processing)
+	while remaining_character_action_effects.size() > 0:
+		var effect = remaining_character_action_effects[0]
+		remaining_character_action_effects.erase(effect)
+		events += do_effect_if_condition_met(performing_player, -1, effect, null)
+		if game_state == Enums.GameState.GameState_PlayerDecision:
+			# Player has a decision to make, so stop mid-effect resolve.
+			break
+
+	if game_state != Enums.GameState.GameState_PlayerDecision:
+		active_character_action = false
+		events += check_hand_size_advance_turn(performing_player)
 	return events
 
 func do_effects_for_timing(timing_name : String, performing_player : Player, card : GameCard, next_state):
@@ -3609,6 +3636,8 @@ func do_card_from_hand_to_gauge(performing_player : Player, card_ids : Array) ->
 	elif active_strike:
 		active_strike.effects_resolved_in_timing += 1
 		events = continue_resolve_strike(events)
+	elif active_character_action:
+		events += do_remaining_character_action(performing_player)
 	elif active_exceed:
 		active_exceed = false
 		events += check_hand_size_advance_turn(performing_player)
@@ -3671,6 +3700,8 @@ func do_choice(performing_player : Player, choice_index : int) -> bool:
 		game_state = Enums.GameState.GameState_Boost_Processing
 	elif active_strike:
 		game_state = Enums.GameState.GameState_Strike_Processing
+	elif active_character_action:
+		game_state = Enums.GameState.GameState_Boost_Processing
 	elif active_exceed:
 		game_state = Enums.GameState.GameState_Boost_Processing
 
@@ -3694,6 +3725,8 @@ func do_choice(performing_player : Player, choice_index : int) -> bool:
 			elif active_strike:
 				active_strike.effects_resolved_in_timing += 1
 				events = continue_resolve_strike(events)
+			elif active_character_action:
+				events += do_remaining_character_action(performing_player)
 			elif active_exceed:
 				active_exceed = false
 				events += check_hand_size_advance_turn(performing_player)
@@ -4098,9 +4131,12 @@ func do_character_action(performing_player : Player, card_ids):
 	# Do the character action effects.
 	events += [create_event(Enums.EventType.EventType_CharacterAction, performing_player.my_id, 0)]
 	performing_player.used_character_action = true
+	remaining_character_action_effects = []
+	active_character_action = true
 	events += handle_strike_effect(-1, action['effect'], performing_player)
 	if game_state != Enums.GameState.GameState_WaitForStrike and not wait_for_mid_strike_boost() and game_state != Enums.GameState.GameState_PlayerDecision:
 		events += check_hand_size_advance_turn(performing_player)
+		active_character_action = false
 	event_queue += events
 	return true
 
