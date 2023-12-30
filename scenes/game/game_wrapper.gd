@@ -248,6 +248,10 @@ func can_move_to(player_id : Enums.PlayerId, location : int) -> bool:
 func can_do_character_action(player_id : Enums.PlayerId) -> bool:
 	var game_player = _get_player(player_id)
 	return game_player.can_do_character_action()
+	
+func can_do_s6_revert(player_id : Enums.PlayerId) -> bool:
+	var game_player = _get_player(player_id)
+	return game_player.can_do_s6_revert()
 
 ### Action Functions ###
 
@@ -334,6 +338,10 @@ func submit_choose_to_discard(player: Enums.PlayerId, card_ids : Array) -> bool:
 func submit_character_action(player: Enums.PlayerId, card_ids : Array) -> bool:
 	var game_player = _get_player(player)
 	return current_game.do_character_action(game_player, card_ids)
+	
+func submit_s6_revert(player: Enums.PlayerId, card_ids : Array) -> bool:
+	var game_player = _get_player(player)
+	return current_game.do_s6_revert(game_player, card_ids)
 
 func submit_bonus_turn_action(player: Enums.PlayerId, action_index : int) -> bool:
 	var game_player = _get_player(player)

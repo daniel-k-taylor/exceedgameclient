@@ -4,6 +4,7 @@
 	"display_name": "Yuzuriha",
 	"cardback": "cardback_defaultexceed.png",
 	"exceed_cost": 1,
+	"s6_revert_action": true,
 	"character_action_default": {
 		"gauge_cost": 0,
 		"force_cost": 0,
