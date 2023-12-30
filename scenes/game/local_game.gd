@@ -246,6 +246,7 @@ class StrikeStatBoosts:
 	var higher_speed_misses : bool = false
 	var opponent_cant_move_past : bool = false
 	var calculate_range_from_buddy : bool = false
+	var discard_attack_on_cleanup : bool = false
 	var seal_attack_on_cleanup : bool = false
 	var speed_bonus_multiplier : int = 1
 	var active_character_effects = []
@@ -277,6 +278,7 @@ class StrikeStatBoosts:
 		higher_speed_misses = false
 		opponent_cant_move_past = false
 		calculate_range_from_buddy = false
+		discard_attack_on_cleanup = false
 		seal_attack_on_cleanup = false
 		speed_bonus_multiplier = 1
 		active_character_effects = []
@@ -1913,6 +1915,8 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 				_append_log("%s discarded %s from boosts." % [performing_player.name, card_db.get_card_name(card.id)])
 				events += performing_player.remove_from_continuous_boosts(card, false)
 				events += opposing_player.remove_from_continuous_boosts(card, false)
+		"discard_strike_after_cleanup":
+			performing_player.strike_stat_boosts.discard_attack_on_cleanup = true
 		"discard_opponent_topdeck":
 			events += opposing_player.discard_topdeck()
 		"dodge_at_range":
@@ -2988,6 +2992,8 @@ func handle_strike_attack_cleanup(performing_player : Player, card):
 	var other_player = _get_player(get_other_player(performing_player.my_id))
 	if performing_player.is_set_aside_card(card.id):
 		events += [create_event(Enums.EventType.EventType_SetCardAside, performing_player.my_id, card.id)]
+	elif performing_player.strike_stat_boosts.discard_attack_on_cleanup:
+		events += performing_player.add_to_discards(card)
 	elif performing_player.strike_stat_boosts.seal_attack_on_cleanup:
 		events += performing_player.add_to_sealed(card)
 	elif performing_player.strike_stat_boosts.return_attack_to_hand:

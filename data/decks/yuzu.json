@@ -36,6 +36,10 @@
 	"ability_effects": [
 	],
 	"exceed_ability_effects": [
+		{
+			"timing": "cleanup",
+			"effect_type": "discard_strike_after_cleanup"
+		}
 	],
 	"cards": [
 		{
