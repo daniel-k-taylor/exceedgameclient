@@ -252,7 +252,7 @@ portrait_texture = ExtResource("8_f1r6m")
 
 [node name="RandomBB" parent="CenterContainer/UNICharacterSelect/Rows/Row1" instance=ExtResource("6_3lmwy")]
 layout_mode = 2
-char_id = "random_s5"
+char_id = "random_s6"
 portrait_texture = ExtResource("29_7gojn")
 
 [node name="BBCharacterSelect" type="PanelContainer" parent="CenterContainer"]

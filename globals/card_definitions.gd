@@ -29,6 +29,8 @@ func get_random_deck(season : int):
 func get_deck_from_str_id(str_id : String):
 	if str_id == "random_s7":
 		return get_random_deck(7)
+	if str_id == "random_s6":
+		return get_random_deck(6)
 	if str_id == "random_s5":
 		return get_random_deck(5)
 	if str_id == "random":
