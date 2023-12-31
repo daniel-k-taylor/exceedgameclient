@@ -4217,6 +4217,7 @@ func do_character_action(performing_player : Player, card_ids):
 			Enums.GameState.GameState_Strike_Opponent_Set_First
 	] and not wait_for_mid_strike_boost():
 		events += check_hand_size_advance_turn(performing_player)
+	if game_state != Enums.GameState.GameState_PlayerDecision:
 		active_character_action = false
 	event_queue += events
 	return true
@@ -4239,9 +4240,13 @@ func do_s6_revert(performing_player : Player, card_ids):
 	
 	# Begin the revert action.
 	active_revert = true
+	change_game_state(Enums.GameState.GameState_PlayerDecision)
+	decision_info.type = Enums.DecisionType.DecisionType_CardFromHandToGauge
+	decision_info.player = performing_player.my_id
+	decision_info.choice_card_id = card_ids[0]
+	decision_info.destination = "gauge"
 	events += [create_event(Enums.EventType.EventType_RevertAction, performing_player.my_id, 0)]
 	event_queue += events
-	game_state = Enums.GameState.GameState_PlayerDecision
 	return do_card_from_hand_to_gauge(performing_player, card_ids)
 
 func do_bonus_turn_action(performing_player : Player, action_index : int):
