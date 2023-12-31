@@ -49,6 +49,7 @@ enum GameState {
 	GameState_WaitForStrike,
 	GameState_PlayerDecision,
 	GameState_Strike_Opponent_Response,
+	GameState_Strike_Opponent_Set_First,
 	GameState_Strike_Processing,
 }
 
@@ -121,10 +122,13 @@ enum EventType {
 	EventType_Strike_ChooseToDiscard,
 	EventType_Strike_ChooseToDiscard_Info,
 	EventType_Strike_OpponentCantMovePast,
+	EventType_Strike_OpponentSetsFirst,
+	EventType_Strike_OpponentSetsFirst_DefenderSet,
+	EventType_Strike_OpponentSetsFirst_InitiatorSet,
 	EventType_Strike_PayCost_Gauge,
 	EventType_Strike_PayCost_Force,
 	EventType_Strike_PayCost_Unable,
-	EventType_Strike_PowerUp,					# 64
+	EventType_Strike_PowerUp,					# 67
 	EventType_Strike_RangeUp,
 	EventType_Strike_Response,
 	EventType_Strike_Response_Ex,

@@ -95,6 +95,7 @@ func trigger_game_over(event_player : Enums.PlayerId, reason : Enums.GameOverRea
 enum StrikeState {
 	StrikeState_None,
 	StrikeState_Initiator_SetEffects,
+	StrikeState_Defender_SetFirst,
 	StrikeState_Defender_SetEffects,
 	StrikeState_Initiator_PayCosts,
 	StrikeState_Defender_PayCosts,
@@ -133,6 +134,7 @@ class Strike:
 	var strike_state
 	var starting_distance : int = -1
 	var in_setup : bool = true
+	var opponent_sets_first : bool = false
 	var remaining_effect_list : Array = []
 	var effects_resolved_in_timing : int = 0
 	var player1_hit : bool = false
@@ -1469,10 +1471,15 @@ func advance_to_next_turn():
 			events += [create_event(Enums.EventType.EventType_AdvanceTurn, active_turn_player, 0)]
 	return events
 
-func initialize_new_strike():
+func initialize_new_strike(performing_player : Player, opponent_sets_first : bool):
 	active_strike = Strike.new()
-	active_strike.strike_state = StrikeState.StrikeState_Initiator_SetEffects
 	active_strike.effects_resolved_in_timing = 0
+	
+	active_strike.opponent_sets_first = opponent_sets_first
+	if !opponent_sets_first:
+		active_strike.strike_state = StrikeState.StrikeState_Initiator_SetEffects
+	else:
+		active_strike.strike_state = StrikeState.StrikeState_Defender_SetFirst
 
 	player.strike_stat_boosts.clear()
 	opponent.strike_stat_boosts.clear()
@@ -1480,6 +1487,9 @@ func initialize_new_strike():
 	opponent.bonus_actions = 0
 
 	active_strike.starting_distance = abs(player.arena_location - opponent.arena_location)
+	
+	active_strike.initiator = performing_player
+	active_strike.defender = _get_player(get_other_player(performing_player.my_id))
 
 func continue_setup_strike(events):
 	if active_strike.strike_state == StrikeState.StrikeState_Initiator_SetEffects:
@@ -1493,33 +1503,16 @@ func continue_setup_strike(events):
 			active_strike.effects_resolved_in_timing += 1
 
 		# All effects resolved, move to next state.
-		var defender = _get_player(get_other_player(active_strike.initiator.my_id))
 		active_strike.effects_resolved_in_timing = 0
-		active_strike.strike_state = StrikeState.StrikeState_Defender_SetEffects
-		change_game_state(Enums.GameState.GameState_Strike_Opponent_Response)
-		var ask_for_response = true
-		if active_strike.initiator.force_opponent_respond_wild_swing():
-			events += [create_event(Enums.EventType.EventType_Strike_ForceWildSwing, active_strike.initiator.my_id, 0)]
-			# Queue any events so far, then empty this tally and call do_strike.
-			event_queue += events
-			events = []
-			do_strike(defender, -1, true, -1)
-			ask_for_response = false
-		elif defender.reading_card_id:
-			# The Reading effect goes here and will either force the player to strike
-			# with the named card or to reveal their hand.
-			var reading_card = defender.get_reading_card_in_hand()
-			if reading_card:
-				# TODO: Potentially they can EX here.
-				# Queue any events so far, then empty this tally and call do_strike.
-				event_queue += events
-				events = []
-				do_strike(defender, reading_card.id, false, -1)
-				ask_for_response = false
-			else:
-				events += defender.reveal_hand()
-		if ask_for_response:
-			events += [create_event(Enums.EventType.EventType_Strike_DoResponseNow, defender.my_id, 0)]
+		if !active_strike.opponent_sets_first:
+			events = strike_setup_defender_response(events)
+		else:
+			events += begin_resolve_strike()
+		
+	elif active_strike.strike_state == StrikeState.StrikeState_Defender_SetFirst:
+		# Opponent will set first; check for restrictions on what they can set
+		events = strike_setup_defender_response(events)
+			
 	elif active_strike.strike_state == StrikeState.StrikeState_Defender_SetEffects:
 		var defender_set_strike_effects = active_strike.defender.get_set_strike_effects(active_strike.defender_card)
 		while active_strike.effects_resolved_in_timing < defender_set_strike_effects.size():
@@ -1531,7 +1524,49 @@ func continue_setup_strike(events):
 
 		# All effects resolved, move to next state.
 		active_strike.effects_resolved_in_timing = 0
-		events += begin_resolve_strike()
+		if !active_strike.opponent_sets_first:
+			events += begin_resolve_strike()
+		else:
+			events = strike_setup_initiator_response(events)
+	return events
+	
+func strike_setup_defender_response(events):
+	active_strike.strike_state = StrikeState.StrikeState_Defender_SetEffects
+	change_game_state(Enums.GameState.GameState_Strike_Opponent_Response)
+	var ask_for_response = true
+	if active_strike.initiator.force_opponent_respond_wild_swing():
+		events += [create_event(Enums.EventType.EventType_Strike_ForceWildSwing, active_strike.initiator.my_id, 0)]
+		# Queue any events so far, then empty this tally and call do_strike.
+		event_queue += events
+		events = []
+		do_strike(active_strike.defender, -1, true, -1, active_strike.opponent_sets_first)
+		ask_for_response = false
+	elif active_strike.defender.reading_card_id:
+		# The Reading effect goes here and will either force the player to strike
+		# with the named card or to reveal their hand.
+		var reading_card = active_strike.defender.get_reading_card_in_hand()
+		if reading_card:
+			# TODO: Potentially they can EX here.
+			# Queue any events so far, then empty this tally and call do_strike.
+			event_queue += events
+			events = []
+			do_strike(active_strike.defender, reading_card.id, false, -1, active_strike.opponent_sets_first)
+			ask_for_response = false
+		else:
+			events += active_strike.defender.reveal_hand()
+	if ask_for_response:
+		if !active_strike.opponent_sets_first:
+			events += [create_event(Enums.EventType.EventType_Strike_DoResponseNow, active_strike.defender.my_id, 0)]
+		else:
+			events += [create_event(Enums.EventType.EventType_Strike_OpponentSetsFirst_DefenderSet, active_strike.defender.my_id, 0)]
+	return events
+	
+func strike_setup_initiator_response(events):
+	active_strike.strike_state = StrikeState.StrikeState_Initiator_SetEffects
+	change_game_state(Enums.GameState.GameState_WaitForStrike)
+	var ask_for_response = true
+	if ask_for_response:
+		events += [create_event(Enums.EventType.EventType_Strike_OpponentSetsFirst_InitiatorSet, active_strike.initiator.my_id, 0)]
 	return events
 
 func begin_resolve_strike():
@@ -2406,6 +2441,11 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 			decision_info.type = Enums.DecisionType.DecisionType_StrikeNow
 			decision_info.player = performing_player.my_id
 			performing_player.next_strike_faceup = true
+		"strike_opponent_sets_first":
+			events += [create_event(Enums.EventType.EventType_Strike_OpponentSetsFirst, performing_player.my_id, 0)]
+			change_game_state(Enums.GameState.GameState_Strike_Opponent_Set_First)
+			decision_info.type = Enums.DecisionType.DecisionType_StrikeNow
+			decision_info.player = performing_player.my_id
 		"strike_with_deus_ex_machina":
 			change_game_state(Enums.GameState.GameState_AutoStrike)
 			decision_info.effect_type ="happychaos_deusexmachina"
@@ -3412,7 +3452,8 @@ func do_boost(performing_player : Player, card_id : int, payment_card_ids : Arra
 	event_queue += events
 	return true
 
-func do_strike(performing_player : Player, card_id : int, wild_strike: bool, ex_card_id : int) -> bool:
+func do_strike(performing_player : Player, card_id : int, wild_strike: bool, ex_card_id : int,
+		opponent_sets_first : bool = false) -> bool:
 	printlog("MainAction: STRIKE by %s card %s wild %s" % [get_player_name(performing_player.my_id), card_db.get_card_id(card_id), str(wild_strike)])
 	if game_state == Enums.GameState.GameState_PickAction:
 		if performing_player.my_id != active_turn_player:
@@ -3422,14 +3463,22 @@ func do_strike(performing_player : Player, card_id : int, wild_strike: bool, ex_
 		if performing_player.my_id != get_other_player(active_turn_player):
 			printlog("ERROR: Strike response from wrong player.")
 			return false
+	elif game_state == Enums.GameState.GameState_Strike_Opponent_Set_First:
+		if performing_player.my_id != active_turn_player:
+			printlog("ERROR: Tried to strike but not current player")
+			return false
+		if !opponent_sets_first:
+			printlog("ERROR: Inconsistent state for opponent setting first on Strike.")
+			return false
 	elif game_state == Enums.GameState.GameState_WaitForStrike:
 		if performing_player.my_id != decision_info.player:
 			printlog("ERROR: Strike response from wrong player.")
 			return false
 
 	if not wild_strike and not performing_player.is_card_in_hand(card_id):
-		printlog("ERROR: Tried to strike with a card not in hand.")
-		return false
+		if game_state != Enums.GameState.GameState_Strike_Opponent_Set_First:
+			printlog("ERROR: Tried to strike with a card not in hand.")
+			return false
 	if ex_card_id != -1 and not performing_player.is_card_in_hand(ex_card_id):
 		printlog("ERROR: Tried to strike with a ex card not in hand.")
 		return false
@@ -3443,8 +3492,9 @@ func do_strike(performing_player : Player, card_id : int, wild_strike: bool, ex_
 	# Lay down the strike
 	match game_state:
 		Enums.GameState.GameState_PickAction, Enums.GameState.GameState_WaitForStrike:
-			initialize_new_strike()
-			active_strike.initiator = performing_player
+			if !opponent_sets_first:
+				initialize_new_strike(performing_player, opponent_sets_first)
+
 			if wild_strike:
 				_append_log("%s Turn Action - Strike - Wild Swing" % [performing_player.name])
 				events += performing_player.wild_strike()
@@ -3461,7 +3511,6 @@ func do_strike(performing_player : Player, card_id : int, wild_strike: bool, ex_
 					performing_player.remove_card_from_hand(ex_card_id)
 				else:
 					_append_log("%s Turn Action - Strike" % [performing_player.name])
-			active_strike.defender = _get_player(get_other_player(performing_player.my_id))
 
 			var reveal_immediately = false
 			if active_strike.initiator.next_strike_faceup:
@@ -3473,6 +3522,12 @@ func do_strike(performing_player : Player, card_id : int, wild_strike: bool, ex_
 				events += [create_event(Enums.EventType.EventType_Strike_Started_Ex, performing_player.my_id, ex_card_id, "", reveal_immediately)]
 			events += [create_event(Enums.EventType.EventType_Strike_Started, performing_player.my_id, card_id, "", reveal_immediately)]
 			events = continue_setup_strike(events)
+			
+		Enums.GameState.GameState_Strike_Opponent_Set_First:
+			if opponent_sets_first: # should always be true
+				initialize_new_strike(performing_player, opponent_sets_first)
+				events = continue_setup_strike(events)
+			
 		Enums.GameState.GameState_Strike_Opponent_Response:
 			if wild_strike:
 				_append_log("%s Strike Response - Wild Swing" % [performing_player.name])
@@ -4156,7 +4211,11 @@ func do_character_action(performing_player : Player, card_ids):
 	remaining_character_action_effects = []
 	active_character_action = true
 	events += handle_strike_effect(-1, action['effect'], performing_player)
-	if game_state != Enums.GameState.GameState_WaitForStrike and not wait_for_mid_strike_boost() and game_state != Enums.GameState.GameState_PlayerDecision:
+	if game_state not in [
+			Enums.GameState.GameState_WaitForStrike,
+			Enums.GameState.GameState_PlayerDecision,
+			Enums.GameState.GameState_Strike_Opponent_Set_First
+	] and not wait_for_mid_strike_boost():
 		events += check_hand_size_advance_turn(performing_player)
 		active_character_action = false
 	event_queue += events

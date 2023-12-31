@@ -23,14 +23,7 @@
 		"gauge_cost": 0,
 		"force_cost": 0,
 		"effect": {
-			"effect_type": "choose_cards_from_top_deck",
-			"look_amount": 2,
-			"action_choices": [
-				"boost"
-			],
-			"can_pass": false,
-			"destination_unchosen": "discard",
-			"strike_after": true
+			"effect_type": "strike_opponent_sets_first"
 		}
 	},
 	"ability_effects": [

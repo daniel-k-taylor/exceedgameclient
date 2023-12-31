@@ -121,6 +121,8 @@ enum UISubState {
 	UISubState_SelectCards_StrikeGauge,
 	UISubState_SelectCards_StrikeCard,
 	UISubState_SelectCards_StrikeResponseCard,
+	UISubState_SelectCards_OpponentSetsFirst_StrikeCard,
+	UISubState_SelectCards_OpponentSetsFirst_StrikeResponseCard,
 	UISubState_SelectCards_ForceForArmor,
 	UISubState_SelectCards_ForceForEffect,
 	UISubState_SelectCards_GaugeForEffect,
@@ -634,7 +636,7 @@ func can_select_card(card):
 			return (in_gauge or in_hand) and (total_force <= select_card_up_to_force or can_selected_cards_pay_force(select_card_up_to_force, new_force))
 		UISubState.UISubState_SelectCards_GaugeForEffect:
 			return in_gauge and len(selected_cards) < select_card_require_max
-		UISubState.UISubState_SelectCards_StrikeCard, UISubState.UISubState_SelectCards_StrikeResponseCard, UISubState.UISubState_SelectCards_Mulligan:
+		UISubState.UISubState_SelectCards_StrikeCard, UISubState.UISubState_SelectCards_StrikeResponseCard, UISubState.UISubState_SelectCards_OpponentSetsFirst_StrikeCard, UISubState.UISubState_SelectCards_OpponentSetsFirst_StrikeResponseCard, UISubState.UISubState_SelectCards_Mulligan:
 			return in_hand
 		UISubState.UISubState_SelectCards_PlayBoost:
 			var valid_card = game_wrapper.can_player_boost(Enums.PlayerId.PlayerId_Player, card.card_id, select_boost_from_gauge, select_boost_limitation)
@@ -1323,6 +1325,20 @@ func _on_force_start_strike(event):
 	else:
 		ai_forced_strike()
 	return SmallNoticeDelay
+	
+func _on_strike_opponent_sets_first(event):
+	var player = event['event_player']
+	spawn_damage_popup("Strike!", player)
+	game_wrapper.submit_strike(Enums.PlayerId.PlayerId_Player, -1, false, -1, true)
+	return SmallNoticeDelay
+	
+func _on_strike_opponent_sets_first_defender_set(event):
+	var player = event['event_player']
+	if player == Enums.PlayerId.PlayerId_Player:
+		begin_strike_choosing(false, false, true)
+	else:
+		ai_forced_strike()
+	return SmallNoticeDelay
 
 func _on_force_wild_swing(event):
 	var player = event['event_player']
@@ -1562,7 +1578,7 @@ func begin_effect_choice(choices, instruction_text : String):
 	enable_instructions_ui(instruction_text, false, false, false, choices)
 	change_ui_state(UIState.UIState_MakeChoice, UISubState.UISubState_None)
 
-func begin_strike_choosing(strike_response : bool, cancel_allowed : bool):
+func begin_strike_choosing(strike_response : bool, cancel_allowed : bool, opponent_sets_first : bool = false):
 	selected_cards = []
 	select_card_require_min = 1
 	select_card_require_max = 1
@@ -1570,9 +1586,15 @@ func begin_strike_choosing(strike_response : bool, cancel_allowed : bool):
 	enable_instructions_ui("Select a card to strike with.", true, can_cancel, true)
 	var new_sub_state
 	if strike_response:
-		new_sub_state = UISubState.UISubState_SelectCards_StrikeResponseCard
+		if !opponent_sets_first:
+			new_sub_state = UISubState.UISubState_SelectCards_StrikeResponseCard
+		else:
+			new_sub_state = UISubState.UISubState_SelectCards_OpponentSetsFirst_StrikeResponseCard
 	else:
-		new_sub_state = UISubState.UISubState_SelectCards_StrikeCard
+		if !opponent_sets_first:
+			new_sub_state = UISubState.UISubState_SelectCards_StrikeCard
+		else:
+			new_sub_state = UISubState.UISubState_SelectCards_OpponentSetsFirst_StrikeCard
 	change_ui_state(UIState.UIState_SelectCards, new_sub_state)
 
 func begin_boost_choosing(can_cancel : bool, allow_gauge : bool, limitation : String):
@@ -1759,6 +1781,13 @@ func _on_strike_do_response_now(event):
 	var player = event['event_player']
 	if player == Enums.PlayerId.PlayerId_Player:
 		begin_strike_choosing(true, false)
+	else:
+		ai_strike_response()
+		
+func _on_strike_opponent_sets_first_initiator_set(event):
+	var player = event['event_player']
+	if player == Enums.PlayerId.PlayerId_Player:
+		begin_strike_choosing(true, false, true)
 	else:
 		ai_strike_response()
 
@@ -2027,6 +2056,12 @@ func _handle_events(events):
 				delay = _stat_notice_event(event)
 			Enums.EventType.EventType_Strike_OpponentCantMovePast:
 				delay = _stat_notice_event(event)
+			Enums.EventType.EventType_Strike_OpponentSetsFirst:
+				_on_strike_opponent_sets_first(event)
+			Enums.EventType.EventType_Strike_OpponentSetsFirst_DefenderSet:
+				_on_strike_opponent_sets_first_defender_set(event)
+			Enums.EventType.EventType_Strike_OpponentSetsFirst_InitiatorSet:
+				_on_strike_opponent_sets_first_initiator_set(event)
 			Enums.EventType.EventType_Strike_PayCost_Gauge:
 				_on_pay_cost_gauge(event)
 			Enums.EventType.EventType_Strike_PayCost_Force:
@@ -2241,7 +2276,7 @@ func can_press_ok():
 			UISubState.UISubState_SelectCards_ForceForChange:
 				var force_selected = get_force_in_selected_cards()
 				return force_selected >= 0
-			UISubState.UISubState_SelectCards_StrikeCard, UISubState.UISubState_SelectCards_StrikeResponseCard:
+			UISubState.UISubState_SelectCards_StrikeCard, UISubState.UISubState_SelectCards_StrikeResponseCard, UISubState.UISubState_SelectCards_OpponentSetsFirst_StrikeCard, UISubState.UISubState_SelectCards_OpponentSetsFirst_StrikeResponseCard:
 				# As a special exception, allow 2 cards if exactly 2 cards and they're the same card.
 				if len(selected_cards) == 2:
 					var card_db = game_wrapper.get_card_database()
@@ -2412,6 +2447,8 @@ func _on_instructions_ok_button_pressed(index : int):
 				success = game_wrapper.submit_change(Enums.PlayerId.PlayerId_Player, selected_card_ids)
 			UISubState.UISubState_SelectCards_StrikeCard, UISubState.UISubState_SelectCards_StrikeResponseCard:
 				success = game_wrapper.submit_strike(Enums.PlayerId.PlayerId_Player, single_card_id, false, ex_card_id)
+			UISubState.UISubState_SelectCards_OpponentSetsFirst_StrikeCard, UISubState.UISubState_SelectCards_OpponentSetsFirst_StrikeResponseCard:
+				success = game_wrapper.submit_strike(Enums.PlayerId.PlayerId_Player, single_card_id, false, ex_card_id, true)
 			UISubState.UISubState_SelectCards_ForceForArmor:
 				success = game_wrapper.submit_force_for_armor(Enums.PlayerId.PlayerId_Player, selected_card_ids)
 			UISubState.UISubState_SelectCards_Mulligan:
@@ -2503,6 +2540,8 @@ func _on_wild_swing_button_pressed():
 	if ui_state == UIState.UIState_SelectCards:
 		if ui_sub_state == UISubState.UISubState_SelectCards_StrikeCard or ui_sub_state == UISubState.UISubState_SelectCards_StrikeResponseCard:
 			success = game_wrapper.submit_strike(Enums.PlayerId.PlayerId_Player, -1, true, -1)
+		elif ui_sub_state == UISubState.UISubState_SelectCards_OpponentSetsFirst_StrikeCard or ui_sub_state == UISubState.UISubState_SelectCards_OpponentSetsFirst_StrikeResponseCard:
+			success = game_wrapper.submit_strike(Enums.PlayerId.PlayerId_Player, -1, true, -1, true)
 		elif ui_sub_state == UISubState.UISubState_SelectCards_StrikeGauge:
 			close_popout()
 			success = game_wrapper.submit_pay_strike_cost(Enums.PlayerId.PlayerId_Player, [], true)

@@ -299,9 +299,9 @@ func submit_change(player : Enums.PlayerId, card_ids : Array) -> bool:
 	var game_player = _get_player(player)
 	return current_game.do_change(game_player, card_ids)
 
-func submit_strike(player : Enums.PlayerId, card_id : int, wild_strike: bool, ex_card_id : int) -> bool:
+func submit_strike(player : Enums.PlayerId, card_id : int, wild_strike: bool, ex_card_id : int, opponent_sets_first : bool = false) -> bool:
 	var game_player = _get_player(player)
-	return current_game.do_strike(game_player, card_id, wild_strike, ex_card_id)
+	return current_game.do_strike(game_player, card_id, wild_strike, ex_card_id, opponent_sets_first)
 
 func submit_force_for_armor(player : Enums.PlayerId, card_ids : Array) -> bool:
 	var game_player = _get_player(player)
