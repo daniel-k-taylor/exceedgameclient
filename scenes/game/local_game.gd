@@ -1735,6 +1735,8 @@ func is_effect_condition_met(performing_player : Player, effect, local_condition
 			return local_conditions.manual_reshuffle
 		elif condition == "no_strike_this_turn":
 			return not performing_player.did_strike_this_turn
+		elif condition == "stunned":
+			return active_strike.is_player_stunned(performing_player)
 		elif condition == "not_stunned":
 			return not active_strike.is_player_stunned(performing_player)
 		elif condition == "eddie_in_play":
@@ -2257,7 +2259,7 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 		"powerup_damagetaken":
 			var power_per_damage = effect['amount']
 			var total_powerup = power_per_damage * active_strike.get_damage_taken(performing_player)
-			if total_powerup > 0:
+			if total_powerup != 0 and (total_powerup > 0) == (power_per_damage > 0):
 				performing_player.strike_stat_boosts.power += total_powerup
 				events += [create_event(Enums.EventType.EventType_Strike_PowerUp, performing_player.my_id, total_powerup)]
 		"powerup_opponent":
@@ -3123,7 +3125,7 @@ func begin_resolve_boost(performing_player : Player, card_id : int):
 	return events
 
 func continue_resolve_boost(events):
-	if game_state == Enums.GameState.GameState_WaitForStrike:
+	if game_state == Enums.GameState.GameState_WaitForStrike or game_state == Enums.GameState.GameState_Strike_Opponent_Set_First:
 		active_boost.strike_after_boost = true
 	change_game_state(Enums.GameState.GameState_Boost_Processing)
 
@@ -3186,7 +3188,7 @@ func boost_finish_resolving_card(performing_player : Player):
 			events += performing_player.add_to_discards(active_boost.card)
 
 	performing_player.sustain_next_boost = false
-	if game_state == Enums.GameState.GameState_WaitForStrike:
+	if game_state == Enums.GameState.GameState_WaitForStrike or game_state == Enums.GameState.GameState_Strike_Opponent_Set_First:
 		active_boost.strike_after_boost = true
 	return events
 
@@ -3199,7 +3201,8 @@ func boost_play_cleanup(events, performing_player : Player):
 		decision_info.player = performing_player.my_id
 
 	if active_boost.strike_after_boost and not active_strike:
-		change_game_state(Enums.GameState.GameState_WaitForStrike)
+		if game_state != Enums.GameState.GameState_Strike_Opponent_Set_First:
+			change_game_state(Enums.GameState.GameState_WaitForStrike)
 		active_boost = null
 	elif active_boost.action_after_boost and not active_strike:
 		events += [create_event(Enums.EventType.EventType_Boost_ActionAfterBoost, performing_player.my_id, 0)]

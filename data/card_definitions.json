@@ -6852,6 +6852,317 @@
 
 
 	{
+		"NOTE": "YUZURIHA CARDS START",
+		"id": "yuzu_kashou",
+		"type": "ultra",
+		"display_name": "W-W-What Could This Be?",
+		"force_cost": 0,
+		"gauge_cost": 2,
+		"range_min": 2,
+		"range_max": 5,
+		"speed": 6,
+		"power": 3,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "before",
+				"effect_type": "boost_then_sustain_topdeck",
+				"amount": 2
+			}
+		],
+		"boost": {
+			"boost_type": "immediate",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Alone Infection",
+			"effects": [
+				{
+					"timing": "immediate",
+					"effect_type": "choice",
+					"choice": [
+						{ "effect_type": "advance", "amount": 2 },
+						{ "effect_type": "retreat", "amount": 2 }
+					]
+				},
+				{
+					"timing": "immediate",
+					"effect_type": "draw",
+					"amount": 1
+				}
+			]
+		}
+	},
+	{
+		"id": "yuzu_kurenai",
+		"type": "ultra",
+		"display_name": "Bone-Crushing Excitement",
+		"force_cost": 0,
+		"gauge_cost": 4,
+		"range_min": 1,
+		"range_max": 1,
+		"speed": 3,
+		"power": 7,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "before",
+				"effect_type": "advance",
+				"amount": 3
+			},
+			{
+				"timing": "during_strike",
+				"effect_type": "higher_speed_misses"
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Mini Faust",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "rangeup",
+					"amount": 0,
+					"amount2": 1
+				},
+				{
+					"timing": "both_players_before",
+					"effect_type": "powerup",
+					"amount": 1
+				}
+			]
+		}
+	},
+	{
+		"id": "yuzu_yaeichirin",
+		"type": "special",
+		"display_name": "Sougetsu Ittou-Ryu et cetera! Yae Ichirin",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 3,
+		"speed": 5,
+		"power": 4,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "hit",
+				"effect_type": "gain_advantage"
+			},
+			{
+				"timing": "after",
+				"effect_type": "advance",
+				"amount": 3
+			}
+		],
+		"boost": {
+			"boost_type": "immediate",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Swift and Deadly",
+			"effects": [
+				{
+					"timing": "immediate",
+					"effect_type": "choice",
+					"choice": [
+						{ "effect_type": "advance", "amount": 2 },
+						{ "effect_type": "retreat", "amount": 2 }
+					]
+				},
+				{
+					"timing": "immediate",
+					"effect_type": "strike"
+				}
+			]
+		}
+	},
+	{
+		"id": "yuzu_overhere",
+		"type": "special",
+		"display_name": "Scarecrow",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 1,
+		"speed": 4,
+		"power": 4,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "during_strike",
+				"condition": "boost_in_play",
+				"effect_type": "powerup",
+				"amount": 2,
+				"and": {
+					"effect_type": "speedup",
+					"amount": -2
+				}
+			},
+			{
+				"timing": "before",
+				"effect_type": "close",
+				"amount": 8
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Unsheathe",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "powerup",
+					"amount": 2,
+					"and": {
+						"effect_type": "speedup",
+						"amount": 1
+					}
+				},
+				{
+					"timing": "now",
+					"effect_type": "strike_random_from_gauge"
+				}
+			]
+		}
+	},
+	{
+		"id": "yuzu_tachi",
+		"type": "special",
+		"display_name": "Battoujutsu San no Kata: Tachi",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 2,
+		"range_max": 4,
+		"speed": 3,
+		"power": 5,
+		"armor": 0,
+		"guard": 5,
+		"effects": [
+			{
+				"timing": "during_strike",
+				"effect_type": "ignore_armor",
+				"and": {
+					"effect_type": "ignore_guard"
+				}
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Not Over Yet",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "rangeup",
+					"amount": 0,
+					"amount2": 1
+				},
+				{
+					"timing": "cleanup",
+					"condition": "stunned",
+					"effect_type": "sustain_this",
+					"card_name": "Battoujutsu San no Kata: Tachi"
+				}
+			]
+		}
+	},
+	{
+		"id": "yuzu_saki",
+		"type": "special",
+		"display_name": "Battoujutsu Ni No Kata: Saki",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 3,
+		"range_max": 5,
+		"speed": 1,
+		"power": 7,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "during_strike",
+				"condition": "was_strike_from_gauge",
+				"effect_type": "stun_immunity",
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 1,
+			"cancel_cost": -1,
+			"display_name": "Come At Me!",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "powerup",
+					"amount": 3
+				},
+				{
+					"timing": "start_of_next_turn",
+					"effect_type": "add_to_gauge_immediately"
+				}
+			]
+		}
+	},
+	{
+		"NOTE": "YUZURIHA CARDS END",
+		"id": "yuzu_kiri",
+		"type": "special",
+		"display_name": "Battoujutsu Ichi no Kata: Kiri",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 3,
+		"speed": 1,
+		"power": 7,
+		"armor": 1,
+		"guard": 5,
+		"effects": [
+			{
+				"timing": "during_strike",
+				"effect_type": "ignore_push_and_pull"
+			},
+			{
+				"timing": "hit",
+				"effect_type": "powerup_damagetaken",
+				"amount": -1
+			},
+			{
+				"timing": "after",
+				"effect_type": "draw",
+				"amount": 1
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Try Hard",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "powerup",
+					"amount": 2,
+				},
+				{
+					"timing": "cleanup",
+					"condition": "stunned",
+					"effect_type": "sustain_this",
+					"card_name": "Battoujutsu Ichi no Kata: Kiri"
+				}
+			]
+		},
+		"NOTEEND": "YUZURIHA CARDS END"
+	},
+
+
+	{
 		"NOTE": "ZATO CARDS START",
 		"id": "zato_sunvoid",
 		"type": "ultra",
@@ -7782,7 +8093,7 @@
 					"amount": 3
 				},
 				{
-					"timing": "immediate",
+					"timing": "now",
 					"effect_type": "strike"
 				},
 				{

@@ -196,6 +196,8 @@ func get_condition_text(condition, amount, amount2):
 			text += "If not full close, "
 		"not_initiated_strike":
 			text += "If opponent initiated strike, "
+		"stunned":
+			text += "If stunned, "
 		"not_stunned":
 			text += "If not stunned, "
 		"opponent_stunned":
@@ -224,6 +226,10 @@ func get_condition_text(condition, amount, amount2):
 			text += ""
 		"was_wild_swing":
 			text += "If this was a wild swing, "
+		"was_strike_from_gauge":
+			text += "If set from gauge, "
+		"was_hit":
+			text += "If you were hit, "
 		_:
 			text += "MISSING CONDITION"
 	return text
@@ -450,6 +456,8 @@ func get_effect_type_text(effect, card_name_source : String = ""):
 			effect_str += "Spend " + str(effect['amount']) + " life"
 		"strike":
 			effect_str += "Strike"
+		"strike_random_from_gauge":
+			effect_str += "Strike with random card from gauge (opponent sets first)"
 		"stun_immunity":
 			effect_str += "Stun Immunity"
 		"sustain_this":
