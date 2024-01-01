@@ -129,6 +129,7 @@ enum EventType {
 	EventType_Strike_PayCost_Force,
 	EventType_Strike_PayCost_Unable,
 	EventType_Strike_PowerUp,					# 67
+	EventType_Strike_RandomGaugeStrike,
 	EventType_Strike_RangeUp,
 	EventType_Strike_Response,
 	EventType_Strike_Response_Ex,

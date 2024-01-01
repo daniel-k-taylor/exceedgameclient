@@ -338,6 +338,7 @@ class Player:
 	var mulligan_complete : bool
 	var reading_card_id : String
 	var next_strike_faceup : bool
+	var next_strike_random_gauge : bool
 	var strike_on_boost_cleanup : bool
 	var max_hand_size : int
 	var starting_hand_size_bonus : int
@@ -393,6 +394,7 @@ class Player:
 		mulligan_complete = false
 		reading_card_id = ""
 		next_strike_faceup = false
+		next_strike_random_gauge = false
 		strike_on_boost_cleanup = false
 		pre_strike_movement = 0
 		sustained_boosts = []
@@ -984,6 +986,24 @@ class Player:
 			deck.remove_at(0)
 			events += [parent.create_event(Enums.EventType.EventType_Strike_WildStrike, my_id, card_id, "", is_immediate_reveal)]
 		return events
+		
+	func random_gauge_strike():
+		var events = []
+		if len(gauge) == 0:
+			parent._append_log("%s has no gauge to strike with; wild swings instead." % [name])
+			return wild_strike(true)
+		else:
+			var random_gauge_idx = parent.get_random_int() % len(gauge)
+			var random_card_id = gauge[random_gauge_idx].id
+			if parent.active_strike.initiator == self:
+				parent.active_strike.initiator_card = gauge[random_gauge_idx]
+			else:
+				assert(false)
+				parent.printlog("ERROR: Random gauge strike by non-initiator")
+			parent._append_log("%s strikes with %s from gauge." % [name, parent.card_db.get_card_name(random_card_id)])
+			gauge.remove_at(random_gauge_idx)
+			events += [parent.create_event(Enums.EventType.EventType_Strike_RandomGaugeStrike, my_id, random_card_id, "", true)]
+		return events
 
 	func add_to_gauge(card: GameCard):
 		gauge.append(card)
@@ -1565,6 +1585,12 @@ func strike_setup_initiator_response(events):
 	active_strike.strike_state = StrikeState.StrikeState_Initiator_SetEffects
 	change_game_state(Enums.GameState.GameState_WaitForStrike)
 	var ask_for_response = true
+	if active_strike.initiator.next_strike_random_gauge:
+		# Queue any events so far, then empty this tally and call do_strike.
+		event_queue += events
+		events = []
+		do_strike(active_strike.initiator, -1, false, -1, active_strike.opponent_sets_first)
+		ask_for_response = false
 	if ask_for_response:
 		events += [create_event(Enums.EventType.EventType_Strike_OpponentSetsFirst_InitiatorSet, active_strike.initiator.my_id, 0)]
 	return events
@@ -2446,6 +2472,12 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 			change_game_state(Enums.GameState.GameState_Strike_Opponent_Set_First)
 			decision_info.type = Enums.DecisionType.DecisionType_StrikeNow
 			decision_info.player = performing_player.my_id
+		"strike_random_from_gauge":
+			events += [create_event(Enums.EventType.EventType_Strike_OpponentSetsFirst, performing_player.my_id, 0)]
+			change_game_state(Enums.GameState.GameState_Strike_Opponent_Set_First)
+			decision_info.type = Enums.DecisionType.DecisionType_StrikeNow
+			decision_info.player = performing_player.my_id
+			performing_player.next_strike_random_gauge = true
 		"strike_with_deus_ex_machina":
 			change_game_state(Enums.GameState.GameState_AutoStrike)
 			decision_info.effect_type ="happychaos_deusexmachina"
@@ -3476,7 +3508,7 @@ func do_strike(performing_player : Player, card_id : int, wild_strike: bool, ex_
 			return false
 
 	if not wild_strike and not performing_player.is_card_in_hand(card_id):
-		if game_state != Enums.GameState.GameState_Strike_Opponent_Set_First:
+		if not (game_state == Enums.GameState.GameState_Strike_Opponent_Set_First or performing_player.next_strike_random_gauge):
 			printlog("ERROR: Tried to strike with a card not in hand.")
 			return false
 	if ex_card_id != -1 and not performing_player.is_card_in_hand(ex_card_id):
@@ -3498,6 +3530,13 @@ func do_strike(performing_player : Player, card_id : int, wild_strike: bool, ex_
 			if wild_strike:
 				_append_log("%s Turn Action - Strike - Wild Swing" % [performing_player.name])
 				events += performing_player.wild_strike()
+				if game_over:
+					event_queue += events
+					return true
+				card_id = active_strike.initiator_card.id
+			elif performing_player.next_strike_random_gauge:
+				events += performing_player.random_gauge_strike()
+				performing_player.next_strike_random_gauge = false
 				if game_over:
 					event_queue += events
 					return true

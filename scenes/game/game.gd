@@ -823,6 +823,8 @@ func _stat_notice_event(event):
 			if number > 0:
 				text += "+"
 			notice_text = "%s%s Power" % [text, number]
+		Enums.EventType.EventType_Strike_RandomGaugeStrike:
+			notice_text = "Strike From Gauge!"
 		Enums.EventType.EventType_Strike_RangeUp:
 			var number2 = event['extra_info']
 			var firstplus = ""
@@ -2070,6 +2072,9 @@ func _handle_events(events):
 			Enums.EventType.EventType_Strike_PayCost_Unable:
 				_on_pay_cost_failed(event)
 			Enums.EventType.EventType_Strike_PowerUp:
+				delay = _stat_notice_event(event)
+			Enums.EventType.EventType_Strike_RandomGaugeStrike:
+				_on_strike_started(event, false)
 				delay = _stat_notice_event(event)
 			Enums.EventType.EventType_Strike_RangeUp:
 				delay = _stat_notice_event(event)
