@@ -6896,42 +6896,45 @@
 	{
 		"id": "yuzu_kurenai",
 		"type": "ultra",
-		"display_name": "Bone-Crushing Excitement",
+		"display_name": "Zero no Kata Hi-Ougi: Inochi Kurenai",
 		"force_cost": 0,
-		"gauge_cost": 4,
+		"gauge_cost": 1,
 		"range_min": 1,
-		"range_max": 1,
+		"range_max": 2,
 		"speed": 3,
-		"power": 7,
+		"power": 6,
 		"armor": 0,
 		"guard": 0,
 		"effects": [
 			{
-				"timing": "before",
-				"effect_type": "advance",
-				"amount": 3
-			},
-			{
-				"timing": "during_strike",
-				"effect_type": "higher_speed_misses"
+				"timing": "cleanup",
+				"condition": "stunned",
+				"effect_type": "choice",
+				"choice": [
+					{ "effect_type": "boost_this_then_sustain" },
+					{ "effect_type": "pass" }
+				]
 			}
 		],
 		"boost": {
 			"boost_type": "continuous",
 			"force_cost": 0,
 			"cancel_cost": -1,
-			"display_name": "Mini Faust",
+			"display_name": "Ainsel Lost",
 			"effects": [
 				{
 					"timing": "during_strike",
-					"effect_type": "rangeup",
-					"amount": 0,
-					"amount2": 1
+					"effect_type": "powerup",
+					"amount": 1,
+					"and": {
+						"effect_type": "speedup",
+						"amount": 1
+					}
 				},
 				{
-					"timing": "both_players_before",
-					"effect_type": "powerup",
-					"amount": 1
+					"timing": "after",
+					"effect_type": "add_boost_to_gauge_on_strike_cleanup",
+					"card_name": "Zero no Kata Hi-Ougi: Inochi Kurenai"
 				}
 			]
 		}
