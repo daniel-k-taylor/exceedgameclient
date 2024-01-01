@@ -30,6 +30,21 @@
 	],
 	"exceed_ability_effects": [
 		{
+			"timing": "during_strike",
+			"condition": "used_character_action",
+			"effect_type": "pass",
+			"and": {
+				"character_effect": true,
+				"condition": "was_strike_from_gauge",
+				"effect_type": "powerup",
+				"amount": 2,
+				"and": {
+					"effect_type": "speedup",
+					"amount": 1
+				}
+			}
+		},
+		{
 			"timing": "cleanup",
 			"effect_type": "discard_strike_after_cleanup"
 		}

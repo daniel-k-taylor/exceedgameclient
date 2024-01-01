@@ -130,6 +130,7 @@ class Strike:
 	var defender_ex_card : GameCard = null
 	var initiator_first : bool
 	var initiator_wild_strike : bool = false
+	var initiator_set_from_gauge : bool = false
 	var defender_wild_strike : bool = false
 	var strike_state
 	var starting_distance : int = -1
@@ -171,6 +172,12 @@ class Strike:
 		if performing_player == initiator:
 			return initiator_wild_strike
 		return defender_wild_strike
+		
+	func get_player_strike_from_gauge(performing_player : Player) -> bool:
+		if performing_player == defender:
+			return true
+		# ensure that the strike from gauge wasn't invalidated
+		return initiator_set_from_gauge and !initiator_wild_strike
 
 	func is_player_stunned(question_player : Player) -> bool:
 		if get_player(1) == question_player:
@@ -1002,6 +1009,7 @@ class Player:
 				parent.printlog("ERROR: Random gauge strike by non-initiator")
 			parent._append_log("%s strikes with %s from gauge." % [name, parent.card_db.get_card_name(random_card_id)])
 			gauge.remove_at(random_gauge_idx)
+			parent.active_strike.initiator_set_from_gauge = true
 			events += [parent.create_event(Enums.EventType.EventType_Strike_RandomGaugeStrike, my_id, random_card_id, "", true)]
 		return events
 
@@ -1760,6 +1768,8 @@ func is_effect_condition_met(performing_player : Player, effect, local_condition
 			return performing_player.strike_stat_boosts.was_hit
 		elif condition == "was_wild_swing":
 			return active_strike.get_player_wild_strike(performing_player)
+		elif condition == "was_strike_from_gauge":
+			return active_strike.get_player_strike_from_gauge(performing_player)
 		else:
 			assert(false, "Unimplemented condition")
 		# Unmet condition
