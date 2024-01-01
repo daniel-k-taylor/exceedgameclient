@@ -6983,30 +6983,31 @@
 	{
 		"id": "yuzu_overhere",
 		"type": "special",
-		"display_name": "Scarecrow",
+		"display_name": "Over Here!",
 		"force_cost": 0,
 		"gauge_cost": 0,
 		"range_min": 1,
-		"range_max": 1,
+		"range_max": 3,
 		"speed": 4,
-		"power": 4,
+		"power": 1,
 		"armor": 0,
 		"guard": 0,
 		"effects": [
 			{
-				"timing": "during_strike",
-				"condition": "boost_in_play",
-				"effect_type": "powerup",
-				"amount": 2,
+				"timing": "hit",
+				"effect_type": "set_strike_x",
+				"source": "random_gauge_power",
 				"and": {
-					"effect_type": "speedup",
-					"amount": -2
+					"effect_type": "powerup",
+					"amount": "strike_x",
+					"and": {
+						"effect_type": "choice",
+						"choice": [
+							{ "effect_type": "advance", "amount": "strike_x" },
+							{ "effect_type": "retreat", "amount": "strike_x" }
+						]
+					}
 				}
-			},
-			{
-				"timing": "before",
-				"effect_type": "close",
-				"amount": 8
 			}
 		],
 		"boost": {

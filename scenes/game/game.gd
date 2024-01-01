@@ -834,6 +834,8 @@ func _stat_notice_event(event):
 			if number2 >= 0:
 				secondplus = "+"
 			notice_text = "%s%s - %s%s Range" % [firstplus, number, secondplus, number2]
+		Enums.EventType.EventType_Strike_SetX:
+			notice_text = "X is %s" % number
 		Enums.EventType.EventType_Strike_SpeedUp:
 			var text = ""
 			if number > 0:
@@ -1727,6 +1729,15 @@ func _on_reveal_hand(event):
 		pass
 	return SmallNoticeDelay
 
+func _on_reveal_random_gauge(event):
+	var player = event['event_player']
+	var card_id = event['number']
+	spawn_damage_popup("Random Gauge Card!", player)
+	
+	#TODO: would be nice to display the card briefly
+	
+	return SmallNoticeDelay
+	
 func _on_reveal_topdeck(event):
 	var player = event['event_player']
 	var card_id = event['number']
@@ -2020,6 +2031,8 @@ func _handle_events(events):
 				delay = _on_reveal_hand(event)
 			Enums.EventType.EventType_RevealStrike_OnePlayer:
 				delay = _on_strike_reveal_one_player(event)
+			Enums.EventType.EventType_RevealRandomGauge:
+				delay = _on_reveal_random_gauge(event)
 			Enums.EventType.EventType_RevealTopDeck:
 				delay = _on_reveal_topdeck(event)
 			Enums.EventType.EventType_RevertAction:
@@ -2084,6 +2097,8 @@ func _handle_events(events):
 				_on_strike_started(event, true)
 			Enums.EventType.EventType_Strike_Reveal:
 				delay = _on_strike_reveal(event)
+			Enums.EventType.EventType_Strike_SetX:
+				delay = _stat_notice_event(event)
 			Enums.EventType.EventType_Strike_SpeedUp:
 				delay = _stat_notice_event(event)
 			Enums.EventType.EventType_Strike_Started:

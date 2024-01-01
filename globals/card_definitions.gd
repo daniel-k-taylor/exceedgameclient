@@ -278,7 +278,11 @@ func get_effect_type_text(effect, card_name_source : String = ""):
 		"add_top_deck_to_gauge":
 			effect_str += "Add top card of deck to gauge"
 		"advance":
-			effect_str += "Advance " + str(effect['amount'])
+			effect_str += "Advance "
+			if str(effect['amount']) == "strike_x":
+				effect_str += "X"
+			else:
+				effect_str += str(effect['amount'])
 		"armorup":
 			effect_str += "+" + str(effect['amount']) + " Armor"
 		"attack_is_ex":
@@ -385,9 +389,13 @@ func get_effect_type_text(effect, card_name_source : String = ""):
 		"place_eddie_onto_self":
 			effect_str += "Place Eddie onto your space"
 		"powerup":
-			if effect['amount'] > 0:
-				effect_str += "+"
-			effect_str += str(effect['amount']) + " Power"
+			if str(effect['amount']) == "strike_x":
+				effect_str += "+X"
+			else:
+				if effect['amount'] > 0:
+					effect_str += "+"
+				effect_str += str(effect['amount'])
+			effect_str += " Power"
 		"powerup_per_boost_in_play":
 			effect_str += "+" + str(effect['amount']) + " Power per boost in play."
 		"powerup_damagetaken":
@@ -410,7 +418,11 @@ func get_effect_type_text(effect, card_name_source : String = ""):
 		"rangeup_per_boost_in_play":
 			effect_str += "+" + str(effect['amount']) + "-" + str(effect['amount2']) + " Range per boost in play."
 		"retreat":
-			effect_str += "Retreat " + str(effect['amount'])
+			effect_str += "Retreat "
+			if str(effect['amount']) == "strike_x":
+				effect_str += "X"
+			else:
+				effect_str += str(effect['amount'])
 		"return_attack_to_hand":
 			effect_str += "Return the attack to your hand"
 		"return_this_to_hand":
@@ -421,6 +433,13 @@ func get_effect_type_text(effect, card_name_source : String = ""):
 			effect_str += "Reveal your hand"
 		"reveal_strike":
 			effect_str += "Initiate face-up"
+		"set_strike_x":
+			effect_str += "Set X to "
+			match effect['source']:
+				'random_gauge_power':
+					effect_str += "power of random gauge card"
+				_:
+					effect_str += "(UNKNOWN)"
 		"seal_this":
 			if card_name_source:
 				effect_str += "Seal %s" % card_name_source

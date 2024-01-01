@@ -235,6 +235,7 @@ class StrikeStatBoosts:
 	var consumed_armor : int = 0
 	var guard : int = 0
 	var speed : int = 0
+	var strike_x : int = 0
 	var min_range : int = 0
 	var max_range : int = 0
 	var dodge_attacks : bool = false
@@ -267,6 +268,7 @@ class StrikeStatBoosts:
 		consumed_armor = 0
 		guard = 0
 		speed = 0
+		strike_x = 0
 		min_range = 0
 		max_range = 0
 		dodge_attacks = false
@@ -1328,6 +1330,13 @@ class Player:
 			if effect['timing'] == timing_name:
 				effects.append(effect)
 		return effects
+		
+	func set_strike_x(value : int):
+		var events = []
+		strike_stat_boosts.strike_x = value
+		parent._append_log("%s X for strike set to %s." % [name, value])
+		events += [parent.create_event(Enums.EventType.EventType_Strike_SetX, my_id, value)]
+		return events
 
 	func get_set_strike_effects(card : GameCard) -> Array:
 		var effects = []
@@ -1830,12 +1839,16 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 		"add_top_deck_to_gauge":
 			events += performing_player.add_top_deck_to_gauge()
 		"advance":
+			var amount = effect['amount']
+			if str(amount) == "strike_x":
+				amount = performing_player.strike_stat_boosts.strike_x
+				
 			var previous_location = performing_player.arena_location
-			events += performing_player.advance(effect['amount'])
+			events += performing_player.advance(amount)
 			var new_location = performing_player.arena_location
 			if (performing_start < other_start and new_location > other_start) or (performing_start > other_start and new_location < other_start):
 				local_conditions.advanced_through = true
-			_append_log("%s Advance %s - Moved from %s to %s." % [performing_player.name, str(effect['amount']), str(previous_location), str(new_location)])
+			_append_log("%s Advance %s - Moved from %s to %s." % [performing_player.name, str(amount), str(previous_location), str(new_location)])
 		"armorup":
 			performing_player.strike_stat_boosts.armor += effect['amount']
 			events += [create_event(Enums.EventType.EventType_Strike_ArmorUp, performing_player.my_id, effect['amount'])]
@@ -2249,8 +2262,11 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 		"place_eddie_onto_self":
 			events += performing_player.place_buddy(performing_player.arena_location)
 		"powerup":
-			performing_player.strike_stat_boosts.power += effect['amount']
-			events += [create_event(Enums.EventType.EventType_Strike_PowerUp, performing_player.my_id, effect['amount'])]
+			var amount = effect['amount']
+			if str(amount) == "strike_x":
+				amount = performing_player.strike_stat_boosts.strike_x
+			performing_player.strike_stat_boosts.power += amount
+			events += [create_event(Enums.EventType.EventType_Strike_PowerUp, performing_player.my_id, amount)]
 		"powerup_per_boost_in_play":
 			var boosts_in_play = performing_player.continuous_boosts.size()
 			if boosts_in_play > 0:
@@ -2358,12 +2374,16 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 		"calculate_range_from_eddie":
 			performing_player.strike_stat_boosts.calculate_range_from_buddy = true
 		"retreat":
+			var amount = effect['amount']
+			if str(amount) == "strike_x":
+				amount = performing_player.strike_stat_boosts.strike_x
+				
 			var previous_location = performing_player.arena_location
-			events += performing_player.retreat(effect['amount'])
+			events += performing_player.retreat(amount)
 			var new_location = performing_player.arena_location
 			var retreat_amount = abs(performing_start - new_location)
-			local_conditions.fully_retreated = retreat_amount == effect['amount']
-			_append_log("%s Retreat %s - Moved from %s to %s." % [performing_player.name, str(effect['amount']), str(previous_location), str(new_location)])
+			local_conditions.fully_retreated = retreat_amount == amount
+			_append_log("%s Retreat %s - Moved from %s to %s." % [performing_player.name, str(amount), str(previous_location), str(new_location)])
 		"return_all_cards_gauge_to_hand":
 			var card_names = ""
 			for card in performing_player.gauge:
@@ -2424,6 +2444,8 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 					events += performing_player.discard(card_ids)
 				else:
 					_append_log("%s has no cards available to use for their effect." % [performing_player.name])
+		"set_strike_x":
+			events += do_set_strike_x(player, effect['source'])
 		"self_discard_choose_internal":
 			var card_ids = effect['card_ids']
 			var card_names = card_db.get_card_names(card_ids)
@@ -2704,6 +2726,26 @@ func finish_revert(performing_player : Player):
 	events += check_hand_size_advance_turn(performing_player)
 	return events
 
+func do_set_strike_x(performing_player : Player, source : String):
+	var events = []
+	
+	var value = 0
+	match source:
+		"random_gauge_power":
+			if len(performing_player.gauge) > 0:
+				var random_gauge_idx = get_random_int() % len(performing_player.gauge)
+				var random_card_id = performing_player.gauge[random_gauge_idx].id
+				var power = performing_player.gauge[random_gauge_idx].definition['power']
+				value = power
+				_append_log("%s setting X for strike from power of %s in gauge." % [name, card_db.get_card_name(random_card_id)])
+				events += [create_event(Enums.EventType.EventType_RevealRandomGauge, performing_player.my_id, random_card_id)]
+		_:
+			assert(false, "Unknown source for setting X")
+			
+	events += performing_player.set_strike_x(value)
+	
+	return events
+	
 func do_effects_for_timing(timing_name : String, performing_player : Player, card : GameCard, next_state):
 	var events = []
 	var effects = card_db.get_card_effects_at_timing(card, timing_name)
