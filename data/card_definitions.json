@@ -6855,40 +6855,63 @@
 		"NOTE": "YUZURIHA CARDS START",
 		"id": "yuzu_kashou",
 		"type": "ultra",
-		"display_name": "W-W-What Could This Be?",
+		"display_name": "Sogetsu Ittou-Ryuu Ougi: Kashou",
 		"force_cost": 0,
 		"gauge_cost": 2,
-		"range_min": 2,
-		"range_max": 5,
+		"range_min": 1,
+		"range_max": 4,
 		"speed": 6,
-		"power": 3,
+		"power": 0,
 		"armor": 0,
 		"guard": 0,
 		"effects": [
 			{
-				"timing": "before",
-				"effect_type": "boost_then_sustain_topdeck",
-				"amount": 2
+				"timing": "during_strike",
+				"effect_type": "cannot_stun"
+			},
+			{
+				"timing": "hit",
+				"effect_type": "set_strike_x",
+				"source": "top_discard_power",
+				"and": {
+					"effect_type": "powerup",
+					"amount": "strike_x"
+				}
+			},
+			{
+				"timing": "after",
+				"effect_type": "advance",
+				"amount": 4
 			}
 		],
 		"boost": {
 			"boost_type": "immediate",
 			"force_cost": 0,
 			"cancel_cost": -1,
-			"display_name": "Alone Infection",
+			"display_name": "Iris Blade",
 			"effects": [
 				{
 					"timing": "immediate",
 					"effect_type": "choice",
 					"choice": [
-						{ "effect_type": "advance", "amount": 2 },
-						{ "effect_type": "retreat", "amount": 2 }
+						{
+							"effect_type": "add_top_deck_to_gauge",
+							"and": {
+								"effect_type": "choice",
+								"choice": [
+									{ "effect_type": "add_top_deck_to_gauge" },
+									{ "effect_type": "pass" }
+								]
+							}
+						},
+						{ "effect_type": "pass" }
 					]
 				},
 				{
 					"timing": "immediate",
-					"effect_type": "draw",
-					"amount": 1
+					"condition": "min_cards_in_gauge",
+					"condition_amount": 4,
+					"effect_type": "exceed_now"
 				}
 			]
 		}

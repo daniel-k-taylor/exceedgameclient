@@ -245,6 +245,7 @@ class StrikeStatBoosts:
 	var ignore_guard : bool = false
 	var ignore_push_and_pull : bool = false
 	var lose_all_armor : bool = false
+	var cannot_stun : bool = false
 	var always_add_to_gauge : bool = false
 	var return_attack_to_hand : bool = false
 	var move_strike_to_boosts : bool = false
@@ -278,6 +279,7 @@ class StrikeStatBoosts:
 		ignore_guard = false
 		ignore_push_and_pull = false
 		lose_all_armor = false
+		cannot_stun = false
 		always_add_to_gauge = false
 		return_attack_to_hand = false
 		move_strike_to_boosts = false
@@ -1906,6 +1908,8 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 				change_game_state(Enums.GameState.GameState_WaitForStrike)
 				decision_info.type = Enums.DecisionType.DecisionType_StrikeNow
 				decision_info.player = performing_player.my_id
+		"cannot_stun":
+			performing_player.strike_stat_boosts.cannot_stun = true
 		"choice":
 			change_game_state(Enums.GameState.GameState_PlayerDecision)
 			decision_info.type = Enums.DecisionType.DecisionType_EffectChoice
@@ -2734,16 +2738,19 @@ func do_set_strike_x(performing_player : Player, source : String):
 		"random_gauge_power":
 			if len(performing_player.gauge) > 0:
 				var random_gauge_idx = get_random_int() % len(performing_player.gauge)
-				var random_card_id = performing_player.gauge[random_gauge_idx].id
-				var power = performing_player.gauge[random_gauge_idx].definition['power']
-				value = power
-				_append_log("%s setting X for strike from power of %s in gauge." % [name, card_db.get_card_name(random_card_id)])
-				events += [create_event(Enums.EventType.EventType_RevealRandomGauge, performing_player.my_id, random_card_id)]
+				var card = performing_player.gauge[random_gauge_idx]
+				value = card.definition['power']
+				_append_log("%s setting X for strike from power of %s in gauge." % [performing_player.name, card_db.get_card_name(card.id)])
+				events += [create_event(Enums.EventType.EventType_RevealRandomGauge, performing_player.my_id, card.id)]
+		"top_discard_power":
+			if len(performing_player.discards) > 0:
+				var card = performing_player.discards[-1]
+				value = card.definition['power']
+				_append_log("%s setting X for strike from power of %s on top of discards." % [performing_player.name, card_db.get_card_name(card.id)])
 		_:
 			assert(false, "Unknown source for setting X")
 			
 	events += performing_player.set_strike_x(value)
-	
 	return events
 	
 func do_effects_for_timing(timing_name : String, performing_player : Player, card : GameCard, next_state):
@@ -2880,7 +2887,10 @@ func apply_damage(offense_player : Player, defense_player : Player, offense_card
 	_append_log("%s takes %s damage. Life is now %s." % [defense_player.name, str(damage_after_armor), str(defense_player.life)])
 
 	active_strike.add_damage_taken(defense_player, damage_after_armor)
-	events += check_for_stun(defense_player, offense_player.strike_stat_boosts.ignore_guard)
+	if offense_player.strike_stat_boosts.cannot_stun:
+		_append_log("%s %s cannot stun." % [offense_player.name, card_db.get_card_name(offense_card.id)])
+	else:
+		events += check_for_stun(defense_player, offense_player.strike_stat_boosts.ignore_guard)
 
 	if defense_player.life <= 0:
 		_append_log("%s is defeated." % [defense_player.name])

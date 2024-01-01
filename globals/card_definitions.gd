@@ -308,6 +308,8 @@ func get_effect_type_text(effect, card_name_source : String = ""):
 				effect_str += "Play and sustain a %s from hand." % limitation_str
 		"boost_then_sustain_topdeck":
 			effect_str += "Play and sustain %s card(s) from the top of your deck." % effect['amount']
+		"cannot_stun":
+			effect_str += "Attack does not stun."
 		"choice":
 			effect_str += "Choose: " + get_choice_summary(effect['choice'], card_name_source)
 		"choose_discard":
@@ -438,6 +440,8 @@ func get_effect_type_text(effect, card_name_source : String = ""):
 			match effect['source']:
 				'random_gauge_power':
 					effect_str += "power of random gauge card"
+				'top_discard_power':
+					effect_str += "power of top card of discards"
 				_:
 					effect_str += "(UNKNOWN)"
 		"seal_this":
