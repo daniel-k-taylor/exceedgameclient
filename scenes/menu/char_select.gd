@@ -25,7 +25,7 @@ func update_hover(char_id):
 		hover_portrait.texture = load("res://assets/portraits/random.png")
 	elif char_id == "random_s6":
 		hover_label.text = "Random"
-		hover_portrait.texture = load("res://assets/portraits/blazbluelogo2.png")
+		hover_portrait.texture = load("res://assets/portraits/unilogo.png")
 	elif char_id == "random_s5":
 		hover_label.text = "Random"
 		hover_portrait.texture = load("res://assets/portraits/blazbluelogo2.png")
