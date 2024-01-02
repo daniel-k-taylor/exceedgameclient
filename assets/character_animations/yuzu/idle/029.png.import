@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://cencg7iqcs846"
-path="res://.godot/imported/sheet.png-f863b406c8e5c14b9d15d1d41f047622.ctex"
+uid="uid://c0d275mbbdnuj"
+path="res://.godot/imported/029.png-5b6848ad1af58184d558453201bd971a.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/character_animations/yuzu/idle/sheet.png"
-dest_files=["res://.godot/imported/sheet.png-f863b406c8e5c14b9d15d1d41f047622.ctex"]
+source_file="res://assets/character_animations/yuzu/idle/029.png"
+dest_files=["res://.godot/imported/029.png-5b6848ad1af58184d558453201bd971a.ctex"]
 
 [params]
 
