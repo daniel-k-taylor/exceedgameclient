@@ -450,7 +450,7 @@ func get_effect_type_text(effect, card_name_source : String = ""):
 			else:
 				effect_str += "Seal this"
 		"self_discard_choose":
-			var destination = effect['destination']
+			var destination = effect['destination'] if 'destination' in effect else "discard"
 			var limitation = ""
 			if 'limitation' in effect:
 				limitation = " " + effect['limitation']

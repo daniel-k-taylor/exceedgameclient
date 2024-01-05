@@ -1332,7 +1332,7 @@ func _on_force_start_strike(event):
 func _on_strike_opponent_sets_first(event):
 	var player = event['event_player']
 	spawn_damage_popup("Strike!", player)
-	game_wrapper.submit_strike(Enums.PlayerId.PlayerId_Player, -1, false, -1, true)
+	game_wrapper.submit_strike(player, -1, false, -1, true)
 	return SmallNoticeDelay
 	
 func _on_strike_opponent_sets_first_defender_set(event):
@@ -1736,8 +1736,6 @@ func _on_reveal_random_gauge(event):
 	var player = event['event_player']
 	var card_id = event['number']
 	spawn_damage_popup("Random Gauge Card!", player)
-	
-	#TODO: would be nice to display the card briefly
 	
 	return SmallNoticeDelay
 	
@@ -2638,13 +2636,14 @@ func ai_handle_strike(action : AIPlayer.StrikeAction):
 	var card_id = action.card_id
 	var ex_card_id = action.ex_card_id
 	var wild_swing = action.wild_swing
+	#var opponent_sets_first = action.opponent_strikes_first
 	var success = game_wrapper.submit_strike(Enums.PlayerId.PlayerId_Opponent, card_id, wild_swing, ex_card_id)
 	if not success:
 		printlog("FAILED AI STRIKE")
 	return success
 
 func ai_handle_character_action(action : AIPlayer.CharacterActionAction):
-	var success = game_wrapper.submit_character_action(Enums.PlayerId.PlayerId_Opponent, action.card_ids)
+	var success = game_wrapper.submit_character_action(Enums.PlayerId.PlayerId_Opponent, action.card_ids, action.action_idx)
 	if not success:
 		printlog("FAILED AI CHARACTER ACTION")
 	return success

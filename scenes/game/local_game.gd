@@ -2470,7 +2470,7 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 				else:
 					_append_log("%s has no cards available to use for their effect." % [performing_player.name])
 		"set_strike_x":
-			events += do_set_strike_x(player, effect['source'])
+			events += do_set_strike_x(performing_player, effect['source'])
 		"self_discard_choose_internal":
 			var card_ids = effect['card_ids']
 			var card_names = card_db.get_card_names(card_ids)
