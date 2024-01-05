@@ -4,7 +4,7 @@
 	"display_name": "Baiken",
 	"cardback": "cardback_baiken.jpg",
 	"exceed_cost": 3,
-	"character_action_default": {
+	"character_action_default": [{
 		"gauge_cost": 1,
 		"force_cost": 0,
 		"effect": {
@@ -14,8 +14,8 @@
 				"effect_type": "strike"
 			}
 		}
-	},
-	"character_action_exceeded": {
+	}],
+	"character_action_exceeded": [{
 		"gauge_cost": 1,
 		"force_cost": 0,
 		"effect": {
@@ -25,7 +25,7 @@
 				"effect_type": "strike"
 			}
 		}
-	},
+	}],
 	"ability_effects": [],
 	"exceed_ability_effects": [
 		{

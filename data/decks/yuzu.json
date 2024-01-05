@@ -5,7 +5,7 @@
 	"cardback": "cardback_yuzu.jpg",
 	"exceed_cost": 1,
 	"s6_revert_action": true,
-	"character_action_default": {
+	"character_action_default": [{
 		"gauge_cost": 0,
 		"force_cost": 0,
 		"effect": {
@@ -18,14 +18,14 @@
 				"effect_type": "exceed_now"
 			}
 		}
-	},
-	"character_action_exceeded": {
+	}],
+	"character_action_exceeded": [{
 		"gauge_cost": 0,
 		"force_cost": 0,
 		"effect": {
 			"effect_type": "strike_random_from_gauge"
 		}
-	},
+	}],
 	"ability_effects": [
 	],
 	"exceed_ability_effects": [

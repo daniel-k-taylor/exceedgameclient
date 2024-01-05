@@ -63,6 +63,7 @@ var arena_locations_clickable = []
 var selected_arena_location = 0
 var force_for_armor_incoming_damage = 0
 var popout_exlude_card_ids = []
+var selected_character_action = 0
 
 var player_deck
 var opponent_deck
@@ -1592,7 +1593,7 @@ func begin_strike_choosing(strike_response : bool, cancel_allowed : bool, oppone
 	if strike_response:
 		if opponent_sets_first:
 			new_sub_state = UISubState.UISubState_SelectCards_OpponentSetsFirst_StrikeResponseCard
-		if opponent_sets_first:
+		else:
 			new_sub_state = UISubState.UISubState_SelectCards_StrikeResponseCard
 	else:
 		if opponent_sets_first:
@@ -2148,16 +2149,20 @@ func _update_buttons():
 			button_choices.append({ "text": "Manual Reshuffle", "action": _on_reshuffle_button_pressed, "disabled": false })
 		button_choices.append({ "text": "Boost", "action": _on_boost_button_pressed, "disabled": not game_wrapper.can_do_boost(Enums.PlayerId.PlayerId_Player) })
 		button_choices.append({ "text": "Strike", "action": _on_strike_button_pressed, "disabled": not game_wrapper.can_do_strike(Enums.PlayerId.PlayerId_Player) })
-		if game_wrapper.can_do_character_action(Enums.PlayerId.PlayerId_Player):
-			var char_action = game_wrapper.get_player_character_action(Enums.PlayerId.PlayerId_Player)
-			var force_cost = char_action['force_cost']
-			var gauge_cost = char_action['gauge_cost']
-			var additional_text = ""
-			if force_cost > 0:
-				additional_text += " (%s Force)" % force_cost
-			if gauge_cost > 0:
-				additional_text += " (%s Gauge)" % gauge_cost
-			button_choices.append({ "text": "Character Action%s" % additional_text, "action": _on_character_action_pressed, "disabled": false })
+		for i in range(game_wrapper.get_player_character_action_count(Enums.PlayerId.PlayerId_Player)):
+			if game_wrapper.can_do_character_action(Enums.PlayerId.PlayerId_Player, i):
+				var char_action = game_wrapper.get_player_character_action(Enums.PlayerId.PlayerId_Player, i)
+				var action_name = "Character Action"
+				if 'action_name' in char_action:
+					action_name = char_action['action_name']
+				var force_cost = char_action['force_cost']
+				var gauge_cost = char_action['gauge_cost']
+				var additional_text = ""
+				if force_cost > 0:
+					additional_text += " (%s Force)" % force_cost
+				if gauge_cost > 0:
+					additional_text += " (%s Gauge)" % gauge_cost
+				button_choices.append({ "text": "%s%s" % [action_name, additional_text], "action": func(): _on_character_action_pressed(i), "disabled": false })
 		if game_wrapper.can_do_s6_revert(Enums.PlayerId.PlayerId_Player):
 			button_choices.append({ "text": "Revert", "action": _on_revert_action_pressed, "disabled": false})
 		var bonus_available_actions = game_wrapper.get_bonus_actions(Enums.PlayerId.PlayerId_Player)
@@ -2387,21 +2392,22 @@ func _on_bonus_action_pressed(index : int):
 	change_ui_state(UIState.UIState_WaitForGameServer)
 	_update_buttons()
 
-func _on_character_action_pressed():
-	var character_action = game_wrapper.get_player_character_action(Enums.PlayerId.PlayerId_Player)
+func _on_character_action_pressed(action_idx : int = 0):
+	var character_action = game_wrapper.get_player_character_action(Enums.PlayerId.PlayerId_Player, action_idx)
 	if not character_action:
 		assert(false, "Character action button should not be visible")
 		return
 
 	var force_cost = character_action['force_cost']
 	var gauge_cost = character_action['gauge_cost']
+	selected_character_action = action_idx
 	if force_cost > 0:
 		change_ui_state(null, UISubState.UISubState_SelectCards_CharacterAction_Force)
 		begin_generate_force_selection(force_cost)
 	elif gauge_cost > 0:
 		begin_gauge_selection(gauge_cost, false, UISubState.UISubState_SelectCards_CharacterAction_Gauge)
 	else:
-		game_wrapper.submit_character_action(Enums.PlayerId.PlayerId_Player, [])
+		game_wrapper.submit_character_action(Enums.PlayerId.PlayerId_Player, [], action_idx)
 		change_ui_state(UIState.UIState_WaitForGameServer)
 		_update_buttons()
 
@@ -2440,7 +2446,7 @@ func _on_instructions_ok_button_pressed(index : int):
 			UISubState.UISubState_SelectCards_ChooseDiscardToDestination:
 				success = game_wrapper.submit_choose_from_discard(Enums.PlayerId.PlayerId_Player, selected_card_ids)
 			UISubState.UISubState_SelectCards_CharacterAction_Force, UISubState.UISubState_SelectCards_CharacterAction_Gauge:
-				success = game_wrapper.submit_character_action(Enums.PlayerId.PlayerId_Player, selected_card_ids)
+				success = game_wrapper.submit_character_action(Enums.PlayerId.PlayerId_Player, selected_card_ids, selected_character_action)
 			UISubState.UISubState_SelectCards_DiscardContinuousBoost, UISubState.UISubState_SelectCards_DiscardOpponentGauge:
 				success = game_wrapper.submit_boost_name_card_choice_effect(Enums.PlayerId.PlayerId_Player, single_card_id)
 			UISubState.UISubState_SelectCards_DiscardFromReference:

@@ -767,25 +767,42 @@ class Player:
 		var actions = parent.get_boost_effects_at_timing("action", self)
 		return actions
 
-	func get_character_action():
+	func get_character_action(i : int = 0):
+		if i > get_character_action_count():
+			parent.printlog("ERROR: Character action index out of range")
+			return null
+			
 		if exceeded and 'character_action_exceeded' in deck_def:
-			var action = deck_def['character_action_exceeded']
-			return action
+			var actions = deck_def['character_action_exceeded']
+			return actions[i]
 		elif not exceeded and 'character_action_default' in deck_def:
-			var action = deck_def['character_action_default']
-			return action
+			var actions = deck_def['character_action_default']
+			return actions[i]
 		return null
 
-	func can_do_character_action() -> bool:
+	func get_character_action_count():
 		if exceeded and 'character_action_exceeded' in deck_def:
-			var action = deck_def['character_action_exceeded']
+			var actions = deck_def['character_action_exceeded']
+			return len(actions)
+		elif not exceeded and 'character_action_default' in deck_def:
+			var actions = deck_def['character_action_default']
+			return len(actions)
+		return 0
+
+	func can_do_character_action(i : int = 0) -> bool:
+		if i > get_character_action_count():
+			parent.printlog("ERROR: Character action index out of range")
+			return false
+			
+		if exceeded and 'character_action_exceeded' in deck_def:
+			var action = deck_def['character_action_exceeded'][i]
 			var gauge_cost = action['gauge_cost']
 			var force_cost = action['force_cost']
 			if get_available_gauge() < gauge_cost: return false
 			if get_available_force() < force_cost: return false
 			return true
 		elif not exceeded and 'character_action_default' in deck_def:
-			var action = deck_def['character_action_default']
+			var action = deck_def['character_action_default'][i]
 			var gauge_cost = action['gauge_cost']
 			var force_cost = action['force_cost']
 			if get_available_gauge() < gauge_cost: return false
@@ -4284,8 +4301,8 @@ func do_choose_to_discard(performing_player : Player, card_ids):
 	event_queue += events
 	return true
 
-func do_character_action(performing_player : Player, card_ids):
-	printlog("MainAction: CHARACTER_ACTION by %s" % [get_player_name(performing_player.my_id)])
+func do_character_action(performing_player : Player, card_ids, action_idx : int = 0):
+	printlog("MainAction: CHARACTER_ACTION %s by %s" % [str(action_idx), get_player_name(performing_player.my_id)])
 	if game_state != Enums.GameState.GameState_PickAction:
 		printlog("ERROR: Tried to character action but not in correct game state.")
 		return false
@@ -4294,7 +4311,7 @@ func do_character_action(performing_player : Player, card_ids):
 		printlog("ERROR: Tried to character action but not current player")
 		return false
 
-	var action = performing_player.get_character_action()
+	var action = performing_player.get_character_action(action_idx)
 	var force_cost = action['force_cost']
 	var gauge_cost = action['gauge_cost']
 	if not performing_player.can_pay_cost_with(card_ids, force_cost, gauge_cost):
