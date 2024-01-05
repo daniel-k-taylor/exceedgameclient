@@ -30,7 +30,6 @@ var active_strike : Strike = null
 var active_character_action : bool = false
 var active_exceed : bool = false
 var active_overdrive : bool = false
-var active_revert : bool = false
 var remaining_overdrive_effects = []
 var remaining_character_action_effects = []
 
@@ -800,6 +799,10 @@ class Player:
 			var force_cost = action['force_cost']
 			if get_available_gauge() < gauge_cost: return false
 			if get_available_force() < force_cost: return false
+			
+			if 'min_hand_size' in action:
+				if len(hand) < action['min_hand_size']: return false
+			
 			return true
 		elif not exceeded and 'character_action_default' in deck_def:
 			var action = deck_def['character_action_default'][i]
@@ -807,12 +810,11 @@ class Player:
 			var force_cost = action['force_cost']
 			if get_available_gauge() < gauge_cost: return false
 			if get_available_force() < force_cost: return false
+			
+			if 'min_hand_size' in action:
+				if len(hand) < action['min_hand_size']: return false
+				
 			return true
-		return false
-		
-	func can_do_s6_revert() -> bool:
-		if exceeded and 's6_revert_action' in deck_def:
-			return deck_def['s6_revert_action'] and len(hand) > 0
 		return false
 
 	func draw(num_to_draw : int):
@@ -2741,14 +2743,6 @@ func do_remaining_character_action(performing_player : Player):
 		if game_state != Enums.GameState.GameState_WaitForStrike and game_state != Enums.GameState.GameState_Strike_Opponent_Set_First:
 			events += check_hand_size_advance_turn(performing_player)
 	return events
-	
-func finish_revert(performing_player : Player):
-	var events = []
-	game_state = Enums.GameState.GameState_PickAction
-	events += performing_player.revert_exceed()
-	performing_player.bonus_actions += 1
-	events += check_hand_size_advance_turn(performing_player)
-	return events
 
 func do_set_strike_x(performing_player : Player, source : String):
 	var events = []
@@ -3840,8 +3834,6 @@ func do_card_from_hand_to_gauge(performing_player : Player, card_ids : Array) ->
 	elif active_exceed:
 		active_exceed = false
 		events += check_hand_size_advance_turn(performing_player)
-	elif active_revert:
-		events += finish_revert(performing_player)
 	else:
 		# Could be exceeding.
 		printlog("ERROR: do_card_from_hand_to_gauge but no active strike or boost.")
@@ -4345,33 +4337,6 @@ func do_character_action(performing_player : Player, card_ids, action_idx : int 
 		active_character_action = false
 	event_queue += events
 	return true
-
-func do_s6_revert(performing_player : Player, card_ids):
-	printlog("MainAction: S6_REVERT by %s" % [get_player_name(performing_player.my_id)])
-	if game_state != Enums.GameState.GameState_PickAction:
-		printlog("ERROR: Tried to revert but not in correct game state.")
-		return false
-
-	if performing_player.my_id != active_turn_player:
-		printlog("ERROR: Tried to revert but not current player")
-		return false
-
-	if !performing_player.exceeded:
-		printlog("ERROR: Tried to revert but not exceeded")
-		return false
-
-	var events = []
-	
-	# Begin the revert action.
-	active_revert = true
-	change_game_state(Enums.GameState.GameState_PlayerDecision)
-	decision_info.type = Enums.DecisionType.DecisionType_CardFromHandToGauge
-	decision_info.player = performing_player.my_id
-	decision_info.choice_card_id = card_ids[0]
-	decision_info.destination = "gauge"
-	events += [create_event(Enums.EventType.EventType_RevertAction, performing_player.my_id, 0)]
-	event_queue += events
-	return do_card_from_hand_to_gauge(performing_player, card_ids)
 
 func do_bonus_turn_action(performing_player : Player, action_index : int):
 	printlog("MainAction: BONUS_ACTION by %s" % [get_player_name(performing_player.my_id)])

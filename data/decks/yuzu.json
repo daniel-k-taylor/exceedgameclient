@@ -4,7 +4,6 @@
 	"display_name": "Yuzuriha",
 	"cardback": "cardback_yuzu.jpg",
 	"exceed_cost": 1,
-	"s6_revert_action": true,
 	"character_action_default": [{
 		"gauge_cost": 0,
 		"force_cost": 0,
@@ -19,13 +18,33 @@
 			}
 		}
 	}],
-	"character_action_exceeded": [{
-		"gauge_cost": 0,
-		"force_cost": 0,
-		"effect": {
-			"effect_type": "strike_random_from_gauge"
+	"character_action_exceeded": [
+		{
+			"gauge_cost": 0,
+			"force_cost": 0,
+			"effect": {
+				"effect_type": "strike_random_from_gauge"
+			}
+		},
+		{
+			"gauge_cost": 0,
+			"force_cost": 0,
+			"min_hand_size": 1,
+			"action_name": "Revert",
+			"effect": {
+				"effect_type": "gauge_from_hand",
+				"min_amount": 1,
+				"max_amount": 1,
+				"and": {
+					"effect_type": "revert",
+					"and": {
+						"effect_type": "take_bonus_actions",
+						"amount": 1
+					}
+				}
+			}
 		}
-	}],
+	],
 	"ability_effects": [
 	],
 	"exceed_ability_effects": [

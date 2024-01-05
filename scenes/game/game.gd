@@ -129,7 +129,6 @@ enum UISubState {
 	UISubState_SelectCards_GaugeForEffect,
 	UISubState_SelectArena_MoveResponse,
 	UISubState_SelectArena_EffectChoice,
-	UISubState_SelectCards_Revert_DiscardCardsToGauge,
 }
 
 var ui_state : UIState = UIState.UIState_Initializing
@@ -606,7 +605,7 @@ func can_select_card(card):
 	var in_opponent_reference = is_card_in_player_reference($AllCards/OpponentAllCopy.get_children(), card.card_id)
 	var in_choice_zone = is_card_in_player_reference($AllCards/ChoiceZone.get_children(), card.card_id)
 	match ui_sub_state:
-		UISubState.UISubState_SelectCards_DiscardCards, UISubState.UISubState_SelectCards_DiscardCardsToGauge, UISubState.UISubState_SelectCards_Revert_DiscardCardsToGauge:
+		UISubState.UISubState_SelectCards_DiscardCards, UISubState.UISubState_SelectCards_DiscardCardsToGauge:
 			return in_hand and len(selected_cards) < select_card_require_max
 		UISubState.UISubState_SelectCards_DiscardCards_Choose:
 			var limitation = game_wrapper.get_decision_info().limitation
@@ -795,8 +794,6 @@ func _stat_notice_event(event):
 			notice_text = "+%d Armor" % number
 		Enums.EventType.EventType_CharacterAction:
 			notice_text = "Character Action"
-		Enums.EventType.EventType_RevertAction:
-			notice_text = "Revert Action"
 		Enums.EventType.EventType_Strike_DodgeAttacks:
 			notice_text = "Dodge Attacks!"
 		Enums.EventType.EventType_Strike_DodgeAttacksAtRange:
@@ -2036,8 +2033,6 @@ func _handle_events(events):
 				delay = _on_reveal_random_gauge(event)
 			Enums.EventType.EventType_RevealTopDeck:
 				delay = _on_reveal_topdeck(event)
-			Enums.EventType.EventType_RevertAction:
-				delay = _stat_notice_event(event)
 			Enums.EventType.EventType_Seal:
 				delay = _on_add_to_sealed(event)
 			Enums.EventType.EventType_SetCardAside:
@@ -2163,8 +2158,6 @@ func _update_buttons():
 				if gauge_cost > 0:
 					additional_text += " (%s Gauge)" % gauge_cost
 				button_choices.append({ "text": "%s%s" % [action_name, additional_text], "action": func(): _on_character_action_pressed(i), "disabled": false })
-		if game_wrapper.can_do_s6_revert(Enums.PlayerId.PlayerId_Player):
-			button_choices.append({ "text": "Revert", "action": _on_revert_action_pressed, "disabled": false})
 		var bonus_available_actions = game_wrapper.get_bonus_actions(Enums.PlayerId.PlayerId_Player)
 		for i in range(bonus_available_actions.size()):
 			var bonus_action = bonus_available_actions[i]
@@ -2210,7 +2203,7 @@ func _update_buttons():
 				update_discard_selection_message_choose()
 			UISubState.UISubState_SelectCards_ChooseBoostsToSustain:
 				update_sustain_selection_message()
-			UISubState.UISubState_SelectCards_DiscardCardsToGauge, UISubState.UISubState_SelectCards_Revert_DiscardCardsToGauge:
+			UISubState.UISubState_SelectCards_DiscardCardsToGauge:
 				update_discard_to_gauge_selection_message()
 			UISubState.UISubState_SelectCards_MoveActionGenerateForce, UISubState.UISubState_SelectCards_CharacterAction_Force:
 				update_force_generation_message()
@@ -2290,7 +2283,7 @@ func can_press_ok():
 				return selected_cards_between_min_and_max()
 			UISubState.UISubState_SelectCards_ChooseDiscardToDestination, UISubState.UISubState_SelectCards_DiscardCards_Choose, UISubState.UISubState_SelectCards_DiscardOpponentGauge:
 				return selected_cards_between_min_and_max()
-			UISubState.UISubState_SelectCards_DiscardCardsToGauge, UISubState.UISubState_SelectCards_Revert_DiscardCardsToGauge, UISubState.UISubState_SelectCards_Mulligan, UISubState.UISubState_SelectCards_CharacterAction_Gauge:
+			UISubState.UISubState_SelectCards_DiscardCardsToGauge, UISubState.UISubState_SelectCards_Mulligan, UISubState.UISubState_SelectCards_CharacterAction_Gauge:
 				return selected_cards_between_min_and_max()
 			UISubState.UISubState_SelectCards_ChooseBoostsToSustain:
 				return selected_cards_between_min_and_max()
@@ -2411,9 +2404,6 @@ func _on_character_action_pressed(action_idx : int = 0):
 		change_ui_state(UIState.UIState_WaitForGameServer)
 		_update_buttons()
 
-func _on_revert_action_pressed():
-	begin_discard_cards_selection(1, 1, UISubState.UISubState_SelectCards_Revert_DiscardCardsToGauge, true)
-
 func _on_choice_pressed(choice):
 	current_effect_choices = []
 	var success = game_wrapper.submit_choice(Enums.PlayerId.PlayerId_Player, choice)
@@ -2489,8 +2479,6 @@ func _on_instructions_ok_button_pressed(index : int):
 					success = game_wrapper.submit_boost(Enums.PlayerId.PlayerId_Player, single_card_id, [])
 			UISubState.UISubState_SelectCards_ForceForBoost:
 				success = game_wrapper.submit_boost(Enums.PlayerId.PlayerId_Player, selected_boost_to_pay_for, selected_card_ids)
-			UISubState.UISubState_SelectCards_Revert_DiscardCardsToGauge:
-				success = game_wrapper.submit_s6_revert(Enums.PlayerId.PlayerId_Player, selected_card_ids)
 
 		if success:
 			popout_instruction_info = null
