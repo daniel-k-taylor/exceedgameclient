@@ -59,6 +59,7 @@ var instructions_ok_allowed = false
 var instructions_cancel_allowed = false
 var instructions_wild_swing_allowed = false
 var selected_cards = []
+var enabled_reminder_text = false
 var arena_locations_clickable = []
 var selected_arena_location = 0
 var force_for_armor_incoming_damage = 0
@@ -1453,7 +1454,10 @@ func update_discard_to_gauge_selection_message():
 
 func update_gauge_selection_message():
 	var num_remaining = select_card_require_min - len(selected_cards)
-	set_instructions("Select %s more gauge card(s)." % num_remaining)
+	var discard_reminder = ""
+	if enabled_reminder_text:
+		discard_reminder = "\nThe last card selected will be on top of the discard pile."
+	set_instructions("Select %s more gauge card(s).%s" % [num_remaining, discard_reminder])
 
 func update_gauge_for_effect_message():
 	var effect_str = ""
@@ -1559,10 +1563,11 @@ func begin_generate_force_selection(amount):
 
 	change_ui_state(UIState.UIState_SelectCards)
 
-func begin_gauge_selection(amount : int, wild_swing_allowed : bool, sub_state : UISubState):
+func begin_gauge_selection(amount : int, wild_swing_allowed : bool, sub_state : UISubState, enable_reminder : bool = false):
 	# Show the gauge window.
 	_on_player_gauge_gauge_clicked()
 	selected_cards = []
+	enabled_reminder_text = true if enable_reminder else false
 	if amount != -1:
 		select_card_require_min = amount
 		select_card_require_max = amount
@@ -1856,10 +1861,11 @@ func _on_effect_choice(event):
 
 func _on_pay_cost_gauge(event):
 	var player = event['event_player']
+	var enable_reminder = event['extra_info'] 
 	var gauge_cost = game_wrapper.get_decision_info().cost
 	if player == Enums.PlayerId.PlayerId_Player:
 		var wild_swing_allowed = game_wrapper.get_decision_info().type == Enums.DecisionType.DecisionType_PayStrikeCost_CanWild
-		begin_gauge_selection(gauge_cost, wild_swing_allowed, UISubState.UISubState_SelectCards_StrikeGauge)
+		begin_gauge_selection(gauge_cost, wild_swing_allowed, UISubState.UISubState_SelectCards_StrikeGauge, enable_reminder)
 	else:
 		ai_pay_cost(gauge_cost)
 

@@ -6858,6 +6858,7 @@
 		"display_name": "Sogetsu Ittou-Ryuu Ougi: Kashou",
 		"force_cost": 0,
 		"gauge_cost": 2,
+		"gauge_discard_reminder": true,
 		"range_min": 1,
 		"range_max": 4,
 		"speed": 6,

@@ -2919,6 +2919,9 @@ func ask_for_cost(performing_player, card, next_state):
 		gauge_cost = card.definition['gauge_cost_ex']
 	var force_cost = card.definition['force_cost']
 	var is_special = card.definition['type'] == "special"
+	var gauge_discard_reminder = false
+	if 'gauge_discard_reminder' in card.definition:
+		gauge_discard_reminder = true
 
 	var card_forced_invalid = (is_special and performing_player.specials_invalid)
 	if gauge_cost == 0 and force_cost == 0 and not card_forced_invalid:
@@ -2934,7 +2937,7 @@ func ask_for_cost(performing_player, card, next_state):
 
 			if gauge_cost > 0:
 				decision_info.cost = gauge_cost
-				events += [create_event(Enums.EventType.EventType_Strike_PayCost_Gauge, performing_player.my_id, card.id)]
+				events += [create_event(Enums.EventType.EventType_Strike_PayCost_Gauge, performing_player.my_id, card.id, "", gauge_discard_reminder)]
 			elif force_cost > 0:
 				decision_info.cost = force_cost
 				events += [create_event(Enums.EventType.EventType_Strike_PayCost_Force, performing_player.my_id, card.id)]
