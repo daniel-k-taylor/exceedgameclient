@@ -2,7 +2,7 @@
 	"id": "yuzu",
 	"season": 6,
 	"display_name": "Yuzuriha",
-	"cardback": "cardback_yuzu.png",
+	"cardback": "cardback_yuzu.jpg",
 	"exceed_cost": 1,
 	"s6_revert_action": true,
 	"character_action_default": {

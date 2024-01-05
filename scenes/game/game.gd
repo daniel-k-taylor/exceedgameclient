@@ -1590,15 +1590,15 @@ func begin_strike_choosing(strike_response : bool, cancel_allowed : bool, oppone
 	enable_instructions_ui("Select a card to strike with.", true, can_cancel, true)
 	var new_sub_state
 	if strike_response:
-		if !opponent_sets_first:
-			new_sub_state = UISubState.UISubState_SelectCards_StrikeResponseCard
-		else:
+		if opponent_sets_first:
 			new_sub_state = UISubState.UISubState_SelectCards_OpponentSetsFirst_StrikeResponseCard
+		if opponent_sets_first:
+			new_sub_state = UISubState.UISubState_SelectCards_StrikeResponseCard
 	else:
-		if !opponent_sets_first:
-			new_sub_state = UISubState.UISubState_SelectCards_StrikeCard
-		else:
+		if opponent_sets_first:
 			new_sub_state = UISubState.UISubState_SelectCards_OpponentSetsFirst_StrikeCard
+		else:
+			new_sub_state = UISubState.UISubState_SelectCards_StrikeCard
 	change_ui_state(UIState.UIState_SelectCards, new_sub_state)
 
 func begin_boost_choosing(can_cancel : bool, allow_gauge : bool, limitation : String):

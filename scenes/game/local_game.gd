@@ -175,9 +175,9 @@ class Strike:
 		
 	func get_player_strike_from_gauge(performing_player : Player) -> bool:
 		if performing_player == defender:
-			return true
+			return false
 		# ensure that the strike from gauge wasn't invalidated
-		return initiator_set_from_gauge and !initiator_wild_strike
+		return initiator_set_from_gauge and not initiator_wild_strike
 
 	func is_player_stunned(question_player : Player) -> bool:
 		if get_player(1) == question_player:
@@ -1515,10 +1515,10 @@ func initialize_new_strike(performing_player : Player, opponent_sets_first : boo
 	active_strike.effects_resolved_in_timing = 0
 	
 	active_strike.opponent_sets_first = opponent_sets_first
-	if !opponent_sets_first:
-		active_strike.strike_state = StrikeState.StrikeState_Initiator_SetEffects
-	else:
+	if opponent_sets_first:
 		active_strike.strike_state = StrikeState.StrikeState_Defender_SetFirst
+	else:
+		active_strike.strike_state = StrikeState.StrikeState_Initiator_SetEffects
 
 	player.strike_stat_boosts.clear()
 	opponent.strike_stat_boosts.clear()
@@ -1543,10 +1543,10 @@ func continue_setup_strike(events):
 
 		# All effects resolved, move to next state.
 		active_strike.effects_resolved_in_timing = 0
-		if !active_strike.opponent_sets_first:
-			events = strike_setup_defender_response(events)
-		else:
+		if active_strike.opponent_sets_first:
 			events += begin_resolve_strike()
+		else:
+			events = strike_setup_defender_response(events)
 		
 	elif active_strike.strike_state == StrikeState.StrikeState_Defender_SetFirst:
 		# Opponent will set first; check for restrictions on what they can set
@@ -1563,10 +1563,10 @@ func continue_setup_strike(events):
 
 		# All effects resolved, move to next state.
 		active_strike.effects_resolved_in_timing = 0
-		if !active_strike.opponent_sets_first:
-			events += begin_resolve_strike()
-		else:
+		if active_strike.opponent_sets_first:
 			events = strike_setup_initiator_response(events)
+		else:
+			events += begin_resolve_strike()
 	return events
 	
 func strike_setup_defender_response(events):
@@ -1594,10 +1594,10 @@ func strike_setup_defender_response(events):
 		else:
 			events += active_strike.defender.reveal_hand()
 	if ask_for_response:
-		if !active_strike.opponent_sets_first:
-			events += [create_event(Enums.EventType.EventType_Strike_DoResponseNow, active_strike.defender.my_id, 0)]
-		else:
+		if active_strike.opponent_sets_first:
 			events += [create_event(Enums.EventType.EventType_Strike_OpponentSetsFirst_DefenderSet, active_strike.defender.my_id, 0)]
+		else:
+			events += [create_event(Enums.EventType.EventType_Strike_DoResponseNow, active_strike.defender.my_id, 0)]
 	return events
 	
 func strike_setup_initiator_response(events):
@@ -2278,8 +2278,10 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 				events += [create_event(Enums.EventType.EventType_Strike_PowerUp, performing_player.my_id, effect['amount'] * boosts_in_play)]
 		"powerup_damagetaken":
 			var power_per_damage = effect['amount']
-			var total_powerup = power_per_damage * active_strike.get_damage_taken(performing_player)
-			if total_powerup != 0 and (total_powerup > 0) == (power_per_damage > 0):
+			var damage_taken = active_strike.get_damage_taken(performing_player)
+			var total_powerup = power_per_damage * damage_taken
+			# Checking for negative damage taken so that powerup is in expected "direction"
+			if total_powerup != 0 and damage_taken > 0:
 				performing_player.strike_stat_boosts.power += total_powerup
 				events += [create_event(Enums.EventType.EventType_Strike_PowerUp, performing_player.my_id, total_powerup)]
 		"powerup_opponent":
@@ -2719,7 +2721,8 @@ func do_remaining_character_action(performing_player : Player):
 
 	if game_state != Enums.GameState.GameState_PlayerDecision:
 		active_character_action = false
-		events += check_hand_size_advance_turn(performing_player)
+		if game_state != Enums.GameState.GameState_WaitForStrike and game_state != Enums.GameState.GameState_Strike_Opponent_Set_First:
+			events += check_hand_size_advance_turn(performing_player)
 	return events
 	
 func finish_revert(performing_player : Player):
@@ -3128,10 +3131,10 @@ func handle_strike_attack_cleanup(performing_player : Player, card):
 	var other_player = _get_player(get_other_player(performing_player.my_id))
 	if performing_player.is_set_aside_card(card.id):
 		events += [create_event(Enums.EventType.EventType_SetCardAside, performing_player.my_id, card.id)]
-	elif performing_player.strike_stat_boosts.discard_attack_on_cleanup:
-		events += performing_player.add_to_discards(card)
 	elif performing_player.strike_stat_boosts.seal_attack_on_cleanup:
 		events += performing_player.add_to_sealed(card)
+	elif performing_player.strike_stat_boosts.discard_attack_on_cleanup:
+		events += performing_player.add_to_discards(card)
 	elif performing_player.strike_stat_boosts.return_attack_to_hand:
 		events += performing_player.add_to_hand(card)
 	elif performing_player.strike_stat_boosts.move_strike_to_opponent_boosts:
@@ -3564,7 +3567,7 @@ func do_strike(performing_player : Player, card_id : int, wild_strike: bool, ex_
 		if performing_player.my_id != active_turn_player:
 			printlog("ERROR: Tried to strike but not current player")
 			return false
-		if !opponent_sets_first:
+		if not opponent_sets_first:
 			printlog("ERROR: Inconsistent state for opponent setting first on Strike.")
 			return false
 	elif game_state == Enums.GameState.GameState_WaitForStrike:
@@ -3589,7 +3592,7 @@ func do_strike(performing_player : Player, card_id : int, wild_strike: bool, ex_
 	# Lay down the strike
 	match game_state:
 		Enums.GameState.GameState_PickAction, Enums.GameState.GameState_WaitForStrike:
-			if !opponent_sets_first:
+			if not opponent_sets_first:
 				initialize_new_strike(performing_player, opponent_sets_first)
 
 			if wild_strike:
