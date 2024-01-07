@@ -38,6 +38,8 @@ var remaining_delay = 0
 var events_to_process = []
 
 var damage_popup_pool:Array[DamagePopup] = []
+var spawned_damage_popups = 0
+var removed_damage_popups = 0
 
 var insert_ai_pause = false
 var popout_instruction_info = null
@@ -356,9 +358,13 @@ func spawn_deck(deck_id, deck_list, deck_card_zone, copy_zone, set_aside_zone, c
 func spawn_damage_popup(value:String, notice_player : Enums.PlayerId):
 	var popup = get_damage_popup()
 	var pos = get_notice_position(notice_player)
-	pos.y -= NoticeOffsetY
+	
+	var remaining_popups = spawned_damage_popups - removed_damage_popups
+	pos.y -= NoticeOffsetY + (remaining_popups * NoticeOffsetY)
 	var height = NoticeOffsetY
 	add_child(popup)
+	
+	spawned_damage_popups += 1
 	popup.set_values_and_animate(value, pos, height)
 
 func get_damage_popup() -> DamagePopup:
@@ -366,9 +372,13 @@ func get_damage_popup() -> DamagePopup:
 		return damage_popup_pool.pop_front()
 	else:
 		var new_popup = damage_popup_template.instantiate()
+		new_popup.remove_callback = count_despawned_damage_popup
 		new_popup.tree_exiting.connect(
 			func():damage_popup_pool.append(new_popup))
 		return new_popup
+		
+func count_despawned_damage_popup():
+	removed_damage_popups += 1
 
 func spawn_all_cards():
 	var player_deck_id = player_deck['id']
