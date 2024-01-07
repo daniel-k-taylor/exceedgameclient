@@ -1341,7 +1341,6 @@ func _on_strike_opponent_sets_first_defender_set(event):
 		begin_strike_choosing(false, false, true)
 	else:
 		ai_forced_strike()
-	return SmallNoticeDelay
 
 func _on_force_wild_swing(event):
 	var player = event['event_player']
@@ -2072,7 +2071,7 @@ func _handle_events(events):
 			Enums.EventType.EventType_Strike_OpponentCantMovePast:
 				delay = _stat_notice_event(event)
 			Enums.EventType.EventType_Strike_OpponentSetsFirst:
-				_on_strike_opponent_sets_first(event)
+				delay = _on_strike_opponent_sets_first(event)
 			Enums.EventType.EventType_Strike_OpponentSetsFirst_DefenderSet:
 				_on_strike_opponent_sets_first_defender_set(event)
 			Enums.EventType.EventType_Strike_OpponentSetsFirst_InitiatorSet:
