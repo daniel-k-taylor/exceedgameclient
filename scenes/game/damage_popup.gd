@@ -4,14 +4,10 @@ extends Node2D
 @onready var label : Label = $LabelContainer/Label
 @onready var label_container : Node2D = $LabelContainer
 
-var remove_callback = null
-
 func remove():
 	animation_player.stop()
 	if is_inside_tree():
 		get_parent().remove_child(self)
-	if remove_callback != null:
-		remove_callback.call()
 
 func set_values_and_animate(value:String, start_pos: Vector2, height:float):
 	label.text = value
