@@ -3147,8 +3147,6 @@ func handle_strike_attack_cleanup(performing_player : Player, card):
 		events += [create_event(Enums.EventType.EventType_SetCardAside, performing_player.my_id, card.id)]
 	elif performing_player.strike_stat_boosts.seal_attack_on_cleanup:
 		events += performing_player.add_to_sealed(card)
-	elif performing_player.strike_stat_boosts.discard_attack_on_cleanup:
-		events += performing_player.add_to_discards(card)
 	elif performing_player.strike_stat_boosts.return_attack_to_hand:
 		events += performing_player.add_to_hand(card)
 	elif performing_player.strike_stat_boosts.move_strike_to_opponent_boosts:
@@ -3157,6 +3155,8 @@ func handle_strike_attack_cleanup(performing_player : Player, card):
 	elif performing_player.strike_stat_boosts.move_strike_to_boosts:
 		events += performing_player.add_to_continuous_boosts(card)
 		performing_player.sustained_boosts.append(card.id)
+	elif performing_player.strike_stat_boosts.discard_attack_on_cleanup:
+		events += performing_player.add_to_discards(card)
 	elif hit or stat_boosts.always_add_to_gauge:
 		_append_log("%s %s goes to gauge after the attack." % [performing_player.name, card_db.get_card_name(card.id)])
 		events += performing_player.add_to_gauge(card)

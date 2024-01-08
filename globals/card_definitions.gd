@@ -326,6 +326,8 @@ func get_effect_type_text(effect, card_name_source : String = ""):
 			effect_str += "Close " + str(effect['amount'])
 		"discard_this":
 			effect_str += "Discard this"
+		"discard_strike_after_cleanup":
+			effect_str += "Discard attack on cleanup"
 		"discard_continuous_boost":
 			if 'limitation' in effect and effect['limitation'] == 'mine' and 'overall_effect' in effect:
 				effect_str += "You may discard one of your continuous boosts for %s" % [get_effect_text(effect['overall_effect'])]
