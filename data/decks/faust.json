@@ -4,7 +4,7 @@
 	"display_name": "Faust",
 	"cardback": "cardback_faust.jpg",
 	"exceed_cost": 2,
-	"character_action_default": {
+	"character_action_default": [{
 		"gauge_cost": 0,
 		"force_cost": 0,
 		"effect": {
@@ -17,8 +17,8 @@
 			"destination_unchosen": "discard",
 			"strike_after": true
 		}
-	},
-	"character_action_exceeded": {
+	}],
+	"character_action_exceeded": [{
 		"gauge_cost": 0,
 		"force_cost": 0,
 		"effect": {
@@ -31,7 +31,7 @@
 			"destination_unchosen": "discard",
 			"strike_after": true
 		}
-	},
+	}],
 	"ability_effects": [
 	],
 	"exceed_ability_effects": [

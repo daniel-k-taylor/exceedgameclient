@@ -171,8 +171,10 @@ class ChooseFromTopdeckAction:
 
 class CharacterActionAction:
 	var card_ids
-	func _init(card_id_combination):
+	var action_idx
+	func _init(card_id_combination, action_idx):
 		card_ids = card_id_combination
+		self.action_idx = action_idx
 
 class ChooseArenaLocationAction:
 	var location
@@ -476,27 +478,28 @@ func get_strike_actions(game_logic : LocalGame, me : LocalGame.Player, _opponent
 
 func get_character_action_actions(game_logic : LocalGame, me : LocalGame.Player, _opponent : LocalGame.Player):
 	var possible_actions = []
-	if me.can_do_character_action():
-		var action = me.get_character_action()
-		var force_cost = action['force_cost']
-		var gauge_cost = action['gauge_cost']
-		if force_cost > 0:
-			var all_force_option_ids = []
-			for card in me.hand:
-				all_force_option_ids.append(card.id)
-			for card in me.gauge:
-				all_force_option_ids.append(card.id)
-			var combinations = []
-			generate_force_combinations(game_logic, all_force_option_ids, force_cost, [], 0, combinations)
-			for combo in combinations:
-				possible_actions.append(CharacterActionAction.new(combo))
-		elif gauge_cost > 0:
-			var combinations = get_combinations_to_pay_gauge(me, gauge_cost)
-			for combination in combinations:
-				possible_actions.append(CharacterActionAction.new(combination))
-		else:
-			# No cost.
-			possible_actions.append(CharacterActionAction.new([]))
+	for action_idx in range(me.get_character_action_count()):
+		if me.can_do_character_action(action_idx):
+			var action = me.get_character_action(action_idx)
+			var force_cost = action['force_cost']
+			var gauge_cost = action['gauge_cost']
+			if force_cost > 0:
+				var all_force_option_ids = []
+				for card in me.hand:
+					all_force_option_ids.append(card.id)
+				for card in me.gauge:
+					all_force_option_ids.append(card.id)
+				var combinations = []
+				generate_force_combinations(game_logic, all_force_option_ids, force_cost, [], 0, combinations)
+				for combo in combinations:
+					possible_actions.append(CharacterActionAction.new(combo, action_idx))
+			elif gauge_cost > 0:
+				var combinations = get_combinations_to_pay_gauge(me, gauge_cost)
+				for combination in combinations:
+					possible_actions.append(CharacterActionAction.new(combination, action_idx))
+			else:
+				# No cost.
+				possible_actions.append(CharacterActionAction.new([], action_idx))
 	return possible_actions
 
 func pay_strike_gauge_cost(game_logic : LocalGame, my_id : Enums.PlayerId, gauge_cost : int, wild_swing_allowed : bool) -> PayStrikeCostAction:

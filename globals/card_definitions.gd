@@ -29,6 +29,8 @@ func get_random_deck(season : int):
 func get_deck_from_str_id(str_id : String):
 	if str_id == "random_s7":
 		return get_random_deck(7)
+	if str_id == "random_s6":
+		return get_random_deck(6)
 	if str_id == "random_s5":
 		return get_random_deck(5)
 	if str_id == "random":
@@ -194,6 +196,8 @@ func get_condition_text(condition, amount, amount2):
 			text += "If not full close, "
 		"not_initiated_strike":
 			text += "If opponent initiated strike, "
+		"stunned":
+			text += "If stunned, "
 		"not_stunned":
 			text += "If not stunned, "
 		"opponent_stunned":
@@ -222,6 +226,10 @@ func get_condition_text(condition, amount, amount2):
 			text += ""
 		"was_wild_swing":
 			text += "If this was a wild swing, "
+		"was_strike_from_gauge":
+			text += "If set from gauge, "
+		"was_hit":
+			text += "If you were hit, "
 		_:
 			text += "MISSING CONDITION"
 	return text
@@ -270,7 +278,11 @@ func get_effect_type_text(effect, card_name_source : String = ""):
 		"add_top_deck_to_gauge":
 			effect_str += "Add top card of deck to gauge"
 		"advance":
-			effect_str += "Advance " + str(effect['amount'])
+			effect_str += "Advance "
+			if str(effect['amount']) == "strike_x":
+				effect_str += "X"
+			else:
+				effect_str += str(effect['amount'])
 		"armorup":
 			effect_str += "+" + str(effect['amount']) + " Armor"
 		"attack_is_ex":
@@ -296,6 +308,8 @@ func get_effect_type_text(effect, card_name_source : String = ""):
 				effect_str += "Play and sustain a %s from hand." % limitation_str
 		"boost_then_sustain_topdeck":
 			effect_str += "Play and sustain %s card(s) from the top of your deck." % effect['amount']
+		"cannot_stun":
+			effect_str += "Attack does not stun."
 		"choice":
 			effect_str += "Choose: " + get_choice_summary(effect['choice'], card_name_source)
 		"choose_discard":
@@ -312,6 +326,8 @@ func get_effect_type_text(effect, card_name_source : String = ""):
 			effect_str += "Close " + str(effect['amount'])
 		"discard_this":
 			effect_str += "Discard this"
+		"discard_strike_after_cleanup":
+			effect_str += "Discard attack on cleanup"
 		"discard_continuous_boost":
 			if 'limitation' in effect and effect['limitation'] == 'mine' and 'overall_effect' in effect:
 				effect_str += "You may discard one of your continuous boosts for %s" % [get_effect_text(effect['overall_effect'])]
@@ -377,9 +393,13 @@ func get_effect_type_text(effect, card_name_source : String = ""):
 		"place_eddie_onto_self":
 			effect_str += "Place Eddie onto your space"
 		"powerup":
-			if effect['amount'] > 0:
-				effect_str += "+"
-			effect_str += str(effect['amount']) + " Power"
+			if str(effect['amount']) == "strike_x":
+				effect_str += "+X"
+			else:
+				if effect['amount'] > 0:
+					effect_str += "+"
+				effect_str += str(effect['amount'])
+			effect_str += " Power"
 		"powerup_per_boost_in_play":
 			effect_str += "+" + str(effect['amount']) + " Power per boost in play."
 		"powerup_damagetaken":
@@ -402,7 +422,11 @@ func get_effect_type_text(effect, card_name_source : String = ""):
 		"rangeup_per_boost_in_play":
 			effect_str += "+" + str(effect['amount']) + "-" + str(effect['amount2']) + " Range per boost in play."
 		"retreat":
-			effect_str += "Retreat " + str(effect['amount'])
+			effect_str += "Retreat "
+			if str(effect['amount']) == "strike_x":
+				effect_str += "X"
+			else:
+				effect_str += str(effect['amount'])
 		"return_attack_to_hand":
 			effect_str += "Return the attack to your hand"
 		"return_this_to_hand":
@@ -413,13 +437,22 @@ func get_effect_type_text(effect, card_name_source : String = ""):
 			effect_str += "Reveal your hand"
 		"reveal_strike":
 			effect_str += "Initiate face-up"
+		"set_strike_x":
+			effect_str += "Set X to "
+			match effect['source']:
+				'random_gauge_power':
+					effect_str += "power of random gauge card"
+				'top_discard_power':
+					effect_str += "power of top card of discards"
+				_:
+					effect_str += "(UNKNOWN)"
 		"seal_this":
 			if card_name_source:
 				effect_str += "Seal %s" % card_name_source
 			else:
 				effect_str += "Seal this"
 		"self_discard_choose":
-			var destination = effect['destination']
+			var destination = effect['destination'] if 'destination' in effect else "discard"
 			var limitation = ""
 			if 'limitation' in effect:
 				limitation = " " + effect['limitation']
@@ -448,6 +481,8 @@ func get_effect_type_text(effect, card_name_source : String = ""):
 			effect_str += "Spend " + str(effect['amount']) + " life"
 		"strike":
 			effect_str += "Strike"
+		"strike_random_from_gauge":
+			effect_str += "Strike with random card from gauge (opponent sets first)"
 		"stun_immunity":
 			effect_str += "Stun Immunity"
 		"sustain_this":
