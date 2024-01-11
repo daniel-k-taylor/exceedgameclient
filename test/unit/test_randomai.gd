@@ -304,6 +304,7 @@ func run_ai_game():
 			other_ai = ai1
 
 		var turn_events = []
+		turn_events += handle_decisions(game_logic) #Handles overdrives
 		var turn_action = current_ai.take_turn(game_logic, current_player.my_id)
 		if turn_action is AIPlayer.PrepareAction:
 			turn_events += handle_prepare(game_logic, current_player)
