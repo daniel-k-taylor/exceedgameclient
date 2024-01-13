@@ -4,4 +4,4 @@
 
 [resource]
 atlas = ExtResource("1_vkagn")
-region = Rect2(0, 0, 750, 1024)
+region = Rect2(750, 0, 750, 1024)
