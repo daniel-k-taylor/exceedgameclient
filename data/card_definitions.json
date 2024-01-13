@@ -7117,7 +7117,7 @@
 			{
 				"timing": "during_strike",
 				"condition": "was_strike_from_gauge",
-				"effect_type": "stun_immunity",
+				"effect_type": "stun_immunity"
 			}
 		],
 		"boost": {
@@ -7176,7 +7176,7 @@
 				{
 					"timing": "during_strike",
 					"effect_type": "powerup",
-					"amount": 2,
+					"amount": 2
 				},
 				{
 					"timing": "cleanup",
