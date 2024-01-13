@@ -80,3 +80,5 @@ animations = [{
 "name": &"idle",
 "speed": 5.0
 }]
+metadata/flip = true
+metadata/scaling = 0.7
