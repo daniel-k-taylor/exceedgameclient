@@ -8,13 +8,21 @@
 		"gauge_cost": 0,
 		"force_cost": 0,
 		"effect": {
-			"effect_type": "gauge_from_hand",
-			"min_amount": 1,
-			"max_amount": 1,
+			"effect_type": "choice",
+			"choice": [
+				{ "effect_type": "close", "amount": 1 },
+				{ "effect_type": "retreat", "amount": 1 }
+			],
 			"and": {
-				"condition": "min_cards_in_gauge",
-				"condition_amount": 4,
-				"effect_type": "exceed_now"
+				"effect_type": "choice",
+				"choice": [
+					{ "effect_type": "strike_faceup"},
+					{
+						"effect_type": "gauge_from_hand",
+						"min_amount": 1,
+						"max_amount": 1
+					}
+				]
 			}
 		}
 	}],

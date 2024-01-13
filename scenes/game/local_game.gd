@@ -2742,7 +2742,8 @@ func do_remaining_overdrive(performing_player : Player):
 
 func do_remaining_character_action(performing_player : Player):
 	var events = []
-	change_game_state(Enums.GameState.GameState_Boost_Processing)
+	if game_state != Enums.GameState.GameState_WaitForStrike and game_state != Enums.GameState.GameState_Strike_Opponent_Set_First:
+		change_game_state(Enums.GameState.GameState_Boost_Processing)
 	while remaining_character_action_effects.size() > 0:
 		var effect = remaining_character_action_effects[0]
 		remaining_character_action_effects.erase(effect)

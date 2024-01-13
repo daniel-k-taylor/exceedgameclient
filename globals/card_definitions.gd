@@ -487,6 +487,8 @@ func get_effect_type_text(effect, card_name_source : String = ""):
 			effect_str += "Spend " + str(effect['amount']) + " life"
 		"strike":
 			effect_str += "Strike"
+		"strike_faceup":
+			effect_str += "Strike face-up"
 		"strike_random_from_gauge":
 			effect_str += "Strike with random card from gauge (opponent sets first)"
 		"stun_immunity":
