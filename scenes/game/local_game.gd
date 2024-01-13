@@ -4323,7 +4323,7 @@ func do_character_action(performing_player : Player, card_ids, action_idx : int 
 		_append_log("%s paid for character action with %s." % [performing_player.name, card_names])
 		events += performing_player.discard(card_ids)
 	else:
-		_append_log("Turn Action - Character Action." % [performing_player.name])
+		_append_log("%s Turn Action - Character Action." % [performing_player.name])
 
 	# Do the character action effects.
 	events += [create_event(Enums.EventType.EventType_CharacterAction, performing_player.my_id, 0)]
