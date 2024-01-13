@@ -3816,14 +3816,20 @@ func do_card_from_hand_to_gauge(performing_player : Player, card_ids : Array) ->
 		var card_names = card_db.get_card_name(card_ids[0])
 		for i in range(1, card_ids.size()):
 			card_names += ", " + card_db.get_card_name(card_ids[i])
-		_append_log("%s moved cards (%s) from hand to gauge." % [performing_player.name, card_names])
+		var destination_string = ""
+		
 		for card_id in card_ids:
 			if decision_info.destination == "gauge":
 				events += performing_player.move_card_from_hand_to_gauge(card_id)
+				destination_string = "gauge"
 			elif decision_info.destination == "topdeck":
 				events += performing_player.move_card_from_hand_to_deck(card_id)
+				card_names = str(card_ids.size())
+				destination_string = "top of deck"
 			else:
 				assert(false, "Unknown destination for do_card_from_hand_to_gauge")
+				
+		_append_log("%s moved cards (%s) from hand to %s." % [performing_player.name, card_names, destination_string])
 
 	if active_overdrive:
 		events += do_remaining_overdrive(performing_player)
