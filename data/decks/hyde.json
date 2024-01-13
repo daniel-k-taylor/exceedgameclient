@@ -73,60 +73,68 @@
 	],
 	"cards": [
 		{
-			"definition_id": "yuzu_kashou",
-			"image": "yuzu_kashou.tres"
+			"definition_id": "hyde_gyrovortex",
+			"image": "hyde_gyrovortex.tres"
 		},
 		{
-			"definition_id": "yuzu_kashou",
-			"image": "yuzu_kashou.tres"
+			"definition_id": "hyde_gyrovortex",
+			"image": "hyde_gyrovortex.tres"
 		},
 		{
-			"definition_id": "yuzu_kurenai",
-			"image": "yuzu_kurenai.tres"
+			"definition_id": "hyde_deadsetdaze",
+			"image": "hyde_deadsetdaze.tres"
 		},
 		{
-			"definition_id": "yuzu_kurenai",
-			"image": "yuzu_kurenai.tres"
+			"definition_id": "hyde_deadsetdaze",
+			"image": "hyde_deadsetdaze.tres"
 		},
 		{
-			"definition_id": "yuzu_yaeichirin",
-			"image": "yuzu_yaeichirin.tres"
+			"definition_id": "hyde_vacantshift",
+			"image": "hyde_vacantshift.tres"
 		},
 		{
-			"definition_id": "yuzu_yaeichirin",
-			"image": "yuzu_yaeichirin.tres"
+			"definition_id": "hyde_vacantshift",
+			"image": "hyde_vacantshift.tres"
 		},
 		{
-			"definition_id": "yuzu_overhere",
-			"image": "yuzu_overhere.tres"
+			"definition_id": "hyde_redcladcraver",
+			"image": "hyde_redcladcraver.tres"
 		},
 		{
-			"definition_id": "yuzu_overhere",
-			"image": "yuzu_overhere.tres"
+			"definition_id": "hyde_redcladcraver",
+			"image": "hyde_redcladcraver.tres"
 		},
 		{
-			"definition_id": "yuzu_tachi",
-			"image": "yuzu_tachi.tres"
+			"definition_id": "hyde_redcladcraver",
+			"image": "hyde_redcladcraver.tres"
 		},
 		{
-			"definition_id": "yuzu_tachi",
-			"image": "yuzu_tachi.tres"
+			"definition_id": "hyde_blackorbiter",
+			"image": "hyde_blackorbiter.tres"
 		},
 		{
-			"definition_id": "yuzu_saki",
-			"image": "yuzu_saki.tres"
+			"definition_id": "hyde_blackorbiter",
+			"image": "hyde_blackorbiter.tres"
 		},
 		{
-			"definition_id": "yuzu_saki",
-			"image": "yuzu_saki.tres"
+			"definition_id": "hyde_palebringer",
+			"image": "hyde_palebringer.tres"
 		},
 		{
-			"definition_id": "yuzu_kiri",
-			"image": "yuzu_kiri.tres"
+			"definition_id": "hyde_palebringer",
+			"image": "hyde_palebringer.tres"
 		},
 		{
-			"definition_id": "yuzu_kiri",
-			"image": "yuzu_kiri.tres"
+			"definition_id": "hyde_palebringer",
+			"image": "hyde_palebringer.tres"
+		},
+		{
+			"definition_id": "hyde_shadowscare",
+			"image": "hyde_shadowscare.tres"
+		},
+		{
+			"definition_id": "hyde_shadowscare",
+			"image": "hyde_shadowscare.tres"
 		},
 		{
 			"definition_id": "uni_normal_grasp",

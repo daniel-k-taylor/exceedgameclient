@@ -1985,6 +1985,343 @@
 		"NOTEEND": "HAPPYCHAOS CARDS END"
 	},
 
+	{
+		"NOTE": "HYDE CARDS START",
+		"id": "hyde_gyrovortex",
+		"type": "ultra",
+		"display_name": "Sogetsu Ittou-Ryuu Ougi: Kashou",
+		"force_cost": 0,
+		"gauge_cost": 2,
+		"gauge_discard_reminder": true,
+		"range_min": 1,
+		"range_max": 4,
+		"speed": 6,
+		"power": 0,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "during_strike",
+				"effect_type": "cannot_stun"
+			},
+			{
+				"timing": "hit",
+				"effect_type": "set_strike_x",
+				"source": "top_discard_power",
+				"and": {
+					"effect_type": "powerup",
+					"amount": "strike_x"
+				}
+			},
+			{
+				"timing": "after",
+				"effect_type": "advance",
+				"amount": 4
+			}
+		],
+		"boost": {
+			"boost_type": "immediate",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Iris Blade",
+			"effects": [
+				{
+					"timing": "immediate",
+					"effect_type": "choice",
+					"choice": [
+						{
+							"effect_type": "add_top_deck_to_gauge",
+							"and": {
+								"effect_type": "choice",
+								"choice": [
+									{ "effect_type": "add_top_deck_to_gauge" },
+									{ "effect_type": "pass" }
+								]
+							}
+						},
+						{ "effect_type": "pass" }
+					]
+				},
+				{
+					"timing": "immediate",
+					"condition": "min_cards_in_gauge",
+					"condition_amount": 4,
+					"effect_type": "exceed_now"
+				}
+			]
+		}
+	},
+	{
+		"id": "hyde_deadsetdaze",
+		"type": "ultra",
+		"display_name": "Zero no Kata Hi-Ougi: Inochi Kurenai",
+		"force_cost": 0,
+		"gauge_cost": 1,
+		"range_min": 1,
+		"range_max": 2,
+		"speed": 3,
+		"power": 6,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "cleanup",
+				"condition": "stunned",
+				"effect_type": "choice",
+				"choice": [
+					{ "effect_type": "boost_this_then_sustain" },
+					{ "effect_type": "pass" }
+				]
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Ainsel Lost",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "powerup",
+					"amount": 1,
+					"and": {
+						"effect_type": "speedup",
+						"amount": 1
+					}
+				},
+				{
+					"timing": "after",
+					"effect_type": "add_boost_to_gauge_on_strike_cleanup",
+					"card_name": "Zero no Kata Hi-Ougi: Inochi Kurenai"
+				}
+			]
+		}
+	},
+	{
+		"id": "hyde_vacantshift",
+		"type": "special",
+		"display_name": "Sougetsu Ittou-Ryu et cetera! Yae Ichirin",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 3,
+		"speed": 5,
+		"power": 4,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "hit",
+				"effect_type": "gain_advantage"
+			},
+			{
+				"timing": "after",
+				"effect_type": "advance",
+				"amount": 3
+			}
+		],
+		"boost": {
+			"boost_type": "immediate",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Swift and Deadly",
+			"effects": [
+				{
+					"timing": "immediate",
+					"effect_type": "choice",
+					"choice": [
+						{ "effect_type": "advance", "amount": 2 },
+						{ "effect_type": "retreat", "amount": 2 }
+					]
+				},
+				{
+					"timing": "immediate",
+					"effect_type": "strike"
+				}
+			]
+		}
+	},
+	{
+		"id": "hyde_redcladcraver",
+		"type": "special",
+		"display_name": "Over Here!",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 3,
+		"speed": 4,
+		"power": 1,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "hit",
+				"effect_type": "set_strike_x",
+				"source": "random_gauge_power",
+				"and": {
+					"effect_type": "powerup",
+					"amount": "strike_x",
+					"and": {
+						"effect_type": "choice",
+						"choice": [
+							{ "effect_type": "advance", "amount": "strike_x" },
+							{ "effect_type": "retreat", "amount": "strike_x" }
+						]
+					}
+				}
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Unsheathe",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "powerup",
+					"amount": 2,
+					"and": {
+						"effect_type": "speedup",
+						"amount": 1
+					}
+				},
+				{
+					"timing": "now",
+					"effect_type": "strike_random_from_gauge"
+				}
+			]
+		}
+	},
+	{
+		"id": "hyde_blackorbiter",
+		"type": "special",
+		"display_name": "Battoujutsu San no Kata: Tachi",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 2,
+		"range_max": 4,
+		"speed": 3,
+		"power": 5,
+		"armor": 0,
+		"guard": 5,
+		"effects": [
+			{
+				"timing": "during_strike",
+				"effect_type": "ignore_armor",
+				"and": {
+					"effect_type": "ignore_guard"
+				}
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Not Over Yet",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "rangeup",
+					"amount": 0,
+					"amount2": 1
+				},
+				{
+					"timing": "cleanup",
+					"condition": "stunned",
+					"effect_type": "sustain_this",
+					"card_name": "Battoujutsu San no Kata: Tachi"
+				}
+			]
+		}
+	},
+	{
+		"id": "hyde_palebringer",
+		"type": "special",
+		"display_name": "Battoujutsu Ni No Kata: Saki",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 3,
+		"range_max": 5,
+		"speed": 1,
+		"power": 7,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "during_strike",
+				"condition": "was_strike_from_gauge",
+				"effect_type": "stun_immunity"
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 1,
+			"cancel_cost": -1,
+			"display_name": "Come At Me!",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "powerup",
+					"amount": 3
+				},
+				{
+					"timing": "start_of_next_turn",
+					"effect_type": "add_to_gauge_immediately"
+				}
+			]
+		}
+	},
+	{
+		"NOTE": "HYDE CARDS END",
+		"id": "hyde_shadowscare",
+		"type": "special",
+		"display_name": "Battoujutsu Ichi no Kata: Kiri",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 3,
+		"speed": 1,
+		"power": 7,
+		"armor": 1,
+		"guard": 5,
+		"effects": [
+			{
+				"timing": "during_strike",
+				"effect_type": "ignore_push_and_pull"
+			},
+			{
+				"timing": "hit",
+				"effect_type": "powerup_damagetaken",
+				"amount": -1
+			},
+			{
+				"timing": "after",
+				"effect_type": "draw",
+				"amount": 1
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Try Hard",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "powerup",
+					"amount": 2
+				},
+				{
+					"timing": "cleanup",
+					"condition": "stunned",
+					"effect_type": "sustain_this",
+					"card_name": "Battoujutsu Ichi no Kata: Kiri"
+				}
+			]
+		},
+		"NOTEEND": "HYDE CARDS END"
+	},
 
 	{
 		"NOTE": "GIOVANNA CARDS START",
