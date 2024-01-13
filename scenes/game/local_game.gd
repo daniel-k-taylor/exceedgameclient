@@ -1771,6 +1771,9 @@ func is_effect_condition_met(performing_player : Player, effect, local_condition
 		elif condition == "max_cards_in_hand":
 			var amount = effect['condition_amount']
 			return performing_player.hand.size() <= amount
+		elif condition == "min_cards_in_hand":
+			var amount = effect['condition_amount']
+			return performing_player.hand.size() >= amount
 		elif condition == "min_cards_in_gauge":
 			var amount = effect['condition_amount']
 			return performing_player.gauge.size() >= amount
