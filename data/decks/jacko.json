@@ -8,15 +8,15 @@
 		"effect_type": "draw",
 		"amount": 3
 	},
-	"character_action_default": {
+	"character_action_default": [{
 		"gauge_cost": 0,
 		"force_cost": 1,
 		"effect": {
 			"effect_type": "boost_then_strike",
 			"limitation": "continuous"
 		}
-	},
-	"character_action_exceeded": {
+	}],
+	"character_action_exceeded": [{
 		"gauge_cost": 0,
 		"force_cost": 1,
 		"effect": {
@@ -24,7 +24,7 @@
 			"allow_gauge": true,
 			"limitation": "continuous"
 		}
-	},
+	}],
 	"ability_effects": [
 	],
 	"exceed_ability_effects": [

@@ -49,6 +49,7 @@ enum GameState {
 	GameState_WaitForStrike,
 	GameState_PlayerDecision,
 	GameState_Strike_Opponent_Response,
+	GameState_Strike_Opponent_Set_First,
 	GameState_Strike_Processing,
 }
 
@@ -99,6 +100,7 @@ enum EventType {
 	EventType_ReshuffleDeck_Mulligan,
 	EventType_ReshuffleDiscard,
 	EventType_RevealHand,
+	EventType_RevealRandomGauge,
 	EventType_RevealStrike_OnePlayer,
 	EventType_RevealTopDeck,
 	EventType_Seal,
@@ -108,7 +110,7 @@ enum EventType {
 	EventType_Strike_CharacterEffect,
 	EventType_Strike_DodgeAttacks,
 	EventType_Strike_DodgeAttacksAtRange,
-	EventType_Strike_DoResponseNow,             # 48
+	EventType_Strike_DoResponseNow,             # 49
 	EventType_Strike_EffectChoice,
 	EventType_Strike_ExUp,
 	EventType_Strike_ForceForArmor,
@@ -120,15 +122,20 @@ enum EventType {
 	EventType_Strike_ChooseToDiscard,
 	EventType_Strike_ChooseToDiscard_Info,
 	EventType_Strike_OpponentCantMovePast,
+	EventType_Strike_OpponentSetsFirst,
+	EventType_Strike_OpponentSetsFirst_DefenderSet,
+	EventType_Strike_OpponentSetsFirst_InitiatorSet,
 	EventType_Strike_PayCost_Gauge,
 	EventType_Strike_PayCost_Force,
 	EventType_Strike_PayCost_Unable,
-	EventType_Strike_PowerUp,					# 63
+	EventType_Strike_PowerUp,					# 67
+	EventType_Strike_RandomGaugeStrike,
 	EventType_Strike_RangeUp,
 	EventType_Strike_Response,
 	EventType_Strike_Response_Ex,
 	EventType_Strike_Reveal,
 	EventType_Strike_SpeedUp,
+	EventType_Strike_SetX,
 	EventType_Strike_Started,
 	EventType_Strike_Started_Ex,
 	EventType_Strike_Stun,

@@ -151,6 +151,8 @@ func update_char(label, portrait, char_id):
 	var display_name = "Random"
 	if char_id == "random_s7":
 		char_id = "random"
+	elif char_id == "random_s6":
+		char_id = "unilogo"
 	elif char_id == "random_s5":
 		char_id = "blazbluelogo2"
 	elif char_id == "random":

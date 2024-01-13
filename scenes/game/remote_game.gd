@@ -252,13 +252,15 @@ func process_change(action_message) -> void:
 	var card_ids = action_message['card_ids']
 	local_game.do_change(game_player, card_ids)
 
-func do_strike(player : LocalGame.Player, card_id : int, wild_strike: bool, ex_card_id : int) -> bool:
+func do_strike(player : LocalGame.Player, card_id : int, wild_strike: bool, ex_card_id : int,
+		opponent_sets_first : bool = false) -> bool:
 	var action_message = {
 		'action_type': 'action_strike',
 		'player_id': _get_player_remote_id(player),
 		'card_id': card_id,
 		'wild_strike': wild_strike,
 		'ex_card_id': ex_card_id,
+		'opponent_sets_first': opponent_sets_first,
 	}
 	NetworkManager.submit_game_message(action_message)
 	return true
@@ -268,7 +270,8 @@ func process_strike(action_message) -> void:
 	var card_id = action_message['card_id']
 	var wild_strike = action_message['wild_strike']
 	var ex_card_id = action_message['ex_card_id']
-	local_game.do_strike(game_player, card_id, wild_strike, ex_card_id)
+	var opponent_sets_first = action_message['opponent_sets_first']
+	local_game.do_strike(game_player, card_id, wild_strike, ex_card_id, opponent_sets_first)
 
 func do_force_for_armor(player : LocalGame.Player, card_ids : Array) -> bool:
 	var action_message = {
@@ -384,11 +387,12 @@ func process_choose_to_discard(action_message) -> void:
 	var card_ids = action_message['card_ids']
 	local_game.do_choose_to_discard(game_player, card_ids)
 
-func do_character_action(player : LocalGame.Player, card_ids : Array) -> bool:
+func do_character_action(player : LocalGame.Player, card_ids : Array, action_idx : int = 0) -> bool:
 	var action_message = {
 		'action_type': 'action_character_action',
 		'player_id': _get_player_remote_id(player),
 		'card_ids': card_ids,
+		'action_idx': action_idx,
 	}
 	NetworkManager.submit_game_message(action_message)
 	return true
@@ -396,7 +400,8 @@ func do_character_action(player : LocalGame.Player, card_ids : Array) -> bool:
 func process_character_action(action_message) -> void:
 	var game_player = _get_player_from_remote_id(action_message['player_id'])
 	var card_ids = action_message['card_ids']
-	local_game.do_character_action(game_player, card_ids)
+	var action_idx = action_message['action_idx']
+	local_game.do_character_action(game_player, card_ids, action_idx)
 
 func do_bonus_turn_action(player : LocalGame.Player, action_index : int) -> bool:
 	var action_message = {

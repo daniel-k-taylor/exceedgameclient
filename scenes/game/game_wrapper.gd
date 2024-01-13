@@ -93,8 +93,11 @@ func get_player_exceed_cost(id):
 func get_player_mulligan_complete(id):
 	return _get_player(id).mulligan_complete
 
-func get_player_character_action(id):
-	return _get_player(id).get_character_action()
+func get_player_character_action(id, action_idx = 0):
+	return _get_player(id).get_character_action(action_idx)
+	
+func get_player_character_action_count(id):
+	return _get_player(id).get_character_action_count()
 
 func get_bonus_actions(id):
 	return _get_player(id).get_bonus_actions()
@@ -245,9 +248,9 @@ func can_move_to(player_id : Enums.PlayerId, location : int) -> bool:
 	var game_player = _get_player(player_id)
 	return game_player.can_move_to(location)
 
-func can_do_character_action(player_id : Enums.PlayerId) -> bool:
+func can_do_character_action(player_id : Enums.PlayerId, action_idx : int = 0) -> bool:
 	var game_player = _get_player(player_id)
-	return game_player.can_do_character_action()
+	return game_player.can_do_character_action(action_idx)
 
 ### Action Functions ###
 
@@ -295,9 +298,9 @@ func submit_change(player : Enums.PlayerId, card_ids : Array) -> bool:
 	var game_player = _get_player(player)
 	return current_game.do_change(game_player, card_ids)
 
-func submit_strike(player : Enums.PlayerId, card_id : int, wild_strike: bool, ex_card_id : int) -> bool:
+func submit_strike(player : Enums.PlayerId, card_id : int, wild_strike: bool, ex_card_id : int, opponent_sets_first : bool = false) -> bool:
 	var game_player = _get_player(player)
-	return current_game.do_strike(game_player, card_id, wild_strike, ex_card_id)
+	return current_game.do_strike(game_player, card_id, wild_strike, ex_card_id, opponent_sets_first)
 
 func submit_force_for_armor(player : Enums.PlayerId, card_ids : Array) -> bool:
 	var game_player = _get_player(player)
@@ -331,9 +334,9 @@ func submit_choose_to_discard(player: Enums.PlayerId, card_ids : Array) -> bool:
 	var game_player = _get_player(player)
 	return current_game.do_choose_to_discard(game_player, card_ids)
 
-func submit_character_action(player: Enums.PlayerId, card_ids : Array) -> bool:
+func submit_character_action(player: Enums.PlayerId, card_ids : Array, action_idx : int = 0) -> bool:
 	var game_player = _get_player(player)
-	return current_game.do_character_action(game_player, card_ids)
+	return current_game.do_character_action(game_player, card_ids, action_idx)
 
 func submit_bonus_turn_action(player: Enums.PlayerId, action_index : int) -> bool:
 	var game_player = _get_player(player)

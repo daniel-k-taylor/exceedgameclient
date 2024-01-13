@@ -246,12 +246,13 @@ func handle_decisions(game: LocalGame):
 	events += game.get_latest_events()
 	return events
 
-func handle_strike(game: LocalGame, aiplayer : AIPlayer, otherai : AIPlayer, action : AIPlayer.StrikeAction, already_mid_strike : bool = false):
+func handle_strike(game: LocalGame, aiplayer : AIPlayer, otherai : AIPlayer, action : AIPlayer.StrikeAction, already_mid_strike : bool = false,
+		opponent_sets_first = false):
 	var events = []
 	var gameplayer = aiplayer.game_player
 	var otherplayer = otherai.game_player
 
-	if not already_mid_strike:
+	if not already_mid_strike and not opponent_sets_first:
 		var card_id = action.card_id
 		var ex_card_id = action.ex_card_id
 		var wild_swing = action.wild_swing
@@ -262,6 +263,14 @@ func handle_strike(game: LocalGame, aiplayer : AIPlayer, otherai : AIPlayer, act
 	if game.game_state == Enums.GameState.GameState_Strike_Opponent_Response:
 		var response_action = otherai.pick_strike_response(game, otherplayer.my_id)
 		assert_true(game.do_strike(otherplayer, response_action.card_id, response_action.wild_swing, response_action.ex_card_id), "do strike resp failed")
+
+	if game.game_state == Enums.GameState.GameState_WaitForStrike and opponent_sets_first:
+		var card_id = action.card_id
+		var ex_card_id = action.ex_card_id
+		var wild_swing = action.wild_swing
+
+		assert_true(game.do_strike(gameplayer, card_id, wild_swing, ex_card_id), "do strike failed")
+		events += game.get_latest_events()
 
 	events += handle_decisions(game)
 
@@ -295,6 +304,7 @@ func run_ai_game():
 			other_ai = ai1
 
 		var turn_events = []
+		turn_events += handle_decisions(game_logic) #Handles overdrives
 		var turn_action = current_ai.take_turn(game_logic, current_player.my_id)
 		if turn_action is AIPlayer.PrepareAction:
 			turn_events += handle_prepare(game_logic, current_player)
@@ -321,6 +331,10 @@ func run_ai_game():
 			# Can theoretically get here after a boost or an exceed.
 			var strike_action = current_ai.pick_strike(game_logic, current_player.my_id)
 			turn_events += handle_strike(game_logic, current_ai, other_ai, strike_action)
+		elif game_logic.game_state == Enums.GameState.GameState_Strike_Opponent_Set_First:
+			game_logic.do_strike(current_ai.game_player, -1, false, -1, true)
+			var strike_action = current_ai.pick_strike(game_logic, current_player.my_id)
+			turn_events += handle_strike(game_logic, current_ai, other_ai, strike_action, false, true)
 
 		handle_discard_event(turn_events, game_logic, current_ai, current_player)
 
@@ -520,6 +534,15 @@ func test_happychaos_100():
 
 func test_nu13_100():
 	default_deck = CardDefinitions.get_deck_from_str_id("nu13")
+	for i in range(RandomIterations):
+		print("==== RUNNING TEST %d ====" % i)
+		run_ai_game()
+		game_teardown()
+		game_setup()
+	pass_test("Finished match")
+
+func test_yuzu_100():
+	default_deck = CardDefinitions.get_deck_from_str_id("yuzu")
 	for i in range(RandomIterations):
 		print("==== RUNNING TEST %d ====" % i)
 		run_ai_game()
