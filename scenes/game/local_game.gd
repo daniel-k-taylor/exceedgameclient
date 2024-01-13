@@ -1627,6 +1627,7 @@ func strike_setup_initiator_response(events):
 		# Queue any events so far, then empty this tally and call do_strike.
 		event_queue += events
 		events = []
+		decision_info.player = active_strike.initiator.my_id
 		do_strike(active_strike.initiator, -1, false, -1, active_strike.opponent_sets_first)
 		ask_for_response = false
 	if ask_for_response:
