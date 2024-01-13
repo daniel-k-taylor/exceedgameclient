@@ -1627,6 +1627,7 @@ func strike_setup_initiator_response(events):
 		# Queue any events so far, then empty this tally and call do_strike.
 		event_queue += events
 		events = []
+		decision_info.player = active_strike.initiator.my_id
 		do_strike(active_strike.initiator, -1, false, -1, active_strike.opponent_sets_first)
 		ask_for_response = false
 	if ask_for_response:
@@ -3815,14 +3816,20 @@ func do_card_from_hand_to_gauge(performing_player : Player, card_ids : Array) ->
 		var card_names = card_db.get_card_name(card_ids[0])
 		for i in range(1, card_ids.size()):
 			card_names += ", " + card_db.get_card_name(card_ids[i])
-		_append_log("%s moved cards (%s) from hand to gauge." % [performing_player.name, card_names])
+		var destination_string = ""
+		
 		for card_id in card_ids:
 			if decision_info.destination == "gauge":
 				events += performing_player.move_card_from_hand_to_gauge(card_id)
+				destination_string = "gauge"
 			elif decision_info.destination == "topdeck":
 				events += performing_player.move_card_from_hand_to_deck(card_id)
+				card_names = str(card_ids.size())
+				destination_string = "top of deck"
 			else:
 				assert(false, "Unknown destination for do_card_from_hand_to_gauge")
+				
+		_append_log("%s moved cards (%s) from hand to %s." % [performing_player.name, card_names, destination_string])
 
 	if active_overdrive:
 		events += do_remaining_overdrive(performing_player)
@@ -4322,7 +4329,7 @@ func do_character_action(performing_player : Player, card_ids, action_idx : int 
 		_append_log("%s paid for character action with %s." % [performing_player.name, card_names])
 		events += performing_player.discard(card_ids)
 	else:
-		_append_log("Turn Action - Character Action." % [performing_player.name])
+		_append_log("%s Turn Action - Character Action." % [performing_player.name])
 
 	# Do the character action effects.
 	events += [create_event(Enums.EventType.EventType_CharacterAction, performing_player.my_id, 0)]
