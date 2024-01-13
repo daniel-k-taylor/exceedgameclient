@@ -346,6 +346,7 @@ class Player:
 	var mulligan_complete : bool
 	var reading_card_id : String
 	var next_strike_faceup : bool
+	var next_strike_from_gauge : bool
 	var next_strike_random_gauge : bool
 	var strike_on_boost_cleanup : bool
 	var max_hand_size : int
@@ -403,6 +404,7 @@ class Player:
 		mulligan_complete = false
 		reading_card_id = ""
 		next_strike_faceup = false
+		next_strike_from_gauge = false
 		next_strike_random_gauge = false
 		strike_on_boost_cleanup = false
 		pre_strike_movement = 0
@@ -2539,6 +2541,14 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 			decision_info.type = Enums.DecisionType.DecisionType_StrikeNow
 			decision_info.player = performing_player.my_id
 			performing_player.next_strike_faceup = true
+		"strike_from_gauge":
+			events += [create_event(Enums.EventType.EventType_Strike_FromGauge, performing_player.my_id, len(performing_player.gauge))]
+			change_game_state(Enums.GameState.GameState_WaitForStrike)
+			decision_info.type = Enums.DecisionType.DecisionType_StrikeNow
+			decision_info.player = performing_player.my_id
+			if len(performing_player.gauge) > 0:
+				performing_player.next_strike_faceup = true
+				performing_player.next_strike_from_gauge = true
 		"strike_opponent_sets_first":
 			events += [create_event(Enums.EventType.EventType_Strike_OpponentSetsFirst, performing_player.my_id, 0)]
 			change_game_state(Enums.GameState.GameState_Strike_Opponent_Set_First)
@@ -3526,7 +3536,7 @@ func do_exceed(performing_player : Player, card_ids : Array) -> bool:
 	for id in card_ids:
 		if not performing_player.is_card_in_gauge(id):
 			# Card not found, error
-			printlog("ERROR: Tried to exced with cards that not in gauge.")
+			printlog("ERROR: Tried to exceed with cards that not in gauge.")
 			return false
 	if len(card_ids) < performing_player.exceed_cost:
 		printlog("ERROR: Tried to exceed with too few cards.")
@@ -3603,13 +3613,22 @@ func do_strike(performing_player : Player, card_id : int, wild_strike: bool, ex_
 			printlog("ERROR: Strike response from wrong player.")
 			return false
 
-	if not wild_strike and not performing_player.is_card_in_hand(card_id):
-		if not (game_state == Enums.GameState.GameState_Strike_Opponent_Set_First or performing_player.next_strike_random_gauge):
-			printlog("ERROR: Tried to strike with a card not in hand.")
+	if performing_player.next_strike_from_gauge:
+		if not wild_strike and not performing_player.is_card_in_gauge(card_id):
+			if not (game_state == Enums.GameState.GameState_Strike_Opponent_Set_First or performing_player.next_strike_random_gauge):
+				printlog("ERROR: Tried to strike with a card not in gauge.")
+				return false
+		if ex_card_id != -1:
+			printlog("ERROR: Tried to ex strike from gauge.")
 			return false
-	if ex_card_id != -1 and not performing_player.is_card_in_hand(ex_card_id):
-		printlog("ERROR: Tried to strike with a ex card not in hand.")
-		return false
+	else:
+		if not wild_strike and not performing_player.is_card_in_hand(card_id):
+			if not (game_state == Enums.GameState.GameState_Strike_Opponent_Set_First or performing_player.next_strike_random_gauge):
+				printlog("ERROR: Tried to strike with a card not in hand.")
+				return false
+		if ex_card_id != -1 and not performing_player.is_card_in_hand(ex_card_id):
+			printlog("ERROR: Tried to strike with a ex card not in hand.")
+			return false
 	if ex_card_id != -1 and not card_db.are_same_card(card_id, ex_card_id):
 		printlog("ERROR: Tried to strike with a ex card that doesn't match.")
 		return false
@@ -3639,7 +3658,13 @@ func do_strike(performing_player : Player, card_id : int, wild_strike: bool, ex_
 				card_id = active_strike.initiator_card.id
 			else:
 				active_strike.initiator_card = card_db.get_card(card_id)
-				performing_player.remove_card_from_hand(card_id)
+				if performing_player.next_strike_from_gauge:
+					performing_player.remove_card_from_gauge(card_id)
+					active_strike.initiator_set_from_gauge = true
+					performing_player.next_strike_from_gauge = false
+				else:
+					performing_player.remove_card_from_hand(card_id)
+					
 				if ex_card_id != -1:
 					_append_log("%s Turn Action - Strike - EX" % [performing_player.name])
 					active_strike.initiator_ex_card = card_db.get_card(ex_card_id)

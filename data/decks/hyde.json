@@ -3,6 +3,7 @@
 	"season": 6,
 	"display_name": "Hyde Kido",
 	"cardback": "cardback_hyde.jpg",
+	"has_sealed_area": true,
 	"exceed_cost": 1,
 	"character_action_default": [{
 		"gauge_cost": 0,
@@ -28,10 +29,10 @@
 	}],
 	"character_action_exceeded": [
 		{
-			"gauge_cost": 0,
+			"gauge_cost": 1,
 			"force_cost": 0,
 			"effect": {
-				"effect_type": "strike_random_from_gauge"
+				"effect_type": "strike_from_gauge"
 			}
 		},
 		{
@@ -59,21 +60,13 @@
 		{
 			"timing": "during_strike",
 			"condition": "used_character_action",
-			"effect_type": "pass",
+			"character_effect": true,
+			"effect_type": "powerup",
+			"amount": 3,
 			"and": {
-				"character_effect": true,
-				"condition": "was_strike_from_gauge",
-				"effect_type": "powerup",
-				"amount": 2,
-				"and": {
-					"effect_type": "speedup",
-					"amount": 1
-				}
+				"timing": "cleanup",
+				"effect_type": "seal_this"
 			}
-		},
-		{
-			"timing": "cleanup",
-			"effect_type": "discard_strike_after_cleanup"
 		}
 	],
 	"cards": [
