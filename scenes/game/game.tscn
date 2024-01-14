@@ -1,4 +1,4 @@
-[gd_scene load_steps=23 format=3 uid="uid://dh7wmx6cbb55x"]
+[gd_scene load_steps=24 format=3 uid="uid://dh7wmx6cbb55x"]
 
 [ext_resource type="Script" path="res://scenes/game/game.gd" id="1_4f5jr"]
 [ext_resource type="Texture2D" uid="uid://dh8tat2r8ttx1" path="res://assets/cards/card_border_highlight.png" id="4_5y76h"]
@@ -20,6 +20,7 @@
 [ext_resource type="Script" path="res://scenes/game/ai_player.gd" id="18_hlntt"]
 [ext_resource type="PackedScene" uid="uid://dvan4a8ftuplj" path="res://scenes/card/character_card_base.tscn" id="18_imast"]
 [ext_resource type="PackedScene" uid="uid://w87ls4e8oasj" path="res://scenes/game/combat_log.tscn" id="18_k7mnw"]
+[ext_resource type="PackedScene" uid="uid://b8kmmrd5jmqdd" path="res://scenes/game/modal_dialog.tscn" id="21_qe5we"]
 
 [sub_resource type="Gradient" id="Gradient_einub"]
 offsets = PackedFloat32Array(0, 0.883721, 1)
@@ -674,6 +675,14 @@ visible = false
 offset_right = 1280.0
 offset_bottom = 720.0
 
+[node name="ModalDialog" parent="." instance=ExtResource("21_qe5we")]
+visible = false
+anchors_preset = 0
+anchor_right = 0.0
+anchor_bottom = 0.0
+offset_right = 1280.0
+offset_bottom = 720.0
+
 [connection signal="pressed" from="ArenaNode/RowButtons/ArenaSquare1/Button" to="." method="_on_arena_location_pressed" binds= [1]]
 [connection signal="pressed" from="ArenaNode/RowButtons/ArenaSquare2/Button" to="." method="_on_arena_location_pressed" binds= [2]]
 [connection signal="pressed" from="ArenaNode/RowButtons/ArenaSquare3/Button" to="." method="_on_arena_location_pressed" binds= [3]]
@@ -705,3 +714,5 @@ offset_bottom = 720.0
 [connection signal="pressed" from="OpponentDiscardButton" to="." method="_on_opponent_discard_button_pressed"]
 [connection signal="pressed" from="ExitToMenu" to="." method="_on_exit_to_menu_pressed"]
 [connection signal="close_button_pressed" from="CombatLog" to="." method="_on_combat_log_close_button_pressed"]
+[connection signal="accept_button_pressed" from="ModalDialog" to="." method="_on_modal_dialog_accept_button_pressed"]
+[connection signal="close_button_pressed" from="ModalDialog" to="." method="_on_modal_dialog_close_button_pressed"]

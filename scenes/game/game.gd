@@ -19,11 +19,14 @@ const GameWrapper = preload("res://scenes/game/game_wrapper.gd")
 const GameCard = preload("res://scenes/game/game_card.gd")
 const DecisionInfo = preload("res://scenes/game/decision_info.gd")
 const ActionMenu = preload("res://scenes/game/action_menu.gd")
+const ModalDialog = preload("res://scenes/game/modal_dialog.gd")
 
 @onready var damage_popup_template = preload("res://scenes/game/damage_popup.tscn")
 @onready var arena_layout = $ArenaNode/RowButtons
 
 @onready var huge_card : Sprite2D = $HugeCard
+
+@onready var modal_dialog : ModalDialog = $ModalDialog
 
 const OffScreen = Vector2(-1000, -1000)
 const RevealCopyIdRangestart = 80000
@@ -68,6 +71,13 @@ var selected_character_action = 0
 
 var player_deck
 var opponent_deck
+
+enum ModalDialogType {
+	ModalDialogType_None,
+	ModalDialogType_ExitToMenu,
+}
+
+var modal_dialog_type : ModalDialogType = ModalDialogType.ModalDialogType_None
 
 enum CardPopoutType {
 	CardPopoutType_GaugePlayer,
@@ -1114,7 +1124,7 @@ func get_string_for_action_choice(choice):
 	return ""
 
 func begin_choose_from_topdeck(action_choices, look_amount, can_pass):
-	
+
 	var card_ids = game_wrapper.get_player_top_cards(Enums.PlayerId.PlayerId_Player, look_amount)
 	for card_id in card_ids:
 		var card = find_card_on_board(card_id)
@@ -1328,13 +1338,13 @@ func _on_force_start_strike(event):
 	else:
 		ai_forced_strike()
 	return SmallNoticeDelay
-	
+
 func _on_strike_opponent_sets_first(event):
 	var player = event['event_player']
 	spawn_damage_popup("Strike!", player)
 	game_wrapper.submit_strike(player, -1, false, -1, true)
 	return SmallNoticeDelay
-	
+
 func _on_strike_opponent_sets_first_defender_set(event):
 	var player = event['event_player']
 	if player == Enums.PlayerId.PlayerId_Player:
@@ -1735,9 +1745,9 @@ func _on_reveal_random_gauge(event):
 	var player = event['event_player']
 	var card_id = event['number']
 	spawn_damage_popup("Random Gauge Card!", player)
-	
+
 	return SmallNoticeDelay
-	
+
 func _on_reveal_topdeck(event):
 	var player = event['event_player']
 	var card_id = event['number']
@@ -1796,7 +1806,7 @@ func _on_strike_do_response_now(event):
 		begin_strike_choosing(true, false)
 	else:
 		ai_strike_response()
-		
+
 func _on_strike_opponent_sets_first_initiator_set(event):
 	var player = event['event_player']
 	if player == Enums.PlayerId.PlayerId_Player:
@@ -1809,7 +1819,7 @@ func _on_strike_reveal(_event):
 	for card in strike_cards:
 		card.flip_card_to_front(true)
 	return StrikeRevealDelay
-	
+
 func _on_strike_reveal_one_player(event):
 	var player = event['event_player']
 	spawn_damage_popup("Strike Face-Up!", player)
@@ -1858,7 +1868,7 @@ func _on_effect_choice(event):
 
 func _on_pay_cost_gauge(event):
 	var player = event['event_player']
-	var enable_reminder = event['extra_info'] 
+	var enable_reminder = event['extra_info']
 	var gauge_cost = game_wrapper.get_decision_info().cost
 	if player == Enums.PlayerId.PlayerId_Player:
 		var wild_swing_allowed = game_wrapper.get_decision_info().type == Enums.DecisionType.DecisionType_PayStrikeCost_CanWild
@@ -2265,7 +2275,7 @@ func update_boost_summary(boosts_card_holder, boost_box):
 	for card_id in card_ids:
 		var card = card_db.get_card(card_id)
 		for effect in card.definition['boost']['effects']:
-			if effect['timing'] != "now":
+			if effect['timing'] != "now" and effect['timing'] != "discarded":
 				effects.append(effect)
 	var boost_summary = ""
 	for effect in effects:
@@ -3130,6 +3140,11 @@ func _on_opponent_reference_button_pressed():
 	show_popout(CardPopoutType.CardPopoutType_ReferenceOpponent, "THEIR DECK REFERENCE (showing remaining card counts in deck+hand)", $AllCards/OpponentAllCopy, OffScreen, CardBase.CardState.CardState_Offscreen, false)
 
 func _on_exit_to_menu_pressed():
+	modal_dialog.visible = true
+	modal_dialog.set_text_fields("Are you sure you want to quit?", "QUIT TO\nMENU", "CANCEL")
+	modal_dialog_type = ModalDialogType.ModalDialogType_ExitToMenu
+
+func _quit_to_menu():
 	game_wrapper.end_game()
 	NetworkManager.leave_room()
 	returning_from_game.emit()
@@ -3162,4 +3177,11 @@ func _on_choice_popout_show_button_pressed():
 	await close_popout()
 	show_popout(CardPopoutType.CardPopoutType_ChoiceZone, "TOP OF DECK", $AllCards/ChoiceZone, OffScreen, CardBase.CardState.CardState_InDeck)
 
+func _on_modal_dialog_accept_button_pressed():
+	modal_dialog.visible = false
+	match modal_dialog_type:
+		ModalDialogType.ModalDialogType_ExitToMenu:
+			_quit_to_menu()
 
+func _on_modal_dialog_close_button_pressed():
+	modal_dialog.visible = false

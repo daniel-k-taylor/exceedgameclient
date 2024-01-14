@@ -246,10 +246,15 @@ func test_goldlewis_spin_boost():
 	position_players(player1, 3, player2, 7)
 	give_player_specific_card(player1, "goldlewis_spin", TestCardId3)
 	assert_true(game_logic.do_boost(player1, TestCardId3))
+	assert_false(player2.can_move_to(1))
+	assert_false(player2.can_move_to(2))
+	assert_false(player2.can_move_to(3))
+	assert_true(player2.can_move_to(4))
 	advance_turn(player2)
 	validate_positions(player1, 3, player2, 7)
 	assert_eq(player1.continuous_boosts.size(), 0)
 	assert_eq(player1.gauge.size(), 1)
+	assert_true(player2.can_move_to(1))
 	assert_eq(game_logic.game_state, Enums.GameState.GameState_PickAction)
 
 func test_goldlewis_spin_boost_cancel():
