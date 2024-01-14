@@ -237,6 +237,7 @@ class StrikeStatBoosts:
 	var strike_x : int = 0
 	var min_range : int = 0
 	var max_range : int = 0
+	var attack_does_not_hit : bool = false
 	var dodge_attacks : bool = false
 	var dodge_at_range_min : int = -1
 	var dodge_at_range_max : int = -1
@@ -270,6 +271,7 @@ class StrikeStatBoosts:
 		strike_x = 0
 		min_range = 0
 		max_range = 0
+		attack_does_not_hit = false
 		dodge_attacks = false
 		dodge_at_range_min = -1
 		dodge_at_range_max = -1
@@ -617,6 +619,15 @@ class Player:
 			events += add_to_gauge(card)
 			deck.remove_at(0)
 			parent._append_log("%s added %s to gauge from top of deck." % [name, parent.card_db.get_card_name(card.id)])
+		return events
+
+	func add_top_discard_to_gauge():
+		var events = []
+		if len(discards) > 0:
+			var card = discards[0]
+			events += add_to_gauge(card)
+			discards.remove_at(0)
+			parent._append_log("%s added %s to gauge from top of discard pile." % [name, parent.card_db.get_card_name(card.id)])
 		return events
 
 	func return_all_cards_gauge_to_hand():
@@ -1754,6 +1765,9 @@ func is_effect_condition_met(performing_player : Player, effect, local_condition
 			return performing_player.used_character_action
 		elif condition == "hit_opponent":
 			return active_strike.did_player_hit_opponent(performing_player)
+		elif condition == "life_equals":
+			var amount = effect['condition_amount']
+			return performing_player.life == amount
 		elif condition == "not_full_close":
 			return  not local_conditions.fully_closed
 		elif condition == "advanced_through":
@@ -1870,6 +1884,8 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 			events += performing_player.remove_from_continuous_boosts(card, true)
 		"add_top_deck_to_gauge":
 			events += performing_player.add_top_deck_to_gauge()
+		"add_top_discard_to_gauge":
+			events += performing_player.add_top_discard_to_gauge()
 		"advance":
 			var amount = effect['amount']
 			if str(amount) == "strike_x":
@@ -1884,6 +1900,9 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 		"armorup":
 			performing_player.strike_stat_boosts.armor += effect['amount']
 			events += [create_event(Enums.EventType.EventType_Strike_ArmorUp, performing_player.my_id, effect['amount'])]
+		"attack_does_not_hit":
+			performing_player.strike_stat_boosts.attack_does_not_hit = true
+			events += [create_event(Enums.EventType.EventType_Strike_AttackDoesNotHit, performing_player.my_id, card_id)]
 		"attack_is_ex":
 			performing_player.strike_stat_boosts.set_ex()
 			events += [create_event(Enums.EventType.EventType_Strike_ExUp, performing_player.my_id, card_id)]
@@ -2137,6 +2156,11 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 			next_turn_player = performing_player.my_id
 			events += [create_event(Enums.EventType.EventType_Strike_GainAdvantage, performing_player.my_id, 0)]
 			_append_log("%s gains Advantage." % [performing_player.name])
+		"gain_life":
+			var amount = effect['amount']
+			events += [create_event(Enums.EventType.EventType_Strike_GainLife, performing_player.my_id, amount)]
+			performing_player.life = max(MaxLife, performing_player.life + amount)
+			_append_log("%s gains % life. Life is now %s." % [performing_player.name, amount, performing_player.life])
 		"gauge_from_hand":
 			if len(performing_player.hand) > 0:
 				change_game_state(Enums.GameState.GameState_PlayerDecision)
@@ -2842,6 +2866,8 @@ func is_location_in_range(attacking_player, card, test_location : int):
 	return false
 
 func in_range(attacking_player, defending_player, card):
+	if attacking_player.strike_stat_boosts.attack_does_not_hit:
+		return false
 	if defending_player.strike_stat_boosts.dodge_attacks:
 		return false
 	var min_range = card.definition['range_min'] + attacking_player.strike_stat_boosts.min_range

@@ -1,5 +1,15 @@
 In progress:
 
+    Ragna:
+        ☐ Force Specials
+
+        ☐ gain_life effect @started(24-01-14 01:20)
+        ☐ attack_does_not_hit effect @started(24-01-14 01:25)
+        ☐ add_top_discard_to_gauge @started(24-01-14 01:27)
+
+        ☐ Testing
+
+
     ☐ Faust Unit tests!
         ☐ Whatcouldthisbe interactions
         ☐ Love removing stuff

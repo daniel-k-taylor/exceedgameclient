@@ -803,6 +803,8 @@ func _stat_notice_event(event):
 			notice_text = "Movement Blocked!"
 		Enums.EventType.EventType_Strike_ArmorUp:
 			notice_text = "+%d Armor" % number
+		Enums.EventType.EventType_Strike_AttackDoesNotHit:
+			notice_text = "Miss!"
 		Enums.EventType.EventType_CharacterAction:
 			notice_text = "Character Action"
 		Enums.EventType.EventType_Strike_DodgeAttacks:
@@ -816,6 +818,8 @@ func _stat_notice_event(event):
 			notice_text = "EX Strike!"
 		Enums.EventType.EventType_Strike_GainAdvantage:
 			notice_text = "+Advantage!"
+		Enums.EventType.EventType_Strike_GainLife:
+			notice_text = "+%d Life" % number
 		Enums.EventType.EventType_Strike_GuardUp:
 			var text = ""
 			if number > 0:
@@ -2051,6 +2055,8 @@ func _handle_events(events):
 				_on_set_card_aside(event)
 			Enums.EventType.EventType_Strike_ArmorUp:
 				delay = _stat_notice_event(event)
+			Enums.EventType.EventType_Strike_AttackDoesNotHit:
+				delay = _stat_notice_event(event)
 			Enums.EventType.EventType_Strike_CardActivation:
 				delay = _on_strike_card_activation(event)
 			Enums.EventType.EventType_Strike_CharacterEffect:
@@ -2070,6 +2076,8 @@ func _handle_events(events):
 			Enums.EventType.EventType_Strike_ForceForArmor:
 				_on_force_for_armor(event)
 			Enums.EventType.EventType_Strike_GainAdvantage:
+				delay = _stat_notice_event(event)
+			Enums.EventType.EventType_Strike_GainLife:
 				delay = _stat_notice_event(event)
 			Enums.EventType.EventType_Strike_GuardUp:
 				delay = _stat_notice_event(event)
