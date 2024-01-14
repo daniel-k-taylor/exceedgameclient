@@ -1023,6 +1023,7 @@ func _on_name_opponent_card_begin(event):
 		change_ui_state(UIState.UIState_SelectCards, UISubState.UISubState_SelectCards_DiscardFromReference)
 	else:
 		ai_name_opponent_card(normal_only)
+	return SmallNoticeDelay
 
 func _on_boost_played(event):
 	var player = event['event_player']
@@ -2067,7 +2068,7 @@ func _handle_events(events):
 			Enums.EventType.EventType_Prepare:
 				delay = _on_prepare(event)
 			Enums.EventType.EventType_ReadingNormal:
-				_on_name_opponent_card_begin(event)
+				delay = _on_name_opponent_card_begin(event)
 			Enums.EventType.EventType_ReshuffleDiscard:
 				delay = _on_reshuffle_discard(event)
 			Enums.EventType.EventType_ReshuffleDeck_Mulligan:
