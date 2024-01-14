@@ -26,7 +26,7 @@ func set_stats(stat_name, amount_min, amount_max, hidable=false):
 	_set_numbers(amount_min, amount_max)
 	$StatVBox/StatName.text = stat_name
 	
-	if hidable and amount_min == 0 and amount_max == 0:
+	if hidable and str(amount_min) == '0' and str(amount_max) == '0':
 		_set_show(false)
 	else:
 		_set_show(true)

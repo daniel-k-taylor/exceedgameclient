@@ -2034,24 +2034,25 @@
 	{
 		"id": "hyde_deadsetdaze",
 		"type": "ultra",
-		"display_name": "Zero no Kata Hi-Ougi: Inochi Kurenai",
+		"display_name": "Dead Set Daze",
 		"force_cost": 0,
 		"gauge_cost": 1,
 		"range_min": 1,
-		"range_max": 2,
-		"speed": 3,
-		"power": 6,
-		"armor": 0,
-		"guard": 0,
+		"range_max": 4,
+		"speed": 2,
+		"power": "X",
+		"armor": 1,
+		"guard": 4,
 		"effects": [
 			{
-				"timing": "cleanup",
-				"condition": "stunned",
-				"effect_type": "choice",
-				"choice": [
-					{ "effect_type": "boost_this_then_sustain" },
-					{ "effect_type": "pass" }
-				]
+				"timing": "before",
+				"effect_type": "set_strike_x",
+				"source": "opponent_speed"
+			},
+			{
+				"timing": "hit",
+				"effect_type": "draw",
+				"amount": 2
 			}
 		],
 		"boost": {

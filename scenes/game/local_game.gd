@@ -2675,6 +2675,15 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 
 	return events
 
+func get_card_stat(player : Player, card : GameCard, stat : String) -> int:
+	var value = card.definition[stat]
+	if str(value) == "X":
+		if active_strike:
+			return player.strike_stat_boosts.strike_x
+		else:
+			assert(false, "ERROR: No support for interpreting X outside of strikes")
+	return value
+
 func get_striking_card_ids_for_player(check_player : Player) -> Array:
 	var card_ids = []
 	if active_strike:
@@ -2822,14 +2831,24 @@ func do_set_strike_x(performing_player : Player, source : String):
 			if len(performing_player.gauge) > 0:
 				var random_gauge_idx = get_random_int() % len(performing_player.gauge)
 				var card = performing_player.gauge[random_gauge_idx]
-				value = max(card.definition['power'], 0)
+				var power = get_card_stat(performing_player, card, 'power')
+				value = max(power, 0)
 				_append_log("%s setting X for strike from power of %s in gauge." % [performing_player.name, card_db.get_card_name(card.id)])
 				events += [create_event(Enums.EventType.EventType_RevealRandomGauge, performing_player.my_id, card.id)]
 		"top_discard_power":
 			if len(performing_player.discards) > 0:
 				var card = performing_player.discards[-1]
-				value = max(card.definition['power'], 0)
+				var power = get_card_stat(performing_player, card, 'power')
+				value = max(power, 0)
 				_append_log("%s setting X for strike from power of %s on top of discards." % [performing_player.name, card_db.get_card_name(card.id)])
+		"opponent_speed":
+			if active_strike:
+				if performing_player == active_strike.initiator:
+					var defender_speed = calculate_speed(active_strike.defender, active_strike.defender_card)
+					value = max(defender_speed, 0)
+				else:
+					var initiator_speed = calculate_speed(active_strike.initiator, active_strike.initiator_card)
+					value = max(initiator_speed, 0)
 		_:
 			assert(false, "Unknown source for setting X")
 
@@ -2919,7 +2938,8 @@ func in_range(attacking_player, defending_player, card):
 	return false
 
 func calculate_damage(offense_player : Player, defense_player : Player, offense_card : GameCard, defense_card : GameCard) -> int:
-	var damage = offense_card.definition['power'] + offense_player.strike_stat_boosts.power
+	var power = get_card_stat(offense_player, offense_card, 'power')
+	var damage = power + offense_player.strike_stat_boosts.power
 	var armor = defense_card.definition['armor'] + defense_player.strike_stat_boosts.armor - defense_player.strike_stat_boosts.consumed_armor
 	if offense_player.strike_stat_boosts.ignore_armor or defense_player.strike_stat_boosts.lose_all_armor:
 		armor = 0
@@ -2948,7 +2968,8 @@ func check_for_stun(check_player : Player, ignore_guard : bool):
 
 func apply_damage(offense_player : Player, defense_player : Player, offense_card : GameCard, defense_card : GameCard):
 	var events = []
-	var damage = offense_card.definition['power'] + offense_player.strike_stat_boosts.power
+	var power = get_card_stat(offense_player, offense_card, 'power')
+	var damage = power + offense_player.strike_stat_boosts.power
 	var armor = defense_card.definition['armor'] + defense_player.strike_stat_boosts.armor - defense_player.strike_stat_boosts.consumed_armor
 	var guard = defense_card.definition['guard'] + defense_player.strike_stat_boosts.guard
 

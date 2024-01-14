@@ -450,6 +450,8 @@ func get_effect_type_text(effect, card_name_source : String = ""):
 					effect_str += "power of random gauge card"
 				'top_discard_power':
 					effect_str += "power of top card of discards"
+				'opponent_speed':
+					effect_str += "opponent's speed"
 				_:
 					effect_str += "(UNKNOWN)"
 		"seal_this":
