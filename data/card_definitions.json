@@ -1989,64 +1989,44 @@
 		"NOTE": "HYDE CARDS START",
 		"id": "hyde_gyrovortex",
 		"type": "ultra",
-		"display_name": "Sogetsu Ittou-Ryuu Ougi: Kashou",
+		"display_name": "Gyro Vortex",
 		"force_cost": 0,
-		"gauge_cost": 2,
-		"gauge_discard_reminder": true,
+		"gauge_cost": 3,
 		"range_min": 1,
-		"range_max": 4,
-		"speed": 6,
-		"power": 0,
+		"range_max": 3,
+		"speed": 5,
+		"power": 5,
 		"armor": 0,
 		"guard": 0,
 		"effects": [
 			{
-				"timing": "during_strike",
-				"effect_type": "cannot_stun"
-			},
-			{
 				"timing": "hit",
-				"effect_type": "set_strike_x",
-				"source": "top_discard_power",
-				"and": {
-					"effect_type": "powerup",
-					"amount": "strike_x"
-				}
+				"effect_type": "add_top_deck_to_gauge",
+				"amount": 3,
 			},
 			{
 				"timing": "after",
-				"effect_type": "advance",
-				"amount": 4
+				"condition": "hit_opponent",
+				"effect_type": "seal_this"
 			}
 		],
 		"boost": {
 			"boost_type": "immediate",
 			"force_cost": 0,
 			"cancel_cost": -1,
-			"display_name": "Iris Blade",
+			"display_name": "Void Red",
 			"effects": [
 				{
 					"timing": "immediate",
-					"effect_type": "choice",
-					"choice": [
-						{
-							"effect_type": "add_top_deck_to_gauge",
-							"and": {
-								"effect_type": "choice",
-								"choice": [
-									{ "effect_type": "add_top_deck_to_gauge" },
-									{ "effect_type": "pass" }
-								]
-							}
-						},
-						{ "effect_type": "pass" }
-					]
+					"effect_type": "exceed_now"
 				},
 				{
 					"timing": "immediate",
-					"condition": "min_cards_in_gauge",
-					"condition_amount": 4,
-					"effect_type": "exceed_now"
+					"effect_type": "add_to_gauge_boost_play_cleanup"
+				},
+				{
+					"timing": "immediate",
+					"effect_type": "bonus_action"
 				}
 			]
 		}

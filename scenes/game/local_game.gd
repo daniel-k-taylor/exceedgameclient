@@ -614,13 +614,14 @@ class Player:
 				break
 		return events
 
-	func add_top_deck_to_gauge():
+	func add_top_deck_to_gauge(amount : int):
 		var events = []
-		if len(deck) > 0:
-			var card = deck[0]
-			events += add_to_gauge(card)
-			deck.remove_at(0)
-			parent._append_log("%s added %s to gauge from top of deck." % [name, parent.card_db.get_card_name(card.id)])
+		for i in range(amount):
+			if len(deck) > 0:
+				var card = deck[0]
+				events += add_to_gauge(card)
+				deck.remove_at(0)
+				parent._append_log("%s added %s to gauge from top of deck." % [name, parent.card_db.get_card_name(card.id)])
 		return events
 
 	func return_all_cards_gauge_to_hand():
@@ -1912,7 +1913,10 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 			_append_log("%s added %s to gauge." % [performing_player.name, card_db.get_card_name(card.id)])
 			events += performing_player.remove_from_continuous_boosts(card, true)
 		"add_top_deck_to_gauge":
-			events += performing_player.add_top_deck_to_gauge()
+			var amount = 1
+			if 'amount' in effect:
+				amount = effect['amount']
+			events += performing_player.add_top_deck_to_gauge(amount)
 		"advance":
 			var amount = effect['amount']
 			if str(amount) == "strike_x":
