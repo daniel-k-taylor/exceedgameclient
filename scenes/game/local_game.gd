@@ -342,6 +342,7 @@ class Player:
 	var canceled_this_turn : bool
 	var cancel_blocked_this_turn : bool
 	var used_character_action : bool
+	var used_character_action_details : Array
 	var exceed_at_end_of_turn : bool
 	var specials_invalid : bool
 	var mulligan_complete : bool
@@ -399,6 +400,7 @@ class Player:
 		canceled_this_turn = false
 		cancel_blocked_this_turn = false
 		used_character_action = false
+		used_character_action_details = []
 		exceed_at_end_of_turn = false
 		specials_invalid = false
 		cleanup_boost_to_gauge_cards = []
@@ -1526,6 +1528,8 @@ func advance_to_next_turn():
 	opponent.pre_strike_movement = 0
 	player.used_character_action = false
 	opponent.used_character_action = false
+	player.used_character_action_details = []
+	opponent.used_character_action_details = []
 
 	# Figure out next turn's player.
 	active_turn_player = next_turn_player
@@ -1787,7 +1791,17 @@ func is_effect_condition_met(performing_player : Player, effect, local_condition
 		elif condition == "not_canceled_this_turn":
 			return not performing_player.canceled_this_turn
 		elif condition == "used_character_action":
-			return performing_player.used_character_action
+			var used_some_action = performing_player.used_character_action
+			if used_some_action and 'condition_details' in effect:
+				var target_details = effect['condition_details']
+				var matching_details = false
+				for used_action in performing_player.used_character_action_details:
+					if used_action[0] == target_details[0] and used_action[1] == target_details[1]:
+						matching_details = true
+						break
+				return matching_details
+			else:
+				return used_some_action
 		elif condition == "hit_opponent":
 			return active_strike.did_player_hit_opponent(performing_player)
 		elif condition == "not_full_close":
@@ -4437,6 +4451,8 @@ func do_character_action(performing_player : Player, card_ids, action_idx : int 
 	# Do the character action effects.
 	events += [create_event(Enums.EventType.EventType_CharacterAction, performing_player.my_id, 0)]
 	performing_player.used_character_action = true
+	var exceed_detail = "exceed" if performing_player.exceeded else "default"
+	performing_player.used_character_action_details.append([exceed_detail, action_idx])
 	remaining_character_action_effects = []
 	active_character_action = true
 	events += handle_strike_effect(-1, action['effect'], performing_player)

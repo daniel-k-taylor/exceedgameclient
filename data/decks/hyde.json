@@ -62,6 +62,7 @@
 		{
 			"timing": "during_strike",
 			"condition": "used_character_action",
+			"condition_details": ["exceed", 0],
 			"character_effect": true,
 			"effect_type": "powerup",
 			"amount": 3,

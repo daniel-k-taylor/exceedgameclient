@@ -51,6 +51,7 @@
 		{
 			"timing": "during_strike",
 			"condition": "used_character_action",
+			"condition_details": ["exceed", 0],
 			"effect_type": "pass",
 			"and": {
 				"character_effect": true,
