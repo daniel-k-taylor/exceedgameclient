@@ -331,6 +331,7 @@ class Player:
 	var gauge : Array
 	var continuous_boosts : Array[GameCard]
 	var cleanup_boost_to_gauge_cards : Array[int]
+	var boosts_to_gauge_on_move : Array[int]
 	var arena_location : int
 	var reshuffle_remaining : int
 	var exceeded : bool
@@ -401,6 +402,7 @@ class Player:
 		exceed_at_end_of_turn = false
 		specials_invalid = false
 		cleanup_boost_to_gauge_cards = []
+		boosts_to_gauge_on_move = []
 		mulligan_complete = false
 		reading_card_id = ""
 		next_strike_faceup = false
@@ -1099,8 +1101,12 @@ class Player:
 			return events
 		var previous_location = arena_location
 		var distance = abs(arena_location - new_arena_location)
+		var position_changed = arena_location != new_arena_location
 		arena_location = new_arena_location
 		events += [parent.create_event(Enums.EventType.EventType_Move, my_id, new_arena_location, "move", distance, previous_location)]
+		if position_changed:
+			events += add_boosts_to_gauge_on_move()
+			
 		return events
 
 	func close(amount):
@@ -1117,8 +1123,12 @@ class Player:
 			new_location = max(other_location+1, arena_location-amount)
 		if not parent.active_strike:
 			pre_strike_movement += abs(arena_location - new_location)
+		var position_changed = arena_location != new_location
 		arena_location = new_location
 		events += [parent.create_event(Enums.EventType.EventType_Move, my_id, new_location, "close", amount, previous_location)]
+		if position_changed:
+			events += add_boosts_to_gauge_on_move()
+			
 		return events
 
 	func advance(amount):
@@ -1153,9 +1163,12 @@ class Player:
 
 		if not parent.active_strike:
 			pre_strike_movement += abs(arena_location - new_location)
+		var position_changed = arena_location != new_location
 		arena_location = new_location
 		events += [parent.create_event(Enums.EventType.EventType_Move, my_id, new_location, "advance", amount, previous_location)]
-
+		if position_changed:
+			events += add_boosts_to_gauge_on_move()
+		
 		return events
 
 	func retreat(amount):
@@ -1175,9 +1188,12 @@ class Player:
 
 		if not parent.active_strike:
 			pre_strike_movement += abs(arena_location - new_location)
+		var position_changed = arena_location != new_location
 		arena_location = new_location
 		events += [parent.create_event(Enums.EventType.EventType_Move, my_id, new_location, "retreat", amount, previous_location)]
-
+		if position_changed:
+			events += add_boosts_to_gauge_on_move()
+					
 		return events
 
 	func push(amount):
@@ -1274,6 +1290,8 @@ class Player:
 							strike_stat_boosts.dodge_at_range_min = -1
 							strike_stat_boosts.dodge_at_range_max = -1
 							parent._append_log("%s is no longer dodging attacks from %s." % [name, parent.card_db.get_card_name(card.id)])
+						"powerup":
+							strike_stat_boosts.power -= effect['amount']
 						"guardup":
 							strike_stat_boosts.guard -= effect['amount']
 						"rangeup":
@@ -1313,6 +1331,18 @@ class Player:
 	func add_boost_to_gauge_on_strike_cleanup(card_id):
 		parent._append_log("%s boost %s added to gauge." % [name, parent.card_db.get_card_name(card_id)])
 		cleanup_boost_to_gauge_cards.append(card_id)
+		
+	func set_add_boost_to_gauge_on_move(card_id):
+		boosts_to_gauge_on_move.append(card_id)
+		
+	func add_boosts_to_gauge_on_move():
+		var events = []
+		for card_id in boosts_to_gauge_on_move:
+			var card = parent.card_db.get_card(card_id)
+			parent._append_log("%s Added card %s to gauge." % [name, parent.card_db.get_card_name(card_id)])
+			events += remove_from_continuous_boosts(card, true)
+		boosts_to_gauge_on_move = []
+		return events
 
 	func on_cancel_boost():
 		var events = []
@@ -1341,6 +1371,9 @@ class Player:
 				else:
 					events += add_to_discards(boost_card)
 					parent._append_log("%s continuous boost %s discarded from play." % [name, parent.card_db.get_card_name(boost_card.id)])
+			var card_idx = boosts_to_gauge_on_move.find(boost_card.id)
+			if card_idx != -1 and boost_card.id not in sustained_boosts:
+				boosts_to_gauge_on_move.remove_at(card_idx)
 		continuous_boosts = sustained_cards
 		sustained_boosts = []
 		cleanup_boost_to_gauge_cards = []
@@ -1857,6 +1890,11 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 			var card = card_db.get_card(card_id)
 			_append_log("%s Added card %s goes to gauge." % [performing_player.name, card_db.get_card_name(card.id)])
 			events += performing_player.remove_from_continuous_boosts(card, true)
+		"add_boost_to_gauge_on_move":
+			if card_id == -1:
+				assert(false)
+				printlog("ERROR: Unimplemented path to add_boost_to_gauge_on_move")
+			performing_player.set_add_boost_to_gauge_on_move(card_id)
 		"add_set_aside_card_to_deck":
 			events += performing_player.add_set_aside_card_to_deck(effect['id'])
 		"add_strike_to_gauge_after_cleanup":

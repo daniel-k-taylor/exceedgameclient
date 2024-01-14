@@ -2177,20 +2177,16 @@
 			"boost_type": "continuous",
 			"force_cost": 0,
 			"cancel_cost": -1,
-			"display_name": "Unsheathe",
+			"display_name": "Charged Attack",
 			"effects": [
 				{
 					"timing": "during_strike",
 					"effect_type": "powerup",
-					"amount": 2,
-					"and": {
-						"effect_type": "speedup",
-						"amount": 1
-					}
+					"amount": 2
 				},
 				{
 					"timing": "now",
-					"effect_type": "strike_random_from_gauge"
+					"effect_type": "add_boost_to_gauge_on_move"
 				}
 			]
 		}
