@@ -3695,9 +3695,9 @@ func do_pay_strike_cost(performing_player : Player, card_ids : Array, wild_strik
 	if decision_info.type != Enums.DecisionType.DecisionType_PayStrikeCost_CanWild and decision_info.type != Enums.DecisionType.DecisionType_PayStrikeCost_Required:
 		printlog("ERROR: Tried to pay costs but not in correct decision type.")
 		return false
+	var card = active_strike.get_player_card(performing_player)
 	if decision_info.type == Enums.DecisionType.DecisionType_PayStrikeCost_Required and wild_strike:
 		# Only allowed if you can't pay the cost.
-		var card = active_strike.get_player_card(performing_player)
 		var force_cost = card.definition['force_cost']
 		var gauge_cost = card.definition['gauge_cost']
 		var is_ex = active_strike.will_be_ex(performing_player)
@@ -3711,7 +3711,6 @@ func do_pay_strike_cost(performing_player : Player, card_ids : Array, wild_strik
 		return false
 
 	var events = []
-	var card = active_strike.get_player_card(performing_player)
 	if wild_strike:
 		_append_log("%s did a wild swing instead of validating %s." % [performing_player.name, card_db.get_card_name(card.id)])
 		# Replace existing card with a wild strike

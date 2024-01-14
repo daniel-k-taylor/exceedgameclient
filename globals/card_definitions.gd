@@ -544,8 +544,8 @@ func get_effects_text(effects):
 	var effects_str = ""
 	for effect in effects:
 		var effect_text = get_effect_text(effect)
-		if effect_text != "":
-			effects_str += get_effect_text(effect) + "\n"
+		if effect_text:
+			effects_str += effect_text + "\n"
 	return effects_str
 
 func get_on_exceed_text(on_exceed_ability):

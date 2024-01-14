@@ -1743,7 +1743,6 @@ func _on_reveal_hand(event):
 
 func _on_reveal_random_gauge(event):
 	var player = event['event_player']
-	var card_id = event['number']
 	spawn_damage_popup("Random Gauge Card!", player)
 
 	return SmallNoticeDelay
@@ -1755,9 +1754,9 @@ func _on_reveal_topdeck(event):
 	if player == Enums.PlayerId.PlayerId_Opponent:
 		var current_children = $AllCards/OpponentRevealed.get_children()
 		for i in range(len(current_children)-1, -1, -1):
-			var card = current_children[i]
-			card.get_parent().remove_child(card)
-			card.queue_free()
+			var child_card = current_children[i]
+			child_card.get_parent().remove_child(child_card)
+			child_card.queue_free()
 		var card_db = game_wrapper.get_card_database()
 		var logic_card : GameCard = card_db.get_card(card_id)
 		var card = find_card_on_board(card_id)
