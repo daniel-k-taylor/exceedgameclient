@@ -2194,29 +2194,36 @@
 	{
 		"id": "hyde_blackorbiter",
 		"type": "special",
-		"display_name": "Battoujutsu San no Kata: Tachi",
+		"display_name": "Black Orbiter",
 		"force_cost": 0,
 		"gauge_cost": 0,
-		"range_min": 2,
-		"range_max": 4,
-		"speed": 3,
-		"power": 5,
+		"range_min": 3,
+		"range_max": 6,
+		"speed": 4,
+		"power": 4,
 		"armor": 0,
-		"guard": 5,
+		"guard": 0,
 		"effects": [
 			{
-				"timing": "during_strike",
-				"effect_type": "ignore_armor",
-				"and": {
-					"effect_type": "ignore_guard"
-				}
+				"timing": "hit",
+				"condition": "range",
+				"condition_amount": 4,
+				"effect_type": "gain_advantage"
+			},
+			{
+				"timing": "after",
+				"effect_type": "choice",
+				"choice": [
+					{ "effect_type": "close", "amount": 2 },
+					{ "effect_type": "retreat", "amount": 2 }
+				]
 			}
 		],
 		"boost": {
 			"boost_type": "continuous",
-			"force_cost": 0,
+			"force_cost": 1,
 			"cancel_cost": -1,
-			"display_name": "Not Over Yet",
+			"display_name": "Reach",
 			"effects": [
 				{
 					"timing": "during_strike",
@@ -2225,10 +2232,8 @@
 					"amount2": 1
 				},
 				{
-					"timing": "cleanup",
-					"condition": "stunned",
-					"effect_type": "sustain_this",
-					"card_name": "Battoujutsu San no Kata: Tachi"
+					"timing": "now",
+					"effect_type": "strike"
 				}
 			]
 		}
@@ -2236,36 +2241,44 @@
 	{
 		"id": "hyde_palebringer",
 		"type": "special",
-		"display_name": "Battoujutsu Ni No Kata: Saki",
+		"display_name": "Pale Bringer",
 		"force_cost": 0,
 		"gauge_cost": 0,
-		"range_min": 3,
-		"range_max": 5,
-		"speed": 1,
-		"power": 7,
+		"range_min": 1,
+		"range_max": 1,
+		"speed": 4,
+		"power": 4,
 		"armor": 0,
 		"guard": 0,
 		"effects": [
 			{
 				"timing": "during_strike",
-				"condition": "was_strike_from_gauge",
-				"effect_type": "stun_immunity"
+				"condition": "is_ex_strike",
+				"effect_type": "ignore_guard"
+			},
+			{
+				"timing": "before",
+				"effect_type": "close",
+				"amount": 3
 			}
 		],
 		"boost": {
 			"boost_type": "continuous",
-			"force_cost": 1,
+			"force_cost": 0,
 			"cancel_cost": -1,
-			"display_name": "Come At Me!",
+			"display_name": "Power Attack",
 			"effects": [
 				{
-					"timing": "during_strike",
+					"timing": "hit",
 					"effect_type": "powerup",
-					"amount": 3
-				},
-				{
-					"timing": "start_of_next_turn",
-					"effect_type": "add_to_gauge_immediately"
+					"amount": 1,
+					"and": {
+						"effect_type": "gain_advantage",
+						"and": {
+							"effect_type": "add_boost_to_gauge_on_strike_cleanup",
+							"card_name": "Power Attack"
+						}
+					}
 				}
 			]
 		}
@@ -2274,47 +2287,42 @@
 		"NOTE": "HYDE CARDS END",
 		"id": "hyde_shadowscare",
 		"type": "special",
-		"display_name": "Battoujutsu Ichi no Kata: Kiri",
+		"display_name": "Shadow Scare",
 		"force_cost": 0,
 		"gauge_cost": 0,
 		"range_min": 1,
-		"range_max": 3,
-		"speed": 1,
-		"power": 7,
-		"armor": 1,
-		"guard": 5,
+		"range_max": 5,
+		"speed": 3,
+		"power": 4,
+		"armor": 0,
+		"guard": 4,
 		"effects": [
 			{
-				"timing": "during_strike",
-				"effect_type": "ignore_push_and_pull"
-			},
-			{
 				"timing": "hit",
-				"effect_type": "powerup_damagetaken",
-				"amount": -1
-			},
-			{
-				"timing": "after",
-				"effect_type": "draw",
-				"amount": 1
+				"effect_type": "pull",
+				"amount": 2,
+				"bonus_effect": {
+					"condition": "range",
+					"condition_amount": 1,
+					"effect_type": "gain_advantage"
+				}
 			}
 		],
 		"boost": {
 			"boost_type": "continuous",
 			"force_cost": 0,
 			"cancel_cost": -1,
-			"display_name": "Try Hard",
+			"display_name": "Overpower",
 			"effects": [
 				{
 					"timing": "during_strike",
 					"effect_type": "powerup",
-					"amount": 2
+					"amount": 1
 				},
 				{
-					"timing": "cleanup",
-					"condition": "stunned",
-					"effect_type": "sustain_this",
-					"card_name": "Battoujutsu Ichi no Kata: Kiri"
+					"timing": "before",
+					"effect_type": "close",
+					"amount": 1
 				}
 			]
 		},
