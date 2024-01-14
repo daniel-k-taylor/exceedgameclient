@@ -171,7 +171,7 @@ class Strike:
 		if performing_player == initiator:
 			return initiator_wild_strike
 		return defender_wild_strike
-		
+
 	func get_player_strike_from_gauge(performing_player : Player) -> bool:
 		if performing_player == defender:
 			return false
@@ -254,7 +254,6 @@ class StrikeStatBoosts:
 	var was_hit : bool = false
 	var is_ex : bool = false
 	var higher_speed_misses : bool = false
-	var opponent_cant_move_past : bool = false
 	var calculate_range_from_buddy : bool = false
 	var discard_attack_on_cleanup : bool = false
 	var seal_attack_on_cleanup : bool = false
@@ -288,7 +287,6 @@ class StrikeStatBoosts:
 		was_hit = false
 		is_ex = false
 		higher_speed_misses = false
-		opponent_cant_move_past = false
 		calculate_range_from_buddy = false
 		discard_attack_on_cleanup = false
 		seal_attack_on_cleanup = false
@@ -358,6 +356,7 @@ class Player:
 	var buddy_location : int
 	var do_not_cleanup_buddy_this_turn : bool
 	var cannot_move : bool
+	var cannot_move_past_opponent : bool
 	var extra_effect_after_set_strike
 
 	func _init(id, player_name, parent_ref, card_db_ref, chosen_deck, card_start_id):
@@ -412,6 +411,7 @@ class Player:
 		buddy_location = -1
 		do_not_cleanup_buddy_this_turn = false
 		cannot_move = false
+		cannot_move_past_opponent = false
 		extra_effect_after_set_strike = null
 
 		max_hand_size = MaxHandSize
@@ -770,7 +770,7 @@ class Player:
 		if i > get_character_action_count():
 			parent.printlog("ERROR: Character action index out of range")
 			return null
-			
+
 		if exceeded and 'character_action_exceeded' in deck_def:
 			var actions = deck_def['character_action_exceeded']
 			return actions[i]
@@ -792,17 +792,17 @@ class Player:
 		if i > get_character_action_count():
 			parent.printlog("ERROR: Character action index out of range")
 			return false
-			
+
 		if exceeded and 'character_action_exceeded' in deck_def:
 			var action = deck_def['character_action_exceeded'][i]
 			var gauge_cost = action['gauge_cost']
 			var force_cost = action['force_cost']
 			if get_available_gauge() < gauge_cost: return false
 			if get_available_force() < force_cost: return false
-			
+
 			if 'min_hand_size' in action:
 				if len(hand) < action['min_hand_size']: return false
-			
+
 			return true
 		elif not exceeded and 'character_action_default' in deck_def:
 			var action = deck_def['character_action_default'][i]
@@ -810,10 +810,10 @@ class Player:
 			var force_cost = action['force_cost']
 			if get_available_gauge() < gauge_cost: return false
 			if get_available_force() < force_cost: return false
-			
+
 			if 'min_hand_size' in action:
 				if len(hand) < action['min_hand_size']: return false
-				
+
 			return true
 		return false
 
@@ -1016,7 +1016,7 @@ class Player:
 			deck.remove_at(0)
 			events += [parent.create_event(Enums.EventType.EventType_Strike_WildStrike, my_id, card_id, "", is_immediate_reveal)]
 		return events
-		
+
 	func random_gauge_strike():
 		var events = []
 		if len(gauge) == 0:
@@ -1072,6 +1072,11 @@ class Player:
 		if new_arena_location == arena_location: return false
 		var other_player_loc = parent._get_player(parent.get_other_player(my_id)).arena_location
 		if  other_player_loc == new_arena_location: return false
+		if cannot_move_past_opponent:
+			if arena_location < other_player_loc and new_arena_location > other_player_loc:
+				return false
+			if arena_location > other_player_loc and new_arena_location < other_player_loc:
+				return false
 		var required_force = get_force_to_move_to(new_arena_location)
 		return required_force <= get_available_force()
 
@@ -1087,7 +1092,7 @@ class Player:
 
 	func move_to(new_arena_location):
 		var events = []
-		if cannot_move:
+		if not can_move_to(new_arena_location):
 			events += [parent.create_event(Enums.EventType.EventType_BlockMovement, my_id, 0)]
 			return events
 		var previous_location = arena_location
@@ -1121,7 +1126,7 @@ class Player:
 			return events
 		var previous_location = arena_location
 		var other_player_location = parent._get_player(parent.get_other_player(my_id)).arena_location
-		var blocked_from_passing = parent._get_player(parent.get_other_player(my_id)).strike_stat_boosts.opponent_cant_move_past
+		var blocked_from_passing = cannot_move_past_opponent
 		var new_location
 		if arena_location < other_player_location:
 			new_location = arena_location + amount
@@ -1273,6 +1278,11 @@ class Player:
 							strike_stat_boosts.min_range -= effect['amount']
 							strike_stat_boosts.max_range -= effect['amount2']
 
+		# Do any discarded effects
+		for effect in card.definition['boost']['effects']:
+			if effect['timing'] == "discarded":
+				var owner_player = parent._get_player(card.owner_id)
+				events += parent.handle_strike_effect(card.id, effect, owner_player)
 
 		for i in range(len(continuous_boosts)):
 			if continuous_boosts[i].id == card.id:
@@ -1351,10 +1361,10 @@ class Player:
 			if effect['timing'] == timing_name:
 				effects.append(effect)
 		return effects
-		
+
 	func set_strike_x(value : int):
 		var events = []
-		strike_stat_boosts.strike_x = value
+		strike_stat_boosts.strike_x = max(value, 0)
 		parent._append_log("%s X for strike set to %s." % [name, value])
 		events += [parent.create_event(Enums.EventType.EventType_Strike_SetX, my_id, value)]
 		return events
@@ -1532,7 +1542,7 @@ func advance_to_next_turn():
 func initialize_new_strike(performing_player : Player, opponent_sets_first : bool):
 	active_strike = Strike.new()
 	active_strike.effects_resolved_in_timing = 0
-	
+
 	active_strike.opponent_sets_first = opponent_sets_first
 	if opponent_sets_first:
 		active_strike.strike_state = StrikeState.StrikeState_Defender_SetFirst
@@ -1545,7 +1555,7 @@ func initialize_new_strike(performing_player : Player, opponent_sets_first : boo
 	opponent.bonus_actions = 0
 
 	active_strike.starting_distance = abs(player.arena_location - opponent.arena_location)
-	
+
 	active_strike.initiator = performing_player
 	active_strike.defender = _get_player(get_other_player(performing_player.my_id))
 
@@ -1566,11 +1576,11 @@ func continue_setup_strike(events):
 			events += begin_resolve_strike()
 		else:
 			events = strike_setup_defender_response(events)
-		
+
 	elif active_strike.strike_state == StrikeState.StrikeState_Defender_SetFirst:
 		# Opponent will set first; check for restrictions on what they can set
 		events = strike_setup_defender_response(events)
-			
+
 	elif active_strike.strike_state == StrikeState.StrikeState_Defender_SetEffects:
 		var defender_set_strike_effects = active_strike.defender.get_set_strike_effects(active_strike.defender_card)
 		while active_strike.effects_resolved_in_timing < defender_set_strike_effects.size():
@@ -1587,7 +1597,7 @@ func continue_setup_strike(events):
 		else:
 			events += begin_resolve_strike()
 	return events
-	
+
 func strike_setup_defender_response(events):
 	active_strike.strike_state = StrikeState.StrikeState_Defender_SetEffects
 	change_game_state(Enums.GameState.GameState_Strike_Opponent_Response)
@@ -1618,7 +1628,7 @@ func strike_setup_defender_response(events):
 		else:
 			events += [create_event(Enums.EventType.EventType_Strike_DoResponseNow, active_strike.defender.my_id, 0)]
 	return events
-	
+
 func strike_setup_initiator_response(events):
 	active_strike.strike_state = StrikeState.StrikeState_Initiator_SetEffects
 	change_game_state(Enums.GameState.GameState_WaitForStrike)
@@ -1864,7 +1874,7 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 			var amount = effect['amount']
 			if str(amount) == "strike_x":
 				amount = performing_player.strike_stat_boosts.strike_x
-				
+
 			var previous_location = performing_player.arena_location
 			events += performing_player.advance(amount)
 			var new_location = performing_player.arena_location
@@ -2173,7 +2183,7 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 			}]
 			decision_info.limitation = [0]
 			for i in range(MinArenaLocation, MaxArenaLocation + 1):
-				if i == opposing_player.arena_location:
+				if not performing_player.can_move_to(i):
 					continue
 				decision_info.limitation.append(i)
 				decision_info.choice.append({
@@ -2201,9 +2211,11 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 		"multiply_speed_bonuses":
 			performing_player.strike_stat_boosts.speed_bonus_multiplier = max(effect['amount'], performing_player.strike_stat_boosts.speed_bonus_multiplier)
 		"opponent_cant_move_past":
-			performing_player.strike_stat_boosts.opponent_cant_move_past = true
+			opposing_player.cannot_move_past_opponent = true
 			events += [create_event(Enums.EventType.EventType_Strike_OpponentCantMovePast, performing_player.my_id, 0)]
 			_append_log("%s is blocking opponent from advancing past." % [performing_player.name])
+		"remove_opponent_cant_move_past":
+			opposing_player.cannot_move_past_opponent = false
 		"opponent_discard_choose":
 			if opposing_player.hand.size() > effect['amount']:
 				change_game_state(Enums.GameState.GameState_PlayerDecision)
@@ -2403,7 +2415,7 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 			var amount = effect['amount']
 			if str(amount) == "strike_x":
 				amount = performing_player.strike_stat_boosts.strike_x
-				
+
 			var previous_location = performing_player.arena_location
 			events += performing_player.retreat(amount)
 			var new_location = performing_player.arena_location
@@ -2727,7 +2739,7 @@ func do_remaining_overdrive(performing_player : Player):
 		events += [create_event(Enums.EventType.EventType_AdvanceTurn, active_turn_player, 0)]
 
 	return events
-	
+
 func do_remaining_character_action(performing_player : Player):
 	var events = []
 	change_game_state(Enums.GameState.GameState_Boost_Processing)
@@ -2747,27 +2759,27 @@ func do_remaining_character_action(performing_player : Player):
 
 func do_set_strike_x(performing_player : Player, source : String):
 	var events = []
-	
+
 	var value = 0
 	match source:
 		"random_gauge_power":
 			if len(performing_player.gauge) > 0:
 				var random_gauge_idx = get_random_int() % len(performing_player.gauge)
 				var card = performing_player.gauge[random_gauge_idx]
-				value = card.definition['power']
+				value = max(card.definition['power'], 0)
 				_append_log("%s setting X for strike from power of %s in gauge." % [performing_player.name, card_db.get_card_name(card.id)])
 				events += [create_event(Enums.EventType.EventType_RevealRandomGauge, performing_player.my_id, card.id)]
 		"top_discard_power":
 			if len(performing_player.discards) > 0:
 				var card = performing_player.discards[-1]
-				value = card.definition['power']
+				value = max(card.definition['power'], 0)
 				_append_log("%s setting X for strike from power of %s on top of discards." % [performing_player.name, card_db.get_card_name(card.id)])
 		_:
 			assert(false, "Unknown source for setting X")
-			
+
 	events += performing_player.set_strike_x(value)
 	return events
-	
+
 func do_effects_for_timing(timing_name : String, performing_player : Player, card : GameCard, next_state):
 	var events = []
 	var effects = card_db.get_card_effects_at_timing(card, timing_name)
@@ -3644,12 +3656,12 @@ func do_strike(performing_player : Player, card_id : int, wild_strike: bool, ex_
 				events += [create_event(Enums.EventType.EventType_Strike_Started_Ex, performing_player.my_id, ex_card_id, "", reveal_immediately)]
 			events += [create_event(Enums.EventType.EventType_Strike_Started, performing_player.my_id, card_id, "", reveal_immediately)]
 			events = continue_setup_strike(events)
-			
+
 		Enums.GameState.GameState_Strike_Opponent_Set_First:
 			if opponent_sets_first: # should always be true
 				initialize_new_strike(performing_player, opponent_sets_first)
 				events = continue_setup_strike(events)
-			
+
 		Enums.GameState.GameState_Strike_Opponent_Response:
 			if wild_strike:
 				_append_log("%s Strike Response - Wild Swing" % [performing_player.name])
@@ -3683,9 +3695,9 @@ func do_pay_strike_cost(performing_player : Player, card_ids : Array, wild_strik
 	if decision_info.type != Enums.DecisionType.DecisionType_PayStrikeCost_CanWild and decision_info.type != Enums.DecisionType.DecisionType_PayStrikeCost_Required:
 		printlog("ERROR: Tried to pay costs but not in correct decision type.")
 		return false
+	var card = active_strike.get_player_card(performing_player)
 	if decision_info.type == Enums.DecisionType.DecisionType_PayStrikeCost_Required and wild_strike:
 		# Only allowed if you can't pay the cost.
-		var card = active_strike.get_player_card(performing_player)
 		var force_cost = card.definition['force_cost']
 		var gauge_cost = card.definition['gauge_cost']
 		var is_ex = active_strike.will_be_ex(performing_player)
@@ -3699,7 +3711,6 @@ func do_pay_strike_cost(performing_player : Player, card_ids : Array, wild_strik
 		return false
 
 	var events = []
-	var card = active_strike.get_player_card(performing_player)
 	if wild_strike:
 		_append_log("%s did a wild swing instead of validating %s." % [performing_player.name, card_db.get_card_name(card.id)])
 		# Replace existing card with a wild strike
@@ -3817,7 +3828,7 @@ func do_card_from_hand_to_gauge(performing_player : Player, card_ids : Array) ->
 		for i in range(1, card_ids.size()):
 			card_names += ", " + card_db.get_card_name(card_ids[i])
 		var destination_string = ""
-		
+
 		for card_id in card_ids:
 			if decision_info.destination == "gauge":
 				events += performing_player.move_card_from_hand_to_gauge(card_id)
@@ -3828,7 +3839,7 @@ func do_card_from_hand_to_gauge(performing_player : Player, card_ids : Array) ->
 				destination_string = "top of deck"
 			else:
 				assert(false, "Unknown destination for do_card_from_hand_to_gauge")
-				
+
 		_append_log("%s moved cards (%s) from hand to %s." % [performing_player.name, card_names, destination_string])
 
 	if active_overdrive:

@@ -2708,6 +2708,14 @@
 					"effect_type": "opponent_cant_move_past"
 				},
 				{
+					"timing": "now",
+					"effect_type": "opponent_cant_move_past"
+				},
+				{
+					"timing": "discarded",
+					"effect_type": "remove_opponent_cant_move_past"
+				},
+				{
 					"timing": "start_of_next_turn",
 					"effect_type": "add_to_gauge_immediately"
 				}
@@ -5364,11 +5372,12 @@
 					"effect_type": "block_opponent_move"
 				},
 				{
+					"timing": "discarded",
+					"effect_type": "remove_block_opponent_move"
+				},
+				{
 					"timing": "start_of_next_turn",
-					"effect_type": "add_to_gauge_immediately",
-					"and": {
-						"effect_type": "remove_block_opponent_move"
-					}
+					"effect_type": "add_to_gauge_immediately"
 				}
 			]
 		}
@@ -7851,7 +7860,7 @@
 		"range_min": -1,
 		"range_max": -1,
 		"speed": 0,
-		"power": -1,
+		"power": 0,
 		"armor": 2,
 		"guard": 3,
 		"effects": [
@@ -7879,7 +7888,7 @@
 		},
 		"NOTEEND": "GG NORMALS END"
 	},
-	
+
 	{
 		"NOTE": "UNI NORMALS START",
 		"id": "uni_normal_grasp",
@@ -8181,7 +8190,7 @@
 		"range_min": -1,
 		"range_max": -1,
 		"speed": 0,
-		"power": -1,
+		"power": 0,
 		"armor": 2,
 		"guard": 3,
 		"effects": [
@@ -8497,7 +8506,7 @@
 		"range_min": -1,
 		"range_max": -1,
 		"speed": 0,
-		"power": -1,
+		"power": 0,
 		"armor": 2,
 		"guard": 3,
 		"effects": [

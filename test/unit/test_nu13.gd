@@ -4,7 +4,7 @@ const LocalGame = preload("res://scenes/game/local_game.gd")
 const GameCard = preload("res://scenes/game/game_card.gd")
 const Enums = preload("res://scenes/game/enums.gd")
 var game_logic : LocalGame
-var default_deck = CardDefinitions.get_deck_from_str_id("goldlewis")
+var default_deck = CardDefinitions.get_deck_from_str_id("nu13")
 const TestCardId1 = 50001
 const TestCardId2 = 50002
 const TestCardId3 = 50003
@@ -188,100 +188,62 @@ func validate_life(p1, l1, p2, l2):
 ## Tests start here
 ##
 
-func test_goldlewis_starting():
-	position_players(player1, 3, player2, 5)
-	assert_eq(player1.hand.size(), 7)
-	assert_true(game_logic.do_prepare(player1))
-	assert_eq(player1.hand.size(), 9)
-	assert_eq(game_logic.game_state, Enums.GameState.GameState_PickAction)
-	
-func test_goldlewis_exceed():
-	position_players(player1, 3, player2, 5)
-	player1.exceed()
-	assert_eq(player1.hand.size(), 9)
-	execute_strike(player1, player2, "goldlewis_rise", "gg_normal_slash", [], [], false, false)
-	validate_positions(player1, 3, player2, 7)
-	validate_life(player1, 30, player2, 25)
-	assert_eq(player1.hand.size(), 12)
-	assert_eq(game_logic.game_state, Enums.GameState.GameState_PickAction)
-
-func test_goldlewis_hurl_boost():
-	position_players(player1, 3, player2, 5)
-	give_player_specific_card(player1, "goldlewis_hurl", TestCardId3)
-	assert_true(game_logic.do_boost(player1, TestCardId3))
-	assert_true(game_logic.do_force_for_effect(player1, [player1.hand[0].id, player1.hand[1].id]))
-	execute_strike(player1, player2, "gg_normal_slash", "gg_normal_slash", [], [], false, false)
-	validate_positions(player1, 4, player2, 5)
-	validate_life(player1, 30, player2, 25)
-	assert_eq(game_logic.game_state, Enums.GameState.GameState_PickAction)
-
-func test_goldlewis_slam():
-	position_players(player1, 3, player2, 5)
-	execute_strike(player1, player2, "goldlewis_slam", "gg_normal_sweep", [0], [], false, false)
-	validate_positions(player1, 3, player2, 6)
-	validate_life(player1, 24, player2, 26)
-	assert_eq(game_logic.game_state, Enums.GameState.GameState_PickAction)
-
-func test_goldlewis_drop():
+func test_nu_sworddance_boost():
 	position_players(player1, 3, player2, 7)
-	give_player_specific_card(player1, "goldlewis_drop", TestCardId3)
-	assert_true(game_logic.do_boost(player1, TestCardId3))
-	advance_turn(player2)
-	validate_positions(player1, 5, player2, 7)
-	assert_eq(player1.continuous_boosts.size(), 0)
-	assert_eq(player1.gauge.size(), 0)
-	assert_eq(game_logic.game_state, Enums.GameState.GameState_PickAction)
-
-func test_dust_boost():
-	position_players(player1, 3, player2, 7)
-	give_player_specific_card(player1, "gg_normal_dust", TestCardId3)
-	assert_true(game_logic.do_boost(player1, TestCardId3))
-	advance_turn(player2)
-	validate_positions(player1, 3, player2, 7)
-	assert_eq(player1.continuous_boosts.size(), 0)
-	assert_eq(player1.gauge.size(), 1)
-	assert_eq(game_logic.game_state, Enums.GameState.GameState_PickAction)
-
-func test_goldlewis_spin_boost():
-	position_players(player1, 3, player2, 7)
-	give_player_specific_card(player1, "goldlewis_spin", TestCardId3)
+	give_player_specific_card(player1, "nu13_sworddance", TestCardId3)
 	assert_true(game_logic.do_boost(player1, TestCardId3))
 	assert_false(player2.can_move_to(1))
 	assert_false(player2.can_move_to(2))
 	assert_false(player2.can_move_to(3))
-	assert_true(player2.can_move_to(4))
+	assert_false(player2.can_move_to(4))
+	assert_false(player2.can_move_to(5))
+	assert_false(player2.can_move_to(6))
+	assert_false(player2.can_move_to(7))
+	assert_false(player2.can_move_to(8))
+	assert_false(player2.can_move_to(9))
 	advance_turn(player2)
 	validate_positions(player1, 3, player2, 7)
 	assert_eq(player1.continuous_boosts.size(), 0)
 	assert_eq(player1.gauge.size(), 1)
 	assert_true(player2.can_move_to(1))
+	assert_true(player2.can_move_to(2))
+	assert_false(player2.can_move_to(3))
+	assert_true(player2.can_move_to(4))
+	assert_true(player2.can_move_to(5))
+	assert_true(player2.can_move_to(6))
+	assert_false(player2.can_move_to(7))
+	assert_true(player2.can_move_to(8))
+	assert_true(player2.can_move_to(9))
 	assert_eq(game_logic.game_state, Enums.GameState.GameState_PickAction)
 
-func test_goldlewis_spin_boost_cancel():
-	position_players(player1, 3, player2, 6)
-	give_gauge(player1, 1)
-	give_player_specific_card(player1, "goldlewis_spin", TestCardId3)
+func test_nu_sworddance_boost_tech():
+	position_players(player1, 3, player2, 7)
+	give_player_specific_card(player1, "nu13_sworddance", TestCardId3)
 	assert_true(game_logic.do_boost(player1, TestCardId3))
-	assert_true(game_logic.do_boost_cancel(player1, [player1.gauge[0].id], true))
-	execute_strike(player1, player2, "gg_normal_sweep", "gg_normal_dive", [], [], false, false)
-	validate_positions(player1, 3, player2, 4)
-	validate_life(player1, 25, player2, 24)
-
-func test_goldlewis_down_with_reg():
-	position_players(player1, 3, player2, 4)
-	give_gauge(player1, 4)
-	execute_strike(player1, player2, "goldlewis_downwiththesystem", "gg_normal_dive", [], [], false, false)
-	validate_positions(player1, 3, player2, 4)
-	validate_life(player1, 30, player2, 27)
-	assert_eq(player1.gauge.size(), 3)
-
-func test_goldlewis_down_with_ex_sweep():
-	position_players(player1, 3, player2, 4)
-	give_gauge(player1, 5)
-	give_player_specific_card(player1, "gg_normal_sweep", TestCardId3)
-	assert_true(game_logic.do_boost(player1, TestCardId3))
-	assert_true(game_logic.do_boost_cancel(player1, [player1.gauge[0].id], true))
-	execute_strike(player1, player2, "goldlewis_downwiththesystem", "gg_normal_dive", [], [], false, false, [], [], 2)
-	validate_positions(player1, 3, player2, 4)
-	validate_life(player1, 30, player2, 22)
-	assert_eq(player1.gauge.size(), 1)
+	assert_false(player2.can_move_to(1))
+	assert_false(player2.can_move_to(2))
+	assert_false(player2.can_move_to(3))
+	assert_false(player2.can_move_to(4))
+	assert_false(player2.can_move_to(5))
+	assert_false(player2.can_move_to(6))
+	assert_false(player2.can_move_to(7))
+	assert_false(player2.can_move_to(8))
+	assert_false(player2.can_move_to(9))
+	
+	give_player_specific_card(player2, "standard_normal_dive", TestCardId4)
+	assert_true(game_logic.do_boost(player2, TestCardId4))
+	assert_true(game_logic.do_boost_name_card_choice_effect(player2, TestCardId3))
+	
+	validate_positions(player1, 3, player2, 7)
+	assert_eq(player1.continuous_boosts.size(), 0)
+	assert_eq(player1.gauge.size(), 0)
+	assert_true(player2.can_move_to(1))
+	assert_true(player2.can_move_to(2))
+	assert_false(player2.can_move_to(3))
+	assert_true(player2.can_move_to(4))
+	assert_true(player2.can_move_to(5))
+	assert_true(player2.can_move_to(6))
+	assert_false(player2.can_move_to(7))
+	assert_true(player2.can_move_to(8))
+	assert_true(player2.can_move_to(9))
+	assert_eq(game_logic.game_state, Enums.GameState.GameState_PickAction)

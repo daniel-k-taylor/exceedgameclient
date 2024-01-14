@@ -1,0 +1,59 @@
+[gd_scene load_steps=3 format=3 uid="uid://b8kmmrd5jmqdd"]
+
+[ext_resource type="Script" path="res://scenes/game/modal_dialog.gd" id="1_aatln"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_0ipmd"]
+bg_color = Color(0.141176, 0.141176, 0.141176, 0.580392)
+
+[node name="ModalDialog" type="CenterContainer"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_aatln")
+
+[node name="CloseOuterClick" type="Button" parent="."]
+modulate = Color(1, 1, 1, 0)
+custom_minimum_size = Vector2(1280, 720)
+layout_mode = 2
+
+[node name="PanelContainer" type="PanelContainer" parent="."]
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_0ipmd")
+
+[node name="OuterMargin" type="MarginContainer" parent="PanelContainer"]
+layout_mode = 2
+theme_override_constants/margin_left = 50
+theme_override_constants/margin_top = 50
+theme_override_constants/margin_right = 50
+theme_override_constants/margin_bottom = 50
+
+[node name="VerticalLayout" type="VBoxContainer" parent="PanelContainer/OuterMargin"]
+layout_mode = 2
+theme_override_constants/separation = 30
+
+[node name="MessageLabel" type="Label" parent="PanelContainer/OuterMargin/VerticalLayout"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 40
+text = "Are you sure you want to quit?"
+
+[node name="ChoiceButtons" type="HBoxContainer" parent="PanelContainer/OuterMargin/VerticalLayout"]
+layout_mode = 2
+size_flags_horizontal = 4
+theme_override_constants/separation = 100
+
+[node name="AcceptButton" type="Button" parent="PanelContainer/OuterMargin/VerticalLayout/ChoiceButtons"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 40
+text = "QUIT TO
+MENU"
+
+[node name="CancelButton" type="Button" parent="PanelContainer/OuterMargin/VerticalLayout/ChoiceButtons"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 40
+text = "CANCEL"
+
+[connection signal="pressed" from="CloseOuterClick" to="." method="_on_close_button_pressed"]
+[connection signal="pressed" from="PanelContainer/OuterMargin/VerticalLayout/ChoiceButtons/AcceptButton" to="." method="_on_accept_button_pressed"]
+[connection signal="pressed" from="PanelContainer/OuterMargin/VerticalLayout/ChoiceButtons/CancelButton" to="." method="_on_close_button_pressed"]

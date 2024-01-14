@@ -105,5 +105,10 @@ this happened then this"
 scroll_following = true
 selection_enabled = true
 
+[node name="CopyButton" type="Button" parent="PanelContainer/OuterMargin/VerticalLayout"]
+layout_mode = 2
+text = "Copy to Clipboard"
+
 [connection signal="pressed" from="CloseOuterClick" to="." method="_on_close_button_pressed"]
 [connection signal="pressed" from="PanelContainer/OuterMargin/VerticalLayout/CloseButton" to="." method="_on_close_button_pressed"]
+[connection signal="pressed" from="PanelContainer/OuterMargin/VerticalLayout/CopyButton" to="." method="_on_copy_button_pressed"]

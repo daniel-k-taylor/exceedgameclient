@@ -151,6 +151,8 @@ func get_timing_text(timing):
 			text += "[b]Before:[/b] "
 		"cleanup":
 			text += "[b]Cleanup:[/b] "
+		"discarded":
+			text += ""
 		"during_strike":
 			text += ""
 		"hit":
@@ -382,6 +384,10 @@ func get_effect_type_text(effect, card_name_source : String = ""):
 			effect_str += "Name a card. Opponent discards it or reveals not in hand."
 		"nothing":
 			effect_str += ""
+		"opponent_cant_move_past":
+			effect_str += "Opponent cannot Advance past you"
+		"remove_opponent_cant_move_past":
+			effect_str += ""
 		"opponent_discard_choose":
 			effect_str += "Opponent discards " + str(effect['amount']) + " cards."
 		"opponent_discard_random":
@@ -468,7 +474,7 @@ func get_effect_type_text(effect, card_name_source : String = ""):
 			else:
 				effect_str += optional_text + "Discard " + str(effect['amount']) + limitation + " card(s)" + bonus
 		"shuffle_hand_to_deck":
-			effect_str += "Shuffle hand into deck"	
+			effect_str += "Shuffle hand into deck"
 		"shuffle_sealed_to_deck":
 			effect_str += "Shuffle sealed cards into deck"
 		"speedup":
@@ -537,7 +543,9 @@ func get_effect_text(effect, short = false, skip_timing = false, skip_condition 
 func get_effects_text(effects):
 	var effects_str = ""
 	for effect in effects:
-		effects_str += get_effect_text(effect) + "\n"
+		var effect_text = get_effect_text(effect)
+		if effect_text:
+			effects_str += effect_text + "\n"
 	return effects_str
 
 func get_on_exceed_text(on_exceed_ability):

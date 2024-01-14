@@ -172,9 +172,9 @@ class ChooseFromTopdeckAction:
 class CharacterActionAction:
 	var card_ids
 	var action_idx
-	func _init(card_id_combination, action_idx):
+	func _init(card_id_combination, action_idx_value):
 		card_ids = card_id_combination
-		self.action_idx = action_idx
+		self.action_idx = action_idx_value
 
 class ChooseArenaLocationAction:
 	var location
