@@ -2194,19 +2194,19 @@ func _update_buttons():
 		button_choices.append({ "text": "Boost", "action": _on_boost_button_pressed, "disabled": not game_wrapper.can_do_boost(Enums.PlayerId.PlayerId_Player) })
 		button_choices.append({ "text": "Strike", "action": _on_strike_button_pressed, "disabled": not game_wrapper.can_do_strike(Enums.PlayerId.PlayerId_Player) })
 		for i in range(game_wrapper.get_player_character_action_count(Enums.PlayerId.PlayerId_Player)):
-			if game_wrapper.can_do_character_action(Enums.PlayerId.PlayerId_Player, i):
-				var char_action = game_wrapper.get_player_character_action(Enums.PlayerId.PlayerId_Player, i)
-				var action_name = "Character Action"
-				if 'action_name' in char_action:
-					action_name = char_action['action_name']
-				var force_cost = char_action['force_cost']
-				var gauge_cost = char_action['gauge_cost']
-				var additional_text = ""
-				if force_cost > 0:
-					additional_text += " (%s Force)" % force_cost
-				if gauge_cost > 0:
-					additional_text += " (%s Gauge)" % gauge_cost
-				button_choices.append({ "text": "%s%s" % [action_name, additional_text], "action": func(): _on_character_action_pressed(i), "disabled": false })
+			var char_action = game_wrapper.get_player_character_action(Enums.PlayerId.PlayerId_Player, i)
+			var action_possible = game_wrapper.can_do_character_action(Enums.PlayerId.PlayerId_Player, i)
+			var action_name = "Character Action"
+			if 'action_name' in char_action:
+				action_name = char_action['action_name']
+			var force_cost = char_action['force_cost']
+			var gauge_cost = char_action['gauge_cost']
+			var additional_text = ""
+			if force_cost > 0:
+				additional_text += " (%s Force)" % force_cost
+			if gauge_cost > 0:
+				additional_text += " (%s Gauge)" % gauge_cost
+			button_choices.append({ "text": "%s%s" % [action_name, additional_text], "action": func(): _on_character_action_pressed(i), "disabled": not action_possible })
 		var bonus_available_actions = game_wrapper.get_bonus_actions(Enums.PlayerId.PlayerId_Player)
 		for i in range(bonus_available_actions.size()):
 			var bonus_action = bonus_available_actions[i]
