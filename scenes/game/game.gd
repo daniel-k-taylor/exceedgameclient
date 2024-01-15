@@ -130,6 +130,7 @@ enum UISubState {
 	UISubState_SelectCards_ForceForChange,
 	UISubState_SelectCards_Exceed, # 16
 	UISubState_SelectCards_Mulligan,
+	UISubState_SelectCards_StrikeForce,
 	UISubState_SelectCards_StrikeGauge,
 	UISubState_SelectCards_StrikeCard,
 	UISubState_SelectCards_StrikeResponseCard,
@@ -633,6 +634,8 @@ func can_select_card(card):
 			return in_gauge and len(selected_cards) < select_card_require_max
 		UISubState.UISubState_SelectCards_MoveActionGenerateForce, UISubState.UISubState_SelectCards_ForceForChange, UISubState.UISubState_SelectCards_ForceForArmor:
 			return in_gauge or in_hand
+		UISubState.UISubState_SelectCards_StrikeForce:
+			return in_gauge or in_hand
 		UISubState.UISubState_SelectCards_ChooseBoostsToSustain:
 			return in_player_boosts and not is_sustained and len(selected_cards) < select_card_require_max
 		UISubState.UISubState_SelectCards_CharacterAction_Force:
@@ -818,8 +821,6 @@ func _stat_notice_event(event):
 			notice_text = "EX Strike!"
 		Enums.EventType.EventType_Strike_GainAdvantage:
 			notice_text = "+Advantage!"
-		Enums.EventType.EventType_Strike_GainLife:
-			notice_text = "+%d Life" % number
 		Enums.EventType.EventType_Strike_GuardUp:
 			var text = ""
 			if number > 0:
@@ -1539,6 +1540,8 @@ func update_force_generation_message():
 		UISubState.UISubState_SelectCards_ForceForArmor:
 			var damage_after_armor = max(0, force_for_armor_incoming_damage - 2 * force_selected)
 			set_instructions("Select cards to generate force for +2 Armor each.\n%s force generated.\nYou will take %s damage." % [force_selected, damage_after_armor])
+		UISubState.UISubState_SelectCards_StrikeForce:
+			set_instructions("Select cards to generate %s force for this strike.\n%s force generated." % [select_card_require_force, force_selected])
 		UISubState.UISubState_SelectCards_ForceForEffect:
 			var effect_str = ""
 			var decision_effect = game_wrapper.get_decision_info().effect
@@ -1569,10 +1572,10 @@ func begin_discard_cards_selection(number_to_discard_min, number_to_discard_max,
 	enable_instructions_ui("", true, cancel_allowed)
 	change_ui_state(UIState.UIState_SelectCards, next_sub_state)
 
-func begin_generate_force_selection(amount):
+func begin_generate_force_selection(amount, can_cancel : bool = true, wild_swing_allowed : bool = false):
 	selected_cards = []
 	select_card_require_force = amount
-	enable_instructions_ui("", true, true)
+	enable_instructions_ui("", true, can_cancel, wild_swing_allowed)
 
 	change_ui_state(UIState.UIState_SelectCards)
 
@@ -1877,7 +1880,18 @@ func _on_pay_cost_gauge(event):
 		var wild_swing_allowed = game_wrapper.get_decision_info().type == Enums.DecisionType.DecisionType_PayStrikeCost_CanWild
 		begin_gauge_selection(gauge_cost, wild_swing_allowed, UISubState.UISubState_SelectCards_StrikeGauge, enable_reminder)
 	else:
-		ai_pay_cost(gauge_cost)
+		ai_pay_cost(gauge_cost, false)
+
+func _on_pay_cost_force(event):
+	var player = event['event_player']
+	var force_cost = game_wrapper.get_decision_info().cost
+	if player == Enums.PlayerId.PlayerId_Player:
+		var can_cancel = false
+		var wild_swing_allowed = game_wrapper.get_decision_info().type == Enums.DecisionType.DecisionType_PayStrikeCost_CanWild
+		change_ui_state(null, UISubState.UISubState_SelectCards_StrikeForce)
+		begin_generate_force_selection(force_cost, can_cancel, wild_swing_allowed)
+	else:
+		ai_pay_cost(force_cost, true)
 
 func _on_pay_cost_failed(event):
 	# Do the wild swing deal.
@@ -1923,7 +1937,7 @@ func _on_gauge_for_effect(event):
 
 func _on_damage(event):
 	var player = event['event_player']
-	var life = game_wrapper.get_player_life(player)
+	var life = event['extra_info']
 	var damage_taken = event['number']
 	if player == Enums.PlayerId.PlayerId_Player:
 		$PlayerLife.set_life(life)
@@ -1932,6 +1946,17 @@ func _on_damage(event):
 		$OpponentLife.set_life(life)
 		$OpponentCharacter.play_hit()
 	spawn_damage_popup("%s Damage" % str(damage_taken), player)
+	return SmallNoticeDelay
+
+func _on_gain_life(event):
+	var player = event['event_player']
+	var life = event['extra_info']
+	var life_gained = event['number']
+	if player == Enums.PlayerId.PlayerId_Player:
+		$PlayerLife.set_life(life)
+	else:
+		$OpponentLife.set_life(life)
+	spawn_damage_popup("+%d Life" % life_gained, player)
 	return SmallNoticeDelay
 
 func _on_place_buddy(event):
@@ -2078,7 +2103,7 @@ func _handle_events(events):
 			Enums.EventType.EventType_Strike_GainAdvantage:
 				delay = _stat_notice_event(event)
 			Enums.EventType.EventType_Strike_GainLife:
-				delay = _stat_notice_event(event)
+				delay = _on_gain_life(event)
 			Enums.EventType.EventType_Strike_GuardUp:
 				delay = _stat_notice_event(event)
 			Enums.EventType.EventType_Strike_IgnoredPushPull:
@@ -2096,8 +2121,7 @@ func _handle_events(events):
 			Enums.EventType.EventType_Strike_PayCost_Gauge:
 				_on_pay_cost_gauge(event)
 			Enums.EventType.EventType_Strike_PayCost_Force:
-				printlog("TODO: UI Pay force costs on card")
-				assert(false)
+				_on_pay_cost_force(event)
 			Enums.EventType.EventType_Strike_PayCost_Unable:
 				_on_pay_cost_failed(event)
 			Enums.EventType.EventType_Strike_PowerUp:
@@ -2235,6 +2259,8 @@ func _update_buttons():
 				update_force_generation_message()
 			UISubState.UISubState_SelectCards_ForceForEffect:
 				update_force_generation_message()
+			UISubState.UISubState_SelectCards_StrikeForce:
+				update_force_generation_message()
 			UISubState.UISubState_SelectCards_StrikeGauge:
 				update_gauge_selection_message()
 			UISubState.UISubState_SelectCards_GaugeForEffect:
@@ -2322,6 +2348,8 @@ func can_press_ok():
 					var card2 = selected_cards[1]
 					return card_db.are_same_card(card1.card_id, card2.card_id)
 				return len(selected_cards) == 1
+			UISubState.UISubState_SelectCards_StrikeForce:
+				return can_selected_cards_pay_force(select_card_require_force)
 			UISubState.UISubState_SelectCards_ForceForArmor:
 				return true
 			UISubState.UISubState_SelectCards_ForceForEffect:
@@ -2469,7 +2497,7 @@ func _on_instructions_ok_button_pressed(index : int):
 				success = game_wrapper.submit_choose_from_boosts(Enums.PlayerId.PlayerId_Player, selected_card_ids)
 			UISubState.UISubState_SelectCards_DiscardCardsToGauge:
 				success = game_wrapper.submit_card_from_hand_to_gauge(Enums.PlayerId.PlayerId_Player, selected_card_ids)
-			UISubState.UISubState_SelectCards_StrikeGauge:
+			UISubState.UISubState_SelectCards_StrikeGauge, UISubState.UISubState_SelectCards_StrikeForce:
 				success = game_wrapper.submit_pay_strike_cost(Enums.PlayerId.PlayerId_Player, selected_card_ids, false)
 			UISubState.UISubState_SelectCards_Exceed:
 				success = game_wrapper.submit_exceed(Enums.PlayerId.PlayerId_Player, selected_card_ids)
@@ -2577,6 +2605,9 @@ func _on_wild_swing_button_pressed():
 		elif ui_sub_state == UISubState.UISubState_SelectCards_OpponentSetsFirst_StrikeCard or ui_sub_state == UISubState.UISubState_SelectCards_OpponentSetsFirst_StrikeResponseCard:
 			success = game_wrapper.submit_strike(Enums.PlayerId.PlayerId_Player, -1, true, -1, true)
 		elif ui_sub_state == UISubState.UISubState_SelectCards_StrikeGauge:
+			close_popout()
+			success = game_wrapper.submit_pay_strike_cost(Enums.PlayerId.PlayerId_Player, [], true)
+		elif ui_sub_state == UISubState.UISubState_SelectCards_StrikeForce:
 			close_popout()
 			success = game_wrapper.submit_pay_strike_cost(Enums.PlayerId.PlayerId_Player, [], true)
 	if success:
@@ -2703,11 +2734,15 @@ func ai_do_boost(allow_gauge : bool, limitation : String):
 	else:
 		print("FAILED AI DO BOOST")
 
-func ai_pay_cost(cost):
+func ai_pay_cost(cost, is_force_cost : bool):
 	change_ui_state(UIState.UIState_WaitForGameServer)
 	if not game_wrapper.is_ai_game(): return
 	var can_wild = game_wrapper.get_decision_info().type == Enums.DecisionType.DecisionType_PayStrikeCost_CanWild
-	var pay_action = ai_player.pay_strike_gauge_cost(game_wrapper.current_game, Enums.PlayerId.PlayerId_Opponent, cost, can_wild)
+	var pay_action
+	if is_force_cost:
+		pay_action = ai_player.pay_strike_force_cost(game_wrapper.current_game, Enums.PlayerId.PlayerId_Opponent, cost, can_wild)
+	else:
+		pay_action = ai_player.pay_strike_gauge_cost(game_wrapper.current_game, Enums.PlayerId.PlayerId_Opponent, cost, can_wild)
 	var success = game_wrapper.submit_pay_strike_cost(Enums.PlayerId.PlayerId_Opponent, pay_action.card_ids, pay_action.wild_swing)
 	if success:
 		change_ui_state(UIState.UIState_WaitForGameServer)

@@ -621,13 +621,14 @@ class Player:
 			parent._append_log("%s added %s to gauge from top of deck." % [name, parent.card_db.get_card_name(card.id)])
 		return events
 
-	func add_top_discard_to_gauge():
+	func add_top_discard_to_gauge(amount : int):
 		var events = []
-		if len(discards) > 0:
-			var card = discards[0]
-			events += add_to_gauge(card)
-			discards.remove_at(0)
-			parent._append_log("%s added %s to gauge from top of discard pile." % [name, parent.card_db.get_card_name(card.id)])
+		for i in range(amount):
+			if len(discards) > 0:
+				var card = discards[0]
+				events += add_to_gauge(card)
+				discards.remove_at(0)
+				parent._append_log("%s added %s to gauge from top of discard pile." % [name, parent.card_db.get_card_name(card.id)])
 		return events
 
 	func return_all_cards_gauge_to_hand():
@@ -1885,7 +1886,10 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 		"add_top_deck_to_gauge":
 			events += performing_player.add_top_deck_to_gauge()
 		"add_top_discard_to_gauge":
-			events += performing_player.add_top_discard_to_gauge()
+			var amount = 1
+			if 'amount' in effect:
+				amount = effect['amount']
+			events += performing_player.add_top_discard_to_gauge(amount)
 		"advance":
 			var amount = effect['amount']
 			if str(amount) == "strike_x":
@@ -2158,9 +2162,9 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 			_append_log("%s gains Advantage." % [performing_player.name])
 		"gain_life":
 			var amount = effect['amount']
-			events += [create_event(Enums.EventType.EventType_Strike_GainLife, performing_player.my_id, amount)]
-			performing_player.life = max(MaxLife, performing_player.life + amount)
-			_append_log("%s gains % life. Life is now %s." % [performing_player.name, amount, performing_player.life])
+			performing_player.life = min(MaxLife, performing_player.life + amount)
+			events += [create_event(Enums.EventType.EventType_Strike_GainLife, performing_player.my_id, amount, "", performing_player.life)]
+			_append_log("%s gains %s life. Life is now %s." % [performing_player.name, str(amount), str(performing_player.life)])
 		"gauge_from_hand":
 			if len(performing_player.hand) > 0:
 				change_game_state(Enums.GameState.GameState_PlayerDecision)
@@ -2603,7 +2607,7 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 			if unmitigated_damage >= performing_player.life:
 				unmitigated_damage = performing_player.life - 1
 			performing_player.life -= unmitigated_damage
-			events += [create_event(Enums.EventType.EventType_Strike_TookDamage, performing_player.my_id, unmitigated_damage)]
+			events += [create_event(Enums.EventType.EventType_Strike_TookDamage, performing_player.my_id, unmitigated_damage, "", performing_player.life)]
 			if used_armor > 0:
 				_append_log("%s takes %s non-lethal damage (%s blocked by armor). Life is now %s." % [performing_player.name, str(used_armor), str(unmitigated_damage), str(performing_player.life)])
 			else:
@@ -2933,7 +2937,7 @@ func apply_damage(offense_player : Player, defense_player : Player, offense_card
 	defense_player.life -= damage_after_armor
 	if armor > 0:
 		defense_player.strike_stat_boosts.consumed_armor += (damage - damage_after_armor)
-	events += [create_event(Enums.EventType.EventType_Strike_TookDamage, defense_player.my_id, damage_after_armor)]
+	events += [create_event(Enums.EventType.EventType_Strike_TookDamage, defense_player.my_id, damage_after_armor, "", defense_player.life)]
 
 	_append_log("%s %s has %s total power." % [offense_player.name, card_db.get_card_name(offense_card.id), str(damage)])
 	_append_log("%s %s has %s total armor and %s total guard." % [defense_player.name, card_db.get_card_name(defense_card.id), str(armor), str(guard)])
