@@ -2339,7 +2339,7 @@ func can_press_ok():
 				return can_selected_cards_pay_force(select_card_require_force)
 			UISubState.UISubState_SelectCards_ForceForChange:
 				var force_selected = get_force_in_selected_cards()
-				return force_selected >= 0
+				return force_selected >= 1
 			UISubState.UISubState_SelectCards_StrikeCard, UISubState.UISubState_SelectCards_StrikeResponseCard, UISubState.UISubState_SelectCards_OpponentSetsFirst_StrikeCard, UISubState.UISubState_SelectCards_OpponentSetsFirst_StrikeResponseCard:
 				# As a special exception, allow 2 cards if exactly 2 cards and they're the same card.
 				if len(selected_cards) == 2:
