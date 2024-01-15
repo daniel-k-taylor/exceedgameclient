@@ -15,7 +15,8 @@
 				{ "effect_type": "retreat", "amount": 1 }
 			],
 			"and": {
-				"condition": "has_valid_strike_in_hand",
+				"condition": "min_cards_in_hand",
+				"condition_amount": 1,
 				"effect_type": "choice",
 				"choice": [
 					{

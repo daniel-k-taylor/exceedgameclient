@@ -2349,12 +2349,8 @@ func can_press_ok():
 					var card_db = game_wrapper.get_card_database()
 					var card1 = selected_cards[0]
 					var card2 = selected_cards[1]
-					if card_db.are_same_card(card1.card_id, card2.card_id):
-						return game_wrapper.can_pay_strike_cost(Enums.PlayerId.PlayerId_Player, card1.card_id, true)
-				elif len(selected_cards) == 1:
-					return game_wrapper.can_pay_strike_cost(Enums.PlayerId.PlayerId_Player, selected_cards[0].card_id, false)
-				else:
-					return false
+					return card_db.are_same_card(card1.card_id, card2.card_id)
+				return len(selected_cards) == 1
 			UISubState.UISubState_SelectCards_StrikeCard_FromGauge:
 				# This one doesn't allow EX strikes
 				return len(selected_cards) == 1

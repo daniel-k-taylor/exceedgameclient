@@ -188,8 +188,6 @@ func get_condition_text(condition, amount, amount2):
 			text += "If canceled this turn, "
 		"initiated_strike":
 			text += "If initiated strike, "
-		"has_valid_strike_in_hand":
-			text += ""
 		"hit_opponent":
 			text += "If hit opponent, "
 		"not_canceled_this_turn":

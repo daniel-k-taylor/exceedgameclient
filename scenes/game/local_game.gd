@@ -1803,13 +1803,6 @@ func is_effect_condition_met(performing_player : Player, effect, local_condition
 				return matching_details
 			else:
 				return true
-		elif condition == "has_valid_strike_in_hand":
-			for card in performing_player.hand:
-				var force_cost = card.definition['force_cost']
-				var gauge_cost = card.definition['gauge_cost']
-				if performing_player.can_pay_cost(force_cost, gauge_cost):
-					return true
-			return false
 		elif condition == "hit_opponent":
 			return active_strike.did_player_hit_opponent(performing_player)
 		elif condition == "not_full_close":
@@ -3065,6 +3058,16 @@ func ask_for_cost(performing_player, card, next_state):
 			# Failed to pay the cost by default.
 			events += performing_player.invalidate_card(card)
 			events += performing_player.add_to_discards(card)
+			if performing_player == active_strike.initiator:
+				if active_strike.initiator_ex_card != null:
+					events += performing_player.add_to_discards(active_strike.initiator_ex_card)
+					active_strike.initiator_ex_card = null
+					performing_player.strike_stat_boosts.remove_ex()
+			else:
+				if active_strike.defender_ex_card != null:
+					events += performing_player.add_to_discards(active_strike.defender_ex_card)
+					active_strike.defender_ex_card = null
+					performing_player.strike_stat_boosts.remove_ex()
 			var new_wild_card = null
 			while new_wild_card == null:
 				events += performing_player.wild_strike(true);
