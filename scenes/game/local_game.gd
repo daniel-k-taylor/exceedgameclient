@@ -1803,6 +1803,13 @@ func is_effect_condition_met(performing_player : Player, effect, local_condition
 				return matching_details
 			else:
 				return true
+		elif condition == "has_valid_strike_in_hand":
+			for card in performing_player.hand:
+				var force_cost = card.definition['force_cost']
+				var gauge_cost = card.definition['gauge_cost']
+				if performing_player.can_pay_cost(force_cost, gauge_cost):
+					return true
+			return false
 		elif condition == "hit_opponent":
 			return active_strike.did_player_hit_opponent(performing_player)
 		elif condition == "not_full_close":
@@ -1828,6 +1835,8 @@ func is_effect_condition_met(performing_player : Player, effect, local_condition
 			return performing_player.gauge.size() >= amount
 		elif condition == "manual_reshuffle":
 			return local_conditions.manual_reshuffle
+		elif condition == "no_strike_caused":
+			return game_state != Enums.GameState.GameState_WaitForStrike
 		elif condition == "no_strike_this_turn":
 			return not performing_player.did_strike_this_turn
 		elif condition == "stunned":

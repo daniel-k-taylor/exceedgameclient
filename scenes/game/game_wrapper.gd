@@ -251,6 +251,18 @@ func can_move_to(player_id : Enums.PlayerId, location : int) -> bool:
 func can_do_character_action(player_id : Enums.PlayerId, action_idx : int = 0) -> bool:
 	var game_player = _get_player(player_id)
 	return game_player.can_do_character_action(action_idx)
+	
+func can_pay_strike_cost(player_id : Enums.PlayerId, card_id : int, is_ex : bool = false) -> bool:
+	var game_player = _get_player(player_id)
+	var card_db = current_game.get_card_database()
+	var card = card_db.get_card(card_id)
+	
+	var gauge_cost = card.definition['gauge_cost']
+	if 'gauge_cost_ex' in card.definition and is_ex:
+		gauge_cost = card.definition['gauge_cost_ex']
+	var force_cost = card.definition['force_cost']
+	
+	return game_player.can_pay_cost(force_cost, gauge_cost)
 
 ### Action Functions ###
 
