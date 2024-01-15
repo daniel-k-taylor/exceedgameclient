@@ -19,7 +19,10 @@
 				"condition_amount": 1,
 				"effect_type": "choice",
 				"choice": [
-					{ "effect_type": "strike_faceup"},
+					{
+						"effect_type": "strike_faceup",
+						"disable_wild_swing": "true"
+					},
 					{
 						"effect_type": "gauge_from_hand",
 						"min_amount": 1,

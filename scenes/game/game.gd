@@ -1336,9 +1336,10 @@ func _on_force_start_boost(event):
 
 func _on_force_start_strike(event):
 	var player = event['event_player']
+	var disable_wild_swing = event['extra_info']
 	spawn_damage_popup("Strike!", player)
 	if player == Enums.PlayerId.PlayerId_Player:
-		begin_strike_choosing(false, false)
+		begin_strike_choosing(false, false, false, disable_wild_swing)
 	else:
 		ai_forced_strike()
 	return SmallNoticeDelay
@@ -1608,12 +1609,13 @@ func begin_effect_choice(choices, instruction_text : String):
 	enable_instructions_ui(instruction_text, false, false, false, choices)
 	change_ui_state(UIState.UIState_MakeChoice, UISubState.UISubState_None)
 
-func begin_strike_choosing(strike_response : bool, cancel_allowed : bool, opponent_sets_first : bool = false):
+func begin_strike_choosing(strike_response : bool, cancel_allowed : bool,
+		opponent_sets_first : bool = false, disable_wild_swing : bool = false):
 	selected_cards = []
 	select_card_require_min = 1
 	select_card_require_max = 1
 	var can_cancel = cancel_allowed and not strike_response
-	enable_instructions_ui("Select a card to strike with.", true, can_cancel, true)
+	enable_instructions_ui("Select a card to strike with.", true, can_cancel, not disable_wild_swing)
 	var new_sub_state
 	if strike_response:
 		if opponent_sets_first:

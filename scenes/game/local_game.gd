@@ -2596,7 +2596,8 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 			decision_info.player = performing_player.my_id
 			opposing_player.extra_effect_after_set_strike = effect['after_set_effect']
 		"strike_faceup":
-			events += [create_event(Enums.EventType.EventType_ForceStartStrike, performing_player.my_id, 0)]
+			var disable_wild_swing = 'disable_wild_swing' in effect and effect['disable_wild_swing']
+			events += [create_event(Enums.EventType.EventType_ForceStartStrike, performing_player.my_id, 0, "", disable_wild_swing)]
 			change_game_state(Enums.GameState.GameState_WaitForStrike)
 			decision_info.type = Enums.DecisionType.DecisionType_StrikeNow
 			decision_info.player = performing_player.my_id
