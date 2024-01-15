@@ -3975,7 +3975,8 @@ func do_choice(performing_player : Player, choice_index : int) -> bool:
 				events += do_remaining_character_action(performing_player)
 			elif active_exceed:
 				active_exceed = false
-				events += check_hand_size_advance_turn(performing_player)
+				if game_state != Enums.GameState.GameState_WaitForStrike:
+					events += check_hand_size_advance_turn(performing_player)
 			else:
 				printlog("ERROR: Tried to make choice but no active strike or boost.")
 	event_queue += events
