@@ -1347,15 +1347,10 @@ func _on_strike_from_gauge(event):
 	var player = event['event_player']
 	spawn_damage_popup("Strike!", player)
 	
-	if event['number'] == 0:
-		# No gauge to strike with
-		game_wrapper.submit_strike(player, -1, true, -1)
-		change_ui_state(UIState.UIState_WaitForGameServer)
+	if player == Enums.PlayerId.PlayerId_Player:
+		begin_gauge_strike_choosing(false, false)
 	else:
-		if player == Enums.PlayerId.PlayerId_Player:
-			begin_gauge_strike_choosing(false, false)
-		else:
-			ai_strike_from_gauge()
+		ai_strike_from_gauge()
 	return SmallNoticeDelay
 
 func _on_strike_opponent_sets_first(event):

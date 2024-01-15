@@ -1791,8 +1791,9 @@ func is_effect_condition_met(performing_player : Player, effect, local_condition
 		elif condition == "not_canceled_this_turn":
 			return not performing_player.canceled_this_turn
 		elif condition == "used_character_action":
-			var used_some_action = performing_player.used_character_action
-			if used_some_action and 'condition_details' in effect:
+			if not performing_player.used_character_action:
+				return false
+			elif 'condition_details' in effect:
 				var target_details = effect['condition_details']
 				var matching_details = false
 				for used_action in performing_player.used_character_action_details:
@@ -1801,7 +1802,7 @@ func is_effect_condition_met(performing_player : Player, effect, local_condition
 						break
 				return matching_details
 			else:
-				return used_some_action
+				return true
 		elif condition == "hit_opponent":
 			return active_strike.did_player_hit_opponent(performing_player)
 		elif condition == "not_full_close":
@@ -2601,13 +2602,18 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 			decision_info.player = performing_player.my_id
 			performing_player.next_strike_faceup = true
 		"strike_from_gauge":
-			events += [create_event(Enums.EventType.EventType_Strike_FromGauge, performing_player.my_id, len(performing_player.gauge))]
-			change_game_state(Enums.GameState.GameState_WaitForStrike)
 			decision_info.type = Enums.DecisionType.DecisionType_StrikeNow
 			decision_info.player = performing_player.my_id
 			if len(performing_player.gauge) > 0:
+				events += [create_event(Enums.EventType.EventType_Strike_FromGauge, performing_player.my_id, 0)]
+				change_game_state(Enums.GameState.GameState_WaitForStrike)
 				performing_player.next_strike_faceup = true
 				performing_player.next_strike_from_gauge = true
+			else:
+				event_queue += events
+				events = []
+				change_game_state(Enums.GameState.GameState_WaitForStrike)
+				do_strike(performing_player, -1, true, -1)
 		"strike_opponent_sets_first":
 			events += [create_event(Enums.EventType.EventType_Strike_OpponentSetsFirst, performing_player.my_id, 0)]
 			change_game_state(Enums.GameState.GameState_Strike_Opponent_Set_First)
@@ -4455,11 +4461,13 @@ func do_character_action(performing_player : Player, card_ids, action_idx : int 
 	performing_player.used_character_action_details.append([exceed_detail, action_idx])
 	remaining_character_action_effects = []
 	active_character_action = true
-	events += handle_strike_effect(-1, action['effect'], performing_player)
+	event_queue += events
+	events = handle_strike_effect(-1, action['effect'], performing_player)
 	if game_state not in [
 			Enums.GameState.GameState_WaitForStrike,
 			Enums.GameState.GameState_PlayerDecision,
-			Enums.GameState.GameState_Strike_Opponent_Set_First
+			Enums.GameState.GameState_Strike_Opponent_Set_First,
+			Enums.GameState.GameState_Strike_Opponent_Response
 	] and not wait_for_mid_strike_boost():
 		events += check_hand_size_advance_turn(performing_player)
 	if game_state != Enums.GameState.GameState_PlayerDecision:
