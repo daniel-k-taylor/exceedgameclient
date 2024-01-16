@@ -36,131 +36,123 @@
 	],
 	"cards": [
 		{
-			"definition_id": "solbadguy_heavymobcemetery",
-			"image": "heavymobcemetery.tres"
+			"definition_id": "ryu_metsuhadoken",
+			"image": "ryu_metsuhadoken.tres"
 		},
 		{
-			"definition_id": "solbadguy_heavymobcemetery",
-			"image": "heavymobcemetery.tres"
+			"definition_id": "ryu_metsuhadoken",
+			"image": "ryu_metsuhadoken.tres"
 		},
 		{
-			"definition_id": "solbadguy_tyrantrave",
-			"image": "tyrantrave.tres"
+			"definition_id": "ryu_metsushoryuken",
+			"image": "ryu_metsushoryuken.tres"
 		},
 		{
-			"definition_id": "solbadguy_tyrantrave",
-			"image": "tyrantrave.tres"
+			"definition_id": "ryu_metsushoryuken",
+			"image": "ryu_metsushoryuken.tres"
 		},
 		{
-			"definition_id": "solbadguy_wildthrow",
-			"image": "wildthrow.tres"
+			"definition_id": "ryu_donkeykick",
+			"image": "ryu_donkeykick.tres"
 		},
 		{
-			"definition_id": "solbadguy_wildthrow",
-			"image": "wildthrow.tres"
+			"definition_id": "ryu_donkeykick",
+			"image": "ryu_donkeykick.tres"
 		},
 		{
-			"definition_id": "solbadguy_gunflame",
-			"image": "gunflame.tres"
+			"definition_id": "ryu_oneinchpunch",
+			"image": "ryu_oneinchpunch.tres"
 		},
 		{
-			"definition_id": "solbadguy_gunflame",
-			"image": "gunflame.tres"
+			"definition_id": "ryu_oneinchpunch",
+			"image": "ryu_oneinchpunch.tres"
 		},
 		{
-			"definition_id": "solbadguy_fafnir",
-			"image": "fafnir.tres"
+			"definition_id": "ryu_tatsumakisenpukyaku",
+			"image": "ryu_tatsumakisenpukyaku.tres"
 		},
 		{
-			"definition_id": "solbadguy_fafnir",
-			"image": "fafnir.tres"
+			"definition_id": "ryu_tatsumakisenpukyaku",
+			"image": "ryu_tatsumakisenpukyaku.tres"
 		},
 		{
-			"definition_id": "solbadguy_nightraidvortex",
-			"image": "nightraidvortex.tres"
+			"definition_id": "ryu_hadoken",
+			"image": "ryu_hadoken.tres"
 		},
 		{
-			"definition_id": "solbadguy_nightraidvortex",
-			"image": "nightraidvortex.tres"
+			"definition_id": "ryu_hadoken",
+			"image": "ryu_hadoken.tres"
 		},
 		{
-			"definition_id": "solbadguy_banditbringer",
-			"image": "banditbringer.tres"
+			"definition_id": "ryu_shoryuken",
+			"image": "ryu_shoryuken.tres"
 		},
 		{
-			"definition_id": "solbadguy_banditbringer",
-			"image": "banditbringer.tres"
+			"definition_id": "ryu_shoryuken",
+			"image": "ryu_shoryuken.tres"
 		},
 		{
-			"definition_id": "solbadguy_volcanicviper",
-			"image": "volcanicviper.tres"
-		},
-		{
-			"definition_id": "solbadguy_volcanicviper",
-			"image": "volcanicviper.tres"
-		},
-		{
-			"definition_id": "gg_normal_grasp",
+			"definition_id": "sf_normal_grasp",
 			"image": "normal_grasp.tres"
 		},
 		{
-			"definition_id": "gg_normal_grasp",
+			"definition_id": "sf_normal_grasp",
 			"image": "normal_grasp.tres"
 		},
 		{
-			"definition_id": "gg_normal_cross",
+			"definition_id": "sf_normal_cross",
 			"image": "normal_cross.tres"
 		},
 		{
-			"definition_id": "gg_normal_cross",
+			"definition_id": "sf_normal_cross",
 			"image": "normal_cross.tres"
 		},
 		{
-			"definition_id": "gg_normal_slash",
+			"definition_id": "sf_normal_slash",
 			"image": "normal_assault.tres"
 		},
 		{
-			"definition_id": "gg_normal_slash",
+			"definition_id": "sf_normal_slash",
 			"image": "normal_assault.tres"
 		},
 		{
-			"definition_id": "gg_normal_dive",
+			"definition_id": "sf_normal_dive",
 			"image": "normal_dive.tres"
 		},
 		{
-			"definition_id": "gg_normal_dive",
+			"definition_id": "sf_normal_dive",
 			"image": "normal_dive.tres"
 		},
 		{
-			"definition_id": "gg_normal_dust",
+			"definition_id": "sf_normal_dust",
 			"image": "normal_spike.tres"
 		},
 		{
-			"definition_id": "gg_normal_dust",
+			"definition_id": "sf_normal_dust",
 			"image": "normal_spike.tres"
 		},
 		{
-			"definition_id": "gg_normal_sweep",
+			"definition_id": "sf_normal_sweep",
 			"image": "normal_sweep.tres"
 		},
 		{
-			"definition_id": "gg_normal_sweep",
+			"definition_id": "sf_normal_sweep",
 			"image": "normal_sweep.tres"
 		},
 		{
-			"definition_id": "gg_normal_focus",
+			"definition_id": "sf_normal_focus",
 			"image": "normal_focus.tres"
 		},
 		{
-			"definition_id": "gg_normal_focus",
+			"definition_id": "sf_normal_focus",
 			"image": "normal_focus.tres"
 		},
 		{
-			"definition_id": "gg_normal_block",
+			"definition_id": "sf_normal_block",
 			"image": "normal_block.tres"
 		},
 		{
-			"definition_id": "gg_normal_block",
+			"definition_id": "sf_normal_block",
 			"image": "normal_block.tres"
 		}
 	]
