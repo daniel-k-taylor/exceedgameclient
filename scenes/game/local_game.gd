@@ -130,6 +130,7 @@ class Strike:
 	var initiator_first : bool
 	var initiator_wild_strike : bool = false
 	var initiator_set_from_gauge : bool = false
+	var initiator_set_face_up : bool = false
 	var defender_wild_strike : bool = false
 	var strike_state
 	var starting_distance : int = -1
@@ -1773,6 +1774,9 @@ func is_effect_condition_met(performing_player : Player, effect, local_condition
 			var initiated_strike = active_strike.initiator == performing_player
 			var required_amount = effect['condition_amount']
 			return initiated_strike and performing_player.pre_strike_movement >= required_amount
+		elif condition == "initiated_face_up":
+			var initiated_strike = active_strike.initiator == performing_player
+			return initiated_strike and active_strike.initiator_set_face_up
 		elif condition == "is_normal_attack":
 			return active_strike.get_player_card(performing_player).definition['type'] == "normal"
 		elif condition == "is_eddie_special_or_ultra_attack":
@@ -2271,6 +2275,8 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 		"reveal_hand":
 			events += performing_player.reveal_hand()
 		"reveal_strike":
+			if performing_player == active_strike.initiator:
+				active_strike.initiator_set_face_up = true
 			events += [create_event(Enums.EventType.EventType_RevealStrike_OnePlayer, performing_player.my_id, 0)]
 		"multiply_speed_bonuses":
 			performing_player.strike_stat_boosts.speed_bonus_multiplier = max(effect['amount'], performing_player.strike_stat_boosts.speed_bonus_multiplier)
@@ -3774,6 +3780,7 @@ func do_strike(performing_player : Player, card_id : int, wild_strike: bool, ex_
 			var reveal_immediately = false
 			if active_strike.initiator.next_strike_faceup:
 				reveal_immediately = true
+				active_strike.initiator_set_face_up = true
 				active_strike.initiator.next_strike_faceup = false
 
 			# Send the EX first as that is visual and logic is triggered off the regular one.
