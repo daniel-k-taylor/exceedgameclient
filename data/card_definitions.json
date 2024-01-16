@@ -6490,11 +6490,11 @@
 				"timing": "after",
 				"effect_type": "choice",
 				"choice": [
-					{ "effect_type": "pass" },
 					{ "effect_type": "advance", "amount": 1 },
 					{ "effect_type": "advance", "amount": 2 },
 					{ "effect_type": "retreat", "amount": 1 },
-					{ "effect_type": "retreat", "amount": 2 }
+					{ "effect_type": "retreat", "amount": 2 },
+					{ "effect_type": "pass" }
 				]
 			}
 		],
@@ -6534,7 +6534,7 @@
 				"condition": "not_initiated_strike",
 				"effect_type": "speedup",
 				"amount": 3
-			},
+			}
 		],
 		"boost": {
 			"boost_type": "immediate",
@@ -6588,7 +6588,7 @@
 				{
 					"timing": "immediate",
 					"effect_type": "add_to_gauge_boost_play_cleanup"
-				},
+				}
 			]
 		}
 	},
@@ -6660,8 +6660,8 @@
 				"effect_type": "advance",
 				"amount": 2,
 				"bonus_effect": {
-					"effect_type": "gain_advantage",
-					"condition": "advanced_through"
+					"condition": "advanced_through",
+					"effect_type": "gain_advantage"
 				}
 			}
 		],
@@ -6704,12 +6704,17 @@
 			},
 			{
 				"timing": "after",
-				"effect_type": "return_attack_to_top_of_deck",
-				"required": false,
-				"overall_effect": {
-					"effect_type": "add_top_of_discard_to_gauge",
-					"amount": 1,
-				}
+				"condition": "hit_opponent",
+				"effect_type": "choice",
+				"choice": [
+					{
+						"effect_type": "return_attack_to_top_of_deck",
+						"and": {
+							"effect_type": "add_top_discard_to_gauge"
+						}
+					},
+					{ "effect_type": "pass" }
+				]
 			}
 		],
 		"boost": {
@@ -6755,7 +6760,7 @@
 				"condition": "is_critical",
 				"effect_type": "close",
 				"amount": 1
-			},
+			}
 		],
 		"boost": {
 			"boost_type": "continuous",
@@ -6764,7 +6769,7 @@
 			"display_name": "Overhead",
 			"effects": [
 				{
-					"timing": "immediate",
+					"timing": "now",
 					"effect_type": "strike"
 				},
 				{
