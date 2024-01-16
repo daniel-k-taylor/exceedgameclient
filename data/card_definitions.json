@@ -1985,6 +1985,329 @@
 		"NOTEEND": "HAPPYCHAOS CARDS END"
 	},
 
+	{
+		"NOTE": "HYDE CARDS START",
+		"id": "hyde_gyrovortex",
+		"type": "ultra",
+		"display_name": "Gyro Vortex",
+		"force_cost": 0,
+		"gauge_cost": 3,
+		"range_min": 1,
+		"range_max": 3,
+		"speed": 5,
+		"power": 5,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "hit",
+				"effect_type": "add_top_deck_to_gauge",
+				"amount": 3,
+			},
+			{
+				"timing": "after",
+				"condition": "hit_opponent",
+				"effect_type": "seal_this"
+			}
+		],
+		"boost": {
+			"boost_type": "immediate",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Void Red",
+			"effects": [
+				{
+					"timing": "immediate",
+					"effect_type": "exceed_now"
+				},
+				{
+					"timing": "immediate",
+					"effect_type": "add_to_gauge_boost_play_cleanup"
+				},
+				{
+					"timing": "immediate",
+					"effect_type": "bonus_action"
+				}
+			]
+		}
+	},
+	{
+		"id": "hyde_deadsetdaze",
+		"type": "ultra",
+		"display_name": "Dead Set Daze",
+		"force_cost": 0,
+		"gauge_cost": 1,
+		"range_min": 1,
+		"range_max": 4,
+		"speed": 2,
+		"power": "X",
+		"armor": 1,
+		"guard": 4,
+		"effects": [
+			{
+				"timing": "before",
+				"effect_type": "set_strike_x",
+				"source": "opponent_speed"
+			},
+			{
+				"timing": "hit",
+				"effect_type": "draw",
+				"amount": 2
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 1,
+			"cancel_cost": -1,
+			"display_name": "Indulgence of Insulation",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "powerup",
+					"amount": 1,
+					"and": {
+						"effect_type": "speedup",
+						"amount": 1
+					}
+				},
+				{
+					"timing": "now",
+					"effect_type": "strike"
+				}
+			]
+		}
+	},
+	{
+		"id": "hyde_vacantshift",
+		"type": "special",
+		"display_name": "Vacant Shift",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 1,
+		"speed": 6,
+		"power": 5,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "after",
+				"effect_type": "choice",
+				"choice": [
+					{
+						"effect_type": "advance",
+						"amount": 2,
+						"bonus_effect": {
+							"condition": "advanced_through",
+							"effect_type": "draw",
+							"amount": 1
+						}
+					},
+					{ "effect_type": "retreat", "amount": 2 }
+				]
+			}
+		],
+		"boost": {
+			"boost_type": "immediate",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Double Jump",
+			"effects": [
+				{
+					"timing": "immediate",
+					"effect_type": "choice",
+					"choice": [
+						{ "effect_type": "advance", "amount": 1 },
+						{ "effect_type": "retreat", "amount": 1 }
+					]
+				},
+				{
+					"timing": "immediate",
+					"effect_type": "bonus_action"
+				}
+			]
+		}
+	},
+	{
+		"id": "hyde_redcladcraver",
+		"type": "special",
+		"display_name": "Red-Clad Craver",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 1,
+		"speed": 5,
+		"power": 4,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "during_strike",
+				"condition": "is_ex_strike",
+				"effect_type": "rangeup",
+				"amount": 0,
+				"amount2": 1,
+				"and": {
+					"effect_type": "speedup",
+					"amount": 2
+				}
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Charged Attack",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "powerup",
+					"amount": 2
+				},
+				{
+					"timing": "now",
+					"effect_type": "add_boost_to_gauge_on_move"
+				}
+			]
+		}
+	},
+	{
+		"id": "hyde_blackorbiter",
+		"type": "special",
+		"display_name": "Black Orbiter",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 3,
+		"range_max": 6,
+		"speed": 4,
+		"power": 4,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "hit",
+				"condition": "range",
+				"condition_amount": 4,
+				"effect_type": "gain_advantage"
+			},
+			{
+				"timing": "after",
+				"effect_type": "choice",
+				"choice": [
+					{ "effect_type": "close", "amount": 2 },
+					{ "effect_type": "retreat", "amount": 2 }
+				]
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 1,
+			"cancel_cost": -1,
+			"display_name": "Reach",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "rangeup",
+					"amount": 0,
+					"amount2": 1
+				},
+				{
+					"timing": "now",
+					"effect_type": "strike"
+				}
+			]
+		}
+	},
+	{
+		"id": "hyde_palebringer",
+		"type": "special",
+		"display_name": "Pale Bringer",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 1,
+		"speed": 4,
+		"power": 4,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "during_strike",
+				"condition": "is_ex_strike",
+				"effect_type": "ignore_guard"
+			},
+			{
+				"timing": "before",
+				"effect_type": "close",
+				"amount": 3
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Power Attack",
+			"effects": [
+				{
+					"timing": "hit",
+					"effect_type": "powerup",
+					"amount": 1,
+					"and": {
+						"effect_type": "gain_advantage",
+						"and": {
+							"effect_type": "add_boost_to_gauge_on_strike_cleanup",
+							"card_name": "Power Attack"
+						}
+					}
+				}
+			]
+		}
+	},
+	{
+		"NOTE": "HYDE CARDS END",
+		"id": "hyde_shadowscare",
+		"type": "special",
+		"display_name": "Shadow Scare",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 5,
+		"speed": 3,
+		"power": 4,
+		"armor": 0,
+		"guard": 4,
+		"effects": [
+			{
+				"timing": "hit",
+				"effect_type": "pull",
+				"amount": 2,
+				"bonus_effect": {
+					"condition": "range",
+					"condition_amount": 1,
+					"effect_type": "gain_advantage"
+				}
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Overpower",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "powerup",
+					"amount": 1
+				},
+				{
+					"timing": "before",
+					"effect_type": "close",
+					"amount": 1
+				}
+			]
+		},
+		"NOTEEND": "HYDE CARDS END"
+	},
 
 	{
 		"NOTE": "GIOVANNA CARDS START",

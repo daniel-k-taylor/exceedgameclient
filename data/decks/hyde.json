@@ -1,29 +1,43 @@
 {
-	"id": "yuzu",
+	"id": "hyde",
 	"season": 6,
-	"display_name": "Yuzuriha",
-	"cardback": "cardback_yuzu.jpg",
+	"display_name": "Hyde Kido",
+	"cardback": "cardback_hyde.jpg",
+	"has_sealed_area": true,
 	"exceed_cost": 1,
 	"character_action_default": [{
 		"gauge_cost": 0,
 		"force_cost": 0,
 		"effect": {
-			"effect_type": "gauge_from_hand",
-			"min_amount": 1,
-			"max_amount": 1,
+			"effect_type": "choice",
+			"choice": [
+				{ "effect_type": "close", "amount": 1 },
+				{ "effect_type": "retreat", "amount": 1 }
+			],
 			"and": {
-				"condition": "min_cards_in_gauge",
-				"condition_amount": 4,
-				"effect_type": "exceed_now"
+				"condition": "min_cards_in_hand",
+				"condition_amount": 1,
+				"effect_type": "choice",
+				"choice": [
+					{
+						"effect_type": "strike_faceup",
+						"disable_wild_swing": "true"
+					},
+					{
+						"effect_type": "gauge_from_hand",
+						"min_amount": 1,
+						"max_amount": 1
+					}
+				]
 			}
 		}
 	}],
 	"character_action_exceeded": [
 		{
-			"gauge_cost": 0,
+			"gauge_cost": 1,
 			"force_cost": 0,
 			"effect": {
-				"effect_type": "strike_random_from_gauge"
+				"effect_type": "strike_from_gauge"
 			}
 		},
 		{
@@ -52,79 +66,79 @@
 			"timing": "during_strike",
 			"condition": "used_character_action",
 			"condition_details": ["exceed", 0],
-			"effect_type": "pass",
+			"character_effect": true,
+			"effect_type": "powerup",
+			"amount": 3,
 			"and": {
-				"character_effect": true,
-				"condition": "was_strike_from_gauge",
-				"effect_type": "powerup",
-				"amount": 2,
-				"and": {
-					"effect_type": "speedup",
-					"amount": 1
-				}
+				"timing": "cleanup",
+				"effect_type": "seal_this"
 			}
-		},
-		{
-			"timing": "cleanup",
-			"effect_type": "discard_strike_after_cleanup"
 		}
 	],
 	"cards": [
 		{
-			"definition_id": "yuzu_kashou",
-			"image": "yuzu_kashou.tres"
+			"definition_id": "hyde_gyrovortex",
+			"image": "hyde_gyrovortex.tres"
 		},
 		{
-			"definition_id": "yuzu_kashou",
-			"image": "yuzu_kashou.tres"
+			"definition_id": "hyde_gyrovortex",
+			"image": "hyde_gyrovortex.tres"
 		},
 		{
-			"definition_id": "yuzu_kurenai",
-			"image": "yuzu_kurenai.tres"
+			"definition_id": "hyde_deadsetdaze",
+			"image": "hyde_deadsetdaze.tres"
 		},
 		{
-			"definition_id": "yuzu_kurenai",
-			"image": "yuzu_kurenai.tres"
+			"definition_id": "hyde_deadsetdaze",
+			"image": "hyde_deadsetdaze.tres"
 		},
 		{
-			"definition_id": "yuzu_yaeichirin",
-			"image": "yuzu_yaeichirin.tres"
+			"definition_id": "hyde_vacantshift",
+			"image": "hyde_vacantshift.tres"
 		},
 		{
-			"definition_id": "yuzu_yaeichirin",
-			"image": "yuzu_yaeichirin.tres"
+			"definition_id": "hyde_vacantshift",
+			"image": "hyde_vacantshift.tres"
 		},
 		{
-			"definition_id": "yuzu_overhere",
-			"image": "yuzu_overhere.tres"
+			"definition_id": "hyde_redcladcraver",
+			"image": "hyde_redcladcraver.tres"
 		},
 		{
-			"definition_id": "yuzu_overhere",
-			"image": "yuzu_overhere.tres"
+			"definition_id": "hyde_redcladcraver",
+			"image": "hyde_redcladcraver.tres"
 		},
 		{
-			"definition_id": "yuzu_tachi",
-			"image": "yuzu_tachi.tres"
+			"definition_id": "hyde_redcladcraver",
+			"image": "hyde_redcladcraver.tres"
 		},
 		{
-			"definition_id": "yuzu_tachi",
-			"image": "yuzu_tachi.tres"
+			"definition_id": "hyde_blackorbiter",
+			"image": "hyde_blackorbiter.tres"
 		},
 		{
-			"definition_id": "yuzu_saki",
-			"image": "yuzu_saki.tres"
+			"definition_id": "hyde_blackorbiter",
+			"image": "hyde_blackorbiter.tres"
 		},
 		{
-			"definition_id": "yuzu_saki",
-			"image": "yuzu_saki.tres"
+			"definition_id": "hyde_palebringer",
+			"image": "hyde_palebringer.tres"
 		},
 		{
-			"definition_id": "yuzu_kiri",
-			"image": "yuzu_kiri.tres"
+			"definition_id": "hyde_palebringer",
+			"image": "hyde_palebringer.tres"
 		},
 		{
-			"definition_id": "yuzu_kiri",
-			"image": "yuzu_kiri.tres"
+			"definition_id": "hyde_palebringer",
+			"image": "hyde_palebringer.tres"
+		},
+		{
+			"definition_id": "hyde_shadowscare",
+			"image": "hyde_shadowscare.tres"
+		},
+		{
+			"definition_id": "hyde_shadowscare",
+			"image": "hyde_shadowscare.tres"
 		},
 		{
 			"definition_id": "uni_normal_grasp",

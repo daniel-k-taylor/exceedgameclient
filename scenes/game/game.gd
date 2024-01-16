@@ -132,6 +132,7 @@ enum UISubState {
 	UISubState_SelectCards_Mulligan,
 	UISubState_SelectCards_StrikeGauge,
 	UISubState_SelectCards_StrikeCard,
+	UISubState_SelectCards_StrikeCard_FromGauge,
 	UISubState_SelectCards_StrikeResponseCard,
 	UISubState_SelectCards_OpponentSetsFirst_StrikeCard,
 	UISubState_SelectCards_OpponentSetsFirst_StrikeResponseCard,
@@ -649,6 +650,8 @@ func can_select_card(card):
 			return in_gauge and len(selected_cards) < select_card_require_max
 		UISubState.UISubState_SelectCards_StrikeCard, UISubState.UISubState_SelectCards_StrikeResponseCard, UISubState.UISubState_SelectCards_OpponentSetsFirst_StrikeCard, UISubState.UISubState_SelectCards_OpponentSetsFirst_StrikeResponseCard, UISubState.UISubState_SelectCards_Mulligan:
 			return in_hand
+		UISubState.UISubState_SelectCards_StrikeCard_FromGauge:
+			return in_gauge
 		UISubState.UISubState_SelectCards_PlayBoost:
 			var valid_card = game_wrapper.can_player_boost(Enums.PlayerId.PlayerId_Player, card.card_id, select_boost_from_gauge, select_boost_limitation)
 			return len(selected_cards) == 0 and valid_card
@@ -1020,6 +1023,7 @@ func _on_name_opponent_card_begin(event):
 		change_ui_state(UIState.UIState_SelectCards, UISubState.UISubState_SelectCards_DiscardFromReference)
 	else:
 		ai_name_opponent_card(normal_only)
+	return SmallNoticeDelay
 
 func _on_boost_played(event):
 	var player = event['event_player']
@@ -1332,11 +1336,24 @@ func _on_force_start_boost(event):
 
 func _on_force_start_strike(event):
 	var player = event['event_player']
+	var disable_wild_swing = false
+	if event['extra_info']: #not null
+		disable_wild_swing = event['extra_info']
 	spawn_damage_popup("Strike!", player)
 	if player == Enums.PlayerId.PlayerId_Player:
-		begin_strike_choosing(false, false)
+		begin_strike_choosing(false, false, false, disable_wild_swing)
 	else:
 		ai_forced_strike()
+	return SmallNoticeDelay
+
+func _on_strike_from_gauge(event):
+	var player = event['event_player']
+	spawn_damage_popup("Strike!", player)
+	
+	if player == Enums.PlayerId.PlayerId_Player:
+		begin_gauge_strike_choosing(false, false)
+	else:
+		ai_strike_from_gauge()
 	return SmallNoticeDelay
 
 func _on_strike_opponent_sets_first(event):
@@ -1594,12 +1611,13 @@ func begin_effect_choice(choices, instruction_text : String):
 	enable_instructions_ui(instruction_text, false, false, false, choices)
 	change_ui_state(UIState.UIState_MakeChoice, UISubState.UISubState_None)
 
-func begin_strike_choosing(strike_response : bool, cancel_allowed : bool, opponent_sets_first : bool = false):
+func begin_strike_choosing(strike_response : bool, cancel_allowed : bool,
+		opponent_sets_first : bool = false, disable_wild_swing : bool = false):
 	selected_cards = []
 	select_card_require_min = 1
 	select_card_require_max = 1
 	var can_cancel = cancel_allowed and not strike_response
-	enable_instructions_ui("Select a card to strike with.", true, can_cancel, true)
+	enable_instructions_ui("Select a card to strike with.", true, can_cancel, not disable_wild_swing)
 	var new_sub_state
 	if strike_response:
 		if opponent_sets_first:
@@ -1611,6 +1629,23 @@ func begin_strike_choosing(strike_response : bool, cancel_allowed : bool, oppone
 			new_sub_state = UISubState.UISubState_SelectCards_OpponentSetsFirst_StrikeCard
 		else:
 			new_sub_state = UISubState.UISubState_SelectCards_StrikeCard
+	change_ui_state(UIState.UIState_SelectCards, new_sub_state)
+	
+
+func begin_gauge_strike_choosing(strike_response : bool, cancel_allowed : bool):
+	# Show the gauge window.
+	_on_player_gauge_gauge_clicked()
+	selected_cards = []
+	select_card_require_min = 1
+	select_card_require_max = 1
+	var can_cancel = cancel_allowed and not strike_response
+	enable_instructions_ui("Select a card to strike with.", true, can_cancel)
+	var new_sub_state
+	if strike_response:
+		# Is there any character that does this? will need new sub-state if so
+		assert(false)
+	else:
+		new_sub_state = UISubState.UISubState_SelectCards_StrikeCard_FromGauge
 	change_ui_state(UIState.UIState_SelectCards, new_sub_state)
 
 func begin_boost_choosing(can_cancel : bool, allow_gauge : bool, limitation : String):
@@ -2032,7 +2067,7 @@ func _handle_events(events):
 			Enums.EventType.EventType_Prepare:
 				delay = _on_prepare(event)
 			Enums.EventType.EventType_ReadingNormal:
-				_on_name_opponent_card_begin(event)
+				delay = _on_name_opponent_card_begin(event)
 			Enums.EventType.EventType_ReshuffleDiscard:
 				delay = _on_reshuffle_discard(event)
 			Enums.EventType.EventType_ReshuffleDeck_Mulligan:
@@ -2079,6 +2114,8 @@ func _handle_events(events):
 				delay = _stat_notice_event(event)
 			Enums.EventType.EventType_Strike_OpponentCantMovePast:
 				delay = _stat_notice_event(event)
+			Enums.EventType.EventType_Strike_FromGauge:
+				delay = _on_strike_from_gauge(event)
 			Enums.EventType.EventType_Strike_OpponentSetsFirst:
 				delay = _on_strike_opponent_sets_first(event)
 			Enums.EventType.EventType_Strike_OpponentSetsFirst_DefenderSet:
@@ -2157,19 +2194,19 @@ func _update_buttons():
 		button_choices.append({ "text": "Boost", "action": _on_boost_button_pressed, "disabled": not game_wrapper.can_do_boost(Enums.PlayerId.PlayerId_Player) })
 		button_choices.append({ "text": "Strike", "action": _on_strike_button_pressed, "disabled": not game_wrapper.can_do_strike(Enums.PlayerId.PlayerId_Player) })
 		for i in range(game_wrapper.get_player_character_action_count(Enums.PlayerId.PlayerId_Player)):
-			if game_wrapper.can_do_character_action(Enums.PlayerId.PlayerId_Player, i):
-				var char_action = game_wrapper.get_player_character_action(Enums.PlayerId.PlayerId_Player, i)
-				var action_name = "Character Action"
-				if 'action_name' in char_action:
-					action_name = char_action['action_name']
-				var force_cost = char_action['force_cost']
-				var gauge_cost = char_action['gauge_cost']
-				var additional_text = ""
-				if force_cost > 0:
-					additional_text += " (%s Force)" % force_cost
-				if gauge_cost > 0:
-					additional_text += " (%s Gauge)" % gauge_cost
-				button_choices.append({ "text": "%s%s" % [action_name, additional_text], "action": func(): _on_character_action_pressed(i), "disabled": false })
+			var char_action = game_wrapper.get_player_character_action(Enums.PlayerId.PlayerId_Player, i)
+			var action_possible = game_wrapper.can_do_character_action(Enums.PlayerId.PlayerId_Player, i)
+			var action_name = "Character Action"
+			if 'action_name' in char_action:
+				action_name = char_action['action_name']
+			var force_cost = char_action['force_cost']
+			var gauge_cost = char_action['gauge_cost']
+			var additional_text = ""
+			if force_cost > 0:
+				additional_text += " (%s Force)" % force_cost
+			if gauge_cost > 0:
+				additional_text += " (%s Gauge)" % gauge_cost
+			button_choices.append({ "text": "%s%s" % [action_name, additional_text], "action": func(): _on_character_action_pressed(i), "disabled": not action_possible })
 		var bonus_available_actions = game_wrapper.get_bonus_actions(Enums.PlayerId.PlayerId_Player)
 		for i in range(bonus_available_actions.size()):
 			var bonus_action = bonus_available_actions[i]
@@ -2313,6 +2350,9 @@ func can_press_ok():
 					var card1 = selected_cards[0]
 					var card2 = selected_cards[1]
 					return card_db.are_same_card(card1.card_id, card2.card_id)
+				return len(selected_cards) == 1
+			UISubState.UISubState_SelectCards_StrikeCard_FromGauge:
+				# This one doesn't allow EX strikes
 				return len(selected_cards) == 1
 			UISubState.UISubState_SelectCards_ForceForArmor:
 				return true
@@ -2473,7 +2513,7 @@ func _on_instructions_ok_button_pressed(index : int):
 				success = game_wrapper.submit_move(Enums.PlayerId.PlayerId_Player, selected_card_ids, selected_arena_location)
 			UISubState.UISubState_SelectCards_ForceForChange:
 				success = game_wrapper.submit_change(Enums.PlayerId.PlayerId_Player, selected_card_ids)
-			UISubState.UISubState_SelectCards_StrikeCard, UISubState.UISubState_SelectCards_StrikeResponseCard:
+			UISubState.UISubState_SelectCards_StrikeCard, UISubState.UISubState_SelectCards_StrikeResponseCard, UISubState.UISubState_SelectCards_StrikeCard_FromGauge:
 				success = game_wrapper.submit_strike(Enums.PlayerId.PlayerId_Player, single_card_id, false, ex_card_id)
 			UISubState.UISubState_SelectCards_OpponentSetsFirst_StrikeCard, UISubState.UISubState_SelectCards_OpponentSetsFirst_StrikeResponseCard:
 				success = game_wrapper.submit_strike(Enums.PlayerId.PlayerId_Player, single_card_id, false, ex_card_id, true)
@@ -2784,6 +2824,12 @@ func ai_forced_strike():
 	change_ui_state(UIState.UIState_WaitForGameServer)
 	if not game_wrapper.is_ai_game(): return
 	var strike_action = ai_player.pick_strike(game_wrapper.current_game, Enums.PlayerId.PlayerId_Opponent)
+	ai_handle_strike(strike_action)
+	
+func ai_strike_from_gauge():
+	change_ui_state(UIState.UIState_WaitForGameServer)
+	if not game_wrapper.is_ai_game(): return
+	var strike_action = ai_player.pick_strike(game_wrapper.current_game, Enums.PlayerId.PlayerId_Opponent, true)
 	ai_handle_strike(strike_action)
 
 func ai_boost_cancel_decision(gauge_cost):

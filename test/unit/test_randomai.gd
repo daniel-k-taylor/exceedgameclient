@@ -278,11 +278,12 @@ func handle_strike(game: LocalGame, aiplayer : AIPlayer, otherai : AIPlayer, act
 
 	return events
 
-func handle_character_action(game: LocalGame, aiplayer : AIPlayer, action : AIPlayer.CharacterActionAction):
-	assert_true(game.do_character_action(aiplayer.game_player, action.card_ids), "character action failed")
+func handle_character_action(game: LocalGame, aiplayer : AIPlayer, otherai : AIPlayer, action : AIPlayer.CharacterActionAction):
+	assert_true(game.do_character_action(aiplayer.game_player, action.card_ids, action.action_idx), "character action failed")
 	var events = []
 	events += game.get_latest_events()
 	events += handle_decisions(game)
+	
 	return events
 
 func run_ai_game():
@@ -321,7 +322,7 @@ func run_ai_game():
 		elif turn_action is AIPlayer.StrikeAction:
 			turn_events += handle_strike(game_logic, current_ai, other_ai, turn_action)
 		elif turn_action is AIPlayer.CharacterActionAction:
-			turn_events += handle_character_action(game_logic, current_ai, turn_action)
+			turn_events += handle_character_action(game_logic, current_ai, other_ai, turn_action)
 		else:
 			fail_test("Unknown turn action: %s" % turn_action)
 			assert(false, "Unknown turn action: %s" % turn_action)
@@ -329,12 +330,19 @@ func run_ai_game():
 		turn_events += handle_decisions(game_logic)
 		if game_logic.game_state == Enums.GameState.GameState_WaitForStrike:
 			# Can theoretically get here after a boost or an exceed.
-			var strike_action = current_ai.pick_strike(game_logic, current_player.my_id)
+			var strike_action = null
+			if turn_events[-1]["event_type"] == Enums.EventType.EventType_Strike_FromGauge:
+				strike_action = current_ai.pick_strike(game_logic, current_player.my_id, true)
+			else:
+				strike_action = current_ai.pick_strike(game_logic, current_player.my_id)
 			turn_events += handle_strike(game_logic, current_ai, other_ai, strike_action)
 		elif game_logic.game_state == Enums.GameState.GameState_Strike_Opponent_Set_First:
 			game_logic.do_strike(current_ai.game_player, -1, false, -1, true)
 			var strike_action = current_ai.pick_strike(game_logic, current_player.my_id)
 			turn_events += handle_strike(game_logic, current_ai, other_ai, strike_action, false, true)
+		
+		if game_logic.active_strike:
+			turn_events += handle_strike(game_logic, current_ai, other_ai, null, true)
 
 		handle_discard_event(turn_events, game_logic, current_ai, current_player)
 
@@ -544,6 +552,15 @@ func test_nu13_100():
 func test_yuzu_100():
 	default_deck = CardDefinitions.get_deck_from_str_id("yuzu")
 	for i in range(RandomIterations):
+		print("==== RUNNING TEST %d ====" % i)
+		run_ai_game()
+		game_teardown()
+		game_setup()
+	pass_test("Finished match")
+
+func test_hyde_100():
+	default_deck = CardDefinitions.get_deck_from_str_id("hyde")
+	for i in range(100):
 		print("==== RUNNING TEST %d ====" % i)
 		run_ai_game()
 		game_teardown()

@@ -115,6 +115,7 @@ enum EventType {
 	EventType_Strike_ExUp,
 	EventType_Strike_ForceForArmor,
 	EventType_Strike_ForceWildSwing,
+	EventType_Strike_FromGauge,
 	EventType_Strike_GainAdvantage,
 	EventType_Strike_GuardUp,
 	EventType_Strike_IgnoredPushPull,
@@ -128,7 +129,7 @@ enum EventType {
 	EventType_Strike_PayCost_Gauge,
 	EventType_Strike_PayCost_Force,
 	EventType_Strike_PayCost_Unable,
-	EventType_Strike_PowerUp,					# 67
+	EventType_Strike_PowerUp,					# 68
 	EventType_Strike_RandomGaugeStrike,
 	EventType_Strike_RangeUp,
 	EventType_Strike_Response,
