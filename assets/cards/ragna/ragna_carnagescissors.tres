@@ -1,0 +1,7 @@
+[gd_resource type="AtlasTexture" load_steps=2 format=3 uid="uid://cv6y0xivgpp7h"]
+
+[ext_resource type="Texture2D" uid="uid://ri8mccdlcqb7" path="res://assets/cards/ragna/specials.jpg" id="1_tpkmu"]
+
+[resource]
+atlas = ExtResource("1_tpkmu")
+region = Rect2(1500, 1024, 750, 1024)

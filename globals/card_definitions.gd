@@ -190,6 +190,8 @@ func get_condition_text(condition, amount, amount2):
 			text += "If initiated strike, "
 		"hit_opponent":
 			text += "If hit opponent, "
+		"life_equals":
+			text += "If your life is exactly %s, " % amount
 		"not_canceled_this_turn":
 			text += "If not canceled this turn, "
 		"not_full_push":
@@ -281,6 +283,8 @@ func get_effect_type_text(effect, card_name_source : String = ""):
 			effect_str += "Add card to gauge (and cancel its effects)."
 		"add_top_deck_to_gauge":
 			effect_str += "Add top card of deck to gauge"
+		"add_top_discard_to_gauge":
+			effect_str += "Add top card of discard pile to gauge"
 		"advance":
 			effect_str += "Advance "
 			if str(effect['amount']) == "strike_x":
@@ -289,6 +293,8 @@ func get_effect_type_text(effect, card_name_source : String = ""):
 				effect_str += str(effect['amount'])
 		"armorup":
 			effect_str += "+" + str(effect['amount']) + " Armor"
+		"attack_does_not_hit":
+			effect_str += "Attack does not hit."
 		"attack_is_ex":
 			effect_str += "Next Strike is EX"
 		"block_opponent_move":
@@ -368,6 +374,8 @@ func get_effect_type_text(effect, card_name_source : String = ""):
 			effect_str += get_gauge_for_effect_summary(effect, card_name_source)
 		"gain_advantage":
 			effect_str += "Gain Advantage"
+		"gain_life":
+			effect_str += "Gain " + str(effect['amount']) + " life"
 		"gauge_from_hand":
 			effect_str += "Add a card from hand to gauge"
 		"guardup":

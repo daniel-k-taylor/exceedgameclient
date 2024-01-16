@@ -157,7 +157,12 @@ func handle_decisions(game: LocalGame):
 			Enums.DecisionType.DecisionType_PayStrikeCost_Required, Enums.DecisionType.DecisionType_PayStrikeCost_CanWild:
 				var can_wild = game.decision_info.type == Enums.DecisionType.DecisionType_PayStrikeCost_CanWild
 				var cost = game.decision_info.cost
-				var pay_action = decision_ai.pay_strike_gauge_cost(game, decision_player.my_id, cost, can_wild)
+				var is_gauge = game.decision_info.limitation == "gauge"
+				var pay_action
+				if is_gauge:
+					pay_action = decision_ai.pay_strike_gauge_cost(game, decision_player.my_id, cost, can_wild)
+				else:
+					pay_action = decision_ai.pay_strike_force_cost(game, decision_player.my_id, cost, can_wild)
 				assert_true(game.do_pay_strike_cost(decision_player, pay_action.card_ids, pay_action.wild_swing), "do pay failed")
 			Enums.DecisionType.DecisionType_EffectChoice, Enums.DecisionType.DecisionType_ChooseSimultaneousEffect:
 				var effect_action = decision_ai.pick_effect_choice(game, decision_player.my_id)
@@ -540,6 +545,15 @@ func test_happychaos_100():
 		game_setup()
 	pass_test("Finished match")
 
+func test_ragna_100():
+	default_deck = CardDefinitions.get_deck_from_str_id("ragna")
+	for i in range(RandomIterations):
+		print("==== RUNNING TEST %d ====" % i)
+		run_ai_game()
+		game_teardown()
+		game_setup()
+	pass_test("Finished match")
+	
 func test_nu13_100():
 	default_deck = CardDefinitions.get_deck_from_str_id("nu13")
 	for i in range(RandomIterations):
