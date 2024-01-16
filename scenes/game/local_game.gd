@@ -2727,11 +2727,11 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 
 	return events
 
-func get_card_stat(player : Player, card : GameCard, stat : String) -> int:
+func get_card_stat(check_player : Player, card : GameCard, stat : String) -> int:
 	var value = card.definition[stat]
 	if str(value) == "X":
 		if active_strike:
-			return player.strike_stat_boosts.strike_x
+			return check_player.strike_stat_boosts.strike_x
 		else:
 			assert(false, "ERROR: No support for interpreting X outside of strikes")
 	return value
