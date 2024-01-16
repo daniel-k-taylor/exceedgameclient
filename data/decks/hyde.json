@@ -23,14 +23,12 @@
 						"effect_type": "strike_faceup",
 						"disable_wild_swing": "true"
 					},
-					{ "effect_type": "pass" }
+					{
+						"effect_type": "gauge_from_hand",
+						"min_amount": 1,
+						"max_amount": 1
+					}
 				]
-			},
-			"bonus_effect": {
-				"condition": "no_strike_caused",
-				"effect_type": "gauge_from_hand",
-				"min_amount": 1,
-				"max_amount": 1
 			}
 		}
 	}],
