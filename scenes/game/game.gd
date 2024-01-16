@@ -2277,6 +2277,8 @@ func _update_buttons():
 			cancel_text = "Pass"
 		UISubState.UISubState_SelectArena_EffectChoice:
 			cancel_text = "Pass"
+		UISubState.UISubState_SelectCards_GaugeForEffect:
+			cancel_text = "Pass"
 		_:
 			cancel_text = "Cancel"
 
@@ -2409,6 +2411,8 @@ func can_press_ok():
 				return can_selected_cards_pay_force(select_card_require_force)
 			UISubState.UISubState_SelectCards_GaugeForEffect:
 				if select_card_must_be_max_or_min:
+					if instructions_cancel_allowed and len(selected_cards) == 0:
+						return false
 					return len(selected_cards) == select_card_require_min or len(selected_cards) == select_card_require_max
 				else:
 					return selected_cards_between_min_and_max()
