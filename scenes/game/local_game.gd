@@ -1948,7 +1948,7 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 			var amount = 1
 			if 'amount' in effect:
 				amount = effect['amount']
-				events += performing_player.add_top_deck_to_gauge(amount)
+			events += performing_player.add_top_deck_to_gauge(amount)
 		"add_top_discard_to_gauge":
 			var amount = 1
 			if 'amount' in effect:
@@ -2604,6 +2604,7 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 		"spend_life":
 			var amount = effect['amount']
 			performing_player.life -= amount
+			events += [create_event(Enums.EventType.EventType_Strike_TookDamage, performing_player.my_id, amount, "spend", performing_player.life)]
 			_append_log("%s spent %s life, life is now %s." % [performing_player.name, amount, performing_player.life])
 			if performing_player.life <= 0:
 				_append_log("%s is defeated." % [performing_player.name])

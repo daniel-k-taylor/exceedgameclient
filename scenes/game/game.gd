@@ -1973,13 +1973,19 @@ func _on_gauge_for_effect(event):
 func _on_damage(event):
 	var player = event['event_player']
 	var life = event['extra_info']
+	var reason = event['reason']
+	var play_animation = true
+	if reason == "spend":
+		play_animation = false
 	var damage_taken = event['number']
 	if player == Enums.PlayerId.PlayerId_Player:
 		$PlayerLife.set_life(life)
-		$PlayerCharacter.play_hit()
+		if play_animation:
+			$PlayerCharacter.play_hit()
 	else:
 		$OpponentLife.set_life(life)
-		$OpponentCharacter.play_hit()
+		if play_animation:
+			$OpponentCharacter.play_hit()
 	spawn_damage_popup("%s Damage" % str(damage_taken), player)
 	return SmallNoticeDelay
 
