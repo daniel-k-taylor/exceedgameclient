@@ -33,6 +33,8 @@ func get_deck_from_str_id(str_id : String):
 		return get_random_deck(6)
 	if str_id == "random_s5":
 		return get_random_deck(5)
+	if str_id == "random_s3":
+		return get_random_deck(3)
 	if str_id == "random":
 		return get_random_deck(-1)
 	for deck in decks:

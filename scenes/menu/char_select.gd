@@ -6,10 +6,12 @@ signal close_character_select
 @onready var hover_label : Label = $HoverBox/HBoxContainer/VBoxContainer/Label
 @onready var hover_portrait : TextureRect = $HoverBox/HBoxContainer/VBoxContainer/Portrait
 
+@onready var charselect_s3 = $CenterContainer/SFCharacterSelect
 @onready var charselect_s5 = $CenterContainer/BBCharacterSelect
 @onready var charselect_s6 = $CenterContainer/UNICharacterSelect
 @onready var charselect_s7 = $CenterContainer/GGCharacterSelect
 
+@onready var season_button_s3 = $TabSelect/CategoriesHBox/Season3
 @onready var season_button_s5 = $TabSelect/CategoriesHBox/Season5
 @onready var season_button_s6 = $TabSelect/CategoriesHBox/Season6
 @onready var season_button_s7 = $TabSelect/CategoriesHBox/Season7
@@ -29,6 +31,9 @@ func update_hover(char_id):
 	elif char_id == "random_s5":
 		hover_label.text = "Random"
 		hover_portrait.texture = load("res://assets/portraits/blazbluelogo2.png")
+	elif char_id == "random_s3":
+		hover_label.text = "Random"
+		hover_portrait.texture = load("res://assets/portraits/sflogo.png")
 	elif char_id == "random":
 		hover_label.text = "Random"
 		hover_portrait.texture = load("res://assets/portraits/random.png")
@@ -45,11 +50,13 @@ func _on_background_button_pressed():
 	close_character_select.emit()
 
 func show_season(node, selector_button):
+	charselect_s3.visible = false
 	charselect_s5.visible = false
 	charselect_s6.visible = false
 	charselect_s7.visible = false
 	node.visible = true
 
+	season_button_s3.set_selected(false)
 	season_button_s5.set_selected(false)
 	season_button_s6.set_selected(false)
 	season_button_s7.set_selected(false)
@@ -58,6 +65,8 @@ func show_season(node, selector_button):
 func _on_char_button_on_pressed(character_id : String):
 	if character_id.begins_with("season"):
 		# Get the int season from the last character of the str.
+		if character_id == "season3":
+			show_season(charselect_s3, season_button_s3)
 		if character_id == "season5":
 			show_season(charselect_s5, season_button_s5)
 		elif character_id == "season6":
