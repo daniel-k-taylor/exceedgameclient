@@ -813,6 +813,8 @@ func _stat_notice_event(event):
 			notice_text = "Miss!"
 		Enums.EventType.EventType_CharacterAction:
 			notice_text = "Character Action"
+		Enums.EventType.EventType_Strike_Critical:
+			notice_text = "Critical!"
 		Enums.EventType.EventType_Strike_DodgeAttacks:
 			notice_text = "Dodge Attacks!"
 		Enums.EventType.EventType_Strike_DodgeAttacksAtRange:
@@ -2131,6 +2133,8 @@ func _handle_events(events):
 				delay = _on_choose_to_discard(event, false)
 			Enums.EventType.EventType_Strike_ChooseToDiscard_Info:
 				delay = _on_choose_to_discard(event, true)
+			Enums.EventType.EventType_Strike_Critical:
+				delay = _stat_notice_event(event)
 			Enums.EventType.EventType_Strike_DodgeAttacks, Enums.EventType.EventType_Strike_DodgeAttacksAtRange:
 				delay = _stat_notice_event(event)
 			Enums.EventType.EventType_Strike_DoResponseNow:

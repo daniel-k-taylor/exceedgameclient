@@ -109,6 +109,7 @@ enum EventType {
 	EventType_Strike_AttackDoesNotHit,
 	EventType_Strike_CardActivation,
 	EventType_Strike_CharacterEffect,
+	EventType_Strike_Critical,
 	EventType_Strike_DodgeAttacks,
 	EventType_Strike_DodgeAttacksAtRange,
 	EventType_Strike_DoResponseNow,

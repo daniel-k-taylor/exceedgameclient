@@ -257,11 +257,13 @@ class StrikeStatBoosts:
 	var is_ex : bool = false
 	var higher_speed_misses : bool = false
 	var calculate_range_from_buddy : bool = false
+	var attack_to_topdeck_on_cleanup : bool = false
 	var discard_attack_on_cleanup : bool = false
 	var seal_attack_on_cleanup : bool = false
 	var speed_bonus_multiplier : int = 1
 	var active_character_effects = []
 	var ex_count : int = 0
+	var critical : bool = false
 
 	func clear():
 		power = 0
@@ -291,11 +293,13 @@ class StrikeStatBoosts:
 		is_ex = false
 		higher_speed_misses = false
 		calculate_range_from_buddy = false
+		attack_to_topdeck_on_cleanup = false
 		discard_attack_on_cleanup = false
 		seal_attack_on_cleanup = false
 		speed_bonus_multiplier = 1
 		active_character_effects = []
 		ex_count = 0
+		critical = false
 
 	func set_ex():
 		ex_count += 1
@@ -1075,6 +1079,10 @@ class Player:
 	func add_to_sealed(card : GameCard):
 		sealed.append(card)
 		return [parent.create_event(Enums.EventType.EventType_Seal, my_id, card.id)]
+		
+	func add_to_top_of_deck(card : GameCard):
+		deck.insert(0, card)
+		return [parent.create_event(Enums.EventType.EventType_AddToDeck, my_id, card.id)]
 
 	func get_available_force():
 		var force = 0
@@ -1888,6 +1896,8 @@ func is_effect_condition_met(performing_player : Player, effect, local_condition
 			return active_strike.get_player_wild_strike(performing_player)
 		elif condition == "was_strike_from_gauge":
 			return active_strike.get_player_strike_from_gauge(performing_player)
+		elif condition == "is_critical":
+			return performing_player.strike_stat_boosts.critical
 		else:
 			assert(false, "Unimplemented condition")
 		# Unmet condition
@@ -2118,6 +2128,9 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 			var close_amount = abs(performing_start - new_location)
 			local_conditions.fully_closed = close_amount == effect['amount']
 			_append_log("%s Close %s - Moved from %s to %s." % [performing_player.name, str(effect['amount']), str(previous_location), str(new_location)])
+		"critical":
+			performing_player.strike_stat_boosts.critical = true
+			events += [create_event(Enums.EventType.EventType_Strike_Critical, performing_player.my_id, 0)]
 		"discard_this":
 			if active_boost:
 				active_boost.discard_on_cleanup = true
@@ -2314,6 +2327,8 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 			_append_log("%s is blocking opponent from advancing past." % [performing_player.name])
 		"remove_opponent_cant_move_past":
 			opposing_player.cannot_move_past_opponent = false
+		"return_attack_to_top_of_deck":
+			performing_player.strike_stat_boosts.attack_to_topdeck_on_cleanup = true
 		"opponent_discard_choose":
 			if opposing_player.hand.size() > effect['amount']:
 				change_game_state(Enums.GameState.GameState_PlayerDecision)
@@ -3319,6 +3334,8 @@ func handle_strike_attack_cleanup(performing_player : Player, card):
 	elif performing_player.strike_stat_boosts.move_strike_to_boosts:
 		events += performing_player.add_to_continuous_boosts(card)
 		performing_player.sustained_boosts.append(card.id)
+	elif performing_player.strike_stat_boosts.attack_to_topdeck_on_cleanup:
+		events += performing_player.add_to_top_of_deck(card)
 	elif performing_player.strike_stat_boosts.discard_attack_on_cleanup:
 		events += performing_player.add_to_discards(card)
 	elif hit or stat_boosts.always_add_to_gauge:
@@ -3989,6 +4006,7 @@ func do_card_from_hand_to_gauge(performing_player : Player, card_ids : Array) ->
 		if not performing_player.is_card_in_hand(card_id):
 			printlog("ERROR: Tried to do_card_from_hand_to_gauge with card not in hand.")
 			return false
+			
 	var events = []
 	if card_ids.size() > 0:
 		var card_names = card_db.get_card_name(card_ids[0])
@@ -4008,7 +4026,7 @@ func do_card_from_hand_to_gauge(performing_player : Player, card_ids : Array) ->
 				assert(false, "Unknown destination for do_card_from_hand_to_gauge")
 
 		_append_log("%s moved cards (%s) from hand to %s." % [performing_player.name, card_names, destination_string])
-
+	
 	if active_overdrive:
 		events += do_remaining_overdrive(performing_player)
 	elif active_boost:
