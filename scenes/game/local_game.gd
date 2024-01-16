@@ -3168,8 +3168,16 @@ func continue_resolve_strike(events):
 		printlog("STRIKE: processing state %s " % [StrikeState.keys()[active_strike.strike_state]])
 		match active_strike.strike_state:
 			StrikeState.StrikeState_Initiator_PayCosts:
+				# Discard any EX cards
+				if active_strike.initiator_ex_card != null:
+					events += active_strike.initiator.add_to_discards(active_strike.initiator_ex_card)
+				# Ask player to pay for this card if applicable.
 				events += ask_for_cost(active_strike.initiator, active_strike.initiator_card, StrikeState.StrikeState_Defender_PayCosts)
 			StrikeState.StrikeState_Defender_PayCosts:
+				# Discard any EX cards
+				if active_strike.defender_ex_card != null:
+					events += active_strike.defender.add_to_discards(active_strike.defender_ex_card)
+				# Ask player to pay for this card if applicable.
 				events += ask_for_cost(active_strike.defender, active_strike.defender_card, StrikeState.StrikeState_DuringStrikeBonuses)
 			StrikeState.StrikeState_DuringStrikeBonuses:
 				log_boosts_in_play()
@@ -3259,12 +3267,6 @@ func continue_resolve_strike(events):
 				# If hit, move card to gauge, otherwise move to discard.
 				events += handle_strike_attack_cleanup(player1, card1)
 				events += handle_strike_attack_cleanup(player2, card2)
-
-				# Discard any EX cards
-				if active_strike.initiator_ex_card != null:
-					events += active_strike.initiator.add_to_discards(active_strike.initiator_ex_card)
-				if active_strike.defender_ex_card != null:
-					events += active_strike.defender.add_to_discards(active_strike.defender_ex_card)
 
 				# Remove any Reading effects
 				player1.reading_card_id = ""

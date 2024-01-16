@@ -213,6 +213,13 @@ func test_ragna_bloodscythe_works():
 	assert_eq(player1.gauge.size(), 2)
 	assert_eq(player1.gauge[0].id, id)
 
+func test_ragna_ex_bloodscythe_works():
+	position_players(player1, 3, player2, 5)
+	execute_strike(player1, player2, "ragna_bloodscythe","standard_normal_assault", [], [], true, false)
+	validate_life(player1, 28, player2, 24)
+	validate_positions(player1, 5, player2, 4)
+	assert_eq(player1.gauge.size(), 2)
+
 func test_ragna_gauntlethades_misses():
 	position_players(player1, 3, player2, 4)
 	execute_strike(player1, player2, "ragna_gauntlethades","standard_normal_assault", [0], [], false, false)
@@ -237,3 +244,4 @@ func test_ragna_blackonslaught_reg():
 	validate_life(player1, 3, player2, 24)
 	validate_positions(player1, 3, player2, 5)
 	assert_eq(player1.gauge.size(), 1)
+

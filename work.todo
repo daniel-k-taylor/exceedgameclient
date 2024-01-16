@@ -1,16 +1,6 @@
 In progress:
-    ☐ Ex should be discarded right away
-    ☐ Choice between EX and spent gauge/force cards as to which is on top
 
-    ☐ Faust Unit tests!
-        ☐ Whatcouldthisbe interactions
-        ☐ Love removing stuff
-            ☐ Sweep
-            ☐ Love
-            ☐ Snip
-            ☐ BoneCrushing - revert range, - remove mid-before effects
-            ☐ Dust
-            ☐ Thrust - remove mid-before effects
+
 
 
 Write tests for:
@@ -19,6 +9,14 @@ Write tests for:
     Zato:
     Faust:
         ☐ Make 1 look at and 1 action choice and not can_pass choose it automatically
+        ☐ Whatcouldthisbe interactions
+        ☐ Love removing stuff
+            ☐ Sweep
+            ☐ Love
+            ☐ Snip
+            ☐ BoneCrushing - revert range, - remove mid-before effects
+            ☐ Dust
+            ☐ Thrust - remove mid-before effects
     HappyChaos:
     Nu13:
 
@@ -44,6 +42,7 @@ Tasks:
         ☐ Make card ref an icon button
         ☐ If making a decision, minimizing card popout has a blinking icon to reopen it
         ☐ Allow spending ultra for 1 force for change cards or spending less on effects
+        ☐ Choice between EX and spent gauge/force cards as to which is on top
     ☐ Only connect to server if you enter Multiplayer
     ☐ Card popout has choice buttons for gauge selection
     ☐ Reorder opponent hand in a way that you can't keep track with effort
