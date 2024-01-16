@@ -1,0 +1,48 @@
+[gd_resource type="SpriteFrames" load_steps=7 format=3 uid="uid://bd760g2ikmf2f"]
+
+[ext_resource type="Texture2D" uid="uid://6laqwsl8uj17" path="res://assets/character_animations/ryu/idle/ryu_idle.png" id="1_tlval"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_0pgyn"]
+atlas = ExtResource("1_tlval")
+region = Rect2(0, 6, 68, 100)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_g7amn"]
+atlas = ExtResource("1_tlval")
+region = Rect2(68, 6, 68, 100)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_3d0pq"]
+atlas = ExtResource("1_tlval")
+region = Rect2(136, 6, 68, 100)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_67vv1"]
+atlas = ExtResource("1_tlval")
+region = Rect2(204, 6, 68, 100)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_75v86"]
+atlas = ExtResource("1_tlval")
+region = Rect2(272, 6, 68, 100)
+
+[resource]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_0pgyn")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_g7amn")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_3d0pq")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_67vv1")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_75v86")
+}],
+"loop": true,
+"name": &"idle",
+"speed": 5.0
+}]
+metadata/flip = true
+metadata/scaling = 2.5
