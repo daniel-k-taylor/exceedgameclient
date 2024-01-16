@@ -200,6 +200,8 @@ func get_condition_text(condition, amount, amount2):
 			text += "If not full close, "
 		"not_initiated_strike":
 			text += "If opponent initiated strike, "
+		"no_strike_caused":
+			text += "If no strike caused, "
 		"stunned":
 			text += "If stunned, "
 		"not_stunned":
@@ -458,6 +460,8 @@ func get_effect_type_text(effect, card_name_source : String = ""):
 					effect_str += "power of random gauge card"
 				'top_discard_power':
 					effect_str += "power of top card of discards"
+				'opponent_speed':
+					effect_str += "opponent's speed"
 				_:
 					effect_str += "(UNKNOWN)"
 		"seal_this":
@@ -495,6 +499,8 @@ func get_effect_type_text(effect, card_name_source : String = ""):
 			effect_str += "Spend " + str(effect['amount']) + " life"
 		"strike":
 			effect_str += "Strike"
+		"strike_faceup":
+			effect_str += "Strike face-up"
 		"strike_random_from_gauge":
 			effect_str += "Strike with random card from gauge (opponent sets first)"
 		"stun_immunity":
