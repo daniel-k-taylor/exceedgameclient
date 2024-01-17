@@ -64,7 +64,7 @@
 	],
 	"exceed_ability_effects": [
 		{
-			"timing": "during_strike",
+			"timing": "set_strike",
 			"condition": "used_character_action",
 			"condition_details": ["exceed", 0],
 			"character_effect": true,
