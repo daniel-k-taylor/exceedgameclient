@@ -121,7 +121,7 @@ func handle_simultaneous_effects(initiator, defender):
 		if game_logic.decision_info.player == defender.my_id:
 			decider = defender
 		assert_true(game_logic.do_choice(decider, 0), "Failed simuleffect choice")
-		
+
 func execute_strike(initiator, defender, init_card : String, def_card : String, init_choices, def_choices,
 		init_ex = false, def_ex = false, init_force_discard = [], def_force_discard = [], init_extra_cost = 0, give_cards = true):
 	var all_events = []
@@ -136,7 +136,7 @@ func execute_strike(initiator, defender, init_card : String, def_card : String, 
 
 	if game_logic.game_state == Enums.GameState.GameState_PlayerDecision and game_logic.active_strike.strike_state == game_logic.StrikeState.StrikeState_Initiator_SetEffects:
 		game_logic.do_force_for_effect(initiator, init_force_discard)
-		
+
 	if def_ex:
 		give_player_specific_card(defender, def_card, TestCardId4)
 		all_events += do_strike_response(defender, TestCardId2, TestCardId4)
@@ -145,7 +145,7 @@ func execute_strike(initiator, defender, init_card : String, def_card : String, 
 
 	if game_logic.game_state == Enums.GameState.GameState_PlayerDecision and game_logic.active_strike.strike_state == game_logic.StrikeState.StrikeState_Defender_SetEffects:
 		game_logic.do_force_for_effect(defender, def_force_discard)
-		
+
 	# Pay any costs from gauge
 	if game_logic.active_strike and game_logic.active_strike.strike_state == game_logic.StrikeState.StrikeState_Initiator_PayCosts:
 		var cost = game_logic.active_strike.initiator_card.definition['gauge_cost'] + init_extra_cost
@@ -198,7 +198,7 @@ func get_cards_from_gauge(player : LocalGame.Player, amount : int):
 	for i in range(amount):
 		card_ids.append(player.gauge[i].id)
 	return card_ids
-	
+
 ##
 ## Tests start here
 ##
@@ -230,7 +230,7 @@ func test_hyde_ua_empty_hand():
 func test_hyde_exceed_ua_wild_swing():
 	position_players(player1, 3, player2, 5)
 	player1.exceed()
-	
+
 	give_specific_cards(player1, "hyde_gyrovortex", player2, "uni_normal_focus")
 	var ultra_card = player1.hand[-1]
 	player1.remove_card_from_hand(TestCardId4)
@@ -240,7 +240,7 @@ func test_hyde_exceed_ua_wild_swing():
 	var sweep_card = player1.hand[-1]
 	player1.remove_card_from_hand(TestCardId3)
 	player1.deck.insert(0, sweep_card)
-	
+
 	assert_true(game_logic.do_character_action(player1, [player1.gauge[-1].id]))
 	execute_strike(player1, player2, "hyde_gyrovortex", "uni_normal_focus", [], [], false, false, [], [], 0, false)
 
@@ -251,7 +251,7 @@ func test_hyde_exceed_ua_wild_swing():
 
 func test_hyde_charged_attack_advance_before():
 	position_players(player1, 3, player2, 6)
-	
+
 	give_player_specific_card(player1, "hyde_redcladcraver", TestCardId3)
 	assert_true(game_logic.do_boost(player1, TestCardId3))
 	advance_turn(player2)
@@ -262,11 +262,11 @@ func test_hyde_charged_attack_advance_before():
 
 func test_hyde_dead_set_daze_ex_speed_boost():
 	position_players(player1, 3, player2, 4)
-	
+
 	give_gauge(player2, 1)
 	execute_strike(player1, player2, "uni_normal_grasp", "hyde_deadsetdaze", [1], [], true)
 	assert_true(player1.is_card_in_gauge(TestCardId1))
 	assert_true(player2.is_card_in_gauge(TestCardId2))
 	validate_positions(player1, 3, player2, 6)
 	validate_life(player1, 23, player2, 27)
-	
+

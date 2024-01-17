@@ -288,7 +288,7 @@ func handle_character_action(game: LocalGame, aiplayer : AIPlayer, otherai : AIP
 	var events = []
 	events += game.get_latest_events()
 	events += handle_decisions(game)
-	
+
 	return events
 
 func run_ai_game():
@@ -345,7 +345,7 @@ func run_ai_game():
 			game_logic.do_strike(current_ai.game_player, -1, false, -1, true)
 			var strike_action = current_ai.pick_strike(game_logic, current_player.my_id)
 			turn_events += handle_strike(game_logic, current_ai, other_ai, strike_action, false, true)
-		
+
 		if game_logic.active_strike:
 			turn_events += handle_strike(game_logic, current_ai, other_ai, null, true)
 
@@ -445,7 +445,7 @@ func test_giovanna_100():
 		game_teardown()
 		game_setup()
 	pass_test("Finished match")
-	
+
 func test_nago_100():
 	default_deck = CardDefinitions.get_deck_from_str_id("nago")
 	for i in range(RandomIterations):
@@ -490,7 +490,7 @@ func test_jacko_100():
 		game_teardown()
 		game_setup()
 	pass_test("Finished match")
-	
+
 func test_leo_100():
 	default_deck = CardDefinitions.get_deck_from_str_id("leo")
 	for i in range(RandomIterations):
@@ -499,7 +499,7 @@ func test_leo_100():
 		game_teardown()
 		game_setup()
 	pass_test("Finished match")
-	
+
 func test_testament_100():
 	default_deck = CardDefinitions.get_deck_from_str_id("testament")
 	for i in range(RandomIterations):
@@ -526,7 +526,7 @@ func test_zato_100():
 		game_teardown()
 		game_setup()
 	pass_test("Finished match")
-	
+
 func test_faust_100():
 	default_deck = CardDefinitions.get_deck_from_str_id("faust")
 	for i in range(RandomIterations):
@@ -553,7 +553,7 @@ func test_ragna_100():
 		game_teardown()
 		game_setup()
 	pass_test("Finished match")
-	
+
 func test_nu13_100():
 	default_deck = CardDefinitions.get_deck_from_str_id("nu13")
 	for i in range(RandomIterations):

@@ -95,7 +95,7 @@ func get_player_mulligan_complete(id):
 
 func get_player_character_action(id, action_idx = 0):
 	return _get_player(id).get_character_action(action_idx)
-	
+
 func get_player_character_action_count(id):
 	return _get_player(id).get_character_action_count()
 
@@ -184,7 +184,7 @@ func get_player_top_cards(player_id : Enums.PlayerId, count : int) -> Array[int]
 
 func get_player_sustained_boosts(player_id : Enums.PlayerId) -> Array[int]:
 	return _get_player(player_id).sustained_boosts
-	
+
 func get_player_available_force(player_id : Enums.PlayerId):
 	return _get_player(player_id).get_available_force()
 
@@ -329,7 +329,7 @@ func submit_force_for_effect(player: Enums.PlayerId, card_ids : Array) -> bool:
 func submit_gauge_for_effect(player: Enums.PlayerId, card_ids : Array) -> bool:
 	var game_player = _get_player(player)
 	return current_game.do_gauge_for_effect(game_player, card_ids)
-	
+
 func submit_choose_to_discard(player: Enums.PlayerId, card_ids : Array) -> bool:
 	var game_player = _get_player(player)
 	return current_game.do_choose_to_discard(game_player, card_ids)

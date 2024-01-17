@@ -41,7 +41,7 @@ func update_hover(char_id):
 		var deck = CardDefinitions.get_deck_from_str_id(char_id)
 		hover_label.text = deck['display_name']
 		hover_portrait.texture = load("res://assets/portraits/" + char_id + ".png")
-	
+
 func show_char_select(char_id : String):
 	default_char_id = char_id
 	update_hover(char_id)
@@ -79,7 +79,7 @@ func _on_char_button_on_pressed(character_id : String):
 func _on_char_hover(char_id : String, enter : bool):
 	if char_id.begins_with("season"):
 		return
-		
+
 	if enter:
 		update_hover(char_id)
 	else:

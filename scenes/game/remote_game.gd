@@ -372,7 +372,7 @@ func process_gauge_for_effect(action_message) -> void:
 	var game_player = _get_player_from_remote_id(action_message['player_id'])
 	var card_ids = action_message['card_ids']
 	local_game.do_gauge_for_effect(game_player, card_ids)
-	
+
 func do_choose_to_discard(player : LocalGame.Player, card_ids : Array) -> bool:
 	var action_message = {
 		'action_type': 'action_choose_to_discard',

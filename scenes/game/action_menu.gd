@@ -7,7 +7,7 @@ func set_choices(instructions_text : String, choices : Array):
 	if choices.size() > 4:
 		col_count = 2
 	$OuterMargin/MainVBox/ChoiceButtons.columns = col_count
-		
+
 	$OuterMargin/MainVBox/InstructionsLabel.text = instructions_text
 	var choice_buttons = $OuterMargin/MainVBox/ChoiceButtons.get_children()
 	var total_choices = choices.size()
