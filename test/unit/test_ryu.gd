@@ -227,7 +227,7 @@ func test_ryu_shoryu_defend_hit():
 
 func test_ryu_hadoken():
 	position_players(player1, 2, player2, 6)
-	var card = give_player_specific_card(player1, "standard_normal_grasp", TestCardId3)
+	give_player_specific_card(player1, "standard_normal_grasp", TestCardId3)
 	player1.discard([TestCardId3])
 	execute_strike(player1, player2, "ryu_hadoken","standard_normal_sweep", [0], [], false, false,
 		[], [], 0, true, true)

@@ -21,7 +21,8 @@
 				"choice": [
 					{
 						"effect_type": "strike_faceup",
-						"disable_wild_swing": "true"
+						"disable_wild_swing": true,
+						"disable_ex": true
 					},
 					{
 						"effect_type": "gauge_from_hand",
@@ -63,7 +64,7 @@
 	],
 	"exceed_ability_effects": [
 		{
-			"timing": "during_strike",
+			"timing": "set_strike",
 			"condition": "used_character_action",
 			"condition_details": ["exceed", 0],
 			"character_effect": true,

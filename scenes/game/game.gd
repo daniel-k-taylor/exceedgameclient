@@ -61,6 +61,7 @@ var selected_boost_to_pay_for = -1
 var instructions_ok_allowed = false
 var instructions_cancel_allowed = false
 var instructions_wild_swing_allowed = false
+var instructions_ex_allowed = false
 var selected_cards = []
 var enabled_reminder_text = false
 var arena_locations_clickable = []
@@ -1344,13 +1345,16 @@ func _on_force_start_boost(event):
 func _on_force_start_strike(event):
 	var player = event['event_player']
 	var disable_wild_swing = false
+	var disable_ex = false
 	if event['extra_info']: #not null
 		disable_wild_swing = event['extra_info']
+	if event['extra_info2']:
+		disable_ex = event['extra_info2']
 	spawn_damage_popup("Strike!", player)
 	if player == Enums.PlayerId.PlayerId_Player:
-		begin_strike_choosing(false, false, false, disable_wild_swing)
+		begin_strike_choosing(false, false, false, disable_wild_swing, disable_ex)
 	else:
-		ai_forced_strike()
+		ai_forced_strike(disable_wild_swing, disable_ex)
 	return SmallNoticeDelay
 
 func _on_strike_from_gauge(event):
@@ -1576,11 +1580,12 @@ func update_force_generation_message():
 			effect_str += "\n%s force generated." % [force_selected]
 			set_instructions(effect_str)
 
-func enable_instructions_ui(message, can_ok, can_cancel, can_wild_swing : bool = false, choices = []):
+func enable_instructions_ui(message, can_ok, can_cancel, can_wild_swing : bool = false, can_ex : bool = true, choices = []):
 	set_instructions(message)
 	instructions_ok_allowed = can_ok
 	instructions_cancel_allowed = can_cancel
 	instructions_wild_swing_allowed = can_wild_swing
+	instructions_ex_allowed = can_ex
 	current_effect_choices = choices
 
 func begin_discard_cards_selection(number_to_discard_min, number_to_discard_max, next_sub_state, can_cancel_always : bool = false):
@@ -1617,16 +1622,16 @@ func begin_gauge_selection(amount : int, wild_swing_allowed : bool, sub_state : 
 	change_ui_state(UIState.UIState_SelectCards, sub_state)
 
 func begin_effect_choice(choices, instruction_text : String):
-	enable_instructions_ui(instruction_text, false, false, false, choices)
+	enable_instructions_ui(instruction_text, false, false, false, false, choices)
 	change_ui_state(UIState.UIState_MakeChoice, UISubState.UISubState_None)
 
 func begin_strike_choosing(strike_response : bool, cancel_allowed : bool,
-		opponent_sets_first : bool = false, disable_wild_swing : bool = false):
+		opponent_sets_first : bool = false, disable_wild_swing : bool = false, disable_ex : bool = false):
 	selected_cards = []
 	select_card_require_min = 1
 	select_card_require_max = 1
 	var can_cancel = cancel_allowed and not strike_response
-	enable_instructions_ui("Select a card to strike with.", true, can_cancel, not disable_wild_swing)
+	enable_instructions_ui("Select a card to strike with.", true, can_cancel, not disable_wild_swing, not disable_ex)
 	var new_sub_state
 	if strike_response:
 		if opponent_sets_first:
@@ -2395,7 +2400,7 @@ func can_press_ok():
 					var card_db = game_wrapper.get_card_database()
 					var card1 = selected_cards[0]
 					var card2 = selected_cards[1]
-					return card_db.are_same_card(card1.card_id, card2.card_id)
+					return card_db.are_same_card(card1.card_id, card2.card_id) and instructions_ex_allowed
 				return len(selected_cards) == 1
 			UISubState.UISubState_SelectCards_StrikeForce:
 				return can_selected_cards_pay_force(select_card_require_force)
@@ -2877,16 +2882,18 @@ func ai_discard(event):
 	else:
 		print("FAILED AI DISCARD")
 
-func ai_forced_strike():
+func ai_forced_strike(disable_wild_swing : bool = false, disable_ex : bool = false):
 	change_ui_state(UIState.UIState_WaitForGameServer)
 	if not game_wrapper.is_ai_game(): return
-	var strike_action = ai_player.pick_strike(game_wrapper.current_game, Enums.PlayerId.PlayerId_Opponent)
+	var from_gauge = false
+	var strike_action = ai_player.pick_strike(game_wrapper.current_game, Enums.PlayerId.PlayerId_Opponent, from_gauge, disable_wild_swing, disable_ex)
 	ai_handle_strike(strike_action)
 
 func ai_strike_from_gauge():
 	change_ui_state(UIState.UIState_WaitForGameServer)
 	if not game_wrapper.is_ai_game(): return
-	var strike_action = ai_player.pick_strike(game_wrapper.current_game, Enums.PlayerId.PlayerId_Opponent, true)
+	var from_gauge = true
+	var strike_action = ai_player.pick_strike(game_wrapper.current_game, Enums.PlayerId.PlayerId_Opponent, from_gauge)
 	ai_handle_strike(strike_action)
 
 func ai_boost_cancel_decision(gauge_cost):

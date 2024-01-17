@@ -253,9 +253,8 @@ func test_yuzu_kurenai_stunned_while_exceeded():
 	give_gauge(player1, 2)
 	assert_true(game_logic.do_exceed(player1, [player1.gauge[0].id]))
 	
-	var events = execute_strike(player2, player1, "uni_normal_assault", "yuzu_kurenai", [], [0], false, false)
+	execute_strike(player2, player1, "uni_normal_assault", "yuzu_kurenai", [], [0], false, false)
 	
-	events = game_logic.get_latest_events()
 	assert_true(player1.is_card_in_continuous_boosts(TestCardId2))
 	assert_true(player2.is_card_in_gauge(TestCardId1))
 	validate_positions(player1, 3, player2, 4)

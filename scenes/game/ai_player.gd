@@ -450,10 +450,11 @@ func get_ex_option_in_hand(game_logic : LocalGame, me : LocalGame.Player, card_i
 			return card.id
 	return -1
 
-func get_strike_actions(game_logic : LocalGame, me : LocalGame.Player, _opponent : LocalGame.Player, from_gauge : bool = false):
+func get_strike_actions(game_logic : LocalGame, me : LocalGame.Player, _opponent : LocalGame.Player, from_gauge : bool = false, disable_wild_swing : bool = false, disable_ex : bool = false):
 	var possible_actions = []
+	var possible_actions_cant_pay = []
 	# Always allow wild swing if allowed.
-	if not from_gauge:
+	if not from_gauge and not disable_wild_swing:
 		possible_actions.append(StrikeAction.new(-1, -1, true))
 
 	# Ignore cards that you can't pay for.
@@ -462,22 +463,36 @@ func get_strike_actions(game_logic : LocalGame, me : LocalGame.Player, _opponent
 	var added_ex_options = [-1]
 	if from_gauge:
 		for card in me.gauge:
+			if card.definition['gauge_cost'] > me.gauge.size():
+				# Skip cards we can't pay for.
+				# But remember them in case we have 0 options and must strike with something?
+				possible_actions_cant_pay.append(StrikeAction.new(card.id, -1, false))
+				continue
+
 			possible_actions.append(StrikeAction.new(card.id, -1, false))
 	else:
 		for card in me.hand:
 			if card.definition['gauge_cost'] > me.gauge.size():
 				# Skip cards we can't pay for.
+				# But remember them in case we have 0 options and must strike with something?
+				possible_actions_cant_pay.append(StrikeAction.new(card.id, -1, false))
 				continue
-			var ex_card_id = get_ex_option_in_hand(game_logic, me, card.id)
-			if ex_card_id not in added_ex_options and card.id not in added_ex_options:
-				# If we can play EX, add that as an option.
-				# Don't consider ex again for these cards.
-				added_ex_options.append(ex_card_id)
-				added_ex_options.append(card.id)
-				possible_actions.append(StrikeAction.new(card.id, ex_card_id, false))
+
+			if not disable_ex:
+				var ex_card_id = get_ex_option_in_hand(game_logic, me, card.id)
+				if ex_card_id not in added_ex_options and card.id not in added_ex_options:
+					# If we can play EX, add that as an option.
+					# Don't consider ex again for these cards.
+					added_ex_options.append(ex_card_id)
+					added_ex_options.append(card.id)
+					possible_actions.append(StrikeAction.new(card.id, ex_card_id, false))
 
 			# Always consider playing this.
 			possible_actions.append(StrikeAction.new(card.id, -1, false))
+
+	if len(possible_actions) == 0:
+		# If we're forced to strike no matter what, we have to use an ultra we can't pay for.
+		possible_actions += possible_actions_cant_pay
 
 	return possible_actions
 
@@ -647,10 +662,10 @@ func determine_choose_to_discard_options(me : LocalGame.Player, to_discard_count
 		possible_actions.append(ChooseToDiscardAction.new(combo))
 	return possible_actions
 
-func pick_strike(game_logic : LocalGame, my_id : Enums.PlayerId, from_gauge : bool = false) -> StrikeAction:
+func pick_strike(game_logic : LocalGame, my_id : Enums.PlayerId, from_gauge : bool = false, disable_wild_swing : bool = false, disable_ex : bool = false) -> StrikeAction:
 	var me = game_logic._get_player(my_id)
 	var opponent = game_logic._get_player(game_logic.get_other_player(my_id))
-	var possible_actions = get_strike_actions(game_logic, me, opponent, from_gauge)
+	var possible_actions = get_strike_actions(game_logic, me, opponent, from_gauge, disable_wild_swing, disable_ex)
 	update_ai_state(game_logic, me, opponent)
 	return ai_policy.pick_strike(possible_actions, game_state)
 

@@ -206,7 +206,7 @@ func test_ragna_bloodscythe_no_discard():
 func test_ragna_bloodscythe_works():
 	position_players(player1, 3, player2, 4)
 	player1.discard_hand()
-	var id = player1.discards[0].id
+	var id = player1.discards[player1.discards.size() - 1].id
 	execute_strike(player1, player2, "ragna_bloodscythe","standard_normal_assault", [], [], false, false)
 	validate_life(player1, 27, player2, 25)
 	validate_positions(player1, 5, player2, 4)
@@ -215,10 +215,13 @@ func test_ragna_bloodscythe_works():
 
 func test_ragna_ex_bloodscythe_works():
 	position_players(player1, 3, player2, 5)
+	player1.discard_hand()
 	execute_strike(player1, player2, "ragna_bloodscythe","standard_normal_assault", [], [], true, false)
 	validate_life(player1, 28, player2, 24)
 	validate_positions(player1, 5, player2, 4)
 	assert_eq(player1.gauge.size(), 2)
+	assert_eq(player1.gauge[0].id, TestCardId3)
+	assert_eq(player1.gauge[1].id, TestCardId1)
 
 func test_ragna_gauntlethades_misses():
 	position_players(player1, 3, player2, 4)
