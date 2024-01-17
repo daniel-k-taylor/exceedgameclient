@@ -23,20 +23,20 @@ func _ready():
 
 func update_hover(char_id):
 	if char_id == "random_s7":
-		hover_label.text = "Random"
+		hover_label.text = "Random (S7)"
 		hover_portrait.texture = load("res://assets/portraits/random.png")
 	elif char_id == "random_s6":
-		hover_label.text = "Random"
+		hover_label.text = "Random (S6)"
 		hover_portrait.texture = load("res://assets/portraits/unilogo.png")
 	elif char_id == "random_s5":
-		hover_label.text = "Random"
+		hover_label.text = "Random (S5)"
 		hover_portrait.texture = load("res://assets/portraits/blazbluelogo2.png")
 	elif char_id == "random_s3":
-		hover_label.text = "Random"
+		hover_label.text = "Random (S3)"
 		hover_portrait.texture = load("res://assets/portraits/sflogo.png")
 	elif char_id == "random":
-		hover_label.text = "Random"
-		hover_portrait.texture = load("res://assets/portraits/random.png")
+		hover_label.text = "Random (All)"
+		hover_portrait.texture = load("res://assets/portraits/exceedrandom.png")
 	else:
 		var deck = CardDefinitions.get_deck_from_str_id(char_id)
 		hover_label.text = deck['display_name']

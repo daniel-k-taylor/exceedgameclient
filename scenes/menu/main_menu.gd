@@ -158,7 +158,7 @@ func update_char(label, portrait, char_id):
 	elif char_id == "random_s3":
 		char_id = "sflogo"
 	elif char_id == "random":
-		char_id = "random"
+		char_id = "exceedrandom"
 	else:
 		var deck = CardDefinitions.get_deck_from_str_id(char_id)
 		display_name = deck['display_name']
