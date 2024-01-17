@@ -13,7 +13,7 @@
 				{ "effect_type": "advance", "amount": 1 },
 				{ "effect_type": "retreat", "amount": 1 }
 			]
-		},
+		}
 	}],
 	"character_action_exceeded": [{
 		"gauge_cost": 0,
@@ -28,7 +28,7 @@
 				"effect_type": "draw",
 				"amount": 1
 			}
-		},
+		}
 	}],
 	"ability_effects": [
 		{
