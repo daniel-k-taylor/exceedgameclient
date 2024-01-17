@@ -1,32 +1,49 @@
 {
-	"id": "ryu",
+	"id": "ken",
 	"season": 3,
-	"display_name": "Ryu",
+	"display_name": "Ken Masters",
 	"cardback": "cardback_defaultexceed.png",
-	"exceed_cost": 2,
+	"exceed_cost": 3,
+	"on_exceed": {
+		"effect_type": "draw",
+		"amount": 1,
+		"and": {
+			"effect_type": "choice",
+			"choice": [
+				{ "effect_type": "close", "amount": 1 },
+				{ "effect_type": "close", "amount": 2 },
+				{ "effect_type": "pass" }
+			]
+		}
+	},
 	"character_action_default": [{
 		"gauge_cost": 0,
 		"force_cost": 0,
 		"effect": {
-			"effect_type": "choice",
-			"choice": [
-				{ "effect_type": "advance", "amount": 1 },
-				{ "effect_type": "retreat", "amount": 1 }
-			]
+			"effect_type": "close",
+			"amount": 1,
+			"and": {
+				"effect_type": "draw",
+				"amount": 1
+			}
 		}
 	}],
 	"character_action_exceeded": [{
 		"gauge_cost": 0,
 		"force_cost": 0,
 		"effect": {
-			"effect_type": "choice",
-			"choice": [
-				{ "effect_type": "advance", "amount": 1 },
-				{ "effect_type": "retreat", "amount": 1 }
-			],
+			"effect_type": "close",
+			"amount": 1,
 			"and": {
 				"effect_type": "draw",
-				"amount": 1
+				"amount": 1,
+				"and": {
+					"effect_type": "choice",
+					"choice": [
+						{ "effect_type": "strike" },
+						{ "effect_type": "pass" }
+					]
+				}
 			}
 		}
 	}],

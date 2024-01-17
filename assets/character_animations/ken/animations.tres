@@ -1,4 +1,4 @@
-[gd_resource type="SpriteFrames" load_steps=8 format=3 uid="uid://b63u26r275odr"]
+[gd_resource type="SpriteFrames" load_steps=7 format=3 uid="uid://b63u26r275odr"]
 
 [ext_resource type="Texture2D" uid="uid://daufbcocypk4t" path="res://assets/character_animations/ken/idle/kenidle.png" id="1_ow4wk"]
 
@@ -22,10 +22,6 @@ region = Rect2(204, 0, 68, 100)
 atlas = ExtResource("1_ow4wk")
 region = Rect2(272, 0, 68, 100)
 
-[sub_resource type="AtlasTexture" id="AtlasTexture_jvq8o"]
-atlas = ExtResource("1_ow4wk")
-region = Rect2(340, 0, 68, 100)
-
 [resource]
 animations = [{
 "frames": [{
@@ -43,9 +39,6 @@ animations = [{
 }, {
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_dbeg7")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_jvq8o")
 }],
 "loop": true,
 "name": &"idle",
