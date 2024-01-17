@@ -243,7 +243,7 @@ func test_hyde_exceed_ua_wild_swing():
 	
 	assert_true(game_logic.do_character_action(player1, [player1.gauge[-1].id]))
 	execute_strike(player1, player2, "hyde_gyrovortex", "uni_normal_focus", [], [], false, false, [], [], 0, false)
-	var events = game_logic.get_latest_events()
+
 	assert_true(player1.is_card_in_discards(TestCardId1))
 	assert_true(player1.is_card_in_sealed(TestCardId3))
 	validate_positions(player1, 3, player2, 5)
