@@ -36,7 +36,8 @@
 			"effect_type": "gauge_for_effect",
 			"per_gauge_effect": null,
 			"overall_effect": {
-				"effect_type": "critical"
+				"effect_type": "critical",
+				"character_effect": true
 			},
 			"gauge_max": 1
 		}
@@ -47,7 +48,8 @@
 			"effect_type": "gauge_for_effect",
 			"per_gauge_effect": null,
 			"overall_effect": {
-				"effect_type": "critical"
+				"effect_type": "critical",
+				"character_effect": true
 			},
 			"gauge_max": 1
 		}

@@ -339,7 +339,7 @@ func get_effect_type_text(effect, card_name_source : String = ""):
 		"close":
 			effect_str += "Close " + str(effect['amount'])
 		"critical":
-			effect_str += "Critical strike"
+			effect_str += "Critical Strike"
 		"discard_this":
 			effect_str += "Discard this"
 		"discard_strike_after_cleanup":
