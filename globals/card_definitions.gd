@@ -33,6 +33,8 @@ func get_deck_from_str_id(str_id : String):
 		return get_random_deck(6)
 	if str_id == "random_s5":
 		return get_random_deck(5)
+	if str_id == "random_s3":
+		return get_random_deck(3)
 	if str_id == "random":
 		return get_random_deck(-1)
 	for deck in decks:
@@ -236,6 +238,8 @@ func get_condition_text(condition, amount, amount2):
 			text += "If set from gauge, "
 		"was_hit":
 			text += "If you were hit, "
+		"is_critical":
+			text += "Crit: "
 		_:
 			text += "MISSING CONDITION"
 	return text
@@ -334,6 +338,8 @@ func get_effect_type_text(effect, card_name_source : String = ""):
 			effect_str += "Choose a boost to sustain."
 		"close":
 			effect_str += "Close " + str(effect['amount'])
+		"critical":
+			effect_str += "Critical Strike"
 		"discard_this":
 			effect_str += "Discard this"
 		"discard_strike_after_cleanup":
@@ -445,6 +451,8 @@ func get_effect_type_text(effect, card_name_source : String = ""):
 				effect_str += str(effect['amount'])
 		"return_attack_to_hand":
 			effect_str += "Return the attack to your hand"
+		"return_attack_to_top_of_deck":
+			effect_str += "Return the attack to the top of your deck"
 		"return_this_to_hand":
 			effect_str += "Return this card to hand."
 		"return_all_cards_gauge_to_hand":

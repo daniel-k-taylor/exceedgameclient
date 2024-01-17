@@ -813,6 +813,8 @@ func _stat_notice_event(event):
 			notice_text = "Miss!"
 		Enums.EventType.EventType_CharacterAction:
 			notice_text = "Character Action"
+		Enums.EventType.EventType_Strike_Critical:
+			notice_text = "Critical!"
 		Enums.EventType.EventType_Strike_DodgeAttacks:
 			notice_text = "Dodge Attacks!"
 		Enums.EventType.EventType_Strike_DodgeAttacksAtRange:
@@ -2131,6 +2133,8 @@ func _handle_events(events):
 				delay = _on_choose_to_discard(event, false)
 			Enums.EventType.EventType_Strike_ChooseToDiscard_Info:
 				delay = _on_choose_to_discard(event, true)
+			Enums.EventType.EventType_Strike_Critical:
+				delay = _stat_notice_event(event)
 			Enums.EventType.EventType_Strike_DodgeAttacks, Enums.EventType.EventType_Strike_DodgeAttacksAtRange:
 				delay = _stat_notice_event(event)
 			Enums.EventType.EventType_Strike_DoResponseNow:
@@ -2273,6 +2277,8 @@ func _update_buttons():
 			cancel_text = "Pass"
 		UISubState.UISubState_SelectArena_EffectChoice:
 			cancel_text = "Pass"
+		UISubState.UISubState_SelectCards_GaugeForEffect:
+			cancel_text = "Pass"
 		_:
 			cancel_text = "Cancel"
 
@@ -2405,6 +2411,8 @@ func can_press_ok():
 				return can_selected_cards_pay_force(select_card_require_force)
 			UISubState.UISubState_SelectCards_GaugeForEffect:
 				if select_card_must_be_max_or_min:
+					if instructions_cancel_allowed and len(selected_cards) == 0:
+						return false
 					return len(selected_cards) == select_card_require_min or len(selected_cards) == select_card_require_max
 				else:
 					return selected_cards_between_min_and_max()
