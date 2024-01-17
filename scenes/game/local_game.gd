@@ -1325,11 +1325,9 @@ class Player:
 							strike_stat_boosts.max_range -= effect['amount2']
 
 		# Do any discarded effects
-		for effect in card.definition['boost']['effects']:
-			if effect['timing'] == "discarded":
-				var owner_player = parent._get_player(card.owner_id)
-				events += parent.handle_strike_effect(card.id, effect, owner_player)
+		events += do_discarded_effects_for_boost(card)
 
+		# Add to gauge or discard as appropriate.
 		for i in range(len(continuous_boosts)):
 			if continuous_boosts[i].id == card.id:
 				if to_gauge:
@@ -1383,15 +1381,25 @@ class Player:
 
 		return events
 
+	func do_discarded_effects_for_boost(card : GameCard):
+		var events = []
+		for effect in card.definition['boost']['effects']:
+			if effect['timing'] == "discarded":
+				var owner_player = parent._get_player(card.owner_id)
+				events += parent.handle_strike_effect(card.id, effect, owner_player)
+		return events
+
 	func cleanup_continuous_boosts():
 		var events = []
 		var sustained_cards : Array[GameCard] = []
 		for boost_card in continuous_boosts:
+			var sustained = false
 			if boost_card.id in cleanup_boost_to_gauge_cards:
 				events += add_to_gauge(boost_card)
 				parent._append_log("%s continuous boost %s added to gauge." % [name, parent.card_db.get_card_name(boost_card.id)])
 			else:
 				if boost_card.id in sustained_boosts:
+					sustained = true
 					sustained_cards.append(boost_card)
 					parent._append_log("%s continuous boost %s sustained." % [name, parent.card_db.get_card_name(boost_card.id)])
 				else:
@@ -1400,6 +1408,9 @@ class Player:
 			var card_idx = boosts_to_gauge_on_move.find(boost_card.id)
 			if card_idx != -1 and boost_card.id not in sustained_boosts:
 				boosts_to_gauge_on_move.remove_at(card_idx)
+
+			if not sustained:
+				events += do_discarded_effects_for_boost(boost_card)
 		continuous_boosts = sustained_cards
 		sustained_boosts = []
 		cleanup_boost_to_gauge_cards = []
