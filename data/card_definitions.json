@@ -3732,6 +3732,315 @@
 		"NOTEEND": "JACKO CARDS END"
 	},
 
+	{
+		"NOTE": "KEN CARDS START",
+		"id": "ken_gurensenpukyaku",
+		"type": "ultra",
+		"display_name": "Guren Senpukyaku",
+		"force_cost": 0,
+		"gauge_cost": 3,
+		"range_min": 1,
+		"range_max": 2,
+		"speed": 4,
+		"power": 5,
+		"armor": 0,
+		"guard": 4,
+		"effects": [
+			{
+				"timing": "before",
+				"effect_type": "advance",
+				"amount": 2,
+				"bonus_effect": {
+					"condition": "not_advanced_through",
+					"effect_type": "powerup",
+					"amount": 3
+				}
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 1,
+			"cancel_cost": -1,
+			"display_name": "True Master",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "powerup",
+					"amount": 2,
+					"and": {
+						"effect_type": "speedup",
+						"amount": 2
+					}
+				}
+			]
+		}
+	},
+	{
+		"id": "ken_shinryuken",
+		"type": "ultra",
+		"display_name": "Shinryuken",
+		"force_cost": 0,
+		"gauge_cost": 4,
+		"range_min": 1,
+		"range_max": 1,
+		"speed": 6,
+		"power": 7,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "during_strike",
+				"condition": "initiated_strike",
+				"effect_type": "powerup",
+				"amount": 4
+			}
+		],
+		"boost": {
+			"boost_type": "immediate",
+			"force_cost": 1,
+			"cancel_cost": -1,
+			"display_name": "Rushdown Style",
+			"effects": [
+				{
+					"timing": "immediate",
+					"effect_type": "close",
+					"amount": 3
+				},
+				{
+					"timing": "immediate",
+					"effect_type": "strike"
+				}
+			]
+		}
+	},
+	{
+		"id": "ken_axekick",
+		"type": "special",
+		"display_name": "Axe Kick",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 1,
+		"speed": 4,
+		"power": 5,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "during_strike",
+				"effect_type": "ignore_armor",
+				"amount": 2,
+				"and": {
+					"condition": "is_critical",
+					"effect_type": "speedup",
+					"amount": 2
+				}
+			},
+			{
+				"timing": "before",
+				"effect_type": "close",
+				"amount": 1
+			}
+		],
+		"boost": {
+			"boost_type": "immediate",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Ki Charge",
+			"effects": [
+				{
+					"timing": "immediate",
+					"effect_type": "add_to_gauge_boost_play_cleanup"
+				}
+			]
+		}
+	},
+	{
+		"id": "ken_kneebash",
+		"type": "special",
+		"display_name": "Knee Bash",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 2,
+		"speed": 2,
+		"power": 5,
+		"armor": 0,
+		"guard": 5,
+		"effects": [
+			{
+				"timing": "during_strike",
+				"condition": "initiated_strike",
+				"effect_type": "rangeup",
+				"amount": 0,
+				"amount2": 1
+			},
+			{
+				"timing": "before",
+				"condition": "is_critical",
+				"effect_type": "close",
+				"amount": 2
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Custom Combo",
+			"effects": [
+				{
+					"timing": "now",
+					"effect_type": "draw",
+					"amount": 2
+				},
+				{
+					"timing": "hit",
+					"effect_type": "gain_advantage"
+				}
+			]
+		}
+	},
+	{
+		"id": "ken_tatsumakisenpukyaku",
+		"type": "special",
+		"display_name": "Tatsumaki Senpukyaku",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 2,
+		"speed": 3,
+		"power": 5,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "before",
+				"effect_type": "advance",
+				"amount": 2,
+				"bonus_effect": {
+					"condition": "advanced_through",
+					"effect_type": "ignore_guard"
+				}
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Quick Attack",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "speedup",
+					"amount": 1
+				},
+				{
+					"timing": "now",
+					"effect_type": "strike"
+				}
+			]
+		}
+	},
+	{
+		"id": "ken_hadoken",
+		"type": "special",
+		"display_name": "Hadoken",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 3,
+		"range_max": 6,
+		"speed": 4,
+		"power": 4,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "during_strike",
+				"condition": "is_critical",
+				"effect_type": "powerup",
+				"amount": 2
+			},
+			{
+				"timing": "after",
+				"condition": "hit_opponent",
+				"effect_type": "choice",
+				"choice": [
+					{
+						"effect_type": "return_attack_to_top_of_deck",
+						"and": {
+							"effect_type": "add_top_discard_to_gauge"
+						}
+					},
+					{ "effect_type": "pass" }
+				]
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Overpower",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "powerup",
+					"amount": 1
+				},
+				{
+					"timing": "now",
+					"effect_type": "strike"
+				}
+			]
+		}
+	},
+	{
+		"NOTE": "KEN CARDS END",
+		"id": "ken_shoryuken",
+		"type": "special",
+		"display_name": "Shoryuken",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 1,
+		"speed": 5,
+		"power": 4,
+		"armor": 0,
+		"guard": 4,
+		"effects": [
+			{
+				"timing": "during_strike",
+				"condition": "initiated_strike",
+				"effect_type": "speedup",
+				"amount": 2
+			},
+			{
+				"timing": "before",
+				"condition": "is_critical",
+				"effect_type": "close",
+				"amount": 1
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Burning Passion",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "speedup",
+					"amount": 1
+				},
+				{
+					"timing": "now",
+					"effect_type": "draw",
+					"amount": 1
+				}
+			]
+		},
+		"NOTEEND": "KEN CARDS END"
+	},
+
 
 	{
 		"NOTE": "KY KISUKE CARDS START",

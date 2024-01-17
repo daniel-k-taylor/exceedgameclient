@@ -73,60 +73,60 @@
 	],
 	"cards": [
 		{
-			"definition_id": "ryu_metsuhadoken",
-			"image": "ryu_metsuhadoken.tres"
+			"definition_id": "ken_shinryuken",
+			"image": "ken_shinryuken.tres"
 		},
 		{
-			"definition_id": "ryu_metsuhadoken",
-			"image": "ryu_metsuhadoken.tres"
+			"definition_id": "ken_shinryuken",
+			"image": "ken_shinryuken.tres"
 		},
 		{
-			"definition_id": "ryu_metsushoryuken",
-			"image": "ryu_metsushoryuken.tres"
+			"definition_id": "ken_gurensenpukyaku",
+			"image": "ken_gurensenpukyaku.tres"
 		},
 		{
-			"definition_id": "ryu_metsushoryuken",
-			"image": "ryu_metsushoryuken.tres"
+			"definition_id": "ken_gurensenpukyaku",
+			"image": "ken_gurensenpukyaku.tres"
 		},
 		{
-			"definition_id": "ryu_donkeykick",
-			"image": "ryu_donkeykick.tres"
+			"definition_id": "ken_axekick",
+			"image": "ken_axekick.tres"
 		},
 		{
-			"definition_id": "ryu_donkeykick",
-			"image": "ryu_donkeykick.tres"
+			"definition_id": "ken_axekick",
+			"image": "ken_axekick.tres"
 		},
 		{
-			"definition_id": "ryu_oneinchpunch",
-			"image": "ryu_oneinchpunch.tres"
+			"definition_id": "ken_kneebash",
+			"image": "ken_kneebash.tres"
 		},
 		{
-			"definition_id": "ryu_oneinchpunch",
-			"image": "ryu_oneinchpunch.tres"
+			"definition_id": "ken_kneebash",
+			"image": "ken_kneebash.tres"
 		},
 		{
-			"definition_id": "ryu_tatsumakisenpukyaku",
-			"image": "ryu_tatsumakisenpukyaku.tres"
+			"definition_id": "ken_tatsumakisenpukyaku",
+			"image": "ken_tatsumakisenpukyaku.tres"
 		},
 		{
-			"definition_id": "ryu_tatsumakisenpukyaku",
-			"image": "ryu_tatsumakisenpukyaku.tres"
+			"definition_id": "ken_tatsumakisenpukyaku",
+			"image": "ken_tatsumakisenpukyaku.tres"
 		},
 		{
-			"definition_id": "ryu_hadoken",
-			"image": "ryu_hadoken.tres"
+			"definition_id": "ken_hadoken",
+			"image": "ken_hadoken.tres"
 		},
 		{
-			"definition_id": "ryu_hadoken",
-			"image": "ryu_hadoken.tres"
+			"definition_id": "ken_hadoken",
+			"image": "ken_hadoken.tres"
 		},
 		{
-			"definition_id": "ryu_shoryuken",
-			"image": "ryu_shoryuken.tres"
+			"definition_id": "ken_shoryuken",
+			"image": "ken_shoryuken.tres"
 		},
 		{
-			"definition_id": "ryu_shoryuken",
-			"image": "ryu_shoryuken.tres"
+			"definition_id": "ken_shoryuken",
+			"image": "ken_shoryuken.tres"
 		},
 		{
 			"definition_id": "standard_normal_grasp",
