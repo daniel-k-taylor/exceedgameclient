@@ -2002,7 +2002,7 @@
 			{
 				"timing": "hit",
 				"effect_type": "add_top_deck_to_gauge",
-				"amount": 3,
+				"amount": 3
 			},
 			{
 				"timing": "after",
@@ -6471,7 +6471,7 @@
 		},
 		"NOTEEND": "RAMLETHAL CARDS END"
 	},
-	
+
 	{
 		"NOTE": "RYU CARDS START",
 		"id": "ryu_metsuhadoken",
@@ -6575,7 +6575,7 @@
 				"effect_type": "push",
 				"amount": 2,
 				"and": {
-					"effect_type": "gain_advantage",
+					"effect_type": "gain_advantage"
 				}
 			}
 		],
@@ -6618,7 +6618,7 @@
 			{
 				"timing": "hit",
 				"effect_type": "push",
-				"amount": 3,
+				"amount": 3
 			}
 		],
 		"boost": {
