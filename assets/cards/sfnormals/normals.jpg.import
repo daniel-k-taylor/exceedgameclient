@@ -2,22 +2,22 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://dbnf6ivx556pu"
-path="res://.godot/imported/ryu.png-194ad4a0ca8d5cdeec18e0524c1bbb57.ctex"
+uid="uid://dbdmandf1j2am"
+path="res://.godot/imported/normals.jpg-5233bef6d178e431f87fde2b448756c2.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/portraits/ryu.png"
-dest_files=["res://.godot/imported/ryu.png-194ad4a0ca8d5cdeec18e0524c1bbb57.ctex"]
+source_file="res://assets/cards/sfnormals/normals.jpg"
+dest_files=["res://.godot/imported/normals.jpg-5233bef6d178e431f87fde2b448756c2.ctex"]
 
 [params]
 
 compress/mode=1
 compress/high_quality=false
-compress/lossy_quality=0.7
+compress/lossy_quality=0.4
 compress/hdr_compression=1
 compress/normal_map=0
 compress/channel_pack=0

@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://dbnf6ivx556pu"
-path="res://.godot/imported/ryu.png-194ad4a0ca8d5cdeec18e0524c1bbb57.ctex"
+uid="uid://daufbcocypk4t"
+path="res://.godot/imported/kenidle.png-667f6dcd55832640359b2cfdb0c69e5c.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/portraits/ryu.png"
-dest_files=["res://.godot/imported/ryu.png-194ad4a0ca8d5cdeec18e0524c1bbb57.ctex"]
+source_file="res://assets/character_animations/ken/idle/kenidle.png"
+dest_files=["res://.godot/imported/kenidle.png-667f6dcd55832640359b2cfdb0c69e5c.ctex"]
 
 [params]
 

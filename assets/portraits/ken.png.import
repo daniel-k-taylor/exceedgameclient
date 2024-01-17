@@ -2,22 +2,22 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://dbdmandf1j2am"
-path="res://.godot/imported/normals.jpg-204a94bdb84293f6763d2bca9e217b95.ctex"
+uid="uid://dgmjgjw44rf6r"
+path="res://.godot/imported/ken.png-16154bd259e02fa197bee3a60abfc815.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/cards/ryu/normals.jpg"
-dest_files=["res://.godot/imported/normals.jpg-204a94bdb84293f6763d2bca9e217b95.ctex"]
+source_file="res://assets/portraits/ken.png"
+dest_files=["res://.godot/imported/ken.png-16154bd259e02fa197bee3a60abfc815.ctex"]
 
 [params]
 
 compress/mode=1
 compress/high_quality=false
-compress/lossy_quality=0.4
+compress/lossy_quality=0.7
 compress/hdr_compression=1
 compress/normal_map=0
 compress/channel_pack=0
