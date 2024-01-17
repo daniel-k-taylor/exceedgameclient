@@ -637,9 +637,11 @@ class Player:
 		var events = []
 		for i in range(amount):
 			if len(discards) > 0:
-				var card = discards[0]
+				# The top of the discard pile is the end of discards.
+				var top_index = len(discards) - 1
+				var card = discards[top_index]
 				events += add_to_gauge(card)
-				discards.remove_at(0)
+				discards.remove_at(top_index)
 				parent._append_log("%s added %s to gauge from top of discard pile." % [name, parent.card_db.get_card_name(card.id)])
 		return events
 
@@ -1079,7 +1081,7 @@ class Player:
 	func add_to_sealed(card : GameCard):
 		sealed.append(card)
 		return [parent.create_event(Enums.EventType.EventType_Seal, my_id, card.id)]
-		
+
 	func add_to_top_of_deck(card : GameCard):
 		deck.insert(0, card)
 		return [parent.create_event(Enums.EventType.EventType_AddToDeck, my_id, card.id)]
@@ -2649,7 +2651,8 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 			opposing_player.extra_effect_after_set_strike = effect['after_set_effect']
 		"strike_faceup":
 			var disable_wild_swing = 'disable_wild_swing' in effect and effect['disable_wild_swing']
-			events += [create_event(Enums.EventType.EventType_ForceStartStrike, performing_player.my_id, 0, "", disable_wild_swing)]
+			var disable_ex = 'disable_ex' in effect and effect['disable_ex']
+			events += [create_event(Enums.EventType.EventType_ForceStartStrike, performing_player.my_id, 0, "", disable_wild_swing, disable_ex)]
 			change_game_state(Enums.GameState.GameState_WaitForStrike)
 			decision_info.type = Enums.DecisionType.DecisionType_StrikeNow
 			decision_info.player = performing_player.my_id
@@ -4006,14 +4009,14 @@ func do_card_from_hand_to_gauge(performing_player : Player, card_ids : Array) ->
 		if not performing_player.is_card_in_hand(card_id):
 			printlog("ERROR: Tried to do_card_from_hand_to_gauge with card not in hand.")
 			return false
-	
+
 	var events = []
 	if card_ids.size() > 0:
 		var card_names = card_db.get_card_name(card_ids[0])
 		for i in range(1, card_ids.size()):
 			card_names += ", " + card_db.get_card_name(card_ids[i])
 		var destination_string = ""
-		
+
 		for card_id in card_ids:
 			if decision_info.destination == "gauge":
 				events += performing_player.move_card_from_hand_to_gauge(card_id)
@@ -4024,9 +4027,9 @@ func do_card_from_hand_to_gauge(performing_player : Player, card_ids : Array) ->
 				destination_string = "top of deck"
 			else:
 				assert(false, "Unknown destination for do_card_from_hand_to_gauge")
-				
+
 		_append_log("%s moved cards (%s) from hand to %s." % [performing_player.name, card_names, destination_string])
-		
+
 	if active_overdrive:
 		events += do_remaining_overdrive(performing_player)
 	elif active_boost:
