@@ -2073,10 +2073,11 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 
 			var previous_location = performing_player.arena_location
 			events += performing_player.advance(amount)
-			var new_location = performing_player.arena_location
-			if (performing_start < other_start and new_location > other_start) or (performing_start > other_start and new_location < other_start):
-				local_conditions.advanced_through = true
-			_append_log("%s Advance %s - Moved from %s to %s." % [performing_player.name, str(amount), str(previous_location), str(new_location)])
+			if not performing_player.resolving_advance_effect:
+				var new_location = performing_player.arena_location
+				if (performing_start < other_start and new_location > other_start) or (performing_start > other_start and new_location < other_start):
+					local_conditions.advanced_through = true
+				_append_log("%s Advance %s - Moved from %s to %s." % [performing_player.name, str(amount), str(previous_location), str(new_location)])
 		"armorup":
 			performing_player.strike_stat_boosts.armor += effect['amount']
 			events += [create_event(Enums.EventType.EventType_Strike_ArmorUp, performing_player.my_id, effect['amount'])]
@@ -2222,10 +2223,11 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 		"close":
 			var previous_location = performing_player.arena_location
 			events += performing_player.close(effect['amount'])
-			var new_location = performing_player.arena_location
-			var close_amount = abs(performing_start - new_location)
-			local_conditions.fully_closed = close_amount == effect['amount']
-			_append_log("%s Close %s - Moved from %s to %s." % [performing_player.name, str(effect['amount']), str(previous_location), str(new_location)])
+			if not performing_player.resolving_close_effect:
+				var new_location = performing_player.arena_location
+				var close_amount = abs(performing_start - new_location)
+				local_conditions.fully_closed = close_amount == effect['amount']
+				_append_log("%s Close %s - Moved from %s to %s." % [performing_player.name, str(effect['amount']), str(previous_location), str(new_location)])
 		"critical":
 			performing_player.strike_stat_boosts.critical = true
 			events += [create_event(Enums.EventType.EventType_Strike_Critical, performing_player.my_id, 0)]
