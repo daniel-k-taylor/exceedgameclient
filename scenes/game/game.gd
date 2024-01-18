@@ -283,7 +283,10 @@ func setup_character_card(character_card, deck, buddy_character_card):
 		buddy_character_card.visible = true
 		buddy_character_card.hide_focus()
 		var buddy_path = "res://assets/cards/" + deck['id'] + "/" + deck['buddy_card'] + ".jpg"
-		buddy_character_card.set_image(buddy_path, buddy_path)
+		var buddy_exceeded_path = buddy_path
+		if 'buddy_exceeds' in deck and deck['buddy_exceeds']:
+			buddy_exceeded_path = "res://assets/cards/" + deck['id'] + "/" + deck['buddy_card'] + "_exceeded.jpg"
+		buddy_character_card.set_image(buddy_path, buddy_exceeded_path)
 	else:
 		buddy_character_card.visible = false
 
@@ -1317,10 +1320,12 @@ func _on_exceed_event(event):
 	if player == Enums.PlayerId.PlayerId_Player:
 		$PlayerCharacter.set_exceed(true)
 		player_character_card.exceed(true)
+		player_buddy_character_card.exceed(true)
 
 	else:
 		$OpponentCharacter.set_exceed(true)
 		opponent_character_card.exceed(true)
+		opponent_buddy_character_card.exceed(true)
 
 	spawn_damage_popup("Exceed!", player)
 	return SmallNoticeDelay
@@ -1330,10 +1335,12 @@ func _on_exceed_revert_event(event):
 	if player == Enums.PlayerId.PlayerId_Player:
 		$PlayerCharacter.set_exceed(false)
 		player_character_card.exceed(false)
+		player_buddy_character_card.exceed(false)
 
 	else:
 		$OpponentCharacter.set_exceed(false)
 		opponent_character_card.exceed(false)
+		opponent_buddy_character_card.exceed(false)
 
 	spawn_damage_popup("Revert!", player)
 	return SmallNoticeDelay
