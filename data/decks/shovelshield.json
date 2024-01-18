@@ -86,68 +86,60 @@
 	],
 	"cards": [
 		{
-			"definition_id": "zato_sunvoid",
-			"image": "zato_sunvoid.tres"
+			"definition_id": "shovelshield_tandemattack",
+			"image": "shovelshield_tandemattack.tres"
 		},
 		{
-			"definition_id": "zato_sunvoid",
-			"image": "zato_sunvoid.tres"
+			"definition_id": "shovelshield_tandemattack",
+			"image": "shovelshield_tandemattack.tres"
 		},
 		{
-			"definition_id": "zato_amorphous",
-			"image": "zato_amorphous.tres"
+			"definition_id": "shovelshield_shieldboomerang",
+			"image": "shovelshield_shieldboomerang.tres"
 		},
 		{
-			"definition_id": "zato_amorphous",
-			"image": "zato_amorphous.tres"
+			"definition_id": "shovelshield_shieldboomerang",
+			"image": "shovelshield_shieldboomerang.tres"
 		},
 		{
-			"definition_id": "zato_pierce",
-			"image": "zato_pierce.tres"
+			"definition_id": "shovelshield_bucklerblow",
+			"image": "shovelshield_bucklerblow.tres"
 		},
 		{
-			"definition_id": "zato_pierce",
-			"image": "zato_pierce.tres"
+			"definition_id": "shovelshield_bucklerblow",
+			"image": "shovelshield_bucklerblow.tres"
 		},
 		{
-			"definition_id": "zato_leap",
-			"image": "zato_leap.tres"
+			"definition_id": "shovelshield_discovery",
+			"image": "shovelshield_discovery.tres"
 		},
 		{
-			"definition_id": "zato_leap",
-			"image": "zato_leap.tres"
+			"definition_id": "shovelshield_discovery",
+			"image": "shovelshield_discovery.tres"
 		},
 		{
-			"definition_id": "zato_invitehell",
-			"image": "zato_invitehell.tres"
+			"definition_id": "shovelshield_shoveldrop",
+			"image": "shovelshield_shoveldrop.tres"
 		},
 		{
-			"definition_id": "zato_invitehell",
-			"image": "zato_invitehell.tres"
+			"definition_id": "shovelshield_shoveldrop",
+			"image": "shovelshield_shoveldrop.tres"
 		},
 		{
-			"definition_id": "zato_thatsalot",
-			"image": "zato_thatsalot.tres"
+			"definition_id": "shovelshield_shieldgong",
+			"image": "shovelshield_shieldgong.tres"
 		},
 		{
-			"definition_id": "zato_thatsalot",
-			"image": "zato_thatsalot.tres"
+			"definition_id": "shovelshield_shieldgong",
+			"image": "shovelshield_shieldgong.tres"
 		},
 		{
-			"definition_id": "zato_damnedfang",
-			"image": "zato_damnedfang.tres"
+			"definition_id": "shovelshield_chargeslash",
+			"image": "shovelshield_chargeslash.tres"
 		},
 		{
-			"definition_id": "zato_damnedfang",
-			"image": "zato_damnedfang.tres"
-		},
-		{
-			"definition_id": "zato_oppose",
-			"image": "zato_oppose.tres"
-		},
-		{
-			"definition_id": "zato_oppose",
-			"image": "zato_oppose.tres"
+			"definition_id": "shovelshield_chargeslash",
+			"image": "shovelshield_chargeslash.tres"
 		},
 		{
 			"definition_id": "standard_normal_grasp",

@@ -7457,6 +7457,334 @@
 
 
 	{
+		"NOTE": "SHOVEL/SHIELD CARDS START",
+		"id": "shovelshield_tandemattack",
+		"type": "ultra",
+		"display_name": "Sun Void",
+		"force_cost": 0,
+		"gauge_cost": 2,
+		"range_min": 0,
+		"range_max": 1,
+		"speed": 7,
+		"power": 3,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "during_strike",
+				"effect_type": "do_not_remove_buddy",
+				"buddy_name": "Eddie"
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Let me carve your way",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "powerup",
+					"amount": 1
+				},
+				{
+					"timing": "now",
+					"effect_type": "force_for_effect",
+					"per_force_effect": null,
+					"overall_effect": {
+						"effect_type": "choose_discard",
+						"limitation": "special",
+						"destination": "hand",
+						"amount": 2,
+						"amount_min": 2
+					},
+					"force_max": 2
+				}
+			]
+		}
+	},
+	{
+		"id": "shovelshield_shieldboomerang",
+		"type": "ultra",
+		"display_name": "Amorphous",
+		"force_cost": 0,
+		"gauge_cost": 4,
+		"range_min": 3,
+		"range_max": 3,
+		"speed": 1,
+		"power": 6,
+		"armor": 2,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "during_strike",
+				"effect_type": "stun_immunity"
+			},
+			{
+				"timing": "after",
+				"effect_type": "draw",
+				"amount": 3
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Feel a Fear",
+			"effects": [
+				{
+					"timing": "now",
+					"effect_type": "strike"
+				},
+				{
+					"timing": "hit",
+					"condition": "opponent_between_buddy",
+					"condition_detail": "Eddie",
+					"effect_type": "powerup",
+					"amount": 3
+				}
+			]
+		}
+	},
+	{
+		"id": "shovelshield_bucklerblow",
+		"type": "special",
+		"display_name": "Buckler Blow",
+		"force_cost": 1,
+		"gauge_cost": 0,
+		"range_min": 0,
+		"range_max": 1,
+		"speed": 7,
+		"power": 2,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "during_strike",
+				"effect_type": "calculate_range_from_buddy",
+				"buddy_name": "Shield Knight"
+			},
+			{
+				"timing": "hit",
+				"effect_type": "push_from_source",
+				"amount": 2
+			}
+		],
+		"boost": {
+			"boost_type": "immediate",
+			"force_cost": 1,
+			"cancel_cost": -1,
+			"display_name": "Quick Switch",
+			"effects": [
+				{
+					"timing": "immediate",
+					"condition": "buddy_space_unoccupied",
+					"effect_type": "switch_spaces_with_buddy"
+				},
+				{
+					"timing": "immediate",
+					"effect_type": "bonus_action"
+				}
+			]
+		}
+	},
+	{
+		"id": "shovelshield_discovery",
+		"type": "special",
+		"display_name": "Discovery!",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 2,
+		"speed": 6,
+		"power": 1,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "before",
+				"effect_type": "advance",
+				"amount": 1,
+				"and": {
+					"effect_type": "draw",
+					"amount": 1,
+					"and": {
+						"effect_type": "gauge_from_hand",
+						"min_amount": 1,
+						"max_amount": 1
+					}
+				}
+			}
+		],
+		"boost": {
+			"boost_type": "immediate",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Quick Step",
+			"effects": [
+				{
+					"timing": "immediate",
+					"effect_type": "choice",
+					"choice": [
+						{ "effect_type": "advance", "amount": 1 },
+						{ "effect_type": "retreat", "amount": 1 }
+					]
+				},
+				{
+					"timing": "immediate",
+					"effect_type": "bonus_action"
+				}
+			]
+		}
+	},
+	{
+		"id": "shovelshield_shoveldrop",
+		"type": "special",
+		"display_name": "Invite Hell",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 2,
+		"range_max": 5,
+		"speed": 4,
+		"power": 3,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "before",
+				"condition": "buddy_in_play",
+				"condition_detail": "Eddie",
+				"effect_type": "powerup",
+				"amount": 2,
+				"and": {
+					"effect_type": "place_buddy_onto_self",
+					"buddy_name": "Eddie"
+				}
+			},
+			{
+				"timing": "hit",
+				"effect_type": "draw",
+				"amount": 1
+			}
+		],
+		"boost": {
+			"boost_type": "immediate",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Negative Edge",
+			"effects": [
+				{
+					"timing": "immediate",
+					"effect_type": "place_buddy_in_any_space",
+					"buddy_name": "Eddie"
+				}
+			]
+		}
+	},
+	{
+		"id": "shovelshield_shieldgong",
+		"type": "special",
+		"display_name": "That's a lot!",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 2,
+		"range_max": 4,
+		"speed": 3,
+		"power": 5,
+		"armor": 0,
+		"guard": 4,
+		"effects": [
+			{
+				"timing": "after",
+				"effect_type": "choice",
+				"choice": [
+					{ "effect_type": "advance", "amount": 1 },
+					{ "effect_type": "advance", "amount": 2 },
+					{ "effect_type": "pass" }
+				]
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Break the law",
+			"effects": [
+				{
+					"timing": "now",
+					"effect_type": "force_for_effect",
+					"per_force_effect": null,
+					"overall_effect": {
+						"effect_type": "strike"
+					},
+					"force_max": 1
+				},
+				{
+					"timing": "after",
+					"effect_type": "choice",
+					"choice": [
+						{ "effect_type": "advance", "amount": 1 },
+						{ "effect_type": "advance", "amount": 2 },
+						{ "effect_type": "retreat", "amount": 1 },
+						{ "effect_type": "retreat", "amount": 2 }
+					]
+				}
+			]
+		}
+	},
+	{
+		"NOTE": "SHOVEL/SHIELD CARDS END",
+		"id": "shovelshield_chargeslash",
+		"type": "special",
+		"display_name": "Oppose",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 0,
+		"range_max": 1,
+		"speed": 2,
+		"power": 0,
+		"armor": 2,
+		"guard": 5,
+		"effects": [
+			{
+				"timing": "during_strike",
+				"effect_type": "do_not_remove_buddy",
+				"buddy_name": "Eddie"
+			},
+			{
+				"timing": "before",
+				"condition": "was_hit",
+				"effect_type": "powerup",
+				"amount": 3
+			}
+		],
+		"boost": {
+			"boost_type": "immediate",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Fly By Night",
+			"effects": [
+				{
+					"timing": "immediate",
+					"effect_type": "choice",
+					"choice": [
+						{ "effect_type": "advance", "amount": 1 },
+						{ "effect_type": "retreat", "amount": 1 }
+					]
+				},
+				{
+					"timing": "immediate",
+					"effect_type": "gauge_from_hand",
+					"min_amount": 0,
+					"max_amount": 1
+				}
+			]
+		},
+		"NOTEEND": "SHOVEL/SHIELD CARDS END"
+	},
+
+
+	{
 		"NOTE": "SOL BADGUY CARDS START",
 		"id": "solbadguy_heavymobcemetery",
 		"type": "ultra",

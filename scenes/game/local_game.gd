@@ -1956,6 +1956,15 @@ func is_effect_condition_met(performing_player : Player, effect, local_condition
 				return other_pos > pos1 and other_pos < pos2
 			else: # Buddy is on the left
 				return other_pos > pos2 and other_pos < pos1
+		elif condition == "buddy_space_unoccupied":
+			if not performing_player.is_buddy_in_play():
+				return false
+			var buddy_location = performing_player.get_buddy_location()
+			if buddy_location == performing_player.arena_location:
+				return false
+			if buddy_location == other_player.arena_location:
+				return false
+			return true
 		elif condition == "opponent_stunned":
 			return active_strike.is_player_stunned(other_player)
 		elif condition == "range":
@@ -2799,6 +2808,10 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 		"sustain_this":
 			performing_player.sustained_boosts.append(card_id)
 			events += [create_event(Enums.EventType.EventType_SustainBoost, performing_player.my_id, card_id)]
+		"switch_spaces_with_buddy":
+			var old_space = performing_player.arena_location
+			events += performing_player.move_to(performing_player.buddy_location)
+			events += performing_player.place_buddy(old_space)
 		"take_bonus_actions":
 			var num = effect['amount']
 			performing_player.bonus_actions += num
@@ -2962,6 +2975,16 @@ func do_remaining_effects(performing_player : Player, next_state):
 			var effect = active_strike.remaining_effect_list[0]
 			active_strike.remaining_effect_list = []
 			events += do_effect_if_condition_met(performing_player, effect['card_id'], effect, null)
+			if game_state == Enums.GameState.GameState_PlayerDecision and effect['effect_type'] in ['advance', 'close']:
+				if 'and' in effect:
+					var and_effect = effect['and'].duplicate()
+					and_effect['card_id'] = effect['card_id']
+					active_strike.remaining_effect_list += [and_effect]
+				if 'bonus_effect' in effect:
+					var bonus_effect = effect['and'].duplicate()
+					bonus_effect['card_id'] = effect['card_id']
+					active_strike.remaining_effect_list += [bonus_effect]
+				break
 
 		if game_over:
 			return events
