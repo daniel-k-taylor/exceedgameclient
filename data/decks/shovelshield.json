@@ -1,7 +1,7 @@
 {
 	"id": "shovelshield",
 	"season": 4,
-	"display_name": "Shovel & Shield",
+	"display_name": "Shovel & Shield Knight",
 	"cardback": "cardback_shovelshield.jpg",
 	"exceed_cost": 2,
 	"buddy_card": "shieldknight",

@@ -23,6 +23,10 @@ const RoomMaxLen = 16
 @onready var opponent_char_label : Label = $MenuList/VSAIBox/OpponentChooser/MarginContainer/VBoxContainer/HBoxContainer/CharName
 @onready var opponent_char_portrait : TextureRect = $MenuList/VSAIBox/OpponentChooser/MarginContainer/VBoxContainer/HBoxContainer/CharPortrait
 
+@onready var label_font_normal = 32
+@onready var label_font_small = 18
+@onready var label_length_threshold = 16
+
 # Called when the node enters the scene tree for the first time.
 func _ready():
 	NetworkManager.connect("connected_to_server", _on_connected)
@@ -166,6 +170,10 @@ func update_char(label, portrait, char_id):
 		display_name = deck['display_name']
 	label.text = display_name
 	portrait.texture = load("res://assets/portraits/" + char_id + ".png")
+	if len(display_name) <= label_length_threshold:
+		label.set("theme_override_font_sizes/font_size", label_font_normal)
+	else:
+		label.set("theme_override_font_sizes/font_size", label_font_small)
 
 func _on_char_select_select_character(char_id):
 	if selecting_player:
