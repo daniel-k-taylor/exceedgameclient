@@ -2461,8 +2461,9 @@ func _on_choose_arena_location_for_effect(event):
 		arena_locations_clickable = decision_info.limitation
 		var instruction_str = "Select a location"
 		match effect_type:
-			"place_eddie_into_space":
-				instruction_str = "Select a location to place Eddie"
+			"place_buddy_into_space":
+				var buddy_name = decision_info.source
+				instruction_str = "Select a location to place %s" % buddy_name
 			"move_to_space":
 				instruction_str = "Select a location to move to"
 		enable_instructions_ui(instruction_str, false, can_pass)

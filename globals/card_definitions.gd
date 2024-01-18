@@ -179,7 +179,7 @@ func get_timing_text(timing):
 			text += "MISSING TIMING"
 	return text
 
-func get_condition_text(condition, amount, amount2):
+func get_condition_text(condition, amount, amount2, detail):
 	var text = ""
 	match condition:
 		"advanced_through":
@@ -226,13 +226,13 @@ func get_condition_text(condition, amount, amount2):
 			text += ""
 		"is_normal_attack":
 			text += ""
-		"is_eddie_special_or_ultra_attack":
+		"is_buddy_special_or_ultra_attack":
 			text += ""
-		"eddie_in_play":
-			text += "If Eddie is in play, "
-		"opponent_between_eddie":
-			text += "If opponent is between you and Eddie, "
-		"is_eddie_special_attack":
+		"buddy_in_play":
+			text += "If %s is in play, " % detail
+		"opponent_between_buddy":
+			text += "If opponent is between you and %s, " % detail
+		"is_buddy_special_attack":
 			text += ""
 		"was_wild_swing":
 			text += "If this was a wild swing, "
@@ -362,16 +362,16 @@ func get_effect_type_text(effect, card_name_source : String = ""):
 				effect_str += "Opponent attacks miss at range %s-%s." % [effect['range_min'], effect['range_max']]
 		"dodge_attacks":
 			effect_str += "Opponent misses."
-		"do_not_remove_eddie":
-			effect_str += "Do not remove Eddie from play."
-		"remove_eddie":
-			effect_str += "Remove Eddie from play."
-		"place_eddie_in_any_space":
-			effect_str += "Place Eddie in any space."
-		"place_eddie_in_attack_range":
-			effect_str += "Place Eddie in the attack's range."
-		"calculate_range_from_eddie":
-			effect_str += "Calculate range from Eddie."
+		"do_not_remove_buddy":
+			effect_str += "Do not remove %s from play." % effect['buddy_name']
+		"remove_buddy":
+			effect_str += "Remove %s from play." % effect['buddy_name']
+		"place_buddy_in_any_space":
+			effect_str += "Place %s in any space." % effect['buddy_name']
+		"place_buddy_in_attack_range":
+			effect_str += "Place %s in the attack's range." % effect['buddy_name']
+		"calculate_range_from_buddy":
+			effect_str += "Calculate range from %s." % effect['buddy_name']
 		"draw":
 			effect_str += "Draw " + str(effect['amount'])
 		"exceed_now":
@@ -414,8 +414,8 @@ func get_effect_type_text(effect, card_name_source : String = ""):
 			effect_str += "Opponent wild swings."
 		"pass":
 			effect_str += "Pass"
-		"place_eddie_onto_self":
-			effect_str += "Place Eddie onto your space"
+		"place_buddy_onto_self":
+			effect_str += "Place %s onto your space" % effect['buddy_name']
 		"powerup":
 			if str(effect['amount']) == "strike_x":
 				effect_str += "+X"
@@ -544,6 +544,7 @@ func get_effect_text(effect, short = false, skip_timing = false, skip_condition 
 	if 'condition' in effect and not skip_condition:
 		var amount = 0
 		var amount2 = 0
+		var detail = ""
 		if 'condition_amount' in effect:
 			amount = effect['condition_amount']
 		if 'condition_amount_min' in effect:
@@ -552,7 +553,9 @@ func get_effect_text(effect, short = false, skip_timing = false, skip_condition 
 			amount2 = effect['condition_amount_max']
 		if 'condition_amount2' in effect:
 			amount2 = effect['condition_amount2']
-		effect_str += get_condition_text(effect['condition'], amount, amount2)
+		if 'condition_detail' in effect:
+			detail = effect['condition_detail']
+		effect_str += get_condition_text(effect['condition'], amount, amount2, detail)
 
 	effect_str += get_effect_type_text(effect, card_name_source)
 

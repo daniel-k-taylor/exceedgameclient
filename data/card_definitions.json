@@ -8545,7 +8545,8 @@
 		"effects": [
 			{
 				"timing": "during_strike",
-				"effect_type": "do_not_remove_eddie"
+				"effect_type": "do_not_remove_buddy",
+				"buddy_name": "Eddie"
 			}
 		],
 		"boost": {
@@ -8610,7 +8611,8 @@
 				},
 				{
 					"timing": "hit",
-					"condition": "opponent_between_eddie",
+					"condition": "opponent_between_buddy",
+					"condition_detail": "Eddie",
 					"effect_type": "powerup",
 					"amount": 3
 				}
@@ -8703,7 +8705,8 @@
 				},
 				{
 					"timing": "now",
-					"effect_type": "place_eddie_onto_self",
+					"effect_type": "place_buddy_onto_self",
+					"buddy_name": "Eddie",
 					"and": {
 						"effect_type": "choice",
 						"choice": [
@@ -8730,11 +8733,13 @@
 		"effects": [
 			{
 				"timing": "before",
-				"condition": "eddie_in_play",
+				"condition": "buddy_in_play",
+				"condition_detail": "Eddie",
 				"effect_type": "powerup",
 				"amount": 2,
 				"and": {
-					"effect_type": "place_eddie_onto_self"
+					"effect_type": "place_buddy_onto_self",
+					"buddy_name": "Eddie"
 				}
 			},
 			{
@@ -8751,7 +8756,8 @@
 			"effects": [
 				{
 					"timing": "immediate",
-					"effect_type": "place_eddie_in_any_space"
+					"effect_type": "place_buddy_in_any_space",
+					"buddy_name": "Eddie"
 				}
 			]
 		}
@@ -8869,7 +8875,8 @@
 		"effects": [
 			{
 				"timing": "during_strike",
-				"effect_type": "do_not_remove_eddie"
+				"effect_type": "do_not_remove_buddy",
+				"buddy_name": "Eddie"
 			},
 			{
 				"timing": "before",

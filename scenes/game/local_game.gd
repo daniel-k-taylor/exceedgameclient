@@ -1811,7 +1811,7 @@ func is_effect_condition_met(performing_player : Player, effect, local_condition
 			return initiated_strike and active_strike.initiator_set_face_up
 		elif condition == "is_normal_attack":
 			return active_strike.get_player_card(performing_player).definition['type'] == "normal"
-		elif condition == "is_eddie_special_or_ultra_attack":
+		elif condition == "is_buddy_special_or_ultra_attack":
 			var attack_type = active_strike.get_player_card(performing_player).definition['type']
 			return performing_player.is_buddy_in_play() and (attack_type == "special" or attack_type == "ultra")
 		elif condition == "is_special_attack":
@@ -1875,17 +1875,17 @@ func is_effect_condition_met(performing_player : Player, effect, local_condition
 			return active_strike.is_player_stunned(performing_player)
 		elif condition == "not_stunned":
 			return not active_strike.is_player_stunned(performing_player)
-		elif condition == "eddie_in_play":
+		elif condition == "buddy_in_play":
 			return performing_player.is_buddy_in_play()
-		elif condition == "opponent_between_eddie":
+		elif condition == "opponent_between_buddy":
 			if not performing_player.is_buddy_in_play():
 				return false
 			var pos1 = performing_player.arena_location
 			var pos2 = performing_player.get_buddy_location()
 			var other_pos = other_player.arena_location
-			if pos1 < pos2: # Eddie is on the right
+			if pos1 < pos2: # Buddy is on the right
 				return other_pos > pos1 and other_pos < pos2
-			else: # Eddie is on the left
+			else: # Buddy is on the left
 				return other_pos > pos2 and other_pos < pos1
 		elif condition == "opponent_stunned":
 			return active_strike.is_player_stunned(other_player)
@@ -2374,15 +2374,16 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 		"pass":
 			# Do nothing.
 			pass
-		"place_eddie_into_space":
+		"place_buddy_into_space":
 			var space = effect['amount']
 			events += performing_player.place_buddy(space)
-		"place_eddie_in_any_space":
+		"place_buddy_in_any_space":
 			change_game_state(Enums.GameState.GameState_PlayerDecision)
 			decision_info.type = Enums.DecisionType.DecisionType_ChooseArenaLocationForEffect
 			decision_info.player = performing_player.my_id
 			decision_info.choice_card_id = card_id
-			decision_info.effect_type = "place_eddie_into_space"
+			decision_info.effect_type = "place_buddy_into_space"
+			decision_info.source = effect['buddy_name']
 			decision_info.choice = []
 			decision_info.limitation = []
 			if 'optional' in effect and effect['optional']:
@@ -2393,11 +2394,11 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 			for i in range(MinArenaLocation, MaxArenaLocation + 1):
 				decision_info.limitation.append(i)
 				decision_info.choice.append({
-					"effect_type": "place_eddie_into_space",
+					"effect_type": "place_buddy_into_space",
 					"amount": i
 				})
 			events += [create_event(Enums.EventType.EventType_ChooseArenaLocationForEffect, performing_player.my_id, 0)]
-		"place_eddie_in_attack_range":
+		"place_buddy_in_attack_range":
 			decision_info.choice = []
 			decision_info.limitation = []
 			var attack_card = active_strike.get_player_card(performing_player)
@@ -2411,17 +2412,18 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 				if is_location_in_range(performing_player, attack_card, i):
 					decision_info.limitation.append(i)
 					decision_info.choice.append({
-						"effect_type": "place_eddie_into_space",
+						"effect_type": "place_buddy_into_space",
 						"amount": i
 					})
 			if decision_info.limitation.size() > 1 or (not optional and decision_info.limitation.size() > 0):
 				decision_info.type = Enums.DecisionType.DecisionType_ChooseArenaLocationForEffect
 				decision_info.player = performing_player.my_id
 				decision_info.choice_card_id = card_id
-				decision_info.effect_type = "place_eddie_into_space"
+				decision_info.effect_type = "place_buddy_into_space"
+				decision_info.source = effect['buddy_name']
 				change_game_state(Enums.GameState.GameState_PlayerDecision)
 				events += [create_event(Enums.EventType.EventType_ChooseArenaLocationForEffect, performing_player.my_id, 0)]
-		"place_eddie_onto_self":
+		"place_buddy_onto_self":
 			events += performing_player.place_buddy(performing_player.arena_location)
 		"powerup":
 			var amount = effect['amount']
@@ -2531,11 +2533,11 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 			# this should discard "by name", so instead of using that
 			# match card.definition['id']'s instead.
 			opposing_player.next_strike_with_or_reveal(named_card.definition['id'])
-		"remove_eddie":
+		"remove_buddy":
 			events += performing_player.remove_buddy()
-		"do_not_remove_eddie":
+		"do_not_remove_buddy":
 			performing_player.do_not_cleanup_buddy_this_turn = true
-		"calculate_range_from_eddie":
+		"calculate_range_from_buddy":
 			performing_player.strike_stat_boosts.calculate_range_from_buddy = true
 		"retreat":
 			var amount = effect['amount']

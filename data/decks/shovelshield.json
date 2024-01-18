@@ -10,46 +10,52 @@
 		{
 			"timing": "after",
 			"condition": "is_normal_attack",
-			"effect_type": "place_eddie_in_attack_range",
+			"effect_type": "place_buddy_in_attack_range",
+			"buddy_name": "Shield Knight",
 			"optional": true
 		},
 		{
 			"timing": "during_strike",
-			"condition": "is_eddie_special_or_ultra_attack",
-			"effect_type": "calculate_range_from_eddie"
+			"condition": "is_buddy_special_or_ultra_attack",
+			"effect_type": "calculate_range_from_buddy",
+			"buddy_name": "Shield Knight"
 		},
 		{
 			"timing": "hit",
-			"condition": "is_eddie_special_or_ultra_attack",
+			"condition": "is_buddy_special_or_ultra_attack",
 			"effect_type": "gain_advantage"
 		},
 		{
 			"timing": "cleanup",
-			"condition": "is_eddie_special_or_ultra_attack",
-			"effect_type": "remove_eddie"
+			"condition": "is_buddy_special_or_ultra_attack",
+			"effect_type": "remove_buddy",
+			"buddy_name": "Shield Knight"
 		}
 	],
 	"exceed_ability_effects": [
 		{
 			"timing": "after",
 			"condition": "is_normal_attack",
-			"effect_type": "place_eddie_in_any_space",
+			"effect_type": "place_buddy_in_any_space",
+			"buddy_name": "Shield Knight",
 			"optional": true
 		},
 		{
 			"timing": "during_strike",
-			"condition": "is_eddie_special_or_ultra_attack",
-			"effect_type": "calculate_range_from_eddie"
+			"condition": "is_buddy_special_or_ultra_attack",
+			"effect_type": "calculate_range_from_buddy",
+			"buddy_name": "Shield Knight"
 		},
 		{
 			"timing": "hit",
-			"condition": "is_eddie_special_or_ultra_attack",
+			"condition": "is_buddy_special_or_ultra_attack",
 			"effect_type": "gain_advantage"
 		},
 		{
 			"timing": "cleanup",
-			"condition": "is_eddie_special_or_ultra_attack",
-			"effect_type": "remove_eddie"
+			"condition": "is_buddy_special_or_ultra_attack",
+			"effect_type": "remove_buddy",
+			"buddy_name": "Shield Knight"
 		}
 	],
 	"cards": [
