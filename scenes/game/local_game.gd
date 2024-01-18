@@ -242,6 +242,7 @@ class StrikeStatBoosts:
 	var dodge_attacks : bool = false
 	var dodge_at_range_min : int = -1
 	var dodge_at_range_max : int = -1
+	var dodge_from_opposite_buddy : bool = false
 	var ignore_armor : bool = false
 	var ignore_guard : bool = false
 	var ignore_push_and_pull : bool = false
@@ -279,6 +280,7 @@ class StrikeStatBoosts:
 		dodge_attacks = false
 		dodge_at_range_min = -1
 		dodge_at_range_max = -1
+		dodge_from_opposite_buddy = false
 		ignore_armor = false
 		ignore_guard = false
 		ignore_push_and_pull = false
@@ -1942,6 +1944,16 @@ func is_effect_condition_met(performing_player : Player, effect, local_condition
 				return buddy_pos > pos1 and buddy_pos < pos2
 			else: # opponent is on the left
 				return buddy_pos > pos2 and buddy_pos < pos1
+		elif condition == "buddy_between_opponent":
+			if not performing_player.is_buddy_in_play():
+				return false
+			var pos1 = performing_player.arena_location
+			var pos2 = other_player.arena_location
+			var buddy_pos = performing_player.get_buddy_location()
+			if pos1 < pos2: # opponent is on the right
+				return buddy_pos > pos1 and buddy_pos < pos2
+			else: # opponent is on the left
+				return buddy_pos > pos2 and buddy_pos < pos1
 		elif condition == "opponent_between_buddy":
 			if not performing_player.is_buddy_in_play():
 				return false
@@ -2238,6 +2250,10 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 			performing_player.strike_stat_boosts.dodge_attacks = true
 			events += [create_event(Enums.EventType.EventType_Strike_DodgeAttacks, performing_player.my_id, 0)]
 			_append_log("%s is now dodging attacks." % [performing_player.name])
+		"dodge_from_opposite_buddy":
+			performing_player.strike_stat_boosts.dodge_from_opposite_buddy = true
+			events += [create_event(Enums.EventType.EventType_Strike_DodgeFromOppositeBuddy, performing_player.my_id, 0, "", effect['buddy_name'])]
+			_append_log("%s is now dodging attacks from opponents behind %s." % [performing_player.name, effect['buddy_name']])
 		"draw":
 			events += performing_player.draw(effect['amount'])
 		"discard_continuous_boost":
@@ -3122,12 +3138,25 @@ func in_range(attacking_player, defending_player, card):
 		return false
 	if defending_player.strike_stat_boosts.dodge_attacks:
 		return false
+
+	if defending_player.strike_stat_boosts.dodge_from_opposite_buddy and defending_player.is_buddy_in_play():
+		var pos1 = defending_player.arena_location
+		var pos2 = attacking_player.arena_location
+		var buddy_pos = defending_player.get_buddy_location()
+		if pos1 < pos2: # opponent is on the right
+			if buddy_pos > pos1 and buddy_pos < pos2:
+				return false
+		else: # opponent is on the left
+			if buddy_pos > pos2 and buddy_pos < pos1:
+				return false
+
 	var min_range = card.definition['range_min'] + attacking_player.strike_stat_boosts.min_range
 	var max_range = card.definition['range_max'] + attacking_player.strike_stat_boosts.max_range
 	var attack_source_location = attacking_player.arena_location
 	if attacking_player.strike_stat_boosts.calculate_range_from_buddy:
 		attack_source_location = attacking_player.buddy_location
 	var distance = abs(attack_source_location - defending_player.arena_location)
+
 	if defending_player.strike_stat_boosts.dodge_at_range_min != -1:
 		if defending_player.strike_stat_boosts.dodge_at_range_min <= distance and distance <= defending_player.strike_stat_boosts.dodge_at_range_max:
 			return false

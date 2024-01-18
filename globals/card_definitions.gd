@@ -238,6 +238,8 @@ func get_condition_text(condition, amount, amount2, detail):
 			text += "If on %s's space, " % detail
 		"buddy_between_attack_source":
 			text += "If %s is between you and attack source, " % detail
+		"buddy_between_opponent":
+			text += "If %s is between you and opponent, " % detail
 		"opponent_between_buddy":
 			text += "If opponent is between you and %s, " % detail
 		"is_buddy_special_attack":
@@ -370,6 +372,8 @@ func get_effect_type_text(effect, card_name_source : String = ""):
 				effect_str += "Opponent attacks miss at range %s-%s." % [effect['range_min'], effect['range_max']]
 		"dodge_attacks":
 			effect_str += "Opponent misses."
+		"dodge_from_opposite_buddy":
+			effect_str += "Opponents on other side of %s miss." % effect['buddy_name']
 		"do_not_remove_buddy":
 			effect_str += "Do not remove %s from play." % effect['buddy_name']
 		"remove_buddy":
