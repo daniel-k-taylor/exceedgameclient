@@ -242,6 +242,7 @@ class StrikeStatBoosts:
 	var dodge_attacks : bool = false
 	var dodge_at_range_min : int = -1
 	var dodge_at_range_max : int = -1
+	var dodge_at_range_from_buddy : bool = false
 	var dodge_from_opposite_buddy : bool = false
 	var ignore_armor : bool = false
 	var ignore_guard : bool = false
@@ -280,6 +281,7 @@ class StrikeStatBoosts:
 		dodge_attacks = false
 		dodge_at_range_min = -1
 		dodge_at_range_max = -1
+		dodge_at_range_from_buddy = false
 		dodge_from_opposite_buddy = false
 		ignore_armor = false
 		ignore_guard = false
@@ -1359,6 +1361,7 @@ class Player:
 						"dodge_at_range":
 							strike_stat_boosts.dodge_at_range_min = -1
 							strike_stat_boosts.dodge_at_range_max = -1
+							strike_stat_boosts.dodge_at_range_from_buddy = false
 							parent._append_log("%s is no longer dodging attacks from %s." % [name, parent.card_db.get_card_name(card.id)])
 						"powerup":
 							strike_stat_boosts.power -= effect['amount']
@@ -2246,8 +2249,14 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 		"dodge_at_range":
 			performing_player.strike_stat_boosts.dodge_at_range_min = effect['range_min']
 			performing_player.strike_stat_boosts.dodge_at_range_max = effect['range_max']
-			events += [create_event(Enums.EventType.EventType_Strike_DodgeAttacksAtRange, performing_player.my_id, effect['range_min'], "", effect['range_max'])]
-			_append_log("%s is now dodging attacks at range %s-%s." % [performing_player.name, str(effect['range_min']), str(effect['range_max'])])
+			var buddy_name = null
+			var extra_text = ""
+			if 'from_buddy' in effect:
+				performing_player.strike_stat_boosts.dodge_at_range_from_buddy = effect['from_buddy']
+				buddy_name = effect['buddy_name']
+				extra_text = " from %s" % buddy_name
+			events += [create_event(Enums.EventType.EventType_Strike_DodgeAttacksAtRange, performing_player.my_id, effect['range_min'], "", effect['range_max'], buddy_name)]
+			_append_log("%s is now dodging attacks at range %s-%s%s." % [performing_player.name, str(effect['range_min']), str(effect['range_max']), extra_text])
 		"dodge_attacks":
 			performing_player.strike_stat_boosts.dodge_attacks = true
 			events += [create_event(Enums.EventType.EventType_Strike_DodgeAttacks, performing_player.my_id, 0)]
@@ -3160,8 +3169,13 @@ func in_range(attacking_player, defending_player, card):
 	var distance = abs(attack_source_location - defending_player.arena_location)
 
 	if defending_player.strike_stat_boosts.dodge_at_range_min != -1:
-		if defending_player.strike_stat_boosts.dodge_at_range_min <= distance and distance <= defending_player.strike_stat_boosts.dodge_at_range_max:
-			return false
+		if defending_player.strike_stat_boosts.dodge_at_range_from_buddy:
+			var buddy_distance = abs(attack_source_location - defending_player.buddy_location)
+			if defending_player.strike_stat_boosts.dodge_at_range_min <= buddy_distance and buddy_distance <= defending_player.strike_stat_boosts.dodge_at_range_max:
+				return false
+		else:
+			if defending_player.strike_stat_boosts.dodge_at_range_min <= distance and distance <= defending_player.strike_stat_boosts.dodge_at_range_max:
+				return false
 	if defending_player.strike_stat_boosts.higher_speed_misses:
 		var attacking_speed = calculate_speed(attacking_player, active_strike.get_player_card(attacking_player))
 		var defending_speed = calculate_speed(defending_player, active_strike.get_player_card(defending_player))

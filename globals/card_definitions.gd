@@ -366,10 +366,13 @@ func get_effect_type_text(effect, card_name_source : String = ""):
 		"discard_opponent_topdeck":
 			effect_str += "Discard a card from the top of the opponent's deck"
 		"dodge_at_range":
+			var buddy_string = ""
+			if 'from_buddy' in effect and effect['from_buddy']:
+				buddy_string = " from %s" % effect['buddy_name']
 			if effect['range_min'] == effect['range_max']:
-				effect_str += "Opponent attacks miss at range %s." % effect['range_min']
+				effect_str += "Opponent attacks miss at range %s%s." % [effect['range_min'], buddy_string]
 			else:
-				effect_str += "Opponent attacks miss at range %s-%s." % [effect['range_min'], effect['range_max']]
+				effect_str += "Opponent attacks miss at range %s-%s%s." % [effect['range_min'], effect['range_max'], buddy_string]
 		"dodge_attacks":
 			effect_str += "Opponent misses."
 		"dodge_from_opposite_buddy":

@@ -7506,42 +7506,44 @@
 	{
 		"id": "shovelshield_shieldboomerang",
 		"type": "ultra",
-		"display_name": "Amorphous",
+		"display_name": "Shield Boomerang",
 		"force_cost": 0,
-		"gauge_cost": 4,
-		"range_min": 3,
-		"range_max": 3,
-		"speed": 1,
+		"gauge_cost": 3,
+		"range_min": 2,
+		"range_max": 4,
+		"speed": 3,
 		"power": 6,
-		"armor": 2,
+		"armor": 0,
 		"guard": 0,
 		"effects": [
 			{
 				"timing": "during_strike",
-				"effect_type": "stun_immunity"
+				"effect_type": "calculate_range_from_buddy",
+				"buddy_name": "Shield Knight"
 			},
 			{
-				"timing": "after",
-				"effect_type": "draw",
-				"amount": 3
+				"timing": "during_strike",
+				"effect_type": "dodge_at_range",
+				"range_min": 2,
+				"range_max": 4,
+				"from_buddy": true,
+				"buddy_name": "Shield Knight"
 			}
 		],
 		"boost": {
-			"boost_type": "continuous",
-			"force_cost": 0,
+			"boost_type": "immediate",
+			"force_cost": 1,
 			"cancel_cost": -1,
-			"display_name": "Feel a Fear",
+			"display_name": "Shovel of Hope",
 			"effects": [
 				{
-					"timing": "now",
-					"effect_type": "strike"
+					"timing": "immediate",
+					"effect_type": "draw",
+					"amount": 4
 				},
 				{
-					"timing": "hit",
-					"condition": "opponent_between_buddy",
-					"condition_detail": "Eddie",
-					"effect_type": "powerup",
-					"amount": 3
+					"timing": "immediate",
+					"effect_type": "add_to_gauge_boost_play_cleanup"
 				}
 			]
 		}

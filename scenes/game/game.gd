@@ -833,6 +833,8 @@ func _stat_notice_event(event):
 				notice_text = "Dodge at range %s" % number
 			else:
 				notice_text = "Dodge at range %s-%s" % [number, event['extra_info']]
+			if event['extra_info2']:
+				notice_text += " from %s" % event['extra_info2']
 		Enums.EventType.EventType_Strike_DodgeFromOppositeBuddy:
 			notice_text = "Dodge from behind %s" % [event['extra_info']]
 		Enums.EventType.EventType_Strike_ExUp:
