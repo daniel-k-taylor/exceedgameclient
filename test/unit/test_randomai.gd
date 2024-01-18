@@ -283,7 +283,7 @@ func handle_strike(game: LocalGame, aiplayer : AIPlayer, otherai : AIPlayer, act
 
 	return events
 
-func handle_character_action(game: LocalGame, aiplayer : AIPlayer, otherai : AIPlayer, action : AIPlayer.CharacterActionAction):
+func handle_character_action(game: LocalGame, aiplayer : AIPlayer, _otherai : AIPlayer, action : AIPlayer.CharacterActionAction):
 	assert_true(game.do_character_action(aiplayer.game_player, action.card_ids, action.action_idx), "character action failed")
 	var events = []
 	events += game.get_latest_events()
