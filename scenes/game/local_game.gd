@@ -3044,6 +3044,7 @@ func check_for_stun(check_player : Player, ignore_guard : bool):
 	if ignore_guard:
 		guard = 0
 
+	guard = max(guard, 0)
 	if total_damage > guard:
 		if check_player.strike_stat_boosts.stun_immunity:
 			_append_log("%s has stun immunity." % [check_player.name])
