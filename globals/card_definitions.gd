@@ -177,6 +177,8 @@ func get_timing_text(timing):
 			text += "At start of next turn: "
 		"set_strike":
 			text += "When you set a strike, "
+		"when_hit":
+			text += "When hit, "
 		_:
 			text += "MISSING TIMING"
 	return text
@@ -234,6 +236,8 @@ func get_condition_text(condition, amount, amount2, detail):
 			text += "If %s is in play, " % detail
 		"on_buddy_space":
 			text += "If on %s's space, " % detail
+		"buddy_between_attack_source":
+			text += "If %s is between you and attack source, " % detail
 		"opponent_between_buddy":
 			text += "If opponent is between you and %s, " % detail
 		"is_buddy_special_attack":

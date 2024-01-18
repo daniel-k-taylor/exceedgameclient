@@ -48,7 +48,10 @@
 				"condition_detail": "Shield Knight",
 				"effect_type": "choice",
 				"choice": [
-					{ "effect_type": "next_advance_bonus_spaces", "amount": 1 },
+					{
+						"effect_type": "next_advance_bonus_spaces",
+						"amount": 1
+					},
 					{ "effect_type": "pass" }
 				]
 			}
@@ -64,10 +67,21 @@
 				"condition_detail": "Shield Knight",
 				"effect_type": "choice",
 				"choice": [
-					{ "effect_type": "next_advance_bonus_spaces", "amount": 1 },
+					{
+						"effect_type": "next_advance_bonus_spaces",
+						"amount": 1
+					},
 					{ "effect_type": "pass" }
 				]
 			}
+		},
+		{
+			"timing": "when_hit",
+			"condition": "buddy_between_attack_source",
+			"condition_detail": "Shield Knight",
+			"character_effect": true,
+			"effect_type": "armorup",
+			"amount": 2
 		}
 	],
 	"cards": [

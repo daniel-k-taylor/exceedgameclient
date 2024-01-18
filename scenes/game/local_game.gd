@@ -1934,6 +1934,18 @@ func is_effect_condition_met(performing_player : Player, effect, local_condition
 			if not performing_player.is_buddy_in_play():
 				return false
 			return performing_player.arena_location == performing_player.get_buddy_location()
+		elif condition == "buddy_between_attack_source":
+			if not performing_player.is_buddy_in_play():
+				return false
+			var pos1 = performing_player.arena_location
+			var pos2 = other_player.arena_location
+			if other_player.strike_stat_boosts.calculate_range_from_buddy:
+				pos2 = other_player.buddy_location
+			var buddy_pos = performing_player.get_buddy_location()
+			if pos1 < pos2: # opponent is on the right
+				return buddy_pos > pos1 and buddy_pos < pos2
+			else: # opponent is on the left
+				return buddy_pos > pos2 and buddy_pos < pos1
 		elif condition == "opponent_between_buddy":
 			if not performing_player.is_buddy_in_play():
 				return false
@@ -3243,12 +3255,19 @@ func do_hit_response_effects(offense_player : Player, defense_player : Player, i
 	# If more of these are added, need to sequence them to ensure all handled correctly.
 	var events = []
 	active_strike.strike_state = next_state
-	if not offense_player.strike_stat_boosts.ignore_armor and defense_player.strike_stat_boosts.when_hit_force_for_armor:
-		change_game_state(Enums.GameState.GameState_PlayerDecision)
-		decision_info.player = defense_player.my_id
-		decision_info.type = Enums.DecisionType.DecisionType_ForceForArmor
-		decision_info.choice_card_id = active_strike.get_player_card(defense_player).id
-		events += [create_event(Enums.EventType.EventType_Strike_ForceForArmor, defense_player.my_id, incoming_damage)]
+	if not offense_player.strike_stat_boosts.ignore_armor:
+		# Currently assumes these will be armor-related; probably breaks if choices get involved
+		if active_strike.initiator == defense_player:
+			events += do_effects_for_timing("when_hit", defense_player, active_strike.initiator_card, next_state)
+		else:
+			events += do_effects_for_timing("when_hit", defense_player, active_strike.defender_card, next_state)
+
+		if defense_player.strike_stat_boosts.when_hit_force_for_armor:
+			change_game_state(Enums.GameState.GameState_PlayerDecision)
+			decision_info.player = defense_player.my_id
+			decision_info.type = Enums.DecisionType.DecisionType_ForceForArmor
+			decision_info.choice_card_id = active_strike.get_player_card(defense_player).id
+			events += [create_event(Enums.EventType.EventType_Strike_ForceForArmor, defense_player.my_id, incoming_damage)]
 	return events
 
 func log_boosts_in_play():
