@@ -39,8 +39,36 @@
 		}
 	}],
 	"ability_effects": [
+		{
+			"timing": "on_advance_or_close",
+			"condition": "during_strike",
+			"effect_type": "pass",
+			"and": {
+				"condition": "on_buddy_space",
+				"condition_detail": "Shield Knight",
+				"effect_type": "choice",
+				"choice": [
+					{ "effect_type": "next_advance_bonus_spaces", "amount": 1 },
+					{ "effect_type": "pass" }
+				]
+			}
+		}
 	],
 	"exceed_ability_effects": [
+		{
+			"timing": "on_advance_or_close",
+			"condition": "during_strike",
+			"effect_type": "pass",
+			"and": {
+				"condition": "on_buddy_space",
+				"condition_detail": "Shield Knight",
+				"effect_type": "choice",
+				"choice": [
+					{ "effect_type": "next_advance_bonus_spaces", "amount": 1 },
+					{ "effect_type": "pass" }
+				]
+			}
+		}
 	],
 	"cards": [
 		{

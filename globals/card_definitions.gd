@@ -165,6 +165,8 @@ func get_timing_text(timing):
 			text += ""
 		"now":
 			text += "[b]Now:[/b] "
+		"on_advance_or_close":
+			text += "When you advance or close, "
 		"on_cancel":
 			text += "When you cancel, "
 		"on_initiate_strike":
@@ -230,6 +232,8 @@ func get_condition_text(condition, amount, amount2, detail):
 			text += ""
 		"buddy_in_play":
 			text += "If %s is in play, " % detail
+		"on_buddy_space":
+			text += "If on %s's space, " % detail
 		"opponent_between_buddy":
 			text += "If opponent is between you and %s, " % detail
 		"is_buddy_special_attack":
@@ -402,6 +406,8 @@ func get_effect_type_text(effect, card_name_source : String = ""):
 			effect_str += "Name a card. Opponent discards it or reveals not in hand."
 		"move_buddy":
 			effect_str += "Move %s %s space(s)" % [effect['buddy_name'], effect['amount']]
+		"next_advance_bonus_spaces":
+			effect_str = "Advance/Close %s extra space(s)" % effect['amount']
 		"nothing":
 			effect_str += ""
 		"opponent_cant_move_past":

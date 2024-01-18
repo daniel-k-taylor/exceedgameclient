@@ -264,6 +264,7 @@ class StrikeStatBoosts:
 	var active_character_effects = []
 	var ex_count : int = 0
 	var critical : bool = false
+	var next_advance_bonus_spaces : int = 0
 
 	func clear():
 		power = 0
@@ -300,6 +301,7 @@ class StrikeStatBoosts:
 		active_character_effects = []
 		ex_count = 0
 		critical = false
+		next_advance_bonus_spaces = 0
 
 	func set_ex():
 		ex_count += 1
@@ -369,6 +371,9 @@ class Player:
 	var cannot_move : bool
 	var cannot_move_past_opponent : bool
 	var extra_effect_after_set_strike
+	var resolving_advance_effect : bool
+	var resolving_close_effect : bool
+	var stored_movement : int
 
 	func _init(id, player_name, parent_ref, card_db_ref, chosen_deck, card_start_id):
 		my_id = id
@@ -428,6 +433,9 @@ class Player:
 		cannot_move = false
 		cannot_move_past_opponent = false
 		extra_effect_after_set_strike = null
+		resolving_advance_effect = false
+		resolving_close_effect = false
+		stored_movement = 0
 
 		max_hand_size = MaxHandSize
 		if 'alt_hand_size' in deck_def:
@@ -1144,6 +1152,23 @@ class Player:
 		if cannot_move:
 			events += [parent.create_event(Enums.EventType.EventType_BlockMovement, my_id, 0)]
 			return events
+
+		# avoiding double close effects
+		if not resolving_close_effect:
+			var effects = get_character_effects_at_timing("on_advance_or_close")
+			for effect in effects:
+				events += parent.do_effect_if_condition_met(self, -1, effect, null)
+			if parent.game_state == Enums.GameState.GameState_PlayerDecision:
+				stored_movement = amount
+				resolving_close_effect = true
+				return events
+
+		# reset for next close
+		resolving_close_effect = false
+
+		amount += strike_stat_boosts.next_advance_bonus_spaces
+		strike_stat_boosts.next_advance_bonus_spaces = 0
+
 		var previous_location = arena_location
 		var other_location = parent._get_player(parent.get_other_player(my_id)).arena_location
 		var new_location
@@ -1166,6 +1191,23 @@ class Player:
 		if cannot_move:
 			events += [parent.create_event(Enums.EventType.EventType_BlockMovement, my_id, 0)]
 			return events
+
+		# avoiding double advance effects
+		if not resolving_advance_effect:
+			var effects = get_character_effects_at_timing("on_advance_or_close")
+			for effect in effects:
+				events += parent.do_effect_if_condition_met(self, -1, effect, null)
+			if parent.game_state == Enums.GameState.GameState_PlayerDecision:
+				stored_movement = amount
+				resolving_advance_effect = true
+				return events
+
+		# reset for next advance
+		resolving_advance_effect = false
+
+		amount += strike_stat_boosts.next_advance_bonus_spaces
+		strike_stat_boosts.next_advance_bonus_spaces = 0
+
 		var previous_location = arena_location
 		var other_player_location = parent._get_player(parent.get_other_player(my_id)).arena_location
 		var blocked_from_passing = cannot_move_past_opponent
@@ -1880,12 +1922,18 @@ func is_effect_condition_met(performing_player : Player, effect, local_condition
 			return game_state != Enums.GameState.GameState_WaitForStrike
 		elif condition == "no_strike_this_turn":
 			return not performing_player.did_strike_this_turn
+		elif condition == "during_strike":
+			return active_strike != null
 		elif condition == "stunned":
 			return active_strike.is_player_stunned(performing_player)
 		elif condition == "not_stunned":
 			return not active_strike.is_player_stunned(performing_player)
 		elif condition == "buddy_in_play":
 			return performing_player.is_buddy_in_play()
+		elif condition == "on_buddy_space":
+			if not performing_player.is_buddy_in_play():
+				return false
+			return performing_player.arena_location == performing_player.get_buddy_location()
 		elif condition == "opponent_between_buddy":
 			if not performing_player.is_buddy_in_play():
 				return false
@@ -2335,6 +2383,8 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 			# this should discard "by name", so instead of using that
 			# match card.definition['id']'s instead.
 			events += opposing_player.discard_matching_or_reveal(named_card.definition['id'])
+		"next_advance_bonus_spaces":
+			performing_player.strike_stat_boosts.next_advance_bonus_spaces = effect['amount']
 		"reveal_hand":
 			events += performing_player.reveal_hand()
 		"reveal_strike":
@@ -4169,6 +4219,13 @@ func do_choice(performing_player : Player, choice_index : int) -> bool:
 		events = []
 	else:
 		if game_state != Enums.GameState.GameState_PlayerDecision:
+			if player.resolving_advance_effect:
+				var advance_effect = { 'effect_type': 'advance', 'amount': performing_player.stored_movement }
+				events += handle_strike_effect(-1, advance_effect, performing_player)
+			elif player.resolving_close_effect:
+				var advance_effect = { 'effect_type': 'close', 'amount': performing_player.stored_movement }
+				events += handle_strike_effect(-1, advance_effect, performing_player)
+
 			if active_overdrive:
 				events += do_remaining_overdrive(performing_player)
 			elif active_boost:
