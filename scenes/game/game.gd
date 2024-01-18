@@ -20,9 +20,11 @@ const GameCard = preload("res://scenes/game/game_card.gd")
 const DecisionInfo = preload("res://scenes/game/decision_info.gd")
 const ActionMenu = preload("res://scenes/game/action_menu.gd")
 const ModalDialog = preload("res://scenes/game/modal_dialog.gd")
+const ArenaSquare = preload("res://scenes/game/arena_square.gd")
 
 @onready var damage_popup_template = preload("res://scenes/game/damage_popup.tscn")
 @onready var arena_layout = $ArenaNode/RowButtons
+@onready var arena_graphics = $ArenaNode/RowPlatforms
 
 @onready var huge_card : Sprite2D = $HugeCard
 
@@ -69,6 +71,8 @@ var selected_arena_location = 0
 var force_for_armor_incoming_damage = 0
 var popout_exlude_card_ids = []
 var selected_character_action = 0
+var cached_player_location = 0
+var cached_opponent_location = 0
 
 var player_deck
 var opponent_deck
@@ -298,6 +302,9 @@ func test_init():
 func first_run():
 	move_character_to_arena_square($PlayerCharacter, game_wrapper.get_player_location(Enums.PlayerId.PlayerId_Player), true, Character.CharacterAnim.CharacterAnim_None)
 	move_character_to_arena_square($OpponentCharacter, game_wrapper.get_player_location(Enums.PlayerId.PlayerId_Opponent), true, Character.CharacterAnim.CharacterAnim_None)
+	cached_player_location = game_wrapper.get_player_location(Enums.PlayerId.PlayerId_Player)
+	cached_opponent_location = game_wrapper.get_player_location(Enums.PlayerId.PlayerId_Opponent)
+	update_arena_squares()
 	_update_buttons()
 
 	finish_initialization()
@@ -1726,8 +1733,12 @@ func _on_move_event(event):
 	#spawn_damage_popup("Move", player)
 	if player == Enums.PlayerId.PlayerId_Player:
 		move_character_to_arena_square($PlayerCharacter, destination, false,  move_anim)
+		cached_player_location = game_wrapper.get_player_location(Enums.PlayerId.PlayerId_Player)
 	else:
 		move_character_to_arena_square($OpponentCharacter, destination, false, move_anim)
+		cached_opponent_location = game_wrapper.get_player_location(Enums.PlayerId.PlayerId_Opponent)
+
+	update_arena_squares()
 	return MoveDelay
 
 func _on_mulligan_decision(event):
@@ -2369,6 +2380,15 @@ func update_boost_summary(boosts_card_holder, boost_box):
 		boost_summary += CardDefinitions.get_effect_text(effect) + "\n"
 	boost_box.set_text(boost_summary)
 
+func update_arena_squares():
+	for i in range(1, 10):
+		var square : ArenaSquare = arena_graphics.get_child(i - 1)
+		if i == cached_player_location:
+			square.set_self_occupied()
+		elif i == cached_opponent_location:
+			square.set_enemy_occupied()
+		else:
+			square.set_empty()
 
 func selected_cards_between_min_and_max() -> bool:
 	var selected_count = len(selected_cards)

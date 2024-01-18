@@ -1,4 +1,4 @@
-[gd_scene load_steps=24 format=3 uid="uid://dh7wmx6cbb55x"]
+[gd_scene load_steps=23 format=3 uid="uid://dh7wmx6cbb55x"]
 
 [ext_resource type="Script" path="res://scenes/game/game.gd" id="1_4f5jr"]
 [ext_resource type="Texture2D" uid="uid://dh8tat2r8ttx1" path="res://assets/cards/card_border_highlight.png" id="4_5y76h"]
@@ -6,6 +6,7 @@
 [ext_resource type="Texture2D" uid="uid://fb43lfd3e3yn" path="res://assets/icons/greensquare.png" id="5_j7n2t"]
 [ext_resource type="Texture2D" uid="uid://c2vj33yjnslmx" path="res://assets/icons/cyansquare.png" id="6_3ysab"]
 [ext_resource type="PackedScene" uid="uid://cf6aml1lrd2yk" path="res://scenes/game/gauge_panel.tscn" id="6_gtjck"]
+[ext_resource type="PackedScene" uid="uid://u7pf7tbgppmh" path="res://scenes/game/arena_square.tscn" id="6_oqn7w"]
 [ext_resource type="PackedScene" uid="uid://dsc63si41lg6t" path="res://scenes/game/boost_zone.tscn" id="7_gn0of"]
 [ext_resource type="PackedScene" uid="uid://1624xgdxrrg5" path="res://scenes/game/life_scene.tscn" id="8_mqi3u"]
 [ext_resource type="Texture2D" uid="uid://b2ojnoth6qto0" path="res://assets/icons/donut.png" id="9_2vlik"]
@@ -21,18 +22,6 @@
 [ext_resource type="PackedScene" uid="uid://dvan4a8ftuplj" path="res://scenes/card/character_card_base.tscn" id="18_imast"]
 [ext_resource type="PackedScene" uid="uid://w87ls4e8oasj" path="res://scenes/game/combat_log.tscn" id="18_k7mnw"]
 [ext_resource type="PackedScene" uid="uid://b8kmmrd5jmqdd" path="res://scenes/game/modal_dialog.tscn" id="21_qe5we"]
-
-[sub_resource type="Gradient" id="Gradient_einub"]
-offsets = PackedFloat32Array(0, 0.883721, 1)
-colors = PackedColorArray(0, 0.545098, 0.933333, 1, 0.0509804, 0.109804, 0.576471, 1, 0, 0, 0, 0)
-
-[sub_resource type="GradientTexture2D" id="GradientTexture2D_84l44"]
-gradient = SubResource("Gradient_einub")
-width = 100
-height = 48
-fill = 1
-fill_from = Vector2(0.5, 0.5)
-fill_to = Vector2(0.900312, 0.797508)
 
 [node name="GameScene" type="Node2D"]
 script = ExtResource("1_4f5jr")
@@ -181,68 +170,32 @@ mouse_filter = 2
 theme_override_constants/separation = 30
 alignment = 1
 
-[node name="ArenaSquare1" type="TextureRect" parent="ArenaNode/RowPlatforms"]
+[node name="ArenaSquare1" parent="ArenaNode/RowPlatforms" instance=ExtResource("6_oqn7w")]
 layout_mode = 2
-size_flags_horizontal = 4
-size_flags_vertical = 4
-mouse_filter = 2
-texture = SubResource("GradientTexture2D_84l44")
 
-[node name="ArenaSquare2" type="TextureRect" parent="ArenaNode/RowPlatforms"]
+[node name="ArenaSquare2" parent="ArenaNode/RowPlatforms" instance=ExtResource("6_oqn7w")]
 layout_mode = 2
-size_flags_horizontal = 4
-size_flags_vertical = 4
-mouse_filter = 2
-texture = SubResource("GradientTexture2D_84l44")
 
-[node name="ArenaSquare3" type="TextureRect" parent="ArenaNode/RowPlatforms"]
+[node name="ArenaSquare3" parent="ArenaNode/RowPlatforms" instance=ExtResource("6_oqn7w")]
 layout_mode = 2
-size_flags_horizontal = 4
-size_flags_vertical = 4
-mouse_filter = 2
-texture = SubResource("GradientTexture2D_84l44")
 
-[node name="ArenaSquare4" type="TextureRect" parent="ArenaNode/RowPlatforms"]
+[node name="ArenaSquare4" parent="ArenaNode/RowPlatforms" instance=ExtResource("6_oqn7w")]
 layout_mode = 2
-size_flags_horizontal = 4
-size_flags_vertical = 4
-mouse_filter = 2
-texture = SubResource("GradientTexture2D_84l44")
 
-[node name="ArenaSquare5" type="TextureRect" parent="ArenaNode/RowPlatforms"]
+[node name="ArenaSquare5" parent="ArenaNode/RowPlatforms" instance=ExtResource("6_oqn7w")]
 layout_mode = 2
-size_flags_horizontal = 4
-size_flags_vertical = 4
-mouse_filter = 2
-texture = SubResource("GradientTexture2D_84l44")
 
-[node name="ArenaSquare6" type="TextureRect" parent="ArenaNode/RowPlatforms"]
+[node name="ArenaSquare6" parent="ArenaNode/RowPlatforms" instance=ExtResource("6_oqn7w")]
 layout_mode = 2
-size_flags_horizontal = 4
-size_flags_vertical = 4
-mouse_filter = 2
-texture = SubResource("GradientTexture2D_84l44")
 
-[node name="ArenaSquare7" type="TextureRect" parent="ArenaNode/RowPlatforms"]
+[node name="ArenaSquare7" parent="ArenaNode/RowPlatforms" instance=ExtResource("6_oqn7w")]
 layout_mode = 2
-size_flags_horizontal = 4
-size_flags_vertical = 4
-mouse_filter = 2
-texture = SubResource("GradientTexture2D_84l44")
 
-[node name="ArenaSquare8" type="TextureRect" parent="ArenaNode/RowPlatforms"]
+[node name="ArenaSquare8" parent="ArenaNode/RowPlatforms" instance=ExtResource("6_oqn7w")]
 layout_mode = 2
-size_flags_horizontal = 4
-size_flags_vertical = 4
-mouse_filter = 2
-texture = SubResource("GradientTexture2D_84l44")
 
-[node name="ArenaSquare9" type="TextureRect" parent="ArenaNode/RowPlatforms"]
+[node name="ArenaSquare9" parent="ArenaNode/RowPlatforms" instance=ExtResource("6_oqn7w")]
 layout_mode = 2
-size_flags_horizontal = 4
-size_flags_vertical = 4
-mouse_filter = 2
-texture = SubResource("GradientTexture2D_84l44")
 
 [node name="AIMoveButton" type="Button" parent="."]
 visible = false

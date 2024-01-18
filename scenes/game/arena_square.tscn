@@ -1,23 +1,66 @@
-[gd_scene load_steps=4 format=3 uid="uid://u7pf7tbgppmh"]
+[gd_scene load_steps=8 format=3 uid="uid://u7pf7tbgppmh"]
 
-[sub_resource type="Gradient" id="Gradient_vnkru"]
-colors = PackedColorArray(0.309804, 0.592157, 1, 1, 0, 0, 0.592157, 1)
+[ext_resource type="Script" path="res://scenes/game/arena_square.gd" id="1_xqmar"]
 
-[sub_resource type="GradientTexture2D" id="GradientTexture2D_1jsmg"]
-gradient = SubResource("Gradient_vnkru")
-fill = 2
-fill_from = Vector2(0.491453, 0.517094)
-fill_to = Vector2(0, 1)
+[sub_resource type="Gradient" id="Gradient_einub"]
+offsets = PackedFloat32Array(0, 0.883721, 1)
+colors = PackedColorArray(0, 0.545098, 0.933333, 1, 0.0509804, 0.109804, 0.576471, 1, 0, 0, 0, 0)
 
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_r5fe8"]
-size = Vector2(100, 100)
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_84l44"]
+gradient = SubResource("Gradient_einub")
+width = 100
+height = 48
+fill = 1
+fill_from = Vector2(0.5, 0.5)
+fill_to = Vector2(0.900312, 0.797508)
 
-[node name="ArenaSquare" type="TextureRect"]
-custom_minimum_size = Vector2(100, 100)
-texture = SubResource("GradientTexture2D_1jsmg")
+[sub_resource type="Gradient" id="Gradient_ofghb"]
+offsets = PackedFloat32Array(0, 0.883721, 1)
+colors = PackedColorArray(0.867169, 0.77299, 1.54018e-06, 1, 0.217549, 0.219343, 0, 1, 0, 0, 0, 0)
 
-[node name="ArenaSquare" type="Area2D" parent="."]
-position = Vector2(50, 50)
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_uourk"]
+gradient = SubResource("Gradient_ofghb")
+width = 100
+height = 48
+fill = 1
+fill_from = Vector2(0.5, 0.5)
+fill_to = Vector2(0.900312, 0.797508)
 
-[node name="ArenaCollisionShape" type="CollisionShape2D" parent="ArenaSquare"]
-shape = SubResource("RectangleShape2D_r5fe8")
+[sub_resource type="Gradient" id="Gradient_80lyi"]
+offsets = PackedFloat32Array(0, 0.883721, 1)
+colors = PackedColorArray(0.921876, 4.59167e-05, 0.678278, 1, 0.380817, 6.8827e-06, 0.273369, 1, 0, 0, 0, 0)
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_sxi5w"]
+gradient = SubResource("Gradient_80lyi")
+width = 100
+height = 48
+fill = 1
+fill_from = Vector2(0.5, 0.5)
+fill_to = Vector2(0.900312, 0.797508)
+
+[node name="ArenaSquare" type="CenterContainer"]
+mouse_filter = 2
+script = ExtResource("1_xqmar")
+
+[node name="Normal" type="TextureRect" parent="."]
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+mouse_filter = 2
+texture = SubResource("GradientTexture2D_84l44")
+
+[node name="Friend" type="TextureRect" parent="."]
+visible = false
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+mouse_filter = 2
+texture = SubResource("GradientTexture2D_uourk")
+
+[node name="Enemy" type="TextureRect" parent="."]
+visible = false
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+mouse_filter = 2
+texture = SubResource("GradientTexture2D_sxi5w")

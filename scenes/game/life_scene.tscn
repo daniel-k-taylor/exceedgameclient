@@ -1,7 +1,7 @@
 [gd_scene load_steps=8 format=3 uid="uid://1624xgdxrrg5"]
 
 [ext_resource type="Script" path="res://scenes/game/life_scene.gd" id="1_y33ag"]
-[ext_resource type="Texture2D" uid="uid://dal2ec8wws714" path="res://icon.svg" id="2_xwmtm"]
+[ext_resource type="Texture2D" uid="uid://bejcxblku7j3f" path="res://assets/icons/turnindicator.png" id="2_i7ud7"]
 [ext_resource type="PackedScene" uid="uid://e4xwxbolj4qq" path="res://scenes/game/health_bar.tscn" id="3_oy06u"]
 [ext_resource type="Texture2D" uid="uid://d4h7c1xe0swhb" path="res://assets/icons/deck.png" id="4_klaii"]
 [ext_resource type="Texture2D" uid="uid://b5vet26fq1tu3" path="res://assets/icons/heart.png" id="4_seqfq"]
@@ -19,7 +19,7 @@ offset_left = -55.0
 offset_top = -9.0
 offset_right = -6.0
 offset_bottom = 40.0
-texture = ExtResource("2_xwmtm")
+texture = ExtResource("2_i7ud7")
 expand_mode = 3
 
 [node name="HealthBar" parent="." instance=ExtResource("3_oy06u")]
