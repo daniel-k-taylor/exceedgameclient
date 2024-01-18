@@ -7723,47 +7723,45 @@
 		"NOTE": "SHOVEL/SHIELD CARDS END",
 		"id": "shovelshield_chargeslash",
 		"type": "special",
-		"display_name": "Oppose",
+		"display_name": "Charge Slash",
 		"force_cost": 0,
 		"gauge_cost": 0,
-		"range_min": 0,
+		"range_min": 1,
 		"range_max": 1,
-		"speed": 2,
-		"power": 0,
-		"armor": 2,
-		"guard": 5,
+		"speed": 1,
+		"power": 5,
+		"armor": 0,
+		"guard": 6,
 		"effects": [
 			{
 				"timing": "during_strike",
-				"effect_type": "do_not_remove_buddy",
-				"buddy_name": "Eddie"
+				"condition": "initiated_strike",
+				"effect_type": "powerup",
+				"amount": 1,
+				"and": {
+					"effect_type": "ignore_armor"
+				}
 			},
 			{
 				"timing": "before",
-				"condition": "was_hit",
-				"effect_type": "powerup",
-				"amount": 3
+				"effect_type": "close",
+				"amount": 1
 			}
 		],
 		"boost": {
-			"boost_type": "immediate",
-			"force_cost": 0,
+			"boost_type": "continuous",
+			"force_cost": 1,
 			"cancel_cost": -1,
-			"display_name": "Fly By Night",
+			"display_name": "Charge Up",
 			"effects": [
 				{
-					"timing": "immediate",
-					"effect_type": "choice",
-					"choice": [
-						{ "effect_type": "advance", "amount": 1 },
-						{ "effect_type": "retreat", "amount": 1 }
-					]
-				},
-				{
-					"timing": "immediate",
-					"effect_type": "gauge_from_hand",
-					"min_amount": 0,
-					"max_amount": 1
+					"timing": "during_strike",
+					"effect_type": "powerup",
+					"amount": 2,
+					"and": {
+						"effect_type": "guardup",
+						"amount": 2
+					}
 				}
 			]
 		},
