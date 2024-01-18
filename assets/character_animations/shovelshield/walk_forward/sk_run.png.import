@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://bnyf0yqb5awpu"
-path="res://.godot/imported/shield_idle.png-07a1152a4bdd9ace10f23865964e5e80.ctex"
+uid="uid://dglbhp8chi6nt"
+path="res://.godot/imported/sk_run.png-dafc19bb3d7ea1668fe01a19b9de1e69.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/character_animations/shieldknight/idle/shield_idle.png"
-dest_files=["res://.godot/imported/shield_idle.png-07a1152a4bdd9ace10f23865964e5e80.ctex"]
+source_file="res://assets/character_animations/shovelshield/walk_forward/sk_run.png"
+dest_files=["res://.godot/imported/sk_run.png-dafc19bb3d7ea1668fe01a19b9de1e69.ctex"]
 
 [params]
 

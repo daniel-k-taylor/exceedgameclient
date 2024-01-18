@@ -2,22 +2,22 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://bnyf0yqb5awpu"
-path="res://.godot/imported/shield_idle.png-07a1152a4bdd9ace10f23865964e5e80.ctex"
+uid="uid://cp0ymtteo0wwl"
+path="res://.godot/imported/shieldknight.jpg-c31e07c7d883946832f27ae1343cde61.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/character_animations/shieldknight/idle/shield_idle.png"
-dest_files=["res://.godot/imported/shield_idle.png-07a1152a4bdd9ace10f23865964e5e80.ctex"]
+source_file="res://assets/cards/shovelshield/shieldknight.jpg"
+dest_files=["res://.godot/imported/shieldknight.jpg-c31e07c7d883946832f27ae1343cde61.ctex"]
 
 [params]
 
 compress/mode=1
 compress/high_quality=false
-compress/lossy_quality=0.7
+compress/lossy_quality=0.1
 compress/hdr_compression=1
 compress/normal_map=0
 compress/channel_pack=0

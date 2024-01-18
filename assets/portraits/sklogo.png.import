@@ -2,22 +2,22 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://bmbg5v5p1812s"
-path="res://.godot/imported/shield_exceeded.jpg-c638db29ddc096bace7dc617c6cb35b8.ctex"
+uid="uid://ojsgw4m4r087"
+path="res://.godot/imported/sklogo.png-4b753911ea08f65b98c586900df2d350.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/cards/shovelshield/shield_exceeded.jpg"
-dest_files=["res://.godot/imported/shield_exceeded.jpg-c638db29ddc096bace7dc617c6cb35b8.ctex"]
+source_file="res://assets/portraits/sklogo.png"
+dest_files=["res://.godot/imported/sklogo.png-4b753911ea08f65b98c586900df2d350.ctex"]
 
 [params]
 
 compress/mode=1
 compress/high_quality=false
-compress/lossy_quality=0.1
+compress/lossy_quality=0.7
 compress/hdr_compression=1
 compress/normal_map=0
 compress/channel_pack=0

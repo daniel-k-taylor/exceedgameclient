@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://ojsgw4m4r087"
-path="res://.godot/imported/skicon.png-173cfc27307c6dda6ff79407676e9110.ctex"
+uid="uid://b3o55higtc8b3"
+path="res://.godot/imported/sk_run_rev.png-becd2b23492a45733a0164253f4e6101.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/portraits/skicon.png"
-dest_files=["res://.godot/imported/skicon.png-173cfc27307c6dda6ff79407676e9110.ctex"]
+source_file="res://assets/character_animations/shovelshield/walk_backward/sk_run_rev.png"
+dest_files=["res://.godot/imported/sk_run_rev.png-becd2b23492a45733a0164253f4e6101.ctex"]
 
 [params]
 
