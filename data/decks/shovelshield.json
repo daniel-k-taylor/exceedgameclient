@@ -6,6 +6,7 @@
 	"exceed_cost": 2,
 	"buddy_card": "shieldknight",
 	"buddy_display_name": "Shield Knight",
+	"buddy_always_on_field": true,
 	"ability_effects": [
 		{
 			"timing": "after",

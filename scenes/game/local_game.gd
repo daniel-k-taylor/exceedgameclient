@@ -363,6 +363,7 @@ class Player:
 	var pre_strike_movement : int
 	var sustained_boosts : Array[int]
 	var sustain_next_boost : bool
+	var buddy_always_on_field : bool
 	var buddy_location : int
 	var do_not_cleanup_buddy_this_turn : bool
 	var cannot_move : bool
@@ -421,6 +422,7 @@ class Player:
 		pre_strike_movement = 0
 		sustained_boosts = []
 		sustain_next_boost = false
+		buddy_always_on_field = false
 		buddy_location = -1
 		do_not_cleanup_buddy_this_turn = false
 		cannot_move = false
@@ -434,6 +436,9 @@ class Player:
 		starting_hand_size_bonus = 0
 		if 'bonus_starting_hand' in deck_def:
 			starting_hand_size_bonus = deck_def['bonus_starting_hand']
+
+		if 'buddy_always_on_field' in deck_def:
+			buddy_always_on_field = deck_def['buddy_always_on_field']
 
 	func initial_shuffle():
 		if ShuffleEnabled:
@@ -717,7 +722,7 @@ class Player:
 
 	func remove_buddy():
 		var events = []
-		if not do_not_cleanup_buddy_this_turn:
+		if not do_not_cleanup_buddy_this_turn and not buddy_always_on_field:
 			buddy_location = -1
 			events += [parent.create_event(Enums.EventType.EventType_PlaceBuddy, my_id, buddy_location)]
 		return events
@@ -1492,7 +1497,11 @@ func initialize_game(player_deck, opponent_deck, player_name : String, opponent_
 	var starting_player = _get_player(active_turn_player)
 	var second_player = _get_player(next_turn_player)
 	starting_player.arena_location = 3
+	if starting_player.buddy_always_on_field:
+		event_queue += starting_player.place_buddy(3)
 	second_player.arena_location = 7
+	if second_player.buddy_always_on_field:
+		event_queue += second_player.place_buddy(7)
 	starting_player.initial_shuffle()
 	second_player.initial_shuffle()
 
