@@ -409,7 +409,10 @@ func get_effect_type_text(effect, card_name_source : String = ""):
 		"name_card_opponent_discards":
 			effect_str += "Name a card. Opponent discards it or reveals not in hand."
 		"move_buddy":
-			effect_str += "Move %s %s space(s)" % [effect['buddy_name'], effect['amount']]
+			var movement_str = "%s" % effect['amount']
+			if effect['amount'] != effect['amount2']:
+				movement_str += "-%s" % effect['amount2']
+			effect_str += "Move %s %s space(s)" % [effect['buddy_name'], movement_str]
 		"next_advance_bonus_spaces":
 			effect_str = "Advance/Close %s extra space(s)" % effect['amount']
 		"nothing":

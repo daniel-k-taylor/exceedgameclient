@@ -25,7 +25,8 @@
 				{
 					"effect_type": "move_buddy",
 					"buddy_name": "Shield Knight",
-					"amount": 1
+					"amount": 1,
+					"amount2": 1
 				}
 			]
 		}

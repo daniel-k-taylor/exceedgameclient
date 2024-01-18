@@ -373,7 +373,6 @@ class Player:
 	var extra_effect_after_set_strike
 	var resolving_advance_effect : bool
 	var resolving_close_effect : bool
-	var stored_movement : int
 
 	func _init(id, player_name, parent_ref, card_db_ref, chosen_deck, card_start_id):
 		my_id = id
@@ -435,7 +434,6 @@ class Player:
 		extra_effect_after_set_strike = null
 		resolving_advance_effect = false
 		resolving_close_effect = false
-		stored_movement = 0
 
 		max_hand_size = MaxHandSize
 		if 'alt_hand_size' in deck_def:
@@ -1159,7 +1157,6 @@ class Player:
 			for effect in effects:
 				events += parent.do_effect_if_condition_met(self, -1, effect, null)
 			if parent.game_state == Enums.GameState.GameState_PlayerDecision:
-				stored_movement = amount
 				resolving_close_effect = true
 				return events
 
@@ -1198,7 +1195,6 @@ class Player:
 			for effect in effects:
 				events += parent.do_effect_if_condition_met(self, -1, effect, null)
 			if parent.game_state == Enums.GameState.GameState_PlayerDecision:
-				stored_movement = amount
 				resolving_advance_effect = true
 				return events
 
@@ -2421,10 +2417,11 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 				decision_info.choice.append({
 					"effect_type": "pass"
 				})
-			var num_spaces = effect['amount']
+			var min_spaces = effect['amount']
+			var max_spaces = effect['amount2']
 			for i in range(MinArenaLocation, MaxArenaLocation + 1):
 				var distance = abs(performing_player.buddy_location - i)
-				if distance == num_spaces:
+				if distance >= min_spaces and distance <= max_spaces:
 					decision_info.limitation.append(i)
 					decision_info.choice.append({
 						"effect_type": "place_buddy_into_space",
@@ -2975,15 +2972,10 @@ func do_remaining_effects(performing_player : Player, next_state):
 			var effect = active_strike.remaining_effect_list[0]
 			active_strike.remaining_effect_list = []
 			events += do_effect_if_condition_met(performing_player, effect['card_id'], effect, null)
-			if game_state == Enums.GameState.GameState_PlayerDecision and effect['effect_type'] in ['advance', 'close']:
-				if 'and' in effect:
-					var and_effect = effect['and'].duplicate()
-					and_effect['card_id'] = effect['card_id']
-					active_strike.remaining_effect_list += [and_effect]
-				if 'bonus_effect' in effect:
-					var bonus_effect = effect['and'].duplicate()
-					bonus_effect['card_id'] = effect['card_id']
-					active_strike.remaining_effect_list += [bonus_effect]
+			if player.resolving_advance_effect or player.resolving_close_effect:
+				assert(game_state == Enums.GameState.GameState_PlayerDecision, "Expected decision game state")
+				# re-queue movement to finish processing later
+				active_strike.remaining_effect_list = [effect]
 				break
 
 		if game_over:
@@ -4261,13 +4253,6 @@ func do_choice(performing_player : Player, choice_index : int) -> bool:
 		events = []
 	else:
 		if game_state != Enums.GameState.GameState_PlayerDecision:
-			if player.resolving_advance_effect:
-				var advance_effect = { 'effect_type': 'advance', 'amount': performing_player.stored_movement }
-				events += handle_strike_effect(-1, advance_effect, performing_player)
-			elif player.resolving_close_effect:
-				var advance_effect = { 'effect_type': 'close', 'amount': performing_player.stored_movement }
-				events += handle_strike_effect(-1, advance_effect, performing_player)
-
 			if active_overdrive:
 				events += do_remaining_overdrive(performing_player)
 			elif active_boost:

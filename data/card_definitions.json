@@ -7640,43 +7640,43 @@
 	{
 		"id": "shovelshield_shoveldrop",
 		"type": "special",
-		"display_name": "Invite Hell",
+		"display_name": "Shovel Drop",
 		"force_cost": 0,
 		"gauge_cost": 0,
-		"range_min": 2,
-		"range_max": 5,
+		"range_min": 1,
+		"range_max": 2,
 		"speed": 4,
-		"power": 3,
+		"power": 4,
 		"armor": 0,
-		"guard": 0,
+		"guard": 3,
 		"effects": [
 			{
 				"timing": "before",
-				"condition": "buddy_in_play",
-				"condition_detail": "Eddie",
-				"effect_type": "powerup",
+				"effect_type": "advance",
 				"amount": 2,
-				"and": {
-					"effect_type": "place_buddy_onto_self",
-					"buddy_name": "Eddie"
+				"bonus_effect": {
+					"condition": "advanced_through",
+					"effect_type": "powerup",
+					"amount": 2
 				}
-			},
-			{
-				"timing": "hit",
-				"effect_type": "draw",
-				"amount": 1
 			}
 		],
 		"boost": {
 			"boost_type": "immediate",
 			"force_cost": 0,
 			"cancel_cost": -1,
-			"display_name": "Negative Edge",
+			"display_name": "Hop",
 			"effects": [
 				{
 					"timing": "immediate",
-					"effect_type": "place_buddy_in_any_space",
-					"buddy_name": "Eddie"
+					"effect_type": "move_buddy",
+					"buddy_name": "Shield Knight",
+					"amount": 1,
+					"amount2": 2
+				},
+				{
+					"timing": "immediate",
+					"effect_type": "bonus_action"
 				}
 			]
 		}
