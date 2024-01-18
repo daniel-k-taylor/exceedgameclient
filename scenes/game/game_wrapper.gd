@@ -246,7 +246,8 @@ func can_do_strike(player : Enums.PlayerId) -> bool:
 
 func can_move_to(player_id : Enums.PlayerId, location : int) -> bool:
 	var game_player = _get_player(player_id)
-	return game_player.can_move_to(location)
+	var ignore_force_req = false
+	return game_player.can_move_to(location, ignore_force_req)
 
 func can_do_character_action(player_id : Enums.PlayerId, action_idx : int = 0) -> bool:
 	var game_player = _get_player(player_id)

@@ -92,7 +92,8 @@ func can_do_strike(player : LocalGame.Player) -> bool:
 	return local_game.can_do_strike(player)
 
 func can_move_to(player : LocalGame.Player, location : int) -> bool:
-	return player.can_move_to(location)
+	var ignore_force_req = false
+	return player.can_move_to(location, ignore_force_req)
 
 ### Action Functions ###
 

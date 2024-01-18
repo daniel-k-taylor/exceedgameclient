@@ -1097,7 +1097,7 @@ class Player:
 	func get_available_gauge():
 		return len(gauge)
 
-	func can_move_to(new_arena_location):
+	func can_move_to(new_arena_location, ignore_force_req : bool):
 		if cannot_move: return false
 		if new_arena_location == arena_location: return false
 		var other_player_loc = parent._get_player(parent.get_other_player(my_id)).arena_location
@@ -1107,6 +1107,8 @@ class Player:
 				return false
 			if arena_location > other_player_loc and new_arena_location < other_player_loc:
 				return false
+		if ignore_force_req:
+			return true
 		var required_force = get_force_to_move_to(new_arena_location)
 		return required_force <= get_available_force()
 
@@ -1122,9 +1124,6 @@ class Player:
 
 	func move_to(new_arena_location):
 		var events = []
-		if not can_move_to(new_arena_location):
-			events += [parent.create_event(Enums.EventType.EventType_BlockMovement, my_id, 0)]
-			return events
 		var previous_location = arena_location
 		var distance = abs(arena_location - new_arena_location)
 		var position_changed = arena_location != new_arena_location
@@ -2304,8 +2303,9 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 				"effect_type": "pass"
 			}]
 			decision_info.limitation = [0]
+			var ignore_force_req = true
 			for i in range(MinArenaLocation, MaxArenaLocation + 1):
-				if not performing_player.can_move_to(i):
+				if not performing_player.can_move_to(i, ignore_force_req):
 					continue
 				decision_info.limitation.append(i)
 				decision_info.choice.append({
@@ -3640,7 +3640,8 @@ func do_move(performing_player : Player, card_ids, new_arena_location) -> bool:
 		printlog("ERROR: Cannot perform the move action for this player.")
 		return false
 
-	if not performing_player.can_move_to(new_arena_location):
+	var ignore_force_req = false
+	if not performing_player.can_move_to(new_arena_location, ignore_force_req):
 		printlog("ERROR: Unable to move to that arena location.")
 		return false
 
