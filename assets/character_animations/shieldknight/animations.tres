@@ -1,0 +1,20 @@
+[gd_resource type="SpriteFrames" load_steps=3 format=3 uid="uid://d2xnwbkr5c035"]
+
+[ext_resource type="Texture2D" uid="uid://bduaxlfixvfse" path="res://assets/character_animations/shieldknight/idle/shield_idle.png" id="1_j7r5s"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_suq1m"]
+atlas = ExtResource("1_j7r5s")
+region = Rect2(2, 2, 40, 48)
+
+[resource]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_suq1m")
+}],
+"loop": true,
+"name": &"idle",
+"speed": 5.0
+}]
+metadata/flip = true
+metadata/scaling = 2.5

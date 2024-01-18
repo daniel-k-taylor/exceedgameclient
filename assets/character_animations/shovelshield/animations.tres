@@ -1,0 +1,53 @@
+[gd_resource type="SpriteFrames" load_steps=6 format=3 uid="uid://b3dvfdfs7hybk"]
+
+[ext_resource type="Texture2D" uid="uid://bra8nfwiey8cy" path="res://assets/character_animations/shovelshield/idle/sk_idle.png" id="1_2cocu"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_3c5v2"]
+atlas = ExtResource("1_2cocu")
+region = Rect2(2, 2, 34, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_gno14"]
+atlas = ExtResource("1_2cocu")
+region = Rect2(2, 36, 34, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_dhhcu"]
+atlas = ExtResource("1_2cocu")
+region = Rect2(38, 36, 34, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_krxog"]
+atlas = ExtResource("1_2cocu")
+region = Rect2(74, 36, 34, 32)
+
+[resource]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_3c5v2")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_3c5v2")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_3c5v2")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_3c5v2")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_3c5v2")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_gno14")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_dhhcu")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_krxog")
+}],
+"loop": true,
+"name": &"idle",
+"speed": 5.0
+}]
+metadata/flip = true
+metadata/scaling = 2.5
