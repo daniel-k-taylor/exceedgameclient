@@ -400,6 +400,8 @@ func get_effect_type_text(effect, card_name_source : String = ""):
 			effect_str += "Lose all armor"
 		"name_card_opponent_discards":
 			effect_str += "Name a card. Opponent discards it or reveals not in hand."
+		"move_buddy":
+			effect_str += "Move %s %s space(s)" % [effect['buddy_name'], effect['amount']]
 		"nothing":
 			effect_str += ""
 		"opponent_cant_move_past":

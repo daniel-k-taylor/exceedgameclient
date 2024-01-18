@@ -2341,6 +2341,32 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 			if performing_player == active_strike.initiator:
 				active_strike.initiator_set_face_up = true
 			events += [create_event(Enums.EventType.EventType_RevealStrike_OnePlayer, performing_player.my_id, 0)]
+		"move_buddy":
+			decision_info.choice = []
+			decision_info.limitation = []
+			var optional = 'optional' in effect and effect['optional']
+			if optional:
+				decision_info.limitation.append(0)
+				decision_info.choice.append({
+					"effect_type": "pass"
+				})
+			var num_spaces = effect['amount']
+			for i in range(MinArenaLocation, MaxArenaLocation + 1):
+				var distance = abs(performing_player.buddy_location - i)
+				if distance == num_spaces:
+					decision_info.limitation.append(i)
+					decision_info.choice.append({
+						"effect_type": "place_buddy_into_space",
+						"amount": i
+					})
+			if decision_info.limitation.size() > 1 or (not optional and decision_info.limitation.size() > 0):
+				decision_info.type = Enums.DecisionType.DecisionType_ChooseArenaLocationForEffect
+				decision_info.player = performing_player.my_id
+				decision_info.choice_card_id = card_id
+				decision_info.effect_type = "place_buddy_into_space"
+				decision_info.source = effect['buddy_name']
+				change_game_state(Enums.GameState.GameState_PlayerDecision)
+				events += [create_event(Enums.EventType.EventType_ChooseArenaLocationForEffect, performing_player.my_id, 0)]
 		"multiply_speed_bonuses":
 			performing_player.strike_stat_boosts.speed_bonus_multiplier = max(effect['amount'], performing_player.strike_stat_boosts.speed_bonus_multiplier)
 		"opponent_cant_move_past":
