@@ -7460,20 +7460,39 @@
 		"NOTE": "SHOVEL/SHIELD CARDS START",
 		"id": "shovelshield_tandemattack",
 		"type": "ultra",
-		"display_name": "Sun Void",
+		"display_name": "Tandem Attack",
 		"force_cost": 0,
 		"gauge_cost": 2,
-		"range_min": 0,
+		"range_min": 1,
 		"range_max": 1,
-		"speed": 7,
-		"power": 3,
+		"speed": 5,
+		"power": 7,
 		"armor": 0,
 		"guard": 0,
 		"effects": [
 			{
-				"timing": "during_strike",
-				"effect_type": "do_not_remove_buddy",
-				"buddy_name": "Eddie"
+				"timing": "before",
+				"effect_type": "choice",
+				"choice": [
+					{
+						"effect_type": "advance",
+						"amount": 1,
+						"bonus_effect": {
+							"condition": "not_advanced_through_buddy",
+							"condition_detail": "Shield Knight",
+							"effect_type": "attack_does_not_hit"
+						}
+					},
+					{
+						"effect_type": "advance",
+						"amount": 2,
+						"bonus_effect": {
+							"condition": "not_advanced_through_buddy",
+							"condition_detail": "Shield Knight",
+							"effect_type": "attack_does_not_hit"
+						}
+					}
+				]
 			}
 		],
 		"boost": {

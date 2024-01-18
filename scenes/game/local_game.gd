@@ -1902,6 +1902,10 @@ func is_effect_condition_met(performing_player : Player, effect, local_condition
 			return local_conditions.advanced_through
 		elif condition == "not_advanced_through":
 			return not local_conditions.advanced_through
+		elif condition == "advanced_through_buddy":
+			return local_conditions.advanced_through_buddy
+		elif condition == "not_advanced_through_buddy":
+			return not local_conditions.advanced_through_buddy
 		elif condition == "not_full_push":
 			return not local_conditions.fully_pushed
 		elif condition == "pulled_past":
@@ -2010,6 +2014,7 @@ class LocalStrikeConditions:
 	var fully_retreated : bool = false
 	var fully_pushed : bool = false
 	var advanced_through : bool = false
+	var advanced_through_buddy : bool = false
 	var pulled_past : bool = false
 	var manual_reshuffle : bool = false
 
@@ -2028,6 +2033,7 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 	var performing_start = performing_player.arena_location
 	var opposing_player : Player = _get_player(get_other_player(performing_player.my_id))
 	var other_start = opposing_player.arena_location
+	var buddy_start = performing_player.get_buddy_location()
 	match effect['effect_type']:
 		"add_boost_to_gauge_on_strike_cleanup":
 			if card_id == -1:
@@ -2080,7 +2086,14 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 				var new_location = performing_player.arena_location
 				if (performing_start < other_start and new_location > other_start) or (performing_start > other_start and new_location < other_start):
 					local_conditions.advanced_through = true
+				if (performing_start <= buddy_start and new_location >= buddy_start) or (performing_start >= buddy_start and new_location <= buddy_start):
+					local_conditions.advanced_through_buddy = true
 				_append_log("%s Advance %s - Moved from %s to %s." % [performing_player.name, str(amount), str(previous_location), str(new_location)])
+			else:
+				# re-queue movement to finish processing later
+				var requeue_effect = effect.duplicate()
+				requeue_effect['card_id'] = card_id
+				active_strike.remaining_effect_list += [requeue_effect]
 		"armorup":
 			performing_player.strike_stat_boosts.armor += effect['amount']
 			events += [create_event(Enums.EventType.EventType_Strike_ArmorUp, performing_player.my_id, effect['amount'])]
@@ -2231,6 +2244,11 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 				var close_amount = abs(performing_start - new_location)
 				local_conditions.fully_closed = close_amount == effect['amount']
 				_append_log("%s Close %s - Moved from %s to %s." % [performing_player.name, str(effect['amount']), str(previous_location), str(new_location)])
+			else:
+				# re-queue movement to finish processing later
+				var requeue_effect = effect.duplicate()
+				requeue_effect['card_id'] = card_id
+				active_strike.remaining_effect_list += [requeue_effect]
 		"critical":
 			performing_player.strike_stat_boosts.critical = true
 			events += [create_event(Enums.EventType.EventType_Strike_Critical, performing_player.my_id, 0)]
@@ -3001,8 +3019,6 @@ func do_remaining_effects(performing_player : Player, next_state):
 			events += do_effect_if_condition_met(performing_player, effect['card_id'], effect, null)
 			if player.resolving_advance_effect or player.resolving_close_effect:
 				assert(game_state == Enums.GameState.GameState_PlayerDecision, "Expected decision game state")
-				# re-queue movement to finish processing later
-				active_strike.remaining_effect_list = [effect]
 				break
 
 		if game_over:

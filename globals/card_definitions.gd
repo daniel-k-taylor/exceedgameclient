@@ -188,6 +188,8 @@ func get_condition_text(condition, amount, amount2, detail):
 	match condition:
 		"advanced_through":
 			text += "If advanced past opponent, "
+		"not_advanced_through_buddy":
+			text += "If didn't advance through %s, " % detail
 		"at_edge_of_arena":
 			text += "If at arena edge, "
 		"boost_in_play":
