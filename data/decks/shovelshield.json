@@ -7,7 +7,7 @@
 	"buddy_card": "shieldknight",
 	"buddy_display_name": "Shield Knight",
 	"buddy_exceeds": true,
-	"buddy_always_on_field": true,
+	"buddy_starting_offset": 0,
 	"on_exceed": {
 		"effect_type": "place_buddy_in_any_space",
 		"buddy_name": "Shield Knight"

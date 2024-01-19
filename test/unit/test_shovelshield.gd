@@ -316,7 +316,7 @@ func test_shovelshield_tandemattack_fail():
 func test_shovelshield_inseperable_off_buddy():
 	position_players(player1, 4, player2, 5)
 	player1.buddy_location = 3
-	player1.update_on_buddy_space()
+	player1.on_position_changed(3, 3)
 
 	give_player_specific_card(player1, "shovelshield_tandemattack", TestCardId3)
 	assert_true(game_logic.do_boost(player1, TestCardId3, [player1.hand[0].id]))
@@ -328,7 +328,7 @@ func test_shovelshield_inseperable_off_buddy():
 func test_shovelshield_inseperable_on_buddy():
 	position_players(player1, 4, player2, 5)
 	player1.buddy_location = 4
-	player1.update_on_buddy_space()
+	player1.on_position_changed(3, 3)
 
 	give_player_specific_card(player1, "shovelshield_tandemattack", TestCardId3)
 	assert_true(game_logic.do_boost(player1, TestCardId3, [player1.hand[0].id]))
@@ -340,7 +340,7 @@ func test_shovelshield_inseperable_on_buddy():
 func test_shovelshield_inseperable_pushed_into():
 	position_players(player1, 4, player2, 5)
 	player1.buddy_location = 2
-	player1.update_on_buddy_space()
+	player1.on_position_changed(3, 3)
 
 	give_player_specific_card(player1, "shovelshield_tandemattack", TestCardId3)
 	assert_true(game_logic.do_boost(player1, TestCardId3, [player1.hand[0].id]))
@@ -352,7 +352,7 @@ func test_shovelshield_inseperable_pushed_into():
 func test_shovelshield_inseperable_where_are_you_going():
 	position_players(player1, 4, player2, 5)
 	player1.buddy_location = 4
-	player1.update_on_buddy_space()
+	player1.on_position_changed(3, 3)
 
 	give_player_specific_card(player1, "shovelshield_tandemattack", TestCardId3)
 	assert_true(game_logic.do_boost(player1, TestCardId3, [player1.hand[0].id]))

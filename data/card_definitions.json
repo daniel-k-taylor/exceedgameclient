@@ -7516,7 +7516,7 @@
 					"timing": "now",
 					"condition": "on_buddy_space",
 					"condition_detail": "Shield Knight",
-					"effect_type": "ignore_push_and_pull_boost"
+					"effect_type": "ignore_push_and_pull_passive_bonus"
 				},
 				{
 					"timing": "now",
@@ -7524,7 +7524,7 @@
 				},
 				{
 					"timing": "discarded",
-					"effect_type": "remove_ignore_push_and_pull_boost"
+					"effect_type": "remove_ignore_push_and_pull_passive_bonus"
 				}
 			]
 		}
