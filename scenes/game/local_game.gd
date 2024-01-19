@@ -1157,8 +1157,21 @@ class Player:
 
 	func move_to(new_arena_location):
 		var events = []
+
+		if cannot_move:
+			events += [parent.create_event(Enums.EventType.EventType_BlockMovement, my_id, 0)]
+			return events
+
+		var other_player_loc = parent._get_player(parent.get_other_player(my_id)).arena_location
+		if cannot_move_past_opponent:
+			if arena_location < other_player_loc and new_arena_location > other_player_loc:
+				new_arena_location = other_player_loc - 1
+			if arena_location > other_player_loc and new_arena_location < other_player_loc:
+				new_arena_location = other_player_loc + 1
+
 		var previous_location = arena_location
 		var distance = abs(arena_location - new_arena_location)
+
 		var position_changed = arena_location != new_arena_location
 		arena_location = new_arena_location
 		events += [parent.create_event(Enums.EventType.EventType_Move, my_id, new_arena_location, "move", distance, previous_location)]
