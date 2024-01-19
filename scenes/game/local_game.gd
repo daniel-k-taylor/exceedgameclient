@@ -3125,7 +3125,7 @@ func get_all_effects_for_timing(timing_name : String, performing_player : Player
 	return all_effects
 
 func remove_remaining_effect(effect, card_id):
-	if active_strike:
+	if active_strike and 'timing' in effect:
 		for remaining_effect in active_strike.remaining_effect_list:
 			if remaining_effect['timing'] == effect['timing'] and remaining_effect['card_id'] == card_id:
 				active_strike.remaining_effect_list.erase(remaining_effect)
