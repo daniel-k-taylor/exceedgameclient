@@ -309,6 +309,12 @@ func get_effect_type_text(effect, card_name_source : String = ""):
 				effect_str += "X"
 			else:
 				effect_str += str(effect['amount'])
+		"advance_INTERNAL":
+			effect_str += "Advance "
+			if str(effect['amount']) == "strike_x":
+				effect_str += "X"
+			else:
+				effect_str += str(effect['amount'])
 		"armorup":
 			effect_str += "+" + str(effect['amount']) + " Armor"
 		"attack_does_not_hit":
@@ -351,6 +357,8 @@ func get_effect_type_text(effect, card_name_source : String = ""):
 		"choose_sustain_boost":
 			effect_str += "Choose a boost to sustain."
 		"close":
+			effect_str += "Close " + str(effect['amount'])
+		"close_INTERNAL":
 			effect_str += "Close " + str(effect['amount'])
 		"critical":
 			effect_str += "Critical Strike"
@@ -421,13 +429,13 @@ func get_effect_type_text(effect, card_name_source : String = ""):
 			effect_str += "Lose all armor"
 		"name_card_opponent_discards":
 			effect_str += "Name a card. Opponent discards it or reveals not in hand."
+		"may_advance_bonus_spaces":
+			effect_str = "You may Advance/Close %s extra space(s)" % effect['amount']
 		"move_buddy":
 			var movement_str = "%s" % effect['amount']
 			if effect['amount'] != effect['amount2']:
 				movement_str += "-%s" % effect['amount2']
 			effect_str += "Move %s %s space(s)" % [effect['buddy_name'], movement_str]
-		"next_advance_bonus_spaces":
-			effect_str = "Advance/Close %s extra space(s)" % effect['amount']
 		"nothing":
 			effect_str += ""
 		"opponent_cant_move_past":

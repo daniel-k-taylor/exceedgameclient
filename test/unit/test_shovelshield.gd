@@ -212,14 +212,14 @@ func validate_life(p1, l1, p2, l2):
 func test_shovelshield_bonus_advance():
 	position_players(player1, 2, player2, 6)
 	player1.buddy_location = 2
-	execute_strike(player1, player2, "standard_normal_dive","standard_normal_sweep", [0], [], false, false)
+	execute_strike(player1, player2, "standard_normal_dive","standard_normal_sweep", [1], [], false, false)
 	validate_positions(player1, 7, player2, 6)
 	validate_life(player1, 30, player2, 25)
 
 func test_shovelshield_bonus_close():
 	position_players(player1, 3, player2, 6)
 	player1.buddy_location = 3
-	execute_strike(player1, player2, "standard_normal_assault","standard_normal_sweep", [0], [], false, false)
+	execute_strike(player1, player2, "standard_normal_assault","standard_normal_sweep", [1], [], false, false)
 	validate_positions(player1, 5, player2, 6)
 	validate_life(player1, 24, player2, 26)
 
@@ -282,7 +282,7 @@ func test_shovelshield_tandemattack_success_start_buddy():
 	player1.buddy_location = 3
 	give_gauge(player1, 2)
 
-	execute_strike(player1, player2, "shovelshield_tandemattack","standard_normal_sweep", [1, 1], [], false, false)
+	execute_strike(player1, player2, "shovelshield_tandemattack","standard_normal_sweep", [1, 0], [], false, false)
 	validate_positions(player1, 5, player2, 6)
 	validate_life(player1, 30, player2, 23)
 
@@ -364,6 +364,6 @@ func test_shovelshield_inseperable_where_are_you_going():
 	assert_eq(player1.buddy_location, 2)
 	advance_turn(player1)
 
-	execute_strike(player2, player1, "standard_normal_grasp","standard_normal_assault", [1], [0], false, false)
+	execute_strike(player2, player1, "standard_normal_grasp","standard_normal_assault", [1], [1], false, false)
 	validate_positions(player1, 4, player2, 5)
 	validate_life(player1, 30, player2, 26)
