@@ -413,6 +413,10 @@ func get_effect_type_text(effect, card_name_source : String = ""):
 			effect_str += "Ignore guard"
 		"ignore_push_and_pull":
 			effect_str += "Ignore Push and Pull"
+		"ignore_push_and_pull_boost":
+			effect_str += "Ignore Push and Pull"
+		"remove_ignore_push_and_pull_boost":
+			effect_str += ""
 		"lose_all_armor":
 			effect_str += "Lose all armor"
 		"name_card_opponent_discards":

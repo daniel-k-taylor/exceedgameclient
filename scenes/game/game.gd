@@ -2384,8 +2384,9 @@ func update_boost_summary(boosts_card_holder, boost_box):
 	for card_id in card_ids:
 		var card = card_db.get_card(card_id)
 		for effect in card.definition['boost']['effects']:
-			if effect['timing'] != "now" and effect['timing'] != "discarded":
-				effects.append(effect)
+			if effect['timing'] != "now" or effect['effect_type'] == "ignore_push_and_pull_boost":
+				if effect['timing'] != "discarded":
+					effects.append(effect)
 	var boost_summary = ""
 	for effect in effects:
 		boost_summary += CardDefinitions.get_effect_text(effect) + "\n"
