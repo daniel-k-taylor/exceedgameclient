@@ -1038,7 +1038,7 @@ func _on_name_opponent_card_begin(event):
 			"popout_type": CardPopoutType.CardPopoutType_ReferenceOpponent,
 			"instruction_text": "Name an opponent card.",
 			"ok_text": "OK",
-			"cancel_text": "Name Exodia",
+			"cancel_text": "Reveal Hand",
 			"ok_enabled": true,
 			"cancel_visible": cancel_allowed,
 			"normal_only": normal_only,
