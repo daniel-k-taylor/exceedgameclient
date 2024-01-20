@@ -1,0 +1,186 @@
+{
+	"id": "jin",
+	"season": 5,
+	"display_name": "Jin",
+	"cardback": "cardback_defaultexceed.png",
+	"exceed_cost": 4,
+	"exceed_to_overdrive": true,
+	"on_exceed": {
+		"effect_type": "draw",
+		"amount": 2
+	},
+	"overdrive_effect": {
+		"effect_type": "draw",
+		"amount": 1
+	},
+	"ability_effects": [
+		{
+			"timing": "on_reshuffle",
+			"condition": "manual_reshuffle",
+			"effect_type": "add_set_aside_card_to_deck",
+			"id": "jin_arcticdungeon"
+		},
+		{
+			"timing": "set_strike",
+			"effect_type": "gauge_for_effect",
+			"per_gauge_effect": null,
+			"overall_effect": {
+				"effect_type": "set_used_character_bonus",
+				"linked_effect": {
+					"timing": "after",
+					"effect_type": "draw",
+					"amount": 2
+				}
+			},
+			"gauge_max": 1
+		},
+		{
+			"character_effect": true,
+			"timing": "after",
+			"condition": "used_character_bonus",
+			"effect_type": "draw",
+			"amount": 2
+		}
+	],
+	"exceed_ability_effects": [
+		{
+			"character_effect": true,
+			"timing": "hit",
+			"effect_type": "opponent_discard_choose",
+			"amount": 1
+		},
+		{
+			"character_effect": true,
+			"timing": "after",
+			"effect_type": "draw",
+			"amount": 1
+		}
+	],
+	"cards": [
+		{
+			"set_aside": true,
+			"definition_id": "jin_arcticdungeon",
+			"image": "jin_arcticdungeon.tres"
+		},
+		{
+			"definition_id": "jin_moonsong",
+			"image": "jin_moonsong.tres"
+		},
+		{
+			"definition_id": "jin_moonsong",
+			"image": "jin_moonsong.tres"
+		},
+		{
+			"definition_id": "jin_icefang",
+			"image": "jin_icefang.tres"
+		},
+		{
+			"definition_id": "jin_icefang",
+			"image": "jin_icefang.tres"
+		},
+		{
+			"definition_id": "jin_violentice",
+			"image": "jin_violentice.tres"
+		},
+		{
+			"definition_id": "jin_violentice",
+			"image": "jin_violentice.tres"
+		},
+		{
+			"definition_id": "jin_crystalstrike",
+			"image": "jin_crystalstrike.tres"
+		},
+		{
+			"definition_id": "jin_crystalstrike",
+			"image": "jin_crystalstrike.tres"
+		},
+		{
+			"definition_id": "jin_permafrost",
+			"image": "jin_permafrost.tres"
+		},
+		{
+			"definition_id": "jin_permafrost",
+			"image": "jin_permafrost.tres"
+		},
+		{
+			"definition_id": "jin_iceblade",
+			"image": "jin_iceblade.tres"
+		},
+		{
+			"definition_id": "jin_iceblade",
+			"image": "jin_iceblade.tres"
+		},
+		{
+			"definition_id": "jin_dualicestrike",
+			"image": "jin_dualicestrike.tres"
+		},
+		{
+			"definition_id": "jin_dualicestrike",
+			"image": "jin_dualicestrike.tres"
+		},
+		{
+			"definition_id": "standard_normal_grasp",
+			"image": "normal_grasp.tres"
+		},
+		{
+			"definition_id": "standard_normal_grasp",
+			"image": "normal_grasp.tres"
+		},
+		{
+			"definition_id": "standard_normal_cross",
+			"image": "normal_cross.tres"
+		},
+		{
+			"definition_id": "standard_normal_cross",
+			"image": "normal_cross.tres"
+		},
+		{
+			"definition_id": "standard_normal_assault",
+			"image": "normal_assault.tres"
+		},
+		{
+			"definition_id": "standard_normal_assault",
+			"image": "normal_assault.tres"
+		},
+		{
+			"definition_id": "standard_normal_dive",
+			"image": "normal_dive.tres"
+		},
+		{
+			"definition_id": "standard_normal_dive",
+			"image": "normal_dive.tres"
+		},
+		{
+			"definition_id": "standard_normal_spike",
+			"image": "normal_spike.tres"
+		},
+		{
+			"definition_id": "standard_normal_spike",
+			"image": "normal_spike.tres"
+		},
+		{
+			"definition_id": "standard_normal_sweep",
+			"image": "normal_sweep.tres"
+		},
+		{
+			"definition_id": "standard_normal_sweep",
+			"image": "normal_sweep.tres"
+		},
+		{
+			"definition_id": "standard_normal_focus",
+			"image": "normal_focus.tres"
+		},
+		{
+			"definition_id": "standard_normal_focus",
+			"image": "normal_focus.tres"
+		},
+		{
+			"definition_id": "standard_normal_block",
+			"image": "normal_block.tres"
+		},
+		{
+			"definition_id": "standard_normal_block",
+			"image": "normal_block.tres"
+		}
+	]
+}

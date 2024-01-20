@@ -1,0 +1,16 @@
+[gd_resource type="SpriteFrames" load_steps=2 format=3 uid="uid://5kek30pcnnyl"]
+
+[ext_resource type="Texture2D" uid="uid://ci4kvbdgi80dp" path="res://assets/character_animations/jin/idle/idle.png" id="1_aordj"]
+
+[resource]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("1_aordj")
+}],
+"loop": true,
+"name": &"idle",
+"speed": 5.0
+}]
+metadata/flip = true
+metadata/scaling = 0.8

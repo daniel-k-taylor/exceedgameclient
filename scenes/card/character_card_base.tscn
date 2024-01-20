@@ -1,7 +1,7 @@
 [gd_scene load_steps=12 format=3 uid="uid://dvan4a8ftuplj"]
 
-[ext_resource type="Texture2D" uid="uid://b61gro3gblok8" path="res://assets/character_images/sol.png" id="1_1coex"]
 [ext_resource type="Script" path="res://scenes/card/character_card_base.gd" id="1_mmbsg"]
+[ext_resource type="Texture2D" uid="uid://8pvgp7ipunso" path="res://assets/portraits/solbadguy.png" id="2_g8did"]
 [ext_resource type="Texture2D" uid="uid://cwlap1h8ius6o" path="res://assets/cards/solbadguy/character_default.jpg" id="3_wh1pl"]
 [ext_resource type="Texture2D" uid="uid://kwcp6d7oulcg" path="res://assets/cards/border_thin_hover.png" id="4_7csga"]
 [ext_resource type="Texture2D" uid="uid://cy0pcorknc8op" path="res://assets/cards/border_thin_pressed.png" id="4_vb7wr"]
@@ -66,14 +66,14 @@ layout_mode = 2
 [node name="CharacterImage" type="TextureRect" parent="MainPanelContainer/MainContainer/VerticalLayout/ImageMarginContainer/ImageHBox"]
 layout_mode = 2
 size_flags_horizontal = 3
-texture = ExtResource("1_1coex")
+texture = ExtResource("2_g8did")
 expand_mode = 5
 
 [node name="CharacterExceedImage" type="TextureRect" parent="MainPanelContainer/MainContainer/VerticalLayout/ImageMarginContainer/ImageHBox"]
 visible = false
 layout_mode = 2
 size_flags_horizontal = 3
-texture = ExtResource("1_1coex")
+texture = ExtResource("2_g8did")
 expand_mode = 5
 
 [node name="RightCharacterMargin" type="MarginContainer" parent="MainPanelContainer/MainContainer/VerticalLayout/ImageMarginContainer/ImageHBox"]

@@ -159,6 +159,8 @@ func get_timing_text(timing):
 			text += ""
 		"during_strike":
 			text += ""
+		"end_of_turn":
+			text += "At end of your turn: "
 		"hit":
 			text += "[b]Hit:[/b] "
 		"immediate":
@@ -222,6 +224,8 @@ func get_condition_text(condition, amount, amount2, detail):
 			text += "If pulled opponent past you, "
 		"used_character_action":
 			text += ""
+		"used_character_bonus":
+			text += ""
 		"range":
 			text += "If the opponent is at range %s, " % amount
 		"range_greater_or_equal":
@@ -242,6 +246,10 @@ func get_condition_text(condition, amount, amount2, detail):
 			text += "If %s is between you and attack source, " % detail
 		"buddy_between_opponent":
 			text += "If %s is between you and opponent, " % detail
+		"more_cards_than_opponent":
+			text += "If you have more cards in hand than opponent, "
+		"opponent_at_edge_of_arena":
+			text += "If opponent at arena edge, "
 		"opponent_between_buddy":
 			text += "If opponent is between you and %s, " % detail
 		"is_buddy_special_attack":
@@ -531,6 +539,8 @@ func get_effect_type_text(effect, card_name_source : String = ""):
 				effect_str += optional_text + "Seal " + str(effect['amount']) + limitation + " card(s)" + bonus
 			else:
 				effect_str += optional_text + "Discard " + str(effect['amount']) + limitation + " card(s)" + bonus
+		"set_used_character_bonus":
+			effect_str += ": " + get_effect_text(effect['linked_effect'], false, false, false)
 		"shuffle_hand_to_deck":
 			effect_str += "Shuffle hand into deck"
 		"shuffle_sealed_to_deck":
