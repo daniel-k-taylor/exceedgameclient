@@ -69,6 +69,7 @@ var enabled_reminder_text = false
 var arena_locations_clickable = []
 var selected_arena_location = 0
 var force_for_armor_incoming_damage = 0
+var force_for_armor_ignore_armor = false
 var popout_exlude_card_ids = []
 var selected_character_action = 0
 var cached_player_location = 0
@@ -1585,7 +1586,11 @@ func update_force_generation_message():
 			set_instructions("Select cards to generate force to draw new cards.\n%s force generated." % [force_selected])
 		UISubState.UISubState_SelectCards_ForceForArmor:
 			var damage_after_armor = max(0, force_for_armor_incoming_damage - 2 * force_selected)
-			set_instructions("Select cards to generate force for +2 Armor each.\n%s force generated.\nYou will take %s damage." % [force_selected, damage_after_armor])
+			var ignore_armor_str = ""
+			if force_for_armor_ignore_armor:
+				damage_after_armor = force_for_armor_incoming_damage
+				ignore_armor_str = "Armor Ignored! "
+			set_instructions("Select cards to generate force for +2 Armor each.\n%s force generated.\n%sYou will take %s damage." % [force_selected, ignore_armor_str, damage_after_armor])
 		UISubState.UISubState_SelectCards_StrikeForce:
 			set_instructions("Select cards to generate %s force for this strike.\n%s force generated." % [select_card_require_force, force_selected])
 		UISubState.UISubState_SelectCards_ForceForEffect:
@@ -1970,6 +1975,7 @@ func _on_pay_cost_failed(event):
 func _on_force_for_armor(event):
 	var player = event['event_player']
 	force_for_armor_incoming_damage = event['number']
+	force_for_armor_ignore_armor = event['extra_info']
 	if player == Enums.PlayerId.PlayerId_Player:
 		change_ui_state(null, UISubState.UISubState_SelectCards_ForceForArmor)
 		begin_generate_force_selection(-1)

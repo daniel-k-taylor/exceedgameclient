@@ -115,14 +115,18 @@ func validate_discard(player, amount, id):
 			return
 	fail_test("Didn't have required card in discard.")
 
-func handle_simultaneous_effects(initiator, defender):
+func handle_simultaneous_effects(initiator, defender, simul_effect_choices : Array):
 	while game_logic.game_state == Enums.GameState.GameState_PlayerDecision and game_logic.decision_info.type == Enums.DecisionType.DecisionType_ChooseSimultaneousEffect:
 		var decider = initiator
 		if game_logic.decision_info.player == defender.my_id:
 			decider = defender
-		assert_true(game_logic.do_choice(decider, 0), "Failed simuleffect choice")
+		var choice = 0
+		if len(simul_effect_choices) > 0:
+			choice = simul_effect_choices[0]
+			simul_effect_choices.remove_at(0)
+		assert_true(game_logic.do_choice(decider, choice), "Failed simuleffect choice")
 		
-func execute_strike(initiator, defender, init_card : String, def_card : String, init_choices, def_choices, init_ex = false, def_ex = false, init_force_discard = [], def_force_discard = [], init_extra_cost = 0):
+func execute_strike(initiator, defender, init_card : String, def_card : String, init_choices, def_choices, init_ex = false, def_ex = false, init_force_discard = [], def_force_discard = [], init_extra_cost = 0, simul_effect_choices = []):
 	var all_events = []
 	give_specific_cards(initiator, init_card, defender, def_card)
 	if init_ex:
@@ -159,18 +163,18 @@ func execute_strike(initiator, defender, init_card : String, def_card : String, 
 			cards.append(defender.gauge[i].id)
 		game_logic.do_pay_strike_cost(defender, cards, false)
 
-	handle_simultaneous_effects(initiator, defender)
+	handle_simultaneous_effects(initiator, defender, simul_effect_choices)
 
 	for i in range(init_choices.size()):
 		assert_eq(game_logic.game_state, Enums.GameState.GameState_PlayerDecision)
 		assert_true(game_logic.do_choice(initiator, init_choices[i]))
-		handle_simultaneous_effects(initiator, defender)
-	handle_simultaneous_effects(initiator, defender)
+		handle_simultaneous_effects(initiator, defender, simul_effect_choices)
+	handle_simultaneous_effects(initiator, defender, simul_effect_choices)
 
 	for i in range(def_choices.size()):
 		assert_eq(game_logic.game_state, Enums.GameState.GameState_PlayerDecision)
 		assert_true(game_logic.do_choice(defender, def_choices[i]))
-		handle_simultaneous_effects(initiator, defender)
+		handle_simultaneous_effects(initiator, defender, simul_effect_choices)
 
 	var events = game_logic.get_latest_events()
 	all_events += events
@@ -279,3 +283,37 @@ func test_nu_sworddance_boost_strike():
 	assert_true(player2.can_move_to(8, true))
 	assert_true(player2.can_move_to(9, true))
 	assert_eq(game_logic.game_state, Enums.GameState.GameState_PickAction)
+
+func test_nu_swordofdestruction():
+	position_players(player1, 3, player2, 7)
+	give_gauge(player1, 3)
+	player1.exceed()
+	execute_strike(player1, player2, "nu13_swordofdestruction", "standard_normal_assault", [0], [], false, false)
+	
+	validate_positions(player1, 6, player2, 7)
+	validate_life(player1, 30, player2, 17)
+
+func test_nu_sicklestorm():
+	position_players(player1, 3, player2, 7)
+	execute_strike(player1, player2, "nu13_sicklestorm", "standard_normal_dive", [0], [], false, false)
+	
+	validate_positions(player1, 3, player2, 9)
+	validate_life(player1, 30, player2, 26)
+
+func test_nu_sicklestorm_adv_range5():
+	position_players(player1, 3, player2, 8)
+	execute_strike(player1, player2, "nu13_sicklestorm", "standard_normal_dive", [], [], false, false, [player1.hand[0].id])
+	
+	validate_positions(player1, 3, player2, 8)
+	validate_life(player1, 30, player2, 26)
+	assert_eq(game_logic.active_turn_player, player1.my_id)
+
+func test_nu_sicklestorm_boost_adv():
+	position_players(player1, 3, player2, 7)
+	give_player_specific_card(player1, "nu13_sicklestorm", TestCardId3)
+	assert_true(game_logic.do_boost(player1, TestCardId3))
+	advance_turn(player2)
+	execute_strike(player1, player2, "nu13_sicklestorm", "standard_normal_dive", [0], [], false, false, [], [], 0, [1])
+	
+	validate_positions(player1, 3, player2, 8)
+	validate_life(player1, 30, player2, 26)
