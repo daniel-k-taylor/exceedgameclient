@@ -17,6 +17,7 @@ const RoomMaxLen = 16
 @onready var matchmake_button = $MenuList/MatchmakeButton
 
 @onready var char_select = $CharSelect
+@onready var change_player_character_button : Button = $PlayerChooser/ChangePlayerCharacterButton
 @onready var player_char_label : Label = $PlayerChooser/MarginContainer/VBoxContainer/HBoxContainer/CharName
 @onready var player_char_portrait : TextureRect = $PlayerChooser/MarginContainer/VBoxContainer/HBoxContainer/CharPortrait
 
@@ -122,6 +123,7 @@ func _on_join_button_pressed():
 
 func update_buttons(joining : bool):
 	start_ai_button.disabled = joining
+	change_player_character_button.disabled = joining
 	room_select.editable = not joining
 	join_box.visible = not joining
 	matchmake_button.visible = not joining
