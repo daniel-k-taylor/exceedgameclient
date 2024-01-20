@@ -1,3 +1,4 @@
 .godot/
 .tmp
 /export/
+.gut_editor_config.json

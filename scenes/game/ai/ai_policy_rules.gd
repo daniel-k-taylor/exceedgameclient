@@ -39,7 +39,7 @@ func evaluate_card_matchup(_card1, _card2):
 func calculate_damage_for_strike(_check_player : Enums.PlayerId, _ai_game_state : AIPlayer.AIGameState) -> int:
 	return 4
 
-func get_locations_after_effect(effect, my_location, opponent_location):
+func get_locations_after_effect(effect, my_location, opponent_location, buddy_location):
 	var direction = -1
 	if my_location < opponent_location:
 		direction = 1
@@ -74,15 +74,18 @@ func get_locations_after_effect(effect, my_location, opponent_location):
 			for i in range(effect['amount']):
 				my_location -= direction
 			my_location = clamp(my_location, 1, 9)
+		'place_buddy_onto_self':
+			buddy_location = my_location
 
 	if 'and' in effect:
-		var and_result = get_locations_after_effect(effect['and'], my_location, opponent_location)
+		var and_result = get_locations_after_effect(effect['and'], my_location, opponent_location, buddy_location)
 		my_location = and_result['my_location']
 		opponent_location = and_result['opponent_location']
 
 	var result = {
 		"my_location": my_location,
 		"opponent_location": opponent_location,
+		"buddy_location": buddy_location
 	}
 	return result
 
@@ -94,8 +97,9 @@ func can_card_hit(card_id : int, ex_card_id : int, ai_game_state : AIPlayer.AIGa
 	var ex_card = null
 	if ex_card_id != -1:
 		ex_card = ai_game_state.card_db.get_card(ex_card_id)
-	if card.definition['id'] == "gg_normal_block":
-		if ex_card and ex_card.definition['id'] == "gg_normal_block":
+	var blocks = ["gg_normal_block", "uni_normal_block", "standard_normal_block"]
+	if card.definition['id'] in blocks:
+		if ex_card and ex_card.definition['id'] in blocks:
 			# No EX Block!
 			return false
 		return true
@@ -106,13 +110,20 @@ func can_card_hit(card_id : int, ex_card_id : int, ai_game_state : AIPlayer.AIGa
 
 	var my_location = ai_game_state.my_state.arena_location
 	var opponent_location = ai_game_state.opponent_state.arena_location
+	var buddy_location = ai_game_state.my_state.buddy_location
+	var from_buddy = false
 	for effect in card.definition['effects']:
 		if effect['timing'] == "before":
-			var result = get_locations_after_effect(effect, my_location, opponent_location)
+			var result = get_locations_after_effect(effect, my_location, opponent_location, buddy_location)
 			my_location = result['my_location']
 			opponent_location = result['opponent_location']
+			buddy_location = result['buddy_location']
+		if effect['effect_type'] == "calculate_range_from_buddy":
+			from_buddy = true
 
 	var distance_after_effects = abs(my_location - opponent_location)
+	if from_buddy:
+		distance_after_effects = abs(buddy_location - opponent_location)
 	if card.definition['range_min'] <= distance_after_effects and distance_after_effects <= card.definition['range_max']:
 		return true
 	else:

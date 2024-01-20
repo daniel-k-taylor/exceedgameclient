@@ -24,6 +24,7 @@ class AIPlayerState:
 	var continuous_boosts
 	var gauge
 	var arena_location
+	var buddy_location
 	var exceed_cost
 	var exceeded
 	var reshuffle_remaining
@@ -205,6 +206,7 @@ func update_ai_state(_game_logic : LocalGame, me : LocalGame.Player, opponent : 
 	game_state.my_state.continuous_boosts = create_card_id_array(me.continuous_boosts)
 	game_state.my_state.gauge = create_card_id_array(me.gauge)
 	game_state.my_state.arena_location = me.arena_location
+	game_state.my_state.buddy_location = me.buddy_location
 	game_state.my_state.exceed_cost = me.exceed_cost
 	game_state.my_state.exceeded = me.exceeded
 	game_state.my_state.reshuffle_remaining = me.reshuffle_remaining
@@ -218,6 +220,7 @@ func update_ai_state(_game_logic : LocalGame, me : LocalGame.Player, opponent : 
 	game_state.opponent_state.continuous_boosts = create_card_id_array(opponent.continuous_boosts)
 	game_state.opponent_state.gauge = create_card_id_array(opponent.gauge)
 	game_state.opponent_state.arena_location = opponent.arena_location
+	game_state.opponent_state.buddy_location = opponent.buddy_location
 	game_state.opponent_state.exceed_cost = opponent.exceed_cost
 	game_state.opponent_state.exceeded = opponent.exceeded
 	game_state.opponent_state.reshuffle_remaining = opponent.reshuffle_remaining

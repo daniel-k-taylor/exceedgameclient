@@ -56,10 +56,17 @@ grow_vertical = 2
 [node name="VSAIBox" type="HBoxContainer" parent="MenuList"]
 layout_mode = 2
 
-[node name="StartButton" type="Button" parent="MenuList/VSAIBox"]
+[node name="FightSettings" type="VBoxContainer" parent="MenuList/VSAIBox"]
+layout_mode = 2
+
+[node name="StartButton" type="Button" parent="MenuList/VSAIBox/FightSettings"]
 layout_mode = 2
 theme_override_font_sizes/font_size = 60
 text = "Start vs AI"
+
+[node name="RandomizeFirstCheckbox" type="CheckBox" parent="MenuList/VSAIBox/FightSettings"]
+layout_mode = 2
+text = "Randomize First Player VS AI"
 
 [node name="OpponentChooser" type="PanelContainer" parent="MenuList/VSAIBox"]
 layout_mode = 2
@@ -258,7 +265,7 @@ text = "Connecting to server...."
 [node name="CharSelect" parent="." instance=ExtResource("2_6qq11")]
 visible = false
 
-[connection signal="pressed" from="MenuList/VSAIBox/StartButton" to="." method="_on_start_button_pressed"]
+[connection signal="pressed" from="MenuList/VSAIBox/FightSettings/StartButton" to="." method="_on_start_button_pressed"]
 [connection signal="pressed" from="MenuList/VSAIBox/OpponentChooser/ChangePlayerCharacterButton" to="." method="_on_change_player_character_button_pressed" binds= [false]]
 [connection signal="pressed" from="MenuList/MatchmakeButton" to="." method="_on_matchmake_button_pressed"]
 [connection signal="pressed" from="MenuList/JoinBox/JoinButton" to="." method="_on_join_button_pressed"]

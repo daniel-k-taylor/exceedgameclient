@@ -1,0 +1,7 @@
+[gd_resource type="AtlasTexture" load_steps=2 format=3 uid="uid://d3uls1e8i1n2q"]
+
+[ext_resource type="Texture2D" uid="uid://cmhjwruyxotd8" path="res://assets/cards/shovelshield/specials.jpg" id="1_miyje"]
+
+[resource]
+atlas = ExtResource("1_miyje")
+region = Rect2(1500, 0, 750, 1024)

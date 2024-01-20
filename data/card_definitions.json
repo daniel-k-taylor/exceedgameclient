@@ -1803,11 +1803,15 @@
 			{
 				"timing": "set_strike",
 				"condition": "initiated_strike",
-				"effect_type": "choice",
-				"choice": [
-					{ "effect_type": "reveal_strike" },
-					{ "effect_type": "pass" }
-				]
+				"effect_type": "pass",
+				"and": {
+					"condition": "was_not_wild_swing",
+					"effect_type": "choice",
+					"choice": [
+						{ "effect_type": "reveal_strike" },
+						{ "effect_type": "pass" }
+					]
+				}
 			},
 			{
 				"timing": "during_strike",
@@ -7457,6 +7461,347 @@
 
 
 	{
+		"NOTE": "SHOVEL/SHIELD CARDS START",
+		"id": "shovelshield_tandemattack",
+		"type": "ultra",
+		"display_name": "Tandem Attack",
+		"force_cost": 0,
+		"gauge_cost": 2,
+		"range_min": 1,
+		"range_max": 1,
+		"speed": 5,
+		"power": 7,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "before",
+				"effect_type": "choice",
+				"choice": [
+					{
+						"effect_type": "advance",
+						"amount": 1,
+						"bonus_effect": {
+							"condition": "not_advanced_through_buddy",
+							"condition_detail": "Shield Knight",
+							"effect_type": "attack_does_not_hit"
+						}
+					},
+					{
+						"effect_type": "advance",
+						"amount": 2,
+						"bonus_effect": {
+							"condition": "not_advanced_through_buddy",
+							"condition_detail": "Shield Knight",
+							"effect_type": "attack_does_not_hit"
+						}
+					}
+				]
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 1,
+			"cancel_cost": -1,
+			"display_name": "Inseperable",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"condition": "on_buddy_space",
+					"condition_detail": "Shield Knight",
+					"effect_type": "powerup",
+					"amount": 3,
+					"and": {
+						"effect_type": "armorup",
+						"amount": 3
+					}
+				},
+				{
+					"timing": "now",
+					"condition": "on_buddy_space",
+					"condition_detail": "Shield Knight",
+					"effect_type": "ignore_push_and_pull_passive_bonus"
+				},
+				{
+					"timing": "now",
+					"effect_type": "boost_applies_if_on_buddy"
+				},
+				{
+					"timing": "discarded",
+					"effect_type": "remove_ignore_push_and_pull_passive_bonus"
+				}
+			]
+		}
+	},
+	{
+		"id": "shovelshield_shieldboomerang",
+		"type": "ultra",
+		"display_name": "Shield Boomerang",
+		"force_cost": 0,
+		"gauge_cost": 3,
+		"range_min": 2,
+		"range_max": 4,
+		"speed": 3,
+		"power": 6,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "during_strike",
+				"effect_type": "calculate_range_from_buddy",
+				"buddy_name": "Shield Knight"
+			},
+			{
+				"timing": "during_strike",
+				"effect_type": "dodge_at_range",
+				"range_min": 2,
+				"range_max": 4,
+				"from_buddy": true,
+				"buddy_name": "Shield Knight"
+			}
+		],
+		"boost": {
+			"boost_type": "immediate",
+			"force_cost": 1,
+			"cancel_cost": -1,
+			"display_name": "Shovel of Hope",
+			"effects": [
+				{
+					"timing": "immediate",
+					"effect_type": "draw",
+					"amount": 4
+				},
+				{
+					"timing": "immediate",
+					"effect_type": "add_to_gauge_boost_play_cleanup"
+				}
+			]
+		}
+	},
+	{
+		"id": "shovelshield_bucklerblow",
+		"type": "special",
+		"display_name": "Buckler Blow",
+		"force_cost": 1,
+		"gauge_cost": 0,
+		"range_min": 0,
+		"range_max": 1,
+		"speed": 7,
+		"power": 2,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "during_strike",
+				"effect_type": "calculate_range_from_buddy",
+				"buddy_name": "Shield Knight"
+			},
+			{
+				"timing": "hit",
+				"effect_type": "push_from_source",
+				"amount": 2
+			}
+		],
+		"boost": {
+			"boost_type": "immediate",
+			"force_cost": 1,
+			"cancel_cost": -1,
+			"display_name": "Quick Switch",
+			"effects": [
+				{
+					"timing": "immediate",
+					"condition": "buddy_space_unoccupied",
+					"effect_type": "switch_spaces_with_buddy"
+				},
+				{
+					"timing": "immediate",
+					"effect_type": "bonus_action"
+				}
+			]
+		}
+	},
+	{
+		"id": "shovelshield_discovery",
+		"type": "special",
+		"display_name": "Discovery!",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 2,
+		"speed": 6,
+		"power": 1,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "before",
+				"effect_type": "advance",
+				"amount": 1,
+				"and": {
+					"effect_type": "draw",
+					"amount": 1,
+					"and": {
+						"effect_type": "gauge_from_hand",
+						"min_amount": 1,
+						"max_amount": 1
+					}
+				}
+			}
+		],
+		"boost": {
+			"boost_type": "immediate",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Quick Step",
+			"effects": [
+				{
+					"timing": "immediate",
+					"effect_type": "choice",
+					"choice": [
+						{ "effect_type": "advance", "amount": 1 },
+						{ "effect_type": "retreat", "amount": 1 }
+					]
+				},
+				{
+					"timing": "immediate",
+					"effect_type": "bonus_action"
+				}
+			]
+		}
+	},
+	{
+		"id": "shovelshield_shoveldrop",
+		"type": "special",
+		"display_name": "Shovel Drop",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 2,
+		"speed": 4,
+		"power": 4,
+		"armor": 0,
+		"guard": 3,
+		"effects": [
+			{
+				"timing": "before",
+				"effect_type": "advance",
+				"amount": 2,
+				"bonus_effect": {
+					"condition": "advanced_through",
+					"effect_type": "powerup",
+					"amount": 2
+				}
+			}
+		],
+		"boost": {
+			"boost_type": "immediate",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Hop",
+			"effects": [
+				{
+					"timing": "immediate",
+					"effect_type": "move_buddy",
+					"buddy_name": "Shield Knight",
+					"amount": 1,
+					"amount2": 2
+				},
+				{
+					"timing": "immediate",
+					"effect_type": "bonus_action"
+				}
+			]
+		}
+	},
+	{
+		"id": "shovelshield_shieldgong",
+		"type": "special",
+		"display_name": "Shield Gong",
+		"force_cost": 1,
+		"gauge_cost": 0,
+		"range_min": 0,
+		"range_max": 1,
+		"speed": 2,
+		"power": 4,
+		"armor": 2,
+		"guard": 4,
+		"effects": [
+			{
+				"timing": "during_strike",
+				"effect_type": "calculate_range_from_buddy",
+				"buddy_name": "Shield Knight"
+			},
+			{
+				"timing": "hit",
+				"effect_type": "push_from_source",
+				"amount": 2
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Full Defense",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "dodge_from_opposite_buddy",
+					"buddy_name": "Shield Knight"
+				}
+			]
+		}
+	},
+	{
+		"NOTE": "SHOVEL/SHIELD CARDS END",
+		"id": "shovelshield_chargeslash",
+		"type": "special",
+		"display_name": "Charge Slash",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 1,
+		"speed": 1,
+		"power": 5,
+		"armor": 0,
+		"guard": 6,
+		"effects": [
+			{
+				"timing": "during_strike",
+				"condition": "initiated_strike",
+				"effect_type": "powerup",
+				"amount": 1,
+				"and": {
+					"effect_type": "ignore_armor"
+				}
+			},
+			{
+				"timing": "before",
+				"effect_type": "close",
+				"amount": 1
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 1,
+			"cancel_cost": -1,
+			"display_name": "Charge Up",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "powerup",
+					"amount": 2,
+					"and": {
+						"effect_type": "guardup",
+						"amount": 2
+					}
+				}
+			]
+		},
+		"NOTEEND": "SHOVEL/SHIELD CARDS END"
+	},
+
+
+	{
 		"NOTE": "SOL BADGUY CARDS START",
 		"id": "solbadguy_heavymobcemetery",
 		"type": "ultra",
@@ -8545,7 +8890,8 @@
 		"effects": [
 			{
 				"timing": "during_strike",
-				"effect_type": "do_not_remove_eddie"
+				"effect_type": "do_not_remove_buddy",
+				"buddy_name": "Eddie"
 			}
 		],
 		"boost": {
@@ -8610,7 +8956,8 @@
 				},
 				{
 					"timing": "hit",
-					"condition": "opponent_between_eddie",
+					"condition": "opponent_between_buddy",
+					"condition_detail": "Eddie",
 					"effect_type": "powerup",
 					"amount": 3
 				}
@@ -8703,7 +9050,8 @@
 				},
 				{
 					"timing": "now",
-					"effect_type": "place_eddie_onto_self",
+					"effect_type": "place_buddy_onto_self",
+					"buddy_name": "Eddie",
 					"and": {
 						"effect_type": "choice",
 						"choice": [
@@ -8730,11 +9078,13 @@
 		"effects": [
 			{
 				"timing": "before",
-				"condition": "eddie_in_play",
+				"condition": "buddy_in_play",
+				"condition_detail": "Eddie",
 				"effect_type": "powerup",
 				"amount": 2,
 				"and": {
-					"effect_type": "place_eddie_onto_self"
+					"effect_type": "place_buddy_onto_self",
+					"buddy_name": "Eddie"
 				}
 			},
 			{
@@ -8751,7 +9101,8 @@
 			"effects": [
 				{
 					"timing": "immediate",
-					"effect_type": "place_eddie_in_any_space"
+					"effect_type": "place_buddy_in_any_space",
+					"buddy_name": "Eddie"
 				}
 			]
 		}
@@ -8869,7 +9220,8 @@
 		"effects": [
 			{
 				"timing": "during_strike",
-				"effect_type": "do_not_remove_eddie"
+				"effect_type": "do_not_remove_buddy",
+				"buddy_name": "Eddie"
 			},
 			{
 				"timing": "before",

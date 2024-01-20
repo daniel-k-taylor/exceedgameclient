@@ -10,18 +10,24 @@ const RoomMaxLen = 16
 @onready var opponent_selected_character : String = "kykisuke"
 @onready var selecting_player : bool = true
 
-@onready var start_ai_button : Button = $MenuList/VSAIBox/StartButton
+@onready var start_ai_button : Button = $MenuList/VSAIBox/FightSettings/StartButton
+@onready var randomize_first_box : CheckBox = $MenuList/VSAIBox/FightSettings/RandomizeFirstCheckbox
 @onready var room_select : LineEdit = $MenuList/JoinBox/RoomNameBox
 @onready var join_room_button = $MenuList/JoinBox/JoinButton
 @onready var join_box = $MenuList/JoinBox
 @onready var matchmake_button = $MenuList/MatchmakeButton
 
 @onready var char_select = $CharSelect
+@onready var change_player_character_button : Button = $PlayerChooser/ChangePlayerCharacterButton
 @onready var player_char_label : Label = $PlayerChooser/MarginContainer/VBoxContainer/HBoxContainer/CharName
 @onready var player_char_portrait : TextureRect = $PlayerChooser/MarginContainer/VBoxContainer/HBoxContainer/CharPortrait
 
 @onready var opponent_char_label : Label = $MenuList/VSAIBox/OpponentChooser/MarginContainer/VBoxContainer/HBoxContainer/CharName
 @onready var opponent_char_portrait : TextureRect = $MenuList/VSAIBox/OpponentChooser/MarginContainer/VBoxContainer/HBoxContainer/CharPortrait
+
+@onready var label_font_normal = 32
+@onready var label_font_small = 18
+@onready var label_length_threshold = 16
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
@@ -49,7 +55,8 @@ func _on_start_button_pressed():
 	var opponent_deck = CardDefinitions.get_deck_from_str_id(opponent_selected_character)
 	var player_name = get_player_name()
 	var opponent_name = "CPU"
-	start_game.emit(get_vs_info(player_name, player_deck, opponent_name, opponent_deck))
+	var randomize_first = randomize_first_box.button_pressed
+	start_game.emit(get_vs_info(player_name, player_deck, opponent_name, opponent_deck, randomize_first))
 
 func _on_quit_button_pressed():
 	get_tree().quit()
@@ -70,12 +77,13 @@ func _on_disconnected():
 	$ReconnectToServerButton.disabled = false
 	$ServerStatusLabel.text = "Disconnected from server."
 
-func get_vs_info(player_name, player_deck, opponent_name, opponent_deck):
+func get_vs_info(player_name, player_deck, opponent_name, opponent_deck, randomize_first_vs_ai = false):
 	return {
 		'player_name': player_name,
 		'player_deck': player_deck,
 		'opponent_name': opponent_name,
 		'opponent_deck': opponent_deck,
+		'randomize_first_vs_ai': randomize_first_vs_ai
 	}
 
 func _on_remote_game_started(data):
@@ -118,6 +126,8 @@ func _on_join_button_pressed():
 
 func update_buttons(joining : bool):
 	start_ai_button.disabled = joining
+	randomize_first_box.disabled = joining
+	change_player_character_button.disabled = joining
 	room_select.editable = not joining
 	join_box.visible = not joining
 	matchmake_button.visible = not joining
@@ -155,6 +165,8 @@ func update_char(label, portrait, char_id):
 		char_id = "unilogo"
 	elif char_id == "random_s5":
 		char_id = "blazbluelogo2"
+	elif char_id == "random_s4":
+		char_id = "sklogo"
 	elif char_id == "random_s3":
 		char_id = "sflogo"
 	elif char_id == "random":
@@ -164,6 +176,10 @@ func update_char(label, portrait, char_id):
 		display_name = deck['display_name']
 	label.text = display_name
 	portrait.texture = load("res://assets/portraits/" + char_id + ".png")
+	if len(display_name) <= label_length_threshold:
+		label.set("theme_override_font_sizes/font_size", label_font_normal)
+	else:
+		label.set("theme_override_font_sizes/font_size", label_font_small)
 
 func _on_char_select_select_character(char_id):
 	if selecting_player:

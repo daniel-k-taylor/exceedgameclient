@@ -192,6 +192,7 @@ func _ready():
 		var vs_info = {
 			'player_deck': CardDefinitions.get_deck_test_deck(),
 			'opponent_deck': CardDefinitions.get_deck_test_deck(),
+			'randomize_first_vs_ai': false
 		}
 		begin_local_game(vs_info)
 
@@ -210,7 +211,8 @@ func _ready():
 func begin_local_game(vs_info):
 	player_deck = vs_info['player_deck']
 	opponent_deck = vs_info['opponent_deck']
-	game_wrapper.initialize_local_game(player_deck, opponent_deck)
+	var randomize_first_player = vs_info['randomize_first_vs_ai']
+	game_wrapper.initialize_local_game(player_deck, opponent_deck, randomize_first_player)
 
 func begin_remote_game(game_start_message):
 	var player1_info = {
@@ -283,7 +285,10 @@ func setup_character_card(character_card, deck, buddy_character_card):
 		buddy_character_card.visible = true
 		buddy_character_card.hide_focus()
 		var buddy_path = "res://assets/cards/" + deck['id'] + "/" + deck['buddy_card'] + ".jpg"
-		buddy_character_card.set_image(buddy_path, buddy_path)
+		var buddy_exceeded_path = buddy_path
+		if 'buddy_exceeds' in deck and deck['buddy_exceeds']:
+			buddy_exceeded_path = "res://assets/cards/" + deck['id'] + "/" + deck['buddy_card'] + "_exceeded.jpg"
+		buddy_character_card.set_image(buddy_path, buddy_exceeded_path)
 	else:
 		buddy_character_card.visible = false
 
@@ -830,6 +835,10 @@ func _stat_notice_event(event):
 				notice_text = "Dodge at range %s" % number
 			else:
 				notice_text = "Dodge at range %s-%s" % [number, event['extra_info']]
+			if event['extra_info2']:
+				notice_text += " from %s" % event['extra_info2']
+		Enums.EventType.EventType_Strike_DodgeFromOppositeBuddy:
+			notice_text = "Dodge from behind %s" % [event['extra_info']]
 		Enums.EventType.EventType_Strike_ExUp:
 			notice_text = "EX Strike!"
 		Enums.EventType.EventType_Strike_GainAdvantage:
@@ -1017,20 +1026,21 @@ func _on_name_opponent_card_begin(event):
 	var player = event['event_player']
 	spawn_damage_popup("Naming Card", player)
 	var normal_only = event['event_type'] == Enums.EventType.EventType_ReadingNormal
+	var can_name_fake_card = event['event_type'] == Enums.EventType.EventType_Boost_NameCardOpponentDiscards
 	if player == Enums.PlayerId.PlayerId_Player:
 		# Show the boost window.
 		_on_opponent_reference_button_pressed()
 		selected_cards = []
 		select_card_require_min = 1
 		select_card_require_max = 1
-		var cancel_allowed = false
+		var cancel_allowed = can_name_fake_card
 		popout_instruction_info = {
 			"popout_type": CardPopoutType.CardPopoutType_ReferenceOpponent,
 			"instruction_text": "Name an opponent card.",
 			"ok_text": "OK",
-			"cancel_text": "",
+			"cancel_text": "Reveal Hand",
 			"ok_enabled": true,
-			"cancel_visible": false,
+			"cancel_visible": cancel_allowed,
 			"normal_only": normal_only,
 		}
 		enable_instructions_ui("Name opponent card.", true, cancel_allowed, false)
@@ -1317,10 +1327,12 @@ func _on_exceed_event(event):
 	if player == Enums.PlayerId.PlayerId_Player:
 		$PlayerCharacter.set_exceed(true)
 		player_character_card.exceed(true)
+		player_buddy_character_card.exceed(true)
 
 	else:
 		$OpponentCharacter.set_exceed(true)
 		opponent_character_card.exceed(true)
+		opponent_buddy_character_card.exceed(true)
 
 	spawn_damage_popup("Exceed!", player)
 	return SmallNoticeDelay
@@ -1330,10 +1342,12 @@ func _on_exceed_revert_event(event):
 	if player == Enums.PlayerId.PlayerId_Player:
 		$PlayerCharacter.set_exceed(false)
 		player_character_card.exceed(false)
+		player_buddy_character_card.exceed(false)
 
 	else:
 		$OpponentCharacter.set_exceed(false)
 		opponent_character_card.exceed(false)
+		opponent_buddy_character_card.exceed(false)
 
 	spawn_damage_popup("Revert!", player)
 	return SmallNoticeDelay
@@ -1762,6 +1776,7 @@ func _on_reshuffle_discard(event):
 		for card in cards:
 			card.get_parent().remove_child(card)
 			$AllCards/PlayerDeck.add_child(card)
+			card.flip_card_to_front(false)
 			card.reset(OffScreen)
 	else:
 		var cards = $AllCards/OpponentDiscards.get_children()
@@ -2151,7 +2166,7 @@ func _handle_events(events):
 				delay = _on_choose_to_discard(event, true)
 			Enums.EventType.EventType_Strike_Critical:
 				delay = _stat_notice_event(event)
-			Enums.EventType.EventType_Strike_DodgeAttacks, Enums.EventType.EventType_Strike_DodgeAttacksAtRange:
+			Enums.EventType.EventType_Strike_DodgeAttacks, Enums.EventType.EventType_Strike_DodgeAttacksAtRange, Enums.EventType.EventType_Strike_DodgeFromOppositeBuddy:
 				delay = _stat_notice_event(event)
 			Enums.EventType.EventType_Strike_DoResponseNow:
 				_on_strike_do_response_now(event)
@@ -2373,8 +2388,9 @@ func update_boost_summary(boosts_card_holder, boost_box):
 	for card_id in card_ids:
 		var card = card_db.get_card(card_id)
 		for effect in card.definition['boost']['effects']:
-			if effect['timing'] != "now" and effect['timing'] != "discarded":
-				effects.append(effect)
+			if effect['timing'] != "now" or effect['effect_type'] == "ignore_push_and_pull_passive_bonus":
+				if effect['timing'] != "discarded":
+					effects.append(effect)
 	var boost_summary = ""
 	for effect in effects:
 		boost_summary += CardDefinitions.get_effect_text(effect) + "\n"
@@ -2461,8 +2477,9 @@ func _on_choose_arena_location_for_effect(event):
 		arena_locations_clickable = decision_info.limitation
 		var instruction_str = "Select a location"
 		match effect_type:
-			"place_eddie_into_space":
-				instruction_str = "Select a location to place Eddie"
+			"place_buddy_into_space":
+				var buddy_name = decision_info.source
+				instruction_str = "Select a location to place %s" % buddy_name
 			"move_to_space":
 				instruction_str = "Select a location to move to"
 		enable_instructions_ui(instruction_str, false, can_pass)
@@ -2655,6 +2672,10 @@ func _on_instructions_cancel_button_pressed():
 			deselect_all_cards()
 			close_popout()
 			success = game_wrapper.submit_choose_to_discard(Enums.PlayerId.PlayerId_Player, [])
+		UISubState.UISubState_SelectCards_DiscardFromReference:
+			deselect_all_cards()
+			close_popout()
+			success = game_wrapper.submit_boost_name_card_choice_effect(Enums.PlayerId.PlayerId_Player, -1)
 		_:
 			match ui_state:
 				UIState.UIState_SelectArenaLocation:
