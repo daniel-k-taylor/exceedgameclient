@@ -192,6 +192,7 @@ func _ready():
 		var vs_info = {
 			'player_deck': CardDefinitions.get_deck_test_deck(),
 			'opponent_deck': CardDefinitions.get_deck_test_deck(),
+			'randomize_first_vs_ai': false
 		}
 		begin_local_game(vs_info)
 
@@ -210,7 +211,8 @@ func _ready():
 func begin_local_game(vs_info):
 	player_deck = vs_info['player_deck']
 	opponent_deck = vs_info['opponent_deck']
-	game_wrapper.initialize_local_game(player_deck, opponent_deck)
+	var randomize_first_player = vs_info['randomize_first_vs_ai']
+	game_wrapper.initialize_local_game(player_deck, opponent_deck, randomize_first_player)
 
 func begin_remote_game(game_start_message):
 	var player1_info = {

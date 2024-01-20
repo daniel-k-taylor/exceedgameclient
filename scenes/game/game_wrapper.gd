@@ -19,10 +19,13 @@ func get_combat_log() -> String:
 func is_ai_game() -> bool:
 	return current_game is LocalGame
 
-func initialize_local_game(player_deck, opponent_deck):
+func initialize_local_game(player_deck, opponent_deck, randomize_first_player):
 	current_game = LocalGame.new()
 	var seed_value = randi()
-	current_game.initialize_game(player_deck, opponent_deck, "Player", "CPU", Enums.PlayerId.PlayerId_Player, seed_value)
+	var first_player = Enums.PlayerId.PlayerId_Player
+	if randomize_first_player and randi() % 2 == 0:
+		first_player = Enums.PlayerId.PlayerId_Opponent
+	current_game.initialize_game(player_deck, opponent_deck, "Player", "CPU", first_player, seed_value)
 	current_game.draw_starting_hands_and_begin()
 
 func initialize_remote_game(player_info, opponent_info, starting_player : Enums.PlayerId, seed_value : int):

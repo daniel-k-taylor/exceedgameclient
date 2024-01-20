@@ -10,7 +10,8 @@ const RoomMaxLen = 16
 @onready var opponent_selected_character : String = "kykisuke"
 @onready var selecting_player : bool = true
 
-@onready var start_ai_button : Button = $MenuList/VSAIBox/StartButton
+@onready var start_ai_button : Button = $MenuList/VSAIBox/FightSettings/StartButton
+@onready var randomize_first_box : CheckBox = $MenuList/VSAIBox/FightSettings/RandomizeFirstCheckbox
 @onready var room_select : LineEdit = $MenuList/JoinBox/RoomNameBox
 @onready var join_room_button = $MenuList/JoinBox/JoinButton
 @onready var join_box = $MenuList/JoinBox
@@ -54,7 +55,8 @@ func _on_start_button_pressed():
 	var opponent_deck = CardDefinitions.get_deck_from_str_id(opponent_selected_character)
 	var player_name = get_player_name()
 	var opponent_name = "CPU"
-	start_game.emit(get_vs_info(player_name, player_deck, opponent_name, opponent_deck))
+	var randomize_first = randomize_first_box.button_pressed
+	start_game.emit(get_vs_info(player_name, player_deck, opponent_name, opponent_deck, randomize_first))
 
 func _on_quit_button_pressed():
 	get_tree().quit()
@@ -75,12 +77,13 @@ func _on_disconnected():
 	$ReconnectToServerButton.disabled = false
 	$ServerStatusLabel.text = "Disconnected from server."
 
-func get_vs_info(player_name, player_deck, opponent_name, opponent_deck):
+func get_vs_info(player_name, player_deck, opponent_name, opponent_deck, randomize_first_vs_ai = false):
 	return {
 		'player_name': player_name,
 		'player_deck': player_deck,
 		'opponent_name': opponent_name,
 		'opponent_deck': opponent_deck,
+		'randomize_first_vs_ai': randomize_first_vs_ai
 	}
 
 func _on_remote_game_started(data):
@@ -123,6 +126,7 @@ func _on_join_button_pressed():
 
 func update_buttons(joining : bool):
 	start_ai_button.disabled = joining
+	randomize_first_box.disabled = joining
 	change_player_character_button.disabled = joining
 	room_select.editable = not joining
 	join_box.visible = not joining
