@@ -1775,6 +1775,7 @@ func _on_reshuffle_discard(event):
 		for card in cards:
 			card.get_parent().remove_child(card)
 			$AllCards/PlayerDeck.add_child(card)
+			card.flip_card_to_front(false)
 			card.reset(OffScreen)
 	else:
 		var cards = $AllCards/OpponentDiscards.get_children()
