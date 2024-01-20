@@ -6,6 +6,7 @@ const GameCard = preload("res://scenes/game/game_card.gd")
 const DecisionInfo = preload("res://scenes/game/decision_info.gd")
 
 const BuddyStartsOutOfArena = -10
+const NullNamedCard = "_"
 
 # Game Settings
 const StartingHandFirstPlayer = 5
@@ -2576,11 +2577,14 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 			decision_info.player = performing_player.my_id
 			events += [create_event(Enums.EventType.EventType_Boost_NameCardOpponentDiscards, performing_player.my_id, 1)]
 		"name_card_opponent_discards_internal":
-			var named_card = card_db.get_card(effect['card_id'])
-			# named_card is the individual card but
-			# this should discard "by name", so instead of using that
-			# match card.definition['id']'s instead.
-			events += opposing_player.discard_matching_or_reveal(named_card.definition['id'])
+			var named_card_name = NullNamedCard
+			if effect['card_id'] != -1:
+				var named_card = card_db.get_card(effect['card_id'])
+				# named_card is the individual card but
+				# this should discard "by name", so instead of using that
+				# match card.definition['id']'s instead.
+				named_card_name = named_card.definition['id']
+			events += opposing_player.discard_matching_or_reveal(named_card_name)
 		"reveal_hand":
 			events += performing_player.reveal_hand()
 		"reveal_strike":
@@ -4377,6 +4381,8 @@ func do_card_from_hand_to_gauge(performing_player : Player, card_ids : Array) ->
 
 func do_boost_name_card_choice_effect(performing_player : Player, card_id : int) -> bool:
 	var card_name = card_db.get_card_name(card_id)
+	if card_id == -1:
+		card_name = "a nonexistent card"
 	printlog("SubAction: BOOST_NAME_CARD by %s card %s" % [get_player_name(performing_player.my_id), card_name])
 	if decision_info.player != performing_player.my_id:
 		printlog("ERROR: Tried to name card for wrong player.")

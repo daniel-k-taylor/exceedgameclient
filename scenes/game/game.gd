@@ -1026,20 +1026,21 @@ func _on_name_opponent_card_begin(event):
 	var player = event['event_player']
 	spawn_damage_popup("Naming Card", player)
 	var normal_only = event['event_type'] == Enums.EventType.EventType_ReadingNormal
+	var can_name_fake_card = event['event_type'] == Enums.EventType.EventType_Boost_NameCardOpponentDiscards
 	if player == Enums.PlayerId.PlayerId_Player:
 		# Show the boost window.
 		_on_opponent_reference_button_pressed()
 		selected_cards = []
 		select_card_require_min = 1
 		select_card_require_max = 1
-		var cancel_allowed = false
+		var cancel_allowed = can_name_fake_card
 		popout_instruction_info = {
 			"popout_type": CardPopoutType.CardPopoutType_ReferenceOpponent,
 			"instruction_text": "Name an opponent card.",
 			"ok_text": "OK",
-			"cancel_text": "",
+			"cancel_text": "Name Exodia",
 			"ok_enabled": true,
-			"cancel_visible": false,
+			"cancel_visible": cancel_allowed,
 			"normal_only": normal_only,
 		}
 		enable_instructions_ui("Name opponent card.", true, cancel_allowed, false)
@@ -2671,6 +2672,10 @@ func _on_instructions_cancel_button_pressed():
 			deselect_all_cards()
 			close_popout()
 			success = game_wrapper.submit_choose_to_discard(Enums.PlayerId.PlayerId_Player, [])
+		UISubState.UISubState_SelectCards_DiscardFromReference:
+			deselect_all_cards()
+			close_popout()
+			success = game_wrapper.submit_boost_name_card_choice_effect(Enums.PlayerId.PlayerId_Player, -1)
 		_:
 			match ui_state:
 				UIState.UIState_SelectArenaLocation:
