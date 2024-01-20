@@ -1,12 +1,5 @@
 In progress:
 
-    Jin:
-        ☐ CARDS_IN_HAND as guard value @started(24-01-19 21:24)
-        ☐ draw_or_discard_to and opponent @started(24-01-19 21:39)
-        ☐ "condition": "more_cards_than_opponent", @started(24-01-19 21:25)
-        ☐ "condition": "opponent_at_edge_of_arena", @started(24-01-19 21:26)
-        ☐ "timing": "end_of_next_turn", @started(24-01-19 21:57)
-
 
 
 Write tests for:
@@ -53,6 +46,7 @@ Tasks:
     ☐ Card popout has choice buttons for gauge selection
     ☐ Reorder opponent hand in a way that you can't keep track with effort
     ☐ Rework character_effect window to allow mulitple abilities, scan for them all at during_strike timing
+    ☐ Always show conditional effects and allow choosing them when they fail
 
 Bugs:
 
