@@ -2888,8 +2888,6 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 					for card in performing_player.hand:
 						card_ids.append(card.id)
 					events += performing_player.discard(card_ids)
-				else:
-					_append_log("%s has no cards available to use for their effect." % [performing_player.name])
 		"set_strike_x":
 			events += do_set_strike_x(performing_player, effect['source'])
 		"self_discard_choose_internal":
