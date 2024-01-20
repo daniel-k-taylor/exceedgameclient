@@ -5,6 +5,8 @@ const CardDatabase = preload("res://scenes/game/card_database.gd")
 const GameCard = preload("res://scenes/game/game_card.gd")
 const DecisionInfo = preload("res://scenes/game/decision_info.gd")
 
+const BuddyStartsOutOfArena = -10
+
 # Game Settings
 const StartingHandFirstPlayer = 5
 const StartingHandSecondPlayer = 6
@@ -429,7 +431,7 @@ class Player:
 		pre_strike_movement = 0
 		sustained_boosts = []
 		sustain_next_boost = false
-		buddy_starting_offset = -1
+		buddy_starting_offset = BuddyStartsOutOfArena
 		buddy_location = -1
 		do_not_cleanup_buddy_this_turn = false
 		cannot_move = false
@@ -1607,11 +1609,11 @@ func initialize_game(player_deck, opponent_deck, player_name : String, opponent_
 	var starting_player = _get_player(active_turn_player)
 	var second_player = _get_player(next_turn_player)
 	starting_player.arena_location = 3
-	if starting_player.buddy_starting_offset != -1:
+	if starting_player.buddy_starting_offset != BuddyStartsOutOfArena:
 		var buddy_space = 3 + starting_player.buddy_starting_offset
 		event_queue += starting_player.place_buddy(buddy_space)
 	second_player.arena_location = 7
-	if second_player.buddy_starting_offset != -1:
+	if second_player.buddy_starting_offset != BuddyStartsOutOfArena:
 		var buddy_space = 7 - second_player.buddy_starting_offset
 		event_queue += second_player.place_buddy(buddy_space)
 	starting_player.initial_shuffle()
