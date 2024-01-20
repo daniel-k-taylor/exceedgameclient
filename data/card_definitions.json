@@ -1803,11 +1803,15 @@
 			{
 				"timing": "set_strike",
 				"condition": "initiated_strike",
-				"effect_type": "choice",
-				"choice": [
-					{ "effect_type": "reveal_strike" },
-					{ "effect_type": "pass" }
-				]
+				"effect_type": "pass",
+				"and": {
+					"condition": "was_not_wild_swing",
+					"effect_type": "choice",
+					"choice": [
+						{ "effect_type": "reveal_strike" },
+						{ "effect_type": "pass" }
+					]
+				}
 			},
 			{
 				"timing": "during_strike",
