@@ -1540,6 +1540,8 @@ func update_gauge_for_effect_message():
 		else:
 			effect_str = "Spend %s gauge for %s." % [decision_effect['gauge_max'], effect_text]
 	effect_str += "\n%s gauge selected." % [selected_cards.size()]
+	# Strip tags that currently aren't supported.
+	effect_str = effect_str.replace("[b]", "").replace("[/b]", "")
 	set_instructions(effect_str)
 
 func update_gauge_selection_for_cancel_message():

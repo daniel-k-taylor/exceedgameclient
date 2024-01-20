@@ -2,22 +2,22 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://qafkir1j4caf"
-path="res://.godot/imported/ky.png-66da55221c7f37d05cb9c2a1480cc175.ctex"
+uid="uid://dsvnkc1riwuc0"
+path="res://.godot/imported/normals.jpg-53ccc74c5e769059f1cb234e0325fa73.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/character_images/ky.png"
-dest_files=["res://.godot/imported/ky.png-66da55221c7f37d05cb9c2a1480cc175.ctex"]
+source_file="res://assets/cards/jin/normals.jpg"
+dest_files=["res://.godot/imported/normals.jpg-53ccc74c5e769059f1cb234e0325fa73.ctex"]
 
 [params]
 
 compress/mode=1
 compress/high_quality=false
-compress/lossy_quality=0.7
+compress/lossy_quality=0.1
 compress/hdr_compression=1
 compress/normal_map=0
 compress/channel_pack=0

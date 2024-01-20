@@ -358,6 +358,7 @@ class Player:
 	var cancel_blocked_this_turn : bool
 	var used_character_action : bool
 	var used_character_action_details : Array
+	var used_character_bonus : bool
 	var exceed_at_end_of_turn : bool
 	var specials_invalid : bool
 	var mulligan_complete : bool
@@ -378,6 +379,7 @@ class Player:
 	var cannot_move_past_opponent : bool
 	var ignore_push_and_pull : bool
 	var extra_effect_after_set_strike
+	var end_of_turn_boost_delay_card_ids : Array[int]
 
 	func _init(id, player_name, parent_ref, card_db_ref, chosen_deck, card_start_id):
 		my_id = id
@@ -418,6 +420,7 @@ class Player:
 		cancel_blocked_this_turn = false
 		used_character_action = false
 		used_character_action_details = []
+		used_character_bonus = false
 		exceed_at_end_of_turn = false
 		specials_invalid = false
 		cleanup_boost_to_gauge_cards = []
@@ -439,6 +442,7 @@ class Player:
 		cannot_move_past_opponent = false
 		ignore_push_and_pull = false
 		extra_effect_after_set_strike = null
+		end_of_turn_boost_delay_card_ids = []
 
 		max_hand_size = MaxHandSize
 		if 'alt_hand_size' in deck_def:
@@ -478,6 +482,10 @@ class Player:
 			if card.id == card_id:
 				return true
 		return false
+
+	func set_end_of_turn_boost_delay(card_id):
+		if card_id not in end_of_turn_boost_delay_card_ids:
+			end_of_turn_boost_delay_card_ids.append(card_id)
 
 	func exceed():
 		exceeded = true
@@ -1667,10 +1675,22 @@ func advance_to_next_turn():
 	var player_ending_turn = _get_player(active_turn_player)
 	var other_player = _get_player(get_other_player(active_turn_player))
 
-	# Do any end of turn effects.
+	# Do any end of turn character effects.
 	var effects = player_ending_turn.get_character_effects_at_timing("end_of_turn")
 	for effect in effects:
 		events += do_effect_if_condition_met(player_ending_turn, -1, effect, null)
+
+	# Do any end of turn boost effects.
+	# Iterate in reverse as items can be removed.
+	for i in range(len(player_ending_turn.continuous_boosts) - 1, -1, -1):
+		var card = player_ending_turn.continuous_boosts[i]
+		for effect in card.definition['boost']['effects']:
+			if effect['timing'] == "end_of_turn":
+				if card.id in player_ending_turn.end_of_turn_boost_delay_card_ids:
+					# This effect is delayed a turn, so remove it from the list and skip it for now.
+					player_ending_turn.end_of_turn_boost_delay_card_ids.erase(card.id)
+					continue
+				events += do_effect_if_condition_met(player_ending_turn, card.id, effect, null)
 
 	# Turn is over, reset state.
 	player.did_strike_this_turn = false
@@ -1687,6 +1707,8 @@ func advance_to_next_turn():
 	opponent.used_character_action = false
 	player.used_character_action_details = []
 	opponent.used_character_action_details = []
+	player.used_character_bonus = false
+	opponent.used_character_bonus = false
 
 	# Figure out next turn's player.
 	active_turn_player = next_turn_player
@@ -1963,6 +1985,8 @@ func is_effect_condition_met(performing_player : Player, effect, local_condition
 				return matching_details
 			else:
 				return true
+		elif condition == "used_character_bonus":
+			return performing_player.used_character_bonus
 		elif condition == "hit_opponent":
 			return active_strike.did_player_hit_opponent(performing_player)
 		elif condition == "life_equals":
@@ -1995,6 +2019,8 @@ func is_effect_condition_met(performing_player : Player, effect, local_condition
 			return performing_player.gauge.size() >= amount
 		elif condition == "manual_reshuffle":
 			return local_conditions.manual_reshuffle
+		elif condition == "more_cards_than_opponent":
+			return performing_player.hand.size() > other_player.hand.size()
 		elif condition == "no_strike_caused":
 			return game_state != Enums.GameState.GameState_WaitForStrike
 		elif condition == "no_strike_this_turn":
@@ -2052,6 +2078,8 @@ func is_effect_condition_met(performing_player : Player, effect, local_condition
 			if buddy_location == other_player.arena_location:
 				return false
 			return true
+		elif condition == "opponent_at_edge_of_arena":
+			return other_player.arena_location == MinArenaLocation or other_player.arena_location == MaxArenaLocation
 		elif condition == "opponent_stunned":
 			return active_strike.is_player_stunned(other_player)
 		elif condition == "range":
@@ -2368,6 +2396,10 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 			performing_player.strike_stat_boosts.discard_attack_on_cleanup = true
 		"discard_opponent_topdeck":
 			events += opposing_player.discard_topdeck()
+		"draw_or_discard_to":
+			events += handle_player_draw_or_discard_to_effect(performing_player, card_id, effect)
+		"opponent_draw_or_discard_to":
+			events += handle_player_draw_or_discard_to_effect(opposing_player, card_id, effect)
 		"dodge_at_range":
 			performing_player.strike_stat_boosts.dodge_at_range_min = effect['range_min']
 			performing_player.strike_stat_boosts.dodge_at_range_max = effect['range_max']
@@ -2894,8 +2926,12 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 					for card in performing_player.hand:
 						card_ids.append(card.id)
 					events += performing_player.discard(card_ids)
+		"set_end_of_turn_boost_delay":
+			performing_player.set_end_of_turn_boost_delay(card_id)
 		"set_strike_x":
 			events += do_set_strike_x(performing_player, effect['source'])
+		"set_used_character_bonus":
+			performing_player.used_character_bonus = true
 		"self_discard_choose_internal":
 			var card_ids = effect['card_ids']
 			var card_names = card_db.get_card_names(card_ids)
@@ -2903,7 +2939,7 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 				_append_log("%s discarding chosen cards: %s." % [performing_player.name, card_names])
 				events += performing_player.discard(card_ids)
 			elif effect['destination'] == "sealed":
-				_append_log("%s sealing chosen cards: %s." % [performing_player.name, card_names])
+				_append_log("%s sealing chosen %s card(s)." % [performing_player.name, str(len(card_names))])
 				events += performing_player.seal_from_hand(card_ids)
 		"shuffle_hand_to_deck":
 			_append_log("%s shuffled hand to deck." % [performing_player.name])
@@ -3053,6 +3089,24 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 
 	return events
 
+func handle_player_draw_or_discard_to_effect(performing_player : Player, card_id, effect):
+	var events = []
+	var target_hand_size = effect['amount']
+	var hand_size = performing_player.hand.size()
+	if hand_size < target_hand_size:
+		var amount_to_draw = target_hand_size - hand_size
+		events += performing_player.draw(amount_to_draw)
+	elif hand_size > target_hand_size:
+		var amount_to_discard = hand_size - target_hand_size
+		var discard_effect = {
+			"effect_type": "self_discard_choose",
+			"amount": amount_to_discard
+		}
+		events += handle_strike_effect(card_id, discard_effect, performing_player)
+	else:
+		pass
+	return events
+
 func get_card_stat(check_player : Player, card : GameCard, stat : String) -> int:
 	var value = card.definition[stat]
 	if str(value) == "X":
@@ -3060,6 +3114,8 @@ func get_card_stat(check_player : Player, card : GameCard, stat : String) -> int
 			return check_player.strike_stat_boosts.strike_x
 		else:
 			assert(false, "ERROR: No support for interpreting X outside of strikes")
+	elif str(value) == "CARDS_IN_HAND":
+		value = check_player.hand.size()
 	return value
 
 func get_striking_card_ids_for_player(check_player : Player) -> Array:
@@ -3349,7 +3405,7 @@ func check_for_stun(check_player : Player, ignore_guard : bool):
 
 	var total_damage = active_strike.get_damage_taken(check_player)
 	var defense_card = active_strike.get_player_card(check_player)
-	var guard = defense_card.definition['guard'] + check_player.strike_stat_boosts.guard
+	var guard = get_card_stat(check_player, defense_card, 'guard') + check_player.strike_stat_boosts.guard
 	if ignore_guard:
 		guard = 0
 
@@ -3370,7 +3426,7 @@ func apply_damage(offense_player : Player, defense_player : Player, offense_card
 	var power = get_card_stat(offense_player, offense_card, 'power')
 	var damage = power + offense_player.strike_stat_boosts.power
 	var armor = defense_card.definition['armor'] + defense_player.strike_stat_boosts.armor - defense_player.strike_stat_boosts.consumed_armor
-	var guard = defense_card.definition['guard'] + defense_player.strike_stat_boosts.guard
+	var guard = get_card_stat(defense_player, defense_card, 'guard') + defense_player.strike_stat_boosts.guard
 
 	defense_player.strike_stat_boosts.was_hit = true
 

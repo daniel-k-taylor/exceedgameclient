@@ -1,5 +1,11 @@
 In progress:
 
+    Jin:
+        ☐ CARDS_IN_HAND as guard value @started(24-01-19 21:24)
+        ☐ draw_or_discard_to and opponent @started(24-01-19 21:39)
+        ☐ "condition": "more_cards_than_opponent", @started(24-01-19 21:25)
+        ☐ "condition": "opponent_at_edge_of_arena", @started(24-01-19 21:26)
+        ☐ "timing": "end_of_next_turn", @started(24-01-19 21:57)
 
 
 
@@ -25,15 +31,14 @@ Tasks:
     Main Features:
         ☐ Observers on server
     Tests:
-        ☐ Strike
-        ☐ Boost
+        ✔ Strike - covered by character tests @done(24-01-19 22:45)
+        ✔ Boost - covered by character tests @done(24-01-19 22:45)
         ☐ Move
         ✔ Prepare @done(23-09-26 22:49)
         ☐ Exceed
         ☐ Reshuffle
         ☐ Change cards
     Misc/Low pri:
-        ☐ Add an AllSeasonRandom button
         ☐ allow AI to take bonus turn actions (like axl's boost thing)
         ☐ Allow EX'ing when hit with Reading
         ☐ Sum continuous boost stat bonuses into a single line
@@ -47,6 +52,7 @@ Tasks:
     ☐ Only connect to server if you enter Multiplayer
     ☐ Card popout has choice buttons for gauge selection
     ☐ Reorder opponent hand in a way that you can't keep track with effort
+    ☐ Rework character_effect window to allow mulitple abilities, scan for them all at during_strike timing
 
 Bugs:
 

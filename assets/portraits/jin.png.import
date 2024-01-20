@@ -2,22 +2,22 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://b61gro3gblok8"
-path="res://.godot/imported/sol.png-88a4030fe8ae86979c7ffc9f0f214d0d.ctex"
+uid="uid://dhbd4wfnmy603"
+path="res://.godot/imported/jin.png-5346f37eda28d6ce8e9946bcf4867c79.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/character_images/sol.png"
-dest_files=["res://.godot/imported/sol.png-88a4030fe8ae86979c7ffc9f0f214d0d.ctex"]
+source_file="res://assets/portraits/jin.png"
+dest_files=["res://.godot/imported/jin.png-5346f37eda28d6ce8e9946bcf4867c79.ctex"]
 
 [params]
 
 compress/mode=1
 compress/high_quality=false
-compress/lossy_quality=0.7
+compress/lossy_quality=0.1
 compress/hdr_compression=1
 compress/normal_map=0
 compress/channel_pack=0
