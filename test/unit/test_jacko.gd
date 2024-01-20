@@ -237,6 +237,19 @@ func test_jacko_throwservant():
 	validate_life(player1, 30, player2, 29)
 	advance_turn(player2)
 
+func test_jacko_throwservant_chain():
+	position_players(player1, 3, player2, 6)
+	give_player_specific_card(player1, "jacko_chainofchiron", TestCardId3)
+	execute_strike(player1, player2, "jacko_throwservant", "gg_normal_focus", [0], [])
+	assert_true(game_logic.do_boost(player1, TestCardId3))
+	assert_true(game_logic.do_choice(player1, 0))
+	assert_eq(player1.gauge.size(), 2)
+	assert_eq(player1.continuous_boosts.size(), 0)
+	assert_eq(player1.gauge[0].id, TestCardId3)
+	validate_positions(player1, 3, player2, 6)
+	validate_life(player1, 30, player2, 29)
+	advance_turn(player2)
+
 func test_jacko_countdown():
 	position_players(player1, 3, player2, 6)
 	player1.discard_hand()

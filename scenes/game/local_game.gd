@@ -1570,7 +1570,8 @@ class Player:
 		var effects = []
 
 		# Maybe later get them from boosts, but for now, just character ability.
-		effects = parent.get_all_effects_for_timing("set_strike", self, card)
+		var ignore_condition = false
+		effects = parent.get_all_effects_for_timing("set_strike", self, card, ignore_condition)
 
 		if extra_effect_after_set_strike:
 			effects.append(extra_effect_after_set_strike)
@@ -3143,7 +3144,7 @@ func get_boost_effects_at_timing(timing_name : String, performing_player : Playe
 				effects.append(effect_with_id)
 	return effects
 
-func get_all_effects_for_timing(timing_name : String, performing_player : Player, card : GameCard) -> Array:
+func get_all_effects_for_timing(timing_name : String, performing_player : Player, card : GameCard, ignore_condition : bool = true) -> Array:
 	var effects = card_db.get_card_effects_at_timing(card, timing_name)
 	for effect in effects:
 		effect['card_id'] = card.id
@@ -3159,22 +3160,22 @@ func get_all_effects_for_timing(timing_name : String, performing_player : Player
 
 	var all_effects = []
 	for effect in effects:
-		if is_effect_condition_met(performing_player, effect, null):
+		if ignore_condition or is_effect_condition_met(performing_player, effect, null):
 			all_effects.append(effect)
 		elif 'negative_condition_effect' in effect:
 			all_effects.append(effect['negative_condition_effect'])
 	for effect in boost_effects:
-		if is_effect_condition_met(performing_player, effect, null):
+		if ignore_condition or is_effect_condition_met(performing_player, effect, null):
 			all_effects.append(effect)
 		elif 'negative_condition_effect' in effect:
 			all_effects.append(effect['negative_condition_effect'])
 	for effect in both_players_boost_effects:
-		if is_effect_condition_met(performing_player, effect, null):
+		if ignore_condition or is_effect_condition_met(performing_player, effect, null):
 			all_effects.append(effect)
 		elif 'negative_condition_effect' in effect:
 			all_effects.append(effect['negative_condition_effect'])
 	for effect in character_effects:
-		if is_effect_condition_met(performing_player, effect, null):
+		if ignore_condition or is_effect_condition_met(performing_player, effect, null):
 			all_effects.append(effect)
 		elif 'negative_condition_effect' in effect:
 			all_effects.append(effect['negative_condition_effect'])
@@ -3199,18 +3200,40 @@ func do_remaining_effects(performing_player : Player, next_state):
 	while active_strike.remaining_effect_list.size() > 0:
 		var remaining_effect_count = active_strike.remaining_effect_list.size()
 		if remaining_effect_count > 1:
-			# Send choice to player
-			change_game_state(Enums.GameState.GameState_PlayerDecision)
-			decision_info.type = Enums.DecisionType.DecisionType_ChooseSimultaneousEffect
-			decision_info.player = performing_player.my_id
-			decision_info.choice = active_strike.remaining_effect_list
-			events += [create_event(Enums.EventType.EventType_Strike_EffectChoice, performing_player.my_id, 0, "EffectOrder")]
-			break
+			# Check to see if any of these effects actually have their condition met (or have a negative condition).
+			# If more than 1, send only those choices to the player.
+			# If only 1 does, remove it from the list and do it immediately.
+			# If none do, this is over, clear out the list.
+			var effects_to_choose = []
+			for effect in active_strike.remaining_effect_list:
+				if is_effect_condition_met(performing_player, effect, null):
+					effects_to_choose.append(effect)
+				elif 'negative_condition_effect' in effect and is_effect_condition_met(performing_player, effect['negative_condition_effect'], null):
+					effects_to_choose.append(effect['negative_condition_effect'])
+
+			if effects_to_choose.size() > 1:
+				# Send choice to player
+				change_game_state(Enums.GameState.GameState_PlayerDecision)
+				decision_info.type = Enums.DecisionType.DecisionType_ChooseSimultaneousEffect
+				decision_info.player = performing_player.my_id
+				decision_info.choice = effects_to_choose
+				events += [create_event(Enums.EventType.EventType_Strike_EffectChoice, performing_player.my_id, 0, "EffectOrder")]
+				break
+			elif effects_to_choose.size() == 1:
+				var effect = effects_to_choose[0]
+				active_strike.remaining_effect_list.erase(effect)
+				events += do_effect_if_condition_met(performing_player, effect['card_id'], effect, null)
+
+				if game_state == Enums.GameState.GameState_PlayerDecision:
+					break
+			else:
+				# No more effects have their conditions met.
+				active_strike.remaining_effect_list = []
 		else:
+			# Only 1 effect in the list, do it.
 			var effect = active_strike.remaining_effect_list[0]
 			active_strike.remaining_effect_list = []
 			events += do_effect_if_condition_met(performing_player, effect['card_id'], effect, null)
-
 		if game_over:
 			return events
 
@@ -3521,19 +3544,20 @@ func do_hit_response_effects(offense_player : Player, defense_player : Player, i
 	# If more of these are added, need to sequence them to ensure all handled correctly.
 	var events = []
 	active_strike.strike_state = next_state
-	if not offense_player.strike_stat_boosts.ignore_armor:
-		# Currently assumes these will be armor-related; probably breaks if choices get involved
-		var effects = defense_player.get_character_effects_at_timing("when_hit")
-		for effect in effects:
-			events += do_effect_if_condition_met(defense_player, -1, effect, null)
-		assert(active_strike.strike_state == next_state)
 
-		if defense_player.strike_stat_boosts.when_hit_force_for_armor:
-			change_game_state(Enums.GameState.GameState_PlayerDecision)
-			decision_info.player = defense_player.my_id
-			decision_info.type = Enums.DecisionType.DecisionType_ForceForArmor
-			decision_info.choice_card_id = active_strike.get_player_card(defense_player).id
-			events += [create_event(Enums.EventType.EventType_Strike_ForceForArmor, defense_player.my_id, incoming_damage)]
+	# Currently assumes these will be armor-related; probably breaks if choices get involved
+	var effects = defense_player.get_character_effects_at_timing("when_hit")
+	for effect in effects:
+		events += do_effect_if_condition_met(defense_player, -1, effect, null)
+	assert(active_strike.strike_state == next_state)
+
+	if defense_player.strike_stat_boosts.when_hit_force_for_armor:
+		change_game_state(Enums.GameState.GameState_PlayerDecision)
+		decision_info.player = defense_player.my_id
+		decision_info.type = Enums.DecisionType.DecisionType_ForceForArmor
+		decision_info.choice_card_id = active_strike.get_player_card(defense_player).id
+		events += [create_event(Enums.EventType.EventType_Strike_ForceForArmor, defense_player.my_id, incoming_damage, "", offense_player.strike_stat_boosts.ignore_armor)]
+
 	return events
 
 func log_boosts_in_play():
@@ -3847,6 +3871,19 @@ func boost_play_cleanup(events, performing_player : Player):
 		active_boost = null
 	else:
 		if active_strike:
+			# If this strike is mid-before effects or mid-after effects, add this boost's effects to the list.
+			if active_strike.strike_state == StrikeState.StrikeState_Card1_Before or active_strike.strike_state == StrikeState.StrikeState_Card2_Before:
+				for effect in active_boost.card.definition['boost']['effects']:
+					if effect['timing'] == "before" or effect['timing'] == "both_players_before":
+						effect['card_id'] = active_boost.card.id
+						active_strike.remaining_effect_list.append(effect)
+			elif active_strike.strike_state == StrikeState.StrikeState_Card1_After or active_strike.strike_state == StrikeState.StrikeState_Card2_After:
+				for effect in active_boost.card.definition['boost']['effects']:
+					if effect['timing'] == "after" or effect['timing'] == "both_players_after":
+						effect['card_id'] = active_boost.card.id
+						active_strike.remaining_effect_list.append(effect)
+
+			# Continue resolving the strike (or doing another boost if you're doing Faust things...)
 			if active_strike.remaining_topdeck_boosts > 0 and performing_player.deck.size() > 0:
 				active_boost = null
 				do_topdeck_boost(events)
@@ -4497,9 +4534,16 @@ func do_choice(performing_player : Player, choice_index : int) -> bool:
 	if decision_info.type == Enums.DecisionType.DecisionType_ChooseSimultaneousEffect:
 		# This was the player choosing what to do next.
 		# Remove this effect from the remaining effects.
+		if 'is_negative_effect' in effect and effect['is_negative_effect']:
+			# Find the actual effect this goes with.
+			for remaining_effect in active_strike.remaining_effect_list:
+				if 'negative_condition_effect' in remaining_effect:
+					if remaining_effect['negative_condition_effect'] == effect:
+						effect = remaining_effect
+						break
 		active_strike.remaining_effect_list.erase(effect)
 
-	var events = handle_strike_effect(card_id, effect, performing_player)
+	var events = do_effect_if_condition_met(performing_player, card_id, effect, null)
 	if game_state == Enums.GameState.GameState_PlayerDecision and decision_info.type == Enums.DecisionType.DecisionType_ForceBoostSustainTopdeck:
 		# Handle stupid Faust case.
 		do_topdeck_boost(events)

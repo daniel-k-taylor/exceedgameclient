@@ -5407,18 +5407,21 @@
 				"timing": "hit",
 				"effect_type": "choice",
 				"choice": [
-					{ "effect_type": "push", "amount": 1 },
-					{ "effect_type": "pull", "amount": 1 }
+					{ "effect_type": "push", "amount": 1,
+						"and": { "effect_type": "draw",
+							"amount": 1,
+							"and": {
+								"effect_type": "opponent_discard_random",
+								"amount": 1
+					}} },
+					{ "effect_type": "pull", "amount": 1,
+					"and": { "effect_type": "draw",
+						"amount": 1,
+						"and": {
+							"effect_type": "opponent_discard_random",
+							"amount": 1
+					}} }
 				]
-			},
-			{
-				"timing": "hit",
-				"effect_type": "draw",
-				"amount": 1,
-				"and": {
-					"effect_type": "opponent_discard_random",
-					"amount": 1
-				}
 			}
 		],
 		"boost": {
@@ -5436,14 +5439,9 @@
 					"timing": "hit",
 					"effect_type": "choice",
 					"choice": [
-						{ "effect_type": "push", "amount": 1 },
-						{ "effect_type": "pull", "amount": 1 }
+						{ "effect_type": "push", "amount": 1, "and": { "effect_type": "opponent_discard_random" } },
+						{ "effect_type": "pull", "amount": 1, "and": { "effect_type": "opponent_discard_random" } }
 					]
-				},
-				{
-					"timing": "hit",
-					"effect_type": "opponent_discard_random",
-					"amount": 1
 				}
 			]
 		}
@@ -6305,6 +6303,7 @@
 				"condition_amount": 5,
 				"effect_type": "gain_advantage",
 				"negative_condition_effect": {
+					"is_negative_effect": true,
 					"effect_type": "choice",
 					"choice": [
 						{ "effect_type": "push", "amount": 2 },
