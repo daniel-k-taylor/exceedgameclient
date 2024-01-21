@@ -37,6 +37,7 @@
 [ext_resource type="Texture2D" uid="uid://ojsgw4m4r087" path="res://assets/portraits/sklogo.png" id="31_hsrmq"]
 [ext_resource type="Texture2D" uid="uid://b060c4v4aecrq" path="res://assets/portraits/sflogo.png" id="31_xu3ya"]
 [ext_resource type="Texture2D" uid="uid://de4wk0x150r1f" path="res://assets/portraits/exceedrandom.png" id="32_iutun"]
+[ext_resource type="Texture2D" uid="uid://juesnkghbyjd" path="res://assets/portraits/plague.png" id="32_o7q1n"]
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_8u80i"]
 
@@ -330,6 +331,11 @@ layout_mode = 2
 char_id = "shovelshield"
 portrait_texture = ExtResource("30_vegm4")
 
+[node name="Plague" parent="CenterContainer/SKCharacterSelect/Rows/Row1" instance=ExtResource("6_3lmwy")]
+layout_mode = 2
+char_id = "plague"
+portrait_texture = ExtResource("32_o7q1n")
+
 [node name="RandomSF" parent="CenterContainer/SKCharacterSelect/Rows/Row1" instance=ExtResource("6_3lmwy")]
 layout_mode = 2
 char_id = "random_s4"
@@ -477,6 +483,8 @@ portrait_texture = ExtResource("32_iutun")
 [connection signal="on_pressed" from="CenterContainer/BBCharacterSelect/Rows/Row1/RandomBB" to="." method="_on_char_button_on_pressed"]
 [connection signal="on_hover" from="CenterContainer/SKCharacterSelect/Rows/Row1/ShovelShield" to="." method="_on_char_hover"]
 [connection signal="on_pressed" from="CenterContainer/SKCharacterSelect/Rows/Row1/ShovelShield" to="." method="_on_char_button_on_pressed"]
+[connection signal="on_hover" from="CenterContainer/SKCharacterSelect/Rows/Row1/Plague" to="." method="_on_char_hover"]
+[connection signal="on_pressed" from="CenterContainer/SKCharacterSelect/Rows/Row1/Plague" to="." method="_on_char_button_on_pressed"]
 [connection signal="on_hover" from="CenterContainer/SKCharacterSelect/Rows/Row1/RandomSF" to="." method="_on_char_hover"]
 [connection signal="on_pressed" from="CenterContainer/SKCharacterSelect/Rows/Row1/RandomSF" to="." method="_on_char_button_on_pressed"]
 [connection signal="on_hover" from="CenterContainer/SFCharacterSelect/Rows/Row1/Ryu" to="." method="_on_char_hover"]
