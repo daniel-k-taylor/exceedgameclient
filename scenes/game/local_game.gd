@@ -3358,7 +3358,17 @@ func do_remaining_effects(performing_player : Player, next_state):
 				change_game_state(Enums.GameState.GameState_PlayerDecision)
 				decision_info.type = Enums.DecisionType.DecisionType_ChooseSimultaneousEffect
 				decision_info.player = performing_player.my_id
-				decision_info.choice = effects_to_choose
+				decision_info.choice = []
+				for effect in effects_to_choose:
+					if 'is_negative_effect' in effect and effect['is_negative_effect']:
+						# Find the actual effect this goes with, to avoid revealing condition outcomes early
+						for remaining_effect in active_strike.remaining_effect_list:
+							if 'negative_condition_effect' in remaining_effect:
+								if remaining_effect['negative_condition_effect'] == effect:
+									decision_info.choice.append(remaining_effect)
+									break
+					else:
+						decision_info.choice.append(effect)
 				events += [create_event(Enums.EventType.EventType_Strike_EffectChoice, performing_player.my_id, 0, "EffectOrder")]
 				break
 			elif effects_to_choose.size() == 1:
