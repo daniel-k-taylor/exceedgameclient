@@ -387,6 +387,8 @@ func get_effect_type_text(effect, card_name_source : String = ""):
 			effect_str += "Discard a card from opponent's gauge."
 		"discard_opponent_topdeck":
 			effect_str += "Discard a card from the top of the opponent's deck"
+		"discard_random_and_add_triggers":
+			effect_str += "Discard a random card; add before/hit/after triggers to attack"
 		"dodge_at_range":
 			var buddy_string = ""
 			if 'from_buddy' in effect and effect['from_buddy']:
@@ -638,7 +640,8 @@ func get_effect_text(effect, short = false, skip_timing = false, skip_condition 
 	if not short and 'bonus_effect' in effect:
 		effect_str += "; " + get_effect_text(effect['bonus_effect'], skip_timing, false, card_name_source)
 	if 'and' in effect:
-		effect_str += ", " + get_effect_text(effect['and'], short, skip_timing, false, card_name_source)
+		if not 'suppress_and_description' in effect or not effect['suppress_and_description']:
+			effect_str += ", " + get_effect_text(effect['and'], short, skip_timing, false, card_name_source)
 	if 'negative_condition_effect' in effect:
 		effect_str += ", otherwise " + get_effect_text(effect['negative_condition_effect'], short, skip_timing, false, card_name_source)
 	return effect_str

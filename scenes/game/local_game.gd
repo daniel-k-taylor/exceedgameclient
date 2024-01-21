@@ -268,6 +268,7 @@ class StrikeStatBoosts:
 	var power_bonus_multiplier : int = 1
 	var speed_bonus_multiplier : int = 1
 	var active_character_effects = []
+	var added_attack_effects = []
 	var ex_count : int = 0
 	var critical : bool = false
 	var overwrite_printed_power : bool = false
@@ -309,6 +310,7 @@ class StrikeStatBoosts:
 		power_bonus_multiplier = 1
 		speed_bonus_multiplier = 1
 		active_character_effects = []
+		added_attack_effects = []
 		ex_count = 0
 		critical = false
 		overwrite_printed_power = false
@@ -1052,13 +1054,17 @@ class Player:
 		events += [parent.create_event(Enums.EventType.EventType_RevealTopDeck, my_id, deck[0].id)]
 		return events
 
-	func discard_random(amount):
+	func discard_random(amount, discard_callback = null):
 		var events = []
+		var discarded_ids = []
 		for i in range(amount):
 			if len(hand) > 0:
 				var random_card_id = hand[parent.get_random_int() % len(hand)].id
+				discarded_ids.append(random_card_id)
 				parent._append_log("%s discarded random card %s." % [name, parent.card_db.get_card_name(random_card_id)])
 				events += discard([random_card_id])
+		if discard_callback:
+			discard_callback.call(self, discarded_ids)
 		return events
 
 	func invalidate_card(card : GameCard):
@@ -1579,6 +1585,13 @@ class Player:
 			ability_label = "exceed_ability_effects"
 
 		for effect in deck_def[ability_label]:
+			if effect['timing'] == timing_name:
+				effects.append(effect)
+		return effects
+
+	func get_bonus_effects_at_timing(timing_name : String):
+		var effects = []
+		for effect in strike_stat_boosts.added_attack_effects:
 			if effect['timing'] == timing_name:
 				effects.append(effect)
 		return effects
@@ -2521,6 +2534,8 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 		"discard_opponent_gauge_INTERNAL":
 			var chosen_card_id = effect['card_id']
 			events += opposing_player.discard([chosen_card_id])
+		"discard_random_and_add_triggers":
+			events += performing_player.discard_random(1, func(player, ids): add_attack_triggers(player, ids, true))
 		"exceed_end_of_turn":
 			performing_player.exceed_at_end_of_turn = true
 		"exceed_now":
@@ -3232,6 +3247,23 @@ func get_striking_card_ids_for_player(check_player : Player) -> Array:
 				card_ids.append(active_strike.defender_ex_card.definition['id'])
 	return card_ids
 
+func add_attack_triggers(performing_player : Player, card_ids : Array, set_character_effect : bool = false):
+	var new_effects = []
+	for card_id in card_ids:
+		var card = card_db.get_card(card_id)
+		_append_log("%s adding before/hit/after effects of %s to attack." % [performing_player.name, card_db.get_card_name(card.id)])
+		var card_effects = []
+		for timing in ["before", "hit", "after"]:
+			for card_effect in card_db.get_card_effects_at_timing(card, timing):
+				if set_character_effect:
+					var as_character_effect = card_effect.duplicate()
+					as_character_effect['character_effect'] = true
+					card_effects.append(as_character_effect)
+				else:
+					card_effects.append(card_effect)
+		new_effects += card_effects
+	performing_player.strike_stat_boosts.added_attack_effects += new_effects
+
 func get_boost_effects_at_timing(timing_name : String, performing_player : Player):
 	var effects = []
 	for boost_card in performing_player.continuous_boosts:
@@ -3250,6 +3282,7 @@ func get_all_effects_for_timing(timing_name : String, performing_player : Player
 	var character_effects = performing_player.get_character_effects_at_timing(timing_name)
 	for effect in character_effects:
 		effect['card_id'] = card.id
+	var bonus_effects = performing_player.get_bonus_effects_at_timing(timing_name)
 
 	var both_players_boost_effects = []
 	both_players_boost_effects += get_boost_effects_at_timing("both_players_" + timing_name, performing_player)
@@ -3273,6 +3306,11 @@ func get_all_effects_for_timing(timing_name : String, performing_player : Player
 		elif 'negative_condition_effect' in effect:
 			all_effects.append(effect['negative_condition_effect'])
 	for effect in character_effects:
+		if ignore_condition or is_effect_condition_met(performing_player, effect, null):
+			all_effects.append(effect)
+		elif 'negative_condition_effect' in effect:
+			all_effects.append(effect['negative_condition_effect'])
+	for effect in bonus_effects:
 		if ignore_condition or is_effect_condition_met(performing_player, effect, null):
 			all_effects.append(effect)
 		elif 'negative_condition_effect' in effect:

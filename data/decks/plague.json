@@ -2,56 +2,42 @@
 	"id": "plague",
 	"season": 4,
 	"display_name": "Plague Knight",
-	"cardback": "cardback_plague.png",
+	"cardback": "cardback_plague.jpg",
 	"exceed_cost": 2,
-	"character_action_default": [{
-		"gauge_cost": 0,
-		"force_cost": 0,
-		"effect": {
-			"effect_type": "choice",
-			"choice": [
-				{ "effect_type": "advance", "amount": 1 },
-				{ "effect_type": "retreat", "amount": 1 }
-			]
-		}
-	}],
-	"character_action_exceeded": [{
-		"gauge_cost": 0,
-		"force_cost": 0,
-		"effect": {
-			"effect_type": "choice",
-			"choice": [
-				{ "effect_type": "advance", "amount": 1 },
-				{ "effect_type": "retreat", "amount": 1 }
-			],
-			"and": {
-				"effect_type": "draw",
-				"amount": 1
-			}
-		}
-	}],
 	"ability_effects": [
 		{
 			"timing": "set_strike",
-			"effect_type": "gauge_for_effect",
-			"per_gauge_effect": null,
-			"overall_effect": {
-				"effect_type": "critical",
-				"character_effect": true
-			},
-			"gauge_max": 1
+			"condition": "min_cards_in_hand",
+			"condition_amount": 1,
+			"effect_type": "choice",
+			"choice": [
+				{ "effect_type": "discard_random_and_add_triggers" },
+				{ "effect_type": "pass" }
+			]
 		}
 	],
 	"exceed_ability_effects": [
 		{
 			"timing": "set_strike",
-			"effect_type": "gauge_for_effect",
-			"per_gauge_effect": null,
-			"overall_effect": {
-				"effect_type": "critical",
-				"character_effect": true
-			},
-			"gauge_max": 1
+			"condition": "min_cards_in_hand",
+			"condition_amount": 1,
+			"effect_type": "choice",
+			"choice": [
+				{
+					"effect_type": "discard_random_and_add_triggers",
+					"suppress_and_description": true,
+					"and": {
+						"condition": "min_cards_in_hand",
+						"condition_amount": 1,
+						"effect_type": "choice",
+						"choice": [
+							{ "effect_type": "discard_random_and_add_triggers" },
+							{ "effect_type": "pass" }
+						]
+					}
+				},
+				{ "effect_type": "pass" }
+			]
 		}
 	],
 	"cards": [
