@@ -210,6 +210,32 @@ func test_phonon_guidance_ua():
 	validate_positions(player1, 1, player2, 5)
 	validate_life(player1, 28, player2, 27)
 
+func test_phonon_ua_exceed():
+	position_players(player1, 3, player2, 7)
+	player1.exceed()
+	give_gauge(player1, 2)
+	assert_true(game_logic.do_character_action(player1, [player1.gauge[0].id], 0))
+	assert_true(game_logic.do_choice(player1, 0))
+	validate_positions(player1, 4, player2, 7)
+	execute_strike(player1, player2, "uni_normal_assault", "uni_normal_assault", [], [], false, false, [], [], 0, [])
+	validate_positions(player1, 6, player2, 7)
+	validate_life(player1, 30, player2, 24)
+	advance_turn(player1)
+	position_players(player1, 3, player2, 7)
+	validate_positions(player1, 3, player2, 7)
+	execute_strike(player2, player1, "uni_normal_assault", "uni_normal_assault", [], [], false, false, [], [], 0, [])
+	validate_positions(player1, 4, player2, 5)
+	validate_life(player1, 30, player2, 20)
+	player1.gauge = []
+	give_gauge(player1, 1)
+	position_players(player1, 3, player2, 7)
+	assert_true(game_logic.do_character_action(player1, [player1.gauge[player1.gauge.size()-1].id], 0))
+	validate_positions(player1, 3, player2, 7)
+	execute_strike(player1, player2, "uni_normal_assault", "uni_normal_assault", [], [], false, false, [], [], 0, [])
+	validate_positions(player1, 5, player2, 6)
+	validate_life(player1, 26, player2, 20)
+	
+
 func test_phonon_turning_reveal_nocopy():
 	position_players(player1, 3, player2, 6)
 	execute_strike(player1, player2, "phonon_turningsatisfaction", "phonon_turningsatisfaction", [0], [], false, false, [], [], 0, [])

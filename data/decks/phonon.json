@@ -16,7 +16,7 @@
 			"gauge_cost": 1,
 			"force_cost": 0,
 			"effect": {
-				"condition": "last_turn_was_strike",
+				"condition": "not_last_turn_was_strike",
 				"effect_type": "choice",
 				"choice": [
 					{ "effect_type": "close", "amount": 1, "and": { "effect_type": "strike" } },

@@ -5068,7 +5068,7 @@ func do_character_action(performing_player : Player, card_ids, action_idx : int 
 	remaining_character_action_effects = []
 	active_character_action = true
 	event_queue += events
-	events = handle_strike_effect(-1, action['effect'], performing_player)
+	events = do_effect_if_condition_met(performing_player, -1, action['effect'], null)
 	if game_state not in [
 			Enums.GameState.GameState_WaitForStrike,
 			Enums.GameState.GameState_PlayerDecision,
