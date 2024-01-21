@@ -6546,22 +6546,23 @@
 	{
 		"id": "plague_perfectpitch",
 		"type": "special",
-		"display_name": "Donkey Kick",
+		"display_name": "Perfect Pitch",
 		"force_cost": 0,
 		"gauge_cost": 0,
-		"range_min": 1,
+		"range_min": 2,
 		"range_max": 2,
-		"speed": 4,
-		"power": 6,
+		"speed": 7,
+		"power": 3,
 		"armor": 0,
-		"guard": 4,
+		"guard": 0,
 		"effects": [
 			{
 				"timing": "hit",
-				"effect_type": "push",
-				"amount": 2,
+				"effect_type": "draw",
+				"amount": 1,
 				"and": {
-					"effect_type": "gain_advantage"
+					"effect_type": "opponent_discard_random",
+					"amount": 1
 				}
 			}
 		],
@@ -6569,11 +6570,15 @@
 			"boost_type": "immediate",
 			"force_cost": 0,
 			"cancel_cost": -1,
-			"display_name": "Ki Charge",
+			"display_name": "Bomb Burst",
 			"effects": [
 				{
 					"timing": "immediate",
-					"effect_type": "add_to_gauge_boost_play_cleanup"
+					"effect_type": "choice",
+					"choice": [
+						{ "effect_type": "advance", "amount": 3 },
+						{ "effect_type": "retreat", "amount": 3 }
+					]
 				}
 			]
 		}
@@ -6581,49 +6586,45 @@
 	{
 		"id": "plague_staffofsurging",
 		"type": "special",
-		"display_name": "One Inch Punch",
+		"display_name": "Staff of Surging",
 		"force_cost": 0,
 		"gauge_cost": 0,
 		"range_min": 1,
 		"range_max": 1,
-		"speed": 3,
-		"power": 5,
+		"speed": 6,
+		"power": 2,
 		"armor": 0,
-		"guard": 6,
+		"guard": 0,
 		"effects": [
 			{
 				"timing": "during_strike",
-				"condition": "is_critical",
-				"effect_type": "armorup",
+				"effect_type": "ignore_guard"
+			},
+			{
+				"timing": "after",
+				"condition": "opponent_stunned",
+				"effect_type": "draw",
 				"amount": 2
-			},
-			{
-				"timing": "during_strike",
-				"effect_type": "ignore_armor"
-			},
-			{
-				"timing": "hit",
-				"effect_type": "push",
-				"amount": 3
 			}
 		],
 		"boost": {
-			"boost_type": "immediate",
+			"boost_type": "continuous",
 			"force_cost": 0,
 			"cancel_cost": -1,
-			"display_name": "Quick Step",
+			"display_name": "Frantic Research",
 			"effects": [
 				{
-					"timing": "immediate",
-					"effect_type": "choice",
-					"choice": [
-						{ "effect_type": "advance", "amount": 1 },
-						{ "effect_type": "retreat", "amount": 1 }
-					]
+					"timing": "now",
+					"effect_type": "draw",
+					"amount": 2,
+					"and": {
+						"effect_type": "strike"
+					}
 				},
 				{
-					"timing": "immediate",
-					"effect_type": "bonus_action"
+					"timing": "after",
+					"effect_type": "draw",
+					"amount": 2
 				}
 			]
 		}
@@ -6631,39 +6632,52 @@
 	{
 		"id": "plague_longpitch",
 		"type": "special",
-		"display_name": "Tatsumaki Senpukyaku",
-		"force_cost": 0,
+		"display_name": "Long Pitch",
+		"force_cost": 1,
 		"gauge_cost": 0,
-		"range_min": 1,
-		"range_max": 2,
-		"speed": 3,
-		"power": 5,
+		"range_min": 3,
+		"range_max": 5,
+		"speed": 5,
+		"power": 3,
 		"armor": 0,
-		"guard": 4,
+		"guard": 0,
 		"effects": [
 			{
-				"timing": "before",
-				"effect_type": "advance",
-				"amount": 2,
-				"bonus_effect": {
-					"condition": "advanced_through",
-					"effect_type": "gain_advantage"
-				}
+				"timing": "hit",
+				"effect_type": "force_for_effect",
+				"per_force_effect": null,
+				"overall_effect": {
+					"effect_type": "powerup",
+					"amount": 2
+				},
+				"force_max": 1
 			}
 		],
 		"boost": {
 			"boost_type": "continuous",
-			"force_cost": 0,
+			"force_cost": 1,
 			"cancel_cost": -1,
-			"display_name": "Swift",
+			"display_name": "Unexpected Results",
 			"effects": [
 				{
-					"timing": "during_strike",
-					"effect_type": "powerup",
-					"amount": 1,
-					"and": {
-						"effect_type": "speedup",
-						"amount": 1
+					"timing": "now",
+					"effect_type": "choice",
+					"choice": [
+						{ "effect_type": "advance", "amount": 2 },
+						{ "effect_type": "retreat", "amount": 2 }
+					]
+				},
+				{
+					"timing": "hit",
+					"condition": "top_deck_is_normal_attack",
+					"effect_type": "add_top_deck_to_gauge",
+					"negative_condition_effect": {
+						"is_negative_effect": true,
+						"effect_type": "powerup",
+						"amount": 2,
+						"and": {
+							"effect_type": "discard_topdeck"
+						}
 					}
 				}
 			]

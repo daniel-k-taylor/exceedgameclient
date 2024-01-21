@@ -240,6 +240,8 @@ func get_condition_text(condition, amount, amount2, detail):
 			text += ""
 		"is_normal_attack":
 			text += ""
+		"top_deck_is_normal_attack":
+			text += "If the top card of your deck is a normal, "
 		"is_buddy_special_or_ultra_attack":
 			text += ""
 		"buddy_in_play":
@@ -387,6 +389,8 @@ func get_effect_type_text(effect, card_name_source : String = ""):
 			effect_str += "Discard a card from opponent's gauge."
 		"discard_opponent_topdeck":
 			effect_str += "Discard a card from the top of the opponent's deck"
+		"discard_topdeck":
+			effect_str += "Discard a card from the top of your deck"
 		"discard_random_and_add_triggers":
 			effect_str += "Discard a random card; add before/hit/after triggers to attack"
 		"dodge_at_range":

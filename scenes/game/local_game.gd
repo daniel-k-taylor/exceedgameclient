@@ -2004,6 +2004,10 @@ func is_effect_condition_met(performing_player : Player, effect, local_condition
 			return initiated_strike and active_strike.initiator_set_face_up
 		elif condition == "is_normal_attack":
 			return active_strike.get_player_card(performing_player).definition['type'] == "normal"
+		elif condition == "top_deck_is_normal_attack":
+			if performing_player.deck.size() > 0:
+				return performing_player.deck[0].definition['type'] == "normal"
+			return false
 		elif condition == "is_buddy_special_or_ultra_attack":
 			var attack_type = active_strike.get_player_card(performing_player).definition['type']
 			return performing_player.is_buddy_in_play() and (attack_type == "special" or attack_type == "ultra")
@@ -2461,6 +2465,8 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 			performing_player.strike_stat_boosts.discard_attack_on_cleanup = true
 		"discard_opponent_topdeck":
 			events += opposing_player.discard_topdeck()
+		"discard_topdeck":
+			events += performing_player.discard_topdeck()
 		"draw_or_discard_to":
 			events += handle_player_draw_or_discard_to_effect(performing_player, card_id, effect)
 		"opponent_draw_or_discard_to":
