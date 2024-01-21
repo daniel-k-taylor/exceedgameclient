@@ -537,6 +537,7 @@ Log"
 [node name="Striking" type="Node2D" parent="AllCards"]
 
 [node name="ActionContainer" type="HBoxContainer" parent="AllCards"]
+visible = false
 offset_right = 1280.0
 offset_bottom = 220.0
 size_flags_vertical = 0
@@ -546,7 +547,6 @@ layout_mode = 2
 size_flags_horizontal = 3
 
 [node name="ActionMenu" parent="AllCards/ActionContainer" instance=ExtResource("17_8hgvk")]
-visible = false
 layout_mode = 2
 size_flags_vertical = 0
 
@@ -556,8 +556,8 @@ size_flags_horizontal = 3
 
 [node name="CardPopout" parent="AllCards" instance=ExtResource("14_lyeqj")]
 visible = false
-offset_right = 243.0
-offset_bottom = 125.0
+offset_right = 685.0
+offset_bottom = 154.0
 scale = Vector2(0.6, 0.6)
 
 [node name="PlayerBoosts" type="Node2D" parent="AllCards"]

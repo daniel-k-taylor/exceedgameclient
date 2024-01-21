@@ -171,6 +171,7 @@ var game_wrapper : GameWrapper = GameWrapper.new()
 @onready var player_bonus_label = $PlayerStrike/CharBonusPanel/MarginContainer/VBox/AbilityLabel
 @onready var opponent_bonus_label = $OpponentStrike/CharBonusPanel/MarginContainer/VBox/AbilityLabel
 @onready var action_menu : ActionMenu = $AllCards/ActionContainer/ActionMenu
+@onready var action_menu_container : HBoxContainer = $AllCards/ActionContainer
 @onready var choice_popout_button : Button = $ChoicePopoutShowButton
 var current_instruction_text : String = ""
 var current_action_menu_choices : Array = []
@@ -2402,6 +2403,7 @@ func _update_buttons():
 		UIState.UIState_WaitingOnOpponent:
 			action_menu_hidden = true
 	action_menu.visible = not action_menu_hidden and (button_choices.size() > 0 or instructions_visible)
+	action_menu_container.visible = action_menu.visible
 	action_menu.set_choices(current_instruction_text, button_choices)
 	current_action_menu_choices = button_choices
 
