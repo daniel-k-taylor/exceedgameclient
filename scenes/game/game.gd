@@ -1151,6 +1151,10 @@ func get_string_for_action_choice(choice):
 			return "Strike"
 		"boost":
 			return "Boost"
+		"add_to_hand":
+			return "Add to Hand"
+		"add_to_gauge":
+			return "Add to Gauge"
 	return ""
 
 func begin_choose_from_topdeck(action_choices, look_amount, can_pass):

@@ -2160,6 +2160,8 @@ func is_effect_condition_met(performing_player : Player, effect, local_condition
 			return active_strike.get_player_strike_from_gauge(performing_player)
 		elif condition == "is_critical":
 			return performing_player.strike_stat_boosts.critical
+		elif condition == "choose_cards_from_top_deck_action":
+			return decision_info.action == effect["condition_details"]
 		else:
 			assert(false, "Unimplemented condition")
 		# Unmet condition
@@ -2469,6 +2471,12 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 			events += performing_player.discard_topdeck()
 		"draw_or_discard_to":
 			events += handle_player_draw_or_discard_to_effect(performing_player, card_id, effect)
+		"draw_to":
+			var target_hand_size = effect['amount']
+			var hand_size = performing_player.hand.size()
+			if hand_size < target_hand_size:
+				var amount_to_draw = target_hand_size - hand_size
+				events += performing_player.draw(amount_to_draw)
 		"opponent_draw_or_discard_to":
 			events += handle_player_draw_or_discard_to_effect(opposing_player, card_id, effect)
 		"dodge_at_range":
@@ -5195,13 +5203,19 @@ func do_choose_from_topdeck(performing_player : Player, chosen_card_id : int, ac
 	match destination:
 		"discard":
 			events += performing_player.discard(leftover_card_ids, "top of deck")
+		"topdeck":
+			for card_id in leftover_card_ids:
+				events += performing_player.move_card_from_hand_to_deck(card_id)
 		_:
 			printlog("ERROR: Choose from topdeck destination not implemented.")
 			assert(false, "Choose from topdeck destination not implemented.")
 			return false
 
-	# If this effect came from a boost, cleanup that boost before continuing.
-	if active_boost:
+	# If this effect came from a boost and another action is about to happen, cleanup that boost before continuing.
+	decision_info.action = action
+
+	var real_actions = ["boost", "strike", "pass"]
+	if action in real_actions and active_boost:
 		active_boost.action_after_boost = true
 		active_boost.effects_resolved += 1
 		events = continue_resolve_boost(events)
@@ -5217,11 +5231,23 @@ func do_choose_from_topdeck(performing_player : Player, chosen_card_id : int, ac
 			event_queue += events
 			change_game_state(Enums.GameState.GameState_PickAction)
 			do_strike(performing_player, chosen_card_id, false, -1)
+		"add_to_hand":
+			# We've already drawn the cards we looked at
+			event_queue += events
+		"add_to_gauge":
+			events += performing_player.move_card_from_hand_to_gauge(chosen_card_id)
+			event_queue += events
 		"pass":
 			events += check_hand_size_advance_turn(performing_player)
 			event_queue += events
 		_:
 			assert(false, "Unknown action for choose from topdeck.")
+
+	# If it wasn't a "real" action, clean up the boost now
+	if action not in real_actions and active_boost:
+		active_boost.effects_resolved += 1
+		event_queue += continue_resolve_boost([])
+
 	return true
 
 func do_quit(player_id : Enums.PlayerId, reason : Enums.GameOverReason):

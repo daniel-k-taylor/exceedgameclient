@@ -6686,50 +6686,64 @@
 	{
 		"id": "plague_chainreaction",
 		"type": "special",
-		"display_name": "Hadoken",
+		"display_name": "Chain Reaction",
 		"force_cost": 0,
 		"gauge_cost": 0,
-		"range_min": 3,
-		"range_max": 6,
-		"speed": 4,
+		"range_min": 1,
+		"range_max": 3,
+		"speed": 5,
 		"power": 4,
 		"armor": 0,
 		"guard": 0,
 		"effects": [
 			{
-				"timing": "during_strike",
-				"condition": "is_critical",
-				"effect_type": "speedup",
-				"amount": 2
-			},
-			{
 				"timing": "after",
-				"condition": "hit_opponent",
-				"effect_type": "choice",
-				"choice": [
-					{
-						"effect_type": "return_attack_to_top_of_deck",
-						"and": {
-							"effect_type": "add_top_discard_to_gauge"
-						}
-					},
-					{ "effect_type": "pass" }
-				]
+				"effect_type": "draw_to",
+				"amount": 4
 			}
 		],
 		"boost": {
-			"boost_type": "continuous",
-			"force_cost": 0,
+			"boost_type": "immediate",
+			"force_cost": 1,
 			"cancel_cost": -1,
-			"display_name": "Defensive",
+			"display_name": "Bait Bomb",
 			"effects": [
 				{
-					"timing": "during_strike",
-					"effect_type": "powerup",
-					"amount": 2,
-					"and": {
-						"effect_type": "armorup",
-						"amount": 1
+					"timing": "immediate",
+					"effect_type": "choose_cards_from_top_deck",
+					"look_amount": 3,
+					"action_choices": [
+						"add_to_hand",
+						"add_to_gauge"
+					],
+					"can_pass": false,
+					"destination_unchosen": "topdeck"
+				},
+				{
+					"timing": "immediate",
+					"NOTE": "do the one that wasn't chosen",
+
+					"condition": "choose_cards_from_top_deck_action",
+					"condition_details": "add_to_hand",
+					"effect_type": "choose_cards_from_top_deck",
+					"look_amount": 2,
+					"action_choices": [
+						"add_to_gauge"
+					],
+					"can_pass": false,
+					"destination_unchosen": "topdeck",
+
+					"negative_condition_effect": {
+						"is_negative_effect": true,
+						"condition": "choose_cards_from_top_deck_action",
+						"condition_details": "add_to_hand",
+						"effect_type": "choose_cards_from_top_deck",
+						"look_amount": 2,
+						"action_choices": [
+							"add_to_hand"
+						],
+						"can_pass": false,
+						"destination_unchosen": "topdeck"
 					}
 				}
 			]

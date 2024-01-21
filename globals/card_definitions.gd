@@ -417,6 +417,8 @@ func get_effect_type_text(effect, card_name_source : String = ""):
 			effect_str += "Calculate range from %s." % effect['buddy_name']
 		"draw":
 			effect_str += "Draw " + str(effect['amount'])
+		"draw_to":
+			effect_str += "Draw until you have %s cards in hand" % str(effect['amount'])
 		"exceed_now":
 			effect_str += "Exceed"
 		"force_for_effect":
