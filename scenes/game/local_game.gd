@@ -2984,7 +2984,9 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 			if 'discard_effect' in effect:
 				discard_effect = effect['discard_effect']
 			var cards_available = performing_player.get_cards_in_hand_of_type(limitation)
-			if cards_available.size() > effect['amount'] or (optional and cards_available.size() > 0):
+			# Even if #cards == effect amount, still do the choosing manually because of all the additional
+			# functionality that has been added to this besides discarding.
+			if cards_available.size() >= effect['amount'] or (optional and cards_available.size() > 0):
 				change_game_state(Enums.GameState.GameState_PlayerDecision)
 				decision_info.type = Enums.DecisionType.DecisionType_ChooseToDiscard
 				decision_info.effect_type = "self_discard_choose_internal"
@@ -2997,13 +2999,16 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 				decision_info.can_pass = optional
 				events += [create_event(Enums.EventType.EventType_Strike_ChooseToDiscard, performing_player.my_id, effect['amount'])]
 			else:
-				if not optional:
+				if not optional and cards_available.size() > 0:
 					events += [create_event(Enums.EventType.EventType_Strike_ChooseToDiscard_Info, performing_player.my_id, effect['amount'])]
 					# Forced to discard whole hand.
 					var card_ids = []
 					for card in performing_player.hand:
 						card_ids.append(card.id)
 					events += performing_player.discard(card_ids)
+				elif cards_available.size() == 0:
+					if destination == "reveal" and 'and' in effect and effect['and']['effect_type'] == "save_power":
+						performing_player.saved_power = 0
 		"set_end_of_turn_boost_delay":
 			performing_player.set_end_of_turn_boost_delay(card_id)
 		"set_strike_x":
