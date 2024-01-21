@@ -4417,6 +4417,412 @@
 		"NOTEEND": "KEN CARDS END"
 	},
 
+	{
+		"NOTE": "KOKONOE CARDS START",
+		"id": "kokonoe_ultimateimpact",
+		"type": "ultra",
+		"display_name": "Ultimate Impact",
+		"force_cost": 0,
+		"gauge_cost": 4,
+		"range_min": 1,
+		"range_max": 1,
+		"speed": 4,
+		"power": 7,
+		"armor": 0,
+		"guard": 0,
+		"on_invalid": {
+			"effect_type": "add_to_gauge_after_discarded"
+		},
+		"effects": [
+			{
+				"timing": "hit",
+				"effect_type": "push",
+				"amount": 3,
+				"bonus_effect": {
+					"condition": "range",
+					"condition_amount": 4,
+					"effect_type": "draw_any_number"
+				}
+			}
+		],
+		"boost": {
+			"boost_type": "immediate",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Burst",
+			"effects": [
+				{
+					"timing": "immediate",
+					"effect_type": "draw",
+					"amount": 2
+				},
+				{
+					"timing": "immediate",
+					"effect_type": "seal_this"
+				},
+				{
+					"timing": "immediate",
+					"effect_type": "bonus_action"
+				}
+			]
+		}
+	},
+	{
+		"id": "kokonoe_dreadnoughtexterminator",
+		"type": "ultra",
+		"display_name": "Dreadnought Exterminator",
+		"force_cost": 0,
+		"gauge_cost": 4,
+		"gauge_cost_exceed": 8,
+		"range_min": 4,
+		"range_max": 8,
+		"speed": 3,
+		"power": 7,
+		"armor": 0,
+		"guard": 5,
+		"effects": [
+			{
+				"timing": "during_strike",
+				"condition": "exceeded",
+				"effect_type": "powerup",
+				"amount": 7
+			},
+			{
+				"timing": "hit",
+				"effect_type": "force_for_effect",
+				"per_force_effect": {
+					"effect_type": "powerup",
+					"amount": 1
+				},
+				"overall_effect": null,
+				"force_max": 4
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Reckless Upgrades",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "powerup_opponent",
+					"amount": 3
+				},
+				{
+					"timing": "now",
+					"effect_type": "add_top_discard_to_gauge",
+					"amount": 3
+				}
+			]
+		}
+	},
+	{
+		"id": "kokonoe_flamingbelobog",
+		"type": "ultra",
+		"display_name": "Flaming Belobog v2.73",
+		"force_cost": 0,
+		"gauge_cost": 2,
+		"range_min": 1,
+		"range_max": 4,
+		"speed": 2,
+		"power": 5,
+		"armor": 2,
+		"guard": 4,
+		"effects": [
+			{
+				"timing": "hit",
+				"condition": "range_greater_or_equal",
+				"condition_amount": 3,
+				"effect_type": "choose_discard",
+				"limitation": "",
+				"destination": "hand",
+				"amount": 2,
+				"amount_min": 0
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Jamming Dark v.165",
+			"effects": [
+				{
+					"timing": "after",
+					"condition": "range",
+					"condition_amount": 4,
+					"effect_type": "play_attack_from_hand"
+				}
+			]
+		}
+	},
+	{
+		"id": "kokonoe_absolutezero",
+		"type": "special",
+		"display_name": "Absolute Zero",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 2,
+		"speed": 6,
+		"power": 2,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "hit",
+				"effect_type": "opponent_discard_random",
+				"amount": 1,
+				"and": {
+					"effect_type": "gauge_for_effect",
+					"per_gauge_effect": null,
+					"overall_effect": {
+						"effect_type": "powerup",
+						"amount": 3,
+						"and": {
+							"effect_type": "push",
+							"amount": 2
+						}
+					},
+					"gauge_max": 2,
+					"must_spend_if_can_pay": true
+				}
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Grappling Hook",
+			"effects": [
+				{
+					"timing": "now",
+					"effect_type": "strike"
+				},
+				{
+					"timing": "hit",
+					"effect_type": "pull",
+					"amount": 2,
+					"and": {
+						"effect_type": "draw",
+						"amount": 1
+					}
+				},
+				{
+					"timing": "during_strike",
+					"effect_type": "rangeup",
+					"amount": 2,
+					"amount2": 2
+
+				}
+			]
+		}
+	},
+	{
+		"id": "kokonoe_brokenbunkerassault",
+		"type": "special",
+		"display_name": "Broken Bunker Assault v2.21",
+		"force_cost": 1,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 1,
+		"speed": 5,
+		"power": 5,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "during_strike",
+				"condition": "buddy_in_play",
+				"effect_type": "speedup",
+				"amount": -2
+			},
+			{
+				"timing": "before",
+				"effect_type": "close",
+				"amount": 2
+			},
+			{
+				"timing": "hit",
+				"condition": "on_buddy_space",
+				"effect_type": "powerup",
+				"amount": 2
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Impact Hammer",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "armorup",
+					"amount": 2
+				},
+				{
+					"timing": "hit",
+					"effect_type": "gauge_for_effect",
+					"per_gauge_effect": {
+						"effect_type": "powerup",
+						"amount": 1,
+						"and": {
+							"effect_type": "push",
+							"amount": 1
+						}
+					},
+					"overall_effect": null,
+					"gauge_max": 2
+				}
+			]
+		}
+	},
+	{
+		"id": "kokonoe_flamecage",
+		"type": "special",
+		"display_name": "Flame Cage",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 2,
+		"range_max": 5,
+		"speed": 3,
+		"power": 3,
+		"armor": 1,
+		"guard": 3,
+		"effects": [
+			{
+				"timing": "hit",
+				"condition": "range_greater_or_equal",
+				"condition_amount": 4,
+				"effect_type": "powerup",
+				"amount": 2
+			},
+			{
+				"timing": "after",
+				"effect_type": "choice",
+				"choice": [
+					{ "effect_type": "push", "amount": 1 },
+					{ "effect_type": "pull", "amount": 1 }
+				]
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Overtime",
+			"effects": [
+				{
+					"timing": "now",
+					"effect_type": "draw",
+					"amount": 4
+				},
+				{
+					"timing": "start_of_next_turn",
+					"effect_type": "add_to_gauge_immediately",
+					"and": {
+						"effect_type": "self_discard_choose",
+						"amount": 3
+					}
+				}
+			]
+		}
+	},
+	{
+		"id": "kokonoe_banishingrays",
+		"type": "special",
+		"display_name": "Banishing Rays v3.10",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 3,
+		"range_max": 3,
+		"speed": 4,
+		"power": 3,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "during_strike",
+				"condition": "buddy_in_play",
+				"effect_type": "speedup",
+				"amount": 2
+			},
+			{
+				"timing": "after",
+				"effect_type": "choice",
+				"choice": [
+					{ "effect_type": "advance", "amount": 1 },
+					{ "effect_type": "retreat", "amount": 1 }
+				]
+			}
+		],
+		"boost": {
+			"boost_type": "immediate",
+			"force_cost": 1,
+			"cancel_cost": -1,
+			"display_name": "Planar Haze v1.24",
+			"effects": [
+				{
+					"timing": "immediate",
+					"condition": "buddy_space_unoccupied",
+					"effect_type": "move_to_buddy",
+					"and": {
+						"effect_type": "bonus_action"
+					},
+					"negative_condition_effect": {
+						"effect_type": "choice",
+						"choice": [
+							{ "effect_type": "advance", "amount": 4 },
+							{ "effect_type": "advance", "amount": 5 }
+						]
+					}
+				}
+			]
+		}
+	},
+	{
+		"NOTE": "KOKONOE CARDS END",
+		"id": "kokonoe_solidwheel",
+		"type": "special",
+		"display_name": "Solid Wheel",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 1,
+		"speed": 4,
+		"power": 4,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "before",
+				"effect_type": "advance_stop_on_buddy",
+				"amount": 4,
+				"bonus_effect": {
+					"condition": "on_buddy_space",
+					"effect_type": "gain_advantage"
+				}
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 1,
+			"cancel_cost": -1,
+			"display_name": "Timed Explosives",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "powerup",
+					"amount": 2
+				},
+				{
+					"timing": "after",
+					"effect_type": "add_boost_to_gauge_on_strike_cleanup"
+				}
+			]
+		},
+		"NOTEEND": "KOKONOE CARDS END"
+	},
 
 	{
 		"NOTE": "KY KISUKE CARDS START",
