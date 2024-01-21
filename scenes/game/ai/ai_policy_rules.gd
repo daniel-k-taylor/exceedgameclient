@@ -124,7 +124,13 @@ func can_card_hit(card_id : int, ex_card_id : int, ai_game_state : AIPlayer.AIGa
 	var distance_after_effects = abs(my_location - opponent_location)
 	if from_buddy:
 		distance_after_effects = abs(buddy_location - opponent_location)
-	if card.definition['range_min'] <= distance_after_effects and distance_after_effects <= card.definition['range_max']:
+	var range_min = card.definition['range_min']
+	if range_min is String:
+		range_min = 1
+	var range_max = card.definition['range_max']
+	if range_max is String:
+		range_max = range_min + 3
+	if range_min <= distance_after_effects and distance_after_effects <= range_max:
 		return true
 	else:
 		return false

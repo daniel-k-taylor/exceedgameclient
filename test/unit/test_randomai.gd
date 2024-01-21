@@ -590,6 +590,15 @@ func test_hyde_100():
 		game_setup()
 	pass_test("Finished match")
 
+func test_phonon_100():
+	default_deck = CardDefinitions.get_deck_from_str_id("phonon")
+	for i in range(100):
+		print("==== RUNNING TEST %d ====" % i)
+		run_ai_game()
+		game_teardown()
+		game_setup()
+	pass_test("Finished match")
+	
 func test_ryu_100():
 	default_deck = CardDefinitions.get_deck_from_str_id("ryu")
 	for i in range(100):

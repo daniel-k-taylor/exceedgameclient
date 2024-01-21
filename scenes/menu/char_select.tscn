@@ -1,4 +1,4 @@
-[gd_scene load_steps=38 format=3 uid="uid://cqs72exlwm6at"]
+[gd_scene load_steps=39 format=3 uid="uid://cqs72exlwm6at"]
 
 [ext_resource type="Script" path="res://scenes/menu/char_select.gd" id="1_f3x24"]
 [ext_resource type="PackedScene" uid="uid://nwqxp8pdh1jk" path="res://scenes/menu/char_select_button.tscn" id="6_3lmwy"]
@@ -21,6 +21,7 @@
 [ext_resource type="Texture2D" uid="uid://cn3mh2d8x8xon" path="res://assets/portraits/testament.png" id="21_cebtd"]
 [ext_resource type="Texture2D" uid="uid://cuioxl3i2sx0p" path="res://assets/portraits/jacko.png" id="21_s6sfk"]
 [ext_resource type="Texture2D" uid="uid://cbd201lgc8mu8" path="res://assets/portraits/leo.png" id="21_tu1g4"]
+[ext_resource type="Texture2D" uid="uid://dqd8sy6gfclo8" path="res://assets/portraits/phonon.png" id="24_4beb5"]
 [ext_resource type="Texture2D" uid="uid://c224iya7w31tc" path="res://assets/portraits/hyde.png" id="24_610av"]
 [ext_resource type="Texture2D" uid="uid://bxhkpg33qwo3h" path="res://assets/portraits/yuzu.png" id="24_sf5mp"]
 [ext_resource type="Texture2D" uid="uid://uhtif52doyss" path="res://assets/portraits/unilogo.png" id="25_is7sg"]
@@ -256,6 +257,11 @@ alignment = 1
 layout_mode = 2
 alignment = 1
 
+[node name="Phonon" parent="CenterContainer/UNICharacterSelect/Rows/Row1" instance=ExtResource("6_3lmwy")]
+layout_mode = 2
+char_id = "phonon"
+portrait_texture = ExtResource("24_4beb5")
+
 [node name="Hyde" parent="CenterContainer/UNICharacterSelect/Rows/Row1" instance=ExtResource("6_3lmwy")]
 layout_mode = 2
 char_id = "hyde"
@@ -453,6 +459,8 @@ portrait_texture = ExtResource("32_iutun")
 [connection signal="on_pressed" from="CenterContainer/GGCharacterSelect/Rows/Row5/Faust" to="." method="_on_char_button_on_pressed"]
 [connection signal="on_hover" from="CenterContainer/GGCharacterSelect/Rows/Row5/Zato" to="." method="_on_char_hover"]
 [connection signal="on_pressed" from="CenterContainer/GGCharacterSelect/Rows/Row5/Zato" to="." method="_on_char_button_on_pressed"]
+[connection signal="on_hover" from="CenterContainer/UNICharacterSelect/Rows/Row1/Phonon" to="." method="_on_char_hover"]
+[connection signal="on_pressed" from="CenterContainer/UNICharacterSelect/Rows/Row1/Phonon" to="." method="_on_char_button_on_pressed"]
 [connection signal="on_hover" from="CenterContainer/UNICharacterSelect/Rows/Row1/Hyde" to="." method="_on_char_hover"]
 [connection signal="on_pressed" from="CenterContainer/UNICharacterSelect/Rows/Row1/Hyde" to="." method="_on_char_button_on_pressed"]
 [connection signal="on_hover" from="CenterContainer/UNICharacterSelect/Rows/Row1/Yuzu" to="." method="_on_char_hover"]

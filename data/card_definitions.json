@@ -1216,7 +1216,7 @@
 				"effect_type": "choice",
 				"choice": [
 					{ "effect_type": "gain_advantage" },
-					{ "effect_type": "return_this_to_hand" }
+					{ "effect_type": "return_this_attack_to_hand_after_attack", "card_name": "Resshou" }
 				]
 			}
 		],
@@ -5407,20 +5407,34 @@
 				"timing": "hit",
 				"effect_type": "choice",
 				"choice": [
-					{ "effect_type": "push", "amount": 1,
-						"and": { "effect_type": "draw",
+					{
+						"effect_type": "push",
+						"amount": 1,
+						"and": {
+							"effect_type": "draw",
 							"amount": 1,
 							"and": {
 								"effect_type": "opponent_discard_random",
 								"amount": 1
-					}} },
-					{ "effect_type": "pull", "amount": 1,
-					"and": { "effect_type": "draw",
+							}
+						}
+					},
+					{
+						"effect_type": "pull",
 						"amount": 1,
 						"and": {
-							"effect_type": "opponent_discard_random",
-							"amount": 1
-					}} }
+							"effect_type": "draw",
+							"amount": 1,
+							"and": {
+								"effect_type": "draw",
+								"amount": 1,
+								"and": {
+									"effect_type": "opponent_discard_random",
+									"amount": 1
+								}
+							}
+						}
+					}
 				]
 			}
 		],
@@ -5439,8 +5453,8 @@
 					"timing": "hit",
 					"effect_type": "choice",
 					"choice": [
-						{ "effect_type": "push", "amount": 1, "and": { "effect_type": "opponent_discard_random" } },
-						{ "effect_type": "pull", "amount": 1, "and": { "effect_type": "opponent_discard_random" } }
+						{ "effect_type": "push", "amount": 1, "and": { "effect_type": "opponent_discard_random", "amount": 1 } },
+						{ "effect_type": "pull", "amount": 1, "and": { "effect_type": "opponent_discard_random", "amount": 1 } }
 					]
 				}
 			]
@@ -5678,7 +5692,8 @@
 							"effect_type": "draw",
 							"amount": 1,
 							"and": {
-								"effect_type": "return_this_to_hand"
+								"effect_type": "return_this_to_hand_immediate_boost",
+								"card_name": "Tandem Top"
 							}
 						}},
 						{ "effect_type": "retreat", "amount": 2 }
@@ -7470,6 +7485,322 @@
 		"NOTEEND": "RYU CARDS END"
 	},
 
+	{
+		"NOTE": "PHONON CARDS START",
+		"id": "phonon_completeservitude",
+		"type": "ultra",
+		"display_name": "Complete Servitude",
+		"force_cost": 0,
+		"gauge_cost": 3,
+		"range_min": 3,
+		"range_max": "TOTAL_POWER",
+		"speed": 4,
+		"power": 3,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "hit",
+				"effect_type": "multiply_power_bonuses",
+				"amount": 2
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Muniel",
+			"effects": [
+				{
+					"timing": "now",
+					"effect_type": "self_discard_choose",
+					"optional": false,
+					"amount": 1,
+					"limitation": "",
+					"destination": "reveal",
+					"discard_effect": {
+						"effect_type": "save_power"
+					}
+				},
+				{
+					"timing": "during_strike",
+					"effect_type": "use_saved_power_as_printed_power"
+				},
+				{
+					"timing": "now",
+					"effect_type": "strike"
+				}
+			]
+		}
+	},
+	{
+		"id": "phonon_bindingbeatitude",
+		"type": "ultra",
+		"display_name": "Binding Beatitude",
+		"force_cost": 0,
+		"gauge_cost": 2,
+		"range_min": 3,
+		"range_max": "TOTAL_POWER",
+		"speed": 3,
+		"power": 3,
+		"armor": 3,
+		"guard": 3,
+		"effects": [
+			{
+				"timing": "after",
+				"effect_type": "choice",
+				"choice": [
+					{ "effect_type": "return_this_attack_to_hand_after_attack", "card_name": "Binding Beatitude" },
+					{ "effect_type": "pass" }
+				]
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Baroque Noise",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "powerup",
+					"amount": 1
+				},
+				{
+					"timing": "now",
+					"effect_type": "draw",
+					"amount": 1
+				},
+				{
+					"timing": "after",
+					"effect_type": "choice",
+					"choice": [
+						{ "effect_type": "return_this_boost_to_hand_strike_effect", "card_name": "Binding Beatitude" },
+						{ "effect_type": "pass" }
+					]
+				}
+			]
+		}
+	},
+	{
+		"id": "phonon_guidanceascension",
+		"type": "special",
+		"display_name": "Guidance Ascension",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": "TOTAL_POWER",
+		"range_max": "TOTAL_POWER",
+		"speed": 6,
+		"power": 1,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "hit",
+				"effect_type": "push",
+				"amount": 2
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Charged Attack",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "powerup",
+					"amount": 2
+				},
+				{
+					"timing": "now",
+					"effect_type": "add_boost_to_gauge_on_move"
+				}
+			]
+		}
+	},
+	{
+		"id": "phonon_turningsatisfaction",
+		"type": "special",
+		"display_name": "Turning Satisfaction",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 4,
+		"speed": 5,
+		"power": 2,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "hit",
+				"effect_type": "push",
+				"amount": 1,
+				"and": {
+					"effect_type": "choice",
+					"choice": [
+						{ "effect_type": "reveal_copy_for_advantage", "copy_id": "phonon_turningsatisfaction" },
+						{ "effect_type": "pass" }
+					]
+
+				}
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Compounding Plots",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "powerup",
+					"amount": 1
+				},
+				{
+					"timing": "now",
+					"effect_type": "bonus_action"
+				}
+			]
+		}
+	},
+	{
+		"id": "phonon_impulsivefrustration",
+		"type": "special",
+		"display_name": "Impulsive Frustration",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 2,
+		"range_max": "TOTAL_POWER",
+		"speed": 4,
+		"power": 3,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "hit",
+				"effect_type": "push",
+				"amount": 2
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 1,
+			"cancel_cost": -1,
+			"display_name": "Come At Me!",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "powerup",
+					"amount": 3
+				},
+				{
+					"timing": "start_of_next_turn",
+					"effect_type": "add_to_gauge_immediately"
+				}
+			]
+		}
+	},
+	{
+		"id": "phonon_slidingaffliction",
+		"type": "special",
+		"display_name": "Sliding Affliction",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": "TOTAL_POWER",
+		"speed": 3,
+		"power": 3,
+		"armor": 0,
+		"guard": 4,
+		"effects": [
+			{
+				"timing": "hit",
+				"condition": "range_greater_or_equal",
+				"condition_amount": 4,
+				"effect_type": "choice",
+				"choice": [
+					{ "effect_type": "push", "amount": 2, "and": { "effect_type": "gain_advantage" } },
+					{ "effect_type": "pull", "amount": 2, "and": { "effect_type": "gain_advantage" } }
+				]
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Resonance",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"condition": "initiated_strike",
+					"effect_type": "speedup",
+					"amount": 2
+				},
+				{
+					"timing": "during_strike",
+					"condition": "not_initiated_strike",
+					"effect_type": "powerup",
+					"amount": 2
+				},
+				{
+					"timing": "hit",
+					"effect_type": "choice",
+					"choice": [
+						{ "effect_type": "return_this_boost_to_hand_strike_effect", "card_name": "Sliding Affliction" },
+						{ "effect_type": "pass" }
+					]
+				}
+			]
+		}
+	},
+	{
+		"NOTE": "PHONON CARDS END",
+		"id": "phonon_suppressiverestriction",
+		"type": "special",
+		"display_name": "Suppressive Restriction",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 8,
+		"speed": 2,
+		"power": 1,
+		"armor": 0,
+		"guard": 6,
+		"effects": [
+			{
+				"timing": "after",
+				"effect_type": "choice_altered_values",
+				"choice": [
+					{ "effect_type": "push", "amount": "TOTAL_POWER", "and": { "effect_type": "draw", "amount": 2 } },
+					{ "effect_type": "pull", "amount": "TOTAL_POWER", "and": { "effect_type": "draw", "amount": 2 } }
+				]
+			}
+		],
+		"boost": {
+			"boost_type": "immediate",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Blowback",
+			"effects": [
+				{
+					"timing": "immediate",
+					"condition": "range",
+					"condition_amount": 1,
+					"effect_type": "choice",
+					"choice": [
+						{ "effect_type": "push", "amount": 1 },
+						{ "effect_type": "push", "amount": 2 }
+					]
+				},
+				{
+					"timing": "immediate",
+					"effect_type": "strike"
+				}
+			]
+		},
+		"NOTEEND": "PHONON CARDS END"
+	},
 
 	{
 		"NOTE": "POTEMKIN CARDS START",

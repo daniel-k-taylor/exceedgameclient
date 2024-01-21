@@ -1,0 +1,216 @@
+{
+	"id": "phonon",
+	"season": 6,
+	"display_name": "Phonon",
+	"cardback": "cardback_phonon.jpg",
+	"exceed_cost": 1,
+	"character_action_default": [{
+		"gauge_cost": 0,
+		"force_cost": 0,
+		"effect": {
+			"effect_type": "strike"
+		}
+	}],
+	"character_action_exceeded": [
+		{
+			"gauge_cost": 1,
+			"force_cost": 0,
+			"effect": {
+				"condition": "last_turn_was_strike",
+				"effect_type": "choice",
+				"choice": [
+					{ "effect_type": "close", "amount": 1, "and": { "effect_type": "strike" } },
+					{ "effect_type": "retreat", "amount": 1, "and": { "effect_type": "strike" } }
+				],
+				"negative_condition_effect": {
+					"is_negative_effect": true,
+					"effect_type": "strike"
+				}
+			}
+		},
+		{
+			"gauge_cost": 0,
+			"force_cost": 0,
+			"min_hand_size": 1,
+			"action_name": "Revert",
+			"effect": {
+				"effect_type": "gauge_from_hand",
+				"min_amount": 1,
+				"max_amount": 1,
+				"and": {
+					"effect_type": "revert",
+					"and": {
+						"effect_type": "take_bonus_actions",
+						"amount": 1
+					}
+				}
+			}
+		}
+	],
+	"ability_effects": [
+		{
+			"timing": "during_strike",
+			"condition": "used_character_action",
+			"condition_details": ["default", 0],
+			"effect_type": "pass",
+			"and": {
+				"character_effect": true,
+				"condition": "last_turn_was_strike",
+				"effect_type": "powerup",
+				"amount": 1
+			}
+		},
+		{
+			"timing": "during_strike",
+			"condition": "used_character_action",
+			"condition_details": ["default", 0],
+			"effect_type": "pass",
+			"and": {
+				"character_effect": true,
+				"condition": "not_last_turn_was_strike",
+				"effect_type": "powerup",
+				"amount": 2
+			}
+		}
+	],
+	"exceed_ability_effects": [
+		{
+			"timing": "set_strike",
+			"condition": "used_character_action",
+			"condition_details": ["exceed", 0],
+			"character_effect": true,
+			"effect_type": "powerup",
+			"amount": 2
+		}
+	],
+	"cards": [
+		{
+			"definition_id": "phonon_completeservitude",
+			"image": "phonon_completeservitude.tres"
+		},
+		{
+			"definition_id": "phonon_completeservitude",
+			"image": "phonon_completeservitude.tres"
+		},
+		{
+			"definition_id": "phonon_bindingbeatitude",
+			"image": "phonon_bindingbeatitude.tres"
+		},
+		{
+			"definition_id": "phonon_bindingbeatitude",
+			"image": "phonon_bindingbeatitude.tres"
+		},
+		{
+			"definition_id": "phonon_guidanceascension",
+			"image": "phonon_guidanceascension.tres"
+		},
+		{
+			"definition_id": "phonon_guidanceascension",
+			"image": "phonon_guidanceascension.tres"
+		},
+		{
+			"definition_id": "phonon_turningsatisfaction",
+			"image": "phonon_turningsatisfaction.tres"
+		},
+		{
+			"definition_id": "phonon_turningsatisfaction",
+			"image": "phonon_turningsatisfaction.tres"
+		},
+		{
+			"definition_id": "phonon_turningsatisfaction",
+			"image": "phonon_turningsatisfaction.tres"
+		},
+		{
+			"definition_id": "phonon_turningsatisfaction",
+			"image": "phonon_turningsatisfaction.tres"
+		},
+		{
+			"definition_id": "phonon_impulsivefrustration",
+			"image": "phonon_impulsivefrustration.tres"
+		},
+		{
+			"definition_id": "phonon_impulsivefrustration",
+			"image": "phonon_impulsivefrustration.tres"
+		},
+		{
+			"definition_id": "phonon_slidingaffliction",
+			"image": "phonon_slidingaffliction.tres"
+		},
+		{
+			"definition_id": "phonon_slidingaffliction",
+			"image": "phonon_slidingaffliction.tres"
+		},
+		{
+			"definition_id": "phonon_suppressiverestriction",
+			"image": "phonon_suppressiverestriction.tres"
+		},
+		{
+			"definition_id": "phonon_suppressiverestriction",
+			"image": "phonon_suppressiverestriction.tres"
+		},
+		{
+			"definition_id": "uni_normal_grasp",
+			"image": "normal_grasp.tres"
+		},
+		{
+			"definition_id": "uni_normal_grasp",
+			"image": "normal_grasp.tres"
+		},
+		{
+			"definition_id": "uni_normal_cross",
+			"image": "normal_cross.tres"
+		},
+		{
+			"definition_id": "uni_normal_cross",
+			"image": "normal_cross.tres"
+		},
+		{
+			"definition_id": "uni_normal_assault",
+			"image": "normal_assault.tres"
+		},
+		{
+			"definition_id": "uni_normal_assault",
+			"image": "normal_assault.tres"
+		},
+		{
+			"definition_id": "uni_normal_dive",
+			"image": "normal_dive.tres"
+		},
+		{
+			"definition_id": "uni_normal_dive",
+			"image": "normal_dive.tres"
+		},
+		{
+			"definition_id": "uni_normal_spike",
+			"image": "normal_spike.tres"
+		},
+		{
+			"definition_id": "uni_normal_spike",
+			"image": "normal_spike.tres"
+		},
+		{
+			"definition_id": "uni_normal_sweep",
+			"image": "normal_sweep.tres"
+		},
+		{
+			"definition_id": "uni_normal_sweep",
+			"image": "normal_sweep.tres"
+		},
+		{
+			"definition_id": "uni_normal_focus",
+			"image": "normal_focus.tres"
+		},
+		{
+			"definition_id": "uni_normal_focus",
+			"image": "normal_focus.tres"
+		},
+		{
+			"definition_id": "uni_normal_block",
+			"image": "normal_block.tres"
+		},
+		{
+			"definition_id": "uni_normal_block",
+			"image": "normal_block.tres"
+		}
+	]
+}

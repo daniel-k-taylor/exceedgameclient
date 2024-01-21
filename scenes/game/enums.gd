@@ -99,6 +99,7 @@ enum EventType {
 	EventType_ReadingNormal,
 	EventType_ReshuffleDeck_Mulligan,
 	EventType_ReshuffleDiscard,
+	EventType_RevealCard,
 	EventType_RevealHand,
 	EventType_RevealRandomGauge,
 	EventType_RevealStrike_OnePlayer,
