@@ -202,6 +202,10 @@ func get_condition_text(condition, amount, amount2, detail):
 			text += "If initiated strike, "
 		"hit_opponent":
 			text += "If hit opponent, "
+		"last_turn_was_strike":
+			text += "If last turn was a strike, "
+		"not_last_turn_was_strike":
+			text += "If last turn was not a strike, "
 		"life_equals":
 			text += "If your life is exactly %s, " % amount
 		"not_canceled_this_turn":
@@ -444,6 +448,11 @@ func get_effect_type_text(effect, card_name_source : String = ""):
 			if effect['amount'] != effect['amount2']:
 				movement_str += "-%s" % effect['amount2']
 			effect_str += "Move %s %s space(s)" % [effect['buddy_name'], movement_str]
+		"multiply_power_bonuses":
+			if effect['amount'] == 2:
+				effect_str += "Double power bonuses"
+			else:
+				effect_str += "Multiply power bonuses by %s" % effect['amount']
 		"nothing":
 			effect_str += ""
 		"opponent_cant_move_past":
@@ -499,14 +508,33 @@ func get_effect_type_text(effect, card_name_source : String = ""):
 			effect_str += "Return the attack to your hand"
 		"return_attack_to_top_of_deck":
 			effect_str += "Return the attack to the top of your deck"
-		"return_this_to_hand":
-			effect_str += "Return this card to hand."
+		"return_this_attack_to_hand_after_attack":
+			if 'card_name' in effect:
+				effect_str += "Return %s to hand" % effect['card_name']
+			else:
+				effect_str += "Return this to hand"
+		"return_this_boost_to_hand_strike_effect":
+			if 'card_name' in effect:
+				effect_str += "Return %s to hand" % effect['card_name']
+			else:
+				effect_str += "Return this to hand"
+		"return_this_to_hand_immediate_boost":
+			if 'card_name' in effect:
+				effect_str += "Return %s to hand" % effect['card_name']
+			else:
+				effect_str += "Return this to hand"
 		"return_all_cards_gauge_to_hand":
 			effect_str += "Return all cards in gauge to hand."
+		"reveal_copy_for_advantage":
+			effect_str += "Reveal a copy of this attack to Gain Advantage"
 		"reveal_hand":
 			effect_str += "Reveal your hand"
 		"reveal_strike":
 			effect_str += "Initiate face-up"
+		"save_power":
+			effect_str += "Your printed power becomes its Power"
+		"use_saved_power_as_printed_power":
+			effect_str += "Your printed power is the revealed card's power"
 		"set_strike_x":
 			effect_str += "Set X to "
 			match effect['source']:
@@ -537,6 +565,8 @@ func get_effect_type_text(effect, card_name_source : String = ""):
 				bonus= "\nfor: " + get_effect_text(effect['discard_effect'], false, false, false)
 			if destination == "sealed":
 				effect_str += optional_text + "Seal " + str(effect['amount']) + limitation + " card(s)" + bonus
+			elif destination == "reveal":
+				effect_str += optional_text + "Reveal " + str(effect['amount']) + limitation + " card(s)" + bonus
 			else:
 				effect_str += optional_text + "Discard " + str(effect['amount']) + limitation + " card(s)" + bonus
 		"set_used_character_bonus":

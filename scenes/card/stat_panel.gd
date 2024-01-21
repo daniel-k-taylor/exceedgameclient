@@ -11,7 +11,7 @@ func _process(_delta):
 	pass
 
 func _set_numbers(amount_min, amount_max):
-	if amount_min == amount_max:
+	if str(amount_min) == str(amount_max):
 		$StatVBox/StatNumbersHBox/MinNum.text = str(amount_min)
 		$StatVBox/StatNumbersHBox/Dash.visible = false
 		$StatVBox/StatNumbersHBox/MaxNum.visible = false

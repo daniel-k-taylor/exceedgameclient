@@ -1442,7 +1442,8 @@ func _on_choose_to_discard(event, informative_only : bool):
 	var decision_info = game_wrapper.get_decision_info()
 	var can_pass = decision_info.can_pass
 	if informative_only or not can_pass:
-		spawn_damage_popup("Forced Discard %s" % str(amount), player)
+		if not decision_info.destination == "reveal":
+			spawn_damage_popup("Forced Discard %s" % str(amount), player)
 	if not informative_only:
 		var limitation = decision_info.limitation
 		if player == Enums.PlayerId.PlayerId_Player:
@@ -1800,24 +1801,43 @@ func _on_reshuffle_deck_mulligan(_event):
 	#printlog("UI: TODO: In place reshuffle deck. No cards actually move though.")
 	pass
 
+func reset_revealed_cards():
+	var current_children = $AllCards/OpponentRevealed.get_children()
+	for i in range(len(current_children)-1, -1, -1):
+		var card = current_children[i]
+		card.get_parent().remove_child(card)
+		card.queue_free()
+
+func add_revealed_card(card_game_object):
+	var card_db = game_wrapper.get_card_database()
+	var logic_card : GameCard = card_db.get_card(card_game_object.card_id)
+	var copy_card = create_card(card_game_object.card_id + RevealCopyIdRangestart, logic_card.definition, card_game_object.card_image, card_game_object.cardback_image, $AllCards/OpponentRevealed, 0, true)
+	copy_card.set_card_and_focus(OffScreen, 0, CardBase.ReferenceCardScale)
+	copy_card.resting_scale = CardBase.ReferenceCardScale
+	copy_card.change_state(CardBase.CardState.CardState_Offscreen)
+	copy_card.flip_card_to_front(true)
+
+func _on_reveal_card_from_hand(event):
+	var player = event['event_player']
+	var card_id = event['number']
+	spawn_damage_popup("Card Revealed!", player)
+	if player == Enums.PlayerId.PlayerId_Opponent:
+		reset_revealed_cards()
+		var card = find_card_on_board(card_id)
+		add_revealed_card(card)
+	else:
+		# Nothing for AI here.
+		pass
+	return SmallNoticeDelay
+
 func _on_reveal_hand(event):
 	var player = event['event_player']
 	spawn_damage_popup("Hand Revealed!", player)
 	if player == Enums.PlayerId.PlayerId_Opponent:
-		var current_children = $AllCards/OpponentRevealed.get_children()
-		for i in range(len(current_children)-1, -1, -1):
-			var card = current_children[i]
-			card.get_parent().remove_child(card)
-			card.queue_free()
-		var card_db = game_wrapper.get_card_database()
+		reset_revealed_cards()
 		var cards = $AllCards/OpponentHand.get_children()
 		for card in cards:
-			var logic_card : GameCard = card_db.get_card(card.card_id)
-			var copy_card = create_card(card.card_id + RevealCopyIdRangestart, logic_card.definition, card.card_image, card.cardback_image, $AllCards/OpponentRevealed, 0, true)
-			copy_card.set_card_and_focus(OffScreen, 0, CardBase.ReferenceCardScale)
-			copy_card.resting_scale = CardBase.ReferenceCardScale
-			copy_card.change_state(CardBase.CardState.CardState_Offscreen)
-			copy_card.flip_card_to_front(true)
+			add_revealed_card(card)
 	else:
 		# Nothing for AI here.
 		pass
@@ -1834,19 +1854,9 @@ func _on_reveal_topdeck(event):
 	var card_id = event['number']
 	spawn_damage_popup("Top Deck Revealed!", player)
 	if player == Enums.PlayerId.PlayerId_Opponent:
-		var current_children = $AllCards/OpponentRevealed.get_children()
-		for i in range(len(current_children)-1, -1, -1):
-			var child_card = current_children[i]
-			child_card.get_parent().remove_child(child_card)
-			child_card.queue_free()
-		var card_db = game_wrapper.get_card_database()
-		var logic_card : GameCard = card_db.get_card(card_id)
+		reset_revealed_cards()
 		var card = find_card_on_board(card_id)
-		var copy_card = create_card(card.card_id + RevealCopyIdRangestart, logic_card.definition, card.card_image, card.cardback_image, $AllCards/OpponentRevealed, 0, true)
-		copy_card.set_card_and_focus(OffScreen, 0, CardBase.ReferenceCardScale)
-		copy_card.resting_scale = CardBase.ReferenceCardScale
-		copy_card.change_state(CardBase.CardState.CardState_Offscreen)
-		copy_card.flip_card_to_front(true)
+		add_revealed_card(card)
 	else:
 		# Nothing for AI here.
 		pass
@@ -2148,6 +2158,8 @@ func _handle_events(events):
 				delay = _on_reshuffle_discard(event)
 			Enums.EventType.EventType_ReshuffleDeck_Mulligan:
 				_on_reshuffle_deck_mulligan(event)
+			Enums.EventType.EventType_RevealCard:
+				delay = _on_reveal_card_from_hand(event)
 			Enums.EventType.EventType_RevealHand:
 				delay = _on_reveal_hand(event)
 			Enums.EventType.EventType_RevealStrike_OnePlayer:
