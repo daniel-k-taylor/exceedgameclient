@@ -3609,6 +3609,7 @@ func in_range(attacking_player, defending_player, card):
 	if attacking_player.strike_stat_boosts.calculate_range_from_buddy:
 		attack_source_location = attacking_player.buddy_location
 	var distance = abs(attack_source_location - defending_player.arena_location)
+	var opponent_in_range = is_location_in_range(attacking_player, card, defending_player.arena_location)
 
 	if defending_player.strike_stat_boosts.dodge_at_range_min != -1:
 		if defending_player.strike_stat_boosts.dodge_at_range_from_buddy:
@@ -3623,9 +3624,7 @@ func in_range(attacking_player, defending_player, card):
 		var defending_speed = calculate_speed(defending_player, active_strike.get_player_card(defending_player))
 		if attacking_speed > defending_speed:
 			return false
-	if min_range <= distance and distance <= max_range:
-		return true
-	return false
+	return opponent_in_range
 
 func get_total_power(performing_player : Player):
 	var card = active_strike.get_player_card(performing_player)

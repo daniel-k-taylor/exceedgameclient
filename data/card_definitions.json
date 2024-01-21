@@ -10601,7 +10601,7 @@
 		"range_min": -1,
 		"range_max": -1,
 		"speed": 0,
-		"power": 0,
+		"power": -1,
 		"armor": 2,
 		"guard": 3,
 		"effects": [
@@ -10931,7 +10931,7 @@
 		"range_min": -1,
 		"range_max": -1,
 		"speed": 0,
-		"power": 0,
+		"power": -1,
 		"armor": 2,
 		"guard": 3,
 		"effects": [
@@ -11247,7 +11247,7 @@
 		"range_min": -1,
 		"range_max": -1,
 		"speed": 0,
-		"power": 0,
+		"power": -1,
 		"armor": 2,
 		"guard": 3,
 		"effects": [
