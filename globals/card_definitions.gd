@@ -530,7 +530,9 @@ func get_effect_type_text(effect, card_name_source : String = ""):
 		"reveal_strike":
 			effect_str += "Initiate face-up"
 		"save_power":
-			effect_str += "; Your printed power becomes its Power"
+			effect_str += "Your printed power becomes its Power"
+		"use_saved_power_as_printed_power":
+			effect_str += "Your printed power is the revealed card's power"
 		"set_strike_x":
 			effect_str += "Set X to "
 			match effect['source']:
