@@ -367,6 +367,7 @@ class Player:
 	var used_character_action : bool
 	var used_character_action_details : Array
 	var used_character_bonus : bool
+	var force_spent_before_strike : int
 	var exceed_at_end_of_turn : bool
 	var specials_invalid : bool
 	var mulligan_complete : bool
@@ -430,6 +431,7 @@ class Player:
 		used_character_action = false
 		used_character_action_details = []
 		used_character_bonus = false
+		force_spent_before_strike = 0
 		exceed_at_end_of_turn = false
 		specials_invalid = false
 		cleanup_boost_to_gauge_cards = []
@@ -1750,6 +1752,8 @@ func advance_to_next_turn():
 	opponent.used_character_action_details = []
 	player.used_character_bonus = false
 	opponent.used_character_bonus = false
+	player.force_spent_before_strike = 0
+	opponent.force_spent_before_strike = 0
 
 	# Update strike turn tracking
 	last_turn_was_strike = strike_happened_this_turn
@@ -2580,6 +2584,8 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 			performing_player.exceed_at_end_of_turn = true
 		"exceed_now":
 			events += performing_player.exceed()
+		"extra_trigger_resolutions":
+			duplicate_attack_triggers(performing_player, effect['amount'])
 		"force_for_effect":
 			var force_player = performing_player
 			if 'other_player' in effect and effect['other_player']:
@@ -2649,6 +2655,8 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 			performing_player.strike_stat_boosts.ignore_push_and_pull = true
 		"ignore_push_and_pull_passive_bonus":
 			performing_player.ignore_push_and_pull = true
+		"increase_force_spent_before_strike":
+			performing_player.force_spent_before_strike += 1
 		"remove_ignore_push_and_pull_passive_bonus":
 			performing_player.ignore_push_and_pull = false
 		"look_at_top_opponent_deck":
@@ -3304,6 +3312,19 @@ func add_attack_triggers(performing_player : Player, card_ids : Array, set_chara
 		new_effects += card_effects
 	performing_player.strike_stat_boosts.added_attack_effects += new_effects
 
+func duplicate_attack_triggers(performing_player : Player, amount : int):
+	var card = null
+	if active_strike.initiator == performing_player:
+		card = active_strike.initiator_card
+	else:
+		card = active_strike.defender_card
+
+	var effects = []
+	for timing in ["before", "hit", "after"]:
+		effects += get_all_effects_for_timing(timing, performing_player, card)
+	for i in range(amount):
+		performing_player.strike_stat_boosts.added_attack_effects += effects
+
 func get_boost_effects_at_timing(timing_name : String, performing_player : Player):
 	var effects = []
 	for boost_card in performing_player.continuous_boosts:
@@ -3492,6 +3513,8 @@ func do_set_strike_x(performing_player : Player, source : String):
 				else:
 					var initiator_speed = calculate_speed(active_strike.initiator, active_strike.initiator_card)
 					value = max(initiator_speed, 0)
+		"force_spent_before_strike":
+			value = performing_player.force_spent_before_strike
 		_:
 			assert(false, "Unknown source for setting X")
 

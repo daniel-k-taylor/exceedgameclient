@@ -423,6 +423,8 @@ func get_effect_type_text(effect, card_name_source : String = ""):
 			effect_str += "Draw until you have %s cards in hand" % str(effect['amount'])
 		"exceed_now":
 			effect_str += "Exceed"
+		"extra_trigger_resolutions":
+			effect_str += "Before/Hit/After triggers resolve %s extra time(s)" % effect['amount']
 		"force_for_effect":
 			effect_str += get_force_for_effect_summary(effect, card_name_source)
 		"gauge_for_effect":
@@ -445,6 +447,8 @@ func get_effect_type_text(effect, card_name_source : String = ""):
 			effect_str += "Ignore Push and Pull"
 		"ignore_push_and_pull_passive_bonus":
 			effect_str += "Ignore Push and Pull"
+		"increase_force_spent_before_strike":
+			effect_str += get_effect_text(effect['linked_effect'], false, false, false)
 		"remove_ignore_push_and_pull_passive_bonus":
 			effect_str += ""
 		"lose_all_armor":
@@ -554,6 +558,8 @@ func get_effect_type_text(effect, card_name_source : String = ""):
 					effect_str += "power of top card of discards"
 				'opponent_speed':
 					effect_str += "opponent's speed"
+				'force_spent_before_strike':
+					effect_str += "force spent before strike"
 				_:
 					effect_str += "(UNKNOWN)"
 		"seal_this":
