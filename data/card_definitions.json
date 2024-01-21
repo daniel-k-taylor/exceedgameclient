@@ -7795,6 +7795,8 @@
 				},
 				{
 					"timing": "immediate",
+					"condition": "range",
+					"condition_amount": 1,
 					"effect_type": "strike"
 				}
 			]
