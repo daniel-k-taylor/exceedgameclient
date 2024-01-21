@@ -2464,12 +2464,7 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 				card = active_strike.defender_card
 			var hit_effects = get_all_effects_for_timing("hit", performing_player, card)
 
-			# Send choice to player
-			change_game_state(Enums.GameState.GameState_PlayerDecision)
-			decision_info.type = Enums.DecisionType.DecisionType_ChooseSimultaneousEffect
-			decision_info.player = performing_player.my_id
-			decision_info.effect_type = "copy_other_hit_effect"
-			decision_info.choice = []
+			var effect_options = []
 			for possible_effect in hit_effects:
 				if possible_effect != effect:
 					if 'is_negative_effect' in possible_effect and possible_effect['is_negative_effect']:
@@ -2477,11 +2472,19 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 						for remaining_effect in active_strike.remaining_effect_list:
 							if 'negative_condition_effect' in remaining_effect:
 								if remaining_effect['negative_condition_effect'] == possible_effect:
-									decision_info.choice.append(remaining_effect)
+									effect_options.append(remaining_effect)
 									break
 					else:
-						decision_info.choice.append(possible_effect)
-			events += [create_event(Enums.EventType.EventType_Strike_EffectChoice, performing_player.my_id, 0, "Duplicate")]
+						effect_options.append(possible_effect)
+
+			if len(effect_options) > 0:
+				# Send choice to player
+				change_game_state(Enums.GameState.GameState_PlayerDecision)
+				decision_info.type = Enums.DecisionType.DecisionType_ChooseSimultaneousEffect
+				decision_info.player = performing_player.my_id
+				decision_info.effect_type = "copy_other_hit_effect"
+				decision_info.choice = effect_options
+				events += [create_event(Enums.EventType.EventType_Strike_EffectChoice, performing_player.my_id, 0, "Duplicate")]
 		"critical":
 			performing_player.strike_stat_boosts.critical = true
 			events += [create_event(Enums.EventType.EventType_Strike_Critical, performing_player.my_id, 0)]
