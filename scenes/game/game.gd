@@ -35,6 +35,9 @@ const RevealCopyIdRangestart = 80000
 const ReferenceScreenIdRangeStart = 90000
 const NoticeOffsetY = 50
 
+const ChoiceTextLengthSoftCap = 70
+const ChoiceTextLengthHardCap = 90
+
 const StrikeRevealDelay : float = 2.0
 const MoveDelay : float = 1.0
 const BoostDelay : float = 2.0
@@ -2393,7 +2396,18 @@ func _update_buttons():
 		var card_name = ""
 		if 'card_name' in choice:
 			card_name = choice['card_name']
-		button_choices.append({ "text": CardDefinitions.get_effect_text(choice, false, true, false, card_name), "action": func(): _on_choice_pressed(i) })
+		var card_text = CardDefinitions.get_effect_text(choice, false, true, false, card_name)
+		if len(card_text) > ChoiceTextLengthSoftCap:
+			var break_idx = ChoiceTextLengthSoftCap-1
+			while break_idx < len(card_text)-1 and card_text[break_idx] != " ":
+				break_idx += 1
+				if break_idx >= ChoiceTextLengthHardCap:
+					break
+			if card_text[break_idx] == " ":
+				card_text = card_text.substr(0, break_idx) + "\n" + card_text.substr(break_idx+1)
+			else:
+				card_text = card_text.substr(0, break_idx) + "-\n" + card_text.substr(break_idx)
+		button_choices.append({ "text": card_text, "action": func(): _on_choice_pressed(i) })
 
 	# Set the Action Menu state
 	var action_menu_hidden = false
