@@ -204,6 +204,8 @@ func get_condition_text(condition, amount, amount2, detail):
 			text += "If hit opponent, "
 		"last_turn_was_strike":
 			text += "If last turn was a strike, "
+		"not_last_turn_was_strike":
+			text += "If last turn was not a strike, "
 		"life_equals":
 			text += "If your life is exactly %s, " % amount
 		"not_canceled_this_turn":
