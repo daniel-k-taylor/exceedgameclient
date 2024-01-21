@@ -1957,6 +1957,8 @@ func _on_effect_choice(event):
 		var instruction_text = "Select an effect:"
 		if event['reason'] == "EffectOrder":
 			instruction_text = "Select which effect to resolve first:"
+		if event['reason'] == "Duplicate":
+			instruction_text = "Select which effect to copy:"
 		begin_effect_choice(game_wrapper.get_decision_info().choice, instruction_text)
 	else:
 		ai_effect_choice(event)

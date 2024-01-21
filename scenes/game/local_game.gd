@@ -2452,6 +2452,32 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 			var close_amount = abs(performing_start - new_location)
 			local_conditions.fully_closed = close_amount == effect['amount']
 			_append_log("%s Close %s - Moved from %s to %s." % [performing_player.name, str(effect['amount']), str(previous_location), str(new_location)])
+		"copy_other_hit_effect":
+			var card = null
+			if performing_player == active_strike.initiator:
+				card = active_strike.initiator_card
+			else:
+				card = active_strike.defender_card
+			var hit_effects = get_all_effects_for_timing("hit", performing_player, card)
+
+			# Send choice to player
+			change_game_state(Enums.GameState.GameState_PlayerDecision)
+			decision_info.type = Enums.DecisionType.DecisionType_ChooseSimultaneousEffect
+			decision_info.player = performing_player.my_id
+			decision_info.effect_type = "copy_other_hit_effect"
+			decision_info.choice = []
+			for possible_effect in hit_effects:
+				if possible_effect != effect:
+					if 'is_negative_effect' in possible_effect and possible_effect['is_negative_effect']:
+						# Find the actual effect this goes with, to avoid revealing condition outcomes early
+						for remaining_effect in active_strike.remaining_effect_list:
+							if 'negative_condition_effect' in remaining_effect:
+								if remaining_effect['negative_condition_effect'] == possible_effect:
+									decision_info.choice.append(remaining_effect)
+									break
+					else:
+						decision_info.choice.append(possible_effect)
+			events += [create_event(Enums.EventType.EventType_Strike_EffectChoice, performing_player.my_id, 0, "Duplicate")]
 		"critical":
 			performing_player.strike_stat_boosts.critical = true
 			events += [create_event(Enums.EventType.EventType_Strike_Critical, performing_player.my_id, 0)]
@@ -4690,6 +4716,9 @@ func do_choice(performing_player : Player, choice_index : int) -> bool:
 	var effect = decision_info.choice[choice_index]
 	if 'card_id' in effect:
 		card_id = effect['card_id']
+	var copying_effect = false
+	if decision_info.effect_type:
+		copying_effect = decision_info.effect_type == "copy_other_hit_effect"
 
 	if active_overdrive:
 		game_state = Enums.GameState.GameState_Boost_Processing
@@ -4703,16 +4732,20 @@ func do_choice(performing_player : Player, choice_index : int) -> bool:
 		game_state = Enums.GameState.GameState_Boost_Processing
 
 	if decision_info.type == Enums.DecisionType.DecisionType_ChooseSimultaneousEffect:
-		# This was the player choosing what to do next.
-		# Remove this effect from the remaining effects.
-		if 'is_negative_effect' in effect and effect['is_negative_effect']:
-			# Find the actual effect this goes with.
-			for remaining_effect in active_strike.remaining_effect_list:
-				if 'negative_condition_effect' in remaining_effect:
-					if remaining_effect['negative_condition_effect'] == effect:
-						effect = remaining_effect
-						break
-		active_strike.remaining_effect_list.erase(effect)
+		if copying_effect:
+			# If we're duplicating an effect, no need to remove it yet
+			decision_info.effect_type = ""
+		else:
+			# This was the player choosing what to do next.
+			# Remove this effect from the remaining effects.
+			if 'is_negative_effect' in effect and effect['is_negative_effect']:
+				# Find the actual effect this goes with.
+				for remaining_effect in active_strike.remaining_effect_list:
+					if 'negative_condition_effect' in remaining_effect:
+						if remaining_effect['negative_condition_effect'] == effect:
+							effect = remaining_effect
+							break
+			active_strike.remaining_effect_list.erase(effect)
 
 	var events = do_effect_if_condition_met(performing_player, card_id, effect, null)
 	if game_state == Enums.GameState.GameState_PlayerDecision and decision_info.type == Enums.DecisionType.DecisionType_ForceBoostSustainTopdeck:
