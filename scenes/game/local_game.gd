@@ -3729,7 +3729,10 @@ func continue_resolve_strike(events):
 			StrikeState.StrikeState_Card1_Before:
 				events += do_remaining_effects(player1, StrikeState.StrikeState_Card1_DetermineHit)
 			StrikeState.StrikeState_Card1_DetermineHit:
-				_append_log("Range Check: %s (%s) vs %s (%s)." % [player1.name, player1.arena_location, player2.name, player2.arena_location])
+				if player1.strike_stat_boosts.calculate_range_from_buddy:
+					_append_log("Range Check: %s's %s (%s) vs %s (%s)." % [player1.name, player1.get_buddy_name(), player1.get_buddy_location(), player2.name, player2.arena_location])
+				else:
+					_append_log("Range Check: %s (%s) vs %s (%s)." % [player1.name, player1.arena_location, player2.name, player2.arena_location])
 				if in_range(player1, player2, card1):
 					_append_log("%s %s hits." % [player1.name, card_db.get_card_name(card1.id)])
 					active_strike.player1_hit = true
@@ -3765,7 +3768,10 @@ func continue_resolve_strike(events):
 			StrikeState.StrikeState_Card2_Before:
 				events += do_remaining_effects(player2, StrikeState.StrikeState_Card2_DetermineHit)
 			StrikeState.StrikeState_Card2_DetermineHit:
-				_append_log("Range Check: %s (%s) vs %s (%s)." % [player2.name, player2.arena_location, player1.name, player1.arena_location])
+				if player2.strike_stat_boosts.calculate_range_from_buddy:
+					_append_log("Range Check: %s's %s (%s) vs %s (%s)." % [player2.name, player2.get_buddy_name(), player2.get_buddy_location(), player1.name, player1.arena_location])
+				else:
+					_append_log("Range Check: %s (%s) vs %s (%s)." % [player2.name, player2.arena_location, player1.name, player1.arena_location])
 				if in_range(player2, player1, card2):
 					_append_log("%s %s hits." % [player2.name, card_db.get_card_name(card2.id)])
 					active_strike.player2_hit = true
