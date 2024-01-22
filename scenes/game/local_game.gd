@@ -5176,3 +5176,10 @@ func do_quit(player_id : Enums.PlayerId, reason : Enums.GameOverReason):
 	events += [create_event(Enums.EventType.EventType_GameOver, player_id, reason)]
 	event_queue += events
 	return true
+
+func do_emote(performing_player : Player, is_image_emote : bool, emote : String):
+	printlog("Emote by %s: %s" % [get_player_name(performing_player.my_id), emote])
+	var events = []
+	events += [create_event(Enums.EventType.EventType_Emote, performing_player.my_id, is_image_emote, emote)]
+	event_queue += events
+	return true

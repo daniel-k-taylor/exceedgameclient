@@ -1,4 +1,4 @@
-[gd_scene load_steps=23 format=3 uid="uid://dh7wmx6cbb55x"]
+[gd_scene load_steps=26 format=3 uid="uid://dh7wmx6cbb55x"]
 
 [ext_resource type="Script" path="res://scenes/game/game.gd" id="1_4f5jr"]
 [ext_resource type="Texture2D" uid="uid://dh8tat2r8ttx1" path="res://assets/cards/card_border_highlight.png" id="4_5y76h"]
@@ -21,7 +21,10 @@
 [ext_resource type="Script" path="res://scenes/game/ai_player.gd" id="18_hlntt"]
 [ext_resource type="PackedScene" uid="uid://dvan4a8ftuplj" path="res://scenes/card/character_card_base.tscn" id="18_imast"]
 [ext_resource type="PackedScene" uid="uid://w87ls4e8oasj" path="res://scenes/game/combat_log.tscn" id="18_k7mnw"]
+[ext_resource type="Texture2D" uid="uid://hj14gadm15wr" path="res://assets/icons/speechbubble.png" id="21_86687"]
 [ext_resource type="PackedScene" uid="uid://b8kmmrd5jmqdd" path="res://scenes/game/modal_dialog.tscn" id="21_qe5we"]
+[ext_resource type="PackedScene" uid="uid://belqon3ac2y7a" path="res://scenes/game/emote_display.tscn" id="21_sd8mp"]
+[ext_resource type="PackedScene" uid="uid://i2fmgsopd4xp" path="res://scenes/game/emote_dialog.tscn" id="23_rqqoa"]
 
 [node name="GameScene" type="Node2D"]
 script = ExtResource("1_4f5jr")
@@ -512,9 +515,9 @@ horizontal_alignment = 1
 
 [node name="ChoicePopoutShowButton" type="Button" parent="."]
 offset_left = 1053.0
-offset_top = 407.0
+offset_top = 380.0
 offset_right = 1266.0
-offset_bottom = 499.0
+offset_bottom = 472.0
 theme_override_font_sizes/font_size = 32
 text = "Show Decision
 Popout"
@@ -623,8 +626,31 @@ position = Vector2(640, 300)
 scale = Vector2(0.5, 0.5)
 texture = ExtResource("17_acwgt")
 
+[node name="PlayerEmote" parent="." instance=ExtResource("21_sd8mp")]
+
+[node name="OpponentEmote" parent="." instance=ExtResource("21_sd8mp")]
+
+[node name="EmoteButton" type="TextureButton" parent="."]
+offset_left = 1003.0
+offset_top = 470.0
+offset_right = 1051.0
+offset_bottom = 518.0
+texture_normal = ExtResource("21_86687")
+texture_pressed = ExtResource("21_86687")
+texture_hover = ExtResource("21_86687")
+ignore_texture_size = true
+stretch_mode = 0
+
 [node name="CombatLog" parent="." instance=ExtResource("18_k7mnw")]
 visible = false
+offset_right = 1280.0
+offset_bottom = 720.0
+
+[node name="EmoteDialog" parent="." instance=ExtResource("23_rqqoa")]
+visible = false
+anchors_preset = 0
+anchor_right = 0.0
+anchor_bottom = 0.0
 offset_right = 1280.0
 offset_bottom = 720.0
 
@@ -666,6 +692,9 @@ offset_bottom = 720.0
 [connection signal="pressed" from="PlayerDiscardButton" to="." method="_on_player_discard_button_pressed"]
 [connection signal="pressed" from="OpponentDiscardButton" to="." method="_on_opponent_discard_button_pressed"]
 [connection signal="pressed" from="ExitToMenu" to="." method="_on_exit_to_menu_pressed"]
+[connection signal="pressed" from="EmoteButton" to="." method="_on_emote_button_pressed"]
 [connection signal="close_button_pressed" from="CombatLog" to="." method="_on_combat_log_close_button_pressed"]
+[connection signal="close_button_pressed" from="EmoteDialog" to="." method="_on_emote_dialog_close_button_pressed"]
+[connection signal="emote_selected" from="EmoteDialog" to="." method="_on_emote_dialog_emote_selected"]
 [connection signal="accept_button_pressed" from="ModalDialog" to="." method="_on_modal_dialog_accept_button_pressed"]
 [connection signal="close_button_pressed" from="ModalDialog" to="." method="_on_modal_dialog_close_button_pressed"]

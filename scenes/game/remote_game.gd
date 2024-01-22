@@ -433,3 +433,19 @@ func process_choose_from_topdeck(action_message) -> void:
 	var card_id = action_message['card_id']
 	var action = action_message['action']
 	local_game.do_choose_from_topdeck(game_player, card_id, action)
+
+func do_emote(player : LocalGame.Player, is_image_emote : bool, emote : String):
+	var action_message = {
+		'action_type': 'action_emote',
+		'player_id': _get_player_remote_id(player),
+		'is_image_emote': is_image_emote,
+		'emote': emote,
+	}
+	NetworkManager.submit_game_message(action_message)
+	return true
+
+func process_emote(action_message) -> void:
+	var game_player = _get_player_from_remote_id(action_message['player_id'])
+	var is_image_emote = action_message['is_image_emote']
+	var emote = action_message['emote']
+	local_game.do_emote(game_player, is_image_emote, emote)

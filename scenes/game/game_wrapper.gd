@@ -349,3 +349,7 @@ func submit_bonus_turn_action(player: Enums.PlayerId, action_index : int) -> boo
 func submit_choose_from_topdeck(player: Enums.PlayerId, card_id : int, action : String) -> bool:
 	var game_player = _get_player(player)
 	return current_game.do_choose_from_topdeck(game_player, card_id, action)
+
+func submit_emote(player: Enums.PlayerId, is_image_emote : bool, emote : String):
+	var game_player = _get_player(player)
+	return current_game.do_emote(game_player, is_image_emote, emote)
