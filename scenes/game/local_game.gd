@@ -273,6 +273,8 @@ class StrikeStatBoosts:
 	var critical : bool = false
 	var overwrite_printed_power : bool = false
 	var overwritten_printed_power : int = 0
+	var overwrite_total_power : bool = false
+	var overwritten_total_power : int = 0
 
 	func clear():
 		power = 0
@@ -315,6 +317,8 @@ class StrikeStatBoosts:
 		critical = false
 		overwrite_printed_power = false
 		overwritten_printed_power = 0
+		overwrite_total_power = false
+		overwritten_total_power = 0
 
 	func set_ex():
 		ex_count += 1
@@ -3067,6 +3071,9 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 			performing_player.set_end_of_turn_boost_delay(card_id)
 		"set_strike_x":
 			events += do_set_strike_x(performing_player, effect['source'])
+		"set_total_power":
+			performing_player.strike_stat_boosts.overwrite_total_power = true
+			performing_player.strike_stat_boosts.overwritten_total_power = effect['amount']
 		"set_used_character_bonus":
 			performing_player.used_character_bonus = true
 		"self_discard_choose_internal":
@@ -3558,7 +3565,7 @@ func do_effects_for_timing(timing_name : String, performing_player : Player, car
 	return events
 
 func is_location_in_range(attacking_player, card, test_location : int):
-	if card.definition['range_min'] == -1:
+	if get_card_stat(attacking_player, card, 'range_min') == -1:
 		return false
 	var min_range = get_card_stat(attacking_player, card, 'range_min') + attacking_player.strike_stat_boosts.min_range
 	var max_range = get_card_stat(attacking_player, card, 'range_max') + attacking_player.strike_stat_boosts.max_range
@@ -3612,6 +3619,9 @@ func in_range(attacking_player, defending_player, card):
 	return opponent_in_range
 
 func get_total_power(performing_player : Player):
+	if performing_player.strike_stat_boosts.overwrite_total_power:
+		return performing_player.strike_stat_boosts.overwritten_total_power
+
 	var card = active_strike.get_player_card(performing_player)
 	var power = get_card_stat(performing_player, card, 'power')
 	var power_boost = performing_player.strike_stat_boosts.power * performing_player.strike_stat_boosts.power_bonus_multiplier

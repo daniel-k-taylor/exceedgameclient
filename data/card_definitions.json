@@ -10601,10 +10601,15 @@
 		"range_min": -1,
 		"range_max": -1,
 		"speed": 0,
-		"power": -1,
+		"power": 0,
 		"armor": 2,
 		"guard": 3,
 		"effects": [
+			{
+				"timing": "during_strike",
+				"effect_type": "set_total_power",
+				"amount": 0
+			},
 			{
 				"timing": "during_strike",
 				"effect_type": "when_hit_force_for_armor",
@@ -10931,10 +10936,15 @@
 		"range_min": -1,
 		"range_max": -1,
 		"speed": 0,
-		"power": -1,
+		"power": 0,
 		"armor": 2,
 		"guard": 3,
 		"effects": [
+			{
+				"timing": "during_strike",
+				"effect_type": "set_total_power",
+				"amount": 0
+			},
 			{
 				"timing": "during_strike",
 				"effect_type": "when_hit_force_for_armor",
@@ -11247,10 +11257,15 @@
 		"range_min": -1,
 		"range_max": -1,
 		"speed": 0,
-		"power": -1,
+		"power": 0,
 		"armor": 2,
 		"guard": 3,
 		"effects": [
+			{
+				"timing": "during_strike",
+				"effect_type": "set_total_power",
+				"amount": 0
+			},
 			{
 				"timing": "during_strike",
 				"effect_type": "when_hit_force_for_armor",
