@@ -539,22 +539,28 @@ Log"
 
 [node name="Striking" type="Node2D" parent="AllCards"]
 
-[node name="ActionMenu" parent="AllCards" instance=ExtResource("17_8hgvk")]
+[node name="ActionContainer" type="HBoxContainer" parent="AllCards"]
 visible = false
-anchors_preset = 5
-anchor_left = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.0
-offset_left = 633.0
-offset_top = 0.0
-offset_right = 944.0
-offset_bottom = 178.0
-grow_vertical = 1
+offset_right = 1280.0
+offset_bottom = 220.0
+size_flags_vertical = 0
+
+[node name="LeftSpacer" type="Control" parent="AllCards/ActionContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="ActionMenu" parent="AllCards/ActionContainer" instance=ExtResource("17_8hgvk")]
+layout_mode = 2
+size_flags_vertical = 0
+
+[node name="RightSpacer" type="Control" parent="AllCards/ActionContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
 
 [node name="CardPopout" parent="AllCards" instance=ExtResource("14_lyeqj")]
 visible = false
-offset_right = 243.0
-offset_bottom = 125.0
+offset_right = 685.0
+offset_bottom = 154.0
 scale = Vector2(0.6, 0.6)
 
 [node name="PlayerBoosts" type="Node2D" parent="AllCards"]
@@ -685,7 +691,7 @@ offset_bottom = 720.0
 [connection signal="clicked_zone" from="OpponentBoostZone" to="." method="_on_opponent_boost_zone_clicked_zone"]
 [connection signal="pressed" from="ChoicePopoutShowButton" to="." method="_on_choice_popout_show_button_pressed"]
 [connection signal="pressed" from="CombatLogButton" to="." method="_on_combat_log_button_pressed"]
-[connection signal="choice_selected" from="AllCards/ActionMenu" to="." method="_on_action_menu_choice_selected"]
+[connection signal="choice_selected" from="AllCards/ActionContainer/ActionMenu" to="." method="_on_action_menu_choice_selected"]
 [connection signal="close_window" from="AllCards/CardPopout" to="." method="_on_popout_close_window"]
 [connection signal="pressed_cancel" from="AllCards/CardPopout" to="." method="_on_card_popout_pressed_cancel"]
 [connection signal="pressed_ok" from="AllCards/CardPopout" to="." method="_on_card_popout_pressed_ok"]
