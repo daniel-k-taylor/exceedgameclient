@@ -544,10 +544,12 @@ visible = false
 offset_right = 1280.0
 offset_bottom = 220.0
 size_flags_vertical = 0
+mouse_filter = 2
 
 [node name="LeftSpacer" type="Control" parent="AllCards/ActionContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
+mouse_filter = 2
 
 [node name="ActionMenu" parent="AllCards/ActionContainer" instance=ExtResource("17_8hgvk")]
 layout_mode = 2
@@ -556,6 +558,7 @@ size_flags_vertical = 0
 [node name="RightSpacer" type="Control" parent="AllCards/ActionContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
+mouse_filter = 2
 
 [node name="CardPopout" parent="AllCards" instance=ExtResource("14_lyeqj")]
 visible = false
