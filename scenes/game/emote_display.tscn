@@ -1,7 +1,6 @@
-[gd_scene load_steps=7 format=3 uid="uid://belqon3ac2y7a"]
+[gd_scene load_steps=6 format=3 uid="uid://belqon3ac2y7a"]
 
 [ext_resource type="Script" path="res://scenes/game/emote_display.gd" id="1_shkld"]
-[ext_resource type="Texture2D" path="res://assets/icons/emotes/kenthumbsup.webp" id="2_gxpgx"]
 
 [sub_resource type="Animation" id="Animation_vjj5c"]
 length = 0.001
@@ -91,7 +90,6 @@ theme_override_constants/margin_bottom = 10
 visible = false
 custom_minimum_size = Vector2(64, 64)
 layout_mode = 2
-texture = ExtResource("2_gxpgx")
 expand_mode = 1
 
 [node name="EmoteText" type="Label" parent="Panel/Margin"]

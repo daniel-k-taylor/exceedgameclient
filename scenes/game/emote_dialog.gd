@@ -24,8 +24,9 @@ func _ready():
 func _load_emotes():
 	var emote_files = DirAccess.get_files_at(emotes_path)
 	for emote_file in emote_files:
-		if emote_file[0] == "_" or emote_file.ends_with("import"):
+		if emote_file[0] == "_" or not emote_file.ends_with(".import"):
 			continue
+		emote_file = emote_file.replace(".import", "")
 		var emote_path = emotes_path + "/" + emote_file
 		var new_icon : EmoteIcon = EmoteIconScene.instantiate()
 		var success = new_icon.set_image(emote_path)
