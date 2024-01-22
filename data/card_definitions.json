@@ -9232,6 +9232,364 @@
 
 
 	{
+		"NOTE": "TAGER CARDS START",
+		"id": "tager_kingoftager",
+		"type": "ultra",
+		"display_name": "King of Tager",
+		"force_cost": 0,
+		"gauge_cost": 4,
+		"range_min": 1,
+		"range_max": 1,
+		"speed": 0,
+		"power": 16,
+		"armor": 0,
+		"guard": 3,
+		"effects": [
+			{
+				"timing": "before",
+				"effect_type": "choice",
+				"choice": [
+					{ "effect_type": "pull", "amount": 1 },
+					{ "effect_type": "pull", "amount": 2 }
+				]
+			},
+			{
+				"timing": "when_hit",
+				"effect_type": "armorup_times_gauge",
+				"amount": 3
+			}
+		],
+		"boost": {
+			"boost_type": "immediate",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Burst",
+			"effects": [
+				{
+					"timing": "immediate",
+					"effect_type": "draw",
+					"amount": 2
+				},
+				{
+					"timing": "immediate",
+					"effect_type": "seal_this"
+				},
+				{
+					"timing": "immediate",
+					"effect_type": "bonus_action"
+				}
+			]
+		}
+	},
+	{
+		"id": "tager_tagerbuster",
+		"type": "ultra",
+		"display_name": "Genesic Emerald Tager Buster",
+		"force_cost": 0,
+		"gauge_cost": 4,
+		"range_min": 1,
+		"range_max": 1,
+		"speed": 6,
+		"power": 10,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "before",
+				"effect_type": "gauge_for_effect",
+				"per_gauge_effect": {
+					"effect_type": "pull",
+					"amount": 1
+				},
+				"overall_effect": null,
+				"gauge_max": 2
+			}
+		],
+		"boost": {
+			"boost_type": "immediate",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Charge In",
+			"effects": [
+				{
+					"timing": "immediate",
+					"effect_type": "close",
+					"amount": 2
+				},
+				{
+					"timing": "immediate",
+					"effect_type": "strike"
+				}
+			]
+		}
+	},
+	{
+		"id": "tager_magnatechwheel",
+		"type": "ultra",
+		"display_name": "Magna Tech Wheel",
+		"force_cost": 0,
+		"gauge_cost": 3,
+		"range_min": 1,
+		"range_max": 1,
+		"speed": 1,
+		"power": 8,
+		"armor": 2,
+		"guard": 6,
+		"effects": [
+			{
+				"timing": "before",
+				"effect_type": "gauge_for_effect",
+				"per_gauge_effect": {
+					"effect_type": "close",
+					"amount": 1
+				},
+				"overall_effect": null,
+				"gauge_max": 2
+			},
+			{
+				"timing": "hit",
+				"condition": "exceeded",
+				"effect_type": "powerup",
+				"amount": 4
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 1,
+			"cancel_cost": -1,
+			"display_name": "Demon Cells",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "powerup",
+					"amount": 2,
+					"and": {
+						"effect_type": "armorup",
+						"amount": 2,
+						"and": {
+							"effect_type": "guardup",
+							"amount": 2
+						}
+					}
+				}
+			]
+		}
+	},
+	{
+		"id": "tager_gigantictagerdriver",
+		"type": "special",
+		"display_name": "Gigantic Tager Driver",
+		"force_cost": 1,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 1,
+		"speed": 5,
+		"power": 7,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "hit",
+				"effect_type": "opponent_discard_random",
+				"amount": 1
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Voltic Charge",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "armorup",
+					"amount": 3
+				}
+			]
+		}
+	},
+	{
+		"id": "tager_sledgehammer",
+		"type": "special",
+		"display_name": "Sledgehammer",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 2,
+		"speed": 4,
+		"power": 4,
+		"armor": 1,
+		"guard": 3,
+		"effects": [
+			{
+				"timing": "before",
+				"effect_type": "close",
+				"amount": 1
+			},
+			{
+				"timing": "hit",
+				"effect_type": "close",
+				"amount": 1
+			}
+		],
+		"boost": {
+			"boost_type": "immediate",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Gadget Finger",
+			"effects": [
+				{
+					"timing": "immediate",
+					"condition": "range",
+					"condition_amount": 1,
+					"effect_type": "add_to_gauge_boost_play_cleanup",
+					"and": {
+						"effect_type": "draw",
+						"amount": 1
+					}
+				}
+			]
+		}
+	},
+	{
+		"id": "tager_atomiccollider",
+		"type": "special",
+		"display_name": "Atomic Collider",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 2,
+		"speed": 3,
+		"power": 6,
+		"armor": 0,
+		"guard": 3,
+		"effects": [
+			{
+				"timing": "before",
+				"effect_type": "pull",
+				"amount": 2
+			},
+			{
+				"timing": "hit",
+				"effect_type": "choice",
+				"choice": [
+					{ "effect_type": "pull", "amount": 1 },
+					{ "effect_type": "pull", "amount": 2 }
+				]
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 1,
+			"cancel_cost": -1,
+			"display_name": "Powerful Blow",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "powerup",
+					"amount": 2
+				},
+				{
+					"timing": "now",
+					"effect_type": "strike"
+				}
+			]
+		}
+	},
+	{
+		"id": "tager_sparkbolt",
+		"type": "special",
+		"display_name": "Spark Bolt",
+		"force_cost": 1,
+		"gauge_cost": 0,
+		"range_min": 3,
+		"range_max": 8,
+		"speed": 1,
+		"power": 4,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "during_strike",
+				"effect_type": "speedup_amount_in_gauge"
+			},
+			{
+				"timing": "hit",
+				"effect_type": "pull",
+				"amount": 2,
+				"and": {
+					"effect_type": "gain_advantage"
+				}
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Heavy",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "ignore_push_and_pull",
+					"and": {
+						"effect_type": "speedup",
+						"amount": -2,
+						"and": {
+							"effect_type": "armorup",
+							"amount": 4
+						}
+					}
+				}
+			]
+		}
+	},
+	{
+		"NOTE": "TAGER CARDS END",
+		"id": "tager_crimsonpunisher",
+		"type": "special",
+		"display_name": "Crimson Punisher",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 1,
+		"speed": 1,
+		"power": 5,
+		"armor": 2,
+		"guard": 5,
+		"effects": [
+			{
+				"timing": "during_strike",
+				"effect_type": "ignore_armor"
+			},
+			{
+				"timing": "after",
+				"effect_type": "close",
+				"amount": 1
+			}
+
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 1,
+			"cancel_cost": -1,
+			"display_name": "Reach",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "rangeup",
+					"amount": 0,
+					"amount2": 1
+				},
+				{
+					"timing": "now",
+					"effect_type": "strike"
+				}
+			]
+		},
+		"NOTEEND": "TAGER CARDS END"
+	},
+
+	{
 		"NOTE": "TESTAMENT CARDS START",
 		"id": "testament_nostrovia",
 		"type": "ultra",
