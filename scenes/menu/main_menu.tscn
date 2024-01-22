@@ -1,10 +1,12 @@
-[gd_scene load_steps=9 format=3 uid="uid://o8vjxrpicjsm"]
+[gd_scene load_steps=11 format=3 uid="uid://o8vjxrpicjsm"]
 
 [ext_resource type="Script" path="res://scenes/menu/main_menu.gd" id="1_bk4ch"]
 [ext_resource type="PackedScene" uid="uid://cqs72exlwm6at" path="res://scenes/menu/char_select.tscn" id="2_6qq11"]
 [ext_resource type="Texture2D" uid="uid://8pvgp7ipunso" path="res://assets/portraits/solbadguy.png" id="3_n1nv2"]
 [ext_resource type="Texture2D" uid="uid://mn1hj4i3k7l7" path="res://assets/cards/card_border_highlight_selected.png" id="4_ekoth"]
 [ext_resource type="Texture2D" uid="uid://ded5jrn5yju2j" path="res://assets/cards/card_border_highlight_pressed.png" id="5_xie03"]
+[ext_resource type="AudioStream" uid="uid://0cjnajbh1p00" path="res://assets/sounds/match_available.mp3" id="6_6ru3f"]
+[ext_resource type="AudioStream" uid="uid://bhetjnrl0n7o" path="res://assets/sounds/match_notification.mp3" id="7_pt1r5"]
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_0f2dl"]
 
@@ -264,6 +266,12 @@ text = "Connecting to server...."
 
 [node name="CharSelect" parent="." instance=ExtResource("2_6qq11")]
 visible = false
+
+[node name="MatchAvailableAudio" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("6_6ru3f")
+
+[node name="MatchStartingAudio" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("7_pt1r5")
 
 [connection signal="pressed" from="MenuList/VSAIBox/FightSettings/StartButton" to="." method="_on_start_button_pressed"]
 [connection signal="pressed" from="MenuList/VSAIBox/OpponentChooser/ChangePlayerCharacterButton" to="." method="_on_change_player_character_button_pressed" binds= [false]]

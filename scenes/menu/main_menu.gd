@@ -29,6 +29,10 @@ const RoomMaxLen = 16
 @onready var label_font_small = 18
 @onready var label_length_threshold = 16
 
+# Start as true to not play sounds right when you get to the main menu.
+@onready var was_match_available : bool = true
+@onready var just_clicked_matchmake : bool = false
+
 # Called when the node enters the scene tree for the first time.
 func _ready():
 	NetworkManager.connect("connected_to_server", _on_connected)
@@ -40,6 +44,7 @@ func _ready():
 	$ReconnectToServerButton.visible = false
 	_on_players_update(NetworkManager.get_player_list(), NetworkManager.get_match_available())
 	selecting_player = false
+	just_clicked_matchmake = false
 	_on_char_select_select_character(opponent_selected_character)
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
@@ -49,6 +54,7 @@ func _process(_delta):
 func returned_from_game():
 	_on_players_update(NetworkManager.get_player_list(), NetworkManager.get_match_available())
 	update_buttons(false)
+	just_clicked_matchmake = false
 
 func _on_start_button_pressed():
 	var player_deck = CardDefinitions.get_deck_from_str_id(player_selected_character)
@@ -76,6 +82,7 @@ func _on_disconnected():
 	$ReconnectToServerButton.visible = true
 	$ReconnectToServerButton.disabled = false
 	$ServerStatusLabel.text = "Disconnected from server."
+	just_clicked_matchmake = false
 
 func get_vs_info(player_name, player_deck, opponent_name, opponent_deck, randomize_first_vs_ai = false):
 	return {
@@ -87,6 +94,8 @@ func get_vs_info(player_name, player_deck, opponent_name, opponent_deck, randomi
 	}
 
 func _on_remote_game_started(data):
+	just_clicked_matchmake = false
+	$MatchStartingAudio.play()
 	var player_deck = data['player1_deck_id']
 	var player_name = data['player1_name']
 	var opponent_deck = data['player2_deck_id']
@@ -108,8 +117,13 @@ func _on_players_update(players, match_available : bool):
 
 	if match_available:
 		matchmake_button.text = "Join Match Now"
+		if not was_match_available and not just_clicked_matchmake:
+			if visible:
+				$MatchAvailableAudio.play()
 	else:
 		matchmake_button.text = "Start Matchmaking"
+
+	was_match_available = match_available
 
 func _on_join_failed():
 	update_buttons(false)
@@ -136,6 +150,7 @@ func update_buttons(joining : bool):
 func _on_cancel_button_pressed():
 	NetworkManager.leave_room()
 	update_buttons(false)
+	just_clicked_matchmake = false
 
 
 func _on_update_name_button_pressed():
@@ -149,6 +164,7 @@ func _on_reconnect_to_server_button_pressed():
 	$ReconnectToServerButton.disabled = true
 
 func _on_matchmake_button_pressed():
+	just_clicked_matchmake = true
 	var player_name = get_player_name()
 	var chosen_deck = CardDefinitions.get_deck_from_str_id(player_selected_character)
 	NetworkManager.join_matchmaking(player_name, chosen_deck['id'])
