@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://g5lo3cn7xupp"
-path="res://.godot/imported/sagatlaugh.webp-9879fe5f75da9bd4a819ef22bf2d2324.ctex"
+uid="uid://betimsydqll7g"
+path="res://.godot/imported/sagatargh.png-e03d4afa566b476d6638b916553cc62f.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/icons/emotes/sagatlaugh.webp"
-dest_files=["res://.godot/imported/sagatlaugh.webp-9879fe5f75da9bd4a819ef22bf2d2324.ctex"]
+source_file="res://assets/icons/emotes/sagatargh.png"
+dest_files=["res://.godot/imported/sagatargh.png-e03d4afa566b476d6638b916553cc62f.ctex"]
 
 [params]
 

@@ -1,7 +1,7 @@
 [gd_scene load_steps=5 format=3 uid="uid://csr7rq5ej0tjh"]
 
 [ext_resource type="Script" path="res://scenes/game/emote_icon.gd" id="1_cwyuq"]
-[ext_resource type="Texture2D" uid="uid://dylf64nosm05n" path="res://assets/icons/emotes/kenthumbsup.webp" id="1_ooy46"]
+[ext_resource type="Texture2D" path="res://assets/icons/emotes/kenthumbsup.webp" id="1_ooy46"]
 [ext_resource type="Texture2D" uid="uid://bpdpb3e74d2cu" path="res://assets/cards/arena_border_highlight_pressed.png" id="2_3lhnv"]
 [ext_resource type="Texture2D" uid="uid://b08j76upbucvr" path="res://assets/cards/arena_border_highlight_selected.png" id="3_jg3kg"]
 

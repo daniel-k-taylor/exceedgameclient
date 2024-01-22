@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://dylf64nosm05n"
-path="res://.godot/imported/kenthumbsup.webp-b061f683de229903343eb4cfe907ba3d.ctex"
+uid="uid://dspk3fiikp6t0"
+path="res://.godot/imported/kenthumbsup.png-f5838b1683d0d2d27c4b1c9bd2d6e17a.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/icons/emotes/kenthumbsup.webp"
-dest_files=["res://.godot/imported/kenthumbsup.webp-b061f683de229903343eb4cfe907ba3d.ctex"]
+source_file="res://assets/icons/emotes/kenthumbsup.png"
+dest_files=["res://.godot/imported/kenthumbsup.png-f5838b1683d0d2d27c4b1c9bd2d6e17a.ctex"]
 
 [params]
 

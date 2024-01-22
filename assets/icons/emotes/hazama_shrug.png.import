@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://dv6j5gl4rep4n"
-path="res://.godot/imported/sagatargh.webp-28d7bbdddad5b9631834ed8732ddd09a.ctex"
+uid="uid://d124ku3qkjioy"
+path="res://.godot/imported/hazama_shrug.png-4cb51012b9b0dbf8272d765cc31204f4.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/icons/emotes/sagatargh.webp"
-dest_files=["res://.godot/imported/sagatargh.webp-28d7bbdddad5b9631834ed8732ddd09a.ctex"]
+source_file="res://assets/icons/emotes/hazama_shrug.png"
+dest_files=["res://.godot/imported/hazama_shrug.png-4cb51012b9b0dbf8272d765cc31204f4.ctex"]
 
 [params]
 
