@@ -2279,7 +2279,8 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 			events += [create_event(Enums.EventType.EventType_Strike_ArmorUp, performing_player.my_id, effect['amount'])]
 		"attack_does_not_hit":
 			performing_player.strike_stat_boosts.attack_does_not_hit = true
-			events += [create_event(Enums.EventType.EventType_Strike_AttackDoesNotHit, performing_player.my_id, card_id)]
+			if 'hide_notice' not in effect or not effect['hide_notice']:
+				events += [create_event(Enums.EventType.EventType_Strike_AttackDoesNotHit, performing_player.my_id, card_id)]
 		"attack_is_ex":
 			performing_player.strike_stat_boosts.set_ex()
 			events += [create_event(Enums.EventType.EventType_Strike_ExUp, performing_player.my_id, card_id)]

@@ -10608,7 +10608,11 @@
 			{
 				"timing": "during_strike",
 				"effect_type": "set_total_power",
-				"amount": 0
+				"amount": 0,
+				"and": {
+					"effect_type": "attack_does_not_hit",
+					"hide_notice": true
+				}
 			},
 			{
 				"timing": "during_strike",
@@ -10943,7 +10947,11 @@
 			{
 				"timing": "during_strike",
 				"effect_type": "set_total_power",
-				"amount": 0
+				"amount": 0,
+				"and": {
+					"effect_type": "attack_does_not_hit",
+					"hide_notice": true
+				}
 			},
 			{
 				"timing": "during_strike",
@@ -11264,7 +11272,11 @@
 			{
 				"timing": "during_strike",
 				"effect_type": "set_total_power",
-				"amount": 0
+				"amount": 0,
+				"and": {
+					"effect_type": "attack_does_not_hit",
+					"hide_notice": true
+				}
 			},
 			{
 				"timing": "during_strike",
