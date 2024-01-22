@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://doc6pftlbd87w"
-path="res://.godot/imported/normals.jpg-0ea5d26a6c1c087d54c7c1a30e7df5fa.ctex"
+uid="uid://c0abbyq5mrn6a"
+path="res://.godot/imported/character_exceeded.jpg-98d99a2bde74b5ce18fe7ed2c95351d9.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/cards/sknormals/normals.jpg"
-dest_files=["res://.godot/imported/normals.jpg-0ea5d26a6c1c087d54c7c1a30e7df5fa.ctex"]
+source_file="res://assets/cards/plague/character_exceeded.jpg"
+dest_files=["res://.godot/imported/character_exceeded.jpg-98d99a2bde74b5ce18fe7ed2c95351d9.ctex"]
 
 [params]
 
