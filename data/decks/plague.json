@@ -1,0 +1,165 @@
+{
+	"id": "plague",
+	"season": 4,
+	"display_name": "Plague Knight",
+	"cardback": "cardback_plague.jpg",
+	"exceed_cost": 2,
+	"ability_effects": [
+		{
+			"timing": "set_strike",
+			"condition": "min_cards_in_hand",
+			"condition_amount": 1,
+			"effect_type": "choice",
+			"choice": [
+				{ "effect_type": "discard_random_and_add_triggers" },
+				{ "effect_type": "pass" }
+			]
+		}
+	],
+	"exceed_ability_effects": [
+		{
+			"timing": "set_strike",
+			"condition": "min_cards_in_hand",
+			"condition_amount": 1,
+			"effect_type": "choice",
+			"choice": [
+				{
+					"effect_type": "discard_random_and_add_triggers",
+					"suppress_and_description": true,
+					"and": {
+						"condition": "min_cards_in_hand",
+						"condition_amount": 1,
+						"effect_type": "choice",
+						"choice": [
+							{ "effect_type": "discard_random_and_add_triggers" },
+							{ "effect_type": "pass" }
+						]
+					}
+				},
+				{ "effect_type": "pass" }
+			]
+		}
+	],
+	"cards": [
+		{
+			"definition_id": "plague_castlecrasher",
+			"image": "plague_castlecrasher.tres"
+		},
+		{
+			"definition_id": "plague_castlecrasher",
+			"image": "plague_castlecrasher.tres"
+		},
+		{
+			"definition_id": "plague_tripledose",
+			"image": "plague_tripledose.tres"
+		},
+		{
+			"definition_id": "plague_tripledose",
+			"image": "plague_tripledose.tres"
+		},
+		{
+			"definition_id": "plague_perfectpitch",
+			"image": "plague_perfectpitch.tres"
+		},
+		{
+			"definition_id": "plague_perfectpitch",
+			"image": "plague_perfectpitch.tres"
+		},
+		{
+			"definition_id": "plague_staffofsurging",
+			"image": "plague_staffofsurging.tres"
+		},
+		{
+			"definition_id": "plague_staffofsurging",
+			"image": "plague_staffofsurging.tres"
+		},
+		{
+			"definition_id": "plague_longpitch",
+			"image": "plague_longpitch.tres"
+		},
+		{
+			"definition_id": "plague_longpitch",
+			"image": "plague_longpitch.tres"
+		},
+		{
+			"definition_id": "plague_chainreaction",
+			"image": "plague_chainreaction.tres"
+		},
+		{
+			"definition_id": "plague_chainreaction",
+			"image": "plague_chainreaction.tres"
+		},
+		{
+			"definition_id": "plague_giantbomb",
+			"image": "plague_giantbomb.tres"
+		},
+		{
+			"definition_id": "plague_giantbomb",
+			"image": "plague_giantbomb.tres"
+		},
+		{
+			"definition_id": "standard_normal_grasp",
+			"image": "normal_grasp.tres"
+		},
+		{
+			"definition_id": "standard_normal_grasp",
+			"image": "normal_grasp.tres"
+		},
+		{
+			"definition_id": "standard_normal_cross",
+			"image": "normal_cross.tres"
+		},
+		{
+			"definition_id": "standard_normal_cross",
+			"image": "normal_cross.tres"
+		},
+		{
+			"definition_id": "standard_normal_assault",
+			"image": "normal_assault.tres"
+		},
+		{
+			"definition_id": "standard_normal_assault",
+			"image": "normal_assault.tres"
+		},
+		{
+			"definition_id": "standard_normal_dive",
+			"image": "normal_dive.tres"
+		},
+		{
+			"definition_id": "standard_normal_dive",
+			"image": "normal_dive.tres"
+		},
+		{
+			"definition_id": "standard_normal_spike",
+			"image": "normal_spike.tres"
+		},
+		{
+			"definition_id": "standard_normal_spike",
+			"image": "normal_spike.tres"
+		},
+		{
+			"definition_id": "standard_normal_sweep",
+			"image": "normal_sweep.tres"
+		},
+		{
+			"definition_id": "standard_normal_sweep",
+			"image": "normal_sweep.tres"
+		},
+		{
+			"definition_id": "standard_normal_focus",
+			"image": "normal_focus.tres"
+		},
+		{
+			"definition_id": "standard_normal_focus",
+			"image": "normal_focus.tres"
+		},
+		{
+			"definition_id": "standard_normal_block",
+			"image": "normal_block.tres"
+		},
+		{
+			"definition_id": "standard_normal_block",
+			"image": "normal_block.tres"
+		}
+	]
+}

@@ -1,0 +1,7 @@
+[gd_resource type="AtlasTexture" load_steps=2 format=3 uid="uid://cocni1xbx52lj"]
+
+[ext_resource type="Texture2D" uid="uid://c3817rct7ib5m" path="res://assets/cards/plague/specials.jpg" id="1_08ijy"]
+
+[resource]
+atlas = ExtResource("1_08ijy")
+region = Rect2(1500, 0, 750, 1024)

@@ -240,6 +240,8 @@ func get_condition_text(condition, amount, amount2, detail):
 			text += ""
 		"is_normal_attack":
 			text += ""
+		"top_deck_is_normal_attack":
+			text += "If the top card of your deck is a normal, "
 		"is_buddy_special_or_ultra_attack":
 			text += ""
 		"buddy_in_play":
@@ -372,6 +374,8 @@ func get_effect_type_text(effect, card_name_source : String = ""):
 			effect_str += "Close " + str(effect['amount'])
 		"close_INTERNAL":
 			effect_str += "Close " + str(effect['amount'])
+		"copy_other_hit_effect":
+			effect_str += "Copy another Hit effect"
 		"critical":
 			effect_str += "Critical Strike"
 		"discard_this":
@@ -387,6 +391,10 @@ func get_effect_type_text(effect, card_name_source : String = ""):
 			effect_str += "Discard a card from opponent's gauge."
 		"discard_opponent_topdeck":
 			effect_str += "Discard a card from the top of the opponent's deck"
+		"discard_topdeck":
+			effect_str += "Discard a card from the top of your deck"
+		"discard_random_and_add_triggers":
+			effect_str += "Discard a random card; add before/hit/after triggers to attack"
 		"dodge_at_range":
 			var buddy_string = ""
 			if 'from_buddy' in effect and effect['from_buddy']:
@@ -411,8 +419,12 @@ func get_effect_type_text(effect, card_name_source : String = ""):
 			effect_str += "Calculate range from %s." % effect['buddy_name']
 		"draw":
 			effect_str += "Draw " + str(effect['amount'])
+		"draw_to":
+			effect_str += "Draw until you have %s cards in hand" % str(effect['amount'])
 		"exceed_now":
 			effect_str += "Exceed"
+		"extra_trigger_resolutions":
+			effect_str += "Before/Hit/After triggers resolve %s extra time(s)" % effect['amount']
 		"force_for_effect":
 			effect_str += get_force_for_effect_summary(effect, card_name_source)
 		"gauge_for_effect":
@@ -435,6 +447,8 @@ func get_effect_type_text(effect, card_name_source : String = ""):
 			effect_str += "Ignore Push and Pull"
 		"ignore_push_and_pull_passive_bonus":
 			effect_str += "Ignore Push and Pull"
+		"increase_force_spent_before_strike":
+			effect_str += get_effect_text(effect['linked_effect'], false, false, false)
 		"remove_ignore_push_and_pull_passive_bonus":
 			effect_str += ""
 		"lose_all_armor":
@@ -544,6 +558,8 @@ func get_effect_type_text(effect, card_name_source : String = ""):
 					effect_str += "power of top card of discards"
 				'opponent_speed':
 					effect_str += "opponent's speed"
+				'force_spent_before_strike':
+					effect_str += "force spent before strike"
 				_:
 					effect_str += "(UNKNOWN)"
 		"seal_this":
@@ -638,7 +654,8 @@ func get_effect_text(effect, short = false, skip_timing = false, skip_condition 
 	if not short and 'bonus_effect' in effect:
 		effect_str += "; " + get_effect_text(effect['bonus_effect'], skip_timing, false, card_name_source)
 	if 'and' in effect:
-		effect_str += ", " + get_effect_text(effect['and'], short, skip_timing, false, card_name_source)
+		if not 'suppress_and_description' in effect or not effect['suppress_and_description']:
+			effect_str += ", " + get_effect_text(effect['and'], short, skip_timing, false, card_name_source)
 	if 'negative_condition_effect' in effect:
 		effect_str += ", otherwise " + get_effect_text(effect['negative_condition_effect'], short, skip_timing, false, card_name_source)
 	return effect_str

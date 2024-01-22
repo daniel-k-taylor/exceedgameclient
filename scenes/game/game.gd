@@ -35,6 +35,9 @@ const RevealCopyIdRangestart = 80000
 const ReferenceScreenIdRangeStart = 90000
 const NoticeOffsetY = 50
 
+const ChoiceTextLengthSoftCap = 70
+const ChoiceTextLengthHardCap = 90
+
 const StrikeRevealDelay : float = 2.0
 const MoveDelay : float = 1.0
 const BoostDelay : float = 2.0
@@ -170,7 +173,8 @@ var game_wrapper : GameWrapper = GameWrapper.new()
 @onready var opponent_bonus_panel = $OpponentStrike/CharBonusPanel
 @onready var player_bonus_label = $PlayerStrike/CharBonusPanel/MarginContainer/VBox/AbilityLabel
 @onready var opponent_bonus_label = $OpponentStrike/CharBonusPanel/MarginContainer/VBox/AbilityLabel
-@onready var action_menu : ActionMenu = $AllCards/ActionMenu
+@onready var action_menu : ActionMenu = $AllCards/ActionContainer/ActionMenu
+@onready var action_menu_container : HBoxContainer = $AllCards/ActionContainer
 @onready var choice_popout_button : Button = $ChoicePopoutShowButton
 var current_instruction_text : String = ""
 var current_action_menu_choices : Array = []
@@ -1151,6 +1155,10 @@ func get_string_for_action_choice(choice):
 			return "Strike"
 		"boost":
 			return "Boost"
+		"add_to_hand":
+			return "Add to Hand"
+		"add_to_gauge":
+			return "Add to Gauge"
 	return ""
 
 func begin_choose_from_topdeck(action_choices, look_amount, can_pass):
@@ -1953,6 +1961,8 @@ func _on_effect_choice(event):
 		var instruction_text = "Select an effect:"
 		if event['reason'] == "EffectOrder":
 			instruction_text = "Select which effect to resolve first:"
+		if event['reason'] == "Duplicate":
+			instruction_text = "Select which effect to copy:"
 		begin_effect_choice(game_wrapper.get_decision_info().choice, instruction_text)
 	else:
 		ai_effect_choice(event)
@@ -2386,7 +2396,19 @@ func _update_buttons():
 		var card_name = ""
 		if 'card_name' in choice:
 			card_name = choice['card_name']
-		button_choices.append({ "text": CardDefinitions.get_effect_text(choice, false, true, false, card_name), "action": func(): _on_choice_pressed(i) })
+		var card_text = CardDefinitions.get_effect_text(choice, false, true, false, card_name)
+		if len(card_text) > ChoiceTextLengthSoftCap:
+			var break_idx = ChoiceTextLengthSoftCap-1
+			while break_idx < len(card_text)-1 and card_text[break_idx] != " ":
+				break_idx += 1
+				if break_idx >= ChoiceTextLengthHardCap:
+					break
+			if break_idx < len(card_text) - 1:
+				if card_text[break_idx] == " ":
+					card_text = card_text.substr(0, break_idx) + "\n" + card_text.substr(break_idx+1)
+				else:
+					card_text = card_text.substr(0, break_idx) + "-\n" + card_text.substr(break_idx)
+		button_choices.append({ "text": card_text, "action": func(): _on_choice_pressed(i) })
 
 	# Set the Action Menu state
 	var action_menu_hidden = false
@@ -2396,6 +2418,7 @@ func _update_buttons():
 		UIState.UIState_WaitingOnOpponent:
 			action_menu_hidden = true
 	action_menu.visible = not action_menu_hidden and (button_choices.size() > 0 or instructions_visible)
+	action_menu_container.visible = action_menu.visible
 	action_menu.set_choices(current_instruction_text, button_choices)
 	current_action_menu_choices = button_choices
 
