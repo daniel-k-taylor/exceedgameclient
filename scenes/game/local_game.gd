@@ -394,6 +394,7 @@ class Player:
 	var extra_effect_after_set_strike
 	var end_of_turn_boost_delay_card_ids : Array[int]
 	var saved_power : int
+	var movement_limit : int
 
 	func _init(id, player_name, parent_ref, card_db_ref, chosen_deck, card_start_id):
 		my_id = id
@@ -459,6 +460,10 @@ class Player:
 		extra_effect_after_set_strike = null
 		end_of_turn_boost_delay_card_ids = []
 		saved_power = 0
+
+		movement_limit = MaxArenaLocation
+		if 'movement_limit' in deck_def:
+			movement_limit = deck_def['movement_limit']
 
 		max_hand_size = MaxHandSize
 		if 'alt_hand_size' in deck_def:
@@ -1163,8 +1168,25 @@ class Player:
 				return false
 		if ignore_force_req:
 			return true
+
+		var distance = abs(arena_location - new_arena_location)
 		var required_force = get_force_to_move_to(new_arena_location)
+		var distance_for_movement_limit_calculation = distance
+		if is_other_player_between_locations(arena_location, new_arena_location):
+			distance_for_movement_limit_calculation -= 1
+		if distance_for_movement_limit_calculation > movement_limit:
+			return false
 		return required_force <= get_available_force()
+
+	func is_other_player_between_locations(loc1, loc2):
+		var other_player_loc = parent._get_player(parent.get_other_player(my_id)).arena_location
+		if loc1 < loc2:
+			if other_player_loc > loc1 and other_player_loc < loc2:
+				return true
+		else:
+			if other_player_loc > loc2 and other_player_loc < loc1:
+				return true
+		return false
 
 	func get_force_to_move_to(new_arena_location):
 		var other_player_loc = parent._get_player(parent.get_other_player(my_id)).arena_location
@@ -1216,6 +1238,8 @@ class Player:
 			events += [parent.create_event(Enums.EventType.EventType_BlockMovement, my_id, 0)]
 			return events
 
+		amount = min(amount, movement_limit)
+
 		var previous_location = arena_location
 		var other_location = parent._get_player(parent.get_other_player(my_id)).arena_location
 		var new_location
@@ -1239,6 +1263,8 @@ class Player:
 		if cannot_move:
 			events += [parent.create_event(Enums.EventType.EventType_BlockMovement, my_id, 0)]
 			return events
+
+		amount = min(amount, movement_limit)
 
 		var previous_location = arena_location
 		var other_player_location = parent._get_player(parent.get_other_player(my_id)).arena_location
@@ -1281,6 +1307,9 @@ class Player:
 		if cannot_move:
 			events += [parent.create_event(Enums.EventType.EventType_BlockMovement, my_id, 0)]
 			return events
+
+		amount = min(amount, movement_limit)
+
 		var previous_location = arena_location
 		var other_location = parent._get_player(parent.get_other_player(my_id)).arena_location
 		var new_location
@@ -2277,6 +2306,10 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 		"armorup":
 			performing_player.strike_stat_boosts.armor += effect['amount']
 			events += [create_event(Enums.EventType.EventType_Strike_ArmorUp, performing_player.my_id, effect['amount'])]
+		"armorup_times_gauge":
+			var amount = performing_player.gauge.size() * effect['amount']
+			performing_player.strike_stat_boosts.armor += amount
+			events += [create_event(Enums.EventType.EventType_Strike_ArmorUp, performing_player.my_id, amount)]
 		"attack_does_not_hit":
 			performing_player.strike_stat_boosts.attack_does_not_hit = true
 			if 'hide_notice' not in effect or not effect['hide_notice']:
@@ -3113,6 +3146,10 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 		"speedup":
 			performing_player.strike_stat_boosts.speed += effect['amount']
 			events += [create_event(Enums.EventType.EventType_Strike_SpeedUp, performing_player.my_id, effect['amount'])]
+		"speedup_amount_in_gauge":
+			var amount = performing_player.gauge.size()
+			performing_player.strike_stat_boosts.speed += amount
+			events += [create_event(Enums.EventType.EventType_Strike_SpeedUp, performing_player.my_id, amount)]
 		"spend_life":
 			var amount = effect['amount']
 			performing_player.life -= amount
@@ -3755,8 +3792,9 @@ func do_hit_response_effects(offense_player : Player, defense_player : Player, i
 	var events = []
 	active_strike.strike_state = next_state
 
-	# Currently assumes these will be armor-related; probably breaks if choices get involved
-	var effects = defense_player.get_character_effects_at_timing("when_hit")
+	# Assumes these will be armor-related.
+	# No choices currently allowed at this timing.
+	var effects = get_all_effects_for_timing("when_hit", defense_player, active_strike.get_player_card(defense_player))
 	for effect in effects:
 		events += do_effect_if_condition_met(defense_player, -1, effect, null)
 	assert(active_strike.strike_state == next_state)

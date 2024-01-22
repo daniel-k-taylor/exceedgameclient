@@ -1,0 +1,7 @@
+[gd_resource type="AtlasTexture" load_steps=2 format=3 uid="uid://dyhvy75t7i525"]
+
+[ext_resource type="Texture2D" uid="uid://dx835bvhlxgat" path="res://assets/cards/tager/normals.jpg" id="1_tlmyd"]
+
+[resource]
+atlas = ExtResource("1_tlmyd")
+region = Rect2(2250, 1024, 750, 1024)

@@ -286,6 +286,8 @@ func get_move_actions(game_logic : LocalGame, me : LocalGame.Player, opponent : 
 	for i in range(1, 10):
 		if me.arena_location == i or opponent.arena_location == i:
 			continue
+		if not me.can_move_to(i, false):
+			continue
 		var force_to_move_here = me.get_force_to_move_to(i)
 		if available_force >= force_to_move_here:
 			# Generate an action for every possible combination of cards that can get here.

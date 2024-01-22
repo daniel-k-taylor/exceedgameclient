@@ -572,6 +572,15 @@ func test_nu13_100():
 		game_setup()
 	pass_test("Finished match")
 
+func test_tager_100():
+	default_deck = CardDefinitions.get_deck_from_str_id("tager")
+	for i in range(RandomIterations):
+		print("==== RUNNING TEST %d ====" % i)
+		run_ai_game()
+		game_teardown()
+		game_setup()
+	pass_test("Finished match")
+
 func test_yuzu_100():
 	default_deck = CardDefinitions.get_deck_from_str_id("yuzu")
 	for i in range(RandomIterations):
