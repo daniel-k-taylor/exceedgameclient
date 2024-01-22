@@ -2575,7 +2575,7 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 			var chosen_card_id = effect['card_id']
 			events += opposing_player.discard([chosen_card_id])
 		"discard_random_and_add_triggers":
-			events += performing_player.discard_random(1, func(player, ids): add_attack_triggers(player, ids, true))
+			events += performing_player.discard_random(1, func(inner_player, ids): add_attack_triggers(inner_player, ids, true))
 		"exceed_end_of_turn":
 			performing_player.exceed_at_end_of_turn = true
 		"exceed_now":
@@ -3596,8 +3596,6 @@ func in_range(attacking_player, defending_player, card):
 				return false
 
 
-	var min_range = get_card_stat(attacking_player, card, 'range_min') + attacking_player.strike_stat_boosts.min_range
-	var max_range = get_card_stat(attacking_player, card, 'range_max') + attacking_player.strike_stat_boosts.max_range
 	var attack_source_location = attacking_player.arena_location
 	if attacking_player.strike_stat_boosts.calculate_range_from_buddy:
 		attack_source_location = attacking_player.buddy_location
@@ -5307,5 +5305,12 @@ func do_quit(player_id : Enums.PlayerId, reason : Enums.GameOverReason):
 	_append_log("%s quit." % [performing_player.name])
 	var events = []
 	events += [create_event(Enums.EventType.EventType_GameOver, player_id, reason)]
+	event_queue += events
+	return true
+
+func do_emote(performing_player : Player, is_image_emote : bool, emote : String):
+	printlog("Emote by %s: %s" % [get_player_name(performing_player.my_id), emote])
+	var events = []
+	events += [create_event(Enums.EventType.EventType_Emote, performing_player.my_id, is_image_emote, emote)]
 	event_queue += events
 	return true

@@ -84,6 +84,7 @@ enum EventType {
 	EventType_ChooseFromDiscard,
 	EventType_ChooseFromTopDeck,
 	EventType_Draw,
+	EventType_Emote,
 	EventType_Exceed,
 	EventType_ExceedRevert,
 	EventType_ForceForEffect,

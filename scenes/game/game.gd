@@ -20,7 +20,12 @@ const GameCard = preload("res://scenes/game/game_card.gd")
 const DecisionInfo = preload("res://scenes/game/decision_info.gd")
 const ActionMenu = preload("res://scenes/game/action_menu.gd")
 const ModalDialog = preload("res://scenes/game/modal_dialog.gd")
+const EmoteDialog = preload("res://scenes/game/emote_dialog.gd")
 const ArenaSquare = preload("res://scenes/game/arena_square.gd")
+const EmoteDisplay = preload("res://scenes/game/emote_display.gd")
+
+@onready var player_emote : EmoteDisplay = $PlayerEmote
+@onready var opponent_emote : EmoteDisplay = $OpponentEmote
 
 @onready var damage_popup_template = preload("res://scenes/game/damage_popup.tscn")
 @onready var arena_layout = $ArenaNode/RowButtons
@@ -28,6 +33,7 @@ const ArenaSquare = preload("res://scenes/game/arena_square.gd")
 
 @onready var huge_card : Sprite2D = $HugeCard
 
+@onready var emote_dialog : EmoteDialog = $EmoteDialog
 @onready var modal_dialog : ModalDialog = $ModalDialog
 
 const OffScreen = Vector2(-1000, -1000)
@@ -399,6 +405,14 @@ func get_damage_popup() -> DamagePopup:
 		new_popup.tree_exiting.connect(
 			func():damage_popup_pool.append(new_popup))
 		return new_popup
+
+func spawn_emote(player_id : Enums.PlayerId, is_image_emote : bool, emote : String, emote_display : EmoteDisplay):
+	var pos = get_notice_position(player_id)
+	pos.y -= NoticeOffsetY
+	if game_wrapper.get_player_location(player_id) > 5:
+		pos.x -= 50
+	var height = NoticeOffsetY
+	emote_display.play_emote(is_image_emote, emote, pos, height)
 
 func spawn_all_cards():
 	var player_deck_id = player_deck['id']
@@ -2031,6 +2045,18 @@ func _on_gauge_for_effect(event):
 	else:
 		ai_gauge_for_effect(effect)
 
+func _on_emote(event):
+	var player = event['event_player']
+	var is_image_emote = event['number']
+	var emote = event['reason']
+	if GlobalSettings.MuteEmotes:
+		return
+
+	if player == Enums.PlayerId.PlayerId_Player:
+		spawn_emote(player, is_image_emote, emote, player_emote)
+	else:
+		spawn_emote(player, is_image_emote, emote, opponent_emote)
+
 func _on_damage(event):
 	var player = event['event_player']
 	var life = event['extra_info']
@@ -2136,6 +2162,8 @@ func _handle_events(events):
 				_on_choose_from_topdeck(event)
 			Enums.EventType.EventType_Draw:
 				_on_draw_event(event)
+			Enums.EventType.EventType_Emote:
+				_on_emote(event)
 			Enums.EventType.EventType_Exceed:
 				delay = _on_exceed_event(event)
 			Enums.EventType.EventType_ExceedRevert:
@@ -3378,3 +3406,13 @@ func _on_modal_dialog_accept_button_pressed():
 
 func _on_modal_dialog_close_button_pressed():
 	modal_dialog.visible = false
+
+func _on_emote_button_pressed():
+	emote_dialog.visible = true
+
+func _on_emote_dialog_close_button_pressed():
+	emote_dialog.visible = false
+
+func _on_emote_dialog_emote_selected(is_image_emote : bool, emote : String):
+	emote_dialog.visible = false
+	game_wrapper.submit_emote(Enums.PlayerId.PlayerId_Player, is_image_emote, emote)
