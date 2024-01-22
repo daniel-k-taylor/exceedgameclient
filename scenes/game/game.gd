@@ -2403,10 +2403,11 @@ func _update_buttons():
 				break_idx += 1
 				if break_idx >= ChoiceTextLengthHardCap:
 					break
-			if card_text[break_idx] == " ":
-				card_text = card_text.substr(0, break_idx) + "\n" + card_text.substr(break_idx+1)
-			else:
-				card_text = card_text.substr(0, break_idx) + "-\n" + card_text.substr(break_idx)
+			if break_idx < len(card_text) - 1:
+				if card_text[break_idx] == " ":
+					card_text = card_text.substr(0, break_idx) + "\n" + card_text.substr(break_idx+1)
+				else:
+					card_text = card_text.substr(0, break_idx) + "-\n" + card_text.substr(break_idx)
 		button_choices.append({ "text": card_text, "action": func(): _on_choice_pressed(i) })
 
 	# Set the Action Menu state

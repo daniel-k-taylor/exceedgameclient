@@ -2457,25 +2457,13 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 			local_conditions.fully_closed = close_amount == effect['amount']
 			_append_log("%s Close %s - Moved from %s to %s." % [performing_player.name, str(effect['amount']), str(previous_location), str(new_location)])
 		"copy_other_hit_effect":
-			var card = null
-			if performing_player == active_strike.initiator:
-				card = active_strike.initiator_card
-			else:
-				card = active_strike.defender_card
+			var card = active_strike.get_player_card(performing_player)
 			var hit_effects = get_all_effects_for_timing("hit", performing_player, card)
 
 			var effect_options = []
 			for possible_effect in hit_effects:
-				if possible_effect != effect:
-					if 'is_negative_effect' in possible_effect and possible_effect['is_negative_effect']:
-						# Find the actual effect this goes with, to avoid revealing condition outcomes early
-						for remaining_effect in active_strike.remaining_effect_list:
-							if 'negative_condition_effect' in remaining_effect:
-								if remaining_effect['negative_condition_effect'] == possible_effect:
-									effect_options.append(remaining_effect)
-									break
-					else:
-						effect_options.append(possible_effect)
+				if possible_effect['effect_type'] != "copy_other_hit_effect":
+					effect_options.append(get_base_remaining_effect(possible_effect))
 
 			if len(effect_options) > 0:
 				# Send choice to player
@@ -3316,11 +3304,7 @@ func add_attack_triggers(performing_player : Player, card_ids : Array, set_chara
 	performing_player.strike_stat_boosts.added_attack_effects += new_effects
 
 func duplicate_attack_triggers(performing_player : Player, amount : int):
-	var card = null
-	if active_strike.initiator == performing_player:
-		card = active_strike.initiator_card
-	else:
-		card = active_strike.defender_card
+	var card = active_strike.get_player_card(performing_player)
 
 	var effects = []
 	for timing in ["before", "hit", "after"]:
@@ -3394,6 +3378,15 @@ func remove_remaining_effect(effect, card_id):
 				active_strike.remaining_effect_list.erase(remaining_effect)
 				break
 
+func get_base_remaining_effect(effect):
+	# Gets the base effect in the active strike's remaining effect list
+	if 'is_negative_effect' in effect and effect['is_negative_effect']:
+		# Find the actual effect this goes with, to avoid revealing condition outcomes early
+		for remaining_effect in active_strike.remaining_effect_list:
+			if 'negative_condition_effect' in remaining_effect:
+				if remaining_effect['negative_condition_effect'] == effect:
+					return remaining_effect
+	return effect
 
 func do_remaining_effects(performing_player : Player, next_state):
 	var events = []
@@ -3418,15 +3411,7 @@ func do_remaining_effects(performing_player : Player, next_state):
 				decision_info.player = performing_player.my_id
 				decision_info.choice = []
 				for effect in effects_to_choose:
-					if 'is_negative_effect' in effect and effect['is_negative_effect']:
-						# Find the actual effect this goes with, to avoid revealing condition outcomes early
-						for remaining_effect in active_strike.remaining_effect_list:
-							if 'negative_condition_effect' in remaining_effect:
-								if remaining_effect['negative_condition_effect'] == effect:
-									decision_info.choice.append(remaining_effect)
-									break
-					else:
-						decision_info.choice.append(effect)
+					decision_info.choice.append(get_base_remaining_effect(effect))
 				events += [create_event(Enums.EventType.EventType_Strike_EffectChoice, performing_player.my_id, 0, "EffectOrder")]
 				break
 			elif effects_to_choose.size() == 1:
@@ -4763,14 +4748,7 @@ func do_choice(performing_player : Player, choice_index : int) -> bool:
 		else:
 			# This was the player choosing what to do next.
 			# Remove this effect from the remaining effects.
-			if 'is_negative_effect' in effect and effect['is_negative_effect']:
-				# Find the actual effect this goes with.
-				for remaining_effect in active_strike.remaining_effect_list:
-					if 'negative_condition_effect' in remaining_effect:
-						if remaining_effect['negative_condition_effect'] == effect:
-							effect = remaining_effect
-							break
-			active_strike.remaining_effect_list.erase(effect)
+			active_strike.remaining_effect_list.erase(get_base_remaining_effect(effect))
 
 	var events = do_effect_if_condition_met(performing_player, card_id, effect, null)
 	if game_state == Enums.GameState.GameState_PlayerDecision and decision_info.type == Enums.DecisionType.DecisionType_ForceBoostSustainTopdeck:
