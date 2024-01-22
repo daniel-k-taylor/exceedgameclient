@@ -1,6 +1,6 @@
-[gd_resource type="SpriteFrames" load_steps=2 format=3 uid="uid://cqe0lhcwrchhw"]
+[gd_resource type="SpriteFrames" load_steps=2 format=3 uid="uid://ce2o44l3scw7w"]
 
-[ext_resource type="Texture2D" uid="uid://cngpq78hkn3q" path="res://assets/character_animations/tager/idle/idle.png" id="1_ywo0r"]
+[ext_resource type="Texture2D" uid="uid://brinmyap2dmjs" path="res://assets/character_animations/tager/idle/idle.png" id="1_ywo0r"]
 
 [resource]
 animations = [{
