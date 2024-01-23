@@ -83,7 +83,6 @@ var popout_exlude_card_ids = []
 var selected_character_action = 0
 var cached_player_location = 0
 var cached_opponent_location = 0
-var reading_card_id = 0
 
 var player_deck
 var opponent_deck
@@ -151,7 +150,6 @@ enum UISubState {
 	UISubState_SelectCards_StrikeCard,
 	UISubState_SelectCards_StrikeCard_FromGauge,
 	UISubState_SelectCards_StrikeResponseCard,
-	UISubState_SelectCards_StrikeResponseCard_Reading,
 	UISubState_SelectCards_OpponentSetsFirst_StrikeCard,
 	UISubState_SelectCards_OpponentSetsFirst_StrikeResponseCard,
 	UISubState_SelectCards_ForceForArmor,
@@ -687,10 +685,6 @@ func can_select_card(card):
 			return in_gauge and len(selected_cards) < select_card_require_max
 		UISubState.UISubState_SelectCards_StrikeCard, UISubState.UISubState_SelectCards_StrikeResponseCard, UISubState.UISubState_SelectCards_OpponentSetsFirst_StrikeCard, UISubState.UISubState_SelectCards_OpponentSetsFirst_StrikeResponseCard, UISubState.UISubState_SelectCards_Mulligan:
 			return in_hand
-		UISubState.UISubState_SelectCards_StrikeResponseCard_Reading:
-			var card_db = game_wrapper.get_card_database()
-			var card_id = card_db.get_card_id(card.card_id)
-			return in_hand and card_id == reading_card_id
 		UISubState.UISubState_SelectCards_StrikeCard_FromGauge:
 			return in_gauge
 		UISubState.UISubState_SelectCards_PlayBoost:
@@ -1702,21 +1696,6 @@ func begin_strike_choosing(strike_response : bool, cancel_allowed : bool,
 			new_sub_state = UISubState.UISubState_SelectCards_StrikeCard
 	change_ui_state(UIState.UIState_SelectCards, new_sub_state)
 
-func begin_strike_response_reading(card_id : int):
-	selected_cards = []
-	select_card_require_min = 1
-	select_card_require_max = 1
-
-	var card_db = game_wrapper.get_card_database()
-	reading_card_id = card_db.get_card_id(card_id)
-	var card : GameCard = card_db.get_card(card_id)
-	var card_name = card.definition['display_name']
-	var message = "You must strike with %s (you may EX)." % card_name
-
-	enable_instructions_ui(message, true, false, false, false)
-	change_ui_state(UIState.UIState_SelectCards, UISubState.UISubState_SelectCards_StrikeResponseCard_Reading)
-
-
 func begin_gauge_strike_choosing(strike_response : bool, cancel_allowed : bool):
 	# Show the gauge window.
 	_on_player_gauge_gauge_clicked()
@@ -1943,8 +1922,28 @@ func _on_strike_do_response_now(event):
 func _on_strike_do_reading_response_now(event):
 	var player = event['event_player']
 	var card_id = event['number']
+
 	if player == Enums.PlayerId.PlayerId_Player:
-		begin_strike_response_reading(card_id)
+		var card_db = game_wrapper.get_card_database()
+		var reading_card_id = card_db.get_card_id(card_id)
+		var card : GameCard = card_db.get_card(card_id)
+		var card_name = card.definition['display_name']
+		var message = "You must strike with %s." % card_name
+
+		var cards_in_hand = game_wrapper.get_card_copies_in_hand(Enums.PlayerId.PlayerId_Player, card_id)
+		var can_ex = len(cards_in_hand) >= 2
+
+		var single_card_id = cards_in_hand[0]
+		var ex_card_id = -1
+		if can_ex:
+			ex_card_id = cards_in_hand[1]
+
+		var choices = [
+			{ "_choice_text": "Strike", "_choice_func": func(): _on_reading_choice_pressed(card_id, -1) },
+			{ "_choice_text": "EX Strike", "_choice_func": func(): _on_reading_choice_pressed(card_id, ex_card_id), "_choice_disabled": not can_ex}
+		]
+		enable_instructions_ui(message, false, false, false, false, choices)
+		change_ui_state(UIState.UIState_MakeChoice, UISubState.UISubState_None)
 	else:
 		ai_strike_response_reading(card_id)
 
@@ -2451,22 +2450,34 @@ func _update_buttons():
 
 	for i in range(current_effect_choices.size()):
 		var choice = current_effect_choices[i]
-		var card_name = ""
-		if 'card_name' in choice:
-			card_name = choice['card_name']
-		var card_text = CardDefinitions.get_effect_text(choice, false, true, false, card_name)
-		if len(card_text) > ChoiceTextLengthSoftCap:
-			var break_idx = ChoiceTextLengthSoftCap-1
-			while break_idx < len(card_text)-1 and card_text[break_idx] != " ":
-				break_idx += 1
-				if break_idx >= ChoiceTextLengthHardCap:
-					break
-			if break_idx < len(card_text) - 1:
-				if card_text[break_idx] == " ":
-					card_text = card_text.substr(0, break_idx) + "\n" + card_text.substr(break_idx+1)
-				else:
-					card_text = card_text.substr(0, break_idx) + "-\n" + card_text.substr(break_idx)
-		button_choices.append({ "text": card_text, "action": func(): _on_choice_pressed(i) })
+		var card_text = ""
+		if "_choice_text" in choice:
+			card_text = choice["_choice_text"]
+		else:
+			var card_name = ""
+			if 'card_name' in choice:
+				card_name = choice['card_name']
+			card_text = CardDefinitions.get_effect_text(choice, false, true, false, card_name)
+			if len(card_text) > ChoiceTextLengthSoftCap:
+				var break_idx = ChoiceTextLengthSoftCap-1
+				while break_idx < len(card_text)-1 and card_text[break_idx] != " ":
+					break_idx += 1
+					if break_idx >= ChoiceTextLengthHardCap:
+						break
+				if break_idx < len(card_text) - 1:
+					if card_text[break_idx] == " ":
+						card_text = card_text.substr(0, break_idx) + "\n" + card_text.substr(break_idx+1)
+					else:
+						card_text = card_text.substr(0, break_idx) + "-\n" + card_text.substr(break_idx)
+
+		var disabled = false
+		if "_choice_disabled" in choice and choice["_choice_disabled"]:
+			disabled = true
+
+		if "_choice_func" in choice:
+			button_choices.append({ "text": card_text, "action": choice["_choice_func"], "disabled": disabled })
+		else:
+			button_choices.append({ "text": card_text, "action": func(): _on_choice_pressed(i), "disabled": disabled })
 
 	# Set the Action Menu state
 	var action_menu_hidden = false
@@ -2539,18 +2550,6 @@ func can_press_ok():
 					var card2 = selected_cards[1]
 					return card_db.are_same_card(card1.card_id, card2.card_id) and instructions_ex_allowed
 				return len(selected_cards) == 1
-			UISubState.UISubState_SelectCards_StrikeResponseCard_Reading:
-				if len(selected_cards) == 0 or len(selected_cards) > 2:
-					return false
-				var card_db = game_wrapper.get_card_database()
-				var card1 = selected_cards[0]
-				var card_id = card_db.get_card_id(card1.card_id)
-				if card_id != reading_card_id:
-					return false
-				if len(selected_cards) == 2:
-					var card2 = selected_cards[1]
-					return card_db.are_same_card(card1.card_id, card2.card_id)
-				return true
 			UISubState.UISubState_SelectCards_StrikeForce:
 				return can_selected_cards_pay_force(select_card_require_force)
 			UISubState.UISubState_SelectCards_StrikeCard_FromGauge:
@@ -2718,7 +2717,7 @@ func _on_instructions_ok_button_pressed(index : int):
 				success = game_wrapper.submit_move(Enums.PlayerId.PlayerId_Player, selected_card_ids, selected_arena_location)
 			UISubState.UISubState_SelectCards_ForceForChange:
 				success = game_wrapper.submit_change(Enums.PlayerId.PlayerId_Player, selected_card_ids)
-			UISubState.UISubState_SelectCards_StrikeCard, UISubState.UISubState_SelectCards_StrikeResponseCard, UISubState.UISubState_SelectCards_StrikeCard_FromGauge, UISubState.UISubState_SelectCards_StrikeResponseCard_Reading:
+			UISubState.UISubState_SelectCards_StrikeCard, UISubState.UISubState_SelectCards_StrikeResponseCard, UISubState.UISubState_SelectCards_StrikeCard_FromGauge:
 				success = game_wrapper.submit_strike(Enums.PlayerId.PlayerId_Player, single_card_id, false, ex_card_id)
 			UISubState.UISubState_SelectCards_OpponentSetsFirst_StrikeCard, UISubState.UISubState_SelectCards_OpponentSetsFirst_StrikeResponseCard:
 				success = game_wrapper.submit_strike(Enums.PlayerId.PlayerId_Player, single_card_id, false, ex_card_id, true)
@@ -2840,6 +2839,13 @@ func _on_arena_location_pressed(location):
 					choice_index = i
 					break
 			_on_choice_pressed(choice_index)
+
+func _on_reading_choice_pressed(card_id, ex_card_id):
+	current_effect_choices = []
+	var success = game_wrapper.submit_strike(Enums.PlayerId.PlayerId_Player, card_id, false, ex_card_id)
+	if success:
+		change_ui_state(UIState.UIState_WaitForGameServer)
+	_update_buttons()
 
 #
 # AI Functions

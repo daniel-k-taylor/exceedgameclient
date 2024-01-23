@@ -681,7 +681,10 @@ func pick_strike(game_logic : LocalGame, my_id : Enums.PlayerId, from_gauge : bo
 func pick_strike_response(game_logic : LocalGame, my_id : Enums.PlayerId, reading_card_id = null) -> StrikeAction:
 	var me = game_logic._get_player(my_id)
 	var opponent = game_logic._get_player(game_logic.get_other_player(my_id))
-	var possible_actions = get_strike_actions(game_logic, me, opponent, false, false, false, reading_card_id)
+	var disable_wild_swing = false
+	if reading_card_id != null:
+		disable_wild_swing = true
+	var possible_actions = get_strike_actions(game_logic, me, opponent, false, disable_wild_swing, false, reading_card_id)
 	update_ai_state(game_logic, me, opponent)
 	return ai_policy.pick_strike_response(possible_actions, game_state)
 

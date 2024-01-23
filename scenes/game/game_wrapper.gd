@@ -127,6 +127,16 @@ func count_cards_in_deck_and_hand(player_id : Enums.PlayerId, card_str_id : Stri
 			count += 1
 	return count
 
+func get_card_copies_in_hand(player_id : Enums.PlayerId, card_id : int):
+	var player = _get_player(player_id)
+	var card_db = current_game.get_card_database()
+	var card_str_id = card_db.get_card(card_id).definition['id']
+	var found_cards = []
+	for card in player.hand:
+		if card.definition['id'] == card_str_id:
+			found_cards.append(card.id)
+	return found_cards
+
 func is_card_in_gauge(player_id : Enums.PlayerId, card_id : int):
 	var player = _get_player(player_id)
 	for card in player.gauge:
