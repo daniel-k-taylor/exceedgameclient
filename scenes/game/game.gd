@@ -83,6 +83,7 @@ var popout_exlude_card_ids = []
 var selected_character_action = 0
 var cached_player_location = 0
 var cached_opponent_location = 0
+var reading_card_id = 0
 
 var player_deck
 var opponent_deck
@@ -150,6 +151,7 @@ enum UISubState {
 	UISubState_SelectCards_StrikeCard,
 	UISubState_SelectCards_StrikeCard_FromGauge,
 	UISubState_SelectCards_StrikeResponseCard,
+	UISubState_SelectCards_StrikeResponseCard_Reading,
 	UISubState_SelectCards_OpponentSetsFirst_StrikeCard,
 	UISubState_SelectCards_OpponentSetsFirst_StrikeResponseCard,
 	UISubState_SelectCards_ForceForArmor,
@@ -685,6 +687,10 @@ func can_select_card(card):
 			return in_gauge and len(selected_cards) < select_card_require_max
 		UISubState.UISubState_SelectCards_StrikeCard, UISubState.UISubState_SelectCards_StrikeResponseCard, UISubState.UISubState_SelectCards_OpponentSetsFirst_StrikeCard, UISubState.UISubState_SelectCards_OpponentSetsFirst_StrikeResponseCard, UISubState.UISubState_SelectCards_Mulligan:
 			return in_hand
+		UISubState.UISubState_SelectCards_StrikeResponseCard_Reading:
+			var card_db = game_wrapper.get_card_database()
+			var card_id = card_db.get_card_id(card.card_id)
+			return in_hand and card_id == reading_card_id
 		UISubState.UISubState_SelectCards_StrikeCard_FromGauge:
 			return in_gauge
 		UISubState.UISubState_SelectCards_PlayBoost:
@@ -1696,6 +1702,20 @@ func begin_strike_choosing(strike_response : bool, cancel_allowed : bool,
 			new_sub_state = UISubState.UISubState_SelectCards_StrikeCard
 	change_ui_state(UIState.UIState_SelectCards, new_sub_state)
 
+func begin_strike_response_reading(card_id : int):
+	selected_cards = []
+	select_card_require_min = 1
+	select_card_require_max = 1
+
+	var card_db = game_wrapper.get_card_database()
+	reading_card_id = card_db.get_card_id(card_id)
+	var card : GameCard = card_db.get_card(card_id)
+	var card_name = card.definition['display_name']
+	var message = "You must strike with %s (you may EX)." % card_name
+
+	enable_instructions_ui(message, true, false, false, false)
+	change_ui_state(UIState.UIState_SelectCards, UISubState.UISubState_SelectCards_StrikeResponseCard_Reading)
+
 
 func begin_gauge_strike_choosing(strike_response : bool, cancel_allowed : bool):
 	# Show the gauge window.
@@ -1919,6 +1939,14 @@ func _on_strike_do_response_now(event):
 		begin_strike_choosing(true, false)
 	else:
 		ai_strike_response()
+
+func _on_strike_do_reading_response_now(event):
+	var player = event['event_player']
+	var card_id = event['number']
+	if player == Enums.PlayerId.PlayerId_Player:
+		begin_strike_response_reading(card_id)
+	else:
+		ai_strike_response_reading(card_id)
 
 func _on_strike_opponent_sets_first_initiator_set(event):
 	var player = event['event_player']
@@ -2228,6 +2256,8 @@ func _handle_events(events):
 				delay = _stat_notice_event(event)
 			Enums.EventType.EventType_Strike_DoResponseNow:
 				_on_strike_do_response_now(event)
+			Enums.EventType.EventType_Strike_DoReadingResponseNow:
+				_on_strike_do_reading_response_now(event)
 			Enums.EventType.EventType_Strike_EffectChoice:
 				_on_effect_choice(event)
 			Enums.EventType.EventType_Strike_ExUp:
@@ -2509,6 +2539,18 @@ func can_press_ok():
 					var card2 = selected_cards[1]
 					return card_db.are_same_card(card1.card_id, card2.card_id) and instructions_ex_allowed
 				return len(selected_cards) == 1
+			UISubState.UISubState_SelectCards_StrikeResponseCard_Reading:
+				if len(selected_cards) == 0 or len(selected_cards) > 2:
+					return false
+				var card_db = game_wrapper.get_card_database()
+				var card1 = selected_cards[0]
+				var card_id = card_db.get_card_id(card1.card_id)
+				if card_id != reading_card_id:
+					return false
+				if len(selected_cards) == 2:
+					var card2 = selected_cards[1]
+					return card_db.are_same_card(card1.card_id, card2.card_id)
+				return true
 			UISubState.UISubState_SelectCards_StrikeForce:
 				return can_selected_cards_pay_force(select_card_require_force)
 			UISubState.UISubState_SelectCards_StrikeCard_FromGauge:
@@ -2676,7 +2718,7 @@ func _on_instructions_ok_button_pressed(index : int):
 				success = game_wrapper.submit_move(Enums.PlayerId.PlayerId_Player, selected_card_ids, selected_arena_location)
 			UISubState.UISubState_SelectCards_ForceForChange:
 				success = game_wrapper.submit_change(Enums.PlayerId.PlayerId_Player, selected_card_ids)
-			UISubState.UISubState_SelectCards_StrikeCard, UISubState.UISubState_SelectCards_StrikeResponseCard, UISubState.UISubState_SelectCards_StrikeCard_FromGauge:
+			UISubState.UISubState_SelectCards_StrikeCard, UISubState.UISubState_SelectCards_StrikeResponseCard, UISubState.UISubState_SelectCards_StrikeCard_FromGauge, UISubState.UISubState_SelectCards_StrikeResponseCard_Reading:
 				success = game_wrapper.submit_strike(Enums.PlayerId.PlayerId_Player, single_card_id, false, ex_card_id)
 			UISubState.UISubState_SelectCards_OpponentSetsFirst_StrikeCard, UISubState.UISubState_SelectCards_OpponentSetsFirst_StrikeResponseCard:
 				success = game_wrapper.submit_strike(Enums.PlayerId.PlayerId_Player, single_card_id, false, ex_card_id, true)
@@ -2978,6 +3020,16 @@ func ai_strike_response():
 	change_ui_state(UIState.UIState_WaitForGameServer)
 	if not game_wrapper.is_ai_game(): return
 	var response_action = ai_player.pick_strike_response(game_wrapper.current_game, Enums.PlayerId.PlayerId_Opponent)
+	var success = game_wrapper.submit_strike(Enums.PlayerId.PlayerId_Opponent, response_action.card_id, response_action.wild_swing, response_action.ex_card_id)
+	if success:
+		change_ui_state(UIState.UIState_WaitForGameServer)
+	else:
+		print("FAILED AI STRIKE RESPONSE")
+
+func ai_strike_response_reading(card_id):
+	change_ui_state(UIState.UIState_WaitForGameServer)
+	if not game_wrapper.is_ai_game(): return
+	var response_action = ai_player.pick_strike_response(game_wrapper.current_game, Enums.PlayerId.PlayerId_Opponent, card_id)
 	var success = game_wrapper.submit_strike(Enums.PlayerId.PlayerId_Opponent, response_action.card_id, response_action.wild_swing, response_action.ex_card_id)
 	if success:
 		change_ui_state(UIState.UIState_WaitForGameServer)

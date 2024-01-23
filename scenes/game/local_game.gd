@@ -1917,11 +1917,7 @@ func strike_setup_defender_response(events):
 		# with the named card or to reveal their hand.
 		var reading_card = active_strike.defender.get_reading_card_in_hand()
 		if reading_card:
-			# TODO: Potentially they can EX here.
-			# Queue any events so far, then empty this tally and call do_strike.
-			event_queue += events
-			events = []
-			do_strike(active_strike.defender, reading_card.id, false, -1, active_strike.opponent_sets_first)
+			events += [create_event(Enums.EventType.EventType_Strike_DoReadingResponseNow, active_strike.defender.my_id, reading_card.id)]
 			ask_for_response = false
 		else:
 			events += active_strike.defender.reveal_hand()

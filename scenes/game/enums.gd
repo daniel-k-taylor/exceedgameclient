@@ -115,6 +115,7 @@ enum EventType {
 	EventType_Strike_DodgeAttacks,
 	EventType_Strike_DodgeAttacksAtRange,
 	EventType_Strike_DodgeFromOppositeBuddy,
+	EventType_Strike_DoReadingResponseNow,
 	EventType_Strike_DoResponseNow,
 	EventType_Strike_EffectChoice,
 	EventType_Strike_ExUp,
