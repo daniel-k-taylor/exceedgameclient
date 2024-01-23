@@ -246,6 +246,8 @@ func get_condition_text(condition, amount, amount2, detail):
 			text += ""
 		"buddy_in_play":
 			text += "If %s is in play, " % detail
+		"buddy_space_unoccupied":
+			text += "If %s's space is unoccupied, " % detail
 		"on_buddy_space":
 			text += "If on %s's space, " % detail
 		"buddy_between_attack_source":
@@ -462,6 +464,8 @@ func get_effect_type_text(effect, card_name_source : String = ""):
 			if effect['amount'] != effect['amount2']:
 				movement_str += "-%s" % effect['amount2']
 			effect_str += "Move %s %s space(s)" % [effect['buddy_name'], movement_str]
+		"move_to_buddy":
+			effect_str += "Move to %s" % effect['buddy_name']
 		"multiply_power_bonuses":
 			if effect['amount'] == 2:
 				effect_str += "Double power bonuses"

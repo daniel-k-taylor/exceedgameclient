@@ -5085,6 +5085,7 @@
 				"amount": 3,
 				"and": {
 					"condition": "on_buddy_space",
+					"condition_detail": "Mantenbo",
 					"effect_type": "powerup",
 					"amount": 6
 				}
@@ -5264,7 +5265,7 @@
 		"id": "litchi_reachrobbingthekong",
 		"type": "special",
 		"display_name": "Reach: Robbing the Kong",
-		"force_cost": 0,
+		"force_cost": 1,
 		"gauge_cost": 0,
 		"range_min": 1,
 		"range_max": 1,
@@ -5276,6 +5277,7 @@
 			{
 				"timing": "before",
 				"condition": "buddy_space_unoccupied",
+				"condition_detail": "Mantenbo",
 				"effect_type": "move_to_buddy",
 				"buddy_name": "Mantenbo",
 				"and": {
@@ -5303,6 +5305,7 @@
 				{
 					"timing": "immediate",
 					"condition": "on_buddy_space",
+					"condition_detail": "Mantenbo",
 					"buddy_name": "Mantenbo",
 					"effect_type": "advance",
 					"amount": 2,
@@ -5341,6 +5344,7 @@
 				{
 					"timing": "immediate",
 					"condition": "buddy_space_unoccupied",
+					"condition_detail": "Mantenbo",
 					"buddy_name": "Mantenbo",
 					"effect_type": "move_to_buddy",
 					"and": {
@@ -5429,6 +5433,7 @@
 			{
 				"timing": "before",
 				"condition": "opponent_between_buddy",
+				"condition_detail": "Mantenbo",
 				"effect_type": "close",
 				"amount": 3
 			},
@@ -5448,6 +5453,7 @@
 				{
 					"timing": "immediate",
 					"condition": "buddy_in_play",
+					"condition_detail": "Mantenbo",
 					"buddy_name": "Mantenbo",
 					"effect_type": "move_buddy",
 					"amount": 1,
@@ -5824,12 +5830,8 @@
 							"effect_type": "draw",
 							"amount": 1,
 							"and": {
-								"effect_type": "draw",
-								"amount": 1,
-								"and": {
-									"effect_type": "opponent_discard_random",
-									"amount": 1
-								}
+								"effect_type": "opponent_discard_random",
+								"amount": 1
 							}
 						}
 					}
@@ -9068,6 +9070,7 @@
 				{
 					"timing": "immediate",
 					"condition": "buddy_space_unoccupied",
+					"condition_detail": "Shield Knight",
 					"effect_type": "switch_spaces_with_buddy"
 				},
 				{

@@ -20,10 +20,12 @@
 			},
 			{
 				"condition": "buddy_in_play",
+				"condition_detail": "Mantenbo",
 				"buddy_name": "Mantenbo",
 				"effect_type": "pass",
 				"and": {
 					"condition": "buddy_space_unoccupied",
+					"condition_detail": "Mantenbo",
 					"effect_type": "move_to_buddy",
 					"buddy_name": "Mantenbo"
 				}
@@ -43,6 +45,7 @@
 			"requires_buddy_in_play": "true",
 			"effect": {
 				"condition": "buddy_in_play",
+				"condition_detail": "Mantenbo",
 				"effect_type": "move_buddy",
 				"buddy_name": "Mantenbo",
 				"amount": 1,
@@ -89,6 +92,7 @@
 			"requires_buddy_in_play": "true",
 			"effect": {
 				"condition": "buddy_in_play",
+				"condition_detail": "Mantenbo",
 				"effect_type": "move_buddy",
 				"buddy_name": "Mantenbo",
 				"amount": 1,
@@ -107,6 +111,7 @@
 			"NOTE": "Mantenbo speed/range when in play",
 			"timing": "during_strike",
 			"condition": "not_buddy_in_play",
+			"condition_detail": "Mantenbo",
 			"character_effect": true,
 			"effect_type": "speedup",
 			"amount": -1,
@@ -120,6 +125,7 @@
 			"NOTE": "Mantenbo hit bonus",
 			"timing": "hit",
 			"condition": "buddy_in_opponent_space",
+			"condition_detail": "Mantenbo",
 			"effect_type": "choice",
 			"choice": [
 				{
@@ -152,7 +158,9 @@
 		{
 			"NOTE": "Mantenbo speed/range when in play",
 			"timing": "during_strike",
-			"condition": "buddy_in_play",
+			"condition": "not_buddy_in_play",
+			"condition_detail": "Mantenbo",
+			"character_effect": true,
 			"effect_type": "speedup",
 			"amount": -1,
 			"and": {
@@ -165,6 +173,7 @@
 			"NOTE": "Mantenbo hit bonus",
 			"timing": "hit",
 			"condition": "buddy_in_opponent_space",
+			"condition_detail": "Mantenbo",
 			"effect_type": "choice",
 			"choice": [
 				{
