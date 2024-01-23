@@ -1,4 +1,4 @@
-[gd_scene load_steps=41 format=3 uid="uid://cqs72exlwm6at"]
+[gd_scene load_steps=42 format=3 uid="uid://cqs72exlwm6at"]
 
 [ext_resource type="Script" path="res://scenes/menu/char_select.gd" id="1_f3x24"]
 [ext_resource type="PackedScene" uid="uid://nwqxp8pdh1jk" path="res://scenes/menu/char_select_button.tscn" id="6_3lmwy"]
@@ -39,6 +39,7 @@
 [ext_resource type="Texture2D" uid="uid://lpvtuydm4qk1" path="res://assets/portraits/tager.png" id="32_1r668"]
 [ext_resource type="Texture2D" uid="uid://de4wk0x150r1f" path="res://assets/portraits/exceedrandom.png" id="32_iutun"]
 [ext_resource type="Texture2D" uid="uid://juesnkghbyjd" path="res://assets/portraits/plague.png" id="32_o7q1n"]
+[ext_resource type="Texture2D" uid="uid://bc01kjivot83r" path="res://assets/portraits/litchi.png" id="32_tp7xh"]
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_8u80i"]
 
@@ -317,6 +318,11 @@ layout_mode = 2
 char_id = "nu13"
 portrait_texture = ExtResource("8_f1r6m")
 
+[node name="Litchi" parent="CenterContainer/BBCharacterSelect/Rows/Row2" instance=ExtResource("6_3lmwy")]
+layout_mode = 2
+char_id = "litchi"
+portrait_texture = ExtResource("32_tp7xh")
+
 [node name="Tager" parent="CenterContainer/BBCharacterSelect/Rows/Row2" instance=ExtResource("6_3lmwy")]
 layout_mode = 2
 char_id = "tager"
@@ -491,6 +497,8 @@ portrait_texture = ExtResource("32_iutun")
 [connection signal="on_pressed" from="CenterContainer/BBCharacterSelect/Rows/Row1/Jin" to="." method="_on_char_button_on_pressed"]
 [connection signal="on_hover" from="CenterContainer/BBCharacterSelect/Rows/Row2/Nu13" to="." method="_on_char_hover"]
 [connection signal="on_pressed" from="CenterContainer/BBCharacterSelect/Rows/Row2/Nu13" to="." method="_on_char_button_on_pressed"]
+[connection signal="on_hover" from="CenterContainer/BBCharacterSelect/Rows/Row2/Litchi" to="." method="_on_char_hover"]
+[connection signal="on_pressed" from="CenterContainer/BBCharacterSelect/Rows/Row2/Litchi" to="." method="_on_char_button_on_pressed"]
 [connection signal="on_hover" from="CenterContainer/BBCharacterSelect/Rows/Row2/Tager" to="." method="_on_char_hover"]
 [connection signal="on_pressed" from="CenterContainer/BBCharacterSelect/Rows/Row2/Tager" to="." method="_on_char_button_on_pressed"]
 [connection signal="on_hover" from="CenterContainer/SKCharacterSelect/Rows/Row1/ShovelShield" to="." method="_on_char_hover"]

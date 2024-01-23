@@ -410,7 +410,7 @@ func get_effect_type_text(effect, card_name_source : String = ""):
 		"do_not_remove_buddy":
 			effect_str += "Do not remove %s from play." % effect['buddy_name']
 		"remove_buddy":
-			effect_str += "Remove %s from play." % effect['buddy_name']
+			effect_str += "Remove %s from play" % effect['buddy_name']
 		"place_buddy_in_any_space":
 			effect_str += "Place %s in any space." % effect['buddy_name']
 		"place_buddy_in_attack_range":
@@ -613,8 +613,11 @@ func get_effect_type_text(effect, card_name_source : String = ""):
 			else:
 				effect_str += "Sustain this"
 		"take_bonus_actions":
-			var amount = effect['amount']
-			effect_str += "Take %s actions. Cannot cancel and striking ends turn." % str(amount)
+			if 'use_simple_description' in effect and effect['use_simple_description']:
+				effect_str += "Take another action."
+			else:
+				var amount = effect['amount']
+				effect_str += "Take %s actions. Cannot cancel and striking ends turn." % str(amount)
 		"take_nonlethal_damage":
 			effect_str += "Take %s nonlethal damage" % str(effect['amount'])
 		"topdeck_from_hand":

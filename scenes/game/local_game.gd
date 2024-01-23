@@ -869,34 +869,45 @@ class Player:
 			return len(actions)
 		return 0
 
-	func can_do_character_action(i : int = 0) -> bool:
-		if i > get_character_action_count():
+	func can_do_character_action(action_index : int) -> bool:
+		if action_index >= get_character_action_count():
 			parent.printlog("ERROR: Character action index out of range")
 			return false
 
+		var action = null
 		if exceeded and 'character_action_exceeded' in deck_def:
-			var action = deck_def['character_action_exceeded'][i]
-			var gauge_cost = action['gauge_cost']
-			var force_cost = action['force_cost']
-			if get_available_gauge() < gauge_cost: return false
-			if get_available_force() < force_cost: return false
-
-			if 'min_hand_size' in action:
-				if len(hand) < action['min_hand_size']: return false
-
-			return true
+			action = deck_def['character_action_exceeded'][action_index]
 		elif not exceeded and 'character_action_default' in deck_def:
-			var action = deck_def['character_action_default'][i]
-			var gauge_cost = action['gauge_cost']
-			var force_cost = action['force_cost']
-			if get_available_gauge() < gauge_cost: return false
-			if get_available_force() < force_cost: return false
+			action = deck_def['character_action_default'][action_index]
+		else:
+			return false
 
-			if 'min_hand_size' in action:
-				if len(hand) < action['min_hand_size']: return false
+		var gauge_cost = action['gauge_cost']
+		var force_cost = action['force_cost']
+		if get_available_gauge() < gauge_cost: return false
+		if get_available_force() < force_cost: return false
 
-			return true
-		return false
+		if 'min_hand_size' in action:
+			if len(hand) < action['min_hand_size']: return false
+
+		if 'requires_buddy_in_play' in action and action['requires_buddy_in_play']:
+			if not is_buddy_in_play(): return false
+
+		if 'per_turn_limit' in action:
+			var limit = action['per_turn_limit']
+			var used = 0
+			for detail in used_character_action_details:
+				if exceeded and detail[0] != "exceed":
+					continue
+				if not exceeded and detail[0] != "default":
+					continue
+				if detail[1] == action_index:
+					# Player is in correct exceed state and this is the action index.
+					used += 1
+			if used >= limit:
+				return false
+
+		return true
 
 	func draw(num_to_draw : int):
 		var events : Array = []
@@ -1001,6 +1012,14 @@ class Player:
 					sealed.append(card)
 					events += [parent.create_event(Enums.EventType.EventType_Seal, my_id, card.id)]
 					break
+		return events
+
+	func seal_hand():
+		var events = []
+		var card_ids = []
+		for card in hand:
+			card_ids.append(card.id)
+		events += seal_from_hand(card_ids)
 		return events
 
 	func discard_hand():
@@ -2123,8 +2142,12 @@ func is_effect_condition_met(performing_player : Player, effect, local_condition
 			return active_strike.is_player_stunned(performing_player)
 		elif condition == "not_stunned":
 			return not active_strike.is_player_stunned(performing_player)
+		elif condition == "buddy_in_opponent_space":
+			return performing_player.is_buddy_in_play() and performing_player.get_buddy_location() == other_player.arena_location
 		elif condition == "buddy_in_play":
 			return performing_player.is_buddy_in_play()
+		elif condition == "not_buddy_in_play":
+			return not performing_player.is_buddy_in_play()
 		elif condition == "on_buddy_space":
 			if not performing_player.is_buddy_in_play():
 				return false
@@ -2805,6 +2828,8 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 				decision_info.source = effect['buddy_name']
 				change_game_state(Enums.GameState.GameState_PlayerDecision)
 				events += [create_event(Enums.EventType.EventType_ChooseArenaLocationForEffect, performing_player.my_id, 0)]
+		"move_to_buddy":
+			events += performing_player.move_to(performing_player.buddy_location)
 		"multiply_power_bonuses":
 			performing_player.strike_stat_boosts.power_bonus_multiplier = max(effect['amount'], performing_player.strike_stat_boosts.power_bonus_multiplier)
 		"multiply_speed_bonuses":
@@ -2898,6 +2923,8 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 				decision_info.source = effect['buddy_name']
 				change_game_state(Enums.GameState.GameState_PlayerDecision)
 				events += [create_event(Enums.EventType.EventType_ChooseArenaLocationForEffect, performing_player.my_id, 0)]
+		"place_buddy_onto_opponent":
+			events += performing_player.place_buddy(opposing_player.arena_location)
 		"place_buddy_onto_self":
 			events += performing_player.place_buddy(performing_player.arena_location)
 		"powerup":
@@ -3064,6 +3091,8 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 			else:
 				# Part of an attack.
 				performing_player.strike_stat_boosts.seal_attack_on_cleanup = true
+		"seal_hand":
+			events += performing_player.seal_hand()
 		"self_discard_choose":
 			var optional = 'optional' in effect and effect['optional']
 			var limitation = ""
