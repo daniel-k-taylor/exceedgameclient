@@ -2,7 +2,7 @@
 	"id": "tager",
 	"season": 5,
 	"display_name": "Iron Tager",
-	"cardback": "cardback_defaultexceed.png",
+	"cardback": "cardback_tager.jpg",
 	"movement_limit": 2,
 	"exceed_cost": 5,
 	"exceed_to_overdrive": true,

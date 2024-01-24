@@ -2,7 +2,7 @@
 	"id": "ragna",
 	"season": 5,
 	"display_name": "Ragna",
-	"cardback": "cardback_defaultexceed.png",
+	"cardback": "cardback_ragna.jpg",
 	"exceed_cost": 4,
 	"exceed_to_overdrive": true,
 	"on_exceed": {

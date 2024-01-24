@@ -2,7 +2,7 @@
 	"id": "nu13",
 	"season": 5,
 	"display_name": "Nu-13",
-	"cardback": "cardback_defaultexceed.png",
+	"cardback": "cardback_nu13.jpg",
 	"exceed_cost": 3,
 	"exceed_to_overdrive": true,
 	"on_exceed": {
