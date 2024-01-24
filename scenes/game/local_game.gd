@@ -647,6 +647,18 @@ class Player:
 		random_shuffle_deck()
 		return events
 
+	func shuffle_card_from_hand_to_deck(id : int):
+		var events = []
+		for i in range(len(hand)):
+			var card = hand[i]
+			if card.id == id:
+				deck.insert(0, card)
+				hand.remove_at(i)
+				events += [parent.create_event(Enums.EventType.EventType_AddToDeck, my_id, card.id)]
+				break
+		random_shuffle_deck()
+		return events
+
 	func move_card_from_discard_to_gauge(id : int):
 		var events = []
 		for i in range(len(discards)):
@@ -2975,6 +2987,14 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 			if boosts_in_play > 0:
 				performing_player.strike_stat_boosts.power += effect['amount'] * boosts_in_play
 				events += [create_event(Enums.EventType.EventType_Strike_PowerUp, performing_player.my_id, effect['amount'] * boosts_in_play)]
+		"powerup_per_sealed_normal":
+			var sealed_normals = performing_player.get_sealed_count_of_type("normal")
+			if sealed_normals > 0:
+				var bonus_power = effect['amount'] * sealed_normals
+				if 'maximum' in effect:
+					bonus_power = min(bonus_power, effect['maximum'])
+				performing_player.strike_stat_boosts.power += bonus_power
+				events += [create_event(Enums.EventType.EventType_Strike_PowerUp, performing_player.my_id, bonus_power)]
 		"powerup_damagetaken":
 			var power_per_damage = effect['amount']
 			var damage_taken = active_strike.get_damage_taken(performing_player)
@@ -3136,8 +3156,9 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 				if card.definition['speed'] == sealed_card.definition['speed']:
 					target_card = card
 					break
-			_append_log("%s returning card %s from sealed to hand." % [performing_player.name, target_card.definition["display_name"]])
-			events += performing_player.move_card_from_sealed_to_hand(target_card.id)
+			if target_card:
+				_append_log("%s returning card %s from sealed to hand." % [performing_player.name, target_card.definition["display_name"]])
+				events += performing_player.move_card_from_sealed_to_hand(target_card.id)
 		"return_this_attack_to_hand_after_attack":
 			var card_name = card_db.get_card_name(card_id)
 			_append_log("%s - %s returned to hand." % [performing_player.name, card_name])
@@ -3260,6 +3281,20 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 			else:
 				# Nothing else implemented.
 				assert(false)
+		"shuffle_into_deck_from_hand":
+			if len(performing_player.hand) > 0:
+				change_game_state(Enums.GameState.GameState_PlayerDecision)
+				decision_info.type = Enums.DecisionType.DecisionType_CardFromHandToGauge
+				decision_info.player = performing_player.my_id
+				decision_info.choice_card_id = card_id
+				decision_info.destination = "deck"
+				var min_amount = effect['min_amount']
+				var max_amount = effect['max_amount']
+				decision_info.effect = {
+					"min_amount": min_amount,
+					"max_amount": max_amount,
+				}
+				events += [create_event(Enums.EventType.EventType_CardFromHandToGauge_Choice, performing_player.my_id, min_amount, "", max_amount)]
 		"shuffle_hand_to_deck":
 			_append_log("%s shuffled hand to deck." % [performing_player.name])
 			events += performing_player.shuffle_hand_to_deck()
@@ -4845,6 +4880,10 @@ func do_card_from_hand_to_gauge(performing_player : Player, card_ids : Array) ->
 				events += performing_player.move_card_from_hand_to_deck(card_id)
 				card_names = str(card_ids.size())
 				destination_string = "top of deck"
+			elif decision_info.destination == "deck":
+				events += performing_player.shuffle_card_from_hand_to_deck(card_id)
+				card_names = str(card_ids.size())
+				destination_string = "deck"
 			else:
 				assert(false, "Unknown destination for do_card_from_hand_to_gauge")
 

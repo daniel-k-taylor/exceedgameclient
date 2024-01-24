@@ -1526,6 +1526,8 @@ func update_discard_to_gauge_selection_message():
 	var phrase = "in your gauge"
 	if select_card_destination == "topdeck":
 		phrase = "on top of your deck"
+	if select_card_destination == "deck":
+		phrase = "into your deck"
 	if select_card_require_min == select_card_require_max:
 		var num_remaining = select_card_require_min - len(selected_cards)
 		set_instructions("Select %s more card(s) from your hand to put %s." % [num_remaining, phrase])
