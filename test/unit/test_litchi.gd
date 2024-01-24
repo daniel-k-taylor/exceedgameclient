@@ -224,3 +224,35 @@ func test_litchi_range_with_mantenbo():
 	execute_strike(player1, player2, "standard_normal_assault", "standard_normal_assault", [], [], false, false)
 	validate_positions(player1, 5, player2, 7)
 	validate_life(player1, 30, player2, 26)
+
+func test_litchi_ninegates_powerup():
+	position_players(player1, 3, player2, 7)
+	player1.buddy_location = 6
+	give_gauge(player1, 4)
+	execute_strike(player1, player2, "litchi_ninegatesofheaven", "standard_normal_assault", [], [], false, false)
+	validate_positions(player1, 6, player2, 7)
+	validate_life(player1, 30, player2, 21)
+
+func test_litchi_ninegates_no_powerup():
+	position_players(player1, 3, player2, 7)
+	player1.buddy_location = 5
+	give_gauge(player1, 4)
+	execute_strike(player1, player2, "litchi_ninegatesofheaven", "standard_normal_assault", [], [], false, false)
+	validate_positions(player1, 6, player2, 7)
+	validate_life(player1, 30, player2, 27)
+
+func test_litchi_thirteenorphans_boost():
+	position_players(player1, 5, player2, 7)
+	var ids_in_hand = []
+	assert_eq(player1.hand.size(), 5)
+	for card in player1.hand:
+		ids_in_hand.append(card.id)
+	give_player_specific_card(player1, "litchi_thirteenorphans", TestCardId3)
+	assert_true(game_logic.do_boost(player1, TestCardId3))
+	assert_eq(player1.hand.size(), 5)
+	assert_eq(player1.sealed.size(), 5)
+	for i in range(5):
+		assert_eq(player1.sealed[i].id, ids_in_hand[i])
+	execute_strike(player1, player2, "standard_normal_assault", "standard_normal_assault", [], [], false, false)
+	validate_positions(player1, 6, player2, 7)
+	validate_life(player1, 30, player2, 26)
