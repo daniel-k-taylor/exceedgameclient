@@ -1267,8 +1267,14 @@ func _on_add_to_sealed(event):
 	card.discard_to(pos, CardBase.CardState.CardState_InGauge)
 	reparent_to_zone(card, sealed_card_loc)
 	layout_player_hand(is_player)
-	spawn_damage_popup("+ Sealed", player)
-	return SmallNoticeDelay
+
+	var display_popup = true
+	if 'extra_info' in event:
+		display_popup = event['extra_info']
+	if display_popup:
+		spawn_damage_popup("+ Sealed", player)
+		return SmallNoticeDelay
+	return 0
 
 func _on_add_to_overdrive(event):
 	var player = event['event_player']

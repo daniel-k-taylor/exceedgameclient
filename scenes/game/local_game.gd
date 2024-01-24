@@ -420,6 +420,7 @@ class Player:
 				set_aside_cards.append(card)
 			elif 'start_sealed' in deck_card_def and deck_card_def['start_sealed']:
 				sealed.append(card)
+				parent.event_queue += [parent.create_event(Enums.EventType.EventType_Seal, my_id, card.id, "", false)]
 			else:
 				deck.append(card)
 			deck_list.append(card)
