@@ -27,7 +27,7 @@ const RoomMaxLen = 16
 
 @onready var label_font_normal = 32
 @onready var label_font_small = 18
-@onready var label_length_threshold = 16
+@onready var label_length_threshold = 15
 
 # Start as true to not play sounds right when you get to the main menu.
 @onready var was_match_available : bool = true

@@ -1,16 +1,20 @@
-[gd_resource type="SpriteFrames" load_steps=2 format=3 uid="uid://cvp14mpo6fyeh"]
+[gd_resource type="SpriteFrames" load_steps=3 format=3 uid="uid://cvp14mpo6fyeh"]
 
-[ext_resource type="Texture2D" uid="uid://cngpq78hkn3q" path="res://assets/character_animations/nu13/idle/idle.png" id="1_du64m"]
+[ext_resource type="Texture2D" uid="uid://bi3ycib46ks63" path="res://assets/character_animations/nine/idle/ph000_00.png" id="1_5jyur"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_amo25"]
+atlas = ExtResource("1_5jyur")
+region = Rect2(0, 0, 312, 451)
 
 [resource]
 animations = [{
 "frames": [{
 "duration": 1.0,
-"texture": ExtResource("1_du64m")
+"texture": SubResource("AtlasTexture_amo25")
 }],
 "loop": true,
 "name": &"idle",
 "speed": 5.0
 }]
-metadata/flip = true
-metadata/scaling = 0.4
+metadata/flip = false
+metadata/scaling = 0.7
