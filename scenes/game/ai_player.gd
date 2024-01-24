@@ -455,8 +455,7 @@ func get_ex_option_in_hand(game_logic : LocalGame, me : LocalGame.Player, card_i
 			return card.id
 	return -1
 
-func get_strike_actions(game_logic : LocalGame, me : LocalGame.Player, _opponent : LocalGame.Player,
-		from_gauge : bool = false, disable_wild_swing : bool = false, disable_ex : bool = false):
+func get_strike_actions(game_logic : LocalGame, me : LocalGame.Player, _opponent : LocalGame.Player, from_gauge : bool = false, disable_wild_swing : bool = false, disable_ex : bool = false):
 	var possible_actions = []
 	var possible_actions_cant_pay = []
 	# Always allow wild swing if allowed.
@@ -678,7 +677,7 @@ func pick_strike(game_logic : LocalGame, my_id : Enums.PlayerId, from_gauge : bo
 func pick_strike_response(game_logic : LocalGame, my_id : Enums.PlayerId) -> StrikeAction:
 	var me = game_logic._get_player(my_id)
 	var opponent = game_logic._get_player(game_logic.get_other_player(my_id))
-	var possible_actions = get_strike_actions(game_logic, me, opponent, false, false, false)
+	var possible_actions = get_strike_actions(game_logic, me, opponent)
 	update_ai_state(game_logic, me, opponent)
 	return ai_policy.pick_strike_response(possible_actions, game_state)
 
