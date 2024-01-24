@@ -313,6 +313,8 @@ func get_effect_type_text(effect, card_name_source : String = ""):
 				effect_str += "Add %s to gauge" % card_name_source
 			else:
 				effect_str += "Add card to gauge"
+		"add_hand_to_gauge":
+			effect_str += "Add your hand to your gauge"
 		"add_strike_to_gauge_after_cleanup":
 			effect_str += "Add card to gauge after strike."
 		"add_to_gauge_boost_play_cleanup":

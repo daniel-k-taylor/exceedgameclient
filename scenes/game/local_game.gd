@@ -1058,6 +1058,15 @@ class Player:
 		events += discard(card_ids)
 		return events
 
+	func add_hand_to_gauge():
+		var events = []
+		var card_ids = []
+		for card in hand:
+			card_ids.append(card.id)
+		for card_id in card_ids:
+			events += move_card_from_hand_to_gauge(card_id)
+		return events
+
 	func discard_matching_or_reveal(card_definition_id : String):
 		var events = []
 		for card in hand:
@@ -2318,6 +2327,9 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 				assert(false)
 				printlog("ERROR: Unimplemented path to add_boost_to_gauge_on_move")
 			performing_player.set_add_boost_to_gauge_on_move(card_id)
+		"add_hand_to_gauge":
+			_append_log("%s adds hand to gauge." % [performing_player.name])
+			events += performing_player.add_hand_to_gauge()
 		"add_set_aside_card_to_deck":
 			events += performing_player.add_set_aside_card_to_deck(effect['id'])
 		"add_strike_to_gauge_after_cleanup":
