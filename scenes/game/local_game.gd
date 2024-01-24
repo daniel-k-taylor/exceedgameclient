@@ -3059,6 +3059,12 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 				performing_player.strike_stat_boosts.min_range += effect['amount'] * boosts_in_play
 				performing_player.strike_stat_boosts.max_range += effect['amount2'] * boosts_in_play
 				events += [create_event(Enums.EventType.EventType_Strike_RangeUp, performing_player.my_id, effect['amount'] * boosts_in_play, "", effect['amount2'] * boosts_in_play)]
+		"rangeup_per_sealed_normal":
+			var sealed_normals = performing_player.get_sealed_count_of_type("normal")
+			if sealed_normals > 0:
+				performing_player.strike_stat_boosts.min_range += effect['amount'] * sealed_normals
+				performing_player.strike_stat_boosts.max_range += effect['amount2'] * sealed_normals
+				events += [create_event(Enums.EventType.EventType_Strike_RangeUp, performing_player.my_id, effect['amount'] * sealed_normals, "", effect['amount2'] * sealed_normals)]
 		"reading_normal":
 			change_game_state(Enums.GameState.GameState_PlayerDecision)
 			decision_info.type = Enums.DecisionType.DecisionType_ReadingNormal

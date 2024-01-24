@@ -520,6 +520,8 @@ func get_effect_type_text(effect, card_name_source : String = ""):
 			effect_str += str(effect['amount2']) + " Range"
 		"rangeup_per_boost_in_play":
 			effect_str += "+" + str(effect['amount']) + "-" + str(effect['amount2']) + " Range per boost in play."
+		"rangeup_per_sealed_normal":
+			effect_str += "+" + str(effect['amount']) + "-" + str(effect['amount2']) + " Range per sealed normal."
 		"repeat_effect_optionally":
 			effect_str += get_effect_text(effect['linked_effect'], false, false, false)
 			var repeats = str(effect['amount'])
