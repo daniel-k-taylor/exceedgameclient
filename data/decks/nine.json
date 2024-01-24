@@ -10,8 +10,15 @@
 		"effect_type": "pass"
 	},
 	"overdrive_effect": {
-		"effect_type": "retreat",
-		"amount": 1
+		"effect_type": "choice",
+		"choice": [
+			{
+				"effect_type": "choose_discard",
+				"limitation": "",
+				"destination": "sealed"
+			},
+			{ "effect_type": "pass" }
+		]
 	},
 	"ability_effects": [
 		{
@@ -49,29 +56,15 @@
 	],
 	"exceed_ability_effects": [
 		{
-			"character_effect": true,
-			"timing": "during_strike",
-			"effect_type": "rangeup",
-			"amount": 0,
-			"amount2": 4
+			"timing": "on_seal",
+			"effect_type": "return_sealed_with_same_speed"
 		},
 		{
-			"timing": "hit",
-			"effect_type": "choice",
-			"choice": [
-				{ "effect_type": "advance", "amount": 3 },
-				{ "effect_type": "pass" }
-			]
-		},
-		{
-			"timing": "set_strike",
+			"timing": "cleanup",
 			"effect_type": "force_for_effect",
 			"per_force_effect": null,
 			"overall_effect": {
-				"character_effect": true,
-				"effect_type": "rangeup",
-				"amount": 3,
-				"amount2": 4
+				"effect_type": "seal_attack_on_cleanup"
 			},
 			"force_max": 1
 		}
