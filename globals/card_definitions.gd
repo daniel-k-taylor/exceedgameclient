@@ -520,6 +520,15 @@ func get_effect_type_text(effect, card_name_source : String = ""):
 			effect_str += str(effect['amount2']) + " Range"
 		"rangeup_per_boost_in_play":
 			effect_str += "+" + str(effect['amount']) + "-" + str(effect['amount2']) + " Range per boost in play."
+		"repeat_effect_optionally":
+			effect_str += get_effect_text(effect['linked_effect'], false, false, false)
+			var repeats = str(effect['amount'])
+			if repeats != '0':
+				if repeats == "every_two_sealed_normals":
+					repeats = "once for every 2 sealed normals"
+				else:
+					repeats += " time(s)"
+				effect_str += "; you may repeat this %s." % repeats
 		"retreat":
 			effect_str += "Retreat "
 			if str(effect['amount']) == "strike_x":

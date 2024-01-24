@@ -730,6 +730,9 @@ class Player:
 		var count = 0
 		for card in sealed:
 			match limitation:
+				"normal":
+					if card.definition['type'] == "normal":
+						count += 1
 				"special":
 					if card.definition['type'] == "special":
 						count += 1
@@ -1018,7 +1021,7 @@ class Player:
 
 	func seal_from_discard(card_id : int):
 		var events = []
-		for i in range(len(hand)-1, -1, -1):
+		for i in range(len(discards)-1, -1, -1):
 			var card = discards[i]
 			if card.id == card_id:
 				parent._append_log("%s sealed %s from discards." % [name, parent.card_db.get_card_name(card.id)])
@@ -3086,6 +3089,29 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 			var retreat_amount = abs(performing_start - new_location)
 			local_conditions.fully_retreated = retreat_amount == amount
 			_append_log("%s Retreat %s - Moved from %s to %s." % [performing_player.name, str(amount), str(previous_location), str(new_location)])
+		"repeat_effect_optionally":
+			if active_strike:
+				var amount = effect['amount']
+				if str(amount) == "every_two_sealed_normals":
+					var sealed_normals = performing_player.get_sealed_count_of_type("normal")
+					amount = int(sealed_normals / 2)
+
+				var linked_effect = effect['linked_effect']
+				if amount > 0:
+					var repeat_effect = {
+						"card_id": card_id,
+						"effect_type": "choice",
+						"choice": [
+							{
+								"effect_type": "repeat_effect_optionally",
+								"amount": amount-1,
+								"linked_effect": linked_effect
+							},
+							{ "effect_type": "pass" }
+						]
+					}
+					active_strike.remaining_effect_list.append(repeat_effect)
+				events += handle_strike_effect(card_id, linked_effect, performing_player)
 		"return_all_cards_gauge_to_hand":
 			var card_names = ""
 			for card in performing_player.gauge:
@@ -3104,6 +3130,7 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 				if card.definition['speed'] == sealed_card.definition['speed']:
 					target_card = card
 					break
+			_append_log("%s returning card %s from sealed to hand." % [performing_player.name, target_card.definition["display_name"]])
 			events += performing_player.move_card_from_sealed_to_hand(target_card.id)
 		"return_this_attack_to_hand_after_attack":
 			var card_name = card_db.get_card_name(card_id)
@@ -3580,6 +3607,9 @@ func do_remaining_effects(performing_player : Player, next_state):
 			var effect = active_strike.remaining_effect_list[0]
 			active_strike.remaining_effect_list = []
 			events += do_effect_if_condition_met(performing_player, effect['card_id'], effect, null)
+
+			if len(active_strike.remaining_effect_list) > 0 and game_state == Enums.GameState.GameState_PlayerDecision:
+				break
 		if game_over:
 			return events
 
