@@ -94,12 +94,6 @@ func trigger_game_over(event_player : Enums.PlayerId, reason : Enums.GameOverRea
 	change_game_state(Enums.GameState.GameState_GameOver)
 	return events
 
-func set_wait_for_message():
-	pass
-
-func get_wait_for_message():
-	return false
-
 enum StrikeState {
 	StrikeState_None,
 	StrikeState_Initiator_SetEffects,

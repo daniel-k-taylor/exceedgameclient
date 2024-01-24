@@ -10,7 +10,6 @@ var local_game : LocalGame
 
 var _player_info
 var _opponent_info
-var wait_for_message
 
 func get_latest_events() -> Array:
 	return local_game.get_latest_events()
@@ -43,7 +42,6 @@ func initialize_game(player_info, opponent_info, starting_player : Enums.PlayerI
 
 	_player_info = player_info
 	_opponent_info = opponent_info
-	wait_for_message = false
 	local_game = LocalGame.new()
 	local_game.initialize_game(player_info['deck'], opponent_info['deck'], player_info['name'], opponent_info['name'], starting_player, seed_value)
 	local_game.draw_starting_hands_and_begin()
@@ -54,20 +52,11 @@ func _on_remote_game_message(game_message):
 	var action_function = Callable(self, action_function_name)
 	action_function.call(game_message)
 
-	if action_type != 'emote':
-		wait_for_message = false
-
 func _on_remote_player_quit(_is_disconnect : bool):
 	var reason = Enums.GameOverReason.GameOverReason_Quit
 	if _is_disconnect:
 		reason = Enums.GameOverReason.GameOverReason_Disconnect
 	local_game.do_quit(Enums.PlayerId.PlayerId_Opponent, reason)
-
-func set_wait_for_message():
-	wait_for_message = true
-
-func get_wait_for_message():
-	return wait_for_message
 
 func get_game_state() -> Enums.GameState:
 	return local_game.get_game_state()
