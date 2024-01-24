@@ -244,6 +244,8 @@ func get_condition_text(condition, amount, amount2, detail):
 			text += "If the top card of your deck is a normal, "
 		"is_buddy_special_or_ultra_attack":
 			text += ""
+		"buddy_in_opponent_space":
+			text += "If %s is in opponent's space, " % detail
 		"buddy_in_play":
 			text += "If %s is in play, " % detail
 		"buddy_space_unoccupied":
