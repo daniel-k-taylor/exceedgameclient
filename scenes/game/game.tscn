@@ -22,7 +22,7 @@
 [ext_resource type="PackedScene" uid="uid://dvan4a8ftuplj" path="res://scenes/card/character_card_base.tscn" id="18_imast"]
 [ext_resource type="PackedScene" uid="uid://w87ls4e8oasj" path="res://scenes/game/combat_log.tscn" id="18_k7mnw"]
 [ext_resource type="Texture2D" uid="uid://hj14gadm15wr" path="res://assets/icons/speechbubble.png" id="21_86687"]
-[ext_resource type="PackedScene" uid="uid://b8kmmrd5jmqdd" path="res://scenes/game/modal_dialog.tscn" id="21_qe5we"]
+[ext_resource type="PackedScene" path="res://scenes/game/modal_dialog.tscn" id="21_qe5we"]
 [ext_resource type="PackedScene" uid="uid://belqon3ac2y7a" path="res://scenes/game/emote_display.tscn" id="21_sd8mp"]
 [ext_resource type="PackedScene" uid="uid://i2fmgsopd4xp" path="res://scenes/game/emote_dialog.tscn" id="23_rqqoa"]
 
@@ -210,12 +210,11 @@ text = "AI Move"
 
 [node name="RevealedCardsButton" type="Button" parent="."]
 offset_left = 200.0
-offset_top = 70.0
-offset_right = 273.0
-offset_bottom = 141.0
-theme_override_font_sizes/font_size = 24
-text = "Revealed
-Cards"
+offset_top = 155.0
+offset_right = 308.0
+offset_bottom = 203.0
+theme_override_font_sizes/font_size = 14
+text = "Revealed Cards"
 
 [node name="OpponentLife" parent="." instance=ExtResource("8_mqi3u")]
 offset_left = 1053.0
@@ -457,24 +456,30 @@ texture_hover = ExtResource("4_5y76h")
 
 [node name="PlayerGauge" parent="." instance=ExtResource("6_gtjck")]
 position = Vector2(200, 380)
+scale = Vector2(0.8, 0.8)
 
 [node name="OpponentGauge" parent="." instance=ExtResource("6_gtjck")]
 position = Vector2(200, 5)
+scale = Vector2(0.8, 0.8)
 
 [node name="PlayerSealed" parent="." instance=ExtResource("6_gtjck")]
-position = Vector2(200, 550)
+position = Vector2(200, 480)
+scale = Vector2(0.8, 0.8)
 label_text = "SEALED"
 
 [node name="OpponentSealed" parent="." instance=ExtResource("6_gtjck")]
-position = Vector2(200, 150)
+position = Vector2(200, 105)
+scale = Vector2(0.8, 0.8)
 label_text = "SEALED"
 
 [node name="PlayerOverdrive" parent="." instance=ExtResource("6_gtjck")]
-position = Vector2(200, 550)
+position = Vector2(200, 430)
+scale = Vector2(0.8, 0.8)
 label_text = "OVERDRIVE"
 
 [node name="OpponentOverdrive" parent="." instance=ExtResource("6_gtjck")]
-position = Vector2(200, 150)
+position = Vector2(200, 55)
+scale = Vector2(0.8, 0.8)
 label_text = "OVERDRIVE"
 
 [node name="PlayerBoostZone" parent="." instance=ExtResource("7_gn0of")]
@@ -524,12 +529,11 @@ Popout"
 
 [node name="CombatLogButton" type="Button" parent="."]
 offset_left = 200.0
-offset_top = 452.0
-offset_right = 330.0
-offset_bottom = 544.0
-theme_override_font_sizes/font_size = 32
-text = "Combat
-Log"
+offset_top = 530.0
+offset_right = 308.0
+offset_bottom = 578.0
+theme_override_font_sizes/font_size = 17
+text = "Combat Log"
 
 [node name="AllCards" type="Node2D" parent="."]
 

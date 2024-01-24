@@ -409,6 +409,7 @@ class Player:
 		deck_list = []
 		strike_stat_boosts = StrikeStatBoosts.new()
 		set_aside_cards = []
+		sealed = []
 		for deck_card_def in deck_def['cards']:
 			var card_def = CardDefinitions.get_card(deck_card_def['definition_id'])
 			var card = GameCard.new(card_start_id, card_def, deck_card_def['image'], id)
@@ -417,6 +418,8 @@ class Player:
 				card.set_aside = true
 				card.hide_from_reference = 'hide_from_reference' in deck_card_def and deck_card_def['hide_from_reference']
 				set_aside_cards.append(card)
+			elif 'start_sealed' in deck_card_def and deck_card_def['start_sealed']:
+				sealed.append(card)
 			else:
 				deck.append(card)
 			deck_list.append(card)
@@ -424,7 +427,6 @@ class Player:
 		gauge = []
 		continuous_boosts = []
 		discards = []
-		sealed = []
 		overdrive = []
 		has_overdrive = 'exceed_to_overdrive' in deck_def and deck_def['exceed_to_overdrive']
 		reshuffle_remaining = MaxReshuffle

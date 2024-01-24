@@ -3,6 +3,7 @@
 	"season": 5,
 	"display_name": "Nine the Phantom",
 	"cardback": "cardback_nine.jpg",
+	"has_sealed_area": true,
 	"exceed_cost": 4,
 	"exceed_to_overdrive": true,
 	"on_exceed": {
@@ -56,6 +57,7 @@
 			"image": "nine_colorlessvoid.tres"
 		},
 		{
+			"start_sealed": true,
 			"definition_id": "nine_azuriteinferno",
 			"image": "nine_azuriteinferno.tres"
 		},
@@ -64,6 +66,7 @@
 			"image": "nine_azuriteinferno.tres"
 		},
 		{
+			"start_sealed": true,
 			"definition_id": "nine_flamepunisher",
 			"image": "nine_flamepunisher.tres"
 		},
@@ -72,6 +75,7 @@
 			"image": "nine_flamepunisher.tres"
 		},
 		{
+			"start_sealed": true,
 			"definition_id": "nine_lapislazuli",
 			"image": "nine_lapislazuli.tres"
 		},
@@ -80,6 +84,7 @@
 			"image": "nine_lapislazuli.tres"
 		},
 		{
+			"start_sealed": true,
 			"definition_id": "nine_emerald",
 			"image": "nine_emerald.tres"
 		},
@@ -88,6 +93,7 @@
 			"image": "nine_emerald.tres"
 		},
 		{
+			"start_sealed": true,
 			"definition_id": "nine_morganite",
 			"image": "nine_morganite.tres"
 		},
@@ -96,6 +102,7 @@
 			"image": "nine_morganite.tres"
 		},
 		{
+			"start_sealed": true,
 			"definition_id": "nine_coral",
 			"image": "nine_coral.tres"
 		},
@@ -104,6 +111,7 @@
 			"image": "nine_coral.tres"
 		},
 		{
+			"start_sealed": true,
 			"definition_id": "nine_kunzite",
 			"image": "nine_kunzite.tres"
 		},
@@ -112,6 +120,7 @@
 			"image": "nine_kunzite.tres"
 		},
 		{
+			"start_sealed": true,
 			"definition_id": "nine_amethyst",
 			"image": "nine_amethyst.tres"
 		},
@@ -120,6 +129,7 @@
 			"image": "nine_amethyst.tres"
 		},
 		{
+			"start_sealed": true,
 			"definition_id": "nine_navypressure",
 			"image": "nine_navypressure.tres"
 		},
