@@ -18,19 +18,33 @@
 			"timing": "on_reshuffle",
 			"condition": "manual_reshuffle",
 			"effect_type": "add_set_aside_card_to_deck",
-			"id": "nu13_swordofdestruction"
+			"id": "nine_colorlessvoid"
 		},
 		{
-			"timing": "set_strike",
-			"effect_type": "force_for_effect",
-			"per_force_effect": null,
-			"overall_effect": {
-				"character_effect": true,
-				"effect_type": "rangeup",
-				"amount": 3,
-				"amount2": 4
-			},
-			"force_max": 1
+			"timing": "on_seal",
+			"effect_type": "return_sealed_with_same_speed"
+		},
+		{
+			"timing": "hit",
+			"condition": "min_cards_in_hand",
+			"condition_amount": 1,
+			"effect_type": "pass",
+			"silent_effect": true,
+			"and": {
+				"condition": "no_sealed_copy_of_attack",
+				"effect_type": "choice",
+				"choice": [
+					{
+						"effect_type": "seal_attack_on_cleanup",
+						"and": {
+							"effect_type": "gauge_from_hand",
+							"min_amount": 1,
+							"max_amount": 1
+						}
+					},
+					{ "effect_type": "pass" }
+				]
+			}
 		}
 	],
 	"exceed_ability_effects": [
@@ -48,6 +62,18 @@
 				{ "effect_type": "advance", "amount": 3 },
 				{ "effect_type": "pass" }
 			]
+		},
+		{
+			"timing": "set_strike",
+			"effect_type": "force_for_effect",
+			"per_force_effect": null,
+			"overall_effect": {
+				"character_effect": true,
+				"effect_type": "rangeup",
+				"amount": 3,
+				"amount2": 4
+			},
+			"force_max": 1
 		}
 	],
 	"cards": [

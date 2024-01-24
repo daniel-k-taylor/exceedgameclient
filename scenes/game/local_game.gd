@@ -1019,10 +1019,9 @@ class Player:
 
 	func seal_hand():
 		var events = []
-		var card_ids = []
 		for card in hand:
-			card_ids.append(card.id)
-		events += seal_from_hand(card_ids)
+			var seal_effect = { "effect_type": "seal_card_INTERNAL", "seal_card_id": card.id, "from_hand": true }
+			events += parent.handle_strike_effect(-1, seal_effect, self)
 		return events
 
 	func discard_hand():
@@ -2237,6 +2236,12 @@ func is_effect_condition_met(performing_player : Player, effect, local_condition
 			return performing_player.strike_stat_boosts.critical
 		elif condition == "choose_cards_from_top_deck_action":
 			return decision_info.action == effect["condition_details"]
+		elif condition == "no_sealed_copy_of_attack":
+			var card_id = active_strike.get_player_card(performing_player).definition["id"]
+			for sealed_card in performing_player.sealed:
+				if sealed_card.definition["id"] == card_id:
+					return false
+			return true
 		else:
 			assert(false, "Unimplemented condition")
 		# Unmet condition
@@ -3080,6 +3085,15 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 			events += performing_player.return_all_cards_gauge_to_hand()
 		"return_attack_to_hand":
 			performing_player.strike_stat_boosts.return_attack_to_hand = true
+		"return_sealed_with_same_speed":
+			var sealed_card_id = decision_info.amount
+			var sealed_card = card_db.get_card(sealed_card_id)
+			var target_card = null
+			for card in performing_player.sealed:
+				if card.definition['speed'] == sealed_card.definition['speed']:
+					target_card = card
+					break
+			events += performing_player.move_card_from_sealed_to_hand(target_card.id)
 		"return_this_attack_to_hand_after_attack":
 			var card_name = card_db.get_card_name(card_id)
 			_append_log("%s - %s returned to hand." % [performing_player.name, card_name])
@@ -3102,6 +3116,28 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 		"use_saved_power_as_printed_power":
 			performing_player.strike_stat_boosts.overwrite_printed_power = true
 			performing_player.strike_stat_boosts.overwritten_printed_power = performing_player.saved_power
+		"seal_attack_on_cleanup":
+			performing_player.strike_stat_boosts.seal_attack_on_cleanup = true
+		"seal_card_INTERNAL":
+			decision_info.amount = effect['seal_card_id']
+			var effects = performing_player.get_character_effects_at_timing("on_seal")
+			for sub_effect in effects:
+				events += do_effect_if_condition_met(performing_player, -1, sub_effect, null)
+			if game_state != Enums.GameState.GameState_PlayerDecision:
+				var seal_effect = effect.duplicate()
+				seal_effect['effect_type'] = "seal_card_complete_INTERNAL"
+				events += handle_strike_effect(card_id, seal_effect, performing_player)
+				# and/bonus_effect should be handled by internal version
+				ignore_extra_effects = true
+			else:
+				assert(false, "Decision points in seal effects not supported")
+		"seal_card_complete_INTERNAL":
+			var card = card_db.get_card(effect['seal_card_id'])
+			_append_log("%s sealing card %s." % [performing_player.name, card.definition["display_name"]])
+			if effect['from_hand']:
+				events += performing_player.seal_from_hand([card.id])
+			else:
+				events += performing_player.add_to_sealed(card)
 		"seal_this":
 			if active_boost:
 				# Part of a boost.
@@ -3165,7 +3201,9 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 				events += performing_player.discard(card_ids)
 			elif effect['destination'] == "sealed":
 				_append_log("%s sealing chosen %s card(s)." % [performing_player.name, str(len(card_names))])
-				events += performing_player.seal_from_hand(card_ids)
+				for seal_card_id in card_ids:
+					var seal_effect = { "effect_type": "seal_card_INTERNAL", "seal_card_id": seal_card_id, "from_hand": true }
+					events += handle_strike_effect(card_id, seal_effect, performing_player)
 			elif effect['destination'] == "reveal":
 				_append_log("%s revealing chosen card(s): %s." % [performing_player.name, card_names])
 				for revealed_card_id in card_ids:
@@ -4046,7 +4084,8 @@ func handle_strike_attack_cleanup(performing_player : Player, card):
 	if performing_player.is_set_aside_card(card.id):
 		events += [create_event(Enums.EventType.EventType_SetCardAside, performing_player.my_id, card.id)]
 	elif performing_player.strike_stat_boosts.seal_attack_on_cleanup:
-		events += performing_player.add_to_sealed(card)
+		var seal_effect = { "effect_type": "seal_card_INTERNAL", "seal_card_id": card.id, "from_hand": false }
+		events += handle_strike_effect(-1, seal_effect, performing_player)
 	elif performing_player.strike_stat_boosts.return_attack_to_hand:
 		events += performing_player.add_to_hand(card)
 	elif performing_player.strike_stat_boosts.move_strike_to_opponent_boosts:
@@ -4150,7 +4189,8 @@ func boost_finish_resolving_card(performing_player : Player):
 			performing_player.sustained_boosts.append(active_boost.card.id)
 	else:
 		if active_boost.seal_on_cleanup:
-			events += performing_player.add_to_sealed(active_boost.card)
+			var seal_effect = { "effect_type": "seal_card_INTERNAL", "seal_card_id": active_boost.card.id, "from_hand": false }
+			events += handle_strike_effect(-1, seal_effect, performing_player)
 		elif active_boost.card.id in active_boost.cleanup_to_gauge_card_ids:
 			events += performing_player.add_to_gauge(active_boost.card)
 		elif active_boost.card.id in active_boost.cleanup_to_hand_card_ids:

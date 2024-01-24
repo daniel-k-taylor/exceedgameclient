@@ -272,6 +272,8 @@ func get_condition_text(condition, amount, amount2, detail):
 			text += "If you were hit, "
 		"is_critical":
 			text += "Crit: "
+		"no_sealed_copy_of_attack":
+			text += "If there is no sealed copy of your attack, "
 		_:
 			text += "MISSING CONDITION"
 	return text
@@ -571,6 +573,8 @@ func get_effect_type_text(effect, card_name_source : String = ""):
 					effect_str += "force spent before strike"
 				_:
 					effect_str += "(UNKNOWN)"
+		"seal_attack_on_cleanup":
+			effect_str += "Seal your attack on cleanup"
 		"seal_this":
 			if card_name_source:
 				effect_str += "Seal %s" % card_name_source
@@ -650,29 +654,35 @@ func get_effect_text(effect, short = false, skip_timing = false, skip_condition 
 	if 'timing' in effect and not skip_timing:
 		effect_str += get_timing_text(effect['timing'])
 
-	if 'condition' in effect and not skip_condition:
-		var amount = 0
-		var amount2 = 0
-		var detail = ""
-		if 'condition_amount' in effect:
-			amount = effect['condition_amount']
-		if 'condition_amount_min' in effect:
-			amount = effect['condition_amount_min']
-		if 'condition_amount_max' in effect:
-			amount2 = effect['condition_amount_max']
-		if 'condition_amount2' in effect:
-			amount2 = effect['condition_amount2']
-		if 'condition_detail' in effect:
-			detail = effect['condition_detail']
-		effect_str += get_condition_text(effect['condition'], amount, amount2, detail)
+	var silent_effect = false
+	if 'silent_effect' in effect and effect['silent_effect']:
+		silent_effect = true
+	if not silent_effect:
+		if 'condition' in effect and not skip_condition:
+			var amount = 0
+			var amount2 = 0
+			var detail = ""
+			if 'condition_amount' in effect:
+				amount = effect['condition_amount']
+			if 'condition_amount_min' in effect:
+				amount = effect['condition_amount_min']
+			if 'condition_amount_max' in effect:
+				amount2 = effect['condition_amount_max']
+			if 'condition_amount2' in effect:
+				amount2 = effect['condition_amount2']
+			if 'condition_detail' in effect:
+				detail = effect['condition_detail']
+			effect_str += get_condition_text(effect['condition'], amount, amount2, detail)
 
-	effect_str += get_effect_type_text(effect, card_name_source)
+		effect_str += get_effect_type_text(effect, card_name_source)
 
 	if not short and 'bonus_effect' in effect:
 		effect_str += "; " + get_effect_text(effect['bonus_effect'], skip_timing, false, card_name_source)
 	if 'and' in effect:
 		if not 'suppress_and_description' in effect or not effect['suppress_and_description']:
-			effect_str += ", " + get_effect_text(effect['and'], short, skip_timing, false, card_name_source)
+			if effect_str != "":
+				effect_str += ", "
+			effect_str += get_effect_text(effect['and'], short, skip_timing, false, card_name_source)
 	if 'negative_condition_effect' in effect:
 		effect_str += ", otherwise " + get_effect_text(effect['negative_condition_effect'], short, skip_timing, false, card_name_source)
 	return effect_str
