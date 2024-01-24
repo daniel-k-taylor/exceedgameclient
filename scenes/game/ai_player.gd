@@ -456,7 +456,7 @@ func get_ex_option_in_hand(game_logic : LocalGame, me : LocalGame.Player, card_i
 	return -1
 
 func get_strike_actions(game_logic : LocalGame, me : LocalGame.Player, _opponent : LocalGame.Player,
-		from_gauge : bool = false, disable_wild_swing : bool = false, disable_ex : bool = false, reading_card_id = null):
+		from_gauge : bool = false, disable_wild_swing : bool = false, disable_ex : bool = false):
 	var possible_actions = []
 	var possible_actions_cant_pay = []
 	# Always allow wild swing if allowed.
@@ -478,9 +478,6 @@ func get_strike_actions(game_logic : LocalGame, me : LocalGame.Player, _opponent
 			possible_actions.append(StrikeAction.new(card.id, -1, false))
 	else:
 		for card in me.hand:
-			if reading_card_id != null and card.id != reading_card_id:
-				continue
-
 			if card.definition['gauge_cost'] > me.gauge.size():
 				# Skip cards we can't pay for.
 				# But remember them in case we have 0 options and must strike with something?
@@ -678,13 +675,10 @@ func pick_strike(game_logic : LocalGame, my_id : Enums.PlayerId, from_gauge : bo
 	update_ai_state(game_logic, me, opponent)
 	return ai_policy.pick_strike(possible_actions, game_state)
 
-func pick_strike_response(game_logic : LocalGame, my_id : Enums.PlayerId, reading_card_id = null) -> StrikeAction:
+func pick_strike_response(game_logic : LocalGame, my_id : Enums.PlayerId) -> StrikeAction:
 	var me = game_logic._get_player(my_id)
 	var opponent = game_logic._get_player(game_logic.get_other_player(my_id))
-	var disable_wild_swing = false
-	if reading_card_id != null:
-		disable_wild_swing = true
-	var possible_actions = get_strike_actions(game_logic, me, opponent, false, disable_wild_swing, false, reading_card_id)
+	var possible_actions = get_strike_actions(game_logic, me, opponent, false, false, false)
 	update_ai_state(game_logic, me, opponent)
 	return ai_policy.pick_strike_response(possible_actions, game_state)
 

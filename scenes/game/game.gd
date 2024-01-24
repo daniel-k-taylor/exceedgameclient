@@ -1919,34 +1919,6 @@ func _on_strike_do_response_now(event):
 	else:
 		ai_strike_response()
 
-func _on_strike_do_reading_response_now(event):
-	var player = event['event_player']
-	var card_id = event['number']
-
-	if player == Enums.PlayerId.PlayerId_Player:
-		var card_db = game_wrapper.get_card_database()
-		var reading_card_id = card_db.get_card_id(card_id)
-		var card : GameCard = card_db.get_card(card_id)
-		var card_name = card.definition['display_name']
-		var message = "You must strike with %s." % card_name
-
-		var cards_in_hand = game_wrapper.get_card_copies_in_hand(Enums.PlayerId.PlayerId_Player, card_id)
-		var can_ex = len(cards_in_hand) >= 2
-
-		var single_card_id = cards_in_hand[0]
-		var ex_card_id = -1
-		if can_ex:
-			ex_card_id = cards_in_hand[1]
-
-		var choices = [
-			{ "_choice_text": "Strike", "_choice_func": func(): _on_reading_choice_pressed(card_id, -1) },
-			{ "_choice_text": "EX Strike", "_choice_func": func(): _on_reading_choice_pressed(card_id, ex_card_id), "_choice_disabled": not can_ex}
-		]
-		enable_instructions_ui(message, false, false, false, false, choices)
-		change_ui_state(UIState.UIState_MakeChoice, UISubState.UISubState_None)
-	else:
-		ai_strike_response_reading(card_id)
-
 func _on_strike_opponent_sets_first_initiator_set(event):
 	var player = event['event_player']
 	if player == Enums.PlayerId.PlayerId_Player:
@@ -2004,6 +1976,8 @@ func _on_effect_choice(event):
 			instruction_text = "Select which effect to resolve first:"
 		if event['reason'] == "Duplicate":
 			instruction_text = "Select which effect to copy:"
+		if event['reason'] == "Reading":
+			instruction_text = "You must strike with %s." % event['extra_info']
 		begin_effect_choice(game_wrapper.get_decision_info().choice, instruction_text)
 	else:
 		ai_effect_choice(event)
@@ -2255,8 +2229,6 @@ func _handle_events(events):
 				delay = _stat_notice_event(event)
 			Enums.EventType.EventType_Strike_DoResponseNow:
 				_on_strike_do_response_now(event)
-			Enums.EventType.EventType_Strike_DoReadingResponseNow:
-				_on_strike_do_reading_response_now(event)
 			Enums.EventType.EventType_Strike_EffectChoice:
 				_on_effect_choice(event)
 			Enums.EventType.EventType_Strike_ExUp:
@@ -2840,13 +2812,6 @@ func _on_arena_location_pressed(location):
 					break
 			_on_choice_pressed(choice_index)
 
-func _on_reading_choice_pressed(card_id, ex_card_id):
-	current_effect_choices = []
-	var success = game_wrapper.submit_strike(Enums.PlayerId.PlayerId_Player, card_id, false, ex_card_id)
-	if success:
-		change_ui_state(UIState.UIState_WaitForGameServer)
-	_update_buttons()
-
 #
 # AI Functions
 #
@@ -3026,16 +2991,6 @@ func ai_strike_response():
 	change_ui_state(UIState.UIState_WaitForGameServer)
 	if not game_wrapper.is_ai_game(): return
 	var response_action = ai_player.pick_strike_response(game_wrapper.current_game, Enums.PlayerId.PlayerId_Opponent)
-	var success = game_wrapper.submit_strike(Enums.PlayerId.PlayerId_Opponent, response_action.card_id, response_action.wild_swing, response_action.ex_card_id)
-	if success:
-		change_ui_state(UIState.UIState_WaitForGameServer)
-	else:
-		print("FAILED AI STRIKE RESPONSE")
-
-func ai_strike_response_reading(card_id):
-	change_ui_state(UIState.UIState_WaitForGameServer)
-	if not game_wrapper.is_ai_game(): return
-	var response_action = ai_player.pick_strike_response(game_wrapper.current_game, Enums.PlayerId.PlayerId_Opponent, card_id)
 	var success = game_wrapper.submit_strike(Enums.PlayerId.PlayerId_Opponent, response_action.card_id, response_action.wild_swing, response_action.ex_card_id)
 	if success:
 		change_ui_state(UIState.UIState_WaitForGameServer)
