@@ -480,13 +480,6 @@ func _process(delta):
 		elif ui_state == UIState.UIState_WaitingOnOpponent:
 			# Advance the AI game automatically.
 			_on_ai_move_button_pressed()
-		elif ui_state == UIState.UIState_WaitForGameServer:
-			if game_wrapper.get_game_state() == Enums.GameState.GameState_Strike_Opponent_Response:
-				if game_wrapper.get_active_player() == Enums.PlayerId.PlayerId_Opponent:
-					# Our turn to respond.
-					begin_strike_choosing(true, false)
-				else:
-					ai_strike_response()
 
 	# Update opponent thinking spinner
 	if ui_state == UIState.UIState_WaitingOnOpponent or ui_state == UIState.UIState_WaitForGameServer:
@@ -1696,7 +1689,6 @@ func begin_strike_choosing(strike_response : bool, cancel_allowed : bool,
 			new_sub_state = UISubState.UISubState_SelectCards_StrikeCard
 	change_ui_state(UIState.UIState_SelectCards, new_sub_state)
 
-
 func begin_gauge_strike_choosing(strike_response : bool, cancel_allowed : bool):
 	# Show the gauge window.
 	_on_player_gauge_gauge_clicked()
@@ -1977,6 +1969,8 @@ func _on_effect_choice(event):
 			instruction_text = "Select which effect to resolve first:"
 		if event['reason'] == "Duplicate":
 			instruction_text = "Select which effect to copy:"
+		if event['reason'] == "Reading":
+			instruction_text = "You must strike with %s." % event['extra_info']
 		begin_effect_choice(game_wrapper.get_decision_info().choice, instruction_text)
 	else:
 		ai_effect_choice(event)
@@ -2421,22 +2415,34 @@ func _update_buttons():
 
 	for i in range(current_effect_choices.size()):
 		var choice = current_effect_choices[i]
-		var card_name = ""
-		if 'card_name' in choice:
-			card_name = choice['card_name']
-		var card_text = CardDefinitions.get_effect_text(choice, false, true, false, card_name)
-		if len(card_text) > ChoiceTextLengthSoftCap:
-			var break_idx = ChoiceTextLengthSoftCap-1
-			while break_idx < len(card_text)-1 and card_text[break_idx] != " ":
-				break_idx += 1
-				if break_idx >= ChoiceTextLengthHardCap:
-					break
-			if break_idx < len(card_text) - 1:
-				if card_text[break_idx] == " ":
-					card_text = card_text.substr(0, break_idx) + "\n" + card_text.substr(break_idx+1)
-				else:
-					card_text = card_text.substr(0, break_idx) + "-\n" + card_text.substr(break_idx)
-		button_choices.append({ "text": card_text, "action": func(): _on_choice_pressed(i) })
+		var card_text = ""
+		if "_choice_text" in choice:
+			card_text = choice["_choice_text"]
+		else:
+			var card_name = ""
+			if 'card_name' in choice:
+				card_name = choice['card_name']
+			card_text = CardDefinitions.get_effect_text(choice, false, true, false, card_name)
+			if len(card_text) > ChoiceTextLengthSoftCap:
+				var break_idx = ChoiceTextLengthSoftCap-1
+				while break_idx < len(card_text)-1 and card_text[break_idx] != " ":
+					break_idx += 1
+					if break_idx >= ChoiceTextLengthHardCap:
+						break
+				if break_idx < len(card_text) - 1:
+					if card_text[break_idx] == " ":
+						card_text = card_text.substr(0, break_idx) + "\n" + card_text.substr(break_idx+1)
+					else:
+						card_text = card_text.substr(0, break_idx) + "-\n" + card_text.substr(break_idx)
+
+		var disabled = false
+		if "_choice_disabled" in choice and choice["_choice_disabled"]:
+			disabled = true
+
+		if "_choice_func" in choice:
+			button_choices.append({ "text": card_text, "action": choice["_choice_func"], "disabled": disabled })
+		else:
+			button_choices.append({ "text": card_text, "action": func(): _on_choice_pressed(i), "disabled": disabled })
 
 	# Set the Action Menu state
 	var action_menu_hidden = false

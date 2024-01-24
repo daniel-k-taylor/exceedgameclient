@@ -1053,11 +1053,12 @@ class Player:
 	func next_strike_with_or_reveal(card_definition_id : String) -> void:
 		reading_card_id = card_definition_id
 
-	func get_reading_card_in_hand() -> GameCard:
+	func get_reading_card_in_hand() -> Array:
+		var cards = []
 		for card in hand:
 			if card.definition['id'] == reading_card_id:
-				return card
-		return null
+				cards.append(card)
+		return cards
 
 	func reveal_hand():
 		var events = []
@@ -1934,13 +1935,24 @@ func strike_setup_defender_response(events):
 	elif active_strike.defender.reading_card_id:
 		# The Reading effect goes here and will either force the player to strike
 		# with the named card or to reveal their hand.
-		var reading_card = active_strike.defender.get_reading_card_in_hand()
-		if reading_card:
-			# TODO: Potentially they can EX here.
-			# Queue any events so far, then empty this tally and call do_strike.
-			event_queue += events
-			events = []
-			do_strike(active_strike.defender, reading_card.id, false, -1, active_strike.opponent_sets_first)
+		var reading_cards = active_strike.defender.get_reading_card_in_hand()
+		if len(reading_cards) > 0:
+			var reading_card = reading_cards[0]
+			var ex_card_id = -1
+			if len(reading_cards) >= 2:
+				ex_card_id = reading_cards[1].id
+
+			# Send choice to player
+			change_game_state(Enums.GameState.GameState_PlayerDecision)
+			var defender_id = active_strike.defender.my_id
+
+			decision_info.type = Enums.DecisionType.DecisionType_ChooseSimultaneousEffect
+			decision_info.player = defender_id
+			decision_info.choice = [
+				{ "effect_type": "strike_response_reading", "card_id": reading_card.id },
+				{ "effect_type": "strike_response_reading", "card_id": reading_card.id, "ex_card_id": ex_card_id, "_choice_disabled": ex_card_id == -1 },
+			]
+			events += [create_event(Enums.EventType.EventType_Strike_EffectChoice, defender_id, 0, "Reading", reading_card.definition['display_name'])]
 			ask_for_response = false
 		else:
 			events += active_strike.defender.reveal_hand()
@@ -3236,6 +3248,15 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 			decision_info.type = Enums.DecisionType.DecisionType_StrikeNow
 			decision_info.player = performing_player.my_id
 			performing_player.next_strike_random_gauge = true
+		"strike_response_reading":
+			var card = effect['card_id']
+			var ex_card = -1
+			if 'ex_card_id' in effect:
+				ex_card = effect['ex_card_id']
+			event_queue += events
+			events = []
+			change_game_state(Enums.GameState.GameState_Strike_Opponent_Response)
+			do_strike(performing_player, card, false, ex_card)
 		"strike_with_deus_ex_machina":
 			change_game_state(Enums.GameState.GameState_AutoStrike)
 			decision_info.effect_type ="happychaos_deusexmachina"

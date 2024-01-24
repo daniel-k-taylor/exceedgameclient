@@ -605,6 +605,11 @@ func get_effect_type_text(effect, card_name_source : String = ""):
 			effect_str += "Strike face-up"
 		"strike_random_from_gauge":
 			effect_str += "Strike with random card from gauge (opponent sets first)"
+		"strike_response_reading":
+			if 'ex_card_id' in effect:
+				effect_str += "EX Strike"
+			else:
+				effect_str += "Strike"
 		"stun_immunity":
 			effect_str += "Stun Immunity"
 		"sustain_this":
