@@ -212,6 +212,8 @@ func get_condition_text(condition, amount, amount2, detail):
 			text += "If not canceled this turn, "
 		"not_full_push":
 			text += "If not full push, "
+		"pushed_min_spaces":
+			text += "If pushed %s or more spaces, " % amount
 		"not_full_close":
 			text += "If not full close, "
 		"not_initiated_strike":

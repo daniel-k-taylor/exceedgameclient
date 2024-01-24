@@ -2155,6 +2155,8 @@ func is_effect_condition_met(performing_player : Player, effect, local_condition
 			return not local_conditions.advanced_through_buddy
 		elif condition == "not_full_push":
 			return not local_conditions.fully_pushed
+		elif condition == "pushed_min_spaces":
+			return local_conditions.push_amount >= effect['condition_amount']
 		elif condition == "pulled_past":
 			return local_conditions.pulled_past
 		elif condition == "exceeded":
@@ -2278,6 +2280,7 @@ class LocalStrikeConditions:
 	var fully_closed : bool = false
 	var fully_retreated : bool = false
 	var fully_pushed : bool = false
+	var push_amount : int = 0
 	var advanced_through : bool = false
 	var advanced_through_buddy : bool = false
 	var pulled_past : bool = false
@@ -3023,6 +3026,7 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 			events += performing_player.push(effect['amount'])
 			var new_location = opposing_player.arena_location
 			var push_amount = abs(other_start - new_location)
+			local_conditions.push_amount = push_amount
 			local_conditions.fully_pushed = push_amount == effect['amount']
 			_append_log("%s Push %s - %s moved from %s to %s." % [performing_player.name, str(effect['amount']), _get_player(get_other_player(performing_player.my_id)).name, str(previous_location), str(new_location)])
 		"push_from_source":
@@ -3067,6 +3071,7 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 						events += performing_player.push(effect['amount'])
 				var new_location = opposing_player.arena_location
 				var push_amount = abs(other_start - new_location)
+				local_conditions.push_amount = push_amount
 				local_conditions.fully_pushed = push_amount == effect['amount']
 				_append_log("%s Push from attack source %s - %s moved from %s to %s." % [performing_player.name, str(effect['amount']), _get_player(get_other_player(performing_player.my_id)).name, str(previous_location), str(new_location)])
 		"rangeup":
@@ -3479,6 +3484,7 @@ func get_card_stat(check_player : Player, card : GameCard, stat : String) -> int
 		return check_player.strike_stat_boosts.overwritten_printed_power
 
 	var value = card.definition[stat]
+	var other_player = _get_player(get_other_player(check_player.my_id))
 	if str(value) == "X":
 		if active_strike:
 			return check_player.strike_stat_boosts.strike_x
@@ -3488,6 +3494,8 @@ func get_card_stat(check_player : Player, card : GameCard, stat : String) -> int
 		value = check_player.hand.size()
 	elif str(value) == "TOTAL_POWER":
 		value = get_total_power(check_player)
+	elif str(value) == "RANGE_TO_OPPONENT":
+		value = abs(check_player.arena_location - other_player.arena_location)
 	return value
 
 func get_striking_card_ids_for_player(check_player : Player) -> Array:
