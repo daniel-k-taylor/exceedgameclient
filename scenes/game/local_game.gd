@@ -3923,12 +3923,23 @@ func apply_damage(offense_player : Player, defense_player : Player, offense_card
 		events += trigger_game_over(defense_player.my_id, Enums.GameOverReason.GameOverReason_Life)
 	return events
 
-func ask_for_cost(performing_player, card, next_state):
-	var events = []
+func get_gauge_cost(performing_player, card):
 	var gauge_cost = card.definition['gauge_cost']
 	var is_ex = active_strike.will_be_ex(performing_player)
 	if 'gauge_cost_ex' in card.definition and is_ex:
 		gauge_cost = card.definition['gauge_cost_ex']
+
+	if 'gauge_cost_reduction' in card.definition:
+		match card.definition['gauge_cost_reduction']:
+			"per_sealed_normal":
+				var sealed_normals = performing_player.get_sealed_count_of_type("normal")
+				gauge_cost = max(0, gauge_cost - sealed_normals)
+
+	return gauge_cost
+
+func ask_for_cost(performing_player, card, next_state):
+	var events = []
+	var gauge_cost = get_gauge_cost(performing_player, card)
 	var force_cost = card.definition['force_cost']
 	var is_special = card.definition['type'] == "special"
 	var gauge_discard_reminder = false
@@ -4761,10 +4772,7 @@ func do_pay_strike_cost(performing_player : Player, card_ids : Array, wild_strik
 	if decision_info.type == Enums.DecisionType.DecisionType_PayStrikeCost_Required and wild_strike:
 		# Only allowed if you can't pay the cost.
 		var force_cost = card.definition['force_cost']
-		var gauge_cost = card.definition['gauge_cost']
-		var is_ex = active_strike.will_be_ex(performing_player)
-		if 'gauge_cost_ex' in card.definition and is_ex:
-			gauge_cost = card.definition['gauge_cost_ex']
+		var gauge_cost = get_gauge_cost(performing_player, card)
 		if performing_player.can_pay_cost(force_cost, gauge_cost):
 			printlog("ERROR: Tried to wild strike when not allowed.")
 			return false
@@ -4782,10 +4790,7 @@ func do_pay_strike_cost(performing_player : Player, card_ids : Array, wild_strik
 		events += performing_player.wild_strike(true)
 	else:
 		var force_cost = card.definition['force_cost']
-		var gauge_cost = card.definition['gauge_cost']
-		var is_ex = active_strike.will_be_ex(performing_player)
-		if 'gauge_cost_ex' in card.definition and is_ex:
-			gauge_cost = card.definition['gauge_cost_ex']
+		var gauge_cost = get_gauge_cost(performing_player, card)
 		if performing_player.can_pay_cost_with(card_ids, force_cost, gauge_cost):
 			var card_names = card_db.get_card_name(card_ids[0])
 			for i in range(1, card_ids.size()):
