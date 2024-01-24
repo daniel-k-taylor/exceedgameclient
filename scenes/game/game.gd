@@ -480,7 +480,7 @@ func _process(delta):
 		elif ui_state == UIState.UIState_WaitingOnOpponent:
 			# Advance the AI game automatically.
 			_on_ai_move_button_pressed()
-		elif ui_state == UIState.UIState_WaitForGameServer:
+		elif ui_state == UIState.UIState_WaitForGameServer and not game_wrapper.get_wait_for_message():
 			if game_wrapper.get_game_state() == Enums.GameState.GameState_Strike_Opponent_Response:
 				if game_wrapper.get_active_player() == Enums.PlayerId.PlayerId_Opponent:
 					# Our turn to respond.

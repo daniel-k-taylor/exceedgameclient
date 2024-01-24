@@ -32,6 +32,12 @@ func initialize_remote_game(player_info, opponent_info, starting_player : Enums.
 	current_game = RemoteGame.new()
 	current_game.initialize_game(player_info, opponent_info, starting_player, seed_value)
 
+func set_wait_for_message():
+	current_game.set_wait_for_message()
+
+func get_wait_for_message():
+	return current_game.get_wait_for_message()
+
 func end_game():
 	current_game.free()
 	current_game = null
@@ -313,6 +319,7 @@ func submit_change(player : Enums.PlayerId, card_ids : Array) -> bool:
 	return current_game.do_change(game_player, card_ids)
 
 func submit_strike(player : Enums.PlayerId, card_id : int, wild_strike: bool, ex_card_id : int, opponent_sets_first : bool = false) -> bool:
+	set_wait_for_message()
 	var game_player = _get_player(player)
 	return current_game.do_strike(game_player, card_id, wild_strike, ex_card_id, opponent_sets_first)
 
