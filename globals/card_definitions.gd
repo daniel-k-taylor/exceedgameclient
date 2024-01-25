@@ -455,8 +455,6 @@ func get_effect_type_text(effect, card_name_source : String = ""):
 			effect_str += get_effect_text(effect['linked_effect'], false, false, false)
 		"remove_ignore_push_and_pull_passive_bonus":
 			effect_str += ""
-		"look_at_opponent_hand":
-			effect_str += "Look at the opponent's hand"
 		"lose_all_armor":
 			effect_str += "Lose all armor"
 		"name_card_opponent_discards":
@@ -550,7 +548,11 @@ func get_effect_type_text(effect, card_name_source : String = ""):
 		"reveal_copy_for_advantage":
 			effect_str += "Reveal a copy of this attack to Gain Advantage"
 		"reveal_hand":
-			effect_str += "Reveal your hand"
+			var opponent = 'opponent' in effect and effect['opponent']
+			if opponent:
+				effect_str += "Reveal opponent hand"
+			else:
+				effect_str += "Reveal your hand"
 		"reveal_strike":
 			effect_str += "Initiate face-up"
 		"save_power":

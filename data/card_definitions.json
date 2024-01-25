@@ -6568,7 +6568,8 @@
 			"effects": [
 				{
 					"timing": "immediate",
-					"effect_type": "look_at_opponent_hand"
+					"effect_type": "reveal_hand",
+					"opponent": true
 				},
 				{
 					"timing": "immediate",

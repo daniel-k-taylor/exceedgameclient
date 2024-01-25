@@ -2723,8 +2723,6 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 			performing_player.force_spent_before_strike += 1
 		"remove_ignore_push_and_pull_passive_bonus":
 			performing_player.ignore_push_and_pull = false
-		"look_at_opponent_hand":
-			events += opposing_player.reveal_hand()
 		"look_at_top_opponent_deck":
 			events += opposing_player.reveal_topdeck()
 		"lose_all_armor":
@@ -2810,7 +2808,10 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 				events += [create_event(Enums.EventType.EventType_Strike_GainAdvantage, performing_player.my_id, 0)]
 				_append_log("%s reveals %s to gain Advantage." % [performing_player.name, card_name])
 		"reveal_hand":
-			events += performing_player.reveal_hand()
+			if 'opponent' in effect and effect['opponent']:
+				events += opposing_player.reveal_hand()
+			else:
+				events += performing_player.reveal_hand()
 		"reveal_strike":
 			if performing_player == active_strike.initiator:
 				active_strike.initiator_set_face_up = true
