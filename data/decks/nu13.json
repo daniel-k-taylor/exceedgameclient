@@ -2,7 +2,7 @@
 	"id": "nu13",
 	"season": 5,
 	"display_name": "Nu-13",
-	"cardback": "cardback_defaultexceed.png",
+	"cardback": "cardback_nu13.jpg",
 	"exceed_cost": 3,
 	"exceed_to_overdrive": true,
 	"on_exceed": {
@@ -34,6 +34,12 @@
 		}
 	],
 	"exceed_ability_effects": [
+		{
+			"timing": "on_reshuffle",
+			"condition": "manual_reshuffle",
+			"effect_type": "add_set_aside_card_to_deck",
+			"id": "nu13_swordofdestruction"
+		},
 		{
 			"character_effect": true,
 			"timing": "during_strike",

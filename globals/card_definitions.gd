@@ -212,6 +212,8 @@ func get_condition_text(condition, amount, amount2, detail):
 			text += "If not canceled this turn, "
 		"not_full_push":
 			text += "If not full push, "
+		"pushed_min_spaces":
+			text += "If pushed %s or more spaces, " % amount
 		"not_full_close":
 			text += "If not full close, "
 		"not_initiated_strike":
@@ -272,6 +274,8 @@ func get_condition_text(condition, amount, amount2, detail):
 			text += "If you were hit, "
 		"is_critical":
 			text += "Crit: "
+		"no_sealed_copy_of_attack":
+			text += "If there is no sealed copy of your attack, "
 		_:
 			text += "MISSING CONDITION"
 	return text
@@ -309,6 +313,8 @@ func get_effect_type_text(effect, card_name_source : String = ""):
 				effect_str += "Add %s to gauge" % card_name_source
 			else:
 				effect_str += "Add card to gauge"
+		"add_hand_to_gauge":
+			effect_str += "Add your hand to your gauge"
 		"add_strike_to_gauge_after_cleanup":
 			effect_str += "Add card to gauge after strike."
 		"add_to_gauge_boost_play_cleanup":
@@ -499,6 +505,11 @@ func get_effect_type_text(effect, card_name_source : String = ""):
 			effect_str += " Power"
 		"powerup_per_boost_in_play":
 			effect_str += "+" + str(effect['amount']) + " Power per boost in play."
+		"powerup_per_sealed_normal":
+			var max_text = ""
+			if 'maximum' in effect:
+				max_text = " (max %s)" % effect['maximum']
+			effect_str += "+" + str(effect['amount']) + " Power per sealed normal%s." % max_text
 		"powerup_damagetaken":
 			effect_str += "+" + str(effect['amount']) + " Power per damage taken this strike."
 		"powerup_opponent":
@@ -518,6 +529,17 @@ func get_effect_type_text(effect, card_name_source : String = ""):
 			effect_str += str(effect['amount2']) + " Range"
 		"rangeup_per_boost_in_play":
 			effect_str += "+" + str(effect['amount']) + "-" + str(effect['amount2']) + " Range per boost in play."
+		"rangeup_per_sealed_normal":
+			effect_str += "+" + str(effect['amount']) + "-" + str(effect['amount2']) + " Range per sealed normal."
+		"repeat_effect_optionally":
+			effect_str += get_effect_text(effect['linked_effect'], false, false, false)
+			var repeats = str(effect['amount'])
+			if repeats != '0':
+				if repeats == "every_two_sealed_normals":
+					repeats = "once for every 2 sealed normals"
+				else:
+					repeats += " time(s)"
+				effect_str += "; you may repeat this %s." % repeats
 		"retreat":
 			effect_str += "Retreat "
 			if str(effect['amount']) == "strike_x":
@@ -571,6 +593,8 @@ func get_effect_type_text(effect, card_name_source : String = ""):
 					effect_str += "force spent before strike"
 				_:
 					effect_str += "(UNKNOWN)"
+		"seal_attack_on_cleanup":
+			effect_str += "Seal your attack on cleanup"
 		"seal_this":
 			if card_name_source:
 				effect_str += "Seal %s" % card_name_source
@@ -650,29 +674,35 @@ func get_effect_text(effect, short = false, skip_timing = false, skip_condition 
 	if 'timing' in effect and not skip_timing:
 		effect_str += get_timing_text(effect['timing'])
 
-	if 'condition' in effect and not skip_condition:
-		var amount = 0
-		var amount2 = 0
-		var detail = ""
-		if 'condition_amount' in effect:
-			amount = effect['condition_amount']
-		if 'condition_amount_min' in effect:
-			amount = effect['condition_amount_min']
-		if 'condition_amount_max' in effect:
-			amount2 = effect['condition_amount_max']
-		if 'condition_amount2' in effect:
-			amount2 = effect['condition_amount2']
-		if 'condition_detail' in effect:
-			detail = effect['condition_detail']
-		effect_str += get_condition_text(effect['condition'], amount, amount2, detail)
+	var silent_effect = false
+	if 'silent_effect' in effect and effect['silent_effect']:
+		silent_effect = true
+	if not silent_effect:
+		if 'condition' in effect and not skip_condition:
+			var amount = 0
+			var amount2 = 0
+			var detail = ""
+			if 'condition_amount' in effect:
+				amount = effect['condition_amount']
+			if 'condition_amount_min' in effect:
+				amount = effect['condition_amount_min']
+			if 'condition_amount_max' in effect:
+				amount2 = effect['condition_amount_max']
+			if 'condition_amount2' in effect:
+				amount2 = effect['condition_amount2']
+			if 'condition_detail' in effect:
+				detail = effect['condition_detail']
+			effect_str += get_condition_text(effect['condition'], amount, amount2, detail)
 
-	effect_str += get_effect_type_text(effect, card_name_source)
+		effect_str += get_effect_type_text(effect, card_name_source)
 
 	if not short and 'bonus_effect' in effect:
 		effect_str += "; " + get_effect_text(effect['bonus_effect'], skip_timing, false, card_name_source)
 	if 'and' in effect:
 		if not 'suppress_and_description' in effect or not effect['suppress_and_description']:
-			effect_str += ", " + get_effect_text(effect['and'], short, skip_timing, false, card_name_source)
+			if effect_str != "":
+				effect_str += ", "
+			effect_str += get_effect_text(effect['and'], short, skip_timing, false, card_name_source)
 	if 'negative_condition_effect' in effect:
 		effect_str += ", otherwise " + get_effect_text(effect['negative_condition_effect'], short, skip_timing, false, card_name_source)
 	return effect_str

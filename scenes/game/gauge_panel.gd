@@ -1,4 +1,4 @@
-extends Node2D
+extends PanelContainer
 
 @export var label_text : String
 
