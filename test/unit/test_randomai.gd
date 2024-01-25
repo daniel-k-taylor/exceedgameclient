@@ -563,6 +563,15 @@ func test_ragna_100():
 		game_setup()
 	pass_test("Finished match")
 
+func test_noel_100():
+	default_deck = CardDefinitions.get_deck_from_str_id("noel")
+	for i in range(RandomIterations):
+		print("==== RUNNING TEST %d ====" % i)
+		run_ai_game()
+		game_teardown()
+		game_setup()
+	pass_test("Finished match")
+
 func test_nu13_100():
 	default_deck = CardDefinitions.get_deck_from_str_id("nu13")
 	for i in range(RandomIterations):

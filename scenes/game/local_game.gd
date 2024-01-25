@@ -2723,6 +2723,8 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 			performing_player.force_spent_before_strike += 1
 		"remove_ignore_push_and_pull_passive_bonus":
 			performing_player.ignore_push_and_pull = false
+		"look_at_opponent_hand":
+			events += opposing_player.reveal_hand()
 		"look_at_top_opponent_deck":
 			events += opposing_player.reveal_topdeck()
 		"lose_all_armor":
