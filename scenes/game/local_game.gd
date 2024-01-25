@@ -3669,7 +3669,7 @@ func do_remaining_effects(performing_player : Player, next_state):
 			active_strike.remaining_effect_list = []
 			events += do_effect_if_condition_met(performing_player, effect['card_id'], effect, null)
 
-			if len(active_strike.remaining_effect_list) > 0 and game_state == Enums.GameState.GameState_PlayerDecision:
+			if game_state == Enums.GameState.GameState_PlayerDecision:
 				break
 		if game_over:
 			return events
