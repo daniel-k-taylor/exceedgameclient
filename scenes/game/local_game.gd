@@ -1045,8 +1045,11 @@ class Player:
 
 	func seal_hand():
 		var events = []
+		var card_ids = []
 		for card in hand:
-			var seal_effect = { "effect_type": "seal_card_INTERNAL", "seal_card_id": card.id, "source": "hand" }
+			card_ids.append(card.id)
+		for card_id in card_ids:
+			var seal_effect = { "effect_type": "seal_card_INTERNAL", "seal_card_id": card_id, "source": "hand" }
 			events += parent.handle_strike_effect(-1, seal_effect, self)
 		return events
 

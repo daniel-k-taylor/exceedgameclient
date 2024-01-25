@@ -4,12 +4,14 @@ const LocalGame = preload("res://scenes/game/local_game.gd")
 const GameCard = preload("res://scenes/game/game_card.gd")
 const Enums = preload("res://scenes/game/enums.gd")
 var game_logic : LocalGame
-var default_deck = CardDefinitions.get_deck_from_str_id("yuzu")
+var default_deck = CardDefinitions.get_deck_from_str_id("nine")
 const TestCardId1 = 50001
 const TestCardId2 = 50002
 const TestCardId3 = 50003
 const TestCardId4 = 50004
 const TestCardId5 = 50005
+
+var TestCardSealedIds = [50010, 50011, 50012, 50013, 50014, 50015, 50016, 50017]
 
 var player1 : LocalGame.Player
 var player2 : LocalGame.Player
@@ -122,7 +124,8 @@ func handle_simultaneous_effects(initiator, defender):
 			decider = defender
 		assert_true(game_logic.do_choice(decider, 0), "Failed simuleffect choice")
 
-func execute_strike(initiator, defender, init_card : String, def_card : String, init_choices, def_choices, init_ex = false, def_ex = false, init_force_discard = [], def_force_discard = [], init_extra_cost = 0):
+func execute_strike(initiator, defender, init_card : String, def_card : String, init_choices, def_choices, init_ex = false, def_ex = false,
+		init_force_discard = [], def_force_discard = [], init_extra_cost = 0, init_force_special = false):
 	var all_events = []
 	give_specific_cards(initiator, init_card, defender, def_card)
 	if init_ex:
@@ -143,13 +146,22 @@ func execute_strike(initiator, defender, init_card : String, def_card : String, 
 	if game_logic.game_state == Enums.GameState.GameState_PlayerDecision and game_logic.active_strike.strike_state == game_logic.StrikeState.StrikeState_Defender_SetEffects:
 		game_logic.do_force_for_effect(defender, def_force_discard)
 
-	# Pay any costs from gauge
+	# Pay any costs from gauge or hand
 	if game_logic.active_strike and game_logic.active_strike.strike_state == game_logic.StrikeState.StrikeState_Initiator_PayCosts:
-		var cost = game_logic.active_strike.initiator_card.definition['gauge_cost'] + init_extra_cost
-		var cards = []
-		for i in range(cost):
-			cards.append(initiator.gauge[i].id)
-		game_logic.do_pay_strike_cost(initiator, cards, false)
+		if init_force_special:
+			var cost = game_logic.active_strike.initiator_card.definition['force_cost'] + init_extra_cost
+			var cards = []
+			for i in range(cost):
+				cards.append(initiator.hand[i].id)
+			game_logic.do_pay_strike_cost(initiator, cards, false)
+		else:
+			var cost = game_logic.active_strike.initiator_card.definition['gauge_cost'] + init_extra_cost
+			if 'gauge_cost_reduction' in game_logic.active_strike.initiator_card.definition and game_logic.active_strike.initiator_card.definition['gauge_cost_reduction'] == 'per_sealed_normal':
+				cost -= initiator.get_sealed_count_of_type("normal")
+			var cards = []
+			for i in range(cost):
+				cards.append(initiator.gauge[i].id)
+			game_logic.do_pay_strike_cost(initiator, cards, false)
 
 	# Pay any costs from gauge
 	if game_logic.active_strike and game_logic.active_strike.strike_state == game_logic.StrikeState.StrikeState_Defender_PayCosts:
@@ -162,14 +174,14 @@ func execute_strike(initiator, defender, init_card : String, def_card : String, 
 	handle_simultaneous_effects(initiator, defender)
 
 	for i in range(init_choices.size()):
-		assert_eq(game_logic.game_state, Enums.GameState.GameState_PlayerDecision, "not in decision for choice 1")
-		assert_true(game_logic.do_choice(initiator, init_choices[i]), "choice 1 failed")
+		assert_eq(game_logic.game_state, Enums.GameState.GameState_PlayerDecision)
+		assert_true(game_logic.do_choice(initiator, init_choices[i]))
 		handle_simultaneous_effects(initiator, defender)
 	handle_simultaneous_effects(initiator, defender)
 
 	for i in range(def_choices.size()):
-		assert_eq(game_logic.game_state, Enums.GameState.GameState_PlayerDecision, "not in decision for choice 2")
-		assert_true(game_logic.do_choice(defender, def_choices[i]), "choice 2 failed")
+		assert_eq(game_logic.game_state, Enums.GameState.GameState_PlayerDecision)
+		assert_true(game_logic.do_choice(defender, def_choices[i]))
 		handle_simultaneous_effects(initiator, defender)
 
 	var events = game_logic.get_latest_events()
@@ -184,79 +196,126 @@ func validate_life(p1, l1, p2, l2):
 	assert_eq(p1.life, l1)
 	assert_eq(p2.life, l2)
 
-func get_cards_from_hand(player : LocalGame.Player, amount : int):
-	var card_ids = []
-	for i in range(amount):
-		card_ids.append(player.hand[i].id)
-	return card_ids
-
-func get_cards_from_gauge(player : LocalGame.Player, amount : int):
-	var card_ids = []
-	for i in range(amount):
-		card_ids.append(player.gauge[i].id)
-	return card_ids
-
 ##
 ## Tests start here
 ##
 
-func test_yuzu_ua_under_four_gauge():
+var normal_ids = ["standard_normal_block", "standard_normal_focus", "standard_normal_sweep", "standard_normal_spike",
+	"standard_normal_dive", "standard_normal_assault", "standard_normal_cross", "standard_normal_grasp"]
+var special_ids = ["nine_flamepunisher", "nine_navypressure", "nine_amethyst", "nine_kunzite",
+	"nine_coral", "nine_morganite", "nine_emerald", "nine_lapislazuli"]
+
+func _setup_sealed_area(player, speeds_to_swap):
+	for speed in speeds_to_swap:
+		give_player_specific_card(player, normal_ids[speed], TestCardSealedIds[speed])
+	var sealed_card_ids = []
+	for card in player1.sealed:
+		var card_speed = card.definition["speed"]
+		for target_speed in speeds_to_swap:
+			if card_speed == target_speed:
+				sealed_card_ids.append(card.id)
+				break
+
+	for sealed_card_id in sealed_card_ids:
+		player.move_card_from_sealed_to_hand(sealed_card_id)
+	for speed in speeds_to_swap:
+		player.seal_from_hand(TestCardSealedIds[speed])
+	return sealed_card_ids
+
+func test_nine_swap_normal():
+	validate_life(player1, 30, player2, 30)
 	position_players(player1, 3, player2, 5)
-	give_gauge(player1, 1)
-	assert_true(game_logic.do_character_action(player1, []))
-	var events = game_logic.get_latest_events()
-	validate_has_event(events, Enums.EventType.EventType_CardFromHandToGauge_Choice, player1)
-	assert_eq(game_logic.game_state, Enums.GameState.GameState_PlayerDecision)
+	var sealed_card = null
+	for card in player1.sealed:
+		if card.definition["id"] == "nine_morganite":
+			sealed_card = card
+			break
+
+	execute_strike(player1, player2, "standard_normal_assault","standard_normal_assault", [0], [], false, false)
 	var card_to_choose = player1.hand[0]
 	assert_true(game_logic.do_card_from_hand_to_gauge(player1, [card_to_choose.id]))
-	events = game_logic.get_latest_events()
+
 	assert_true(player1.is_card_in_gauge(card_to_choose.id))
+	assert_true(player1.is_card_in_sealed(TestCardId1))
+	assert_true(player1.is_card_in_hand(sealed_card.id))
+	validate_positions(player1, 4, player2, 5)
+	validate_life(player1, 30, player2, 26)
 
-	if player1.exceeded:
-		fail_test("Should not have exceeded after character action")
-	pass_test("test passed")
+func test_nine_coral_below_5():
+	validate_life(player1, 30, player2, 30)
+	position_players(player1, 3, player2, 6)
+	var unsealed_cards = _setup_sealed_area(player1, [7, 6, 5])
 
-func test_yuzu_ua_four_gauge():
-	position_players(player1, 3, player2, 5)
-	give_gauge(player1, 3)
-	assert_true(game_logic.do_character_action(player1, []))
-	var events = game_logic.get_latest_events()
-	validate_has_event(events, Enums.EventType.EventType_CardFromHandToGauge_Choice, player1)
-	assert_eq(game_logic.game_state, Enums.GameState.GameState_PlayerDecision)
-	var card_to_choose = player1.hand[0]
-	assert_true(game_logic.do_card_from_hand_to_gauge(player1, [card_to_choose.id]))
-	events = game_logic.get_latest_events()
-	assert_true(player1.is_card_in_gauge(card_to_choose.id))
+	execute_strike(player1, player2, "nine_coral", "standard_normal_grasp", [], [], false, false)
+	validate_life(player1, 30, player2, 24)
 
-	if not player1.exceeded:
-		fail_test("Should have exceeded after character action")
-	pass_test("test passed")
+func test_nine_coral_over_5():
+	validate_life(player1, 30, player2, 30)
+	position_players(player1, 3, player2, 6)
+	var unsealed_cards = _setup_sealed_area(player1, [7, 6, 5, 3, 2, 1, 0])
 
-func test_yuzu_discard_block_while_exceeded():
-	position_players(player1, 3, player2, 5)
-	give_gauge(player1, 1)
-	assert_true(game_logic.do_exceed(player1, [player1.gauge[0].id]))
+	execute_strike(player1, player2, "nine_coral", "standard_normal_grasp", [], [], false, false)
+	validate_life(player1, 30, player2, 22)
 
-	var events = execute_strike(player2, player1, "uni_normal_assault", "uni_normal_block", [], [], false, false)
-	validate_has_event(events, Enums.EventType.EventType_Strike_ForceForArmor, player1)
-	assert_eq(game_logic.game_state, Enums.GameState.GameState_PlayerDecision)
-	assert_true(game_logic.do_force_for_armor(player1, []))
+func test_emerald_miss():
+	validate_life(player1, 30, player2, 30)
+	position_players(player1, 1, player2, 8)
+	var unsealed_cards = _setup_sealed_area(player1, [7, 5])
 
-	events = game_logic.get_latest_events()
-	assert_true(player1.is_card_in_discards(TestCardId2))
-	assert_true(player2.is_card_in_gauge(TestCardId1))
-	validate_positions(player1, 3, player2, 4)
-	validate_life(player1, 28, player2, 30)
+	execute_strike(player1, player2, "nine_emerald", "standard_normal_grasp", [], [], false, false, [], [], 0, true)
+	validate_life(player1, 30, player2, 30)
+	validate_positions(player1, 1, player2, 8)
 
-func test_yuzu_kurenai_stunned_while_exceeded():
-	position_players(player1, 3, player2, 5)
-	give_gauge(player1, 2)
-	assert_true(game_logic.do_exceed(player1, [player1.gauge[0].id]))
+func test_emerald_hit():
+	validate_life(player1, 30, player2, 30)
+	position_players(player1, 1, player2, 8)
+	var unsealed_cards = _setup_sealed_area(player1, [7, 5, 4, 3])
 
-	execute_strike(player2, player1, "uni_normal_assault", "yuzu_kurenai", [], [0], false, false)
+	execute_strike(player1, player2, "nine_emerald", "standard_normal_grasp", [], [], false, false, [], [], 0, true)
+	validate_life(player1, 30, player2, 28)
+	validate_positions(player1, 1, player2, 9)
 
-	assert_true(player1.is_card_in_continuous_boosts(TestCardId2))
-	assert_true(player2.is_card_in_gauge(TestCardId1))
-	validate_positions(player1, 3, player2, 4)
-	validate_life(player1, 26, player2, 30)
+func test_kunzite_range():
+	validate_life(player1, 30, player2, 30)
+	position_players(player1, 2, player2, 5)
 
+	execute_strike(player1, player2, "nine_kunzite", "standard_normal_cross", [], [], false, false)
+	validate_life(player1, 30, player2, 25)
+	validate_positions(player1, 2, player2, 8)
+
+func test_lapis_single():
+	validate_life(player1, 30, player2, 30)
+	position_players(player1, 3, player2, 4)
+	var unsealed_cards = _setup_sealed_area(player1, [6])
+
+	execute_strike(player1, player2, "nine_lapislazuli", "standard_normal_grasp", [1, 0], [], false, false, [], [], 0, true)
+	validate_life(player1, 30, player2, 28)
+	validate_positions(player1, 5, player2, 4)
+
+func test_lapis_multi():
+	validate_life(player1, 30, player2, 30)
+	position_players(player1, 3, player2, 4)
+	var unsealed_cards = _setup_sealed_area(player1, [6, 5, 4, 3])
+
+	execute_strike(player1, player2, "nine_lapislazuli", "standard_normal_grasp", [1, 0, 0, 1, 0, 1], [], false, false, [], [], 0, true)
+	validate_life(player1, 30, player2, 28)
+	validate_positions(player1, 7, player2, 4)
+
+func test_colorless_full_cost():
+	validate_life(player1, 30, player2, 30)
+	position_players(player1, 3, player2, 6)
+	give_gauge(player1, 9)
+
+	execute_strike(player1, player2, "nine_colorlessvoid", "standard_normal_grasp", [1], [], false, false)
+	validate_life(player1, 30, player2, 21)
+	assert_eq(len(player1.gauge), 1)
+
+func test_colorless_min_cost():
+	validate_life(player1, 30, player2, 30)
+	position_players(player1, 3, player2, 6)
+	var unsealed_cards = _setup_sealed_area(player1, [0, 1, 2, 3, 4, 5, 6, 7])
+	give_gauge(player1, 9)
+
+	execute_strike(player1, player2, "nine_colorlessvoid", "standard_normal_grasp", [1], [], false, false)
+	validate_life(player1, 30, player2, 21)
+	assert_eq(len(player1.gauge), 9)
