@@ -36,6 +36,7 @@ enum DecisionType {
 	DecisionType_CardFromHandToGauge,
 	DecisionType_ReadingNormal,
 	DecisionType_StrikeNow,
+	DecisionType_ReviewReshuffle,
 }
 
 enum GameState {
@@ -67,6 +68,7 @@ enum EventType {
 	EventType_AddToHand,
 	EventType_AddToOverdrive,
 	EventType_AdvanceTurn,
+	EventType_BeginReshuffle,
 	EventType_BlockMovement,
 	EventType_Boost_ActionAfterBoost,
 	EventType_Boost_CancelDecision,

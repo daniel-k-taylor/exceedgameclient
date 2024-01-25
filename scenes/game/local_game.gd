@@ -933,6 +933,20 @@ class Player:
 			deck.insert(0, card)
 		return events
 
+	func begin_reshuffle(manual : bool):
+		var events : Array = []
+		if reshuffle_remaining == 0:
+			# Game Over
+			parent._append_log("%s ran out of cards." % [name])
+			events += parent.trigger_game_over(my_id, Enums.GameOverReason.GameOverReason_Decked)
+		else:
+			# Prompt other player to review discards
+			parent.change_game_state(Enums.GameState.GameState_PlayerDecision)
+			parent.decision_info.type = Enums.DecisionType.DecisionType_ReviewReshuffle
+			parent.decision_info.source = manual
+			events += [parent.create_event(Enums.EventType.EventType_BeginReshuffle, my_id, 0, "", manual)]
+		return events
+
 	func reshuffle_discard(manual : bool):
 		var events : Array = []
 		if reshuffle_remaining == 0:
@@ -4343,7 +4357,12 @@ func do_reshuffle(performing_player : Player) -> bool:
 		return false
 
 	_append_log("%s Turn Action - Manual Reshuffle." % [performing_player.name])
-	var events = performing_player.reshuffle_discard(true)
+	var events = performing_player.begin_reshuffle(true)
+	event_queue += events
+	return true
+
+func do_finish_reshuffle(performing_player : Player, manual : bool) -> bool:
+	var events = performing_player.reshuffle_discard(manual)
 	events += check_hand_size_advance_turn(performing_player)
 	event_queue += events
 	return true

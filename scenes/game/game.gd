@@ -155,6 +155,7 @@ enum UISubState {
 	UISubState_SelectCards_ForceForArmor,
 	UISubState_SelectCards_ForceForEffect,
 	UISubState_SelectCards_GaugeForEffect,
+	UISubState_SelectCards_ReviewReference,
 	UISubState_SelectArena_MoveResponse,
 	UISubState_SelectArena_EffectChoice,
 }
@@ -691,6 +692,8 @@ func can_select_card(card):
 			return in_opponent_gauge and len(selected_cards) < select_card_require_max
 		UISubState.UISubState_SelectCards_DiscardFromReference:
 			return in_opponent_reference and len(selected_cards) < select_card_require_max
+		UISubState.UISubState_SelectCards_ReviewReference:
+			return false
 		UISubState.UISubState_SelectCards_ChooseDiscardToDestination:
 			var card_db = game_wrapper.get_card_database()
 			var card_type = card_db.get_card(card.card_id).definition['type']
@@ -1790,9 +1793,32 @@ func _on_mulligan_decision(event):
 	else:
 		ai_mulligan_decision()
 
-func _on_reshuffle_discard(event):
+func _on_begin_reshuffle(event):
 	var player = event['event_player']
 	spawn_damage_popup("Reshuffle!", player)
+	if player == Enums.PlayerId.PlayerId_Opponent:
+		# show the opponent's reference
+		_on_opponent_reference_button_pressed()
+		selected_cards = []
+		select_card_require_min = 0
+		select_card_require_max = 0
+		popout_instruction_info = {
+			"popout_type": CardPopoutType.CardPopoutType_ReferenceOpponent,
+			"instruction_text": "Opponent is reshuffling.",
+			"ok_text": "OK",
+			"cancel_text": "",
+			"ok_enabled": true,
+			"cancel_visible": false,
+			"normal_only": false
+		}
+		enable_instructions_ui("Review opponent's cards before reshuffle.", true, false, false)
+		change_ui_state(UIState.UIState_SelectCards, UISubState.UISubState_SelectCards_ReviewReference)
+	else:
+		ai_review_reshuffle(event['extra_info'])
+	return SmallNoticeDelay
+
+func _on_reshuffle_discard(event):
+	var player = event['event_player']
 	if player == Enums.PlayerId.PlayerId_Player:
 		var cards = $AllCards/PlayerDiscards.get_children()
 		for card in cards:
@@ -1809,7 +1835,7 @@ func _on_reshuffle_discard(event):
 			card.reset(OffScreen)
 	close_popout()
 	update_card_counts()
-	return SmallNoticeDelay
+	return 0
 
 func _on_reshuffle_deck_mulligan(_event):
 	#printlog("UI: TODO: In place reshuffle deck. No cards actually move though.")
@@ -2122,6 +2148,8 @@ func _handle_events(events):
 				delay = _on_add_to_overdrive(event)
 			Enums.EventType.EventType_AdvanceTurn:
 				delay = _on_advance_turn()
+			Enums.EventType.EventType_BeginReshuffle:
+				delay = _on_begin_reshuffle(event)
 			Enums.EventType.EventType_BlockMovement:
 				delay = _stat_notice_event(event)
 			Enums.EventType.EventType_Boost_ActionAfterBoost:
@@ -2494,6 +2522,8 @@ func can_press_ok():
 				return selected_cards_between_min_and_max()
 			UISubState.UISubState_SelectCards_BoostCancel, UISubState.UISubState_SelectCards_DiscardContinuousBoost, UISubState.UISubState_SelectCards_DiscardFromReference:
 				return selected_cards_between_min_and_max()
+			UISubState.UISubState_SelectCards_ReviewReference:
+				return true
 			UISubState.UISubState_SelectCards_ChooseDiscardToDestination, UISubState.UISubState_SelectCards_DiscardCards_Choose, UISubState.UISubState_SelectCards_DiscardOpponentGauge:
 				return selected_cards_between_min_and_max()
 			UISubState.UISubState_SelectCards_DiscardCardsToGauge, UISubState.UISubState_SelectCards_Mulligan, UISubState.UISubState_SelectCards_CharacterAction_Gauge:
@@ -2662,6 +2692,8 @@ func _on_instructions_ok_button_pressed(index : int):
 				success = game_wrapper.submit_boost_name_card_choice_effect(Enums.PlayerId.PlayerId_Player, single_card_id)
 			UISubState.UISubState_SelectCards_DiscardFromReference:
 				success = game_wrapper.submit_boost_name_card_choice_effect(Enums.PlayerId.PlayerId_Player, single_card_id - ReferenceScreenIdRangeStart)
+			UISubState.UISubState_SelectCards_ReviewReference:
+				success = game_wrapper.submit_finish_reshuffle(Enums.PlayerId.PlayerId_Opponent, game_wrapper.get_decision_info().source)
 			UISubState.UISubState_SelectCards_DiscardCards:
 				success = game_wrapper.submit_discard_to_max(Enums.PlayerId.PlayerId_Player, selected_card_ids)
 			UISubState.UISubState_SelectCards_DiscardCards_Choose:
@@ -3053,6 +3085,13 @@ func ai_name_opponent_card(normal_only : bool):
 		change_ui_state(UIState.UIState_WaitForGameServer)
 	else:
 		print("FAILED AI NAME OPPONENT CARD")
+
+func ai_review_reshuffle(manual : bool):
+	change_ui_state(UIState.UIState_WaitForGameServer)
+	if not game_wrapper.is_ai_game(): return
+	var success = game_wrapper.submit_finish_reshuffle(Enums.PlayerId.PlayerId_Player, manual)
+	if success:
+		change_ui_state(UIState.UIState_WaitForGameServer)
 
 func ai_choose_card_hand_to_gauge(min_amount, max_amount):
 	change_ui_state(UIState.UIState_WaitForGameServer)
