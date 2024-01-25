@@ -238,11 +238,7 @@ func test_phonon_ua_exceed():
 
 func test_phonon_turning_reveal_nocopy():
 	position_players(player1, 3, player2, 6)
-	var copies_to_remove = []
-	for card in player1.hand:
-		if card.definition['id'] == "phonon_turningsatisfaction":
-			copies_to_remove.append(card.id)
-	player1.discard(copies_to_remove)
+	player1.discard_hand()
 
 	execute_strike(player1, player2, "phonon_turningsatisfaction", "phonon_turningsatisfaction", [0], [], false, false, [], [], 0, [])
 	validate_positions(player1, 3, player2, 7)
