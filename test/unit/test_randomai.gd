@@ -601,7 +601,7 @@ func test_yuzu_100():
 
 func test_hyde_100():
 	default_deck = CardDefinitions.get_deck_from_str_id("hyde")
-	for i in range(100):
+	for i in range(RandomIterations):
 		print("==== RUNNING TEST %d ====" % i)
 		run_ai_game()
 		game_teardown()
@@ -610,7 +610,7 @@ func test_hyde_100():
 
 func test_phonon_100():
 	default_deck = CardDefinitions.get_deck_from_str_id("phonon")
-	for i in range(100):
+	for i in range(RandomIterations):
 		print("==== RUNNING TEST %d ====" % i)
 		run_ai_game()
 		game_teardown()
@@ -619,7 +619,7 @@ func test_phonon_100():
 	
 func test_ryu_100():
 	default_deck = CardDefinitions.get_deck_from_str_id("ryu")
-	for i in range(100):
+	for i in range(RandomIterations):
 		print("==== RUNNING TEST %d ====" % i)
 		run_ai_game()
 		game_teardown()
@@ -628,7 +628,7 @@ func test_ryu_100():
 
 func test_ken_100():
 	default_deck = CardDefinitions.get_deck_from_str_id("ken")
-	for i in range(100):
+	for i in range(RandomIterations):
 		print("==== RUNNING TEST %d ====" % i)
 		run_ai_game()
 		game_teardown()
@@ -637,7 +637,7 @@ func test_ken_100():
 
 func test_shovelshield_100():
 	default_deck = CardDefinitions.get_deck_from_str_id("shovelshield")
-	for i in range(100):
+	for i in range(RandomIterations):
 		print("==== RUNNING TEST %d ====" % i)
 		run_ai_game()
 		game_teardown()
@@ -646,7 +646,7 @@ func test_shovelshield_100():
 
 func test_plague_100():
 	default_deck = CardDefinitions.get_deck_from_str_id("plague")
-	for i in range(100):
+	for i in range(RandomIterations):
 		print("==== RUNNING TEST %d ====" % i)
 		run_ai_game()
 		game_teardown()
