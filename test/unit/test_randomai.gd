@@ -237,6 +237,10 @@ func handle_decisions(game: LocalGame):
 				var can_pass = game.decision_info.can_pass
 				var choose_action = decision_ai.pick_discard_continuous(game, decision_player.my_id, limitation, can_pass)
 				assert_true(game.do_boost_name_card_choice_effect(decision_player, choose_action.card_id), "do boost name strike s2 failed")
+			Enums.DecisionType.DecisionType_ReviewReshuffle:
+				var manual = game.decision_info.source
+				var followup_effect = game.decision_info.bonus_effect
+				assert_true(game.do_finish_reshuffle(decision_player, manual, followup_effect))
 			_:
 				assert(false, "Unimplemented decision type")
 

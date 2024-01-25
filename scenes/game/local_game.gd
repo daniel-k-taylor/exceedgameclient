@@ -4417,7 +4417,7 @@ func do_finish_reshuffle(performing_player : Player, manual : bool, followup_eff
 		var card_id = -1
 		if 'card_id' in followup_effect:
 			card_id = followup_effect['card_id']
-		events += do_effect_if_condition_met(performing_player, card_id, followup_effect, null)
+		events += handle_strike_effect(card_id, followup_effect, performing_player)
 
 	if game_state != Enums.GameState.GameState_PlayerDecision:
 		if active_overdrive:
@@ -4734,6 +4734,7 @@ func do_pay_strike_cost(performing_player : Player, card_ids : Array, wild_strik
 	if wild_strike:
 		_append_log("%s did a wild swing instead of validating %s." % [performing_player.name, card_db.get_card_name(card.id)])
 		# Replace existing card with a wild strike
+		change_game_state(Enums.GameState.GameState_Strike_Processing)
 		var current_card = active_strike.get_player_card(performing_player)
 		events += performing_player.invalidate_card(current_card)
 		events += performing_player.add_to_discards(current_card)
@@ -5430,7 +5431,7 @@ func do_choose_from_topdeck(performing_player : Player, chosen_card_id : int, ac
 
 	var destination = decision_info.destination
 	var look_amount = decision_info.amount
-	assert(len(performing_player.deck) > look_amount)
+	assert(len(performing_player.deck) >= look_amount)
 
 	if action == "pass":
 		chosen_card_id = -1

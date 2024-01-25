@@ -209,6 +209,11 @@ func test_nago_special_draw_exceed():
 	player1.discards = player1.deck
 	player1.deck = []
 	var events = execute_strike(player1, player2, "nago_kamuriyuki", "gg_normal_slash", [], [], false, false)
+
+	validate_has_event(events, Enums.EventType.EventType_BeginReshuffle, player1)
+	assert_true(game_logic.do_finish_reshuffle(player1, false, game_logic.decision_info.bonus_effect))
+	events = game_logic.get_latest_events()
+
 	validate_has_event(events, Enums.EventType.EventType_Strike_ChooseToDiscard, player1, 2)
 	validate_positions(player1, 4, player2, 5)
 	assert_eq(game_logic.game_state, Enums.GameState.GameState_PlayerDecision)
