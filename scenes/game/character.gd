@@ -12,6 +12,8 @@ var animation_state = AnimationState.AnimationState_Idle
 var current_position
 var target_position
 
+var vertical_offset : float = 0
+
 var remaining_animation_time : float = -1
 const MoveTime : float = 1.0
 const HitTime : float = 1.0
@@ -49,6 +51,8 @@ var animation_map = {
 		animation.play("walk_backward"),
 }
 
+var buddy_id : String = ""
+
 # Called when the node enters the scene tree for the first time.
 func _ready():
 	exceed_icon.visible = false
@@ -62,6 +66,8 @@ func load_character(char_id : String):
 		if scaling:
 			scale = scale * scaling
 			$ExceedIcon.scale = $ExceedIcon.scale / scaling
+	if animation.sprite_frames.has_meta("vertical_offset"):
+		vertical_offset = animation.sprite_frames.get_meta("vertical_offset")
 
 func set_facing(to_left : bool):
 	animation.flip_h = to_left
@@ -73,6 +79,12 @@ func set_exceed(is_exceed : bool):
 
 func get_size():
 	return animation.sprite_frames.get_frame_texture("idle", 0).get_size()
+
+func set_buddy_id(id : String):
+	buddy_id = id
+
+func get_buddy_id():
+	return buddy_id
 
 func play_hit():
 	current_position = position

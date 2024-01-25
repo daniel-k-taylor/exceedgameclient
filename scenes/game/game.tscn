@@ -488,7 +488,47 @@ visible = false
 position = Vector2(75, -102)
 scale = Vector2(0.25, 0.25)
 
+[node name="PlayerBuddy2" parent="." instance=ExtResource("9_rhsuv")]
+visible = false
+position = Vector2(75, -102)
+scale = Vector2(0.25, 0.25)
+
+[node name="PlayerBuddy3" parent="." instance=ExtResource("9_rhsuv")]
+visible = false
+position = Vector2(75, -102)
+scale = Vector2(0.25, 0.25)
+
+[node name="PlayerBuddy4" parent="." instance=ExtResource("9_rhsuv")]
+visible = false
+position = Vector2(75, -102)
+scale = Vector2(0.25, 0.25)
+
+[node name="PlayerBuddy5" parent="." instance=ExtResource("9_rhsuv")]
+visible = false
+position = Vector2(75, -102)
+scale = Vector2(0.25, 0.25)
+
 [node name="OpponentBuddy" parent="." instance=ExtResource("9_rhsuv")]
+visible = false
+position = Vector2(183.5, -119)
+scale = Vector2(0.25, 0.25)
+
+[node name="OpponentBuddy2" parent="." instance=ExtResource("9_rhsuv")]
+visible = false
+position = Vector2(183.5, -119)
+scale = Vector2(0.25, 0.25)
+
+[node name="OpponentBuddy3" parent="." instance=ExtResource("9_rhsuv")]
+visible = false
+position = Vector2(183.5, -119)
+scale = Vector2(0.25, 0.25)
+
+[node name="OpponentBuddy4" parent="." instance=ExtResource("9_rhsuv")]
+visible = false
+position = Vector2(183.5, -119)
+scale = Vector2(0.25, 0.25)
+
+[node name="OpponentBuddy5" parent="." instance=ExtResource("9_rhsuv")]
 visible = false
 position = Vector2(183.5, -119)
 scale = Vector2(0.25, 0.25)

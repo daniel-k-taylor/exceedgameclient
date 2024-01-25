@@ -110,7 +110,9 @@ func can_card_hit(card_id : int, ex_card_id : int, ai_game_state : AIPlayer.AIGa
 
 	var my_location = ai_game_state.my_state.arena_location
 	var opponent_location = ai_game_state.opponent_state.arena_location
-	var buddy_location = ai_game_state.my_state.buddy_location
+	var buddy_location = -1
+	if ai_game_state.my_state.buddy_locations.size() > 0:
+		buddy_location = ai_game_state.my_state.buddy_locations[0]
 	var from_buddy = false
 	for effect in card.definition['effects']:
 		if effect['timing'] == "before":

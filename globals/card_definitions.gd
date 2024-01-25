@@ -363,7 +363,10 @@ func get_effect_type_text(effect, card_name_source : String = ""):
 		"cannot_stun":
 			effect_str += "Attack does not stun."
 		"choice":
-			effect_str += "Choose: " + get_choice_summary(effect['choice'], card_name_source)
+			if 'special_choice_name' in effect:
+				effect_str += effect['special_choice_name']
+			else:
+				effect_str += "Choose: " + get_choice_summary(effect['choice'], card_name_source)
 		"choose_discard":
 			var source = "discard"
 			if 'source' in effect:
@@ -487,6 +490,11 @@ func get_effect_type_text(effect, card_name_source : String = ""):
 			effect_str += "Opponent wild swings."
 		"pass":
 			effect_str += "Pass"
+		"place_buddy_at_range":
+			if effect['range_min'] == effect['range_max']:
+				effect_str += "Place %s at range %s" % [effect['buddy_name'], effect['range_min']]
+			else:
+				effect_str += "Place %s at range %s-%s" % [effect['buddy_name'], effect['range_min'], effect['range_max']]
 		"place_buddy_onto_self":
 			effect_str += "Place %s onto your space" % effect['buddy_name']
 		"powerup":
@@ -509,6 +517,8 @@ func get_effect_type_text(effect, card_name_source : String = ""):
 			effect_str += "Push " + str(effect['amount'])
 		"push_from_source":
 			effect_str += "Push " + str(effect['amount']) + " from attack source"
+		"push_to_attack_max_range":
+			effect_str += "Push to attack's max range"
 		"rangeup":
 			if effect['amount'] >= 0:
 				effect_str += "+"
