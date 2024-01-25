@@ -136,6 +136,7 @@ class Strike:
 	var initiator_set_face_up : bool = false
 	var defender_wild_strike : bool = false
 	var strike_state
+	var setup_state = null
 	var starting_distance : int = -1
 	var in_setup : bool = true
 	var opponent_sets_first : bool = false
@@ -1126,8 +1127,8 @@ class Player:
 		var events = []
 		# Get top card of deck (reshuffle if needed)
 		if len(deck) == 0:
-			events += reshuffle_discard(false)
-		if not parent.game_over:
+			events += begin_reshuffle(false)
+		else:
 			var card_id = deck[0].id
 			if parent.active_strike.initiator == self:
 				parent.active_strike.initiator_card = deck[0]
@@ -3862,7 +3863,7 @@ func ask_for_cost(performing_player, card, next_state):
 			var new_wild_card = null
 			while new_wild_card == null:
 				events += performing_player.wild_strike(true);
-				if game_over:
+				if game_over or game_state == Enums.GameState.GameState_PlayerDecision:
 					return events
 				new_wild_card = active_strike.get_player_card(performing_player)
 				is_special = new_wild_card.definition['type'] == "special"
@@ -4425,8 +4426,15 @@ func do_finish_reshuffle(performing_player : Player, manual : bool, followup_eff
 			active_boost.effects_resolved += 1
 			events = continue_resolve_boost(events)
 		elif active_strike:
-			active_strike.effects_resolved_in_timing += 1
-			events = continue_resolve_strike(events)
+			if active_strike.setup_state == null:
+				active_strike.effects_resolved_in_timing += 1
+				events = continue_resolve_strike(events)
+			else:
+				# If cards were still being set, continue with a wild swing
+				event_queue += events
+				events = []
+				change_game_state(active_strike.setup_state)
+				do_strike(performing_player, -1, true, -1)
 		elif active_character_action:
 			events += do_remaining_character_action(performing_player)
 		elif active_exceed:
@@ -4625,8 +4633,9 @@ func do_strike(performing_player : Player, card_id : int, wild_strike: bool, ex_
 
 			if wild_strike:
 				_append_log("%s Turn Action - Strike - Wild Swing" % [performing_player.name])
+				active_strike.setup_state = game_state
 				events += performing_player.wild_strike()
-				if game_over:
+				if game_over or game_state == Enums.GameState.GameState_PlayerDecision:
 					event_queue += events
 					return true
 				card_id = active_strike.initiator_card.id
@@ -4663,6 +4672,7 @@ func do_strike(performing_player : Player, card_id : int, wild_strike: bool, ex_
 			if ex_card_id != -1:
 				events += [create_event(Enums.EventType.EventType_Strike_Started_Ex, performing_player.my_id, ex_card_id, "", reveal_immediately)]
 			events += [create_event(Enums.EventType.EventType_Strike_Started, performing_player.my_id, card_id, "", reveal_immediately)]
+			active_strike.setup_state = null
 			events = continue_setup_strike(events)
 
 		Enums.GameState.GameState_Strike_Opponent_Set_First:
@@ -4673,8 +4683,9 @@ func do_strike(performing_player : Player, card_id : int, wild_strike: bool, ex_
 		Enums.GameState.GameState_Strike_Opponent_Response:
 			if wild_strike:
 				_append_log("%s Strike Response - Wild Swing" % [performing_player.name])
-				events += performing_player.wild_strike()
-				if game_over:
+				active_strike.setup_state = game_state
+				events += performing_player.wild_strike() #TODO
+				if game_over or game_state == Enums.GameState.GameState_PlayerDecision:
 					event_queue += events
 					return true
 				card_id = active_strike.defender_card.id
@@ -4691,6 +4702,7 @@ func do_strike(performing_player : Player, card_id : int, wild_strike: bool, ex_
 			if ex_card_id != -1:
 				events += [create_event(Enums.EventType.EventType_Strike_Response_Ex, performing_player.my_id, ex_card_id)]
 			events += [create_event(Enums.EventType.EventType_Strike_Response, performing_player.my_id, card_id)]
+			active_strike.setup_state = null
 			events = continue_setup_strike(events)
 	event_queue += events
 	return true
@@ -4726,6 +4738,9 @@ func do_pay_strike_cost(performing_player : Player, card_ids : Array, wild_strik
 		events += performing_player.invalidate_card(current_card)
 		events += performing_player.add_to_discards(current_card)
 		events += performing_player.wild_strike(true)
+		if game_over or game_state == Enums.GameState.GameState_PlayerDecision:
+			event_queue += events
+			return true
 	else:
 		var force_cost = card.definition['force_cost']
 		var gauge_cost = card.definition['gauge_cost']
