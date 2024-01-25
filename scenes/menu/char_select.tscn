@@ -1,4 +1,4 @@
-[gd_scene load_steps=43 format=3 uid="uid://cqs72exlwm6at"]
+[gd_scene load_steps=44 format=3 uid="uid://cqs72exlwm6at"]
 
 [ext_resource type="Script" path="res://scenes/menu/char_select.gd" id="1_f3x24"]
 [ext_resource type="PackedScene" uid="uid://nwqxp8pdh1jk" path="res://scenes/menu/char_select_button.tscn" id="6_3lmwy"]
@@ -35,11 +35,13 @@
 [ext_resource type="Texture2D" uid="uid://debn7wuvbqqcc" path="res://assets/portraits/shovelshield.png" id="30_vegm4"]
 [ext_resource type="Texture2D" uid="uid://dgmjgjw44rf6r" path="res://assets/portraits/ken.png" id="31_2ynpm"]
 [ext_resource type="Texture2D" uid="uid://ojsgw4m4r087" path="res://assets/portraits/sklogo.png" id="31_hsrmq"]
+[ext_resource type="Texture2D" uid="uid://clmicn3w5pnx7" path="res://assets/portraits/noel.png" id="31_sp44d"]
 [ext_resource type="Texture2D" uid="uid://b060c4v4aecrq" path="res://assets/portraits/sflogo.png" id="31_xu3ya"]
 [ext_resource type="Texture2D" uid="uid://lpvtuydm4qk1" path="res://assets/portraits/tager.png" id="32_1r668"]
 [ext_resource type="Texture2D" uid="uid://de4wk0x150r1f" path="res://assets/portraits/exceedrandom.png" id="32_iutun"]
 [ext_resource type="Texture2D" uid="uid://juesnkghbyjd" path="res://assets/portraits/plague.png" id="32_o7q1n"]
 [ext_resource type="Texture2D" uid="uid://bc01kjivot83r" path="res://assets/portraits/litchi.png" id="32_tp7xh"]
+[ext_resource type="Texture2D" uid="uid://8nah2fhvu83k" path="res://assets/portraits/nine.png" id="34_h13ui"]
 [ext_resource type="Texture2D" uid="uid://cp4tvk0uhox0p" path="res://assets/portraits/hazama.png" id="33_ymrgl"]
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_8u80i"]
@@ -314,6 +316,11 @@ portrait_texture = ExtResource("29_1ti5l")
 layout_mode = 2
 alignment = 1
 
+[node name="Noel" parent="CenterContainer/BBCharacterSelect/Rows/Row2" instance=ExtResource("6_3lmwy")]
+layout_mode = 2
+char_id = "noel"
+portrait_texture = ExtResource("31_sp44d")
+
 [node name="Nu13" parent="CenterContainer/BBCharacterSelect/Rows/Row2" instance=ExtResource("6_3lmwy")]
 layout_mode = 2
 char_id = "nu13"
@@ -333,6 +340,11 @@ portrait_texture = ExtResource("33_ymrgl")
 layout_mode = 2
 char_id = "tager"
 portrait_texture = ExtResource("32_1r668")
+
+[node name="Nine" parent="CenterContainer/BBCharacterSelect/Rows/Row2" instance=ExtResource("6_3lmwy")]
+layout_mode = 2
+char_id = "nine"
+portrait_texture = ExtResource("34_h13ui")
 
 [node name="SKCharacterSelect" type="PanelContainer" parent="CenterContainer"]
 layout_mode = 2
@@ -501,6 +513,8 @@ portrait_texture = ExtResource("32_iutun")
 [connection signal="on_pressed" from="CenterContainer/BBCharacterSelect/Rows/Row1/RandomBB" to="." method="_on_char_button_on_pressed"]
 [connection signal="on_hover" from="CenterContainer/BBCharacterSelect/Rows/Row1/Jin" to="." method="_on_char_hover"]
 [connection signal="on_pressed" from="CenterContainer/BBCharacterSelect/Rows/Row1/Jin" to="." method="_on_char_button_on_pressed"]
+[connection signal="on_hover" from="CenterContainer/BBCharacterSelect/Rows/Row2/Noel" to="." method="_on_char_hover"]
+[connection signal="on_pressed" from="CenterContainer/BBCharacterSelect/Rows/Row2/Noel" to="." method="_on_char_button_on_pressed"]
 [connection signal="on_hover" from="CenterContainer/BBCharacterSelect/Rows/Row2/Nu13" to="." method="_on_char_hover"]
 [connection signal="on_pressed" from="CenterContainer/BBCharacterSelect/Rows/Row2/Nu13" to="." method="_on_char_button_on_pressed"]
 [connection signal="on_hover" from="CenterContainer/BBCharacterSelect/Rows/Row2/Litchi" to="." method="_on_char_hover"]
@@ -509,6 +523,8 @@ portrait_texture = ExtResource("32_iutun")
 [connection signal="on_pressed" from="CenterContainer/BBCharacterSelect/Rows/Row2/Hazama" to="." method="_on_char_button_on_pressed"]
 [connection signal="on_hover" from="CenterContainer/BBCharacterSelect/Rows/Row2/Tager" to="." method="_on_char_hover"]
 [connection signal="on_pressed" from="CenterContainer/BBCharacterSelect/Rows/Row2/Tager" to="." method="_on_char_button_on_pressed"]
+[connection signal="on_hover" from="CenterContainer/BBCharacterSelect/Rows/Row2/Nine" to="." method="_on_char_hover"]
+[connection signal="on_pressed" from="CenterContainer/BBCharacterSelect/Rows/Row2/Nine" to="." method="_on_char_button_on_pressed"]
 [connection signal="on_hover" from="CenterContainer/SKCharacterSelect/Rows/Row1/ShovelShield" to="." method="_on_char_hover"]
 [connection signal="on_pressed" from="CenterContainer/SKCharacterSelect/Rows/Row1/ShovelShield" to="." method="_on_char_button_on_pressed"]
 [connection signal="on_hover" from="CenterContainer/SKCharacterSelect/Rows/Row1/Plague" to="." method="_on_char_hover"]

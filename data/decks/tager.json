@@ -2,7 +2,7 @@
 	"id": "tager",
 	"season": 5,
 	"display_name": "Iron Tager",
-	"cardback": "cardback_defaultexceed.png",
+	"cardback": "cardback_tager.jpg",
 	"movement_limit": 2,
 	"exceed_cost": 5,
 	"exceed_to_overdrive": true,
@@ -36,6 +36,12 @@
 		}
 	],
 	"exceed_ability_effects": [
+		{
+			"timing": "on_reshuffle",
+			"condition": "manual_reshuffle",
+			"effect_type": "add_set_aside_card_to_deck",
+			"id": "tager_kingoftager"
+		},
 		{
 			"character_effect": true,
 			"timing": "during_strike",

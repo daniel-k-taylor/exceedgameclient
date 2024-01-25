@@ -2,7 +2,7 @@
 	"id": "litchi",
 	"season": 5,
 	"display_name": "Litchi Faye Ling",
-	"cardback": "cardback_defaultexceed.png",
+	"cardback": "cardback_litchi.jpg",
 	"buddy_card": "mantenbo",
 	"buddy_display_name": "Mantenbo",
 	"exceed_cost": 3,
@@ -23,6 +23,7 @@
 				"condition_detail": "Mantenbo",
 				"buddy_name": "Mantenbo",
 				"effect_type": "pass",
+				"silent_effect": true,
 				"and": {
 					"condition": "buddy_space_unoccupied",
 					"condition_detail": "Mantenbo",
@@ -146,6 +147,12 @@
 		}
 	],
 	"exceed_ability_effects": [
+		{
+			"timing": "on_reshuffle",
+			"condition": "manual_reshuffle",
+			"effect_type": "add_set_aside_card_to_deck",
+			"id": "litchi_ninegatesofheaven"
+		},
 		{
 			"NOTE": "Exceeded ability text",
 			"character_effect": true,

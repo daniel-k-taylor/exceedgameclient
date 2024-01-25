@@ -125,7 +125,7 @@ func handle_simultaneous_effects(initiator, defender, simul_effect_choices : Arr
 			choice = simul_effect_choices[0]
 			simul_effect_choices.remove_at(0)
 		assert_true(game_logic.do_choice(decider, choice), "Failed simuleffect choice")
-		
+
 func execute_strike(initiator, defender, init_card : String, def_card : String, init_choices, def_choices, init_ex = false, def_ex = false, init_force_discard = [], def_force_discard = [], init_extra_cost = 0, simul_effect_choices = []):
 	var all_events = []
 	give_specific_cards(initiator, init_card, defender, def_card)
@@ -137,7 +137,7 @@ func execute_strike(initiator, defender, init_card : String, def_card : String, 
 
 	if game_logic.game_state == Enums.GameState.GameState_PlayerDecision and game_logic.active_strike.strike_state == game_logic.StrikeState.StrikeState_Initiator_SetEffects:
 		game_logic.do_force_for_effect(initiator, init_force_discard)
-		
+
 	if def_ex:
 		give_player_specific_card(defender, def_card, TestCardId4)
 		all_events += do_strike_response(defender, TestCardId2, TestCardId4)
@@ -146,7 +146,7 @@ func execute_strike(initiator, defender, init_card : String, def_card : String, 
 
 	if game_logic.game_state == Enums.GameState.GameState_PlayerDecision and game_logic.active_strike.strike_state == game_logic.StrikeState.StrikeState_Defender_SetEffects:
 		game_logic.do_force_for_effect(defender, def_force_discard)
-		
+
 	# Pay any costs from gauge
 	if game_logic.active_strike and game_logic.active_strike.strike_state == game_logic.StrikeState.StrikeState_Initiator_PayCosts:
 		var cost = game_logic.active_strike.initiator_card.definition['gauge_cost'] + init_extra_cost
@@ -234,10 +234,12 @@ func test_phonon_ua_exceed():
 	execute_strike(player1, player2, "uni_normal_assault", "uni_normal_assault", [], [], false, false, [], [], 0, [])
 	validate_positions(player1, 5, player2, 6)
 	validate_life(player1, 26, player2, 20)
-	
+
 
 func test_phonon_turning_reveal_nocopy():
 	position_players(player1, 3, player2, 6)
+	player1.discard_hand()
+
 	execute_strike(player1, player2, "phonon_turningsatisfaction", "phonon_turningsatisfaction", [0], [], false, false, [], [], 0, [])
 	validate_positions(player1, 3, player2, 7)
 	validate_life(player1, 30, player2, 28)
@@ -269,7 +271,7 @@ func test_phonon_sliding_boost_return_power_loss():
 	validate_positions(player1, 3, player2, 5)
 	validate_life(player1, 30, player2, 28)
 	assert_true(player1.is_card_in_hand(TestCardId3))
-	
+
 func test_phonon_suppressive_after():
 	position_players(player1, 3, player2, 7)
 	assert_eq(player1.hand.size(), 5)

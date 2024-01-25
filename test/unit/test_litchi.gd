@@ -125,7 +125,7 @@ func handle_simultaneous_effects(initiator, defender, simul_effect_choices : Arr
 			choice = simul_effect_choices[0]
 			simul_effect_choices.remove_at(0)
 		assert_true(game_logic.do_choice(decider, choice), "Failed simuleffect choice")
-		
+
 func execute_strike(initiator, defender, init_card : String, def_card : String, init_choices, def_choices, init_ex = false, def_ex = false, init_force_discard = [], def_force_discard = [], init_extra_cost = 0, simul_effect_choices = []):
 	var all_events = []
 	give_specific_cards(initiator, init_card, defender, def_card)
@@ -140,7 +140,7 @@ func execute_strike(initiator, defender, init_card : String, def_card : String, 
 			assert_true(game_logic.do_gauge_for_effect(initiator, init_force_discard), "failed gauge for effect in execute_strike")
 		elif game_logic.decision_info.type == Enums.DecisionType.DecisionType_ForceForEffect:
 			assert_true(game_logic.do_force_for_effect(initiator, init_force_discard), "failed force for effect in execute_strike")
-		
+
 	if def_ex:
 		give_player_specific_card(defender, def_card, TestCardId4)
 		all_events += do_strike_response(defender, TestCardId2, TestCardId4)
@@ -149,7 +149,7 @@ func execute_strike(initiator, defender, init_card : String, def_card : String, 
 
 	if game_logic.game_state == Enums.GameState.GameState_PlayerDecision and game_logic.active_strike.strike_state == game_logic.StrikeState.StrikeState_Defender_SetEffects:
 		game_logic.do_force_for_effect(defender, def_force_discard)
-		
+
 	# Pay any costs from gauge
 	if game_logic.active_strike and game_logic.active_strike.strike_state == game_logic.StrikeState.StrikeState_Initiator_PayCosts:
 		if game_logic.active_strike.initiator_card.definition['force_cost']:

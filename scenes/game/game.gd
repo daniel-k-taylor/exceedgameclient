@@ -286,10 +286,10 @@ func setup_characters():
 		$OpponentCharacter.modulate = Color(1, 0.38, 0.55)
 		for buddy in opponent_buddies:
 			buddy.modulate = Color(1, 0.38, 0.55)
-	$PlayerSealed.visible = 'has_sealed_area' in player_deck and player_deck['has_sealed_area']
-	$OpponentSealed.visible = 'has_sealed_area' in opponent_deck and opponent_deck['has_sealed_area']
-	$PlayerOverdrive.visible = false
-	$OpponentOverdrive.visible = false
+	$PlayerZones/PlayerSealed.visible = 'has_sealed_area' in player_deck and player_deck['has_sealed_area']
+	$OpponentZones/OpponentSealed.visible = 'has_sealed_area' in opponent_deck and opponent_deck['has_sealed_area']
+	$PlayerZones/PlayerOverdrive.visible = false
+	$OpponentZones/OpponentOverdrive.visible = false
 	setup_character_card(player_character_card, player_deck, player_buddy_character_card)
 	setup_character_card(opponent_character_card, opponent_deck, opponent_buddy_character_card)
 
@@ -588,17 +588,17 @@ func update_card_counts():
 	$PlayerLife.set_discard_size(game_wrapper.get_player_discards_size(Enums.PlayerId.PlayerId_Player), game_wrapper.get_player_reshuffle_remaining(Enums.PlayerId.PlayerId_Player))
 	$OpponentLife.set_discard_size(game_wrapper.get_player_discards_size(Enums.PlayerId.PlayerId_Opponent), game_wrapper.get_player_reshuffle_remaining(Enums.PlayerId.PlayerId_Opponent))
 
-	$PlayerGauge.set_details($AllCards/PlayerGauge.get_child_count())
-	$OpponentGauge.set_details($AllCards/OpponentGauge.get_child_count())
+	$PlayerZones/PlayerGauge.set_details($AllCards/PlayerGauge.get_child_count())
+	$OpponentZones/OpponentGauge.set_details($AllCards/OpponentGauge.get_child_count())
 
-	$PlayerSealed.set_details(game_wrapper.get_player_sealed_size(Enums.PlayerId.PlayerId_Player))
-	$OpponentSealed.set_details(game_wrapper.get_player_sealed_size(Enums.PlayerId.PlayerId_Opponent))
+	$PlayerZones/PlayerSealed.set_details(game_wrapper.get_player_sealed_size(Enums.PlayerId.PlayerId_Player))
+	$OpponentZones/OpponentSealed.set_details(game_wrapper.get_player_sealed_size(Enums.PlayerId.PlayerId_Opponent))
 
-	$PlayerOverdrive.set_details(game_wrapper.get_player_overdrive_size(Enums.PlayerId.PlayerId_Player))
-	$OpponentOverdrive.set_details(game_wrapper.get_player_overdrive_size(Enums.PlayerId.PlayerId_Opponent))
+	$PlayerZones/PlayerOverdrive.set_details(game_wrapper.get_player_overdrive_size(Enums.PlayerId.PlayerId_Player))
+	$OpponentZones/OpponentOverdrive.set_details(game_wrapper.get_player_overdrive_size(Enums.PlayerId.PlayerId_Opponent))
 
-	$PlayerOverdrive.visible = game_wrapper.is_player_in_overdrive(Enums.PlayerId.PlayerId_Player)
-	$OpponentOverdrive.visible = game_wrapper.is_player_in_overdrive(Enums.PlayerId.PlayerId_Opponent)
+	$PlayerZones/PlayerOverdrive.visible = game_wrapper.is_player_in_overdrive(Enums.PlayerId.PlayerId_Player)
+	$OpponentZones/OpponentOverdrive.visible = game_wrapper.is_player_in_overdrive(Enums.PlayerId.PlayerId_Opponent)
 
 func get_card_node_name(id):
 	return "Card_" + str(id)
@@ -1274,10 +1274,10 @@ func _on_add_to_gauge(event):
 	var player = event['event_player']
 	var card = find_card_on_board(event['number'])
 	card.flip_card_to_front(true)
-	var gauge_panel = $PlayerGauge
+	var gauge_panel = $PlayerZones/PlayerGauge
 	var gauge_card_loc = $AllCards/PlayerGauge
 	if player == Enums.PlayerId.PlayerId_Opponent:
-		gauge_panel = $OpponentGauge
+		gauge_panel = $OpponentZones/OpponentGauge
 		gauge_card_loc = $AllCards/OpponentGauge
 
 	var pos = gauge_panel.get_center_pos()
@@ -1294,10 +1294,10 @@ func _on_add_to_sealed(event):
 	var player = event['event_player']
 	var card = find_card_on_board(event['number'])
 	card.flip_card_to_front(true)
-	var sealed_panel = $PlayerSealed
+	var sealed_panel = $PlayerZones/PlayerSealed
 	var sealed_card_loc = $AllCards/PlayerSealed
 	if player == Enums.PlayerId.PlayerId_Opponent:
-		sealed_panel = $OpponentSealed
+		sealed_panel = $OpponentZones/OpponentSealed
 		sealed_card_loc = $AllCards/OpponentSealed
 
 	var pos = sealed_panel.get_center_pos()
@@ -1307,17 +1307,23 @@ func _on_add_to_sealed(event):
 	card.discard_to(pos, CardBase.CardState.CardState_InGauge)
 	reparent_to_zone(card, sealed_card_loc)
 	layout_player_hand(is_player)
-	spawn_damage_popup("+ Sealed", player)
-	return SmallNoticeDelay
+
+	var display_popup = true
+	if 'extra_info' in event:
+		display_popup = event['extra_info']
+	if display_popup:
+		spawn_damage_popup("+ Sealed", player)
+		return SmallNoticeDelay
+	return 0
 
 func _on_add_to_overdrive(event):
 	var player = event['event_player']
 	var card = find_card_on_board(event['number'])
 	card.flip_card_to_front(true)
-	var overdrive_panel = $PlayerOverdrive
+	var overdrive_panel = $PlayerZones/PlayerOverdrive
 	var overdrive_card_loc = $AllCards/PlayerOverdrive
 	if player == Enums.PlayerId.PlayerId_Opponent:
-		overdrive_panel = $OpponentOverdrive
+		overdrive_panel = $OpponentZones/OpponentOverdrive
 		overdrive_card_loc = $AllCards/OpponentOverdrive
 
 	var pos = overdrive_panel.get_center_pos()
@@ -1497,7 +1503,7 @@ func _on_choose_to_discard(event, informative_only : bool):
 	var decision_info = game_wrapper.get_decision_info()
 	var can_pass = decision_info.can_pass
 	if informative_only or not can_pass:
-		if not decision_info.destination == "reveal":
+		if not decision_info.destination in ["reveal", "sealed"]:
 			spawn_damage_popup("Forced Discard %s" % str(amount), player)
 	if not informative_only:
 		var limitation = decision_info.limitation
@@ -1560,6 +1566,8 @@ func update_discard_to_gauge_selection_message():
 	var phrase = "in your gauge"
 	if select_card_destination == "topdeck":
 		phrase = "on top of your deck"
+	if select_card_destination == "deck":
+		phrase = "into your deck"
 	if select_card_require_min == select_card_require_max:
 		var num_remaining = select_card_require_min - len(selected_cards)
 		set_instructions("Select %s more card(s) from your hand to put %s." % [num_remaining, phrase])
@@ -3235,36 +3243,36 @@ func clear_card_popout():
 	# Gauges
 	await _update_popout_cards(
 		$AllCards/PlayerGauge.get_children(),
-		$PlayerGauge.get_center_pos(),
+		$PlayerZones/PlayerGauge.get_center_pos(),
 		CardBase.CardState.CardState_InGauge
 	)
 	await _update_popout_cards(
 		$AllCards/OpponentGauge.get_children(),
-		$OpponentGauge.get_center_pos(),
+		$OpponentZones/OpponentGauge.get_center_pos(),
 		CardBase.CardState.CardState_InGauge
 	)
 
 	# Sealed area
 	await _update_popout_cards(
 		$AllCards/PlayerSealed.get_children(),
-		$PlayerSealed.get_center_pos(),
+		$PlayerZones/PlayerSealed.get_center_pos(),
 		CardBase.CardState.CardState_InGauge
 	)
 	await _update_popout_cards(
 		$AllCards/OpponentSealed.get_children(),
-		$OpponentSealed.get_center_pos(),
+		$OpponentZones/OpponentSealed.get_center_pos(),
 		CardBase.CardState.CardState_InGauge
 	)
 
 	# Overdrive area
 	await _update_popout_cards(
 		$AllCards/PlayerOverdrive.get_children(),
-		$PlayerOverdrive.get_center_pos(),
+		$PlayerZones/PlayerOverdrive.get_center_pos(),
 		CardBase.CardState.CardState_InGauge
 	)
 	await _update_popout_cards(
 		$AllCards/OpponentOverdrive.get_children(),
-		$OpponentOverdrive.get_center_pos(),
+		$OpponentZones/OpponentOverdrive.get_center_pos(),
 		CardBase.CardState.CardState_InGauge
 	)
 
@@ -3352,27 +3360,27 @@ func get_boost_zone_center(zone):
 
 func _on_player_gauge_gauge_clicked():
 	await close_popout()
-	show_popout(CardPopoutType.CardPopoutType_GaugePlayer, "YOUR GAUGE", $AllCards/PlayerGauge, $PlayerGauge.get_center_pos(), CardBase.CardState.CardState_InGauge)
+	show_popout(CardPopoutType.CardPopoutType_GaugePlayer, "YOUR GAUGE", $AllCards/PlayerGauge, $PlayerZones/PlayerGauge.get_center_pos(), CardBase.CardState.CardState_InGauge)
 
 func _on_opponent_gauge_gauge_clicked():
 	await close_popout()
-	show_popout(CardPopoutType.CardPopoutType_GaugeOpponent, "THEIR GAUGE", $AllCards/OpponentGauge, $OpponentGauge.get_center_pos(), CardBase.CardState.CardState_InGauge)
+	show_popout(CardPopoutType.CardPopoutType_GaugeOpponent, "THEIR GAUGE", $AllCards/OpponentGauge, $OpponentZones/OpponentGauge.get_center_pos(), CardBase.CardState.CardState_InGauge)
 
 func _on_player_sealed_clicked():
 	await close_popout()
-	show_popout(CardPopoutType.CardPopoutType_SealedPlayer, "YOUR SEALED AREA", $AllCards/PlayerSealed, $PlayerSealed.get_center_pos(), CardBase.CardState.CardState_InGauge)
+	show_popout(CardPopoutType.CardPopoutType_SealedPlayer, "YOUR SEALED AREA", $AllCards/PlayerSealed, $PlayerZones/PlayerSealed.get_center_pos(), CardBase.CardState.CardState_InGauge)
 
 func _on_opponent_sealed_clicked():
 	await close_popout()
-	show_popout(CardPopoutType.CardPopoutType_SealedOpponent, "THEIR SEALED AREA", $AllCards/OpponentSealed, $OpponentSealed.get_center_pos(), CardBase.CardState.CardState_InGauge)
+	show_popout(CardPopoutType.CardPopoutType_SealedOpponent, "THEIR SEALED AREA", $AllCards/OpponentSealed, $OpponentZones/OpponentSealed.get_center_pos(), CardBase.CardState.CardState_InGauge)
 
 func _on_player_overdrive_gauge_clicked():
 	await close_popout()
-	show_popout(CardPopoutType.CardPopoutType_OverdrivePlayer, "YOUR OVERDRIVE", $AllCards/PlayerOverdrive, $PlayerOverdrive.get_center_pos(), CardBase.CardState.CardState_InGauge)
+	show_popout(CardPopoutType.CardPopoutType_OverdrivePlayer, "YOUR OVERDRIVE", $AllCards/PlayerOverdrive, $PlayerZones/PlayerOverdrive.get_center_pos(), CardBase.CardState.CardState_InGauge)
 
 func _on_opponent_overdrive_gauge_clicked():
 	await close_popout()
-	show_popout(CardPopoutType.CardPopoutType_OverdriveOpponent, "THEIR OVERDRIVE", $AllCards/OpponentOverdrive, $OpponentOverdrive.get_center_pos(), CardBase.CardState.CardState_InGauge)
+	show_popout(CardPopoutType.CardPopoutType_OverdriveOpponent, "THEIR OVERDRIVE", $AllCards/OpponentOverdrive, $OpponentZones/OpponentOverdrive.get_center_pos(), CardBase.CardState.CardState_InGauge)
 
 func _on_player_discard_button_pressed():
 	await close_popout()

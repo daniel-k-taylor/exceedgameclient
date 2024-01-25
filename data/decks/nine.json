@@ -1,0 +1,230 @@
+{
+	"id": "nine",
+	"season": 5,
+	"display_name": "Nine the Phantom",
+	"cardback": "cardback_nine.jpg",
+	"has_sealed_area": true,
+	"exceed_cost": 4,
+	"exceed_to_overdrive": true,
+	"on_exceed": {
+		"effect_type": "pass"
+	},
+	"overdrive_effect": {
+		"effect_type": "choice",
+		"choice": [
+			{
+				"effect_type": "choose_discard",
+				"limitation": "",
+				"destination": "sealed"
+			},
+			{ "effect_type": "pass" }
+		]
+	},
+	"ability_effects": [
+		{
+			"timing": "on_reshuffle",
+			"condition": "manual_reshuffle",
+			"effect_type": "add_set_aside_card_to_deck",
+			"id": "nine_colorlessvoid"
+		},
+		{
+			"timing": "on_seal",
+			"effect_type": "return_sealed_with_same_speed"
+		},
+		{
+			"timing": "hit",
+			"condition": "min_cards_in_hand",
+			"condition_amount": 1,
+			"effect_type": "pass",
+			"silent_effect": true,
+			"and": {
+				"condition": "no_sealed_copy_of_attack",
+				"effect_type": "choice",
+				"choice": [
+					{
+						"effect_type": "seal_attack_on_cleanup",
+						"and": {
+							"effect_type": "gauge_from_hand",
+							"min_amount": 1,
+							"max_amount": 1
+						}
+					},
+					{ "effect_type": "pass" }
+				]
+			}
+		}
+	],
+	"exceed_ability_effects": [
+		{
+			"timing": "on_reshuffle",
+			"condition": "manual_reshuffle",
+			"effect_type": "add_set_aside_card_to_deck",
+			"id": "nine_colorlessvoid"
+		},
+		{
+			"timing": "on_seal",
+			"effect_type": "return_sealed_with_same_speed"
+		},
+		{
+			"timing": "cleanup",
+			"effect_type": "force_for_effect",
+			"per_force_effect": null,
+			"overall_effect": {
+				"effect_type": "seal_attack_on_cleanup"
+			},
+			"force_max": 1
+		}
+	],
+	"cards": [
+		{
+			"set_aside": true,
+			"definition_id": "nine_colorlessvoid",
+			"image": "nine_colorlessvoid.tres"
+		},
+		{
+			"start_sealed": true,
+			"definition_id": "nine_azuriteinferno",
+			"image": "nine_azuriteinferno.tres"
+		},
+		{
+			"definition_id": "nine_azuriteinferno",
+			"image": "nine_azuriteinferno.tres"
+		},
+		{
+			"start_sealed": true,
+			"definition_id": "nine_flamepunisher",
+			"image": "nine_flamepunisher.tres"
+		},
+		{
+			"definition_id": "nine_flamepunisher",
+			"image": "nine_flamepunisher.tres"
+		},
+		{
+			"start_sealed": true,
+			"definition_id": "nine_lapislazuli",
+			"image": "nine_lapislazuli.tres"
+		},
+		{
+			"definition_id": "nine_lapislazuli",
+			"image": "nine_lapislazuli.tres"
+		},
+		{
+			"start_sealed": true,
+			"definition_id": "nine_emerald",
+			"image": "nine_emerald.tres"
+		},
+		{
+			"definition_id": "nine_emerald",
+			"image": "nine_emerald.tres"
+		},
+		{
+			"start_sealed": true,
+			"definition_id": "nine_morganite",
+			"image": "nine_morganite.tres"
+		},
+		{
+			"definition_id": "nine_morganite",
+			"image": "nine_morganite.tres"
+		},
+		{
+			"start_sealed": true,
+			"definition_id": "nine_coral",
+			"image": "nine_coral.tres"
+		},
+		{
+			"definition_id": "nine_coral",
+			"image": "nine_coral.tres"
+		},
+		{
+			"start_sealed": true,
+			"definition_id": "nine_kunzite",
+			"image": "nine_kunzite.tres"
+		},
+		{
+			"definition_id": "nine_kunzite",
+			"image": "nine_kunzite.tres"
+		},
+		{
+			"start_sealed": true,
+			"definition_id": "nine_amethyst",
+			"image": "nine_amethyst.tres"
+		},
+		{
+			"definition_id": "nine_amethyst",
+			"image": "nine_amethyst.tres"
+		},
+		{
+			"start_sealed": true,
+			"definition_id": "nine_navypressure",
+			"image": "nine_navypressure.tres"
+		},
+		{
+			"definition_id": "nine_navypressure",
+			"image": "nine_navypressure.tres"
+		},
+		{
+			"definition_id": "standard_normal_grasp",
+			"image": "normal_grasp.tres"
+		},
+		{
+			"definition_id": "standard_normal_grasp",
+			"image": "normal_grasp.tres"
+		},
+		{
+			"definition_id": "standard_normal_cross",
+			"image": "normal_cross.tres"
+		},
+		{
+			"definition_id": "standard_normal_cross",
+			"image": "normal_cross.tres"
+		},
+		{
+			"definition_id": "standard_normal_assault",
+			"image": "normal_assault.tres"
+		},
+		{
+			"definition_id": "standard_normal_assault",
+			"image": "normal_assault.tres"
+		},
+		{
+			"definition_id": "standard_normal_dive",
+			"image": "normal_dive.tres"
+		},
+		{
+			"definition_id": "standard_normal_dive",
+			"image": "normal_dive.tres"
+		},
+		{
+			"definition_id": "standard_normal_spike",
+			"image": "normal_spike.tres"
+		},
+		{
+			"definition_id": "standard_normal_spike",
+			"image": "normal_spike.tres"
+		},
+		{
+			"definition_id": "standard_normal_sweep",
+			"image": "normal_sweep.tres"
+		},
+		{
+			"definition_id": "standard_normal_sweep",
+			"image": "normal_sweep.tres"
+		},
+		{
+			"definition_id": "standard_normal_focus",
+			"image": "normal_focus.tres"
+		},
+		{
+			"definition_id": "standard_normal_focus",
+			"image": "normal_focus.tres"
+		},
+		{
+			"definition_id": "standard_normal_block",
+			"image": "normal_block.tres"
+		},
+		{
+			"definition_id": "standard_normal_block",
+			"image": "normal_block.tres"
+		}
+	]
+}
