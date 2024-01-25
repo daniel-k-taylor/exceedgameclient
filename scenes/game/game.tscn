@@ -208,14 +208,6 @@ offset_right = 989.0
 offset_bottom = 185.0
 text = "AI Move"
 
-[node name="RevealedCardsButton" type="Button" parent="."]
-offset_left = 200.0
-offset_top = 155.0
-offset_right = 308.0
-offset_bottom = 203.0
-theme_override_font_sizes/font_size = 14
-text = "Revealed Cards"
-
 [node name="OpponentLife" parent="." instance=ExtResource("8_mqi3u")]
 offset_left = 1053.0
 offset_top = 156.0
@@ -454,33 +446,54 @@ texture_normal = ExtResource("4_5y76h")
 texture_pressed = ExtResource("4_5y76h")
 texture_hover = ExtResource("4_5y76h")
 
-[node name="PlayerGauge" parent="." instance=ExtResource("6_gtjck")]
-position = Vector2(200, 380)
+[node name="PlayerZones" type="VBoxContainer" parent="."]
+offset_left = 200.0
+offset_top = 380.0
+offset_right = 240.0
+offset_bottom = 420.0
 scale = Vector2(0.8, 0.8)
+size_flags_vertical = 0
 
-[node name="OpponentGauge" parent="." instance=ExtResource("6_gtjck")]
-position = Vector2(200, 5)
-scale = Vector2(0.8, 0.8)
+[node name="PlayerGauge" parent="PlayerZones" instance=ExtResource("6_gtjck")]
+layout_mode = 2
 
-[node name="PlayerSealed" parent="." instance=ExtResource("6_gtjck")]
-position = Vector2(200, 480)
-scale = Vector2(0.8, 0.8)
-label_text = "SEALED"
-
-[node name="OpponentSealed" parent="." instance=ExtResource("6_gtjck")]
-position = Vector2(200, 105)
-scale = Vector2(0.8, 0.8)
-label_text = "SEALED"
-
-[node name="PlayerOverdrive" parent="." instance=ExtResource("6_gtjck")]
-position = Vector2(200, 430)
-scale = Vector2(0.8, 0.8)
+[node name="PlayerOverdrive" parent="PlayerZones" instance=ExtResource("6_gtjck")]
+layout_mode = 2
 label_text = "OVERDRIVE"
 
-[node name="OpponentOverdrive" parent="." instance=ExtResource("6_gtjck")]
-position = Vector2(200, 55)
+[node name="PlayerSealed" parent="PlayerZones" instance=ExtResource("6_gtjck")]
+layout_mode = 2
+label_text = "SEALED"
+
+[node name="CombatLogButton" type="Button" parent="PlayerZones"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 17
+text = "Combat
+Log"
+
+[node name="OpponentZones" type="VBoxContainer" parent="."]
+offset_left = 200.0
+offset_top = 5.0
+offset_right = 335.0
+offset_bottom = 65.0
 scale = Vector2(0.8, 0.8)
+
+[node name="OpponentGauge" parent="OpponentZones" instance=ExtResource("6_gtjck")]
+layout_mode = 2
+
+[node name="OpponentOverdrive" parent="OpponentZones" instance=ExtResource("6_gtjck")]
+layout_mode = 2
 label_text = "OVERDRIVE"
+
+[node name="OpponentSealed" parent="OpponentZones" instance=ExtResource("6_gtjck")]
+layout_mode = 2
+label_text = "SEALED"
+
+[node name="RevealedCardsButton" type="Button" parent="OpponentZones"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 18
+text = "Revealed
+Cards"
 
 [node name="PlayerBoostZone" parent="." instance=ExtResource("7_gn0of")]
 position = Vector2(5, 380)
@@ -526,14 +539,6 @@ offset_bottom = 472.0
 theme_override_font_sizes/font_size = 32
 text = "Show Decision
 Popout"
-
-[node name="CombatLogButton" type="Button" parent="."]
-offset_left = 200.0
-offset_top = 530.0
-offset_right = 308.0
-offset_bottom = 578.0
-theme_override_font_sizes/font_size = 17
-text = "Combat Log"
 
 [node name="AllCards" type="Node2D" parent="."]
 
@@ -685,19 +690,19 @@ offset_bottom = 720.0
 [connection signal="pressed" from="ArenaNode/RowButtons/ArenaSquare8/Button" to="." method="_on_arena_location_pressed" binds= [8]]
 [connection signal="pressed" from="ArenaNode/RowButtons/ArenaSquare9/Button" to="." method="_on_arena_location_pressed" binds= [9]]
 [connection signal="pressed" from="AIMoveButton" to="." method="_on_ai_move_button_pressed"]
-[connection signal="pressed" from="RevealedCardsButton" to="." method="_on_revealed_cards_button_pressed"]
 [connection signal="pressed" from="PlayerDeck/PlayerCharacterCard" to="." method="_on_player_reference_button_pressed"]
 [connection signal="pressed" from="OpponentDeck/OpponentCharacterCard" to="." method="_on_opponent_reference_button_pressed"]
-[connection signal="gauge_clicked" from="PlayerGauge" to="." method="_on_player_gauge_gauge_clicked"]
-[connection signal="gauge_clicked" from="OpponentGauge" to="." method="_on_opponent_gauge_gauge_clicked"]
-[connection signal="gauge_clicked" from="PlayerSealed" to="." method="_on_player_sealed_clicked"]
-[connection signal="gauge_clicked" from="OpponentSealed" to="." method="_on_opponent_sealed_clicked"]
-[connection signal="gauge_clicked" from="PlayerOverdrive" to="." method="_on_player_overdrive_gauge_clicked"]
-[connection signal="gauge_clicked" from="OpponentOverdrive" to="." method="_on_opponent_overdrive_gauge_clicked"]
+[connection signal="gauge_clicked" from="PlayerZones/PlayerGauge" to="." method="_on_player_gauge_gauge_clicked"]
+[connection signal="gauge_clicked" from="PlayerZones/PlayerOverdrive" to="." method="_on_player_overdrive_gauge_clicked"]
+[connection signal="gauge_clicked" from="PlayerZones/PlayerSealed" to="." method="_on_player_sealed_clicked"]
+[connection signal="pressed" from="PlayerZones/CombatLogButton" to="." method="_on_combat_log_button_pressed"]
+[connection signal="gauge_clicked" from="OpponentZones/OpponentGauge" to="." method="_on_opponent_gauge_gauge_clicked"]
+[connection signal="gauge_clicked" from="OpponentZones/OpponentOverdrive" to="." method="_on_opponent_overdrive_gauge_clicked"]
+[connection signal="gauge_clicked" from="OpponentZones/OpponentSealed" to="." method="_on_opponent_sealed_clicked"]
+[connection signal="pressed" from="OpponentZones/RevealedCardsButton" to="." method="_on_revealed_cards_button_pressed"]
 [connection signal="clicked_zone" from="PlayerBoostZone" to="." method="_on_player_boost_zone_clicked_zone"]
 [connection signal="clicked_zone" from="OpponentBoostZone" to="." method="_on_opponent_boost_zone_clicked_zone"]
 [connection signal="pressed" from="ChoicePopoutShowButton" to="." method="_on_choice_popout_show_button_pressed"]
-[connection signal="pressed" from="CombatLogButton" to="." method="_on_combat_log_button_pressed"]
 [connection signal="choice_selected" from="AllCards/ActionContainer/ActionMenu" to="." method="_on_action_menu_choice_selected"]
 [connection signal="close_window" from="AllCards/CardPopout" to="." method="_on_popout_close_window"]
 [connection signal="pressed_cancel" from="AllCards/CardPopout" to="." method="_on_card_popout_pressed_cancel"]
