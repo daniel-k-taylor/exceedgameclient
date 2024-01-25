@@ -121,11 +121,12 @@ func process_reshuffle(action_message) -> void:
 	var game_player = _get_player_from_remote_id(action_message['player_id'])
 	local_game.do_reshuffle(game_player)
 
-func do_finish_reshuffle(player : LocalGame.Player, manual : bool) -> bool:
+func do_finish_reshuffle(player : LocalGame.Player, manual : bool, followup_effect) -> bool:
 	var action_message = {
 		'action_type': 'action_finish_reshuffle',
 		'player_id': _get_player_remote_id(player),
-		'manual': manual
+		'manual': manual,
+		'followup_effect': followup_effect
 	}
 	NetworkManager.submit_game_message(action_message)
 	return true
@@ -133,7 +134,8 @@ func do_finish_reshuffle(player : LocalGame.Player, manual : bool) -> bool:
 func process_finish_reshuffle(action_message) -> void:
 	var game_player = _get_player_from_remote_id(action_message['player_id'])
 	var manual = action_message['manual']
-	local_game.do_finish_reshuffle(game_player, manual)
+	var followup_effect = action_message['followup_effect']
+	local_game.do_finish_reshuffle(game_player, manual, followup_effect)
 
 func do_choice(player : LocalGame.Player, choice_index : int) -> bool:
 	var action_message = {

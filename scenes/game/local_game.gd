@@ -918,6 +918,7 @@ class Player:
 				deck.remove_at(0)
 				events += [parent.create_event(Enums.EventType.EventType_Draw, my_id, card.id)]
 			else:
+				parent.printlog("WARNING: probably shouldn't need to call reshuffle from draw anymore")
 				events += reshuffle_discard(false)
 				if not parent.game_over:
 					var card = deck[0]
@@ -933,7 +934,7 @@ class Player:
 			deck.insert(0, card)
 		return events
 
-	func begin_reshuffle(manual : bool):
+	func begin_reshuffle(manual : bool, followup_effect = null):
 		var events : Array = []
 		if reshuffle_remaining == 0:
 			# Game Over
@@ -942,9 +943,11 @@ class Player:
 		else:
 			# Prompt other player to review discards
 			parent.change_game_state(Enums.GameState.GameState_PlayerDecision)
+			parent.decision_info.player = my_id
 			parent.decision_info.type = Enums.DecisionType.DecisionType_ReviewReshuffle
 			parent.decision_info.source = manual
-			events += [parent.create_event(Enums.EventType.EventType_BeginReshuffle, my_id, 0, "", manual)]
+			parent.decision_info.bonus_effect = followup_effect
+			events += [parent.create_event(Enums.EventType.EventType_BeginReshuffle, my_id, 0, "", manual, followup_effect)]
 		return events
 
 	func reshuffle_discard(manual : bool):
@@ -2584,7 +2587,11 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 			var hand_size = performing_player.hand.size()
 			if hand_size < target_hand_size:
 				var amount_to_draw = target_hand_size - hand_size
-				events += performing_player.draw(amount_to_draw)
+				var draw_effect = effect.duplicate()
+				# Reroute to draw for easier reshuffle handling
+				draw_effect['effect_type'] = "draw"
+				draw_effect['amount'] = amount_to_draw
+				handle_strike_effect(card_id, draw_effect, performing_player)
 		"opponent_draw_or_discard_to":
 			events += handle_player_draw_or_discard_to_effect(opposing_player, card_id, effect)
 		"dodge_at_range":
@@ -2607,7 +2614,20 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 			events += [create_event(Enums.EventType.EventType_Strike_DodgeFromOppositeBuddy, performing_player.my_id, 0, "", effect['buddy_name'])]
 			_append_log("%s is now dodging attacks from opponents behind %s." % [performing_player.name, effect['buddy_name']])
 		"draw":
-			events += performing_player.draw(effect['amount'])
+			var draw_amount = effect['amount']
+			var deck_size = len(performing_player.deck)
+			if draw_amount <= deck_size:
+				events += performing_player.draw(draw_amount)
+			else:
+				# Draw what you can now
+				var remainder = draw_amount - deck_size
+				events += performing_player.draw(deck_size)
+
+				# Process reshuffle, and prepare the remainder of the draw for after
+				var followup_effect = effect.duplicate()
+				followup_effect['card_id'] = card_id
+				followup_effect['amount'] = remainder
+				events += performing_player.begin_reshuffle(false, followup_effect)
 		"discard_continuous_boost":
 			var my_boosts = performing_player.continuous_boosts
 			var opponent_boosts = opposing_player.continuous_boosts
@@ -2742,7 +2762,6 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 		"lose_all_armor":
 			performing_player.strike_stat_boosts.lose_all_armor = true
 		"may_advance_bonus_spaces":
-			# TODO source is advance/retreat, amount is amount
 			var movement_type = decision_info.source
 			var movement_amount = decision_info.amount
 			var followups = decision_info.limitation
@@ -3352,7 +3371,11 @@ func handle_player_draw_or_discard_to_effect(performing_player : Player, card_id
 	var hand_size = performing_player.hand.size()
 	if hand_size < target_hand_size:
 		var amount_to_draw = target_hand_size - hand_size
-		events += performing_player.draw(amount_to_draw)
+		var draw_effect = {
+			"effect_type": "draw",
+			"amount": amount_to_draw
+		}
+		events += handle_strike_effect(card_id, draw_effect, performing_player)
 	elif hand_size > target_hand_size:
 		var amount_to_discard = hand_size - target_hand_size
 		var discard_effect = {
@@ -4082,6 +4105,7 @@ func do_topdeck_boost(events):
 	performing_player.sustain_next_boost = true
 	active_strike.remaining_topdeck_boosts -= 1
 
+	assert(len(performing_player.deck) > 0)
 	events += performing_player.draw(1)
 	event_queue += events
 	change_game_state(Enums.GameState.GameState_PlayerDecision)
@@ -4297,6 +4321,8 @@ func check_hand_size_advance_turn(performing_player : Player):
 		performing_player.bonus_actions -= 1
 		_append_log("%s Taking Bonus Action (%s left)" % [performing_player.name, performing_player.bonus_actions])
 		events += [create_event(Enums.EventType.EventType_Boost_ActionAfterBoost, performing_player.my_id, performing_player.bonus_actions)]
+	elif len(performing_player.deck) == 0:
+		events += performing_player.begin_reshuffle(false)
 	else:
 		events += performing_player.draw(1)
 		if len(performing_player.hand) > performing_player.max_hand_size:
@@ -4314,9 +4340,14 @@ func do_prepare(performing_player) -> bool:
 
 	var events : Array = []
 	events += [create_event(Enums.EventType.EventType_Prepare, performing_player.my_id, 0)]
-	events += performing_player.draw(1)
+	var draw_effect = {
+		"effect_type": "draw",
+		"amount": 1
+	}
+	events += handle_strike_effect(-1, draw_effect, performing_player)
 	_append_log("%s Turn Action - Prepare - Now %s cards in hand." % [performing_player.name, str(performing_player.hand.size())])
-	events += check_hand_size_advance_turn(performing_player)
+	if game_state != Enums.GameState.GameState_PlayerDecision:
+		events += check_hand_size_advance_turn(performing_player)
 	event_queue += events
 	return true
 
@@ -4361,9 +4392,50 @@ func do_reshuffle(performing_player : Player) -> bool:
 	event_queue += events
 	return true
 
-func do_finish_reshuffle(performing_player : Player, manual : bool) -> bool:
+func do_finish_reshuffle(performing_player : Player, manual : bool, followup_effect) -> bool:
+	printlog("SubAction: FINISH RESHUFFLE by %s manual %s" % [performing_player.name, str(manual)])
+	if decision_info.player != performing_player.my_id:
+		printlog("ERROR: Tried to reshuffle for wrong player.")
+		return false
+
+	if active_overdrive:
+		game_state = Enums.GameState.GameState_Boost_Processing
+	elif active_boost:
+		game_state = Enums.GameState.GameState_Boost_Processing
+	elif active_strike:
+		game_state = Enums.GameState.GameState_Strike_Processing
+	elif active_character_action:
+		game_state = Enums.GameState.GameState_Boost_Processing
+	elif active_exceed:
+		game_state = Enums.GameState.GameState_Boost_Processing
+	else:
+		game_state = Enums.GameState.GameState_PickAction
+
 	var events = performing_player.reshuffle_discard(manual)
-	events += check_hand_size_advance_turn(performing_player)
+	if followup_effect != null:
+		var card_id = -1
+		if 'card_id' in followup_effect:
+			card_id = followup_effect['card_id']
+		events += do_effect_if_condition_met(performing_player, card_id, followup_effect, null)
+
+	if game_state != Enums.GameState.GameState_PlayerDecision:
+		if active_overdrive:
+			events += do_remaining_overdrive(performing_player)
+		elif active_boost:
+			active_boost.effects_resolved += 1
+			events = continue_resolve_boost(events)
+		elif active_strike:
+			active_strike.effects_resolved_in_timing += 1
+			events = continue_resolve_strike(events)
+		elif active_character_action:
+			events += do_remaining_character_action(performing_player)
+		elif active_exceed:
+			active_exceed = false
+			if game_state != Enums.GameState.GameState_WaitForStrike:
+				events += check_hand_size_advance_turn(performing_player)
+		else:
+			events += do_remaining_character_action(performing_player)
+
 	event_queue += events
 	return true
 
@@ -4423,10 +4495,14 @@ func do_change(performing_player : Player, card_ids) -> bool:
 	var force_generated = 0
 	for id in card_ids:
 		force_generated += card_db.get_card_force_value(id)
-	events += performing_player.draw(force_generated)
+	var draw_effect = {
+		"effect_type": "draw",
+		"amount": force_generated
+	}
+	events += handle_strike_effect(-1, draw_effect, performing_player)
 	_append_log("%s Turn Action - Change Cards - for %s and now has %s cards." % [performing_player.name, str(force_generated), str(performing_player.hand.size())])
-	events += check_hand_size_advance_turn(performing_player)
-
+	if game_state != Enums.GameState.GameState_PlayerDecision:
+		events += check_hand_size_advance_turn(performing_player)
 	event_queue += events
 	return true
 
@@ -5339,6 +5415,7 @@ func do_choose_from_topdeck(performing_player : Player, chosen_card_id : int, ac
 
 	var destination = decision_info.destination
 	var look_amount = decision_info.amount
+	assert(len(performing_player.deck) > look_amount)
 
 	if action == "pass":
 		chosen_card_id = -1

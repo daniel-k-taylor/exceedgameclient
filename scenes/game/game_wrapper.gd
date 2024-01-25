@@ -266,9 +266,9 @@ func submit_reshuffle(player : Enums.PlayerId) -> bool:
 	var game_player = _get_player(player)
 	return current_game.do_reshuffle(game_player)
 
-func submit_finish_reshuffle(player : Enums.PlayerId, manual : bool) -> bool:
+func submit_finish_reshuffle(player : Enums.PlayerId, manual : bool, followup_effect) -> bool:
 	var game_player = _get_player(player)
-	return current_game.do_finish_reshuffle(game_player, manual)
+	return current_game.do_finish_reshuffle(game_player, manual, followup_effect)
 
 func submit_choice(player : Enums.PlayerId, choice_index : int) -> bool:
 	var game_player = _get_player(player)

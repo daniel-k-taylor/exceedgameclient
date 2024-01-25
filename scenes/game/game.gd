@@ -1814,7 +1814,7 @@ func _on_begin_reshuffle(event):
 		enable_instructions_ui("Review opponent's cards before reshuffle.", true, false, false)
 		change_ui_state(UIState.UIState_SelectCards, UISubState.UISubState_SelectCards_ReviewReference)
 	else:
-		ai_review_reshuffle(event['extra_info'])
+		ai_review_reshuffle(event['extra_info'], event['extra_info2'])
 	return SmallNoticeDelay
 
 func _on_reshuffle_discard(event):
@@ -2693,7 +2693,8 @@ func _on_instructions_ok_button_pressed(index : int):
 			UISubState.UISubState_SelectCards_DiscardFromReference:
 				success = game_wrapper.submit_boost_name_card_choice_effect(Enums.PlayerId.PlayerId_Player, single_card_id - ReferenceScreenIdRangeStart)
 			UISubState.UISubState_SelectCards_ReviewReference:
-				success = game_wrapper.submit_finish_reshuffle(Enums.PlayerId.PlayerId_Opponent, game_wrapper.get_decision_info().source)
+				var decision_info = game_wrapper.get_decision_info()
+				success = game_wrapper.submit_finish_reshuffle(Enums.PlayerId.PlayerId_Opponent, decision_info.source, decision_info.bonus_effect)
 			UISubState.UISubState_SelectCards_DiscardCards:
 				success = game_wrapper.submit_discard_to_max(Enums.PlayerId.PlayerId_Player, selected_card_ids)
 			UISubState.UISubState_SelectCards_DiscardCards_Choose:
@@ -3086,10 +3087,10 @@ func ai_name_opponent_card(normal_only : bool):
 	else:
 		print("FAILED AI NAME OPPONENT CARD")
 
-func ai_review_reshuffle(manual : bool):
+func ai_review_reshuffle(manual : bool, followup_effect):
 	change_ui_state(UIState.UIState_WaitForGameServer)
 	if not game_wrapper.is_ai_game(): return
-	var success = game_wrapper.submit_finish_reshuffle(Enums.PlayerId.PlayerId_Player, manual)
+	var success = game_wrapper.submit_finish_reshuffle(Enums.PlayerId.PlayerId_Player, manual, followup_effect)
 	if success:
 		change_ui_state(UIState.UIState_WaitForGameServer)
 
