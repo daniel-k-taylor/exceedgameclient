@@ -112,6 +112,10 @@ func get_all_non_immediate_continuous_boost_effects(id):
 	var game_player = _get_player(id)
 	return game_player.get_all_non_immediate_continuous_boost_effects()
 
+func get_unknown_cards(player_id : Enums.PlayerId):
+	var player = _get_player(player_id)
+	return player.get_unknown_cards()
+
 func count_cards_in_deck_and_hand(player_id : Enums.PlayerId, card_str_id : String):
 	var player = _get_player(player_id)
 	var count = 0

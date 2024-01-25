@@ -1797,6 +1797,13 @@ func _on_begin_reshuffle(event):
 	var player = event['event_player']
 	spawn_damage_popup("Reshuffle!", player)
 	if player == Enums.PlayerId.PlayerId_Opponent:
+		# reveal unknown cards
+		reset_revealed_cards()
+		var cards = game_wrapper.get_unknown_cards(Enums.PlayerId.PlayerId_Opponent)
+		for card in cards:
+			var game_card = find_card_on_board(card.id)
+			add_revealed_card(game_card)
+
 		# show the opponent's reference
 		_on_opponent_reference_button_pressed()
 		selected_cards = []

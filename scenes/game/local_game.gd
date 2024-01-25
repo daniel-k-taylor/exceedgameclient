@@ -935,6 +935,11 @@ class Player:
 			deck.insert(0, card)
 		return events
 
+	func get_unknown_cards():
+		var unknown_cards = hand + deck # TODO: secret sealed areas
+		parent.shuffle_array(unknown_cards)
+		return unknown_cards
+
 	func begin_reshuffle(manual : bool, followup_effect = null):
 		var events : Array = []
 		if reshuffle_remaining == 0:
@@ -942,6 +947,15 @@ class Player:
 			parent._append_log("%s ran out of cards." % [name])
 			events += parent.trigger_game_over(my_id, Enums.GameOverReason.GameOverReason_Decked)
 		else:
+			# Reveal remaining cards
+			var unknown_cards = get_unknown_cards()
+			if len(unknown_cards) > 0:
+				var card_names = ""
+				card_names = parent.card_db.get_card_name(unknown_cards[0].id)
+				for i in range (1, unknown_cards.size()):
+					card_names += ", " + parent.card_db.get_card_name(unknown_cards[i].id)
+				parent._append_log("%s reshuffled with remaining cards: %s." % [name, card_names])
+
 			# Prompt other player to review discards
 			parent.change_game_state(Enums.GameState.GameState_PlayerDecision)
 			parent.decision_info.player = my_id
