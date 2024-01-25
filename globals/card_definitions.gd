@@ -548,7 +548,10 @@ func get_effect_type_text(effect, card_name_source : String = ""):
 		"reveal_copy_for_advantage":
 			effect_str += "Reveal a copy of this attack to Gain Advantage"
 		"reveal_hand":
-			effect_str += "Reveal your hand"
+			if 'opponent' in effect and effect['opponent']:
+				effect_str += "Reveal opponent hand"
+			else:
+				effect_str += "Reveal your hand"
 		"reveal_strike":
 			effect_str += "Initiate face-up"
 		"save_power":
