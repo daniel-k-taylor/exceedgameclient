@@ -6507,18 +6507,16 @@
 				"timing": "before",
 				"condition": "was_hit",
 				"effect_type": "powerup",
-				"amount": 4
-			},
-			{
-				"timing": "before",
-				"condition": "was_hit",
-				"effect_type": "choice",
-				"choice": [
-					{ "effect_type": "draw", "amount": 1 },
-					{ "effect_type": "draw", "amount": 2 },
-					{ "effect_type": "draw", "amount": 3 },
-					{ "effect_type": "draw", "amount": 4 }
-				]
+				"amount": 4,
+				"and": {
+					"effect_type": "choice",
+					"choice": [
+						{ "effect_type": "draw", "amount": 1 },
+						{ "effect_type": "draw", "amount": 2 },
+						{ "effect_type": "draw", "amount": 3 },
+						{ "effect_type": "draw", "amount": 4 }
+					]
+				}
 			}
 		],
 		"boost": {
@@ -6743,8 +6741,8 @@
 				"timing": "after",
 				"effect_type": "choice",
 				"choice": [
-					{ "effect_type": "pass" },
-					{ "effect_type": "advance", "amount": 2 }
+					{ "effect_type": "advance", "amount": 2 },
+					{ "effect_type": "pass" }
 				]
 			}
 		],

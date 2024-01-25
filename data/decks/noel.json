@@ -37,6 +37,12 @@
 	],
 	"exceed_ability_effects": [
 		{
+			"timing": "on_reshuffle",
+			"condition": "manual_reshuffle",
+			"effect_type": "add_set_aside_card_to_deck",
+			"id": "noel_valkyrieveil"
+		},
+		{
 			"character_effect": true,
 			"timing": "during_strike",
 			"condition": "initiated_strike",
