@@ -20,7 +20,6 @@ var total_cols = 0
 @onready var instruction_button_ok = $PopoutVBox/HBoxContainer/RestOfThing/InstructionButtonOk
 @onready var instruction_button_ok2 = $PopoutVBox/HBoxContainer/RestOfThing/InstructionButtonOk2
 @onready var instruction_button_cancel = $PopoutVBox/HBoxContainer/RestOfThing/InstructionButtonCancel
-@onready var toggle_container = $PopoutVBox/ToggleContainer
 @onready var toggle_button = $PopoutVBox/ToggleContainer/WithBuffer/ReshuffleToggle
 
 # Called when the node enters the scene tree for the first time.
@@ -55,9 +54,6 @@ func set_instructions(instruction_info):
 		var ok2_text = ""
 		if 'ok2_text' in instruction_info:
 			ok2_text = instruction_info['ok2_text']
-		var toggle_text = false
-		if 'toggle_text' in instruction_info:
-			toggle_text = instruction_info['toggle_text']
 
 		instruction_label.text = instruction_text
 		instruction_button_ok.text = ok_text
@@ -69,8 +65,12 @@ func set_instructions(instruction_info):
 		instruction_button_cancel.text = cancel_text
 
 func set_reference_toggle(toggle_text):
-	toggle_container.visible = toggle_text != ""
-	toggle_button.text = toggle_text
+	if toggle_text == "":
+		toggle_button.text = "Show cards before reshuffle"
+		toggle_button.disabled = true
+	else:
+		toggle_button.text = toggle_text
+		toggle_button.disabled = false
 
 func adjust_spacing():
 	if used_slots > SlotsAtExpectedCols:
