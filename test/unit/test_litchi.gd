@@ -225,6 +225,24 @@ func test_litchi_range_with_mantenbo():
 	validate_positions(player1, 5, player2, 7)
 	validate_life(player1, 30, player2, 26)
 
+func test_litchi_robbingkong():
+	position_players(player1, 3, player2, 7)
+	# Place mantenbo
+	assert_true(game_logic.do_character_action(player1, [], 1))
+	# Onto self
+	assert_true(game_logic.do_choice(player1, 0))
+	# Move mantenbo
+	assert_true(game_logic.do_character_action(player1, [], 0))
+	# [-2, -1, 1, 2]
+	assert_true(game_logic.do_choice(player1, 3))
+	assert_eq(player1.get_buddy_location("mantenbo"), 5)
+	assert_eq(game_logic.active_turn_player, player2.my_id)
+	execute_strike(player2, player1, "standard_normal_assault", "litchi_reachrobbingthekong", [], [], false, false)
+	assert_true(game_logic.do_pay_strike_cost(player1, [player1.hand[0].id], false))
+	validate_positions(player1, 5, player2, 7)
+	assert_eq(player1.get_buddy_location("mantenbo"), 7)
+	validate_life(player1, 30, player2, 26)
+
 func test_litchi_ninegates_powerup():
 	position_players(player1, 3, player2, 7)
 	player1.set_buddy_location("mantenbo", 6)

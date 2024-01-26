@@ -832,6 +832,8 @@ class Player:
 
 	func remove_buddy(buddy_id : String, silent : bool = false):
 		var events = []
+		if not buddy_id:
+			buddy_id = buddy_id_to_index.keys()[0]
 		if not do_not_cleanup_buddy_this_turn:
 			var old_buddy_pos = get_buddy_location(buddy_id)
 			set_buddy_location(buddy_id, -1)
@@ -3247,11 +3249,22 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 			var buddy_id = ""
 			if 'buddy_id' in effect:
 				buddy_id = effect['buddy_id']
+			var buddy_was_in_play = performing_player.is_buddy_in_play(buddy_id)
 			var buddy_name = performing_player.get_buddy_name(buddy_id)
 			var silent = 'silent' in effect and effect['silent']
 			if not silent:
 				_append_log("%s removes %s from play." % [performing_player.name, buddy_name])
 			events += performing_player.remove_buddy(buddy_id, silent)
+			if buddy_was_in_play and active_strike:
+				# Handle character effects like Litchi where removing buddy mid-strike
+				# Can have an effect on the stats.
+				var char_effects = performing_player.get_character_effects_at_timing("during_strike")
+				for char_effect in char_effects:
+					if char_effect['condition'] == "not_buddy_in_play":
+						events += do_effect_if_condition_met(performing_player, -1, char_effect, null)
+					elif char_effect['condition'] == "buddy_in_play":
+						# Not implemented - if someone has an effect that needs to go away, do that here.
+						assert(false)
 		"do_not_remove_buddy":
 			performing_player.do_not_cleanup_buddy_this_turn = true
 		"calculate_range_from_buddy":
