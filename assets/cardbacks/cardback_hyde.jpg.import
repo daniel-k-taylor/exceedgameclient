@@ -17,7 +17,7 @@ dest_files=["res://.godot/imported/cardback_hyde.jpg-f2d0a356ccf4091fc107b013ac8
 
 compress/mode=1
 compress/high_quality=false
-compress/lossy_quality=0.7
+compress/lossy_quality=0.1
 compress/hdr_compression=1
 compress/normal_map=0
 compress/channel_pack=0

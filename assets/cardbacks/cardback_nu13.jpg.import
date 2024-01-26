@@ -15,9 +15,9 @@ dest_files=["res://.godot/imported/cardback_nu13.jpg-125f86145bfc71d5900ddb18de8
 
 [params]
 
-compress/mode=0
+compress/mode=1
 compress/high_quality=false
-compress/lossy_quality=0.7
+compress/lossy_quality=0.1
 compress/hdr_compression=1
 compress/normal_map=0
 compress/channel_pack=0
