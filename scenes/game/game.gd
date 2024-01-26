@@ -85,6 +85,7 @@ var cached_player_location = 0
 var cached_opponent_location = 0
 var reference_popout_toggle_enabled = false
 var reference_popout_toggle = false
+var opponent_cards_before_reshuffle = []
 
 var player_deck
 var opponent_deck
@@ -1817,7 +1818,13 @@ func _on_reshuffle_discard(event):
 			$AllCards/OpponentDeck.add_child(card)
 			card.flip_card_to_front(false)
 			card.reset(OffScreen)
+		# Show opponent's reshuffle cards
 		reference_popout_toggle_enabled = true
+		opponent_cards_before_reshuffle = event['extra_info']
+		reset_revealed_cards()
+		for card in opponent_cards_before_reshuffle:
+			var game_card = find_card_on_board(card.id)
+			add_revealed_card(game_card)
 	close_popout()
 	update_card_counts()
 	return SmallNoticeDelay
@@ -3388,9 +3395,16 @@ func _on_opponent_reference_button_pressed(switch_toggle : bool = false):
 		var id = card.card_id - ReferenceScreenIdRangeStart
 		var logic_card = game_wrapper.get_card_database().get_card(id)
 		var card_str_id = logic_card.definition['id']
-		var count = game_wrapper.count_cards_in_deck_and_hand(Enums.PlayerId.PlayerId_Opponent, card_str_id)
+		var count = 0
+		if reference_popout_toggle:
+			count = game_wrapper.count_cards_in_deck_and_hand(Enums.PlayerId.PlayerId_Opponent, card_str_id, opponent_cards_before_reshuffle)
+		else:
+			count = game_wrapper.count_cards_in_deck_and_hand(Enums.PlayerId.PlayerId_Opponent, card_str_id)
 		card.set_remaining_count(count)
-	show_popout(CardPopoutType.CardPopoutType_ReferenceOpponent, "THEIR DECK REFERENCE (showing remaining card counts in deck+hand)", $AllCards/OpponentAllCopy, OffScreen, CardBase.CardState.CardState_Offscreen, false)
+	var popout_title = "THEIR DECK REFERENCE (showing remaining card counts in deck+hand)"
+	if reference_popout_toggle:
+		popout_title = "THEIR CARDS BEFORE RESHUFFLE (remained in deck+hand)"
+	show_popout(CardPopoutType.CardPopoutType_ReferenceOpponent, popout_title, $AllCards/OpponentAllCopy, OffScreen, CardBase.CardState.CardState_Offscreen, false)
 
 func _on_exit_to_menu_pressed():
 	modal_dialog.visible = true

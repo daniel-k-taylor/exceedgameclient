@@ -171,6 +171,11 @@ class Strike:
 			return initiator_card
 		return defender_card
 
+	func get_player_ex_card(performing_player : Player) -> GameCard:
+		if performing_player == initiator:
+			return initiator_ex_card
+		return defender_ex_card
+
 	func get_player_wild_strike(performing_player : Player) -> bool:
 		if performing_player == initiator:
 			return initiator_wild_strike
@@ -951,6 +956,18 @@ class Player:
 			deck.insert(0, card)
 		return events
 
+	func get_unknown_cards():
+		var unknown_cards = hand + deck # TODO: add secret sealed areas, when implemented
+		if parent.active_strike:
+			var strike_card = parent.active_strike.get_player_card(self)
+			if strike_card:
+				unknown_cards.append(strike_card)
+			var strike_ex_card = parent.active_strike.get_player_ex_card(self)
+			if strike_ex_card:
+				unknown_cards.append(strike_ex_card)
+		unknown_cards.sort_custom(func(c1, c2) : return c1.id < c2.id)
+		return unknown_cards
+
 	func reshuffle_discard(manual : bool):
 		var events : Array = []
 		if reshuffle_remaining == 0:
@@ -958,13 +975,22 @@ class Player:
 			parent._append_log("%s ran out of cards." % [name])
 			events += parent.trigger_game_over(my_id, Enums.GameOverReason.GameOverReason_Decked)
 		else:
+			# Reveal and remember remaining cards
+			var unknown_cards = get_unknown_cards()
+			if len(unknown_cards) > 0:
+				var card_names = parent.card_db.get_card_name(unknown_cards[0].id)
+				for i in range(1, unknown_cards.size()):
+					card_names += ", " + parent.card_db.get_card_name(unknown_cards[i].id)
+				parent._append_log("%s reshuffled with remaining cards: %s." % [name, card_names])
+			else:
+				parent._append_log("%s reshuffled." % [name])
+
 			# Put discard into deck, shuffle, subtract reshuffles
-			parent._append_log("%s reshuffled." % [name])
 			deck += discards
 			discards = []
 			random_shuffle_deck()
 			reshuffle_remaining -= 1
-			events += [parent.create_event(Enums.EventType.EventType_ReshuffleDiscard, my_id, reshuffle_remaining)]
+			events += [parent.create_event(Enums.EventType.EventType_ReshuffleDiscard, my_id, reshuffle_remaining, "", unknown_cards)]
 			var local_conditions = LocalStrikeConditions.new()
 			local_conditions.manual_reshuffle = manual
 			var effects = get_character_effects_at_timing("on_reshuffle")

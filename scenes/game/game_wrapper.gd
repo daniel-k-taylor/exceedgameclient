@@ -112,19 +112,26 @@ func get_all_non_immediate_continuous_boost_effects(id):
 	var game_player = _get_player(id)
 	return game_player.get_all_non_immediate_continuous_boost_effects()
 
-func count_cards_in_deck_and_hand(player_id : Enums.PlayerId, card_str_id : String):
+func count_cards_in_deck_and_hand(player_id : Enums.PlayerId, card_str_id : String, override_card_list = null):
 	var player = _get_player(player_id)
 	var count = 0
-	for card in player.deck:
-		if card.definition['id'] == card_str_id:
-			count += 1
-	for card in player.hand:
-		if card.definition['id'] == card_str_id:
-			count += 1
-	var striking_card_ids = current_game.get_striking_card_ids_for_player(player)
-	for striking_id in striking_card_ids:
-		if striking_id == card_str_id:
-			count += 1
+
+	if override_card_list:
+		for card in override_card_list:
+			if card.definition['id'] == card_str_id:
+				count += 1
+	else:
+		for card in player.deck:
+			if card.definition['id'] == card_str_id:
+				count += 1
+		for card in player.hand:
+			if card.definition['id'] == card_str_id:
+				count += 1
+		var striking_card_ids = current_game.get_striking_card_ids_for_player(player)
+		for striking_id in striking_card_ids:
+			if striking_id == card_str_id:
+				count += 1
+		# TODO: will probably need secret sealed areas once implemented
 	return count
 
 func is_card_in_gauge(player_id : Enums.PlayerId, card_id : int):
