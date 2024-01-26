@@ -4364,6 +4364,7 @@ func boost_play_cleanup(events, performing_player : Player):
 		events += [create_event(Enums.EventType.EventType_ForceStartStrike, performing_player.my_id, 0)]
 		decision_info.type = Enums.DecisionType.DecisionType_StrikeNow
 		decision_info.player = performing_player.my_id
+		active_character_action = false
 
 	if active_boost.strike_after_boost and not active_strike:
 		if game_state != Enums.GameState.GameState_Strike_Opponent_Set_First:
