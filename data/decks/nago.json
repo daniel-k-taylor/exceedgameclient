@@ -39,6 +39,7 @@
 		},
 		{
 			"timing": "cleanup",
+			"condition": "is_normal_attack",
 			"effect_type": "lose_all_armor",
 			"and": {
 				"effect_type": "take_nonlethal_damage",

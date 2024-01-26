@@ -17,7 +17,7 @@ dest_files=["res://.godot/imported/cardback_sol.jpg-2f8f7863c969d6e95ceeff7bc44c
 
 compress/mode=1
 compress/high_quality=false
-compress/lossy_quality=0.7
+compress/lossy_quality=0.1
 compress/hdr_compression=1
 compress/normal_map=0
 compress/channel_pack=0

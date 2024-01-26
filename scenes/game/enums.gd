@@ -26,9 +26,10 @@ enum DecisionType {
 	DecisionType_ChooseSimultaneousEffect,
 	DecisionType_EffectChoice,
 	DecisionType_ForceBoostSustainTopdeck,
+	DecisionType_ForceBoostSustainTopDiscard,
 	DecisionType_ForceForEffect,
 	DecisionType_GaugeForEffect,
-	DecisionType_NameCard_OpponentDiscards, # 13
+	DecisionType_NameCard_OpponentDiscards,
 	DecisionType_ChooseToDiscard,
 	DecisionType_PayStrikeCost_Required,
 	DecisionType_PayStrikeCost_CanWild,

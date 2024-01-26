@@ -211,28 +211,28 @@ func validate_life(p1, l1, p2, l2):
 
 func test_shovelshield_bonus_advance():
 	position_players(player1, 2, player2, 6)
-	player1.buddy_location = 2
+	player1.set_buddy_location("shieldknight", 2)
 	execute_strike(player1, player2, "standard_normal_dive","standard_normal_sweep", [1], [], false, false)
 	validate_positions(player1, 7, player2, 6)
 	validate_life(player1, 30, player2, 25)
 
 func test_shovelshield_bonus_close():
 	position_players(player1, 3, player2, 6)
-	player1.buddy_location = 3
+	player1.set_buddy_location("shieldknight", 3)
 	execute_strike(player1, player2, "standard_normal_assault","standard_normal_sweep", [1], [], false, false)
 	validate_positions(player1, 5, player2, 6)
 	validate_life(player1, 24, player2, 26)
 
 func test_shovelshield_exceed_armor_boomerang_dodge():
 	position_players(player1, 3, player2, 4)
-	player1.buddy_location = 6
-	player2.buddy_location = 5
+	player1.set_buddy_location("shieldknight", 6)
+	player2.set_buddy_location("shieldknight", 5)
 	give_gauge(player1, 3)
 	give_gauge(player2, 3)
 
 	assert_true(game_logic.do_exceed(player1, [player1.gauge[0].id, player1.gauge[1].id, player1.gauge[2].id]))
 	assert_true(game_logic.do_choice(player1, 1))
-	assert_eq(player1.buddy_location, 2)
+	assert_eq(player1.get_buddy_location("shieldknight"), 2)
 	advance_turn(player2)
 
 	execute_strike(player1, player2, "standard_normal_cross","shovelshield_shieldboomerang", [], [], false, false)
@@ -241,14 +241,14 @@ func test_shovelshield_exceed_armor_boomerang_dodge():
 
 func test_shovelshield_bucklerblow_push_from_shield():
 	position_players(player1, 3, player2, 6)
-	player1.buddy_location = 7
+	player1.set_buddy_location("shieldknight", 7)
 	execute_strike(player1, player2, "shovelshield_bucklerblow","standard_normal_cross", [], [], false, false, true)
 	validate_positions(player1, 3, player2, 4)
 	validate_life(player1, 30, player2, 28)
 
 func test_shovelshield_fulldefense_opposite_side():
 	position_players(player1, 3, player2, 6)
-	player1.buddy_location = 4
+	player1.set_buddy_location("shieldknight", 4)
 
 	give_player_specific_card(player1, "shovelshield_shieldgong", TestCardId3)
 	assert_true(game_logic.do_boost(player1, TestCardId3))
@@ -258,7 +258,7 @@ func test_shovelshield_fulldefense_opposite_side():
 
 func test_shovelshield_fulldefense_same_side():
 	position_players(player1, 3, player2, 5)
-	player1.buddy_location = 6
+	player1.set_buddy_location("shieldknight", 6)
 
 	give_player_specific_card(player1, "shovelshield_shieldgong", TestCardId3)
 	assert_true(game_logic.do_boost(player1, TestCardId3))
@@ -268,8 +268,8 @@ func test_shovelshield_fulldefense_same_side():
 
 func test_shovelshield_fulldefense_attack_source():
 	position_players(player1, 3, player2, 6)
-	player1.buddy_location = 5
-	player2.buddy_location = 4
+	player1.set_buddy_location("shieldknight", 5)
+	player2.set_buddy_location("shieldknight", 4)
 
 	give_player_specific_card(player1, "shovelshield_shieldgong", TestCardId3)
 	assert_true(game_logic.do_boost(player1, TestCardId3))
@@ -279,7 +279,7 @@ func test_shovelshield_fulldefense_attack_source():
 
 func test_shovelshield_tandemattack_success_start_buddy():
 	position_players(player1, 3, player2, 6)
-	player1.buddy_location = 3
+	player1.set_buddy_location("shieldknight", 3)
 	give_gauge(player1, 2)
 
 	execute_strike(player1, player2, "shovelshield_tandemattack","standard_normal_sweep", [1, 0], [], false, false)
@@ -288,7 +288,7 @@ func test_shovelshield_tandemattack_success_start_buddy():
 
 func test_shovelshield_tandemattack_success_through_buddy():
 	position_players(player1, 3, player2, 6)
-	player1.buddy_location = 4
+	player1.set_buddy_location("shieldknight", 4)
 	give_gauge(player1, 2)
 
 	execute_strike(player1, player2, "shovelshield_tandemattack","standard_normal_sweep", [1], [], false, false)
@@ -297,7 +297,7 @@ func test_shovelshield_tandemattack_success_through_buddy():
 
 func test_shovelshield_tandemattack_success_end_buddy():
 	position_players(player1, 3, player2, 6)
-	player1.buddy_location = 5
+	player1.set_buddy_location("shieldknight", 5)
 	give_gauge(player1, 2)
 
 	execute_strike(player1, player2, "shovelshield_tandemattack","standard_normal_sweep", [1], [], false, false)
@@ -306,7 +306,7 @@ func test_shovelshield_tandemattack_success_end_buddy():
 
 func test_shovelshield_tandemattack_fail():
 	position_players(player1, 3, player2, 6)
-	player1.buddy_location = 2
+	player1.set_buddy_location("shieldknight", 2)
 	give_gauge(player1, 2)
 
 	execute_strike(player1, player2, "shovelshield_tandemattack","standard_normal_sweep", [1], [], false, false)
@@ -315,7 +315,7 @@ func test_shovelshield_tandemattack_fail():
 
 func test_shovelshield_inseperable_off_buddy():
 	position_players(player1, 4, player2, 5)
-	player1.buddy_location = 3
+	player1.set_buddy_location("shieldknight", 3)
 	player1.on_position_changed(3, 3)
 
 	give_player_specific_card(player1, "shovelshield_tandemattack", TestCardId3)
@@ -327,7 +327,7 @@ func test_shovelshield_inseperable_off_buddy():
 
 func test_shovelshield_inseperable_on_buddy():
 	position_players(player1, 4, player2, 5)
-	player1.buddy_location = 4
+	player1.set_buddy_location("shieldknight", 4)
 	player1.on_position_changed(3, 3)
 
 	give_player_specific_card(player1, "shovelshield_tandemattack", TestCardId3)
@@ -339,7 +339,7 @@ func test_shovelshield_inseperable_on_buddy():
 
 func test_shovelshield_inseperable_pushed_into():
 	position_players(player1, 4, player2, 5)
-	player1.buddy_location = 2
+	player1.set_buddy_location("shieldknight", 2)
 	player1.on_position_changed(3, 3)
 
 	give_player_specific_card(player1, "shovelshield_tandemattack", TestCardId3)
@@ -351,7 +351,7 @@ func test_shovelshield_inseperable_pushed_into():
 
 func test_shovelshield_inseperable_where_are_you_going():
 	position_players(player1, 4, player2, 5)
-	player1.buddy_location = 4
+	player1.set_buddy_location("shieldknight", 4)
 	player1.on_position_changed(3, 3)
 
 	give_player_specific_card(player1, "shovelshield_tandemattack", TestCardId3)
@@ -361,7 +361,7 @@ func test_shovelshield_inseperable_where_are_you_going():
 	give_player_specific_card(player1, "shovelshield_shoveldrop", TestCardId4)
 	assert_true(game_logic.do_boost(player1, TestCardId4, []))
 	assert_true(game_logic.do_choice(player1, 0))
-	assert_eq(player1.buddy_location, 2)
+	assert_eq(player1.get_buddy_location("shieldknight"), 2)
 	advance_turn(player1)
 
 	execute_strike(player2, player1, "standard_normal_grasp","standard_normal_assault", [1], [1], false, false)

@@ -17,7 +17,7 @@ dest_files=["res://.godot/imported/nu13.png-54878fde8d5927fbe47a5372a60ae3dc.cte
 
 compress/mode=1
 compress/high_quality=false
-compress/lossy_quality=0.7
+compress/lossy_quality=0.1
 compress/hdr_compression=1
 compress/normal_map=0
 compress/channel_pack=0

@@ -1,6 +1,7 @@
 In progress:
 
 
+☐ bug: Ram mortobato big hand breaks UI scaling
 
 Write tests for:
     Axl:
@@ -47,6 +48,7 @@ Tasks:
     ☐ Reorder opponent hand in a way that you can't keep track with effort
     ☐ Rework character_effect window to allow mulitple abilities, scan for them all at during_strike timing
     ☐ Always show conditional effects and allow choosing them when they fail
+    ☐ Add a info screen after character select on the main menu you can click to show all card for the character.
 
 Bugs:
 
