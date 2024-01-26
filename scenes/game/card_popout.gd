@@ -3,6 +3,7 @@ extends PanelContainer
 signal close_window
 signal pressed_ok(index)
 signal pressed_cancel
+signal pressed_toggle
 
 const ColsAtMaxSize = 5
 const SlotsAtExpectedCols = 10
@@ -19,6 +20,7 @@ var total_cols = 0
 @onready var instruction_button_ok = $PopoutVBox/HBoxContainer/RestOfThing/InstructionButtonOk
 @onready var instruction_button_ok2 = $PopoutVBox/HBoxContainer/RestOfThing/InstructionButtonOk2
 @onready var instruction_button_cancel = $PopoutVBox/HBoxContainer/RestOfThing/InstructionButtonCancel
+@onready var toggle_button = $PopoutVBox/ToggleContainer/WithBuffer/ReshuffleToggle
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
@@ -52,6 +54,7 @@ func set_instructions(instruction_info):
 		var ok2_text = ""
 		if 'ok2_text' in instruction_info:
 			ok2_text = instruction_info['ok2_text']
+
 		instruction_label.text = instruction_text
 		instruction_button_ok.text = ok_text
 		instruction_button_ok.disabled = not ok_enabled
@@ -60,6 +63,14 @@ func set_instructions(instruction_info):
 		instruction_button_ok2.disabled = not ok_enabled
 		instruction_button_cancel.visible = cancel_visible
 		instruction_button_cancel.text = cancel_text
+
+func set_reference_toggle(toggle_text):
+	if toggle_text == "":
+		toggle_button.text = "Show cards before reshuffle"
+		toggle_button.disabled = true
+	else:
+		toggle_button.text = toggle_text
+		toggle_button.disabled = false
 
 func adjust_spacing():
 	if used_slots > SlotsAtExpectedCols:
@@ -126,5 +137,6 @@ func _on_instruction_button_ok2_pressed():
 func _on_instruction_button_cancel_pressed():
 	pressed_cancel.emit()
 
-
+func _on_reshuffle_toggle_pressed():
+	pressed_toggle.emit()
 
