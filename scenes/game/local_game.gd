@@ -138,6 +138,7 @@ class Strike:
 	var strike_state
 	var starting_distance : int = -1
 	var in_setup : bool = true
+	var waiting_for_reading_response : bool = false
 	var opponent_sets_first : bool = false
 	var remaining_effect_list : Array = []
 	var effects_resolved_in_timing : int = 0
@@ -1971,6 +1972,9 @@ func continue_setup_strike(events):
 		events = strike_setup_defender_response(events)
 
 	elif active_strike.strike_state == StrikeState.StrikeState_Defender_SetEffects:
+		if active_strike.waiting_for_reading_response:
+			return events
+
 		var defender_set_strike_effects = active_strike.defender.get_set_strike_effects(active_strike.defender_card)
 		while active_strike.effects_resolved_in_timing < defender_set_strike_effects.size():
 			var effect = defender_set_strike_effects[active_strike.effects_resolved_in_timing]
@@ -2019,6 +2023,7 @@ func strike_setup_defender_response(events):
 				{ "effect_type": "strike_response_reading", "card_id": reading_card.id, "ex_card_id": ex_card_id, "_choice_disabled": ex_card_id == -1 },
 			]
 			events += [create_event(Enums.EventType.EventType_Strike_EffectChoice, defender_id, 0, "Reading", reading_card.definition['display_name'])]
+			active_strike.waiting_for_reading_response = true
 			ask_for_response = false
 		else:
 			events += active_strike.defender.reveal_hand()
@@ -3403,10 +3408,13 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 				performing_player.next_strike_faceup = true
 				performing_player.next_strike_from_gauge = true
 			else:
-				event_queue += events
-				events = []
 				change_game_state(Enums.GameState.GameState_WaitForStrike)
-				do_strike(performing_player, -1, true, -1)
+				var strike_info = {
+					"card_id": -1,
+					"wild_swing": true,
+					"ex_card_id": -1
+				}
+				events += [create_event(Enums.EventType.EventType_Strike_EffectDoStrike, performing_player.my_id, 0, "", strike_info)]
 		"strike_opponent_sets_first":
 			events += [create_event(Enums.EventType.EventType_Strike_OpponentSetsFirst, performing_player.my_id, 0)]
 			change_game_state(Enums.GameState.GameState_Strike_Opponent_Set_First)
@@ -3423,10 +3431,13 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 			var ex_card = -1
 			if 'ex_card_id' in effect:
 				ex_card = effect['ex_card_id']
-			event_queue += events
-			events = []
 			change_game_state(Enums.GameState.GameState_Strike_Opponent_Response)
-			do_strike(performing_player, card, false, ex_card)
+			var strike_info = {
+				"card_id": card,
+				"wild_swing": false,
+				"ex_card_id": ex_card
+			}
+			events += [create_event(Enums.EventType.EventType_Strike_EffectDoStrike, performing_player.my_id, 0, "", strike_info)]
 		"strike_with_deus_ex_machina":
 			change_game_state(Enums.GameState.GameState_AutoStrike)
 			decision_info.effect_type ="happychaos_deusexmachina"
@@ -4765,6 +4776,8 @@ func do_strike(performing_player : Player, card_id : int, wild_strike: bool, ex_
 				events = continue_setup_strike(events)
 
 		Enums.GameState.GameState_Strike_Opponent_Response:
+			active_strike.waiting_for_reading_response = false
+
 			if wild_strike:
 				_append_log("%s Strike Response - Wild Swing" % [performing_player.name])
 				events += performing_player.wild_strike()

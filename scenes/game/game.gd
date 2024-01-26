@@ -1993,6 +1993,17 @@ func _on_effect_choice(event):
 	else:
 		ai_effect_choice(event)
 
+func _on_effect_do_strike(event):
+	var player = event['event_player']
+	var strike_info = event['extra_info']
+	var card_id = strike_info['card_id']
+	var wild_swing = strike_info['wild_swing']
+	var ex_card_id = strike_info['ex_card_id']
+	if player == Enums.PlayerId.PlayerId_Player:
+		game_wrapper.submit_strike(player, card_id, wild_swing, ex_card_id)
+	else:
+		ai_strike_effect_do_strike(card_id, wild_swing, ex_card_id)
+
 func _on_pay_cost_gauge(event):
 	var player = event['event_player']
 	var enable_reminder = event['extra_info']
@@ -2242,6 +2253,8 @@ func _handle_events(events):
 				_on_strike_do_response_now(event)
 			Enums.EventType.EventType_Strike_EffectChoice:
 				_on_effect_choice(event)
+			Enums.EventType.EventType_Strike_EffectDoStrike:
+				_on_effect_do_strike(event)
 			Enums.EventType.EventType_Strike_ExUp:
 				delay = _stat_notice_event(event)
 			Enums.EventType.EventType_Strike_ForceForArmor:
@@ -3007,6 +3020,15 @@ func ai_strike_response():
 		change_ui_state(UIState.UIState_WaitForGameServer)
 	else:
 		print("FAILED AI STRIKE RESPONSE")
+
+func ai_strike_effect_do_strike(card_id : int, wild_swing : bool, ex_card_id : int):
+	change_ui_state(UIState.UIState_WaitForGameServer)
+	if not game_wrapper.is_ai_game(): return
+	var success = game_wrapper.submit_strike(Enums.PlayerId.PlayerId_Opponent, card_id, wild_swing, ex_card_id)
+	if success:
+		change_ui_state(UIState.UIState_WaitForGameServer)
+	else:
+		print("FAILED AI EFFECT CAUSED STRIKE")
 
 func ai_discard(event):
 	change_ui_state(UIState.UIState_WaitForGameServer)
