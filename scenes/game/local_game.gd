@@ -3567,7 +3567,7 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 				boosts_in_play += opposing_player.continuous_boosts.size()
 			if boosts_in_play > 0:
 				performing_player.strike_stat_boosts.speed += effect['amount'] * boosts_in_play
-				events += [create_event(Enums.EventType.EventType_Strike_SpeedUp, performing_player.my_id, effect['amount'] * boosts_in_play]
+				events += [create_event(Enums.EventType.EventType_Strike_SpeedUp, performing_player.my_id, effect['amount'] * boosts_in_play)]
 		"spend_life":
 			var amount = effect['amount']
 			performing_player.life -= amount
