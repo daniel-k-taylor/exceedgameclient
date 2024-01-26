@@ -2531,6 +2531,11 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 		"armorup":
 			performing_player.strike_stat_boosts.armor += effect['amount']
 			events += [create_event(Enums.EventType.EventType_Strike_ArmorUp, performing_player.my_id, effect['amount'])]
+		"armorup_damage_dealt":
+			## This is inaccurate if you have this effect on an additional attack character -- currently impossible, and additional attacks mess up many things
+			var damage_dealt = active_strike.get_damage_taken(opposing_player)
+			performing_player.strike_stat_boosts.armor += damage_dealt
+			events += [create_event(Enums.EventType.EventType_Strike_ArmorUp, performing_player.my_id, damage_dealt)]
 		"armorup_times_gauge":
 			var amount = performing_player.gauge.size() * effect['amount']
 			performing_player.strike_stat_boosts.armor += amount
@@ -2804,7 +2809,10 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 			events += [create_event(Enums.EventType.EventType_Strike_DodgeFromOppositeBuddy, performing_player.my_id, 0, "", effect['buddy_name'])]
 			_append_log("%s is now dodging attacks from opponents behind %s." % [performing_player.name, effect['buddy_name']])
 		"draw":
-			events += performing_player.draw(effect['amount'])
+			if 'opponent' in effect and effect['opponent']:
+				events += opposing_player.draw(effect['amount'])
+			else:
+				events += performing_player.draw(effect['amount'])
 		"discard_continuous_boost":
 			var my_boosts = performing_player.continuous_boosts
 			var opponent_boosts = opposing_player.continuous_boosts
@@ -3289,6 +3297,8 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 			events += [create_event(Enums.EventType.EventType_Strike_RangeUp, performing_player.my_id, effect['amount'], "", effect['amount2'])]
 		"rangeup_per_boost_in_play":
 			var boosts_in_play = performing_player.continuous_boosts.size()
+			if 'all_boosts' in effect and effect['all_boosts']:
+				boosts_in_play += opposing_player.continuous_boosts.size()
 			if boosts_in_play > 0:
 				performing_player.strike_stat_boosts.min_range += effect['amount'] * boosts_in_play
 				performing_player.strike_stat_boosts.max_range += effect['amount2'] * boosts_in_play
@@ -3551,6 +3561,13 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 			var amount = performing_player.gauge.size()
 			performing_player.strike_stat_boosts.speed += amount
 			events += [create_event(Enums.EventType.EventType_Strike_SpeedUp, performing_player.my_id, amount)]
+		"speedup_per_boost_in_play":
+			var boosts_in_play = performing_player.continuous_boosts.size()
+			if 'all_boosts' in effect and effect['all_boosts']:
+				boosts_in_play += opposing_player.continuous_boosts.size()
+			if boosts_in_play > 0:
+				performing_player.strike_stat_boosts.speed += effect['amount'] * boosts_in_play
+				events += [create_event(Enums.EventType.EventType_Strike_SpeedUp, performing_player.my_id, effect['amount'] * boosts_in_play]
 		"spend_life":
 			var amount = effect['amount']
 			performing_player.life -= amount

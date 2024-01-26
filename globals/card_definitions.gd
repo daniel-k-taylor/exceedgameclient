@@ -341,6 +341,8 @@ func get_effect_type_text(effect, card_name_source : String = ""):
 				effect_str += str(effect['amount'])
 		"armorup":
 			effect_str += "+" + str(effect['amount']) + " Armor"
+		"armorup_damage_dealt":
+			effect_str += "+ Armor per damage dealt"
 		"attack_does_not_hit":
 			effect_str += "Attack does not hit."
 		"attack_is_ex":
@@ -434,7 +436,10 @@ func get_effect_type_text(effect, card_name_source : String = ""):
 		"calculate_range_from_buddy":
 			effect_str += "Calculate range from %s." % effect['buddy_name']
 		"draw":
-			effect_str += "Draw " + str(effect['amount'])
+			if 'opponent' in effect and effect['opponent']:
+				effect_str += "Opponent Draw " + str(effect['amount'])
+			else:
+				effect_str += "Draw " + str(effect['amount'])
 		"draw_to":
 			effect_str += "Draw until you have %s cards in hand" % str(effect['amount'])
 		"exceed_now":
@@ -543,7 +548,10 @@ func get_effect_type_text(effect, card_name_source : String = ""):
 				effect_str += "+"
 			effect_str += str(effect['amount2']) + " Range"
 		"rangeup_per_boost_in_play":
-			effect_str += "+" + str(effect['amount']) + "-" + str(effect['amount2']) + " Range per boost in play."
+			if 'all_boosts' in effect and effect['all_boosts']:
+				effect_str += "+" + str(effect['amount']) + "-" + str(effect['amount2']) + " Range per EVERY boost in play."
+			else:
+				effect_str += "+" + str(effect['amount']) + "-" + str(effect['amount2']) + " Range per boost in play."
 		"rangeup_per_sealed_normal":
 			effect_str += "+" + str(effect['amount']) + "-" + str(effect['amount2']) + " Range per sealed normal."
 		"repeat_effect_optionally":
@@ -645,6 +653,11 @@ func get_effect_type_text(effect, card_name_source : String = ""):
 			#else: str() converts it to - already.
 				#effect_str += "-"
 			effect_str += str(effect['amount']) + " Speed"
+		"speedup_per_boost_in_play":
+			if 'all_boosts' in effect and effect['all_boosts']:
+				effect_str += "+" + str(effect['amount']) + " Speed per EVERY boost in play."
+			else:
+				effect_str += "+" + str(effect['amount']) + " Speed per boost in play."
 		"spend_life":
 			effect_str += "Spend " + str(effect['amount']) + " life"
 		"strike":
