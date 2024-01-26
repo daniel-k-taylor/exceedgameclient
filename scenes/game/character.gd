@@ -89,6 +89,10 @@ func get_buddy_id():
 func play_animation(named_animation : String):
 	if animation.sprite_frames.has_animation(named_animation):
 		animation.play(named_animation)
+	elif named_animation == "run":
+		play_animation("walk_forward")
+	elif named_animation == "dash_back":
+		play_animation("walk_backward")
 
 func play_hit():
 	current_position = position
