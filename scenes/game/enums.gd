@@ -118,6 +118,7 @@ enum EventType {
 	EventType_Strike_DodgeFromOppositeBuddy,
 	EventType_Strike_DoResponseNow,
 	EventType_Strike_EffectChoice,
+	EventType_Strike_EffectDoStrike,
 	EventType_Strike_ExUp,
 	EventType_Strike_ForceForArmor,
 	EventType_Strike_ForceWildSwing,
