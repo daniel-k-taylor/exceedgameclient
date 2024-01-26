@@ -12,3 +12,4 @@ animations = [{
 "name": &"idle",
 "speed": 5.0
 }]
+metadata/scaling = 0.6
