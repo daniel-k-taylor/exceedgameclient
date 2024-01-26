@@ -214,7 +214,7 @@ func test_litchi_summon_and_move_mantenbo():
 
 func test_litchi_slow_with_mantenbo():
 	position_players(player1, 4, player2, 7)
-	player2.buddy_location = 7
+	player2.set_buddy_location("mantenbo", 7)
 	execute_strike(player1, player2, "standard_normal_assault", "standard_normal_assault", [], [], false, false)
 	validate_positions(player1, 4, player2, 5)
 	validate_life(player1, 26, player2, 30)
@@ -227,7 +227,7 @@ func test_litchi_range_with_mantenbo():
 
 func test_litchi_ninegates_powerup():
 	position_players(player1, 3, player2, 7)
-	player1.buddy_location = 6
+	player1.set_buddy_location("mantenbo", 6)
 	give_gauge(player1, 4)
 	execute_strike(player1, player2, "litchi_ninegatesofheaven", "standard_normal_assault", [], [], false, false)
 	validate_positions(player1, 6, player2, 7)
@@ -235,7 +235,7 @@ func test_litchi_ninegates_powerup():
 
 func test_litchi_ninegates_no_powerup():
 	position_players(player1, 3, player2, 7)
-	player1.buddy_location = 5
+	player1.set_buddy_location("mantenbo", 5)
 	give_gauge(player1, 4)
 	execute_strike(player1, player2, "litchi_ninegatesofheaven", "standard_normal_assault", [], [], false, false)
 	validate_positions(player1, 6, player2, 7)

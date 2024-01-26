@@ -3572,7 +3572,7 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 				damaged_player.strike_stat_boosts.consumed_armor += used_armor
 			if unmitigated_damage >= damaged_player.life:
 				unmitigated_damage = damaged_player.life - 1
-				damaged_player.life -= unmitigated_damage
+			damaged_player.life -= unmitigated_damage
 			events += [create_event(Enums.EventType.EventType_Strike_TookDamage, damaged_player.my_id, unmitigated_damage, "", damaged_player.life)]
 			if used_armor > 0:
 				_append_log("%s takes %s non-lethal damage (%s blocked by armor). Life is now %s." % [damaged_player.name, str(used_armor), str(unmitigated_damage), str(damaged_player.life)])
