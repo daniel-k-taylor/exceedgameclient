@@ -227,6 +227,7 @@ class Boost:
 	var effects_resolved = 0
 	var action_after_boost = false
 	var strike_after_boost = false
+	var strike_after_boost_opponent_first = false
 	var discard_on_cleanup = false
 	var seal_on_cleanup = false
 	var cancel_resolved = false
@@ -3206,9 +3207,9 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 			var furthest_location
 			var previous_location = opposing_player.arena_location
 			if performing_player.arena_location < opposing_player.arena_location:
-				furthest_location = max(performing_player.arena_location - attack_max_range, MinArenaLocation)
+				furthest_location = max(performing_player.arena_location + attack_max_range, MinArenaLocation)
 			else:
-				furthest_location = min(performing_player.arena_location + attack_max_range, MaxArenaLocation)
+				furthest_location = min(performing_player.arena_location - attack_max_range, MaxArenaLocation)
 			var push_needed = abs(furthest_location - opposing_player.arena_location)
 			events += performing_player.push(push_needed)
 			var new_location = opposing_player.arena_location
@@ -3269,9 +3270,12 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 		"repeat_effect_optionally":
 			if active_strike:
 				var amount = effect['amount']
+				var first_not_automatic = 'first_not_automatic' in effect and effect['first_not_automatic']
 				if str(amount) == "every_two_sealed_normals":
 					var sealed_normals = performing_player.get_sealed_count_of_type("normal")
 					amount = int(sealed_normals / 2)
+				elif str(amount) == "strike_x":
+					amount = performing_player.strike_stat_boosts.strike_x
 
 				var linked_effect = effect['linked_effect']
 				if amount > 0:
@@ -3288,7 +3292,8 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 						]
 					}
 					active_strike.remaining_effect_list.append(repeat_effect)
-				events += handle_strike_effect(card_id, linked_effect, performing_player)
+				if not first_not_automatic:
+					events += handle_strike_effect(card_id, linked_effect, performing_player)
 		"return_all_cards_gauge_to_hand":
 			var card_names = ""
 			for card in performing_player.gauge:
@@ -4440,6 +4445,8 @@ func begin_resolve_boost(performing_player : Player, card_id : int):
 func continue_resolve_boost(events):
 	if game_state == Enums.GameState.GameState_WaitForStrike or game_state == Enums.GameState.GameState_Strike_Opponent_Set_First:
 		active_boost.strike_after_boost = true
+		if game_state == Enums.GameState.GameState_Strike_Opponent_Set_First:
+			active_boost.strike_after_boost_opponent_first = true
 	change_game_state(Enums.GameState.GameState_Boost_Processing)
 
 	var effects = card_db.get_card_boost_effects_now_immediate(active_boost.card)
@@ -4504,6 +4511,8 @@ func boost_finish_resolving_card(performing_player : Player):
 	performing_player.sustain_next_boost = false
 	if game_state == Enums.GameState.GameState_WaitForStrike or game_state == Enums.GameState.GameState_Strike_Opponent_Set_First:
 		active_boost.strike_after_boost = true
+		if game_state == Enums.GameState.GameState_Strike_Opponent_Set_First:
+			active_boost.strike_after_boost_opponent_first = true
 	return events
 
 func boost_play_cleanup(events, performing_player : Player):
@@ -4515,7 +4524,9 @@ func boost_play_cleanup(events, performing_player : Player):
 		decision_info.player = performing_player.my_id
 
 	if active_boost.strike_after_boost and not active_strike:
-		if game_state != Enums.GameState.GameState_Strike_Opponent_Set_First:
+		if active_boost.strike_after_boost_opponent_first:
+			change_game_state(Enums.GameState.GameState_Strike_Opponent_Set_First)
+		else:
 			change_game_state(Enums.GameState.GameState_WaitForStrike)
 		active_boost = null
 	elif active_boost.action_after_boost and not active_strike:
@@ -4729,7 +4740,7 @@ func do_move(performing_player : Player, card_ids, new_arena_location) -> bool:
 
 	# Ensure cards generate enough force.
 	var required_force = performing_player.get_force_to_move_to(new_arena_location)
-	var generated_force = 0
+	var generated_force = performing_player.free_force
 	for id in card_ids:
 		generated_force += card_db.get_card_force_value(id)
 
@@ -4739,9 +4750,13 @@ func do_move(performing_player : Player, card_ids, new_arena_location) -> bool:
 
 	var events = performing_player.discard(card_ids)
 	events += performing_player.move_to(new_arena_location)
-	var card_names = card_db.get_card_name(card_ids[0])
-	for i in range(1, card_ids.size()):
-		card_names += ", " + card_db.get_card_name(card_ids[i])
+	var card_names = ""
+	if card_ids.size() > 0:
+		card_names = card_db.get_card_name(card_ids[0])
+		for i in range(1, card_ids.size()):
+			card_names += ", " + card_db.get_card_name(card_ids[i])
+	else:
+		card_names = "passive bonus"
 	_append_log("%s Turn Action - Move - to position %s by generating force with %s." % [performing_player.name, str(new_arena_location), card_names])
 	events += check_hand_size_advance_turn(performing_player)
 	event_queue += events
@@ -5029,9 +5044,13 @@ func do_force_for_armor(performing_player : Player, card_ids : Array) -> bool:
 	for card_id in card_ids:
 		force_generated += card_db.get_card_force_value(card_id)
 	if force_generated > 0:
-		var card_names = card_db.get_card_name(card_ids[0])
-		for i in range(1, card_ids.size()):
-			card_names += ", " + card_db.get_card_name(card_ids[i])
+		var card_names = ""
+		if card_ids.size() > 0:
+			card_names = card_db.get_card_name(card_ids[0])
+			for i in range(1, card_ids.size()):
+				card_names += ", " + card_db.get_card_name(card_ids[i])
+		else:
+			card_names = "passive bonus"
 		_append_log("%s generated force for armor with %s." % [performing_player.name, card_names])
 		events += performing_player.discard(card_ids)
 		events += handle_strike_effect(decision_info.choice_card_id, {'effect_type': 'armorup', 'amount': force_generated * 2}, performing_player)
@@ -5400,7 +5419,7 @@ func do_choose_from_discard(performing_player : Player, card_ids : Array) -> boo
 	event_queue += events
 	return true
 
-func do_force_for_effect(performing_player : Player, card_ids : Array) -> bool:
+func do_force_for_effect(performing_player : Player, card_ids : Array, cancel : bool = false) -> bool:
 	printlog("SubAction: FORCE_FOR_EFFECT by %s cards %s" % [performing_player.name, card_ids])
 	if game_state != Enums.GameState.GameState_PlayerDecision or decision_info.type != Enums.DecisionType.DecisionType_ForceForEffect:
 		printlog("ERROR: Tried to force for effect but not in decision state.")
@@ -5416,6 +5435,8 @@ func do_force_for_effect(performing_player : Player, card_ids : Array) -> bool:
 			return false
 
 	var force_generated = performing_player.free_force
+	if cancel:
+		force_generated = 0
 	var ultras = 0
 	for card_id in card_ids:
 		var force_value = card_db.get_card_force_value(card_id)
@@ -5431,9 +5452,13 @@ func do_force_for_effect(performing_player : Player, card_ids : Array) -> bool:
 			return false
 	change_game_state(Enums.GameState.GameState_Strike_Processing)
 	if force_generated > 0:
-		var card_names = card_db.get_card_name(card_ids[0])
-		for i in range(1, card_ids.size()):
-			card_names += ", " + card_db.get_card_name(card_ids[i])
+		var card_names = ""
+		if card_ids.size() > 0:
+			card_names = card_db.get_card_name(card_ids[0])
+			for i in range(1, card_ids.size()):
+				card_names += ", " + card_db.get_card_name(card_ids[i])
+		else:
+			card_names = "passive bonus"
 
 		var source_card_name = card_db.get_card_name(decision_info.choice_card_id)
 		var effect_text = ""

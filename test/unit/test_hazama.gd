@@ -243,3 +243,279 @@ func test_hazama_exceed_ua_nothing_first():
 	do_strike_response(player2, TestCardId2)
 	validate_positions(player1, 8, player2, 7)
 	validate_life(player1, 30, player2, 25)
+
+func test_hazama_venomsword_hit_end_right():
+	position_players(player1, 6, player2, 7)
+	execute_strike(player1, player2, "hazama_venomsword", "hazama_venomsword", [], [], false, false, [], [], 0, [])
+	validate_positions(player1, 6, player2, 9)
+	validate_life(player1, 30, player2, 26)
+
+func test_hazama_venomsword_hit_end_left():
+	position_players(player1, 4, player2, 3)
+	execute_strike(player1, player2, "hazama_venomsword", "hazama_venomsword", [], [], false, false, [], [], 0, [])
+	validate_positions(player1, 4, player2, 1)
+	validate_life(player1, 30, player2, 26)
+
+func test_hazama_venomsword_hit_mid():
+	position_players(player1, 3, player2, 6)
+	execute_strike(player1, player2, "hazama_venomsword", "hazama_venomsword", [], [], false, false, [], [], 0, [])
+	validate_positions(player1, 3, player2, 7)
+	validate_life(player1, 30, player2, 26)
+
+func test_hazama_risingfang_boost_then_sustain_topdiscard_no_discard():
+	position_players(player1, 3, player2, 6)
+	give_player_specific_card(player1, "hazama_risingfang", TestCardId3)
+	assert_true(game_logic.do_boost(player1, TestCardId3))
+	advance_turn(player2)
+	execute_strike(player1, player2, "standard_normal_assault", "standard_normal_assault", [0], [], false, false, [], [], 0, [])
+	validate_positions(player1, 5, player2, 6)
+	validate_life(player1, 30, player2, 26)
+
+func test_hazama_risingfang_boost_then_sustain_topdiscard_no_choice():
+	position_players(player1, 3, player2, 6)
+	player1.discard_hand()
+	give_player_specific_card(player1, "standard_normal_dive", TestCardId4)
+	give_player_specific_card(player1, "hazama_devouringfang", TestCardId5) # boost now draw 1, after if stunned draw 2
+	player1.discard([TestCardId5])
+	player1.discard([TestCardId4])
+	give_player_specific_card(player1, "hazama_risingfang", TestCardId3)
+	assert_true(game_logic.do_boost(player1, TestCardId3))
+	assert_eq(player1.hand.size(), 1)
+	advance_turn(player2)
+	execute_strike(player1, player2, "standard_normal_assault", "standard_normal_assault", [0], [], false, false, [], [], 0, [])
+	validate_positions(player1, 5, player2, 6)
+	validate_life(player1, 30, player2, 26)
+	assert_eq(player1.continuous_boosts[0].id, TestCardId5)
+	assert_eq(player1.hand.size(), 4)
+
+func test_hazama_risingfang_boost_then_sustain_topdiscard_boost_with_choice():
+	position_players(player1, 3, player2, 6)
+	player1.discard_hand()
+	give_player_specific_card(player1, "standard_normal_dive", TestCardId4)
+	give_player_specific_card(player1, "hazama_hungrycoils", TestCardId5)
+	player1.discard([TestCardId4])
+	player1.discard([TestCardId5])
+	give_player_specific_card(player1, "hazama_risingfang", TestCardId3)
+	assert_true(game_logic.do_boost(player1, TestCardId3))
+	assert_eq(player1.hand.size(), 1)
+	advance_turn(player2)
+	execute_strike(player1, player2, "standard_normal_assault", "standard_normal_assault", [0, 0], [], false, false, [], [], 0, [])
+	validate_positions(player1, 5, player2, 6)
+	validate_life(player1, 30, player2, 26)
+	advance_turn(player1)
+	assert_eq(player1.continuous_boosts[0].id, TestCardId5)
+	assert_eq(player1.hand.size(), 3)
+
+
+func test_hazama_hungrydarkness_repeatoptionally():
+	position_players(player1, 3, player2, 4)
+	player1.discard_hand()
+	assert_eq(player1.hand.size(), 0)
+	give_gauge(player1, 4)
+	assert_eq(player2.hand.size(), 6)
+	# Should have 6 choices, 1 for each draw
+	execute_strike(player1, player2, "hazama_hungrydarkness", "standard_normal_sweep", [0, 0, 0, 0 ,0 ,0], [], false, false, [], [], 0, [])
+	validate_positions(player1, 3, player2, 4)
+	validate_life(player1, 30, player2, 20)
+	assert_eq(player1.hand.size(), 6)
+
+func test_hazama_hungrydarkness_repeatoptionally_three():
+	position_players(player1, 3, player2, 4)
+	player1.discard_hand()
+	assert_eq(player1.hand.size(), 0)
+	give_gauge(player1, 4)
+	assert_eq(player2.hand.size(), 6)
+	# Do the effect 3 times then pass
+	execute_strike(player1, player2, "hazama_hungrydarkness", "standard_normal_sweep", [0, 0, 0, 1], [], false, false, [], [], 0, [])
+	validate_positions(player1, 3, player2, 4)
+	validate_life(player1, 30, player2, 20)
+	assert_eq(player1.hand.size(), 3)
+
+func test_hazama_hungrydarkness_repeatoptionally_1():
+	position_players(player1, 3, player2, 4)
+	player1.discard_hand()
+	assert_eq(player1.hand.size(), 0)
+	give_gauge(player1, 4)
+	player2.discard_hand()
+	give_player_specific_card(player2, "standard_normal_assault", TestCardId3)
+	assert_eq(player2.hand.size(), 1)
+	# Should still get 1 choice
+	execute_strike(player1, player2, "hazama_hungrydarkness", "standard_normal_sweep", [0], [], false, false, [], [], 0, [])
+	validate_positions(player1, 3, player2, 4)
+	validate_life(player1, 30, player2, 25)
+	assert_eq(player1.hand.size(), 1)
+	
+func test_hazama_hungrycoils_force_reduce_strike():
+	position_players(player1, 3, player2, 7)
+	give_player_specific_card(player1, "hazama_hungrycoils", TestCardId3)
+	assert_true(game_logic.do_boost(player1, TestCardId3))
+	assert_true(game_logic.do_choice(player1, 0)) # Do the strike
+	give_player_specific_card(player2, "standard_normal_assault", TestCardId4)
+	give_player_specific_card(player1, "standard_normal_assault", TestCardId5)
+	# Set first initiate
+	assert_true(game_logic.do_strike(player1, -1, false, -1, true))
+	# Opponent sets
+	assert_true(game_logic.do_strike(player2, TestCardId4, false, -1, true))
+	# Player sets
+	assert_true(game_logic.do_strike(player1, TestCardId5, false, -1, true))
+	# Ouroboros choice to spend (but force is free)
+	assert_true(game_logic.do_force_for_effect(player1, []))
+	# Move Ouroboros
+	assert_true(game_logic.do_choice(player1, 1))
+	# Position it (-1 or +1 range)
+	assert_true(game_logic.do_choice(player1, 1))
+	
+	validate_positions(player1, 6, player2, 7)
+	validate_life(player1, 30, player2, 26)
+
+func test_hazama_hungrycoils_force_reduce_strike_dont_ouro():
+	position_players(player1, 3, player2, 7)
+	give_player_specific_card(player1, "hazama_hungrycoils", TestCardId3)
+	assert_true(game_logic.do_boost(player1, TestCardId3))
+	assert_true(game_logic.do_choice(player1, 0)) # Do the strike
+	give_player_specific_card(player2, "standard_normal_assault", TestCardId4)
+	give_player_specific_card(player1, "standard_normal_assault", TestCardId5)
+	# Set first initiate
+	assert_true(game_logic.do_strike(player1, -1, false, -1, true))
+	# Opponent sets
+	assert_true(game_logic.do_strike(player2, TestCardId4, false, -1, true))
+	# Player sets
+	assert_true(game_logic.do_strike(player1, TestCardId5, false, -1, true))
+	# Ouroboros choice to spend (but force is free) - cancel it
+	assert_true(game_logic.do_force_for_effect(player1, [], true))
+	
+	validate_positions(player1, 5, player2, 6)
+	validate_life(player1, 26, player2, 30)
+
+func test_hazama_hungrycoils_force_reduce_dont_strike_move():
+	position_players(player1, 3, player2, 7)
+	give_player_specific_card(player1, "hazama_hungrycoils", TestCardId3)
+	assert_true(game_logic.do_boost(player1, TestCardId3))
+	assert_true(game_logic.do_choice(player1, 1)) # Skip striking
+	advance_turn(player2)
+	player1.discard_hand()
+	assert_true(game_logic.do_move(player1, [], 4))
+	advance_turn(player2)
+
+func test_hazama_hungrycoils_force_reduce_dont_strike_move_2():
+	position_players(player1, 3, player2, 7)
+	give_player_specific_card(player1, "hazama_hungrycoils", TestCardId3)
+	assert_true(game_logic.do_boost(player1, TestCardId3))
+	assert_true(game_logic.do_choice(player1, 1)) # Skip striking
+	advance_turn(player2)
+	give_player_specific_card(player1, "standard_normal_assault", TestCardId4)
+	assert_true(game_logic.do_move(player1, [TestCardId4], 5))
+	advance_turn(player2)
+
+func test_hazama_hungrycoils_force_reduce_dont_strike_cc():
+	position_players(player1, 3, player2, 7)
+	give_player_specific_card(player1, "hazama_hungrycoils", TestCardId3)
+	assert_true(game_logic.do_boost(player1, TestCardId3))
+	assert_true(game_logic.do_choice(player1, 1)) # Skip striking
+	advance_turn(player2)
+	player1.discard_hand()
+	assert_true(game_logic.do_change(player1, []))
+	assert_eq(player1.hand.size(), 2)
+	advance_turn(player2)
+
+func test_hazama_hungrycoils_force_reduce_dont_strike_cc1():
+	position_players(player1, 3, player2, 7)
+	give_player_specific_card(player1, "hazama_hungrycoils", TestCardId3)
+	assert_true(game_logic.do_boost(player1, TestCardId3))
+	assert_true(game_logic.do_choice(player1, 1)) # Skip striking
+	advance_turn(player2)
+	give_player_specific_card(player1, "standard_normal_assault", TestCardId4)
+	assert_eq(player1.hand.size(), 7)
+	assert_true(game_logic.do_change(player1, [TestCardId4]))
+	assert_eq(player1.hand.size(), 9)
+
+func test_hazama_hungrycoils_force_reduce_dont_strike_cc_ultra():
+	position_players(player1, 3, player2, 7)
+	give_player_specific_card(player1, "hazama_hungrycoils", TestCardId3)
+	assert_true(game_logic.do_boost(player1, TestCardId3))
+	assert_true(game_logic.do_choice(player1, 1)) # Skip striking
+	advance_turn(player2)
+	give_player_specific_card(player1, "hazama_serpentsinfernalrapture", TestCardId4)
+	assert_eq(player1.hand.size(), 7)
+	assert_true(game_logic.do_change(player1, [TestCardId4]))
+	assert_eq(player1.hand.size(), 10)
+
+func test_hazama_block_with_force_reduced():
+	position_players(player1, 5, player2, 7)
+	give_player_specific_card(player1, "hazama_hungrycoils", TestCardId3)
+	assert_true(game_logic.do_boost(player1, TestCardId3))
+	assert_true(game_logic.do_choice(player1, 0)) # Do the strike
+	give_player_specific_card(player2, "standard_normal_sweep", TestCardId4)
+	give_player_specific_card(player1, "standard_normal_block", TestCardId5)
+	# Set first initiate
+	assert_true(game_logic.do_strike(player1, -1, false, -1, true))
+	# Opponent sets
+	assert_true(game_logic.do_strike(player2, TestCardId4, false, -1, true))
+	# Player sets
+	assert_true(game_logic.do_strike(player1, TestCardId5, false, -1, true))
+	# Ouroboros choice to spend (but force is free) - cancel it
+	assert_true(game_logic.do_force_for_effect(player1, [], true))
+	assert_true(game_logic.do_force_for_armor(player1, []))
+	# Should be 4 armor
+	validate_positions(player1, 5, player2, 7)
+	validate_life(player1, 28, player2, 30)
+	advance_turn(player2)
+
+func test_hazama_eternalcoils_with_force_reduced():
+	position_players(player1, 3, player2, 7)
+	give_gauge(player1, 3)
+	give_player_specific_card(player1, "hazama_hungrycoils", TestCardId3)
+	assert_true(game_logic.do_boost(player1, TestCardId3))
+	assert_true(game_logic.do_choice(player1, 0)) # Do the strike
+	give_player_specific_card(player2, "standard_normal_assault", TestCardId4)
+	give_player_specific_card(player1, "hazama_eternalcoils", TestCardId5)
+	# Set first initiate
+	assert_true(game_logic.do_strike(player1, -1, false, -1, true))
+	# Opponent sets
+	assert_true(game_logic.do_strike(player2, TestCardId4, false, -1, true))
+	# Player sets
+	assert_true(game_logic.do_strike(player1, TestCardId5, false, -1, true))
+	# Ouroboros choice to spend (but force is free) - cancel it
+	assert_true(game_logic.do_force_for_effect(player1, [], true))
+	# Pay gauge
+	var cards = []
+	for i in range(3):
+		cards.append(player1.gauge[i].id)
+	assert_true(game_logic.do_pay_strike_cost(player1, cards, false))
+	# Hit, force for effect up to 5
+	# Do just the free, for powerup 1 and pull 8
+	assert_true(game_logic.do_force_for_effect(player1, [], false))
+	validate_positions(player1, 3, player2, 1)
+	validate_life(player1, 30, player2, 26)
+
+func test_hazama_eternalcoils_with_force_reduced_full5():
+	position_players(player1, 3, player2, 7)
+	give_gauge(player1, 3)
+	give_player_specific_card(player1, "hazama_hungrycoils", TestCardId3)
+	assert_true(game_logic.do_boost(player1, TestCardId3))
+	assert_true(game_logic.do_choice(player1, 0)) # Do the strike
+	give_player_specific_card(player2, "standard_normal_assault", TestCardId4)
+	give_player_specific_card(player1, "hazama_eternalcoils", TestCardId5)
+	# Set first initiate
+	assert_true(game_logic.do_strike(player1, -1, false, -1, true))
+	# Opponent sets
+	assert_true(game_logic.do_strike(player2, TestCardId4, false, -1, true))
+	# Player sets
+	assert_true(game_logic.do_strike(player1, TestCardId5, false, -1, true))
+	# Ouroboros choice to spend (but force is free) - cancel it
+	assert_true(game_logic.do_force_for_effect(player1, [], true))
+	# Pay gauge
+	var cards = []
+	for i in range(3):
+		cards.append(player1.gauge[i].id)
+	assert_true(game_logic.do_pay_strike_cost(player1, cards, false))
+	# Hit, force for effect up to 5
+	# Do just the full 5, paying with 4 normals
+	var card_ids = []
+	for i in range(4):
+		var id = i + TestCardId5 + 1
+		give_player_specific_card(player1, "standard_normal_grasp", id)
+		card_ids.append(id)
+	assert_true(game_logic.do_force_for_effect(player1, card_ids, false))
+	validate_positions(player1, 3, player2, 1)
+	validate_life(player1, 30, player2, 22)

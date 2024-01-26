@@ -1,13 +1,4 @@
 In progress:
-    Hazama:
-        ☐ Remaining implementation - repeat_optionally from Nine commit
-        ☐ Tests
-            ☐ Force reduced passives
-            ☐ repeat optionally
-            ☐ push to attack max range
-            ☐ boost_then_sustain_topdiscard
-
-
 
 
 ☐ bug: Ram mortobato big hand breaks UI scaling

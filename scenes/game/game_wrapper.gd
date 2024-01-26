@@ -329,9 +329,9 @@ func submit_choose_from_discard(player: Enums.PlayerId, card_ids : Array) -> boo
 	var game_player = _get_player(player)
 	return current_game.do_choose_from_discard(game_player, card_ids)
 
-func submit_force_for_effect(player: Enums.PlayerId, card_ids : Array) -> bool:
+func submit_force_for_effect(player: Enums.PlayerId, card_ids : Array, cancel : bool = false) -> bool:
 	var game_player = _get_player(player)
-	return current_game.do_force_for_effect(game_player, card_ids)
+	return current_game.do_force_for_effect(game_player, card_ids, cancel)
 
 func submit_gauge_for_effect(player: Enums.PlayerId, card_ids : Array) -> bool:
 	var game_player = _get_player(player)

@@ -2017,6 +2017,7 @@
 					"amount": "strike_x",
 					"and": {
 						"effect_type": "repeat_effect_optionally",
+						"first_not_automatic": true,
 						"amount": "strike_x",
 						"linked_effect": {
 							"effect_type": "draw",

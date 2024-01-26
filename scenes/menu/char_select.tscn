@@ -1,4 +1,4 @@
-[gd_scene load_steps=44 format=3 uid="uid://cqs72exlwm6at"]
+[gd_scene load_steps=45 format=3 uid="uid://cqs72exlwm6at"]
 
 [ext_resource type="Script" path="res://scenes/menu/char_select.gd" id="1_f3x24"]
 [ext_resource type="PackedScene" uid="uid://nwqxp8pdh1jk" path="res://scenes/menu/char_select_button.tscn" id="6_3lmwy"]
@@ -41,8 +41,8 @@
 [ext_resource type="Texture2D" uid="uid://de4wk0x150r1f" path="res://assets/portraits/exceedrandom.png" id="32_iutun"]
 [ext_resource type="Texture2D" uid="uid://juesnkghbyjd" path="res://assets/portraits/plague.png" id="32_o7q1n"]
 [ext_resource type="Texture2D" uid="uid://bc01kjivot83r" path="res://assets/portraits/litchi.png" id="32_tp7xh"]
-[ext_resource type="Texture2D" uid="uid://8nah2fhvu83k" path="res://assets/portraits/nine.png" id="34_h13ui"]
 [ext_resource type="Texture2D" uid="uid://cp4tvk0uhox0p" path="res://assets/portraits/hazama.png" id="33_ymrgl"]
+[ext_resource type="Texture2D" uid="uid://8nah2fhvu83k" path="res://assets/portraits/nine.png" id="34_h13ui"]
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_8u80i"]
 

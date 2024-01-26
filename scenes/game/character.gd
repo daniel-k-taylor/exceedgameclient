@@ -32,23 +32,23 @@ enum CharacterAnim {
 
 var animation_map = {
 	CharacterAnim.CharacterAnim_None: func():
-		animation.play("idle"),
+		play_animation("idle"),
 	CharacterAnim.CharacterAnim_DashBack: func():
-		animation.play("dash_back"),
+		play_animation("dash_back"),
 	CharacterAnim.CharacterAnim_Hit: func():
-		animation.play("hit"),
+		play_animation("hit"),
 	CharacterAnim.CharacterAnim_Pulled: func():
-		animation.play("pulled"),
+		play_animation("pulled"),
 	CharacterAnim.CharacterAnim_Pushed: func():
-		animation.play("pushed"),
+		play_animation("pushed"),
 	CharacterAnim.CharacterAnim_Run: func():
-		animation.play("run"),
+		play_animation("run"),
 	CharacterAnim.CharacterAnim_Stunned: func():
-		animation.play("stunned"),
+		play_animation("stunned"),
 	CharacterAnim.CharacterAnim_WalkForward: func():
-		animation.play("walk_forward"),
+		play_animation("walk_forward"),
 	CharacterAnim.CharacterAnim_WalkBackward: func():
-		animation.play("walk_backward"),
+		play_animation("walk_backward"),
 }
 
 var buddy_id : String = ""
@@ -60,7 +60,7 @@ func _ready():
 func load_character(char_id : String):
 	var path = "res://assets/character_animations/" + char_id + "/animations.tres"
 	animation.sprite_frames = load(path)
-	animation.play("idle")
+	play_animation("idle")
 	if animation.sprite_frames.has_meta("scaling"):
 		var scaling = animation.sprite_frames.get_meta("scaling")
 		if scaling:
@@ -86,19 +86,23 @@ func set_buddy_id(id : String):
 func get_buddy_id():
 	return buddy_id
 
+func play_animation(named_animation : String):
+	if animation.sprite_frames.has_animation(named_animation):
+		animation.play(named_animation)
+
 func play_hit():
 	current_position = position
 	target_position = position
 	remaining_animation_time = HitTime
 	animation_state = AnimationState.AnimationState_Moving
-	animation.play("hit")
+	play_animation("hit")
 
 func play_stunned():
 	current_position = position
 	target_position = position
 	remaining_animation_time = HitTime
 	animation_state = AnimationState.AnimationState_Moving
-	animation.play("stunned")
+	play_animation("stunned")
 
 func move_to(pos : Vector2, move_type : CharacterAnim):
 	current_position = position
@@ -116,7 +120,7 @@ func _physics_process(delta):
 			remaining_animation_time = -1
 			animation_state = AnimationState.AnimationState_Idle
 			position = target_position
-			animation.play("idle")
+			play_animation("idle")
 		else:
 			position = current_position.lerp(target_position, (MoveTime - remaining_animation_time) / MoveTime)
 

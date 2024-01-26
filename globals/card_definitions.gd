@@ -438,6 +438,8 @@ func get_effect_type_text(effect, card_name_source : String = ""):
 			effect_str += "Exceed"
 		"extra_trigger_resolutions":
 			effect_str += "Before/Hit/After triggers resolve %s extra time(s)" % effect['amount']
+		"force_costs_reduced_passive":
+			effect_str += "Force costs reduced by %s" % effect['amount']
 		"force_for_effect":
 			effect_str += get_force_for_effect_summary(effect, card_name_source)
 		"gauge_for_effect":
@@ -646,6 +648,8 @@ func get_effect_type_text(effect, card_name_source : String = ""):
 			effect_str += "Strike"
 		"strike_faceup":
 			effect_str += "Strike face-up"
+		"strike_opponent_sets_first":
+			effect_str += "Strike (opponent sets first)"
 		"strike_random_from_gauge":
 			effect_str += "Strike with random card from gauge (opponent sets first)"
 		"strike_response_reading":

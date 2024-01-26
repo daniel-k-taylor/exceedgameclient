@@ -2530,7 +2530,7 @@ func update_boost_summary(boosts_card_holder, boost_box):
 	for card_id in card_ids:
 		var card = card_db.get_card(card_id)
 		for effect in card.definition['boost']['effects']:
-			if effect['timing'] != "now" or effect['effect_type'] == "ignore_push_and_pull_passive_bonus":
+			if effect['timing'] != "now" or effect['effect_type'] in ["force_costs_reduced_passive", "ignore_push_and_pull_passive_bonus"]:
 				if effect['timing'] != "discarded":
 					effects.append(effect)
 	var boost_summary = ""
@@ -2781,7 +2781,7 @@ func _on_instructions_cancel_button_pressed():
 		UISubState.UISubState_SelectCards_ForceForEffect:
 			deselect_all_cards()
 			close_popout()
-			success = game_wrapper.submit_force_for_effect(Enums.PlayerId.PlayerId_Player, [])
+			success = game_wrapper.submit_force_for_effect(Enums.PlayerId.PlayerId_Player, [], true)
 		UISubState.UISubState_SelectCards_GaugeForEffect:
 			deselect_all_cards()
 			close_popout()
