@@ -3135,19 +3135,21 @@
 			"display_name": "Shades of Glory",
 			"effects": [
 				{
-				"timing": "during_strike",
-				"effect_type": "guardup",
-				"amount": 2,
-				"overall_effect": {
+				"timing": "set_strike",
 					"effect_type": "critical",
 					"character_effect": true
-					}
+				},
+				
+				{
+				"timing": "during_strike",
+				"effect_type": "guardup",
+				"amount": 2
 				},
 				{
-					"timing": "cleanup",
-					"condition": "not_stunned",
-					"effect_type": "sustain_this",
-					"card_name": "Flash Explosion"
+				"timing": "cleanup",
+				"condition": "not_stunned",
+				"effect_type": "sustain_this",
+				"card_name": "Flash Explosion"
 				}
 			]		
 		}
@@ -3187,19 +3189,17 @@
 			"effects": [ 
 				{
 					"timing": "now",
-					"effect_type:": "strike"
+					"effect_type": "strike"
 				},
 				{
 					"timing": "during_strike",
-					"effect_type:": "speedup",
+					"effect_type": "speedup",
 					"amount": 2
 					}
 			]
 			}
 	},
-	{
-		
-	},
+	
 	{
 		"id": "guile_doublesweepkick",
 		"type": "special",
@@ -3235,11 +3235,15 @@
 						"amount": 0,
 						"amount2": 1
 					},
-					
-					{
-						"timing": "end_of_next_turn",
-						"effect_type": "add_to_guage_immediately"
-					}
+				{
+					"timing": "now",
+					"effect_type": "set_end_of_turn_boost_delay"
+				},
+				
+				{
+					"timing": "end_of_turn",
+					"effect_type": "add_to_gauge_immediately"
+				}
 				]
 			}
 	},
@@ -3287,10 +3291,15 @@
 						"effect_type": "powerup",
 						"amount": 2
 					},
-					{
-						"timing": "end_of_next_turn",
-						"effect_type": "add_to_guage_immediately"
-					}
+				{
+					"timing": "now",
+					"effect_type": "set_end_of_turn_boost_delay"
+				},
+				
+				{
+					"timing": "end_of_turn",
+					"effect_type": "add_to_gauge_immediately"
+				}
 				]
 			}
 	},
@@ -3312,7 +3321,7 @@
 				"effect_type": "ignore_guard"
 			},
 			{
-				"timing": "during_strike",
+				"timing": "hit",
 				"condition": "is_critical",
 				"effect_type": "opponent_discard_random",
 				"amount": 2
@@ -3334,10 +3343,14 @@
 						"effect_type": "guardup",
 						"amount": 3
 					},
-					{
-						"timing": "end_of_next_turn",
-						"effect_type": "add_to_guage_immediately"
-					}
+				{
+					"timing": "now",
+					"effect_type": "set_end_of_turn_boost_delay"
+				},
+				{
+					"timing": "end_of_turn",
+					"effect_type": "add_to_gauge_immediately"
+				}
 				]
 			}				
 	},
@@ -3381,12 +3394,16 @@
 						"timing": "during_strike",
 						"effect_type": "speedup",
 						"amount": 2
-					},
-					
-					{
-						"timing": "end_of_next_turn",
-						"effect_type": "add_to_guage_immediately"
-					}
+					},	
+				{
+					"timing": "now",
+					"effect_type": "set_end_of_turn_boost_delay"
+				},
+				
+				{
+					"timing": "end_of_turn",
+					"effect_type": "add_to_gauge_immediately"
+				}
 				]
 			}							
 	},
@@ -3435,34 +3452,11 @@
 					"effect_type": "close",
 					"amount": 2						
 					},
+					
 					{
 					"timing": "immediate",
-					"condition": "range",
+					"condition": "range_greater_or_equal",
 					"condition_amount": 2,
-					"effect_type": "bonus_action"
-					},
-					{
-					"timing": "immediate",
-					"condition": "range",
-					"condition_amount": 3,
-					"effect_type": "bonus_action"
-					},
-					{
-					"timing": "immediate",
-					"condition": "range",
-					"condition_amount": 4,
-					"effect_type": "bonus_action"
-					},
-					{
-					"timing": "immediate",
-					"condition": "range",
-					"condition_amount": 5,
-					"effect_type": "bonus_action"
-					},
-					{
-					"timing": "immediate",
-					"condition": "range",
-					"condition_amount": 6,
 					"effect_type": "bonus_action"
 					}
 				]			

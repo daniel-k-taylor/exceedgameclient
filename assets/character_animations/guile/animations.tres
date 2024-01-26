@@ -1,4 +1,4 @@
-[gd_resource type="SpriteFrames" load_steps=2 format=3 uid="uid://8fpiucrrv64"]
+[gd_resource type="SpriteFrames" load_steps=2 format=3 uid="uid://dfm6j4bbow6uf"]
 
 [ext_resource type="Texture2D" uid="uid://bg1ol57xdugnn" path="res://assets/character_animations/guile/idle/sheet.png" id="1_jkjri"]
 
@@ -7,11 +7,10 @@ animations = [{
 "frames": [{
 "duration": 1.0,
 "texture": ExtResource("1_jkjri")
-}, {
-"duration": 1.0,
-"texture": null
 }],
 "loop": true,
 "name": &"idle",
 "speed": 5.0
 }]
+metadata/flip = true
+metadata/scaling = 0.4

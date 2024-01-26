@@ -3,15 +3,15 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://d0vlrtjdjxmy1"
-path="res://.godot/imported/character_exceeded.jpeg-e64f5b8ea544b0e01c7284cdde2fee4e.ctex"
+path="res://.godot/imported/character_exceeded.jpg-3ff97494acc898e0c793358625c260b1.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/cards/guile/character_exceeded.jpeg"
-dest_files=["res://.godot/imported/character_exceeded.jpeg-e64f5b8ea544b0e01c7284cdde2fee4e.ctex"]
+source_file="res://assets/cards/guile/character_exceeded.jpg"
+dest_files=["res://.godot/imported/character_exceeded.jpg-3ff97494acc898e0c793358625c260b1.ctex"]
 
 [params]
 
