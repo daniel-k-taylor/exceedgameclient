@@ -83,6 +83,8 @@ var popout_exlude_card_ids = []
 var selected_character_action = 0
 var cached_player_location = 0
 var cached_opponent_location = 0
+var reference_popout_toggle_enabled = false
+var reference_popout_toggle = false
 
 var player_deck
 var opponent_deck
@@ -1815,6 +1817,7 @@ func _on_reshuffle_discard(event):
 			$AllCards/OpponentDeck.add_child(card)
 			card.flip_card_to_front(false)
 			card.reset(OffScreen)
+		reference_popout_toggle_enabled = true
 	close_popout()
 	update_card_counts()
 	return SmallNoticeDelay
@@ -3286,6 +3289,15 @@ func popout_show_normal_only() -> bool:
 
 func show_popout(popout_type : CardPopoutType, popout_title : String, card_node, card_rest_position : Vector2, card_rest_state : CardBase.CardState, show_amount : bool = true):
 	popout_type_showing = popout_type
+
+	var toggle_text = ""
+	if popout_type == CardPopoutType.CardPopoutType_ReferenceOpponent and reference_popout_toggle_enabled:
+		if reference_popout_toggle:
+			toggle_text = "Show current cards"
+		else:
+			toggle_text = "Show cards before reshuffle"
+	card_popout.set_reference_toggle(toggle_text)
+
 	update_popout_instructions()
 	card_popout.set_title(popout_title)
 	if card_popout.visible:
@@ -3362,8 +3374,14 @@ func _on_player_reference_button_pressed():
 		card.set_remaining_count(count)
 	show_popout(CardPopoutType.CardPopoutType_ReferencePlayer, "YOUR DECK REFERENCE (showing remaining card counts in deck+hand)", $AllCards/PlayerAllCopy, OffScreen, CardBase.CardState.CardState_Offscreen, false)
 
-func _on_opponent_reference_button_pressed():
+func _on_opponent_reference_button_pressed(switch_toggle : bool = false):
 	await close_popout()
+
+	if switch_toggle:
+		reference_popout_toggle = not reference_popout_toggle
+	else:
+		reference_popout_toggle = false
+
 	for card in $AllCards/OpponentAllCopy.get_children():
 		if card.card_id < 0:
 			continue
@@ -3394,6 +3412,9 @@ func _on_card_popout_pressed_ok(index):
 
 func _on_card_popout_pressed_cancel():
 	_on_instructions_cancel_button_pressed()
+
+func _on_card_popout_pressed_toggle():
+	_on_opponent_reference_button_pressed(true)
 
 
 func _on_combat_log_button_pressed():
