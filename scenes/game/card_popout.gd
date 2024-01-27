@@ -3,6 +3,7 @@ extends PanelContainer
 signal close_window
 signal pressed_ok(index)
 signal pressed_cancel
+signal pressed_toggle
 
 const ColsAtMaxSize = 5
 const SlotsAtExpectedCols = 10
@@ -19,6 +20,7 @@ var total_cols = 0
 @onready var instruction_button_ok = $PopoutVBox/HBoxContainer/RestOfThing/InstructionButtonOk
 @onready var instruction_button_ok2 = $PopoutVBox/HBoxContainer/RestOfThing/InstructionButtonOk2
 @onready var instruction_button_cancel = $PopoutVBox/HBoxContainer/RestOfThing/InstructionButtonCancel
+@onready var toggle_button = $PopoutVBox/ToggleContainer/WithBuffer/ReshuffleToggle
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
@@ -52,6 +54,7 @@ func set_instructions(instruction_info):
 		var ok2_text = ""
 		if 'ok2_text' in instruction_info:
 			ok2_text = instruction_info['ok2_text']
+
 		instruction_label.text = instruction_text
 		instruction_button_ok.text = ok_text
 		instruction_button_ok.disabled = not ok_enabled
@@ -60,6 +63,14 @@ func set_instructions(instruction_info):
 		instruction_button_ok2.disabled = not ok_enabled
 		instruction_button_cancel.visible = cancel_visible
 		instruction_button_cancel.text = cancel_text
+
+func set_reference_toggle(toggle_text):
+	if toggle_text == "":
+		toggle_button.text = "Show cards before reshuffle"
+		toggle_button.disabled = true
+	else:
+		toggle_button.text = toggle_text
+		toggle_button.disabled = false
 
 func adjust_spacing():
 	if used_slots > SlotsAtExpectedCols:
@@ -104,14 +115,24 @@ func get_spot(slot_index):
 	if used_slots > 0:
 		row_num = floor(slot_index / total_cols)
 		col_num = (slot_index % total_cols)
+		if row_num >= 2:
+			# Since the objects are Spot1/Spot2, row_num can't be 2 or more.
+			# Somehow we snuck into the next col?
+			row_num = 0
+			assert(false)
 	var col = $PopoutVBox/Margin/Row.get_node("Col%s" % str(col_num + 1))
 	var spot = col.get_node("Spot%s" % str(row_num + 1))
 	return spot
 
 func get_slot_position(slot_index : int) -> Vector2:
 	var spot = get_spot(slot_index)
-	var pos = spot.global_position
-	return pos
+	if spot:
+		var pos = spot.global_position
+		return pos
+	else:
+		# Something weird happened, default to something to not crash
+		# We should at least have a slot 0, right?
+		return get_spot(0).global_position
 
 func _on_close_window_button_pressed():
 	close_window.emit()
@@ -126,5 +147,6 @@ func _on_instruction_button_ok2_pressed():
 func _on_instruction_button_cancel_pressed():
 	pressed_cancel.emit()
 
-
+func _on_reshuffle_toggle_pressed():
+	pressed_toggle.emit()
 

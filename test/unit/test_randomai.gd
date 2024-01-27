@@ -1,6 +1,7 @@
 extends GutTest
 
-const RandomIterations = 100
+# Leave at 0 checked in so someone doesn't accidentally run all tests at 100.
+const RandomIterations = 0
 
 const LocalGame = preload("res://scenes/game/local_game.gd")
 const GameCard = preload("res://scenes/game/game_card.gd")
@@ -572,6 +573,15 @@ func test_noel_100():
 		game_setup()
 	pass_test("Finished match")
 
+func test_hazama_100():
+	default_deck = CardDefinitions.get_deck_from_str_id("hazama")
+	for i in range(RandomIterations):
+		print("==== RUNNING TEST %d ====" % i)
+		run_ai_game()
+		game_teardown()
+		game_setup()
+	pass_test("Finished match")
+
 func test_nu13_100():
 	default_deck = CardDefinitions.get_deck_from_str_id("nu13")
 	for i in range(RandomIterations):
@@ -592,6 +602,15 @@ func test_litchi_100():
 
 func test_tager_100():
 	default_deck = CardDefinitions.get_deck_from_str_id("tager")
+	for i in range(RandomIterations):
+		print("==== RUNNING TEST %d ====" % i)
+		run_ai_game()
+		game_teardown()
+		game_setup()
+	pass_test("Finished match")
+
+func test_taokaka_100():
+	default_deck = CardDefinitions.get_deck_from_str_id("taokaka")
 	for i in range(RandomIterations):
 		print("==== RUNNING TEST %d ====" % i)
 		run_ai_game()
@@ -664,7 +683,7 @@ func test_plague_100():
 
 func test_nine_100():
 	default_deck = CardDefinitions.get_deck_from_str_id("nine")
-	for i in range(100):
+	for i in range(RandomIterations):
 		print("==== RUNNING TEST %d ====" % i)
 		run_ai_game()
 		game_teardown()

@@ -138,9 +138,11 @@ func execute_strike(initiator, defender, init_card : String, def_card : String, 
 		game_logic.do_force_for_effect(initiator, init_force_discard)
 
 	if reading_id != -1:
-		all_events += game_logic.get_latest_events()
 		assert_eq(game_logic.decision_info.type, Enums.DecisionType.DecisionType_ChooseSimultaneousEffect)
 		assert_true(game_logic.do_choice(defender, 0))
+		all_events += game_logic.get_latest_events()
+		validate_has_event(all_events, Enums.EventType.EventType_Strike_EffectDoStrike, defender, 0)
+		assert_true(game_logic.do_strike(defender, reading_id, false, -1))
 	elif def_ex:
 		give_player_specific_card(defender, def_card, TestCardId4)
 		all_events += do_strike_response(defender, TestCardId2, TestCardId4)

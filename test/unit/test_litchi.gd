@@ -214,7 +214,7 @@ func test_litchi_summon_and_move_mantenbo():
 
 func test_litchi_slow_with_mantenbo():
 	position_players(player1, 4, player2, 7)
-	player2.buddy_location = 7
+	player2.set_buddy_location("mantenbo", 7)
 	execute_strike(player1, player2, "standard_normal_assault", "standard_normal_assault", [], [], false, false)
 	validate_positions(player1, 4, player2, 5)
 	validate_life(player1, 26, player2, 30)
@@ -225,9 +225,27 @@ func test_litchi_range_with_mantenbo():
 	validate_positions(player1, 5, player2, 7)
 	validate_life(player1, 30, player2, 26)
 
+func test_litchi_robbingkong():
+	position_players(player1, 3, player2, 7)
+	# Place mantenbo
+	assert_true(game_logic.do_character_action(player1, [], 1))
+	# Onto self
+	assert_true(game_logic.do_choice(player1, 0))
+	# Move mantenbo
+	assert_true(game_logic.do_character_action(player1, [], 0))
+	# [-2, -1, 1, 2]
+	assert_true(game_logic.do_choice(player1, 3))
+	assert_eq(player1.get_buddy_location("mantenbo"), 5)
+	assert_eq(game_logic.active_turn_player, player2.my_id)
+	execute_strike(player2, player1, "standard_normal_assault", "litchi_reachrobbingthekong", [], [], false, false)
+	assert_true(game_logic.do_pay_strike_cost(player1, [player1.hand[0].id], false))
+	validate_positions(player1, 5, player2, 7)
+	assert_eq(player1.get_buddy_location("mantenbo"), 7)
+	validate_life(player1, 30, player2, 26)
+
 func test_litchi_ninegates_powerup():
 	position_players(player1, 3, player2, 7)
-	player1.buddy_location = 6
+	player1.set_buddy_location("mantenbo", 6)
 	give_gauge(player1, 4)
 	execute_strike(player1, player2, "litchi_ninegatesofheaven", "standard_normal_assault", [], [], false, false)
 	validate_positions(player1, 6, player2, 7)
@@ -235,7 +253,7 @@ func test_litchi_ninegates_powerup():
 
 func test_litchi_ninegates_no_powerup():
 	position_players(player1, 3, player2, 7)
-	player1.buddy_location = 5
+	player1.set_buddy_location("mantenbo", 5)
 	give_gauge(player1, 4)
 	execute_strike(player1, player2, "litchi_ninegatesofheaven", "standard_normal_assault", [], [], false, false)
 	validate_positions(player1, 6, player2, 7)

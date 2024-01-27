@@ -17,7 +17,7 @@ dest_files=["res://.godot/imported/sk_run.png-dafc19bb3d7ea1668fe01a19b9de1e69.c
 
 compress/mode=1
 compress/high_quality=false
-compress/lossy_quality=0.7
+compress/lossy_quality=0.1
 compress/hdr_compression=1
 compress/normal_map=0
 compress/channel_pack=0

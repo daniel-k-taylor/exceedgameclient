@@ -244,7 +244,7 @@ func test_nine_swap_normal():
 func test_nine_coral_below_5():
 	validate_life(player1, 30, player2, 30)
 	position_players(player1, 3, player2, 6)
-	var unsealed_cards = _setup_sealed_area(player1, [7, 6, 5])
+	_setup_sealed_area(player1, [7, 6, 5])
 
 	execute_strike(player1, player2, "nine_coral", "standard_normal_grasp", [], [], false, false)
 	validate_life(player1, 30, player2, 24)
@@ -252,7 +252,7 @@ func test_nine_coral_below_5():
 func test_nine_coral_over_5():
 	validate_life(player1, 30, player2, 30)
 	position_players(player1, 3, player2, 6)
-	var unsealed_cards = _setup_sealed_area(player1, [7, 6, 5, 3, 2, 1, 0])
+	_setup_sealed_area(player1, [7, 6, 5, 3, 2, 1, 0])
 
 	execute_strike(player1, player2, "nine_coral", "standard_normal_grasp", [], [], false, false)
 	validate_life(player1, 30, player2, 22)
@@ -260,7 +260,7 @@ func test_nine_coral_over_5():
 func test_emerald_miss():
 	validate_life(player1, 30, player2, 30)
 	position_players(player1, 1, player2, 8)
-	var unsealed_cards = _setup_sealed_area(player1, [7, 5])
+	_setup_sealed_area(player1, [7, 5])
 
 	execute_strike(player1, player2, "nine_emerald", "standard_normal_grasp", [], [], false, false, [], [], 0, true)
 	validate_life(player1, 30, player2, 30)
@@ -269,7 +269,7 @@ func test_emerald_miss():
 func test_emerald_hit():
 	validate_life(player1, 30, player2, 30)
 	position_players(player1, 1, player2, 8)
-	var unsealed_cards = _setup_sealed_area(player1, [7, 5, 4, 3])
+	_setup_sealed_area(player1, [7, 5, 4, 3])
 
 	execute_strike(player1, player2, "nine_emerald", "standard_normal_grasp", [], [], false, false, [], [], 0, true)
 	validate_life(player1, 30, player2, 28)
@@ -286,7 +286,7 @@ func test_kunzite_range():
 func test_lapis_single():
 	validate_life(player1, 30, player2, 30)
 	position_players(player1, 3, player2, 4)
-	var unsealed_cards = _setup_sealed_area(player1, [6])
+	_setup_sealed_area(player1, [6])
 
 	execute_strike(player1, player2, "nine_lapislazuli", "standard_normal_grasp", [1, 0], [], false, false, [], [], 0, true)
 	validate_life(player1, 30, player2, 28)
@@ -295,7 +295,7 @@ func test_lapis_single():
 func test_lapis_multi():
 	validate_life(player1, 30, player2, 30)
 	position_players(player1, 3, player2, 4)
-	var unsealed_cards = _setup_sealed_area(player1, [6, 5, 4, 3])
+	_setup_sealed_area(player1, [6, 5, 4, 3])
 
 	execute_strike(player1, player2, "nine_lapislazuli", "standard_normal_grasp", [1, 0, 0, 1, 0, 1], [], false, false, [], [], 0, true)
 	validate_life(player1, 30, player2, 28)
@@ -313,7 +313,7 @@ func test_colorless_full_cost():
 func test_colorless_min_cost():
 	validate_life(player1, 30, player2, 30)
 	position_players(player1, 3, player2, 6)
-	var unsealed_cards = _setup_sealed_area(player1, [0, 1, 2, 3, 4, 5, 6, 7])
+	_setup_sealed_area(player1, [0, 1, 2, 3, 4, 5, 6, 7])
 	give_gauge(player1, 9)
 
 	execute_strike(player1, player2, "nine_colorlessvoid", "standard_normal_grasp", [1], [], false, false)

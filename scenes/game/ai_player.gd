@@ -24,7 +24,7 @@ class AIPlayerState:
 	var continuous_boosts
 	var gauge
 	var arena_location
-	var buddy_location
+	var buddy_locations
 	var exceed_cost
 	var exceeded
 	var reshuffle_remaining
@@ -206,7 +206,7 @@ func update_ai_state(_game_logic : LocalGame, me : LocalGame.Player, opponent : 
 	game_state.my_state.continuous_boosts = create_card_id_array(me.continuous_boosts)
 	game_state.my_state.gauge = create_card_id_array(me.gauge)
 	game_state.my_state.arena_location = me.arena_location
-	game_state.my_state.buddy_location = me.buddy_location
+	game_state.my_state.buddy_locations = me.buddy_locations
 	game_state.my_state.exceed_cost = me.exceed_cost
 	game_state.my_state.exceeded = me.exceeded
 	game_state.my_state.reshuffle_remaining = me.reshuffle_remaining
@@ -220,7 +220,7 @@ func update_ai_state(_game_logic : LocalGame, me : LocalGame.Player, opponent : 
 	game_state.opponent_state.continuous_boosts = create_card_id_array(opponent.continuous_boosts)
 	game_state.opponent_state.gauge = create_card_id_array(opponent.gauge)
 	game_state.opponent_state.arena_location = opponent.arena_location
-	game_state.opponent_state.buddy_location = opponent.buddy_location
+	game_state.opponent_state.buddy_locations = opponent.buddy_locations
 	game_state.opponent_state.exceed_cost = opponent.exceed_cost
 	game_state.opponent_state.exceeded = opponent.exceeded
 	game_state.opponent_state.reshuffle_remaining = opponent.reshuffle_remaining
@@ -297,13 +297,13 @@ func get_move_actions(game_logic : LocalGame, me : LocalGame.Player, opponent : 
 			for card in me.gauge:
 				all_force_option_ids.append(card.id)
 			var combinations = []
-			generate_force_combinations(game_logic, all_force_option_ids, force_to_move_here, [], 0, combinations)
+			generate_force_combinations(game_logic, me,  all_force_option_ids, force_to_move_here, [], 0, combinations)
 			for combo in combinations:
 				possible_move_actions.append(MoveAction.new(i, combo))
 	return possible_move_actions
 
-func generate_force_combinations(game_logic : LocalGame, cards, force_target, current_combination, current_index, combinations):
-	var current_force = 0
+func generate_force_combinations(game_logic : LocalGame, me : LocalGame.Player, cards, force_target, current_combination, current_index, combinations):
+	var current_force = me.free_force
 	var card_db = game_logic.get_card_database()
 	for card_id in current_combination:
 		current_force += card_db.get_card_force_value(card_id)
@@ -313,7 +313,7 @@ func generate_force_combinations(game_logic : LocalGame, cards, force_target, cu
 
 	for i in range(current_index, cards.size()):
 		current_combination.append(cards[i])
-		generate_force_combinations(game_logic, cards, force_target, current_combination, i + 1, combinations)
+		generate_force_combinations(game_logic, me, cards, force_target, current_combination, i + 1, combinations)
 		current_combination.pop_back()
 
 func generate_card_count_combinations(cards, hand_size, current_combination, current_index, combinations):
@@ -420,7 +420,7 @@ func get_boost_actions(game_logic : LocalGame, me : LocalGame.Player, opponent :
 					all_force_option_ids.append(payment_card.id)
 				all_force_option_ids.erase(card.id)
 				var combinations = []
-				generate_force_combinations(game_logic, all_force_option_ids, cost, [], 0, combinations)
+				generate_force_combinations(game_logic, me,  all_force_option_ids, cost, [], 0, combinations)
 				for combo in combinations:
 					possible_actions.append(BoostAction.new(card.id, combo))
 			else:
@@ -439,7 +439,7 @@ func get_boost_actions(game_logic : LocalGame, me : LocalGame.Player, opponent :
 						all_force_option_ids.append(payment_card.id)
 					all_force_option_ids.erase(card.id)
 					var combinations = []
-					generate_force_combinations(game_logic, all_force_option_ids, cost, [], 0, combinations)
+					generate_force_combinations(game_logic, me,  all_force_option_ids, cost, [], 0, combinations)
 					for combo in combinations:
 						possible_actions.append(BoostAction.new(card.id, combo))
 				else:
@@ -515,7 +515,7 @@ func get_character_action_actions(game_logic : LocalGame, me : LocalGame.Player,
 				for card in me.gauge:
 					all_force_option_ids.append(card.id)
 				var combinations = []
-				generate_force_combinations(game_logic, all_force_option_ids, force_cost, [], 0, combinations)
+				generate_force_combinations(game_logic, me,  all_force_option_ids, force_cost, [], 0, combinations)
 				for combo in combinations:
 					possible_actions.append(CharacterActionAction.new(combo, action_idx))
 			elif gauge_cost > 0:
@@ -554,7 +554,7 @@ func determine_pay_strike_force_cost_actions(game_logic : LocalGame, me : LocalG
 	for card in me.gauge:
 		all_force_option_ids.append(card.id)
 	var combinations = []
-	generate_force_combinations(game_logic, all_force_option_ids, force_cost, [], 0, combinations)
+	generate_force_combinations(game_logic, me, all_force_option_ids, force_cost, [], 0, combinations)
 	for combo in combinations:
 		possible_actions.append(PayStrikeCostAction.new(combo, false))
 
@@ -605,7 +605,7 @@ func determine_force_for_armor_actions(game_logic : LocalGame, me : LocalGame.Pl
 	for target_force in range(0, available_force + 1):
 		# Generate an action for every possible combination of cards that can get here.
 		var combinations = []
-		generate_force_combinations(game_logic, all_force_option_ids, target_force, [], 0, combinations)
+		generate_force_combinations(game_logic, me,  all_force_option_ids, target_force, [], 0, combinations)
 		for combo in combinations:
 			possible_actions.append(ForceForArmorAction.new(combo))
 	return possible_actions
@@ -626,7 +626,7 @@ func determine_force_for_effect_actions(game_logic: LocalGame, me : LocalGame.Pl
 			continue
 		# Generate an action for every possible combination of cards that can get here.
 		var combinations = []
-		generate_force_combinations(game_logic, all_force_option_ids, target_force, [], 0, combinations)
+		generate_force_combinations(game_logic, me,  all_force_option_ids, target_force, [], 0, combinations)
 		for combo in combinations:
 			possible_actions.append(ForceForEffectAction.new(combo))
 	return possible_actions

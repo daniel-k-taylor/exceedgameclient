@@ -112,19 +112,26 @@ func get_all_non_immediate_continuous_boost_effects(id):
 	var game_player = _get_player(id)
 	return game_player.get_all_non_immediate_continuous_boost_effects()
 
-func count_cards_in_deck_and_hand(player_id : Enums.PlayerId, card_str_id : String):
+func count_cards_in_deck_and_hand(player_id : Enums.PlayerId, card_str_id : String, override_card_list = null):
 	var player = _get_player(player_id)
 	var count = 0
-	for card in player.deck:
-		if card.definition['id'] == card_str_id:
-			count += 1
-	for card in player.hand:
-		if card.definition['id'] == card_str_id:
-			count += 1
-	var striking_card_ids = current_game.get_striking_card_ids_for_player(player)
-	for striking_id in striking_card_ids:
-		if striking_id == card_str_id:
-			count += 1
+
+	if override_card_list:
+		for card in override_card_list:
+			if card.definition['id'] == card_str_id:
+				count += 1
+	else:
+		for card in player.deck:
+			if card.definition['id'] == card_str_id:
+				count += 1
+		for card in player.hand:
+			if card.definition['id'] == card_str_id:
+				count += 1
+		var striking_card_ids = current_game.get_striking_card_ids_for_player(player)
+		for striking_id in striking_card_ids:
+			if striking_id == card_str_id:
+				count += 1
+		# TODO: will probably need secret sealed areas once implemented
 	return count
 
 func is_card_in_gauge(player_id : Enums.PlayerId, card_id : int):
@@ -191,11 +198,14 @@ func get_player_sustained_boosts(player_id : Enums.PlayerId) -> Array[int]:
 func get_player_available_force(player_id : Enums.PlayerId):
 	return _get_player(player_id).get_available_force()
 
+func get_player_free_force(player_id : Enums.PlayerId):
+	return _get_player(player_id).free_force
+
 func get_force_to_move_to(player_id : Enums.PlayerId, location : int):
 	return _get_player(player_id).get_force_to_move_to(location)
 
-func get_buddy_name(player_id : Enums.PlayerId):
-	return _get_player(player_id).get_buddy_name()
+func get_buddy_name(player_id : Enums.PlayerId, buddy_id : String):
+	return _get_player(player_id).get_buddy_name(buddy_id)
 
 func other_player(id : Enums.PlayerId) -> Enums.PlayerId:
 	if id == Enums.PlayerId.PlayerId_Player:
@@ -326,9 +336,9 @@ func submit_choose_from_discard(player: Enums.PlayerId, card_ids : Array) -> boo
 	var game_player = _get_player(player)
 	return current_game.do_choose_from_discard(game_player, card_ids)
 
-func submit_force_for_effect(player: Enums.PlayerId, card_ids : Array) -> bool:
+func submit_force_for_effect(player: Enums.PlayerId, card_ids : Array, cancel : bool = false) -> bool:
 	var game_player = _get_player(player)
-	return current_game.do_force_for_effect(game_player, card_ids)
+	return current_game.do_force_for_effect(game_player, card_ids, cancel)
 
 func submit_gauge_for_effect(player: Enums.PlayerId, card_ids : Array) -> bool:
 	var game_player = _get_player(player)

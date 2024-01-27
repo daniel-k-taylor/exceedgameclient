@@ -1,0 +1,296 @@
+{
+	"id": "hazama",
+	"season": 5,
+	"display_name": "Hazama",
+	"cardback": "cardback_hazama.jpg",
+	"buddy_cards": [
+		"ouroboros_secret",
+		"ouroboros_nothing",
+		"ouroboros_move"
+	],
+	"buddy_card_graphics_id": [
+		"ouroboros_secret",
+		"ouroboros_secret",
+		"ouroboros_secret"
+	],
+	"buddy_display_names": [
+		"Ouroboros",
+		"Ouroboros",
+		"Ouroboros"
+	],
+	"exceed_cost": 4,
+	"exceed_to_overdrive": true,
+	"on_exceed": {
+		"effect_type": "pass"
+	},
+	"overdrive_effect": {
+		"effect_type": "take_nonlethal_damage",
+		"opponent": true,
+		"amount": 1,
+		"and": {
+			"effect_type": "gain_life",
+			"amount": 1
+		}
+	},
+	"ability_effects": [
+		{
+			"timing": "on_reshuffle",
+			"condition": "manual_reshuffle",
+			"effect_type": "add_set_aside_card_to_deck",
+			"id": "hazama_hungrydarkness"
+		},
+		{
+			"timing": "set_strike",
+			"condition": "initiated_strike",
+			"effect_type": "force_for_effect",
+			"per_force_effect": null,
+			"overall_effect": {
+				"effect_type": "choice",
+				"special_choice_name": "Place an Ouroboros",
+				"choice": [
+					{
+						"effect_type": "place_buddy_at_range",
+						"buddy_id": "ouroboros_nothing",
+						"buddy_name": "Ouroboros - Fake",
+						"range_min": 1,
+						"range_max": 1
+					},
+					{
+						"effect_type": "place_buddy_at_range",
+						"buddy_id": "ouroboros_move",
+						"buddy_name": "Ouroboros - Move to it",
+						"range_min": 1,
+						"range_max": 1
+					}
+				]
+			},
+			"force_max": 1
+		},
+		{
+			"timing": "on_strike_reveal",
+			"condition": "buddy_in_play",
+			"condition_buddy_id": "ouroboros_nothing",
+			"effect_type": "remove_buddy",
+			"silent": true,
+			"buddy_id": "ouroboros_nothing",
+			"buddy_name": "Ouroboros - Nothing"
+		},
+		{
+			"timing": "on_strike_reveal",
+			"condition": "buddy_space_unoccupied",
+			"condition_buddy_id": "ouroboros_move",
+			"effect_type": "move_to_buddy",
+			"buddy_id": "ouroboros_move",
+			"buddy_name": "Ouroboros - Move",
+			"and": {
+				"effect_type": "remove_buddy",
+				"silent": true,
+				"buddy_id": "ouroboros_move",
+				"buddy_name": "Ouroboros - Move"
+			},
+			"negative_condition_effect": {
+				"effect_type": "remove_buddy",
+				"silent": true,
+				"buddy_id": "ouroboros_move",
+				"buddy_name": "Ouroboros - Move"
+			}
+		}
+	],
+	"exceed_ability_effects": [
+		{
+			"timing": "on_reshuffle",
+			"condition": "manual_reshuffle",
+			"effect_type": "add_set_aside_card_to_deck",
+			"id": "hazama_hungrydarkness"
+		},
+		{
+			"timing": "set_strike",
+			"condition": "initiated_strike",
+			"effect_type": "force_for_effect",
+			"per_force_effect": null,
+			"overall_effect": {
+				"effect_type": "choice",
+				"special_choice_name": "Place an Ouroboros",
+				"choice": [
+					{
+						"effect_type": "place_buddy_at_range",
+						"then_place_other_buddy": true,
+						"buddy_id": "ouroboros_nothing",
+						"buddy_name": "Ouroboros - Fake",
+						"other_buddy_id": "ouroboros_move",
+						"other_buddy_name": "Ouroboros - Move to it",
+						"range_min": 0,
+						"range_max": 2
+					},
+					{
+						"effect_type": "place_buddy_at_range",
+						"then_place_other_buddy": true,
+						"buddy_id": "ouroboros_move",
+						"buddy_name": "Ouroboros - Move to it",
+						"other_buddy_id": "ouroboros_nothing",
+						"other_buddy_name": "Ouroboros - Fake",
+						"range_min": 0,
+						"range_max": 2
+					}
+				]
+			},
+			"force_max": 1
+		},
+		{
+			"timing": "on_strike_reveal",
+			"condition": "buddy_in_play",
+			"condition_buddy_id": "ouroboros_nothing",
+			"effect_type": "remove_buddy",
+			"silent": true,
+			"buddy_id": "ouroboros_nothing",
+			"buddy_name": "Ouroboros - Nothing"
+		},
+		{
+			"timing": "on_strike_reveal",
+			"condition": "buddy_space_unoccupied",
+			"condition_buddy_id": "ouroboros_move",
+			"effect_type": "move_to_buddy",
+			"buddy_id": "ouroboros_move",
+			"buddy_name": "Ouroboros - Move",
+			"and": {
+				"effect_type": "remove_buddy",
+				"silent": true,
+				"buddy_id": "ouroboros_move",
+				"buddy_name": "Ouroboros - Move"
+			},
+			"negative_condition_effect": {
+				"effect_type": "remove_buddy",
+				"silent": true,
+				"buddy_id": "ouroboros_move",
+				"buddy_name": "Ouroboros - Move"
+			}
+		}
+	],
+	"cards": [
+		{
+			"set_aside": true,
+			"definition_id": "hazama_hungrydarkness",
+			"image": "hazama_hungrydarkness.tres"
+		},
+		{
+			"definition_id": "hazama_serpentsinfernalrapture",
+			"image": "hazama_serpentsinfernalrapture.tres"
+		},
+		{
+			"definition_id": "hazama_serpentsinfernalrapture",
+			"image": "hazama_serpentsinfernalrapture.tres"
+		},
+		{
+			"definition_id": "hazama_eternalcoils",
+			"image": "hazama_eternalcoils.tres"
+		},
+		{
+			"definition_id": "hazama_eternalcoils",
+			"image": "hazama_eternalcoils.tres"
+		},
+		{
+			"definition_id": "hazama_fallingfang",
+			"image": "hazama_fallingfang.tres"
+		},
+		{
+			"definition_id": "hazama_fallingfang",
+			"image": "hazama_fallingfang.tres"
+		},
+		{
+			"definition_id": "hazama_hungrycoils",
+			"image": "hazama_hungrycoils.tres"
+		},
+		{
+			"definition_id": "hazama_hungrycoils",
+			"image": "hazama_hungrycoils.tres"
+		},
+		{
+			"definition_id": "hazama_venomsword",
+			"image": "hazama_venomsword.tres"
+		},
+		{
+			"definition_id": "hazama_venomsword",
+			"image": "hazama_venomsword.tres"
+		},
+		{
+			"definition_id": "hazama_devouringfang",
+			"image": "hazama_devouringfang.tres"
+		},
+		{
+			"definition_id": "hazama_devouringfang",
+			"image": "hazama_devouringfang.tres"
+		},
+		{
+			"definition_id": "hazama_risingfang",
+			"image": "hazama_risingfang.tres"
+		},
+		{
+			"definition_id": "hazama_risingfang",
+			"image": "hazama_risingfang.tres"
+		},
+		{
+			"definition_id": "standard_normal_grasp",
+			"image": "normal_grasp.tres"
+		},
+		{
+			"definition_id": "standard_normal_grasp",
+			"image": "normal_grasp.tres"
+		},
+		{
+			"definition_id": "standard_normal_cross",
+			"image": "normal_cross.tres"
+		},
+		{
+			"definition_id": "standard_normal_cross",
+			"image": "normal_cross.tres"
+		},
+		{
+			"definition_id": "standard_normal_assault",
+			"image": "normal_assault.tres"
+		},
+		{
+			"definition_id": "standard_normal_assault",
+			"image": "normal_assault.tres"
+		},
+		{
+			"definition_id": "standard_normal_dive",
+			"image": "normal_dive.tres"
+		},
+		{
+			"definition_id": "standard_normal_dive",
+			"image": "normal_dive.tres"
+		},
+		{
+			"definition_id": "standard_normal_spike",
+			"image": "normal_spike.tres"
+		},
+		{
+			"definition_id": "standard_normal_spike",
+			"image": "normal_spike.tres"
+		},
+		{
+			"definition_id": "standard_normal_sweep",
+			"image": "normal_sweep.tres"
+		},
+		{
+			"definition_id": "standard_normal_sweep",
+			"image": "normal_sweep.tres"
+		},
+		{
+			"definition_id": "standard_normal_focus",
+			"image": "normal_focus.tres"
+		},
+		{
+			"definition_id": "standard_normal_focus",
+			"image": "normal_focus.tres"
+		},
+		{
+			"definition_id": "standard_normal_block",
+			"image": "normal_block.tres"
+		},
+		{
+			"definition_id": "standard_normal_block",
+			"image": "normal_block.tres"
+		}
+	]
+}

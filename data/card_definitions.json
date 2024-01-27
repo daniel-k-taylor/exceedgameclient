@@ -312,9 +312,9 @@
 				"timing": "after",
 				"effect_type": "choice",
 				"choice": [
-					{ "effect_type": "pass" },
 					{ "effect_type": "advance", "amount": 1 },
-					{ "effect_type": "retreat", "amount": 1 }
+					{ "effect_type": "retreat", "amount": 1 },
+					{ "effect_type": "pass" }
 				]
 			}
 		],
@@ -886,9 +886,9 @@
 					"timing": "immediate",
 					"effect_type": "choice",
 					"choice": [
-						{ "effect_type": "pass" },
 						{ "effect_type": "close", "amount": 1 },
-						{ "effect_type": "close", "amount": 2 }
+						{ "effect_type": "close", "amount": 2 },
+						{ "effect_type": "pass" }
 					]
 				},
 				{
@@ -993,9 +993,9 @@
 					"timing": "immediate",
 					"effect_type": "choice",
 					"choice": [
-						{ "effect_type": "pass" },
 						{ "effect_type": "retreat", "amount": 1 },
-						{ "effect_type": "retreat", "amount": 2 }
+						{ "effect_type": "retreat", "amount": 2 },
+						{ "effect_type": "pass" }
 					]
 				},
 				{
@@ -1264,8 +1264,8 @@
 				"timing": "after",
 				"effect_type": "choice",
 				"choice": [
-					{ "effect_type": "pass" },
-					{ "effect_type": "advance", "amount": 3 }
+					{ "effect_type": "advance", "amount": 3 },
+					{ "effect_type": "pass" }
 				]
 			}
 		],
@@ -1987,6 +1987,402 @@
 			]
 		},
 		"NOTEEND": "HAPPYCHAOS CARDS END"
+	},
+
+
+	{
+		"NOTE": "HAZAMA CARDS START",
+		"id": "hazama_hungrydarkness",
+		"type": "ultra",
+		"display_name": "Hungry Darkness of 1000 Souls",
+		"force_cost": 0,
+		"gauge_cost": 4,
+		"range_min": 1,
+		"range_max": 1,
+		"speed": 4,
+		"power": 4,
+		"armor": 0,
+		"guard": 4,
+		"effects": [
+			{
+				"timing": "during_strike",
+				"effect_type": "ignore_guard"
+			},
+			{
+				"timing": "hit",
+				"effect_type": "opponent_discard_hand",
+				"save_num_discarded_as_strike_x": true,
+				"and": {
+					"effect_type": "powerup",
+					"amount": "strike_x",
+					"and": {
+						"effect_type": "repeat_effect_optionally",
+						"first_not_automatic": true,
+						"amount": "strike_x",
+						"linked_effect": {
+							"effect_type": "draw",
+							"amount": 1
+						}
+					}
+				}
+			}
+		],
+		"boost": {
+			"boost_type": "immediate",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Burst",
+			"effects": [
+				{
+					"timing": "immediate",
+					"effect_type": "draw",
+					"amount": 2
+				},
+				{
+					"timing": "immediate",
+					"effect_type": "seal_this"
+				},
+				{
+					"timing": "immediate",
+					"effect_type": "bonus_action"
+				}
+			]
+		}
+	},
+	{
+		"id": "hazama_serpentsinfernalrapture",
+		"type": "ultra",
+		"display_name": "Serpent's Infernal Rapture",
+		"force_cost": 0,
+		"gauge_cost": 4,
+		"range_min": 1,
+		"range_max": 1,
+		"speed": 8,
+		"power": 7,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+		],
+		"boost": {
+			"boost_type": "immediate",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Check out my snake!",
+			"effects": [
+				{
+					"timing": "immediate",
+					"effect_type": "draw",
+					"amount": 3
+				},
+				{
+					"timing": "immediate",
+					"effect_type": "strike"
+				}
+			]
+		}
+	},
+	{
+		"id": "hazama_eternalcoils",
+		"type": "ultra",
+		"display_name": "Eternal Coils of the Dragon Serpent",
+		"force_cost": 0,
+		"gauge_cost": 3,
+		"range_min": 2,
+		"range_max": 4,
+		"speed": 6,
+		"power": 3,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "hit",
+				"effect_type": "force_for_effect",
+				"per_force_effect": {
+					"effect_type": "powerup",
+					"amount": 1,
+					"and": {
+						"effect_type": "pull",
+						"amount": 8
+					}
+				},
+				"overall_effect": null,
+				"force_max": 5
+			}
+		],
+		"boost": {
+			"boost_type": "immediate",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Having fun yet?",
+			"effects": [
+				{
+					"timing": "immediate",
+					"effect_type": "force_for_effect",
+					"per_force_effect": {
+						"effect_type": "opponent_discard_random",
+						"amount": 1
+					},
+					"overall_effect": null,
+					"force_max": 5
+				},
+				{
+					"timing": "immediate",
+					"effect_type": "choice",
+					"choice": [
+						{ "effect_type": "strike" },
+						{ "effect_type": "pass" }
+					]
+				}
+			]
+		}
+	},
+	{
+		"id": "hazama_fallingfang",
+		"type": "special",
+		"display_name": "Falling Fang",
+		"force_cost": 1,
+		"gauge_cost": 0,
+		"range_min": 2,
+		"range_max": 3,
+		"speed": 6,
+		"power": 3,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "hit",
+				"effect_type": "gain_advantage",
+				"and": {
+					"effect_type": "choice",
+					"choice": [
+						{ "effect_type": "push", "amount": 1 },
+						{ "effect_type": "pass" }
+					]
+				}
+			}
+		],
+		"boost": {
+			"boost_type": "immediate",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Shadow Serpent",
+			"effects": [
+				{
+					"timing": "immediate",
+					"effect_type": "choice",
+					"choice": [
+						{ "effect_type": "advance", "amount": 1 },
+						{ "effect_type": "advance", "amount": 2 },
+						{ "effect_type": "retreat", "amount": 1 },
+						{ "effect_type": "retreat", "amount": 2 }
+					]
+				},
+				{
+					"timing": "immediate",
+					"effect_type": "draw",
+					"amount": 1
+				}
+			]
+		}
+	},
+	{
+		"id": "hazama_hungrycoils",
+		"type": "special",
+		"display_name": "Hungry Coils",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 2,
+		"range_max": 3,
+		"speed": 5,
+		"power": 3,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "hit",
+				"effect_type": "pull",
+				"amount": 4,
+				"and": {
+					"effect_type": "opponent_discard_random",
+					"amount": 1
+				}
+			},
+			{
+				"timing": "after",
+				"effect_type": "gain_advantage"
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Serpent's Benediction",
+			"effects": [
+				{
+					"timing": "now",
+					"effect_type": "force_costs_reduced_passive",
+					"amount": 1
+				},
+				{
+					"timing": "discarded",
+					"effect_type": "remove_force_costs_reduced_passive",
+					"amount": 1
+				},
+				{
+					"timing": "now",
+					"effect_type": "choice",
+					"choice": [
+						{  "effect_type": "strike_opponent_sets_first" },
+						{ "effect_type": "pass" }
+					]
+				}
+			]
+		}
+	},
+	{
+		"id": "hazama_venomsword",
+		"type": "special",
+		"display_name": "Venom Sword",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 4,
+		"speed": 4,
+		"power": 4,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "hit",
+				"effect_type": "push_to_attack_max_range"
+			},
+			{
+				"timing": "after",
+				"effect_type": "draw",
+				"amount": 1
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Serpent's Redemption",
+			"effects": [
+				{
+					"timing": "now",
+					"effect_type": "force_costs_reduced_passive",
+					"amount": 1
+				},
+				{
+					"timing": "discarded",
+					"effect_type": "remove_force_costs_reduced_passive",
+					"amount": 1
+				},
+				{
+					"timing": "now",
+					"effect_type": "choice",
+					"choice": [
+						{  "effect_type": "advance", "amount": 2 },
+						{  "effect_type": "retreat", "amount": 2 }
+					]
+				}
+			]
+		}
+	},
+	{
+		"id": "hazama_devouringfang",
+		"type": "special",
+		"display_name": "Devouring Fang",
+		"force_cost": 1,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 2,
+		"speed": 4,
+		"power": 6,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "during_strike",
+				"effect_type": "ignore_armor"
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Bloody Fangs",
+			"effects": [
+				{
+					"timing": "now",
+					"effect_type": "draw",
+					"amount": 1
+				},
+				{
+					"timing": "after",
+					"condition": "opponent_stunned",
+					"effect_type": "draw",
+					"amount": 2
+				}
+			]
+		}
+	},
+	{
+		"NOTE": "HAZAMA CARDS END",
+		"id": "hazama_risingfang",
+		"type": "special",
+		"display_name": "Rising Fang",
+		"force_cost": 1,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 2,
+		"speed": 2,
+		"power": 4,
+		"armor": 2,
+		"guard": 3,
+		"effects": [
+			{
+				"timing": "during_strike",
+				"condition": "initiated_strike",
+				"effect_type": "armorup",
+				"amount": 2
+			},
+			{
+				"timing": "before",
+				"effect_type": "close",
+				"amount": 1
+			},
+			{
+				"timing": "hit",
+				"effect_type": "push",
+				"amount": 1,
+				"and": {
+					"effect_type": "lose_all_armor"
+				}
+			}
+
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Vengeful Viper",
+			"effects": [
+				{
+					"timing": "hit",
+					"effect_type": "choice",
+					"choice": [
+						{
+							"effect_type": "boost_then_sustain_topdiscard",
+							"limitation": "continuous",
+							"amount": 1
+						},
+						{ "effect_type": "pass" }
+					]
+				}
+			]
+		},
+		"NOTEEND": "HAZAMA CARDS END"
 	},
 
 	{
@@ -3139,7 +3535,7 @@
 					"effect_type": "critical",
 					"character_effect": true
 				},
-				
+
 				{
 				"timing": "during_strike",
 				"effect_type": "guardup",
@@ -3151,7 +3547,7 @@
 				"effect_type": "sustain_this",
 				"card_name": "Flash Explosion"
 				}
-			]		
+			]
 		}
 	},
 	{
@@ -3186,7 +3582,7 @@
 			"force_cost": 1,
 			"cancel_cost": -1,
 			"display_name": "Preemptive Strike",
-			"effects": [ 
+			"effects": [
 				{
 					"timing": "now",
 					"effect_type": "strike"
@@ -3199,7 +3595,7 @@
 			]
 			}
 	},
-	
+
 	{
 		"id": "guile_doublesweepkick",
 		"type": "special",
@@ -3221,7 +3617,7 @@
 			{
 				"timing": "hit",
 				"effect_type": "gain_advantage"
-			}	
+			}
 			],
 			"boost": {
 				"boost_type": "continuous",
@@ -3239,7 +3635,7 @@
 					"timing": "now",
 					"effect_type": "set_end_of_turn_boost_delay"
 				},
-				
+
 				{
 					"timing": "end_of_turn",
 					"effect_type": "add_to_gauge_immediately"
@@ -3295,7 +3691,7 @@
 					"timing": "now",
 					"effect_type": "set_end_of_turn_boost_delay"
 				},
-				
+
 				{
 					"timing": "end_of_turn",
 					"effect_type": "add_to_gauge_immediately"
@@ -3352,7 +3748,7 @@
 					"effect_type": "add_to_gauge_immediately"
 				}
 				]
-			}				
+			}
 	},
 	{
 		"id": "guile_sonicboom",
@@ -3371,7 +3767,7 @@
 				"timing": "during_strike",
 				"condition": "is_critical",
 				"effect_type": "powerup",
-				"amount": 2				
+				"amount": 2
 			},
 			{
 				"timing": "after",
@@ -3394,20 +3790,20 @@
 						"timing": "during_strike",
 						"effect_type": "speedup",
 						"amount": 2
-					},	
+					},
 				{
 					"timing": "now",
 					"effect_type": "set_end_of_turn_boost_delay"
 				},
-				
+
 				{
 					"timing": "end_of_turn",
 					"effect_type": "add_to_gauge_immediately"
 				}
 				]
-			}							
+			}
 	},
-	
+
 	{
 		"id": "guile_spinningbackknuckle",
 		"type": "special",
@@ -3450,20 +3846,20 @@
 					{
 					"timing": "immediate",
 					"effect_type": "close",
-					"amount": 2						
+					"amount": 2
 					},
-					
+
 					{
 					"timing": "immediate",
 					"condition": "range_greater_or_equal",
 					"condition_amount": 2,
 					"effect_type": "bonus_action"
 					}
-				]			
+				]
 			},
 			"NOTEEND": "GUILE CARDS END"
 	},
-	
+
 	{
 		"NOTE": "INO CARDS START",
 		"id": "ino_megalomania",
@@ -4847,11 +5243,11 @@
 				"timing": "hit",
 				"effect_type": "choice",
 				"choice": [
-					{ "effect_type": "pass" },
 					{ "effect_type": "close", "amount": 1 },
 					{ "effect_type": "close", "amount": 2 },
 					{ "effect_type": "close", "amount": 3 },
-					{ "effect_type": "close", "amount": 4 }
+					{ "effect_type": "close", "amount": 4 },
+					{ "effect_type": "pass" }
 				]
 			},
 			{
@@ -5072,9 +5468,9 @@
 				"timing": "after",
 				"effect_type": "choice",
 				"choice": [
-					{ "effect_type": "pass" },
 					{ "effect_type": "advance", "amount": 1 },
-					{ "effect_type": "advance", "amount": 2 }
+					{ "effect_type": "advance", "amount": 2 },
+					{ "effect_type": "pass" }
 				]
 			}
 		],
@@ -5403,9 +5799,9 @@
 				"condition": "was_hit",
 				"effect_type": "choice",
 				"choice": [
-					{ "effect_type": "pass" },
 					{ "effect_type": "close", "amount": 1 },
-					{ "effect_type": "close", "amount": 2 }
+					{ "effect_type": "close", "amount": 2 },
+					{ "effect_type": "pass" }
 				]
 			}
 		],
@@ -6406,8 +6802,8 @@
 					"timing": "now",
 					"effect_type": "choice",
 					"choice": [
-						{ "effect_type": "pass" },
-						{ "effect_type": "pull", "amount": 1 }
+						{ "effect_type": "pull", "amount": 1 },
+						{ "effect_type": "pass" }
 					]
 				}
 			]
@@ -6435,9 +6831,9 @@
 				"timing": "after",
 				"effect_type": "choice",
 				"choice": [
-					{ "effect_type": "pass" },
 					{ "effect_type": "advance", "amount": 2 },
-					{ "effect_type": "retreat", "amount": 2 }
+					{ "effect_type": "retreat", "amount": 2 },
+					{ "effect_type": "pass" }
 				]
 			}
 		],
@@ -9933,11 +10329,11 @@
 					"timing": "immediate",
 					"effect_type": "choice",
 					"choice": [
-						{ "effect_type": "pass" },
 						{ "effect_type": "advance", "amount": 1 },
 						{ "effect_type": "advance", "amount": 2 },
 						{ "effect_type": "retreat", "amount": 1 },
-						{ "effect_type": "retreat", "amount": 2 }
+						{ "effect_type": "retreat", "amount": 2 },
+						{ "effect_type": "pass" }
 					]
 				}
 			]
@@ -10719,6 +11115,362 @@
 			]
 		},
 		"NOTEEND": "TESTAMENT CARDS END"
+	},
+
+	{
+		"NOTE": "TAOKAKA CARDS START",
+		"id": "taokaka_attackmeowpow",
+		"type": "ultra",
+		"display_name": "Attack Meow Pow!",
+		"force_cost": 0,
+		"gauge_cost": 4,
+		"range_min": 1,
+		"range_max": 1,
+		"speed": 5,
+		"power": 9,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "before",
+				"effect_type": "advance",
+				"amount": 4
+			}
+		],
+		"boost": {
+			"boost_type": "immediate",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Burst",
+			"effects": [
+				{
+					"timing": "immediate",
+					"effect_type": "draw",
+					"amount": 2
+				},
+				{
+					"timing": "immediate",
+					"effect_type": "seal_this"
+				},
+				{
+					"timing": "immediate",
+					"effect_type": "bonus_action"
+				}
+			]
+		}
+	},
+	{
+		"id": "taokaka_hexaedge",
+		"type": "ultra",
+		"display_name": "Hexa Edge!",
+		"force_cost": 0,
+		"gauge_cost": 3,
+		"range_min": 1,
+		"range_max": 1,
+		"speed": 7,
+		"power": 6,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "hit",
+				"effect_type": "push",
+				"amount": 2,
+				"and": {
+					"effect_type": "gain_advantage"
+				}
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 1,
+			"cancel_cost": -1,
+			"display_name": "Almost Becoming Two!",
+			"effects": [
+				{
+					"timing": "now",
+					"effect_type": "topdeck_from_hand",
+					"min_amount": 1,
+					"max_amount": 1
+				},
+				{
+					"timing": "now",
+					"effect_type": "strike_wild"
+				},
+				{
+					"timing": "hit",
+					"effect_type": "gain_advantage"
+				}
+			]
+		}
+	},
+	{
+		"id": "taokaka_immabeatthecrapouttayou",
+		"type": "ultra",
+		"display_name": "Imma Beat The Crap Outta You!",
+		"force_cost": 0,
+		"gauge_cost": 2,
+		"range_min": 1,
+		"range_max": 1,
+		"speed": 4,
+		"power": 7,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "before",
+				"effect_type": "close",
+				"amount": 2
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 1,
+			"cancel_cost": -1,
+			"display_name": "Meow I'm Serious!",
+			"effects": [
+				{
+					"timing": "now",
+					"effect_type": "strike"
+				},
+				{
+					"timing": "hit",
+					"effect_type": "choice",
+					"choice": [
+						{ "effect_type": "advance", "amount": 3 },
+						{ "effect_type": "retreat", "amount": 3 }
+					]
+				}
+			]
+		}
+	},
+	{
+		"id": "taokaka_catspiritone",
+		"type": "special",
+		"display_name": "Cat Spirit One!",
+		"force_cost": 1,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 2,
+		"speed": 6,
+		"power": 2,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "hit",
+				"effect_type": "force_for_effect",
+				"per_force_effect": {
+					"effect_type": "powerup",
+					"amount": 1
+				},
+				"overall_effect": null,
+				"force_max": 2
+			},
+			{
+				"timing": "after",
+				"effect_type": "retreat",
+				"amount": 2
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Feral Fury!",
+			"effects": [
+				{
+					"timing": "now",
+					"effect_type": "strike"
+				},
+				{
+					"timing": "hit",
+					"effect_type": "draw",
+					"amount": 2
+				}
+			]
+		}
+	},
+	{
+		"id": "taokaka_kittylitterspecial",
+		"type": "special",
+		"display_name": "Kitty Litter Special!",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 3,
+		"range_max": 5,
+		"speed": 5,
+		"power": 3,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "hit",
+				"effect_type": "close",
+				"amount": 2,
+				"and": {
+					"effect_type": "gain_advantage"
+				}
+			},
+			{
+				"timing": "after",
+				"effect_type": "draw",
+				"amount": 1
+			}
+		],
+		"boost": {
+			"boost_type": "immediate",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Pounce!",
+			"effects": [
+				{
+					"timing": "immediate",
+					"effect_type": "choice",
+					"choice": [
+						{ "effect_type": "advance", "amount": 1, "and": { "effect_type": "strike" } },
+						{ "effect_type": "retreat", "amount": 1, "and": { "effect_type": "strike" } }
+					]
+				}
+			]
+		}
+	},
+	{
+		"id": "taokaka_doublepawstrike",
+		"type": "special",
+		"display_name": "Double Paw Strike!",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 2,
+		"speed": 5,
+		"power": 4,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "before",
+				"condition": "range",
+				"condition_amount": 1,
+				"effect_type": "powerup",
+				"amount": 2
+			},
+			{
+				"timing": "hit",
+				"effect_type": "push",
+				"amount": 1
+			}
+		],
+		"boost": {
+			"boost_type": "immediate",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Cat Jump!",
+			"effects": [
+				{
+					"timing": "immediate",
+					"effect_type": "advance",
+					"amount": 3
+				}
+			]
+		}
+	},
+	{
+		"id": "taokaka_slashyslashy",
+		"type": "special",
+		"display_name": "Slashy Slashy!",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 2,
+		"speed": 3,
+		"power": 3,
+		"armor": 0,
+		"guard": 4,
+		"effects": [
+			{
+				"timing": "hit",
+				"effect_type": "force_for_effect",
+				"per_force_effect": {
+					"effect_type": "powerup",
+					"amount": 1,
+					"and": {
+						"effect_type": "draw",
+						"amount": 1
+					}
+				},
+				"overall_effect": null,
+				"force_max": 2
+			},
+			{
+				"timing": "after",
+				"effect_type": "push",
+				"amount": 2
+			}
+		],
+		"boost": {
+			"boost_type": "immediate",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Let's Play!",
+			"effects": [
+				{
+					"timing": "immediate",
+					"effect_type": "choice",
+					"add_topdeck_card_name_to_choices": [0],
+					"choice": [
+						{ "effect_type": "discard_topdeck", "and": { "effect_type": "strike_wild" } },
+						{ "effect_type": "strike_wild"  }
+					]
+				}
+			]
+		}
+	},
+	{
+		"NOTE": "TAOKAKA CARDS END",
+		"id": "taokaka_trickedge",
+		"type": "special",
+		"display_name": "Trick Edge!",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 1,
+		"speed": 3,
+		"power": 4,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "during_strike",
+				"effect_type": "ignore_guard"
+			},
+			{
+				"timing": "before",
+				"condition": "at_edge_of_arena",
+				"effect_type": "close",
+				"amount": 3
+			}
+
+		],
+		"boost": {
+			"boost_type": "immediate",
+			"force_cost": 1,
+			"cancel_cost": -1,
+			"display_name": "Surprise!",
+			"effects": [
+				{
+					"timing": "immediate",
+					"condition": "range",
+					"condition_amount": 1,
+					"effect_type": "retreat",
+					"amount": 2,
+					"and": {
+						"effect_type": "strike"
+					}
+				}
+			]
+		},
+		"NOTEEND": "TAOKAKA CARDS END"
 	},
 
 
