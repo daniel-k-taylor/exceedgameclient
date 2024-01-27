@@ -3411,7 +3411,7 @@
 	{
 		"id": "guile_spinningbackknuckle",
 		"type": "special",
-		"display_name": "spinningbackknuckle",
+		"display_name": "Spinning Back Knuckle",
 		"force_cost": 0,
 		"gauge_cost": 0,
 		"range_min": 1,
