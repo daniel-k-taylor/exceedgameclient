@@ -401,11 +401,12 @@ text = "+0-1 range
 
 [node name="OpponentHandBox" type="HBoxContainer" parent="OpponentHand"]
 custom_minimum_size = Vector2(100, 50)
-offset_left = 935.0
+offset_left = 900.0
 offset_top = 10.0
-offset_right = 1052.0
+offset_right = 1045.0
 offset_bottom = 72.0
 mouse_filter = 2
+alignment = 2
 
 [node name="OpponentHandCardIcon" type="TextureRect" parent="OpponentHand/OpponentHandBox"]
 layout_mode = 2
@@ -433,6 +434,7 @@ theme_override_font_sizes/normal_font_size = 48
 bbcode_enabled = true
 text = "#"
 fit_content = true
+autowrap_mode = 0
 
 [node name="HandSpawn" type="TextureButton" parent="OpponentHand"]
 visible = false

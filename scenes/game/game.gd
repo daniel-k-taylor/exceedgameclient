@@ -44,6 +44,8 @@ const NoticeOffsetY = 50
 const ChoiceTextLengthSoftCap = 70
 const ChoiceTextLengthHardCap = 90
 
+const CardPopoutZIndex = 5
+
 const StrikeRevealDelay : float = 2.0
 const MoveDelay : float = 1.0
 const BoostDelay : float = 2.0
@@ -115,6 +117,7 @@ enum CardPopoutType {
 }
 
 var popout_type_showing : CardPopoutType = CardPopoutType.CardPopoutType_GaugePlayer
+var popout_showing_node = null
 
 enum UIState {
 	UIState_Initializing,
@@ -3360,6 +3363,8 @@ func clear_card_popout():
 
 func close_popout():
 	card_popout.visible = false
+	if popout_showing_node:
+		popout_showing_node.z_index = 0
 	await clear_card_popout()
 
 func update_popout_instructions():
@@ -3374,7 +3379,10 @@ func popout_show_normal_only() -> bool:
 	return false
 
 func show_popout(popout_type : CardPopoutType, popout_title : String, card_node, card_rest_position : Vector2, card_rest_state : CardBase.CardState, show_amount : bool = true):
+	card_popout.z_index = CardPopoutZIndex
 	popout_type_showing = popout_type
+	popout_showing_node = card_node
+	popout_showing_node.z_index = card_popout.z_index
 
 	var toggle_text = ""
 	if popout_type == CardPopoutType.CardPopoutType_ReferenceOpponent and reference_popout_toggle_enabled:
