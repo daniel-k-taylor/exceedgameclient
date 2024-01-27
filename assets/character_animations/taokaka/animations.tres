@@ -1,0 +1,83 @@
+[gd_resource type="SpriteFrames" load_steps=12 format=3 uid="uid://ce2o44l3scw7w"]
+
+[ext_resource type="Texture2D" uid="uid://cgqxydiavps6x" path="res://assets/character_animations/taokaka/idle/idle_sheet.png" id="1_nw6y8"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_e1xww"]
+atlas = ExtResource("1_nw6y8")
+region = Rect2(0, 0, 364, 351)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_habpf"]
+atlas = ExtResource("1_nw6y8")
+region = Rect2(364, 0, 364, 351)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_qn5jj"]
+atlas = ExtResource("1_nw6y8")
+region = Rect2(0, 351, 364, 351)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_d1ikl"]
+atlas = ExtResource("1_nw6y8")
+region = Rect2(364, 351, 364, 351)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_1ndwe"]
+atlas = ExtResource("1_nw6y8")
+region = Rect2(0, 702, 364, 351)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_wj333"]
+atlas = ExtResource("1_nw6y8")
+region = Rect2(364, 702, 364, 351)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_idf65"]
+atlas = ExtResource("1_nw6y8")
+region = Rect2(0, 702, 364, 351)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_u2p8p"]
+atlas = ExtResource("1_nw6y8")
+region = Rect2(364, 351, 364, 351)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_dnfsn"]
+atlas = ExtResource("1_nw6y8")
+region = Rect2(0, 351, 364, 351)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_ngnf5"]
+atlas = ExtResource("1_nw6y8")
+region = Rect2(364, 0, 364, 351)
+
+[resource]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_e1xww")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_habpf")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_qn5jj")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_d1ikl")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_1ndwe")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_wj333")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_idf65")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_u2p8p")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_dnfsn")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_ngnf5")
+}],
+"loop": true,
+"name": &"idle",
+"speed": 5.0
+}]
+metadata/flip = true
+metadata/scaling = 0.7
