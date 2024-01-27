@@ -4,6 +4,7 @@
 	"display_name": "Guile",
 	"cardback": "cardback_defaultexceed.png",
 	"exceed_cost": 2,
+	"guile_change_cards_bonus": true,
 	"on_exceed": {
 		"effect_type": "pass"
 	},
