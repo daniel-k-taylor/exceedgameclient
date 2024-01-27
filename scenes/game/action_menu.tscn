@@ -1,6 +1,10 @@
-[gd_scene load_steps=3 format=3 uid="uid://dal56iqk5k8rh"]
+[gd_scene load_steps=8 format=3 uid="uid://dal56iqk5k8rh"]
 
 [ext_resource type="Script" path="res://scenes/game/action_menu.gd" id="1_lxy8k"]
+[ext_resource type="Texture2D" uid="uid://dbohb8bxokjln" path="res://assets/icons/eye_show.png" id="2_f4rxt"]
+[ext_resource type="Texture2D" uid="uid://pdiyhalge6ju" path="res://assets/icons/eye_hide.png" id="3_87etl"]
+[ext_resource type="Texture2D" uid="uid://bpdpb3e74d2cu" path="res://assets/cards/arena_border_highlight_pressed.png" id="4_m7dp2"]
+[ext_resource type="Texture2D" uid="uid://b08j76upbucvr" path="res://assets/cards/arena_border_highlight_selected.png" id="5_57fb7"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_cmck5"]
 bg_color = Color(0.235294, 0.235294, 0.235294, 0.882353)
@@ -9,6 +13,8 @@ border_width_top = 5
 border_width_right = 5
 border_width_bottom = 5
 border_color = Color(0.0784314, 0.0784314, 0.0784314, 1)
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_hwdeh"]
 
 [node name="ActionMenu" type="PanelContainer"]
 anchors_preset = 15
@@ -36,11 +42,62 @@ theme_override_constants/margin_bottom = 5
 layout_mode = 2
 theme_override_constants/separation = 2
 
-[node name="InstructionsLabel" type="Label" parent="OuterMargin/MainVBox"]
+[node name="PanelContainer" type="PanelContainer" parent="OuterMargin/MainVBox"]
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxEmpty_hwdeh")
+
+[node name="InstructionHBox" type="HBoxContainer" parent="OuterMargin/MainVBox/PanelContainer"]
+layout_mode = 2
+alignment = 1
+
+[node name="MarginContainer" type="MarginContainer" parent="OuterMargin/MainVBox/PanelContainer/InstructionHBox"]
+custom_minimum_size = Vector2(30, 30)
+layout_mode = 2
+
+[node name="InstructionsLabel" type="Label" parent="OuterMargin/MainVBox/PanelContainer/InstructionHBox"]
 layout_mode = 2
 theme_override_font_sizes/font_size = 20
 text = "Instructions go here to tell you what to do:"
 horizontal_alignment = 1
+
+[node name="MarginContainer2" type="MarginContainer" parent="OuterMargin/MainVBox/PanelContainer/InstructionHBox"]
+custom_minimum_size = Vector2(30, 30)
+layout_mode = 2
+
+[node name="ShowHideHBox" type="HBoxContainer" parent="OuterMargin/MainVBox/PanelContainer"]
+layout_mode = 2
+alignment = 2
+
+[node name="MarginContainer" type="MarginContainer" parent="OuterMargin/MainVBox/PanelContainer/ShowHideHBox"]
+custom_minimum_size = Vector2(30, 30)
+layout_mode = 2
+
+[node name="MarginContainer" type="MarginContainer" parent="OuterMargin/MainVBox/PanelContainer/ShowHideHBox/MarginContainer"]
+layout_mode = 2
+theme_override_constants/margin_left = 4
+theme_override_constants/margin_top = 4
+theme_override_constants/margin_right = 4
+theme_override_constants/margin_bottom = 4
+
+[node name="ShowImage" type="TextureRect" parent="OuterMargin/MainVBox/PanelContainer/ShowHideHBox/MarginContainer/MarginContainer"]
+visible = false
+layout_mode = 2
+texture = ExtResource("2_f4rxt")
+expand_mode = 1
+stretch_mode = 4
+
+[node name="HideImage" type="TextureRect" parent="OuterMargin/MainVBox/PanelContainer/ShowHideHBox/MarginContainer/MarginContainer"]
+layout_mode = 2
+texture = ExtResource("3_87etl")
+expand_mode = 1
+stretch_mode = 4
+
+[node name="ShowHideButton" type="TextureButton" parent="OuterMargin/MainVBox/PanelContainer/ShowHideHBox/MarginContainer"]
+layout_mode = 2
+texture_pressed = ExtResource("4_m7dp2")
+texture_hover = ExtResource("5_57fb7")
+ignore_texture_size = true
+stretch_mode = 4
 
 [node name="Spacing" type="MarginContainer" parent="OuterMargin/MainVBox"]
 layout_mode = 2
@@ -48,51 +105,62 @@ layout_mode = 2
 [node name="ChoiceButtons" type="GridContainer" parent="OuterMargin/MainVBox"]
 layout_mode = 2
 size_flags_vertical = 2
-theme_override_constants/h_separation = 5
-theme_override_constants/v_separation = 5
+theme_override_constants/h_separation = 40
+theme_override_constants/v_separation = 15
 
 [node name="Choice0" type="Button" parent="OuterMargin/MainVBox/ChoiceButtons"]
 layout_mode = 2
 size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 28
 text = "Choice 0"
 
 [node name="Choice1" type="Button" parent="OuterMargin/MainVBox/ChoiceButtons"]
 layout_mode = 2
 size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 28
 text = "Choice 1"
 
 [node name="Choice2" type="Button" parent="OuterMargin/MainVBox/ChoiceButtons"]
 layout_mode = 2
 size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 28
 
 [node name="Choice3" type="Button" parent="OuterMargin/MainVBox/ChoiceButtons"]
 layout_mode = 2
 size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 28
 
 [node name="Choice4" type="Button" parent="OuterMargin/MainVBox/ChoiceButtons"]
 layout_mode = 2
 size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 28
 
 [node name="Choice5" type="Button" parent="OuterMargin/MainVBox/ChoiceButtons"]
 layout_mode = 2
 size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 28
 
 [node name="Choice6" type="Button" parent="OuterMargin/MainVBox/ChoiceButtons"]
 layout_mode = 2
 size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 28
 
 [node name="Choice7" type="Button" parent="OuterMargin/MainVBox/ChoiceButtons"]
 layout_mode = 2
 size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 28
 
 [node name="Choice8" type="Button" parent="OuterMargin/MainVBox/ChoiceButtons"]
 layout_mode = 2
 size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 28
 
 [node name="Choice9" type="Button" parent="OuterMargin/MainVBox/ChoiceButtons"]
 layout_mode = 2
 size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 28
 
+[connection signal="pressed" from="OuterMargin/MainVBox/PanelContainer/ShowHideHBox/MarginContainer/ShowHideButton" to="." method="_on_show_hide_button_pressed"]
 [connection signal="pressed" from="OuterMargin/MainVBox/ChoiceButtons/Choice0" to="." method="_on_choice_pressed" binds= [0]]
 [connection signal="pressed" from="OuterMargin/MainVBox/ChoiceButtons/Choice1" to="." method="_on_choice_pressed" binds= [1]]
 [connection signal="pressed" from="OuterMargin/MainVBox/ChoiceButtons/Choice2" to="." method="_on_choice_pressed" binds= [2]]
