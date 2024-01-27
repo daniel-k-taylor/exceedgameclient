@@ -18,6 +18,9 @@ const MinArenaLocation = 1
 const MaxArenaLocation = 9
 const ShuffleEnabled = true
 
+const log_player_color = "red"
+const log_opponent_color = "teal"
+
 var event_queue = []
 
 func get_latest_events() -> Array:
@@ -48,11 +51,32 @@ var full_combat_log : Array = []
 func get_combat_log() -> String:
 	return combat_log
 
-func get_full_combat_log():
-	return "\n".join(full_combat_log) #TODO: check fields, filtering
+func get_full_combat_log(log_type_filters):
+	var filtered_log = full_combat_log.filter(func (item): return item['log_type'] in log_type_filters)
+	var log_strings = filtered_log.map(_full_log_item_to_string)
+	return "\n".join(log_strings)
+
+func _full_log_item_to_string(log_item):
+	var log_player = log_item['log_player']
+	var message = log_item['message']
+	var prefix = ""
+	if log_player != null:
+		if log_player == player:
+			prefix = "[color=%s]" % log_player_color
+		if log_player == opponent:
+			prefix = "[color=%s]" % log_opponent_color
+		prefix += "%s[/color] " % log_player.name
+	return prefix + message
 
 func _append_log(text):
 	combat_log += text + "\n"
+
+func _append_log_full(log_type : Enums.LogType, log_player : Player, message : String):
+	full_combat_log.append({
+		'log_type': log_type,
+		'log_player': log_player,
+		'message': message
+	})
 
 func teardown():
 	card_db.teardown()
@@ -65,6 +89,7 @@ func change_game_state(new_state : Enums.GameState):
 		game_state = new_state
 	else:
 		_append_log("GAME OVER - WINNER - %s" % [game_over_winning_player.name])
+		_append_log_full(Enums.LogType.LogType_Default, game_over_winning_player, " wins! GAME OVER")
 
 func get_game_state() -> Enums.GameState:
 	return game_state
@@ -561,6 +586,7 @@ class Player:
 	func exceed():
 		exceeded = true
 		var events = []
+		parent._append_log_full(Enums.LogType.LogType_Effect, self, "Exceeds!")
 		events += [parent.create_event(Enums.EventType.EventType_Exceed, my_id, 0)]
 
 		if 'on_exceed' in deck_def:
@@ -1919,6 +1945,8 @@ func draw_starting_hands_and_begin():
 	var starting_player = _get_player(active_turn_player)
 	var second_player = _get_player(next_turn_player)
 	_append_log("Game Start - %s (1st) vs %s (2nd)" % [starting_player.name, second_player.name])
+	_append_log_full(Enums.LogType.LogType_Default, null,
+		"Game Start - %s as %s (1st) vs %s as %s (2nd)" % [starting_player.name, starting_player.deck_def['display_name'], second_player.name, second_player.deck_def['display_name']])
 	events += starting_player.draw(StartingHandFirstPlayer + starting_player.starting_hand_size_bonus)
 	events += second_player.draw(StartingHandSecondPlayer + second_player.starting_hand_size_bonus)
 	change_game_state(Enums.GameState.GameState_Mulligan)
@@ -5131,6 +5159,7 @@ func do_exceed(performing_player : Player, card_ids : Array) -> bool:
 		return false
 
 	_append_log("%s Turn Action - Exceed" % [performing_player.name])
+	_append_log_full(Enums.LogType.LogType_Action, performing_player, "Turn Action: Exceed")
 	var events = []
 	if performing_player.has_overdrive:
 		events = performing_player.add_to_overdrive(card_ids)
@@ -5451,14 +5480,17 @@ func do_card_from_hand_to_gauge(performing_player : Player, card_ids : Array) ->
 			if decision_info.destination == "gauge":
 				events += performing_player.move_card_from_hand_to_gauge(card_id)
 				destination_string = "gauge"
+				_append_log_full(Enums.LogType.LogType_CardMovement, performing_player, "moves cards (%s) from hand to gauge." % card_names)
 			elif decision_info.destination == "topdeck":
 				events += performing_player.move_card_from_hand_to_deck(card_id)
 				card_names = str(card_ids.size())
 				destination_string = "top of deck"
+				_append_log_full(Enums.LogType.LogType_CardMovement, performing_player, "moves %s card(s) from hand to top of deck." % str(card_ids.size()))
 			elif decision_info.destination == "deck":
 				events += performing_player.shuffle_card_from_hand_to_deck(card_id)
 				card_names = str(card_ids.size())
 				destination_string = "deck"
+				_append_log_full(Enums.LogType.LogType_CardMovement, performing_player, "shuffles %s card(s) from hand into deck." % str(card_ids.size()))
 			else:
 				assert(false, "Unknown destination for do_card_from_hand_to_gauge")
 
@@ -5607,6 +5639,7 @@ func do_mulligan(performing_player : Player, card_ids : Array) -> bool:
 	var events = []
 	events += performing_player.mulligan(card_ids)
 	_append_log("%s mulligan for %s cards." % [performing_player.name, str(len(card_ids))])
+	_append_log_full(Enums.LogType.LogType_CardMovement, performing_player, "mulligans %s card(s)." % str(len(card_ids)))
 	if player.mulligan_complete and opponent.mulligan_complete:
 		change_game_state(Enums.GameState.GameState_PickAction)
 		events += [create_event(Enums.EventType.EventType_AdvanceTurn, active_turn_player, 0)]
@@ -6050,6 +6083,7 @@ func do_choose_from_topdeck(performing_player : Player, chosen_card_id : int, ac
 		chosen_card_id = -1
 
 	_append_log("%s looking at top %s cards." % [performing_player.name, look_amount])
+	_append_log_full(Enums.LogType.LogType_Effect, performing_player, "looks at the top %s cards of their deck." % look_amount)
 	var leftover_card_ids = []
 	for i in range(look_amount):
 		var id = performing_player.deck[i].id
