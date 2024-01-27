@@ -2410,6 +2410,8 @@ func is_effect_condition_met(performing_player : Player, effect, local_condition
 			return active_strike.get_player_strike_from_gauge(performing_player)
 		elif condition == "is_critical":
 			return performing_player.strike_stat_boosts.critical
+		elif condition == "is_not_critical":
+			return performing_player.strike_stat_boosts.critical
 		elif condition == "choose_cards_from_top_deck_action":
 			return decision_info.action == effect["condition_details"]
 		elif condition == "no_sealed_copy_of_attack":

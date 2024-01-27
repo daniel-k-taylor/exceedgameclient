@@ -3535,7 +3535,6 @@
 					"effect_type": "critical",
 					"character_effect": true
 				},
-
 				{
 					"timing": "during_strike",
 					"effect_type": "guardup",
