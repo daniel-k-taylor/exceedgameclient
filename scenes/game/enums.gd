@@ -157,7 +157,7 @@ enum EventType {
 }
 
 enum LogType {
-	LogType_CardMovement,
+	LogType_CardInfo,
 	LogType_CharacterMovement,
 	LogType_Effect,
 	LogType_Health,

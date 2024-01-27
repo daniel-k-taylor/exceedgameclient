@@ -93,7 +93,7 @@ var opponent_cards_before_reshuffle = []
 # TODO: make UI elements to change these
 var using_full_log = true
 var full_log_filters = [
-	Enums.LogType.LogType_CardMovement,
+	Enums.LogType.LogType_CardInfo,
 	Enums.LogType.LogType_CharacterMovement,
 	Enums.LogType.LogType_Effect,
 	Enums.LogType.LogType_Health,
