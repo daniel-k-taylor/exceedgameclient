@@ -3634,7 +3634,6 @@
 					"timing": "now",
 					"effect_type": "set_end_of_turn_boost_delay"
 				},
-
 				{
 					"timing": "end_of_turn",
 					"effect_type": "add_to_gauge_immediately"
