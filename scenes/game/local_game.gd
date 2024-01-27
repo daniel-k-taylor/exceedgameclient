@@ -5352,7 +5352,7 @@ func do_choose_from_boosts(performing_player : Player, card_ids : Array) -> bool
 	var events = []
 	for card_id in card_ids:
 		events += [create_event(Enums.EventType.EventType_SustainBoost, performing_player.my_id, card_id)]
-		performing_player.sustained_boosts.append(card_id)
+		performing_player.sustained_boosts.append(int(card_id))
 		_append_log("%s sustained %s." % [performing_player.name, card_db.get_card_name(card_id)])
 
 	if active_boost:
