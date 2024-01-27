@@ -33,6 +33,7 @@ var active_strike : Strike = null
 var active_character_action : bool = false
 var active_exceed : bool = false
 var active_overdrive : bool = false
+var active_change_cards : bool = false
 var remaining_overdrive_effects = []
 var remaining_character_action_effects = []
 
@@ -405,6 +406,7 @@ class Player:
 	var saved_power : int
 	var movement_limit : int
 	var free_force : int
+	var guile_change_cards_bonus : bool
 
 	func _init(id, player_name, parent_ref, card_db_ref, chosen_deck, card_start_id):
 		my_id = id
@@ -475,6 +477,7 @@ class Player:
 		end_of_turn_boost_delay_card_ids = []
 		saved_power = 0
 		free_force = 0
+		guile_change_cards_bonus = false
 
 		if "buddy_cards" in deck_def:
 			var buddy_index = 0
@@ -500,6 +503,9 @@ class Player:
 
 		if 'buddy_starting_offset' in deck_def:
 			buddy_starting_offset = deck_def['buddy_starting_offset']
+
+		if 'guile_change_cards_bonus' in deck_def:
+			guile_change_cards_bonus = deck_def['guile_change_cards_bonus']
 
 	func initial_shuffle():
 		if ShuffleEnabled:
@@ -847,24 +853,44 @@ class Player:
 			events += [parent.create_event(Enums.EventType.EventType_PlaceBuddy, my_id, get_buddy_location(buddy_id), "", buddy_id, silent)]
 		return events
 
-	func can_pay_cost_with(card_ids : Array, force_cost : int, gauge_cost : int):
-		var gauge_generated = 0
+	func get_force_with_cards(card_ids : Array, reason : String):
 		var force_generated = free_force
+		var has_card_in_gauge = false
 		for card_id in card_ids:
-			if is_card_in_hand(card_id):
-				force_generated += card_database.get_card_force_value(card_id)
-			elif is_card_in_gauge(card_id):
-				force_generated += card_database.get_card_force_value(card_id)
-				gauge_generated += 1
-			else:
-				parent.printlog("ERROR: Card not in hand or gauge")
-				return false
+			force_generated += parent.card_db.get_card_force_value(card_id)
+			if is_card_in_gauge(card_id):
+				has_card_in_gauge = true
 
-		if gauge_generated < gauge_cost:
-			return false
-		if force_generated < force_cost:
-			return false
+		# Handle Guile bonus
+		if reason == "CHANGE_CARDS" and has_card_in_gauge and guile_change_cards_bonus:
+			force_generated += 2
 
+		return force_generated
+
+	func can_pay_cost_with(card_ids : Array, force_cost : int, gauge_cost : int):
+		if force_cost and gauge_cost:
+			# UNEXPECTED - NOT IMPLEMENTED
+			assert(false)
+		elif force_cost:
+			var force_generated = get_force_with_cards(card_ids, "GENERIC_PAY_FORCE_COST")
+			for card_id in card_ids:
+				if not is_card_in_hand(card_id) and not is_card_in_gauge(card_id):
+					assert(false)
+					parent.printlog("ERROR: Card not in hand or gauge")
+					return false
+			return force_generated >= force_cost
+		elif gauge_cost:
+			var gauge_generated = 0
+			for card_id in card_ids:
+				if is_card_in_gauge(card_id):
+					gauge_generated += 1
+				else:
+					assert(false)
+					parent.printlog("ERROR: Card not in gauge")
+					return false
+			return gauge_generated >= gauge_cost
+
+		# No cost.
 		return true
 
 	func can_pay_cost(force_cost : int, gauge_cost : int):
@@ -2384,6 +2410,8 @@ func is_effect_condition_met(performing_player : Player, effect, local_condition
 			return active_strike.get_player_strike_from_gauge(performing_player)
 		elif condition == "is_critical":
 			return performing_player.strike_stat_boosts.critical
+		elif condition == "is_not_critical":
+			return not performing_player.strike_stat_boosts.critical
 		elif condition == "choose_cards_from_top_deck_action":
 			return decision_info.action == effect["condition_details"]
 		elif condition == "no_sealed_copy_of_attack":
@@ -4191,7 +4219,7 @@ func ask_for_cost(performing_player, card, next_state):
 		gauge_discard_reminder = true
 
 	var card_forced_invalid = (is_special and performing_player.specials_invalid)
-	if gauge_cost == 0 and (force_cost == 0 or performing_player.free_force >= force_cost) and not card_forced_invalid:
+	if performing_player.can_pay_cost_with([], gauge_cost, force_cost) and not card_forced_invalid:
 		active_strike.strike_state = next_state
 	else:
 		if not card_forced_invalid and performing_player.can_pay_cost(force_cost, gauge_cost):
@@ -4807,9 +4835,7 @@ func do_move(performing_player : Player, card_ids, new_arena_location) -> bool:
 
 	# Ensure cards generate enough force.
 	var required_force = performing_player.get_force_to_move_to(new_arena_location)
-	var generated_force = performing_player.free_force
-	for id in card_ids:
-		generated_force += card_db.get_card_force_value(id)
+	var generated_force = performing_player.get_force_with_cards(card_ids, "MOVE")
 
 	if generated_force < required_force:
 		printlog("ERROR: Not enough force with these cards to move there.")
@@ -4835,7 +4861,11 @@ func do_change(performing_player : Player, card_ids) -> bool:
 		printlog("ERROR: Cannot do change action for this player.")
 		return false
 
+	var has_card_from_gauge = false
 	for id in card_ids:
+		if performing_player.is_card_in_gauge(id):
+			has_card_from_gauge = true
+
 		if not performing_player.is_card_in_hand(id) and not performing_player.is_card_in_gauge(id):
 			# Card not found, error
 			printlog("ERROR: Tried to discard cards that aren't in hand or gauge.")
@@ -4843,13 +4873,35 @@ func do_change(performing_player : Player, card_ids) -> bool:
 
 	var events = []
 	events += [create_event(Enums.EventType.EventType_ChangeCards, performing_player.my_id, 0)]
+	var force_generated = performing_player.get_force_with_cards(card_ids, "CHANGE_CARDS")
 	events += performing_player.discard(card_ids)
-	var force_generated = performing_player.free_force
-	for id in card_ids:
-		force_generated += card_db.get_card_force_value(id)
+
+	# Handle Guile's Change Cards strike bonus
+	var can_strike_after_change = false
+	if performing_player.guile_change_cards_bonus and has_card_from_gauge and performing_player.exceeded:
+		can_strike_after_change = true
+
 	events += performing_player.draw(force_generated)
 	_append_log("%s Turn Action - Change Cards - for %s and now has %s cards." % [performing_player.name, str(force_generated), str(performing_player.hand.size())])
-	events += check_hand_size_advance_turn(performing_player)
+
+	# Handle Guile's Exceed strike bonus
+	# Otherwise just end the turn.
+	if can_strike_after_change:
+		# Need to give the player a choice to strike.
+		events += handle_strike_effect(
+			-1,
+			{
+				"effect_type": "choice",
+				"choice": [
+					{ "effect_type": "strike" },
+					{ "effect_type": "pass" }
+				]
+			},
+			performing_player
+		)
+		active_change_cards = true
+	else:
+		events += check_hand_size_advance_turn(performing_player)
 
 	event_queue += events
 	return true
@@ -5109,9 +5161,7 @@ func do_force_for_armor(performing_player : Player, card_ids : Array) -> bool:
 			printlog("ERROR: Tried to force for armor with card not in hand or gauge.")
 			return false
 
-	var force_generated = performing_player.free_force
-	for card_id in card_ids:
-		force_generated += card_db.get_card_force_value(card_id)
+	var force_generated = performing_player.get_force_with_cards(card_ids, "FORCE_FOR_ARMOR")
 	if force_generated > 0:
 		var card_names = ""
 		if card_ids.size() > 0:
@@ -5284,6 +5334,8 @@ func do_choice(performing_player : Player, choice_index : int) -> bool:
 		game_state = Enums.GameState.GameState_Boost_Processing
 	elif active_exceed:
 		game_state = Enums.GameState.GameState_Boost_Processing
+	elif active_change_cards:
+		game_state = Enums.GameState.GameState_Boost_Processing
 
 	if decision_info.type == Enums.DecisionType.DecisionType_ChooseSimultaneousEffect:
 		if copying_effect:
@@ -5316,6 +5368,10 @@ func do_choice(performing_player : Player, choice_index : int) -> bool:
 				events += do_remaining_character_action(performing_player)
 			elif active_exceed:
 				active_exceed = false
+				if game_state != Enums.GameState.GameState_WaitForStrike:
+					events += check_hand_size_advance_turn(performing_player)
+			elif active_change_cards:
+				active_change_cards = false
 				if game_state != Enums.GameState.GameState_WaitForStrike:
 					events += check_hand_size_advance_turn(performing_player)
 			else:
@@ -5503,7 +5559,7 @@ func do_force_for_effect(performing_player : Player, card_ids : Array, cancel : 
 			printlog("ERROR: Tried to force for effect with card not in hand or gauge.")
 			return false
 
-	var force_generated = performing_player.free_force
+	var force_generated = performing_player.get_force_with_cards(card_ids, "FORCE_FOR_EFFECT")
 	if cancel:
 		force_generated = 0
 	var ultras = 0
@@ -5511,7 +5567,6 @@ func do_force_for_effect(performing_player : Player, card_ids : Array, cancel : 
 		var force_value = card_db.get_card_force_value(card_id)
 		if force_value == 2:
 			ultras += 1
-		force_generated += force_value
 
 	if force_generated > decision_info.effect['force_max']:
 		if force_generated - ultras <= decision_info.effect['force_max']:

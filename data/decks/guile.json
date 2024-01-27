@@ -1,0 +1,159 @@
+{
+	"id": "guile",
+	"season": 3,
+	"display_name": "Guile",
+	"cardback": "cardback_defaultexceed.png",
+	"exceed_cost": 2,
+	"guile_change_cards_bonus": true,
+	"on_exceed": {
+		"effect_type": "pass"
+	},
+	"ability_effects": [
+		{
+			"timing": "set_strike",
+			"condition": "is_not_critical",
+			"effect_type": "gauge_for_effect",
+			"per_gauge_effect": null,
+			"overall_effect": {
+				"effect_type": "critical",
+				"character_effect": true
+			},
+			"gauge_max": 1
+		}
+	],
+	"exceed_ability_effects": [
+		{
+			"timing": "set_strike",
+			"condition": "is_not_critical",
+			"effect_type": "gauge_for_effect",
+			"per_gauge_effect": null,
+			"overall_effect": {
+				"effect_type": "critical",
+				"character_effect": true
+			},
+			"gauge_max": 1
+		}
+	],
+	"cards": [
+		{
+			"definition_id": "guile_flashexplosion",
+			"image": "guile_flashexplosion.tres"
+		},
+		{
+			"definition_id": "guile_flashexplosion",
+			"image": "guile_flashexplosion.tres"
+		},
+		{
+			"definition_id": "guile_sonichurricane",
+			"image": "guile_sonichurricane.tres"
+		},
+		{
+			"definition_id": "guile_sonichurricane",
+			"image": "guile_sonichurricane.tres"
+		},
+		{
+			"definition_id": "guile_doublesweepkick",
+			"image": "guile_doublesweepkick.tres"
+		},
+		{
+			"definition_id": "guile_doublesweepkick",
+			"image": "guile_doublesweepkick.tres"
+		},
+		{
+			"definition_id": "guile_flashkick",
+			"image": "guile_flashkick.tres"
+		},
+		{
+			"definition_id": "guile_flashkick",
+			"image": "guile_flashkick.tres"
+		},
+		{
+			"definition_id": "guile_reversespinkick",
+			"image": "guile_reversespinkick.tres"
+		},
+		{
+			"definition_id": "guile_reversespinkick",
+			"image": "guile_reversespinkick.tres"
+		},
+		{
+			"definition_id": "guile_sonicboom",
+			"image": "guile_sonicboom.tres"
+		},
+		{
+			"definition_id": "guile_sonicboom",
+			"image": "guile_sonicboom.tres"
+		},
+		{
+			"definition_id": "guile_spinningbackknuckle",
+			"image": "guile_spinningbackknuckle.tres"
+		},
+		{
+			"definition_id": "guile_spinningbackknuckle",
+			"image": "guile_spinningbackknuckle.tres"
+		},
+		{
+			"definition_id": "standard_normal_grasp",
+			"image": "normal_grasp.tres"
+		},
+		{
+			"definition_id": "standard_normal_grasp",
+			"image": "normal_grasp.tres"
+		},
+		{
+			"definition_id": "standard_normal_cross",
+			"image": "normal_cross.tres"
+		},
+		{
+			"definition_id": "standard_normal_cross",
+			"image": "normal_cross.tres"
+		},
+		{
+			"definition_id": "standard_normal_assault",
+			"image": "normal_assault.tres"
+		},
+		{
+			"definition_id": "standard_normal_assault",
+			"image": "normal_assault.tres"
+		},
+		{
+			"definition_id": "standard_normal_dive",
+			"image": "normal_dive.tres"
+		},
+		{
+			"definition_id": "standard_normal_dive",
+			"image": "normal_dive.tres"
+		},
+		{
+			"definition_id": "standard_normal_spike",
+			"image": "normal_spike.tres"
+		},
+		{
+			"definition_id": "standard_normal_spike",
+			"image": "normal_spike.tres"
+		},
+		{
+			"definition_id": "standard_normal_sweep",
+			"image": "normal_sweep.tres"
+		},
+		{
+			"definition_id": "standard_normal_sweep",
+			"image": "normal_sweep.tres"
+		},
+		{
+			"definition_id": "standard_normal_focus",
+			"image": "normal_focus.tres"
+		},
+		{
+			"definition_id": "standard_normal_focus",
+			"image": "normal_focus.tres"
+		},
+		{
+			"definition_id": "standard_normal_block",
+			"image": "normal_block.tres"
+		},
+		{
+			"definition_id": "standard_normal_block",
+			"image": "normal_block.tres"
+		}
+	]
+}

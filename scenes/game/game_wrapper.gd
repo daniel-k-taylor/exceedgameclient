@@ -201,6 +201,9 @@ func get_player_available_force(player_id : Enums.PlayerId):
 func get_player_free_force(player_id : Enums.PlayerId):
 	return _get_player(player_id).free_force
 
+func get_player_force_for_cards(player_id : Enums.PlayerId, card_ids : Array, reason : String):
+	return _get_player(player_id).get_force_with_cards(card_ids, reason)
+
 func get_force_to_move_to(player_id : Enums.PlayerId, location : int):
 	return _get_player(player_id).get_force_to_move_to(location)
 

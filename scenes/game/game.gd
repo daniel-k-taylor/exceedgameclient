@@ -1625,11 +1625,13 @@ func update_gauge_selection_for_cancel_message():
 	set_instructions("Select %s gauge card to use Cancel." % num_remaining)
 
 func get_force_in_selected_cards():
-	var force_selected = game_wrapper.get_player_free_force(Enums.PlayerId.PlayerId_Player)
-	var card_db = game_wrapper.get_card_database()
+	var card_ids = []
 	for card in selected_cards:
-		force_selected += card_db.get_card_force_value(card.card_id)
-	return force_selected
+		card_ids.append(card.card_id)
+	var reason = ""
+	if ui_sub_state == UISubState.UISubState_SelectCards_ForceForChange:
+		reason = "CHANGE_CARDS"
+	return game_wrapper.get_player_force_for_cards(Enums.PlayerId.PlayerId_Player, card_ids, reason)
 
 func can_selected_cards_pay_force(force_cost : int, bonus_card_force_value : int = 0):
 	var max_force_selected = game_wrapper.get_player_free_force(Enums.PlayerId.PlayerId_Player)
