@@ -184,15 +184,15 @@ func does_card_belong_to_player(player_id : Enums.PlayerId, card_id : int):
 	var player = _get_player(player_id)
 	return player.owns_card(card_id)
 
-func get_player_top_cards(player_id : Enums.PlayerId, count : int) -> Array[int]:
+func get_player_top_cards(player_id : Enums.PlayerId, count : int) -> Array:
 	var player = _get_player(player_id)
-	var top_cards : Array[int] = []
+	var top_cards : Array = []
 	for i in range(count):
 		if player.deck.size() > i:
 			top_cards.append(player.deck[i].id)
 	return top_cards
 
-func get_player_sustained_boosts(player_id : Enums.PlayerId) -> Array[int]:
+func get_player_sustained_boosts(player_id : Enums.PlayerId) -> Array:
 	return _get_player(player_id).sustained_boosts
 
 func get_player_available_force(player_id : Enums.PlayerId):

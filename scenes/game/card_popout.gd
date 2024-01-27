@@ -20,6 +20,7 @@ var total_cols = 0
 @onready var instruction_button_ok = $PopoutVBox/HBoxContainer/RestOfThing/InstructionButtonOk
 @onready var instruction_button_ok2 = $PopoutVBox/HBoxContainer/RestOfThing/InstructionButtonOk2
 @onready var instruction_button_cancel = $PopoutVBox/HBoxContainer/RestOfThing/InstructionButtonCancel
+@onready var toggle_container = $PopoutVBox/ToggleContainer
 @onready var toggle_button = $PopoutVBox/ToggleContainer/WithBuffer/ReshuffleToggle
 
 # Called when the node enters the scene tree for the first time.
@@ -64,7 +65,8 @@ func set_instructions(instruction_info):
 		instruction_button_cancel.visible = cancel_visible
 		instruction_button_cancel.text = cancel_text
 
-func set_reference_toggle(toggle_text):
+func set_reference_toggle(toggle_text, toggle_visible):
+	toggle_container.visible = toggle_visible
 	if toggle_text == "":
 		toggle_button.text = "Show cards before reshuffle"
 		toggle_button.disabled = true
