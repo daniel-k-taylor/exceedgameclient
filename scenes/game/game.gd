@@ -2766,7 +2766,7 @@ func _on_choice_pressed(choice):
 
 func _on_instructions_ok_button_pressed(index : int):
 	if ui_state == UIState.UIState_SelectCards and can_press_ok():
-		var selected_card_ids : Array[int] = []
+		var selected_card_ids : Array = []
 		for card in selected_cards:
 			selected_card_ids.append(card.card_id)
 		var single_card_id = -1
@@ -2924,7 +2924,7 @@ func _on_wild_swing_button_pressed():
 	_update_buttons()
 
 func _on_shortcut_strike_pressed():
-	var selected_card_ids : Array[int] = []
+	var selected_card_ids : Array = []
 	for card in selected_cards:
 		selected_card_ids.append(card.card_id)
 	deselect_all_cards()

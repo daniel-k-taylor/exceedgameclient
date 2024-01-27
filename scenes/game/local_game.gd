@@ -364,9 +364,9 @@ class Player:
 	var deck_def : Dictionary
 	var gauge : Array
 	var continuous_boosts : Array[GameCard]
-	var cleanup_boost_to_gauge_cards : Array[int]
-	var boosts_to_gauge_on_move : Array[int]
-	var on_buddy_boosts : Array[int]
+	var cleanup_boost_to_gauge_cards : Array
+	var boosts_to_gauge_on_move : Array
+	var on_buddy_boosts : Array
 	var arena_location : int
 	var reshuffle_remaining : int
 	var exceeded : bool
@@ -391,7 +391,7 @@ class Player:
 	var max_hand_size : int
 	var starting_hand_size_bonus : int
 	var pre_strike_movement : int
-	var sustained_boosts : Array[int]
+	var sustained_boosts : Array
 	var sustain_next_boost : bool
 	var buddy_starting_offset : int
 	var buddy_locations : Array[int]
@@ -401,7 +401,7 @@ class Player:
 	var cannot_move_past_opponent : bool
 	var ignore_push_and_pull : bool
 	var extra_effect_after_set_strike
-	var end_of_turn_boost_delay_card_ids : Array[int]
+	var end_of_turn_boost_delay_card_ids : Array
 	var saved_power : int
 	var movement_limit : int
 	var free_force : int
