@@ -688,6 +688,9 @@ func can_select_card(card):
 	var in_opponent_boosts = game_wrapper.is_card_in_boosts(Enums.PlayerId.PlayerId_Opponent, card.card_id)
 	var in_opponent_reference = is_card_in_player_reference($AllCards/OpponentAllCopy.get_children(), card.card_id)
 	var in_choice_zone = is_card_in_player_reference($AllCards/ChoiceZone.get_children(), card.card_id)
+
+	if ui_state == UIState.UIState_PickTurnAction:
+		return in_hand or in_gauge
 	match ui_sub_state:
 		UISubState.UISubState_SelectCards_DiscardCards, UISubState.UISubState_SelectCards_DiscardCardsToGauge:
 			return in_hand and len(selected_cards) < select_card_require_max
@@ -771,7 +774,8 @@ func deselect_all_cards():
 
 func on_card_clicked(card : CardBase):
 	# If in selection mode, select/deselect card.
-	if ui_state == UIState.UIState_SelectCards:
+	# Otherwise, if picking turn action, toggle quick action selection.
+	if ui_state == UIState.UIState_SelectCards or ui_state == UIState.UIState_PickTurnAction:
 		var index = -1
 		for i in range(len(selected_cards)):
 			if selected_cards[i].card_id == card.card_id:
@@ -969,6 +973,7 @@ func _on_advance_turn():
 
 	if is_local_player_active:
 		change_ui_state(UIState.UIState_PickTurnAction, UISubState.UISubState_None)
+		clear_selected_cards()
 	else:
 		change_ui_state(UIState.UIState_WaitingOnOpponent, UISubState.UISubState_None)
 
@@ -2395,40 +2400,76 @@ func _update_buttons():
 
 	var action_buttons_visible = ui_state == UIState.UIState_PickTurnAction
 	if action_buttons_visible:
-		set_instructions("Choose an action:")
-		instructions_ok_allowed = false
-		instructions_cancel_allowed = false
-		instructions_wild_swing_allowed = false
-		button_choices.append({ "text": "Prepare", "action": _on_prepare_button_pressed, "disabled": not game_wrapper.can_do_prepare(Enums.PlayerId.PlayerId_Player) })
-		button_choices.append({ "text": "Move", "action": _on_move_button_pressed, "disabled": not game_wrapper.can_do_move(Enums.PlayerId.PlayerId_Player) })
-		button_choices.append({ "text": "Change Cards", "action": _on_change_button_pressed, "disabled": not game_wrapper.can_do_change(Enums.PlayerId.PlayerId_Player) })
-		var exceed_cost = game_wrapper.get_player_exceed_cost(Enums.PlayerId.PlayerId_Player)
-		if exceed_cost >= 0:
-			button_choices.append({ "text": "Exceed (%s Gauge)" % exceed_cost, "action": _on_exceed_button_pressed, "disabled": not game_wrapper.can_do_exceed(Enums.PlayerId.PlayerId_Player) })
-		if game_wrapper.can_do_reshuffle(Enums.PlayerId.PlayerId_Player):
-			button_choices.append({ "text": "Manual Reshuffle", "action": _on_reshuffle_button_pressed, "disabled": false })
-		button_choices.append({ "text": "Boost", "action": _on_boost_button_pressed, "disabled": not game_wrapper.can_do_boost(Enums.PlayerId.PlayerId_Player) })
-		button_choices.append({ "text": "Strike", "action": _on_strike_button_pressed, "disabled": not game_wrapper.can_do_strike(Enums.PlayerId.PlayerId_Player) })
-		for i in range(game_wrapper.get_player_character_action_count(Enums.PlayerId.PlayerId_Player)):
-			var char_action = game_wrapper.get_player_character_action(Enums.PlayerId.PlayerId_Player, i)
-			var action_possible = game_wrapper.can_do_character_action(Enums.PlayerId.PlayerId_Player, i)
-			var action_name = "Character Action"
-			if 'action_name' in char_action:
-				action_name = char_action['action_name']
-			var force_cost = char_action['force_cost']
-			var gauge_cost = char_action['gauge_cost']
-			var additional_text = ""
-			if force_cost > 0:
-				additional_text += " (%s Force)" % force_cost
-			if gauge_cost > 0:
-				additional_text += " (%s Gauge)" % gauge_cost
-			button_choices.append({ "text": "%s%s" % [action_name, additional_text], "action": func(): _on_character_action_pressed(i), "disabled": not action_possible })
-		var bonus_available_actions = game_wrapper.get_bonus_actions(Enums.PlayerId.PlayerId_Player)
-		for i in range(bonus_available_actions.size()):
-			var bonus_action = bonus_available_actions[i]
-			var action_text = bonus_action['text']
-			var bonus_index = i
-			button_choices.append({ "text": action_text, "action": func(): _on_bonus_action_pressed(bonus_index), "disabled": false })
+		if len(selected_cards) == 0:
+			set_instructions("Choose an action:")
+			instructions_ok_allowed = false
+			instructions_cancel_allowed = false
+			instructions_wild_swing_allowed = false
+			button_choices.append({ "text": "Prepare", "action": _on_prepare_button_pressed, "disabled": not game_wrapper.can_do_prepare(Enums.PlayerId.PlayerId_Player) })
+			button_choices.append({ "text": "Move", "action": _on_move_button_pressed, "disabled": not game_wrapper.can_do_move(Enums.PlayerId.PlayerId_Player) })
+			button_choices.append({ "text": "Change Cards", "action": _on_change_button_pressed, "disabled": not game_wrapper.can_do_change(Enums.PlayerId.PlayerId_Player) })
+			var exceed_cost = game_wrapper.get_player_exceed_cost(Enums.PlayerId.PlayerId_Player)
+			if exceed_cost >= 0:
+				button_choices.append({ "text": "Exceed (%s Gauge)" % exceed_cost, "action": _on_exceed_button_pressed, "disabled": not game_wrapper.can_do_exceed(Enums.PlayerId.PlayerId_Player) })
+			if game_wrapper.can_do_reshuffle(Enums.PlayerId.PlayerId_Player):
+				button_choices.append({ "text": "Manual Reshuffle", "action": _on_reshuffle_button_pressed, "disabled": false })
+			button_choices.append({ "text": "Boost", "action": _on_boost_button_pressed, "disabled": not game_wrapper.can_do_boost(Enums.PlayerId.PlayerId_Player) })
+			button_choices.append({ "text": "Strike", "action": _on_strike_button_pressed, "disabled": not game_wrapper.can_do_strike(Enums.PlayerId.PlayerId_Player) })
+			for i in range(game_wrapper.get_player_character_action_count(Enums.PlayerId.PlayerId_Player)):
+				var char_action = game_wrapper.get_player_character_action(Enums.PlayerId.PlayerId_Player, i)
+				var action_possible = game_wrapper.can_do_character_action(Enums.PlayerId.PlayerId_Player, i)
+				var action_name = "Character Action"
+				if 'action_name' in char_action:
+					action_name = char_action['action_name']
+				var force_cost = char_action['force_cost']
+				var gauge_cost = char_action['gauge_cost']
+				var additional_text = ""
+				if force_cost > 0:
+					additional_text += " (%s Force)" % force_cost
+				if gauge_cost > 0:
+					additional_text += " (%s Gauge)" % gauge_cost
+				button_choices.append({ "text": "%s%s" % [action_name, additional_text], "action": func(): _on_character_action_pressed(i), "disabled": not action_possible })
+			var bonus_available_actions = game_wrapper.get_bonus_actions(Enums.PlayerId.PlayerId_Player)
+			for i in range(bonus_available_actions.size()):
+				var bonus_action = bonus_available_actions[i]
+				var action_text = bonus_action['text']
+				var bonus_index = i
+				button_choices.append({ "text": action_text, "action": func(): _on_bonus_action_pressed(bonus_index), "disabled": false })
+		else:
+			var card_db = game_wrapper.get_card_database()
+			var card_name = "these cards"
+			var strike_text = "Strike"
+			var boost_text = "Boost"
+			var can_strike = false
+			var can_boost = false
+			var only_in_hand = true
+			for card in selected_cards:
+				if not game_wrapper.is_card_in_hand(Enums.PlayerId.PlayerId_Player, card.card_id):
+					only_in_hand = false
+			if only_in_hand:
+				if len(selected_cards) == 1:
+					can_strike = true
+					can_boost = true
+					var boost_name = card_db.get_card(selected_cards[0].card_id).definition['boost']['display_name']
+					boost_text += " (%s)" % boost_name
+				elif len(selected_cards) == 2:
+					var card1 = selected_cards[0]
+					var card2 = selected_cards[1]
+					if card_db.are_same_card(card1.card_id, card2.card_id):
+						can_strike = true
+						strike_text = "EX Strike"
+			if can_strike:
+				card_name = card_db.get_card(selected_cards[0].card_id).definition['display_name']
+				strike_text += " (%s)" % card_name
+
+			set_instructions("Do what with %s?" % card_name)
+			instructions_ok_allowed = false
+			instructions_cancel_allowed = false
+			instructions_wild_swing_allowed = false
+			button_choices.append({ "text": strike_text, "action": _on_shortcut_strike_pressed, "disabled": not can_strike or not game_wrapper.can_do_strike(Enums.PlayerId.PlayerId_Player) })
+			button_choices.append({ "text": boost_text, "action": _on_shortcut_boost_pressed, "disabled": not can_boost or not game_wrapper.can_do_boost(Enums.PlayerId.PlayerId_Player) })
+			button_choices.append({ "text": "Change Cards", "action": _on_shortcut_change_pressed, "disabled": not game_wrapper.can_do_change(Enums.PlayerId.PlayerId_Player) })
+			button_choices.append({ "text": "Cancel", "action": _on_shortcut_cancel_pressed, "disabled": false })
 
 	# Update instructions UI visibility
 	var instructions_visible = false
@@ -2880,6 +2921,48 @@ func _on_wild_swing_button_pressed():
 			success = game_wrapper.submit_pay_strike_cost(Enums.PlayerId.PlayerId_Player, [], true)
 	if success:
 		change_ui_state(UIState.UIState_WaitForGameServer)
+	_update_buttons()
+
+func _on_shortcut_strike_pressed():
+	var selected_card_ids : Array[int] = []
+	for card in selected_cards:
+		selected_card_ids.append(card.card_id)
+	deselect_all_cards()
+
+	var success = false
+	if len(selected_card_ids) == 1:
+		success = game_wrapper.submit_strike(Enums.PlayerId.PlayerId_Player, selected_card_ids[0], false, -1)
+	elif len(selected_card_ids) == 2:
+		success = game_wrapper.submit_strike(Enums.PlayerId.PlayerId_Player, selected_card_ids[0], false, selected_card_ids[1])
+	if success:
+		change_ui_state(UIState.UIState_WaitForGameServer)
+	_update_buttons()
+
+func _on_shortcut_boost_pressed():
+	var card_id : int = selected_cards[0].card_id
+	deselect_all_cards()
+
+	var success = false
+	var force_cost = game_wrapper.get_card_database().get_card_boost_force_cost(card_id)
+	if force_cost > 0:
+		selected_boost_to_pay_for = card_id
+		change_ui_state(null, UISubState.UISubState_SelectCards_ForceForBoost)
+		begin_generate_force_selection(force_cost)
+	else:
+		success = game_wrapper.submit_boost(Enums.PlayerId.PlayerId_Player, card_id, [])
+
+	if success:
+		change_ui_state(UIState.UIState_WaitForGameServer)
+	_update_buttons()
+
+func _on_shortcut_change_pressed():
+	change_ui_state(null, UISubState.UISubState_SelectCards_ForceForChange)
+	select_card_require_force = -1
+	enable_instructions_ui("", true, true, false)
+	change_ui_state(UIState.UIState_SelectCards)
+
+func _on_shortcut_cancel_pressed():
+	deselect_all_cards()
 	_update_buttons()
 
 func _on_arena_location_pressed(location):
