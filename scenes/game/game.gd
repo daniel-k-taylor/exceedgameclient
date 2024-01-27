@@ -90,18 +90,6 @@ var reference_popout_toggle_enabled = false
 var reference_popout_toggle = false
 var opponent_cards_before_reshuffle = []
 
-# TODO: make UI elements to change these
-var using_full_log = true
-var full_log_filters = [
-	Enums.LogType.LogType_CardInfo,
-	Enums.LogType.LogType_CharacterMovement,
-	Enums.LogType.LogType_Effect,
-	Enums.LogType.LogType_Health,
-	Enums.LogType.LogType_Action,
-	Enums.LogType.LogType_Strike,
-	Enums.LogType.LogType_Default
-]
-
 var player_deck
 var opponent_deck
 
@@ -535,10 +523,10 @@ func _process(delta):
 		var events = game_wrapper.poll_for_events()
 		if events.size() > 0:
 			_handle_events(events)
-			if using_full_log:
-				$CombatLog.set_text(game_wrapper.get_full_combat_log(full_log_filters))
-			else:
+			if $CombatLog.use_old_log:
 				$CombatLog.set_text(game_wrapper.get_combat_log())
+			else:
+				$CombatLog.set_text(game_wrapper.get_full_combat_log($CombatLog.get_filters()))
 		elif ui_state == UIState.UIState_WaitingOnOpponent:
 			# Advance the AI game automatically.
 			_on_ai_move_button_pressed()
@@ -3660,10 +3648,10 @@ func _on_card_popout_pressed_toggle():
 
 
 func _on_combat_log_button_pressed():
-	if using_full_log:
-		$CombatLog.set_text(game_wrapper.get_full_combat_log(full_log_filters))
-	else:
+	if $CombatLog.use_old_log:
 		$CombatLog.set_text(game_wrapper.get_combat_log())
+	else:
+		$CombatLog.set_text(game_wrapper.get_full_combat_log($CombatLog.get_filters()))
 	$CombatLog.visible = true
 
 func _on_combat_log_close_button_pressed():

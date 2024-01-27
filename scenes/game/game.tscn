@@ -755,6 +755,7 @@ offset_bottom = 720.0
 [connection signal="pressed" from="ExitToMenu" to="." method="_on_exit_to_menu_pressed"]
 [connection signal="pressed" from="EmoteButton" to="." method="_on_emote_button_pressed"]
 [connection signal="close_button_pressed" from="CombatLog" to="." method="_on_combat_log_close_button_pressed"]
+[connection signal="filter_toggle_update" from="CombatLog" to="." method="_on_combat_log_button_pressed"]
 [connection signal="close_button_pressed" from="EmoteDialog" to="." method="_on_emote_dialog_close_button_pressed"]
 [connection signal="emote_selected" from="EmoteDialog" to="." method="_on_emote_dialog_emote_selected"]
 [connection signal="accept_button_pressed" from="ModalDialog" to="." method="_on_modal_dialog_accept_button_pressed"]
