@@ -2469,7 +2469,7 @@ func _update_buttons():
 			button_choices.append({ "text": strike_text, "action": _on_shortcut_strike_pressed, "disabled": not can_strike or not game_wrapper.can_do_strike(Enums.PlayerId.PlayerId_Player) })
 			button_choices.append({ "text": boost_text, "action": _on_shortcut_boost_pressed, "disabled": not can_boost or not game_wrapper.can_do_boost(Enums.PlayerId.PlayerId_Player) })
 			button_choices.append({ "text": "Change Cards", "action": _on_shortcut_change_pressed, "disabled": not game_wrapper.can_do_change(Enums.PlayerId.PlayerId_Player) })
-			button_choices.append({ "text": "Cancel", "action": _on_shortcut_cancel_pressed, "disabled": false })
+			button_choices.append({ "text": "Deselect card(s)", "action": _on_shortcut_cancel_pressed, "disabled": false })
 
 	# Update instructions UI visibility
 	var instructions_visible = false
