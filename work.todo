@@ -1,5 +1,9 @@
 In progress:
-
+    Taokaka:
+        ☐ "effect_type": "strike_wild"
+        ☐ "effect_type": "look_at_top_self_deck"
+        ☐ "add_topdeck_card_name_to_choices": [0],
+        ☐ discard_topdeck - look at card_name field
 
 Write tests for:
     Axl:
