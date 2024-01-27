@@ -2686,7 +2686,7 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 			if 'and' in effect:
 				decision_info.limitation['and'] = effect['and']
 			if 'bonus_effect' in effect:
-				decision_info.limitation['and'] = effect['bonus_effect']
+				decision_info.limitation['bonus_effect'] = effect['bonus_effect']
 
 			var effects = performing_player.get_character_effects_at_timing("on_advance_or_close")
 			for sub_effect in effects:
