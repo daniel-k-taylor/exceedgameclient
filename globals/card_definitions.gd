@@ -369,7 +369,10 @@ func get_effect_type_text(effect, card_name_source : String = ""):
 		"cannot_stun":
 			effect_str += "Attack does not stun."
 		"choice":
-			effect_str += "Choose: " + get_choice_summary(effect['choice'], card_name_source)
+			if 'special_choice_name' in effect:
+				effect_str += effect['special_choice_name']
+			else:
+				effect_str += "Choose: " + get_choice_summary(effect['choice'], card_name_source)
 		"choose_discard":
 			var source = "discard"
 			if 'source' in effect:
@@ -402,7 +405,10 @@ func get_effect_type_text(effect, card_name_source : String = ""):
 		"discard_opponent_topdeck":
 			effect_str += "Discard a card from the top of the opponent's deck"
 		"discard_topdeck":
-			effect_str += "Discard a card from the top of your deck"
+			if 'card_name' in effect:
+				effect_str += "Discard %s from the top of your deck" % effect['card_name']
+			else:
+				effect_str += "Discard a card from the top of your deck"
 		"discard_random_and_add_triggers":
 			effect_str += "Discard a random card; add before/hit/after triggers to attack"
 		"dodge_at_range":
@@ -435,6 +441,8 @@ func get_effect_type_text(effect, card_name_source : String = ""):
 			effect_str += "Exceed"
 		"extra_trigger_resolutions":
 			effect_str += "Before/Hit/After triggers resolve %s extra time(s)" % effect['amount']
+		"force_costs_reduced_passive":
+			effect_str += "Force costs reduced by %s" % effect['amount']
 		"force_for_effect":
 			effect_str += get_force_for_effect_summary(effect, card_name_source)
 		"gauge_for_effect":
@@ -493,6 +501,11 @@ func get_effect_type_text(effect, card_name_source : String = ""):
 			effect_str += "Opponent wild swings."
 		"pass":
 			effect_str += "Pass"
+		"place_buddy_at_range":
+			if effect['range_min'] == effect['range_max']:
+				effect_str += "Place %s at range %s" % [effect['buddy_name'], effect['range_min']]
+			else:
+				effect_str += "Place %s at range %s-%s" % [effect['buddy_name'], effect['range_min'], effect['range_max']]
 		"place_buddy_onto_self":
 			effect_str += "Place %s onto your space" % effect['buddy_name']
 		"powerup":
@@ -520,6 +533,8 @@ func get_effect_type_text(effect, card_name_source : String = ""):
 			effect_str += "Push " + str(effect['amount'])
 		"push_from_source":
 			effect_str += "Push " + str(effect['amount']) + " from attack source"
+		"push_to_attack_max_range":
+			effect_str += "Push to attack's max range"
 		"rangeup":
 			if effect['amount'] >= 0:
 				effect_str += "+"
@@ -634,8 +649,12 @@ func get_effect_type_text(effect, card_name_source : String = ""):
 			effect_str += "Spend " + str(effect['amount']) + " life"
 		"strike":
 			effect_str += "Strike"
+		"strike_wild":
+			effect_str += "Wild swing"
 		"strike_faceup":
 			effect_str += "Strike face-up"
+		"strike_opponent_sets_first":
+			effect_str += "Strike (opponent sets first)"
 		"strike_random_from_gauge":
 			effect_str += "Strike with random card from gauge (opponent sets first)"
 		"strike_response_reading":

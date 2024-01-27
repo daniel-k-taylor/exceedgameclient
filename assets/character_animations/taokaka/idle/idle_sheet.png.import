@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://bg1ol57xdugnn"
-path="res://.godot/imported/sheet.png-6436d0cce8376d18616a484549717709.ctex"
+uid="uid://cgqxydiavps6x"
+path="res://.godot/imported/idle_sheet.png-579c917ec9df580e37723b9aa2080336.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/character_animations/guile/idle/sheet.png"
-dest_files=["res://.godot/imported/sheet.png-6436d0cce8376d18616a484549717709.ctex"]
+source_file="res://assets/character_animations/taokaka/idle/idle_sheet.png"
+dest_files=["res://.godot/imported/idle_sheet.png-579c917ec9df580e37723b9aa2080336.ctex"]
 
 [params]
 

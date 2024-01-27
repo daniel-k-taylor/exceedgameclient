@@ -17,7 +17,7 @@ dest_files=["res://.godot/imported/blazbluelogo2.png-8fce41103fcfd93f9b179eb24fb
 
 compress/mode=1
 compress/high_quality=false
-compress/lossy_quality=0.7
+compress/lossy_quality=0.1
 compress/hdr_compression=1
 compress/normal_map=0
 compress/channel_pack=0

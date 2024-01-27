@@ -44,7 +44,7 @@
 		},
 		{
 			"character_effect": true,
-			"timing": "during_strike",
+			"timing": "set_strike",
 			"condition": "initiated_strike",
 			"effect_type": "speedup",
 			"amount": 1

@@ -17,7 +17,7 @@ dest_files=["res://.godot/imported/cyansquare.png-e3b17a418bcc8de6c0f8ba0f5a358c
 
 compress/mode=1
 compress/high_quality=false
-compress/lossy_quality=0.7
+compress/lossy_quality=0.1
 compress/hdr_compression=1
 compress/normal_map=0
 compress/channel_pack=0
