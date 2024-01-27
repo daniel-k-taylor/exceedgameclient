@@ -405,7 +405,10 @@ func get_effect_type_text(effect, card_name_source : String = ""):
 		"discard_opponent_topdeck":
 			effect_str += "Discard a card from the top of the opponent's deck"
 		"discard_topdeck":
-			effect_str += "Discard a card from the top of your deck"
+			if 'card_name' in effect:
+				effect_str += "Discard %s from the top of your deck" % effect['card_name']
+			else:
+				effect_str += "Discard a card from the top of your deck"
 		"discard_random_and_add_triggers":
 			effect_str += "Discard a random card; add before/hit/after triggers to attack"
 		"dodge_at_range":
@@ -646,6 +649,8 @@ func get_effect_type_text(effect, card_name_source : String = ""):
 			effect_str += "Spend " + str(effect['amount']) + " life"
 		"strike":
 			effect_str += "Strike"
+		"strike_wild":
+			effect_str += "Wild swing"
 		"strike_faceup":
 			effect_str += "Strike face-up"
 		"strike_opponent_sets_first":

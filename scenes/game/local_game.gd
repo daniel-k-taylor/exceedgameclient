@@ -2589,6 +2589,14 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 			change_game_state(Enums.GameState.GameState_PlayerDecision)
 			decision_info.type = Enums.DecisionType.DecisionType_EffectChoice
 			decision_info.player = performing_player.my_id
+			if 'add_topdeck_card_name_to_choices' in effect:
+				# Add a 'card_name' field to each choice that's in this array.
+				for index in effect['add_topdeck_card_name_to_choices']:
+					var choice = effect['choice'][index]
+					var card_name = "nothing (deck empty)"
+					if performing_player.deck.size() > 0:
+						card_name = card_db.get_card_name(performing_player.deck[0].id)
+					choice['card_name'] = card_name
 			decision_info.choice = effect['choice']
 			decision_info.choice_card_id = card_id
 			events += [create_event(Enums.EventType.EventType_Strike_EffectChoice, performing_player.my_id, 0, "EffectOption")]
@@ -3590,6 +3598,14 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 		"strike_with_deus_ex_machina":
 			change_game_state(Enums.GameState.GameState_AutoStrike)
 			decision_info.effect_type ="happychaos_deusexmachina"
+		"strike_wild":
+			change_game_state(Enums.GameState.GameState_WaitForStrike)
+			var strike_info = {
+				"card_id": -1,
+				"wild_swing": true,
+				"ex_card_id": -1
+			}
+			events += [create_event(Enums.EventType.EventType_Strike_EffectDoStrike, performing_player.my_id, 0, "", strike_info)]
 		"stun_immunity":
 			performing_player.strike_stat_boosts.stun_immunity = true
 		"sustain_this":
