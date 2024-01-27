@@ -115,14 +115,24 @@ func get_spot(slot_index):
 	if used_slots > 0:
 		row_num = floor(slot_index / total_cols)
 		col_num = (slot_index % total_cols)
+		if row_num >= 2:
+			# Since the objects are Spot1/Spot2, row_num can't be 2 or more.
+			# Somehow we snuck into the next col?
+			row_num = 0
+			assert(false)
 	var col = $PopoutVBox/Margin/Row.get_node("Col%s" % str(col_num + 1))
 	var spot = col.get_node("Spot%s" % str(row_num + 1))
 	return spot
 
 func get_slot_position(slot_index : int) -> Vector2:
 	var spot = get_spot(slot_index)
-	var pos = spot.global_position
-	return pos
+	if spot:
+		var pos = spot.global_position
+		return pos
+	else:
+		# Something weird happened, default to something to not crash
+		# We should at least have a slot 0, right?
+		return get_spot(0).global_position
 
 func _on_close_window_button_pressed():
 	close_window.emit()
