@@ -362,7 +362,7 @@ class Player:
 	var has_overdrive : bool
 	var set_aside_cards : Array[GameCard]
 	var deck_def : Dictionary
-	var gauge : Array
+	var gauge : Array[GameCard]
 	var continuous_boosts : Array[GameCard]
 	var cleanup_boost_to_gauge_cards : Array
 	var boosts_to_gauge_on_move : Array
