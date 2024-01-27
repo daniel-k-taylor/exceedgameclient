@@ -3385,12 +3385,15 @@ func show_popout(popout_type : CardPopoutType, popout_title : String, card_node,
 	popout_showing_node.z_index = card_popout.z_index
 
 	var toggle_text = ""
-	if popout_type == CardPopoutType.CardPopoutType_ReferenceOpponent and reference_popout_toggle_enabled:
-		if reference_popout_toggle:
-			toggle_text = "Show current cards"
-		else:
-			toggle_text = "Show cards before reshuffle"
-	card_popout.set_reference_toggle(toggle_text)
+	var toggle_visible = false
+	if popout_type == CardPopoutType.CardPopoutType_ReferenceOpponent:
+		toggle_visible = true
+		if reference_popout_toggle_enabled:
+			if reference_popout_toggle:
+				toggle_text = "Show current cards"
+			else:
+				toggle_text = "Show cards before reshuffle"
+	card_popout.set_reference_toggle(toggle_text, toggle_visible)
 
 	update_popout_instructions()
 	card_popout.set_title(popout_title)
