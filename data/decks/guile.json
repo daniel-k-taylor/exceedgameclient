@@ -3,50 +3,10 @@
 	"season": 3,
 	"display_name": "Guile",
 	"cardback": "cardback_defaultexceed.png",
-	"exceed_cost": 3,
+	"exceed_cost": 2,
 	"on_exceed": {
-		"effect_type": "draw",
-		"amount": 1,
-		"and": {
-			"effect_type": "choice",
-			"choice": [
-				{ "effect_type": "close", "amount": 1 },
-				{ "effect_type": "close", "amount": 2 },
-				{ "effect_type": "pass" }
-			]
-		}
+		"effect_type": "pass"
 	},
-	"character_action_default": [{
-		"gauge_cost": 0,
-		"force_cost": 0,
-		"effect": {
-			"effect_type": "close",
-			"amount": 1,
-			"and": {
-				"effect_type": "draw",
-				"amount": 1
-			}
-		}
-	}],
-	"character_action_exceeded": [{
-		"gauge_cost": 0,
-		"force_cost": 0,
-		"effect": {
-			"effect_type": "close",
-			"amount": 1,
-			"and": {
-				"effect_type": "draw",
-				"amount": 1,
-				"and": {
-					"effect_type": "choice",
-					"choice": [
-						{ "effect_type": "strike" },
-						{ "effect_type": "pass" }
-					]
-				}
-			}
-		}
-	}],
 	"ability_effects": [
 		{
 			"timing": "set_strike",

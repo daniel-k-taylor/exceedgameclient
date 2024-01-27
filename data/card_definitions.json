@@ -3514,7 +3514,7 @@
 				"amount": 3
 			},
 			{
-				"timing": "hit",
+				"timing": "after",
 				"effect_type": "choice",
 				"choice": [
 					{ "effect_type": "advance", "amount": 1 },
@@ -3531,21 +3531,21 @@
 			"display_name": "Shades of Glory",
 			"effects": [
 				{
-				"timing": "set_strike",
+					"timing": "set_strike",
 					"effect_type": "critical",
 					"character_effect": true
 				},
 
 				{
-				"timing": "during_strike",
-				"effect_type": "guardup",
-				"amount": 2
+					"timing": "during_strike",
+					"effect_type": "guardup",
+					"amount": 2
 				},
 				{
-				"timing": "cleanup",
-				"condition": "not_stunned",
-				"effect_type": "sustain_this",
-				"card_name": "Flash Explosion"
+					"timing": "cleanup",
+					"condition": "not_stunned",
+					"effect_type": "sustain_this",
+					"card_name": "Flash Explosion"
 				}
 			]
 		}
@@ -3561,22 +3561,22 @@
 		"speed": 4,
 		"power": 8,
 		"armor": 0,
-		"guard": 4,
+		"guard": 5,
 		"effects": [
 			{
-			"timing": "after",
-			"effect_type": "choice",
-			"choice": [
-					{ "effect_type": "advance", "amount": 1 },
-					{ "effect_type": "advance", "amount": 2 },
-					{ "effect_type": "advance", "amount": 3 },
-					{ "effect_type": "retreat", "amount": 1 },
-					{ "effect_type": "retreat", "amount": 2 },
-					{ "effect_type": "retreat", "amount": 3 },
-					{ "effect_type": "pass" }
-			]
+				"timing": "after",
+				"effect_type": "choice",
+				"choice": [
+						{ "effect_type": "advance", "amount": 1 },
+						{ "effect_type": "advance", "amount": 2 },
+						{ "effect_type": "advance", "amount": 3 },
+						{ "effect_type": "retreat", "amount": 1 },
+						{ "effect_type": "retreat", "amount": 2 },
+						{ "effect_type": "retreat", "amount": 3 },
+						{ "effect_type": "pass" }
+				]
 			}
-			],
+		],
 		"boost": {
 			"boost_type": "continuous",
 			"force_cost": 1,
@@ -3591,9 +3591,9 @@
 					"timing": "during_strike",
 					"effect_type": "speedup",
 					"amount": 2
-					}
+				}
 			]
-			}
+		}
 	},
 
 	{
@@ -3618,19 +3618,19 @@
 				"timing": "hit",
 				"effect_type": "gain_advantage"
 			}
-			],
-			"boost": {
-				"boost_type": "continuous",
-				"force_cost": 0,
-				"cancel_cost": -1,
-				"display_name": "Sonic Force",
-				"effects": [
-					{
-						"timing": "during_strike",
-						"effect_type": "rangeup",
-						"amount": 0,
-						"amount2": 1
-					},
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Sonic Force",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "rangeup",
+					"amount": 0,
+					"amount2": 1
+				},
 				{
 					"timing": "now",
 					"effect_type": "set_end_of_turn_boost_delay"
@@ -3640,8 +3640,8 @@
 					"timing": "end_of_turn",
 					"effect_type": "add_to_gauge_immediately"
 				}
-				]
-			}
+			]
+		}
 	},
 	{
 		"id": "guile_flashkick",
@@ -3670,34 +3670,33 @@
 			{
 				"timing": "after",
 				"effect_type": "choice",
-			"choice": [
+				"choice": [
 					{ "effect_type": "advance", "amount": 1 },
 					{ "effect_type": "retreat", "amount": 1 }
 				]
 			}
 		],
-			"boost": {
-				"boost_type": "continuous",
-				"force_cost": 0,
-				"cancel_cost": -1,
-				"display_name": "Patience",
-				"effects": [
-					{
-						"timing": "during_strike",
-						"effect_type": "powerup",
-						"amount": 2
-					},
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Patience",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "powerup",
+					"amount": 2
+				},
 				{
 					"timing": "now",
 					"effect_type": "set_end_of_turn_boost_delay"
 				},
-
 				{
 					"timing": "end_of_turn",
 					"effect_type": "add_to_gauge_immediately"
 				}
-				]
-			}
+			]
+		}
 	},
 	{
 		"id": "guile_reversespinkick",
@@ -3722,23 +3721,22 @@
 				"effect_type": "opponent_discard_random",
 				"amount": 2
 			}
-			],
-			"boost": {
-				"boost_type": "continuous",
-				"force_cost": 0,
-				"cancel_cost": -1,
-				"display_name": "Homeland Defense",
-				"effects": [
-					{
-						"timing": "during_strike",
-						"effect_type": "armorup",
-						"amount": 1
-					},
-					{
-						"timing": "during_strike",
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Homeland Defense",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "armorup",
+					"amount": 1,
+					"and": {
 						"effect_type": "guardup",
 						"amount": 3
-					},
+					}
+				},
 				{
 					"timing": "now",
 					"effect_type": "set_end_of_turn_boost_delay"
@@ -3747,8 +3745,8 @@
 					"timing": "end_of_turn",
 					"effect_type": "add_to_gauge_immediately"
 				}
-				]
-			}
+			]
+		}
 	},
 	{
 		"id": "guile_sonicboom",
@@ -3779,18 +3777,18 @@
 					{ "effect_type": "retreat", "amount": 2 }
 				]
 			}
-			],
-			"boost": {
-				"boost_type": "continuous",
-				"force_cost": 0,
-				"cancel_cost": -1,
-				"display_name": "Discipline",
-				"effects": [
-					{
-						"timing": "during_strike",
-						"effect_type": "speedup",
-						"amount": 2
-					},
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Discipline",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "speedup",
+					"amount": 2
+				},
 				{
 					"timing": "now",
 					"effect_type": "set_end_of_turn_boost_delay"
@@ -3800,10 +3798,9 @@
 					"timing": "end_of_turn",
 					"effect_type": "add_to_gauge_immediately"
 				}
-				]
-			}
+			]
+		}
 	},
-
 	{
 		"id": "guile_spinningbackknuckle",
 		"type": "special",
@@ -3825,39 +3822,33 @@
 			},
 			{
 				"timing": "hit",
-				"effect_type": "opponent_discard_random",
-				"amount": 1
-			},
-			{
-				"timing": "hit",
 				"effect_type": "choice",
 				"choice":[
-					{ "effect_type": "advance", "amount": 1 },
-					{ "effect_type": "retreat", "amount": 1 }
+					{ "effect_type": "advance", "amount": 1, "and": { "effect_type": "opponent_discard_random", "amount": 1 } },
+					{ "effect_type": "retreat", "amount": 1, "and": { "effect_type": "opponent_discard_random", "amount": 1 } }
 				]
 			}
 		],
 		"boost": {
-				"boost_type": "immediate",
-				"force_cost": 0,
-				"cancel_cost": -1,
-				"display_name": "Roll",
-				"effects": [
-					{
+			"boost_type": "immediate",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Roll",
+			"effects": [
+				{
 					"timing": "immediate",
 					"effect_type": "close",
 					"amount": 2
-					},
-
-					{
+				},
+				{
 					"timing": "immediate",
 					"condition": "range_greater_or_equal",
 					"condition_amount": 2,
 					"effect_type": "bonus_action"
-					}
-				]
-			},
-			"NOTEEND": "GUILE CARDS END"
+				}
+			]
+		},
+		"NOTEEND": "GUILE CARDS END"
 	},
 
 	{
