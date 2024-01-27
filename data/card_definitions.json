@@ -2232,7 +2232,7 @@
 					"timing": "now",
 					"effect_type": "choice",
 					"choice": [
-						{  "effect_type": "strike_opponent_sets_first" },
+						{ "effect_type": "strike_opponent_sets_first" },
 						{ "effect_type": "pass" }
 					]
 				}
@@ -2282,8 +2282,8 @@
 					"timing": "now",
 					"effect_type": "choice",
 					"choice": [
-						{  "effect_type": "advance", "amount": 2 },
-						{  "effect_type": "retreat", "amount": 2 }
+						{ "effect_type": "advance", "amount": 2 },
+						{ "effect_type": "retreat", "amount": 2 }
 					]
 				}
 			]
@@ -11420,7 +11420,7 @@
 					"add_topdeck_card_name_to_choices": [0],
 					"choice": [
 						{ "effect_type": "discard_topdeck", "and": { "effect_type": "strike_wild" } },
-						{ "effect_type": "strike_wild"  }
+						{ "effect_type": "strike_wild" }
 					]
 				}
 			]
