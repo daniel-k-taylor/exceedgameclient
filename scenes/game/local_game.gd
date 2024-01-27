@@ -362,11 +362,11 @@ class Player:
 	var has_overdrive : bool
 	var set_aside_cards : Array[GameCard]
 	var deck_def : Dictionary
-	var gauge : Array
+	var gauge : Array[GameCard]
 	var continuous_boosts : Array[GameCard]
-	var cleanup_boost_to_gauge_cards : Array[int]
-	var boosts_to_gauge_on_move : Array[int]
-	var on_buddy_boosts : Array[int]
+	var cleanup_boost_to_gauge_cards : Array
+	var boosts_to_gauge_on_move : Array
+	var on_buddy_boosts : Array
 	var arena_location : int
 	var reshuffle_remaining : int
 	var exceeded : bool
@@ -391,7 +391,7 @@ class Player:
 	var max_hand_size : int
 	var starting_hand_size_bonus : int
 	var pre_strike_movement : int
-	var sustained_boosts : Array[int]
+	var sustained_boosts : Array
 	var sustain_next_boost : bool
 	var buddy_starting_offset : int
 	var buddy_locations : Array[int]
@@ -401,7 +401,7 @@ class Player:
 	var cannot_move_past_opponent : bool
 	var ignore_push_and_pull : bool
 	var extra_effect_after_set_strike
-	var end_of_turn_boost_delay_card_ids : Array[int]
+	var end_of_turn_boost_delay_card_ids : Array
 	var saved_power : int
 	var movement_limit : int
 	var free_force : int
@@ -2694,7 +2694,7 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 			if 'and' in effect:
 				decision_info.limitation['and'] = effect['and']
 			if 'bonus_effect' in effect:
-				decision_info.limitation['and'] = effect['bonus_effect']
+				decision_info.limitation['bonus_effect'] = effect['bonus_effect']
 
 			var effects = performing_player.get_character_effects_at_timing("on_advance_or_close")
 			for sub_effect in effects:
@@ -5368,7 +5368,7 @@ func do_choose_from_boosts(performing_player : Player, card_ids : Array) -> bool
 	var events = []
 	for card_id in card_ids:
 		events += [create_event(Enums.EventType.EventType_SustainBoost, performing_player.my_id, card_id)]
-		performing_player.sustained_boosts.append(card_id)
+		performing_player.sustained_boosts.append(int(card_id))
 		_append_log("%s sustained %s." % [performing_player.name, card_db.get_card_name(card_id)])
 
 	if active_boost:
