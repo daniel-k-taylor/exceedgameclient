@@ -362,7 +362,7 @@ class Player:
 	var has_overdrive : bool
 	var set_aside_cards : Array[GameCard]
 	var deck_def : Dictionary
-	var gauge : Array[GameCard]
+	var gauge : Array
 	var continuous_boosts : Array[GameCard]
 	var cleanup_boost_to_gauge_cards : Array[int]
 	var boosts_to_gauge_on_move : Array[int]
@@ -552,7 +552,7 @@ class Player:
 			events += parent.handle_strike_effect(-1, effect, self)
 		return events
 
-	func mulligan(card_ids : Array[int]):
+	func mulligan(card_ids : Array):
 		var events = []
 		events += draw(len(card_ids))
 		for id in card_ids:
@@ -847,7 +847,7 @@ class Player:
 			events += [parent.create_event(Enums.EventType.EventType_PlaceBuddy, my_id, get_buddy_location(buddy_id), "", buddy_id, silent)]
 		return events
 
-	func can_pay_cost_with(card_ids : Array[int], force_cost : int, gauge_cost : int):
+	func can_pay_cost_with(card_ids : Array, force_cost : int, gauge_cost : int):
 		var gauge_generated = 0
 		var force_generated = free_force
 		for card_id in card_ids:
@@ -1045,7 +1045,7 @@ class Player:
 				events += parent.do_effect_if_condition_met(self, -1, effect, local_conditions)
 		return events
 
-	func discard(card_ids : Array[int], special_message : String = ""):
+	func discard(card_ids : Array, special_message : String = ""):
 		var events = []
 		for discard_id in card_ids:
 			# From hand
@@ -1079,7 +1079,7 @@ class Player:
 					break
 		return events
 
-	func add_to_overdrive(card_ids : Array[int]):
+	func add_to_overdrive(card_ids : Array):
 		var events = []
 		for card_id in card_ids:
 			for i in range(len(gauge)-1, -1, -1):
@@ -3753,7 +3753,7 @@ func get_striking_card_ids_for_player(check_player : Player) -> Array:
 				card_ids.append(active_strike.defender_ex_card.definition['id'])
 	return card_ids
 
-func add_attack_triggers(performing_player : Player, card_ids : Array[int], set_character_effect : bool = false):
+func add_attack_triggers(performing_player : Player, card_ids : Array, set_character_effect : bool = false):
 	var new_effects = []
 	for card_id in card_ids:
 		var card = card_db.get_card(card_id)
@@ -4838,7 +4838,7 @@ func do_change(performing_player : Player, card_ids) -> bool:
 	event_queue += events
 	return true
 
-func do_exceed(performing_player : Player, card_ids : Array[int]) -> bool:
+func do_exceed(performing_player : Player, card_ids : Array) -> bool:
 	printlog("MainAction: EXCEED by %s - %s" % [performing_player.name, card_ids])
 	if game_state != Enums.GameState.GameState_PickAction:
 		printlog("ERROR: Tried to exceed but not in correct game state.")
@@ -4880,7 +4880,7 @@ func do_exceed(performing_player : Player, card_ids : Array[int]) -> bool:
 	event_queue += events
 	return true
 
-func do_boost(performing_player : Player, card_id : int, payment_card_ids : Array[int] = []) -> bool:
+func do_boost(performing_player : Player, card_id : int, payment_card_ids : Array = []) -> bool:
 	printlog("MainAction: BOOST by %s - %s" % [get_player_name(performing_player.my_id), card_db.get_card_id(card_id)])
 	if game_state != Enums.GameState.GameState_PickAction or performing_player.my_id != active_turn_player:
 		if not wait_for_mid_strike_boost():
@@ -5029,7 +5029,7 @@ func do_strike(performing_player : Player, card_id : int, wild_strike: bool, ex_
 	event_queue += events
 	return true
 
-func do_pay_strike_cost(performing_player : Player, card_ids : Array[int], wild_strike : bool) -> bool:
+func do_pay_strike_cost(performing_player : Player, card_ids : Array, wild_strike : bool) -> bool:
 	printlog("SubAction: PAY_STRIKE by %s cards %s wild %s" % [performing_player.name, card_ids, str(wild_strike)])
 	if game_state != Enums.GameState.GameState_PlayerDecision:
 		printlog("ERROR: Tried to pay costs but not in decision state.")
@@ -5078,7 +5078,7 @@ func do_pay_strike_cost(performing_player : Player, card_ids : Array[int], wild_
 	event_queue += events
 	return true
 
-func do_force_for_armor(performing_player : Player, card_ids : Array[int]) -> bool:
+func do_force_for_armor(performing_player : Player, card_ids : Array) -> bool:
 	printlog("SubAction: FORCEARMOR by %s cards %s" % [performing_player.name, card_ids])
 	if game_state != Enums.GameState.GameState_PlayerDecision or decision_info.type != Enums.DecisionType.DecisionType_ForceForArmor:
 		printlog("ERROR: Tried to force for armor but not in decision state.")
@@ -5111,7 +5111,7 @@ func do_force_for_armor(performing_player : Player, card_ids : Array[int]) -> bo
 	event_queue += events
 	return true
 
-func do_boost_cancel(performing_player : Player, gauge_card_ids : Array[int], doing_cancel : bool) -> bool:
+func do_boost_cancel(performing_player : Player, gauge_card_ids : Array, doing_cancel : bool) -> bool:
 	printlog("SubAction: BOOST_CANCEL by %s cards %s cancel %s" % [performing_player.name, gauge_card_ids, str(doing_cancel)])
 	if game_state != Enums.GameState.GameState_PlayerDecision or decision_info.type != Enums.DecisionType.DecisionType_BoostCancel:
 		printlog("ERROR: Tried to cancel boost but not in decision state.")
@@ -5150,7 +5150,7 @@ func do_boost_cancel(performing_player : Player, gauge_card_ids : Array[int], do
 	event_queue += events
 	return true
 
-func do_card_from_hand_to_gauge(performing_player : Player, card_ids : Array[int]) -> bool:
+func do_card_from_hand_to_gauge(performing_player : Player, card_ids : Array) -> bool:
 	printlog("SubAction: CARD_HAND_TO_GAUGE by %s: %s" % [get_player_name(performing_player.my_id), card_ids])
 	if decision_info.player != performing_player.my_id:
 		printlog("ERROR: Tried to do_card_from_hand_to_gauge for wrong player.")
@@ -5307,7 +5307,7 @@ func do_choice(performing_player : Player, choice_index : int) -> bool:
 	event_queue += events
 	return true
 
-func do_mulligan(performing_player : Player, card_ids : Array[int]) -> bool:
+func do_mulligan(performing_player : Player, card_ids : Array) -> bool:
 	printlog("InitialAction: MULLIGAN by %s cards %s" % [performing_player.name, card_ids])
 	if performing_player.mulligan_complete:
 		printlog("ERROR: Tried to mulligan but already done.")
@@ -5332,7 +5332,7 @@ func do_mulligan(performing_player : Player, card_ids : Array[int]) -> bool:
 	event_queue += events
 	return true
 
-func do_choose_from_boosts(performing_player : Player, card_ids : Array[int]) -> bool:
+func do_choose_from_boosts(performing_player : Player, card_ids : Array) -> bool:
 	printlog("SubAction: CHOOSE FROM BOOSTS by %s cards: %s" % [performing_player.name, str(card_ids)])
 	if game_state != Enums.GameState.GameState_PlayerDecision or decision_info.type != Enums.DecisionType.DecisionType_ChooseFromBoosts:
 		printlog("ERROR: Tried to choose from boosts but not in correct game state.")
@@ -5352,7 +5352,7 @@ func do_choose_from_boosts(performing_player : Player, card_ids : Array[int]) ->
 	var events = []
 	for card_id in card_ids:
 		events += [create_event(Enums.EventType.EventType_SustainBoost, performing_player.my_id, card_id)]
-		performing_player.sustained_boosts.append(card_id)
+		performing_player.sustained_boosts.append(int(card_id))
 		_append_log("%s sustained %s." % [performing_player.name, card_db.get_card_name(card_id)])
 
 	if active_boost:
@@ -5368,7 +5368,7 @@ func do_choose_from_boosts(performing_player : Player, card_ids : Array[int]) ->
 	event_queue += events
 	return true
 
-func do_choose_from_discard(performing_player : Player, card_ids : Array[int]) -> bool:
+func do_choose_from_discard(performing_player : Player, card_ids : Array) -> bool:
 	printlog("SubAction: CHOOSE FROM DISCARD by %s cards: %s" % [performing_player.name, str(card_ids)])
 	if game_state != Enums.GameState.GameState_PlayerDecision or decision_info.type != Enums.DecisionType.DecisionType_ChooseFromDiscard:
 		printlog("ERROR: Tried to choose from discard but not in correct game state.")
@@ -5472,7 +5472,7 @@ func do_choose_from_discard(performing_player : Player, card_ids : Array[int]) -
 	event_queue += events
 	return true
 
-func do_force_for_effect(performing_player : Player, card_ids : Array[int], cancel : bool = false) -> bool:
+func do_force_for_effect(performing_player : Player, card_ids : Array, cancel : bool = false) -> bool:
 	printlog("SubAction: FORCE_FOR_EFFECT by %s cards %s" % [performing_player.name, card_ids])
 	if game_state != Enums.GameState.GameState_PlayerDecision or decision_info.type != Enums.DecisionType.DecisionType_ForceForEffect:
 		printlog("ERROR: Tried to force for effect but not in decision state.")
@@ -5550,7 +5550,7 @@ func do_force_for_effect(performing_player : Player, card_ids : Array[int], canc
 	event_queue += events
 	return true
 
-func do_gauge_for_effect(performing_player : Player, card_ids : Array[int]) -> bool:
+func do_gauge_for_effect(performing_player : Player, card_ids : Array) -> bool:
 	printlog("SubAction: GAUGE_FOR_EFFECT by %s cards %s" % [performing_player.name, card_ids])
 	if game_state != Enums.GameState.GameState_PlayerDecision or decision_info.type != Enums.DecisionType.DecisionType_GaugeForEffect:
 		printlog("ERROR: Tried to gauge for effect but not in decision state.")
