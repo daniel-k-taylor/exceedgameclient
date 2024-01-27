@@ -43,9 +43,13 @@ var active_boost : Boost = null
 var game_state : Enums.GameState = Enums.GameState.GameState_NotStarted
 
 var combat_log : String = ""
+var full_combat_log : Array = []
 
 func get_combat_log() -> String:
 	return combat_log
+
+func get_full_combat_log():
+	return "\n".join(full_combat_log) #TODO: check fields, filtering
 
 func _append_log(text):
 	combat_log += text + "\n"

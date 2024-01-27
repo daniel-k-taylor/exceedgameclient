@@ -41,6 +41,7 @@ custom_minimum_size = Vector2(1000, 500)
 layout_mode = 2
 focus_mode = 2
 theme_override_font_sizes/normal_font_size = 24
+bbcode_enabled = true
 text = "SUPER LONG
 HERE's the thing
 fkashldflkahsf
