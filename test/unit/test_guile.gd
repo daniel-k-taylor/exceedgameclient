@@ -202,6 +202,13 @@ func validate_life(p1, l1, p2, l2):
 ## Tests start here
 ##
 
+func test_guile_crit():
+	position_players(player1, 3, player2, 4)
+	give_gauge(player1, 1)
+	execute_strike(player1, player2, "guile_spinningbackknuckle", "standard_normal_dive", [0], [], false, false, [player1.gauge[0].id], [], 0, true)
+	validate_positions(player1, 5, player2, 4)
+	validate_life(player1, 30, player2, 23)
+	
 func test_guile_cc():
 	position_players(player1, 3, player2, 6)
 	give_gauge(player1, 1, "normal")
