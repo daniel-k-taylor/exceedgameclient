@@ -36,6 +36,7 @@ enum DecisionType {
 	DecisionType_ForceForArmor,
 	DecisionType_CardFromHandToGauge,
 	DecisionType_ReadingNormal,
+	DecisionType_Sidestep,
 	DecisionType_StrikeNow,
 }
 
@@ -77,6 +78,7 @@ enum EventType {
 	EventType_Boost_Canceled,
 	EventType_Boost_Continuous_Added,
 	EventType_Boost_NameCardOpponentDiscards,
+	EventType_Boost_Sidestep,
 	EventType_CardFromHandToGauge_Choice,
 	EventType_ChangeCards,
 	EventType_CharacterAction,
