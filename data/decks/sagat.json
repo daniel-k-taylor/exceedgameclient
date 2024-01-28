@@ -1,0 +1,201 @@
+{
+	"id": "sagat",
+	"season": 3,
+	"display_name": "Sagat",
+	"cardback": "cardback_defaultexceed.png",
+	"exceed_cost": 3,
+	"on_exceed": {
+		"effect_type": "draw",
+		"amount": 2,
+		"and": {
+			"effect_type": "choice",
+			"choice": [
+				{ "effect_type": "retreat", "amount": 1 },
+				{ "effect_type": "retreat", "amount": 2 },
+				{ "effect_type": "pass" }
+			]
+		}
+	},
+	"ability_effects": [
+		{
+		"timing": "set_strike",
+		"condition": "initated_strike",
+		"effect_type": "choice",
+		"choice": [
+			{ "effect_type": "strike_faceup" },
+			{ "effect_type": "pass" }
+		],
+		"overall_effect": {
+			"condition": "strike_faceup",
+			"effect_type": "speedup",
+			"amount": 1
+			}
+		}
+	],
+	"exceed_ability_effects": [
+		{
+		"timing": "set_strike",
+		"condition": "initated_strike",
+		"effect_type": "choice",
+		"choice": [
+			{ "effect_type": "strike_faceup" },
+			{ "effect_type": "pass" }
+		],
+		"overall_effect": {
+			"condition": "strike-faceup",
+			"effect_type": "speedup",
+			"amount": 1,
+			"and": {
+				"effect_type": "powerup",
+				"amount": 1
+			}
+		}
+	}
+	],
+	"ability_effects": [
+		{
+			"timing": "set_strike",
+			"effect_type": "gauge_for_effect",
+			"per_gauge_effect": null,
+			"overall_effect": {
+				"effect_type": "critical",
+				"character_effect": true
+			},
+			"gauge_max": 1
+		}
+	],
+	"exceed_ability_effects": [
+		{
+			"timing": "set_strike",
+			"effect_type": "gauge_for_effect",
+			"per_gauge_effect": null,
+			"overall_effect": {
+				"effect_type": "critical",
+				"character_effect": true
+			},
+			"gauge_max": 1
+		}
+	],
+	"cards": [
+		{
+			"definition_id": "sagat_tigerdestruction",
+			"image": "sagat_tigerdestruction.tres"
+		},
+		{
+			"definition_id": "sagat_tigerdestruction",
+			"image": "sagat_tigerdestruction.tres"
+		},
+		{
+			"definition_id": "sagat_tigercannon",
+			"image": "sagat_tigercannon.tres"
+		},
+		{
+			"definition_id": "sagat_tigercannon",
+			"image": "sagat_tigercannon.tres"
+		},
+		{
+			"definition_id": "sagat_tigershot",
+			"image": "sagat_tigershot.tres"
+		},
+		{
+			"definition_id": "sagat_tigershot",
+			"image": "sagat_tigershot.tres"
+		},
+		{
+			"definition_id": "sagat_lowstepkick",
+			"image": "sagat_lowstepkick.tres"
+		},
+		{
+			"definition_id": "sagat_lowstepkick",
+			"image": "sagat_lowstepkick.tres"
+		},
+		{
+			"definition_id": "sagat_lowtigershot",
+			"image": "sagat_lowtigershot.tres"
+		},
+		{
+			"definition_id": "sagat_lowtigershot",
+			"image": "sagat_lowtigershot.tres"
+		},
+		{
+			"definition_id": "sagat_tigerknee",
+			"image": "sagat_tigerknee.tres"
+		},
+		{
+			"definition_id": "sagat_tigerknee",
+			"image": "sagat_tigerknee.tres"
+		},
+		{
+			"definition_id": "ken_shoryuken",
+			"image": "ken_shoryuken.tres"
+		},
+		{
+			"definition_id": "sagat_tigeruppercut",
+			"image": "sagat_tigeruppercut.tres"
+		},
+		{
+			"definition_id": "standard_normal_grasp",
+			"image": "normal_grasp.tres"
+		},
+		{
+			"definition_id": "standard_normal_grasp",
+			"image": "normal_grasp.tres"
+		},
+		{
+			"definition_id": "standard_normal_cross",
+			"image": "normal_cross.tres"
+		},
+		{
+			"definition_id": "standard_normal_cross",
+			"image": "normal_cross.tres"
+		},
+		{
+			"definition_id": "standard_normal_assault",
+			"image": "normal_assault.tres"
+		},
+		{
+			"definition_id": "standard_normal_assault",
+			"image": "normal_assault.tres"
+		},
+		{
+			"definition_id": "standard_normal_dive",
+			"image": "normal_dive.tres"
+		},
+		{
+			"definition_id": "standard_normal_dive",
+			"image": "normal_dive.tres"
+		},
+		{
+			"definition_id": "standard_normal_spike",
+			"image": "normal_spike.tres"
+		},
+		{
+			"definition_id": "standard_normal_spike",
+			"image": "normal_spike.tres"
+		},
+		{
+			"definition_id": "standard_normal_sweep",
+			"image": "normal_sweep.tres"
+		},
+		{
+			"definition_id": "standard_normal_sweep",
+			"image": "normal_sweep.tres"
+		},
+		{
+			"definition_id": "standard_normal_focus",
+			"image": "normal_focus.tres"
+		},
+		{
+			"definition_id": "standard_normal_focus",
+			"image": "normal_focus.tres"
+		},
+		{
+			"definition_id": "standard_normal_block",
+			"image": "normal_block.tres"
+		},
+		{
+			"definition_id": "standard_normal_block",
+			"image": "normal_block.tres"
+		}
+	]
+}
