@@ -83,6 +83,7 @@
 			"effect_type": "pass",
 			"and": {
 				"condition": "opponent_between_buddy",
+				"include_buddy_space": true,
 				"condition_buddy_id": "nirvana_active",
 				"character_effect": true,
 				"effect_type": "powerup",
@@ -144,6 +145,7 @@
 			"effect_type": "pass",
 			"and": {
 				"condition": "opponent_between_buddy",
+				"include_buddy_space": true,
 				"condition_buddy_id": "nirvana_active",
 				"character_effect": true,
 				"effect_type": "powerup",

@@ -322,6 +322,14 @@ func test_carlclover_conanima_miss_draw():
 	assert_eq(player1.hand.size(), 7)
 	advance_turn(player2)
 
+func test_carlclover_conbrio_attack_in_space():
+	position_players(player1, 4, player2, 6)
+	player1.set_buddy_location("nirvana_active", 6)
+	player2.set_buddy_location("nirvana_active", 9)
+	execute_strike(player1, player2, "carlclover_conbrio", "standard_normal_assault", [0], [], false, false, [], [], 0, [])
+	validate_positions(player1, 4, player2, 8)
+	validate_life(player1, 30, player2, 26)
+	
 func test_carlclover_conbrio_boost_move():
 	position_players(player1, 1, player2, 6)
 	player1.set_buddy_location("nirvana_active", 3)
