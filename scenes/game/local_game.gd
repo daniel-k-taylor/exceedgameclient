@@ -989,7 +989,7 @@ class Player:
 		if get_available_gauge() < gauge_cost: return false
 		if get_available_force() < force_cost: return false
 
-		if 'can_boost_continuous_boost_from_gauge' in action and action['can_booost_continuous_boost_from_gauge']:
+		if 'can_boost_continuous_boost_from_gauge' in action and action['can_boost_continuous_boost_from_gauge']:
 			if not can_boost_something(true, true, 'continuous'): return false
 
 		if 'min_hand_size' in action:
