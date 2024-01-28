@@ -2511,6 +2511,9 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 	var buddy_start = performing_player.get_buddy_location()
 	var ignore_extra_effects = false
 	match effect['effect_type']:
+		"add_attack_effect":
+			var effect_to_add = effect['added_effect']
+			performing_player.strike_stat_boosts.added_attack_effects.append(effect_to_add)
 		"add_boost_to_gauge_on_strike_cleanup":
 			if card_id == -1:
 				assert(false)
@@ -4139,11 +4142,13 @@ func do_effects_for_timing(timing_name : String, performing_player : Player, car
 	var effects = card_db.get_card_effects_at_timing(card, timing_name)
 	var boost_effects = get_boost_effects_at_timing(timing_name, performing_player)
 	var character_effects = performing_player.get_character_effects_at_timing(timing_name)
+	var bonus_effects = performing_player.get_bonus_effects_at_timing(timing_name)
 	# Effects are resolved in the order:
-	# Card > Continuous Boost > Character
+	# Card > Continuous Boost > Character > Bonus
 	while true:
 		var boost_effects_resolved = active_strike.effects_resolved_in_timing - len(effects)
 		var character_effects_resolved = boost_effects_resolved - len(boost_effects)
+		var bonus_effects_resolved = character_effects_resolved - len(character_effects)
 		if active_strike.effects_resolved_in_timing < len(effects):
 			# Resolve card effects
 			var effect = effects[active_strike.effects_resolved_in_timing]
@@ -4167,6 +4172,16 @@ func do_effects_for_timing(timing_name : String, performing_player : Player, car
 		elif character_effects_resolved < len(character_effects):
 			# Resolve character effects
 			var effect = character_effects[character_effects_resolved]
+			events += do_effect_if_condition_met(performing_player, card.id, effect, null)
+			if game_state == Enums.GameState.GameState_PlayerDecision:
+				# Player has a decision to make, so stop mid-effect resolve.
+				break
+
+			# Effect was resolved, continue loop to resolve more.
+			active_strike.effects_resolved_in_timing += 1
+		elif bonus_effects_resolved < len(bonus_effects):
+			# Resolve bonus effects
+			var effect = bonus_effects[bonus_effects_resolved]
 			events += do_effect_if_condition_met(performing_player, card.id, effect, null)
 			if game_state == Enums.GameState.GameState_PlayerDecision:
 				# Player has a decision to make, so stop mid-effect resolve.
