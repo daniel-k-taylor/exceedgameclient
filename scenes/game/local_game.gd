@@ -409,6 +409,7 @@ class Player:
 	var movement_limit : int
 	var free_force : int
 	var guile_change_cards_bonus : bool
+	var will_not_hit : Array[String]
 
 	func _init(id, player_name, parent_ref, card_db_ref, chosen_deck, card_start_id):
 		my_id = id
@@ -481,6 +482,7 @@ class Player:
 		saved_power = 0
 		free_force = 0
 		guile_change_cards_bonus = false
+		will_not_hit = []
 
 		if "buddy_cards" in deck_def:
 			var buddy_index = 0
@@ -1959,6 +1961,8 @@ func advance_to_next_turn():
 	opponent.force_spent_before_strike = 0
 	player.moved_self_this_strike = false
 	opponent.moved_self_this_strike = false
+	player.will_not_hit = []
+	opponent.will_not_hit = []
 
 	# Update strike turn tracking
 	last_turn_was_strike = strike_happened_this_turn
@@ -2575,19 +2579,14 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 				printlog("ERROR: Unimplemented path to boost_applies_if_on_buddy")
 			performing_player.set_boost_applies_if_on_buddy(card_id)
 		"boost_from_gauge":
-			print("Starting Effect!")
 			if performing_player.can_boost_something(true, true, effect['limitation']):
-				print("Could Boost from Gauge!")
 				events += [create_event(Enums.EventType.EventType_ForceStartBoost, performing_player.my_id, 0, "", true, true, effect['limitation'])]
-				print("Event created!")
 				change_game_state(Enums.GameState.GameState_PlayerDecision)
-				print("Game State changed!")
 				decision_info.type = Enums.DecisionType.DecisionType_BoostNow
 				decision_info.player = performing_player.my_id
 				decision_info.allow_gauge = true
 				decision_info.only_gauge = true
 				decision_info.limitation = effect['limitation']
-				print("Info set, done!")
 			else:
 				_append_log("%s has no legal gauge cards available to boost." % [performing_player.name])
 		"boost_this_then_sustain":
@@ -3587,6 +3586,22 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 				card_names = card_names.substr(0, card_names.length() - 2)
 			_append_log("%s shuffled sealed area to deck. Cards: %s" % [performing_player.name, card_names])
 			events += performing_player.shuffle_sealed_to_deck()
+		"sidestep_transparent_foe":
+			change_game_state(Enums.GameState.GameState_PlayerDecision)
+			decision_info.type = Enums.DecisionType.DecisionType_Sidestep
+			decision_info.effect_type = "sidestep_internal"
+			decision_info.choice_card_id = card_id
+			decision_info.player = performing_player.my_id
+			events += [create_event(Enums.EventType.EventType_Boost_Sidestep, performing_player.my_id, 0)]
+		"sidestep_dialogue":
+			pass
+			# this exists purely for ui, no-op here
+		"sidestep_internal":
+			var named_card = card_db.get_card(effect['card_id'])
+			# named_card is the individual card but
+			# this should discard "by name", so instead of using that
+			# match card.definition['id']'s instead.
+			opposing_player.will_not_hit += [named_card.definition['id']]
 		"specials_invalid":
 			performing_player.specials_invalid = effect['enabled']
 		"speedup":
@@ -4410,12 +4425,14 @@ func continue_resolve_strike(events):
 					_append_log("Range Check: %s's %s (%s) vs %s (%s)." % [player1.name, player1.get_buddy_name(), player1.get_buddy_location(), player2.name, player2.arena_location])
 				else:
 					_append_log("Range Check: %s (%s) vs %s (%s)." % [player1.name, player1.arena_location, player2.name, player2.arena_location])
-				if in_range(player1, player2, card1):
+				if in_range(player1, player2, card1) and not card1.definition['id'] in player1.will_not_hit:
 					_append_log("%s %s hits." % [player1.name, card_db.get_card_name(card1.id)])
 					active_strike.player1_hit = true
 					active_strike.strike_state = StrikeState.StrikeState_Card1_Hit
 					active_strike.remaining_effect_list = get_all_effects_for_timing("hit", player1, card1)
 				else:
+					if card1.definition['id'] in player1.will_not_hit:
+						_append_log("Named card %s does not hit this strike!" % card_db.get_card_name(card1.id))
 					_append_log("%s %s misses." % [player1.name, card_db.get_card_name(card1.id)])
 					events += [create_event(Enums.EventType.EventType_Strike_Miss, player1.my_id, 0)]
 					active_strike.strike_state = StrikeState.StrikeState_Card1_After
@@ -4449,12 +4466,14 @@ func continue_resolve_strike(events):
 					_append_log("Range Check: %s's %s (%s) vs %s (%s)." % [player2.name, player2.get_buddy_name(), player2.get_buddy_location(), player1.name, player1.arena_location])
 				else:
 					_append_log("Range Check: %s (%s) vs %s (%s)." % [player2.name, player2.arena_location, player1.name, player1.arena_location])
-				if in_range(player2, player1, card2):
+				if in_range(player2, player1, card2) and not card2.definition['id'] in player2.will_not_hit:
 					_append_log("%s %s hits." % [player2.name, card_db.get_card_name(card2.id)])
 					active_strike.player2_hit = true
 					active_strike.strike_state = StrikeState.StrikeState_Card2_Hit
 					active_strike.remaining_effect_list = get_all_effects_for_timing("hit", player2, card2)
 				else:
+					if card2.definition['id'] in player2.will_not_hit:
+						_append_log("Named card %s does not hit this strike!" % card_db.get_card_name(card2.id))
 					_append_log("%s %s misses." % [player2.name, card_db.get_card_name(card2.id)])
 					events += [create_event(Enums.EventType.EventType_Strike_Miss, player2.my_id, 0)]
 					active_strike.strike_state = StrikeState.StrikeState_Card2_After

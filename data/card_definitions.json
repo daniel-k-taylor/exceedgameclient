@@ -6152,8 +6152,15 @@
 			"force_cost": 0,
 			"cancel_cost": -1,
 			"display_name": "Sidestep (Transparent Foe)",
-			"comment": "TODO",
 			"effects": [
+				{
+					"timing": "now",
+					"effect_type": "sidestep_transparent_foe"
+				},
+				{
+					"timing": "during_strike",
+					"effect_type": "sidestep_dialogue"
+				},
 				{
 					"timing": "hit",
 					"effect_type": "gain_advantage"

@@ -647,6 +647,8 @@ func get_effect_type_text(effect, card_name_source : String = ""):
 			effect_str += "Shuffle hand into deck"
 		"shuffle_sealed_to_deck":
 			effect_str += "Shuffle sealed cards into deck"
+		"sidestep_dialogue":
+			effect_str += "Named card will not hit this strike"
 		"speedup":
 			if effect['amount'] > 0:
 				effect_str += "+"

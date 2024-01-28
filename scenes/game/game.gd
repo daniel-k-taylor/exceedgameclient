@@ -1089,7 +1089,7 @@ func _on_discard_opponent_gauge(event):
 func _on_name_opponent_card_begin(event):
 	var player = event['event_player']
 	spawn_damage_popup("Naming Card", player)
-	var normal_only = event['event_type'] == Enums.EventType.EventType_ReadingNormal
+	var normal_only = event['event_type'] == Enums.EventType.EventType_ReadingNormal or event['event_type'] == Enums.EventType.EventType_Boost_Sidestep
 	var can_name_fake_card = event['event_type'] == Enums.EventType.EventType_Boost_NameCardOpponentDiscards
 	if player == Enums.PlayerId.PlayerId_Player:
 		# Show the boost window.
@@ -1743,7 +1743,13 @@ func begin_strike_choosing(strike_response : bool, cancel_allowed : bool,
 	select_card_require_min = 1
 	select_card_require_max = 1
 	var can_cancel = cancel_allowed and not strike_response
-	enable_instructions_ui("Select a card to strike with.", true, can_cancel, not disable_wild_swing, not disable_ex)
+	var dialogue = "Select a card to strike with."
+	var player = game_wrapper._get_player(Enums.PlayerId.PlayerId_Player)
+	if player.will_not_hit.size() > 0:
+		var card_db = game_wrapper.get_card_database()
+		for card in player.will_not_hit:
+			dialogue += "\n" + card_db.get_card_name_by_card_id(card) + " will not hit."
+	enable_instructions_ui(dialogue, true, can_cancel, not disable_wild_swing, not disable_ex)
 	var new_sub_state
 	if strike_response:
 		if opponent_sets_first:
@@ -2238,6 +2244,8 @@ func _handle_events(events):
 			Enums.EventType.EventType_Boost_DiscardOpponentGauge:
 				_on_discard_opponent_gauge(event)
 			Enums.EventType.EventType_Boost_NameCardOpponentDiscards:
+				_on_name_opponent_card_begin(event)
+			Enums.EventType.EventType_Boost_Sidestep:
 				_on_name_opponent_card_begin(event)
 			Enums.EventType.EventType_Boost_Played:
 				delay = _on_boost_played(event)
