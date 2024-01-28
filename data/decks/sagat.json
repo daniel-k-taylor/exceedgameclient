@@ -18,29 +18,6 @@
 	},
 	"ability_effects": [
 		{
-		"timing": "set_strike",
-		"condition": "initated_strike",
-		"effect_type": "choice",
-		"choice": [
-			{ "effect_type": "set_strike_faceup", "and": { "effect_type": "speedup", "amount": 1 } },
-			{ "effect_type": "pass" }
-		]
-		}
-	],
-	"exceed_ability_effects": [
-		{
-		"timing": "set_strike",
-		"condition": "initated_strike",
-		"effect_type": "choice",
-		"choice": [
-			{ "effect_type": "set_strike_faceup", "and": { "effect_type": "speedup", "amount": 1 }, 
-			"and": { "effect_type": "powerup", "amount": 1} },
-			{ "effect_type": "pass" }
-		]
-		}
-	],
-	"ability_effects": [
-		{
 			"timing": "set_strike",
 			"condition": "is_not_critical",
 			"effect_type": "gauge_for_effect",
@@ -50,6 +27,15 @@
 				"character_effect": true
 			},
 			"gauge_max": 1
+		},
+		{
+			"timing": "set_strike",
+			"condition": "initiated_strike",
+			"effect_type": "choice",
+			"choice": [
+				{ "effect_type": "reveal_strike", "and": { "effect_type": "speedup", "amount": 1 } },
+				{ "effect_type": "pass" }
+			]
 		}
 	],
 	"exceed_ability_effects": [
@@ -63,6 +49,19 @@
 				"character_effect": true
 			},
 			"gauge_max": 1
+		},
+		{
+			"timing": "set_strike",
+			"condition": "initiated_strike",
+			"effect_type": "choice",
+			"choice": [
+				{ "effect_type": "reveal_strike", "and": {
+					"effect_type": "speedup",
+					"amount": 1,
+					"and": { "effect_type": "powerup", "amount": 1 }
+				} },
+				{ "effect_type": "pass" }
+			]
 		}
 	],
 	"cards": [

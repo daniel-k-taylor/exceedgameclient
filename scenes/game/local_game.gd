@@ -2331,7 +2331,7 @@ func is_effect_condition_met(performing_player : Player, effect, local_condition
 			return performing_player.hand.size() <= amount
 		elif condition == "matches_named_card":
 			var player_card = active_strike.get_player_card(performing_player)
-			return player_card.definition['id'] == effect['card_id']
+			return player_card.definition['id'] == effect['condition_card_id']
 		elif condition == "min_cards_in_hand":
 			var amount = effect['condition_amount']
 			return performing_player.hand.size() >= amount
@@ -3685,11 +3685,6 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 			var disable_wild_swing = 'disable_wild_swing' in effect and effect['disable_wild_swing']
 			var disable_ex = 'disable_ex' in effect and effect['disable_ex']
 			events += [create_event(Enums.EventType.EventType_ForceStartStrike, performing_player.my_id, 0, "", disable_wild_swing, disable_ex)]
-			change_game_state(Enums.GameState.GameState_WaitForStrike)
-			decision_info.type = Enums.DecisionType.DecisionType_StrikeNow
-			decision_info.player = performing_player.my_id
-			performing_player.next_strike_faceup = true
-		"set_strike_faceup":
 			change_game_state(Enums.GameState.GameState_WaitForStrike)
 			decision_info.type = Enums.DecisionType.DecisionType_StrikeNow
 			decision_info.player = performing_player.my_id

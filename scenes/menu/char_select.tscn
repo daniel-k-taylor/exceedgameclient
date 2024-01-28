@@ -46,7 +46,7 @@
 [ext_resource type="Texture2D" uid="uid://bu2eawlvu1aut" path="res://assets/portraits/taokaka.png" id="37_iqb1f"]
 [ext_resource type="Texture2D" uid="uid://d2hpsnf4ait4n" path="res://assets/portraits/carlclover.png" id="37_wtd7i"]
 [ext_resource type="Texture2D" uid="uid://brexpvmhajw2c" path="res://assets/portraits/guile.png" id="39_8wdmm"]
-[ext_resource type="Texture2D" uid="uid://cvqynajnq6feh" path="res://assets/portraits/sagat.png" id="43_efjlm"]
+[ext_resource type="Texture2D" uid="uid://c1aaxfvy8dxha" path="res://assets/portraits/sagat.png" id="45_6fv30"]
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_8u80i"]
 
@@ -429,7 +429,7 @@ alignment = 1
 [node name="Sagat" parent="CenterContainer/SFCharacterSelect/Rows/Row2" instance=ExtResource("6_3lmwy")]
 layout_mode = 2
 char_id = "sagat"
-portrait_texture = ExtResource("43_efjlm")
+portrait_texture = ExtResource("45_6fv30")
 
 [node name="Guile" parent="CenterContainer/SFCharacterSelect/Rows/Row2" instance=ExtResource("6_3lmwy")]
 layout_mode = 2

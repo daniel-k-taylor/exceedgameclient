@@ -11011,6 +11011,8 @@
 		},
 		"NOTEEND": "POTEMKIN CARDS END"
 	},
+
+
 	{
 		"NOTE": "SAGAT CARDS START",
 		"id": "sagat_tigerdestruction",
@@ -11046,14 +11048,14 @@
 				{
 					"timing": "during_strike",
 					"effect_type": "armorup",
-					"amount": 2					
+					"amount": 2
 				},
 				{
 					"timing": "during_strike",
 					"effect_type": "guardup",
 					"amount": 2
 				}
-			]			
+			]
 		}
 	},
 	{
@@ -11106,12 +11108,12 @@
 		"guard": 0,
 		"effects": [
 			{
-				"timing": "during_strike",
+				"timing": "hit",
 				"condition": "is_critical",
 				"effect_type": "draw",
 				"amount": 1,
 				"and": {
-					"effect_type": "opponent_discard_random",
+					"effect_type": "opponent_discard_choose",
 					"amount": 1
 				}
 			},
@@ -11130,7 +11132,7 @@
 		],
 		"boost": {
 			"boost_type": "continuous",
-			"force_cost": 0,
+			"force_cost": 1,
 			"cancel_cost": -1,
 			"display_name": "Reach",
 			"effects": [
@@ -11145,7 +11147,7 @@
 					"amount2": 1
 				}
 			]
-		}				
+		}
 	},
 	{
 		"id": "sagat_lowstepkick",
@@ -11181,7 +11183,7 @@
 					"timing": "during_strike",
 					"condition": "matches_named_card",
 					"condition_detail": "Tiger Uppercut",
-					"card_id": "sagat_tigeruppercut",
+					"condition_card_id": "sagat_tigeruppercut",
 					"effect_type": "guardup",
 					"amount": 2,
 					"and": {
@@ -11191,14 +11193,14 @@
 							"effect_type": "speedup",
 							"amount": 2,
 							"and": {
-							"effect_type": "critical",
-							"character_effect": true
+								"effect_type": "critical",
+								"character_effect": true
 							}
-						}					
+						}
 					}
 				}
-		]
-	}
+			]
+		}
 	},
 	{
 		"id": "sagat_lowtigershot",
@@ -11214,10 +11216,10 @@
 		"guard": 5,
 		"effects": [
 			{
-				"timing": "during_strike",
+				"timing": "hit",
 				"condition": "is_critical",
 				"effect_type": "powerup",
-				"amount": 2,
+				"amount": 1,
 				"and": {
 					"effect_type": "draw",
 					"amount": 1
@@ -11256,11 +11258,11 @@
 				},
 				{
 					"timing": "immediate",
-					"condtion": "range",
-					"amount": 3,
+					"condition": "range",
+					"condition_amount": 3,
 					"effect_type": "bonus_action"
 				}
-			]	
+			]
 	}
 	},
 	{
@@ -11288,12 +11290,11 @@
 			{
 				"timing": "after",
 				"condition": "is_critical",
-				"effect_type": "push",
-				"amount": 0,
+				"effect_type": "pass",
 				"and": {
-				"condition": "opponent_stunned",
-				"effect_type": "push",
-				"amount": 3			
+					"condition": "opponent_stunned",
+					"effect_type": "push",
+					"amount": 3
 				}
 			}
 		],
@@ -11307,13 +11308,13 @@
 					"timing": "during_strike",
 					"effect_type": "speedup",
 					"amount": 1
-					},
-					{
-						"timing": "hit",
-						"effect_type": "add_boost_to_gauge_on_strike_cleanup",
-						"card_name": "Spite"						
-					}
-			]	
+				},
+				{
+					"timing": "hit",
+					"effect_type": "add_boost_to_gauge_on_strike_cleanup",
+					"card_name": "Tiger Knee"
+				}
+			]
 	}
 	},
 	{
@@ -11357,15 +11358,17 @@
 					"condition_amount": 1,
 					"effect_type": "opponent_discard_random",
 					"amount": 2
-					},
-					{
+				},
+				{
 					"timing": "immediate",
-					"effect_type": "strike"	
-					}						
+					"effect_type": "strike"
+				}
 			]
 		},
 		"NOTEEND": "SAGAT CARDS END"
 	},
+
+
 	{
 		"NOTE": "SHOVEL/SHIELD CARDS START",
 		"id": "shovelshield_tandemattack",

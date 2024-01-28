@@ -1,7 +1,7 @@
 extends GutTest
 
 # Leave at 0 checked in so someone doesn't accidentally run all tests at 100.
-const RandomIterations = 0
+const RandomIterations = 100
 
 const LocalGame = preload("res://scenes/game/local_game.gd")
 const GameCard = preload("res://scenes/game/game_card.gd")
@@ -656,6 +656,15 @@ func test_phonon_100():
 
 func test_ryu_100():
 	default_deck = CardDefinitions.get_deck_from_str_id("ryu")
+	for i in range(RandomIterations):
+		print("==== RUNNING TEST %d ====" % i)
+		run_ai_game()
+		game_teardown()
+		game_setup()
+	pass_test("Finished match")
+	
+func test_sagat_100():
+	default_deck = CardDefinitions.get_deck_from_str_id("sagat")
 	for i in range(RandomIterations):
 		print("==== RUNNING TEST %d ====" % i)
 		run_ai_game()
