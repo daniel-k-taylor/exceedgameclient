@@ -141,6 +141,7 @@ theme_override_font_sizes/font_size = 24
 text = "DefaultRoom"
 placeholder_text = "Room Name"
 alignment = 1
+select_all_on_focus = true
 
 [node name="CancelButton" type="Button" parent="MenuList"]
 layout_mode = 2
@@ -281,6 +282,7 @@ stream = ExtResource("7_pt1r5")
 [connection signal="pressed" from="MenuList/CancelButton" to="." method="_on_cancel_button_pressed"]
 [connection signal="pressed" from="MenuList/QuitButton" to="." method="_on_quit_button_pressed"]
 [connection signal="pressed" from="PlayerChooser/ChangePlayerCharacterButton" to="." method="_on_change_player_character_button_pressed" binds= [true]]
+[connection signal="focus_entered" from="PlayerNameBox" to="." method="_on_player_name_box_focus_entered"]
 [connection signal="pressed" from="UpdateNameButton" to="." method="_on_update_name_button_pressed"]
 [connection signal="pressed" from="ReconnectToServerButton" to="." method="_on_reconnect_to_server_button_pressed"]
 [connection signal="close_character_select" from="CharSelect" to="." method="_on_char_select_close_character_select"]

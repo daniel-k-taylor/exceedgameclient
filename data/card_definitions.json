@@ -1008,6 +1008,509 @@
 		"NOTEEND": "Baiken CARDS END"
 	},
 
+	{
+		"NOTE": "CARLCLOVER CARDS START",
+		"id": "carlclover_deusexmachina",
+		"type": "ultra",
+		"display_name": "Deus Ex Machina",
+		"force_cost": 0,
+		"gauge_cost": 4,
+		"range_min": 0,
+		"range_max": 1,
+		"speed": 0,
+		"power": 10,
+		"armor": 4,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "during_strike",
+				"effect_type": "stun_immunity"
+			},
+			{
+				"timing": "during_strike",
+				"effect_type": "calculate_range_from_buddy",
+				"buddy_id": "nirvana_active",
+				"buddy_name": "Nirvana"
+			},
+			{
+				"timing": "during_strike",
+				"effect_type": "buddy_immune_to_flip"
+			},
+			{
+				"timing": "after",
+				"effect_type": "remove_buddy",
+				"buddy_id": "nirvana_active",
+				"buddy_name": "Nirvana"
+			}
+		],
+		"boost": {
+			"boost_type": "immediate",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Burst",
+			"effects": [
+				{
+					"timing": "immediate",
+					"effect_type": "draw",
+					"amount": 2
+				},
+				{
+					"timing": "immediate",
+					"effect_type": "seal_this"
+				},
+				{
+					"timing": "immediate",
+					"effect_type": "bonus_action"
+				}
+			]
+		}
+	},
+	{
+		"id": "carlclover_rhapsodyofmemories",
+		"type": "ultra",
+		"display_name": "Rhapsody of Memories",
+		"force_cost": 0,
+		"gauge_cost": 3,
+		"range_min": 0,
+		"range_max": 1,
+		"speed": 4,
+		"power": 5,
+		"armor": 0,
+		"guard": 5,
+		"effects": [
+			{
+				"timing": "during_strike",
+				"effect_type": "calculate_range_from_buddy",
+				"buddy_id": "nirvana_active",
+				"buddy_name": "Nirvana"
+			},
+			{
+				"timing": "during_strike",
+				"effect_type": "buddy_immune_to_flip"
+			},
+			{
+				"timing": "hit",
+				"effect_type": "draw",
+				"amount": 2
+			},
+			{
+				"timing": "after",
+				"effect_type": "choice",
+				"choice": [
+					{ "effect_type": "advance", "amount": 1 },
+					{ "effect_type": "advance", "amount": 2 },
+					{ "effect_type": "retreat", "amount": 1 },
+					{ "effect_type": "retreat", "amount": 2 },
+					{ "effect_type": "pass" }
+				]
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 1,
+			"cancel_cost": -1,
+			"display_name": "Virtuoso",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "powerup",
+					"amount": 1,
+					"and": {
+						"effect_type": "speedup",
+						"amount": 1
+					}
+				},
+				{
+					"timing": "before",
+					"condition": "buddy_in_play",
+					"condition_buddy_id": "nirvana_active",
+					"effect_type": "move_buddy",
+					"buddy_name": "Nirvana",
+					"buddy_id": "nirvana_active",
+					"amount": 0,
+					"amount2": 1
+				}
+			]
+		}
+	},
+	{
+		"id": "carlclover_laetabiliscantata",
+		"type": "ultra",
+		"display_name": "Laetabilis Cantata",
+		"force_cost": 0,
+		"gauge_cost": 2,
+		"range_min": 1,
+		"range_max": 2,
+		"speed": 2,
+		"power": 3,
+		"armor": 2,
+		"guard": 5,
+		"effects": [
+			{
+				"timing": "hit",
+				"effect_type": "push",
+				"amount": 1
+			},
+			{
+				"timing": "after",
+				"condition": "buddy_in_play",
+				"condition_buddy_id": "nirvana_active",
+				"effect_type": "move_buddy",
+				"buddy_name": "Nirvana",
+				"buddy_id": "nirvana_active",
+				"amount": 0,
+				"amount2": 3,
+				"negative_condition_effect": {
+					"is_negative_effect": true,
+					"condition": "buddy_in_play",
+					"condition_buddy_id": "nirvana_disabled",
+					"description": "Reactivate Nirvana",
+					"effect_type": "swap_buddy",
+					"buddy_to_remove": "nirvana_disabled",
+					"buddy_to_place": "nirvana_active"
+				}
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 1,
+			"cancel_cost": -1,
+			"display_name": "Duet",
+			"effects": [
+				{
+					"timing": "now",
+					"effect_type": "strike"
+				},
+				{
+					"timing": "hit",
+					"condition": "opponent_between_buddy",
+					"condition_detail": "Nirvana",
+					"condition_any_of_buddy_ids": [
+						"nirvana_active",
+						"nirvana_disabled"
+					],
+					"include_buddy_space": true,
+					"effect_type": "powerup",
+					"amount": 3
+				}
+			]
+		}
+	},
+	{
+		"id": "carlclover_conbrio",
+		"type": "special",
+		"display_name": "Con Brio",
+		"force_cost": 1,
+		"gauge_cost": 0,
+		"range_min": 0,
+		"range_max": 1,
+		"speed": 7,
+		"power": 3,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "during_strike",
+				"effect_type": "calculate_range_from_buddy",
+				"buddy_id": "nirvana_active",
+				"buddy_name": "Nirvana"
+			},
+			{
+				"timing": "hit",
+				"effect_type": "push_from_source",
+				"amount": 2
+			}
+		],
+		"boost": {
+			"boost_type": "immediate",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Hurry Sis!",
+			"effects": [
+				{
+					"timing": "immediate",
+					"condition": "buddy_in_play",
+					"condition_buddy_id": "nirvana_active",
+					"effect_type": "move_buddy",
+					"buddy_name": "Nirvana",
+					"buddy_id": "nirvana_active",
+					"amount": 1,
+					"amount2": 1
+				},
+				{
+					"timing": "immediate",
+					"condition": "buddy_in_play",
+					"condition_buddy_id": "nirvana_disabled",
+					"description": "Reactivate Nirvana",
+					"effect_type": "swap_buddy",
+					"buddy_to_remove": "nirvana_disabled",
+					"buddy_to_place": "nirvana_active"
+				},
+				{
+					"timing": "immediate",
+					"effect_type": "bonus_action"
+				}
+			]
+		}
+	},
+	{
+		"id": "carlclover_cantabile",
+		"type": "special",
+		"display_name": "Cantabile",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 3,
+		"speed": 6,
+		"power": 1,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "hit",
+				"effect_type": "choice",
+				"choice": [
+					{ "effect_type": "pull", "amount": 1, "and": {
+						"condition": "initiated_strike",
+						"effect_type": "draw",
+						"amount": 1,
+						"and": {
+							"effect_type": "gain_advantage"
+						}
+					} },
+					{ "effect_type": "pull", "amount": 2, "and": {
+						"condition": "initiated_strike",
+						"effect_type": "draw",
+						"amount": 1,
+						"and": {
+							"effect_type": "gain_advantage"
+						}
+					 } }
+				]
+			},
+			{
+				"timing": "after",
+				"condition": "buddy_in_play",
+				"condition_buddy_id": "nirvana_active",
+				"effect_type": "move_buddy",
+				"buddy_name": "Nirvana",
+				"buddy_id": "nirvana_active",
+				"amount": 0,
+				"amount2": 1
+			}
+		],
+		"boost": {
+			"boost_type": "immediate",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "La Campanella",
+			"effects": [
+				{
+					"timing": "immediate",
+					"condition": "buddy_in_play",
+					"condition_buddy_id": "nirvana_active",
+					"buddy_name": "Nirvana",
+					"buddy_id": "nirvana_active",
+					"effect_type": "place_buddy_onto_self"
+				},
+				{
+					"timing": "immediate",
+					"effect_type": "bonus_action"
+				}
+			]
+		}
+	},
+	{
+		"id": "carlclover_confuoco",
+		"type": "special",
+		"display_name": "Con Fuoco",
+		"force_cost": 1,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 2,
+		"speed": 4,
+		"power": 6,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "during_strike",
+				"effect_type": "calculate_range_from_buddy",
+				"buddy_id": "nirvana_active",
+				"buddy_name": "Nirvana"
+			},
+			{
+				"timing": "before",
+				"condition": "buddy_in_play",
+				"condition_buddy_id": "nirvana_active",
+				"buddy_name": "Nirvana",
+				"buddy_id": "nirvana_active",
+				"effect_type": "force_for_effect",
+				"per_force_effect": null,
+				"overall_effect": {
+					"condition": "buddy_in_play",
+					"condition_buddy_id": "nirvana_active",
+					"effect_type": "move_buddy",
+					"buddy_name": "Nirvana",
+					"buddy_id": "nirvana_active",
+					"amount": 1,
+					"amount2": 2
+				},
+				"force_max": 1
+			},
+			{
+				"timing": "hit",
+				"effect_type": "close",
+				"amount": 2,
+				"and": {
+					"effect_type": "gain_advantage"
+				}
+			}
+		],
+		"boost": {
+			"boost_type": "immediate",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Vivace",
+			"effects": [
+				{
+					"timing": "immediate",
+					"effect_type": "choice",
+					"choice": [
+						{ "effect_type": "advance", "amount": 1, "and": {
+							"condition": "advanced_through",
+							"effect_type": "strike"
+						} },
+						{ "effect_type": "advance", "amount": 2, "and": {
+							"condition": "advanced_through",
+							"effect_type": "strike"
+						} }
+					]
+				}
+			]
+		}
+	},
+	{
+		"id": "carlclover_conanima",
+		"type": "special",
+		"display_name": "Con Anima",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 0,
+		"range_max": 1,
+		"speed": 2,
+		"power": 5,
+		"armor": 0,
+		"guard": 3,
+		"effects": [
+			{
+				"timing": "during_strike",
+				"effect_type": "calculate_range_from_buddy",
+				"buddy_id": "nirvana_active",
+				"buddy_name": "Nirvana"
+			},
+			{
+				"timing": "during_strike",
+				"effect_type": "ignore_guard"
+			},
+			{
+				"timing": "hit",
+				"effect_type": "opponent_discard_random",
+				"amount": 2
+			},
+			{
+				"timing": "after",
+				"condition": "not_hit_opponent",
+				"effect_type": "draw",
+				"amount": 2
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 1,
+			"cancel_cost": -1,
+			"display_name": "Fine Tuning",
+			"effects": [
+				{
+					"timing": "now",
+					"effect_type": "strike"
+				},
+				{
+					"timing": "before",
+					"condition": "buddy_in_play",
+					"condition_buddy_id": "nirvana_active",
+					"effect_type": "move_buddy",
+					"buddy_name": "Nirvana",
+					"buddy_id": "nirvana_active",
+					"amount": 0,
+					"amount2": 1
+				}
+			]
+		}
+	},
+	{
+		"NOTE": "CARLCLOVER CARDS END",
+		"id": "carlclover_volante",
+		"type": "special",
+		"display_name": "Volante",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 3,
+		"range_max": 8,
+		"speed": 1,
+		"power": 3,
+		"armor": 1,
+		"guard": 6,
+		"effects": [
+			{
+				"timing": "during_strike",
+				"effect_type": "calculate_range_from_buddy",
+				"buddy_id": "nirvana_active",
+				"buddy_name": "Nirvana"
+			},
+			{
+				"timing": "hit",
+				"condition": "range",
+				"condition_amount": 1,
+				"effect_type": "powerup",
+				"amount": 2,
+				"and": {
+					"effect_type": "gain_advantage"
+				}
+			},
+			{
+				"timing": "after",
+				"effect_type": "choice",
+				"choice": [
+					{ "effect_type": "advance", "amount": 1 },
+					{ "effect_type": "advance", "amount": 2 }
+				]
+			}
+
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Allegretto",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "speedup",
+					"amount": 1
+				},
+				{
+					"timing": "after",
+					"effect_type": "choice",
+					"choice": [
+						{ "effect_type": "advance", "amount": 1 },
+						{ "effect_type": "retreat", "amount": 1 }
+					]
+				}
+			]
+		},
+		"NOTEEND": "CARLCLOVER CARDS END"
+	},
 
 	{
 		"NOTE": "CHIPP CARDS START",

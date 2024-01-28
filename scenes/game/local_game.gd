@@ -271,6 +271,7 @@ class StrikeStatBoosts:
 	var is_ex : bool = false
 	var higher_speed_misses : bool = false
 	var calculate_range_from_buddy : bool = false
+	var calculate_range_from_buddy_id : String = ""
 	var attack_to_topdeck_on_cleanup : bool = false
 	var discard_attack_on_cleanup : bool = false
 	var seal_attack_on_cleanup : bool = false
@@ -284,6 +285,8 @@ class StrikeStatBoosts:
 	var overwritten_printed_power : int = 0
 	var overwrite_total_power : bool = false
 	var overwritten_total_power : int = 0
+	var buddies_that_entered_play_this_strike : Array[String] = []
+	var buddy_immune_to_flip : bool = false
 
 	func clear():
 		power = 0
@@ -315,6 +318,7 @@ class StrikeStatBoosts:
 		is_ex = false
 		higher_speed_misses = false
 		calculate_range_from_buddy = false
+		calculate_range_from_buddy_id = ""
 		attack_to_topdeck_on_cleanup = false
 		discard_attack_on_cleanup = false
 		seal_attack_on_cleanup = false
@@ -328,6 +332,8 @@ class StrikeStatBoosts:
 		overwritten_printed_power = 0
 		overwrite_total_power = false
 		overwritten_total_power = 0
+		buddies_that_entered_play_this_strike = []
+		buddy_immune_to_flip = false
 
 	func set_ex():
 		ex_count += 1
@@ -395,6 +401,7 @@ class Player:
 	var sustained_boosts : Array
 	var sustain_next_boost : bool
 	var buddy_starting_offset : int
+	var buddy_starting_id : String
 	var buddy_locations : Array[int]
 	var buddy_id_to_index : Dictionary
 	var do_not_cleanup_buddy_this_turn : bool
@@ -467,6 +474,7 @@ class Player:
 		sustained_boosts = []
 		sustain_next_boost = false
 		buddy_starting_offset = BuddyStartsOutOfArena
+		buddy_starting_id = ""
 		buddy_locations = []
 		buddy_id_to_index = {}
 		do_not_cleanup_buddy_this_turn = false
@@ -503,6 +511,8 @@ class Player:
 
 		if 'buddy_starting_offset' in deck_def:
 			buddy_starting_offset = deck_def['buddy_starting_offset']
+			if 'buddy_starting_id' in deck_def:
+				buddy_starting_id = deck_def['buddy_starting_id']
 
 		if 'guile_change_cards_bonus' in deck_def:
 			guile_change_cards_bonus = deck_def['guile_change_cards_bonus']
@@ -546,7 +556,7 @@ class Player:
 
 		if 'on_exceed' in deck_def:
 			var effect = deck_def['on_exceed']
-			events += parent.handle_strike_effect(-1, effect, self)
+			events += parent.do_effect_if_condition_met(self, -1, effect, null)
 		return events
 
 	func revert_exceed():
@@ -818,6 +828,19 @@ class Player:
 			buddy_id = buddy_id_to_index.keys()[0]
 		return get_buddy_location(buddy_id) != -1
 
+	func is_opponent_between_buddy(buddy_id : String, other_player : Player, include_buddy_space : bool):
+		if not is_buddy_in_play(buddy_id):
+			return false
+		var pos1 = arena_location
+		var pos2 = get_buddy_location(buddy_id)
+		var other_pos = other_player.arena_location
+		if include_buddy_space and pos2 == other_pos: # On buddy
+			return true
+		if pos1 < pos2: # Buddy is on the right
+			return other_pos > pos1 and other_pos < pos2
+		else: # Buddy is on the left
+			return other_pos > pos2 and other_pos < pos1
+
 	func get_buddy_location(buddy_id : String = ""):
 		var buddy_index = 0
 		if buddy_id:
@@ -832,14 +855,17 @@ class Player:
 			buddy_index = buddy_id_to_index[buddy_id]
 		buddy_locations[buddy_index] = new_location
 
-	func place_buddy(new_location : int, buddy_id : String = "", silent : bool = false):
+	func place_buddy(new_location : int, buddy_id : String = "", silent : bool = false, description : String = ""):
 		var events = []
 		if not buddy_id:
 			buddy_id = buddy_id_to_index.keys()[0]
 		var old_buddy_pos = get_buddy_location(buddy_id)
+		if parent.active_strike and old_buddy_pos == -1 and new_location != -1:
+			# Buddy entering play.
+			strike_stat_boosts.buddies_that_entered_play_this_strike.append(buddy_id)
 		set_buddy_location(buddy_id, new_location)
 		on_position_changed(arena_location, old_buddy_pos)
-		events += [parent.create_event(Enums.EventType.EventType_PlaceBuddy, my_id, get_buddy_location(buddy_id), "", buddy_id, silent)]
+		events += [parent.create_event(Enums.EventType.EventType_PlaceBuddy, my_id, get_buddy_location(buddy_id), description, buddy_id, silent)]
 		return events
 
 	func remove_buddy(buddy_id : String, silent : bool = false):
@@ -851,6 +877,13 @@ class Player:
 			set_buddy_location(buddy_id, -1)
 			on_position_changed(arena_location, old_buddy_pos)
 			events += [parent.create_event(Enums.EventType.EventType_PlaceBuddy, my_id, get_buddy_location(buddy_id), "", buddy_id, silent)]
+		return events
+
+	func swap_buddy(buddy_id_to_remove : String, buddy_id_to_place : String, description : String):
+		var events = []
+		var location = get_buddy_location(buddy_id_to_remove)
+		events += remove_buddy(buddy_id_to_remove, true)
+		events += place_buddy(location, buddy_id_to_place, false, description)
 		return events
 
 	func get_force_with_cards(card_ids : Array, reason : String):
@@ -987,7 +1020,10 @@ class Player:
 			if len(hand) < action['min_hand_size']: return false
 
 		if 'requires_buddy_in_play' in action and action['requires_buddy_in_play']:
-			if not is_buddy_in_play(): return false
+			var buddy_id = ""
+			if 'buddy_id' in action:
+				buddy_id = action['buddy_id']
+			if not is_buddy_in_play(buddy_id): return false
 
 		if 'per_turn_limit' in action:
 			var limit = action['per_turn_limit']
@@ -1855,11 +1891,11 @@ func initialize_game(player_deck, opponent_deck, player_name : String, opponent_
 	starting_player.arena_location = 3
 	if starting_player.buddy_starting_offset != BuddyStartsOutOfArena:
 		var buddy_space = 3 + starting_player.buddy_starting_offset
-		event_queue += starting_player.place_buddy(buddy_space)
+		event_queue += starting_player.place_buddy(buddy_space, starting_player.buddy_starting_id, true)
 	second_player.arena_location = 7
 	if second_player.buddy_starting_offset != BuddyStartsOutOfArena:
 		var buddy_space = 7 - second_player.buddy_starting_offset
-		event_queue += second_player.place_buddy(buddy_space)
+		event_queue += second_player.place_buddy(buddy_space, second_player.buddy_starting_id, true)
 	starting_player.initial_shuffle()
 	second_player.initial_shuffle()
 
@@ -2229,8 +2265,11 @@ func is_effect_condition_met(performing_player : Player, effect, local_condition
 				return performing_player.deck[0].definition['type'] == "normal"
 			return false
 		elif condition == "is_buddy_special_or_ultra_attack":
+			var buddy_id = ""
+			if 'condition_buddy_id' in effect:
+				buddy_id = effect['condition_buddy_id']
 			var attack_type = active_strike.get_player_card(performing_player).definition['type']
-			return performing_player.is_buddy_in_play() and (attack_type == "special" or attack_type == "ultra")
+			return performing_player.is_buddy_in_play(buddy_id) and (attack_type == "special" or attack_type == "ultra")
 		elif condition == "is_special_attack":
 			return active_strike.get_player_card(performing_player).definition['type'] == "special"
 		elif condition == "is_ex_strike":
@@ -2260,6 +2299,8 @@ func is_effect_condition_met(performing_player : Player, effect, local_condition
 			return performing_player.used_character_bonus
 		elif condition == "hit_opponent":
 			return active_strike.did_player_hit_opponent(performing_player)
+		elif condition == "not_hit_opponent":
+			return not active_strike.did_player_hit_opponent(performing_player)
 		elif condition == "last_turn_was_strike":
 			return last_turn_was_strike
 		elif condition == "not_last_turn_was_strike":
@@ -2320,6 +2361,10 @@ func is_effect_condition_met(performing_player : Player, effect, local_condition
 			var buddy_id = ""
 			if 'condition_buddy_id' in effect:
 				buddy_id = effect['condition_buddy_id']
+			if 'condition_extra' in effect and effect['condition_extra'] == "buddy_not_entered_play_this_strike":
+				# If the buddy just entered play, this condition fails.
+				if buddy_id in performing_player.strike_stat_boosts.buddies_that_entered_play_this_strike:
+					return false
 			return performing_player.is_buddy_in_play(buddy_id)
 		elif condition == "not_buddy_in_play":
 			var buddy_id = ""
@@ -2342,7 +2387,7 @@ func is_effect_condition_met(performing_player : Player, effect, local_condition
 			var pos1 = performing_player.arena_location
 			var pos2 = other_player.arena_location
 			if other_player.strike_stat_boosts.calculate_range_from_buddy:
-				pos2 = other_player.get_buddy_location(buddy_id)
+				pos2 = other_player.get_buddy_location(other_player.strike_stat_boosts.calculate_range_from_buddy_id)
 			var buddy_pos = performing_player.get_buddy_location(buddy_id)
 			if pos1 < pos2: # opponent is on the right
 				return buddy_pos > pos1 and buddy_pos < pos2
@@ -2362,18 +2407,30 @@ func is_effect_condition_met(performing_player : Player, effect, local_condition
 			else: # opponent is on the left
 				return buddy_pos > pos2 and buddy_pos < pos1
 		elif condition == "opponent_between_buddy":
-			var buddy_id = ""
+			var include_buddy_space = 'include_buddy_space' in effect and effect['include_buddy_space']
 			if 'condition_buddy_id' in effect:
-				buddy_id = effect['condition_buddy_id']
-			if not performing_player.is_buddy_in_play(buddy_id):
+				var buddy_id = effect['condition_buddy_id']
+				return performing_player.is_opponent_between_buddy(buddy_id, other_player, include_buddy_space)
+			elif 'condition_any_of_buddy_ids' in effect:
+				for buddy_id in effect['condition_any_of_buddy_ids']:
+					if performing_player.is_opponent_between_buddy(buddy_id, other_player, include_buddy_space):
+						return true
 				return false
-			var pos1 = performing_player.arena_location
-			var pos2 = performing_player.get_buddy_location(buddy_id)
-			var other_pos = other_player.arena_location
-			if pos1 < pos2: # Buddy is on the right
-				return other_pos > pos1 and other_pos < pos2
-			else: # Buddy is on the left
-				return other_pos > pos2 and other_pos < pos1
+			else:
+				# Use default buddy id.
+				return performing_player.is_opponent_between_buddy("", other_player, include_buddy_space)
+		elif condition == "opponent_buddy_in_range":
+			var buddy_id = effect['condition_buddy_id']
+			var require_not_immune = 'condition_extra' in effect and effect['condition_extra'] == "buddy_not_immune_to_flip"
+			if not other_player.is_buddy_in_play(buddy_id):
+				return false
+			if require_not_immune and other_player.strike_stat_boosts.buddy_immune_to_flip:
+				return false
+			if not active_strike:
+				return false
+			var buddy_location = other_player.get_buddy_location(buddy_id)
+			var attack_card = active_strike.get_player_card(performing_player)
+			return is_location_in_range(performing_player, attack_card, buddy_location)
 		elif condition == "buddy_space_unoccupied":
 			var buddy_id = ""
 			if 'condition_buddy_id' in effect:
@@ -2457,6 +2514,9 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 	var buddy_start = performing_player.get_buddy_location()
 	var ignore_extra_effects = false
 	match effect['effect_type']:
+		"add_attack_effect":
+			var effect_to_add = effect['added_effect']
+			performing_player.strike_stat_boosts.added_attack_effects.append(effect_to_add)
 		"add_boost_to_gauge_on_strike_cleanup":
 			if card_id == -1:
 				assert(false)
@@ -2614,6 +2674,8 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 				change_game_state(Enums.GameState.GameState_WaitForStrike)
 				decision_info.type = Enums.DecisionType.DecisionType_StrikeNow
 				decision_info.player = performing_player.my_id
+		"buddy_immune_to_flip":
+			performing_player.strike_stat_boosts.buddy_immune_to_flip = true
 		"cannot_stun":
 			performing_player.strike_stat_boosts.cannot_stun = true
 		"choice":
@@ -2864,6 +2926,19 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 			events += performing_player.exceed()
 		"extra_trigger_resolutions":
 			duplicate_attack_triggers(performing_player, effect['amount'])
+		"flip_buddy_miss_get_gauge":
+			performing_player.strike_stat_boosts.attack_does_not_hit = true
+			performing_player.strike_stat_boosts.always_add_to_gauge = true
+			events += handle_strike_effect(
+				-1,
+				{
+					'effect_type': "swap_buddy",
+					"buddy_to_remove": effect['buddy_to_remove'],
+					"buddy_to_place": effect['buddy_to_place'],
+					"description": effect['swap_description']
+				},
+				opposing_player
+			)
 		"force_costs_reduced_passive":
 			performing_player.free_force += effect['amount']
 		"remove_force_costs_reduced_passive":
@@ -3035,6 +3110,9 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 				active_strike.initiator_set_face_up = true
 			events += [create_event(Enums.EventType.EventType_RevealStrike_OnePlayer, performing_player.my_id, 0)]
 		"move_buddy":
+			var buddy_id = ""
+			if 'buddy_id' in effect:
+				buddy_id = effect['buddy_id']
 			decision_info.choice = []
 			decision_info.limitation = []
 			var optional = 'optional' in effect and effect['optional']
@@ -3049,10 +3127,16 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 				var distance = abs(performing_player.get_buddy_location() - i)
 				if distance >= min_spaces and distance <= max_spaces:
 					decision_info.limitation.append(i)
-					decision_info.choice.append({
+					var location_choice = {
 						"effect_type": "place_buddy_into_space",
+						"buddy_id": buddy_id,
 						"amount": i
-					})
+					}
+					if 'strike_after' in effect and effect['strike_after']:
+						location_choice["and"] = {
+							"effect_type": "strike"
+						}
+					decision_info.choice.append(location_choice)
 			if decision_info.limitation.size() > 1 or (not optional and decision_info.limitation.size() > 0):
 				decision_info.type = Enums.DecisionType.DecisionType_ChooseArenaLocationForEffect
 				decision_info.player = performing_player.my_id
@@ -3129,6 +3213,9 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 			if 'place_other_buddy_effect' in effect:
 				events += handle_place_buddy_at_range(performing_player, card_id, effect['place_other_buddy_effect'])
 		"place_buddy_in_any_space":
+			var buddy_id = ""
+			if 'buddy_id' in effect:
+				buddy_id = effect['buddy_id']
 			change_game_state(Enums.GameState.GameState_PlayerDecision)
 			decision_info.type = Enums.DecisionType.DecisionType_ChooseArenaLocationForEffect
 			decision_info.player = performing_player.my_id
@@ -3146,10 +3233,14 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 				decision_info.limitation.append(i)
 				decision_info.choice.append({
 					"effect_type": "place_buddy_into_space",
+					"buddy_id": buddy_id,
 					"amount": i
 				})
 			events += [create_event(Enums.EventType.EventType_ChooseArenaLocationForEffect, performing_player.my_id, 0)]
 		"place_buddy_in_attack_range":
+			var buddy_id = ""
+			if 'buddy_id' in effect:
+				buddy_id = effect['buddy_id']
 			decision_info.choice = []
 			decision_info.limitation = []
 			var attack_card = active_strike.get_player_card(performing_player)
@@ -3164,6 +3255,7 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 					decision_info.limitation.append(i)
 					decision_info.choice.append({
 						"effect_type": "place_buddy_into_space",
+						"buddy_id": buddy_id,
 						"amount": i
 					})
 			if decision_info.limitation.size() > 1 or (not optional and decision_info.limitation.size() > 0):
@@ -3175,9 +3267,15 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 				change_game_state(Enums.GameState.GameState_PlayerDecision)
 				events += [create_event(Enums.EventType.EventType_ChooseArenaLocationForEffect, performing_player.my_id, 0)]
 		"place_buddy_onto_opponent":
-			events += performing_player.place_buddy(opposing_player.arena_location)
+			var buddy_id = ""
+			if 'buddy_id' in effect:
+				buddy_id = effect['buddy_id']
+			events += performing_player.place_buddy(opposing_player.arena_location, buddy_id)
 		"place_buddy_onto_self":
-			events += performing_player.place_buddy(performing_player.arena_location)
+			var buddy_id = ""
+			if 'buddy_id' in effect:
+				buddy_id = effect['buddy_id']
+			events += performing_player.place_buddy(performing_player.arena_location, buddy_id)
 		"powerup":
 			var amount = effect['amount']
 			if str(amount) == "strike_x":
@@ -3231,7 +3329,8 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 		"push_from_source":
 			var attack_source_location = performing_player.arena_location
 			if performing_player.strike_stat_boosts.calculate_range_from_buddy:
-				attack_source_location = performing_player.get_buddy_location()
+				attack_source_location = performing_player.get_buddy_location(performing_player.strike_stat_boosts.calculate_range_from_buddy_id)
+				# Buddy is assumed to be in play, so this shouldn't be -1.
 
 			var previous_location = opposing_player.arena_location
 			if attack_source_location == previous_location:
@@ -3339,6 +3438,9 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 			performing_player.do_not_cleanup_buddy_this_turn = true
 		"calculate_range_from_buddy":
 			performing_player.strike_stat_boosts.calculate_range_from_buddy = true
+			performing_player.strike_stat_boosts.calculate_range_from_buddy_id = ""
+			if 'buddy_id' in effect:
+				performing_player.strike_stat_boosts.calculate_range_from_buddy_id = effect['buddy_id']
 		"retreat":
 			var amount = effect['amount']
 			if str(amount) == "strike_x":
@@ -3647,6 +3749,10 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 		"sustain_this":
 			performing_player.sustained_boosts.append(card_id)
 			events += [create_event(Enums.EventType.EventType_SustainBoost, performing_player.my_id, card_id)]
+		"swap_buddy":
+			var buddy_id_to_remove = effect['buddy_to_remove']
+			var buddy_id_to_place = effect['buddy_to_place']
+			events += performing_player.swap_buddy(buddy_id_to_remove, buddy_id_to_place, effect['description'])
 		"switch_spaces_with_buddy":
 			var old_space = performing_player.arena_location
 			events += performing_player.move_to(performing_player.get_buddy_location())
@@ -3856,6 +3962,9 @@ func get_all_effects_for_timing(timing_name : String, performing_player : Player
 	var other_player = _get_player(get_other_player(performing_player.my_id))
 	both_players_boost_effects += get_boost_effects_at_timing("both_players_" + timing_name, other_player)
 
+	# Check for opponent-given character effects
+	var opponent_given_effects = other_player.get_character_effects_at_timing("opponent_" + timing_name)
+
 	var all_effects = []
 	for effect in effects:
 		if ignore_condition or is_effect_condition_met(performing_player, effect, null):
@@ -3873,6 +3982,11 @@ func get_all_effects_for_timing(timing_name : String, performing_player : Player
 		elif 'negative_condition_effect' in effect:
 			all_effects.append(effect['negative_condition_effect'])
 	for effect in character_effects:
+		if ignore_condition or is_effect_condition_met(performing_player, effect, null):
+			all_effects.append(effect)
+		elif 'negative_condition_effect' in effect:
+			all_effects.append(effect['negative_condition_effect'])
+	for effect in opponent_given_effects:
 		if ignore_condition or is_effect_condition_met(performing_player, effect, null):
 			all_effects.append(effect)
 		elif 'negative_condition_effect' in effect:
@@ -4036,11 +4150,13 @@ func do_effects_for_timing(timing_name : String, performing_player : Player, car
 	var effects = card_db.get_card_effects_at_timing(card, timing_name)
 	var boost_effects = get_boost_effects_at_timing(timing_name, performing_player)
 	var character_effects = performing_player.get_character_effects_at_timing(timing_name)
+	var bonus_effects = performing_player.get_bonus_effects_at_timing(timing_name)
 	# Effects are resolved in the order:
-	# Card > Continuous Boost > Character
+	# Card > Continuous Boost > Character > Bonus
 	while true:
 		var boost_effects_resolved = active_strike.effects_resolved_in_timing - len(effects)
 		var character_effects_resolved = boost_effects_resolved - len(boost_effects)
+		var bonus_effects_resolved = character_effects_resolved - len(character_effects)
 		if active_strike.effects_resolved_in_timing < len(effects):
 			# Resolve card effects
 			var effect = effects[active_strike.effects_resolved_in_timing]
@@ -4071,6 +4187,16 @@ func do_effects_for_timing(timing_name : String, performing_player : Player, car
 
 			# Effect was resolved, continue loop to resolve more.
 			active_strike.effects_resolved_in_timing += 1
+		elif bonus_effects_resolved < len(bonus_effects):
+			# Resolve bonus effects
+			var effect = bonus_effects[bonus_effects_resolved]
+			events += do_effect_if_condition_met(performing_player, card.id, effect, null)
+			if game_state == Enums.GameState.GameState_PlayerDecision:
+				# Player has a decision to make, so stop mid-effect resolve.
+				break
+
+			# Effect was resolved, continue loop to resolve more.
+			active_strike.effects_resolved_in_timing += 1
 		else:
 			# Cleanup
 			active_strike.strike_state = next_state
@@ -4086,7 +4212,9 @@ func is_location_in_range(attacking_player, card, test_location : int):
 	var max_range = get_card_stat(attacking_player, card, 'range_max') + attacking_player.strike_stat_boosts.max_range
 	var attack_source_location = attacking_player.arena_location
 	if attacking_player.strike_stat_boosts.calculate_range_from_buddy:
-		attack_source_location = attacking_player.get_buddy_location()
+		attack_source_location = attacking_player.get_buddy_location(attacking_player.strike_stat_boosts.calculate_range_from_buddy_id)
+		if attack_source_location == -1:
+			return false
 	var distance = abs(attack_source_location - test_location)
 	if min_range <= distance and distance <= max_range:
 		return true
@@ -4112,7 +4240,9 @@ func in_range(attacking_player, defending_player, card):
 
 	var attack_source_location = attacking_player.arena_location
 	if attacking_player.strike_stat_boosts.calculate_range_from_buddy:
-		attack_source_location = attacking_player.get_buddy_location()
+		attack_source_location = attacking_player.get_buddy_location(attacking_player.strike_stat_boosts.calculate_range_from_buddy_id)
+		if attack_source_location == -1:
+			return false
 	var distance = abs(attack_source_location - defending_player.arena_location)
 	var opponent_in_range = is_location_in_range(attacking_player, card, defending_player.arena_location)
 
@@ -4363,7 +4493,8 @@ func continue_resolve_strike(events):
 				events += do_remaining_effects(player1, StrikeState.StrikeState_Card1_DetermineHit)
 			StrikeState.StrikeState_Card1_DetermineHit:
 				if player1.strike_stat_boosts.calculate_range_from_buddy:
-					_append_log("Range Check: %s's %s (%s) vs %s (%s)." % [player1.name, player1.get_buddy_name(), player1.get_buddy_location(), player2.name, player2.arena_location])
+					var buddy_location = player1.get_buddy_location(player1.strike_stat_boosts.calculate_range_from_buddy_id)
+					_append_log("Range Check: %s's %s (%s) vs %s (%s)." % [player1.name, player1.get_buddy_name(), buddy_location, player2.name, player2.arena_location])
 				else:
 					_append_log("Range Check: %s (%s) vs %s (%s)." % [player1.name, player1.arena_location, player2.name, player2.arena_location])
 				if in_range(player1, player2, card1):
@@ -4402,7 +4533,8 @@ func continue_resolve_strike(events):
 				events += do_remaining_effects(player2, StrikeState.StrikeState_Card2_DetermineHit)
 			StrikeState.StrikeState_Card2_DetermineHit:
 				if player2.strike_stat_boosts.calculate_range_from_buddy:
-					_append_log("Range Check: %s's %s (%s) vs %s (%s)." % [player2.name, player2.get_buddy_name(), player2.get_buddy_location(), player1.name, player1.arena_location])
+					var buddy_location = player2.get_buddy_location(player2.strike_stat_boosts.calculate_range_from_buddy_id)
+					_append_log("Range Check: %s's %s (%s) vs %s (%s)." % [player2.name, player2.get_buddy_name(), buddy_location, player1.name, player1.arena_location])
 				else:
 					_append_log("Range Check: %s (%s) vs %s (%s)." % [player2.name, player2.arena_location, player1.name, player1.arena_location])
 				if in_range(player2, player1, card2):
@@ -5137,9 +5269,13 @@ func do_pay_strike_cost(performing_player : Player, card_ids : Array, wild_strik
 		var force_cost = card.definition['force_cost']
 		var gauge_cost = get_gauge_cost(performing_player, card)
 		if performing_player.can_pay_cost_with(card_ids, force_cost, gauge_cost):
-			var card_names = card_db.get_card_name(card_ids[0])
-			for i in range(1, card_ids.size()):
-				card_names += ", " + card_db.get_card_name(card_ids[i])
+			var card_names = ""
+			if card_ids.size() > 0:
+				card_names = card_db.get_card_name(card_ids[0])
+				for i in range(1, card_ids.size()):
+					card_names += ", " + card_db.get_card_name(card_ids[i])
+			else:
+				card_names = "passive bonus"
 			_append_log("%s paid for %s with %s." % [performing_player.name, card_db.get_card_name(card.id), card_names])
 			events += performing_player.discard(card_ids)
 			match active_strike.strike_state:

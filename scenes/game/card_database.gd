@@ -20,6 +20,25 @@ func get_card(id : int):
 			return card
 	return null
 
+func get_card_sort_key(card_id : int):
+	var gamecard = get_card(card_id)
+	var card_type = gamecard.definition['type']
+	var speed = gamecard.definition['speed']
+	var display_name = gamecard.definition['display_name']
+	var sort_key = 0
+	if card_type == "normal":
+		sort_key = 100
+	elif card_type == "special":
+		sort_key = 200
+	elif card_type == "ultra":
+		sort_key = 300
+
+	# Use inverse speed so that higher speed cards are sorted first.
+	# Because we want to use the display name as alpha sort.
+	sort_key += (99 - speed)
+
+	return "%s_%s" % [sort_key, display_name]
+
 func get_card_names(card_ids) -> String:
 	var card_names = ""
 	for id in card_ids:
