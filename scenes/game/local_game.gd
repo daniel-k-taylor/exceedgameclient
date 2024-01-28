@@ -393,6 +393,7 @@ class Player:
 	var max_hand_size : int
 	var starting_hand_size_bonus : int
 	var pre_strike_movement : int
+	var moved_self_this_strike : bool
 	var sustained_boosts : Array
 	var sustain_next_boost : bool
 	var buddy_starting_offset : int
@@ -465,6 +466,7 @@ class Player:
 		next_strike_random_gauge = false
 		strike_on_boost_cleanup = false
 		pre_strike_movement = 0
+		moved_self_this_strike = false
 		sustained_boosts = []
 		sustain_next_boost = false
 		buddy_starting_offset = BuddyStartsOutOfArena
@@ -1391,6 +1393,7 @@ class Player:
 		arena_location = new_arena_location
 		events += [parent.create_event(Enums.EventType.EventType_Move, my_id, new_arena_location, "move", distance, previous_location)]
 		if position_changed:
+			moved_self_this_strike = true
 			on_position_changed(previous_location, get_buddy_location())
 			events += add_boosts_to_gauge_on_move()
 
@@ -1417,6 +1420,7 @@ class Player:
 		arena_location = new_location
 		events += [parent.create_event(Enums.EventType.EventType_Move, my_id, new_location, "close", amount, previous_location)]
 		if position_changed:
+			moved_self_this_strike = true
 			on_position_changed(previous_location, get_buddy_location())
 			events += add_boosts_to_gauge_on_move()
 
@@ -1461,6 +1465,7 @@ class Player:
 		arena_location = new_location
 		events += [parent.create_event(Enums.EventType.EventType_Move, my_id, new_location, "advance", amount, previous_location)]
 		if position_changed:
+			moved_self_this_strike = true
 			on_position_changed(previous_location, get_buddy_location())
 			events += add_boosts_to_gauge_on_move()
 
@@ -1490,6 +1495,7 @@ class Player:
 		arena_location = new_location
 		events += [parent.create_event(Enums.EventType.EventType_Move, my_id, new_location, "retreat", amount, previous_location)]
 		if position_changed:
+			moved_self_this_strike = true
 			on_position_changed(previous_location, get_buddy_location())
 			events += add_boosts_to_gauge_on_move()
 
@@ -1951,6 +1957,8 @@ func advance_to_next_turn():
 	opponent.used_character_bonus = false
 	player.force_spent_before_strike = 0
 	opponent.force_spent_before_strike = 0
+	player.moved_self_this_strike = false
+	opponent.moved_self_this_strike = false
 
 	# Update strike turn tracking
 	last_turn_was_strike = strike_happened_this_turn
@@ -2214,6 +2222,8 @@ func is_effect_condition_met(performing_player : Player, effect, local_condition
 		elif condition == "not_initiated_strike":
 			var initiated_strike = active_strike.initiator == performing_player
 			return not initiated_strike
+		elif condition == "not_moved_self_this_strike":
+			return not performing_player.moved_self_this_strike
 		elif condition == "initiated_at_range":
 			var range_min = effect['range_min']
 			var range_max = effect['range_max']

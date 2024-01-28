@@ -6000,7 +6000,7 @@
 			},
 			{
 				"timing": "after",
-				"comment": "condition: TODO",
+				"condition": "not_moved_self_this_strike",
 				"effect_type": "advance",
 				"amount": 3,
 				"and": {
