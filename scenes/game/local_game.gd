@@ -556,7 +556,7 @@ class Player:
 
 		if 'on_exceed' in deck_def:
 			var effect = deck_def['on_exceed']
-			events += parent.handle_strike_effect(-1, effect, self)
+			events += parent.do_effect_if_condition_met(self, -1, effect, null)
 		return events
 
 	func revert_exceed():

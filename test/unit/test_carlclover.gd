@@ -209,6 +209,19 @@ func validate_life(p1, l1, p2, l2):
 ##
 ## Tests start here
 ##
+func test_carlclover_exceed_normal():
+	position_players(player1, 3, player2, 6)
+	player1.set_buddy_location("nirvana_active", 4)
+	player1.exceed()
+	assert_eq(player1.get_buddy_location("nirvana_active"), 4)
+
+func test_carlclover_exceed_when_disabled():
+	position_players(player1, 3, player2, 6)
+	player1.set_buddy_location("nirvana_active", -1)
+	player1.set_buddy_location("nirvana_disabled", 4)
+	player1.exceed()
+	assert_eq(player1.get_buddy_location("nirvana_active"), 4)
+	
 func test_carlclover_disable_nirvana():
 	position_players(player1, 3, player2, 6)
 	player1.set_buddy_location("nirvana_active", 4)
@@ -451,7 +464,7 @@ func test_carlclover_deusexmachina_sealed():
 	assert_eq(player1.get_buddy_location("nirvana_active"), -1)
 	assert_eq(player1.get_buddy_location("nirvana_disabled"), -1)
 	validate_positions(player1, 4, player2, 5)
-	validate_life(player1, 28, player2, 20)
+	validate_life(player1, 28, player2, 19)
 	assert_eq(player1.gauge.size(), 1)
 	assert_eq(player2.gauge.size(), 1)
 	advance_turn(player2)
