@@ -77,7 +77,7 @@
 		},
 		{
 			"NOTE": "Nirvana active ability - powerup special/ultras",
-			"timing": "set_strike",
+			"timing": "during_strike",
 			"condition": "is_buddy_special_or_ultra_attack",
 			"condition_buddy_id": "nirvana_active",
 			"effect_type": "pass",
@@ -139,7 +139,7 @@
 		},
 		{
 			"NOTE": "Nirvana active ability - powerup special/ultras",
-			"timing": "set_strike",
+			"timing": "during_strike",
 			"condition": "is_buddy_special_or_ultra_attack",
 			"condition_buddy_id": "nirvana_active",
 			"effect_type": "pass",
