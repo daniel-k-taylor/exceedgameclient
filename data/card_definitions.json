@@ -10577,7 +10577,7 @@
 		],
 		"boost": {
 			"boost_type": "continuous",
-			"force_cost": 0,
+			"force_cost": 1,
 			"cancel_cost": -1,
 			"display_name": "Swift Destruction",
 			"effects": [
@@ -10676,7 +10676,9 @@
 			"effects": [
 				{
 					"timing": "during_strike",
-					"condition": "tiger_uppercut",
+					"condition": "matches_named_card",
+					"condition_details": "Tiger Uppercut",
+					"card_id": "sagat_tigeruppercut",
 					"effect_type": "guardup",
 					"amount": 2,
 					"and": {
@@ -10690,8 +10692,12 @@
 					"and": {
 						"effect_type": "speedup",
 						"amount": 2
+					},
+					"and": {
+					"effect_type": "critical",
+					"character_Effect": true
 					}
-			}
+				}
 		]
 	}
 	},
@@ -10783,9 +10789,13 @@
 			{
 				"timing": "after",
 				"condition": "is_critical",
+				"effect_type": "push",
+				"amount": 0,
+				"and": {
 				"condition": "opponent_stunned",
 				"effect_type": "push",
-				"amount": 3
+				"amount": 3			
+				}
 			}
 		],
 		"boost": {
@@ -10844,13 +10854,14 @@
 				{
 					"timing": "immediate",
 					"condition": "range",
-					"amount": 1,
+					"condition_amount": 1,
 					"effect_type": "opponent_discard_random",
-					"amount2": 2,
-					"and": {
-						"effect_type": "strike"
-					}
-				}
+					"amount": 2
+					},
+					{
+					"timing": "immediate",
+					"effect_type": "strike"	
+					}						
 			]
 		},
 		"NOTEEND": "SAGAT CARDS END"

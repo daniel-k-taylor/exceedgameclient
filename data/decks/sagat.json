@@ -22,14 +22,9 @@
 		"condition": "initated_strike",
 		"effect_type": "choice",
 		"choice": [
-			{ "effect_type": "strike_faceup" },
+			{ "effect_type": "set_strike_faceup", "and": { "effect_type": "speedup", "amount": 1 } },
 			{ "effect_type": "pass" }
-		],
-		"overall_effect": {
-			"condition": "strike_faceup",
-			"effect_type": "speedup",
-			"amount": 1
-			}
+		]
 		}
 	],
 	"exceed_ability_effects": [
@@ -38,23 +33,16 @@
 		"condition": "initated_strike",
 		"effect_type": "choice",
 		"choice": [
-			{ "effect_type": "strike_faceup" },
+			{ "effect_type": "set_strike_faceup", "and": { "effect_type": "speedup", "amount": 1 }, 
+			"and": { "effect_type": "powerup", "amount": 1} },
 			{ "effect_type": "pass" }
-		],
-		"overall_effect": {
-			"condition": "strike-faceup",
-			"effect_type": "speedup",
-			"amount": 1,
-			"and": {
-				"effect_type": "powerup",
-				"amount": 1
-			}
+		]
 		}
-	}
 	],
 	"ability_effects": [
 		{
 			"timing": "set_strike",
+			"condition": "is_not_critical",
 			"effect_type": "gauge_for_effect",
 			"per_gauge_effect": null,
 			"overall_effect": {
@@ -67,6 +55,7 @@
 	"exceed_ability_effects": [
 		{
 			"timing": "set_strike",
+			"condition": "is_not_critical",
 			"effect_type": "gauge_for_effect",
 			"per_gauge_effect": null,
 			"overall_effect": {
