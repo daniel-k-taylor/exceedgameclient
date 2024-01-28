@@ -10677,25 +10677,21 @@
 				{
 					"timing": "during_strike",
 					"condition": "matches_named_card",
-					"condition_details": "Tiger Uppercut",
+					"condition_detail": "Tiger Uppercut",
 					"card_id": "sagat_tigeruppercut",
 					"effect_type": "guardup",
 					"amount": 2,
 					"and": {
-						"effect_type": "armorup",
-						"amount": 2
-					},
-					"and": {
 						"effect_type": "powerup",
-						"amount": 2						
-					},
-					"and": {
-						"effect_type": "speedup",
-						"amount": 2
-					},
-					"and": {
-					"effect_type": "critical",
-					"character_Effect": true
+						"amount": 2,
+						"and": {
+							"effect_type": "speedup",
+							"amount": 2,
+							"and": {
+							"effect_type": "critical",
+							"character_effect": true
+							}
+						}					
 					}
 				}
 		]
@@ -10807,12 +10803,13 @@
 				{
 					"timing": "during_strike",
 					"effect_type": "speedup",
-					"amount": 1,
-					"and": {
+					"amount": 1
+					},
+					{
 						"timing": "hit",
-						"effect_type": "add_to_gauage_immediately_mid_strike_undo_effects"
+						"effect_type": "add_boost_to_gauge_on_strike_cleanup",
+						"card_name": "Spite"						
 					}
-				}
 			]	
 	}
 	},
