@@ -207,6 +207,15 @@ func get_player_force_for_cards(player_id : Enums.PlayerId, card_ids : Array, re
 func get_force_to_move_to(player_id : Enums.PlayerId, location : int):
 	return _get_player(player_id).get_force_to_move_to(location)
 
+func get_will_not_hit_card_names(player_id : Enums.PlayerId) -> Array:
+	var card_names = []
+	var player = _get_player(player_id)
+	if player.cards_that_will_not_hit.size() > 0:
+		var card_db = get_card_database()
+		for card in player.cards_that_will_not_hit:
+			card_names.append(card_db.get_card_name_by_card_definition_id(card))
+	return card_names
+
 func get_buddy_name(player_id : Enums.PlayerId, buddy_id : String):
 	return _get_player(player_id).get_buddy_name(buddy_id)
 
@@ -219,8 +228,8 @@ func other_player(id : Enums.PlayerId) -> Enums.PlayerId:
 func get_card_database() -> CardDatabase:
 	return current_game.get_card_database()
 
-func can_player_boost(player_id : Enums.PlayerId, card_id : int, allow_gauge : bool, limitation : String) -> bool:
-	if is_card_in_hand(player_id, card_id) or (allow_gauge and is_card_in_gauge(player_id, card_id)):
+func can_player_boost(player_id : Enums.PlayerId, card_id : int, allow_gauge : bool, only_gauge : bool, limitation : String) -> bool:
+	if (not only_gauge and is_card_in_hand(player_id, card_id)) or (allow_gauge and is_card_in_gauge(player_id, card_id)):
 		var card_db = current_game.get_card_database()
 		var card = card_db.get_card(card_id)
 		if limitation and card.definition['boost']['boost_type'] != limitation:

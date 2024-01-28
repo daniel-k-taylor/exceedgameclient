@@ -27,6 +27,7 @@
 [ext_resource type="Texture2D" uid="uid://uhtif52doyss" path="res://assets/portraits/unilogo.png" id="25_is7sg"]
 [ext_resource type="Texture2D" uid="uid://d17x6tser3eeq" path="res://assets/portraits/zato.png" id="25_wi4bn"]
 [ext_resource type="Texture2D" uid="uid://dypqpmufue3as" path="res://assets/portraits/faust.png" id="26_j4iqn"]
+[ext_resource type="Texture2D" uid="uid://djsiqwo6gktq2" path="res://assets/portraits/linne.png" id="26_pbdap"]
 [ext_resource type="Texture2D" uid="uid://bwp8gexqjcuwc" path="res://assets/portraits/happychaos.png" id="27_0fy1k"]
 [ext_resource type="Texture2D" uid="uid://bq43sl2kpxmdv" path="res://assets/portraits/ragna.png" id="27_4b3tr"]
 [ext_resource type="Texture2D" uid="uid://dhbd4wfnmy603" path="res://assets/portraits/jin.png" id="29_1ti5l"]
@@ -276,6 +277,11 @@ portrait_texture = ExtResource("24_4beb5")
 layout_mode = 2
 char_id = "hyde"
 portrait_texture = ExtResource("24_610av")
+
+[node name="Linne" parent="CenterContainer/UNICharacterSelect/Rows/Row1" instance=ExtResource("6_3lmwy")]
+layout_mode = 2
+char_id = "linne"
+portrait_texture = ExtResource("26_pbdap")
 
 [node name="Yuzu" parent="CenterContainer/UNICharacterSelect/Rows/Row1" instance=ExtResource("6_3lmwy")]
 layout_mode = 2
@@ -535,6 +541,8 @@ portrait_texture = ExtResource("32_iutun")
 [connection signal="on_pressed" from="CenterContainer/UNICharacterSelect/Rows/Row1/Phonon" to="." method="_on_char_button_on_pressed"]
 [connection signal="on_hover" from="CenterContainer/UNICharacterSelect/Rows/Row1/Hyde" to="." method="_on_char_hover"]
 [connection signal="on_pressed" from="CenterContainer/UNICharacterSelect/Rows/Row1/Hyde" to="." method="_on_char_button_on_pressed"]
+[connection signal="on_hover" from="CenterContainer/UNICharacterSelect/Rows/Row1/Linne" to="." method="_on_char_hover"]
+[connection signal="on_pressed" from="CenterContainer/UNICharacterSelect/Rows/Row1/Linne" to="." method="_on_char_button_on_pressed"]
 [connection signal="on_hover" from="CenterContainer/UNICharacterSelect/Rows/Row1/Yuzu" to="." method="_on_char_hover"]
 [connection signal="on_pressed" from="CenterContainer/UNICharacterSelect/Rows/Row1/Yuzu" to="." method="_on_char_button_on_pressed"]
 [connection signal="on_hover" from="CenterContainer/UNICharacterSelect/Rows/Row1/RandomUNI" to="." method="_on_char_hover"]

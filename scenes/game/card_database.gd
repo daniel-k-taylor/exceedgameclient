@@ -61,6 +61,12 @@ func get_card_name(id : int) -> String:
 			return card.definition['display_name']
 	return "MISSING CARD"
 
+func get_card_name_by_card_definition_id(id : String) -> String:
+	for card in all_cards:
+		if card.definition['id'] == id:
+			return card.definition['display_name']
+	return "MISSING CARD"
+
 func get_card_id(id : int) -> String:
 	for card in all_cards:
 		if card.id == id:
