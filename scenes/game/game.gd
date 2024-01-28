@@ -793,21 +793,6 @@ func on_card_clicked(card : CardBase):
 			card.set_selected(false)
 		_update_buttons()
 
-func get_sort_key(card_type, speed, display_name):
-	var sort_key = 0
-	if card_type == "normal":
-		sort_key = 100
-	elif card_type == "special":
-		sort_key = 200
-	elif card_type == "ultra":
-		sort_key = 300
-
-	# Use inverse speed so that higher speed cards are sorted first.
-	# Because we want to use the display name as alpha sort.
-	sort_key += (99 - speed)
-
-	return "%s_%s" % [sort_key, display_name]
-
 func sort_player_hand(hand_zone):
 	# Only intended to be called for the player, not opponent.
 	var sorted_nodes = hand_zone.get_children()
@@ -818,16 +803,8 @@ func sort_player_hand(hand_zone):
 			assert(b is CardBase)
 			var card_a = a as CardBase
 			var card_b = b as CardBase
-			var gamecard_a = game_wrapper.get_card_database().get_card(card_a.card_id)
-			var gamecard_b = game_wrapper.get_card_database().get_card(card_b.card_id)
-			var card_type_a = gamecard_a.definition['type']
-			var card_type_b = gamecard_b.definition['type']
-			var card_speed_a = gamecard_a.definition['speed']
-			var card_speed_b = gamecard_b.definition['speed']
-			var card_name_a = gamecard_a.definition['display_name']
-			var card_name_b = gamecard_b.definition['display_name']
-			var sort_key_a = get_sort_key(card_type_a, card_speed_a, card_name_a)
-			var sort_key_b = get_sort_key(card_type_b, card_speed_b, card_name_b)
+			var sort_key_a = game_wrapper.get_card_database().get_card_sort_key(card_a.card_id)
+			var sort_key_b = game_wrapper.get_card_database().get_card_sort_key(card_b.card_id)
 			return sort_key_a < sort_key_b
 	)
 
