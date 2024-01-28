@@ -2182,6 +2182,7 @@ func _on_place_buddy(event):
 	var buddy_location = event['number']
 	var buddy_id = event['extra_info']
 	var silent = event['extra_info2']
+	var extra_description = event['reason']
 
 	var action_text = "Place"
 	if buddy_location == -1:
@@ -2196,7 +2197,10 @@ func _on_place_buddy(event):
 		move_character_to_arena_square(buddy, buddy_location, immediate, Character.CharacterAnim.CharacterAnim_WalkForward, -1)
 
 	if not silent:
-		spawn_damage_popup("%s %s" % [action_text, game_wrapper.get_buddy_name(player, buddy_id)], player)
+		if extra_description:
+			spawn_damage_popup(extra_description, player)
+		else:
+			spawn_damage_popup("%s %s" % [action_text, game_wrapper.get_buddy_name(player, buddy_id)], player)
 		return SmallNoticeDelay
 	return 0
 

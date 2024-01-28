@@ -185,7 +185,8 @@ func get_timing_text(timing):
 			text += "MISSING TIMING"
 	return text
 
-func get_condition_text(condition, amount, amount2, detail):
+func get_condition_text(effect, amount, amount2, detail):
+	var condition = effect['condition']
 	var text = ""
 	match condition:
 		"advanced_through":
@@ -263,7 +264,10 @@ func get_condition_text(condition, amount, amount2, detail):
 		"opponent_at_edge_of_arena":
 			text += "If opponent at arena edge, "
 		"opponent_between_buddy":
-			text += "If opponent is between you and %s, " % detail
+			if 'include_buddy_space' in effect and effect['include_buddy_space']:
+				text += "If opponent is on %s or between you, " % detail
+			else:
+				text += "If opponent is between you and %s, " % detail
 		"is_buddy_special_attack":
 			text += ""
 		"was_wild_swing":
@@ -366,6 +370,11 @@ func get_effect_type_text(effect, card_name_source : String = ""):
 				effect_str += "Play and sustain a %s from hand." % limitation_str
 		"boost_then_sustain_topdeck":
 			effect_str += "Play and sustain %s card(s) from the top of your deck." % effect['amount']
+		"boost_then_sustain_topdiscard":
+			var limitation_str = "card(s)"
+			if 'limitation' in effect and effect['limitation'] == "continuous":
+				limitation_str = "continuous boost(s)"
+			effect_str += "Play and sustain the top %s %s from your discard pile." % [effect['amount'], limitation_str]
 		"cannot_stun":
 			effect_str += "Attack does not stun."
 		"choice":
@@ -441,6 +450,8 @@ func get_effect_type_text(effect, card_name_source : String = ""):
 			effect_str += "Exceed"
 		"extra_trigger_resolutions":
 			effect_str += "Before/Hit/After triggers resolve %s extra time(s)" % effect['amount']
+		"flip_buddy_miss_get_gauge":
+			effect_str += effect['description']
 		"force_costs_reduced_passive":
 			effect_str += "Force costs reduced by %s" % effect['amount']
 		"force_for_effect":
@@ -476,10 +487,13 @@ func get_effect_type_text(effect, card_name_source : String = ""):
 		"may_advance_bonus_spaces":
 			effect_str = "You may Advance/Close %s extra space(s)" % effect['amount']
 		"move_buddy":
+			var strike_str = ""
+			if 'strike_after' in effect and effect['strike_after']:
+				strike_str = " and strike"
 			var movement_str = "%s" % effect['amount']
 			if effect['amount'] != effect['amount2']:
 				movement_str += "-%s" % effect['amount2']
-			effect_str += "Move %s %s space(s)" % [effect['buddy_name'], movement_str]
+			effect_str += "Move %s %s space(s)%s" % [effect['buddy_name'], movement_str, strike_str]
 		"move_to_buddy":
 			effect_str += "Move to %s" % effect['buddy_name']
 		"multiply_power_bonuses":
@@ -669,6 +683,8 @@ func get_effect_type_text(effect, card_name_source : String = ""):
 				effect_str += "Sustain %s" % card_name_source
 			else:
 				effect_str += "Sustain this"
+		"swap_buddy":
+			effect_str += effect['description']
 		"take_bonus_actions":
 			if 'use_simple_description' in effect and effect['use_simple_description']:
 				effect_str += "Take another action."
@@ -711,7 +727,7 @@ func get_effect_text(effect, short = false, skip_timing = false, skip_condition 
 				amount2 = effect['condition_amount2']
 			if 'condition_detail' in effect:
 				detail = effect['condition_detail']
-			effect_str += get_condition_text(effect['condition'], amount, amount2, detail)
+			effect_str += get_condition_text(effect, amount, amount2, detail)
 
 		effect_str += get_effect_type_text(effect, card_name_source)
 
