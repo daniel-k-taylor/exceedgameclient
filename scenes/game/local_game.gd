@@ -409,7 +409,7 @@ class Player:
 	var movement_limit : int
 	var free_force : int
 	var guile_change_cards_bonus : bool
-	var will_not_hit : Array[String]
+	var cards_that_will_not_hit : Array[String]
 
 	func _init(id, player_name, parent_ref, card_db_ref, chosen_deck, card_start_id):
 		my_id = id
@@ -482,7 +482,7 @@ class Player:
 		saved_power = 0
 		free_force = 0
 		guile_change_cards_bonus = false
-		will_not_hit = []
+		cards_that_will_not_hit = []
 
 		if "buddy_cards" in deck_def:
 			var buddy_index = 0
@@ -843,7 +843,7 @@ class Player:
 			buddy_id = buddy_id_to_index.keys()[0]
 		var old_buddy_pos = get_buddy_location(buddy_id)
 		set_buddy_location(buddy_id, new_location)
-		on_position_changed(arena_location, old_buddy_pos)
+		on_position_changed(arena_location, old_buddy_pos, false)
 		events += [parent.create_event(Enums.EventType.EventType_PlaceBuddy, my_id, get_buddy_location(buddy_id), "", buddy_id, silent)]
 		return events
 
@@ -854,7 +854,7 @@ class Player:
 		if not do_not_cleanup_buddy_this_turn:
 			var old_buddy_pos = get_buddy_location(buddy_id)
 			set_buddy_location(buddy_id, -1)
-			on_position_changed(arena_location, old_buddy_pos)
+			on_position_changed(arena_location, old_buddy_pos, false)
 			events += [parent.create_event(Enums.EventType.EventType_PlaceBuddy, my_id, get_buddy_location(buddy_id), "", buddy_id, silent)]
 		return events
 
@@ -989,7 +989,7 @@ class Player:
 		if get_available_gauge() < gauge_cost: return false
 		if get_available_force() < force_cost: return false
 
-		if 'can_continuous_boost_from_gauge' in action and action['can_continuous_boost_from_gauge']:
+		if 'can_boost_continuous_boost_from_gauge' in action and action['can_booost_continuous_boost_from_gauge']:
 			if not can_boost_something(true, true, 'continuous'): return false
 
 		if 'min_hand_size' in action:
@@ -1366,7 +1366,9 @@ class Player:
 			pass
 		return required_force
 
-	func on_position_changed(old_pos, buddy_old_pos):
+	func on_position_changed(old_pos, buddy_old_pos, is_self_move):
+		if is_self_move:
+			moved_self_this_strike = true
 		if arena_location == get_buddy_location():
 			if old_pos != buddy_old_pos:
 				handle_on_buddy_boosts(true)
@@ -1395,8 +1397,7 @@ class Player:
 		arena_location = new_arena_location
 		events += [parent.create_event(Enums.EventType.EventType_Move, my_id, new_arena_location, "move", distance, previous_location)]
 		if position_changed:
-			moved_self_this_strike = true
-			on_position_changed(previous_location, get_buddy_location())
+			on_position_changed(previous_location, get_buddy_location(), true)
 			events += add_boosts_to_gauge_on_move()
 
 		return events
@@ -1422,8 +1423,7 @@ class Player:
 		arena_location = new_location
 		events += [parent.create_event(Enums.EventType.EventType_Move, my_id, new_location, "close", amount, previous_location)]
 		if position_changed:
-			moved_self_this_strike = true
-			on_position_changed(previous_location, get_buddy_location())
+			on_position_changed(previous_location, get_buddy_location(), true)
 			events += add_boosts_to_gauge_on_move()
 
 		return events
@@ -1467,8 +1467,7 @@ class Player:
 		arena_location = new_location
 		events += [parent.create_event(Enums.EventType.EventType_Move, my_id, new_location, "advance", amount, previous_location)]
 		if position_changed:
-			moved_self_this_strike = true
-			on_position_changed(previous_location, get_buddy_location())
+			on_position_changed(previous_location, get_buddy_location(), true)
 			events += add_boosts_to_gauge_on_move()
 
 		return events
@@ -1497,8 +1496,7 @@ class Player:
 		arena_location = new_location
 		events += [parent.create_event(Enums.EventType.EventType_Move, my_id, new_location, "retreat", amount, previous_location)]
 		if position_changed:
-			moved_self_this_strike = true
-			on_position_changed(previous_location, get_buddy_location())
+			on_position_changed(previous_location, get_buddy_location(), true)
 			events += add_boosts_to_gauge_on_move()
 
 		return events
@@ -1520,7 +1518,7 @@ class Player:
 				new_location = max(new_location, MinArenaLocation)
 
 			other_player.arena_location = new_location
-			other_player.on_position_changed(previous_location, other_player.get_buddy_location())
+			other_player.on_position_changed(previous_location, other_player.get_buddy_location(), false)
 			events += [parent.create_event(Enums.EventType.EventType_Move, other_player.my_id, new_location, "push", amount, previous_location)]
 
 		return events
@@ -1550,7 +1548,7 @@ class Player:
 					new_location -= 1
 
 			other_player.arena_location = new_location
-			other_player.on_position_changed(previous_location, other_player.get_buddy_location())
+			other_player.on_position_changed(previous_location, other_player.get_buddy_location(), false)
 			events += [parent.create_event(Enums.EventType.EventType_Move, other_player.my_id, new_location, "pull", amount, previous_location)]
 
 		return events
@@ -1572,7 +1570,7 @@ class Player:
 				new_location = min(new_location, arena_location - 1)
 
 			other_player.arena_location = new_location
-			other_player.on_position_changed(previous_location, other_player.get_buddy_location())
+			other_player.on_position_changed(previous_location, other_player.get_buddy_location(), false)
 			events += [parent.create_event(Enums.EventType.EventType_Move, other_player.my_id, new_location, "pull", amount, previous_location)]
 
 		return events
@@ -1961,8 +1959,8 @@ func advance_to_next_turn():
 	opponent.force_spent_before_strike = 0
 	player.moved_self_this_strike = false
 	opponent.moved_self_this_strike = false
-	player.will_not_hit = []
-	opponent.will_not_hit = []
+	player.cards_that_will_not_hit = []
+	opponent.cards_that_will_not_hit = []
 
 	# Update strike turn tracking
 	last_turn_was_strike = strike_happened_this_turn
@@ -2551,7 +2549,7 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 			performing_player.strike_stat_boosts.armor += effect['amount']
 			events += [create_event(Enums.EventType.EventType_Strike_ArmorUp, performing_player.my_id, effect['amount'])]
 		"armorup_damage_dealt":
-			## This is inaccurate if you have this effect on an additional attack character -- currently impossible, and additional attacks mess up many things
+			# If Tenacious Mist can be used as an additional attack, this implementation will be incorrect for that case
 			var damage_dealt = active_strike.get_damage_taken(opposing_player)
 			performing_player.strike_stat_boosts.armor += damage_dealt
 			events += [create_event(Enums.EventType.EventType_Strike_ArmorUp, performing_player.my_id, damage_dealt)]
@@ -3594,14 +3592,14 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 			decision_info.player = performing_player.my_id
 			events += [create_event(Enums.EventType.EventType_Boost_Sidestep, performing_player.my_id, 0)]
 		"sidestep_dialogue":
-			pass
 			# this exists purely for ui, no-op here
+			pass
 		"sidestep_internal":
 			var named_card = card_db.get_card(effect['card_id'])
 			# named_card is the individual card but
-			# this should discard "by name", so instead of using that
+			# this should match "by name", so instead of using that
 			# match card.definition['id']'s instead.
-			opposing_player.will_not_hit += [named_card.definition['id']]
+			opposing_player.cards_that_will_not_hit += [named_card.definition['id']]
 		"specials_invalid":
 			performing_player.specials_invalid = effect['enabled']
 		"speedup":
@@ -4425,15 +4423,16 @@ func continue_resolve_strike(events):
 					_append_log("Range Check: %s's %s (%s) vs %s (%s)." % [player1.name, player1.get_buddy_name(), player1.get_buddy_location(), player2.name, player2.arena_location])
 				else:
 					_append_log("Range Check: %s (%s) vs %s (%s)." % [player1.name, player1.arena_location, player2.name, player2.arena_location])
-				if in_range(player1, player2, card1) and not card1.definition['id'] in player1.will_not_hit:
+				if in_range(player1, player2, card1) and not card1.definition['id'] in player1.cards_that_will_not_hit:
 					_append_log("%s %s hits." % [player1.name, card_db.get_card_name(card1.id)])
 					active_strike.player1_hit = true
 					active_strike.strike_state = StrikeState.StrikeState_Card1_Hit
 					active_strike.remaining_effect_list = get_all_effects_for_timing("hit", player1, card1)
 				else:
-					if card1.definition['id'] in player1.will_not_hit:
-						_append_log("Named card %s does not hit this strike!" % card_db.get_card_name(card1.id))
-					_append_log("%s %s misses." % [player1.name, card_db.get_card_name(card1.id)])
+					var extra_details = ""
+					if card1.definition['id'] in player1.cards_that_will_not_hit:
+						extra_details = " (this was the named card)"
+					_append_log("%s %s misses%s." % [player1.name, card_db.get_card_name(card1.id), extra_details])
 					events += [create_event(Enums.EventType.EventType_Strike_Miss, player1.my_id, 0)]
 					active_strike.strike_state = StrikeState.StrikeState_Card1_After
 					active_strike.remaining_effect_list = get_all_effects_for_timing("after", player1, card1)
@@ -4466,15 +4465,16 @@ func continue_resolve_strike(events):
 					_append_log("Range Check: %s's %s (%s) vs %s (%s)." % [player2.name, player2.get_buddy_name(), player2.get_buddy_location(), player1.name, player1.arena_location])
 				else:
 					_append_log("Range Check: %s (%s) vs %s (%s)." % [player2.name, player2.arena_location, player1.name, player1.arena_location])
-				if in_range(player2, player1, card2) and not card2.definition['id'] in player2.will_not_hit:
+				if in_range(player2, player1, card2) and not card2.definition['id'] in player2.cards_that_will_not_hit:
 					_append_log("%s %s hits." % [player2.name, card_db.get_card_name(card2.id)])
 					active_strike.player2_hit = true
 					active_strike.strike_state = StrikeState.StrikeState_Card2_Hit
 					active_strike.remaining_effect_list = get_all_effects_for_timing("hit", player2, card2)
 				else:
-					if card2.definition['id'] in player2.will_not_hit:
-						_append_log("Named card %s does not hit this strike!" % card_db.get_card_name(card2.id))
-					_append_log("%s %s misses." % [player2.name, card_db.get_card_name(card2.id)])
+					var extra_details = ""
+					if card2.definition['id'] in player2.cards_that_will_not_hit:
+						extra_details = " (this was the named card)"
+					_append_log("%s %s misses%s." % [player2.name, card_db.get_card_name(card2.id), extra_details])
 					events += [create_event(Enums.EventType.EventType_Strike_Miss, player2.my_id, 0)]
 					active_strike.strike_state = StrikeState.StrikeState_Card2_After
 					active_strike.remaining_effect_list = get_all_effects_for_timing("after", player2, card2)

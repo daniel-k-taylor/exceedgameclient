@@ -28,7 +28,7 @@
 		{
 			"gauge_cost": 0,
 			"force_cost": 0,
-			"can_continuous_boost_from_gauge": true,
+			"can_boost_continuous_boost_from_gauge": true,
 			"effect": {
 				"effect_type": "boost_from_gauge",
 				"limitation": "continuous"
@@ -70,7 +70,7 @@
 			"definition_id": "linne_divineblaze",
 			"image": "linne_divineblaze.tres"
 		},
-        {
+		{
 			"definition_id": "linne_divineblaze",
 			"image": "linne_divineblaze.tres"
 		},

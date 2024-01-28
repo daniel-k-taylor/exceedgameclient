@@ -1744,11 +1744,10 @@ func begin_strike_choosing(strike_response : bool, cancel_allowed : bool,
 	select_card_require_max = 1
 	var can_cancel = cancel_allowed and not strike_response
 	var dialogue = "Select a card to strike with."
-	var player = game_wrapper._get_player(Enums.PlayerId.PlayerId_Player)
-	if player.will_not_hit.size() > 0:
-		var card_db = game_wrapper.get_card_database()
-		for card in player.will_not_hit:
-			dialogue += "\n" + card_db.get_card_name_by_card_id(card) + " will not hit."
+	var cards_that_will_not_hit = game_wrapper.get_will_not_hit_card_names(Enums.PlayerId.PlayerId_Player)
+	if cards_that_will_not_hit.size() > 0:
+		for card in cards_that_will_not_hit:
+			dialogue += "\n" + card + " will not hit."
 	enable_instructions_ui(dialogue, true, can_cancel, not disable_wild_swing, not disable_ex)
 	var new_sub_state
 	if strike_response:

@@ -207,6 +207,15 @@ func get_player_force_for_cards(player_id : Enums.PlayerId, card_ids : Array, re
 func get_force_to_move_to(player_id : Enums.PlayerId, location : int):
 	return _get_player(player_id).get_force_to_move_to(location)
 
+func get_will_not_hit_card_names(player_id : Enums.PlayerId) -> Array:
+	var card_names = []
+	var player = _get_player(player_id)
+	if player.cards_that_will_not_hit.size() > 0:
+		var card_db = get_card_database()
+		for card in player.cards_that_will_not_hit:
+			card_names += [card_db.get_card_name_by_card_definition_id(card)]
+	return card_names
+
 func get_buddy_name(player_id : Enums.PlayerId, buddy_id : String):
 	return _get_player(player_id).get_buddy_name(buddy_id)
 

@@ -158,7 +158,6 @@ func handle_decisions(game: LocalGame):
 			Enums.DecisionType.DecisionType_Sidestep:
 				var pick_action = decision_ai.pick_name_opponent_card(game, decision_player.my_id, true)
 				assert_true(game.do_boost_name_card_choice_effect(decision_player, pick_action.card_id), "do boost name failed")
-				#TODO: Do something with EventType_RevealHand so AI can consume new info.
 			Enums.DecisionType.DecisionType_PayStrikeCost_Required, Enums.DecisionType.DecisionType_PayStrikeCost_CanWild:
 				var can_wild = game.decision_info.type == Enums.DecisionType.DecisionType_PayStrikeCost_CanWild
 				var cost = game.decision_info.cost

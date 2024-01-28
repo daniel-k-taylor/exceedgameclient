@@ -5863,7 +5863,6 @@
 			]
 		}
 	},
-
 	{
 		"id": "linne_thediviner",
 		"type": "ultra",
@@ -5921,7 +5920,6 @@
 			]
 		}
 	},
-
 	{
 		"id": "linne_elusiveflash",
 		"type": "ultra",
@@ -5969,7 +5967,6 @@
 			]
 		}
 	},
-
 	{
 		"id": "linne_flyingswallow",
 		"type": "special",
@@ -6034,7 +6031,6 @@
 			]
 		}
 	},
-
 	{
 		"id": "linne_moongyre",
 		"type": "special",
@@ -6082,7 +6078,6 @@
 			]
 		}
 	},
-
 	{
 		"id": "linne_skyfangs",
 		"type": "special",
@@ -6127,7 +6122,6 @@
 			]
 		}
 	},
-
 	{
 		"NOTE": "LINNE CARDS END",
 		"id": "linne_tenaciousmist",
