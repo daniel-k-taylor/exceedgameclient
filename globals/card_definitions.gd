@@ -218,6 +218,8 @@ func get_condition_text(condition, amount, amount2, detail):
 			text += "If not full close, "
 		"not_initiated_strike":
 			text += "If opponent initiated strike, "
+		"not_moved_self_this_strike":
+			text += "If you have not moved yourself this strike, "
 		"no_strike_caused":
 			text += "If no strike caused, "
 		"stunned":

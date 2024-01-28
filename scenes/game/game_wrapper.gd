@@ -213,7 +213,7 @@ func get_will_not_hit_card_names(player_id : Enums.PlayerId) -> Array:
 	if player.cards_that_will_not_hit.size() > 0:
 		var card_db = get_card_database()
 		for card in player.cards_that_will_not_hit:
-			card_names += [card_db.get_card_name_by_card_definition_id(card)]
+			card_names.append(card_db.get_card_name_by_card_definition_id(card))
 	return card_names
 
 func get_buddy_name(player_id : Enums.PlayerId, buddy_id : String):

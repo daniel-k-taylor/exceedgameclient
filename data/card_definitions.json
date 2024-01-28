@@ -5984,7 +5984,7 @@
 				"timing": "before",
 				"effect_type": "choice",
 				"choice": [
-					{ 
+					{
 						"effect_type": "advance",
 						"amount": 3,
 						"and": {

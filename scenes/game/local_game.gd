@@ -1367,7 +1367,7 @@ class Player:
 		return required_force
 
 	func on_position_changed(old_pos, buddy_old_pos, is_self_move):
-		if is_self_move:
+		if is_self_move and parent.active_strike:
 			moved_self_this_strike = true
 		if arena_location == get_buddy_location():
 			if old_pos != buddy_old_pos:
@@ -3599,7 +3599,7 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 			# named_card is the individual card but
 			# this should match "by name", so instead of using that
 			# match card.definition['id']'s instead.
-			opposing_player.cards_that_will_not_hit += [named_card.definition['id']]
+			opposing_player.cards_that_will_not_hit.append(named_card.definition['id'])
 		"specials_invalid":
 			performing_player.specials_invalid = effect['enabled']
 		"speedup":
