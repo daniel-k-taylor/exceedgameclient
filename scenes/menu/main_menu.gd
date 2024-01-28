@@ -227,3 +227,6 @@ func cropLineToMaxLength(new_text : String, max_length: int) -> void:
 
 func _on_room_name_box_text_changed(new_text):
 	cropLineToMaxLength(new_text, RoomMaxLen)
+
+func _on_player_name_box_focus_entered():
+	$PlayerNameBox.select_all()
