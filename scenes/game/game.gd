@@ -793,6 +793,27 @@ func on_card_clicked(card : CardBase):
 			card.set_selected(false)
 		_update_buttons()
 
+func sort_player_hand(hand_zone):
+	# Only intended to be called for the player, not opponent.
+	var sorted_nodes = hand_zone.get_children()
+	sorted_nodes.sort_custom(
+		# For descending order use > 0
+		func(a: Node, b: Node):
+			assert(a is CardBase)
+			assert(b is CardBase)
+			var card_a = a as CardBase
+			var card_b = b as CardBase
+			var sort_key_a = game_wrapper.get_card_database().get_card_sort_key(card_a.card_id)
+			var sort_key_b = game_wrapper.get_card_database().get_card_sort_key(card_b.card_id)
+			return sort_key_a < sort_key_b
+	)
+
+	for node in hand_zone.get_children():
+		hand_zone.remove_child(node)
+
+	for node in sorted_nodes:
+		hand_zone.add_child(node)
+
 func layout_player_hand(is_player : bool):
 	var hand_zone = get_hand_zone(is_player)
 	var num_cards = len(hand_zone.get_children())
@@ -805,6 +826,7 @@ func layout_player_hand(is_player : bool):
 				var dst_pos = CenterCardOval + ovalAngleVector
 				card.set_resting_position(dst_pos, 0)
 			else:
+				sort_player_hand(hand_zone)
 				var min_angle = deg_to_rad(60)
 				var max_angle = deg_to_rad(120)
 				var max_angle_diff = deg_to_rad(10)
