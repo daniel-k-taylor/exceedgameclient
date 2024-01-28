@@ -8,19 +8,19 @@
 		"gauge_cost": 0,
 		"force_cost": 0,
 		"effect": {
-            "effect_type": "draw",
-            "amount": 2,
-            "and": {
-                "effect_type": "draw",
-                "opponent": true,
-                "amount": 1,
-                "and": {
-                    "effect_type": "choice",
-                    "choice": [
-                        { "effect_type": "advance", "amount": 1 },
-                        { "effect_type": "retreat", "amount": 1 }
-                    ]
-                }
+			"effect_type": "draw",
+			"amount": 2,
+			"and": {
+				"effect_type": "draw",
+				"opponent": true,
+				"amount": 1,
+				"and": {
+					"effect_type": "choice",
+					"choice": [
+						{ "effect_type": "advance", "amount": 1 },
+						{ "effect_type": "retreat", "amount": 1 }
+					]
+				}
 			}
 		}
 	}],
@@ -28,9 +28,10 @@
 		{
 			"gauge_cost": 0,
 			"force_cost": 0,
+			"can_continuous_boost_from_gauge": true,
 			"effect": {
-				"effect_type": "boost_from_gauge_TODO",
-                "limitation": "continuous"
+				"effect_type": "boost_from_gauge",
+				"limitation": "continuous"
 			}
 		},
 		{

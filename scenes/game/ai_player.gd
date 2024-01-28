@@ -250,11 +250,11 @@ func take_turn(game_logic : LocalGame, my_id : Enums.PlayerId):
 	update_ai_state(game_logic, me, opponent)
 	return ai_policy.pick_turn_action(possible_actions, game_state)
 
-func take_boost(game_logic : LocalGame, my_id : Enums.PlayerId, allow_gauge : bool, limitation : String) -> BoostAction:
+func take_boost(game_logic : LocalGame, my_id : Enums.PlayerId, allow_gauge : bool, only_gauge: bool, limitation : String) -> BoostAction:
 	var me = game_logic._get_player(my_id)
 	var opponent = game_logic._get_player(game_logic.get_other_player(my_id))
 	# Decide which action makes the most sense to take.
-	var possible_actions = get_boost_actions(game_logic, me, opponent, allow_gauge, limitation)
+	var possible_actions = get_boost_actions(game_logic, me, opponent, allow_gauge, only_gauge, limitation)
 	update_ai_state(game_logic, me, opponent)
 	return ai_policy.pick_boost_action(possible_actions, game_state)
 
@@ -266,7 +266,7 @@ func determine_possible_turn_actions(game_logic : LocalGame, me : LocalGame.Play
 	possible_actions += get_change_cards_actions(game_logic, me, opponent)
 	possible_actions += get_exceed_actions(game_logic, me, opponent)
 	possible_actions += get_reshuffle_actions(game_logic, me, opponent)
-	possible_actions += get_boost_actions(game_logic, me, opponent, false, "")
+	possible_actions += get_boost_actions(game_logic, me, opponent, false, false, "")
 	possible_actions += get_strike_actions(game_logic, me, opponent)
 	possible_actions += get_character_action_actions(game_logic, me, opponent)
 	return possible_actions
@@ -405,26 +405,27 @@ func get_boost_options_for_card(game_logic : LocalGame, me : LocalGame.Player, o
 
 	return choices
 
-func get_boost_actions(game_logic : LocalGame, me : LocalGame.Player, opponent : LocalGame.Player, allow_gauge : bool, limitation : String):
+func get_boost_actions(game_logic : LocalGame, me : LocalGame.Player, opponent : LocalGame.Player, allow_gauge : bool, only_gauge : bool, limitation : String):
 	var possible_actions = []
-	for card in me.hand:
-		if limitation and card.definition['boost']['boost_type'] != limitation:
-			continue
-		if does_boost_work(game_logic, me, opponent, card.id):
-			var cost = card.definition['boost']['force_cost']
-			if cost > 0:
-				var all_force_option_ids = []
-				for payment_card in me.hand:
-					all_force_option_ids.append(payment_card.id)
-				for payment_card in me.gauge:
-					all_force_option_ids.append(payment_card.id)
-				all_force_option_ids.erase(card.id)
-				var combinations = []
-				generate_force_combinations(game_logic, me,  all_force_option_ids, cost, [], 0, combinations)
-				for combo in combinations:
-					possible_actions.append(BoostAction.new(card.id, combo))
-			else:
-				possible_actions.append(BoostAction.new(card.id, []))
+	if not only_gauge:
+		for card in me.hand:
+			if limitation and card.definition['boost']['boost_type'] != limitation:
+				continue
+			if does_boost_work(game_logic, me, opponent, card.id):
+				var cost = card.definition['boost']['force_cost']
+				if cost > 0:
+					var all_force_option_ids = []
+					for payment_card in me.hand:
+						all_force_option_ids.append(payment_card.id)
+					for payment_card in me.gauge:
+						all_force_option_ids.append(payment_card.id)
+					all_force_option_ids.erase(card.id)
+					var combinations = []
+					generate_force_combinations(game_logic, me,  all_force_option_ids, cost, [], 0, combinations)
+					for combo in combinations:
+						possible_actions.append(BoostAction.new(card.id, combo))
+				else:
+					possible_actions.append(BoostAction.new(card.id, []))
 	if allow_gauge:
 		for card in me.gauge:
 			if limitation and card.definition['boost']['boost_type'] != limitation:

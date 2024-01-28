@@ -6000,7 +6000,7 @@
 			},
 			{
 				"timing": "after",
-				"condition": "TODO",
+				"comment": "condition: TODO",
 				"effect_type": "advance",
 				"amount": 3,
 				"and": {
@@ -6152,8 +6152,8 @@
 			"force_cost": 0,
 			"cancel_cost": -1,
 			"display_name": "Sidestep (Transparent Foe)",
+			"comment": "TODO",
 			"effects": [
-				"TODO",
 				{
 					"timing": "hit",
 					"effect_type": "gain_advantage"
