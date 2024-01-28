@@ -557,7 +557,7 @@ func test_carlclover_100():
 		game_teardown()
 		game_setup()
 	pass_test("Finished match")
-	
+
 func test_jin_100():
 	default_deck = CardDefinitions.get_deck_from_str_id("jin")
 	for i in range(RandomIterations):
@@ -683,7 +683,7 @@ func test_guile_100():
 		game_teardown()
 		game_setup()
 	pass_test("Finished match")
-	
+
 func test_ken_100():
 	default_deck = CardDefinitions.get_deck_from_str_id("ken")
 	for i in range(RandomIterations):

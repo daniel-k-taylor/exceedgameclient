@@ -1142,7 +1142,7 @@ class Player:
 		if reshuffle_remaining == 0:
 			# Game Over
 			parent._append_log("%s ran out of cards." % [name])
-			parent._append_log_full(Enums.LogType.LogType_Default, self, "is out of cards.")
+			parent._append_log_full(Enums.LogType.LogType_Default, self, "is out of cards!")
 			events += parent.trigger_game_over(my_id, Enums.GameOverReason.GameOverReason_Decked)
 		else:
 			# Reveal and remember remaining cards
@@ -2163,6 +2163,7 @@ func advance_to_next_turn():
 				})
 			active_overdrive = true
 			remaining_overdrive_effects = overdrive_effects
+			_append_log_full(Enums.LogType.LogType_Default, starting_turn_player, "'s Overdrive Effects!")
 			events += do_remaining_overdrive(starting_turn_player)
 		else:
 			_append_log("%s Turn Start" % [starting_turn_player.name])
@@ -2364,7 +2365,6 @@ func strike_determine_order():
 	var first_player_name = first_player.name
 	_append_log("%s %s activates first at speed %s vs speed %s." % [first_player_name, first_player_card, first_player_speed, second_player_speed])
 	_append_log_full(Enums.LogType.LogType_Strike, null, "%s has speed %s, %s has speed %s." % [active_strike.initiator.name, initiator_speed, active_strike.defender.name, defender_speed])
-	_append_log_full(Enums.LogType.LogType_Strike, first_player, "strikes first with %s!" % first_player_card)
 
 func do_effect_if_condition_met(performing_player : Player, card_id : int, effect, local_conditions : LocalStrikeConditions):
 	var events = []
@@ -3078,15 +3078,12 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 			_append_log("%s is now dodging attacks from opponents behind %s." % [performing_player.name, effect['buddy_name']])
 			_append_log_full(Enums.LogType.LogType_Effect, performing_player, "will dodge attacks from opponents behind %s!" % effect['buddy_name'])
 		"draw":
-<<<<<<< HEAD
 			if 'opponent' in effect and effect['opponent']:
 				events += opposing_player.draw(effect['amount'])
+				_append_log_full(Enums.LogType.LogType_CardInfo, opposing_player, "draws %s card(s)." % effect['amount'])
 			else:
 				events += performing_player.draw(effect['amount'])
-=======
-			_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "draws %s card(s)." % effect['amount'])
-			events += performing_player.draw(effect['amount'])
->>>>>>> b385c17 (More progress)
+				_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "draws %s card(s)." % effect['amount'])
 		"discard_continuous_boost":
 			var my_boosts = performing_player.continuous_boosts
 			var opponent_boosts = opposing_player.continuous_boosts
@@ -3526,35 +3523,29 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 				change_game_state(Enums.GameState.GameState_PlayerDecision)
 				events += [create_event(Enums.EventType.EventType_ChooseArenaLocationForEffect, performing_player.my_id, 0)]
 		"place_buddy_onto_opponent":
-<<<<<<< HEAD
 			var buddy_id = ""
 			if 'buddy_id' in effect:
 				buddy_id = effect['buddy_id']
+			var old_buddy_pos = performing_player.get_buddy_position(buddy_id)
+			var buddy_name = performing_player.get_buddy_name(buddy_id)
 			events += performing_player.place_buddy(opposing_player.arena_location, buddy_id)
-		"place_buddy_onto_self":
-			var buddy_id = ""
-			if 'buddy_id' in effect:
-				buddy_id = effect['buddy_id']
-			events += performing_player.place_buddy(performing_player.arena_location, buddy_id)
-=======
-			var old_buddy_pos = performing_player.get_buddy_position()
-			var buddy_name = performing_player.get_buddy_name()
-			events += performing_player.place_buddy(opposing_player.arena_location)
-			var space = performing_player.get_buddy_position()
+			var space = performing_player.get_buddy_position(buddy_id)
 			if old_buddy_pos == -1:
 				_append_log_full(Enums.LogType.LogType_CharacterMovement, performing_player, "moves %s to %s on space %s." % [buddy_name, opposing_player.name, str(space)])
 			else:
 				_append_log_full(Enums.LogType.LogType_CharacterMovement, performing_player, "moves %s to %s, from space %s to %s." % [buddy_name, opposing_player.name, str(old_buddy_pos), str(space)])
 		"place_buddy_onto_self":
-			var old_buddy_pos = performing_player.get_buddy_position()
-			var buddy_name = performing_player.get_buddy_name()
-			events += performing_player.place_buddy(performing_player.arena_location)
-			var space = performing_player.get_buddy_position()
+			var buddy_id = ""
+			if 'buddy_id' in effect:
+				buddy_id = effect['buddy_id']
+			var old_buddy_pos = performing_player.get_buddy_position(buddy_id)
+			var buddy_name = performing_player.get_buddy_name(buddy_id)
+			events += performing_player.place_buddy(performing_player.arena_location, buddy_id)
+			var space = performing_player.get_buddy_position(buddy_id)
 			if old_buddy_pos == -1:
 				_append_log_full(Enums.LogType.LogType_CharacterMovement, performing_player, "moves %s to themselves on space %s." % [buddy_name, str(space)])
 			else:
 				_append_log_full(Enums.LogType.LogType_CharacterMovement, performing_player, "moves %s to themselves, from space %s to %s." % [buddy_name, str(old_buddy_pos), str(space)])
->>>>>>> b385c17 (More progress)
 		"powerup":
 			var amount = effect['amount']
 			if str(amount) == "strike_x":
@@ -3985,6 +3976,7 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 			_append_log_full(Enums.LogType.LogType_Health, performing_player, "spends %s life, bringing them to %s!" % [str(amount), str(performing_player.life)])
 			if performing_player.life <= 0:
 				_append_log("%s is defeated." % [performing_player.name])
+				_append_log_full(Enums.LogType.LogType_Default, performing_player, "has no life remaining!")
 				events += trigger_game_over(performing_player.my_id, Enums.GameOverReason.GameOverReason_Life)
 		"strike":
 			events += [create_event(Enums.EventType.EventType_ForceStartStrike, performing_player.my_id, 0)]
@@ -4108,10 +4100,10 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 			events += [create_event(Enums.EventType.EventType_Strike_TookDamage, damaged_player.my_id, unmitigated_damage, "", damaged_player.life)]
 			if used_armor > 0:
 				_append_log("%s takes %s non-lethal damage (%s blocked by armor). Life is now %s." % [damaged_player.name, str(used_armor), str(unmitigated_damage), str(damaged_player.life)])
-				_append_log_full(Enums.LogType.LogType_Health, damaged_player, "takes %s non-lethal damage (%s blocked by armor), bringing them to %s!" % [str(unmitigated_damage), str(used_armor), str(damaged_player.life)])
+				_append_log_full(Enums.LogType.LogType_Health, damaged_player, "takes %s non-lethal damage (%s blocked by armor), bringing them to %s life!" % [str(unmitigated_damage), str(used_armor), str(damaged_player.life)])
 			else:
 				_append_log("%s takes %s non-lethal damage. Life is now %s." % [damaged_player.name, str(unmitigated_damage), str(damaged_player.life)])
-				_append_log_full(Enums.LogType.LogType_Health, damaged_player, "takes %s non-lethal damage, bringing them to %s!" % [str(unmitigated_damage), str(damaged_player.life)])
+				_append_log_full(Enums.LogType.LogType_Health, damaged_player, "takes %s non-lethal damage, bringing them to %s life!" % [str(unmitigated_damage), str(damaged_player.life)])
 			if active_strike:
 				active_strike.add_damage_taken(damaged_player, damage)
 				events += check_for_stun(damaged_player, false)
@@ -4416,6 +4408,7 @@ func do_remaining_overdrive(performing_player : Player):
 
 	if game_state != Enums.GameState.GameState_PlayerDecision:
 		_append_log("%s Turn Start" % [performing_player.name])
+		_append_log_full(Enums.LogType.LogType_Default, performing_player, "'s Turn Start!")
 		active_overdrive = false
 		change_game_state(Enums.GameState.GameState_PickAction)
 		events += [create_event(Enums.EventType.EventType_AdvanceTurn, active_turn_player, 0)]
@@ -4560,23 +4553,29 @@ func is_location_in_range(attacking_player, card, test_location : int):
 		return true
 	return false
 
-func in_range(attacking_player, defending_player, card):
+func in_range(attacking_player, defending_player, card, combat_logging=false):
 	if attacking_player.strike_stat_boosts.attack_does_not_hit:
 		return false
 	if defending_player.strike_stat_boosts.dodge_attacks:
+		if combat_logging:
+			_append_log_full(Enums.LogType.LogType_Effect, defending_player, "is dodging attacks!")
 		return false
 
 	if defending_player.strike_stat_boosts.dodge_from_opposite_buddy and defending_player.is_buddy_in_play():
 		var pos1 = defending_player.arena_location
 		var pos2 = attacking_player.arena_location
 		var buddy_pos = defending_player.get_buddy_location()
+		var dodging = false
 		if pos1 < pos2: # opponent is on the right
 			if buddy_pos > pos1 and buddy_pos < pos2:
-				return false
+				dodging = true
 		else: # opponent is on the left
 			if buddy_pos > pos2 and buddy_pos < pos1:
-				return false
-
+				dodging = true
+		if dodging:
+			if combat_logging:
+				_append_log_full(Enums.LogType.LogType_Effect, defending_player, "dodges attacks from behind %s!" % defending_player.get_buddy_name())
+			return false
 
 	var attack_source_location = attacking_player.arena_location
 	if attacking_player.strike_stat_boosts.calculate_range_from_buddy:
@@ -4587,17 +4586,27 @@ func in_range(attacking_player, defending_player, card):
 	var opponent_in_range = is_location_in_range(attacking_player, card, defending_player.arena_location)
 
 	if defending_player.strike_stat_boosts.dodge_at_range_min != -1:
+		var dodge_range_string = str(defending_player.strike_stat_boosts.dodge_at_range_min)
+		if defending_player.strike_stat_boosts.dodge_at_range_max != defending_player.strike_stat_boosts.dodge_at_range_min:
+			dodge_range_string += "-%s" % str(defending_player.strike_stat_boosts.dodge_at_range_max)
+
 		if defending_player.strike_stat_boosts.dodge_at_range_from_buddy:
 			var buddy_distance = abs(attack_source_location - defending_player.get_buddy_location())
 			if defending_player.strike_stat_boosts.dodge_at_range_min <= buddy_distance and buddy_distance <= defending_player.strike_stat_boosts.dodge_at_range_max:
+				if combat_logging:
+					_append_log_full(Enums.LogType.LogType_Effect, defending_player, "is dodging attacks at range %s from %s!" % [dodge_range_string, defending_player.get_buddy_name()])
 				return false
 		else:
 			if defending_player.strike_stat_boosts.dodge_at_range_min <= distance and distance <= defending_player.strike_stat_boosts.dodge_at_range_max:
+				if combat_logging:
+					_append_log_full(Enums.LogType.LogType_Effect, defending_player, "is dodging attacks at range %s!" % dodge_range_string)
 				return false
 	if defending_player.strike_stat_boosts.higher_speed_misses:
 		var attacking_speed = calculate_speed(attacking_player, active_strike.get_player_card(attacking_player))
 		var defending_speed = calculate_speed(defending_player, active_strike.get_player_card(defending_player))
 		if attacking_speed > defending_speed:
+			if combat_logging:
+				_append_log_full(Enums.LogType.LogType_Effect, defending_player, "is dodging higher speed attacks!")
 			return false
 	return opponent_in_range
 
@@ -4624,16 +4633,20 @@ func check_for_stun(check_player : Player, ignore_guard : bool):
 	var total_damage = active_strike.get_damage_taken(check_player)
 	var defense_card = active_strike.get_player_card(check_player)
 	var guard = get_card_stat(check_player, defense_card, 'guard') + check_player.strike_stat_boosts.guard
+	_append_log_full(Enums.LogType.LogType_Strike, null, "Stun check: %s total damage vs %s guard." % [total_damage, guard])
 	if ignore_guard:
+		_append_log_full(Enums.LogType.LogType_Strike, _get_player(get_other_player(check_player.my_id)), "ignores Guard!")
 		guard = 0
 
 	guard = max(guard, 0)
 	if total_damage > guard:
 		if check_player.strike_stat_boosts.stun_immunity:
 			_append_log("%s has stun immunity." % [check_player.name])
+			_append_log_full(Enums.LogType.LogType_Strike, check_player, "has stun immunity!")
 			events += [create_event(Enums.EventType.EventType_Strike_Stun_Immunity, check_player.my_id, defense_card.id)]
 		else:
 			_append_log("%s is stunned." % [check_player.name])
+			_append_log_full(Enums.LogType.LogType_Strike, check_player, "is stunned!")
 			events += [create_event(Enums.EventType.EventType_Strike_Stun, check_player.my_id, defense_card.id)]
 			active_strike.set_player_stunned(check_player)
 
@@ -4661,15 +4674,19 @@ func apply_damage(offense_player : Player, defense_player : Player, offense_card
 	_append_log("%s %s has %s total power." % [offense_player.name, card_db.get_card_name(offense_card.id), str(power)])
 	_append_log("%s %s has %s total armor and %s total guard." % [defense_player.name, card_db.get_card_name(defense_card.id), str(armor), str(guard)])
 	_append_log("%s takes %s damage. Life is now %s." % [defense_player.name, str(damage_after_armor), str(defense_player.life)])
+	_append_log_full(Enums.LogType.LogType_Strike, null, "Damage calculation: %s total power vs %s total armor." % [str(power), str(armor)])
+	_append_log_full(Enums.LogType.LogType_Health, defense_player, "takes %s damage, bringing them to %s life!" % [str(damage_after_armor), str(defense_player.life)])
 
 	active_strike.add_damage_taken(defense_player, damage_after_armor)
 	if offense_player.strike_stat_boosts.cannot_stun:
 		_append_log("%s %s cannot stun." % [offense_player.name, card_db.get_card_name(offense_card.id)])
+		_append_log_full(Enums.LogType.LogType_Strike, offense_player, "'s attack cannot stun!")
 	else:
 		events += check_for_stun(defense_player, offense_player.strike_stat_boosts.ignore_guard)
 
 	if defense_player.life <= 0:
 		_append_log("%s is defeated." % [defense_player.name])
+		_append_log_full(Enums.LogType.LogType_Default, defense_player, "has no life remaining!")
 		events += trigger_game_over(defense_player.my_id, Enums.GameOverReason.GameOverReason_Life)
 	return events
 
@@ -4716,8 +4733,10 @@ func ask_for_cost(performing_player, card, next_state):
 				decision_info.limitation = "force"
 				decision_info.cost = force_cost
 				events += [create_event(Enums.EventType.EventType_Strike_PayCost_Force, performing_player.my_id, card.id)]
+			_append_log_full(Enums.LogType.LogType_Strike, performing_player, "is selecting cards to pay the %s cost." % decision_info.limitation)
 		else:
 			# Failed to pay the cost by default.
+			_append_log_full(Enums.LogType.LogType_Strike, performing_player, "cannot validate %s, so they wild swing." % card.definition['display_name'])
 			events += performing_player.invalidate_card(card)
 			events += performing_player.add_to_discards(card)
 			if performing_player == active_strike.initiator:
@@ -4736,9 +4755,11 @@ func ask_for_cost(performing_player, card, next_state):
 				if game_over:
 					return events
 				new_wild_card = active_strike.get_player_card(performing_player)
+				_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "wild swings %s!" % new_wild_card.definition['display_name'])
 				is_special = new_wild_card.definition['type'] == "special"
 				card_forced_invalid = (is_special and performing_player.specials_invalid)
 				if card_forced_invalid:
+					_append_log_full(Enums.LogType.LogType_Strike, performing_player, "'s specials are invalid, so they wild swing.")
 					events += performing_player.invalidate_card(new_wild_card)
 					events += performing_player.add_to_discards(new_wild_card)
 					new_wild_card = null
@@ -4773,13 +4794,16 @@ func log_boosts_in_play():
 		for i in range(1, active_strike.initiator.continuous_boosts.size()):
 			var card = active_strike.initiator.continuous_boosts[i]
 			card_names += ", " + card_db.get_card_name(card.id)
+		_append_log_full(Enums.LogType.LogType_Strike, active_strike.initiator, "has active continuous boosts: %s" % card_names)
 	_append_log("%s boosts in play: %s" % [active_strike.initiator.name, card_names])
+
 	card_names = "None"
 	if len(active_strike.defender.continuous_boosts) > 0:
 		card_names = card_db.get_card_name(active_strike.defender.continuous_boosts[0].id)
 		for i in range(1, active_strike.defender.continuous_boosts.size()):
 			var card = active_strike.defender.continuous_boosts[i]
 			card_names += ", " + card_db.get_card_name(card.id)
+		_append_log_full(Enums.LogType.LogType_Strike, active_strike.defender, "has active continuous boosts: %s" % card_names)
 	_append_log("%s boosts in play: %s" % [active_strike.defender.name, card_names])
 
 func continue_resolve_strike(events):
@@ -4819,34 +4843,44 @@ func continue_resolve_strike(events):
 				# Ask player to pay for this card if applicable.
 				events += ask_for_cost(active_strike.defender, active_strike.defender_card, StrikeState.StrikeState_DuringStrikeBonuses)
 			StrikeState.StrikeState_DuringStrikeBonuses:
+				_append_log_full(Enums.LogType.LogType_Strike, active_strike.initiator, "initiated with %s; %s responded with %s." % [active_strike.initiator_card.definition['display_name'], active_strike.defender.name, active_strike.defender_card.definition['display_name']])
 				log_boosts_in_play()
 				events += do_effects_for_timing("during_strike", active_strike.initiator, active_strike.initiator_card, StrikeState.StrikeState_DuringStrikeBonuses)
 				# Should never be interrupted by player decisions.
 				events += do_effects_for_timing("during_strike", active_strike.defender, active_strike.defender_card, StrikeState.StrikeState_Card1_Activation)
 				strike_determine_order()
 			StrikeState.StrikeState_Card1_Activation:
-				_append_log("%s %s activates." % [player1.name, card_db.get_card_name(card1.id)])
+				var card_name = card_db.get_card_name(card1.id)
+				_append_log("%s %s activates." % [player1.name, card_name])
+				_append_log_full(Enums.LogType.LogType_Strike, player1, "strikes first with %s!" % card_name)
 				events += [create_event(Enums.EventType.EventType_Strike_CardActivation, active_strike.get_player(1).my_id, card1.id)]
 				active_strike.strike_state = StrikeState.StrikeState_Card1_Before
 				active_strike.remaining_effect_list = get_all_effects_for_timing("before", player1, card1)
 			StrikeState.StrikeState_Card1_Before:
 				events += do_remaining_effects(player1, StrikeState.StrikeState_Card1_DetermineHit)
 			StrikeState.StrikeState_Card1_DetermineHit:
+				var card_name = card_db.get_card_name(card1.id)
 				if player1.strike_stat_boosts.calculate_range_from_buddy:
 					var buddy_location = player1.get_buddy_location(player1.strike_stat_boosts.calculate_range_from_buddy_id)
 					_append_log("Range Check: %s's %s (%s) vs %s (%s)." % [player1.name, player1.get_buddy_name(), buddy_location, player2.name, player2.arena_location])
+					_append_log_full(Enums.LogType.LogType_Strike, null, "Range check: attacking from %s's %s (space %s) to %s (space %s)." % [player1.name, player1.get_buddy_name(), buddy_location, player2.name, player2.arena_location])
 				else:
 					_append_log("Range Check: %s (%s) vs %s (%s)." % [player1.name, player1.arena_location, player2.name, player2.arena_location])
-				if in_range(player1, player2, card1) and not card1.definition['id'] in player1.cards_that_will_not_hit:
-					_append_log("%s %s hits." % [player1.name, card_db.get_card_name(card1.id)])
+					_append_log_full(Enums.LogType.LogType_Strike, null, "Range check: attacking from %s (space %s) to %s (space %s)." % [player1.name, player1.arena_location, player2.name, player2.arena_location])
+				if in_range(player1, player2, card1, true) and not card1.definition['id'] in player1.cards_that_will_not_hit:
+					_append_log("%s %s hits." % [player1.name, card_name])
+					_append_log_full(Enums.LogType.LogType_Strike, player1, "hits with %s!" % card_name)
 					active_strike.player1_hit = true
 					active_strike.strike_state = StrikeState.StrikeState_Card1_Hit
 					active_strike.remaining_effect_list = get_all_effects_for_timing("hit", player1, card1)
 				else:
 					var extra_details = ""
+					var extra_details_full = ""
 					if card1.definition['id'] in player1.cards_that_will_not_hit:
 						extra_details = " (this was the named card)"
-					_append_log("%s %s misses%s." % [player1.name, card_db.get_card_name(card1.id), extra_details])
+						extra_details_full = "the named card "
+					_append_log("%s %s misses%s." % [player1.name, card_name, extra_details])
+					_append_log_full(Enums.LogType.LogType_Strike, player1, "misses with %s%s!" % [extra_details_full, card_name])
 					events += [create_event(Enums.EventType.EventType_Strike_Miss, player1.my_id, 0)]
 					active_strike.strike_state = StrikeState.StrikeState_Card1_After
 					active_strike.remaining_effect_list = get_all_effects_for_timing("after", player1, card1)
@@ -4864,32 +4898,42 @@ func continue_resolve_strike(events):
 			StrikeState.StrikeState_Card1_After:
 				events += do_remaining_effects(player1, StrikeState.StrikeState_Card2_Activation)
 			StrikeState.StrikeState_Card2_Activation:
+				var card_name = card_db.get_card_name(card2.id)
 				if active_strike.player2_stunned:
-					_append_log("%s is stunned. %s does not activate." % [player2.name, card_db.get_card_name(card2.id)])
+					_append_log("%s is stunned. %s does not activate." % [player2.name, card_name])
+					_append_log_full(Enums.LogType.LogType_Strike, player2, "is stunned, so %s does not activate!" % card_name)
 					active_strike.strike_state = StrikeState.StrikeState_Cleanup
 				else:
 					_append_log("%s %s activates." % [player2.name, card_db.get_card_name(card2.id)])
+					_append_log_full(Enums.LogType.LogType_Strike, player2, "responds with %s!" % card_name)
 					events += [create_event(Enums.EventType.EventType_Strike_CardActivation, active_strike.get_player(2).my_id, card2.id)]
 					active_strike.strike_state = StrikeState.StrikeState_Card2_Before
 					active_strike.remaining_effect_list = get_all_effects_for_timing("before", player2, card2)
 			StrikeState.StrikeState_Card2_Before:
 				events += do_remaining_effects(player2, StrikeState.StrikeState_Card2_DetermineHit)
 			StrikeState.StrikeState_Card2_DetermineHit:
+				var card_name = card_db.get_card_name(card2.id)
 				if player2.strike_stat_boosts.calculate_range_from_buddy:
 					var buddy_location = player2.get_buddy_location(player2.strike_stat_boosts.calculate_range_from_buddy_id)
 					_append_log("Range Check: %s's %s (%s) vs %s (%s)." % [player2.name, player2.get_buddy_name(), buddy_location, player1.name, player1.arena_location])
+					_append_log_full(Enums.LogType.LogType_Strike, null, "Range check: attacking from %s's %s (space %s) to %s (space %s)." % [player2.name, player2.get_buddy_name(), buddy_location, player1.name, player1.arena_location])
 				else:
 					_append_log("Range Check: %s (%s) vs %s (%s)." % [player2.name, player2.arena_location, player1.name, player1.arena_location])
-				if in_range(player2, player1, card2) and not card2.definition['id'] in player2.cards_that_will_not_hit:
-					_append_log("%s %s hits." % [player2.name, card_db.get_card_name(card2.id)])
+					_append_log_full(Enums.LogType.LogType_Strike, null, "Range check: attacking from %s (space %s) to %s (space %s)." % [player2.name, player2.arena_location, player1.name, player1.arena_location])
+				if in_range(player2, player1, card2, true) and not card2.definition['id'] in player2.cards_that_will_not_hit:
+					_append_log("%s %s hits." % [player2.name, card_name])
+					_append_log_full(Enums.LogType.LogType_Strike, player2, "hits with %s!" % card_name)
 					active_strike.player2_hit = true
 					active_strike.strike_state = StrikeState.StrikeState_Card2_Hit
 					active_strike.remaining_effect_list = get_all_effects_for_timing("hit", player2, card2)
 				else:
 					var extra_details = ""
+					var extra_details_full = ""
 					if card2.definition['id'] in player2.cards_that_will_not_hit:
 						extra_details = " (this was the named card)"
-					_append_log("%s %s misses%s." % [player2.name, card_db.get_card_name(card2.id), extra_details])
+						extra_details_full = "the named card "
+					_append_log("%s %s misses%s." % [player2.name, card_name, extra_details])
+					_append_log_full(Enums.LogType.LogType_Strike, player2, "misses with %s%s!" % [extra_details_full, card_name])
 					events += [create_event(Enums.EventType.EventType_Strike_Miss, player2.my_id, 0)]
 					active_strike.strike_state = StrikeState.StrikeState_Card2_After
 					active_strike.remaining_effect_list = get_all_effects_for_timing("after", player2, card2)
@@ -4907,6 +4951,7 @@ func continue_resolve_strike(events):
 			StrikeState.StrikeState_Card2_After:
 				events += do_remaining_effects(player2, StrikeState.StrikeState_Cleanup)
 			StrikeState.StrikeState_Cleanup:
+				_append_log_full(Enums.LogType.LogType_Strike, null, "Starting strike cleanup.")
 				active_strike.strike_state = StrikeState.StrikeState_Cleanup_Player1Effects
 				active_strike.remaining_effect_list = get_all_effects_for_timing("cleanup", player1, card1)
 			StrikeState.StrikeState_Cleanup_Player1Effects:
@@ -4956,29 +5001,39 @@ func handle_strike_attack_cleanup(performing_player : Player, card):
 	if active_strike.get_player(2) == performing_player:
 		hit = active_strike.player2_hit
 	var other_player = _get_player(get_other_player(performing_player.my_id))
+	var card_name = card.definition['display_name']
+
 	if performing_player.is_set_aside_card(card.id):
+		_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "sets aside their attack %s." % card_name)
 		events += [create_event(Enums.EventType.EventType_SetCardAside, performing_player.my_id, card.id)]
 	elif performing_player.strike_stat_boosts.seal_attack_on_cleanup:
-		# TODO: make sure to log seal
+		_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "seals their attack %s." % card_name)
 		var seal_effect = { "effect_type": "seal_card_INTERNAL", "seal_card_id": card.id, "source": "" }
 		events += handle_strike_effect(-1, seal_effect, performing_player)
 	elif performing_player.strike_stat_boosts.return_attack_to_hand:
+		_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "returns their attack %s to their hand." % card_name)
 		events += performing_player.add_to_hand(card)
 	elif performing_player.strike_stat_boosts.move_strike_to_opponent_boosts:
+		_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "'s attack %s is set as a continuous boost for %s." % [card_name, other_player.name])
 		events += other_player.add_to_continuous_boosts(card)
 		other_player.sustained_boosts.append(card.id)
 	elif performing_player.strike_stat_boosts.move_strike_to_boosts:
+		_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "'s attack is set as a continuous boost." % card_name)
 		events += performing_player.add_to_continuous_boosts(card)
 		performing_player.sustained_boosts.append(card.id)
 	elif performing_player.strike_stat_boosts.attack_to_topdeck_on_cleanup:
+		_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "returns their attack %s to the top of their deck." % card_name)
 		events += performing_player.add_to_top_of_deck(card)
 	elif performing_player.strike_stat_boosts.discard_attack_on_cleanup:
+		_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "discards their attack %s." % card_name)
 		events += performing_player.add_to_discards(card)
 	elif hit or stat_boosts.always_add_to_gauge:
 		_append_log("%s %s goes to gauge after the attack." % [performing_player.name, card_db.get_card_name(card.id)])
+		_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "adds their attack %s to gauge." % card_name)
 		events += performing_player.add_to_gauge(card)
 	else:
 		_append_log("%s %s discarded after the attack." % [performing_player.name, card_db.get_card_name(card.id)])
+		_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "discards their attack %s." % card_name)
 		events += performing_player.add_to_discards(card)
 
 	return events
@@ -5078,16 +5133,22 @@ func boost_finish_resolving_card(performing_player : Player):
 
 		if performing_player.sustain_next_boost:
 			performing_player.sustained_boosts.append(active_boost.card.id)
+			_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "set and sustained %s as a continuous boost." % active_boost.card.definition['boost']['display_name'])
+		else:
+			_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "set %s as a continuous boost." % active_boost.card.definition['boost']['display_name'])
 	else:
 		if active_boost.seal_on_cleanup:
-			# TODO: make sure to log seal
+			_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "seals the boosted card %s." % active_boost.card.definition['display_name'])
 			var seal_effect = { "effect_type": "seal_card_INTERNAL", "seal_card_id": active_boost.card.id, "source": "" }
 			events += handle_strike_effect(-1, seal_effect, performing_player)
 		elif active_boost.card.id in active_boost.cleanup_to_gauge_card_ids:
+			_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "adds the boosted card %s to gauge." % active_boost.card.definition['display_name'])
 			events += performing_player.add_to_gauge(active_boost.card)
 		elif active_boost.card.id in active_boost.cleanup_to_hand_card_ids:
+			_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "returns the boosted card %s to hand." % active_boost.card.definition['display_name'])
 			events += performing_player.add_to_hand(active_boost.card)
 		else:
+			_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "discards the boosted card %s." % active_boost.card.definition['display_name'])
 			events += performing_player.add_to_discards(active_boost.card)
 
 	performing_player.sustain_next_boost = false
@@ -5237,8 +5298,13 @@ func check_hand_size_advance_turn(performing_player : Player):
 		change_game_state(Enums.GameState.GameState_PickAction)
 		performing_player.bonus_actions -= 1
 		_append_log("%s Taking Bonus Action (%s left)" % [performing_player.name, performing_player.bonus_actions])
+		if performing_player.bonus_actions == 0:
+			_append_log_full(Enums.LogType.LogType_Action, performing_player, "takes an additional action!")
+		else:
+			_append_log_full(Enums.LogType.LogType_Action, performing_player, "takes an additional action! (%s left)" % performing_player.bonus_actions)
 		events += [create_event(Enums.EventType.EventType_Boost_ActionAfterBoost, performing_player.my_id, performing_player.bonus_actions)]
 	else:
+		_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "draws for end of turn. Their hand size is now %s." % len(performing_player.hand))
 		events += performing_player.draw(1)
 		if len(performing_player.hand) > performing_player.max_hand_size:
 			change_game_state(Enums.GameState.GameState_DiscardDownToMax)
@@ -5255,6 +5321,8 @@ func do_prepare(performing_player) -> bool:
 
 	var events : Array = []
 	events += [create_event(Enums.EventType.EventType_Prepare, performing_player.my_id, 0)]
+	_append_log_full(Enums.LogType.LogType_Action, performing_player, "Turn Action: Prepare")
+	_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "draws a card.")
 	events += performing_player.draw(1)
 	_append_log("%s Turn Action - Prepare - Now %s cards in hand." % [performing_player.name, str(performing_player.hand.size())])
 	events += check_hand_size_advance_turn(performing_player)
@@ -5284,6 +5352,7 @@ func do_discard_to_max(performing_player : Player, card_ids) -> bool:
 	for i in range(1, card_ids.size()):
 		card_names += ", " + card_db.get_card_name(card_ids[i])
 	_append_log("%s discarded %s to get to max hand size." % [performing_player.name, card_names])
+	_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "discards down to their max hand size: %s." % card_names)
 
 	var events = performing_player.discard(card_ids)
 	events += advance_to_next_turn()
@@ -5298,6 +5367,7 @@ func do_reshuffle(performing_player : Player) -> bool:
 		return false
 
 	_append_log("%s Turn Action - Manual Reshuffle." % [performing_player.name])
+	_append_log_full(Enums.LogType.LogType_Action, performing_player, "Turn Action: Manual Reshuffle")
 	var events = performing_player.reshuffle_discard(true)
 	events += check_hand_size_advance_turn(performing_player)
 	event_queue += events
@@ -5330,6 +5400,7 @@ func do_move(performing_player : Player, card_ids, new_arena_location) -> bool:
 		return false
 
 	var events = performing_player.discard(card_ids)
+	var old_location = performing_player.arena_location
 	events += performing_player.move_to(new_arena_location)
 	var card_names = ""
 	if card_ids.size() > 0:
@@ -5338,6 +5409,10 @@ func do_move(performing_player : Player, card_ids, new_arena_location) -> bool:
 			card_names += ", " + card_db.get_card_name(card_ids[i])
 	else:
 		card_names = "passive bonus"
+	_append_log_full(Enums.LogType.LogType_Action, performing_player, "Turn Action: Move")
+	if len(card_ids) > 0:
+		_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "generates force to move by discarding %s." % card_names)
+	_append_log_full(Enums.LogType.LogType_CharacterMovement, performing_player, "moves from space %s to %s." % [str(old_location), str(new_arena_location)])
 	_append_log("%s Turn Action - Move - to position %s by generating force with %s." % [performing_player.name, str(new_arena_location), card_names])
 	events += check_hand_size_advance_turn(performing_player)
 	event_queue += events
@@ -5369,6 +5444,13 @@ func do_change(performing_player : Player, card_ids) -> bool:
 	if performing_player.guile_change_cards_bonus and has_card_from_gauge and performing_player.exceeded:
 		can_strike_after_change = true
 
+	_append_log_full(Enums.LogType.LogType_Action, performing_player, "Turn Action: Change Cards")
+	if len(card_ids) > 0:
+		var card_names = card_db.get_card_names(card_ids)
+		_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "generates force by discarding %s." % card_names)
+	else:
+		_append_log_full(Enums.LogType.LogType_Effect, performing_player, "generates %s force." % force_generated)
+	_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "draws %s card(s)." % force_generated)
 	events += performing_player.draw(force_generated)
 	_append_log("%s Turn Action - Change Cards - for %s and now has %s cards." % [performing_player.name, str(force_generated), str(performing_player.hand.size())])
 
@@ -5417,7 +5499,10 @@ func do_exceed(performing_player : Player, card_ids : Array) -> bool:
 	if performing_player.has_overdrive:
 		events = performing_player.add_to_overdrive(card_ids)
 	else:
+		var card_names = card_db.get_card_names(card_ids)
+		_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "spends %s cards from gauge: %s" % card_names)
 		events = performing_player.discard(card_ids)
+
 	events += performing_player.exceed()
 	if game_state == Enums.GameState.GameState_AutoStrike:
 		# Draw the set aside card.
