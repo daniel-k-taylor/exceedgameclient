@@ -61,14 +61,21 @@ func _full_log_item_to_string(log_item):
 	var log_player = log_item['log_player']
 	var message = log_item['message']
 	var prefix = ""
+
+	var prefix_symbol = ""
 	if log_type == Enums.LogType.LogType_Default:
-		prefix += "***"
+		prefix_symbol += "**"
+	if log_type == Enums.LogType.LogType_Action:
+		prefix_symbol += "*"
+
 	if log_player != null:
 		if log_player == player:
-			prefix = "[color=%s]" % log_player_color
+			prefix += "[color=%s]" % log_player_color
 		if log_player == opponent:
-			prefix = "[color=%s]" % log_opponent_color
-		prefix += "%s[/color] " % log_player.name
+			prefix += "[color=%s]" % log_opponent_color
+		prefix += "%s%s[/color] " % [prefix_symbol, log_player.name]
+	else:
+		prefix = prefix_symbol
 	return prefix + message
 
 func _append_log(text):
