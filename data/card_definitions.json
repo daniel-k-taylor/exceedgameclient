@@ -11511,7 +11511,7 @@
 		"force_cost": 0,
 		"gauge_cost": 0,
 		"range_min": 1,
-		"range_max": 1,
+		"range_max": 2,
 		"speed": 5,
 		"power": 2,
 		"armor": 0,
