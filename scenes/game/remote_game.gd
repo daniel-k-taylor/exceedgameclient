@@ -17,6 +17,9 @@ func get_latest_events() -> Array:
 func get_combat_log() -> String:
 	return local_game.get_combat_log()
 
+func get_full_combat_log(log_filters) -> String:
+	return local_game.get_full_combat_log(log_filters)
+
 func _get_player(id):
 	return local_game._get_player(id)
 

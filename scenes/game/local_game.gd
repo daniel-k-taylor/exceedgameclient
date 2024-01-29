@@ -2805,6 +2805,7 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 				decision_info.limitation = effect['limitation']
 			else:
 				_append_log("%s has no legal gauge cards available to boost." % [performing_player.name])
+				_append_log_full(Enums.LogType.LogType_Effect, performing_player, "has no valid cards in gauge to boost with.")
 		"boost_this_then_sustain":
 			var card_name = card_db.get_card_name(card_id)
 			_append_log_full(Enums.LogType.LogType_Effect, performing_player, "boosts and sustains %s." % card_name)
@@ -2826,9 +2827,9 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 				performing_player.sustain_next_boost = true
 				performing_player.cancel_blocked_this_turn = true
 			else:
-				if len(performing_player.hand) == 0: # Avoid leaking information
+				if len(performing_player.hand) == 0 or only_gauge: # Avoid leaking information
 					_append_log("%s has no cards available to boost." % [performing_player.name])
-					_append_log_full(Enums.LogType.LogType_Effect, performing_player, "has no cards to boost with.")
+					_append_log_full(Enums.LogType.LogType_Effect, performing_player, "has no cards available to boost.")
 		"boost_then_sustain_topdeck":
 			if performing_player.deck.size() > 0:
 				performing_player.cancel_blocked_this_turn = true
@@ -2867,9 +2868,9 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 				decision_info.limitation = effect['limitation']
 				performing_player.strike_on_boost_cleanup = true
 			else:
-				if len(performing_player.hand) == 0: # Avoid leaking information
+				if len(performing_player.hand) == 0 or only_gauge: # Avoid leaking information
 					_append_log("%s has no cards available to boost." % [performing_player.name])
-					_append_log_full(Enums.LogType.LogType_Effect, performing_player, "has no cards to boost with.")
+					_append_log_full(Enums.LogType.LogType_Effect, performing_player, "has no cards available to boost.")
 				events += [create_event(Enums.EventType.EventType_ForceStartStrike, performing_player.my_id, 0)]
 				change_game_state(Enums.GameState.GameState_WaitForStrike)
 				decision_info.type = Enums.DecisionType.DecisionType_StrikeNow
@@ -3167,6 +3168,8 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 				},
 				opposing_player
 			)
+			var buddy_name = opposing_player.get_buddy_name(effect['buddy_to_remove'])
+			_append_log_full(Enums.LogType.LogType_Effect, performing_player, "flips %s, missing %s." % [buddy_name, opposing_player.name])
 		"force_costs_reduced_passive":
 			performing_player.free_force += effect['amount']
 			_append_log_full(Enums.LogType.LogType_Effect, performing_player, "now has their force costs reduced by %s!" % performing_player.free_force)
