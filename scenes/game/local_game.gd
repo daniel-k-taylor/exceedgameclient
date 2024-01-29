@@ -721,7 +721,7 @@ class Player:
 	func shuffle_sealed_to_deck():
 		var events = []
 		var card_names = parent._card_list_to_string(sealed)
-		if card_names != "":
+		if card_names:
 			parent._append_log_full(Enums.LogType.LogType_CardInfo, self, "shuffles their sealed area into their deck, containing %s." % card_names)
 		else:
 			parent._append_log_full(Enums.LogType.LogType_Effect, self, "has no sealed cards to shuffle into their deck.")
@@ -810,7 +810,7 @@ class Player:
 	func return_all_cards_gauge_to_hand():
 		var events = []
 		var card_names = parent._card_list_to_string(gauge)
-		if card_names != "":
+		if card_names:
 			parent._append_log_full(Enums.LogType.LogType_CardInfo, self, "adds their gauge to their hand, containing %s." % card_names)
 		for card in gauge:
 			events += add_to_hand(card)
@@ -1201,7 +1201,7 @@ class Player:
 	func add_to_overdrive(card_ids : Array):
 		var events = []
 		var card_names = parent.card_db.get_card_names(card_ids)
-		if card_names != "":
+		if card_names:
 			parent._append_log_full(Enums.LogType.LogType_CardInfo, self, "moves cards from gauge to overdrive: %s." % card_names)
 		for card_id in card_ids:
 			for i in range(len(gauge)-1, -1, -1):
@@ -1241,7 +1241,7 @@ class Player:
 		for card in hand:
 			card_ids.append(card.id)
 		var card_names = parent.card_db.get_card_names(card_ids)
-		if card_names != "":
+		if card_names:
 			# TODO: careful of secret sealed areas when implemented (ctrl+f for seal_card_internal logs)
 			parent._append_log_full(Enums.LogType.LogType_CardInfo, self, "seals their hand, containing %s." % card_names)
 		for card_id in card_ids:
@@ -1255,7 +1255,7 @@ class Player:
 		for card in hand:
 			card_ids.append(card.id)
 		var card_names = parent.card_db.get_card_names(card_ids)
-		if card_names != "":
+		if card_names:
 			parent._append_log_full(Enums.LogType.LogType_CardInfo, self, "discards their hand, containing %s." % card_names)
 		events += discard(card_ids)
 		return events
@@ -1266,7 +1266,7 @@ class Player:
 		for card in hand:
 			card_ids.append(card.id)
 		var card_names = parent.card_db.get_card_names(card_ids)
-		if card_names != "":
+		if card_names:
 			parent._append_log_full(Enums.LogType.LogType_CardInfo, self, "adds their hand to gauge, containing %s." % card_names)
 		for card_id in card_ids:
 			events += move_card_from_hand_to_gauge(card_id)
@@ -1339,7 +1339,7 @@ class Player:
 				discarded_ids.append(random_card_id)
 				events += discard([random_card_id])
 		var discarded_names = parent.card_db.get_card_names(discarded_ids)
-		if discarded_names != "":
+		if discarded_names:
 			parent._append_log_full(Enums.LogType.LogType_CardInfo, self, "discards random card(s): %s." % discarded_names)
 		if discard_callback:
 			discard_callback.call(self, discarded_ids)
@@ -5732,7 +5732,7 @@ func do_boost_name_card_choice_effect(performing_player : Player, card_id : int)
 	var card_name = "the card " + card_db.get_card_name(card_id)
 	if card_id == -1:
 		card_name = "a nonexistent card"
-	printlog("SubAction: BOOST_NAME_CARD by %s card %s" % [get_player_name(performing_player.my_id), card_name])
+	printlog("SubAction: BOOST_NAME_CARD by %s; named %s" % [get_player_name(performing_player.my_id), card_name])
 	if decision_info.player != performing_player.my_id:
 		printlog("ERROR: Tried to name card for wrong player.")
 		return false
