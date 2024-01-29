@@ -3,6 +3,8 @@
 	"season": 4,
 	"display_name": "Specter Knight",
 	"cardback": "cardback_specter.jpg",
+	"has_sealed_area": true,
+	"sealed_area_is_secret": true,
 	"exceed_cost": 2,
 	"ability_effects": [
 		{

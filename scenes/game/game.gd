@@ -297,6 +297,8 @@ func setup_characters():
 			buddy.modulate = Color(1, 0.38, 0.55)
 	$PlayerZones/PlayerSealed.visible = 'has_sealed_area' in player_deck and player_deck['has_sealed_area']
 	$OpponentZones/OpponentSealed.visible = 'has_sealed_area' in opponent_deck and opponent_deck['has_sealed_area']
+	if 'sealed_area_is_secret' in opponent_deck and opponent_deck['sealed_area_is_secret']:
+		$OpponentZones/OpponentSealed.disable()
 	$PlayerZones/PlayerOverdrive.visible = false
 	$OpponentZones/OpponentOverdrive.visible = false
 	setup_character_card(player_character_card, player_deck, player_buddy_character_card)

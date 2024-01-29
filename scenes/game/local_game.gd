@@ -411,6 +411,7 @@ class Player:
 	var overdrive : Array[GameCard]
 	var has_overdrive : bool
 	var set_aside_cards : Array[GameCard]
+	var sealed_area_is_secret : bool
 	var deck_def : Dictionary
 	var gauge : Array[GameCard]
 	var continuous_boosts : Array[GameCard]
@@ -493,6 +494,7 @@ class Player:
 		continuous_boosts = []
 		discards = []
 		overdrive = []
+		sealed_area_is_secret = 'sealed_area_is_secret' in deck_def and deck_def['sealed_area_is_secret']
 		has_overdrive = 'exceed_to_overdrive' in deck_def and deck_def['exceed_to_overdrive']
 		reshuffle_remaining = MaxReshuffle
 		exceeded = false
@@ -1129,7 +1131,9 @@ class Player:
 		return events
 
 	func get_unknown_cards():
-		var unknown_cards = hand + deck # TODO: add secret sealed areas, when implemented
+		var unknown_cards = hand + deck
+		if sealed_area_is_secret:
+			unknown_cards += sealed
 		if parent.active_strike:
 			var strike_card = parent.active_strike.get_player_card(self)
 			if strike_card:
@@ -1240,8 +1244,10 @@ class Player:
 			card_ids.append(card.id)
 		var card_names = parent.card_db.get_card_names(card_ids)
 		if card_names:
-			# TODO: careful of secret sealed areas when implemented (ctrl+f for seal_card_internal logs)
-			parent._append_log_full(Enums.LogType.LogType_CardInfo, self, "seals their hand, containing %s." % card_names)
+			if sealed_area_is_secret:
+				parent._append_log_full(Enums.LogType.LogType_CardInfo, self, "seals their hand face-down.")
+			else:
+				parent._append_log_full(Enums.LogType.LogType_CardInfo, self, "seals their hand, containing %s." % card_names)
 		for card_id in card_ids:
 			var seal_effect = { "effect_type": "seal_card_INTERNAL", "seal_card_id": card_id, "source": "hand" }
 			events += parent.handle_strike_effect(-1, seal_effect, self)
@@ -3812,7 +3818,10 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 				_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "discards the chosen card(s): %s." % card_names)
 				events += performing_player.discard(card_ids)
 			elif effect['destination'] == "sealed":
-				_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "seals the chosen card(s): %s." % card_names)
+				if performing_player.sealed_area_is_secret:
+					_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "seals %s card(s) face-down." % str(len(card_ids)))
+				else:
+					_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "seals the chosen card(s): %s." % card_names)
 				for seal_card_id in card_ids:
 					var seal_effect = { "effect_type": "seal_card_INTERNAL", "seal_card_id": seal_card_id, "source": "hand" }
 					events += handle_strike_effect(card_id, seal_effect, performing_player)
@@ -5968,6 +5977,7 @@ func do_choose_from_discard(performing_player : Player, card_ids : Array) -> boo
 
 	# Move the cards.
 	var events = []
+	var secret_zones = false
 	for card_id in card_ids:
 		var destination = decision_info.destination
 		if decision_info.source == "discard":
@@ -5979,7 +5989,6 @@ func do_choose_from_discard(performing_player : Player, card_ids : Array) -> boo
 				"hand":
 					events += performing_player.move_card_from_discard_to_hand(card_id)
 				"sealed":
-					# TODO: make sure to log seal
 					var seal_effect = { "effect_type": "seal_card_INTERNAL", "seal_card_id": card_id, "source": "discard" }
 					events += handle_strike_effect(-1, seal_effect, performing_player)
 				_:
@@ -5991,6 +6000,7 @@ func do_choose_from_discard(performing_player : Player, card_ids : Array) -> boo
 			match destination:
 				"hand":
 					events += performing_player.move_card_from_sealed_to_hand(card_id)
+					secret_zones = performing_player.sealed_area_is_secret
 				_:
 					printlog("ERROR: Choose from sealed destination not implemented.")
 					assert(false, "Choose from sealed destination not implemented.")
@@ -6014,7 +6024,10 @@ func do_choose_from_discard(performing_player : Player, card_ids : Array) -> boo
 	if dest_name == "deck":
 		dest_name = "top of deck"
 	var card_names = card_db.get_card_names(card_ids)
-	_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "moves card(s) from %s to %s: %s." % [decision_info.source, dest_name, card_names])
+	if secret_zones:
+		_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "moves %s card(s) from %s to %s." % [str(len(card_ids)), decision_info.source, dest_name])
+	else:
+		_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "moves card(s) from %s to %s: %s." % [decision_info.source, dest_name, card_names])
 
 	if active_overdrive:
 		events += do_remaining_overdrive(performing_player)
