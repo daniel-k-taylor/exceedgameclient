@@ -1123,6 +1123,7 @@
 				{
 					"timing": "before",
 					"condition": "buddy_in_play",
+					"condition_detail": "Nirvana (Active)",
 					"condition_buddy_id": "nirvana_active",
 					"effect_type": "move_buddy",
 					"buddy_name": "Nirvana",
@@ -1154,6 +1155,7 @@
 			{
 				"timing": "after",
 				"condition": "buddy_in_play",
+				"condition_detail": "Nirvana (Active)",
 				"condition_buddy_id": "nirvana_active",
 				"effect_type": "move_buddy",
 				"buddy_name": "Nirvana",
@@ -1163,6 +1165,7 @@
 				"negative_condition_effect": {
 					"is_negative_effect": true,
 					"condition": "buddy_in_play",
+					"condition_detail": "Nirvana (Disabled)",
 					"condition_buddy_id": "nirvana_disabled",
 					"description": "Reactivate Nirvana",
 					"effect_type": "swap_buddy",
@@ -1230,6 +1233,7 @@
 				{
 					"timing": "immediate",
 					"condition": "buddy_in_play",
+					"condition_detail": "Nirvana (Active)",
 					"condition_buddy_id": "nirvana_active",
 					"effect_type": "move_buddy",
 					"buddy_name": "Nirvana",
@@ -1240,6 +1244,7 @@
 				{
 					"timing": "immediate",
 					"condition": "buddy_in_play",
+					"condition_detail": "Nirvana (Disabled)",
 					"condition_buddy_id": "nirvana_disabled",
 					"description": "Reactivate Nirvana",
 					"effect_type": "swap_buddy",
@@ -1291,6 +1296,7 @@
 			{
 				"timing": "after",
 				"condition": "buddy_in_play",
+				"condition_detail": "Nirvana (Active)",
 				"condition_buddy_id": "nirvana_active",
 				"effect_type": "move_buddy",
 				"buddy_name": "Nirvana",
@@ -1308,6 +1314,7 @@
 				{
 					"timing": "immediate",
 					"condition": "buddy_in_play",
+					"condition_detail": "Nirvana (Active)",
 					"condition_buddy_id": "nirvana_active",
 					"buddy_name": "Nirvana",
 					"buddy_id": "nirvana_active",
@@ -1342,6 +1349,7 @@
 			{
 				"timing": "before",
 				"condition": "buddy_in_play",
+				"condition_detail": "Nirvana (Active)",
 				"condition_buddy_id": "nirvana_active",
 				"buddy_name": "Nirvana",
 				"buddy_id": "nirvana_active",
@@ -1349,6 +1357,7 @@
 				"per_force_effect": null,
 				"overall_effect": {
 					"condition": "buddy_in_play",
+					"condition_detail": "Nirvana (Active)",
 					"condition_buddy_id": "nirvana_active",
 					"effect_type": "move_buddy",
 					"buddy_name": "Nirvana",
@@ -1438,6 +1447,7 @@
 				{
 					"timing": "before",
 					"condition": "buddy_in_play",
+					"condition_detail": "Nirvana (Active)",
 					"condition_buddy_id": "nirvana_active",
 					"effect_type": "move_buddy",
 					"buddy_name": "Nirvana",

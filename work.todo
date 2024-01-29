@@ -1,19 +1,4 @@
 In progress:
-    Carl Clover:
-        ☐ "effect_type": "swap_buddy", @started(24-01-27 19:23)
-        ☐ "buddy_starting_id": "nirvana_active", @started(24-01-27 19:25)
-        ☐ move_buddy - use id @started(24-01-27 19:28)
-        ☐ "effect_type": "move_buddy", strike_after @started(24-01-27 19:50)
-        ☐ "timing": "opponent_before", @started(24-01-27 20:09)
-            ☐ "condition": "is_opponent_buddy_in_range", @started(24-01-27 19:57)
-            ☐ "condition_extra": "not_immune_to_flip", @started(24-01-27 19:57)
-        ☐ "condition_extra": "buddy_not_entered_play_this_strike", @started(24-01-27 19:37)
-        ☐ calculate_range_from_buddy_id @started(24-01-27 16:11)
-        ☐ buddy_immune_to_flip @started(24-01-27 19:50)
-        ☐ opponent_between_buddy - condition_any_of_buddy_ids, "condition_extra": "include_buddy_space", @started(24-01-27 19:48)
-
-
-TESTS!!!
 
 Write tests for:
     Axl:
