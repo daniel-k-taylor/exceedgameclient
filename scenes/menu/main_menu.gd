@@ -60,12 +60,20 @@ func returned_from_game():
 	just_clicked_matchmake = false
 
 func _on_start_button_pressed():
+	# For local play, random selection is still random at this point.
+	var player_random_tag = ""
+	if player_selected_character.begins_with("random"):
+		player_random_tag = player_selected_character
+	var opponent_random_tag = ""
+	if opponent_selected_character.begins_with("random"):
+		opponent_random_tag = opponent_selected_character
+
 	var player_deck = CardDefinitions.get_deck_from_str_id(player_selected_character)
 	var opponent_deck = CardDefinitions.get_deck_from_str_id(opponent_selected_character)
 	var player_name = get_player_name()
 	var opponent_name = "CPU"
 	var randomize_first = randomize_first_box.button_pressed
-	start_game.emit(get_vs_info(player_name, player_deck, opponent_name, opponent_deck, randomize_first))
+	start_game.emit(get_vs_info(player_name, player_deck, player_random_tag, opponent_name, opponent_deck, opponent_random_tag, randomize_first))
 
 func _on_quit_button_pressed():
 	get_tree().quit()
@@ -87,14 +95,26 @@ func _on_disconnected():
 	$ServerStatusLabel.text = "Disconnected from server."
 	just_clicked_matchmake = false
 
-func get_vs_info(player_name, player_deck, opponent_name, opponent_deck, randomize_first_vs_ai = false):
+func get_vs_info(player_name, player_deck, player_random_tag, opponent_name, opponent_deck, opponent_random_tag, randomize_first_vs_ai = false):
 	return {
 		'player_name': player_name,
 		'player_deck': player_deck,
+		'player_random_tag': player_random_tag,
 		'opponent_name': opponent_name,
 		'opponent_deck': opponent_deck,
+		'opponent_random_tag': opponent_random_tag,
 		'randomize_first_vs_ai': randomize_first_vs_ai
 	}
+
+func get_random_tag(deck_id):
+	if deck_id.begins_with("random"):
+		return deck_id.split("#")[0]
+	return ""
+
+func get_deck_id_without_random_tag(deck_id):
+	if deck_id.begins_with("random"):
+		return deck_id.split("#")[1]
+	return deck_id
 
 func _on_remote_game_started(data):
 	just_clicked_matchmake = false
@@ -109,9 +129,16 @@ func _on_remote_game_started(data):
 		opponent_deck = data['player1_deck_id']
 		opponent_name = data['player1_name']
 
+	# For remote play, random was decided locally first
+	# and the deck id is random#deck_id.
+	var player_random_tag = get_random_tag(player_deck)
+	player_deck = get_deck_id_without_random_tag(player_deck)
+	var opponent_random_tag = get_random_tag(opponent_deck)
+	opponent_deck = get_deck_id_without_random_tag(opponent_deck)
+
 	player_deck = CardDefinitions.get_deck_from_str_id(player_deck)
 	opponent_deck = CardDefinitions.get_deck_from_str_id(opponent_deck)
-	start_remote_game.emit(get_vs_info(player_name, player_deck, opponent_name, opponent_deck), data)
+	start_remote_game.emit(get_vs_info(player_name, player_deck, player_random_tag, opponent_name, opponent_deck, opponent_random_tag), data)
 
 func _on_players_update(players, match_available : bool):
 	player_list.clear()
@@ -138,7 +165,10 @@ func _on_join_button_pressed():
 	var player_name = get_player_name()
 	var room_name = room_select.text
 	var chosen_deck = CardDefinitions.get_deck_from_str_id(player_selected_character)
-	NetworkManager.join_room(player_name, room_name, chosen_deck['id'])
+	var chosen_deck_id = chosen_deck['id']
+	if player_selected_character.begins_with("random"):
+		chosen_deck_id = player_selected_character + "#" + chosen_deck_id
+	NetworkManager.join_room(player_name, room_name, chosen_deck_id)
 	update_buttons(true)
 
 func update_buttons(joining : bool):

@@ -3,8 +3,8 @@ extends Node2D
 var start_me_position = Vector2(-950,20)
 var final_me_position = Vector2(50,20)
 
-var start_you_position = Vector2(550 + 1000, 500)
-var final_you_position = Vector2(550, 500)
+var start_you_position = Vector2(440 + 1000, 460)
+var final_you_position = Vector2(440, 460)
 
 var label_font_normal = 90
 var label_font_small = 60
@@ -12,22 +12,52 @@ var label_length_threshold = 16
 
 const tween_duration = 1.0
 
+@onready var me_deck_label : Label = $MeNameBox/MeDeckHbox/MyDeckLabel
+@onready var you_deck_label : Label = $YouNameBox/YouDeckHbox/YouDeckLabel
+@onready var me_portrait : TextureRect = $MeNameBox/MeDeckHbox/MePortrait
+@onready var you_portrait : TextureRect = $YouNameBox/YouDeckHbox/YouPortrait
+
+func load_portrait_texture(texture_rect : TextureRect, random_tag : String, deck_id : String):
+	match random_tag:
+		"random":
+			texture_rect.texture = load("res://assets/portraits/exceedrandom.png")
+		"random_s3":
+			texture_rect.texture = load("res://assets/portraits/sflogo.png")
+		"random_s4":
+			texture_rect.texture = load("res://assets/portraits/sklogo.png")
+		"random_s5":
+			texture_rect.texture = load("res://assets/portraits/blazbluelogo2.png")
+		"random_s6":
+			texture_rect.texture = load("res://assets/portraits/unilogo.png")
+		"random_s7":
+			texture_rect.texture = load("res://assets/portraits/random.png")
+		_:
+			texture_rect.texture = load("res://assets/portraits/" + deck_id + ".png")
+
 func set_info(vs_info):
 	var my_char_name = vs_info['player_deck']['display_name']
-	$MeNameBox/MyDeckLabel.text = my_char_name
+	me_deck_label.text = my_char_name
 	if len(my_char_name) <= label_length_threshold:
-		$MeNameBox/MyDeckLabel.set("theme_override_font_sizes/font_size", label_font_normal)
+		me_deck_label.set("theme_override_font_sizes/font_size", label_font_normal)
 	else:
-		$MeNameBox/MyDeckLabel.set("theme_override_font_sizes/font_size", label_font_small)
+		me_deck_label.set("theme_override_font_sizes/font_size", label_font_small)
 	$MeNameBox/MyNameLabel.text = vs_info['player_name']
 
 	var your_char_name = vs_info['opponent_deck']['display_name']
-	$YouNameBox/YouDeckLabel.text = your_char_name
+	you_deck_label.text = your_char_name
 	if len(your_char_name) <= label_length_threshold:
-		$YouNameBox/YouDeckLabel.set("theme_override_font_sizes/font_size", label_font_normal)
+		you_deck_label.set("theme_override_font_sizes/font_size", label_font_normal)
 	else:
-		$YouNameBox/YouDeckLabel.set("theme_override_font_sizes/font_size", label_font_small)
+		you_deck_label.set("theme_override_font_sizes/font_size", label_font_small)
 	$YouNameBox/YouNameLabel.text = vs_info['opponent_name']
+	
+	# Setup portraits
+	var player_deck_id = vs_info['player_deck']['id']
+	var player_random_tag = vs_info['player_random_tag']
+	var opponent_deck_id = vs_info['opponent_deck']['id']
+	var opponent_random_tag = vs_info['opponent_random_tag']
+	load_portrait_texture(me_portrait, player_random_tag, player_deck_id)
+	load_portrait_texture(you_portrait, opponent_random_tag, opponent_deck_id)
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
