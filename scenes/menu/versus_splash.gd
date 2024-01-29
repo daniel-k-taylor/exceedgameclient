@@ -8,7 +8,7 @@ var final_you_position = Vector2(440, 460)
 
 var label_font_normal = 90
 var label_font_small = 60
-var label_length_threshold = 16
+var label_length_threshold = 15
 
 const tween_duration = 1.0
 
