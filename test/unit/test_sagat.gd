@@ -195,6 +195,73 @@ func validate_life(p1, l1, p2, l2):
 ## Tests start here
 ##
 
+
+func test_sagat_crit_and_faceup():
+	position_players(player1, 3, player2, 6)
+	give_gauge(player1, 1)
+	give_player_specific_card(player1, "sagat_lowstepkick", TestCardId1)
+	give_player_specific_card(player2, "standard_normal_spike", TestCardId2)
+	assert_true(game_logic.do_strike(player1, TestCardId1, false, -1))
+	# On set, Sagat has his faceup choice and critical choice.
+	# Has gauge, so crit choice should be first.
+	assert_true(game_logic.do_gauge_for_effect(player1, [player1.gauge[0].id]))
+	# Then faceup choice.
+	assert_true(game_logic.do_choice(player1, 0))
+	assert_true(game_logic.do_strike(player2, TestCardId2, false, -1))
+	validate_life(player1, 30, player2, 28)
+	validate_positions(player1, 4, player2, 6)
+
+func test_sagat_crit_and_faceup_exceeded():
+	position_players(player1, 3, player2, 6)
+	player1.exceeded = true
+	give_gauge(player1, 1)
+	give_player_specific_card(player1, "sagat_lowstepkick", TestCardId1)
+	give_player_specific_card(player2, "standard_normal_cross", TestCardId2)
+	assert_true(game_logic.do_strike(player1, TestCardId1, false, -1))
+	# On set, Sagat has his faceup choice and critical choice.
+	# Has gauge, so crit choice should be first.
+	assert_true(game_logic.do_gauge_for_effect(player1, [player1.gauge[0].id]))
+	# Then faceup choice.
+	assert_true(game_logic.do_choice(player1, 0))
+	assert_true(game_logic.do_strike(player2, TestCardId2, false, -1))
+	validate_life(player1, 30, player2, 27)
+	validate_positions(player1, 4, player2, 6)
+
+func test_sagat_low_tiger_shot_recurs_no_discard():
+	position_players(player1, 3, player2, 8)
+	give_player_specific_card(player1, "sagat_lowtigershot", TestCardId1)
+	give_player_specific_card(player2, "standard_normal_grasp", TestCardId2)
+	assert_true(game_logic.do_strike(player1, TestCardId1, false, -1))
+	# On set, Sagat has his faceup choice and critical choice.
+	# No gauge so not crit.
+	# Then faceup choice.
+	assert_true(game_logic.do_choice(player1, 0))
+	assert_true(game_logic.do_strike(player2, TestCardId2, false, -1))
+	# After, recur choice
+	assert_true(game_logic.do_choice(player1, 0))
+	assert_eq(player1.gauge.size(), 0)
+	assert_eq(player1.deck[0].definition['id'], "sagat_lowtigershot")
+	validate_life(player1, 30, player2, 25)
+	validate_positions(player1, 3, player2, 9)
+
+func test_sagat_low_tiger_shot_recurs():
+	position_players(player1, 3, player2, 8)
+	player1.discard_hand()
+	give_player_specific_card(player1, "sagat_lowtigershot", TestCardId1)
+	give_player_specific_card(player2, "standard_normal_grasp", TestCardId2)
+	assert_true(game_logic.do_strike(player1, TestCardId1, false, -1))
+	# On set, Sagat has his faceup choice and critical choice.
+	# No gauge so not crit.
+	# Then faceup choice.
+	assert_true(game_logic.do_choice(player1, 0))
+	assert_true(game_logic.do_strike(player2, TestCardId2, false, -1))
+	# After, recur choice
+	assert_true(game_logic.do_choice(player1, 0))
+	assert_eq(player1.gauge.size(), 1)
+	assert_eq(player1.deck[0].definition['id'], "sagat_lowtigershot")
+	validate_life(player1, 30, player2, 25)
+	validate_positions(player1, 3, player2, 9)
+
 func test_sagat_angercharge_not_tiger():
 	position_players(player1, 3, player2, 5)
 	give_player_specific_card(player1, "sagat_lowstepkick", TestCardId3)

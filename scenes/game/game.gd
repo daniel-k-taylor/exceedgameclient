@@ -2033,14 +2033,11 @@ func _on_strike_reveal(_event):
 func _on_strike_reveal_one_player(event):
 	var player = event['event_player']
 	spawn_damage_popup("Strike Face-Up!", player)
-	if player == Enums.PlayerId.PlayerId_Opponent:
-		var strike_cards = $AllCards/Striking.get_children()
-		for card in strike_cards:
-			if game_wrapper.does_card_belong_to_player(player, card.card_id):
-				card.flip_card_to_front(true)
-	else:
-		# Nothing for AI here.
-		pass
+	# Reveal it for both players because it could be my wild swing.
+	var strike_cards = $AllCards/Striking.get_children()
+	for card in strike_cards:
+		if game_wrapper.does_card_belong_to_player(player, card.card_id):
+			card.flip_card_to_front(true)
 	return SmallNoticeDelay
 
 func _on_strike_card_activation(event):

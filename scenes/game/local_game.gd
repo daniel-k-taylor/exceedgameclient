@@ -1848,7 +1848,7 @@ class Player:
 		var effects = []
 
 		# Maybe later get them from boosts, but for now, just character ability.
-		var ignore_condition = false
+		var ignore_condition = true
 		effects = parent.get_all_effects_for_timing("set_strike", self, card, ignore_condition)
 
 		if extra_effect_after_set_strike:

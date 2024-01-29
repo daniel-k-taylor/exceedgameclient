@@ -260,3 +260,15 @@ func test_yuzu_kurenai_stunned_while_exceeded():
 	validate_positions(player1, 3, player2, 4)
 	validate_life(player1, 26, player2, 30)
 
+func test_yuzu_strike_from_gauge_assault():
+	position_players(player1, 3, player2, 5)
+	give_player_specific_card(player1, "uni_normal_assault", TestCardId3)
+	player1.move_card_from_hand_to_gauge(TestCardId3)
+	player1.exceed()
+	assert_true(game_logic.do_character_action(player1, [], 0))
+	assert_true(game_logic.do_strike(player1, -1, false, -1, true))
+	give_player_specific_card(player2, "uni_normal_cross", TestCardId4)
+	assert_true(game_logic.do_strike(player2, TestCardId4, false, -1, true))
+	validate_life(player1, 30, player2, 24)
+	validate_positions(player1, 4, player2, 5)
+	assert_eq(game_logic.active_turn_player, player1.my_id)
