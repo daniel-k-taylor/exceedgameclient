@@ -2242,6 +2242,7 @@ func strike_setup_defender_response(events):
 			_append_log_full(Enums.LogType.LogType_Effect, active_strike.defender, "does not have the named card.")
 			events += active_strike.defender.reveal_hand()
 	if ask_for_response:
+		decision_info.player = active_strike.defender.my_id
 		if active_strike.opponent_sets_first:
 			events += [create_event(Enums.EventType.EventType_Strike_OpponentSetsFirst_DefenderSet, active_strike.defender.my_id, 0)]
 		else:
@@ -2260,6 +2261,7 @@ func strike_setup_initiator_response(events):
 		do_strike(active_strike.initiator, -1, false, -1, active_strike.opponent_sets_first)
 		ask_for_response = false
 	if ask_for_response:
+		decision_info.player = active_strike.initiator.my_id
 		events += [create_event(Enums.EventType.EventType_Strike_OpponentSetsFirst_InitiatorSet, active_strike.initiator.my_id, 0)]
 	return events
 
