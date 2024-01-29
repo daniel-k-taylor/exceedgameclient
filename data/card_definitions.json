@@ -11591,7 +11591,7 @@
 				"effect_type": "choice",
 				"choice": [
 					{
-						"effect_type": "return_attack_top_of_deck",
+						"effect_type": "return_attack_to_top_of_deck",
 						"and": {
 							"effect_type": "add_top_discard_to_gauge"
 						}
