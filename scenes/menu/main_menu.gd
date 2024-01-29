@@ -119,11 +119,13 @@ func get_deck_id_without_random_tag(deck_id):
 func _on_remote_game_started(data):
 	just_clicked_matchmake = false
 	$MatchStartingAudio.play()
+	var player1_is_me = true
 	var player_deck = data['player1_deck_id']
 	var player_name = data['player1_name']
 	var opponent_deck = data['player2_deck_id']
 	var opponent_name = data['player2_name']
 	if data['your_player_id'] != data['player1_id']:
+		player1_is_me = false
 		player_deck = data['player2_deck_id']
 		player_name = data['player2_name']
 		opponent_deck = data['player1_deck_id']
@@ -132,13 +134,20 @@ func _on_remote_game_started(data):
 	# For remote play, random was decided locally first
 	# and the deck id is random#deck_id.
 	var player_random_tag = get_random_tag(player_deck)
-	player_deck = get_deck_id_without_random_tag(player_deck)
+	var player_deck_no_random = get_deck_id_without_random_tag(player_deck)
 	var opponent_random_tag = get_random_tag(opponent_deck)
-	opponent_deck = get_deck_id_without_random_tag(opponent_deck)
+	var opponent_deck_no_random = get_deck_id_without_random_tag(opponent_deck)
 
-	player_deck = CardDefinitions.get_deck_from_str_id(player_deck)
-	opponent_deck = CardDefinitions.get_deck_from_str_id(opponent_deck)
-	start_remote_game.emit(get_vs_info(player_name, player_deck, player_random_tag, opponent_name, opponent_deck, opponent_random_tag), data)
+	if player1_is_me:
+		data['player1_deck_id'] = player_deck_no_random
+		data['player2_deck_id'] = opponent_deck_no_random
+	else:
+		data['player1_deck_id'] = opponent_deck_no_random
+		data['player2_deck_id'] = player_deck_no_random
+
+	var player_deck_object = CardDefinitions.get_deck_from_str_id(player_deck_no_random)
+	var opponent_deck_object = CardDefinitions.get_deck_from_str_id(opponent_deck_no_random)
+	start_remote_game.emit(get_vs_info(player_name, player_deck_object, player_random_tag, opponent_name, opponent_deck_object, opponent_random_tag), data)
 
 func _on_players_update(players, match_available : bool):
 	player_list.clear()
@@ -200,7 +209,10 @@ func _on_matchmake_button_pressed():
 	just_clicked_matchmake = true
 	var player_name = get_player_name()
 	var chosen_deck = CardDefinitions.get_deck_from_str_id(player_selected_character)
-	NetworkManager.join_matchmaking(player_name, chosen_deck['id'])
+	var chosen_deck_id = chosen_deck['id']
+	if player_selected_character.begins_with("random"):
+		chosen_deck_id = player_selected_character + "#" + chosen_deck_id
+	NetworkManager.join_matchmaking(player_name, chosen_deck_id)
 	update_buttons(true)
 
 func _on_char_select_close_character_select():
