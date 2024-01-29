@@ -25,7 +25,6 @@ var log_filter_toggles = {
 	Enums.LogType.LogType_Strike: true,
 	Enums.LogType.LogType_Default: true
 }
-var use_old_log = false
 
 func set_text(text):
 	log_text.text = text
@@ -59,12 +58,6 @@ func _on_log_filter_health_toggle(state):
 
 func _on_log_filter_player_movement_toggle(state):
 	log_filter_toggles[Enums.LogType.LogType_CharacterMovement] = state
-	filter_toggle_update.emit()
-
-func _on_use_old_log_toggle(state):
-	use_old_log = state
-	for toggle_checkbox in toggle_checkboxes:
-		toggle_checkbox.disabled = use_old_log
 	filter_toggle_update.emit()
 
 func _on_close_button_pressed():

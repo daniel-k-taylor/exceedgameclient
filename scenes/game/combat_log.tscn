@@ -147,10 +147,6 @@ text = "Player Movement"
 layout_mode = 2
 size_flags_horizontal = 3
 
-[node name="CheckButton" type="CheckButton" parent="PanelContainer/OuterMargin/VerticalLayout/LogFilters"]
-layout_mode = 2
-text = "Use Old Log"
-
 [connection signal="pressed" from="CloseOuterClick" to="." method="_on_close_button_pressed"]
 [connection signal="pressed" from="PanelContainer/OuterMargin/VerticalLayout/CloseButton" to="." method="_on_close_button_pressed"]
 [connection signal="pressed" from="PanelContainer/OuterMargin/VerticalLayout/CopyButton" to="." method="_on_copy_button_pressed"]
@@ -160,4 +156,3 @@ text = "Use Old Log"
 [connection signal="toggled" from="PanelContainer/OuterMargin/VerticalLayout/LogFilters/Strikes" to="." method="_on_log_filter_strikes_toggle"]
 [connection signal="toggled" from="PanelContainer/OuterMargin/VerticalLayout/LogFilters/Damage" to="." method="_on_log_filter_health_toggle"]
 [connection signal="toggled" from="PanelContainer/OuterMargin/VerticalLayout/LogFilters/PlayerMovement" to="." method="_on_log_filter_player_movement_toggle"]
-[connection signal="toggled" from="PanelContainer/OuterMargin/VerticalLayout/LogFilters/CheckButton" to="." method="_on_use_old_log_toggle"]

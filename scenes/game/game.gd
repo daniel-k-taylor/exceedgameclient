@@ -23,6 +23,7 @@ const ModalDialog = preload("res://scenes/game/modal_dialog.gd")
 const EmoteDialog = preload("res://scenes/game/emote_dialog.gd")
 const ArenaSquare = preload("res://scenes/game/arena_square.gd")
 const EmoteDisplay = preload("res://scenes/game/emote_display.gd")
+const CombatLog = preload("res://scenes/game/combat_log.gd")
 
 @onready var player_emote : EmoteDisplay = $PlayerEmote
 @onready var opponent_emote : EmoteDisplay = $OpponentEmote
@@ -191,6 +192,7 @@ var game_wrapper : GameWrapper = GameWrapper.new()
 @onready var action_menu : ActionMenu = $AllCards/ActionContainer/ActionMenu
 @onready var action_menu_container : HBoxContainer = $AllCards/ActionContainer
 @onready var choice_popout_button : Button = $ChoicePopoutShowButton
+@onready var combat_log : CombatLog = $CombatLog
 var current_instruction_text : String = ""
 var current_action_menu_choices : Array = []
 var current_effect_choices : Array = []
@@ -523,10 +525,7 @@ func _process(delta):
 		var events = game_wrapper.poll_for_events()
 		if events.size() > 0:
 			_handle_events(events)
-			if $CombatLog.use_old_log:
-				$CombatLog.set_text(game_wrapper.get_combat_log())
-			else:
-				$CombatLog.set_text(game_wrapper.get_full_combat_log($CombatLog.get_filters()))
+			combat_log.set_text(game_wrapper.get_combat_log(combat_log.get_filters()))
 		elif ui_state == UIState.UIState_WaitingOnOpponent:
 			# Advance the AI game automatically.
 			_on_ai_move_button_pressed()
@@ -3648,14 +3647,11 @@ func _on_card_popout_pressed_toggle():
 
 
 func _on_combat_log_button_pressed():
-	if $CombatLog.use_old_log:
-		$CombatLog.set_text(game_wrapper.get_combat_log())
-	else:
-		$CombatLog.set_text(game_wrapper.get_full_combat_log($CombatLog.get_filters()))
-	$CombatLog.visible = true
+	combat_log.set_text(game_wrapper.get_combat_log(combat_log.get_filters()))
+	combat_log.visible = true
 
 func _on_combat_log_close_button_pressed():
-	$CombatLog.visible = false
+	combat_log.visible = false
 
 
 func _on_action_menu_choice_selected(choice_index):
