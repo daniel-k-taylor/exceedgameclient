@@ -525,7 +525,8 @@ func _process(delta):
 		var events = game_wrapper.poll_for_events()
 		if events.size() > 0:
 			_handle_events(events)
-			combat_log.set_text(game_wrapper.get_combat_log(combat_log.get_filters()))
+			var log_text = game_wrapper.get_combat_log(combat_log.get_filters(), combat_log.log_player_color, combat_log.log_opponent_color)
+			combat_log.set_text(log_text)
 		elif ui_state == UIState.UIState_WaitingOnOpponent:
 			# Advance the AI game automatically.
 			_on_ai_move_button_pressed()
@@ -3647,7 +3648,8 @@ func _on_card_popout_pressed_toggle():
 
 
 func _on_combat_log_button_pressed():
-	combat_log.set_text(game_wrapper.get_combat_log(combat_log.get_filters()))
+	var log_text = game_wrapper.get_combat_log(combat_log.get_filters(), combat_log.log_player_color, combat_log.log_opponent_color)
+	combat_log.set_text(log_text)
 	combat_log.visible = true
 
 func _on_combat_log_close_button_pressed():

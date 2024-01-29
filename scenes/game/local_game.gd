@@ -18,9 +18,6 @@ const MinArenaLocation = 1
 const MaxArenaLocation = 9
 const ShuffleEnabled = true
 
-const log_player_color = "red"
-const log_opponent_color = "#16c2f7"
-
 var event_queue = []
 
 func get_latest_events() -> Array:
@@ -66,9 +63,9 @@ func _full_log_item_to_string(log_item):
 
 	if log_player != null:
 		if log_player == player:
-			prefix += "[color=%s]" % log_player_color
+			prefix += "[color={_player_color}]"
 		if log_player == opponent:
-			prefix += "[color=%s]" % log_opponent_color
+			prefix += "[color={_opponent_color}]"
 		prefix += "%s%s[/color] " % [prefix_symbol, log_player.name]
 	else:
 		prefix = prefix_symbol

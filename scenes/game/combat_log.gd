@@ -26,6 +26,9 @@ var log_filter_toggles = {
 	Enums.LogType.LogType_Default: true
 }
 
+var log_player_color = "red"
+var log_opponent_color = "#16c2f7"
+
 func set_text(text):
 	log_text.text = text
 
