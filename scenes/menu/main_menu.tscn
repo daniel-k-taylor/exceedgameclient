@@ -283,6 +283,7 @@ stream = ExtResource("7_pt1r5")
 [connection signal="pressed" from="MenuList/QuitButton" to="." method="_on_quit_button_pressed"]
 [connection signal="pressed" from="PlayerChooser/ChangePlayerCharacterButton" to="." method="_on_change_player_character_button_pressed" binds= [true]]
 [connection signal="focus_entered" from="PlayerNameBox" to="." method="_on_player_name_box_focus_entered"]
+[connection signal="text_changed" from="PlayerNameBox" to="." method="_on_player_name_box_text_changed"]
 [connection signal="pressed" from="UpdateNameButton" to="." method="_on_update_name_button_pressed"]
 [connection signal="pressed" from="ReconnectToServerButton" to="." method="_on_reconnect_to_server_button_pressed"]
 [connection signal="close_character_select" from="CharSelect" to="." method="_on_char_select_close_character_select"]

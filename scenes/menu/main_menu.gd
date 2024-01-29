@@ -3,12 +3,15 @@ extends Control
 signal start_game(vs_info)
 signal start_remote_game(vs_info, data)
 
-const RoomMaxLen = 16
+const RoomMaxLen = 12
+const PlayerNameMaxLen = 12
 
 @onready var player_list : ItemList = $PlayerList
 @onready var player_selected_character : String = "solbadguy"
 @onready var opponent_selected_character : String = "kykisuke"
 @onready var selecting_player : bool = true
+
+@onready var player_name_box : TextEdit = $PlayerNameBox
 
 @onready var start_ai_button : Button = $MenuList/VSAIBox/FightSettings/StartButton
 @onready var randomize_first_box : CheckBox = $MenuList/VSAIBox/FightSettings/RandomizeFirstCheckbox
@@ -70,8 +73,8 @@ func _on_quit_button_pressed():
 func _on_connected(player_name):
 	join_room_button.disabled = false
 	matchmake_button.disabled = false
-	$PlayerNameBox.editable = true
-	$PlayerNameBox.text = player_name
+	player_name_box.editable = true
+	player_name_box.text = player_name
 	$ReconnectToServerButton.visible = false
 	$ServerStatusLabel.text = "Connected to server."
 
@@ -129,7 +132,7 @@ func _on_join_failed():
 	update_buttons(false)
 
 func get_player_name() -> String:
-	return $PlayerNameBox.text
+	return player_name_box.text
 
 func _on_join_button_pressed():
 	var player_name = get_player_name()
@@ -210,11 +213,11 @@ func _on_change_player_character_button_pressed(is_player : bool):
 	var char_id = player_selected_character
 	if not is_player:
 		char_id = opponent_selected_character
-	char_select.show_char_select(char_id)
+	char_select.sshow_char_select(char_id)
 	char_select.visible = true
 	selecting_player = is_player
 
-func cropLineToMaxLength(new_text : String, max_length: int) -> void:
+func cropLineToMaxLength_room_line_edit(new_text : String, max_length: int) -> void:
 	if new_text.length() > max_length:
 		var col = room_select.caret_column
 		if col != 0:
@@ -225,8 +228,22 @@ func cropLineToMaxLength(new_text : String, max_length: int) -> void:
 		room_select.text = new_text
 		room_select.caret_column = col - 1
 
+func cropLineToMaxLength_name_text_edit(new_text : String, max_length: int) -> void:
+	if new_text.length() > max_length:
+		var col = player_name_box.get_caret_column()
+		if col != 0:
+			new_text = new_text.substr(0, col-1) + new_text.substr(col)
+		else:
+			new_text = new_text.substr(1)
+		new_text = new_text.substr(0, max_length)
+		player_name_box.text = new_text
+		player_name_box.set_caret_column(col - 1)
+
 func _on_room_name_box_text_changed(new_text):
-	cropLineToMaxLength(new_text, RoomMaxLen)
+	cropLineToMaxLength_room_line_edit(new_text, RoomMaxLen)
 
 func _on_player_name_box_focus_entered():
-	$PlayerNameBox.select_all()
+	player_name_box.select_all()
+
+func _on_player_name_box_text_changed():
+	cropLineToMaxLength_name_text_edit(player_name_box.text, PlayerNameMaxLen)
