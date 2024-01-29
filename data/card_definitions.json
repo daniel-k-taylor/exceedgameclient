@@ -2885,6 +2885,7 @@
 					"effect_type": "choice",
 					"choice": [
 						{
+							"UI_skip_summary": true,
 							"effect_type": "boost_then_sustain_topdiscard",
 							"limitation": "continuous",
 							"amount": 1

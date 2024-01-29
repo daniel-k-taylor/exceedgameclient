@@ -380,7 +380,7 @@ func get_effect_type_text(effect, card_name_source : String = ""):
 			var limitation_str = "card(s)"
 			if 'limitation' in effect and effect['limitation'] == "continuous":
 				limitation_str = "continuous boost(s)"
-			effect_str += "Play and sustain the top %s %s from your discard pile." % [effect['amount'], limitation_str]
+			effect_str += "Play and sustain the top %s %s from your discard pile" % [effect['amount'], limitation_str]
 		"cannot_stun":
 			effect_str += "Attack does not stun."
 		"choice":
