@@ -213,7 +213,7 @@ func _on_change_player_character_button_pressed(is_player : bool):
 	var char_id = player_selected_character
 	if not is_player:
 		char_id = opponent_selected_character
-	char_select.sshow_char_select(char_id)
+	char_select.show_char_select(char_id)
 	char_select.visible = true
 	selecting_player = is_player
 

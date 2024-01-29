@@ -33,7 +33,7 @@
 			"condition": "initiated_strike",
 			"effect_type": "choice",
 			"choice": [
-				{ "effect_type": "reveal_strike", "and": { "effect_type": "speedup", "amount": 1 } },
+				{ "effect_type": "reveal_strike", "and": { "character_effect": true, "effect_type": "speedup", "amount": 1 } },
 				{ "effect_type": "pass" }
 			]
 		}
@@ -56,6 +56,7 @@
 			"effect_type": "choice",
 			"choice": [
 				{ "effect_type": "reveal_strike", "and": {
+					"character_effect": true,
 					"effect_type": "speedup",
 					"amount": 1,
 					"and": { "effect_type": "powerup", "amount": 1 }
