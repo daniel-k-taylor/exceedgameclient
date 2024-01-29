@@ -674,6 +674,15 @@ func test_ryu_100():
 		game_teardown()
 		game_setup()
 	pass_test("Finished match")
+	
+func test_sagat_100():
+	default_deck = CardDefinitions.get_deck_from_str_id("sagat")
+	for i in range(RandomIterations):
+		print("==== RUNNING TEST %d ====" % i)
+		run_ai_game()
+		game_teardown()
+		game_setup()
+	pass_test("Finished match")
 
 func test_guile_100():
 	default_deck = CardDefinitions.get_deck_from_str_id("guile")

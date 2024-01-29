@@ -3,12 +3,15 @@ extends Control
 signal start_game(vs_info)
 signal start_remote_game(vs_info, data)
 
-const RoomMaxLen = 16
+const RoomMaxLen = 12
+const PlayerNameMaxLen = 12
 
 @onready var player_list : ItemList = $PlayerList
 @onready var player_selected_character : String = "solbadguy"
 @onready var opponent_selected_character : String = "kykisuke"
 @onready var selecting_player : bool = true
+
+@onready var player_name_box : TextEdit = $PlayerNameBox
 
 @onready var start_ai_button : Button = $MenuList/VSAIBox/FightSettings/StartButton
 @onready var randomize_first_box : CheckBox = $MenuList/VSAIBox/FightSettings/RandomizeFirstCheckbox
@@ -57,12 +60,20 @@ func returned_from_game():
 	just_clicked_matchmake = false
 
 func _on_start_button_pressed():
+	# For local play, random selection is still random at this point.
+	var player_random_tag = ""
+	if player_selected_character.begins_with("random"):
+		player_random_tag = player_selected_character
+	var opponent_random_tag = ""
+	if opponent_selected_character.begins_with("random"):
+		opponent_random_tag = opponent_selected_character
+
 	var player_deck = CardDefinitions.get_deck_from_str_id(player_selected_character)
 	var opponent_deck = CardDefinitions.get_deck_from_str_id(opponent_selected_character)
 	var player_name = get_player_name()
 	var opponent_name = "CPU"
 	var randomize_first = randomize_first_box.button_pressed
-	start_game.emit(get_vs_info(player_name, player_deck, opponent_name, opponent_deck, randomize_first))
+	start_game.emit(get_vs_info(player_name, player_deck, player_random_tag, opponent_name, opponent_deck, opponent_random_tag, randomize_first))
 
 func _on_quit_button_pressed():
 	get_tree().quit()
@@ -70,8 +81,8 @@ func _on_quit_button_pressed():
 func _on_connected(player_name):
 	join_room_button.disabled = false
 	matchmake_button.disabled = false
-	$PlayerNameBox.editable = true
-	$PlayerNameBox.text = player_name
+	player_name_box.editable = true
+	player_name_box.text = player_name
 	$ReconnectToServerButton.visible = false
 	$ServerStatusLabel.text = "Connected to server."
 
@@ -84,31 +95,59 @@ func _on_disconnected():
 	$ServerStatusLabel.text = "Disconnected from server."
 	just_clicked_matchmake = false
 
-func get_vs_info(player_name, player_deck, opponent_name, opponent_deck, randomize_first_vs_ai = false):
+func get_vs_info(player_name, player_deck, player_random_tag, opponent_name, opponent_deck, opponent_random_tag, randomize_first_vs_ai = false):
 	return {
 		'player_name': player_name,
 		'player_deck': player_deck,
+		'player_random_tag': player_random_tag,
 		'opponent_name': opponent_name,
 		'opponent_deck': opponent_deck,
+		'opponent_random_tag': opponent_random_tag,
 		'randomize_first_vs_ai': randomize_first_vs_ai
 	}
+
+func get_random_tag(deck_id):
+	if deck_id.begins_with("random"):
+		return deck_id.split("#")[0]
+	return ""
+
+func get_deck_id_without_random_tag(deck_id):
+	if deck_id.begins_with("random"):
+		return deck_id.split("#")[1]
+	return deck_id
 
 func _on_remote_game_started(data):
 	just_clicked_matchmake = false
 	$MatchStartingAudio.play()
+	var player1_is_me = true
 	var player_deck = data['player1_deck_id']
 	var player_name = data['player1_name']
 	var opponent_deck = data['player2_deck_id']
 	var opponent_name = data['player2_name']
 	if data['your_player_id'] != data['player1_id']:
+		player1_is_me = false
 		player_deck = data['player2_deck_id']
 		player_name = data['player2_name']
 		opponent_deck = data['player1_deck_id']
 		opponent_name = data['player1_name']
 
-	player_deck = CardDefinitions.get_deck_from_str_id(player_deck)
-	opponent_deck = CardDefinitions.get_deck_from_str_id(opponent_deck)
-	start_remote_game.emit(get_vs_info(player_name, player_deck, opponent_name, opponent_deck), data)
+	# For remote play, random was decided locally first
+	# and the deck id is random#deck_id.
+	var player_random_tag = get_random_tag(player_deck)
+	var player_deck_no_random = get_deck_id_without_random_tag(player_deck)
+	var opponent_random_tag = get_random_tag(opponent_deck)
+	var opponent_deck_no_random = get_deck_id_without_random_tag(opponent_deck)
+
+	if player1_is_me:
+		data['player1_deck_id'] = player_deck_no_random
+		data['player2_deck_id'] = opponent_deck_no_random
+	else:
+		data['player1_deck_id'] = opponent_deck_no_random
+		data['player2_deck_id'] = player_deck_no_random
+
+	var player_deck_object = CardDefinitions.get_deck_from_str_id(player_deck_no_random)
+	var opponent_deck_object = CardDefinitions.get_deck_from_str_id(opponent_deck_no_random)
+	start_remote_game.emit(get_vs_info(player_name, player_deck_object, player_random_tag, opponent_name, opponent_deck_object, opponent_random_tag), data)
 
 func _on_players_update(players, match_available : bool):
 	player_list.clear()
@@ -129,13 +168,16 @@ func _on_join_failed():
 	update_buttons(false)
 
 func get_player_name() -> String:
-	return $PlayerNameBox.text
+	return player_name_box.text
 
 func _on_join_button_pressed():
 	var player_name = get_player_name()
 	var room_name = room_select.text
 	var chosen_deck = CardDefinitions.get_deck_from_str_id(player_selected_character)
-	NetworkManager.join_room(player_name, room_name, chosen_deck['id'])
+	var chosen_deck_id = chosen_deck['id']
+	if player_selected_character.begins_with("random"):
+		chosen_deck_id = player_selected_character + "#" + chosen_deck_id
+	NetworkManager.join_room(player_name, room_name, chosen_deck_id)
 	update_buttons(true)
 
 func update_buttons(joining : bool):
@@ -167,7 +209,10 @@ func _on_matchmake_button_pressed():
 	just_clicked_matchmake = true
 	var player_name = get_player_name()
 	var chosen_deck = CardDefinitions.get_deck_from_str_id(player_selected_character)
-	NetworkManager.join_matchmaking(player_name, chosen_deck['id'])
+	var chosen_deck_id = chosen_deck['id']
+	if player_selected_character.begins_with("random"):
+		chosen_deck_id = player_selected_character + "#" + chosen_deck_id
+	NetworkManager.join_matchmaking(player_name, chosen_deck_id)
 	update_buttons(true)
 
 func _on_char_select_close_character_select():
@@ -214,7 +259,7 @@ func _on_change_player_character_button_pressed(is_player : bool):
 	char_select.visible = true
 	selecting_player = is_player
 
-func cropLineToMaxLength(new_text : String, max_length: int) -> void:
+func cropLineToMaxLength_room_line_edit(new_text : String, max_length: int) -> void:
 	if new_text.length() > max_length:
 		var col = room_select.caret_column
 		if col != 0:
@@ -225,8 +270,22 @@ func cropLineToMaxLength(new_text : String, max_length: int) -> void:
 		room_select.text = new_text
 		room_select.caret_column = col - 1
 
+func cropLineToMaxLength_name_text_edit(new_text : String, max_length: int) -> void:
+	if new_text.length() > max_length:
+		var col = player_name_box.get_caret_column()
+		if col != 0:
+			new_text = new_text.substr(0, col-1) + new_text.substr(col)
+		else:
+			new_text = new_text.substr(1)
+		new_text = new_text.substr(0, max_length)
+		player_name_box.text = new_text
+		player_name_box.set_caret_column(col - 1)
+
 func _on_room_name_box_text_changed(new_text):
-	cropLineToMaxLength(new_text, RoomMaxLen)
+	cropLineToMaxLength_room_line_edit(new_text, RoomMaxLen)
 
 func _on_player_name_box_focus_entered():
-	$PlayerNameBox.select_all()
+	player_name_box.select_all()
+
+func _on_player_name_box_text_changed():
+	cropLineToMaxLength_name_text_edit(player_name_box.text, PlayerNameMaxLen)

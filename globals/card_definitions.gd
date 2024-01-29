@@ -278,6 +278,8 @@ func get_condition_text(effect, amount, amount2, detail):
 			text += "If set from gauge, "
 		"was_hit":
 			text += "If you were hit, "
+		"matches_named_card":
+			text += "If your next attack is %s, " % detail
 		"is_critical":
 			text += "Crit: "
 		"no_sealed_copy_of_attack":

@@ -1,0 +1,48 @@
+[gd_resource type="SpriteFrames" load_steps=7 format=3 uid="uid://coqhex4p6oy6u"]
+
+[ext_resource type="Texture2D" uid="uid://41wcwprp8cpm" path="res://assets/character_animations/sagat/idle/sagatidle.png" id="1_pqe8v"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_cawrx"]
+atlas = ExtResource("1_pqe8v")
+region = Rect2(0, 0, 166, 264)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_pbkpo"]
+atlas = ExtResource("1_pqe8v")
+region = Rect2(194, 0, 166, 264)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_tphxg"]
+atlas = ExtResource("1_pqe8v")
+region = Rect2(388, 0, 166, 264)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_lryoj"]
+atlas = ExtResource("1_pqe8v")
+region = Rect2(582, 0, 166, 264)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_3ktn3"]
+atlas = ExtResource("1_pqe8v")
+region = Rect2(776, 0, 166, 264)
+
+[resource]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_cawrx")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_pbkpo")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_tphxg")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_lryoj")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_3ktn3")
+}],
+"loop": true,
+"name": &"idle",
+"speed": 5.0
+}]
+metadata/flip = true
+metadata/scaling = 1.2

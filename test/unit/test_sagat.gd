@@ -4,7 +4,7 @@ const LocalGame = preload("res://scenes/game/local_game.gd")
 const GameCard = preload("res://scenes/game/game_card.gd")
 const Enums = preload("res://scenes/game/enums.gd")
 var game_logic : LocalGame
-var default_deck = CardDefinitions.get_deck_from_str_id("yuzu")
+var default_deck = CardDefinitions.get_deck_from_str_id("sagat")
 const TestCardId1 = 50001
 const TestCardId2 = 50002
 const TestCardId3 = 50003
@@ -122,7 +122,8 @@ func handle_simultaneous_effects(initiator, defender):
 			decider = defender
 		assert_true(game_logic.do_choice(decider, 0), "Failed simuleffect choice")
 
-func execute_strike(initiator, defender, init_card : String, def_card : String, init_choices, def_choices, init_ex = false, def_ex = false, init_force_discard = [], def_force_discard = [], init_extra_cost = 0):
+func execute_strike(initiator, defender, init_card : String, def_card : String, init_choices, def_choices,
+		init_ex = false, def_ex = false, init_force_discard = [], def_force_discard = [], init_extra_cost = 0, init_set_effect_gauge = false, def_set_effect_gauge = false):
 	var all_events = []
 	give_specific_cards(initiator, init_card, defender, def_card)
 	if init_ex:
@@ -132,7 +133,10 @@ func execute_strike(initiator, defender, init_card : String, def_card : String, 
 		do_and_validate_strike(initiator, TestCardId1)
 
 	if game_logic.game_state == Enums.GameState.GameState_PlayerDecision and game_logic.active_strike.strike_state == game_logic.StrikeState.StrikeState_Initiator_SetEffects:
-		game_logic.do_force_for_effect(initiator, init_force_discard)
+		if init_set_effect_gauge:
+			assert_true(game_logic.do_gauge_for_effect(initiator, init_force_discard), "failed do_gauge_for_effect")
+		else:
+			assert_true(game_logic.do_force_for_effect(initiator, init_force_discard), "failed do_force_for_effect")
 
 	if def_ex:
 		give_player_specific_card(defender, def_card, TestCardId4)
@@ -141,7 +145,10 @@ func execute_strike(initiator, defender, init_card : String, def_card : String, 
 		all_events += do_strike_response(defender, TestCardId2)
 
 	if game_logic.game_state == Enums.GameState.GameState_PlayerDecision and game_logic.active_strike.strike_state == game_logic.StrikeState.StrikeState_Defender_SetEffects:
-		game_logic.do_force_for_effect(defender, def_force_discard)
+		if def_set_effect_gauge:
+			assert_true(game_logic.do_gauge_for_effect(defender, def_force_discard), "failed defender do_gauge_for_effect")
+		else:
+			assert_true(game_logic.do_force_for_effect(defender, def_force_discard), "failed defender do_force_for_effect")
 
 	# Pay any costs from gauge
 	if game_logic.active_strike and game_logic.active_strike.strike_state == game_logic.StrikeState.StrikeState_Initiator_PayCosts:
@@ -162,14 +169,14 @@ func execute_strike(initiator, defender, init_card : String, def_card : String, 
 	handle_simultaneous_effects(initiator, defender)
 
 	for i in range(init_choices.size()):
-		assert_eq(game_logic.game_state, Enums.GameState.GameState_PlayerDecision, "not in decision for choice 1")
-		assert_true(game_logic.do_choice(initiator, init_choices[i]), "choice 1 failed")
+		assert_eq(game_logic.game_state, Enums.GameState.GameState_PlayerDecision)
+		assert_true(game_logic.do_choice(initiator, init_choices[i]))
 		handle_simultaneous_effects(initiator, defender)
 	handle_simultaneous_effects(initiator, defender)
 
 	for i in range(def_choices.size()):
-		assert_eq(game_logic.game_state, Enums.GameState.GameState_PlayerDecision, "not in decision for choice 2")
-		assert_true(game_logic.do_choice(defender, def_choices[i]), "choice 2 failed")
+		assert_eq(game_logic.game_state, Enums.GameState.GameState_PlayerDecision)
+		assert_true(game_logic.do_choice(defender, def_choices[i]))
 		handle_simultaneous_effects(initiator, defender)
 
 	var events = game_logic.get_latest_events()
@@ -184,91 +191,103 @@ func validate_life(p1, l1, p2, l2):
 	assert_eq(p1.life, l1)
 	assert_eq(p2.life, l2)
 
-func get_cards_from_hand(player : LocalGame.Player, amount : int):
-	var card_ids = []
-	for i in range(amount):
-		card_ids.append(player.hand[i].id)
-	return card_ids
-
-func get_cards_from_gauge(player : LocalGame.Player, amount : int):
-	var card_ids = []
-	for i in range(amount):
-		card_ids.append(player.gauge[i].id)
-	return card_ids
-
 ##
 ## Tests start here
 ##
 
-func test_yuzu_ua_under_four_gauge():
-	position_players(player1, 3, player2, 5)
+
+func test_sagat_crit_and_faceup():
+	position_players(player1, 3, player2, 6)
 	give_gauge(player1, 1)
-	assert_true(game_logic.do_character_action(player1, []))
-	var events = game_logic.get_latest_events()
-	validate_has_event(events, Enums.EventType.EventType_CardFromHandToGauge_Choice, player1)
-	assert_eq(game_logic.game_state, Enums.GameState.GameState_PlayerDecision)
-	var card_to_choose = player1.hand[0]
-	assert_true(game_logic.do_card_from_hand_to_gauge(player1, [card_to_choose.id]))
-	events = game_logic.get_latest_events()
-	assert_true(player1.is_card_in_gauge(card_to_choose.id))
+	give_player_specific_card(player1, "sagat_lowstepkick", TestCardId1)
+	give_player_specific_card(player2, "standard_normal_spike", TestCardId2)
+	assert_true(game_logic.do_strike(player1, TestCardId1, false, -1))
+	# On set, Sagat has his faceup choice and critical choice.
+	# Has gauge, so crit choice should be first.
+	assert_true(game_logic.do_gauge_for_effect(player1, [player1.gauge[0].id]))
+	# Then faceup choice.
+	assert_true(game_logic.do_choice(player1, 0))
+	assert_true(game_logic.do_strike(player2, TestCardId2, false, -1))
+	validate_life(player1, 30, player2, 28)
+	validate_positions(player1, 4, player2, 6)
 
-	if player1.exceeded:
-		fail_test("Should not have exceeded after character action")
-	pass_test("test passed")
-
-func test_yuzu_ua_four_gauge():
-	position_players(player1, 3, player2, 5)
-	give_gauge(player1, 3)
-	assert_true(game_logic.do_character_action(player1, []))
-	var events = game_logic.get_latest_events()
-	validate_has_event(events, Enums.EventType.EventType_CardFromHandToGauge_Choice, player1)
-	assert_eq(game_logic.game_state, Enums.GameState.GameState_PlayerDecision)
-	var card_to_choose = player1.hand[0]
-	assert_true(game_logic.do_card_from_hand_to_gauge(player1, [card_to_choose.id]))
-	events = game_logic.get_latest_events()
-	assert_true(player1.is_card_in_gauge(card_to_choose.id))
-
-	if not player1.exceeded:
-		fail_test("Should have exceeded after character action")
-	pass_test("test passed")
-
-func test_yuzu_discard_block_while_exceeded():
-	position_players(player1, 3, player2, 5)
+func test_sagat_crit_and_faceup_exceeded():
+	position_players(player1, 3, player2, 6)
+	player1.exceeded = true
 	give_gauge(player1, 1)
-	assert_true(game_logic.do_exceed(player1, [player1.gauge[0].id]))
+	give_player_specific_card(player1, "sagat_lowstepkick", TestCardId1)
+	give_player_specific_card(player2, "standard_normal_cross", TestCardId2)
+	assert_true(game_logic.do_strike(player1, TestCardId1, false, -1))
+	# On set, Sagat has his faceup choice and critical choice.
+	# Has gauge, so crit choice should be first.
+	assert_true(game_logic.do_gauge_for_effect(player1, [player1.gauge[0].id]))
+	# Then faceup choice.
+	assert_true(game_logic.do_choice(player1, 0))
+	assert_true(game_logic.do_strike(player2, TestCardId2, false, -1))
+	validate_life(player1, 30, player2, 27)
+	validate_positions(player1, 4, player2, 6)
 
-	var events = execute_strike(player2, player1, "uni_normal_assault", "uni_normal_block", [], [], false, false)
-	validate_has_event(events, Enums.EventType.EventType_Strike_ForceForArmor, player1)
-	assert_eq(game_logic.game_state, Enums.GameState.GameState_PlayerDecision)
-	assert_true(game_logic.do_force_for_armor(player1, []))
+func test_sagat_low_tiger_shot_recurs_no_discard():
+	position_players(player1, 3, player2, 8)
+	give_player_specific_card(player1, "sagat_lowtigershot", TestCardId1)
+	give_player_specific_card(player2, "standard_normal_grasp", TestCardId2)
+	assert_true(game_logic.do_strike(player1, TestCardId1, false, -1))
+	# On set, Sagat has his faceup choice and critical choice.
+	# No gauge so not crit.
+	# Then faceup choice.
+	assert_true(game_logic.do_choice(player1, 0))
+	assert_true(game_logic.do_strike(player2, TestCardId2, false, -1))
+	# After, recur choice
+	assert_true(game_logic.do_choice(player1, 0))
+	assert_eq(player1.gauge.size(), 0)
+	assert_eq(player1.deck[0].definition['id'], "sagat_lowtigershot")
+	validate_life(player1, 30, player2, 25)
+	validate_positions(player1, 3, player2, 9)
 
-	events = game_logic.get_latest_events()
-	assert_true(player1.is_card_in_discards(TestCardId2))
-	assert_true(player2.is_card_in_gauge(TestCardId1))
-	validate_positions(player1, 3, player2, 4)
-	validate_life(player1, 28, player2, 30)
+func test_sagat_low_tiger_shot_recurs():
+	position_players(player1, 3, player2, 8)
+	player1.discard_hand()
+	give_player_specific_card(player1, "sagat_lowtigershot", TestCardId1)
+	give_player_specific_card(player2, "standard_normal_grasp", TestCardId2)
+	assert_true(game_logic.do_strike(player1, TestCardId1, false, -1))
+	# On set, Sagat has his faceup choice and critical choice.
+	# No gauge so not crit.
+	# Then faceup choice.
+	assert_true(game_logic.do_choice(player1, 0))
+	assert_true(game_logic.do_strike(player2, TestCardId2, false, -1))
+	# After, recur choice
+	assert_true(game_logic.do_choice(player1, 0))
+	assert_eq(player1.gauge.size(), 1)
+	assert_eq(player1.deck[0].definition['id'], "sagat_lowtigershot")
+	validate_life(player1, 30, player2, 25)
+	validate_positions(player1, 3, player2, 9)
 
-func test_yuzu_kurenai_stunned_while_exceeded():
+func test_sagat_angercharge_not_tiger():
 	position_players(player1, 3, player2, 5)
-	give_gauge(player1, 2)
-	assert_true(game_logic.do_exceed(player1, [player1.gauge[0].id]))
-
-	execute_strike(player2, player1, "uni_normal_assault", "yuzu_kurenai", [], [0], false, false)
-
-	assert_true(player1.is_card_in_continuous_boosts(TestCardId2))
-	assert_true(player2.is_card_in_gauge(TestCardId1))
-	validate_positions(player1, 3, player2, 4)
+	give_player_specific_card(player1, "sagat_lowstepkick", TestCardId3)
+	assert_true(game_logic.do_boost(player1, TestCardId3))
+	assert_eq(game_logic.active_turn_player, player2.my_id)
+	give_player_specific_card(player1, "standard_normal_assault", TestCardId1)
+	give_player_specific_card(player2, "standard_normal_assault", TestCardId2)
+	assert_true(game_logic.do_strike(player2, TestCardId2, false, -1))
+	# On set, Sagat has his faceup choice and critical choice.
+	# No gauge, so just his faceup choice
+	assert_true(game_logic.do_choice(player2, 1))
+	assert_true(game_logic.do_strike(player1, TestCardId1, false, -1))
 	validate_life(player1, 26, player2, 30)
+	validate_positions(player1, 3, player2, 4)
 
-func test_yuzu_strike_from_gauge_assault():
+func test_sagat_angercharge_TIGER():
 	position_players(player1, 3, player2, 5)
-	give_player_specific_card(player1, "uni_normal_assault", TestCardId3)
-	player1.move_card_from_hand_to_gauge(TestCardId3)
-	player1.exceed()
-	assert_true(game_logic.do_character_action(player1, [], 0))
-	assert_true(game_logic.do_strike(player1, -1, false, -1, true))
-	give_player_specific_card(player2, "uni_normal_cross", TestCardId4)
-	assert_true(game_logic.do_strike(player2, TestCardId4, false, -1, true))
+	give_player_specific_card(player1, "sagat_lowstepkick", TestCardId3)
+	assert_true(game_logic.do_boost(player1, TestCardId3))
+	assert_eq(game_logic.active_turn_player, player2.my_id)
+	give_player_specific_card(player1, "sagat_tigeruppercut", TestCardId1)
+	give_player_specific_card(player2, "standard_normal_assault", TestCardId2)
+	assert_true(game_logic.do_strike(player2, TestCardId2, false, -1))
+	# On set, Sagat has his faceup choice and critical choice.
+	# No gauge, so just his faceup choice
+	assert_true(game_logic.do_choice(player2, 1))
+	assert_true(game_logic.do_strike(player1, TestCardId1, false, -1))
 	validate_life(player1, 30, player2, 24)
-	validate_positions(player1, 4, player2, 5)
-	assert_eq(game_logic.active_turn_player, player1.my_id)
+	validate_positions(player1, 4, player2, 7)

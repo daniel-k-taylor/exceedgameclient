@@ -11369,6 +11369,362 @@
 
 
 	{
+		"NOTE": "SAGAT CARDS START",
+		"id": "sagat_tigerdestruction",
+		"type": "ultra",
+		"display_name": "Tiger Destruction",
+		"force_cost": 0,
+		"gauge_cost": 2,
+		"range_min": 1,
+		"range_max": 1,
+		"speed": 5,
+		"power": 7,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "before",
+				"effect_type": "advance",
+				"amount": 3
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Massive",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "rangeup",
+					"amount": 0,
+					"amount2": 1
+				},
+				{
+					"timing": "during_strike",
+					"effect_type": "armorup",
+					"amount": 2
+				},
+				{
+					"timing": "during_strike",
+					"effect_type": "guardup",
+					"amount": 2
+				}
+			]
+		}
+	},
+	{
+		"id": "sagat_tigercannon",
+		"type": "ultra",
+		"display_name": "Tiger Cannon",
+		"force_cost": 0,
+		"gauge_cost": 4,
+		"range_min": 2,
+		"range_max": 5,
+		"speed": 6,
+		"power": 4,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "hit",
+				"effect_type": "gain_advantage",
+				"and": {
+					"effect_type": "push",
+					"amount": 3
+				}
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 1,
+			"cancel_cost": -1,
+			"display_name": "Swift Destruction",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "speedup",
+					"amount": 4
+				}
+			]
+		}
+	},
+	{
+		"id": "sagat_tigershot",
+		"type": "special",
+		"display_name": "Tiger Shot",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 2,
+		"range_max": 5,
+		"speed": 4,
+		"power": 3,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "hit",
+				"condition": "is_critical",
+				"effect_type": "draw",
+				"amount": 1,
+				"and": {
+					"effect_type": "opponent_discard_choose",
+					"amount": 1
+				}
+			},
+			{
+				"timing": "hit",
+				"effect_type": "push",
+				"amount": 1,
+				"and": {
+					"effect_type": "add_top_discard_to_gauge",
+					"and": {
+						"effect_type": "draw",
+						"amount": 1
+					}
+				}
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 1,
+			"cancel_cost": -1,
+			"display_name": "Reach",
+			"effects": [
+				{
+					"timing": "now",
+					"effect_type": "strike"
+				},
+				{
+					"timing": "during_strike",
+					"effect_type": "rangeup",
+					"amount": 0,
+					"amount2": 1
+				}
+			]
+		}
+	},
+	{
+		"id": "sagat_lowstepkick",
+		"type": "special",
+		"display_name": "Low Step Kick",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 2,
+		"speed": 5,
+		"power": 2,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "during_strike",
+				"condition": "is_critical",
+				"effect_type": "ignore_guard"
+			},
+			{
+				"timing": "before",
+				"effect_type": "close",
+				"amount": 1
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Anger Charge",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"condition": "matches_named_card",
+					"condition_detail": "Tiger Uppercut",
+					"condition_card_id": "sagat_tigeruppercut",
+					"effect_type": "guardup",
+					"amount": 2,
+					"and": {
+						"effect_type": "powerup",
+						"amount": 2,
+						"and": {
+							"effect_type": "speedup",
+							"amount": 2,
+							"and": {
+								"effect_type": "critical",
+								"character_effect": true
+							}
+						}
+					}
+				}
+			]
+		}
+	},
+	{
+		"id": "sagat_lowtigershot",
+		"type": "special",
+		"display_name": "Low Tiger Shot",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 3,
+		"range_max": 8,
+		"speed": 2,
+		"power": 5,
+		"armor": 0,
+		"guard": 5,
+		"effects": [
+			{
+				"timing": "hit",
+				"condition": "is_critical",
+				"effect_type": "powerup",
+				"amount": 1,
+				"and": {
+					"effect_type": "draw",
+					"amount": 1
+				}
+			},
+			{
+				"timing": "hit",
+				"effect_type":  "push",
+				"amount": 1
+			},
+			{
+				"timing": "after",
+				"condition": "hit_opponent",
+				"effect_type": "choice",
+				"choice": [
+					{
+						"effect_type": "return_attack_to_top_of_deck",
+						"and": {
+							"effect_type": "add_top_discard_to_gauge"
+						}
+					},
+					{ "effect_type": "pass" }
+				]
+			}
+		],
+		"boost": {
+			"boost_type": "immediate",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Quick Backdash",
+			"effects": [
+				{
+					"timing": "immediate",
+					"effect_type": "retreat",
+					"amount": 2
+				},
+				{
+					"timing": "immediate",
+					"condition": "range",
+					"condition_amount": 3,
+					"effect_type": "bonus_action"
+				}
+			]
+	}
+	},
+	{
+		"id": "sagat_tigerknee",
+		"type": "special",
+		"display_name": "Tiger Knee",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 1,
+		"speed": 3,
+		"power": 5,
+		"armor": 0,
+		"guard": 4,
+		"effects": [
+			{
+				"timing": "before",
+				"effect_type": "close",
+				"amount": 2
+			},
+			{
+				"timing": "hit",
+				"effect_type": "gain_advantage"
+			},
+			{
+				"timing": "after",
+				"condition": "is_critical",
+				"effect_type": "pass",
+				"and": {
+					"condition": "opponent_stunned",
+					"effect_type": "push",
+					"amount": 3
+				}
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Spite",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "speedup",
+					"amount": 1
+				},
+				{
+					"timing": "hit",
+					"effect_type": "add_boost_to_gauge_on_strike_cleanup",
+					"card_name": "Tiger Knee"
+				}
+			]
+	}
+	},
+	{
+		"id": "sagat_tigeruppercut",
+		"type": "special",
+		"display_name": "Tiger Uppercut",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 1,
+		"speed": 4,
+		"power": 4,
+		"armor": 3,
+		"guard": 3,
+		"effects":[
+			{
+				"timing": "before",
+				"effect_type": "close",
+				"amount": 1
+			},
+			{
+				"timing": "hit",
+				"condition": "is_critical",
+				"effect_type": "push",
+				"amount": 2
+			},
+			{
+				"timing": "after",
+				"effect_type": "lose_all_armor"
+			}
+		],
+		"boost": {
+			"boost_type": "immediate",
+			"force_cost": 1,
+			"cancel_cost": -1,
+			"display_name": "Terrifying",
+			"effects": [
+				{
+					"timing": "immediate",
+					"condition": "range",
+					"condition_amount": 1,
+					"effect_type": "opponent_discard_random",
+					"amount": 2
+				},
+				{
+					"timing": "immediate",
+					"effect_type": "strike"
+				}
+			]
+		},
+		"NOTEEND": "SAGAT CARDS END"
+	},
+
+
+	{
 		"NOTE": "SHOVEL/SHIELD CARDS START",
 		"id": "shovelshield_tandemattack",
 		"type": "ultra",

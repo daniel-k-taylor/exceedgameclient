@@ -1848,7 +1848,7 @@ class Player:
 		var effects = []
 
 		# Maybe later get them from boosts, but for now, just character ability.
-		var ignore_condition = false
+		var ignore_condition = true
 		effects = parent.get_all_effects_for_timing("set_strike", self, card, ignore_condition)
 
 		if extra_effect_after_set_strike:
@@ -2346,6 +2346,9 @@ func is_effect_condition_met(performing_player : Player, effect, local_condition
 		elif condition == "max_cards_in_hand":
 			var amount = effect['condition_amount']
 			return performing_player.hand.size() <= amount
+		elif condition == "matches_named_card":
+			var player_card = active_strike.get_player_card(performing_player)
+			return player_card.definition['id'] == effect['condition_card_id']
 		elif condition == "min_cards_in_hand":
 			var amount = effect['condition_amount']
 			return performing_player.hand.size() >= amount
