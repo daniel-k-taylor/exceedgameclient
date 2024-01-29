@@ -1,0 +1,7 @@
+[gd_resource type="AtlasTexture" load_steps=2 format=3 uid="uid://nf4qgxcfhyo4"]
+
+[ext_resource type="Texture2D" uid="uid://c7rqyeirjxgn5" path="res://assets/cards/arakune/specials.jpg" id="1_yfm4a"]
+
+[resource]
+atlas = ExtResource("1_yfm4a")
+region = Rect2(2250, 0, 750, 1024)
