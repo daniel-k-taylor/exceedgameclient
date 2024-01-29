@@ -155,3 +155,13 @@ enum EventType {
 	EventType_Strike_WildStrike,
 	EventType_SustainBoost,
 }
+
+enum LogType {
+	LogType_CardInfo,
+	LogType_CharacterMovement,
+	LogType_Effect,
+	LogType_Health,
+	LogType_Action,
+	LogType_Strike,
+	LogType_Default
+}
