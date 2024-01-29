@@ -2242,6 +2242,7 @@ func strike_setup_defender_response(events):
 			_append_log_full(Enums.LogType.LogType_Effect, active_strike.defender, "does not have the named card.")
 			events += active_strike.defender.reveal_hand()
 	if ask_for_response:
+		decision_info.player = active_strike.defender.my_id
 		if active_strike.opponent_sets_first:
 			events += [create_event(Enums.EventType.EventType_Strike_OpponentSetsFirst_DefenderSet, active_strike.defender.my_id, 0)]
 		else:
@@ -2260,6 +2261,7 @@ func strike_setup_initiator_response(events):
 		do_strike(active_strike.initiator, -1, false, -1, active_strike.opponent_sets_first)
 		ask_for_response = false
 	if ask_for_response:
+		decision_info.player = active_strike.initiator.my_id
 		events += [create_event(Enums.EventType.EventType_Strike_OpponentSetsFirst_InitiatorSet, active_strike.initiator.my_id, 0)]
 	return events
 
@@ -3806,15 +3808,15 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 			var card_ids = effect['card_ids']
 			var card_names = card_db.get_card_names(card_ids)
 			if effect['destination'] == "discard":
-				_append_log_full(Enums.LogType.LogType_Strike, performing_player, "discards the chosen card(s): %s." % card_names)
+				_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "discards the chosen card(s): %s." % card_names)
 				events += performing_player.discard(card_ids)
 			elif effect['destination'] == "sealed":
-				_append_log_full(Enums.LogType.LogType_Strike, performing_player, "seals the chosen card(s): %s." % card_names)
+				_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "seals the chosen card(s): %s." % card_names)
 				for seal_card_id in card_ids:
 					var seal_effect = { "effect_type": "seal_card_INTERNAL", "seal_card_id": seal_card_id, "source": "hand" }
 					events += handle_strike_effect(card_id, seal_effect, performing_player)
 			elif effect['destination'] == "reveal":
-				_append_log_full(Enums.LogType.LogType_Strike, performing_player, "reveals the chosen card(s): %s." % card_names)
+				_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "reveals the chosen card(s): %s." % card_names)
 				for revealed_card_id in card_ids:
 					events += [create_event(Enums.EventType.EventType_RevealCard, performing_player.my_id, revealed_card_id)]
 				if 'and' in effect and effect['and']['effect_type'] == "save_power":
@@ -5185,8 +5187,8 @@ func check_hand_size_advance_turn(performing_player : Player):
 			_append_log_full(Enums.LogType.LogType_Action, performing_player, "takes an additional action! (%s left)" % performing_player.bonus_actions)
 		events += [create_event(Enums.EventType.EventType_Boost_ActionAfterBoost, performing_player.my_id, performing_player.bonus_actions)]
 	else:
-		_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "draws for end of turn. Their hand size is now %s." % len(performing_player.hand))
 		events += performing_player.draw(1)
+		_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "draws for end of turn. Their hand size is now %s." % len(performing_player.hand))
 		if len(performing_player.hand) > performing_player.max_hand_size:
 			change_game_state(Enums.GameState.GameState_DiscardDownToMax)
 			events += [create_event(Enums.EventType.EventType_HandSizeExceeded, performing_player.my_id, len(performing_player.hand) - performing_player.max_hand_size)]
