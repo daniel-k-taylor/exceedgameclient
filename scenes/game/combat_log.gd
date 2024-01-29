@@ -71,3 +71,11 @@ func _on_copy_button_pressed():
 	#var current_clipboard = DisplayServer.clipboard_get()
 	# Set the contents of the clipboard
 	DisplayServer.clipboard_set(log_text.text)
+
+func _on_player_color_changed(color):
+	log_player_color = "#%02x%02x%02x" % [color.r8, color.g8, color.b8]
+	filter_toggle_update.emit()
+
+func _on_opponent_color_changed(color):
+	log_opponent_color = "#%02x%02x%02x" % [color.r8, color.g8, color.b8]
+	filter_toggle_update.emit()
