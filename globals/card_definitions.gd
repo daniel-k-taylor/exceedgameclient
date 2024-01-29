@@ -710,8 +710,14 @@ func get_effect_type_text(effect, card_name_source : String = ""):
 			else:
 				var amount = effect['amount']
 				effect_str += "Take %s actions. Cannot cancel and striking ends turn." % str(amount)
-		"take_nonlethal_damage":
-			effect_str += "Take %s nonlethal damage" % str(effect['amount'])
+		"take_damage":
+			var who_str = "Take"
+			if 'opponent' in effect and effect['opponent']:
+				who_str = "Deal"
+			var nonlethal_str = ""
+			if 'nonlethal' in effect and effect['nonlethal']:
+				nonlethal_str = " nonlethal"
+			effect_str += "%s %s%s damage" % [who_str, str(effect['amount']), nonlethal_str]
 		"topdeck_from_hand":
 			effect_str += "Put a card from your hand on top of your deck"
 		"when_hit_force_for_armor":

@@ -1,4 +1,38 @@
 In progress:
+    Arakune:
+        ☐ "sealed_area_is_secret": true,
+        ☐ "always_show_overdrive": true,
+        ☐ "exceed_cost_reduced_by": "overdrive_count",
+        ☐ { "effect_type": "seal_topdeck" },
+            ☐ "add_topdeck_card_name_to_choices": [0],
+        ☐ "effect_type": "add_top_discard_to_overdrive",
+            ☐ or no name
+            ☐ "add_topdeck_card_name_to_choices": [0],
+        ☐ "condtion": "is_special_or_ultra_attack",
+        ☐ Make on_strike_reveal handled in continue_resolve_strike
+        ☐ "condition": "discarded_matches_attack_speed",
+        ☐ choose_discard - "linked_effect":
+
+
+        ☐ "choose_cards_from_top_deck"
+            ☐ "add_to_sealed"
+            ☐ "add_to_overdrive"
+            ☐ "add_to_topdeck_under"
+        ☐ choose_discard - destination overdrive
+        ☐ "effect_type": "add_boost_to_overdrive_on_strike_cleanup"
+        ☐ "effect_type": "dodge_speed_greater_than",
+            ☐ "amount": "YOUR_SPEED"
+        ☐ "effect_type": "add_strike_to_overdrive_after_cleanup"
+        ☐ dodge_at_range - "special_range": "OVERDRIVE_COUNT"
+        ☐ "effect_type": "both_players_rangeup",
+        ☐ "effect_type": "both_players_powerup",
+        ☐ "effect_type": "opponent_discard_random", - "destination": "overdrive"
+        ☐ choice - "opponent": true,
+        ☐ "effect_type": "reveal_hand_and_topdeck"
+        ☐ self_discard_choose - "destination": "opponent_overdrive"
+        ☐ "effect_type": "sidestep_transparent_foe", - "both_players": true
+        ☐ sidestep_dialogue - both_players
+        ☐ take_damage @started(24-01-29 02:45)
 
 Write tests for:
     Axl:

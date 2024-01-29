@@ -3989,7 +3989,8 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 			performing_player.bonus_actions += num
 			performing_player.cancel_blocked_this_turn = true
 			_append_log_full(Enums.LogType.LogType_Effect, performing_player, "gains %s bonus actions!" % str(num))
-		"take_nonlethal_damage":
+		"take_damage":
+			var nonlethal = 'nonlethal' in effect and effect['nonlethal']
 			var damaged_player = performing_player
 			if 'opponent' in effect and effect['opponent']:
 				damaged_player = opposing_player
@@ -4005,7 +4006,7 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 			var used_armor = damage - unmitigated_damage
 			if active_strike:
 				damaged_player.strike_stat_boosts.consumed_armor += used_armor
-			if unmitigated_damage >= damaged_player.life:
+			if nonlethal and unmitigated_damage >= damaged_player.life:
 				unmitigated_damage = damaged_player.life - 1
 			damaged_player.life -= unmitigated_damage
 			events += [create_event(Enums.EventType.EventType_Strike_TookDamage, damaged_player.my_id, unmitigated_damage, "", damaged_player.life)]

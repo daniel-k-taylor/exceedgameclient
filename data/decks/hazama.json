@@ -24,7 +24,8 @@
 		"effect_type": "pass"
 	},
 	"overdrive_effect": {
-		"effect_type": "take_nonlethal_damage",
+		"effect_type": "take_damage",
+		"nonlethal": true,
 		"opponent": true,
 		"amount": 1,
 		"and": {

@@ -17,7 +17,8 @@
 		}
 	},
 	"overdrive_effect": {
-		"effect_type": "take_nonlethal_damage",
+		"effect_type": "take_damage",
+		"nonlethal": true,
 		"amount": 1,
 		"and": {
 			"effect_type": "choice",
