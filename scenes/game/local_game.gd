@@ -721,7 +721,7 @@ class Player:
 
 	func shuffle_sealed_to_deck():
 		var events = []
-		var card_names = parent.card_db.get_card_names(sealed)
+		var card_names = parent._card_list_to_string(sealed)
 		if card_names != "":
 			parent._append_log_full(Enums.LogType.LogType_CardInfo, self, "shuffles their sealed area into their deck, containing %s." % card_names)
 		else:
@@ -1803,7 +1803,7 @@ class Player:
 						var dodge_range = str(strike_stat_boosts.dodge_at_range_min)
 						if strike_stat_boosts.dodge_at_range_min != strike_stat_boosts.dodge_at_range_max:
 							dodge_range += "-%s" % strike_stat_boosts.dodge_at_range_max
-						parent._append_log_full(Enums.LogType.LogType_Effect, self, "will no longer dodge attacks from range %s-%s." % dodge_range)
+						parent._append_log_full(Enums.LogType.LogType_Effect, self, "will no longer dodge attacks from range %s." % dodge_range)
 						strike_stat_boosts.dodge_at_range_min = -1
 						strike_stat_boosts.dodge_at_range_max = -1
 						strike_stat_boosts.dodge_at_range_from_buddy = false
@@ -3534,10 +3534,10 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 			var buddy_id = ""
 			if 'buddy_id' in effect:
 				buddy_id = effect['buddy_id']
-			var old_buddy_pos = performing_player.get_buddy_position(buddy_id)
+			var old_buddy_pos = performing_player.get_buddy_location(buddy_id)
 			var buddy_name = performing_player.get_buddy_name(buddy_id)
 			events += performing_player.place_buddy(opposing_player.arena_location, buddy_id)
-			var space = performing_player.get_buddy_position(buddy_id)
+			var space = performing_player.get_buddy_location(buddy_id)
 			if old_buddy_pos == -1:
 				_append_log_full(Enums.LogType.LogType_CharacterMovement, performing_player, "moves %s to %s on space %s." % [buddy_name, opposing_player.name, str(space)])
 			else:
@@ -3546,10 +3546,10 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 			var buddy_id = ""
 			if 'buddy_id' in effect:
 				buddy_id = effect['buddy_id']
-			var old_buddy_pos = performing_player.get_buddy_position(buddy_id)
+			var old_buddy_pos = performing_player.get_buddy_location(buddy_id)
 			var buddy_name = performing_player.get_buddy_name(buddy_id)
 			events += performing_player.place_buddy(performing_player.arena_location, buddy_id)
-			var space = performing_player.get_buddy_position(buddy_id)
+			var space = performing_player.get_buddy_location(buddy_id)
 			if old_buddy_pos == -1:
 				_append_log_full(Enums.LogType.LogType_CharacterMovement, performing_player, "moves %s to themselves on space %s." % [buddy_name, str(space)])
 			else:
@@ -4594,6 +4594,13 @@ func in_range(attacking_player, defending_player, card, combat_logging=false):
 	var distance = abs(attack_source_location - defending_player.arena_location)
 	var opponent_in_range = is_location_in_range(attacking_player, card, defending_player.arena_location)
 
+	var min_range = get_card_stat(attacking_player, card, 'range_min') + attacking_player.strike_stat_boosts.min_range
+	var max_range = get_card_stat(attacking_player, card, 'range_max') + attacking_player.strike_stat_boosts.max_range
+	var range_string = str(min_range)
+	if min_range != max_range:
+		range_string += "-%s" % str(max_range)
+	_append_log_full(Enums.LogType.LogType_Strike, attacking_player, "has range %s." % range_string)
+
 	if defending_player.strike_stat_boosts.dodge_at_range_min != -1:
 		var dodge_range_string = str(defending_player.strike_stat_boosts.dodge_at_range_min)
 		if defending_player.strike_stat_boosts.dodge_at_range_max != defending_player.strike_stat_boosts.dodge_at_range_min:
@@ -5027,7 +5034,7 @@ func handle_strike_attack_cleanup(performing_player : Player, card):
 		events += other_player.add_to_continuous_boosts(card)
 		other_player.sustained_boosts.append(card.id)
 	elif performing_player.strike_stat_boosts.move_strike_to_boosts:
-		_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "'s attack is set as a continuous boost." % card_name)
+		_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "'s attack %s is set as a continuous boost." % card_name)
 		events += performing_player.add_to_continuous_boosts(card)
 		performing_player.sustained_boosts.append(card.id)
 	elif performing_player.strike_stat_boosts.attack_to_topdeck_on_cleanup:
@@ -5142,9 +5149,9 @@ func boost_finish_resolving_card(performing_player : Player):
 
 		if performing_player.sustain_next_boost:
 			performing_player.sustained_boosts.append(active_boost.card.id)
-			_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "set and sustained %s as a continuous boost." % _get_boost_and_card_name(active_boost))
+			_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "set and sustained %s as a continuous boost." % _get_boost_and_card_name(active_boost.card))
 		else:
-			_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "set %s as a continuous boost." % _get_boost_and_card_name(active_boost))
+			_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "set %s as a continuous boost." % _get_boost_and_card_name(active_boost.card))
 	else:
 		if active_boost.seal_on_cleanup:
 			_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "seals the boosted card %s." % active_boost.card.definition['display_name'])
@@ -5510,7 +5517,7 @@ func do_exceed(performing_player : Player, card_ids : Array) -> bool:
 		events = performing_player.add_to_overdrive(card_ids)
 	else:
 		var card_names = card_db.get_card_names(card_ids)
-		_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "spends %s cards from gauge: %s" % card_names)
+		_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "spends %s card(s) from gauge: %s" % [len(card_ids), card_names])
 		events = performing_player.discard(card_ids)
 
 	events += performing_player.exceed()
