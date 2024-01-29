@@ -13,8 +13,11 @@ func poll_for_events() -> Array:
 		return current_game.get_latest_events()
 	return []
 
-func get_combat_log() -> String:
-	return current_game.get_combat_log()
+func get_combat_log(log_filters, player_color, opponent_color) -> String:
+	var log_string : String = current_game.get_combat_log(log_filters)
+	log_string = log_string.replace("{_player_color}", player_color)
+	log_string = log_string.replace("{_opponent_color}", opponent_color)
+	return log_string
 
 func is_ai_game() -> bool:
 	return current_game is LocalGame
