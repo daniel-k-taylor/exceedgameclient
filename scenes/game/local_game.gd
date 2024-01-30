@@ -4849,7 +4849,7 @@ func continue_resolve_strike(events):
 			StrikeState.StrikeState_Cleanup_Player2Effects:
 				events += do_remaining_effects(player2, StrikeState.StrikeState_Cleanup_Complete)
 			StrikeState.StrikeState_Cleanup_Complete:
-				# If hit, move card to gauge, otherwise move to discard.
+				# Handle cleanup effects that cause attack cards to leave play before the standard timing
 				events += handle_strike_attack_cleanup(player1, card1)
 				events += handle_strike_attack_cleanup(player2, card2)
 
@@ -4861,11 +4861,12 @@ func continue_resolve_strike(events):
 				events += player1.cleanup_continuous_boosts()
 				events += player2.cleanup_continuous_boosts()
 
-				# If hit, move card to gauge, otherwise move to discard.
+				# Cleanup attacks, if hit, move card to gauge, otherwise move to discard.
 				if card1 in active_strike.cards_in_play:
 					events += strike_send_attack_to_discard_or_gauge(player1, card1)
 				if card2 in active_strike.cards_in_play:
 					events += strike_send_attack_to_discard_or_gauge(player2, card2)
+				assert(active_strike.cards_in_play.size() == 0, "ERROR: cards still in play after strike should have been cleaned up")
 
 				# Remove all stat boosts.
 				player.strike_stat_boosts.clear()
