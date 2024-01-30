@@ -81,6 +81,7 @@
 				},
 				"negative_condition_effect": {
 					"NOTE": "Overdrive Effect",
+					"is_negative_effect": true,
 					"effect_type": "choice",
 					"add_topdeck_card_name_to_choices": [0],
 					"choice": [

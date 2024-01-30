@@ -1296,7 +1296,7 @@ class Player:
 		overdrive.append(card)
 		return [parent.create_event(Enums.EventType.EventType_AddToOverdrive, my_id, card.id)]
 
-	func seal_from_location(card_id : int, source : String):
+	func seal_from_location(card_id : int, source : String, silent : bool = false):
 		var events = []
 		var source_array
 		match source:
@@ -1313,39 +1313,6 @@ class Player:
 			var card = source_array[i]
 			if card.id == card_id:
 				source_array.remove_at(i)
-				sealed.append(card)
-				events += [parent.create_event(Enums.EventType.EventType_Seal, my_id, card.id)]
-				break
-		return events
-
-	func seal_from_hand(card_id : int, silent = false):
-		var events = []
-		for i in range(len(hand)-1, -1, -1):
-			var card = hand[i]
-			if card.id == card_id:
-				hand.remove_at(i)
-				sealed.append(card)
-				events += [parent.create_event(Enums.EventType.EventType_Seal, my_id, card.id, "", not silent)]
-				break
-		return events
-
-	func seal_from_discard(card_id : int, silent = false):
-		var events = []
-		for i in range(len(discards)-1, -1, -1):
-			var card = discards[i]
-			if card.id == card_id:
-				discards.remove_at(i)
-				sealed.append(card)
-				events += [parent.create_event(Enums.EventType.EventType_Seal, my_id, card.id, "", not silent)]
-				break
-		return events
-
-	func seal_from_deck(card_id : int, silent = false):
-		var events = []
-		for i in range(len(deck)-1, -1, -1):
-			var card = deck[i]
-			if card.id == card_id:
-				deck.remove_at(i)
 				sealed.append(card)
 				events += [parent.create_event(Enums.EventType.EventType_Seal, my_id, card.id, "", not silent)]
 				break
@@ -2889,7 +2856,7 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 				var card_ids = []
 				for i in range(performing_player.discards.size() - 1, -1, -1):
 					card_ids.append(performing_player.discards[i].id)
-				var card_names = _card_list_to_string(card_ids)
+				var card_names = card_db.get_card_names(card_ids)
 				_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "adds the top %s card(s) of their discards to gauge: %s." % [amount, card_names])
 			else:
 				_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "has no cards in their discard pile to add to gauge.")
@@ -4605,6 +4572,15 @@ func do_remaining_effects(performing_player : Player, next_state):
 				elif 'negative_condition_effect' in effect and is_effect_condition_met(performing_player, effect['negative_condition_effect'], null):
 					effects_to_choose.append(effect['negative_condition_effect'])
 
+			# Check if any of these effects want to be resolved immediately
+			# If so, just pick the first one.
+			# This is done to reduce unnecessary choice dialogs for the user (ie. exceed Hazama).
+			if effects_to_choose.size() > 1:
+				for effect in effects_to_choose:
+					if 'resolve_before_simultaneous_effects' in effect and effect['resolve_before_simultaneous_effects']:
+						effects_to_choose = [effect]
+						break
+
 			if effects_to_choose.size() > 1:
 				# Send choice to player
 				change_game_state(Enums.GameState.GameState_PlayerDecision)
@@ -4616,7 +4592,8 @@ func do_remaining_effects(performing_player : Player, next_state):
 				events += [create_event(Enums.EventType.EventType_Strike_EffectChoice, performing_player.my_id, 0, "EffectOrder")]
 				break
 			elif effects_to_choose.size() == 1:
-				var effect = effects_to_choose[0]
+				# Use the base effect to account for negative effects.
+				var effect = get_base_remaining_effect(effects_to_choose[0])
 				active_strike.remaining_effect_list.erase(effect)
 				events += do_effect_if_condition_met(performing_player, effect['card_id'], effect, null)
 
@@ -5085,7 +5062,7 @@ func continue_resolve_strike(events):
 				if active_strike.strike_state == StrikeState.StrikeState_Defender_RevealEffects:
 					active_strike.remaining_effect_list = get_all_effects_for_timing("on_strike_reveal", active_strike.defender, active_strike.defender_card)
 			StrikeState.StrikeState_Defender_RevealEffects:
-				events += do_remaining_effects(player1, StrikeState.StrikeState_Initiator_PayCosts)
+				events += do_remaining_effects(active_strike.defender, StrikeState.StrikeState_Initiator_PayCosts)
 			StrikeState.StrikeState_Initiator_PayCosts:
 				# Discard any EX cards
 				if active_strike.initiator_ex_card != null:
@@ -6356,7 +6333,6 @@ func do_choose_from_discard(performing_player : Player, card_ids : Array) -> boo
 	var secret_zones = false
 	for card_id in card_ids:
 		var destination = decision_info.destination
-		var card_name = card_db.get_card_name(card_id)
 		if decision_info.source == "discard":
 			match destination:
 				"deck":

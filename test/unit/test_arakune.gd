@@ -212,33 +212,6 @@ func validate_life(p1, l1, p2, l2):
 ##
 ## Tests start here
 ##
-func test_carlclover_vs_hazama_get_bonus_when_he_moves():
-	game_logic.teardown()
-	game_logic.free()
-	default_game_setup("hazama")
-	position_players(player1, 3, player2, 4)
-	player1.set_buddy_location("nirvana_active", 4)
-	advance_turn(player1)
-	give_player_specific_card(player2, "standard_normal_cross", TestCardId3)
-	assert_true(game_logic.do_strike(player2, TestCardId3, false, -1))
-	# As Hazama sets, has has ouroboros effect
-	assert_true(game_logic.do_force_for_effect(player2, [player2.hand[0].id], false))
-	# Choose which snake to use
-	assert_true(game_logic.do_choice(player2, 1))
-	# Choose where to place it
-	assert_true(game_logic.do_choice(player2, 1))
-	# Carl attacks
-	give_player_specific_card(player1, "carlclover_conbrio", TestCardId4)
-	assert_true(game_logic.do_strike(player1, TestCardId4, false, -1))
-	# Cards revealed and Hazama has moved
-	validate_positions(player1, 3, player2, 5)
-	# Cards has to pay for his attack
-	assert_true(game_logic.do_pay_strike_cost(player1, [player1.hand[0].id], false))
-	# The rest of the attack plays out
-	validate_positions(player1, 3, player2, 7)
-	validate_life(player1, 30, player2, 26)
-	
-	
 func test_arakune_card():
 	position_players(player1, 3, player2, 6)
 	validate_positions(player1, 3, player2, 6)

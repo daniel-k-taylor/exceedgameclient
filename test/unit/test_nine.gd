@@ -219,7 +219,7 @@ func _setup_sealed_area(player, speeds_to_swap):
 	for sealed_card_id in sealed_card_ids:
 		player.move_card_from_sealed_to_hand(sealed_card_id)
 	for speed in speeds_to_swap:
-		player.seal_from_hand(TestCardSealedIds[speed])
+		player.seal_from_location(TestCardSealedIds[speed], "hand")
 	return sealed_card_ids
 
 func test_nine_swap_normal():

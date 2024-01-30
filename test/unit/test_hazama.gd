@@ -231,6 +231,7 @@ func test_hazama_exceed_ua():
 	do_strike_response(player2, TestCardId2)
 	validate_positions(player1, 6, player2, 7)
 	validate_life(player1, 30, player2, 26)
+	advance_turn(player1)
 
 func test_hazama_exceed_ua_nothing_first():
 	player1.exceed()
