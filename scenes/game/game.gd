@@ -1584,11 +1584,14 @@ func update_discard_selection_message_choose():
 		num_remaining = select_card_require_max - len(selected_cards)
 	var bonus = ""
 	if decision_info.bonus_effect:
-		bonus = "\nfor %s" % CardDefinitions.get_effect_text(decision_info.bonus_effect, false, false, false, "")
+		var effect_text = CardDefinitions.get_effect_text(decision_info.bonus_effect, false, false, false, "")
+		if len(effect_text) >= 2 and effect_text.substr(0, 2) == ": ":
+			effect_text = effect_text.substr(2)
+		bonus = "\nfor %s" % effect_text
 	if decision_info.limitation:
-		set_instructions("Select %s more %s card(s) from your hand to %s%s." % [num_remaining, decision_info.limitation, destination, bonus])
+		set_instructions("Select %s more %s card(s) from your hand to move to %s%s." % [num_remaining, decision_info.limitation, destination, bonus])
 	else:
-		set_instructions("Select %s more card(s) from your hand to %s%s." % [num_remaining, destination, bonus])
+		set_instructions("Select %s more card(s) from your hand to move to %s%s." % [num_remaining, destination, bonus])
 
 func update_discard_selection_message():
 	var num_remaining = select_card_require_min - len(selected_cards)
@@ -2066,6 +2069,8 @@ func _on_strike_character_effect(event):
 	var label_text = ""
 	label_text += CardDefinitions.get_effect_text(effect, false, true, true) + "\n"
 	label_text = label_text.replace(",", "\n")
+	if len(label_text) >= 2 and label_text.substr(0, 2) == ": ":
+		label_text = label_text.substr(2)
 	bonus_label.text = label_text
 
 func _on_effect_choice(event):

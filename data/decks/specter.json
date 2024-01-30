@@ -17,6 +17,7 @@
 			"destination": "sealed",
 			"discard_effect": {
 				"effect_type": "set_used_character_bonus",
+				"character_effect": true,
 				"linked_effect": {
 					"timing": "before",
 					"effect_type": "advance",
@@ -25,7 +26,6 @@
 			}
 		},
 		{
-			"character_effect": true,
 			"timing": "before",
 			"condition": "used_character_bonus",
 			"effect_type": "advance",
