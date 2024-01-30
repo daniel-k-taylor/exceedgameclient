@@ -14,6 +14,8 @@ const TestCardId5 = 50005
 var player1 : LocalGame.Player
 var player2 : LocalGame.Player
 
+var simul_choice = 0
+
 func default_game_setup():
 	game_logic = LocalGame.new()
 	var seed_value = randi()
@@ -127,7 +129,7 @@ func handle_simultaneous_effects(initiator, defender):
 		var decider = initiator
 		if game_logic.decision_info.player == defender.my_id:
 			decider = defender
-		assert_true(game_logic.do_choice(decider, 0), "Failed simuleffect choice")
+		assert_true(game_logic.do_choice(decider, simul_choice), "Failed simuleffect choice")
 
 func execute_strike(initiator, defender, init_card : String, def_card : String, init_choices, def_choices,
 		init_ex = false, def_ex = false, init_force_discard = [], def_force_discard = [], init_extra_cost = 0, give_cards = true, initiator_goes_first = true):
@@ -338,6 +340,14 @@ func test_linne_flying_swallow6():
 
 func test_linne_tenacious_mist():
 	position_players(player1, 5, player2, 6)
+	execute_strike(player1, player2, "linne_tenaciousmist", "uni_normal_focus", [], [])
+	validate_life(player1, 28, player2, 28)
+
+func test_linne_tenacious_mist2():
+	simul_choice = 1 #choose second effect first, lose armor then gain
+	position_players(player1, 5, player2, 6)
+	give_player_specific_card(player1, 'uni_normal_sweep', TestCardId3)
+	game_logic.do_boost(player1, TestCardId3)
 	execute_strike(player1, player2, "linne_tenaciousmist", "uni_normal_focus", [], [])
 	validate_life(player1, 28, player2, 28)
 

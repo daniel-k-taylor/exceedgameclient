@@ -302,7 +302,6 @@ class StrikeStatBoosts:
 	var ignore_armor : bool = false
 	var ignore_guard : bool = false
 	var ignore_push_and_pull : bool = false
-	var lose_all_armor : bool = false
 	var cannot_stun : bool = false
 	var always_add_to_gauge : bool = false
 	var return_attack_to_hand : bool = false
@@ -349,7 +348,6 @@ class StrikeStatBoosts:
 		ignore_armor = false
 		ignore_guard = false
 		ignore_push_and_pull = false
-		lose_all_armor = false
 		cannot_stun = false
 		always_add_to_gauge = false
 		return_attack_to_hand = false
@@ -3252,8 +3250,10 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 		"look_at_top_opponent_deck":
 			events += opposing_player.reveal_topdeck()
 		"lose_all_armor":
-			_append_log_full(Enums.LogType.LogType_Effect, performing_player, "loses all armor!")
-			performing_player.strike_stat_boosts.lose_all_armor = true
+			if active_strike:
+				_append_log_full(Enums.LogType.LogType_Effect, performing_player, "loses all armor!")
+				var remaining_armor = active_strike.get_player_card(performing_player).definition['armor'] + performing_player.strike_stat_boosts.armor - performing_player.strike_stat_boosts.consumed_armor
+				performing_player.strike_stat_boosts.armor -= remaining_armor
 		"may_advance_bonus_spaces":
 			var movement_type = decision_info.source
 			var movement_amount = decision_info.amount
@@ -4090,10 +4090,7 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 			var damage_prevention = 0
 			if active_strike:
 				var defense_card = active_strike.get_player_card(damaged_player)
-				var armor_remaining = defense_card.definition['armor'] + damaged_player.strike_stat_boosts.armor - damaged_player.strike_stat_boosts.consumed_armor
-				if damaged_player.strike_stat_boosts.lose_all_armor:
-					armor_remaining = 0
-				damage_prevention = armor_remaining
+				damage_prevention = defense_card.definition['armor'] + damaged_player.strike_stat_boosts.armor - damaged_player.strike_stat_boosts.consumed_armor
 			var unmitigated_damage = max(0, damage - damage_prevention)
 			var used_armor = damage - unmitigated_damage
 			if active_strike:
@@ -4638,7 +4635,7 @@ func get_total_power(performing_player : Player):
 func calculate_damage(offense_player : Player, defense_player : Player, _offense_card : GameCard, defense_card : GameCard) -> int:
 	var power = get_total_power(offense_player)
 	var armor = defense_card.definition['armor'] + defense_player.strike_stat_boosts.armor - defense_player.strike_stat_boosts.consumed_armor
-	if offense_player.strike_stat_boosts.ignore_armor or defense_player.strike_stat_boosts.lose_all_armor:
+	if offense_player.strike_stat_boosts.ignore_armor:
 		armor = 0
 	var damage_after_armor = max(power - armor, 0)
 	return damage_after_armor
@@ -4677,8 +4674,6 @@ func apply_damage(offense_player : Player, defense_player : Player, offense_card
 
 	if offense_player.strike_stat_boosts.ignore_armor:
 		_append_log_full(Enums.LogType.LogType_Strike, _get_player(get_other_player(offense_player.my_id)), "ignores Armor!")
-		armor = 0
-	if defense_player.strike_stat_boosts.lose_all_armor:
 		armor = 0
 
 	var damage_after_armor = calculate_damage(offense_player, defense_player, offense_card, defense_card)
