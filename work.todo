@@ -22,19 +22,18 @@ In progress:
             ☐ "add_to_overdrive" @started(24-01-29 22:27)
             ☐ "add_to_topdeck_under" @started(24-01-29 22:33)
         ☐ choose_discard - destination overdrive @started(24-01-29 22:56)
-        ☐ "effect_type": "add_boost_to_overdrive_on_strike_cleanup"
-        ☐ "effect_type": "dodge_speed_greater_than",
-            ☐ "amount": "YOUR_SPEED"
-        ☐ "effect_type": "add_strike_to_overdrive_after_cleanup"
-        ☐ dodge_at_range - "special_range": "OVERDRIVE_COUNT"
-        ☐ "effect_type": "both_players_rangeup",
-        ☐ "effect_type": "both_players_powerup",
-        ☐ "effect_type": "opponent_discard_random", - "destination": "overdrive"
-        ☐ choice - "opponent": true,
-        ☐ "effect_type": "reveal_hand_and_topdeck"
-        ☐ self_discard_choose - "destination": "opponent_overdrive"
-        ☐ "effect_type": "sidestep_transparent_foe", - "both_players": true
-        ☐ sidestep_dialogue - both_players
+        ☐ "effect_type": "add_boost_to_overdrive_during_strike_immediately" @started(24-01-29 23:32)
+        ☐ "effect_type": "add_strike_to_overdrive_after_cleanup" @started(24-01-29 23:42)
+        ☐ dodge_at_range - "special_range": "OVERDRIVE_COUNT" @started(24-01-29 23:57)
+        ☐ "effect_type": "rangeup_both_players", @started(24-01-30 00:04)
+        ☐ "effect_type": "powerup_both_players", @started(24-01-30 00:04)
+        ☐ "effect_type": "opponent_discard_random", - "destination": "overdrive" @started(24-01-30 00:47)
+        ☐ choice - "opponent": true, @started(24-01-30 00:07)
+        ☐ "effect_type": "reveal_hand_and_topdeck" @started(24-01-30 00:20)
+            ☐ make UI not suck
+        ☐ self_discard_choose - "destination": "opponent_overdrive" @started(24-01-30 00:53)
+            ☐ Check UI for this
+        ☐ "effect_type": "zero_vector" @started(24-01-30 01:08)
         ☐ take_damage @started(24-01-29 02:45)
 
 Write tests for:
@@ -85,7 +84,8 @@ Tasks:
     ☐ Add a info screen after character select on the main menu you can click to show all card for the character.
     ☐ Combat Log always on screen?
     ☐ Show cards you revealed to opponent with EYE icon in your hand.
-
+    ☐ Faust remove boost effects needs to be reviewed, stuff like powerup_opponent and other random effects that Faust can remove mid-strike
+        ☐ probably any during_strike ability?
 Bugs:
 
 Later:

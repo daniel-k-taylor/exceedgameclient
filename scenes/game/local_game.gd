@@ -298,6 +298,7 @@ class StrikeStatBoosts:
 	var dodge_attacks : bool = false
 	var dodge_at_range_min : int = -1
 	var dodge_at_range_max : int = -1
+	var dodge_at_range_late_calculate_with : String = ""
 	var dodge_at_range_from_buddy : bool = false
 	var dodge_from_opposite_buddy : bool = false
 	var ignore_armor : bool = false
@@ -306,6 +307,7 @@ class StrikeStatBoosts:
 	var lose_all_armor : bool = false
 	var cannot_stun : bool = false
 	var always_add_to_gauge : bool = false
+	var always_add_to_overdrive : bool = false
 	var return_attack_to_hand : bool = false
 	var move_strike_to_boosts : bool = false
 	var move_strike_to_opponent_boosts : bool = false
@@ -345,6 +347,7 @@ class StrikeStatBoosts:
 		dodge_attacks = false
 		dodge_at_range_min = -1
 		dodge_at_range_max = -1
+		dodge_at_range_late_calculate_with = ""
 		dodge_at_range_from_buddy = false
 		dodge_from_opposite_buddy = false
 		ignore_armor = false
@@ -353,6 +356,7 @@ class StrikeStatBoosts:
 		lose_all_armor = false
 		cannot_stun = false
 		always_add_to_gauge = false
+		always_add_to_overdrive = false
 		return_attack_to_hand = false
 		move_strike_to_boosts = false
 		move_strike_to_opponent_boosts = false
@@ -460,6 +464,7 @@ class Player:
 	var free_force : int
 	var guile_change_cards_bonus : bool
 	var cards_that_will_not_hit : Array[String]
+	var cards_invalid_during_strike : Array[String]
 	var sealed_area_is_facedown : bool
 
 	func _init(id, player_name, parent_ref, card_db_ref, chosen_deck, card_start_id):
@@ -535,6 +540,7 @@ class Player:
 		free_force = 0
 		guile_change_cards_bonus = false
 		cards_that_will_not_hit = []
+		cards_invalid_during_strike = []
 
 		if "buddy_cards" in deck_def:
 			var buddy_index = 0
@@ -1219,6 +1225,7 @@ class Player:
 
 	func move_cards_to_overdrive(card_ids : Array, source : String):
 		var events = []
+		var opposing_player = parent._get_player(parent.get_other_player(my_id))
 		var card_names = parent.card_db.get_card_names(card_ids)
 		if card_names:
 			parent._append_log_full(Enums.LogType.LogType_CardInfo, self, "moves cards from %s to overdrive: %s." % [source, card_names])
@@ -1233,6 +1240,8 @@ class Player:
 					source_array = discards
 				"deck":
 					source_array = deck
+				"opponent_discard":
+					source_array = opposing_player.discards
 				"_":
 					assert(false)
 					printlog("ERROR: Unexpected source of card going to overdrive: %s" % source)
@@ -1241,10 +1250,13 @@ class Player:
 				var card = source_array[i]
 				if card.id == card_id:
 					source_array.remove_at(i)
-					overdrive.append(card)
-					events += [parent.create_event(Enums.EventType.EventType_AddToOverdrive, my_id, card.id)]
+					events += add_to_overdrive(card)
 					break
 		return events
+
+	func add_to_overdrive(card : GameCard):
+		overdrive.append(card)
+		return [parent.create_event(Enums.EventType.EventType_AddToOverdrive, my_id, card.id)]
 
 	func seal_from_location(card_id : int, source : String):
 		var events = []
@@ -1395,6 +1407,12 @@ class Player:
 		events += [parent.create_event(Enums.EventType.EventType_RevealHand, my_id, 0)]
 		return events
 
+	func reveal_hand_and_topdeck():
+		var events = []
+		events += reveal_hand()
+		events += reveal_topdeck()
+		return events
+
 	func reveal_topdeck():
 		var events = []
 		if deck.size() == 0:
@@ -1409,7 +1427,19 @@ class Player:
 		events += [parent.create_event(Enums.EventType.EventType_RevealTopDeck, my_id, deck[0].id)]
 		return events
 
-	func discard_random(amount, discard_callback = null):
+	func pick_random_cards_from_hand(amount):
+		var hand_card_ids = []
+		for card in hand:
+			hand_card_ids.append(card.id)
+
+		var chosen_card_ids = []
+		for i in range(amount):
+			if len(hand_card_ids) > 0:
+				var random_card_id = hand_card_ids[parent.get_random_int() % len(hand_card_ids)]
+				chosen_card_ids.append(random_card_id)
+		return chosen_card_ids
+
+	func discard_random(amount):
 		var events = []
 		var discarded_ids = []
 		for i in range(amount):
@@ -1420,8 +1450,6 @@ class Player:
 		var discarded_names = parent.card_db.get_card_names(discarded_ids)
 		if discarded_names:
 			parent._append_log_full(Enums.LogType.LogType_CardInfo, self, "discards random card(s): %s." % discarded_names)
-		if discard_callback:
-			discard_callback.call(self, discarded_ids)
 		return events
 
 	func invalidate_card(card : GameCard):
@@ -1795,6 +1823,7 @@ class Player:
 		return found_effects
 
 	func reenable_boost_effects(card : GameCard):
+		var opposing_player = parent._get_player(parent.get_other_player(my_id))
 		# Redo boost properties
 		for effect in card.definition['boost']['effects']:
 			if effect['timing'] == "now":
@@ -1814,16 +1843,26 @@ class Player:
 					"attack_is_ex":
 						strike_stat_boosts.set_ex()
 					"dodge_at_range":
-						strike_stat_boosts.dodge_at_range_min = effect['amount']
-						strike_stat_boosts.dodge_at_range_max = effect['amount2']
-						if effect['from_buddy']:
-							strike_stat_boosts.dodge_at_range_from_buddy = effect['from_buddy']
-						var dodge_range = str(strike_stat_boosts.dodge_at_range_min)
-						if strike_stat_boosts.dodge_at_range_min != strike_stat_boosts.dodge_at_range_max:
-							dodge_range += "-%s" % strike_stat_boosts.dodge_at_range_max
-						parent._append_log_full(Enums.LogType.LogType_Effect, self, "will dodge attacks from range %s-%s!" % dodge_range)
+						if 'special_range' in effect:
+							var current_range = str(performing_player.overdrive.size())
+							strike_stat_boosts.dodge_at_range_late_calculate_with = effect['special_range']
+							parent._append_log_full(Enums.LogType.LogType_Effect, self, "will dodge attacks from range %s!" % current_range)
+						else:
+							strike_stat_boosts.dodge_at_range_min = effect['amount']
+							strike_stat_boosts.dodge_at_range_max = effect['amount2']
+							if effect['from_buddy']:
+								strike_stat_boosts.dodge_at_range_from_buddy = effect['from_buddy']
+							var dodge_range = str(strike_stat_boosts.dodge_at_range_min)
+							if strike_stat_boosts.dodge_at_range_min != strike_stat_boosts.dodge_at_range_max:
+								dodge_range += "-%s" % strike_stat_boosts.dodge_at_range_max
+							parent._append_log_full(Enums.LogType.LogType_Effect, self, "will dodge attacks from range %s!" % dodge_range)
 					"powerup":
 						strike_stat_boosts.power += effect['amount']
+					"powerup_both_players":
+						strike_stat_boosts.power += effect['amount']
+						opposing_player.strike_stat_boosts.power += effect['amount']
+					"speedup":
+						strike_stat_boosts.speed += effect['amount']
 					"armorup":
 						strike_stat_boosts.armor += effect['amount']
 					"guardup":
@@ -1831,8 +1870,14 @@ class Player:
 					"rangeup":
 						strike_stat_boosts.min_range += effect['amount']
 						strike_stat_boosts.max_range += effect['amount2']
+					"rangeup_both_players":
+						strike_stat_boosts.min_range += effect['amount']
+						strike_stat_boosts.max_range += effect['amount2']
+						opposing_player.strike_stat_boosts.min_range += effect['amount']
+						opposing_player.strike_stat_boosts.max_range += effect['amount2']
 
 	func disable_boost_effects(card : GameCard, buddy_ignore_condition : bool = false):
+		var opposing_player = parent._get_player(parent.get_other_player(my_id))
 		# Undo boost properties
 		for effect in card.definition['boost']['effects']:
 			if effect['timing'] == "now":
@@ -1852,15 +1897,25 @@ class Player:
 					"attack_is_ex":
 						strike_stat_boosts.remove_ex()
 					"dodge_at_range":
-						var dodge_range = str(strike_stat_boosts.dodge_at_range_min)
-						if strike_stat_boosts.dodge_at_range_min != strike_stat_boosts.dodge_at_range_max:
-							dodge_range += "-%s" % strike_stat_boosts.dodge_at_range_max
-						parent._append_log_full(Enums.LogType.LogType_Effect, self, "will no longer dodge attacks from range %s." % dodge_range)
-						strike_stat_boosts.dodge_at_range_min = -1
-						strike_stat_boosts.dodge_at_range_max = -1
-						strike_stat_boosts.dodge_at_range_from_buddy = false
+						if 'special_range' in effect:
+							var current_range = str(performing_player.overdrive.size())
+							strike_stat_boosts.dodge_at_range_late_calculate_with = ""
+							parent._append_log_full(Enums.LogType.LogType_Effect, self, "will no longer dodge attacks from range %s!" % current_range)
+						else:
+							var dodge_range = str(strike_stat_boosts.dodge_at_range_min)
+							if strike_stat_boosts.dodge_at_range_min != strike_stat_boosts.dodge_at_range_max:
+								dodge_range += "-%s" % strike_stat_boosts.dodge_at_range_max
+							parent._append_log_full(Enums.LogType.LogType_Effect, self, "will no longer dodge attacks from range %s." % dodge_range)
+							strike_stat_boosts.dodge_at_range_min = -1
+							strike_stat_boosts.dodge_at_range_max = -1
+							strike_stat_boosts.dodge_at_range_from_buddy = false
 					"powerup":
 						strike_stat_boosts.power -= effect['amount']
+					"powerup_both_players":
+						strike_stat_boosts.power -= effect['amount']
+						opposing_player.strike_stat_boosts.power -= effect['amount']
+					"speedup":
+						strike_stat_boosts.speed -= effect['amount']
 					"armorup":
 						strike_stat_boosts.armor -= effect['amount']
 					"guardup":
@@ -1868,8 +1923,13 @@ class Player:
 					"rangeup":
 						strike_stat_boosts.min_range -= effect['amount']
 						strike_stat_boosts.max_range -= effect['amount2']
+					"rangeup_both_players":
+						strike_stat_boosts.min_range -= effect['amount']
+						strike_stat_boosts.max_range -= effect['amount2']
+						opposing_player.strike_stat_boosts.min_range -= effect['amount']
+						opposing_player.strike_stat_boosts.max_range -= effect['amount2']
 
-	func remove_from_continuous_boosts(card : GameCard, to_gauge : bool, to_hand : bool = false):
+	func remove_from_continuous_boosts(card : GameCard, to_gauge : bool, to_hand : bool = false, to_overdrive : bool = false):
 		var events = []
 		disable_boost_effects(card)
 
@@ -1883,6 +1943,8 @@ class Player:
 					events += add_to_gauge(card)
 				elif to_hand:
 					events += add_to_hand(card)
+				elif to_overdrive:
+					events += add_to_overdrive(card)
 				else:
 					events += add_to_discards(card)
 				continuous_boosts.remove_at(i)
@@ -2167,6 +2229,8 @@ func advance_to_next_turn():
 	opponent.moved_self_this_strike = false
 	player.cards_that_will_not_hit = []
 	opponent.cards_that_will_not_hit = []
+	player.cards_invalid_during_strike = []
+	opponent.cards_invalid_during_strike = []
 
 	# Update strike turn tracking
 	last_turn_was_strike = strike_happened_this_turn
@@ -2713,6 +2777,14 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 				assert(false)
 				printlog("ERROR: Unimplemented path to add_boost_to_gauge_on_move")
 			performing_player.set_add_boost_to_gauge_on_move(card_id)
+		"add_boost_to_overdrive_during_strike_immediately":
+			if card_id == -1:
+				assert(false)
+				printlog("ERROR: Unimplemented path to add_boost_to_overdrive_during_strike_immediately")
+			var card = card_db.get_card(card_id)
+			var card_name = card_db.get_card_name(card.id)
+			_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "adds boosted card %s to overdrive." % card_name)
+			events += performing_player.remove_from_continuous_boosts(card, false, false, true)
 		"add_hand_to_gauge":
 			events += performing_player.add_hand_to_gauge()
 		"add_set_aside_card_to_deck":
@@ -2721,6 +2793,8 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 			events += performing_player.add_set_aside_card_to_deck(effect['id'])
 		"add_strike_to_gauge_after_cleanup":
 			performing_player.strike_stat_boosts.always_add_to_gauge = true
+		"add_strike_to_overdrive_after_cleanup":
+			performing_player.strike_stat_boosts.always_add_to_overdrive = true
 		"add_to_gauge_boost_play_cleanup":
 			active_boost.cleanup_to_gauge_card_ids.append(card_id)
 		"add_to_gauge_immediately":
@@ -2920,20 +2994,23 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 		"cannot_stun":
 			performing_player.strike_stat_boosts.cannot_stun = true
 		"choice":
+			var choice_player = performing_player
+			if 'opponent' in effect and effect['opponent']:
+				choice_player = opposing_player
 			change_game_state(Enums.GameState.GameState_PlayerDecision)
 			decision_info.type = Enums.DecisionType.DecisionType_EffectChoice
-			decision_info.player = performing_player.my_id
+			decision_info.player = choice_player.my_id
 			if 'add_topdeck_card_name_to_choices' in effect:
 				# Add a 'card_name' field to each choice that's in this array.
 				for index in effect['add_topdeck_card_name_to_choices']:
 					var choice = effect['choice'][index]
 					var card_name = "nothing (deck empty)"
-					if performing_player.deck.size() > 0:
-						card_name = card_db.get_card_name(performing_player.deck[0].id)
+					if choice_player.deck.size() > 0:
+						card_name = card_db.get_card_name(choice_player.deck[0].id)
 					choice['card_name'] = card_name
 			decision_info.choice = effect['choice']
 			decision_info.choice_card_id = card_id
-			events += [create_event(Enums.EventType.EventType_Strike_EffectChoice, performing_player.my_id, 0, "EffectOption")]
+			events += [create_event(Enums.EventType.EventType_Strike_EffectChoice, choice_player.my_id, 0, "EffectOption")]
 		"choice_altered_values":
 			# Make a deep copy of the choices and replace any needed values.
 			var updated_choices = effect['choice'].duplicate(true)
@@ -3113,13 +3190,18 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 		"opponent_draw_or_discard_to":
 			events += handle_player_draw_or_discard_to_effect(opposing_player, card_id, effect)
 		"dodge_at_range":
-			performing_player.strike_stat_boosts.dodge_at_range_min = effect['range_min']
-			performing_player.strike_stat_boosts.dodge_at_range_max = effect['range_max']
-			var buddy_name = null
-			if 'from_buddy' in effect:
-				performing_player.strike_stat_boosts.dodge_at_range_from_buddy = effect['from_buddy']
-				buddy_name = effect['buddy_name']
-			events += [create_event(Enums.EventType.EventType_Strike_DodgeAttacksAtRange, performing_player.my_id, effect['range_min'], "", effect['range_max'], buddy_name)]
+			if 'special_range' in effect and effect['special_range'] == "OVERDRIVE_COUNT":
+				var current_range = performing_player.overdrive.size()
+				performing_player.strike_stat_boosts.dodge_at_range_late_calculate_with  = effect['special_range']
+				events += [create_event(Enums.EventType.EventType_Strike_DodgeAttacksAtRange, performing_player.my_id, current_range, "", current_range, buddy_name)]
+			else:
+				performing_player.strike_stat_boosts.dodge_at_range_min = effect['range_min']
+				performing_player.strike_stat_boosts.dodge_at_range_max = effect['range_max']
+				var buddy_name = null
+				if 'from_buddy' in effect:
+					performing_player.strike_stat_boosts.dodge_at_range_from_buddy = effect['from_buddy']
+					buddy_name = effect['buddy_name']
+				events += [create_event(Enums.EventType.EventType_Strike_DodgeAttacksAtRange, performing_player.my_id, effect['range_min'], "", effect['range_max'], buddy_name)]
 		"dodge_attacks":
 			performing_player.strike_stat_boosts.dodge_attacks = true
 			events += [create_event(Enums.EventType.EventType_Strike_DodgeAttacks, performing_player.my_id, 0)]
@@ -3188,7 +3270,12 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 			_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "discards %s from %s's gauge." % [card_name, opposing_player.name])
 			events += opposing_player.discard([chosen_card_id])
 		"discard_random_and_add_triggers":
-			events += performing_player.discard_random(1, func(inner_player, ids): add_attack_triggers(inner_player, ids, true))
+			var cards_to_discard = performing_player.pick_random_cards_from_hand(1)
+			if cards_to_discard.size() > 0:
+				events += performing_player.discard(cards_to_discard)
+				add_attack_triggers(performing_player, cards_to_discard, true)
+				var discarded_name = card_db.get_card_name(cards_to_discard[0])
+				_append_log_full(Enums.LogType.LogType_CardInfo, self, "discards random card: %s." % discarded_name)
 		"exceed_end_of_turn":
 			performing_player.exceed_at_end_of_turn = true
 		"exceed_now":
@@ -3391,6 +3478,11 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 				events += opposing_player.reveal_hand()
 			else:
 				events += performing_player.reveal_hand()
+		"reveal_hand_and_topdeck":
+			if 'opponent' in effect and effect['opponent']:
+				events += opposing_player.reveal_hand_and_topdeck()
+			else:
+				events += performing_player.reveal_hand_and_topdeck()
 		"reveal_strike":
 			if performing_player == active_strike.initiator:
 				active_strike.initiator_set_face_up = true
@@ -3491,7 +3583,16 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 				_append_log_full(Enums.LogType.LogType_Strike, performing_player, "'s X for this strike is set to the number of discarded cards, %s." % num_discarded)
 				events += performing_player.set_strike_x(num_discarded)
 		"opponent_discard_random":
-			events += opposing_player.discard_random(effect['amount'])
+			var cards_to_discard = opposing_player.pick_random_cards_from_hand(effect['amount'])
+			if cards_to_discard.size() > 0:
+				var discarded_names = parent.card_db.get_card_names(discarded_ids)
+				if 'destination' in effect and effect['destination'] == "overdrive":
+					_append_log_full(Enums.LogType.LogType_CardInfo, self, "discards random card(s) to opponent's overdrive: %s." % discarded_names)
+					events += opposing_player.discard(cards_to_discard)
+					events += performing_player.move_cards_to_overdrive(cards_to_discard, "opponent_discard")
+				else:
+					_append_log_full(Enums.LogType.LogType_CardInfo, self, "discards random card(s): %s." % discarded_names)
+					events += opposing_player.discard(cards_to_discard)
 		"pass":
 			# Do nothing.
 			pass
@@ -3597,6 +3698,12 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 				amount = performing_player.strike_stat_boosts.strike_x
 			performing_player.strike_stat_boosts.power += amount
 			events += [create_event(Enums.EventType.EventType_Strike_PowerUp, performing_player.my_id, amount)]
+		"powerup_both_players":
+			var amount = effect['amount']
+			performing_player.strike_stat_boosts.power += amount
+			events += [create_event(Enums.EventType.EventType_Strike_PowerUp, performing_player.my_id, amount)]
+			opposing_player.strike_stat_boosts.power += amount
+			events += [create_event(Enums.EventType.EventType_Strike_PowerUp, opposing_player.my_id, amount)]
 		"powerup_per_boost_in_play":
 			var boosts_in_play = performing_player.continuous_boosts.size()
 			if boosts_in_play > 0:
@@ -3937,6 +4044,10 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 					# Specifically get the printed power.
 					var card_power = card_db.get_card(card_ids[0]).definition['power']
 					effect['and']['amount'] = card_power
+			elif effect['destination'] == "overdrive":
+				_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "discards the chosen card(s) to opponent's overdrive: %s." % card_names)
+				events += performing_player.discard(card_ids)
+				events += opposing_player.move_cards_to_overdrive(card_ids, "opponent_discard")
 			else:
 				# Nothing else implemented.
 				assert(false)
@@ -4147,6 +4258,21 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 				events += [create_event(Enums.EventType.EventType_CardFromHandToGauge_Choice, performing_player.my_id, min_amount, "", max_amount)]
 		"when_hit_force_for_armor":
 			performing_player.strike_stat_boosts.when_hit_force_for_armor = true
+		"zero_vector":
+			change_game_state(Enums.GameState.GameState_PlayerDecision)
+			decision_info.type = Enums.DecisionType.DecisionType_ZeroVector
+			decision_info.effect_type = "sidestep_internal"
+			decision_info.choice_card_id = card_id
+			decision_info.bonus_effect = 'both_players' in effect and effect['both_players']
+			decision_info.player = performing_player.my_id
+			events += [create_event(Enums.EventType.EventType_Boost_ZeroVector, performing_player.my_id, 0)]
+		"zero_vector_dialogue":
+			var named_card = card_db.get_card(effect['card_id'])
+			# named_card is the individual card but
+			# this should match "by name", so instead of using that
+			# match card.definition['id']'s instead.
+			performing_player.cards_invalid_during_strike.append(named_card.definition['id'])
+			opposing_player.cards_invalid_during_strike.append(named_card.definition['id'])
 
 	if not ignore_extra_effects:
 		if "and" in effect:
@@ -4618,6 +4744,13 @@ func in_range(attacking_player, defending_player, card, combat_logging=false):
 		range_string += "-%s" % str(max_range)
 	_append_log_full(Enums.LogType.LogType_Strike, attacking_player, "has range %s." % range_string)
 
+	# Apply special late calculation range dodges
+	if defending_player.dodge_at_range_late_calculate_with == "OVERDRIVE_COUNT":
+		var overdrive_count = defending_player.overdrive.size()
+		defending_player.strike_stat_boosts.dodge_at_range_min = overdrive_count
+		defending_player.strike_stat_boosts.dodge_at_range_max = overdrive_count
+
+	# Range dodge
 	if defending_player.strike_stat_boosts.dodge_at_range_min != -1:
 		var dodge_range_string = str(defending_player.strike_stat_boosts.dodge_at_range_min)
 		if defending_player.strike_stat_boosts.dodge_at_range_max != defending_player.strike_stat_boosts.dodge_at_range_min:
@@ -4634,6 +4767,8 @@ func in_range(attacking_player, defending_player, card, combat_logging=false):
 				if combat_logging:
 					_append_log_full(Enums.LogType.LogType_Effect, defending_player, "is dodging attacks at range %s!" % dodge_range_string)
 				return false
+
+	# Speed dodge
 	if defending_player.strike_stat_boosts.higher_speed_misses:
 		var attacking_speed = calculate_speed(attacking_player, active_strike.get_player_card(attacking_player))
 		var defending_speed = calculate_speed(defending_player, active_strike.get_player_card(defending_player))
@@ -4736,7 +4871,8 @@ func ask_for_cost(performing_player, card, next_state):
 	if 'gauge_discard_reminder' in card.definition:
 		gauge_discard_reminder = true
 
-	var card_forced_invalid = (is_special and performing_player.specials_invalid)
+	var card_in_invalid_list = card.definition['id'] in performing_player.cards_invalid_during_strike
+	var card_forced_invalid = (is_special and performing_player.specials_invalid) or card_in_invalid_list
 	if performing_player.can_pay_cost_with([], gauge_cost, force_cost) and not card_forced_invalid:
 		active_strike.strike_state = next_state
 	else:
@@ -5038,6 +5174,9 @@ func handle_strike_attack_cleanup(performing_player : Player, card):
 	elif performing_player.strike_stat_boosts.discard_attack_on_cleanup:
 		_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "discards their attack %s." % card_name)
 		events += performing_player.add_to_discards(card)
+	elif performing_player.strike_stat_boosts.always_add_to_overdrive:
+		_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "adds their attack %s to overdrive." % card_name)
+		events += performing_player.add_to_overdrive(card)
 	elif hit or stat_boosts.always_add_to_gauge:
 		_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "adds their attack %s to gauge." % card_name)
 		events += performing_player.add_to_gauge(card)

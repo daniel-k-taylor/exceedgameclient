@@ -38,6 +38,7 @@ enum DecisionType {
 	DecisionType_ReadingNormal,
 	DecisionType_Sidestep,
 	DecisionType_StrikeNow,
+	DecisionType_ZeroVector,
 }
 
 enum GameState {
@@ -79,6 +80,7 @@ enum EventType {
 	EventType_Boost_Continuous_Added,
 	EventType_Boost_NameCardOpponentDiscards,
 	EventType_Boost_Sidestep,
+	EventType_Boost_ZeroVector,
 	EventType_CardFromHandToGauge_Choice,
 	EventType_ChangeCards,
 	EventType_CharacterAction,

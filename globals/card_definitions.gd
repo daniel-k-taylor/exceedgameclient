@@ -325,10 +325,17 @@ func get_effect_type_text(effect, card_name_source : String = ""):
 				effect_str += "Add %s to gauge" % card_name_source
 			else:
 				effect_str += "Add card to gauge"
+		"add_boost_to_overdrive_during_strike_immediately":
+			if 'card_name' in effect:
+				effect_str += "Add %s to overdrive" % effect['card_name']
+			else:
+				effect_str += "Add card to overdrive"
 		"add_hand_to_gauge":
 			effect_str += "Add your hand to your gauge"
 		"add_strike_to_gauge_after_cleanup":
 			effect_str += "Add card to gauge after strike."
+		"add_strike_to_overdrive_after_cleanup":
+			effect_str += "Add card to overdrive after strike."
 		"add_to_gauge_boost_play_cleanup":
 			effect_str += "Add card to gauge"
 		"add_to_gauge_immediately":
@@ -393,6 +400,8 @@ func get_effect_type_text(effect, card_name_source : String = ""):
 		"cannot_stun":
 			effect_str += "Attack does not stun."
 		"choice":
+			if 'opponent': in effect and effect['opponent']:
+				effect_str += "Opponent "
 			if 'special_choice_name' in effect:
 				effect_str += effect['special_choice_name']
 			else:
@@ -439,7 +448,9 @@ func get_effect_type_text(effect, card_name_source : String = ""):
 			var buddy_string = ""
 			if 'from_buddy' in effect and effect['from_buddy']:
 				buddy_string = " from %s" % effect['buddy_name']
-			if effect['range_min'] == effect['range_max']:
+			if 'special_range' in effect and effect['special_range'] == "OVERDRIVE_COUNT":
+				effect_str += "Opponent attacks miss at range X where X is # of cards in your overdrive."
+			elif effect['range_min'] == effect['range_max']:
 				effect_str += "Opponent attacks miss at range %s%s." % [effect['range_min'], buddy_string]
 			else:
 				effect_str += "Opponent attacks miss at range %s-%s%s." % [effect['range_min'], effect['range_max'], buddy_string]
@@ -528,7 +539,10 @@ func get_effect_type_text(effect, card_name_source : String = ""):
 		"opponent_discard_choose":
 			effect_str += "Opponent discards " + str(effect['amount']) + " cards."
 		"opponent_discard_random":
-			effect_str += "Opponent discards " + str(effect['amount']) + " random cards."
+			var dest_str = ""
+			if 'destination' in effect:
+				dest_str = " to your " + effect['destination']
+			effect_str += "Opponent discards " + str(effect['amount']) + " random cards" + dest_str + "."
 		"opponent_wild_swings":
 			effect_str += "Opponent wild swings."
 		"pass":
@@ -547,6 +561,12 @@ func get_effect_type_text(effect, card_name_source : String = ""):
 				if effect['amount'] > 0:
 					effect_str += "+"
 				effect_str += str(effect['amount'])
+			effect_str += " Power"
+		"powerup_both_players":
+			effect_str += "Both players "
+			if effect['amount'] > 0:
+				effect_str += "+"
+			effect_str += str(effect['amount'])
 			effect_str += " Power"
 		"powerup_per_boost_in_play":
 			effect_str += "+" + str(effect['amount']) + " Power per boost in play."
@@ -568,6 +588,14 @@ func get_effect_type_text(effect, card_name_source : String = ""):
 		"push_to_attack_max_range":
 			effect_str += "Push to attack's max range"
 		"rangeup":
+			if effect['amount'] >= 0:
+				effect_str += "+"
+			effect_str += str(effect['amount']) + " - "
+			if effect['amount2'] >= 0:
+				effect_str += "+"
+			effect_str += str(effect['amount2']) + " Range"
+		"rangeup_both_players":
+			effect_str += "Both players "
 			if effect['amount'] >= 0:
 				effect_str += "+"
 			effect_str += str(effect['amount']) + " - "
@@ -624,6 +652,11 @@ func get_effect_type_text(effect, card_name_source : String = ""):
 				effect_str += "Reveal opponent hand"
 			else:
 				effect_str += "Reveal your hand"
+		"reveal_hand_and_topdeck":
+			if 'opponent' in effect and effect['opponent']:
+				effect_str += "Reveal opponent hand and top card of deck"
+			else:
+				effect_str += "Reveal your hand and top card of deck"
 		"reveal_strike":
 			effect_str += "Initiate face-up"
 		"save_power":
@@ -671,6 +704,8 @@ func get_effect_type_text(effect, card_name_source : String = ""):
 				effect_str += optional_text + "Seal " + str(effect['amount']) + limitation + " card(s)" + bonus
 			elif destination == "reveal":
 				effect_str += optional_text + "Reveal " + str(effect['amount']) + limitation + " card(s)" + bonus
+			elif destination == "opponent_overdrive":
+				effect_str += optional_text + "Add " + str(effect['amount']) + limitation + " card(s) from hand to your opponent's overdrive" + bonus
 			else:
 				effect_str += optional_text + "Discard " + str(effect['amount']) + limitation + " card(s)" + bonus
 		"set_used_character_bonus":
@@ -736,6 +771,8 @@ func get_effect_type_text(effect, card_name_source : String = ""):
 			effect_str += "Put a card from your hand on top of your deck"
 		"when_hit_force_for_armor":
 			effect_str += "When hit, generate force for " + str(effect['amount']) + " armor each."
+		"zero_vector_dialogue":
+			effect_str += "Named card is invalid for both players."
 		_:
 			effect_str += "MISSING EFFECT"
 	return effect_str

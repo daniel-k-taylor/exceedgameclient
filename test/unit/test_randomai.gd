@@ -158,6 +158,9 @@ func handle_decisions(game: LocalGame):
 			Enums.DecisionType.DecisionType_Sidestep:
 				var pick_action = decision_ai.pick_name_opponent_card(game, decision_player.my_id, true)
 				assert_true(game.do_boost_name_card_choice_effect(decision_player, pick_action.card_id), "do boost name failed")
+			Enums.DecisionType.DecisionType_ZeroVector:
+				var pick_action = decision_ai.pick_name_opponent_card(game, decision_player.my_id, true)
+				assert_true(game.do_boost_name_card_choice_effect(decision_player, pick_action.card_id), "do boost name failed")
 			Enums.DecisionType.DecisionType_PayStrikeCost_Required, Enums.DecisionType.DecisionType_PayStrikeCost_CanWild:
 				var can_wild = game.decision_info.type == Enums.DecisionType.DecisionType_PayStrikeCost_CanWild
 				var cost = game.decision_info.cost
@@ -674,7 +677,7 @@ func test_ryu_100():
 		game_teardown()
 		game_setup()
 	pass_test("Finished match")
-	
+
 func test_sagat_100():
 	default_deck = CardDefinitions.get_deck_from_str_id("sagat")
 	for i in range(RandomIterations):

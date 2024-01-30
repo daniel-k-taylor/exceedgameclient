@@ -554,7 +554,8 @@
 					"effect_type": "draw",
 					"amount": 1,
 					"and": {
-						"effect_type": "add_boost_to_overdrive_on_strike_cleanup"
+						"effect_type": "add_boost_to_overdrive_during_strike_immediately",
+						"card_name": "Disjoint Union"
 					}
 				}
 			]
@@ -580,8 +581,7 @@
 			},
 			{
 				"timing": "during_strike",
-				"effect_type": "dodge_speed_greater_than",
-				"amount": "YOUR_SPEED"
+				"effect_type": "higher_speed_misses"
 			},
 			{
 				"timing": "before",
@@ -662,13 +662,13 @@
 			"effects": [
 				{
 					"timing": "during_strike",
-					"effect_type": "both_players_rangeup",
+					"effect_type": "rangeup_both_players",
 					"amount": 1,
 					"amount2": 1
 				},
 				{
 					"timing": "during_strike",
-					"effect_type": "both_players_powerup",
+					"effect_type": "powerup_both_players",
 					"amount": -1
 				}
 			]
@@ -701,6 +701,7 @@
 			{
 				"timing": "hit",
 				"effect_type": "opponent_discard_random",
+				"amount": 1,
 				"destination": "overdrive"
 			}
 		],
@@ -769,17 +770,16 @@
 			"effects": [
 				{
 					"timing": "now",
-					"effect_type": "sidestep_transparent_foe",
-					"both_players": true
+					"effect_type": "zero_vector"
 				},
 				{
 					"timing": "during_strike",
-					"effect_type": "sidestep_dialogue",
-					"both_players": true
+					"effect_type": "zero_vector_dialogue"
 				},
 				{
 					"timing": "after",
-					"effect_type": "add_boost_to_overdrive_on_strike_cleanup"
+					"effect_type": "add_boost_to_overdrive_during_strike_immediately",
+					"card_name": "f piecewise"
 				}
 			]
 		},
