@@ -199,6 +199,8 @@ func get_condition_text(effect, amount, amount2, detail):
 			text += "If a boost is in play, "
 		"canceled_this_turn":
 			text += "If canceled this turn, "
+		"discarded_matches_attack_speed":
+			text += "If discarded card matches attack speed, "
 		"initiated_strike":
 			text += "If initiated strike, "
 		"hit_opponent":
@@ -242,6 +244,8 @@ func get_condition_text(effect, amount, amount2, detail):
 		"range_multiple":
 			text += "If the opponent is at range %s-%s, " % [amount, amount2]
 		"is_special_attack":
+			text += ""
+		"is_special_or_ultra_attack":
 			text += ""
 		"is_normal_attack":
 			text += ""
@@ -335,6 +339,11 @@ func get_effect_type_text(effect, card_name_source : String = ""):
 			effect_str += "Add top card of deck to gauge"
 		"add_top_discard_to_gauge":
 			effect_str += "Add top card of discard pile to gauge"
+		"add_top_discard_to_overdrive":
+			if 'card_name' in effect:
+				effect_str += "Add %s from top of discard pile to overdrive" % effect['card_name']
+			else:
+				effect_str += "Add top card of discard pile to overdrive"
 		"advance":
 			effect_str += "Advance "
 			if str(effect['amount']) == "strike_x":
@@ -641,6 +650,11 @@ func get_effect_type_text(effect, card_name_source : String = ""):
 				effect_str += "Seal %s" % card_name_source
 			else:
 				effect_str += "Seal this"
+		"seal_topdeck":
+			if 'card_name' in effect:
+				effect_str += "Seal %s from the top of your deck" % effect['card_name']
+			else:
+				effect_str += "Seal the top card of your deck"
 		"self_discard_choose":
 			var destination = effect['destination'] if 'destination' in effect else "discard"
 			var limitation = ""

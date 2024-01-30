@@ -270,6 +270,9 @@ func begin_remote_game(game_start_message):
 
 	game_wrapper.initialize_remote_game(my_player_info, opponent_player_info, starting_player, seed_value)
 
+func is_player_overdrive_visible(player_id : Enums.PlayerId):
+	return game_wrapper.is_player_in_overdrive(player_id)
+
 func setup_characters():
 	$PlayerCharacter.load_character(player_deck['id'])
 	$OpponentCharacter.load_character(opponent_deck['id'])
@@ -297,8 +300,8 @@ func setup_characters():
 			buddy.modulate = Color(1, 0.38, 0.55)
 	$PlayerZones/PlayerSealed.visible = 'has_sealed_area' in player_deck and player_deck['has_sealed_area']
 	$OpponentZones/OpponentSealed.visible = 'has_sealed_area' in opponent_deck and opponent_deck['has_sealed_area']
-	$PlayerZones/PlayerOverdrive.visible = false
-	$OpponentZones/OpponentOverdrive.visible = false
+	$PlayerZones/PlayerOverdrive.visible = is_player_overdrive_visible(Enums.PlayerId.PlayerId_Player)
+	$OpponentZones/OpponentOverdrive.visible = is_player_overdrive_visible(Enums.PlayerId.PlayerId_Opponent)
 	setup_character_card(player_character_card, player_deck, player_buddy_character_card)
 	setup_character_card(opponent_character_card, opponent_deck, opponent_buddy_character_card)
 
@@ -607,8 +610,8 @@ func update_card_counts():
 	$PlayerZones/PlayerOverdrive.set_details(game_wrapper.get_player_overdrive_size(Enums.PlayerId.PlayerId_Player))
 	$OpponentZones/OpponentOverdrive.set_details(game_wrapper.get_player_overdrive_size(Enums.PlayerId.PlayerId_Opponent))
 
-	$PlayerZones/PlayerOverdrive.visible = game_wrapper.is_player_in_overdrive(Enums.PlayerId.PlayerId_Player)
-	$OpponentZones/OpponentOverdrive.visible = game_wrapper.is_player_in_overdrive(Enums.PlayerId.PlayerId_Opponent)
+	$PlayerZones/PlayerOverdrive.visible = is_player_overdrive_visible(Enums.PlayerId.PlayerId_Player)
+	$OpponentZones/OpponentOverdrive.visible = is_player_overdrive_visible(Enums.PlayerId.PlayerId_Opponent)
 
 func get_card_node_name(id):
 	return "Card_" + str(id)
@@ -1243,6 +1246,12 @@ func get_string_for_action_choice(choice):
 			return "Add to Hand"
 		"add_to_gauge":
 			return "Add to Gauge"
+		"add_to_sealed":
+			return "Add to Sealed"
+		"add_to_overdrive":
+			return "Add to Overdrive"
+		"add_to_topdeck_under":
+			return "Add to deck 2nd from top"
 	return ""
 
 func begin_choose_from_topdeck(action_choices, look_amount, can_pass):
@@ -1330,13 +1339,15 @@ func _on_add_to_gauge(event):
 func _on_add_to_sealed(event):
 	var player = event['event_player']
 	var card = find_card_on_board(event['number'])
-	card.flip_card_to_front(true)
 	var sealed_panel = $PlayerZones/PlayerSealed
 	var sealed_card_loc = $AllCards/PlayerSealed
+	var keep_hidden = false
 	if player == Enums.PlayerId.PlayerId_Opponent:
 		sealed_panel = $OpponentZones/OpponentSealed
 		sealed_card_loc = $AllCards/OpponentSealed
+		keep_hidden = game_wrapper.is_player_sealed_facedown(player)
 
+	card.flip_card_to_front(not keep_hidden)
 	var pos = sealed_panel.get_center_pos()
 	var is_player = player == Enums.PlayerId.PlayerId_Player
 	if card.get_parent() == $AllCards/PlayerDeck or card.get_parent() == $AllCards/OpponentDeck:
@@ -1734,6 +1745,9 @@ func begin_discard_cards_selection(number_to_discard_min, number_to_discard_max,
 	change_ui_state(UIState.UIState_SelectCards, next_sub_state)
 
 func begin_generate_force_selection(amount, can_cancel : bool = true, wild_swing_allowed : bool = false):
+	# Show the gauge window.
+	_on_player_gauge_gauge_clicked()
+
 	selected_cards = []
 	select_card_require_force = amount
 	enable_instructions_ui("", true, can_cancel, wild_swing_allowed)

@@ -6,7 +6,7 @@
 	"exceed_cost": 8,
 	"exceed_cost_reduced_by": "overdrive_count",
 	"has_sealed_area": true,
-	"sealed_area_is_secret": true,
+	"sealed_area_is_facedown": true,
 	"exceed_to_overdrive": true,
 	"always_show_overdrive": true,
 	"on_exceed": {
@@ -57,7 +57,7 @@
 			"destination": "discard",
 			"amount": 1,
 			"amount_min": 1,
-			"linked_effect": {
+			"discard_effect": {
 				"condition": "discarded_matches_attack_speed",
 				"effect_type": "rangeup",
 				"amount": -8,

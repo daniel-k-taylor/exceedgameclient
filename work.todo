@@ -1,24 +1,27 @@
 In progress:
+
+    ☐ Change cards brings up gauge @started(24-01-29 20:51)
+
     Arakune:
-        ☐ "sealed_area_is_secret": true,
-        ☐ "always_show_overdrive": true,
-        ☐ "exceed_cost_reduced_by": "overdrive_count",
-        ☐ { "effect_type": "seal_topdeck" },
-            ☐ "add_topdeck_card_name_to_choices": [0],
-        ☐ "effect_type": "add_top_discard_to_overdrive",
-            ☐ or no name
-            ☐ "add_topdeck_card_name_to_choices": [0],
-        ☐ "condtion": "is_special_or_ultra_attack",
-        ☐ Make on_strike_reveal handled in continue_resolve_strike
-        ☐ "condition": "discarded_matches_attack_speed",
-        ☐ choose_discard - "linked_effect":
+        ☐ "sealed_area_is_facedown": true, @started(24-01-29 14:40)
+        ☐ "always_show_overdrive": true, @started(24-01-29 14:44)
+        ☐ "exceed_cost_reduced_by": "overdrive_count", @started(24-01-29 16:36)
+        ☐ { "effect_type": "seal_topdeck" }, @started(24-01-29 20:34)
+            ☐ "add_topdeck_card_name_to_choices": [0], @started(24-01-29 20:34)
+        ☐ "effect_type": "add_top_discard_to_overdrive", @started(24-01-29 21:00)
+            ☐ or no name @started(24-01-29 21:00)
+            ☐ "add_topdeck_card_name_to_choices": [0], @started(24-01-29 21:00)
+        ☐ "condtion": "is_special_or_ultra_attack", @started(24-01-29 21:01)
+        ☐ Make on_strike_reveal handled in continue_resolve_strike @started(24-01-29 21:09)
+        ☐ "condition": "discarded_matches_attack_speed", @started(24-01-29 21:21)
+        ☐ choose_discard - "discard_effect": @started(24-01-29 21:53)
 
 
         ☐ "choose_cards_from_top_deck"
-            ☐ "add_to_sealed"
-            ☐ "add_to_overdrive"
-            ☐ "add_to_topdeck_under"
-        ☐ choose_discard - destination overdrive
+            ☐ "add_to_sealed" @started(24-01-29 22:27)
+            ☐ "add_to_overdrive" @started(24-01-29 22:27)
+            ☐ "add_to_topdeck_under" @started(24-01-29 22:33)
+        ☐ choose_discard - destination overdrive @started(24-01-29 22:56)
         ☐ "effect_type": "add_boost_to_overdrive_on_strike_cleanup"
         ☐ "effect_type": "dodge_speed_greater_than",
             ☐ "amount": "YOUR_SPEED"
@@ -77,10 +80,11 @@ Tasks:
     ☐ Only connect to server if you enter Multiplayer
     ☐ Card popout has choice buttons for gauge selection
     ☐ Reorder opponent hand in a way that you can't keep track with effort
-    ☐ Rework character_effect window to allow mulitple abilities, scan for them all at during_strike timing
+    ☐ Rework character_effect window to allow mulitple abilities, scan for them all at set_strike/during_strike timing, add as strike goes on
     ☐ Always show conditional effects and allow choosing them when they fail
     ☐ Add a info screen after character select on the main menu you can click to show all card for the character.
     ☐ Combat Log always on screen?
+    ☐ Show cards you revealed to opponent with EYE icon in your hand.
 
 Bugs:
 

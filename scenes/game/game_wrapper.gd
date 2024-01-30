@@ -94,7 +94,7 @@ func get_player_reshuffle_remaining(id):
 	return _get_player(id).reshuffle_remaining
 
 func get_player_exceed_cost(id):
-	return _get_player(id).exceed_cost
+	return _get_player(id).get_exceed_cost()
 
 func get_player_mulligan_complete(id):
 	return _get_player(id).mulligan_complete
@@ -109,7 +109,13 @@ func get_bonus_actions(id):
 	return _get_player(id).get_bonus_actions()
 
 func is_player_in_overdrive(id):
+	var player = _get_player(id)
+	if 'always_show_overdrive' in player.deck_def and player.deck_def['always_show_overdrive']:
+		return true
 	return _get_player(id).overdrive.size() > 0
+
+func is_player_sealed_facedown(id):
+	return _get_player(id).sealed_area_is_facedown
 
 func get_all_non_immediate_continuous_boost_effects(id):
 	var game_player = _get_player(id)

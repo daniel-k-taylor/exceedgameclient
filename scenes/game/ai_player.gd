@@ -207,7 +207,7 @@ func update_ai_state(_game_logic : LocalGame, me : LocalGame.Player, opponent : 
 	game_state.my_state.gauge = create_card_id_array(me.gauge)
 	game_state.my_state.arena_location = me.arena_location
 	game_state.my_state.buddy_locations = me.buddy_locations
-	game_state.my_state.exceed_cost = me.exceed_cost
+	game_state.my_state.exceed_cost = me.get_exceed_cost()
 	game_state.my_state.exceeded = me.exceeded
 	game_state.my_state.reshuffle_remaining = me.reshuffle_remaining
 
@@ -221,7 +221,7 @@ func update_ai_state(_game_logic : LocalGame, me : LocalGame.Player, opponent : 
 	game_state.opponent_state.gauge = create_card_id_array(opponent.gauge)
 	game_state.opponent_state.arena_location = opponent.arena_location
 	game_state.opponent_state.buddy_locations = opponent.buddy_locations
-	game_state.opponent_state.exceed_cost = opponent.exceed_cost
+	game_state.opponent_state.exceed_cost = opponent.get_exceed_cost()
 	game_state.opponent_state.exceeded = opponent.exceeded
 	game_state.opponent_state.reshuffle_remaining = opponent.reshuffle_remaining
 
@@ -360,10 +360,10 @@ func get_exceed_actions(_game_logic : LocalGame, me : LocalGame.Player, _opponen
 	var possible_actions = []
 	if me.exceeded:
 		return []
-	if me.exceed_cost > me.gauge.size():
+	if me.get_exceed_cost() > me.gauge.size():
 		return []
 
-	var combinations = get_combinations_to_pay_gauge(me, me.exceed_cost)
+	var combinations = get_combinations_to_pay_gauge(me, me.get_exceed_cost())
 	for combination in combinations:
 		possible_actions.append(ExceedAction.new(combination))
 	return possible_actions
