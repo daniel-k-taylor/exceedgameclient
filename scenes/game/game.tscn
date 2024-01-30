@@ -397,11 +397,17 @@ layout_mode = 2
 theme_override_font_sizes/font_size = 32
 text = "Char. Bonus"
 
-[node name="AbilityLabel" type="Label" parent="OpponentStrike/CharBonusPanel/MarginContainer/VBox"]
+[node name="AbilityLabel" type="RichTextLabel" parent="OpponentStrike/CharBonusPanel/MarginContainer/VBox"]
 layout_mode = 2
-theme_override_font_sizes/font_size = 32
+size_flags_vertical = 4
+theme_override_font_sizes/normal_font_size = 32
+theme_override_font_sizes/bold_font_size = 32
+bbcode_enabled = true
 text = "+0-1 range
 +1 power"
+fit_content = true
+scroll_active = false
+autowrap_mode = 0
 
 [node name="OpponentHand" type="Node2D" parent="."]
 

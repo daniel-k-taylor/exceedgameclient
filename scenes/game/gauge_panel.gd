@@ -21,6 +21,7 @@ func get_center_pos() -> Vector2:
 func _on_focus_pressed():
 	gauge_clicked.emit()
 
-func disable():
+func hidden_sealed():
 	$BackgroundPanel/Focus.disabled = true
 	$BackgroundPanel.modulate = disable_color
+	$BackgroundPanel/Focus.tooltip_text = "This character seals cards face-down."

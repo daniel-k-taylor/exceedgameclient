@@ -5,7 +5,7 @@
 	"cardback": "cardback_specter.jpg",
 	"has_sealed_area": true,
 	"sealed_area_is_secret": true,
-	"exceed_cost": 4,
+	"exceed_cost": 1, "NOTE": "todo",
 	"ability_effects": [
 		{
 			"timing": "set_strike",
@@ -35,25 +35,28 @@
 	"exceed_ability_effects": [
 		{
 			"timing": "set_strike",
-			"condition": "min_cards_in_hand",
-			"condition_amount": 1,
-			"effect_type": "choice",
-			"choice": [
-				{
-					"effect_type": "discard_random_and_add_triggers",
-					"suppress_and_description": true,
-					"and": {
-						"condition": "min_cards_in_hand",
-						"condition_amount": 1,
-						"effect_type": "choice",
-						"choice": [
-							{ "effect_type": "discard_random_and_add_triggers" },
-							{ "effect_type": "pass" }
-						]
-					}
+			"effect_type": "gauge_for_effect",
+			"per_gauge_effect": null,
+			"overall_effect": {
+				"effect_type": "set_used_character_bonus",
+				"character_effect": true,
+				"linked_effect": {
+					"timing": "before",
+					"effect_type": "advance",
+					"amount": 2
 				},
-				{ "effect_type": "pass" }
-			]
+				"and": {
+					"effect_type": "powerup",
+					"amount": 1
+				}
+			},
+			"gauge_max": 1
+		},
+		{
+			"timing": "before",
+			"condition": "used_character_bonus",
+			"effect_type": "advance",
+			"amount": 2
 		}
 	],
 	"cards": [

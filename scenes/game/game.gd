@@ -298,7 +298,7 @@ func setup_characters():
 	$PlayerZones/PlayerSealed.visible = 'has_sealed_area' in player_deck and player_deck['has_sealed_area']
 	$OpponentZones/OpponentSealed.visible = 'has_sealed_area' in opponent_deck and opponent_deck['has_sealed_area']
 	if 'sealed_area_is_secret' in opponent_deck and opponent_deck['sealed_area_is_secret']:
-		$OpponentZones/OpponentSealed.disable()
+		$OpponentZones/OpponentSealed.hidden_sealed()
 	$PlayerZones/PlayerOverdrive.visible = false
 	$OpponentZones/OpponentOverdrive.visible = false
 	setup_character_card(player_character_card, player_deck, player_buddy_character_card)
@@ -1585,8 +1585,6 @@ func update_discard_selection_message_choose():
 	var bonus = ""
 	if decision_info.bonus_effect:
 		var effect_text = CardDefinitions.get_effect_text(decision_info.bonus_effect, false, false, false, "")
-		if len(effect_text) >= 2 and effect_text.substr(0, 2) == ": ":
-			effect_text = effect_text.substr(2)
 		bonus = "\nfor %s" % effect_text
 	if decision_info.limitation:
 		set_instructions("Select %s more %s card(s) from your hand to move to %s%s." % [num_remaining, decision_info.limitation, destination, bonus])
@@ -2069,8 +2067,6 @@ func _on_strike_character_effect(event):
 	var label_text = ""
 	label_text += CardDefinitions.get_effect_text(effect, false, true, true) + "\n"
 	label_text = label_text.replace(",", "\n")
-	if len(label_text) >= 2 and label_text.substr(0, 2) == ": ":
-		label_text = label_text.substr(2)
 	bonus_label.text = label_text
 
 func _on_effect_choice(event):

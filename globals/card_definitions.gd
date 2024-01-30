@@ -759,6 +759,9 @@ func get_effect_text(effect, short = false, skip_timing = false, skip_condition 
 			effect_str += get_effect_text(effect['and'], short, skip_timing, false, card_name_source)
 	if 'negative_condition_effect' in effect:
 		effect_str += ", otherwise " + get_effect_text(effect['negative_condition_effect'], short, skip_timing, false, card_name_source)
+
+	if len(effect_str) >= 2 and effect_str.substr(0, 2) == ": ":
+		effect_str = effect_str.substr(2)
 	return effect_str
 
 func get_effects_text(effects):
