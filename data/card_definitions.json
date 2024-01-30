@@ -11453,15 +11453,9 @@
 					"condition_amount": 1,
 					"effect_type": "choice",
 					"choice": [
-						{ "effect_type": "push", "amount": 1 },
-						{ "effect_type": "push", "amount": 2 }
+						{ "effect_type": "push", "amount": 1, "and": { "effect_type": "strike" } },
+						{ "effect_type": "push", "amount": 2, "and": { "effect_type": "strike" } }
 					]
-				},
-				{
-					"timing": "immediate",
-					"condition": "range",
-					"condition_amount": 1,
-					"effect_type": "strike"
 				}
 			]
 		},
