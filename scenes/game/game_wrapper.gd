@@ -115,6 +115,9 @@ func get_all_non_immediate_continuous_boost_effects(id):
 	var game_player = _get_player(id)
 	return game_player.get_all_non_immediate_continuous_boost_effects()
 
+func is_player_sealed_area_secret(id):
+	return _get_player(id).sealed_area_is_secret
+
 func count_cards_in_deck_and_hand(player_id : Enums.PlayerId, card_str_id : String, override_card_list = null):
 	var player = _get_player(player_id)
 	var count = 0

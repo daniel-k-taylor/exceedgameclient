@@ -2,7 +2,7 @@ extends PanelContainer
 
 signal choice_selected(choice_index : int)
 
-@onready var instructions_label : Label = $OuterMargin/MainVBox/PanelContainer/InstructionHBox/InstructionsLabel
+@onready var instructions_label : RichTextLabel = $OuterMargin/MainVBox/PanelContainer/InstructionHBox/InstructionsLabel
 @onready var show_image : TextureRect = $OuterMargin/MainVBox/PanelContainer/ShowHideHBox/MarginContainer/MarginContainer/ShowImage
 @onready var hide_image : TextureRect = $OuterMargin/MainVBox/PanelContainer/ShowHideHBox/MarginContainer/MarginContainer/HideImage
 @onready var choice_buttons_grid : GridContainer = $OuterMargin/MainVBox/ChoiceButtons
@@ -17,7 +17,7 @@ func set_choices(instructions_text : String, choices : Array):
 		col_count = 2
 	choice_buttons_grid.columns = col_count
 
-	instructions_label.text = instructions_text
+	instructions_label.text = "[center]%s[/center]" % instructions_text
 	var choice_buttons = choice_buttons_grid.get_children()
 	var total_choices = choices.size()
 	for i in range(choice_buttons.size()):
@@ -40,4 +40,4 @@ func _on_show_hide_button_pressed():
 	show_image.visible = not showing
 	hide_image.visible = showing
 	choice_buttons_grid.visible = showing
-	
+

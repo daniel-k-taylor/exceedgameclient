@@ -54,11 +54,17 @@ alignment = 1
 custom_minimum_size = Vector2(30, 30)
 layout_mode = 2
 
-[node name="InstructionsLabel" type="Label" parent="OuterMargin/MainVBox/PanelContainer/InstructionHBox"]
+[node name="InstructionsLabel" type="RichTextLabel" parent="OuterMargin/MainVBox/PanelContainer/InstructionHBox"]
+clip_contents = false
 layout_mode = 2
-theme_override_font_sizes/font_size = 20
+size_flags_vertical = 4
+theme_override_font_sizes/normal_font_size = 20
+theme_override_font_sizes/bold_font_size = 20
+bbcode_enabled = true
 text = "Instructions go here to tell you what to do:"
-horizontal_alignment = 1
+fit_content = true
+scroll_active = false
+autowrap_mode = 0
 
 [node name="MarginContainer2" type="MarginContainer" parent="OuterMargin/MainVBox/PanelContainer/InstructionHBox"]
 custom_minimum_size = Vector2(30, 30)
