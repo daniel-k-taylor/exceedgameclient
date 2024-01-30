@@ -99,6 +99,7 @@ enum EventType {
 	EventType_Move,
 	EventType_MulliganDecision,
 	EventType_PlaceBuddy,
+	EventType_Popup,
 	EventType_Prepare,
 	EventType_ReadingNormal,
 	EventType_ReshuffleDeck_Mulligan,

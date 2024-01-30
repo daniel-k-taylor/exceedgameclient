@@ -910,6 +910,8 @@ func _stat_notice_event(event):
 	match event['event_type']:
 		Enums.EventType.EventType_BlockMovement:
 			notice_text = "Movement Blocked!"
+		Enums.EventType.EventType_Popup:
+			notice_text = event['extra_info']
 		Enums.EventType.EventType_Strike_ArmorUp:
 			notice_text = "+%d Armor" % number
 		Enums.EventType.EventType_Strike_AttackDoesNotHit:
@@ -2319,6 +2321,8 @@ func _handle_events(events):
 				_on_mulligan_decision(event)
 			Enums.EventType.EventType_PlaceBuddy:
 				delay = _on_place_buddy(event)
+			Enums.EventType.EventType_Popup:
+				delay = _stat_notice_event(event)
 			Enums.EventType.EventType_Prepare:
 				delay = _on_prepare(event)
 			Enums.EventType.EventType_ReadingNormal:

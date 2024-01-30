@@ -704,6 +704,8 @@ func get_effect_type_text(effect, card_name_source : String = ""):
 				effect_str += "Sustain this"
 		"swap_buddy":
 			effect_str += effect['description']
+		"swap_deck_and_sealed":
+			effect_str += "Swap all sealed cards with deck"
 		"take_bonus_actions":
 			if 'use_simple_description' in effect and effect['use_simple_description']:
 				effect_str += "Take another action."

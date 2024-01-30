@@ -5,7 +5,14 @@
 	"cardback": "cardback_specter.jpg",
 	"has_sealed_area": true,
 	"sealed_area_is_secret": true,
-	"exceed_cost": 1, "NOTE": "todo",
+	"exceed_cost": 4,
+	"on_exceed": {
+		"effect_type": "choice",
+		"choice": [
+			{ "effect_type": "swap_deck_and_sealed" },
+			{ "effect_type": "pass" }
+		]
+	},
 	"ability_effects": [
 		{
 			"timing": "set_strike",

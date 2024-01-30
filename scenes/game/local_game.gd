@@ -787,6 +787,16 @@ class Player:
 				break
 		return events
 
+	func move_card_from_sealed_to_top_deck(id : int):
+		var events = []
+		for i in range(len(sealed)):
+			var card = sealed[i]
+			if card.id == id:
+				events += add_to_top_of_deck(card)
+				sealed.remove_at(i)
+				break
+		return events
+
 	func add_top_deck_to_gauge(amount : int):
 		var events = []
 		for i in range(amount):
@@ -815,6 +825,20 @@ class Player:
 		for card in gauge:
 			events += add_to_hand(card)
 		gauge = []
+		return events
+
+	func swap_deck_and_sealed():
+		var events = []
+		var current_sealed_ids = sealed.map(func(card) : return card.id)
+		var current_deck_ids = deck.map(func(card) : return card.id)
+		for card_id in current_deck_ids:
+			var seal_effect = { "effect_type": "seal_card_INTERNAL", "seal_card_id": card_id, "source": "deck", "silent": true }
+			events += parent.handle_strike_effect(-1, seal_effect, self)
+		for card_id in current_sealed_ids:
+			events += move_card_from_sealed_to_top_deck(card_id)
+		parent._append_log_full(Enums.LogType.LogType_CardInfo, self, "swaps their sealed cards and deck!")
+		events += [parent.create_event(Enums.EventType.EventType_Popup, my_id, 0, "", "Swap Sealed and Deck")]
+		random_shuffle_deck()
 		return events
 
 	func is_card_in_gauge(id : int):
@@ -1215,25 +1239,36 @@ class Player:
 					break
 		return events
 
-	func seal_from_hand(card_id : int):
+	func seal_from_hand(card_id : int, silent = false):
 		var events = []
 		for i in range(len(hand)-1, -1, -1):
 			var card = hand[i]
 			if card.id == card_id:
 				hand.remove_at(i)
 				sealed.append(card)
-				events += [parent.create_event(Enums.EventType.EventType_Seal, my_id, card.id)]
+				events += [parent.create_event(Enums.EventType.EventType_Seal, my_id, card.id, "", not silent)]
 				break
 		return events
 
-	func seal_from_discard(card_id : int):
+	func seal_from_discard(card_id : int, silent = false):
 		var events = []
 		for i in range(len(discards)-1, -1, -1):
 			var card = discards[i]
 			if card.id == card_id:
 				discards.remove_at(i)
 				sealed.append(card)
-				events += [parent.create_event(Enums.EventType.EventType_Seal, my_id, card.id)]
+				events += [parent.create_event(Enums.EventType.EventType_Seal, my_id, card.id, "", not silent)]
+				break
+		return events
+
+	func seal_from_deck(card_id : int, silent = false):
+		var events = []
+		for i in range(len(deck)-1, -1, -1):
+			var card = deck[i]
+			if card.id == card_id:
+				deck.remove_at(i)
+				sealed.append(card)
+				events += [parent.create_event(Enums.EventType.EventType_Seal, my_id, card.id, "", not silent)]
 				break
 		return events
 
@@ -1409,9 +1444,9 @@ class Player:
 		hand.append(card)
 		return [parent.create_event(Enums.EventType.EventType_AddToHand, my_id, card.id)]
 
-	func add_to_sealed(card : GameCard):
+	func add_to_sealed(card : GameCard, silent=false):
 		sealed.append(card)
-		return [parent.create_event(Enums.EventType.EventType_Seal, my_id, card.id)]
+		return [parent.create_event(Enums.EventType.EventType_Seal, my_id, card.id, "", not silent)]
 
 	func add_to_top_of_deck(card : GameCard):
 		deck.insert(0, card)
@@ -3744,17 +3779,23 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 			# note that this doesn't support effects causing decisions
 			var seal_effect = effect.duplicate()
 			seal_effect['effect_type'] = "seal_card_complete_INTERNAL"
+			seal_effect['silent'] = false
+			if 'silent' in effect:
+				seal_effect['silent'] = effect['silent']
 			events += handle_strike_effect(card_id, seal_effect, performing_player)
 			# and/bonus_effect should be handled by internal version
 			ignore_extra_effects = true
 		"seal_card_complete_INTERNAL":
 			var card = card_db.get_card(effect['seal_card_id'])
+			var silent = effect['silent']
 			if effect['source'] == "hand":
-				events += performing_player.seal_from_hand(card.id)
+				events += performing_player.seal_from_hand(card.id, silent)
 			elif effect['source'] == "discard":
-				events += performing_player.seal_from_discard(card.id)
+				events += performing_player.seal_from_discard(card.id, silent)
+			elif effect['source'] == "deck":
+				events += performing_player.seal_from_deck(card.id, silent)
 			else:
-				events += performing_player.add_to_sealed(card)
+				events += performing_player.add_to_sealed(card, silent)
 		"seal_this":
 			if active_boost:
 				# Part of a boost.
@@ -3987,6 +4028,8 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 			var buddy_id_to_remove = effect['buddy_to_remove']
 			var buddy_id_to_place = effect['buddy_to_place']
 			events += performing_player.swap_buddy(buddy_id_to_remove, buddy_id_to_place, effect['description'])
+		"swap_deck_and_sealed":
+			events += performing_player.swap_deck_and_sealed()
 		"switch_spaces_with_buddy":
 			var old_space = performing_player.arena_location
 			var old_buddy_space = performing_player.get_buddy_location()
