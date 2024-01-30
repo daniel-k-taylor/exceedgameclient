@@ -1515,7 +1515,15 @@ class Player:
 	func on_position_changed(old_pos, buddy_old_pos, is_self_move):
 		if is_self_move and parent.active_strike:
 			moved_self_this_strike = true
-			spaces_moved_this_strike += abs(arena_location - old_pos)
+			var spaces_moved = abs(arena_location - old_pos)
+
+			# the opponent's space doesn't count
+			var other_player_loc = parent._get_player(parent.get_other_player(my_id)).arena_location
+			if (old_pos < other_player_loc and arena_location > other_player_loc) or (old_pos > other_player_loc and arena_location < other_player_loc):
+				spaces_moved -= 1
+			assert(spaces_moved > 0)
+			spaces_moved_this_strike += spaces_moved
+
 		if arena_location == get_buddy_location():
 			if old_pos != buddy_old_pos:
 				handle_on_buddy_boosts(true)
