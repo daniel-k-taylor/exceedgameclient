@@ -236,12 +236,9 @@ func test_noel_exceeded_loses():
 func test_noel_optic_barrel_minrange():
 	position_players(player1, 3, player2, 5)
 	give_player_specific_card(player1, "standard_normal_assault", TestCardId3)
-	print("pre strike")
 	var events = execute_strike(player1, player2, "noel_opticbarrel", "standard_normal_spike", [], [], false, false, [], [])
-	print("post strike")
 	assert_eq(game_logic.game_state, Enums.GameState.GameState_PlayerDecision)
 	assert_true(game_logic.do_force_for_effect(player1, [TestCardId3]))
-	print("post force")
 	assert_true(game_logic.do_choice(player1, 0))
 	events += game_logic.get_latest_events()
 	validate_does_not_have_event(events, Enums.EventType.EventType_Strike_TookDamage, player2, 5)

@@ -194,6 +194,7 @@ class Strike:
 	var remaining_forced_boosts = 0
 	var remaining_forced_boosts_source = ""
 	var remaining_forced_boosts_player_id = Enums.PlayerId.PlayerId_Player
+	var cards_in_play: Array[GameCard] = []
 
 	func get_card(num : int):
 		if initiator_first:
@@ -2529,7 +2530,7 @@ func is_effect_condition_met(performing_player : Player, effect, local_condition
 				return false
 			var buddy_location = other_player.get_buddy_location(buddy_id)
 			var attack_card = active_strike.get_player_card(performing_player)
-			return is_location_in_range(performing_player, attack_card, buddy_location)
+			return is_location_in_range(performing_player, attack_card, buddy_location) or performing_player.arena_location == buddy_location
 		elif condition == "buddy_space_unoccupied":
 			var buddy_id = ""
 			if 'condition_buddy_id' in effect:
@@ -4743,6 +4744,7 @@ func continue_resolve_strike(events):
 				# Ask player to pay for this card if applicable.
 				events += ask_for_cost(active_strike.defender, active_strike.defender_card, StrikeState.StrikeState_DuringStrikeBonuses)
 			StrikeState.StrikeState_DuringStrikeBonuses:
+				active_strike.cards_in_play += [active_strike.initiator_card, active_strike.defender_card]
 				_append_log_full(Enums.LogType.LogType_Strike, active_strike.initiator, "initiated with %s; %s responded with %s." % [active_strike.initiator_card.definition['display_name'], active_strike.defender.name, active_strike.defender_card.definition['display_name']])
 				log_boosts_in_play()
 				events += do_effects_for_timing("during_strike", active_strike.initiator, active_strike.initiator_card, StrikeState.StrikeState_DuringStrikeBonuses)
@@ -4847,7 +4849,7 @@ func continue_resolve_strike(events):
 			StrikeState.StrikeState_Cleanup_Player2Effects:
 				events += do_remaining_effects(player2, StrikeState.StrikeState_Cleanup_Complete)
 			StrikeState.StrikeState_Cleanup_Complete:
-				# If hit, move card to gauge, otherwise move to discard.
+				# Handle cleanup effects that cause attack cards to leave play before the standard timing
 				events += handle_strike_attack_cleanup(player1, card1)
 				events += handle_strike_attack_cleanup(player2, card2)
 
@@ -4858,6 +4860,13 @@ func continue_resolve_strike(events):
 				# Cleanup any continuous boosts.
 				events += player1.cleanup_continuous_boosts()
 				events += player2.cleanup_continuous_boosts()
+
+				# Cleanup attacks, if hit, move card to gauge, otherwise move to discard.
+				if card1 in active_strike.cards_in_play:
+					events += strike_send_attack_to_discard_or_gauge(player1, card1)
+				if card2 in active_strike.cards_in_play:
+					events += strike_send_attack_to_discard_or_gauge(player2, card2)
+				assert(active_strike.cards_in_play.size() == 0, "ERROR: cards still in play after strike should have been cleaned up")
 
 				# Remove all stat boosts.
 				player.strike_stat_boosts.clear()
@@ -4881,43 +4890,58 @@ func continue_resolve_strike(events):
 
 func handle_strike_attack_cleanup(performing_player : Player, card):
 	var events = []
-	var hit = active_strike.player1_hit
-	var stat_boosts = performing_player.strike_stat_boosts
-	if active_strike.get_player(2) == performing_player:
-		hit = active_strike.player2_hit
 	var other_player = _get_player(get_other_player(performing_player.my_id))
 	var card_name = card.definition['display_name']
 
 	if performing_player.is_set_aside_card(card.id):
 		_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "sets aside their attack %s." % card_name)
 		events += [create_event(Enums.EventType.EventType_SetCardAside, performing_player.my_id, card.id)]
+		active_strike.cards_in_play.erase(card)
 	elif performing_player.strike_stat_boosts.seal_attack_on_cleanup:
 		_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "seals their attack %s." % card_name)
 		var seal_effect = { "effect_type": "seal_card_INTERNAL", "seal_card_id": card.id, "source": "" }
 		events += handle_strike_effect(-1, seal_effect, performing_player)
+		active_strike.cards_in_play.erase(card)
 	elif performing_player.strike_stat_boosts.return_attack_to_hand:
 		_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "returns their attack %s to their hand." % card_name)
 		events += performing_player.add_to_hand(card)
+		active_strike.cards_in_play.erase(card)
 	elif performing_player.strike_stat_boosts.move_strike_to_opponent_boosts:
 		_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "'s attack %s is set as a continuous boost for %s." % [card_name, other_player.name])
 		events += other_player.add_to_continuous_boosts(card)
 		other_player.sustained_boosts.append(card.id)
+		active_strike.cards_in_play.erase(card)
 	elif performing_player.strike_stat_boosts.move_strike_to_boosts:
 		_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "'s attack %s is set as a continuous boost." % card_name)
 		events += performing_player.add_to_continuous_boosts(card)
 		performing_player.sustained_boosts.append(card.id)
+		active_strike.cards_in_play.erase(card)
 	elif performing_player.strike_stat_boosts.attack_to_topdeck_on_cleanup:
 		_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "returns their attack %s to the top of their deck." % card_name)
 		events += performing_player.add_to_top_of_deck(card)
+		active_strike.cards_in_play.erase(card)
 	elif performing_player.strike_stat_boosts.discard_attack_on_cleanup:
 		_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "discards their attack %s." % card_name)
 		events += performing_player.add_to_discards(card)
-	elif hit or stat_boosts.always_add_to_gauge:
+		active_strike.cards_in_play.erase(card)
+
+	return events
+
+func strike_send_attack_to_discard_or_gauge(performing_player : Player, card):
+	var events = []
+	var hit = active_strike.player1_hit
+	var stat_boosts = performing_player.strike_stat_boosts
+	if active_strike.get_player(2) == performing_player:
+		hit = active_strike.player2_hit
+	var card_name = card.definition['display_name']
+
+	if hit or stat_boosts.always_add_to_gauge:
 		_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "adds their attack %s to gauge." % card_name)
 		events += performing_player.add_to_gauge(card)
 	else:
 		_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "discards their attack %s." % card_name)
 		events += performing_player.add_to_discards(card)
+	active_strike.cards_in_play.erase(card)
 
 	return events
 
