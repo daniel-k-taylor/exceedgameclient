@@ -5,17 +5,31 @@
 	"cardback": "cardback_specter.jpg",
 	"has_sealed_area": true,
 	"sealed_area_is_secret": true,
-	"exceed_cost": 2,
+	"exceed_cost": 4,
 	"ability_effects": [
 		{
 			"timing": "set_strike",
-			"condition": "min_cards_in_hand",
-			"condition_amount": 1,
-			"effect_type": "choice",
-			"choice": [
-				{ "effect_type": "discard_random_and_add_triggers" },
-				{ "effect_type": "pass" }
-			]
+			"condition": "initiated_strike",
+			"effect_type": "self_discard_choose",
+			"optional": true,
+			"amount": 2,
+			"limitation": "",
+			"destination": "sealed",
+			"discard_effect": {
+				"effect_type": "set_used_character_bonus",
+				"linked_effect": {
+					"timing": "before",
+					"effect_type": "advance",
+					"amount": 2
+				}
+			}
+		},
+		{
+			"character_effect": true,
+			"timing": "before",
+			"condition": "used_character_bonus",
+			"effect_type": "advance",
+			"amount": 2
 		}
 	],
 	"exceed_ability_effects": [
