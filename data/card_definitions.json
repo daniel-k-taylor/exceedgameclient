@@ -12450,48 +12450,45 @@
 		"NOTE": "SPECTER CARDS START",
 		"id": "specter_barrierlantern",
 		"type": "ultra",
-		"display_name": "Castle Crasher",
+		"display_name": "Barrier Lantern",
 		"force_cost": 0,
 		"gauge_cost": 3,
-		"range_min": 3,
-		"range_max": 5,
+		"range_min": 1,
+		"range_max": 3,
 		"speed": 3,
-		"power": 5,
-		"armor": 3,
-		"guard": 4,
+		"power": 6,
+		"armor": 0,
+		"guard": 0,
 		"effects": [
 			{
 				"timing": "during_strike",
-				"effect_type": "ignore_armor"
+				"effect_type": "dodge_at_range",
+				"range_min": 3,
+				"range_max": 5
 			},
 			{
-				"timing": "hit",
-				"effect_type": "powerup",
-				"amount": 2
+				"timing": "after",
+				"effect_type": "choice",
+				"choice": [
+					{ "effect_type": "advance", "amount": 1 },
+					{ "effect_type": "retreat", "amount": 1 }
+				]
 			}
 		],
 		"boost": {
 			"boost_type": "continuous",
-			"force_cost": 4,
+			"force_cost": 1,
 			"cancel_cost": -1,
-			"display_name": "Serum Supernus",
+			"display_name": "From the Grave",
 			"effects": [
 				{
-					"timing": "during_strike",
-					"effect_type": "powerup",
-					"amount": 2,
-					"and": {
-						"effect_type": "speedup",
-						"amount": 2,
-						"and": {
-							"effect_type": "armorup",
-							"amount": 2
-						}
-					}
+					"timing": "now",
+					"effect_type": "strike_from_sealed"
 				},
 				{
-					"timing": "now",
-					"effect_type": "strike"
+					"timing": "hit",
+					"effect_type": "return_this_boost_to_hand_strike_effect",
+					"card_name": "From the Grave"
 				}
 			]
 		}
@@ -12499,60 +12496,48 @@
 	{
 		"id": "specter_dreadreaper",
 		"type": "ultra",
-		"display_name": "Triple Dose",
+		"display_name": "Dread Reaper",
 		"force_cost": 0,
 		"gauge_cost": 3,
 		"range_min": 1,
-		"range_max": 3,
-		"speed": 1,
-		"power": 5,
+		"range_max": 1,
+		"speed": 3,
+		"power": 10,
 		"armor": 0,
-		"guard": 6,
+		"guard": 0,
 		"effects": [
 			{
-				"timing": "during_strike",
-				"effect_type": "extra_trigger_resolutions",
-				"amount": 2
-			},
-			{
 				"timing": "after",
-				"effect_type": "draw",
-				"amount": 1
+				"effect_type": "pull",
+				"amount": 4,
+				"and": {
+					"effect_type": "gain_advantage"
+				}
 			}
 		],
 		"boost": {
 			"boost_type": "continuous",
-			"force_cost": 0,
+			"force_cost": 3,
 			"cancel_cost": -1,
-			"display_name": "Berserker's Brew",
+			"display_name": "Judgment Rush",
 			"effects": [
 				{
-					"timing": "now",
-					"effect_type": "force_for_effect",
-					"per_force_effect": {
-						"effect_type": "increase_force_spent_before_strike",
-						"linked_effect": {
-							"timing": "during_strike",
-							"effect_type": "powerup",
-							"amount": 1
-						}
-					},
-					"overall_effect": null,
-					"force_max": 3
+					"timing": "during_strike",
+					"effect_type": "powerup",
+					"amount": 2,
+					"and": {
+						"effect_type": "speedup",
+						"amount": 1
+					}
 				},
 				{
 					"timing": "now",
 					"effect_type": "strike"
 				},
 				{
-					"timing": "during_strike",
-					"effect_type": "set_strike_x",
-					"source": "force_spent_before_strike",
-					"and":
-					{
-						"effect_type": "powerup",
-						"amount": "strike_x"
-					}
+					"timing": "before",
+					"effect_type": "close",
+					"amount": 2
 				}
 			]
 		}
