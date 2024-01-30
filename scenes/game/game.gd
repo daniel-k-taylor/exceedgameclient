@@ -913,8 +913,6 @@ func _stat_notice_event(event):
 	match event['event_type']:
 		Enums.EventType.EventType_BlockMovement:
 			notice_text = "Movement Blocked!"
-		Enums.EventType.EventType_Popup:
-			notice_text = event['extra_info']
 		Enums.EventType.EventType_Strike_ArmorUp:
 			notice_text = "+%d Armor" % number
 		Enums.EventType.EventType_Strike_AttackDoesNotHit:
@@ -980,6 +978,8 @@ func _stat_notice_event(event):
 			notice_text = "Sustain Boost"
 		Enums.EventType.EventType_Strike_WildStrike:
 			notice_text = "Wild Swing!"
+		Enums.EventType.EventType_SwapSealedAndDeck:
+			notice_text = "Swap Sealed and Deck"
 
 	spawn_damage_popup(notice_text, player)
 	return SmallNoticeDelay
@@ -1337,13 +1337,15 @@ func _on_add_to_gauge(event):
 func _on_add_to_sealed(event):
 	var player = event['event_player']
 	var card = find_card_on_board(event['number'])
-	card.flip_card_to_front(true)
 	var sealed_panel = $PlayerZones/PlayerSealed
 	var sealed_card_loc = $AllCards/PlayerSealed
+	var keep_hidden = false
 	if player == Enums.PlayerId.PlayerId_Opponent:
 		sealed_panel = $OpponentZones/OpponentSealed
 		sealed_card_loc = $AllCards/OpponentSealed
+		keep_hidden = game_wrapper.is_player_sealed_area_secret(player)
 
+	card.flip_card_to_front(not keep_hidden)
 	var pos = sealed_panel.get_center_pos()
 	var is_player = player == Enums.PlayerId.PlayerId_Player
 	if card.get_parent() == $AllCards/PlayerDeck or card.get_parent() == $AllCards/OpponentDeck:
@@ -2333,7 +2335,7 @@ func _handle_events(events):
 				_on_mulligan_decision(event)
 			Enums.EventType.EventType_PlaceBuddy:
 				delay = _on_place_buddy(event)
-			Enums.EventType.EventType_Popup:
+			Enums.EventType.EventType_SwapSealedAndDeck:
 				delay = _stat_notice_event(event)
 			Enums.EventType.EventType_Prepare:
 				delay = _on_prepare(event)

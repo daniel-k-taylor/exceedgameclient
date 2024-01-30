@@ -841,12 +841,11 @@ class Player:
 		var current_sealed_ids = sealed.map(func(card) : return card.id)
 		var current_deck_ids = deck.map(func(card) : return card.id)
 		for card_id in current_deck_ids:
-			var seal_effect = { "effect_type": "seal_card_INTERNAL", "seal_card_id": card_id, "source": "deck", "silent": true }
-			events += parent.handle_strike_effect(-1, seal_effect, self)
+			events += parent.do_seal_effect(self, card_id, "deck", true)
 		for card_id in current_sealed_ids:
 			events += move_card_from_sealed_to_top_deck(card_id)
 		parent._append_log_full(Enums.LogType.LogType_CardInfo, self, "swaps their sealed cards and deck!")
-		events += [parent.create_event(Enums.EventType.EventType_Popup, my_id, 0, "", "Swap Sealed and Deck")]
+		events += [parent.create_event(Enums.EventType.EventType_SwapSealedAndDeck, my_id, 0)]
 		random_shuffle_deck()
 		return events
 
@@ -1293,8 +1292,7 @@ class Player:
 			else:
 				parent._append_log_full(Enums.LogType.LogType_CardInfo, self, "seals their hand, containing %s." % card_names)
 		for card_id in card_ids:
-			var seal_effect = { "effect_type": "seal_card_INTERNAL", "seal_card_id": card_id, "source": "hand" }
-			events += parent.handle_strike_effect(-1, seal_effect, self)
+			events += parent.do_seal_effect(self, card_id, "hand")
 		return events
 
 	func discard_hand():
@@ -3879,8 +3877,7 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 				else:
 					_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "seals the chosen card(s): %s." % card_names)
 				for seal_card_id in card_ids:
-					var seal_effect = { "effect_type": "seal_card_INTERNAL", "seal_card_id": seal_card_id, "source": "hand" }
-					events += handle_strike_effect(card_id, seal_effect, performing_player)
+					events += do_seal_effect(performing_player, seal_card_id, "hand")
 			elif effect['destination'] == "reveal":
 				_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "reveals the chosen card(s): %s." % card_names)
 				for revealed_card_id in card_ids:
@@ -4172,6 +4169,17 @@ func handle_place_buddy_at_range(performing_player : Player, card_id, effect):
 		change_game_state(Enums.GameState.GameState_PlayerDecision)
 		events += [create_event(Enums.EventType.EventType_ChooseArenaLocationForEffect, performing_player.my_id, 0)]
 
+	return events
+
+func do_seal_effect(performing_player : Player, card_id : int, source : String, silent : bool = false):
+	var events = []
+	var seal_effect = {
+		"effect_type": "seal_card_INTERNAL",
+		"seal_card_id": card_id,
+		"source": source,
+		"silent": silent
+	}
+	events += handle_strike_effect(-1, seal_effect, performing_player)
 	return events
 
 func handle_player_draw_or_discard_to_effect(performing_player : Player, card_id, effect):
@@ -4659,8 +4667,10 @@ func apply_damage(offense_player : Player, defense_player : Player, offense_card
 
 	_append_log_full(Enums.LogType.LogType_Strike, null, "Damage calculation: %s total power vs %s total armor." % [str(power), str(armor)])
 
-	if offense_player.strike_stat_boosts.ignore_armor or defense_player.strike_stat_boosts.lose_all_armor:
+	if offense_player.strike_stat_boosts.ignore_armor:
 		_append_log_full(Enums.LogType.LogType_Strike, _get_player(get_other_player(offense_player.my_id)), "ignores Armor!")
+		armor = 0
+	if defense_player.strike_stat_boosts.lose_all_armor:
 		armor = 0
 
 	var damage_after_armor = calculate_damage(offense_player, defense_player, offense_card, defense_card)
@@ -4988,8 +4998,7 @@ func handle_strike_attack_cleanup(performing_player : Player, card):
 		active_strike.cards_in_play.erase(card)
 	elif performing_player.strike_stat_boosts.seal_attack_on_cleanup:
 		_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "seals their attack %s." % card_name)
-		var seal_effect = { "effect_type": "seal_card_INTERNAL", "seal_card_id": card.id, "source": "" }
-		events += handle_strike_effect(-1, seal_effect, performing_player)
+		events += do_seal_effect(performing_player, card.id, "")
 		active_strike.cards_in_play.erase(card)
 	elif performing_player.strike_stat_boosts.return_attack_to_hand:
 		_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "returns their attack %s to their hand." % card_name)
@@ -5135,8 +5144,7 @@ func boost_finish_resolving_card(performing_player : Player):
 	else:
 		if active_boost.seal_on_cleanup:
 			_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "seals the boosted card %s." % active_boost.card.definition['display_name'])
-			var seal_effect = { "effect_type": "seal_card_INTERNAL", "seal_card_id": active_boost.card.id, "source": "" }
-			events += handle_strike_effect(-1, seal_effect, performing_player)
+			events += do_seal_effect(performing_player, active_boost.card.id, "")
 		elif active_boost.card.id in active_boost.cleanup_to_gauge_card_ids:
 			_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "adds the boosted card %s to gauge." % active_boost.card.definition['display_name'])
 			events += performing_player.add_to_gauge(active_boost.card)
@@ -6080,8 +6088,7 @@ func do_choose_from_discard(performing_player : Player, card_ids : Array) -> boo
 				"hand":
 					events += performing_player.move_card_from_discard_to_hand(card_id)
 				"sealed":
-					var seal_effect = { "effect_type": "seal_card_INTERNAL", "seal_card_id": card_id, "source": "discard" }
-					events += handle_strike_effect(-1, seal_effect, performing_player)
+					events += do_seal_effect(performing_player, card_id, "discard")
 				_:
 					printlog("ERROR: Choose from discard destination not implemented.")
 					assert(false, "Choose from discard destination not implemented.")
