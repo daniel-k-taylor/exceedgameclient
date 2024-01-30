@@ -437,6 +437,7 @@ class Player:
 	var reading_card_id : String
 	var next_strike_faceup : bool
 	var next_strike_from_gauge : bool
+	var next_strike_from_sealed : bool
 	var next_strike_random_gauge : bool
 	var strike_on_boost_cleanup : bool
 	var max_hand_size : int
@@ -673,6 +674,12 @@ class Player:
 		for i in range(len(gauge)):
 			if gauge[i].id == id:
 				gauge.remove_at(i)
+				break
+
+	func remove_card_from_sealed(id : int):
+		for i in range(len(sealed)):
+			if sealed[i].id == id:
+				sealed.remove_at(i)
 				break
 
 	func move_card_from_hand_to_deck(id : int):
@@ -3968,6 +3975,7 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 		"strike_from_gauge":
 			decision_info.type = Enums.DecisionType.DecisionType_StrikeNow
 			decision_info.player = performing_player.my_id
+			decision_info.source = "gauge"
 			if len(performing_player.gauge) > 0:
 				events += [create_event(Enums.EventType.EventType_Strike_FromGauge, performing_player.my_id, 0)]
 				change_game_state(Enums.GameState.GameState_WaitForStrike)
@@ -3980,6 +3988,25 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 					"wild_swing": true,
 					"ex_card_id": -1
 				}
+				_append_log_full(Enums.LogType.LogType_Effect, performing_player, "has no gauge to strike with.")
+				events += [create_event(Enums.EventType.EventType_Strike_EffectDoStrike, performing_player.my_id, 0, "", strike_info)]
+		"strike_from_sealed":
+			decision_info.type = Enums.DecisionType.DecisionType_StrikeNow
+			decision_info.player = performing_player.my_id
+			decision_info.source = "sealed"
+			if len(performing_player.sealed) > 0:
+				events += [create_event(Enums.EventType.EventType_Strike_FromGauge, performing_player.my_id, 0)]
+				change_game_state(Enums.GameState.GameState_WaitForStrike)
+				performing_player.next_strike_faceup = not performing_player.sealed_area_is_secret
+				performing_player.next_strike_from_sealed = true
+			else:
+				change_game_state(Enums.GameState.GameState_WaitForStrike)
+				var strike_info = {
+					"card_id": -1,
+					"wild_swing": true,
+					"ex_card_id": -1
+				}
+				_append_log_full(Enums.LogType.LogType_Effect, performing_player, "has no sealed cards to strike with.")
 				events += [create_event(Enums.EventType.EventType_Strike_EffectDoStrike, performing_player.my_id, 0, "", strike_info)]
 		"strike_opponent_sets_first":
 			events += [create_event(Enums.EventType.EventType_Strike_OpponentSetsFirst, performing_player.my_id, 0)]
@@ -5528,6 +5555,14 @@ func do_strike(performing_player : Player, card_id : int, wild_strike: bool, ex_
 		if ex_card_id != -1:
 			printlog("ERROR: Tried to ex strike from gauge.")
 			return false
+	elif performing_player.next_strike_from_sealed:
+		if not wild_strike and not performing_player.is_card_in_sealed(card_id):
+			if not game_state == Enums.GameState.GameState_Strike_Opponent_Set_First:
+				printlog("ERROR: Tried to strike with a card not in sealed.")
+				return false
+		if ex_card_id != -1:
+			printlog("ERROR: Tried to ex strike from sealed.")
+			return false
 	else:
 		if not wild_strike and not performing_player.is_card_in_hand(card_id):
 			if not (game_state == Enums.GameState.GameState_Strike_Opponent_Set_First or performing_player.next_strike_random_gauge):
@@ -5572,6 +5607,9 @@ func do_strike(performing_player : Player, card_id : int, wild_strike: bool, ex_
 					performing_player.remove_card_from_gauge(card_id)
 					active_strike.initiator_set_from_gauge = true
 					performing_player.next_strike_from_gauge = false
+				elif performing_player.next_strike_from_sealed:
+					performing_player.remove_card_from_sealed(card_id)
+					performing_player.next_strike_from_sealed = false
 				else:
 					performing_player.remove_card_from_hand(card_id)
 

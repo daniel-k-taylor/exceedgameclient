@@ -456,19 +456,28 @@ func get_ex_option_in_hand(game_logic : LocalGame, me : LocalGame.Player, card_i
 			return card.id
 	return -1
 
-func get_strike_actions(game_logic : LocalGame, me : LocalGame.Player, _opponent : LocalGame.Player, from_gauge : bool = false, disable_wild_swing : bool = false, disable_ex : bool = false):
+func get_strike_actions(game_logic : LocalGame, me : LocalGame.Player, _opponent : LocalGame.Player, alternate_source : String = "", disable_wild_swing : bool = false, disable_ex : bool = false):
 	var possible_actions = []
 	var possible_actions_cant_pay = []
 	# Always allow wild swing if allowed.
-	if not from_gauge and not disable_wild_swing:
+	if not alternate_source and not disable_wild_swing:
 		possible_actions.append(StrikeAction.new(-1, -1, true))
 
 	# Ignore cards that you can't pay for.
 	# Wait to pay for cards until later (you get to see what they flip).
 	# Add wild swing.
 	var added_ex_options = [-1]
-	if from_gauge:
+	if alternate_source == "gauge":
 		for card in me.gauge:
+			if card.definition['gauge_cost'] > me.gauge.size():
+				# Skip cards we can't pay for.
+				# But remember them in case we have 0 options and must strike with something?
+				possible_actions_cant_pay.append(StrikeAction.new(card.id, -1, false))
+				continue
+
+			possible_actions.append(StrikeAction.new(card.id, -1, false))
+	elif alternate_source == "sealed":
+		for card in me.sealed:
 			if card.definition['gauge_cost'] > me.gauge.size():
 				# Skip cards we can't pay for.
 				# But remember them in case we have 0 options and must strike with something?
@@ -668,10 +677,10 @@ func determine_choose_to_discard_options(me : LocalGame.Player, to_discard_count
 		possible_actions.append(ChooseToDiscardAction.new(combo))
 	return possible_actions
 
-func pick_strike(game_logic : LocalGame, my_id : Enums.PlayerId, from_gauge : bool = false, disable_wild_swing : bool = false, disable_ex : bool = false) -> StrikeAction:
+func pick_strike(game_logic : LocalGame, my_id : Enums.PlayerId, alternate_source : String = "", disable_wild_swing : bool = false, disable_ex : bool = false) -> StrikeAction:
 	var me = game_logic._get_player(my_id)
 	var opponent = game_logic._get_player(game_logic.get_other_player(my_id))
-	var possible_actions = get_strike_actions(game_logic, me, opponent, from_gauge, disable_wild_swing, disable_ex)
+	var possible_actions = get_strike_actions(game_logic, me, opponent, alternate_source, disable_wild_swing, disable_ex)
 	update_ai_state(game_logic, me, opponent)
 	return ai_policy.pick_strike(possible_actions, game_state)
 
