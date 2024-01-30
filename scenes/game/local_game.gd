@@ -3433,7 +3433,7 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 		"opponent_discard_choose_internal":
 			var cards = effect['card_ids']
 			var card_names = card_db.get_card_names(cards)
-			_append_log_full(Enums.LogType.LogType_CardInfo, opposing_player, "has card(s) discarded by %s: %s." % [performing_player.name, card_names])
+			_append_log_full(Enums.LogType.LogType_CardInfo, opposing_player, "has %s choose cards to discard: %s." % [performing_player.name, card_names])
 			events += performing_player.discard(cards)
 		"opponent_discard_hand":
 			var num_discarded = opposing_player.hand.size()
