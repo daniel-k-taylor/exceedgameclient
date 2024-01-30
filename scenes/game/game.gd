@@ -157,6 +157,7 @@ enum UISubState {
 	UISubState_SelectCards_StrikeGauge,
 	UISubState_SelectCards_StrikeCard,
 	UISubState_SelectCards_StrikeCard_FromGauge,
+	UISubState_SelectCards_StrikeCard_FromSealed,
 	UISubState_SelectCards_StrikeResponseCard,
 	UISubState_SelectCards_OpponentSetsFirst_StrikeCard,
 	UISubState_SelectCards_OpponentSetsFirst_StrikeResponseCard,
@@ -300,6 +301,8 @@ func setup_characters():
 			buddy.modulate = Color(1, 0.38, 0.55)
 	$PlayerZones/PlayerSealed.visible = 'has_sealed_area' in player_deck and player_deck['has_sealed_area']
 	$OpponentZones/OpponentSealed.visible = 'has_sealed_area' in opponent_deck and opponent_deck['has_sealed_area']
+	if 'sealed_area_is_secret' in opponent_deck and opponent_deck['sealed_area_is_secret']:
+		$OpponentZones/OpponentSealed.hidden_sealed()
 	$PlayerZones/PlayerOverdrive.visible = is_player_overdrive_visible(Enums.PlayerId.PlayerId_Player)
 	$OpponentZones/OpponentOverdrive.visible = is_player_overdrive_visible(Enums.PlayerId.PlayerId_Opponent)
 	setup_character_card(player_character_card, player_deck, player_buddy_character_card)
@@ -736,6 +739,8 @@ func can_select_card(card):
 			return in_hand
 		UISubState.UISubState_SelectCards_StrikeCard_FromGauge:
 			return in_gauge
+		UISubState.UISubState_SelectCards_StrikeCard_FromSealed:
+			return in_sealed
 		UISubState.UISubState_SelectCards_PlayBoost:
 			var valid_card = game_wrapper.can_player_boost(Enums.PlayerId.PlayerId_Player, card.card_id, select_boost_from_gauge, select_boost_only_from_gauge, select_boost_limitation)
 			return len(selected_cards) == 0 and valid_card
@@ -979,6 +984,8 @@ func _stat_notice_event(event):
 			notice_text = "Sustain Boost"
 		Enums.EventType.EventType_Strike_WildStrike:
 			notice_text = "Wild Swing!"
+		Enums.EventType.EventType_SwapSealedAndDeck:
+			notice_text = "Swap Sealed and Deck"
 
 	spawn_damage_popup(notice_text, player)
 	return SmallNoticeDelay
@@ -1348,7 +1355,7 @@ func _on_add_to_sealed(event):
 	if player == Enums.PlayerId.PlayerId_Opponent:
 		sealed_panel = $OpponentZones/OpponentSealed
 		sealed_card_loc = $AllCards/OpponentSealed
-		keep_hidden = game_wrapper.is_player_sealed_facedown(player)
+		keep_hidden = game_wrapper.is_player_sealed_area_secret(player)
 
 	card.flip_card_to_front(not keep_hidden)
 	var pos = sealed_panel.get_center_pos()
@@ -1496,10 +1503,12 @@ func _on_strike_from_gauge(event):
 	var player = event['event_player']
 	spawn_damage_popup("Strike!", player)
 
+	var decision_info = game_wrapper.get_decision_info()
+	var source = decision_info.source
 	if player == Enums.PlayerId.PlayerId_Player:
-		begin_gauge_strike_choosing(false, false)
+		begin_gauge_strike_choosing(false, false, source)
 	else:
-		ai_strike_from_gauge()
+		ai_strike_from_gauge(source)
 	return SmallNoticeDelay
 
 func _on_strike_opponent_sets_first(event):
@@ -1596,11 +1605,12 @@ func update_discard_selection_message_choose():
 		num_remaining = select_card_require_max - len(selected_cards)
 	var bonus = ""
 	if decision_info.bonus_effect:
-		bonus = "\nfor %s" % CardDefinitions.get_effect_text(decision_info.bonus_effect, false, false, false, "")
+		var effect_text = CardDefinitions.get_effect_text(decision_info.bonus_effect, false, false, false, "")
+		bonus = "\nfor %s" % effect_text
 	if decision_info.limitation:
-		set_instructions("Select %s more %s card(s) from your hand to %s%s." % [num_remaining, decision_info.limitation, destination, bonus])
+		set_instructions("Select %s more %s card(s) from your hand to move to %s%s." % [num_remaining, decision_info.limitation, destination, bonus])
 	else:
-		set_instructions("Select %s more card(s) from your hand to %s%s." % [num_remaining, destination, bonus])
+		set_instructions("Select %s more card(s) from your hand to move to %s%s." % [num_remaining, destination, bonus])
 
 func update_discard_selection_message():
 	var num_remaining = select_card_require_min - len(selected_cards)
@@ -1804,9 +1814,13 @@ func begin_strike_choosing(strike_response : bool, cancel_allowed : bool,
 			new_sub_state = UISubState.UISubState_SelectCards_StrikeCard
 	change_ui_state(UIState.UIState_SelectCards, new_sub_state)
 
-func begin_gauge_strike_choosing(strike_response : bool, cancel_allowed : bool):
-	# Show the gauge window.
-	_on_player_gauge_gauge_clicked()
+func begin_gauge_strike_choosing(strike_response : bool, cancel_allowed : bool, source : String):
+	# Show the correct window.
+	if source == "gauge":
+		_on_player_gauge_gauge_clicked()
+	elif source == "sealed":
+		_on_player_sealed_clicked()
+
 	selected_cards = []
 	select_card_require_min = 1
 	select_card_require_max = 1
@@ -1817,7 +1831,10 @@ func begin_gauge_strike_choosing(strike_response : bool, cancel_allowed : bool):
 		# Is there any character that does this? will need new sub-state if so
 		assert(false)
 	else:
-		new_sub_state = UISubState.UISubState_SelectCards_StrikeCard_FromGauge
+		if source == "gauge":
+			new_sub_state = UISubState.UISubState_SelectCards_StrikeCard_FromGauge
+		elif source == "sealed":
+			new_sub_state = UISubState.UISubState_SelectCards_StrikeCard_FromSealed
 	change_ui_state(UIState.UIState_SelectCards, new_sub_state)
 
 func begin_boost_choosing(can_cancel : bool, allow_gauge : bool, only_gauge : bool, limitation : String):
@@ -2335,6 +2352,8 @@ func _handle_events(events):
 				_on_mulligan_decision(event)
 			Enums.EventType.EventType_PlaceBuddy:
 				delay = _on_place_buddy(event)
+			Enums.EventType.EventType_SwapSealedAndDeck:
+				delay = _stat_notice_event(event)
 			Enums.EventType.EventType_Prepare:
 				delay = _on_prepare(event)
 			Enums.EventType.EventType_ReadingNormal:
@@ -2711,6 +2730,9 @@ func can_press_ok():
 			UISubState.UISubState_SelectCards_StrikeCard_FromGauge:
 				# This one doesn't allow EX strikes
 				return len(selected_cards) == 1
+			UISubState.UISubState_SelectCards_StrikeCard_FromSealed:
+				# same
+				return len(selected_cards) == 1
 			UISubState.UISubState_SelectCards_ForceForArmor:
 				return true
 			UISubState.UISubState_SelectCards_ForceForEffect:
@@ -2873,7 +2895,7 @@ func _on_instructions_ok_button_pressed(index : int):
 				success = game_wrapper.submit_move(Enums.PlayerId.PlayerId_Player, selected_card_ids, selected_arena_location)
 			UISubState.UISubState_SelectCards_ForceForChange:
 				success = game_wrapper.submit_change(Enums.PlayerId.PlayerId_Player, selected_card_ids)
-			UISubState.UISubState_SelectCards_StrikeCard, UISubState.UISubState_SelectCards_StrikeResponseCard, UISubState.UISubState_SelectCards_StrikeCard_FromGauge:
+			UISubState.UISubState_SelectCards_StrikeCard, UISubState.UISubState_SelectCards_StrikeResponseCard, UISubState.UISubState_SelectCards_StrikeCard_FromGauge, UISubState.UISubState_SelectCards_StrikeCard_FromSealed:
 				success = game_wrapper.submit_strike(Enums.PlayerId.PlayerId_Player, single_card_id, false, ex_card_id)
 			UISubState.UISubState_SelectCards_OpponentSetsFirst_StrikeCard, UISubState.UISubState_SelectCards_OpponentSetsFirst_StrikeResponseCard:
 				success = game_wrapper.submit_strike(Enums.PlayerId.PlayerId_Player, single_card_id, false, ex_card_id, true)
@@ -3249,11 +3271,10 @@ func ai_forced_strike(disable_wild_swing : bool = false, disable_ex : bool = fal
 	var strike_action = ai_player.pick_strike(game_wrapper.current_game, Enums.PlayerId.PlayerId_Opponent, from_gauge, disable_wild_swing, disable_ex)
 	ai_handle_strike(strike_action)
 
-func ai_strike_from_gauge():
+func ai_strike_from_gauge(source : String):
 	change_ui_state(UIState.UIState_WaitForGameServer)
 	if not game_wrapper.is_ai_game(): return
-	var from_gauge = true
-	var strike_action = ai_player.pick_strike(game_wrapper.current_game, Enums.PlayerId.PlayerId_Opponent, from_gauge)
+	var strike_action = ai_player.pick_strike(game_wrapper.current_game, Enums.PlayerId.PlayerId_Opponent, source)
 	ai_handle_strike(strike_action)
 
 func ai_boost_cancel_decision(gauge_cost):
@@ -3611,7 +3632,11 @@ func _on_player_reference_button_pressed():
 		var card_str_id = logic_card.definition['id']
 		var count = game_wrapper.count_cards_in_deck_and_hand(Enums.PlayerId.PlayerId_Player, card_str_id)
 		card.set_remaining_count(count)
-	show_popout(CardPopoutType.CardPopoutType_ReferencePlayer, "YOUR DECK REFERENCE (showing remaining card counts in deck+hand)", $AllCards/PlayerAllCopy, OffScreen, CardBase.CardState.CardState_Offscreen, false)
+	var reference_title = "YOUR DECK REFERENCE (showing remaining card counts in deck+hand"
+	if game_wrapper.is_player_sealed_area_secret(Enums.PlayerId.PlayerId_Player):
+		reference_title += "+sealed"
+	reference_title += ")"
+	show_popout(CardPopoutType.CardPopoutType_ReferencePlayer, reference_title, $AllCards/PlayerAllCopy, OffScreen, CardBase.CardState.CardState_Offscreen, false)
 
 func _on_opponent_reference_button_pressed(switch_toggle : bool = false):
 	await close_popout()
@@ -3633,9 +3658,12 @@ func _on_opponent_reference_button_pressed(switch_toggle : bool = false):
 		else:
 			count = game_wrapper.count_cards_in_deck_and_hand(Enums.PlayerId.PlayerId_Opponent, card_str_id)
 		card.set_remaining_count(count)
-	var popout_title = "THEIR DECK REFERENCE (showing remaining card counts in deck+hand)"
+	var popout_title = "THEIR DECK REFERENCE (showing remaining card counts in deck+hand"
 	if reference_popout_toggle:
-		popout_title = "THEIR CARDS BEFORE RESHUFFLE (remained in deck+hand)"
+		popout_title = "THEIR CARDS BEFORE RESHUFFLE (remained in deck+hand"
+	if game_wrapper.is_player_sealed_area_secret(Enums.PlayerId.PlayerId_Player):
+		popout_title += "+sealed"
+	popout_title += ")"
 	show_popout(CardPopoutType.CardPopoutType_ReferenceOpponent, popout_title, $AllCards/OpponentAllCopy, OffScreen, CardBase.CardState.CardState_Offscreen, false)
 
 func _on_exit_to_menu_pressed():

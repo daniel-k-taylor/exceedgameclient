@@ -4,7 +4,7 @@ const LocalGame = preload("res://scenes/game/local_game.gd")
 const GameCard = preload("res://scenes/game/game_card.gd")
 const Enums = preload("res://scenes/game/enums.gd")
 var game_logic : LocalGame
-var default_deck = CardDefinitions.get_deck_from_str_id("noel")
+var default_deck = CardDefinitions.get_deck_from_str_id("specter")
 const TestCardId1 = 50001
 const TestCardId2 = 50002
 const TestCardId3 = 50003
@@ -56,16 +56,6 @@ func validate_has_event(events, event_type, target_player, number = null):
 				elif number == null:
 					return
 	fail_test("Event not found: %s" % event_type)
- 
-func validate_does_not_have_event(events, event_type, target_player, number = null):
-	for event in events:
-		if event['event_type'] == event_type:
-			if event['event_player'] == target_player.my_id:
-				if number != null and event['number'] == number:
-					fail_test("Unexpected event found: %s" % event_type)
-				elif number == null:
-					fail_test("Unexpected event found: %s" % event_type)
-	return
 
 func before_each():
 	default_game_setup()
@@ -131,8 +121,9 @@ func handle_simultaneous_effects(initiator, defender):
 		if game_logic.decision_info.player == defender.my_id:
 			decider = defender
 		assert_true(game_logic.do_choice(decider, 0), "Failed simuleffect choice")
-		
-func execute_strike(initiator, defender, init_card : String, def_card : String, init_choices, def_choices, init_ex = false, def_ex = false, init_gauge_discard = [], def_gauge_discard = [], init_extra_cost = 0):
+
+func execute_strike(initiator, defender, init_card : String, def_card : String, init_choices, def_choices, init_ex = false, def_ex = false,
+		init_seals = [], def_force_discard = [], init_extra_cost = 0, init_force_special = false):
 	var all_events = []
 	give_specific_cards(initiator, init_card, defender, def_card)
 	if init_ex:
@@ -142,8 +133,9 @@ func execute_strike(initiator, defender, init_card : String, def_card : String, 
 		do_and_validate_strike(initiator, TestCardId1)
 
 	if game_logic.game_state == Enums.GameState.GameState_PlayerDecision and game_logic.active_strike.strike_state == game_logic.StrikeState.StrikeState_Initiator_SetEffects:
-		game_logic.do_gauge_for_effect(initiator, init_gauge_discard)
-		
+		# just changing this for specter
+		game_logic.do_choose_to_discard(initiator, init_seals)
+
 	if def_ex:
 		give_player_specific_card(defender, def_card, TestCardId4)
 		all_events += do_strike_response(defender, TestCardId2, TestCardId4)
@@ -151,15 +143,24 @@ func execute_strike(initiator, defender, init_card : String, def_card : String, 
 		all_events += do_strike_response(defender, TestCardId2)
 
 	if game_logic.game_state == Enums.GameState.GameState_PlayerDecision and game_logic.active_strike.strike_state == game_logic.StrikeState.StrikeState_Defender_SetEffects:
-		game_logic.do_gauge_for_effect(defender, def_gauge_discard)
-		
-	# Pay any costs from gauge
+		game_logic.do_force_for_effect(defender, def_force_discard)
+
+	# Pay any costs from gauge or hand
 	if game_logic.active_strike and game_logic.active_strike.strike_state == game_logic.StrikeState.StrikeState_Initiator_PayCosts:
-		var cost = game_logic.active_strike.initiator_card.definition['gauge_cost'] + init_extra_cost
-		var cards = []
-		for i in range(cost):
-			cards.append(initiator.gauge[i].id)
-		game_logic.do_pay_strike_cost(initiator, cards, false)
+		if init_force_special:
+			var cost = game_logic.active_strike.initiator_card.definition['force_cost'] + init_extra_cost
+			var cards = []
+			for i in range(cost):
+				cards.append(initiator.hand[i].id)
+			game_logic.do_pay_strike_cost(initiator, cards, false)
+		else:
+			var cost = game_logic.active_strike.initiator_card.definition['gauge_cost'] + init_extra_cost
+			if 'gauge_cost_reduction' in game_logic.active_strike.initiator_card.definition and game_logic.active_strike.initiator_card.definition['gauge_cost_reduction'] == 'per_sealed_normal':
+				cost -= initiator.get_sealed_count_of_type("normal")
+			var cards = []
+			for i in range(cost):
+				cards.append(initiator.gauge[i].id)
+			game_logic.do_pay_strike_cost(initiator, cards, false)
 
 	# Pay any costs from gauge
 	if game_logic.active_strike and game_logic.active_strike.strike_state == game_logic.StrikeState.StrikeState_Defender_PayCosts:
@@ -198,49 +199,36 @@ func validate_life(p1, l1, p2, l2):
 ## Tests start here
 ##
 
-func test_noel_gets_hit():
-	position_players(player1, 3, player2, 6)
-	give_gauge(player1, 1)
-	var events = execute_strike(player1, player2, "standard_normal_dive", "standard_normal_assault", [], [], false, false, [], [])
-	validate_has_event(events, Enums.EventType.EventType_Strike_TookDamage, player1, 4)
-	validate_positions(player1, 3, player2, 4)
-	validate_life(player1, 26, player2, 30)
+func test_specter_exceed_swap():
+	give_gauge(player1, 4)
+	player1.draw(10)
+	player1.seal_hand()
 
-func test_noel_character_ability():
-	position_players(player1, 3, player2, 6)
-	give_gauge(player1, 1)
-	var id = player1.gauge[0].id
-	var events = execute_strike(player1, player2, "standard_normal_dive", "standard_normal_assault", [], [], false, false, [id], [])
-	validate_has_event(events, Enums.EventType.EventType_Strike_TookDamage, player2, 5)
-	validate_positions(player1, 7, player2, 6)
-	validate_life(player1, 30, player2, 25)
+	var sealed_cards = []
+	var deck_card_ids = []
+	for card in player1.sealed:
+		sealed_cards.append(card)
+	for card in player1.deck:
+		deck_card_ids.append(card.id)
 
-func test_noel_exceeded_ability():
-	position_players(player1, 3, player2, 6)
-	player1.exceed()
-	var events = execute_strike(player1, player2, "standard_normal_dive", "standard_normal_assault", [], [], false, false, [], [])
-	validate_has_event(events, Enums.EventType.EventType_Strike_TookDamage, player2, 5)
-	validate_has_event(events, Enums.EventType.EventType_Strike_GainAdvantage, player1)
-	validate_positions(player1, 7, player2, 6)
-	validate_life(player1, 30, player2, 25)
-
-func test_noel_exceeded_loses():
-	position_players(player1, 3, player2, 6)
-	player1.exceed()
-	var events = execute_strike(player1, player2, "standard_normal_spike", "standard_normal_assault", [], [], false, false, [], [])
-	validate_has_event(events, Enums.EventType.EventType_Strike_TookDamage, player1, 4)
-	validate_does_not_have_event(events, Enums.EventType.EventType_Strike_GainAdvantage, player1)
-	validate_positions(player1, 3, player2, 4)
-	validate_life(player1, 26, player2, 30)
-
-func test_noel_optic_barrel_minrange():
-	position_players(player1, 3, player2, 5)
-	give_player_specific_card(player1, "standard_normal_assault", TestCardId3)
-	var events = execute_strike(player1, player2, "noel_opticbarrel", "standard_normal_spike", [], [], false, false, [], [])
-	assert_eq(game_logic.game_state, Enums.GameState.GameState_PlayerDecision)
-	assert_true(game_logic.do_force_for_effect(player1, [TestCardId3]))
+	assert_true(game_logic.do_exceed(player1, player1.gauge.map(func (card): return card.id)))
 	assert_true(game_logic.do_choice(player1, 0))
-	events += game_logic.get_latest_events()
-	validate_does_not_have_event(events, Enums.EventType.EventType_Strike_TookDamage, player2, 5)
-	validate_positions(player1, 6, player2, 5)
-	validate_life(player1, 30, player2, 30)
+
+	var drawn_card = player1.hand[0]
+	for card in sealed_cards:
+		assert_true(card in player1.deck or card == drawn_card)
+	for card_id in deck_card_ids:
+		assert_true(player1.is_card_in_sealed(card_id))
+
+func test_specter_bounding_soul_stationary():
+	position_players(player1, 4, player2, 6)
+	execute_strike(player1, player2, "specter_boundingsoul", "standard_normal_sweep", [], [], false, false, [], [], 0, [])
+	validate_positions(player1, 4, player2, 6)
+	validate_life(player1, 24, player2, 26)
+
+func test_specter_bounding_soul_moving():
+	position_players(player1, 5, player2, 6)
+	execute_strike(player1, player2, "specter_boundingsoul", "standard_normal_sweep", [], [], false, false,
+		[player1.hand[0].id, player1.hand[1].id], [], 0, [])
+	validate_positions(player1, 8, player2, 6)
+	validate_life(player1, 24, player2, 24)

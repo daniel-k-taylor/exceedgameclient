@@ -156,6 +156,7 @@ enum EventType {
 	EventType_Strike_TookDamage,
 	EventType_Strike_WildStrike,
 	EventType_SustainBoost,
+	EventType_SwapSealedAndDeck,
 }
 
 enum LogType {

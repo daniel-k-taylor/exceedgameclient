@@ -223,6 +223,8 @@ func get_condition_text(effect, amount, amount2, detail):
 			text += "If opponent initiated strike, "
 		"not_moved_self_this_strike":
 			text += "If you have not moved yourself this strike, "
+		"moved_during_strike":
+			text += "If you moved at least %s space(s) this strike, " % amount
 		"no_strike_caused":
 			text += "If no strike caused, "
 		"stunned":
@@ -396,7 +398,7 @@ func get_effect_type_text(effect, card_name_source : String = ""):
 			var limitation_str = "card(s)"
 			if 'limitation' in effect and effect['limitation'] == "continuous":
 				limitation_str = "continuous boost(s)"
-			effect_str += "Play and sustain the top %s %s from your discard pile." % [effect['amount'], limitation_str]
+			effect_str += "Play and sustain the top %s %s from your discard pile" % [effect['amount'], limitation_str]
 		"cannot_stun":
 			effect_str += "Attack does not stun."
 		"choice":
@@ -757,6 +759,8 @@ func get_effect_type_text(effect, card_name_source : String = ""):
 				effect_str += "Sustain this"
 		"swap_buddy":
 			effect_str += effect['description']
+		"swap_deck_and_sealed":
+			effect_str += "Swap all sealed cards with deck"
 		"take_bonus_actions":
 			if 'use_simple_description' in effect and effect['use_simple_description']:
 				effect_str += "Take another action."
@@ -820,6 +824,10 @@ func get_effect_text(effect, short = false, skip_timing = false, skip_condition 
 			effect_str += get_effect_text(effect['and'], short, skip_timing, false, card_name_source)
 	if 'negative_condition_effect' in effect:
 		effect_str += ", otherwise " + get_effect_text(effect['negative_condition_effect'], short, skip_timing, false, card_name_source)
+
+	# Remove unnecessary starting colons, e.g. from character_bonus effects
+	if len(effect_str) >= 2 and effect_str.substr(0, 2) == ": ":
+		effect_str = effect_str.substr(2)
 	return effect_str
 
 func get_effects_text(effects):
