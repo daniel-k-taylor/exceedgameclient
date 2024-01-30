@@ -829,7 +829,7 @@ class Player:
 				# The top of the discard pile is the end of discards.
 				var top_index = len(discards) - 1
 				var card = discards[top_index]
-				events += move_cards_to_overdrive(card, "discard")
+				events += move_cards_to_overdrive([card.id], "discard")
 		return events
 
 	func return_all_cards_gauge_to_hand():
@@ -1228,7 +1228,10 @@ class Player:
 		var opposing_player = parent._get_player(parent.get_other_player(my_id))
 		var card_names = parent.card_db.get_card_names(card_ids)
 		if card_names:
-			parent._append_log_full(Enums.LogType.LogType_CardInfo, self, "moves cards from %s to overdrive: %s." % [source, card_names])
+			var friendly_source = source
+			if source == "opponent_discard":
+				friendly_source = "opponent's discard"
+			parent._append_log_full(Enums.LogType.LogType_CardInfo, self, "moves cards from %s to overdrive: %s." % [friendly_source, card_names])
 		for card_id in card_ids:
 			var source_array
 			match source:
@@ -1244,7 +1247,7 @@ class Player:
 					source_array = opposing_player.discards
 				"_":
 					assert(false)
-					printlog("ERROR: Unexpected source of card going to overdrive: %s" % source)
+					parent.printlog("ERROR: Unexpected source of card going to overdrive: %s" % source)
 
 			for i in range(len(source_array)-1, -1, -1):
 				var card = source_array[i]
@@ -1270,7 +1273,7 @@ class Player:
 				source_array = deck
 			"_":
 				assert(false)
-				printlog("ERROR: Unexpected source of card going to sealed area: %s" % source)
+				parent.printlog("ERROR: Unexpected source of card going to sealed area: %s" % source)
 		for i in range(len(source_array)-1, -1, -1):
 			var card = source_array[i]
 			if card.id == card_id:
@@ -1325,7 +1328,7 @@ class Player:
 			else:
 				parent._append_log_full(Enums.LogType.LogType_CardInfo, self, "seals their hand, containing %s." % card_names)
 		for card_id in card_ids:
-			events += parent.do_seal_effect(performing_player, card_id, "hand")
+			events += parent.do_seal_effect(self, card_id, "hand")
 		return events
 
 	func discard_hand():
@@ -1384,7 +1387,7 @@ class Player:
 				parent._append_log_full(Enums.LogType.LogType_CardInfo, self, "seals the top card of their deck facedown.")
 			else:
 				parent._append_log_full(Enums.LogType.LogType_CardInfo, self, "seals the top card of their deck: %s." % card_name)
-			events += do_seal_effect(performing_player, card.id, "deck")
+			events += parent.do_seal_effect(self, card.id, "deck")
 		return events
 
 	func next_strike_with_or_reveal(card_definition_id : String) -> void:
@@ -1844,7 +1847,7 @@ class Player:
 						strike_stat_boosts.set_ex()
 					"dodge_at_range":
 						if 'special_range' in effect:
-							var current_range = str(performing_player.overdrive.size())
+							var current_range = str(overdrive.size())
 							strike_stat_boosts.dodge_at_range_late_calculate_with = effect['special_range']
 							parent._append_log_full(Enums.LogType.LogType_Effect, self, "will dodge attacks from range %s!" % current_range)
 						else:
@@ -1898,7 +1901,7 @@ class Player:
 						strike_stat_boosts.remove_ex()
 					"dodge_at_range":
 						if 'special_range' in effect:
-							var current_range = str(performing_player.overdrive.size())
+							var current_range = str(overdrive.size())
 							strike_stat_boosts.dodge_at_range_late_calculate_with = ""
 							parent._append_log_full(Enums.LogType.LogType_Effect, self, "will no longer dodge attacks from range %s!" % current_range)
 						else:
@@ -2553,6 +2556,14 @@ func is_effect_condition_met(performing_player : Player, effect, local_condition
 		elif condition == "life_equals":
 			var amount = effect['condition_amount']
 			return performing_player.life == amount
+		elif condition == "discarded_matches_attack_speed":
+			var discarded_card_ids = effect['discarded_card_ids']
+			assert(discarded_card_ids.size() == 1)
+			var card = card_db.get_card(discarded_card_ids[0])
+			var speed_of_discarded = card.definition['speed']
+			var attack_card = active_strike.get_player_card(performing_player)
+			var printed_speed_of_attack = attack_card.definition['speed']
+			return speed_of_discarded == printed_speed_of_attack
 		elif condition == "not_full_close":
 			return  not local_conditions.fully_closed
 		elif condition == "advanced_through":
@@ -2844,7 +2855,7 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 				var card_ids = []
 				for i in range(performing_player.discards.size() - 1, -1, -1):
 					card_ids.append(performing_player.discards[i].id)
-				var card_names = _card_list_to_string(card_ids)
+				var card_names = card_db.get_card_names(card_ids)
 				_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "adds the top %s card(s) of their discards to overdrive: %s." % [amount, card_names])
 			else:
 				_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "has no cards in their discard pile to add to overdrive.")
@@ -3008,6 +3019,15 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 					if choice_player.deck.size() > 0:
 						card_name = card_db.get_card_name(choice_player.deck[0].id)
 					choice['card_name'] = card_name
+			elif 'add_topdiscard_card_name_to_choices' in effect:
+				# Add a 'card_name' field to each choice that's in this array.
+				for index in effect['add_topdiscard_card_name_to_choices']:
+					var choice = effect['choice'][index]
+					var card_name = "nothing (discard empty)"
+					if choice_player.discards.size() > 0:
+						card_name = card_db.get_card_name(choice_player.discards[choice_player.discards.size() - 1].id)
+					choice['card_name'] = card_name
+
 			decision_info.choice = effect['choice']
 			decision_info.choice_card_id = card_id
 			events += [create_event(Enums.EventType.EventType_Strike_EffectChoice, choice_player.my_id, 0, "EffectOption")]
@@ -3155,14 +3175,6 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 			performing_player.strike_stat_boosts.critical = true
 			_append_log_full(Enums.LogType.LogType_Effect, performing_player, "'s strike is Critical!")
 			events += [create_event(Enums.EventType.EventType_Strike_Critical, performing_player.my_id, 0)]
-		"discarded_matches_attack_speed":
-			var discarded_card_ids = effect['discarded_card_ids']
-			assert(discarded_card_ids.size() == 1)
-			var card = card_db.get_card(discarded_card_ids[0])
-			var speed_of_discarded = card.definition['speed']
-			var attack_card = active_strike.get_player_card(performing_player)
-			var printed_speed_of_attack = attack_card.definition['speed']
-			return speed_of_discarded == printed_speed_of_attack
 		"discard_this":
 			if active_boost:
 				active_boost.discard_on_cleanup = true
@@ -3193,7 +3205,7 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 			if 'special_range' in effect and effect['special_range'] == "OVERDRIVE_COUNT":
 				var current_range = performing_player.overdrive.size()
 				performing_player.strike_stat_boosts.dodge_at_range_late_calculate_with  = effect['special_range']
-				events += [create_event(Enums.EventType.EventType_Strike_DodgeAttacksAtRange, performing_player.my_id, current_range, "", current_range, buddy_name)]
+				events += [create_event(Enums.EventType.EventType_Strike_DodgeAttacksAtRange, performing_player.my_id, current_range, "", current_range, "")]
 			else:
 				performing_player.strike_stat_boosts.dodge_at_range_min = effect['range_min']
 				performing_player.strike_stat_boosts.dodge_at_range_max = effect['range_max']
@@ -3275,7 +3287,7 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 				events += performing_player.discard(cards_to_discard)
 				add_attack_triggers(performing_player, cards_to_discard, true)
 				var discarded_name = card_db.get_card_name(cards_to_discard[0])
-				_append_log_full(Enums.LogType.LogType_CardInfo, self, "discards random card: %s." % discarded_name)
+				_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "discards random card: %s." % discarded_name)
 		"exceed_end_of_turn":
 			performing_player.exceed_at_end_of_turn = true
 		"exceed_now":
@@ -3583,16 +3595,16 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 				_append_log_full(Enums.LogType.LogType_Strike, performing_player, "'s X for this strike is set to the number of discarded cards, %s." % num_discarded)
 				events += performing_player.set_strike_x(num_discarded)
 		"opponent_discard_random":
-			var cards_to_discard = opposing_player.pick_random_cards_from_hand(effect['amount'])
-			if cards_to_discard.size() > 0:
-				var discarded_names = parent.card_db.get_card_names(discarded_ids)
+			var discard_ids = opposing_player.pick_random_cards_from_hand(effect['amount'])
+			if discard_ids.size() > 0:
+				var discarded_names = card_db.get_card_names(discard_ids)
 				if 'destination' in effect and effect['destination'] == "overdrive":
-					_append_log_full(Enums.LogType.LogType_CardInfo, self, "discards random card(s) to opponent's overdrive: %s." % discarded_names)
-					events += opposing_player.discard(cards_to_discard)
-					events += performing_player.move_cards_to_overdrive(cards_to_discard, "opponent_discard")
+					_append_log_full(Enums.LogType.LogType_CardInfo, opposing_player, "discards random card(s) to opponent's overdrive: %s." % discarded_names)
+					events += opposing_player.discard(discard_ids)
+					events += performing_player.move_cards_to_overdrive(discard_ids, "opponent_discard")
 				else:
-					_append_log_full(Enums.LogType.LogType_CardInfo, self, "discards random card(s): %s." % discarded_names)
-					events += opposing_player.discard(cards_to_discard)
+					_append_log_full(Enums.LogType.LogType_CardInfo, opposing_player, "discards random card(s): %s." % discarded_names)
+					events += opposing_player.discard(discard_ids)
 		"pass":
 			# Do nothing.
 			pass
@@ -4044,7 +4056,7 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 					# Specifically get the printed power.
 					var card_power = card_db.get_card(card_ids[0]).definition['power']
 					effect['and']['amount'] = card_power
-			elif effect['destination'] == "overdrive":
+			elif effect['destination'] == "opponent_overdrive":
 				_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "discards the chosen card(s) to opponent's overdrive: %s." % card_names)
 				events += performing_player.discard(card_ids)
 				events += opposing_player.move_cards_to_overdrive(card_ids, "opponent_discard")
@@ -4745,7 +4757,7 @@ func in_range(attacking_player, defending_player, card, combat_logging=false):
 	_append_log_full(Enums.LogType.LogType_Strike, attacking_player, "has range %s." % range_string)
 
 	# Apply special late calculation range dodges
-	if defending_player.dodge_at_range_late_calculate_with == "OVERDRIVE_COUNT":
+	if defending_player.strike_stat_boosts.dodge_at_range_late_calculate_with == "OVERDRIVE_COUNT":
 		var overdrive_count = defending_player.overdrive.size()
 		defending_player.strike_stat_boosts.dodge_at_range_min = overdrive_count
 		defending_player.strike_stat_boosts.dodge_at_range_max = overdrive_count
@@ -6237,7 +6249,7 @@ func do_choose_from_discard(performing_player : Player, card_ids : Array) -> boo
 				"hand":
 					events += performing_player.move_card_from_discard_to_hand(card_id)
 				"overdrive":
-					events += performing_player.move_cards_to_overdrive(card_id, "discard")
+					events += performing_player.move_cards_to_overdrive([card_id], "discard")
 				"sealed":
 					if performing_player.sealed_area_is_facedown:
 						_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "seals a card facedown.")
@@ -6659,8 +6671,10 @@ func do_choose_from_topdeck(performing_player : Player, chosen_card_id : int, ac
 				_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "adds one of the cards to sealed: %s." % card_db.get_card_name(chosen_card_id))
 			event_queue += events
 		"add_to_topdeck_under":
-			assert(leftover_card_ids.size() == 1)
-			events += performing_player.move_card_from_hand_to_deck(chosen_card_id, 1)
+			assert(leftover_card_ids.size() == 1 or leftover_card_ids.size() == 0)
+			# If this was the last card in deck, then it has to just go on top.
+			var destination_index = leftover_card_ids.size()
+			events += performing_player.move_card_from_hand_to_deck(chosen_card_id, destination_index)
 			_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "adds the remaining cards back to the top of their deck.")
 			event_queue += events
 		"pass":

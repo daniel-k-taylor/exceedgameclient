@@ -960,7 +960,10 @@ func _stat_notice_event(event):
 			var secondplus = ""
 			if number2 >= 0:
 				secondplus = "+"
-			notice_text = "%s%s - %s%s Range" % [firstplus, number, secondplus, number2]
+			if number == number2:
+				notice_text = "%s%s Range" % [firstplus, number]
+			else:
+				notice_text = "%s%s - %s%s Range" % [firstplus, number, secondplus, number2]
 		Enums.EventType.EventType_Strike_SetX:
 			notice_text = "X is %s" % number
 		Enums.EventType.EventType_Strike_SpeedUp:

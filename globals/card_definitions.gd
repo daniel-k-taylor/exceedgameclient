@@ -400,7 +400,7 @@ func get_effect_type_text(effect, card_name_source : String = ""):
 		"cannot_stun":
 			effect_str += "Attack does not stun."
 		"choice":
-			if 'opponent': in effect and effect['opponent']:
+			if 'opponent' in effect and effect['opponent']:
 				effect_str += "Opponent "
 			if 'special_choice_name' in effect:
 				effect_str += effect['special_choice_name']
@@ -588,17 +588,21 @@ func get_effect_type_text(effect, card_name_source : String = ""):
 		"push_to_attack_max_range":
 			effect_str += "Push to attack's max range"
 		"rangeup":
-			if effect['amount'] >= 0:
-				effect_str += "+"
-			effect_str += str(effect['amount']) + " - "
+			if effect['amount'] != effect['amount2']:
+				# Skip the first one if they're the same.
+				if effect['amount'] >= 0:
+					effect_str += "+"
+				effect_str += str(effect['amount']) + " - "
 			if effect['amount2'] >= 0:
 				effect_str += "+"
 			effect_str += str(effect['amount2']) + " Range"
 		"rangeup_both_players":
 			effect_str += "Both players "
-			if effect['amount'] >= 0:
-				effect_str += "+"
-			effect_str += str(effect['amount']) + " - "
+			if effect['amount'] != effect['amount2']:
+				# Skip the first one if they're the same.
+				if effect['amount'] >= 0:
+					effect_str += "+"
+				effect_str += str(effect['amount']) + " - "
 			if effect['amount2'] >= 0:
 				effect_str += "+"
 			effect_str += str(effect['amount2']) + " Range"

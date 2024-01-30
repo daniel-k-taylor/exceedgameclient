@@ -11,7 +11,7 @@ In progress:
         ☐ "effect_type": "add_top_discard_to_overdrive", @started(24-01-29 21:00)
             ☐ or no name @started(24-01-29 21:00)
             ☐ "add_topdeck_card_name_to_choices": [0], @started(24-01-29 21:00)
-        ☐ "condtion": "is_special_or_ultra_attack", @started(24-01-29 21:01)
+        ☐ "condition": "is_special_or_ultra_attack", @started(24-01-29 21:01)
         ☐ Make on_strike_reveal handled in continue_resolve_strike @started(24-01-29 21:09)
         ☐ "condition": "discarded_matches_attack_speed", @started(24-01-29 21:21)
         ☐ choose_discard - "discard_effect": @started(24-01-29 21:53)
