@@ -264,6 +264,19 @@ func test_carlclover_disable_nirvana():
 	assert_eq(player1.get_buddy_location("nirvana_disabled"), 4)
 	advance_turn(player2)
 	assert_eq(player1.get_buddy_location("nirvana_disabled"), 4)
+	
+func test_carlclover_disable_nirvana2():
+	position_players(player1, 3, player2, 6)
+	player1.set_buddy_location("nirvana_active", 6)
+	execute_strike(player1, player2, "standard_normal_sweep", "standard_normal_sweep", [], [0], false, false, [], [], 0, [])
+	validate_positions(player1, 3, player2, 6)
+	validate_life(player1, 30, player2, 24)
+	assert_eq(player1.gauge.size(), 1)
+	assert_eq(player2.gauge.size(), 1)
+	assert_eq(player1.get_buddy_location("nirvana_active"), -1)
+	assert_eq(player1.get_buddy_location("nirvana_disabled"), 6)
+	advance_turn(player2)
+	assert_eq(player1.get_buddy_location("nirvana_disabled"), 6)
 
 func test_carlclover_disable_nirvana_pass():
 	position_players(player1, 3, player2, 6)
@@ -330,7 +343,7 @@ func test_carlclover_nirvana_powerup_not_special():
 	position_players(player1, 3, player2, 6)
 	player1.set_buddy_location("nirvana_active", 4)
 	player2.set_buddy_location("nirvana_active", 1)
-	execute_strike(player1, player2, "carlclover_confuoco", "standard_normal_assault", [], [], false, false, [], [], 1, [])
+	execute_strike(player1, player2, "carlclover_confuoco", "standard_normal_assault", [], [1], false, false, [], [], 1, [])
 	validate_positions(player1, 3, player2, 4)
 	validate_life(player1, 26, player2, 30)
 	assert_eq(player1.gauge.size(), 0)
@@ -357,7 +370,7 @@ func test_carlclover_conanima_miss_draw():
 	player1.set_buddy_location("nirvana_active", 9)
 	player2.set_buddy_location("nirvana_active", 1)
 	assert_eq(player1.hand.size(), 5)
-	execute_strike(player1, player2, "carlclover_conanima", "standard_normal_assault", [], [], false, false, [], [], 0, [])
+	execute_strike(player1, player2, "carlclover_conanima", "standard_normal_assault", [1], [], false, false, [], [], 0, [])
 	validate_positions(player1, 1, player2, 4)
 	validate_life(player1, 30, player2, 30)
 	assert_eq(player1.gauge.size(), 0)
