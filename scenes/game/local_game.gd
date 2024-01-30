@@ -4657,7 +4657,10 @@ func apply_damage(offense_player : Player, defense_player : Player, offense_card
 
 	defense_player.strike_stat_boosts.was_hit = true
 
+	_append_log_full(Enums.LogType.LogType_Strike, null, "Damage calculation: %s total power vs %s total armor." % [str(power), str(armor)])
+
 	if offense_player.strike_stat_boosts.ignore_armor or defense_player.strike_stat_boosts.lose_all_armor:
+		_append_log_full(Enums.LogType.LogType_Strike, _get_player(get_other_player(offense_player.my_id)), "ignores Armor!")
 		armor = 0
 
 	var damage_after_armor = calculate_damage(offense_player, defense_player, offense_card, defense_card)
@@ -4666,7 +4669,6 @@ func apply_damage(offense_player : Player, defense_player : Player, offense_card
 		defense_player.strike_stat_boosts.consumed_armor += (power - damage_after_armor)
 	events += [create_event(Enums.EventType.EventType_Strike_TookDamage, defense_player.my_id, damage_after_armor, "", defense_player.life)]
 
-	_append_log_full(Enums.LogType.LogType_Strike, null, "Damage calculation: %s total power vs %s total armor." % [str(power), str(armor)])
 	_append_log_full(Enums.LogType.LogType_Health, defense_player, "takes %s damage, bringing them to %s life!" % [str(damage_after_armor), str(defense_player.life)])
 
 	active_strike.add_damage_taken(defense_player, damage_after_armor)
