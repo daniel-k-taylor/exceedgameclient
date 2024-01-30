@@ -12572,7 +12572,7 @@
 		"effects": [
 			{
 				"timing": "hit",
-				"effect_type": "choose",
+				"effect_type": "choice",
 				"choice": [
 					{ "effect_type": "push", "amount": 1 },
 					{ "effect_type": "pull", "amount": 1 }
@@ -12600,45 +12600,40 @@
 	{
 		"id": "specter_throwingsickle",
 		"type": "special",
-		"display_name": "Staff of Surging",
+		"display_name": "Throwing Sickle",
 		"force_cost": 0,
 		"gauge_cost": 0,
-		"range_min": 1,
-		"range_max": 1,
-		"speed": 6,
-		"power": 2,
+		"range_min": 2,
+		"range_max": 3,
+		"speed": 5,
+		"power": 3,
 		"armor": 0,
 		"guard": 0,
 		"effects": [
 			{
-				"timing": "during_strike",
-				"effect_type": "ignore_guard"
-			},
-			{
 				"timing": "after",
-				"condition": "opponent_stunned",
-				"effect_type": "draw",
-				"amount": 2
+				"effect_type": "retreat",
+				"amount": 1,
+				"and": {
+					"effect_type": "gain_advantage"
+				}
 			}
 		],
 		"boost": {
-			"boost_type": "continuous",
+			"boost_type": "immediate",
 			"force_cost": 0,
 			"cancel_cost": -1,
-			"display_name": "Frantic Research",
+			"display_name": "Shadow Mirror",
 			"effects": [
 				{
-					"timing": "now",
-					"effect_type": "draw",
-					"amount": 2,
-					"and": {
-						"effect_type": "strike"
-					}
-				},
-				{
-					"timing": "after",
-					"effect_type": "draw",
-					"amount": 2
+					"timing": "immediate",
+					"effect_type": "choice",
+					"choice": [
+						{ "effect_type": "advance", "amount": 2 },
+						{ "effect_type": "advance", "amount": 3 },
+						{ "effect_type": "retreat", "amount": 2 },
+						{ "effect_type": "retreat", "amount": 3 }
+					]
 				}
 			]
 		}
@@ -12646,52 +12641,38 @@
 	{
 		"id": "specter_boundingsoul",
 		"type": "special",
-		"display_name": "Long Pitch",
-		"force_cost": 1,
+		"display_name": "Bounding Soul",
+		"force_cost": 0,
 		"gauge_cost": 0,
-		"range_min": 3,
-		"range_max": 5,
+		"range_min": 2,
+		"range_max": 2,
 		"speed": 5,
-		"power": 3,
+		"power": 4,
 		"armor": 0,
 		"guard": 0,
 		"effects": [
 			{
-				"timing": "hit",
-				"effect_type": "force_for_effect",
-				"per_force_effect": null,
-				"overall_effect": {
-					"effect_type": "powerup",
-					"amount": 2
-				},
-				"force_max": 1
+				"timing": "before",
+				"condition": "moved_during_strike",
+				"condition_amount": 2,
+				"effect_type": "powerup",
+				"amount": 2
 			}
 		],
 		"boost": {
 			"boost_type": "continuous",
-			"force_cost": 1,
+			"force_cost": 2,
 			"cancel_cost": -1,
-			"display_name": "Unexpected Results",
+			"display_name": "Vanish",
 			"effects": [
 				{
-					"timing": "now",
-					"effect_type": "choice",
-					"choice": [
-						{ "effect_type": "advance", "amount": 2 },
-						{ "effect_type": "retreat", "amount": 2 }
-					]
-				},
-				{
-					"timing": "hit",
-					"condition": "top_deck_is_normal_attack",
-					"effect_type": "add_top_deck_to_gauge",
-					"negative_condition_effect": {
-						"is_negative_effect": true,
-						"effect_type": "powerup",
-						"amount": 2,
-						"and": {
-							"effect_type": "discard_topdeck"
-						}
+					"timing": "before",
+					"effect_type": "advance",
+					"amount": 3,
+					"bonus_effect": {
+						"condition": "advanced_through",
+						"effect_type": "armorup",
+						"amount": 3
 					}
 				}
 			]

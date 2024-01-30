@@ -444,6 +444,7 @@ class Player:
 	var starting_hand_size_bonus : int
 	var pre_strike_movement : int
 	var moved_self_this_strike : bool
+	var spaces_moved_this_strike : int
 	var sustained_boosts : Array
 	var sustain_next_boost : bool
 	var buddy_starting_offset : int
@@ -520,6 +521,7 @@ class Player:
 		strike_on_boost_cleanup = false
 		pre_strike_movement = 0
 		moved_self_this_strike = false
+		spaces_moved_this_strike = 0
 		sustained_boosts = []
 		sustain_next_boost = false
 		buddy_starting_offset = BuddyStartsOutOfArena
@@ -1515,6 +1517,7 @@ class Player:
 	func on_position_changed(old_pos, buddy_old_pos, is_self_move):
 		if is_self_move and parent.active_strike:
 			moved_self_this_strike = true
+			spaces_moved_this_strike += abs(arena_location - old_pos)
 		if arena_location == get_buddy_location():
 			if old_pos != buddy_old_pos:
 				handle_on_buddy_boosts(true)
@@ -2132,6 +2135,8 @@ func advance_to_next_turn():
 	opponent.force_spent_before_strike = 0
 	player.moved_self_this_strike = false
 	opponent.moved_self_this_strike = false
+	player.spaces_moved_this_strike = 0
+	opponent.spaces_moved_this_strike = 0
 	player.cards_that_will_not_hit = []
 	opponent.cards_that_will_not_hit = []
 
@@ -2403,6 +2408,9 @@ func is_effect_condition_met(performing_player : Player, effect, local_condition
 			var initiated_strike = active_strike.initiator == performing_player
 			var required_amount = effect['condition_amount']
 			return initiated_strike and performing_player.pre_strike_movement >= required_amount
+		elif condition == "moved_during_strike":
+			var required_amount = effect['condition_amount']
+			return performing_player.spaces_moved_this_strike >= required_amount
 		elif condition == "initiated_face_up":
 			var initiated_strike = active_strike.initiator == performing_player
 			return initiated_strike and active_strike.initiator_set_face_up
