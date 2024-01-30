@@ -469,7 +469,7 @@ func get_strike_actions(game_logic : LocalGame, me : LocalGame.Player, _opponent
 	var added_ex_options = [-1]
 	if alternate_source == "gauge":
 		for card in me.gauge:
-			if card.definition['gauge_cost'] > me.gauge.size():
+			if card.definition['gauge_cost'] > me.gauge.size()-1:
 				# Skip cards we can't pay for.
 				# But remember them in case we have 0 options and must strike with something?
 				possible_actions_cant_pay.append(StrikeAction.new(card.id, -1, false))

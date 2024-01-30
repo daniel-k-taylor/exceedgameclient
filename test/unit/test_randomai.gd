@@ -1,7 +1,7 @@
 extends GutTest
 
 # Leave at 0 checked in so someone doesn't accidentally run all tests at 100.
-const RandomIterations = 5
+const RandomIterations = 20
 
 const LocalGame = preload("res://scenes/game/local_game.gd")
 const GameCard = preload("res://scenes/game/game_card.gd")
@@ -340,8 +340,10 @@ func run_ai_game():
 		if game_logic.game_state == Enums.GameState.GameState_WaitForStrike:
 			# Can theoretically get here after a boost or an exceed.
 			var strike_action = null
-			if turn_events[-1]["event_type"] == Enums.EventType.EventType_Strike_FromGauge:
-				strike_action = current_ai.pick_strike(game_logic, current_player.my_id, true)
+			if current_player.next_strike_from_gauge:
+				strike_action = current_ai.pick_strike(game_logic, current_player.my_id, "gauge")
+			elif current_player.next_strike_from_sealed:
+				strike_action = current_ai.pick_strike(game_logic, current_player.my_id, "sealed")
 			else:
 				strike_action = current_ai.pick_strike(game_logic, current_player.my_id)
 			turn_events += handle_strike(game_logic, current_ai, other_ai, strike_action)
@@ -674,7 +676,7 @@ func test_ryu_100():
 		game_teardown()
 		game_setup()
 	pass_test("Finished match")
-	
+
 func test_sagat_100():
 	default_deck = CardDefinitions.get_deck_from_str_id("sagat")
 	for i in range(RandomIterations):
@@ -722,6 +724,15 @@ func test_plague_100():
 
 func test_nine_100():
 	default_deck = CardDefinitions.get_deck_from_str_id("nine")
+	for i in range(RandomIterations):
+		print("==== RUNNING TEST %d ====" % i)
+		run_ai_game()
+		game_teardown()
+		game_setup()
+	pass_test("Finished match")
+
+func test_specter_100():
+	default_deck = CardDefinitions.get_deck_from_str_id("specter")
 	for i in range(RandomIterations):
 		print("==== RUNNING TEST %d ====" % i)
 		run_ai_game()
