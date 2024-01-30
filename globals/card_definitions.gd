@@ -764,7 +764,7 @@ func get_effect_text(effect, short = false, skip_timing = false, skip_condition 
 	if 'negative_condition_effect' in effect:
 		effect_str += ", otherwise " + get_effect_text(effect['negative_condition_effect'], short, skip_timing, false, card_name_source)
 
-	# Remove unnecessary starting colons
+	# Remove unnecessary starting colons, e.g. from character_bonus effects
 	if len(effect_str) >= 2 and effect_str.substr(0, 2) == ": ":
 		effect_str = effect_str.substr(2)
 	return effect_str

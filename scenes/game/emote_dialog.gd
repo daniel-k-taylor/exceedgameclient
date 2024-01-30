@@ -12,7 +12,7 @@ const EmoteIcon = preload("res://scenes/game/emote_icon.gd")
 const emotes_path = "res://assets/icons/emotes"
 
 const emote_text_strings = [
-	"GL;HF!",
+	"Good Luck, Have Fun!",
 	"Nice!",
 	"OH NO!",
 	"Good Game",
