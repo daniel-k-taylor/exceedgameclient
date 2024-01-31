@@ -7950,16 +7950,9 @@
 			"effects": [
 				{
 					"timing": "immediate",
-					"effect_type": "choice",
-					"choice": [
-						{ "effect_type": "advance", "amount": 1 },
-						{ "effect_type": "advance", "amount": 2 },
-						{ "effect_type": "advance", "amount": 3 },
-						{ "effect_type": "retreat", "amount": 1 },
-						{ "effect_type": "retreat", "amount": 2 },
-						{ "effect_type": "retreat", "amount": 3 },
-						{ "effect_type": "pass" }
-					]
+					"effect_type": "move_to_any_space",
+					"move_min": 0,
+					"move_max": 3
 				}
 			]
 		}

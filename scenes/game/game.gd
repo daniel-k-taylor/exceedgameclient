@@ -92,7 +92,7 @@ var reference_popout_toggle_enabled = false
 var reference_popout_toggle = false
 var opponent_cards_before_reshuffle = []
 var treat_ultras_as_single_force = false
-var boost_selection_saved = {}
+var boost_selection_options = {}
 
 var player_deck
 var opponent_deck
@@ -1867,7 +1867,7 @@ func begin_boost_choosing(can_cancel : bool, allow_gauge : bool, only_gauge : bo
 	if only_gauge:
 		instructions = "Select a %s to boost from gauge." % limitation_str
 
-	boost_selection_saved = {
+	boost_selection_options = {
 		"can_cancel": can_cancel,
 		"allow_gauge": allow_gauge,
 		"only_gauge": only_gauge,
@@ -2990,10 +2990,10 @@ func _on_instructions_cancel_button_pressed():
 			success = game_wrapper.submit_boost_name_card_choice_effect(Enums.PlayerId.PlayerId_Player, -1)
 		UISubState.UISubState_SelectCards_ForceForBoost:
 			deselect_all_cards()
-			var can_cancel = boost_selection_saved['can_cancel']
-			var allow_gauge = boost_selection_saved['allow_gauge']
-			var only_gauge = boost_selection_saved['only_gauge']
-			var limitation = boost_selection_saved['limitation']
+			var can_cancel = boost_selection_options['can_cancel']
+			var allow_gauge = boost_selection_options['allow_gauge']
+			var only_gauge = boost_selection_options['only_gauge']
+			var limitation = boost_selection_options['limitation']
 			begin_boost_choosing(can_cancel, allow_gauge, only_gauge, limitation)
 		_:
 			match ui_state:

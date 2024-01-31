@@ -3518,16 +3518,37 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 			decision_info.choice = [{
 				"effect_type": "pass"
 			}]
-			decision_info.limitation = [0]
+
+			var move_min = 0
+			var move_max = 9
+			if 'move_min' in effect:
+				move_min = effect['move_min']
+			if 'move_max' in effect:
+				move_max = effect['move_max']
+
+			decision_info.limitation = []
+			if move_min == 0:
+				decision_info.limitation.append(0)
+				decision_info.choice.append({
+					"effect_type": "move_to_space",
+					"amount": 0
+				})
+
 			var ignore_force_req = true
 			for i in range(MinArenaLocation, MaxArenaLocation + 1):
 				if not performing_player.can_move_to(i, ignore_force_req):
 					continue
-				decision_info.limitation.append(i)
-				decision_info.choice.append({
-					"effect_type": "move_to_space",
-					"amount": i
-				})
+
+				var spaces_to_location = abs(performing_player.arena_location - i)
+				if performing_player.is_other_player_between_locations(performing_player.arena_location, i):
+					spaces_to_location -= 1
+
+				if move_min <= spaces_to_location and spaces_to_location <= move_max:
+					decision_info.limitation.append(i)
+					decision_info.choice.append({
+						"effect_type": "move_to_space",
+						"amount": i
+					})
 			events += [create_event(Enums.EventType.EventType_ChooseArenaLocationForEffect, performing_player.my_id, 0)]
 		"name_card_opponent_discards":
 			change_game_state(Enums.GameState.GameState_PlayerDecision)
