@@ -68,13 +68,13 @@
 				"effect_type": "rangeup",
 				"amount": -8,
 				"amount2": 0,
+				"suppress_negative_description": true,
 				"and": {
 					"effect_type": "powerup",
 					"amount": 2,
 					"and": {
 						"effect_type": "speedup",
 						"amount": 1,
-						"suppress_and_description": true,
 						"and": {
 							"NOTE": "Overdrive Effect",
 							"effect_type": "choice",
