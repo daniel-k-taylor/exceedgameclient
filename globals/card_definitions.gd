@@ -386,7 +386,10 @@ func get_effect_type_text(effect, card_name_source : String = ""):
 		"bonus_action":
 			effect_str += "Take another action"
 		'boost_then_strike':
-			effect_str += "Boost, then Strike"
+			var wild_str = ""
+			if 'wild_strike' in effect and effect['wild_strike']:
+				wild_str = "Wild "
+			effect_str += "Boost, then %sStrike if you weren't caused to Strike" % wild_str
 		"boost_this_then_sustain":
 			if card_name_source:
 				effect_str += "Boost and sustain %s" % card_name_source

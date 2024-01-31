@@ -15,7 +15,7 @@
 				"effect_type": "choice",
 				"add_topdeck_card_name_to_choices": [1],
 				"choice": [
-					{ "effect_type": "boost_then_strike", "limitation": "" },
+					{ "effect_type": "boost_then_strike", "limitation": "", "wild_strike": true },
 					{ "effect_type": "strike_wild" }
 				]
 			}
@@ -26,16 +26,12 @@
 			"gauge_cost": 1,
 			"force_cost": 0,
 			"effect": {
-				"condition": "not_last_turn_was_strike",
 				"effect_type": "choice",
+				"add_topdeck_card_name_to_choices": [1],
 				"choice": [
-					{ "effect_type": "close", "amount": 1, "and": { "effect_type": "strike" } },
-					{ "effect_type": "retreat", "amount": 1, "and": { "effect_type": "strike" } }
-				],
-				"negative_condition_effect": {
-					"is_negative_effect": true,
-					"effect_type": "strike"
-				}
+					{ "effect_type": "boost_then_strike", "limitation": "", "wild_strike": true },
+					{ "effect_type": "strike_wild" }
+				]
 			}
 		},
 		{
@@ -58,40 +54,8 @@
 		}
 	],
 	"ability_effects": [
-		{
-			"timing": "during_strike",
-			"condition": "used_character_action",
-			"condition_details": ["default", 0],
-			"effect_type": "pass",
-			"and": {
-				"character_effect": true,
-				"condition": "last_turn_was_strike",
-				"effect_type": "powerup",
-				"amount": 1
-			}
-		},
-		{
-			"timing": "during_strike",
-			"condition": "used_character_action",
-			"condition_details": ["default", 0],
-			"effect_type": "pass",
-			"and": {
-				"character_effect": true,
-				"condition": "not_last_turn_was_strike",
-				"effect_type": "powerup",
-				"amount": 2
-			}
-		}
 	],
 	"exceed_ability_effects": [
-		{
-			"timing": "set_strike",
-			"condition": "used_character_action",
-			"condition_details": ["exceed", 0],
-			"character_effect": true,
-			"effect_type": "powerup",
-			"amount": 2
-		}
 	],
 	"cards": [
 		{

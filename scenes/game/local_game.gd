@@ -456,6 +456,7 @@ class Player:
 	var next_strike_from_sealed : bool
 	var next_strike_random_gauge : bool
 	var strike_on_boost_cleanup : bool
+	var wild_strike_on_boost_cleanup : bool
 	var max_hand_size : int
 	var starting_hand_size_bonus : int
 	var pre_strike_movement : int
@@ -536,6 +537,7 @@ class Player:
 		next_strike_from_gauge = false
 		next_strike_random_gauge = false
 		strike_on_boost_cleanup = false
+		wild_strike_on_boost_cleanup = false
 		pre_strike_movement = 0
 		moved_self_this_strike = false
 		spaces_moved_this_strike = 0
@@ -1093,7 +1095,7 @@ class Player:
 		return false
 
 	func can_cancel(card : GameCard):
-		if strike_on_boost_cleanup or cancel_blocked_this_turn:
+		if strike_on_boost_cleanup or wild_strike_on_boost_cleanup or cancel_blocked_this_turn:
 			return false
 		if parent.active_strike:
 			return false
@@ -3035,6 +3037,8 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 				decision_info.only_gauge = only_gauge
 				decision_info.limitation = effect['limitation']
 				performing_player.strike_on_boost_cleanup = true
+				if 'wild_strike' in effect and effect['wild_strike']:
+					performing_player.wild_strike_on_boost_cleanup = true
 			else:
 				if len(performing_player.hand) == 0 or only_gauge: # Avoid leaking information
 					_append_log_full(Enums.LogType.LogType_Effect, performing_player, "has no cards available to boost.")
@@ -5504,12 +5508,18 @@ func boost_finish_resolving_card(performing_player : Player):
 	return events
 
 func boost_play_cleanup(events, performing_player : Player):
+	var preparing_strike = false
 	if performing_player.strike_on_boost_cleanup and not active_boost.strike_after_boost and not active_strike:
-		performing_player.strike_on_boost_cleanup = false
-		active_boost.strike_after_boost = true
-		events += [create_event(Enums.EventType.EventType_ForceStartStrike, performing_player.my_id, 0)]
+		if performing_player.wild_strike_on_boost_cleanup:
+			var wild_effect = { "effect_type": "strike_wild" }
+			events += handle_strike_effect(-1, wild_effect, performing_player)
+		else:
+			active_boost.strike_after_boost = true
+			events += [create_event(Enums.EventType.EventType_ForceStartStrike, performing_player.my_id, 0)]
 		active_character_action = false
+		preparing_strike = true
 	performing_player.strike_on_boost_cleanup = false
+	performing_player.wild_strike_on_boost_cleanup = false
 
 	if active_boost.strike_after_boost and not active_strike:
 		if active_boost.strike_after_boost_opponent_first:
@@ -5519,6 +5529,7 @@ func boost_play_cleanup(events, performing_player : Player):
 			decision_info.type = Enums.DecisionType.DecisionType_StrikeNow
 			decision_info.player = performing_player.my_id
 		active_boost = null
+		preparing_strike = true
 	elif active_boost.action_after_boost and not active_strike:
 		_append_log_full(Enums.LogType.LogType_Action, performing_player, "takes an additional action!")
 		events += [create_event(Enums.EventType.EventType_Boost_ActionAfterBoost, performing_player.my_id, 0)]
@@ -5562,7 +5573,8 @@ func boost_play_cleanup(events, performing_player : Player):
 				events = continue_resolve_strike(events)
 		else:
 			active_boost = null
-			events += check_hand_size_advance_turn(performing_player)
+			if not preparing_strike:
+				events += check_hand_size_advance_turn(performing_player)
 	return events
 
 func can_do_prepare(performing_player : Player):
