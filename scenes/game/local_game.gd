@@ -5017,7 +5017,7 @@ func get_total_armor(performing_player : Player):
 	var card = active_strike.get_player_card(performing_player)
 	var armor = card.definition['armor']
 	var armor_modifier = performing_player.strike_stat_boosts.armor - performing_player.strike_stat_boosts.consumed_armor
-	return armor + armor_modifier
+	return max(0, armor + armor_modifier)
 
 func get_total_guard(performing_player : Player):
 	if performing_player.strike_stat_boosts.overwrite_total_guard:
@@ -5380,6 +5380,9 @@ func continue_resolve_strike(events):
 				# Remove all stat boosts.
 				player.strike_stat_boosts.clear()
 				opponent.strike_stat_boosts.clear()
+
+				# Cleanup UI
+				events.append(create_event(Enums.EventType.EventType_Strike_Cleanup, player1.my_id, -1))
 
 				active_strike = null
 				if game_over:
