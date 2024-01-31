@@ -3529,10 +3529,6 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 			decision_info.limitation = []
 			if move_min == 0:
 				decision_info.limitation.append(0)
-				decision_info.choice.append({
-					"effect_type": "move_to_space",
-					"amount": 0
-				})
 
 			var ignore_force_req = true
 			for i in range(MinArenaLocation, MaxArenaLocation + 1):
@@ -5564,6 +5560,8 @@ func boost_play_cleanup(events, performing_player : Player):
 			events += [create_event(Enums.EventType.EventType_ForceStartStrike, performing_player.my_id, 0)]
 		active_character_action = false
 		preparing_strike = true
+		decision_info.type = Enums.DecisionType.DecisionType_StrikeNow
+		decision_info.player = performing_player.my_id
 	performing_player.strike_on_boost_cleanup = false
 	performing_player.wild_strike_on_boost_cleanup = false
 
