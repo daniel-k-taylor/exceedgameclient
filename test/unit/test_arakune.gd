@@ -621,3 +621,4 @@ func test_arakune_n_uberdeath():
 	give_gauge(player1, 4)
 	execute_strike(player1, player2, "arakune_ntoinfinity", "standard_normal_dive", [0], [], false, false, [], [], 0, [])
 	validate_life(player1, 30, player2, 30-(5 + 99))
+	assert_true(game_logic.game_over)

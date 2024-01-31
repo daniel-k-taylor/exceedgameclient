@@ -756,7 +756,7 @@ func can_select_card(card):
 			var in_appropriate_reference = in_opponent_reference
 			if select_card_name_card_both_players:
 				in_appropriate_reference = in_opponent_reference or in_player_reference
-			return in_opponent_reference and len(selected_cards) < select_card_require_max
+			return in_appropriate_reference and len(selected_cards) < select_card_require_max
 		UISubState.UISubState_SelectCards_ChooseDiscardToDestination:
 			var card_db = game_wrapper.get_card_database()
 			var card_type = card_db.get_card(card.card_id).definition['type']

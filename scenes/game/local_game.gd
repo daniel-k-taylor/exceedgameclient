@@ -4347,6 +4347,8 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 			if active_strike:
 				active_strike.add_damage_taken(damaged_player, damage)
 				events += check_for_stun(damaged_player, false)
+			if damaged_player.life < 0:
+				events += trigger_game_over(damaged_player.my_id, Enums.GameOverReason.GameOverReason_Life)
 		"topdeck_from_hand":
 			if len(performing_player.hand) > 0:
 				change_game_state(Enums.GameState.GameState_PlayerDecision)
