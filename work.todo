@@ -1,40 +1,5 @@
 In progress:
 
-    ☐ Change cards brings up gauge @started(24-01-29 20:51)
-
-    Arakune:
-        ☐ "sealed_area_is_facedown": true, @started(24-01-29 14:40)
-        ☐ "always_show_overdrive": true, @started(24-01-29 14:44)
-        ☐ "exceed_cost_reduced_by": "overdrive_count", @started(24-01-29 16:36)
-        ☐ { "effect_type": "seal_topdeck" }, @started(24-01-29 20:34)
-            ☐ "add_topdeck_card_name_to_choices": [0], @started(24-01-29 20:34)
-        ☐ "effect_type": "add_top_discard_to_overdrive", @started(24-01-29 21:00)
-            ☐ or no name @started(24-01-29 21:00)
-            ☐ "add_topdeck_card_name_to_choices": [0], @started(24-01-29 21:00)
-        ☐ "condition": "is_special_or_ultra_attack", @started(24-01-29 21:01)
-        ☐ Make on_strike_reveal handled in continue_resolve_strike @started(24-01-29 21:09)
-        ☐ "condition": "discarded_matches_attack_speed", @started(24-01-29 21:21)
-        ☐ choose_discard - "discard_effect": @started(24-01-29 21:53)
-
-
-        ☐ "choose_cards_from_top_deck"
-            ☐ "add_to_sealed" @started(24-01-29 22:27)
-            ☐ "add_to_overdrive" @started(24-01-29 22:27)
-            ☐ "add_to_topdeck_under" @started(24-01-29 22:33)
-        ☐ choose_discard - destination overdrive @started(24-01-29 22:56)
-        ☐ "effect_type": "add_boost_to_overdrive_during_strike_immediately" @started(24-01-29 23:32)
-        ☐ "effect_type": "add_strike_to_overdrive_after_cleanup" @started(24-01-29 23:42)
-        ☐ dodge_at_range - "special_range": "OVERDRIVE_COUNT" @started(24-01-29 23:57)
-        ☐ "effect_type": "rangeup_both_players", @started(24-01-30 00:04)
-        ☐ "effect_type": "powerup_both_players", @started(24-01-30 00:04)
-        ☐ "effect_type": "opponent_discard_random", - "destination": "overdrive" @started(24-01-30 00:47)
-        ☐ choice - "opponent": true, @started(24-01-30 00:07)
-        ☐ "effect_type": "reveal_hand_and_topdeck" @started(24-01-30 00:20)
-            ☐ make UI not suck
-        ☐ self_discard_choose - "destination": "opponent_overdrive" @started(24-01-30 00:53)
-            ☐ Check UI for this
-        ☐ "effect_type": "zero_vector" @started(24-01-30 01:08)
-        ☐ take_damage @started(24-01-29 02:45)
 
 Write tests for:
     Axl:

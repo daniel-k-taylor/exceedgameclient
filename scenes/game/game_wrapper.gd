@@ -114,9 +114,6 @@ func is_player_in_overdrive(id):
 		return true
 	return _get_player(id).overdrive.size() > 0
 
-func is_player_sealed_facedown(id):
-	return _get_player(id).sealed_area_is_facedown
-
 func get_all_non_immediate_continuous_boost_effects(id):
 	var game_player = _get_player(id)
 	return game_player.get_all_non_immediate_continuous_boost_effects()

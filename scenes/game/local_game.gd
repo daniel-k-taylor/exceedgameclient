@@ -467,7 +467,6 @@ class Player:
 	var guile_change_cards_bonus : bool
 	var cards_that_will_not_hit : Array[String]
 	var cards_invalid_during_strike : Array[String]
-	var sealed_area_is_facedown : bool
 
 	func _init(id, player_name, parent_ref, card_db_ref, chosen_deck, card_start_id):
 		my_id = id
@@ -575,8 +574,6 @@ class Player:
 
 		if 'guile_change_cards_bonus' in deck_def:
 			guile_change_cards_bonus = deck_def['guile_change_cards_bonus']
-
-		sealed_area_is_facedown = 'sealed_area_is_facedown' in deck_def and deck_def['sealed_area_is_facedown']
 
 	func initial_shuffle():
 		if ShuffleEnabled:
@@ -1385,7 +1382,7 @@ class Player:
 		if deck.size() > 0:
 			var card = deck[0]
 			var card_name = parent.card_db.get_card_name(card.id)
-			if sealed_area_is_facedown:
+			if sealed_area_is_secret:
 				parent._append_log_full(Enums.LogType.LogType_CardInfo, self, "seals the top card of their deck facedown.")
 			else:
 				parent._append_log_full(Enums.LogType.LogType_CardInfo, self, "seals the top card of their deck: %s." % card_name)
@@ -1857,7 +1854,7 @@ class Player:
 					"attack_is_ex":
 						strike_stat_boosts.set_ex()
 					"dodge_at_range":
-						if 'special_range' in effect:
+						if 'special_range' in effect and effect['special_range']:
 							var current_range = str(overdrive.size())
 							strike_stat_boosts.dodge_at_range_late_calculate_with = effect['special_range']
 							parent._append_log_full(Enums.LogType.LogType_Effect, self, "will dodge attacks from range %s!" % current_range)
@@ -6826,7 +6823,7 @@ func do_choose_from_topdeck(performing_player : Player, chosen_card_id : int, ac
 			event_queue += events
 		"add_to_sealed":
 			events += do_seal_effect(performing_player, chosen_card_id, "hand")
-			if performing_player.sealed_area_is_facedown:
+			if performing_player.sealed_area_is_secret:
 				_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "adds one of the cards to sealed facedown.")
 			else:
 				_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "adds one of the cards to sealed: %s." % card_db.get_card_name(chosen_card_id))
