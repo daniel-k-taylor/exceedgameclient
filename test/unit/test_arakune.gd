@@ -212,6 +212,154 @@ func validate_life(p1, l1, p2, l2):
 ##
 ## Tests start here
 ##
+func test_arakune_exceed_and_strike_with_bonus():
+	position_players(player1, 3, player2, 4)
+	give_gauge(player1, 3)
+	give_player_specific_card(player1, "standard_normal_assault", TestCardId3)
+	player1.move_cards_to_overdrive([TestCardId3], "hand")
+	var card_ids_gauge = []
+	for i in range(3):
+		card_ids_gauge.append(player1.gauge[i].id)
+	player1.move_cards_to_overdrive([player1.deck[0].id], "deck")
+	player1.move_cards_to_overdrive([player1.deck[0].id], "deck")
+	player1.move_cards_to_overdrive([player1.deck[0].id], "deck")
+	player1.move_cards_to_overdrive([player1.deck[0].id], "deck")
+	assert_eq(player1.overdrive.size(), 5)
+	assert_eq(player1.hand.size(), 5)
+	assert_true(game_logic.do_exceed(player1, card_ids_gauge))
+	assert_eq(player1.hand.size(), 7)
+	execute_strike(player1, player2, "standard_normal_assault", "standard_normal_cross", [], [], false, false, [], [], 0, [])
+	# Reveal effect
+	assert_true(game_logic.do_choose_from_discard(player1, [TestCardId3]))
+	# Do overdrive effect
+	var topdeck_id = player1.deck[0].id
+	assert_true(game_logic.do_choice(player1, 0))
+	assert_eq(player1.sealed[0].id, topdeck_id)
+	validate_life(player1, 30, player2, 24)
+	# Next turn, overdrive effect
+	assert_true(game_logic.do_choose_from_discard(player1, [player1.overdrive[0].id]))
+	topdeck_id = player1.deck[0].id
+	assert_true(game_logic.do_choice(player1, 0))
+	assert_eq(player1.sealed[1].id, topdeck_id)
+	# Check that I can end my turn from assault.
+	advance_turn(player1)
+	
+func test_arakune_exceed_and_strike_with_bonus_finverse_range1():
+	position_players(player1, 3, player2, 4)
+	give_player_specific_card(player1, "standard_normal_grasp", TestCardId3)
+	player1.move_cards_to_overdrive([TestCardId3], "hand")
+	give_gauge(player1, 6)
+	var card_ids_gauge = []
+	for i in range(3):
+		card_ids_gauge.append(player1.gauge[i].id)
+	player1.move_cards_to_overdrive([player1.deck[0].id], "deck")
+	player1.move_cards_to_overdrive([player1.deck[0].id], "deck")
+	player1.move_cards_to_overdrive([player1.deck[0].id], "deck")
+	player1.move_cards_to_overdrive([player1.deck[0].id], "deck")
+	assert_eq(player1.overdrive.size(), 5)
+	assert_eq(player1.hand.size(), 5)
+	assert_true(game_logic.do_exceed(player1, card_ids_gauge))
+	assert_eq(player1.gauge.size(), 3)
+	assert_eq(player1.hand.size(), 7)
+	execute_strike(player1, player2, "arakune_finverse", "standard_normal_cross", [], [], false, false, [], [], 0, [])
+	# Reveal effect
+	assert_true(game_logic.do_choose_from_discard(player1, [TestCardId3]))
+	# Do overdrive effect
+	var topdeck_id = player1.deck[0].id
+	assert_true(game_logic.do_choice(player1, 0))
+	assert_eq(player1.sealed[0].id, topdeck_id)
+	# Pay cost
+	assert_true(game_logic.do_pay_strike_cost(player1, [player1.gauge[0].id, player1.gauge[1].id, player1.gauge[2].id], false))
+	# After effect
+	assert_true(game_logic.do_choice(player1, 0))
+	validate_positions(player1, 3, player2, 5)
+	validate_life(player1, 30, player2, 22)
+	advance_turn(player2)
+	# Next turn, overdrive effect
+	assert_true(game_logic.do_choose_from_discard(player1, [player1.overdrive[0].id]))
+	topdeck_id = player1.deck[0].id
+	assert_true(game_logic.do_choice(player1, 0))
+	assert_eq(player1.sealed[1].id, topdeck_id)
+	# Check that I can end my turn from assault.
+	advance_turn(player1)
+
+func test_arakune_exceed_and_strike_with_bonus_wildswing_finverse_wildswing():
+	position_players(player1, 3, player2, 4)
+	give_player_specific_card(player1, "standard_normal_grasp", TestCardId3)
+	player1.move_cards_to_overdrive([TestCardId3], "hand")
+	give_gauge(player1, 6)
+	var card_ids_gauge = []
+	for i in range(3):
+		card_ids_gauge.append(player1.gauge[i].id)
+	player1.move_cards_to_overdrive([player1.deck[0].id], "deck")
+	player1.move_cards_to_overdrive([player1.deck[0].id], "deck")
+	player1.move_cards_to_overdrive([player1.deck[0].id], "deck")
+	player1.move_cards_to_overdrive([player1.deck[0].id], "deck")
+	assert_eq(player1.overdrive.size(), 5)
+	assert_eq(player1.hand.size(), 5)
+	assert_true(game_logic.do_exceed(player1, card_ids_gauge))
+	assert_eq(player1.gauge.size(), 3)
+	assert_eq(player1.hand.size(), 7)
+	give_player_specific_card(player1, "standard_normal_assault", TestCardId4)
+	give_player_specific_card(player1, "arakune_finverse", TestCardId5)
+	player1.move_card_from_hand_to_deck(TestCardId4, 0)
+	player1.move_card_from_hand_to_deck(TestCardId5, 0)
+	# Do a wild swing into finverse
+	execute_strike(player1, player2, "", "standard_normal_grasp", [], [], false, false, [], [], 0, [])
+	# Reveal effect
+	assert_true(game_logic.do_choose_from_discard(player1, [TestCardId3]))
+	# Do overdrive effect, don't seal
+	var topdeck_id = player1.deck[0].id
+	assert_true(game_logic.do_choice(player1, 1))
+	assert_eq(player1.sealed.size(), 0)
+	# Pay cost wild swing into assault
+	assert_true(game_logic.do_pay_strike_cost(player1, [], true))
+	# p2 hits with grasp
+	assert_true(game_logic.do_choice(player2, 1))
+	validate_positions(player1, 3, player2, 4)
+	validate_life(player1, 30, player2, 24)
+	# GAIN ADVANTAGE, Next turn, overdrive effect
+	assert_true(game_logic.do_choose_from_discard(player1, [player1.overdrive[0].id]))
+	topdeck_id = player1.deck[0].id
+	assert_true(game_logic.do_choice(player1, 0))
+	assert_eq(player1.sealed[0].id, topdeck_id)
+	# Check that I can end my turn from assault.
+	advance_turn(player1)
+	
+func test_arakune_exceed_and_strike_without_bonus():
+	position_players(player1, 3, player2, 4)
+	give_gauge(player1, 3)
+	give_player_specific_card(player1, "standard_normal_dive", TestCardId3)
+	player1.move_cards_to_overdrive([TestCardId3], "hand")
+	var card_ids_gauge = []
+	for i in range(3):
+		card_ids_gauge.append(player1.gauge[i].id)
+	player1.move_cards_to_overdrive([player1.deck[0].id], "deck")
+	player1.move_cards_to_overdrive([player1.deck[0].id], "deck")
+	player1.move_cards_to_overdrive([player1.deck[0].id], "deck")
+	player1.move_cards_to_overdrive([player1.deck[0].id], "deck")
+	assert_eq(player1.overdrive.size(), 5)
+	assert_eq(player1.hand.size(), 5)
+	assert_true(game_logic.do_exceed(player1, card_ids_gauge))
+	assert_eq(player1.hand.size(), 7)
+	execute_strike(player1, player2, "standard_normal_assault", "standard_normal_cross", [], [], false, false, [], [], 0, [])
+	# Reveal effect
+	assert_true(game_logic.do_choose_from_discard(player1, [TestCardId3]))
+	# Do overdrive effect
+	var topdeck_id = player1.deck[0].id
+	assert_true(game_logic.do_choice(player1, 0))
+	assert_eq(player1.sealed[0].id, topdeck_id)
+	validate_life(player1, 27, player2, 30)
+	validate_positions(player1, 3, player2, 7)
+	advance_turn(player2)
+	# Next turn, overdrive effect
+	assert_true(game_logic.do_choose_from_discard(player1, [player1.overdrive[0].id]))
+	topdeck_id = player1.deck[0].id
+	assert_true(game_logic.do_choice(player1, 0))
+	assert_eq(player1.sealed[1].id, topdeck_id)
+	# Check that I can end my turn correctly.
+	advance_turn(player1)
+
 func test_arakune_disjointunion_nodiscards():
 	position_players(player1, 3, player2, 4)
 	execute_strike(player1, player2, "arakune_disjointunion", "standard_normal_sweep", [0], [], false, false, [], [], 0, [])

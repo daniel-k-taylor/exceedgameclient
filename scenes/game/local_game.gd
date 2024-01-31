@@ -5811,8 +5811,9 @@ func do_exceed(performing_player : Player, card_ids : Array) -> bool:
 		do_strike(performing_player, card.id, false, -1)
 	elif game_state != Enums.GameState.GameState_WaitForStrike and game_state != Enums.GameState.GameState_PlayerDecision:
 		events += check_hand_size_advance_turn(performing_player)
-	else:
+	elif game_state == Enums.GameState.GameState_PlayerDecision:
 		# Some other player action will result in the end turn finishing.
+		# Striking is the end of an exceed so don't set this to true.
 		active_exceed = true
 	event_queue += events
 	return true
@@ -6440,25 +6441,30 @@ func do_choose_from_discard(performing_player : Player, card_ids : Array) -> boo
 	else:
 		_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "moves card(s) from %s to %s: %s." % [decision_info.source, dest_name, card_names])
 
+	if active_overdrive or active_boost:
+		game_state = Enums.GameState.GameState_Boost_Processing
+	elif active_strike:
+		game_state = Enums.GameState.GameState_Strike_Processing
 	# Do any bonus effect.
 	if decision_info.bonus_effect:
 		var effect = decision_info.bonus_effect
 		effect['discarded_card_ids'] = card_ids
 		events += do_effect_if_condition_met(performing_player, decision_info.choice_card_id, effect, null)
 
-	if active_overdrive:
-		events += do_remaining_overdrive(performing_player)
-	elif active_boost:
-		active_boost.effects_resolved += 1
-		# Intentional events = because events are passed in.
-		events = continue_resolve_boost(events)
-	elif active_strike:
-		active_strike.effects_resolved_in_timing += 1
-		# Intentional events = because events are passed in.
-		events = continue_resolve_strike(events)
-	else:
-		printlog("ERROR: When is this choose from discard happening?")
-		assert(false, "When is this choose from discard happening?")
+	if game_state != Enums.GameState.GameState_PlayerDecision:
+		if active_overdrive:
+			events += do_remaining_overdrive(performing_player)
+		elif active_boost:
+			active_boost.effects_resolved += 1
+			# Intentional events = because events are passed in.
+			events = continue_resolve_boost(events)
+		elif active_strike:
+			active_strike.effects_resolved_in_timing += 1
+			# Intentional events = because events are passed in.
+			events = continue_resolve_strike(events)
+		else:
+			printlog("ERROR: When is this choose from discard happening?")
+			assert(false, "When is this choose from discard happening?")
 
 	event_queue += events
 	return true
@@ -6649,19 +6655,22 @@ func do_choose_to_discard(performing_player : Player, card_ids):
 	if active_overdrive:
 		game_state = Enums.GameState.GameState_Boost_Processing
 		events += do_effect_if_condition_met(performing_player, decision_info.choice_card_id, effect, null)
-		events += do_remaining_overdrive(performing_player)
+		if game_state != Enums.GameState.GameState_PlayerDecision:
+			events += do_remaining_overdrive(performing_player)
 	elif active_boost:
 		game_state = Enums.GameState.GameState_Boost_Processing
 		events += do_effect_if_condition_met(performing_player, decision_info.choice_card_id, effect, null)
-		active_boost.effects_resolved += 1
-		# Intentional events = because events are passed in.
-		events = continue_resolve_boost(events)
+		if game_state != Enums.GameState.GameState_PlayerDecision:
+			active_boost.effects_resolved += 1
+			# Intentional events = because events are passed in.
+			events = continue_resolve_boost(events)
 	elif active_strike:
 		game_state = Enums.GameState.GameState_Strike_Processing
 		events += do_effect_if_condition_met(performing_player, decision_info.choice_card_id, effect, null)
-		active_strike.effects_resolved_in_timing += 1
-		# Intentional events = because events are passed in.
-		events = continue_resolve_strike(events)
+		if game_state != Enums.GameState.GameState_PlayerDecision:
+			active_strike.effects_resolved_in_timing += 1
+			# Intentional events = because events are passed in.
+			events = continue_resolve_strike(events)
 	event_queue += events
 	return true
 
