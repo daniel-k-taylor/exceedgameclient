@@ -225,6 +225,12 @@ func get_condition_text(effect, amount, amount2, detail):
 			text += "If you have not moved yourself this strike, "
 		"moved_during_strike":
 			text += "If you moved at least %s space(s) this strike, " % amount
+		"min_cards_in_discard":
+			text += "If you have at least %s card(s) in discard, " % amount
+		"min_cards_in_hand":
+			text += "If you have at least %s card(s) in hand, " % amount
+		"min_cards_in_gauge":
+			text += "If you have at least %s card(s) in gauge, " % amount
 		"no_strike_caused":
 			text += "If no strike caused, "
 		"stunned":

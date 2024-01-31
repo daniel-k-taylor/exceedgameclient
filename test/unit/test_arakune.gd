@@ -212,6 +212,193 @@ func validate_life(p1, l1, p2, l2):
 ##
 ## Tests start here
 ##
-func test_arakune_card():
-	position_players(player1, 3, player2, 6)
-	validate_positions(player1, 3, player2, 6)
+func test_arakune_disjointunion_nodiscards():
+	position_players(player1, 3, player2, 4)
+	execute_strike(player1, player2, "arakune_disjointunion", "standard_normal_sweep", [0], [], false, false, [], [], 0, [])
+	validate_positions(player1, 3, player2, 7)
+	assert_eq(player1.gauge.size(), 1)
+	assert_eq(player1.overdrive.size(), 0)
+	validate_life(player1, 30, player2, 27)
+	advance_turn(player2)
+
+func test_arakune_ability_disjointunion_notstunned():
+	player1.discard_hand()
+	var top_discard_id = player1.discards[player1.discards.size() - 1].id
+	position_players(player1, 3, player2, 4)
+	execute_strike(player1, player2, "arakune_disjointunion", "standard_normal_sweep", [0, 0], [], false, false, [], [], 0, [])
+	validate_positions(player1, 3, player2, 7)
+	assert_eq(player1.gauge.size(), 1)
+	assert_eq(player1.overdrive.size(), 1)
+	assert_eq(player1.overdrive[0].id, top_discard_id)
+	validate_life(player1, 30, player2, 27)
+
+func test_arakune_ability_disjointunion_stunned():
+	player1.discard_hand()
+	var top_discard_id = player1.discards[player1.discards.size() - 1].id
+	var top_2nd_discard_id = player1.discards[player1.discards.size() - 2].id
+	position_players(player1, 3, player2, 4)
+	execute_strike(player1, player2, "arakune_disjointunion", "standard_normal_assault", [0, 0], [], false, false, [], [], 0, [])
+	validate_positions(player1, 3, player2, 7)
+	assert_eq(player1.gauge.size(), 1)
+	assert_eq(player1.overdrive.size(), 2)
+	assert_eq(player1.overdrive[0].id, top_discard_id)
+	assert_eq(player1.overdrive[1].id, top_2nd_discard_id)
+	validate_life(player1, 30, player2, 27)
+
+func test_arakune_disjointunion_boost():
+	give_player_specific_card(player1, "arakune_disjointunion", TestCardId3)
+	position_players(player1, 3, player2, 4)
+	assert_eq(player1.hand.size(), 6)
+	assert_true(game_logic.do_boost(player1, TestCardId3))
+	execute_strike(player1, player2, "standard_normal_assault", "standard_normal_assault", [], [], false, false, [], [], 0, [])
+	assert_eq(player1.hand.size(), 6)
+	validate_positions(player1, 3, player2, 4)
+	assert_eq(player1.gauge.size(), 1)
+	assert_eq(player1.overdrive.size(), 1)
+	assert_eq(player1.overdrive[0].id, TestCardId3)
+	validate_life(player1, 30, player2, 26)
+
+func test_arakune_ifpthenq_boost():
+	give_player_specific_card(player1, "arakune_ifpthenq", TestCardId3)
+	player1.move_cards_to_overdrive([player1.hand[0].id], "hand")
+	position_players(player1, 3, player2, 4)
+	assert_eq(player1.hand.size(), 5)
+	assert_true(game_logic.do_boost(player1, TestCardId3))
+	assert_eq(player1.hand.size(), 6)
+	advance_turn(player2)
+	execute_strike(player1, player2, "standard_normal_assault", "standard_normal_grasp", [], [], false, false, [], [], 0, [])
+	validate_positions(player1, 3, player2, 4)
+	assert_eq(player1.gauge.size(), 1)
+	assert_eq(player1.overdrive.size(), 1)
+	validate_life(player1, 30, player2, 26)
+
+func test_arakune_ifpthenq_go_to_overdrive():
+	position_players(player1, 3, player2, 1)
+	var card_discarded_for_force = player1.hand[0].id
+	execute_strike(player1, player2, "arakune_ifpthenq", "standard_normal_cross", [0, 0, 0], [], false, false, [], [], 0, [])
+	validate_positions(player1, 2, player2, 1)
+	assert_eq(player1.gauge.size(), 0)
+	assert_eq(player1.overdrive.size(), 2)
+	assert_eq(player1.overdrive[0].id, card_discarded_for_force)
+	assert_eq(player1.overdrive[1].id, TestCardId1)
+	validate_life(player1, 30, player2, 30)
+	advance_turn(player2)
+
+func test_arakune_ifpthenq_go_to_overdrive_miss():
+	position_players(player1, 3, player2, 1)
+	execute_strike(player1, player2, "arakune_ifpthenq", "standard_normal_cross", [1, 0], [], false, false, [], [], 0, [])
+	validate_positions(player1, 3, player2, 1)
+	assert_eq(player1.gauge.size(), 0)
+	assert_eq(player1.overdrive.size(), 1)
+	assert_eq(player1.overdrive[0].id, TestCardId1)
+	validate_life(player1, 30, player2, 30)
+	advance_turn(player2)
+
+func test_arakune_ytwodash_boostandattack():
+	position_players(player1, 2, player2, 3)
+	give_player_specific_card(player1, "arakune_ytwodash", TestCardId3)
+	assert_true(game_logic.do_boost(player1, TestCardId3))
+	advance_turn(player2)
+	execute_strike(player1, player2, "arakune_ytwodash", "standard_normal_grasp", [1], [], false, false, [], [], 0, [])
+	validate_positions(player1, 6, player2, 3)
+	assert_eq(player1.gauge.size(), 1)
+	assert_eq(player1.overdrive.size(), 0)
+	validate_life(player1, 30, player2, 25)
+	advance_turn(player2)
+
+func test_arakune_permutationnr_attack():
+	position_players(player1, 2, player2, 1)
+	execute_strike(player1, player2, "arakune_permutationnr", "standard_normal_cross", [], [], false, false, [], [], 0, [])
+	# permutation force for effect
+	assert_true(game_logic.do_force_for_effect(player1, [player1.hand[0].id, player1.hand[1].id, player1.hand[2].id]))
+	# on hit simultaneous, card first
+	assert_true(game_logic.do_choice(player1, 0))
+	assert_eq(player1.overdrive.size(), 1)
+	# char effect choice, has force paid in discard
+	assert_true(game_logic.do_choice(player1, 0))
+	validate_positions(player1, 2, player2, 1)
+	assert_eq(player1.gauge.size(), 1)
+	# 1 card from discarded opponent, 1 from discard force
+	assert_eq(player1.overdrive.size(), 2)
+	validate_life(player1, 28, player2, 25)
+	advance_turn(player2)
+
+func test_arakune_permutationnr_boost_give_card():
+	position_players(player1, 2, player2, 1)
+	give_player_specific_card(player1, "arakune_permutationnr", TestCardId3)
+	assert_true(game_logic.do_boost(player1, TestCardId3))
+	# Opponent chooses 0 - add card from hand to opponent's OD, 1 - reveal hand/topdeck
+	assert_true(game_logic.do_choice(player2, 0))
+	var discarded_id = player2.hand[0].id
+	assert_true(game_logic.do_choose_to_discard(player2, [discarded_id]))
+	assert_eq(player2.hand.size(), 5)
+	advance_turn(player2)
+	assert_eq(player1.overdrive.size(), 1)
+	assert_eq(player1.overdrive[0].id, discarded_id)
+
+func test_arakune_permutationnr_boost_reveal():
+	position_players(player1, 2, player2, 1)
+	give_player_specific_card(player1, "arakune_permutationnr", TestCardId3)
+	assert_true(game_logic.do_boost(player1, TestCardId3))
+	# Opponent chooses 0 - add card from hand to opponent's OD, 1 - reveal hand/topdeck
+	assert_true(game_logic.do_choice(player2, 1))
+	var events = game_logic.get_latest_events()
+	validate_has_event(events, Enums.EventType.EventType_RevealHand, player2)
+	validate_has_event(events, Enums.EventType.EventType_RevealTopDeck, player2)
+	advance_turn(player2)
+
+func test_arakune_piecewise_odd_miss():
+	position_players(player1, 2, player2, 3)
+	execute_strike(player1, player2, "arakune_fpiecewise", "standard_normal_sweep", [], [], false, false, [], [], 0, [])
+	# fpiecewise range effect
+	assert_true(game_logic.do_force_for_effect(player1, [player1.hand[0].id]))
+	# miss, after advance/retreat
+	assert_true(game_logic.do_choice(player1, 0))
+	validate_positions(player1, 5, player2, 3)
+	assert_eq(player1.gauge.size(), 0)
+	assert_eq(player2.gauge.size(), 1)
+	validate_life(player1, 24, player2, 30)
+	advance_turn(player2)
+
+func test_arakune_piecewise_even_hit():
+	position_players(player1, 2, player2, 4)
+	execute_strike(player1, player2, "arakune_fpiecewise", "standard_normal_sweep", [], [], false, false, [], [], 0, [])
+	# fpiecewise range effect
+	var discarded_id = player1.hand[0].id
+	assert_true(game_logic.do_force_for_effect(player1, [discarded_id]))
+	# hit, discarded force to OD
+	assert_true(game_logic.do_choice(player1, 0))
+	assert_eq(player1.overdrive.size(), 1)
+	assert_eq(player1.overdrive[0].id, discarded_id)
+	#advance/retreat
+	assert_true(game_logic.do_choice(player1, 0))
+	validate_positions(player1, 5, player2, 4)
+	assert_eq(player1.gauge.size(), 1)
+	assert_eq(player2.gauge.size(), 1)
+	validate_life(player1, 24, player2, 24)
+	advance_turn(player2)
+
+func test_arakune_piecewise_boost():
+	position_players(player1, 2, player2, 4)
+	give_player_specific_card(player1, "arakune_fpiecewise", TestCardId3)
+	assert_true(game_logic.do_boost(player1, TestCardId3))
+	var id_of_assault = -1
+	for card in player1.deck_list:
+		if card.definition['display_name'] == "Assault":
+			id_of_assault = card.id
+			break
+	assert_true(game_logic.do_boost_name_card_choice_effect(player1, id_of_assault))
+	# Prep top decks
+	give_player_specific_card(player1, "standard_normal_sweep", TestCardId4)
+	give_player_specific_card(player2, "standard_normal_spike", TestCardId5)
+	player1.move_card_from_hand_to_deck(TestCardId4, 0)
+	player2.move_card_from_hand_to_deck(TestCardId5, 0)
+	execute_strike(player1, player2, "standard_normal_assault", "standard_normal_assault", [], [], false, false, [], [], 0, [])
+	# Assaults are invalid, so the wild swings both happen
+	validate_positions(player1, 2, player2, 4)
+	assert_eq(player1.gauge.size(), 0)
+	assert_eq(player2.gauge.size(), 1)
+	# Noa fter effect because stunned.
+	assert_eq(player1.overdrive.size(), 0)
+	validate_life(player1, 25, player2, 30)
+	advance_turn(player2)

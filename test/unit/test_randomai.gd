@@ -159,7 +159,7 @@ func handle_decisions(game: LocalGame):
 				var pick_action = decision_ai.pick_name_opponent_card(game, decision_player.my_id, true)
 				assert_true(game.do_boost_name_card_choice_effect(decision_player, pick_action.card_id), "do boost name failed")
 			Enums.DecisionType.DecisionType_ZeroVector:
-				var pick_action = decision_ai.pick_name_opponent_card(game, decision_player.my_id, true)
+				var pick_action = decision_ai.pick_name_opponent_card(game, decision_player.my_id, false, game.decision_info.bonus_effect)
 				assert_true(game.do_boost_name_card_choice_effect(decision_player, pick_action.card_id), "do boost name failed")
 			Enums.DecisionType.DecisionType_PayStrikeCost_Required, Enums.DecisionType.DecisionType_PayStrikeCost_CanWild:
 				var can_wild = game.decision_info.type == Enums.DecisionType.DecisionType_PayStrikeCost_CanWild

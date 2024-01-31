@@ -2372,6 +2372,7 @@ func strike_setup_defender_response(events):
 	active_strike.strike_state = StrikeState.StrikeState_Defender_SetEffects
 	change_game_state(Enums.GameState.GameState_Strike_Opponent_Response)
 	var ask_for_response = true
+	decision_info.clear()
 	if active_strike.initiator.force_opponent_respond_wild_swing():
 		events += [create_event(Enums.EventType.EventType_Strike_ForceWildSwing, active_strike.initiator.my_id, 0)]
 		# Queue any events so far, then empty this tally and call do_strike.
@@ -2418,6 +2419,7 @@ func strike_setup_initiator_response(events):
 	active_strike.strike_state = StrikeState.StrikeState_Initiator_SetEffects
 	change_game_state(Enums.GameState.GameState_WaitForStrike)
 	var ask_for_response = true
+	decision_info.clear()
 	if active_strike.initiator.next_strike_random_gauge:
 		# Queue any events so far, then empty this tally and call do_strike.
 		event_queue += events
@@ -2604,6 +2606,9 @@ func is_effect_condition_met(performing_player : Player, effect, local_condition
 		elif condition == "matches_named_card":
 			var player_card = active_strike.get_player_card(performing_player)
 			return player_card.definition['id'] == effect['condition_card_id']
+		elif condition == "min_cards_in_discard":
+			var amount = effect['condition_amount']
+			return performing_player.discards.size() >= amount
 		elif condition == "min_cards_in_hand":
 			var amount = effect['condition_amount']
 			return performing_player.hand.size() >= amount
@@ -2877,6 +2882,7 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 				_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "has no cards in their discard pile to add to overdrive.")
 			events += performing_player.add_top_discard_to_overdrive(amount)
 		"advance":
+			decision_info.clear()
 			decision_info.source = "advance"
 			decision_info.amount = effect['amount']
 			decision_info.limitation = { 'and': null, 'bonus_effect': null }
@@ -2944,6 +2950,7 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 			if performing_player.can_boost_something(true, true, effect['limitation']):
 				events += [create_event(Enums.EventType.EventType_ForceStartBoost, performing_player.my_id, 0, "", true, true, effect['limitation'])]
 				change_game_state(Enums.GameState.GameState_PlayerDecision)
+				decision_info.clear()
 				decision_info.type = Enums.DecisionType.DecisionType_BoostNow
 				decision_info.player = performing_player.my_id
 				decision_info.allow_gauge = true
@@ -2964,6 +2971,7 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 			if performing_player.can_boost_something(allow_gauge, only_gauge, effect['limitation']):
 				events += [create_event(Enums.EventType.EventType_ForceStartBoost, performing_player.my_id, 0, "", allow_gauge, only_gauge, effect['limitation'])]
 				change_game_state(Enums.GameState.GameState_PlayerDecision)
+				decision_info.clear()
 				decision_info.type = Enums.DecisionType.DecisionType_BoostNow
 				decision_info.player = performing_player.my_id
 				decision_info.allow_gauge = allow_gauge
@@ -2978,6 +2986,7 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 			if performing_player.deck.size() > 0:
 				performing_player.cancel_blocked_this_turn = true
 				change_game_state(Enums.GameState.GameState_PlayerDecision)
+				decision_info.clear()
 				decision_info.type = Enums.DecisionType.DecisionType_ForceBoostSustainTopdeck
 				decision_info.player = performing_player.my_id
 				active_strike.remaining_forced_boosts = effect['amount']
@@ -2990,6 +2999,7 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 			if boost_card_id != -1:
 				performing_player.cancel_blocked_this_turn = true
 				change_game_state(Enums.GameState.GameState_PlayerDecision)
+				decision_info.clear()
 				decision_info.type = Enums.DecisionType.DecisionType_ForceBoostSustainTopDiscard
 				decision_info.player = performing_player.my_id
 				active_strike.remaining_forced_boosts = effect['amount']
@@ -3003,6 +3013,7 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 			if performing_player.can_boost_something(allow_gauge, only_gauge, effect['limitation']):
 				events += [create_event(Enums.EventType.EventType_ForceStartBoost, performing_player.my_id, 0, "", allow_gauge, only_gauge, effect['limitation'])]
 				change_game_state(Enums.GameState.GameState_PlayerDecision)
+				decision_info.clear()
 				decision_info.type = Enums.DecisionType.DecisionType_BoostNow
 				decision_info.player = performing_player.my_id
 				decision_info.allow_gauge = allow_gauge
@@ -3014,6 +3025,7 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 					_append_log_full(Enums.LogType.LogType_Effect, performing_player, "has no cards available to boost.")
 				events += [create_event(Enums.EventType.EventType_ForceStartStrike, performing_player.my_id, 0)]
 				change_game_state(Enums.GameState.GameState_WaitForStrike)
+				decision_info.clear()
 				decision_info.type = Enums.DecisionType.DecisionType_StrikeNow
 				decision_info.player = performing_player.my_id
 		"buddy_immune_to_flip":
@@ -3025,6 +3037,7 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 			if 'opponent' in effect and effect['opponent']:
 				choice_player = opposing_player
 			change_game_state(Enums.GameState.GameState_PlayerDecision)
+			decision_info.clear()
 			decision_info.type = Enums.DecisionType.DecisionType_EffectChoice
 			decision_info.player = choice_player.my_id
 			if 'add_topdeck_card_name_to_choices' in effect:
@@ -3056,6 +3069,7 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 
 			# Same as normal choice.
 			change_game_state(Enums.GameState.GameState_PlayerDecision)
+			decision_info.clear()
 			decision_info.type = Enums.DecisionType.DecisionType_EffectChoice
 			decision_info.player = performing_player.my_id
 			decision_info.choice = updated_choices
@@ -3068,12 +3082,14 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 				if 'strike_after' in effect and effect['strike_after']:
 					events += [create_event(Enums.EventType.EventType_ForceStartStrike, performing_player.my_id, 0)]
 					change_game_state(Enums.GameState.GameState_WaitForStrike)
+					decision_info.clear()
 					decision_info.type = Enums.DecisionType.DecisionType_StrikeNow
 					decision_info.player = performing_player.my_id
 			elif look_amount > 0:
 				_append_log_full(Enums.LogType.LogType_Effect, performing_player, "looks at the top %s cards of their deck." % look_amount)
 				performing_player.cancel_blocked_this_turn = true
 				change_game_state(Enums.GameState.GameState_PlayerDecision)
+				decision_info.clear()
 				decision_info.type = Enums.DecisionType.DecisionType_ChooseFromTopDeck
 				decision_info.player = performing_player.my_id
 				decision_info.choice_card_id = card_id
@@ -3103,6 +3119,7 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 				assert(false, "Unimplemented source")
 			if choice_count > 0:
 				change_game_state(Enums.GameState.GameState_PlayerDecision)
+				decision_info.clear()
 				decision_info.type = Enums.DecisionType.DecisionType_ChooseFromDiscard
 				decision_info.player = performing_player.my_id
 				decision_info.choice_card_id = card_id
@@ -3128,6 +3145,7 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 			choice_count -= performing_player.sustained_boosts.size()
 			if choice_count > 0:
 				change_game_state(Enums.GameState.GameState_PlayerDecision)
+				decision_info.clear()
 				decision_info.type = Enums.DecisionType.DecisionType_ChooseFromBoosts
 				decision_info.player = performing_player.my_id
 				decision_info.choice_card_id = card_id
@@ -3142,6 +3160,7 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 			else:
 				_append_log_full(Enums.LogType.LogType_Effect, performing_player, "has no more boosts to sustain.")
 		"close":
+			decision_info.clear()
 			decision_info.source = "close"
 			decision_info.amount = effect['amount']
 			decision_info.limitation = { 'and': null, 'bonus_effect': null }
@@ -3180,6 +3199,7 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 				_append_log_full(Enums.LogType.LogType_Effect, performing_player, "is copying another hit effect.")
 				# Send choice to player
 				change_game_state(Enums.GameState.GameState_PlayerDecision)
+				decision_info.clear()
 				decision_info.type = Enums.DecisionType.DecisionType_ChooseSimultaneousEffect
 				decision_info.player = performing_player.my_id
 				decision_info.effect_type = "copy_other_hit_effect"
@@ -3248,6 +3268,7 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 		"discard_continuous_boost":
 			var my_boosts = performing_player.continuous_boosts
 			var opponent_boosts = opposing_player.continuous_boosts
+			decision_info.clear()
 			decision_info.limitation = ""
 			if 'limitation' in effect:
 				decision_info.limitation = effect['limitation']
@@ -3286,6 +3307,7 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 			if opposing_player.gauge.size() > 0:
 				# Player gets to pick which gauge to discard.
 				change_game_state(Enums.GameState.GameState_PlayerDecision)
+				decision_info.clear()
 				decision_info.type = Enums.DecisionType.DecisionType_ChooseDiscardOpponentGauge
 				decision_info.effect_type = "discard_opponent_gauge_INTERNAL"
 				decision_info.choice_card_id = card_id
@@ -3347,6 +3369,7 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 				can_do_something = true
 			if can_do_something:
 				change_game_state(Enums.GameState.GameState_PlayerDecision)
+				decision_info.clear()
 				decision_info.player = force_player.my_id
 				decision_info.type = Enums.DecisionType.DecisionType_ForceForEffect
 				decision_info.choice_card_id = card_id
@@ -3361,6 +3384,7 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 				can_do_something = true
 			if can_do_something:
 				change_game_state(Enums.GameState.GameState_PlayerDecision)
+				decision_info.clear()
 				decision_info.player = performing_player.my_id
 				decision_info.type = Enums.DecisionType.DecisionType_GaugeForEffect
 				decision_info.choice_card_id = card_id
@@ -3378,6 +3402,7 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 		"gauge_from_hand":
 			if len(performing_player.hand) > 0:
 				change_game_state(Enums.GameState.GameState_PlayerDecision)
+				decision_info.clear()
 				decision_info.type = Enums.DecisionType.DecisionType_CardFromHandToGauge
 				decision_info.player = performing_player.my_id
 				decision_info.choice_card_id = card_id
@@ -3444,6 +3469,7 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 
 			_append_log_full(Enums.LogType.LogType_Effect, performing_player, "may %s %s extra space(s)!" % [movement_type, movement_amount])
 			change_game_state(Enums.GameState.GameState_PlayerDecision)
+			decision_info.clear()
 			decision_info.type = Enums.DecisionType.DecisionType_EffectChoice
 			decision_info.player = performing_player.my_id
 			decision_info.choice = choice
@@ -3456,6 +3482,7 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 			_append_log_full(Enums.LogType.LogType_CharacterMovement, performing_player, "moves from space %s to %s." % [str(previous_location), str(performing_player.arena_location)])
 		"move_to_any_space":
 			change_game_state(Enums.GameState.GameState_PlayerDecision)
+			decision_info.clear()
 			decision_info.type = Enums.DecisionType.DecisionType_ChooseArenaLocationForEffect
 			decision_info.player = performing_player.my_id
 			decision_info.choice_card_id = card_id
@@ -3477,6 +3504,7 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 			events += [create_event(Enums.EventType.EventType_ChooseArenaLocationForEffect, performing_player.my_id, 0)]
 		"name_card_opponent_discards":
 			change_game_state(Enums.GameState.GameState_PlayerDecision)
+			decision_info.clear()
 			decision_info.type = Enums.DecisionType.DecisionType_NameCard_OpponentDiscards
 			decision_info.effect_type = "name_card_opponent_discards_internal"
 			decision_info.choice_card_id = card_id
@@ -3524,6 +3552,7 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 			var buddy_id = ""
 			if 'buddy_id' in effect:
 				buddy_id = effect['buddy_id']
+			decision_info.clear()
 			decision_info.choice = []
 			decision_info.limitation = []
 			var optional = 'optional' in effect and effect['optional']
@@ -3581,6 +3610,7 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 		"opponent_discard_choose":
 			if opposing_player.hand.size() > effect['amount']:
 				change_game_state(Enums.GameState.GameState_PlayerDecision)
+				decision_info.clear()
 				decision_info.type = Enums.DecisionType.DecisionType_ChooseToDiscard
 				decision_info.effect_type = "opponent_discard_choose_internal"
 				decision_info.effect = effect
@@ -3649,6 +3679,7 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 			if 'buddy_id' in effect:
 				buddy_id = effect['buddy_id']
 			change_game_state(Enums.GameState.GameState_PlayerDecision)
+			decision_info.clear()
 			decision_info.type = Enums.DecisionType.DecisionType_ChooseArenaLocationForEffect
 			decision_info.player = performing_player.my_id
 			decision_info.choice_card_id = card_id
@@ -3673,6 +3704,7 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 			var buddy_id = ""
 			if 'buddy_id' in effect:
 				buddy_id = effect['buddy_id']
+			decision_info.clear()
 			decision_info.choice = []
 			decision_info.limitation = []
 			var attack_card = active_strike.get_player_card(performing_player)
@@ -3841,6 +3873,13 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 			performing_player.strike_stat_boosts.min_range += effect['amount']
 			performing_player.strike_stat_boosts.max_range += effect['amount2']
 			events += [create_event(Enums.EventType.EventType_Strike_RangeUp, performing_player.my_id, effect['amount'], "", effect['amount2'])]
+		"rangeup_both_players":
+			performing_player.strike_stat_boosts.min_range += effect['amount']
+			performing_player.strike_stat_boosts.max_range += effect['amount2']
+			events += [create_event(Enums.EventType.EventType_Strike_RangeUp, performing_player.my_id, effect['amount'], "", effect['amount2'])]
+			opposing_player.strike_stat_boosts.min_range += effect['amount']
+			opposing_player.strike_stat_boosts.max_range += effect['amount2']
+			events += [create_event(Enums.EventType.EventType_Strike_RangeUp, opposing_player.my_id, effect['amount'], "", effect['amount2'])]
 		"rangeup_per_boost_in_play":
 			var boosts_in_play = performing_player.continuous_boosts.size()
 			if 'all_boosts' in effect and effect['all_boosts']:
@@ -3857,6 +3896,7 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 				events += [create_event(Enums.EventType.EventType_Strike_RangeUp, performing_player.my_id, effect['amount'] * sealed_normals, "", effect['amount2'] * sealed_normals)]
 		"reading_normal":
 			change_game_state(Enums.GameState.GameState_PlayerDecision)
+			decision_info.clear()
 			decision_info.type = Enums.DecisionType.DecisionType_ReadingNormal
 			decision_info.effect_type = "reading_normal_internal"
 			decision_info.choice_card_id = card_id
@@ -4026,6 +4066,7 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 			# functionality that has been added to this besides discarding.
 			if cards_available.size() >= effect['amount'] or (optional and cards_available.size() > 0):
 				change_game_state(Enums.GameState.GameState_PlayerDecision)
+				decision_info.clear()
 				decision_info.type = Enums.DecisionType.DecisionType_ChooseToDiscard
 				decision_info.effect_type = "self_discard_choose_internal"
 				decision_info.effect = effect
@@ -4088,6 +4129,7 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 		"shuffle_into_deck_from_hand":
 			if len(performing_player.hand) > 0:
 				change_game_state(Enums.GameState.GameState_PlayerDecision)
+				decision_info.clear()
 				decision_info.type = Enums.DecisionType.DecisionType_CardFromHandToGauge
 				decision_info.player = performing_player.my_id
 				decision_info.choice_card_id = card_id
@@ -4110,6 +4152,7 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 			events += performing_player.shuffle_sealed_to_deck()
 		"sidestep_transparent_foe":
 			change_game_state(Enums.GameState.GameState_PlayerDecision)
+			decision_info.clear()
 			decision_info.type = Enums.DecisionType.DecisionType_Sidestep
 			decision_info.effect_type = "sidestep_internal"
 			decision_info.choice_card_id = card_id
@@ -4151,17 +4194,20 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 		"strike":
 			events += [create_event(Enums.EventType.EventType_ForceStartStrike, performing_player.my_id, 0)]
 			change_game_state(Enums.GameState.GameState_WaitForStrike)
+			decision_info.clear()
 			decision_info.type = Enums.DecisionType.DecisionType_StrikeNow
 			decision_info.player = performing_player.my_id
 		"strike_effect_after_setting":
 			events += [create_event(Enums.EventType.EventType_ForceStartStrike, performing_player.my_id, 0)]
 			change_game_state(Enums.GameState.GameState_WaitForStrike)
+			decision_info.clear()
 			decision_info.type = Enums.DecisionType.DecisionType_StrikeNow
 			decision_info.player = performing_player.my_id
 			performing_player.extra_effect_after_set_strike = effect['after_set_effect']
 		"strike_effect_after_opponent_sets":
 			events += [create_event(Enums.EventType.EventType_ForceStartStrike, performing_player.my_id, 0)]
 			change_game_state(Enums.GameState.GameState_WaitForStrike)
+			decision_info.clear()
 			decision_info.type = Enums.DecisionType.DecisionType_StrikeNow
 			decision_info.player = performing_player.my_id
 			opposing_player.extra_effect_after_set_strike = effect['after_set_effect']
@@ -4170,10 +4216,12 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 			var disable_ex = 'disable_ex' in effect and effect['disable_ex']
 			events += [create_event(Enums.EventType.EventType_ForceStartStrike, performing_player.my_id, 0, "", disable_wild_swing, disable_ex)]
 			change_game_state(Enums.GameState.GameState_WaitForStrike)
+			decision_info.clear()
 			decision_info.type = Enums.DecisionType.DecisionType_StrikeNow
 			decision_info.player = performing_player.my_id
 			performing_player.next_strike_faceup = true
 		"strike_from_gauge":
+			decision_info.clear()
 			decision_info.type = Enums.DecisionType.DecisionType_StrikeNow
 			decision_info.player = performing_player.my_id
 			decision_info.source = "gauge"
@@ -4192,6 +4240,7 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 				_append_log_full(Enums.LogType.LogType_Effect, performing_player, "has no gauge to strike with.")
 				events += [create_event(Enums.EventType.EventType_Strike_EffectDoStrike, performing_player.my_id, 0, "", strike_info)]
 		"strike_from_sealed":
+			decision_info.clear()
 			decision_info.type = Enums.DecisionType.DecisionType_StrikeNow
 			decision_info.player = performing_player.my_id
 			decision_info.source = "sealed"
@@ -4212,11 +4261,13 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 		"strike_opponent_sets_first":
 			events += [create_event(Enums.EventType.EventType_Strike_OpponentSetsFirst, performing_player.my_id, 0)]
 			change_game_state(Enums.GameState.GameState_Strike_Opponent_Set_First)
+			decision_info.clear()
 			decision_info.type = Enums.DecisionType.DecisionType_StrikeNow
 			decision_info.player = performing_player.my_id
 		"strike_random_from_gauge":
 			events += [create_event(Enums.EventType.EventType_Strike_OpponentSetsFirst, performing_player.my_id, 0)]
 			change_game_state(Enums.GameState.GameState_Strike_Opponent_Set_First)
+			decision_info.clear()
 			decision_info.type = Enums.DecisionType.DecisionType_StrikeNow
 			decision_info.player = performing_player.my_id
 			performing_player.next_strike_random_gauge = true
@@ -4235,6 +4286,7 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 			events += [create_event(Enums.EventType.EventType_Strike_EffectDoStrike, performing_player.my_id, 0, "", strike_info)]
 		"strike_with_deus_ex_machina":
 			change_game_state(Enums.GameState.GameState_AutoStrike)
+			decision_info.clear()
 			decision_info.effect_type = "happychaos_deusexmachina"
 		"strike_wild":
 			change_game_state(Enums.GameState.GameState_WaitForStrike)
@@ -4298,6 +4350,7 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 		"topdeck_from_hand":
 			if len(performing_player.hand) > 0:
 				change_game_state(Enums.GameState.GameState_PlayerDecision)
+				decision_info.clear()
 				decision_info.type = Enums.DecisionType.DecisionType_CardFromHandToGauge
 				decision_info.player = performing_player.my_id
 				decision_info.choice_card_id = card_id
@@ -4313,19 +4366,23 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 			performing_player.strike_stat_boosts.when_hit_force_for_armor = true
 		"zero_vector":
 			change_game_state(Enums.GameState.GameState_PlayerDecision)
+			decision_info.clear()
 			decision_info.type = Enums.DecisionType.DecisionType_ZeroVector
-			decision_info.effect_type = "sidestep_internal"
+			decision_info.effect_type = "zero_vector_internal"
 			decision_info.choice_card_id = card_id
-			decision_info.bonus_effect = 'both_players' in effect and effect['both_players']
+			decision_info.bonus_effect = true
 			decision_info.player = performing_player.my_id
 			events += [create_event(Enums.EventType.EventType_Boost_ZeroVector, performing_player.my_id, 0)]
-		"zero_vector_dialogue":
+		"zero_vector_internal":
 			var named_card = card_db.get_card(effect['card_id'])
 			# named_card is the individual card but
 			# this should match "by name", so instead of using that
-			# match card.definition['id']'s instead.
-			performing_player.cards_invalid_during_strike.append(named_card.definition['id'])
-			opposing_player.cards_invalid_during_strike.append(named_card.definition['id'])
+			# match on the display name, because Dive hits all Dives but Dust doesn't hit Spike.
+			performing_player.cards_invalid_during_strike.append(named_card.definition['display_name'])
+			opposing_player.cards_invalid_during_strike.append(named_card.definition['display_name'])
+		"zero_vector_dialogue":
+			# this exists purely for ui, no-op here
+			pass
 
 	if not ignore_extra_effects:
 		if "and" in effect:
@@ -4941,7 +4998,7 @@ func ask_for_cost(performing_player, card, next_state):
 	if 'gauge_discard_reminder' in card.definition:
 		gauge_discard_reminder = true
 
-	var card_in_invalid_list = card.definition['id'] in performing_player.cards_invalid_during_strike
+	var card_in_invalid_list = card.definition['display_name'] in performing_player.cards_invalid_during_strike
 	var card_forced_invalid = (is_special and performing_player.specials_invalid) or card_in_invalid_list
 	if performing_player.can_pay_cost_with([], gauge_cost, force_cost) and not card_forced_invalid:
 		active_strike.strike_state = next_state

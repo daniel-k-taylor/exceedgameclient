@@ -743,7 +743,7 @@ func pick_discard_opponent_gauge(game_logic : LocalGame, my_id : Enums.PlayerId)
 	update_ai_state(game_logic, me, opponent)
 	return ai_policy.pick_discard_opponent_gauge(possible_actions, game_state)
 
-func pick_name_opponent_card(game_logic : LocalGame, my_id : Enums.PlayerId, normal_only : bool) -> NameCardAction:
+func pick_name_opponent_card(game_logic : LocalGame, my_id : Enums.PlayerId, normal_only : bool, can_use_own_reference : bool = false) -> NameCardAction:
 	var me = game_logic._get_player(my_id)
 	var opponent = game_logic._get_player(game_logic.get_other_player(my_id))
 	var possible_actions = []
@@ -753,6 +753,14 @@ func pick_name_opponent_card(game_logic : LocalGame, my_id : Enums.PlayerId, nor
 		if normal_only and card.definition['type'] != "normal":
 			continue
 		possible_actions.append(NameCardAction.new(card.id))
+	if can_use_own_reference:
+		# TODO: cull this down so normals aren't included twice.
+		for i in range(0, me.deck_list.size(), 2):
+			# Skip every other card to avoid dupes.
+			var card = me.deck_list[i]
+			if normal_only and card.definition['type'] != "normal":
+				continue
+			possible_actions.append(NameCardAction.new(card.id))
 
 	update_ai_state(game_logic, me, opponent)
 	return ai_policy.pick_name_opponent_card(possible_actions, game_state)

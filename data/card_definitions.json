@@ -779,6 +779,10 @@
 					"timing": "after",
 					"effect_type": "add_boost_to_overdrive_during_strike_immediately",
 					"card_name": "f piecewise"
+				},
+				{
+					"timing": "now",
+					"effect_type": "strike"
 				}
 			]
 		},

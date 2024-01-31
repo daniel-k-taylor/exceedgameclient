@@ -65,6 +65,7 @@ var OpponentHandFocusYPos = CardBase.get_opponent_hand_card_size().y
 var first_run_done = false
 var select_card_require_min = 0
 var select_card_require_max = 0
+var select_card_name_card_both_players = false
 var select_card_must_be_max_or_min = false
 var select_card_require_force = 0
 var select_card_up_to_force = 0
@@ -696,6 +697,7 @@ func can_select_card(card):
 	var in_player_boosts = game_wrapper.is_card_in_boosts(Enums.PlayerId.PlayerId_Player, card.card_id)
 	var is_sustained = game_wrapper.is_card_sustained(Enums.PlayerId.PlayerId_Player, card.card_id)
 	var in_opponent_boosts = game_wrapper.is_card_in_boosts(Enums.PlayerId.PlayerId_Opponent, card.card_id)
+	var in_player_reference = is_card_in_player_reference($AllCards/PlayerAllCopy.get_children(), card.card_id)
 	var in_opponent_reference = is_card_in_player_reference($AllCards/OpponentAllCopy.get_children(), card.card_id)
 	var in_choice_zone = is_card_in_player_reference($AllCards/ChoiceZone.get_children(), card.card_id)
 
@@ -751,6 +753,9 @@ func can_select_card(card):
 		UISubState.UISubState_SelectCards_DiscardOpponentGauge:
 			return in_opponent_gauge and len(selected_cards) < select_card_require_max
 		UISubState.UISubState_SelectCards_DiscardFromReference:
+			var in_appropriate_reference = in_opponent_reference
+			if select_card_name_card_both_players:
+				in_appropriate_reference = in_opponent_reference or in_player_reference
 			return in_opponent_reference and len(selected_cards) < select_card_require_max
 		UISubState.UISubState_SelectCards_ChooseDiscardToDestination:
 			var card_db = game_wrapper.get_card_database()
@@ -1129,7 +1134,11 @@ func _on_name_opponent_card_begin(event):
 	spawn_damage_popup("Naming Card", player)
 	var normal_only = event['event_type'] == Enums.EventType.EventType_ReadingNormal or event['event_type'] == Enums.EventType.EventType_Boost_Sidestep
 	var can_name_fake_card = event['event_type'] == Enums.EventType.EventType_Boost_NameCardOpponentDiscards
+	select_card_name_card_both_players = game_wrapper.get_decision_info().bonus_effect
 	if player == Enums.PlayerId.PlayerId_Player:
+		var instruction_text = "Name an opponent card."
+		if select_card_name_card_both_players:
+			instruction_text = "Name a card."
 		# Show the boost window.
 		_on_opponent_reference_button_pressed()
 		selected_cards = []
@@ -1138,7 +1147,7 @@ func _on_name_opponent_card_begin(event):
 		var cancel_allowed = can_name_fake_card
 		popout_instruction_info = {
 			"popout_type": CardPopoutType.CardPopoutType_ReferenceOpponent,
-			"instruction_text": "Name an opponent card.",
+			"instruction_text": instruction_text,
 			"ok_text": "OK",
 			"cancel_text": "Reveal Hand",
 			"ok_enabled": true,
@@ -1149,7 +1158,7 @@ func _on_name_opponent_card_begin(event):
 
 		change_ui_state(UIState.UIState_SelectCards, UISubState.UISubState_SelectCards_DiscardFromReference)
 	else:
-		ai_name_opponent_card(normal_only)
+		ai_name_opponent_card(normal_only, select_card_name_card_both_players)
 	return SmallNoticeDelay
 
 func _on_boost_played(event):
@@ -3307,10 +3316,10 @@ func ai_discard_opponent_gauge():
 	else:
 		print("FAILED AI DISCARD OPPONENT GAUGE")
 
-func ai_name_opponent_card(normal_only : bool):
+func ai_name_opponent_card(normal_only : bool, can_use_own_reference : bool):
 	change_ui_state(UIState.UIState_WaitForGameServer)
 	if not game_wrapper.is_ai_game(): return
-	var pick_action = ai_player.pick_name_opponent_card(game_wrapper.current_game, Enums.PlayerId.PlayerId_Opponent, normal_only)
+	var pick_action = ai_player.pick_name_opponent_card(game_wrapper.current_game, Enums.PlayerId.PlayerId_Opponent, normal_only, can_use_own_reference)
 	var success = game_wrapper.submit_boost_name_card_choice_effect(Enums.PlayerId.PlayerId_Opponent, pick_action.card_id)
 	if success:
 		change_ui_state(UIState.UIState_WaitForGameServer)

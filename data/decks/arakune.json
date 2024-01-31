@@ -34,12 +34,17 @@
 		{
 			"timing": "hit",
 			"condition": "is_special_or_ultra_attack",
-			"add_topdiscard_card_name_to_choices": [0],
-			"effect_type": "choice",
-			"choice": [
-				{ "effect_type": "add_top_discard_to_overdrive" },
-				{ "effect_type": "pass" }
-			]
+			"effect_type": "pass",
+			"and": {
+				"condition": "min_cards_in_discard",
+				"condition_amount": 1,
+				"add_topdiscard_card_name_to_choices": [0],
+				"effect_type": "choice",
+				"choice": [
+					{ "effect_type": "add_top_discard_to_overdrive" },
+					{ "effect_type": "pass" }
+				]
+			}
 		}
 	],
 	"exceed_ability_effects": [

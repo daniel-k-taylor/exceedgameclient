@@ -3,6 +3,7 @@ extends Node
 enum PlayerId {
 	PlayerId_Player,
 	PlayerId_Opponent,
+	PlayerId_Unassigned,
 }
 
 enum CardZone {
@@ -15,6 +16,7 @@ enum CardZone {
 }
 
 enum DecisionType {
+	DecisionType_None,
 	DecisionType_BoostCancel,
 	DecisionType_BoostNow,
 	DecisionType_ChooseArenaLocationForEffect,
