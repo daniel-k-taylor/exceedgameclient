@@ -49,6 +49,10 @@ func _ready():
 	selecting_player = false
 	just_clicked_matchmake = false
 	_on_char_select_select_character(opponent_selected_character)
+	$BGM.play()
+
+func stop_music():
+	$BGM.stop()
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(_delta):
@@ -58,6 +62,7 @@ func returned_from_game():
 	_on_players_update(NetworkManager.get_player_list(), NetworkManager.get_match_available())
 	update_buttons(false)
 	just_clicked_matchmake = false
+	$BGM.play()
 
 func _on_start_button_pressed():
 	# For local play, random selection is still random at this point.

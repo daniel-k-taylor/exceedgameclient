@@ -1,4 +1,4 @@
-[gd_scene load_steps=11 format=3 uid="uid://o8vjxrpicjsm"]
+[gd_scene load_steps=12 format=3 uid="uid://o8vjxrpicjsm"]
 
 [ext_resource type="Script" path="res://scenes/menu/main_menu.gd" id="1_bk4ch"]
 [ext_resource type="PackedScene" uid="uid://cqs72exlwm6at" path="res://scenes/menu/char_select.tscn" id="2_6qq11"]
@@ -7,6 +7,7 @@
 [ext_resource type="Texture2D" uid="uid://ded5jrn5yju2j" path="res://assets/cards/card_border_highlight_pressed.png" id="5_xie03"]
 [ext_resource type="AudioStream" uid="uid://0cjnajbh1p00" path="res://assets/sounds/match_available.mp3" id="6_6ru3f"]
 [ext_resource type="AudioStream" uid="uid://bhetjnrl0n7o" path="res://assets/sounds/match_notification.mp3" id="7_pt1r5"]
+[ext_resource type="AudioStream" uid="uid://bftf3ehq3hfho" path="res://assets/sounds/mainmenu_bgm.mp3" id="8_vcasp"]
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_0f2dl"]
 
@@ -273,6 +274,10 @@ stream = ExtResource("6_6ru3f")
 
 [node name="MatchStartingAudio" type="AudioStreamPlayer" parent="."]
 stream = ExtResource("7_pt1r5")
+
+[node name="BGM" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("8_vcasp")
+volume_db = -9.0
 
 [connection signal="pressed" from="MenuList/VSAIBox/FightSettings/StartButton" to="." method="_on_start_button_pressed"]
 [connection signal="pressed" from="MenuList/VSAIBox/OpponentChooser/ChangePlayerCharacterButton" to="." method="_on_change_player_character_button_pressed" binds= [false]]
