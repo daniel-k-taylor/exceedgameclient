@@ -8,7 +8,17 @@
 		"gauge_cost": 0,
 		"force_cost": 0,
 		"effect": {
-			"effect_type": "strike"
+			"effect_type": "self_discard_choose",
+			"optional": false,
+			"amount": 1,
+			"and": {
+				"effect_type": "choice",
+				"add_topdeck_card_name_to_choices": [1],
+				"choice": [
+					{ "effect_type": "boost_then_strike", "limitation": "" },
+					{ "effect_type": "strike_wild" }
+				]
+			}
 		}
 	}],
 	"character_action_exceeded": [

@@ -5504,19 +5504,20 @@ func boost_finish_resolving_card(performing_player : Player):
 	return events
 
 func boost_play_cleanup(events, performing_player : Player):
-	if performing_player.strike_on_boost_cleanup and not active_strike:
+	if performing_player.strike_on_boost_cleanup and not active_boost.strike_after_boost and not active_strike:
 		performing_player.strike_on_boost_cleanup = false
 		active_boost.strike_after_boost = true
 		events += [create_event(Enums.EventType.EventType_ForceStartStrike, performing_player.my_id, 0)]
-		decision_info.type = Enums.DecisionType.DecisionType_StrikeNow
-		decision_info.player = performing_player.my_id
 		active_character_action = false
+	performing_player.strike_on_boost_cleanup = false
 
 	if active_boost.strike_after_boost and not active_strike:
 		if active_boost.strike_after_boost_opponent_first:
 			change_game_state(Enums.GameState.GameState_Strike_Opponent_Set_First)
 		else:
 			change_game_state(Enums.GameState.GameState_WaitForStrike)
+			decision_info.type = Enums.DecisionType.DecisionType_StrikeNow
+			decision_info.player = performing_player.my_id
 		active_boost = null
 	elif active_boost.action_after_boost and not active_strike:
 		_append_log_full(Enums.LogType.LogType_Action, performing_player, "takes an additional action!")
@@ -6712,6 +6713,10 @@ func do_choose_to_discard(performing_player : Player, card_ids):
 			active_boost.effects_resolved += 1
 			# Intentional events = because events are passed in.
 			events = continue_resolve_boost(events)
+	elif active_character_action:
+		game_state = Enums.GameState.GameState_Boost_Processing
+		events = handle_strike_effect(decision_info.choice_card_id, effect, performing_player)
+		events += do_remaining_character_action(performing_player)
 	elif active_strike:
 		game_state = Enums.GameState.GameState_Strike_Processing
 		events += do_effect_if_condition_met(performing_player, decision_info.choice_card_id, effect, null)
