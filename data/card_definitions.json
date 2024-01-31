@@ -8055,36 +8055,40 @@
 	{
 		"id": "mika_tornado",
 		"type": "special",
-		"display_name": "Impulsive Frustration",
+		"display_name": "Mika's Tornado",
 		"force_cost": 0,
 		"gauge_cost": 0,
-		"range_min": 2,
-		"range_max": "TOTAL_POWER",
+		"range_min": 1,
+		"range_max": 1,
 		"speed": 4,
-		"power": 3,
+		"power": 5,
 		"armor": 0,
-		"guard": 0,
+		"guard": 4,
 		"effects": [
 			{
-				"timing": "hit",
-				"effect_type": "push",
+				"timing": "before",
+				"effect_type": "advance",
 				"amount": 2
+			},
+			{
+				"timing": "hit",
+				"condition": "was_wild_swing",
+				"effect_type": "gain_advantage"
 			}
 		],
 		"boost": {
 			"boost_type": "continuous",
-			"force_cost": 1,
+			"force_cost": 0,
 			"cancel_cost": -1,
-			"display_name": "Come At Me!",
+			"display_name": "Can't Stop, Won't Stop",
 			"effects": [
 				{
 					"timing": "during_strike",
-					"effect_type": "powerup",
-					"amount": 3
-				},
-				{
-					"timing": "start_of_next_turn",
-					"effect_type": "add_to_gauge_immediately"
+					"effect_type": "stun_immunity",
+					"and": {
+						"effect_type": "armorup",
+						"amount": 2
+					}
 				}
 			]
 		}
@@ -8092,52 +8096,47 @@
 	{
 		"id": "mika_hipattack",
 		"type": "special",
-		"display_name": "Sliding Affliction",
+		"display_name": "Mika's Hip Attack",
 		"force_cost": 0,
 		"gauge_cost": 0,
 		"range_min": 1,
-		"range_max": "TOTAL_POWER",
+		"range_max": 1,
 		"speed": 3,
-		"power": 3,
+		"power": 5,
 		"armor": 0,
-		"guard": 4,
+		"guard": 6,
 		"effects": [
 			{
 				"timing": "hit",
-				"condition": "range_greater_or_equal",
-				"condition_amount": 4,
-				"effect_type": "choice",
-				"choice": [
-					{ "effect_type": "push", "amount": 2, "and": { "effect_type": "gain_advantage" } },
-					{ "effect_type": "pull", "amount": 2, "and": { "effect_type": "gain_advantage" } }
-				]
+				"effect_type": "push",
+				"amount": 3
+			},
+			{
+				"timing": "after",
+				"effect_type": "close",
+				"amount": 1,
+				"bonus_effect": {
+					"condition": "opponent_at_edge_of_arena",
+					"effect_type": "gain_advantage"
+				}
 			}
 		],
 		"boost": {
 			"boost_type": "continuous",
 			"force_cost": 0,
 			"cancel_cost": -1,
-			"display_name": "Resonance",
+			"display_name": "Pachelbel Cannon",
 			"effects": [
 				{
 					"timing": "during_strike",
-					"condition": "initiated_strike",
-					"effect_type": "speedup",
-					"amount": 2
-				},
-				{
-					"timing": "during_strike",
-					"condition": "not_initiated_strike",
 					"effect_type": "powerup",
 					"amount": 2
 				},
 				{
-					"timing": "hit",
-					"effect_type": "choice",
-					"choice": [
-						{ "effect_type": "return_this_boost_to_hand_strike_effect", "card_name": "Sliding Affliction" },
-						{ "effect_type": "pass" }
-					]
+					"timing": "now",
+					"effect_type": "topdeck_from_hand",
+					"min_amount": 0,
+					"max_amount": 1
 				}
 			]
 		}
@@ -8146,40 +8145,48 @@
 		"NOTE": "MIKA CARDS END",
 		"id": "mika_cannon",
 		"type": "special",
-		"display_name": "Suppressive Restriction",
+		"display_name": "Mika's Cannon",
 		"force_cost": 0,
 		"gauge_cost": 0,
 		"range_min": 1,
-		"range_max": 8,
-		"speed": 2,
-		"power": 1,
-		"armor": 0,
+		"range_max": 1,
+		"speed": 1,
+		"power": 7,
+		"armor": 1,
 		"guard": 6,
 		"effects": [
 			{
-				"timing": "after",
-				"effect_type": "choice_altered_values",
-				"choice": [
-					{ "effect_type": "push", "amount": "TOTAL_POWER", "and": { "effect_type": "draw", "amount": 2 } },
-					{ "effect_type": "pull", "amount": "TOTAL_POWER", "and": { "effect_type": "draw", "amount": 2 } }
-				]
+				"timing": "during_strike",
+				"effect_type": "ignore_push_and_pull"
+			},
+			{
+				"timing": "before",
+				"effect_type": "advance",
+				"amount": 2,
+				"bonus_effect": {
+					"condition": "advanced_through",
+					"effect_type": "attack_does_not_hit"
+				}
 			}
 		],
 		"boost": {
-			"boost_type": "immediate",
+			"boost_type": "continuous",
 			"force_cost": 0,
 			"cancel_cost": -1,
-			"display_name": "Blowback",
+			"display_name": "Swift Attack",
 			"effects": [
 				{
-					"timing": "immediate",
-					"condition": "range",
-					"condition_amount": 1,
-					"effect_type": "choice",
-					"choice": [
-						{ "effect_type": "push", "amount": 1, "and": {"effect_type": "strike"} },
-						{ "effect_type": "push", "amount": 2, "and": {"effect_type": "strike"}  }
-					]
+					"timing": "during_strike",
+					"effect_type": "speedup",
+					"amount": 1
+				},
+				{
+					"timing": "hit",
+					"effect_type": "add_boost_to_gauge_on_strike_cleanup",
+					"card_name": "Mika's Cannon",
+					"and": {
+						"effect_type": "gain_advantage"
+					}
 				}
 			]
 		},
