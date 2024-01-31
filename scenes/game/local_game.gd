@@ -3508,44 +3508,70 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 			events += performing_player.move_to(space)
 			_append_log_full(Enums.LogType.LogType_CharacterMovement, performing_player, "moves from space %s to %s." % [str(previous_location), str(performing_player.arena_location)])
 		"move_to_any_space":
-			change_game_state(Enums.GameState.GameState_PlayerDecision)
 			decision_info.clear()
 			decision_info.type = Enums.DecisionType.DecisionType_ChooseArenaLocationForEffect
 			decision_info.player = performing_player.my_id
 			decision_info.choice_card_id = card_id
 			decision_info.effect_type = "move_to_space"
-			# Can always pass.
-			decision_info.choice = [{
-				"effect_type": "pass"
-			}]
+			decision_info.choice = []
 
 			var move_min = 0
-			var move_max = 9
+			var move_max = 8
 			if 'move_min' in effect:
 				move_min = effect['move_min']
 			if 'move_max' in effect:
 				move_max = effect['move_max']
 
 			decision_info.limitation = []
+			# If not moving is an option, enable "pass" button
 			if move_min == 0:
 				decision_info.limitation.append(0)
+				decision_info.choice.append({ "effect_type": "pass" })
 
+			# Figure what other spaces are in reach
+			var reachable_spaces = []
+			var player_location = performing_player.arena_location
+			var other_location = opposing_player.arena_location
+			for i in range(move_min, move_max+1):
+				if i == 0:
+					continue
+				var left_space = max(player_location - i, MinArenaLocation)
+				# passing over opponent
+				if left_space == other_location or performing_player.is_other_player_between_locations(player_location, left_space):
+					left_space = max(left_space-1, MinArenaLocation)
+					# opponent in corner
+					if left_space == other_location:
+						left_space += 1
+				var right_space = min(player_location + i, MaxArenaLocation)
+				# passing over opponent
+				if right_space == other_location or performing_player.is_other_player_between_locations(player_location, right_space):
+					right_space = min(right_space+1, MaxArenaLocation)
+					# opponent in corner
+					if right_space == other_location:
+						right_space -= 1
+
+				if left_space not in reachable_spaces:
+					reachable_spaces.append(left_space)
+				if right_space not in reachable_spaces:
+					reachable_spaces.append(right_space)
+
+			# See if you're allowed to move to those spaces
 			var ignore_force_req = true
-			for i in range(MinArenaLocation, MaxArenaLocation + 1):
+			for i in reachable_spaces:
 				if not performing_player.can_move_to(i, ignore_force_req):
 					continue
+				decision_info.limitation.append(i)
+				decision_info.choice.append({
+					"effect_type": "move_to_space",
+					"amount": i
+				})
 
-				var spaces_to_location = abs(performing_player.arena_location - i)
-				if performing_player.is_other_player_between_locations(performing_player.arena_location, i):
-					spaces_to_location -= 1
-
-				if move_min <= spaces_to_location and spaces_to_location <= move_max:
-					decision_info.limitation.append(i)
-					decision_info.choice.append({
-						"effect_type": "move_to_space",
-						"amount": i
-					})
-			events += [create_event(Enums.EventType.EventType_ChooseArenaLocationForEffect, performing_player.my_id, 0)]
+			if len(decision_info.limitation) > 0:
+				change_game_state(Enums.GameState.GameState_PlayerDecision)
+				events += [create_event(Enums.EventType.EventType_ChooseArenaLocationForEffect, performing_player.my_id, 0)]
+			else:
+				_append_log_full(Enums.LogType.LogType_CharacterMovement, performing_player, "has no spaces to move to!")
+				events += [create_event(Enums.EventType.EventType_BlockMovement, performing_player.my_id, 0)]
 		"name_card_opponent_discards":
 			change_game_state(Enums.GameState.GameState_PlayerDecision)
 			decision_info.clear()
