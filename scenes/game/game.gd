@@ -1142,7 +1142,7 @@ func _on_name_opponent_card_begin(event):
 		if select_card_name_card_both_players:
 			instruction_text = "Name a card."
 		# Show the boost window.
-		_on_opponent_reference_button_pressed()
+		_on_opponent_reference_button_pressed(false, true)
 		selected_cards = []
 		select_card_require_min = 1
 		select_card_require_max = 1
@@ -3569,7 +3569,8 @@ func popout_show_normal_only() -> bool:
 		return popout_instruction_info['normal_only']
 	return false
 
-func show_popout(popout_type : CardPopoutType, popout_title : String, card_node, card_rest_position : Vector2, card_rest_state : CardBase.CardState, show_amount : bool = true):
+func show_popout(popout_type : CardPopoutType, popout_title : String, card_node, card_rest_position : Vector2, card_rest_state : CardBase.CardState,
+		show_amount : bool = true, force_hide_reshuffle = false):
 	card_popout.z_index = CardPopoutZIndex
 	popout_type_showing = popout_type
 	popout_showing_node = card_node
@@ -3577,7 +3578,7 @@ func show_popout(popout_type : CardPopoutType, popout_title : String, card_node,
 
 	var toggle_text = ""
 	var toggle_visible = false
-	if popout_type == CardPopoutType.CardPopoutType_ReferenceOpponent:
+	if popout_type == CardPopoutType.CardPopoutType_ReferenceOpponent and not force_hide_reshuffle:
 		toggle_visible = true
 		if reference_popout_toggle_enabled:
 			if reference_popout_toggle:
@@ -3666,7 +3667,7 @@ func _on_player_reference_button_pressed():
 	reference_title += ")"
 	show_popout(CardPopoutType.CardPopoutType_ReferencePlayer, reference_title, $AllCards/PlayerAllCopy, OffScreen, CardBase.CardState.CardState_Offscreen, false)
 
-func _on_opponent_reference_button_pressed(switch_toggle : bool = false):
+func _on_opponent_reference_button_pressed(switch_toggle : bool = false, hide_reshuffle : bool = false):
 	await close_popout()
 
 	if switch_toggle:
@@ -3692,7 +3693,7 @@ func _on_opponent_reference_button_pressed(switch_toggle : bool = false):
 	if game_wrapper.is_player_sealed_area_secret(Enums.PlayerId.PlayerId_Player):
 		popout_title += "+sealed"
 	popout_title += ")"
-	show_popout(CardPopoutType.CardPopoutType_ReferenceOpponent, popout_title, $AllCards/OpponentAllCopy, OffScreen, CardBase.CardState.CardState_Offscreen, false)
+	show_popout(CardPopoutType.CardPopoutType_ReferenceOpponent, popout_title, $AllCards/OpponentAllCopy, OffScreen, CardBase.CardState.CardState_Offscreen, false, hide_reshuffle)
 
 func _on_exit_to_menu_pressed():
 	modal_dialog.visible = true
