@@ -6822,7 +6822,7 @@ func do_choose_from_topdeck(performing_player : Player, chosen_card_id : int, ac
 			event_queue += events
 		"add_to_topdeck_under":
 			assert(leftover_card_ids.size() == 1 or leftover_card_ids.size() == 0)
-			# If this was the last card in deck, then it has to just go on top.
+			# If this was the last card in deck, leftover_card_ids.size is 0, so this card goes on top.
 			var destination_index = leftover_card_ids.size()
 			events += performing_player.move_card_from_hand_to_deck(chosen_card_id, destination_index)
 			_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "adds the remaining cards back to the top of their deck.")

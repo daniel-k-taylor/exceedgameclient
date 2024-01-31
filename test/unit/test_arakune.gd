@@ -402,3 +402,74 @@ func test_arakune_piecewise_boost():
 	assert_eq(player1.overdrive.size(), 0)
 	validate_life(player1, 25, player2, 30)
 	advance_turn(player2)
+
+func test_arakune_finverse_boost():
+	position_players(player1, 2, player2, 4)
+	give_player_specific_card(player1, "arakune_finverse", TestCardId3)
+	assert_true(game_logic.do_boost(player1, TestCardId3))
+	var cards_on_topdeck = []
+	for i in range(5):
+		cards_on_topdeck.append(player1.deck[i].id)
+	assert_true(game_logic.do_choose_from_topdeck(player1, cards_on_topdeck[3], "add_to_sealed"))
+	assert_true(game_logic.do_choose_from_topdeck(player1, cards_on_topdeck[0], "add_to_gauge"))
+	assert_true(game_logic.do_choose_from_topdeck(player1, cards_on_topdeck[2], "add_to_overdrive"))
+	assert_true(game_logic.do_choose_from_topdeck(player1, cards_on_topdeck[4], "add_to_topdeck_under"))
+	advance_turn(player2)
+	assert_eq(player1.sealed[0].id, cards_on_topdeck[3])
+	assert_eq(player1.gauge[0].id, cards_on_topdeck[0])
+	assert_eq(player1.overdrive[0].id, cards_on_topdeck[2])
+	assert_eq(player1.deck[0].id, cards_on_topdeck[4])
+	assert_eq(player1.hand[player1.hand.size()-1].id, cards_on_topdeck[1])
+
+func test_arakune_finverse_boost_4_in_deck():
+	position_players(player1, 2, player2, 4)
+	player1.discards = player1.deck
+	player1.deck = []
+	# Get 4 cards exactly in deck
+	player1.move_card_from_discard_to_deck(player1.discards[0].id)
+	player1.move_card_from_discard_to_deck(player1.discards[0].id)
+	player1.move_card_from_discard_to_deck(player1.discards[0].id)
+	player1.move_card_from_discard_to_deck(player1.discards[0].id)
+	give_player_specific_card(player1, "arakune_finverse", TestCardId3)
+	assert_true(game_logic.do_boost(player1, TestCardId3))
+	var cards_on_topdeck = []
+	for i in range(4):
+		cards_on_topdeck.append(player1.deck[i].id)
+	assert_true(game_logic.do_choose_from_topdeck(player1, cards_on_topdeck[0], "add_to_sealed"))
+	assert_true(game_logic.do_choose_from_topdeck(player1, cards_on_topdeck[3], "add_to_gauge"))
+	assert_true(game_logic.do_choose_from_topdeck(player1, cards_on_topdeck[2], "add_to_overdrive"))
+	assert_true(game_logic.do_choose_from_topdeck(player1, cards_on_topdeck[1], "add_to_topdeck_under"))
+	advance_turn(player2)
+	assert_eq(player1.sealed[0].id, cards_on_topdeck[0])
+	assert_eq(player1.gauge[0].id, cards_on_topdeck[3])
+	assert_eq(player1.overdrive[0].id, cards_on_topdeck[2])
+	assert_eq(player1.hand[player1.hand.size()-1].id, cards_on_topdeck[1])
+
+func test_arakune_finverse_boost_3_in_deck():
+	position_players(player1, 2, player2, 4)
+	player1.discards = player1.deck
+	player1.deck = []
+	# Get 4 cards exactly in deck
+	player1.move_card_from_discard_to_deck(player1.discards[0].id)
+	player1.move_card_from_discard_to_deck(player1.discards[0].id)
+	player1.move_card_from_discard_to_deck(player1.discards[0].id)
+	give_player_specific_card(player1, "arakune_finverse", TestCardId3)
+	assert_true(game_logic.do_boost(player1, TestCardId3))
+	var cards_on_topdeck = []
+	for i in range(3):
+		cards_on_topdeck.append(player1.deck[i].id)
+	assert_true(game_logic.do_choose_from_topdeck(player1, cards_on_topdeck[2], "add_to_sealed"))
+	assert_true(game_logic.do_choose_from_topdeck(player1, cards_on_topdeck[0], "add_to_gauge"))
+	assert_true(game_logic.do_choose_from_topdeck(player1, cards_on_topdeck[1], "add_to_overdrive"))
+	advance_turn(player2)
+	assert_eq(player1.sealed[0].id, cards_on_topdeck[2])
+	assert_eq(player1.gauge[0].id, cards_on_topdeck[0])
+	assert_eq(player1.overdrive[0].id, cards_on_topdeck[1])
+	# Reshuffle
+	assert_eq(player1.discards.size(), 0)
+
+func test_arakune_n_uberdeath():
+	position_players(player1, 2, player2, 6)
+	give_gauge(player1, 4)
+	execute_strike(player1, player2, "arakune_ntoinfinity", "standard_normal_dive", [0], [], false, false, [], [], 0, [])
+	validate_life(player1, 30, player2, 30-(5 + 99))
