@@ -299,7 +299,7 @@ func _on_player_name_box_focus_entered():
 func _on_player_name_box_text_changed():
 	cropLineToMaxLength_name_text_edit(player_name_box.text, PlayerNameMaxLen)
 
-func _on_bgm_check_box_toggled(button_pressed):
+func _on_bgm_check_box_toggled(_button_pressed):
 	GlobalSettings.BGMOff = not GlobalSettings.BGMOff
 	if GlobalSettings.BGMOff:
 		stop_music()
