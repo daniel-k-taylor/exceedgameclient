@@ -481,6 +481,8 @@ func get_effect_type_text(effect, card_name_source : String = ""):
 			effect_str += "Place %s in the attack's range." % effect['buddy_name']
 		"calculate_range_from_buddy":
 			effect_str += "Calculate range from %s." % effect['buddy_name']
+		"calculate_range_from_center":
+			effect_str += "Calculate range from the center of the arena."
 		"draw":
 			if 'opponent' in effect and effect['opponent']:
 				effect_str += "Opponent Draw " + str(effect['amount'])

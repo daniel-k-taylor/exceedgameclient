@@ -15,6 +15,7 @@ const MaxLife = 30
 const MaxHandSize = 7
 const MaxReshuffle = 1
 const MinArenaLocation = 1
+const CenterArenaLocation = 5
 const MaxArenaLocation = 9
 const ShuffleEnabled = true
 
@@ -316,6 +317,7 @@ class StrikeStatBoosts:
 	var was_hit : bool = false
 	var is_ex : bool = false
 	var higher_speed_misses : bool = false
+	var calculate_range_from_center : bool = false
 	var calculate_range_from_buddy : bool = false
 	var calculate_range_from_buddy_id : String = ""
 	var attack_to_topdeck_on_cleanup : bool = false
@@ -370,6 +372,7 @@ class StrikeStatBoosts:
 		was_hit = false
 		is_ex = false
 		higher_speed_misses = false
+		calculate_range_from_center = false
 		calculate_range_from_buddy = false
 		calculate_range_from_buddy_id = ""
 		attack_to_topdeck_on_cleanup = false
@@ -2681,6 +2684,8 @@ func is_effect_condition_met(performing_player : Player, effect, local_condition
 			var pos2 = other_player.arena_location
 			if other_player.strike_stat_boosts.calculate_range_from_buddy:
 				pos2 = other_player.get_buddy_location(other_player.strike_stat_boosts.calculate_range_from_buddy_id)
+			elif other_player.strike_stat_boosts.calculate_range_from_center:
+				pos2 = CenterArenaLocation
 			var buddy_pos = performing_player.get_buddy_location(buddy_id)
 			if pos1 < pos2: # opponent is on the right
 				return buddy_pos > pos1 and buddy_pos < pos2
@@ -3842,6 +3847,8 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 			if performing_player.strike_stat_boosts.calculate_range_from_buddy:
 				attack_source_location = performing_player.get_buddy_location(performing_player.strike_stat_boosts.calculate_range_from_buddy_id)
 				# Buddy is assumed to be in play, so this shouldn't be -1.
+			elif performing_player.strike_stat_boosts.calculate_range_from_center:
+				attack_source_location = CenterArenaLocation
 
 			var previous_location = opposing_player.arena_location
 			if attack_source_location == previous_location:
@@ -3962,6 +3969,8 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 			performing_player.strike_stat_boosts.calculate_range_from_buddy_id = ""
 			if 'buddy_id' in effect:
 				performing_player.strike_stat_boosts.calculate_range_from_buddy_id = effect['buddy_id']
+		"calculate_range_from_center":
+			performing_player.strike_stat_boosts.calculate_range_from_center = true
 		"retreat":
 			var amount = effect['amount']
 			if str(amount) == "strike_x":
@@ -4864,6 +4873,8 @@ func is_location_in_range(attacking_player, card, test_location : int):
 		attack_source_location = attacking_player.get_buddy_location(attacking_player.strike_stat_boosts.calculate_range_from_buddy_id)
 		if attack_source_location == -1:
 			return false
+	elif attacking_player.strike_stat_boosts.calculate_range_from_center:
+		attack_source_location = CenterArenaLocation
 	var distance = abs(attack_source_location - test_location)
 	if min_range <= distance and distance <= max_range:
 		return true
@@ -4898,6 +4909,8 @@ func in_range(attacking_player, defending_player, card, combat_logging=false):
 		attack_source_location = attacking_player.get_buddy_location(attacking_player.strike_stat_boosts.calculate_range_from_buddy_id)
 		if attack_source_location == -1:
 			return false
+	elif attacking_player.strike_stat_boosts.calculate_range_from_center:
+		attack_source_location = CenterArenaLocation
 	var distance = abs(attack_source_location - defending_player.arena_location)
 	var opponent_in_range = is_location_in_range(attacking_player, card, defending_player.arena_location)
 
@@ -5210,6 +5223,8 @@ func continue_resolve_strike(events):
 				if player1.strike_stat_boosts.calculate_range_from_buddy:
 					var buddy_location = player1.get_buddy_location(player1.strike_stat_boosts.calculate_range_from_buddy_id)
 					_append_log_full(Enums.LogType.LogType_Strike, null, "Range check: attacking from %s's %s (space %s) to %s (space %s)." % [player1.name, player1.get_buddy_name(), buddy_location, player2.name, player2.arena_location])
+				elif player1.strike_stat_boosts.calculate_range_from_center:
+					_append_log_full(Enums.LogType.LogType_Strike, null, "Range check: %s attacking from center of arena (space %s) to %s (space %s)." % [player1.name, CenterArenaLocation, player2.name, player2.arena_location])
 				else:
 					_append_log_full(Enums.LogType.LogType_Strike, null, "Range check: attacking from %s (space %s) to %s (space %s)." % [player1.name, player1.arena_location, player2.name, player2.arena_location])
 				if in_range(player1, player2, card1, true) and not card1.definition['id'] in player1.cards_that_will_not_hit:
@@ -5255,6 +5270,8 @@ func continue_resolve_strike(events):
 				if player2.strike_stat_boosts.calculate_range_from_buddy:
 					var buddy_location = player2.get_buddy_location(player2.strike_stat_boosts.calculate_range_from_buddy_id)
 					_append_log_full(Enums.LogType.LogType_Strike, null, "Range check: attacking from %s's %s (space %s) to %s (space %s)." % [player2.name, player2.get_buddy_name(), buddy_location, player1.name, player1.arena_location])
+				elif player2.strike_stat_boosts.calculate_range_from_center:
+					_append_log_full(Enums.LogType.LogType_Strike, null, "Range check: %s attacking from center of arena (space %s) to %s (space %s)." % [player2.name, CenterArenaLocation, player1.name, player1.arena_location])
 				else:
 					_append_log_full(Enums.LogType.LogType_Strike, null, "Range check: attacking from %s (space %s) to %s (space %s)." % [player2.name, player2.arena_location, player1.name, player1.arena_location])
 				if in_range(player2, player1, card2, true) and not card2.definition['id'] in player2.cards_that_will_not_hit:

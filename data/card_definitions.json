@@ -7867,46 +7867,49 @@
 		"NOTE": "MIKA CARDS START",
 		"id": "mika_revolution",
 		"type": "ultra",
-		"display_name": "Complete Servitude",
+		"display_name": "Mika's Revolution",
 		"force_cost": 0,
-		"gauge_cost": 3,
-		"range_min": 3,
-		"range_max": "TOTAL_POWER",
-		"speed": 4,
+		"gauge_cost": 2,
+		"range_min": 1,
+		"range_max": 2,
+		"speed": 2,
 		"power": 3,
-		"armor": 0,
-		"guard": 0,
+		"armor": 3,
+		"guard": 2,
 		"effects": [
 			{
 				"timing": "hit",
-				"effect_type": "multiply_power_bonuses",
-				"amount": 2
+				"effect_type": "push",
+				"amount": 7,
+				"and": {
+					"effect_type": "close",
+					"amount": 7,
+					"save_spaces_as_strike_x": true,
+					"and": {
+						"effect_type": "powerup",
+						"amount": "strike_x"
+					}
+				}
 			}
 		],
 		"boost": {
 			"boost_type": "continuous",
-			"force_cost": 0,
+			"force_cost": 1,
 			"cancel_cost": -1,
-			"display_name": "Muniel",
+			"display_name": "Diesel",
 			"effects": [
 				{
-					"timing": "now",
-					"effect_type": "self_discard_choose",
-					"optional": false,
-					"amount": 1,
-					"limitation": "",
-					"destination": "reveal",
-					"discard_effect": {
-						"effect_type": "save_power"
-					}
-				},
-				{
 					"timing": "during_strike",
-					"effect_type": "use_saved_power_as_printed_power"
+					"effect_type": "powerup",
+					"amount": 4
 				},
 				{
-					"timing": "now",
-					"effect_type": "strike"
+					"timing": "start_of_next_turn",
+					"effect_type": "draw",
+					"amount": 2,
+					"and": {
+						"effect_type": "add_to_gauge_immediately"
+					}
 				}
 			]
 		}
@@ -7914,46 +7917,43 @@
 	{
 		"id": "mika_galaxy",
 		"type": "ultra",
-		"display_name": "Binding Beatitude",
+		"display_name": "Mika's Galaxy",
 		"force_cost": 0,
-		"gauge_cost": 2,
-		"range_min": 3,
-		"range_max": "TOTAL_POWER",
-		"speed": 3,
-		"power": 3,
-		"armor": 3,
-		"guard": 3,
+		"gauge_cost": 3,
+		"range_min": 0,
+		"range_max": 1,
+		"speed": 1,
+		"power": 12,
+		"armor": 0,
+		"guard": 4,
 		"effects": [
 			{
-				"timing": "after",
-				"effect_type": "choice",
-				"choice": [
-					{ "effect_type": "return_this_attack_to_hand_after_attack", "card_name": "Binding Beatitude" },
-					{ "effect_type": "pass" }
-				]
+				"timing": "during_strike",
+				"effect_type": "calculate_range_from_center"
+			},
+			{
+				"timing": "before",
+				"condition": "was_wild_swing",
+				"effect_type": "push",
+				"amount": 2
 			}
 		],
 		"boost": {
-			"boost_type": "continuous",
+			"boost_type": "immediate",
 			"force_cost": 0,
 			"cancel_cost": -1,
-			"display_name": "Baroque Noise",
+			"display_name": "Smart Steer",
 			"effects": [
 				{
-					"timing": "during_strike",
-					"effect_type": "powerup",
-					"amount": 1
-				},
-				{
-					"timing": "now",
-					"effect_type": "draw",
-					"amount": 1
-				},
-				{
-					"timing": "after",
+					"timing": "immediate",
 					"effect_type": "choice",
 					"choice": [
-						{ "effect_type": "return_this_boost_to_hand_strike_effect", "card_name": "Binding Beatitude" },
+						{ "effect_type": "advance", "amount": 1 },
+						{ "effect_type": "advance", "amount": 2 },
+						{ "effect_type": "advance", "amount": 3 },
+						{ "effect_type": "retreat", "amount": 1 },
+						{ "effect_type": "retreat", "amount": 2 },
+						{ "effect_type": "retreat", "amount": 3 },
 						{ "effect_type": "pass" }
 					]
 				}
