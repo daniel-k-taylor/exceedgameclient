@@ -3,6 +3,7 @@ extends Node
 const ReleaseLoggingEnabled = true # If true, log even on release builds.
 const UseAzureServerAlways = true # If true, always defaults to the azure server.
 var MuteEmotes = false
+var BGMOff = false
 
 func is_logging_enabled() -> bool:
 	if ReleaseLoggingEnabled:

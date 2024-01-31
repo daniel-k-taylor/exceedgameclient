@@ -1,4 +1,4 @@
-[gd_scene load_steps=11 format=3 uid="uid://o8vjxrpicjsm"]
+[gd_scene load_steps=12 format=3 uid="uid://o8vjxrpicjsm"]
 
 [ext_resource type="Script" path="res://scenes/menu/main_menu.gd" id="1_bk4ch"]
 [ext_resource type="PackedScene" uid="uid://cqs72exlwm6at" path="res://scenes/menu/char_select.tscn" id="2_6qq11"]
@@ -7,6 +7,7 @@
 [ext_resource type="Texture2D" uid="uid://ded5jrn5yju2j" path="res://assets/cards/card_border_highlight_pressed.png" id="5_xie03"]
 [ext_resource type="AudioStream" uid="uid://0cjnajbh1p00" path="res://assets/sounds/match_available.mp3" id="6_6ru3f"]
 [ext_resource type="AudioStream" uid="uid://bhetjnrl0n7o" path="res://assets/sounds/match_notification.mp3" id="7_pt1r5"]
+[ext_resource type="AudioStream" uid="uid://bftf3ehq3hfho" path="res://assets/sounds/mainmenu_bgm.mp3" id="8_vcasp"]
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_0f2dl"]
 
@@ -274,6 +275,27 @@ stream = ExtResource("6_6ru3f")
 [node name="MatchStartingAudio" type="AudioStreamPlayer" parent="."]
 stream = ExtResource("7_pt1r5")
 
+[node name="BGM" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("8_vcasp")
+volume_db = -9.0
+
+[node name="SettingsPanel" type="MarginContainer" parent="."]
+custom_minimum_size = Vector2(100, 100)
+layout_mode = 0
+offset_left = 1100.0
+offset_top = 600.0
+offset_right = 1200.0
+offset_bottom = 700.0
+
+[node name="VBoxContainer" type="VBoxContainer" parent="SettingsPanel"]
+layout_mode = 2
+
+[node name="BGMCheckBox" type="CheckBox" parent="SettingsPanel/VBoxContainer"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 30
+button_pressed = true
+text = "BGM"
+
 [connection signal="pressed" from="MenuList/VSAIBox/FightSettings/StartButton" to="." method="_on_start_button_pressed"]
 [connection signal="pressed" from="MenuList/VSAIBox/OpponentChooser/ChangePlayerCharacterButton" to="." method="_on_change_player_character_button_pressed" binds= [false]]
 [connection signal="pressed" from="MenuList/MatchmakeButton" to="." method="_on_matchmake_button_pressed"]
@@ -288,3 +310,4 @@ stream = ExtResource("7_pt1r5")
 [connection signal="pressed" from="ReconnectToServerButton" to="." method="_on_reconnect_to_server_button_pressed"]
 [connection signal="close_character_select" from="CharSelect" to="." method="_on_char_select_close_character_select"]
 [connection signal="select_character" from="CharSelect" to="." method="_on_char_select_select_character"]
+[connection signal="toggled" from="SettingsPanel/VBoxContainer/BGMCheckBox" to="." method="_on_bgm_check_box_toggled"]
