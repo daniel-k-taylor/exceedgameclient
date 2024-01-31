@@ -3282,8 +3282,7 @@ func ai_discard(event):
 func ai_forced_strike(disable_wild_swing : bool = false, disable_ex : bool = false):
 	change_ui_state(UIState.UIState_WaitForGameServer)
 	if not game_wrapper.is_ai_game(): return
-	var from_gauge = false
-	var strike_action = ai_player.pick_strike(game_wrapper.current_game, Enums.PlayerId.PlayerId_Opponent, from_gauge, disable_wild_swing, disable_ex)
+	var strike_action = ai_player.pick_strike(game_wrapper.current_game, Enums.PlayerId.PlayerId_Opponent, "", disable_wild_swing, disable_ex)
 	ai_handle_strike(strike_action)
 
 func ai_strike_from_gauge(source : String):
