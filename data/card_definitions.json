@@ -7934,8 +7934,12 @@
 			{
 				"timing": "before",
 				"condition": "was_wild_swing",
-				"effect_type": "push",
-				"amount": 2
+				"effect_type": "choice",
+				"choice": [
+					{ "effect_type": "push", "amount": 2 },
+					{ "effect_type": "pass" }
+				]
+
 			}
 		],
 		"boost": {
