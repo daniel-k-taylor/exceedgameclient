@@ -2411,7 +2411,7 @@ func _handle_events(events):
 				delay = _on_choose_to_discard(event, false)
 			Enums.EventType.EventType_Strike_ChooseToDiscard_Info:
 				delay = _on_choose_to_discard(event, true)
-			Enums.EventType.EventType_Strike_CleanupUI:
+			Enums.EventType.EventType_Strike_Cleanup:
 				_on_end_of_strike()
 			Enums.EventType.EventType_Strike_Critical:
 				delay = _stat_notice_event(event)

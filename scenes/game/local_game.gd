@@ -5382,7 +5382,7 @@ func continue_resolve_strike(events):
 				opponent.strike_stat_boosts.clear()
 
 				# Cleanup UI
-				events.append(create_event(Enums.EventType.EventType_Strike_CleanupUI, player1.my_id, -1))
+				events.append(create_event(Enums.EventType.EventType_Strike_Cleanup, player1.my_id, -1))
 
 				active_strike = null
 				if game_over:

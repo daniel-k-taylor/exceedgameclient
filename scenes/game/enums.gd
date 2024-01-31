@@ -136,7 +136,7 @@ enum EventType {
 	EventType_Strike_Miss,
 	EventType_Strike_ChooseToDiscard,
 	EventType_Strike_ChooseToDiscard_Info,
-	EventType_Strike_CleanupUI,
+	EventType_Strike_Cleanup,
 	EventType_Strike_OpponentCantMovePast,
 	EventType_Strike_OpponentSetsFirst,
 	EventType_Strike_OpponentSetsFirst_DefenderSet,
