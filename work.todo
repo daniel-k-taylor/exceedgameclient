@@ -1,5 +1,18 @@
 In progress:
 
+Hakumen:
+    ☐ Allow 0 cost wild swing invalidation if force_cost or gauge_cost was >0 on the definition
+    ☐ "effect_type": "cannot_go_below_life",
+    ☐ "effect_type": "reshuffle_discard_into_deck"
+    ☐ "condition": "did_draw_at_end_of_turn",
+    ☐ "effect_type": "gauge_costs_reduced_passive",
+        ☐ amount": 99,
+		☐ "remove": true/false
+        ☐ interaction with required gauge for effect
+
+    Additional Tests:
+        ☐ Akumetsu strike effects - since block_opponent_move was a boost
+
 Write tests for:
     Axl:
     Testament:
@@ -50,6 +63,7 @@ Tasks:
     ☐ Faust remove boost effects needs to be reviewed, stuff like powerup_opponent and other random effects that Faust can remove mid-strike
         ☐ probably any during_strike ability?
         ☐ Relevant for Bang too
+    ☐ Use cookies to remember player name
 Bugs:
 
 Later:
