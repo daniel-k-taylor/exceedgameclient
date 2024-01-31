@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://daufbcocypk4t"
-path="res://.godot/imported/kenidle.png-667f6dcd55832640359b2cfdb0c69e5c.ctex"
+uid="uid://b88qkd5qxod3k"
+path="res://.godot/imported/ken_idle.png-935cfbf5ef060e2c1a4627f7b51990f2.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/character_animations/ken/idle/kenidle.png"
-dest_files=["res://.godot/imported/kenidle.png-667f6dcd55832640359b2cfdb0c69e5c.ctex"]
+source_file="res://assets/character_animations/ken/idle/ken_idle.png"
+dest_files=["res://.godot/imported/ken_idle.png-935cfbf5ef060e2c1a4627f7b51990f2.ctex"]
 
 [params]
 
@@ -31,4 +31,4 @@ process/normal_map_invert_y=false
 process/hdr_as_srgb=false
 process/hdr_clamp_exposure=false
 process/size_limit=0
-detect_3d/compress_to=1
+detect_3d/compress_to=0
