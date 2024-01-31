@@ -3515,6 +3515,8 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 			decision_info.effect_type = "move_to_space"
 			decision_info.choice = []
 
+			var nowhere_to_move = true
+
 			var move_min = 0
 			var move_max = 8
 			if 'move_min' in effect:
@@ -3565,8 +3567,9 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 					"effect_type": "move_to_space",
 					"amount": i
 				})
+				nowhere_to_move = false
 
-			if len(decision_info.limitation) > 0:
+			if not nowhere_to_move:
 				change_game_state(Enums.GameState.GameState_PlayerDecision)
 				events += [create_event(Enums.EventType.EventType_ChooseArenaLocationForEffect, performing_player.my_id, 0)]
 			else:
