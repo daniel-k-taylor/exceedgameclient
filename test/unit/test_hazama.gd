@@ -142,7 +142,7 @@ func execute_strike(initiator, defender, init_card : String, def_card : String, 
 		if game_logic.decision_info.type == Enums.DecisionType.DecisionType_GaugeForEffect:
 			assert_true(game_logic.do_gauge_for_effect(initiator, init_force_discard), "failed gauge for effect in execute_strike")
 		elif game_logic.decision_info.type == Enums.DecisionType.DecisionType_ForceForEffect:
-			assert_true(game_logic.do_force_for_effect(initiator, init_force_discard), "failed force for effect in execute_strike")
+			assert_true(game_logic.do_force_for_effect(initiator, init_force_discard, false), "failed force for effect in execute_strike")
 
 	if def_ex:
 		give_player_specific_card(defender, def_card, TestCardId4)
@@ -151,7 +151,7 @@ func execute_strike(initiator, defender, init_card : String, def_card : String, 
 		all_events += do_strike_response(defender, TestCardId2)
 
 	if game_logic.game_state == Enums.GameState.GameState_PlayerDecision and game_logic.active_strike.strike_state == game_logic.StrikeState.StrikeState_Defender_SetEffects:
-		game_logic.do_force_for_effect(defender, def_force_discard)
+		game_logic.do_force_for_effect(defender, def_force_discard, false)
 
 	# Pay any costs from gauge
 	if game_logic.active_strike and game_logic.active_strike.strike_state == game_logic.StrikeState.StrikeState_Initiator_PayCosts:
@@ -209,7 +209,7 @@ func test_hazama_ua():
 	position_players(player1, 3, player2, 7)
 	give_specific_cards(player1, "standard_normal_assault", player2, "standard_normal_assault")
 	do_and_validate_strike(player1, TestCardId1)
-	assert_true(game_logic.do_force_for_effect(player1, [player1.hand[0].id]), "failed force for effect")
+	assert_true(game_logic.do_force_for_effect(player1, [player1.hand[0].id], false), "failed force for effect")
 	assert_true(game_logic.do_choice(player1, 1)) # Use move snake
 	assert_true(game_logic.do_choice(player1, 1)) # Place at the 2nd option (+1 range)
 	assert_eq(player1.get_buddy_location("ouroboros_move"), 4)
@@ -222,7 +222,7 @@ func test_hazama_exceed_ua():
 	position_players(player1, 2, player2, 7)
 	give_specific_cards(player1, "standard_normal_assault", player2, "standard_normal_assault")
 	do_and_validate_strike(player1, TestCardId1)
-	assert_true(game_logic.do_force_for_effect(player1, [player1.hand[0].id]), "failed force for effect")
+	assert_true(game_logic.do_force_for_effect(player1, [player1.hand[0].id], false), "failed force for effect")
 	assert_true(game_logic.do_choice(player1, 1)) # Place move snake first
 	assert_true(game_logic.do_choice(player1, 3)) # Place at the 4th option [1,2,3,4]
 	assert_true(game_logic.do_choice(player1, 1)) # Place at the 2nd option (0 range)
@@ -238,7 +238,7 @@ func test_hazama_exceed_ua_nothing_first():
 	position_players(player1, 6, player2, 7)
 	give_specific_cards(player1, "standard_normal_dive", player2, "standard_normal_sweep")
 	do_and_validate_strike(player1, TestCardId1)
-	assert_true(game_logic.do_force_for_effect(player1, [player1.hand[0].id]), "failed force for effect")
+	assert_true(game_logic.do_force_for_effect(player1, [player1.hand[0].id], false), "failed force for effect")
 	assert_true(game_logic.do_choice(player1, 0)) # Place nothing snake first
 	assert_true(game_logic.do_choice(player1, 2)) # Place nothing at the 3rd option [4,5,6,7,8]
 	assert_true(game_logic.do_choice(player1, 0)) # Place move at the 1st option
@@ -363,7 +363,7 @@ func test_hazama_hungrycoils_force_reduce_strike():
 	# Player sets
 	assert_true(game_logic.do_strike(player1, TestCardId5, false, -1, true))
 	# Ouroboros choice to spend (but force is free)
-	assert_true(game_logic.do_force_for_effect(player1, []))
+	assert_true(game_logic.do_force_for_effect(player1, [], false))
 	# Move Ouroboros
 	assert_true(game_logic.do_choice(player1, 1))
 	# Position it (-1 or +1 range)
@@ -386,7 +386,7 @@ func test_hazama_hungrycoils_force_reduce_strike_dont_ouro():
 	# Player sets
 	assert_true(game_logic.do_strike(player1, TestCardId5, false, -1, true))
 	# Ouroboros choice to spend (but force is free) - cancel it
-	assert_true(game_logic.do_force_for_effect(player1, [], true))
+	assert_true(game_logic.do_force_for_effect(player1, [], false, true))
 
 	validate_positions(player1, 5, player2, 6)
 	validate_life(player1, 26, player2, 30)
@@ -418,7 +418,7 @@ func test_hazama_hungrycoils_force_reduce_dont_strike_cc():
 	assert_true(game_logic.do_choice(player1, 1)) # Skip striking
 	advance_turn(player2)
 	player1.discard_hand()
-	assert_true(game_logic.do_change(player1, []))
+	assert_true(game_logic.do_change(player1, [], false))
 	assert_eq(player1.hand.size(), 2)
 	advance_turn(player2)
 
@@ -430,7 +430,7 @@ func test_hazama_hungrycoils_force_reduce_dont_strike_cc1():
 	advance_turn(player2)
 	give_player_specific_card(player1, "standard_normal_assault", TestCardId4)
 	assert_eq(player1.hand.size(), 7)
-	assert_true(game_logic.do_change(player1, [TestCardId4]))
+	assert_true(game_logic.do_change(player1, [TestCardId4], false))
 	assert_eq(player1.hand.size(), 9)
 
 func test_hazama_hungrycoils_force_reduce_dont_strike_cc_ultra():
@@ -441,7 +441,7 @@ func test_hazama_hungrycoils_force_reduce_dont_strike_cc_ultra():
 	advance_turn(player2)
 	give_player_specific_card(player1, "hazama_serpentsinfernalrapture", TestCardId4)
 	assert_eq(player1.hand.size(), 7)
-	assert_true(game_logic.do_change(player1, [TestCardId4]))
+	assert_true(game_logic.do_change(player1, [TestCardId4], false))
 	assert_eq(player1.hand.size(), 10)
 
 func test_hazama_block_with_force_reduced():
@@ -458,7 +458,7 @@ func test_hazama_block_with_force_reduced():
 	# Player sets
 	assert_true(game_logic.do_strike(player1, TestCardId5, false, -1, true))
 	# Ouroboros choice to spend (but force is free) - cancel it
-	assert_true(game_logic.do_force_for_effect(player1, [], true))
+	assert_true(game_logic.do_force_for_effect(player1, [], false, true))
 	assert_true(game_logic.do_force_for_armor(player1, []))
 	# Should be 4 armor
 	validate_positions(player1, 5, player2, 7)
@@ -480,7 +480,7 @@ func test_hazama_eternalcoils_with_force_reduced():
 	# Player sets
 	assert_true(game_logic.do_strike(player1, TestCardId5, false, -1, true))
 	# Ouroboros choice to spend (but force is free) - cancel it
-	assert_true(game_logic.do_force_for_effect(player1, [], true))
+	assert_true(game_logic.do_force_for_effect(player1, [], false, true))
 	# Pay gauge
 	var cards = []
 	for i in range(3):
@@ -488,7 +488,7 @@ func test_hazama_eternalcoils_with_force_reduced():
 	assert_true(game_logic.do_pay_strike_cost(player1, cards, false))
 	# Hit, force for effect up to 5
 	# Do just the free, for powerup 1 and pull 8
-	assert_true(game_logic.do_force_for_effect(player1, [], false))
+	assert_true(game_logic.do_force_for_effect(player1, [], false, false))
 	validate_positions(player1, 3, player2, 1)
 	validate_life(player1, 30, player2, 26)
 
@@ -507,7 +507,7 @@ func test_hazama_eternalcoils_with_force_reduced_full5():
 	# Player sets
 	assert_true(game_logic.do_strike(player1, TestCardId5, false, -1, true))
 	# Ouroboros choice to spend (but force is free) - cancel it
-	assert_true(game_logic.do_force_for_effect(player1, [], true))
+	assert_true(game_logic.do_force_for_effect(player1, [], false, true))
 	# Pay gauge
 	var cards = []
 	for i in range(3):
@@ -520,7 +520,7 @@ func test_hazama_eternalcoils_with_force_reduced_full5():
 		var id = i + TestCardId5 + 1
 		give_player_specific_card(player1, "standard_normal_grasp", id)
 		card_ids.append(id)
-	assert_true(game_logic.do_force_for_effect(player1, card_ids, false))
+	assert_true(game_logic.do_force_for_effect(player1, card_ids, false, false))
 	validate_positions(player1, 3, player2, 1)
 	validate_life(player1, 30, player2, 22)
 
@@ -541,7 +541,7 @@ func test_hazama_v_sagat_crit_mid_opponent_sets_first():
 	assert_true(game_logic.do_gauge_for_effect(player2, [player2.gauge[0].id]))
 	assert_true(game_logic.do_strike(player1, TestCardId2, false, -1, true))
 	# Pay free effect
-	assert_true(game_logic.do_force_for_effect(player1, [], false))
+	assert_true(game_logic.do_force_for_effect(player1, [], false, false))
 	# Do snake choice to move
 	assert_true(game_logic.do_choice(player1, 1))
 	# Choose location

@@ -1,6 +1,5 @@
 In progress:
 
-
 Write tests for:
     Axl:
     Testament:
@@ -38,7 +37,6 @@ Tasks:
         ☐ Tweak timings on animation lengths
         ☐ Make card ref an icon button
         ☐ If making a decision, minimizing card popout has a blinking icon to reopen it
-        ☐ Allow spending ultra for 1 force for change cards or spending less on effects
         ☐ Choice between EX and spent gauge/force cards as to which is on top
         ☐ Range indicator between players
     ☐ Only connect to server if you enter Multiplayer
@@ -51,21 +49,9 @@ Tasks:
     ☐ Show cards you revealed to opponent with EYE icon in your hand.
     ☐ Faust remove boost effects needs to be reviewed, stuff like powerup_opponent and other random effects that Faust can remove mid-strike
         ☐ probably any during_strike ability?
+        ☐ Relevant for Bang too
 Bugs:
 
 Later:
-    ☐ Paying force cost for boosts - no cards in GG have force cost boosts
-    Programmatic Card Visuals are poor:
-        ☐ Effect text is ugly
-        ☐ Hard to read anything
-        ☐ Ultra/Special/Normal distinguishing factor
-        ☐ Model after hearthstone!
     ☐ Networking - make server smart, validate moves, and hide card ids from client
-
-
-
-
-
-
-BlazBlue:
 

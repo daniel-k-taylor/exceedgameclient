@@ -80,7 +80,7 @@ func advance_turn(player):
 		for i in range(to_discard):
 			cards.append(player.hand[i].id)
 		assert_true(game_logic.do_discard_to_max(player, cards))
-		
+
 func do_and_validate_strike(player, card_id, ex_card_id = -1):
 	assert_true(game_logic.can_do_strike(player))
 	assert_true(game_logic.do_strike(player, card_id, false, ex_card_id))
@@ -148,8 +148,8 @@ func handle_simultaneous_effects(initiator, defender):
 		if game_logic.decision_info.player == defender.my_id:
 			decider = defender
 		assert_true(game_logic.do_choice(decider, 0), "Failed simuleffect choice")
-		
-		
+
+
 func validate_positions(p1, l1, p2, l2):
 	assert_eq(p1.arena_location, l1)
 	assert_eq(p2.arena_location, l2)
@@ -217,7 +217,7 @@ func test_boost_wildthrow_into_focus_vs_slash():
 	assert_true(game_logic.do_boost(initiator, TestCardId3))
 	var events = game_logic.get_latest_events()
 	validate_has_event(events, Enums.EventType.EventType_AdvanceTurn, defender)
-	assert_true(game_logic.do_change(defender, []))
+	assert_true(game_logic.do_change(defender, [], false))
 	events = game_logic.get_latest_events()
 	assert_eq(game_logic.game_state, Enums.GameState.GameState_DiscardDownToMax)
 	# Draw to 8 because had 7 to start and did change 0.
@@ -247,7 +247,7 @@ func test_double_boost_ride_stun_vs_cross():
 	assert_true(game_logic.do_boost_cancel(initiator, [initiator.gauge[0].id], false))
 	var events = game_logic.get_latest_events()
 	validate_has_event(events, Enums.EventType.EventType_AdvanceTurn, defender)
-	assert_true(game_logic.do_change(defender, []))
+	assert_true(game_logic.do_change(defender, [], false))
 	events = game_logic.get_latest_events()
 	assert_eq(game_logic.game_state, Enums.GameState.GameState_DiscardDownToMax)
 	# Draw to 8 because had 7 to start and did change 0.

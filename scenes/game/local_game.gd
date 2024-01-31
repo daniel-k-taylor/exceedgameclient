@@ -331,6 +331,12 @@ class StrikeStatBoosts:
 	var overwritten_printed_power : int = 0
 	var overwrite_total_power : bool = false
 	var overwritten_total_power : int = 0
+	var overwrite_total_speed : bool = false
+	var overwritten_total_speed : int = 0
+	var overwrite_total_armor : bool = false
+	var overwritten_total_armor : int = 0
+	var overwrite_total_guard : bool = false
+	var overwritten_total_guard : int = 0
 	var buddies_that_entered_play_this_strike : Array[String] = []
 	var buddy_immune_to_flip : bool = false
 
@@ -379,6 +385,12 @@ class StrikeStatBoosts:
 		overwritten_printed_power = 0
 		overwrite_total_power = false
 		overwritten_total_power = 0
+		overwrite_total_speed = false
+		overwritten_total_speed = 0
+		overwrite_total_armor = false
+		overwritten_total_armor = 0
+		overwrite_total_guard = false
+		overwritten_total_guard = 0
 		buddies_that_entered_play_this_strike = []
 		buddy_immune_to_flip = false
 
@@ -1002,11 +1014,14 @@ class Player:
 		events += place_buddy(location, buddy_id_to_place, false, description)
 		return events
 
-	func get_force_with_cards(card_ids : Array, reason : String):
+	func get_force_with_cards(card_ids : Array, reason : String, treat_ultras_as_single_force : bool):
 		var force_generated = free_force
 		var has_card_in_gauge = false
 		for card_id in card_ids:
-			force_generated += parent.card_db.get_card_force_value(card_id)
+			if treat_ultras_as_single_force:
+				force_generated += 1
+			else:
+				force_generated += parent.card_db.get_card_force_value(card_id)
 			if is_card_in_gauge(card_id):
 				has_card_in_gauge = true
 
@@ -1021,7 +1036,7 @@ class Player:
 			# UNEXPECTED - NOT IMPLEMENTED
 			assert(false)
 		elif force_cost:
-			var force_generated = get_force_with_cards(card_ids, "GENERIC_PAY_FORCE_COST")
+			var force_generated = get_force_with_cards(card_ids, "GENERIC_PAY_FORCE_COST", false)
 			for card_id in card_ids:
 				if not is_card_in_hand(card_id) and not is_card_in_gauge(card_id):
 					assert(false)
@@ -2468,15 +2483,17 @@ func begin_resolve_strike():
 	events = continue_resolve_strike(events)
 	return events
 
-func calculate_speed(check_player, check_card):
+func get_total_speed(check_player, check_card):
+	if check_player.strike_stat_boosts.overwrite_total_speed:
+		return check_player.strike_stat_boosts.overwritten_total_speed
 	var bonus_speed = check_player.strike_stat_boosts.speed * check_player.strike_stat_boosts.speed_bonus_multiplier
 	var speed = check_card.definition['speed'] + bonus_speed
 	return speed
 
 func strike_determine_order():
 	# Determine activation
-	var initiator_speed = calculate_speed(active_strike.initiator, active_strike.initiator_card)
-	var defender_speed = calculate_speed(active_strike.defender, active_strike.defender_card)
+	var initiator_speed = get_total_speed(active_strike.initiator, active_strike.initiator_card)
+	var defender_speed = get_total_speed(active_strike.defender, active_strike.defender_card)
 	active_strike.initiator_first = initiator_speed >= defender_speed
 	_append_log_full(Enums.LogType.LogType_Strike, null, "%s has speed %s, %s has speed %s." % [active_strike.initiator.name, initiator_speed, active_strike.defender.name, defender_speed])
 
@@ -2824,6 +2841,7 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 			performing_player.strike_stat_boosts.always_add_to_gauge = true
 		"add_strike_to_overdrive_after_cleanup":
 			performing_player.strike_stat_boosts.always_add_to_overdrive = true
+			change_stats_when_attack_leaves_play(performing_player)
 		"add_to_gauge_boost_play_cleanup":
 			active_boost.cleanup_to_gauge_card_ids.append(card_id)
 		"add_to_gauge_immediately":
@@ -3440,7 +3458,7 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 		"lose_all_armor":
 			if active_strike:
 				_append_log_full(Enums.LogType.LogType_Effect, performing_player, "loses all armor!")
-				var remaining_armor = active_strike.get_player_card(performing_player).definition['armor'] + performing_player.strike_stat_boosts.armor - performing_player.strike_stat_boosts.consumed_armor
+				var remaining_armor = get_total_armor(performing_player)
 				performing_player.strike_stat_boosts.armor -= remaining_armor
 		"may_advance_bonus_spaces":
 			var movement_type = decision_info.source
@@ -3993,6 +4011,7 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 				events += performing_player.move_card_from_sealed_to_hand(target_card.id)
 		"return_this_attack_to_hand_after_attack":
 			performing_player.strike_stat_boosts.return_attack_to_hand = true
+			change_stats_when_attack_leaves_play(performing_player)
 		"return_this_boost_to_hand_strike_effect":
 			var card_name = card_db.get_card_name(card_id)
 			_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "returns boosted card %s to their hand." % card_name)
@@ -4327,8 +4346,7 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 			var damage = effect['amount']
 			var damage_prevention = 0
 			if active_strike:
-				var defense_card = active_strike.get_player_card(damaged_player)
-				damage_prevention = defense_card.definition['armor'] + damaged_player.strike_stat_boosts.armor - damaged_player.strike_stat_boosts.consumed_armor
+				damage_prevention = get_total_armor(damaged_player)
 			var unmitigated_damage = max(0, damage - damage_prevention)
 			var used_armor = damage - unmitigated_damage
 			if active_strike:
@@ -4399,6 +4417,16 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 				remaining_character_action_effects.append(effect['bonus_effect'])
 
 	return events
+
+func change_stats_when_attack_leaves_play(performing_player : Player):
+	performing_player.strike_stat_boosts.overwrite_total_power = true
+	performing_player.strike_stat_boosts.overwritten_total_power = 0
+	performing_player.strike_stat_boosts.overwrite_total_speed = true
+	performing_player.strike_stat_boosts.overwritten_total_speed = 0
+	performing_player.strike_stat_boosts.overwrite_total_armor = true
+	performing_player.strike_stat_boosts.overwritten_total_armor = 0
+	performing_player.strike_stat_boosts.overwrite_total_guard = true
+	performing_player.strike_stat_boosts.overwritten_total_guard = 0
 
 func handle_place_buddy_at_range(performing_player : Player, card_id, effect):
 	var events = []
@@ -4739,10 +4767,10 @@ func do_set_strike_x(performing_player : Player, source : String):
 		"opponent_speed":
 			if active_strike:
 				if performing_player == active_strike.initiator:
-					var defender_speed = calculate_speed(active_strike.defender, active_strike.defender_card)
+					var defender_speed = get_total_speed(active_strike.defender, active_strike.defender_card)
 					value = max(defender_speed, 0)
 				else:
-					var initiator_speed = calculate_speed(active_strike.initiator, active_strike.initiator_card)
+					var initiator_speed = get_total_speed(active_strike.initiator, active_strike.initiator_card)
 					value = max(initiator_speed, 0)
 				_append_log_full(Enums.LogType.LogType_Strike, performing_player, "'s X for this strike is set to the opponent's speed, %s." % value)
 		"force_spent_before_strike":
@@ -4894,8 +4922,8 @@ func in_range(attacking_player, defending_player, card, combat_logging=false):
 
 	# Speed dodge
 	if defending_player.strike_stat_boosts.higher_speed_misses:
-		var attacking_speed = calculate_speed(attacking_player, active_strike.get_player_card(attacking_player))
-		var defending_speed = calculate_speed(defending_player, active_strike.get_player_card(defending_player))
+		var attacking_speed = get_total_speed(attacking_player, active_strike.get_player_card(attacking_player))
+		var defending_speed = get_total_speed(defending_player, active_strike.get_player_card(defending_player))
 		if attacking_speed > defending_speed:
 			if combat_logging:
 				_append_log_full(Enums.LogType.LogType_Effect, defending_player, "is dodging higher speed attacks!")
@@ -4908,12 +4936,30 @@ func get_total_power(performing_player : Player):
 
 	var card = active_strike.get_player_card(performing_player)
 	var power = get_card_stat(performing_player, card, 'power')
-	var power_boost = performing_player.strike_stat_boosts.power * performing_player.strike_stat_boosts.power_bonus_multiplier
-	return power + power_boost
+	var power_modifier = performing_player.strike_stat_boosts.power * performing_player.strike_stat_boosts.power_bonus_multiplier
+	return power + power_modifier
 
-func calculate_damage(offense_player : Player, defense_player : Player, _offense_card : GameCard, defense_card : GameCard) -> int:
+func get_total_armor(performing_player : Player):
+	if performing_player.strike_stat_boosts.overwrite_total_armor:
+		return performing_player.strike_stat_boosts.overwritten_total_armor
+
+	var card = active_strike.get_player_card(performing_player)
+	var armor = card.definition['armor']
+	var armor_modifier = performing_player.strike_stat_boosts.armor - performing_player.strike_stat_boosts.consumed_armor
+	return armor + armor_modifier
+
+func get_total_guard(performing_player : Player):
+	if performing_player.strike_stat_boosts.overwrite_total_guard:
+		return performing_player.strike_stat_boosts.overwritten_total_guard
+
+	var card = active_strike.get_player_card(performing_player)
+	var guard = get_card_stat(performing_player, card, 'guard')
+	var guard_modifier = performing_player.strike_stat_boosts.guard
+	return guard + guard_modifier
+
+func calculate_damage(offense_player : Player, defense_player : Player) -> int:
 	var power = get_total_power(offense_player)
-	var armor = defense_card.definition['armor'] + defense_player.strike_stat_boosts.armor - defense_player.strike_stat_boosts.consumed_armor
+	var armor = get_total_armor(defense_player)
 	if offense_player.strike_stat_boosts.ignore_armor:
 		armor = 0
 	var damage_after_armor = max(power - armor, 0)
@@ -4924,7 +4970,7 @@ func check_for_stun(check_player : Player, ignore_guard : bool):
 
 	var total_damage = active_strike.get_damage_taken(check_player)
 	var defense_card = active_strike.get_player_card(check_player)
-	var guard = get_card_stat(check_player, defense_card, 'guard') + check_player.strike_stat_boosts.guard
+	var guard = get_total_guard(check_player)
 	_append_log_full(Enums.LogType.LogType_Strike, null, "Stun check: %s total damage vs %s guard." % [total_damage, guard])
 	if ignore_guard:
 		_append_log_full(Enums.LogType.LogType_Strike, _get_player(get_other_player(check_player.my_id)), "ignores Guard!")
@@ -4942,10 +4988,10 @@ func check_for_stun(check_player : Player, ignore_guard : bool):
 
 	return events
 
-func apply_damage(offense_player : Player, defense_player : Player, offense_card : GameCard, defense_card : GameCard):
+func apply_damage(offense_player : Player, defense_player : Player):
 	var events = []
 	var power = get_total_power(offense_player)
-	var armor = defense_card.definition['armor'] + defense_player.strike_stat_boosts.armor - defense_player.strike_stat_boosts.consumed_armor
+	var armor = get_total_armor(defense_player)
 
 	defense_player.strike_stat_boosts.was_hit = true
 
@@ -4955,7 +5001,7 @@ func apply_damage(offense_player : Player, defense_player : Player, offense_card
 		_append_log_full(Enums.LogType.LogType_Strike, _get_player(get_other_player(offense_player.my_id)), "ignores Armor!")
 		armor = 0
 
-	var damage_after_armor = calculate_damage(offense_player, defense_player, offense_card, defense_card)
+	var damage_after_armor = calculate_damage(offense_player, defense_player)
 	defense_player.life -= damage_after_armor
 	if armor > 0:
 		defense_player.strike_stat_boosts.consumed_armor += (power - damage_after_armor)
@@ -5170,10 +5216,10 @@ func continue_resolve_strike(events):
 			StrikeState.StrikeState_Card1_Hit:
 				events += do_remaining_effects(player1, StrikeState.StrikeState_Card1_Hit_Response)
 			StrikeState.StrikeState_Card1_Hit_Response:
-				var incoming_damage = calculate_damage(player1, player2, card1, card2)
+				var incoming_damage = calculate_damage(player1, player2)
 				events += do_hit_response_effects(player1, player2, incoming_damage, StrikeState.StrikeState_Card1_ApplyDamage)
 			StrikeState.StrikeState_Card1_ApplyDamage:
-				events += apply_damage(player1, player2, card1, card2)
+				events += apply_damage(player1, player2)
 				active_strike.strike_state = StrikeState.StrikeState_Card1_After
 				active_strike.remaining_effect_list = get_all_effects_for_timing("after", player1, card1)
 				if game_over:
@@ -5215,10 +5261,10 @@ func continue_resolve_strike(events):
 			StrikeState.StrikeState_Card2_Hit:
 				events += do_remaining_effects(player2, StrikeState.StrikeState_Card2_Hit_Response)
 			StrikeState.StrikeState_Card2_Hit_Response:
-				var incoming_damage = calculate_damage(player2, player1, card2, card1)
+				var incoming_damage = calculate_damage(player2, player1)
 				events += do_hit_response_effects(player2, player1, incoming_damage, StrikeState.StrikeState_Card2_ApplyDamage)
 			StrikeState.StrikeState_Card2_ApplyDamage:
-				events += apply_damage(player2, player1, card2, card1)
+				events += apply_damage(player2, player1)
 				active_strike.strike_state = StrikeState.StrikeState_Card2_After
 				active_strike.remaining_effect_list = get_all_effects_for_timing("after", player2, card2)
 				if game_over:
@@ -5690,7 +5736,7 @@ func do_move(performing_player : Player, card_ids, new_arena_location) -> bool:
 
 	# Ensure cards generate enough force.
 	var required_force = performing_player.get_force_to_move_to(new_arena_location)
-	var generated_force = performing_player.get_force_with_cards(card_ids, "MOVE")
+	var generated_force = performing_player.get_force_with_cards(card_ids, "MOVE", false)
 
 	if generated_force < required_force:
 		printlog("ERROR: Not enough force with these cards to move there.")
@@ -5714,7 +5760,7 @@ func do_move(performing_player : Player, card_ids, new_arena_location) -> bool:
 	event_queue += events
 	return true
 
-func do_change(performing_player : Player, card_ids) -> bool:
+func do_change(performing_player : Player, card_ids, treat_ultras_as_single_force : bool) -> bool:
 	printlog("MainAction: CHANGE_CARDS by %s - %s" % [performing_player.name, card_ids])
 	if not can_do_change(performing_player):
 		printlog("ERROR: Cannot do change action for this player.")
@@ -5732,7 +5778,7 @@ func do_change(performing_player : Player, card_ids) -> bool:
 
 	var events = []
 	events += [create_event(Enums.EventType.EventType_ChangeCards, performing_player.my_id, 0)]
-	var force_generated = performing_player.get_force_with_cards(card_ids, "CHANGE_CARDS")
+	var force_generated = performing_player.get_force_with_cards(card_ids, "CHANGE_CARDS", treat_ultras_as_single_force)
 	events += performing_player.discard(card_ids)
 
 	# Handle Guile's Change Cards strike bonus
@@ -6057,7 +6103,7 @@ func do_force_for_armor(performing_player : Player, card_ids : Array) -> bool:
 			printlog("ERROR: Tried to force for armor with card not in hand or gauge.")
 			return false
 
-	var force_generated = performing_player.get_force_with_cards(card_ids, "FORCE_FOR_ARMOR")
+	var force_generated = performing_player.get_force_with_cards(card_ids, "FORCE_FOR_ARMOR", false)
 	if force_generated > 0:
 		var card_names = ""
 		if card_ids.size() > 0:
@@ -6468,7 +6514,7 @@ func do_choose_from_discard(performing_player : Player, card_ids : Array) -> boo
 	event_queue += events
 	return true
 
-func do_force_for_effect(performing_player : Player, card_ids : Array, cancel : bool = false) -> bool:
+func do_force_for_effect(performing_player : Player, card_ids : Array, treat_ultras_as_single_force : bool, cancel : bool = false) -> bool:
 	printlog("SubAction: FORCE_FOR_EFFECT by %s cards %s" % [performing_player.name, card_ids])
 	if game_state != Enums.GameState.GameState_PlayerDecision or decision_info.type != Enums.DecisionType.DecisionType_ForceForEffect:
 		printlog("ERROR: Tried to force for effect but not in decision state.")
@@ -6483,14 +6529,17 @@ func do_force_for_effect(performing_player : Player, card_ids : Array, cancel : 
 			printlog("ERROR: Tried to force for effect with card not in hand or gauge.")
 			return false
 
-	var force_generated = performing_player.get_force_with_cards(card_ids, "FORCE_FOR_EFFECT")
+	var force_generated = performing_player.get_force_with_cards(card_ids, "FORCE_FOR_EFFECT", treat_ultras_as_single_force)
 	if cancel:
 		force_generated = 0
 	var ultras = 0
-	for card_id in card_ids:
-		var force_value = card_db.get_card_force_value(card_id)
-		if force_value == 2:
-			ultras += 1
+	# If not treating ultras as a single force, count them
+	# to allow overpaying.
+	if not treat_ultras_as_single_force:
+		for card_id in card_ids:
+			var force_value = card_db.get_card_force_value(card_id)
+			if force_value == 2:
+				ultras += 1
 
 	if force_generated > decision_info.effect['force_max']:
 		if force_generated - ultras <= decision_info.effect['force_max']:

@@ -91,6 +91,7 @@ var cached_opponent_location = 0
 var reference_popout_toggle_enabled = false
 var reference_popout_toggle = false
 var opponent_cards_before_reshuffle = []
+var treat_ultras_as_single_force = false
 
 var player_deck
 var opponent_deck
@@ -1691,7 +1692,7 @@ func get_force_in_selected_cards():
 	var reason = ""
 	if ui_sub_state == UISubState.UISubState_SelectCards_ForceForChange:
 		reason = "CHANGE_CARDS"
-	return game_wrapper.get_player_force_for_cards(Enums.PlayerId.PlayerId_Player, card_ids, reason)
+	return game_wrapper.get_player_force_for_cards(Enums.PlayerId.PlayerId_Player, card_ids, reason, treat_ultras_as_single_force)
 
 func can_selected_cards_pay_force(force_cost : int, bonus_card_force_value : int = 0):
 	var max_force_selected = game_wrapper.get_player_free_force(Enums.PlayerId.PlayerId_Player)
@@ -1769,6 +1770,8 @@ func begin_discard_cards_selection(number_to_discard_min, number_to_discard_max,
 func begin_generate_force_selection(amount, can_cancel : bool = true, wild_swing_allowed : bool = false):
 	# Show the gauge window.
 	_on_player_gauge_gauge_clicked()
+	treat_ultras_as_single_force = false
+	action_menu.set_force_ultra_toggle(false)
 
 	selected_cards = []
 	select_card_require_force = amount
@@ -2590,6 +2593,7 @@ func _update_buttons():
 		button_choices.append({ "text": "Wild Swing", "action": _on_wild_swing_button_pressed })
 
 	# Update instructions message
+	var ultra_force_toggle = false
 	if ui_state == UIState.UIState_SelectCards:
 		match ui_sub_state:
 			UISubState.UISubState_SelectCards_DiscardCards:
@@ -2605,10 +2609,12 @@ func _update_buttons():
 			UISubState.UISubState_SelectCards_ForceForBoost:
 				update_force_generation_message()
 			UISubState.UISubState_SelectCards_ForceForChange:
+				ultra_force_toggle = true
 				update_force_generation_message()
 			UISubState.UISubState_SelectCards_ForceForArmor:
 				update_force_generation_message()
 			UISubState.UISubState_SelectCards_ForceForEffect:
+				ultra_force_toggle = true
 				update_force_generation_message()
 			UISubState.UISubState_SelectCards_StrikeForce:
 				update_force_generation_message()
@@ -2672,7 +2678,7 @@ func _update_buttons():
 			action_menu_hidden = true
 	action_menu.visible = not action_menu_hidden and (button_choices.size() > 0 or instructions_visible)
 	action_menu_container.visible = action_menu.visible
-	action_menu.set_choices(current_instruction_text, button_choices)
+	action_menu.set_choices(current_instruction_text, button_choices, ultra_force_toggle)
 	current_action_menu_choices = button_choices
 
 func update_boost_summary(boosts_card_holder, boost_box):
@@ -2897,13 +2903,13 @@ func _on_instructions_ok_button_pressed(index : int):
 			UISubState.UISubState_SelectCards_Exceed:
 				success = game_wrapper.submit_exceed(Enums.PlayerId.PlayerId_Player, selected_card_ids)
 			UISubState.UISubState_SelectCards_ForceForEffect:
-				success = game_wrapper.submit_force_for_effect(Enums.PlayerId.PlayerId_Player, selected_card_ids)
+				success = game_wrapper.submit_force_for_effect(Enums.PlayerId.PlayerId_Player, selected_card_ids, treat_ultras_as_single_force)
 			UISubState.UISubState_SelectCards_GaugeForEffect:
 				success = game_wrapper.submit_gauge_for_effect(Enums.PlayerId.PlayerId_Player, selected_card_ids)
 			UISubState.UISubState_SelectCards_MoveActionGenerateForce:
 				success = game_wrapper.submit_move(Enums.PlayerId.PlayerId_Player, selected_card_ids, selected_arena_location)
 			UISubState.UISubState_SelectCards_ForceForChange:
-				success = game_wrapper.submit_change(Enums.PlayerId.PlayerId_Player, selected_card_ids)
+				success = game_wrapper.submit_change(Enums.PlayerId.PlayerId_Player, selected_card_ids, treat_ultras_as_single_force)
 			UISubState.UISubState_SelectCards_StrikeCard, UISubState.UISubState_SelectCards_StrikeResponseCard, UISubState.UISubState_SelectCards_StrikeCard_FromGauge, UISubState.UISubState_SelectCards_StrikeCard_FromSealed:
 				success = game_wrapper.submit_strike(Enums.PlayerId.PlayerId_Player, single_card_id, false, ex_card_id)
 			UISubState.UISubState_SelectCards_OpponentSetsFirst_StrikeCard, UISubState.UISubState_SelectCards_OpponentSetsFirst_StrikeResponseCard:
@@ -2938,7 +2944,7 @@ func _on_instructions_cancel_button_pressed():
 		UISubState.UISubState_SelectCards_ForceForEffect:
 			deselect_all_cards()
 			close_popout()
-			success = game_wrapper.submit_force_for_effect(Enums.PlayerId.PlayerId_Player, [], true)
+			success = game_wrapper.submit_force_for_effect(Enums.PlayerId.PlayerId_Player, [], false, true)
 		UISubState.UISubState_SelectCards_GaugeForEffect:
 			deselect_all_cards()
 			close_popout()
@@ -3094,7 +3100,7 @@ func ai_handle_move(action : AIPlayer.MoveAction):
 
 func ai_handle_change_cards(action : AIPlayer.ChangeCardsAction):
 	var card_ids = action.card_ids
-	var success = game_wrapper.submit_change(Enums.PlayerId.PlayerId_Opponent, card_ids)
+	var success = game_wrapper.submit_change(Enums.PlayerId.PlayerId_Opponent, card_ids, false)
 	if not success:
 		printlog("FAILED AI CHANGE CARDS")
 	return success
@@ -3221,7 +3227,7 @@ func ai_force_for_effect(effect):
 		options.append(0)
 		options.append(effect['force_max'])
 	var forceforeffect_action = ai_player.pick_force_for_effect(game_wrapper.current_game, Enums.PlayerId.PlayerId_Opponent, options)
-	var success = game_wrapper.submit_force_for_effect(Enums.PlayerId.PlayerId_Opponent, forceforeffect_action.card_ids)
+	var success = game_wrapper.submit_force_for_effect(Enums.PlayerId.PlayerId_Opponent, forceforeffect_action.card_ids, false)
 	if success:
 		change_ui_state(UIState.UIState_WaitForGameServer)
 	else:
@@ -3735,3 +3741,7 @@ func _on_emote_dialog_close_button_pressed():
 func _on_emote_dialog_emote_selected(is_image_emote : bool, emote : String):
 	emote_dialog.visible = false
 	game_wrapper.submit_emote(Enums.PlayerId.PlayerId_Player, is_image_emote, emote)
+
+func _on_action_menu_ultra_force_toggled(new_value):
+	treat_ultras_as_single_force = new_value
+	_update_buttons()

@@ -132,7 +132,7 @@ func handle_simultaneous_effects(initiator, defender, simul_effect_choices : Arr
 			choice = simul_effect_choices[0]
 			simul_effect_choices.remove_at(0)
 		assert_true(game_logic.do_choice(decider, choice), "Failed simuleffect choice")
-		
+
 func execute_strike(initiator, defender, init_card : String, def_card : String, init_choices, def_choices, init_ex = false, def_ex = false, init_force_discard = [], def_force_discard = [], init_extra_cost = 0, simul_effect_choices = []):
 	var all_events = []
 	give_specific_cards(initiator, init_card, defender, def_card)
@@ -150,8 +150,8 @@ func execute_strike(initiator, defender, init_card : String, def_card : String, 
 		if game_logic.decision_info.type == Enums.DecisionType.DecisionType_GaugeForEffect:
 			assert_true(game_logic.do_gauge_for_effect(initiator, init_force_discard), "failed gauge for effect in execute_strike")
 		elif game_logic.decision_info.type == Enums.DecisionType.DecisionType_ForceForEffect:
-			assert_true(game_logic.do_force_for_effect(initiator, init_force_discard), "failed force for effect in execute_strike")
-		
+			assert_true(game_logic.do_force_for_effect(initiator, init_force_discard, false), "failed force for effect in execute_strike")
+
 	if def_ex:
 		give_player_specific_card(defender, def_card, TestCardId4)
 		all_events += do_strike_response(defender, TestCardId2, TestCardId4)
@@ -159,8 +159,8 @@ func execute_strike(initiator, defender, init_card : String, def_card : String, 
 		all_events += do_strike_response(defender, TestCardId2)
 
 	if game_logic.game_state == Enums.GameState.GameState_PlayerDecision and game_logic.active_strike.strike_state == game_logic.StrikeState.StrikeState_Defender_SetEffects:
-		game_logic.do_force_for_effect(defender, def_force_discard)
-		
+		game_logic.do_force_for_effect(defender, def_force_discard, false)
+
 	# Pay any costs from gauge
 	if game_logic.active_strike and game_logic.active_strike.strike_state == game_logic.StrikeState.StrikeState_Initiator_PayCosts:
 		if game_logic.active_strike.initiator_card.definition['force_cost']:
@@ -243,7 +243,7 @@ func test_arakune_exceed_and_strike_with_bonus():
 	assert_eq(player1.sealed[1].id, topdeck_id)
 	# Check that I can end my turn from assault.
 	advance_turn(player1)
-	
+
 func test_arakune_exceed_and_strike_with_bonus_finverse_range1():
 	position_players(player1, 3, player2, 4)
 	give_player_specific_card(player1, "standard_normal_grasp", TestCardId3)
@@ -325,7 +325,7 @@ func test_arakune_exceed_and_strike_with_bonus_wildswing_finverse_wildswing():
 	assert_eq(player1.sealed[0].id, topdeck_id)
 	# Check that I can end my turn from assault.
 	advance_turn(player1)
-	
+
 func test_arakune_exceed_and_strike_without_bonus():
 	position_players(player1, 3, player2, 4)
 	give_gauge(player1, 3)
@@ -458,13 +458,32 @@ func test_arakune_permutationnr_attack():
 	position_players(player1, 2, player2, 1)
 	execute_strike(player1, player2, "arakune_permutationnr", "standard_normal_cross", [], [], false, false, [], [], 0, [])
 	# permutation force for effect
-	assert_true(game_logic.do_force_for_effect(player1, [player1.hand[0].id, player1.hand[1].id, player1.hand[2].id]))
+	assert_true(game_logic.do_force_for_effect(player1, [player1.hand[0].id, player1.hand[1].id, player1.hand[2].id], false))
 	# on hit simultaneous, card first
 	assert_true(game_logic.do_choice(player1, 0))
 	assert_eq(player1.overdrive.size(), 1)
 	# char effect choice, has force paid in discard
 	assert_true(game_logic.do_choice(player1, 0))
 	validate_positions(player1, 2, player2, 1)
+	assert_eq(player1.gauge.size(), 1)
+	# 1 card from discarded opponent, 1 from discard force
+	assert_eq(player1.overdrive.size(), 2)
+	validate_life(player1, 28, player2, 25)
+	advance_turn(player2)
+
+func test_arakune_permutationnr_attack_far_pay_ultra():
+	position_players(player1, 2, player2, 4)
+	execute_strike(player1, player2, "arakune_permutationnr", "standard_normal_cross", [], [], false, false, [], [], 0, [])
+	validate_positions(player1, 2, player2, 7)
+	# permutation force for effect - needs to pay only 1 force to bring 7 down to 5
+	give_player_specific_card(player1, "arakune_ntoinfinity", TestCardId4)
+	assert_true(game_logic.do_force_for_effect(player1, [TestCardId4], true))
+	# on hit simultaneous, card first
+	assert_true(game_logic.do_choice(player1, 0))
+	assert_eq(player1.overdrive.size(), 1)
+	# char effect choice, has force paid in discard
+	assert_true(game_logic.do_choice(player1, 0))
+	validate_positions(player1, 2, player2, 7)
 	assert_eq(player1.gauge.size(), 1)
 	# 1 card from discarded opponent, 1 from discard force
 	assert_eq(player1.overdrive.size(), 2)
@@ -499,7 +518,7 @@ func test_arakune_piecewise_odd_miss():
 	position_players(player1, 2, player2, 3)
 	execute_strike(player1, player2, "arakune_fpiecewise", "standard_normal_sweep", [], [], false, false, [], [], 0, [])
 	# fpiecewise range effect
-	assert_true(game_logic.do_force_for_effect(player1, [player1.hand[0].id]))
+	assert_true(game_logic.do_force_for_effect(player1, [player1.hand[0].id], false))
 	# miss, after advance/retreat
 	assert_true(game_logic.do_choice(player1, 0))
 	validate_positions(player1, 5, player2, 3)
@@ -512,8 +531,9 @@ func test_arakune_piecewise_even_hit():
 	position_players(player1, 2, player2, 4)
 	execute_strike(player1, player2, "arakune_fpiecewise", "standard_normal_sweep", [], [], false, false, [], [], 0, [])
 	# fpiecewise range effect
-	var discarded_id = player1.hand[0].id
-	assert_true(game_logic.do_force_for_effect(player1, [discarded_id]))
+	give_player_specific_card(player1, "standard_normal_assault", TestCardId4)
+	var discarded_id = TestCardId4
+	assert_true(game_logic.do_force_for_effect(player1, [discarded_id], false))
 	# hit, discarded force to OD
 	assert_true(game_logic.do_choice(player1, 0))
 	assert_eq(player1.overdrive.size(), 1)

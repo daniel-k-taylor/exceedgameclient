@@ -239,11 +239,12 @@ func process_move(action_message) -> void:
 	var new_arena_location = action_message['new_arena_location']
 	local_game.do_move(game_player, card_ids, new_arena_location)
 
-func do_change(player : LocalGame.Player, card_ids : Array) -> bool:
+func do_change(player : LocalGame.Player, card_ids : Array, treat_ultras_as_single_force : bool) -> bool:
 	var action_message = {
 		'action_type': 'action_change',
 		'player_id': _get_player_remote_id(player),
 		'card_ids': card_ids,
+		'treat_ultras_as_single_force': treat_ultras_as_single_force,
 	}
 	NetworkManager.submit_game_message(action_message)
 	return true
@@ -251,7 +252,8 @@ func do_change(player : LocalGame.Player, card_ids : Array) -> bool:
 func process_change(action_message) -> void:
 	var game_player = _get_player_from_remote_id(action_message['player_id'])
 	var card_ids = action_message['card_ids']
-	local_game.do_change(game_player, card_ids)
+	var treat_ultras_as_single_force = action_message['treat_ultras_as_single_force']
+	local_game.do_change(game_player, card_ids, treat_ultras_as_single_force)
 
 func do_strike(player : LocalGame.Player, card_id : int, wild_strike: bool, ex_card_id : int,
 		opponent_sets_first : bool = false) -> bool:
@@ -346,11 +348,12 @@ func process_choose_from_discard(action_message) -> void:
 	var card_ids = action_message['card_ids']
 	local_game.do_choose_from_discard(game_player, card_ids)
 
-func do_force_for_effect(player : LocalGame.Player, card_ids : Array, cancel : bool) -> bool:
+func do_force_for_effect(player : LocalGame.Player, card_ids : Array, treat_ultras_as_single_force : bool, cancel : bool) -> bool:
 	var action_message = {
 		'action_type': 'action_force_for_effect',
 		'player_id': _get_player_remote_id(player),
 		'card_ids': card_ids,
+		'treat_ultras_as_single_force': treat_ultras_as_single_force,
 		'cancel': cancel
 	}
 	NetworkManager.submit_game_message(action_message)
@@ -359,8 +362,9 @@ func do_force_for_effect(player : LocalGame.Player, card_ids : Array, cancel : b
 func process_force_for_effect(action_message) -> void:
 	var game_player = _get_player_from_remote_id(action_message['player_id'])
 	var card_ids = action_message['card_ids']
+	var treat_ultras_as_single_force = action_message['treat_ultras_as_single_force']
 	var cancel = action_message['cancel']
-	local_game.do_force_for_effect(game_player, card_ids, cancel)
+	local_game.do_force_for_effect(game_player, card_ids, treat_ultras_as_single_force, cancel)
 
 func do_gauge_for_effect(player : LocalGame.Player, card_ids : Array) -> bool:
 	var action_message = {

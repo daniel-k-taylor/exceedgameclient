@@ -108,6 +108,15 @@ stretch_mode = 4
 [node name="Spacing" type="MarginContainer" parent="OuterMargin/MainVBox"]
 layout_mode = 2
 
+[node name="CheckHBox" type="HBoxContainer" parent="OuterMargin/MainVBox"]
+layout_mode = 2
+alignment = 2
+
+[node name="UltrasForceOptionCheck" type="CheckBox" parent="OuterMargin/MainVBox/CheckHBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 24
+text = "Ultras as 1 force"
+
 [node name="ChoiceButtons" type="GridContainer" parent="OuterMargin/MainVBox"]
 layout_mode = 2
 size_flags_vertical = 2
@@ -167,6 +176,7 @@ size_flags_horizontal = 3
 theme_override_font_sizes/font_size = 28
 
 [connection signal="pressed" from="OuterMargin/MainVBox/PanelContainer/ShowHideHBox/MarginContainer/ShowHideButton" to="." method="_on_show_hide_button_pressed"]
+[connection signal="toggled" from="OuterMargin/MainVBox/CheckHBox/UltrasForceOptionCheck" to="." method="_on_ultras_force_option_check_toggled"]
 [connection signal="pressed" from="OuterMargin/MainVBox/ChoiceButtons/Choice0" to="." method="_on_choice_pressed" binds= [0]]
 [connection signal="pressed" from="OuterMargin/MainVBox/ChoiceButtons/Choice1" to="." method="_on_choice_pressed" binds= [1]]
 [connection signal="pressed" from="OuterMargin/MainVBox/ChoiceButtons/Choice2" to="." method="_on_choice_pressed" binds= [2]]

@@ -56,7 +56,7 @@ func validate_has_event(events, event_type, target_player, number = null):
 				elif number == null:
 					return
 	fail_test("Event not found: %s" % event_type)
- 
+
 func validate_does_not_have_event(events, event_type, target_player, number = null):
 	for event in events:
 		if event['event_type'] == event_type:
@@ -131,7 +131,7 @@ func handle_simultaneous_effects(initiator, defender):
 		if game_logic.decision_info.player == defender.my_id:
 			decider = defender
 		assert_true(game_logic.do_choice(decider, 0), "Failed simuleffect choice")
-		
+
 func execute_strike(initiator, defender, init_card : String, def_card : String, init_choices, def_choices, init_ex = false, def_ex = false, init_gauge_discard = [], def_gauge_discard = [], init_extra_cost = 0):
 	var all_events = []
 	give_specific_cards(initiator, init_card, defender, def_card)
@@ -143,7 +143,7 @@ func execute_strike(initiator, defender, init_card : String, def_card : String, 
 
 	if game_logic.game_state == Enums.GameState.GameState_PlayerDecision and game_logic.active_strike.strike_state == game_logic.StrikeState.StrikeState_Initiator_SetEffects:
 		game_logic.do_gauge_for_effect(initiator, init_gauge_discard)
-		
+
 	if def_ex:
 		give_player_specific_card(defender, def_card, TestCardId4)
 		all_events += do_strike_response(defender, TestCardId2, TestCardId4)
@@ -152,7 +152,7 @@ func execute_strike(initiator, defender, init_card : String, def_card : String, 
 
 	if game_logic.game_state == Enums.GameState.GameState_PlayerDecision and game_logic.active_strike.strike_state == game_logic.StrikeState.StrikeState_Defender_SetEffects:
 		game_logic.do_gauge_for_effect(defender, def_gauge_discard)
-		
+
 	# Pay any costs from gauge
 	if game_logic.active_strike and game_logic.active_strike.strike_state == game_logic.StrikeState.StrikeState_Initiator_PayCosts:
 		var cost = game_logic.active_strike.initiator_card.definition['gauge_cost'] + init_extra_cost
@@ -238,7 +238,7 @@ func test_noel_optic_barrel_minrange():
 	give_player_specific_card(player1, "standard_normal_assault", TestCardId3)
 	var events = execute_strike(player1, player2, "noel_opticbarrel", "standard_normal_spike", [], [], false, false, [], [])
 	assert_eq(game_logic.game_state, Enums.GameState.GameState_PlayerDecision)
-	assert_true(game_logic.do_force_for_effect(player1, [TestCardId3]))
+	assert_true(game_logic.do_force_for_effect(player1, [TestCardId3], false))
 	assert_true(game_logic.do_choice(player1, 0))
 	events += game_logic.get_latest_events()
 	validate_does_not_have_event(events, Enums.EventType.EventType_Strike_TookDamage, player2, 5)

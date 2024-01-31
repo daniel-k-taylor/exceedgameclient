@@ -1,6 +1,7 @@
 extends PanelContainer
 
 signal choice_selected(choice_index : int)
+signal ultra_force_toggled(new_value : bool)
 
 @onready var instructions_label : RichTextLabel = $OuterMargin/MainVBox/PanelContainer/InstructionHBox/InstructionsLabel
 @onready var show_image : TextureRect = $OuterMargin/MainVBox/PanelContainer/ShowHideHBox/MarginContainer/MarginContainer/ShowImage
@@ -9,7 +10,8 @@ signal choice_selected(choice_index : int)
 
 var showing = true
 
-func set_choices(instructions_text : String, choices : Array):
+func set_choices(instructions_text : String, choices : Array, ultra_force_toggle : bool):
+	$OuterMargin/MainVBox/CheckHBox/UltrasForceOptionCheck.visible = ultra_force_toggle
 	var col_count = 1
 	if choices.size() > 5:
 		col_count = 3
@@ -41,3 +43,8 @@ func _on_show_hide_button_pressed():
 	hide_image.visible = showing
 	choice_buttons_grid.visible = showing
 
+func set_force_ultra_toggle(value):
+	$OuterMargin/MainVBox/CheckHBox/UltrasForceOptionCheck.button_pressed = value
+
+func _on_ultras_force_option_check_toggled(button_pressed):
+	ultra_force_toggled.emit(button_pressed)

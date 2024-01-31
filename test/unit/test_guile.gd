@@ -143,7 +143,7 @@ func execute_strike(initiator, defender, init_card : String, def_card : String, 
 		if init_set_effect_gauge:
 			game_logic.do_gauge_for_effect(initiator, init_force_discard)
 		else:
-			game_logic.do_force_for_effect(initiator, init_force_discard)
+			game_logic.do_force_for_effect(initiator, init_force_discard, false)
 
 	if def_ex:
 		give_player_specific_card(defender, def_card, TestCardId4)
@@ -155,7 +155,7 @@ func execute_strike(initiator, defender, init_card : String, def_card : String, 
 		if def_set_effect_gauge:
 			game_logic.do_gauge_for_effect(defender, def_force_discard)
 		else:
-			game_logic.do_force_for_effect(defender, def_force_discard)
+			game_logic.do_force_for_effect(defender, def_force_discard, false)
 
 	# Pay any costs from gauge
 	if game_logic.active_strike and game_logic.active_strike.strike_state == game_logic.StrikeState.StrikeState_Initiator_PayCosts:
@@ -208,13 +208,13 @@ func test_guile_crit():
 	execute_strike(player1, player2, "guile_spinningbackknuckle", "standard_normal_dive", [0], [], false, false, [player1.gauge[0].id], [], 0, true)
 	validate_positions(player1, 5, player2, 4)
 	validate_life(player1, 30, player2, 23)
-	
+
 func test_guile_cc():
 	position_players(player1, 3, player2, 6)
 	give_gauge(player1, 1, "normal")
 	give_player_specific_card(player1, "standard_normal_assault", TestCardId3)
 	assert_eq(player1.hand.size(), 6)
-	assert_true(game_logic.do_change(player1, [TestCardId3]))
+	assert_true(game_logic.do_change(player1, [TestCardId3], false))
 	assert_eq(player1.hand.size(), 7)
 	advance_turn(player2)
 
@@ -224,7 +224,7 @@ func test_guile_cc_ultra():
 	player1.discard_hand()
 	give_player_specific_card(player1, "guile_flashexplosion", TestCardId3)
 	assert_eq(player1.hand.size(), 1)
-	assert_true(game_logic.do_change(player1, [TestCardId3]))
+	assert_true(game_logic.do_change(player1, [TestCardId3], false))
 	assert_eq(player1.hand.size(), 3)
 	advance_turn(player2)
 
@@ -233,7 +233,7 @@ func test_guile_cc_gauge():
 	give_gauge(player1, 1, "normal")
 	give_player_specific_card(player1, "standard_normal_assault", TestCardId3)
 	assert_eq(player1.hand.size(), 6)
-	assert_true(game_logic.do_change(player1, [player1.gauge[0].id]))
+	assert_true(game_logic.do_change(player1, [player1.gauge[0].id], false))
 	assert_eq(player1.hand.size(), 10)
 	assert_true(game_logic.do_discard_to_max(player1, [player1.hand[0].id, player1.hand[1].id, player1.hand[2].id]))
 	advance_turn(player2)
@@ -243,18 +243,18 @@ func test_guile_cc_gauge_ultra():
 	give_gauge(player1, 1, "ultra")
 	give_player_specific_card(player1, "standard_normal_assault", TestCardId3)
 	assert_eq(player1.hand.size(), 6)
-	assert_true(game_logic.do_change(player1, [player1.gauge[0].id]))
+	assert_true(game_logic.do_change(player1, [player1.gauge[0].id], false))
 	assert_eq(player1.hand.size(), 11)
 	assert_true(game_logic.do_discard_to_max(player1, [player1.hand[0].id, player1.hand[1].id, player1.hand[2].id, player1.hand[3].id]))
 	advance_turn(player2)
-	
+
 func test_guile_exceed_cc_gauge_pass():
 	position_players(player1, 3, player2, 6)
 	player1.exceed()
 	give_gauge(player1, 1, "normal")
 	give_player_specific_card(player1, "standard_normal_assault", TestCardId3)
 	assert_eq(player1.hand.size(), 6)
-	assert_true(game_logic.do_change(player1, [player1.gauge[0].id]))
+	assert_true(game_logic.do_change(player1, [player1.gauge[0].id], false))
 	assert_eq(player1.hand.size(), 9)
 	assert_true(game_logic.do_choice(player1, 1))
 	assert_eq(player1.hand.size(), 10)
@@ -267,7 +267,7 @@ func test_guile_exceed_cc_gauge_strike():
 	give_gauge(player1, 1, "normal")
 	give_player_specific_card(player1, "standard_normal_assault", TestCardId3)
 	assert_eq(player1.hand.size(), 6)
-	assert_true(game_logic.do_change(player1, [player1.gauge[0].id]))
+	assert_true(game_logic.do_change(player1, [player1.gauge[0].id], false))
 	assert_eq(player1.hand.size(), 9)
 	assert_true(game_logic.do_choice(player1, 0))
 	execute_strike(player1, player2, "standard_normal_assault", "standard_normal_assault", [], [], false, false, [], [])

@@ -132,7 +132,7 @@ func handle_simultaneous_effects(initiator, defender, simul_effect_choices : Arr
 			choice = simul_effect_choices[0]
 			simul_effect_choices.remove_at(0)
 		assert_true(game_logic.do_choice(decider, choice), "Failed simuleffect choice")
-		
+
 func execute_strike(initiator, defender, init_card : String, def_card : String, init_choices, def_choices, init_ex = false, def_ex = false, init_force_discard = [], def_force_discard = [], init_extra_cost = 0, simul_effect_choices = []):
 	var all_events = []
 	give_specific_cards(initiator, init_card, defender, def_card)
@@ -150,8 +150,8 @@ func execute_strike(initiator, defender, init_card : String, def_card : String, 
 		if game_logic.decision_info.type == Enums.DecisionType.DecisionType_GaugeForEffect:
 			assert_true(game_logic.do_gauge_for_effect(initiator, init_force_discard), "failed gauge for effect in execute_strike")
 		elif game_logic.decision_info.type == Enums.DecisionType.DecisionType_ForceForEffect:
-			assert_true(game_logic.do_force_for_effect(initiator, init_force_discard), "failed force for effect in execute_strike")
-		
+			assert_true(game_logic.do_force_for_effect(initiator, init_force_discard, false), "failed force for effect in execute_strike")
+
 	if def_ex:
 		give_player_specific_card(defender, def_card, TestCardId4)
 		all_events += do_strike_response(defender, TestCardId2, TestCardId4)
@@ -159,8 +159,8 @@ func execute_strike(initiator, defender, init_card : String, def_card : String, 
 		all_events += do_strike_response(defender, TestCardId2)
 
 	if game_logic.game_state == Enums.GameState.GameState_PlayerDecision and game_logic.active_strike.strike_state == game_logic.StrikeState.StrikeState_Defender_SetEffects:
-		game_logic.do_force_for_effect(defender, def_force_discard)
-		
+		game_logic.do_force_for_effect(defender, def_force_discard, false)
+
 	# Pay any costs from gauge
 	if game_logic.active_strike and game_logic.active_strike.strike_state == game_logic.StrikeState.StrikeState_Initiator_PayCosts:
 		if game_logic.active_strike.initiator_card.definition['force_cost']:
@@ -222,7 +222,7 @@ func test_carlclover_vs_hazama_get_bonus_when_he_moves():
 	give_player_specific_card(player2, "standard_normal_cross", TestCardId3)
 	assert_true(game_logic.do_strike(player2, TestCardId3, false, -1))
 	# As Hazama sets, has has ouroboros effect
-	assert_true(game_logic.do_force_for_effect(player2, [player2.hand[0].id], false))
+	assert_true(game_logic.do_force_for_effect(player2, [player2.hand[0].id], false, false))
 	# Choose which snake to use
 	assert_true(game_logic.do_choice(player2, 1))
 	# Choose where to place it
@@ -237,8 +237,8 @@ func test_carlclover_vs_hazama_get_bonus_when_he_moves():
 	# The rest of the attack plays out
 	validate_positions(player1, 3, player2, 7)
 	validate_life(player1, 30, player2, 26)
-	
-	
+
+
 func test_carlclover_exceed_normal():
 	position_players(player1, 3, player2, 6)
 	player1.set_buddy_location("nirvana_active", 4)
@@ -251,7 +251,7 @@ func test_carlclover_exceed_when_disabled():
 	player1.set_buddy_location("nirvana_disabled", 4)
 	player1.exceed()
 	assert_eq(player1.get_buddy_location("nirvana_active"), 4)
-	
+
 func test_carlclover_disable_nirvana():
 	position_players(player1, 3, player2, 6)
 	player1.set_buddy_location("nirvana_active", 4)
@@ -264,7 +264,7 @@ func test_carlclover_disable_nirvana():
 	assert_eq(player1.get_buddy_location("nirvana_disabled"), 4)
 	advance_turn(player2)
 	assert_eq(player1.get_buddy_location("nirvana_disabled"), 4)
-	
+
 func test_carlclover_disable_nirvana2():
 	position_players(player1, 3, player2, 6)
 	player1.set_buddy_location("nirvana_active", 6)
@@ -332,7 +332,7 @@ func test_carlclover_nirvana_powerup_special():
 	player1.set_buddy_location("nirvana_active", 7)
 	player2.set_buddy_location("nirvana_active", 1)
 	execute_strike(player1, player2, "carlclover_confuoco", "standard_normal_assault", [], [], false, false, [], [], 1, [])
-	assert_true(game_logic.do_force_for_effect(player1, [], true))
+	assert_true(game_logic.do_force_for_effect(player1, [], false, true))
 	validate_positions(player1, 5, player2, 6)
 	validate_life(player1, 30, player2, 23)
 	assert_eq(player1.gauge.size(), 1)
@@ -355,7 +355,7 @@ func test_carlclover_confuoco_beforemove():
 	player1.set_buddy_location("nirvana_active", 9)
 	player2.set_buddy_location("nirvana_active", 1)
 	execute_strike(player1, player2, "carlclover_confuoco", "standard_normal_assault", [], [], false, false, [], [], 1, [])
-	assert_true(game_logic.do_force_for_effect(player1, [player1.hand[0].id], false))
+	assert_true(game_logic.do_force_for_effect(player1, [player1.hand[0].id], false, false))
 	# Choices are locations [7, 8]
 	assert_true(game_logic.do_choice(player1, 1))
 	assert_eq(player1.get_buddy_location("nirvana_active"), 8)
@@ -385,7 +385,7 @@ func test_carlclover_conbrio_attack_in_space():
 	execute_strike(player1, player2, "carlclover_conbrio", "standard_normal_assault", [0], [], false, false, [], [], 0, [])
 	validate_positions(player1, 4, player2, 8)
 	validate_life(player1, 30, player2, 26)
-	
+
 func test_carlclover_conbrio_boost_move():
 	position_players(player1, 1, player2, 6)
 	player1.set_buddy_location("nirvana_active", 3)
@@ -404,7 +404,7 @@ func test_carlclover_conbrio_boost_flip():
 	assert_eq(player1.get_buddy_location("nirvana_active"), 3)
 	assert_eq(player1.get_buddy_location("nirvana_disabled"), -1)
 	advance_turn(player1)
-	
+
 func test_carlclover_cantabile_active_do_move():
 	position_players(player1, 4, player2, 6)
 	player1.set_buddy_location("nirvana_active", 5)
@@ -418,7 +418,7 @@ func test_carlclover_cantabile_active_do_move():
 	assert_eq(player1.gauge.size(), 1)
 	assert_eq(player2.gauge.size(), 0)
 	advance_turn(player1)
-	
+
 func test_carlclover_cantabile_disabled_skip_move():
 	position_players(player1, 4, player2, 6)
 	player1.set_buddy_location("nirvana_active", -1)

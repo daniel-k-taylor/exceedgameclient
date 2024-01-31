@@ -1,7 +1,7 @@
 extends GutTest
 
 # Leave at 0 checked in so someone doesn't accidentally run all tests at 100.
-const RandomIterations = 0
+const RandomIterations = 100
 
 const LocalGame = preload("res://scenes/game/local_game.gd")
 const GameCard = preload("res://scenes/game/game_card.gd")
@@ -104,7 +104,7 @@ func handle_move(game: LocalGame, gameplayer : LocalGame.Player, action : AIPlay
 
 func handle_change_cards(game: LocalGame, gameplayer : LocalGame.Player, action : AIPlayer.ChangeCardsAction):
 	var card_ids = action.card_ids
-	assert_true(game.do_change(gameplayer, card_ids), "do change failed")
+	assert_true(game.do_change(gameplayer, card_ids, false), "do change failed")
 	return game.get_latest_events()
 
 func handle_exceed(game: LocalGame, otherai, gameplayer : LocalGame.Player, action : AIPlayer.ExceedAction):
@@ -190,7 +190,7 @@ func handle_decisions(game: LocalGame):
 					options.append(0)
 					options.append(effect['force_max'])
 				var forceforeffect_action = decision_ai.pick_force_for_effect(game, decision_player.my_id, options)
-				assert_true(game.do_force_for_effect(decision_ai.game_player, forceforeffect_action.card_ids), "do force effect failed")
+				assert_true(game.do_force_for_effect(decision_ai.game_player, forceforeffect_action.card_ids, false), "do force effect failed")
 			Enums.DecisionType.DecisionType_GaugeForEffect:
 				var effect = game.decision_info.effect
 				var options = []

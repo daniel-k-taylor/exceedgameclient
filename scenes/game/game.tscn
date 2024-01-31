@@ -758,6 +758,7 @@ offset_bottom = 720.0
 [connection signal="clicked_zone" from="OpponentBoostZone" to="." method="_on_opponent_boost_zone_clicked_zone"]
 [connection signal="pressed" from="ChoicePopoutShowButton" to="." method="_on_choice_popout_show_button_pressed"]
 [connection signal="choice_selected" from="AllCards/ActionContainer/ActionMenu" to="." method="_on_action_menu_choice_selected"]
+[connection signal="ultra_force_toggled" from="AllCards/ActionContainer/ActionMenu" to="." method="_on_action_menu_ultra_force_toggled"]
 [connection signal="close_window" from="AllCards/CardPopout" to="." method="_on_popout_close_window"]
 [connection signal="pressed_cancel" from="AllCards/CardPopout" to="." method="_on_card_popout_pressed_cancel"]
 [connection signal="pressed_ok" from="AllCards/CardPopout" to="." method="_on_card_popout_pressed_ok"]
