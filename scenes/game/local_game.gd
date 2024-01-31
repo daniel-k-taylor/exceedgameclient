@@ -3205,6 +3205,9 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 			var close_amount = abs(performing_start - new_location)
 			local_conditions.fully_closed = close_amount == amount
 			_append_log_full(Enums.LogType.LogType_CharacterMovement, performing_player, "closes %s, moving from space %s to %s." % [str(amount), str(previous_location), str(new_location)])
+			if 'save_spaces_as_strike_x' in effect and effect['save_spaces_as_strike_x']:
+				_append_log_full(Enums.LogType.LogType_Strike, performing_player, "'s X for this strike is set to the number of spaces closed, %s." % close_amount)
+				events += performing_player.set_strike_x(close_amount)
 		"copy_other_hit_effect":
 			var card = active_strike.get_player_card(performing_player)
 			var hit_effects = get_all_effects_for_timing("hit", performing_player, card)
@@ -3777,6 +3780,11 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 			var amount = effect['amount']
 			if str(amount) == "strike_x":
 				amount = performing_player.strike_stat_boosts.strike_x
+			var multiplier = 1
+			if 'multiplier' in effect:
+				multiplier = effect['multiplier']
+			amount = amount * multiplier
+
 			performing_player.strike_stat_boosts.power += amount
 			events += [create_event(Enums.EventType.EventType_Strike_PowerUp, performing_player.my_id, amount)]
 		"powerup_both_players":

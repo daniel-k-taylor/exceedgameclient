@@ -3623,7 +3623,7 @@
 						"effect_type": "gain_advantage",
 						"and": {
 							"effect_type": "add_boost_to_gauge_on_strike_cleanup",
-							"card_name": "Power Attack"
+							"card_name": "Pale Bringer"
 						}
 					}
 				}
@@ -7963,36 +7963,44 @@
 	{
 		"id": "mika_crash",
 		"type": "special",
-		"display_name": "Guidance Ascension",
+		"display_name": "Mika's Crash",
 		"force_cost": 0,
 		"gauge_cost": 0,
-		"range_min": "TOTAL_POWER",
-		"range_max": "TOTAL_POWER",
-		"speed": 6,
-		"power": 1,
+		"range_min": 2,
+		"range_max": 3,
+		"speed": 5,
+		"power": 3,
 		"armor": 0,
 		"guard": 0,
 		"effects": [
 			{
-				"timing": "hit",
-				"effect_type": "push",
-				"amount": 2
+				"timing": "during_strike",
+				"condition": "was_wild_swing",
+				"effect_type": "ignore_guard"
+			},
+			{
+				"timing": "after",
+				"effect_type": "advance",
+				"amount": 3
 			}
 		],
 		"boost": {
 			"boost_type": "continuous",
 			"force_cost": 0,
 			"cancel_cost": -1,
-			"display_name": "Charged Attack",
+			"display_name": "Power Attack",
 			"effects": [
 				{
-					"timing": "during_strike",
+					"timing": "hit",
 					"effect_type": "powerup",
-					"amount": 2
-				},
-				{
-					"timing": "now",
-					"effect_type": "add_boost_to_gauge_on_move"
+					"amount": 1,
+					"and": {
+						"effect_type": "gain_advantage",
+						"and": {
+							"effect_type": "add_boost_to_gauge_on_strike_cleanup",
+							"card_name": "Mika's Crash"
+						}
+					}
 				}
 			]
 		}
@@ -8000,44 +8008,46 @@
 	{
 		"id": "mika_missile",
 		"type": "special",
-		"display_name": "Tuning Satisfaction",
+		"display_name": "Mika's Missile",
 		"force_cost": 0,
 		"gauge_cost": 0,
 		"range_min": 1,
-		"range_max": 4,
-		"speed": 5,
-		"power": 2,
+		"range_max": 1,
+		"speed": 4,
+		"power": 0,
 		"armor": 0,
-		"guard": 0,
+		"guard": 4,
 		"effects": [
 			{
-				"timing": "hit",
-				"effect_type": "push",
-				"amount": 1,
+				"timing": "before",
+				"effect_type": "close",
+				"amount": 3,
+				"save_spaces_as_strike_x": true,
 				"and": {
-					"effect_type": "choice",
-					"choice": [
-						{ "effect_type": "reveal_copy_for_advantage", "copy_id": "phonon_turningsatisfaction" },
-						{ "effect_type": "pass" }
-					]
-
+					"effect_type": "powerup",
+					"amount": "strike_x",
+					"multiplier": 2
 				}
 			}
 		],
 		"boost": {
-			"boost_type": "continuous",
+			"boost_type": "immediate",
 			"force_cost": 0,
 			"cancel_cost": -1,
-			"display_name": "Compounding Plots",
+			"display_name": "Precision Handling",
 			"effects": [
 				{
-					"timing": "during_strike",
-					"effect_type": "powerup",
-					"amount": 1
+					"timing": "immediate",
+					"effect_type": "choice",
+					"choice": [
+						{ "effect_type": "advance", "amount": 1 },
+						{ "effect_type": "retreat", "amount": 1 }
+					]
 				},
 				{
-					"timing": "now",
-					"effect_type": "bonus_action"
+					"timing": "immediate",
+					"effect_type": "draw",
+					"amount": 2
 				}
 			]
 		}
