@@ -3,6 +3,7 @@ extends Node
 enum PlayerId {
 	PlayerId_Player,
 	PlayerId_Opponent,
+	PlayerId_Unassigned,
 }
 
 enum CardZone {
@@ -15,12 +16,13 @@ enum CardZone {
 }
 
 enum DecisionType {
+	DecisionType_None,
 	DecisionType_BoostCancel,
 	DecisionType_BoostNow,
 	DecisionType_ChooseArenaLocationForEffect,
 	DecisionType_ChooseDiscardContinuousBoost,
 	DecisionType_ChooseDiscardOpponentGauge,
-	DecisionType_ChooseFromBoosts,			# 5
+	DecisionType_ChooseFromBoosts,
 	DecisionType_ChooseFromDiscard,
 	DecisionType_ChooseFromTopDeck,
 	DecisionType_ChooseSimultaneousEffect,
@@ -38,6 +40,7 @@ enum DecisionType {
 	DecisionType_ReadingNormal,
 	DecisionType_Sidestep,
 	DecisionType_StrikeNow,
+	DecisionType_ZeroVector,
 }
 
 enum GameState {
@@ -79,6 +82,7 @@ enum EventType {
 	EventType_Boost_Continuous_Added,
 	EventType_Boost_NameCardOpponentDiscards,
 	EventType_Boost_Sidestep,
+	EventType_Boost_ZeroVector,
 	EventType_CardFromHandToGauge_Choice,
 	EventType_ChangeCards,
 	EventType_CharacterAction,

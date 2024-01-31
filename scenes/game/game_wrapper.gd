@@ -94,7 +94,7 @@ func get_player_reshuffle_remaining(id):
 	return _get_player(id).reshuffle_remaining
 
 func get_player_exceed_cost(id):
-	return _get_player(id).exceed_cost
+	return _get_player(id).get_exceed_cost()
 
 func get_player_mulligan_complete(id):
 	return _get_player(id).mulligan_complete
@@ -109,6 +109,9 @@ func get_bonus_actions(id):
 	return _get_player(id).get_bonus_actions()
 
 func is_player_in_overdrive(id):
+	var player = _get_player(id)
+	if 'always_show_overdrive' in player.deck_def and player.deck_def['always_show_overdrive']:
+		return true
 	return _get_player(id).overdrive.size() > 0
 
 func get_all_non_immediate_continuous_boost_effects(id):
@@ -207,8 +210,8 @@ func get_player_available_force(player_id : Enums.PlayerId):
 func get_player_free_force(player_id : Enums.PlayerId):
 	return _get_player(player_id).free_force
 
-func get_player_force_for_cards(player_id : Enums.PlayerId, card_ids : Array, reason : String):
-	return _get_player(player_id).get_force_with_cards(card_ids, reason)
+func get_player_force_for_cards(player_id : Enums.PlayerId, card_ids : Array, reason : String, treat_ultras_as_single_force : bool):
+	return _get_player(player_id).get_force_with_cards(card_ids, reason, treat_ultras_as_single_force)
 
 func get_force_to_move_to(player_id : Enums.PlayerId, location : int):
 	return _get_player(player_id).get_force_to_move_to(location)
@@ -326,9 +329,9 @@ func submit_move(player : Enums.PlayerId, card_ids : Array, new_arena_location :
 	var game_player = _get_player(player)
 	return current_game.do_move(game_player, card_ids, new_arena_location)
 
-func submit_change(player : Enums.PlayerId, card_ids : Array) -> bool:
+func submit_change(player : Enums.PlayerId, card_ids : Array, treat_ultras_as_single_force : bool) -> bool:
 	var game_player = _get_player(player)
-	return current_game.do_change(game_player, card_ids)
+	return current_game.do_change(game_player, card_ids, treat_ultras_as_single_force)
 
 func submit_strike(player : Enums.PlayerId, card_id : int, wild_strike: bool, ex_card_id : int, opponent_sets_first : bool = false) -> bool:
 	var game_player = _get_player(player)
@@ -354,9 +357,9 @@ func submit_choose_from_discard(player: Enums.PlayerId, card_ids : Array) -> boo
 	var game_player = _get_player(player)
 	return current_game.do_choose_from_discard(game_player, card_ids)
 
-func submit_force_for_effect(player: Enums.PlayerId, card_ids : Array, cancel : bool = false) -> bool:
+func submit_force_for_effect(player: Enums.PlayerId, card_ids : Array, treat_ultras_as_single_force : bool, cancel : bool = false) -> bool:
 	var game_player = _get_player(player)
-	return current_game.do_force_for_effect(game_player, card_ids, cancel)
+	return current_game.do_force_for_effect(game_player, card_ids, treat_ultras_as_single_force, cancel)
 
 func submit_gauge_for_effect(player: Enums.PlayerId, card_ids : Array) -> bool:
 	var game_player = _get_player(player)

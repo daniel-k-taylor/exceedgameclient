@@ -121,7 +121,7 @@ func handle_simultaneous_effects(initiator, defender):
 		if game_logic.decision_info.player == defender.my_id:
 			decider = defender
 		assert_true(game_logic.do_choice(decider, 0), "Failed simuleffect choice")
-		
+
 func execute_strike(initiator, defender, init_card : String, def_card : String, init_choices, def_choices, init_ex = false, def_ex = false, init_force_discard = [], def_force_discard = [], init_extra_cost = 0):
 	var all_events = []
 	give_specific_cards(initiator, init_card, defender, def_card)
@@ -132,8 +132,8 @@ func execute_strike(initiator, defender, init_card : String, def_card : String, 
 		do_and_validate_strike(initiator, TestCardId1)
 
 	if game_logic.game_state == Enums.GameState.GameState_PlayerDecision and game_logic.active_strike.strike_state == game_logic.StrikeState.StrikeState_Initiator_SetEffects:
-		game_logic.do_force_for_effect(initiator, init_force_discard)
-		
+		game_logic.do_force_for_effect(initiator, init_force_discard, false)
+
 	if def_ex:
 		give_player_specific_card(defender, def_card, TestCardId4)
 		all_events += do_strike_response(defender, TestCardId2, TestCardId4)
@@ -141,8 +141,8 @@ func execute_strike(initiator, defender, init_card : String, def_card : String, 
 		all_events += do_strike_response(defender, TestCardId2)
 
 	if game_logic.game_state == Enums.GameState.GameState_PlayerDecision and game_logic.active_strike.strike_state == game_logic.StrikeState.StrikeState_Defender_SetEffects:
-		game_logic.do_force_for_effect(defender, def_force_discard)
-		
+		game_logic.do_force_for_effect(defender, def_force_discard, false)
+
 	# Pay any costs from gauge
 	if game_logic.active_strike and game_logic.active_strike.strike_state == game_logic.StrikeState.StrikeState_Initiator_PayCosts:
 		var cost = game_logic.active_strike.initiator_card.definition['gauge_cost'] + init_extra_cost
@@ -194,7 +194,7 @@ func test_goldlewis_starting():
 	assert_true(game_logic.do_prepare(player1))
 	assert_eq(player1.hand.size(), 9)
 	assert_eq(game_logic.game_state, Enums.GameState.GameState_PickAction)
-	
+
 func test_goldlewis_exceed():
 	position_players(player1, 3, player2, 5)
 	player1.exceed()
@@ -209,7 +209,7 @@ func test_goldlewis_hurl_boost():
 	position_players(player1, 3, player2, 5)
 	give_player_specific_card(player1, "goldlewis_hurl", TestCardId3)
 	assert_true(game_logic.do_boost(player1, TestCardId3))
-	assert_true(game_logic.do_force_for_effect(player1, [player1.hand[0].id, player1.hand[1].id]))
+	assert_true(game_logic.do_force_for_effect(player1, [player1.hand[0].id, player1.hand[1].id], false))
 	execute_strike(player1, player2, "gg_normal_slash", "gg_normal_slash", [], [], false, false)
 	validate_positions(player1, 4, player2, 5)
 	validate_life(player1, 30, player2, 25)

@@ -1,7 +1,7 @@
 extends GutTest
 
 # Leave at 0 checked in so someone doesn't accidentally run all tests at 100.
-const RandomIterations = 0
+const RandomIterations = 100
 
 const LocalGame = preload("res://scenes/game/local_game.gd")
 const GameCard = preload("res://scenes/game/game_card.gd")
@@ -104,7 +104,7 @@ func handle_move(game: LocalGame, gameplayer : LocalGame.Player, action : AIPlay
 
 func handle_change_cards(game: LocalGame, gameplayer : LocalGame.Player, action : AIPlayer.ChangeCardsAction):
 	var card_ids = action.card_ids
-	assert_true(game.do_change(gameplayer, card_ids), "do change failed")
+	assert_true(game.do_change(gameplayer, card_ids, false), "do change failed")
 	return game.get_latest_events()
 
 func handle_exceed(game: LocalGame, otherai, gameplayer : LocalGame.Player, action : AIPlayer.ExceedAction):
@@ -158,6 +158,9 @@ func handle_decisions(game: LocalGame):
 			Enums.DecisionType.DecisionType_Sidestep:
 				var pick_action = decision_ai.pick_name_opponent_card(game, decision_player.my_id, true)
 				assert_true(game.do_boost_name_card_choice_effect(decision_player, pick_action.card_id), "do boost name failed")
+			Enums.DecisionType.DecisionType_ZeroVector:
+				var pick_action = decision_ai.pick_name_opponent_card(game, decision_player.my_id, false, game.decision_info.bonus_effect)
+				assert_true(game.do_boost_name_card_choice_effect(decision_player, pick_action.card_id), "do boost name failed")
 			Enums.DecisionType.DecisionType_PayStrikeCost_Required, Enums.DecisionType.DecisionType_PayStrikeCost_CanWild:
 				var can_wild = game.decision_info.type == Enums.DecisionType.DecisionType_PayStrikeCost_CanWild
 				var cost = game.decision_info.cost
@@ -187,7 +190,7 @@ func handle_decisions(game: LocalGame):
 					options.append(0)
 					options.append(effect['force_max'])
 				var forceforeffect_action = decision_ai.pick_force_for_effect(game, decision_player.my_id, options)
-				assert_true(game.do_force_for_effect(decision_ai.game_player, forceforeffect_action.card_ids), "do force effect failed")
+				assert_true(game.do_force_for_effect(decision_ai.game_player, forceforeffect_action.card_ids, false), "do force effect failed")
 			Enums.DecisionType.DecisionType_GaugeForEffect:
 				var effect = game.decision_info.effect
 				var options = []
@@ -544,6 +547,15 @@ func test_faust_100():
 
 func test_happychaos_100():
 	default_deck = CardDefinitions.get_deck_from_str_id("happychaos")
+	for i in range(RandomIterations):
+		print("==== RUNNING TEST %d ====" % i)
+		run_ai_game()
+		game_teardown()
+		game_setup()
+	pass_test("Finished match")
+
+func test_arakune_100():
+	default_deck = CardDefinitions.get_deck_from_str_id("arakune")
 	for i in range(RandomIterations):
 		print("==== RUNNING TEST %d ====" % i)
 		run_ai_game()

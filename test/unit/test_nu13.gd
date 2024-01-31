@@ -125,7 +125,7 @@ func handle_simultaneous_effects(initiator, defender, simul_effect_choices : Arr
 			choice = simul_effect_choices[0]
 			simul_effect_choices.remove_at(0)
 		assert_true(game_logic.do_choice(decider, choice), "Failed simuleffect choice")
-		
+
 func execute_strike(initiator, defender, init_card : String, def_card : String, init_choices, def_choices, init_ex = false, def_ex = false, init_force_discard = [], def_force_discard = [], init_extra_cost = 0, simul_effect_choices = []):
 	var all_events = []
 	give_specific_cards(initiator, init_card, defender, def_card)
@@ -136,8 +136,8 @@ func execute_strike(initiator, defender, init_card : String, def_card : String, 
 		do_and_validate_strike(initiator, TestCardId1)
 
 	if game_logic.game_state == Enums.GameState.GameState_PlayerDecision and game_logic.active_strike.strike_state == game_logic.StrikeState.StrikeState_Initiator_SetEffects:
-		game_logic.do_force_for_effect(initiator, init_force_discard)
-		
+		game_logic.do_force_for_effect(initiator, init_force_discard, false)
+
 	if def_ex:
 		give_player_specific_card(defender, def_card, TestCardId4)
 		all_events += do_strike_response(defender, TestCardId2, TestCardId4)
@@ -145,8 +145,8 @@ func execute_strike(initiator, defender, init_card : String, def_card : String, 
 		all_events += do_strike_response(defender, TestCardId2)
 
 	if game_logic.game_state == Enums.GameState.GameState_PlayerDecision and game_logic.active_strike.strike_state == game_logic.StrikeState.StrikeState_Defender_SetEffects:
-		game_logic.do_force_for_effect(defender, def_force_discard)
-		
+		game_logic.do_force_for_effect(defender, def_force_discard, false)
+
 	# Pay any costs from gauge
 	if game_logic.active_strike and game_logic.active_strike.strike_state == game_logic.StrikeState.StrikeState_Initiator_PayCosts:
 		var cost = game_logic.active_strike.initiator_card.definition['gauge_cost'] + init_extra_cost
@@ -233,11 +233,11 @@ func test_nu_sworddance_boost_tech():
 	assert_false(player2.can_move_to(7, true))
 	assert_false(player2.can_move_to(8, true))
 	assert_false(player2.can_move_to(9, true))
-	
+
 	give_player_specific_card(player2, "standard_normal_dive", TestCardId4)
 	assert_true(game_logic.do_boost(player2, TestCardId4))
 	assert_true(game_logic.do_boost_name_card_choice_effect(player2, TestCardId3))
-	
+
 	validate_positions(player1, 3, player2, 7)
 	assert_eq(player1.continuous_boosts.size(), 0)
 	assert_eq(player1.gauge.size(), 0)
@@ -265,12 +265,12 @@ func test_nu_sworddance_boost_strike():
 	assert_false(player2.can_move_to(7, true))
 	assert_false(player2.can_move_to(8, true))
 	assert_false(player2.can_move_to(9, true))
-	
+
 	execute_strike(player2, player1, "standard_normal_assault", "standard_normal_assault", [], [], false, false)
-	
+
 	validate_positions(player1, 5, player2, 7)
 	validate_life(player1, 30, player2, 30)
-	
+
 	assert_eq(player1.continuous_boosts.size(), 0)
 	assert_eq(player1.gauge.size(), 0)
 	assert_true(player2.can_move_to(1, true))
@@ -289,21 +289,21 @@ func test_nu_swordofdestruction():
 	give_gauge(player1, 3)
 	player1.exceed()
 	execute_strike(player1, player2, "nu13_swordofdestruction", "standard_normal_assault", [0], [], false, false)
-	
+
 	validate_positions(player1, 6, player2, 7)
 	validate_life(player1, 30, player2, 17)
 
 func test_nu_sicklestorm():
 	position_players(player1, 3, player2, 7)
 	execute_strike(player1, player2, "nu13_sicklestorm", "standard_normal_dive", [0], [], false, false)
-	
+
 	validate_positions(player1, 3, player2, 9)
 	validate_life(player1, 30, player2, 26)
 
 func test_nu_sicklestorm_adv_range5():
 	position_players(player1, 3, player2, 8)
 	execute_strike(player1, player2, "nu13_sicklestorm", "standard_normal_dive", [], [], false, false, [player1.hand[0].id])
-	
+
 	validate_positions(player1, 3, player2, 8)
 	validate_life(player1, 30, player2, 26)
 	assert_eq(game_logic.active_turn_player, player1.my_id)
@@ -314,6 +314,6 @@ func test_nu_sicklestorm_boost_adv():
 	assert_true(game_logic.do_boost(player1, TestCardId3))
 	advance_turn(player2)
 	execute_strike(player1, player2, "nu13_sicklestorm", "standard_normal_dive", [0], [], false, false, [], [], 0, [1])
-	
+
 	validate_positions(player1, 3, player2, 8)
 	validate_life(player1, 30, player2, 26)

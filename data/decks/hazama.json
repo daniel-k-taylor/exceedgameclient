@@ -24,7 +24,8 @@
 		"effect_type": "pass"
 	},
 	"overdrive_effect": {
-		"effect_type": "take_nonlethal_damage",
+		"effect_type": "take_damage",
+		"nonlethal": true,
 		"opponent": true,
 		"amount": 1,
 		"and": {
@@ -89,6 +90,7 @@
 				"buddy_name": "Ouroboros - Move"
 			},
 			"negative_condition_effect": {
+				"is_negative_effect": true,
 				"effect_type": "remove_buddy",
 				"silent": true,
 				"buddy_id": "ouroboros_move",
@@ -138,6 +140,7 @@
 		},
 		{
 			"timing": "on_strike_reveal",
+			"resolve_before_simultaneous_effects": true,
 			"condition": "buddy_in_play",
 			"condition_buddy_id": "ouroboros_nothing",
 			"effect_type": "remove_buddy",
@@ -159,6 +162,7 @@
 				"buddy_name": "Ouroboros - Move"
 			},
 			"negative_condition_effect": {
+				"is_negative_effect": true,
 				"effect_type": "remove_buddy",
 				"silent": true,
 				"buddy_id": "ouroboros_move",

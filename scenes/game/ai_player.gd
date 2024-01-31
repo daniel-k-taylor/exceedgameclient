@@ -207,7 +207,7 @@ func update_ai_state(_game_logic : LocalGame, me : LocalGame.Player, opponent : 
 	game_state.my_state.gauge = create_card_id_array(me.gauge)
 	game_state.my_state.arena_location = me.arena_location
 	game_state.my_state.buddy_locations = me.buddy_locations
-	game_state.my_state.exceed_cost = me.exceed_cost
+	game_state.my_state.exceed_cost = me.get_exceed_cost()
 	game_state.my_state.exceeded = me.exceeded
 	game_state.my_state.reshuffle_remaining = me.reshuffle_remaining
 
@@ -221,7 +221,7 @@ func update_ai_state(_game_logic : LocalGame, me : LocalGame.Player, opponent : 
 	game_state.opponent_state.gauge = create_card_id_array(opponent.gauge)
 	game_state.opponent_state.arena_location = opponent.arena_location
 	game_state.opponent_state.buddy_locations = opponent.buddy_locations
-	game_state.opponent_state.exceed_cost = opponent.exceed_cost
+	game_state.opponent_state.exceed_cost = opponent.get_exceed_cost()
 	game_state.opponent_state.exceeded = opponent.exceeded
 	game_state.opponent_state.reshuffle_remaining = opponent.reshuffle_remaining
 
@@ -360,10 +360,10 @@ func get_exceed_actions(_game_logic : LocalGame, me : LocalGame.Player, _opponen
 	var possible_actions = []
 	if me.exceeded:
 		return []
-	if me.exceed_cost > me.gauge.size():
+	if me.get_exceed_cost() > me.gauge.size():
 		return []
 
-	var combinations = get_combinations_to_pay_gauge(me, me.exceed_cost)
+	var combinations = get_combinations_to_pay_gauge(me, me.get_exceed_cost())
 	for combination in combinations:
 		possible_actions.append(ExceedAction.new(combination))
 	return possible_actions
@@ -743,7 +743,7 @@ func pick_discard_opponent_gauge(game_logic : LocalGame, my_id : Enums.PlayerId)
 	update_ai_state(game_logic, me, opponent)
 	return ai_policy.pick_discard_opponent_gauge(possible_actions, game_state)
 
-func pick_name_opponent_card(game_logic : LocalGame, my_id : Enums.PlayerId, normal_only : bool) -> NameCardAction:
+func pick_name_opponent_card(game_logic : LocalGame, my_id : Enums.PlayerId, normal_only : bool, can_use_own_reference : bool = false) -> NameCardAction:
 	var me = game_logic._get_player(my_id)
 	var opponent = game_logic._get_player(game_logic.get_other_player(my_id))
 	var possible_actions = []
@@ -753,6 +753,14 @@ func pick_name_opponent_card(game_logic : LocalGame, my_id : Enums.PlayerId, nor
 		if normal_only and card.definition['type'] != "normal":
 			continue
 		possible_actions.append(NameCardAction.new(card.id))
+	if can_use_own_reference:
+		# TODO: cull this down so normals aren't included twice.
+		for i in range(0, me.deck_list.size(), 2):
+			# Skip every other card to avoid dupes.
+			var card = me.deck_list[i]
+			if normal_only and card.definition['type'] != "normal":
+				continue
+			possible_actions.append(NameCardAction.new(card.id))
 
 	update_ai_state(game_logic, me, opponent)
 	return ai_policy.pick_name_opponent_card(possible_actions, game_state)

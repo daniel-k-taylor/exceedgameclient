@@ -136,7 +136,7 @@ func execute_strike(initiator, defender, init_card : String, def_card : String, 
 		if init_set_effect_gauge:
 			game_logic.do_gauge_for_effect(initiator, init_force_discard)
 		else:
-			game_logic.do_force_for_effect(initiator, init_force_discard)
+			game_logic.do_force_for_effect(initiator, init_force_discard, false)
 
 	if def_ex:
 		give_player_specific_card(defender, def_card, TestCardId4)
@@ -148,7 +148,7 @@ func execute_strike(initiator, defender, init_card : String, def_card : String, 
 		if def_set_effect_gauge:
 			game_logic.do_gauge_for_effect(defender, def_force_discard)
 		else:
-			game_logic.do_force_for_effect(defender, def_force_discard)
+			game_logic.do_force_for_effect(defender, def_force_discard, false)
 
 	# Pay any costs from gauge
 	if game_logic.active_strike and game_logic.active_strike.strike_state == game_logic.StrikeState.StrikeState_Initiator_PayCosts:

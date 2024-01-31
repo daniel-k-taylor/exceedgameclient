@@ -65,6 +65,7 @@ var OpponentHandFocusYPos = CardBase.get_opponent_hand_card_size().y
 var first_run_done = false
 var select_card_require_min = 0
 var select_card_require_max = 0
+var select_card_name_card_both_players = false
 var select_card_must_be_max_or_min = false
 var select_card_require_force = 0
 var select_card_up_to_force = 0
@@ -90,6 +91,7 @@ var cached_opponent_location = 0
 var reference_popout_toggle_enabled = false
 var reference_popout_toggle = false
 var opponent_cards_before_reshuffle = []
+var treat_ultras_as_single_force = false
 
 var player_deck
 var opponent_deck
@@ -271,6 +273,9 @@ func begin_remote_game(game_start_message):
 
 	game_wrapper.initialize_remote_game(my_player_info, opponent_player_info, starting_player, seed_value)
 
+func is_player_overdrive_visible(player_id : Enums.PlayerId):
+	return game_wrapper.is_player_in_overdrive(player_id)
+
 func setup_characters():
 	$PlayerCharacter.load_character(player_deck['id'])
 	$OpponentCharacter.load_character(opponent_deck['id'])
@@ -300,8 +305,8 @@ func setup_characters():
 	$OpponentZones/OpponentSealed.visible = 'has_sealed_area' in opponent_deck and opponent_deck['has_sealed_area']
 	if 'sealed_area_is_secret' in opponent_deck and opponent_deck['sealed_area_is_secret']:
 		$OpponentZones/OpponentSealed.hidden_sealed()
-	$PlayerZones/PlayerOverdrive.visible = false
-	$OpponentZones/OpponentOverdrive.visible = false
+	$PlayerZones/PlayerOverdrive.visible = is_player_overdrive_visible(Enums.PlayerId.PlayerId_Player)
+	$OpponentZones/OpponentOverdrive.visible = is_player_overdrive_visible(Enums.PlayerId.PlayerId_Opponent)
 	setup_character_card(player_character_card, player_deck, player_buddy_character_card)
 	setup_character_card(opponent_character_card, opponent_deck, opponent_buddy_character_card)
 
@@ -610,8 +615,8 @@ func update_card_counts():
 	$PlayerZones/PlayerOverdrive.set_details(game_wrapper.get_player_overdrive_size(Enums.PlayerId.PlayerId_Player))
 	$OpponentZones/OpponentOverdrive.set_details(game_wrapper.get_player_overdrive_size(Enums.PlayerId.PlayerId_Opponent))
 
-	$PlayerZones/PlayerOverdrive.visible = game_wrapper.is_player_in_overdrive(Enums.PlayerId.PlayerId_Player)
-	$OpponentZones/OpponentOverdrive.visible = game_wrapper.is_player_in_overdrive(Enums.PlayerId.PlayerId_Opponent)
+	$PlayerZones/PlayerOverdrive.visible = is_player_overdrive_visible(Enums.PlayerId.PlayerId_Player)
+	$OpponentZones/OpponentOverdrive.visible = is_player_overdrive_visible(Enums.PlayerId.PlayerId_Opponent)
 
 func get_card_node_name(id):
 	return "Card_" + str(id)
@@ -693,6 +698,7 @@ func can_select_card(card):
 	var in_player_boosts = game_wrapper.is_card_in_boosts(Enums.PlayerId.PlayerId_Player, card.card_id)
 	var is_sustained = game_wrapper.is_card_sustained(Enums.PlayerId.PlayerId_Player, card.card_id)
 	var in_opponent_boosts = game_wrapper.is_card_in_boosts(Enums.PlayerId.PlayerId_Opponent, card.card_id)
+	var in_player_reference = is_card_in_player_reference($AllCards/PlayerAllCopy.get_children(), card.card_id)
 	var in_opponent_reference = is_card_in_player_reference($AllCards/OpponentAllCopy.get_children(), card.card_id)
 	var in_choice_zone = is_card_in_player_reference($AllCards/ChoiceZone.get_children(), card.card_id)
 
@@ -748,7 +754,10 @@ func can_select_card(card):
 		UISubState.UISubState_SelectCards_DiscardOpponentGauge:
 			return in_opponent_gauge and len(selected_cards) < select_card_require_max
 		UISubState.UISubState_SelectCards_DiscardFromReference:
-			return in_opponent_reference and len(selected_cards) < select_card_require_max
+			var in_appropriate_reference = in_opponent_reference
+			if select_card_name_card_both_players:
+				in_appropriate_reference = in_opponent_reference or in_player_reference
+			return in_appropriate_reference and len(selected_cards) < select_card_require_max
 		UISubState.UISubState_SelectCards_ChooseDiscardToDestination:
 			var card_db = game_wrapper.get_card_database()
 			var card_type = card_db.get_card(card.card_id).definition['type']
@@ -962,7 +971,10 @@ func _stat_notice_event(event):
 			var secondplus = ""
 			if number2 >= 0:
 				secondplus = "+"
-			notice_text = "%s%s - %s%s Range" % [firstplus, number, secondplus, number2]
+			if number == number2:
+				notice_text = "%s%s Range" % [firstplus, number]
+			else:
+				notice_text = "%s%s - %s%s Range" % [firstplus, number, secondplus, number2]
 		Enums.EventType.EventType_Strike_SetX:
 			notice_text = "X is %s" % number
 		Enums.EventType.EventType_Strike_SpeedUp:
@@ -1123,7 +1135,11 @@ func _on_name_opponent_card_begin(event):
 	spawn_damage_popup("Naming Card", player)
 	var normal_only = event['event_type'] == Enums.EventType.EventType_ReadingNormal or event['event_type'] == Enums.EventType.EventType_Boost_Sidestep
 	var can_name_fake_card = event['event_type'] == Enums.EventType.EventType_Boost_NameCardOpponentDiscards
+	select_card_name_card_both_players = game_wrapper.get_decision_info().bonus_effect
 	if player == Enums.PlayerId.PlayerId_Player:
+		var instruction_text = "Name an opponent card."
+		if select_card_name_card_both_players:
+			instruction_text = "Name a card."
 		# Show the boost window.
 		_on_opponent_reference_button_pressed()
 		selected_cards = []
@@ -1132,7 +1148,7 @@ func _on_name_opponent_card_begin(event):
 		var cancel_allowed = can_name_fake_card
 		popout_instruction_info = {
 			"popout_type": CardPopoutType.CardPopoutType_ReferenceOpponent,
-			"instruction_text": "Name an opponent card.",
+			"instruction_text": instruction_text,
 			"ok_text": "OK",
 			"cancel_text": "Reveal Hand",
 			"ok_enabled": true,
@@ -1143,7 +1159,7 @@ func _on_name_opponent_card_begin(event):
 
 		change_ui_state(UIState.UIState_SelectCards, UISubState.UISubState_SelectCards_DiscardFromReference)
 	else:
-		ai_name_opponent_card(normal_only)
+		ai_name_opponent_card(normal_only, select_card_name_card_both_players)
 	return SmallNoticeDelay
 
 func _on_boost_played(event):
@@ -1250,6 +1266,12 @@ func get_string_for_action_choice(choice):
 			return "Add to Hand"
 		"add_to_gauge":
 			return "Add to Gauge"
+		"add_to_sealed":
+			return "Add to Sealed"
+		"add_to_overdrive":
+			return "Add to Overdrive"
+		"add_to_topdeck_under":
+			return "Add to deck 2nd from top"
 	return ""
 
 func begin_choose_from_topdeck(action_choices, look_amount, can_pass):
@@ -1552,7 +1574,7 @@ func _on_choose_to_discard(event, informative_only : bool):
 	var decision_info = game_wrapper.get_decision_info()
 	var can_pass = decision_info.can_pass
 	if informative_only or not can_pass:
-		if not decision_info.destination in ["reveal", "sealed"]:
+		if not decision_info.destination in ["reveal", "sealed", "opponent_overdrive"]:
 			spawn_damage_popup("Forced Discard %s" % str(amount), player)
 	if not informative_only:
 		var limitation = decision_info.limitation
@@ -1670,7 +1692,7 @@ func get_force_in_selected_cards():
 	var reason = ""
 	if ui_sub_state == UISubState.UISubState_SelectCards_ForceForChange:
 		reason = "CHANGE_CARDS"
-	return game_wrapper.get_player_force_for_cards(Enums.PlayerId.PlayerId_Player, card_ids, reason)
+	return game_wrapper.get_player_force_for_cards(Enums.PlayerId.PlayerId_Player, card_ids, reason, treat_ultras_as_single_force)
 
 func can_selected_cards_pay_force(force_cost : int, bonus_card_force_value : int = 0):
 	var max_force_selected = game_wrapper.get_player_free_force(Enums.PlayerId.PlayerId_Player)
@@ -1746,6 +1768,11 @@ func begin_discard_cards_selection(number_to_discard_min, number_to_discard_max,
 	change_ui_state(UIState.UIState_SelectCards, next_sub_state)
 
 func begin_generate_force_selection(amount, can_cancel : bool = true, wild_swing_allowed : bool = false):
+	# Show the gauge window.
+	_on_player_gauge_gauge_clicked()
+	treat_ultras_as_single_force = false
+	action_menu.set_force_ultra_toggle(false)
+
 	selected_cards = []
 	select_card_require_force = amount
 	enable_instructions_ui("", true, can_cancel, wild_swing_allowed)
@@ -2291,6 +2318,8 @@ func _handle_events(events):
 				_on_name_opponent_card_begin(event)
 			Enums.EventType.EventType_Boost_Sidestep:
 				_on_name_opponent_card_begin(event)
+			Enums.EventType.EventType_Boost_ZeroVector:
+				_on_name_opponent_card_begin(event)
 			Enums.EventType.EventType_Boost_Played:
 				delay = _on_boost_played(event)
 			Enums.EventType.EventType_CardFromHandToGauge_Choice:
@@ -2564,6 +2593,7 @@ func _update_buttons():
 		button_choices.append({ "text": "Wild Swing", "action": _on_wild_swing_button_pressed })
 
 	# Update instructions message
+	var ultra_force_toggle = false
 	if ui_state == UIState.UIState_SelectCards:
 		match ui_sub_state:
 			UISubState.UISubState_SelectCards_DiscardCards:
@@ -2579,10 +2609,12 @@ func _update_buttons():
 			UISubState.UISubState_SelectCards_ForceForBoost:
 				update_force_generation_message()
 			UISubState.UISubState_SelectCards_ForceForChange:
+				ultra_force_toggle = true
 				update_force_generation_message()
 			UISubState.UISubState_SelectCards_ForceForArmor:
 				update_force_generation_message()
 			UISubState.UISubState_SelectCards_ForceForEffect:
+				ultra_force_toggle = true
 				update_force_generation_message()
 			UISubState.UISubState_SelectCards_StrikeForce:
 				update_force_generation_message()
@@ -2646,7 +2678,7 @@ func _update_buttons():
 			action_menu_hidden = true
 	action_menu.visible = not action_menu_hidden and (button_choices.size() > 0 or instructions_visible)
 	action_menu_container.visible = action_menu.visible
-	action_menu.set_choices(current_instruction_text, button_choices)
+	action_menu.set_choices(current_instruction_text, button_choices, ultra_force_toggle)
 	current_action_menu_choices = button_choices
 
 func update_boost_summary(boosts_card_holder, boost_box):
@@ -2871,13 +2903,13 @@ func _on_instructions_ok_button_pressed(index : int):
 			UISubState.UISubState_SelectCards_Exceed:
 				success = game_wrapper.submit_exceed(Enums.PlayerId.PlayerId_Player, selected_card_ids)
 			UISubState.UISubState_SelectCards_ForceForEffect:
-				success = game_wrapper.submit_force_for_effect(Enums.PlayerId.PlayerId_Player, selected_card_ids)
+				success = game_wrapper.submit_force_for_effect(Enums.PlayerId.PlayerId_Player, selected_card_ids, treat_ultras_as_single_force)
 			UISubState.UISubState_SelectCards_GaugeForEffect:
 				success = game_wrapper.submit_gauge_for_effect(Enums.PlayerId.PlayerId_Player, selected_card_ids)
 			UISubState.UISubState_SelectCards_MoveActionGenerateForce:
 				success = game_wrapper.submit_move(Enums.PlayerId.PlayerId_Player, selected_card_ids, selected_arena_location)
 			UISubState.UISubState_SelectCards_ForceForChange:
-				success = game_wrapper.submit_change(Enums.PlayerId.PlayerId_Player, selected_card_ids)
+				success = game_wrapper.submit_change(Enums.PlayerId.PlayerId_Player, selected_card_ids, treat_ultras_as_single_force)
 			UISubState.UISubState_SelectCards_StrikeCard, UISubState.UISubState_SelectCards_StrikeResponseCard, UISubState.UISubState_SelectCards_StrikeCard_FromGauge, UISubState.UISubState_SelectCards_StrikeCard_FromSealed:
 				success = game_wrapper.submit_strike(Enums.PlayerId.PlayerId_Player, single_card_id, false, ex_card_id)
 			UISubState.UISubState_SelectCards_OpponentSetsFirst_StrikeCard, UISubState.UISubState_SelectCards_OpponentSetsFirst_StrikeResponseCard:
@@ -2912,7 +2944,7 @@ func _on_instructions_cancel_button_pressed():
 		UISubState.UISubState_SelectCards_ForceForEffect:
 			deselect_all_cards()
 			close_popout()
-			success = game_wrapper.submit_force_for_effect(Enums.PlayerId.PlayerId_Player, [], true)
+			success = game_wrapper.submit_force_for_effect(Enums.PlayerId.PlayerId_Player, [], false, true)
 		UISubState.UISubState_SelectCards_GaugeForEffect:
 			deselect_all_cards()
 			close_popout()
@@ -3068,7 +3100,7 @@ func ai_handle_move(action : AIPlayer.MoveAction):
 
 func ai_handle_change_cards(action : AIPlayer.ChangeCardsAction):
 	var card_ids = action.card_ids
-	var success = game_wrapper.submit_change(Enums.PlayerId.PlayerId_Opponent, card_ids)
+	var success = game_wrapper.submit_change(Enums.PlayerId.PlayerId_Opponent, card_ids, false)
 	if not success:
 		printlog("FAILED AI CHANGE CARDS")
 	return success
@@ -3195,7 +3227,7 @@ func ai_force_for_effect(effect):
 		options.append(0)
 		options.append(effect['force_max'])
 	var forceforeffect_action = ai_player.pick_force_for_effect(game_wrapper.current_game, Enums.PlayerId.PlayerId_Opponent, options)
-	var success = game_wrapper.submit_force_for_effect(Enums.PlayerId.PlayerId_Opponent, forceforeffect_action.card_ids)
+	var success = game_wrapper.submit_force_for_effect(Enums.PlayerId.PlayerId_Opponent, forceforeffect_action.card_ids, false)
 	if success:
 		change_ui_state(UIState.UIState_WaitForGameServer)
 	else:
@@ -3290,10 +3322,10 @@ func ai_discard_opponent_gauge():
 	else:
 		print("FAILED AI DISCARD OPPONENT GAUGE")
 
-func ai_name_opponent_card(normal_only : bool):
+func ai_name_opponent_card(normal_only : bool, can_use_own_reference : bool):
 	change_ui_state(UIState.UIState_WaitForGameServer)
 	if not game_wrapper.is_ai_game(): return
-	var pick_action = ai_player.pick_name_opponent_card(game_wrapper.current_game, Enums.PlayerId.PlayerId_Opponent, normal_only)
+	var pick_action = ai_player.pick_name_opponent_card(game_wrapper.current_game, Enums.PlayerId.PlayerId_Opponent, normal_only, can_use_own_reference)
 	var success = game_wrapper.submit_boost_name_card_choice_effect(Enums.PlayerId.PlayerId_Opponent, pick_action.card_id)
 	if success:
 		change_ui_state(UIState.UIState_WaitForGameServer)
@@ -3709,3 +3741,7 @@ func _on_emote_dialog_close_button_pressed():
 func _on_emote_dialog_emote_selected(is_image_emote : bool, emote : String):
 	emote_dialog.visible = false
 	game_wrapper.submit_emote(Enums.PlayerId.PlayerId_Player, is_image_emote, emote)
+
+func _on_action_menu_ultra_force_toggled(new_value):
+	treat_ultras_as_single_force = new_value
+	_update_buttons()

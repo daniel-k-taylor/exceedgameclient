@@ -135,7 +135,7 @@ func execute_strike(initiator, defender, init_card : String, def_card : String, 
 		do_and_validate_strike(initiator, TestCardId1)
 
 	if game_logic.game_state == Enums.GameState.GameState_PlayerDecision and game_logic.active_strike.strike_state == game_logic.StrikeState.StrikeState_Initiator_SetEffects:
-		game_logic.do_force_for_effect(initiator, init_force_discard)
+		game_logic.do_force_for_effect(initiator, init_force_discard, false)
 
 	if def_ex:
 		give_player_specific_card(defender, def_card, TestCardId4)
@@ -144,7 +144,7 @@ func execute_strike(initiator, defender, init_card : String, def_card : String, 
 		all_events += do_strike_response(defender, TestCardId2)
 
 	if game_logic.game_state == Enums.GameState.GameState_PlayerDecision and game_logic.active_strike.strike_state == game_logic.StrikeState.StrikeState_Defender_SetEffects:
-		game_logic.do_force_for_effect(defender, def_force_discard)
+		game_logic.do_force_for_effect(defender, def_force_discard, false)
 
 	# Pay any costs from gauge or hand
 	if game_logic.active_strike and game_logic.active_strike.strike_state == game_logic.StrikeState.StrikeState_Initiator_PayCosts:
@@ -219,7 +219,7 @@ func _setup_sealed_area(player, speeds_to_swap):
 	for sealed_card_id in sealed_card_ids:
 		player.move_card_from_sealed_to_hand(sealed_card_id)
 	for speed in speeds_to_swap:
-		player.seal_from_hand(TestCardSealedIds[speed])
+		player.seal_from_location(TestCardSealedIds[speed], "hand")
 	return sealed_card_ids
 
 func test_nine_swap_normal():

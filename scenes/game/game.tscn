@@ -22,7 +22,7 @@
 [ext_resource type="PackedScene" uid="uid://dvan4a8ftuplj" path="res://scenes/card/character_card_base.tscn" id="18_imast"]
 [ext_resource type="PackedScene" uid="uid://w87ls4e8oasj" path="res://scenes/game/combat_log.tscn" id="18_k7mnw"]
 [ext_resource type="Texture2D" uid="uid://hj14gadm15wr" path="res://assets/icons/speechbubble.png" id="21_86687"]
-[ext_resource type="PackedScene" path="res://scenes/game/modal_dialog.tscn" id="21_qe5we"]
+[ext_resource type="PackedScene" uid="uid://b8kmmrd5jmqdd" path="res://scenes/game/modal_dialog.tscn" id="21_qe5we"]
 [ext_resource type="PackedScene" uid="uid://belqon3ac2y7a" path="res://scenes/game/emote_display.tscn" id="21_sd8mp"]
 [ext_resource type="PackedScene" uid="uid://i2fmgsopd4xp" path="res://scenes/game/emote_dialog.tscn" id="23_rqqoa"]
 
@@ -758,6 +758,7 @@ offset_bottom = 720.0
 [connection signal="clicked_zone" from="OpponentBoostZone" to="." method="_on_opponent_boost_zone_clicked_zone"]
 [connection signal="pressed" from="ChoicePopoutShowButton" to="." method="_on_choice_popout_show_button_pressed"]
 [connection signal="choice_selected" from="AllCards/ActionContainer/ActionMenu" to="." method="_on_action_menu_choice_selected"]
+[connection signal="ultra_force_toggled" from="AllCards/ActionContainer/ActionMenu" to="." method="_on_action_menu_ultra_force_toggled"]
 [connection signal="close_window" from="AllCards/CardPopout" to="." method="_on_popout_close_window"]
 [connection signal="pressed_cancel" from="AllCards/CardPopout" to="." method="_on_card_popout_pressed_cancel"]
 [connection signal="pressed_ok" from="AllCards/CardPopout" to="." method="_on_card_popout_pressed_ok"]

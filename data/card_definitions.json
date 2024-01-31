@@ -339,6 +339,458 @@
 
 
 	{
+		"NOTE": "ARAKUNE CARDS START",
+		"id": "arakune_ntoinfinity",
+		"type": "ultra",
+		"display_name": "n to infinity",
+		"force_cost": 0,
+		"gauge_cost": 3,
+		"range_min": 1,
+		"range_max": 1,
+		"speed": 4,
+		"power": 5,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "before",
+				"effect_type": "close",
+				"amount": 3
+			},
+			{
+				"timing": "after",
+				"condition": "opponent_stunned",
+				"effect_type": "take_damage",
+				"opponent": true,
+				"amount": 99
+			}
+
+		],
+		"boost": {
+			"boost_type": "immediate",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Burst",
+			"effects": [
+				{
+					"timing": "immediate",
+					"effect_type": "draw",
+					"amount": 2
+				},
+				{
+					"timing": "immediate",
+					"effect_type": "seal_this"
+				},
+				{
+					"timing": "immediate",
+					"effect_type": "bonus_action"
+				}
+			]
+		}
+	},
+	{
+		"id": "arakune_finverse",
+		"type": "ultra",
+		"display_name": "f inverse",
+		"force_cost": 0,
+		"gauge_cost": 3,
+		"range_min": 2,
+		"range_max": 2,
+		"speed": 7,
+		"power": 4,
+		"armor": 0,
+		"guard": 0,
+		"on_invalid": {
+			"effect_type": "armorup",
+			"amount": 3
+		},
+		"effects": [
+			{
+				"timing": "hit",
+				"condition": "range",
+				"condition_amount": 1,
+				"effect_type": "powerup",
+				"amount": 2
+			},
+			{
+				"timing": "after",
+				"effect_type": "choice",
+				"choice": [
+					{ "effect_type": "push", "amount": 1 },
+					{ "effect_type": "push", "amount": 2 },
+					{ "effect_type": "pull", "amount": 1 },
+					{ "effect_type": "pull", "amount": 2 }
+				]
+			}
+		],
+		"boost": {
+			"boost_type": "immediate",
+			"force_cost": 1,
+			"cancel_cost": -1,
+			"display_name": "Forbidden Knowledge",
+			"effects": [
+				{
+					"timing": "immediate",
+					"effect_type": "choose_cards_from_top_deck",
+					"look_amount": 5,
+					"action_choices": [
+						"add_to_sealed"
+					],
+					"can_pass": false,
+					"destination_unchosen": "topdeck"
+				},
+				{
+					"timing": "immediate",
+					"effect_type": "choose_cards_from_top_deck",
+					"look_amount": 4,
+					"action_choices": [
+						"add_to_gauge"
+					],
+					"can_pass": false,
+					"destination_unchosen": "topdeck"
+				},
+				{
+					"timing": "immediate",
+					"effect_type": "choose_cards_from_top_deck",
+					"look_amount": 3,
+					"action_choices": [
+						"add_to_overdrive"
+					],
+					"can_pass": false,
+					"destination_unchosen": "topdeck"
+				},
+				{
+					"timing": "immediate",
+					"effect_type": "choose_cards_from_top_deck",
+					"look_amount": 2,
+					"action_choices": [
+						"add_to_topdeck_under"
+					],
+					"can_pass": false,
+					"destination_unchosen": "topdeck"
+				}
+			]
+		}
+	},
+	{
+		"id": "arakune_fofg",
+		"type": "ultra",
+		"display_name": "f of g",
+		"force_cost": 0,
+		"gauge_cost": 2,
+		"range_min": 3,
+		"range_max": 7,
+		"speed": 3,
+		"power": 3,
+		"armor": 0,
+		"guard": 3,
+		"effects": [
+			{
+				"timing": "hit",
+				"effect_type": "choose_discard",
+				"limitation": "",
+				"destination": "overdrive",
+				"amount": 3,
+				"amount_min": 0
+			}
+		],
+		"boost": {
+			"boost_type": "immediate",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Wall Teleport",
+			"effects": [
+				{
+					"timing": "immediate",
+					"condition": "at_edge_of_arena",
+					"effect_type": "move_to_any_space"
+				}
+			]
+		}
+	},
+	{
+		"id": "arakune_disjointunion",
+		"type": "special",
+		"display_name": "Disjoint Union",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 4,
+		"range_max": 4,
+		"speed": 5,
+		"power": 3,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "before",
+				"condition": "range",
+				"condition_amount": 1,
+				"effect_type": "choice",
+				"choice": [
+					{ "effect_type": "push", "amount": 3 },
+					{ "effect_type": "push", "amount": 4 },
+					{ "effect_type": "pass" }
+				]
+			},
+			{
+				"timing": "after",
+				"condition": "opponent_stunned",
+				"effect_type": "add_top_discard_to_overdrive"
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Bell Bug",
+			"effects": [
+				{
+					"timing": "now",
+					"effect_type": "strike"
+				},
+				{
+					"timing": "hit",
+					"effect_type": "draw",
+					"amount": 1,
+					"and": {
+						"effect_type": "add_boost_to_overdrive_during_strike_immediately",
+						"card_name": "Disjoint Union"
+					}
+				}
+			]
+		}
+	},
+	{
+		"id": "arakune_ifpthenq",
+		"type": "special",
+		"display_name": "If p, then q",
+		"force_cost": 1,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 1,
+		"speed": 5,
+		"power": 0,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "during_strike",
+				"effect_type": "set_total_power",
+				"amount": 0
+			},
+			{
+				"timing": "during_strike",
+				"effect_type": "higher_speed_misses"
+			},
+			{
+				"timing": "before",
+				"effect_type": "choice",
+				"choice": [
+					{ "effect_type": "advance", "amount": 3 },
+					{ "effect_type": "pass" }
+				]
+			},
+			{
+				"timing": "after",
+				"effect_type": "choice",
+				"choice": [
+					{ "effect_type": "add_strike_to_overdrive_after_cleanup" },
+					{ "effect_type": "pass" }
+				]
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Equals 0",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "speedup",
+					"amount": -1
+				},
+				{
+					"timing": "during_strike",
+					"effect_type": "dodge_at_range",
+					"special_range": "OVERDRIVE_COUNT"
+				},
+				{
+					"timing": "now",
+					"effect_type": "draw",
+					"amount": 1
+				}
+			]
+		}
+	},
+	{
+		"id": "arakune_ytwodash",
+		"type": "special",
+		"display_name": "y, two-dash",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 2,
+		"range_max": 3,
+		"speed": 4,
+		"power": 4,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "before",
+				"effect_type": "choice",
+				"choice": [
+					{ "effect_type": "advance", "amount": 2, "and": {
+						"condition": "advanced_through",
+						"effect_type": "powerup",
+						"amount": 2
+					} },
+					{ "effect_type": "advance", "amount": 3, "and": {
+						"condition": "advanced_through",
+						"effect_type": "powerup",
+						"amount": 2
+					} }
+				]
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Irrationality",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "rangeup_both_players",
+					"amount": 1,
+					"amount2": 1
+				},
+				{
+					"timing": "during_strike",
+					"effect_type": "powerup_both_players",
+					"amount": -1
+				}
+			]
+		}
+	},
+	{
+		"id": "arakune_permutationnr",
+		"type": "special",
+		"display_name": "Permutation n, r",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 7,
+		"range_max": 7,
+		"speed": 3,
+		"power": 5,
+		"armor": 1,
+		"guard": 5,
+		"effects": [
+			{
+				"timing": "before",
+				"effect_type": "force_for_effect",
+				"per_force_effect": {
+					"effect_type": "rangeup",
+					"amount": -2,
+					"amount2": -2
+				},
+				"overall_effect": null,
+				"force_max": 3
+			},
+			{
+				"timing": "hit",
+				"effect_type": "opponent_discard_random",
+				"amount": 1,
+				"destination": "overdrive"
+			}
+		],
+		"boost": {
+			"boost_type": "immediate",
+			"force_cost": 1,
+			"cancel_cost": -1,
+			"display_name": "A +- B",
+			"effects": [
+				{
+					"timing": "immediate",
+					"effect_type": "choice",
+					"opponent": true,
+					"choice": [
+						{
+							"effect_type": "self_discard_choose",
+							"amount": 1,
+							"destination": "opponent_overdrive"
+						},
+						{ "effect_type": "reveal_hand_and_topdeck" }
+					]
+				}
+			]
+		}
+	},
+	{
+		"NOTE": "ARAKUNE CARDS END",
+		"id": "arakune_fpiecewise",
+		"type": "special",
+		"display_name": "f piecewise",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 0,
+		"range_max": 0,
+		"speed": 2,
+		"power": 6,
+		"armor": 0,
+		"guard": 6,
+		"effects": [
+			{
+				"timing": "before",
+				"effect_type": "force_for_effect",
+				"per_force_effect": {
+					"effect_type": "rangeup",
+					"amount": 2,
+					"amount2": 2
+				},
+				"overall_effect": null,
+				"force_max": 3
+			},
+			{
+				"timing": "after",
+				"effect_type": "choice",
+				"choice": [
+					{ "effect_type": "advance", "amount": 2 },
+					{ "effect_type": "retreat", "amount": 2 }
+				]
+			}
+
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Zero Vector",
+			"effects": [
+				{
+					"timing": "now",
+					"effect_type": "zero_vector"
+				},
+				{
+					"timing": "during_strike",
+					"effect_type": "zero_vector_dialogue"
+				},
+				{
+					"timing": "after",
+					"effect_type": "add_boost_to_overdrive_during_strike_immediately",
+					"card_name": "f piecewise"
+				},
+				{
+					"timing": "now",
+					"effect_type": "strike"
+				}
+			]
+		},
+		"NOTEEND": "ARAKUNE CARDS END"
+	},
+
+
+	{
 		"NOTE": "AXL CARDS START",
 		"id": "axl_onevision",
 		"type": "ultra",
@@ -843,7 +1295,8 @@
 					"effect_type": "draw",
 					"amount": 1,
 					"and": {
-						"effect_type": "take_nonlethal_damage",
+						"effect_type": "take_damage",
+						"nonlethal": true,
 						"amount": 3
 					}
 				}
@@ -2175,7 +2628,8 @@
 				},
 				{
 					"timing": "both_players_after",
-					"effect_type": "take_nonlethal_damage",
+					"effect_type": "take_damage",
+					"nonlethal": true,
 					"amount": 3,
 					"and": {
 						"effect_type": "discard_this",
@@ -10999,8 +11453,8 @@
 					"condition_amount": 1,
 					"effect_type": "choice",
 					"choice": [
-						{ "effect_type": "push", "amount": 1, "and": {"effect_type": "strike"} },
-						{ "effect_type": "push", "amount": 2, "and": {"effect_type": "strike"}  }
+						{ "effect_type": "push", "amount": 1, "and": { "effect_type": "strike" } },
+						{ "effect_type": "push", "amount": 2, "and": { "effect_type": "strike" } }
 					]
 				}
 			]

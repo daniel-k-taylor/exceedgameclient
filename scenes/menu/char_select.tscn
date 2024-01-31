@@ -1,4 +1,4 @@
-[gd_scene load_steps=51 format=3 uid="uid://cqs72exlwm6at"]
+[gd_scene load_steps=52 format=3 uid="uid://cqs72exlwm6at"]
 
 [ext_resource type="Script" path="res://scenes/menu/char_select.gd" id="1_f3x24"]
 [ext_resource type="PackedScene" uid="uid://nwqxp8pdh1jk" path="res://scenes/menu/char_select_button.tscn" id="6_3lmwy"]
@@ -47,6 +47,7 @@
 [ext_resource type="Texture2D" uid="uid://bu2eawlvu1aut" path="res://assets/portraits/taokaka.png" id="37_iqb1f"]
 [ext_resource type="Texture2D" uid="uid://d2hpsnf4ait4n" path="res://assets/portraits/carlclover.png" id="37_wtd7i"]
 [ext_resource type="Texture2D" uid="uid://brexpvmhajw2c" path="res://assets/portraits/guile.png" id="39_8wdmm"]
+[ext_resource type="Texture2D" uid="uid://bsnhwfau216op" path="res://assets/portraits/arakune.png" id="40_pcigi"]
 [ext_resource type="Texture2D" uid="uid://bnyj6tteeavxq" path="res://assets/portraits/specter.png" id="42_vmogd"]
 [ext_resource type="Texture2D" uid="uid://c1aaxfvy8dxha" path="res://assets/portraits/sagat.png" id="45_6fv30"]
 
@@ -371,6 +372,11 @@ layout_mode = 2
 char_id = "carlclover"
 portrait_texture = ExtResource("37_wtd7i")
 
+[node name="Arakune" parent="CenterContainer/BBCharacterSelect/Rows/Row3" instance=ExtResource("6_3lmwy")]
+layout_mode = 2
+char_id = "arakune"
+portrait_texture = ExtResource("40_pcigi")
+
 [node name="SKCharacterSelect" type="PanelContainer" parent="CenterContainer"]
 layout_mode = 2
 mouse_filter = 2
@@ -575,6 +581,8 @@ portrait_texture = ExtResource("32_iutun")
 [connection signal="on_pressed" from="CenterContainer/BBCharacterSelect/Rows/Row3/Taokaka" to="." method="_on_char_button_on_pressed"]
 [connection signal="on_hover" from="CenterContainer/BBCharacterSelect/Rows/Row3/CarlClover" to="." method="_on_char_hover"]
 [connection signal="on_pressed" from="CenterContainer/BBCharacterSelect/Rows/Row3/CarlClover" to="." method="_on_char_button_on_pressed"]
+[connection signal="on_hover" from="CenterContainer/BBCharacterSelect/Rows/Row3/Arakune" to="." method="_on_char_hover"]
+[connection signal="on_pressed" from="CenterContainer/BBCharacterSelect/Rows/Row3/Arakune" to="." method="_on_char_button_on_pressed"]
 [connection signal="on_hover" from="CenterContainer/SKCharacterSelect/Rows/Row1/ShovelShield" to="." method="_on_char_hover"]
 [connection signal="on_pressed" from="CenterContainer/SKCharacterSelect/Rows/Row1/ShovelShield" to="." method="_on_char_button_on_pressed"]
 [connection signal="on_hover" from="CenterContainer/SKCharacterSelect/Rows/Row1/Plague" to="." method="_on_char_hover"]
