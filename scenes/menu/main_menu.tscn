@@ -279,6 +279,23 @@ stream = ExtResource("7_pt1r5")
 stream = ExtResource("8_vcasp")
 volume_db = -9.0
 
+[node name="SettingsPanel" type="MarginContainer" parent="."]
+custom_minimum_size = Vector2(100, 100)
+layout_mode = 0
+offset_left = 1100.0
+offset_top = 600.0
+offset_right = 1200.0
+offset_bottom = 700.0
+
+[node name="VBoxContainer" type="VBoxContainer" parent="SettingsPanel"]
+layout_mode = 2
+
+[node name="BGMCheckBox" type="CheckBox" parent="SettingsPanel/VBoxContainer"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 30
+button_pressed = true
+text = "BGM"
+
 [connection signal="pressed" from="MenuList/VSAIBox/FightSettings/StartButton" to="." method="_on_start_button_pressed"]
 [connection signal="pressed" from="MenuList/VSAIBox/OpponentChooser/ChangePlayerCharacterButton" to="." method="_on_change_player_character_button_pressed" binds= [false]]
 [connection signal="pressed" from="MenuList/MatchmakeButton" to="." method="_on_matchmake_button_pressed"]
@@ -293,3 +310,4 @@ volume_db = -9.0
 [connection signal="pressed" from="ReconnectToServerButton" to="." method="_on_reconnect_to_server_button_pressed"]
 [connection signal="close_character_select" from="CharSelect" to="." method="_on_char_select_close_character_select"]
 [connection signal="select_character" from="CharSelect" to="." method="_on_char_select_select_character"]
+[connection signal="toggled" from="SettingsPanel/VBoxContainer/BGMCheckBox" to="." method="_on_bgm_check_box_toggled"]
