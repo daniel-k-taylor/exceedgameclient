@@ -34,7 +34,7 @@
 		},
 		{
 			"timing": "end_of_turn",
-			"condition": "did_draw_at_end_of_turn",
+			"condition": "did_end_of_turn_draw",
 			"effect_type": "add_top_deck_to_gauge"
 		}
 	],

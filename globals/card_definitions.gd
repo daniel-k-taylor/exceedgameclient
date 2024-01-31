@@ -405,6 +405,8 @@ func get_effect_type_text(effect, card_name_source : String = ""):
 			if 'limitation' in effect and effect['limitation'] == "continuous":
 				limitation_str = "continuous boost(s)"
 			effect_str += "Play and sustain the top %s %s from your discard pile" % [effect['amount'], limitation_str]
+		"cannot_go_below_life":
+			effect_str += "Life cannot go below %s" % effect['amount']
 		"cannot_stun":
 			effect_str += "Attack does not stun."
 		"choice":
@@ -630,6 +632,8 @@ func get_effect_type_text(effect, card_name_source : String = ""):
 				else:
 					repeats += " time(s)"
 				effect_str += "; you may repeat this %s." % repeats
+		"reshuffle_discard_into_deck":
+			effect_str += "Reshuffle discard pile into deck"
 		"retreat":
 			effect_str += "Retreat "
 			if str(effect['amount']) == "strike_x":

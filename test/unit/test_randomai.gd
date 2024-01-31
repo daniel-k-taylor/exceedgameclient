@@ -572,6 +572,15 @@ func test_carlclover_100():
 		game_setup()
 	pass_test("Finished match")
 
+func test_hakumen_100():
+	default_deck = CardDefinitions.get_deck_from_str_id("hakumen")
+	for i in range(RandomIterations):
+		print("==== RUNNING TEST %d ====" % i)
+		run_ai_game()
+		game_teardown()
+		game_setup()
+	pass_test("Finished match")
+
 func test_jin_100():
 	default_deck = CardDefinitions.get_deck_from_str_id("jin")
 	for i in range(RandomIterations):

@@ -296,6 +296,7 @@ class StrikeStatBoosts:
 	var min_range : int = 0
 	var max_range : int = 0
 	var attack_does_not_hit : bool = false
+	var cannot_go_below_life : int = 0
 	var dodge_attacks : bool = false
 	var dodge_at_range_min : int = -1
 	var dodge_at_range_max : int = -1
@@ -350,6 +351,7 @@ class StrikeStatBoosts:
 		min_range = 0
 		max_range = 0
 		attack_does_not_hit = false
+		cannot_go_below_life = 0
 		dodge_attacks = false
 		dodge_at_range_min = -1
 		dodge_at_range_max = -1
@@ -439,6 +441,7 @@ class Player:
 	var exceeded : bool
 	var exceed_cost : int
 	var strike_stat_boosts : StrikeStatBoosts
+	var did_end_of_turn_draw : bool
 	var did_strike_this_turn : bool
 	var bonus_actions : int
 	var canceled_this_turn : bool
@@ -476,6 +479,7 @@ class Player:
 	var saved_power : int
 	var movement_limit : int
 	var free_force : int
+	var free_gauge : int
 	var guile_change_cards_bonus : bool
 	var cards_that_will_not_hit : Array[String]
 	var cards_invalid_during_strike : Array[String]
@@ -517,6 +521,7 @@ class Player:
 		has_overdrive = 'exceed_to_overdrive' in deck_def and deck_def['exceed_to_overdrive']
 		reshuffle_remaining = MaxReshuffle
 		exceeded = false
+		did_end_of_turn_draw = false
 		did_strike_this_turn = false
 		bonus_actions = 0
 		canceled_this_turn = false
@@ -553,6 +558,7 @@ class Player:
 		end_of_turn_boost_delay_card_ids = []
 		saved_power = 0
 		free_force = 0
+		free_gauge = 0
 		guile_change_cards_bonus = false
 		cards_that_will_not_hit = []
 		cards_invalid_during_strike = []
@@ -1044,7 +1050,8 @@ class Player:
 					return false
 			return force_generated >= force_cost
 		elif gauge_cost:
-			var gauge_generated = 0
+			# Cap free gauge to the max gauge cost of the effect.
+			var gauge_generated = min(free_gauge, gauge_cost)
 			for card_id in card_ids:
 				if is_card_in_gauge(card_id):
 					gauge_generated += 1
@@ -1052,7 +1059,7 @@ class Player:
 					assert(false)
 					parent.printlog("ERROR: Card not in gauge")
 					return false
-			return gauge_generated >= gauge_cost
+			return gauge_generated == gauge_cost
 
 		# No cost.
 		return true
@@ -1214,9 +1221,9 @@ class Player:
 		unknown_cards.sort_custom(func(c1, c2) : return c1.id < c2.id)
 		return unknown_cards
 
-	func reshuffle_discard(manual : bool):
+	func reshuffle_discard(manual : bool, free : bool = false):
 		var events : Array = []
-		if reshuffle_remaining == 0:
+		if reshuffle_remaining == 0 and not free:
 			# Game Over
 			parent._append_log_full(Enums.LogType.LogType_Default, self, "is out of cards!")
 			events += parent.trigger_game_over(my_id, Enums.GameOverReason.GameOverReason_Decked)
@@ -1233,7 +1240,8 @@ class Player:
 			deck += discards
 			discards = []
 			random_shuffle_deck()
-			reshuffle_remaining -= 1
+			if not free:
+				reshuffle_remaining -= 1
 			events += [parent.create_event(Enums.EventType.EventType_ReshuffleDiscard, my_id, reshuffle_remaining, "", unknown_cards)]
 			var local_conditions = LocalStrikeConditions.new()
 			local_conditions.manual_reshuffle = manual
@@ -1546,7 +1554,8 @@ class Player:
 		return force
 
 	func get_available_gauge():
-		return len(gauge)
+		var gauge = free_gauge
+		return gauge + len(gauge)
 
 	func can_move_to(new_arena_location, ignore_force_req : bool):
 		if cannot_move: return false
@@ -2233,6 +2242,8 @@ func advance_to_next_turn():
 				events += do_effect_if_condition_met(player_ending_turn, card.id, effect, null)
 
 	# Turn is over, reset state.
+	player.did_end_of_turn_draw = false
+	opponent.did_end_of_turn_draw = false
 	player.did_strike_this_turn = false
 	opponent.did_strike_this_turn = false
 	player.canceled_this_turn = false
@@ -2588,6 +2599,8 @@ func is_effect_condition_met(performing_player : Player, effect, local_condition
 		elif condition == "life_equals":
 			var amount = effect['condition_amount']
 			return performing_player.life == amount
+		elif condition == "did_end_of_turn_draw":
+			return performing_player.did_end_of_turn_draw
 		elif condition == "discarded_matches_attack_speed":
 			var discarded_card_ids = effect['discarded_card_ids']
 			assert(discarded_card_ids.size() == 1)
@@ -3045,6 +3058,8 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 				decision_info.player = performing_player.my_id
 		"buddy_immune_to_flip":
 			performing_player.strike_stat_boosts.buddy_immune_to_flip = true
+		"cannot_go_below_life":
+			performing_player.strike_stat_boosts.cannot_go_below_life = effect['amount']
 		"cannot_stun":
 			performing_player.strike_stat_boosts.cannot_stun = true
 		"choice":
@@ -3372,6 +3387,16 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 				_append_log_full(Enums.LogType.LogType_Effect, performing_player, "no longer has their force costs reduced.")
 			else:
 				_append_log_full(Enums.LogType.LogType_Effect, performing_player, "now only has their force costs reduced by %s." % performing_player.free_force)
+		"gauge_costs_reduced_passive":
+			if 'remove' in effect and effect['remove']:
+				performing_player.free_gauge -= effect['amount']
+				_append_log_full(Enums.LogType.LogType_Effect, performing_player, "no longer has their gauge costs reduced.")
+			else:
+				performing_player.free_gauge += effect['amount']
+				var reduction_str = "by %s" % str(effect['amount'])
+				if effect['amount'] == 99:
+					reduction_str = "to zero"
+				_append_log_full(Enums.LogType.LogType_Effect, performing_player, "now has their gauge costs reduced %s!" % reduction_str)
 		"force_for_effect":
 			var force_player = performing_player
 			if 'other_player' in effect and effect['other_player']:
@@ -3950,6 +3975,8 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 			performing_player.strike_stat_boosts.calculate_range_from_buddy_id = ""
 			if 'buddy_id' in effect:
 				performing_player.strike_stat_boosts.calculate_range_from_buddy_id = effect['buddy_id']
+		"reshuffle_discard_into_deck":
+			events += performing_player.reshuffle_discard(false, true)
 		"retreat":
 			var amount = effect['amount']
 			if str(amount) == "strike_x":
@@ -5003,6 +5030,8 @@ func apply_damage(offense_player : Player, defense_player : Player):
 
 	var damage_after_armor = calculate_damage(offense_player, defense_player)
 	defense_player.life -= damage_after_armor
+	if defense_player.strike_stat_boosts.cannot_go_below_life > 0:
+		defense_player.life = max(defense_player.life, defense_player.strike_stat_boosts.cannot_go_below_life)
 	if armor > 0:
 		defense_player.strike_stat_boosts.consumed_armor += (power - damage_after_armor)
 	events += [create_event(Enums.EventType.EventType_Strike_TookDamage, defense_player.my_id, damage_after_armor, "", defense_player.life)]
@@ -5038,6 +5067,7 @@ func ask_for_cost(performing_player, card, next_state):
 	var events = []
 	var gauge_cost = get_gauge_cost(performing_player, card)
 	var force_cost = card.definition['force_cost']
+	var card_has_cost = gauge_cost > 0 or force_cost > 0
 	var is_special = card.definition['type'] == "special"
 	var gauge_discard_reminder = false
 	if 'gauge_discard_reminder' in card.definition:
@@ -5045,13 +5075,16 @@ func ask_for_cost(performing_player, card, next_state):
 
 	var card_in_invalid_list = card.definition['display_name'] in performing_player.cards_invalid_during_strike
 	var card_forced_invalid = (is_special and performing_player.specials_invalid) or card_in_invalid_list
-	if performing_player.can_pay_cost_with([], gauge_cost, force_cost) and not card_forced_invalid:
+	# Even if the cost can be paid for free, if the card has a cost wild swing is allowed.
+	var was_wild_swing = active_strike.get_player_wild_strike(performing_player)
+	var can_invalidate_anyway = was_wild_swing and card_has_cost
+	if performing_player.can_pay_cost_with([], gauge_cost, force_cost) and not card_forced_invalid and not can_invalidate_anyway:
 		active_strike.strike_state = next_state
 	else:
 		if not card_forced_invalid and performing_player.can_pay_cost(force_cost, gauge_cost):
 			change_game_state(Enums.GameState.GameState_PlayerDecision)
 			decision_info.player = performing_player.my_id
-			if active_strike.get_player_wild_strike(performing_player):
+			if was_wild_swing:
 				decision_info.type = Enums.DecisionType.DecisionType_PayStrikeCost_CanWild
 			else:
 				decision_info.type = Enums.DecisionType.DecisionType_PayStrikeCost_Required
@@ -5651,6 +5684,7 @@ func check_hand_size_advance_turn(performing_player : Player):
 		events += [create_event(Enums.EventType.EventType_Boost_ActionAfterBoost, performing_player.my_id, performing_player.bonus_actions)]
 	else:
 		events += performing_player.draw(1)
+		performing_player.did_end_of_turn_draw = true
 		_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "draws for end of turn. Their hand size is now %s." % len(performing_player.hand))
 		if len(performing_player.hand) > performing_player.max_hand_size:
 			change_game_state(Enums.GameState.GameState_DiscardDownToMax)
@@ -6607,16 +6641,22 @@ func do_gauge_for_effect(performing_player : Player, card_ids : Array) -> bool:
 			printlog("ERROR: Tried to gauge for effect with card not in gauge.")
 			return false
 
-	var gauge_generated = len(card_ids)
+	# Cap free gauge to the max gauge cost of the effect.
+	var gauge_generated = min(performing_player.free_gauge, decision_info.effect['gauge_max'])
+	gauge_generated += len(card_ids)
 
 	if gauge_generated > decision_info.effect['gauge_max']:
 		printlog("ERROR: Tried to gauge for effect with too many cards.")
 		return false
 	change_game_state(Enums.GameState.GameState_Strike_Processing)
 	if gauge_generated > 0:
-		var card_names = card_db.get_card_name(card_ids[0])
-		for i in range(1, card_ids.size()):
-			card_names += ", " + card_db.get_card_name(card_ids[i])
+		var card_names = ""
+		if card_ids.size() > 0:
+			card_names = card_db.get_card_name(card_ids[0])
+			for i in range(1, card_ids.size()):
+				card_names += ", " + card_db.get_card_name(card_ids[i])
+		else:
+			card_names = "passive bonus"
 
 		var decision_effect = null
 		var effect_times = 0

@@ -353,6 +353,7 @@ func get_combinations_to_pay_gauge(me : LocalGame.Player, gauge_cost : int):
 	for card in me.gauge:
 		gauge_card_options.append(card.id)
 	var combinations = []
+	var cost_to_pay = max(gauge_cost - me.free_gauge, 0)
 	generate_card_count_combinations(gauge_card_options, gauge_cost, [], 0, combinations)
 	return combinations
 

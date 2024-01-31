@@ -1,17 +1,20 @@
 In progress:
 
 Hakumen:
-    ☐ Allow 0 cost wild swing invalidation if force_cost or gauge_cost was >0 on the definition
-    ☐ "effect_type": "cannot_go_below_life",
-    ☐ "effect_type": "reshuffle_discard_into_deck"
-    ☐ "condition": "did_draw_at_end_of_turn",
-    ☐ "effect_type": "gauge_costs_reduced_passive",
-        ☐ amount": 99,
-		☐ "remove": true/false
-        ☐ interaction with required gauge for effect
+    ☐ Allow 0 cost wild swing invalidation if force_cost or gauge_cost was >0 on the definition @started(24-01-31 13:41)
+    ☐ "effect_type": "cannot_go_below_life", @started(24-01-31 13:08)
+    ☐ "effect_type": "reshuffle_discard_into_deck" @started(24-01-31 13:12)
+    ☐ "condition": "did_draw_at_end_of_turn", @started(24-01-31 13:03)
+    ☐ "effect_type": "gauge_costs_reduced_passive", @started(24-01-31 13:47)
+        ☐ interaction with required gauge for effect @started(24-01-31 13:47)
+
+    ☐ check UI for free gauge
+        ☐ wild swing ultra
+        ☐ gauge for effect
 
     Additional Tests:
         ☐ Akumetsu strike effects - since block_opponent_move was a boost
+        ☐ Check if Hazama can overpay force with passive bonus
 
 Write tests for:
     Axl:
