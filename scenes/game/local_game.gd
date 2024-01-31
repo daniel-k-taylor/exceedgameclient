@@ -2765,6 +2765,14 @@ func is_effect_condition_met(performing_player : Player, effect, local_condition
 			return not performing_player.strike_stat_boosts.critical
 		elif condition == "choose_cards_from_top_deck_action":
 			return decision_info.action == effect["condition_details"]
+		elif condition == "total_powerup_greater_or_equal":
+			var amount = effect['condition_amount']
+			var total_powerup = performing_player.strike_stat_boosts.power
+			return total_powerup >= amount
+		elif condition == "opponent_total_guard_greater_or_equal":
+			var amount = effect['condition_amount']
+			var total_guard =
+			return total_guard >= amount
 		elif condition == "no_sealed_copy_of_attack":
 			var card_id = active_strike.get_player_card(performing_player).definition["id"]
 			for sealed_card in performing_player.sealed:

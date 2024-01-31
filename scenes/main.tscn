@@ -1,12 +1,18 @@
-[gd_scene load_steps=3 format=3 uid="uid://375moew37k4r"]
+[gd_scene load_steps=5 format=3 uid="uid://375moew37k4r"]
 
 [ext_resource type="Script" path="res://scenes/main.gd" id="1_28q6k"]
 [ext_resource type="PackedScene" uid="uid://o8vjxrpicjsm" path="res://scenes/menu/main_menu.tscn" id="2_x1b8u"]
+[ext_resource type="PackedScene" uid="uid://nwqxp8pdh1jk" path="res://scenes/menu/char_select_button.tscn" id="3_cbqca"]
+[ext_resource type="Texture2D" uid="uid://c1aaxfvy8dxha" path="res://assets/portraits/sagat.png" id="4_fjd73"]
 
 [node name="Main" type="Node2D"]
 script = ExtResource("1_28q6k")
 
 [node name="MainMenu" parent="." instance=ExtResource("2_x1b8u")]
+
+[node name="Sagat" parent="." instance=ExtResource("3_cbqca")]
+char_id = "sagat"
+portrait_texture = ExtResource("4_fjd73")
 
 [connection signal="start_game" from="MainMenu" to="." method="_on_main_menu_start_game"]
 [connection signal="start_remote_game" from="MainMenu" to="." method="_on_main_menu_start_remote_game"]

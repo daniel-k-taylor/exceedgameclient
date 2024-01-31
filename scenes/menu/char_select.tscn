@@ -1,4 +1,4 @@
-[gd_scene load_steps=52 format=3 uid="uid://cqs72exlwm6at"]
+[gd_scene load_steps=53 format=3 uid="uid://cqs72exlwm6at"]
 
 [ext_resource type="Script" path="res://scenes/menu/char_select.gd" id="1_f3x24"]
 [ext_resource type="PackedScene" uid="uid://nwqxp8pdh1jk" path="res://scenes/menu/char_select_button.tscn" id="6_3lmwy"]
@@ -50,6 +50,7 @@
 [ext_resource type="Texture2D" uid="uid://bsnhwfau216op" path="res://assets/portraits/arakune.png" id="40_pcigi"]
 [ext_resource type="Texture2D" uid="uid://bnyj6tteeavxq" path="res://assets/portraits/specter.png" id="42_vmogd"]
 [ext_resource type="Texture2D" uid="uid://c1aaxfvy8dxha" path="res://assets/portraits/sagat.png" id="45_6fv30"]
+[ext_resource type="Texture2D" uid="uid://c64lam1prprip" path="res://assets/portraits/akuma.png" id="48_4ovfi"]
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_8u80i"]
 
@@ -444,6 +445,11 @@ portrait_texture = ExtResource("31_2ynpm")
 layout_mode = 2
 alignment = 1
 
+[node name="Akuma" parent="CenterContainer/SFCharacterSelect/Rows/Row2" instance=ExtResource("6_3lmwy")]
+layout_mode = 2
+char_id = "akuma"
+portrait_texture = ExtResource("48_4ovfi")
+
 [node name="Sagat" parent="CenterContainer/SFCharacterSelect/Rows/Row2" instance=ExtResource("6_3lmwy")]
 layout_mode = 2
 char_id = "sagat"
@@ -597,6 +603,8 @@ portrait_texture = ExtResource("32_iutun")
 [connection signal="on_pressed" from="CenterContainer/SFCharacterSelect/Rows/Row1/RandomSF" to="." method="_on_char_button_on_pressed"]
 [connection signal="on_hover" from="CenterContainer/SFCharacterSelect/Rows/Row1/Ken" to="." method="_on_char_hover"]
 [connection signal="on_pressed" from="CenterContainer/SFCharacterSelect/Rows/Row1/Ken" to="." method="_on_char_button_on_pressed"]
+[connection signal="on_hover" from="CenterContainer/SFCharacterSelect/Rows/Row2/Akuma" to="." method="_on_char_hover"]
+[connection signal="on_pressed" from="CenterContainer/SFCharacterSelect/Rows/Row2/Akuma" to="." method="_on_char_button_on_pressed"]
 [connection signal="on_hover" from="CenterContainer/SFCharacterSelect/Rows/Row2/Sagat" to="." method="_on_char_hover"]
 [connection signal="on_pressed" from="CenterContainer/SFCharacterSelect/Rows/Row2/Sagat" to="." method="_on_char_button_on_pressed"]
 [connection signal="on_hover" from="CenterContainer/SFCharacterSelect/Rows/Row2/Guile" to="." method="_on_char_hover"]
