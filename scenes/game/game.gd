@@ -1008,14 +1008,15 @@ func _on_stunned(event):
 		$OpponentCharacter.play_stunned()
 	return _stat_notice_event(event)
 
+func _on_end_of_strike():
+	player_bonus_panel.visible = false
+	opponent_bonus_panel.visible = false
+
 func _on_advance_turn():
 	var active_player : Enums.PlayerId = game_wrapper.get_active_player()
 	var is_local_player_active = active_player == Enums.PlayerId.PlayerId_Player
 	$PlayerLife.set_turn_indicator(is_local_player_active)
 	$OpponentLife.set_turn_indicator(not is_local_player_active)
-
-	player_bonus_panel.visible = false
-	opponent_bonus_panel.visible = false
 
 	if is_local_player_active:
 		change_ui_state(UIState.UIState_PickTurnAction, UISubState.UISubState_None)
@@ -1136,7 +1137,10 @@ func _on_name_opponent_card_begin(event):
 	spawn_damage_popup("Naming Card", player)
 	var normal_only = event['event_type'] == Enums.EventType.EventType_ReadingNormal or event['event_type'] == Enums.EventType.EventType_Boost_Sidestep
 	var can_name_fake_card = event['event_type'] == Enums.EventType.EventType_Boost_NameCardOpponentDiscards
-	select_card_name_card_both_players = game_wrapper.get_decision_info().bonus_effect
+	if game_wrapper.get_decision_info().bonus_effect:
+		select_card_name_card_both_players = game_wrapper.get_decision_info().bonus_effect
+	else:
+		select_card_name_card_both_players = false
 	if player == Enums.PlayerId.PlayerId_Player:
 		var instruction_text = "Name an opponent card."
 		if select_card_name_card_both_players:
@@ -2407,6 +2411,8 @@ func _handle_events(events):
 				delay = _on_choose_to_discard(event, false)
 			Enums.EventType.EventType_Strike_ChooseToDiscard_Info:
 				delay = _on_choose_to_discard(event, true)
+			Enums.EventType.EventType_Strike_CleanupUI:
+				_on_end_of_strike()
 			Enums.EventType.EventType_Strike_Critical:
 				delay = _stat_notice_event(event)
 			Enums.EventType.EventType_Strike_DodgeAttacks, Enums.EventType.EventType_Strike_DodgeAttacksAtRange, Enums.EventType.EventType_Strike_DodgeFromOppositeBuddy:
