@@ -1649,7 +1649,7 @@ func update_discard_to_gauge_selection_message():
 
 func get_gauge_generated():
 	var gauge_from_free_bonus = game_wrapper.get_player_free_gauge(Enums.PlayerId.PlayerId_Player)
-	var gauge_generated = min(gauge_from_free_bonus, select_cards_require_max)
+	var gauge_generated = min(gauge_from_free_bonus, select_card_require_max)
 	gauge_generated += len(selected_cards)
 	return gauge_generated
 
@@ -1682,7 +1682,10 @@ func update_gauge_for_effect_message():
 				effect_str = "Return %s gauge to your hand." % [decision_effect['gauge_max']]
 		else:
 			effect_str = "Spend %s gauge for %s." % [decision_effect['gauge_max'], effect_text]
-	effect_str += "\n%s gauge selected." % [get_gauge_generated()]
+	var passive_bonus = get_gauge_generated() - len(selected_card_ids)
+	if passive_bonus > 0:
+		effect_str += "\n%s gauge from passive bonus." % passive_bonus
+	effect_str += "\n%s gauge generated." % [get_gauge_generated()]
 	# Strip tags that currently aren't supported.
 	effect_str = effect_str.replace("[b]", "").replace("[/b]", "")
 	set_instructions(effect_str)
@@ -2505,7 +2508,7 @@ func _update_buttons():
 			button_choices.append({ "text": "Move", "action": _on_move_button_pressed, "disabled": not game_wrapper.can_do_move(Enums.PlayerId.PlayerId_Player) })
 			button_choices.append({ "text": "Change Cards", "action": _on_change_button_pressed, "disabled": not game_wrapper.can_do_change(Enums.PlayerId.PlayerId_Player) })
 			var exceed_cost = game_wrapper.get_player_exceed_cost(Enums.PlayerId.PlayerId_Player)
-			if exceed_cost >= 0:
+			if exceed_cost >= 0 and not game_wrapper.is_player_exceeded(Enums.PlayerId.PlayerId_Player):
 				button_choices.append({ "text": "Exceed (%s Gauge)" % exceed_cost, "action": _on_exceed_button_pressed, "disabled": not game_wrapper.can_do_exceed(Enums.PlayerId.PlayerId_Player) })
 			if game_wrapper.can_do_reshuffle(Enums.PlayerId.PlayerId_Player):
 				button_choices.append({ "text": "Manual Reshuffle", "action": _on_reshuffle_button_pressed, "disabled": false })

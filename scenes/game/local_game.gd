@@ -1554,8 +1554,8 @@ class Player:
 		return force
 
 	func get_available_gauge():
-		var gauge = free_gauge
-		return gauge + len(gauge)
+		var available_gauge = free_gauge
+		return available_gauge + len(gauge)
 
 	func can_move_to(new_arena_location, ignore_force_req : bool):
 		if cannot_move: return false
@@ -2310,10 +2310,10 @@ func advance_to_next_turn():
 				"amount_min": 1
 			}]
 			overdrive_effects.append(starting_turn_player.get_overdrive_effect())
-			if starting_turn_player.overdrive.size() == 1:
-				overdrive_effects.append({
-					"effect_type": "revert"
-				})
+			overdrive_effects.append({
+				"condition": "overdrive_empty",
+				"effect_type": "revert"
+			})
 			active_overdrive = true
 			remaining_overdrive_effects = overdrive_effects
 			_append_log_full(Enums.LogType.LogType_Default, starting_turn_player, "'s Overdrive Effects!")
@@ -2751,6 +2751,8 @@ func is_effect_condition_met(performing_player : Player, effect, local_condition
 			return other_player.arena_location == MinArenaLocation or other_player.arena_location == MaxArenaLocation
 		elif condition == "opponent_stunned":
 			return active_strike.is_player_stunned(other_player)
+		elif condition == "overdrive_empty":
+			return performing_player.overdrive.size() == 0
 		elif condition == "range":
 			var amount = effect['condition_amount']
 			var distance = abs(performing_player.arena_location - other_player.arena_location)
@@ -5078,7 +5080,7 @@ func ask_for_cost(performing_player, card, next_state):
 	# Even if the cost can be paid for free, if the card has a cost wild swing is allowed.
 	var was_wild_swing = active_strike.get_player_wild_strike(performing_player)
 	var can_invalidate_anyway = was_wild_swing and card_has_cost
-	if performing_player.can_pay_cost_with([], gauge_cost, force_cost) and not card_forced_invalid and not can_invalidate_anyway:
+	if performing_player.can_pay_cost_with([], force_cost, gauge_cost) and not card_forced_invalid and not can_invalidate_anyway:
 		active_strike.strike_state = next_state
 	else:
 		if not card_forced_invalid and performing_player.can_pay_cost(force_cost, gauge_cost):
@@ -6501,6 +6503,10 @@ func do_choose_from_discard(performing_player : Player, card_ids : Array) -> boo
 			match destination:
 				"discard":
 					events += performing_player.discard([card_id])
+				"hand":
+					# Drop the discard event because we really just want the add to hand event.
+					performing_player.discard([card_id])
+					events += performing_player.move_card_from_discard_to_hand(card_id)
 				_:
 					printlog("ERROR: Choose from overdrive destination not implemented.")
 					assert(false, "Choose from overdrive destination not implemented.")

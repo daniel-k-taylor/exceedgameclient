@@ -96,6 +96,9 @@ func get_player_reshuffle_remaining(id):
 func get_player_exceed_cost(id):
 	return _get_player(id).get_exceed_cost()
 
+func is_player_exceeded(id):
+	return _get_player(id).exceeded
+
 func get_player_mulligan_complete(id):
 	return _get_player(id).mulligan_complete
 

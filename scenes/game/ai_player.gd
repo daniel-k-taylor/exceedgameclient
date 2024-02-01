@@ -354,7 +354,10 @@ func get_combinations_to_pay_gauge(me : LocalGame.Player, gauge_cost : int):
 		gauge_card_options.append(card.id)
 	var combinations = []
 	var cost_to_pay = max(gauge_cost - me.free_gauge, 0)
-	generate_card_count_combinations(gauge_card_options, gauge_cost, [], 0, combinations)
+	if cost_to_pay == 0:
+		combinations.append([])
+	else:
+		generate_card_count_combinations(gauge_card_options, cost_to_pay, [], 0, combinations)
 	return combinations
 
 func get_exceed_actions(_game_logic : LocalGame, me : LocalGame.Player, _opponent : LocalGame.Player):
@@ -644,7 +647,7 @@ func determine_force_for_effect_actions(game_logic: LocalGame, me : LocalGame.Pl
 
 func determine_gauge_for_effect_actions(game_logic: LocalGame, me : LocalGame.Player, options : Array):
 	var possible_actions = []
-	var available_gauge = me.gauge.size()
+	var available_gauge = me.gauge.size() + me.free_gauge
 	var all_option_ids = []
 	for card in me.gauge:
 		all_option_ids.append(card.id)
@@ -862,6 +865,8 @@ func pick_gauge_for_effect(game_logic : LocalGame, my_id : Enums.PlayerId, optio
 	var me = game_logic._get_player(my_id)
 	var opponent = game_logic._get_player(game_logic.get_other_player(my_id))
 	var possible_actions = determine_gauge_for_effect_actions(game_logic, me, options)
+	if possible_actions.size() == 0:
+		possible_actions = determine_gauge_for_effect_actions(game_logic, me, options)
 	update_ai_state(game_logic, me, opponent)
 	return ai_policy.pick_gauge_for_effect(possible_actions, game_state)
 
