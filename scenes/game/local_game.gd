@@ -487,6 +487,7 @@ class Player:
 	var guile_change_cards_bonus : bool
 	var cards_that_will_not_hit : Array[String]
 	var cards_invalid_during_strike : Array[String]
+	var plague_knight_discard_names : Array[String]
 
 	func _init(id, player_name, parent_ref, card_db_ref, chosen_deck, card_start_id):
 		my_id = id
@@ -567,6 +568,7 @@ class Player:
 		guile_change_cards_bonus = false
 		cards_that_will_not_hit = []
 		cards_invalid_during_strike = []
+		plague_knight_discard_names = []
 
 		if "buddy_cards" in deck_def:
 			var buddy_index = 0
@@ -2275,6 +2277,8 @@ func advance_to_next_turn():
 	opponent.cards_that_will_not_hit = []
 	player.cards_invalid_during_strike = []
 	opponent.cards_invalid_during_strike = []
+	player.plague_knight_discard_names = []
+	opponent.plague_knight_discard_names = []
 
 	# Update strike turn tracking
 	last_turn_was_strike = strike_happened_this_turn
@@ -3369,6 +3373,7 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 				events += performing_player.discard(cards_to_discard)
 				add_attack_triggers(performing_player, cards_to_discard, true)
 				var discarded_name = card_db.get_card_name(cards_to_discard[0])
+				performing_player.plague_knight_discard_names.append(discarded_name)
 				_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "discards random card: %s." % discarded_name)
 		"exceed_end_of_turn":
 			performing_player.exceed_at_end_of_turn = true

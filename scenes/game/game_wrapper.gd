@@ -231,6 +231,14 @@ func get_will_not_hit_card_names(player_id : Enums.PlayerId) -> Array:
 			card_names.append(card_db.get_card_name_by_card_definition_id(card))
 	return card_names
 
+func get_plague_knight_discard_names(player_id : Enums.PlayerId) -> Array:
+	var card_names = []
+	var player = _get_player(player_id)
+	if player.plague_knight_discard_names.size() > 0:
+		for card in player.plague_knight_discard_names:
+			card_names.append(card)
+	return card_names
+
 func get_buddy_name(player_id : Enums.PlayerId, buddy_id : String):
 	return _get_player(player_id).get_buddy_name(buddy_id)
 
