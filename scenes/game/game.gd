@@ -2344,11 +2344,11 @@ func _handle_events(events):
 			Enums.EventType.EventType_Boost_DiscardOpponentGauge:
 				_on_discard_opponent_gauge(event)
 			Enums.EventType.EventType_Boost_NameCardOpponentDiscards:
-				_on_name_opponent_card_begin(event)
+				delay = _on_name_opponent_card_begin(event)
 			Enums.EventType.EventType_Boost_Sidestep:
-				_on_name_opponent_card_begin(event)
+				delay = _on_name_opponent_card_begin(event)
 			Enums.EventType.EventType_Boost_ZeroVector:
-				_on_name_opponent_card_begin(event)
+				delay = _on_name_opponent_card_begin(event)
 			Enums.EventType.EventType_Boost_Played:
 				delay = _on_boost_played(event)
 			Enums.EventType.EventType_CardFromHandToGauge_Choice:
