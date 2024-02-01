@@ -1,18 +1,18 @@
 In progress:
     Kokonoe:
-        ☐ "timing": "on_continuous_boost", @started(24-01-31 22:57)
         ☐ "effect_type": "may_generate_gauge_with_force" @started(24-01-31 22:47)
         ☐ "effect_type": "may_invalidate_ultras" @started(24-01-31 22:19)
 
         ☐ "on_invalid": { "effect_type": "add_to_gauge_after_discarded" }, @started(24-01-31 22:17)
         ☐ "effect_type": "draw_any_number"
+
+        Manually tested so far:
+        ☐ "timing": "on_continuous_boost", @started(24-01-31 22:57)
         ☐ "gauge_cost_exceed": 8, @started(24-01-31 21:29)
         ☐ "effect_type": "move_to_buddy", @started(24-01-31 21:31)
         ☐ "stop_on_buddy_space": "gravitron", @started(24-01-31 21:58)
         ☐ "effect_type": "pull_to_buddy", @started(24-01-31 22:06)
-
-        ☐ self_discard_choose at start_of_next_turn timing
-            ☐ finish writing continue_begin_turn
+        ☐ self_discard_choose at start_of_next_turn timing @started(24-02-01 02:06)
 
         Additional attacks:
             ☐ "effect_type": "play_attack_from_hand"

@@ -328,10 +328,15 @@ func get_effect_type_heading(effect):
 			effect_str += "MISSING EFFECT HEADING"
 	return effect_str
 
-func get_effect_type_text(effect, card_name_source : String = ""):
+func get_effect_type_text(effect, card_name_source : String = "", char_effect_panel : bool = false):
 	var effect_str = ""
 	var effect_type = effect['effect_type']
 	match effect_type:
+		"add_attack_effect":
+			if char_effect_panel:
+				effect_str += get_effect_type_text(effect['added_effect'], card_name_source)
+			else:
+				effect_str += "Add the effect:\n" + get_effect_type_text(effect['added_effect'], card_name_source)
 		"add_boost_to_gauge_on_strike_cleanup":
 			if card_name_source:
 				effect_str += "Add %s to gauge" % card_name_source
@@ -606,7 +611,7 @@ func get_effect_type_text(effect, card_name_source : String = ""):
 		"pull":
 			effect_str += "Pull " + str(effect['amount'])
 		"pull_to_buddy":
-			effect_str += "Pull %s to %s, choose push/pull occupying space" % [str(effect['amount']), effect['buddy_name']]
+			effect_str += "Pull %s to %s" % [str(effect['amount']), effect['buddy_name']]
 		"push":
 			effect_str += "Push " + str(effect['amount'])
 		"push_from_source":
@@ -813,7 +818,7 @@ func get_effect_type_text(effect, card_name_source : String = ""):
 			effect_str += "MISSING EFFECT"
 	return effect_str
 
-func get_effect_text(effect, short = false, skip_timing = false, skip_condition = false, card_name_source : String = ""):
+func get_effect_text(effect, short = false, skip_timing = false, skip_condition = false, card_name_source : String = "", char_effect_panel : bool = false):
 	if not card_name_source:
 		if 'card_name' in effect:
 			card_name_source = effect['card_name']
@@ -841,7 +846,7 @@ func get_effect_text(effect, short = false, skip_timing = false, skip_condition 
 				detail = effect['condition_detail']
 			effect_str += get_condition_text(effect, amount, amount2, detail)
 
-		effect_str += get_effect_type_text(effect, card_name_source)
+		effect_str += get_effect_type_text(effect, card_name_source, char_effect_panel)
 
 	if not short and 'bonus_effect' in effect:
 		effect_str += "; " + get_effect_text(effect['bonus_effect'], skip_timing, false, card_name_source)

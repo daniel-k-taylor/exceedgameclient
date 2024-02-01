@@ -2128,7 +2128,7 @@ func _on_strike_character_effect(event):
 	bonus_panel.visible = true
 	var effect = event['extra_info']
 	var label_text = ""
-	label_text += CardDefinitions.get_effect_text(effect, false, true, true) + "\n"
+	label_text += CardDefinitions.get_effect_text(effect, false, true, true, "", true) + "\n"
 	label_text = label_text.replace(",", "\n")
 	bonus_label.text = label_text
 

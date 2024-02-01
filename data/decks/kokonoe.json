@@ -2,7 +2,7 @@
 	"id": "kokonoe",
 	"season": 5,
 	"display_name": "Kokonoe",
-	"cardback": "cardback_kokonoe.png",
+	"cardback": "cardback_kokonoe.jpg",
 	"buddy_card": "gravitron",
 	"buddy_display_name": "Gravitron",
 	"exceed_cost": 2,
@@ -32,20 +32,28 @@
 			"buddy_name": "Gravitron"
 		},
 		{
-			"timing": "before",
+			"NOTE": "Gravitron effect",
+			"timing": "set_strike",
 			"condition": "buddy_in_play",
 			"effect_type": "force_for_effect",
 			"per_force_effect": null,
 			"overall_effect": {
-				"effect_type": "pull_to_buddy",
-				"amount": 1
+				"character_effect": true,
+				"effect_type": "add_attack_effect",
+				"added_effect": {
+					"timing": "before",
+					"effect_type": "pull_to_buddy",
+					"buddy_name": "Gravitron",
+					"amount": 1
+				}
 			},
 			"force_max": 1
 		},
 		{
 			"timing": "cleanup",
 			"condition": "buddy_in_play",
-			"effect_type": "remove_buddy_from_play"
+			"effect_type": "remove_buddy",
+			"buddy_name": "Gravitron"
 		}
 	],
 	"exceed_ability_effects": [
@@ -60,21 +68,28 @@
 			"effect_type": "may_invalidate_ultras"
 		},
 		{
-			"timing": "before",
+			"NOTE": "Gravitron effect",
+			"timing": "set_strike",
 			"condition": "buddy_in_play",
 			"effect_type": "force_for_effect",
 			"per_force_effect": null,
 			"overall_effect": {
-				"effect_type": "pull_to_buddy",
-				"buddy_name": "Gravitron",
-				"amount": 1
+				"character_effect": true,
+				"effect_type": "add_attack_effect",
+				"added_effect": {
+					"timing": "before",
+					"effect_type": "pull_to_buddy",
+					"buddy_name": "Gravitron",
+					"amount": 1
+				}
 			},
 			"force_max": 1
 		},
 		{
 			"timing": "cleanup",
 			"condition": "buddy_in_play",
-			"effect_type": "remove_buddy_from_play"
+			"effect_type": "remove_buddy",
+			"buddy_name": "Gravitron"
 		}
 	],
 	"cards": [
