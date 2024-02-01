@@ -77,7 +77,6 @@ Tasks:
     ☐ Faust remove boost effects needs to be reviewed, stuff like powerup_opponent and other random effects that Faust can remove mid-strike
         ☐ probably any during_strike ability?
         ☐ Relevant for Bang too
-    ☐ Use cookies/localstorage to remember player name and BGM setting
 Bugs:
 
 Later:
