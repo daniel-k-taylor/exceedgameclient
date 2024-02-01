@@ -345,6 +345,8 @@ func test_anji_kachoufuugetsu_reading_correct():
 
 func test_anji_kachoufuugetsu_reading_incorrect():
 	position_players(player1, 3, player2, 4)
+	player2.hand = []
+	give_player_specific_card(player2, "gg_normal_sweep", TestCardId4)
 	var name_card_id = player2.hand[0].id
 	player2.hand = []
 	give_player_specific_card(player1, "anji_kachoufuugetsukai", TestCardId3)
