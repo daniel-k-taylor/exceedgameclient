@@ -19,6 +19,7 @@ const PlayerNameMaxLen = 12
 @onready var join_room_button = $MenuList/JoinBox/JoinButton
 @onready var join_box = $MenuList/JoinBox
 @onready var matchmake_button = $MenuList/MatchmakeButton
+@onready var bgm_checkbox = $SettingsPanel/VBoxContainer/BGMCheckBox
 
 @onready var char_select = $CharSelect
 @onready var change_player_character_button : Button = $PlayerChooser/ChangePlayerCharacterButton
@@ -49,15 +50,20 @@ func _ready():
 	selecting_player = false
 	just_clicked_matchmake = false
 	_on_char_select_select_character(opponent_selected_character)
+	
+func settings_loaded():
+	bgm_checkbox.button_pressed = GlobalSettings.BGMEnabled
 	start_music()
 
 func stop_music():
 	$BGM.stop()
 
 func start_music():
-	if not GlobalSettings.BGMOff:
+	if GlobalSettings.BGMEnabled:
 		$BGM.play()
-	
+	else:
+		$BGM.stop()
+
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(_delta):
 	pass
@@ -94,6 +100,9 @@ func _on_connected(player_name):
 	player_name_box.text = player_name
 	$ReconnectToServerButton.visible = false
 	$ServerStatusLabel.text = "Connected to server."
+	if GlobalSettings.DefaultPlayerName:
+		player_name_box.text = GlobalSettings.DefaultPlayerName
+		NetworkManager.set_player_name(player_name_box.text)
 
 func _on_disconnected():
 	update_buttons(false)
@@ -207,7 +216,7 @@ func _on_cancel_button_pressed():
 func _on_update_name_button_pressed():
 	var player_name = get_player_name()
 	NetworkManager.set_player_name(player_name)
-
+	GlobalSettings.set_player_name(player_name)
 
 func _on_reconnect_to_server_button_pressed():
 	$ServerStatusLabel.text = "Reconnecting to server..."
@@ -299,9 +308,9 @@ func _on_player_name_box_focus_entered():
 func _on_player_name_box_text_changed():
 	cropLineToMaxLength_name_text_edit(player_name_box.text, PlayerNameMaxLen)
 
-func _on_bgm_check_box_toggled(_button_pressed):
-	GlobalSettings.BGMOff = not GlobalSettings.BGMOff
-	if GlobalSettings.BGMOff:
-		stop_music()
-	else:
+func _on_bgm_check_box_toggled(button_pressed : bool):
+	GlobalSettings.set_bgm(button_pressed)
+	if GlobalSettings.BGMEnabled:
 		start_music()
+	else:
+		stop_music()
