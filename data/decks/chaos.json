@@ -11,27 +11,14 @@
 		"gauge_cost": 0,
 		"force_cost": 0,
 		"effect": {
-			"effect_type": "choice",
-			"choice": [
-				{ "effect_type": "close", "amount": 1 },
-				{ "effect_type": "retreat", "amount": 1 }
-			],
+			"effect_type": "place_buddy_in_any_space",
+			"buddy_name": "your attack",
 			"and": {
-				"condition": "min_cards_in_hand",
-				"condition_amount": 1,
-				"effect_type": "choice",
-				"choice": [
-					{
-						"effect_type": "strike_faceup",
-						"disable_wild_swing": true,
-						"disable_ex": true
-					},
-					{
-						"effect_type": "gauge_from_hand",
-						"min_amount": 1,
-						"max_amount": 1
-					}
-				]
+				"effect_type": "set_used_character_bonus",
+				"and":
+				{
+					"effect_type": "strike"
+				}
 			}
 		}
 	}],
@@ -40,7 +27,22 @@
 			"gauge_cost": 1,
 			"force_cost": 0,
 			"effect": {
-				"effect_type": "strike_from_gauge"
+				"effect_type": "choice",
+				"choice": [
+					{ "effect_type": "advance", "amount": 1 },
+					{ "effect_type": "retreat", "amount": 1 },
+				],
+				"and": {
+					"effect_type": "place_buddy_in_any_space",
+					"buddy_name": "your attack",
+					"and": {
+						"effect_type": "set_used_character_bonus",
+						"and":
+						{
+							"effect_type": "strike"
+						}
+					}
+				}
 			}
 		},
 		{
@@ -63,8 +65,20 @@
 		}
 	],
 	"ability_effects": [
+		{
+			"timing": "cleanup",
+			"effect_type": "remove_buddy",
+			"buddy_name": "your attack",
+			"silent": true
+		}
 	],
 	"exceed_ability_effects": [
+		{
+			"timing": "cleanup",
+			"effect_type": "remove_buddy",
+			"buddy_name": "your attack",
+			"silent": true
+		}
 	],
 	"cards": [
 		{
