@@ -1,17 +1,30 @@
 In progress:
     Kokonoe:
-        ☐ "timing": "on_continuous_boost",
-        ☐ "effect_type": "generate_gauge_with_force"
-        ☐ "effect_type": "may_invalidate_ultras"
+        ☐ "timing": "on_continuous_boost", @started(24-01-31 22:57)
+        ☐ "effect_type": "may_generate_gauge_with_force" @started(24-01-31 22:47)
+        ☐ "effect_type": "may_invalidate_ultras" @started(24-01-31 22:19)
 
-        ☐ "on_invalid": { "effect_type": "add_to_gauge_after_discarded" },
+        ☐ "on_invalid": { "effect_type": "add_to_gauge_after_discarded" }, @started(24-01-31 22:17)
         ☐ "effect_type": "draw_any_number"
-        ☐ "gauge_cost_exceed": 8,
-        ☐ "effect_type": "play_attack_from_hand"
+        ☐ "gauge_cost_exceed": 8, @started(24-01-31 21:29)
+        ☐ "effect_type": "move_to_buddy", @started(24-01-31 21:31)
+        ☐ "stop_on_buddy_space": "gravitron", @started(24-01-31 21:58)
+        ☐ "effect_type": "pull_to_buddy", @started(24-01-31 22:06)
+
         ☐ self_discard_choose at start_of_next_turn timing
-        ☐ "effect_type": "move_to_buddy",
-        ☐ "effect_type": "advance_stop_on_buddy",
-        ☐ "effect_type": "pull_to_buddy",
+            ☐ finish writing continue_begin_turn
+
+        Additional attacks:
+            ☐ "effect_type": "play_attack_from_hand"
+            Choose a single card from your hand that you can afford to play.
+            Pay its cost.
+            Put it into play, gaining any Armor, Guard, and passive effects on it.
+            Perform its Before effects, then check its Range.
+            If it hit, perform its Hit effects.
+            If it hit, deal damage equal to its printed Power.
+            Perform its After effects.
+            At the end of the Strike, if the additional attack hit, add it to your Gauge. Otherwise, discard it.
+            Note that bonuses and effects that apply to your attack (e.g., Continuous Boost effects such as "+2 Power") only apply to your initial attack unless they specify "Your attacks have [...]" (as the Graviton does).
 
 
 Write tests for:

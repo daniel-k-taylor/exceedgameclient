@@ -364,11 +364,14 @@ func get_effect_type_text(effect, card_name_source : String = ""):
 			else:
 				effect_str += "Add top card of discard pile to overdrive"
 		"advance":
-			effect_str += "Advance "
-			if str(effect['amount']) == "strike_x":
-				effect_str += "X"
+			if 'description' in effect:
+				effect_str += effect['description']
 			else:
-				effect_str += str(effect['amount'])
+				effect_str += "Advance "
+				if str(effect['amount']) == "strike_x":
+					effect_str += "X"
+				else:
+					effect_str += str(effect['amount'])
 		"advance_INTERNAL":
 			effect_str += "Advance "
 			if str(effect['amount']) == "strike_x":
@@ -602,6 +605,8 @@ func get_effect_type_text(effect, card_name_source : String = ""):
 			effect_str += "+" + str(effect['amount']) + " Opponent's Power"
 		"pull":
 			effect_str += "Pull " + str(effect['amount'])
+		"pull_to_buddy":
+			effect_str += "Pull %s to %s, choose push/pull occupying space" % [str(effect['amount']), effect['buddy_name']]
 		"push":
 			effect_str += "Push " + str(effect['amount'])
 		"push_from_source":

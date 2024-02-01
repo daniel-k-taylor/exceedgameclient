@@ -51,10 +51,12 @@
 	"exceed_ability_effects": [
 		{
 			"timing": "on_strike_reveal",
-			"effect_type": "generate_gauge_with_force"
+			"resolve_before_simultaneous_effects": true,
+			"effect_type": "may_generate_gauge_with_force"
 		},
 		{
 			"timing": "on_strike_reveal",
+			"resolve_before_simultaneous_effects": true,
 			"effect_type": "may_invalidate_ultras"
 		},
 		{
@@ -64,6 +66,7 @@
 			"per_force_effect": null,
 			"overall_effect": {
 				"effect_type": "pull_to_buddy",
+				"buddy_name": "Gravitron",
 				"amount": 1
 			},
 			"force_max": 1

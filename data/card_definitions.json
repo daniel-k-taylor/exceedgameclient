@@ -6564,9 +6564,7 @@
 		"power": 7,
 		"armor": 0,
 		"guard": 0,
-		"on_invalid": {
-			"effect_type": "add_to_gauge_after_discarded"
-		},
+		"on_invalid_add_to_gauge": true,
 		"effects": [
 			{
 				"timing": "hit",
@@ -6899,11 +6897,14 @@
 				{
 					"timing": "immediate",
 					"condition": "buddy_space_unoccupied",
+					"condition_detail": "Gravitron",
 					"effect_type": "move_to_buddy",
+					"buddy_name": "Gravitron",
 					"and": {
 						"effect_type": "bonus_action"
 					},
 					"negative_condition_effect": {
+						"is_negative_effect": true,
 						"effect_type": "choice",
 						"choice": [
 							{ "effect_type": "advance", "amount": 4 },
@@ -6930,10 +6931,13 @@
 		"effects": [
 			{
 				"timing": "before",
-				"effect_type": "advance_stop_on_buddy",
+				"effect_type": "advance",
+				"stop_on_buddy_space": "gravitron",
+				"description": "Advance 4. If you enter Gravitron's space, stop and gain advantage.",
 				"amount": 4,
-				"bonus_effect": {
+				"and": {
 					"condition": "on_buddy_space",
+					"condition_detail": "Gravitron",
 					"effect_type": "gain_advantage"
 				}
 			}

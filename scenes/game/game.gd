@@ -2201,7 +2201,10 @@ func _on_force_for_effect(event):
 		var require_max = -1
 		if effect['overall_effect']:
 			require_max = select_card_up_to_force
-		begin_generate_force_selection(require_max)
+		var can_cancel = true
+		if 'required' in effect and effect['required']:
+			can_cancel = false
+		begin_generate_force_selection(require_max, can_cancel)
 	else:
 		ai_force_for_effect(effect)
 
@@ -3255,7 +3258,9 @@ func ai_force_for_effect(effect):
 		for i in range(effect['force_max'] + 1):
 			options.append(i)
 	else:
-		options.append(0)
+		var required = 'required' in effect and effect['required']
+		if not required:
+			options.append(0)
 		options.append(effect['force_max'])
 	var forceforeffect_action = ai_player.pick_force_for_effect(game_wrapper.current_game, Enums.PlayerId.PlayerId_Opponent, options)
 	var success = game_wrapper.submit_force_for_effect(Enums.PlayerId.PlayerId_Opponent, forceforeffect_action.card_ids, false)
