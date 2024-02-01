@@ -353,7 +353,11 @@ func get_combinations_to_pay_gauge(me : LocalGame.Player, gauge_cost : int):
 	for card in me.gauge:
 		gauge_card_options.append(card.id)
 	var combinations = []
-	generate_card_count_combinations(gauge_card_options, gauge_cost, [], 0, combinations)
+	var cost_to_pay = max(gauge_cost - me.free_gauge, 0)
+	if cost_to_pay == 0:
+		combinations.append([])
+	else:
+		generate_card_count_combinations(gauge_card_options, cost_to_pay, [], 0, combinations)
 	return combinations
 
 func get_exceed_actions(_game_logic : LocalGame, me : LocalGame.Player, _opponent : LocalGame.Player):
@@ -643,7 +647,7 @@ func determine_force_for_effect_actions(game_logic: LocalGame, me : LocalGame.Pl
 
 func determine_gauge_for_effect_actions(game_logic: LocalGame, me : LocalGame.Player, options : Array):
 	var possible_actions = []
-	var available_gauge = me.gauge.size()
+	var available_gauge = me.gauge.size() + me.free_gauge
 	var all_option_ids = []
 	for card in me.gauge:
 		all_option_ids.append(card.id)

@@ -1652,8 +1652,14 @@ func update_discard_to_gauge_selection_message():
 		var num_remaining = select_card_require_max - len(selected_cards)
 		set_instructions("Select up to %s more card(s) from your hand to put %s." % [num_remaining, phrase])
 
+func get_gauge_generated():
+	var gauge_from_free_bonus = game_wrapper.get_player_free_gauge(Enums.PlayerId.PlayerId_Player)
+	var gauge_generated = min(gauge_from_free_bonus, select_card_require_max)
+	gauge_generated += len(selected_cards)
+	return gauge_generated
+
 func update_gauge_selection_message():
-	var num_remaining = select_card_require_min - len(selected_cards)
+	var num_remaining = select_card_require_min - get_gauge_generated()
 	var discard_reminder = ""
 	if enabled_reminder_text:
 		discard_reminder = "\nThe last card selected will be on top of the discard pile."
@@ -1681,13 +1687,16 @@ func update_gauge_for_effect_message():
 				effect_str = "Return %s gauge to your hand." % [decision_effect['gauge_max']]
 		else:
 			effect_str = "Spend %s gauge for %s." % [decision_effect['gauge_max'], effect_text]
-	effect_str += "\n%s gauge selected." % [selected_cards.size()]
+	var passive_bonus = get_gauge_generated() - len(selected_cards)
+	if passive_bonus > 0:
+		effect_str += "\n%s gauge from passive bonus." % passive_bonus
+	effect_str += "\n%s gauge generated." % [get_gauge_generated()]
 	# Strip tags that currently aren't supported.
 	effect_str = effect_str.replace("[b]", "").replace("[/b]", "")
 	set_instructions(effect_str)
 
 func update_gauge_selection_for_cancel_message():
-	var num_remaining = select_card_require_min - len(selected_cards)
+	var num_remaining = select_card_require_min - get_gauge_generated()
 	set_instructions("Select %s gauge card to use Cancel." % num_remaining)
 
 func get_force_in_selected_cards():
@@ -2512,7 +2521,7 @@ func _update_buttons():
 			button_choices.append({ "text": "Move", "action": _on_move_button_pressed, "disabled": not game_wrapper.can_do_move(Enums.PlayerId.PlayerId_Player) })
 			button_choices.append({ "text": "Change Cards", "action": _on_change_button_pressed, "disabled": not game_wrapper.can_do_change(Enums.PlayerId.PlayerId_Player) })
 			var exceed_cost = game_wrapper.get_player_exceed_cost(Enums.PlayerId.PlayerId_Player)
-			if exceed_cost >= 0:
+			if exceed_cost >= 0 and not game_wrapper.is_player_exceeded(Enums.PlayerId.PlayerId_Player):
 				button_choices.append({ "text": "Exceed (%s Gauge)" % exceed_cost, "action": _on_exceed_button_pressed, "disabled": not game_wrapper.can_do_exceed(Enums.PlayerId.PlayerId_Player) })
 			if game_wrapper.can_do_reshuffle(Enums.PlayerId.PlayerId_Player):
 				button_choices.append({ "text": "Manual Reshuffle", "action": _on_reshuffle_button_pressed, "disabled": false })
@@ -2728,7 +2737,9 @@ func selected_cards_between_min_and_max() -> bool:
 func can_press_ok():
 	if ui_state == UIState.UIState_SelectCards:
 		match ui_sub_state:
-			UISubState.UISubState_SelectCards_DiscardCards, UISubState.UISubState_SelectCards_StrikeGauge, UISubState.UISubState_SelectCards_Exceed:
+			UISubState.UISubState_SelectCards_StrikeGauge:
+				return get_gauge_generated() >= select_card_require_min and get_gauge_generated() <= select_card_require_max
+			UISubState.UISubState_SelectCards_DiscardCards, UISubState.UISubState_SelectCards_Exceed:
 				return selected_cards_between_min_and_max()
 			UISubState.UISubState_SelectCards_BoostCancel, UISubState.UISubState_SelectCards_DiscardContinuousBoost, UISubState.UISubState_SelectCards_DiscardFromReference:
 				return selected_cards_between_min_and_max()
@@ -2772,9 +2783,9 @@ func can_press_ok():
 				if select_card_must_be_max_or_min:
 					if instructions_cancel_allowed and len(selected_cards) == 0:
 						return false
-					return len(selected_cards) == select_card_require_min or len(selected_cards) == select_card_require_max
+					return get_gauge_generated() == select_card_require_min or get_gauge_generated() == select_card_require_max
 				else:
-					return selected_cards_between_min_and_max()
+					return get_gauge_generated() >= select_card_require_min and get_gauge_generated() <= select_card_require_max
 			UISubState.UISubState_SelectCards_PlayBoost:
 				return len(selected_cards) == 1
 			UISubState.UISubState_SelectCards_ForceForBoost:
@@ -3261,7 +3272,8 @@ func ai_gauge_for_effect(effect):
 		for i in range(effect['gauge_max'] + 1):
 			options.append(i)
 	else:
-		options.append(0)
+		if not 'required' in effect or not effect['required']:
+			options.append(0)
 		options.append(effect['gauge_max'])
 	var gauge_action = ai_player.pick_gauge_for_effect(game_wrapper.current_game, Enums.PlayerId.PlayerId_Opponent, options)
 	var success = game_wrapper.submit_gauge_for_effect(Enums.PlayerId.PlayerId_Opponent, gauge_action.card_ids)
