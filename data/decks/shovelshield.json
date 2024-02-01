@@ -60,14 +60,8 @@
 			"and": {
 				"condition": "on_buddy_space",
 				"condition_detail": "Shield Knight",
-				"effect_type": "choice",
-				"choice": [
-					{
-						"effect_type": "may_advance_bonus_spaces",
-						"amount": 1
-					},
-					{ "effect_type": "pass" }
-				]
+				"effect_type": "may_advance_bonus_spaces",
+				"amount": 1
 			}
 		},
 		{

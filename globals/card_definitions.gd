@@ -385,6 +385,11 @@ func get_effect_type_text(effect, card_name_source : String = ""):
 			effect_str += ""
 		"bonus_action":
 			effect_str += "Take another action"
+		'boost_then_strike':
+			var wild_str = ""
+			if 'wild_strike' in effect and effect['wild_strike']:
+				wild_str = "Wild "
+			effect_str += "Boost, then %sStrike if you weren't caused to Strike" % wild_str
 		"boost_this_then_sustain":
 			if card_name_source:
 				effect_str += "Boost and sustain %s" % card_name_source
@@ -478,6 +483,8 @@ func get_effect_type_text(effect, card_name_source : String = ""):
 			effect_str += "Place %s in the attack's range." % effect['buddy_name']
 		"calculate_range_from_buddy":
 			effect_str += "Calculate range from %s." % effect['buddy_name']
+		"calculate_range_from_center":
+			effect_str += "Calculate range from the center of the arena."
 		"draw":
 			if 'opponent' in effect and effect['opponent']:
 				effect_str += "Opponent Draw " + str(effect['amount'])
@@ -749,6 +756,8 @@ func get_effect_type_text(effect, card_name_source : String = ""):
 			effect_str += "Strike"
 		"strike_wild":
 			effect_str += "Wild swing"
+			if 'card_name' in effect:
+				effect_str += " (%s on top of deck)" % effect['card_name']
 		"strike_faceup":
 			effect_str += "Strike face-up"
 		"strike_opponent_sets_first":

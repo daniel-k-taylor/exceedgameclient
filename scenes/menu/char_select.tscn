@@ -32,6 +32,7 @@
 [ext_resource type="Texture2D" uid="uid://bq43sl2kpxmdv" path="res://assets/portraits/ragna.png" id="27_4b3tr"]
 [ext_resource type="Texture2D" uid="uid://dhbd4wfnmy603" path="res://assets/portraits/jin.png" id="29_1ti5l"]
 [ext_resource type="Texture2D" uid="uid://brjpxxwwioeo8" path="res://assets/portraits/blazbluelogo2.png" id="29_7gojn"]
+[ext_resource type="Texture2D" uid="uid://c54oj8c0jdhll" path="res://assets/portraits/mika.png" id="29_r57n1"]
 [ext_resource type="Texture2D" uid="uid://dbnf6ivx556pu" path="res://assets/portraits/ryu.png" id="30_mommm"]
 [ext_resource type="Texture2D" uid="uid://debn7wuvbqqcc" path="res://assets/portraits/shovelshield.png" id="30_vegm4"]
 [ext_resource type="Texture2D" uid="uid://dgmjgjw44rf6r" path="res://assets/portraits/ken.png" id="31_2ynpm"]
@@ -271,30 +272,38 @@ alignment = 1
 layout_mode = 2
 alignment = 1
 
-[node name="Phonon" parent="CenterContainer/UNICharacterSelect/Rows/Row1" instance=ExtResource("6_3lmwy")]
-layout_mode = 2
-char_id = "phonon"
-portrait_texture = ExtResource("24_4beb5")
-
 [node name="Hyde" parent="CenterContainer/UNICharacterSelect/Rows/Row1" instance=ExtResource("6_3lmwy")]
 layout_mode = 2
 char_id = "hyde"
 portrait_texture = ExtResource("24_610av")
+
+[node name="RandomUNI" parent="CenterContainer/UNICharacterSelect/Rows/Row1" instance=ExtResource("6_3lmwy")]
+layout_mode = 2
+char_id = "random_s6"
+portrait_texture = ExtResource("25_is7sg")
 
 [node name="Linne" parent="CenterContainer/UNICharacterSelect/Rows/Row1" instance=ExtResource("6_3lmwy")]
 layout_mode = 2
 char_id = "linne"
 portrait_texture = ExtResource("26_pbdap")
 
-[node name="Yuzu" parent="CenterContainer/UNICharacterSelect/Rows/Row1" instance=ExtResource("6_3lmwy")]
+[node name="Row2" type="HBoxContainer" parent="CenterContainer/UNICharacterSelect/Rows"]
+layout_mode = 2
+
+[node name="Yuzu" parent="CenterContainer/UNICharacterSelect/Rows/Row2" instance=ExtResource("6_3lmwy")]
 layout_mode = 2
 char_id = "yuzu"
 portrait_texture = ExtResource("24_sf5mp")
 
-[node name="RandomUNI" parent="CenterContainer/UNICharacterSelect/Rows/Row1" instance=ExtResource("6_3lmwy")]
+[node name="Phonon" parent="CenterContainer/UNICharacterSelect/Rows/Row2" instance=ExtResource("6_3lmwy")]
 layout_mode = 2
-char_id = "random_s6"
-portrait_texture = ExtResource("25_is7sg")
+char_id = "phonon"
+portrait_texture = ExtResource("24_4beb5")
+
+[node name="Mika" parent="CenterContainer/UNICharacterSelect/Rows/Row2" instance=ExtResource("6_3lmwy")]
+layout_mode = 2
+char_id = "mika"
+portrait_texture = ExtResource("29_r57n1")
 
 [node name="BBCharacterSelect" type="PanelContainer" parent="CenterContainer"]
 layout_mode = 2
@@ -555,16 +564,18 @@ portrait_texture = ExtResource("32_iutun")
 [connection signal="on_pressed" from="CenterContainer/GGCharacterSelect/Rows/Row5/Faust" to="." method="_on_char_button_on_pressed"]
 [connection signal="on_hover" from="CenterContainer/GGCharacterSelect/Rows/Row5/Zato" to="." method="_on_char_hover"]
 [connection signal="on_pressed" from="CenterContainer/GGCharacterSelect/Rows/Row5/Zato" to="." method="_on_char_button_on_pressed"]
-[connection signal="on_hover" from="CenterContainer/UNICharacterSelect/Rows/Row1/Phonon" to="." method="_on_char_hover"]
-[connection signal="on_pressed" from="CenterContainer/UNICharacterSelect/Rows/Row1/Phonon" to="." method="_on_char_button_on_pressed"]
 [connection signal="on_hover" from="CenterContainer/UNICharacterSelect/Rows/Row1/Hyde" to="." method="_on_char_hover"]
 [connection signal="on_pressed" from="CenterContainer/UNICharacterSelect/Rows/Row1/Hyde" to="." method="_on_char_button_on_pressed"]
-[connection signal="on_hover" from="CenterContainer/UNICharacterSelect/Rows/Row1/Linne" to="." method="_on_char_hover"]
-[connection signal="on_pressed" from="CenterContainer/UNICharacterSelect/Rows/Row1/Linne" to="." method="_on_char_button_on_pressed"]
-[connection signal="on_hover" from="CenterContainer/UNICharacterSelect/Rows/Row1/Yuzu" to="." method="_on_char_hover"]
-[connection signal="on_pressed" from="CenterContainer/UNICharacterSelect/Rows/Row1/Yuzu" to="." method="_on_char_button_on_pressed"]
 [connection signal="on_hover" from="CenterContainer/UNICharacterSelect/Rows/Row1/RandomUNI" to="." method="_on_char_hover"]
 [connection signal="on_pressed" from="CenterContainer/UNICharacterSelect/Rows/Row1/RandomUNI" to="." method="_on_char_button_on_pressed"]
+[connection signal="on_hover" from="CenterContainer/UNICharacterSelect/Rows/Row1/Linne" to="." method="_on_char_hover"]
+[connection signal="on_pressed" from="CenterContainer/UNICharacterSelect/Rows/Row1/Linne" to="." method="_on_char_button_on_pressed"]
+[connection signal="on_hover" from="CenterContainer/UNICharacterSelect/Rows/Row2/Yuzu" to="." method="_on_char_hover"]
+[connection signal="on_pressed" from="CenterContainer/UNICharacterSelect/Rows/Row2/Yuzu" to="." method="_on_char_button_on_pressed"]
+[connection signal="on_hover" from="CenterContainer/UNICharacterSelect/Rows/Row2/Phonon" to="." method="_on_char_hover"]
+[connection signal="on_pressed" from="CenterContainer/UNICharacterSelect/Rows/Row2/Phonon" to="." method="_on_char_button_on_pressed"]
+[connection signal="on_hover" from="CenterContainer/UNICharacterSelect/Rows/Row2/Mika" to="." method="_on_char_hover"]
+[connection signal="on_pressed" from="CenterContainer/UNICharacterSelect/Rows/Row2/Mika" to="." method="_on_char_button_on_pressed"]
 [connection signal="on_hover" from="CenterContainer/BBCharacterSelect/Rows/Row1/Ragna" to="." method="_on_char_hover"]
 [connection signal="on_pressed" from="CenterContainer/BBCharacterSelect/Rows/Row1/Ragna" to="." method="_on_char_button_on_pressed"]
 [connection signal="on_hover" from="CenterContainer/BBCharacterSelect/Rows/Row1/RandomBB" to="." method="_on_char_hover"]

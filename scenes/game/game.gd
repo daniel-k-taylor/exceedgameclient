@@ -92,6 +92,7 @@ var reference_popout_toggle_enabled = false
 var reference_popout_toggle = false
 var opponent_cards_before_reshuffle = []
 var treat_ultras_as_single_force = false
+var boost_selection_options = {}
 
 var player_deck
 var opponent_deck
@@ -1007,14 +1008,15 @@ func _on_stunned(event):
 		$OpponentCharacter.play_stunned()
 	return _stat_notice_event(event)
 
+func _on_end_of_strike():
+	player_bonus_panel.visible = false
+	opponent_bonus_panel.visible = false
+
 func _on_advance_turn():
 	var active_player : Enums.PlayerId = game_wrapper.get_active_player()
 	var is_local_player_active = active_player == Enums.PlayerId.PlayerId_Player
 	$PlayerLife.set_turn_indicator(is_local_player_active)
 	$OpponentLife.set_turn_indicator(not is_local_player_active)
-
-	player_bonus_panel.visible = false
-	opponent_bonus_panel.visible = false
 
 	if is_local_player_active:
 		change_ui_state(UIState.UIState_PickTurnAction, UISubState.UISubState_None)
@@ -1135,13 +1137,16 @@ func _on_name_opponent_card_begin(event):
 	spawn_damage_popup("Naming Card", player)
 	var normal_only = event['event_type'] == Enums.EventType.EventType_ReadingNormal or event['event_type'] == Enums.EventType.EventType_Boost_Sidestep
 	var can_name_fake_card = event['event_type'] == Enums.EventType.EventType_Boost_NameCardOpponentDiscards
-	select_card_name_card_both_players = game_wrapper.get_decision_info().bonus_effect
+	if game_wrapper.get_decision_info().bonus_effect:
+		select_card_name_card_both_players = game_wrapper.get_decision_info().bonus_effect
+	else:
+		select_card_name_card_both_players = false
 	if player == Enums.PlayerId.PlayerId_Player:
 		var instruction_text = "Name an opponent card."
 		if select_card_name_card_both_players:
 			instruction_text = "Name a card."
 		# Show the boost window.
-		_on_opponent_reference_button_pressed()
+		_on_opponent_reference_button_pressed(false, true)
 		selected_cards = []
 		select_card_require_min = 1
 		select_card_require_max = 1
@@ -1875,6 +1880,12 @@ func begin_boost_choosing(can_cancel : bool, allow_gauge : bool, only_gauge : bo
 	if only_gauge:
 		instructions = "Select a %s to boost from gauge." % limitation_str
 
+	boost_selection_options = {
+		"can_cancel": can_cancel,
+		"allow_gauge": allow_gauge,
+		"only_gauge": only_gauge,
+		"limitation": limitation
+	}
 	enable_instructions_ui(instructions, true, can_cancel)
 	change_ui_state(UIState.UIState_SelectCards, UISubState.UISubState_SelectCards_PlayBoost)
 
@@ -2409,6 +2420,8 @@ func _handle_events(events):
 				delay = _on_choose_to_discard(event, false)
 			Enums.EventType.EventType_Strike_ChooseToDiscard_Info:
 				delay = _on_choose_to_discard(event, true)
+			Enums.EventType.EventType_Strike_Cleanup:
+				_on_end_of_strike()
 			Enums.EventType.EventType_Strike_Critical:
 				delay = _stat_notice_event(event)
 			Enums.EventType.EventType_Strike_DodgeAttacks, Enums.EventType.EventType_Strike_DodgeAttacksAtRange, Enums.EventType.EventType_Strike_DodgeFromOppositeBuddy:
@@ -2992,6 +3005,13 @@ func _on_instructions_cancel_button_pressed():
 			deselect_all_cards()
 			close_popout()
 			success = game_wrapper.submit_boost_name_card_choice_effect(Enums.PlayerId.PlayerId_Player, -1)
+		UISubState.UISubState_SelectCards_ForceForBoost:
+			deselect_all_cards()
+			var can_cancel = boost_selection_options['can_cancel']
+			var allow_gauge = boost_selection_options['allow_gauge']
+			var only_gauge = boost_selection_options['only_gauge']
+			var limitation = boost_selection_options['limitation']
+			begin_boost_choosing(can_cancel, allow_gauge, only_gauge, limitation)
 		_:
 			match ui_state:
 				UIState.UIState_SelectArenaLocation:
@@ -3566,7 +3586,8 @@ func popout_show_normal_only() -> bool:
 		return popout_instruction_info['normal_only']
 	return false
 
-func show_popout(popout_type : CardPopoutType, popout_title : String, card_node, card_rest_position : Vector2, card_rest_state : CardBase.CardState, show_amount : bool = true):
+func show_popout(popout_type : CardPopoutType, popout_title : String, card_node, card_rest_position : Vector2, card_rest_state : CardBase.CardState,
+		show_amount : bool = true, force_hide_reshuffle = false):
 	card_popout.z_index = CardPopoutZIndex
 	popout_type_showing = popout_type
 	popout_showing_node = card_node
@@ -3574,7 +3595,7 @@ func show_popout(popout_type : CardPopoutType, popout_title : String, card_node,
 
 	var toggle_text = ""
 	var toggle_visible = false
-	if popout_type == CardPopoutType.CardPopoutType_ReferenceOpponent:
+	if popout_type == CardPopoutType.CardPopoutType_ReferenceOpponent and not force_hide_reshuffle:
 		toggle_visible = true
 		if reference_popout_toggle_enabled:
 			if reference_popout_toggle:
@@ -3663,7 +3684,7 @@ func _on_player_reference_button_pressed():
 	reference_title += ")"
 	show_popout(CardPopoutType.CardPopoutType_ReferencePlayer, reference_title, $AllCards/PlayerAllCopy, OffScreen, CardBase.CardState.CardState_Offscreen, false)
 
-func _on_opponent_reference_button_pressed(switch_toggle : bool = false):
+func _on_opponent_reference_button_pressed(switch_toggle : bool = false, hide_reshuffle : bool = false):
 	await close_popout()
 
 	if switch_toggle:
@@ -3689,7 +3710,7 @@ func _on_opponent_reference_button_pressed(switch_toggle : bool = false):
 	if game_wrapper.is_player_sealed_area_secret(Enums.PlayerId.PlayerId_Player):
 		popout_title += "+sealed"
 	popout_title += ")"
-	show_popout(CardPopoutType.CardPopoutType_ReferenceOpponent, popout_title, $AllCards/OpponentAllCopy, OffScreen, CardBase.CardState.CardState_Offscreen, false)
+	show_popout(CardPopoutType.CardPopoutType_ReferenceOpponent, popout_title, $AllCards/OpponentAllCopy, OffScreen, CardBase.CardState.CardState_Offscreen, false, hide_reshuffle)
 
 func _on_exit_to_menu_pressed():
 	modal_dialog.visible = true
