@@ -303,6 +303,7 @@ class StrikeStatBoosts:
 	var dodge_at_range_max : int = -1
 	var dodge_at_range_late_calculate_with : String = ""
 	var dodge_at_range_from_buddy : bool = false
+	var dodge_at_speed_greater_than : int = -1
 	var dodge_from_opposite_buddy : bool = false
 	var ignore_armor : bool = false
 	var ignore_guard : bool = false
@@ -359,6 +360,7 @@ class StrikeStatBoosts:
 		dodge_at_range_max = -1
 		dodge_at_range_late_calculate_with = ""
 		dodge_at_range_from_buddy = false
+		dodge_at_speed_greater_than = -1
 		dodge_from_opposite_buddy = false
 		ignore_armor = false
 		ignore_guard = false
@@ -3564,7 +3566,12 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 			events += [create_event(Enums.EventType.EventType_Strike_GuardUp, performing_player.my_id, effect['amount'])]
 		"higher_speed_misses":
 			performing_player.strike_stat_boosts.higher_speed_misses = true
-			_append_log_full(Enums.LogType.LogType_Effect, performing_player, "will dodge attacks of a higher speed!")
+			if 'dodge_at_speed_greater_than' in effect:
+				var speed_dodge = effect['dodge_at_speed_greater_than']
+				performing_player.strike_stat_boosts.dodge_at_speed_greater_than = speed_dodge
+				_append_log_full(Enums.LogType.LogType_Effect, performing_player, "will dodge attacks of speed %s or greater!" % speed_dodge)
+			else:
+				_append_log_full(Enums.LogType.LogType_Effect, performing_player, "will dodge attacks of a higher speed!")
 		"ignore_armor":
 			performing_player.strike_stat_boosts.ignore_armor = true
 			_append_log_full(Enums.LogType.LogType_Effect, performing_player, "gains ignore armor.")
@@ -5131,13 +5138,20 @@ func in_range(attacking_player, defending_player, card, combat_logging=false):
 				return false
 
 	# Speed dodge
+	var attacking_speed = get_total_speed(attacking_player, active_strike.get_player_card(attacking_player))
+	var defending_speed = get_total_speed(defending_player, active_strike.get_player_card(defending_player))
 	if defending_player.strike_stat_boosts.higher_speed_misses:
-		var attacking_speed = get_total_speed(attacking_player, active_strike.get_player_card(attacking_player))
-		var defending_speed = get_total_speed(defending_player, active_strike.get_player_card(defending_player))
-		if attacking_speed > defending_speed:
+		var speed_dodge = defending_player.strike_stat_boosts.dodge_at_speed_greater_than
+		if speed_dodge > 0:
+			if attacking_speed >= speed_dodge:
+				if combat_logging:
+					_append_log_full(Enums.LogType.LogType_Effect, defending_player, "is dodging attacks with more than %s speed!" % str(speed_dodge))
+				return false
+		elif attacking_speed > defending_speed:
 			if combat_logging:
 				_append_log_full(Enums.LogType.LogType_Effect, defending_player, "is dodging higher speed attacks!")
 			return false
+
 	return opponent_in_range
 
 func get_total_power(performing_player : Player):
