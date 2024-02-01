@@ -2036,6 +2036,13 @@
 		"guard": 0,
 		"effects": [
 			{
+				"timing": "during_strike",
+				"condition": "used_character_bonus",
+				"effect_type": "calculate_range_from_buddy",
+				"buddy_name": "the card",
+				"character_effect": true
+			},
+			{
 				"timing": "before",
 				"effect_type": "close",
 				"amount": 3
@@ -2071,43 +2078,51 @@
 	{
 		"id": "chaos_coldreflection",
 		"type": "special",
-		"display_name": "Beta Blade",
+		"display_name": "Cold Reflection",
 		"force_cost": 0,
 		"gauge_cost": 0,
 		"range_min": 1,
 		"range_max": 2,
-		"speed": 7,
-		"power": 1,
+		"speed": 4,
+		"power": 2,
 		"armor": 0,
 		"guard": 0,
 		"effects": [
 			{
-				"timing": "hit",
-				"effect_type": "draw",
-				"amount": 1
+				"timing": "during_strike",
+				"condition": "used_character_bonus",
+				"effect_type": "calculate_range_from_buddy",
+				"buddy_name": "the card",
+				"character_effect": true
 			},
 			{
-				"timing": "after",
-				"effect_type": "close",
-				"amount": 1
+				"timing": "during_strike",
+				"condition": "not_buddy_in_play",
+				"effect_type": "speedup",
+				"amount": 2
+			},
+			{
+				"timing": "hit",
+				"effect_type": "push",
+				"amount": 3
 			}
 		],
 		"boost": {
 			"boost_type": "continuous",
 			"force_cost": 0,
 			"cancel_cost": 1,
-			"display_name": "Shogun!",
+			"display_name": "Lie In Wait",
 			"effects": [
 				{
 					"timing": "during_strike",
-					"effect_type": "speedup",
-					"amount": 1
+					"effect_type": "guardup",
+					"amount": 3
 				},
 				{
-					"timing": "hit",
-					"effect_type": "opponent_discard_choose",
-					"amount": 1
-				}
+					"timing": "discarded",
+					"effect_type": "draw",
+					"amount": 2
+				},
 			]
 		}
 	},
@@ -2124,6 +2139,13 @@
 		"armor": 0,
 		"guard": 0,
 		"effects": [
+			{
+				"timing": "during_strike",
+				"condition": "used_character_bonus",
+				"effect_type": "calculate_range_from_buddy",
+				"buddy_name": "the card",
+				"character_effect": true
+			},
 			{
 				"timing": "before",
 				"effect_type": "advance",
@@ -2171,6 +2193,13 @@
 		"armor": 0,
 		"guard": 0,
 		"effects": [
+			{
+				"timing": "during_strike",
+				"condition": "used_character_bonus",
+				"effect_type": "calculate_range_from_buddy",
+				"buddy_name": "the card",
+				"character_effect": true
+			},
 			{
 				"timing": "hit",
 				"effect_type": "draw",
@@ -2222,6 +2251,13 @@
 		"guard": 0,
 		"effects": [
 			{
+				"timing": "during_strike",
+				"condition": "used_character_bonus",
+				"effect_type": "calculate_range_from_buddy",
+				"buddy_name": "the card",
+				"character_effect": true
+			},
+			{
 				"timing": "hit",
 				"effect_type": "gain_advantage"
 			},
@@ -2268,6 +2304,13 @@
 		"armor": 0,
 		"guard": 0,
 		"effects": [
+			{
+				"timing": "during_strike",
+				"condition": "used_character_bonus",
+				"effect_type": "calculate_range_from_buddy",
+				"buddy_name": "the card",
+				"character_effect": true
+			},
 			{
 				"timing": "during_strike",
 				"effect_type": "ignore_guard"
