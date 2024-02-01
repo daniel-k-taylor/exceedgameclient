@@ -3308,6 +3308,7 @@
 				{
 					"timing": "hit",
 					"effect_type": "choice",
+					"special_choice_name": "Advance up to 1 and opponent discards a card at random.",
 					"choice": [
 						{ "effect_type": "advance", "amount": 1, "and": { "effect_type": "opponent_discard_random", "amount": 1 } },
 						{ "effect_type": "opponent_discard_random", "amount": 1 }
