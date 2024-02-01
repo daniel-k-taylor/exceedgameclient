@@ -239,6 +239,15 @@ func handle_decisions(game: LocalGame):
 						choice_index = i
 						break
 				assert_true(game.do_choice(decision_player, choice_index), "do arena location for effect failed")
+			Enums.DecisionType.DecisionType_PickNumberFromRange:
+				var decision_info = game.decision_info
+				var decision_action = decision_ai.pick_number_from_range_for_effect(game, decision_player.my_id, decision_info.limitation, decision_info.choice)
+				var choice_index = 0
+				for i in range(len(decision_info.limitation)):
+					if decision_info.limitation[i] == decision_action.number:
+						choice_index = i
+						break
+				assert_true(game.do_choice(decision_player, choice_index), "do pick number from range failed")
 			Enums.DecisionType.DecisionType_ChooseDiscardContinuousBoost:
 				var limitation = game.decision_info.limitation
 				var can_pass = game.decision_info.can_pass

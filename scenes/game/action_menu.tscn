@@ -1,10 +1,12 @@
-[gd_scene load_steps=8 format=3 uid="uid://dal56iqk5k8rh"]
+[gd_scene load_steps=11 format=3 uid="uid://dal56iqk5k8rh"]
 
 [ext_resource type="Script" path="res://scenes/game/action_menu.gd" id="1_lxy8k"]
 [ext_resource type="Texture2D" uid="uid://dbohb8bxokjln" path="res://assets/icons/eye_show.png" id="2_f4rxt"]
 [ext_resource type="Texture2D" uid="uid://pdiyhalge6ju" path="res://assets/icons/eye_hide.png" id="3_87etl"]
 [ext_resource type="Texture2D" uid="uid://bpdpb3e74d2cu" path="res://assets/cards/arena_border_highlight_pressed.png" id="4_m7dp2"]
 [ext_resource type="Texture2D" uid="uid://b08j76upbucvr" path="res://assets/cards/arena_border_highlight_selected.png" id="5_57fb7"]
+[ext_resource type="Texture2D" uid="uid://dt2r5ub4flnpu" path="res://assets/icons/minus.png" id="6_wqqul"]
+[ext_resource type="Texture2D" uid="uid://1hag5iakybsy" path="res://assets/icons/plus.png" id="7_uju7x"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_cmck5"]
 bg_color = Color(0.235294, 0.235294, 0.235294, 0.882353)
@@ -15,6 +17,8 @@ border_width_bottom = 5
 border_color = Color(0.0784314, 0.0784314, 0.0784314, 1)
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_hwdeh"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_yjcu6"]
 
 [node name="ActionMenu" type="PanelContainer"]
 anchors_preset = 15
@@ -117,6 +121,56 @@ layout_mode = 2
 theme_override_font_sizes/font_size = 24
 text = "Ultras as 1 force"
 
+[node name="NumberSelectionPanel" type="PanelContainer" parent="OuterMargin/MainVBox"]
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxEmpty_yjcu6")
+
+[node name="Hbox" type="HBoxContainer" parent="OuterMargin/MainVBox/NumberSelectionPanel"]
+layout_mode = 2
+theme_override_constants/separation = 30
+alignment = 1
+
+[node name="MinusButtonContainer" type="MarginContainer" parent="OuterMargin/MainVBox/NumberSelectionPanel/Hbox"]
+layout_mode = 2
+
+[node name="MinusImage" type="TextureRect" parent="OuterMargin/MainVBox/NumberSelectionPanel/Hbox/MinusButtonContainer"]
+custom_minimum_size = Vector2(64, 64)
+layout_mode = 2
+texture = ExtResource("6_wqqul")
+expand_mode = 1
+stretch_mode = 4
+
+[node name="MinusButton" type="TextureButton" parent="OuterMargin/MainVBox/NumberSelectionPanel/Hbox/MinusButtonContainer"]
+layout_mode = 2
+texture_pressed = ExtResource("4_m7dp2")
+texture_hover = ExtResource("5_57fb7")
+ignore_texture_size = true
+stretch_mode = 4
+
+[node name="NumberLabel" type="Label" parent="OuterMargin/MainVBox/NumberSelectionPanel/Hbox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 48
+text = "#"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="PlusButtonContainer" type="MarginContainer" parent="OuterMargin/MainVBox/NumberSelectionPanel/Hbox"]
+layout_mode = 2
+
+[node name="PlusImage" type="TextureRect" parent="OuterMargin/MainVBox/NumberSelectionPanel/Hbox/PlusButtonContainer"]
+custom_minimum_size = Vector2(64, 64)
+layout_mode = 2
+texture = ExtResource("7_uju7x")
+expand_mode = 1
+stretch_mode = 4
+
+[node name="PlusButton" type="TextureButton" parent="OuterMargin/MainVBox/NumberSelectionPanel/Hbox/PlusButtonContainer"]
+layout_mode = 2
+texture_pressed = ExtResource("4_m7dp2")
+texture_hover = ExtResource("5_57fb7")
+ignore_texture_size = true
+stretch_mode = 4
+
 [node name="ChoiceButtons" type="GridContainer" parent="OuterMargin/MainVBox"]
 layout_mode = 2
 size_flags_vertical = 2
@@ -177,6 +231,8 @@ theme_override_font_sizes/font_size = 28
 
 [connection signal="pressed" from="OuterMargin/MainVBox/PanelContainer/ShowHideHBox/MarginContainer/ShowHideButton" to="." method="_on_show_hide_button_pressed"]
 [connection signal="toggled" from="OuterMargin/MainVBox/CheckHBox/UltrasForceOptionCheck" to="." method="_on_ultras_force_option_check_toggled"]
+[connection signal="pressed" from="OuterMargin/MainVBox/NumberSelectionPanel/Hbox/MinusButtonContainer/MinusButton" to="." method="_on_minus_button_pressed"]
+[connection signal="pressed" from="OuterMargin/MainVBox/NumberSelectionPanel/Hbox/PlusButtonContainer/PlusButton" to="." method="_on_plus_button_pressed"]
 [connection signal="pressed" from="OuterMargin/MainVBox/ChoiceButtons/Choice0" to="." method="_on_choice_pressed" binds= [0]]
 [connection signal="pressed" from="OuterMargin/MainVBox/ChoiceButtons/Choice1" to="." method="_on_choice_pressed" binds= [1]]
 [connection signal="pressed" from="OuterMargin/MainVBox/ChoiceButtons/Choice2" to="." method="_on_choice_pressed" binds= [2]]

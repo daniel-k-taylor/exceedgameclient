@@ -3370,14 +3370,37 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 			events += [create_event(Enums.EventType.EventType_Strike_DodgeFromOppositeBuddy, performing_player.my_id, 0, "", effect['buddy_name'])]
 			_append_log_full(Enums.LogType.LogType_Effect, performing_player, "will dodge attacks from opponents behind %s!" % effect['buddy_name'])
 		"draw":
-			if 'opponent' in effect and effect['opponent']:
-				events += opposing_player.draw(effect['amount'])
-				_append_log_full(Enums.LogType.LogType_CardInfo, opposing_player, "draws %s card(s)." % effect['amount'])
-			else:
-				events += performing_player.draw(effect['amount'])
-				_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "draws %s card(s)." % effect['amount'])
+			if effect['amount'] > 0:
+				if 'opponent' in effect and effect['opponent']:
+					events += opposing_player.draw(effect['amount'])
+					_append_log_full(Enums.LogType.LogType_CardInfo, opposing_player, "draws %s card(s)." % effect['amount'])
+				else:
+					events += performing_player.draw(effect['amount'])
+					_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "draws %s card(s)." % effect['amount'])
 		"draw_any_number":
-			pass
+			var max_user_can_draw = performing_player.deck.size()
+			if performing_player.reshuffle_remaining > 0:
+				max_user_can_draw += performing_player.discards.size()
+
+			decision_info.clear()
+			decision_info.type = Enums.DecisionType.DecisionType_PickNumberFromRange
+			decision_info.player = performing_player.my_id
+			decision_info.choice_card_id = card_id
+			decision_info.effect_type = "draw"
+			decision_info.choice = []
+			decision_info.amount_min = 0
+			decision_info.amount = max_user_can_draw
+
+			decision_info.limitation = []
+			for i in range(max_user_can_draw + 1):
+				decision_info.limitation.append(i)
+				decision_info.choice.append({
+					"effect_type": "draw",
+					"amount": i
+				})
+
+			change_game_state(Enums.GameState.GameState_PlayerDecision)
+			events += [create_event(Enums.EventType.EventType_PickNumberFromRange, performing_player.my_id, 0)]
 		"discard_continuous_boost":
 			var my_boosts = performing_player.continuous_boosts
 			var opponent_boosts = opposing_player.continuous_boosts

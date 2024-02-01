@@ -169,6 +169,7 @@ enum UISubState {
 	UISubState_SelectCards_GaugeForEffect,
 	UISubState_SelectArena_MoveResponse,
 	UISubState_SelectArena_EffectChoice,
+	UISubState_PickNumberFromRange,
 }
 
 var ui_state : UIState = UIState.UIState_Initializing
@@ -200,6 +201,8 @@ var game_wrapper : GameWrapper = GameWrapper.new()
 var current_instruction_text : String = ""
 var current_action_menu_choices : Array = []
 var current_effect_choices : Array = []
+var instructions_number_picker_min = -1
+var instructions_number_picker_max = -1
 var show_thinking_spinner_in : float = 0
 const ThinkingSpinnerWaitBeforeShowTime = 1.0
 
@@ -1765,13 +1768,18 @@ func update_force_generation_message():
 			effect_str += "\n%s" % [force_generated_str]
 			set_instructions(effect_str)
 
-func enable_instructions_ui(message, can_ok, can_cancel, can_wild_swing : bool = false, can_ex : bool = true, choices = []):
+func enable_instructions_ui(message, can_ok, can_cancel, can_wild_swing : bool = false, can_ex : bool = true, choices = [], show_number_picker : bool  = false):
 	set_instructions(message)
 	instructions_ok_allowed = can_ok
 	instructions_cancel_allowed = can_cancel
 	instructions_wild_swing_allowed = can_wild_swing
 	instructions_ex_allowed = can_ex
 	current_effect_choices = choices
+	instructions_number_picker_min = -1
+	instructions_number_picker_max = -1
+	if show_number_picker:
+		instructions_number_picker_min = game_wrapper.get_decision_info().amount_min
+		instructions_number_picker_max = game_wrapper.get_decision_info().amount
 
 func begin_discard_cards_selection(number_to_discard_min, number_to_discard_max, next_sub_state, can_cancel_always : bool = false):
 	selected_cards = []
@@ -2387,6 +2395,8 @@ func _handle_events(events):
 				_on_mulligan_decision(event)
 			Enums.EventType.EventType_PlaceBuddy:
 				delay = _on_place_buddy(event)
+			Enums.EventType.EventType_PickNumberFromRange:
+				_on_pick_number_from_range(event)
 			Enums.EventType.EventType_SwapSealedAndDeck:
 				delay = _stat_notice_event(event)
 			Enums.EventType.EventType_Prepare:
@@ -2703,7 +2713,7 @@ func _update_buttons():
 			action_menu_hidden = true
 	action_menu.visible = not action_menu_hidden and (button_choices.size() > 0 or instructions_visible)
 	action_menu_container.visible = action_menu.visible
-	action_menu.set_choices(current_instruction_text, button_choices, ultra_force_toggle)
+	action_menu.set_choices(current_instruction_text, button_choices, ultra_force_toggle, instructions_number_picker_min, instructions_number_picker_max)
 	current_action_menu_choices = button_choices
 
 func update_boost_summary(boosts_card_holder, boost_box):
@@ -2793,6 +2803,10 @@ func can_press_ok():
 				return len(selected_cards) == 1
 			UISubState.UISubState_SelectCards_ForceForBoost:
 				return can_selected_cards_pay_force(select_card_require_force)
+	else: # Some other non-select cards state.
+		match ui_sub_state:
+			UISubState.UISubState_PickNumberFromRange:
+				return true
 	return false
 
 func begin_select_arena_location(valid_moves):
@@ -2818,6 +2832,35 @@ func _on_choose_arena_location_for_effect(event):
 		change_ui_state(UIState.UIState_SelectArenaLocation, UISubState.UISubState_SelectArena_EffectChoice)
 	else:
 		ai_choose_arena_location_for_effect(decision_info.limitation)
+
+func _on_pick_number_from_range(event):
+	var player = event['event_player']
+	var decision_info = game_wrapper.get_decision_info()
+	var min_value = decision_info.amount_min
+	var max_value = decision_info.amount
+	if player == Enums.PlayerId.PlayerId_Player:
+		enable_instructions_ui("Pick a number from %s-%s to %s" % [str(min_value), str(max_value), decision_info.effect_type], true, false, false, false, [], true)
+		change_ui_state(UIState.UIState_MakeChoice, UISubState.UISubState_PickNumberFromRange)
+	else:
+		ai_pick_number_from_range(decision_info.limitation, decision_info.choice)
+
+func handle_pick_range_ok():
+	var decision_info = game_wrapper.get_decision_info()
+	var choice_index = 0
+	var chosen_number = action_menu.get_current_number_picker_value()
+	for i in range(decision_info.limitation.size()):
+		if decision_info.limitation[i] == chosen_number:
+			choice_index = i
+			break
+
+	# Make sure to unset these so the UI goes away.
+	instructions_number_picker_min = -1
+	instructions_number_picker_max = -1
+
+	_on_choice_pressed(choice_index)
+
+	# Return false, _on_choice_pressed handles UI state.
+	return false
 
 ##
 ## Button Handlers
@@ -2888,7 +2931,7 @@ func _on_choice_pressed(choice):
 	_update_buttons()
 
 func _on_instructions_ok_button_pressed(index : int):
-	if ui_state == UIState.UIState_SelectCards and can_press_ok():
+	if can_press_ok():
 		var selected_card_ids : Array = []
 		for card in selected_cards:
 			selected_card_ids.append(card.card_id)
@@ -2955,6 +2998,8 @@ func _on_instructions_ok_button_pressed(index : int):
 					success = game_wrapper.submit_boost(Enums.PlayerId.PlayerId_Player, single_card_id, [])
 			UISubState.UISubState_SelectCards_ForceForBoost:
 				success = game_wrapper.submit_boost(Enums.PlayerId.PlayerId_Player, selected_boost_to_pay_for, selected_card_ids)
+			UISubState.UISubState_PickNumberFromRange:
+				success = handle_pick_range_ok()
 
 		if success:
 			popout_instruction_info = null
@@ -3444,6 +3489,23 @@ func ai_choose_arena_location_for_effect(location_choices : Array):
 		change_ui_state(UIState.UIState_WaitForGameServer)
 	else:
 		print("FAILED AI CHOOSE ARENA LOCATION FOR EFFECT")
+
+func ai_pick_number_from_range(choices : Array, effects : Array):
+	change_ui_state(UIState.UIState_WaitForGameServer)
+	if not game_wrapper.is_ai_game(): return
+	var choose_action = ai_player.pick_number_from_range_for_effect(game_wrapper.current_game, Enums.PlayerId.PlayerId_Opponent, choices, effects)
+	var chosen_number = choose_action.number
+	var choice_index = 0
+	for i in range(len(choices)):
+		if choices[i] == chosen_number:
+			choice_index = i
+			break
+
+	var success = game_wrapper.submit_choice(Enums.PlayerId.PlayerId_Opponent, choice_index)
+	if success:
+		change_ui_state(UIState.UIState_WaitForGameServer)
+	else:
+		print("FAILED AI CHOOSE NUMBER FROM RANGE")
 
 # Popout Functions
 func card_in_selected_cards(card):

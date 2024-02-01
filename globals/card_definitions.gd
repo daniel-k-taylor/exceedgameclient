@@ -502,6 +502,8 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 				effect_str += "Opponent Draw " + str(effect['amount'])
 			else:
 				effect_str += "Draw " + str(effect['amount'])
+		"draw_any_number":
+			effect_str += "Draw any number of cards."
 		"draw_to":
 			effect_str += "Draw until you have %s cards in hand" % str(effect['amount'])
 		"exceed_now":
