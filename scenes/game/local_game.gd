@@ -3480,8 +3480,10 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 			_append_log_full(Enums.LogType.LogType_Effect, performing_player, "will dodge attacks of a higher speed!")
 		"ignore_armor":
 			performing_player.strike_stat_boosts.ignore_armor = true
+			_append_log_full(Enums.LogType.LogType_Effect, performing_player, "gains ignore armor.")
 		"ignore_guard":
 			performing_player.strike_stat_boosts.ignore_guard = true
+			_append_log_full(Enums.LogType.LogType_Effect, performing_player, "gains ignore guard.")
 		"ignore_push_and_pull":
 			performing_player.strike_stat_boosts.ignore_push_and_pull = true
 		"ignore_push_and_pull_passive_bonus":
