@@ -3367,6 +3367,17 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 				var amount_to_draw = target_hand_size - hand_size
 				_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "draws %s card(s) to reach a hand size of %s." % [amount_to_draw, target_hand_size])
 				events += performing_player.draw(amount_to_draw)
+		"discard_to":
+			var target_hand_size = effect['amount']
+			var hand_size = performing_player.hand.size()
+			if hand_size > target_hand_size:
+				var amount_to_discard = hand_size - target_hand_size
+				var discard_effect = {
+					"effect_type": "self_discard_choose",
+					"amount": amount_to_discard
+				}
+				_append_log_full(Enums.LogType.LogType_Effect, performing_player, "must discard %s card(s) to reach a hand size of %s." % [amount_to_discard, target_hand_size])
+				events += handle_strike_effect(card_id, discard_effect, performing_player)
 		"opponent_draw_or_discard_to":
 			events += handle_player_draw_or_discard_to_effect(opposing_player, card_id, effect)
 		"dodge_at_range":

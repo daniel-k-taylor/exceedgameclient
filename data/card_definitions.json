@@ -2266,20 +2266,23 @@
 		],
 		"boost": {
 			"boost_type": "continuous",
-			"force_cost": 0,
+			"force_cost": 2,
 			"cancel_cost": -1,
-			"display_name": "Sushi!",
+			"display_name": "Checkmate",
 			"effects": [
 				{
-					"timing": "now",
-					"effect_type": "retreat",
-					"amount": 2
+					"timing": "during_strike",
+					"effect_type": "powerup",
+					"amount": 4
 				},
 				{
-					"timing": "before",
-					"condition": "at_edge_of_arena",
-					"effect_type": "advance",
-					"amount": 3
+					"timing": "now",
+					"effect_type": "discard_to",
+					"amount": 1
+				},
+				{
+					"timing": "now",
+					"effect_type": "strike"
 				}
 			]
 		}
