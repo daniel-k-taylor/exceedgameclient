@@ -1,0 +1,68 @@
+{
+	"id": "nanase",
+	"season": 6,
+	"cardback": "cardback_nanase.jpg",
+	# Need the image lol
+	"has_sealed_area": true,
+	"exceed_cost": 1, 
+	"character_action_default": [{
+		"guage_cost": 0,
+		"force_cost": 0,
+		"effect": {
+			"effect_type": "strike",
+		}
+	}],
+	"character_action_exceeded": [{
+		"gauge_cost": 1,
+		"force_cost": 0,
+		"effect": {
+			"effect_type": "strike"
+		}
+	},
+	{
+		"gauge_cost": 0,
+		"force_cost": 0,
+		"min_hand_size": 1,
+		"action_name": "Revert",
+		"effect": {
+			"effect_type": "gauge_from_hand",
+			"min_amount": 1,
+			"max_amount": 1,
+			"and": {
+				"effect_type": "revert",
+				"and": {
+					"effect_type": "take_bonus_actions",
+					"amount": 1
+				}
+			}
+		}
+	}],
+	"ability_effects": [
+		{
+			"character_effect": true,
+			"timing": "set_strike",	
+			"condition": "used_character_action",
+			"effect_type": "powerup",
+			"amount": -1,
+			"and": {
+				"effect_type": "speedup",
+				"amount": -1
+			}
+		}],
+	"exceed_ability_effects": [
+		{
+			"character_effect": true,
+			"timing": "set_strike"
+			"condition": "used_character_action",
+			"condition_details": ["exceed", 0],
+			"character_effect": true,
+			"effect_type": "choice",
+			"choice": [
+				{ "effect_type": "powerup", "amount": 2 },
+				{ "effect_type": "gain_advantage" }
+			]
+			"and": {
+				"effect_type": "powerup_opponent",
+				"amount": 1
+			}
+		]
