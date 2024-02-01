@@ -3272,7 +3272,8 @@ func ai_gauge_for_effect(effect):
 		for i in range(effect['gauge_max'] + 1):
 			options.append(i)
 	else:
-		options.append(0)
+		if not 'required' in effect or not effect['required']:
+			options.append(0)
 		options.append(effect['gauge_max'])
 	var gauge_action = ai_player.pick_gauge_for_effect(game_wrapper.current_game, Enums.PlayerId.PlayerId_Opponent, options)
 	var success = game_wrapper.submit_gauge_for_effect(Enums.PlayerId.PlayerId_Opponent, gauge_action.card_ids)

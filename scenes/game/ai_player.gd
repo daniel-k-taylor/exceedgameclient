@@ -865,8 +865,6 @@ func pick_gauge_for_effect(game_logic : LocalGame, my_id : Enums.PlayerId, optio
 	var me = game_logic._get_player(my_id)
 	var opponent = game_logic._get_player(game_logic.get_other_player(my_id))
 	var possible_actions = determine_gauge_for_effect_actions(game_logic, me, options)
-	if possible_actions.size() == 0:
-		possible_actions = determine_gauge_for_effect_actions(game_logic, me, options)
 	update_ai_state(game_logic, me, opponent)
 	return ai_policy.pick_gauge_for_effect(possible_actions, game_state)
 

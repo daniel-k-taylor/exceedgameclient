@@ -6619,6 +6619,7 @@ func do_choose_from_discard(performing_player : Player, card_ids : Array) -> boo
 		game_state = Enums.GameState.GameState_Boost_Processing
 	elif active_strike:
 		game_state = Enums.GameState.GameState_Strike_Processing
+
 	# Do any bonus effect.
 	if decision_info.bonus_effect:
 		var effect = decision_info.bonus_effect
