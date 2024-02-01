@@ -5,7 +5,7 @@
 	"cardback": "cardback_chaos.jpg",
 	"exceed_cost": 1,
 	"buddy_card": "azhi",
-	"buddy_display_name": "Azhi (attack card)",
+	"buddy_display_name": "Azhi (attack)",
 	"hide_buddy_reference": true,
 	"character_action_default": [{
 		"gauge_cost": 0,

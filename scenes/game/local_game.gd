@@ -2851,6 +2851,17 @@ func is_effect_condition_met(performing_player : Player, effect, local_condition
 		elif condition == "range":
 			var amount = effect['condition_amount']
 			var distance = abs(performing_player.arena_location - other_player.arena_location)
+
+			var from_source = 'condition_from_source' in effect and effect['condition_from_source']
+			if from_source:
+				var attack_source_location = performing_player.arena_location
+				if performing_player.strike_stat_boosts.calculate_range_from_buddy:
+					attack_source_location = performing_player.get_buddy_location(performing_player.strike_stat_boosts.calculate_range_from_buddy_id)
+					# Buddy is assumed to be in play, so this shouldn't be -1.
+				elif performing_player.strike_stat_boosts.calculate_range_from_center:
+					attack_source_location = CenterArenaLocation
+				distance = abs(attack_source_location - other_player.arena_location)
+
 			return amount == distance
 		elif condition == "range_greater_or_equal":
 			var amount = effect['condition_amount']
