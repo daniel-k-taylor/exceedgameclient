@@ -3,11 +3,11 @@ In progress:
         ☐ "timing": "on_continuous_boost",
         ☐ "effect_type": "generate_gauge_with_force"
         ☐ "effect_type": "may_invalidate_ultras"
+
         ☐ "on_invalid": { "effect_type": "add_to_gauge_after_discarded" },
         ☐ "effect_type": "draw_any_number"
         ☐ "gauge_cost_exceed": 8,
         ☐ "effect_type": "play_attack_from_hand"
-        ☐ gauge_for_effect  "must_spend_if_can_pay": true
         ☐ self_discard_choose at start_of_next_turn timing
         ☐ "effect_type": "move_to_buddy",
         ☐ "effect_type": "advance_stop_on_buddy",

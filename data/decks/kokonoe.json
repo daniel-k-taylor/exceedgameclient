@@ -50,11 +50,11 @@
 	],
 	"exceed_ability_effects": [
 		{
-			"timing": "during_strike",
+			"timing": "on_strike_reveal",
 			"effect_type": "generate_gauge_with_force"
 		},
 		{
-			"timing": "during_strike",
+			"timing": "on_strike_reveal",
 			"effect_type": "may_invalidate_ultras"
 		},
 		{

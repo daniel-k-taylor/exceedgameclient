@@ -6709,6 +6709,7 @@
 				"amount": 1,
 				"and": {
 					"effect_type": "gauge_for_effect",
+					"required": true,
 					"per_gauge_effect": null,
 					"overall_effect": {
 						"effect_type": "powerup",
@@ -6718,8 +6719,7 @@
 							"amount": 2
 						}
 					},
-					"gauge_max": 2,
-					"must_spend_if_can_pay": true
+					"gauge_max": 2
 				}
 			}
 		],
