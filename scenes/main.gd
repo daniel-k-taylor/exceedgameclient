@@ -9,8 +9,11 @@ const GameScene = preload("res://scenes/game/game.tscn")
 
 const VersusSplashTimeout = 3.0
 
+
 # Called when the node enters the scene tree for the first time.
 func _ready():
+	GlobalSettings.load_persistent_settings()
+	$MainMenu.settings_loaded()
 	NetworkManager.connect_to_server()
 
 
@@ -41,6 +44,7 @@ func create_versus_splash(vs_info):
 
 func _on_main_menu_start_game(vs_info):
 	$MainMenu.visible = false
+	$MainMenu.stop_music()
 	game = GameScene.instantiate()
 	game.connect("returning_from_game", _on_return_from_game)
 	game.begin_local_game(vs_info)
@@ -49,6 +53,7 @@ func _on_main_menu_start_game(vs_info):
 
 func _on_main_menu_start_remote_game(vs_info, data):
 	$MainMenu.visible = false
+	$MainMenu.stop_music()
 	game = GameScene.instantiate()
 	game.connect("returning_from_game", _on_return_from_game)
 	game.begin_remote_game(data)

@@ -1,6 +1,7 @@
 extends GutTest
 
-const RandomIterations = 100
+# Leave at 1 checked in so someone doesn't accidentally run all tests at 100.
+const RandomIterations = 1
 
 const LocalGame = preload("res://scenes/game/local_game.gd")
 const GameCard = preload("res://scenes/game/game_card.gd")
@@ -103,7 +104,7 @@ func handle_move(game: LocalGame, gameplayer : LocalGame.Player, action : AIPlay
 
 func handle_change_cards(game: LocalGame, gameplayer : LocalGame.Player, action : AIPlayer.ChangeCardsAction):
 	var card_ids = action.card_ids
-	assert_true(game.do_change(gameplayer, card_ids), "do change failed")
+	assert_true(game.do_change(gameplayer, card_ids, false), "do change failed")
 	return game.get_latest_events()
 
 func handle_exceed(game: LocalGame, otherai, gameplayer : LocalGame.Player, action : AIPlayer.ExceedAction):
@@ -154,6 +155,12 @@ func handle_decisions(game: LocalGame):
 				var pick_action = decision_ai.pick_name_opponent_card(game, decision_player.my_id, true)
 				assert_true(game.do_boost_name_card_choice_effect(decision_player, pick_action.card_id), "do boost name failed")
 				#TODO: Do something with EventType_RevealHand so AI can consume new info.
+			Enums.DecisionType.DecisionType_Sidestep:
+				var pick_action = decision_ai.pick_name_opponent_card(game, decision_player.my_id, true)
+				assert_true(game.do_boost_name_card_choice_effect(decision_player, pick_action.card_id), "do boost name failed")
+			Enums.DecisionType.DecisionType_ZeroVector:
+				var pick_action = decision_ai.pick_name_opponent_card(game, decision_player.my_id, false, game.decision_info.bonus_effect)
+				assert_true(game.do_boost_name_card_choice_effect(decision_player, pick_action.card_id), "do boost name failed")
 			Enums.DecisionType.DecisionType_PayStrikeCost_Required, Enums.DecisionType.DecisionType_PayStrikeCost_CanWild:
 				var can_wild = game.decision_info.type == Enums.DecisionType.DecisionType_PayStrikeCost_CanWild
 				var cost = game.decision_info.cost
@@ -183,7 +190,7 @@ func handle_decisions(game: LocalGame):
 					options.append(0)
 					options.append(effect['force_max'])
 				var forceforeffect_action = decision_ai.pick_force_for_effect(game, decision_player.my_id, options)
-				assert_true(game.do_force_for_effect(decision_ai.game_player, forceforeffect_action.card_ids), "do force effect failed")
+				assert_true(game.do_force_for_effect(decision_ai.game_player, forceforeffect_action.card_ids, false), "do force effect failed")
 			Enums.DecisionType.DecisionType_GaugeForEffect:
 				var effect = game.decision_info.effect
 				var options = []
@@ -214,7 +221,7 @@ func handle_decisions(game: LocalGame):
 				var decision_action = decision_ai.pick_discard_opponent_gauge(game, decision_player.my_id)
 				assert_true(game.do_boost_name_card_choice_effect(decision_player, decision_action.card_id), "do discard opponent gauge failed")
 			Enums.DecisionType.DecisionType_BoostNow:
-				var boostnow_action = decision_ai.take_boost(game, decision_player.my_id, game.decision_info.allow_gauge, game.decision_info.limitation)
+				var boostnow_action = decision_ai.take_boost(game, decision_player.my_id, game.decision_info.allow_gauge, game.decision_info.only_gauge, game.decision_info.limitation)
 				assert_true(game.do_boost(decision_player, boostnow_action.card_id, boostnow_action.payment_card_ids), "do boost now failed")
 			Enums.DecisionType.DecisionType_ChooseFromTopDeck:
 				var decision_info = game.decision_info
@@ -336,8 +343,10 @@ func run_ai_game():
 		if game_logic.game_state == Enums.GameState.GameState_WaitForStrike:
 			# Can theoretically get here after a boost or an exceed.
 			var strike_action = null
-			if turn_events[-1]["event_type"] == Enums.EventType.EventType_Strike_FromGauge:
-				strike_action = current_ai.pick_strike(game_logic, current_player.my_id, true)
+			if current_player.next_strike_from_gauge:
+				strike_action = current_ai.pick_strike(game_logic, current_player.my_id, "gauge")
+			elif current_player.next_strike_from_sealed:
+				strike_action = current_ai.pick_strike(game_logic, current_player.my_id, "sealed")
 			else:
 				strike_action = current_ai.pick_strike(game_logic, current_player.my_id)
 			turn_events += handle_strike(game_logic, current_ai, other_ai, strike_action)
@@ -545,6 +554,33 @@ func test_happychaos_100():
 		game_setup()
 	pass_test("Finished match")
 
+func test_arakune_100():
+	default_deck = CardDefinitions.get_deck_from_str_id("arakune")
+	for i in range(RandomIterations):
+		print("==== RUNNING TEST %d ====" % i)
+		run_ai_game()
+		game_teardown()
+		game_setup()
+	pass_test("Finished match")
+
+func test_carlclover_100():
+	default_deck = CardDefinitions.get_deck_from_str_id("carlclover")
+	for i in range(RandomIterations):
+		print("==== RUNNING TEST %d ====" % i)
+		run_ai_game()
+		game_teardown()
+		game_setup()
+	pass_test("Finished match")
+
+func test_hakumen_100():
+	default_deck = CardDefinitions.get_deck_from_str_id("hakumen")
+	for i in range(RandomIterations):
+		print("==== RUNNING TEST %d ====" % i)
+		run_ai_game()
+		game_teardown()
+		game_setup()
+	pass_test("Finished match")
+
 func test_jin_100():
 	default_deck = CardDefinitions.get_deck_from_str_id("jin")
 	for i in range(RandomIterations):
@@ -553,7 +589,7 @@ func test_jin_100():
 		game_teardown()
 		game_setup()
 	pass_test("Finished match")
-	
+
 func test_ragna_100():
 	default_deck = CardDefinitions.get_deck_from_str_id("ragna")
 	for i in range(RandomIterations):
@@ -563,8 +599,53 @@ func test_ragna_100():
 		game_setup()
 	pass_test("Finished match")
 
+func test_noel_100():
+	default_deck = CardDefinitions.get_deck_from_str_id("noel")
+	for i in range(RandomIterations):
+		print("==== RUNNING TEST %d ====" % i)
+		run_ai_game()
+		game_teardown()
+		game_setup()
+	pass_test("Finished match")
+
+func test_hazama_100():
+	default_deck = CardDefinitions.get_deck_from_str_id("hazama")
+	for i in range(RandomIterations):
+		print("==== RUNNING TEST %d ====" % i)
+		run_ai_game()
+		game_teardown()
+		game_setup()
+	pass_test("Finished match")
+
 func test_nu13_100():
 	default_deck = CardDefinitions.get_deck_from_str_id("nu13")
+	for i in range(RandomIterations):
+		print("==== RUNNING TEST %d ====" % i)
+		run_ai_game()
+		game_teardown()
+		game_setup()
+	pass_test("Finished match")
+
+func test_litchi_100():
+	default_deck = CardDefinitions.get_deck_from_str_id("litchi")
+	for i in range(RandomIterations):
+		print("==== RUNNING TEST %d ====" % i)
+		run_ai_game()
+		game_teardown()
+		game_setup()
+	pass_test("Finished match")
+
+func test_tager_100():
+	default_deck = CardDefinitions.get_deck_from_str_id("tager")
+	for i in range(RandomIterations):
+		print("==== RUNNING TEST %d ====" % i)
+		run_ai_game()
+		game_teardown()
+		game_setup()
+	pass_test("Finished match")
+
+func test_taokaka_100():
+	default_deck = CardDefinitions.get_deck_from_str_id("taokaka")
 	for i in range(RandomIterations):
 		print("==== RUNNING TEST %d ====" % i)
 		run_ai_game()
@@ -583,7 +664,25 @@ func test_yuzu_100():
 
 func test_hyde_100():
 	default_deck = CardDefinitions.get_deck_from_str_id("hyde")
-	for i in range(100):
+	for i in range(RandomIterations):
+		print("==== RUNNING TEST %d ====" % i)
+		run_ai_game()
+		game_teardown()
+		game_setup()
+	pass_test("Finished match")
+
+func test_linne_100():
+	default_deck = CardDefinitions.get_deck_from_str_id("linne")
+	for i in range(RandomIterations):
+		print("==== RUNNING TEST %d ====" % i)
+		run_ai_game()
+		game_teardown()
+		game_setup()
+	pass_test("Finished match")
+
+func test_phonon_100():
+	default_deck = CardDefinitions.get_deck_from_str_id("phonon")
+	for i in range(RandomIterations):
 		print("==== RUNNING TEST %d ====" % i)
 		run_ai_game()
 		game_teardown()
@@ -592,7 +691,25 @@ func test_hyde_100():
 
 func test_ryu_100():
 	default_deck = CardDefinitions.get_deck_from_str_id("ryu")
-	for i in range(100):
+	for i in range(RandomIterations):
+		print("==== RUNNING TEST %d ====" % i)
+		run_ai_game()
+		game_teardown()
+		game_setup()
+	pass_test("Finished match")
+
+func test_sagat_100():
+	default_deck = CardDefinitions.get_deck_from_str_id("sagat")
+	for i in range(RandomIterations):
+		print("==== RUNNING TEST %d ====" % i)
+		run_ai_game()
+		game_teardown()
+		game_setup()
+	pass_test("Finished match")
+
+func test_guile_100():
+	default_deck = CardDefinitions.get_deck_from_str_id("guile")
+	for i in range(RandomIterations):
 		print("==== RUNNING TEST %d ====" % i)
 		run_ai_game()
 		game_teardown()
@@ -601,7 +718,7 @@ func test_ryu_100():
 
 func test_ken_100():
 	default_deck = CardDefinitions.get_deck_from_str_id("ken")
-	for i in range(100):
+	for i in range(RandomIterations):
 		print("==== RUNNING TEST %d ====" % i)
 		run_ai_game()
 		game_teardown()
@@ -610,7 +727,43 @@ func test_ken_100():
 
 func test_shovelshield_100():
 	default_deck = CardDefinitions.get_deck_from_str_id("shovelshield")
-	for i in range(100):
+	for i in range(RandomIterations):
+		print("==== RUNNING TEST %d ====" % i)
+		run_ai_game()
+		game_teardown()
+		game_setup()
+	pass_test("Finished match")
+
+func test_plague_100():
+	default_deck = CardDefinitions.get_deck_from_str_id("plague")
+	for i in range(RandomIterations):
+		print("==== RUNNING TEST %d ====" % i)
+		run_ai_game()
+		game_teardown()
+		game_setup()
+	pass_test("Finished match")
+
+func test_nine_100():
+	default_deck = CardDefinitions.get_deck_from_str_id("nine")
+	for i in range(RandomIterations):
+		print("==== RUNNING TEST %d ====" % i)
+		run_ai_game()
+		game_teardown()
+		game_setup()
+	pass_test("Finished match")
+
+func test_specter_100():
+	default_deck = CardDefinitions.get_deck_from_str_id("specter")
+	for i in range(RandomIterations):
+		print("==== RUNNING TEST %d ====" % i)
+		run_ai_game()
+		game_teardown()
+		game_setup()
+	pass_test("Finished match")
+
+func test_mika_100():
+	default_deck = CardDefinitions.get_deck_from_str_id("mika")
+	for i in range(RandomIterations):
 		print("==== RUNNING TEST %d ====" % i)
 		run_ai_game()
 		game_teardown()

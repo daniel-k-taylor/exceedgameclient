@@ -13,8 +13,11 @@ func poll_for_events() -> Array:
 		return current_game.get_latest_events()
 	return []
 
-func get_combat_log() -> String:
-	return current_game.get_combat_log()
+func get_combat_log(log_filters, player_color, opponent_color) -> String:
+	var log_string : String = current_game.get_combat_log(log_filters)
+	log_string = log_string.replace("{_player_color}", player_color)
+	log_string = log_string.replace("{_opponent_color}", opponent_color)
+	return log_string
 
 func is_ai_game() -> bool:
 	return current_game is LocalGame
@@ -91,7 +94,10 @@ func get_player_reshuffle_remaining(id):
 	return _get_player(id).reshuffle_remaining
 
 func get_player_exceed_cost(id):
-	return _get_player(id).exceed_cost
+	return _get_player(id).get_exceed_cost()
+
+func is_player_exceeded(id):
+	return _get_player(id).exceeded
 
 func get_player_mulligan_complete(id):
 	return _get_player(id).mulligan_complete
@@ -106,25 +112,38 @@ func get_bonus_actions(id):
 	return _get_player(id).get_bonus_actions()
 
 func is_player_in_overdrive(id):
+	var player = _get_player(id)
+	if 'always_show_overdrive' in player.deck_def and player.deck_def['always_show_overdrive']:
+		return true
 	return _get_player(id).overdrive.size() > 0
 
 func get_all_non_immediate_continuous_boost_effects(id):
 	var game_player = _get_player(id)
 	return game_player.get_all_non_immediate_continuous_boost_effects()
 
-func count_cards_in_deck_and_hand(player_id : Enums.PlayerId, card_str_id : String):
+func is_player_sealed_area_secret(id):
+	return _get_player(id).sealed_area_is_secret
+
+func count_cards_in_deck_and_hand(player_id : Enums.PlayerId, card_str_id : String, override_card_list = null):
 	var player = _get_player(player_id)
 	var count = 0
-	for card in player.deck:
-		if card.definition['id'] == card_str_id:
-			count += 1
-	for card in player.hand:
-		if card.definition['id'] == card_str_id:
-			count += 1
-	var striking_card_ids = current_game.get_striking_card_ids_for_player(player)
-	for striking_id in striking_card_ids:
-		if striking_id == card_str_id:
-			count += 1
+
+	if override_card_list:
+		for card in override_card_list:
+			if card.definition['id'] == card_str_id:
+				count += 1
+	else:
+		for card in player.deck:
+			if card.definition['id'] == card_str_id:
+				count += 1
+		for card in player.hand:
+			if card.definition['id'] == card_str_id:
+				count += 1
+		var striking_card_ids = current_game.get_striking_card_ids_for_player(player)
+		for striking_id in striking_card_ids:
+			if striking_id == card_str_id:
+				count += 1
+		# TODO: will probably need secret sealed areas once implemented
 	return count
 
 func is_card_in_gauge(player_id : Enums.PlayerId, card_id : int):
@@ -177,25 +196,43 @@ func does_card_belong_to_player(player_id : Enums.PlayerId, card_id : int):
 	var player = _get_player(player_id)
 	return player.owns_card(card_id)
 
-func get_player_top_cards(player_id : Enums.PlayerId, count : int) -> Array[int]:
+func get_player_top_cards(player_id : Enums.PlayerId, count : int) -> Array:
 	var player = _get_player(player_id)
-	var top_cards : Array[int] = []
+	var top_cards : Array = []
 	for i in range(count):
 		if player.deck.size() > i:
 			top_cards.append(player.deck[i].id)
 	return top_cards
 
-func get_player_sustained_boosts(player_id : Enums.PlayerId) -> Array[int]:
+func get_player_sustained_boosts(player_id : Enums.PlayerId) -> Array:
 	return _get_player(player_id).sustained_boosts
 
 func get_player_available_force(player_id : Enums.PlayerId):
 	return _get_player(player_id).get_available_force()
 
+func get_player_free_force(player_id : Enums.PlayerId):
+	return _get_player(player_id).free_force
+
+func get_player_free_gauge(player_id : Enums.PlayerId):
+	return _get_player(player_id).free_gauge
+
+func get_player_force_for_cards(player_id : Enums.PlayerId, card_ids : Array, reason : String, treat_ultras_as_single_force : bool):
+	return _get_player(player_id).get_force_with_cards(card_ids, reason, treat_ultras_as_single_force)
+
 func get_force_to_move_to(player_id : Enums.PlayerId, location : int):
 	return _get_player(player_id).get_force_to_move_to(location)
 
-func get_buddy_name(player_id : Enums.PlayerId):
-	return _get_player(player_id).get_buddy_name()
+func get_will_not_hit_card_names(player_id : Enums.PlayerId) -> Array:
+	var card_names = []
+	var player = _get_player(player_id)
+	if player.cards_that_will_not_hit.size() > 0:
+		var card_db = get_card_database()
+		for card in player.cards_that_will_not_hit:
+			card_names.append(card_db.get_card_name_by_card_definition_id(card))
+	return card_names
+
+func get_buddy_name(player_id : Enums.PlayerId, buddy_id : String):
+	return _get_player(player_id).get_buddy_name(buddy_id)
 
 func other_player(id : Enums.PlayerId) -> Enums.PlayerId:
 	if id == Enums.PlayerId.PlayerId_Player:
@@ -206,8 +243,8 @@ func other_player(id : Enums.PlayerId) -> Enums.PlayerId:
 func get_card_database() -> CardDatabase:
 	return current_game.get_card_database()
 
-func can_player_boost(player_id : Enums.PlayerId, card_id : int, allow_gauge : bool, limitation : String) -> bool:
-	if is_card_in_hand(player_id, card_id) or (allow_gauge and is_card_in_gauge(player_id, card_id)):
+func can_player_boost(player_id : Enums.PlayerId, card_id : int, allow_gauge : bool, only_gauge : bool, limitation : String) -> bool:
+	if (not only_gauge and is_card_in_hand(player_id, card_id)) or (allow_gauge and is_card_in_gauge(player_id, card_id)):
 		var card_db = current_game.get_card_database()
 		var card = card_db.get_card(card_id)
 		if limitation and card.definition['boost']['boost_type'] != limitation:
@@ -298,9 +335,9 @@ func submit_move(player : Enums.PlayerId, card_ids : Array, new_arena_location :
 	var game_player = _get_player(player)
 	return current_game.do_move(game_player, card_ids, new_arena_location)
 
-func submit_change(player : Enums.PlayerId, card_ids : Array) -> bool:
+func submit_change(player : Enums.PlayerId, card_ids : Array, treat_ultras_as_single_force : bool) -> bool:
 	var game_player = _get_player(player)
-	return current_game.do_change(game_player, card_ids)
+	return current_game.do_change(game_player, card_ids, treat_ultras_as_single_force)
 
 func submit_strike(player : Enums.PlayerId, card_id : int, wild_strike: bool, ex_card_id : int, opponent_sets_first : bool = false) -> bool:
 	var game_player = _get_player(player)
@@ -326,9 +363,9 @@ func submit_choose_from_discard(player: Enums.PlayerId, card_ids : Array) -> boo
 	var game_player = _get_player(player)
 	return current_game.do_choose_from_discard(game_player, card_ids)
 
-func submit_force_for_effect(player: Enums.PlayerId, card_ids : Array) -> bool:
+func submit_force_for_effect(player: Enums.PlayerId, card_ids : Array, treat_ultras_as_single_force : bool, cancel : bool = false) -> bool:
 	var game_player = _get_player(player)
-	return current_game.do_force_for_effect(game_player, card_ids)
+	return current_game.do_force_for_effect(game_player, card_ids, treat_ultras_as_single_force, cancel)
 
 func submit_gauge_for_effect(player: Enums.PlayerId, card_ids : Array) -> bool:
 	var game_player = _get_player(player)
@@ -349,3 +386,7 @@ func submit_bonus_turn_action(player: Enums.PlayerId, action_index : int) -> boo
 func submit_choose_from_topdeck(player: Enums.PlayerId, card_id : int, action : String) -> bool:
 	var game_player = _get_player(player)
 	return current_game.do_choose_from_topdeck(game_player, card_id, action)
+
+func submit_emote(player: Enums.PlayerId, is_image_emote : bool, emote : String):
+	var game_player = _get_player(player)
+	return current_game.do_emote(game_player, is_image_emote, emote)

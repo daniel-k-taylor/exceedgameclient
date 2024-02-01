@@ -1,12 +1,12 @@
-[gd_resource type="SpriteFrames" load_steps=2 format=3 uid="uid://cqe0lhcwrchhw"]
+[gd_resource type="SpriteFrames" load_steps=2 format=3 uid="uid://b1eu0r6r16qxy"]
 
-[ext_resource type="Texture2D" uid="uid://cngpq78hkn3q" path="res://assets/character_animations/nu13/idle/idle.png" id="1_ywo0r"]
+[ext_resource type="Texture2D" uid="uid://cngpq78hkn3q" path="res://assets/character_animations/nu13/idle/idle.png" id="1_d86bi"]
 
 [resource]
 animations = [{
 "frames": [{
 "duration": 1.0,
-"texture": ExtResource("1_ywo0r")
+"texture": ExtResource("1_d86bi")
 }],
 "loop": true,
 "name": &"idle",

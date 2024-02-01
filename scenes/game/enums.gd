@@ -3,6 +3,7 @@ extends Node
 enum PlayerId {
 	PlayerId_Player,
 	PlayerId_Opponent,
+	PlayerId_Unassigned,
 }
 
 enum CardZone {
@@ -15,27 +16,31 @@ enum CardZone {
 }
 
 enum DecisionType {
+	DecisionType_None,
 	DecisionType_BoostCancel,
 	DecisionType_BoostNow,
 	DecisionType_ChooseArenaLocationForEffect,
 	DecisionType_ChooseDiscardContinuousBoost,
 	DecisionType_ChooseDiscardOpponentGauge,
-	DecisionType_ChooseFromBoosts,			# 5
+	DecisionType_ChooseFromBoosts,
 	DecisionType_ChooseFromDiscard,
 	DecisionType_ChooseFromTopDeck,
 	DecisionType_ChooseSimultaneousEffect,
 	DecisionType_EffectChoice,
 	DecisionType_ForceBoostSustainTopdeck,
+	DecisionType_ForceBoostSustainTopDiscard,
 	DecisionType_ForceForEffect,
 	DecisionType_GaugeForEffect,
-	DecisionType_NameCard_OpponentDiscards, # 13
+	DecisionType_NameCard_OpponentDiscards,
 	DecisionType_ChooseToDiscard,
 	DecisionType_PayStrikeCost_Required,
 	DecisionType_PayStrikeCost_CanWild,
 	DecisionType_ForceForArmor,
 	DecisionType_CardFromHandToGauge,
 	DecisionType_ReadingNormal,
+	DecisionType_Sidestep,
 	DecisionType_StrikeNow,
+	DecisionType_ZeroVector,
 }
 
 enum GameState {
@@ -76,6 +81,8 @@ enum EventType {
 	EventType_Boost_Canceled,
 	EventType_Boost_Continuous_Added,
 	EventType_Boost_NameCardOpponentDiscards,
+	EventType_Boost_Sidestep,
+	EventType_Boost_ZeroVector,
 	EventType_CardFromHandToGauge_Choice,
 	EventType_ChangeCards,
 	EventType_CharacterAction,
@@ -84,6 +91,7 @@ enum EventType {
 	EventType_ChooseFromDiscard,
 	EventType_ChooseFromTopDeck,
 	EventType_Draw,
+	EventType_Emote,
 	EventType_Exceed,
 	EventType_ExceedRevert,
 	EventType_ForceForEffect,
@@ -99,6 +107,7 @@ enum EventType {
 	EventType_ReadingNormal,
 	EventType_ReshuffleDeck_Mulligan,
 	EventType_ReshuffleDiscard,
+	EventType_RevealCard,
 	EventType_RevealHand,
 	EventType_RevealRandomGauge,
 	EventType_RevealStrike_OnePlayer,
@@ -115,6 +124,7 @@ enum EventType {
 	EventType_Strike_DodgeFromOppositeBuddy,
 	EventType_Strike_DoResponseNow,
 	EventType_Strike_EffectChoice,
+	EventType_Strike_EffectDoStrike,
 	EventType_Strike_ExUp,
 	EventType_Strike_ForceForArmor,
 	EventType_Strike_ForceWildSwing,
@@ -126,6 +136,7 @@ enum EventType {
 	EventType_Strike_Miss,
 	EventType_Strike_ChooseToDiscard,
 	EventType_Strike_ChooseToDiscard_Info,
+	EventType_Strike_Cleanup,
 	EventType_Strike_OpponentCantMovePast,
 	EventType_Strike_OpponentSetsFirst,
 	EventType_Strike_OpponentSetsFirst_DefenderSet,
@@ -148,4 +159,15 @@ enum EventType {
 	EventType_Strike_TookDamage,
 	EventType_Strike_WildStrike,
 	EventType_SustainBoost,
+	EventType_SwapSealedAndDeck,
+}
+
+enum LogType {
+	LogType_CardInfo,
+	LogType_CharacterMovement,
+	LogType_Effect,
+	LogType_Health,
+	LogType_Action,
+	LogType_Strike,
+	LogType_Default
 }

@@ -20,6 +20,25 @@ func get_card(id : int):
 			return card
 	return null
 
+func get_card_sort_key(card_id : int):
+	var gamecard = get_card(card_id)
+	var card_type = gamecard.definition['type']
+	var speed = gamecard.definition['speed']
+	var display_name = gamecard.definition['display_name']
+	var sort_key = 0
+	if card_type == "normal":
+		sort_key = 100
+	elif card_type == "special":
+		sort_key = 200
+	elif card_type == "ultra":
+		sort_key = 300
+
+	# Use inverse speed so that higher speed cards are sorted first.
+	# Because we want to use the display name as alpha sort.
+	sort_key += (99 - speed)
+
+	return "%s_%s" % [sort_key, display_name]
+
 func get_card_names(card_ids) -> String:
 	var card_names = ""
 	for id in card_ids:
@@ -39,6 +58,12 @@ func _test_insert_card(card : GameCard):
 func get_card_name(id : int) -> String:
 	for card in all_cards:
 		if card.id == id:
+			return card.definition['display_name']
+	return "MISSING CARD"
+
+func get_card_name_by_card_definition_id(id : String) -> String:
+	for card in all_cards:
+		if card.definition['id'] == id:
 			return card.definition['display_name']
 	return "MISSING CARD"
 
@@ -63,6 +88,10 @@ func is_normal_card(id : int) -> bool:
 	if id < 0: return false
 	var card = get_card(id)
 	return card.definition['type'] == 'normal'
+
+func does_card_have_cost(id : int) -> bool:
+	var card = get_card(id)
+	return card.definition['force_cost'] > 0 or card.definition['gauge_cost'] > 0
 
 func get_card_boost_force_cost(id : int) -> int:
 	var card = get_card(id)

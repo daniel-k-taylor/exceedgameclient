@@ -419,7 +419,36 @@ texture = ExtResource("1_jo5c8")
 custom_minimum_size = Vector2(0, 10)
 layout_mode = 2
 
+[node name="ToggleContainer" type="VBoxContainer" parent="PopoutVBox"]
+layout_mode = 2
+
+[node name="WithBuffer" type="HBoxContainer" parent="PopoutVBox/ToggleContainer"]
+layout_mode = 2
+
+[node name="LeftBuffer" type="MarginContainer" parent="PopoutVBox/ToggleContainer/WithBuffer"]
+custom_minimum_size = Vector2(20, 0)
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/margin_right = 20
+
+[node name="ReshuffleToggle" type="Button" parent="PopoutVBox/ToggleContainer/WithBuffer"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 24
+text = "View Cards Before Reshuffle"
+
+[node name="RightBuffer" type="MarginContainer" parent="PopoutVBox/ToggleContainer/WithBuffer"]
+custom_minimum_size = Vector2(20, 0)
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_stretch_ratio = 7.0
+theme_override_constants/margin_right = 20
+
+[node name="BottomerMargin" type="MarginContainer" parent="PopoutVBox/ToggleContainer"]
+custom_minimum_size = Vector2(0, 10)
+layout_mode = 2
+
 [connection signal="pressed" from="PopoutVBox/CloseWindowButton" to="." method="_on_close_window_button_pressed"]
 [connection signal="pressed" from="PopoutVBox/HBoxContainer/RestOfThing/InstructionButtonOk" to="." method="_on_instruction_button_ok_pressed"]
 [connection signal="pressed" from="PopoutVBox/HBoxContainer/RestOfThing/InstructionButtonOk2" to="." method="_on_instruction_button_ok2_pressed"]
 [connection signal="pressed" from="PopoutVBox/HBoxContainer/RestOfThing/InstructionButtonCancel" to="." method="_on_instruction_button_cancel_pressed"]
+[connection signal="pressed" from="PopoutVBox/ToggleContainer/WithBuffer/ReshuffleToggle" to="." method="_on_reshuffle_toggle_pressed"]

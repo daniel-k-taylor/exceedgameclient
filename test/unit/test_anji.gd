@@ -124,7 +124,8 @@ func handle_simultaneous_effects(initiator, defender):
 			decider = defender
 		assert_true(game_logic.do_choice(decider, 0), "Failed simuleffect choice")
 
-func execute_strike(initiator, defender, init_card : String, def_card : String, init_choices, def_choices, init_ex = false, def_ex = false, init_force_discard = [], def_force_discard = []):
+func execute_strike(initiator, defender, init_card : String, def_card : String, init_choices, def_choices, init_ex = false, def_ex = false, init_force_discard = [], def_force_discard = [],
+		reading_id = -1):
 	var all_events = []
 	give_specific_cards(initiator, init_card, defender, def_card)
 	if init_ex:
@@ -134,16 +135,22 @@ func execute_strike(initiator, defender, init_card : String, def_card : String, 
 		do_and_validate_strike(initiator, TestCardId1)
 
 	if game_logic.game_state == Enums.GameState.GameState_PlayerDecision and game_logic.active_strike.strike_state == game_logic.StrikeState.StrikeState_Initiator_SetEffects:
-		game_logic.do_force_for_effect(initiator, init_force_discard)
+		game_logic.do_force_for_effect(initiator, init_force_discard, false)
 
-	if def_ex:
+	if reading_id != -1:
+		assert_eq(game_logic.decision_info.type, Enums.DecisionType.DecisionType_ChooseSimultaneousEffect)
+		assert_true(game_logic.do_choice(defender, 0))
+		all_events += game_logic.get_latest_events()
+		validate_has_event(all_events, Enums.EventType.EventType_Strike_EffectDoStrike, defender, 0)
+		assert_true(game_logic.do_strike(defender, reading_id, false, -1))
+	elif def_ex:
 		give_player_specific_card(defender, def_card, TestCardId4)
 		all_events += do_strike_response(defender, TestCardId2, TestCardId4)
 	elif def_card:
 		all_events += do_strike_response(defender, TestCardId2)
 
 	if game_logic.game_state == Enums.GameState.GameState_PlayerDecision and game_logic.active_strike.strike_state == game_logic.StrikeState.StrikeState_Defender_SetEffects:
-		game_logic.do_force_for_effect(defender, def_force_discard)
+		game_logic.do_force_for_effect(defender, def_force_discard, false)
 
 	# Pay any costs from gauge
 	if game_logic.active_strike and game_logic.active_strike.strike_state == game_logic.StrikeState.StrikeState_Initiator_PayCosts:
@@ -327,7 +334,7 @@ func test_anji_kachoufuugetsu_reading_correct():
 	assert_eq(game_logic.decision_info.type, Enums.DecisionType.DecisionType_ReadingNormal)
 	assert_true(game_logic.do_boost_name_card_choice_effect(player1, TestCardId4))
 	assert_eq(game_logic.game_state, Enums.GameState.GameState_WaitForStrike)
-	execute_strike(player1, player2, "gg_normal_cross","", [], [], false, false, [])
+	execute_strike(player1, player2, "gg_normal_cross","", [], [], false, false, [], [], TestCardId4)
 	validate_positions(player1, 1, player2, 4)
 	validate_life(player1, 30, player2, 27)
 	var found = false
@@ -338,6 +345,8 @@ func test_anji_kachoufuugetsu_reading_correct():
 
 func test_anji_kachoufuugetsu_reading_incorrect():
 	position_players(player1, 3, player2, 4)
+	player2.hand = []
+	give_player_specific_card(player2, "gg_normal_sweep", TestCardId4)
 	var name_card_id = player2.hand[0].id
 	player2.hand = []
 	give_player_specific_card(player1, "anji_kachoufuugetsukai", TestCardId3)

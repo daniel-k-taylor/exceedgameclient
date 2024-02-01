@@ -1,10 +1,12 @@
-extends Node2D
+extends PanelContainer
 
 @export var label_text : String
 
 signal gauge_clicked()
 
 @onready var gauge_panel = $BackgroundPanel/GaugePanel
+
+const disable_color = Color.DARK_GRAY
 
 func _ready():
 	if label_text:
@@ -18,3 +20,8 @@ func get_center_pos() -> Vector2:
 
 func _on_focus_pressed():
 	gauge_clicked.emit()
+
+func hidden_sealed():
+	$BackgroundPanel/Focus.disabled = true
+	$BackgroundPanel.modulate = disable_color
+	$BackgroundPanel/Focus.tooltip_text = "This character seals cards face-down."

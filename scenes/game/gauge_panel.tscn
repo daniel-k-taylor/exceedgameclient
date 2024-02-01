@@ -4,12 +4,13 @@
 [ext_resource type="Texture2D" uid="uid://cy0pcorknc8op" path="res://assets/cards/border_thin_pressed.png" id="2_s5ifx"]
 [ext_resource type="Texture2D" uid="uid://kwcp6d7oulcg" path="res://assets/cards/border_thin_hover.png" id="3_lr7n5"]
 
-[node name="Gauge" type="Node2D"]
+[node name="Gauge" type="PanelContainer"]
+scale = Vector2(0.8, 0.8)
+size_flags_horizontal = 3
 script = ExtResource("1_6vj7f")
 
 [node name="BackgroundPanel" type="PanelContainer" parent="."]
-offset_right = 135.0
-offset_bottom = 60.0
+layout_mode = 2
 
 [node name="GaugePanel" type="MarginContainer" parent="BackgroundPanel"]
 layout_mode = 2

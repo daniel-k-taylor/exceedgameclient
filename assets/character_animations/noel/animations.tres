@@ -1,0 +1,15 @@
+[gd_resource type="SpriteFrames" load_steps=2 format=3 uid="uid://dt10om3176yi4"]
+
+[ext_resource type="Texture2D" uid="uid://b1ehlf6vj727p" path="res://assets/character_animations/noel/idle/idle.png" id="1_hgafe"]
+
+[resource]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("1_hgafe")
+}],
+"loop": true,
+"name": &"idle",
+"speed": 5.0
+}]
+metadata/scaling = 0.65

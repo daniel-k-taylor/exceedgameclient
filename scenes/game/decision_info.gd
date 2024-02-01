@@ -14,8 +14,29 @@ var amount : int
 var amount_min : int
 var cost : int
 var allow_gauge : bool
+var only_gauge : bool
 var strike_after : bool
 var action
 var can_pass : bool
 var bonus_effect
 var source
+
+func clear():
+	player = Enums.PlayerId.PlayerId_Unassigned
+	type = Enums.DecisionType.DecisionType_None
+	effect_type = null
+	effect = null
+	choice = null
+	choice_card_id = -1
+	limitation = null
+	destination = null
+	amount = -1
+	amount_min = 999
+	cost = -1
+	allow_gauge = false
+	only_gauge = false
+	strike_after = false
+	action = null
+	can_pass = false
+	bonus_effect = null
+	source = null

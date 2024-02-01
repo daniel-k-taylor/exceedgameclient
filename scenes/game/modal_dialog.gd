@@ -17,3 +17,4 @@ func _on_close_button_pressed():
 
 func _on_accept_button_pressed():
 	accept_button_pressed.emit()
+

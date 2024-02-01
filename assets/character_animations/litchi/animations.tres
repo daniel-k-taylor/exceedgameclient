@@ -1,0 +1,16 @@
+[gd_resource type="SpriteFrames" load_steps=2 format=3 uid="uid://csseepvlk4yu1"]
+
+[ext_resource type="Texture2D" uid="uid://cbxhl53mwtjwm" path="res://assets/character_animations/litchi/idle/idle.png" id="1_ymril"]
+
+[resource]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("1_ymril")
+}],
+"loop": true,
+"name": &"idle",
+"speed": 5.0
+}]
+metadata/flip = true
+metadata/scaling = 0.6

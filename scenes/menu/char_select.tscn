@@ -1,4 +1,4 @@
-[gd_scene load_steps=39 format=3 uid="uid://cqs72exlwm6at"]
+[gd_scene load_steps=54 format=3 uid="uid://cqs72exlwm6at"]
 
 [ext_resource type="Script" path="res://scenes/menu/char_select.gd" id="1_f3x24"]
 [ext_resource type="PackedScene" uid="uid://nwqxp8pdh1jk" path="res://scenes/menu/char_select_button.tscn" id="6_3lmwy"]
@@ -21,22 +21,38 @@
 [ext_resource type="Texture2D" uid="uid://cn3mh2d8x8xon" path="res://assets/portraits/testament.png" id="21_cebtd"]
 [ext_resource type="Texture2D" uid="uid://cuioxl3i2sx0p" path="res://assets/portraits/jacko.png" id="21_s6sfk"]
 [ext_resource type="Texture2D" uid="uid://cbd201lgc8mu8" path="res://assets/portraits/leo.png" id="21_tu1g4"]
+[ext_resource type="Texture2D" uid="uid://dqd8sy6gfclo8" path="res://assets/portraits/phonon.png" id="24_4beb5"]
 [ext_resource type="Texture2D" uid="uid://c224iya7w31tc" path="res://assets/portraits/hyde.png" id="24_610av"]
 [ext_resource type="Texture2D" uid="uid://bxhkpg33qwo3h" path="res://assets/portraits/yuzu.png" id="24_sf5mp"]
 [ext_resource type="Texture2D" uid="uid://uhtif52doyss" path="res://assets/portraits/unilogo.png" id="25_is7sg"]
 [ext_resource type="Texture2D" uid="uid://d17x6tser3eeq" path="res://assets/portraits/zato.png" id="25_wi4bn"]
 [ext_resource type="Texture2D" uid="uid://dypqpmufue3as" path="res://assets/portraits/faust.png" id="26_j4iqn"]
+[ext_resource type="Texture2D" uid="uid://djsiqwo6gktq2" path="res://assets/portraits/linne.png" id="26_pbdap"]
 [ext_resource type="Texture2D" uid="uid://bwp8gexqjcuwc" path="res://assets/portraits/happychaos.png" id="27_0fy1k"]
 [ext_resource type="Texture2D" uid="uid://bq43sl2kpxmdv" path="res://assets/portraits/ragna.png" id="27_4b3tr"]
 [ext_resource type="Texture2D" uid="uid://dhbd4wfnmy603" path="res://assets/portraits/jin.png" id="29_1ti5l"]
 [ext_resource type="Texture2D" uid="uid://brjpxxwwioeo8" path="res://assets/portraits/blazbluelogo2.png" id="29_7gojn"]
+[ext_resource type="Texture2D" uid="uid://c54oj8c0jdhll" path="res://assets/portraits/mika.png" id="29_r57n1"]
 [ext_resource type="Texture2D" uid="uid://des5jexyu0ie7" path="res://assets/portraits/kokonoe.png" id="30_fhf5k"]
 [ext_resource type="Texture2D" uid="uid://dbnf6ivx556pu" path="res://assets/portraits/ryu.png" id="30_mommm"]
 [ext_resource type="Texture2D" uid="uid://debn7wuvbqqcc" path="res://assets/portraits/shovelshield.png" id="30_vegm4"]
 [ext_resource type="Texture2D" uid="uid://dgmjgjw44rf6r" path="res://assets/portraits/ken.png" id="31_2ynpm"]
+[ext_resource type="Texture2D" uid="uid://clmicn3w5pnx7" path="res://assets/portraits/noel.png" id="31_clm6c"]
 [ext_resource type="Texture2D" uid="uid://ojsgw4m4r087" path="res://assets/portraits/sklogo.png" id="31_hsrmq"]
 [ext_resource type="Texture2D" uid="uid://b060c4v4aecrq" path="res://assets/portraits/sflogo.png" id="31_xu3ya"]
+[ext_resource type="Texture2D" uid="uid://lpvtuydm4qk1" path="res://assets/portraits/tager.png" id="32_1r668"]
 [ext_resource type="Texture2D" uid="uid://de4wk0x150r1f" path="res://assets/portraits/exceedrandom.png" id="32_iutun"]
+[ext_resource type="Texture2D" uid="uid://juesnkghbyjd" path="res://assets/portraits/plague.png" id="32_o7q1n"]
+[ext_resource type="Texture2D" uid="uid://bc01kjivot83r" path="res://assets/portraits/litchi.png" id="32_tp7xh"]
+[ext_resource type="Texture2D" uid="uid://cp4tvk0uhox0p" path="res://assets/portraits/hazama.png" id="33_ymrgl"]
+[ext_resource type="Texture2D" uid="uid://8nah2fhvu83k" path="res://assets/portraits/nine.png" id="34_h13ui"]
+[ext_resource type="Texture2D" uid="uid://bu2eawlvu1aut" path="res://assets/portraits/taokaka.png" id="37_iqb1f"]
+[ext_resource type="Texture2D" uid="uid://d2hpsnf4ait4n" path="res://assets/portraits/carlclover.png" id="37_wtd7i"]
+[ext_resource type="Texture2D" uid="uid://brexpvmhajw2c" path="res://assets/portraits/guile.png" id="39_8wdmm"]
+[ext_resource type="Texture2D" uid="uid://bsnhwfau216op" path="res://assets/portraits/arakune.png" id="40_pcigi"]
+[ext_resource type="Texture2D" uid="uid://drfi3wl1nmdbh" path="res://assets/portraits/hakumen.png" id="41_d18gh"]
+[ext_resource type="Texture2D" uid="uid://bnyj6tteeavxq" path="res://assets/portraits/specter.png" id="42_vmogd"]
+[ext_resource type="Texture2D" uid="uid://c1aaxfvy8dxha" path="res://assets/portraits/sagat.png" id="45_6fv30"]
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_8u80i"]
 
@@ -262,15 +278,33 @@ layout_mode = 2
 char_id = "hyde"
 portrait_texture = ExtResource("24_610av")
 
-[node name="Yuzu" parent="CenterContainer/UNICharacterSelect/Rows/Row1" instance=ExtResource("6_3lmwy")]
-layout_mode = 2
-char_id = "yuzu"
-portrait_texture = ExtResource("24_sf5mp")
-
 [node name="RandomUNI" parent="CenterContainer/UNICharacterSelect/Rows/Row1" instance=ExtResource("6_3lmwy")]
 layout_mode = 2
 char_id = "random_s6"
 portrait_texture = ExtResource("25_is7sg")
+
+[node name="Linne" parent="CenterContainer/UNICharacterSelect/Rows/Row1" instance=ExtResource("6_3lmwy")]
+layout_mode = 2
+char_id = "linne"
+portrait_texture = ExtResource("26_pbdap")
+
+[node name="Row2" type="HBoxContainer" parent="CenterContainer/UNICharacterSelect/Rows"]
+layout_mode = 2
+
+[node name="Yuzu" parent="CenterContainer/UNICharacterSelect/Rows/Row2" instance=ExtResource("6_3lmwy")]
+layout_mode = 2
+char_id = "yuzu"
+portrait_texture = ExtResource("24_sf5mp")
+
+[node name="Phonon" parent="CenterContainer/UNICharacterSelect/Rows/Row2" instance=ExtResource("6_3lmwy")]
+layout_mode = 2
+char_id = "phonon"
+portrait_texture = ExtResource("24_4beb5")
+
+[node name="Mika" parent="CenterContainer/UNICharacterSelect/Rows/Row2" instance=ExtResource("6_3lmwy")]
+layout_mode = 2
+char_id = "mika"
+portrait_texture = ExtResource("29_r57n1")
 
 [node name="BBCharacterSelect" type="PanelContainer" parent="CenterContainer"]
 layout_mode = 2
@@ -305,15 +339,59 @@ portrait_texture = ExtResource("29_1ti5l")
 layout_mode = 2
 alignment = 1
 
+[node name="Noel" parent="CenterContainer/BBCharacterSelect/Rows/Row2" instance=ExtResource("6_3lmwy")]
+layout_mode = 2
+char_id = "noel"
+portrait_texture = ExtResource("31_clm6c")
+
 [node name="Nu13" parent="CenterContainer/BBCharacterSelect/Rows/Row2" instance=ExtResource("6_3lmwy")]
 layout_mode = 2
 char_id = "nu13"
 portrait_texture = ExtResource("8_f1r6m")
 
-[node name="Kokonoe" parent="CenterContainer/BBCharacterSelect/Rows/Row2" instance=ExtResource("6_3lmwy")]
+[node name="Litchi" parent="CenterContainer/BBCharacterSelect/Rows/Row2" instance=ExtResource("6_3lmwy")]
 layout_mode = 2
-char_id = "kokonoe"
-portrait_texture = ExtResource("30_fhf5k")
+char_id = "litchi"
+portrait_texture = ExtResource("32_tp7xh")
+
+[node name="Hazama" parent="CenterContainer/BBCharacterSelect/Rows/Row2" instance=ExtResource("6_3lmwy")]
+layout_mode = 2
+char_id = "hazama"
+portrait_texture = ExtResource("33_ymrgl")
+
+[node name="Tager" parent="CenterContainer/BBCharacterSelect/Rows/Row2" instance=ExtResource("6_3lmwy")]
+layout_mode = 2
+char_id = "tager"
+portrait_texture = ExtResource("32_1r668")
+
+[node name="Nine" parent="CenterContainer/BBCharacterSelect/Rows/Row2" instance=ExtResource("6_3lmwy")]
+layout_mode = 2
+char_id = "nine"
+portrait_texture = ExtResource("34_h13ui")
+
+[node name="Row3" type="HBoxContainer" parent="CenterContainer/BBCharacterSelect/Rows"]
+layout_mode = 2
+alignment = 1
+
+[node name="Taokaka" parent="CenterContainer/BBCharacterSelect/Rows/Row3" instance=ExtResource("6_3lmwy")]
+layout_mode = 2
+char_id = "taokaka"
+portrait_texture = ExtResource("37_iqb1f")
+
+[node name="CarlClover" parent="CenterContainer/BBCharacterSelect/Rows/Row3" instance=ExtResource("6_3lmwy")]
+layout_mode = 2
+char_id = "carlclover"
+portrait_texture = ExtResource("37_wtd7i")
+
+[node name="Arakune" parent="CenterContainer/BBCharacterSelect/Rows/Row3" instance=ExtResource("6_3lmwy")]
+layout_mode = 2
+char_id = "arakune"
+portrait_texture = ExtResource("40_pcigi")
+
+[node name="Hakumen" parent="CenterContainer/BBCharacterSelect/Rows/Row3" instance=ExtResource("6_3lmwy")]
+layout_mode = 2
+char_id = "hakumen"
+portrait_texture = ExtResource("41_d18gh")
 
 [node name="SKCharacterSelect" type="PanelContainer" parent="CenterContainer"]
 layout_mode = 2
@@ -333,6 +411,16 @@ alignment = 1
 layout_mode = 2
 char_id = "shovelshield"
 portrait_texture = ExtResource("30_vegm4")
+
+[node name="Plague" parent="CenterContainer/SKCharacterSelect/Rows/Row1" instance=ExtResource("6_3lmwy")]
+layout_mode = 2
+char_id = "plague"
+portrait_texture = ExtResource("32_o7q1n")
+
+[node name="Specter" parent="CenterContainer/SKCharacterSelect/Rows/Row1" instance=ExtResource("6_3lmwy")]
+layout_mode = 2
+char_id = "specter"
+portrait_texture = ExtResource("42_vmogd")
 
 [node name="RandomSF" parent="CenterContainer/SKCharacterSelect/Rows/Row1" instance=ExtResource("6_3lmwy")]
 layout_mode = 2
@@ -358,15 +446,29 @@ layout_mode = 2
 char_id = "ryu"
 portrait_texture = ExtResource("30_mommm")
 
+[node name="RandomSF" parent="CenterContainer/SFCharacterSelect/Rows/Row1" instance=ExtResource("6_3lmwy")]
+layout_mode = 2
+char_id = "random_s3"
+portrait_texture = ExtResource("31_xu3ya")
+
 [node name="Ken" parent="CenterContainer/SFCharacterSelect/Rows/Row1" instance=ExtResource("6_3lmwy")]
 layout_mode = 2
 char_id = "ken"
 portrait_texture = ExtResource("31_2ynpm")
 
-[node name="RandomSF" parent="CenterContainer/SFCharacterSelect/Rows/Row1" instance=ExtResource("6_3lmwy")]
+[node name="Row2" type="HBoxContainer" parent="CenterContainer/SFCharacterSelect/Rows"]
 layout_mode = 2
-char_id = "random_s3"
-portrait_texture = ExtResource("31_xu3ya")
+alignment = 1
+
+[node name="Sagat" parent="CenterContainer/SFCharacterSelect/Rows/Row2" instance=ExtResource("6_3lmwy")]
+layout_mode = 2
+char_id = "sagat"
+portrait_texture = ExtResource("45_6fv30")
+
+[node name="Guile" parent="CenterContainer/SFCharacterSelect/Rows/Row2" instance=ExtResource("6_3lmwy")]
+layout_mode = 2
+char_id = "guile"
+portrait_texture = ExtResource("39_8wdmm")
 
 [node name="TabSelect" type="VBoxContainer" parent="."]
 layout_mode = 1
@@ -465,30 +567,60 @@ portrait_texture = ExtResource("32_iutun")
 [connection signal="on_pressed" from="CenterContainer/GGCharacterSelect/Rows/Row5/Zato" to="." method="_on_char_button_on_pressed"]
 [connection signal="on_hover" from="CenterContainer/UNICharacterSelect/Rows/Row1/Hyde" to="." method="_on_char_hover"]
 [connection signal="on_pressed" from="CenterContainer/UNICharacterSelect/Rows/Row1/Hyde" to="." method="_on_char_button_on_pressed"]
-[connection signal="on_hover" from="CenterContainer/UNICharacterSelect/Rows/Row1/Yuzu" to="." method="_on_char_hover"]
-[connection signal="on_pressed" from="CenterContainer/UNICharacterSelect/Rows/Row1/Yuzu" to="." method="_on_char_button_on_pressed"]
 [connection signal="on_hover" from="CenterContainer/UNICharacterSelect/Rows/Row1/RandomUNI" to="." method="_on_char_hover"]
 [connection signal="on_pressed" from="CenterContainer/UNICharacterSelect/Rows/Row1/RandomUNI" to="." method="_on_char_button_on_pressed"]
+[connection signal="on_hover" from="CenterContainer/UNICharacterSelect/Rows/Row1/Linne" to="." method="_on_char_hover"]
+[connection signal="on_pressed" from="CenterContainer/UNICharacterSelect/Rows/Row1/Linne" to="." method="_on_char_button_on_pressed"]
+[connection signal="on_hover" from="CenterContainer/UNICharacterSelect/Rows/Row2/Yuzu" to="." method="_on_char_hover"]
+[connection signal="on_pressed" from="CenterContainer/UNICharacterSelect/Rows/Row2/Yuzu" to="." method="_on_char_button_on_pressed"]
+[connection signal="on_hover" from="CenterContainer/UNICharacterSelect/Rows/Row2/Phonon" to="." method="_on_char_hover"]
+[connection signal="on_pressed" from="CenterContainer/UNICharacterSelect/Rows/Row2/Phonon" to="." method="_on_char_button_on_pressed"]
+[connection signal="on_hover" from="CenterContainer/UNICharacterSelect/Rows/Row2/Mika" to="." method="_on_char_hover"]
+[connection signal="on_pressed" from="CenterContainer/UNICharacterSelect/Rows/Row2/Mika" to="." method="_on_char_button_on_pressed"]
 [connection signal="on_hover" from="CenterContainer/BBCharacterSelect/Rows/Row1/Ragna" to="." method="_on_char_hover"]
 [connection signal="on_pressed" from="CenterContainer/BBCharacterSelect/Rows/Row1/Ragna" to="." method="_on_char_button_on_pressed"]
 [connection signal="on_hover" from="CenterContainer/BBCharacterSelect/Rows/Row1/RandomBB" to="." method="_on_char_hover"]
 [connection signal="on_pressed" from="CenterContainer/BBCharacterSelect/Rows/Row1/RandomBB" to="." method="_on_char_button_on_pressed"]
 [connection signal="on_hover" from="CenterContainer/BBCharacterSelect/Rows/Row1/Jin" to="." method="_on_char_hover"]
 [connection signal="on_pressed" from="CenterContainer/BBCharacterSelect/Rows/Row1/Jin" to="." method="_on_char_button_on_pressed"]
+[connection signal="on_hover" from="CenterContainer/BBCharacterSelect/Rows/Row2/Noel" to="." method="_on_char_hover"]
+[connection signal="on_pressed" from="CenterContainer/BBCharacterSelect/Rows/Row2/Noel" to="." method="_on_char_button_on_pressed"]
 [connection signal="on_hover" from="CenterContainer/BBCharacterSelect/Rows/Row2/Nu13" to="." method="_on_char_hover"]
 [connection signal="on_pressed" from="CenterContainer/BBCharacterSelect/Rows/Row2/Nu13" to="." method="_on_char_button_on_pressed"]
-[connection signal="on_hover" from="CenterContainer/BBCharacterSelect/Rows/Row2/Kokonoe" to="." method="_on_char_hover"]
-[connection signal="on_pressed" from="CenterContainer/BBCharacterSelect/Rows/Row2/Kokonoe" to="." method="_on_char_button_on_pressed"]
+[connection signal="on_hover" from="CenterContainer/BBCharacterSelect/Rows/Row2/Litchi" to="." method="_on_char_hover"]
+[connection signal="on_pressed" from="CenterContainer/BBCharacterSelect/Rows/Row2/Litchi" to="." method="_on_char_button_on_pressed"]
+[connection signal="on_hover" from="CenterContainer/BBCharacterSelect/Rows/Row2/Hazama" to="." method="_on_char_hover"]
+[connection signal="on_pressed" from="CenterContainer/BBCharacterSelect/Rows/Row2/Hazama" to="." method="_on_char_button_on_pressed"]
+[connection signal="on_hover" from="CenterContainer/BBCharacterSelect/Rows/Row2/Tager" to="." method="_on_char_hover"]
+[connection signal="on_pressed" from="CenterContainer/BBCharacterSelect/Rows/Row2/Tager" to="." method="_on_char_button_on_pressed"]
+[connection signal="on_hover" from="CenterContainer/BBCharacterSelect/Rows/Row2/Nine" to="." method="_on_char_hover"]
+[connection signal="on_pressed" from="CenterContainer/BBCharacterSelect/Rows/Row2/Nine" to="." method="_on_char_button_on_pressed"]
+[connection signal="on_hover" from="CenterContainer/BBCharacterSelect/Rows/Row3/Taokaka" to="." method="_on_char_hover"]
+[connection signal="on_pressed" from="CenterContainer/BBCharacterSelect/Rows/Row3/Taokaka" to="." method="_on_char_button_on_pressed"]
+[connection signal="on_hover" from="CenterContainer/BBCharacterSelect/Rows/Row3/CarlClover" to="." method="_on_char_hover"]
+[connection signal="on_pressed" from="CenterContainer/BBCharacterSelect/Rows/Row3/CarlClover" to="." method="_on_char_button_on_pressed"]
+[connection signal="on_hover" from="CenterContainer/BBCharacterSelect/Rows/Row3/Arakune" to="." method="_on_char_hover"]
+[connection signal="on_pressed" from="CenterContainer/BBCharacterSelect/Rows/Row3/Arakune" to="." method="_on_char_button_on_pressed"]
+[connection signal="on_hover" from="CenterContainer/BBCharacterSelect/Rows/Row3/Hakumen" to="." method="_on_char_hover"]
+[connection signal="on_pressed" from="CenterContainer/BBCharacterSelect/Rows/Row3/Hakumen" to="." method="_on_char_button_on_pressed"]
 [connection signal="on_hover" from="CenterContainer/SKCharacterSelect/Rows/Row1/ShovelShield" to="." method="_on_char_hover"]
 [connection signal="on_pressed" from="CenterContainer/SKCharacterSelect/Rows/Row1/ShovelShield" to="." method="_on_char_button_on_pressed"]
+[connection signal="on_hover" from="CenterContainer/SKCharacterSelect/Rows/Row1/Plague" to="." method="_on_char_hover"]
+[connection signal="on_pressed" from="CenterContainer/SKCharacterSelect/Rows/Row1/Plague" to="." method="_on_char_button_on_pressed"]
+[connection signal="on_hover" from="CenterContainer/SKCharacterSelect/Rows/Row1/Specter" to="." method="_on_char_hover"]
+[connection signal="on_pressed" from="CenterContainer/SKCharacterSelect/Rows/Row1/Specter" to="." method="_on_char_button_on_pressed"]
 [connection signal="on_hover" from="CenterContainer/SKCharacterSelect/Rows/Row1/RandomSF" to="." method="_on_char_hover"]
 [connection signal="on_pressed" from="CenterContainer/SKCharacterSelect/Rows/Row1/RandomSF" to="." method="_on_char_button_on_pressed"]
 [connection signal="on_hover" from="CenterContainer/SFCharacterSelect/Rows/Row1/Ryu" to="." method="_on_char_hover"]
 [connection signal="on_pressed" from="CenterContainer/SFCharacterSelect/Rows/Row1/Ryu" to="." method="_on_char_button_on_pressed"]
-[connection signal="on_hover" from="CenterContainer/SFCharacterSelect/Rows/Row1/Ken" to="." method="_on_char_hover"]
-[connection signal="on_pressed" from="CenterContainer/SFCharacterSelect/Rows/Row1/Ken" to="." method="_on_char_button_on_pressed"]
 [connection signal="on_hover" from="CenterContainer/SFCharacterSelect/Rows/Row1/RandomSF" to="." method="_on_char_hover"]
 [connection signal="on_pressed" from="CenterContainer/SFCharacterSelect/Rows/Row1/RandomSF" to="." method="_on_char_button_on_pressed"]
+[connection signal="on_hover" from="CenterContainer/SFCharacterSelect/Rows/Row1/Ken" to="." method="_on_char_hover"]
+[connection signal="on_pressed" from="CenterContainer/SFCharacterSelect/Rows/Row1/Ken" to="." method="_on_char_button_on_pressed"]
+[connection signal="on_hover" from="CenterContainer/SFCharacterSelect/Rows/Row2/Sagat" to="." method="_on_char_hover"]
+[connection signal="on_pressed" from="CenterContainer/SFCharacterSelect/Rows/Row2/Sagat" to="." method="_on_char_button_on_pressed"]
+[connection signal="on_hover" from="CenterContainer/SFCharacterSelect/Rows/Row2/Guile" to="." method="_on_char_hover"]
+[connection signal="on_pressed" from="CenterContainer/SFCharacterSelect/Rows/Row2/Guile" to="." method="_on_char_button_on_pressed"]
 [connection signal="on_hover" from="TabSelect/CategoriesHBox/Season3" to="." method="_on_char_hover"]
 [connection signal="on_pressed" from="TabSelect/CategoriesHBox/Season3" to="." method="_on_char_button_on_pressed"]
 [connection signal="on_hover" from="TabSelect/CategoriesHBox/Season4" to="." method="_on_char_hover"]

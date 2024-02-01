@@ -121,7 +121,7 @@ func handle_simultaneous_effects(initiator, defender):
 		if game_logic.decision_info.player == defender.my_id:
 			decider = defender
 		assert_true(game_logic.do_choice(decider, 0), "Failed simuleffect choice")
-		
+
 func execute_strike(initiator, defender, init_card : String, def_card : String, init_choices, def_choices, init_ex = false, def_ex = false, init_force_discard = [], def_force_discard = [], init_extra_cost = 0):
 	var all_events = []
 	give_specific_cards(initiator, init_card, defender, def_card)
@@ -132,8 +132,8 @@ func execute_strike(initiator, defender, init_card : String, def_card : String, 
 		do_and_validate_strike(initiator, TestCardId1)
 
 	if game_logic.game_state == Enums.GameState.GameState_PlayerDecision and game_logic.active_strike.strike_state == game_logic.StrikeState.StrikeState_Initiator_SetEffects:
-		game_logic.do_force_for_effect(initiator, init_force_discard)
-		
+		game_logic.do_force_for_effect(initiator, init_force_discard, false)
+
 	if def_ex:
 		give_player_specific_card(defender, def_card, TestCardId4)
 		all_events += do_strike_response(defender, TestCardId2, TestCardId4)
@@ -141,8 +141,8 @@ func execute_strike(initiator, defender, init_card : String, def_card : String, 
 		all_events += do_strike_response(defender, TestCardId2)
 
 	if game_logic.game_state == Enums.GameState.GameState_PlayerDecision and game_logic.active_strike.strike_state == game_logic.StrikeState.StrikeState_Defender_SetEffects:
-		game_logic.do_force_for_effect(defender, def_force_discard)
-		
+		game_logic.do_force_for_effect(defender, def_force_discard, false)
+
 	# Pay any costs from gauge
 	if game_logic.active_strike and game_logic.active_strike.strike_state == game_logic.StrikeState.StrikeState_Initiator_PayCosts:
 		var cost = game_logic.active_strike.initiator_card.definition['gauge_cost'] + init_extra_cost
@@ -195,7 +195,7 @@ func get_cards_from_gauge(player : LocalGame.Player, amount : int):
 	for i in range(amount):
 		card_ids.append(player.gauge[i].id)
 	return card_ids
-	
+
 ##
 ## Tests start here
 ##
@@ -249,6 +249,27 @@ func test_jacko_throwservant_chain():
 	validate_positions(player1, 3, player2, 6)
 	validate_life(player1, 30, player2, 29)
 	advance_turn(player2)
+
+func test_jacko_defendcommand1():
+	position_players(player1, 5, player2, 6)
+	give_player_specific_card(player1, "jacko_chainofchiron", TestCardId5)
+	game_logic.do_boost(player1, TestCardId5)
+	advance_turn(player2)
+	execute_strike(player1, player2, "gg_normal_slash", "gg_normal_focus", [0], [])
+	assert_eq(player1.gauge.size(), 2)
+	assert_eq(player1.continuous_boosts.size(), 0)
+	validate_life(player1, 26, player2, 27)
+
+func test_jacko_defendcommand2():
+	position_players(player1, 5, player2, 6)
+	give_player_specific_card(player1, "jacko_chainofchiron", TestCardId5)
+	game_logic.do_boost(player1, TestCardId5)
+	advance_turn(player2)
+	var init_ex = true
+	execute_strike(player1, player2, "gg_normal_slash", "gg_normal_focus", [0], [], init_ex)
+	assert_eq(player1.gauge.size(), 2)
+	assert_eq(player1.continuous_boosts.size(), 0)
+	validate_life(player1, 26, player2, 26)
 
 func test_jacko_countdown():
 	position_players(player1, 3, player2, 6)

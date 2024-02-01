@@ -132,7 +132,7 @@ func execute_strike(initiator, defender, init_card : String, def_card : String, 
 		do_and_validate_strike(initiator, TestCardId1)
 
 	if game_logic.game_state == Enums.GameState.GameState_PlayerDecision and game_logic.active_strike.strike_state == game_logic.StrikeState.StrikeState_Initiator_SetEffects:
-		game_logic.do_force_for_effect(initiator, init_force_discard)
+		game_logic.do_force_for_effect(initiator, init_force_discard, false)
 
 	if def_ex:
 		give_player_specific_card(defender, def_card, TestCardId4)
@@ -141,7 +141,7 @@ func execute_strike(initiator, defender, init_card : String, def_card : String, 
 		all_events += do_strike_response(defender, TestCardId2)
 
 	if game_logic.game_state == Enums.GameState.GameState_PlayerDecision and game_logic.active_strike.strike_state == game_logic.StrikeState.StrikeState_Defender_SetEffects:
-		game_logic.do_force_for_effect(defender, def_force_discard)
+		game_logic.do_force_for_effect(defender, def_force_discard, false)
 
 	# Pay any costs from gauge
 	if game_logic.active_strike and game_logic.active_strike.strike_state == game_logic.StrikeState.StrikeState_Initiator_PayCosts:
@@ -335,7 +335,7 @@ func test_agresaordono_boost_no_force():
 	validate_has_event(events, Enums.EventType.EventType_ForceForEffect, player1)
 	assert_eq(game_logic.decision_info.type, Enums.DecisionType.DecisionType_ForceForEffect)
 	assert_eq(game_logic.game_state, Enums.GameState.GameState_PlayerDecision)
-	assert_true(game_logic.do_force_for_effect(player1, []))
+	assert_true(game_logic.do_force_for_effect(player1, [], false))
 	events = game_logic.get_latest_events()
 	validate_has_event(events, Enums.EventType.EventType_Draw, player1)
 	validate_has_event(events, Enums.EventType.EventType_AdvanceTurn, player2)
@@ -352,7 +352,7 @@ func test_agresaordono_boost_1_force():
 	validate_has_event(events, Enums.EventType.EventType_ForceForEffect, player1)
 	assert_eq(game_logic.decision_info.type, Enums.DecisionType.DecisionType_ForceForEffect)
 	assert_eq(game_logic.game_state, Enums.GameState.GameState_PlayerDecision)
-	assert_true(game_logic.do_force_for_effect(player1, [TestCardId4]))
+	assert_true(game_logic.do_force_for_effect(player1, [TestCardId4], false))
 	events = game_logic.get_latest_events()
 	validate_has_event(events, Enums.EventType.EventType_Draw, player1)
 	assert_eq(player1.hand.size(), 8)
@@ -368,7 +368,7 @@ func test_agresaordono_boost_2_force_normals():
 	validate_has_event(events, Enums.EventType.EventType_ForceForEffect, player1)
 	assert_eq(game_logic.decision_info.type, Enums.DecisionType.DecisionType_ForceForEffect)
 	assert_eq(game_logic.game_state, Enums.GameState.GameState_PlayerDecision)
-	assert_true(game_logic.do_force_for_effect(player1, [TestCardId4, TestCardId5]))
+	assert_true(game_logic.do_force_for_effect(player1, [TestCardId4, TestCardId5], false))
 	events = game_logic.get_latest_events()
 	validate_has_event(events, Enums.EventType.EventType_Draw, player1)
 	assert_eq(player1.hand.size(), 10)
@@ -383,7 +383,7 @@ func test_agresaordono_boost_2_force_ultra():
 	validate_has_event(events, Enums.EventType.EventType_ForceForEffect, player1)
 	assert_eq(game_logic.decision_info.type, Enums.DecisionType.DecisionType_ForceForEffect)
 	assert_eq(game_logic.game_state, Enums.GameState.GameState_PlayerDecision)
-	assert_true(game_logic.do_force_for_effect(player1, [TestCardId4]))
+	assert_true(game_logic.do_force_for_effect(player1, [TestCardId4], false))
 	events = game_logic.get_latest_events()
 	validate_has_event(events, Enums.EventType.EventType_Draw, player1)
 	assert_eq(player1.hand.size(), 10)

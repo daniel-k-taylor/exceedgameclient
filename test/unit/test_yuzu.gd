@@ -121,7 +121,7 @@ func handle_simultaneous_effects(initiator, defender):
 		if game_logic.decision_info.player == defender.my_id:
 			decider = defender
 		assert_true(game_logic.do_choice(decider, 0), "Failed simuleffect choice")
-		
+
 func execute_strike(initiator, defender, init_card : String, def_card : String, init_choices, def_choices, init_ex = false, def_ex = false, init_force_discard = [], def_force_discard = [], init_extra_cost = 0):
 	var all_events = []
 	give_specific_cards(initiator, init_card, defender, def_card)
@@ -132,8 +132,8 @@ func execute_strike(initiator, defender, init_card : String, def_card : String, 
 		do_and_validate_strike(initiator, TestCardId1)
 
 	if game_logic.game_state == Enums.GameState.GameState_PlayerDecision and game_logic.active_strike.strike_state == game_logic.StrikeState.StrikeState_Initiator_SetEffects:
-		game_logic.do_force_for_effect(initiator, init_force_discard)
-		
+		game_logic.do_force_for_effect(initiator, init_force_discard, false)
+
 	if def_ex:
 		give_player_specific_card(defender, def_card, TestCardId4)
 		all_events += do_strike_response(defender, TestCardId2, TestCardId4)
@@ -141,8 +141,8 @@ func execute_strike(initiator, defender, init_card : String, def_card : String, 
 		all_events += do_strike_response(defender, TestCardId2)
 
 	if game_logic.game_state == Enums.GameState.GameState_PlayerDecision and game_logic.active_strike.strike_state == game_logic.StrikeState.StrikeState_Defender_SetEffects:
-		game_logic.do_force_for_effect(defender, def_force_discard)
-		
+		game_logic.do_force_for_effect(defender, def_force_discard, false)
+
 	# Pay any costs from gauge
 	if game_logic.active_strike and game_logic.active_strike.strike_state == game_logic.StrikeState.StrikeState_Initiator_PayCosts:
 		var cost = game_logic.active_strike.initiator_card.definition['gauge_cost'] + init_extra_cost
@@ -195,7 +195,7 @@ func get_cards_from_gauge(player : LocalGame.Player, amount : int):
 	for i in range(amount):
 		card_ids.append(player.gauge[i].id)
 	return card_ids
-	
+
 ##
 ## Tests start here
 ##
@@ -211,11 +211,11 @@ func test_yuzu_ua_under_four_gauge():
 	assert_true(game_logic.do_card_from_hand_to_gauge(player1, [card_to_choose.id]))
 	events = game_logic.get_latest_events()
 	assert_true(player1.is_card_in_gauge(card_to_choose.id))
-	
+
 	if player1.exceeded:
 		fail_test("Should not have exceeded after character action")
 	pass_test("test passed")
-	
+
 func test_yuzu_ua_four_gauge():
 	position_players(player1, 3, player2, 5)
 	give_gauge(player1, 3)
@@ -227,7 +227,7 @@ func test_yuzu_ua_four_gauge():
 	assert_true(game_logic.do_card_from_hand_to_gauge(player1, [card_to_choose.id]))
 	events = game_logic.get_latest_events()
 	assert_true(player1.is_card_in_gauge(card_to_choose.id))
-	
+
 	if not player1.exceeded:
 		fail_test("Should have exceeded after character action")
 	pass_test("test passed")
@@ -236,27 +236,39 @@ func test_yuzu_discard_block_while_exceeded():
 	position_players(player1, 3, player2, 5)
 	give_gauge(player1, 1)
 	assert_true(game_logic.do_exceed(player1, [player1.gauge[0].id]))
-	
+
 	var events = execute_strike(player2, player1, "uni_normal_assault", "uni_normal_block", [], [], false, false)
 	validate_has_event(events, Enums.EventType.EventType_Strike_ForceForArmor, player1)
 	assert_eq(game_logic.game_state, Enums.GameState.GameState_PlayerDecision)
 	assert_true(game_logic.do_force_for_armor(player1, []))
-	
+
 	events = game_logic.get_latest_events()
 	assert_true(player1.is_card_in_discards(TestCardId2))
 	assert_true(player2.is_card_in_gauge(TestCardId1))
 	validate_positions(player1, 3, player2, 4)
 	validate_life(player1, 28, player2, 30)
-	
+
 func test_yuzu_kurenai_stunned_while_exceeded():
 	position_players(player1, 3, player2, 5)
 	give_gauge(player1, 2)
 	assert_true(game_logic.do_exceed(player1, [player1.gauge[0].id]))
-	
+
 	execute_strike(player2, player1, "uni_normal_assault", "yuzu_kurenai", [], [0], false, false)
-	
+
 	assert_true(player1.is_card_in_continuous_boosts(TestCardId2))
 	assert_true(player2.is_card_in_gauge(TestCardId1))
 	validate_positions(player1, 3, player2, 4)
 	validate_life(player1, 26, player2, 30)
-	
+
+func test_yuzu_strike_from_gauge_assault():
+	position_players(player1, 3, player2, 5)
+	give_player_specific_card(player1, "uni_normal_assault", TestCardId3)
+	player1.move_card_from_hand_to_gauge(TestCardId3)
+	player1.exceed()
+	assert_true(game_logic.do_character_action(player1, [], 0))
+	assert_true(game_logic.do_strike(player1, -1, false, -1, true))
+	give_player_specific_card(player2, "uni_normal_cross", TestCardId4)
+	assert_true(game_logic.do_strike(player2, TestCardId4, false, -1, true))
+	validate_life(player1, 30, player2, 24)
+	validate_positions(player1, 4, player2, 5)
+	assert_eq(game_logic.active_turn_player, player1.my_id)

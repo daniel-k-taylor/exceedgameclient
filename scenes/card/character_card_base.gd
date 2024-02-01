@@ -6,6 +6,7 @@ signal pressed
 @onready var fancy_exceed_card = $MainPanelContainer/FancyExceedCard
 @onready var main_container = $MainPanelContainer/MainContainer
 @onready var exceed_cost_panel = $ExceedCostPanel
+@onready var extra_cards = $ExtraCards
 
 enum CardState {
 	CardState_Unfocused,
@@ -27,6 +28,8 @@ var start_scale
 var target_scale
 var animation_time = 2
 var animation_length
+
+var extra_cards_to_show_on_focus = 0
 
 const FOCUS_ANIMATION_LENGTH = 0.2
 
@@ -63,6 +66,14 @@ func set_image(image_path, exceed_image_path):
 	fancy_card.visible = true
 	fancy_exceed_card.visible = false
 	exceed_cost_panel.visible = false
+
+func set_extra_image(index, image_path, exceed_image_path):
+	extra_cards_to_show_on_focus = max(extra_cards_to_show_on_focus, index)
+	var child = extra_cards.get_child(index)
+	child.texture = load(image_path)
+	child.texture = load(exceed_image_path)
+	
+	focus_scale = unfocused_scale * FOCUS_SCALE_FACTOR * 0.8
 
 func set_name_text(name_text):
 	$MainPanelContainer/MainContainer/VerticalLayout/TextMarginContainer/TextPanelBacking/TextVLayout/CharacterNameLabel.text = name_text
@@ -104,11 +115,9 @@ func focus():
 	start_scale = scale
 	target_scale = focus_scale
 	var size_at_scale = $MainPanelContainer.size * focus_scale
-	target_pos = unfocused_pos# - size_at_scale
-	# target_pos.x += size_at_scale.x/2
-	# target_pos.y += size_at_scale.y/4
-	# if anchor_top:
-	# 	target_pos.y += size_at_scale.y - size_at_scale.y / 4
+	target_pos = unfocused_pos
+	if extra_cards_to_show_on_focus:
+		target_pos.x -= 150
 
 	target_pos = clamp_to_screen(target_pos, size_at_scale)
 
@@ -116,6 +125,11 @@ func focus():
 	animation_length = FOCUS_ANIMATION_LENGTH
 
 	z_index = 10
+	
+	if extra_cards_to_show_on_focus:
+		for i in range(1, extra_cards_to_show_on_focus + 1):
+			var child = extra_cards.get_child(i)
+			child.visible = true
 
 func unfocus():
 	start_pos = position
@@ -128,6 +142,11 @@ func unfocus():
 	animation_length = FOCUS_ANIMATION_LENGTH
 
 	z_index = 0
+	
+	if extra_cards_to_show_on_focus:
+		for i in range(1, extra_cards_to_show_on_focus + 1):
+			var child = extra_cards.get_child(i)
+			child.visible = false
 
 func _on_focus_mouse_entered():
 	focus()

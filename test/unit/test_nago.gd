@@ -121,7 +121,7 @@ func handle_simultaneous_effects(initiator, defender):
 		if game_logic.decision_info.player == defender.my_id:
 			decider = defender
 		assert_true(game_logic.do_choice(decider, 0), "Failed simuleffect choice")
-		
+
 func execute_strike(initiator, defender, init_card : String, def_card : String, init_choices, def_choices, init_ex = false, def_ex = false, init_force_discard = [], def_force_discard = []):
 	var all_events = []
 	give_specific_cards(initiator, init_card, defender, def_card)
@@ -132,8 +132,8 @@ func execute_strike(initiator, defender, init_card : String, def_card : String, 
 		do_and_validate_strike(initiator, TestCardId1)
 
 	if game_logic.game_state == Enums.GameState.GameState_PlayerDecision and game_logic.active_strike.strike_state == game_logic.StrikeState.StrikeState_Initiator_SetEffects:
-		game_logic.do_force_for_effect(initiator, init_force_discard)
-		
+		game_logic.do_force_for_effect(initiator, init_force_discard, false)
+
 	if def_ex:
 		give_player_specific_card(defender, def_card, TestCardId4)
 		all_events += do_strike_response(defender, TestCardId2, TestCardId4)
@@ -141,8 +141,8 @@ func execute_strike(initiator, defender, init_card : String, def_card : String, 
 		all_events += do_strike_response(defender, TestCardId2)
 
 	if game_logic.game_state == Enums.GameState.GameState_PlayerDecision and game_logic.active_strike.strike_state == game_logic.StrikeState.StrikeState_Defender_SetEffects:
-		game_logic.do_force_for_effect(defender, def_force_discard)
-		
+		game_logic.do_force_for_effect(defender, def_force_discard, false)
+
 	# Pay any costs from gauge
 	if game_logic.active_strike and game_logic.active_strike.strike_state == game_logic.StrikeState.StrikeState_Initiator_PayCosts:
 		var cost = game_logic.active_strike.initiator_card.definition['gauge_cost']
@@ -262,7 +262,7 @@ func test_nago_wildswing_cantpay_wild():
 	assert_true(game_logic.do_choice(player1, 0))
 	position_players(player1, 4, player2, 6)
 	validate_life(player1, 30, player2, 27)
-	
+
 func test_nago_discard_boost():
 	position_players(player1, 4, player2, 5)
 	give_player_specific_card(player1, "gg_normal_sweep", TestCardId3)
@@ -270,7 +270,7 @@ func test_nago_discard_boost():
 	give_player_specific_card(player2, "nago_bloodsuckinguniverse", TestCardId4)
 	assert_true(game_logic.do_boost(player2, TestCardId4))
 	assert_eq(game_logic.game_state, Enums.GameState.GameState_PlayerDecision)
-	assert_true(game_logic.do_force_for_effect(player2, [player2.hand[0].id]))
+	assert_true(game_logic.do_force_for_effect(player2, [player2.hand[0].id], false))
 	assert_eq(game_logic.decision_info.effect_type, "discard_continuous_boost_INTERNAL")
 	assert_true(game_logic.do_boost_name_card_choice_effect(player2, TestCardId3))
 	assert_eq(game_logic.game_state, Enums.GameState.GameState_PickAction)
@@ -289,7 +289,7 @@ func test_nago_boost_nago_shizuriyuki():
 	assert_true(game_logic.do_choose_to_discard(player1, [player1.hand[0].id]))
 	assert_eq(game_logic.game_state, Enums.GameState.GameState_PickAction)
 	assert_eq(game_logic.active_turn_player, player2.my_id)
-	
+
 func test_nago_boost_nago_shizuriyuki_cancel():
 	position_players(player1, 4, player2, 5)
 	give_gauge(player1, 2)
@@ -305,6 +305,6 @@ func test_nago_boost_nago_shizuriyuki_cancel():
 	var events = game_logic.get_latest_events()
 	assert_eq(game_logic.decision_info.type, Enums.DecisionType.DecisionType_BoostCancel)
 	validate_has_event(events, Enums.EventType.EventType_Boost_CancelDecision, player1)
-	
-	
-	
+
+
+

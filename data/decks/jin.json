@@ -2,7 +2,7 @@
 	"id": "jin",
 	"season": 5,
 	"display_name": "Jin",
-	"cardback": "cardback_defaultexceed.png",
+	"cardback": "cardback_jin.jpg",
 	"exceed_cost": 4,
 	"exceed_to_overdrive": true,
 	"on_exceed": {
@@ -43,6 +43,12 @@
 		}
 	],
 	"exceed_ability_effects": [
+		{
+			"timing": "on_reshuffle",
+			"condition": "manual_reshuffle",
+			"effect_type": "add_set_aside_card_to_deck",
+			"id": "jin_arcticdungeon"
+		},
 		{
 			"character_effect": true,
 			"timing": "hit",

@@ -1,0 +1,99 @@
+[gd_scene load_steps=6 format=3 uid="uid://belqon3ac2y7a"]
+
+[ext_resource type="Script" path="res://scenes/game/emote_display.gd" id="1_shkld"]
+
+[sub_resource type="Animation" id="Animation_vjj5c"]
+length = 0.001
+
+[sub_resource type="Animation" id="Animation_msa8o"]
+resource_name = "Rise and Fade"
+length = 2.1
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Panel:modulate")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.3, 1.8, 2.1),
+"transitions": PackedFloat32Array(1, 1, 1, 1),
+"update": 0,
+"values": [Color(1, 1, 1, 0), Color(1, 1, 1, 1), Color(1, 1, 1, 1), Color(1, 1, 1, 0)]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("Panel:scale")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0, 0.4),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [Vector2(0, 0), Vector2(1, 1)]
+}
+tracks/2/type = "method"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath(".")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/keys = {
+"times": PackedFloat32Array(2.1),
+"transitions": PackedFloat32Array(1),
+"values": [{
+"args": [],
+"method": &"remove"
+}]
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_di8xa"]
+_data = {
+"RESET": SubResource("Animation_vjj5c"),
+"Rise and Fade": SubResource("Animation_msa8o")
+}
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_282n0"]
+
+[node name="EmoteDisplay" type="Node2D"]
+script = ExtResource("1_shkld")
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="."]
+libraries = {
+"": SubResource("AnimationLibrary_di8xa")
+}
+
+[node name="Panel" type="PanelContainer" parent="."]
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -42.0
+offset_top = -42.0
+offset_right = 42.0
+offset_bottom = 42.0
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+theme_override_styles/panel = SubResource("StyleBoxEmpty_282n0")
+
+[node name="Margin" type="MarginContainer" parent="Panel"]
+layout_mode = 2
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 10
+
+[node name="EmoteIcon" type="TextureRect" parent="Panel/Margin"]
+visible = false
+custom_minimum_size = Vector2(64, 64)
+layout_mode = 2
+expand_mode = 1
+
+[node name="EmoteText" type="Label" parent="Panel/Margin"]
+visible = false
+layout_mode = 2
+theme_override_font_sizes/font_size = 28
+text = "Super Cool"
