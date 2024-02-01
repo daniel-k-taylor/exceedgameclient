@@ -6767,7 +6767,7 @@ func do_gauge_for_effect(performing_player : Player, card_ids : Array) -> bool:
 		if to_hand:
 			_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "returns card(s) from gauge to hand: %s." % card_names)
 		else:
-			_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "spends %s gauge, discarding %s." % [card_names, str(gauge_generated)])
+			_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "spends %s gauge, discarding %s." % [str(gauge_generated), card_names])
 
 		# Move the spent cards to the right place.
 		if to_hand:
