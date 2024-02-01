@@ -5,20 +5,16 @@
 	"cardback": "cardback_chaos.jpg",
 	"exceed_cost": 1,
 	"buddy_card": "azhi",
-	"buddy_display_name": "Azhi (the card)",
+	"buddy_display_name": "Azhi (attack card)",
 	"hide_buddy_reference": true,
 	"character_action_default": [{
 		"gauge_cost": 0,
 		"force_cost": 0,
 		"effect": {
-			"effect_type": "place_buddy_in_any_space",
-			"buddy_name": "your attack",
-			"and": {
-				"effect_type": "set_used_character_bonus",
-				"and":
-				{
-					"effect_type": "strike"
-				}
+			"effect_type": "set_used_character_bonus",
+			"and":
+			{
+				"effect_type": "strike"
 			}
 		}
 	}],
@@ -30,17 +26,13 @@
 				"effect_type": "choice",
 				"choice": [
 					{ "effect_type": "advance", "amount": 1 },
-					{ "effect_type": "retreat", "amount": 1 },
+					{ "effect_type": "retreat", "amount": 1 }
 				],
 				"and": {
-					"effect_type": "place_buddy_in_any_space",
-					"buddy_name": "your attack",
-					"and": {
-						"effect_type": "set_used_character_bonus",
-						"and":
-						{
-							"effect_type": "strike"
-						}
+					"effect_type": "set_used_character_bonus",
+					"and":
+					{
+						"effect_type": "strike"
 					}
 				}
 			}
@@ -66,18 +58,30 @@
 	],
 	"ability_effects": [
 		{
-			"timing": "cleanup",
+			"timing": "end_of_turn",
 			"effect_type": "remove_buddy",
 			"buddy_name": "your attack",
 			"silent": true
+		},
+		{
+			"timing": "set_strike",
+			"condition": "used_character_bonus",
+			"effect_type": "place_buddy_in_any_space",
+			"buddy_name": "your attack"
 		}
 	],
 	"exceed_ability_effects": [
 		{
-			"timing": "cleanup",
+			"timing": "end_of_turn",
 			"effect_type": "remove_buddy",
 			"buddy_name": "your attack",
 			"silent": true
+		},
+		{
+			"timing": "set_strike",
+			"condition": "used_character_bonus",
+			"effect_type": "place_buddy_in_any_space",
+			"buddy_name": "your attack"
 		}
 	],
 	"cards": [

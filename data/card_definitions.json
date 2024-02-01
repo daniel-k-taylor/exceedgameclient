@@ -2039,7 +2039,7 @@
 				"timing": "during_strike",
 				"condition": "used_character_bonus",
 				"effect_type": "calculate_range_from_buddy",
-				"buddy_name": "the card",
+				"buddy_name": "card",
 				"character_effect": true
 			},
 			{
@@ -2092,7 +2092,7 @@
 				"timing": "during_strike",
 				"condition": "used_character_bonus",
 				"effect_type": "calculate_range_from_buddy",
-				"buddy_name": "the card",
+				"buddy_name": "card",
 				"character_effect": true
 			},
 			{
@@ -2129,53 +2129,50 @@
 	{
 		"id": "chaos_spewout",
 		"type": "special",
-		"display_name": "Alpha Blade",
+		"display_name": "Spew Out",
 		"force_cost": 0,
 		"gauge_cost": 0,
-		"range_min": 1,
-		"range_max": 2,
-		"speed": 6,
-		"power": 1,
+		"range_min": 2,
+		"range_max": 3,
+		"speed": 3,
+		"power": 4,
 		"armor": 0,
-		"guard": 0,
+		"guard": 4,
 		"effects": [
 			{
 				"timing": "during_strike",
 				"condition": "used_character_bonus",
 				"effect_type": "calculate_range_from_buddy",
-				"buddy_name": "the card",
+				"buddy_name": "card",
 				"character_effect": true
 			},
 			{
-				"timing": "before",
-				"effect_type": "advance",
-				"amount": 3,
-				"bonus_effect": {
-					"condition": "advanced_through",
-					"effect_type": "powerup",
-					"amount": 3
-				}
+				"timing": "after",
+				"effect_type": "choice",
+				"choice": [
+					{ "effect_type": "advance", "amount": 1 },
+					{ "effect_type": "retreat", "amount": 1 }
+				]
 			}
 		],
 		"boost": {
 			"boost_type": "continuous",
 			"force_cost": 0,
 			"cancel_cost": 1,
-			"display_name": "Daijoubu!",
+			"display_name": "Tactical",
 			"effects": [
 				{
 					"timing": "during_strike",
-					"effect_type": "powerup",
-					"amount": 1,
-					"and": {
-						"effect_type": "speedup",
-						"amount": 1
-					}
+					"effect_type": "speedup",
+					"amount": 1
 				},
 				{
-					"timing": "during_strike",
-					"effect_type": "powerup_opponent",
-					"amount": 3
+					"timing": "now",
+					"effect_type": "choice",
+					"choice": [
+						{ "effect_type": "advance", "amount": 1 },
+						{ "effect_type": "retreat", "amount": 1 }
+					]
 				}
 			]
 		}
@@ -2183,13 +2180,13 @@
 	{
 		"id": "chaos_repel",
 		"type": "special",
-		"display_name": "Resshou",
+		"display_name": "Repel",
 		"force_cost": 0,
 		"gauge_cost": 0,
-		"range_min": 1,
-		"range_max": 2,
-		"speed": 5,
-		"power": 2,
+		"range_min": 0,
+		"range_max": 0,
+		"speed": 3,
+		"power": 5,
 		"armor": 0,
 		"guard": 0,
 		"effects": [
@@ -2197,21 +2194,25 @@
 				"timing": "during_strike",
 				"condition": "used_character_bonus",
 				"effect_type": "calculate_range_from_buddy",
-				"buddy_name": "the card",
+				"buddy_name": "card",
 				"character_effect": true
 			},
 			{
+				"timing": "during_strike",
+				"condition": "used_character_bonus",
+				"effect_type": "opponent_cant_move_past_buddy",
+				"buddy_name": "card"
+			},
+			{
 				"timing": "hit",
-				"effect_type": "draw",
+				"effect_type": "push",
 				"amount": 2
 			},
 			{
-				"timing": "after",
-				"effect_type": "choice",
-				"choice": [
-					{ "effect_type": "gain_advantage" },
-					{ "effect_type": "return_this_attack_to_hand_after_attack", "card_name": "Resshou" }
-				]
+				"timing": "cleanup",
+				"condition": "used_character_bonus",
+				"effect_type": "remove_opponent_cant_move_past_buddy",
+				"buddy_name": "card"
 			}
 		],
 		"boost": {
@@ -2254,7 +2255,7 @@
 				"timing": "during_strike",
 				"condition": "used_character_bonus",
 				"effect_type": "calculate_range_from_buddy",
-				"buddy_name": "the card",
+				"buddy_name": "card",
 				"character_effect": true
 			},
 			{
@@ -2308,7 +2309,7 @@
 				"timing": "during_strike",
 				"condition": "used_character_bonus",
 				"effect_type": "calculate_range_from_buddy",
-				"buddy_name": "the card",
+				"buddy_name": "card",
 				"character_effect": true
 			},
 			{

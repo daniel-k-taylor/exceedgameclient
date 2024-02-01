@@ -958,7 +958,10 @@ func _stat_notice_event(event):
 		Enums.EventType.EventType_Strike_Miss:
 			notice_text = "Miss!"
 		Enums.EventType.EventType_Strike_OpponentCantMovePast:
-			notice_text = "Blocking Advance!"
+			var movement_text = "Advance"
+			if event['extra_info']:
+				movement_text = "Movement through %s" % event['extra_info']
+			notice_text = "Blocking %s!" % movement_text
 		Enums.EventType.EventType_Strike_PowerUp:
 			var text = ""
 			if number > 0:
