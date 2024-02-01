@@ -303,6 +303,7 @@ class StrikeStatBoosts:
 	var dodge_at_range_max : int = -1
 	var dodge_at_range_late_calculate_with : String = ""
 	var dodge_at_range_from_buddy : bool = false
+	var dodge_at_speed_greater_than : int = -1
 	var dodge_from_opposite_buddy : bool = false
 	var ignore_armor : bool = false
 	var ignore_guard : bool = false
@@ -359,6 +360,7 @@ class StrikeStatBoosts:
 		dodge_at_range_max = -1
 		dodge_at_range_late_calculate_with = ""
 		dodge_at_range_from_buddy = false
+		dodge_at_speed_greater_than = -1
 		dodge_from_opposite_buddy = false
 		ignore_armor = false
 		ignore_guard = false
@@ -2793,6 +2795,9 @@ func is_effect_condition_met(performing_player : Player, effect, local_condition
 				if sealed_card.definition["id"] == card_id:
 					return false
 			return true
+		elif effect['condition_amount'] == "OPPONENT_SPEED":
+			return get_total_speed(performing_player) > get_total_speed(opposing_player)
+
 		else:
 			assert(false, "Unimplemented condition")
 		# Unmet condition
@@ -5026,7 +5031,11 @@ func in_range(attacking_player, defending_player, card, combat_logging=false):
 	if defending_player.strike_stat_boosts.higher_speed_misses:
 		var attacking_speed = get_total_speed(attacking_player, active_strike.get_player_card(attacking_player))
 		var defending_speed = get_total_speed(defending_player, active_strike.get_player_card(defending_player))
-		if attacking_speed > defending_speed:
+		if dodge_at_speed_greater_than > 0:
+			if combat_logging:
+				_append_log_full(Enums.LogType.LogType_Effect, defending_player, "is dodging attacks greater than %s speed!" % [str(dodge_at_speed_greater_than)])
+			return false
+		elif attacking_speed > defending_speed:
 			if combat_logging:
 				_append_log_full(Enums.LogType.LogType_Effect, defending_player, "is dodging higher speed attacks!")
 			return false
