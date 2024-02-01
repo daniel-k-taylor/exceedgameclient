@@ -2,7 +2,7 @@
 	"id": "kokonoe",
 	"season": 5,
 	"display_name": "Kokonoe",
-	"cardback": "cardback_defaultexceed.png",
+	"cardback": "cardback_kokonoe.png",
 	"buddy_card": "gravitron",
 	"buddy_display_name": "Gravitron",
 	"exceed_cost": 2,
