@@ -1,4 +1,4 @@
-[gd_scene load_steps=54 format=3 uid="uid://cqs72exlwm6at"]
+[gd_scene load_steps=55 format=3 uid="uid://cqs72exlwm6at"]
 
 [ext_resource type="Script" path="res://scenes/menu/char_select.gd" id="1_f3x24"]
 [ext_resource type="PackedScene" uid="uid://nwqxp8pdh1jk" path="res://scenes/menu/char_select_button.tscn" id="6_3lmwy"]
@@ -35,6 +35,7 @@
 [ext_resource type="Texture2D" uid="uid://c54oj8c0jdhll" path="res://assets/portraits/mika.png" id="29_r57n1"]
 [ext_resource type="Texture2D" uid="uid://dbnf6ivx556pu" path="res://assets/portraits/ryu.png" id="30_mommm"]
 [ext_resource type="Texture2D" uid="uid://debn7wuvbqqcc" path="res://assets/portraits/shovelshield.png" id="30_vegm4"]
+[ext_resource type="Texture2D" uid="uid://d4h3rh3mqpq56" path="res://assets/portraits/chaos.png" id="30_wwb0v"]
 [ext_resource type="Texture2D" uid="uid://dgmjgjw44rf6r" path="res://assets/portraits/ken.png" id="31_2ynpm"]
 [ext_resource type="Texture2D" uid="uid://clmicn3w5pnx7" path="res://assets/portraits/noel.png" id="31_clm6c"]
 [ext_resource type="Texture2D" uid="uid://ojsgw4m4r087" path="res://assets/portraits/sklogo.png" id="31_hsrmq"]
@@ -304,6 +305,11 @@ portrait_texture = ExtResource("24_4beb5")
 layout_mode = 2
 char_id = "mika"
 portrait_texture = ExtResource("29_r57n1")
+
+[node name="Chaos" parent="CenterContainer/UNICharacterSelect/Rows/Row2" instance=ExtResource("6_3lmwy")]
+layout_mode = 2
+char_id = "chaos"
+portrait_texture = ExtResource("30_wwb0v")
 
 [node name="BBCharacterSelect" type="PanelContainer" parent="CenterContainer"]
 layout_mode = 2
@@ -576,6 +582,8 @@ portrait_texture = ExtResource("32_iutun")
 [connection signal="on_pressed" from="CenterContainer/UNICharacterSelect/Rows/Row2/Phonon" to="." method="_on_char_button_on_pressed"]
 [connection signal="on_hover" from="CenterContainer/UNICharacterSelect/Rows/Row2/Mika" to="." method="_on_char_hover"]
 [connection signal="on_pressed" from="CenterContainer/UNICharacterSelect/Rows/Row2/Mika" to="." method="_on_char_button_on_pressed"]
+[connection signal="on_hover" from="CenterContainer/UNICharacterSelect/Rows/Row2/Chaos" to="." method="_on_char_hover"]
+[connection signal="on_pressed" from="CenterContainer/UNICharacterSelect/Rows/Row2/Chaos" to="." method="_on_char_button_on_pressed"]
 [connection signal="on_hover" from="CenterContainer/BBCharacterSelect/Rows/Row1/Ragna" to="." method="_on_char_hover"]
 [connection signal="on_pressed" from="CenterContainer/BBCharacterSelect/Rows/Row1/Ragna" to="." method="_on_char_button_on_pressed"]
 [connection signal="on_hover" from="CenterContainer/BBCharacterSelect/Rows/Row1/RandomBB" to="." method="_on_char_hover"]

@@ -1975,6 +1975,331 @@
 	},
 
 	{
+		"NOTE": "CHAOS CARDS START",
+		"id": "chaos_dissectbarrage",
+		"type": "ultra",
+		"display_name": "Zansei Rouga",
+		"force_cost": 0,
+		"gauge_cost": 2,
+		"range_min": 1,
+		"range_max": 2,
+		"speed": 9,
+		"power": 2,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "before",
+				"effect_type": "gauge_for_effect",
+				"per_gauge_effect": {
+					"effect_type": "powerup",
+					"amount": 1,
+					"and": {
+						"effect_type": "advance",
+						"amount": 3
+					}
+				},
+				"overall_effect": null,
+				"gauge_max": 4
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": 1,
+			"display_name": "Suck a Sage",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "speedup",
+					"amount": 2
+				},
+				{
+					"timing": "during_strike",
+					"effect_type": "powerup_opponent",
+					"amount": 3
+				}
+			]
+		}
+	},
+	{
+		"id": "chaos_deeprevenance",
+		"type": "ultra",
+		"display_name": "Banki Messai",
+		"force_cost": 0,
+		"gauge_cost": 1,
+		"range_min": 1,
+		"range_max": 1,
+		"speed": 4,
+		"power": 5,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "before",
+				"effect_type": "close",
+				"amount": 3
+			},
+			{
+				"timing": "hit",
+				"effect_type": "push",
+				"amount": 2,
+				"and": {
+					"effect_type": "draw",
+					"amount": 2
+				}
+			}
+		],
+		"boost": {
+			"boost_type": "immediate",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Play the Hero",
+			"effects": [
+				{
+					"timing": "immediate",
+					"effect_type": "draw",
+					"amount": 3
+				},
+				{
+					"timing": "immediate",
+					"effect_type": "bonus_action"
+				}
+			]
+		}
+	},
+	{
+		"id": "chaos_coldreflection",
+		"type": "special",
+		"display_name": "Beta Blade",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 2,
+		"speed": 7,
+		"power": 1,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "hit",
+				"effect_type": "draw",
+				"amount": 1
+			},
+			{
+				"timing": "after",
+				"effect_type": "close",
+				"amount": 1
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": 1,
+			"display_name": "Shogun!",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "speedup",
+					"amount": 1
+				},
+				{
+					"timing": "hit",
+					"effect_type": "opponent_discard_choose",
+					"amount": 1
+				}
+			]
+		}
+	},
+	{
+		"id": "chaos_spewout",
+		"type": "special",
+		"display_name": "Alpha Blade",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 2,
+		"speed": 6,
+		"power": 1,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "before",
+				"effect_type": "advance",
+				"amount": 3,
+				"bonus_effect": {
+					"condition": "advanced_through",
+					"effect_type": "powerup",
+					"amount": 3
+				}
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": 1,
+			"display_name": "Daijoubu!",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "powerup",
+					"amount": 1,
+					"and": {
+						"effect_type": "speedup",
+						"amount": 1
+					}
+				},
+				{
+					"timing": "during_strike",
+					"effect_type": "powerup_opponent",
+					"amount": 3
+				}
+			]
+		}
+	},
+	{
+		"id": "chaos_repel",
+		"type": "special",
+		"display_name": "Resshou",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 2,
+		"speed": 5,
+		"power": 2,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "hit",
+				"effect_type": "draw",
+				"amount": 2
+			},
+			{
+				"timing": "after",
+				"effect_type": "choice",
+				"choice": [
+					{ "effect_type": "gain_advantage" },
+					{ "effect_type": "return_this_attack_to_hand_after_attack", "card_name": "Resshou" }
+				]
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": 1,
+			"display_name": "Harakiri!",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "speedup",
+					"amount": 1
+				},
+				{
+					"timing": "now",
+					"effect_type": "advance",
+					"amount": 2,
+					"and": {
+						"effect_type": "draw",
+						"amount": 1
+					}
+				}
+			]
+		}
+	},
+	{
+		"id": "chaos_conceal",
+		"type": "special",
+		"display_name": "Gamma Blade",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 5,
+		"speed": 3,
+		"power": 3,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "hit",
+				"effect_type": "gain_advantage"
+			},
+			{
+				"timing": "after",
+				"effect_type": "choice",
+				"choice": [
+					{ "effect_type": "advance", "amount": 3 },
+					{ "effect_type": "pass" }
+				]
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": 1,
+			"display_name": "Sushi!",
+			"effects": [
+				{
+					"timing": "now",
+					"effect_type": "retreat",
+					"amount": 2
+				},
+				{
+					"timing": "before",
+					"condition": "at_edge_of_arena",
+					"effect_type": "advance",
+					"amount": 3
+				}
+			]
+		}
+	},
+	{
+		"NOTE": "CHAOS CARDS END",
+		"id": "chaos_thatsyourprey",
+		"type": "special",
+		"display_name": "Genrouzan",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 1,
+		"speed": 2,
+		"power": 3,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "during_strike",
+				"effect_type": "ignore_guard"
+			},
+			{
+				"timing": "before",
+				"effect_type": "close",
+				"amount": 2
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": 1,
+			"display_name": "Sukiyaki!",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "dodge_at_range",
+					"range_min": 1,
+					"range_max": 1
+				},
+				{
+					"timing": "after",
+					"effect_type": "add_to_gauge_immediately_mid_strike_undo_effects"
+				}
+			]
+		},
+		"NOTEEND": "CHAOS CARDS END"
+	},
+
+	{
 		"NOTE": "CHIPP CARDS START",
 		"id": "chipp_zanseirouga",
 		"type": "ultra",

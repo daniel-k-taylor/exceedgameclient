@@ -325,7 +325,9 @@ func setup_character_card(character_card, deck, buddy_character_card):
 	character_card.set_cost(deck['exceed_cost'])
 
 	# Setup buddy if they have one.
-	if 'buddy_card' in deck:
+	if 'hide_buddy_reference' in deck and deck['hide_buddy_reference']:
+		buddy_character_card.visible = false
+	elif 'buddy_card' in deck:
 		buddy_character_card.visible = true
 		buddy_character_card.hide_focus()
 		var buddy_path = build_character_path(deck['id'], deck['buddy_card'], false)
