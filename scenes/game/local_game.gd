@@ -2771,7 +2771,7 @@ func is_effect_condition_met(performing_player : Player, effect, local_condition
 			return total_powerup >= amount
 		elif condition == "opponent_total_guard_greater_or_equal":
 			var amount = effect['condition_amount']
-			var total_guard =
+			var total_guard = get_total_guard(other_player)
 			return total_guard >= amount
 		elif condition == "no_sealed_copy_of_attack":
 			var card_id = active_strike.get_player_card(performing_player).definition["id"]
