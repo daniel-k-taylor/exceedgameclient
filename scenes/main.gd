@@ -9,8 +9,11 @@ const GameScene = preload("res://scenes/game/game.tscn")
 
 const VersusSplashTimeout = 3.0
 
+
 # Called when the node enters the scene tree for the first time.
 func _ready():
+	GlobalSettings.load_persistent_settings()
+	$MainMenu.settings_loaded()
 	NetworkManager.connect_to_server()
 
 
