@@ -2766,12 +2766,15 @@ func is_effect_condition_met(performing_player : Player, effect, local_condition
 		elif condition == "choose_cards_from_top_deck_action":
 			return decision_info.action == effect["condition_details"]
 		elif condition == "total_powerup_greater_or_equal":
-			var amount = effect['condition_amount']
+			var amount = effect["condition_amount"]
 			var total_powerup = performing_player.strike_stat_boosts.power
 			return total_powerup >= amount
 		elif condition == "opponent_total_guard_greater_or_equal":
-			var amount = effect['condition_amount']
-			var total_guard = get_total_guard(other_player)
+			var amount = effect["condition_amount"]
+			var card = active_strike.get_player_card(other_player)
+			var base_guard = get_card_stat(other_player, card, 'guard')
+			var guard_modifier = other_player.strike_stat_boosts.guard
+			var total_guard = base_guard + guard_modifier
 			return total_guard >= amount
 		elif condition == "no_sealed_copy_of_attack":
 			var card_id = active_strike.get_player_card(performing_player).definition["id"]
@@ -3619,6 +3622,10 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 			_append_log_full(Enums.LogType.LogType_CharacterMovement, performing_player, "moves to %s, from space %s to %s." % [buddy_name, str(previous_location), str(performing_player.arena_location)])
 		"multiply_power_bonuses":
 			performing_player.strike_stat_boosts.power_bonus_multiplier = max(effect['amount'], performing_player.strike_stat_boosts.power_bonus_multiplier)
+		"multiply_positive_power_bonuses":
+			var power_bonuses = performing_player.strike_stat_boosts.power
+			if power_bonuses > 0:
+				performing_player.strike_stat_boosts.power_bonus_multiplier = max(effect['amount'], performing_player.strike_stat_boosts.power_bonus_multiplier)			
 		"multiply_speed_bonuses":
 			performing_player.strike_stat_boosts.speed_bonus_multiplier = max(effect['amount'], performing_player.strike_stat_boosts.speed_bonus_multiplier)
 		"opponent_cant_move_past":

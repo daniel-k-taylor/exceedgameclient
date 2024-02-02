@@ -15,7 +15,7 @@
 		"effects": [
 			{
 				"timing": "during_strike",
-				"effect_type": "multiply_power_bonuses",
+				"effect_type": "multiply_positive_power_bonuses",
 				"amount": 2
 			}
 		],
@@ -65,7 +65,7 @@
 				{
 				"timing": "during_strike",
 				"condition": "total_powerup_greater_or_equal",
-				"condition amount": 3,
+				"condition_amount": 3,
 				"effect_type": "speedup",
 				"amount": 3
 				}
@@ -232,13 +232,12 @@
 			{
 				"timing": "before",
 				"effect_type": "advance",
-				"amount": 2
-			},
-			{
-				"timing": "hit",
-				"condition": "advanced_through",
-				"effect_type": "opponent_discard_random",
-				"amount": 1
+				"amount": 2,
+				"bonus_effect": {
+					"condition": "advanced_through",
+					"effect_type": "opponent_discard_random",
+					"amount": 1					
+				}
 			}
 		],
 		"boost": {
