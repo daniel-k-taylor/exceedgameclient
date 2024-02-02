@@ -1636,6 +1636,65 @@ class Player:
 			if old_pos == buddy_old_pos:
 				handle_on_buddy_boosts(false)
 
+	func move_in_direction_by_amount(go_left : bool, amount : int, stop_at_opponent : bool, movement_type : String):
+		var events = []
+		var direction = -1 if go_left else 1
+
+		if cannot_move:
+			parent._append_log_full(Enums.LogType.LogType_CharacterMovement, self, "cannot move!")
+			events += [parent.create_event(Enums.EventType.EventType_BlockMovement, my_id, 0)]
+			return events
+
+		var previous_location = arena_location
+		var new_location = arena_location
+		var other_player = parent._get_player(parent.get_other_player(my_id))
+		var other_player_loc = other_player.arena_location
+		var movement_shortened = false
+		var blocked_by_buddy = false
+		for i in range(amount):
+			var target_location = new_location + direction
+			if cannot_move_past_opponent_buddy_id:
+				var other_buddy_loc = other_player.get_buddy_location(cannot_move_past_opponent_buddy_id)
+				if target_location == other_buddy_loc:
+					movement_shortened = true
+					blocked_by_buddy = true
+					break
+
+			if target_location == other_player_loc:
+				if stop_at_opponent:
+					break
+				elif cannot_move_past_opponent:
+					movement_shortened = true
+					break
+				else:
+					var test_location = clamp(target_location+direction, MinArenaLocation, MaxArenaLocation)
+					if test_location == target_location:
+						# opponent is in front of the wall
+						break
+					else:
+						target_location = test_location
+
+			new_location = clamp(target_location, MinArenaLocation, MaxArenaLocation)
+
+		if movement_shortened:
+			if blocked_by_buddy:
+				var other_buddy_name = other_player.get_buddy_name(cannot_move_past_opponent_buddy_id)
+				parent._append_log_full(Enums.LogType.LogType_CharacterMovement, self, "cannot move past %s's %s!" % [other_player.name, other_buddy_name])
+			else:
+				parent._append_log_full(Enums.LogType.LogType_CharacterMovement, self, "cannot move past %s!" % other_player.name)
+
+		var distance = abs(arena_location - new_location)
+		if not parent.active_strike:
+			pre_strike_movement += distance
+		var position_changed = arena_location != new_location
+		arena_location = new_location
+		events += [parent.create_event(Enums.EventType.EventType_Move, my_id, new_location, movement_type, distance, previous_location)]
+		if position_changed:
+			on_position_changed(previous_location, get_buddy_location(), true)
+			events += add_boosts_to_gauge_on_move()
+
+		return events
+
 	func move_to(new_arena_location):
 		var events = []
 
@@ -1648,13 +1707,6 @@ class Player:
 		var other_player_loc = other_player.arena_location
 		var movement_shortened = false
 		var blocked_by_buddy = false
-		if cannot_move_past_opponent:
-			if arena_location < other_player_loc and new_arena_location > other_player_loc:
-				new_arena_location = other_player_loc - 1
-				movement_shortened = true
-			if arena_location > other_player_loc and new_arena_location < other_player_loc:
-				new_arena_location = other_player_loc + 1
-				movement_shortened = true
 		if cannot_move_past_opponent_buddy_id:
 			var other_buddy_loc = other_player.get_buddy_location(cannot_move_past_opponent_buddy_id)
 			if arena_location < other_buddy_loc and new_arena_location >= other_buddy_loc:
@@ -1665,6 +1717,13 @@ class Player:
 				new_arena_location = other_buddy_loc + 1
 				movement_shortened = true
 				blocked_by_buddy = true
+		if cannot_move_past_opponent:
+			if arena_location < other_player_loc and new_arena_location >= other_player_loc:
+				new_arena_location = other_player_loc - 1
+				movement_shortened = true
+			if arena_location > other_player_loc and new_arena_location <= other_player_loc:
+				new_arena_location = other_player_loc + 1
+				movement_shortened = true
 		if movement_shortened:
 			if blocked_by_buddy:
 				var other_buddy_name = other_player.get_buddy_name(cannot_move_past_opponent_buddy_id)
@@ -1686,166 +1745,37 @@ class Player:
 
 	func close(amount):
 		var events = []
-		if cannot_move:
-			parent._append_log_full(Enums.LogType.LogType_CharacterMovement, self, "cannot move!")
-			events += [parent.create_event(Enums.EventType.EventType_BlockMovement, my_id, 0)]
-			return events
 
 		amount = min(amount, movement_limit)
-
-		var previous_location = arena_location
-		var other_player = parent._get_player(parent.get_other_player(my_id))
-		var other_location = other_player.arena_location
-		var new_location
+		var other_location = parent._get_player(parent.get_other_player(my_id)).arena_location
 		if arena_location < other_location:
-			new_location = min(other_location-1, arena_location+amount)
+			events += move_in_direction_by_amount(false, amount, true, "close")
 		else:
-			new_location = max(other_location+1, arena_location-amount)
-
-		if cannot_move_past_opponent_buddy_id:
-			var blocked_by_buddy = false
-			var other_buddy_loc = other_player.get_buddy_location(cannot_move_past_opponent_buddy_id)
-			if arena_location < other_buddy_loc and new_location >= other_buddy_loc:
-				new_location = other_buddy_loc - 1
-				blocked_by_buddy = true
-			if arena_location > other_buddy_loc and new_location <= other_buddy_loc:
-				new_location = other_buddy_loc + 1
-				blocked_by_buddy = true
-			if blocked_by_buddy:
-				var other_player_name = other_player.name
-				var other_buddy_name = other_player.get_buddy_name(cannot_move_past_opponent_buddy_id)
-				parent._append_log_full(Enums.LogType.LogType_CharacterMovement, self, "cannot move past %s's %s!" % [other_player_name, other_buddy_name])
-
-
-		if not parent.active_strike:
-			pre_strike_movement += abs(arena_location - new_location)
-		var position_changed = arena_location != new_location
-		arena_location = new_location
-		events += [parent.create_event(Enums.EventType.EventType_Move, my_id, new_location, "close", amount, previous_location)]
-		if position_changed:
-			on_position_changed(previous_location, get_buddy_location(), true)
-			events += add_boosts_to_gauge_on_move()
+			events += move_in_direction_by_amount(true, amount, true, "close")
 
 		return events
 
 	func advance(amount):
 		var events = []
-		if cannot_move:
-			parent._append_log_full(Enums.LogType.LogType_CharacterMovement, self, "cannot move!")
-			events += [parent.create_event(Enums.EventType.EventType_BlockMovement, my_id, 0)]
-			return events
 
 		amount = min(amount, movement_limit)
-
-		var previous_location = arena_location
-		var other_player = parent._get_player(parent.get_other_player(my_id))
-		var other_player_location = other_player.arena_location
-		var blocked_from_passing = cannot_move_past_opponent
-		var movement_shortened = false
-		var blocked_by_buddy = false
-		var new_location
-		if arena_location < other_player_location:
-			new_location = arena_location + amount
-			if new_location >= other_player_location:
-				new_location += 1
-			var max_position = MaxArenaLocation
-			if blocked_from_passing:
-				max_position = other_player_location
-				movement_shortened = max_position < new_location
-			new_location = min(new_location, max_position)
-			if other_player_location == new_location:
-				new_location -= 1
+		var other_location = parent._get_player(parent.get_other_player(my_id)).arena_location
+		if arena_location < other_location:
+			events += move_in_direction_by_amount(false, amount, false, "advance")
 		else:
-			new_location = arena_location - amount
-			if new_location <= other_player_location:
-				new_location -= 1
-			var min_position = MinArenaLocation
-			if blocked_from_passing:
-				min_position = other_player_location
-				movement_shortened = min_position > new_location
-			new_location = max(new_location, min_position)
-			if other_player_location == new_location:
-				new_location += 1
-
-		if cannot_move_past_opponent_buddy_id:
-			var other_buddy_location = other_player.get_buddy_location(cannot_move_past_opponent_buddy_id)
-			if arena_location < other_buddy_location:
-				var max_position = other_buddy_location-1
-				if max_position < new_location:
-					movement_shortened = true
-					blocked_by_buddy = true
-					new_location = max_position
-					if other_player_location == new_location:
-						new_location -= 1
-			elif arena_location > other_buddy_location:
-				var min_position = other_buddy_location+1
-				if min_position > new_location:
-					movement_shortened = true
-					blocked_by_buddy = true
-					new_location = min_position
-					if other_player_location == new_location:
-						new_location += 1
-
-		if movement_shortened:
-			var other_player_name = other_player.name
-			if blocked_by_buddy:
-				var other_buddy_name = other_player.get_buddy_name(cannot_move_past_opponent_buddy_id)
-				parent._append_log_full(Enums.LogType.LogType_CharacterMovement, self, "cannot move past %s's %s!" % [other_player_name, other_buddy_name])
-			else:
-				parent._append_log_full(Enums.LogType.LogType_CharacterMovement, self, "cannot move past %s!" % other_player_name)
-
-		if not parent.active_strike:
-			pre_strike_movement += abs(arena_location - new_location)
-		var position_changed = arena_location != new_location
-		arena_location = new_location
-		events += [parent.create_event(Enums.EventType.EventType_Move, my_id, new_location, "advance", amount, previous_location)]
-		if position_changed:
-			on_position_changed(previous_location, get_buddy_location(), true)
-			events += add_boosts_to_gauge_on_move()
+			events += move_in_direction_by_amount(true, amount, false, "advance")
 
 		return events
 
 	func retreat(amount):
 		var events = []
-		if cannot_move:
-			parent._append_log_full(Enums.LogType.LogType_CharacterMovement, self, "cannot move!")
-			events += [parent.create_event(Enums.EventType.EventType_BlockMovement, my_id, 0)]
-			return events
 
 		amount = min(amount, movement_limit)
-
-		var previous_location = arena_location
-		var other_player = parent._get_player(parent.get_other_player(my_id))
-		var other_location = other_player.arena_location
-		var new_location
+		var other_location = parent._get_player(parent.get_other_player(my_id)).arena_location
 		if arena_location < other_location:
-			new_location = arena_location - amount
-			new_location = max(new_location, MinArenaLocation)
+			events += move_in_direction_by_amount(true, amount, false, "retreat")
 		else:
-			new_location = arena_location + amount
-			new_location = min(new_location, MaxArenaLocation)
-		if cannot_move_past_opponent_buddy_id:
-			var blocked_by_buddy = false
-			var other_buddy_loc = other_player.get_buddy_location(cannot_move_past_opponent_buddy_id)
-			if arena_location < other_buddy_loc and new_location >= other_buddy_loc:
-				new_location = other_buddy_loc - 1
-				blocked_by_buddy = true
-			if arena_location > other_buddy_loc and new_location <= other_buddy_loc:
-				new_location = other_buddy_loc + 1
-				blocked_by_buddy = true
-			if blocked_by_buddy:
-				var other_player_name = other_player.name
-				var other_buddy_name = other_player.get_buddy_name(cannot_move_past_opponent_buddy_id)
-				parent._append_log_full(Enums.LogType.LogType_CharacterMovement, self, "cannot move past %s's %s!" % [other_player_name, other_buddy_name])
-
-		if not parent.active_strike:
-			pre_strike_movement += abs(arena_location - new_location)
-		var position_changed = arena_location != new_location
-		arena_location = new_location
-		events += [parent.create_event(Enums.EventType.EventType_Move, my_id, new_location, "retreat", amount, previous_location)]
-		if position_changed:
-			on_position_changed(previous_location, get_buddy_location(), true)
-			events += add_boosts_to_gauge_on_move()
+			events += move_in_direction_by_amount(false, amount, false, "retreat")
 
 		return events
 
