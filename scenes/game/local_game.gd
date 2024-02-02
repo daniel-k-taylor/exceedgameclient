@@ -1154,7 +1154,23 @@ class Player:
 		if arena_location < other_location:
 			return (other_location-other_width) - (arena_location+width)
 		else:
-			return (arena_location-width) + (other_location+other_width)
+			return (arena_location-width) - (other_location+other_width)
+
+	func get_closest_edge_to(check_location : int):
+		if check_location == arena_location:
+			return arena_location
+		elif check_location < arena_location:
+			return arena_location - width
+		else:
+			return arena_location + width
+
+	func get_furthest_edge_from(check_location : int):
+		if check_location == arena_location:
+			return arena_location
+		elif check_location < arena_location:
+			return arena_location + width
+		else:
+			return arena_location - width
 
 	func movement_distance_between(initial_location : int, target_location : int):
 		var other_player = parent._get_player(parent.get_other_player(my_id))
@@ -2625,7 +2641,7 @@ func initialize_new_strike(performing_player : Player, opponent_sets_first : boo
 	player.bonus_actions = 0
 	opponent.bonus_actions = 0
 
-	active_strike.starting_distance = abs(player.arena_location - opponent.arena_location)
+	active_strike.starting_distance = player.distance_to_opponent()
 
 	active_strike.initiator = performing_player
 	active_strike.defender = _get_player(get_other_player(performing_player.my_id))
@@ -2821,9 +2837,16 @@ func is_effect_condition_met(performing_player : Player, effect, local_condition
 		elif condition == "initiated_at_range":
 			var range_min = effect['range_min']
 			var range_max = effect['range_max']
-			var initiated_strike = active_strike.initiator == performing_player
+			if active_strike.initiator != performing_player:
+				return false
+
+			# check each space that the opponent occupied
 			var starting_distance = active_strike.starting_distance
-			return initiated_strike and starting_distance >= range_min and starting_distance <= range_max
+			var other_size = 1 + (2 * other_player.width)
+			for i in range(other_size):
+				if starting_distance+i >= range_min and starting_distance+i <= range_max:
+					return true
+			return false
 		elif condition == "initiated_after_moving":
 			var initiated_strike = active_strike.initiator == performing_player
 			var required_amount = effect['condition_amount']
@@ -2855,7 +2878,9 @@ func is_effect_condition_met(performing_player : Player, effect, local_condition
 		elif condition == "is_ex_strike":
 			return active_strike.will_be_ex(performing_player)
 		elif condition == "at_edge_of_arena":
-			return performing_player.arena_location == MaxArenaLocation or performing_player.arena_location == MinArenaLocation
+			var location = performing_player.arena_location
+			var width = performing_player.width
+			return location+width == MaxArenaLocation or location-width == MinArenaLocation
 		elif condition == "boost_in_play":
 			return performing_player.continuous_boosts.size() > 0
 		elif condition == "canceled_this_turn":
@@ -2951,7 +2976,9 @@ func is_effect_condition_met(performing_player : Player, effect, local_condition
 			var buddy_id = ""
 			if 'condition_buddy_id' in effect:
 				buddy_id = effect['condition_buddy_id']
-			return performing_player.is_buddy_in_play(buddy_id) and performing_player.get_buddy_location(buddy_id) == other_player.arena_location
+			if not performing_player.is_buddy_in_play(buddy_id):
+				return false
+			return other_player.is_in_location(performing_player.get_buddy_location(buddy_id))
 		elif condition == "buddy_in_play":
 			var buddy_id = ""
 			if 'condition_buddy_id' in effect:
@@ -2972,19 +2999,21 @@ func is_effect_condition_met(performing_player : Player, effect, local_condition
 				buddy_id = effect['condition_buddy_id']
 			if not performing_player.is_buddy_in_play(buddy_id):
 				return false
-			return performing_player.arena_location == performing_player.get_buddy_location(buddy_id)
+			return performing_player.is_in_location(performing_player.get_buddy_location(buddy_id))
 		elif condition == "buddy_between_attack_source":
 			var buddy_id = ""
 			if 'condition_buddy_id' in effect:
 				buddy_id = effect['condition_buddy_id']
 			if not performing_player.is_buddy_in_play(buddy_id):
 				return false
-			var pos1 = performing_player.arena_location
-			var pos2 = other_player.arena_location
+
+			var pos1 = performing_player.get_closest_edge_to(other_player.arena_location)
+			var pos2 = other_player.get_closest_edge_to(performing_player.arena_location)
 			if other_player.strike_stat_boosts.calculate_range_from_buddy:
 				pos2 = other_player.get_buddy_location(other_player.strike_stat_boosts.calculate_range_from_buddy_id)
 			elif other_player.strike_stat_boosts.calculate_range_from_center:
 				pos2 = CenterArenaLocation
+
 			var buddy_pos = performing_player.get_buddy_location(buddy_id)
 			if pos1 < pos2: # opponent is on the right
 				return buddy_pos > pos1 and buddy_pos < pos2
@@ -2996,8 +3025,10 @@ func is_effect_condition_met(performing_player : Player, effect, local_condition
 				buddy_id = effect['condition_buddy_id']
 			if not performing_player.is_buddy_in_play(buddy_id):
 				return false
-			var pos1 = performing_player.arena_location
-			var pos2 = other_player.arena_location
+
+			var pos1 = performing_player.get_closest_edge_to(other_player.arena_location)
+			var pos2 = other_player.get_closest_edge_to(performing_player.arena_location)
+
 			var buddy_pos = performing_player.get_buddy_location(buddy_id)
 			if pos1 < pos2: # opponent is on the right
 				return buddy_pos > pos1 and buddy_pos < pos2
@@ -3034,31 +3065,35 @@ func is_effect_condition_met(performing_player : Player, effect, local_condition
 				buddy_id = effect['condition_buddy_id']
 			if not performing_player.is_buddy_in_play(buddy_id):
 				return false
+
 			var buddy_location = performing_player.get_buddy_location(buddy_id)
-			if buddy_location == performing_player.arena_location:
+			if performing_player.is_in_location(buddy_location) or other_player.is_in_location(buddy_location):
 				return false
-			if buddy_location == other_player.arena_location:
-				return false
+
 			return true
 		elif condition == "opponent_at_edge_of_arena":
-			return other_player.arena_location == MinArenaLocation or other_player.arena_location == MaxArenaLocation
+			var location = other_player.arena_location
+			var width = other_player.width
+			return location-width == MinArenaLocation or location+width == MaxArenaLocation
 		elif condition == "opponent_stunned":
 			return active_strike.is_player_stunned(other_player)
 		elif condition == "overdrive_empty":
 			return performing_player.overdrive.size() == 0
 		elif condition == "range":
 			var amount = effect['condition_amount']
-			var distance = abs(performing_player.arena_location - other_player.arena_location)
-			return amount == distance
+			var origin = performing_player.get_closest_edge_to(other_player.arena_location)
+			return other_player.is_in_range_of_location(origin, amount, amount)
 		elif condition == "range_greater_or_equal":
 			var amount = effect['condition_amount']
-			var distance = abs(performing_player.arena_location - other_player.arena_location)
+			var origin = performing_player.get_closest_edge_to(other_player.arena_location)
+			var farthest_point = other_player.get_furthest_edge_from(origin)
+			var distance = abs(origin - farthest_point)
 			return distance >= amount
 		elif condition == "range_multiple":
 			var min_amount = effect["condition_amount_min"]
 			var max_amount = effect["condition_amount_max"]
-			var distance = abs(performing_player.arena_location - other_player.arena_location)
-			return distance >= min_amount and distance <= max_amount
+			var origin = performing_player.get_closest_edge_to(other_player.arena_location)
+			return other_player.is_in_range_of_location(origin, min_amount, max_amount)
 		elif condition == "was_hit":
 			return performing_player.strike_stat_boosts.was_hit
 		elif condition == "was_wild_swing":
