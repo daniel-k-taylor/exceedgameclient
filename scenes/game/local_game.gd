@@ -2796,7 +2796,7 @@ func is_effect_condition_met(performing_player : Player, effect, local_condition
 					return false
 			return true
 		elif condition == "speed_greater_than":
-			var effect['condition_amount'] == "OPPONENT_SPEED":
+			if effect['condition_amount'] == "OPPONENT_SPEED":
 			return get_total_speed(performing_player) > get_total_speed(opposing_player)
 
 		else:
