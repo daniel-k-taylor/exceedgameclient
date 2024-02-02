@@ -9586,7 +9586,7 @@
 			{
 				"timing": "during_strike",
 				"effect_type": "higher_speed_misses",
-				"dodge_at_speed_greater_than": 5
+				"dodge_at_speed_greater_or_equal": 6
 			},
 			{
 				"timing": "after",
