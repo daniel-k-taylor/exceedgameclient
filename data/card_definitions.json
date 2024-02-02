@@ -189,7 +189,7 @@
 			{
 				"timing": "before",
 				"effect_type": "close",
-				"amount": 1
+				"amount": 2
 			},
 			{
 				"timing": "after",

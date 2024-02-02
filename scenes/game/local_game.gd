@@ -3623,9 +3623,12 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 		"multiply_power_bonuses":
 			performing_player.strike_stat_boosts.power_bonus_multiplier = max(effect['amount'], performing_player.strike_stat_boosts.power_bonus_multiplier)
 		"multiply_positive_power_bonuses":
-			var power_bonuses = performing_player.strike_stat_boosts.power
-			if power_bonuses > 0:
-				performing_player.strike_stat_boosts.power_bonus_multiplier = max(effect['amount'], performing_player.strike_stat_boosts.power_bonus_multiplier)			
+			var positive_power_bonuses = 0
+			if performing_player.strike_stat_boosts.overwrite_total_power:
+				var power_modifier = performing_player.strike_stat_boosts.power
+				if power_modifier > 0:
+					performing_player.strike_stat_boosts.power += positive_power_bonuses
+					performing_player.strike_stat_boosts.power_bonus_multiplier = max(effect['amount'], performing_player.strike_stat_boosts.power_bonus_multiplier)			
 		"multiply_speed_bonuses":
 			performing_player.strike_stat_boosts.speed_bonus_multiplier = max(effect['amount'], performing_player.strike_stat_boosts.speed_bonus_multiplier)
 		"opponent_cant_move_past":
@@ -4944,7 +4947,6 @@ func in_range(attacking_player, defending_player, card, combat_logging=false):
 				_append_log_full(Enums.LogType.LogType_Effect, defending_player, "is dodging higher speed attacks!")
 			return false
 	return opponent_in_range
-
 func get_total_power(performing_player : Player):
 	if performing_player.strike_stat_boosts.overwrite_total_power:
 		return performing_player.strike_stat_boosts.overwritten_total_power
