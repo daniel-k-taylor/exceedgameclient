@@ -493,6 +493,8 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 			effect_str += "Place %s in any space." % effect['buddy_name']
 		"place_buddy_in_attack_range":
 			effect_str += "Place %s in the attack's range." % effect['buddy_name']
+		"play_attack_from_hand":
+				effect_str += "Play an attack from your hand, paying its costs."
 		"calculate_range_from_buddy":
 			effect_str += "Calculate range from %s." % effect['buddy_name']
 		"calculate_range_from_center":

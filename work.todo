@@ -4,7 +4,7 @@ In progress:
         ☐ "effect_type": "may_invalidate_ultras" @started(24-01-31 22:19)
 
         ☐ "on_invalid": { "effect_type": "add_to_gauge_after_discarded" }, @started(24-01-31 22:17)
-        ☐ "effect_type": "draw_any_number"
+        ☐ "effect_type": "draw_any_number" @started(24-02-01 16:39)
 
         Manually tested so far:
         ☐ "timing": "on_continuous_boost", @started(24-01-31 22:57)
@@ -15,7 +15,7 @@ In progress:
         ☐ self_discard_choose at start_of_next_turn timing @started(24-02-01 02:06)
 
         Additional attacks:
-            ☐ "effect_type": "play_attack_from_hand"
+            ☐ "effect_type": "play_attack_from_hand" @started(24-02-01 19:58)
             Choose a single card from your hand that you can afford to play.
             Pay its cost.
             Put it into play, gaining any Armor, Guard, and passive effects on it.

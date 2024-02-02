@@ -171,6 +171,22 @@ enum StrikeState {
 	StrikeState_Cleanup_Complete
 }
 
+enum ExtraAttackState {
+	ExtraAttackState_None,
+	ExtraAttackState_PayCosts,
+	ExtraAttackState_DuringStrikeBonuses,
+	ExtraAttackState_Activation,
+	ExtraAttackState_Before,
+	ExtraAttackState_DetermineHit,
+	ExtraAttackState_Hit,
+	ExtraAttackState_Hit_Response,
+	ExtraAttackState_Hit_ApplyDamage,
+	ExtraAttackState_After,
+	ExtraAttackState_Cleanup,
+	ExtraAttackState_CleanupEffects,
+	ExtraAttackState_Complete,
+}
+
 class Strike:
 	var initiator : Player
 	var defender : Player
@@ -200,6 +216,16 @@ class Strike:
 	var remaining_forced_boosts_source = ""
 	var remaining_forced_boosts_player_id = Enums.PlayerId.PlayerId_Player
 	var cards_in_play: Array[GameCard] = []
+
+	var extra_attack_in_progress = false
+	var extra_attack_card : GameCard = null
+	var extra_attack_player : Player = null
+	var extra_attack_previous_attack_power_bonus = 0
+	var extra_attack_previous_attack_min_range_bonus = 0
+	var extra_attack_previous_attack_max_range_bonus = 0
+	var extra_attack_state = ExtraAttackState.ExtraAttackState_None
+	var extra_attack_hit = false
+	var extra_attack_remaining_effects = []
 
 	func get_card(num : int):
 		if initiator_first:
@@ -947,6 +973,22 @@ class Player:
 						cards.append(card)
 				"ultra":
 					if card.definition['type'] == "ultra":
+						cards.append(card)
+				"can_pay_cost":
+					var gauge_cost = parent.get_gauge_cost(self, card)
+					var force_cost = card.definition['force_cost']
+					if strike_stat_boosts.may_generate_gauge_with_force:
+						# Convert the gauge cost to a force cost.
+						force_cost = gauge_cost
+						gauge_cost = 0
+
+					if not gauge_cost:
+						# To make sure this card isn't included in this check,
+						# increase the force cost by 1, 2 if ultra.
+						force_cost += 1
+						if card.definition['type'] == "ultra":
+							force_cost += 1
+					if can_pay_cost(gauge_cost, force_cost):
 						cards.append(card)
 				_:
 					cards.append(card)
@@ -2422,7 +2464,8 @@ func continue_setup_strike(events):
 		# All effects resolved, move to next state.
 		active_strike.effects_resolved_in_timing = 0
 		if active_strike.opponent_sets_first:
-			events += begin_resolve_strike()
+			# Intentional events = because events are passed in.
+			events = begin_resolve_strike(events)
 		else:
 			# Intentional events = because events are passed in.
 			events = strike_setup_defender_response(events)
@@ -2450,7 +2493,8 @@ func continue_setup_strike(events):
 			# Intentional events = because events are passed in.
 			events = strike_setup_initiator_response(events)
 		else:
-			events += begin_resolve_strike()
+			# Intentional events = because events are passed in.
+			events = begin_resolve_strike(events)
 	return events
 
 func strike_setup_defender_response(events):
@@ -2517,8 +2561,7 @@ func strike_setup_initiator_response(events):
 		events += [create_event(Enums.EventType.EventType_Strike_OpponentSetsFirst_InitiatorSet, active_strike.initiator.my_id, 0)]
 	return events
 
-func begin_resolve_strike():
-	var events = []
+func begin_resolve_strike(events):
 	# Strike is beginning, setup has been completed.
 	active_strike.in_setup = false
 	events += [create_event(Enums.EventType.EventType_Strike_Reveal, active_strike.initiator.my_id, 0)]
@@ -3963,6 +4006,16 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 				_append_log_full(Enums.LogType.LogType_CharacterMovement, performing_player, "moves %s to themselves on space %s." % [buddy_name, str(space)])
 			else:
 				_append_log_full(Enums.LogType.LogType_CharacterMovement, performing_player, "moves %s to themselves, from space %s to %s." % [buddy_name, str(old_buddy_pos), str(space)])
+		"play_attack_from_hand":
+			# Implement the choice via discard effect.
+			var discard_effect = {
+				"effect_type": "self_discard_choose",
+				"optional": true,
+				"amount": 1,
+				"limitation": "can_pay_cost",
+				"destination": "play_attack",
+			}
+			events += handle_strike_effect(card_id, discard_effect, performing_player)
 		"powerup":
 			var amount = effect['amount']
 			if str(amount) == "strike_x":
@@ -4233,7 +4286,7 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 							{ "effect_type": "pass" }
 						]
 					}
-					active_strike.remaining_effect_list.append(repeat_effect)
+					add_remaining_effect(repeat_effect)
 				if not first_not_automatic:
 					events += handle_strike_effect(card_id, linked_effect, performing_player)
 		"return_all_cards_gauge_to_hand":
@@ -4387,6 +4440,10 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 				_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "discards the chosen card(s) to opponent's overdrive: %s." % card_names)
 				events += performing_player.discard(card_ids)
 				events += opposing_player.move_cards_to_overdrive(card_ids, "opponent_discard")
+			elif effect['destination'] == "play_attack":
+				assert(card_ids.size() == 1)
+				# Intentional events = because events are passed in.
+				events = begin_extra_attack(events, performing_player, card_ids[0])
 			else:
 				# Nothing else implemented.
 				assert(false)
@@ -4818,9 +4875,9 @@ func get_boost_effects_at_timing(timing_name : String, performing_player : Playe
 				effects.append(effect_with_id)
 	return effects
 
-func get_all_effects_for_timing(timing_name : String, performing_player : Player, card : GameCard, ignore_condition : bool = true) -> Array:
-	var effects = card_db.get_card_effects_at_timing(card, timing_name)
-	for effect in effects:
+func get_all_effects_for_timing(timing_name : String, performing_player : Player, card : GameCard, ignore_condition : bool = true, only_card_and_bonus_effects : bool = false) -> Array:
+	var card_effects = card_db.get_card_effects_at_timing(card, timing_name)
+	for effect in card_effects:
 		effect['card_id'] = card.id
 	var boost_effects = get_boost_effects_at_timing(timing_name, performing_player)
 	var character_effects = performing_player.get_character_effects_at_timing(timing_name)
@@ -4837,31 +4894,32 @@ func get_all_effects_for_timing(timing_name : String, performing_player : Player
 	var opponent_given_effects = other_player.get_character_effects_at_timing("opponent_" + timing_name)
 
 	var all_effects = []
-	for effect in effects:
+	for effect in card_effects:
 		if ignore_condition or is_effect_condition_met(performing_player, effect, null):
 			all_effects.append(effect)
 		elif 'negative_condition_effect' in effect:
 			all_effects.append(effect['negative_condition_effect'])
-	for effect in boost_effects:
-		if ignore_condition or is_effect_condition_met(performing_player, effect, null):
-			all_effects.append(effect)
-		elif 'negative_condition_effect' in effect:
-			all_effects.append(effect['negative_condition_effect'])
-	for effect in both_players_boost_effects:
-		if ignore_condition or is_effect_condition_met(performing_player, effect, null):
-			all_effects.append(effect)
-		elif 'negative_condition_effect' in effect:
-			all_effects.append(effect['negative_condition_effect'])
-	for effect in character_effects:
-		if ignore_condition or is_effect_condition_met(performing_player, effect, null):
-			all_effects.append(effect)
-		elif 'negative_condition_effect' in effect:
-			all_effects.append(effect['negative_condition_effect'])
-	for effect in opponent_given_effects:
-		if ignore_condition or is_effect_condition_met(performing_player, effect, null):
-			all_effects.append(effect)
-		elif 'negative_condition_effect' in effect:
-			all_effects.append(effect['negative_condition_effect'])
+	if not only_card_and_bonus_effects:
+		for effect in boost_effects:
+			if ignore_condition or is_effect_condition_met(performing_player, effect, null):
+				all_effects.append(effect)
+			elif 'negative_condition_effect' in effect:
+				all_effects.append(effect['negative_condition_effect'])
+		for effect in both_players_boost_effects:
+			if ignore_condition or is_effect_condition_met(performing_player, effect, null):
+				all_effects.append(effect)
+			elif 'negative_condition_effect' in effect:
+				all_effects.append(effect['negative_condition_effect'])
+		for effect in character_effects:
+			if ignore_condition or is_effect_condition_met(performing_player, effect, null):
+				all_effects.append(effect)
+			elif 'negative_condition_effect' in effect:
+				all_effects.append(effect['negative_condition_effect'])
+		for effect in opponent_given_effects:
+			if ignore_condition or is_effect_condition_met(performing_player, effect, null):
+				all_effects.append(effect)
+			elif 'negative_condition_effect' in effect:
+				all_effects.append(effect['negative_condition_effect'])
 	for effect in bonus_effects:
 		if ignore_condition or is_effect_condition_met(performing_player, effect, null):
 			all_effects.append(effect)
@@ -4875,38 +4933,87 @@ func get_all_effects_for_timing(timing_name : String, performing_player : Player
 			effect['negative_condition_effect']['card_id'] = card.id
 	return all_effects
 
+func get_remaining_effect_count():
+	if active_strike.extra_attack_in_progress:
+		return active_strike.extra_attack_remaining_effects.size()
+	else:
+		return active_strike.remaining_effect_list.size()
+
+func add_remaining_effect(effect):
+	if active_strike.extra_attack_in_progress:
+		active_strike.extra_attack_remaining_effects.append(effect)
+	else:
+		active_strike.remaining_effect_list.append(effect)
+
+func erase_remaining_effect(effect):
+	if active_strike.extra_attack_in_progress:
+		active_strike.extra_attack_remaining_effects.erase(effect)
+	else:
+		active_strike.remaining_effect_list.erase(effect)
+
 func remove_remaining_effect(effect, card_id):
-	if active_strike and 'timing' in effect:
+	# This function is not intended to be called from extra attacks.
+	assert(not active_strike.extra_attack_in_progress)
+	if active_strike.extra_attack_in_progress:
+		printlog("ERROR: Unexpected call during extra attacks.")
+		return
+
+	var base_effect = get_base_remaining_effect(effect)
+	if active_strike and 'timing' in base_effect:
 		for remaining_effect in active_strike.remaining_effect_list:
-			if remaining_effect['timing'] == effect['timing'] and remaining_effect['card_id'] == card_id:
+			if remaining_effect['timing'] == base_effect['timing'] and remaining_effect['card_id'] == card_id:
 				active_strike.remaining_effect_list.erase(remaining_effect)
 				break
 
 func get_base_remaining_effect(effect):
+	var remaining_effect_list = active_strike.remaining_effect_list
+	if active_strike.extra_attack_in_progress:
+		remaining_effect_list = active_strike.extra_attack_remaining_effects
+
 	# Gets the base effect in the active strike's remaining effect list
 	if 'is_negative_effect' in effect and effect['is_negative_effect']:
 		# Find the actual effect this goes with, to avoid revealing condition outcomes early
-		for remaining_effect in active_strike.remaining_effect_list:
+		for remaining_effect in remaining_effect_list:
 			if 'negative_condition_effect' in remaining_effect:
 				if remaining_effect['negative_condition_effect'] == effect:
 					return remaining_effect
 	return effect
 
+func get_next_remaining_effects_to_choose(performing_player : Player):
+	var remaining_effects = active_strike.remaining_effect_list
+	if active_strike.extra_attack_in_progress:
+		remaining_effects = active_strike.extra_attack_remaining_effects
+
+	var effects_to_choose = []
+	for effect in remaining_effects:
+		if is_effect_condition_met(performing_player, effect, null):
+			effects_to_choose.append(effect)
+		elif 'negative_condition_effect' in effect and is_effect_condition_met(performing_player, effect['negative_condition_effect'], null):
+			effects_to_choose.append(effect['negative_condition_effect'])
+	return effects_to_choose
+
+func reset_remaining_effects():
+	if active_strike.extra_attack_in_progress:
+		active_strike.extra_attack_remaining_effects = []
+	else:
+		active_strike.remaining_effect_list = []
+
+func get_first_remaining_effect():
+	if active_strike.extra_attack_in_progress:
+		return active_strike.extra_attack_remaining_effects[0]
+	else:
+		return active_strike.remaining_effect_list[0]
+
 func do_remaining_effects(performing_player : Player, next_state):
 	var events = []
-	while active_strike.remaining_effect_list.size() > 0:
-		var remaining_effect_count = active_strike.remaining_effect_list.size()
-		if remaining_effect_count > 1:
+
+	while get_remaining_effect_count() > 0:
+		if get_remaining_effect_count() > 1:
 			# Check to see if any of these effects actually have their condition met (or have a negative condition).
 			# If more than 1, send only those choices to the player.
 			# If only 1 does, remove it from the list and do it immediately.
 			# If none do, this is over, clear out the list.
-			var effects_to_choose = []
-			for effect in active_strike.remaining_effect_list:
-				if is_effect_condition_met(performing_player, effect, null):
-					effects_to_choose.append(effect)
-				elif 'negative_condition_effect' in effect and is_effect_condition_met(performing_player, effect['negative_condition_effect'], null):
-					effects_to_choose.append(effect['negative_condition_effect'])
+			var effects_to_choose = get_next_remaining_effects_to_choose(performing_player)
 
 			# Check if any of these effects want to be resolved immediately
 			# If so, just pick the first one.
@@ -4930,18 +5037,18 @@ func do_remaining_effects(performing_player : Player, next_state):
 			elif effects_to_choose.size() == 1:
 				# Use the base effect to account for negative effects.
 				var effect = get_base_remaining_effect(effects_to_choose[0])
-				active_strike.remaining_effect_list.erase(effect)
+				erase_remaining_effect(effect)
 				events += do_effect_if_condition_met(performing_player, effect['card_id'], effect, null)
 
 				if game_state == Enums.GameState.GameState_PlayerDecision:
 					break
 			else:
 				# No more effects have their conditions met.
-				active_strike.remaining_effect_list = []
+				reset_remaining_effects()
 		else:
 			# Only 1 effect in the list, do it.
-			var effect = active_strike.remaining_effect_list[0]
-			active_strike.remaining_effect_list = []
+			var effect = get_first_remaining_effect()
+			reset_remaining_effects()
 			events += do_effect_if_condition_met(performing_player, effect['card_id'], effect, null)
 
 			if game_state == Enums.GameState.GameState_PlayerDecision:
@@ -4949,9 +5056,12 @@ func do_remaining_effects(performing_player : Player, next_state):
 		if game_over:
 			return events
 
-	if active_strike.remaining_effect_list.size() == 0 and not game_state == Enums.GameState.GameState_PlayerDecision:
+	if get_remaining_effect_count() == 0 and not game_state == Enums.GameState.GameState_PlayerDecision:
 		active_strike.effects_resolved_in_timing = 0
-		active_strike.strike_state = next_state
+		if active_strike.extra_attack_in_progress:
+			active_strike.extra_attack_state = next_state
+		else:
+			active_strike.strike_state = next_state
 	return events
 
 func do_remaining_overdrive(performing_player : Player):
@@ -5032,12 +5142,16 @@ func do_set_strike_x(performing_player : Player, source : String):
 	events += performing_player.set_strike_x(value)
 	return events
 
-func do_effects_for_timing(timing_name : String, performing_player : Player, card : GameCard, next_state):
+func do_effects_for_timing(timing_name : String, performing_player : Player, card : GameCard, next_state, only_card__and_bonus_effects : bool = false):
 	var events = []
 	var effects = card_db.get_card_effects_at_timing(card, timing_name)
 	var boost_effects = get_boost_effects_at_timing(timing_name, performing_player)
 	var character_effects = performing_player.get_character_effects_at_timing(timing_name)
 	var bonus_effects = performing_player.get_bonus_effects_at_timing(timing_name)
+	if only_card__and_bonus_effects:
+		boost_effects = []
+		character_effects = []
+
 	# Effects are resolved in the order:
 	# Card > Continuous Boost > Character > Bonus
 	while true:
@@ -5145,6 +5259,9 @@ func in_range(attacking_player, defending_player, card, combat_logging=false):
 
 	var min_range = get_card_stat(attacking_player, card, 'range_min') + attacking_player.strike_stat_boosts.min_range
 	var max_range = get_card_stat(attacking_player, card, 'range_max') + attacking_player.strike_stat_boosts.max_range
+	if active_strike.extra_attack_in_progress:
+		min_range -= active_strike.extra_attack_previous_attack_min_range_bonus
+		max_range -= active_strike.extra_attack_previous_attack_max_range_bonus
 	var range_string = str(min_range)
 	if min_range != max_range:
 		range_string += "-%s" % str(max_range)
@@ -5189,8 +5306,13 @@ func get_total_power(performing_player : Player):
 		return performing_player.strike_stat_boosts.overwritten_total_power
 
 	var card = active_strike.get_player_card(performing_player)
+	if active_strike.extra_attack_in_progress:
+		card = active_strike.extra_attack_card
 	var power = get_card_stat(performing_player, card, 'power')
 	var power_modifier = performing_player.strike_stat_boosts.power * performing_player.strike_stat_boosts.power_bonus_multiplier
+	if active_strike.extra_attack_in_progress:
+		# If an extra attack character has ways to get power multipliers, deal with that then.
+		power_modifier = performing_player.strike_stat_boosts.power - active_strike.extra_attack_previous_attack_power_bonus
 	return power + power_modifier
 
 func get_total_armor(performing_player : Player):
@@ -5314,8 +5436,19 @@ func ask_for_cost(performing_player, card, next_state):
 	var was_wild_swing = active_strike.get_player_wild_strike(performing_player)
 	var can_invalidate_ultra = is_ultra and performing_player.strike_stat_boosts.may_invalidate_ultras
 	var can_invalidate_anyway = (was_wild_swing and card_has_cost) or can_invalidate_ultra
+
+	# Extra attacks live outside of lots of rules.
+	# They cannot fail to pay the cost.
+	if active_strike.extra_attack_in_progress:
+		was_wild_swing = false
+		card_forced_invalid = false
+		can_invalidate_anyway = false
+
 	if performing_player.can_pay_cost_with([], force_cost, gauge_cost) and not card_forced_invalid and not can_invalidate_anyway:
-		active_strike.strike_state = next_state
+		if active_strike.extra_attack_in_progress:
+			active_strike.extra_attack_state = next_state
+		else:
+			active_strike.strike_state = next_state
 	else:
 		if not card_forced_invalid and performing_player.can_pay_cost(force_cost, gauge_cost):
 			change_game_state(Enums.GameState.GameState_PlayerDecision)
@@ -5364,23 +5497,27 @@ func ask_for_cost(performing_player, card, next_state):
 			events += [create_event(Enums.EventType.EventType_Strike_PayCost_Unable, performing_player.my_id, new_wild_card.id)]
 	return events
 
-func do_hit_response_effects(offense_player : Player, defense_player : Player, incoming_damage : int, next_state : StrikeState):
+func do_hit_response_effects(offense_player : Player, defense_player : Player, incoming_damage : int, next_state):
 	# If more of these are added, need to sequence them to ensure all handled correctly.
 	var events = []
-	active_strike.strike_state = next_state
+
+	var defender_card = active_strike.get_player_card(defense_player)
+	if active_strike.extra_attack_in_progress:
+		active_strike.extra_attack_state = next_state
+	else:
+		active_strike.strike_state = next_state
 
 	# Assumes these will be armor-related.
 	# No choices currently allowed at this timing.
-	var effects = get_all_effects_for_timing("when_hit", defense_player, active_strike.get_player_card(defense_player))
+	var effects = get_all_effects_for_timing("when_hit", defense_player, defender_card)
 	for effect in effects:
 		events += do_effect_if_condition_met(defense_player, -1, effect, null)
-	assert(active_strike.strike_state == next_state)
 
 	if defense_player.strike_stat_boosts.when_hit_force_for_armor:
 		change_game_state(Enums.GameState.GameState_PlayerDecision)
 		decision_info.player = defense_player.my_id
 		decision_info.type = Enums.DecisionType.DecisionType_ForceForArmor
-		decision_info.choice_card_id = active_strike.get_player_card(defense_player).id
+		decision_info.choice_card_id = defender_card.id
 		events += [create_event(Enums.EventType.EventType_Strike_ForceForArmor, defense_player.my_id, incoming_damage, "", offense_player.strike_stat_boosts.ignore_armor)]
 
 	return events
@@ -5405,6 +5542,8 @@ func log_boosts_in_play():
 func continue_resolve_strike(events):
 	if active_strike.in_setup:
 		return continue_setup_strike(events)
+	elif active_strike.extra_attack_in_progress:
+		return continue_extra_attack(events)
 
 	change_game_state(Enums.GameState.GameState_Strike_Processing)
 
@@ -5461,25 +5600,11 @@ func continue_resolve_strike(events):
 			StrikeState.StrikeState_Card1_Before:
 				events += do_remaining_effects(player1, StrikeState.StrikeState_Card1_DetermineHit)
 			StrikeState.StrikeState_Card1_DetermineHit:
-				var card_name = card_db.get_card_name(card1.id)
-				if player1.strike_stat_boosts.calculate_range_from_buddy:
-					var buddy_location = player1.get_buddy_location(player1.strike_stat_boosts.calculate_range_from_buddy_id)
-					_append_log_full(Enums.LogType.LogType_Strike, null, "Range check: attacking from %s's %s (space %s) to %s (space %s)." % [player1.name, player1.get_buddy_name(), buddy_location, player2.name, player2.arena_location])
-				elif player1.strike_stat_boosts.calculate_range_from_center:
-					_append_log_full(Enums.LogType.LogType_Strike, null, "Range check: %s attacking from center of arena (space %s) to %s (space %s)." % [player1.name, CenterArenaLocation, player2.name, player2.arena_location])
-				else:
-					_append_log_full(Enums.LogType.LogType_Strike, null, "Range check: attacking from %s (space %s) to %s (space %s)." % [player1.name, player1.arena_location, player2.name, player2.arena_location])
-				if in_range(player1, player2, card1, true) and not card1.definition['id'] in player1.cards_that_will_not_hit:
-					_append_log_full(Enums.LogType.LogType_Strike, player1, "hits with %s!" % card_name)
-					active_strike.player1_hit = true
+				var hit = determine_if_attack_hits(events, player1, player2, card1)
+				if hit:
 					active_strike.strike_state = StrikeState.StrikeState_Card1_Hit
 					active_strike.remaining_effect_list = get_all_effects_for_timing("hit", player1, card1)
 				else:
-					var extra_details = ""
-					if card1.definition['id'] in player1.cards_that_will_not_hit:
-						extra_details = "the named card "
-					_append_log_full(Enums.LogType.LogType_Strike, player1, "misses with %s%s!" % [extra_details, card_name])
-					events += [create_event(Enums.EventType.EventType_Strike_Miss, player1.my_id, 0)]
 					active_strike.strike_state = StrikeState.StrikeState_Card1_After
 					active_strike.remaining_effect_list = get_all_effects_for_timing("after", player1, card1)
 			StrikeState.StrikeState_Card1_Hit:
@@ -5508,25 +5633,11 @@ func continue_resolve_strike(events):
 			StrikeState.StrikeState_Card2_Before:
 				events += do_remaining_effects(player2, StrikeState.StrikeState_Card2_DetermineHit)
 			StrikeState.StrikeState_Card2_DetermineHit:
-				var card_name = card_db.get_card_name(card2.id)
-				if player2.strike_stat_boosts.calculate_range_from_buddy:
-					var buddy_location = player2.get_buddy_location(player2.strike_stat_boosts.calculate_range_from_buddy_id)
-					_append_log_full(Enums.LogType.LogType_Strike, null, "Range check: attacking from %s's %s (space %s) to %s (space %s)." % [player2.name, player2.get_buddy_name(), buddy_location, player1.name, player1.arena_location])
-				elif player2.strike_stat_boosts.calculate_range_from_center:
-					_append_log_full(Enums.LogType.LogType_Strike, null, "Range check: %s attacking from center of arena (space %s) to %s (space %s)." % [player2.name, CenterArenaLocation, player1.name, player1.arena_location])
-				else:
-					_append_log_full(Enums.LogType.LogType_Strike, null, "Range check: attacking from %s (space %s) to %s (space %s)." % [player2.name, player2.arena_location, player1.name, player1.arena_location])
-				if in_range(player2, player1, card2, true) and not card2.definition['id'] in player2.cards_that_will_not_hit:
-					_append_log_full(Enums.LogType.LogType_Strike, player2, "hits with %s!" % card_name)
-					active_strike.player2_hit = true
+				var hit = determine_if_attack_hits(events, player2, player1, card2)
+				if hit:
 					active_strike.strike_state = StrikeState.StrikeState_Card2_Hit
 					active_strike.remaining_effect_list = get_all_effects_for_timing("hit", player2, card2)
 				else:
-					var extra_details = ""
-					if card2.definition['id'] in player2.cards_that_will_not_hit:
-						extra_details = "the named card "
-					_append_log_full(Enums.LogType.LogType_Strike, player2, "misses with %s%s!" % [extra_details, card_name])
-					events += [create_event(Enums.EventType.EventType_Strike_Miss, player2.my_id, 0)]
 					active_strike.strike_state = StrikeState.StrikeState_Card2_After
 					active_strike.remaining_effect_list = get_all_effects_for_timing("after", player2, card2)
 			StrikeState.StrikeState_Card2_Hit:
@@ -5655,6 +5766,154 @@ func strike_send_attack_to_discard_or_gauge(performing_player : Player, card):
 	active_strike.cards_in_play.erase(card)
 
 	return events
+
+func begin_extra_attack(events, performing_player : Player, card_id : int):
+	assert(active_strike)
+	# The player is mid-strike and playing an extra attack card.
+	# These are the steps of extra attack:
+	# * Pay its cost.
+	# * Put it into play, gaining any Armor, Guard, and passive effects on it.
+	# * Perform its Before effects, then check its Range.
+	# * If it hit, perform its Hit effects.
+	# * If it hit, deal damage equal to its printed Power.
+	# * Perform its After effects.
+	# * At the end of the Strike, if the additional attack hit, add it to your Gauge. Otherwise, discard it.
+	# * Note that bonuses and effects that apply to your attack (e.g., Continuous Boost effects such as "+2 Power") only apply to your initial attack unless they specify "Your attacks have [...]" (as the Graviton does).
+	#
+	# Since the strike is still active, there is a hook in continue_resolve_strike
+	# that goes to continue_extra_attack if there is an extra attack active.
+	# This way all things that work during strikes will also work during extra attacks.
+	#
+	# As you gain passive effects, those will go straight into strike_stat_boosts.
+	# However, for damage calculation, subtract the saved power bonus as that does not apply.
+	# Also, for hit calculation range bonuses do not apply.
+	#
+	active_strike.extra_attack_in_progress = true
+	active_strike.extra_attack_card = card_db.get_card(card_id)
+	active_strike.extra_attack_player = performing_player
+	active_strike.extra_attack_previous_attack_power_bonus = performing_player.strike_stat_boosts.power
+	active_strike.extra_attack_previous_attack_min_range_bonus = performing_player.strike_stat_boosts.min_range
+	active_strike.extra_attack_previous_attack_max_range_bonus = performing_player.strike_stat_boosts.max_range
+	active_strike.extra_attack_state = ExtraAttackState.ExtraAttackState_PayCosts
+	active_strike.extra_attack_hit = false
+
+	# Other relevant passives that need to be undone.
+	# If other extra attack characters are added, consider what else might be needed.
+	performing_player.strike_stat_boosts.ignore_armor = false
+	performing_player.strike_stat_boosts.ignore_guard = false
+
+	# This can happen with more After effects to resolve.
+	# This should be fine as we use a different remaining effects list.
+	# Also, nothing that uses active_strike.effects_resolved_in_timing should be active.
+	# If a new timing is added for extra attacks, then more state may need to be preserved.
+	active_strike.effects_resolved_in_timing = 0
+	active_strike.extra_attack_remaining_effects = []
+
+	# Intentional events = because events are passed in.
+	events = continue_resolve_strike(events)
+	return events
+
+func continue_extra_attack(events):
+	change_game_state(Enums.GameState.GameState_Strike_Processing)
+
+	var attacker_player = active_strike.extra_attack_player
+	var attacker_card = active_strike.extra_attack_card
+	var defender_player = _get_player(get_other_player(attacker_player.my_id))
+
+	while true:
+		if game_over:
+			change_game_state(Enums.GameState.GameState_GameOver)
+			break
+
+		if game_state == Enums.GameState.GameState_PlayerDecision:
+			var player_name = get_player_name(decision_info.player)
+			printlog("EXTRA ATTACK: Pausing for decision %s %s" % [player_name, Enums.DecisionType.keys()[decision_info.type]])
+			break
+
+		printlog("EXTRA ATTACK: processing state %s " % [ExtraAttackState.keys()[active_strike.extra_attack_state]])
+		match active_strike.extra_attack_state:
+			ExtraAttackState.ExtraAttackState_PayCosts:
+				# Ask player to pay for this card if applicable.
+				events += ask_for_cost(active_strike.initiator, active_strike.initiator_card, ExtraAttackState.ExtraAttackState_DuringStrikeBonuses)
+			ExtraAttackState.ExtraAttackState_DuringStrikeBonuses:
+				events += do_effects_for_timing("during_strike", attacker_player, attacker_card, ExtraAttackState.ExtraAttackState_Activation, true)
+			ExtraAttackState.ExtraAttackState_Activation:
+				active_strike.extra_attack_state = ExtraAttackState.ExtraAttackState_Before
+				active_strike.extra_attack_remaining_effects = get_all_effects_for_timing("before", attacker_player, attacker_card, true, true)
+			ExtraAttackState.ExtraAttackState_Before:
+				events += do_remaining_effects(attacker_player, ExtraAttackState.ExtraAttackState_DetermineHit)
+			ExtraAttackState.ExtraAttackState_DetermineHit:
+				var hit = determine_if_attack_hits(events, attacker_player, defender_player, attacker_card)
+				if hit:
+					active_strike.extra_attack_hit = true
+					active_strike.extra_attack_state = ExtraAttackState.ExtraAttackState_Hit
+					active_strike.extra_attack_remaining_effects = get_all_effects_for_timing("hit", attacker_player, attacker_card, true, true)
+				else:
+					active_strike.extra_attack_state = ExtraAttackState.ExtraAttackState_After
+					active_strike.extra_attack_remaining_effects = get_all_effects_for_timing("after", attacker_player, attacker_card, true, true)
+			ExtraAttackState.ExtraAttackState_Hit:
+				events += do_remaining_effects(attacker_player, ExtraAttackState.ExtraAttackState_Hit_Response)
+			ExtraAttackState.ExtraAttackState_Hit_Response:
+				var incoming_damage = calculate_damage(attacker_player, defender_player)
+				events += do_hit_response_effects(attacker_player, defender_player, incoming_damage, ExtraAttackState.ExtraAttackState_Hit_ApplyDamage)
+			ExtraAttackState.ExtraAttackState_Hit_ApplyDamage:
+				events += apply_damage(attacker_player, defender_player)
+				active_strike.extra_attack_state = ExtraAttackState.ExtraAttackState_After
+				active_strike.extra_attack_remaining_effects = get_all_effects_for_timing("after", attacker_player, attacker_card, true, true)
+				if game_over:
+					active_strike.strike_state = ExtraAttackState.ExtraAttackState_Cleanup
+			ExtraAttackState.ExtraAttackState_After:
+				events += do_remaining_effects(attacker_player, ExtraAttackState.ExtraAttackState_Cleanup)
+			ExtraAttackState.ExtraAttackState_Cleanup:
+				active_strike.extra_attack_state = ExtraAttackState.ExtraAttackState_CleanupEffects
+				active_strike.extra_attack_remaining_effects = get_all_effects_for_timing("cleanup", attacker_player, attacker_card, true, true)
+			ExtraAttackState.ExtraAttackState_CleanupEffects:
+				events += do_remaining_effects(attacker_player, ExtraAttackState.ExtraAttackState_Complete)
+			ExtraAttackState.ExtraAttackState_Complete:
+				var card_name = attacker_card.definition['display_name']
+				if active_strike.extra_attack_hit:
+					_append_log_full(Enums.LogType.LogType_CardInfo, attacker_player, "adds their extra attack %s to gauge." % card_name)
+					events += attacker_player.add_to_gauge(attacker_card)
+				else:
+					_append_log_full(Enums.LogType.LogType_CardInfo, attacker_player, "discards their extra attack %s." % card_name)
+					events += attacker_player.add_to_discards(attacker_card)
+
+				# Finally, resume the original strike.
+				active_strike.extra_attack_in_progress = false
+				if game_over:
+					change_game_state(Enums.GameState.GameState_GameOver)
+				else:
+					# Intentional events = because events are passed in.
+					events = continue_resolve_strike(events)
+				break
+	return events
+
+func determine_if_attack_hits(events, attacker_player : Player, defender_player : Player, card : GameCard):
+	# events actually is used, but there's an unused parameter warning for some reason, so add _.
+	var card_name = card_db.get_card_name(card.id)
+	if attacker_player.strike_stat_boosts.calculate_range_from_buddy:
+		var buddy_location = attacker_player.get_buddy_location(attacker_player.strike_stat_boosts.calculate_range_from_buddy_id)
+		var buddy_name = attacker_player.get_buddy_name(attacker_player.strike_stat_boosts.calculate_range_from_buddy_id)
+		_append_log_full(Enums.LogType.LogType_Strike, null, "Range check: attacking from %s's %s (space %s) to %s (space %s)." % [attacker_player.name, buddy_name, buddy_location, defender_player.name, defender_player.arena_location])
+	elif attacker_player.strike_stat_boosts.calculate_range_from_center:
+		_append_log_full(Enums.LogType.LogType_Strike, null, "Range check: %s attacking from center of arena (space %s) to %s (space %s)." % [attacker_player.name, CenterArenaLocation, defender_player.name, defender_player.arena_location])
+	else:
+		_append_log_full(Enums.LogType.LogType_Strike, null, "Range check: attacking from %s (space %s) to %s (space %s)." % [attacker_player.name, attacker_player.arena_location, defender_player.name, defender_player.arena_location])
+
+	if in_range(attacker_player, defender_player, card, true) and not card.definition['id'] in attacker_player.cards_that_will_not_hit:
+		_append_log_full(Enums.LogType.LogType_Strike, attacker_player, "hits with %s!" % card_name)
+		if active_strike.get_player(1) == attacker_player:
+			active_strike.player1_hit = true
+		else:
+			active_strike.player2_hit = true
+		return true
+	else:
+		var extra_details = ""
+		if card.definition['id'] in attacker_player.cards_that_will_not_hit:
+			extra_details = "the named card "
+		_append_log_full(Enums.LogType.LogType_Strike, attacker_player, "misses with %s%s!" % [extra_details, card_name])
+		events.append(create_event(Enums.EventType.EventType_Strike_Miss, attacker_player.my_id, 0))
+		return false
 
 func do_topdeck_boost(events):
 	# Unique case where we need to push all events to the queue, draw the top deck, and boost it.
@@ -6366,6 +6625,11 @@ func do_pay_strike_cost(performing_player : Player, card_ids : Array, wild_strik
 	else:
 		var force_cost = card.definition['force_cost']
 		var gauge_cost = get_gauge_cost(performing_player, card)
+		if performing_player.strike_stat_boosts.may_generate_gauge_with_force:
+			# Convert the gauge cost to a force cost.
+			force_cost = gauge_cost
+			gauge_cost = 0
+
 		if performing_player.can_pay_cost_with(card_ids, force_cost, gauge_cost):
 			var card_names = ""
 			if card_ids.size() > 0:
@@ -6584,7 +6848,7 @@ func do_choice(performing_player : Player, choice_index : int) -> bool:
 		else:
 			# This was the player choosing what to do next.
 			# Remove this effect from the remaining effects.
-			active_strike.remaining_effect_list.erase(get_base_remaining_effect(effect))
+			erase_remaining_effect(get_base_remaining_effect(effect))
 
 	var events = do_effect_if_condition_met(performing_player, card_id, effect, null)
 	if game_state == Enums.GameState.GameState_PlayerDecision and decision_info.type == Enums.DecisionType.DecisionType_ForceBoostSustainTopdeck:
@@ -6997,7 +7261,7 @@ func do_choose_to_discard(performing_player : Player, card_ids):
 		if not performing_player.is_card_in_hand(card_id):
 			printlog("ERROR: Tried to choose to discard with card not in hand.")
 			return false
-		if decision_info.limitation:
+		if decision_info.limitation and not decision_info.limitation == "can_pay_cost":
 			var card = card_db.get_card(card_id)
 			if card.definition['type'] != decision_info.limitation:
 				printlog("ERROR: Tried to choose to discard with card that doesn't meet limitation.")
