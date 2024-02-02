@@ -3,11 +3,29 @@
 	"season": 4,
 	"display_name": "Tinker Knight",
 	"cardback": "cardback_tinker.jpg",
-	"exceed_cost": 0, "NOTE": "todo",
+	"exceed_cost": -1,
 	"exceed_animation": "tinker_tank",
+	"starting_life": 2, "NOTE": "todo",
+	"on_death": {
+		"condition": "not_exceeded",
+		"effect_type": "exceed_now",
+		"and": {
+			"effect_type": "set_used_character_bonus"
+		}
+	},
+	"on_exceed": {
+		"effect_type": "set_life_per_gauge",
+		"amount": 4,
+		"maximum": 20
+	},
 	"ability_effects": [
 	],
 	"exceed_ability_effects": [
+		{
+			"timing": "end_of_turn",
+			"condition": "used_character_bonus",
+			"effect_type": "reset_character_positions"
+		}
 	],
 	"cards": [
 		{

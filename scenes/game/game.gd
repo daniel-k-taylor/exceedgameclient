@@ -1483,7 +1483,7 @@ func _on_exceed_event(event):
 		player_buddy_character_card.exceed(true)
 
 	else:
-		if 'exceed_animation' in player_deck:
+		if 'exceed_animation' in opponent_deck:
 			$OpponentCharacter.set_exceed(true, opponent_deck['exceed_animation'])
 			move_character_to_arena_square($OpponentCharacter, game_wrapper.get_player_location(Enums.PlayerId.PlayerId_Opponent), true, Character.CharacterAnim.CharacterAnim_None)
 		else:
@@ -1506,7 +1506,7 @@ func _on_exceed_revert_event(event):
 		player_buddy_character_card.exceed(false)
 
 	else:
-		if 'exceed_animation' in player_deck:
+		if 'exceed_animation' in opponent_deck:
 			$OpponentCharacter.set_exceed(true, opponent_deck['id'])
 			move_character_to_arena_square($OpponentCharacter, game_wrapper.get_player_location(Enums.PlayerId.PlayerId_Opponent), true, Character.CharacterAnim.CharacterAnim_None)
 		else:

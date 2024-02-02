@@ -478,6 +478,7 @@ class Player:
 	var cleanup_boost_to_gauge_cards : Array
 	var boosts_to_gauge_on_move : Array
 	var on_buddy_boosts : Array
+	var starting_location : int
 	var arena_location : int
 	var reshuffle_remaining : int
 	var exceeded : bool
@@ -538,9 +539,11 @@ class Player:
 		name = player_name
 		parent = parent_ref
 		card_database = card_db_ref
-		life = MaxLife
 		hand = []
 		deck_def = chosen_deck
+		life = MaxLife
+		if 'starting_life' in deck_def:
+			life = deck_def['starting_life']
 		exceed_cost = deck_def['exceed_cost']
 		deck = []
 		deck_list = []
@@ -1900,41 +1903,42 @@ class Player:
 
 		return events
 
-	func move_to(new_arena_location):
+	func move_to(new_arena_location, ignore_restrictions=false):
 		var events = []
 
-		if cannot_move:
-			parent._append_log_full(Enums.LogType.LogType_CharacterMovement, self, "cannot move!")
-			events += [parent.create_event(Enums.EventType.EventType_BlockMovement, my_id, 0)]
-			return events
+		if not ignore_restrictions:
+			if cannot_move:
+				parent._append_log_full(Enums.LogType.LogType_CharacterMovement, self, "cannot move!")
+				events += [parent.create_event(Enums.EventType.EventType_BlockMovement, my_id, 0)]
+				return events
 
-		var other_player = parent._get_player(parent.get_other_player(my_id))
-		var other_player_loc = other_player.arena_location
-		var movement_shortened = false
-		var blocked_by_buddy = false
-		if cannot_move_past_opponent_buddy_id:
-			var other_buddy_loc = other_player.get_buddy_location(cannot_move_past_opponent_buddy_id)
-			if arena_location < other_buddy_loc and new_arena_location >= other_buddy_loc:
-				new_arena_location = other_buddy_loc - 1
-				movement_shortened = true
-				blocked_by_buddy = true
-			if arena_location > other_buddy_loc and new_arena_location <= other_buddy_loc:
-				new_arena_location = other_buddy_loc + 1
-				movement_shortened = true
-				blocked_by_buddy = true
-		if cannot_move_past_opponent:
-			if arena_location < other_player_loc and new_arena_location >= other_player_loc:
-				new_arena_location = other_player_loc - 1
-				movement_shortened = true
-			if arena_location > other_player_loc and new_arena_location <= other_player_loc:
-				new_arena_location = other_player_loc + 1
-				movement_shortened = true
-		if movement_shortened:
-			if blocked_by_buddy:
-				var other_buddy_name = other_player.get_buddy_name(cannot_move_past_opponent_buddy_id)
-				parent._append_log_full(Enums.LogType.LogType_CharacterMovement, self, "cannot move past %s's %s!" % [other_player.name, other_buddy_name])
-			else:
-				parent._append_log_full(Enums.LogType.LogType_CharacterMovement, self, "cannot move past %s!" % other_player.name)
+			var other_player = parent._get_player(parent.get_other_player(my_id))
+			var other_player_loc = other_player.arena_location
+			var movement_shortened = false
+			var blocked_by_buddy = false
+			if cannot_move_past_opponent_buddy_id:
+				var other_buddy_loc = other_player.get_buddy_location(cannot_move_past_opponent_buddy_id)
+				if arena_location < other_buddy_loc and new_arena_location >= other_buddy_loc:
+					new_arena_location = other_buddy_loc - 1
+					movement_shortened = true
+					blocked_by_buddy = true
+				if arena_location > other_buddy_loc and new_arena_location <= other_buddy_loc:
+					new_arena_location = other_buddy_loc + 1
+					movement_shortened = true
+					blocked_by_buddy = true
+			if cannot_move_past_opponent:
+				if arena_location < other_player_loc and new_arena_location >= other_player_loc:
+					new_arena_location = other_player_loc - 1
+					movement_shortened = true
+				if arena_location > other_player_loc and new_arena_location <= other_player_loc:
+					new_arena_location = other_player_loc + 1
+					movement_shortened = true
+			if movement_shortened:
+				if blocked_by_buddy:
+					var other_buddy_name = other_player.get_buddy_name(cannot_move_past_opponent_buddy_id)
+					parent._append_log_full(Enums.LogType.LogType_CharacterMovement, self, "cannot move past %s's %s!" % [other_player.name, other_buddy_name])
+				else:
+					parent._append_log_full(Enums.LogType.LogType_CharacterMovement, self, "cannot move past %s!" % other_player.name)
 
 		var previous_location = arena_location
 		var distance = abs(arena_location - new_arena_location)
@@ -1943,8 +1947,9 @@ class Player:
 		arena_location = new_arena_location
 		events += [parent.create_event(Enums.EventType.EventType_Move, my_id, new_arena_location, "move", distance, previous_location)]
 		if position_changed:
-			on_position_changed(previous_location, get_buddy_location(), true)
-			events += add_boosts_to_gauge_on_move()
+			on_position_changed(previous_location, get_buddy_location(), not ignore_restrictions)
+			if not ignore_restrictions:
+				events += add_boosts_to_gauge_on_move()
 
 		return events
 
@@ -2413,10 +2418,12 @@ func initialize_game(player_deck, opponent_deck, player_name : String, opponent_
 	var starting_player = _get_player(active_turn_player)
 	var second_player = _get_player(next_turn_player)
 	starting_player.arena_location = 3
+	starting_player.starting_location = 3
 	if starting_player.buddy_starting_offset != BuddyStartsOutOfArena:
 		var buddy_space = 3 + starting_player.buddy_starting_offset
 		event_queue += starting_player.place_buddy(buddy_space, starting_player.buddy_starting_id, true)
 	second_player.arena_location = 7
+	second_player.starting_location = 7
 	if second_player.buddy_starting_offset != BuddyStartsOutOfArena:
 		var buddy_space = 7 - second_player.buddy_starting_offset
 		event_queue += second_player.place_buddy(buddy_space, second_player.buddy_starting_id, true)
@@ -2908,6 +2915,8 @@ func is_effect_condition_met(performing_player : Player, effect, local_condition
 			return local_conditions.pulled_past
 		elif condition == "exceeded":
 			return performing_player.exceeded
+		elif condition == "not_exceeded":
+			return not performing_player.exceeded
 		elif condition == "max_cards_in_hand":
 			var amount = effect['condition_amount']
 			return performing_player.hand.size() <= amount
@@ -4521,6 +4530,10 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 					add_remaining_effect(repeat_effect)
 				if not first_not_automatic:
 					events += handle_strike_effect(card_id, linked_effect, performing_player)
+		"reset_character_positions":
+			events += performing_player.move_to(performing_player.starting_location, true)
+			events += opposing_player.move_to(opposing_player.starting_location, true)
+			_append_log_full(Enums.LogType.LogType_CharacterMovement, null, "Both players return to their starting positions!")
 		"return_all_cards_gauge_to_hand":
 			var card_names = ""
 			for card in performing_player.gauge:
@@ -4680,6 +4693,16 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 			else:
 				# Nothing else implemented.
 				assert(false)
+		"set_life_per_gauge":
+			var gauge = len(performing_player.gauge)
+			var amount_per_gauge = effect['amount']
+			var maximum = MaxLife
+			if 'maximum' in effect:
+				maximum = effect['maximum']
+			var amount = gauge * amount_per_gauge
+			performing_player.life = min(maximum, amount)
+			events += [create_event(Enums.EventType.EventType_Strike_GainLife, performing_player.my_id, amount, "", performing_player.life)]
+			_append_log_full(Enums.LogType.LogType_Health, performing_player, "gains %s life, bringing them to %s!" % [str(amount), str(performing_player.life)])
 		"shuffle_into_deck_from_hand":
 			if len(performing_player.hand) > 0:
 				change_game_state(Enums.GameState.GameState_PlayerDecision)
@@ -4744,7 +4767,7 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 			_append_log_full(Enums.LogType.LogType_Health, performing_player, "spends %s life, bringing them to %s!" % [str(amount), str(performing_player.life)])
 			if performing_player.life <= 0:
 				_append_log_full(Enums.LogType.LogType_Default, performing_player, "has no life remaining!")
-				events += trigger_game_over(performing_player.my_id, Enums.GameOverReason.GameOverReason_Life)
+				events += on_death(performing_player)
 		"strike":
 			change_game_state(Enums.GameState.GameState_WaitForStrike)
 			decision_info.clear()
@@ -5655,7 +5678,15 @@ func apply_damage(offense_player : Player, defense_player : Player):
 
 	if defense_player.life <= 0:
 		_append_log_full(Enums.LogType.LogType_Default, defense_player, "has no life remaining!")
-		events += trigger_game_over(defense_player.my_id, Enums.GameOverReason.GameOverReason_Life)
+		events += on_death(defense_player)
+	return events
+
+func on_death(performing_player):
+	var events = []
+	if 'on_death' in performing_player.deck_def:
+		events += do_effect_if_condition_met(performing_player, -1, performing_player.deck_def['on_death'], null)
+	if performing_player.life <= 0:
+		events += trigger_game_over(performing_player.my_id, Enums.GameOverReason.GameOverReason_Life)
 	return events
 
 func get_gauge_cost(performing_player, card):
