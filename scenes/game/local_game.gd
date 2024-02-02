@@ -1123,25 +1123,31 @@ class Player:
 				return card.id
 		return -1
 
-	func is_in_location(check_location : int):
-		var left_check = check_location <= arena_location+width
-		var right_check = check_location >= arena_location-width
+	func is_in_location(check_location : int, self_location : int = arena_location):
+		var left_check = check_location <= self_location+width
+		var right_check = check_location >= self_location-width
 		return left_check and right_check
 
-	func is_left_of_location(check_location : int):
-		return arena_location + width < check_location
+	func is_left_of_location(check_location : int, self_location : int = arena_location):
+		return self_location + width < check_location
 
-	func is_right_of_location(check_location : int):
-		return arena_location - width > check_location
+	func is_right_of_location(check_location : int, self_location : int = arena_location):
+		return self_location - width > check_location
 
-	func is_in_range_from_location(check_location : int, min_range : int, max_range : int):
+	func is_in_or_left_of_location(check_location : int, self_location : int = arena_location):
+		return is_in_location(check_location, self_location) or is_left_of_location(check_location, self_location)
+
+	func is_in_or_right_of_location(check_location : int, self_location : int = arena_location):
+		return is_in_location(check_location, self_location) or is_right_of_location(check_location, self_location)
+
+	func is_in_range_of_location(check_location : int, min_range : int, max_range : int):
 		for check_space in range(arena_location - width, arena_location + width + 1):
 			var distance = abs(check_space - check_location)
 			if min_range <= distance and distance <= max_range:
 				return true
 		return false
 
-	func get_distance_to_opponent():
+	func distance_to_opponent():
 		var other_player = parent._get_player(parent.get_other_player(my_id))
 		var other_location = other_player.arena_location
 		var other_width = other_player.width
@@ -1150,11 +1156,27 @@ class Player:
 		else:
 			return (arena_location-width) + (other_location+other_width)
 
-	func would_overlap_opponent_at_location(check_opponent_location : int):
+	func movement_distance_between(initial_location : int, target_location : int):
+		var other_player = parent._get_player(parent.get_other_player(my_id))
+		var other_location = other_player.arena_location
+		var other_width = other_player.width
+
+		var distance = abs(initial_location - target_location)
+		if (initial_location < other_location and other_location < target_location) or (initial_location > other_location and other_location > target_location):
+			distance -= 1 + (2 * width) + (2 * other_width)
+		return distance
+
+	func is_overlapping_opponent(check_location : int = -1, check_opponent_location : int = -1):
 		var other_player = parent._get_player(parent.get_other_player(my_id))
 		var other_width = other_player.width
-		var left_check = (check_opponent_location-other_width) <= (arena_location+width)
-		var right_check = (check_opponent_location+other_width) >= (arena_location-width)
+
+		if check_location == -1:
+			check_location = arena_location
+		if check_opponent_location == -1:
+			check_opponent_location = other_player.arena_location
+
+		var left_check = (check_opponent_location-other_width) <= (check_location+width)
+		var right_check = (check_opponent_location+other_width) >= (check_location-width)
 		return left_check and right_check
 
 	func get_buddy_name(buddy_id : String = ""):
@@ -1177,7 +1199,7 @@ class Player:
 		var pos1 = arena_location
 		var pos2 = get_buddy_location(buddy_id)
 		var other_pos = other_player.arena_location
-		if include_buddy_space and pos2 == other_pos: # On buddy
+		if include_buddy_space and other_player.is_in_location(pos2): # On buddy
 			return true
 		if pos1 < pos2: # Buddy is on the right
 			return other_pos > pos1 and other_pos < pos2
@@ -1805,9 +1827,11 @@ class Player:
 	func can_move_to(new_arena_location, ignore_force_req : bool):
 		if cannot_move: return false
 		if new_arena_location == arena_location: return false
+		if (new_arena_location-width < MinArenaLocation) or (new_arena_location+width > MaxArenaLocation): return false
+
 		var other_player = parent._get_player(parent.get_other_player(my_id))
 		var other_player_loc = other_player.arena_location
-		if  other_player_loc == new_arena_location: return false
+		if is_overlapping_opponent(new_arena_location): return false
 		if cannot_move_past_opponent:
 			if arena_location < other_player_loc and new_arena_location > other_player_loc:
 				return false
@@ -1815,19 +1839,16 @@ class Player:
 				return false
 		if cannot_move_past_opponent_buddy_id:
 			var other_buddy_loc = other_player.get_buddy_location(cannot_move_past_opponent_buddy_id)
-			if arena_location < other_buddy_loc and new_arena_location >= other_buddy_loc:
+			if is_left_of_location(other_buddy_loc) and is_in_or_right_of_location(other_buddy_loc, new_arena_location):
 				return false
-			if arena_location > other_buddy_loc and new_arena_location <= other_buddy_loc:
+			if is_right_of_location(other_buddy_loc) and is_in_or_left_of_location(other_buddy_loc, new_arena_location):
 				return false
 		if ignore_force_req:
 			return true
 
-		var distance = abs(arena_location - new_arena_location)
+		var distance = movement_distance_between(arena_location, new_arena_location)
 		var required_force = get_force_to_move_to(new_arena_location)
-		var distance_for_movement_limit_calculation = distance
-		if is_other_player_between_locations(arena_location, new_arena_location):
-			distance_for_movement_limit_calculation -= 1
-		if distance_for_movement_limit_calculation > movement_limit:
+		if distance > movement_limit:
 			return false
 		return required_force <= get_available_force()
 
@@ -1843,31 +1864,26 @@ class Player:
 
 	func get_force_to_move_to(new_arena_location):
 		var other_player_loc = parent._get_player(parent.get_other_player(my_id)).arena_location
-		var required_force = abs(arena_location - new_arena_location)
+		var required_force = movement_distance_between(arena_location, new_arena_location)
 		if ((arena_location < other_player_loc and new_arena_location > other_player_loc)
 			or (new_arena_location < other_player_loc and arena_location > other_player_loc)):
-			# No additional force needed because of abs calculation.
-			#required_force += 1
-			pass
+			# movement_distance_between ignores the opponent's space(s)
+			required_force += 1
 		return required_force
 
 	func on_position_changed(old_pos, buddy_old_pos, is_self_move):
 		if is_self_move and parent.active_strike:
 			moved_self_this_strike = true
-			var spaces_moved = abs(arena_location - old_pos)
-
-			# the opponent's space doesn't count
-			var other_player_loc = parent._get_player(parent.get_other_player(my_id)).arena_location
-			if (old_pos < other_player_loc and arena_location > other_player_loc) or (old_pos > other_player_loc and arena_location < other_player_loc):
-				spaces_moved -= 1
+			var spaces_moved = movement_distance_between(old_pos, arena_location)
 			assert(spaces_moved > 0)
 			spaces_moved_this_strike += spaces_moved
 
-		if arena_location == get_buddy_location():
-			if old_pos != buddy_old_pos:
+		var buddy_location = get_buddy_location()
+		if is_in_location(buddy_location):
+			if not is_in_location(buddy_old_pos, old_pos):
 				handle_on_buddy_boosts(true)
 		else:
-			if old_pos == buddy_old_pos:
+			if is_in_location(buddy_old_pos, old_pos):
 				handle_on_buddy_boosts(false)
 
 	func move_in_direction_by_amount(go_left : bool, amount : int, stop_at_opponent : bool, stop_on_space : int, movement_type : String, is_self_move : bool = true):
@@ -1895,23 +1911,32 @@ class Player:
 		var distance = 0
 		for i in range(amount):
 			var target_location = new_location + direction
-			if cannot_move_past_opponent_buddy_id:
+			if is_self_move and cannot_move_past_opponent_buddy_id:
 				var other_buddy_loc = other_player.get_buddy_location(cannot_move_past_opponent_buddy_id)
-				if target_location == other_buddy_loc:
+				if is_in_location(other_buddy_loc, target_location):
 					movement_shortened = true
 					blocked_by_buddy = true
 					break
 
-			if target_location == other_player_loc:
+			if is_overlapping_opponent(target_location):
 				if stop_at_opponent:
 					break
-				elif cannot_move_past_opponent:
+				elif is_self_move and cannot_move_past_opponent:
 					movement_shortened = true
 					break
 				else:
-					var test_location = clamp(target_location+direction, MinArenaLocation, MaxArenaLocation)
-					if test_location == target_location:
-						# opponent is in front of the wall
+					var test_location = clamp(target_location+direction, MinArenaLocation+width, MaxArenaLocation-width)
+					var no_open_space = false
+					while is_overlapping_opponent(test_location):
+						var updated_test_location = clamp(test_location+direction, MinArenaLocation+width, MaxArenaLocation-width)
+						if test_location == updated_test_location:
+							# opponent is in front of wall
+							no_open_space = true
+							break
+						test_location = updated_test_location
+					if no_open_space:
+						# no more space to move in this direction
+						target_location -= direction
 						break
 					else:
 						target_location = test_location
@@ -1925,8 +1950,10 @@ class Player:
 				new_location = stop_on_space
 				break
 
-			new_location = clamp(target_location, MinArenaLocation, MaxArenaLocation)
-			distance += 1
+			var updated_new_location = clamp(target_location, MinArenaLocation+width, MaxArenaLocation-width)
+			if new_location != updated_new_location:
+				distance += 1
+			new_location = updated_new_location
 
 		if movement_shortened:
 			if blocked_by_buddy:
