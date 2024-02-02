@@ -75,6 +75,7 @@
 					"and": {
 						"effect_type": "speedup",
 						"amount": 1,
+						"suppress_and_description": true,
 						"and": {
 							"NOTE": "Overdrive Effect",
 							"effect_type": "choice",

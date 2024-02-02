@@ -1,0 +1,7 @@
+[gd_resource type="AtlasTexture" load_steps=2 format=3 uid="uid://c11ikrhbr364g"]
+
+[ext_resource type="Texture2D" uid="uid://ndwtg6dc71gi" path="res://assets/cards/chaos/normals.jpg" id="1_svg05"]
+
+[resource]
+atlas = ExtResource("1_svg05")
+region = Rect2(0, 1024, 750, 1024)

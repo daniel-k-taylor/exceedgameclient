@@ -1975,6 +1975,369 @@
 	},
 
 	{
+		"NOTE": "CHAOS CARDS START",
+		"id": "chaos_dissectbarrage",
+		"type": "ultra",
+		"display_name": "Dissect Barrage",
+		"force_cost": 0,
+		"gauge_cost": 2,
+		"range_min": 1,
+		"range_max": 2,
+		"speed": 5,
+		"power": 5,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "after",
+				"condition": "buddy_in_play",
+				"condition_detail": "Azhi (card)",
+				"effect_type": "move_to_buddy",
+				"buddy_name": "card"
+			}
+		],
+		"boost": {
+			"boost_type": "immediate",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Aerial Leap",
+			"effects": [
+				{
+					"timing": "immediate",
+					"effect_type": "advance",
+					"amount": 4,
+					"bonus_effect": {
+						"condition": "advanced_through",
+						"effect_type": "choice",
+						"choice": [
+							{ "effect_type": "strike" },
+							{ "effect_type": "pass" }
+						]
+					}
+				}
+			]
+		}
+	},
+	{
+		"id": "chaos_deeprevenance",
+		"type": "ultra",
+		"display_name": "Deep Revenance",
+		"force_cost": 0,
+		"gauge_cost": 4,
+		"range_min": 4,
+		"range_max": 4,
+		"speed": 2,
+		"power": 10,
+		"armor": 2,
+		"guard": 5,
+		"effects": [
+			{
+				"timing": "during_strike",
+				"condition": "used_character_bonus",
+				"effect_type": "calculate_range_from_buddy",
+				"buddy_name": "card",
+				"character_effect": true
+			},
+			{
+				"timing": "after",
+				"effect_type": "draw_to",
+				"amount": 7
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 1,
+			"cancel_cost": -1,
+			"display_name": "Chaos Code",
+			"effects": [
+				{
+					"timing": "now",
+					"effect_type": "strike"
+				},
+				{
+					"timing": "set_strike",
+					"effect_type": "place_buddy_in_any_space",
+					"buddy_name": "your attack"
+				},
+				{
+					"timing": "during_strike",
+					"condition": "is_normal_attack",
+					"effect_type": "calculate_range_from_buddy",
+					"buddy_name": "card"
+				}
+			]
+		}
+	},
+	{
+		"id": "chaos_coldreflection",
+		"type": "special",
+		"display_name": "Cold Reflection",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 2,
+		"speed": 4,
+		"power": 2,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "during_strike",
+				"condition": "used_character_bonus",
+				"effect_type": "calculate_range_from_buddy",
+				"buddy_name": "card",
+				"character_effect": true
+			},
+			{
+				"timing": "during_strike",
+				"condition": "not_buddy_in_play",
+				"effect_type": "speedup",
+				"amount": 2
+			},
+			{
+				"timing": "hit",
+				"effect_type": "push",
+				"amount": 3
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Lie In Wait",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "guardup",
+					"amount": 3
+				},
+				{
+					"timing": "discarded",
+					"effect_type": "draw",
+					"amount": 2
+				},
+			]
+		}
+	},
+	{
+		"id": "chaos_spewout",
+		"type": "special",
+		"display_name": "Spew Out",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 2,
+		"range_max": 3,
+		"speed": 3,
+		"power": 4,
+		"armor": 0,
+		"guard": 4,
+		"effects": [
+			{
+				"timing": "during_strike",
+				"condition": "used_character_bonus",
+				"effect_type": "calculate_range_from_buddy",
+				"buddy_name": "card",
+				"character_effect": true
+			},
+			{
+				"timing": "after",
+				"effect_type": "choice",
+				"choice": [
+					{ "effect_type": "advance", "amount": 1 },
+					{ "effect_type": "retreat", "amount": 1 }
+				]
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Tactical",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "speedup",
+					"amount": 1
+				},
+				{
+					"timing": "now",
+					"effect_type": "choice",
+					"choice": [
+						{ "effect_type": "advance", "amount": 1 },
+						{ "effect_type": "retreat", "amount": 1 }
+					]
+				}
+			]
+		}
+	},
+	{
+		"id": "chaos_repel",
+		"type": "special",
+		"display_name": "Repel",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 0,
+		"range_max": 0,
+		"speed": 3,
+		"power": 5,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "during_strike",
+				"condition": "used_character_bonus",
+				"effect_type": "calculate_range_from_buddy",
+				"buddy_name": "card",
+				"character_effect": true
+			},
+			{
+				"timing": "during_strike",
+				"condition": "buddy_in_play",
+				"effect_type": "opponent_cant_move_past_buddy",
+				"buddy_name": "card"
+			},
+			{
+				"timing": "hit",
+				"effect_type": "push",
+				"amount": 2
+			},
+			{
+				"timing": "cleanup",
+				"condition": "buddy_in_play",
+				"effect_type": "remove_opponent_cant_move_past_buddy",
+				"buddy_name": "card"
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Compounding Plots",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "powerup",
+					"amount": 1
+				},
+				{
+					"timing": "now",
+					"effect_type": "bonus_action"
+				}
+			]
+		}
+	},
+	{
+		"id": "chaos_conceal",
+		"type": "special",
+		"display_name": "Conceal",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 2,
+		"speed": 2,
+		"power": 5,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "during_strike",
+				"condition": "used_character_bonus",
+				"effect_type": "calculate_range_from_buddy",
+				"buddy_name": "card",
+				"character_effect": true
+			},
+			{
+				"timing": "during_strike",
+				"effect_type": "higher_speed_misses",
+				"dodge_at_speed_greater_or_equal": 5
+			},
+			{
+				"timing": "after",
+				"effect_type": "retreat",
+				"amount": 1
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 2,
+			"cancel_cost": -1,
+			"display_name": "Checkmate",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "powerup",
+					"amount": 4
+				},
+				{
+					"timing": "now",
+					"effect_type": "discard_to",
+					"amount": 1
+				},
+				{
+					"timing": "now",
+					"effect_type": "strike"
+				}
+			]
+		}
+	},
+	{
+		"NOTE": "CHAOS CARDS END",
+		"id": "chaos_thatsyourprey",
+		"type": "special",
+		"display_name": "That's Your Prey",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 0,
+		"range_max": 1,
+		"speed": 1,
+		"power": 5,
+		"armor": 0,
+		"guard": 5,
+		"effects": [
+			{
+				"timing": "during_strike",
+				"condition": "used_character_bonus",
+				"effect_type": "calculate_range_from_buddy",
+				"buddy_name": "card",
+				"character_effect": true
+			},
+			{
+				"timing": "during_strike",
+				"condition": "not_buddy_in_play",
+				"effect_type": "armorup",
+				"amount": 2
+			},
+			{
+				"timing": "hit",
+				"condition": "buddy_in_opponent_space",
+				"condition_detail": "card",
+				"effect_type": "powerup",
+				"amount": 2
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 1,
+			"cancel_cost": -1,
+			"display_name": "Umbral",
+			"effects": [
+				{
+					"timing": "now",
+					"effect_type": "bonus_action"
+				},
+				{
+					"timing": "after",
+					"condition": "buddy_in_play",
+					"condition_detail": "Azhi (card)",
+					"effect_type": "move_to_buddy",
+					"buddy_name": "card"
+				}
+			]
+		},
+		"NOTEEND": "CHAOS CARDS END"
+	},
+
+	{
 		"NOTE": "CHIPP CARDS START",
 		"id": "chipp_zanseirouga",
 		"type": "ultra",
