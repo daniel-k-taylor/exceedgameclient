@@ -77,8 +77,10 @@ func set_facing(to_left : bool):
 	if animation.sprite_frames.has_meta("flip") and animation.sprite_frames.get_meta("flip"):
 		animation.flip_h = not animation.flip_h
 
-func set_exceed(is_exceed : bool):
+func set_exceed(is_exceed : bool, new_animation : String = ""):
 	exceed_icon.visible = is_exceed
+	if new_animation:
+		load_character(new_animation)
 
 func get_size():
 	return animation.sprite_frames.get_frame_texture("idle", 0).get_size()

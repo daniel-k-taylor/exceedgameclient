@@ -1474,12 +1474,20 @@ func _on_draw_event(event):
 func _on_exceed_event(event):
 	var player = event['event_player']
 	if player == Enums.PlayerId.PlayerId_Player:
-		$PlayerCharacter.set_exceed(true)
+		if 'exceed_animation' in player_deck:
+			$PlayerCharacter.set_exceed(true, player_deck['exceed_animation'])
+			move_character_to_arena_square($PlayerCharacter, game_wrapper.get_player_location(Enums.PlayerId.PlayerId_Player), true, Character.CharacterAnim.CharacterAnim_None)
+		else:
+			$PlayerCharacter.set_exceed(true)
 		player_character_card.exceed(true)
 		player_buddy_character_card.exceed(true)
 
 	else:
-		$OpponentCharacter.set_exceed(true)
+		if 'exceed_animation' in player_deck:
+			$OpponentCharacter.set_exceed(true, opponent_deck['exceed_animation'])
+			move_character_to_arena_square($OpponentCharacter, game_wrapper.get_player_location(Enums.PlayerId.PlayerId_Opponent), true, Character.CharacterAnim.CharacterAnim_None)
+		else:
+			$OpponentCharacter.set_exceed(true)
 		opponent_character_card.exceed(true)
 		opponent_buddy_character_card.exceed(true)
 
@@ -1489,12 +1497,20 @@ func _on_exceed_event(event):
 func _on_exceed_revert_event(event):
 	var player = event['event_player']
 	if player == Enums.PlayerId.PlayerId_Player:
-		$PlayerCharacter.set_exceed(false)
+		if 'exceed_animation' in player_deck:
+			$PlayerCharacter.set_exceed(true, player_deck['id'])
+			move_character_to_arena_square($PlayerCharacter, game_wrapper.get_player_location(Enums.PlayerId.PlayerId_Player), true, Character.CharacterAnim.CharacterAnim_None)
+		else:
+			$PlayerCharacter.set_exceed(false)
 		player_character_card.exceed(false)
 		player_buddy_character_card.exceed(false)
 
 	else:
-		$OpponentCharacter.set_exceed(false)
+		if 'exceed_animation' in player_deck:
+			$OpponentCharacter.set_exceed(true, opponent_deck['id'])
+			move_character_to_arena_square($OpponentCharacter, game_wrapper.get_player_location(Enums.PlayerId.PlayerId_Opponent), true, Character.CharacterAnim.CharacterAnim_None)
+		else:
+			$OpponentCharacter.set_exceed(false)
 		opponent_character_card.exceed(false)
 		opponent_buddy_character_card.exceed(false)
 

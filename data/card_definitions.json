@@ -16439,6 +16439,361 @@
 		"NOTEEND": "TAOKAKA CARDS END"
 	},
 
+	{
+		"NOTE": "TINKER CARDS START",
+		"id": "tinker_mechcharge",
+		"type": "ultra",
+		"display_name": "Castle Crasher",
+		"force_cost": 0,
+		"gauge_cost": 3,
+		"range_min": 3,
+		"range_max": 5,
+		"speed": 3,
+		"power": 5,
+		"armor": 3,
+		"guard": 4,
+		"effects": [
+			{
+				"timing": "during_strike",
+				"effect_type": "ignore_armor"
+			},
+			{
+				"timing": "hit",
+				"effect_type": "powerup",
+				"amount": 2
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 4,
+			"cancel_cost": -1,
+			"display_name": "Serum Supernus",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "powerup",
+					"amount": 2,
+					"and": {
+						"effect_type": "speedup",
+						"amount": 2,
+						"and": {
+							"effect_type": "armorup",
+							"amount": 2
+						}
+					}
+				},
+				{
+					"timing": "now",
+					"effect_type": "strike"
+				}
+			]
+		}
+	},
+	{
+		"id": "tinker_bombbounce",
+		"type": "ultra",
+		"display_name": "Triple Dose",
+		"force_cost": 0,
+		"gauge_cost": 3,
+		"range_min": 1,
+		"range_max": 3,
+		"speed": 1,
+		"power": 5,
+		"armor": 0,
+		"guard": 6,
+		"effects": [
+			{
+				"timing": "during_strike",
+				"effect_type": "extra_trigger_resolutions",
+				"amount": 2
+			},
+			{
+				"timing": "after",
+				"effect_type": "draw",
+				"amount": 1
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Berserker's Brew",
+			"effects": [
+				{
+					"timing": "now",
+					"effect_type": "force_for_effect",
+					"per_force_effect": {
+						"effect_type": "increase_force_spent_before_strike",
+						"linked_effect": {
+							"timing": "during_strike",
+							"effect_type": "powerup",
+							"amount": 1
+						}
+					},
+					"overall_effect": null,
+					"force_max": 3
+				},
+				{
+					"timing": "now",
+					"effect_type": "strike"
+				},
+				{
+					"timing": "during_strike",
+					"effect_type": "set_strike_x",
+					"source": "force_spent_before_strike",
+					"and":
+					{
+						"effect_type": "powerup",
+						"amount": "strike_x"
+					}
+				}
+			]
+		}
+	},
+	{
+		"id": "tinker_flail",
+		"type": "special",
+		"display_name": "Perfect Pitch",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 2,
+		"range_max": 2,
+		"speed": 7,
+		"power": 3,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "hit",
+				"effect_type": "draw",
+				"amount": 1,
+				"and": {
+					"effect_type": "opponent_discard_random",
+					"amount": 1
+				}
+			}
+		],
+		"boost": {
+			"boost_type": "immediate",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Bomb Burst",
+			"effects": [
+				{
+					"timing": "immediate",
+					"effect_type": "choice",
+					"choice": [
+						{ "effect_type": "advance", "amount": 3 },
+						{ "effect_type": "retreat", "amount": 3 }
+					]
+				}
+			]
+		}
+	},
+	{
+		"id": "tinker_mobilegear",
+		"type": "special",
+		"display_name": "Staff of Surging",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 1,
+		"speed": 6,
+		"power": 2,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "during_strike",
+				"effect_type": "ignore_guard"
+			},
+			{
+				"timing": "after",
+				"condition": "opponent_stunned",
+				"effect_type": "draw",
+				"amount": 2
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Frantic Research",
+			"effects": [
+				{
+					"timing": "now",
+					"effect_type": "draw",
+					"amount": 2,
+					"and": {
+						"effect_type": "strike"
+					}
+				},
+				{
+					"timing": "after",
+					"effect_type": "draw",
+					"amount": 2
+				}
+			]
+		}
+	},
+	{
+		"id": "tinker_wrenchtoss",
+		"type": "special",
+		"display_name": "Long Pitch",
+		"force_cost": 1,
+		"gauge_cost": 0,
+		"range_min": 3,
+		"range_max": 5,
+		"speed": 5,
+		"power": 3,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "hit",
+				"effect_type": "force_for_effect",
+				"per_force_effect": null,
+				"overall_effect": {
+					"effect_type": "powerup",
+					"amount": 2
+				},
+				"force_max": 1
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 1,
+			"cancel_cost": -1,
+			"display_name": "Unexpected Results",
+			"effects": [
+				{
+					"timing": "now",
+					"effect_type": "choice",
+					"choice": [
+						{ "effect_type": "advance", "amount": 2 },
+						{ "effect_type": "retreat", "amount": 2 }
+					]
+				},
+				{
+					"timing": "hit",
+					"condition": "top_deck_is_normal_attack",
+					"effect_type": "add_top_deck_to_gauge",
+					"negative_condition_effect": {
+						"is_negative_effect": true,
+						"effect_type": "powerup",
+						"amount": 2,
+						"and": {
+							"effect_type": "discard_topdeck"
+						}
+					}
+				}
+			]
+		}
+	},
+	{
+		"id": "tinker_drillarm",
+		"type": "special",
+		"display_name": "Chain Reaction",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 3,
+		"speed": 5,
+		"power": 4,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "after",
+				"effect_type": "draw_to",
+				"amount": 4
+			}
+		],
+		"boost": {
+			"boost_type": "immediate",
+			"force_cost": 1,
+			"cancel_cost": -1,
+			"display_name": "Bait Bomb",
+			"effects": [
+				{
+					"timing": "immediate",
+					"effect_type": "choose_cards_from_top_deck",
+					"look_amount": 3,
+					"action_choices": [
+						"add_to_hand",
+						"add_to_gauge"
+					],
+					"can_pass": false,
+					"destination_unchosen": "topdeck"
+				},
+				{
+					"timing": "immediate",
+					"NOTE": "do the one that wasn't chosen",
+
+					"condition": "choose_cards_from_top_deck_action",
+					"condition_details": "add_to_hand",
+					"effect_type": "choose_cards_from_top_deck",
+					"look_amount": 2,
+					"action_choices": [
+						"add_to_gauge"
+					],
+					"can_pass": false,
+					"destination_unchosen": "topdeck",
+
+					"negative_condition_effect": {
+						"is_negative_effect": true,
+						"condition": "choose_cards_from_top_deck_action",
+						"condition_details": "add_to_hand",
+						"effect_type": "choose_cards_from_top_deck",
+						"look_amount": 2,
+						"action_choices": [
+							"add_to_hand"
+						],
+						"can_pass": false,
+						"destination_unchosen": "topdeck"
+					}
+				}
+			]
+		}
+	},
+	{
+		"NOTE": "TINKER CARDS END",
+		"id": "tinker_missiles",
+		"type": "special",
+		"display_name": "Giant Bomb",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 3,
+		"speed": 2,
+		"power": 6,
+		"armor": 0,
+		"guard": 6,
+		"effects": [
+			{
+				"timing": "after",
+				"effect_type": "choice",
+				"choice": [
+					{ "effect_type": "advance", "amount": 1 },
+					{ "effect_type": "retreat", "amount": 1 }
+				]
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Tonic",
+			"effects": [
+				{
+					"timing": "hit",
+					"effect_type": "copy_other_hit_effect"
+				}
+			]
+		},
+		"NOTEEND": "TINKER CARDS END"
+	},
+
 
 	{
 		"NOTE": "YUZURIHA CARDS START",
