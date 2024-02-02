@@ -9339,6 +9339,10 @@
 						"amount": 3	
 					}
 				},
+				{
+					"timing": "now"
+					"effect_type": "bonus_action"
+				}
 			]
 		}
 	},
@@ -9377,7 +9381,7 @@
 					"amount": 3,
 					"and": {
 						"effect_type": "bonus_action"
-						}
+					}
 				},
 			]
 		}
@@ -9417,7 +9421,7 @@
 					"amount": 3
 				},
 				{
-					"timing": "immediate",
+					"timing": "now",
 					"effect_type": "bonus_action"
 				},
 				{
@@ -9537,13 +9541,14 @@
 				"condition": "opponent_stunned",
 				"effect_type": "choice",
 				"choice": [
-					{ "effect_type": "advance", "amount": 2 },
-					{ "effect_type": "retreat", "amount": 2 }
-				],
-				"and": {
-					"effect_type": "draw",
-					"amount": 2
-				}
+					{ 
+						"effect_type": "advance", "amount": 2 , "and": { "effect_type": "draw", "amount": 2 }
+					},
+					{ 
+						"effect_type": "retreat", "amount": 2 , "and": { "effect_type": "draw", "amount": 2 }
+					}
+				]
+						
 			},
 		],
 		"boost": {
@@ -9590,7 +9595,7 @@
 			}
 		],
 		"boost": {
-			"boost_type": "conitnuous",
+			"boost_type": "continuous",
 			"force_cost": 0,
 			"cancel_cost": -1,
 			"display_name": "Chain Shift",
