@@ -5,7 +5,8 @@
 	"cardback": "cardback_tinker.jpg",
 	"exceed_cost": -1,
 	"exceed_animation": "tinker_tank",
-	"starting_life": 2, "NOTE": "todo",
+	"starting_life": 15,
+	"wide_card": true, "NOTE": "todo, add make_wide effect",
 	"on_death": {
 		"condition": "not_exceeded",
 		"effect_type": "exceed_now",

@@ -63,6 +63,9 @@ func get_player_life(id):
 func get_player_location(id):
 	return _get_player(id).arena_location
 
+func get_player_width(id):
+	return _get_player(id).width
+
 func get_player_deck_definition(id):
 	return _get_player(id).deck_def
 

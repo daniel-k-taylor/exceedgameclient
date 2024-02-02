@@ -2756,9 +2756,11 @@ func update_boost_summary(boosts_card_holder, boost_box):
 func update_arena_squares():
 	for i in range(1, 10):
 		var square : ArenaSquare = arena_graphics.get_child(i - 1)
-		if i == cached_player_location:
+		var player_width = game_wrapper.get_player_width(Enums.PlayerId.PlayerId_Player)
+		var opponent_width = game_wrapper.get_player_width(Enums.PlayerId.PlayerId_Opponent)
+		if i >= cached_player_location-player_width and i <= cached_player_location+player_width:
 			square.set_self_occupied()
-		elif i == cached_opponent_location:
+		elif i >= cached_opponent_location-opponent_width and i <= cached_opponent_location+opponent_width:
 			square.set_enemy_occupied()
 		else:
 			square.set_empty()

@@ -480,6 +480,7 @@ class Player:
 	var on_buddy_boosts : Array
 	var starting_location : int
 	var arena_location : int
+	var width : int
 	var reshuffle_remaining : int
 	var exceeded : bool
 	var exceed_cost : int
@@ -544,6 +545,9 @@ class Player:
 		life = MaxLife
 		if 'starting_life' in deck_def:
 			life = deck_def['starting_life']
+		width = 0
+		if 'wide_card' in deck_def and deck_def['wide_card']:
+			width = 1
 		exceed_cost = deck_def['exceed_cost']
 		deck = []
 		deck_list = []
