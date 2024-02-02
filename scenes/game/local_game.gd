@@ -1688,7 +1688,7 @@ class Player:
 			if old_pos == buddy_old_pos:
 				handle_on_buddy_boosts(false)
 
-	func move_in_direction_by_amount(go_left : bool, amount : int, stop_at_opponent : bool, movement_type : String):
+	func move_in_direction_by_amount(go_left : bool, amount : int, stop_at_opponent : bool, stop_on_space : int, movement_type : String):
 		var events = []
 		var direction = -1 if go_left else 1
 
@@ -1703,6 +1703,7 @@ class Player:
 		var other_player_loc = other_player.arena_location
 		var movement_shortened = false
 		var blocked_by_buddy = false
+		var stopped_on_space = false
 		for i in range(amount):
 			var target_location = new_location + direction
 			if cannot_move_past_opponent_buddy_id:
@@ -1725,6 +1726,15 @@ class Player:
 						break
 					else:
 						target_location = test_location
+			elif target_location == stop_on_space and not i == amount-1:
+				# If stop_on_space is this location, the space is
+				# unoccupied (by virtue of not falling in the above if),
+				# and there are more spaces to go (i is not the last iteration),
+				# then stop the movement.
+				movement_shortened = true
+				stopped_on_space = true
+				new_location = stop_on_space
+				break
 
 			new_location = clamp(target_location, MinArenaLocation, MaxArenaLocation)
 
@@ -1732,6 +1742,8 @@ class Player:
 			if blocked_by_buddy:
 				var other_buddy_name = other_player.get_buddy_name(cannot_move_past_opponent_buddy_id)
 				parent._append_log_full(Enums.LogType.LogType_CharacterMovement, self, "cannot move past %s's %s!" % [other_player.name, other_buddy_name])
+			elif stopped_on_space:
+				parent._append_log_full(Enums.LogType.LogType_CharacterMovement, self, "forced to stop at %s by an effect!" % str(stop_on_space))
 			else:
 				parent._append_log_full(Enums.LogType.LogType_CharacterMovement, self, "cannot move past %s!" % other_player.name)
 
@@ -1801,9 +1813,9 @@ class Player:
 		amount = min(amount, movement_limit)
 		var other_location = parent._get_player(parent.get_other_player(my_id)).arena_location
 		if arena_location < other_location:
-			events += move_in_direction_by_amount(false, amount, true, "close")
+			events += move_in_direction_by_amount(false, amount, true, -1, "close")
 		else:
-			events += move_in_direction_by_amount(true, amount, true, "close")
+			events += move_in_direction_by_amount(true, amount, true, -1, "close")
 
 		return events
 
@@ -1813,9 +1825,9 @@ class Player:
 		amount = min(amount, movement_limit)
 		var other_location = parent._get_player(parent.get_other_player(my_id)).arena_location
 		if arena_location < other_location:
-			events += move_in_direction_by_amount(false, amount, false, "advance")
+			events += move_in_direction_by_amount(false, amount, false, stop_on_space, "advance")
 		else:
-			events += move_in_direction_by_amount(true, amount, false, "advance")
+			events += move_in_direction_by_amount(true, amount, false, stop_on_space, "advance")
 
 		return events
 
@@ -1825,9 +1837,9 @@ class Player:
 		amount = min(amount, movement_limit)
 		var other_location = parent._get_player(parent.get_other_player(my_id)).arena_location
 		if arena_location < other_location:
-			events += move_in_direction_by_amount(true, amount, false, "retreat")
+			events += move_in_direction_by_amount(true, amount, false, -1, "retreat")
 		else:
-			events += move_in_direction_by_amount(false, amount, false, "retreat")
+			events += move_in_direction_by_amount(false, amount, false, -1, "retreat")
 
 		return events
 
@@ -4488,9 +4500,10 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 				events += performing_player.discard(card_ids)
 				events += opposing_player.move_cards_to_overdrive(card_ids, "opponent_discard")
 			elif effect['destination'] == "play_attack":
-				assert(card_ids.size() == 1)
-				# Intentional events = because events are passed in.
-				events = begin_extra_attack(events, performing_player, card_ids[0])
+				# Can do 0 to pass.
+				if card_ids.size() == 1:
+					# Intentional events = because events are passed in.
+					events = begin_extra_attack(events, performing_player, card_ids[0])
 			else:
 				# Nothing else implemented.
 				assert(false)
@@ -5247,7 +5260,10 @@ func do_effects_for_timing(timing_name : String, performing_player : Player, car
 			active_strike.effects_resolved_in_timing += 1
 		else:
 			# Cleanup
-			active_strike.strike_state = next_state
+			if active_strike.extra_attack_in_progress:
+				active_strike.extra_attack_state = next_state
+			else:
+				active_strike.strike_state = next_state
 			active_strike.effects_resolved_in_timing = 0
 			break
 
@@ -5888,7 +5904,7 @@ func continue_extra_attack(events):
 		match active_strike.extra_attack_state:
 			ExtraAttackState.ExtraAttackState_PayCosts:
 				# Ask player to pay for this card if applicable.
-				events += ask_for_cost(active_strike.initiator, active_strike.initiator_card, ExtraAttackState.ExtraAttackState_DuringStrikeBonuses)
+				events += ask_for_cost(attacker_player, attacker_card, ExtraAttackState.ExtraAttackState_DuringStrikeBonuses)
 			ExtraAttackState.ExtraAttackState_DuringStrikeBonuses:
 				events += do_effects_for_timing("during_strike", attacker_player, attacker_card, ExtraAttackState.ExtraAttackState_Activation, true)
 			ExtraAttackState.ExtraAttackState_Activation:
@@ -6486,9 +6502,15 @@ func do_boost(performing_player : Player, card_id : int, payment_card_ids : Arra
 			assert(false)
 			return false
 
+	var card = card_db.get_card(card_id)
+	var force_cost = card.definition['boost']['force_cost']
+	if not performing_player.can_pay_cost_with(payment_card_ids, force_cost, 0):
+		printlog("ERROR: Tried to boost action but can't pay force cost with these cards.")
+		return false
+
 	if game_state == Enums.GameState.GameState_PickAction:
 		_append_log_full(Enums.LogType.LogType_Action, performing_player, "Turn Action: Boost")
-	_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "boosts %s." % _get_boost_and_card_name(card_db.get_card(card_id)))
+	_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "boosts %s." % _get_boost_and_card_name(card))
 	var events = []
 	if payment_card_ids.size() > 0:
 		var card_names = card_db.get_card_name(payment_card_ids[0])
@@ -6694,11 +6716,14 @@ func do_pay_strike_cost(performing_player : Player, card_ids : Array, wild_strik
 				card_names = "passive bonus"
 			_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "validates by discarding %s." % card_names)
 			events += performing_player.discard(card_ids)
-			match active_strike.strike_state:
-				StrikeState.StrikeState_Initiator_PayCosts:
-					active_strike.strike_state = StrikeState.StrikeState_Defender_PayCosts
-				StrikeState.StrikeState_Defender_PayCosts:
-					active_strike.strike_state = StrikeState.StrikeState_DuringStrikeBonuses
+			if active_strike.extra_attack_in_progress:
+				active_strike.extra_attack_state = ExtraAttackState.ExtraAttackState_DuringStrikeBonuses
+			else:
+				match active_strike.strike_state:
+					StrikeState.StrikeState_Initiator_PayCosts:
+						active_strike.strike_state = StrikeState.StrikeState_Defender_PayCosts
+					StrikeState.StrikeState_Defender_PayCosts:
+						active_strike.strike_state = StrikeState.StrikeState_DuringStrikeBonuses
 		else:
 			printlog("ERROR: Tried to pay costs but not correct cards.")
 			return false

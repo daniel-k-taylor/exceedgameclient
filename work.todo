@@ -1,3 +1,6 @@
+☐ Investigate if losing events because of events += when events is passed in
+    ☐ switch everything to append_array
+
 In progress:
     Kokonoe:
         ☐ "effect_type": "may_generate_gauge_with_force" @started(24-01-31 22:47)

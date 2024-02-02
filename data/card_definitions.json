@@ -2115,7 +2115,7 @@
 					"timing": "discarded",
 					"effect_type": "draw",
 					"amount": 2
-				},
+				}
 			]
 		}
 	},

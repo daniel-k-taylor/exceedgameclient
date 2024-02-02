@@ -95,8 +95,9 @@ func do_strike_response(player, card_id, ex_card = -1):
 	var events = game_logic.get_latest_events()
 	return events
 
-func advance_turn(player):
-	assert_true(game_logic.do_prepare(player))
+func advance_turn(player, do_prepare_action : bool = true):
+	if do_prepare_action:
+		assert_true(game_logic.do_prepare(player))
 	if player.hand.size() > 7:
 		var cards = []
 		var to_discard = player.hand.size() - 7
@@ -241,4 +242,376 @@ func test_kokonoe_absolute_zero_gravitron_strike():
 	validate_positions(player1, 3, player2, 6)
 	validate_life(player1, 30, player2, 25)
 	assert_eq(player1.hand.size(), 5)
+	advance_turn(player2)
+
+func test_kokonoe_solid_wheel_stop_early():
+	position_players(player1, 3, player2, 4)
+	player1.set_buddy_location("gravitron", 6)
+	# Start strike
+	give_player_specific_card(player1, "kokonoe_solidwheel", TestCardId1)
+	give_player_specific_card(player2, "standard_normal_sweep", TestCardId2)
+	assert_true(game_logic.do_strike(player1, TestCardId1, false, -1))
+	# Pay for Gravitron
+	assert_true(game_logic.do_force_for_effect(player1, [player1.hand[0].id], false, false))
+	# Opponent
+	assert_true(game_logic.do_strike(player2, TestCardId2, false, -1))
+	# 2 Before effects, wheel and grav, do grav first
+	assert_true(game_logic.do_choice(player1, 0))
+	# Then wheel happens.
+	validate_positions(player1, 6, player2, 5)
+	validate_life(player1, 24, player2, 26)
+	# Advantage
+	advance_turn(player1)
+	
+func test_kokonoe_solid_wheel_pass_because_opponent_on_it_and_miss():
+	position_players(player1, 3, player2, 4)
+	player1.set_buddy_location("gravitron", 5)
+	# Start strike
+	give_player_specific_card(player1, "kokonoe_solidwheel", TestCardId1)
+	give_player_specific_card(player2, "standard_normal_sweep", TestCardId2)
+	assert_true(game_logic.do_strike(player1, TestCardId1, false, -1))
+	# Pay for Gravitron
+	assert_true(game_logic.do_force_for_effect(player1, [player1.hand[0].id], false, false))
+	# Opponent
+	assert_true(game_logic.do_strike(player2, TestCardId2, false, -1))
+	# 2 Before effects, wheel and grav, do grav first
+	assert_true(game_logic.do_choice(player1, 0))
+	# Then wheel happens.
+	validate_positions(player1, 8, player2, 5)
+	validate_life(player1, 24, player2, 30)
+	# No Advantage
+	advance_turn(player2)
+	
+func test_kokonoe_solid_wheel_pass_because_opponent_on_it():
+	position_players(player1, 3, player2, 6)
+	player1.set_buddy_location("gravitron", 7)
+	# Start strike
+	give_player_specific_card(player1, "kokonoe_solidwheel", TestCardId1)
+	give_player_specific_card(player2, "standard_normal_sweep", TestCardId2)
+	assert_true(game_logic.do_strike(player1, TestCardId1, false, -1))
+	# Pay for Gravitron
+	assert_true(game_logic.do_force_for_effect(player1, [player1.hand[0].id], false, false))
+	# Opponent
+	assert_true(game_logic.do_strike(player2, TestCardId2, false, -1))
+	# 2 Before effects, wheel and grav, do grav first
+	assert_true(game_logic.do_choice(player1, 0))
+	# Then wheel happens.
+	validate_positions(player1, 8, player2, 7)
+	validate_life(player1, 24, player2, 26)
+	# No Advantage
+	advance_turn(player2)
+
+func test_kokonoe_flamecage_boost():
+	position_players(player1, 3, player2, 6)
+	give_player_specific_card(player1, "kokonoe_flamecage", TestCardId1)
+	assert_eq(player1.hand.size(), 6)
+	assert_true(game_logic.do_boost(player1, TestCardId1))
+	# Place gravitron
+	assert_true(game_logic.do_choice(player1, 0))
+	assert_eq(player1.get_buddy_location(), 1)
+	assert_eq(player1.hand.size(), 10)
+	advance_turn(player1, false)
+	assert_eq(player1.hand.size(), 7)
+	advance_turn(player2)
+	var card_ids = []
+	for card in player1.hand:
+		card_ids.append(card.id)
+		if len(card_ids) == 3:
+			break
+	assert_true(game_logic.do_choose_to_discard(player1, card_ids))
+	assert_eq(player1.gauge.size(), 1)
+	assert_eq(player1.hand.size(), 4)
+	advance_turn(player1)
+
+func test_kokonoe_broken_bunker_speedloss():
+	position_players(player1, 3, player2, 6)
+	player1.set_buddy_location("gravitron", 5)
+	# Start strike
+	give_player_specific_card(player1, "kokonoe_brokenbunkerassault", TestCardId1)
+	give_player_specific_card(player2, "standard_normal_assault", TestCardId2)
+	assert_true(game_logic.do_strike(player1, TestCardId1, false, -1))
+	# Don't pay for gravitron
+	assert_true(game_logic.do_force_for_effect(player1, [], false, true))
+	# Opponent
+	assert_true(game_logic.do_strike(player2, TestCardId2, false, -1))
+	# Pay strike cost
+	assert_true(game_logic.do_pay_strike_cost(player1, [player1.hand[0].id], false))
+	# p2's assault is 5 vs our 3.
+	validate_positions(player1, 3, player2, 4)
+	validate_life(player1, 26, player2, 30)
+	advance_turn(player2)
+
+func test_kokonoe_broken_bunker_power_bonus():
+	position_players(player1, 3, player2, 6)
+	player1.set_buddy_location("gravitron", 5)
+	# Start strike
+	give_player_specific_card(player1, "kokonoe_brokenbunkerassault", TestCardId1)
+	give_player_specific_card(player2, "standard_normal_spike", TestCardId2)
+	assert_true(game_logic.do_strike(player1, TestCardId1, false, -1))
+	# Don't pay for gravitron
+	assert_true(game_logic.do_force_for_effect(player1, [], false, true))
+	# Opponent
+	assert_true(game_logic.do_strike(player2, TestCardId2, false, -1))
+	# Pay strike cost
+	assert_true(game_logic.do_pay_strike_cost(player1, [player1.hand[0].id], false))
+	validate_positions(player1, 5, player2, 6)
+	validate_life(player1, 30, player2, 23)
+	advance_turn(player2)
+
+func test_kokonoe_broken_bunker_nograv_fast():
+	position_players(player1, 3, player2, 6)
+	# Start strike
+	give_player_specific_card(player1, "kokonoe_brokenbunkerassault", TestCardId1)
+	give_player_specific_card(player2, "standard_normal_assault", TestCardId2)
+	assert_true(game_logic.do_strike(player1, TestCardId1, false, -1))
+	# Opponent
+	assert_true(game_logic.do_strike(player2, TestCardId2, false, -1))
+	# Pay strike cost
+	assert_true(game_logic.do_pay_strike_cost(player1, [player1.hand[0].id], false))
+	validate_positions(player1, 5, player2, 6)
+	validate_life(player1, 30, player2, 25)
+	advance_turn(player2)
+
+func test_kokonoe_ultimateimpact_invalid_to_gauge():
+	position_players(player1, 3, player2, 5)
+	# Start strike
+	give_player_specific_card(player1, "standard_normal_cross", TestCardId3)
+	player1.move_card_from_hand_to_deck(TestCardId3, 0)
+	execute_strike(player1, player2, "kokonoe_ultimateimpact", "standard_normal_sweep", [], [], false, false, [], [], 0, [])
+	# Can't pay cost, wild swings cross
+	validate_positions(player1, 1, player2, 5)
+	validate_life(player1, 30, player2, 27)
+	assert_eq(player1.gauge.size(), 2)
+	advance_turn(player2)
+
+func test_kokonoe_ultimateimpact_draw_any():
+	position_players(player1, 4, player2, 5)
+	give_gauge(player1, 4)
+	# Start strike
+	assert_eq(player1.hand.size(), 5)
+	execute_strike(player1, player2, "kokonoe_ultimateimpact", "standard_normal_sweep", [], [], false, false, [], [], 0, [])
+	# Draw any choice
+	assert_true(game_logic.do_choice(player1, 10))
+	assert_eq(player1.hand.size(), 15)
+	validate_positions(player1, 4, player2, 8)
+	validate_life(player1, 30, player2, 23)
+	assert_eq(player1.gauge.size(), 1)
+	advance_turn(player2)
+
+func test_kokonoe_banishingrays_boost():
+	position_players(player1, 4, player2, 5)
+	give_player_specific_card(player1, "kokonoe_banishingrays", TestCardId3)
+	assert_true(game_logic.do_boost(player1, TestCardId3, [player1.hand[0].id]))
+	assert_true(game_logic.do_choice(player1, 0))
+	validate_positions(player1, 9, player2, 5)
+	advance_turn(player2)
+
+func test_kokonoe_banishingrays_boost_teleport():
+	position_players(player1, 1, player2, 2)
+	player1.set_buddy_location("gravitron", 9)
+	give_player_specific_card(player1, "kokonoe_banishingrays", TestCardId3)
+	assert_true(game_logic.do_boost(player1, TestCardId3, [player1.hand[0].id]))
+	validate_positions(player1, 9, player2, 2)
+	advance_turn(player1)
+
+func test_kokonoe_dreadnought_boost_only_1_discard():
+	position_players(player1, 4, player2, 5)
+	player1.discard_random(1)
+	give_player_specific_card(player1, "kokonoe_dreadnoughtexterminator", TestCardId3)
+	assert_true(game_logic.do_boost(player1, TestCardId3))
+	# Place gravitron
+	assert_true(game_logic.do_choice(player1, 8))
+	assert_eq(player1.get_buddy_location("gravitron"), 9)
+	assert_eq(player1.gauge.size(), 1)
+	advance_turn(player2)
+	execute_strike(player1, player2, "standard_normal_dive", "standard_normal_assault", [], [], false, false, [], [], 0, [])
+	validate_positions(player1, 4, player2, 5)
+	validate_life(player1, 23, player2, 30)
+	advance_turn(player2)
+
+func test_kokonoe_dreadnought_reg():
+	position_players(player1, 1, player2, 7)
+	player1.discard_hand()
+	give_gauge(player1, 4)
+	assert_eq(player1.gauge.size(), 4)
+	give_player_specific_card(player1, "standard_normal_grasp", TestCardId3)
+	give_player_specific_card(player1, "kokonoe_flamingbelobog", TestCardId4)
+	give_player_specific_card(player1, "standard_normal_grasp", TestCardId5)
+	
+	execute_strike(player1, player2, "kokonoe_dreadnoughtexterminator", "standard_normal_assault", [], [], false, false, [], [], 0, [])
+
+	assert_true(game_logic.do_force_for_effect(player1, [TestCardId3, TestCardId4, TestCardId5], false, false))
+	validate_positions(player1, 1, player2, 5)
+	validate_life(player1, 30, player2, 19)
+	advance_turn(player2)
+
+func test_kokonoe_dreadnought_exceeded_cantpay():
+	position_players(player1, 1, player2, 7)
+	player1.discard_hand()
+	give_gauge(player1, 2)
+	assert_true(game_logic.do_exceed(player1, [player1.gauge[0].id, player1.gauge[1].id]))
+	# Place gravitron
+	assert_true(game_logic.do_choice(player1, 8))
+	assert_eq(player1.get_buddy_location("gravitron"), 9)
+	give_player_specific_card(player1, "standard_normal_grasp", TestCardId3)
+	give_player_specific_card(player1, "kokonoe_flamingbelobog", TestCardId4)
+	give_player_specific_card(player1, "standard_normal_grasp", TestCardId5)
+	give_player_specific_card(player1, "standard_normal_dive", 60000)
+	player1.move_card_from_hand_to_deck(60000, 0)
+	execute_strike(player1, player2, "kokonoe_dreadnoughtexterminator", "standard_normal_assault", [], [], false, false, [], [], 0, [])
+	
+	validate_positions(player1, 4, player2, 5)
+	validate_life(player1, 30, player2, 25)
+	advance_turn(player2)
+
+func test_kokonoe_dreadnought_exceeded_blastemwithforce():
+	position_players(player1, 1, player2, 7)
+	player1.discard_hand()
+	give_gauge(player1, 2)
+	assert_true(game_logic.do_exceed(player1, [player1.gauge[0].id, player1.gauge[1].id]))
+	# Place gravitron
+	assert_true(game_logic.do_choice(player1, 8))
+	assert_eq(player1.get_buddy_location("gravitron"), 9)
+	give_player_specific_card(player1, "kokonoe_flamingbelobog", TestCardId3)
+	give_player_specific_card(player1, "kokonoe_flamingbelobog", TestCardId4)
+	give_player_specific_card(player1, "kokonoe_flamingbelobog", TestCardId5)
+	give_player_specific_card(player1, "kokonoe_flamingbelobog", 60000)
+	
+	var events = []
+	give_player_specific_card(player1, "kokonoe_dreadnoughtexterminator", TestCardId1)
+	give_player_specific_card(player2, "standard_normal_assault", TestCardId2)
+	assert_true(game_logic.do_strike(player1, TestCardId1, false, -1, false))
+	# No Grav
+	assert_true(game_logic.do_force_for_effect(player1, [], false, false))
+	assert_true(game_logic.do_strike(player2, TestCardId2, false, -1, false))
+	events = game_logic.get_latest_events()
+	validate_has_event(events, Enums.EventType.EventType_Strike_PayCost_Force, player1)
+	var card_ids = []
+	for card in player1.hand:
+		card_ids.append(card.id)
+	assert_true(game_logic.do_pay_strike_cost(player1, card_ids, false))
+	# No force for effect since no more cards.
+	validate_positions(player1, 1, player2, 5)
+	validate_life(player1, 30, player2, 16)
+	advance_turn(player2)
+	
+func test_kokonoe_dreadnought_exceeded_invalidate_anyway():
+	position_players(player1, 1, player2, 7)
+	player1.discard_hand()
+	give_gauge(player1, 2)
+	assert_true(game_logic.do_exceed(player1, [player1.gauge[0].id, player1.gauge[1].id]))
+	# Place gravitron
+	assert_true(game_logic.do_choice(player1, 8))
+	assert_eq(player1.get_buddy_location("gravitron"), 9)
+	give_player_specific_card(player1, "kokonoe_flamingbelobog", TestCardId3)
+	give_player_specific_card(player1, "kokonoe_flamingbelobog", TestCardId4)
+	give_player_specific_card(player1, "kokonoe_flamingbelobog", TestCardId5)
+	give_player_specific_card(player1, "kokonoe_flamingbelobog", 60000)
+	give_player_specific_card(player1, "standard_normal_dive", 60001)
+	player1.move_card_from_hand_to_deck(60001, 0)
+	
+	var events = []
+	give_player_specific_card(player1, "kokonoe_dreadnoughtexterminator", TestCardId1)
+	give_player_specific_card(player2, "standard_normal_assault", TestCardId2)
+	assert_true(game_logic.do_strike(player1, TestCardId1, false, -1, false))
+	# No Grav
+	assert_true(game_logic.do_force_for_effect(player1, [], false, false))
+	assert_true(game_logic.do_strike(player2, TestCardId2, false, -1, false))
+	events = game_logic.get_latest_events()
+	validate_has_event(events, Enums.EventType.EventType_Strike_PayCost_Force, player1)
+	# Wild swing
+	assert_true(game_logic.do_pay_strike_cost(player1, [], true))
+	validate_positions(player1, 4, player2, 5)
+	validate_life(player1, 30, player2, 25)
+	advance_turn(player2)
+
+func test_kokonoe_overdrive():
+	position_players(player1, 1, player2, 7)
+	player1.discard_hand()
+	give_gauge(player1, 2)
+	assert_true(game_logic.do_exceed(player1, [player1.gauge[0].id, player1.gauge[1].id]))
+	# Place gravitron
+	assert_true(game_logic.do_choice(player1, 8))
+	assert_eq(player1.get_buddy_location("gravitron"), 9)
+	advance_turn(player1)
+	advance_turn(player2)
+	assert_true(game_logic.do_choose_from_discard(player1, [player1.overdrive[0].id]))
+	# Place gravitron
+	assert_true(game_logic.do_choice(player1, 5))
+	assert_eq(player1.get_buddy_location("gravitron"), 6)
+	advance_turn(player1)
+	
+func test_kokonoe_flamingbelobog_extraattack_pass():
+	position_players(player1, 3, player2, 7)
+	give_player_specific_card(player1, "kokonoe_flamingbelobog", TestCardId3)
+	assert_true(game_logic.do_boost(player1, TestCardId3))
+	# Place gravitron
+	assert_true(game_logic.do_choice(player1, 4))
+	assert_eq(player1.get_buddy_location(), 5)
+	advance_turn(player2)
+	
+	# Start strike
+	give_player_specific_card(player1, "kokonoe_flamecage", TestCardId1)
+	give_player_specific_card(player2, "standard_normal_sweep", TestCardId2)
+	assert_true(game_logic.do_strike(player1, TestCardId1, false, -1))
+	# Pay for grav
+	assert_true(game_logic.do_force_for_effect(player1, [player1.hand[0].id], false, false))
+	# Opponent
+	validate_positions(player1, 3, player2, 7)
+	assert_true(game_logic.do_strike(player2, TestCardId2, false, -1))
+	# Plan here is push them to 6 with grav, flame cage push back to 7
+	# Then extra attack with broken bunker, gravitron pull to 6
+	# get the bonus because player closes to 2.
+	
+	# Attack hits
+	validate_life(player1, 30, player2, 27)
+	# Flame cage push to 7
+	assert_true(game_logic.do_choice(player1, 0)) # push to 7
+	validate_positions(player1, 3, player2, 7)
+	# After
+	# Extra attack discard choose effect is now automatically triggered
+	# Pass on the extra attack.
+	assert_true(game_logic.do_choose_to_discard(player1, []))
+	validate_life(player1, 30, player2, 27)
+	advance_turn(player2)
+
+func test_kokonoe_flamingbelobog_extraattack():
+	position_players(player1, 3, player2, 7)
+	give_player_specific_card(player1, "kokonoe_flamingbelobog", TestCardId3)
+	assert_true(game_logic.do_boost(player1, TestCardId3))
+	# Place gravitron
+	assert_true(game_logic.do_choice(player1, 4))
+	assert_eq(player1.get_buddy_location(), 5)
+	advance_turn(player2)
+	
+	# Start strike
+	give_player_specific_card(player1, "kokonoe_flamecage", TestCardId1)
+	give_player_specific_card(player2, "standard_normal_sweep", TestCardId2)
+	assert_true(game_logic.do_strike(player1, TestCardId1, false, -1))
+	# Pay for grav
+	assert_true(game_logic.do_force_for_effect(player1, [player1.hand[0].id], false, false))
+	# Opponent
+	validate_positions(player1, 3, player2, 7)
+	assert_true(game_logic.do_strike(player2, TestCardId2, false, -1))
+	# Plan here is push them to 6 with grav, flame cage push back to 7
+	# Then extra attack with broken bunker, gravitron pull to 6
+	# get the bonus because player closes to 2.
+	
+	# Attack hits
+	validate_life(player1, 30, player2, 27)
+	# Flame cage push to 7
+	assert_true(game_logic.do_choice(player1, 0)) # push to 7
+	validate_positions(player1, 3, player2, 7)
+	# After
+	# Extra attack discard choose effect is now automatically triggered
+	# Pass on the extra attack.
+	give_player_specific_card(player1, "kokonoe_brokenbunkerassault", TestCardId4)
+	assert_true(game_logic.do_choose_to_discard(player1, [TestCardId4]))
+	# Need to pay for the force cost
+	assert_true(game_logic.do_pay_strike_cost(player1, [player1.hand[0].id], false))
+	# Before, gravitron pulls to 6 automatically since we already paid for it.
+	# Close happens, attack hits, doing 7 more damage since we're in gravitron.
+	# Extra attack finishes, regular attack finishes, opponent is stunned and can't hit back.
+	validate_positions(player1, 5, player2, 6)
+	validate_life(player1, 30, player2, 20)
 	advance_turn(player2)

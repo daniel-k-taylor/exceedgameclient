@@ -27,5 +27,13 @@ func test_ai_validation_test():
 	assert_eq(1.0, ai_rules._probability_of_drawing(cards_to_find, 10, deck))
 	print("%s" % ai_rules._probability_of_drawing([1, 2], 7, deck))
 
+func helper(events : Array):
+	events.append_array([6,7])
+	return events
 
+func test_array():
+	var events = [1,2,3,4,5]
+	helper(events)
+	assert_eq(events.size(), 7)
+	
 

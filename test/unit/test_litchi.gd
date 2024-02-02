@@ -266,11 +266,11 @@ func test_litchi_thirteenorphans_boost():
 	for card in player1.hand:
 		ids_in_hand.append(card.id)
 	give_player_specific_card(player1, "litchi_thirteenorphans", TestCardId3)
-	assert_true(game_logic.do_boost(player1, TestCardId3))
+	assert_true(game_logic.do_boost(player1, TestCardId3, [player1.hand[0].id]))
 	assert_eq(player1.hand.size(), 5)
-	assert_eq(player1.sealed.size(), 5)
-	for i in range(5):
-		assert_eq(player1.sealed[i].id, ids_in_hand[i])
+	assert_eq(player1.sealed.size(), 4)
+	for i in range(4):
+		assert_eq(player1.sealed[i].id, ids_in_hand[i + 1])
 	execute_strike(player1, player2, "standard_normal_assault", "standard_normal_assault", [], [], false, false)
 	validate_positions(player1, 6, player2, 7)
 	validate_life(player1, 30, player2, 26)

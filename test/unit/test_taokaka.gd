@@ -230,7 +230,7 @@ func test_taokaka_wild_dodge():
 func test_taokaka_hexaedge_becomingtwo():
 	position_players(player1, 2, player2, 6)
 	give_player_specific_card(player1, "taokaka_hexaedge", TestCardId3)
-	assert_true(game_logic.do_boost(player1, TestCardId3))
+	assert_true(game_logic.do_boost(player1, TestCardId3, [player1.hand[0].id]))
 	give_player_specific_card(player1, "standard_normal_cross", TestCardId4)
 	give_player_specific_card(player2, "standard_normal_sweep", TestCardId2)
 	assert_true(game_logic.do_card_from_hand_to_gauge(player1, [TestCardId4]))

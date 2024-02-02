@@ -16,8 +16,8 @@
 		}
 	},
 	"overdrive_effect": {
-		"effect_type": "draw",
-		"amount": 1
+		"effect_type": "place_buddy_in_any_space",
+		"buddy_name": "Gravitron"
 	},
 	"ability_effects": [
 		{
