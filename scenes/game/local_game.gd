@@ -303,7 +303,7 @@ class StrikeStatBoosts:
 	var dodge_at_range_max : int = -1
 	var dodge_at_range_late_calculate_with : String = ""
 	var dodge_at_range_from_buddy : bool = false
-	var dodge_at_speed_greater_than : int = -1
+	var dodge_at_speed_greater_or_equal : int = -1
 	var dodge_from_opposite_buddy : bool = false
 	var ignore_armor : bool = false
 	var ignore_guard : bool = false
@@ -360,7 +360,7 @@ class StrikeStatBoosts:
 		dodge_at_range_max = -1
 		dodge_at_range_late_calculate_with = ""
 		dodge_at_range_from_buddy = false
-		dodge_at_speed_greater_than = -1
+		dodge_at_speed_greater_or_equal = -1
 		dodge_from_opposite_buddy = false
 		ignore_armor = false
 		ignore_guard = false
@@ -2851,17 +2851,6 @@ func is_effect_condition_met(performing_player : Player, effect, local_condition
 		elif condition == "range":
 			var amount = effect['condition_amount']
 			var distance = abs(performing_player.arena_location - other_player.arena_location)
-
-			var from_source = 'condition_from_source' in effect and effect['condition_from_source']
-			if from_source:
-				var attack_source_location = performing_player.arena_location
-				if performing_player.strike_stat_boosts.calculate_range_from_buddy:
-					attack_source_location = performing_player.get_buddy_location(performing_player.strike_stat_boosts.calculate_range_from_buddy_id)
-					# Buddy is assumed to be in play, so this shouldn't be -1.
-				elif performing_player.strike_stat_boosts.calculate_range_from_center:
-					attack_source_location = CenterArenaLocation
-				distance = abs(attack_source_location - other_player.arena_location)
-
 			return amount == distance
 		elif condition == "range_greater_or_equal":
 			var amount = effect['condition_amount']
@@ -3588,9 +3577,9 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 			events += [create_event(Enums.EventType.EventType_Strike_GuardUp, performing_player.my_id, effect['amount'])]
 		"higher_speed_misses":
 			performing_player.strike_stat_boosts.higher_speed_misses = true
-			if 'dodge_at_speed_greater_than' in effect:
-				var speed_dodge = effect['dodge_at_speed_greater_than']
-				performing_player.strike_stat_boosts.dodge_at_speed_greater_than = speed_dodge
+			if 'dodge_at_speed_greater_or_equal' in effect:
+				var speed_dodge = effect['dodge_at_speed_greater_or_equal']
+				performing_player.strike_stat_boosts.dodge_at_speed_greater_or_equal = speed_dodge
 				_append_log_full(Enums.LogType.LogType_Effect, performing_player, "will dodge attacks of speed %s or greater!" % speed_dodge)
 			else:
 				_append_log_full(Enums.LogType.LogType_Effect, performing_player, "will dodge attacks of a higher speed!")
@@ -5163,7 +5152,7 @@ func in_range(attacking_player, defending_player, card, combat_logging=false):
 	var attacking_speed = get_total_speed(attacking_player, active_strike.get_player_card(attacking_player))
 	var defending_speed = get_total_speed(defending_player, active_strike.get_player_card(defending_player))
 	if defending_player.strike_stat_boosts.higher_speed_misses:
-		var speed_dodge = defending_player.strike_stat_boosts.dodge_at_speed_greater_than
+		var speed_dodge = defending_player.strike_stat_boosts.dodge_at_speed_greater_or_equal
 		if speed_dodge > 0:
 			if attacking_speed >= speed_dodge:
 				if combat_logging:

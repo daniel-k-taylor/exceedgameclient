@@ -12,8 +12,7 @@
 		"force_cost": 0,
 		"effect": {
 			"effect_type": "set_used_character_bonus",
-			"and":
-			{
+			"and": {
 				"effect_type": "strike"
 			}
 		}

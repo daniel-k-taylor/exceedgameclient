@@ -2249,7 +2249,7 @@
 			{
 				"timing": "during_strike",
 				"effect_type": "higher_speed_misses",
-				"dodge_at_speed_greater_than": 5
+				"dodge_at_speed_greater_or_equal": 5
 			},
 			{
 				"timing": "after",
@@ -2309,9 +2309,8 @@
 			},
 			{
 				"timing": "hit",
-				"condition": "range",
-				"condition_amount": 0,
-				"condition_from_source": true,
+				"condition": "buddy_in_opponent_space",
+				"condition_detail": "card",
 				"effect_type": "powerup",
 				"amount": 2
 			}
