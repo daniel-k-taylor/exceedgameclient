@@ -328,7 +328,9 @@ func setup_character_card(character_card, deck, buddy_character_card):
 	character_card.set_cost(deck['exceed_cost'])
 
 	# Setup buddy if they have one.
-	if 'buddy_card' in deck:
+	if 'hide_buddy_reference' in deck and deck['hide_buddy_reference']:
+		buddy_character_card.visible = false
+	elif 'buddy_card' in deck:
 		buddy_character_card.visible = true
 		buddy_character_card.hide_focus()
 		var buddy_path = build_character_path(deck['id'], deck['buddy_card'], false)
@@ -493,7 +495,7 @@ func move_character_to_arena_square(character, arena_location, immediate: bool, 
 	var offset_y = $ArenaNode/RowButtons.position.y
 	target_position.y -= character.get_size().y * character.scale.y / 2 + offset_y + character.vertical_offset
 	if buddy_offset != 0:
-		target_position.x += buddy_offset * (character.get_size().x * character.scale.x /4)
+		target_position.x += buddy_offset * (character.get_size().x * character.scale.x /4) + character.horizontal_offset
 	if immediate:
 		character.position = target_position
 		update_character_facing()
@@ -959,7 +961,10 @@ func _stat_notice_event(event):
 		Enums.EventType.EventType_Strike_Miss:
 			notice_text = "Miss!"
 		Enums.EventType.EventType_Strike_OpponentCantMovePast:
-			notice_text = "Blocking Advance!"
+			var movement_text = "Advance"
+			if event['extra_info']:
+				movement_text = "Movement through %s" % event['extra_info']
+			notice_text = "Blocking %s!" % movement_text
 		Enums.EventType.EventType_Strike_PowerUp:
 			var text = ""
 			if number > 0:
@@ -1834,6 +1839,10 @@ func begin_strike_choosing(strike_response : bool, cancel_allowed : bool,
 	if cards_that_will_not_hit.size() > 0:
 		for card in cards_that_will_not_hit:
 			dialogue += "\n" + card + " will not hit."
+	var plague_knight_discard_names = game_wrapper.get_plague_knight_discard_names(Enums.PlayerId.PlayerId_Opponent)
+	if plague_knight_discard_names.size() > 0:
+		for card in plague_knight_discard_names:
+			dialogue += "\nPlague Knight discarded " + card +"."
 	enable_instructions_ui(dialogue, true, can_cancel, not disable_wild_swing, not disable_ex)
 	var new_sub_state
 	if strike_response:
@@ -2346,11 +2355,11 @@ func _handle_events(events):
 			Enums.EventType.EventType_Boost_DiscardOpponentGauge:
 				_on_discard_opponent_gauge(event)
 			Enums.EventType.EventType_Boost_NameCardOpponentDiscards:
-				_on_name_opponent_card_begin(event)
+				delay = _on_name_opponent_card_begin(event)
 			Enums.EventType.EventType_Boost_Sidestep:
-				_on_name_opponent_card_begin(event)
+				delay = _on_name_opponent_card_begin(event)
 			Enums.EventType.EventType_Boost_ZeroVector:
-				_on_name_opponent_card_begin(event)
+				delay = _on_name_opponent_card_begin(event)
 			Enums.EventType.EventType_Boost_Played:
 				delay = _on_boost_played(event)
 			Enums.EventType.EventType_CardFromHandToGauge_Choice:

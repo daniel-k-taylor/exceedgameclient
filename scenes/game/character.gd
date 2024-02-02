@@ -13,6 +13,7 @@ var current_position
 var target_position
 
 var vertical_offset : float = 0
+var horizontal_offset : float = 0
 
 var remaining_animation_time : float = -1
 const MoveTime : float = 1.0
@@ -68,6 +69,8 @@ func load_character(char_id : String):
 			$ExceedIcon.scale = $ExceedIcon.scale / scaling
 	if animation.sprite_frames.has_meta("vertical_offset"):
 		vertical_offset = animation.sprite_frames.get_meta("vertical_offset")
+	if animation.sprite_frames.has_meta("horizontal_offset"):
+		horizontal_offset = animation.sprite_frames.get_meta("horizontal_offset")
 
 func set_facing(to_left : bool):
 	animation.flip_h = to_left
