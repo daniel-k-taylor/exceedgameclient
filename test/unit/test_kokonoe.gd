@@ -553,6 +553,8 @@ func test_kokonoe_flamingbelobog_extraattack_pass():
 	# Start strike
 	give_player_specific_card(player1, "kokonoe_flamecage", TestCardId1)
 	give_player_specific_card(player2, "standard_normal_sweep", TestCardId2)
+	# Ensure there is a card in our hand we can play later.
+	give_player_specific_card(player1, "kokonoe_brokenbunkerassault", TestCardId4)
 	assert_true(game_logic.do_strike(player1, TestCardId1, false, -1))
 	# Pay for grav
 	assert_true(game_logic.do_force_for_effect(player1, [player1.hand[0].id], false, false))
@@ -575,7 +577,7 @@ func test_kokonoe_flamingbelobog_extraattack_pass():
 	validate_life(player1, 30, player2, 27)
 	advance_turn(player2)
 
-func test_kokonoe_flamingbelobog_extraattack():
+func test_kokonoe_flamingbelobog_do_extraattack():
 	position_players(player1, 3, player2, 7)
 	give_player_specific_card(player1, "kokonoe_flamingbelobog", TestCardId3)
 	assert_true(game_logic.do_boost(player1, TestCardId3))
@@ -587,6 +589,7 @@ func test_kokonoe_flamingbelobog_extraattack():
 	# Start strike
 	give_player_specific_card(player1, "kokonoe_flamecage", TestCardId1)
 	give_player_specific_card(player2, "standard_normal_sweep", TestCardId2)
+	give_player_specific_card(player1, "kokonoe_brokenbunkerassault", TestCardId4)
 	assert_true(game_logic.do_strike(player1, TestCardId1, false, -1))
 	# Pay for grav
 	assert_true(game_logic.do_force_for_effect(player1, [player1.hand[0].id], false, false))
@@ -605,12 +608,13 @@ func test_kokonoe_flamingbelobog_extraattack():
 	# After
 	# Extra attack discard choose effect is now automatically triggered
 	# Pass on the extra attack.
-	give_player_specific_card(player1, "kokonoe_brokenbunkerassault", TestCardId4)
 	assert_true(game_logic.do_choose_to_discard(player1, [TestCardId4]))
 	# Need to pay for the force cost
 	assert_true(game_logic.do_pay_strike_cost(player1, [player1.hand[0].id], false))
-	# Before, gravitron pulls to 6 automatically since we already paid for it.
-	# Close happens, attack hits, doing 7 more damage since we're in gravitron.
+	# Before, choose close 2 or gravitron pulls to 6 automatically since we already paid for it.
+	# Order is irrelevant here.
+	assert_true(game_logic.do_choice(player1, 0))
+	# Attack hits, doing 7 more damage since we're in gravitron.
 	# Extra attack finishes, regular attack finishes, opponent is stunned and can't hit back.
 	validate_positions(player1, 5, player2, 6)
 	validate_life(player1, 30, player2, 20)
