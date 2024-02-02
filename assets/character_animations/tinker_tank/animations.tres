@@ -1,0 +1,32 @@
+[gd_resource type="SpriteFrames" load_steps=6 format=3 uid="uid://380qj7bug0aj"]
+
+[ext_resource type="Texture2D" uid="uid://vjfx3dgunem7" path="res://assets/character_animations/tinker_tank/idle/tinker_tank1.png" id="1_2l8sj"]
+[ext_resource type="Texture2D" uid="uid://cp4rp4tffkc07" path="res://assets/character_animations/tinker_tank/idle/tinker_tank2.png" id="2_w26b5"]
+[ext_resource type="Texture2D" uid="uid://bwngho2oux473" path="res://assets/character_animations/tinker_tank/idle/tinker_tank3.png" id="3_kr7sw"]
+[ext_resource type="Texture2D" uid="uid://cry364i4v5dy2" path="res://assets/character_animations/tinker_tank/idle/tinker_tank4.png" id="4_jh7iq"]
+[ext_resource type="Texture2D" uid="uid://byij56k70xan7" path="res://assets/character_animations/tinker_tank/idle/tinker_tank5.png" id="5_awl4p"]
+
+[resource]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("1_2l8sj")
+}, {
+"duration": 1.0,
+"texture": ExtResource("2_w26b5")
+}, {
+"duration": 1.0,
+"texture": ExtResource("3_kr7sw")
+}, {
+"duration": 1.0,
+"texture": ExtResource("4_jh7iq")
+}, {
+"duration": 1.0,
+"texture": ExtResource("5_awl4p")
+}],
+"loop": true,
+"name": &"idle",
+"speed": 5.0
+}]
+metadata/flip = true
+metadata/scaling = 3.0
