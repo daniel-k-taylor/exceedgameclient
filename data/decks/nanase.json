@@ -3,7 +3,7 @@
 	"season": 6,
 	"cardback": "cardback_nanase.jpg",
 	# Need the image lol
-	"has_sealed_area": true,
+	"has_sealed_area": false,
 	"exceed_cost": 1, 
 	"character_action_default": [{
 		"guage_cost": 0,
@@ -56,13 +56,13 @@
 			"condition": "used_character_action",
 			"condition_details": ["exceed", 0],
 			"character_effect": true,
-			"effect_type": "choice",
-			"choice": [
-				{ "effect_type": "powerup", "amount": 2 },
-				{ "effect_type": "gain_advantage" }
-			]
+			"effect_type": "powerup_opponent",
+			"amount": 1,
 			"and": {
-				"effect_type": "powerup_opponent",
-				"amount": 1
-			}
+				"effect_type": "choice",
+				"choice": [
+					{ "effect_type": "powerup", "amount": 2 },
+					{ "effect_type": "gain_advantage" }
+			]
+
 		]
