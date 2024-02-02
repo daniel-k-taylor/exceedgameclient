@@ -607,7 +607,6 @@ func test_kokonoe_flamingbelobog_do_extraattack():
 	validate_positions(player1, 3, player2, 7)
 	# After
 	# Extra attack discard choose effect is now automatically triggered
-	# Pass on the extra attack.
 	assert_true(game_logic.do_choose_to_discard(player1, [TestCardId4]))
 	# Need to pay for the force cost
 	assert_true(game_logic.do_pay_strike_cost(player1, [player1.hand[0].id], false))
@@ -618,4 +617,42 @@ func test_kokonoe_flamingbelobog_do_extraattack():
 	# Extra attack finishes, regular attack finishes, opponent is stunned and can't hit back.
 	validate_positions(player1, 5, player2, 6)
 	validate_life(player1, 30, player2, 20)
+	advance_turn(player2)
+
+
+func test_kokonoe_flamingbelobog_after_effect_after_extraattack():
+	position_players(player1, 3, player2, 7)
+	give_player_specific_card(player1, "kokonoe_flamingbelobog", TestCardId3)
+	assert_true(game_logic.do_boost(player1, TestCardId3))
+	# Place gravitron
+	assert_true(game_logic.do_choice(player1, 4))
+	assert_eq(player1.get_buddy_location(), 5)
+	advance_turn(player2)
+	
+	# Start strike
+	give_player_specific_card(player1, "kokonoe_flamecage", TestCardId1)
+	give_player_specific_card(player2, "standard_normal_sweep", TestCardId2)
+	give_player_specific_card(player1, "standard_normal_dive", TestCardId4)
+	assert_true(game_logic.do_strike(player1, TestCardId1, false, -1))
+	# Don't pay for grav
+	assert_true(game_logic.do_force_for_effect(player1, [], false, true))
+	# Opponent
+	validate_positions(player1, 3, player2, 7)
+	assert_true(game_logic.do_strike(player2, TestCardId2, false, -1))
+	# Plan here is to hit with flame cage, use extra attack effect,
+	# then resolve the flame cage after effect
+	
+	# Attack hits
+	validate_life(player1, 30, player2, 25)
+	# Simul choice between choices 0 (flame cage) and 1 (extra attack)
+	assert_true(game_logic.do_choice(player1, 1))
+	validate_positions(player1, 3, player2, 7)
+	# Extra attack discard, play dive
+	assert_true(game_logic.do_choose_to_discard(player1, [TestCardId4]))
+	# No costs or choices, so dive goes and hits
+	validate_life(player1, 30, player2, 20)
+	validate_positions(player1, 6, player2, 7)
+	# Then flame cage after choice
+	assert_true(game_logic.do_choice(player1, 0)) # Push to 8
+	validate_positions(player1, 6, player2, 8)
 	advance_turn(player2)
