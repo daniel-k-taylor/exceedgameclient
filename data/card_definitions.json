@@ -27,7 +27,7 @@
 			"effects": [ 
 				{
 					"timing": "during_strike",
-					"effect_type": "multiply_power_bonuses",
+					"effect_type": "multiply_positive_power_bonuses",
 					"amount": 2
 				}
 			]			
@@ -63,11 +63,11 @@
 			"display_name": "Instant Hell Murder",
 			"effects": [
 				{
-				"timing": "during_strike",
-				"condition": "total_powerup_greater_or_equal",
-				"condition_amount": 3,
-				"effect_type": "speedup",
-				"amount": 3
+					"timing": "during_strike",
+					"condition": "total_powerup_greater_or_equal",
+					"condition_amount": 3,
+					"effect_type": "speedup",
+					"amount": 3
 				}
 			]	
 		}
