@@ -233,12 +233,12 @@ func test_hyde_exceed_ua_wild_swing():
 
 	give_specific_cards(player1, "hyde_gyrovortex", player2, "uni_normal_focus")
 	var ultra_card = player1.hand[-1]
-	player1.remove_card_from_hand(TestCardId4)
+	player1.remove_card_from_hand(TestCardId4, false, false)
 	player1.gauge.append(ultra_card)
 	give_gauge(player1, 1)
 	give_player_specific_card(player1, "uni_normal_sweep", TestCardId3)
 	var sweep_card = player1.hand[-1]
-	player1.remove_card_from_hand(TestCardId3)
+	player1.remove_card_from_hand(TestCardId3, false, false)
 	player1.deck.insert(0, sweep_card)
 
 	assert_true(game_logic.do_character_action(player1, [player1.gauge[-1].id]))

@@ -508,6 +508,9 @@ func test_hyde_100():
 func test_linne_100():
 	run_iterations_with_deck("linne")
 
+func test_nanase_100():
+	run_iterations_with_deck("nanase")
+
 func test_phonon_100():
 	run_iterations_with_deck("phonon")
 
