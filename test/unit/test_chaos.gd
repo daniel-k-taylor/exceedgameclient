@@ -206,6 +206,8 @@ func validate_life(p1, l1, p2, l2):
 func test_chaos_ua_special():
 	position_players(player1, 2, player2, 7)
 	assert_true(game_logic.do_character_action(player1, []))
+	var events = game_logic.get_latest_events()
+	validate_has_event(events, Enums.EventType.EventType_ForceStartStrike, player1)
 	execute_strike(player1, player2, "chaos_spewout", "uni_normal_sweep", [1], [], false, false, 5)
 	validate_positions(player1, 1, player2, 7)
 	validate_life(player1, 30, player2, 26)
