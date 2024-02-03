@@ -284,13 +284,16 @@ func handle_strike(game: LocalGame, aiplayer : AIPlayer, otherai : AIPlayer, act
 	if game.game_state == Enums.GameState.GameState_Strike_Opponent_Response:
 		var response_action = otherai.pick_strike_response(game, otherplayer.my_id)
 		assert_true(game.do_strike(otherplayer, response_action.card_id, response_action.wild_swing, response_action.ex_card_id), "do strike resp failed")
+		# Could have critical decision here.
+		events += handle_decisions(game)
+
 
 	if game.game_state == Enums.GameState.GameState_WaitForStrike and opponent_sets_first:
 		var card_id = action.card_id
 		var ex_card_id = action.ex_card_id
 		var wild_swing = action.wild_swing
 
-		assert_true(game.do_strike(gameplayer, card_id, wild_swing, ex_card_id), "do strike failed")
+		assert_true(game.do_strike(gameplayer, card_id, wild_swing, ex_card_id, opponent_sets_first), "do strike failed")
 		events += game.get_latest_events()
 
 	events += handle_decisions(game)
@@ -384,6 +387,17 @@ func test_random_ai_players():
 		print(event)
 	pass_test("Finished match")
 
+func run_iterations_with_deck(deck_id : String):
+	default_deck = CardDefinitions.get_deck_from_str_id(deck_id)
+	game_teardown()
+	game_setup()
+	for i in range(RandomIterations):
+		print("==== RUNNING TEST %d ====" % i)
+		run_ai_game()
+		game_teardown()
+		game_setup()
+	pass_test("Finished match")
+
 func test_sol_100():
 	for i in range(RandomIterations):
 		print("==== RUNNING TEST %d ====" % i)
@@ -393,406 +407,139 @@ func test_sol_100():
 	pass_test("Finished match")
 
 func test_ky_100():
-	default_deck = CardDefinitions.get_deck_from_str_id("kykisuke")
-	for i in range(RandomIterations):
-		print("==== RUNNING TEST %d ====" % i)
-		run_ai_game()
-		game_teardown()
-		game_setup()
-	pass_test("Finished match")
+	run_iterations_with_deck("kykisuke")
 
 func test_ram_100():
-	default_deck = CardDefinitions.get_deck_from_str_id("ramlethal")
-	for i in range(RandomIterations):
-		print("==== RUNNING TEST %d ====" % i)
-		run_ai_game()
-		game_teardown()
-		game_setup()
-	pass_test("Finished match")
+	run_iterations_with_deck("ramlethal")
 
 func test_anji_100():
-	default_deck = CardDefinitions.get_deck_from_str_id("anji")
-	for i in range(RandomIterations):
-		print("==== RUNNING TEST %d ====" % i)
-		run_ai_game()
-		game_teardown()
-		game_setup()
-	pass_test("Finished match")
+	run_iterations_with_deck("anji")
 
 func test_pot_100():
-	default_deck = CardDefinitions.get_deck_from_str_id("potemkin")
-	for i in range(RandomIterations):
-		print("==== RUNNING TEST %d ====" % i)
-		run_ai_game()
-		game_teardown()
-		game_setup()
-	pass_test("Finished match")
+	run_iterations_with_deck("potemkin")
 
 func test_may_100():
-	default_deck = CardDefinitions.get_deck_from_str_id("may")
-	for i in range(RandomIterations):
-		print("==== RUNNING TEST %d ====" % i)
-		run_ai_game()
-		game_teardown()
-		game_setup()
-	pass_test("Finished match")
+	run_iterations_with_deck("may")
 
 func test_millia_100():
-	default_deck = CardDefinitions.get_deck_from_str_id("millia")
-	for i in range(RandomIterations):
-		print("==== RUNNING TEST %d ====" % i)
-		run_ai_game()
-		game_teardown()
-		game_setup()
-	pass_test("Finished match")
+	run_iterations_with_deck("millia")
 
 func test_baiken_100():
-	default_deck = CardDefinitions.get_deck_from_str_id("baiken")
-	for i in range(RandomIterations):
-		print("==== RUNNING TEST %d ====" % i)
-		run_ai_game()
-		game_teardown()
-		game_setup()
-	pass_test("Finished match")
+	run_iterations_with_deck("baiken")
 
 func test_giovanna_100():
-	default_deck = CardDefinitions.get_deck_from_str_id("giovanna")
-	for i in range(RandomIterations):
-		print("==== RUNNING TEST %d ====" % i)
-		run_ai_game()
-		game_teardown()
-		game_setup()
-	pass_test("Finished match")
+	run_iterations_with_deck("giovanna")
 
 func test_nago_100():
-	default_deck = CardDefinitions.get_deck_from_str_id("nago")
-	for i in range(RandomIterations):
-		print("==== RUNNING TEST %d ====" % i)
-		run_ai_game()
-		game_teardown()
-		game_setup()
-	pass_test("Finished match")
+	run_iterations_with_deck("nago")
 
 func test_goldlewis_100():
-	default_deck = CardDefinitions.get_deck_from_str_id("goldlewis")
-	for i in range(RandomIterations):
-		print("==== RUNNING TEST %d ====" % i)
-		run_ai_game()
-		game_teardown()
-		game_setup()
-	pass_test("Finished match")
+	run_iterations_with_deck("goldlewis")
 
 func test_ino_100():
-	default_deck = CardDefinitions.get_deck_from_str_id("ino")
-	for i in range(RandomIterations):
-		print("==== RUNNING TEST %d ====" % i)
-		run_ai_game()
-		game_teardown()
-		game_setup()
-	pass_test("Finished match")
+	run_iterations_with_deck("ino")
 
 func test_chipp_100():
-	default_deck = CardDefinitions.get_deck_from_str_id("chipp")
-	for i in range(RandomIterations):
-		print("==== RUNNING TEST %d ====" % i)
-		run_ai_game()
-		game_teardown()
-		game_setup()
-	pass_test("Finished match")
+	run_iterations_with_deck("chipp")
 
 func test_jacko_100():
-	default_deck = CardDefinitions.get_deck_from_str_id("jacko")
-	for i in range(RandomIterations):
-		print("==== RUNNING TEST %d ====" % i)
-		run_ai_game()
-		game_teardown()
-		game_setup()
-	pass_test("Finished match")
+	run_iterations_with_deck("jacko")
 
 func test_leo_100():
-	default_deck = CardDefinitions.get_deck_from_str_id("leo")
-	for i in range(RandomIterations):
-		print("==== RUNNING TEST %d ====" % i)
-		run_ai_game()
-		game_teardown()
-		game_setup()
-	pass_test("Finished match")
+	run_iterations_with_deck("leo")
 
 func test_testament_100():
-	default_deck = CardDefinitions.get_deck_from_str_id("testament")
-	for i in range(RandomIterations):
-		print("==== RUNNING TEST %d ====" % i)
-		run_ai_game()
-		game_teardown()
-		game_setup()
-	pass_test("Finished match")
+	run_iterations_with_deck("testament")
 
 func test_axl_100():
-	default_deck = CardDefinitions.get_deck_from_str_id("axl")
-	for i in range(RandomIterations):
-		print("==== RUNNING TEST %d ====" % i)
-		run_ai_game()
-		game_teardown()
-		game_setup()
-	pass_test("Finished match")
+	run_iterations_with_deck("axl")
 
 func test_zato_100():
-	default_deck = CardDefinitions.get_deck_from_str_id("zato")
-	for i in range(RandomIterations):
-		print("==== RUNNING TEST %d ====" % i)
-		run_ai_game()
-		game_teardown()
-		game_setup()
-	pass_test("Finished match")
+	run_iterations_with_deck("zato")
 
 func test_faust_100():
-	default_deck = CardDefinitions.get_deck_from_str_id("faust")
-	for i in range(RandomIterations):
-		print("==== RUNNING TEST %d ====" % i)
-		run_ai_game()
-		game_teardown()
-		game_setup()
-	pass_test("Finished match")
+	run_iterations_with_deck("faust")
 
 func test_happychaos_100():
-	default_deck = CardDefinitions.get_deck_from_str_id("happychaos")
-	for i in range(RandomIterations):
-		print("==== RUNNING TEST %d ====" % i)
-		run_ai_game()
-		game_teardown()
-		game_setup()
-	pass_test("Finished match")
+	run_iterations_with_deck("happychaos")
 
 func test_arakune_100():
-	default_deck = CardDefinitions.get_deck_from_str_id("arakune")
-	for i in range(RandomIterations):
-		print("==== RUNNING TEST %d ====" % i)
-		run_ai_game()
-		game_teardown()
-		game_setup()
-	pass_test("Finished match")
+	run_iterations_with_deck("arakune")
 
 func test_carlclover_100():
-	default_deck = CardDefinitions.get_deck_from_str_id("carlclover")
-	for i in range(RandomIterations):
-		print("==== RUNNING TEST %d ====" % i)
-		run_ai_game()
-		game_teardown()
-		game_setup()
-	pass_test("Finished match")
+	run_iterations_with_deck("carlclover")
 
 func test_hakumen_100():
-	default_deck = CardDefinitions.get_deck_from_str_id("hakumen")
-	for i in range(RandomIterations):
-		print("==== RUNNING TEST %d ====" % i)
-		run_ai_game()
-		game_teardown()
-		game_setup()
-	pass_test("Finished match")
+	run_iterations_with_deck("hakumen")
 
 func test_jin_100():
-	default_deck = CardDefinitions.get_deck_from_str_id("jin")
-	for i in range(RandomIterations):
-		print("==== RUNNING TEST %d ====" % i)
-		run_ai_game()
-		game_teardown()
-		game_setup()
-	pass_test("Finished match")
+	run_iterations_with_deck("jin")
 
 func test_kokonoe_100():
-	default_deck = CardDefinitions.get_deck_from_str_id("kokonoe")
-	for i in range(RandomIterations):
-		print("==== RUNNING TEST %d ====" % i)
-		run_ai_game()
-		game_teardown()
-		game_setup()
-	pass_test("Finished match")
+	run_iterations_with_deck("kokonoe")
 
 func test_ragna_100():
-	default_deck = CardDefinitions.get_deck_from_str_id("ragna")
-	for i in range(RandomIterations):
-		print("==== RUNNING TEST %d ====" % i)
-		run_ai_game()
-		game_teardown()
-		game_setup()
-	pass_test("Finished match")
+	run_iterations_with_deck("ragna")
 
 func test_noel_100():
-	default_deck = CardDefinitions.get_deck_from_str_id("noel")
-	for i in range(RandomIterations):
-		print("==== RUNNING TEST %d ====" % i)
-		run_ai_game()
-		game_teardown()
-		game_setup()
-	pass_test("Finished match")
+	run_iterations_with_deck("noel")
 
 func test_hazama_100():
-	default_deck = CardDefinitions.get_deck_from_str_id("hazama")
-	for i in range(RandomIterations):
-		print("==== RUNNING TEST %d ====" % i)
-		run_ai_game()
-		game_teardown()
-		game_setup()
-	pass_test("Finished match")
+	run_iterations_with_deck("hazama")
 
 func test_nu13_100():
-	default_deck = CardDefinitions.get_deck_from_str_id("nu13")
-	for i in range(RandomIterations):
-		print("==== RUNNING TEST %d ====" % i)
-		run_ai_game()
-		game_teardown()
-		game_setup()
-	pass_test("Finished match")
+	run_iterations_with_deck("nu13")
 
 func test_litchi_100():
-	default_deck = CardDefinitions.get_deck_from_str_id("litchi")
-	for i in range(RandomIterations):
-		print("==== RUNNING TEST %d ====" % i)
-		run_ai_game()
-		game_teardown()
-		game_setup()
-	pass_test("Finished match")
+	run_iterations_with_deck("litchi")
 
 func test_tager_100():
-	default_deck = CardDefinitions.get_deck_from_str_id("tager")
-	for i in range(RandomIterations):
-		print("==== RUNNING TEST %d ====" % i)
-		run_ai_game()
-		game_teardown()
-		game_setup()
-	pass_test("Finished match")
+	run_iterations_with_deck("tager")
 
 func test_taokaka_100():
-	default_deck = CardDefinitions.get_deck_from_str_id("taokaka")
-	for i in range(RandomIterations):
-		print("==== RUNNING TEST %d ====" % i)
-		run_ai_game()
-		game_teardown()
-		game_setup()
-	pass_test("Finished match")
+	run_iterations_with_deck("taokaka")
 
 func test_yuzu_100():
-	default_deck = CardDefinitions.get_deck_from_str_id("yuzu")
-	for i in range(RandomIterations):
-		print("==== RUNNING TEST %d ====" % i)
-		run_ai_game()
-		game_teardown()
-		game_setup()
-	pass_test("Finished match")
+	run_iterations_with_deck("yuzu")
 
 func test_hyde_100():
-	default_deck = CardDefinitions.get_deck_from_str_id("hyde")
-	for i in range(RandomIterations):
-		print("==== RUNNING TEST %d ====" % i)
-		run_ai_game()
-		game_teardown()
-		game_setup()
-	pass_test("Finished match")
+	run_iterations_with_deck("hyde")
 
 func test_linne_100():
-	default_deck = CardDefinitions.get_deck_from_str_id("linne")
-	for i in range(RandomIterations):
-		print("==== RUNNING TEST %d ====" % i)
-		run_ai_game()
-		game_teardown()
-		game_setup()
-	pass_test("Finished match")
+	run_iterations_with_deck("linne")
 
 func test_phonon_100():
-	default_deck = CardDefinitions.get_deck_from_str_id("phonon")
-	for i in range(RandomIterations):
-		print("==== RUNNING TEST %d ====" % i)
-		run_ai_game()
-		game_teardown()
-		game_setup()
-	pass_test("Finished match")
+	run_iterations_with_deck("phonon")
+
+func test_akuma_100():
+	run_iterations_with_deck("akuma")
 
 func test_ryu_100():
-	default_deck = CardDefinitions.get_deck_from_str_id("ryu")
-	for i in range(RandomIterations):
-		print("==== RUNNING TEST %d ====" % i)
-		run_ai_game()
-		game_teardown()
-		game_setup()
-	pass_test("Finished match")
+	run_iterations_with_deck("ryu")
 
 func test_sagat_100():
-	default_deck = CardDefinitions.get_deck_from_str_id("sagat")
-	for i in range(RandomIterations):
-		print("==== RUNNING TEST %d ====" % i)
-		run_ai_game()
-		game_teardown()
-		game_setup()
-	pass_test("Finished match")
+	run_iterations_with_deck("sagat")
 
 func test_guile_100():
-	default_deck = CardDefinitions.get_deck_from_str_id("guile")
-	for i in range(RandomIterations):
-		print("==== RUNNING TEST %d ====" % i)
-		run_ai_game()
-		game_teardown()
-		game_setup()
-	pass_test("Finished match")
+	run_iterations_with_deck("guile")
 
 func test_ken_100():
-	default_deck = CardDefinitions.get_deck_from_str_id("ken")
-	for i in range(RandomIterations):
-		print("==== RUNNING TEST %d ====" % i)
-		run_ai_game()
-		game_teardown()
-		game_setup()
-	pass_test("Finished match")
+	run_iterations_with_deck("ken")
 
 func test_shovelshield_100():
-	default_deck = CardDefinitions.get_deck_from_str_id("shovelshield")
-	for i in range(RandomIterations):
-		print("==== RUNNING TEST %d ====" % i)
-		run_ai_game()
-		game_teardown()
-		game_setup()
-	pass_test("Finished match")
+	run_iterations_with_deck("shovelshield")
 
 func test_plague_100():
-	default_deck = CardDefinitions.get_deck_from_str_id("plague")
-	for i in range(RandomIterations):
-		print("==== RUNNING TEST %d ====" % i)
-		run_ai_game()
-		game_teardown()
-		game_setup()
-	pass_test("Finished match")
+	run_iterations_with_deck("plague")
 
 func test_nine_100():
-	default_deck = CardDefinitions.get_deck_from_str_id("nine")
-	for i in range(RandomIterations):
-		print("==== RUNNING TEST %d ====" % i)
-		run_ai_game()
-		game_teardown()
-		game_setup()
-	pass_test("Finished match")
+	run_iterations_with_deck("nine")
 
 func test_specter_100():
-	default_deck = CardDefinitions.get_deck_from_str_id("specter")
-	for i in range(RandomIterations):
-		print("==== RUNNING TEST %d ====" % i)
-		run_ai_game()
-		game_teardown()
-		game_setup()
-	pass_test("Finished match")
+	run_iterations_with_deck("specter")
 
 func test_mika_100():
-	default_deck = CardDefinitions.get_deck_from_str_id("mika")
-	for i in range(RandomIterations):
-		print("==== RUNNING TEST %d ====" % i)
-		run_ai_game()
-		game_teardown()
-		game_setup()
-	pass_test("Finished match")
+	run_iterations_with_deck("mika")
 
 func test_chaos_100():
-	default_deck = CardDefinitions.get_deck_from_str_id("chaos")
-	for i in range(RandomIterations):
-		print("==== RUNNING TEST %d ====" % i)
-		run_ai_game()
-		game_teardown()
-		game_setup()
-	pass_test("Finished match")
+	run_iterations_with_deck("chaos")
