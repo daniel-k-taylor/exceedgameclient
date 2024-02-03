@@ -22,6 +22,7 @@
 	],
 	"exceed_ability_effects": [
 		{
+			"NOTE": "If it happened on our turn",
 			"timing": "end_of_turn",
 			"condition": "used_character_bonus",
 			"effect_type": "reset_character_positions",
@@ -29,7 +30,22 @@
 				"effect_type": "become_wide",
 				"description": "Tinker Tank"
 			}
-		}
+		},
+		{
+			"NOTE": "If it happened on the opponent's strike",
+			"timing": "cleanup",
+			"condition": "used_character_bonus",
+			"effect_type": "pass",
+			"and": {
+				"NOTE": "avoids double-counting",
+				"condition": "not_initiated_strike",
+				"effect_type": "reset_character_positions",
+				"and": {
+					"effect_type": "become_wide",
+					"description": "Tinker Tank"
+			}
+			}
+		},
 	],
 	"cards": [
 		{

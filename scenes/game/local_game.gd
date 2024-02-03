@@ -5090,7 +5090,6 @@ func get_card_stat(check_player : Player, card : GameCard, stat : String) -> int
 		return check_player.strike_stat_boosts.overwritten_printed_power
 
 	var value = card.definition[stat]
-	var other_player = _get_player(get_other_player(check_player.my_id))
 	if str(value) == "X":
 		if active_strike:
 			return check_player.strike_stat_boosts.strike_x

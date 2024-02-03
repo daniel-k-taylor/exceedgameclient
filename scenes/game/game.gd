@@ -1524,11 +1524,13 @@ func _on_become_wide(event):
 		if 'wide_animation' in player_deck:
 			$PlayerCharacter.load_character(player_deck['wide_animation'])
 			move_character_to_arena_square($PlayerCharacter, game_wrapper.get_player_location(Enums.PlayerId.PlayerId_Player), true, Character.CharacterAnim.CharacterAnim_None)
+			update_arena_squares()
 	else:
 		$OpponentCharacter.is_wide = true
 		if 'wide_animation' in opponent_deck:
 			$OpponentCharacter.load_character(opponent_deck['wide_animation'])
 			move_character_to_arena_square($OpponentCharacter, game_wrapper.get_player_location(Enums.PlayerId.PlayerId_Opponent), true, Character.CharacterAnim.CharacterAnim_None)
+			update_arena_squares()
 	var popup_text = "Expand"
 	if event['extra_info']:
 		popup_text = event['extra_info']
