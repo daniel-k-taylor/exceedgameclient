@@ -523,6 +523,10 @@ class Player:
 	var cards_that_will_not_hit : Array[String]
 	var cards_invalid_during_strike : Array[String]
 	var plague_knight_discard_names : Array[String]
+	var public_hand : Array[String]
+	var public_hand_questionable : Array[String]
+	var public_delayed_until_strike_reveal : Array[int]
+	var public_topdeck_id : int
 
 	func _init(id, player_name, parent_ref, card_db_ref, chosen_deck, card_start_id):
 		my_id = id
@@ -605,6 +609,10 @@ class Player:
 		cards_that_will_not_hit = []
 		cards_invalid_during_strike = []
 		plague_knight_discard_names = []
+		public_hand = []
+		public_hand_questionable = []
+		public_delayed_until_strike_reveal = []
+		public_topdeck_id = -1
 
 		if "buddy_cards" in deck_def:
 			var buddy_index = 0
@@ -641,6 +649,7 @@ class Player:
 			random_shuffle_deck()
 
 	func random_shuffle_deck():
+		public_topdeck_id = -1
 		parent.shuffle_array(deck)
 
 	func owns_card(card_id: int):
@@ -740,10 +749,16 @@ class Player:
 	func get_overdrive_effect():
 		return deck_def['overdrive_effect']
 
-	func remove_card_from_hand(id : int):
+	func remove_card_from_hand(id : int, is_revealed : bool, is_revealed_on_strike_reveal : bool):
 		for i in range(len(hand)):
 			if hand[i].id == id:
 				hand.remove_at(i)
+				if is_revealed:
+					on_hand_remove_public_card(id)
+				elif is_revealed_on_strike_reveal:
+					on_hand_remove_card_public_on_strike_reveal(id)
+				else:
+					on_hand_remove_secret_card()
 				break
 
 	func remove_card_from_gauge(id : int):
@@ -758,6 +773,73 @@ class Player:
 				sealed.remove_at(i)
 				break
 
+	func on_hand_add_public_card(card_id : int):
+		var card_def_id = parent.card_db.get_card(card_id).definition['id']
+		public_hand.append(card_def_id)
+
+	func on_hand_remove_public_card(card_id : int):
+		if hand.size() == 0:
+			reset_public_hand_knowledge()
+		else:
+			var card_def_id = parent.card_db.get_card(card_id).definition['id']
+			public_hand.erase(card_def_id)
+			public_hand_questionable.erase(card_def_id)
+
+	func on_hand_remove_card_public_on_strike_reveal(card : int):
+		public_delayed_until_strike_reveal.append(card)
+
+	func on_hand_remove_secret_card():
+		if hand.size() == 0:
+			reset_public_hand_knowledge()
+		else:
+			public_hand_questionable.append_array(public_hand)
+			public_hand = []
+
+	func reset_public_hand_knowledge():
+		public_hand = []
+		public_hand_questionable = []
+
+	func get_public_hand_info():
+		var public_hand_info = {
+			"known": {},
+			"questionable": {},
+			"topdeck": ""
+		}
+		for card_def_id in public_hand:
+			if card_def_id in public_hand_info['known']:
+				public_hand_info['known'][card_def_id] += 1
+			else:
+				public_hand_info['known'][card_def_id] = 1
+		for card_def_id in public_hand_questionable:
+			if card_def_id in public_hand_info['questionable']:
+				public_hand_info['questionable'][card_def_id] += 1
+			else:
+				public_hand_info['questionable'][card_def_id] = 1
+		if public_topdeck_id != -1:
+			public_hand_info['topdeck'] = parent.card_db.get_card(public_topdeck_id).definition['id']
+		return public_hand_info
+
+	func update_public_hand_if_deck_empty(is_strike_reveal : bool):
+		if is_strike_reveal:
+			for card_id in public_delayed_until_strike_reveal:
+				on_hand_remove_public_card(card_id)
+			public_delayed_until_strike_reveal = []
+
+		if len(deck) == 0:
+			# Determine if there are any unknown cards.
+			# Secret sealed area or facedown strike.
+			if sealed_area_is_secret and len(sealed) > 0:
+				# Can't do anything
+				return
+			elif parent.active_strike and parent.active_strike.in_setup:
+				# Can't do anything, strike is still secret.
+				return
+			else:
+				# All cards are known.
+				reset_public_hand_knowledge()
+				for card in hand:
+					on_hand_add_public_card(card.id)
+
 	func move_card_from_hand_to_deck(id : int, destination_index : int = 0):
 		var events = []
 		for i in range(len(hand)):
@@ -765,6 +847,8 @@ class Player:
 			if card.id == id:
 				deck.insert(destination_index, card)
 				hand.remove_at(i)
+				on_hand_remove_secret_card()
+				public_topdeck_id = -1
 				events += [parent.create_event(Enums.EventType.EventType_AddToDeck, my_id, card.id)]
 				break
 		return events
@@ -776,6 +860,7 @@ class Player:
 			if card.id == id:
 				events += add_to_gauge(card)
 				hand.remove_at(i)
+				on_hand_remove_public_card(id)
 				break
 		return events
 
@@ -784,8 +869,9 @@ class Player:
 		for i in range(len(gauge)):
 			var card = gauge[i]
 			if card.id == id:
-				events += add_to_hand(card)
+				events += add_to_hand(card, true)
 				gauge.remove_at(i)
+				on_hand_add_public_card(id)
 				break
 		return events
 
@@ -825,6 +911,7 @@ class Player:
 			deck.insert(0, card)
 			events += [parent.create_event(Enums.EventType.EventType_AddToDeck, my_id, card.id)]
 		hand = []
+		reset_public_hand_knowledge()
 		random_shuffle_deck()
 		return events
 
@@ -835,6 +922,7 @@ class Player:
 			if card.id == id:
 				deck.insert(0, card)
 				hand.remove_at(i)
+				on_hand_remove_secret_card()
 				events += [parent.create_event(Enums.EventType.EventType_AddToDeck, my_id, card.id)]
 				break
 		random_shuffle_deck()
@@ -855,7 +943,7 @@ class Player:
 		for i in range(len(discards)):
 			var card = discards[i]
 			if card.id == id:
-				events += add_to_hand(card)
+				events += add_to_hand(card, true)
 				discards.remove_at(i)
 				break
 		return events
@@ -865,7 +953,7 @@ class Player:
 		for i in range(len(sealed)):
 			var card = sealed[i]
 			if card.id == id:
-				events += add_to_hand(card)
+				events += add_to_hand(card, sealed_area_is_secret)
 				sealed.remove_at(i)
 				break
 		return events
@@ -875,8 +963,12 @@ class Player:
 		for i in range(len(sealed)):
 			var card = sealed[i]
 			if card.id == id:
-				events += add_to_top_of_deck(card)
+				events += add_to_top_of_deck(card, sealed_area_is_secret)
 				sealed.remove_at(i)
+				if sealed_area_is_secret:
+					public_topdeck_id = -1
+				else:
+					public_topdeck_id = id
 				break
 		return events
 
@@ -887,6 +979,7 @@ class Player:
 				var card = deck[0]
 				events += add_to_gauge(card)
 				deck.remove_at(0)
+				public_topdeck_id = -1
 		return events
 
 	func add_top_discard_to_gauge(amount : int):
@@ -916,7 +1009,7 @@ class Player:
 		if card_names:
 			parent._append_log_full(Enums.LogType.LogType_CardInfo, self, "adds their gauge to their hand, containing %s." % card_names)
 		for card in gauge:
-			events += add_to_hand(card)
+			events += add_to_hand(card, true)
 		gauge = []
 		return events
 
@@ -1245,6 +1338,11 @@ class Player:
 
 	func draw(num_to_draw : int):
 		var events : Array = []
+		if num_to_draw > 0:
+			if public_topdeck_id != -1:
+				on_hand_add_public_card(public_topdeck_id)
+				public_topdeck_id = -1
+
 		for i in range(num_to_draw):
 			if len(deck) > 0:
 				var card = deck[0]
@@ -1258,6 +1356,8 @@ class Player:
 					hand.append(card)
 					deck.remove_at(0)
 					events += [parent.create_event(Enums.EventType.EventType_Draw, my_id, card.id)]
+
+			update_public_hand_if_deck_empty(false)
 		return events
 
 	func add_set_aside_card_to_deck(card_str_id : String):
@@ -1265,6 +1365,7 @@ class Player:
 		var card = get_set_aside_card(card_str_id, true)
 		if card:
 			deck.insert(0, card)
+			public_topdeck_id = card.id
 		return events
 
 	func get_unknown_cards():
@@ -1319,6 +1420,7 @@ class Player:
 				if card.id == discard_id:
 					hand.remove_at(i)
 					events += add_to_discards(card)
+					on_hand_remove_public_card(discard_id)
 					break
 
 			# From gauge
@@ -1352,12 +1454,16 @@ class Player:
 			match source:
 				"hand":
 					source_array = hand
+					on_hand_remove_public_card(card_id)
 				"gauge":
 					source_array = gauge
 				"discard":
 					source_array = discards
 				"deck":
 					source_array = deck
+					# Only tests currently use this, but
+					# presumably these would be coming from top deck
+					public_topdeck_id = -1
 				"opponent_discard":
 					source_array = opposing_player.discards
 				"_":
@@ -1382,10 +1488,16 @@ class Player:
 		match source:
 			"hand":
 				source_array = hand
+				if sealed_area_is_secret:
+					on_hand_remove_secret_card()
+				else:
+					on_hand_remove_public_card(card_id)
 			"discard":
 				source_array = discards
 			"deck":
 				source_array = deck
+				# Assuming this coming from the topdeck.
+				public_topdeck_id = -1
 			"_":
 				assert(false)
 				parent.printlog("ERROR: Unexpected source of card going to sealed area: %s" % source)
@@ -1422,6 +1534,7 @@ class Player:
 		if card_names:
 			parent._append_log_full(Enums.LogType.LogType_CardInfo, self, "discards their hand, containing %s." % card_names)
 		events += discard(card_ids)
+		reset_public_hand_knowledge()
 		return events
 
 	func add_hand_to_gauge():
@@ -1457,6 +1570,7 @@ class Player:
 			var card_name = parent.card_db.get_card_name(card.id)
 			parent._append_log_full(Enums.LogType.LogType_CardInfo, self, "discards the top card of their deck: %s." % card_name)
 			deck.remove_at(0)
+			public_topdeck_id = -1
 			events += add_to_discards(card)
 		return events
 
@@ -1490,6 +1604,9 @@ class Player:
 		else:
 			parent._append_log_full(Enums.LogType.LogType_CardInfo, self, "reveals their hand: %s." % card_names)
 		events += [parent.create_event(Enums.EventType.EventType_RevealHand, my_id, 0)]
+		reset_public_hand_knowledge()
+		for card in hand:
+			on_hand_add_public_card(card.id)
 		return events
 
 	func reveal_hand_and_topdeck():
@@ -1510,6 +1627,7 @@ class Player:
 		else:
 			parent._append_log_full(Enums.LogType.LogType_CardInfo, self, "reveals the top card of their deck: %s." % card_name)
 		events += [parent.create_event(Enums.EventType.EventType_RevealTopDeck, my_id, deck[0].id)]
+		public_topdeck_id = deck[0].id
 		return events
 
 	func pick_random_cards_from_hand(amount):
@@ -1562,6 +1680,7 @@ class Player:
 				parent.active_strike.defender_card = deck[0]
 				parent.active_strike.defender_wild_strike = true
 			deck.remove_at(0)
+			public_topdeck_id = -1
 			events += [parent.create_event(Enums.EventType.EventType_Strike_WildStrike, my_id, card_id, "", is_immediate_reveal)]
 		return events
 
@@ -1597,16 +1716,22 @@ class Player:
 			# Card belongs to the other player, so discard it there.
 			return parent._get_player(parent.get_other_player(my_id)).add_to_discards(card)
 
-	func add_to_hand(card : GameCard):
+	func add_to_hand(card : GameCard, public : bool):
 		hand.append(card)
+		if public:
+			on_hand_add_public_card(card.id)
 		return [parent.create_event(Enums.EventType.EventType_AddToHand, my_id, card.id)]
 
 	func add_to_sealed(card : GameCard, silent=false):
 		sealed.append(card)
 		return [parent.create_event(Enums.EventType.EventType_Seal, my_id, card.id, "", not silent)]
 
-	func add_to_top_of_deck(card : GameCard):
+	func add_to_top_of_deck(card : GameCard, public : bool):
 		deck.insert(0, card)
+		if public:
+			public_topdeck_id = card.id
+		else:
+			public_topdeck_id = -1
 		return [parent.create_event(Enums.EventType.EventType_AddToDeck, my_id, card.id)]
 
 	func get_available_force():
@@ -2063,7 +2188,7 @@ class Player:
 				if to_gauge:
 					events += add_to_gauge(card)
 				elif to_hand:
-					events += add_to_hand(card)
+					events += add_to_hand(card, true)
 				elif to_overdrive:
 					events += add_to_overdrive(card)
 				else:
@@ -2291,7 +2416,7 @@ func _test_add_to_gauge(amount: int):
 	for i in range(amount):
 		events += player.draw(1)
 		var card = player.hand[0]
-		player.remove_card_from_hand(card.id)
+		player.remove_card_from_hand(card.id, true, false)
 		events += player.add_to_gauge(card)
 	event_queue += events
 	return true
@@ -2586,6 +2711,8 @@ func strike_setup_initiator_response(events):
 func begin_resolve_strike(events):
 	# Strike is beginning, setup has been completed.
 	active_strike.in_setup = false
+	active_strike.initiator.update_public_hand_if_deck_empty(true)
+	active_strike.defender.update_public_hand_if_deck_empty(true)
 	events += [create_event(Enums.EventType.EventType_Strike_Reveal, active_strike.initiator.my_id, 0)]
 	var initiator_name = active_strike.initiator.name
 	var defender_name = active_strike.defender.name
@@ -5793,7 +5920,7 @@ func handle_strike_attack_cleanup(performing_player : Player, card):
 		active_strike.cards_in_play.erase(card)
 	elif performing_player.strike_stat_boosts.return_attack_to_hand:
 		_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "returns their attack %s to their hand." % card_name)
-		events += performing_player.add_to_hand(card)
+		events += performing_player.add_to_hand(card, true)
 		active_strike.cards_in_play.erase(card)
 	elif performing_player.strike_stat_boosts.move_strike_to_opponent_boosts:
 		_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "'s attack %s is set as a continuous boost for %s." % [card_name, other_player.name])
@@ -5807,7 +5934,7 @@ func handle_strike_attack_cleanup(performing_player : Player, card):
 		active_strike.cards_in_play.erase(card)
 	elif performing_player.strike_stat_boosts.attack_to_topdeck_on_cleanup:
 		_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "returns their attack %s to the top of their deck." % card_name)
-		events += performing_player.add_to_top_of_deck(card)
+		events += performing_player.add_to_top_of_deck(card, true)
 		active_strike.cards_in_play.erase(card)
 	elif performing_player.strike_stat_boosts.discard_attack_on_cleanup:
 		_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "discards their attack %s." % card_name)
@@ -5882,7 +6009,7 @@ func begin_extra_attack(events, performing_player : Player, card_id : int):
 
 	# Remove the card from the hand, it is now in the striking area.
 	# Notify via an event.
-	performing_player.remove_card_from_hand(card_id)
+	performing_player.remove_card_from_hand(card_id, true, false)
 	events.append(create_event(Enums.EventType.EventType_Strike_Started_ExtraAttack, performing_player.my_id, card_id, ""))
 
 	var card_name = card_db.get_card_name(card_id)
@@ -6024,7 +6151,7 @@ func begin_resolve_boost(performing_player : Player, card_id : int):
 	active_boost = Boost.new()
 	active_boost.playing_player = performing_player
 	active_boost.card = card_db.get_card(card_id)
-	performing_player.remove_card_from_hand(card_id)
+	performing_player.remove_card_from_hand(card_id, true, false)
 	performing_player.remove_card_from_gauge(card_id)
 	events += [create_event(Enums.EventType.EventType_Boost_Played, performing_player.my_id, card_id)]
 
@@ -6117,7 +6244,7 @@ func boost_finish_resolving_card(performing_player : Player):
 			events += performing_player.add_to_gauge(active_boost.card)
 		elif active_boost.card.id in active_boost.cleanup_to_hand_card_ids:
 			_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "returns the boosted card %s to hand." % active_boost.card.definition['display_name'])
-			events += performing_player.add_to_hand(active_boost.card)
+			events += performing_player.add_to_hand(active_boost.card, true)
 		else:
 			_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "discards the boosted card %s." % active_boost.card.definition['display_name'])
 			events += performing_player.add_to_discards(active_boost.card)
@@ -6486,7 +6613,7 @@ func do_exceed(performing_player : Player, card_ids : Array) -> bool:
 	if game_state == Enums.GameState.GameState_AutoStrike:
 		# Draw the set aside card.
 		var card = performing_player.get_set_aside_card(decision_info.effect_type)
-		events += performing_player.add_to_hand(card)
+		events += performing_player.add_to_hand(card, false)
 		# Strike with it
 		event_queue += events
 		events = []
@@ -6617,12 +6744,12 @@ func do_strike(performing_player : Player, card_id : int, wild_strike: bool, ex_
 					performing_player.remove_card_from_sealed(card_id)
 					performing_player.next_strike_from_sealed = false
 				else:
-					performing_player.remove_card_from_hand(card_id)
+					performing_player.remove_card_from_hand(card_id, false, true)
 
 				if ex_card_id != -1:
 					_append_log_full(Enums.LogType.LogType_Strike, performing_player, "sets an EX attack!")
 					active_strike.initiator_ex_card = card_db.get_card(ex_card_id)
-					performing_player.remove_card_from_hand(ex_card_id)
+					performing_player.remove_card_from_hand(ex_card_id, false, true)
 				else:
 					_append_log_full(Enums.LogType.LogType_Strike, performing_player, "sets their attack.")
 
@@ -6661,11 +6788,11 @@ func do_strike(performing_player : Player, card_id : int, wild_strike: bool, ex_
 				card_id = active_strike.defender_card.id
 			else:
 				active_strike.defender_card = card_db.get_card(card_id)
-				performing_player.remove_card_from_hand(card_id)
+				performing_player.remove_card_from_hand(card_id, false, true)
 				if ex_card_id != -1:
 					_append_log_full(Enums.LogType.LogType_Strike, performing_player, "sets an EX attack!")
 					active_strike.defender_ex_card = card_db.get_card(ex_card_id)
-					performing_player.remove_card_from_hand(ex_card_id)
+					performing_player.remove_card_from_hand(ex_card_id, false, true)
 				else:
 					_append_log_full(Enums.LogType.LogType_Strike, performing_player, "sets their attack.")
 			# Send the EX first as that is visual and logic is triggered off the regular one.

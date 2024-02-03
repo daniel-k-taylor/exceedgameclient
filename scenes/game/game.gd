@@ -3785,6 +3785,8 @@ func _on_opponent_reference_button_pressed(switch_toggle : bool = false, hide_re
 	else:
 		reference_popout_toggle = false
 
+	var public_hand_info = game_wrapper.get_player_public_hand_info(Enums.PlayerId.PlayerId_Opponent)
+
 	for card in $AllCards/OpponentAllCopy.get_children():
 		if card.card_id < 0:
 			continue
@@ -3797,6 +3799,16 @@ func _on_opponent_reference_button_pressed(switch_toggle : bool = false, hide_re
 		else:
 			count = game_wrapper.count_cards_in_deck_and_hand(Enums.PlayerId.PlayerId_Opponent, card_str_id)
 		card.set_remaining_count(count)
+		var known_count = 0
+		var questionable_count = 0
+		var on_topdeck = false
+		
+		if card_str_id in public_hand_info['known']:
+			known_count = public_hand_info['known'][card_str_id]
+		if card_str_id in public_hand_info['questionable']:
+			questionable_count = public_hand_info['questionable'][card_str_id]
+		on_topdeck = card_str_id == public_hand_info['topdeck']
+		card.update_hand_icons(known_count, questionable_count, on_topdeck)
 	var popout_title = "THEIR DECK REFERENCE (showing remaining card counts in deck+hand"
 	if reference_popout_toggle:
 		popout_title = "THEIR CARDS BEFORE RESHUFFLE (remained in deck+hand"
