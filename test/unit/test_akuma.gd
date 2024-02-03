@@ -4,7 +4,7 @@ const LocalGame = preload("res://scenes/game/local_game.gd")
 const GameCard = preload("res://scenes/game/game_card.gd")
 const Enums = preload("res://scenes/game/enums.gd")
 var game_logic : LocalGame
-var default_deck = CardDefinitions.get_deck_from_str_id("sagat")
+var default_deck = CardDefinitions.get_deck_from_str_id("akuma")
 const TestCardId1 = 50001
 const TestCardId2 = 50002
 const TestCardId3 = 50003
@@ -14,10 +14,13 @@ const TestCardId5 = 50005
 var player1 : LocalGame.Player
 var player2 : LocalGame.Player
 
-func default_game_setup():
+func default_game_setup(alt_opponent : String = ""):
+	var opponent_deck = default_deck
+	if alt_opponent:
+		opponent_deck = CardDefinitions.get_deck_from_str_id(alt_opponent)
 	game_logic = LocalGame.new()
 	var seed_value = randi()
-	game_logic.initialize_game(default_deck, default_deck, "p1", "p2", Enums.PlayerId.PlayerId_Player, seed_value)
+	game_logic.initialize_game(default_deck, opponent_deck, "p1", "p2", Enums.PlayerId.PlayerId_Player, seed_value)
 	game_logic.draw_starting_hands_and_begin()
 	game_logic.do_mulligan(game_logic.player, [])
 	game_logic.do_mulligan(game_logic.opponent, [])
@@ -199,6 +202,7 @@ func validate_life(p1, l1, p2, l2):
 func test_akuma_crit():
 	position_players(player1, 3, player2, 7)
 	give_gauge(player1, 1)
+	assert_eq(player2.hand.size(), 6)
 	give_player_specific_card(player1, "akuma_tatsumakizankukyaku", TestCardId1)
 	give_player_specific_card(player2, "standard_normal_spike", TestCardId2)
 	assert_true(game_logic.do_strike(player1, TestCardId1, false, -1))
@@ -208,6 +212,8 @@ func test_akuma_crit():
 	assert_true(game_logic.do_strike(player2, TestCardId2, false, -1))
 	validate_life(player1, 30, player2, 24)
 	validate_positions(player1, 5, player2, 7)
+	assert_eq(player2.hand.size(), 6)
+	advance_turn(player2)
 
 func test_exceeded_akuma_crit():
 	position_players(player1, 3, player2, 7)
@@ -222,51 +228,103 @@ func test_exceeded_akuma_crit():
 	assert_true(game_logic.do_strike(player2, TestCardId2, false, -1))
 	validate_life(player1, 30, player2, 23)
 	validate_positions(player1, 5, player2, 7)
+	advance_turn(player2)
+
+func test_akuma_tatsu_miss_no_discard():
+	position_players(player1, 4, player2, 5)
+	give_gauge(player1, 1)
+	give_gauge(player2, 2)
+	assert_eq(player2.hand.size(), 6)
+	give_player_specific_card(player1, "akuma_tatsumakizankukyaku", TestCardId1)
+	give_player_specific_card(player2, "linne_elusiveflash", TestCardId2)
+	assert_true(game_logic.do_strike(player1, TestCardId1, false, -1))
+	# Crit
+	assert_true(game_logic.do_gauge_for_effect(player1, [player1.gauge[0].id]))
+	assert_true(game_logic.do_strike(player2, TestCardId2, false, -1))
+	# Also crit
+	assert_true(game_logic.do_gauge_for_effect(player2, [player2.gauge[0].id]))
+	# Pay for elusive
+	assert_true(game_logic.do_pay_strike_cost(player2, [player2.gauge[0].id], false))
+	validate_life(player1, 22, player2, 30) # Elusive is 4 power, + 4 for double crits
+	validate_positions(player1, 7, player2, 5)
+	assert_eq(player2.hand.size(), 6) # Didn't discard
+	advance_turn(player2)
 
 func test_akuma_zugaihasatsu_opponent_guard_power_bonus():
 	position_players(player1, 6, player2, 8)
+	give_gauge(player1, 1)
 	give_player_specific_card(player1, "akuma_zugaihasatsu", TestCardId1)
 	give_player_specific_card(player2, "standard_normal_spike", TestCardId2)
 	assert_true(game_logic.do_strike(player1, TestCardId1, false, -1))
 	# On set, Akuma has his critical choice.
 	assert_true(game_logic.do_gauge_for_effect(player1, [player1.gauge[0].id]))
-	assert_true(game_logic.do_choice(player1, 0))
 	assert_true(game_logic.do_strike(player2, TestCardId2, false, -1))
-	validate_life(player1, 30, player2, 22)
+	# Simul choice adv/power bonus
+	assert_true(game_logic.do_choice(player1, 0))
+	validate_life(player1, 30, player2, 23)
 	validate_positions(player1, 6, player2, 8)
+	advance_turn(player1)
 
-func test_akuma_demon_armageddon():
+func test_akuma_demon_armageddon_power_bonuses():
 	position_players(player1, 7, player2, 8)
-	player1.discard_hand()
+	give_gauge(player1, 5)
 	give_player_specific_card(player1, "akuma_demonarmageddon", TestCardId1)
 	give_player_specific_card(player2, "standard_normal_spike", TestCardId2)
 	assert_true(game_logic.do_strike(player1, TestCardId1, false, -1))
-	# On set, Sagat has his faceup choice and critical choice.
-	# No gauge so not crit.
+	# Critical
 	assert_true(game_logic.do_gauge_for_effect(player1, [player1.gauge[0].id]))
-	# Then faceup choice.
-	assert_true(game_logic.do_choice(player1, 0))
 	assert_true(game_logic.do_strike(player2, TestCardId2, false, -1))
-	# After, recur choice
-	assert_true(game_logic.do_choice(player1, 0))
+	var card_ids = []
+	for card in player1.gauge:
+		card_ids.append(card.id)
+	assert_true(game_logic.do_pay_strike_cost(player1, card_ids, false))
 	assert_eq(player1.gauge.size(), 1)
-	assert_eq(player1.deck[0].definition['id'], "akuma_demonarmageddon")
 	validate_life(player1, 30, player2, 20)
 	validate_positions(player1, 7, player2, 8)
+	advance_turn(player2)
 
 func test_akuma_instanthellmurder_enough():
 	position_players(player1, 3, player2, 5)
 	player1.exceeded = true
+	give_gauge(player1, 1)
 	give_player_specific_card(player1, "akuma_wrathoftheragingdemon", TestCardId3)
 	assert_true(game_logic.do_boost(player1, TestCardId3))
 	assert_eq(game_logic.active_turn_player, player2.my_id)
 	give_player_specific_card(player1, "akuma_hyakkishu", TestCardId1)
 	give_player_specific_card(player2, "standard_normal_assault", TestCardId2)
 	assert_true(game_logic.do_strike(player2, TestCardId2, false, -1))
-	assert_true(game_logic.do_gauge_for_effect(player1, [player1.gauge[0].id]))
-	# On set, akuma gets critical choice
-	# Akuma chooses to crit to
-	assert_true(game_logic.do_choice(player2, 1))
 	assert_true(game_logic.do_strike(player1, TestCardId1, false, -1))
+	# Critical
+	assert_true(game_logic.do_gauge_for_effect(player1, [player1.gauge[0].id]))
 	validate_life(player1, 30, player2, 23)
 	validate_positions(player1, 4, player2, 5)
+	advance_turn(player1)
+
+func test_akuma_vs_arakune_positive_bonus_check():
+	game_logic.teardown()
+	game_logic.free()
+	default_game_setup("arakune")
+	position_players(player1, 3, player2, 5)
+	player1.exceeded = true
+	advance_turn(player1)
+	
+	# Arakune boosts his stupid +1 range -1 power thing.
+	give_player_specific_card(player2, "arakune_ytwodash", TestCardId3)
+	assert_true(game_logic.do_boost(player2, TestCardId3))
+	
+	# Player 1's turn to strike.
+	give_gauge(player1, 5)
+	give_player_specific_card(player1, "akuma_demonarmageddon", TestCardId1)
+	give_player_specific_card(player2, "standard_normal_dive", TestCardId2)
+	assert_true(game_logic.do_strike(player1, TestCardId1, false, -1))
+	# Critical, +3 power
+	assert_true(game_logic.do_gauge_for_effect(player1, [player1.gauge[0].id]))
+	assert_true(game_logic.do_strike(player2, TestCardId2, false, -1))
+	var card_ids = []
+	for card in player1.gauge:
+		card_ids.append(card.id)
+	assert_true(game_logic.do_pay_strike_cost(player1, card_ids, false))
+	assert_eq(player1.gauge.size(), 1)
+	validate_life(player1, 30, player2, 19) # 6 pow + 3*2 bonus = 12 -1 = 11 total damage
+	validate_positions(player1, 3, player2, 5)
+	advance_turn(player2)

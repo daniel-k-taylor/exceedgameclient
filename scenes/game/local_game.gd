@@ -123,6 +123,7 @@ func create_event(event_type : Enums.EventType, event_player : Enums.PlayerId, n
 		playerstr = "Opponent"
 	printlog("Event %s %s %d (card=%s)" % [Enums.EventType.keys()[event_type], playerstr, num, card_name])
 	return {
+		"event_name": Enums.EventType.keys()[event_type],
 		"event_type": event_type,
 		"event_player": event_player,
 		"number": num,
@@ -317,6 +318,7 @@ class Boost:
 
 class StrikeStatBoosts:
 	var power : int = 0
+	var power_positive_only : int = 0
 	var armor : int = 0
 	var consumed_armor : int = 0
 	var guard : int = 0
@@ -354,6 +356,7 @@ class StrikeStatBoosts:
 	var discard_attack_on_cleanup : bool = false
 	var seal_attack_on_cleanup : bool = false
 	var power_bonus_multiplier : int = 1
+	var power_bonus_multiplier_positive_only : int = 1
 	var speed_bonus_multiplier : int = 1
 	var active_character_effects = []
 	var added_attack_effects = []
@@ -376,6 +379,7 @@ class StrikeStatBoosts:
 
 	func clear():
 		power = 0
+		power_positive_only = 0
 		armor = 0
 		consumed_armor = 0
 		guard = 0
@@ -413,6 +417,7 @@ class StrikeStatBoosts:
 		discard_attack_on_cleanup = false
 		seal_attack_on_cleanup = false
 		power_bonus_multiplier = 1
+		power_bonus_multiplier_positive_only = 1
 		speed_bonus_multiplier = 1
 		active_character_effects = []
 		added_attack_effects = []
@@ -1943,6 +1948,11 @@ class Player:
 			i += 1
 		return found_effects
 
+	func add_power_bonus(amount : int):
+		strike_stat_boosts.power += amount
+		if amount > 0:
+			strike_stat_boosts.power_positive_only += amount
+
 	func reenable_boost_effects(card : GameCard):
 		var opposing_player = parent._get_player(parent.get_other_player(my_id))
 		# Redo boost properties
@@ -1978,10 +1988,10 @@ class Player:
 								dodge_range += "-%s" % strike_stat_boosts.dodge_at_range_max
 							parent._append_log_full(Enums.LogType.LogType_Effect, self, "will dodge attacks from range %s!" % dodge_range)
 					"powerup":
-						strike_stat_boosts.power += effect['amount']
+						add_power_bonus(effect['amount'])
 					"powerup_both_players":
-						strike_stat_boosts.power += effect['amount']
-						opposing_player.strike_stat_boosts.power += effect['amount']
+						add_power_bonus(effect['amount'])
+						opposing_player.add_power_bonus(effect['amount'])
 					"speedup":
 						strike_stat_boosts.speed += effect['amount']
 					"armorup":
@@ -2031,10 +2041,10 @@ class Player:
 							strike_stat_boosts.dodge_at_range_max = -1
 							strike_stat_boosts.dodge_at_range_from_buddy = false
 					"powerup":
-						strike_stat_boosts.power -= effect['amount']
+						add_power_bonus(-effect['amount'])
 					"powerup_both_players":
-						strike_stat_boosts.power -= effect['amount']
-						opposing_player.strike_stat_boosts.power -= effect['amount']
+						add_power_bonus(-effect['amount'])
+						opposing_player.add_power_bonus(-effect['amount'])
 					"speedup":
 						strike_stat_boosts.speed -= effect['amount']
 					"armorup":
@@ -2911,14 +2921,14 @@ func is_effect_condition_met(performing_player : Player, effect, local_condition
 			return decision_info.action == effect["condition_details"]
 		elif condition == "total_powerup_greater_or_equal":
 			var amount = effect["condition_amount"]
-			var total_powerup = performing_player.strike_stat_boosts.power
+			var strike_card = active_strike.get_player_card(performing_player)
+			var power = get_card_stat(performing_player, strike_card, 'power')
+			var total_power = get_total_power(performing_player)
+			var total_powerup = total_power - power
 			return total_powerup >= amount
 		elif condition == "opponent_total_guard_greater_or_equal":
 			var amount = effect["condition_amount"]
-			var card = active_strike.get_player_card(other_player)
-			var base_guard = get_card_stat(other_player, card, 'guard')
-			var guard_modifier = other_player.strike_stat_boosts.guard
-			var total_guard = base_guard + guard_modifier
+			var total_guard = get_total_guard(other_player)
 			return total_guard >= amount
 		elif condition == "no_sealed_copy_of_attack":
 			var card_id = active_strike.get_player_card(performing_player).definition["id"]
@@ -3899,12 +3909,7 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 		"multiply_power_bonuses":
 			performing_player.strike_stat_boosts.power_bonus_multiplier = max(effect['amount'], performing_player.strike_stat_boosts.power_bonus_multiplier)
 		"multiply_positive_power_bonuses":
-			var positive_power_bonuses = 0
-			if performing_player.strike_stat_boosts.overwrite_total_power:
-				var power_modifier = performing_player.strike_stat_boosts.power
-				if power_modifier > 0:
-					performing_player.strike_stat_boosts.power += positive_power_bonuses
-					performing_player.strike_stat_boosts.power_bonus_multiplier = max(effect['amount'], performing_player.strike_stat_boosts.power_bonus_multiplier)			
+			performing_player.strike_stat_boosts.power_bonus_multiplier_positive_only = max(effect['amount'], performing_player.strike_stat_boosts.power_bonus_multiplier_positive_only)
 		"multiply_speed_bonuses":
 			performing_player.strike_stat_boosts.speed_bonus_multiplier = max(effect['amount'], performing_player.strike_stat_boosts.speed_bonus_multiplier)
 		"opponent_cant_move_past":
@@ -4102,19 +4107,19 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 			if 'multiplier' in effect:
 				multiplier = effect['multiplier']
 			amount = amount * multiplier
-
-			performing_player.strike_stat_boosts.power += amount
+			performing_player.add_power_bonus(amount)
 			events += [create_event(Enums.EventType.EventType_Strike_PowerUp, performing_player.my_id, amount)]
 		"powerup_both_players":
 			var amount = effect['amount']
-			performing_player.strike_stat_boosts.power += amount
+			performing_player.add_power_bonus(amount)
+			opposing_player.add_power_bonus(amount)
 			events += [create_event(Enums.EventType.EventType_Strike_PowerUp, performing_player.my_id, amount)]
-			opposing_player.strike_stat_boosts.power += amount
 			events += [create_event(Enums.EventType.EventType_Strike_PowerUp, opposing_player.my_id, amount)]
 		"powerup_per_boost_in_play":
 			var boosts_in_play = performing_player.continuous_boosts.size()
 			if boosts_in_play > 0:
-				performing_player.strike_stat_boosts.power += effect['amount'] * boosts_in_play
+				var amount = effect['amount'] * boosts_in_play
+				performing_player.add_power_bonus(amount)
 				events += [create_event(Enums.EventType.EventType_Strike_PowerUp, performing_player.my_id, effect['amount'] * boosts_in_play)]
 		"powerup_per_sealed_normal":
 			var sealed_normals = performing_player.get_sealed_count_of_type("normal")
@@ -4122,7 +4127,7 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 				var bonus_power = effect['amount'] * sealed_normals
 				if 'maximum' in effect:
 					bonus_power = min(bonus_power, effect['maximum'])
-				performing_player.strike_stat_boosts.power += bonus_power
+				performing_player.add_power_bonus(bonus_power)
 				events += [create_event(Enums.EventType.EventType_Strike_PowerUp, performing_player.my_id, bonus_power)]
 		"powerup_damagetaken":
 			var power_per_damage = effect['amount']
@@ -4130,10 +4135,10 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 			var total_powerup = power_per_damage * damage_taken
 			# Checking for negative damage taken so that powerup is in expected "direction"
 			if total_powerup != 0 and damage_taken > 0:
-				performing_player.strike_stat_boosts.power += total_powerup
+				performing_player.add_power_bonus(total_powerup)
 				events += [create_event(Enums.EventType.EventType_Strike_PowerUp, performing_player.my_id, total_powerup)]
 		"powerup_opponent":
-			opposing_player.strike_stat_boosts.power += effect['amount']
+			opposing_player.add_power_bonus(effect['amount'])
 			events += [create_event(Enums.EventType.EventType_Strike_PowerUp, opposing_player.my_id, effect['amount'])]
 		"pull":
 			var previous_location = opposing_player.arena_location
@@ -4596,11 +4601,14 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 			decision_info.clear()
 			decision_info.type = Enums.DecisionType.DecisionType_StrikeNow
 			decision_info.player = performing_player.my_id
-			# Don't send the event now.
-			# This had to have come from a boost, which means active_boost is set
-			# and we're processing a boost.
-			# That has code to set flags on the active_boost to strike after the boost.
-			# There could be more effects before the strike occurs, so wait on the event until then.
+			if active_boost:
+				# Don't send the event now, we're processing a boost.
+				# That has code to set flags on the active_boost to strike after the boost.
+				# There could be more effects before the strike occurs, so wait on the event until then
+				# and we don't want to send it twice.
+				pass
+			else:
+				events += [create_event(Enums.EventType.EventType_ForceStartStrike, performing_player.my_id, 0)]
 		"strike_effect_after_setting":
 			events += [create_event(Enums.EventType.EventType_ForceStartStrike, performing_player.my_id, 0)]
 			change_game_state(Enums.GameState.GameState_WaitForStrike)
@@ -5389,6 +5397,7 @@ func in_range(attacking_player, defending_player, card, combat_logging=false):
 			return false
 
 	return opponent_in_range
+
 func get_total_power(performing_player : Player):
 	if performing_player.strike_stat_boosts.overwrite_total_power:
 		return performing_player.strike_stat_boosts.overwritten_total_power
@@ -5397,7 +5406,18 @@ func get_total_power(performing_player : Player):
 	if active_strike.extra_attack_in_progress:
 		card = active_strike.extra_attack_card
 	var power = get_card_stat(performing_player, card, 'power')
+	# If some character multiplies both all bonuses and positive bonuses, that will need to be considered carefully.
+	# For now, just assert we're not doing that.
+	assert(performing_player.strike_stat_boosts.power_bonus_multiplier == 1 or performing_player.strike_stat_boosts.power_bonus_multiplier_positive_only == 1)
+
+	# Multiply all power bonuses.
 	var power_modifier = performing_player.strike_stat_boosts.power * performing_player.strike_stat_boosts.power_bonus_multiplier
+
+	# Multiply positive power bonuses and add that in.
+	var positive_multiplier_bonus = performing_player.strike_stat_boosts.power_positive_only
+	positive_multiplier_bonus *= (performing_player.strike_stat_boosts.power_bonus_multiplier_positive_only - 1)
+	power_modifier += positive_multiplier_bonus
+
 	if active_strike.extra_attack_in_progress:
 		# If an extra attack character has ways to get power multipliers, deal with that then.
 		power_modifier = performing_player.strike_stat_boosts.power - active_strike.extra_attack_previous_attack_power_bonus
@@ -5887,6 +5907,7 @@ func begin_extra_attack(events, performing_player : Player, card_id : int):
 
 	# Other relevant passives that need to be undone.
 	# If other extra attack characters are added, consider what else might be needed.
+	# For example: If an extra attack character can have positive power bonus boosts, those need to be removed too.
 	performing_player.strike_stat_boosts.ignore_armor = false
 	performing_player.strike_stat_boosts.ignore_guard = false
 
@@ -7215,6 +7236,9 @@ func do_force_for_effect(performing_player : Player, card_ids : Array, treat_ult
 			var force_value = card_db.get_card_force_value(card_id)
 			if force_value == 2:
 				ultras += 1
+
+	if performing_player.free_force > decision_info.effect['force_max']:
+		force_generated = decision_info.effect['force_max']
 
 	if force_generated > decision_info.effect['force_max']:
 		if force_generated - ultras <= decision_info.effect['force_max']:

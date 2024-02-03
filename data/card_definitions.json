@@ -24,14 +24,14 @@
 			"force_cost": 0,
 			"cancel_cost": -1,
 			"display_name": "Die One Thousand Deaths!",
-			"effects": [ 
+			"effects": [
 				{
 					"timing": "during_strike",
 					"effect_type": "multiply_positive_power_bonuses",
 					"amount": 2
 				}
-			]			
-		}		
+			]
+		}
 	},
 	{
 		"id": "akuma_wrathoftheragingdemon",
@@ -69,7 +69,7 @@
 					"effect_type": "speedup",
 					"amount": 3
 				}
-			]	
+			]
 		}
 	},
 	{
@@ -117,10 +117,10 @@
 				{
 					"timing": "during_strike",
 					"effect_type": "powerup",
-					"amount": 1	
+					"amount": 1
 				}
 			]
-		}		
+		}
 	},
 	{
 		"id": "akuma_goshoryuken",
@@ -145,7 +145,7 @@
 				"effect_type": "push",
 				"amount": 2
 			}
-		],	
+		],
 		"boost": {
 			"boost_type": "immediate",
 			"force_cost": 1,
@@ -166,7 +166,7 @@
 					"effect_type": "bonus_action"
 				}
 			]
-		}		
+		}
 	},
 	{
 		"id": "akuma_hyakkishu",
@@ -206,7 +206,7 @@
 			"effects": [
 				{
 					"timing": "now",
-					"effect_type": "strike_opponent_sets_first"	
+					"effect_type": "strike_opponent_sets_first"
 				},
 				{
 					"timing": "after",
@@ -214,7 +214,7 @@
 					"card_name": "Hyakkishu"
 				}
 			]
-		}		
+		}
 	},
 	{
 		"id": "akuma_tatsumakizankukyaku",
@@ -233,10 +233,14 @@
 				"timing": "before",
 				"effect_type": "advance",
 				"amount": 2,
-				"bonus_effect": {
+				"and": {
 					"condition": "advanced_through",
-					"effect_type": "opponent_discard_random",
-					"amount": 1					
+					"effect_type": "add_attack_effect",
+					"added_effect": {
+						"timing": "hit",
+						"effect_type": "opponent_discard_random",
+						"amount": 1
+					}
 				}
 			}
 		],
@@ -273,7 +277,7 @@
 		"guard": 0,
 		"effects": [
 			{
-				"timing": "during_strike",
+				"timing": "hit",
 				"condition": "is_critical",
 				"effect_type": "gain_advantage"
 			},
@@ -299,11 +303,11 @@
 				{
 					"timing": "hit",
 					"effect_type": "add_boost_to_gauge_on_strike_cleanup",
-					"card_name": "Zugaihasatsu"					
+					"card_name": "Zugaihasatsu"
 				}
 			]
 		},
-		"NOTEND": "AKUMA CARDS END"	
+		"NOTEND": "AKUMA CARDS END"
 	},
 	{
 		"NOTE": "ANJI CARDS START",
@@ -7096,9 +7100,13 @@
 				"timing": "before",
 				"effect_type": "advance",
 				"amount": 2,
-				"bonus_effect": {
+				"and": {
 					"condition": "advanced_through",
-					"effect_type": "ignore_guard"
+					"effect_type": "add_attack_effect",
+					"added_effect": {
+						"timing": "hit",
+						"effect_type": "ignore_guard"
+					}
 				}
 			}
 		],
@@ -12848,9 +12856,13 @@
 				"timing": "before",
 				"effect_type": "advance",
 				"amount": 2,
-				"bonus_effect": {
+				"and": {
 					"condition": "advanced_through",
-					"effect_type": "gain_advantage"
+					"effect_type": "add_attack_effect",
+					"added_effect": {
+						"timing": "hit",
+						"effect_type": "gain_advantage"
+					}
 				}
 			}
 		],
