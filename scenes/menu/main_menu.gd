@@ -112,6 +112,7 @@ func _on_disconnected():
 	$ReconnectToServerButton.disabled = false
 	$ServerStatusLabel.text = "Disconnected from server."
 	just_clicked_matchmake = false
+	_on_players_update([], false)
 
 func get_vs_info(player_name, player_deck, player_random_tag, opponent_name, opponent_deck, opponent_random_tag, randomize_first_vs_ai = false):
 	return {

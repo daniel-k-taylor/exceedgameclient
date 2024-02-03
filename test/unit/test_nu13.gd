@@ -195,7 +195,7 @@ func validate_life(p1, l1, p2, l2):
 func test_nu_sworddance_boost():
 	position_players(player1, 3, player2, 7)
 	give_player_specific_card(player1, "nu13_sworddance", TestCardId3)
-	assert_true(game_logic.do_boost(player1, TestCardId3))
+	assert_true(game_logic.do_boost(player1, TestCardId3, [player1.hand[0].id]))
 	assert_false(player2.can_move_to(1, true))
 	assert_false(player2.can_move_to(2, true))
 	assert_false(player2.can_move_to(3, true))
@@ -223,7 +223,7 @@ func test_nu_sworddance_boost():
 func test_nu_sworddance_boost_tech():
 	position_players(player1, 3, player2, 7)
 	give_player_specific_card(player1, "nu13_sworddance", TestCardId3)
-	assert_true(game_logic.do_boost(player1, TestCardId3))
+	assert_true(game_logic.do_boost(player1, TestCardId3, [player1.hand[0].id]))
 	assert_false(player2.can_move_to(1, true))
 	assert_false(player2.can_move_to(2, true))
 	assert_false(player2.can_move_to(3, true))
@@ -255,7 +255,7 @@ func test_nu_sworddance_boost_tech():
 func test_nu_sworddance_boost_strike():
 	position_players(player1, 3, player2, 7)
 	give_player_specific_card(player1, "nu13_sworddance", TestCardId3)
-	assert_true(game_logic.do_boost(player1, TestCardId3))
+	assert_true(game_logic.do_boost(player1, TestCardId3, [player1.hand[0].id]))
 	assert_false(player2.can_move_to(1, true))
 	assert_false(player2.can_move_to(2, true))
 	assert_false(player2.can_move_to(3, true))

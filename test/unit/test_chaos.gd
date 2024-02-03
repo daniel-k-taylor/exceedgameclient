@@ -133,7 +133,7 @@ func handle_simultaneous_effects(initiator, defender, simul_effect_choices : Arr
 		assert_true(game_logic.do_choice(decider, choice), "Failed simuleffect choice")
 
 func execute_strike(initiator, defender, init_card : String, def_card : String, init_choices, def_choices, init_ex = false, def_ex = false,
-		init_chaos_space = -1, init_force_discard = [], def_force_discard = [], init_extra_cost = 0, simul_effect_choices = []):
+		init_chaos_space = -1, _init_force_discard = [], def_force_discard = [], init_extra_cost = 0, simul_effect_choices = []):
 	var all_events = []
 	give_specific_cards(initiator, init_card, defender, def_card)
 

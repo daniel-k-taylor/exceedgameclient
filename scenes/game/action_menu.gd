@@ -7,10 +7,15 @@ signal ultra_force_toggled(new_value : bool)
 @onready var show_image : TextureRect = $OuterMargin/MainVBox/PanelContainer/ShowHideHBox/MarginContainer/MarginContainer/ShowImage
 @onready var hide_image : TextureRect = $OuterMargin/MainVBox/PanelContainer/ShowHideHBox/MarginContainer/MarginContainer/HideImage
 @onready var choice_buttons_grid : GridContainer = $OuterMargin/MainVBox/ChoiceButtons
+@onready var number_panel : PanelContainer = $OuterMargin/MainVBox/NumberSelectionPanel
+@onready var number_panel_label : Label = $OuterMargin/MainVBox/NumberSelectionPanel/Hbox/NumberLabel
 
 var showing = true
+var number_panel_current_number : int = 0
+var number_panel_max : int = 0
+var number_panel_min : int = 0
 
-func set_choices(instructions_text : String, choices : Array, ultra_force_toggle : bool):
+func set_choices(instructions_text : String, choices : Array, ultra_force_toggle : bool, number_picker_min : int, number_picker_max : int):
 	$OuterMargin/MainVBox/CheckHBox/UltrasForceOptionCheck.visible = ultra_force_toggle
 	var col_count = 1
 	if choices.size() > 5:
@@ -32,6 +37,15 @@ func set_choices(instructions_text : String, choices : Array, ultra_force_toggle
 			button.disabled = true
 			button.visible = false
 	reset_size()
+	
+	if number_picker_min != -1 and number_picker_max != -1:
+		number_panel_current_number = 0
+		number_panel_min = number_picker_min
+		number_panel_max = number_picker_max
+		number_panel.visible = true
+		number_panel_label.text = str(number_panel_current_number)
+	else:
+		number_panel.visible = false
 
 func _on_choice_pressed(num : int):
 	visible = false
@@ -48,3 +62,19 @@ func set_force_ultra_toggle(value):
 
 func _on_ultras_force_option_check_toggled(button_pressed):
 	ultra_force_toggled.emit(button_pressed)
+
+func get_current_number_picker_value():
+	return number_panel_current_number
+
+func _on_number_picker_update():
+	number_panel_current_number = max(number_panel_current_number, number_panel_min)
+	number_panel_current_number = min(number_panel_current_number, number_panel_max)
+	number_panel_label.text = str(number_panel_current_number)
+	
+func _on_minus_button_pressed():
+	number_panel_current_number -= 1
+	_on_number_picker_update()
+
+func _on_plus_button_pressed():
+	number_panel_current_number += 1
+	_on_number_picker_update()
