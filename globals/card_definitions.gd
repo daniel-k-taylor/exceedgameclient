@@ -420,8 +420,9 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 			var limitation_str = "boost"
 			if effect['limitation']:
 				limitation_str = effect['limitation'] + " boost"
-			if effect['allow_gauge']:
-				effect_str += "Play and sustain a %s from hand or gauge." % limitation_str
+			if 'valid_zones' in effect:
+				var zone_string = "/".join(effect['valid_zones'])
+				effect_str += "Play and sustain a %s from %s." % [limitation_str, zone_string]
 			else:
 				effect_str += "Play and sustain a %s from hand." % limitation_str
 		"boost_then_sustain_topdeck":

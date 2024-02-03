@@ -1331,24 +1331,16 @@ class Player:
 			return false
 		return true
 
-	func can_boost_something(allow_gauge : bool, only_gauge : bool, limitation : String, ignore_costs : bool = false) -> bool:
+	func can_boost_something(valid_zones : Array, limitation : String, ignore_costs : bool = false) -> bool:
 		var force_available = get_available_force()
-		if not only_gauge:
-			for card in hand:
-				var meets_limitation = true
-				if limitation:
-					meets_limitation = card.definition['boost']['boost_type'] == limitation
-				if not meets_limitation:
-					continue
+		var zone_map = {
+			"hand": hand,
+			"gauge": gauge,
+			"discard": discards
+		}
 
-				if ignore_costs:
-					return true
-				var force_available_when_boosting_this = force_available - parent.card_db.get_card_force_value(card.id)
-				var cost = parent.card_db.get_card_boost_force_cost(card.id)
-				if force_available_when_boosting_this >= cost:
-					return true
-		if allow_gauge:
-			for card in gauge:
+		for zone in valid_zones:
+			for card in zone_map[zone]:
 				var meets_limitation = true
 				if limitation:
 					meets_limitation = card.definition['boost']['boost_type'] == limitation
@@ -1420,7 +1412,7 @@ class Player:
 		if get_available_force() < force_cost: return false
 
 		if 'can_boost_continuous_boost_from_gauge' in action and action['can_boost_continuous_boost_from_gauge']:
-			if not can_boost_something(true, true, 'continuous'): return false
+			if not can_boost_something(['gauge'], 'continuous'): return false
 
 		if 'min_hand_size' in action:
 			if len(hand) < action['min_hand_size']: return false
@@ -3350,21 +3342,21 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 		"bonus_action":
 			active_boost.action_after_boost = true
 		"boost":
-			var allow_gauge = 'allow_gauge' in effect and effect['allow_gauge']
-			var only_gauge = 'only_gauge' in effect and effect['only_gauge']
+			var valid_zones = ['hand']
+			if 'valid_zones' in effect:
+				valid_zones = effect['valid_zones']
 			var ignore_costs = 'ignore_costs' in effect and effect['ignore_costs']
-			if performing_player.can_boost_something(allow_gauge, only_gauge, effect['limitation'], ignore_costs):
-				events += [create_event(Enums.EventType.EventType_ForceStartBoost, performing_player.my_id, 0, "", allow_gauge, only_gauge, effect['limitation'])]
+			if performing_player.can_boost_something(valid_zones, effect['limitation'], ignore_costs):
+				events += [create_event(Enums.EventType.EventType_ForceStartBoost, performing_player.my_id, 0, "", valid_zones, effect['limitation'], ignore_costs)]
 				change_game_state(Enums.GameState.GameState_PlayerDecision)
 				decision_info.clear()
 				decision_info.type = Enums.DecisionType.DecisionType_BoostNow
 				decision_info.player = performing_player.my_id
-				decision_info.allow_gauge = allow_gauge
-				decision_info.only_gauge = only_gauge
+				decision_info.valid_zones = valid_zones
 				decision_info.limitation = effect['limitation']
 				decision_info.ignore_costs = ignore_costs
 			else:
-				if len(performing_player.hand) == 0 or only_gauge: # Avoid leaking information
+				if len(performing_player.hand) == 0 or 'hand' not in valid_zones: # Avoid leaking information
 					_append_log_full(Enums.LogType.LogType_Effect, performing_player, "has no cards available to boost.")
 		"boost_applies_if_on_buddy":
 			if card_id == -1:
@@ -3372,14 +3364,13 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 				printlog("ERROR: Unimplemented path to boost_applies_if_on_buddy")
 			performing_player.set_boost_applies_if_on_buddy(card_id)
 		"boost_from_gauge":
-			if performing_player.can_boost_something(true, true, effect['limitation']):
-				events += [create_event(Enums.EventType.EventType_ForceStartBoost, performing_player.my_id, 0, "", true, true, effect['limitation'])]
+			if performing_player.can_boost_something(['gauge'], effect['limitation']):
+				events += [create_event(Enums.EventType.EventType_ForceStartBoost, performing_player.my_id, 0, "", ['gauge'], effect['limitation'])]
 				change_game_state(Enums.GameState.GameState_PlayerDecision)
 				decision_info.clear()
 				decision_info.type = Enums.DecisionType.DecisionType_BoostNow
 				decision_info.player = performing_player.my_id
-				decision_info.allow_gauge = true
-				decision_info.only_gauge = true
+				decision_info.valid_zones = ['gauge']
 				decision_info.limitation = effect['limitation']
 			else:
 				_append_log_full(Enums.LogType.LogType_Effect, performing_player, "has no valid cards in gauge to boost with.")
@@ -3391,21 +3382,21 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 				var boost_effect = effect['boost_effect']
 				events += handle_strike_effect(card_id, boost_effect, performing_player)
 		"boost_then_sustain":
-			var allow_gauge = 'allow_gauge' in effect and effect['allow_gauge']
-			var only_gauge = 'only_gauge' in effect and effect['only_gauge']
-			if performing_player.can_boost_something(allow_gauge, only_gauge, effect['limitation']):
-				events += [create_event(Enums.EventType.EventType_ForceStartBoost, performing_player.my_id, 0, "", allow_gauge, only_gauge, effect['limitation'])]
+			var valid_zones = ['hand']
+			if 'valid_zones' in effect:
+				valid_zones = effect['valid_zones']
+			if performing_player.can_boost_something(valid_zones, effect['limitation']):
+				events += [create_event(Enums.EventType.EventType_ForceStartBoost, performing_player.my_id, 0, "", valid_zones, effect['limitation'])]
 				change_game_state(Enums.GameState.GameState_PlayerDecision)
 				decision_info.clear()
 				decision_info.type = Enums.DecisionType.DecisionType_BoostNow
 				decision_info.player = performing_player.my_id
-				decision_info.allow_gauge = allow_gauge
-				decision_info.only_gauge = only_gauge
+				decision_info.valid_zones = valid_zones
 				decision_info.limitation = effect['limitation']
 				performing_player.sustain_next_boost = true
 				performing_player.cancel_blocked_this_turn = true
 			else:
-				if len(performing_player.hand) == 0 or only_gauge: # Avoid leaking information
+				if len(performing_player.hand) == 0 or 'hand' not in valid_zones: # Avoid leaking information
 					_append_log_full(Enums.LogType.LogType_Effect, performing_player, "has no cards available to boost.")
 		"boost_then_sustain_topdeck":
 			if performing_player.deck.size() > 0:
@@ -3433,22 +3424,22 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 			else:
 				_append_log_full(Enums.LogType.LogType_Effect, performing_player, "has no cards in discards to boost with.")
 		"boost_then_strike":
-			var allow_gauge = 'allow_gauge' in effect and effect['allow_gauge']
-			var only_gauge = 'only_gauge' in effect and effect['only_gauge']
-			if performing_player.can_boost_something(allow_gauge, only_gauge, effect['limitation']):
-				events += [create_event(Enums.EventType.EventType_ForceStartBoost, performing_player.my_id, 0, "", allow_gauge, only_gauge, effect['limitation'])]
+			var valid_zones = ['hand']
+			if 'valid_zones' in effect:
+				valid_zones = effect['valid_zones']
+			if performing_player.can_boost_something(valid_zones, effect['limitation']):
+				events += [create_event(Enums.EventType.EventType_ForceStartBoost, performing_player.my_id, 0, "", valid_zones, effect['limitation'])]
 				change_game_state(Enums.GameState.GameState_PlayerDecision)
 				decision_info.clear()
 				decision_info.type = Enums.DecisionType.DecisionType_BoostNow
 				decision_info.player = performing_player.my_id
-				decision_info.allow_gauge = allow_gauge
-				decision_info.only_gauge = only_gauge
+				decision_info.valid_zones = valid_zones
 				decision_info.limitation = effect['limitation']
 				performing_player.strike_on_boost_cleanup = true
 				if 'wild_strike' in effect and effect['wild_strike']:
 					performing_player.wild_strike_on_boost_cleanup = true
 			else:
-				if len(performing_player.hand) == 0 or only_gauge: # Avoid leaking information
+				if len(performing_player.hand) == 0 or 'hand' not in valid_zones: # Avoid leaking information
 					_append_log_full(Enums.LogType.LogType_Effect, performing_player, "has no cards available to boost.")
 				events += [create_event(Enums.EventType.EventType_ForceStartStrike, performing_player.my_id, 0)]
 				change_game_state(Enums.GameState.GameState_WaitForStrike)

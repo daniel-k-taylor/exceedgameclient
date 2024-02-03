@@ -6470,7 +6470,7 @@
 				"choice": [
 					{
 						"effect_type": "boost_then_sustain",
-						"allow_gauge": true,
+						"valid_zones": [ "hand", "gauge" ],
 						"limitation": "continuous"
 					},
 					{ "effect_type": "pass" }
@@ -16541,7 +16541,7 @@
 					"condition": "not_exceeded",
 					"effect_type": "boost",
 					"limitation": "continuous",
-					"allow_gauge": true,
+					"valid_zones": [ "hand", "gauge" ],
 					"ignore_costs": true
 				},
 				{
