@@ -422,12 +422,18 @@ func create_character_reference_card(path_root : String, exceeded : bool, zone):
 	new_card.change_state(CardBase.CardState.CardState_Offscreen)
 	new_card.flip_card_to_front(true)
 
+func get_card_root_path(deck_id : String):
+	return "res://assets/cards/" + deck_id + "/"
+
+func get_card_image_path(deck_id : String, game_card : GameCard):
+	return get_card_root_path(deck_id) + game_card.image
+
 func spawn_deck(deck_id, deck_list, deck_card_zone, copy_zone, set_aside_zone, card_back_image, hand_focus_y_pos, is_opponent):
 	var card_db = game_wrapper.get_card_database()
-	var card_root_path = "res://assets/cards/" + deck_id + "/"
+	var card_root_path = get_card_root_path(deck_id)
 	for card in deck_list:
 		var logic_card : GameCard = card_db.get_card(card.id)
-		var image_path = card_root_path + logic_card.image
+		var image_path = get_card_image_path(deck_id, logic_card)
 		var new_card = create_card(card.id, logic_card.definition, image_path, card_back_image, deck_card_zone, hand_focus_y_pos, is_opponent)
 		if logic_card.set_aside:
 			reparent_to_zone(new_card, set_aside_zone)
@@ -1997,10 +2003,6 @@ func _on_reshuffle_discard(event):
 		# Show opponent's reshuffle cards
 		reference_popout_toggle_enabled = true
 		opponent_cards_before_reshuffle = event['extra_info']
-		reset_revealed_cards()
-		for card in opponent_cards_before_reshuffle:
-			var game_card = find_card_on_board(card.id)
-			add_revealed_card(game_card)
 	close_popout()
 	update_card_counts()
 	return SmallNoticeDelay
@@ -2016,10 +2018,11 @@ func reset_revealed_cards():
 		card.get_parent().remove_child(card)
 		card.queue_free()
 
-func add_revealed_card(card_game_object):
+func add_revealed_card(card_id : int):
 	var card_db = game_wrapper.get_card_database()
-	var logic_card : GameCard = card_db.get_card(card_game_object.card_id)
-	var copy_card = create_card(card_game_object.card_id + RevealCopyIdRangestart, logic_card.definition, card_game_object.card_image, card_game_object.cardback_image, $AllCards/OpponentRevealed, 0, true)
+	var logic_card : GameCard = card_db.get_card(card_id)
+	var card_image = get_card_image_path(opponent_deck['id'], logic_card)
+	var copy_card = create_card(card_id + RevealCopyIdRangestart, logic_card.definition, card_image, "", $AllCards/OpponentRevealed, 0, true)
 	copy_card.set_card_and_focus(OffScreen, 0, CardBase.ReferenceCardScale)
 	copy_card.resting_scale = CardBase.ReferenceCardScale
 	copy_card.change_state(CardBase.CardState.CardState_Offscreen)
@@ -2027,28 +2030,12 @@ func add_revealed_card(card_game_object):
 
 func _on_reveal_card_from_hand(event):
 	var player = event['event_player']
-	var card_id = event['number']
 	spawn_damage_popup("Card Revealed!", player)
-	if player == Enums.PlayerId.PlayerId_Opponent:
-		reset_revealed_cards()
-		var card = find_card_on_board(card_id)
-		add_revealed_card(card)
-	else:
-		# Nothing for AI here.
-		pass
 	return SmallNoticeDelay
 
 func _on_reveal_hand(event):
 	var player = event['event_player']
 	spawn_damage_popup("Hand Revealed!", player)
-	if player == Enums.PlayerId.PlayerId_Opponent:
-		reset_revealed_cards()
-		var cards = $AllCards/OpponentHand.get_children()
-		for card in cards:
-			add_revealed_card(card)
-	else:
-		# Nothing for AI here.
-		pass
 	return SmallNoticeDelay
 
 func _on_reveal_random_gauge(event):
@@ -2059,15 +2046,7 @@ func _on_reveal_random_gauge(event):
 
 func _on_reveal_topdeck(event):
 	var player = event['event_player']
-	var card_id = event['number']
 	spawn_damage_popup("Top Deck Revealed!", player)
-	if player == Enums.PlayerId.PlayerId_Opponent:
-		reset_revealed_cards()
-		var card = find_card_on_board(card_id)
-		add_revealed_card(card)
-	else:
-		# Nothing for AI here.
-		pass
 	return SmallNoticeDelay
 
 func _move_card_to_strike_area(card, strike_area, new_parent, is_player : bool, is_ex : bool):
@@ -3794,7 +3773,9 @@ func _on_opponent_reference_button_pressed(switch_toggle : bool = false, hide_re
 		var logic_card = game_wrapper.get_card_database().get_card(id)
 		var card_str_id = logic_card.definition['id']
 		var count = 0
+		var hide_icons = false
 		if reference_popout_toggle:
+			hide_icons = true
 			count = game_wrapper.count_cards_in_deck_and_hand(Enums.PlayerId.PlayerId_Opponent, card_str_id, opponent_cards_before_reshuffle)
 		else:
 			count = game_wrapper.count_cards_in_deck_and_hand(Enums.PlayerId.PlayerId_Opponent, card_str_id)
@@ -3802,12 +3783,12 @@ func _on_opponent_reference_button_pressed(switch_toggle : bool = false, hide_re
 		var known_count = 0
 		var questionable_count = 0
 		var on_topdeck = false
-		
-		if card_str_id in public_hand_info['known']:
-			known_count = public_hand_info['known'][card_str_id]
-		if card_str_id in public_hand_info['questionable']:
-			questionable_count = public_hand_info['questionable'][card_str_id]
-		on_topdeck = card_str_id == public_hand_info['topdeck']
+		if not hide_icons:
+			if card_str_id in public_hand_info['known']:
+				known_count = public_hand_info['known'][card_str_id]
+			if card_str_id in public_hand_info['questionable']:
+				questionable_count = public_hand_info['questionable'][card_str_id]
+			on_topdeck = card_str_id == public_hand_info['topdeck']
 		card.update_hand_icons(known_count, questionable_count, on_topdeck)
 	var popout_title = "THEIR DECK REFERENCE (showing remaining card counts in deck+hand"
 	if reference_popout_toggle:
@@ -3830,7 +3811,41 @@ func _quit_to_menu():
 
 func _on_revealed_cards_button_pressed():
 	await close_popout()
-	show_popout(CardPopoutType.CardPopoutType_RevealedOpponent, "LAST REVEALED CARDS", $AllCards/OpponentRevealed, OffScreen, CardBase.CardState.CardState_Offscreen)
+	reset_revealed_cards()
+	var public_hand_info = game_wrapper.get_player_public_hand_info(Enums.PlayerId.PlayerId_Opponent)
+	var card_ids = []
+	for card_str_id in public_hand_info['all']:
+		# Find a card id that matches this card definition str.
+		# It doesn't matter which one for the purposes of this UI.
+		for card in $AllCards/OpponentAllCopy.get_children():
+			if card.card_id < 0:
+				continue
+			var id = card.card_id - ReferenceScreenIdRangeStart
+			var logic_card = game_wrapper.get_card_database().get_card(id)
+			if logic_card.definition['id'] == card_str_id:
+				card_ids.append(id)
+				break
+
+	# Create cards for all of these and add them to the OpponentRevealed node.
+	for card_id in card_ids:
+		add_revealed_card(card_id)
+
+	# Update the hand icons for all cards here.
+	for card in $AllCards/OpponentRevealed.get_children():
+		var id = card.card_id - RevealCopyIdRangestart
+		var logic_card = game_wrapper.get_card_database().get_card(id)
+		var card_str_id = logic_card.definition['id']
+		var known_count = 0
+		var questionable_count = 0
+		var on_topdeck = false
+		if card_str_id in public_hand_info['known']:
+			known_count = public_hand_info['known'][card_str_id]
+		if card_str_id in public_hand_info['questionable']:
+			questionable_count = public_hand_info['questionable'][card_str_id]
+		on_topdeck = card_str_id == public_hand_info['topdeck']
+		card.update_hand_icons(known_count, questionable_count, on_topdeck)
+
+	show_popout(CardPopoutType.CardPopoutType_RevealedOpponent, "KNOWN CARDS", $AllCards/OpponentRevealed, OffScreen, CardBase.CardState.CardState_Offscreen)
 
 func _on_card_popout_pressed_ok(index):
 	_on_instructions_ok_button_pressed(index)

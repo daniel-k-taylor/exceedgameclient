@@ -801,6 +801,7 @@ class Player:
 
 	func get_public_hand_info():
 		var public_hand_info = {
+			"all": [],
 			"known": {},
 			"questionable": {},
 			"topdeck": ""
@@ -810,13 +811,22 @@ class Player:
 				public_hand_info['known'][card_def_id] += 1
 			else:
 				public_hand_info['known'][card_def_id] = 1
+
+			if not card_def_id in public_hand_info['all']:
+				public_hand_info['all'].append(card_def_id)
 		for card_def_id in public_hand_questionable:
 			if card_def_id in public_hand_info['questionable']:
 				public_hand_info['questionable'][card_def_id] += 1
 			else:
 				public_hand_info['questionable'][card_def_id] = 1
+
+			if not card_def_id in public_hand_info['all']:
+				public_hand_info['all'].append(card_def_id)
 		if public_topdeck_id != -1:
-			public_hand_info['topdeck'] = parent.card_db.get_card(public_topdeck_id).definition['id']
+			var topdeck_def_id = parent.card_db.get_card(public_topdeck_id).definition['id']
+			public_hand_info['topdeck'] = topdeck_def_id
+			if not topdeck_def_id in public_hand_info['all']:
+				public_hand_info['all'].append(topdeck_def_id)
 		return public_hand_info
 
 	func update_public_hand_if_deck_empty(is_strike_reveal : bool):

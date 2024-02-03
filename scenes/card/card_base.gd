@@ -122,7 +122,7 @@ func update_hand_icons(known : int, questionable : int, on_topdeck : bool):
 		hand_icons_obj.visible = true
 	else:
 		hand_icons_obj.visible = false
-		
+
 	hand1.visible = known > 0
 	hand2.visible = known > 1
 	question1.visible = questionable > 0
@@ -269,7 +269,8 @@ func initialize_card(id, card_title, image, card_back_image, range_min, range_ma
 		card_box.visible = false
 	else:
 		use_custom_card_image = true
-	card_back.texture = load(card_back_image)
+	if cardback_image:
+		card_back.texture = load(card_back_image)
 
 	# Set Stats
 	range_panel.set_stats("RANGE", range_min, range_max)
