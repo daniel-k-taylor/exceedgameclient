@@ -506,7 +506,7 @@ label_text = "SEALED"
 [node name="RevealedCardsButton" type="Button" parent="OpponentZones"]
 layout_mode = 2
 theme_override_font_sizes/font_size = 18
-text = "Revealed
+text = "Known
 Cards"
 
 [node name="PlayerBoostZone" parent="." instance=ExtResource("7_gn0of")]

@@ -21,7 +21,13 @@ const StatPanel = preload("res://scenes/card/stat_panel.gd")
 @onready var focus_feature = $FocusFeatures
 @onready var remaining_count_obj = $CardFocusFeatures/RemainingCount
 @onready var remaining_count_label : Label = $CardFocusFeatures/RemainingCount/PanelContainer/MarginContainer/RemainingCountLabel
-
+@onready var hand_icons_obj = $CardFocusFeatures/HandIcons
+@onready var hand_icon_panel = $CardFocusFeatures/HandIcons/HandPanel
+@onready var hand1 = $CardFocusFeatures/HandIcons/HandPanel/HandMargin/HandHbox/Hand1
+@onready var hand2 = $CardFocusFeatures/HandIcons/HandPanel/HandMargin/HandHbox/Hand2
+@onready var question1 = $CardFocusFeatures/HandIcons/HandPanel/HandMargin/HandHbox/Question1
+@onready var question2 = $CardFocusFeatures/HandIcons/HandPanel/HandMargin/HandHbox/Question2
+@onready var topdeck = $CardFocusFeatures/HandIcons/HandPanel/HandMargin/HandHbox/Topdeck
 
 const ActualCardSize = Vector2(250,350)
 const HandCardScale = Vector2(0.7, 0.7)
@@ -97,6 +103,7 @@ func _ready():
 	set_hover_visible(false)
 	remaining_count_obj.visible = false
 	remaining_count_label.text = ""
+	hand_icons_obj.visible = false
 	#$CardContainer/Focus.modulate = HighlightColor
 
 func set_remaining_count(count : int):
@@ -107,6 +114,23 @@ func set_remaining_count(count : int):
 	else:
 		remaining_count_label.text = "%s Left" % count
 		fancy_card.modulate = NormalColor
+
+func update_hand_icons(known : int, questionable : int, on_topdeck : bool):
+	if known == 2:
+		questionable = 0
+	if known or questionable or on_topdeck:
+		hand_icons_obj.visible = true
+	else:
+		hand_icons_obj.visible = false
+
+	hand1.visible = known > 0
+	hand2.visible = known > 1
+	question1.visible = questionable > 0
+	question2.visible = questionable > 1
+	topdeck.visible = on_topdeck
+	hand_icon_panel.reset_size()
+	hand_icon_panel.anchors_preset = Control.PRESET_CENTER_BOTTOM
+	hand_icon_panel.anchors_preset = Control.PRESET_CENTER
 
 func set_label(label : String):
 	remaining_count_obj.visible = true
@@ -245,7 +269,8 @@ func initialize_card(id, card_title, image, card_back_image, range_min, range_ma
 		card_box.visible = false
 	else:
 		use_custom_card_image = true
-	card_back.texture = load(card_back_image)
+	if cardback_image:
+		card_back.texture = load(card_back_image)
 
 	# Set Stats
 	range_panel.set_stats("RANGE", range_min, range_max)
