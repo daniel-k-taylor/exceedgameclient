@@ -340,7 +340,7 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 			if char_effect_panel:
 				effect_str += get_effect_type_text(effect['added_effect'], card_name_source)
 			else:
-				effect_str += "Add the effect:\n" + get_effect_type_text(effect['added_effect'], card_name_source)
+				effect_str += "Add effect:\n" + get_effect_text(effect['added_effect'], false, false, false, card_name_source, false)
 		"add_boost_to_gauge_on_strike_cleanup":
 			if card_name_source:
 				effect_str += "Add %s to gauge" % card_name_source
