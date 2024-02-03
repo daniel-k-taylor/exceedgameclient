@@ -2281,6 +2281,369 @@
 	},
 
 	{
+		"NOTE": "CHAOS CARDS START",
+		"id": "chaos_dissectbarrage",
+		"type": "ultra",
+		"display_name": "Dissect Barrage",
+		"force_cost": 0,
+		"gauge_cost": 2,
+		"range_min": 1,
+		"range_max": 2,
+		"speed": 5,
+		"power": 5,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "after",
+				"condition": "buddy_in_play",
+				"condition_detail": "Azhi (card)",
+				"effect_type": "move_to_buddy",
+				"buddy_name": "card"
+			}
+		],
+		"boost": {
+			"boost_type": "immediate",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Aerial Leap",
+			"effects": [
+				{
+					"timing": "immediate",
+					"effect_type": "advance",
+					"amount": 4,
+					"bonus_effect": {
+						"condition": "advanced_through",
+						"effect_type": "choice",
+						"choice": [
+							{ "effect_type": "strike" },
+							{ "effect_type": "pass" }
+						]
+					}
+				}
+			]
+		}
+	},
+	{
+		"id": "chaos_deeprevenance",
+		"type": "ultra",
+		"display_name": "Deep Revenance",
+		"force_cost": 0,
+		"gauge_cost": 4,
+		"range_min": 4,
+		"range_max": 4,
+		"speed": 2,
+		"power": 10,
+		"armor": 2,
+		"guard": 5,
+		"effects": [
+			{
+				"timing": "during_strike",
+				"condition": "used_character_bonus",
+				"effect_type": "calculate_range_from_buddy",
+				"buddy_name": "card",
+				"character_effect": true
+			},
+			{
+				"timing": "after",
+				"effect_type": "draw_to",
+				"amount": 7
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 1,
+			"cancel_cost": -1,
+			"display_name": "Chaos Code",
+			"effects": [
+				{
+					"timing": "now",
+					"effect_type": "strike"
+				},
+				{
+					"timing": "set_strike",
+					"effect_type": "place_buddy_in_any_space",
+					"buddy_name": "your attack"
+				},
+				{
+					"timing": "during_strike",
+					"condition": "is_normal_attack",
+					"effect_type": "calculate_range_from_buddy",
+					"buddy_name": "card"
+				}
+			]
+		}
+	},
+	{
+		"id": "chaos_coldreflection",
+		"type": "special",
+		"display_name": "Cold Reflection",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 2,
+		"speed": 4,
+		"power": 2,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "during_strike",
+				"condition": "used_character_bonus",
+				"effect_type": "calculate_range_from_buddy",
+				"buddy_name": "card",
+				"character_effect": true
+			},
+			{
+				"timing": "during_strike",
+				"condition": "not_buddy_in_play",
+				"effect_type": "speedup",
+				"amount": 2
+			},
+			{
+				"timing": "hit",
+				"effect_type": "push",
+				"amount": 3
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Lie In Wait",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "guardup",
+					"amount": 3
+				},
+				{
+					"timing": "discarded",
+					"effect_type": "draw",
+					"amount": 2
+				}
+			]
+		}
+	},
+	{
+		"id": "chaos_spewout",
+		"type": "special",
+		"display_name": "Spew Out",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 2,
+		"range_max": 3,
+		"speed": 3,
+		"power": 4,
+		"armor": 0,
+		"guard": 4,
+		"effects": [
+			{
+				"timing": "during_strike",
+				"condition": "used_character_bonus",
+				"effect_type": "calculate_range_from_buddy",
+				"buddy_name": "card",
+				"character_effect": true
+			},
+			{
+				"timing": "after",
+				"effect_type": "choice",
+				"choice": [
+					{ "effect_type": "advance", "amount": 1 },
+					{ "effect_type": "retreat", "amount": 1 }
+				]
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Tactical",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "speedup",
+					"amount": 1
+				},
+				{
+					"timing": "now",
+					"effect_type": "choice",
+					"choice": [
+						{ "effect_type": "advance", "amount": 1 },
+						{ "effect_type": "retreat", "amount": 1 }
+					]
+				}
+			]
+		}
+	},
+	{
+		"id": "chaos_repel",
+		"type": "special",
+		"display_name": "Repel",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 0,
+		"range_max": 0,
+		"speed": 3,
+		"power": 5,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "during_strike",
+				"condition": "used_character_bonus",
+				"effect_type": "calculate_range_from_buddy",
+				"buddy_name": "card",
+				"character_effect": true
+			},
+			{
+				"timing": "during_strike",
+				"condition": "buddy_in_play",
+				"effect_type": "opponent_cant_move_past_buddy",
+				"buddy_name": "card"
+			},
+			{
+				"timing": "hit",
+				"effect_type": "push",
+				"amount": 2
+			},
+			{
+				"timing": "cleanup",
+				"condition": "buddy_in_play",
+				"effect_type": "remove_opponent_cant_move_past_buddy",
+				"buddy_name": "card"
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Compounding Plots",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "powerup",
+					"amount": 1
+				},
+				{
+					"timing": "now",
+					"effect_type": "bonus_action"
+				}
+			]
+		}
+	},
+	{
+		"id": "chaos_conceal",
+		"type": "special",
+		"display_name": "Conceal",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 2,
+		"speed": 2,
+		"power": 5,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "during_strike",
+				"condition": "used_character_bonus",
+				"effect_type": "calculate_range_from_buddy",
+				"buddy_name": "card",
+				"character_effect": true
+			},
+			{
+				"timing": "during_strike",
+				"effect_type": "higher_speed_misses",
+				"dodge_at_speed_greater_or_equal": 5
+			},
+			{
+				"timing": "after",
+				"effect_type": "retreat",
+				"amount": 1
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 2,
+			"cancel_cost": -1,
+			"display_name": "Checkmate",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "powerup",
+					"amount": 4
+				},
+				{
+					"timing": "now",
+					"effect_type": "discard_to",
+					"amount": 1
+				},
+				{
+					"timing": "now",
+					"effect_type": "strike"
+				}
+			]
+		}
+	},
+	{
+		"NOTE": "CHAOS CARDS END",
+		"id": "chaos_thatsyourprey",
+		"type": "special",
+		"display_name": "That's Your Prey",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 0,
+		"range_max": 1,
+		"speed": 1,
+		"power": 5,
+		"armor": 0,
+		"guard": 5,
+		"effects": [
+			{
+				"timing": "during_strike",
+				"condition": "used_character_bonus",
+				"effect_type": "calculate_range_from_buddy",
+				"buddy_name": "card",
+				"character_effect": true
+			},
+			{
+				"timing": "during_strike",
+				"condition": "not_buddy_in_play",
+				"effect_type": "armorup",
+				"amount": 2
+			},
+			{
+				"timing": "hit",
+				"condition": "buddy_in_opponent_space",
+				"condition_detail": "card",
+				"effect_type": "powerup",
+				"amount": 2
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 1,
+			"cancel_cost": -1,
+			"display_name": "Umbral",
+			"effects": [
+				{
+					"timing": "now",
+					"effect_type": "bonus_action"
+				},
+				{
+					"timing": "after",
+					"condition": "buddy_in_play",
+					"condition_detail": "Azhi (card)",
+					"effect_type": "move_to_buddy",
+					"buddy_name": "card"
+				}
+			]
+		},
+		"NOTEEND": "CHAOS CARDS END"
+	},
+
+	{
 		"NOTE": "CHIPP CARDS START",
 		"id": "chipp_zanseirouga",
 		"type": "ultra",
@@ -3262,6 +3625,425 @@
 	},
 
 
+
+	{
+		"NOTE": "HAKUMEN CARDS START",
+		"id": "hakumen_akumetsu",
+		"type": "ultra",
+		"display_name": "Akumetsu",
+		"force_cost": 0,
+		"gauge_cost": 8,
+		"range_min": 1,
+		"range_max": 1,
+		"speed": 0,
+		"power": 10,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "during_strike",
+				"effect_type": "block_opponent_move"
+			},
+			{
+				"timing": "cleanup",
+				"effect_type": "seal_this",
+				"and": {
+					"effect_type": "remove_block_opponent_move"
+				}
+			},
+			{
+				"timing": "during_strike",
+				"effect_type": "dodge_at_range",
+				"range_min": 1,
+				"range_max": 1
+			}
+
+		],
+		"boost": {
+			"boost_type": "immediate",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Burst",
+			"effects": [
+				{
+					"timing": "immediate",
+					"effect_type": "draw",
+					"amount": 2
+				},
+				{
+					"timing": "immediate",
+					"effect_type": "seal_this"
+				},
+				{
+					"timing": "immediate",
+					"effect_type": "bonus_action"
+				}
+			]
+		}
+	},
+	{
+		"id": "hakumen_kokuujinyukikaze",
+		"type": "ultra",
+		"display_name": "Kokuujin: Yukikaze",
+		"force_cost": 0,
+		"gauge_cost": 4,
+		"range_min": 1,
+		"range_max": 1,
+		"speed": 2,
+		"power": 0,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "during_strike",
+				"effect_type": "stun_immunity"
+			},
+			{
+				"timing": "during_strike",
+				"effect_type": "cannot_go_below_life",
+				"amount": 1
+			},
+			{
+				"timing": "before",
+				"condition": "was_hit",
+				"effect_type": "powerup",
+				"amount": 6,
+				"and": {
+					"effect_type": "close",
+					"amount": 8
+				}
+			},
+			{
+				"timing": "hit",
+				"effect_type": "advance",
+				"amount": 2
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Massive",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "rangeup",
+					"amount": 0,
+					"amount2": 1,
+					"and": {
+						"effect_type": "armorup",
+						"amount": 2,
+						"and": {
+							"effect_type": "guardup",
+							"amount": 2
+						}
+					}
+				}
+			]
+		}
+	},
+	{
+		"id": "hakumen_kokuujinshippu",
+		"type": "ultra",
+		"display_name": "Kokuujin: Shippu",
+		"force_cost": 0,
+		"gauge_cost": 4,
+		"range_min": 1,
+		"range_max": 6,
+		"speed": 1,
+		"power": 4,
+		"armor": 2,
+		"guard": 5,
+		"effects": [
+			{
+				"timing": "hit",
+				"condition": "range_multiple",
+				"condition_amount_min": 1,
+				"condition_amount_max": 2,
+				"effect_type": "powerup",
+				"amount": 4
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 1,
+			"cancel_cost": -1,
+			"display_name": "Zanshin",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "stun_immunity"
+				},
+				{
+					"timing": "before",
+					"condition": "was_hit",
+					"effect_type": "powerup",
+					"amount": 3,
+					"and": {
+						"effect_type": "add_boost_to_gauge_on_strike_cleanup",
+						"card_name": "Kokuujin: Shippu"
+					}
+				}
+			]
+		}
+	},
+	{
+		"id": "hakumen_enma",
+		"type": "special",
+		"display_name": "Enma",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 1,
+		"speed": 6,
+		"power": 4,
+		"armor": 0,
+		"guard": 3,
+		"effects": [
+			{
+				"timing": "before",
+				"effect_type": "gauge_for_effect",
+				"required": true,
+				"per_gauge_effect": null,
+				"overall_effect": {
+					"effect_type": "close",
+					"amount": 1
+				},
+				"gauge_max": 1
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Fuumajin",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "dodge_at_range",
+					"range_min": 4,
+					"range_max": 5
+				},
+				{
+					"timing": "cleanup",
+					"condition": "range_multiple",
+					"condition_amount_min": 4,
+					"condition_amount_max": 5,
+					"effect_type": "force_for_effect",
+					"per_force_effect": null,
+					"overall_effect": {
+						"effect_type": "sustain_this",
+						"card_name": "Enma"
+					},
+					"force_max": 1
+				}
+			]
+		}
+	},
+	{
+		"id": "hakumen_guren",
+		"type": "special",
+		"display_name": "Guren",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 4,
+		"speed": 5,
+		"power": 3,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "hit",
+				"effect_type": "gauge_for_effect",
+				"required": true,
+				"per_gauge_effect": null,
+				"overall_effect": {
+					"effect_type": "gain_advantage",
+					"and": {
+						"effect_type": "choice",
+						"choice": [
+							{ "effect_type": "close", "amount": 1 },
+							{ "effect_type": "close", "amount": 2 }
+						]
+					}
+				},
+				"gauge_max": 1
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Tsubaki",
+			"effects": [
+				{
+					"timing": "before",
+					"effect_type": "gauge_for_effect",
+					"per_gauge_effect": {
+						"effect_type": "powerup",
+						"amount": 1
+					},
+					"overall_effect": null,
+					"gauge_max": 3
+				}
+			]
+		}
+	},
+	{
+		"id": "hakumen_renka",
+		"type": "special",
+		"display_name": "Renka",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 2,
+		"speed": 4,
+		"power": 4,
+		"armor": 1,
+		"guard": 3,
+		"effects": [
+			{
+				"timing": "hit",
+				"effect_type": "gauge_for_effect",
+				"required": true,
+				"per_gauge_effect": null,
+				"overall_effect": {
+					"effect_type": "choice",
+					"choice": [
+						{ "effect_type": "push", "amount": 1 },
+						{ "effect_type": "push", "amount": 2 }
+					]
+				},
+				"gauge_max": 1
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 1,
+			"cancel_cost": -1,
+			"display_name": "Reach",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "rangeup",
+					"amount": 0,
+					"amount2": 1
+				},
+				{
+					"timing": "now",
+					"effect_type": "strike"
+				}
+			]
+		}
+	},
+	{
+		"id": "hakumen_yanagi",
+		"type": "special",
+		"display_name": "Yanagi",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 2,
+		"speed": 3,
+		"power": 3,
+		"armor": 0,
+		"guard": 5,
+		"effects": [
+			{
+				"timing": "before",
+				"effect_type": "gauge_for_effect",
+				"required": true,
+				"per_gauge_effect": null,
+				"overall_effect": {
+					"effect_type": "close",
+					"amount": 2
+				},
+				"gauge_max": 1
+			},
+			{
+				"timing": "hit",
+				"condition": "was_hit",
+				"effect_type": "powerup",
+				"amount": 2
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Agito",
+			"effects": [
+				{
+					"timing": "hit",
+					"effect_type": "choice",
+					"special_choice_name": "Advance up to 1 and opponent discards a card at random.",
+					"choice": [
+						{ "effect_type": "advance", "amount": 1, "and": { "effect_type": "opponent_discard_random", "amount": 1 } },
+						{ "effect_type": "opponent_discard_random", "amount": 1 }
+					]
+				}
+			]
+		}
+	},
+	{
+		"NOTE": "HAKUMEN CARDS END",
+		"id": "hakumen_zantetsu",
+		"type": "special",
+		"display_name": "Zantetsu",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 2,
+		"speed": 2,
+		"power": 4,
+		"armor": 0,
+		"guard": 6,
+		"effects": [
+			{
+				"timing": "before",
+				"effect_type": "gauge_for_effect",
+				"required": true,
+				"per_gauge_effect": null,
+				"overall_effect": {
+					"effect_type": "ignore_armor"
+				},
+				"gauge_max": 1
+			},
+			{
+				"timing": "hit",
+				"effect_type": "gauge_for_effect",
+				"required": true,
+				"per_gauge_effect": null,
+				"overall_effect": {
+					"effect_type": "powerup",
+					"amount": 3
+				},
+				"gauge_max": 1
+			}
+		],
+		"boost": {
+			"boost_type": "immediate",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Kishuu",
+			"effects": [
+				{
+					"timing": "immediate",
+					"condition": "range",
+					"condition_amount": 3,
+					"effect_type": "close",
+					"amount": 2,
+					"and": {
+						"effect_type": "strike"
+					}
+				}
+			]
+		},
+		"NOTEEND": "HAKUMEN CARDS END"
+	},
+
+
 	{
 		"NOTE": "HAZAMA CARDS START",
 		"id": "hazama_hungrydarkness",
@@ -3929,7 +4711,7 @@
 						"effect_type": "gain_advantage",
 						"and": {
 							"effect_type": "add_boost_to_gauge_on_strike_cleanup",
-							"card_name": "Power Attack"
+							"card_name": "Pale Bringer"
 						}
 					}
 				}
@@ -6438,6 +7220,417 @@
 		"NOTEEND": "KEN CARDS END"
 	},
 
+	{
+		"NOTE": "KOKONOE CARDS START",
+		"id": "kokonoe_ultimateimpact",
+		"type": "ultra",
+		"display_name": "Ultimate Impact",
+		"force_cost": 0,
+		"gauge_cost": 4,
+		"range_min": 1,
+		"range_max": 1,
+		"speed": 4,
+		"power": 7,
+		"armor": 0,
+		"guard": 0,
+		"on_invalid_add_to_gauge": true,
+		"effects": [
+			{
+				"timing": "hit",
+				"effect_type": "push",
+				"amount": 3,
+				"bonus_effect": {
+					"condition": "range",
+					"condition_amount": 4,
+					"effect_type": "draw_any_number"
+				}
+			}
+		],
+		"boost": {
+			"boost_type": "immediate",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Burst",
+			"effects": [
+				{
+					"timing": "immediate",
+					"effect_type": "draw",
+					"amount": 2
+				},
+				{
+					"timing": "immediate",
+					"effect_type": "seal_this"
+				},
+				{
+					"timing": "immediate",
+					"effect_type": "bonus_action"
+				}
+			]
+		}
+	},
+	{
+		"id": "kokonoe_dreadnoughtexterminator",
+		"type": "ultra",
+		"display_name": "Dreadnought Exterminator",
+		"force_cost": 0,
+		"gauge_cost": 4,
+		"gauge_cost_exceed": 8,
+		"range_min": 4,
+		"range_max": 8,
+		"speed": 3,
+		"power": 7,
+		"armor": 0,
+		"guard": 5,
+		"effects": [
+			{
+				"timing": "during_strike",
+				"condition": "exceeded",
+				"effect_type": "powerup",
+				"amount": 7
+			},
+			{
+				"timing": "hit",
+				"effect_type": "force_for_effect",
+				"per_force_effect": {
+					"effect_type": "powerup",
+					"amount": 1
+				},
+				"overall_effect": null,
+				"force_max": 4
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Reckless Upgrades",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "powerup_opponent",
+					"amount": 3
+				},
+				{
+					"timing": "now",
+					"effect_type": "add_top_discard_to_gauge",
+					"amount": 3
+				}
+			]
+		}
+	},
+	{
+		"id": "kokonoe_flamingbelobog",
+		"type": "ultra",
+		"display_name": "Flaming Belobog v2.73",
+		"force_cost": 0,
+		"gauge_cost": 2,
+		"range_min": 1,
+		"range_max": 4,
+		"speed": 2,
+		"power": 5,
+		"armor": 2,
+		"guard": 4,
+		"effects": [
+			{
+				"timing": "hit",
+				"condition": "range_greater_or_equal",
+				"condition_amount": 3,
+				"effect_type": "choose_discard",
+				"limitation": "",
+				"destination": "hand",
+				"amount": 2,
+				"amount_min": 0
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Jamming Dark v.165",
+			"effects": [
+				{
+					"timing": "after",
+					"condition": "range",
+					"condition_amount": 4,
+					"effect_type": "play_attack_from_hand"
+				}
+			]
+		}
+	},
+	{
+		"id": "kokonoe_absolutezero",
+		"type": "special",
+		"display_name": "Absolute Zero v4.32",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 2,
+		"speed": 6,
+		"power": 2,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "hit",
+				"effect_type": "opponent_discard_random",
+				"amount": 1,
+				"and": {
+					"effect_type": "gauge_for_effect",
+					"required": true,
+					"per_gauge_effect": null,
+					"overall_effect": {
+						"effect_type": "powerup",
+						"amount": 3,
+						"and": {
+							"effect_type": "push",
+							"amount": 2
+						}
+					},
+					"gauge_max": 2
+				}
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Grappling Hook",
+			"effects": [
+				{
+					"timing": "now",
+					"effect_type": "strike"
+				},
+				{
+					"timing": "hit",
+					"effect_type": "pull",
+					"amount": 2,
+					"and": {
+						"effect_type": "draw",
+						"amount": 1
+					}
+				},
+				{
+					"timing": "during_strike",
+					"effect_type": "rangeup",
+					"amount": 2,
+					"amount2": 2
+
+				}
+			]
+		}
+	},
+	{
+		"id": "kokonoe_brokenbunkerassault",
+		"type": "special",
+		"display_name": "Broken Bunker Assault v2.21",
+		"force_cost": 1,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 1,
+		"speed": 5,
+		"power": 5,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "during_strike",
+				"condition": "buddy_in_play",
+				"effect_type": "speedup",
+				"amount": -2
+			},
+			{
+				"timing": "before",
+				"effect_type": "close",
+				"amount": 2
+			},
+			{
+				"timing": "hit",
+				"condition": "on_buddy_space",
+				"effect_type": "powerup",
+				"amount": 2
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Impact Hammer",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "armorup",
+					"amount": 2
+				},
+				{
+					"timing": "hit",
+					"effect_type": "gauge_for_effect",
+					"per_gauge_effect": {
+						"effect_type": "powerup",
+						"amount": 1,
+						"and": {
+							"effect_type": "push",
+							"amount": 1
+						}
+					},
+					"overall_effect": null,
+					"gauge_max": 2
+				}
+			]
+		}
+	},
+	{
+		"id": "kokonoe_flamecage",
+		"type": "special",
+		"display_name": "Flame Cage v1.43",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 2,
+		"range_max": 5,
+		"speed": 3,
+		"power": 3,
+		"armor": 1,
+		"guard": 3,
+		"effects": [
+			{
+				"timing": "hit",
+				"condition": "range_greater_or_equal",
+				"condition_amount": 4,
+				"effect_type": "powerup",
+				"amount": 2
+			},
+			{
+				"timing": "after",
+				"effect_type": "choice",
+				"choice": [
+					{ "effect_type": "push", "amount": 1 },
+					{ "effect_type": "pull", "amount": 1 }
+				]
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Overtime",
+			"effects": [
+				{
+					"timing": "now",
+					"effect_type": "draw",
+					"amount": 4
+				},
+				{
+					"timing": "start_of_next_turn",
+					"effect_type": "add_to_gauge_immediately",
+					"and": {
+						"effect_type": "self_discard_choose",
+						"amount": 3
+					}
+				}
+			]
+		}
+	},
+	{
+		"id": "kokonoe_banishingrays",
+		"type": "special",
+		"display_name": "Banishing Rays v3.10",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 3,
+		"range_max": 3,
+		"speed": 4,
+		"power": 3,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "during_strike",
+				"condition": "buddy_in_play",
+				"effect_type": "speedup",
+				"amount": 2
+			},
+			{
+				"timing": "after",
+				"effect_type": "choice",
+				"choice": [
+					{ "effect_type": "advance", "amount": 1 },
+					{ "effect_type": "retreat", "amount": 1 }
+				]
+			}
+		],
+		"boost": {
+			"boost_type": "immediate",
+			"force_cost": 1,
+			"cancel_cost": -1,
+			"display_name": "Planar Haze v1.24",
+			"effects": [
+				{
+					"timing": "immediate",
+					"condition": "buddy_space_unoccupied",
+					"condition_detail": "Gravitron",
+					"effect_type": "move_to_buddy",
+					"buddy_name": "Gravitron",
+					"and": {
+						"effect_type": "bonus_action"
+					},
+					"negative_condition_effect": {
+						"is_negative_effect": true,
+						"effect_type": "choice",
+						"choice": [
+							{ "effect_type": "advance", "amount": 4 },
+							{ "effect_type": "advance", "amount": 5 }
+						]
+					}
+				}
+			]
+		}
+	},
+	{
+		"NOTE": "KOKONOE CARDS END",
+		"id": "kokonoe_solidwheel",
+		"type": "special",
+		"display_name": "Solid Wheel v3.37",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 1,
+		"speed": 4,
+		"power": 4,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "before",
+				"effect_type": "advance",
+				"stop_on_buddy_space": "gravitron",
+				"description": "Advance 4. If you enter Gravitron's space, stop and gain advantage.",
+				"suppress_and_description": true,
+				"amount": 4,
+				"and": {
+					"condition": "on_buddy_space",
+					"condition_detail": "Gravitron",
+					"effect_type": "gain_advantage"
+				}
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 1,
+			"cancel_cost": -1,
+			"display_name": "Timed Explosives",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "powerup",
+					"amount": 2
+				},
+				{
+					"timing": "after",
+					"effect_type": "add_boost_to_gauge_on_strike_cleanup"
+				}
+			]
+		},
+		"NOTEEND": "KOKONOE CARDS END"
+	},
 
 	{
 		"NOTE": "KY KISUKE CARDS START",
@@ -8167,6 +9360,333 @@
 			]
 		},
 		"NOTEEND": "MAY CARDS END"
+	},
+
+	{
+		"NOTE": "MIKA CARDS START",
+		"id": "mika_revolution",
+		"type": "ultra",
+		"display_name": "Mika's Revolution",
+		"force_cost": 0,
+		"gauge_cost": 2,
+		"range_min": 1,
+		"range_max": 2,
+		"speed": 2,
+		"power": 3,
+		"armor": 3,
+		"guard": 2,
+		"effects": [
+			{
+				"timing": "hit",
+				"effect_type": "push",
+				"amount": 7,
+				"and": {
+					"effect_type": "close",
+					"amount": 7,
+					"save_spaces_as_strike_x": true,
+					"and": {
+						"effect_type": "powerup",
+						"amount": "strike_x"
+					}
+				}
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 1,
+			"cancel_cost": -1,
+			"display_name": "Diesel",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "powerup",
+					"amount": 4
+				},
+				{
+					"timing": "start_of_next_turn",
+					"effect_type": "draw",
+					"amount": 2,
+					"and": {
+						"effect_type": "add_to_gauge_immediately"
+					}
+				}
+			]
+		}
+	},
+	{
+		"id": "mika_galaxy",
+		"type": "ultra",
+		"display_name": "Mika's Galaxy",
+		"force_cost": 0,
+		"gauge_cost": 3,
+		"range_min": 0,
+		"range_max": 1,
+		"speed": 1,
+		"power": 12,
+		"armor": 0,
+		"guard": 4,
+		"effects": [
+			{
+				"timing": "during_strike",
+				"effect_type": "calculate_range_from_center"
+			},
+			{
+				"timing": "before",
+				"condition": "was_wild_swing",
+				"effect_type": "choice",
+				"choice": [
+					{ "effect_type": "push", "amount": 2 },
+					{ "effect_type": "pass" }
+				]
+
+			}
+		],
+		"boost": {
+			"boost_type": "immediate",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Smart Steer",
+			"effects": [
+				{
+					"timing": "immediate",
+					"effect_type": "move_to_any_space",
+					"move_min": 0,
+					"move_max": 3
+				}
+			]
+		}
+	},
+	{
+		"id": "mika_crash",
+		"type": "special",
+		"display_name": "Mika's Crash",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 2,
+		"range_max": 3,
+		"speed": 5,
+		"power": 3,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "during_strike",
+				"condition": "was_wild_swing",
+				"effect_type": "ignore_guard"
+			},
+			{
+				"timing": "after",
+				"effect_type": "advance",
+				"amount": 3
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Power Attack",
+			"effects": [
+				{
+					"timing": "hit",
+					"effect_type": "powerup",
+					"amount": 1,
+					"and": {
+						"effect_type": "gain_advantage",
+						"and": {
+							"effect_type": "add_boost_to_gauge_on_strike_cleanup",
+							"card_name": "Mika's Crash"
+						}
+					}
+				}
+			]
+		}
+	},
+	{
+		"id": "mika_missile",
+		"type": "special",
+		"display_name": "Mika's Missile",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 1,
+		"speed": 4,
+		"power": 0,
+		"armor": 0,
+		"guard": 4,
+		"effects": [
+			{
+				"timing": "before",
+				"effect_type": "close",
+				"amount": 3,
+				"save_spaces_as_strike_x": true,
+				"and": {
+					"effect_type": "powerup",
+					"amount": "strike_x",
+					"multiplier": 2
+				}
+			}
+		],
+		"boost": {
+			"boost_type": "immediate",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Precision Handling",
+			"effects": [
+				{
+					"timing": "immediate",
+					"effect_type": "choice",
+					"choice": [
+						{ "effect_type": "advance", "amount": 1 },
+						{ "effect_type": "retreat", "amount": 1 }
+					]
+				},
+				{
+					"timing": "immediate",
+					"effect_type": "draw",
+					"amount": 2
+				}
+			]
+		}
+	},
+	{
+		"id": "mika_tornado",
+		"type": "special",
+		"display_name": "Mika's Tornado",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 1,
+		"speed": 4,
+		"power": 5,
+		"armor": 0,
+		"guard": 4,
+		"effects": [
+			{
+				"timing": "before",
+				"effect_type": "advance",
+				"amount": 2
+			},
+			{
+				"timing": "hit",
+				"condition": "was_wild_swing",
+				"effect_type": "gain_advantage"
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Can't Stop, Won't Stop",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "stun_immunity",
+					"and": {
+						"effect_type": "armorup",
+						"amount": 2
+					}
+				}
+			]
+		}
+	},
+	{
+		"id": "mika_hipattack",
+		"type": "special",
+		"display_name": "Mika's Hip Attack",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 1,
+		"speed": 3,
+		"power": 5,
+		"armor": 0,
+		"guard": 6,
+		"effects": [
+			{
+				"timing": "hit",
+				"effect_type": "push",
+				"amount": 3
+			},
+			{
+				"timing": "after",
+				"effect_type": "close",
+				"amount": 1,
+				"bonus_effect": {
+					"condition": "opponent_at_edge_of_arena",
+					"effect_type": "gain_advantage"
+				}
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Pachelbel Cannon",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "powerup",
+					"amount": 2
+				},
+				{
+					"timing": "now",
+					"effect_type": "topdeck_from_hand",
+					"min_amount": 0,
+					"max_amount": 1
+				}
+			]
+		}
+	},
+	{
+		"NOTE": "MIKA CARDS END",
+		"id": "mika_cannon",
+		"type": "special",
+		"display_name": "Mika's Cannon",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 1,
+		"speed": 1,
+		"power": 7,
+		"armor": 1,
+		"guard": 6,
+		"effects": [
+			{
+				"timing": "during_strike",
+				"effect_type": "ignore_push_and_pull"
+			},
+			{
+				"timing": "before",
+				"effect_type": "advance",
+				"amount": 2,
+				"bonus_effect": {
+					"condition": "advanced_through",
+					"effect_type": "attack_does_not_hit"
+				}
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Swift Attack",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "speedup",
+					"amount": 1
+				},
+				{
+					"timing": "hit",
+					"effect_type": "add_boost_to_gauge_on_strike_cleanup",
+					"card_name": "Mika's Cannon",
+					"and": {
+						"effect_type": "gain_advantage"
+					}
+				}
+			]
+		},
+		"NOTEEND": "MIKA CARDS END"
 	},
 
 	{

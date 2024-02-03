@@ -546,9 +546,7 @@ func test_hazama_v_sagat_crit_mid_opponent_sets_first():
 	assert_true(game_logic.do_choice(player1, 1))
 	# Choose location
 	assert_true(game_logic.do_choice(player1, 1))
-	# Attack should now play out
-	# Pay for devouring fang
-	assert_true(game_logic.do_pay_strike_cost(player1, [player1.hand[0].id], false))
+	# Attack should now play out, because devouring fang is free
 	validate_positions(player1, 4, player2, 5)
 	validate_life(player1, 28, player2, 30)
 

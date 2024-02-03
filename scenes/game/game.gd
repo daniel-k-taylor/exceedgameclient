@@ -92,6 +92,7 @@ var reference_popout_toggle_enabled = false
 var reference_popout_toggle = false
 var opponent_cards_before_reshuffle = []
 var treat_ultras_as_single_force = false
+var boost_selection_options = {}
 
 var player_deck
 var opponent_deck
@@ -168,6 +169,7 @@ enum UISubState {
 	UISubState_SelectCards_GaugeForEffect,
 	UISubState_SelectArena_MoveResponse,
 	UISubState_SelectArena_EffectChoice,
+	UISubState_PickNumberFromRange,
 }
 
 var ui_state : UIState = UIState.UIState_Initializing
@@ -199,6 +201,8 @@ var game_wrapper : GameWrapper = GameWrapper.new()
 var current_instruction_text : String = ""
 var current_action_menu_choices : Array = []
 var current_effect_choices : Array = []
+var instructions_number_picker_min = -1
+var instructions_number_picker_max = -1
 var show_thinking_spinner_in : float = 0
 const ThinkingSpinnerWaitBeforeShowTime = 1.0
 
@@ -324,7 +328,9 @@ func setup_character_card(character_card, deck, buddy_character_card):
 	character_card.set_cost(deck['exceed_cost'])
 
 	# Setup buddy if they have one.
-	if 'buddy_card' in deck:
+	if 'hide_buddy_reference' in deck and deck['hide_buddy_reference']:
+		buddy_character_card.visible = false
+	elif 'buddy_card' in deck:
 		buddy_character_card.visible = true
 		buddy_character_card.hide_focus()
 		var buddy_path = build_character_path(deck['id'], deck['buddy_card'], false)
@@ -489,7 +495,7 @@ func move_character_to_arena_square(character, arena_location, immediate: bool, 
 	var offset_y = $ArenaNode/RowButtons.position.y
 	target_position.y -= character.get_size().y * character.scale.y / 2 + offset_y + character.vertical_offset
 	if buddy_offset != 0:
-		target_position.x += buddy_offset * (character.get_size().x * character.scale.x /4)
+		target_position.x += buddy_offset * (character.get_size().x * character.scale.x /4) + character.horizontal_offset
 	if immediate:
 		character.position = target_position
 		update_character_facing()
@@ -955,7 +961,10 @@ func _stat_notice_event(event):
 		Enums.EventType.EventType_Strike_Miss:
 			notice_text = "Miss!"
 		Enums.EventType.EventType_Strike_OpponentCantMovePast:
-			notice_text = "Blocking Advance!"
+			var movement_text = "Advance"
+			if event['extra_info']:
+				movement_text = "Movement through %s" % event['extra_info']
+			notice_text = "Blocking %s!" % movement_text
 		Enums.EventType.EventType_Strike_PowerUp:
 			var text = ""
 			if number > 0:
@@ -1007,14 +1016,15 @@ func _on_stunned(event):
 		$OpponentCharacter.play_stunned()
 	return _stat_notice_event(event)
 
+func _on_end_of_strike():
+	player_bonus_panel.visible = false
+	opponent_bonus_panel.visible = false
+
 func _on_advance_turn():
 	var active_player : Enums.PlayerId = game_wrapper.get_active_player()
 	var is_local_player_active = active_player == Enums.PlayerId.PlayerId_Player
 	$PlayerLife.set_turn_indicator(is_local_player_active)
 	$OpponentLife.set_turn_indicator(not is_local_player_active)
-
-	player_bonus_panel.visible = false
-	opponent_bonus_panel.visible = false
 
 	if is_local_player_active:
 		change_ui_state(UIState.UIState_PickTurnAction, UISubState.UISubState_None)
@@ -1135,13 +1145,16 @@ func _on_name_opponent_card_begin(event):
 	spawn_damage_popup("Naming Card", player)
 	var normal_only = event['event_type'] == Enums.EventType.EventType_ReadingNormal or event['event_type'] == Enums.EventType.EventType_Boost_Sidestep
 	var can_name_fake_card = event['event_type'] == Enums.EventType.EventType_Boost_NameCardOpponentDiscards
-	select_card_name_card_both_players = game_wrapper.get_decision_info().bonus_effect
+	if game_wrapper.get_decision_info().bonus_effect:
+		select_card_name_card_both_players = game_wrapper.get_decision_info().bonus_effect
+	else:
+		select_card_name_card_both_players = false
 	if player == Enums.PlayerId.PlayerId_Player:
 		var instruction_text = "Name an opponent card."
 		if select_card_name_card_both_players:
 			instruction_text = "Name a card."
 		# Show the boost window.
-		_on_opponent_reference_button_pressed()
+		_on_opponent_reference_button_pressed(false, true)
 		selected_cards = []
 		select_card_require_min = 1
 		select_card_require_max = 1
@@ -1617,10 +1630,13 @@ func update_discard_selection_message_choose():
 	if decision_info.bonus_effect:
 		var effect_text = CardDefinitions.get_effect_text(decision_info.bonus_effect, false, false, false, "")
 		bonus = "\nfor %s" % effect_text
-	if decision_info.limitation:
-		set_instructions("Select %s more %s card(s) from your hand to move to %s%s." % [num_remaining, decision_info.limitation, destination, bonus])
+	if destination == "play_attack":
+		set_instructions("Select a card from your hand to move to play as an extra attack.")
 	else:
-		set_instructions("Select %s more card(s) from your hand to move to %s%s." % [num_remaining, destination, bonus])
+		if decision_info.limitation:
+			set_instructions("Select %s more %s card(s) from your hand to move to %s%s." % [num_remaining, decision_info.limitation, destination, bonus])
+		else:
+			set_instructions("Select %s more card(s) from your hand to move to %s%s." % [num_remaining, destination, bonus])
 
 func update_discard_selection_message():
 	var num_remaining = select_card_require_min - len(selected_cards)
@@ -1647,8 +1663,14 @@ func update_discard_to_gauge_selection_message():
 		var num_remaining = select_card_require_max - len(selected_cards)
 		set_instructions("Select up to %s more card(s) from your hand to put %s." % [num_remaining, phrase])
 
+func get_gauge_generated():
+	var gauge_from_free_bonus = game_wrapper.get_player_free_gauge(Enums.PlayerId.PlayerId_Player)
+	var gauge_generated = min(gauge_from_free_bonus, select_card_require_max)
+	gauge_generated += len(selected_cards)
+	return gauge_generated
+
 func update_gauge_selection_message():
-	var num_remaining = select_card_require_min - len(selected_cards)
+	var num_remaining = select_card_require_min - get_gauge_generated()
 	var discard_reminder = ""
 	if enabled_reminder_text:
 		discard_reminder = "\nThe last card selected will be on top of the discard pile."
@@ -1676,13 +1698,16 @@ func update_gauge_for_effect_message():
 				effect_str = "Return %s gauge to your hand." % [decision_effect['gauge_max']]
 		else:
 			effect_str = "Spend %s gauge for %s." % [decision_effect['gauge_max'], effect_text]
-	effect_str += "\n%s gauge selected." % [selected_cards.size()]
+	var passive_bonus = get_gauge_generated() - len(selected_cards)
+	if passive_bonus > 0:
+		effect_str += "\n%s gauge from passive bonus." % passive_bonus
+	effect_str += "\n%s gauge generated." % [get_gauge_generated()]
 	# Strip tags that currently aren't supported.
 	effect_str = effect_str.replace("[b]", "").replace("[/b]", "")
 	set_instructions(effect_str)
 
 func update_gauge_selection_for_cancel_message():
-	var num_remaining = select_card_require_min - len(selected_cards)
+	var num_remaining = select_card_require_min - get_gauge_generated()
 	set_instructions("Select %s gauge card to use Cancel." % num_remaining)
 
 func get_force_in_selected_cards():
@@ -1751,13 +1776,18 @@ func update_force_generation_message():
 			effect_str += "\n%s" % [force_generated_str]
 			set_instructions(effect_str)
 
-func enable_instructions_ui(message, can_ok, can_cancel, can_wild_swing : bool = false, can_ex : bool = true, choices = []):
+func enable_instructions_ui(message, can_ok, can_cancel, can_wild_swing : bool = false, can_ex : bool = true, choices = [], show_number_picker : bool  = false):
 	set_instructions(message)
 	instructions_ok_allowed = can_ok
 	instructions_cancel_allowed = can_cancel
 	instructions_wild_swing_allowed = can_wild_swing
 	instructions_ex_allowed = can_ex
 	current_effect_choices = choices
+	instructions_number_picker_min = -1
+	instructions_number_picker_max = -1
+	if show_number_picker:
+		instructions_number_picker_min = game_wrapper.get_decision_info().amount_min
+		instructions_number_picker_max = game_wrapper.get_decision_info().amount
 
 func begin_discard_cards_selection(number_to_discard_min, number_to_discard_max, next_sub_state, can_cancel_always : bool = false):
 	selected_cards = []
@@ -1812,6 +1842,10 @@ func begin_strike_choosing(strike_response : bool, cancel_allowed : bool,
 	if cards_that_will_not_hit.size() > 0:
 		for card in cards_that_will_not_hit:
 			dialogue += "\n" + card + " will not hit."
+	var plague_knight_discard_names = game_wrapper.get_plague_knight_discard_names(Enums.PlayerId.PlayerId_Opponent)
+	if plague_knight_discard_names.size() > 0:
+		for card in plague_knight_discard_names:
+			dialogue += "\nPlague Knight discarded " + card +"."
 	enable_instructions_ui(dialogue, true, can_cancel, not disable_wild_swing, not disable_ex)
 	var new_sub_state
 	if strike_response:
@@ -1866,6 +1900,12 @@ func begin_boost_choosing(can_cancel : bool, allow_gauge : bool, only_gauge : bo
 	if only_gauge:
 		instructions = "Select a %s to boost from gauge." % limitation_str
 
+	boost_selection_options = {
+		"can_cancel": can_cancel,
+		"allow_gauge": allow_gauge,
+		"only_gauge": only_gauge,
+		"limitation": limitation
+	}
 	enable_instructions_ui(instructions, true, can_cancel)
 	change_ui_state(UIState.UIState_SelectCards, UISubState.UISubState_SelectCards_PlayBoost)
 
@@ -2059,6 +2099,17 @@ func _on_strike_started(event, is_ex : bool):
 		# Opponent started strike, player has to respond.
 		_move_card_to_strike_area(card, $OpponentStrike/StrikeZone, $AllCards/Striking, false, is_ex)
 
+func _on_strike_started_extra_attack(event):
+	var player = event['event_player']
+	var card = find_card_on_board(event['number'])
+	# Immediately reveal it.
+	card.flip_card_to_front(true)
+	if player == Enums.PlayerId.PlayerId_Player:
+		_move_card_to_strike_area(card, $PlayerStrike/StrikeZone, $AllCards/Striking, true, false)
+	else:
+		_move_card_to_strike_area(card, $OpponentStrike/StrikeZone, $AllCards/Striking, false, false)
+
+
 func _on_strike_do_response_now(event):
 	var player = event['event_player']
 	if player == Enums.PlayerId.PlayerId_Player:
@@ -2108,7 +2159,7 @@ func _on_strike_character_effect(event):
 	bonus_panel.visible = true
 	var effect = event['extra_info']
 	var label_text = ""
-	label_text += CardDefinitions.get_effect_text(effect, false, true, true) + "\n"
+	label_text += CardDefinitions.get_effect_text(effect, false, true, true, "", true) + "\n"
 	label_text = label_text.replace(",", "\n")
 	bonus_label.text = label_text
 
@@ -2181,7 +2232,10 @@ func _on_force_for_effect(event):
 		var require_max = -1
 		if effect['overall_effect']:
 			require_max = select_card_up_to_force
-		begin_generate_force_selection(require_max)
+		var can_cancel = true
+		if 'required' in effect and effect['required']:
+			can_cancel = false
+		begin_generate_force_selection(require_max, can_cancel)
 	else:
 		ai_force_for_effect(effect)
 
@@ -2315,11 +2369,11 @@ func _handle_events(events):
 			Enums.EventType.EventType_Boost_DiscardOpponentGauge:
 				_on_discard_opponent_gauge(event)
 			Enums.EventType.EventType_Boost_NameCardOpponentDiscards:
-				_on_name_opponent_card_begin(event)
+				delay = _on_name_opponent_card_begin(event)
 			Enums.EventType.EventType_Boost_Sidestep:
-				_on_name_opponent_card_begin(event)
+				delay = _on_name_opponent_card_begin(event)
 			Enums.EventType.EventType_Boost_ZeroVector:
-				_on_name_opponent_card_begin(event)
+				delay = _on_name_opponent_card_begin(event)
 			Enums.EventType.EventType_Boost_Played:
 				delay = _on_boost_played(event)
 			Enums.EventType.EventType_CardFromHandToGauge_Choice:
@@ -2364,6 +2418,8 @@ func _handle_events(events):
 				_on_mulligan_decision(event)
 			Enums.EventType.EventType_PlaceBuddy:
 				delay = _on_place_buddy(event)
+			Enums.EventType.EventType_PickNumberFromRange:
+				_on_pick_number_from_range(event)
 			Enums.EventType.EventType_SwapSealedAndDeck:
 				delay = _stat_notice_event(event)
 			Enums.EventType.EventType_Prepare:
@@ -2400,6 +2456,8 @@ func _handle_events(events):
 				delay = _on_choose_to_discard(event, false)
 			Enums.EventType.EventType_Strike_ChooseToDiscard_Info:
 				delay = _on_choose_to_discard(event, true)
+			Enums.EventType.EventType_Strike_Cleanup:
+				_on_end_of_strike()
 			Enums.EventType.EventType_Strike_Critical:
 				delay = _stat_notice_event(event)
 			Enums.EventType.EventType_Strike_DodgeAttacks, Enums.EventType.EventType_Strike_DodgeAttacksAtRange, Enums.EventType.EventType_Strike_DodgeFromOppositeBuddy:
@@ -2461,6 +2519,8 @@ func _handle_events(events):
 				_on_strike_started(event, false)
 			Enums.EventType.EventType_Strike_Started_Ex:
 				_on_strike_started(event, true)
+			Enums.EventType.EventType_Strike_Started_ExtraAttack:
+				_on_strike_started_extra_attack(event)
 			Enums.EventType.EventType_Strike_Stun:
 				delay = _on_stunned(event)
 			Enums.EventType.EventType_Strike_Stun_Immunity:
@@ -2499,7 +2559,7 @@ func _update_buttons():
 			button_choices.append({ "text": "Move", "action": _on_move_button_pressed, "disabled": not game_wrapper.can_do_move(Enums.PlayerId.PlayerId_Player) })
 			button_choices.append({ "text": "Change Cards", "action": _on_change_button_pressed, "disabled": not game_wrapper.can_do_change(Enums.PlayerId.PlayerId_Player) })
 			var exceed_cost = game_wrapper.get_player_exceed_cost(Enums.PlayerId.PlayerId_Player)
-			if exceed_cost >= 0:
+			if exceed_cost >= 0 and not game_wrapper.is_player_exceeded(Enums.PlayerId.PlayerId_Player):
 				button_choices.append({ "text": "Exceed (%s Gauge)" % exceed_cost, "action": _on_exceed_button_pressed, "disabled": not game_wrapper.can_do_exceed(Enums.PlayerId.PlayerId_Player) })
 			if game_wrapper.can_do_reshuffle(Enums.PlayerId.PlayerId_Player):
 				button_choices.append({ "text": "Manual Reshuffle", "action": _on_reshuffle_button_pressed, "disabled": false })
@@ -2678,7 +2738,7 @@ func _update_buttons():
 			action_menu_hidden = true
 	action_menu.visible = not action_menu_hidden and (button_choices.size() > 0 or instructions_visible)
 	action_menu_container.visible = action_menu.visible
-	action_menu.set_choices(current_instruction_text, button_choices, ultra_force_toggle)
+	action_menu.set_choices(current_instruction_text, button_choices, ultra_force_toggle, instructions_number_picker_min, instructions_number_picker_max)
 	current_action_menu_choices = button_choices
 
 func update_boost_summary(boosts_card_holder, boost_box):
@@ -2715,7 +2775,9 @@ func selected_cards_between_min_and_max() -> bool:
 func can_press_ok():
 	if ui_state == UIState.UIState_SelectCards:
 		match ui_sub_state:
-			UISubState.UISubState_SelectCards_DiscardCards, UISubState.UISubState_SelectCards_StrikeGauge, UISubState.UISubState_SelectCards_Exceed:
+			UISubState.UISubState_SelectCards_StrikeGauge:
+				return get_gauge_generated() >= select_card_require_min and get_gauge_generated() <= select_card_require_max
+			UISubState.UISubState_SelectCards_DiscardCards, UISubState.UISubState_SelectCards_Exceed:
 				return selected_cards_between_min_and_max()
 			UISubState.UISubState_SelectCards_BoostCancel, UISubState.UISubState_SelectCards_DiscardContinuousBoost, UISubState.UISubState_SelectCards_DiscardFromReference:
 				return selected_cards_between_min_and_max()
@@ -2759,13 +2821,17 @@ func can_press_ok():
 				if select_card_must_be_max_or_min:
 					if instructions_cancel_allowed and len(selected_cards) == 0:
 						return false
-					return len(selected_cards) == select_card_require_min or len(selected_cards) == select_card_require_max
+					return get_gauge_generated() == select_card_require_min or get_gauge_generated() == select_card_require_max
 				else:
-					return selected_cards_between_min_and_max()
+					return get_gauge_generated() >= select_card_require_min and get_gauge_generated() <= select_card_require_max
 			UISubState.UISubState_SelectCards_PlayBoost:
 				return len(selected_cards) == 1
 			UISubState.UISubState_SelectCards_ForceForBoost:
 				return can_selected_cards_pay_force(select_card_require_force)
+	else: # Some other non-select cards state.
+		match ui_sub_state:
+			UISubState.UISubState_PickNumberFromRange:
+				return true
 	return false
 
 func begin_select_arena_location(valid_moves):
@@ -2791,6 +2857,35 @@ func _on_choose_arena_location_for_effect(event):
 		change_ui_state(UIState.UIState_SelectArenaLocation, UISubState.UISubState_SelectArena_EffectChoice)
 	else:
 		ai_choose_arena_location_for_effect(decision_info.limitation)
+
+func _on_pick_number_from_range(event):
+	var player = event['event_player']
+	var decision_info = game_wrapper.get_decision_info()
+	var min_value = decision_info.amount_min
+	var max_value = decision_info.amount
+	if player == Enums.PlayerId.PlayerId_Player:
+		enable_instructions_ui("Pick a number from %s-%s to %s" % [str(min_value), str(max_value), decision_info.effect_type], true, false, false, false, [], true)
+		change_ui_state(UIState.UIState_MakeChoice, UISubState.UISubState_PickNumberFromRange)
+	else:
+		ai_pick_number_from_range(decision_info.limitation, decision_info.choice)
+
+func handle_pick_range_ok():
+	var decision_info = game_wrapper.get_decision_info()
+	var choice_index = 0
+	var chosen_number = action_menu.get_current_number_picker_value()
+	for i in range(decision_info.limitation.size()):
+		if decision_info.limitation[i] == chosen_number:
+			choice_index = i
+			break
+
+	# Make sure to unset these so the UI goes away.
+	instructions_number_picker_min = -1
+	instructions_number_picker_max = -1
+
+	_on_choice_pressed(choice_index)
+
+	# Return false, _on_choice_pressed handles UI state.
+	return false
 
 ##
 ## Button Handlers
@@ -2861,7 +2956,7 @@ func _on_choice_pressed(choice):
 	_update_buttons()
 
 func _on_instructions_ok_button_pressed(index : int):
-	if ui_state == UIState.UIState_SelectCards and can_press_ok():
+	if can_press_ok():
 		var selected_card_ids : Array = []
 		for card in selected_cards:
 			selected_card_ids.append(card.card_id)
@@ -2928,6 +3023,8 @@ func _on_instructions_ok_button_pressed(index : int):
 					success = game_wrapper.submit_boost(Enums.PlayerId.PlayerId_Player, single_card_id, [])
 			UISubState.UISubState_SelectCards_ForceForBoost:
 				success = game_wrapper.submit_boost(Enums.PlayerId.PlayerId_Player, selected_boost_to_pay_for, selected_card_ids)
+			UISubState.UISubState_PickNumberFromRange:
+				success = handle_pick_range_ok()
 
 		if success:
 			popout_instruction_info = null
@@ -2981,6 +3078,13 @@ func _on_instructions_cancel_button_pressed():
 			deselect_all_cards()
 			close_popout()
 			success = game_wrapper.submit_boost_name_card_choice_effect(Enums.PlayerId.PlayerId_Player, -1)
+		UISubState.UISubState_SelectCards_ForceForBoost:
+			deselect_all_cards()
+			var can_cancel = boost_selection_options['can_cancel']
+			var allow_gauge = boost_selection_options['allow_gauge']
+			var only_gauge = boost_selection_options['only_gauge']
+			var limitation = boost_selection_options['limitation']
+			begin_boost_choosing(can_cancel, allow_gauge, only_gauge, limitation)
 		_:
 			match ui_state:
 				UIState.UIState_SelectArenaLocation:
@@ -3224,7 +3328,9 @@ func ai_force_for_effect(effect):
 		for i in range(effect['force_max'] + 1):
 			options.append(i)
 	else:
-		options.append(0)
+		var required = 'required' in effect and effect['required']
+		if not required:
+			options.append(0)
 		options.append(effect['force_max'])
 	var forceforeffect_action = ai_player.pick_force_for_effect(game_wrapper.current_game, Enums.PlayerId.PlayerId_Opponent, options)
 	var success = game_wrapper.submit_force_for_effect(Enums.PlayerId.PlayerId_Opponent, forceforeffect_action.card_ids, false)
@@ -3241,7 +3347,8 @@ func ai_gauge_for_effect(effect):
 		for i in range(effect['gauge_max'] + 1):
 			options.append(i)
 	else:
-		options.append(0)
+		if not 'required' in effect or not effect['required']:
+			options.append(0)
 		options.append(effect['gauge_max'])
 	var gauge_action = ai_player.pick_gauge_for_effect(game_wrapper.current_game, Enums.PlayerId.PlayerId_Opponent, options)
 	var success = game_wrapper.submit_gauge_for_effect(Enums.PlayerId.PlayerId_Opponent, gauge_action.card_ids)
@@ -3408,6 +3515,23 @@ func ai_choose_arena_location_for_effect(location_choices : Array):
 	else:
 		print("FAILED AI CHOOSE ARENA LOCATION FOR EFFECT")
 
+func ai_pick_number_from_range(choices : Array, effects : Array):
+	change_ui_state(UIState.UIState_WaitForGameServer)
+	if not game_wrapper.is_ai_game(): return
+	var choose_action = ai_player.pick_number_from_range_for_effect(game_wrapper.current_game, Enums.PlayerId.PlayerId_Opponent, choices, effects)
+	var chosen_number = choose_action.number
+	var choice_index = 0
+	for i in range(len(choices)):
+		if choices[i] == chosen_number:
+			choice_index = i
+			break
+
+	var success = game_wrapper.submit_choice(Enums.PlayerId.PlayerId_Opponent, choice_index)
+	if success:
+		change_ui_state(UIState.UIState_WaitForGameServer)
+	else:
+		print("FAILED AI CHOOSE NUMBER FROM RANGE")
+
 # Popout Functions
 func card_in_selected_cards(card):
 	for selected_card in selected_cards:
@@ -3555,7 +3679,8 @@ func popout_show_normal_only() -> bool:
 		return popout_instruction_info['normal_only']
 	return false
 
-func show_popout(popout_type : CardPopoutType, popout_title : String, card_node, card_rest_position : Vector2, card_rest_state : CardBase.CardState, show_amount : bool = true):
+func show_popout(popout_type : CardPopoutType, popout_title : String, card_node, card_rest_position : Vector2, card_rest_state : CardBase.CardState,
+		show_amount : bool = true, force_hide_reshuffle = false):
 	card_popout.z_index = CardPopoutZIndex
 	popout_type_showing = popout_type
 	popout_showing_node = card_node
@@ -3563,7 +3688,7 @@ func show_popout(popout_type : CardPopoutType, popout_title : String, card_node,
 
 	var toggle_text = ""
 	var toggle_visible = false
-	if popout_type == CardPopoutType.CardPopoutType_ReferenceOpponent:
+	if popout_type == CardPopoutType.CardPopoutType_ReferenceOpponent and not force_hide_reshuffle:
 		toggle_visible = true
 		if reference_popout_toggle_enabled:
 			if reference_popout_toggle:
@@ -3652,7 +3777,7 @@ func _on_player_reference_button_pressed():
 	reference_title += ")"
 	show_popout(CardPopoutType.CardPopoutType_ReferencePlayer, reference_title, $AllCards/PlayerAllCopy, OffScreen, CardBase.CardState.CardState_Offscreen, false)
 
-func _on_opponent_reference_button_pressed(switch_toggle : bool = false):
+func _on_opponent_reference_button_pressed(switch_toggle : bool = false, hide_reshuffle : bool = false):
 	await close_popout()
 
 	if switch_toggle:
@@ -3678,7 +3803,7 @@ func _on_opponent_reference_button_pressed(switch_toggle : bool = false):
 	if game_wrapper.is_player_sealed_area_secret(Enums.PlayerId.PlayerId_Player):
 		popout_title += "+sealed"
 	popout_title += ")"
-	show_popout(CardPopoutType.CardPopoutType_ReferenceOpponent, popout_title, $AllCards/OpponentAllCopy, OffScreen, CardBase.CardState.CardState_Offscreen, false)
+	show_popout(CardPopoutType.CardPopoutType_ReferenceOpponent, popout_title, $AllCards/OpponentAllCopy, OffScreen, CardBase.CardState.CardState_Offscreen, false, hide_reshuffle)
 
 func _on_exit_to_menu_pressed():
 	modal_dialog.visible = true

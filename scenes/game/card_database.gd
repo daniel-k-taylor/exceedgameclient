@@ -89,6 +89,10 @@ func is_normal_card(id : int) -> bool:
 	var card = get_card(id)
 	return card.definition['type'] == 'normal'
 
+func does_card_have_cost(id : int) -> bool:
+	var card = get_card(id)
+	return card.definition['force_cost'] > 0 or card.definition['gauge_cost'] > 0
+
 func get_card_boost_force_cost(id : int) -> int:
 	var card = get_card(id)
 	return card.definition['boost']['force_cost']

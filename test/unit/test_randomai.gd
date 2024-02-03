@@ -1,7 +1,7 @@
 extends GutTest
 
-# Leave at 0 checked in so someone doesn't accidentally run all tests at 100.
-const RandomIterations = 100
+# Leave at 1 checked in so someone doesn't accidentally run all tests at 100.
+const RandomIterations = 1
 
 const LocalGame = preload("res://scenes/game/local_game.gd")
 const GameCard = preload("res://scenes/game/game_card.gd")
@@ -239,6 +239,15 @@ func handle_decisions(game: LocalGame):
 						choice_index = i
 						break
 				assert_true(game.do_choice(decision_player, choice_index), "do arena location for effect failed")
+			Enums.DecisionType.DecisionType_PickNumberFromRange:
+				var decision_info = game.decision_info
+				var decision_action = decision_ai.pick_number_from_range_for_effect(game, decision_player.my_id, decision_info.limitation, decision_info.choice)
+				var choice_index = 0
+				for i in range(len(decision_info.limitation)):
+					if decision_info.limitation[i] == decision_action.number:
+						choice_index = i
+						break
+				assert_true(game.do_choice(decision_player, choice_index), "do pick number from range failed")
 			Enums.DecisionType.DecisionType_ChooseDiscardContinuousBoost:
 				var limitation = game.decision_info.limitation
 				var can_pass = game.decision_info.can_pass
@@ -572,8 +581,26 @@ func test_carlclover_100():
 		game_setup()
 	pass_test("Finished match")
 
+func test_hakumen_100():
+	default_deck = CardDefinitions.get_deck_from_str_id("hakumen")
+	for i in range(RandomIterations):
+		print("==== RUNNING TEST %d ====" % i)
+		run_ai_game()
+		game_teardown()
+		game_setup()
+	pass_test("Finished match")
+
 func test_jin_100():
 	default_deck = CardDefinitions.get_deck_from_str_id("jin")
+	for i in range(RandomIterations):
+		print("==== RUNNING TEST %d ====" % i)
+		run_ai_game()
+		game_teardown()
+		game_setup()
+	pass_test("Finished match")
+
+func test_kokonoe_100():
+	default_deck = CardDefinitions.get_deck_from_str_id("kokonoe")
 	for i in range(RandomIterations):
 		print("==== RUNNING TEST %d ====" % i)
 		run_ai_game()
@@ -745,6 +772,24 @@ func test_nine_100():
 
 func test_specter_100():
 	default_deck = CardDefinitions.get_deck_from_str_id("specter")
+	for i in range(RandomIterations):
+		print("==== RUNNING TEST %d ====" % i)
+		run_ai_game()
+		game_teardown()
+		game_setup()
+	pass_test("Finished match")
+
+func test_mika_100():
+	default_deck = CardDefinitions.get_deck_from_str_id("mika")
+	for i in range(RandomIterations):
+		print("==== RUNNING TEST %d ====" % i)
+		run_ai_game()
+		game_teardown()
+		game_setup()
+	pass_test("Finished match")
+
+func test_chaos_100():
+	default_deck = CardDefinitions.get_deck_from_str_id("chaos")
 	for i in range(RandomIterations):
 		print("==== RUNNING TEST %d ====" % i)
 		run_ai_game()

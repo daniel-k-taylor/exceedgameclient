@@ -96,6 +96,9 @@ func get_player_reshuffle_remaining(id):
 func get_player_exceed_cost(id):
 	return _get_player(id).get_exceed_cost()
 
+func is_player_exceeded(id):
+	return _get_player(id).exceeded
+
 func get_player_mulligan_complete(id):
 	return _get_player(id).mulligan_complete
 
@@ -210,6 +213,9 @@ func get_player_available_force(player_id : Enums.PlayerId):
 func get_player_free_force(player_id : Enums.PlayerId):
 	return _get_player(player_id).free_force
 
+func get_player_free_gauge(player_id : Enums.PlayerId):
+	return _get_player(player_id).free_gauge
+
 func get_player_force_for_cards(player_id : Enums.PlayerId, card_ids : Array, reason : String, treat_ultras_as_single_force : bool):
 	return _get_player(player_id).get_force_with_cards(card_ids, reason, treat_ultras_as_single_force)
 
@@ -223,6 +229,14 @@ func get_will_not_hit_card_names(player_id : Enums.PlayerId) -> Array:
 		var card_db = get_card_database()
 		for card in player.cards_that_will_not_hit:
 			card_names.append(card_db.get_card_name_by_card_definition_id(card))
+	return card_names
+
+func get_plague_knight_discard_names(player_id : Enums.PlayerId) -> Array:
+	var card_names = []
+	var player = _get_player(player_id)
+	if player.plague_knight_discard_names.size() > 0:
+		for card in player.plague_knight_discard_names:
+			card_names.append(card)
 	return card_names
 
 func get_buddy_name(player_id : Enums.PlayerId, buddy_id : String):
