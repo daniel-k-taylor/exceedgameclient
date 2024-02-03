@@ -4729,7 +4729,8 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 			if 'maximum' in effect:
 				maximum = effect['maximum']
 			var amount = gauge * amount_per_gauge
-			performing_player.life = min(maximum, amount)
+			amount = min(maximum, amount)
+			performing_player.life = amount
 			events += [create_event(Enums.EventType.EventType_Strike_GainLife, performing_player.my_id, amount, "", performing_player.life)]
 			_append_log_full(Enums.LogType.LogType_Health, performing_player, "gains %s life, bringing them to %s!" % [str(amount), str(performing_player.life)])
 		"shuffle_into_deck_from_hand":

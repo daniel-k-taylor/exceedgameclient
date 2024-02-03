@@ -638,6 +638,8 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 			effect_str += "Push " + str(effect['amount']) + " from attack source"
 		"push_to_attack_max_range":
 			effect_str += "Push to attack's max range"
+		"range_includes_if_moved_past":
+			effect_str += "If you move past the opponent, your range includes them"
 		"rangeup":
 			if effect['amount'] != effect['amount2']:
 				# Skip the first one if they're the same.
