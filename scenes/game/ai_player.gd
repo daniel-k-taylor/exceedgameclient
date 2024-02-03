@@ -182,6 +182,11 @@ class ChooseArenaLocationAction:
 	func _init(chosen_location):
 		location = chosen_location
 
+class NumberFromRangeAction:
+	var number
+	func _init(chosen_number):
+		number = chosen_number
+
 func create_sanitized_card_id_array(card_array):
 	var card_ids = []
 	for i in range(card_array.size()):
@@ -364,7 +369,8 @@ func get_exceed_actions(_game_logic : LocalGame, me : LocalGame.Player, _opponen
 	var possible_actions = []
 	if me.exceeded:
 		return []
-	if me.get_exceed_cost() > me.gauge.size():
+	var exceed_cost = me.get_exceed_cost()
+	if exceed_cost == -1 or me.get_exceed_cost() > me.gauge.size():
 		return []
 
 	var combinations = get_combinations_to_pay_gauge(me, me.get_exceed_cost())
@@ -898,3 +904,12 @@ func pick_choose_arena_location_for_effect(game_logic : LocalGame, my_id : Enums
 		possible_actions.append(ChooseArenaLocationAction.new(option))
 	update_ai_state(game_logic, me, opponent)
 	return ai_policy.pick_choose_arena_location_for_effect(possible_actions, game_state)
+
+func pick_number_from_range_for_effect(game_logic : LocalGame, my_id : Enums.PlayerId, options : Array, _effects : Array) -> NumberFromRangeAction:
+	var me = game_logic._get_player(my_id)
+	var opponent = game_logic._get_player(game_logic.get_other_player(my_id))
+	var possible_actions = []
+	for option in options:
+		possible_actions.append(NumberFromRangeAction.new(option))
+	update_ai_state(game_logic, me, opponent)
+	return ai_policy.pick_number_from_range_for_effect(possible_actions, game_state)

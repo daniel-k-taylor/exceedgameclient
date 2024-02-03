@@ -493,7 +493,7 @@ func test_arakune_permutationnr_attack_far_pay_ultra():
 func test_arakune_permutationnr_boost_give_card():
 	position_players(player1, 2, player2, 1)
 	give_player_specific_card(player1, "arakune_permutationnr", TestCardId3)
-	assert_true(game_logic.do_boost(player1, TestCardId3))
+	assert_true(game_logic.do_boost(player1, TestCardId3, [player1.hand[0].id]))
 	# Opponent chooses 0 - add card from hand to opponent's OD, 1 - reveal hand/topdeck
 	assert_true(game_logic.do_choice(player2, 0))
 	var discarded_id = player2.hand[0].id
@@ -506,7 +506,7 @@ func test_arakune_permutationnr_boost_give_card():
 func test_arakune_permutationnr_boost_reveal():
 	position_players(player1, 2, player2, 1)
 	give_player_specific_card(player1, "arakune_permutationnr", TestCardId3)
-	assert_true(game_logic.do_boost(player1, TestCardId3))
+	assert_true(game_logic.do_boost(player1, TestCardId3, [player1.hand[0].id]))
 	# Opponent chooses 0 - add card from hand to opponent's OD, 1 - reveal hand/topdeck
 	assert_true(game_logic.do_choice(player2, 1))
 	var events = game_logic.get_latest_events()
@@ -517,7 +517,7 @@ func test_arakune_permutationnr_boost_reveal():
 func test_arakune_piecewise_odd_miss():
 	position_players(player1, 2, player2, 3)
 	execute_strike(player1, player2, "arakune_fpiecewise", "standard_normal_sweep", [], [], false, false, [], [], 0, [])
-	# fpiecewise range effect
+	# fpiecewise range effecte
 	assert_true(game_logic.do_force_for_effect(player1, [player1.hand[0].id], false))
 	# miss, after advance/retreat
 	assert_true(game_logic.do_choice(player1, 0))
@@ -574,7 +574,7 @@ func test_arakune_piecewise_boost():
 func test_arakune_finverse_boost():
 	position_players(player1, 2, player2, 4)
 	give_player_specific_card(player1, "arakune_finverse", TestCardId3)
-	assert_true(game_logic.do_boost(player1, TestCardId3))
+	assert_true(game_logic.do_boost(player1, TestCardId3, [player1.hand[0].id]))
 	var cards_on_topdeck = []
 	for i in range(5):
 		cards_on_topdeck.append(player1.deck[i].id)
@@ -599,7 +599,7 @@ func test_arakune_finverse_boost_4_in_deck():
 	player1.move_card_from_discard_to_deck(player1.discards[0].id)
 	player1.move_card_from_discard_to_deck(player1.discards[0].id)
 	give_player_specific_card(player1, "arakune_finverse", TestCardId3)
-	assert_true(game_logic.do_boost(player1, TestCardId3))
+	assert_true(game_logic.do_boost(player1, TestCardId3, [player1.hand[0].id]))
 	var cards_on_topdeck = []
 	for i in range(4):
 		cards_on_topdeck.append(player1.deck[i].id)
@@ -622,7 +622,7 @@ func test_arakune_finverse_boost_3_in_deck():
 	player1.move_card_from_discard_to_deck(player1.discards[0].id)
 	player1.move_card_from_discard_to_deck(player1.discards[0].id)
 	give_player_specific_card(player1, "arakune_finverse", TestCardId3)
-	assert_true(game_logic.do_boost(player1, TestCardId3))
+	assert_true(game_logic.do_boost(player1, TestCardId3, [player1.hand[0].id]))
 	var cards_on_topdeck = []
 	for i in range(3):
 		cards_on_topdeck.append(player1.deck[i].id)

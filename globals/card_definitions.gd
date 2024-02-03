@@ -125,6 +125,10 @@ func get_force_for_effect_summary(effect, card_name_source : String) -> String:
 	return effect_str
 
 func get_gauge_for_effect_summary(effect, card_name_source : String) -> String:
+	var required = 'required' in effect and effect['required']
+	var maymust_str = "may"
+	if required:
+		maymust_str = "must"
 	var effect_str = ""
 	var to_hand = 'spent_cards_to_hand' in effect and effect['spent_cards_to_hand']
 	var gauge_limit = effect['gauge_max']
@@ -135,9 +139,9 @@ func get_gauge_for_effect_summary(effect, card_name_source : String) -> String:
 			effect_str += "Spend up to %s gauge. For each, %s" % [str(gauge_limit), get_effect_text(effect['per_gauge_effect'], false, true, true, card_name_source)]
 	elif 'overall_effect' in effect and effect['overall_effect'] != null:
 		if to_hand:
-			effect_str += "You may return %s gauge to your hand to %s" % [str(gauge_limit), get_effect_text(effect['overall_effect'], false, true, true, card_name_source)]
+			effect_str += "You %s return %s gauge to your hand to %s" % [maymust_str, str(gauge_limit), get_effect_text(effect['overall_effect'], false, true, true, card_name_source)]
 		else:
-			effect_str += "You may spend %s gauge to %s" % [str(gauge_limit), get_effect_text(effect['overall_effect'], false, true, true, card_name_source)]
+			effect_str += "You %s spend %s gauge to %s" % [maymust_str, str(gauge_limit), get_effect_text(effect['overall_effect'], false, true, true, card_name_source)]
 	return effect_str
 
 func get_timing_text(timing):
@@ -256,7 +260,7 @@ func get_condition_text(effect, amount, amount2, detail):
 		"is_special_or_ultra_attack":
 			text += ""
 		"is_normal_attack":
-			text += ""
+			text += "If you strike with a normal, "
 		"top_deck_is_normal_attack":
 			text += "If the top card of your deck is a normal, "
 		"is_buddy_special_or_ultra_attack":
@@ -324,10 +328,15 @@ func get_effect_type_heading(effect):
 			effect_str += "MISSING EFFECT HEADING"
 	return effect_str
 
-func get_effect_type_text(effect, card_name_source : String = ""):
+func get_effect_type_text(effect, card_name_source : String = "", char_effect_panel : bool = false):
 	var effect_str = ""
 	var effect_type = effect['effect_type']
 	match effect_type:
+		"add_attack_effect":
+			if char_effect_panel:
+				effect_str += get_effect_type_text(effect['added_effect'], card_name_source)
+			else:
+				effect_str += "Add the effect:\n" + get_effect_type_text(effect['added_effect'], card_name_source)
 		"add_boost_to_gauge_on_strike_cleanup":
 			if card_name_source:
 				effect_str += "Add %s to gauge" % card_name_source
@@ -360,11 +369,14 @@ func get_effect_type_text(effect, card_name_source : String = ""):
 			else:
 				effect_str += "Add top card of discard pile to overdrive"
 		"advance":
-			effect_str += "Advance "
-			if str(effect['amount']) == "strike_x":
-				effect_str += "X"
+			if 'description' in effect:
+				effect_str += effect['description']
 			else:
-				effect_str += str(effect['amount'])
+				effect_str += "Advance "
+				if str(effect['amount']) == "strike_x":
+					effect_str += "X"
+				else:
+					effect_str += str(effect['amount'])
 		"advance_INTERNAL":
 			effect_str += "Advance "
 			if str(effect['amount']) == "strike_x":
@@ -481,6 +493,8 @@ func get_effect_type_text(effect, card_name_source : String = ""):
 			effect_str += "Place %s in any space." % effect['buddy_name']
 		"place_buddy_in_attack_range":
 			effect_str += "Place %s in the attack's range." % effect['buddy_name']
+		"play_attack_from_hand":
+				effect_str += "Play an attack from your hand, paying its costs."
 		"calculate_range_from_buddy":
 			effect_str += "Calculate range from %s." % effect['buddy_name']
 		"calculate_range_from_center":
@@ -490,6 +504,8 @@ func get_effect_type_text(effect, card_name_source : String = ""):
 				effect_str += "Opponent Draw " + str(effect['amount'])
 			else:
 				effect_str += "Draw " + str(effect['amount'])
+		"draw_any_number":
+			effect_str += "Draw any number of cards."
 		"draw_to":
 			effect_str += "Draw until you have %s cards in hand" % str(effect['amount'])
 		"exceed_now":
@@ -598,6 +614,8 @@ func get_effect_type_text(effect, card_name_source : String = ""):
 			effect_str += "+" + str(effect['amount']) + " Opponent's Power"
 		"pull":
 			effect_str += "Pull " + str(effect['amount'])
+		"pull_to_buddy":
+			effect_str += "Pull %s to %s" % [str(effect['amount']), effect['buddy_name']]
 		"push":
 			effect_str += "Push " + str(effect['amount'])
 		"push_from_source":
@@ -804,7 +822,7 @@ func get_effect_type_text(effect, card_name_source : String = ""):
 			effect_str += "MISSING EFFECT"
 	return effect_str
 
-func get_effect_text(effect, short = false, skip_timing = false, skip_condition = false, card_name_source : String = ""):
+func get_effect_text(effect, short = false, skip_timing = false, skip_condition = false, card_name_source : String = "", char_effect_panel : bool = false):
 	if not card_name_source:
 		if 'card_name' in effect:
 			card_name_source = effect['card_name']
@@ -832,7 +850,7 @@ func get_effect_text(effect, short = false, skip_timing = false, skip_condition 
 				detail = effect['condition_detail']
 			effect_str += get_condition_text(effect, amount, amount2, detail)
 
-		effect_str += get_effect_type_text(effect, card_name_source)
+		effect_str += get_effect_type_text(effect, card_name_source, char_effect_panel)
 
 	if not short and 'bonus_effect' in effect:
 		effect_str += "; " + get_effect_text(effect['bonus_effect'], skip_timing, false, card_name_source)

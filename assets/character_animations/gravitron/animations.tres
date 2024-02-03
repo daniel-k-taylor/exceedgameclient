@@ -1,0 +1,17 @@
+[gd_resource type="SpriteFrames" load_steps=2 format=3 uid="uid://dy72ppq5x7uo2"]
+
+[ext_resource type="Texture2D" uid="uid://bv2gq0xj1c710" path="res://assets/character_animations/gravitron/idle/gravitronbgremoved.png" id="1_edcnl"]
+
+[resource]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("1_edcnl")
+}],
+"loop": true,
+"name": &"idle",
+"speed": 5.0
+}]
+metadata/flip = true
+metadata/scaling = 1.5
+metadata/vertical_offset = 50.0
