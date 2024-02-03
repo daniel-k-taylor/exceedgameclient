@@ -22,7 +22,7 @@
 [ext_resource type="PackedScene" uid="uid://dvan4a8ftuplj" path="res://scenes/card/character_card_base.tscn" id="18_imast"]
 [ext_resource type="PackedScene" uid="uid://w87ls4e8oasj" path="res://scenes/game/combat_log.tscn" id="18_k7mnw"]
 [ext_resource type="Texture2D" uid="uid://hj14gadm15wr" path="res://assets/icons/speechbubble.png" id="21_86687"]
-[ext_resource type="PackedScene" uid="uid://b8kmmrd5jmqdd" path="res://scenes/game/modal_dialog.tscn" id="21_qe5we"]
+[ext_resource type="PackedScene" path="res://scenes/game/modal_dialog.tscn" id="21_qe5we"]
 [ext_resource type="PackedScene" uid="uid://belqon3ac2y7a" path="res://scenes/game/emote_display.tscn" id="21_sd8mp"]
 [ext_resource type="PackedScene" uid="uid://i2fmgsopd4xp" path="res://scenes/game/emote_dialog.tscn" id="23_rqqoa"]
 
@@ -199,6 +199,14 @@ layout_mode = 2
 
 [node name="ArenaSquare9" parent="ArenaNode/RowPlatforms" instance=ExtResource("6_oqn7w")]
 layout_mode = 2
+
+[node name="PlayerCharacter" parent="." instance=ExtResource("9_rhsuv")]
+position = Vector2(50, -68)
+scale = Vector2(0.5, 0.5)
+
+[node name="OpponentCharacter" parent="." instance=ExtResource("9_rhsuv")]
+position = Vector2(146, -68)
+scale = Vector2(0.5, 0.5)
 
 [node name="AIMoveButton" type="Button" parent="."]
 visible = false
@@ -564,14 +572,6 @@ scale = Vector2(0.25, 0.25)
 visible = false
 position = Vector2(183.5, -119)
 scale = Vector2(0.25, 0.25)
-
-[node name="PlayerCharacter" parent="." instance=ExtResource("9_rhsuv")]
-position = Vector2(50, -68)
-scale = Vector2(0.5, 0.5)
-
-[node name="OpponentCharacter" parent="." instance=ExtResource("9_rhsuv")]
-position = Vector2(146, -68)
-scale = Vector2(0.5, 0.5)
 
 [node name="GameOverStuff" type="Node2D" parent="."]
 

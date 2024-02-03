@@ -64,7 +64,7 @@ func get_player_location(id):
 	return _get_player(id).arena_location
 
 func get_player_width(id):
-	return _get_player(id).width
+	return _get_player(id).extra_width
 
 func get_player_deck_definition(id):
 	return _get_player(id).deck_def

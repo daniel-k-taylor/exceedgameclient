@@ -111,6 +111,9 @@ animations = [{
 "texture": SubResource("AtlasTexture_s48jn")
 }, {
 "duration": 1.0,
+"texture": SubResource("AtlasTexture_s48jn")
+}, {
+"duration": 1.0,
 "texture": ExtResource("3_ntnqw")
 }, {
 "duration": 1.0,
@@ -123,6 +126,9 @@ animations = [{
 "frames": [{
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_260sy")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_303b3")
 }, {
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_303b3")
