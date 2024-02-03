@@ -3103,11 +3103,16 @@ func _on_instructions_cancel_button_pressed():
 			success = game_wrapper.submit_boost_name_card_choice_effect(Enums.PlayerId.PlayerId_Player, -1)
 		UISubState.UISubState_SelectCards_ForceForBoost:
 			deselect_all_cards()
-			var can_cancel = boost_selection_options['can_cancel']
-			var allow_gauge = boost_selection_options['allow_gauge']
-			var only_gauge = boost_selection_options['only_gauge']
-			var limitation = boost_selection_options['limitation']
-			begin_boost_choosing(can_cancel, allow_gauge, only_gauge, limitation)
+			close_popout()
+			if boost_selection_options:
+				var can_cancel = boost_selection_options['can_cancel']
+				var allow_gauge = boost_selection_options['allow_gauge']
+				var only_gauge = boost_selection_options['only_gauge']
+				var limitation = boost_selection_options['limitation']
+				begin_boost_choosing(can_cancel, allow_gauge, only_gauge, limitation)
+			else:
+				# Chosen from shortcut
+				change_ui_state(UIState.UIState_PickTurnAction, UISubState.UISubState_None)
 		_:
 			match ui_state:
 				UIState.UIState_SelectArenaLocation:
@@ -3168,6 +3173,7 @@ func _on_shortcut_boost_pressed():
 	var success = false
 	var force_cost = game_wrapper.get_card_database().get_card_boost_force_cost(card_id)
 	if force_cost > 0:
+		boost_selection_options = {}
 		selected_boost_to_pay_for = card_id
 		change_ui_state(null, UISubState.UISubState_SelectCards_ForceForBoost)
 		begin_generate_force_selection(force_cost)
