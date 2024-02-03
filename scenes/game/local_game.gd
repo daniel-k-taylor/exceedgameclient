@@ -480,7 +480,7 @@ class Player:
 	var on_buddy_boosts : Array
 	var starting_location : int
 	var arena_location : int
-	var width : int
+	var extra_width : int
 	var reshuffle_remaining : int
 	var exceeded : bool
 	var exceed_cost : int
@@ -545,9 +545,9 @@ class Player:
 		life = MaxLife
 		if 'starting_life' in deck_def:
 			life = deck_def['starting_life']
-		width = 0
+		extra_width = 0
 		if 'wide_card' in deck_def and deck_def['wide_card']:
-			width = 1
+			extra_width = 1
 		exceed_cost = deck_def['exceed_cost']
 		deck = []
 		deck_list = []
@@ -1123,16 +1123,22 @@ class Player:
 				return card.id
 		return -1
 
+	func get_size():
+		return 1 + (2 * extra_width)
+
 	func is_in_location(check_location : int, self_location : int = arena_location):
-		var left_check = check_location <= self_location+width
-		var right_check = check_location >= self_location-width
+		var left_check = check_location <= self_location + extra_width
+		var right_check = check_location >= self_location - extra_width
 		return left_check and right_check
 
+	func is_at_edge_of_arena():
+		return arena_location - extra_width == MinArenaLocation or arena_location + extra_width == MaxArenaLocation
+
 	func is_left_of_location(check_location : int, self_location : int = arena_location):
-		return self_location + width < check_location
+		return self_location + extra_width < check_location
 
 	func is_right_of_location(check_location : int, self_location : int = arena_location):
-		return self_location - width > check_location
+		return self_location - extra_width > check_location
 
 	func is_in_or_left_of_location(check_location : int, self_location : int = arena_location):
 		return is_in_location(check_location, self_location) or is_left_of_location(check_location, self_location)
@@ -1141,7 +1147,7 @@ class Player:
 		return is_in_location(check_location, self_location) or is_right_of_location(check_location, self_location)
 
 	func is_in_range_of_location(check_location : int, min_range : int, max_range : int):
-		for check_space in range(arena_location - width, arena_location + width + 1):
+		for check_space in range(arena_location - extra_width, arena_location + extra_width + 1):
 			var distance = abs(check_space - check_location)
 			if min_range <= distance and distance <= max_range:
 				return true
@@ -1150,49 +1156,49 @@ class Player:
 	func distance_to_opponent():
 		var other_player = parent._get_player(parent.get_other_player(my_id))
 		var other_location = other_player.arena_location
-		var other_width = other_player.width
+		var other_width = other_player.extra_width
 		if arena_location < other_location:
-			return (other_location-other_width) - (arena_location+width)
+			return (other_location - other_width) - (arena_location + extra_width)
 		else:
-			return (arena_location-width) - (other_location+other_width)
+			return (arena_location - extra_width) - (other_location + other_width)
 
 	func get_closest_occupied_space_to(check_location : int):
 		if is_in_location(check_location):
 			return check_location
 		elif check_location < arena_location:
-			return arena_location - width
+			return arena_location - extra_width
 		else:
-			return arena_location + width
+			return arena_location + extra_width
 
 	func get_furthest_edge_from(check_location : int):
 		if check_location == arena_location:
 			return arena_location
 		elif check_location < arena_location:
-			return arena_location + width
+			return arena_location + extra_width
 		else:
-			return arena_location - width
+			return arena_location - extra_width
 
 	func movement_distance_between(initial_location : int, target_location : int):
 		var other_player = parent._get_player(parent.get_other_player(my_id))
 		var other_location = other_player.arena_location
-		var other_width = other_player.width
+		var other_width = other_player.extra_width
 
 		var distance = abs(initial_location - target_location)
 		if (initial_location < other_location and other_location < target_location) or (initial_location > other_location and other_location > target_location):
-			distance -= 1 + (2 * width) + (2 * other_width)
+			distance -= 1 + (2 * extra_width) + (2 * other_width)
 		return distance
 
 	func is_overlapping_opponent(check_location : int = -1, check_opponent_location : int = -1):
 		var other_player = parent._get_player(parent.get_other_player(my_id))
-		var other_width = other_player.width
+		var other_width = other_player.extra_width
 
 		if check_location == -1:
 			check_location = arena_location
 		if check_opponent_location == -1:
 			check_opponent_location = other_player.arena_location
 
-		var left_check = (check_opponent_location-other_width) <= (check_location+width)
-		var right_check = (check_opponent_location+other_width) >= (check_location-width)
+		var left_check = (check_opponent_location - other_width) <= (check_location + extra_width)
+		var right_check = (check_opponent_location + other_width) >= (check_location - extra_width)
 		return left_check and right_check
 
 	func get_buddy_name(buddy_id : String = ""):
@@ -1843,7 +1849,7 @@ class Player:
 	func can_move_to(new_arena_location, ignore_force_req : bool):
 		if cannot_move: return false
 		if new_arena_location == arena_location: return false
-		if (new_arena_location-width < MinArenaLocation) or (new_arena_location+width > MaxArenaLocation): return false
+		if (new_arena_location - extra_width < MinArenaLocation) or (new_arena_location + extra_width > MaxArenaLocation): return false
 
 		var other_player = parent._get_player(parent.get_other_player(my_id))
 		var other_player_loc = other_player.arena_location
@@ -1940,10 +1946,10 @@ class Player:
 					movement_shortened = true
 					break
 				else:
-					var test_location = clamp(target_location+direction, MinArenaLocation+width, MaxArenaLocation-width)
+					var test_location = clamp(target_location + direction, MinArenaLocation + extra_width, MaxArenaLocation - extra_width)
 					var no_open_space = false
 					while is_overlapping_opponent(test_location):
-						var updated_test_location = clamp(test_location+direction, MinArenaLocation+width, MaxArenaLocation-width)
+						var updated_test_location = clamp(test_location + direction, MinArenaLocation + extra_width, MaxArenaLocation - extra_width)
 						if test_location == updated_test_location:
 							# opponent is in front of wall
 							no_open_space = true
@@ -1965,7 +1971,7 @@ class Player:
 				new_location = stop_on_space
 				break
 
-			var updated_new_location = clamp(target_location, MinArenaLocation+width, MaxArenaLocation-width)
+			var updated_new_location = clamp(target_location, MinArenaLocation + extra_width, MaxArenaLocation - extra_width)
 			if new_location != updated_new_location:
 				distance += 1
 			new_location = updated_new_location
@@ -2842,7 +2848,7 @@ func is_effect_condition_met(performing_player : Player, effect, local_condition
 
 			# check each space that the opponent occupied
 			var starting_distance = active_strike.starting_distance
-			var other_size = 1 + (2 * other_player.width)
+			var other_size = other_player.get_size()
 			for i in range(other_size):
 				if starting_distance+i >= range_min and starting_distance+i <= range_max:
 					return true
@@ -2878,9 +2884,7 @@ func is_effect_condition_met(performing_player : Player, effect, local_condition
 		elif condition == "is_ex_strike":
 			return active_strike.will_be_ex(performing_player)
 		elif condition == "at_edge_of_arena":
-			var location = performing_player.arena_location
-			var width = performing_player.width
-			return location+width == MaxArenaLocation or location-width == MinArenaLocation
+			return performing_player.is_at_edge_of_arena()
 		elif condition == "boost_in_play":
 			return performing_player.continuous_boosts.size() > 0
 		elif condition == "canceled_this_turn":
@@ -3072,9 +3076,7 @@ func is_effect_condition_met(performing_player : Player, effect, local_condition
 
 			return true
 		elif condition == "opponent_at_edge_of_arena":
-			var location = other_player.arena_location
-			var width = other_player.width
-			return location-width == MinArenaLocation or location+width == MaxArenaLocation
+			return other_player.is_at_edge_of_arena()
 		elif condition == "opponent_stunned":
 			return active_strike.is_player_stunned(other_player)
 		elif condition == "overdrive_empty":
@@ -3318,7 +3320,7 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 			performing_player.strike_stat_boosts.set_ex()
 			events += [create_event(Enums.EventType.EventType_Strike_ExUp, performing_player.my_id, card_id)]
 		"become_wide":
-			performing_player.width = 1
+			performing_player.extra_width = 1
 			var new_form_string = "3 spaces wide"
 			if 'description' in effect:
 				new_form_string = effect['description']
@@ -5538,7 +5540,7 @@ func in_range(attacking_player, defending_player, card, combat_logging=false):
 		attack_source_location = CenterArenaLocation
 
 	var defender_location = defending_player.arena_location
-	var defender_width = defending_player.width
+	var defender_width = defending_player.extra_width
 	var opponent_in_range = false
 	for defender_space_offset in range(-defender_width, defender_width+1):
 		var defender_space = defender_location + defender_space_offset

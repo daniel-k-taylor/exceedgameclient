@@ -2784,9 +2784,9 @@ func update_arena_squares():
 		var opponent_width = 0
 		if $OpponentCharacter.is_wide:
 			opponent_width = game_wrapper.get_player_width(Enums.PlayerId.PlayerId_Opponent)
-		if i >= cached_player_location-player_width and i <= cached_player_location+player_width:
+		if i >= cached_player_location - player_width and i <= cached_player_location + player_width:
 			square.set_self_occupied()
-		elif i >= cached_opponent_location-opponent_width and i <= cached_opponent_location+opponent_width:
+		elif i >= cached_opponent_location - opponent_width and i <= cached_opponent_location + opponent_width:
 			square.set_enemy_occupied()
 		else:
 			square.set_empty()
