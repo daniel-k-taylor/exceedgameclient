@@ -12,6 +12,7 @@ var animation_state = AnimationState.AnimationState_Idle
 var current_position
 var target_position
 
+var is_wide : bool = false
 var vertical_offset : float = 0
 var horizontal_offset : float = 0
 

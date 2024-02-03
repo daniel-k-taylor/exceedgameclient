@@ -3317,6 +3317,13 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 		"attack_is_ex":
 			performing_player.strike_stat_boosts.set_ex()
 			events += [create_event(Enums.EventType.EventType_Strike_ExUp, performing_player.my_id, card_id)]
+		"become_wide":
+			performing_player.width = 1
+			var new_form_string = "3 spaces wide"
+			if 'description' in effect:
+				new_form_string = effect['description']
+			_append_log_full(Enums.LogType.LogType_Effect, performing_player, "is now %s!" % new_form_string)
+			events += [create_event(Enums.EventType.EventType_BecomeWide, performing_player.my_id, 0, "", "Tinker Tank")]
 		"block_opponent_move":
 			_append_log_full(Enums.LogType.LogType_Effect, opposing_player, "is prevented from moving.")
 			opposing_player.cannot_move = true

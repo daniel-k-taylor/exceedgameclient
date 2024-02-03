@@ -4,9 +4,8 @@
 	"display_name": "Tinker Knight",
 	"cardback": "cardback_tinker.jpg",
 	"exceed_cost": -1,
-	"exceed_animation": "tinker_tank",
+	"wide_animation": "tinker_tank",
 	"starting_life": 15,
-	"wide_card": true, "NOTE": "todo, add make_wide effect",
 	"on_death": {
 		"condition": "not_exceeded",
 		"effect_type": "exceed_now",
@@ -25,7 +24,11 @@
 		{
 			"timing": "end_of_turn",
 			"condition": "used_character_bonus",
-			"effect_type": "reset_character_positions"
+			"effect_type": "reset_character_positions",
+			"and": {
+				"effect_type": "become_wide",
+				"description": "Tinker Tank"
+			}
 		}
 	],
 	"cards": [

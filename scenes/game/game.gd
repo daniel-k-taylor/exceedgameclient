@@ -1517,6 +1517,24 @@ func _on_exceed_revert_event(event):
 	spawn_damage_popup("Revert!", player)
 	return SmallNoticeDelay
 
+func _on_become_wide(event):
+	var player = event['event_player']
+	if player == Enums.PlayerId.PlayerId_Player:
+		$PlayerCharacter.is_wide = true
+		if 'wide_animation' in player_deck:
+			$PlayerCharacter.load_character(player_deck['wide_animation'])
+			move_character_to_arena_square($PlayerCharacter, game_wrapper.get_player_location(Enums.PlayerId.PlayerId_Player), true, Character.CharacterAnim.CharacterAnim_None)
+	else:
+		$OpponentCharacter.is_wide = true
+		if 'wide_animation' in opponent_deck:
+			$OpponentCharacter.load_character(opponent_deck['wide_animation'])
+			move_character_to_arena_square($OpponentCharacter, game_wrapper.get_player_location(Enums.PlayerId.PlayerId_Opponent), true, Character.CharacterAnim.CharacterAnim_None)
+	var popup_text = "Expand"
+	if event['extra_info']:
+		popup_text = event['extra_info']
+	spawn_damage_popup("%s!" % popup_text, player)
+	return SmallNoticeDelay
+
 func _on_force_start_boost(event):
 	var player = event['event_player']
 	var allow_gauge = event['extra_info']
@@ -2349,6 +2367,8 @@ func _handle_events(events):
 				delay = _on_add_to_overdrive(event)
 			Enums.EventType.EventType_AdvanceTurn:
 				delay = _on_advance_turn()
+			Enums.EventType.EventType_BecomeWide:
+				delay = _on_become_wide(event)
 			Enums.EventType.EventType_BlockMovement:
 				delay = _stat_notice_event(event)
 			Enums.EventType.EventType_Boost_ActionAfterBoost:
@@ -2756,8 +2776,12 @@ func update_boost_summary(boosts_card_holder, boost_box):
 func update_arena_squares():
 	for i in range(1, 10):
 		var square : ArenaSquare = arena_graphics.get_child(i - 1)
-		var player_width = game_wrapper.get_player_width(Enums.PlayerId.PlayerId_Player)
-		var opponent_width = game_wrapper.get_player_width(Enums.PlayerId.PlayerId_Opponent)
+		var player_width = 0
+		if $PlayerCharacter.is_wide:
+			player_width = game_wrapper.get_player_width(Enums.PlayerId.PlayerId_Player)
+		var opponent_width = 0
+		if $OpponentCharacter.is_wide:
+			opponent_width = game_wrapper.get_player_width(Enums.PlayerId.PlayerId_Opponent)
 		if i >= cached_player_location-player_width and i <= cached_player_location+player_width:
 			square.set_self_occupied()
 		elif i >= cached_opponent_location-opponent_width and i <= cached_opponent_location+opponent_width:

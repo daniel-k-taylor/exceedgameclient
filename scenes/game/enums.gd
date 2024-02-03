@@ -73,6 +73,7 @@ enum EventType {
 	EventType_AddToHand,
 	EventType_AddToOverdrive,
 	EventType_AdvanceTurn,
+	EventType_BecomeWide,
 	EventType_BlockMovement,
 	EventType_Boost_ActionAfterBoost,
 	EventType_Boost_CancelDecision,
