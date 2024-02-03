@@ -2915,6 +2915,10 @@ func is_effect_condition_met(performing_player : Player, effect, local_condition
 				if sealed_card.definition["id"] == card_id:
 					return false
 			return true
+		elif condition == "speed_greater_than":
+			if effect['condition_amount'] == "OPPONENT_SPEED":
+			return get_total_speed(performing_player) > get_total_speed(opposing_player)
+
 		else:
 			assert(false, "Unimplemented condition")
 		# Unmet condition

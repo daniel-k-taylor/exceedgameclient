@@ -10074,7 +10074,323 @@
 		},
 		"NOTEEND": "NAGO CARDS END"
 	},
-
+	{
+		"NOTE": "NANASE CARDS START",
+		"id": "nanase_atmosphereoftheaether",
+		"type": "ultra",
+		"display_name": "Atmosphere of the Aether",
+		"force_cost": 0,
+		"gauge_cost": 3,
+		"range_min": 1,
+		"range_max": 2,
+		"speed": 6,
+		"power": 4,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "hit",
+				"effect_type": "push",
+				"amount": 3,
+				"and": {
+					"effect_type": "draw",
+					"amount": 2
+				}
+			},
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Zephyr",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "speedup",
+					"amount": 2,
+					"and": {
+						"effect_type": "powerup_opponent",
+						"amount": 3	
+					}
+				},
+				{
+					"timing": "now"
+					"effect_type": "bonus_action"
+				}
+			]
+		}
+	},
+	{
+		"id": "nanase_lumiereofthedawn",
+		"type": "ultra",
+		"display_name": "Lumiere of the Dawn",
+		"force_cost": 0,
+		"gauge_cost": 3,
+		"range_min": 1,
+		"range_max": 1,
+		"speed": 4,
+		"power": 9,
+		"armor": 6,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "before",
+				"condition": "speed_greater_than",
+				"condition_amount": "OPPONENT_SPEED",
+				"effect_type": "atack_does_not_hit",
+				"and": {
+					"effect_type": "lose_all_armor"
+					}
+			},
+		],
+		"boost": {
+			"boost_type": "immediate",
+			"force_cost": 1,
+			"cancel_cost": -1,
+			"display_name": "Surge Forward",
+			"effects": [
+				{
+					"timing": "immediate",
+					"effect_type": "advance",
+					"amount": 3,
+					"and": {
+						"effect_type": "bonus_action"
+					}
+				},
+			]
+		}
+	},
+	{
+		"id": "nanase_chasinglereve",
+		"type": "special",
+		"display_name": "Chasing le Reve",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 2,
+		"speed": 6,
+		"power": 3,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "after",
+				"effect_type": "advance",
+				"amount": 3,
+				"and": {
+					"effect_type": "draw",
+					"amount": 1
+					}
+			},
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Windmill",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "powerup_opponent",
+					"amount": 3
+				},
+				{
+					"timing": "now",
+					"effect_type": "bonus_action"
+				},
+				{
+					"timing": "before",
+					"effect_type": "close",
+					"amount": 2
+				}
+			]
+		}
+	},
+	{
+		"id": "nanase_plumagedancinginthewind",
+		"type": "special",
+		"display_name": "Plumage Dancing in the Wind",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 1,
+		"speed": 6,
+		"power": 3,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "during_strike",
+				"condition": "initiated_strike",
+				"effect_type": "powerup",
+				"amount": 2
+			},
+			{
+				"timing": "during_strike",
+				"condition": "not_initiated_strike",
+				"effect_type": "speedup",
+				"amount": 1
+			},
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 1,
+			"cancel_cost": -1,
+			"display_name": "Reach",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "rangeup",
+					"amount": 0,
+					"amount2": 1
+				},
+				{
+					"timing": "now",
+					"effect_type": "strike"
+				}
+			]
+		}
+	},
+	{
+		"id": "nanase_conveyingmyvraicouer",
+		"type": "special",
+		"display_name": "Conveying My Vrai Couer",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 1,
+		"speed": 5,
+		"power": 3,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "before",
+				"effect_type": "close",
+				"amount": 3
+			},
+			{
+				"timing": "hit",
+				"effect_type": "choice",
+				"choice": [
+					{ "effect_type": "push", "amount": 1 },
+					{ "effect_type": "pull", "amount": 1 }
+				]
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Overpower",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "powerup",
+					"amount": 1
+				},
+				{
+					"timing": "before",
+					"effect_type": "close",
+					"amount": 1
+				}
+			]
+		}
+	},
+	{
+		"id": "nanase_letthefleurcarryyourfeelings",
+		"type": "special",
+		"display_name": "Let the Fleur Carry Your Feelings",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 2,
+		"range_max": 4,
+		"speed": 4,
+		"power": 4,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "after",
+				"condition": "opponent_stunned",
+				"effect_type": "choice",
+				"choice": [
+					{ 
+						"effect_type": "advance", "amount": 2 , "and": { "effect_type": "draw", "amount": 2 }
+					},
+					{ 
+						"effect_type": "retreat", "amount": 2 , "and": { "effect_type": "draw", "amount": 2 }
+					}
+				]
+						
+			},
+		],
+		"boost": {
+			"boost_type": "immediate",
+			"force_cost": 2,
+			"cancel_cost": -1,
+			"display_name": "Jumping to Conclusions",
+			"effects": [
+				{
+					"timing": "immediate",
+					"effect_type": "reveal_hand",
+					"opponent": true
+				},
+				{
+					"timing": "immediate",
+					"effect_type": "strike"
+				},
+			]
+		}
+	},
+	{
+		"NOTE": "NANASE CARDS END"
+		"id": "nanase_angesinvitation",
+		"type": "special",
+		"display_name": "Ange's Invitation",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 2,
+		"speed": 3,
+		"power": 5,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "during_strike",
+				"effect_type": "higher_speed_misses",
+				"dodge_at_speed_greater_or_equal": 6
+			},
+			{
+				"timing": "after",
+				"effect_type": "advance",
+				"amount": 3
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Chain Shift",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "speedup",
+					"amount": "1"
+				},
+				{
+					"timing": "now",
+					"effect_type": "strike"
+				},
+				{
+					"timing": "after",
+					"effect_type": "add_to_gauge_immediately_mid_strike_undo_effects"
+				}
+			]
+		},
+		"NOTEEND": "NANASE CARDS END"
+	},
 	{
 		"NOTE": "NINE CARDS START",
 		"id": "nine_colorlessvoid",
