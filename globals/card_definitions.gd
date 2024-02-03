@@ -288,6 +288,11 @@ func get_condition_text(effect, amount, amount2, detail):
 				text += "If opponent is between you and %s, " % detail
 		"is_buddy_special_attack":
 			text += ""
+		"speed_greater_than":
+			if amount == "OPPONENT_SPEED":
+				text += "If your speed is greater than opponent's, "
+			else:
+				text += "If your speed is greater than %s, " % amount
 		"was_wild_swing":
 			text += "If this was a wild swing, "
 		"was_strike_from_gauge":
@@ -611,7 +616,9 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 		"powerup_damagetaken":
 			effect_str += "+" + str(effect['amount']) + " Power per damage taken this strike."
 		"powerup_opponent":
-			effect_str += "+" + str(effect['amount']) + " Opponent's Power"
+			if effect['amount'] > 0:
+				effect_str += "+"
+			effect_str += str(effect['amount']) + " Opponent's Power"
 		"pull":
 			effect_str += "Pull " + str(effect['amount'])
 		"pull_to_buddy":

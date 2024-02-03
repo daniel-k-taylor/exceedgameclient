@@ -10074,6 +10074,8 @@
 		},
 		"NOTEEND": "NAGO CARDS END"
 	},
+
+
 	{
 		"NOTE": "NANASE CARDS START",
 		"id": "nanase_atmosphereoftheaether",
@@ -10096,7 +10098,7 @@
 					"effect_type": "draw",
 					"amount": 2
 				}
-			},
+			}
 		],
 		"boost": {
 			"boost_type": "continuous",
@@ -10110,11 +10112,11 @@
 					"amount": 2,
 					"and": {
 						"effect_type": "powerup_opponent",
-						"amount": 3	
+						"amount": 3
 					}
 				},
 				{
-					"timing": "now"
+					"timing": "now",
 					"effect_type": "bonus_action"
 				}
 			]
@@ -10140,8 +10142,8 @@
 				"effect_type": "atack_does_not_hit",
 				"and": {
 					"effect_type": "lose_all_armor"
-					}
-			},
+				}
+			}
 		],
 		"boost": {
 			"boost_type": "immediate",
@@ -10156,7 +10158,7 @@
 					"and": {
 						"effect_type": "bonus_action"
 					}
-				},
+				}
 			]
 		}
 	},
@@ -10181,7 +10183,7 @@
 					"effect_type": "draw",
 					"amount": 1
 					}
-			},
+			}
 		],
 		"boost": {
 			"boost_type": "continuous",
@@ -10230,7 +10232,7 @@
 				"condition": "not_initiated_strike",
 				"effect_type": "speedup",
 				"amount": 1
-			},
+			}
 		],
 		"boost": {
 			"boost_type": "continuous",
@@ -10315,15 +10317,14 @@
 				"condition": "opponent_stunned",
 				"effect_type": "choice",
 				"choice": [
-					{ 
+					{
 						"effect_type": "advance", "amount": 2 , "and": { "effect_type": "draw", "amount": 2 }
 					},
-					{ 
+					{
 						"effect_type": "retreat", "amount": 2 , "and": { "effect_type": "draw", "amount": 2 }
 					}
 				]
-						
-			},
+			}
 		],
 		"boost": {
 			"boost_type": "immediate",
@@ -10339,12 +10340,12 @@
 				{
 					"timing": "immediate",
 					"effect_type": "strike"
-				},
+				}
 			]
 		}
 	},
 	{
-		"NOTE": "NANASE CARDS END"
+		"NOTE": "NANASE CARDS END",
 		"id": "nanase_angesinvitation",
 		"type": "special",
 		"display_name": "Ange's Invitation",
@@ -10377,7 +10378,7 @@
 				{
 					"timing": "during_strike",
 					"effect_type": "speedup",
-					"amount": "1"
+					"amount": 1
 				},
 				{
 					"timing": "now",
@@ -10391,6 +10392,8 @@
 		},
 		"NOTEEND": "NANASE CARDS END"
 	},
+
+
 	{
 		"NOTE": "NINE CARDS START",
 		"id": "nine_colorlessvoid",

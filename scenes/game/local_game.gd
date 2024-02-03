@@ -2621,17 +2621,19 @@ func begin_resolve_strike(events):
 	events = continue_resolve_strike(events)
 	return events
 
-func get_total_speed(check_player, check_card):
+func get_total_speed(check_player):
 	if check_player.strike_stat_boosts.overwrite_total_speed:
 		return check_player.strike_stat_boosts.overwritten_total_speed
+		
+	var check_card = active_strike.get_player_card(check_player)
 	var bonus_speed = check_player.strike_stat_boosts.speed * check_player.strike_stat_boosts.speed_bonus_multiplier
 	var speed = check_card.definition['speed'] + bonus_speed
 	return speed
 
 func strike_determine_order():
 	# Determine activation
-	var initiator_speed = get_total_speed(active_strike.initiator, active_strike.initiator_card)
-	var defender_speed = get_total_speed(active_strike.defender, active_strike.defender_card)
+	var initiator_speed = get_total_speed(active_strike.initiator)
+	var defender_speed = get_total_speed(active_strike.defender)
 	active_strike.initiator_first = initiator_speed >= defender_speed
 	_append_log_full(Enums.LogType.LogType_Strike, null, "%s has speed %s, %s has speed %s." % [active_strike.initiator.name, initiator_speed, active_strike.defender.name, defender_speed])
 
@@ -2917,8 +2919,9 @@ func is_effect_condition_met(performing_player : Player, effect, local_condition
 			return true
 		elif condition == "speed_greater_than":
 			if effect['condition_amount'] == "OPPONENT_SPEED":
-			return get_total_speed(performing_player) > get_total_speed(opposing_player)
-
+				return get_total_speed(performing_player) > get_total_speed(other_player)
+			else:
+				return get_total_speed(performing_player) > effect['condition_amount']
 		else:
 			assert(false, "Unimplemented condition")
 		# Unmet condition
@@ -5192,10 +5195,10 @@ func do_set_strike_x(performing_player : Player, source : String):
 		"opponent_speed":
 			if active_strike:
 				if performing_player == active_strike.initiator:
-					var defender_speed = get_total_speed(active_strike.defender, active_strike.defender_card)
+					var defender_speed = get_total_speed(active_strike.defender)
 					value = max(defender_speed, 0)
 				else:
-					var initiator_speed = get_total_speed(active_strike.initiator, active_strike.initiator_card)
+					var initiator_speed = get_total_speed(active_strike.initiator)
 					value = max(initiator_speed, 0)
 				_append_log_full(Enums.LogType.LogType_Strike, performing_player, "'s X for this strike is set to the opponent's speed, %s." % value)
 		"force_spent_before_strike":
@@ -5360,8 +5363,8 @@ func in_range(attacking_player, defending_player, card, combat_logging=false):
 				return false
 
 	# Speed dodge
-	var attacking_speed = get_total_speed(attacking_player, active_strike.get_player_card(attacking_player))
-	var defending_speed = get_total_speed(defending_player, active_strike.get_player_card(defending_player))
+	var attacking_speed = get_total_speed(attacking_player)
+	var defending_speed = get_total_speed(defending_player)
 	if defending_player.strike_stat_boosts.higher_speed_misses:
 		var speed_dodge = defending_player.strike_stat_boosts.dodge_at_speed_greater_or_equal
 		if speed_dodge > 0:
