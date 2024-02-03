@@ -370,7 +370,7 @@ func get_exceed_actions(_game_logic : LocalGame, me : LocalGame.Player, _opponen
 	if me.exceeded:
 		return []
 	var exceed_cost = me.get_exceed_cost()
-	if exceed_cost == -1 or me.get_exceed_cost() > me.gauge.size():
+	if exceed_cost == -1 or exceed_cost > me.gauge.size():
 		return []
 
 	var combinations = get_combinations_to_pay_gauge(me, me.get_exceed_cost())

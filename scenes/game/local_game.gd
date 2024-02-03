@@ -2005,9 +2005,9 @@ class Player:
 				events += add_boosts_to_gauge_on_move()
 		else:
 			if arena_location < new_location:
-				events += move_in_direction_by_amount(false, distance, false, "move")
+				events += move_in_direction_by_amount(false, distance, false, -1, "move")
 			else:
-				events += move_in_direction_by_amount(true, distance, false, "move")
+				events += move_in_direction_by_amount(true, distance, false, -1, "move")
 
 		return events
 
