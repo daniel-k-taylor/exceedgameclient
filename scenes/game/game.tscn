@@ -200,6 +200,56 @@ layout_mode = 2
 [node name="ArenaSquare9" parent="ArenaNode/RowPlatforms" instance=ExtResource("6_oqn7w")]
 layout_mode = 2
 
+[node name="PlayerBuddy" parent="." instance=ExtResource("9_rhsuv")]
+visible = false
+position = Vector2(75, -102)
+scale = Vector2(0.25, 0.25)
+
+[node name="PlayerBuddy2" parent="." instance=ExtResource("9_rhsuv")]
+visible = false
+position = Vector2(75, -102)
+scale = Vector2(0.25, 0.25)
+
+[node name="PlayerBuddy3" parent="." instance=ExtResource("9_rhsuv")]
+visible = false
+position = Vector2(75, -102)
+scale = Vector2(0.25, 0.25)
+
+[node name="PlayerBuddy4" parent="." instance=ExtResource("9_rhsuv")]
+visible = false
+position = Vector2(75, -102)
+scale = Vector2(0.25, 0.25)
+
+[node name="PlayerBuddy5" parent="." instance=ExtResource("9_rhsuv")]
+visible = false
+position = Vector2(75, -102)
+scale = Vector2(0.25, 0.25)
+
+[node name="OpponentBuddy" parent="." instance=ExtResource("9_rhsuv")]
+visible = false
+position = Vector2(183.5, -119)
+scale = Vector2(0.25, 0.25)
+
+[node name="OpponentBuddy2" parent="." instance=ExtResource("9_rhsuv")]
+visible = false
+position = Vector2(183.5, -119)
+scale = Vector2(0.25, 0.25)
+
+[node name="OpponentBuddy3" parent="." instance=ExtResource("9_rhsuv")]
+visible = false
+position = Vector2(183.5, -119)
+scale = Vector2(0.25, 0.25)
+
+[node name="OpponentBuddy4" parent="." instance=ExtResource("9_rhsuv")]
+visible = false
+position = Vector2(183.5, -119)
+scale = Vector2(0.25, 0.25)
+
+[node name="OpponentBuddy5" parent="." instance=ExtResource("9_rhsuv")]
+visible = false
+position = Vector2(183.5, -119)
+scale = Vector2(0.25, 0.25)
+
 [node name="PlayerCharacter" parent="." instance=ExtResource("9_rhsuv")]
 position = Vector2(50, -68)
 scale = Vector2(0.5, 0.5)
@@ -522,56 +572,6 @@ position = Vector2(5, 380)
 
 [node name="OpponentBoostZone" parent="." instance=ExtResource("7_gn0of")]
 position = Vector2(5, 5)
-
-[node name="PlayerBuddy" parent="." instance=ExtResource("9_rhsuv")]
-visible = false
-position = Vector2(75, -102)
-scale = Vector2(0.25, 0.25)
-
-[node name="PlayerBuddy2" parent="." instance=ExtResource("9_rhsuv")]
-visible = false
-position = Vector2(75, -102)
-scale = Vector2(0.25, 0.25)
-
-[node name="PlayerBuddy3" parent="." instance=ExtResource("9_rhsuv")]
-visible = false
-position = Vector2(75, -102)
-scale = Vector2(0.25, 0.25)
-
-[node name="PlayerBuddy4" parent="." instance=ExtResource("9_rhsuv")]
-visible = false
-position = Vector2(75, -102)
-scale = Vector2(0.25, 0.25)
-
-[node name="PlayerBuddy5" parent="." instance=ExtResource("9_rhsuv")]
-visible = false
-position = Vector2(75, -102)
-scale = Vector2(0.25, 0.25)
-
-[node name="OpponentBuddy" parent="." instance=ExtResource("9_rhsuv")]
-visible = false
-position = Vector2(183.5, -119)
-scale = Vector2(0.25, 0.25)
-
-[node name="OpponentBuddy2" parent="." instance=ExtResource("9_rhsuv")]
-visible = false
-position = Vector2(183.5, -119)
-scale = Vector2(0.25, 0.25)
-
-[node name="OpponentBuddy3" parent="." instance=ExtResource("9_rhsuv")]
-visible = false
-position = Vector2(183.5, -119)
-scale = Vector2(0.25, 0.25)
-
-[node name="OpponentBuddy4" parent="." instance=ExtResource("9_rhsuv")]
-visible = false
-position = Vector2(183.5, -119)
-scale = Vector2(0.25, 0.25)
-
-[node name="OpponentBuddy5" parent="." instance=ExtResource("9_rhsuv")]
-visible = false
-position = Vector2(183.5, -119)
-scale = Vector2(0.25, 0.25)
 
 [node name="GameOverStuff" type="Node2D" parent="."]
 
