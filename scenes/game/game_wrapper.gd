@@ -257,12 +257,15 @@ func other_player(id : Enums.PlayerId) -> Enums.PlayerId:
 func get_card_database() -> CardDatabase:
 	return current_game.get_card_database()
 
-func can_player_boost(player_id : Enums.PlayerId, card_id : int, allow_gauge : bool, only_gauge : bool, limitation : String) -> bool:
+func can_player_boost(player_id : Enums.PlayerId, card_id : int, allow_gauge : bool, only_gauge : bool, limitation : String, ignore_costs : bool) -> bool:
 	if (not only_gauge and is_card_in_hand(player_id, card_id)) or (allow_gauge and is_card_in_gauge(player_id, card_id)):
 		var card_db = current_game.get_card_database()
 		var card = card_db.get_card(card_id)
 		if limitation and card.definition['boost']['boost_type'] != limitation:
 			return false
+
+		if ignore_costs:
+			return true
 		var force_cost = card_db.get_card_boost_force_cost(card_id)
 		var boosting_card_force_value = card_db.get_card_force_value(card_id)
 		var force_available = get_player_available_force(player_id) - boosting_card_force_value

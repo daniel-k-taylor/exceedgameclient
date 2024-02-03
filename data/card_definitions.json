@@ -16539,10 +16539,15 @@
 				{
 					"timing": "now",
 					"condition": "not_exceeded",
-					"effect_type": "todo",
-					"and": {
-						"effect_type": "discard_this"
-					}
+					"effect_type": "boost",
+					"limitation": "continuous",
+					"allow_gauge": true,
+					"ignore_costs": true
+				},
+				{
+					"timing": "now",
+					"condition": "not_exceeded",
+					"effect_type": "discard_this"
 				}
 			]
 		}

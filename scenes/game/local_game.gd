@@ -315,6 +315,7 @@ class Boost:
 	var cancel_resolved = false
 	var cleanup_to_gauge_card_ids = []
 	var cleanup_to_hand_card_ids = []
+	var parent_boost = null
 
 class StrikeStatBoosts:
 	var power : int = 0
@@ -1330,7 +1331,7 @@ class Player:
 			return false
 		return true
 
-	func can_boost_something(allow_gauge : bool, only_gauge : bool, limitation : String) -> bool:
+	func can_boost_something(allow_gauge : bool, only_gauge : bool, limitation : String, ignore_costs : bool = false) -> bool:
 		var force_available = get_available_force()
 		if not only_gauge:
 			for card in hand:
@@ -1339,6 +1340,9 @@ class Player:
 					meets_limitation = card.definition['boost']['boost_type'] == limitation
 				if not meets_limitation:
 					continue
+
+				if ignore_costs:
+					return true
 				var force_available_when_boosting_this = force_available - parent.card_db.get_card_force_value(card.id)
 				var cost = parent.card_db.get_card_boost_force_cost(card.id)
 				if force_available_when_boosting_this >= cost:
@@ -1350,6 +1354,9 @@ class Player:
 					meets_limitation = card.definition['boost']['boost_type'] == limitation
 				if not meets_limitation:
 					continue
+
+				if ignore_costs:
+					return true
 				var force_available_when_boosting_this = force_available - parent.card_db.get_card_force_value(card.id)
 				var cost = parent.card_db.get_card_boost_force_cost(card.id)
 				if force_available_when_boosting_this >= cost:
@@ -3342,6 +3349,23 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 			opposing_player.cannot_move = false
 		"bonus_action":
 			active_boost.action_after_boost = true
+		"boost":
+			var allow_gauge = 'allow_gauge' in effect and effect['allow_gauge']
+			var only_gauge = 'only_gauge' in effect and effect['only_gauge']
+			var ignore_costs = 'ignore_costs' in effect and effect['ignore_costs']
+			if performing_player.can_boost_something(allow_gauge, only_gauge, effect['limitation'], ignore_costs):
+				events += [create_event(Enums.EventType.EventType_ForceStartBoost, performing_player.my_id, 0, "", allow_gauge, only_gauge, effect['limitation'])]
+				change_game_state(Enums.GameState.GameState_PlayerDecision)
+				decision_info.clear()
+				decision_info.type = Enums.DecisionType.DecisionType_BoostNow
+				decision_info.player = performing_player.my_id
+				decision_info.allow_gauge = allow_gauge
+				decision_info.only_gauge = only_gauge
+				decision_info.limitation = effect['limitation']
+				decision_info.ignore_costs = ignore_costs
+			else:
+				if len(performing_player.hand) == 0 or only_gauge: # Avoid leaking information
+					_append_log_full(Enums.LogType.LogType_Effect, performing_player, "has no cards available to boost.")
 		"boost_applies_if_on_buddy":
 			if card_id == -1:
 				assert(false)
@@ -6287,7 +6311,11 @@ func do_discard_boost(events):
 func begin_resolve_boost(performing_player : Player, card_id : int):
 	var events = []
 
-	active_boost = Boost.new()
+	var new_boost = Boost.new()
+	if active_boost:
+		new_boost.parent_boost = active_boost
+
+	active_boost = new_boost
 	active_boost.playing_player = performing_player
 	active_boost.card = card_db.get_card(card_id)
 	performing_player.remove_card_from_hand(card_id, true, false)
@@ -6396,6 +6424,12 @@ func boost_finish_resolving_card(performing_player : Player):
 	return events
 
 func boost_play_cleanup(events, performing_player : Player):
+	# Account for boosts that played other boosts
+	if active_boost.parent_boost:
+		active_boost = active_boost.parent_boost
+		active_boost.effects_resolved += 1
+		return continue_resolve_boost(events)
+
 	var preparing_strike = false
 	if performing_player.strike_on_boost_cleanup and not active_boost.strike_after_boost and not active_strike:
 		if performing_player.wild_strike_on_boost_cleanup:
@@ -6781,14 +6815,16 @@ func do_boost(performing_player : Player, card_id : int, payment_card_ids : Arra
 			return false
 
 	var card = card_db.get_card(card_id)
-	var force_cost = card.definition['boost']['force_cost']
-	if not performing_player.can_pay_cost_with(payment_card_ids, force_cost, 0):
-		printlog("ERROR: Tried to boost action but can't pay force cost with these cards.")
-		return false
+	if not decision_info.ignore_costs:
+		var force_cost = card.definition['boost']['force_cost']
+		if not performing_player.can_pay_cost_with(payment_card_ids, force_cost, 0):
+			printlog("ERROR: Tried to boost action but can't pay force cost with these cards.")
+			return false
 
 	if game_state == Enums.GameState.GameState_PickAction:
 		_append_log_full(Enums.LogType.LogType_Action, performing_player, "Turn Action: Boost")
 	_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "boosts %s." % _get_boost_and_card_name(card))
+
 	var events = []
 	if payment_card_ids.size() > 0:
 		var card_names = card_db.get_card_name(payment_card_ids[0])
@@ -6796,6 +6832,7 @@ func do_boost(performing_player : Player, card_id : int, payment_card_ids : Arra
 			card_names += ", " + card_db.get_card_name(payment_card_ids[i])
 		_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "discards cards to pay for the boost: %s." % card_names)
 		events += performing_player.discard(payment_card_ids)
+
 	events += begin_resolve_boost(performing_player, card_id)
 	event_queue += events
 	return true
