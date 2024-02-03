@@ -16553,12 +16553,12 @@
 	{
 		"id": "tinker_flail",
 		"type": "special",
-		"display_name": "Perfect Pitch",
+		"display_name": "Flail",
 		"force_cost": 0,
 		"gauge_cost": 0,
-		"range_min": 2,
-		"range_max": 2,
-		"speed": 7,
+		"range_min": 1,
+		"range_max": 1,
+		"speed": 6,
 		"power": 3,
 		"armor": 0,
 		"guard": 0,
@@ -16566,26 +16566,53 @@
 			{
 				"timing": "hit",
 				"effect_type": "draw",
-				"amount": 1,
+				"amount": 1
+			},
+			{
+				"timing": "after",
+				"effect_type": "advance",
+				"amount": 2
+			},
+
+			{
+				"NOTE": "Boost Effects",
+				"condition": "exceeded",
+				"timing": "during_strike",
+				"character_effect": true,
+				"effect_type": "armorup",
+				"amount": 3,
 				"and": {
-					"effect_type": "opponent_discard_random",
-					"amount": 1
+					"effect_type": "guardup",
+					"amount": 3
 				}
+			},
+			{
+				"condition": "exceeded",
+				"timing": "hit",
+				"character_effect": true,
+				"effect_type": "push",
+				"amount": 3
 			}
 		],
 		"boost": {
-			"boost_type": "immediate",
-			"force_cost": 0,
+			"boost_type": "continuous",
+			"force_cost": 4,
 			"cancel_cost": -1,
-			"display_name": "Bomb Burst",
+			"display_name": "Armor Plating",
 			"effects": [
 				{
-					"timing": "immediate",
-					"effect_type": "choice",
-					"choice": [
-						{ "effect_type": "advance", "amount": 3 },
-						{ "effect_type": "retreat", "amount": 3 }
-					]
+					"timing": "during_strike",
+					"effect_type": "armorup",
+					"amount": 3,
+					"and": {
+						"effect_type": "guardup",
+						"amount": 3
+					}
+				},
+				{
+					"timing": "hit",
+					"effect_type": "push",
+					"amount": 3
 				}
 			]
 		}
@@ -16593,45 +16620,54 @@
 	{
 		"id": "tinker_mobilegear",
 		"type": "special",
-		"display_name": "Staff of Surging",
+		"display_name": "Mobile Gear",
 		"force_cost": 0,
 		"gauge_cost": 0,
 		"range_min": 1,
 		"range_max": 1,
-		"speed": 6,
-		"power": 2,
+		"speed": 5,
+		"power": 3,
 		"armor": 0,
 		"guard": 0,
 		"effects": [
 			{
-				"timing": "during_strike",
-				"effect_type": "ignore_guard"
+				"timing": "before",
+				"effect_type": "advance",
+				"amount": 3
 			},
+
 			{
-				"timing": "after",
-				"condition": "opponent_stunned",
-				"effect_type": "draw",
-				"amount": 2
+				"NOTE": "Boost Effects",
+				"condition": "exceeded",
+				"timing": "during_strike",
+				"effect_type": "powerup",
+				"amount": 2,
+				"and": {
+					"effect_type": "guardup",
+					"amount": 5,
+					"and": {
+						"effect_type": "range_includes_if_moved_past"
+					}
+				}
 			}
 		],
 		"boost": {
 			"boost_type": "continuous",
-			"force_cost": 0,
+			"force_cost": 4,
 			"cancel_cost": -1,
-			"display_name": "Frantic Research",
+			"display_name": "Force Feedback",
 			"effects": [
 				{
-					"timing": "now",
-					"effect_type": "draw",
+					"timing": "during_strike",
+					"effect_type": "powerup",
 					"amount": 2,
 					"and": {
-						"effect_type": "strike"
+						"effect_type": "guardup",
+						"amount": 5,
+						"and": {
+							"effect_type": "range_includes_if_moved_past"
+						}
 					}
-				},
-				{
-					"timing": "after",
-					"effect_type": "draw",
-					"amount": 2
 				}
 			]
 		}

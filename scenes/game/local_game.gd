@@ -335,6 +335,8 @@ class StrikeStatBoosts:
 	var dodge_at_range_from_buddy : bool = false
 	var dodge_at_speed_greater_or_equal : int = -1
 	var dodge_from_opposite_buddy : bool = false
+	var range_includes_opponent : bool = false
+	var range_includes_if_moved_past : bool = false
 	var ignore_armor : bool = false
 	var ignore_guard : bool = false
 	var ignore_push_and_pull : bool = false
@@ -396,6 +398,8 @@ class StrikeStatBoosts:
 		dodge_at_range_from_buddy = false
 		dodge_at_speed_greater_or_equal = -1
 		dodge_from_opposite_buddy = false
+		range_includes_opponent = false
+		range_includes_if_moved_past = false
 		ignore_armor = false
 		ignore_guard = false
 		ignore_push_and_pull = false
@@ -3294,12 +3298,15 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 			var previous_location = performing_player.arena_location
 			events += performing_player.advance(amount, stop_on_space)
 			var new_location = performing_player.arena_location
+			_append_log_full(Enums.LogType.LogType_CharacterMovement, performing_player, "advances %s, moving from space %s to %s." % [str(amount), str(previous_location), str(new_location)])
 			if (performing_start < other_start and new_location > other_start) or (performing_start > other_start and new_location < other_start):
 				local_conditions.advanced_through = true
+				if performing_player.strike_stat_boosts.range_includes_if_moved_past:
+					performing_player.strike_stat_boosts.range_includes_opponent = true
+					_append_log_full(Enums.LogType.LogType_Effect, performing_player, "advanced through the opponent, putting them in range!")
 			if ((performing_player.is_in_or_left_of_location(buddy_start, performing_start) and performing_player.is_in_or_right_of_location(buddy_start, new_location)) or
 					(performing_player.is_in_or_right_of_location(buddy_start, performing_start) and performing_player.is_in_or_left_of_location(buddy_start, new_location))):
 				local_conditions.advanced_through_buddy = true
-			_append_log_full(Enums.LogType.LogType_CharacterMovement, performing_player, "advances %s, moving from space %s to %s." % [str(amount), str(previous_location), str(new_location)])
 		"armorup":
 			performing_player.strike_stat_boosts.armor += effect['amount']
 			events += [create_event(Enums.EventType.EventType_Strike_ArmorUp, performing_player.my_id, effect['amount'])]
@@ -4442,6 +4449,8 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 			events += performing_player.push(push_needed)
 			var new_location = opposing_player.arena_location
 			_append_log_full(Enums.LogType.LogType_CharacterMovement, opposing_player, "is pushed to the attack's max range %s, moving from space %s to %s." % [str(attack_max_range), str(previous_location), str(new_location)])
+		"range_includes_if_moved_past":
+			performing_player.strike_stat_boosts.range_includes_if_moved_past = true
 		"rangeup":
 			performing_player.strike_stat_boosts.min_range += effect['amount']
 			performing_player.strike_stat_boosts.max_range += effect['amount2']
@@ -5542,21 +5551,24 @@ func in_range(attacking_player, defending_player, card, combat_logging=false):
 	var defender_location = defending_player.arena_location
 	var defender_width = defending_player.extra_width
 	var opponent_in_range = false
-	for defender_space_offset in range(-defender_width, defender_width+1):
-		var defender_space = defender_location + defender_space_offset
-		if is_location_in_range(attacking_player, card, defender_space):
-			opponent_in_range = true
-			break
+	if attacking_player.strike_stat_boosts.range_includes_opponent:
+		opponent_in_range = true
+	else:
+		for defender_space_offset in range(-defender_width, defender_width+1):
+			var defender_space = defender_location + defender_space_offset
+			if is_location_in_range(attacking_player, card, defender_space):
+				opponent_in_range = true
+				break
 
-	var min_range = get_card_stat(attacking_player, card, 'range_min') + attacking_player.strike_stat_boosts.min_range
-	var max_range = get_card_stat(attacking_player, card, 'range_max') + attacking_player.strike_stat_boosts.max_range
-	if active_strike.extra_attack_in_progress:
-		min_range -= active_strike.extra_attack_previous_attack_min_range_bonus
-		max_range -= active_strike.extra_attack_previous_attack_max_range_bonus
-	var range_string = str(min_range)
-	if min_range != max_range:
-		range_string += "-%s" % str(max_range)
-	_append_log_full(Enums.LogType.LogType_Strike, attacking_player, "has range %s." % range_string)
+		var min_range = get_card_stat(attacking_player, card, 'range_min') + attacking_player.strike_stat_boosts.min_range
+		var max_range = get_card_stat(attacking_player, card, 'range_max') + attacking_player.strike_stat_boosts.max_range
+		if active_strike.extra_attack_in_progress:
+			min_range -= active_strike.extra_attack_previous_attack_min_range_bonus
+			max_range -= active_strike.extra_attack_previous_attack_max_range_bonus
+		var range_string = str(min_range)
+		if min_range != max_range:
+			range_string += "-%s" % str(max_range)
+		_append_log_full(Enums.LogType.LogType_Strike, attacking_player, "has range %s." % range_string)
 
 	# Apply special late calculation range dodges
 	if defending_player.strike_stat_boosts.dodge_at_range_late_calculate_with == "OVERDRIVE_COUNT":
