@@ -1,4 +1,4 @@
-[gd_scene load_steps=12 format=3 uid="uid://cl8i21571i4qa"]
+[gd_scene load_steps=16 format=3 uid="uid://cl8i21571i4qa"]
 
 [ext_resource type="Script" path="res://scenes/card/card_base.gd" id="1_o734l"]
 [ext_resource type="Texture2D" uid="uid://dal2ec8wws714" path="res://icon.svg" id="1_xb23j"]
@@ -6,14 +6,20 @@
 [ext_resource type="Texture2D" uid="uid://cj7nvglef8cu" path="res://assets/cards/solbadguy/normal_grasp.tres" id="4_krtfi"]
 [ext_resource type="Texture2D" uid="uid://cpolsw2tyi4m" path="res://assets/cardbacks/cardback_blue.svg" id="4_pvdi7"]
 [ext_resource type="Texture2D" uid="uid://cy0pcorknc8op" path="res://assets/cards/border_thin_pressed.png" id="6_h5u6x"]
+[ext_resource type="Texture2D" uid="uid://7cuany7xgphc" path="res://assets/icons/topdeck.png" id="7_2bm1v"]
 [ext_resource type="Texture2D" uid="uid://c7ojn7hf8n4li" path="res://assets/icons/stopwatch.png" id="7_rrupl"]
+[ext_resource type="Texture2D" uid="uid://kl32dakt7bnv" path="res://assets/icons/hand.png" id="7_vbrtw"]
 [ext_resource type="Texture2D" uid="uid://xusjesyfjald" path="res://assets/icons/x.png" id="8_wk1ir"]
+[ext_resource type="Texture2D" uid="uid://bhxrxaykqrg2j" path="res://assets/icons/handquestion.png" id="9_mdk4a"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_as8ve"]
 bg_color = Color(1, 0.905882, 0.133333, 0.815686)
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_yky1r"]
 bg_color = Color(0.105882, 0.105882, 0.105882, 0.862745)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_6dpsx"]
+bg_color = Color(0.0862745, 0.0862745, 0.0862745, 1)
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_btcod"]
 bg_color = Color(0.164706, 0.164706, 0.164706, 1)
@@ -258,6 +264,71 @@ size_flags_horizontal = 4
 theme_override_font_sizes/font_size = 28
 text = "2 left"
 horizontal_alignment = 1
+
+[node name="HandIcons" type="Node2D" parent="CardFocusFeatures"]
+position = Vector2(0, -60)
+
+[node name="HandPanel" type="PanelContainer" parent="CardFocusFeatures/HandIcons"]
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -128.0
+offset_top = -24.0
+offset_right = 128.0
+offset_bottom = 24.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_6dpsx")
+
+[node name="HandMargin" type="MarginContainer" parent="CardFocusFeatures/HandIcons/HandPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 5
+theme_override_constants/margin_top = 5
+theme_override_constants/margin_right = 5
+theme_override_constants/margin_bottom = 5
+
+[node name="HandHbox" type="HBoxContainer" parent="CardFocusFeatures/HandIcons/HandPanel/HandMargin"]
+layout_mode = 2
+size_flags_horizontal = 4
+theme_override_constants/separation = 10
+alignment = 1
+
+[node name="Topdeck" type="TextureRect" parent="CardFocusFeatures/HandIcons/HandPanel/HandMargin/HandHbox"]
+custom_minimum_size = Vector2(48, 48)
+layout_mode = 2
+texture = ExtResource("7_2bm1v")
+expand_mode = 1
+stretch_mode = 4
+
+[node name="Hand1" type="TextureRect" parent="CardFocusFeatures/HandIcons/HandPanel/HandMargin/HandHbox"]
+custom_minimum_size = Vector2(48, 48)
+layout_mode = 2
+texture = ExtResource("7_vbrtw")
+expand_mode = 1
+stretch_mode = 4
+
+[node name="Hand2" type="TextureRect" parent="CardFocusFeatures/HandIcons/HandPanel/HandMargin/HandHbox"]
+custom_minimum_size = Vector2(48, 48)
+layout_mode = 2
+texture = ExtResource("7_vbrtw")
+expand_mode = 1
+stretch_mode = 4
+
+[node name="Question1" type="TextureRect" parent="CardFocusFeatures/HandIcons/HandPanel/HandMargin/HandHbox"]
+custom_minimum_size = Vector2(48, 48)
+layout_mode = 2
+texture = ExtResource("9_mdk4a")
+expand_mode = 1
+stretch_mode = 4
+
+[node name="Question2" type="TextureRect" parent="CardFocusFeatures/HandIcons/HandPanel/HandMargin/HandHbox"]
+custom_minimum_size = Vector2(48, 48)
+layout_mode = 2
+texture = ExtResource("9_mdk4a")
+expand_mode = 1
+stretch_mode = 4
 
 [node name="CancelContainer" type="Node2D" parent="CardFocusFeatures"]
 

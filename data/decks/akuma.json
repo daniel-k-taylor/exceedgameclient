@@ -1,0 +1,165 @@
+{
+	"id": "akuma",
+	"season": 3,
+	"display_name": "Akuma",
+	"cardback": "cardback_defaultexceed.png",
+	"exceed_cost": 2,
+	"ability_effects": [
+		{
+			"timing": "set_strike",
+			"effect_type": "gauge_for_effect",
+			"per_gauge_effect": null,
+			"overall_effect": {
+				"effect_type": "critical",
+				"character_effect": true
+			},
+			"gauge_max": 1
+		},
+		{
+			"timing": "set_strike",
+			"condition": "is_critical",
+			"effect_type": "powerup_both_players",
+			"amount": 2
+		}
+	],
+	"exceed_ability_effects": [
+		{
+			"timing": "set_strike",
+			"effect_type": "gauge_for_effect",
+			"per_gauge_effect": null,
+			"overall_effect": {
+				"effect_type": "critical",
+				"character_effect": true
+			},
+			"gauge_max": 1
+		},
+		{
+			"timing": "set_strike",
+			"condition": "is_critical",
+			"effect_type": "powerup_both_players",
+			"amount": 3
+		}
+	],
+	"cards": [
+		{
+			"definition_id": "akuma_demonarmageddon",
+			"image": "akuma_demonarmageddon.tres"
+		},
+		{
+			"definition_id": "akuma_demonarmageddon",
+			"image": "akuma_demonarmageddon.tres"
+		},
+		{
+			"definition_id": "akuma_wrathoftheragingdemon",
+			"image": "akuma_wrathoftheragingdemon.tres"
+		},
+		{
+			"definition_id": "akuma_wrathoftheragingdemon",
+			"image": "akuma_wrathoftheragingdemon.tres"
+		},
+		{
+			"definition_id": "akuma_gohadoken",
+			"image": "akuma_gohadoken.tres"
+		},
+		{
+			"definition_id": "akuma_gohadoken",
+			"image": "akuma_gohadoken.tres"
+		},
+		{
+			"definition_id": "akuma_goshoryuken",
+			"image": "akuma_goshoryuken.tres"
+		},
+		{
+			"definition_id": "akuma_goshoryuken",
+			"image": "akuma_goshoryuken.tres"
+		},
+		{
+			"definition_id": "akuma_hyakkishu",
+			"image": "akuma_hyakkishu.tres"
+		},
+		{
+			"definition_id": "akuma_hyakkishu",
+			"image": "akuma_hyakkishu.tres"
+		},
+		{
+			"definition_id": "akuma_tatsumakizankukyaku",
+			"image": "akuma_tatsumakizankukyaku.tres"
+		},
+		{
+			"definition_id": "akuma_tatsumakizankukyaku",
+			"image": "akuma_tatsumakizankukyaku.tres"
+		},
+		{
+			"definition_id": "akuma_zugaihasatsu",
+			"image": "akuma_zugaihasatsu.tres"
+		},
+		{
+			"definition_id": "akuma_zugaihasatsu",
+			"image": "akuma_zugaihasatsu.tres"
+		},
+		{
+			"definition_id": "standard_normal_grasp",
+			"image": "normal_grasp.tres"
+		},
+		{
+			"definition_id": "standard_normal_grasp",
+			"image": "normal_grasp.tres"
+		},
+		{
+			"definition_id": "standard_normal_cross",
+			"image": "normal_cross.tres"
+		},
+		{
+			"definition_id": "standard_normal_cross",
+			"image": "normal_cross.tres"
+		},
+		{
+			"definition_id": "standard_normal_assault",
+			"image": "normal_assault.tres"
+		},
+		{
+			"definition_id": "standard_normal_assault",
+			"image": "normal_assault.tres"
+		},
+		{
+			"definition_id": "standard_normal_dive",
+			"image": "normal_dive.tres"
+		},
+		{
+			"definition_id": "standard_normal_dive",
+			"image": "normal_dive.tres"
+		},
+		{
+			"definition_id": "standard_normal_spike",
+			"image": "normal_spike.tres"
+		},
+		{
+			"definition_id": "standard_normal_spike",
+			"image": "normal_spike.tres"
+		},
+		{
+			"definition_id": "standard_normal_sweep",
+			"image": "normal_sweep.tres"
+		},
+		{
+			"definition_id": "standard_normal_sweep",
+			"image": "normal_sweep.tres"
+		},
+		{
+			"definition_id": "standard_normal_focus",
+			"image": "normal_focus.tres"
+		},
+		{
+			"definition_id": "standard_normal_focus",
+			"image": "normal_focus.tres"
+		},
+		{
+			"definition_id": "standard_normal_block",
+			"image": "normal_block.tres"
+		},
+		{
+			"definition_id": "standard_normal_block",
+			"image": "normal_block.tres"
+		}
+	]
+}

@@ -305,6 +305,10 @@ func get_condition_text(effect, amount, amount2, detail):
 			text += "Crit: "
 		"no_sealed_copy_of_attack":
 			text += "If there is no sealed copy of your attack, "
+		"total_powerup_greater_or_equal":
+			text += "If you have %s or more bonus power, " % amount
+		"opponent_total_guard_greater_or_equal":
+			text += "If the opponent has %s or more guard, " % amount
 		_:
 			text += "MISSING CONDITION"
 	return text
@@ -341,7 +345,7 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 			if char_effect_panel:
 				effect_str += get_effect_type_text(effect['added_effect'], card_name_source)
 			else:
-				effect_str += "Add the effect:\n" + get_effect_type_text(effect['added_effect'], card_name_source)
+				effect_str += "Add effect:\n" + get_effect_text(effect['added_effect'], false, false, false, card_name_source, false)
 		"add_boost_to_gauge_on_strike_cleanup":
 			if card_name_source:
 				effect_str += "Add %s to gauge" % card_name_source
@@ -566,6 +570,11 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 		"multiply_power_bonuses":
 			if effect['amount'] == 2:
 				effect_str += "Double power bonuses"
+			else:
+				effect_str += "Multiply power bonuses by %s" % effect['amount']
+		"multiply_positive_power_bonuses":
+			if effect['amount'] == 2:
+				effect_str += "Double positive power bonuses"
 			else:
 				effect_str += "Multiply power bonuses by %s" % effect['amount']
 		"nothing":

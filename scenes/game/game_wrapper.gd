@@ -93,6 +93,9 @@ func get_player_gauge_size(id):
 func get_player_reshuffle_remaining(id):
 	return _get_player(id).reshuffle_remaining
 
+func get_player_public_hand_info(id):
+	return _get_player(id).get_public_hand_info()
+
 func get_player_exceed_cost(id):
 	return _get_player(id).get_exceed_cost()
 
