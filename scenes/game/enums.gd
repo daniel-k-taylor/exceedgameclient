@@ -156,6 +156,7 @@ enum EventType {
 	EventType_Strike_SetX,
 	EventType_Strike_Started,
 	EventType_Strike_Started_Ex,
+	EventType_Strike_Started_ExtraAttack,
 	EventType_Strike_Stun,
 	EventType_Strike_Stun_Immunity,
 	EventType_Strike_TookDamage,

@@ -16,8 +16,11 @@
 		}
 	},
 	"overdrive_effect": {
-		"effect_type": "place_buddy_in_any_space",
-		"buddy_name": "Gravitron"
+		"effect_type": "choice",
+		"choice": [
+			{ "effect_type": "place_buddy_in_any_space", "buddy_name": "Gravitron" },
+			{ "effect_type": "pass" }
+		]
 	},
 	"ability_effects": [
 		{

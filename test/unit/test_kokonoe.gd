@@ -210,13 +210,6 @@ func validate_life(p1, l1, p2, l2):
 	assert_eq(p1.life, l1)
 	assert_eq(p2.life, l2)
 
-func hakumen_exceed():
-	give_gauge(player1, 8)
-	var card_ids = []
-	for card in player1.gauge:
-		card_ids.append(card.id)
-	assert_true(game_logic.do_exceed(player1, card_ids))
-
 ##
 ## Tests start here
 ##
@@ -536,6 +529,8 @@ func test_kokonoe_overdrive():
 	advance_turn(player1)
 	advance_turn(player2)
 	assert_true(game_logic.do_choose_from_discard(player1, [player1.overdrive[0].id]))
+	# Choose to place gravitron
+	assert_true(game_logic.do_choice(player1, 0))
 	# Place gravitron
 	assert_true(game_logic.do_choice(player1, 5))
 	assert_eq(player1.get_buddy_location("gravitron"), 6)
@@ -608,6 +603,8 @@ func test_kokonoe_flamingbelobog_do_extraattack():
 	# After
 	# Extra attack discard choose effect is now automatically triggered
 	assert_true(game_logic.do_choose_to_discard(player1, [TestCardId4]))
+	# The card should no longer be in hand.
+	assert_false(player1.is_card_in_hand(TestCardId4))
 	# Need to pay for the force cost
 	assert_true(game_logic.do_pay_strike_cost(player1, [player1.hand[0].id], false))
 	# Before, choose close 2 or gravitron pulls to 6 automatically since we already paid for it.
@@ -617,6 +614,8 @@ func test_kokonoe_flamingbelobog_do_extraattack():
 	# Extra attack finishes, regular attack finishes, opponent is stunned and can't hit back.
 	validate_positions(player1, 5, player2, 6)
 	validate_life(player1, 30, player2, 20)
+	assert_true(player1.is_card_in_gauge(TestCardId1))
+	assert_true(player1.is_card_in_gauge(TestCardId4))
 	advance_turn(player2)
 
 
@@ -655,4 +654,47 @@ func test_kokonoe_flamingbelobog_after_effect_after_extraattack():
 	# Then flame cage after choice
 	assert_true(game_logic.do_choice(player1, 0)) # Push to 8
 	validate_positions(player1, 6, player2, 8)
+	assert_true(player1.is_card_in_gauge(TestCardId1))
+	assert_true(player1.is_card_in_gauge(TestCardId4))
+	advance_turn(player2)
+
+func test_kokonoe_flamingbelobog_extraattack_misses():
+	position_players(player1, 3, player2, 7)
+	give_player_specific_card(player1, "kokonoe_flamingbelobog", TestCardId3)
+	assert_true(game_logic.do_boost(player1, TestCardId3))
+	# Place gravitron
+	assert_true(game_logic.do_choice(player1, 4))
+	assert_eq(player1.get_buddy_location(), 5)
+	advance_turn(player2)
+	
+	# Start strike
+	give_player_specific_card(player1, "kokonoe_flamecage", TestCardId1)
+	give_player_specific_card(player2, "standard_normal_sweep", TestCardId2)
+	give_player_specific_card(player1, "standard_normal_spike", TestCardId4)
+	assert_true(game_logic.do_strike(player1, TestCardId1, false, -1))
+	# Don't pay for grav
+	assert_true(game_logic.do_force_for_effect(player1, [], false, true))
+	# Opponent
+	validate_positions(player1, 3, player2, 7)
+	assert_true(game_logic.do_strike(player2, TestCardId2, false, -1))
+	# Plan here is to hit with flame cage, use extra attack effect,
+	# miss with that attack for lulz,
+	# then resolve the flame cage after effect
+	
+	# Attack hits
+	validate_life(player1, 30, player2, 25)
+	# Simul choice between choices 0 (flame cage) and 1 (extra attack)
+	assert_true(game_logic.do_choice(player1, 1))
+	validate_positions(player1, 3, player2, 7)
+	# Extra attack discard, play spike
+	assert_true(game_logic.do_choose_to_discard(player1, [TestCardId4]))
+	# No costs or choices, so dive goes and misses
+	validate_life(player1, 30, player2, 25)
+	validate_positions(player1, 3, player2, 7)
+	# Then flame cage after choice
+	assert_true(game_logic.do_choice(player1, 1)) # Pull so sweep hits cause why not.
+	validate_positions(player1, 3, player2, 6)
+	validate_life(player1, 25, player2, 25)
+	assert_true(player1.is_card_in_gauge(TestCardId1))
+	assert_true(not player1.is_card_in_gauge(TestCardId4))
 	advance_turn(player2)

@@ -1630,10 +1630,13 @@ func update_discard_selection_message_choose():
 	if decision_info.bonus_effect:
 		var effect_text = CardDefinitions.get_effect_text(decision_info.bonus_effect, false, false, false, "")
 		bonus = "\nfor %s" % effect_text
-	if decision_info.limitation:
-		set_instructions("Select %s more %s card(s) from your hand to move to %s%s." % [num_remaining, decision_info.limitation, destination, bonus])
+	if destination == "play_attack":
+		set_instructions("Select a card from your hand to move to play as an extra attack.")
 	else:
-		set_instructions("Select %s more card(s) from your hand to move to %s%s." % [num_remaining, destination, bonus])
+		if decision_info.limitation:
+			set_instructions("Select %s more %s card(s) from your hand to move to %s%s." % [num_remaining, decision_info.limitation, destination, bonus])
+		else:
+			set_instructions("Select %s more card(s) from your hand to move to %s%s." % [num_remaining, destination, bonus])
 
 func update_discard_selection_message():
 	var num_remaining = select_card_require_min - len(selected_cards)
@@ -2096,6 +2099,17 @@ func _on_strike_started(event, is_ex : bool):
 		# Opponent started strike, player has to respond.
 		_move_card_to_strike_area(card, $OpponentStrike/StrikeZone, $AllCards/Striking, false, is_ex)
 
+func _on_strike_started_extra_attack(event):
+	var player = event['event_player']
+	var card = find_card_on_board(event['number'])
+	# Immediately reveal it.
+	card.flip_card_to_front(true)
+	if player == Enums.PlayerId.PlayerId_Player:
+		_move_card_to_strike_area(card, $PlayerStrike/StrikeZone, $AllCards/Striking, true, false)
+	else:
+		_move_card_to_strike_area(card, $OpponentStrike/StrikeZone, $AllCards/Striking, false, false)
+
+
 func _on_strike_do_response_now(event):
 	var player = event['event_player']
 	if player == Enums.PlayerId.PlayerId_Player:
@@ -2505,6 +2519,8 @@ func _handle_events(events):
 				_on_strike_started(event, false)
 			Enums.EventType.EventType_Strike_Started_Ex:
 				_on_strike_started(event, true)
+			Enums.EventType.EventType_Strike_Started_ExtraAttack:
+				_on_strike_started_extra_attack(event)
 			Enums.EventType.EventType_Strike_Stun:
 				delay = _on_stunned(event)
 			Enums.EventType.EventType_Strike_Stun_Immunity:

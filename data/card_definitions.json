@@ -7054,7 +7054,7 @@
 	{
 		"id": "kokonoe_absolutezero",
 		"type": "special",
-		"display_name": "Absolute Zero",
+		"display_name": "Absolute Zero v4.32",
 		"force_cost": 0,
 		"gauge_cost": 0,
 		"range_min": 1,
@@ -7175,7 +7175,7 @@
 	{
 		"id": "kokonoe_flamecage",
 		"type": "special",
-		"display_name": "Flame Cage",
+		"display_name": "Flame Cage v1.43",
 		"force_cost": 0,
 		"gauge_cost": 0,
 		"range_min": 2,
@@ -7282,7 +7282,7 @@
 		"NOTE": "KOKONOE CARDS END",
 		"id": "kokonoe_solidwheel",
 		"type": "special",
-		"display_name": "Solid Wheel",
+		"display_name": "Solid Wheel v3.37",
 		"force_cost": 0,
 		"gauge_cost": 0,
 		"range_min": 1,
@@ -7297,6 +7297,7 @@
 				"effect_type": "advance",
 				"stop_on_buddy_space": "gravitron",
 				"description": "Advance 4. If you enter Gravitron's space, stop and gain advantage.",
+				"suppress_and_description": true,
 				"amount": 4,
 				"and": {
 					"condition": "on_buddy_space",

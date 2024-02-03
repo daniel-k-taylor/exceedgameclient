@@ -988,12 +988,13 @@ class Player:
 						force_cost = gauge_cost
 						gauge_cost = 0
 
-					if not gauge_cost:
+					if gauge_cost == 0:
 						# To make sure this card isn't included in this check,
 						# increase the force cost by 1, 2 if ultra.
-						force_cost += 1
-						if card.definition['type'] == "ultra":
+						if force_cost:
 							force_cost += 1
+							if card.definition['type'] == "ultra":
+								force_cost += 1
 					if can_pay_cost(gauge_cost, force_cost):
 						cards.append(card)
 				_:
@@ -2415,7 +2416,7 @@ func advance_to_next_turn():
 func start_begin_turn():
 	active_start_of_turn_effects = true
 
-	# Handle any end of turn boost effects.
+	# Handle any start of turn boost effects.
 	# Iterate in reverse as items can be removed.
 	var starting_turn_player = _get_player(active_turn_player)
 	for i in range(len(starting_turn_player.continuous_boosts) - 1, -1, -1):
@@ -3605,7 +3606,7 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 					"per_force_effect": effect['per_gauge_effect'],
 					"overall_effect": effect['overall_effect'],
 					"force_max": effect['gauge_max'],
-					"required": effect['required'],
+					"required": 'required' in effect and effect['required'],
 				}
 				events += handle_strike_effect(card_id, changed_effect, performing_player)
 			else:
@@ -5202,13 +5203,13 @@ func do_set_strike_x(performing_player : Player, source : String):
 	events += performing_player.set_strike_x(value)
 	return events
 
-func do_effects_for_timing(timing_name : String, performing_player : Player, card : GameCard, next_state, only_card__and_bonus_effects : bool = false):
+func do_effects_for_timing(timing_name : String, performing_player : Player, card : GameCard, next_state, only_card_and_bonus_effects : bool = false):
 	var events = []
 	var effects = card_db.get_card_effects_at_timing(card, timing_name)
 	var boost_effects = get_boost_effects_at_timing(timing_name, performing_player)
 	var character_effects = performing_player.get_character_effects_at_timing(timing_name)
 	var bonus_effects = performing_player.get_bonus_effects_at_timing(timing_name)
-	if only_card__and_bonus_effects:
+	if only_card_and_bonus_effects:
 		boost_effects = []
 		character_effects = []
 
@@ -5879,6 +5880,14 @@ func begin_extra_attack(events, performing_player : Player, card_id : int):
 	active_strike.effects_resolved_in_timing = 0
 	active_strike.extra_attack_remaining_effects = []
 
+	# Remove the card from the hand, it is now in the striking area.
+	# Notify via an event.
+	performing_player.remove_card_from_hand(card_id)
+	events.append(create_event(Enums.EventType.EventType_Strike_Started_ExtraAttack, performing_player.my_id, card_id, ""))
+
+	var card_name = card_db.get_card_name(card_id)
+	_append_log_full(Enums.LogType.LogType_Strike, performing_player, "performs an extra attack with %s." % [card_name])
+
 	# Intentional events = because events are passed in.
 	events = continue_resolve_strike(events)
 	return events
@@ -5959,7 +5968,6 @@ func continue_extra_attack(events):
 	return events
 
 func determine_if_attack_hits(events, attacker_player : Player, defender_player : Player, card : GameCard):
-	# events actually is used, but there's an unused parameter warning for some reason, so add _.
 	var card_name = card_db.get_card_name(card.id)
 	if attacker_player.strike_stat_boosts.calculate_range_from_buddy:
 		var buddy_location = attacker_player.get_buddy_location(attacker_player.strike_stat_boosts.calculate_range_from_buddy_id)
