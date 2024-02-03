@@ -1953,6 +1953,11 @@ class Player:
 		if amount > 0:
 			strike_stat_boosts.power_positive_only += amount
 
+	func remove_power_bonus(amount : int):
+		strike_stat_boosts.power -= amount
+		if amount > 0:
+			strike_stat_boosts.power_positive_only -= amount
+
 	func reenable_boost_effects(card : GameCard):
 		var opposing_player = parent._get_player(parent.get_other_player(my_id))
 		# Redo boost properties
@@ -2041,10 +2046,10 @@ class Player:
 							strike_stat_boosts.dodge_at_range_max = -1
 							strike_stat_boosts.dodge_at_range_from_buddy = false
 					"powerup":
-						add_power_bonus(-effect['amount'])
+						remove_power_bonus(effect['amount'])
 					"powerup_both_players":
-						add_power_bonus(-effect['amount'])
-						opposing_player.add_power_bonus(-effect['amount'])
+						remove_power_bonus(effect['amount'])
+						opposing_player.remove_power_bonus(effect['amount'])
 					"speedup":
 						strike_stat_boosts.speed -= effect['amount']
 					"armorup":
