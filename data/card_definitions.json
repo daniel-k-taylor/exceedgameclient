@@ -6468,7 +6468,7 @@
 				"choice": [
 					{
 						"effect_type": "boost_then_sustain",
-						"allow_gauge": true,
+						"valid_zones": [ "hand", "gauge" ],
 						"limitation": "continuous"
 					},
 					{ "effect_type": "pass" }
@@ -16806,6 +16806,427 @@
 			]
 		},
 		"NOTEEND": "TAOKAKA CARDS END"
+	},
+
+	{
+		"NOTE": "TINKER CARDS START",
+		"id": "tinker_mechcharge",
+		"type": "ultra",
+		"display_name": "Mech Charge",
+		"force_cost": 0,
+		"gauge_cost": 3,
+		"range_min": 1,
+		"range_max": 1,
+		"speed": 3,
+		"power": 3,
+		"armor": 0,
+		"guard": 4,
+		"effects": [
+			{
+				"timing": "before",
+				"effect_type": "push",
+				"amount": 3,
+				"and": {
+					"effect_type": "close",
+					"amount": 4,
+				}
+			},
+
+			{
+				"NOTE": "Boost Effects",
+				"condition": "exceeded",
+				"character_effect": true,
+				"timing": "during_strike",
+				"effect_type": "powerup",
+				"amount": 4,
+				"and": {
+					"effect_type": "guardup",
+					"amount": 2
+				}
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 2,
+			"cancel_cost": -1,
+			"display_name": "Upgrade",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "powerup",
+					"amount": 4,
+					"and": {
+						"effect_type": "guardup",
+						"amount": 2
+					}
+				}
+			]
+		}
+	},
+	{
+		"id": "tinker_bombbounce",
+		"type": "ultra",
+		"display_name": "Bomb Bounce",
+		"force_cost": 0,
+		"gauge_cost": 3,
+		"range_min": 1,
+		"range_max": 3,
+		"speed": 2,
+		"power": 6,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "during_strike",
+				"effect_type": "ignore_armor"
+			},
+
+			{
+				"NOTE": "Boost Effects",
+				"condition": "exceeded",
+				"character_effect": true,
+				"timing": "during_strike",
+				"effect_type": "stun_immunity",
+				"and": {
+					"effect_type": "ignore_guard"
+				}
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Within My Reach",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "stun_immunity",
+					"and": {
+						"effect_type": "ignore_guard"
+					}
+				},
+				{
+					"timing": "now",
+					"condition": "not_exceeded",
+					"effect_type": "boost_additional",
+					"limitation": "continuous",
+					"valid_zones": [ "hand", "gauge" ],
+					"ignore_costs": true
+				},
+				{
+					"timing": "now",
+					"condition": "not_exceeded",
+					"effect_type": "discard_this"
+				}
+			]
+		}
+	},
+	{
+		"id": "tinker_flail",
+		"type": "special",
+		"display_name": "Flail",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 1,
+		"speed": 6,
+		"power": 3,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "hit",
+				"effect_type": "draw",
+				"amount": 1
+			},
+			{
+				"timing": "after",
+				"effect_type": "advance",
+				"amount": 2
+			},
+
+			{
+				"NOTE": "Boost Effects",
+				"condition": "exceeded",
+				"character_effect": true,
+				"timing": "during_strike",
+				"effect_type": "armorup",
+				"amount": 3,
+				"and": {
+					"effect_type": "guardup",
+					"amount": 3
+				}
+			},
+			{
+				"condition": "exceeded",
+				"character_effect": true,
+				"timing": "hit",
+				"effect_type": "push",
+				"amount": 3
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 4,
+			"cancel_cost": -1,
+			"display_name": "Armor Plating",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "armorup",
+					"amount": 3,
+					"and": {
+						"effect_type": "guardup",
+						"amount": 3
+					}
+				},
+				{
+					"timing": "hit",
+					"effect_type": "push",
+					"amount": 3
+				}
+			]
+		}
+	},
+	{
+		"id": "tinker_mobilegear",
+		"type": "special",
+		"display_name": "Mobile Gear",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 1,
+		"speed": 5,
+		"power": 3,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "before",
+				"effect_type": "advance",
+				"amount": 3
+			},
+
+			{
+				"NOTE": "Boost Effects",
+				"condition": "exceeded",
+				"character_effect": true,
+				"timing": "during_strike",
+				"effect_type": "powerup",
+				"amount": 2,
+				"and": {
+					"effect_type": "guardup",
+					"amount": 5,
+					"and": {
+						"effect_type": "range_includes_if_moved_past"
+					}
+				}
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 4,
+			"cancel_cost": -1,
+			"display_name": "Force Feedback",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "powerup",
+					"amount": 2,
+					"and": {
+						"effect_type": "guardup",
+						"amount": 5,
+						"and": {
+							"effect_type": "range_includes_if_moved_past"
+						}
+					}
+				}
+			]
+		}
+	},
+	{
+		"id": "tinker_wrenchtoss",
+		"type": "special",
+		"display_name": "Wrench Toss",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 3,
+		"speed": 4,
+		"power": 2,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "hit",
+				"effect_type": "push",
+				"amount": 1
+			},
+
+			{
+				"NOTE": "Boost Effects",
+				"condition": "exceeded",
+				"character_effect": true,
+				"timing": "during_strike",
+				"effect_type": "powerup",
+				"amount": 2,
+				"and": {
+					"effect_type": "speedup",
+					"amount": 2
+				}
+			},
+			{
+				"condition": "exceeded",
+				"character_effect": true,
+				"timing": "before",
+				"effect_type": "advance",
+				"amount": 2
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 4,
+			"cancel_cost": -1,
+			"display_name": "Pocket Fuel",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "powerup",
+					"amount": 2,
+					"and": {
+						"effect_type": "speedup",
+						"amount": 2
+					}
+				},
+				{
+					"timing": "before",
+					"effect_type": "advance",
+					"amount": 2
+				}
+			]
+		}
+	},
+	{
+		"id": "tinker_drillarm",
+		"type": "special",
+		"display_name": "Drill Arm",
+		"force_cost": 1,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 1,
+		"speed": 3,
+		"power": 4,
+		"armor": 0,
+		"guard": 3,
+		"effects": [
+			{
+				"timing": "hit",
+				"condition": "opponent_at_edge_of_arena",
+				"effect_type": "powerup",
+				"amount": 2
+			},
+
+			{
+				"NOTE": "Boost Effects",
+				"condition": "exceeded",
+				"character_effect": true,
+				"timing": "during_strike",
+				"effect_type": "rangeup",
+				"amount": 0,
+				"amount2": 2,
+				"and": {
+					"effect_type": "powerup",
+					"amount": 3
+				}
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 4,
+			"cancel_cost": -1,
+			"display_name": "Turbocharger",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "rangeup",
+					"amount": 0,
+					"amount2": 2,
+					"and": {
+						"effect_type": "powerup",
+						"amount": 3
+					}
+				}
+			]
+		}
+	},
+	{
+		"NOTE": "TINKER CARDS END",
+		"id": "tinker_missiles",
+		"type": "special",
+		"display_name": "Missiles",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 3,
+		"speed": 2,
+		"power": 4,
+		"armor": 1,
+		"guard": 5,
+		"effects": [
+			{
+				"timing": "after",
+				"effect_type": "choice",
+				"choice": [
+					{ "effect_type": "push", "amount": 1 },
+					{ "effect_type": "push", "amount": 2 },
+					{ "effect_type": "pull", "amount": 1 },
+					{ "effect_type": "pull", "amount": 2 }
+				]
+			},
+
+			{
+				"NOTE": "Boost Effects",
+				"condition": "exceeded",
+				"timing": "before",
+				"effect_type": "force_for_effect",
+				"per_force_effect": null,
+				"overall_effect": {
+					"character_effect": true,
+					"effect_type": "rangeup",
+					"amount": 1,
+					"amount2": 2,
+					"and": {
+						"effect_type": "powerup",
+						"amount": 2
+					}
+				},
+				"force_max": 2
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 4,
+			"cancel_cost": -1,
+			"display_name": "Arcing Projectiles",
+			"effects": [
+				{
+					"timing": "before",
+					"effect_type": "force_for_effect",
+					"per_force_effect": null,
+					"overall_effect": {
+						"effect_type": "rangeup",
+						"amount": 1,
+						"amount2": 2,
+						"and": {
+							"effect_type": "powerup",
+							"amount": 2
+						}
+					},
+					"force_max": 2
+				}
+			]
+		},
+		"NOTEEND": "TINKER CARDS END"
 	},
 
 

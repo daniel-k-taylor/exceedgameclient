@@ -70,9 +70,7 @@ var select_card_must_be_max_or_min = false
 var select_card_require_force = 0
 var select_card_up_to_force = 0
 var select_card_destination = ""
-var select_boost_from_gauge = false
-var select_boost_only_from_gauge = false
-var select_boost_limitation = ""
+var select_boost_options = {}
 var selected_boost_to_pay_for = -1
 var instructions_ok_allowed = false
 var instructions_cancel_allowed = false
@@ -92,7 +90,6 @@ var reference_popout_toggle_enabled = false
 var reference_popout_toggle = false
 var opponent_cards_before_reshuffle = []
 var treat_ultras_as_single_force = false
-var boost_selection_options = {}
 
 var player_deck
 var opponent_deck
@@ -757,7 +754,10 @@ func can_select_card(card):
 		UISubState.UISubState_SelectCards_StrikeCard_FromSealed:
 			return in_sealed
 		UISubState.UISubState_SelectCards_PlayBoost:
-			var valid_card = game_wrapper.can_player_boost(Enums.PlayerId.PlayerId_Player, card.card_id, select_boost_from_gauge, select_boost_only_from_gauge, select_boost_limitation)
+			var select_boost_valid_zones = select_boost_options['valid_zones']
+			var select_boost_limitation = select_boost_options['limitation']
+			var select_boost_ignore_costs = select_boost_options['ignore_costs']
+			var valid_card = game_wrapper.can_player_boost(Enums.PlayerId.PlayerId_Player, card.card_id, select_boost_valid_zones, select_boost_limitation, select_boost_ignore_costs)
 			return len(selected_cards) == 0 and valid_card
 		UISubState.UISubState_SelectCards_ForceForBoost:
 			return (in_gauge or in_hand) and selected_boost_to_pay_for != card.card_id
@@ -852,6 +852,7 @@ func layout_player_hand(is_player : bool):
 	var num_cards = len(hand_zone.get_children())
 	if num_cards > 0:
 		if is_player:
+			update_eyes_on_hand_icons(hand_zone.get_children())
 			if num_cards == 1:
 				var card : CardBase = hand_zone.get_child(0)
 				var angle = deg_to_rad(90)
@@ -917,6 +918,23 @@ func layout_player_hand(is_player : bool):
 					card.set_resting_position(pos, 0)
 
 	update_card_counts()
+
+func update_eyes_on_hand_icons(cards):
+	var public_hand_info = game_wrapper.get_player_public_hand_info(Enums.PlayerId.PlayerId_Player)
+	for card in cards:
+		# These are cards in hand, so the ids are correct.
+		var id = card.card_id
+		var logic_card = game_wrapper.get_card_database().get_card(id)
+		var card_str_id = logic_card.definition['id']
+		var known_count = 0
+		var questionable_count = 0
+		var on_topdeck = false
+		if card_str_id in public_hand_info['known']:
+			known_count = public_hand_info['known'][card_str_id]
+		if card_str_id in public_hand_info['questionable']:
+			questionable_count = public_hand_info['questionable'][card_str_id]
+		on_topdeck = card_str_id == public_hand_info['topdeck']
+		card.update_hand_icons(known_count, questionable_count, on_topdeck, true)
 
 func _log_event(event):
 	var num = event['number']
@@ -1477,12 +1495,20 @@ func _on_draw_event(event):
 func _on_exceed_event(event):
 	var player = event['event_player']
 	if player == Enums.PlayerId.PlayerId_Player:
-		$PlayerCharacter.set_exceed(true)
+		if 'exceed_animation' in player_deck:
+			$PlayerCharacter.set_exceed(true, player_deck['exceed_animation'])
+			move_character_to_arena_square($PlayerCharacter, game_wrapper.get_player_location(Enums.PlayerId.PlayerId_Player), true, Character.CharacterAnim.CharacterAnim_None)
+		else:
+			$PlayerCharacter.set_exceed(true)
 		player_character_card.exceed(true)
 		player_buddy_character_card.exceed(true)
 
 	else:
-		$OpponentCharacter.set_exceed(true)
+		if 'exceed_animation' in opponent_deck:
+			$OpponentCharacter.set_exceed(true, opponent_deck['exceed_animation'])
+			move_character_to_arena_square($OpponentCharacter, game_wrapper.get_player_location(Enums.PlayerId.PlayerId_Opponent), true, Character.CharacterAnim.CharacterAnim_None)
+		else:
+			$OpponentCharacter.set_exceed(true)
 		opponent_character_card.exceed(true)
 		opponent_buddy_character_card.exceed(true)
 
@@ -1492,28 +1518,66 @@ func _on_exceed_event(event):
 func _on_exceed_revert_event(event):
 	var player = event['event_player']
 	if player == Enums.PlayerId.PlayerId_Player:
-		$PlayerCharacter.set_exceed(false)
+		if 'exceed_animation' in player_deck:
+			$PlayerCharacter.set_exceed(true, player_deck['id'])
+			move_character_to_arena_square($PlayerCharacter, game_wrapper.get_player_location(Enums.PlayerId.PlayerId_Player), true, Character.CharacterAnim.CharacterAnim_None)
+		else:
+			$PlayerCharacter.set_exceed(false)
 		player_character_card.exceed(false)
 		player_buddy_character_card.exceed(false)
 
 	else:
-		$OpponentCharacter.set_exceed(false)
+		if 'exceed_animation' in opponent_deck:
+			$OpponentCharacter.set_exceed(true, opponent_deck['id'])
+			move_character_to_arena_square($OpponentCharacter, game_wrapper.get_player_location(Enums.PlayerId.PlayerId_Opponent), true, Character.CharacterAnim.CharacterAnim_None)
+		else:
+			$OpponentCharacter.set_exceed(false)
 		opponent_character_card.exceed(false)
 		opponent_buddy_character_card.exceed(false)
 
 	spawn_damage_popup("Revert!", player)
 	return SmallNoticeDelay
 
+func _on_become_wide(event):
+	var player = event['event_player']
+	var character_object
+	var deck_def
+	if player == Enums.PlayerId.PlayerId_Player:
+		character_object = $PlayerCharacter
+		deck_def = player_deck
+	else:
+		character_object = $OpponentCharacter
+		deck_def = opponent_deck
+
+	character_object.is_wide = true
+	if 'wide_animation' in deck_def:
+		character_object.load_character(deck_def['wide_animation'])
+
+		var parent = character_object.get_parent()
+		var target_idx = parent.get_children().find($WideCharacterMarker)
+		assert(target_idx != -1)
+		parent.move_child(character_object, target_idx)
+
+		move_character_to_arena_square(character_object, game_wrapper.get_player_location(player), true, Character.CharacterAnim.CharacterAnim_None)
+		update_arena_squares()
+
+	var popup_text = "Expand"
+	if event['extra_info']:
+		popup_text = event['extra_info']
+	spawn_damage_popup("%s!" % popup_text, player)
+	return SmallNoticeDelay
+
 func _on_force_start_boost(event):
 	var player = event['event_player']
-	var allow_gauge = event['extra_info']
-	var only_gauge = event['extra_info2']
-	var limitation = event['extra_info3']
+	var valid_zones = event['extra_info']
+	var limitation = event['extra_info2']
+	var ignore_costs = event['extra_info3'] or false
+
 	spawn_damage_popup("Boost!", player)
 	if player == Enums.PlayerId.PlayerId_Player:
-		begin_boost_choosing(false, allow_gauge, only_gauge, limitation)
+		begin_boost_choosing(false, valid_zones, limitation, ignore_costs)
 	else:
-		ai_do_boost(allow_gauge, only_gauge, limitation)
+		ai_do_boost(valid_zones, limitation, ignore_costs)
 	return SmallNoticeDelay
 
 func _on_force_start_strike(event):
@@ -1892,29 +1956,28 @@ func begin_gauge_strike_choosing(strike_response : bool, cancel_allowed : bool, 
 			new_sub_state = UISubState.UISubState_SelectCards_StrikeCard_FromSealed
 	change_ui_state(UIState.UIState_SelectCards, new_sub_state)
 
-func begin_boost_choosing(can_cancel : bool, allow_gauge : bool, only_gauge : bool, limitation : String):
+func begin_boost_choosing(can_cancel : bool, valid_zones : Array, limitation : String, ignore_costs : bool):
 	selected_cards = []
 	select_card_require_min = 1
 	select_card_require_max = 1
-	select_boost_from_gauge = allow_gauge
-	select_boost_only_from_gauge = only_gauge
-	select_boost_limitation = limitation
+	select_boost_options = {
+		"can_cancel": can_cancel,
+		"valid_zones": valid_zones,
+		"limitation": limitation,
+		"ignore_costs": ignore_costs
+	}
 	var limitation_str = "card"
 	if limitation:
 		limitation_str = limitation + " boost"
 	var instructions = "Select a %s to boost." % limitation_str
-	if allow_gauge:
-		_on_player_gauge_gauge_clicked()
-		instructions = "Select a %s to boost from hand or gauge." % limitation_str
-	if only_gauge:
-		instructions = "Select a %s to boost from gauge." % limitation_str
 
-	boost_selection_options = {
-		"can_cancel": can_cancel,
-		"allow_gauge": allow_gauge,
-		"only_gauge": only_gauge,
-		"limitation": limitation
-	}
+	var zone_str = '/'.join(valid_zones)
+	instructions = "Select a %s to boost from %s." % [limitation_str, zone_str]
+	if 'gauge' in valid_zones:
+		_on_player_gauge_gauge_clicked()
+	elif 'discard' in valid_zones: # can't open two zones at once
+		_on_player_discard_button_pressed()
+
 	enable_instructions_ui(instructions, true, can_cancel)
 	change_ui_state(UIState.UIState_SelectCards, UISubState.UISubState_SelectCards_PlayBoost)
 
@@ -2336,6 +2399,8 @@ func _handle_events(events):
 				delay = _on_add_to_overdrive(event)
 			Enums.EventType.EventType_AdvanceTurn:
 				delay = _on_advance_turn()
+			Enums.EventType.EventType_BecomeWide:
+				delay = _on_become_wide(event)
 			Enums.EventType.EventType_BlockMovement:
 				delay = _stat_notice_event(event)
 			Enums.EventType.EventType_Boost_ActionAfterBoost:
@@ -2743,9 +2808,15 @@ func update_boost_summary(boosts_card_holder, boost_box):
 func update_arena_squares():
 	for i in range(1, 10):
 		var square : ArenaSquare = arena_graphics.get_child(i - 1)
-		if i == cached_player_location:
+		var player_extra_width = 0
+		if $PlayerCharacter.is_wide:
+			player_extra_width = game_wrapper.get_player_extra_width(Enums.PlayerId.PlayerId_Player)
+		var opponent_extra_width = 0
+		if $OpponentCharacter.is_wide:
+			opponent_extra_width = game_wrapper.get_player_extra_width(Enums.PlayerId.PlayerId_Opponent)
+		if i >= cached_player_location - player_extra_width and i <= cached_player_location + player_extra_width:
 			square.set_self_occupied()
-		elif i == cached_opponent_location:
+		elif i >= cached_opponent_location - opponent_extra_width and i <= cached_opponent_location + opponent_extra_width:
 			square.set_enemy_occupied()
 		else:
 			square.set_empty()
@@ -2901,7 +2972,7 @@ func _on_reshuffle_button_pressed():
 	_update_buttons()
 
 func _on_boost_button_pressed():
-	begin_boost_choosing(true, false, false, "")
+	begin_boost_choosing(true, ['hand'], "", false)
 
 func _on_strike_button_pressed():
 	begin_strike_choosing(false, true)
@@ -2997,7 +3068,7 @@ func _on_instructions_ok_button_pressed(index : int):
 				success = game_wrapper.submit_mulligan(Enums.PlayerId.PlayerId_Player, selected_card_ids)
 			UISubState.UISubState_SelectCards_PlayBoost:
 				var force_cost = game_wrapper.get_card_database().get_card_boost_force_cost(single_card_id)
-				if force_cost > 0:
+				if not select_boost_options['ignore_costs'] and force_cost > 0:
 					selected_boost_to_pay_for = single_card_id
 					change_ui_state(null, UISubState.UISubState_SelectCards_ForceForBoost)
 					begin_generate_force_selection(force_cost)
@@ -3062,11 +3133,15 @@ func _on_instructions_cancel_button_pressed():
 			success = game_wrapper.submit_boost_name_card_choice_effect(Enums.PlayerId.PlayerId_Player, -1)
 		UISubState.UISubState_SelectCards_ForceForBoost:
 			deselect_all_cards()
-			var can_cancel = boost_selection_options['can_cancel']
-			var allow_gauge = boost_selection_options['allow_gauge']
-			var only_gauge = boost_selection_options['only_gauge']
-			var limitation = boost_selection_options['limitation']
-			begin_boost_choosing(can_cancel, allow_gauge, only_gauge, limitation)
+			close_popout()
+			if select_boost_options:
+				var can_cancel = select_boost_options["can_cancel"]
+				var valid_zones = select_boost_options["valid_zones"]
+				var limitation = select_boost_options["limitation"]
+				var ignore_costs = select_boost_options["ignore_costs"]
+				begin_boost_choosing(can_cancel, valid_zones, limitation, ignore_costs)
+			else:
+				change_ui_state(UIState.UIState_PickTurnAction, UISubState.UISubState_None)
 		_:
 			match ui_state:
 				UIState.UIState_SelectArenaLocation:
@@ -3127,6 +3202,7 @@ func _on_shortcut_boost_pressed():
 	var success = false
 	var force_cost = game_wrapper.get_card_database().get_card_boost_force_cost(card_id)
 	if force_cost > 0:
+		select_boost_options = {}
 		selected_boost_to_pay_for = card_id
 		change_ui_state(null, UISubState.UISubState_SelectCards_ForceForBoost)
 		begin_generate_force_selection(force_cost)
@@ -3257,10 +3333,10 @@ func ai_take_turn():
 	else:
 		print("FAILED AI TURN")
 
-func ai_do_boost(allow_gauge : bool, only_gauge : bool, limitation : String):
+func ai_do_boost(valid_zones : Array, limitation : String, ignore_costs : bool = false):
 	change_ui_state(UIState.UIState_WaitForGameServer)
 	if not game_wrapper.is_ai_game(): return
-	var boost_action = ai_player.take_boost(game_wrapper.current_game, Enums.PlayerId.PlayerId_Opponent, allow_gauge, only_gauge, limitation)
+	var boost_action = ai_player.take_boost(game_wrapper.current_game, Enums.PlayerId.PlayerId_Opponent, valid_zones, limitation, ignore_costs)
 	var success = ai_handle_boost(boost_action)
 	if success:
 		change_ui_state(UIState.UIState_WaitForGameServer)
@@ -3792,7 +3868,7 @@ func _on_opponent_reference_button_pressed(switch_toggle : bool = false, hide_re
 			if card_str_id in public_hand_info['questionable']:
 				questionable_count = public_hand_info['questionable'][card_str_id]
 			on_topdeck = card_str_id == public_hand_info['topdeck']
-		card.update_hand_icons(known_count, questionable_count, on_topdeck)
+		card.update_hand_icons(known_count, questionable_count, on_topdeck, false)
 	var popout_title = "THEIR DECK REFERENCE (showing remaining card counts in deck+hand"
 	if reference_popout_toggle:
 		popout_title = "THEIR CARDS BEFORE RESHUFFLE (remained in deck+hand"

@@ -53,10 +53,11 @@
 [ext_resource type="Texture2D" uid="uid://bsnhwfau216op" path="res://assets/portraits/arakune.png" id="40_pcigi"]
 [ext_resource type="Texture2D" uid="uid://drfi3wl1nmdbh" path="res://assets/portraits/hakumen.png" id="41_d18gh"]
 [ext_resource type="Texture2D" uid="uid://bnyj6tteeavxq" path="res://assets/portraits/specter.png" id="42_vmogd"]
-[ext_resource type="Texture2D" uid="uid://des5jexyu0ie7" path="res://assets/portraits/kokonoe.png" id="43_l1jh3"]
+[ext_resource type="Texture2D" uid="uid://des5jexyu0ie7" path="res://assets/portraits/kokonoe.png" id="44_li72n"]
 [ext_resource type="Texture2D" uid="uid://c1aaxfvy8dxha" path="res://assets/portraits/sagat.png" id="45_6fv30"]
 [ext_resource type="Texture2D" uid="uid://b0nwxj3ixsxxo" path="res://assets/portraits/platinum.png" id="46_xgovy"]
 [ext_resource type="Texture2D" uid="uid://c64lam1prprip" path="res://assets/portraits/akuma.png" id="48_4ovfi"]
+[ext_resource type="Texture2D" uid="uid://cr4xuhld5ghtr" path="res://assets/portraits/tinker.png" id="49_xx03j"]
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_8u80i"]
 
@@ -415,7 +416,7 @@ portrait_texture = ExtResource("41_d18gh")
 [node name="Kokonoe" parent="CenterContainer/BBCharacterSelect/Rows/Row3" instance=ExtResource("6_3lmwy")]
 layout_mode = 2
 char_id = "kokonoe"
-portrait_texture = ExtResource("43_l1jh3")
+portrait_texture = ExtResource("44_li72n")
 
 [node name="Platinum" parent="CenterContainer/BBCharacterSelect/Rows/Row3" instance=ExtResource("6_3lmwy")]
 layout_mode = 2
@@ -446,15 +447,24 @@ layout_mode = 2
 char_id = "plague"
 portrait_texture = ExtResource("32_o7q1n")
 
+[node name="RandomSF" parent="CenterContainer/SKCharacterSelect/Rows/Row1" instance=ExtResource("6_3lmwy")]
+layout_mode = 2
+char_id = "random_s4"
+portrait_texture = ExtResource("31_hsrmq")
+
 [node name="Specter" parent="CenterContainer/SKCharacterSelect/Rows/Row1" instance=ExtResource("6_3lmwy")]
 layout_mode = 2
 char_id = "specter"
 portrait_texture = ExtResource("42_vmogd")
 
-[node name="RandomSF" parent="CenterContainer/SKCharacterSelect/Rows/Row1" instance=ExtResource("6_3lmwy")]
+[node name="Row2" type="HBoxContainer" parent="CenterContainer/SKCharacterSelect/Rows"]
 layout_mode = 2
-char_id = "random_s4"
-portrait_texture = ExtResource("31_hsrmq")
+alignment = 1
+
+[node name="Tinker" parent="CenterContainer/SKCharacterSelect/Rows/Row2" instance=ExtResource("6_3lmwy")]
+layout_mode = 2
+char_id = "tinker"
+portrait_texture = ExtResource("49_xx03j")
 
 [node name="SFCharacterSelect" type="PanelContainer" parent="CenterContainer"]
 layout_mode = 2
@@ -649,10 +659,12 @@ portrait_texture = ExtResource("32_iutun")
 [connection signal="on_pressed" from="CenterContainer/SKCharacterSelect/Rows/Row1/ShovelShield" to="." method="_on_char_button_on_pressed"]
 [connection signal="on_hover" from="CenterContainer/SKCharacterSelect/Rows/Row1/Plague" to="." method="_on_char_hover"]
 [connection signal="on_pressed" from="CenterContainer/SKCharacterSelect/Rows/Row1/Plague" to="." method="_on_char_button_on_pressed"]
-[connection signal="on_hover" from="CenterContainer/SKCharacterSelect/Rows/Row1/Specter" to="." method="_on_char_hover"]
-[connection signal="on_pressed" from="CenterContainer/SKCharacterSelect/Rows/Row1/Specter" to="." method="_on_char_button_on_pressed"]
 [connection signal="on_hover" from="CenterContainer/SKCharacterSelect/Rows/Row1/RandomSF" to="." method="_on_char_hover"]
 [connection signal="on_pressed" from="CenterContainer/SKCharacterSelect/Rows/Row1/RandomSF" to="." method="_on_char_button_on_pressed"]
+[connection signal="on_hover" from="CenterContainer/SKCharacterSelect/Rows/Row1/Specter" to="." method="_on_char_hover"]
+[connection signal="on_pressed" from="CenterContainer/SKCharacterSelect/Rows/Row1/Specter" to="." method="_on_char_button_on_pressed"]
+[connection signal="on_hover" from="CenterContainer/SKCharacterSelect/Rows/Row2/Tinker" to="." method="_on_char_hover"]
+[connection signal="on_pressed" from="CenterContainer/SKCharacterSelect/Rows/Row2/Tinker" to="." method="_on_char_button_on_pressed"]
 [connection signal="on_hover" from="CenterContainer/SFCharacterSelect/Rows/Row1/Ryu" to="." method="_on_char_hover"]
 [connection signal="on_pressed" from="CenterContainer/SFCharacterSelect/Rows/Row1/Ryu" to="." method="_on_char_button_on_pressed"]
 [connection signal="on_hover" from="CenterContainer/SFCharacterSelect/Rows/Row1/RandomSF" to="." method="_on_char_hover"]
