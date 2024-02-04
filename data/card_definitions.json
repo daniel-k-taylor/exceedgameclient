@@ -16502,8 +16502,8 @@
 		"gauge_cost": 3,
 		"range_min": 1,
 		"range_max": 3,
-		"speed": 6,
-		"power": 2,
+		"speed": 2,
+		"power": 6,
 		"armor": 0,
 		"guard": 0,
 		"effects": [
@@ -16539,7 +16539,7 @@
 				{
 					"timing": "now",
 					"condition": "not_exceeded",
-					"effect_type": "boost",
+					"effect_type": "boost_additional",
 					"limitation": "continuous",
 					"valid_zones": [ "hand", "gauge" ],
 					"ignore_costs": true

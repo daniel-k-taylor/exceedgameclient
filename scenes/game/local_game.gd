@@ -3341,7 +3341,7 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 			opposing_player.cannot_move = false
 		"bonus_action":
 			active_boost.action_after_boost = true
-		"boost":
+		"boost_additional":
 			var valid_zones = ['hand']
 			if 'valid_zones' in effect:
 				valid_zones = effect['valid_zones']
@@ -3356,8 +3356,7 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 				decision_info.limitation = effect['limitation']
 				decision_info.ignore_costs = ignore_costs
 			else:
-				if len(performing_player.hand) == 0 or 'hand' not in valid_zones: # Avoid leaking information
-					_append_log_full(Enums.LogType.LogType_Effect, performing_player, "has no cards available to boost.")
+				_append_log_full(Enums.LogType.LogType_Effect, performing_player, "has no cards available to boost.")
 		"boost_applies_if_on_buddy":
 			if card_id == -1:
 				assert(false)
@@ -3396,8 +3395,7 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 				performing_player.sustain_next_boost = true
 				performing_player.cancel_blocked_this_turn = true
 			else:
-				if len(performing_player.hand) == 0 or 'hand' not in valid_zones: # Avoid leaking information
-					_append_log_full(Enums.LogType.LogType_Effect, performing_player, "has no cards available to boost.")
+				_append_log_full(Enums.LogType.LogType_Effect, performing_player, "has no cards available to boost.")
 		"boost_then_sustain_topdeck":
 			if performing_player.deck.size() > 0:
 				performing_player.cancel_blocked_this_turn = true
@@ -3439,8 +3437,7 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 				if 'wild_strike' in effect and effect['wild_strike']:
 					performing_player.wild_strike_on_boost_cleanup = true
 			else:
-				if len(performing_player.hand) == 0 or 'hand' not in valid_zones: # Avoid leaking information
-					_append_log_full(Enums.LogType.LogType_Effect, performing_player, "has no cards available to boost.")
+				_append_log_full(Enums.LogType.LogType_Effect, performing_player, "has no cards available to boost.")
 				events += [create_event(Enums.EventType.EventType_ForceStartStrike, performing_player.my_id, 0)]
 				change_game_state(Enums.GameState.GameState_WaitForStrike)
 				decision_info.clear()
@@ -6304,6 +6301,8 @@ func begin_resolve_boost(performing_player : Player, card_id : int):
 
 	var new_boost = Boost.new()
 	if active_boost:
+		if active_strike:
+			assert(false, "No current support for boosts that play other boosts mid-strike")
 		new_boost.parent_boost = active_boost
 
 	active_boost = new_boost

@@ -70,9 +70,11 @@ var select_card_must_be_max_or_min = false
 var select_card_require_force = 0
 var select_card_up_to_force = 0
 var select_card_destination = ""
+var select_boost_can_cancel = false
 var select_boost_valid_zones = []
 var select_boost_limitation = ""
 var select_boost_ignore_costs = false
+var select_boost_from_shortcut = false
 var selected_boost_to_pay_for = -1
 var instructions_ok_allowed = false
 var instructions_cancel_allowed = false
@@ -92,7 +94,6 @@ var reference_popout_toggle_enabled = false
 var reference_popout_toggle = false
 var opponent_cards_before_reshuffle = []
 var treat_ultras_as_single_force = false
-var boost_selection_options = {}
 
 var player_deck
 var opponent_deck
@@ -1541,9 +1542,7 @@ func _on_force_start_boost(event):
 	var player = event['event_player']
 	var valid_zones = event['extra_info']
 	var limitation = event['extra_info2']
-	var ignore_costs = event['extra_info3']
-	if ignore_costs == null:
-		ignore_costs = false
+	var ignore_costs = event['extra_info3'] or false
 
 	spawn_damage_popup("Boost!", player)
 	if player == Enums.PlayerId.PlayerId_Player:
@@ -1932,9 +1931,11 @@ func begin_boost_choosing(can_cancel : bool, valid_zones : Array, limitation : S
 	selected_cards = []
 	select_card_require_min = 1
 	select_card_require_max = 1
+	select_boost_can_cancel = can_cancel
 	select_boost_valid_zones = valid_zones
 	select_boost_limitation = limitation
 	select_boost_ignore_costs = ignore_costs
+	select_boost_from_shortcut = false
 	var limitation_str = "card"
 	if limitation:
 		limitation_str = limitation + " boost"
@@ -1947,12 +1948,6 @@ func begin_boost_choosing(can_cancel : bool, valid_zones : Array, limitation : S
 	elif 'discard' in valid_zones: # can't open two zones at once
 		_on_player_discard_button_pressed()
 
-	boost_selection_options = {
-		"can_cancel": can_cancel,
-		"valid_zones": valid_zones,
-		"limitation": limitation,
-		"ignore_costs": ignore_costs
-	}
 	enable_instructions_ui(instructions, true, can_cancel)
 	change_ui_state(UIState.UIState_SelectCards, UISubState.UISubState_SelectCards_PlayBoost)
 
@@ -2783,15 +2778,15 @@ func update_boost_summary(boosts_card_holder, boost_box):
 func update_arena_squares():
 	for i in range(1, 10):
 		var square : ArenaSquare = arena_graphics.get_child(i - 1)
-		var player_width = 0
+		var player_extra_width = 0
 		if $PlayerCharacter.is_wide:
-			player_width = game_wrapper.get_player_width(Enums.PlayerId.PlayerId_Player)
-		var opponent_width = 0
+			player_extra_width = game_wrapper.get_player_extra_width(Enums.PlayerId.PlayerId_Player)
+		var opponent_extra_width = 0
 		if $OpponentCharacter.is_wide:
-			opponent_width = game_wrapper.get_player_width(Enums.PlayerId.PlayerId_Opponent)
-		if i >= cached_player_location - player_width and i <= cached_player_location + player_width:
+			opponent_extra_width = game_wrapper.get_player_extra_width(Enums.PlayerId.PlayerId_Opponent)
+		if i >= cached_player_location - player_extra_width and i <= cached_player_location + player_extra_width:
 			square.set_self_occupied()
-		elif i >= cached_opponent_location - opponent_width and i <= cached_opponent_location + opponent_width:
+		elif i >= cached_opponent_location - opponent_extra_width and i <= cached_opponent_location + opponent_extra_width:
 			square.set_enemy_occupied()
 		else:
 			square.set_empty()
@@ -3109,15 +3104,14 @@ func _on_instructions_cancel_button_pressed():
 		UISubState.UISubState_SelectCards_ForceForBoost:
 			deselect_all_cards()
 			close_popout()
-			if boost_selection_options:
-				var can_cancel = boost_selection_options['can_cancel']
-				var valid_zones = boost_selection_options['valid_zones']
-				var limitation = boost_selection_options['limitation']
-				var ignore_costs = boost_selection_options['ignore_costs']
-				begin_boost_choosing(can_cancel, valid_zones, limitation, ignore_costs)
-			else:
-				# Chosen from shortcut
+			if select_boost_from_shortcut:
 				change_ui_state(UIState.UIState_PickTurnAction, UISubState.UISubState_None)
+			else:
+				var can_cancel = select_boost_can_cancel
+				var valid_zones = select_boost_valid_zones
+				var limitation = select_boost_limitation
+				var ignore_costs = select_boost_ignore_costs
+				begin_boost_choosing(can_cancel, valid_zones, limitation, ignore_costs)
 		_:
 			match ui_state:
 				UIState.UIState_SelectArenaLocation:
@@ -3178,7 +3172,7 @@ func _on_shortcut_boost_pressed():
 	var success = false
 	var force_cost = game_wrapper.get_card_database().get_card_boost_force_cost(card_id)
 	if force_cost > 0:
-		boost_selection_options = {}
+		select_boost_from_shortcut = true
 		selected_boost_to_pay_for = card_id
 		change_ui_state(null, UISubState.UISubState_SelectCards_ForceForBoost)
 		begin_generate_force_selection(force_cost)

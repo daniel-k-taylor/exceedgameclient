@@ -400,6 +400,11 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 			effect_str += "Attack does not hit."
 		"attack_is_ex":
 			effect_str += "Next Strike is EX"
+		"become_wide":
+			var description = "3 spaces wide"
+			if 'description' in effect:
+				description = effect['description']
+			effect_str = "Become %s" % description
 		"block_opponent_move":
 			effect_str += "Opponent cannot move"
 		"remove_block_opponent_move":
@@ -550,6 +555,8 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 			effect_str += "Ignore Push and Pull"
 		"increase_force_spent_before_strike":
 			effect_str += get_effect_text(effect['linked_effect'], false, false, false)
+		"reset_character_positions":
+			effect_str += "Move both players to starting positions"
 		"remove_ignore_push_and_pull_passive_bonus":
 			effect_str += ""
 		"lose_all_armor":
