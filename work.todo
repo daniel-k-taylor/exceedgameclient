@@ -1,6 +1,23 @@
 
 
 In progress:
+    Platinum:
+        ☐ "effect_type": "sustain_all"
+        ☐ choose_discard
+            ☐ destination - topdeck
+            ☐ "limitation": "continuous",
+            ☐ "destination": "play_boost"
+        ☐ "condition": "opponent_moved_or_was_moved",
+        ☐ return_attack_to_top_of_deck - should probably go immediately and remove all bonuses
+
+        ☐ "condition": "top_discard_continous",
+        ☐ "effect_type": "boost_top_discard"
+
+
+        ☐ "effect_type": "boost_then_sustain_topdeck",
+            ☐ "discard_if_not_continuous": true
+        ☐ "effect_type": "add_attack_effect",    if current timing, add to remaining effects list
+
 
 
 Write tests for:

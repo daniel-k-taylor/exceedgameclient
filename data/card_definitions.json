@@ -674,7 +674,6 @@
 				"opponent": true,
 				"amount": 99
 			}
-
 		],
 		"boost": {
 			"boost_type": "immediate",
@@ -1069,7 +1068,6 @@
 					{ "effect_type": "retreat", "amount": 2 }
 				]
 			}
-
 		],
 		"boost": {
 			"boost_type": "continuous",
@@ -13617,6 +13615,367 @@
 			]
 		},
 		"NOTEEND": "PHONON CARDS END"
+	},
+
+
+	{
+		"NOTE": "PLATINUM CARDS START",
+		"id": "platinum_shininglayeredforce",
+		"type": "ultra",
+		"display_name": "Shining Layered Force",
+		"force_cost": 0,
+		"gauge_cost": 4,
+		"range_min": 2,
+		"range_max": 2,
+		"speed": 5,
+		"power": 9,
+		"armor": 3,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "before",
+				"effect_type": "choice",
+				"choice": [
+					{ "effect_type": "push", "amount": 3 },
+					{ "effect_type": "pull", "amount": 3 }
+				]
+			},
+			{
+				"timing": "hit",
+				"effect_type": "push",
+				"amount": 8
+			}
+		],
+		"boost": {
+			"boost_type": "immediate",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Burst",
+			"effects": [
+				{
+					"timing": "immediate",
+					"effect_type": "draw",
+					"amount": 2
+				},
+				{
+					"timing": "immediate",
+					"effect_type": "seal_this"
+				},
+				{
+					"timing": "immediate",
+					"effect_type": "bonus_action"
+				}
+			]
+		}
+	},
+	{
+		"id": "platinum_curedottyphoon",
+		"type": "ultra",
+		"display_name": "Cure Dot Typhoon",
+		"force_cost": 0,
+		"gauge_cost": 2,
+		"range_min": 1,
+		"range_max": 1,
+		"speed": 6,
+		"power": 4,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "before",
+				"effect_type": "choice",
+				"choice": [
+					{ "effect_type": "advance", "amount": 1 },
+					{ "effect_type": "advance", "amount": 2 }
+				]
+			},
+			{
+				"timing": "after",
+				"effect_type": "choose_discard",
+				"limitation": "",
+				"destination": "topdeck",
+				"amount": 1,
+				"amount_min": 0
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Magical Cat Hammer",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "rangeup",
+					"amount": 1,
+					"amount2": 2,
+					"and": {
+						"effect_type": "speedup",
+						"amount": 1
+					}
+				}
+			]
+		}
+	},
+	{
+		"id": "platinum_miraclejeanne",
+		"type": "ultra",
+		"display_name": "Miracle Jeanne",
+		"force_cost": 0,
+		"gauge_cost": 4,
+		"range_min": 2,
+		"range_max": 3,
+		"speed": 4,
+		"power": 3,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "before",
+				"effect_type": "choose_discard",
+				"limitation": "continuous",
+				"destination": "play_boost",
+				"amount": 2,
+				"amount_min": 0
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Piko Hammer",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "armorup",
+					"amount": 2
+				},
+				{
+					"timing": "hit",
+					"condition": "opponent_total_guard_greater_or_equal",
+					"condition_amount": 3,
+					"effect_type": "powerup",
+					"amount": 2,
+					"negative_condition_effect": {
+						"is_negative_effect": true,
+						"effect_type": "powerup",
+						"amount": -1
+					}
+				}
+			]
+		}
+	},
+	{
+		"id": "platinum_mystiquemomo",
+		"type": "special",
+		"display_name": "Mystique Momo",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 2,
+		"range_max": 5,
+		"speed": 5,
+		"power": 2,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "before",
+				"effect_type": "discard_continuous_boost",
+				"required": false,
+				"limitation": "mine",
+				"amount": 1,
+				"overall_effect": {
+					"effect_type": "powerup",
+					"amount": 2
+				}
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Magical Do-Re-Mi Box",
+			"effects": [
+				{
+					"timing": "before",
+					"effect_type": "pull",
+					"amount": 2
+				}
+			]
+		}
+	},
+	{
+		"id": "platinum_mamicircular",
+		"type": "special",
+		"display_name": "Mami Circular",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 1,
+		"speed": 5,
+		"power": 4,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "before",
+				"effect_type": "advance",
+				"amount": 3,
+				"bonus_effect": {
+					"condition": "advanced_through",
+					"effect_type": "ignore_armor"
+				}
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Magical Bat",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "speedup",
+					"amount": -1,
+					"and": {
+						"effect_type": "guardup",
+						"amount": 5
+					}
+				}
+			]
+		}
+	},
+	{
+		"id": "platinum_dramaticsammy",
+		"type": "special",
+		"display_name": "Dramatic Sammy",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 1,
+		"speed": 2,
+		"power": 4,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "during_strike",
+				"effect_type": "ignore_armor",
+				"and": {
+					"effect_type": "ignore_guard"
+				}
+			},
+			{
+				"timing": "before",
+				"effect_type": "choice",
+				"choice": [
+					{ "effect_type": "advance", "amount": 1},
+					{ "effect_type": "advance", "amount": 2}
+				]
+			},
+			{
+				"timing": "hit",
+				"effect_type": "gain_advantage",
+				"and": {
+					"effect_type": "choose_sustain_boost",
+					"amount_min": 0,
+					"amount": 1
+				}
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Magical Bomb",
+			"effects": [
+				{
+					"timing": "hit",
+					"condition": "range",
+					"condition_amount": 2,
+					"effect_type": "powerup",
+					"amount": 2
+				}
+			]
+		}
+	},
+	{
+		"id": "platinum_happymagicka",
+		"type": "special",
+		"display_name": "Happy Magicka",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 3,
+		"speed": 1,
+		"power": 3,
+		"armor": 2,
+		"guard": 4,
+		"effects": [
+			{
+				"timing": "hit",
+				"condtion": "was_hit",
+				"effect_type": "opponent_discard_random",
+				"amount": 1
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Magical Missile",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "speedup",
+					"amount": 2
+				},
+				{
+					"timing": "before",
+					"effect_type": "retreat",
+					"amount": 2
+				}
+			]
+		}
+	},
+	{
+		"NOTE": "PLATINUM CARDS END",
+		"id": "platinum_dreamsally",
+		"type": "special",
+		"display_name": "Dream Sally",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 5,
+		"speed": 1,
+		"power": 3,
+		"armor": 0,
+		"guard": 5,
+		"effects": [
+			{
+				"timing": "hit",
+				"condition": "opponent_moved_or_was_moved",
+				"effect_type": "powerup",
+				"amount": 2
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Magical Boomerang",
+			"effects": [
+				{
+					"timing": "after",
+					"effect_type": "draw",
+					"amount": 1,
+					"and": {
+						"effect_type": "return_attack_to_top_of_deck"
+					}
+				}
+			]
+		},
+		"NOTEEND": "PLATINUM CARDS END"
 	},
 
 	{
