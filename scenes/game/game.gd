@@ -849,6 +849,7 @@ func layout_player_hand(is_player : bool):
 	var num_cards = len(hand_zone.get_children())
 	if num_cards > 0:
 		if is_player:
+			update_eyes_on_hand_icons(hand_zone.get_children())
 			if num_cards == 1:
 				var card : CardBase = hand_zone.get_child(0)
 				var angle = deg_to_rad(90)
@@ -914,6 +915,23 @@ func layout_player_hand(is_player : bool):
 					card.set_resting_position(pos, 0)
 
 	update_card_counts()
+
+func update_eyes_on_hand_icons(cards):
+	var public_hand_info = game_wrapper.get_player_public_hand_info(Enums.PlayerId.PlayerId_Player)
+	for card in cards:
+		# These are cards in hand, so the ids are correct.
+		var id = card.card_id
+		var logic_card = game_wrapper.get_card_database().get_card(id)
+		var card_str_id = logic_card.definition['id']
+		var known_count = 0
+		var questionable_count = 0
+		var on_topdeck = false
+		if card_str_id in public_hand_info['known']:
+			known_count = public_hand_info['known'][card_str_id]
+		if card_str_id in public_hand_info['questionable']:
+			questionable_count = public_hand_info['questionable'][card_str_id]
+		on_topdeck = card_str_id == public_hand_info['topdeck']
+		card.update_hand_icons(known_count, questionable_count, on_topdeck, true)
 
 func _log_event(event):
 	var num = event['number']
@@ -3789,7 +3807,7 @@ func _on_opponent_reference_button_pressed(switch_toggle : bool = false, hide_re
 			if card_str_id in public_hand_info['questionable']:
 				questionable_count = public_hand_info['questionable'][card_str_id]
 			on_topdeck = card_str_id == public_hand_info['topdeck']
-		card.update_hand_icons(known_count, questionable_count, on_topdeck)
+		card.update_hand_icons(known_count, questionable_count, on_topdeck, false)
 	var popout_title = "THEIR DECK REFERENCE (showing remaining card counts in deck+hand"
 	if reference_popout_toggle:
 		popout_title = "THEIR CARDS BEFORE RESHUFFLE (remained in deck+hand"

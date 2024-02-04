@@ -27,6 +27,10 @@ const StatPanel = preload("res://scenes/card/stat_panel.gd")
 @onready var hand2 = $CardFocusFeatures/HandIcons/HandPanel/HandMargin/HandHbox/Hand2
 @onready var question1 = $CardFocusFeatures/HandIcons/HandPanel/HandMargin/HandHbox/Question1
 @onready var question2 = $CardFocusFeatures/HandIcons/HandPanel/HandMargin/HandHbox/Question2
+@onready var handeye1 = $CardFocusFeatures/HandIcons/HandPanel/HandMargin/HandHbox/HandEye1
+@onready var handeye2 = $CardFocusFeatures/HandIcons/HandPanel/HandMargin/HandHbox/HandEye2
+@onready var eyequestion1 = $CardFocusFeatures/HandIcons/HandPanel/HandMargin/HandHbox/EyeQ1
+@onready var eyequestion2 = $CardFocusFeatures/HandIcons/HandPanel/HandMargin/HandHbox/EyeQ2
 @onready var topdeck = $CardFocusFeatures/HandIcons/HandPanel/HandMargin/HandHbox/Topdeck
 
 const ActualCardSize = Vector2(250,350)
@@ -115,7 +119,7 @@ func set_remaining_count(count : int):
 		remaining_count_label.text = "%s Left" % count
 		fancy_card.modulate = NormalColor
 
-func update_hand_icons(known : int, questionable : int, on_topdeck : bool):
+func update_hand_icons(known : int, questionable : int, on_topdeck : bool, player_hand : bool):
 	if known == 2:
 		questionable = 0
 	if known or questionable or on_topdeck:
@@ -123,11 +127,16 @@ func update_hand_icons(known : int, questionable : int, on_topdeck : bool):
 	else:
 		hand_icons_obj.visible = false
 
-	hand1.visible = known > 0
-	hand2.visible = known > 1
-	question1.visible = questionable > 0
-	question2.visible = questionable > 1
+	handeye1.visible = player_hand and known > 0
+	handeye2.visible = player_hand and known > 1
+	eyequestion1.visible = player_hand and questionable > 0
+	eyequestion2.visible = player_hand and questionable > 1
+	hand1.visible = (not player_hand) and known > 0
+	hand2.visible = (not player_hand) and known > 1
+	question1.visible = (not player_hand) and questionable > 0
+	question2.visible = (not player_hand) and questionable > 1
 	topdeck.visible = on_topdeck
+		
 	hand_icon_panel.reset_size()
 	hand_icon_panel.anchors_preset = Control.PRESET_CENTER_BOTTOM
 	hand_icon_panel.anchors_preset = Control.PRESET_CENTER
