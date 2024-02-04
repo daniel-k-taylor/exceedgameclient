@@ -222,6 +222,7 @@ func test_kokonoe_boost_pass_gravitron():
 	# Don't place gravitron
 	assert_true(game_logic.do_choice(player1, 0))
 	assert_eq(player1.get_buddy_location(), -1)
+	advance_turn(player2)
 
 func test_kokonoe_absolute_zero_gravitron_strike():
 	position_players(player1, 3, player2, 7)
