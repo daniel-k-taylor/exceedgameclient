@@ -2852,7 +2852,7 @@
 				"effect_type": "choice",
 				"choice": [
 					{ "effect_type": "gain_advantage" },
-					{ "effect_type": "return_this_attack_to_hand_after_attack", "card_name": "Resshou" }
+					{ "effect_type": "return_attack_to_hand", "card_name": "Resshou" }
 				]
 			}
 		],
@@ -13369,7 +13369,7 @@
 				"timing": "after",
 				"effect_type": "choice",
 				"choice": [
-					{ "effect_type": "return_this_attack_to_hand_after_attack", "card_name": "Binding Beatitude" },
+					{ "effect_type": "return_attack_to_hand", "card_name": "Binding Beatitude" },
 					{ "effect_type": "pass" }
 				]
 			}
@@ -13693,7 +13693,7 @@
 				"timing": "after",
 				"effect_type": "choose_discard",
 				"limitation": "",
-				"destination": "topdeck",
+				"destination": "deck_noshuffle",
 				"amount": 1,
 				"amount_min": 0
 			}
@@ -13736,7 +13736,16 @@
 				"limitation": "continuous",
 				"destination": "play_boost",
 				"amount": 2,
-				"amount_min": 0
+				"amount_min": 0,
+				"discard_effect": {
+					"effect_type": "boost_then_sustain_topdiscard",
+					"amount": "DISCARDED_COUNT",
+					"sustain": false
+				}
+			},
+			{
+				"timing": "after",
+				"effect_type": "sustain_all_boosts"
 			}
 		],
 		"boost": {
@@ -13955,6 +13964,7 @@
 			{
 				"timing": "hit",
 				"condition": "opponent_moved_or_was_moved",
+				"condition_amount": 1,
 				"effect_type": "powerup",
 				"amount": 2
 			}

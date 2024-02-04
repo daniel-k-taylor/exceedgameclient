@@ -34,6 +34,7 @@ var active_strike : Strike = null
 var active_character_action : bool = false
 var active_exceed : bool = false
 var active_overdrive : bool = false
+var active_overdrive_boost_top_discard_on_cleanup : bool = false
 var active_change_cards : bool = false
 var active_start_of_turn_effects : bool = false
 var remaining_overdrive_effects = []
@@ -172,6 +173,30 @@ enum StrikeState {
 	StrikeState_Cleanup_Complete
 }
 
+func get_current_strike_timing():
+	if active_strike:
+		if active_strike.extra_attack_in_progress:
+			# Implement this later if we really need it or it makes sense.
+			assert(false)
+			return "extra attack not implemented"
+		else:
+			match active_strike.strike_state:
+				StrikeState.StrikeState_Initiator_SetEffects, StrikeState.StrikeState_Defender_SetFirst, StrikeState.StrikeState_Defender_SetEffects:
+					return "set_strike"
+				StrikeState.StrikeState_DuringStrikeBonuses:
+					return "during_strike"
+				StrikeState.StrikeState_Card1_Before, StrikeState.StrikeState_Card2_Before:
+					return "before"
+				StrikeState.StrikeState_Card1_Hit, StrikeState.StrikeState_Card2_Hit:
+					return "hit"
+				StrikeState.StrikeState_Card1_After, StrikeState.StrikeState_Card2_After:
+					return "after"
+				StrikeState.StrikeState_Cleanup, StrikeState.StrikeState_Cleanup_Player1Effects, StrikeState.StrikeState_Cleanup_Player2Effects:
+					return "cleanup"
+				_:
+					return "other"
+	return "no active strike"
+
 enum ExtraAttackState {
 	ExtraAttackState_None,
 	ExtraAttackState_PayCosts,
@@ -216,6 +241,7 @@ class Strike:
 	var remaining_forced_boosts = 0
 	var remaining_forced_boosts_source = ""
 	var remaining_forced_boosts_player_id = Enums.PlayerId.PlayerId_Player
+	var remaining_forced_boosts_sustaining = false
 	var cards_in_play: Array[GameCard] = []
 
 	var extra_attack_in_progress = false
@@ -372,6 +398,7 @@ class StrikeStatBoosts:
 	var overwritten_total_armor : int = 0
 	var overwrite_total_guard : bool = false
 	var overwritten_total_guard : int = 0
+	var overwrite_range_to_invalid : bool = false
 	var buddies_that_entered_play_this_strike : Array[String] = []
 	var buddy_immune_to_flip : bool = false
 	var may_generate_gauge_with_force : bool = false
@@ -433,6 +460,7 @@ class StrikeStatBoosts:
 		overwritten_total_armor = 0
 		overwrite_total_guard = false
 		overwritten_total_guard = 0
+		overwrite_range_to_invalid = false
 		buddies_that_entered_play_this_strike = []
 		buddy_immune_to_flip = false
 		may_generate_gauge_with_force = false
@@ -507,6 +535,7 @@ class Player:
 	var pre_strike_movement : int
 	var moved_self_this_strike : bool
 	var spaces_moved_this_strike : int
+	var spaces_moved_or_forced_this_strike : int
 	var sustained_boosts : Array
 	var sustain_next_boost : bool
 	var buddy_starting_offset : int
@@ -594,6 +623,7 @@ class Player:
 		pre_strike_movement = 0
 		moved_self_this_strike = false
 		spaces_moved_this_strike = 0
+		spaces_moved_or_forced_this_strike = 0
 		sustained_boosts = []
 		sustain_next_boost = false
 		buddy_starting_offset = BuddyStartsOutOfArena
@@ -890,17 +920,28 @@ class Player:
 				break
 		return events
 
-	func move_card_from_discard_to_deck(id : int):
+	func move_card_from_discard_to_deck(id : int, shuffle : bool = true):
 		var events = []
 		for i in range(len(discards)):
 			var card = discards[i]
 			if card.id == id:
 				deck.insert(0, card)
 				discards.remove_at(i)
-				random_shuffle_deck()
+				if shuffle:
+					random_shuffle_deck()
+				else:
+					public_topdeck_id = id
 				events += [parent.create_event(Enums.EventType.EventType_AddToDeck, my_id, card.id)]
 				break
 		return events
+
+	func bring_card_to_top_of_discard(id : int):
+		for i in range(len(discards)):
+			var card = discards[i]
+			if card.id == id:
+				discards.remove_at(i)
+				discards.append(card)
+				break
 
 	func shuffle_sealed_to_deck():
 		var events = []
@@ -1057,6 +1098,9 @@ class Player:
 				"ultra":
 					if card.definition['type'] == "ultra":
 						count += 1
+				"continuous":
+					if card.definition['boost']['boost_type'] == "continuous":
+						count += 1
 				_:
 					count += 1
 		return count
@@ -1115,6 +1159,16 @@ class Player:
 			if card.definition['boost']['boost_type'] == "continuous":
 				return card.id
 		return -1
+
+	func get_top_discard_card():
+		if len(discards) > 0:
+			return discards[len(discards) - 1]
+		return null
+
+	func get_top_deck_card():
+		if len(deck) > 0:
+			return deck[0]
+		return null
 
 	func get_buddy_name(buddy_id : String = ""):
 		if 'buddy_display_name' in deck_def:
@@ -1811,16 +1865,18 @@ class Player:
 		return required_force
 
 	func on_position_changed(old_pos, buddy_old_pos, is_self_move):
-		if is_self_move and parent.active_strike:
-			moved_self_this_strike = true
+		if parent.active_strike:
 			var spaces_moved = abs(arena_location - old_pos)
+			spaces_moved_or_forced_this_strike += spaces_moved
+			if is_self_move and parent.active_strike:
+				moved_self_this_strike = true
 
-			# the opponent's space doesn't count
-			var other_player_loc = parent._get_player(parent.get_other_player(my_id)).arena_location
-			if (old_pos < other_player_loc and arena_location > other_player_loc) or (old_pos > other_player_loc and arena_location < other_player_loc):
-				spaces_moved -= 1
-			assert(spaces_moved > 0)
-			spaces_moved_this_strike += spaces_moved
+				# the opponent's space doesn't count
+				var other_player_loc = parent._get_player(parent.get_other_player(my_id)).arena_location
+				if (old_pos < other_player_loc and arena_location > other_player_loc) or (old_pos > other_player_loc and arena_location < other_player_loc):
+					spaces_moved -= 1
+				assert(spaces_moved > 0)
+				spaces_moved_this_strike += spaces_moved
 
 		if arena_location == get_buddy_location():
 			if old_pos != buddy_old_pos:
@@ -2513,6 +2569,8 @@ func advance_to_next_turn():
 	opponent.moved_self_this_strike = false
 	player.spaces_moved_this_strike = 0
 	opponent.spaces_moved_this_strike = 0
+	player.spaces_moved_or_forced_this_strike = 0
+	opponent.spaces_moved_or_forced_this_strike = 0
 	player.cards_that_will_not_hit = []
 	opponent.cards_that_will_not_hit = []
 	player.cards_invalid_during_strike = []
@@ -2558,7 +2616,12 @@ func advance_to_next_turn():
 			active_overdrive = true
 			remaining_overdrive_effects = overdrive_effects
 			_append_log_full(Enums.LogType.LogType_Default, starting_turn_player, "'s Overdrive Effects!")
-			events += do_remaining_overdrive(starting_turn_player)
+			# Intentional events = because events are passed in.
+			# Note: This particular call is never expected to add the events to the queue
+			# and return nothing. If it were, this function should also be passing in events
+			# until we get to a top-level function that was called from game_wrapper.
+			# For simplicity though, advance_to_next_turn is left as is.
+			events = do_remaining_overdrive(events, starting_turn_player)
 		else:
 			events += start_begin_turn()
 	return events
@@ -2823,6 +2886,9 @@ func is_effect_condition_met(performing_player : Player, effect, local_condition
 		elif condition == "moved_during_strike":
 			var required_amount = effect['condition_amount']
 			return performing_player.spaces_moved_this_strike >= required_amount
+		elif condition == "opponent_moved_or_was_moved":
+			var required_amount = effect['condition_amount']
+			return performing_player.spaces_moved_or_forced_this_strike >= required_amount
 		elif condition == "initiated_face_up":
 			var initiated_strike = active_strike.initiator == performing_player
 			return initiated_strike and active_strike.initiator_set_face_up
@@ -3085,6 +3151,12 @@ func is_effect_condition_met(performing_player : Player, effect, local_condition
 				return get_total_speed(performing_player) > get_total_speed(other_player)
 			else:
 				return get_total_speed(performing_player) > effect['condition_amount']
+		elif condition == "top_discard_is_continous_boost":
+			var top_discard_card = performing_player.get_top_discard_card()
+			if top_discard_card:
+				return top_discard_card.definition['boost']['boost_type'] == "continuous_boost"
+			else:
+				return false
 		else:
 			assert(false, "Unimplemented condition")
 		# Unmet condition
@@ -3120,8 +3192,16 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 	var ignore_extra_effects = false
 	match effect['effect_type']:
 		"add_attack_effect":
+			var current_timing = get_current_strike_timing()
 			var effect_to_add = effect['added_effect']
-			performing_player.strike_stat_boosts.added_attack_effects.append(effect_to_add)
+			var to_add_timing = effect['added_effect']['timing']
+			effect_to_add['card_id'] = card_id
+			if current_timing == to_add_timing:
+				# Add it into the current remaining effects list.
+				# Assumption! There is no way to add stuff during the opponent's timings.
+				add_remaining_effect(effect_to_add)
+			else:
+				performing_player.strike_stat_boosts.added_attack_effects.append(effect_to_add)
 		"add_boost_to_gauge_on_strike_cleanup":
 			if card_id == -1:
 				assert(false)
@@ -3286,6 +3366,7 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 				printlog("ERROR: Unimplemented path to boost_applies_if_on_buddy")
 			performing_player.set_boost_applies_if_on_buddy(card_id)
 		"boost_from_gauge":
+			# This effect is expected to be a character action.
 			if performing_player.can_boost_something(true, true, effect['limitation']):
 				events += [create_event(Enums.EventType.EventType_ForceStartBoost, performing_player.my_id, 0, "", true, true, effect['limitation'])]
 				change_game_state(Enums.GameState.GameState_PlayerDecision)
@@ -3297,7 +3378,14 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 				decision_info.limitation = effect['limitation']
 			else:
 				_append_log_full(Enums.LogType.LogType_Effect, performing_player, "has no valid cards in gauge to boost with.")
+		"boost_discarded_overdrive":
+			assert(active_overdrive)
+			# Doing the boost here in handle_strike_effect is awkward as do_boost is ideal but
+			# queues all the events. Instead, set a flag and do it on overdrive cleanup.
+			active_overdrive_boost_top_discard_on_cleanup = true
 		"boost_this_then_sustain":
+			# This effect is expected to be mid-strike.
+			assert(active_strike)
 			var card_name = card_db.get_card_name(card_id)
 			_append_log_full(Enums.LogType.LogType_Effect, performing_player, "boosts and sustains %s." % card_name)
 			performing_player.strike_stat_boosts.move_strike_to_boosts = true
@@ -3305,6 +3393,8 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 				var boost_effect = effect['boost_effect']
 				events += handle_strike_effect(card_id, boost_effect, performing_player)
 		"boost_then_sustain":
+			# This effect is expected to be mid-strike.
+			assert(active_strike)
 			var allow_gauge = 'allow_gauge' in effect and effect['allow_gauge']
 			var only_gauge = 'only_gauge' in effect and effect['only_gauge']
 			if performing_player.can_boost_something(allow_gauge, only_gauge, effect['limitation']):
@@ -3322,31 +3412,55 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 				if len(performing_player.hand) == 0 or only_gauge: # Avoid leaking information
 					_append_log_full(Enums.LogType.LogType_Effect, performing_player, "has no cards available to boost.")
 		"boost_then_sustain_topdeck":
-			if performing_player.deck.size() > 0:
-				performing_player.cancel_blocked_this_turn = true
-				change_game_state(Enums.GameState.GameState_PlayerDecision)
-				decision_info.clear()
-				decision_info.type = Enums.DecisionType.DecisionType_ForceBoostSustainTopdeck
-				decision_info.player = performing_player.my_id
-				active_strike.remaining_forced_boosts = effect['amount']
-				active_strike.remaining_forced_boosts_source = "topdeck"
-				active_strike.remaining_forced_boosts_player_id = performing_player.my_id
+			# This effect is expected to be mid-strike.
+			assert(active_strike)
+			var top_deck_card = performing_player.get_top_deck_card()
+			if top_deck_card:
+				var skip = false
+				if 'discard_if_not_continuous' in effect and effect['discard_if_not_continuous']:
+					if top_deck_card.definition['boost']['boost_type'] != "continuous_boost":
+						skip = true
+						events += performing_player.discard_topdeck()
+
+				if not skip:
+					var sustain = true
+					if 'sustain' in effect and not effect['sustain']:
+						sustain = false
+					performing_player.cancel_blocked_this_turn = true
+					change_game_state(Enums.GameState.GameState_PlayerDecision)
+					decision_info.clear()
+					decision_info.type = Enums.DecisionType.DecisionType_ForceBoostSustainTopdeck
+					decision_info.player = performing_player.my_id
+					active_strike.remaining_forced_boosts_sustaining = sustain
+					active_strike.remaining_forced_boosts = effect['amount']
+					active_strike.remaining_forced_boosts_source = "topdeck"
+					active_strike.remaining_forced_boosts_player_id = performing_player.my_id
 			else:
 				_append_log_full(Enums.LogType.LogType_Effect, performing_player, "has no cards in deck to boost with.")
 		"boost_then_sustain_topdiscard":
+			# This effect is expected to be mid-strike.
+			assert(active_strike)
 			var boost_card_id = performing_player.get_top_continuous_boost_in_discard()
 			if boost_card_id != -1:
+				var sustain = true
+				if 'sustain' in effect and not effect['sustain']:
+					sustain = false
 				performing_player.cancel_blocked_this_turn = true
 				change_game_state(Enums.GameState.GameState_PlayerDecision)
 				decision_info.clear()
 				decision_info.type = Enums.DecisionType.DecisionType_ForceBoostSustainTopDiscard
 				decision_info.player = performing_player.my_id
+				active_strike.remaining_forced_boosts_sustaining = sustain
+				var amount = effect['amount']
+				if amount is String and amount == "DISCARDED_COUNT":
+					amount = len(effect['discarded_card_ids'])
 				active_strike.remaining_forced_boosts = effect['amount']
 				active_strike.remaining_forced_boosts_source = "topdiscard"
 				active_strike.remaining_forced_boosts_player_id = performing_player.my_id
 			else:
 				_append_log_full(Enums.LogType.LogType_Effect, performing_player, "has no cards in discards to boost with.")
 		"boost_then_strike":
+			# This effect is expected to be a character action.
 			var allow_gauge = 'allow_gauge' in effect and effect['allow_gauge']
 			var only_gauge = 'only_gauge' in effect and effect['only_gauge']
 			if performing_player.can_boost_something(allow_gauge, only_gauge, effect['limitation']):
@@ -4091,6 +4205,7 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 			_append_log_full(Enums.LogType.LogType_Effect, performing_player, "'s %s is no longer blocking opponent movement." % buddy_name)
 		"return_attack_to_top_of_deck":
 			performing_player.strike_stat_boosts.attack_to_topdeck_on_cleanup = true
+			change_stats_when_attack_leaves_play(performing_player)
 		"opponent_discard_choose":
 			if opposing_player.hand.size() > effect['amount']:
 				change_game_state(Enums.GameState.GameState_PlayerDecision)
@@ -4530,6 +4645,7 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 			events += performing_player.return_all_cards_gauge_to_hand()
 		"return_attack_to_hand":
 			performing_player.strike_stat_boosts.return_attack_to_hand = true
+			change_stats_when_attack_leaves_play(performing_player)
 		"return_sealed_with_same_speed":
 			var sealed_card_id = decision_info.amount
 			var sealed_card = card_db.get_card(sealed_card_id)
@@ -4542,9 +4658,6 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 				var card_name = target_card.definition["display_name"]
 				_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "adds the sealed card with speed %s to their hand: %s." % [sealed_card.definition['speed'], card_name])
 				events += performing_player.move_card_from_sealed_to_hand(target_card.id)
-		"return_this_attack_to_hand_after_attack":
-			performing_player.strike_stat_boosts.return_attack_to_hand = true
-			change_stats_when_attack_leaves_play(performing_player)
 		"return_this_boost_to_hand_strike_effect":
 			var card_name = card_db.get_card_name(card_id)
 			_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "returns boosted card %s to their hand." % card_name)
@@ -4859,6 +4972,12 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 			events += [create_event(Enums.EventType.EventType_Strike_EffectDoStrike, performing_player.my_id, 0, "", strike_info)]
 		"stun_immunity":
 			performing_player.strike_stat_boosts.stun_immunity = true
+		"sustain_all_boosts":
+			for boost in performing_player.continuous_boosts:
+				if boost.id not in performing_player.sustained_boosts:
+					performing_player.sustained_boosts.append(boost.id)
+			_append_log_full(Enums.LogType.LogType_Effect, performing_player, "sustains all continuous boosts.")
+			events += [create_event(Enums.EventType.EventType_SustainBoost, performing_player.my_id, -1)]
 		"sustain_this":
 			performing_player.sustained_boosts.append(card_id)
 			var card = card_db.get_card(card_id)
@@ -4967,14 +5086,32 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 	return events
 
 func change_stats_when_attack_leaves_play(performing_player : Player):
+	# Set total power and speed to invalid (0).
+	# Set range to invalid - NOTE! If a buddy character can remove attacks, check all buddy range check functions.
+	# Lose printed armor/guard values but keep boosts/powerups.
+	# Lose focus ignore push/pull.
+	# Lose block when_hit_force_for_armor
+	var card = active_strike.get_player_card(performing_player)
+
+	# Invalid stats.
 	performing_player.strike_stat_boosts.overwrite_total_power = true
 	performing_player.strike_stat_boosts.overwritten_total_power = 0
 	performing_player.strike_stat_boosts.overwrite_total_speed = true
 	performing_player.strike_stat_boosts.overwritten_total_speed = 0
-	performing_player.strike_stat_boosts.overwrite_total_armor = true
-	performing_player.strike_stat_boosts.overwritten_total_armor = 0
-	performing_player.strike_stat_boosts.overwrite_total_guard = true
-	performing_player.strike_stat_boosts.overwritten_total_guard = 0
+	performing_player.strike_stat_boosts.overwrite_range_to_invalid = true
+
+	# Remove printed stats by subtracting from bonuses.
+	performing_player.strike_stat_boosts.armor -= get_card_stat(performing_player, card, "armor")
+	performing_player.strike_stat_boosts.guard -= get_card_stat(performing_player, card, "guard")
+
+	# Assumption! No character that currently has attacks returning to paly can gain
+	# the focus or block passives twice from a boost and a card somehow.
+	# You would also lose ignore armor/guard but that shouldn't matter.
+	performing_player.strike_stat_boosts.ignore_push_and_pull = false
+	performing_player.strike_stat_boosts.when_hit_force_for_armor = false
+
+	# If a character that can do this has Cleanup effects on the strike,
+	# this needs to be added here somehow as well.
 
 func handle_place_buddy_at_range(performing_player : Player, card_id, effect):
 	var events = []
@@ -5303,8 +5440,7 @@ func do_remaining_effects(performing_player : Player, next_state):
 			active_strike.strike_state = next_state
 	return events
 
-func do_remaining_overdrive(performing_player : Player):
-	var events = []
+func do_remaining_overdrive(events, performing_player : Player):
 	change_game_state(Enums.GameState.GameState_Boost_Processing)
 	while remaining_overdrive_effects.size() > 0:
 		var effect = remaining_overdrive_effects[0]
@@ -5316,7 +5452,23 @@ func do_remaining_overdrive(performing_player : Player):
 
 	if game_state != Enums.GameState.GameState_PlayerDecision:
 		active_overdrive = false
-		events += start_begin_turn()
+		# Overdrive Cleanup
+		if active_overdrive_boost_top_discard_on_cleanup:
+			# Assumption! The top discarded card is a continuous boost and
+			# that boost has NO choices or decisions, it just goes into play.
+			# do_boost will complete all the way through boost resolution.
+			# Also, this boost has no cost.
+			var card = performing_player.get_top_discard_card()
+			# Put the card in the hand so do_boost has easy access.
+			events += performing_player.move_card_from_discard_to_hand(card.id)
+			# Queue events because do_boost will have its own events stack.
+			event_queue += events
+			# Intentional events = as events were queued and no more
+			# will be added when this callstack returns.
+			events = []
+			do_boost(performing_player, card.id, [])
+		else:
+			events += start_begin_turn()
 
 	return events
 
@@ -5449,7 +5601,7 @@ func do_effects_for_timing(timing_name : String, performing_player : Player, car
 	return events
 
 func is_location_in_range(attacking_player, card, test_location : int):
-	if get_card_stat(attacking_player, card, 'range_min') == -1:
+	if get_card_stat(attacking_player, card, 'range_min') == -1 or attacking_player.strike_stat_boosts.overwrite_range_to_invalid:
 		return false
 	var min_range = get_card_stat(attacking_player, card, 'range_min') + attacking_player.strike_stat_boosts.min_range
 	var max_range = get_card_stat(attacking_player, card, 'range_max') + attacking_player.strike_stat_boosts.max_range
@@ -5466,7 +5618,7 @@ func is_location_in_range(attacking_player, card, test_location : int):
 	return false
 
 func in_range(attacking_player, defending_player, card, combat_logging=false):
-	if attacking_player.strike_stat_boosts.attack_does_not_hit:
+	if attacking_player.strike_stat_boosts.attack_does_not_hit or attacking_player.strike_stat_boosts.overwrite_range_to_invalid:
 		return false
 	if defending_player.strike_stat_boosts.dodge_attacks:
 		if combat_logging:
@@ -6063,6 +6215,9 @@ func begin_extra_attack(events, performing_player : Player, card_id : int):
 	performing_player.strike_stat_boosts.ignore_armor = false
 	performing_player.strike_stat_boosts.ignore_guard = false
 
+	# Extra attacks are unaffected by the attack_does_not_hit effect from hitting Nirvana or the effect on Block.
+	performing_player.strike_stat_boosts.attack_does_not_hit = false
+
 	# This can happen with more After effects to resolve.
 	# This should be fine as we use a different remaining effects list.
 	# Also, nothing that uses active_strike.effects_resolved_in_timing should be active.
@@ -6186,7 +6341,7 @@ func determine_if_attack_hits(events, attacker_player : Player, defender_player 
 func do_topdeck_boost(events):
 	# Unique case where we need to push all events to the queue, draw the top deck, and boost it.
 	var performing_player = _get_player(active_strike.remaining_forced_boosts_player_id)
-	performing_player.sustain_next_boost = true
+	performing_player.sustain_next_boost = active_strike.remaining_forced_boosts_sustaining
 	active_strike.remaining_forced_boosts -= 1
 
 	events += performing_player.draw(1)
@@ -6198,7 +6353,7 @@ func do_topdeck_boost(events):
 func do_discard_boost(events):
 	# Unique case where we need to push all events to the queue, draw a card from the discard, and boost it.
 	var performing_player = _get_player(active_strike.remaining_forced_boosts_player_id)
-	performing_player.sustain_next_boost = true
+	performing_player.sustain_next_boost = active_strike.remaining_forced_boosts_sustaining
 	active_strike.remaining_forced_boosts -= 1
 
 	var boost_card_id = performing_player.get_top_continuous_boost_in_discard()
@@ -6388,7 +6543,7 @@ func boost_play_cleanup(events, performing_player : Player):
 				events = continue_resolve_strike(events)
 		else:
 			active_boost = null
-			if not preparing_strike:
+			if not preparing_strike and not active_overdrive:
 				events += check_hand_size_advance_turn(performing_player)
 	return events
 
@@ -7036,7 +7191,8 @@ func do_card_from_hand_to_gauge(performing_player : Player, card_ids : Array) ->
 	if active_start_of_turn_effects:
 		events += continue_begin_turn()
 	elif active_overdrive:
-		events += do_remaining_overdrive(performing_player)
+		# Intentional events = because events are passed in.
+		events = do_remaining_overdrive(events, performing_player)
 	elif active_boost:
 		active_boost.effects_resolved += 1
 		# Intentional events = because events are passed in.
@@ -7079,7 +7235,8 @@ func do_boost_name_card_choice_effect(performing_player : Player, card_id : int)
 	if active_start_of_turn_effects:
 		events += continue_begin_turn()
 	elif active_overdrive:
-		events += do_remaining_overdrive(performing_player)
+		# Intentional events = because events are passed in.
+		events = do_remaining_overdrive(events, performing_player)
 	elif active_boost:
 		active_boost.effects_resolved += 1
 		# Intentional events = because events are passed in.
@@ -7140,7 +7297,8 @@ func do_choice(performing_player : Player, choice_index : int) -> bool:
 			if active_start_of_turn_effects:
 				events += continue_begin_turn()
 			elif active_overdrive:
-				events += do_remaining_overdrive(performing_player)
+				# Intentional events = because events are passed in.
+				events = do_remaining_overdrive(events, performing_player)
 			elif active_boost:
 				active_boost.effects_resolved += 1
 				# Intentional events = because events are passed in.
@@ -7269,6 +7427,10 @@ func do_choose_from_discard(performing_player : Player, card_ids : Array) -> boo
 				if card.definition['type'] != "ultra":
 					printlog("ERROR: Tried to choose from discard with card that doesn't meet limitation ultra.")
 					return false
+			"continuous":
+				if card.definition['boost']['boost_type'] != "continuous":
+					printlog("ERROR: Tried to choose from discard with card that doesn't meet limitation continuous.")
+					return false
 			_:
 				pass
 
@@ -7281,6 +7443,8 @@ func do_choose_from_discard(performing_player : Player, card_ids : Array) -> boo
 			match destination:
 				"deck":
 					events += performing_player.move_card_from_discard_to_deck(card_id)
+				"deck_noshuffle":
+					events += performing_player.move_card_from_discard_to_deck(card_id, false)
 				"gauge":
 					events += performing_player.move_card_from_discard_to_gauge(card_id)
 				"hand":
@@ -7289,6 +7453,13 @@ func do_choose_from_discard(performing_player : Player, card_ids : Array) -> boo
 					events += performing_player.move_cards_to_overdrive([card_id], "discard")
 				"sealed":
 					events += do_seal_effect(performing_player, card_id, "discard")
+				"play_boost":
+					# This effect currently is expected to put the discarded cards on top of the discard pile.
+					# Then the discard_effect is expected to be boost_then_sustain_topdiscard.
+					# Assumption that a character doing this doesn't have boosts that alter the discard pile.
+					# If a character can put things into discard as a boost, then this could
+					# be modified to use the bottom of the discard, or some other zone.
+					performing_player.bring_card_to_top_of_discard(card_id)
 				_:
 					printlog("ERROR: Choose from discard destination not implemented.")
 					assert(false, "Choose from discard destination not implemented.")
@@ -7326,7 +7497,9 @@ func do_choose_from_discard(performing_player : Player, card_ids : Array) -> boo
 	if dest_name == "deck":
 		dest_name = "top of deck"
 	var card_names = card_db.get_card_names(card_ids)
-	if secret_zones:
+	if decision_info.destination == "play_boost":
+		_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "plays %s from %s." % [card_names, decision_info.source])
+	elif secret_zones:
 		_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "moves %s card(s) from %s to %s." % [str(len(card_ids)), decision_info.source, dest_name])
 	else:
 		_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "moves card(s) from %s to %s: %s." % [decision_info.source, dest_name, card_names])
@@ -7346,7 +7519,8 @@ func do_choose_from_discard(performing_player : Player, card_ids : Array) -> boo
 		if active_start_of_turn_effects:
 			events += continue_begin_turn()
 		elif active_overdrive:
-			events += do_remaining_overdrive(performing_player)
+			# Intentional events = because events are passed in.
+			events = do_remaining_overdrive(events, performing_player)
 		elif active_boost:
 			active_boost.effects_resolved += 1
 			# Intentional events = because events are passed in.
@@ -7426,7 +7600,8 @@ func do_force_for_effect(performing_player : Player, card_ids : Array, treat_ult
 		if active_start_of_turn_effects:
 			events += continue_begin_turn()
 		elif active_overdrive:
-			events += do_remaining_overdrive(performing_player)
+			# Intentional events = because events are passed in.
+			events = do_remaining_overdrive(events, performing_player)
 		elif active_boost:
 			active_boost.effects_resolved += 1
 			# Intentional events = because events are passed in.
@@ -7504,7 +7679,8 @@ func do_gauge_for_effect(performing_player : Player, card_ids : Array) -> bool:
 		if active_start_of_turn_effects:
 			events += continue_begin_turn()
 		elif active_overdrive:
-			events += do_remaining_overdrive(performing_player)
+			# Intentional events = because events are passed in.
+			events = do_remaining_overdrive(events, performing_player)
 		elif active_boost:
 			active_boost.effects_resolved += 1
 			# Intentional events = because events are passed in.
@@ -7570,7 +7746,8 @@ func do_choose_to_discard(performing_player : Player, card_ids):
 		if active_start_of_turn_effects:
 			events += continue_begin_turn()
 		elif active_overdrive:
-			events += do_remaining_overdrive(performing_player)
+			# Intentional events = because events are passed in.
+			events = do_remaining_overdrive(events, performing_player)
 		elif active_boost:
 			active_boost.effects_resolved += 1
 			# Intentional events = because events are passed in.

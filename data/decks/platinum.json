@@ -9,8 +9,9 @@
 		"effect_type": "pass"
 	},
 	"overdrive_effect": {
-		"condition": "top_discard_continous",
-		"effect_type": "boost_top_discard"
+		"NOTE": "Since the overdrive discarded a card, this is the just discarded card",
+		"condition": "top_discard_is_continous_boost",
+		"effect_type": "boost_discarded_overdrive"
 	},
 	"ability_effects": [
 		{
@@ -21,9 +22,11 @@
 		},
 		{
 			"timing": "cleanup",
+			"description": "Platinum Cleanup Boost",
 			"effect_type": "choice",
 			"choice": [
 				{
+					"description": "Platinum Cleanup Boost",
 					"effect_type": "boost_then_sustain_topdeck",
 					"amount": 1,
 					"discard_if_not_continuous": true
@@ -41,23 +44,27 @@
 		},
 		{
 			"timing": "cleanup",
-			"effect_type": "add_attack_effect",
-			"added_effect": {
-				"effect_type": "choose_sustain_boost",
-				"amount_min": 0,
-				"amount": 1
-			},
-			"and": {
-				"effect_type": "choice",
-				"choice": [
-					{
+			"description": "Platinum (Exceed) Cleanup Boost",
+			"effect_type": "choice",
+			"choice": [
+				{
+					"description": "Platinum (Exceed) Cleanup Boost",
+					"effect_type": "add_attack_effect",
+					"added_effect": {
+						"timing": "cleanup",
+						"effect_type": "choose_sustain_boost",
+						"amount_min": 0,
+						"amount": 1
+					},
+					"and": {
 						"effect_type": "boost_then_sustain_topdeck",
+						"sustain": false,
 						"amount": 1,
 						"discard_if_not_continuous": true
-					},
-					{ "effect_type": "pass" }
-				]
-			}
+					}
+				},
+				{ "effect_type": "pass" }
+			]
 		}
 	],
 	"cards": [

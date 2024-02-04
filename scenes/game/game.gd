@@ -772,7 +772,8 @@ func can_select_card(card):
 			return in_appropriate_reference and len(selected_cards) < select_card_require_max
 		UISubState.UISubState_SelectCards_ChooseDiscardToDestination:
 			var card_db = game_wrapper.get_card_database()
-			var card_type = card_db.get_card(card.card_id).definition['type']
+			var card = card_db.get_card(card.card_id)
+			var card_type = card.definition['type']
 			var limitation = game_wrapper.get_decision_info().limitation
 			var source = game_wrapper.get_decision_info().source
 			var meets_limitation = false
@@ -781,6 +782,8 @@ func can_select_card(card):
 					meets_limitation = card_type == "special"
 				"ultra":
 					meets_limitation = card_type == "ultra"
+				"continuous":
+					meets_limitation = card.definition['boost']['boost_type'] == "continuous"
 				_:
 					meets_limitation = true
 			var in_correct_source = false
