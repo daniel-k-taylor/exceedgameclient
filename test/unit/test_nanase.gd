@@ -243,6 +243,23 @@ func test_nanase_ua_exceed_adv():
 	validate_positions(player1, 2, player2, 7)
 	advance_turn(player1)
 
+func test_nanase_ua_exceed_gethit():
+	position_players(player1, 5, player2, 7)
+	player1.exceed()
+	give_gauge(player1, 1)
+	assert_true(game_logic.do_character_action(player1, [player1.gauge[0].id]))
+	var events = game_logic.get_latest_events()
+	validate_has_event(events, Enums.EventType.EventType_ForceStartStrike, player1)
+	give_player_specific_card(player1, "uni_normal_dive", TestCardId1)
+	give_player_specific_card(player2, "uni_normal_assault", TestCardId2)
+	assert_true(game_logic.do_strike(player1, TestCardId1, false, -1))
+	# Set strike choice
+	assert_true(game_logic.do_choice(player1, 0)) # Powerup
+	assert_true(game_logic.do_strike(player2, TestCardId2, false, -1))
+	validate_life(player1, 25, player2, 30)
+	validate_positions(player1, 5, player2, 6)
+	advance_turn(player2)
+
 func test_nanase_angesinvitation_speeddodge():
 	position_players(player1, 3, player2, 2)
 	execute_strike(player1, player2, "nanase_angesinvitation", "standard_normal_cross", [], [], false, false, [], [], 0, [])
