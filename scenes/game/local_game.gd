@@ -2206,12 +2206,18 @@ class Player:
 	func disable_boost_effects(card : GameCard, buddy_ignore_condition : bool = false):
 		var opposing_player = parent._get_player(parent.get_other_player(my_id))
 		# Undo boost properties
+		var current_timing = parent.get_current_strike_timing()
 		for effect in card.definition['boost']['effects']:
 			if effect['timing'] == "now":
 				match effect['effect_type']:
 					"ignore_push_and_pull_passive_bonus":
 						ignore_push_and_pull = false
 						parent._append_log_full(Enums.LogType.LogType_Effect, self, "no longer ignores pushes and pulls.")
+			elif effect['timing'] == current_timing:
+				# Need to remove these effects from the remaining effects.
+				assert(current_timing != "during_strike", "Can't remove boosts at this timing, unexpected, and effects are handled differently.")
+				parent.remove_remaining_effect(effect, card.id)
+
 		if parent.active_strike:
 			# Undo continuous effects
 			for effect in _find_during_strike_effects(card):
