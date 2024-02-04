@@ -1517,6 +1517,8 @@ class Player:
 	func discard(card_ids : Array):
 		var events = []
 		for discard_id in card_ids:
+			var found_card = false
+
 			# From hand
 			for i in range(len(hand)-1, -1, -1):
 				var card = hand[i]
@@ -1524,7 +1526,9 @@ class Player:
 					hand.remove_at(i)
 					events += add_to_discards(card)
 					on_hand_remove_public_card(discard_id)
+					found_card = true
 					break
+			if found_card: continue
 
 			# From gauge
 			for i in range(len(gauge)-1, -1, -1):
@@ -1532,7 +1536,9 @@ class Player:
 				if card.id == discard_id:
 					gauge.remove_at(i)
 					events += add_to_discards(card)
+					found_card = true
 					break
+			if found_card: continue
 
 			# From overdrive
 			for i in range(len(overdrive)-1, -1, -1):
@@ -1540,7 +1546,12 @@ class Player:
 				if card.id == discard_id:
 					overdrive.remove_at(i)
 					events += add_to_discards(card)
+					found_card = true
 					break
+
+			if not found_card:
+				parent.printlog("ERROR: card to discard not found")
+
 		return events
 
 	func move_cards_to_overdrive(card_ids : Array, source : String):
@@ -3065,7 +3076,7 @@ func is_effect_condition_met(performing_player : Player, effect, local_condition
 				return false
 			var buddy_location = other_player.get_buddy_location(buddy_id)
 			var attack_card = active_strike.get_player_card(performing_player)
-			return is_location_in_range(performing_player, attack_card, buddy_location) or performing_player.arena_location == buddy_location
+			return is_location_in_range(performing_player, attack_card, buddy_location) or performing_player.is_in_location(buddy_location)
 		elif condition == "buddy_space_unoccupied":
 			var buddy_id = ""
 			if 'condition_buddy_id' in effect:

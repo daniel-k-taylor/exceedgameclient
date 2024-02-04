@@ -257,7 +257,7 @@ func test_nine_coral_over_5():
 	execute_strike(player1, player2, "nine_coral", "standard_normal_grasp", [], [], false, false)
 	validate_life(player1, 30, player2, 22)
 
-func test_emerald_miss():
+func test_nine_emerald_miss():
 	validate_life(player1, 30, player2, 30)
 	position_players(player1, 1, player2, 8)
 	_setup_sealed_area(player1, [7, 5])
@@ -266,7 +266,7 @@ func test_emerald_miss():
 	validate_life(player1, 30, player2, 30)
 	validate_positions(player1, 1, player2, 8)
 
-func test_emerald_hit():
+func test_nine_emerald_hit():
 	validate_life(player1, 30, player2, 30)
 	position_players(player1, 1, player2, 8)
 	_setup_sealed_area(player1, [7, 5, 4, 3])
@@ -275,7 +275,7 @@ func test_emerald_hit():
 	validate_life(player1, 30, player2, 28)
 	validate_positions(player1, 1, player2, 9)
 
-func test_kunzite_range():
+func test_nine_kunzite_range():
 	validate_life(player1, 30, player2, 30)
 	position_players(player1, 2, player2, 5)
 
@@ -283,7 +283,7 @@ func test_kunzite_range():
 	validate_life(player1, 30, player2, 25)
 	validate_positions(player1, 2, player2, 8)
 
-func test_lapis_single():
+func test_nine_lapis_single():
 	validate_life(player1, 30, player2, 30)
 	position_players(player1, 3, player2, 4)
 	_setup_sealed_area(player1, [6])
@@ -292,7 +292,7 @@ func test_lapis_single():
 	validate_life(player1, 30, player2, 28)
 	validate_positions(player1, 5, player2, 4)
 
-func test_lapis_multi():
+func test_nine_lapis_multi():
 	validate_life(player1, 30, player2, 30)
 	position_players(player1, 3, player2, 4)
 	_setup_sealed_area(player1, [6, 5, 4, 3])
@@ -301,7 +301,7 @@ func test_lapis_multi():
 	validate_life(player1, 30, player2, 28)
 	validate_positions(player1, 7, player2, 4)
 
-func test_colorless_full_cost():
+func test_nine_colorless_full_cost():
 	validate_life(player1, 30, player2, 30)
 	position_players(player1, 3, player2, 6)
 	give_gauge(player1, 9)
