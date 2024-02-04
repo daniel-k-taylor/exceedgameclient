@@ -10453,7 +10453,7 @@
 				"timing": "before",
 				"condition": "speed_greater_than",
 				"condition_amount": "OPPONENT_SPEED",
-				"effect_type": "atack_does_not_hit",
+				"effect_type": "attack_does_not_hit",
 				"and": {
 					"effect_type": "lose_all_armor"
 				}
