@@ -1028,6 +1028,11 @@ func _on_stunned(event):
 func _on_end_of_strike():
 	player_bonus_panel.visible = false
 	opponent_bonus_panel.visible = false
+	for zone in $AllCards.get_children():
+		if zone is Node2D:
+			for card in zone.get_children():
+				card.set_backlight_visible(false)
+				card.set_stun(false)
 
 func _on_advance_turn():
 	var active_player : Enums.PlayerId = game_wrapper.get_active_player()
@@ -1043,11 +1048,6 @@ func _on_advance_turn():
 
 	clear_selected_cards()
 	close_popout()
-	for zone in $AllCards.get_children():
-		if zone is Node2D:
-			for card in zone.get_children():
-				card.set_backlight_visible(false)
-				card.set_stun(false)
 
 	spawn_damage_popup("Ready!", active_player)
 	return SmallNoticeDelay
