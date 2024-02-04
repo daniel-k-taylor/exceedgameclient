@@ -1992,7 +1992,7 @@ class Player:
 			pre_strike_movement += distance
 		var position_changed = arena_location != new_location
 		arena_location = new_location
-		events += [parent.create_event(Enums.EventType.EventType_Move, my_id, new_location, movement_type, distance, previous_location)]
+		events += [parent.create_event(Enums.EventType.EventType_Move, my_id, new_location, movement_type, amount, previous_location)]
 		if position_changed:
 			on_position_changed(previous_location, get_buddy_location(), is_self_move)
 			events += add_boosts_to_gauge_on_move()
