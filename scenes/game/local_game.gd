@@ -1752,8 +1752,10 @@ class Player:
 		var chosen_card_ids = []
 		for i in range(amount):
 			if len(hand_card_ids) > 0:
-				var random_card_id = hand_card_ids[parent.get_random_int() % len(hand_card_ids)]
+				var random_idx = parent.get_random_int() % len(hand_card_ids)
+				var random_card_id = hand_card_ids[random_idx]
 				chosen_card_ids.append(random_card_id)
+				hand_card_ids.remove_at(random_idx)
 		return chosen_card_ids
 
 	func discard_random(amount):

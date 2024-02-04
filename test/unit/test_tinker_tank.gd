@@ -291,8 +291,6 @@ func test_tinker_tank_force_to_move_past():
 	validate_positions(player1, 8, player2, 6)
 
 func test_tinker_tank_force_to_be_moved_past():
-	default_game_setup()
-
 	_setup_tank()
 	advance_turn(player1)
 	position_players(player1, 3, player2, 6)
@@ -302,7 +300,6 @@ func test_tinker_tank_force_to_be_moved_past():
 	# skipping 2 because it's in their gauge already
 	give_player_specific_card(player2, "standard_normal_grasp", TestCardId3)
 	give_player_specific_card(player2, "standard_normal_grasp", TestCardId4)
-	give_player_specific_card(player2, "standard_normal_grasp", TestCardId5)
 
 	assert_true(game_logic.do_move(player2, [TestCardId1, TestCardId2, TestCardId3, TestCardId4], 1))
 	validate_positions(player1, 3, player2, 1)
