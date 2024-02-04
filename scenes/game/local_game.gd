@@ -2776,7 +2776,7 @@ func begin_resolve_strike(events):
 func get_total_speed(check_player):
 	if check_player.strike_stat_boosts.overwrite_total_speed:
 		return check_player.strike_stat_boosts.overwritten_total_speed
-		
+
 	var check_card = active_strike.get_player_card(check_player)
 	var bonus_speed = check_player.strike_stat_boosts.speed * check_player.strike_stat_boosts.speed_bonus_multiplier
 	var speed = check_card.definition['speed'] + bonus_speed
@@ -4945,6 +4945,9 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 		"zero_vector_dialogue":
 			# this exists purely for ui, no-op here
 			pass
+		_:
+			assert(false)
+			printlog("ERROR: Unhandled effect type: %s" % effect['effect_type'])
 
 	if not ignore_extra_effects:
 		if "and" in effect:
