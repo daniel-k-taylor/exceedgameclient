@@ -16828,7 +16828,7 @@
 				"amount": 3,
 				"and": {
 					"effect_type": "close",
-					"amount": 4,
+					"amount": 4
 				}
 			},
 

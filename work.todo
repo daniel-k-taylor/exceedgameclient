@@ -9,9 +9,9 @@ In progress:
             ☐ "limitation": "continuous", @started(24-02-04 02:24)
             ☐ "destination": "play_boost" @started(24-02-04 02:32)
             ☐ use - "amount": "DISCARDED_COUNT" @started(24-02-04 02:32)
-        ☐ "condition": "opponent_moved_or_was_moved", @started(24-02-03 22:22)
+        ✔ "condition": "opponent_moved_or_was_moved", @started(24-02-03 22:22) @done(24-02-04 15:06) @lasted(16h44m43s)
 
-        ☐ return_attack_to_top_of_deck - should probably go immediately and remove all bonuses @started(24-02-04 03:26)
+        ✔ return_attack_to_top_of_deck - should probably go immediately and remove all bonuses @started(24-02-04 03:26) @done(24-02-04 15:42) @lasted(12h16m12s)
 
         Overdrive:
         ☐ "condition": "top_discard_is_continous_boost", @started(24-02-03 22:28)

@@ -344,10 +344,13 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 	var effect_type = effect['effect_type']
 	match effect_type:
 		"add_attack_effect":
-			if char_effect_panel:
-				effect_str += get_effect_text(effect['added_effect'], false, false, false, card_name_source, false)
+			if 'description' in effect:
+				effect_str += effect['description']
 			else:
-				effect_str += "Add effect:\n" + get_effect_text(effect['added_effect'], false, false, false, card_name_source, false)
+				if char_effect_panel:
+					effect_str += get_effect_text(effect['added_effect'], false, false, false, card_name_source, false)
+				else:
+					effect_str += "Add effect:\n" + get_effect_text(effect['added_effect'], false, false, false, card_name_source, false)
 		"add_boost_to_gauge_on_strike_cleanup":
 			if card_name_source:
 				effect_str += "Add %s to gauge" % card_name_source
@@ -433,7 +436,10 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 			else:
 				effect_str += "Play and sustain a %s from hand." % limitation_str
 		"boost_then_sustain_topdeck":
-			effect_str += "Play and sustain %s card(s) from the top of your deck." % effect['amount']
+			if 'description' in effect:
+				effect_str += effect['description']
+			else:
+				effect_str += "Play and sustain %s card(s) from the top of your deck." % effect['amount']
 		"boost_then_sustain_topdiscard":
 			var limitation_str = "card(s)"
 			if 'limitation' in effect and effect['limitation'] == "continuous":

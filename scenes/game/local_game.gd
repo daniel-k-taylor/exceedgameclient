@@ -2949,7 +2949,7 @@ func is_effect_condition_met(performing_player : Player, effect, local_condition
 			return performing_player.spaces_moved_this_strike >= required_amount
 		elif condition == "opponent_moved_or_was_moved":
 			var required_amount = effect['condition_amount']
-			return performing_player.spaces_moved_or_forced_this_strike >= required_amount
+			return other_player.spaces_moved_or_forced_this_strike >= required_amount
 		elif condition == "initiated_face_up":
 			var initiated_strike = active_strike.initiator == performing_player
 			return initiated_strike and active_strike.initiator_set_face_up
@@ -3225,7 +3225,7 @@ func is_effect_condition_met(performing_player : Player, effect, local_condition
 		elif condition == "top_discard_is_continous_boost":
 			var top_discard_card = performing_player.get_top_discard_card()
 			if top_discard_card:
-				return top_discard_card.definition['boost']['boost_type'] == "continuous_boost"
+				return top_discard_card.definition['boost']['boost_type'] == "continuous"
 			else:
 				return false
 		else:
@@ -3306,7 +3306,7 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 			performing_player.strike_stat_boosts.always_add_to_gauge = true
 		"add_strike_to_overdrive_after_cleanup":
 			performing_player.strike_stat_boosts.always_add_to_overdrive = true
-			change_stats_when_attack_leaves_play(performing_player)
+			handle_strike_attack_immediate_removal(performing_player)
 		"add_to_gauge_boost_play_cleanup":
 			active_boost.cleanup_to_gauge_card_ids.append(card_id)
 		"add_to_gauge_immediately":
@@ -3488,6 +3488,8 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 			var card_name = card_db.get_card_name(card_id)
 			_append_log_full(Enums.LogType.LogType_Effect, performing_player, "boosts and sustains %s." % card_name)
 			performing_player.strike_stat_boosts.move_strike_to_boosts = true
+			# This removes the attack from play, so it needs to affect stats.
+			handle_strike_attack_immediate_removal(performing_player)
 			if 'boost_effect' in effect:
 				var boost_effect = effect['boost_effect']
 				events += handle_strike_effect(card_id, boost_effect, performing_player)
@@ -3516,7 +3518,7 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 			if top_deck_card:
 				var skip = false
 				if 'discard_if_not_continuous' in effect and effect['discard_if_not_continuous']:
-					if top_deck_card.definition['boost']['boost_type'] != "continuous_boost":
+					if top_deck_card.definition['boost']['boost_type'] != "continuous":
 						skip = true
 						events += performing_player.discard_topdeck()
 
@@ -4033,6 +4035,7 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 				_append_log_full(Enums.LogType.LogType_Effect, performing_player, "has no cards in hand to put in gauge.")
 		"give_to_player":
 			performing_player.strike_stat_boosts.move_strike_to_opponent_boosts = true
+			handle_strike_attack_immediate_removal(performing_player)
 		"guardup":
 			performing_player.strike_stat_boosts.guard += effect['amount']
 			events += [create_event(Enums.EventType.EventType_Strike_GuardUp, performing_player.my_id, effect['amount'])]
@@ -4275,7 +4278,7 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 			_append_log_full(Enums.LogType.LogType_Effect, performing_player, "'s %s is no longer blocking opponent movement." % buddy_name)
 		"return_attack_to_top_of_deck":
 			performing_player.strike_stat_boosts.attack_to_topdeck_on_cleanup = true
-			change_stats_when_attack_leaves_play(performing_player)
+			handle_strike_attack_immediate_removal(performing_player)
 		"opponent_discard_choose":
 			if opposing_player.hand.size() > effect['amount']:
 				change_game_state(Enums.GameState.GameState_PlayerDecision)
@@ -4722,7 +4725,7 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 			events += performing_player.return_all_cards_gauge_to_hand()
 		"return_attack_to_hand":
 			performing_player.strike_stat_boosts.return_attack_to_hand = true
-			change_stats_when_attack_leaves_play(performing_player)
+			events += handle_strike_attack_immediate_removal(performing_player)
 		"return_sealed_with_same_speed":
 			var sealed_card_id = decision_info.amount
 			var sealed_card = card_db.get_card(sealed_card_id)
@@ -6229,20 +6232,21 @@ func continue_resolve_strike(events):
 
 	return events
 
-func handle_strike_attack_cleanup(performing_player : Player, card):
+func handle_strike_attack_immediate_removal(performing_player : Player):
 	var events = []
 	var other_player = _get_player(get_other_player(performing_player.my_id))
+	var card = active_strike.get_player_card(performing_player)
 	var card_name = card.definition['display_name']
 
-	if performing_player.is_set_aside_card(card.id):
-		_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "sets aside their attack %s." % card_name)
-		events += [create_event(Enums.EventType.EventType_SetCardAside, performing_player.my_id, card.id)]
-		active_strike.cards_in_play.erase(card)
-	elif performing_player.strike_stat_boosts.seal_attack_on_cleanup:
-		_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "seals their attack %s." % card_name)
-		events += do_seal_effect(performing_player, card.id, "")
-		active_strike.cards_in_play.erase(card)
-	elif performing_player.strike_stat_boosts.return_attack_to_hand:
+	# NOTE: Currently, active strike will still have this card set as the active_strike player card.
+	# Potentially removing that may break things.
+	# As long as all state/stats is correctly updated though, it should be okay
+	# unless some card effect that references something on that card and it should
+	# behave differently if the strike card is gone.
+
+	change_stats_when_attack_leaves_play(performing_player)
+
+	if performing_player.strike_stat_boosts.return_attack_to_hand:
 		_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "returns their attack %s to their hand." % card_name)
 		events += performing_player.add_to_hand(card, true)
 		active_strike.cards_in_play.erase(card)
@@ -6260,13 +6264,30 @@ func handle_strike_attack_cleanup(performing_player : Player, card):
 		_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "returns their attack %s to the top of their deck." % card_name)
 		events += performing_player.add_to_top_of_deck(card, true)
 		active_strike.cards_in_play.erase(card)
-	elif performing_player.strike_stat_boosts.discard_attack_on_cleanup:
-		_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "discards their attack %s." % card_name)
-		events += performing_player.add_to_discards(card)
-		active_strike.cards_in_play.erase(card)
 	elif performing_player.strike_stat_boosts.always_add_to_overdrive:
 		_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "adds their attack %s to overdrive." % card_name)
 		events += performing_player.add_to_overdrive(card)
+		active_strike.cards_in_play.erase(card)
+	else:
+		assert(false, "ERROR: Unexpected call to attack removal but state doesn't match.")
+
+	return events
+
+func handle_strike_attack_cleanup(performing_player : Player, card):
+	var events = []
+	var card_name = card.definition['display_name']
+
+	if performing_player.is_set_aside_card(card.id):
+		_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "sets aside their attack %s." % card_name)
+		events += [create_event(Enums.EventType.EventType_SetCardAside, performing_player.my_id, card.id)]
+		active_strike.cards_in_play.erase(card)
+	elif performing_player.strike_stat_boosts.seal_attack_on_cleanup:
+		_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "seals their attack %s." % card_name)
+		events += do_seal_effect(performing_player, card.id, "")
+		active_strike.cards_in_play.erase(card)
+	elif performing_player.strike_stat_boosts.discard_attack_on_cleanup:
+		_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "discards their attack %s." % card_name)
+		events += performing_player.add_to_discards(card)
 		active_strike.cards_in_play.erase(card)
 
 	return events

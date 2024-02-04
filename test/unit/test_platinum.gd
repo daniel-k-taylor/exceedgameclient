@@ -237,3 +237,115 @@ func test_platinum_mystique_momo():
 	assert_true(game_logic.do_choice(player1, 1))
 	assert_true(game_logic.do_choice(player2, 1))
 	advance_turn(player2)
+
+func test_platinum_dramaticsammy_sustain_and_cleanup_testing_too():
+	position_players(player1, 3, player2, 5)
+	give_player_specific_card(player1, "standard_normal_grasp", TestCardId3)
+	assert_true(game_logic.do_boost(player1, TestCardId3))
+	advance_turn(player2)
+	give_player_specific_card(player1, "platinum_dramaticsammy", TestCardId1)
+	give_player_specific_card(player2, "standard_normal_sweep", TestCardId2)
+	
+	assert_true(game_logic.do_strike(player1, TestCardId1, false, -1))
+	assert_true(game_logic.do_strike(player2, TestCardId2, false, -1))
+	assert_true(game_logic.do_choice(player1, 0)) # Advance 1
+	validate_positions(player1, 4, player2, 5)
+	
+	# Now we have to pick a continuous boost to sustain.
+	assert_true(game_logic.do_choose_from_boosts(player1, [player1.continuous_boosts[0].id]))
+	validate_positions(player1, 4, player2, 5)
+	validate_life(player1, 30, player2, 24)
+	
+	# Setup for cleanup
+	give_player_specific_card(player1, "standard_normal_spike", TestCardId4)
+	give_player_specific_card(player2, "standard_normal_assault", TestCardId5)
+	player1.move_card_from_hand_to_deck(TestCardId4, 0)
+	player2.move_card_from_hand_to_deck(TestCardId5, 0)
+	# Cleanup choice, do it in both cases.
+	assert_true(game_logic.do_choice(player1, 0))
+	assert_true(game_logic.do_choice(player2, 0))
+	assert_eq(player1.continuous_boosts.size(), 2)
+	assert_eq(player1.continuous_boosts[0].id, TestCardId3)
+	assert_eq(player1.continuous_boosts[1].id, TestCardId4)
+	assert_eq(player2.continuous_boosts.size(), 0)
+	# Advantage
+	advance_turn(player1)
+
+func test_platinum_dreamsally_nomove():
+	position_players(player1, 3, player2, 5)
+	give_player_specific_card(player1, "platinum_mystiquemomo", TestCardId3)
+	assert_true(game_logic.do_boost(player1, TestCardId3))
+	advance_turn(player2)
+	give_player_specific_card(player1, "platinum_dreamsally", TestCardId1)
+	give_player_specific_card(player2, "standard_normal_focus", TestCardId2)
+	
+	assert_true(game_logic.do_strike(player1, TestCardId1, false, -1))
+	assert_true(game_logic.do_strike(player2, TestCardId2, false, -1))
+	# Focus blocks the momo pull.
+	validate_positions(player1, 3, player2, 5)
+	validate_life(player1, 26, player2, 29)
+	
+	# Cleanup choice, do it in both cases.
+	# Don't specifically check what was in deck to keep it random,
+	# but no boost should possibly interfere with ending the turn.
+	assert_true(game_logic.do_choice(player1, 0))
+	assert_true(game_logic.do_choice(player2, 0))
+	
+	advance_turn(player2)
+
+func test_platinum_dreamsally_move():
+	position_players(player1, 3, player2, 5)
+	give_player_specific_card(player1, "platinum_mystiquemomo", TestCardId3)
+	assert_true(game_logic.do_boost(player1, TestCardId3))
+	advance_turn(player2)
+	give_player_specific_card(player1, "platinum_dreamsally", TestCardId1)
+	give_player_specific_card(player2, "standard_normal_assault", TestCardId2)
+	
+	assert_true(game_logic.do_strike(player1, TestCardId1, false, -1))
+	assert_true(game_logic.do_strike(player2, TestCardId2, false, -1))
+	# Assault to 4, pulled to 1.
+	validate_positions(player1, 3, player2, 1)
+	validate_life(player1, 26, player2, 25)
+	
+	# Cleanup choice, do it in both cases.
+	# Don't specifically check what was in deck to keep it random,
+	# but no boost should possibly interfere with ending the turn.
+	# NOTE: Player 2 goes first because they were faster.
+	assert_true(game_logic.do_choice(player2, 0))
+	assert_true(game_logic.do_choice(player1, 0))
+	
+	advance_turn(player2)
+
+func test_platinum_dreamsally_returnattack_losearmor():
+	position_players(player1, 3, player2, 5)
+	assert_eq(player1.hand.size(), 5)
+	give_player_specific_card(player1, "platinum_dreamsally", TestCardId3)
+	assert_true(game_logic.do_boost(player1, TestCardId3))
+	advance_turn(player2)
+	assert_eq(player1.hand.size(), 6)
+	give_player_specific_card(player1, "standard_normal_sweep", TestCardId4)
+	assert_true(game_logic.do_boost(player1, TestCardId4))
+	advance_turn(player2)
+	assert_eq(player1.hand.size(), 7) # Keeps going up because we're magically giving them cards.
+	assert_eq(player2.hand.size(), 7)
+	give_player_specific_card(player1, "platinum_happymagicka", TestCardId1)
+	give_player_specific_card(player2, "standard_normal_sweep", TestCardId2)
+	
+	assert_true(game_logic.do_strike(player1, TestCardId1, false, -1))
+	assert_true(game_logic.do_strike(player2, TestCardId2, false, -1))
+	# Happy magicka goes, discards an opponent card.
+	assert_eq(player2.hand.size(), 6)
+	# After dream sally boost draws 1 and puts happy magicka on topdeck.
+	# Then sweep hits and discards player1 card.
+	validate_positions(player1, 3, player2, 5)
+	validate_life(player1, 24, player2, 27) # Full damage because happymagicka armor left play.
+
+	# Cleanup choice, do it in both cases.
+	assert_true(game_logic.do_choice(player1, 0))
+	assert_true(game_logic.do_choice(player2, 0))
+	assert_eq(player1.hand.size(), 7)
+	assert_eq(player1.gauge.size(), 0)
+	assert_eq(player1.discards.size(), 3) # the swept card, sally and sweep boosts
+	# Player 1's should be the happy magicka.
+	assert_eq(player1.continuous_boosts[0].id, TestCardId1)
+	advance_turn(player2)

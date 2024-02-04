@@ -22,7 +22,7 @@
 		},
 		{
 			"timing": "cleanup",
-			"description": "Platinum Cleanup Boost",
+			"special_choice_name": "Platinum Cleanup Boost",
 			"effect_type": "choice",
 			"choice": [
 				{
@@ -44,7 +44,7 @@
 		},
 		{
 			"timing": "cleanup",
-			"description": "Platinum (Exceed) Cleanup Boost",
+			"special_choice_name": "Platinum (Exceed) Cleanup Boost",
 			"effect_type": "choice",
 			"choice": [
 				{
