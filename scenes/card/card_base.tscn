@@ -1,4 +1,4 @@
-[gd_scene load_steps=16 format=3 uid="uid://cl8i21571i4qa"]
+[gd_scene load_steps=18 format=3 uid="uid://cl8i21571i4qa"]
 
 [ext_resource type="Script" path="res://scenes/card/card_base.gd" id="1_o734l"]
 [ext_resource type="Texture2D" uid="uid://dal2ec8wws714" path="res://icon.svg" id="1_xb23j"]
@@ -11,6 +11,8 @@
 [ext_resource type="Texture2D" uid="uid://kl32dakt7bnv" path="res://assets/icons/hand.png" id="7_vbrtw"]
 [ext_resource type="Texture2D" uid="uid://xusjesyfjald" path="res://assets/icons/x.png" id="8_wk1ir"]
 [ext_resource type="Texture2D" uid="uid://bhxrxaykqrg2j" path="res://assets/icons/handquestion.png" id="9_mdk4a"]
+[ext_resource type="Texture2D" uid="uid://c1xtrb1ekryy8" path="res://assets/icons/handeye.png" id="10_hslmq"]
+[ext_resource type="Texture2D" uid="uid://7vxrak5avmjs" path="res://assets/icons/handeyequestion.png" id="11_ddk2m"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_as8ve"]
 bg_color = Color(1, 0.905882, 0.133333, 0.815686)
@@ -327,6 +329,34 @@ stretch_mode = 4
 custom_minimum_size = Vector2(48, 48)
 layout_mode = 2
 texture = ExtResource("9_mdk4a")
+expand_mode = 1
+stretch_mode = 4
+
+[node name="HandEye1" type="TextureRect" parent="CardFocusFeatures/HandIcons/HandPanel/HandMargin/HandHbox"]
+custom_minimum_size = Vector2(48, 48)
+layout_mode = 2
+texture = ExtResource("10_hslmq")
+expand_mode = 1
+stretch_mode = 4
+
+[node name="HandEye2" type="TextureRect" parent="CardFocusFeatures/HandIcons/HandPanel/HandMargin/HandHbox"]
+custom_minimum_size = Vector2(48, 48)
+layout_mode = 2
+texture = ExtResource("10_hslmq")
+expand_mode = 1
+stretch_mode = 4
+
+[node name="EyeQ1" type="TextureRect" parent="CardFocusFeatures/HandIcons/HandPanel/HandMargin/HandHbox"]
+custom_minimum_size = Vector2(48, 48)
+layout_mode = 2
+texture = ExtResource("11_ddk2m")
+expand_mode = 1
+stretch_mode = 4
+
+[node name="EyeQ2" type="TextureRect" parent="CardFocusFeatures/HandIcons/HandPanel/HandMargin/HandHbox"]
+custom_minimum_size = Vector2(48, 48)
+layout_mode = 2
+texture = ExtResource("11_ddk2m")
 expand_mode = 1
 stretch_mode = 4
 
