@@ -1520,16 +1520,30 @@ func _on_exceed_revert_event(event):
 func _on_become_wide(event):
 	var player = event['event_player']
 	if player == Enums.PlayerId.PlayerId_Player:
-		$PlayerCharacter.is_wide = true
+		var player_character = $PlayerCharacter
+		player_character.is_wide = true
 		if 'wide_animation' in player_deck:
-			$PlayerCharacter.load_character(player_deck['wide_animation'])
-			move_character_to_arena_square($PlayerCharacter, game_wrapper.get_player_location(Enums.PlayerId.PlayerId_Player), true, Character.CharacterAnim.CharacterAnim_None)
+			player_character.load_character(player_deck['wide_animation'])
+
+			var parent = player_character.get_parent()
+			var opponent_buddy_idx = parent.get_children().find(opponent_buddies[0])
+			assert(opponent_buddy_idx != -1)
+			parent.move_child(player_character, opponent_buddy_idx)
+
+			move_character_to_arena_square(player_character, game_wrapper.get_player_location(Enums.PlayerId.PlayerId_Player), true, Character.CharacterAnim.CharacterAnim_None)
 			update_arena_squares()
 	else:
-		$OpponentCharacter.is_wide = true
+		var opponent_character = $OpponentCharacter
+		opponent_character.is_wide = true
 		if 'wide_animation' in opponent_deck:
-			$OpponentCharacter.load_character(opponent_deck['wide_animation'])
-			move_character_to_arena_square($OpponentCharacter, game_wrapper.get_player_location(Enums.PlayerId.PlayerId_Opponent), true, Character.CharacterAnim.CharacterAnim_None)
+			opponent_character.load_character(opponent_deck['wide_animation'])
+
+			var parent = opponent_character.get_parent()
+			var player_buddy_idx = parent.get_children().find(player_buddies[0])
+			assert(player_buddy_idx != -1)
+			parent.move_child(opponent_character, player_buddy_idx)
+
+			move_character_to_arena_square(opponent_character, game_wrapper.get_player_location(Enums.PlayerId.PlayerId_Opponent), true, Character.CharacterAnim.CharacterAnim_None)
 			update_arena_squares()
 	var popup_text = "Expand"
 	if event['extra_info']:
