@@ -64,35 +64,30 @@
 			"timing": "set_strike",
 			"condition": "used_character_action",
 			"condition_details": ["exceed", 0],
-			"character_effect": true,
-			"effect_type": "powerup_opponent",
-			"amount": 1,
-			"and": {
-				"effect_type": "choice",
-				"choice": [
-					{
-						"character_effect": true,
-						"effect_type": "powerup_opponent",
-						"amount": 1,
-						"and": {
-							"effect_type": "powerup",
-							"amount": 2
-						}
-					},
-					{
-						"character_effect": true,
-						"effect_type": "powerup_opponent",
-						"amount": 1,
-						"and": {
-							"effect_type": "add_attack_effect",
-							"added_effect": {
-								"timing": "hit",
-								"effect_type": "gain_advantage"
-							}
+			"effect_type": "choice",
+			"choice": [
+				{
+					"character_effect": true,
+					"effect_type": "powerup_opponent",
+					"amount": 1,
+					"and": {
+						"effect_type": "powerup",
+						"amount": 2
+					}
+				},
+				{
+					"character_effect": true,
+					"effect_type": "powerup_opponent",
+					"amount": 1,
+					"and": {
+						"effect_type": "add_attack_effect",
+						"added_effect": {
+							"timing": "hit",
+							"effect_type": "gain_advantage"
 						}
 					}
-				]
-			}
+				}
+			]
 		}
 	],
 	"cards": [

@@ -343,7 +343,7 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 	match effect_type:
 		"add_attack_effect":
 			if char_effect_panel:
-				effect_str += get_effect_type_text(effect['added_effect'], card_name_source)
+				effect_str += get_effect_text(effect['added_effect'], false, false, false, card_name_source, false)
 			else:
 				effect_str += "Add effect:\n" + get_effect_text(effect['added_effect'], false, false, false, card_name_source, false)
 		"add_boost_to_gauge_on_strike_cleanup":
@@ -869,12 +869,12 @@ func get_effect_text(effect, short = false, skip_timing = false, skip_condition 
 		effect_str += get_effect_type_text(effect, card_name_source, char_effect_panel)
 
 	if not short and 'bonus_effect' in effect:
-		effect_str += "; " + get_effect_text(effect['bonus_effect'], skip_timing, false, card_name_source)
+		effect_str += "; " + get_effect_text(effect['bonus_effect'], false, false, false, card_name_source, char_effect_panel)
 	if 'and' in effect:
 		if not 'suppress_and_description' in effect or not effect['suppress_and_description']:
 			if effect_str != "":
 				effect_str += ", "
-			effect_str += get_effect_text(effect['and'], short, skip_timing, false, card_name_source)
+			effect_str += get_effect_text(effect['and'], short, false, false, card_name_source, char_effect_panel)
 	if 'negative_condition_effect' in effect:
 		if not 'suppress_negative_description' in effect or not effect['suppress_negative_description']:
 			effect_str += ", otherwise " + get_effect_text(effect['negative_condition_effect'], short, skip_timing, false, card_name_source)
