@@ -10496,7 +10496,7 @@
 				"and": {
 					"effect_type": "draw",
 					"amount": 1
-					}
+				}
 			}
 		],
 		"boost": {
