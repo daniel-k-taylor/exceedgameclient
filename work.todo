@@ -34,7 +34,6 @@ Tasks:
         ☐ Change cards
     Misc/Low pri:
         ☐ allow AI to take bonus turn actions (like axl's boost thing)
-        ☐ Allow EX'ing when hit with Reading
         ☐ Sum continuous boost stat bonuses into a single line
         ☐ Boost zone panel formatting/change size with text. - Should scroll?
         ☐ Tweak timings on animation lengths
@@ -49,7 +48,6 @@ Tasks:
     ☐ Always show conditional effects and allow choosing them when they fail
     ☐ Add a info screen after character select on the main menu you can click to show all card for the character.
     ☐ Combat Log always on screen?
-    ☐ Show cards you revealed to opponent with EYE icon in your hand. Another icon for topdeck.
     ☐ Faust remove boost effects needs to be reviewed, stuff like powerup_opponent and other random effects that Faust can remove mid-strike
         ☐ probably any during_strike ability?
         ☐ Relevant for Bang too
