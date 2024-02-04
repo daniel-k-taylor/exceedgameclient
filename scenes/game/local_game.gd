@@ -1550,7 +1550,7 @@ class Player:
 					break
 
 			if not found_card:
-				parent.printlog("ERROR: card to discard not found")
+				assert(false, "ERROR: card to discard not found")
 
 		return events
 
@@ -3353,6 +3353,8 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 		"bonus_action":
 			active_boost.action_after_boost = true
 		"boost_additional":
+			assert(active_boost, "ERROR: Additional boost effect when a boost isn't in play")
+
 			var valid_zones = ['hand']
 			if 'valid_zones' in effect:
 				valid_zones = effect['valid_zones']

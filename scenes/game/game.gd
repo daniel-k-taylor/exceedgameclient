@@ -70,11 +70,7 @@ var select_card_must_be_max_or_min = false
 var select_card_require_force = 0
 var select_card_up_to_force = 0
 var select_card_destination = ""
-var select_boost_can_cancel = false
-var select_boost_valid_zones = []
-var select_boost_limitation = ""
-var select_boost_ignore_costs = false
-var select_boost_from_shortcut = false
+var select_boost_options = {}
 var selected_boost_to_pay_for = -1
 var instructions_ok_allowed = false
 var instructions_cancel_allowed = false
@@ -758,6 +754,9 @@ func can_select_card(card):
 		UISubState.UISubState_SelectCards_StrikeCard_FromSealed:
 			return in_sealed
 		UISubState.UISubState_SelectCards_PlayBoost:
+			var select_boost_valid_zones = select_boost_options['valid_zones']
+			var select_boost_limitation = select_boost_options['limitation']
+			var select_boost_ignore_costs = select_boost_options['ignore_costs']
 			var valid_card = game_wrapper.can_player_boost(Enums.PlayerId.PlayerId_Player, card.card_id, select_boost_valid_zones, select_boost_limitation, select_boost_ignore_costs)
 			return len(selected_cards) == 0 and valid_card
 		UISubState.UISubState_SelectCards_ForceForBoost:
@@ -1931,11 +1930,12 @@ func begin_boost_choosing(can_cancel : bool, valid_zones : Array, limitation : S
 	selected_cards = []
 	select_card_require_min = 1
 	select_card_require_max = 1
-	select_boost_can_cancel = can_cancel
-	select_boost_valid_zones = valid_zones
-	select_boost_limitation = limitation
-	select_boost_ignore_costs = ignore_costs
-	select_boost_from_shortcut = false
+	select_boost_options = {
+		"can_cancel": can_cancel,
+		"valid_zones": valid_zones,
+		"limitation": limitation,
+		"ignore_costs": ignore_costs
+	}
 	var limitation_str = "card"
 	if limitation:
 		limitation_str = limitation + " boost"
@@ -3038,7 +3038,7 @@ func _on_instructions_ok_button_pressed(index : int):
 				success = game_wrapper.submit_mulligan(Enums.PlayerId.PlayerId_Player, selected_card_ids)
 			UISubState.UISubState_SelectCards_PlayBoost:
 				var force_cost = game_wrapper.get_card_database().get_card_boost_force_cost(single_card_id)
-				if not select_boost_ignore_costs and force_cost > 0:
+				if not select_boost_options['ignore_costs'] and force_cost > 0:
 					selected_boost_to_pay_for = single_card_id
 					change_ui_state(null, UISubState.UISubState_SelectCards_ForceForBoost)
 					begin_generate_force_selection(force_cost)
@@ -3104,14 +3104,14 @@ func _on_instructions_cancel_button_pressed():
 		UISubState.UISubState_SelectCards_ForceForBoost:
 			deselect_all_cards()
 			close_popout()
-			if select_boost_from_shortcut:
-				change_ui_state(UIState.UIState_PickTurnAction, UISubState.UISubState_None)
-			else:
-				var can_cancel = select_boost_can_cancel
-				var valid_zones = select_boost_valid_zones
-				var limitation = select_boost_limitation
-				var ignore_costs = select_boost_ignore_costs
+			if select_boost_options:
+				var can_cancel = select_boost_options["can_cancel"]
+				var valid_zones = select_boost_options["valid_zones"]
+				var limitation = select_boost_options["limitation"]
+				var ignore_costs = select_boost_options["ignore_costs"]
 				begin_boost_choosing(can_cancel, valid_zones, limitation, ignore_costs)
+			else:
+				change_ui_state(UIState.UIState_PickTurnAction, UISubState.UISubState_None)
 		_:
 			match ui_state:
 				UIState.UIState_SelectArenaLocation:
@@ -3172,7 +3172,7 @@ func _on_shortcut_boost_pressed():
 	var success = false
 	var force_cost = game_wrapper.get_card_database().get_card_boost_force_cost(card_id)
 	if force_cost > 0:
-		select_boost_from_shortcut = true
+		select_boost_options = {}
 		selected_boost_to_pay_for = card_id
 		change_ui_state(null, UISubState.UISubState_SelectCards_ForceForBoost)
 		begin_generate_force_selection(force_cost)
