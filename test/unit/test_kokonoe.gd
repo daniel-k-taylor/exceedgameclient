@@ -213,14 +213,23 @@ func validate_life(p1, l1, p2, l2):
 ##
 ## Tests start here
 ##
+
+func test_kokonoe_boost_pass_gravitron():
+	position_players(player1, 3, player2, 7)
+	assert_eq(player1.get_buddy_location(), -1)
+	give_player_specific_card(player1, "standard_normal_grasp", TestCardId3)
+	assert_true(game_logic.do_boost(player1, TestCardId3))
+	# Don't place gravitron
+	assert_true(game_logic.do_choice(player1, 0))
+	assert_eq(player1.get_buddy_location(), -1)
+
 func test_kokonoe_absolute_zero_gravitron_strike():
 	position_players(player1, 3, player2, 7)
 	assert_eq(player1.hand.size(), 5)
 	give_player_specific_card(player1, "kokonoe_absolutezero", TestCardId3)
 	assert_true(game_logic.do_boost(player1, TestCardId3))
 	# Place gravitron on opponent
-	assert_true(game_logic.do_choice(player1, 0))
-	assert_true(game_logic.do_choice(player1, 6))
+	assert_true(game_logic.do_choice(player1, 7))
 	assert_eq(player1.get_buddy_location(), 7)
 	# Start strike
 	give_player_specific_card(player1, "standard_normal_spike", TestCardId1)
@@ -318,8 +327,7 @@ func test_kokonoe_flamecage_boost():
 	assert_eq(player1.hand.size(), 6)
 	assert_true(game_logic.do_boost(player1, TestCardId1))
 	# Place gravitron
-	assert_true(game_logic.do_choice(player1, 0))
-	assert_true(game_logic.do_choice(player1, 0))
+	assert_true(game_logic.do_choice(player1, 1))
 	assert_eq(player1.get_buddy_location(), 1)
 	assert_eq(player1.hand.size(), 10)
 	advance_turn(player1, false)
@@ -432,8 +440,7 @@ func test_kokonoe_dreadnought_boost_only_1_discard():
 	give_player_specific_card(player1, "kokonoe_dreadnoughtexterminator", TestCardId3)
 	assert_true(game_logic.do_boost(player1, TestCardId3))
 	# Place gravitron
-	assert_true(game_logic.do_choice(player1, 0))
-	assert_true(game_logic.do_choice(player1, 8))
+	assert_true(game_logic.do_choice(player1, 9))
 	assert_eq(player1.get_buddy_location("gravitron"), 9)
 	assert_eq(player1.gauge.size(), 1)
 	advance_turn(player2)
@@ -549,11 +556,25 @@ func test_kokonoe_overdrive():
 	advance_turn(player1)
 	advance_turn(player2)
 	assert_true(game_logic.do_choose_from_discard(player1, [player1.overdrive[0].id]))
-	# Choose to place gravitron
-	assert_true(game_logic.do_choice(player1, 0))
 	# Place gravitron
-	assert_true(game_logic.do_choice(player1, 5))
+	assert_true(game_logic.do_choice(player1, 6))
 	assert_eq(player1.get_buddy_location("gravitron"), 6)
+	advance_turn(player1)
+
+func test_kokonoe_overdrive_pass():
+	position_players(player1, 1, player2, 7)
+	player1.discard_hand()
+	give_gauge(player1, 2)
+	assert_true(game_logic.do_exceed(player1, [player1.gauge[0].id, player1.gauge[1].id]))
+	# Place gravitron
+	assert_true(game_logic.do_choice(player1, 8))
+	assert_eq(player1.get_buddy_location("gravitron"), 9)
+	advance_turn(player1)
+	advance_turn(player2)
+	assert_true(game_logic.do_choose_from_discard(player1, [player1.overdrive[0].id]))
+	# Don't place gravitron
+	assert_true(game_logic.do_choice(player1, 0))
+	assert_eq(player1.get_buddy_location("gravitron"), 9)
 	advance_turn(player1)
 
 func test_kokonoe_flamingbelobog_extraattack_pass():
@@ -561,8 +582,7 @@ func test_kokonoe_flamingbelobog_extraattack_pass():
 	give_player_specific_card(player1, "kokonoe_flamingbelobog", TestCardId3)
 	assert_true(game_logic.do_boost(player1, TestCardId3))
 	# Place gravitron
-	assert_true(game_logic.do_choice(player1, 0))
-	assert_true(game_logic.do_choice(player1, 4))
+	assert_true(game_logic.do_choice(player1, 5))
 	assert_eq(player1.get_buddy_location(), 5)
 	advance_turn(player2)
 
@@ -598,8 +618,7 @@ func test_kokonoe_flamingbelobog_do_extraattack():
 	give_player_specific_card(player1, "kokonoe_flamingbelobog", TestCardId3)
 	assert_true(game_logic.do_boost(player1, TestCardId3))
 	# Place gravitron
-	assert_true(game_logic.do_choice(player1, 0))
-	assert_true(game_logic.do_choice(player1, 4))
+	assert_true(game_logic.do_choice(player1, 5))
 	assert_eq(player1.get_buddy_location(), 5)
 	advance_turn(player2)
 
@@ -646,8 +665,7 @@ func test_kokonoe_flamingbelobog_after_effect_after_extraattack():
 	give_player_specific_card(player1, "kokonoe_flamingbelobog", TestCardId3)
 	assert_true(game_logic.do_boost(player1, TestCardId3))
 	# Place gravitron
-	assert_true(game_logic.do_choice(player1, 0))
-	assert_true(game_logic.do_choice(player1, 4))
+	assert_true(game_logic.do_choice(player1, 5))
 	assert_eq(player1.get_buddy_location(), 5)
 	advance_turn(player2)
 
@@ -686,8 +704,7 @@ func test_kokonoe_flamingbelobog_extraattack_misses():
 	give_player_specific_card(player1, "kokonoe_flamingbelobog", TestCardId3)
 	assert_true(game_logic.do_boost(player1, TestCardId3))
 	# Place gravitron
-	assert_true(game_logic.do_choice(player1, 0))
-	assert_true(game_logic.do_choice(player1, 4))
+	assert_true(game_logic.do_choice(player1, 5))
 	assert_eq(player1.get_buddy_location(), 5)
 	advance_turn(player2)
 

@@ -1519,32 +1519,27 @@ func _on_exceed_revert_event(event):
 
 func _on_become_wide(event):
 	var player = event['event_player']
+	var character_object
+	var deck_def
 	if player == Enums.PlayerId.PlayerId_Player:
-		var player_character = $PlayerCharacter
-		player_character.is_wide = true
-		if 'wide_animation' in player_deck:
-			player_character.load_character(player_deck['wide_animation'])
-
-			var parent = player_character.get_parent()
-			var opponent_buddy_idx = parent.get_children().find(opponent_buddies[0])
-			assert(opponent_buddy_idx != -1)
-			parent.move_child(player_character, opponent_buddy_idx)
-
-			move_character_to_arena_square(player_character, game_wrapper.get_player_location(Enums.PlayerId.PlayerId_Player), true, Character.CharacterAnim.CharacterAnim_None)
-			update_arena_squares()
+		character_object = $PlayerCharacter
+		deck_def = player_deck
 	else:
-		var opponent_character = $OpponentCharacter
-		opponent_character.is_wide = true
-		if 'wide_animation' in opponent_deck:
-			opponent_character.load_character(opponent_deck['wide_animation'])
+		character_object = $OpponentCharacter
+		deck_def = opponent_deck
 
-			var parent = opponent_character.get_parent()
-			var player_buddy_idx = parent.get_children().find(player_buddies[0])
-			assert(player_buddy_idx != -1)
-			parent.move_child(opponent_character, player_buddy_idx)
+	character_object.is_wide = true
+	if 'wide_animation' in deck_def:
+		character_object.load_character(deck_def['wide_animation'])
 
-			move_character_to_arena_square(opponent_character, game_wrapper.get_player_location(Enums.PlayerId.PlayerId_Opponent), true, Character.CharacterAnim.CharacterAnim_None)
-			update_arena_squares()
+		var parent = character_object.get_parent()
+		var target_idx = parent.get_children().find($WideCharacterMarker)
+		assert(target_idx != -1)
+		parent.move_child(character_object, target_idx)
+
+		move_character_to_arena_square(character_object, game_wrapper.get_player_location(player), true, Character.CharacterAnim.CharacterAnim_None)
+		update_arena_squares()
+
 	var popup_text = "Expand"
 	if event['extra_info']:
 		popup_text = event['extra_info']

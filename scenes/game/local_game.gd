@@ -1981,7 +1981,10 @@ class Player:
 			var updated_new_location = clamp(target_location, MinArenaLocation + extra_width, MaxArenaLocation - extra_width)
 			if new_location != updated_new_location:
 				distance += 1
-			new_location = updated_new_location
+				new_location = updated_new_location
+			else:
+				# at edge of arena
+				break
 
 			if new_location == stop_on_space and not i == amount-1:
 				# If stop_on_space is this location, the space is

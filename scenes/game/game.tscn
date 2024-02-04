@@ -200,6 +200,11 @@ layout_mode = 2
 [node name="ArenaSquare9" parent="ArenaNode/RowPlatforms" instance=ExtResource("6_oqn7w")]
 layout_mode = 2
 
+[node name="WideCharacterMarker" type="Node2D" parent="."]
+visible = false
+position = Vector2(75, -102)
+scale = Vector2(0.25, 0.25)
+
 [node name="PlayerBuddy" parent="." instance=ExtResource("9_rhsuv")]
 visible = false
 position = Vector2(75, -102)
