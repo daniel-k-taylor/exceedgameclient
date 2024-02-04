@@ -21,7 +21,7 @@
 		"force_cost": 1,
 		"effect": {
 			"effect_type": "boost_then_strike",
-			"allow_gauge": true,
+			"valid_zones": [ "hand", "gauge" ],
 			"limitation": "continuous"
 		}
 	}],

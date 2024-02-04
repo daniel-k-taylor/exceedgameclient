@@ -400,6 +400,11 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 			effect_str += "Attack does not hit."
 		"attack_is_ex":
 			effect_str += "Next Strike is EX"
+		"become_wide":
+			var description = "3 spaces wide"
+			if 'description' in effect:
+				description = effect['description']
+			effect_str = "Become %s" % description
 		"block_opponent_move":
 			effect_str += "Opponent cannot move"
 		"remove_block_opponent_move":
@@ -420,8 +425,9 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 			var limitation_str = "boost"
 			if effect['limitation']:
 				limitation_str = effect['limitation'] + " boost"
-			if effect['allow_gauge']:
-				effect_str += "Play and sustain a %s from hand or gauge." % limitation_str
+			if 'valid_zones' in effect:
+				var zone_string = "/".join(effect['valid_zones'])
+				effect_str += "Play and sustain a %s from %s." % [limitation_str, zone_string]
 			else:
 				effect_str += "Play and sustain a %s from hand." % limitation_str
 		"boost_then_sustain_topdeck":
@@ -549,6 +555,8 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 			effect_str += "Ignore Push and Pull"
 		"increase_force_spent_before_strike":
 			effect_str += get_effect_text(effect['linked_effect'], false, false, false)
+		"reset_character_positions":
+			effect_str += "Move both players to starting positions"
 		"remove_ignore_push_and_pull_passive_bonus":
 			effect_str += ""
 		"lose_all_armor":
@@ -638,6 +646,8 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 			effect_str += "Push " + str(effect['amount']) + " from attack source"
 		"push_to_attack_max_range":
 			effect_str += "Push to attack's max range"
+		"range_includes_if_moved_past":
+			effect_str += "If you move past the opponent, your range includes them"
 		"rangeup":
 			if effect['amount'] != effect['amount2']:
 				# Skip the first one if they're the same.
