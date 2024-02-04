@@ -772,8 +772,8 @@ func can_select_card(card):
 			return in_appropriate_reference and len(selected_cards) < select_card_require_max
 		UISubState.UISubState_SelectCards_ChooseDiscardToDestination:
 			var card_db = game_wrapper.get_card_database()
-			var card = card_db.get_card(card.card_id)
-			var card_type = card.definition['type']
+			var logic_card = card_db.get_card(card.card_id)
+			var card_type = logic_card.definition['type']
 			var limitation = game_wrapper.get_decision_info().limitation
 			var source = game_wrapper.get_decision_info().source
 			var meets_limitation = false

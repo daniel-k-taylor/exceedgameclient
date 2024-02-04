@@ -3454,7 +3454,7 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 				var amount = effect['amount']
 				if amount is String and amount == "DISCARDED_COUNT":
 					amount = len(effect['discarded_card_ids'])
-				active_strike.remaining_forced_boosts = effect['amount']
+				active_strike.remaining_forced_boosts = amount
 				active_strike.remaining_forced_boosts_source = "topdiscard"
 				active_strike.remaining_forced_boosts_player_id = performing_player.my_id
 			else:
@@ -5065,8 +5065,7 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 			# this exists purely for ui, no-op here
 			pass
 		_:
-			assert(false)
-			printlog("ERROR: Unhandled effect type: %s" % effect['effect_type'])
+			assert(false, "ERROR: Unhandled effect type: %s" % effect['effect_type'])
 
 	if not ignore_extra_effects:
 		if "and" in effect:
@@ -7188,28 +7187,9 @@ func do_card_from_hand_to_gauge(performing_player : Player, card_ids : Array) ->
 			else:
 				assert(false, "Unknown destination for do_card_from_hand_to_gauge")
 
-	if active_start_of_turn_effects:
-		events += continue_begin_turn()
-	elif active_overdrive:
-		# Intentional events = because events are passed in.
-		events = do_remaining_overdrive(events, performing_player)
-	elif active_boost:
-		active_boost.effects_resolved += 1
-		# Intentional events = because events are passed in.
-		events = continue_resolve_boost(events)
-	elif active_strike:
-		active_strike.effects_resolved_in_timing += 1
-		# Intentional events = because events are passed in.
-		events = continue_resolve_strike(events)
-	elif active_character_action:
-		events += do_remaining_character_action(performing_player)
-	elif active_exceed:
-		active_exceed = false
-		events += check_hand_size_advance_turn(performing_player)
-	else:
-		# Could be exceeding.
-		printlog("ERROR: do_card_from_hand_to_gauge but no active strike or boost.")
-
+	set_player_action_processing_state()
+	# Intentional events = because events are passed in.
+	events = continue_player_action_resolution(events, performing_player)
 	event_queue += events
 	return true
 
@@ -7230,22 +7210,10 @@ func do_boost_name_card_choice_effect(performing_player : Player, card_id : int)
 		"card_id": card_id,
 	}
 	_append_log_full(Enums.LogType.LogType_Effect, performing_player, "names %s." % card_name)
-	game_state = Enums.GameState.GameState_Boost_Processing
+	set_player_action_processing_state()
 	var events = handle_strike_effect(decision_info.choice_card_id, effect, performing_player)
-	if active_start_of_turn_effects:
-		events += continue_begin_turn()
-	elif active_overdrive:
-		# Intentional events = because events are passed in.
-		events = do_remaining_overdrive(events, performing_player)
-	elif active_boost:
-		active_boost.effects_resolved += 1
-		# Intentional events = because events are passed in.
-		events = continue_resolve_boost(events)
-	elif active_strike:
-		active_strike.effects_resolved_in_timing += 1
-		# Intentional events = because events are passed in.
-		events = continue_resolve_strike(events)
-
+	# Intentional events = because events are passed in.
+	events = continue_player_action_resolution(events, performing_player)
 	event_queue += events
 	return true
 
@@ -7269,11 +7237,7 @@ func do_choice(performing_player : Player, choice_index : int) -> bool:
 	if decision_info.effect_type:
 		copying_effect = decision_info.effect_type == "copy_other_hit_effect"
 
-	if active_start_of_turn_effects or active_overdrive or active_boost \
-	or active_character_action or active_exceed or active_change_cards:
-		game_state = Enums.GameState.GameState_Boost_Processing
-	elif active_strike:
-		game_state = Enums.GameState.GameState_Strike_Processing
+	set_player_action_processing_state()
 
 	if decision_info.type == Enums.DecisionType.DecisionType_ChooseSimultaneousEffect:
 		if copying_effect:
@@ -7285,6 +7249,29 @@ func do_choice(performing_player : Player, choice_index : int) -> bool:
 			erase_remaining_effect(get_base_remaining_effect(effect))
 
 	var events = do_effect_if_condition_met(performing_player, card_id, effect, null)
+	# Intentional events = because events are passed in.
+	events = continue_player_action_resolution(events, performing_player)
+	event_queue += events
+	return true
+
+func set_player_action_processing_state():
+	if active_start_of_turn_effects or active_overdrive or active_boost \
+	or active_character_action or active_exceed or active_change_cards:
+		game_state = Enums.GameState.GameState_Boost_Processing
+	elif active_strike:
+		game_state = Enums.GameState.GameState_Strike_Processing
+	else:
+		printlog("ERROR: Unexpected game state - no active thing to be resolving?")
+		assert(false)
+
+func continue_player_action_resolution(events, performing_player : Player):
+	# This function is intended to be called at the end of the various do_* functions
+	# that are called by the game wrapper to resolve player actions/decisions.
+
+	# Handle the wacky forced boost cases (Faust/Platinum/Hazama),
+	# then, if the player has a decision it just returns.
+	# If they don't, call the appropriate continue/do_remaining function
+	# depending on what is active.
 	if game_state == Enums.GameState.GameState_PlayerDecision and decision_info.type == Enums.DecisionType.DecisionType_ForceBoostSustainTopdeck:
 		# Handle stupid Faust case.
 		do_topdeck_boost(events)
@@ -7318,9 +7305,8 @@ func do_choice(performing_player : Player, choice_index : int) -> bool:
 				if game_state != Enums.GameState.GameState_WaitForStrike:
 					events += check_hand_size_advance_turn(performing_player)
 			else:
-				printlog("ERROR: Tried to make choice but no active strike or boost.")
-	event_queue += events
-	return true
+				assert(false, "ERROR: Unexpected game state - no active action resolution")
+	return events
 
 func do_mulligan(performing_player : Player, card_ids : Array) -> bool:
 	printlog("InitialAction: MULLIGAN by %s cards %s" % [performing_player.name, card_ids])
@@ -7372,18 +7358,9 @@ func do_choose_from_boosts(performing_player : Player, card_ids : Array) -> bool
 		var boost_name = _get_boost_and_card_name(card_db.get_card(card_id))
 		_append_log_full(Enums.LogType.LogType_Effect, performing_player, "sustains their continuous boost %s." % boost_name)
 
-	if active_boost:
-		active_boost.effects_resolved += 1
-		# Intentional events = because events are passed in.
-		events = continue_resolve_boost(events)
-	elif active_strike:
-		active_strike.effects_resolved_in_timing += 1
-		# Intentional events = because events are passed in.
-		events = continue_resolve_strike(events)
-	else:
-		printlog("ERROR: When is this choose from boosts happening?")
-		assert(false, "When is this choose from boosts happening?")
-
+	set_player_action_processing_state()
+	# Intentional events = because events are passed in.
+	events = continue_player_action_resolution(events, performing_player)
 	event_queue += events
 	return true
 
@@ -7504,10 +7481,7 @@ func do_choose_from_discard(performing_player : Player, card_ids : Array) -> boo
 	else:
 		_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "moves card(s) from %s to %s: %s." % [decision_info.source, dest_name, card_names])
 
-	if active_overdrive or active_boost or active_start_of_turn_effects:
-		game_state = Enums.GameState.GameState_Boost_Processing
-	elif active_strike:
-		game_state = Enums.GameState.GameState_Strike_Processing
+	set_player_action_processing_state()
 
 	# Do any bonus effect.
 	if decision_info.bonus_effect:
@@ -7515,24 +7489,8 @@ func do_choose_from_discard(performing_player : Player, card_ids : Array) -> boo
 		effect['discarded_card_ids'] = card_ids
 		events += do_effect_if_condition_met(performing_player, decision_info.choice_card_id, effect, null)
 
-	if game_state != Enums.GameState.GameState_PlayerDecision:
-		if active_start_of_turn_effects:
-			events += continue_begin_turn()
-		elif active_overdrive:
-			# Intentional events = because events are passed in.
-			events = do_remaining_overdrive(events, performing_player)
-		elif active_boost:
-			active_boost.effects_resolved += 1
-			# Intentional events = because events are passed in.
-			events = continue_resolve_boost(events)
-		elif active_strike:
-			active_strike.effects_resolved_in_timing += 1
-			# Intentional events = because events are passed in.
-			events = continue_resolve_strike(events)
-		else:
-			printlog("ERROR: When is this choose from discard happening?")
-			assert(false, "When is this choose from discard happening?")
-
+	# Intentional events = because events are passed in.
+	events = continue_player_action_resolution(events, performing_player)
 	event_queue += events
 	return true
 
@@ -7572,7 +7530,8 @@ func do_force_for_effect(performing_player : Player, card_ids : Array, treat_ult
 		else:
 			printlog("ERROR: Tried to force for effect with too much force.")
 			return false
-	change_game_state(Enums.GameState.GameState_Strike_Processing)
+
+	set_player_action_processing_state()
 	if force_generated > 0:
 		var card_names = ""
 		if card_ids.size() > 0:
@@ -7596,26 +7555,8 @@ func do_force_for_effect(performing_player : Player, card_ids : Array, treat_ult
 		for i in range(0, effect_times):
 			events += handle_strike_effect(decision_info.choice_card_id, decision_effect, performing_player)
 
-	if game_state != Enums.GameState.GameState_PlayerDecision:
-		if active_start_of_turn_effects:
-			events += continue_begin_turn()
-		elif active_overdrive:
-			# Intentional events = because events are passed in.
-			events = do_remaining_overdrive(events, performing_player)
-		elif active_boost:
-			active_boost.effects_resolved += 1
-			# Intentional events = because events are passed in.
-			events = continue_resolve_boost(events)
-		elif active_strike:
-			active_strike.effects_resolved_in_timing += 1
-			# Intentional events = because events are passed in.
-			events = continue_resolve_strike(events)
-		else:
-			printlog("ERROR: When is this force for effect happening?")
-			assert(false, "When is this force for effect happening?")
-	else:
-		# Some other effect will result in this continuing.
-		pass
+	# Intentional events = because events are passed in.
+	events = continue_player_action_resolution(events, performing_player)
 	event_queue += events
 	return true
 
@@ -7641,7 +7582,9 @@ func do_gauge_for_effect(performing_player : Player, card_ids : Array) -> bool:
 	if gauge_generated > decision_info.effect['gauge_max']:
 		printlog("ERROR: Tried to gauge for effect with too many cards.")
 		return false
-	change_game_state(Enums.GameState.GameState_Strike_Processing)
+
+	set_player_action_processing_state()
+
 	if gauge_generated > 0:
 		var card_names = ""
 		if card_ids.size() > 0:
@@ -7675,26 +7618,8 @@ func do_gauge_for_effect(performing_player : Player, card_ids : Array) -> bool:
 		for i in range(0, effect_times):
 			events += handle_strike_effect(decision_info.choice_card_id, decision_effect, performing_player)
 
-	if game_state != Enums.GameState.GameState_PlayerDecision:
-		if active_start_of_turn_effects:
-			events += continue_begin_turn()
-		elif active_overdrive:
-			# Intentional events = because events are passed in.
-			events = do_remaining_overdrive(events, performing_player)
-		elif active_boost:
-			active_boost.effects_resolved += 1
-			# Intentional events = because events are passed in.
-			events = continue_resolve_boost(events)
-		elif active_strike:
-			active_strike.effects_resolved_in_timing += 1
-			# Intentional events = because events are passed in.
-			events = continue_resolve_strike(events)
-		else:
-			printlog("ERROR: When is this gauge for effect happening?")
-			assert(false, "When is this gauge for effect happening?")
-	else:
-		# Some other effect will result in this continuing.
-		pass
+	# Intentional events = because events are passed in.
+	events = continue_player_action_resolution(events, performing_player)
 	event_queue += events
 	return true
 
@@ -7736,28 +7661,11 @@ func do_choose_to_discard(performing_player : Player, card_ids):
 		effect['and'] = decision_info.bonus_effect
 
 	var events = []
-	if active_start_of_turn_effects or active_overdrive or active_boost or active_character_action:
-		game_state = Enums.GameState.GameState_Boost_Processing
-	elif active_strike:
-		game_state = Enums.GameState.GameState_Strike_Processing
+	set_player_action_processing_state()
 
 	events += do_effect_if_condition_met(performing_player, decision_info.choice_card_id, effect, null)
-	if game_state != Enums.GameState.GameState_PlayerDecision:
-		if active_start_of_turn_effects:
-			events += continue_begin_turn()
-		elif active_overdrive:
-			# Intentional events = because events are passed in.
-			events = do_remaining_overdrive(events, performing_player)
-		elif active_boost:
-			active_boost.effects_resolved += 1
-			# Intentional events = because events are passed in.
-			events = continue_resolve_boost(events)
-		elif active_character_action:
-			events += do_remaining_character_action(performing_player)
-		elif active_strike:
-			active_strike.effects_resolved_in_timing += 1
-			# Intentional events = because events are passed in.
-			events = continue_resolve_strike(events)
+	# Intentional events = because events are passed in.
+	events = continue_player_action_resolution(events, performing_player)
 	event_queue += events
 	return true
 

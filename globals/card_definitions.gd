@@ -286,6 +286,8 @@ func get_condition_text(effect, amount, amount2, detail):
 				text += "If opponent is on %s or between you, " % detail
 			else:
 				text += "If opponent is between you and %s, " % detail
+		"opponent_buddy_in_range":
+			text += "If you can hit %s, " % detail
 		"is_buddy_special_attack":
 			text += ""
 		"speed_greater_than":

@@ -16279,7 +16279,7 @@
 					"effect_type": "gauge_for_effect",
 					"per_gauge_effect": null,
 					"overall_effect": {
-						"effect_type": "nothing",
+						"effect_type": "pass",
 						"spent_cards_to_hand": true
 					},
 					"spent_cards_to_hand": true,
