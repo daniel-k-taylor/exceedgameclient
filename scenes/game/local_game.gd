@@ -1977,20 +1977,20 @@ class Player:
 						break
 					else:
 						target_location = test_location
-			elif target_location == stop_on_space and not i == amount-1:
-				# If stop_on_space is this location, the space is
-				# unoccupied (by virtue of not falling in the above if),
-				# and there are more spaces to go (i is not the last iteration),
-				# then stop the movement.
-				movement_shortened = true
-				stopped_on_space = true
-				new_location = stop_on_space
-				break
 
 			var updated_new_location = clamp(target_location, MinArenaLocation + extra_width, MaxArenaLocation - extra_width)
 			if new_location != updated_new_location:
 				distance += 1
 			new_location = updated_new_location
+
+			if new_location == stop_on_space and not i == amount-1:
+				# If stop_on_space is this location, the space is
+				# unoccupied (after resolving the above if),
+				# and there are more spaces to go (i is not the last iteration),
+				# then stop the movement.
+				movement_shortened = true
+				stopped_on_space = true
+				break
 
 		if movement_shortened:
 			if blocked_by_buddy:

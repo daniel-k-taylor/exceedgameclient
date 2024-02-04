@@ -31,8 +31,11 @@
 		},
 		{
 			"timing": "on_continuous_boost",
-			"effect_type": "place_buddy_in_any_space",
-			"buddy_name": "Gravitron"
+			"effect_type": "choice",
+			"choice": [
+				{ "effect_type": "place_buddy_in_any_space", "buddy_name": "Gravitron" },
+				{ "effect_type": "pass" }
+			]
 		},
 		{
 			"NOTE": "Gravitron effect",
