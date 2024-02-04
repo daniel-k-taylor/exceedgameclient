@@ -898,7 +898,6 @@ class Player:
 			if card.id == id:
 				events += add_to_hand(card, true)
 				gauge.remove_at(i)
-				on_hand_add_public_card(id)
 				break
 		return events
 
