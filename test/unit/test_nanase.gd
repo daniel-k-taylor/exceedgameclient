@@ -4,7 +4,7 @@ const LocalGame = preload("res://scenes/game/local_game.gd")
 const GameCard = preload("res://scenes/game/game_card.gd")
 const Enums = preload("res://scenes/game/enums.gd")
 var game_logic : LocalGame
-var default_deck = CardDefinitions.get_deck_from_str_id("hyde")
+var default_deck = CardDefinitions.get_deck_from_str_id("nanase")
 const TestCardId1 = 50001
 const TestCardId2 = 50002
 const TestCardId3 = 50003
@@ -14,10 +14,13 @@ const TestCardId5 = 50005
 var player1 : LocalGame.Player
 var player2 : LocalGame.Player
 
-func default_game_setup():
+func default_game_setup(alt_opponent : String = ""):
+	var opponent_deck = default_deck
+	if alt_opponent:
+		opponent_deck = CardDefinitions.get_deck_from_str_id(alt_opponent)
 	game_logic = LocalGame.new()
 	var seed_value = randi()
-	game_logic.initialize_game(default_deck, default_deck, "p1", "p2", Enums.PlayerId.PlayerId_Player, seed_value)
+	game_logic.initialize_game(default_deck, opponent_deck, "p1", "p2", Enums.PlayerId.PlayerId_Player, seed_value)
 	game_logic.draw_starting_hands_and_begin()
 	game_logic.do_mulligan(game_logic.player, [])
 	game_logic.do_mulligan(game_logic.opponent, [])
@@ -123,19 +126,20 @@ func handle_simultaneous_effects(initiator, defender):
 		assert_true(game_logic.do_choice(decider, 0), "Failed simuleffect choice")
 
 func execute_strike(initiator, defender, init_card : String, def_card : String, init_choices, def_choices,
-		init_ex = false, def_ex = false, init_force_discard = [], def_force_discard = [], init_extra_cost = 0, give_cards = true):
+		init_ex = false, def_ex = false, init_force_discard = [], def_force_discard = [], init_extra_cost = 0, init_set_effect_gauge = false, def_set_effect_gauge = false):
 	var all_events = []
-	if give_cards:
-		give_specific_cards(initiator, init_card, defender, def_card)
+	give_specific_cards(initiator, init_card, defender, def_card)
 	if init_ex:
-		if give_cards:
-			give_player_specific_card(initiator, init_card, TestCardId3)
+		give_player_specific_card(initiator, init_card, TestCardId3)
 		do_and_validate_strike(initiator, TestCardId1, TestCardId3)
 	else:
 		do_and_validate_strike(initiator, TestCardId1)
 
 	if game_logic.game_state == Enums.GameState.GameState_PlayerDecision and game_logic.active_strike.strike_state == game_logic.StrikeState.StrikeState_Initiator_SetEffects:
-		game_logic.do_force_for_effect(initiator, init_force_discard, false)
+		if init_set_effect_gauge:
+			assert_true(game_logic.do_gauge_for_effect(initiator, init_force_discard), "failed do_gauge_for_effect")
+		else:
+			assert_true(game_logic.do_force_for_effect(initiator, init_force_discard, false), "failed do_force_for_effect")
 
 	if def_ex:
 		give_player_specific_card(defender, def_card, TestCardId4)
@@ -144,7 +148,10 @@ func execute_strike(initiator, defender, init_card : String, def_card : String, 
 		all_events += do_strike_response(defender, TestCardId2)
 
 	if game_logic.game_state == Enums.GameState.GameState_PlayerDecision and game_logic.active_strike.strike_state == game_logic.StrikeState.StrikeState_Defender_SetEffects:
-		game_logic.do_force_for_effect(defender, def_force_discard, false)
+		if def_set_effect_gauge:
+			assert_true(game_logic.do_gauge_for_effect(defender, def_force_discard), "failed defender do_gauge_for_effect")
+		else:
+			assert_true(game_logic.do_force_for_effect(defender, def_force_discard, false), "failed defender do_force_for_effect")
 
 	# Pay any costs from gauge
 	if game_logic.active_strike and game_logic.active_strike.strike_state == game_logic.StrikeState.StrikeState_Initiator_PayCosts:
@@ -165,14 +172,14 @@ func execute_strike(initiator, defender, init_card : String, def_card : String, 
 	handle_simultaneous_effects(initiator, defender)
 
 	for i in range(init_choices.size()):
-		assert_eq(game_logic.game_state, Enums.GameState.GameState_PlayerDecision, "not in decision for choice 1")
-		assert_true(game_logic.do_choice(initiator, init_choices[i]), "choice 1 failed")
+		assert_eq(game_logic.game_state, Enums.GameState.GameState_PlayerDecision)
+		assert_true(game_logic.do_choice(initiator, init_choices[i]))
 		handle_simultaneous_effects(initiator, defender)
 	handle_simultaneous_effects(initiator, defender)
 
 	for i in range(def_choices.size()):
-		assert_eq(game_logic.game_state, Enums.GameState.GameState_PlayerDecision, "not in decision for choice 2")
-		assert_true(game_logic.do_choice(defender, def_choices[i]), "choice 2 failed")
+		assert_eq(game_logic.game_state, Enums.GameState.GameState_PlayerDecision)
+		assert_true(game_logic.do_choice(defender, def_choices[i]))
 		handle_simultaneous_effects(initiator, defender)
 
 	var events = game_logic.get_latest_events()
@@ -187,86 +194,106 @@ func validate_life(p1, l1, p2, l2):
 	assert_eq(p1.life, l1)
 	assert_eq(p2.life, l2)
 
-func get_cards_from_hand(player : LocalGame.Player, amount : int):
-	var card_ids = []
-	for i in range(amount):
-		card_ids.append(player.hand[i].id)
-	return card_ids
-
-func get_cards_from_gauge(player : LocalGame.Player, amount : int):
-	var card_ids = []
-	for i in range(amount):
-		card_ids.append(player.gauge[i].id)
-	return card_ids
-
 ##
 ## Tests start here
 ##
 
-func test_hyde_ua_not_striking():
-	position_players(player1, 2, player2, 5)
-	assert_true(game_logic.do_character_action(player1, []))
-	assert_true(game_logic.do_choice(player1, 0)) # close 1
-	assert_true(game_logic.do_choice(player1, 1)) # pass
-	var events = game_logic.get_latest_events()
-	validate_has_event(events, Enums.EventType.EventType_CardFromHandToGauge_Choice, player1)
-	assert_eq(game_logic.game_state, Enums.GameState.GameState_PlayerDecision)
-	var card_to_choose = player1.hand[0]
-	assert_true(game_logic.do_card_from_hand_to_gauge(player1, [card_to_choose.id]))
-	events = game_logic.get_latest_events()
-	assert_true(player1.is_card_in_gauge(card_to_choose.id))
-	validate_positions(player1, 3, player2, 5)
 
-func test_hyde_ua_empty_hand():
-	position_players(player1, 3, player2, 5)
-	player1.discard_hand()
-	assert_true(game_logic.do_character_action(player1, []))
-	assert_true(game_logic.do_choice(player1, 1)) # retreat 1
+func test_nanase_ua():
+	position_players(player1, 5, player2, 7)
+	assert_true(game_logic.do_character_action(player1, [], 0))
 	var events = game_logic.get_latest_events()
-	validate_has_event(events, Enums.EventType.EventType_Draw, player1)
-	assert_eq(game_logic.game_state, Enums.GameState.GameState_PickAction)
-	validate_positions(player1, 2, player2, 5)
+	validate_has_event(events, Enums.EventType.EventType_ForceStartStrike, player1)
+	execute_strike(player1, player2, "uni_normal_cross", "standard_normal_assault", [], [], false, false, [], [], 0, [])
+	validate_life(player1, 30, player2, 28)
+	validate_positions(player1, 2, player2, 7)
+	advance_turn(player1)
 
-func test_hyde_exceed_ua_wild_swing():
-	position_players(player1, 3, player2, 5)
+func test_nanase_ua_exceed_power():
+	position_players(player1, 5, player2, 7)
 	player1.exceed()
-
-	give_specific_cards(player1, "hyde_gyrovortex", player2, "uni_normal_focus")
-	var ultra_card = player1.hand[-1]
-	player1.remove_card_from_hand(TestCardId4, false, false)
-	player1.gauge.append(ultra_card)
 	give_gauge(player1, 1)
-	give_player_specific_card(player1, "uni_normal_sweep", TestCardId3)
-	var sweep_card = player1.hand[-1]
-	player1.remove_card_from_hand(TestCardId3, false, false)
-	player1.deck.insert(0, sweep_card)
-
-	assert_true(game_logic.do_character_action(player1, [player1.gauge[-1].id]))
-	execute_strike(player1, player2, "hyde_gyrovortex", "uni_normal_focus", [], [], false, false, [], [], 0, false)
-
-	assert_true(player1.is_card_in_discards(TestCardId1))
-	assert_true(player1.is_card_in_sealed(TestCardId3))
-	validate_positions(player1, 3, player2, 5)
-	validate_life(player1, 30, player2, 23)
-
-func test_hyde_charged_attack_advance_before():
-	position_players(player1, 3, player2, 6)
-
-	give_player_specific_card(player1, "hyde_redcladcraver", TestCardId3)
-	assert_true(game_logic.do_boost(player1, TestCardId3))
+	assert_true(game_logic.do_character_action(player1, [player1.gauge[0].id]))
+	var events = game_logic.get_latest_events()
+	validate_has_event(events, Enums.EventType.EventType_ForceStartStrike, player1)
+	give_player_specific_card(player1, "uni_normal_cross", TestCardId1)
+	give_player_specific_card(player2, "uni_normal_cross", TestCardId2)
+	assert_true(game_logic.do_strike(player1, TestCardId1, false, -1))
+	# Set strike choice
+	assert_true(game_logic.do_choice(player1, 0)) # Powerup
+	assert_true(game_logic.do_strike(player2, TestCardId2, false, -1))
+	validate_life(player1, 30, player2, 25)
+	validate_positions(player1, 2, player2, 7)
 	advance_turn(player2)
-	execute_strike(player1, player2, "uni_normal_assault", "uni_normal_focus", [], [])
-	assert_true(player1.is_card_in_gauge(TestCardId3))
+
+func test_nanase_ua_exceed_adv():
+	position_players(player1, 5, player2, 7)
+	player1.exceed()
+	give_gauge(player1, 1)
+	assert_true(game_logic.do_character_action(player1, [player1.gauge[0].id]))
+	var events = game_logic.get_latest_events()
+	validate_has_event(events, Enums.EventType.EventType_ForceStartStrike, player1)
+	give_player_specific_card(player1, "uni_normal_cross", TestCardId1)
+	give_player_specific_card(player2, "uni_normal_cross", TestCardId2)
+	assert_true(game_logic.do_strike(player1, TestCardId1, false, -1))
+	# Set strike choice
+	assert_true(game_logic.do_choice(player1, 1)) # Advantage
+	assert_true(game_logic.do_strike(player2, TestCardId2, false, -1))
+	validate_life(player1, 30, player2, 27)
+	validate_positions(player1, 2, player2, 7)
+	advance_turn(player1)
+
+func test_nanase_ua_exceed_gethit():
+	position_players(player1, 5, player2, 7)
+	player1.exceed()
+	give_gauge(player1, 1)
+	assert_true(game_logic.do_character_action(player1, [player1.gauge[0].id]))
+	var events = game_logic.get_latest_events()
+	validate_has_event(events, Enums.EventType.EventType_ForceStartStrike, player1)
+	give_player_specific_card(player1, "uni_normal_dive", TestCardId1)
+	give_player_specific_card(player2, "uni_normal_assault", TestCardId2)
+	assert_true(game_logic.do_strike(player1, TestCardId1, false, -1))
+	# Set strike choice
+	assert_true(game_logic.do_choice(player1, 0)) # Powerup
+	assert_true(game_logic.do_strike(player2, TestCardId2, false, -1))
+	validate_life(player1, 25, player2, 30)
 	validate_positions(player1, 5, player2, 6)
-	validate_life(player1, 26, player2, 28)
+	advance_turn(player2)
 
-func test_hyde_dead_set_daze_ex_speed_boost():
-	position_players(player1, 3, player2, 4)
+func test_nanase_angesinvitation_speeddodge():
+	position_players(player1, 3, player2, 2)
+	execute_strike(player1, player2, "nanase_angesinvitation", "standard_normal_cross", [], [], false, false, [], [], 0, [])
+	validate_life(player1, 30, player2, 25)
+	validate_positions(player1, 2, player2, 1)
+	assert_eq(player1.gauge.size(), 1)
+	assert_eq(player2.gauge.size(), 0)
+	advance_turn(player2)
 
-	give_gauge(player2, 1)
-	execute_strike(player1, player2, "uni_normal_grasp", "hyde_deadsetdaze", [1], [], true)
-	assert_true(player1.is_card_in_gauge(TestCardId1))
-	assert_true(player2.is_card_in_gauge(TestCardId2))
-	validate_positions(player1, 3, player2, 6)
-	validate_life(player1, 23, player2, 27)
+func test_nanase_angesinvitation_speeddodge_fail():
+	position_players(player1, 3, player2, 2)
+	execute_strike(player1, player2, "nanase_angesinvitation", "standard_normal_assault", [], [], false, false, [], [], 0, [])
+	validate_life(player1, 26, player2, 30)
+	validate_positions(player1, 3, player2, 2)
+	assert_eq(player1.gauge.size(), 0)
+	assert_eq(player2.gauge.size(), 1)
+	advance_turn(player2)
 
+func test_nanase_lumiere_toofast():
+	position_players(player1, 3, player2, 2)
+	give_gauge(player1, 3)
+	execute_strike(player1, player2, "nanase_lumiereofthedawn", "standard_normal_sweep", [], [], false, false, [], [], 0, [])
+	validate_life(player1, 24, player2, 30)
+	validate_positions(player1, 3, player2, 2)
+	assert_eq(player1.gauge.size(), 0)
+	assert_eq(player2.gauge.size(), 1)
+	advance_turn(player2)
+
+func test_nanase_lumiere_good():
+	position_players(player1, 3, player2, 2)
+	give_gauge(player1, 3)
+	execute_strike(player1, player2, "nanase_lumiereofthedawn", "standard_normal_assault", [], [], false, false, [], [], 0, [])
+	validate_life(player1, 30, player2, 21)
+	validate_positions(player1, 3, player2, 2)
+	assert_eq(player1.gauge.size(), 1)
+	assert_eq(player2.gauge.size(), 1)
+	advance_turn(player2)

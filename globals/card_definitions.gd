@@ -288,6 +288,11 @@ func get_condition_text(effect, amount, amount2, detail):
 				text += "If opponent is between you and %s, " % detail
 		"is_buddy_special_attack":
 			text += ""
+		"speed_greater_than":
+			if amount == "OPPONENT_SPEED":
+				text += "If your speed is greater than opponent's, "
+			else:
+				text += "If your speed is greater than %s, " % amount
 		"was_wild_swing":
 			text += "If this was a wild swing, "
 		"was_strike_from_gauge":
@@ -338,7 +343,7 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 	match effect_type:
 		"add_attack_effect":
 			if char_effect_panel:
-				effect_str += get_effect_type_text(effect['added_effect'], card_name_source)
+				effect_str += get_effect_text(effect['added_effect'], false, false, false, card_name_source, false)
 			else:
 				effect_str += "Add effect:\n" + get_effect_text(effect['added_effect'], false, false, false, card_name_source, false)
 		"add_boost_to_gauge_on_strike_cleanup":
@@ -620,7 +625,9 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 		"powerup_damagetaken":
 			effect_str += "+" + str(effect['amount']) + " Power per damage taken this strike."
 		"powerup_opponent":
-			effect_str += "+" + str(effect['amount']) + " Opponent's Power"
+			if effect['amount'] > 0:
+				effect_str += "+"
+			effect_str += str(effect['amount']) + " Opponent's Power"
 		"pull":
 			effect_str += "Pull " + str(effect['amount'])
 		"pull_to_buddy":
@@ -862,12 +869,12 @@ func get_effect_text(effect, short = false, skip_timing = false, skip_condition 
 		effect_str += get_effect_type_text(effect, card_name_source, char_effect_panel)
 
 	if not short and 'bonus_effect' in effect:
-		effect_str += "; " + get_effect_text(effect['bonus_effect'], skip_timing, false, card_name_source)
+		effect_str += "; " + get_effect_text(effect['bonus_effect'], false, false, false, card_name_source, char_effect_panel)
 	if 'and' in effect:
 		if not 'suppress_and_description' in effect or not effect['suppress_and_description']:
 			if effect_str != "":
 				effect_str += ", "
-			effect_str += get_effect_text(effect['and'], short, skip_timing, false, card_name_source)
+			effect_str += get_effect_text(effect['and'], short, false, false, card_name_source, char_effect_panel)
 	if 'negative_condition_effect' in effect:
 		if not 'suppress_negative_description' in effect or not effect['suppress_negative_description']:
 			effect_str += ", otherwise " + get_effect_text(effect['negative_condition_effect'], short, skip_timing, false, card_name_source)

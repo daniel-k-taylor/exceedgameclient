@@ -215,7 +215,7 @@ func test_jacko_exceed_char_servant_shoot():
 	player1.exceed()
 	give_player_specific_card(player1, "jacko_ironpumpkin", TestCardId3)
 	var card = player1.hand[player1.hand.size()-1]
-	player1.remove_card_from_hand(TestCardId3)
+	player1.remove_card_from_hand(TestCardId3, false, false)
 	player1.gauge.append(card)
 	assert_true(game_logic.do_character_action(player1, [player1.hand[0].id]))
 	assert_true(game_logic.do_boost(player1, TestCardId3))

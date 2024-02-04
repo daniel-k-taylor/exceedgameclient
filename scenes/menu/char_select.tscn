@@ -1,4 +1,4 @@
-[gd_scene load_steps=57 format=3 uid="uid://cqs72exlwm6at"]
+[gd_scene load_steps=58 format=3 uid="uid://cqs72exlwm6at"]
 
 [ext_resource type="Script" path="res://scenes/menu/char_select.gd" id="1_f3x24"]
 [ext_resource type="PackedScene" uid="uid://nwqxp8pdh1jk" path="res://scenes/menu/char_select_button.tscn" id="6_3lmwy"]
@@ -39,6 +39,7 @@
 [ext_resource type="Texture2D" uid="uid://dgmjgjw44rf6r" path="res://assets/portraits/ken.png" id="31_2ynpm"]
 [ext_resource type="Texture2D" uid="uid://clmicn3w5pnx7" path="res://assets/portraits/noel.png" id="31_clm6c"]
 [ext_resource type="Texture2D" uid="uid://ojsgw4m4r087" path="res://assets/portraits/sklogo.png" id="31_hsrmq"]
+[ext_resource type="Texture2D" uid="uid://sd5buxxnbiv8" path="res://assets/portraits/nanase.png" id="31_ls450"]
 [ext_resource type="Texture2D" uid="uid://b060c4v4aecrq" path="res://assets/portraits/sflogo.png" id="31_xu3ya"]
 [ext_resource type="Texture2D" uid="uid://lpvtuydm4qk1" path="res://assets/portraits/tager.png" id="32_1r668"]
 [ext_resource type="Texture2D" uid="uid://de4wk0x150r1f" path="res://assets/portraits/exceedrandom.png" id="32_iutun"]
@@ -292,6 +293,7 @@ portrait_texture = ExtResource("26_pbdap")
 
 [node name="Row2" type="HBoxContainer" parent="CenterContainer/UNICharacterSelect/Rows"]
 layout_mode = 2
+alignment = 1
 
 [node name="Yuzu" parent="CenterContainer/UNICharacterSelect/Rows/Row2" instance=ExtResource("6_3lmwy")]
 layout_mode = 2
@@ -312,6 +314,15 @@ portrait_texture = ExtResource("29_r57n1")
 layout_mode = 2
 char_id = "chaos"
 portrait_texture = ExtResource("30_wwb0v")
+
+[node name="Row3" type="HBoxContainer" parent="CenterContainer/UNICharacterSelect/Rows"]
+layout_mode = 2
+alignment = 1
+
+[node name="Nanase" parent="CenterContainer/UNICharacterSelect/Rows/Row3" instance=ExtResource("6_3lmwy")]
+layout_mode = 2
+char_id = "nanase"
+portrait_texture = ExtResource("31_ls450")
 
 [node name="BBCharacterSelect" type="PanelContainer" parent="CenterContainer"]
 layout_mode = 2
@@ -596,6 +607,8 @@ portrait_texture = ExtResource("32_iutun")
 [connection signal="on_pressed" from="CenterContainer/UNICharacterSelect/Rows/Row2/Mika" to="." method="_on_char_button_on_pressed"]
 [connection signal="on_hover" from="CenterContainer/UNICharacterSelect/Rows/Row2/Chaos" to="." method="_on_char_hover"]
 [connection signal="on_pressed" from="CenterContainer/UNICharacterSelect/Rows/Row2/Chaos" to="." method="_on_char_button_on_pressed"]
+[connection signal="on_hover" from="CenterContainer/UNICharacterSelect/Rows/Row3/Nanase" to="." method="_on_char_hover"]
+[connection signal="on_pressed" from="CenterContainer/UNICharacterSelect/Rows/Row3/Nanase" to="." method="_on_char_button_on_pressed"]
 [connection signal="on_hover" from="CenterContainer/BBCharacterSelect/Rows/Row1/Ragna" to="." method="_on_char_hover"]
 [connection signal="on_pressed" from="CenterContainer/BBCharacterSelect/Rows/Row1/Ragna" to="." method="_on_char_button_on_pressed"]
 [connection signal="on_hover" from="CenterContainer/BBCharacterSelect/Rows/Row1/RandomBB" to="." method="_on_char_hover"]
