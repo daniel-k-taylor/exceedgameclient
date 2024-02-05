@@ -928,7 +928,6 @@ class Player:
 			if card.id == id:
 				events += add_to_hand(card, true)
 				gauge.remove_at(i)
-				on_hand_add_public_card(id)
 				break
 		return events
 
@@ -4279,6 +4278,9 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 		"return_attack_to_top_of_deck":
 			performing_player.strike_stat_boosts.attack_to_topdeck_on_cleanup = true
 			handle_strike_attack_immediate_removal(performing_player)
+		"nothing":
+			# Do nothing.
+			pass
 		"opponent_discard_choose":
 			if opposing_player.hand.size() > effect['amount']:
 				change_game_state(Enums.GameState.GameState_PlayerDecision)
@@ -5555,12 +5557,12 @@ func do_remaining_overdrive(events, performing_player : Player):
 			# Intentional events = as events were queued and no more
 			# will be added when this callstack returns.
 			events = []
-			
+
 			# Prep gamestate so we can boost.
 			change_game_state(Enums.GameState.GameState_PlayerDecision)
 			decision_info.type = Enums.DecisionType.DecisionType_BoostNow
 			do_boost(performing_player, card.id, [])
-			
+
 		# Very explicitly don't unset active_overdrive until after do_boost, so boost knows we're in overdrive doing this.
 		# Also, there should be no decisions so we're good to advance the turn.
 		active_overdrive = false
