@@ -3919,7 +3919,7 @@ func _on_revealed_cards_button_pressed():
 		if card_str_id in public_hand_info['questionable']:
 			questionable_count = public_hand_info['questionable'][card_str_id]
 		on_topdeck = card_str_id == public_hand_info['topdeck']
-		card.update_hand_icons(known_count, questionable_count, on_topdeck)
+		card.update_hand_icons(known_count, questionable_count, on_topdeck, false)
 
 	show_popout(CardPopoutType.CardPopoutType_RevealedOpponent, "KNOWN CARDS", $AllCards/OpponentRevealed, OffScreen, CardBase.CardState.CardState_Offscreen)
 
