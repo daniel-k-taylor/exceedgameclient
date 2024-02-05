@@ -177,6 +177,7 @@ func get_current_strike_timing():
 	if active_strike:
 		if active_strike.extra_attack_in_progress:
 			# Implement this later if we really need it or it makes sense.
+			# Potentially needs to return the current timing of the main strike.
 			assert(false)
 			return "extra attack not implemented"
 		else:
@@ -196,6 +197,31 @@ func get_current_strike_timing():
 				_:
 					return "other"
 	return "no active strike"
+
+func get_current_strike_timing_player_id():
+	if active_strike:
+		if active_strike.extra_attack_in_progress:
+			# Implement this later if we really need it or it makes sense.
+			assert(false)
+			return active_strike.extra_attack_player.my_id
+		else:
+			match active_strike.strike_state:
+				StrikeState.StrikeState_Initiator_SetEffects:
+					return active_strike.initiator.my_id
+				StrikeState.StrikeState_Defender_SetFirst, StrikeState.StrikeState_Defender_SetEffects:
+					return active_strike.defender.my_id
+				StrikeState.StrikeState_DuringStrikeBonuses:
+					assert(false, "Unexpected call to get_current_strike_timing_player_id, investigate further.")
+					return active_strike.initiator.my_id
+				StrikeState.StrikeState_Card1_Before, StrikeState.StrikeState_Card1_Hit, StrikeState.StrikeState_Card1_After, StrikeState.StrikeState_Cleanup_Player1Effects:
+					return active_strike.get_player(1).my_id
+				StrikeState.StrikeState_Card2_Before, StrikeState.StrikeState_Card2_Hit, StrikeState.StrikeState_Card2_After, StrikeState.StrikeState_Cleanup_Player2Effects:
+					return active_strike.get_player(2).my_id
+				_:
+					assert(false, "Unexpected call to get_current_strike_timing_player_id, investigate further.")
+					return active_strike.get_player(1).my_id
+	# If no active strike, assume it is current active player.
+	return active_turn_player
 
 enum ExtraAttackState {
 	ExtraAttackState_None,
@@ -2244,7 +2270,8 @@ class Player:
 
 	func disable_boost_effects(card : GameCard, buddy_ignore_condition : bool = false):
 		var opposing_player = parent._get_player(parent.get_other_player(my_id))
-		# Undo boost properties
+
+		# Undo timing effects and passive bonuses.
 		var current_timing = parent.get_current_strike_timing()
 		for effect in card.definition['boost']['effects']:
 			if effect['timing'] == "now":
@@ -2254,8 +2281,13 @@ class Player:
 						parent._append_log_full(Enums.LogType.LogType_Effect, self, "no longer ignores pushes and pulls.")
 			elif effect['timing'] == current_timing:
 				# Need to remove these effects from the remaining effects.
+				# Only if the current timing belongs to the player who has this in their continuous boosts.
 				assert(current_timing != "during_strike", "Can't remove boosts at this timing, unexpected, and effects are handled differently.")
-				parent.remove_remaining_effect(effect, card.id)
+				var current_timing_player_id = parent.get_current_strike_timing_player_id()
+				if current_timing_player_id == my_id:
+					# The current timing matches the player whose continuous boosts this is in.
+					# Remove it from the ongoing remaining effects.
+					parent.remove_remaining_effect(effect, card.id)
 
 		if parent.active_strike:
 			# Undo continuous effects
@@ -5550,6 +5582,7 @@ func do_remaining_overdrive(events, performing_player : Player):
 	if game_state != Enums.GameState.GameState_PlayerDecision:
 		# Overdrive Cleanup
 		if active_overdrive_boost_top_discard_on_cleanup:
+			active_overdrive_boost_top_discard_on_cleanup = false
 			# Assumption! The top discarded card is a continuous boost and
 			# that boost has NO choices or decisions, it just goes into play.
 			# do_boost will complete all the way through boost resolution.
