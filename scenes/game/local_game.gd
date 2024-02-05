@@ -5541,7 +5541,6 @@ func do_remaining_overdrive(events, performing_player : Player):
 			break
 
 	if game_state != Enums.GameState.GameState_PlayerDecision:
-		active_overdrive = false
 		# Overdrive Cleanup
 		if active_overdrive_boost_top_discard_on_cleanup:
 			# Assumption! The top discarded card is a continuous boost and
@@ -5556,9 +5555,16 @@ func do_remaining_overdrive(events, performing_player : Player):
 			# Intentional events = as events were queued and no more
 			# will be added when this callstack returns.
 			events = []
+			
+			# Prep gamestate so we can boost.
+			change_game_state(Enums.GameState.GameState_PlayerDecision)
+			decision_info.type = Enums.DecisionType.DecisionType_BoostNow
 			do_boost(performing_player, card.id, [])
-		else:
-			events += start_begin_turn()
+			
+		# Very explicitly don't unset active_overdrive until after do_boost, so boost knows we're in overdrive doing this.
+		# Also, there should be no decisions so we're good to advance the turn.
+		active_overdrive = false
+		events += start_begin_turn()
 
 	return events
 

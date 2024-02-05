@@ -2,27 +2,6 @@
 
 In progress:
 
-    Platinum:
-        ☐ "effect_type": "sustain_all_boosts" @started(24-02-03 22:16)
-        ☐ choose_discard @started(24-02-04 02:32)
-            ☐ destination - deck_noshuffle @started(24-02-04 02:24)
-            ☐ "limitation": "continuous", @started(24-02-04 02:24)
-            ☐ "destination": "play_boost" @started(24-02-04 02:32)
-            ☐ use - "amount": "DISCARDED_COUNT" @started(24-02-04 02:32)
-        ✔ "condition": "opponent_moved_or_was_moved", @started(24-02-03 22:22) @done(24-02-04 15:06) @lasted(16h44m43s)
-
-        ✔ return_attack_to_top_of_deck - should probably go immediately and remove all bonuses @started(24-02-04 03:26) @done(24-02-04 15:42) @lasted(12h16m12s)
-
-        Overdrive:
-        ☐ "condition": "top_discard_is_continous_boost", @started(24-02-03 22:28)
-        ☐ "effect_type": "boost_discarded_overdrive" @started(24-02-04 02:59)
-
-        Cleanup Ability:
-        ☐ "effect_type": "boost_then_sustain_topdeck", @started(24-02-03 22:43)
-            ☐ "discard_if_not_continuous": true @started(24-02-03 22:43)
-        ☐ "effect_type": "add_attack_effect",    if current timing, add to remaining effects list @started(24-02-03 22:56)
-
-
 
 Write tests for:
     Axl:

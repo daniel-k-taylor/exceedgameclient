@@ -10,6 +10,8 @@ const TestCardId2 = 50002
 const TestCardId3 = 50003
 const TestCardId4 = 50004
 const TestCardId5 = 50005
+const TestCardId6 = 50006
+const TestCardId7 = 50007
 
 var player1 : LocalGame.Player
 var player2 : LocalGame.Player
@@ -349,3 +351,213 @@ func test_platinum_dreamsally_returnattack_losearmor():
 	# Player 1's should be the happy magicka.
 	assert_eq(player1.continuous_boosts[0].id, TestCardId1)
 	advance_turn(player2)
+
+
+func test_platinum_miracle_jeanne_and_boost_sustain_all():
+	position_players(player1, 3, player2, 5)
+	
+	# Boost miracle jeanne and sweep.
+	# Discard a grasp and spike
+	# Attack with Jeanne to boost those from discard.
+	# Check that all are sustained.
+	give_player_specific_card(player1, "platinum_miraclejeanne", TestCardId3)
+	assert_true(game_logic.do_boost(player1, TestCardId3))
+	advance_turn(player2)
+	give_player_specific_card(player1, "standard_normal_sweep", TestCardId4)
+	assert_true(game_logic.do_boost(player1, TestCardId4))
+	advance_turn(player2)
+	give_player_specific_card(player1, "standard_normal_grasp", TestCardId6)
+	give_player_specific_card(player1, "standard_normal_spike", TestCardId7)
+	player1.discard_hand()
+	assert_eq(player1.discards.size(), 9) # 7 card hand after the 2 give+boost, and the 2 new ones.
+	
+	# Strike cards
+	give_gauge(player1, 4)
+	give_player_specific_card(player1, "platinum_miraclejeanne", TestCardId1)
+	give_player_specific_card(player2, "standard_normal_focus", TestCardId2)
+	
+	assert_true(game_logic.do_strike(player1, TestCardId1, false, -1))
+	assert_true(game_logic.do_strike(player2, TestCardId2, false, -1))
+	# Pay for miracle
+	var card_ids = []
+	for card in player1.gauge:
+		card_ids.append(card.id)
+	assert_true(game_logic.do_pay_strike_cost(player1, card_ids, false))
+	assert_eq(player1.discards.size(), 13)
+	# Miracle goes first, choose 2 from discard.
+	assert_true(game_logic.do_choose_from_discard(player1, [TestCardId6, TestCardId7]))
+	# These boost without issue, then attack completes.
+	# Jeanne power 3, grasp +2, jeanne boost +2 = 7 power
+	# 3 armor - 1 from spike 2 from jeanne boost
+	validate_positions(player1, 3, player2, 5)
+	validate_life(player1, 29, player2, 25)
+
+	# Cleanup choice, just pass.
+	assert_true(game_logic.do_choice(player1, 1))
+	assert_true(game_logic.do_choice(player2, 1))
+	
+	assert_eq(player1.gauge.size(), 1)
+	assert_eq(player1.discards.size(), 11) # No boosts went to discard and 2 were pulled out.
+	assert_eq(player1.continuous_boosts.size(), 4)
+	advance_turn(player2)
+
+
+func test_platinum_miracle_jeanne_choose1_and_boost_sustain_all():
+	position_players(player1, 3, player2, 5)
+	
+	# Boost miracle jeanne and sweep.
+	# Discard a grasp and spike
+	# Attack with Jeanne to boost those from discard.
+	# Check that all are sustained.
+	give_player_specific_card(player1, "platinum_miraclejeanne", TestCardId3)
+	assert_true(game_logic.do_boost(player1, TestCardId3))
+	advance_turn(player2)
+	give_player_specific_card(player1, "standard_normal_sweep", TestCardId4)
+	assert_true(game_logic.do_boost(player1, TestCardId4))
+	advance_turn(player2)
+	give_player_specific_card(player1, "standard_normal_grasp", TestCardId6)
+	give_player_specific_card(player1, "standard_normal_spike", TestCardId7)
+	player1.discard_hand()
+	assert_eq(player1.discards.size(), 9) # 7 card hand after the 2 give+boost, and the 2 new ones.
+	
+	# Strike cards
+	give_gauge(player1, 4)
+	give_player_specific_card(player1, "platinum_miraclejeanne", TestCardId1)
+	give_player_specific_card(player2, "standard_normal_focus", TestCardId2)
+	
+	assert_true(game_logic.do_strike(player1, TestCardId1, false, -1))
+	assert_true(game_logic.do_strike(player2, TestCardId2, false, -1))
+	# Pay for miracle
+	var card_ids = []
+	for card in player1.gauge:
+		card_ids.append(card.id)
+	assert_true(game_logic.do_pay_strike_cost(player1, card_ids, false))
+	assert_eq(player1.discards.size(), 13)
+	# Miracle goes first, choose 1 from discard because we feel like it.
+	assert_true(game_logic.do_choose_from_discard(player1, [TestCardId6]))
+	# These boost without issue, then attack completes.
+	# Jeanne power 3, grasp +2, jeanne boost +2 = 7 power
+	# 2 armor - 2 from jeanne boost
+	validate_positions(player1, 3, player2, 5)
+	validate_life(player1, 28, player2, 25)
+
+	# Cleanup choice, just pass.
+	assert_true(game_logic.do_choice(player1, 1))
+	assert_true(game_logic.do_choice(player2, 1))
+	
+	assert_eq(player1.gauge.size(), 1)
+	assert_eq(player1.discards.size(), 12) # No boosts went to discard and 1 pulled out
+	assert_eq(player1.continuous_boosts.size(), 3)
+	advance_turn(player2)
+
+func test_platinum_curedottyphoon():
+	position_players(player1, 3, player2, 5)
+	
+	player1.discard_hand()
+	
+	# Strike cards
+	give_gauge(player1, 2)
+	give_player_specific_card(player1, "platinum_curedottyphoon", TestCardId1)
+	give_player_specific_card(player2, "standard_normal_assault", TestCardId2)
+	
+	assert_true(game_logic.do_strike(player1, TestCardId1, false, -1))
+	assert_true(game_logic.do_strike(player2, TestCardId2, false, -1))
+	# Pay for curedot
+	var card_ids = []
+	for card in player1.gauge:
+		card_ids.append(card.id)
+	assert_true(game_logic.do_pay_strike_cost(player1, card_ids, false))
+	# Choice to advance
+	assert_true(game_logic.do_choice(player1, 1))
+	
+	# After choose from discard for deck.
+	var discard_choice = player1.discards[4].id
+	assert_true(game_logic.do_choose_from_discard(player1, [discard_choice]))
+	validate_positions(player1, 6, player2, 5)
+	validate_life(player1, 30, player2, 26)
+	
+	# Card should be on top deck.
+	assert_eq(player1.deck[0].id, discard_choice)
+
+	# Let it be random, but the discarded card is either a continuous and in play
+	# or it is discarded again.
+	var is_continuous = player1.deck[0].definition['boost']['boost_type'] == "continuous"
+	
+	# Cleanup choice, do it.
+	assert_true(game_logic.do_choice(player1, 0))
+	assert_true(game_logic.do_choice(player2, 0))
+	
+	if is_continuous:
+		assert_eq(player1.continuous_boosts.size(), 1)
+		assert_eq(player1.continuous_boosts[0].id, discard_choice)
+	else:
+		assert_eq(player1.continuous_boosts.size(), 0)
+		assert_eq(player1.get_top_discard_card().id, discard_choice)
+	
+	assert_eq(player1.gauge.size(), 1)
+	advance_turn(player2)
+
+func test_platinum_exceed_ua_overdrive():
+	position_players(player1, 3, player2, 5)
+	
+	give_player_specific_card(player1, "standard_normal_grasp", TestCardId3)
+	give_player_specific_card(player1, "standard_normal_dive", TestCardId4)
+	give_player_specific_card(player1, "standard_normal_spike", TestCardId5)
+	player1.move_card_from_hand_to_gauge(TestCardId3)
+	player1.move_card_from_hand_to_gauge(TestCardId4)
+	player1.move_card_from_hand_to_gauge(TestCardId5)
+	assert_true(game_logic.do_exceed(player1, [TestCardId3, TestCardId4, TestCardId5]))
+	advance_turn(player2)
+	# Overdrive
+	assert_true(game_logic.do_choose_from_discard(player1, [TestCardId3]))
+	assert_eq(player1.continuous_boosts.size(), 1)
+	assert_eq(player1.continuous_boosts[0].id, TestCardId3)
+	
+	# Strike cards
+	give_player_specific_card(player1, "standard_normal_assault", TestCardId1)
+	give_player_specific_card(player2, "standard_normal_assault", TestCardId2)
+	assert_true(game_logic.do_strike(player1, TestCardId1, false, -1))
+	assert_true(game_logic.do_strike(player2, TestCardId2, false, -1))
+	validate_positions(player1, 4, player2, 5)
+	validate_life(player1, 30, player2, 24)
+	
+	# Prime topdeck
+	give_player_specific_card(player1, "standard_normal_sweep", TestCardId6)
+	player1.move_card_from_hand_to_deck(TestCardId6, 0)
+	
+	# Cleanup choice, p1 do it, p2 pass.
+	assert_true(game_logic.do_choice(player1, 0))
+	# Because exceeded, it is played but not sustained.
+	# Then we choose one to sustain, either our grasp or the new card.
+	assert_true(game_logic.do_choose_from_boosts(player1, [TestCardId6]))
+	
+	# p2 pass
+	assert_true(game_logic.do_choice(player2, 1))
+	
+	assert_eq(player1.continuous_boosts.size(), 1)
+	assert_eq(player1.continuous_boosts[0].id, TestCardId6)
+	# It is p1 turn again from advantage.
+	# Overdrive again.
+	# Choose dive which does nothing.
+	assert_true(game_logic.do_choose_from_discard(player1, [TestCardId4]))
+	assert_eq(player1.continuous_boosts.size(), 1)
+	assert_eq(player1.continuous_boosts[0].id, TestCardId6)
+	
+	# Strike again.
+	player1.move_card_from_gauge_to_hand(TestCardId1)
+	give_player_specific_card(player2, "standard_normal_cross", TestCardId7)
+	assert_true(game_logic.do_strike(player1, TestCardId1, false, -1))
+	assert_true(game_logic.do_strike(player2, TestCardId7, false, -1))
+	validate_positions(player1, 4, player2, 5)
+	validate_life(player1, 30, player2, 20)
+	# Cleanup choice, both pass, don't get to sustain.
+	assert_true(game_logic.do_choice(player1, 1))
+	assert_true(game_logic.do_choice(player2, 1))
+	assert_eq(player1.continuous_boosts.size(), 0)
+	
+	# Overdrive again.
+	assert_true(game_logic.do_choose_from_discard(player1, [TestCardId5]))
+	assert_eq(player1.continuous_boosts.size(), 1)
+	assert_eq(player1.continuous_boosts[0].id, TestCardId5)
+	assert_false(player1.exceeded)
+	advance_turn(player1)
