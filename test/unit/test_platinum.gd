@@ -335,8 +335,8 @@ func test_platinum_dreamsally_returnattack_losearmor():
 	
 	assert_true(game_logic.do_strike(player1, TestCardId1, false, -1))
 	assert_true(game_logic.do_strike(player2, TestCardId2, false, -1))
-	# Happy magicka goes, discards an opponent card.
-	assert_eq(player2.hand.size(), 6)
+	# Happy magicka goes, doesn't discard an opponent card since not hit.
+	assert_eq(player2.hand.size(), 7)
 	# After dream sally boost draws 1 and puts happy magicka on topdeck.
 	# Then sweep hits and discards player1 card.
 	validate_positions(player1, 3, player2, 5)
@@ -561,3 +561,50 @@ func test_platinum_exceed_ua_overdrive():
 	assert_eq(player1.continuous_boosts[0].id, TestCardId5)
 	assert_false(player1.exceeded)
 	advance_turn(player1)
+
+
+func test_platinum_happymagicka_vs_focus():
+	position_players(player1, 3, player2, 5)
+	
+	# Strike cards
+	assert_eq(player2.hand.size(), 6)
+	give_player_specific_card(player1, "platinum_happymagicka", TestCardId1)
+	give_player_specific_card(player2, "standard_normal_focus", TestCardId2)
+	assert_true(game_logic.do_strike(player1, TestCardId1, false, -1))
+	assert_true(game_logic.do_strike(player2, TestCardId2, false, -1))
+	validate_positions(player1, 3, player2, 5)
+	validate_life(player1, 28, player2, 29)
+	assert_eq(player2.hand.size(), 7)
+	
+	# Cleanup choice, just pass
+	assert_true(game_logic.do_choice(player1, 1))
+	assert_true(game_logic.do_choice(player2, 1))
+	
+	advance_turn(player2)
+
+func test_platinum_miraclejeanne_add_mystique_momo_pull():
+	position_players(player1, 3, player2, 8)
+	
+	# Strike cards
+	give_gauge(player1, 4)
+	give_player_specific_card(player1, "platinum_mystiquemomo", TestCardId3)
+	player1.discard([TestCardId3])
+	give_player_specific_card(player1, "platinum_miraclejeanne", TestCardId1)
+	give_player_specific_card(player2, "standard_normal_sweep", TestCardId2)
+	assert_true(game_logic.do_strike(player1, TestCardId1, false, -1))
+	assert_true(game_logic.do_strike(player2, TestCardId2, false, -1))
+	var card_ids = []
+	for card in player1.gauge:
+		card_ids.append(card.id)
+	assert_true(game_logic.do_pay_strike_cost(player1, card_ids, false))
+	# Miracle effect
+	# Just do 1.
+	assert_true(game_logic.do_choose_from_discard(player1, [TestCardId3]))
+	validate_positions(player1, 3, player2, 6)
+	validate_life(player1, 24, player2, 27)
+	
+	# Cleanup choice, just pass
+	assert_true(game_logic.do_choice(player1, 1))
+	assert_true(game_logic.do_choice(player2, 1))
+	
+	advance_turn(player2)

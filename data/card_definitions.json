@@ -13922,7 +13922,7 @@
 		"effects": [
 			{
 				"timing": "hit",
-				"condtion": "was_hit",
+				"condition": "was_hit",
 				"effect_type": "opponent_discard_random",
 				"amount": 1
 			}

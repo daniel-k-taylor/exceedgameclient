@@ -783,7 +783,7 @@ func can_select_card(card):
 				"ultra":
 					meets_limitation = card_type == "ultra"
 				"continuous":
-					meets_limitation = card.definition['boost']['boost_type'] == "continuous"
+					meets_limitation = logic_card.definition['boost']['boost_type'] == "continuous"
 				_:
 					meets_limitation = true
 			var in_correct_source = false
