@@ -23,12 +23,12 @@ const StatPanel = preload("res://scenes/card/stat_panel.gd")
 @onready var remaining_count_label : Label = $CardFocusFeatures/RemainingCount/PanelContainer/MarginContainer/RemainingCountLabel
 @onready var hand_icons_obj = $CardFocusFeatures/HandIcons
 @onready var hand_icon_panel = $CardFocusFeatures/HandIcons/HandPanel
-@onready var icon1 = $CardFocusFeatures/HandIcons/HandPanel/HandMargin/HandHbox/Icon1
-@onready var icon2 = $CardFocusFeatures/HandIcons/HandPanel/HandMargin/HandHbox/Icon2
-@onready var icon3 = $CardFocusFeatures/HandIcons/HandPanel/HandMargin/HandHbox/Icon3
-@onready var icon4 = $CardFocusFeatures/HandIcons/HandPanel/HandMargin/HandHbox/Icon4
-@onready var icon5 = $CardFocusFeatures/HandIcons/HandPanel/HandMargin/HandHbox/Icon5
-@onready var icon6 = $CardFocusFeatures/HandIcons/HandPanel/HandMargin/HandHbox/Icon6
+@onready var icon1 = $CardFocusFeatures/HandIcons/HandPanel/HandMargin/HandVBox/Row1/IconPanel1/Icon
+@onready var icon2 = $CardFocusFeatures/HandIcons/HandPanel/HandMargin/HandVBox/Row1/IconPanel2/Icon
+@onready var icon3 = $CardFocusFeatures/HandIcons/HandPanel/HandMargin/HandVBox/Row2/IconPanel1/Icon
+@onready var icon4 = $CardFocusFeatures/HandIcons/HandPanel/HandMargin/HandVBox/Row2/IconPanel2/Icon
+@onready var icon5 = $CardFocusFeatures/HandIcons/HandPanel/HandMargin/HandVBox/Row3/IconPanel1/Icon
+@onready var icon6 = $CardFocusFeatures/HandIcons/HandPanel/HandMargin/HandVBox/Row3/IconPanel2/Icon
 
 const ActualCardSize = Vector2(250,350)
 const HandCardScale = Vector2(0.7, 0.7)
@@ -160,10 +160,6 @@ func update_hand_icons(known : int, questionable : int, on_topdeck : bool, playe
 	# Set the remaining icons to invisible.
 	for i in range(set_count, 6):
 		icons[i].visible = false
-
-	hand_icon_panel.reset_size()
-	hand_icon_panel.anchors_preset = Control.PRESET_CENTER_BOTTOM
-	hand_icon_panel.anchors_preset = Control.PRESET_CENTER_TOP
 
 func set_label(label : String):
 	remaining_count_obj.visible = true

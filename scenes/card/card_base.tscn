@@ -6,7 +6,6 @@
 [ext_resource type="Texture2D" uid="uid://cj7nvglef8cu" path="res://assets/cards/solbadguy/normal_grasp.tres" id="4_krtfi"]
 [ext_resource type="Texture2D" uid="uid://cpolsw2tyi4m" path="res://assets/cardbacks/cardback_blue.svg" id="4_pvdi7"]
 [ext_resource type="Texture2D" uid="uid://cy0pcorknc8op" path="res://assets/cards/border_thin_pressed.png" id="6_h5u6x"]
-[ext_resource type="Texture2D" uid="uid://7cuany7xgphc" path="res://assets/icons/topdeck.png" id="7_2bm1v"]
 [ext_resource type="Texture2D" uid="uid://c7ojn7hf8n4li" path="res://assets/icons/stopwatch.png" id="7_rrupl"]
 [ext_resource type="Texture2D" uid="uid://kl32dakt7bnv" path="res://assets/icons/hand.png" id="7_vbrtw"]
 [ext_resource type="Texture2D" uid="uid://xusjesyfjald" path="res://assets/icons/x.png" id="8_wk1ir"]
@@ -17,8 +16,10 @@ bg_color = Color(1, 0.905882, 0.133333, 0.815686)
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_yky1r"]
 bg_color = Color(0.105882, 0.105882, 0.105882, 0.862745)
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_6dpsx"]
-bg_color = Color(0.0862745, 0.0862745, 0.0862745, 1)
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_0ooqv"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_nclye"]
+bg_color = Color(0.0901961, 0.0901961, 0.0901961, 1)
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_btcod"]
 bg_color = Color(0.164706, 0.164706, 0.164706, 1)
@@ -265,7 +266,7 @@ text = "2 left"
 horizontal_alignment = 1
 
 [node name="HandIcons" type="Node2D" parent="CardFocusFeatures"]
-position = Vector2(0, -60)
+position = Vector2(0, -90)
 
 [node name="HandPanel" type="PanelContainer" parent="CardFocusFeatures/HandIcons"]
 anchors_preset = 5
@@ -273,34 +274,63 @@ anchor_left = 0.5
 anchor_right = 0.5
 offset_left = -55.0
 offset_right = 55.0
-offset_bottom = 58.0
+offset_bottom = 152.0
 grow_horizontal = 2
-theme_override_styles/panel = SubResource("StyleBoxFlat_6dpsx")
+theme_override_styles/panel = SubResource("StyleBoxEmpty_0ooqv")
 
 [node name="HandMargin" type="MarginContainer" parent="CardFocusFeatures/HandIcons/HandPanel"]
 layout_mode = 2
 size_flags_horizontal = 4
-size_flags_vertical = 4
-theme_override_constants/margin_left = 5
-theme_override_constants/margin_top = 5
-theme_override_constants/margin_right = 5
-theme_override_constants/margin_bottom = 5
 
-[node name="HandHbox" type="GridContainer" parent="CardFocusFeatures/HandIcons/HandPanel/HandMargin"]
+[node name="HandVBox" type="VBoxContainer" parent="CardFocusFeatures/HandIcons/HandPanel/HandMargin"]
 layout_mode = 2
-size_flags_horizontal = 4
-size_flags_vertical = 4
-columns = 2
 
-[node name="Topdeck" type="TextureRect" parent="CardFocusFeatures/HandIcons/HandPanel/HandMargin/HandHbox"]
-visible = false
+[node name="Row1" type="HBoxContainer" parent="CardFocusFeatures/HandIcons/HandPanel/HandMargin/HandVBox"]
+layout_mode = 2
+alignment = 1
+
+[node name="IconPanel1" type="PanelContainer" parent="CardFocusFeatures/HandIcons/HandPanel/HandMargin/HandVBox/Row1"]
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_nclye")
+
+[node name="Icon" type="TextureRect" parent="CardFocusFeatures/HandIcons/HandPanel/HandMargin/HandVBox/Row1/IconPanel1"]
 custom_minimum_size = Vector2(48, 48)
 layout_mode = 2
-texture = ExtResource("7_2bm1v")
+texture = ExtResource("7_vbrtw")
 expand_mode = 1
 stretch_mode = 4
 
-[node name="Icon1" type="TextureRect" parent="CardFocusFeatures/HandIcons/HandPanel/HandMargin/HandHbox"]
+[node name="IconPanel2" type="PanelContainer" parent="CardFocusFeatures/HandIcons/HandPanel/HandMargin/HandVBox/Row1"]
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_nclye")
+
+[node name="Icon" type="TextureRect" parent="CardFocusFeatures/HandIcons/HandPanel/HandMargin/HandVBox/Row1/IconPanel2"]
+custom_minimum_size = Vector2(48, 48)
+layout_mode = 2
+texture = ExtResource("7_vbrtw")
+expand_mode = 1
+stretch_mode = 4
+
+[node name="Row2" type="HBoxContainer" parent="CardFocusFeatures/HandIcons/HandPanel/HandMargin/HandVBox"]
+layout_mode = 2
+alignment = 1
+
+[node name="IconPanel1" type="PanelContainer" parent="CardFocusFeatures/HandIcons/HandPanel/HandMargin/HandVBox/Row2"]
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_nclye")
+
+[node name="Icon" type="TextureRect" parent="CardFocusFeatures/HandIcons/HandPanel/HandMargin/HandVBox/Row2/IconPanel1"]
+custom_minimum_size = Vector2(48, 48)
+layout_mode = 2
+texture = ExtResource("7_vbrtw")
+expand_mode = 1
+stretch_mode = 4
+
+[node name="IconPanel2" type="PanelContainer" parent="CardFocusFeatures/HandIcons/HandPanel/HandMargin/HandVBox/Row2"]
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_nclye")
+
+[node name="Icon" type="TextureRect" parent="CardFocusFeatures/HandIcons/HandPanel/HandMargin/HandVBox/Row2/IconPanel2"]
 visible = false
 custom_minimum_size = Vector2(48, 48)
 layout_mode = 2
@@ -308,7 +338,15 @@ texture = ExtResource("7_vbrtw")
 expand_mode = 1
 stretch_mode = 4
 
-[node name="Icon2" type="TextureRect" parent="CardFocusFeatures/HandIcons/HandPanel/HandMargin/HandHbox"]
+[node name="Row3" type="HBoxContainer" parent="CardFocusFeatures/HandIcons/HandPanel/HandMargin/HandVBox"]
+layout_mode = 2
+alignment = 1
+
+[node name="IconPanel1" type="PanelContainer" parent="CardFocusFeatures/HandIcons/HandPanel/HandMargin/HandVBox/Row3"]
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_nclye")
+
+[node name="Icon" type="TextureRect" parent="CardFocusFeatures/HandIcons/HandPanel/HandMargin/HandVBox/Row3/IconPanel1"]
 visible = false
 custom_minimum_size = Vector2(48, 48)
 layout_mode = 2
@@ -316,31 +354,11 @@ texture = ExtResource("7_vbrtw")
 expand_mode = 1
 stretch_mode = 4
 
-[node name="Icon3" type="TextureRect" parent="CardFocusFeatures/HandIcons/HandPanel/HandMargin/HandHbox"]
-visible = false
-custom_minimum_size = Vector2(48, 48)
+[node name="IconPanel2" type="PanelContainer" parent="CardFocusFeatures/HandIcons/HandPanel/HandMargin/HandVBox/Row3"]
 layout_mode = 2
-texture = ExtResource("7_vbrtw")
-expand_mode = 1
-stretch_mode = 4
+theme_override_styles/panel = SubResource("StyleBoxFlat_nclye")
 
-[node name="Icon4" type="TextureRect" parent="CardFocusFeatures/HandIcons/HandPanel/HandMargin/HandHbox"]
-visible = false
-custom_minimum_size = Vector2(48, 48)
-layout_mode = 2
-texture = ExtResource("7_vbrtw")
-expand_mode = 1
-stretch_mode = 4
-
-[node name="Icon5" type="TextureRect" parent="CardFocusFeatures/HandIcons/HandPanel/HandMargin/HandHbox"]
-visible = false
-custom_minimum_size = Vector2(48, 48)
-layout_mode = 2
-texture = ExtResource("7_vbrtw")
-expand_mode = 1
-stretch_mode = 4
-
-[node name="Icon6" type="TextureRect" parent="CardFocusFeatures/HandIcons/HandPanel/HandMargin/HandHbox"]
+[node name="Icon" type="TextureRect" parent="CardFocusFeatures/HandIcons/HandPanel/HandMargin/HandVBox/Row3/IconPanel2"]
 visible = false
 custom_minimum_size = Vector2(48, 48)
 layout_mode = 2
