@@ -50,6 +50,7 @@
 				{
 					"description": "Platinum (Exceed) Cleanup Boost",
 					"effect_type": "add_attack_effect",
+					"suppress_and_description": true,
 					"added_effect": {
 						"timing": "cleanup",
 						"effect_type": "choose_sustain_boost",
