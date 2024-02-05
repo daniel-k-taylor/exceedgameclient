@@ -34,7 +34,6 @@ func give_player_specific_card(player, def_id, card_id):
 	player.hand.append(card)
 
 func give_specific_cards(p1, id1, p2, id2):
-	var cards = []
 	if p1:
 		give_player_specific_card(p1, id1, TestCardId1)
 	if p2:
