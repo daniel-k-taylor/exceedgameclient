@@ -566,7 +566,6 @@ class Player:
 	var plague_knight_discard_names : Array[String]
 	var public_hand : Array[String]
 	var public_hand_questionable : Array[String]
-	var public_delayed_until_strike_reveal : Array[int]
 	var public_topdeck_id : int
 
 	func _init(id, player_name, parent_ref, card_db_ref, chosen_deck, card_start_id):
@@ -658,7 +657,6 @@ class Player:
 		plague_knight_discard_names = []
 		public_hand = []
 		public_hand_questionable = []
-		public_delayed_until_strike_reveal = []
 		public_topdeck_id = -1
 
 		if "buddy_cards" in deck_def:
@@ -803,7 +801,7 @@ class Player:
 				if is_revealed:
 					on_hand_remove_public_card(id)
 				elif is_revealed_on_strike_reveal:
-					on_hand_remove_card_public_on_strike_reveal(id)
+					pass
 				else:
 					on_hand_remove_secret_card()
 				break
@@ -831,9 +829,6 @@ class Player:
 			var card_def_id = parent.card_db.get_card(card_id).definition['id']
 			public_hand.erase(card_def_id)
 			public_hand_questionable.erase(card_def_id)
-
-	func on_hand_remove_card_public_on_strike_reveal(card : int):
-		public_delayed_until_strike_reveal.append(card)
 
 	func on_hand_remove_secret_card():
 		if hand.size() == 0:
@@ -876,12 +871,7 @@ class Player:
 				public_hand_info['all'].append(topdeck_def_id)
 		return public_hand_info
 
-	func update_public_hand_if_deck_empty(is_strike_reveal : bool):
-		if is_strike_reveal:
-			for card_id in public_delayed_until_strike_reveal:
-				on_hand_remove_public_card(card_id)
-			public_delayed_until_strike_reveal = []
-
+	func update_public_hand_if_deck_empty():
 		if len(deck) == 0:
 			# Determine if there are any unknown cards.
 			# Secret sealed area or facedown strike.
@@ -1492,12 +1482,16 @@ class Player:
 
 		return true
 
-	func draw(num_to_draw : int):
+	func draw(num_to_draw : int, is_fake_draw : bool = false):
 		var events : Array = []
 		if num_to_draw > 0:
-			if public_topdeck_id != -1:
+			if is_fake_draw:
+				# Used by topdeck boost as an easy way to get it in your hand to boost.
+				# This will add it, then it gets removed publicly by boost.
+				on_hand_add_public_card(deck[0].id)
+			elif public_topdeck_id != -1:
 				on_hand_add_public_card(public_topdeck_id)
-				public_topdeck_id = -1
+			public_topdeck_id = -1
 
 		for i in range(num_to_draw):
 			if len(deck) > 0:
@@ -1513,7 +1507,7 @@ class Player:
 					deck.remove_at(0)
 					events += [parent.create_event(Enums.EventType.EventType_Draw, my_id, card.id)]
 
-			update_public_hand_if_deck_empty(false)
+			update_public_hand_if_deck_empty()
 		return events
 
 	func add_set_aside_card_to_deck(card_str_id : String):
@@ -2852,8 +2846,19 @@ func strike_setup_initiator_response(events):
 func begin_resolve_strike(events):
 	# Strike is beginning, setup has been completed.
 	active_strike.in_setup = false
-	active_strike.initiator.update_public_hand_if_deck_empty(true)
-	active_strike.defender.update_public_hand_if_deck_empty(true)
+
+	# Handle known cards, don't include wild swings.
+	if not active_strike.get_player_wild_strike(active_strike.initiator):
+		active_strike.initiator.on_hand_remove_public_card(active_strike.initiator_card.id)
+		if active_strike.initiator_ex_card != null:
+			active_strike.initiator.on_hand_remove_public_card(active_strike.initiator_ex_card.id)
+	if not active_strike.get_player_wild_strike(active_strike.defender):
+		active_strike.defender.on_hand_remove_public_card(active_strike.defender_card.id)
+		if active_strike.defender_ex_card != null:
+			active_strike.defender.on_hand_remove_public_card(active_strike.defender_ex_card.id)
+	active_strike.initiator.update_public_hand_if_deck_empty()
+	active_strike.defender.update_public_hand_if_deck_empty()
+
 	events += [create_event(Enums.EventType.EventType_Strike_Reveal, active_strike.initiator.my_id, 0)]
 	var initiator_name = active_strike.initiator.name
 	var defender_name = active_strike.defender.name
@@ -6483,7 +6488,7 @@ func do_topdeck_boost(events):
 	performing_player.sustain_next_boost = active_strike.remaining_forced_boosts_sustaining
 	active_strike.remaining_forced_boosts -= 1
 
-	events += performing_player.draw(1)
+	events += performing_player.draw(1, true)
 	event_queue += events
 	change_game_state(Enums.GameState.GameState_PlayerDecision)
 	decision_info.type = Enums.DecisionType.DecisionType_BoostNow
