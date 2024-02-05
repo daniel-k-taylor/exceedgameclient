@@ -6627,9 +6627,6 @@ func boost_finish_resolving_card(performing_player : Player):
 			for effect in active_boost.card.definition['boost']['effects']:
 				if effect['timing'] == "during_strike":
 					events += do_effect_if_condition_met(performing_player, active_boost.card.id, effect, null)
-				elif (effect['timing'] == "before" or effect['timing'] == "both_players_before") and (active_strike.strike_state == StrikeState.StrikeState_Card1_Before or active_strike.strike_state == StrikeState.StrikeState_Card2_Before):
-					effect['card_id'] = active_boost.card.id
-					active_strike.remaining_effect_list.append(effect)
 
 		if performing_player.sustain_next_boost:
 			performing_player.sustained_boosts.append(active_boost.card.id)
@@ -6697,6 +6694,7 @@ func boost_play_cleanup(events, performing_player : Player):
 	else:
 		if active_strike:
 			# If this strike is mid-before effects or mid-after effects, add this boost's effects to the list.
+			# Assumption here is that you cannot add effects with a boost during your opponent's timing.
 			if active_strike.strike_state == StrikeState.StrikeState_Card1_Before or active_strike.strike_state == StrikeState.StrikeState_Card2_Before:
 				for effect in active_boost.card.definition['boost']['effects']:
 					if effect['timing'] == "before" or effect['timing'] == "both_players_before":
