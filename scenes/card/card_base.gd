@@ -23,15 +23,12 @@ const StatPanel = preload("res://scenes/card/stat_panel.gd")
 @onready var remaining_count_label : Label = $CardFocusFeatures/RemainingCount/PanelContainer/MarginContainer/RemainingCountLabel
 @onready var hand_icons_obj = $CardFocusFeatures/HandIcons
 @onready var hand_icon_panel = $CardFocusFeatures/HandIcons/HandPanel
-@onready var hand1 = $CardFocusFeatures/HandIcons/HandPanel/HandMargin/HandHbox/Hand1
-@onready var hand2 = $CardFocusFeatures/HandIcons/HandPanel/HandMargin/HandHbox/Hand2
-@onready var question1 = $CardFocusFeatures/HandIcons/HandPanel/HandMargin/HandHbox/Question1
-@onready var question2 = $CardFocusFeatures/HandIcons/HandPanel/HandMargin/HandHbox/Question2
-@onready var handeye1 = $CardFocusFeatures/HandIcons/HandPanel/HandMargin/HandHbox/HandEye1
-@onready var handeye2 = $CardFocusFeatures/HandIcons/HandPanel/HandMargin/HandHbox/HandEye2
-@onready var eyequestion1 = $CardFocusFeatures/HandIcons/HandPanel/HandMargin/HandHbox/EyeQ1
-@onready var eyequestion2 = $CardFocusFeatures/HandIcons/HandPanel/HandMargin/HandHbox/EyeQ2
-@onready var topdeck = $CardFocusFeatures/HandIcons/HandPanel/HandMargin/HandHbox/Topdeck
+@onready var icon1 = $CardFocusFeatures/HandIcons/HandPanel/HandMargin/HandHbox/Icon1
+@onready var icon2 = $CardFocusFeatures/HandIcons/HandPanel/HandMargin/HandHbox/Icon2
+@onready var icon3 = $CardFocusFeatures/HandIcons/HandPanel/HandMargin/HandHbox/Icon3
+@onready var icon4 = $CardFocusFeatures/HandIcons/HandPanel/HandMargin/HandHbox/Icon4
+@onready var icon5 = $CardFocusFeatures/HandIcons/HandPanel/HandMargin/HandHbox/Icon5
+@onready var icon6 = $CardFocusFeatures/HandIcons/HandPanel/HandMargin/HandHbox/Icon6
 
 const ActualCardSize = Vector2(250,350)
 const HandCardScale = Vector2(0.7, 0.7)
@@ -98,6 +95,12 @@ var cardback_image
 
 var selected = false
 
+var hand_texture : Texture2D
+var handeye_texture : Texture2D
+var question_texture : Texture2D
+var questioneye_texture : Texture2D
+var topdeck_texture : Texture2D
+
 const DRAW_ANIMATION_LENGTH = 0.5
 const FOCUS_ANIMATION_LENGTH = 0.1
 
@@ -109,6 +112,14 @@ func _ready():
 	remaining_count_label.text = ""
 	hand_icons_obj.visible = false
 	#$CardContainer/Focus.modulate = HighlightColor
+	
+	hand_texture = load("res://assets/icons/hand.png")
+	question_texture = load("res://assets/icons/handquestion.png")
+	
+	handeye_texture = load("res://assets/icons/handeye.png")
+	questioneye_texture = load("res://assets/icons/handeyequestion.png")
+	
+	topdeck_texture = load("res://assets/icons/topdeck.png")
 
 func set_remaining_count(count : int):
 	remaining_count_obj.visible = true
@@ -120,26 +131,39 @@ func set_remaining_count(count : int):
 		fancy_card.modulate = NormalColor
 
 func update_hand_icons(known : int, questionable : int, on_topdeck : bool, player_hand : bool):
-	if known == 2:
-		questionable = 0
 	if known or questionable or on_topdeck:
 		hand_icons_obj.visible = true
 	else:
 		hand_icons_obj.visible = false
 
-	handeye1.visible = player_hand and known > 0
-	handeye2.visible = player_hand and known > 1
-	eyequestion1.visible = player_hand and questionable > 0
-	eyequestion2.visible = player_hand and questionable > 1
-	hand1.visible = (not player_hand) and known > 0
-	hand2.visible = (not player_hand) and known > 1
-	question1.visible = (not player_hand) and questionable > 0
-	question2.visible = (not player_hand) and questionable > 1
-	topdeck.visible = on_topdeck
-		
+	var icons : Array[TextureRect] = [icon1, icon2, icon3, icon4, icon5, icon6]
+	var set_count = 0
+	for i in range(known):
+		icons[set_count].visible = true
+		if player_hand:
+			icons[set_count].texture = handeye_texture
+		else:
+			icons[set_count].texture = hand_texture
+		set_count += 1
+	for i in range(questionable):
+		icons[set_count].visible = true
+		if player_hand:
+			icons[set_count].texture = questioneye_texture
+		else:
+			icons[set_count].texture = question_texture
+		set_count += 1
+	if on_topdeck:
+		icons[set_count].visible = true
+		icons[set_count].texture = topdeck_texture
+		set_count += 1
+
+	# Set the remaining icons to invisible.
+	for i in range(set_count, 6):
+		icons[i].visible = false
+
 	hand_icon_panel.reset_size()
 	hand_icon_panel.anchors_preset = Control.PRESET_CENTER_BOTTOM
-	hand_icon_panel.anchors_preset = Control.PRESET_CENTER
+	hand_icon_panel.anchors_preset = Control.PRESET_CENTER_TOP
 
 func set_label(label : String):
 	remaining_count_obj.visible = true
