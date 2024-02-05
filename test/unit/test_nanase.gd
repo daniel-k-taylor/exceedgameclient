@@ -297,3 +297,13 @@ func test_nanase_lumiere_good():
 	assert_eq(player1.gauge.size(), 1)
 	assert_eq(player2.gauge.size(), 1)
 	advance_turn(player2)
+
+func test_nanase_lumiere_v_dive():
+	position_players(player1, 3, player2, 2)
+	give_gauge(player1, 3)
+	execute_strike(player1, player2, "nanase_lumiereofthedawn", "standard_normal_dive", [], [], false, false, [], [], 0, [])
+	validate_life(player1, 30, player2, 21)
+	validate_positions(player1, 3, player2, 2)
+	assert_eq(player1.gauge.size(), 1)
+	assert_eq(player2.gauge.size(), 0)
+	advance_turn(player2)

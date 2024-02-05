@@ -576,7 +576,7 @@ func get_discard_location(discard_node):
 func discard_card(card, discard_node, new_parent, is_player : bool):
 	var discard_pos = get_discard_location(discard_node)
 	# Make sure the card is faceup.
-	card.flip_card_to_front(true)
+	make_card_revealed(card)
 	card.discard_to(discard_pos, CardBase.CardState.CardState_Discarded)
 	reparent_to_zone(card, new_parent)
 	layout_player_hand(is_player)
@@ -772,7 +772,8 @@ func can_select_card(card):
 			return in_appropriate_reference and len(selected_cards) < select_card_require_max
 		UISubState.UISubState_SelectCards_ChooseDiscardToDestination:
 			var card_db = game_wrapper.get_card_database()
-			var card_type = card_db.get_card(card.card_id).definition['type']
+			var logic_card = card_db.get_card(card.card_id)
+			var card_type = logic_card.definition['type']
 			var limitation = game_wrapper.get_decision_info().limitation
 			var source = game_wrapper.get_decision_info().source
 			var meets_limitation = false
@@ -781,6 +782,8 @@ func can_select_card(card):
 					meets_limitation = card_type == "special"
 				"ultra":
 					meets_limitation = card_type == "ultra"
+				"continuous":
+					meets_limitation = card.definition['boost']['boost_type'] == "continuous"
 				_:
 					meets_limitation = true
 			var in_correct_source = false
@@ -849,7 +852,7 @@ func layout_player_hand(is_player : bool):
 	var num_cards = len(hand_zone.get_children())
 	if num_cards > 0:
 		if is_player:
-			update_eyes_on_hand_icons(hand_zone.get_children())
+			update_eyes_on_hand_icons()
 			if num_cards == 1:
 				var card : CardBase = hand_zone.get_child(0)
 				var angle = deg_to_rad(90)
@@ -916,9 +919,10 @@ func layout_player_hand(is_player : bool):
 
 	update_card_counts()
 
-func update_eyes_on_hand_icons(cards):
+func update_eyes_on_hand_icons():
 	var public_hand_info = game_wrapper.get_player_public_hand_info(Enums.PlayerId.PlayerId_Player)
-	for card in cards:
+	var all_player_cards = get_all_player_cards()
+	for card in all_player_cards:
 		# These are cards in hand, so the ids are correct.
 		var id = card.card_id
 		var logic_card = game_wrapper.get_card_database().get_card(id)
@@ -926,11 +930,13 @@ func update_eyes_on_hand_icons(cards):
 		var known_count = 0
 		var questionable_count = 0
 		var on_topdeck = false
-		if card_str_id in public_hand_info['known']:
-			known_count = public_hand_info['known'][card_str_id]
-		if card_str_id in public_hand_info['questionable']:
-			questionable_count = public_hand_info['questionable'][card_str_id]
-		on_topdeck = card_str_id == public_hand_info['topdeck']
+		# Only update shows the icons on the cards in hand.
+		if game_wrapper.is_card_in_hand(Enums.PlayerId.PlayerId_Player, id):
+			if card_str_id in public_hand_info['known']:
+				known_count = public_hand_info['known'][card_str_id]
+			if card_str_id in public_hand_info['questionable']:
+				questionable_count = public_hand_info['questionable'][card_str_id]
+			on_topdeck = card_str_id == public_hand_info['topdeck']
 		card.update_hand_icons(known_count, questionable_count, on_topdeck, true)
 
 func _log_event(event):
@@ -1043,6 +1049,11 @@ func _on_stunned(event):
 func _on_end_of_strike():
 	player_bonus_panel.visible = false
 	opponent_bonus_panel.visible = false
+	for zone in $AllCards.get_children():
+		if zone is Node2D:
+			for card in zone.get_children():
+				card.set_backlight_visible(false)
+				card.set_stun(false)
 
 func _on_advance_turn():
 	var active_player : Enums.PlayerId = game_wrapper.get_active_player()
@@ -1058,11 +1069,6 @@ func _on_advance_turn():
 
 	clear_selected_cards()
 	close_popout()
-	for zone in $AllCards.get_children():
-		if zone is Node2D:
-			for card in zone.get_children():
-				card.set_backlight_visible(false)
-				card.set_stun(false)
 
 	spawn_damage_popup("Ready!", active_player)
 	return SmallNoticeDelay
@@ -1096,7 +1102,7 @@ func _on_boost_canceled(event):
 func _on_continuous_boost_added(event):
 	var player = event['event_player']
 	var card = find_card_on_board(event['number'])
-	card.flip_card_to_front(true)
+	make_card_revealed(card)
 	var boost_zone = $PlayerBoostZone
 	var boost_card_loc = $AllCards/PlayerBoosts
 
@@ -1202,7 +1208,7 @@ func _on_name_opponent_card_begin(event):
 func _on_boost_played(event):
 	var player = event['event_player']
 	var card = find_card_on_board(event['number'])
-	card.flip_card_to_front(true)
+	make_card_revealed(card)
 	var target_zone = $PlayerStrike/StrikeZone
 	var is_player = player == Enums.PlayerId.PlayerId_Player
 	if not is_player:
@@ -1369,6 +1375,18 @@ func find_card_on_board(card_id) -> CardBase:
 	assert(false, "ERROR: Unable to find card %s on board." % card_id)
 	return null
 
+func get_all_player_cards() -> Array:
+	var found_cards = []
+	found_cards += $AllCards/PlayerBoosts.get_children()
+	found_cards += $AllCards/PlayerDeck.get_children()
+	found_cards += $AllCards/PlayerDiscards.get_children()
+	found_cards += $AllCards/PlayerGauge.get_children()
+	found_cards += $AllCards/PlayerHand.get_children()
+	found_cards += $AllCards/PlayerOverdrive.get_children()
+	found_cards += $AllCards/PlayerSealed.get_children()
+	found_cards += $AllCards/Striking.get_children()
+	return found_cards
+
 func reparent_to_zone(card, zone):
 	card.get_parent().remove_child(card)
 	zone.add_child(card)
@@ -1376,7 +1394,7 @@ func reparent_to_zone(card, zone):
 func _on_add_to_gauge(event):
 	var player = event['event_player']
 	var card = find_card_on_board(event['number'])
-	card.flip_card_to_front(true)
+	make_card_revealed(card)
 	var gauge_panel = $PlayerZones/PlayerGauge
 	var gauge_card_loc = $AllCards/PlayerGauge
 	if player == Enums.PlayerId.PlayerId_Opponent:
@@ -1424,7 +1442,7 @@ func _on_add_to_sealed(event):
 func _on_add_to_overdrive(event):
 	var player = event['event_player']
 	var card = find_card_on_board(event['number'])
-	card.flip_card_to_front(true)
+	make_card_revealed(card)
 	var overdrive_panel = $PlayerZones/PlayerOverdrive
 	var overdrive_card_loc = $AllCards/PlayerOverdrive
 	if player == Enums.PlayerId.PlayerId_Opponent:
@@ -2134,7 +2152,7 @@ func _on_strike_started(event, is_ex : bool):
 			immediate_reveal_event = true
 	var reveal_immediately = immediate_reveal_event or event['extra_info'] == true
 	if reveal_immediately:
-		card.flip_card_to_front(true)
+		make_card_revealed(card)
 	if player == Enums.PlayerId.PlayerId_Player:
 		_move_card_to_strike_area(card, $PlayerStrike/StrikeZone, $AllCards/Striking, true, is_ex)
 	else:
@@ -2145,7 +2163,7 @@ func _on_strike_started_extra_attack(event):
 	var player = event['event_player']
 	var card = find_card_on_board(event['number'])
 	# Immediately reveal it.
-	card.flip_card_to_front(true)
+	make_card_revealed(card)
 	if player == Enums.PlayerId.PlayerId_Player:
 		_move_card_to_strike_area(card, $PlayerStrike/StrikeZone, $AllCards/Striking, true, false)
 	else:
@@ -2166,10 +2184,19 @@ func _on_strike_opponent_sets_first_initiator_set(event):
 	else:
 		ai_strike_response()
 
+func make_card_revealed(card):
+	card.flip_card_to_front(true)
+
+	# Update hand icons for cards owned by the player.
+	var logic_card = game_wrapper.get_card_database().get_card(card.card_id)
+	var owner_player = logic_card.owner_id
+	if owner_player == Enums.PlayerId.PlayerId_Player:
+		update_eyes_on_hand_icons()
+
 func _on_strike_reveal(_event):
 	var strike_cards = $AllCards/Striking.get_children()
 	for card in strike_cards:
-		card.flip_card_to_front(true)
+		make_card_revealed(card)
 	return StrikeRevealDelay
 
 func _on_strike_reveal_one_player(event):
@@ -2179,7 +2206,7 @@ func _on_strike_reveal_one_player(event):
 	var strike_cards = $AllCards/Striking.get_children()
 	for card in strike_cards:
 		if game_wrapper.does_card_belong_to_player(player, card.card_id):
-			card.flip_card_to_front(true)
+			make_card_revealed(card)
 	return SmallNoticeDelay
 
 func _on_strike_card_activation(event):

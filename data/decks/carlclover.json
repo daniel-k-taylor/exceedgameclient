@@ -102,6 +102,7 @@
 			"NOTE": "Nirvana active ability - opponent can hit them",
 			"timing": "opponent_before",
 			"condition": "opponent_buddy_in_range",
+			"condition_detail": "Nirvana",
 			"condition_extra": "buddy_not_immune_to_flip",
 			"condition_buddy_id": "nirvana_active",
 			"effect_type": "choice",

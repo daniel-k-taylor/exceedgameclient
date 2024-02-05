@@ -478,6 +478,9 @@ func test_jin_100():
 func test_kokonoe_100():
 	run_iterations_with_deck("kokonoe")
 
+func test_platinum_100():
+	run_iterations_with_deck("platinum")
+
 func test_ragna_100():
 	run_iterations_with_deck("ragna")
 
