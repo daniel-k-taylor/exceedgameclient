@@ -3342,7 +3342,7 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 			performing_player.strike_stat_boosts.always_add_to_gauge = true
 		"add_strike_to_overdrive_after_cleanup":
 			performing_player.strike_stat_boosts.always_add_to_overdrive = true
-			handle_strike_attack_immediate_removal(performing_player)
+			events += handle_strike_attack_immediate_removal(performing_player)
 		"add_to_gauge_boost_play_cleanup":
 			active_boost.cleanup_to_gauge_card_ids.append(card_id)
 		"add_to_gauge_immediately":
@@ -3525,7 +3525,7 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 			_append_log_full(Enums.LogType.LogType_Effect, performing_player, "boosts and sustains %s." % card_name)
 			performing_player.strike_stat_boosts.move_strike_to_boosts = true
 			# This removes the attack from play, so it needs to affect stats.
-			handle_strike_attack_immediate_removal(performing_player)
+			events += handle_strike_attack_immediate_removal(performing_player)
 			if 'boost_effect' in effect:
 				var boost_effect = effect['boost_effect']
 				events += handle_strike_effect(card_id, boost_effect, performing_player)
@@ -4071,7 +4071,7 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 				_append_log_full(Enums.LogType.LogType_Effect, performing_player, "has no cards in hand to put in gauge.")
 		"give_to_player":
 			performing_player.strike_stat_boosts.move_strike_to_opponent_boosts = true
-			handle_strike_attack_immediate_removal(performing_player)
+			events += handle_strike_attack_immediate_removal(performing_player)
 		"guardup":
 			performing_player.strike_stat_boosts.guard += effect['amount']
 			events += [create_event(Enums.EventType.EventType_Strike_GuardUp, performing_player.my_id, effect['amount'])]
@@ -4314,7 +4314,7 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 			_append_log_full(Enums.LogType.LogType_Effect, performing_player, "'s %s is no longer blocking opponent movement." % buddy_name)
 		"return_attack_to_top_of_deck":
 			performing_player.strike_stat_boosts.attack_to_topdeck_on_cleanup = true
-			handle_strike_attack_immediate_removal(performing_player)
+			events += handle_strike_attack_immediate_removal(performing_player)
 		"nothing":
 			# Do nothing.
 			pass
