@@ -4155,6 +4155,9 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 			_append_log_full(Enums.LogType.LogType_Effect, performing_player, "'s %s is no longer blocking opponent movement." % buddy_name)
 		"return_attack_to_top_of_deck":
 			performing_player.strike_stat_boosts.attack_to_topdeck_on_cleanup = true
+		"nothing":
+			# Do nothing.
+			pass
 		"opponent_discard_choose":
 			if opposing_player.hand.size() > effect['amount']:
 				change_game_state(Enums.GameState.GameState_PlayerDecision)
