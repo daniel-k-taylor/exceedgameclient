@@ -2120,11 +2120,15 @@ func add_revealed_card(card_id : int):
 func _on_reveal_card_from_hand(event):
 	var player = event['event_player']
 	spawn_damage_popup("Card Revealed!", player)
+	if player == Enums.PlayerId.PlayerId_Player:
+		update_eyes_on_hand_icons()
 	return SmallNoticeDelay
 
 func _on_reveal_hand(event):
 	var player = event['event_player']
 	spawn_damage_popup("Hand Revealed!", player)
+	if player == Enums.PlayerId.PlayerId_Player:
+		update_eyes_on_hand_icons()
 	return SmallNoticeDelay
 
 func _on_reveal_random_gauge(event):
@@ -2136,6 +2140,8 @@ func _on_reveal_random_gauge(event):
 func _on_reveal_topdeck(event):
 	var player = event['event_player']
 	spawn_damage_popup("Top Deck Revealed!", player)
+	if player == Enums.PlayerId.PlayerId_Player:
+		update_eyes_on_hand_icons()
 	return SmallNoticeDelay
 
 func _move_card_to_strike_area(card, strike_area, new_parent, is_player : bool, is_ex : bool):
