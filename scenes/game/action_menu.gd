@@ -30,7 +30,7 @@ func set_choices(instructions_text : String, choices : Array, ultra_force_toggle
 	for i in range(choice_containers.size()):
 		var container = choice_containers[i]
 		var button = container.get_child(0)
-		var label = container.get_child(1)
+		var label = container.get_child(1).get_child(0)
 
 		if i < total_choices:
 			container.visible = true
