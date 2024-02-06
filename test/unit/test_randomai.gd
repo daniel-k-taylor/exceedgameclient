@@ -278,12 +278,16 @@ func handle_strike(game: LocalGame, aiplayer : AIPlayer, otherai : AIPlayer, act
 		var ex_card_id = action.ex_card_id
 		var wild_swing = action.wild_swing
 
-		assert_true(game.do_strike(gameplayer, card_id, wild_swing, ex_card_id), "do strike failed")
+		var success = game.do_strike(gameplayer, card_id, wild_swing, ex_card_id)
+		assert_true(success, "do strike failed")
+		assert(success, "Strike failed")
 		events += game.get_latest_events()
 
 	if game.game_state == Enums.GameState.GameState_Strike_Opponent_Response:
 		var response_action = otherai.pick_strike_response(game, otherplayer.my_id)
-		assert_true(game.do_strike(otherplayer, response_action.card_id, response_action.wild_swing, response_action.ex_card_id), "do strike resp failed")
+		var success = game.do_strike(otherplayer, response_action.card_id, response_action.wild_swing, response_action.ex_card_id)
+		assert_true(success, "do strike resp failed")
+		assert(success, "Strike response failed")
 		# Could have critical decision here.
 		events += handle_decisions(game)
 
@@ -363,7 +367,8 @@ func run_ai_game():
 				strike_action = current_ai.pick_strike(game_logic, current_player.my_id)
 			turn_events += handle_strike(game_logic, current_ai, other_ai, strike_action)
 		elif game_logic.game_state == Enums.GameState.GameState_Strike_Opponent_Set_First:
-			game_logic.do_strike(current_ai.game_player, -1, false, -1, true)
+			var success = game_logic.do_strike(current_ai.game_player, -1, false, -1, true)
+			assert(success)
 			var strike_action = current_ai.pick_strike(game_logic, current_player.my_id)
 			turn_events += handle_strike(game_logic, current_ai, other_ai, strike_action, false, true)
 
@@ -465,6 +470,9 @@ func test_happychaos_100():
 
 func test_arakune_100():
 	run_iterations_with_deck("arakune")
+
+func test_bang_100():
+	run_iterations_with_deck("bang")
 
 func test_carlclover_100():
 	run_iterations_with_deck("carlclover")

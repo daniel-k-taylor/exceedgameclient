@@ -1,4 +1,4 @@
-[gd_scene load_steps=60 format=3 uid="uid://cqs72exlwm6at"]
+[gd_scene load_steps=61 format=3 uid="uid://cqs72exlwm6at"]
 
 [ext_resource type="Script" path="res://scenes/menu/char_select.gd" id="1_f3x24"]
 [ext_resource type="PackedScene" uid="uid://nwqxp8pdh1jk" path="res://scenes/menu/char_select_button.tscn" id="6_3lmwy"]
@@ -56,6 +56,7 @@
 [ext_resource type="Texture2D" uid="uid://des5jexyu0ie7" path="res://assets/portraits/kokonoe.png" id="44_li72n"]
 [ext_resource type="Texture2D" uid="uid://c1aaxfvy8dxha" path="res://assets/portraits/sagat.png" id="45_6fv30"]
 [ext_resource type="Texture2D" uid="uid://b0nwxj3ixsxxo" path="res://assets/portraits/platinum.png" id="46_xgovy"]
+[ext_resource type="Texture2D" uid="uid://drpkmdacjrh2k" path="res://assets/portraits/bang.png" id="47_wqqey"]
 [ext_resource type="Texture2D" uid="uid://c64lam1prprip" path="res://assets/portraits/akuma.png" id="48_4ovfi"]
 [ext_resource type="Texture2D" uid="uid://cr4xuhld5ghtr" path="res://assets/portraits/tinker.png" id="49_xx03j"]
 
@@ -384,11 +385,6 @@ layout_mode = 2
 char_id = "tager"
 portrait_texture = ExtResource("32_1r668")
 
-[node name="Nine" parent="CenterContainer/BBCharacterSelect/Rows/Row2" instance=ExtResource("6_3lmwy")]
-layout_mode = 2
-char_id = "nine"
-portrait_texture = ExtResource("34_h13ui")
-
 [node name="Row3" type="HBoxContainer" parent="CenterContainer/BBCharacterSelect/Rows"]
 layout_mode = 2
 alignment = 1
@@ -418,10 +414,24 @@ layout_mode = 2
 char_id = "kokonoe"
 portrait_texture = ExtResource("44_li72n")
 
-[node name="Platinum" parent="CenterContainer/BBCharacterSelect/Rows/Row3" instance=ExtResource("6_3lmwy")]
+[node name="Row4" type="HBoxContainer" parent="CenterContainer/BBCharacterSelect/Rows"]
+layout_mode = 2
+alignment = 1
+
+[node name="Nine" parent="CenterContainer/BBCharacterSelect/Rows/Row4" instance=ExtResource("6_3lmwy")]
+layout_mode = 2
+char_id = "nine"
+portrait_texture = ExtResource("34_h13ui")
+
+[node name="Platinum" parent="CenterContainer/BBCharacterSelect/Rows/Row4" instance=ExtResource("6_3lmwy")]
 layout_mode = 2
 char_id = "platinum"
 portrait_texture = ExtResource("46_xgovy")
+
+[node name="Bang" parent="CenterContainer/BBCharacterSelect/Rows/Row4" instance=ExtResource("6_3lmwy")]
+layout_mode = 2
+char_id = "bang"
+portrait_texture = ExtResource("47_wqqey")
 
 [node name="SKCharacterSelect" type="PanelContainer" parent="CenterContainer"]
 layout_mode = 2
@@ -641,8 +651,6 @@ portrait_texture = ExtResource("32_iutun")
 [connection signal="on_pressed" from="CenterContainer/BBCharacterSelect/Rows/Row2/Hazama" to="." method="_on_char_button_on_pressed"]
 [connection signal="on_hover" from="CenterContainer/BBCharacterSelect/Rows/Row2/Tager" to="." method="_on_char_hover"]
 [connection signal="on_pressed" from="CenterContainer/BBCharacterSelect/Rows/Row2/Tager" to="." method="_on_char_button_on_pressed"]
-[connection signal="on_hover" from="CenterContainer/BBCharacterSelect/Rows/Row2/Nine" to="." method="_on_char_hover"]
-[connection signal="on_pressed" from="CenterContainer/BBCharacterSelect/Rows/Row2/Nine" to="." method="_on_char_button_on_pressed"]
 [connection signal="on_hover" from="CenterContainer/BBCharacterSelect/Rows/Row3/Taokaka" to="." method="_on_char_hover"]
 [connection signal="on_pressed" from="CenterContainer/BBCharacterSelect/Rows/Row3/Taokaka" to="." method="_on_char_button_on_pressed"]
 [connection signal="on_hover" from="CenterContainer/BBCharacterSelect/Rows/Row3/CarlClover" to="." method="_on_char_hover"]
@@ -653,8 +661,12 @@ portrait_texture = ExtResource("32_iutun")
 [connection signal="on_pressed" from="CenterContainer/BBCharacterSelect/Rows/Row3/Hakumen" to="." method="_on_char_button_on_pressed"]
 [connection signal="on_hover" from="CenterContainer/BBCharacterSelect/Rows/Row3/Kokonoe" to="." method="_on_char_hover"]
 [connection signal="on_pressed" from="CenterContainer/BBCharacterSelect/Rows/Row3/Kokonoe" to="." method="_on_char_button_on_pressed"]
-[connection signal="on_hover" from="CenterContainer/BBCharacterSelect/Rows/Row3/Platinum" to="." method="_on_char_hover"]
-[connection signal="on_pressed" from="CenterContainer/BBCharacterSelect/Rows/Row3/Platinum" to="." method="_on_char_button_on_pressed"]
+[connection signal="on_hover" from="CenterContainer/BBCharacterSelect/Rows/Row4/Nine" to="." method="_on_char_hover"]
+[connection signal="on_pressed" from="CenterContainer/BBCharacterSelect/Rows/Row4/Nine" to="." method="_on_char_button_on_pressed"]
+[connection signal="on_hover" from="CenterContainer/BBCharacterSelect/Rows/Row4/Platinum" to="." method="_on_char_hover"]
+[connection signal="on_pressed" from="CenterContainer/BBCharacterSelect/Rows/Row4/Platinum" to="." method="_on_char_button_on_pressed"]
+[connection signal="on_hover" from="CenterContainer/BBCharacterSelect/Rows/Row4/Bang" to="." method="_on_char_hover"]
+[connection signal="on_pressed" from="CenterContainer/BBCharacterSelect/Rows/Row4/Bang" to="." method="_on_char_button_on_pressed"]
 [connection signal="on_hover" from="CenterContainer/SKCharacterSelect/Rows/Row1/ShovelShield" to="." method="_on_char_hover"]
 [connection signal="on_pressed" from="CenterContainer/SKCharacterSelect/Rows/Row1/ShovelShield" to="." method="_on_char_button_on_pressed"]
 [connection signal="on_hover" from="CenterContainer/SKCharacterSelect/Rows/Row1/Plague" to="." method="_on_char_hover"]
