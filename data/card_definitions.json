@@ -1783,8 +1783,11 @@
 		"effects": [
 			{
 				"timing": "before",
-				"effect_type": "retreat",
-				"amount": 1
+				"effect_type": "choice",
+				"choice": [
+					{ "effect_type": "retreat", "amount": 1	},
+					{ "effect_type": "pass" }
+				]
 			},
 			{
 				"timing": "hit",
@@ -1972,9 +1975,17 @@
 				"effect_type": "draw",
 				"amount": 1,
 				"and": {
-					"effect_type": "boost_then_sustain",
-					"valid_zones": [ "hand" ],
-					"sustain": false
+					"effect_type": "choice",
+					"choice": [
+						{
+							"effect_type": "boost_then_sustain",
+							"valid_zones": [ "hand" ],
+							"limitation": "",
+							"sustain": false,
+							"ignore_costs": true
+						},
+						{ "effect_type": "pass" }
+					]
 				}
 			}
 		],
@@ -1987,7 +1998,9 @@
 				{
 					"timing": "immediate",
 					"effect_type": "discard_continuous_boost",
-					"amount": 1
+					"amount": 1,
+					"required": true,
+					"destination": "owner_hand"
 				},
 				{
 					"timing": "immediate",

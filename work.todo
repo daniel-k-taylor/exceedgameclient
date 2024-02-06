@@ -1,16 +1,6 @@
 
 
 In progress:
-    Bang:
-        Overdrive:
-        ☐ "effect_type": "return_all_copies_of_top_discard_to_hand"
-
-        Cards:
-            ☐ "amount": "DISCARDED_COUNT"
-            ☐ "gauge_cost_reduction": "free_if_4_specials_in_overdrive",
-            ☐ "effect_type": "boost_then_sustain", - sustain false
-                ☐ needs optional? block actions/strike
-            ☐ discard_continuous_boost - to hand, or use choose from boosts?
 
 
 

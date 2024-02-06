@@ -427,14 +427,20 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 			else:
 				effect_str += "Boost and sustain this"
 		"boost_then_sustain":
+			var sustain_str = " and sustain"
+			if 'sustain' in effect and not effect['sustain']:
+				sustain_str = ""
 			var limitation_str = "boost"
-			if effect['limitation']:
+			if 'limitation' in effect and effect['limitation']:
 				limitation_str = effect['limitation'] + " boost"
+			var ignore_costs_str = ""
+			if 'ignore_costs' in effect and effect['ignore_costs']:
+				ignore_costs_str = " (ignoring costs)"
 			if 'valid_zones' in effect:
 				var zone_string = "/".join(effect['valid_zones'])
-				effect_str += "Play and sustain a %s from %s." % [limitation_str, zone_string]
+				effect_str += "Play%s a %s from %s%s." % [sustain_str, limitation_str, zone_string, ignore_costs_str]
 			else:
-				effect_str += "Play and sustain a %s from hand." % limitation_str
+				effect_str += "Play%s a %s from hand%s." % [sustain_str, limitation_str, ignore_costs_str]
 		"boost_then_sustain_topdeck":
 			if 'description' in effect:
 				effect_str += effect['description']
@@ -479,10 +485,13 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 		"discard_strike_after_cleanup":
 			effect_str += "Discard attack on cleanup"
 		"discard_continuous_boost":
-			if 'limitation' in effect and effect['limitation'] == 'mine' and 'overall_effect' in effect:
-				effect_str += "You may discard one of your continuous boosts for %s" % [get_effect_text(effect['overall_effect'])]
+			if 'destination' in effect and effect['destination'] == "owner_hand":
+				effect_str += "Return a continuous boost to its owner's hand."
 			else:
-				effect_str += "Discard a continuous boost"
+				if 'limitation' in effect and effect['limitation'] == 'mine' and 'overall_effect' in effect:
+					effect_str += "You may discard one of your continuous boosts for %s" % [get_effect_text(effect['overall_effect'])]
+				else:
+					effect_str += "Discard a continuous boost"
 		"discard_opponent_gauge":
 			effect_str += "Discard a card from opponent's gauge."
 		"discard_opponent_topdeck":
@@ -619,12 +628,14 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 			effect_str += "Place %s onto your space" % effect['buddy_name']
 		"powerup":
 			if str(effect['amount']) == "strike_x":
-				effect_str += "+X"
+				effect_str += "+X Power"
+			elif str(effect['amount']) == "DISCARDED_COUNT":
+				effect_str += "+1 Power for each card in your discard pile."
 			else:
 				if effect['amount'] > 0:
 					effect_str += "+"
 				effect_str += str(effect['amount'])
-			effect_str += " Power"
+				effect_str += " Power"
 		"powerup_both_players":
 			effect_str += "Both players "
 			if effect['amount'] > 0:

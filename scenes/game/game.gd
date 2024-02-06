@@ -1129,7 +1129,15 @@ func _on_discard_continuous_boost_begin(event):
 		selected_cards = []
 		select_card_require_min = 1
 		select_card_require_max = 1
-		var instruction_text = "Discard %s continuous boost." % [instruction_qualifier]
+		var action_word = ""
+		var extra_info = ""
+		match decision_info.destination:
+			"owner_hand":
+				action_word = "Return"
+				extra_info = " to its owner's hand."
+			_:
+				action_word = "Discard"
+		var instruction_text = "%s %s continuous boost%s." % [action_word, instruction_qualifier, extra_info]
 		popout_instruction_info = {
 			"popout_type": CardPopoutType.CardPopoutType_BoostOpponent,
 			"instruction_text": instruction_text,
