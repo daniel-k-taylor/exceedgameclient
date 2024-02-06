@@ -723,6 +723,9 @@ class Player:
 		public_topdeck_id = -1
 		parent.shuffle_array(deck)
 
+	func random_shuffle_discard_in_place():
+		parent.shuffle_array(discards)
+
 	func owns_card(card_id: int):
 		for card in deck_list:
 			if card.id == card_id:
@@ -836,6 +839,12 @@ class Player:
 		for i in range(len(gauge)):
 			if gauge[i].id == id:
 				gauge.remove_at(i)
+				break
+
+	func remove_card_from_discards(id : int):
+		for i in range(len(discards)):
+			if discards[i].id == id:
+				discards.remove_at(i)
 				break
 
 	func remove_card_from_sealed(id : int):
@@ -2994,6 +3003,8 @@ func is_effect_condition_met(performing_player : Player, effect, local_condition
 			return not initiated_strike
 		elif condition == "not_moved_self_this_strike":
 			return not performing_player.moved_self_this_strike
+		elif condition == "opponent_not_moved_this_strike":
+			return not other_player.moved_self_this_strike
 		elif condition == "initiated_at_range":
 			var range_min = effect['range_min']
 			var range_max = effect['range_max']
@@ -3234,6 +3245,18 @@ func is_effect_condition_met(performing_player : Player, effect, local_condition
 			return true
 		elif condition == "opponent_at_edge_of_arena":
 			return other_player.is_at_edge_of_arena()
+		elif condition == "opponent_at_max_range":
+			assert(active_strike)
+			var attack_card = active_strike.get_player_card(performing_player)
+			var max_range = get_card_stat(performing_player, attack_card, 'range_max') + performing_player.strike_stat_boosts.max_range
+
+			var origin = performing_player.get_closest_occupied_space_to(other_player.arena_location)
+			if performing_player.strike_stat_boosts.calculate_range_from_buddy:
+				origin = performing_player.get_buddy_location(performing_player.strike_stat_boosts.calculate_range_from_buddy_id)
+			elif performing_player.strike_stat_boosts.calculate_range_from_center:
+				origin = CenterArenaLocation
+
+			return other_player.is_in_range_of_location(origin, max_range, max_range)
 		elif condition == "opponent_stunned":
 			return active_strike.is_player_stunned(other_player)
 		elif condition == "overdrive_empty":
@@ -4975,6 +4998,8 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 			performing_player.life = amount
 			events += [create_event(Enums.EventType.EventType_Strike_GainLife, performing_player.my_id, amount, "", performing_player.life)]
 			_append_log_full(Enums.LogType.LogType_Health, performing_player, "gains %s life, bringing them to %s!" % [str(amount), str(performing_player.life)])
+		"shuffle_discard_in_place":
+			performing_player.random_shuffle_discard_in_place()
 		"shuffle_into_deck_from_hand":
 			if len(performing_player.hand) > 0:
 				change_game_state(Enums.GameState.GameState_PlayerDecision)
@@ -6619,6 +6644,7 @@ func begin_resolve_boost(performing_player : Player, card_id : int):
 	active_boost.card = card_db.get_card(card_id)
 	performing_player.remove_card_from_hand(card_id, true, false)
 	performing_player.remove_card_from_gauge(card_id)
+	performing_player.remove_card_from_discards(card_id)
 	events += [create_event(Enums.EventType.EventType_Boost_Played, performing_player.my_id, card_id)]
 
 	# Resolve all immediate/now effects

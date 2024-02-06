@@ -59,6 +59,7 @@
 [ext_resource type="Texture2D" uid="uid://drpkmdacjrh2k" path="res://assets/portraits/bang.png" id="47_wqqey"]
 [ext_resource type="Texture2D" uid="uid://c64lam1prprip" path="res://assets/portraits/akuma.png" id="48_4ovfi"]
 [ext_resource type="Texture2D" uid="uid://cr4xuhld5ghtr" path="res://assets/portraits/tinker.png" id="49_xx03j"]
+[ext_resource type="Texture2D" uid="uid://dhl6e0y27cppf" path="res://assets/portraits/propeller.png" id="52_4p78r"]
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_8u80i"]
 
@@ -476,6 +477,11 @@ layout_mode = 2
 char_id = "tinker"
 portrait_texture = ExtResource("49_xx03j")
 
+[node name="Propeller" parent="CenterContainer/SKCharacterSelect/Rows/Row2" instance=ExtResource("6_3lmwy")]
+layout_mode = 2
+char_id = "propeller"
+portrait_texture = ExtResource("52_4p78r")
+
 [node name="SFCharacterSelect" type="PanelContainer" parent="CenterContainer"]
 layout_mode = 2
 mouse_filter = 2
@@ -677,6 +683,8 @@ portrait_texture = ExtResource("32_iutun")
 [connection signal="on_pressed" from="CenterContainer/SKCharacterSelect/Rows/Row1/Specter" to="." method="_on_char_button_on_pressed"]
 [connection signal="on_hover" from="CenterContainer/SKCharacterSelect/Rows/Row2/Tinker" to="." method="_on_char_hover"]
 [connection signal="on_pressed" from="CenterContainer/SKCharacterSelect/Rows/Row2/Tinker" to="." method="_on_char_button_on_pressed"]
+[connection signal="on_hover" from="CenterContainer/SKCharacterSelect/Rows/Row2/Propeller" to="." method="_on_char_hover"]
+[connection signal="on_pressed" from="CenterContainer/SKCharacterSelect/Rows/Row2/Propeller" to="." method="_on_char_button_on_pressed"]
 [connection signal="on_hover" from="CenterContainer/SFCharacterSelect/Rows/Row1/Ryu" to="." method="_on_char_hover"]
 [connection signal="on_pressed" from="CenterContainer/SFCharacterSelect/Rows/Row1/Ryu" to="." method="_on_char_button_on_pressed"]
 [connection signal="on_hover" from="CenterContainer/SFCharacterSelect/Rows/Row1/RandomSF" to="." method="_on_char_hover"]

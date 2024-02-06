@@ -227,6 +227,8 @@ func get_condition_text(effect, amount, amount2, detail):
 			text += "If opponent initiated strike, "
 		"not_moved_self_this_strike":
 			text += "If you have not moved yourself this strike, "
+		"opponent_not_moved_this_strike":
+			text += "If the opponent did not move themselves this strike, "
 		"moved_during_strike":
 			text += "If you moved at least %s space(s) this strike, " % amount
 		"min_cards_in_discard":
@@ -281,6 +283,8 @@ func get_condition_text(effect, amount, amount2, detail):
 			text += "If you have more cards in hand than opponent, "
 		"opponent_at_edge_of_arena":
 			text += "If opponent at arena edge, "
+		"opponent_at_max_range":
+			text += "If opponent at attack's max range, "
 		"opponent_between_buddy":
 			if 'include_buddy_space' in effect and effect['include_buddy_space']:
 				text += "If opponent is on %s or between you, " % detail
