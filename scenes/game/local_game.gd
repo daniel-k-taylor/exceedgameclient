@@ -549,7 +549,6 @@ class Player:
 	var bonus_actions : int
 	var canceled_this_turn : bool
 	var cancel_blocked_this_turn : bool
-	var no_extra_actions_or_strike_this_turn : bool
 	var used_character_action : bool
 	var used_character_action_details : Array
 	var used_character_bonus : bool
@@ -642,7 +641,6 @@ class Player:
 		bonus_actions = 0
 		canceled_this_turn = false
 		cancel_blocked_this_turn = false
-		no_extra_actions_or_strike_this_turn = false
 		used_character_action = false
 		used_character_action_details = []
 		used_character_bonus = false
@@ -1104,16 +1102,14 @@ class Player:
 		if not top_card:
 			return events
 
-		events += move_card_from_discard_to_hand(top_card.id)
-		var additional_cards = []
+		var all_card_ids = []
 		for card in discards:
 			if card.definition['id'] == top_card.definition['id']:
-				additional_cards.append(card.id)
-		for id in additional_cards:
+				all_card_ids.append(card.id)
+		for id in all_card_ids:
 			events += move_card_from_discard_to_hand(id)
-		var all_returned_ids = [top_card.id] + additional_cards
-		var card_names = parent.card_db.get_card_names(all_returned_ids)
-		parent._append_log_full(Enums.LogType.LogType_CardInfo, self, "returns these cards to hand from disacrd: %s." % card_names)
+		var card_names = parent.card_db.get_card_names(all_card_ids)
+		parent._append_log_full(Enums.LogType.LogType_CardInfo, self, "returns these cards to hand from discard: %s." % card_names)
 		return events
 
 	func swap_deck_and_sealed():
@@ -2656,8 +2652,6 @@ func advance_to_next_turn():
 	opponent.do_not_cleanup_buddy_this_turn = false
 	player.cancel_blocked_this_turn = false
 	opponent.cancel_blocked_this_turn = false
-	player.no_extra_actions_or_strike_this_turn = false
-	opponent.no_extra_actions_or_strike_this_turn = false
 	player.pre_strike_movement = 0
 	opponent.pre_strike_movement = 0
 	player.used_character_action = false
@@ -3501,7 +3495,8 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 			_append_log_full(Enums.LogType.LogType_Effect, opposing_player, "is no longer prevented from moving.")
 			opposing_player.cannot_move = false
 		"bonus_action":
-			if not performing_player.no_extra_actions_or_strike_this_turn:
+			# You cannot take bonus actions during a strike.
+			if not active_strike:
 				active_boost.action_after_boost = true
 		"boost_additional":
 			assert(active_boost, "ERROR: Additional boost effect when a boost isn't in play")
@@ -3574,8 +3569,6 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 					sustain = false
 				performing_player.sustain_next_boost = sustain
 				performing_player.cancel_blocked_this_turn = true
-				# Mid-strike boosts cannot do extra actions or strikes or reading.
-				performing_player.no_extra_actions_or_strike_this_turn = true
 			else:
 				_append_log_full(Enums.LogType.LogType_Effect, performing_player, "has no cards available to boost.")
 		"boost_then_sustain_topdeck":
@@ -4711,7 +4704,8 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 				performing_player.strike_stat_boosts.max_range += effect['amount2'] * sealed_normals
 				events += [create_event(Enums.EventType.EventType_Strike_RangeUp, performing_player.my_id, effect['amount'] * sealed_normals, "", effect['amount2'] * sealed_normals)]
 		"reading_normal":
-			if not performing_player.no_extra_actions_or_strike_this_turn:
+			# Cannot do Reading during a strike.
+			if not active_strike:
 				change_game_state(Enums.GameState.GameState_PlayerDecision)
 				decision_info.clear()
 				decision_info.type = Enums.DecisionType.DecisionType_ReadingNormal
@@ -5032,7 +5026,8 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 				_append_log_full(Enums.LogType.LogType_Default, performing_player, "has no life remaining!")
 				events += on_death(performing_player)
 		"strike":
-			if not performing_player.no_extra_actions_or_strike_this_turn:
+			# Cannot strike during a strike.
+			if not active_strike:
 				change_game_state(Enums.GameState.GameState_WaitForStrike)
 				decision_info.clear()
 				decision_info.type = Enums.DecisionType.DecisionType_StrikeNow
@@ -5172,7 +5167,8 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 			_append_log_full(Enums.LogType.LogType_CharacterMovement, performing_player, "moves from space %s to %s." % [str(old_space), str(performing_player.arena_location)])
 			_append_log_full(Enums.LogType.LogType_CharacterMovement, performing_player, "moves %s from space %s to %s." % [performing_player.get_buddy_name(), str(old_buddy_space), str(performing_player.get_buddy_location())])
 		"take_bonus_actions":
-			if not performing_player.no_extra_actions_or_strike_this_turn:
+			# Cannot take bonus actions during a strike.
+			if not active_strike:
 				var num = effect['amount']
 				performing_player.bonus_actions += num
 				performing_player.cancel_blocked_this_turn = true

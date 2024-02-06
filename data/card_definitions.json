@@ -1951,7 +1951,8 @@
 					"effect_type": "choice",
 					"choice": [
 						{ "effect_type": "advance", "amount": 2 },
-						{ "effect_type": "retreat", "amount": 2 }
+						{ "effect_type": "retreat", "amount": 2 },
+						{ "effect_type": "pass" }
 					]
 				}
 			]
@@ -2027,7 +2028,7 @@
 		"guard": 4,
 		"effects": [
 			{
-				"timing": "hist",
+				"timing": "hit",
 				"effect_type": "push",
 				"amount": 2,
 				"and": {
