@@ -177,69 +177,249 @@ size_flags_vertical = 2
 theme_override_constants/h_separation = 40
 theme_override_constants/v_separation = 15
 
-[node name="Choice0" type="Button" parent="OuterMargin/MainVBox/ChoiceButtons"]
+[node name="Choice0" type="MarginContainer" parent="OuterMargin/MainVBox/ChoiceButtons"]
 layout_mode = 2
 size_flags_horizontal = 3
+size_flags_vertical = 4
+mouse_filter = 2
+
+[node name="Button" type="Button" parent="OuterMargin/MainVBox/ChoiceButtons/Choice0"]
+layout_mode = 2
 theme_override_font_sizes/font_size = 28
+
+[node name="Label" type="RichTextLabel" parent="OuterMargin/MainVBox/ChoiceButtons/Choice0"]
+layout_mode = 2
+size_flags_horizontal = 6
+size_flags_vertical = 4
+mouse_filter = 2
+theme_override_font_sizes/normal_font_size = 28
+theme_override_font_sizes/bold_font_size = 28
+bbcode_enabled = true
 text = "Choice 0"
+fit_content = true
+scroll_active = false
+autowrap_mode = 0
+shortcut_keys_enabled = false
 
-[node name="Choice1" type="Button" parent="OuterMargin/MainVBox/ChoiceButtons"]
+[node name="Choice1" type="MarginContainer" parent="OuterMargin/MainVBox/ChoiceButtons"]
 layout_mode = 2
 size_flags_horizontal = 3
+size_flags_vertical = 4
+mouse_filter = 2
+
+[node name="Button" type="Button" parent="OuterMargin/MainVBox/ChoiceButtons/Choice1"]
+layout_mode = 2
 theme_override_font_sizes/font_size = 28
+
+[node name="Label" type="RichTextLabel" parent="OuterMargin/MainVBox/ChoiceButtons/Choice1"]
+layout_mode = 2
+size_flags_horizontal = 6
+size_flags_vertical = 4
+mouse_filter = 2
+theme_override_font_sizes/normal_font_size = 28
+theme_override_font_sizes/bold_font_size = 28
+bbcode_enabled = true
 text = "Choice 1"
+fit_content = true
+scroll_active = false
+autowrap_mode = 0
+shortcut_keys_enabled = false
 
-[node name="Choice2" type="Button" parent="OuterMargin/MainVBox/ChoiceButtons"]
+[node name="Choice2" type="MarginContainer" parent="OuterMargin/MainVBox/ChoiceButtons"]
 layout_mode = 2
 size_flags_horizontal = 3
+size_flags_vertical = 4
+mouse_filter = 2
+
+[node name="Button" type="Button" parent="OuterMargin/MainVBox/ChoiceButtons/Choice2"]
+layout_mode = 2
 theme_override_font_sizes/font_size = 28
 
-[node name="Choice3" type="Button" parent="OuterMargin/MainVBox/ChoiceButtons"]
+[node name="Label" type="RichTextLabel" parent="OuterMargin/MainVBox/ChoiceButtons/Choice2"]
+layout_mode = 2
+size_flags_horizontal = 6
+size_flags_vertical = 4
+mouse_filter = 2
+theme_override_font_sizes/normal_font_size = 28
+theme_override_font_sizes/bold_font_size = 28
+bbcode_enabled = true
+fit_content = true
+scroll_active = false
+autowrap_mode = 0
+shortcut_keys_enabled = false
+
+[node name="Choice3" type="MarginContainer" parent="OuterMargin/MainVBox/ChoiceButtons"]
 layout_mode = 2
 size_flags_horizontal = 3
+size_flags_vertical = 4
+mouse_filter = 2
+
+[node name="Button" type="Button" parent="OuterMargin/MainVBox/ChoiceButtons/Choice3"]
+layout_mode = 2
 theme_override_font_sizes/font_size = 28
 
-[node name="Choice4" type="Button" parent="OuterMargin/MainVBox/ChoiceButtons"]
+[node name="Label" type="RichTextLabel" parent="OuterMargin/MainVBox/ChoiceButtons/Choice3"]
+layout_mode = 2
+size_flags_horizontal = 6
+size_flags_vertical = 4
+mouse_filter = 2
+theme_override_font_sizes/normal_font_size = 28
+theme_override_font_sizes/bold_font_size = 28
+bbcode_enabled = true
+fit_content = true
+scroll_active = false
+autowrap_mode = 0
+shortcut_keys_enabled = false
+
+[node name="Choice4" type="MarginContainer" parent="OuterMargin/MainVBox/ChoiceButtons"]
 layout_mode = 2
 size_flags_horizontal = 3
+size_flags_vertical = 4
+mouse_filter = 2
+
+[node name="Button" type="Button" parent="OuterMargin/MainVBox/ChoiceButtons/Choice4"]
+layout_mode = 2
 theme_override_font_sizes/font_size = 28
 
-[node name="Choice5" type="Button" parent="OuterMargin/MainVBox/ChoiceButtons"]
+[node name="Label" type="RichTextLabel" parent="OuterMargin/MainVBox/ChoiceButtons/Choice4"]
+layout_mode = 2
+size_flags_horizontal = 6
+size_flags_vertical = 4
+mouse_filter = 2
+theme_override_font_sizes/normal_font_size = 28
+theme_override_font_sizes/bold_font_size = 28
+bbcode_enabled = true
+fit_content = true
+scroll_active = false
+autowrap_mode = 0
+shortcut_keys_enabled = false
+
+[node name="Choice5" type="MarginContainer" parent="OuterMargin/MainVBox/ChoiceButtons"]
 layout_mode = 2
 size_flags_horizontal = 3
+size_flags_vertical = 4
+mouse_filter = 2
+
+[node name="Button" type="Button" parent="OuterMargin/MainVBox/ChoiceButtons/Choice5"]
+layout_mode = 2
 theme_override_font_sizes/font_size = 28
 
-[node name="Choice6" type="Button" parent="OuterMargin/MainVBox/ChoiceButtons"]
+[node name="Label" type="RichTextLabel" parent="OuterMargin/MainVBox/ChoiceButtons/Choice5"]
+layout_mode = 2
+size_flags_horizontal = 6
+size_flags_vertical = 4
+mouse_filter = 2
+theme_override_font_sizes/normal_font_size = 28
+theme_override_font_sizes/bold_font_size = 28
+bbcode_enabled = true
+fit_content = true
+scroll_active = false
+autowrap_mode = 0
+shortcut_keys_enabled = false
+
+[node name="Choice6" type="MarginContainer" parent="OuterMargin/MainVBox/ChoiceButtons"]
 layout_mode = 2
 size_flags_horizontal = 3
+size_flags_vertical = 4
+mouse_filter = 2
+
+[node name="Button" type="Button" parent="OuterMargin/MainVBox/ChoiceButtons/Choice6"]
+layout_mode = 2
 theme_override_font_sizes/font_size = 28
 
-[node name="Choice7" type="Button" parent="OuterMargin/MainVBox/ChoiceButtons"]
+[node name="Label" type="RichTextLabel" parent="OuterMargin/MainVBox/ChoiceButtons/Choice6"]
+layout_mode = 2
+size_flags_horizontal = 6
+size_flags_vertical = 4
+mouse_filter = 2
+theme_override_font_sizes/normal_font_size = 28
+theme_override_font_sizes/bold_font_size = 28
+bbcode_enabled = true
+fit_content = true
+scroll_active = false
+autowrap_mode = 0
+shortcut_keys_enabled = false
+
+[node name="Choice7" type="MarginContainer" parent="OuterMargin/MainVBox/ChoiceButtons"]
 layout_mode = 2
 size_flags_horizontal = 3
+size_flags_vertical = 4
+mouse_filter = 2
+
+[node name="Button" type="Button" parent="OuterMargin/MainVBox/ChoiceButtons/Choice7"]
+layout_mode = 2
 theme_override_font_sizes/font_size = 28
 
-[node name="Choice8" type="Button" parent="OuterMargin/MainVBox/ChoiceButtons"]
+[node name="Label" type="RichTextLabel" parent="OuterMargin/MainVBox/ChoiceButtons/Choice7"]
+layout_mode = 2
+size_flags_horizontal = 6
+size_flags_vertical = 4
+mouse_filter = 2
+theme_override_font_sizes/normal_font_size = 28
+theme_override_font_sizes/bold_font_size = 28
+bbcode_enabled = true
+fit_content = true
+scroll_active = false
+autowrap_mode = 0
+shortcut_keys_enabled = false
+
+[node name="Choice8" type="MarginContainer" parent="OuterMargin/MainVBox/ChoiceButtons"]
 layout_mode = 2
 size_flags_horizontal = 3
+size_flags_vertical = 4
+mouse_filter = 2
+
+[node name="Button" type="Button" parent="OuterMargin/MainVBox/ChoiceButtons/Choice8"]
+layout_mode = 2
 theme_override_font_sizes/font_size = 28
 
-[node name="Choice9" type="Button" parent="OuterMargin/MainVBox/ChoiceButtons"]
+[node name="Label" type="RichTextLabel" parent="OuterMargin/MainVBox/ChoiceButtons/Choice8"]
+layout_mode = 2
+size_flags_horizontal = 6
+size_flags_vertical = 4
+mouse_filter = 2
+theme_override_font_sizes/normal_font_size = 28
+theme_override_font_sizes/bold_font_size = 28
+bbcode_enabled = true
+fit_content = true
+scroll_active = false
+autowrap_mode = 0
+shortcut_keys_enabled = false
+
+[node name="Choice9" type="MarginContainer" parent="OuterMargin/MainVBox/ChoiceButtons"]
 layout_mode = 2
 size_flags_horizontal = 3
+size_flags_vertical = 4
+mouse_filter = 2
+
+[node name="Button" type="Button" parent="OuterMargin/MainVBox/ChoiceButtons/Choice9"]
+layout_mode = 2
 theme_override_font_sizes/font_size = 28
+
+[node name="Label" type="RichTextLabel" parent="OuterMargin/MainVBox/ChoiceButtons/Choice9"]
+layout_mode = 2
+size_flags_horizontal = 6
+size_flags_vertical = 4
+mouse_filter = 2
+theme_override_font_sizes/normal_font_size = 28
+theme_override_font_sizes/bold_font_size = 28
+bbcode_enabled = true
+fit_content = true
+scroll_active = false
+autowrap_mode = 0
+shortcut_keys_enabled = false
 
 [connection signal="pressed" from="OuterMargin/MainVBox/PanelContainer/ShowHideHBox/MarginContainer/ShowHideButton" to="." method="_on_show_hide_button_pressed"]
 [connection signal="toggled" from="OuterMargin/MainVBox/CheckHBox/UltrasForceOptionCheck" to="." method="_on_ultras_force_option_check_toggled"]
 [connection signal="pressed" from="OuterMargin/MainVBox/NumberSelectionPanel/Hbox/MinusButtonContainer/MinusButton" to="." method="_on_minus_button_pressed"]
 [connection signal="pressed" from="OuterMargin/MainVBox/NumberSelectionPanel/Hbox/PlusButtonContainer/PlusButton" to="." method="_on_plus_button_pressed"]
-[connection signal="pressed" from="OuterMargin/MainVBox/ChoiceButtons/Choice0" to="." method="_on_choice_pressed" binds= [0]]
-[connection signal="pressed" from="OuterMargin/MainVBox/ChoiceButtons/Choice1" to="." method="_on_choice_pressed" binds= [1]]
-[connection signal="pressed" from="OuterMargin/MainVBox/ChoiceButtons/Choice2" to="." method="_on_choice_pressed" binds= [2]]
-[connection signal="pressed" from="OuterMargin/MainVBox/ChoiceButtons/Choice3" to="." method="_on_choice_pressed" binds= [3]]
-[connection signal="pressed" from="OuterMargin/MainVBox/ChoiceButtons/Choice4" to="." method="_on_choice_pressed" binds= [4]]
-[connection signal="pressed" from="OuterMargin/MainVBox/ChoiceButtons/Choice5" to="." method="_on_choice_pressed" binds= [5]]
-[connection signal="pressed" from="OuterMargin/MainVBox/ChoiceButtons/Choice6" to="." method="_on_choice_pressed" binds= [6]]
-[connection signal="pressed" from="OuterMargin/MainVBox/ChoiceButtons/Choice7" to="." method="_on_choice_pressed" binds= [7]]
-[connection signal="pressed" from="OuterMargin/MainVBox/ChoiceButtons/Choice8" to="." method="_on_choice_pressed" binds= [8]]
-[connection signal="pressed" from="OuterMargin/MainVBox/ChoiceButtons/Choice9" to="." method="_on_choice_pressed" binds= [9]]
+[connection signal="pressed" from="OuterMargin/MainVBox/ChoiceButtons/Choice0/Button" to="." method="_on_choice_pressed" binds= [0]]
+[connection signal="pressed" from="OuterMargin/MainVBox/ChoiceButtons/Choice1/Button" to="." method="_on_choice_pressed" binds= [1]]
+[connection signal="pressed" from="OuterMargin/MainVBox/ChoiceButtons/Choice2/Button" to="." method="_on_choice_pressed" binds= [2]]
+[connection signal="pressed" from="OuterMargin/MainVBox/ChoiceButtons/Choice3/Button" to="." method="_on_choice_pressed" binds= [3]]
+[connection signal="pressed" from="OuterMargin/MainVBox/ChoiceButtons/Choice4/Button" to="." method="_on_choice_pressed" binds= [4]]
+[connection signal="pressed" from="OuterMargin/MainVBox/ChoiceButtons/Choice5/Button" to="." method="_on_choice_pressed" binds= [5]]
+[connection signal="pressed" from="OuterMargin/MainVBox/ChoiceButtons/Choice6/Button" to="." method="_on_choice_pressed" binds= [6]]
+[connection signal="pressed" from="OuterMargin/MainVBox/ChoiceButtons/Choice7/Button" to="." method="_on_choice_pressed" binds= [7]]
+[connection signal="pressed" from="OuterMargin/MainVBox/ChoiceButtons/Choice8/Button" to="." method="_on_choice_pressed" binds= [8]]
+[connection signal="pressed" from="OuterMargin/MainVBox/ChoiceButtons/Choice9/Button" to="." method="_on_choice_pressed" binds= [9]]
