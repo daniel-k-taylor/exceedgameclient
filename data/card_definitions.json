@@ -15015,6 +15015,7 @@
 				"timing": "hit",
 				"effect_type": "advance",
 				"amount": 4,
+				"suppress_and_description": true,
 				"and": {
 					"effect_type": "choice",
 					"choice": [

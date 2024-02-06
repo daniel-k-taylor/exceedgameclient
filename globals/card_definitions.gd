@@ -718,8 +718,7 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 			if 'card_name' in effect:
 				effect_str += "Return %s to hand" % effect['card_name']
 			else:
-				effect_str += "Return the attack to hand"
-			effect_str += "Return the attack to your hand"
+				effect_str += "Return the attack to your hand"
 		"return_attack_to_top_of_deck":
 			effect_str += "Return the attack to the top of your deck"
 		"return_this_boost_to_hand_strike_effect":
