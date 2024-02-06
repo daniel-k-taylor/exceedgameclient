@@ -27,11 +27,7 @@ Tasks:
     Main Features:
         ☐ Observers on server
     Tests:
-        ✔ Strike - covered by character tests @done(24-01-19 22:45)
-        ✔ Boost - covered by character tests @done(24-01-19 22:45)
         ☐ Move
-        ✔ Prepare @done(23-09-26 22:49)
-        ☐ Exceed
         ☐ Reshuffle
         ☐ Change cards
     Misc/Low pri:
@@ -53,8 +49,8 @@ Tasks:
     ☐ Faust remove boost effects needs to be reviewed, stuff like powerup_opponent and other random effects that Faust can remove mid-strike
         ☐ probably any during_strike ability?
         ☐ Relevant for Bang too
-    ☐ Investigate if losing events because of events += when events is passed in
-        ☐ switch everything to append_array
+    ☐ Add combat log preferences to saved data
+
 Bugs:
 
 Later:
