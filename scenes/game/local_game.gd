@@ -3584,7 +3584,7 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 			events += handle_strike_attack_immediate_removal(performing_player)
 			if 'boost_effect' in effect:
 				var boost_effect = effect['boost_effect']
-				events += handle_strike_effect(card_id, boost_effect, performing_player)
+				events += do_effect_if_condition_met(performing_player, card_id, boost_effect, null)
 		"boost_then_sustain":
 			# This effect is expected to be mid-strike.
 			assert(active_strike)

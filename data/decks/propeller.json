@@ -41,6 +41,7 @@
 			"timing": "hit",
 			"condition": "is_special_or_ultra_attack",
 			"effect_type": "pass",
+			"silent_effect": true,
 			"and": {
 				"condition": "opponent_at_max_range",
 				"character_effect": true,
@@ -54,6 +55,7 @@
 			"timing": "hit",
 			"condition": "is_special_or_ultra_attack",
 			"effect_type": "pass",
+			"silent_effect": true,
 			"and": {
 				"condition": "opponent_at_max_range",
 				"character_effect": true,
