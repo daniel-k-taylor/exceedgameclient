@@ -6413,6 +6413,10 @@ func handle_strike_attack_cleanup(performing_player : Player, card):
 	var events = []
 	var card_name = card.definition['display_name']
 
+	if card not in active_strike.cards_in_play:
+		# Already removed from play mid-strike
+		return events
+
 	if performing_player.is_set_aside_card(card.id):
 		_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "sets aside their attack %s." % card_name)
 		events += [create_event(Enums.EventType.EventType_SetCardAside, performing_player.my_id, card.id)]
