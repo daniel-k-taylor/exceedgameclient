@@ -1851,8 +1851,8 @@ class Player:
 			parent._append_log_full(Enums.LogType.LogType_CardInfo, self, "reveals the top card of their deck to the opponent.")
 		else:
 			parent._append_log_full(Enums.LogType.LogType_CardInfo, self, "reveals the top card of their deck: %s." % card_name)
+			public_topdeck_id = deck[0].id
 		events += [parent.create_event(Enums.EventType.EventType_RevealTopDeck, my_id, deck[0].id)]
-		public_topdeck_id = deck[0].id
 		return events
 
 	func pick_random_cards_from_hand(amount):
