@@ -1799,14 +1799,18 @@ class Player:
 				cards.append(card)
 		return cards
 
-	func reveal_single_card(card_id : int):
-		# First remove it from hand then add it back.
+	func reveal_card_ids(card_ids):
+		# First remove them then add them back.
 		# Do this because the card may be revealed to the opponent.
 		# Example: 3 Tuning Satisfaction in hand, opponent knows of two.
 		# Attack with one (known is now 1), then reveal one.
 		# This removes it then adds it back so they still know you have 1.
-		on_hand_remove_public_card(card_id)
-		on_hand_add_public_card(card_id)
+		# Remove them all first if multiple so if you show like 2 two at a time
+		# it doesn't look like you have just one.
+		for card_id in card_ids:
+			on_hand_remove_public_card(card_id)
+		for card_id in card_ids:
+			on_hand_add_public_card(card_id)
 
 	func reveal_hand():
 		var events = []
@@ -4247,7 +4251,7 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 			if copy_card_id != -1:
 				var card_name = card_db.get_card_name(copy_card_id)
 				next_turn_player = performing_player.my_id
-				performing_player.reveal_single_card(copy_card_id)
+				performing_player.reveal_card_ids([copy_card_id])
 				events += [create_event(Enums.EventType.EventType_RevealCard, performing_player.my_id, copy_card_id)]
 				events += [create_event(Enums.EventType.EventType_Strike_GainAdvantage, performing_player.my_id, 0)]
 				_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "reveals a copy of %s in their hand." % card_name)
@@ -4941,6 +4945,7 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 					events += do_seal_effect(performing_player, seal_card_id, "hand")
 			elif effect['destination'] == "reveal":
 				_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "reveals the chosen card(s): %s." % card_names)
+				performing_player.reveal_card_ids(card_ids)
 				for revealed_card_id in card_ids:
 					events += [create_event(Enums.EventType.EventType_RevealCard, performing_player.my_id, revealed_card_id)]
 				if 'and' in effect and effect['and']['effect_type'] == "save_power":
