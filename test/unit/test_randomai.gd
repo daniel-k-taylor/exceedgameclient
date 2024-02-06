@@ -560,3 +560,6 @@ func test_chaos_100():
 
 func test_tinker_100():
 	run_iterations_with_deck("tinker")
+
+func test_propeller_100():
+	run_iterations_with_deck("propeller")
