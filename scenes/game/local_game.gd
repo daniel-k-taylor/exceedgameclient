@@ -7307,7 +7307,10 @@ func do_strike(performing_player : Player, card_id : int, wild_strike: bool, ex_
 				events = continue_setup_strike(events)
 
 		Enums.GameState.GameState_Strike_Opponent_Response:
-			active_strike.waiting_for_reading_response = false
+			if active_strike.waiting_for_reading_response:
+				active_strike.waiting_for_reading_response = false
+				# Reset effect counter due to reading card choice
+				active_strike.effects_resolved_in_timing = 0
 
 			if wild_strike:
 				_append_log_full(Enums.LogType.LogType_Strike, performing_player, "wild swings!")
