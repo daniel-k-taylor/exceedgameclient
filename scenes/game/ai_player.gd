@@ -835,6 +835,8 @@ func pick_choose_from_discard(game_logic : LocalGame, my_id : Enums.PlayerId, ch
 				can_choose = card.definition['type'] == "special"
 			"ultra":
 				can_choose = card.definition['type'] == "ultra"
+			"special/ultra":
+				can_choose = card.definition['type'] in ["special", "ultra"]
 			"continuous":
 				can_choose = card.definition['boost']['boost_type'] == "continuous"
 			_:

@@ -593,6 +593,7 @@ class Player:
 	var public_hand : Array[String]
 	var public_hand_questionable : Array[String]
 	var public_topdeck_id : int
+	var skip_end_of_turn_draw : bool
 
 	func _init(id, player_name, parent_ref, card_db_ref, chosen_deck, card_start_id):
 		my_id = id
@@ -684,6 +685,7 @@ class Player:
 		public_hand = []
 		public_hand_questionable = []
 		public_topdeck_id = -1
+		skip_end_of_turn_draw = false
 
 		if "buddy_cards" in deck_def:
 			var buddy_index = 0
@@ -5028,6 +5030,8 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 			# this should match "by name", so instead of using that
 			# match card.definition['id']'s instead.
 			opposing_player.cards_that_will_not_hit.append(named_card.definition['id'])
+		"skip_end_of_turn_draw":
+			performing_player.skip_end_of_turn_draw = true
 		"specials_invalid":
 			performing_player.specials_invalid = effect['enabled']
 		"speedup":
@@ -6948,9 +6952,14 @@ func check_hand_size_advance_turn(performing_player : Player):
 			_append_log_full(Enums.LogType.LogType_Action, performing_player, "takes an additional action! (%s left)" % performing_player.bonus_actions)
 		events += [create_event(Enums.EventType.EventType_Boost_ActionAfterBoost, performing_player.my_id, performing_player.bonus_actions)]
 	else:
-		events += performing_player.draw(1)
-		performing_player.did_end_of_turn_draw = true
-		_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "draws for end of turn. Their hand size is now %s." % len(performing_player.hand))
+		if performing_player.skip_end_of_turn_draw:
+			performing_player.skip_end_of_turn_draw = false
+			_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "skips drawing for end of turn. Their hand size is %s." % len(performing_player.hand))
+		else:
+			events += performing_player.draw(1)
+			performing_player.did_end_of_turn_draw = true
+			_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "draws for end of turn. Their hand size is now %s." % len(performing_player.hand))
+
 		if len(performing_player.hand) > performing_player.max_hand_size:
 			change_game_state(Enums.GameState.GameState_DiscardDownToMax)
 			events += [create_event(Enums.EventType.EventType_HandSizeExceeded, performing_player.my_id, len(performing_player.hand) - performing_player.max_hand_size)]
@@ -7729,6 +7738,10 @@ func do_choose_from_discard(performing_player : Player, card_ids : Array) -> boo
 			"ultra":
 				if card.definition['type'] != "ultra":
 					printlog("ERROR: Tried to choose from discard with card that doesn't meet limitation ultra.")
+					return false
+			"special/ultra":
+				if card.definition['type'] not in ["special", "ultra"]:
+					printlog("ERROR: Tried to choose from discard with card that doesn't meet limitation special/ultra.")
 					return false
 			"continuous":
 				if card.definition['boost']['boost_type'] != "continuous":

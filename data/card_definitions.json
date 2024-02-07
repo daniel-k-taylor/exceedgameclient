@@ -10546,45 +10546,47 @@
 	{
 		"id": "mole_burrowdig",
 		"type": "special",
-		"display_name": "Chasing le Reve",
+		"display_name": "Burrow Dig",
 		"force_cost": 0,
 		"gauge_cost": 0,
 		"range_min": 1,
-		"range_max": 2,
-		"speed": 6,
+		"range_max": 1,
+		"speed": 7,
 		"power": 3,
 		"armor": 0,
 		"guard": 0,
 		"effects": [
 			{
-				"timing": "after",
-				"effect_type": "advance",
-				"amount": 3,
+				"timing": "hit",
+				"effect_type": "draw",
+				"amount": 1,
 				"and": {
-					"effect_type": "draw",
-					"amount": 1
+					"effect_type": "advance",
+					"amount": 2
 				}
 			}
 		],
 		"boost": {
-			"boost_type": "continuous",
+			"boost_type": "immediate",
 			"force_cost": 0,
 			"cancel_cost": -1,
-			"display_name": "Windmill",
+			"display_name": "Lost Treasure",
 			"effects": [
 				{
-					"timing": "during_strike",
-					"effect_type": "powerup_opponent",
-					"amount": 3
+					"timing": "immediate",
+					"effect_type": "choose_discard",
+					"limitation": "special/ultra",
+					"destination": "hand",
+					"amount": 1,
+					"amount_min": 1
 				},
 				{
-					"timing": "now",
-					"effect_type": "bonus_action"
+					"timing": "immediate",
+					"effect_type": "shuffle_discard_in_place"
 				},
 				{
-					"timing": "before",
-					"effect_type": "close",
-					"amount": 2
+					"timing": "immediate",
+					"effect_type": "skip_end_of_turn_draw"
 				}
 			]
 		}
