@@ -2096,6 +2096,22 @@ func _on_reshuffle_discard(event):
 	update_card_counts()
 	return SmallNoticeDelay
 
+func _on_reshuffle_discard_in_place(event):
+	var player = event['event_player']
+	var card_parent
+	if player == Enums.PlayerId.PlayerId_Player:
+		card_parent = $AllCards/PlayerDiscards
+	else:
+		card_parent = $AllCards/OpponentDiscards
+	var cards = card_parent.get_children()
+	var new_order = {}
+
+	for card in cards:
+		var card_index = game_wrapper.get_card_index_in_discards(player, card.card_id)
+		new_order[card_index] = card
+	for i in range(len(new_order)):
+		card_parent.move_child(new_order[i], i)
+
 func _on_reshuffle_deck_mulligan(_event):
 	#printlog("UI: TODO: In place reshuffle deck. No cards actually move though.")
 	pass
@@ -2513,6 +2529,8 @@ func _handle_events(events):
 				delay = _on_name_opponent_card_begin(event)
 			Enums.EventType.EventType_ReshuffleDiscard:
 				delay = _on_reshuffle_discard(event)
+			Enums.EventType.EventType_ReshuffleDiscardInPlace:
+				_on_reshuffle_discard_in_place(event)
 			Enums.EventType.EventType_ReshuffleDeck_Mulligan:
 				_on_reshuffle_deck_mulligan(event)
 			Enums.EventType.EventType_RevealCard:

@@ -110,6 +110,7 @@ enum EventType {
 	EventType_ReadingNormal,
 	EventType_ReshuffleDeck_Mulligan,
 	EventType_ReshuffleDiscard,
+	EventType_ReshuffleDiscardInPlace,
 	EventType_RevealCard,
 	EventType_RevealHand,
 	EventType_RevealRandomGauge,

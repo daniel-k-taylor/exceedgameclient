@@ -4981,6 +4981,8 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 			_append_log_full(Enums.LogType.LogType_Health, performing_player, "gains %s life, bringing them to %s!" % [str(amount), str(performing_player.life)])
 		"shuffle_discard_in_place":
 			performing_player.random_shuffle_discard_in_place()
+			_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "shuffled their discard pile.")
+			events += [create_event(Enums.EventType.EventType_ReshuffleDiscardInPlace, performing_player.my_id, 0)]
 		"shuffle_into_deck_from_hand":
 			if len(performing_player.hand) > 0:
 				change_game_state(Enums.GameState.GameState_PlayerDecision)
