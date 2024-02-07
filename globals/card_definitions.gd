@@ -255,6 +255,8 @@ func get_condition_text(effect, amount, amount2, detail):
 			text += "If the opponent is at range %s+, " % amount
 		"range_multiple":
 			text += "If the opponent is at range %s-%s, " % [amount, amount2]
+		"exceeded":
+			text += "If in Exceed Mode: "
 		"is_special_attack":
 			text += ""
 		"is_special_or_ultra_attack":

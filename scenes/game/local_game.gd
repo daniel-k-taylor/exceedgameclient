@@ -2711,6 +2711,7 @@ func advance_to_next_turn():
 		if starting_turn_player.exceeded and starting_turn_player.overdrive.size() > 0:
 			# Do overdrive effect.
 			var overdrive_effects = [{
+				"overdrive_action": true,
 				"effect_type": "choose_discard",
 				"source": "overdrive",
 				"limitation": "",
@@ -3756,6 +3757,9 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 				decision_info.limitation = effect['limitation']
 				decision_info.destination = effect['destination']
 				decision_info.bonus_effect = discard_effect
+				decision_info.action = null
+				if 'overdrive_action' in effect and effect['overdrive_action']:
+					decision_info.action = "overdrive_action"
 				var amount = 1
 				if 'amount' in effect:
 					amount = min(choice_count, effect['amount'])
