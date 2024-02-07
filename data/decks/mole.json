@@ -8,69 +8,107 @@
 	"buddy_display_name": "Burrow",
 	"buddy_exceeds": true,
 	"buddy_starting_offset": 0,
-	"on_exceed": {
-		"effect_type": "place_buddy_in_any_space",
-		"buddy_name": "Shield Knight"
-	},
 	"character_action_default": [{
 		"gauge_cost": 0,
 		"force_cost": 0,
 		"effect": {
-			"effect_type": "choice",
-			"choice": [
-				{
-					"effect_type": "place_buddy_onto_self",
-					"buddy_name": "Shield Knight"
-				},
-				{
-					"effect_type": "move_buddy",
-					"buddy_name": "Shield Knight",
-					"amount": 1,
-					"amount2": 1
-				}
-			]
+			"effect_type": "place_buddy_at_range",
+			"buddy_name": "Burrow",
+			"range_min": 3,
+			"range_max": 3,
+			"and": {
+				"effect_type": "draw",
+				"amount": 1
+			}
 		}
 	}],
 	"character_action_exceeded": [{
 		"gauge_cost": 0,
 		"force_cost": 0,
 		"effect": {
-			"effect_type": "place_buddy_in_any_space",
-			"buddy_name": "Shield Knight"
+			"effect_type": "place_buddy_at_range",
+			"buddy_name": "Burrow",
+			"range_min": 2,
+			"range_max": 4,
+			"and": {
+				"effect_type": "draw",
+				"amount": 1
+			}
 		}
 	}],
 	"ability_effects": [
 		{
-			"timing": "on_advance_or_close",
-			"condition": "during_strike",
+			"timing": "set_strike",
+			"condition": "initiated_strike",
+			"effect_type": "choice",
+			"choice": [
+				{
+					"effect_type": "set_used_character_bonus",
+					"character_effect": true,
+					"linked_effect": {
+						"timing": "before",
+						"condition": "buddy_space_unoccupied",
+						"condition_detail": "Burrow",
+						"effect_type": "move_to_buddy",
+						"buddy_name": "Burrow"
+					}
+				},
+				{ "effect_type": "pass" }
+			]
+		},
+		{
+			"timing": "before",
+			"condition": "used_character_bonus",
 			"effect_type": "pass",
 			"and": {
-				"condition": "on_buddy_space",
-				"condition_detail": "Shield Knight",
-				"effect_type": "may_advance_bonus_spaces",
-				"amount": 1
+				"condition": "buddy_space_unoccupied",
+				"condition_detail": "Burrow",
+				"effect_type": "move_to_buddy",
+				"buddy_name": "Burrow"
 			}
 		}
 	],
 	"exceed_ability_effects": [
 		{
-			"timing": "on_advance_or_close",
-			"condition": "during_strike",
-			"effect_type": "pass",
-			"and": {
-				"condition": "on_buddy_space",
-				"condition_detail": "Shield Knight",
-				"effect_type": "may_advance_bonus_spaces",
-				"amount": 1
-			}
+			"timing": "set_strike",
+			"condition": "initiated_strike",
+			"effect_type": "choice",
+			"choice": [
+				{
+					"effect_type": "set_used_character_bonus",
+					"character_effect": true,
+					"linked_effect": {
+						"timing": "before",
+						"condition": "buddy_space_unoccupied",
+						"condition_detail": "Burrow",
+						"effect_type": "move_to_buddy",
+						"buddy_name": "Burrow",
+						"and": {
+							"NOTE": "condition abbreviated for display brevity",
+							"effect_type": "powerup",
+							"amount": 2
+						}
+					}
+				},
+				{ "effect_type": "pass" }
+			]
 		},
 		{
-			"timing": "when_hit",
-			"condition": "buddy_between_attack_source",
-			"condition_detail": "Shield Knight",
-			"character_effect": true,
-			"effect_type": "armorup",
-			"amount": 2
+			"timing": "before",
+			"condition": "used_character_bonus",
+			"effect_type": "pass",
+			"and": {
+				"condition": "buddy_space_unoccupied",
+				"condition_detail": "Burrow",
+				"effect_type": "move_to_buddy",
+				"buddy_name": "Burrow",
+				"and": {
+					"condition": "on_buddy_space",
+					"condition_detail": "Burrow",
+					"effect_type": "powerup",
+					"amount": 2
+				}
+			}
 		}
 	],
 	"cards": [

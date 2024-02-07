@@ -5326,15 +5326,21 @@ func handle_place_buddy_at_range(performing_player : Player, card_id, effect):
 		var distance = abs(range_origin - i)
 		if distance >= range_min and distance <= range_max:
 			decision_info.limitation.append(i)
+			var buddy_id = ""
+			if 'buddy_id' in effect:
+				buddy_id = effect['buddy_id']
 			var choice = {
 				"effect_type": "place_buddy_into_space",
-				"buddy_id": effect['buddy_id'],
+				"buddy_id": buddy_id,
 				"amount": i
 			}
 			if 'then_place_other_buddy' in effect and effect['then_place_other_buddy']:
+				var other_buddy_id = ""
+				if 'other_buddy_id' in effect:
+					other_buddy_id = effect['other_buddy_id']
 				choice['place_other_buddy_effect'] = {
 					"effect_type": "place_buddy_at_range",
-					"buddy_id": effect['other_buddy_id'],
+					"buddy_id": other_buddy_id,
 					"buddy_name": effect['other_buddy_name'],
 					"range_min": range_min,
 					"range_max": range_max
