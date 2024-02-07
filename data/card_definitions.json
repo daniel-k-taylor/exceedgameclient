@@ -10594,44 +10594,49 @@
 	{
 		"id": "mole_headbutt",
 		"type": "special",
-		"display_name": "Plumage Dancing in the Wind",
-		"force_cost": 0,
+		"display_name": "Headbutt",
+		"force_cost": 1,
 		"gauge_cost": 0,
 		"range_min": 1,
-		"range_max": 1,
+		"range_max": 2,
 		"speed": 6,
-		"power": 3,
+		"power": 4,
 		"armor": 0,
 		"guard": 0,
 		"effects": [
 			{
-				"timing": "during_strike",
-				"condition": "initiated_strike",
-				"effect_type": "powerup",
-				"amount": 2
-			},
-			{
-				"timing": "during_strike",
-				"condition": "not_initiated_strike",
-				"effect_type": "speedup",
-				"amount": 1
+				"timing": "hit",
+				"effect_type": "push",
+				"amount": 2,
+				"and": {
+					"effect_type": "choice",
+					"choice": [
+						{ "effect_type": "retreat", "amount": 1 },
+						{
+							"effect_type": "advance",
+							"amount": 2,
+							"and": {
+								"effect_type": "gain_advantage"
+							}
+						}
+					]
+				}
 			}
 		],
 		"boost": {
 			"boost_type": "continuous",
 			"force_cost": 1,
 			"cancel_cost": -1,
-			"display_name": "Reach",
+			"display_name": "Come At Me!",
 			"effects": [
 				{
 					"timing": "during_strike",
-					"effect_type": "rangeup",
-					"amount": 0,
-					"amount2": 1
+					"effect_type": "powerup",
+					"amount": 3
 				},
 				{
-					"timing": "now",
-					"effect_type": "strike"
+					"timing": "start_of_next_turn",
+					"effect_type": "add_to_gauge_immediately"
 				}
 			]
 		}
@@ -10639,45 +10644,47 @@
 	{
 		"id": "mole_divingdig",
 		"type": "special",
-		"display_name": "Conveying My Vrai Couer",
+		"display_name": "Diving Dig",
 		"force_cost": 0,
 		"gauge_cost": 0,
 		"range_min": 1,
 		"range_max": 1,
-		"speed": 5,
-		"power": 3,
+		"speed": 3,
+		"power": 5,
 		"armor": 0,
 		"guard": 0,
 		"effects": [
 			{
-				"timing": "before",
-				"effect_type": "close",
-				"amount": 3
+				"timing": "during_strike",
+				"effect_type": "ignore_guard"
 			},
 			{
 				"timing": "hit",
-				"effect_type": "choice",
-				"choice": [
-					{ "effect_type": "push", "amount": 1 },
-					{ "effect_type": "pull", "amount": 1 }
-				]
+				"effect_type": "retreat",
+				"amount": 1,
+				"and": {
+					"effect_type": "opponent_discard_random",
+					"amount": 1
+				}
 			}
 		],
 		"boost": {
-			"boost_type": "continuous",
+			"boost_type": "immediate",
 			"force_cost": 0,
 			"cancel_cost": -1,
-			"display_name": "Overpower",
+			"display_name": "Tunneling",
 			"effects": [
 				{
-					"timing": "during_strike",
-					"effect_type": "powerup",
-					"amount": 1
+					"timing": "immediate",
+					"effect_type": "move_to_any_space",
+					"move_min": 0,
+					"move_max": 3
 				},
 				{
-					"timing": "before",
-					"effect_type": "close",
-					"amount": 1
+					"timing": "immediate",
+					"condition": "on_buddy_space",
+					"condition_detail": "Burrow",
+					"effect_type": "add_to_gauge_boost_play_cleanup"
 				}
 			]
 		}
@@ -10685,44 +10692,36 @@
 	{
 		"id": "mole_blockpush",
 		"type": "special",
-		"display_name": "Let the Fleur Carry Your Feelings",
+		"display_name": "Block Push",
 		"force_cost": 0,
 		"gauge_cost": 0,
-		"range_min": 2,
-		"range_max": 4,
-		"speed": 4,
-		"power": 4,
+		"range_min": 3,
+		"range_max": 6,
+		"speed": 2,
+		"power": 5,
 		"armor": 0,
-		"guard": 0,
+		"guard": 6,
 		"effects": [
 			{
-				"timing": "after",
-				"condition": "opponent_stunned",
-				"effect_type": "choice",
-				"choice": [
-					{
-						"effect_type": "advance", "amount": 2 , "and": { "effect_type": "draw", "amount": 2 }
-					},
-					{
-						"effect_type": "retreat", "amount": 2 , "and": { "effect_type": "draw", "amount": 2 }
-					}
-				]
+				"timing": "hit",
+				"effect_type": "push",
+				"amount": 1
 			}
 		],
 		"boost": {
-			"boost_type": "immediate",
-			"force_cost": 2,
+			"boost_type": "continuous",
+			"force_cost": 1,
 			"cancel_cost": -1,
-			"display_name": "Jumping to Conclusions",
+			"display_name": "Stockpile",
 			"effects": [
 				{
-					"timing": "immediate",
-					"effect_type": "reveal_hand",
-					"opponent": true
-				},
-				{
-					"timing": "immediate",
-					"effect_type": "strike"
+					"timing": "during_strike",
+					"effect_type": "armorup",
+					"amount": 2,
+					"and": {
+						"effect_type": "guardup",
+						"amount": 2
+					}
 				}
 			]
 		}
@@ -10731,45 +10730,37 @@
 		"NOTE": "MOLE CARDS END",
 		"id": "mole_bellyslide",
 		"type": "special",
-		"display_name": "Ange's Invitation",
+		"display_name": "Belly Slide",
 		"force_cost": 0,
 		"gauge_cost": 0,
 		"range_min": 1,
-		"range_max": 2,
-		"speed": 3,
-		"power": 5,
-		"armor": 0,
-		"guard": 0,
+		"range_max": 1,
+		"speed": 2,
+		"power": 4,
+		"armor": 1,
+		"guard": 5,
 		"effects": [
 			{
-				"timing": "during_strike",
-				"effect_type": "higher_speed_misses",
-				"dodge_at_speed_greater_or_equal": 6
+				"timing": "before",
+				"effect_type": "advance",
+				"amount": 1
 			},
 			{
-				"timing": "after",
-				"effect_type": "advance",
-				"amount": 3
+				"timing": "hit",
+				"effect_type": "draw",
+				"amount": 1
 			}
 		],
 		"boost": {
 			"boost_type": "continuous",
-			"force_cost": 0,
+			"force_cost": 1,
 			"cancel_cost": -1,
-			"display_name": "Chain Shift",
+			"display_name": "Tunnel Vision",
 			"effects": [
 				{
-					"timing": "during_strike",
-					"effect_type": "speedup",
-					"amount": 1
-				},
-				{
-					"timing": "now",
-					"effect_type": "strike"
-				},
-				{
-					"timing": "after",
-					"effect_type": "add_to_gauge_immediately_mid_strike_undo_effects"
+					"timing": "before",
+					"effect_type": "advance",
+					"amount": 2
 				}
 			]
 		},
