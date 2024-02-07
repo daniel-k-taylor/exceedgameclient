@@ -5092,7 +5092,8 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 			decision_info.player = performing_player.my_id
 			decision_info.source = "gauge"
 			if len(performing_player.gauge) > 0:
-				events += [create_event(Enums.EventType.EventType_Strike_FromGauge, performing_player.my_id, 0)]
+				if not active_boost: # Boosts will send strikes on their own
+					events += [create_event(Enums.EventType.EventType_Strike_FromGauge, performing_player.my_id, 0)]
 				change_game_state(Enums.GameState.GameState_WaitForStrike)
 				performing_player.next_strike_faceup = true
 				performing_player.next_strike_from_gauge = true
@@ -5104,17 +5105,19 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 					"ex_card_id": -1
 				}
 				_append_log_full(Enums.LogType.LogType_Effect, performing_player, "has no gauge to strike with.")
-				events += [create_event(Enums.EventType.EventType_Strike_EffectDoStrike, performing_player.my_id, 0, "", strike_info)]
+				if not active_boost: # Boosts will send strikes on their own
+					events += [create_event(Enums.EventType.EventType_Strike_EffectDoStrike, performing_player.my_id, 0, "", strike_info)]
 		"strike_from_sealed":
 			decision_info.clear()
 			decision_info.type = Enums.DecisionType.DecisionType_StrikeNow
 			decision_info.player = performing_player.my_id
 			decision_info.source = "sealed"
 			if len(performing_player.sealed) > 0:
-				events += [create_event(Enums.EventType.EventType_Strike_FromGauge, performing_player.my_id, 0)]
 				change_game_state(Enums.GameState.GameState_WaitForStrike)
 				performing_player.next_strike_faceup = not performing_player.sealed_area_is_secret
 				performing_player.next_strike_from_sealed = true
+				if not active_boost: # Boosts will send strikes on their own
+					events += [create_event(Enums.EventType.EventType_Strike_FromGauge, performing_player.my_id, 0)]
 			else:
 				change_game_state(Enums.GameState.GameState_WaitForStrike)
 				var strike_info = {
@@ -5123,7 +5126,8 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 					"ex_card_id": -1
 				}
 				_append_log_full(Enums.LogType.LogType_Effect, performing_player, "has no sealed cards to strike with.")
-				events += [create_event(Enums.EventType.EventType_Strike_EffectDoStrike, performing_player.my_id, 0, "", strike_info)]
+				if not active_boost: # Boosts will send strikes on their own
+					events += [create_event(Enums.EventType.EventType_Strike_EffectDoStrike, performing_player.my_id, 0, "", strike_info)]
 		"strike_opponent_sets_first":
 			events += [create_event(Enums.EventType.EventType_Strike_OpponentSetsFirst, performing_player.my_id, 0)]
 			change_game_state(Enums.GameState.GameState_Strike_Opponent_Set_First)
@@ -6786,7 +6790,14 @@ func boost_play_cleanup(events, performing_player : Player):
 			change_game_state(Enums.GameState.GameState_WaitForStrike)
 			decision_info.type = Enums.DecisionType.DecisionType_StrikeNow
 			decision_info.player = performing_player.my_id
-			events += [create_event(Enums.EventType.EventType_ForceStartStrike, performing_player.my_id, 0)]
+			if performing_player.next_strike_from_sealed:
+				decision_info.source = "sealed"
+				events += [create_event(Enums.EventType.EventType_Strike_FromGauge, performing_player.my_id, 0)]
+			elif performing_player.next_strike_from_gauge:
+				decision_info.source = "gauge"
+				events += [create_event(Enums.EventType.EventType_Strike_FromGauge, performing_player.my_id, 0)]
+			else:
+				events += [create_event(Enums.EventType.EventType_ForceStartStrike, performing_player.my_id, 0)]
 		active_boost = null
 		preparing_strike = true
 	elif active_boost.action_after_boost and not active_strike:

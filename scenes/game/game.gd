@@ -1967,7 +1967,7 @@ func begin_gauge_strike_choosing(strike_response : bool, cancel_allowed : bool, 
 	select_card_require_min = 1
 	select_card_require_max = 1
 	var can_cancel = cancel_allowed and not strike_response
-	enable_instructions_ui("Select a card to strike with.", true, can_cancel)
+	enable_instructions_ui("Select a card from %s to strike with." % source, true, can_cancel)
 	var new_sub_state
 	if strike_response:
 		# Is there any character that does this? will need new sub-state if so
