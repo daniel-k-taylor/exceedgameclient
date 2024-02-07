@@ -1279,6 +1279,10 @@ func _on_choose_from_discard(event):
 			popout_type = CardPopoutType.CardPopoutType_SealedPlayer
 		elif source == "overdrive":
 			popout_type = CardPopoutType.CardPopoutType_OverdrivePlayer
+		var action = game_wrapper.get_decision_info().action
+		if action and action == "overdrive_action":
+			# Special text instruction fo rthe overdrive effect.
+			instruction = "Overdrive Effect:\nSelect a card from your Overdrive to discard."
 		popout_instruction_info = {
 			"popout_type": popout_type,
 			"instruction_text": instruction,
