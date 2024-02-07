@@ -1,4 +1,4 @@
-[gd_scene load_steps=61 format=3 uid="uid://cqs72exlwm6at"]
+[gd_scene load_steps=62 format=3 uid="uid://cqs72exlwm6at"]
 
 [ext_resource type="Script" path="res://scenes/menu/char_select.gd" id="1_f3x24"]
 [ext_resource type="PackedScene" uid="uid://nwqxp8pdh1jk" path="res://scenes/menu/char_select_button.tscn" id="6_3lmwy"]
@@ -59,6 +59,7 @@
 [ext_resource type="Texture2D" uid="uid://drpkmdacjrh2k" path="res://assets/portraits/bang.png" id="47_wqqey"]
 [ext_resource type="Texture2D" uid="uid://c64lam1prprip" path="res://assets/portraits/akuma.png" id="48_4ovfi"]
 [ext_resource type="Texture2D" uid="uid://cr4xuhld5ghtr" path="res://assets/portraits/tinker.png" id="49_xx03j"]
+[ext_resource type="Texture2D" uid="uid://166in2y3yh6m" path="res://assets/portraits/c.viper.png" id="59_oa4sg"]
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_8u80i"]
 
@@ -524,6 +525,11 @@ layout_mode = 2
 char_id = "guile"
 portrait_texture = ExtResource("39_8wdmm")
 
+[node name="C_Viper" parent="CenterContainer/SFCharacterSelect/Rows/Row2" instance=ExtResource("6_3lmwy")]
+layout_mode = 2
+char_id = "guile"
+portrait_texture = ExtResource("59_oa4sg")
+
 [node name="TabSelect" type="VBoxContainer" parent="."]
 layout_mode = 1
 anchors_preset = 5
@@ -689,6 +695,8 @@ portrait_texture = ExtResource("32_iutun")
 [connection signal="on_pressed" from="CenterContainer/SFCharacterSelect/Rows/Row2/Sagat" to="." method="_on_char_button_on_pressed"]
 [connection signal="on_hover" from="CenterContainer/SFCharacterSelect/Rows/Row2/Guile" to="." method="_on_char_hover"]
 [connection signal="on_pressed" from="CenterContainer/SFCharacterSelect/Rows/Row2/Guile" to="." method="_on_char_button_on_pressed"]
+[connection signal="on_hover" from="CenterContainer/SFCharacterSelect/Rows/Row2/C_Viper" to="." method="_on_char_hover"]
+[connection signal="on_pressed" from="CenterContainer/SFCharacterSelect/Rows/Row2/C_Viper" to="." method="_on_char_button_on_pressed"]
 [connection signal="on_hover" from="TabSelect/CategoriesHBox/Season3" to="." method="_on_char_hover"]
 [connection signal="on_pressed" from="TabSelect/CategoriesHBox/Season3" to="." method="_on_char_button_on_pressed"]
 [connection signal="on_hover" from="TabSelect/CategoriesHBox/Season4" to="." method="_on_char_hover"]

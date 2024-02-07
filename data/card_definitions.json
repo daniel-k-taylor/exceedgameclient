@@ -2170,7 +2170,98 @@
 		},
 		"NOTEEND": "BANG CARDS END"
 	},
-
+	{
+		"NOTE": "C.VIPER CARDS START",
+		"id": "c.viper_burningdance",
+		"type": "ultra",
+		"display_name": "Burning Dance",
+		"force_cost": 0,
+		"gauge_cost": 3,
+		"range_min": 1,
+		"range_max": 3,
+		"speed": 5,
+		"power": 5,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "during_strike",
+				"effect_type": "ignore_armor"	
+			},
+			{
+				"timing": "hit",
+				"effect_type": "push",
+				"amount": 8
+			},
+			{
+				"timing": "after",
+				"effect_type": "close",
+				"amount": 8				
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Stylish",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "powerup_opponent",
+					"amount": 3
+				},
+				{
+					"timing": "now",
+					"effect_type": "draw",
+					"amount": 3,
+					"and": {
+							"effect_type": "bonus_action"
+						}
+				}
+			]		
+		}
+	},
+	{
+		"id": "c.viper_bursttime",
+		"type": "ultra",
+		"display_name": "Burst Time",
+		"force_cost": 0,
+		"gauge_cost": 4,
+		"range_min": 1,
+		"range_max": 2,
+		"speed": 2,
+		"power": 10,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "during_strike",
+				"effect_type": "stun_immunity"
+			},
+			{
+				"timing": "during_strike",
+				"condition": "no_boost_in_play",
+				"effect_type": "attack_does_not_hit"
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Exoskeleton",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "armorup",
+					"amount": 3,
+					"and": {
+						"effect_type": "guardup",
+						"amount": 1
+					}	
+				}
+			]
+		}	
+	},
 	{
 		"NOTE": "CARLCLOVER CARDS START",
 		"id": "carlclover_deusexmachina",
