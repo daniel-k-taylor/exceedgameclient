@@ -25,19 +25,22 @@ func set_choices(instructions_text : String, choices : Array, ultra_force_toggle
 	choice_buttons_grid.columns = col_count
 
 	instructions_label.text = "[center]%s[/center]" % instructions_text
-	var choice_buttons = choice_buttons_grid.get_children()
+	var choice_containers = choice_buttons_grid.get_children()
 	var total_choices = choices.size()
-	for i in range(choice_buttons.size()):
-		var button = choice_buttons[i]
+	for i in range(choice_containers.size()):
+		var container = choice_containers[i]
+		var button = container.get_child(0)
+		var label = container.get_child(1).get_child(0)
+
 		if i < total_choices:
-			button.visible = true
+			container.visible = true
 			button.disabled = 'disabled' in choices[i] and choices[i].disabled
-			button.text = choices[i].text
+			label.text = "[center]%s[/center]" % choices[i].text
 		else:
 			button.disabled = true
-			button.visible = false
+			container.visible = false
 	reset_size()
-	
+
 	if number_picker_min != -1 and number_picker_max != -1:
 		number_panel_current_number = 0
 		number_panel_min = number_picker_min
@@ -70,7 +73,7 @@ func _on_number_picker_update():
 	number_panel_current_number = max(number_panel_current_number, number_panel_min)
 	number_panel_current_number = min(number_panel_current_number, number_panel_max)
 	number_panel_label.text = str(number_panel_current_number)
-	
+
 func _on_minus_button_pressed():
 	number_panel_current_number -= 1
 	_on_number_picker_update()

@@ -248,6 +248,14 @@ func get_plague_knight_discard_names(player_id : Enums.PlayerId) -> Array:
 func get_buddy_name(player_id : Enums.PlayerId, buddy_id : String):
 	return _get_player(player_id).get_buddy_name(buddy_id)
 
+func get_card_index_in_discards(player_id : Enums.PlayerId, card_id : int):
+	var player = _get_player(player_id)
+	for i in range(len(player.discards)):
+		var card = player.discards[i]
+		if card.id == card_id:
+			return i
+	return -1
+
 func other_player(id : Enums.PlayerId) -> Enums.PlayerId:
 	if id == Enums.PlayerId.PlayerId_Player:
 		return Enums.PlayerId.PlayerId_Opponent

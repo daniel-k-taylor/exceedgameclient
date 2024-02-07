@@ -112,13 +112,13 @@ func _ready():
 	remaining_count_label.text = ""
 	hand_icons_obj.visible = false
 	#$CardContainer/Focus.modulate = HighlightColor
-	
+
 	hand_texture = load("res://assets/icons/hand.png")
 	question_texture = load("res://assets/icons/handquestion.png")
-	
+
 	handeye_texture = load("res://assets/icons/handeye.png")
 	questioneye_texture = load("res://assets/icons/handeyequestion.png")
-	
+
 	topdeck_texture = load("res://assets/icons/topdeck.png")
 
 func set_remaining_count(count : int):
