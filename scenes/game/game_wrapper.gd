@@ -281,8 +281,9 @@ func can_player_boost(player_id : Enums.PlayerId, card_id : int, valid_zones : A
 
 	var card_db = current_game.get_card_database()
 	var card = card_db.get_card(card_id)
-	if limitation and card.definition['boost']['boost_type'] != limitation:
-		return false
+	if limitation:
+		if card.definition['boost']['boost_type'] != limitation and card.definition['type'] != limitation:
+			return false
 
 	if ignore_costs:
 		return true

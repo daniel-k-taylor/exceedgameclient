@@ -15824,20 +15824,37 @@
 			"boost_type": "continuous",
 			"force_cost": 0,
 			"cancel_cost": -1,
-			"display_name": "Zephyr",
+			"display_name": "Stitched Segment",
 			"effects": [
 				{
-					"timing": "during_strike",
-					"effect_type": "speedup",
-					"amount": 2,
+					"timing": "before",
+					"effect_type": "powerup",
+					"amount": 1,
 					"and": {
-						"effect_type": "powerup_opponent",
-						"amount": 3
+						"effect_type": "choice",
+						"choice": [
+							{ "effect_type": "push", "amount": 1 },
+							{ "effect_type": "pull", "amount": 1 }
+						]
 					}
 				},
 				{
-					"timing": "now",
-					"effect_type": "bonus_action"
+					"timing": "action",
+					"text": "Push/Pull, Take Another Action",
+					"effect_type": "discard_this",
+					"and": {
+						"effect_type": "choice",
+						"choice": [
+							{ "effect_type": "push", "amount": 1, "suppress_and_description": true,
+								"and": { "effect_type": "take_bonus_actions", "amount": 1 } },
+							{ "effect_type": "push", "amount": 2, "suppress_and_description": true,
+								"and": { "effect_type": "take_bonus_actions", "amount": 1 } },
+							{ "effect_type": "pull", "amount": 1, "suppress_and_description": true,
+								"and": { "effect_type": "take_bonus_actions", "amount": 1 } },
+							{ "effect_type": "pull", "amount": 2, "suppress_and_description": true,
+								"and": { "effect_type": "take_bonus_actions", "amount": 1 } }
+						]
+					}
 				}
 			]
 		}
@@ -15866,6 +15883,76 @@
 			}
 		],
 		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Stitched Segment",
+			"effects": [
+				{
+					"timing": "before",
+					"effect_type": "powerup",
+					"amount": 1,
+					"and": {
+						"effect_type": "choice",
+						"choice": [
+							{ "effect_type": "push", "amount": 1 },
+							{ "effect_type": "pull", "amount": 1 }
+						]
+					}
+				},
+				{
+					"timing": "action",
+					"text": "Push/Pull, Take Another Action",
+					"effect_type": "discard_this",
+					"and": {
+						"effect_type": "choice",
+						"choice": [
+							{ "effect_type": "push", "amount": 1, "suppress_and_description": true,
+								"and": { "effect_type": "take_bonus_actions", "amount": 1 } },
+							{ "effect_type": "push", "amount": 2, "suppress_and_description": true,
+								"and": { "effect_type": "take_bonus_actions", "amount": 1 } },
+							{ "effect_type": "pull", "amount": 1, "suppress_and_description": true,
+								"and": { "effect_type": "take_bonus_actions", "amount": 1 } },
+							{ "effect_type": "pull", "amount": 2, "suppress_and_description": true,
+								"and": { "effect_type": "take_bonus_actions", "amount": 1 } }
+						]
+					}
+				}
+			]
+		}
+	},
+	{
+		"id": "seth_captivesegment",
+		"type": "special",
+		"display_name": "Captive Segment",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 4,
+		"range_max": 4,
+		"speed": 6,
+		"power": 1,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "before",
+				"effect_type": "choice",
+				"choice": [
+					{
+						"effect_type": "boost_then_sustain",
+						"valid_zones": [ "hand" ],
+						"limitation": "ultra"
+					},
+					{ "effect_type": "pass" }
+				]
+			},
+			{
+				"timing": "after",
+				"effect_type": "advance",
+				"amount": 3
+			}
+		],
+		"boost": {
 			"boost_type": "immediate",
 			"force_cost": 1,
 			"cancel_cost": -1,
@@ -15878,52 +15965,6 @@
 					"and": {
 						"effect_type": "bonus_action"
 					}
-				}
-			]
-		}
-	},
-	{
-		"id": "seth_captivesegment",
-		"type": "special",
-		"display_name": "Chasing le Reve",
-		"force_cost": 0,
-		"gauge_cost": 0,
-		"range_min": 1,
-		"range_max": 2,
-		"speed": 6,
-		"power": 3,
-		"armor": 0,
-		"guard": 0,
-		"effects": [
-			{
-				"timing": "after",
-				"effect_type": "advance",
-				"amount": 3,
-				"and": {
-					"effect_type": "draw",
-					"amount": 1
-				}
-			}
-		],
-		"boost": {
-			"boost_type": "continuous",
-			"force_cost": 0,
-			"cancel_cost": -1,
-			"display_name": "Windmill",
-			"effects": [
-				{
-					"timing": "during_strike",
-					"effect_type": "powerup_opponent",
-					"amount": 3
-				},
-				{
-					"timing": "now",
-					"effect_type": "bonus_action"
-				},
-				{
-					"timing": "before",
-					"effect_type": "close",
-					"amount": 2
 				}
 			]
 		}

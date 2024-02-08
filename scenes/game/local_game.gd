@@ -1444,7 +1444,10 @@ class Player:
 			for card in zone_map[zone]:
 				var meets_limitation = true
 				if limitation:
-					meets_limitation = card.definition['boost']['boost_type'] == limitation
+					if card.definition['boost']['boost_type'] == limitation or card.definition['type'] == limitation:
+						meets_limitation = true
+					else:
+						meets_limitation = false
 				if not meets_limitation:
 					continue
 
@@ -8119,8 +8122,11 @@ func do_bonus_turn_action(performing_player : Player, action_index : int):
 	# Do the bonus action effects.
 	var events = []
 	events += handle_strike_effect(chosen_action['card_id'], chosen_action, performing_player)
-	if game_state != Enums.GameState.GameState_WaitForStrike:
+	if game_state not in [Enums.GameState.GameState_WaitForStrike, Enums.GameState.GameState_PlayerDecision]:
 		events += check_hand_size_advance_turn(performing_player)
+	elif game_state == Enums.GameState.GameState_PlayerDecision:
+		remaining_character_action_effects = []
+		active_character_action = true
 	event_queue += events
 	return true
 
