@@ -60,6 +60,7 @@
 			"timing": "before",
 			"condition": "used_character_bonus",
 			"effect_type": "pass",
+			"silent_effect": true,
 			"and": {
 				"condition": "buddy_space_unoccupied",
 				"condition_detail": "Burrow",
@@ -97,6 +98,7 @@
 			"timing": "before",
 			"condition": "used_character_bonus",
 			"effect_type": "pass",
+			"silent_effect": true,
 			"and": {
 				"condition": "buddy_space_unoccupied",
 				"condition_detail": "Burrow",

@@ -10461,44 +10461,36 @@
 		"NOTE": "MOLE CARDS START",
 		"id": "mole_erupt",
 		"type": "ultra",
-		"display_name": "Atmosphere of the Aether",
+		"display_name": "Erupt",
 		"force_cost": 0,
 		"gauge_cost": 3,
-		"range_min": 1,
-		"range_max": 2,
-		"speed": 6,
-		"power": 4,
-		"armor": 0,
-		"guard": 0,
+		"range_min": 2,
+		"range_max": 4,
+		"speed": 1,
+		"power": 8,
+		"armor": 2,
+		"guard": 5,
 		"effects": [
-			{
-				"timing": "hit",
-				"effect_type": "push",
-				"amount": 3,
-				"and": {
-					"effect_type": "draw",
-					"amount": 2
-				}
-			}
 		],
 		"boost": {
 			"boost_type": "continuous",
-			"force_cost": 0,
+			"force_cost": 1,
 			"cancel_cost": -1,
-			"display_name": "Zephyr",
+			"display_name": "Molten Armor",
 			"effects": [
 				{
 					"timing": "during_strike",
-					"effect_type": "speedup",
-					"amount": 2,
-					"and": {
-						"effect_type": "powerup_opponent",
-						"amount": 3
-					}
+					"effect_type": "rangeup",
+					"amount": 0,
+					"amount2": 1
 				},
 				{
-					"timing": "now",
-					"effect_type": "bonus_action"
+					"timing": "when_hit",
+					"first_time_only": true,
+					"effect_type": "take_damage",
+					"opponent": true,
+					"nonlethal": true,
+					"amount": 2
 				}
 			]
 		}
@@ -10506,39 +10498,54 @@
 	{
 		"id": "mole_cavein",
 		"type": "ultra",
-		"display_name": "Lumiere of the Dawn",
+		"display_name": "Cave In",
 		"force_cost": 0,
-		"gauge_cost": 3,
+		"gauge_cost": 2,
 		"range_min": 1,
-		"range_max": 1,
-		"speed": 4,
-		"power": 9,
-		"armor": 6,
+		"range_max": 3,
+		"speed": 1,
+		"power": 4,
+		"armor": 3,
 		"guard": 0,
 		"effects": [
 			{
-				"timing": "before",
-				"condition": "speed_greater_than",
-				"condition_amount": "OPPONENT_SPEED",
-				"effect_type": "attack_does_not_hit",
-				"and": {
-					"effect_type": "lose_all_armor"
-				}
+				"timing": "during_strike",
+				"effect_type": "opponent_cant_move_if_in_range"
+			},
+			{
+				"timing": "after",
+				"effect_type": "draw",
+				"amount": 2
 			}
 		],
 		"boost": {
-			"boost_type": "immediate",
-			"force_cost": 1,
+			"boost_type": "continuous",
+			"force_cost": 0,
 			"cancel_cost": -1,
-			"display_name": "Surge Forward",
+			"display_name": "Undermine",
 			"effects": [
 				{
-					"timing": "immediate",
-					"effect_type": "advance",
-					"amount": 3,
-					"and": {
-						"effect_type": "bonus_action"
-					}
+					"timing": "start_of_next_turn",
+					"effect_type": "choice",
+					"choice": [
+						{
+							"effect_type": "discard_this",
+							"bonus_effect": {
+								"condition": "opponent_on_buddy_space",
+								"condition_detail": "Burrow",
+								"effect_type": "take_damage",
+								"opponent": true,
+								"nonlethal": true,
+								"amount": 4
+							}
+						},
+						{
+							"effect_type": "move_buddy",
+							"buddy_name": "Burrow",
+							"amount": 1,
+							"amount2": 1
+						}
+					]
 				}
 			]
 		}
