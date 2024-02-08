@@ -16067,6 +16067,7 @@
 				},
 				{
 					"timing": "cleanup",
+					"skip_if_boost_sustained": true,
 					"effect_type": "choice",
 					"choice": [
 						{

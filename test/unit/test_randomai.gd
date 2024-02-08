@@ -566,3 +566,6 @@ func test_propeller_100():
 
 func test_mole_100():
 	run_iterations_with_deck("mole")
+
+func test_seth_100():
+	run_iterations_with_deck("seth")

@@ -3002,6 +3002,11 @@ func strike_determine_order():
 
 func do_effect_if_condition_met(performing_player : Player, card_id : int, effect, local_conditions : LocalStrikeConditions):
 	var events = []
+
+	if 'skip_if_boost_sustained' in effect and effect['skip_if_boost_sustained']:
+		if card_id in performing_player.sustained_boosts:
+			return events
+
 	if is_effect_condition_met(performing_player, effect, local_conditions):
 		events += handle_strike_effect(card_id, effect, performing_player)
 	elif 'negative_condition_effect' in effect:
