@@ -15972,52 +15972,7 @@
 	{
 		"id": "seth_deadspaceofintrusion",
 		"type": "special",
-		"display_name": "Plumage Dancing in the Wind",
-		"force_cost": 0,
-		"gauge_cost": 0,
-		"range_min": 1,
-		"range_max": 1,
-		"speed": 6,
-		"power": 3,
-		"armor": 0,
-		"guard": 0,
-		"effects": [
-			{
-				"timing": "during_strike",
-				"condition": "initiated_strike",
-				"effect_type": "powerup",
-				"amount": 2
-			},
-			{
-				"timing": "during_strike",
-				"condition": "not_initiated_strike",
-				"effect_type": "speedup",
-				"amount": 1
-			}
-		],
-		"boost": {
-			"boost_type": "continuous",
-			"force_cost": 1,
-			"cancel_cost": -1,
-			"display_name": "Reach",
-			"effects": [
-				{
-					"timing": "during_strike",
-					"effect_type": "rangeup",
-					"amount": 0,
-					"amount2": 1
-				},
-				{
-					"timing": "now",
-					"effect_type": "strike"
-				}
-			]
-		}
-	},
-	{
-		"id": "seth_vanishingconfusion",
-		"type": "special",
-		"display_name": "Conveying My Vrai Couer",
+		"display_name": "Dead Space of Intrusion",
 		"force_cost": 0,
 		"gauge_cost": 0,
 		"range_min": 1,
@@ -16028,34 +15983,89 @@
 		"guard": 0,
 		"effects": [
 			{
-				"timing": "before",
-				"effect_type": "close",
-				"amount": 3
+				"timing": "hit",
+				"effect_type": "gain_advantage"
 			},
 			{
-				"timing": "hit",
-				"effect_type": "choice",
-				"choice": [
-					{ "effect_type": "push", "amount": 1 },
-					{ "effect_type": "pull", "amount": 1 }
-				]
+				"timing": "after",
+				"effect_type": "advance",
+				"amount": 3
+			}
+		],
+		"boost": {
+			"boost_type": "immediate",
+			"force_cost": 1,
+			"cancel_cost": -1,
+			"display_name": "Fadeaway",
+			"effects": [
+				{
+					"timing": "immediate",
+					"effect_type": "retreat",
+					"amount": 2,
+					"and": {
+						"effect_type": "bonus_action"
+					}
+				}
+			]
+		}
+	},
+	{
+		"id": "seth_vanishingconfusion",
+		"type": "special",
+		"display_name": "Vanishing Confusion",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 4,
+		"range_max": 4,
+		"speed": 4,
+		"power": 5,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "after",
+				"effect_type": "advance",
+				"amount": 3,
+				"and": {
+					"condition": "hit_opponent",
+					"effect_type": "add_top_deck_to_gauge",
+					"and": {
+						"effect_type": "boost_this_then_sustain"
+					}
+				}
 			}
 		],
 		"boost": {
 			"boost_type": "continuous",
 			"force_cost": 0,
 			"cancel_cost": -1,
-			"display_name": "Overpower",
+			"display_name": "Soul's Oath",
 			"effects": [
 				{
-					"timing": "during_strike",
-					"effect_type": "powerup",
-					"amount": 1
+					"timing": "before",
+					"effect_type": "choice",
+					"choice": [
+						{ "effect_type": "advance", "amount": 1, "and": { "effect_type": "seal_this_boost" } },
+						{ "effect_type": "retreat", "amount": 1, "and": { "effect_type": "seal_this_boost" } },
+						{ "effect_type": "push", "amount": 1, "and": { "effect_type": "seal_this_boost" } },
+						{ "effect_type": "pull", "amount": 1, "and": { "effect_type": "seal_this_boost" } },
+						{ "effect_type": "pass" }
+					]
 				},
 				{
-					"timing": "before",
-					"effect_type": "close",
-					"amount": 1
+					"timing": "cleanup",
+					"effect_type": "choice",
+					"choice": [
+						{
+							"effect_type": "spend_life",
+							"amount": 1,
+							"and": {
+								"effect_type": "sustain_this",
+								"card_name": "Vanishing Confusion"
+							}
+						},
+						{ "effect_type": "pass" }
+					]
 				}
 			]
 		}

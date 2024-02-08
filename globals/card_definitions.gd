@@ -103,7 +103,7 @@ func get_choice_summary(choice, card_name_source : String):
 		var effect_summary = effect_summaries[i]
 		if i > 0:
 			summary_text += " or "
-		if effect_summary.min_value != null:
+		if effect_summary.min_value != null and effect_summary.effect['effect_type'] not in ["spend_life"]:
 			if effect_summary.min_value == effect_summary.max_value:
 				summary_text += get_effect_type_heading(effect_summary.effect) + str(effect_summary.min_value)
 			else:
@@ -775,6 +775,11 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 		"seal_attack_on_cleanup":
 			effect_str += "Seal your attack on cleanup"
 		"seal_this":
+			if card_name_source:
+				effect_str += "Seal %s" % card_name_source
+			else:
+				effect_str += "Seal this"
+		"seal_this_boost":
 			if card_name_source:
 				effect_str += "Seal %s" % card_name_source
 			else:
