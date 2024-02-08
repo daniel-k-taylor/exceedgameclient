@@ -277,6 +277,8 @@ func get_condition_text(effect, amount, amount2, detail):
 			text += "If %s's space is unoccupied, " % detail
 		"on_buddy_space":
 			text += "If on %s's space, " % detail
+		"opponent_on_buddy_space":
+			text += "If opponent on %s's space, " % detail
 		"buddy_between_attack_source":
 			text += "If %s is between you and attack source, " % detail
 		"buddy_between_opponent":
@@ -341,6 +343,8 @@ func get_effect_type_heading(effect):
 			effect_str += "Push "
 		"retreat":
 			effect_str += "Retreat "
+		"move_buddy":
+			effect_str += "Move %s " % effect['buddy_name']
 		_:
 			effect_str += "MISSING EFFECT HEADING"
 	return effect_str

@@ -1,0 +1,209 @@
+{
+	"id": "mole",
+	"season": 4,
+	"display_name": "Mole Knight",
+	"cardback": "cardback_mole.jpg",
+	"exceed_cost": 4,
+	"buddy_card": "burrow",
+	"buddy_display_name": "Burrow",
+	"buddy_exceeds": true,
+	"buddy_starting_offset": 0,
+	"character_action_default": [{
+		"gauge_cost": 0,
+		"force_cost": 0,
+		"effect": {
+			"effect_type": "place_buddy_at_range",
+			"buddy_name": "Burrow",
+			"range_min": 3,
+			"range_max": 3,
+			"and": {
+				"effect_type": "draw",
+				"amount": 1
+			}
+		}
+	}],
+	"character_action_exceeded": [{
+		"gauge_cost": 0,
+		"force_cost": 0,
+		"effect": {
+			"effect_type": "place_buddy_at_range",
+			"buddy_name": "Burrow",
+			"range_min": 2,
+			"range_max": 4,
+			"and": {
+				"effect_type": "draw",
+				"amount": 1
+			}
+		}
+	}],
+	"ability_effects": [
+		{
+			"timing": "set_strike",
+			"condition": "initiated_strike",
+			"effect_type": "choice",
+			"choice": [
+				{
+					"effect_type": "add_attack_effect",
+					"character_effect": true,
+					"added_effect": {
+						"timing": "before",
+						"condition": "buddy_space_unoccupied",
+						"condition_detail": "Burrow",
+						"effect_type": "move_to_buddy",
+						"buddy_name": "Burrow"
+					}
+				},
+				{ "effect_type": "pass" }
+			]
+		}
+	],
+	"exceed_ability_effects": [
+		{
+			"timing": "set_strike",
+			"condition": "initiated_strike",
+			"effect_type": "choice",
+			"choice": [
+				{
+					"effect_type": "add_attack_effect",
+					"character_effect": true,
+					"added_effect": {
+						"timing": "before",
+						"condition": "buddy_space_unoccupied",
+						"condition_detail": "Burrow",
+						"effect_type": "move_to_buddy",
+						"buddy_name": "Burrow",
+						"bonus_effect": {
+							"condition": "on_buddy_space",
+							"condition_detail": "Burrow",
+							"effect_type": "powerup",
+							"amount": 2
+						}
+					}
+				},
+				{ "effect_type": "pass" }
+			]
+		}
+	],
+	"cards": [
+		{
+			"definition_id": "mole_erupt",
+			"image": "mole_erupt.tres"
+		},
+		{
+			"definition_id": "mole_erupt",
+			"image": "mole_erupt.tres"
+		},
+		{
+			"definition_id": "mole_cavein",
+			"image": "mole_cavein.tres"
+		},
+		{
+			"definition_id": "mole_cavein",
+			"image": "mole_cavein.tres"
+		},
+		{
+			"definition_id": "mole_burrowdig",
+			"image": "mole_burrowdig.tres"
+		},
+		{
+			"definition_id": "mole_burrowdig",
+			"image": "mole_burrowdig.tres"
+		},
+		{
+			"definition_id": "mole_headbutt",
+			"image": "mole_headbutt.tres"
+		},
+		{
+			"definition_id": "mole_headbutt",
+			"image": "mole_headbutt.tres"
+		},
+		{
+			"definition_id": "mole_divingdig",
+			"image": "mole_divingdig.tres"
+		},
+		{
+			"definition_id": "mole_divingdig",
+			"image": "mole_divingdig.tres"
+		},
+		{
+			"definition_id": "mole_blockpush",
+			"image": "mole_blockpush.tres"
+		},
+		{
+			"definition_id": "mole_blockpush",
+			"image": "mole_blockpush.tres"
+		},
+		{
+			"definition_id": "mole_bellyslide",
+			"image": "mole_bellyslide.tres"
+		},
+		{
+			"definition_id": "mole_bellyslide",
+			"image": "mole_bellyslide.tres"
+		},
+		{
+			"definition_id": "standard_normal_grasp",
+			"image": "normal_grasp.tres"
+		},
+		{
+			"definition_id": "standard_normal_grasp",
+			"image": "normal_grasp.tres"
+		},
+		{
+			"definition_id": "standard_normal_cross",
+			"image": "normal_cross.tres"
+		},
+		{
+			"definition_id": "standard_normal_cross",
+			"image": "normal_cross.tres"
+		},
+		{
+			"definition_id": "standard_normal_assault",
+			"image": "normal_assault.tres"
+		},
+		{
+			"definition_id": "standard_normal_assault",
+			"image": "normal_assault.tres"
+		},
+		{
+			"definition_id": "standard_normal_dive",
+			"image": "normal_dive.tres"
+		},
+		{
+			"definition_id": "standard_normal_dive",
+			"image": "normal_dive.tres"
+		},
+		{
+			"definition_id": "standard_normal_spike",
+			"image": "normal_spike.tres"
+		},
+		{
+			"definition_id": "standard_normal_spike",
+			"image": "normal_spike.tres"
+		},
+		{
+			"definition_id": "standard_normal_sweep",
+			"image": "normal_sweep.tres"
+		},
+		{
+			"definition_id": "standard_normal_sweep",
+			"image": "normal_sweep.tres"
+		},
+		{
+			"definition_id": "standard_normal_focus",
+			"image": "normal_focus.tres"
+		},
+		{
+			"definition_id": "standard_normal_focus",
+			"image": "normal_focus.tres"
+		},
+		{
+			"definition_id": "standard_normal_block",
+			"image": "normal_block.tres"
+		},
+		{
+			"definition_id": "standard_normal_block",
+			"image": "normal_block.tres"
+		}
+	]
+}
