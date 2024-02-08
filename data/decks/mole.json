@@ -43,9 +43,9 @@
 			"effect_type": "choice",
 			"choice": [
 				{
-					"effect_type": "set_used_character_bonus",
+					"effect_type": "add_attack_effect",
 					"character_effect": true,
-					"linked_effect": {
+					"added_effect": {
 						"timing": "before",
 						"condition": "buddy_space_unoccupied",
 						"condition_detail": "Burrow",
@@ -55,18 +55,6 @@
 				},
 				{ "effect_type": "pass" }
 			]
-		},
-		{
-			"timing": "before",
-			"condition": "used_character_bonus",
-			"effect_type": "pass",
-			"silent_effect": true,
-			"and": {
-				"condition": "buddy_space_unoccupied",
-				"condition_detail": "Burrow",
-				"effect_type": "move_to_buddy",
-				"buddy_name": "Burrow"
-			}
 		}
 	],
 	"exceed_ability_effects": [
@@ -76,16 +64,17 @@
 			"effect_type": "choice",
 			"choice": [
 				{
-					"effect_type": "set_used_character_bonus",
+					"effect_type": "add_attack_effect",
 					"character_effect": true,
-					"linked_effect": {
+					"added_effect": {
 						"timing": "before",
 						"condition": "buddy_space_unoccupied",
 						"condition_detail": "Burrow",
 						"effect_type": "move_to_buddy",
 						"buddy_name": "Burrow",
-						"and": {
-							"NOTE": "condition abbreviated for display brevity",
+						"bonus_effect": {
+							"condition": "on_buddy_space",
+							"condition_detail": "Burrow",
 							"effect_type": "powerup",
 							"amount": 2
 						}
@@ -93,24 +82,6 @@
 				},
 				{ "effect_type": "pass" }
 			]
-		},
-		{
-			"timing": "before",
-			"condition": "used_character_bonus",
-			"effect_type": "pass",
-			"silent_effect": true,
-			"and": {
-				"condition": "buddy_space_unoccupied",
-				"condition_detail": "Burrow",
-				"effect_type": "move_to_buddy",
-				"buddy_name": "Burrow",
-				"and": {
-					"condition": "on_buddy_space",
-					"condition_detail": "Burrow",
-					"effect_type": "powerup",
-					"amount": 2
-				}
-			}
 		}
 	],
 	"cards": [

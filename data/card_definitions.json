@@ -10643,7 +10643,11 @@
 				},
 				{
 					"timing": "start_of_next_turn",
-					"effect_type": "add_to_gauge_immediately"
+					"effect_type": "draw",
+					"amount": 1,
+					"and": {
+						"effect_type": "add_to_gauge_immediately"
+					}
 				}
 			]
 		}
