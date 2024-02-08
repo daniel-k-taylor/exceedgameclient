@@ -15800,24 +15800,28 @@
 		"NOTE": "SETH CARDS START",
 		"id": "seth_abyssalgeometry",
 		"type": "ultra",
-		"display_name": "Atmosphere of the Aether",
+		"display_name": "Abyssal Geometry",
 		"force_cost": 0,
-		"gauge_cost": 3,
-		"range_min": 1,
+		"gauge_cost": 1,
+		"range_min": 2,
 		"range_max": 2,
-		"speed": 6,
-		"power": 4,
+		"speed": 4,
+		"power": 3,
 		"armor": 0,
 		"guard": 0,
 		"effects": [
 			{
-				"timing": "hit",
-				"effect_type": "push",
-				"amount": 3,
+				"timing": "during_strike",
+				"effect_type": "stun_immunity",
 				"and": {
-					"effect_type": "draw",
-					"amount": 2
+					"effect_type": "dodge_at_range",
+					"range_min": 3,
+					"range_max": 3
 				}
+			},
+			{
+				"timing": "cleanup",
+				"effect_type": "boost_this_then_sustain"
 			}
 		],
 		"boost": {
@@ -15862,24 +15866,29 @@
 	{
 		"id": "seth_distantfrontier",
 		"type": "ultra",
-		"display_name": "Lumiere of the Dawn",
+		"display_name": "Distant Frontier",
 		"force_cost": 0,
 		"gauge_cost": 3,
 		"range_min": 1,
 		"range_max": 1,
-		"speed": 4,
-		"power": 9,
-		"armor": 6,
+		"speed": 3,
+		"power": 6,
+		"armor": 0,
 		"guard": 0,
 		"effects": [
 			{
 				"timing": "before",
-				"condition": "speed_greater_than",
-				"condition_amount": "OPPONENT_SPEED",
-				"effect_type": "attack_does_not_hit",
+				"effect_type": "close",
+				"amount": 6,
+				"save_spaces_as_strike_x": true,
 				"and": {
-					"effect_type": "lose_all_armor"
+					"effect_type": "draw",
+					"amount": "strike_x"
 				}
+			},
+			{
+				"timing": "cleanup",
+				"effect_type": "boost_this_then_sustain"
 			}
 		],
 		"boost": {

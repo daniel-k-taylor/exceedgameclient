@@ -3941,13 +3941,16 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 			events += [create_event(Enums.EventType.EventType_Strike_DodgeFromOppositeBuddy, performing_player.my_id, 0, "", effect['buddy_name'])]
 			_append_log_full(Enums.LogType.LogType_Effect, performing_player, "will dodge attacks from opponents behind %s!" % effect['buddy_name'])
 		"draw":
-			if effect['amount'] > 0:
+			var amount = effect['amount']
+			if str(amount) == "strike_x":
+				amount = performing_player.strike_stat_boosts.strike_x
+			if amount > 0:
 				if 'opponent' in effect and effect['opponent']:
-					events += opposing_player.draw(effect['amount'])
-					_append_log_full(Enums.LogType.LogType_CardInfo, opposing_player, "draws %s card(s)." % effect['amount'])
+					events += opposing_player.draw(amount)
+					_append_log_full(Enums.LogType.LogType_CardInfo, opposing_player, "draws %s card(s)." % amount)
 				else:
-					events += performing_player.draw(effect['amount'])
-					_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "draws %s card(s)." % effect['amount'])
+					events += performing_player.draw(amount)
+					_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "draws %s card(s)." % amount)
 		"draw_any_number":
 			var max_user_can_draw = performing_player.deck.size()
 			if performing_player.reshuffle_remaining > 0:

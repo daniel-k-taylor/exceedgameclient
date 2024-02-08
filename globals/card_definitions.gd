@@ -773,7 +773,7 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 				_:
 					effect_str += "(UNKNOWN)"
 		"set_total_power":
-			effect_str += "Your total power is %s " % effect['amount']
+			effect_str += "Your total power is %s" % effect['amount']
 		"seal_attack_on_cleanup":
 			effect_str += "Seal your attack on cleanup"
 		"seal_this":
