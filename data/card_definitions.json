@@ -2172,7 +2172,7 @@
 	},
 	{
 		"NOTE": "C.VIPER CARDS START",
-		"id": "c.viper_burningdance",
+		"id": "cviper_burningdance",
 		"type": "ultra",
 		"display_name": "Burning Dance",
 		"force_cost": 0,
@@ -2215,14 +2215,14 @@
 					"effect_type": "draw",
 					"amount": 3,
 					"and": {
-							"effect_type": "bonus_action"
-						}
+						"effect_type": "bonus_action"
+					}
 				}
 			]		
 		}
 	},
 	{
-		"id": "c.viper_bursttime",
+		"id": "cviper_bursttime",
 		"type": "ultra",
 		"display_name": "Burst Time",
 		"force_cost": 0,
@@ -2263,7 +2263,7 @@
 		}	
 	},
 	{
-		"id": "c.viper_burningkick",
+		"id": "cviper_burningkick",
 		"type": "special",
 		"display_name": "Burning Kick",
 		"force_cost": 0,
@@ -2308,7 +2308,7 @@
 		}		
 	},
 	{
-		"id": "c.viper_emergencycombination",
+		"id": "cviper_emergencycombination",
 		"type": "special",
 		"display_name": "Emergency Combination",
 		"force_cost": 0,
@@ -2345,7 +2345,7 @@
 		}		
 	},
 	{
-		"id": "c.viper_seismichammer",
+		"id": "cviper_seismichammer",
 		"type": "special",
 		"display_name": "Seismic Hammer",
 		"force_cost": 0,
@@ -2394,7 +2394,7 @@
 		}				
 	},
 	{
-		"id": "c.viper_templemassage",
+		"id": "cviper_templemassage",
 		"type": "special",
 		"display_name": "Temple Massage",
 		"force_cost": 0,
@@ -2439,7 +2439,7 @@
 		}
 	},
 	{
-		"id": "c.viper_thunderknuckle",
+		"id": "cviper_thunderknuckle",
 		"type": "special",
 		"display_name": "Thunder Knuckle",
 		"force_cost": 0,
@@ -2472,11 +2472,11 @@
 					"timing": "hit",
 					"effect_type": "force_for_effect",
 					"per_force_effect": {
-					"effect_type": "powerup",
-					"amount": 1
+						"effect_type": "powerup",
+						"amount": 1
 				},
 					"overall_effect": null,
-					"force_max": 3					
+					"force_max": 4					
 				}
 			]
 		},

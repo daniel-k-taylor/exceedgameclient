@@ -3,15 +3,15 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://166in2y3yh6m"
-path="res://.godot/imported/c.viper.png-15be0a9bac14e9a026a74ada68e58b54.ctex"
+path="res://.godot/imported/cviper.png-a05c42d0ea8b791845214dbbaf6051ba.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/portraits/c.viper.png"
-dest_files=["res://.godot/imported/c.viper.png-15be0a9bac14e9a026a74ada68e58b54.ctex"]
+source_file="res://assets/portraits/cviper.png"
+dest_files=["res://.godot/imported/cviper.png-a05c42d0ea8b791845214dbbaf6051ba.ctex"]
 
 [params]
 

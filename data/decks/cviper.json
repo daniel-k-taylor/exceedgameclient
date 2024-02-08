@@ -1,5 +1,5 @@
 {
-	"id": "c.viper",
+	"id": "cviper",
 	"season": 3,
 	"display_name": "C. Viper",
 	"cardback": "cardback_defaultexceed.png",
@@ -7,7 +7,7 @@
 	"on_exceed": {
 		"effect_type": "draw",
 		"amount": 5
-		},
+	},
 	"ability_effects": [
 		{
 			"timing": "on_continuous_boost",
@@ -15,7 +15,7 @@
 			"choice": [
 				{ "effect_type": "strike" },
 				{ "effect_type": "pass"}
-		]
+			]
 		},
 		{
 			"timing": "set_strike",
@@ -65,60 +65,60 @@
 	],
 	"cards": [
 		{
-			"definition_id": "c.viper_burningdance",
-			"image": "c.viper_burningdance.tres"
+			"definition_id": "cviper_burningdance",
+			"image": "cviper_burningdance.tres"
 		},
 		{
-			"definition_id": "c.viper_burningdance",
-			"image": "c.viper_burningdance.tres"
+			"definition_id": "cviper_burningdance",
+			"image": "cviper_burningdance.tres"
 		},
 		{
-			"definition_id": "c.viper_bursttime",
-			"image": "c.viper_bursttime.tres"
+			"definition_id": "cviper_bursttime",
+			"image": "cviper_bursttime.tres"
 		},
 		{
-			"definition_id": "c.viper_bursttime",
-			"image": "c.viper_bursttime.tres"
+			"definition_id": "cviper_bursttime",
+			"image": "cviper_bursttime.tres"
 		},
 		{
-			"definition_id": "c.viper_burningkick",
-			"image": "c.viper_burningkick.tres"
+			"definition_id": "cviper_burningkick",
+			"image": "cviper_burningkick.tres"
 		},
 		{
-			"definition_id": "c.viper_burningkick",
-			"image": "c.viper_burningkick.tres"
+			"definition_id": "cviper_burningkick",
+			"image": "cviper_burningkick.tres"
 		},
 		{
-			"definition_id": "c.viper_emergencycombination",
-			"image": "c.viper_emergencycombination.tres"
+			"definition_id": "cviper_emergencycombination",
+			"image": "cviper_emergencycombination.tres"
 		},
 		{
-			"definition_id": "c.viper_emergencycombination",
-			"image": "c.viper_emergencycombination.tres"
+			"definition_id": "cviper_emergencycombination",
+			"image": "cviper_emergencycombination.tres"
 		},
 		{
-			"definition_id": "c.viper_seismichammer",
-			"image": "c.viper_seismichammer.tres"
+			"definition_id": "cviper_seismichammer",
+			"image": "cviper_seismichammer.tres"
 		},
 		{
-			"definition_id": "c.viper_seismichammer",
-			"image": "c.viper_seismichammer.tres"
+			"definition_id": "cviper_seismichammer",
+			"image": "cviper_seismichammer.tres"
 		},
 		{
-			"definition_id": "c.viper_templemassage",
-			"image": "c.viper_templemassage.tres"
+			"definition_id": "cviper_templemassage",
+			"image": "cviper_templemassage.tres"
 		},
 		{
-			"definition_id": "c.viper_templemassage",
-			"image": "c.viper_templemassage.tres"
+			"definition_id": "cviper_templemassage",
+			"image": "cviper_templemassage.tres"
 		},
 		{
-			"definition_id": "c.viper_thunderknuckle",
-			"image": "c.viper_thunderknuckle.tres"
+			"definition_id": "cviper_thunderknuckle",
+			"image": "cviper_thunderknuckle.tres"
 		},
 		{
-			"definition_id": "c.viper_thunderknuckle",
-			"image": "c.viper_thunderknuckle.tres"
+			"definition_id": "cviper_thunderknuckle",
+			"image": "cviper_thunderknuckle.tres"
 		},
 		{
 			"definition_id": "standard_normal_grasp",

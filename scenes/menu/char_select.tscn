@@ -59,7 +59,7 @@
 [ext_resource type="Texture2D" uid="uid://drpkmdacjrh2k" path="res://assets/portraits/bang.png" id="47_wqqey"]
 [ext_resource type="Texture2D" uid="uid://c64lam1prprip" path="res://assets/portraits/akuma.png" id="48_4ovfi"]
 [ext_resource type="Texture2D" uid="uid://cr4xuhld5ghtr" path="res://assets/portraits/tinker.png" id="49_xx03j"]
-[ext_resource type="Texture2D" uid="uid://166in2y3yh6m" path="res://assets/portraits/c.viper.png" id="59_oa4sg"]
+[ext_resource type="Texture2D" uid="uid://166in2y3yh6m" path="res://assets/portraits/cviper.png" id="59_b8gjq"]
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_8u80i"]
 
@@ -527,8 +527,8 @@ portrait_texture = ExtResource("39_8wdmm")
 
 [node name="C_Viper" parent="CenterContainer/SFCharacterSelect/Rows/Row2" instance=ExtResource("6_3lmwy")]
 layout_mode = 2
-char_id = "c.viper"
-portrait_texture = ExtResource("59_oa4sg")
+char_id = "cviper"
+portrait_texture = ExtResource("59_b8gjq")
 
 [node name="TabSelect" type="VBoxContainer" parent="."]
 layout_mode = 1
