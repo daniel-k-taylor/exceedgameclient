@@ -396,6 +396,7 @@ class StrikeStatBoosts:
 	var ignore_push_and_pull : bool = false
 	var cannot_move_if_in_opponents_range : bool = false
 	var cannot_stun : bool = false
+	var deal_nonlethal_damage : bool = false
 	var always_add_to_gauge : bool = false
 	var always_add_to_overdrive : bool = false
 	var return_attack_to_hand : bool = false
@@ -461,6 +462,7 @@ class StrikeStatBoosts:
 		ignore_push_and_pull = false
 		cannot_move_if_in_opponents_range = false
 		cannot_stun = false
+		deal_nonlethal_damage = false
 		always_add_to_gauge = false
 		always_add_to_overdrive = false
 		return_attack_to_hand = false
@@ -4361,6 +4363,8 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 			performing_player.strike_stat_boosts.power_bonus_multiplier_positive_only = max(effect['amount'], performing_player.strike_stat_boosts.power_bonus_multiplier_positive_only)
 		"multiply_speed_bonuses":
 			performing_player.strike_stat_boosts.speed_bonus_multiplier = max(effect['amount'], performing_player.strike_stat_boosts.speed_bonus_multiplier)
+		"nonlethal_attack":
+			performing_player.strike_stat_boosts.deal_nonlethal_damage = true
 		"opponent_cant_move_if_in_range":
 			opposing_player.strike_stat_boosts.cannot_move_if_in_opponents_range = true
 			_append_log_full(Enums.LogType.LogType_Effect, opposing_player, "is prevented from moving while in %s's range." % performing_player.name)
@@ -6066,6 +6070,9 @@ func apply_damage(offense_player : Player, defense_player : Player):
 		armor = 0
 
 	var damage_after_armor = calculate_damage(offense_player, defense_player)
+	if offense_player.strike_stat_boosts.deal_nonlethal_damage:
+		_append_log_full(Enums.LogType.LogType_Health, offense_player, "'s attack does nonlethal damage.")
+		damage_after_armor = min(damage_after_armor, defense_player.life-1)
 	defense_player.life -= damage_after_armor
 	if defense_player.strike_stat_boosts.cannot_go_below_life > 0:
 		defense_player.life = max(defense_player.life, defense_player.strike_stat_boosts.cannot_go_below_life)

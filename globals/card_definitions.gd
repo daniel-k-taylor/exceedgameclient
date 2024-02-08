@@ -464,7 +464,7 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 		"cannot_go_below_life":
 			effect_str += "Life cannot go below %s" % effect['amount']
 		"cannot_stun":
-			effect_str += "Attack does not stun."
+			effect_str += "Attack does not stun"
 		"choice":
 			if 'opponent' in effect and effect['opponent']:
 				effect_str += "Opponent "
@@ -612,6 +612,8 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 				effect_str += "Double positive power bonuses"
 			else:
 				effect_str += "Multiply power bonuses by %s" % effect['amount']
+		"nonlethal_attack":
+			effect_str += "Deal non-lethal damage"
 		"nothing":
 			effect_str += ""
 		"opponent_cant_move_past":
