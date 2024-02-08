@@ -2263,6 +2263,226 @@
 		}	
 	},
 	{
+		"id": "c.viper_burningkick",
+		"type": "special",
+		"display_name": "Burning Kick",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 2,
+		"range_max": 3,
+		"speed": 5,
+		"power": 4,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "hit",
+				"condition": "is_critical",
+				"effect_type": "powerup_opponent",
+				"amount": -2,
+				"and": {
+					"effect_type": "gain_advantage"
+				}
+			},
+			{
+				"timing": "after",
+				"effect_type": "close",
+				"amount": 1
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Blazing",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "powerup",
+					"amount": 1,
+					"and": {
+						"effect_type": "ignore_armor"
+					}
+				}
+			]
+		}		
+	},
+	{
+		"id": "c.viper_emergencycombination",
+		"type": "special",
+		"display_name": "Emergency Combination",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 2,
+		"range_max": 3,
+		"speed": 5,
+		"power": 3,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "before",
+				"condition": "boost_in_play",
+				"effect_type": "powerup",
+				"amount": 2
+			}
+		],
+		"boost": {
+			"boost_type": "immediate",
+			"force_cost": 1,
+			"cancel_cost": -1,
+			"display_name": "Hidden Weapons",
+			"effects": [
+				{
+					"timing": "immediate",
+					"effect_type": "draw",
+					"amount": 2,
+					"and": {
+						"effect_type": "add_to_gauge_boost_play_cleanup"
+					}
+				}
+			]
+		}		
+	},
+	{
+		"id": "c.viper_seismichammer",
+		"type": "special",
+		"display_name": "Seismic Hammer",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 2,
+		"range_max": 5,
+		"speed": 1,
+		"power": 5,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "during_strike",
+				"condition": "is_critical",
+				"effect_type": "speedup",
+				"amount": 3
+			},
+			{
+				"timing": "after",
+				"effect_type": "choice",
+				"choice": [
+					{ "effect_type": "advance", "amount": 1 },
+					{ "effect_type": "advance", "amount": 2 },
+					{ "effect_type": "retreat", "amount": 1 },
+					{ "effect_type": "retreat", "amount": 2 },
+					{ "effect_type": "pass" }			
+				]
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 1,
+			"cancel_cost": -1,
+			"display_name": "Blasting",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "powerup",
+					"amount": 1,
+					"and": {
+						"effect_type": "guardup",
+						"amount": 5
+					}
+				}
+			]
+		}				
+	},
+	{
+		"id": "c.viper_templemassage",
+		"type": "special",
+		"display_name": "Temple Massage",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 1,
+		"speed": 4,
+		"power": 4,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "hit",
+				"condition": "is_critical",
+				"effect_type": "draw",
+				"amount": 3
+			},
+			{
+				"timing": "hit",
+				"effect_type": "force_for_effect",
+				"per_force_effect": {
+					"effect_type": "powerup",
+					"amount": 1
+				},
+				"overall_effect": null,
+				"force_max": 3
+			}
+		],
+		"boost": {
+			"boost_type": "immediate",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Cheater",
+			"effects": [
+				{
+					"timing": "immediate",
+					"effect_type": "boost_additional",
+					"limitation": "continuous",
+					"valid_zones": [ "discard" ]
+				}
+			]
+		}
+	},
+	{
+		"id": "c.viper_thunderknuckle",
+		"type": "special",
+		"display_name": "Thunder Knuckle",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 1,
+		"speed": 5,
+		"power": 3,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "during_strike",
+				"condition": "is_critical",
+				"effect_type": "ignore_guard"
+			},
+			{
+				"timing": "before",
+				"effect_type": "close",
+				"amount": 1
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Electrifying",
+			"effects": [
+				{
+					"timing": "hit",
+					"effect_type": "force_for_effect",
+					"per_force_effect": {
+					"effect_type": "powerup",
+					"amount": 1
+				},
+					"overall_effect": null,
+					"force_max": 3					
+				}
+			]
+		},
+		"NOTEEND": "C.VIPER CARDS END"		
+	},
+	{
 		"NOTE": "CARLCLOVER CARDS START",
 		"id": "carlclover_deusexmachina",
 		"type": "ultra",

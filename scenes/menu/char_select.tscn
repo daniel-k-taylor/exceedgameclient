@@ -527,7 +527,7 @@ portrait_texture = ExtResource("39_8wdmm")
 
 [node name="C_Viper" parent="CenterContainer/SFCharacterSelect/Rows/Row2" instance=ExtResource("6_3lmwy")]
 layout_mode = 2
-char_id = "guile"
+char_id = "c.viper"
 portrait_texture = ExtResource("59_oa4sg")
 
 [node name="TabSelect" type="VBoxContainer" parent="."]
