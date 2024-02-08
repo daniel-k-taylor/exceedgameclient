@@ -1,4 +1,4 @@
-[gd_scene load_steps=63 format=3 uid="uid://cqs72exlwm6at"]
+[gd_scene load_steps=64 format=3 uid="uid://cqs72exlwm6at"]
 
 [ext_resource type="Script" path="res://scenes/menu/char_select.gd" id="1_f3x24"]
 [ext_resource type="PackedScene" uid="uid://nwqxp8pdh1jk" path="res://scenes/menu/char_select_button.tscn" id="6_3lmwy"]
@@ -42,6 +42,7 @@
 [ext_resource type="Texture2D" uid="uid://sd5buxxnbiv8" path="res://assets/portraits/nanase.png" id="31_ls450"]
 [ext_resource type="Texture2D" uid="uid://b060c4v4aecrq" path="res://assets/portraits/sflogo.png" id="31_xu3ya"]
 [ext_resource type="Texture2D" uid="uid://lpvtuydm4qk1" path="res://assets/portraits/tager.png" id="32_1r668"]
+[ext_resource type="Texture2D" uid="uid://vxyral6q57ec" path="res://assets/portraits/seth.png" id="32_7d7oq"]
 [ext_resource type="Texture2D" uid="uid://de4wk0x150r1f" path="res://assets/portraits/exceedrandom.png" id="32_iutun"]
 [ext_resource type="Texture2D" uid="uid://juesnkghbyjd" path="res://assets/portraits/plague.png" id="32_o7q1n"]
 [ext_resource type="Texture2D" uid="uid://bc01kjivot83r" path="res://assets/portraits/litchi.png" id="32_tp7xh"]
@@ -328,6 +329,11 @@ alignment = 1
 layout_mode = 2
 char_id = "nanase"
 portrait_texture = ExtResource("31_ls450")
+
+[node name="Seth" parent="CenterContainer/UNICharacterSelect/Rows/Row3" instance=ExtResource("6_3lmwy")]
+layout_mode = 2
+char_id = "seth"
+portrait_texture = ExtResource("32_7d7oq")
 
 [node name="BBCharacterSelect" type="PanelContainer" parent="CenterContainer"]
 layout_mode = 2
@@ -647,6 +653,8 @@ portrait_texture = ExtResource("32_iutun")
 [connection signal="on_pressed" from="CenterContainer/UNICharacterSelect/Rows/Row2/Chaos" to="." method="_on_char_button_on_pressed"]
 [connection signal="on_hover" from="CenterContainer/UNICharacterSelect/Rows/Row3/Nanase" to="." method="_on_char_hover"]
 [connection signal="on_pressed" from="CenterContainer/UNICharacterSelect/Rows/Row3/Nanase" to="." method="_on_char_button_on_pressed"]
+[connection signal="on_hover" from="CenterContainer/UNICharacterSelect/Rows/Row3/Seth" to="." method="_on_char_hover"]
+[connection signal="on_pressed" from="CenterContainer/UNICharacterSelect/Rows/Row3/Seth" to="." method="_on_char_button_on_pressed"]
 [connection signal="on_hover" from="CenterContainer/BBCharacterSelect/Rows/Row1/Ragna" to="." method="_on_char_hover"]
 [connection signal="on_pressed" from="CenterContainer/BBCharacterSelect/Rows/Row1/Ragna" to="." method="_on_char_button_on_pressed"]
 [connection signal="on_hover" from="CenterContainer/BBCharacterSelect/Rows/Row1/RandomBB" to="." method="_on_char_hover"]
