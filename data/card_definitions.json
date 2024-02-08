@@ -16045,10 +16045,14 @@
 					"timing": "before",
 					"effect_type": "choice",
 					"choice": [
-						{ "effect_type": "advance", "amount": 1, "and": { "effect_type": "seal_this_boost" } },
-						{ "effect_type": "retreat", "amount": 1, "and": { "effect_type": "seal_this_boost" } },
-						{ "effect_type": "push", "amount": 1, "and": { "effect_type": "seal_this_boost" } },
-						{ "effect_type": "pull", "amount": 1, "and": { "effect_type": "seal_this_boost" } },
+						{ "effect_type": "advance", "amount": 1, "and":
+							{ "effect_type": "seal_this_boost", "card_name": "Vanishing Confusion" } },
+						{ "effect_type": "retreat", "amount": 1, "and":
+							{ "effect_type": "seal_this_boost", "card_name": "Vanishing Confusion"  } },
+						{ "effect_type": "push", "amount": 1, "and":
+							{ "effect_type": "seal_this_boost", "card_name": "Vanishing Confusion"  } },
+						{ "effect_type": "pull", "amount": 1, "and":
+							{ "effect_type": "seal_this_boost", "card_name": "Vanishing Confusion"  } },
 						{ "effect_type": "pass" }
 					]
 				},
@@ -16073,44 +16077,50 @@
 	{
 		"id": "seth_transgressingconvict",
 		"type": "special",
-		"display_name": "Let the Fleur Carry Your Feelings",
+		"display_name": "Transgressing Convict",
 		"force_cost": 0,
 		"gauge_cost": 0,
-		"range_min": 2,
-		"range_max": 4,
+		"range_min": 1,
+		"range_max": 1,
 		"speed": 4,
-		"power": 4,
+		"power": 3,
 		"armor": 0,
 		"guard": 0,
 		"effects": [
 			{
-				"timing": "after",
-				"condition": "opponent_stunned",
-				"effect_type": "choice",
-				"choice": [
-					{
-						"effect_type": "advance", "amount": 2 , "and": { "effect_type": "draw", "amount": 2 }
-					},
-					{
-						"effect_type": "retreat", "amount": 2 , "and": { "effect_type": "draw", "amount": 2 }
-					}
-				]
+				"timing": "during_strike",
+				"condition": "not_initiated_strike",
+				"effect_type": "speedup",
+				"amount": 3
+			},
+			{
+				"timing": "hit",
+				"effect_type": "draw",
+				"amount": 3,
+				"and": {
+					"effect_type": "choice",
+					"choice": [
+						{ "effect_type": "push", "amount": 1 },
+						{ "effect_type": "pull", "amount": 1 }
+					]
+				}
 			}
 		],
 		"boost": {
-			"boost_type": "immediate",
-			"force_cost": 2,
+			"boost_type": "continuous",
+			"force_cost": 0,
 			"cancel_cost": -1,
-			"display_name": "Jumping to Conclusions",
+			"display_name": "Fast Fall",
 			"effects": [
 				{
-					"timing": "immediate",
-					"effect_type": "reveal_hand",
-					"opponent": true
-				},
-				{
-					"timing": "immediate",
-					"effect_type": "strike"
+					"timing": "before",
+					"effect_type": "choice",
+					"choice": [
+						{ "effect_type": "advance", "amount": 1 },
+						{ "effect_type": "advance", "amount": 2 },
+						{ "effect_type": "retreat", "amount": 1 },
+						{ "effect_type": "retreat", "amount": 2 }
+					]
 				}
 			]
 		}
@@ -16119,45 +16129,42 @@
 		"NOTE": "SETH CARDS END",
 		"id": "seth_piercingpenetration",
 		"type": "special",
-		"display_name": "Ange's Invitation",
+		"display_name": "Piercing Penetration",
 		"force_cost": 0,
 		"gauge_cost": 0,
-		"range_min": 1,
-		"range_max": 2,
-		"speed": 3,
-		"power": 5,
+		"range_min": 3,
+		"range_max": 3,
+		"speed": 2,
+		"power": 7,
 		"armor": 0,
 		"guard": 0,
 		"effects": [
 			{
-				"timing": "during_strike",
-				"effect_type": "higher_speed_misses",
-				"dodge_at_speed_greater_or_equal": 6
-			},
-			{
 				"timing": "after",
-				"effect_type": "advance",
-				"amount": 3
+				"condition": "hit_opponent",
+				"effect_type": "add_top_deck_to_gauge",
+				"and": {
+					"effect_type": "boost_this_then_sustain"
+				}
 			}
 		],
 		"boost": {
 			"boost_type": "continuous",
 			"force_cost": 0,
 			"cancel_cost": -1,
-			"display_name": "Chain Shift",
+			"display_name": "Kerykeion",
 			"effects": [
 				{
 					"timing": "during_strike",
-					"effect_type": "speedup",
-					"amount": 1
+					"effect_type": "cannot_stun",
+					"and": {
+						"effect_type": "nonlethal_attack"
+					}
 				},
 				{
-					"timing": "now",
-					"effect_type": "strike"
-				},
-				{
-					"timing": "after",
-					"effect_type": "add_to_gauge_immediately_mid_strike_undo_effects"
+					"timing": "hit",
+					"effect_type": "set_total_power",
+					"amount": 7
 				}
 			]
 		},
