@@ -158,7 +158,7 @@ func _on_observe_game_started(data):
 
 	# Observe games pass in the full message log up to this point.
 	# The first message is the game_start message.
-	var message_log = data['message_log']
+	var message_log = data['messages']
 	var start_data = message_log[0]
 
 	# The observer will view from player 1's perspective.

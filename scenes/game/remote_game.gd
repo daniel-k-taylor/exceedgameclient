@@ -49,6 +49,7 @@ func initialize_game(player_info, opponent_info, starting_player : Enums.PlayerI
 
 	NetworkManager.connect("game_message_received", _on_remote_game_message)
 	NetworkManager.connect("other_player_quit", _on_remote_player_quit)
+	NetworkManager.connect("disconnected_from_server", _on_disconnected)
 
 func _on_remote_game_message(game_message):
 	if _observer_mode:
@@ -70,6 +71,9 @@ func _process_game_message(game_message):
 	var action_function_name = action_type.replace("action_", "process_")
 	var action_function = Callable(self, action_function_name)
 	action_function.call(game_message)
+
+func _on_disconnected():
+	local_game.do_quit(Enums.PlayerId.PlayerId_Player, Enums.GameOverReason.GameOverReason_Disconnect)
 
 func _on_remote_player_quit(_is_disconnect : bool):
 	var reason = Enums.GameOverReason.GameOverReason_Quit

@@ -344,6 +344,7 @@ button_pressed = true
 text = "BGM"
 
 [node name="ModalList" parent="." instance=ExtResource("9_ro6xo")]
+visible = false
 layout_mode = 0
 anchors_preset = 0
 anchor_right = 0.0
@@ -352,8 +353,13 @@ grow_horizontal = 1
 grow_vertical = 1
 
 [node name="ModalDialog" parent="." instance=ExtResource("10_stodf")]
+visible = false
 layout_mode = 0
 anchors_preset = 0
+anchor_right = 0.0
+anchor_bottom = 0.0
+grow_horizontal = 1
+grow_vertical = 1
 
 [connection signal="pressed" from="MenuList/VSAIBox/FightSettings/StartButton" to="." method="_on_start_button_pressed"]
 [connection signal="pressed" from="MenuList/VSAIBox/OpponentChooser/ChangePlayerCharacterButton" to="." method="_on_change_player_character_button_pressed" binds= [false]]

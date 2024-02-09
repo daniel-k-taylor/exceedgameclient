@@ -188,7 +188,8 @@ func _handle_players_update(message):
 		if room['player_names']:
 			host = room['player_names'][0]
 			if room['player_names'].size() > 1:
-				opponent = room['player_names'][1]
+				if room['player_names'][1]:
+					opponent = room['player_names'][1]
 		var match_info = {
 			"name": room_name,
 			"host": host,

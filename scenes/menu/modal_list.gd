@@ -30,33 +30,42 @@ func _on_players_update(_players, _matches, _match_available):
 func update_players():
 	var players = NetworkManager.get_player_list()
 	var rows = []
+	var rows_buttons_enabled = []
 	for player in players:
 		var row = [player["player_name"], player["player_version"], player["room_name"]]
 		rows.append(row)
+		rows_buttons_enabled.append([])
 	var list_data = {
 		"title": "Players",
 		"headers": ["Name", "Version", "Match"],
 		"rows": rows,
+		"rows_buttons_enabled": rows_buttons_enabled,
 	}
 	update_table(list_data)
 
 func update_matches():
 	var matches = NetworkManager.get_match_list()
 	var rows = []
+	var rows_buttons_enabled = []
 	for game_match in matches:
-		var joinable_str = ""
-		var observable_str = ""
+		var buttons_enabled = []
+		var joinable_str = "<FULL>"
+		var observable_str = "<NOT STARTED>"
 		if game_match["joinable"]:
 			joinable_str = "Join"
+			buttons_enabled.append(0)
 		if game_match["observable"]:
 			observable_str = "Observe"
-		var row = [game_match["host"], game_match["opponent"], game_match["version"], game_match["observer_count"], joinable_str, observable_str]
+			buttons_enabled.append(1)
+		var row = [game_match["host"], game_match["opponent"], game_match["version"], str(game_match["observer_count"]), joinable_str, observable_str]
 		rows.append(row)
+		rows_buttons_enabled.append(buttons_enabled)
 
 	var list_data = {
 		"title": "Matches",
 		"headers": ["Host", "Opponent", "Version", "Observers", "Join", "Observe"],
-		"rows": [],
+		"rows": rows,
+		"rows_buttons_enabled": rows_buttons_enabled,
 	}
 	update_table(list_data)
 
@@ -64,6 +73,7 @@ func update_table(data : Dictionary):
 	table.set_title(data['title'])
 	table.set_headers(data['headers'])
 	table.set_rows(data['rows'])
+	table.set_rows_buttons_enabled(data['rows_buttons_enabled'])
 
 func show_player_list():
 	show_list_state = ShowListState.ShowListState_Players
@@ -76,6 +86,7 @@ func show_match_list():
 	visible = true
 
 func _on_table_row_button_clicked(row_index, button_index):
+	visible = false
 	match show_list_state:
 		ShowListState.ShowListState_Players:
 			pass

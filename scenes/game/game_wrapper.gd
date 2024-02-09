@@ -39,6 +39,9 @@ func end_game():
 	current_game.free()
 	current_game = null
 
+func observer_process_next_message_from_queue():
+	return current_game.observer_process_next_message_from_queue()
+
 func _test_add_to_gauge(amount):
 	current_game._test_add_to_gauge(amount)
 
