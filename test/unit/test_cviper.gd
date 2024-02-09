@@ -234,3 +234,36 @@ func test_cviper_boost_ua_strike():
 	assert_true(game_logic.do_strike(player2, TestCardId2, false, -1))
 	validate_life(player1, 28, player2, 26)
 	validate_positions(player1, 8, player2, 9)
+
+func test_cviper_cheater_boost():
+	position_players(player1, 7, player2, 8)
+	# Boost Cheater to bring back a continuous boost playing it, then should be able to strike.
+	give_player_specific_card(player1, "cviper_templemassage", TestCardId3)
+	give_player_specific_card(player1, "cviper_burningdance", TestCardId4)
+	player1.discard([TestCardId4])
+	assert_eq(player1.hand.size(), 6)
+	assert_true(game_logic.do_boost(player1, TestCardId3))
+	assert_true(game_logic.do_boost(player1, TestCardId4))
+	assert_eq(player1.hand.size(), 8)
+	# Has choice to strike or not
+	assert_true(game_logic.do_choice(player1, 1))
+
+	# Prepare
+	advance_turn(player1)
+
+func test_cviper_cheater_boost_choose_strike():
+	position_players(player1, 6, player2, 8)
+	# Boost Cheater to bring back a continuous boost playing it, then should be able to strike.
+	give_player_specific_card(player1, "cviper_templemassage", TestCardId3)
+	give_player_specific_card(player1, "cviper_burningdance", TestCardId4)
+	player1.discard([TestCardId4])
+	assert_eq(player1.hand.size(), 6)
+	assert_true(game_logic.do_boost(player1, TestCardId3))
+	assert_true(game_logic.do_boost(player1, TestCardId4))
+	assert_eq(player1.hand.size(), 8)
+	# Choose to strike
+	assert_true(game_logic.do_choice(player1, 0))
+	execute_strike(player1, player2, "standard_normal_assault", "standard_normal_focus", [], [], false, false, [], [])
+	validate_positions(player1, 7, player2, 8)
+	validate_life(player1, 23, player2, 28)
+	advance_turn(player1)
