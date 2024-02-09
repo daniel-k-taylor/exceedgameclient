@@ -59,6 +59,7 @@
 [ext_resource type="Texture2D" uid="uid://drpkmdacjrh2k" path="res://assets/portraits/bang.png" id="47_wqqey"]
 [ext_resource type="Texture2D" uid="uid://c64lam1prprip" path="res://assets/portraits/akuma.png" id="48_4ovfi"]
 [ext_resource type="Texture2D" uid="uid://cr4xuhld5ghtr" path="res://assets/portraits/tinker.png" id="49_xx03j"]
+[ext_resource type="Texture2D" uid="uid://166in2y3yh6m" path="res://assets/portraits/cviper.png" id="59_b8gjq"]
 [ext_resource type="Texture2D" uid="uid://dhl6e0y27cppf" path="res://assets/portraits/propeller.png" id="52_4p78r"]
 [ext_resource type="Texture2D" uid="uid://cqx52mmwlhi0c" path="res://assets/portraits/mole.png" id="54_ciywr"]
 
@@ -536,6 +537,11 @@ layout_mode = 2
 char_id = "guile"
 portrait_texture = ExtResource("39_8wdmm")
 
+[node name="C_Viper" parent="CenterContainer/SFCharacterSelect/Rows/Row2" instance=ExtResource("6_3lmwy")]
+layout_mode = 2
+char_id = "cviper"
+portrait_texture = ExtResource("59_b8gjq")
+
 [node name="TabSelect" type="VBoxContainer" parent="."]
 layout_mode = 1
 anchors_preset = 5
@@ -705,6 +711,8 @@ portrait_texture = ExtResource("32_iutun")
 [connection signal="on_pressed" from="CenterContainer/SFCharacterSelect/Rows/Row2/Sagat" to="." method="_on_char_button_on_pressed"]
 [connection signal="on_hover" from="CenterContainer/SFCharacterSelect/Rows/Row2/Guile" to="." method="_on_char_hover"]
 [connection signal="on_pressed" from="CenterContainer/SFCharacterSelect/Rows/Row2/Guile" to="." method="_on_char_button_on_pressed"]
+[connection signal="on_hover" from="CenterContainer/SFCharacterSelect/Rows/Row2/C_Viper" to="." method="_on_char_hover"]
+[connection signal="on_pressed" from="CenterContainer/SFCharacterSelect/Rows/Row2/C_Viper" to="." method="_on_char_button_on_pressed"]
 [connection signal="on_hover" from="TabSelect/CategoriesHBox/Season3" to="." method="_on_char_hover"]
 [connection signal="on_pressed" from="TabSelect/CategoriesHBox/Season3" to="." method="_on_char_button_on_pressed"]
 [connection signal="on_hover" from="TabSelect/CategoriesHBox/Season4" to="." method="_on_char_hover"]
