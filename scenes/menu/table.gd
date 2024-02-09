@@ -25,7 +25,7 @@ func set_headers(header_values : Array):
 		else:
 			header.visible = false
 
-func set_rows(new_rows : Array):
+func set_rows(new_rows : Array, rows_icons : Array):
 	# Delete previous rows.
 	for n in rows.get_children():
 		rows.remove_child(n)
@@ -40,14 +40,24 @@ func set_rows(new_rows : Array):
 		for i in range(total_cols):
 			var cell = new_row_node.get_child(i)
 			if i < cols_in_data and row_data[i]:
-				if cell is HBoxContainer:
+				if cell is HBoxContainer: # Indicates button column
 					var button = cell.find_child("RowButton")
 					if button:
 						button.text = row_data[i]
 						button.connect("pressed", func(): _on_row_button_clicked(row_index, button_index))
 						button_index += 1
 				else:
-					cell.text = row_data[i]
+					var label = cell.find_child("RowLabel")
+					var icon = cell.find_child("Icon")
+					if rows_icons and i < rows_icons[row_index].size() and rows_icons[row_index][i]:
+						# This row has an icon.
+						label.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
+						icon.visible = true
+						icon.texture = load(rows_icons[row_index][i])
+					else:
+						label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+						icon.visible = false
+					label.text = row_data[i]
 			else:
 				cell.visible = false
 		row_index += 1

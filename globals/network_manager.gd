@@ -165,9 +165,11 @@ func _handle_players_update(message):
 		var version = player["player_version"]
 		var player_name = player["player_name"]
 		var room_name = player["room_name"]
+		var player_deck = player["player_deck"]
 		room_name = get_stripped_room_name(room_name)
 		player_list.append({
 			"player_id": id,
+			"player_deck": player_deck,
 			"player_version": version,
 			"player_name": player_name,
 			"room_name": room_name,
@@ -185,15 +187,22 @@ func _handle_players_update(message):
 		var started = room['game_started']
 		var host = "<EMPTY>"
 		var opponent = "<EMPTY>"
-		if room['player_names']:
-			host = room['player_names'][0]
-			if room['player_names'].size() > 1:
-				if room['player_names'][1]:
-					opponent = room['player_names'][1]
+		host = room['player_names'][0]
+		if room['player_names'][1]:
+			opponent = room['player_names'][1]
+		var decks = room["player_decks"]
+		var host_deck_icon_path = ""
+		var opponent_deck_icon_path = ""
+		if decks[0]:
+			host_deck_icon_path = CardDefinitions.get_portrait_asset_path(decks[0])
+		if decks[1]:
+			opponent_deck_icon_path = CardDefinitions.get_portrait_asset_path(decks[1])
 		var match_info = {
 			"name": room_name,
 			"host": host,
+			"host_deck_icon": host_deck_icon_path,
 			"opponent": opponent,
+			"opponent_deck_icon": opponent_deck_icon_path,
 			"version": room_version,
 			"observer_count": observer_count,
 			"joinable": not started,

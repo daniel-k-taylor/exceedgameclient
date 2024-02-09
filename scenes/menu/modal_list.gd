@@ -39,6 +39,7 @@ func update_players():
 		"title": "Players",
 		"headers": ["Name", "Version", "Match"],
 		"rows": rows,
+		"rows_icons": [],
 		"rows_buttons_enabled": rows_buttons_enabled,
 	}
 	update_table(list_data)
@@ -47,6 +48,7 @@ func update_matches():
 	var matches = NetworkManager.get_match_list()
 	var rows = []
 	var rows_buttons_enabled = []
+	var rows_icons = []
 	for game_match in matches:
 		var buttons_enabled = []
 		var joinable_str = "<FULL>"
@@ -61,10 +63,19 @@ func update_matches():
 		rows.append(row)
 		rows_buttons_enabled.append(buttons_enabled)
 
+		var row_icons = []
+		if game_match["observable"]:
+			if game_match["host_deck_icon"]:
+				row_icons.append(game_match["host_deck_icon"])
+			if game_match["opponent_deck_icon"]:
+				row_icons.append(game_match["opponent_deck_icon"])
+		rows_icons.append(row_icons)
+
 	var list_data = {
 		"title": "Matches",
 		"headers": ["Host", "Opponent", "Version", "Observers", "Join", "Observe"],
 		"rows": rows,
+		"rows_icons": rows_icons,
 		"rows_buttons_enabled": rows_buttons_enabled,
 	}
 	update_table(list_data)
@@ -72,7 +83,7 @@ func update_matches():
 func update_table(data : Dictionary):
 	table.set_title(data['title'])
 	table.set_headers(data['headers'])
-	table.set_rows(data['rows'])
+	table.set_rows(data['rows'], data['rows_icons'])
 	table.set_rows_buttons_enabled(data['rows_buttons_enabled'])
 
 func show_player_list():

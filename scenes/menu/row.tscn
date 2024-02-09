@@ -1,4 +1,8 @@
-[gd_scene format=3 uid="uid://c3oewtxshsv2l"]
+[gd_scene load_steps=3 format=3 uid="uid://c3oewtxshsv2l"]
+
+[ext_resource type="Texture2D" uid="uid://c64lam1prprip" path="res://assets/portraits/akuma.png" id="1_qk5k2"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_oj5bm"]
 
 [node name="Row" type="HBoxContainer"]
 anchors_preset = 15
@@ -9,37 +13,97 @@ grow_vertical = 2
 size_flags_horizontal = 3
 size_flags_vertical = 4
 
-[node name="1" type="Label" parent="."]
+[node name="TextCell1" type="PanelContainer" parent="."]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 0
-theme_override_font_sizes/font_size = 20
-text = "test"
-horizontal_alignment = 1
+theme_override_styles/panel = SubResource("StyleBoxEmpty_oj5bm")
 
-[node name="2" type="Label" parent="."]
+[node name="HBoxContainer" type="HBoxContainer" parent="TextCell1"]
 layout_mode = 2
-size_flags_horizontal = 3
-size_flags_vertical = 0
-theme_override_font_sizes/font_size = 20
-text = "test"
-horizontal_alignment = 1
 
-[node name="3" type="Label" parent="."]
+[node name="Icon" type="TextureRect" parent="TextCell1/HBoxContainer"]
+visible = false
 layout_mode = 2
-size_flags_horizontal = 3
-size_flags_vertical = 0
-theme_override_font_sizes/font_size = 20
-text = "test"
-horizontal_alignment = 1
+texture = ExtResource("1_qk5k2")
+expand_mode = 2
+stretch_mode = 4
 
-[node name="4" type="Label" parent="."]
+[node name="RowLabel" type="Label" parent="TextCell1/HBoxContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 0
 theme_override_font_sizes/font_size = 20
 text = "test"
-horizontal_alignment = 1
+
+[node name="TextCell2" type="PanelContainer" parent="."]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 0
+theme_override_styles/panel = SubResource("StyleBoxEmpty_oj5bm")
+
+[node name="HBoxContainer" type="HBoxContainer" parent="TextCell2"]
+layout_mode = 2
+
+[node name="Icon" type="TextureRect" parent="TextCell2/HBoxContainer"]
+visible = false
+layout_mode = 2
+texture = ExtResource("1_qk5k2")
+expand_mode = 2
+stretch_mode = 4
+
+[node name="RowLabel" type="Label" parent="TextCell2/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 0
+theme_override_font_sizes/font_size = 20
+text = "test"
+
+[node name="TextCell3" type="PanelContainer" parent="."]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 0
+theme_override_styles/panel = SubResource("StyleBoxEmpty_oj5bm")
+
+[node name="HBoxContainer" type="HBoxContainer" parent="TextCell3"]
+layout_mode = 2
+
+[node name="Icon" type="TextureRect" parent="TextCell3/HBoxContainer"]
+visible = false
+layout_mode = 2
+texture = ExtResource("1_qk5k2")
+expand_mode = 2
+stretch_mode = 4
+
+[node name="RowLabel" type="Label" parent="TextCell3/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 0
+theme_override_font_sizes/font_size = 20
+text = "test"
+
+[node name="TextCell4" type="PanelContainer" parent="."]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 0
+theme_override_styles/panel = SubResource("StyleBoxEmpty_oj5bm")
+
+[node name="HBoxContainer" type="HBoxContainer" parent="TextCell4"]
+layout_mode = 2
+
+[node name="Icon" type="TextureRect" parent="TextCell4/HBoxContainer"]
+visible = false
+layout_mode = 2
+texture = ExtResource("1_qk5k2")
+expand_mode = 2
+stretch_mode = 4
+
+[node name="RowLabel" type="Label" parent="TextCell4/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 0
+theme_override_font_sizes/font_size = 20
+text = "test"
 
 [node name="ButtonHBox1" type="HBoxContainer" parent="."]
 layout_mode = 2
