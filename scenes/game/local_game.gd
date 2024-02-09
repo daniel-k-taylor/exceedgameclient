@@ -5738,7 +5738,10 @@ func do_remaining_character_action(performing_player : Player):
 	while remaining_character_action_effects.size() > 0:
 		var effect = remaining_character_action_effects[0]
 		remaining_character_action_effects.erase(effect)
-		events += do_effect_if_condition_met(performing_player, -1, effect, null)
+		var card_id = -1
+		if 'card_id' in effect:
+			card_id = effect['card_id']
+		events += do_effect_if_condition_met(performing_player, card_id, effect, null)
 		if game_state == Enums.GameState.GameState_PlayerDecision:
 			# Player has a decision to make, so stop mid-effect resolve.
 			break
@@ -8135,15 +8138,11 @@ func do_bonus_turn_action(performing_player : Player, action_index : int):
 		action_name = chosen_action['text']
 	_append_log_full(Enums.LogType.LogType_Action, performing_player, "Turn Action: %s" % action_name)
 
-	# Do the bonus action effects.
-	var events = []
-	events += handle_strike_effect(chosen_action['card_id'], chosen_action, performing_player)
-	if game_state not in [Enums.GameState.GameState_WaitForStrike, Enums.GameState.GameState_PlayerDecision]:
-		events += check_hand_size_advance_turn(performing_player)
-	elif game_state == Enums.GameState.GameState_PlayerDecision:
-		remaining_character_action_effects = []
-		active_character_action = true
-	event_queue += events
+	# Handle the bonus action effects as a character action.
+	remaining_character_action_effects = [chosen_action]
+	active_character_action = true
+	event_queue += continue_player_action_resolution([], performing_player)
+
 	return true
 
 func do_choose_from_topdeck(performing_player : Player, chosen_card_id : int, action : String):
