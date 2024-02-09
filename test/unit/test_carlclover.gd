@@ -511,3 +511,18 @@ func test_carlclover_deusexmachina_sealed():
 	assert_eq(player1.gauge.size(), 1)
 	assert_eq(player2.gauge.size(), 1)
 	advance_turn(player2)
+
+func test_carlclover_invalidate_wildswing_normal_lose_bonus():
+	position_players(player1, 4, player2, 7)
+	give_player_specific_card(player1, "standard_normal_dive", TestCardId3)
+	player1.move_card_from_hand_to_deck(TestCardId3, 0)
+	player1.set_buddy_location("nirvana_active", 7)
+	player2.set_buddy_location("nirvana_active", 9)
+	execute_strike(player1, player2, "carlclover_laetabiliscantata", "standard_normal_assault", [], [], false, false, [], [], 0, [])
+	# Player 2 gets simul choice between close and disable, close is chosen first by default.
+	validate_positions(player1, 4, player2, 5)
+	validate_life(player1, 26, player2, 30)
+	assert_eq(player1.discards.size(), 2)
+	assert_eq(player1.gauge.size(), 0)
+	assert_eq(player2.gauge.size(), 1)
+	advance_turn(player2)

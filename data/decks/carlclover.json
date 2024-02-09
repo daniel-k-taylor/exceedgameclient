@@ -87,6 +87,8 @@
 				"condition_buddy_id": "nirvana_active",
 				"effect_type": "add_attack_effect",
 				"added_effect": {
+					"condition": "is_buddy_special_or_ultra_attack",
+					"condition_buddy_id": "nirvana_active",
 					"timing": "during_strike",
 					"character_effect": true,
 					"effect_type": "powerup",
@@ -155,6 +157,8 @@
 				"condition_buddy_id": "nirvana_active",
 				"effect_type": "add_attack_effect",
 				"added_effect": {
+					"condition": "is_buddy_special_or_ultra_attack",
+					"condition_buddy_id": "nirvana_active",
 					"timing": "during_strike",
 					"character_effect": true,
 					"effect_type": "powerup",
