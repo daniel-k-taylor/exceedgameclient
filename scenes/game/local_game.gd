@@ -269,6 +269,7 @@ class Strike:
 	var remaining_forced_boosts_player_id = Enums.PlayerId.PlayerId_Player
 	var remaining_forced_boosts_sustaining = false
 	var cards_in_play: Array[GameCard] = []
+	var when_hit_effects_processed = []
 
 	var extra_attack_in_progress = false
 	var extra_attack_card : GameCard = null
@@ -393,6 +394,7 @@ class StrikeStatBoosts:
 	var ignore_armor : bool = false
 	var ignore_guard : bool = false
 	var ignore_push_and_pull : bool = false
+	var cannot_move_if_in_opponents_range : bool = false
 	var cannot_stun : bool = false
 	var always_add_to_gauge : bool = false
 	var always_add_to_overdrive : bool = false
@@ -457,6 +459,7 @@ class StrikeStatBoosts:
 		ignore_armor = false
 		ignore_guard = false
 		ignore_push_and_pull = false
+		cannot_move_if_in_opponents_range = false
 		cannot_stun = false
 		always_add_to_gauge = false
 		always_add_to_overdrive = false
@@ -593,6 +596,7 @@ class Player:
 	var public_hand : Array[String]
 	var public_hand_questionable : Array[String]
 	var public_topdeck_id : int
+	var skip_end_of_turn_draw : bool
 
 	func _init(id, player_name, parent_ref, card_db_ref, chosen_deck, card_start_id):
 		my_id = id
@@ -684,6 +688,7 @@ class Player:
 		public_hand = []
 		public_hand_questionable = []
 		public_topdeck_id = -1
+		skip_end_of_turn_draw = false
 
 		if "buddy_cards" in deck_def:
 			var buddy_index = 0
@@ -722,6 +727,9 @@ class Player:
 	func random_shuffle_deck():
 		public_topdeck_id = -1
 		parent.shuffle_array(deck)
+
+	func random_shuffle_discard_in_place():
+		parent.shuffle_array(discards)
 
 	func owns_card(card_id: int):
 		for card in deck_list:
@@ -836,6 +844,12 @@ class Player:
 		for i in range(len(gauge)):
 			if gauge[i].id == id:
 				gauge.remove_at(i)
+				break
+
+	func remove_card_from_discards(id : int):
+		for i in range(len(discards)):
+			if discards[i].id == id:
+				discards.remove_at(i)
 				break
 
 	func remove_card_from_sealed(id : int):
@@ -1842,8 +1856,8 @@ class Player:
 			parent._append_log_full(Enums.LogType.LogType_CardInfo, self, "reveals the top card of their deck to the opponent.")
 		else:
 			parent._append_log_full(Enums.LogType.LogType_CardInfo, self, "reveals the top card of their deck: %s." % card_name)
+			public_topdeck_id = deck[0].id
 		events += [parent.create_event(Enums.EventType.EventType_RevealTopDeck, my_id, deck[0].id)]
-		public_topdeck_id = deck[0].id
 		return events
 
 	func pick_random_cards_from_hand(amount):
@@ -2033,7 +2047,12 @@ class Player:
 		var other_player = parent._get_player(parent.get_other_player(my_id))
 
 		if is_self_move:
-			if cannot_move:
+			var movement_blocked = cannot_move
+			if parent.active_strike and strike_stat_boosts.cannot_move_if_in_opponents_range:
+				if parent.in_range(other_player, self, parent.active_strike.get_player_card(other_player)):
+					movement_blocked = true
+
+			if movement_blocked:
 				parent._append_log_full(Enums.LogType.LogType_CharacterMovement, self, "cannot move!")
 				events += [parent.create_event(Enums.EventType.EventType_BlockMovement, my_id, 0)]
 				return events
@@ -2711,6 +2730,7 @@ func advance_to_next_turn():
 		if starting_turn_player.exceeded and starting_turn_player.overdrive.size() > 0:
 			# Do overdrive effect.
 			var overdrive_effects = [{
+				"overdrive_action": true,
 				"effect_type": "choose_discard",
 				"source": "overdrive",
 				"limitation": "",
@@ -2994,6 +3014,8 @@ func is_effect_condition_met(performing_player : Player, effect, local_condition
 			return not initiated_strike
 		elif condition == "not_moved_self_this_strike":
 			return not performing_player.moved_self_this_strike
+		elif condition == "opponent_not_moved_this_strike":
+			return not other_player.moved_self_this_strike
 		elif condition == "initiated_at_range":
 			var range_min = effect['range_min']
 			var range_max = effect['range_max']
@@ -3163,6 +3185,13 @@ func is_effect_condition_met(performing_player : Player, effect, local_condition
 			if not performing_player.is_buddy_in_play(buddy_id):
 				return false
 			return performing_player.is_in_location(performing_player.get_buddy_location(buddy_id))
+		elif condition == "opponent_on_buddy_space":
+			var buddy_id = ""
+			if 'condition_buddy_id' in effect:
+				buddy_id = effect['condition_buddy_id']
+			if not performing_player.is_buddy_in_play(buddy_id):
+				return false
+			return other_player.is_in_location(performing_player.get_buddy_location(buddy_id))
 		elif condition == "buddy_between_attack_source":
 			var buddy_id = ""
 			if 'condition_buddy_id' in effect:
@@ -3171,12 +3200,7 @@ func is_effect_condition_met(performing_player : Player, effect, local_condition
 				return false
 
 			var pos1 = performing_player.get_closest_occupied_space_to(other_player.arena_location)
-			var pos2 = other_player.get_closest_occupied_space_to(performing_player.arena_location)
-			if other_player.strike_stat_boosts.calculate_range_from_buddy:
-				pos2 = other_player.get_buddy_location(other_player.strike_stat_boosts.calculate_range_from_buddy_id)
-			elif other_player.strike_stat_boosts.calculate_range_from_center:
-				pos2 = CenterArenaLocation
-
+			var pos2 = get_attack_origin(other_player, performing_player.arena_location)
 			var buddy_pos = performing_player.get_buddy_location(buddy_id)
 			if pos1 < pos2: # opponent is on the right
 				return buddy_pos > pos1 and buddy_pos < pos2
@@ -3236,6 +3260,11 @@ func is_effect_condition_met(performing_player : Player, effect, local_condition
 			return true
 		elif condition == "opponent_at_edge_of_arena":
 			return other_player.is_at_edge_of_arena()
+		elif condition == "opponent_at_max_range":
+			assert(active_strike)
+			var max_range = get_total_max_range(performing_player)
+			var origin = get_attack_origin(performing_player, other_player.arena_location)
+			return other_player.is_in_range_of_location(origin, max_range, max_range)
 		elif condition == "opponent_stunned":
 			return active_strike.is_player_stunned(other_player)
 		elif condition == "overdrive_empty":
@@ -3563,7 +3592,7 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 			events += handle_strike_attack_immediate_removal(performing_player)
 			if 'boost_effect' in effect:
 				var boost_effect = effect['boost_effect']
-				events += handle_strike_effect(card_id, boost_effect, performing_player)
+				events += do_effect_if_condition_met(performing_player, card_id, boost_effect, null)
 		"boost_then_sustain":
 			# This effect is expected to be mid-strike.
 			assert(active_strike)
@@ -3758,6 +3787,9 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 				decision_info.limitation = effect['limitation']
 				decision_info.destination = effect['destination']
 				decision_info.bonus_effect = discard_effect
+				decision_info.action = null
+				if 'overdrive_action' in effect and effect['overdrive_action']:
+					decision_info.action = "overdrive_action"
 				var amount = 1
 				if 'amount' in effect:
 					amount = min(choice_count, effect['amount'])
@@ -4331,6 +4363,9 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 			performing_player.strike_stat_boosts.power_bonus_multiplier_positive_only = max(effect['amount'], performing_player.strike_stat_boosts.power_bonus_multiplier_positive_only)
 		"multiply_speed_bonuses":
 			performing_player.strike_stat_boosts.speed_bonus_multiplier = max(effect['amount'], performing_player.strike_stat_boosts.speed_bonus_multiplier)
+		"opponent_cant_move_if_in_range":
+			opposing_player.strike_stat_boosts.cannot_move_if_in_opponents_range = true
+			_append_log_full(Enums.LogType.LogType_Effect, opposing_player, "is prevented from moving while in %s's range." % performing_player.name)
 		"opponent_cant_move_past":
 			opposing_player.cannot_move_past_opponent = true
 			events += [create_event(Enums.EventType.EventType_Strike_OpponentCantMovePast, performing_player.my_id, 0)]
@@ -4631,13 +4666,7 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 			local_conditions.fully_pushed = push_amount == effect['amount']
 			_append_log_full(Enums.LogType.LogType_CharacterMovement, opposing_player, "is pushed %s, moving from space %s to %s." % [str(effect['amount']), str(previous_location), str(new_location)])
 		"push_from_source":
-			var attack_source_location = performing_player.get_closest_occupied_space_to(opposing_player.arena_location)
-			if performing_player.strike_stat_boosts.calculate_range_from_buddy:
-				attack_source_location = performing_player.get_buddy_location(performing_player.strike_stat_boosts.calculate_range_from_buddy_id)
-				# Buddy is assumed to be in play, so this shouldn't be -1.
-			elif performing_player.strike_stat_boosts.calculate_range_from_center:
-				attack_source_location = CenterArenaLocation
-
+			var attack_source_location = get_attack_origin(performing_player, opposing_player.arena_location)
 			if opposing_player.is_in_location(attack_source_location):
 				# Make choice to push or pull.
 				var choice_effect = {
@@ -4679,8 +4708,7 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 				local_conditions.fully_pushed = push_amount == effect['amount']
 				_append_log_full(Enums.LogType.LogType_CharacterMovement, opposing_player, "is pushed %s from the attack source at %s, moving from space %s to %s." % [str(effect['amount']), str(attack_source_location), str(previous_location), str(new_location)])
 		"push_to_attack_max_range":
-			var card = active_strike.get_player_card(performing_player)
-			var attack_max_range = get_card_stat(performing_player, card, 'range_max') + performing_player.strike_stat_boosts.max_range
+			var attack_max_range = get_total_max_range(performing_player)
 			var furthest_location
 			var previous_location = opposing_player.arena_location
 			var origin = performing_player.get_closest_occupied_space_to(previous_location)
@@ -4977,6 +5005,10 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 			performing_player.life = amount
 			events += [create_event(Enums.EventType.EventType_Strike_GainLife, performing_player.my_id, amount, "", performing_player.life)]
 			_append_log_full(Enums.LogType.LogType_Health, performing_player, "gains %s life, bringing them to %s!" % [str(amount), str(performing_player.life)])
+		"shuffle_discard_in_place":
+			performing_player.random_shuffle_discard_in_place()
+			_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "shuffled their discard pile.")
+			events += [create_event(Enums.EventType.EventType_ReshuffleDiscardInPlace, performing_player.my_id, 0)]
 		"shuffle_into_deck_from_hand":
 			if len(performing_player.hand) > 0:
 				change_game_state(Enums.GameState.GameState_PlayerDecision)
@@ -5018,6 +5050,8 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 			# this should match "by name", so instead of using that
 			# match card.definition['id']'s instead.
 			opposing_player.cards_that_will_not_hit.append(named_card.definition['id'])
+		"skip_end_of_turn_draw":
+			performing_player.skip_end_of_turn_draw = true
 		"specials_invalid":
 			performing_player.specials_invalid = effect['enabled']
 		"speedup":
@@ -5086,7 +5120,8 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 			decision_info.player = performing_player.my_id
 			decision_info.source = "gauge"
 			if len(performing_player.gauge) > 0:
-				events += [create_event(Enums.EventType.EventType_Strike_FromGauge, performing_player.my_id, 0)]
+				if not active_boost: # Boosts will send strikes on their own
+					events += [create_event(Enums.EventType.EventType_Strike_FromGauge, performing_player.my_id, 0)]
 				change_game_state(Enums.GameState.GameState_WaitForStrike)
 				performing_player.next_strike_faceup = true
 				performing_player.next_strike_from_gauge = true
@@ -5098,17 +5133,19 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 					"ex_card_id": -1
 				}
 				_append_log_full(Enums.LogType.LogType_Effect, performing_player, "has no gauge to strike with.")
-				events += [create_event(Enums.EventType.EventType_Strike_EffectDoStrike, performing_player.my_id, 0, "", strike_info)]
+				if not active_boost: # Boosts will send strikes on their own
+					events += [create_event(Enums.EventType.EventType_Strike_EffectDoStrike, performing_player.my_id, 0, "", strike_info)]
 		"strike_from_sealed":
 			decision_info.clear()
 			decision_info.type = Enums.DecisionType.DecisionType_StrikeNow
 			decision_info.player = performing_player.my_id
 			decision_info.source = "sealed"
 			if len(performing_player.sealed) > 0:
-				events += [create_event(Enums.EventType.EventType_Strike_FromGauge, performing_player.my_id, 0)]
 				change_game_state(Enums.GameState.GameState_WaitForStrike)
 				performing_player.next_strike_faceup = not performing_player.sealed_area_is_secret
 				performing_player.next_strike_from_sealed = true
+				if not active_boost: # Boosts will send strikes on their own
+					events += [create_event(Enums.EventType.EventType_Strike_FromGauge, performing_player.my_id, 0)]
 			else:
 				change_game_state(Enums.GameState.GameState_WaitForStrike)
 				var strike_info = {
@@ -5117,7 +5154,8 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 					"ex_card_id": -1
 				}
 				_append_log_full(Enums.LogType.LogType_Effect, performing_player, "has no sealed cards to strike with.")
-				events += [create_event(Enums.EventType.EventType_Strike_EffectDoStrike, performing_player.my_id, 0, "", strike_info)]
+				if not active_boost: # Boosts will send strikes on their own
+					events += [create_event(Enums.EventType.EventType_Strike_EffectDoStrike, performing_player.my_id, 0, "", strike_info)]
 		"strike_opponent_sets_first":
 			events += [create_event(Enums.EventType.EventType_Strike_OpponentSetsFirst, performing_player.my_id, 0)]
 			change_game_state(Enums.GameState.GameState_Strike_Opponent_Set_First)
@@ -5312,15 +5350,21 @@ func handle_place_buddy_at_range(performing_player : Player, card_id, effect):
 		var distance = abs(range_origin - i)
 		if distance >= range_min and distance <= range_max:
 			decision_info.limitation.append(i)
+			var buddy_id = ""
+			if 'buddy_id' in effect:
+				buddy_id = effect['buddy_id']
 			var choice = {
 				"effect_type": "place_buddy_into_space",
-				"buddy_id": effect['buddy_id'],
+				"buddy_id": buddy_id,
 				"amount": i
 			}
 			if 'then_place_other_buddy' in effect and effect['then_place_other_buddy']:
+				var other_buddy_id = ""
+				if 'other_buddy_id' in effect:
+					other_buddy_id = effect['other_buddy_id']
 				choice['place_other_buddy_effect'] = {
 					"effect_type": "place_buddy_at_range",
-					"buddy_id": effect['other_buddy_id'],
+					"buddy_id": other_buddy_id,
 					"buddy_name": effect['other_buddy_name'],
 					"range_min": range_min,
 					"range_max": range_max
@@ -5797,15 +5841,14 @@ func do_effects_for_timing(timing_name : String, performing_player : Player, car
 func is_location_in_range(attacking_player, card, test_location : int):
 	if get_card_stat(attacking_player, card, 'range_min') == -1 or attacking_player.strike_stat_boosts.overwrite_range_to_invalid:
 		return false
-	var min_range = get_card_stat(attacking_player, card, 'range_min') + attacking_player.strike_stat_boosts.min_range
-	var max_range = get_card_stat(attacking_player, card, 'range_max') + attacking_player.strike_stat_boosts.max_range
-	var attack_source_location = attacking_player.get_closest_occupied_space_to(test_location)
+	var min_range = get_total_min_range(attacking_player)
+	var max_range = get_total_max_range(attacking_player)
+
 	if attacking_player.strike_stat_boosts.calculate_range_from_buddy:
-		attack_source_location = attacking_player.get_buddy_location(attacking_player.strike_stat_boosts.calculate_range_from_buddy_id)
-		if attack_source_location == -1:
+		if not attacking_player.is_buddy_in_play(attacking_player.strike_stat_boosts.calculate_range_from_buddy_id):
 			return false
-	elif attacking_player.strike_stat_boosts.calculate_range_from_center:
-		attack_source_location = CenterArenaLocation
+	var attack_source_location = get_attack_origin(attacking_player, test_location)
+
 	var distance = abs(attack_source_location - test_location)
 	if min_range <= distance and distance <= max_range:
 		return true
@@ -5831,16 +5874,14 @@ func in_range(attacking_player, defending_player, card, combat_logging=false):
 				_append_log_full(Enums.LogType.LogType_Effect, defending_player, "dodges attacks from behind %s!" % defending_player.get_buddy_name())
 			return false
 
-	var attack_source_location = attacking_player.get_closest_occupied_space_to(defending_player.arena_location)
 	var standard_source = true
 	if attacking_player.strike_stat_boosts.calculate_range_from_buddy:
 		standard_source = false
-		attack_source_location = attacking_player.get_buddy_location(attacking_player.strike_stat_boosts.calculate_range_from_buddy_id)
-		if attack_source_location == -1:
+		if not attacking_player.is_buddy_in_play(attacking_player.strike_stat_boosts.calculate_range_from_buddy_id):
 			return false
-	elif attacking_player.strike_stat_boosts.calculate_range_from_center:
+	if attacking_player.strike_stat_boosts.calculate_range_from_center:
 		standard_source = false
-		attack_source_location = CenterArenaLocation
+	var attack_source_location = get_attack_origin(attacking_player, defending_player.arena_location)
 
 	var defender_location = defending_player.arena_location
 	var defender_width = defending_player.extra_width
@@ -5854,8 +5895,8 @@ func in_range(attacking_player, defending_player, card, combat_logging=false):
 				opponent_in_range = true
 				break
 
-		var min_range = get_card_stat(attacking_player, card, 'range_min') + attacking_player.strike_stat_boosts.min_range
-		var max_range = get_card_stat(attacking_player, card, 'range_max') + attacking_player.strike_stat_boosts.max_range
+		var min_range = get_total_min_range(attacking_player)
+		var max_range = get_total_max_range(attacking_player)
 		if active_strike.extra_attack_in_progress:
 			min_range -= active_strike.extra_attack_previous_attack_min_range_bonus
 			max_range -= active_strike.extra_attack_previous_attack_max_range_bonus
@@ -5953,6 +5994,34 @@ func get_total_guard(performing_player : Player):
 	var guard = get_card_stat(performing_player, card, 'guard')
 	var guard_modifier = performing_player.strike_stat_boosts.guard
 	return guard + guard_modifier
+
+func get_total_min_range(performing_player : Player):
+	assert(active_strike)
+	var card = active_strike.get_player_card(performing_player)
+	if active_strike.extra_attack_in_progress:
+		card = active_strike.extra_attack_card
+
+	var min_range = get_card_stat(performing_player, card, 'range_min')
+	var min_range_modifier = performing_player.strike_stat_boosts.min_range
+	return min_range + min_range_modifier
+
+func get_total_max_range(performing_player : Player):
+	assert(active_strike)
+	var card = active_strike.get_player_card(performing_player)
+	if active_strike.extra_attack_in_progress:
+		card = active_strike.extra_attack_card
+
+	var max_range = get_card_stat(performing_player, card, 'range_max')
+	var max_range_modifier = performing_player.strike_stat_boosts.max_range
+	return max_range + max_range_modifier
+
+func get_attack_origin(performing_player : Player, target_location : int):
+	var origin = performing_player.get_closest_occupied_space_to(target_location)
+	if performing_player.strike_stat_boosts.calculate_range_from_buddy:
+		origin = performing_player.get_buddy_location(performing_player.strike_stat_boosts.calculate_range_from_buddy_id)
+	elif performing_player.strike_stat_boosts.calculate_range_from_center:
+		origin = CenterArenaLocation
+	return origin
 
 func calculate_damage(offense_player : Player, defense_player : Player) -> int:
 	var power = get_total_power(offense_player)
@@ -6149,7 +6218,16 @@ func do_hit_response_effects(offense_player : Player, defense_player : Player, i
 	# No choices currently allowed at this timing.
 	var effects = get_all_effects_for_timing("when_hit", defense_player, defender_card)
 	for effect in effects:
+		var first_time_only = 'first_time_only' in effect and effect['first_time_only']
+		if first_time_only and effect in active_strike.when_hit_effects_processed:
+			continue
+		active_strike.when_hit_effects_processed.append(effect)
 		events += do_effect_if_condition_met(defense_player, -1, effect, null)
+
+		if game_over:
+			change_game_state(Enums.GameState.GameState_GameOver)
+			return events
+
 
 	if defense_player.strike_stat_boosts.when_hit_force_for_armor:
 		change_game_state(Enums.GameState.GameState_PlayerDecision)
@@ -6390,6 +6468,10 @@ func handle_strike_attack_cleanup(performing_player : Player, card):
 	var events = []
 	var card_name = card.definition['display_name']
 
+	if card not in active_strike.cards_in_play:
+		# Already removed from play mid-strike
+		return events
+
 	if performing_player.is_set_aside_card(card.id):
 		_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "sets aside their attack %s." % card_name)
 		events += [create_event(Enums.EventType.EventType_SetCardAside, performing_player.my_id, card.id)]
@@ -6621,6 +6703,7 @@ func begin_resolve_boost(performing_player : Player, card_id : int):
 	active_boost.card = card_db.get_card(card_id)
 	performing_player.remove_card_from_hand(card_id, true, false)
 	performing_player.remove_card_from_gauge(card_id)
+	performing_player.remove_card_from_discards(card_id)
 	events += [create_event(Enums.EventType.EventType_Boost_Played, performing_player.my_id, card_id)]
 
 	# Resolve all immediate/now effects
@@ -6750,7 +6833,14 @@ func boost_play_cleanup(events, performing_player : Player):
 			change_game_state(Enums.GameState.GameState_WaitForStrike)
 			decision_info.type = Enums.DecisionType.DecisionType_StrikeNow
 			decision_info.player = performing_player.my_id
-			events += [create_event(Enums.EventType.EventType_ForceStartStrike, performing_player.my_id, 0)]
+			if performing_player.next_strike_from_sealed:
+				decision_info.source = "sealed"
+				events += [create_event(Enums.EventType.EventType_Strike_FromGauge, performing_player.my_id, 0)]
+			elif performing_player.next_strike_from_gauge:
+				decision_info.source = "gauge"
+				events += [create_event(Enums.EventType.EventType_Strike_FromGauge, performing_player.my_id, 0)]
+			else:
+				events += [create_event(Enums.EventType.EventType_ForceStartStrike, performing_player.my_id, 0)]
 		active_boost = null
 		preparing_strike = true
 	elif active_boost.action_after_boost and not active_strike:
@@ -6891,9 +6981,14 @@ func check_hand_size_advance_turn(performing_player : Player):
 			_append_log_full(Enums.LogType.LogType_Action, performing_player, "takes an additional action! (%s left)" % performing_player.bonus_actions)
 		events += [create_event(Enums.EventType.EventType_Boost_ActionAfterBoost, performing_player.my_id, performing_player.bonus_actions)]
 	else:
-		events += performing_player.draw(1)
-		performing_player.did_end_of_turn_draw = true
-		_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "draws for end of turn. Their hand size is now %s." % len(performing_player.hand))
+		if performing_player.skip_end_of_turn_draw:
+			performing_player.skip_end_of_turn_draw = false
+			_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "skips drawing for end of turn. Their hand size is %s." % len(performing_player.hand))
+		else:
+			events += performing_player.draw(1)
+			performing_player.did_end_of_turn_draw = true
+			_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "draws for end of turn. Their hand size is now %s." % len(performing_player.hand))
+
 		if len(performing_player.hand) > performing_player.max_hand_size:
 			change_game_state(Enums.GameState.GameState_DiscardDownToMax)
 			events += [create_event(Enums.EventType.EventType_HandSizeExceeded, performing_player.my_id, len(performing_player.hand) - performing_player.max_hand_size)]
@@ -7256,7 +7351,10 @@ func do_strike(performing_player : Player, card_id : int, wild_strike: bool, ex_
 				events = continue_setup_strike(events)
 
 		Enums.GameState.GameState_Strike_Opponent_Response:
-			active_strike.waiting_for_reading_response = false
+			if active_strike.waiting_for_reading_response:
+				active_strike.waiting_for_reading_response = false
+				# Reset effect counter due to reading card choice
+				active_strike.effects_resolved_in_timing = 0
 
 			if wild_strike:
 				_append_log_full(Enums.LogType.LogType_Strike, performing_player, "wild swings!")
@@ -7669,6 +7767,10 @@ func do_choose_from_discard(performing_player : Player, card_ids : Array) -> boo
 			"ultra":
 				if card.definition['type'] != "ultra":
 					printlog("ERROR: Tried to choose from discard with card that doesn't meet limitation ultra.")
+					return false
+			"special/ultra":
+				if card.definition['type'] not in ["special", "ultra"]:
+					printlog("ERROR: Tried to choose from discard with card that doesn't meet limitation special/ultra.")
 					return false
 			"continuous":
 				if card.definition['boost']['boost_type'] != "continuous":

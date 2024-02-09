@@ -227,6 +227,8 @@ func get_condition_text(effect, amount, amount2, detail):
 			text += "If opponent initiated strike, "
 		"not_moved_self_this_strike":
 			text += "If you have not moved yourself this strike, "
+		"opponent_not_moved_this_strike":
+			text += "If the opponent did not move themselves this strike, "
 		"moved_during_strike":
 			text += "If you moved at least %s space(s) this strike, " % amount
 		"min_cards_in_discard":
@@ -255,6 +257,8 @@ func get_condition_text(effect, amount, amount2, detail):
 			text += "If the opponent is at range %s+, " % amount
 		"range_multiple":
 			text += "If the opponent is at range %s-%s, " % [amount, amount2]
+		"exceeded":
+			text += "If in Exceed Mode: "
 		"is_special_attack":
 			text += ""
 		"is_special_or_ultra_attack":
@@ -273,6 +277,8 @@ func get_condition_text(effect, amount, amount2, detail):
 			text += "If %s's space is unoccupied, " % detail
 		"on_buddy_space":
 			text += "If on %s's space, " % detail
+		"opponent_on_buddy_space":
+			text += "If opponent on %s's space, " % detail
 		"buddy_between_attack_source":
 			text += "If %s is between you and attack source, " % detail
 		"buddy_between_opponent":
@@ -281,6 +287,8 @@ func get_condition_text(effect, amount, amount2, detail):
 			text += "If you have more cards in hand than opponent, "
 		"opponent_at_edge_of_arena":
 			text += "If opponent at arena edge, "
+		"opponent_at_max_range":
+			text += "If opponent at attack's max range, "
 		"opponent_between_buddy":
 			if 'include_buddy_space' in effect and effect['include_buddy_space']:
 				text += "If opponent is on %s or between you, " % detail
@@ -335,6 +343,8 @@ func get_effect_type_heading(effect):
 			effect_str += "Push "
 		"retreat":
 			effect_str += "Retreat "
+		"move_buddy":
+			effect_str += "Move %s " % effect['buddy_name']
 		_:
 			effect_str += "MISSING EFFECT HEADING"
 	return effect_str
@@ -714,8 +724,7 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 			if 'card_name' in effect:
 				effect_str += "Return %s to hand" % effect['card_name']
 			else:
-				effect_str += "Return the attack to hand"
-			effect_str += "Return the attack to your hand"
+				effect_str += "Return the attack to your hand"
 		"return_attack_to_top_of_deck":
 			effect_str += "Return the attack to the top of your deck"
 		"return_this_boost_to_hand_strike_effect":

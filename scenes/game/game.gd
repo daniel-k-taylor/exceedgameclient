@@ -782,6 +782,8 @@ func can_select_card(card):
 					meets_limitation = card_type == "special"
 				"ultra":
 					meets_limitation = card_type == "ultra"
+				"special/ultra":
+					meets_limitation = card_type in ["special", "ultra"]
 				"continuous":
 					meets_limitation = logic_card.definition['boost']['boost_type'] == "continuous"
 				_:
@@ -1279,6 +1281,10 @@ func _on_choose_from_discard(event):
 			popout_type = CardPopoutType.CardPopoutType_SealedPlayer
 		elif source == "overdrive":
 			popout_type = CardPopoutType.CardPopoutType_OverdrivePlayer
+		var action = game_wrapper.get_decision_info().action
+		if action and action == "overdrive_action":
+			# Special text instruction fo rthe overdrive effect.
+			instruction = "Overdrive Effect:\nSelect a card from your Overdrive to discard."
 		popout_instruction_info = {
 			"popout_type": popout_type,
 			"instruction_text": instruction,
@@ -1967,7 +1973,7 @@ func begin_gauge_strike_choosing(strike_response : bool, cancel_allowed : bool, 
 	select_card_require_min = 1
 	select_card_require_max = 1
 	var can_cancel = cancel_allowed and not strike_response
-	enable_instructions_ui("Select a card to strike with.", true, can_cancel)
+	enable_instructions_ui("Select a card from %s to strike with." % source, true, can_cancel)
 	var new_sub_state
 	if strike_response:
 		# Is there any character that does this? will need new sub-state if so
@@ -2095,6 +2101,22 @@ func _on_reshuffle_discard(event):
 	close_popout()
 	update_card_counts()
 	return SmallNoticeDelay
+
+func _on_reshuffle_discard_in_place(event):
+	var player = event['event_player']
+	var card_parent
+	if player == Enums.PlayerId.PlayerId_Player:
+		card_parent = $AllCards/PlayerDiscards
+	else:
+		card_parent = $AllCards/OpponentDiscards
+	var cards = card_parent.get_children()
+	var new_order = {}
+
+	for card in cards:
+		var card_index = game_wrapper.get_card_index_in_discards(player, card.card_id)
+		new_order[card_index] = card
+	for i in range(len(new_order)):
+		card_parent.move_child(new_order[i], i)
 
 func _on_reshuffle_deck_mulligan(_event):
 	#printlog("UI: TODO: In place reshuffle deck. No cards actually move though.")
@@ -2513,6 +2535,8 @@ func _handle_events(events):
 				delay = _on_name_opponent_card_begin(event)
 			Enums.EventType.EventType_ReshuffleDiscard:
 				delay = _on_reshuffle_discard(event)
+			Enums.EventType.EventType_ReshuffleDiscardInPlace:
+				_on_reshuffle_discard_in_place(event)
 			Enums.EventType.EventType_ReshuffleDeck_Mulligan:
 				_on_reshuffle_deck_mulligan(event)
 			Enums.EventType.EventType_RevealCard:

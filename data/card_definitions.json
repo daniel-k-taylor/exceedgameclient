@@ -10769,6 +10769,328 @@
 
 
 	{
+		"NOTE": "MOLE CARDS START",
+		"id": "mole_erupt",
+		"type": "ultra",
+		"display_name": "Erupt",
+		"force_cost": 0,
+		"gauge_cost": 3,
+		"range_min": 2,
+		"range_max": 4,
+		"speed": 1,
+		"power": 8,
+		"armor": 2,
+		"guard": 5,
+		"effects": [
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 1,
+			"cancel_cost": -1,
+			"display_name": "Molten Armor",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "rangeup",
+					"amount": 0,
+					"amount2": 1
+				},
+				{
+					"timing": "when_hit",
+					"first_time_only": true,
+					"effect_type": "take_damage",
+					"opponent": true,
+					"nonlethal": true,
+					"amount": 2
+				}
+			]
+		}
+	},
+	{
+		"id": "mole_cavein",
+		"type": "ultra",
+		"display_name": "Cave In",
+		"force_cost": 0,
+		"gauge_cost": 2,
+		"range_min": 1,
+		"range_max": 3,
+		"speed": 1,
+		"power": 4,
+		"armor": 3,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "during_strike",
+				"effect_type": "opponent_cant_move_if_in_range"
+			},
+			{
+				"timing": "after",
+				"effect_type": "draw",
+				"amount": 2
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Undermine",
+			"effects": [
+				{
+					"timing": "start_of_next_turn",
+					"effect_type": "choice",
+					"choice": [
+						{
+							"effect_type": "discard_this",
+							"bonus_effect": {
+								"condition": "opponent_on_buddy_space",
+								"condition_detail": "Burrow",
+								"effect_type": "take_damage",
+								"opponent": true,
+								"nonlethal": true,
+								"amount": 4
+							}
+						},
+						{
+							"effect_type": "move_buddy",
+							"buddy_name": "Burrow",
+							"amount": 1,
+							"amount2": 1
+						}
+					]
+				}
+			]
+		}
+	},
+	{
+		"id": "mole_burrowdig",
+		"type": "special",
+		"display_name": "Burrow Dig",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 1,
+		"speed": 7,
+		"power": 3,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "hit",
+				"effect_type": "draw",
+				"amount": 1,
+				"and": {
+					"effect_type": "advance",
+					"amount": 2
+				}
+			}
+		],
+		"boost": {
+			"boost_type": "immediate",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Lost Treasure",
+			"effects": [
+				{
+					"timing": "immediate",
+					"effect_type": "choose_discard",
+					"limitation": "special/ultra",
+					"destination": "hand",
+					"amount": 1,
+					"amount_min": 1
+				},
+				{
+					"timing": "immediate",
+					"effect_type": "shuffle_discard_in_place"
+				},
+				{
+					"timing": "immediate",
+					"effect_type": "skip_end_of_turn_draw"
+				}
+			]
+		}
+	},
+	{
+		"id": "mole_headbutt",
+		"type": "special",
+		"display_name": "Headbutt",
+		"force_cost": 1,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 2,
+		"speed": 6,
+		"power": 4,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "hit",
+				"effect_type": "push",
+				"amount": 2,
+				"and": {
+					"effect_type": "choice",
+					"choice": [
+						{ "effect_type": "retreat", "amount": 1 },
+						{
+							"effect_type": "advance",
+							"amount": 2,
+							"and": {
+								"effect_type": "gain_advantage"
+							}
+						}
+					]
+				}
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 1,
+			"cancel_cost": -1,
+			"display_name": "Come At Me!",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "powerup",
+					"amount": 3
+				},
+				{
+					"timing": "start_of_next_turn",
+					"effect_type": "draw",
+					"amount": 1,
+					"and": {
+						"effect_type": "add_to_gauge_immediately"
+					}
+				}
+			]
+		}
+	},
+	{
+		"id": "mole_divingdig",
+		"type": "special",
+		"display_name": "Diving Dig",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 1,
+		"speed": 3,
+		"power": 5,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "during_strike",
+				"effect_type": "ignore_guard"
+			},
+			{
+				"timing": "hit",
+				"effect_type": "retreat",
+				"amount": 1,
+				"and": {
+					"effect_type": "opponent_discard_random",
+					"amount": 1
+				}
+			}
+		],
+		"boost": {
+			"boost_type": "immediate",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Tunneling",
+			"effects": [
+				{
+					"timing": "immediate",
+					"effect_type": "move_to_any_space",
+					"move_min": 0,
+					"move_max": 3
+				},
+				{
+					"timing": "immediate",
+					"condition": "on_buddy_space",
+					"condition_detail": "Burrow",
+					"effect_type": "add_to_gauge_boost_play_cleanup"
+				}
+			]
+		}
+	},
+	{
+		"id": "mole_blockpush",
+		"type": "special",
+		"display_name": "Block Push",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 3,
+		"range_max": 6,
+		"speed": 2,
+		"power": 5,
+		"armor": 0,
+		"guard": 6,
+		"effects": [
+			{
+				"timing": "hit",
+				"effect_type": "push",
+				"amount": 1
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 1,
+			"cancel_cost": -1,
+			"display_name": "Stockpile",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "armorup",
+					"amount": 2,
+					"and": {
+						"effect_type": "guardup",
+						"amount": 2
+					}
+				}
+			]
+		}
+	},
+	{
+		"NOTE": "MOLE CARDS END",
+		"id": "mole_bellyslide",
+		"type": "special",
+		"display_name": "Belly Slide",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 1,
+		"speed": 2,
+		"power": 4,
+		"armor": 1,
+		"guard": 5,
+		"effects": [
+			{
+				"timing": "before",
+				"effect_type": "advance",
+				"amount": 1
+			},
+			{
+				"timing": "hit",
+				"effect_type": "draw",
+				"amount": 1
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 1,
+			"cancel_cost": -1,
+			"display_name": "Tunnel Vision",
+			"effects": [
+				{
+					"timing": "before",
+					"effect_type": "advance",
+					"amount": 2
+				}
+			]
+		},
+		"NOTEEND": "MOLE CARDS END"
+	},
+
+
+	{
 		"NOTE": "NAGO CARDS START",
 		"id": "nago_wasureyuki",
 		"type": "ultra",
@@ -14702,6 +15024,7 @@
 		"NOTEEND": "PLATINUM CARDS END"
 	},
 
+
 	{
 		"NOTE": "POTEMKIN CARDS START",
 		"id": "potemkin_giganterkai",
@@ -15058,6 +15381,373 @@
 			]
 		},
 		"NOTEEND": "POTEMKIN CARDS END"
+	},
+
+
+	{
+		"NOTE": "PROPELLER CARDS START",
+		"id": "propeller_fullbroadside",
+		"type": "ultra",
+		"display_name": "Full Broadside",
+		"force_cost": 0,
+		"gauge_cost": 3,
+		"range_min": 2,
+		"range_max": 4,
+		"speed": 2,
+		"power": 6,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "during_strike",
+				"effect_type": "stun_immunity"
+			},
+			{
+				"timing": "before",
+				"condition": "opponent_not_moved_this_strike",
+				"effect_type": "choice",
+				"choice": [
+					{ "effect_type": "push", "amount": 1 },
+					{ "effect_type": "push", "amount": 2 },
+					{ "effect_type": "push", "amount": 3 },
+					{ "effect_type": "pull", "amount": 1 },
+					{ "effect_type": "pull", "amount": 2 },
+					{ "effect_type": "pull", "amount": 3 },
+					{ "effect_type": "pass"}
+				]
+			}
+		],
+		"boost": {
+			"boost_type": "immediate",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Private Reserve",
+			"effects": [
+				{
+					"timing": "immediate",
+					"effect_type": "boost_additional",
+					"limitation": "continuous",
+					"valid_zones": [ "discard" ]
+				},
+				{
+					"timing": "immediate",
+					"effect_type": "shuffle_discard_in_place"
+				}
+			]
+		}
+	},
+	{
+		"id": "propeller_launcher",
+		"type": "ultra",
+		"display_name": "Launcher",
+		"force_cost": 0,
+		"gauge_cost": 2,
+		"range_min": 4,
+		"range_max": 4,
+		"speed": 7,
+		"power": 3,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "hit",
+				"effect_type": "pull",
+				"amount": 3,
+				"and": {
+					"effect_type": "gain_advantage"
+				}
+			}
+		],
+		"boost": {
+			"boost_type": "immediate",
+			"force_cost": 1,
+			"cancel_cost": -1,
+			"display_name": "Fly Up",
+			"effects": [
+				{
+					"timing": "immediate",
+					"effect_type": "move_to_any_space"
+				}
+			]
+		}
+	},
+	{
+		"id": "propeller_cannonball",
+		"type": "special",
+		"display_name": "Cannonball",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 4,
+		"range_max": 6,
+		"speed": 3,
+		"power": 4,
+		"armor": 0,
+		"guard": 3,
+		"effects": [
+			{
+				"timing": "during_strike",
+				"effect_type": "ignore_armor"
+			},
+			{
+				"timing": "hit",
+				"effect_type": "choice",
+				"choice": [
+					{
+						"effect_type": "push",
+						"amount": 1,
+						"and":
+							{ "effect_type": "draw", "amount": 1}
+					},
+					{ "effect_type": "draw", "amount": 1}
+				]
+			},
+			{
+				"timing": "after",
+				"effect_type": "choice",
+				"choice": [
+					{ "effect_type": "advance", "amount": 1},
+					{ "effect_type": "advance", "amount": 2}
+				]
+			}
+		],
+		"boost": {
+			"boost_type": "immediate",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Quick Step",
+			"effects": [
+				{
+					"timing": "immediate",
+					"effect_type": "choice",
+					"choice": [
+						{ "effect_type": "advance", "amount": 1 },
+						{ "effect_type": "retreat", "amount": 1 }
+					]
+				},
+				{
+					"timing": "immediate",
+					"effect_type": "bonus_action"
+				}
+			]
+		}
+	},
+	{
+		"id": "propeller_headwind",
+		"type": "special",
+		"display_name": "Headwind",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 3,
+		"range_max": 4,
+		"speed": 5,
+		"power": 1,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "before",
+				"condition": "range_multiple",
+				"condition_amount_min": 1,
+				"condition_amount_max": 2,
+				"effect_type": "push",
+				"amount": 2,
+				"and": {
+					"effect_type": "powerup",
+					"amount": 2
+				}
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Wind Stream",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "powerup",
+					"amount": 1
+				},
+				{
+					"timing": "before",
+					"effect_type": "choice",
+					"choice": [
+						{ "effect_type": "push", "amount": 1 },
+						{ "effect_type": "push", "amount": 2 }
+					]
+				}
+			]
+		}
+	},
+	{
+		"id": "propeller_propellerpull",
+		"type": "special",
+		"display_name": "Propeller Pull",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 2,
+		"speed": 2,
+		"power": 4,
+		"armor": 0,
+		"guard": 6,
+		"effects": [
+			{
+				"timing": "before",
+				"effect_type": "choice",
+				"choice": [
+					{
+						"effect_type": "pull",
+						"amount": 2,
+						"and": {
+							"condition": "pulled_past",
+							"effect_type": "opponent_discard_random",
+							"amount": 1
+						}
+					},
+					{ "effect_type": "pass" }
+				]
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 1,
+			"cancel_cost": -1,
+			"display_name": "Jet Stream",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "speedup",
+					"amount": 1
+				},
+				{
+					"timing": "before",
+					"effect_type": "choice",
+					"choice": [
+						{ "effect_type": "pull", "amount": 1 },
+						{ "effect_type": "pull", "amount": 2 }
+					]
+				}
+			]
+		}
+	},
+	{
+		"id": "propeller_saberlunge",
+		"type": "special",
+		"display_name": "Saber Lunge",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 3,
+		"speed": 6,
+		"power": 2,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "hit",
+				"effect_type": "advance",
+				"amount": 4,
+				"suppress_and_description": true,
+				"and": {
+					"effect_type": "choice",
+					"choice": [
+						{ "effect_type": "gain_advantage" },
+						{
+							"effect_type": "add_attack_effect",
+							"added_effect": {
+								"timing": "after",
+								"effect_type": "return_attack_to_hand",
+								"card_name": "Saber Lunge"
+							}
+						}
+					]
+				}
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Blade Flourish",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "powerup",
+					"amount": 1,
+					"and": {
+						"effect_type": "speedup",
+						"amount": 1
+					}
+				},
+				{
+					"timing": "now",
+					"condition": "range",
+					"condition_amount": 2,
+					"effect_type": "draw",
+					"amount": 1
+				}
+			]
+		}
+	},
+	{
+		"NOTE": "PROPELLER CARDS END",
+		"id": "propeller_swoop",
+		"type": "special",
+		"display_name": "Swoop",
+		"force_cost": 1,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 1,
+		"speed": 7,
+		"power": 1,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "after",
+				"effect_type": "choice",
+				"choice": [
+					{ "effect_type": "advance", "amount": 1 },
+					{ "effect_type": "advance", "amount": 2 },
+					{ "effect_type": "advance", "amount": 3 },
+					{ "effect_type": "pass"}
+				]
+			},
+			{
+				"timing": "cleanup",
+				"effect_type": "boost_this_then_sustain",
+				"boost_effect": {
+					"condition": "range",
+					"condition_amount": 3,
+					"effect_type": "gauge_from_hand",
+					"min_amount": 0,
+					"max_amount": 1
+				}
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Rose Toss",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "powerup",
+					"amount": 1
+				},
+				{
+					"timing": "now",
+					"condition": "range",
+					"condition_amount": 3,
+					"effect_type": "gauge_from_hand",
+					"min_amount": 0,
+					"max_amount": 1
+				}
+			]
+		},
+		"NOTEEND": "PROPELLER CARDS END"
 	},
 
 
