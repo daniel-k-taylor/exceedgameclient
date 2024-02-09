@@ -16108,6 +16108,392 @@
 
 
 	{
+		"NOTE": "SETH CARDS START",
+		"id": "seth_abyssalgeometry",
+		"type": "ultra",
+		"display_name": "Abyssal Geometry",
+		"force_cost": 0,
+		"gauge_cost": 1,
+		"range_min": 2,
+		"range_max": 2,
+		"speed": 4,
+		"power": 3,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "during_strike",
+				"effect_type": "stun_immunity",
+				"and": {
+					"effect_type": "dodge_at_range",
+					"range_min": 3,
+					"range_max": 3
+				}
+			},
+			{
+				"timing": "cleanup",
+				"effect_type": "boost_this_then_sustain"
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Stitched Segment",
+			"effects": [
+				{
+					"timing": "before",
+					"effect_type": "powerup",
+					"amount": 1,
+					"and": {
+						"effect_type": "choice",
+						"choice": [
+							{ "effect_type": "push", "amount": 1 },
+							{ "effect_type": "pull", "amount": 1 }
+						]
+					}
+				},
+				{
+					"timing": "action",
+					"text": "Push/Pull, Take Another Action",
+					"effect_type": "discard_this",
+					"and": {
+						"effect_type": "choice",
+						"choice": [
+							{ "effect_type": "push", "amount": 1, "suppress_and_description": true,
+								"and": { "effect_type": "take_bonus_actions", "amount": 1 } },
+							{ "effect_type": "push", "amount": 2, "suppress_and_description": true,
+								"and": { "effect_type": "take_bonus_actions", "amount": 1 } },
+							{ "effect_type": "pull", "amount": 1, "suppress_and_description": true,
+								"and": { "effect_type": "take_bonus_actions", "amount": 1 } },
+							{ "effect_type": "pull", "amount": 2, "suppress_and_description": true,
+								"and": { "effect_type": "take_bonus_actions", "amount": 1 } }
+						]
+					}
+				}
+			]
+		}
+	},
+	{
+		"id": "seth_distantfrontier",
+		"type": "ultra",
+		"display_name": "Distant Frontier",
+		"force_cost": 0,
+		"gauge_cost": 3,
+		"range_min": 1,
+		"range_max": 1,
+		"speed": 3,
+		"power": 6,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "before",
+				"effect_type": "close",
+				"amount": 6,
+				"save_spaces_as_strike_x": true,
+				"and": {
+					"effect_type": "draw",
+					"amount": "strike_x"
+				}
+			},
+			{
+				"timing": "cleanup",
+				"effect_type": "boost_this_then_sustain"
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Stitched Segment",
+			"effects": [
+				{
+					"timing": "before",
+					"effect_type": "powerup",
+					"amount": 1,
+					"and": {
+						"effect_type": "choice",
+						"choice": [
+							{ "effect_type": "push", "amount": 1 },
+							{ "effect_type": "pull", "amount": 1 }
+						]
+					}
+				},
+				{
+					"timing": "action",
+					"text": "Push/Pull, Take Another Action",
+					"effect_type": "discard_this",
+					"and": {
+						"effect_type": "choice",
+						"choice": [
+							{ "effect_type": "push", "amount": 1, "suppress_and_description": true,
+								"and": { "effect_type": "take_bonus_actions", "amount": 1 } },
+							{ "effect_type": "push", "amount": 2, "suppress_and_description": true,
+								"and": { "effect_type": "take_bonus_actions", "amount": 1 } },
+							{ "effect_type": "pull", "amount": 1, "suppress_and_description": true,
+								"and": { "effect_type": "take_bonus_actions", "amount": 1 } },
+							{ "effect_type": "pull", "amount": 2, "suppress_and_description": true,
+								"and": { "effect_type": "take_bonus_actions", "amount": 1 } }
+						]
+					}
+				}
+			]
+		}
+	},
+	{
+		"id": "seth_captivesegment",
+		"type": "special",
+		"display_name": "Captive Segment",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 4,
+		"range_max": 4,
+		"speed": 6,
+		"power": 1,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "before",
+				"effect_type": "choice",
+				"choice": [
+					{
+						"effect_type": "boost_then_sustain",
+						"valid_zones": [ "hand" ],
+						"limitation": "ultra"
+					},
+					{ "effect_type": "pass" }
+				]
+			},
+			{
+				"timing": "after",
+				"effect_type": "advance",
+				"amount": 3
+			}
+		],
+		"boost": {
+			"boost_type": "immediate",
+			"force_cost": 1,
+			"cancel_cost": -1,
+			"display_name": "Surge Forward",
+			"effects": [
+				{
+					"timing": "immediate",
+					"effect_type": "advance",
+					"amount": 3,
+					"and": {
+						"effect_type": "bonus_action"
+					}
+				}
+			]
+		}
+	},
+	{
+		"id": "seth_deadspaceofintrusion",
+		"type": "special",
+		"display_name": "Dead Space of Intrusion",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 1,
+		"speed": 5,
+		"power": 3,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "hit",
+				"effect_type": "gain_advantage"
+			},
+			{
+				"timing": "after",
+				"effect_type": "advance",
+				"amount": 3
+			}
+		],
+		"boost": {
+			"boost_type": "immediate",
+			"force_cost": 1,
+			"cancel_cost": -1,
+			"display_name": "Fadeaway",
+			"effects": [
+				{
+					"timing": "immediate",
+					"effect_type": "retreat",
+					"amount": 2,
+					"and": {
+						"effect_type": "bonus_action"
+					}
+				}
+			]
+		}
+	},
+	{
+		"id": "seth_vanishingconfusion",
+		"type": "special",
+		"display_name": "Vanishing Confusion",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 4,
+		"range_max": 4,
+		"speed": 4,
+		"power": 5,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "after",
+				"effect_type": "advance",
+				"amount": 3,
+				"and": {
+					"condition": "hit_opponent",
+					"effect_type": "add_top_deck_to_gauge",
+					"and": {
+						"effect_type": "boost_this_then_sustain"
+					}
+				}
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Soul's Oath",
+			"effects": [
+				{
+					"timing": "before",
+					"effect_type": "choice",
+					"choice": [
+						{ "effect_type": "advance", "amount": 1, "and":
+							{ "effect_type": "seal_this_boost", "card_name": "Vanishing Confusion" } },
+						{ "effect_type": "retreat", "amount": 1, "and":
+							{ "effect_type": "seal_this_boost", "card_name": "Vanishing Confusion"  } },
+						{ "effect_type": "push", "amount": 1, "and":
+							{ "effect_type": "seal_this_boost", "card_name": "Vanishing Confusion"  } },
+						{ "effect_type": "pull", "amount": 1, "and":
+							{ "effect_type": "seal_this_boost", "card_name": "Vanishing Confusion"  } },
+						{ "effect_type": "pass" }
+					]
+				},
+				{
+					"timing": "cleanup",
+					"skip_if_boost_sustained": true,
+					"effect_type": "choice",
+					"choice": [
+						{
+							"effect_type": "spend_life",
+							"amount": 1,
+							"and": {
+								"effect_type": "sustain_this",
+								"card_name": "Vanishing Confusion"
+							}
+						},
+						{ "effect_type": "pass" }
+					]
+				}
+			]
+		}
+	},
+	{
+		"id": "seth_transgressingconvict",
+		"type": "special",
+		"display_name": "Transgressing Convict",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 1,
+		"speed": 4,
+		"power": 3,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "during_strike",
+				"condition": "not_initiated_strike",
+				"effect_type": "speedup",
+				"amount": 3
+			},
+			{
+				"timing": "hit",
+				"effect_type": "draw",
+				"amount": 3,
+				"and": {
+					"effect_type": "choice",
+					"choice": [
+						{ "effect_type": "push", "amount": 1 },
+						{ "effect_type": "pull", "amount": 1 }
+					]
+				}
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Fast Fall",
+			"effects": [
+				{
+					"timing": "before",
+					"effect_type": "choice",
+					"choice": [
+						{ "effect_type": "advance", "amount": 1 },
+						{ "effect_type": "advance", "amount": 2 },
+						{ "effect_type": "retreat", "amount": 1 },
+						{ "effect_type": "retreat", "amount": 2 }
+					]
+				}
+			]
+		}
+	},
+	{
+		"NOTE": "SETH CARDS END",
+		"id": "seth_piercingpenetration",
+		"type": "special",
+		"display_name": "Piercing Penetration",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 3,
+		"range_max": 3,
+		"speed": 2,
+		"power": 7,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "after",
+				"condition": "hit_opponent",
+				"effect_type": "add_top_deck_to_gauge",
+				"and": {
+					"effect_type": "boost_this_then_sustain"
+				}
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Kerykeion",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "cannot_stun",
+					"and": {
+						"effect_type": "nonlethal_attack"
+					}
+				},
+				{
+					"timing": "hit",
+					"effect_type": "set_total_power",
+					"amount": 7
+				}
+			]
+		},
+		"NOTEEND": "SETH CARDS END"
+	},
+
+
+	{
 		"NOTE": "SHOVEL/SHIELD CARDS START",
 		"id": "shovelshield_tandemattack",
 		"type": "ultra",

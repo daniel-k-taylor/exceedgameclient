@@ -103,7 +103,7 @@ func get_choice_summary(choice, card_name_source : String):
 		var effect_summary = effect_summaries[i]
 		if i > 0:
 			summary_text += " or "
-		if effect_summary.min_value != null:
+		if effect_summary.min_value != null and effect_summary.effect['effect_type'] not in ["spend_life"]:
 			if effect_summary.min_value == effect_summary.max_value:
 				summary_text += get_effect_type_heading(effect_summary.effect) + str(effect_summary.min_value)
 			else:
@@ -464,7 +464,7 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 		"cannot_go_below_life":
 			effect_str += "Life cannot go below %s" % effect['amount']
 		"cannot_stun":
-			effect_str += "Attack does not stun."
+			effect_str += "Attack does not stun"
 		"choice":
 			if 'opponent' in effect and effect['opponent']:
 				effect_str += "Opponent "
@@ -612,6 +612,8 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 				effect_str += "Double positive power bonuses"
 			else:
 				effect_str += "Multiply power bonuses by %s" % effect['amount']
+		"nonlethal_attack":
+			effect_str += "Deal non-lethal damage"
 		"nothing":
 			effect_str += ""
 		"opponent_cant_move_past":
@@ -770,9 +772,16 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 					effect_str += "force spent before strike"
 				_:
 					effect_str += "(UNKNOWN)"
+		"set_total_power":
+			effect_str += "Your total power is %s" % effect['amount']
 		"seal_attack_on_cleanup":
 			effect_str += "Seal your attack on cleanup"
 		"seal_this":
+			if card_name_source:
+				effect_str += "Seal %s" % card_name_source
+			else:
+				effect_str += "Seal this"
+		"seal_this_boost":
 			if card_name_source:
 				effect_str += "Seal %s" % card_name_source
 			else:

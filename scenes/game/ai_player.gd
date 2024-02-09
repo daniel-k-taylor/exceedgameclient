@@ -425,8 +425,9 @@ func get_boost_actions(game_logic : LocalGame, me : LocalGame.Player, opponent :
 
 	for zone in valid_zones:
 		for card in zone_map[zone]:
-			if limitation and card.definition['boost']['boost_type'] != limitation:
-				continue
+			if limitation:
+				if card.definition['boost']['boost_type'] != limitation and card.definition['type'] != limitation:
+					continue
 			if does_boost_work(game_logic, me, opponent, card.id):
 				var cost = card.definition['boost']['force_cost']
 				if not ignore_costs and cost > 0:
