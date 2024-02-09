@@ -2474,7 +2474,7 @@
 					"per_force_effect": {
 						"effect_type": "powerup",
 						"amount": 1
-				},
+					},
 					"overall_effect": null,
 					"force_max": 4					
 				}
