@@ -3,7 +3,7 @@
 [ext_resource type="Script" path="res://scenes/game/modal_dialog.gd" id="1_aatln"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_0ipmd"]
-bg_color = Color(0.141176, 0.141176, 0.141176, 0.580392)
+bg_color = Color(0.262745, 0.262745, 0.262745, 1)
 
 [node name="ModalDialog" type="CenterContainer"]
 anchors_preset = 15

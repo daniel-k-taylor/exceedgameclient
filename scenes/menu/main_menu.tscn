@@ -361,6 +361,34 @@ anchor_bottom = 0.0
 grow_horizontal = 1
 grow_vertical = 1
 
+[node name="VersionContainer" type="PanelContainer" parent="."]
+layout_mode = 0
+offset_left = 1000.0
+offset_top = 650.0
+offset_right = 1079.0
+offset_bottom = 690.0
+
+[node name="MarginContainer" type="MarginContainer" parent="VersionContainer"]
+layout_mode = 2
+theme_override_constants/margin_left = 5
+theme_override_constants/margin_top = 5
+theme_override_constants/margin_right = 5
+theme_override_constants/margin_bottom = 5
+
+[node name="HBoxContainer" type="HBoxContainer" parent="VersionContainer/MarginContainer"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="ClientVersionHeader" type="Label" parent="VersionContainer/MarginContainer/HBoxContainer"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 30
+text = "Version"
+
+[node name="ClientVersion" type="Label" parent="VersionContainer/MarginContainer/HBoxContainer"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 30
+text = "##"
+
 [connection signal="pressed" from="MenuList/VSAIBox/FightSettings/StartButton" to="." method="_on_start_button_pressed"]
 [connection signal="pressed" from="MenuList/VSAIBox/OpponentChooser/ChangePlayerCharacterButton" to="." method="_on_change_player_character_button_pressed" binds= [false]]
 [connection signal="pressed" from="MenuList/MatchmakeButton" to="." method="_on_matchmake_button_pressed"]

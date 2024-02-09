@@ -48,6 +48,7 @@ const ModalDialog = preload("res://scenes/game/modal_dialog.gd")
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
+	$VersionContainer/MarginContainer/HBoxContainer/ClientVersion.text = GlobalSettings.ClientVersionString
 	NetworkManager.connect("connected_to_server", _on_connected)
 	NetworkManager.connect("disconnected_from_server", _on_disconnected)
 	NetworkManager.connect("game_started", _on_remote_game_started)
