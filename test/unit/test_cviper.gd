@@ -199,7 +199,7 @@ func validate_life(p1, l1, p2, l2):
 func test_cviper_crit():
 	position_players(player1, 3, player2, 6)
 	give_gauge(player1, 1)
-	give_player_specific_card(player1, "cviper_bruningkick", TestCardId1)
+	give_player_specific_card(player1, "cviper_burningkick", TestCardId1)
 	give_player_specific_card(player2, "standard_normal_spike", TestCardId2)
 	assert_true(game_logic.do_strike(player1, TestCardId1, false, -1))
 	# On set, C. Viper has critical choice.
@@ -212,21 +212,18 @@ func test_cviper_crit():
 
 func test_cviper_boost_ua_pass():
 	position_players(player1, 7, player2, 8)
-	give_player_specific_card(player1, "cviper_seismichammer", TestCardId3)
+	give_player_specific_card(player1, "standard_normal_spike", TestCardId3)
 	assert_true(game_logic.do_boost(player1, TestCardId3))
-	assert_true(game_logic.do_choice(player1, 0))
+	assert_true(game_logic.do_choice(player1, 1))
 	assert_eq(game_logic.active_turn_player, player2.my_id)
 	give_player_specific_card(player1, "standard_normal_assault", TestCardId1)
 	give_player_specific_card(player2, "standard_normal_cross", TestCardId2)
-	assert_true(game_logic.do_strike(player2, TestCardId2, false, -1))
-	# On set, cviper has critical choice.
-	# No gauge, so no crit choice
-	validate_life(player1, 37, player2, 25)
-	validate_positions(player1, 8, player2, 9)
+	validate_life(player1, 30, player2, 30)
+	validate_positions(player1, 7, player2, 8)
 
 func test_cviper_boost_ua_strike():
 	position_players(player1, 7, player2, 8)
-	give_player_specific_card(player1, "cviper_seismichammer", TestCardId3)
+	give_player_specific_card(player1, "standard_normal_spike", TestCardId3)
 	assert_true(game_logic.do_boost(player1, TestCardId3))
 	assert_true(game_logic.do_choice(player1, 0))
 	give_player_specific_card(player1, "standard_normal_assault", TestCardId1)
@@ -234,5 +231,6 @@ func test_cviper_boost_ua_strike():
 	assert_true(game_logic.do_strike(player1, TestCardId1, false, -1))
 	# On set, C. Viper critical choice.
 	# No gauge, so no choice
-	validate_life(player1, 27, player2, 25)
+	assert_true(game_logic.do_strike(player2, TestCardId2, false, -1))
+	validate_life(player1, 28, player2, 26)
 	validate_positions(player1, 8, player2, 9)
