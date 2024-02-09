@@ -6,9 +6,6 @@ Bug:
     ☐ Carl set strike ability, the during_strike powerup also needs condition
     ☐ Disabled action buttons don't look very disabled
 
-    Observer Todos:
-        ☐ show char portraits in match list - Only for started games
-
 
 Write tests for:
     Axl:
@@ -30,6 +27,7 @@ Write tests for:
 
 Tasks:
     Main Features:
+        ☐ Search for match while observing/playing AI
     Tests:
         ☐ Move
         ☐ Reshuffle
