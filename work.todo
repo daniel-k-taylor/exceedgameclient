@@ -24,6 +24,12 @@ Write tests for:
 Tasks:
     Main Features:
         ☐ Search for match while observing/playing AI
+    High Pri UI Improvements:
+        ☐ Background image + life panel backgrounds
+        ☐ Card popout has choice buttons for gauge selection
+        ☐ If making a decision, minimizing card popout has a blinking icon to reopen it
+        ☐ Rework character_effect window to allow mulitple abilities, scan for them all at set_strike/during_strike timing, add as strike goes on
+            ☐ resize text
     Tests:
         ☐ Move
         ☐ Reshuffle
@@ -34,13 +40,10 @@ Tasks:
         ☐ Boost zone panel formatting/change size with text. - Should scroll?
         ☐ Tweak timings on animation lengths
         ☐ Make card ref an icon button
-        ☐ If making a decision, minimizing card popout has a blinking icon to reopen it
         ☐ Choice between EX and spent gauge/force cards as to which is on top
         ☐ Range indicator between players
     ☐ Only connect to server if you enter Multiplayer
-    ☐ Card popout has choice buttons for gauge selection
     ☐ Reorder opponent hand in a way that you can't keep track with effort
-    ☐ Rework character_effect window to allow mulitple abilities, scan for them all at set_strike/during_strike timing, add as strike goes on
     ☐ Always show conditional effects and allow choosing them when they fail
     ☐ Add a info screen after character select on the main menu you can click to show all card for the character.
     ☐ Combat Log always on screen?

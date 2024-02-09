@@ -6836,6 +6836,12 @@ func boost_finish_resolving_card(performing_player : Player):
 func boost_play_cleanup(events, performing_player : Player):
 	# Account for boosts that played other boosts
 	if active_boost.parent_boost:
+		# Pass on any relevant fields.
+		active_boost.parent_boost.action_after_boost = active_boost.parent_boost.action_after_boost or active_boost.action_after_boost
+		active_boost.parent_boost.strike_after_boost = active_boost.parent_boost.strike_after_boost or active_boost.strike_after_boost
+		active_boost.parent_boost.strike_after_boost_opponent_first = active_boost.parent_boost.strike_after_boost_opponent_first or active_boost.strike_after_boost_opponent_first
+
+		# Go back to the parent boost.
 		active_boost = active_boost.parent_boost
 		active_boost.effects_resolved += 1
 		return continue_resolve_boost(events)
