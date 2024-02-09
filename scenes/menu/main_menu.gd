@@ -6,6 +6,9 @@ signal start_remote_game(vs_info, data)
 const RoomMaxLen = 12
 const PlayerNameMaxLen = 12
 
+const ModalList = preload("res://scenes/menu/modal_list.gd")
+const ModalDialog = preload("res://scenes/game/modal_dialog.gd")
+
 @onready var player_list : ItemList = $PlayerList
 @onready var player_selected_character : String = "solbadguy"
 @onready var opponent_selected_character : String = "kykisuke"
@@ -29,6 +32,12 @@ const PlayerNameMaxLen = 12
 @onready var opponent_char_label : Label = $MenuList/VSAIBox/OpponentChooser/MarginContainer/VBoxContainer/HBoxContainer/CharName
 @onready var opponent_char_portrait : TextureRect = $MenuList/VSAIBox/OpponentChooser/MarginContainer/VBoxContainer/HBoxContainer/CharPortrait
 
+@onready var modal_list : ModalList = $ModalList
+@onready var modal_dialog : ModalDialog = $ModalDialog
+
+@onready var player_list_button = $PlayerListContainer/PlayerListHBox/PlayersButton
+@onready var match_list_button = $RoomListContainer/RoomListHBox/MatchesButton
+
 @onready var label_font_normal = 32
 @onready var label_font_small = 18
 @onready var label_length_threshold = 15
@@ -39,18 +48,22 @@ const PlayerNameMaxLen = 12
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
+	$VersionContainer/MarginContainer/HBoxContainer/ClientVersion.text = GlobalSettings.ClientVersionString
 	NetworkManager.connect("connected_to_server", _on_connected)
 	NetworkManager.connect("disconnected_from_server", _on_disconnected)
 	NetworkManager.connect("game_started", _on_remote_game_started)
+	NetworkManager.connect("observe_started", _on_observe_game_started)
 	NetworkManager.connect("players_update", _on_players_update)
 	NetworkManager.connect("room_join_failed", _on_join_failed)
 	$MenuList/CancelButton.visible = false
 	$ReconnectToServerButton.visible = false
-	_on_players_update(NetworkManager.get_player_list(), NetworkManager.get_match_available())
+	_on_players_update(NetworkManager.get_player_list(), NetworkManager.get_match_list(), NetworkManager.get_match_available())
 	selecting_player = false
 	just_clicked_matchmake = false
 	_on_char_select_select_character(opponent_selected_character)
-	
+	modal_dialog.visible = false
+	modal_list.visible = false
+
 func settings_loaded():
 	bgm_checkbox.button_pressed = GlobalSettings.BGMEnabled
 	start_music()
@@ -69,7 +82,7 @@ func _process(_delta):
 	pass
 
 func returned_from_game():
-	_on_players_update(NetworkManager.get_player_list(), NetworkManager.get_match_available())
+	_on_players_update(NetworkManager.get_player_list(), NetworkManager.get_match_list(), NetworkManager.get_match_available())
 	update_buttons(false)
 	just_clicked_matchmake = false
 	start_music()
@@ -96,6 +109,8 @@ func _on_quit_button_pressed():
 func _on_connected(player_name):
 	join_room_button.disabled = false
 	matchmake_button.disabled = false
+	player_list_button.disabled = false
+	match_list_button.disabled = false
 	player_name_box.editable = true
 	player_name_box.text = player_name
 	$ReconnectToServerButton.visible = false
@@ -103,16 +118,20 @@ func _on_connected(player_name):
 	if GlobalSettings.DefaultPlayerName:
 		player_name_box.text = GlobalSettings.DefaultPlayerName
 		NetworkManager.set_player_name(player_name_box.text)
+	else:
+		NetworkManager.set_player_name("")
 
 func _on_disconnected():
 	update_buttons(false)
 	join_room_button.disabled = true
 	matchmake_button.disabled = true
+	player_list_button.disabled = true
+	match_list_button.disabled = true
 	$ReconnectToServerButton.visible = true
 	$ReconnectToServerButton.disabled = false
 	$ServerStatusLabel.text = "Disconnected from server."
 	just_clicked_matchmake = false
-	_on_players_update([], false)
+	_on_players_update([], [], false)
 
 func get_vs_info(player_name, player_deck, player_random_tag, opponent_name, opponent_deck, opponent_random_tag, randomize_first_vs_ai = false):
 	return {
@@ -134,6 +153,37 @@ func get_deck_id_without_random_tag(deck_id):
 	if deck_id.begins_with("random"):
 		return deck_id.split("#")[1]
 	return deck_id
+
+func _on_observe_game_started(data):
+	just_clicked_matchmake = false
+
+	# Observe games pass in the full message log up to this point.
+	# The first message is the game_start message.
+	var message_log = data['messages']
+	var start_data = message_log[0]
+
+	# The observer will view from player 1's perspective.
+	var player_deck = start_data['player1_deck_id']
+	var player_name = start_data['player1_name']
+	var opponent_deck = start_data['player2_deck_id']
+	var opponent_name = start_data['player2_name']
+	# For remote play, random was decided locally first
+	# and the deck id is random#deck_id.
+	var player_random_tag = get_random_tag(player_deck)
+	var player_deck_no_random = get_deck_id_without_random_tag(player_deck)
+	var opponent_random_tag = get_random_tag(opponent_deck)
+	var opponent_deck_no_random = get_deck_id_without_random_tag(opponent_deck)
+
+	start_data['player1_deck_id'] = player_deck_no_random
+	start_data['player2_deck_id'] = opponent_deck_no_random
+
+	start_data['observer_mode'] = true
+	start_data['observer_log'] = message_log.slice(1)
+
+	var player_deck_object = CardDefinitions.get_deck_from_str_id(player_deck_no_random)
+	var opponent_deck_object = CardDefinitions.get_deck_from_str_id(opponent_deck_no_random)
+	start_remote_game.emit(get_vs_info(player_name, player_deck_object, player_random_tag, opponent_name, opponent_deck_object, opponent_random_tag), start_data)
+
 
 func _on_remote_game_started(data):
 	just_clicked_matchmake = false
@@ -168,10 +218,15 @@ func _on_remote_game_started(data):
 	var opponent_deck_object = CardDefinitions.get_deck_from_str_id(opponent_deck_no_random)
 	start_remote_game.emit(get_vs_info(player_name, player_deck_object, player_random_tag, opponent_name, opponent_deck_object, opponent_random_tag), data)
 
-func _on_players_update(players, match_available : bool):
+func _on_players_update(players, matches, match_available : bool):
 	player_list.clear()
 	for player in players:
 		player_list.add_item(player['player_name'] + " - " + player['room_name'])
+
+	var player_count = players.size()
+	var match_count = matches.size()
+	$PlayerListContainer/PlayerListHBox/PlayerCount.text = str(player_count)
+	$RoomListContainer/RoomListHBox/MatchCount.text = str(match_count)
 
 	if match_available:
 		matchmake_button.text = "Join Match Now"
@@ -183,7 +238,9 @@ func _on_players_update(players, match_available : bool):
 
 	was_match_available = match_available
 
-func _on_join_failed():
+func _on_join_failed(error_message : String):
+	modal_dialog.set_text_fields(error_message, "OK", "")
+
 	update_buttons(false)
 
 func get_player_name() -> String:
@@ -207,6 +264,8 @@ func update_buttons(joining : bool):
 	join_box.visible = not joining
 	matchmake_button.visible = not joining
 	$MenuList/CancelButton.visible = joining
+	player_list_button.disabled = joining
+	match_list_button.disabled = joining
 
 func _on_cancel_button_pressed():
 	NetworkManager.leave_room()
@@ -315,3 +374,25 @@ func _on_bgm_check_box_toggled(button_pressed : bool):
 		start_music()
 	else:
 		stop_music()
+
+func _on_players_button_pressed():
+	modal_list.show_player_list()
+
+func _on_matches_button_pressed():
+	modal_list.show_match_list()
+
+
+func _on_modal_list_join_match_pressed(row_index):
+	var matches = NetworkManager.get_match_list()
+	var selected_match = matches[row_index]
+	room_select.text = selected_match['name']
+	_on_join_button_pressed()
+
+func _on_modal_list_observe_match_pressed(row_index):
+	var matches = NetworkManager.get_match_list()
+	var selected_match = matches[row_index]
+	var room_name = selected_match['name']
+	var player_name = get_player_name()
+	NetworkManager.observe_room(player_name, room_name)
+	update_buttons(true)
+

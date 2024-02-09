@@ -35,5 +35,5 @@ func test_array():
 	var events = [1,2,3,4,5]
 	helper(events)
 	assert_eq(events.size(), 7)
-	
+
 

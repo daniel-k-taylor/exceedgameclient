@@ -2186,7 +2186,7 @@
 		"effects": [
 			{
 				"timing": "during_strike",
-				"effect_type": "ignore_armor"	
+				"effect_type": "ignore_armor"
 			},
 			{
 				"timing": "hit",
@@ -2196,7 +2196,7 @@
 			{
 				"timing": "after",
 				"effect_type": "close",
-				"amount": 8				
+				"amount": 8
 			}
 		],
 		"boost": {
@@ -2218,7 +2218,7 @@
 						"effect_type": "bonus_action"
 					}
 				}
-			]		
+			]
 		}
 	},
 	{
@@ -2257,10 +2257,10 @@
 					"and": {
 						"effect_type": "guardup",
 						"amount": 1
-					}	
+					}
 				}
 			]
-		}	
+		}
 	},
 	{
 		"id": "cviper_burningkick",
@@ -2305,7 +2305,7 @@
 					}
 				}
 			]
-		}		
+		}
 	},
 	{
 		"id": "cviper_emergencycombination",
@@ -2342,7 +2342,7 @@
 					}
 				}
 			]
-		}		
+		}
 	},
 	{
 		"id": "cviper_seismichammer",
@@ -2371,7 +2371,7 @@
 					{ "effect_type": "advance", "amount": 2 },
 					{ "effect_type": "retreat", "amount": 1 },
 					{ "effect_type": "retreat", "amount": 2 },
-					{ "effect_type": "pass" }			
+					{ "effect_type": "pass" }
 				]
 			}
 		],
@@ -2391,7 +2391,7 @@
 					}
 				}
 			]
-		}				
+		}
 	},
 	{
 		"id": "cviper_templemassage",
@@ -2476,11 +2476,11 @@
 						"amount": 1
 					},
 					"overall_effect": null,
-					"force_max": 4					
+					"force_max": 4
 				}
 			]
 		},
-		"NOTEEND": "C.VIPER CARDS END"		
+		"NOTEEND": "C.VIPER CARDS END"
 	},
 	{
 		"NOTE": "CARLCLOVER CARDS START",

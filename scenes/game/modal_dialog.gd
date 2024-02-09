@@ -11,10 +11,14 @@ func set_text_fields(message_text, accept_text, cancel_text):
 	message_label.text = message_text
 	accept_button.text = accept_text
 	cancel_button.text = cancel_text
+	cancel_button.visible = cancel_text != ""
+	visible = true
 
 func _on_close_button_pressed():
+	visible = false
 	close_button_pressed.emit()
 
 func _on_accept_button_pressed():
+	visible = false
 	accept_button_pressed.emit()
 

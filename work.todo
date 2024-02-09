@@ -3,8 +3,6 @@
 In progress:
 
 
-
-
 Write tests for:
     Axl:
     Testament:
@@ -25,7 +23,7 @@ Write tests for:
 
 Tasks:
     Main Features:
-        ☐ Observers on server
+        ☐ Search for match while observing/playing AI
     Tests:
         ☐ Move
         ☐ Reshuffle

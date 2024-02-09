@@ -221,7 +221,7 @@ func test_platinum_mystique_momo():
 	advance_turn(player2)
 	give_player_specific_card(player1, "platinum_mystiquemomo", TestCardId1)
 	give_player_specific_card(player2, "standard_normal_assault", TestCardId2)
-	
+
 	# This test is going to verify that mystique momo can remove the before effect from
 	# the other mystique momo and not pull 2.
 	assert_true(game_logic.do_strike(player1, TestCardId1, false, -1))
@@ -247,17 +247,17 @@ func test_platinum_dramaticsammy_sustain_and_cleanup_testing_too():
 	advance_turn(player2)
 	give_player_specific_card(player1, "platinum_dramaticsammy", TestCardId1)
 	give_player_specific_card(player2, "standard_normal_sweep", TestCardId2)
-	
+
 	assert_true(game_logic.do_strike(player1, TestCardId1, false, -1))
 	assert_true(game_logic.do_strike(player2, TestCardId2, false, -1))
 	assert_true(game_logic.do_choice(player1, 0)) # Advance 1
 	validate_positions(player1, 4, player2, 5)
-	
+
 	# Now we have to pick a continuous boost to sustain.
 	assert_true(game_logic.do_choose_from_boosts(player1, [player1.continuous_boosts[0].id]))
 	validate_positions(player1, 4, player2, 5)
 	validate_life(player1, 30, player2, 24)
-	
+
 	# Setup for cleanup
 	give_player_specific_card(player1, "standard_normal_spike", TestCardId4)
 	give_player_specific_card(player2, "standard_normal_assault", TestCardId5)
@@ -280,19 +280,19 @@ func test_platinum_dreamsally_nomove():
 	advance_turn(player2)
 	give_player_specific_card(player1, "platinum_dreamsally", TestCardId1)
 	give_player_specific_card(player2, "standard_normal_focus", TestCardId2)
-	
+
 	assert_true(game_logic.do_strike(player1, TestCardId1, false, -1))
 	assert_true(game_logic.do_strike(player2, TestCardId2, false, -1))
 	# Focus blocks the momo pull.
 	validate_positions(player1, 3, player2, 5)
 	validate_life(player1, 26, player2, 29)
-	
+
 	# Cleanup choice, do it in both cases.
 	# Don't specifically check what was in deck to keep it random,
 	# but no boost should possibly interfere with ending the turn.
 	assert_true(game_logic.do_choice(player1, 0))
 	assert_true(game_logic.do_choice(player2, 0))
-	
+
 	advance_turn(player2)
 
 func test_platinum_dreamsally_move():
@@ -302,20 +302,20 @@ func test_platinum_dreamsally_move():
 	advance_turn(player2)
 	give_player_specific_card(player1, "platinum_dreamsally", TestCardId1)
 	give_player_specific_card(player2, "standard_normal_assault", TestCardId2)
-	
+
 	assert_true(game_logic.do_strike(player1, TestCardId1, false, -1))
 	assert_true(game_logic.do_strike(player2, TestCardId2, false, -1))
 	# Assault to 4, pulled to 1.
 	validate_positions(player1, 3, player2, 1)
 	validate_life(player1, 26, player2, 25)
-	
+
 	# Cleanup choice, do it in both cases.
 	# Don't specifically check what was in deck to keep it random,
 	# but no boost should possibly interfere with ending the turn.
 	# NOTE: Player 2 goes first because they were faster.
 	assert_true(game_logic.do_choice(player2, 0))
 	assert_true(game_logic.do_choice(player1, 0))
-	
+
 	advance_turn(player2)
 
 func test_platinum_dreamsally_returnattack_losearmor():
@@ -332,7 +332,7 @@ func test_platinum_dreamsally_returnattack_losearmor():
 	assert_eq(player2.hand.size(), 7)
 	give_player_specific_card(player1, "platinum_happymagicka", TestCardId1)
 	give_player_specific_card(player2, "standard_normal_sweep", TestCardId2)
-	
+
 	assert_true(game_logic.do_strike(player1, TestCardId1, false, -1))
 	assert_true(game_logic.do_strike(player2, TestCardId2, false, -1))
 	# Happy magicka goes, doesn't discard an opponent card since not hit.
@@ -355,7 +355,7 @@ func test_platinum_dreamsally_returnattack_losearmor():
 
 func test_platinum_miracle_jeanne_and_boost_sustain_all():
 	position_players(player1, 3, player2, 5)
-	
+
 	# Boost miracle jeanne and sweep.
 	# Discard a grasp and spike
 	# Attack with Jeanne to boost those from discard.
@@ -370,12 +370,12 @@ func test_platinum_miracle_jeanne_and_boost_sustain_all():
 	give_player_specific_card(player1, "standard_normal_spike", TestCardId7)
 	player1.discard_hand()
 	assert_eq(player1.discards.size(), 9) # 7 card hand after the 2 give+boost, and the 2 new ones.
-	
+
 	# Strike cards
 	give_gauge(player1, 4)
 	give_player_specific_card(player1, "platinum_miraclejeanne", TestCardId1)
 	give_player_specific_card(player2, "standard_normal_focus", TestCardId2)
-	
+
 	assert_true(game_logic.do_strike(player1, TestCardId1, false, -1))
 	assert_true(game_logic.do_strike(player2, TestCardId2, false, -1))
 	# Pay for miracle
@@ -395,7 +395,7 @@ func test_platinum_miracle_jeanne_and_boost_sustain_all():
 	# Cleanup choice, just pass.
 	assert_true(game_logic.do_choice(player1, 1))
 	assert_true(game_logic.do_choice(player2, 1))
-	
+
 	assert_eq(player1.gauge.size(), 1)
 	assert_eq(player1.discards.size(), 11) # No boosts went to discard and 2 were pulled out.
 	assert_eq(player1.continuous_boosts.size(), 4)
@@ -404,7 +404,7 @@ func test_platinum_miracle_jeanne_and_boost_sustain_all():
 
 func test_platinum_miracle_jeanne_choose1_and_boost_sustain_all():
 	position_players(player1, 3, player2, 5)
-	
+
 	# Boost miracle jeanne and sweep.
 	# Discard a grasp and spike
 	# Attack with Jeanne to boost those from discard.
@@ -419,12 +419,12 @@ func test_platinum_miracle_jeanne_choose1_and_boost_sustain_all():
 	give_player_specific_card(player1, "standard_normal_spike", TestCardId7)
 	player1.discard_hand()
 	assert_eq(player1.discards.size(), 9) # 7 card hand after the 2 give+boost, and the 2 new ones.
-	
+
 	# Strike cards
 	give_gauge(player1, 4)
 	give_player_specific_card(player1, "platinum_miraclejeanne", TestCardId1)
 	give_player_specific_card(player2, "standard_normal_focus", TestCardId2)
-	
+
 	assert_true(game_logic.do_strike(player1, TestCardId1, false, -1))
 	assert_true(game_logic.do_strike(player2, TestCardId2, false, -1))
 	# Pay for miracle
@@ -444,7 +444,7 @@ func test_platinum_miracle_jeanne_choose1_and_boost_sustain_all():
 	# Cleanup choice, just pass.
 	assert_true(game_logic.do_choice(player1, 1))
 	assert_true(game_logic.do_choice(player2, 1))
-	
+
 	assert_eq(player1.gauge.size(), 1)
 	assert_eq(player1.discards.size(), 12) # No boosts went to discard and 1 pulled out
 	assert_eq(player1.continuous_boosts.size(), 3)
@@ -452,14 +452,14 @@ func test_platinum_miracle_jeanne_choose1_and_boost_sustain_all():
 
 func test_platinum_curedottyphoon():
 	position_players(player1, 3, player2, 5)
-	
+
 	player1.discard_hand()
-	
+
 	# Strike cards
 	give_gauge(player1, 2)
 	give_player_specific_card(player1, "platinum_curedottyphoon", TestCardId1)
 	give_player_specific_card(player2, "standard_normal_assault", TestCardId2)
-	
+
 	assert_true(game_logic.do_strike(player1, TestCardId1, false, -1))
 	assert_true(game_logic.do_strike(player2, TestCardId2, false, -1))
 	# Pay for curedot
@@ -469,37 +469,37 @@ func test_platinum_curedottyphoon():
 	assert_true(game_logic.do_pay_strike_cost(player1, card_ids, false))
 	# Choice to advance
 	assert_true(game_logic.do_choice(player1, 1))
-	
+
 	# After choose from discard for deck.
 	var discard_choice = player1.discards[4].id
 	assert_true(game_logic.do_choose_from_discard(player1, [discard_choice]))
 	validate_positions(player1, 6, player2, 5)
 	validate_life(player1, 30, player2, 26)
-	
+
 	# Card should be on top deck.
 	assert_eq(player1.deck[0].id, discard_choice)
 
 	# Let it be random, but the discarded card is either a continuous and in play
 	# or it is discarded again.
 	var is_continuous = player1.deck[0].definition['boost']['boost_type'] == "continuous"
-	
+
 	# Cleanup choice, do it.
 	assert_true(game_logic.do_choice(player1, 0))
 	assert_true(game_logic.do_choice(player2, 0))
-	
+
 	if is_continuous:
 		assert_eq(player1.continuous_boosts.size(), 1)
 		assert_eq(player1.continuous_boosts[0].id, discard_choice)
 	else:
 		assert_eq(player1.continuous_boosts.size(), 0)
 		assert_eq(player1.get_top_discard_card().id, discard_choice)
-	
+
 	assert_eq(player1.gauge.size(), 1)
 	advance_turn(player2)
 
 func test_platinum_exceed_ua_overdrive():
 	position_players(player1, 3, player2, 5)
-	
+
 	give_player_specific_card(player1, "standard_normal_grasp", TestCardId3)
 	give_player_specific_card(player1, "standard_normal_dive", TestCardId4)
 	give_player_specific_card(player1, "standard_normal_spike", TestCardId5)
@@ -512,7 +512,7 @@ func test_platinum_exceed_ua_overdrive():
 	assert_true(game_logic.do_choose_from_discard(player1, [TestCardId3]))
 	assert_eq(player1.continuous_boosts.size(), 1)
 	assert_eq(player1.continuous_boosts[0].id, TestCardId3)
-	
+
 	# Strike cards
 	give_player_specific_card(player1, "standard_normal_assault", TestCardId1)
 	give_player_specific_card(player2, "standard_normal_assault", TestCardId2)
@@ -520,20 +520,20 @@ func test_platinum_exceed_ua_overdrive():
 	assert_true(game_logic.do_strike(player2, TestCardId2, false, -1))
 	validate_positions(player1, 4, player2, 5)
 	validate_life(player1, 30, player2, 24)
-	
+
 	# Prime topdeck
 	give_player_specific_card(player1, "standard_normal_sweep", TestCardId6)
 	player1.move_card_from_hand_to_deck(TestCardId6, 0)
-	
+
 	# Cleanup choice, p1 do it, p2 pass.
 	assert_true(game_logic.do_choice(player1, 0))
 	# Because exceeded, it is played but not sustained.
 	# Then we choose one to sustain, either our grasp or the new card.
 	assert_true(game_logic.do_choose_from_boosts(player1, [TestCardId6]))
-	
+
 	# p2 pass
 	assert_true(game_logic.do_choice(player2, 1))
-	
+
 	assert_eq(player1.continuous_boosts.size(), 1)
 	assert_eq(player1.continuous_boosts[0].id, TestCardId6)
 	# It is p1 turn again from advantage.
@@ -542,7 +542,7 @@ func test_platinum_exceed_ua_overdrive():
 	assert_true(game_logic.do_choose_from_discard(player1, [TestCardId4]))
 	assert_eq(player1.continuous_boosts.size(), 1)
 	assert_eq(player1.continuous_boosts[0].id, TestCardId6)
-	
+
 	# Strike again.
 	player1.move_card_from_gauge_to_hand(TestCardId1)
 	give_player_specific_card(player2, "standard_normal_cross", TestCardId7)
@@ -554,7 +554,7 @@ func test_platinum_exceed_ua_overdrive():
 	assert_true(game_logic.do_choice(player1, 1))
 	assert_true(game_logic.do_choice(player2, 1))
 	assert_eq(player1.continuous_boosts.size(), 0)
-	
+
 	# Overdrive again.
 	assert_true(game_logic.do_choose_from_discard(player1, [TestCardId5]))
 	assert_eq(player1.continuous_boosts.size(), 1)
@@ -565,7 +565,7 @@ func test_platinum_exceed_ua_overdrive():
 
 func test_platinum_happymagicka_vs_focus():
 	position_players(player1, 3, player2, 5)
-	
+
 	# Strike cards
 	assert_eq(player2.hand.size(), 6)
 	give_player_specific_card(player1, "platinum_happymagicka", TestCardId1)
@@ -575,16 +575,16 @@ func test_platinum_happymagicka_vs_focus():
 	validate_positions(player1, 3, player2, 5)
 	validate_life(player1, 28, player2, 29)
 	assert_eq(player2.hand.size(), 7)
-	
+
 	# Cleanup choice, just pass
 	assert_true(game_logic.do_choice(player1, 1))
 	assert_true(game_logic.do_choice(player2, 1))
-	
+
 	advance_turn(player2)
 
 func test_platinum_miraclejeanne_add_mystique_momo_pull():
 	position_players(player1, 3, player2, 8)
-	
+
 	# Strike cards
 	give_gauge(player1, 4)
 	give_player_specific_card(player1, "platinum_mystiquemomo", TestCardId3)
@@ -602,9 +602,9 @@ func test_platinum_miraclejeanne_add_mystique_momo_pull():
 	assert_true(game_logic.do_choose_from_discard(player1, [TestCardId3]))
 	validate_positions(player1, 3, player2, 6)
 	validate_life(player1, 24, player2, 27)
-	
+
 	# Cleanup choice, just pass
 	assert_true(game_logic.do_choice(player1, 1))
 	assert_true(game_logic.do_choice(player2, 1))
-	
+
 	advance_turn(player2)

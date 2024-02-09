@@ -77,6 +77,7 @@ var target_scale = 1
 var animate_flip = false
 var animation_length = 0
 var manual_flip_needed = false
+var skip_flip_when_drawing = false
 
 var follow_mouse = false
 var saved_hand_index = -1
@@ -236,10 +237,11 @@ func _physics_process(delta):
 				var lerp_pos = start_pos.lerp(target_pos, animation_time)
 				var lerp_rot = lerpf(start_rotation, target_rotation, animation_time)
 				var lerp_sca = original_scale
-				if animate_flip:
+				if animate_flip and not skip_flip_when_drawing:
 					lerp_sca.x = original_scale.x * abs(1 - 2*animation_time)
 				if animation_time >= 0.5 and not manual_flip_needed:
-					flip_card_to_front(true)
+					if not skip_flip_when_drawing:
+						flip_card_to_front(true)
 				animation_time += delta / animation_length
 				set_card_and_focus(lerp_pos, lerp_rot, lerp_sca)
 			else:

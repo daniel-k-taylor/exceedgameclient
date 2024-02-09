@@ -3079,7 +3079,7 @@ func is_effect_condition_met(performing_player : Player, effect, local_condition
 		elif condition == "boost_in_play":
 			return performing_player.continuous_boosts.size() > 0
 		elif condition == "no_boost_in_play":
-			return performing_player.continuous_boosts.size() == 0			
+			return performing_player.continuous_boosts.size() == 0
 		elif condition == "canceled_this_turn":
 			return performing_player.canceled_this_turn
 		elif condition == "not_canceled_this_turn":

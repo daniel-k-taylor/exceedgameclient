@@ -43,6 +43,13 @@ func get_deck_from_str_id(str_id : String):
 		if deck['id'] == str_id:
 			return deck
 
+func get_portrait_asset_path(deck_id : String) -> String:
+	# Only take part after # if there is one.
+	var split_index = deck_id.find("#")
+	if split_index != -1:
+		deck_id = deck_id.substr(split_index + 1)
+	return "res://assets/portraits/" + deck_id + ".png"
+
 func load_json_file(file_path : String):
 	if FileAccess.file_exists(file_path):
 		var data = FileAccess.open(file_path, FileAccess.READ)
