@@ -72,7 +72,7 @@ func set_extra_image(index, image_path, exceed_image_path):
 	var child = extra_cards.get_child(index)
 	child.texture = load(image_path)
 	child.texture = load(exceed_image_path)
-	
+
 	focus_scale = unfocused_scale * FOCUS_SCALE_FACTOR * 0.8
 
 func set_name_text(name_text):
@@ -125,7 +125,7 @@ func focus():
 	animation_length = FOCUS_ANIMATION_LENGTH
 
 	z_index = 10
-	
+
 	if extra_cards_to_show_on_focus:
 		for i in range(1, extra_cards_to_show_on_focus + 1):
 			var child = extra_cards.get_child(i)
@@ -142,7 +142,7 @@ func unfocus():
 	animation_length = FOCUS_ANIMATION_LENGTH
 
 	z_index = 0
-	
+
 	if extra_cards_to_show_on_focus:
 		for i in range(1, extra_cards_to_show_on_focus + 1):
 			var child = extra_cards.get_child(i)

@@ -10,6 +10,8 @@ var local_game : LocalGame
 
 var _player_info
 var _opponent_info
+var _observer_mode : bool
+var _game_message_queue : Array
 
 func get_latest_events() -> Array:
 	return local_game.get_latest_events()
@@ -35,18 +37,35 @@ func _get_player_from_remote_id(remote_id : int):
 func get_striking_card_ids_for_player(player : LocalGame.Player) -> Array:
 	return local_game.get_striking_card_ids_for_player(player)
 
-func initialize_game(player_info, opponent_info, starting_player : Enums.PlayerId, seed_value : int):
-
-	NetworkManager.connect("game_message_received", _on_remote_game_message)
-	NetworkManager.connect("other_player_quit", _on_remote_player_quit)
+func initialize_game(player_info, opponent_info, starting_player : Enums.PlayerId, seed_value : int, observer_mode : bool, starting_message_queue : Array):
+	_game_message_queue = starting_message_queue
 
 	_player_info = player_info
 	_opponent_info = opponent_info
+	_observer_mode = observer_mode
 	local_game = LocalGame.new()
 	local_game.initialize_game(player_info['deck'], opponent_info['deck'], player_info['name'], opponent_info['name'], starting_player, seed_value)
 	local_game.draw_starting_hands_and_begin()
 
+	NetworkManager.connect("game_message_received", _on_remote_game_message)
+	NetworkManager.connect("other_player_quit", _on_remote_player_quit)
+
 func _on_remote_game_message(game_message):
+	if _observer_mode:
+		_game_message_queue.append(game_message)
+	else:
+		_process_game_message(game_message)
+
+func observer_process_next_message_from_queue():
+	if _game_message_queue.size() > 0:
+		var message = _game_message_queue[0]
+		_game_message_queue.remove_at(0)
+		_process_game_message(message)
+		return true
+	else:
+		return false
+
+func _process_game_message(game_message):
 	var action_type = game_message['action_type']
 	var action_function_name = action_type.replace("action_", "process_")
 	var action_function = Callable(self, action_function_name)

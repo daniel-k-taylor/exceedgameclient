@@ -245,7 +245,7 @@ func test_bang_exceed_ex_powerup_and_overdrive():
 	assert_true(game_logic.do_strike(player2, TestCardId3, false, -1))
 	validate_positions(player1, 4, player2, 5)
 	validate_life(player1, 30, player2, 24)
-	
+
 	# Advantage!
 	# Overdrive effect.
 	# Put something in overdrive we know is in discard.
@@ -256,7 +256,7 @@ func test_bang_exceed_ex_powerup_and_overdrive():
 	assert_true(player1.is_card_in_hand(TestCardId2)) # Discarded ex copy
 	advance_turn(player1)
 
-	
+
 func test_bang_ultimatebang():
 	position_players(player1, 3, player2, 5)
 	give_gauge(player1, 4)
@@ -377,7 +377,7 @@ func test_bang_shuriken_boost_return_other():
 	give_player_specific_card(player2, "standard_normal_grasp", TestCardId2)
 	advance_turn(player1)
 	assert_true(game_logic.do_boost(player2, TestCardId2))
-	
+
 	assert_true(game_logic.do_boost(player1, TestCardId1))
 	# Choose a boost to return
 	assert_true(game_logic.do_boost_name_card_choice_effect(player1, TestCardId2))

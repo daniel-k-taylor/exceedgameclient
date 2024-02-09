@@ -1,4 +1,4 @@
-[gd_scene load_steps=12 format=3 uid="uid://o8vjxrpicjsm"]
+[gd_scene load_steps=15 format=3 uid="uid://o8vjxrpicjsm"]
 
 [ext_resource type="Script" path="res://scenes/menu/main_menu.gd" id="1_bk4ch"]
 [ext_resource type="PackedScene" uid="uid://cqs72exlwm6at" path="res://scenes/menu/char_select.tscn" id="2_6qq11"]
@@ -8,6 +8,8 @@
 [ext_resource type="AudioStream" uid="uid://0cjnajbh1p00" path="res://assets/sounds/match_available.mp3" id="6_6ru3f"]
 [ext_resource type="AudioStream" uid="uid://bhetjnrl0n7o" path="res://assets/sounds/match_notification.mp3" id="7_pt1r5"]
 [ext_resource type="AudioStream" uid="uid://bftf3ehq3hfho" path="res://assets/sounds/mainmenu_bgm.mp3" id="8_vcasp"]
+[ext_resource type="PackedScene" uid="uid://bor5msyih7c5j" path="res://scenes/menu/modal_list.tscn" id="9_ro6xo"]
+[ext_resource type="PackedScene" uid="uid://b8kmmrd5jmqdd" path="res://scenes/game/modal_dialog.tscn" id="10_stodf"]
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_0f2dl"]
 
@@ -16,6 +18,8 @@ texture = ExtResource("4_ekoth")
 
 [sub_resource type="StyleBoxTexture" id="StyleBoxTexture_tii02"]
 texture = ExtResource("5_xie03")
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_22gnv"]
 
 [node name="main_menu" type="Control"]
 layout_mode = 3
@@ -229,10 +233,10 @@ text = "Update Name"
 
 [node name="PlayerList" type="ItemList" parent="."]
 layout_mode = 0
-offset_left = 950.0
-offset_top = 170.0
-offset_right = 1253.0
-offset_bottom = 532.0
+offset_left = 944.0
+offset_top = 228.0
+offset_right = 1247.0
+offset_bottom = 590.0
 theme_override_font_sizes/font_size = 24
 item_count = 2
 item_0/text = "Player"
@@ -240,10 +244,10 @@ item_1/text = "Player 2"
 
 [node name="PlayerListLabel" type="Label" parent="."]
 layout_mode = 0
-offset_left = 952.0
-offset_top = 120.0
-offset_right = 1216.0
-offset_bottom = 167.0
+offset_left = 946.0
+offset_top = 178.0
+offset_right = 1210.0
+offset_bottom = 225.0
 theme_override_font_sizes/font_size = 34
 text = "Player    -      Room"
 
@@ -279,6 +283,49 @@ stream = ExtResource("7_pt1r5")
 stream = ExtResource("8_vcasp")
 volume_db = -9.0
 
+[node name="PlayerListContainer" type="PanelContainer" parent="."]
+layout_mode = 0
+offset_left = 1050.0
+offset_top = 60.0
+offset_right = 1196.0
+offset_bottom = 110.0
+theme_override_styles/panel = SubResource("StyleBoxEmpty_22gnv")
+
+[node name="PlayerListHBox" type="HBoxContainer" parent="PlayerListContainer"]
+layout_mode = 2
+
+[node name="PlayersButton" type="Button" parent="PlayerListContainer/PlayerListHBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 32
+text = "Player List
+"
+
+[node name="PlayerCount" type="Label" parent="PlayerListContainer/PlayerListHBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 32
+text = "10"
+
+[node name="RoomListContainer" type="PanelContainer" parent="."]
+layout_mode = 0
+offset_left = 1050.0
+offset_top = 120.0
+offset_right = 1196.0
+offset_bottom = 170.0
+theme_override_styles/panel = SubResource("StyleBoxEmpty_22gnv")
+
+[node name="RoomListHBox" type="HBoxContainer" parent="RoomListContainer"]
+layout_mode = 2
+
+[node name="MatchesButton" type="Button" parent="RoomListContainer/RoomListHBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 32
+text = "Match List"
+
+[node name="MatchCount" type="Label" parent="RoomListContainer/RoomListHBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 32
+text = "10"
+
 [node name="SettingsPanel" type="MarginContainer" parent="."]
 custom_minimum_size = Vector2(100, 100)
 layout_mode = 0
@@ -296,6 +343,18 @@ theme_override_font_sizes/font_size = 30
 button_pressed = true
 text = "BGM"
 
+[node name="ModalList" parent="." instance=ExtResource("9_ro6xo")]
+layout_mode = 0
+anchors_preset = 0
+anchor_right = 0.0
+anchor_bottom = 0.0
+grow_horizontal = 1
+grow_vertical = 1
+
+[node name="ModalDialog" parent="." instance=ExtResource("10_stodf")]
+layout_mode = 0
+anchors_preset = 0
+
 [connection signal="pressed" from="MenuList/VSAIBox/FightSettings/StartButton" to="." method="_on_start_button_pressed"]
 [connection signal="pressed" from="MenuList/VSAIBox/OpponentChooser/ChangePlayerCharacterButton" to="." method="_on_change_player_character_button_pressed" binds= [false]]
 [connection signal="pressed" from="MenuList/MatchmakeButton" to="." method="_on_matchmake_button_pressed"]
@@ -310,4 +369,8 @@ text = "BGM"
 [connection signal="pressed" from="ReconnectToServerButton" to="." method="_on_reconnect_to_server_button_pressed"]
 [connection signal="close_character_select" from="CharSelect" to="." method="_on_char_select_close_character_select"]
 [connection signal="select_character" from="CharSelect" to="." method="_on_char_select_select_character"]
+[connection signal="pressed" from="PlayerListContainer/PlayerListHBox/PlayersButton" to="." method="_on_players_button_pressed"]
+[connection signal="pressed" from="RoomListContainer/RoomListHBox/MatchesButton" to="." method="_on_matches_button_pressed"]
 [connection signal="toggled" from="SettingsPanel/VBoxContainer/BGMCheckBox" to="." method="_on_bgm_check_box_toggled"]
+[connection signal="join_match_pressed" from="ModalList" to="." method="_on_modal_list_join_match_pressed"]
+[connection signal="observe_match_pressed" from="ModalList" to="." method="_on_modal_list_observe_match_pressed"]

@@ -1,0 +1,127 @@
+[gd_scene load_steps=6 format=3 uid="uid://b2ryu4d0iv6lm"]
+
+[ext_resource type="Script" path="res://scenes/menu/table.gd" id="1_wl7ij"]
+[ext_resource type="PackedScene" uid="uid://c3oewtxshsv2l" path="res://scenes/menu/row.tscn" id="2_7lapv"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_iq2sf"]
+bg_color = Color(0.109804, 0.109804, 0.109804, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ughsc"]
+bg_color = Color(0.109804, 0.109804, 0.109804, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_7su6t"]
+bg_color = Color(0.109804, 0.109804, 0.109804, 1)
+
+[node name="Table" type="VBoxContainer"]
+offset_right = 248.0
+offset_bottom = 91.0
+script = ExtResource("1_wl7ij")
+
+[node name="Title" type="PanelContainer" parent="."]
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_iq2sf")
+
+[node name="TitleBox" type="HBoxContainer" parent="Title"]
+layout_mode = 2
+alignment = 1
+
+[node name="TitleLabel" type="Label" parent="Title/TitleBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 30
+text = "TABLE TITLE"
+horizontal_alignment = 1
+
+[node name="HeaderContainer" type="PanelContainer" parent="."]
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_ughsc")
+
+[node name="Headers" type="HBoxContainer" parent="HeaderContainer"]
+layout_mode = 2
+
+[node name="1" type="Label" parent="HeaderContainer/Headers"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 20
+text = "Test"
+horizontal_alignment = 1
+
+[node name="2" type="Label" parent="HeaderContainer/Headers"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 20
+text = "Test"
+horizontal_alignment = 1
+
+[node name="3" type="Label" parent="HeaderContainer/Headers"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 20
+text = "Test"
+horizontal_alignment = 1
+
+[node name="4" type="Label" parent="HeaderContainer/Headers"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 20
+text = "Test"
+horizontal_alignment = 1
+
+[node name="5" type="Label" parent="HeaderContainer/Headers"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 20
+text = "Test"
+horizontal_alignment = 1
+
+[node name="6" type="Label" parent="HeaderContainer/Headers"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 20
+text = "Test"
+horizontal_alignment = 1
+
+[node name="BodyContainer" type="PanelContainer" parent="."]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_styles/panel = SubResource("StyleBoxFlat_7su6t")
+
+[node name="ScrollContainer" type="ScrollContainer" parent="BodyContainer"]
+layout_mode = 2
+
+[node name="Rows" type="VBoxContainer" parent="BodyContainer/ScrollContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="Row" parent="BodyContainer/ScrollContainer/Rows" instance=ExtResource("2_7lapv")]
+layout_mode = 2
+
+[node name="Row2" parent="BodyContainer/ScrollContainer/Rows" instance=ExtResource("2_7lapv")]
+layout_mode = 2
+
+[node name="Row3" parent="BodyContainer/ScrollContainer/Rows" instance=ExtResource("2_7lapv")]
+layout_mode = 2
+
+[node name="Row4" parent="BodyContainer/ScrollContainer/Rows" instance=ExtResource("2_7lapv")]
+layout_mode = 2
+
+[node name="Row5" parent="BodyContainer/ScrollContainer/Rows" instance=ExtResource("2_7lapv")]
+layout_mode = 2
+
+[node name="Row6" parent="BodyContainer/ScrollContainer/Rows" instance=ExtResource("2_7lapv")]
+layout_mode = 2
+
+[node name="Row7" parent="BodyContainer/ScrollContainer/Rows" instance=ExtResource("2_7lapv")]
+layout_mode = 2
+
+[node name="Row8" parent="BodyContainer/ScrollContainer/Rows" instance=ExtResource("2_7lapv")]
+layout_mode = 2
+
+[node name="Row9" parent="BodyContainer/ScrollContainer/Rows" instance=ExtResource("2_7lapv")]
+layout_mode = 2
+
+[node name="Row10" parent="BodyContainer/ScrollContainer/Rows" instance=ExtResource("2_7lapv")]
+layout_mode = 2
+
+[node name="Row11" parent="BodyContainer/ScrollContainer/Rows" instance=ExtResource("2_7lapv")]
+layout_mode = 2

@@ -1,0 +1,37 @@
+[gd_scene load_steps=4 format=3 uid="uid://bor5msyih7c5j"]
+
+[ext_resource type="Script" path="res://scenes/menu/modal_list.gd" id="1_t1q52"]
+[ext_resource type="PackedScene" uid="uid://b2ryu4d0iv6lm" path="res://scenes/menu/table.tscn" id="1_t1v4m"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ylqxy"]
+
+[node name="ModalList" type="CenterContainer"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_t1q52")
+
+[node name="CloseOuterClick" type="Button" parent="."]
+modulate = Color(1, 1, 1, 0)
+custom_minimum_size = Vector2(1280, 720)
+layout_mode = 2
+
+[node name="PanelContainer" type="PanelContainer" parent="."]
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_ylqxy")
+
+[node name="Margin" type="MarginContainer" parent="PanelContainer"]
+layout_mode = 2
+theme_override_constants/margin_left = 5
+theme_override_constants/margin_top = 5
+theme_override_constants/margin_right = 5
+theme_override_constants/margin_bottom = 5
+
+[node name="Table" parent="PanelContainer/Margin" instance=ExtResource("1_t1v4m")]
+custom_minimum_size = Vector2(900, 400)
+layout_mode = 2
+
+[connection signal="pressed" from="CloseOuterClick" to="." method="_on_close_outer_click_pressed"]
+[connection signal="row_button_clicked" from="PanelContainer/Margin/Table" to="." method="_on_table_row_button_clicked"]

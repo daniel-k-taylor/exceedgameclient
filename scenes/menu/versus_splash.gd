@@ -50,7 +50,7 @@ func set_info(vs_info):
 	else:
 		you_deck_label.set("theme_override_font_sizes/font_size", label_font_small)
 	$YouNameBox/YouNameLabel.text = vs_info['opponent_name']
-	
+
 	# Setup portraits
 	var player_deck_id = vs_info['player_deck']['id']
 	var player_random_tag = vs_info['player_random_tag']

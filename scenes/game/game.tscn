@@ -777,4 +777,3 @@ offset_bottom = 720.0
 [connection signal="close_button_pressed" from="EmoteDialog" to="." method="_on_emote_dialog_close_button_pressed"]
 [connection signal="emote_selected" from="EmoteDialog" to="." method="_on_emote_dialog_emote_selected"]
 [connection signal="accept_button_pressed" from="ModalDialog" to="." method="_on_modal_dialog_accept_button_pressed"]
-[connection signal="close_button_pressed" from="ModalDialog" to="." method="_on_modal_dialog_close_button_pressed"]

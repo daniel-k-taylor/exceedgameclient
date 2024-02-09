@@ -234,7 +234,7 @@ func test_hakumen_wild_swing_exceeded():
 	validate_positions(player1, 5, player2, 6)
 	validate_life(player1, 30, player2, 26)
 	advance_turn(player1)
-	
+
 func test_hakumen_yukikaze_cannot_go_below_life():
 	position_players(player1, 3, player2, 6)
 	give_gauge(player1, 4)
@@ -252,7 +252,7 @@ func test_hakumen_reshuffle_exceed():
 	assert_eq(player1.discards.size(), 0)
 	assert_eq(player1.reshuffle_remaining, 1)
 	advance_turn(player2)
-	
+
 func test_hakumen_ability():
 	position_players(player1, 3, player2, 6)
 	assert_eq(player1.hand.size(), 5)
@@ -292,7 +292,7 @@ func test_hakumen_exceeded_zantetsu():
 	validate_positions(player1, 3, player2, 5)
 	validate_life(player1, 30, player2, 23)
 	advance_turn(player2)
-	
+
 func test_hakumen_akumetsu():
 	position_players(player1, 3, player2, 4)
 	hakumen_exceed()

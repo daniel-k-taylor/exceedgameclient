@@ -202,6 +202,7 @@ var instructions_number_picker_min = -1
 var instructions_number_picker_max = -1
 var show_thinking_spinner_in : float = 0
 const ThinkingSpinnerWaitBeforeShowTime = 1.0
+var observer_mode = false
 
 @onready var CenterCardOval = Vector2(get_viewport().content_scale_size) * Vector2(0.5, 1.35)
 @onready var HorizontalRadius = get_viewport().content_scale_size.x * 0.55
@@ -241,6 +242,11 @@ func begin_local_game(vs_info):
 	game_wrapper.initialize_local_game(player_deck, opponent_deck, randomize_first_player)
 
 func begin_remote_game(game_start_message):
+	observer_mode = 'observer_mode' in game_start_message and game_start_message['observer_mode']
+	var starting_message_queue = []
+	if observer_mode:
+		starting_message_queue = game_start_message['observer_log']
+
 	var player1_info = {
 		'name': game_start_message['player1_name'],
 		'id': game_start_message['player1_id'],
@@ -272,7 +278,7 @@ func begin_remote_game(game_start_message):
 		if game_start_message['starting_player_id'] == game_start_message['player1_id']:
 			starting_player = Enums.PlayerId.PlayerId_Opponent
 
-	game_wrapper.initialize_remote_game(my_player_info, opponent_player_info, starting_player, seed_value)
+	game_wrapper.initialize_remote_game(my_player_info, opponent_player_info, starting_player, seed_value, observer_mode, starting_message_queue)
 
 func is_player_overdrive_visible(player_id : Enums.PlayerId):
 	return game_wrapper.is_player_in_overdrive(player_id)
@@ -1429,10 +1435,14 @@ func _on_add_to_sealed(event):
 	var sealed_panel = $PlayerZones/PlayerSealed
 	var sealed_card_loc = $AllCards/PlayerSealed
 	var keep_hidden = false
+	var is_zone_secret = game_wrapper.is_player_sealed_area_secret(player)
 	if player == Enums.PlayerId.PlayerId_Opponent:
 		sealed_panel = $OpponentZones/OpponentSealed
 		sealed_card_loc = $AllCards/OpponentSealed
 		keep_hidden = game_wrapper.is_player_sealed_area_secret(player)
+
+	if observer_mode:
+		keep_hidden = is_zone_secret
 
 	card.flip_card_to_front(not keep_hidden)
 	var pos = sealed_panel.get_center_pos()
@@ -1507,7 +1517,10 @@ func _on_add_to_hand(event):
 	var is_player = player == Enums.PlayerId.PlayerId_Player
 	var card = find_card_on_board(event['number'])
 	card.reset()
-	card.flip_card_to_front(is_player)
+	var reveal = is_player
+	if observer_mode:
+		reveal = false
+	card.flip_card_to_front(reveal)
 	add_card_to_hand(card.card_id, is_player)
 	layout_player_hand(is_player)
 
@@ -3938,7 +3951,6 @@ func _on_opponent_reference_button_pressed(switch_toggle : bool = false, hide_re
 	show_popout(CardPopoutType.CardPopoutType_ReferenceOpponent, popout_title, $AllCards/OpponentAllCopy, OffScreen, CardBase.CardState.CardState_Offscreen, false, hide_reshuffle)
 
 func _on_exit_to_menu_pressed():
-	modal_dialog.visible = true
 	modal_dialog.set_text_fields("Are you sure you want to quit?", "QUIT TO\nMENU", "CANCEL")
 	modal_dialog_type = ModalDialogType.ModalDialogType_ExitToMenu
 
@@ -4014,13 +4026,9 @@ func _on_choice_popout_show_button_pressed():
 	show_popout(CardPopoutType.CardPopoutType_ChoiceZone, "TOP OF DECK", $AllCards/ChoiceZone, OffScreen, CardBase.CardState.CardState_InDeck)
 
 func _on_modal_dialog_accept_button_pressed():
-	modal_dialog.visible = false
 	match modal_dialog_type:
 		ModalDialogType.ModalDialogType_ExitToMenu:
 			_quit_to_menu()
-
-func _on_modal_dialog_close_button_pressed():
-	modal_dialog.visible = false
 
 func _on_emote_button_pressed():
 	emote_dialog.visible = true

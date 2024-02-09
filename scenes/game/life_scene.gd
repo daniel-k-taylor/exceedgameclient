@@ -22,4 +22,4 @@ func set_discard_size(amount, reshuffles_remaining : int):
 	$CardInfoBox/DiscardLabel.text = str(amount)
 	$CardInfoBox/DiscardIcon.visible = reshuffles_remaining > 0
 	$CardInfoBox/DiscardXIcon.visible = reshuffles_remaining <= 0
-	
+

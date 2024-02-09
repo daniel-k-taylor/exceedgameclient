@@ -2,8 +2,29 @@
 
 In progress:
 
+Bug:
+    ☐ Carl set strike ability, the during_strike powerup also needs condition
 
+    Observer mode:
+        ☐ gameroom records every message @started(24-02-07 02:07)
+        ☐ joining as observer gets you the full message list that you then replay @started(24-02-07 02:07)
+        ☐ observer gets every new message just like players @started(24-02-07 02:07)
+        ☐ observer pretends to be p0 for localgame's purpose
+        ☐ observer mode has cards flipped down and defaults to spinners always, never show instructions
 
+        UI:
+            ☐ Separate player and match list @started(24-02-08 19:18)
+                - buttons bring up overlay UIs @started(24-02-08 19:18)
+                    - buttons are players (X) and matches (X) with counts
+            ☐ match list shows x vs y with char portraits and observer icon
+            - error dialog for room join errors @started(24-02-08 20:56)
+
+    Other server changes:
+        ☐ Loop match id at 1000 @started(24-02-07 01:12)
+        ☐ Loop anon id at 1000 @started(24-02-07 01:12)
+        ☐ if set name is blank don't accept it @started(24-02-07 01:09)
+        ☐ versioning @started(24-02-07 02:08)
+        ☐ return room list in player update @started(24-02-07 20:49)
 
 Write tests for:
     Axl:
@@ -25,7 +46,6 @@ Write tests for:
 
 Tasks:
     Main Features:
-        ☐ Observers on server
     Tests:
         ☐ Move
         ☐ Reshuffle

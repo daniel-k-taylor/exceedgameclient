@@ -1,0 +1,76 @@
+[gd_scene format=3 uid="uid://c3oewtxshsv2l"]
+
+[node name="Row" type="HBoxContainer"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_horizontal = 3
+size_flags_vertical = 4
+
+[node name="1" type="Label" parent="."]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 0
+theme_override_font_sizes/font_size = 20
+text = "test"
+horizontal_alignment = 1
+
+[node name="2" type="Label" parent="."]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 0
+theme_override_font_sizes/font_size = 20
+text = "test"
+horizontal_alignment = 1
+
+[node name="3" type="Label" parent="."]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 0
+theme_override_font_sizes/font_size = 20
+text = "test"
+horizontal_alignment = 1
+
+[node name="4" type="Label" parent="."]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 0
+theme_override_font_sizes/font_size = 20
+text = "test"
+horizontal_alignment = 1
+
+[node name="ButtonHBox1" type="HBoxContainer" parent="."]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 0
+alignment = 1
+
+[node name="ButtonVBox" type="VBoxContainer" parent="ButtonHBox1"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 0
+alignment = 1
+
+[node name="RowButton" type="Button" parent="ButtonHBox1/ButtonVBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 20
+text = "Test"
+
+[node name="ButtonHBox2" type="HBoxContainer" parent="."]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 0
+alignment = 1
+
+[node name="ButtonVBox" type="VBoxContainer" parent="ButtonHBox2"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 0
+alignment = 1
+
+[node name="RowButton" type="Button" parent="ButtonHBox2/ButtonVBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 20
+text = "Test"
