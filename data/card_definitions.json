@@ -2170,7 +2170,318 @@
 		},
 		"NOTEEND": "BANG CARDS END"
 	},
-
+	{
+		"NOTE": "C.VIPER CARDS START",
+		"id": "cviper_burningdance",
+		"type": "ultra",
+		"display_name": "Burning Dance",
+		"force_cost": 0,
+		"gauge_cost": 3,
+		"range_min": 1,
+		"range_max": 3,
+		"speed": 5,
+		"power": 5,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "during_strike",
+				"effect_type": "ignore_armor"	
+			},
+			{
+				"timing": "hit",
+				"effect_type": "push",
+				"amount": 8
+			},
+			{
+				"timing": "after",
+				"effect_type": "close",
+				"amount": 8				
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Stylish",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "powerup_opponent",
+					"amount": 3
+				},
+				{
+					"timing": "now",
+					"effect_type": "draw",
+					"amount": 3,
+					"and": {
+						"effect_type": "bonus_action"
+					}
+				}
+			]		
+		}
+	},
+	{
+		"id": "cviper_bursttime",
+		"type": "ultra",
+		"display_name": "Burst Time",
+		"force_cost": 0,
+		"gauge_cost": 4,
+		"range_min": 1,
+		"range_max": 2,
+		"speed": 2,
+		"power": 10,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "during_strike",
+				"effect_type": "stun_immunity"
+			},
+			{
+				"timing": "during_strike",
+				"condition": "no_boost_in_play",
+				"effect_type": "attack_does_not_hit"
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Exoskeleton",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "armorup",
+					"amount": 3,
+					"and": {
+						"effect_type": "guardup",
+						"amount": 1
+					}	
+				}
+			]
+		}	
+	},
+	{
+		"id": "cviper_burningkick",
+		"type": "special",
+		"display_name": "Burning Kick",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 2,
+		"range_max": 3,
+		"speed": 5,
+		"power": 4,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "hit",
+				"condition": "is_critical",
+				"effect_type": "powerup_opponent",
+				"amount": -2,
+				"and": {
+					"effect_type": "gain_advantage"
+				}
+			},
+			{
+				"timing": "after",
+				"effect_type": "close",
+				"amount": 1
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Blazing",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "powerup",
+					"amount": 1,
+					"and": {
+						"effect_type": "ignore_armor"
+					}
+				}
+			]
+		}		
+	},
+	{
+		"id": "cviper_emergencycombination",
+		"type": "special",
+		"display_name": "Emergency Combination",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 2,
+		"range_max": 3,
+		"speed": 5,
+		"power": 3,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "before",
+				"condition": "boost_in_play",
+				"effect_type": "powerup",
+				"amount": 2
+			}
+		],
+		"boost": {
+			"boost_type": "immediate",
+			"force_cost": 1,
+			"cancel_cost": -1,
+			"display_name": "Hidden Weapons",
+			"effects": [
+				{
+					"timing": "immediate",
+					"effect_type": "draw",
+					"amount": 2,
+					"and": {
+						"effect_type": "add_to_gauge_boost_play_cleanup"
+					}
+				}
+			]
+		}		
+	},
+	{
+		"id": "cviper_seismichammer",
+		"type": "special",
+		"display_name": "Seismic Hammer",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 2,
+		"range_max": 5,
+		"speed": 1,
+		"power": 5,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "during_strike",
+				"condition": "is_critical",
+				"effect_type": "speedup",
+				"amount": 3
+			},
+			{
+				"timing": "after",
+				"effect_type": "choice",
+				"choice": [
+					{ "effect_type": "advance", "amount": 1 },
+					{ "effect_type": "advance", "amount": 2 },
+					{ "effect_type": "retreat", "amount": 1 },
+					{ "effect_type": "retreat", "amount": 2 },
+					{ "effect_type": "pass" }			
+				]
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 1,
+			"cancel_cost": -1,
+			"display_name": "Blasting",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "powerup",
+					"amount": 1,
+					"and": {
+						"effect_type": "guardup",
+						"amount": 5
+					}
+				}
+			]
+		}				
+	},
+	{
+		"id": "cviper_templemassage",
+		"type": "special",
+		"display_name": "Temple Massage",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 1,
+		"speed": 4,
+		"power": 4,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "hit",
+				"condition": "is_critical",
+				"effect_type": "draw",
+				"amount": 3
+			},
+			{
+				"timing": "hit",
+				"effect_type": "force_for_effect",
+				"per_force_effect": {
+					"effect_type": "powerup",
+					"amount": 1
+				},
+				"overall_effect": null,
+				"force_max": 4
+			}
+		],
+		"boost": {
+			"boost_type": "immediate",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Cheater",
+			"effects": [
+				{
+					"timing": "immediate",
+					"effect_type": "boost_additional",
+					"limitation": "continuous",
+					"valid_zones": [ "discard" ]
+				}
+			]
+		}
+	},
+	{
+		"id": "cviper_thunderknuckle",
+		"type": "special",
+		"display_name": "Thunder Knuckle",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 1,
+		"speed": 5,
+		"power": 3,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "during_strike",
+				"condition": "is_critical",
+				"effect_type": "ignore_guard"
+			},
+			{
+				"timing": "before",
+				"effect_type": "close",
+				"amount": 1
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Electrifying",
+			"effects": [
+				{
+					"timing": "hit",
+					"effect_type": "force_for_effect",
+					"per_force_effect": {
+						"effect_type": "powerup",
+						"amount": 1
+					},
+					"overall_effect": null,
+					"force_max": 4					
+				}
+			]
+		},
+		"NOTEEND": "C.VIPER CARDS END"		
+	},
 	{
 		"NOTE": "CARLCLOVER CARDS START",
 		"id": "carlclover_deusexmachina",
@@ -10454,6 +10765,328 @@
 			]
 		},
 		"NOTEEND": "MILLIA CARDS END"
+	},
+
+
+	{
+		"NOTE": "MOLE CARDS START",
+		"id": "mole_erupt",
+		"type": "ultra",
+		"display_name": "Erupt",
+		"force_cost": 0,
+		"gauge_cost": 3,
+		"range_min": 2,
+		"range_max": 4,
+		"speed": 1,
+		"power": 8,
+		"armor": 2,
+		"guard": 5,
+		"effects": [
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 1,
+			"cancel_cost": -1,
+			"display_name": "Molten Armor",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "rangeup",
+					"amount": 0,
+					"amount2": 1
+				},
+				{
+					"timing": "when_hit",
+					"first_time_only": true,
+					"effect_type": "take_damage",
+					"opponent": true,
+					"nonlethal": true,
+					"amount": 2
+				}
+			]
+		}
+	},
+	{
+		"id": "mole_cavein",
+		"type": "ultra",
+		"display_name": "Cave In",
+		"force_cost": 0,
+		"gauge_cost": 2,
+		"range_min": 1,
+		"range_max": 3,
+		"speed": 1,
+		"power": 4,
+		"armor": 3,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "during_strike",
+				"effect_type": "opponent_cant_move_if_in_range"
+			},
+			{
+				"timing": "after",
+				"effect_type": "draw",
+				"amount": 2
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Undermine",
+			"effects": [
+				{
+					"timing": "start_of_next_turn",
+					"effect_type": "choice",
+					"choice": [
+						{
+							"effect_type": "discard_this",
+							"bonus_effect": {
+								"condition": "opponent_on_buddy_space",
+								"condition_detail": "Burrow",
+								"effect_type": "take_damage",
+								"opponent": true,
+								"nonlethal": true,
+								"amount": 4
+							}
+						},
+						{
+							"effect_type": "move_buddy",
+							"buddy_name": "Burrow",
+							"amount": 1,
+							"amount2": 1
+						}
+					]
+				}
+			]
+		}
+	},
+	{
+		"id": "mole_burrowdig",
+		"type": "special",
+		"display_name": "Burrow Dig",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 1,
+		"speed": 7,
+		"power": 3,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "hit",
+				"effect_type": "draw",
+				"amount": 1,
+				"and": {
+					"effect_type": "advance",
+					"amount": 2
+				}
+			}
+		],
+		"boost": {
+			"boost_type": "immediate",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Lost Treasure",
+			"effects": [
+				{
+					"timing": "immediate",
+					"effect_type": "choose_discard",
+					"limitation": "special/ultra",
+					"destination": "hand",
+					"amount": 1,
+					"amount_min": 1
+				},
+				{
+					"timing": "immediate",
+					"effect_type": "shuffle_discard_in_place"
+				},
+				{
+					"timing": "immediate",
+					"effect_type": "skip_end_of_turn_draw"
+				}
+			]
+		}
+	},
+	{
+		"id": "mole_headbutt",
+		"type": "special",
+		"display_name": "Headbutt",
+		"force_cost": 1,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 2,
+		"speed": 6,
+		"power": 4,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "hit",
+				"effect_type": "push",
+				"amount": 2,
+				"and": {
+					"effect_type": "choice",
+					"choice": [
+						{ "effect_type": "retreat", "amount": 1 },
+						{
+							"effect_type": "advance",
+							"amount": 2,
+							"and": {
+								"effect_type": "gain_advantage"
+							}
+						}
+					]
+				}
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 1,
+			"cancel_cost": -1,
+			"display_name": "Come At Me!",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "powerup",
+					"amount": 3
+				},
+				{
+					"timing": "start_of_next_turn",
+					"effect_type": "draw",
+					"amount": 1,
+					"and": {
+						"effect_type": "add_to_gauge_immediately"
+					}
+				}
+			]
+		}
+	},
+	{
+		"id": "mole_divingdig",
+		"type": "special",
+		"display_name": "Diving Dig",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 1,
+		"speed": 3,
+		"power": 5,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "during_strike",
+				"effect_type": "ignore_guard"
+			},
+			{
+				"timing": "hit",
+				"effect_type": "retreat",
+				"amount": 1,
+				"and": {
+					"effect_type": "opponent_discard_random",
+					"amount": 1
+				}
+			}
+		],
+		"boost": {
+			"boost_type": "immediate",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Tunneling",
+			"effects": [
+				{
+					"timing": "immediate",
+					"effect_type": "move_to_any_space",
+					"move_min": 0,
+					"move_max": 3
+				},
+				{
+					"timing": "immediate",
+					"condition": "on_buddy_space",
+					"condition_detail": "Burrow",
+					"effect_type": "add_to_gauge_boost_play_cleanup"
+				}
+			]
+		}
+	},
+	{
+		"id": "mole_blockpush",
+		"type": "special",
+		"display_name": "Block Push",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 3,
+		"range_max": 6,
+		"speed": 2,
+		"power": 5,
+		"armor": 0,
+		"guard": 6,
+		"effects": [
+			{
+				"timing": "hit",
+				"effect_type": "push",
+				"amount": 1
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 1,
+			"cancel_cost": -1,
+			"display_name": "Stockpile",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "armorup",
+					"amount": 2,
+					"and": {
+						"effect_type": "guardup",
+						"amount": 2
+					}
+				}
+			]
+		}
+	},
+	{
+		"NOTE": "MOLE CARDS END",
+		"id": "mole_bellyslide",
+		"type": "special",
+		"display_name": "Belly Slide",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 1,
+		"speed": 2,
+		"power": 4,
+		"armor": 1,
+		"guard": 5,
+		"effects": [
+			{
+				"timing": "before",
+				"effect_type": "advance",
+				"amount": 1
+			},
+			{
+				"timing": "hit",
+				"effect_type": "draw",
+				"amount": 1
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 1,
+			"cancel_cost": -1,
+			"display_name": "Tunnel Vision",
+			"effects": [
+				{
+					"timing": "before",
+					"effect_type": "advance",
+					"amount": 2
+				}
+			]
+		},
+		"NOTEEND": "MOLE CARDS END"
 	},
 
 
