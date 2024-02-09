@@ -35,6 +35,10 @@ func set_choices(instructions_text : String, choices : Array, ultra_force_toggle
 		if i < total_choices:
 			container.visible = true
 			button.disabled = 'disabled' in choices[i] and choices[i].disabled
+			if button.disabled:
+				label.modulate = Color("757575")
+			else:
+				label.modulate = Color("ffffff")
 			label.text = "[center]%s[/center]" % choices[i].text
 		else:
 			button.disabled = true
