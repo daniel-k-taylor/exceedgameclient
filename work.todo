@@ -3,7 +3,8 @@
 In progress:
     Zangief:
         ☐ Test UA and critical normal/exceed range1 bonus
-        ☐ "effect_type": "name_range",
+        ☐ "effect_type": "name_range", @started(24-02-10 03:13)
+
 
 Write tests for:
     Axl:

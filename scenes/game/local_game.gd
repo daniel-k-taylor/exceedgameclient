@@ -4292,6 +4292,83 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 				# match card.definition['id']'s instead.
 				named_card_name = named_card.definition['id']
 			events += opposing_player.discard_matching_or_reveal(named_card_name)
+		"name_range":
+			decision_info.clear()
+			decision_info.type = Enums.DecisionType.DecisionType_PickNumberFromRange
+			decision_info.player = performing_player.my_id
+			decision_info.choice_card_id = card_id
+			decision_info.effect_type = "have opponent discard a card including that Range or reveal their hand"
+			decision_info.choice = []
+			decision_info.amount_min = 0
+			decision_info.amount = 9
+			decision_info.valid_zones = ["X", "N/A"]
+
+			decision_info.limitation = []
+			for i in range(decision_info.amount + 1):
+				decision_info.limitation.append(i)
+				decision_info.choice.append({
+					"effect_type": "opponent_discard_range_or_reveal",
+					"target_range": i
+				})
+			var next_num = decision_info.amount + 1
+			for i in range(2):
+				decision_info.limitation.append(next_num)
+				decision_info.choice.append({
+					"effect_type": "opponent_discard_range_or_reveal",
+					"target_range": decision_info.valid_zones[i]
+				})
+
+			change_game_state(Enums.GameState.GameState_PlayerDecision)
+			events += [create_event(Enums.EventType.EventType_PickNumberFromRange, performing_player.my_id, 0)]
+		"opponent_discard_range_or_reveal":
+			var target_range = effect['target_range']
+			var card_ids_in_range = []
+			if target_range == "X":
+				# If the range is a string like "TOTAL_POWER".
+				for card in opposing_player.hand:
+					if card.definition['range_min'] is String or card.definition['range_max'] is String:
+						card_ids_in_range.append(card.id)
+			elif target_range == "N/A":
+				# If the range is -1 like Block.
+				for card in opposing_player.hand:
+					var card_range = card.definition['range_min']
+					if card_range is int and card_range == -1:
+						card_ids_in_range.append(card.id)
+			else:
+				# If the range is an actual number.
+				for card in opposing_player.hand:
+					var card_range_min = card.definition['range_min']
+					var card_range_max = card.definition['range_max']
+					# Some cards have mixed numbers and strings.
+					# Potentially evaluate? Currently only Phonon though and max==min if not in strike.
+					if card_range_min is int and card_range_max is int:
+						if target_range >= card_range_min and target_range <= card_range_max:
+							card_ids_in_range.append(card.id)
+					elif card_range_min is int and target_range == card_range_min:
+						card_ids_in_range.append(card.id)
+					elif card_range_max is int and target_range == card_range_max:
+						card_ids_in_range.append(card.id)
+			if card_ids_in_range.size() > 0:
+				# Opponent must choose one of these cards to discard.
+				var amount = 1
+				change_game_state(Enums.GameState.GameState_PlayerDecision)
+				decision_info.clear()
+				decision_info.type = Enums.DecisionType.DecisionType_ChooseToDiscard
+				decision_info.effect_type = "opponent_discard_choose_internal"
+				decision_info.effect = effect
+				decision_info.bonus_effect = null
+				decision_info.destination = "discard"
+				decision_info.limitation = "from_array"
+				decision_info.extra_info = "includes range %s" % target_range
+				decision_info.choice = card_ids_in_range
+				decision_info.can_pass = false
+
+				decision_info.choice_card_id = card_id
+				decision_info.player = opposing_player.my_id
+				events += [create_event(Enums.EventType.EventType_Strike_ChooseToDiscard, opposing_player.my_id, amount)]
+			else:
+				# Didn't have any that matched, so forced to reveal hand.
+				events += opposing_player.reveal_hand()
 		"reveal_copy_for_advantage":
 			var copy_id = effect['copy_id']
 			# The player has selected to reveal a copy if they have one.

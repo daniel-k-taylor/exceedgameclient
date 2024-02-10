@@ -663,7 +663,11 @@ func determine_choose_to_discard_options(me : LocalGame.Player, to_discard_count
 	var all_card_ids = []
 	for card in me.hand:
 		if limitation:
-			if card.definition['type'] != limitation:
+			if limitation == "from_array":
+				var ids = game_logic.decision_info.choice
+				if card.id not in ids:
+					continue
+			elif card.definition['type'] != limitation:
 				continue
 		all_card_ids.append(card.id)
 	to_discard_count = min(to_discard_count, all_card_ids.size())
