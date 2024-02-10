@@ -69,6 +69,7 @@
 		},
 		{
 			"timing": "on_strike_reveal",
+			"resolve_before_simultaneous_effects": true,
 			"condition": "buddy_in_play",
 			"condition_buddy_id": "ouroboros_nothing",
 			"effect_type": "remove_buddy",
