@@ -1,9 +1,6 @@
 
 
 In progress:
-    Zangief:
-        ☐ Test UA and critical normal/exceed range1 bonus
-        ☐ "effect_type": "name_range", @started(24-02-10 03:13)
 
 
 Write tests for:
@@ -47,7 +44,6 @@ Tasks:
         ☐ Range indicator between players
     ☐ Only connect to server if you enter Multiplayer
     ☐ Reorder opponent hand in a way that you can't keep track with effort
-    ☐ Always show conditional effects and allow choosing them when they fail
     ☐ Add a info screen after character select on the main menu you can click to show all card for the character.
     ☐ Combat Log always on screen?
     ☐ Faust remove boost effects needs to be reviewed, stuff like powerup_opponent and other random effects that Faust can remove mid-strike

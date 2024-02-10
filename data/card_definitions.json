@@ -19663,10 +19663,7 @@
 				{
 					"timing": "immediate",
 					"effect_type": "name_range",
-					"linked_effect": {
-						"effect_type": "opponent_discard_range_or_reveal",
-						"amount": "NAMED_RANGE"
-					}
+					"target_effect": "opponent_discard_range_or_reveal"
 				}
 			]
 		},

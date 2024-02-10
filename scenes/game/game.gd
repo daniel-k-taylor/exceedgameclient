@@ -1777,7 +1777,7 @@ func update_discard_selection_message_choose():
 	else:
 		if decision_info.limitation:
 			if decision_info.limitation == "from_array":
-				set_instructions("Select a card from your hand to discard that %s." % [decision_info.extra_info])
+				set_instructions("Select %s more card(s) that %s from your hand to move to %s." % [num_remaining, decision_info.extra_info, destination])
 			else:
 				set_instructions("Select %s more %s card(s) from your hand to move to %s%s." % [num_remaining, decision_info.limitation, destination, bonus])
 		else:
@@ -3036,7 +3036,8 @@ func _on_pick_number_from_range(event):
 			additional_choices.append({
 				"_choice_value": i + max_value + 1,
 				"_choice_text": extra_choice,
-			}
+			})
+
 	if player == Enums.PlayerId.PlayerId_Player and not observer_mode:
 		enable_instructions_ui("Pick a number from %s-%s to %s" % [str(min_value), str(max_value), decision_info.effect_type], true, false, false, false, additional_choices, true)
 		change_ui_state(UIState.UIState_MakeChoice, UISubState.UISubState_PickNumberFromRange)

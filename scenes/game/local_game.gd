@@ -117,6 +117,9 @@ func printlog(text):
 	if GlobalSettings.is_logging_enabled():
 		print(text)
 
+func is_number(test_value):
+	return test_value is int or test_value is float
+
 func create_event(event_type : Enums.EventType, event_player : Enums.PlayerId, num : int, reason: String = "", extra_info = null, extra_info2 = null, extra_info3 = null):
 	var card_name = card_db.get_card_name(num)
 	var playerstr = "Player"
@@ -754,6 +757,18 @@ class Player:
 					set_aside_cards.remove_at(i)
 				return card
 		return null
+
+	func get_card_ids_in_hand():
+		var card_ids = []
+		for card in hand:
+			card_ids.append(card.id)
+		return card_ids
+
+	func get_card_ids_in_gauge():
+		var card_ids = []
+		for card in gauge:
+			card_ids.append(card.id)
+		return card_ids
 
 	func is_set_aside_card(card_id : int):
 		for card in set_aside_cards:
@@ -4297,43 +4312,51 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 			decision_info.type = Enums.DecisionType.DecisionType_PickNumberFromRange
 			decision_info.player = performing_player.my_id
 			decision_info.choice_card_id = card_id
-			decision_info.effect_type = "have opponent discard a card including that Range or reveal their hand"
 			decision_info.choice = []
-			decision_info.amount_min = 0
-			decision_info.amount = 9
-			decision_info.valid_zones = ["X", "N/A"]
-
 			decision_info.limitation = []
-			for i in range(decision_info.amount + 1):
-				decision_info.limitation.append(i)
-				decision_info.choice.append({
-					"effect_type": "opponent_discard_range_or_reveal",
-					"target_range": i
-				})
-			var next_num = decision_info.amount + 1
-			for i in range(2):
-				decision_info.limitation.append(next_num)
-				decision_info.choice.append({
-					"effect_type": "opponent_discard_range_or_reveal",
-					"target_range": decision_info.valid_zones[i]
-				})
+			if effect['target_effect'] == "opponent_discard_range_or_reveal":
+				decision_info.amount_min = 0
+				decision_info.amount = 9
+				decision_info.valid_zones = ["Range X", "Range -"]
+				decision_info.effect_type = "have opponent discard a card including that Range or reveal their hand"
+				for i in range(decision_info.amount + 1):
+					decision_info.limitation.append(i)
+					decision_info.choice.append({
+						"effect_type": "opponent_discard_range_or_reveal",
+						"target_range": i,
+						"amount": 1
+					})
+				var next_num = decision_info.amount + 1
+				for i in range(2):
+					decision_info.limitation.append(next_num)
+					decision_info.choice.append({
+						"effect_type": "opponent_discard_range_or_reveal",
+						"target_range": decision_info.valid_zones[i],
+						"amount": 1
+					})
 
-			change_game_state(Enums.GameState.GameState_PlayerDecision)
-			events += [create_event(Enums.EventType.EventType_PickNumberFromRange, performing_player.my_id, 0)]
+				change_game_state(Enums.GameState.GameState_PlayerDecision)
+				events += [create_event(Enums.EventType.EventType_PickNumberFromRange, performing_player.my_id, 0)]
+			else:
+				assert(false, "Target effect for name_range not found.")
+				decision_info.clear()
 		"opponent_discard_range_or_reveal":
 			var target_range = effect['target_range']
 			var card_ids_in_range = []
-			if target_range == "X":
-				# If the range is a string like "TOTAL_POWER".
-				for card in opposing_player.hand:
-					if card.definition['range_min'] is String or card.definition['range_max'] is String:
-						card_ids_in_range.append(card.id)
-			elif target_range == "N/A":
-				# If the range is -1 like Block.
-				for card in opposing_player.hand:
-					var card_range = card.definition['range_min']
-					if card_range is int and card_range == -1:
-						card_ids_in_range.append(card.id)
+			if target_range is String:
+				if target_range == "Range X":
+					# If the range is a string like "TOTAL_POWER".
+					for card in opposing_player.hand:
+						if card.definition['range_min'] is String or card.definition['range_max'] is String:
+							card_ids_in_range.append(card.id)
+				elif target_range == "Range -":
+					# If the range is -1 like Block.
+					for card in opposing_player.hand:
+						var card_range = card.definition['range_min']
+						if is_number(card_range) and card_range == -1:
+							card_ids_in_range.append(card.id)
+				else:
+					assert(false, "Unknown target range")
 			else:
 				# If the range is an actual number.
 				for card in opposing_player.hand:
@@ -4341,16 +4364,16 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 					var card_range_max = card.definition['range_max']
 					# Some cards have mixed numbers and strings.
 					# Potentially evaluate? Currently only Phonon though and max==min if not in strike.
-					if card_range_min is int and card_range_max is int:
+					if is_number(card_range_min) and is_number(card_range_max):
 						if target_range >= card_range_min and target_range <= card_range_max:
 							card_ids_in_range.append(card.id)
-					elif card_range_min is int and target_range == card_range_min:
+					elif is_number(card_range_min) and target_range == card_range_min:
 						card_ids_in_range.append(card.id)
-					elif card_range_max is int and target_range == card_range_max:
+					elif is_number(card_range_max) and target_range == card_range_max:
 						card_ids_in_range.append(card.id)
 			if card_ids_in_range.size() > 0:
 				# Opponent must choose one of these cards to discard.
-				var amount = 1
+				var amount = effect['amount']
 				change_game_state(Enums.GameState.GameState_PlayerDecision)
 				decision_info.clear()
 				decision_info.type = Enums.DecisionType.DecisionType_ChooseToDiscard
@@ -4359,7 +4382,10 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 				decision_info.bonus_effect = null
 				decision_info.destination = "discard"
 				decision_info.limitation = "from_array"
-				decision_info.extra_info = "includes range %s" % target_range
+				if target_range is String:
+					decision_info.extra_info = "include %s" % target_range
+				else:
+					decision_info.extra_info = "include Range %s" % target_range
 				decision_info.choice = card_ids_in_range
 				decision_info.can_pass = false
 
@@ -8122,7 +8148,7 @@ func do_choose_to_discard(performing_player : Player, card_ids):
 		if not performing_player.is_card_in_hand(card_id):
 			printlog("ERROR: Tried to choose to discard with card not in hand.")
 			return false
-		if decision_info.limitation and not decision_info.limitation == "can_pay_cost":
+		if decision_info.limitation and not decision_info.limitation == "can_pay_cost" and not decision_info.limitation == "from_array":
 			var card = card_db.get_card(card_id)
 			if card.definition['type'] != decision_info.limitation:
 				printlog("ERROR: Tried to choose to discard with card that doesn't meet limitation.")
