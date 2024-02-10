@@ -3718,7 +3718,7 @@
 					"timing": "immediate",
 					"effect_type": "topdeck_from_hand",
 					"min_amount": 1,
-					"max_amount": 2
+					"max_amount": 1
 				},
 				{
 					"timing": "immediate",
@@ -3879,11 +3879,7 @@
 					"timing": "immediate",
 					"effect_type": "choice",
 					"choice": [
-						{ "effect_type": "advance", "amount": 1 },
-						{ "effect_type": "advance", "amount": 2 },
 						{ "effect_type": "advance", "amount": 3 },
-						{ "effect_type": "retreat", "amount": 1 },
-						{ "effect_type": "retreat", "amount": 2 },
 						{ "effect_type": "retreat", "amount": 3 }
 					]
 				},
@@ -3963,6 +3959,15 @@
 			{
 				"timing": "hit",
 				"effect_type": "discard_topdeck"
+			},
+			{
+				"timing": "hit",
+				"effect_type": "set_strike_x",
+				"source": "top_discard_power",
+				"and": {
+					"effect_type": "powerup",
+					"amount": "strike_x"
+				}
 			}
 		],
 		"boost": {
@@ -4001,11 +4006,11 @@
 		"effects": [
 			{
 				"timing": "hit",
-				"condition": "min_cards_in_hand",
-				"condition_amount": 1,
 				"effect_type": "choice",
 				"choice": [
 					{
+						"condition": "min_cards_in_hand",
+						"condition_amount": 1,
 						"effect_type": "discard_random",
 						"amount": 1,
 						"and": {
@@ -4056,7 +4061,13 @@
 			"effects": [
 				{
 					"timing": "immediate",
-					"effect_type": "look_at_top_deck"
+					"effect_type": "choose_cards_from_top_deck",
+					"look_amount": 1,
+					"action_choices": [
+						"add_to_topdeck_under"
+					],
+					"can_pass": false,
+					"destination_unchosen": "topdeck"
 				},
 				{
 					"timing": "immediate",
