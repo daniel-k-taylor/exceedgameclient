@@ -5365,6 +5365,9 @@ func change_stats_when_attack_leaves_play(performing_player : Player):
 	performing_player.strike_stat_boosts.ignore_push_and_pull = false
 	performing_player.strike_stat_boosts.when_hit_force_for_armor = false
 
+	# This currently assumes that this would always from the played attack
+	performing_player.strike_stat_boosts.higher_speed_misses = false
+
 	# If a character that can do this has Cleanup effects on the strike,
 	# this needs to be added here somehow as well.
 

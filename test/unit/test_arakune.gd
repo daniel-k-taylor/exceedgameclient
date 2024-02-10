@@ -443,6 +443,16 @@ func test_arakune_ifpthenq_go_to_overdrive_miss():
 	validate_life(player1, 30, player2, 30)
 	advance_turn(player2)
 
+func test_arakune_ifpthenq_go_to_overdrive_no_dodge():
+	position_players(player1, 3, player2, 1)
+	execute_strike(player1, player2, "arakune_ifpthenq", "standard_normal_sweep", [1, 0], [], false, false, [], [], 0, [])
+	validate_positions(player1, 3, player2, 1)
+	assert_eq(player1.gauge.size(), 0)
+	assert_eq(player1.overdrive.size(), 1)
+	assert_eq(player1.overdrive[0].id, TestCardId1)
+	validate_life(player1, 24, player2, 30)
+	advance_turn(player2)
+
 func test_arakune_ytwodash_boostandattack():
 	position_players(player1, 2, player2, 3)
 	give_player_specific_card(player1, "arakune_ytwodash", TestCardId3)
