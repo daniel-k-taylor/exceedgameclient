@@ -2707,8 +2707,19 @@
 			"display_name": "Slide",
 			"effects": [
 				{
-					"timing": "during_strike",
-					"effect_type": "slide_TODO"
+					"timing": "before",
+					"condition": "is_normal_attack",
+					"effect_type": "advance",
+					"amount": 3
+				},
+				{
+					"timing": "cleanup",
+					"condition": "is_special_or_ultra_attack",
+					"effect_type": "choice",
+					"choice": [
+						{ "effect_type": "sustain_this", "card_name": "Dive Kick" },
+						{ "effect_type": "pass" }
+					]
 				}
 			]
 		}

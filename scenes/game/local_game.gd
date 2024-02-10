@@ -627,6 +627,7 @@ class Player:
 	var starting_hand_size_bonus : int
 	var pre_strike_movement : int
 	var moved_self_this_strike : bool
+	var moved_past_this_strike : bool
 	var spaces_moved_this_strike : int
 	var spaces_moved_or_forced_this_strike : int
 	var sustained_boosts : Array
@@ -722,6 +723,7 @@ class Player:
 		wild_strike_on_boost_cleanup = false
 		pre_strike_movement = 0
 		moved_self_this_strike = false
+		moved_past_this_strike = false
 		spaces_moved_this_strike = 0
 		spaces_moved_or_forced_this_strike = 0
 		sustained_boosts = []
@@ -2930,6 +2932,8 @@ func advance_to_next_turn():
 	opponent.force_spent_before_strike = 0
 	player.moved_self_this_strike = false
 	opponent.moved_self_this_strike = false
+	player.moved_past_this_strike = false
+	opponent.moved_past_this_strike = false
 	player.spaces_moved_this_strike = 0
 	opponent.spaces_moved_this_strike = 0
 	player.spaces_moved_or_forced_this_strike = 0
@@ -3396,6 +3400,8 @@ func is_effect_condition_met(performing_player : Player, effect, local_condition
 			return local_conditions.manual_reshuffle
 		elif condition == "more_cards_than_opponent":
 			return performing_player.hand.size() > other_player.hand.size()
+		elif condition == "moved_past":
+			return performing_player.moved_past_this_strike
 		elif condition == "no_strike_caused":
 			return game_state != Enums.GameState.GameState_WaitForStrike
 		elif condition == "no_strike_this_turn":
@@ -3767,6 +3773,7 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 			_append_log_full(Enums.LogType.LogType_CharacterMovement, performing_player, "advances %s, moving from space %s to %s." % [str(amount), str(previous_location), str(new_location)])
 			if (performing_start < other_start and new_location > other_start) or (performing_start > other_start and new_location < other_start):
 				local_conditions.advanced_through = true
+				performing_player.moved_past_this_strike = true
 				if performing_player.strike_stat_boosts.range_includes_if_moved_past:
 					performing_player.strike_stat_boosts.range_includes_opponent = true
 					_append_log_full(Enums.LogType.LogType_Effect, performing_player, "advanced through the opponent, putting them in range!")
