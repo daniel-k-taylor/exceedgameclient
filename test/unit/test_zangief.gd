@@ -287,3 +287,41 @@ func test_zangief_flyingpowerbomb_boost_discard_3():
 	assert_true(game_logic.do_choice(player1, 3))
 	assert_true(game_logic.do_choose_to_discard(player2, [TestCardId2]))
 	advance_turn(player2)
+
+func test_zangief_flyingpowerbomb_boost_discard_kunzite():
+	position_players(player1, 1, player2, 3)
+	give_player_specific_card(player1, "zangief_flyingpowerbomb", TestCardId1)
+	assert_true(game_logic.do_boost(player1, TestCardId1))
+
+	player2.discard_hand()
+	give_player_specific_card(player2, "nine_kunzite", TestCardId2)
+	# Name the range 0-8 are real ranges, 9 is a valid choice but doesn't exist, 10 is X, 11 is -
+	assert_true(game_logic.do_choice(player1, 2)) # We're range 2 so kunzite should be 2
+	assert_true(game_logic.do_choose_to_discard(player2, [TestCardId2])) # If this fails, then kunzite didn't match
+	advance_turn(player2)
+
+func test_zangief_siberian_move():
+	position_players(player1, 3, player2, 6)
+	give_gauge(player1, 3)
+	give_player_specific_card(player1, "zangief_siberianblizzard", TestCardId1)
+	give_player_specific_card(player2, "standard_normal_dive", TestCardId2)
+	assert_true(game_logic.do_strike(player1, TestCardId1, false, -1))
+	assert_true(game_logic.do_gauge_for_effect(player1, [])) # Skip critical
+	assert_true(game_logic.do_strike(player2, TestCardId2, false, -1))
+	assert_eq(player1.hand.size(), 5)
+	assert_true(game_logic.do_pay_strike_cost(player1, player1.get_card_ids_in_gauge(), false))
+	assert_eq(player1.hand.size(), 7)
+	validate_positions(player1, 3, player2, 4)
+	validate_life(player1, 25, player2, 22)
+	# Player 2, make sure we can move past them.
+	assert_true(game_logic.do_move(player2, [player2.hand[0].id, player2.hand[1].id], 2))
+	validate_positions(player1, 3, player2, 2)
+	give_player_specific_card(player1, "standard_normal_sweep", TestCardId3)
+	give_player_specific_card(player2, "standard_normal_dive", TestCardId4)
+	assert_true(game_logic.do_strike(player1, TestCardId3, false, -1))
+	assert_true(game_logic.do_gauge_for_effect(player1, [])) # Skip critical
+	assert_true(game_logic.do_strike(player2, TestCardId4, false, -1))
+	assert_true(game_logic.do_gauge_for_effect(player2, [])) # Skip critical
+	validate_positions(player1, 3, player2, 6)
+	validate_life(player1, 25, player2, 22)
+	advance_turn(player2)

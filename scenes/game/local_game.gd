@@ -4343,7 +4343,7 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 			if effect['target_effect'] == "opponent_discard_range_or_reveal":
 				decision_info.amount_min = 0
 				decision_info.amount = 9
-				decision_info.valid_zones = ["Range X", "Range -"]
+				decision_info.valid_zones = ["Range X", "Range N/A (-)"]
 				decision_info.effect_type = "have opponent discard a card including that Range or reveal their hand"
 				for i in range(decision_info.amount + 1):
 					decision_info.limitation.append(i)
@@ -4368,6 +4368,10 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 				decision_info.clear()
 		"opponent_discard_range_or_reveal":
 			var target_range = effect['target_range']
+			var range_name_str = target_range
+			if not target_range is String:
+				range_name_str = "Range %s" % target_range
+			_append_log_full(Enums.LogType.LogType_Effect, performing_player, "names %s." % range_name_str)
 			var card_ids_in_range = []
 			if target_range is String:
 				if target_range == "Range X":
@@ -4375,7 +4379,7 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 					for card in opposing_player.hand:
 						if card.definition['range_min'] is String or card.definition['range_max'] is String:
 							card_ids_in_range.append(card.id)
-				elif target_range == "Range -":
+				elif target_range == "Range N/A (-)":
 					# If the range is -1 like Block.
 					for card in opposing_player.hand:
 						var card_range = card.definition['range_min']
@@ -4390,6 +4394,10 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 					var card_range_max = card.definition['range_max']
 					# Some cards have mixed numbers and strings.
 					# Potentially evaluate? Currently only Phonon though and max==min if not in strike.
+					if card_range_min is String and card_range_min == "RANGE_TO_OPPONENT":
+						card_range_min = performing_player.distance_to_opponent()
+					if card_range_max is String and card_range_max == "RANGE_TO_OPPONENT":
+						card_range_max = performing_player.distance_to_opponent()
 					if is_number(card_range_min) and is_number(card_range_max):
 						if target_range >= card_range_min and target_range <= card_range_max:
 							card_ids_in_range.append(card.id)
@@ -4420,6 +4428,7 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 				events += [create_event(Enums.EventType.EventType_Strike_ChooseToDiscard, opposing_player.my_id, amount)]
 			else:
 				# Didn't have any that matched, so forced to reveal hand.
+				_append_log_full(Enums.LogType.LogType_Effect, opposing_player, "has no matching cards so their hand is revealed.")
 				events += opposing_player.reveal_hand()
 		"reveal_copy_for_advantage":
 			var copy_id = effect['copy_id']

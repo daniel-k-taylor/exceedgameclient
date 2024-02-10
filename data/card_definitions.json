@@ -19421,11 +19421,7 @@
 				"effect_type": "opponent_cant_move_past"
 			},
 			{
-				"timing": "now",
-				"effect_type": "opponent_cant_move_past"
-			},
-			{
-				"timing": "discarded",
+				"timing": "cleanup",
 				"effect_type": "remove_opponent_cant_move_past"
 			},
 			{
