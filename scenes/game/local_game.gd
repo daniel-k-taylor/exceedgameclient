@@ -1196,6 +1196,9 @@ class Player:
 				"ultra":
 					if card.definition['type'] == "ultra":
 						count += 1
+				"special/ultra":
+					if card.definition['type'] == "special" or card.definition['type'] == "ultra":
+						count += 1
 				"continuous":
 					if card.definition['boost']['boost_type'] == "continuous":
 						count += 1
@@ -1213,6 +1216,9 @@ class Player:
 				"special":
 					if card.definition['type'] == "special":
 						count += 1
+				"special/ultra":
+					if card.definition['type'] == "special" or card.definition['type'] == "ultra":
+						count += 1
 				"ultra":
 					if card.definition['type'] == "ultra":
 						count += 1
@@ -1229,6 +1235,9 @@ class Player:
 						cards.append(card)
 				"ultra":
 					if card.definition['type'] == "ultra":
+						cards.append(card)
+				"special/ultra":
+					if card.definition['type'] == "special" or card.definition['type'] == "ultra":
 						cards.append(card)
 				"can_pay_cost":
 					var gauge_cost = parent.get_gauge_cost(self, card)

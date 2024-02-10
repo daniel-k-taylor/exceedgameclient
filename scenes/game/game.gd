@@ -744,11 +744,14 @@ func can_select_card(card):
 		UISubState.UISubState_SelectCards_DiscardCards_Choose:
 			var limitation = game_wrapper.get_decision_info().limitation
 			var meets_limitation = true
+			var card_type = game_wrapper.get_card_database().get_card(card.card_id).definition['type']
 			match limitation:
 				"ultra":
-					meets_limitation = game_wrapper.get_card_database().get_card(card.card_id).definition['type'] == "ultra"
+					meets_limitation = card_type == "ultra"
 				"special":
-					meets_limitation = game_wrapper.get_card_database().get_card(card.card_id).definition['type'] == "special"
+					meets_limitation = card_type == "special"
+				"special/ultra":
+					meets_limitation = card_type in ["special", "ultra"]
 				"from_array":
 					var card_ids = game_wrapper.get_decision_info().choice
 					meets_limitation = card.card_id in card_ids
