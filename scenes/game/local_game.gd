@@ -507,6 +507,7 @@ class StrikeStatBoosts:
 		if not is_ex:
 			speed += 1
 			power += 1
+			power_positive_only += 1
 			armor += 1
 			guard += 1
 			is_ex = true
@@ -517,6 +518,7 @@ class StrikeStatBoosts:
 			is_ex = false
 			speed -= 1
 			power -= 1
+			power_positive_only -= 1
 			armor -= 1
 			guard -= 1
 
