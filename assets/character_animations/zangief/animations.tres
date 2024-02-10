@@ -1,0 +1,41 @@
+[gd_resource type="SpriteFrames" load_steps=6 format=3 uid="uid://bd760g2ikmf2f"]
+
+[ext_resource type="Texture2D" uid="uid://dj6pkflwcobab" path="res://assets/character_animations/zangief/idle.png" id="1_v2yek"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_auq2j"]
+atlas = ExtResource("1_v2yek")
+region = Rect2(0, 0, 440, 577)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_ewsc1"]
+atlas = ExtResource("1_v2yek")
+region = Rect2(440, 0, 440, 577)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_mecbq"]
+atlas = ExtResource("1_v2yek")
+region = Rect2(0, 577, 440, 577)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_t4jk8"]
+atlas = ExtResource("1_v2yek")
+region = Rect2(440, 577, 440, 577)
+
+[resource]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_auq2j")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_ewsc1")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_mecbq")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_t4jk8")
+}],
+"loop": true,
+"name": &"idle",
+"speed": 5.0
+}]
+metadata/flip = true
+metadata/scaling = 0.5
