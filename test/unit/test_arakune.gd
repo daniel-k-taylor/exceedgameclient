@@ -315,6 +315,7 @@ func test_arakune_exceed_and_strike_with_bonus_wildswing_finverse_wildswing():
 	# Pay cost wild swing into assault
 	assert_true(game_logic.do_pay_strike_cost(player1, [], true))
 	# p2 hits with grasp
+	handle_simultaneous_effects(player1, player2, [])
 	assert_true(game_logic.do_choice(player2, 1))
 	validate_positions(player1, 3, player2, 4)
 	validate_life(player1, 30, player2, 24)
@@ -521,6 +522,7 @@ func test_arakune_piecewise_odd_miss():
 	assert_true(game_logic.do_force_for_effect(player1, [player1.hand[0].id], false))
 	# miss, after advance/retreat
 	assert_true(game_logic.do_choice(player1, 0))
+	handle_simultaneous_effects(player1, player2, [])
 	validate_positions(player1, 5, player2, 3)
 	assert_eq(player1.gauge.size(), 0)
 	assert_eq(player2.gauge.size(), 1)
@@ -540,6 +542,7 @@ func test_arakune_piecewise_even_hit():
 	assert_eq(player1.overdrive[0].id, discarded_id)
 	#advance/retreat
 	assert_true(game_logic.do_choice(player1, 0))
+	handle_simultaneous_effects(player1, player2, [])
 	validate_positions(player1, 5, player2, 4)
 	assert_eq(player1.gauge.size(), 1)
 	assert_eq(player2.gauge.size(), 1)

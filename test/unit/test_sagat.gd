@@ -238,6 +238,7 @@ func test_sagat_low_tiger_shot_recurs_no_discard():
 	assert_true(game_logic.do_choice(player1, 0))
 	assert_true(game_logic.do_strike(player2, TestCardId2, false, -1))
 	# After, recur choice
+	handle_simultaneous_effects(player1, player2)
 	assert_true(game_logic.do_choice(player1, 0))
 	assert_eq(player1.gauge.size(), 0)
 	assert_eq(player1.deck[0].definition['id'], "sagat_lowtigershot")
@@ -256,6 +257,7 @@ func test_sagat_low_tiger_shot_recurs():
 	assert_true(game_logic.do_choice(player1, 0))
 	assert_true(game_logic.do_strike(player2, TestCardId2, false, -1))
 	# After, recur choice
+	handle_simultaneous_effects(player1, player2)
 	assert_true(game_logic.do_choice(player1, 0))
 	assert_eq(player1.gauge.size(), 1)
 	assert_eq(player1.deck[0].definition['id'], "sagat_lowtigershot")

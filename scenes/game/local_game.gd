@@ -5611,17 +5611,22 @@ func get_base_remaining_effect(effect):
 					return remaining_effect
 	return effect
 
-func get_next_remaining_effects_to_choose(performing_player : Player):
+func sort_next_remaining_effects_to_choose(performing_player : Player):
 	var remaining_effects = active_strike.remaining_effect_list
 	if active_strike.extra_attack_in_progress:
 		remaining_effects = active_strike.extra_attack_remaining_effects
 
-	var effects_to_choose = []
+	var effects_to_choose = {
+		"condition_met": [],
+		"condition_unmet": []
+	}
 	for effect in remaining_effects:
 		if is_effect_condition_met(performing_player, effect, null):
-			effects_to_choose.append(effect)
+			effects_to_choose["condition_met"].append(effect)
 		elif 'negative_condition_effect' in effect and is_effect_condition_met(performing_player, effect['negative_condition_effect'], null):
-			effects_to_choose.append(effect['negative_condition_effect'])
+			effects_to_choose["condition_met"].append(effect['negative_condition_effect'])
+		else:
+			effects_to_choose["condition_unmet"].append(effect)
 	return effects_to_choose
 
 func reset_remaining_effects():
@@ -5645,30 +5650,39 @@ func do_remaining_effects(performing_player : Player, next_state):
 			# If more than 1, send only those choices to the player.
 			# If only 1 does, remove it from the list and do it immediately.
 			# If none do, this is over, clear out the list.
-			var effects_to_choose = get_next_remaining_effects_to_choose(performing_player)
+			var effects_to_choose = sort_next_remaining_effects_to_choose(performing_player)
+			var condition_met_effects = effects_to_choose["condition_met"]
+			var condition_unmet_effects = effects_to_choose["condition_unmet"]
 
 			# Check if any of these effects want to be resolved immediately
 			# If so, just pick the first one.
 			# This is done to reduce unnecessary choice dialogs for the user (ie. exceed Hazama).
-			if effects_to_choose.size() > 1:
-				for effect in effects_to_choose:
+			if condition_met_effects.size() + condition_unmet_effects.size() > 1:
+				for effect in condition_met_effects + condition_unmet_effects:
 					if 'resolve_before_simultaneous_effects' in effect and effect['resolve_before_simultaneous_effects']:
-						effects_to_choose = [effect]
+						condition_met_effects = [effect]
+						condition_unmet_effects = []
 						break
 
-			if effects_to_choose.size() > 1:
+			if condition_met_effects.size() + condition_unmet_effects.size() > 1:
 				# Send choice to player
 				change_game_state(Enums.GameState.GameState_PlayerDecision)
+				decision_info.clear()
 				decision_info.type = Enums.DecisionType.DecisionType_ChooseSimultaneousEffect
 				decision_info.player = performing_player.my_id
 				decision_info.choice = []
-				for effect in effects_to_choose:
+				decision_info.limitation = []
+				for effect in condition_met_effects:
 					decision_info.choice.append(get_base_remaining_effect(effect))
+					decision_info.limitation.append(true)
+				for effect in condition_unmet_effects:
+					decision_info.choice.append(get_base_remaining_effect(effect))
+					decision_info.limitation.append(false)
 				events += [create_event(Enums.EventType.EventType_Strike_EffectChoice, performing_player.my_id, 0, "EffectOrder")]
 				break
-			elif effects_to_choose.size() == 1:
+			elif condition_met_effects.size() == 1:
 				# Use the base effect to account for negative effects.
-				var effect = get_base_remaining_effect(effects_to_choose[0])
+				var effect = get_base_remaining_effect(condition_met_effects[0])
 				erase_remaining_effect(effect)
 				events += do_effect_if_condition_met(performing_player, effect['card_id'], effect, null)
 
