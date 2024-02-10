@@ -19,6 +19,28 @@ const CenterArenaLocation = 5
 const MaxArenaLocation = 9
 const ShuffleEnabled = true
 
+# Conditions that shouldn't change during a strike
+const StrikeStaticConditions = [
+	"is_critical", "is_not_critical",
+	"was_hit",
+	"initiated_strike", "not_initiated_strike",
+	"exceeded", "not_exceeded",
+	"buddy_in_play",
+	"used_character_bonus",
+	"used_character_action",
+	"hit_opponent",
+	"opponent_stunned",
+	"initiated_face_up",
+	"stunned", "not_stunned",
+	"initiated_after_moving",
+	"was_wild_swing",
+	"last_turn_was_strike",
+	"speed_greater_than",
+	"is_special_or_ultra_attack", "is_normal_attack", "is_special_attack",
+	"discarded_matches_attack_speed",
+	"canceled_this_turn"
+]
+
 var event_queue = []
 
 func get_latest_events() -> Array:
@@ -5634,7 +5656,10 @@ func sort_next_remaining_effects_to_choose(performing_player : Player):
 		elif 'negative_condition_effect' in effect and is_effect_condition_met(performing_player, effect['negative_condition_effect'], null):
 			effects_to_choose["condition_met"].append(effect['negative_condition_effect'])
 		else:
-			effects_to_choose["condition_unmet"].append(effect)
+			# Should only be here if there was an effect that wasn't met
+			assert("condition" in effect)
+			if effect["condition"] not in StrikeStaticConditions:
+				effects_to_choose["condition_unmet"].append(effect)
 	return effects_to_choose
 
 func reset_remaining_effects():

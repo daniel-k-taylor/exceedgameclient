@@ -2323,7 +2323,7 @@ func _on_effect_choice(event):
 				if effect_met:
 					extra_choice_text.append("")
 				else:
-					extra_choice_text.append("[color=red][lb]Condition Unmet[rb][/color] ")
+					extra_choice_text.append("[color=red][lb]FAILS[rb][/color] ")
 
 		if event['reason'] == "Duplicate":
 			instruction_text = "Select which effect to copy:"
