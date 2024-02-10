@@ -744,11 +744,17 @@ func can_select_card(card):
 		UISubState.UISubState_SelectCards_DiscardCards_Choose:
 			var limitation = game_wrapper.get_decision_info().limitation
 			var meets_limitation = true
+			var card_type = game_wrapper.get_card_database().get_card(card.card_id).definition['type']
 			match limitation:
 				"ultra":
-					meets_limitation = game_wrapper.get_card_database().get_card(card.card_id).definition['type'] == "ultra"
+					meets_limitation = card_type == "ultra"
 				"special":
-					meets_limitation = game_wrapper.get_card_database().get_card(card.card_id).definition['type'] == "special"
+					meets_limitation = card_type == "special"
+				"special/ultra":
+					meets_limitation = card_type in ["special", "ultra"]
+				"from_array":
+					var card_ids = game_wrapper.get_decision_info().choice
+					meets_limitation = card.card_id in card_ids
 				_:
 					meets_limitation = true
 			return in_hand and meets_limitation and len(selected_cards) < select_card_require_max
@@ -1774,7 +1780,10 @@ func update_discard_selection_message_choose():
 		set_instructions("Select a card from your hand to move to play as an extra attack.")
 	else:
 		if decision_info.limitation:
-			set_instructions("Select %s more %s card(s) from your hand to move to %s%s." % [num_remaining, decision_info.limitation, destination, bonus])
+			if decision_info.limitation == "from_array":
+				set_instructions("Select %s more card(s) that %s from your hand to move to %s." % [num_remaining, decision_info.extra_info, destination])
+			else:
+				set_instructions("Select %s more %s card(s) from your hand to move to %s%s." % [num_remaining, decision_info.limitation, destination, bonus])
 		else:
 			set_instructions("Select %s more card(s) from your hand to move to %s%s." % [num_remaining, destination, bonus])
 
@@ -2864,6 +2873,9 @@ func _update_buttons():
 		if current_effect_extra_choice_text:
 			card_text = current_effect_extra_choice_text[i]
 
+		var choice_value = i
+		if "_choice_value" in choice:
+			choice_value = choice["_choice_value"]
 		if "_choice_text" in choice:
 			card_text += choice["_choice_text"]
 		else:
@@ -2890,7 +2902,7 @@ func _update_buttons():
 		if "_choice_func" in choice:
 			button_choices.append({ "text": card_text, "action": choice["_choice_func"], "disabled": disabled })
 		else:
-			button_choices.append({ "text": card_text, "action": func(): _on_choice_pressed(i), "disabled": disabled })
+			button_choices.append({ "text": card_text, "action": func(): _on_choice_pressed(choice_value), "disabled": disabled })
 
 	# Set the Action Menu state
 	var action_menu_hidden = false
@@ -3035,8 +3047,19 @@ func _on_pick_number_from_range(event):
 	var decision_info = game_wrapper.get_decision_info()
 	var min_value = decision_info.amount_min
 	var max_value = decision_info.amount
+	var additional_choices = []
+	if decision_info.valid_zones:
+		# Extra options outside of the number picker.
+		# Add these as extra choice buttons.
+		for i in range(decision_info.valid_zones.size()):
+			var extra_choice = decision_info.valid_zones[i]
+			additional_choices.append({
+				"_choice_value": i + max_value + 1,
+				"_choice_text": extra_choice,
+			})
+
 	if player == Enums.PlayerId.PlayerId_Player and not observer_mode:
-		enable_instructions_ui("Pick a number from %s-%s to %s" % [str(min_value), str(max_value), decision_info.effect_type], true, false, false, false, [], true)
+		enable_instructions_ui("Pick a number from %s-%s to %s" % [str(min_value), str(max_value), decision_info.effect_type], true, false, false, false, additional_choices, true)
 		change_ui_state(UIState.UIState_MakeChoice, UISubState.UISubState_PickNumberFromRange)
 	else:
 		ai_pick_number_from_range(decision_info.limitation, decision_info.choice)
@@ -3049,10 +3072,6 @@ func handle_pick_range_ok():
 		if decision_info.limitation[i] == chosen_number:
 			choice_index = i
 			break
-
-	# Make sure to unset these so the UI goes away.
-	instructions_number_picker_min = -1
-	instructions_number_picker_max = -1
 
 	_on_choice_pressed(choice_index)
 
@@ -3121,8 +3140,12 @@ func _on_character_action_pressed(action_idx : int = 0):
 		_update_buttons()
 
 func _on_choice_pressed(choice):
+	# Make sure to unset these so the UI goes away.
 	current_effect_choices = []
 	current_effect_extra_choice_text = []
+	instructions_number_picker_min = -1
+	instructions_number_picker_max = -1
+
 	var success = game_wrapper.submit_choice(Enums.PlayerId.PlayerId_Player, choice)
 	if success:
 		change_ui_state(UIState.UIState_WaitForGameServer)

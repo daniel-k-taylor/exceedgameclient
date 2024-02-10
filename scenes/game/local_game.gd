@@ -139,6 +139,9 @@ func printlog(text):
 	if GlobalSettings.is_logging_enabled():
 		print(text)
 
+func is_number(test_value):
+	return test_value is int or test_value is float
+
 func create_event(event_type : Enums.EventType, event_player : Enums.PlayerId, num : int, reason: String = "", extra_info = null, extra_info2 = null, extra_info3 = null):
 	var card_name = card_db.get_card_name(num)
 	var playerstr = "Player"
@@ -779,6 +782,18 @@ class Player:
 				return card
 		return null
 
+	func get_card_ids_in_hand():
+		var card_ids = []
+		for card in hand:
+			card_ids.append(card.id)
+		return card_ids
+
+	func get_card_ids_in_gauge():
+		var card_ids = []
+		for card in gauge:
+			card_ids.append(card.id)
+		return card_ids
+
 	func is_set_aside_card(card_id : int):
 		for card in set_aside_cards:
 			if card.id == card_id:
@@ -1181,6 +1196,9 @@ class Player:
 				"ultra":
 					if card.definition['type'] == "ultra":
 						count += 1
+				"special/ultra":
+					if card.definition['type'] == "special" or card.definition['type'] == "ultra":
+						count += 1
 				"continuous":
 					if card.definition['boost']['boost_type'] == "continuous":
 						count += 1
@@ -1198,6 +1216,9 @@ class Player:
 				"special":
 					if card.definition['type'] == "special":
 						count += 1
+				"special/ultra":
+					if card.definition['type'] == "special" or card.definition['type'] == "ultra":
+						count += 1
 				"ultra":
 					if card.definition['type'] == "ultra":
 						count += 1
@@ -1214,6 +1235,9 @@ class Player:
 						cards.append(card)
 				"ultra":
 					if card.definition['type'] == "ultra":
+						cards.append(card)
+				"special/ultra":
+					if card.definition['type'] == "special" or card.definition['type'] == "ultra":
 						cards.append(card)
 				"can_pay_cost":
 					var gauge_cost = parent.get_gauge_cost(self, card)
@@ -4318,6 +4342,98 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 				# match card.definition['id']'s instead.
 				named_card_name = named_card.definition['id']
 			events += opposing_player.discard_matching_or_reveal(named_card_name)
+		"name_range":
+			decision_info.clear()
+			decision_info.type = Enums.DecisionType.DecisionType_PickNumberFromRange
+			decision_info.player = performing_player.my_id
+			decision_info.choice_card_id = card_id
+			decision_info.choice = []
+			decision_info.limitation = []
+			if effect['target_effect'] == "opponent_discard_range_or_reveal":
+				decision_info.amount_min = 0
+				decision_info.amount = 9
+				decision_info.valid_zones = ["Range X", "Range N/A (-)"]
+				decision_info.effect_type = "have opponent discard a card including that Range or reveal their hand"
+				for i in range(decision_info.amount + 1):
+					decision_info.limitation.append(i)
+					decision_info.choice.append({
+						"effect_type": "opponent_discard_range_or_reveal",
+						"target_range": i,
+						"amount": 1
+					})
+				var next_num = decision_info.amount + 1
+				for i in range(2):
+					decision_info.limitation.append(next_num)
+					decision_info.choice.append({
+						"effect_type": "opponent_discard_range_or_reveal",
+						"target_range": decision_info.valid_zones[i],
+						"amount": 1
+					})
+
+				change_game_state(Enums.GameState.GameState_PlayerDecision)
+				events += [create_event(Enums.EventType.EventType_PickNumberFromRange, performing_player.my_id, 0)]
+			else:
+				assert(false, "Target effect for name_range not found.")
+				decision_info.clear()
+		"opponent_discard_range_or_reveal":
+			var target_range = effect['target_range']
+			var range_name_str = target_range
+			if not target_range is String:
+				range_name_str = "Range %s" % target_range
+			_append_log_full(Enums.LogType.LogType_Effect, performing_player, "names %s." % range_name_str)
+			var card_ids_in_range = []
+			if target_range is String:
+				if target_range == "Range X":
+					# If the range is a string like "TOTAL_POWER".
+					for card in opposing_player.hand:
+						if card.definition['range_min'] is String or card.definition['range_max'] is String:
+							card_ids_in_range.append(card.id)
+				elif target_range == "Range N/A (-)":
+					# If the range is -1 like Block.
+					for card in opposing_player.hand:
+						var card_range = card.definition['range_min']
+						if is_number(card_range) and card_range == -1:
+							card_ids_in_range.append(card.id)
+				else:
+					assert(false, "Unknown target range")
+			else:
+				# If the range is an actual number.
+				for card in opposing_player.hand:
+					# Evaluate any special ranges via get_card_stat.
+					var card_range_min = get_card_stat(opposing_player, card, 'range_min')
+					var card_range_max = get_card_stat(opposing_player, card, 'range_max')
+					if is_number(card_range_min) and is_number(card_range_max):
+						if target_range >= card_range_min and target_range <= card_range_max:
+							card_ids_in_range.append(card.id)
+					elif is_number(card_range_min) and target_range == card_range_min:
+						card_ids_in_range.append(card.id)
+					elif is_number(card_range_max) and target_range == card_range_max:
+						card_ids_in_range.append(card.id)
+			if card_ids_in_range.size() > 0:
+				# Opponent must choose one of these cards to discard.
+				var amount = effect['amount']
+				change_game_state(Enums.GameState.GameState_PlayerDecision)
+				decision_info.clear()
+				decision_info.type = Enums.DecisionType.DecisionType_ChooseToDiscard
+				decision_info.effect_type = "opponent_discard_choose_internal"
+				decision_info.effect = effect
+				decision_info.bonus_effect = null
+				decision_info.destination = "discard"
+				decision_info.limitation = "from_array"
+				if target_range is String:
+					decision_info.extra_info = "include %s" % target_range
+				else:
+					decision_info.extra_info = "include Range %s" % target_range
+				decision_info.choice = card_ids_in_range
+				decision_info.can_pass = false
+
+				decision_info.choice_card_id = card_id
+				decision_info.player = opposing_player.my_id
+				events += [create_event(Enums.EventType.EventType_Strike_ChooseToDiscard, opposing_player.my_id, amount)]
+			else:
+				# Didn't have any that matched, so forced to reveal hand.
+				_append_log_full(Enums.LogType.LogType_Effect, opposing_player, "has no matching cards so their hand is revealed.")
+				events += opposing_player.reveal_hand()
 		"reveal_copy_for_advantage":
 			var copy_id = effect['copy_id']
 			# The player has selected to reveal a copy if they have one.
@@ -5480,7 +5596,7 @@ func get_card_stat(check_player : Player, card : GameCard, stat : String) -> int
 	elif str(value) == "CARDS_IN_HAND":
 		value = check_player.hand.size()
 	elif str(value) == "TOTAL_POWER":
-		value = get_total_power(check_player)
+		value = get_total_power(check_player, card)
 	elif str(value) == "RANGE_TO_OPPONENT":
 		value = check_player.distance_to_opponent()
 	return value
@@ -6028,13 +6144,16 @@ func in_range(attacking_player, defending_player, card, combat_logging=false):
 
 	return opponent_in_range
 
-func get_total_power(performing_player : Player):
+func get_total_power(performing_player : Player, card : GameCard = null):
 	if performing_player.strike_stat_boosts.overwrite_total_power:
 		return performing_player.strike_stat_boosts.overwritten_total_power
 
-	var card = active_strike.get_player_card(performing_player)
-	if active_strike.extra_attack_in_progress:
-		card = active_strike.extra_attack_card
+	assert(card or active_strike, "ERROR: No card or active strike to get power from.")
+	if active_strike:
+		card = active_strike.get_player_card(performing_player)
+		if active_strike.extra_attack_in_progress:
+			card = active_strike.extra_attack_card
+
 	var power = get_card_stat(performing_player, card, 'power')
 	# If some character multiplies both all bonuses and positive bonuses, that will need to be considered carefully.
 	# For now, just assert we're not doing that.
@@ -6048,7 +6167,7 @@ func get_total_power(performing_player : Player):
 	positive_multiplier_bonus *= (performing_player.strike_stat_boosts.power_bonus_multiplier_positive_only - 1)
 	power_modifier += positive_multiplier_bonus
 
-	if active_strike.extra_attack_in_progress:
+	if active_strike and active_strike.extra_attack_in_progress:
 		# If an extra attack character has ways to get power multipliers, deal with that then.
 		power_modifier = performing_player.strike_stat_boosts.power - active_strike.extra_attack_previous_attack_power_bonus
 	return power + power_modifier
@@ -8095,7 +8214,7 @@ func do_choose_to_discard(performing_player : Player, card_ids):
 		if not performing_player.is_card_in_hand(card_id):
 			printlog("ERROR: Tried to choose to discard with card not in hand.")
 			return false
-		if decision_info.limitation and not decision_info.limitation == "can_pay_cost":
+		if decision_info.limitation and not decision_info.limitation == "can_pay_cost" and not decision_info.limitation == "from_array":
 			var card = card_db.get_card(card_id)
 			if card.definition['type'] != decision_info.limitation:
 				printlog("ERROR: Tried to choose to discard with card that doesn't meet limitation.")

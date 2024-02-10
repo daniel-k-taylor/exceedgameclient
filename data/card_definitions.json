@@ -19360,6 +19360,313 @@
 
 
 	{
+		"NOTE": "ZANGIEF CARDS START",
+		"id": "zangief_ultimateatomicbuster",
+		"type": "ultra",
+		"display_name": "Ultimate Atomic Buster",
+		"force_cost": 0,
+		"gauge_cost": 4,
+		"range_min": 1,
+		"range_max": 1,
+		"speed": 5,
+		"power": 11,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "hit",
+				"effect_type": "discard_hand",
+				"and": {
+					"effect_type": "opponent_discard_hand"
+				}
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Super Armor",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "powerup",
+					"amount": 1,
+					"and": {
+						"effect_type": "stun_immunity"
+					}
+				},
+				{
+					"timing": "after",
+					"condition": "was_hit",
+					"effect_type": "add_boost_to_gauge_on_strike_cleanup"
+				}
+			]
+		}
+	},
+	{
+		"id": "zangief_siberianblizzard",
+		"type": "ultra",
+		"display_name": "Siberian Blizzard",
+		"force_cost": 0,
+		"gauge_cost": 3,
+		"range_min": 1,
+		"range_max": 1,
+		"speed": 2,
+		"power": 8,
+		"armor": 0,
+		"guard": 6,
+		"effects": [
+			{
+				"timing": "during_strike",
+				"effect_type": "opponent_cant_move_past"
+			},
+			{
+				"timing": "cleanup",
+				"effect_type": "remove_opponent_cant_move_past"
+			},
+			{
+				"timing": "before",
+				"effect_type": "close",
+				"amount": 1
+			},
+			{
+				"timing": "hit",
+				"effect_type": "draw",
+				"amount": 2
+			}
+		],
+		"boost": {
+			"boost_type": "immediate",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Jump In",
+			"effects": [
+				{
+					"timing": "immediate",
+					"effect_type": "advance",
+					"amount": 1,
+					"and": {
+						"effect_type": "draw",
+						"amount": 3
+					}
+				}
+			]
+		}
+	},
+	{
+		"id": "zangief_atomicsuplex",
+		"type": "special",
+		"display_name": "Atomic Suplex",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 1,
+		"speed": 6,
+		"power": 4,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "hit",
+				"effect_type": "push",
+				"amount": 3
+			},
+			{
+				"timing": "after",
+				"condition": "is_critical",
+				"effect_type": "close",
+				"amount": 3
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 1,
+			"cancel_cost": -1,
+			"display_name": "Siberian Fortitude",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "armorup",
+					"amount": 2
+				},
+				{
+					"timing": "now",
+					"effect_type": "close",
+					"amount": 2
+				}
+			]
+		}
+	},
+	{
+		"id": "zangief_banishingflat",
+		"type": "special",
+		"display_name": "Banishing Flat",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 2,
+		"range_max": 3,
+		"speed": 4,
+		"power": 4,
+		"armor": 0,
+		"guard": 5,
+		"effects": [
+			{
+				"timing": "during_strike",
+				"condition": "is_critical",
+				"effect_type": "dodge_at_range",
+				"range_min": 4,
+				"range_max": 9
+			},
+			{
+				"timing": "after",
+				"effect_type": "close",
+				"amount": 2
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 1,
+			"cancel_cost": -1,
+			"display_name": "Reach",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "rangeup",
+					"amount": 0,
+					"amount2": 1
+				},
+				{
+					"timing": "now",
+					"effect_type": "strike"
+				}
+			]
+		}
+	},
+	{
+		"id": "zangief_spinningpiledriver",
+		"type": "special",
+		"display_name": "Spinning Piledriver",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 1,
+		"speed": 4,
+		"power": 5,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "during_strike",
+				"effect_type": "ignore_armor",
+				"and": {
+					"effect_type": "ignore_guard"
+				}
+			},
+			{
+				"timing": "hit",
+				"effect_type": "opponent_discard_random",
+				"amount": 1
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Thick Skinned",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "armorup",
+					"amount": 2
+				},
+				{
+					"timing": "after",
+					"condition": "was_hit",
+					"effect_type": "add_boost_to_gauge_on_strike_cleanup"
+				}
+			]
+		}
+	},
+	{
+		"id": "zangief_doublelariat",
+		"type": "special",
+		"display_name": "Double Lariat",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 2,
+		"speed": 2,
+		"power": 5,
+		"armor": 1,
+		"guard": 6,
+		"effects": [
+			{
+				"timing": "during_strike",
+				"effect_type": "ignore_push_and_pull"
+			},
+			{
+				"timing": "after",
+				"condition": "is_critical",
+				"effect_type": "move_to_any_space",
+				"move_min": 1,
+				"move_max": 2
+			}
+		],
+		"boost": {
+			"boost_type": "immediate",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Ki Charge",
+			"effects": [
+				{
+					"timing": "immediate",
+					"effect_type": "add_to_gauge_immediately"
+				}
+			]
+		}
+	},
+	{
+		"NOTE": "ZANGIEF CARDS END",
+		"id": "zangief_flyingpowerbomb",
+		"type": "special",
+		"display_name": "Flying Power Bomb",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 1,
+		"speed": 2,
+		"power": 6,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "during_strike",
+				"condition": "is_critical",
+				"effect_type": "stun_immunity"
+			},
+			{
+				"timing": "before",
+				"effect_type": "close",
+				"amount": 2
+			}
+		],
+		"boost": {
+			"boost_type": "immediate",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Intimidate",
+			"effects": [
+				{
+					"timing": "immediate",
+					"effect_type": "name_range",
+					"target_effect": "opponent_discard_range_or_reveal"
+				}
+			]
+		},
+		"NOTEEND": "ZANGIEF CARDS END"
+	},
+
+	{
 		"NOTE": "ZATO CARDS START",
 		"id": "zato_sunvoid",
 		"type": "ultra",

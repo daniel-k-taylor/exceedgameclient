@@ -540,6 +540,9 @@ func test_guile_100():
 func test_ken_100():
 	run_iterations_with_deck("ken")
 
+func test_zangief_100():
+	run_iterations_with_deck("zangief")
+
 func test_shovelshield_100():
 	run_iterations_with_deck("shovelshield")
 

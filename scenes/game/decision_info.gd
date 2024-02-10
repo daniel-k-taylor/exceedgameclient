@@ -20,6 +20,7 @@ var can_pass : bool
 var bonus_effect
 var source
 var ignore_costs : bool
+var extra_info
 
 func clear():
 	player = Enums.PlayerId.PlayerId_Unassigned
@@ -40,3 +41,4 @@ func clear():
 	bonus_effect = null
 	source = null
 	ignore_costs = false
+	extra_info = null
