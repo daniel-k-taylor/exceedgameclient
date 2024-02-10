@@ -3695,7 +3695,8 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 					performing_player.wild_strike_on_boost_cleanup = true
 			else:
 				_append_log_full(Enums.LogType.LogType_Effect, performing_player, "has no cards available to boost.")
-				events += [create_event(Enums.EventType.EventType_ForceStartStrike, performing_player.my_id, 0)]
+				if not active_boost:
+					events += [create_event(Enums.EventType.EventType_ForceStartStrike, performing_player.my_id, 0)]
 				change_game_state(Enums.GameState.GameState_WaitForStrike)
 				decision_info.clear()
 				decision_info.type = Enums.DecisionType.DecisionType_StrikeNow
@@ -3754,7 +3755,8 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 			if look_amount == 0:
 				_append_log_full(Enums.LogType.LogType_Effect, performing_player, "has no cards in their deck to look at.")
 				if 'strike_after' in effect and effect['strike_after']:
-					events += [create_event(Enums.EventType.EventType_ForceStartStrike, performing_player.my_id, 0)]
+					if not active_boost:
+						events += [create_event(Enums.EventType.EventType_ForceStartStrike, performing_player.my_id, 0)]
 					change_game_state(Enums.GameState.GameState_WaitForStrike)
 					decision_info.clear()
 					decision_info.type = Enums.DecisionType.DecisionType_StrikeNow
@@ -5117,14 +5119,16 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 				else:
 					events += [create_event(Enums.EventType.EventType_ForceStartStrike, performing_player.my_id, 0)]
 		"strike_effect_after_setting":
-			events += [create_event(Enums.EventType.EventType_ForceStartStrike, performing_player.my_id, 0)]
+			if not active_boost:
+				events += [create_event(Enums.EventType.EventType_ForceStartStrike, performing_player.my_id, 0)]
 			change_game_state(Enums.GameState.GameState_WaitForStrike)
 			decision_info.clear()
 			decision_info.type = Enums.DecisionType.DecisionType_StrikeNow
 			decision_info.player = performing_player.my_id
 			performing_player.extra_effect_after_set_strike = effect['after_set_effect']
 		"strike_effect_after_opponent_sets":
-			events += [create_event(Enums.EventType.EventType_ForceStartStrike, performing_player.my_id, 0)]
+			if not active_boost:
+				events += [create_event(Enums.EventType.EventType_ForceStartStrike, performing_player.my_id, 0)]
 			change_game_state(Enums.GameState.GameState_WaitForStrike)
 			decision_info.clear()
 			decision_info.type = Enums.DecisionType.DecisionType_StrikeNow
@@ -5133,7 +5137,8 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 		"strike_faceup":
 			var disable_wild_swing = 'disable_wild_swing' in effect and effect['disable_wild_swing']
 			var disable_ex = 'disable_ex' in effect and effect['disable_ex']
-			events += [create_event(Enums.EventType.EventType_ForceStartStrike, performing_player.my_id, 0, "", disable_wild_swing, disable_ex)]
+			if not active_boost:
+				events += [create_event(Enums.EventType.EventType_ForceStartStrike, performing_player.my_id, 0, "", disable_wild_swing, disable_ex)]
 			change_game_state(Enums.GameState.GameState_WaitForStrike)
 			decision_info.clear()
 			decision_info.type = Enums.DecisionType.DecisionType_StrikeNow
@@ -6869,7 +6874,7 @@ func boost_play_cleanup(events, performing_player : Player):
 			events += handle_strike_effect(-1, wild_effect, performing_player)
 		else:
 			active_boost.strike_after_boost = true
-			events += [create_event(Enums.EventType.EventType_ForceStartStrike, performing_player.my_id, 0)]
+			# event creation handled below
 		active_character_action = false
 		preparing_strike = true
 		decision_info.type = Enums.DecisionType.DecisionType_StrikeNow
