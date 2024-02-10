@@ -4390,14 +4390,9 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 			else:
 				# If the range is an actual number.
 				for card in opposing_player.hand:
-					var card_range_min = card.definition['range_min']
-					var card_range_max = card.definition['range_max']
-					# Some cards have mixed numbers and strings.
-					# Potentially evaluate? Currently only Phonon though and max==min if not in strike.
-					if card_range_min is String and card_range_min == "RANGE_TO_OPPONENT":
-						card_range_min = performing_player.distance_to_opponent()
-					if card_range_max is String and card_range_max == "RANGE_TO_OPPONENT":
-						card_range_max = performing_player.distance_to_opponent()
+					# Evaluate any special ranges via get_card_stat.
+					var card_range_min = get_card_stat(opposing_player, card, 'range_min')
+					var card_range_max = get_card_stat(opposing_player, card, 'range_max')
 					if is_number(card_range_min) and is_number(card_range_max):
 						if target_range >= card_range_min and target_range <= card_range_max:
 							card_ids_in_range.append(card.id)
@@ -5592,7 +5587,7 @@ func get_card_stat(check_player : Player, card : GameCard, stat : String) -> int
 	elif str(value) == "CARDS_IN_HAND":
 		value = check_player.hand.size()
 	elif str(value) == "TOTAL_POWER":
-		value = get_total_power(check_player)
+		value = get_total_power(check_player, card)
 	elif str(value) == "RANGE_TO_OPPONENT":
 		value = check_player.distance_to_opponent()
 	return value
@@ -6140,13 +6135,16 @@ func in_range(attacking_player, defending_player, card, combat_logging=false):
 
 	return opponent_in_range
 
-func get_total_power(performing_player : Player):
+func get_total_power(performing_player : Player, card : GameCard = null):
 	if performing_player.strike_stat_boosts.overwrite_total_power:
 		return performing_player.strike_stat_boosts.overwritten_total_power
 
-	var card = active_strike.get_player_card(performing_player)
-	if active_strike.extra_attack_in_progress:
-		card = active_strike.extra_attack_card
+	assert(card or active_strike, "ERROR: No card or active strike to get power from.")
+	if active_strike:
+		card = active_strike.get_player_card(performing_player)
+		if active_strike.extra_attack_in_progress:
+			card = active_strike.extra_attack_card
+
 	var power = get_card_stat(performing_player, card, 'power')
 	# If some character multiplies both all bonuses and positive bonuses, that will need to be considered carefully.
 	# For now, just assert we're not doing that.
@@ -6160,7 +6158,7 @@ func get_total_power(performing_player : Player):
 	positive_multiplier_bonus *= (performing_player.strike_stat_boosts.power_bonus_multiplier_positive_only - 1)
 	power_modifier += positive_multiplier_bonus
 
-	if active_strike.extra_attack_in_progress:
+	if active_strike and active_strike.extra_attack_in_progress:
 		# If an extra attack character has ways to get power multipliers, deal with that then.
 		power_modifier = performing_player.strike_stat_boosts.power - active_strike.extra_attack_previous_attack_power_bonus
 	return power + power_modifier

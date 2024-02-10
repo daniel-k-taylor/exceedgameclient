@@ -258,7 +258,7 @@ func test_zangief_flyingpowerbomb_boost_discard_block():
 	position_players(player1, 4, player2, 7)
 	give_player_specific_card(player1, "zangief_flyingpowerbomb", TestCardId1)
 	assert_true(game_logic.do_boost(player1, TestCardId1))
-
+	player2.discard_hand()
 	give_player_specific_card(player2, "standard_normal_block", TestCardId2)
 	# Name the range 0-8 are real ranges, 9 is a valid choice but doesn't exist, 10 is X, 11 is -
 	assert_true(game_logic.do_choice(player1, 11))
@@ -269,19 +269,49 @@ func test_zangief_flyingpowerbomb_boost_discard_X():
 	position_players(player1, 4, player2, 7)
 	give_player_specific_card(player1, "zangief_flyingpowerbomb", TestCardId1)
 	assert_true(game_logic.do_boost(player1, TestCardId1))
-
+	player2.discard_hand()
 	give_player_specific_card(player2, "phonon_impulsivefrustration", TestCardId2)
 	# Name the range 0-8 are real ranges, 9 is a valid choice but doesn't exist, 10 is X, 11 is -
 	assert_true(game_logic.do_choice(player1, 10))
 	assert_true(game_logic.do_choose_to_discard(player2, [TestCardId2]))
 	advance_turn(player2)
 
+func test_zangief_flyingpowerbomb_boost_discard_3_with_X_eval():
+	position_players(player1, 4, player2, 7)
+	give_player_specific_card(player1, "zangief_flyingpowerbomb", TestCardId1)
+	assert_true(game_logic.do_boost(player1, TestCardId1))
+
+	player2.discard_hand()
+	give_player_specific_card(player2, "phonon_impulsivefrustration", TestCardId2)
+	# Name the range 0-8 are real ranges, 9 is a valid choice but doesn't exist, 10 is X, 11 is -
+	assert_true(game_logic.do_choice(player1, 3))
+	assert_true(game_logic.do_choose_to_discard(player2, [TestCardId2]))
+	advance_turn(player2)
+
+func test_zangief_flyingpowerbomb_boost_discard_4_with_X_eval_fails():
+	position_players(player1, 4, player2, 7)
+	advance_turn(player1)
+	give_player_specific_card(player2, "phonon_turningsatisfaction", TestCardId3)
+	assert_true(game_logic.do_boost(player2, TestCardId3))
+	advance_turn(player2)
+	player1.discard_hand()
+	give_player_specific_card(player1, "zangief_flyingpowerbomb", TestCardId1)
+	assert_true(game_logic.do_boost(player1, TestCardId1))
+
+	player2.discard_hand()
+	give_player_specific_card(player2, "phonon_impulsivefrustration", TestCardId2)
+	# Name the range 0-8 are real ranges, 9 is a valid choice but doesn't exist, 10 is X, 11 is -
+	assert_true(game_logic.do_choice(player1, 4))
+	var events = game_logic.get_latest_events()
+	validate_has_event(events, Enums.EventType.EventType_RevealHand, player2)
+	advance_turn(player2)
 
 func test_zangief_flyingpowerbomb_boost_discard_3():
 	position_players(player1, 4, player2, 7)
 	give_player_specific_card(player1, "zangief_flyingpowerbomb", TestCardId1)
 	assert_true(game_logic.do_boost(player1, TestCardId1))
 
+	player2.discard_hand()
 	give_player_specific_card(player2, "standard_normal_sweep", TestCardId2)
 	# Name the range 0-8 are real ranges, 9 is a valid choice but doesn't exist, 10 is X, 11 is -
 	assert_true(game_logic.do_choice(player1, 3))
