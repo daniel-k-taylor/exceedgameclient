@@ -4166,6 +4166,27 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 
 			change_game_state(Enums.GameState.GameState_PlayerDecision)
 			events += [create_event(Enums.EventType.EventType_PickNumberFromRange, performing_player.my_id, 0)]
+		"discard_any_number":
+			var max_user_can_discard = performing_player.hand.size()
+			decision_info.clear()
+			decision_info.type = Enums.DecisionType.DecisionType_PickNumberFromRange
+			decision_info.player = performing_player.my_id
+			decision_info.choice_card_id = card_id
+			decision_info.effect_type = "self_discard_choose"
+			decision_info.choice = []
+			decision_info.amount_min = 0
+			decision_info.amount = max_user_can_discard
+
+			decision_info.limitation = []
+			for i in range(max_user_can_discard + 1):
+				decision_info.limitation.append(i)
+				decision_info.choice.append({
+					"effect_type": "self_discard_choose",
+					"amount": i
+				})
+
+			change_game_state(Enums.GameState.GameState_PlayerDecision)
+			events += [create_event(Enums.EventType.EventType_PickNumberFromRange, performing_player.my_id, 0)]
 		"discard_continuous_boost":
 			var my_boosts = performing_player.continuous_boosts
 			var opponent_boosts = opposing_player.continuous_boosts
@@ -4227,6 +4248,12 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 			var card_name = card_db.get_card_name(chosen_card_id)
 			_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "discards %s from %s's gauge." % [card_name, opposing_player.name])
 			events += opposing_player.discard([chosen_card_id])
+		"discard_random":
+			var discard_ids = performing_player.pick_random_cards_from_hand(effect['amount'])
+			if discard_ids.size() > 0:
+				var discarded_names = card_db.get_card_names(discard_ids)
+				_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "discards random card(s): %s." % discarded_names)
+				events += performing_player.discard(discard_ids)
 		"discard_random_and_add_triggers":
 			var cards_to_discard = performing_player.pick_random_cards_from_hand(1)
 			if cards_to_discard.size() > 0:
@@ -4381,8 +4408,12 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 			performing_player.ignore_push_and_pull -= 1
 			if performing_player.ignore_push_and_pull == 0:
 				_append_log_full(Enums.LogType.LogType_Effect, performing_player, "no longer ignores pushes and pulls.")
+		"look_at_top_deck":
+			events += performing_player.reveal_topdeck()
 		"look_at_top_opponent_deck":
 			events += opposing_player.reveal_topdeck()
+		"look_at_opponent_hand":
+			events += opposing_player.reveal_hand()
 		"lose_all_armor":
 			if active_strike:
 				_append_log_full(Enums.LogType.LogType_Effect, performing_player, "loses all armor!")
@@ -5373,7 +5404,6 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 			var amount = effect['amount']
 			if str(amount) == "strike_x":
 				amount = performing_player.strike_stat_boosts.strike_x
-
 			var previous_location = performing_player.arena_location
 			events += performing_player.retreat(amount)
 			var new_location = performing_player.arena_location
@@ -5589,6 +5619,10 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 			performing_player.life = amount
 			events += [create_event(Enums.EventType.EventType_Strike_GainLife, performing_player.my_id, amount, "", performing_player.life)]
 			_append_log_full(Enums.LogType.LogType_Health, performing_player, "gains %s life, bringing them to %s!" % [str(amount), str(performing_player.life)])
+		"shuffle_deck":
+			events += performing_player.random_shuffle_deck()
+			_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "shuffled their deck.")
+			events += [create_event(Enums.EventType.EventType_ReshuffleDiscardInPlace, performing_player.my_id, 0)]
 		"shuffle_discard_in_place":
 			performing_player.random_shuffle_discard_in_place()
 			_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "shuffled their discard pile.")
@@ -6785,6 +6819,10 @@ func get_gauge_cost(performing_player, card):
 					if gauge_card.definition['id'] == card_id:
 						gauge_cost -= 1
 				gauge_cost = max(0, gauge_cost)
+			"free_if_no_cards_in_hand":
+				var hand_size = performing_player.hand.size()
+				if hand_size == 0:
+					gauge_cost = 0
 			"free_if_4_specials_in_overdrive":
 				var different_special_count = 0
 				var found_specials = []
@@ -6794,6 +6832,7 @@ func get_gauge_cost(performing_player, card):
 						found_specials.append(overdrive_card.definition['id'])
 				if different_special_count == 4:
 					gauge_cost = 0
+
 
 	return gauge_cost
 
