@@ -5672,7 +5672,8 @@ func do_remaining_effects(performing_player : Player, next_state):
 						condition_unmet_effects = []
 						break
 
-			if condition_met_effects.size() + condition_unmet_effects.size() > 1:
+			# See if at least one effect can be resolved, potentially satisfying another's condition
+			if condition_met_effects and condition_met_effects.size() + condition_unmet_effects.size() > 1:
 				# Send choice to player
 				change_game_state(Enums.GameState.GameState_PlayerDecision)
 				decision_info.clear()
