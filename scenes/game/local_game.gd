@@ -19,6 +19,28 @@ const CenterArenaLocation = 5
 const MaxArenaLocation = 9
 const ShuffleEnabled = true
 
+# Conditions that shouldn't change during a strike
+const StrikeStaticConditions = [
+	"is_critical", "is_not_critical",
+	"was_hit",
+	"initiated_strike", "not_initiated_strike",
+	"exceeded", "not_exceeded",
+	"buddy_in_play",
+	"used_character_bonus",
+	"used_character_action",
+	"hit_opponent",
+	"opponent_stunned",
+	"initiated_face_up",
+	"stunned", "not_stunned",
+	"initiated_after_moving",
+	"was_wild_swing",
+	"last_turn_was_strike",
+	"speed_greater_than",
+	"is_special_or_ultra_attack", "is_normal_attack", "is_special_attack",
+	"discarded_matches_attack_speed",
+	"canceled_this_turn"
+]
+
 var event_queue = []
 
 func get_latest_events() -> Array:
@@ -507,6 +529,7 @@ class StrikeStatBoosts:
 		if not is_ex:
 			speed += 1
 			power += 1
+			power_positive_only += 1
 			armor += 1
 			guard += 1
 			is_ex = true
@@ -517,6 +540,7 @@ class StrikeStatBoosts:
 			is_ex = false
 			speed -= 1
 			power -= 1
+			power_positive_only -= 1
 			armor -= 1
 			guard -= 1
 
@@ -3693,7 +3717,8 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 					performing_player.wild_strike_on_boost_cleanup = true
 			else:
 				_append_log_full(Enums.LogType.LogType_Effect, performing_player, "has no cards available to boost.")
-				events += [create_event(Enums.EventType.EventType_ForceStartStrike, performing_player.my_id, 0)]
+				if not active_boost:
+					events += [create_event(Enums.EventType.EventType_ForceStartStrike, performing_player.my_id, 0)]
 				change_game_state(Enums.GameState.GameState_WaitForStrike)
 				decision_info.clear()
 				decision_info.type = Enums.DecisionType.DecisionType_StrikeNow
@@ -3752,7 +3777,8 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 			if look_amount == 0:
 				_append_log_full(Enums.LogType.LogType_Effect, performing_player, "has no cards in their deck to look at.")
 				if 'strike_after' in effect and effect['strike_after']:
-					events += [create_event(Enums.EventType.EventType_ForceStartStrike, performing_player.my_id, 0)]
+					if not active_boost:
+						events += [create_event(Enums.EventType.EventType_ForceStartStrike, performing_player.my_id, 0)]
 					change_game_state(Enums.GameState.GameState_WaitForStrike)
 					decision_info.clear()
 					decision_info.type = Enums.DecisionType.DecisionType_StrikeNow
@@ -5115,14 +5141,16 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 				else:
 					events += [create_event(Enums.EventType.EventType_ForceStartStrike, performing_player.my_id, 0)]
 		"strike_effect_after_setting":
-			events += [create_event(Enums.EventType.EventType_ForceStartStrike, performing_player.my_id, 0)]
+			if not active_boost:
+				events += [create_event(Enums.EventType.EventType_ForceStartStrike, performing_player.my_id, 0)]
 			change_game_state(Enums.GameState.GameState_WaitForStrike)
 			decision_info.clear()
 			decision_info.type = Enums.DecisionType.DecisionType_StrikeNow
 			decision_info.player = performing_player.my_id
 			performing_player.extra_effect_after_set_strike = effect['after_set_effect']
 		"strike_effect_after_opponent_sets":
-			events += [create_event(Enums.EventType.EventType_ForceStartStrike, performing_player.my_id, 0)]
+			if not active_boost:
+				events += [create_event(Enums.EventType.EventType_ForceStartStrike, performing_player.my_id, 0)]
 			change_game_state(Enums.GameState.GameState_WaitForStrike)
 			decision_info.clear()
 			decision_info.type = Enums.DecisionType.DecisionType_StrikeNow
@@ -5131,7 +5159,8 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 		"strike_faceup":
 			var disable_wild_swing = 'disable_wild_swing' in effect and effect['disable_wild_swing']
 			var disable_ex = 'disable_ex' in effect and effect['disable_ex']
-			events += [create_event(Enums.EventType.EventType_ForceStartStrike, performing_player.my_id, 0, "", disable_wild_swing, disable_ex)]
+			if not active_boost:
+				events += [create_event(Enums.EventType.EventType_ForceStartStrike, performing_player.my_id, 0, "", disable_wild_swing, disable_ex)]
 			change_game_state(Enums.GameState.GameState_WaitForStrike)
 			decision_info.clear()
 			decision_info.type = Enums.DecisionType.DecisionType_StrikeNow
@@ -5357,6 +5386,9 @@ func change_stats_when_attack_leaves_play(performing_player : Player):
 	# You would also lose ignore armor/guard but that shouldn't matter.
 	performing_player.strike_stat_boosts.ignore_push_and_pull = false
 	performing_player.strike_stat_boosts.when_hit_force_for_armor = false
+
+	# This currently assumes that this would always from the played attack
+	performing_player.strike_stat_boosts.higher_speed_misses = false
 
 	# If a character that can do this has Cleanup effects on the strike,
 	# this needs to be added here somehow as well.
@@ -5609,17 +5641,25 @@ func get_base_remaining_effect(effect):
 					return remaining_effect
 	return effect
 
-func get_next_remaining_effects_to_choose(performing_player : Player):
+func sort_next_remaining_effects_to_choose(performing_player : Player):
 	var remaining_effects = active_strike.remaining_effect_list
 	if active_strike.extra_attack_in_progress:
 		remaining_effects = active_strike.extra_attack_remaining_effects
 
-	var effects_to_choose = []
+	var effects_to_choose = {
+		"condition_met": [],
+		"condition_unmet": []
+	}
 	for effect in remaining_effects:
 		if is_effect_condition_met(performing_player, effect, null):
-			effects_to_choose.append(effect)
+			effects_to_choose["condition_met"].append(effect)
 		elif 'negative_condition_effect' in effect and is_effect_condition_met(performing_player, effect['negative_condition_effect'], null):
-			effects_to_choose.append(effect['negative_condition_effect'])
+			effects_to_choose["condition_met"].append(effect['negative_condition_effect'])
+		else:
+			# Should only be here if there was an effect that wasn't met
+			assert("condition" in effect)
+			if effect["condition"] not in StrikeStaticConditions:
+				effects_to_choose["condition_unmet"].append(effect)
 	return effects_to_choose
 
 func reset_remaining_effects():
@@ -5643,30 +5683,40 @@ func do_remaining_effects(performing_player : Player, next_state):
 			# If more than 1, send only those choices to the player.
 			# If only 1 does, remove it from the list and do it immediately.
 			# If none do, this is over, clear out the list.
-			var effects_to_choose = get_next_remaining_effects_to_choose(performing_player)
+			var effects_to_choose = sort_next_remaining_effects_to_choose(performing_player)
+			var condition_met_effects = effects_to_choose["condition_met"]
+			var condition_unmet_effects = effects_to_choose["condition_unmet"]
 
 			# Check if any of these effects want to be resolved immediately
 			# If so, just pick the first one.
 			# This is done to reduce unnecessary choice dialogs for the user (ie. exceed Hazama).
-			if effects_to_choose.size() > 1:
-				for effect in effects_to_choose:
+			if condition_met_effects.size() + condition_unmet_effects.size() > 1:
+				for effect in condition_met_effects + condition_unmet_effects:
 					if 'resolve_before_simultaneous_effects' in effect and effect['resolve_before_simultaneous_effects']:
-						effects_to_choose = [effect]
+						condition_met_effects = [effect]
+						condition_unmet_effects = []
 						break
 
-			if effects_to_choose.size() > 1:
+			# See if at least one effect can be resolved, potentially satisfying another's condition
+			if condition_met_effects and condition_met_effects.size() + condition_unmet_effects.size() > 1:
 				# Send choice to player
 				change_game_state(Enums.GameState.GameState_PlayerDecision)
+				decision_info.clear()
 				decision_info.type = Enums.DecisionType.DecisionType_ChooseSimultaneousEffect
 				decision_info.player = performing_player.my_id
 				decision_info.choice = []
-				for effect in effects_to_choose:
+				decision_info.limitation = []
+				for effect in condition_met_effects:
 					decision_info.choice.append(get_base_remaining_effect(effect))
+					decision_info.limitation.append(true)
+				for effect in condition_unmet_effects:
+					decision_info.choice.append(get_base_remaining_effect(effect))
+					decision_info.limitation.append(false)
 				events += [create_event(Enums.EventType.EventType_Strike_EffectChoice, performing_player.my_id, 0, "EffectOrder")]
 				break
-			elif effects_to_choose.size() == 1:
+			elif condition_met_effects.size() == 1:
 				# Use the base effect to account for negative effects.
-				var effect = get_base_remaining_effect(effects_to_choose[0])
+				var effect = get_base_remaining_effect(condition_met_effects[0])
 				erase_remaining_effect(effect)
 				events += do_effect_if_condition_met(performing_player, effect['card_id'], effect, null)
 
@@ -6853,7 +6903,7 @@ func boost_play_cleanup(events, performing_player : Player):
 			events += handle_strike_effect(-1, wild_effect, performing_player)
 		else:
 			active_boost.strike_after_boost = true
-			events += [create_event(Enums.EventType.EventType_ForceStartStrike, performing_player.my_id, 0)]
+			# event creation handled below
 		active_character_action = false
 		preparing_strike = true
 		decision_info.type = Enums.DecisionType.DecisionType_StrikeNow

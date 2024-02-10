@@ -201,6 +201,7 @@ var game_wrapper : GameWrapper = GameWrapper.new()
 var current_instruction_text : String = ""
 var current_action_menu_choices : Array = []
 var current_effect_choices : Array = []
+var current_effect_extra_choice_text : Array = []
 var instructions_number_picker_min = -1
 var instructions_number_picker_max = -1
 var show_thinking_spinner_in : float = 0
@@ -1915,13 +1916,14 @@ func update_force_generation_message():
 			effect_str += "\n%s" % [force_generated_str]
 			set_instructions(effect_str)
 
-func enable_instructions_ui(message, can_ok, can_cancel, can_wild_swing : bool = false, can_ex : bool = true, choices = [], show_number_picker : bool  = false):
+func enable_instructions_ui(message, can_ok, can_cancel, can_wild_swing : bool = false, can_ex : bool = true, choices = [], show_number_picker : bool  = false, extra_choice_text = []):
 	set_instructions(message)
 	instructions_ok_allowed = can_ok
 	instructions_cancel_allowed = can_cancel
 	instructions_wild_swing_allowed = can_wild_swing
 	instructions_ex_allowed = can_ex
 	current_effect_choices = choices
+	current_effect_extra_choice_text = extra_choice_text
 	instructions_number_picker_min = -1
 	instructions_number_picker_max = -1
 	if show_number_picker:
@@ -1966,8 +1968,8 @@ func begin_gauge_selection(amount : int, wild_swing_allowed : bool, sub_state : 
 
 	change_ui_state(UIState.UIState_SelectCards, sub_state)
 
-func begin_effect_choice(choices, instruction_text : String):
-	enable_instructions_ui(instruction_text, false, false, false, false, choices)
+func begin_effect_choice(choices, instruction_text : String, extra_choice_text):
+	enable_instructions_ui(instruction_text, false, false, false, false, choices, false, extra_choice_text)
 	change_ui_state(UIState.UIState_MakeChoice, UISubState.UISubState_None)
 
 func begin_strike_choosing(strike_response : bool, cancel_allowed : bool,
@@ -2309,13 +2311,25 @@ func _on_effect_choice(event):
 	var player = event['event_player']
 	if player == Enums.PlayerId.PlayerId_Player and not observer_mode:
 		var instruction_text = "Select an effect:"
+		var extra_choice_text = []
 		if event['reason'] == "EffectOrder":
 			instruction_text = "Select which effect to resolve first:"
+
+			var decision_info = game_wrapper.get_decision_info()
+			var choices = decision_info.choice
+			var effect_met_flags = decision_info.limitation
+			assert(len(choices) == len(effect_met_flags))
+			for effect_met in effect_met_flags:
+				if effect_met:
+					extra_choice_text.append("")
+				else:
+					extra_choice_text.append("[color=red][lb]FAIL[rb][/color] ")
+
 		if event['reason'] == "Duplicate":
 			instruction_text = "Select which effect to copy:"
 		if event['reason'] == "Reading":
 			instruction_text = "You must strike with %s." % event['extra_info']
-		begin_effect_choice(game_wrapper.get_decision_info().choice, instruction_text)
+		begin_effect_choice(game_wrapper.get_decision_info().choice, instruction_text, extra_choice_text)
 	else:
 		ai_effect_choice(event)
 
@@ -2847,13 +2861,16 @@ func _update_buttons():
 	for i in range(current_effect_choices.size()):
 		var choice = current_effect_choices[i]
 		var card_text = ""
+		if current_effect_extra_choice_text:
+			card_text = current_effect_extra_choice_text[i]
+
 		if "_choice_text" in choice:
-			card_text = choice["_choice_text"]
+			card_text += choice["_choice_text"]
 		else:
 			var card_name = ""
 			if 'card_name' in choice:
 				card_name = choice['card_name']
-			card_text = CardDefinitions.get_effect_text(choice, false, true, false, card_name)
+			card_text += CardDefinitions.get_effect_text(choice, false, true, false, card_name)
 			if len(card_text) > ChoiceTextLengthSoftCap:
 				var break_idx = ChoiceTextLengthSoftCap-1
 				while break_idx < len(card_text)-1 and card_text[break_idx] != " ":
@@ -3105,6 +3122,7 @@ func _on_character_action_pressed(action_idx : int = 0):
 
 func _on_choice_pressed(choice):
 	current_effect_choices = []
+	current_effect_extra_choice_text = []
 	var success = game_wrapper.submit_choice(Enums.PlayerId.PlayerId_Player, choice)
 	if success:
 		change_ui_state(UIState.UIState_WaitForGameServer)

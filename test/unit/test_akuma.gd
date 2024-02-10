@@ -283,6 +283,25 @@ func test_akuma_demon_armageddon_power_bonuses():
 	validate_positions(player1, 7, player2, 8)
 	advance_turn(player2)
 
+func test_akuma_demon_armageddon_power_bonuses_ex():
+	position_players(player1, 7, player2, 8)
+	give_gauge(player1, 5)
+	give_player_specific_card(player1, "akuma_demonarmageddon", TestCardId1)
+	give_player_specific_card(player2, "standard_normal_spike", TestCardId2)
+	give_player_specific_card(player1, "akuma_demonarmageddon", TestCardId3)
+	assert_true(game_logic.do_strike(player1, TestCardId1, false, TestCardId3))
+	# Critical
+	assert_true(game_logic.do_gauge_for_effect(player1, [player1.gauge[0].id]))
+	assert_true(game_logic.do_strike(player2, TestCardId2, false, -1))
+	var card_ids = []
+	for card in player1.gauge:
+		card_ids.append(card.id)
+	assert_true(game_logic.do_pay_strike_cost(player1, card_ids, false))
+	assert_eq(player1.gauge.size(), 1)
+	validate_life(player1, 30, player2, 18)
+	validate_positions(player1, 7, player2, 8)
+	advance_turn(player2)
+
 func test_akuma_instanthellmurder_enough():
 	position_players(player1, 3, player2, 5)
 	player1.exceeded = true

@@ -605,6 +605,7 @@ func test_kokonoe_flamingbelobog_extraattack_pass():
 	# Attack hits
 	validate_life(player1, 30, player2, 27)
 	# Flame cage push to 7
+	handle_simultaneous_effects(player1, player2, [])
 	assert_true(game_logic.do_choice(player1, 0)) # push to 7
 	validate_positions(player1, 3, player2, 7)
 	# After
@@ -640,6 +641,7 @@ func test_kokonoe_flamingbelobog_do_extraattack():
 	# Attack hits
 	validate_life(player1, 30, player2, 27)
 	# Flame cage push to 7
+	handle_simultaneous_effects(player1, player2, [])
 	assert_true(game_logic.do_choice(player1, 0)) # push to 7
 	validate_positions(player1, 3, player2, 7)
 	# After
