@@ -4057,7 +4057,6 @@
 							"effect_type": "bonus_action"
 						}
 					},
-
 					"negative_condition_effect": {
 						"effect_type": "discard_hand",
 						"and": {
