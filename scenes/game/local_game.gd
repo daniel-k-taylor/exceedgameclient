@@ -854,6 +854,12 @@ class Player:
 				return true
 		return false
 
+	func get_copy_in_discards(definition_id : String):
+		for card in discards:
+			if card.definition['id'] == definition_id:
+				return card.id
+		return -1
+
 	func is_card_in_sealed(id : int):
 		for card in sealed:
 			if card.id == id:
@@ -998,6 +1004,16 @@ class Player:
 			var card = gauge[i]
 			if card.id == id:
 				events += add_to_hand(card, true)
+				gauge.remove_at(i)
+				break
+		return events
+
+	func move_card_from_gauge_to_sealed(id : int):
+		var events = []
+		for i in range(len(gauge)):
+			var card = gauge[i]
+			if card.id == id:
+				events += add_to_sealed(card)
 				gauge.remove_at(i)
 				break
 		return events
@@ -1185,6 +1201,12 @@ class Player:
 			if card.id == id:
 				return true
 		return false
+
+	func get_copy_in_gauge(definition_id : String):
+		for card in gauge:
+			if card.definition['id'] == definition_id:
+				return card.id
+		return -1
 
 	func get_discard_count_of_type(limitation : String):
 		var count = 0
@@ -5219,6 +5241,36 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 			performing_player.skip_end_of_turn_draw = true
 		"specials_invalid":
 			performing_player.specials_invalid = effect['enabled']
+		"specific_card_discard_to_hand":
+			var card_name = effect['card_name']
+			var copy_id = effect['copy_id']
+			var return_effect = null
+			if 'return_effect' in effect:
+				return_effect = effect['return_effect']
+
+			var copy_card_id = performing_player.get_copy_in_discards(copy_id)
+			if copy_card_id != -1:
+				events += performing_player.move_card_from_discard_to_hand(copy_card_id)
+				_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "moves a copy of %s from discard to hand." % card_name)
+				if return_effect:
+					events += do_effect_if_condition_met(performing_player, card_id, return_effect, null)
+			else:
+				_append_log_full(Enums.LogType.LogType_Effect, performing_player, "has no copies of %s in discard." % card_name)
+		"specific_card_seal_from_gauge":
+			var card_name = effect['card_name']
+			var copy_id = effect['copy_id']
+			var seal_effect = null
+			if 'seal_effect' in effect:
+				seal_effect = effect['seal_effect']
+
+			var copy_card_id = performing_player.get_copy_in_gauge(copy_id)
+			if copy_card_id != -1:
+				events += performing_player.move_card_from_gauge_to_sealed(copy_card_id)
+				_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "seals a copy of %s from gauge." % card_name)
+				if seal_effect:
+					events += do_effect_if_condition_met(performing_player, card_id, seal_effect, null)
+			else:
+				_append_log_full(Enums.LogType.LogType_Effect, performing_player, "has no copies of %s in gauge." % card_name)
 		"speedup":
 			performing_player.strike_stat_boosts.speed += effect['amount']
 			events += [create_event(Enums.EventType.EventType_Strike_SpeedUp, performing_player.my_id, effect['amount'])]

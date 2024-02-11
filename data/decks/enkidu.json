@@ -8,12 +8,18 @@
 		"gauge_cost": 0,
 		"force_cost": 0,
 		"effect": {
-			"effect_type": "strike"
+			"effect_type": "specific_card_discard_to_hand",
+			"copy_id": "enkidu_threepreceptstrike",
+			"card_name": "Three Precept Strike",
+			"return_effect": {
+				"effect_type": "close",
+				"amount": 1
+			}
 		}
 	}],
 	"character_action_exceeded": [
 		{
-			"gauge_cost": 1,
+			"gauge_cost": 0,
 			"force_cost": 0,
 			"effect": {
 				"effect_type": "strike"
@@ -39,55 +45,25 @@
 		}
 	],
 	"ability_effects": [
-		{
-			"character_effect": true,
-			"timing": "set_strike",
-			"condition": "used_character_action",
-			"condition_details": ["default", 0],
-			"effect_type": "powerup",
-			"amount": -1,
-			"and": {
-				"effect_type": "speedup",
-				"amount": -1,
-				"and": {
-					"effect_type": "add_attack_effect",
-					"added_effect": {
-						"timing": "hit",
-						"effect_type": "gain_advantage"
-					}
-				}
-			}
-		}
 	],
 	"exceed_ability_effects": [
 		{
 			"timing": "set_strike",
 			"condition": "used_character_action",
 			"condition_details": ["exceed", 0],
-			"effect_type": "choice",
-			"choice": [
-				{
-					"character_effect": true,
-					"effect_type": "powerup_opponent",
-					"amount": 1,
-					"and": {
-						"effect_type": "powerup",
-						"amount": 2
-					}
-				},
-				{
-					"character_effect": true,
-					"effect_type": "powerup_opponent",
-					"amount": 1,
-					"and": {
-						"effect_type": "add_attack_effect",
-						"added_effect": {
-							"timing": "hit",
-							"effect_type": "gain_advantage"
-						}
-					}
+
+			"effect_type": "specific_card_seal_from_gauge",
+			"copy_id": "enkidu_threepreceptstrike",
+			"card_name": "Three Precept Strike",
+			"seal_effect": {
+				"character_effect": true,
+				"effect_type": "powerup",
+				"amount": 2,
+				"and": {
+					"effect_type": "speedup",
+					"amount": 1
 				}
-			]
+			}
 		}
 	],
 	"cards": [
