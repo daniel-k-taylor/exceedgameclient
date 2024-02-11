@@ -8159,9 +8159,12 @@ func do_force_for_effect(performing_player : Player, card_ids : Array, treat_ult
 				ultras += 1
 
 	if performing_player.free_force > decision_info.effect['force_max']:
-		force_generated = decision_info.effect['force_max']
+		if decision_info.effect['force_max'] == -1:
+			force_generated += performing_player.free_force
+		else:
+			force_generated = decision_info.effect['force_max']
 
-	if force_generated > decision_info.effect['force_max']:
+	if decision_info.effect['force_max'] != -1 and force_generated > decision_info.effect['force_max']:
 		if force_generated - ultras <= decision_info.effect['force_max']:
 			force_generated = decision_info.effect['force_max']
 		else:

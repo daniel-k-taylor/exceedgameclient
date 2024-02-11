@@ -775,7 +775,8 @@ func can_select_card(card):
 			var force_selected = get_force_in_selected_cards()
 			var new_force = game_wrapper.get_card_database().get_card_force_value(card.card_id)
 			var total_force = force_selected + new_force
-			return (in_gauge or in_hand) and (total_force <= select_card_up_to_force or can_selected_cards_pay_force(select_card_up_to_force, new_force))
+			var within_force_limit = select_card_up_to_force == -1 or total_force <= select_card_up_to_force
+			return (in_gauge or in_hand) and (within_force_limit or can_selected_cards_pay_force(select_card_up_to_force, new_force))
 		UISubState.UISubState_SelectCards_GaugeForEffect:
 			return in_gauge and len(selected_cards) < select_card_require_max
 		UISubState.UISubState_SelectCards_StrikeCard, UISubState.UISubState_SelectCards_StrikeResponseCard, UISubState.UISubState_SelectCards_OpponentSetsFirst_StrikeCard, UISubState.UISubState_SelectCards_OpponentSetsFirst_StrikeResponseCard, UISubState.UISubState_SelectCards_Mulligan:
@@ -1917,7 +1918,10 @@ func update_force_generation_message():
 			if decision_effect['per_force_effect']:
 				var effect = decision_effect['per_force_effect']
 				var effect_text = CardDefinitions.get_effect_text(effect, false, false, false, source_card_name)
-				effect_str = "Generate up to %s force for %s per force." % [decision_effect['force_max'], effect_text]
+				var force_str = "up to %s" % decision_effect['force_max']
+				if decision_effect['force_max'] == -1:
+					force_str = "any amount of"
+				effect_str = "Generate %s force for %s per force." % [force_str, effect_text]
 			elif decision_effect['overall_effect']:
 				var effect = decision_effect['overall_effect']
 				var effect_text = CardDefinitions.get_effect_text(effect, false, false, false, source_card_name)
@@ -2999,7 +3003,8 @@ func can_press_ok():
 			UISubState.UISubState_SelectCards_ForceForEffect:
 				var force_selected = get_force_in_selected_cards()
 				if select_card_require_force == -1:
-					return force_selected <= select_card_up_to_force or can_selected_cards_pay_force(select_card_up_to_force)
+					var within_force_limit = select_card_up_to_force == -1 or force_selected <= select_card_up_to_force
+					return within_force_limit or can_selected_cards_pay_force(select_card_up_to_force)
 				return can_selected_cards_pay_force(select_card_require_force)
 			UISubState.UISubState_SelectCards_GaugeForEffect:
 				if select_card_must_be_max_or_min:

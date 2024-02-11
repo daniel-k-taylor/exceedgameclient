@@ -3774,45 +3774,45 @@
 	{
 		"id": "enkidu_tidalspin",
 		"type": "special",
-		"display_name": "Chasing le Reve",
+		"display_name": "Tidal Spin",
 		"force_cost": 0,
 		"gauge_cost": 0,
 		"range_min": 1,
-		"range_max": 2,
-		"speed": 6,
-		"power": 3,
+		"range_max": 1,
+		"speed": 7,
+		"power": 5,
 		"armor": 0,
 		"guard": 0,
 		"effects": [
 			{
+				"timing": "during_strike",
+				"condition": "not_initiated_strike",
+				"effect_type": "cannot_stun"
+			},
+			{
 				"timing": "after",
 				"effect_type": "advance",
-				"amount": 3,
-				"and": {
-					"effect_type": "draw",
-					"amount": 1
-				}
+				"amount": 2
 			}
 		],
 		"boost": {
 			"boost_type": "continuous",
 			"force_cost": 0,
 			"cancel_cost": -1,
-			"display_name": "Windmill",
+			"display_name": "Tactical",
 			"effects": [
 				{
 					"timing": "during_strike",
-					"effect_type": "powerup_opponent",
-					"amount": 3
+					"effect_type": "speedup",
+					"amount": 1
 				},
 				{
 					"timing": "now",
-					"effect_type": "bonus_action"
-				},
-				{
-					"timing": "before",
-					"effect_type": "close",
-					"amount": 2
+					"effect_type": "choice",
+					"choice": [
+						{ "effect_type": "advance", "amount": 1 },
+						{ "effect_type": "retreat", "amount": 1 }
+					]
 				}
 			]
 		}
@@ -3884,45 +3884,59 @@
 	{
 		"id": "enkidu_chainedkick",
 		"type": "special",
-		"display_name": "Conveying My Vrai Couer",
+		"display_name": "Chained Kick",
 		"force_cost": 0,
 		"gauge_cost": 0,
 		"range_min": 1,
-		"range_max": 1,
-		"speed": 5,
-		"power": 3,
+		"range_max": 2,
+		"speed": 3,
+		"power": 4,
 		"armor": 0,
-		"guard": 0,
+		"guard": 4,
 		"effects": [
 			{
-				"timing": "before",
-				"effect_type": "close",
-				"amount": 3
+				"timing": "during_strike",
+				"effect_type": "set_strike_x",
+				"source": "copies_in_gauge",
+				"extra_info": {
+					"card_id": "enkidu_threepreceptstrike",
+					"card_name": "Three Precept Strike"
+				},
+				"and": {
+					"effect_type": "powerup",
+					"amount": "strike_x",
+					"and": {
+						"effect_type": "guardup",
+						"amount": "strike_x",
+					}
+				}
 			},
 			{
-				"timing": "hit",
-				"effect_type": "choice",
-				"choice": [
-					{ "effect_type": "push", "amount": 1 },
-					{ "effect_type": "pull", "amount": 1 }
-				]
+				"timing": "before",
+				"effect_type": "advance",
+				"amount": 1
 			}
 		],
 		"boost": {
-			"boost_type": "continuous",
+			"boost_type": "immediate",
 			"force_cost": 0,
 			"cancel_cost": -1,
-			"display_name": "Overpower",
+			"display_name": "Reckless Run",
 			"effects": [
 				{
-					"timing": "during_strike",
-					"effect_type": "powerup",
-					"amount": 1
+					"timing": "immediate",
+					"effect_type": "advance",
+					"amount": 2
 				},
 				{
-					"timing": "before",
-					"effect_type": "close",
-					"amount": 1
+					"timing": "immediate",
+					"effect_type": "force_for_effect",
+					"per_force_effect": {
+						"effect_type": "advance",
+						"amount": 2
+					},
+					"overall_effect": null,
+					"force_max": -1
 				}
 			]
 		}
