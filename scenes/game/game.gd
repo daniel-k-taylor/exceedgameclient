@@ -515,7 +515,7 @@ func move_character_to_arena_square(character, arena_location, immediate: bool, 
 	var offset_y = $ArenaNode/RowButtons.position.y
 	target_position.y -= character.get_size().y * character.scale.y / 2 + offset_y + character.vertical_offset
 	if buddy_offset != 0:
-		target_position.x += buddy_offset * (character.get_size().x * character.scale.x /4) + character.horizontal_offset
+		target_position.x += buddy_offset * (character.get_size().x * character.scale.x /4) + character.horizontal_offset_buddy
 	if immediate:
 		character.position = target_position
 		update_character_facing()

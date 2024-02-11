@@ -15,6 +15,7 @@ var target_position
 var is_wide : bool = false
 var vertical_offset : float = 0
 var horizontal_offset : float = 0
+var horizontal_offset_buddy : float = 0
 
 var remaining_animation_time : float = -1
 const MoveTime : float = 1.0
@@ -72,11 +73,16 @@ func load_character(char_id : String):
 		vertical_offset = animation.sprite_frames.get_meta("vertical_offset")
 	if animation.sprite_frames.has_meta("horizontal_offset"):
 		horizontal_offset = animation.sprite_frames.get_meta("horizontal_offset")
+		animation.offset.x = horizontal_offset
+	if animation.sprite_frames.has_meta("horizontal_offset_buddy"):
+		horizontal_offset_buddy = animation.sprite_frames.get_meta("horizontal_offset_buddy")
 
 func set_facing(to_left : bool):
 	animation.flip_h = to_left
 	if animation.sprite_frames.has_meta("flip") and animation.sprite_frames.get_meta("flip"):
 		animation.flip_h = not animation.flip_h
+	var offset_sign = 1 if to_left else -1
+	animation.offset.x = horizontal_offset * offset_sign
 
 func set_exceed(is_exceed : bool, new_animation : String = ""):
 	exceed_icon.visible = is_exceed
