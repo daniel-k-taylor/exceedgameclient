@@ -15026,6 +15026,380 @@
 
 
 	{
+		"NOTE": "POLAR CARDS START",
+		"id": "polar_icicledrop",
+		"type": "ultra",
+		"display_name": "Icicle Drop",
+		"force_cost": 0,
+		"gauge_cost": 3,
+		"range_min": 1,
+		"range_max": 8,
+		"speed": 2,
+		"power": 8,
+		"armor": 2,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "during_strike",
+				"effect_type": "stun_immunity"
+			},
+			{
+				"timing": "during_strike",
+				"effect_type": "only_hits_if_on_a_buddy",
+				"buddy_name": "Ice Spike"
+			}
+		],
+		"boost": {
+			"boost_type": "immediate",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Rebuild",
+			"effects": [
+				{
+					"timing": "immediate",
+					"effect_type": "draw",
+					"amount": 2
+				},
+				{
+					"timing": "immediate",
+					"effect_type": "remove_X_buddies",
+					"linked_effect": {
+						"effect_type": "draw",
+						"amount": "strike_x"
+					}
+				},
+				{
+					"timing": "immediate",
+					"effect_type": "add_to_gauge_boost_play_cleanup"
+				}
+			]
+		}
+	},
+	{
+		"id": "polar_snowslash",
+		"type": "ultra",
+		"display_name": "Snow Slash",
+		"force_cost": 0,
+		"gauge_cost": 2,
+		"range_min": 1,
+		"range_max": 2,
+		"speed": 0,
+		"power": 4,
+		"armor": 2,
+		"guard": 3,
+		"effects": [
+			{
+				"timing": "during_strike",
+				"effect_type": "when_hit_force_for_armor",
+				"amount": 2
+			},
+			{
+				"timing": "hit",
+				"effect_type": "push",
+				"amount": 2
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Block And...",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "when_hit_force_for_armor",
+					"use_gauge_instead": true,
+					"amount": 2
+				}
+			]
+		}
+	},
+	{
+		"id": "polar_stomp",
+		"type": "special",
+		"display_name": "Stomp",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 2,
+		"speed": 7,
+		"power": 0,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "hit",
+				"effect_type": "push",
+				"amount": 2,
+				"and": {
+					"condition": "any_buddy_in_or_adjacent_opponent_space",
+					"buddy_name": "Ice Spike",
+					"effect_type": "choose_buddy_near_opponent",
+					"offset_allowed": 1,
+					"same_space_allowed": true,
+					"optional": true,
+					"linked_effect": {
+						"effect_type": "gain_advantage"
+					}
+				}
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 1,
+			"cancel_cost": -1,
+			"display_name": "Reach",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "rangeup",
+					"amount": 0,
+					"amount2": 1
+				},
+				{
+					"timing": "now",
+					"effect_type": "strike"
+				}
+			]
+		}
+	},
+	{
+		"id": "polar_shovelcharge",
+		"type": "special",
+		"display_name": "Shovel Charge",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 1,
+		"speed": 5,
+		"power": 3,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "before",
+				"effect_type": "close",
+				"amount": 2
+			},
+			{
+				"timing": "hit",
+				"effect_type": "draw",
+				"amount": 1,
+				"and": {
+					"effect_type": "choice",
+					"choice": [
+						{
+							"effect_type": "push",
+							"amount": 1,
+							"save_buddy_spaces_entered_as_strike_x": true,
+							"and": {
+								"effect_type": "draw",
+								"amount": "strike_x"
+							}
+						},
+						{
+							"effect_type": "push",
+							"amount": 2,
+							"save_buddy_spaces_entered_as_strike_x": true,
+							"and": {
+								"effect_type": "draw",
+								"amount": "strike_x"
+							}
+						},
+						{ "effect_type": "pass" }
+					]
+				}
+			}
+		],
+		"boost": {
+			"boost_type": "immediate",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Shattering Stomp",
+			"effects": [
+				{
+					"timing": "immediate",
+					"effect_type": "place_next_buddy",
+					"buddy_name": "Ice Spike",
+					"require_unoccupied": false,
+					"destination": "anywhere",
+					"amount": 2
+				}
+			]
+		}
+	},
+	{
+		"id": "polar_shovelslam",
+		"type": "special",
+		"display_name": "Shovel Slam",
+		"force_cost": 1,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 3,
+		"speed": 4,
+		"power": 5,
+		"armor": 0,
+		"guard": 3,
+		"effects": [
+			{
+				"timing": "hit",
+				"condition": "any_buddy_adjacent_opponent_space",
+				"buddy_name": "Ice Spike",
+				"effect_type": "choose_buddy_near_opponent",
+				"offset_allowed": 1,
+				"same_space_allowed": false,
+				"optional": true,
+				"linked_effect": {
+					"effect_type": "choice",
+					"choice": [
+						{ "effect_type": "push", "amount": 1 },
+						{ "effect_type": "pull", "amount": 1 }
+					]
+				}
+			},
+			{
+				"timing": "after",
+				"effect_type": "place_next_buddy",
+				"buddy_name": "Ice Spike",
+				"require_unoccupied": false,
+				"destination": "adjacent_self",
+				"amount": 1
+			}
+		],
+		"boost": {
+			"boost_type": "immediate",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Dashing Through",
+			"effects": [
+				{
+					"timing": "immediate",
+					"effect_type": "move_to_any_space",
+					"remove_buddies_encountered": 2,
+					"move_min": 0,
+					"move_max": 6
+				}
+			]
+		}
+	},
+	{
+		"id": "polar_polarplow",
+		"type": "special",
+		"display_name": "Polar Plow",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 7,
+		"speed": 2,
+		"power": 5,
+		"armor": 0,
+		"guard": 6,
+		"effects": [
+			{
+				"timing": "during_strike",
+				"effect_type": "power_modify_buddies_between",
+				"amount": -1
+			},
+			{
+				"timing": "before",
+				"condition": "opponent_at_edge_of_arena",
+				"effect_type": "pass",
+				"and": {
+					"condition": "not_opponent_on_buddy_space",
+					"buddy_name": "Ice Spike",
+					"effect_type": "move_any_buddy_to_opponent"
+				}
+			},
+			{
+				"timing": "after",
+				"effect_type": "close",
+				"amount": 3
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 1,
+			"cancel_cost": -1,
+			"display_name": "Overpower",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "powerup",
+					"amount": 2
+				},
+				{
+					"timing": "now",
+					"effect_type": "strike"
+				}
+			]
+		}
+	},
+	{
+		"NOTE": "POLAR CARDS END",
+		"id": "polar_shoveldrop",
+		"type": "special",
+		"display_name": "Shovel Drop",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 1,
+		"speed": 1,
+		"power": 3,
+		"armor": 1,
+		"guard": 5,
+		"effects": [
+			{
+				"timing": "during_strike",
+				"effect_type": "ignore_armor",
+				"and": {
+					"effect_type": "ignore_push_and_pull"
+				}
+			},
+			{
+				"timing": "before",
+				"condition": "not_on_any_buddy_space",
+				"effect_type": "place_next_buddy",
+				"buddy_name": "Ice Spike",
+				"require_unoccupied": false,
+				"destination": "self",
+				"amount": 1,
+				"followup_effect": {
+					"effect_type": "choice",
+					"choice": [
+						{ "effect_type": "advance", "amount": 2 },
+						{ "effect_type": "advance", "amount": 3 }
+					]
+				}
+			}
+		],
+		"boost": {
+			"boost_type": "immediate",
+			"force_cost": 1,
+			"cancel_cost": -1,
+			"display_name": "Avalanche",
+			"effects": [
+				{
+					"timing": "immediate",
+					"condition": "any_buddy_in_play",
+					"effect_type": "move_any_buddy",
+					"amount_min": 0,
+					"amount_max": 3
+				},
+				{
+					"timing": "immediate",
+					"effect_type": "gauge_for_effect",
+					"per_gauge_effect": null,
+					"overall_effect": {
+						"effect_type": "bonus_action"
+					},
+					"gauge_max": 1
+				}
+			]
+		},
+		"NOTEEND": "POLAR CARDS END"
+	},
+
+	{
 		"NOTE": "POTEMKIN CARDS START",
 		"id": "potemkin_giganterkai",
 		"type": "ultra",

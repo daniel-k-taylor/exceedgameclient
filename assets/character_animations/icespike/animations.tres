@@ -1,0 +1,16 @@
+[gd_resource type="SpriteFrames" load_steps=2 format=3 uid="uid://bfxdqh81sn3ca"]
+
+[ext_resource type="Texture2D" uid="uid://ilqf6jif5jwf" path="res://assets/character_animations/icespike/icespike.png" id="1_cri31"]
+
+[resource]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("1_cri31")
+}],
+"loop": true,
+"name": &"idle",
+"speed": 5.0
+}]
+metadata/flip = true
+metadata/scaling = 0.7
