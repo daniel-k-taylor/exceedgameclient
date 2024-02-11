@@ -3871,7 +3871,7 @@
 					"amount": "strike_x",
 					"and": {
 						"effect_type": "guardup",
-						"amount": "strike_x",
+						"amount": "strike_x"
 					}
 				}
 			},
@@ -3935,7 +3935,7 @@
 					"amount": "strike_x",
 					"and": {
 						"effect_type": "guardup",
-						"amount": "strike_x",
+						"amount": "strike_x"
 					}
 				}
 			},
