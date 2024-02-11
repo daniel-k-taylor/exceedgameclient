@@ -3820,44 +3820,63 @@
 	{
 		"id": "enkidu_threepreceptstrike",
 		"type": "special",
-		"display_name": "Plumage Dancing in the Wind",
+		"display_name": "Three Precept Strike",
 		"force_cost": 0,
 		"gauge_cost": 0,
 		"range_min": 1,
-		"range_max": 1,
-		"speed": 6,
+		"range_max": 3,
+		"speed": 5,
 		"power": 3,
 		"armor": 0,
 		"guard": 0,
 		"effects": [
 			{
 				"timing": "during_strike",
-				"condition": "initiated_strike",
-				"effect_type": "powerup",
-				"amount": 2
+				"effect_type": "set_strike_x",
+				"source": "copies_in_gauge",
+				"extra_info": {
+					"card_id": "enkidu_threepreceptstrike",
+					"card_name": "Three Precept Strike"
+				},
+				"and": {
+					"effect_type": "powerup",
+					"amount": "strike_x",
+					"and": {
+						"effect_type": "guardup",
+						"amount": "strike_x",
+					}
+				}
 			},
 			{
-				"timing": "during_strike",
-				"condition": "not_initiated_strike",
-				"effect_type": "speedup",
-				"amount": 1
+				"timing": "after",
+				"effect_type": "close",
+				"amount": 1,
+				"and": {
+					"effect_type": "choice",
+					"choice": [
+						{ "effect_type": "reveal_copy_for_advantage", "copy_id": "enkidu_threepreceptstrike" },
+						{ "effect_type": "pass" }
+					]
+				}
 			}
 		],
 		"boost": {
-			"boost_type": "continuous",
-			"force_cost": 1,
+			"boost_type": "immediate",
+			"force_cost": 0,
 			"cancel_cost": -1,
-			"display_name": "Reach",
+			"display_name": "Calamity Crest",
 			"effects": [
 				{
-					"timing": "during_strike",
-					"effect_type": "rangeup",
-					"amount": 0,
-					"amount2": 1
+					"timing": "immediate",
+					"effect_type": "spend_life",
+					"amount": 3,
+					"and": {
+						"effect_type": "add_to_gauge_boost_play_cleanup"
+					}
 				},
 				{
-					"timing": "now",
-					"effect_type": "strike"
+					"timing": "immediate",
+					"effect_type": "bonus_action"
 				}
 			]
 		}
@@ -14815,7 +14834,6 @@
 						{ "effect_type": "reveal_copy_for_advantage", "copy_id": "phonon_turningsatisfaction" },
 						{ "effect_type": "pass" }
 					]
-
 				}
 			}
 		],

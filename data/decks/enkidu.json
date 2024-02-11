@@ -51,7 +51,6 @@
 			"timing": "set_strike",
 			"condition": "used_character_action",
 			"condition_details": ["exceed", 0],
-
 			"effect_type": "specific_card_seal_from_gauge",
 			"copy_id": "enkidu_threepreceptstrike",
 			"card_name": "Three Precept Strike",

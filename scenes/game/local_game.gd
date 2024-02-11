@@ -4238,8 +4238,11 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 			performing_player.strike_stat_boosts.move_strike_to_opponent_boosts = true
 			events += handle_strike_attack_immediate_removal(performing_player)
 		"guardup":
-			performing_player.strike_stat_boosts.guard += effect['amount']
-			events += [create_event(Enums.EventType.EventType_Strike_GuardUp, performing_player.my_id, effect['amount'])]
+			var amount = effect['amount']
+			if str(amount) == "strike_x":
+				amount = performing_player.strike_stat_boosts.strike_x
+			performing_player.strike_stat_boosts.guard += amount
+			events += [create_event(Enums.EventType.EventType_Strike_GuardUp, performing_player.my_id, amount)]
 		"higher_speed_misses":
 			performing_player.strike_stat_boosts.higher_speed_misses = true
 			if 'dodge_at_speed_greater_or_equal' in effect:
@@ -5141,7 +5144,10 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 		"set_end_of_turn_boost_delay":
 			performing_player.set_end_of_turn_boost_delay(card_id)
 		"set_strike_x":
-			events += do_set_strike_x(performing_player, effect['source'])
+			var extra_info = []
+			if 'extra_info' in effect:
+				extra_info = effect['extra_info']
+			events += do_set_strike_x(performing_player, effect['source'], extra_info)
 		"set_total_power":
 			performing_player.strike_stat_boosts.overwrite_total_power = true
 			performing_player.strike_stat_boosts.overwritten_total_power = effect['amount']
@@ -5972,7 +5978,7 @@ func do_remaining_character_action(performing_player : Player):
 			events += check_hand_size_advance_turn(performing_player)
 	return events
 
-func do_set_strike_x(performing_player : Player, source : String):
+func do_set_strike_x(performing_player : Player, source : String, extra_info):
 	var events = []
 
 	var value = 0
@@ -6009,6 +6015,13 @@ func do_set_strike_x(performing_player : Player, source : String):
 		"force_spent_before_strike":
 			value = performing_player.force_spent_before_strike
 			_append_log_full(Enums.LogType.LogType_Strike, performing_player, "'s X for this strike is set to the force spent, %s." % value)
+		"copies_in_gauge":
+			var card_id = extra_info['card_id']
+			var card_name = extra_info['card_name']
+			for card in performing_player.gauge:
+				if card.definition['id'] == card_id:
+					value += 1
+			_append_log_full(Enums.LogType.LogType_Strike, performing_player, "'s X for this strike is set to the number of copies of %s in gauge, %s." % [card_name, value])
 		_:
 			assert(false, "Unknown source for setting X")
 

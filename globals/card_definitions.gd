@@ -576,9 +576,12 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 		"gauge_from_hand":
 			effect_str += "Add a card from hand to gauge"
 		"guardup":
-			if effect['amount'] > 0:
-				effect_str += "+"
-			effect_str += str(effect['amount']) + " Guard"
+			if str(effect['amount']) == "strike_x":
+				effect_str += "+X Guard"
+			else:
+				if effect['amount'] > 0:
+					effect_str += "+"
+				effect_str += str(effect['amount']) + " Guard"
 		"ignore_armor":
 			effect_str += "Ignore armor"
 		"ignore_guard":
