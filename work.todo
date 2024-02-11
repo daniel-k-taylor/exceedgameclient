@@ -10,31 +10,22 @@ In progress:
             - "amount": 1 @started(24-02-10 18:12)
             - "buddy_name": "Ice Spike", @started(24-02-10 18:17)
         ☐ "condition": "any_buddy_in_opponent_space", @started(24-02-10 16:58)
-        ☐ "effect_type": "remove_buddy_in_opponent_space", @started(24-02-10 17:15)
+        ☐ "effect_type": "remove_buddy_near_opponent", @started(24-02-10 17:15)
 
         Cards:
             ☐ "effect_type": "only_hits_if_on_a_buddy", @started(24-02-10 17:19)
             ☐ "effect_type": "remove_X_buddies",
             ☐ "effect_type": "when_hit_force_for_armor", @started(24-02-10 18:38)
                 - "use_gauge_instead": true, @started(24-02-10 18:39)
-            ☐ "condition": "any_buddy_in_or_adjacent_opponent_space"
-            ☐ "condition": "any_buddy_adjacent_opponent_space"
-					"buddy_name": "Ice Spike",
-					"effect_type": "choose_buddy_near_opponent",
-                    "same_space_allowed": false,
-					"offset_allowed": 1,
-					"optional": true,
-					"linked_effect": {
-						"effect_type": "gain_advantage"
-					}
+            ☐ "condition": "any_buddy_in_or_adjacent_opponent_space" @started(24-02-10 20:23)
+            ☐ "condition": "any_buddy_adjacent_opponent_space" @started(24-02-10 20:23)
             ☐ push - "save_buddy_spaces_entered_as_strike_x": true,
             ☐ move_to_any_space - "remove_buddies_encountered": 2,
-            ☐ "effect_type": "power_modify_buddies_between",
-            ☐ "condition": "not_opponent_on_buddy_space",
-            ☐ "effect_type": "place_next_buddy_onto_self"
-            ☐ "condition": "not_on_any_buddy_space",
-            ☐ "condition": "any_buddy_in_play",
-            ☐ "effect_type": "move_any_buddy",
+            ☐ "effect_type": "power_modify_buddies_between", @started(24-02-10 20:55)
+            ☐ "condition": "not_any_buddy_in_opponent_space", @started(24-02-10 20:57)
+            ☐ "effect_type": "place_next_buddy_onto_self" @started(24-02-10 20:58)
+            ☐ "condition": "any_buddy_in_play", @started(24-02-10 21:03)
+            ☐ "effect_type": "move_any_buddy", @started(24-02-10 21:22)
 
 Write tests for:
     Axl:

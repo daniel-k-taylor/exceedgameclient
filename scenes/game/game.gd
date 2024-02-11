@@ -3062,7 +3062,7 @@ func _on_choose_arena_location_for_effect(event):
 					instruction_str = "Place %s or select one to move" % buddy_name
 			"move_to_space":
 				instruction_str = "Select a location to move to"
-			"remove_buddy_in_opponent_space":
+			"remove_buddy_near_opponent":
 				var buddy_name = decision_info.source
 				instruction_str = "Select %s to remove" % buddy_name
 		enable_instructions_ui(instruction_str, false, can_pass)

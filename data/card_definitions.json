@@ -15134,11 +15134,11 @@
 				"and": {
 					"condition": "any_buddy_in_or_adjacent_opponent_space",
 					"buddy_name": "Ice Spike",
-					"effect_type": "choose_buddy_near_opponent",
+					"effect_type": "remove_buddy_near_opponent",
 					"offset_allowed": 1,
 					"same_space_allowed": true,
 					"optional": true,
-					"linked_effect": {
+					"if_removed_effect": {
 						"effect_type": "gain_advantage"
 					}
 				}
@@ -15245,11 +15245,11 @@
 				"timing": "hit",
 				"condition": "any_buddy_adjacent_opponent_space",
 				"buddy_name": "Ice Spike",
-				"effect_type": "choose_buddy_near_opponent",
+				"effect_type": "remove_buddy_near_opponent",
 				"offset_allowed": 1,
 				"same_space_allowed": false,
 				"optional": true,
-				"linked_effect": {
+				"if_removed_effect": {
 					"effect_type": "choice",
 					"choice": [
 						{ "effect_type": "push", "amount": 1 },
@@ -15297,7 +15297,7 @@
 		"effects": [
 			{
 				"timing": "during_strike",
-				"effect_type": "power_modify_buddies_between",
+				"effect_type": "power_modify_per_buddy_between",
 				"amount": -1
 			},
 			{
@@ -15305,9 +15305,17 @@
 				"condition": "opponent_at_edge_of_arena",
 				"effect_type": "pass",
 				"and": {
-					"condition": "not_opponent_on_buddy_space",
+					"condition": "not_any_buddy_in_opponent_space",
 					"buddy_name": "Ice Spike",
-					"effect_type": "move_any_buddy_to_opponent"
+					"effect_type": "pass",
+					"and": {
+						"condition": "any_buddy_in_play",
+						"buddy_name": "Ice Spike",
+						"effect_type": "move_any_buddy",
+						"to_opponent": true,
+						"amount_min": 0,
+						"amount_max": 0
+					}
 				}
 			},
 			{
@@ -15381,6 +15389,7 @@
 					"timing": "immediate",
 					"condition": "any_buddy_in_play",
 					"effect_type": "move_any_buddy",
+					"buddy_name": "Ice Spike",
 					"amount_min": 0,
 					"amount_max": 3
 				},

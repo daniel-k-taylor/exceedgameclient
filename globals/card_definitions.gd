@@ -206,6 +206,8 @@ func get_condition_text(effect, amount, amount2, detail):
 			text += "If didn't advance through %s, " % detail
 		"any_buddy_in_opponent_space":
 			text += "If %s is in opponent's space, " % detail
+		"not_any_buddy_in_opponent_space":
+			text += "If %s is not in opponent's space, " % detail
 		"at_edge_of_arena":
 			text += "If at arena edge, "
 		"boost_in_play":
@@ -556,6 +558,8 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 					where_str = "anywhere"
 				"adjacent_self":
 					where_str = "adjacent to you"
+				"self":
+					where_str = "on your space"
 				_:
 					where_str = "<MISSING DESTINATION STRING>"
 			effect_str += "Place %s %s%s." % [effect['buddy_name'], where_str, unoccupied_str]
@@ -729,8 +733,21 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 				effect_str += "+" + str(effect['amount']) + "-" + str(effect['amount2']) + " Range per boost in play."
 		"rangeup_per_sealed_normal":
 			effect_str += "+" + str(effect['amount']) + "-" + str(effect['amount2']) + " Range per sealed normal."
-		"remove_buddy_in_opponent_space":
-			effect_str += "Remove %s in opponent's space" % effect['buddy_name']
+		"remove_buddy_near_opponent":
+			var offset_allowed = effect['offset_allowed']
+			var same_space_allowed = effect['same_space_allowed']
+			var optional = 'optional' in effect and effect['optional']
+			var location_str = ""
+			if same_space_allowed:
+				location_str = "on"
+			if offset_allowed == 1:
+				if same_space_allowed:
+					location_str += " or "
+				location_str += "adjacent to"
+			var begin_str = ""
+			if optional:
+				begin_str = "You may: "
+			effect_str += "%sRemove %s %s opponent's space" % [begin_str, effect['buddy_name'], location_str]
 		"repeat_effect_optionally":
 			effect_str += get_effect_text(effect['linked_effect'], false, false, false)
 			var repeats = str(effect['amount'])

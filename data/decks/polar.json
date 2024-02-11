@@ -48,7 +48,9 @@
 			"effect_type": "choice",
 			"choice": [
 				{
-					"effect_type": "remove_buddy_in_opponent_space",
+					"effect_type": "remove_buddy_near_opponent",
+					"offset_allowed": 0,
+					"same_space_allowed": true,
 					"buddy_name": "Ice Spike",
 					"and": {
 						"effect_type": "powerup",
@@ -83,7 +85,9 @@
 			"effect_type": "choice",
 			"choice": [
 				{
-					"effect_type": "remove_buddy_in_opponent_space",
+					"effect_type": "remove_buddy_near_opponent",
+					"offset_allowed": 0,
+					"same_space_allowed": true,
 					"buddy_name": "Ice Spike",
 					"and": {
 						"effect_type": "powerup",
