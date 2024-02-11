@@ -830,6 +830,8 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 			effect_str += "Initiate face-up"
 		"save_power":
 			effect_str += "Your printed power becomes its Power"
+		"skip_end_of_turn_draw":
+			effect_str += "Skip your end of turn draw"
 		"use_saved_power_as_printed_power":
 			effect_str += "Your printed power is the revealed card's power"
 		"set_strike_x":

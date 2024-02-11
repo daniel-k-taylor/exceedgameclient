@@ -1386,6 +1386,8 @@ func get_string_for_action_choice(choice):
 			return "Add to Overdrive"
 		"add_to_topdeck_under":
 			return "Add to deck 2nd from top"
+		"return_to_topdeck":
+			return "Return to top of deck"
 	return ""
 
 func begin_choose_from_topdeck(action_choices, look_amount, can_pass):
@@ -2186,7 +2188,21 @@ func _on_reshuffle_discard(event):
 	close_popout()
 	update_card_counts()
 	return SmallNoticeDelay
+func _on_shuffle_deck(event):
+	var player = event['event_player']
+	var card_parent
+	if player == Enums.PlayerId.PlayerId_Player:
+		card_parent = $AllCards/PlayerDeck
+	else:
+		card_parent = $AllCards/OpponentDeck
+	var cards = card_parent.get_children()
+	var new_order = {}
 
+	for card in cards:
+		var card_index = game_wrapper.get_card_index_in_deck(player, card.card_id)
+		new_order[card_index] = card
+	for i in range(len(new_order)):
+		card_parent.move_child(new_order[i], i)	
 func _on_reshuffle_discard_in_place(event):
 	var player = event['event_player']
 	var card_parent
@@ -2639,6 +2655,8 @@ func _handle_events(events):
 				delay = _on_prepare(event)
 			Enums.EventType.EventType_ReadingNormal:
 				delay = _on_name_opponent_card_begin(event)
+			Enums.EventType.EventType_ReshuffleDeck:
+				_on_shuffle_deck(event)
 			Enums.EventType.EventType_ReshuffleDiscard:
 				delay = _on_reshuffle_discard(event)
 			Enums.EventType.EventType_ReshuffleDiscardInPlace:

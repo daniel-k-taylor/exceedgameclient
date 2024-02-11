@@ -5620,9 +5620,9 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 			events += [create_event(Enums.EventType.EventType_Strike_GainLife, performing_player.my_id, amount, "", performing_player.life)]
 			_append_log_full(Enums.LogType.LogType_Health, performing_player, "gains %s life, bringing them to %s!" % [str(amount), str(performing_player.life)])
 		"shuffle_deck":
-			events += performing_player.random_shuffle_deck()
+			performing_player.random_shuffle_deck()
 			_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "shuffled their deck.")
-			events += [create_event(Enums.EventType.EventType_ReshuffleDiscardInPlace, performing_player.my_id, 0)]
+			events += [create_event(Enums.EventType.EventType_ReshuffleDeck, performing_player.my_id, 0)]
 		"shuffle_discard_in_place":
 			performing_player.random_shuffle_discard_in_place()
 			_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "shuffled their discard pile.")
@@ -8940,6 +8940,13 @@ func do_choose_from_topdeck(performing_player : Player, chosen_card_id : int, ac
 				_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "adds one of the cards to sealed facedown.")
 			else:
 				_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "adds one of the cards to sealed: %s." % card_db.get_card_name(chosen_card_id))
+			event_queue += events
+		"return_to_topdeck":
+			assert(leftover_card_ids.size() == 1 or leftover_card_ids.size() == 0)
+			# If this was the last card in deck, leftover_card_ids.size is 0, so this card goes on top.
+			var destination_index = leftover_card_ids.size()
+			events += performing_player.move_card_from_hand_to_deck(chosen_card_id, destination_index)
+			_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "adds the remaining cards back to the top of their deck.")
 			event_queue += events
 		"add_to_topdeck_under":
 			assert(leftover_card_ids.size() == 1 or leftover_card_ids.size() == 0)

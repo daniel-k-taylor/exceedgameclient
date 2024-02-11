@@ -3822,7 +3822,7 @@
 				},
 				{
 					"timing": "immediate",
-					"effect_type": "reshuffle_deck"
+					"effect_type": "shuffle_deck"
 				},
 				{
 					"timing": "immediate",
@@ -4032,7 +4032,11 @@
 							"amount": 2,
 							"and": {
 								"effect_type": "pull",
-								"amount": 2
+								"amount": 1,
+								"and": {
+									"effect_type": "pull",
+									"amount": 1
+								}
 							}
 						}
 					},
@@ -4046,7 +4050,15 @@
 							"amount": 3,
 							"and": {
 								"effect_type": "pull",
-								"amount": 3
+								"amount": 1,
+								"and": {
+									"effect_type": "pull",
+									"amount": 1,
+									"and": {
+										"effect_type": "pull",
+										"amount": 1
+									}
+								}
 							}
 						}
 					}
@@ -4064,7 +4076,7 @@
 					"effect_type": "choose_cards_from_top_deck",
 					"look_amount": 1,
 					"action_choices": [
-						"add_to_topdeck_under"
+						"return_to_topdeck"
 					],
 					"can_pass": false,
 					"destination_unchosen": "topdeck"
