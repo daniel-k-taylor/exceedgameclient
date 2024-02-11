@@ -163,6 +163,7 @@ enum UISubState {
 	UISubState_SelectCards_OpponentSetsFirst_StrikeResponseCard,
 	UISubState_SelectCards_ForceForArmor,
 	UISubState_SelectCards_ForceForEffect,
+	UISubState_SelectCards_GaugeForArmor,
 	UISubState_SelectCards_GaugeForEffect,
 	UISubState_SelectArena_MoveResponse,
 	UISubState_SelectArena_EffectChoice,
@@ -762,6 +763,8 @@ func can_select_card(card):
 			return in_gauge and len(selected_cards) < select_card_require_max
 		UISubState.UISubState_SelectCards_MoveActionGenerateForce, UISubState.UISubState_SelectCards_ForceForChange, UISubState.UISubState_SelectCards_ForceForArmor:
 			return in_gauge or in_hand
+		UISubState.UISubState_SelectCards_GaugeForArmor:
+			return in_gauge
 		UISubState.UISubState_SelectCards_StrikeForce:
 			return in_gauge or in_hand
 		UISubState.UISubState_SelectCards_ChooseBoostsToSustain:
@@ -1819,11 +1822,20 @@ func get_gauge_generated():
 	return gauge_generated
 
 func update_gauge_selection_message():
-	var num_remaining = select_card_require_min - get_gauge_generated()
-	var discard_reminder = ""
-	if enabled_reminder_text:
-		discard_reminder = "\nThe last card selected will be on top of the discard pile."
-	set_instructions("Select %s more gauge card(s).%s" % [num_remaining, discard_reminder])
+	if ui_sub_state == UISubState.UISubState_SelectCards_GaugeForArmor:
+		var gauge_generated = get_gauge_generated()
+		var damage_after_armor = max(0, force_for_armor_incoming_damage - 2 * gauge_generated)
+		var ignore_armor_str = ""
+		if force_for_armor_ignore_armor:
+			damage_after_armor = force_for_armor_incoming_damage
+			ignore_armor_str = "Armor Ignored! "
+		set_instructions("Spend Gauge to generate force for +2 Armor each.\n%s\n%sYou will take %s damage." % [force_generated_str, ignore_armor_str, damage_after_armor])
+	else:
+		var num_remaining = select_card_require_min - get_gauge_generated()
+		var discard_reminder = ""
+		if enabled_reminder_text:
+			discard_reminder = "\nThe last card selected will be on top of the discard pile."
+		set_instructions("Select %s more gauge card(s).%s" % [num_remaining, discard_reminder])
 
 func update_gauge_for_effect_message():
 	var effect_str = ""
@@ -2380,11 +2392,15 @@ func _on_pay_cost_failed(event):
 
 func _on_force_for_armor(event):
 	var player = event['event_player']
+	var use_gauge_instead = game_wrapper.get_decision_info().limitation == "gauge"
 	force_for_armor_incoming_damage = event['number']
 	force_for_armor_ignore_armor = event['extra_info']
 	if player == Enums.PlayerId.PlayerId_Player and not observer_mode:
-		change_ui_state(null, UISubState.UISubState_SelectCards_ForceForArmor)
-		begin_generate_force_selection(-1)
+		if use_gauge_instead:
+			begin_gauge_selection(-1, false, UISubState.UISubState_SelectCards_GaugeForArmor)
+		else:
+			change_ui_state(null, UISubState.UISubState_SelectCards_ForceForArmor)
+			begin_generate_force_selection(-1)
 	else:
 		ai_force_for_armor(event)
 
@@ -2847,6 +2863,8 @@ func _update_buttons():
 				update_force_generation_message()
 			UISubState.UISubState_SelectCards_StrikeForce:
 				update_force_generation_message()
+			UISubState.UISubState_SelectCards_GaugeForArmor:
+				update_gauge_selection_message()
 			UISubState.UISubState_SelectCards_StrikeGauge:
 				update_gauge_selection_message()
 			UISubState.UISubState_SelectCards_GaugeForEffect:
@@ -2994,7 +3012,7 @@ func can_press_ok():
 			UISubState.UISubState_SelectCards_StrikeCard_FromSealed:
 				# same
 				return len(selected_cards) == 1
-			UISubState.UISubState_SelectCards_ForceForArmor:
+			UISubState.UISubState_SelectCards_ForceForArmor, UISubState.UISubState_SelectCards_GaugeForArmor:
 				return true
 			UISubState.UISubState_SelectCards_ForceForEffect:
 				var force_selected = get_force_in_selected_cards()
@@ -3035,8 +3053,18 @@ func _on_choose_arena_location_for_effect(event):
 			"place_buddy_into_space":
 				var buddy_name = decision_info.source
 				instruction_str = "Select a location to place %s" % buddy_name
+			"place_next_buddy":
+				var must_remove = decision_info.extra_info
+				var buddy_name = decision_info.source
+				if must_remove:
+					instruction_str = "Select which %s to move" % buddy_name
+				else:
+					instruction_str = "Place %s or select one to move" % buddy_name
 			"move_to_space":
 				instruction_str = "Select a location to move to"
+			"remove_buddy_in_opponent_space":
+				var buddy_name = decision_info.source
+				instruction_str = "Select %s to remove" % buddy_name
 		enable_instructions_ui(instruction_str, false, can_pass)
 		change_ui_state(UIState.UIState_SelectArenaLocation, UISubState.UISubState_SelectArena_EffectChoice)
 	else:
@@ -3207,6 +3235,8 @@ func _on_instructions_ok_button_pressed(index : int):
 				success = game_wrapper.submit_strike(Enums.PlayerId.PlayerId_Player, single_card_id, false, ex_card_id, true)
 			UISubState.UISubState_SelectCards_ForceForArmor:
 				success = game_wrapper.submit_force_for_armor(Enums.PlayerId.PlayerId_Player, selected_card_ids)
+			UISubState.UISubState_SelectCards_GaugeForArmor:
+				success = game_wrapper.submit_force_for_armor(Enums.PlayerId.PlayerId_Player, selected_card_ids)
 			UISubState.UISubState_SelectCards_Mulligan:
 				success = game_wrapper.submit_mulligan(Enums.PlayerId.PlayerId_Player, selected_card_ids)
 			UISubState.UISubState_SelectCards_PlayBoost:
@@ -3241,6 +3271,10 @@ func _on_instructions_cancel_button_pressed():
 			deselect_all_cards()
 			close_popout()
 			success = game_wrapper.submit_force_for_effect(Enums.PlayerId.PlayerId_Player, [], false, true)
+		UISubState.UISubState_SelectCards_GaugeForArmor:
+			deselect_all_cards()
+			close_popout()
+			success = game_wrapper.submit_force_for_armor(Enums.PlayerId.PlayerId_Player, [])
 		UISubState.UISubState_SelectCards_GaugeForEffect:
 			deselect_all_cards()
 			close_popout()
@@ -3517,7 +3551,9 @@ func ai_effect_choice(_event):
 func ai_force_for_armor(_event):
 	change_ui_state(UIState.UIState_WaitForGameServer)
 	if not game_wrapper.is_ai_game(): return
-	var forceforarmor_action = ai_player.pick_force_for_armor(game_wrapper.current_game, Enums.PlayerId.PlayerId_Opponent)
+	var decision_info = game_wrapper.get_decision_info()
+	var use_gauge_instead = decision_info.limitation == "gauge"
+	var forceforarmor_action = ai_player.pick_force_for_armor(game_wrapper.current_game, Enums.PlayerId.PlayerId_Opponent, use_gauge_instead)
 	var success = game_wrapper.submit_force_for_armor(Enums.PlayerId.PlayerId_Opponent, forceforarmor_action.card_ids)
 	if success:
 		change_ui_state(UIState.UIState_WaitForGameServer)

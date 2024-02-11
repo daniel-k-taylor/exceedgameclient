@@ -595,12 +595,29 @@ func determine_effect_choice_actions(game_logic : LocalGame, _me : LocalGame.Pla
 		possible_actions.append(EffectChoiceAction.new(i))
 	return possible_actions
 
-func pick_force_for_armor(game_logic : LocalGame, my_id : Enums.PlayerId) -> ForceForArmorAction:
+func pick_force_for_armor(game_logic : LocalGame, my_id : Enums.PlayerId, use_gauge_instead : bool) -> ForceForArmorAction:
 	var me = game_logic._get_player(my_id)
 	var opponent = game_logic._get_player(game_logic.get_other_player(my_id))
-	var possible_actions = determine_force_for_armor_actions(game_logic, me)
+	var possible_actions = []
+	if use_gauge_instead:
+		possible_actions = determine_gauge_for_armor_actions(game_logic, me)
+	else:
+		possible_actions = determine_force_for_armor_actions(game_logic, me)
 	update_ai_state(game_logic, me, opponent)
 	return ai_policy.pick_force_for_armor(possible_actions, game_state)
+
+func determine_gauge_for_armor_actions(game_logic : LocalGame, me : LocalGame.Player):
+	var possible_actions = []
+	var available_gauge = me.gauge.size() + me.free_gauge
+	var all_option_ids = []
+	for card in me.gauge:
+		all_option_ids.append(card.id)
+	for target_gauge in range(0, available_gauge + 1):
+		# Generate an action for every possible combination of cards that can get here.
+		var combinations = get_combinations_to_pay_gauge(me, target_gauge)
+		for combo in combinations:
+			possible_actions.append(ForceForArmorAction.new(combo))
+	return possible_actions
 
 func determine_force_for_armor_actions(game_logic : LocalGame, me : LocalGame.Player):
 	var possible_actions = []

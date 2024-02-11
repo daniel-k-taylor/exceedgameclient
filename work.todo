@@ -2,22 +2,21 @@
 
 In progress:
     Polar:
-        ☐ "effect_type": "place_next_buddy",
-            - "require_unoccupied": true,
-            - "destination": "attack_range",
-            - "destination": "anywhere",
-            - "destination": "adjacent_self",
-            - "amount": 1
-            - "buddy_name": "Ice Spike",
-            ☐ "followup_effect":
-        ☐ "condition": "any_buddy_in_opponent_space",
-        ☐ "effect_type": "remove_buddy_in_opponent_space",
+        ☐ "effect_type": "place_next_buddy", @started(24-02-10 18:03)
+            - "require_unoccupied": true, @started(24-02-10 18:03)
+            - "destination": "attack_range", @started(24-02-10 18:03)
+            - "destination": "anywhere", @started(24-02-10 18:03)
+            - "destination": "adjacent_self", @started(24-02-10 18:03)
+            - "amount": 1 @started(24-02-10 18:12)
+            - "buddy_name": "Ice Spike", @started(24-02-10 18:17)
+        ☐ "condition": "any_buddy_in_opponent_space", @started(24-02-10 16:58)
+        ☐ "effect_type": "remove_buddy_in_opponent_space", @started(24-02-10 17:15)
 
         Cards:
-            ☐ "effect_type": "only_hits_if_on_a_buddy",
+            ☐ "effect_type": "only_hits_if_on_a_buddy", @started(24-02-10 17:19)
             ☐ "effect_type": "remove_X_buddies",
-            ☐ "effect_type": "when_hit_force_for_armor",
-                - "use_gauge_instead": true,
+            ☐ "effect_type": "when_hit_force_for_armor", @started(24-02-10 18:38)
+                - "use_gauge_instead": true, @started(24-02-10 18:39)
             ☐ "condition": "any_buddy_in_or_adjacent_opponent_space"
             ☐ "condition": "any_buddy_adjacent_opponent_space"
 					"buddy_name": "Ice Spike",

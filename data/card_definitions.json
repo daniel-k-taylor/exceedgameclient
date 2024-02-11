@@ -15045,7 +15045,7 @@
 			},
 			{
 				"timing": "during_strike",
-				"effect_type": "only_hits_if_on_a_buddy",
+				"effect_type": "only_hits_if_opponent_on_any_buddy",
 				"buddy_name": "Ice Spike"
 			}
 		],
@@ -15357,13 +15357,12 @@
 			},
 			{
 				"timing": "before",
-				"condition": "not_on_any_buddy_space",
 				"effect_type": "place_next_buddy",
 				"buddy_name": "Ice Spike",
 				"require_unoccupied": false,
 				"destination": "self",
 				"amount": 1,
-				"followup_effect": {
+				"and": {
 					"effect_type": "choice",
 					"choice": [
 						{ "effect_type": "advance", "amount": 2 },

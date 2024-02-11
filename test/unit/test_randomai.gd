@@ -175,7 +175,8 @@ func handle_decisions(game: LocalGame):
 				var effect_action = decision_ai.pick_effect_choice(game, decision_player.my_id)
 				assert_true(game.do_choice(decision_ai.game_player, effect_action.choice), "do strike choice failed")
 			Enums.DecisionType.DecisionType_ForceForArmor:
-				var forceforarmor_action = decision_ai.pick_force_for_armor(game, decision_player.my_id)
+				var use_gauge_instead = game.decision_info.limitation == "gauge"
+				var forceforarmor_action = decision_ai.pick_force_for_armor(game, decision_player.my_id, use_gauge_instead)
 				assert_true(game.do_force_for_armor(decision_ai.game_player, forceforarmor_action.card_ids), "do force armor failed")
 			Enums.DecisionType.DecisionType_CardFromHandToGauge:
 				var cardfromhandtogauge_action = decision_ai.pick_card_hand_to_gauge(game, decision_player.my_id, game.decision_info.effect['min_amount'], game.decision_info.effect['max_amount'])

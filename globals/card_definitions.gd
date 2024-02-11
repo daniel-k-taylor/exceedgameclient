@@ -204,6 +204,8 @@ func get_condition_text(effect, amount, amount2, detail):
 			text += "If advanced past opponent, "
 		"not_advanced_through_buddy":
 			text += "If didn't advance through %s, " % detail
+		"any_buddy_in_opponent_space":
+			text += "If %s is in opponent's space, " % detail
 		"at_edge_of_arena":
 			text += "If at arena edge, "
 		"boost_in_play":
@@ -542,6 +544,21 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 			effect_str += "Place %s in any space." % effect['buddy_name']
 		"place_buddy_in_attack_range":
 			effect_str += "Place %s in the attack's range." % effect['buddy_name']
+		"place_next_buddy":
+			var unoccupied_str = ""
+			if effect['require_unoccupied']:
+				unoccupied_str = " in an unoccupied space"
+			var where_str = ""
+			match effect['destination']:
+				"attack_range":
+					where_str = "in the attack's range"
+				"anywhere":
+					where_str = "anywhere"
+				"adjacent_self":
+					where_str = "adjacent to you"
+				_:
+					where_str = "<MISSING DESTINATION STRING>"
+			effect_str += "Place %s %s%s." % [effect['buddy_name'], where_str, unoccupied_str]
 		"play_attack_from_hand":
 				effect_str += "Play an attack from your hand, paying its costs."
 		"calculate_range_from_buddy":
@@ -712,6 +729,8 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 				effect_str += "+" + str(effect['amount']) + "-" + str(effect['amount2']) + " Range per boost in play."
 		"rangeup_per_sealed_normal":
 			effect_str += "+" + str(effect['amount']) + "-" + str(effect['amount2']) + " Range per sealed normal."
+		"remove_buddy_in_opponent_space":
+			effect_str += "Remove %s in opponent's space" % effect['buddy_name']
 		"repeat_effect_optionally":
 			effect_str += get_effect_text(effect['linked_effect'], false, false, false)
 			var repeats = str(effect['amount'])
