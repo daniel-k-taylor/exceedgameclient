@@ -611,7 +611,7 @@ class Player:
 	var cannot_move : bool
 	var cannot_move_past_opponent : bool
 	var cannot_move_past_opponent_buddy_id : Variant
-	var ignore_push_and_pull : bool
+	var ignore_push_and_pull : int
 	var extra_effect_after_set_strike
 	var end_of_turn_boost_delay_card_ids : Array
 	var saved_power : int
@@ -704,7 +704,7 @@ class Player:
 		cannot_move = false
 		cannot_move_past_opponent = false
 		cannot_move_past_opponent_buddy_id = null
-		ignore_push_and_pull = false
+		ignore_push_and_pull = 0
 		extra_effect_after_set_strike = null
 		end_of_turn_boost_delay_card_ids = []
 		saved_power = 0
@@ -2344,8 +2344,9 @@ class Player:
 			if effect['timing'] == "now":
 				match effect['effect_type']:
 					"ignore_push_and_pull_passive_bonus":
-						ignore_push_and_pull = true
-						parent._append_log_full(Enums.LogType.LogType_Effect, self, "cannot be pushed or pulled!")
+						ignore_push_and_pull += 1
+						if ignore_push_and_pull == 1:
+							parent._append_log_full(Enums.LogType.LogType_Effect, self, "cannot be pushed or pulled!")
 		if parent.active_strike:
 			# Redo continuous effects
 			for effect in _find_during_strike_effects(card):
@@ -2400,8 +2401,9 @@ class Player:
 			if effect['timing'] == "now":
 				match effect['effect_type']:
 					"ignore_push_and_pull_passive_bonus":
-						ignore_push_and_pull = false
-						parent._append_log_full(Enums.LogType.LogType_Effect, self, "no longer ignores pushes and pulls.")
+						ignore_push_and_pull -= 1
+						if ignore_push_and_pull == 0:
+							parent._append_log_full(Enums.LogType.LogType_Effect, self, "no longer ignores pushes and pulls.")
 			elif effect['timing'] == current_timing:
 				# Need to remove these effects from the remaining effects.
 				# Only if the current timing belongs to the player who has this in their continuous boosts.
@@ -4260,13 +4262,15 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 		"ignore_push_and_pull":
 			performing_player.strike_stat_boosts.ignore_push_and_pull = true
 		"ignore_push_and_pull_passive_bonus":
-			performing_player.ignore_push_and_pull = true
-			_append_log_full(Enums.LogType.LogType_Effect, performing_player, "cannot be pushed or pulled!")
+			performing_player.ignore_push_and_pull += 1
+			if performing_player.ignore_push_and_pull == 1:
+				_append_log_full(Enums.LogType.LogType_Effect, performing_player, "cannot be pushed or pulled!")
 		"increase_force_spent_before_strike":
 			performing_player.force_spent_before_strike += 1
 		"remove_ignore_push_and_pull_passive_bonus":
-			_append_log_full(Enums.LogType.LogType_Effect, performing_player, "no longer ignores pushes and pulls.")
-			performing_player.ignore_push_and_pull = false
+			performing_player.ignore_push_and_pull -= 1
+			if performing_player.ignore_push_and_pull == 0:
+				_append_log_full(Enums.LogType.LogType_Effect, performing_player, "no longer ignores pushes and pulls.")
 		"look_at_top_opponent_deck":
 			events += opposing_player.reveal_topdeck()
 		"lose_all_armor":

@@ -403,6 +403,31 @@ func test_enkidu_immovable_object_sustain():
 	assert_true(player1.is_card_in_continuous_boosts(TestCardId3))
 	advance_turn(player1)
 
+func test_enkidu_immovable_object_double_sustain():
+	# Tests if losing one source of ignore_push_and_pull preserves the other
+	position_players(player1, 5, player2, 6)
+	give_gauge(player1, 1)
+	give_player_specific_card(player1, "enkidu_spiraldualpalmstrike", TestCardId3)
+	assert_true(game_logic.do_boost(player1, TestCardId3, []))
+	advance_turn(player2)
+	give_player_specific_card(player1, "enkidu_spiraldualpalmstrike", TestCardId4)
+	assert_true(game_logic.do_boost(player1, TestCardId4, []))
+
+	execute_strike(player2, player1, "uni_normal_grasp", "uni_normal_sweep", [1], [], false, false)
+	validate_positions(player1, 5, player2, 6)
+	validate_life(player1, 29, player2, 24)
+	assert_true(game_logic.do_gauge_for_effect(player1, [player1.gauge[0].id]))
+	assert_true(player1.is_card_in_continuous_boosts(TestCardId3))
+	assert_true(player1.is_card_in_discards(TestCardId4))
+	advance_turn(player1)
+
+	execute_strike(player2, player1, "uni_normal_grasp", "uni_normal_sweep", [1], [], false, false)
+	validate_positions(player1, 5, player2, 6)
+	validate_life(player1, 27, player2, 18)
+	assert_true(game_logic.do_gauge_for_effect(player1, []))
+	assert_true(player1.is_card_in_discards(TestCardId3))
+	advance_turn(player1)
+
 func test_enkidu_demon_seal_full_cost():
 	position_players(player1, 4, player2, 6)
 	for card_id in [TestCardId3, TestCardId4, TestCardId5, TestCardId6, TestCardId7, TestCardId8]:
