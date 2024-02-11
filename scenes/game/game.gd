@@ -70,6 +70,8 @@ var select_card_must_be_max_or_min = false
 var select_card_require_force = 0
 var select_card_up_to_force = 0
 var select_card_destination = ""
+var select_gauge_require_card_id = ""
+var select_gauge_require_card_name = ""
 var select_boost_options = {}
 var selected_boost_to_pay_for = -1
 var instructions_ok_allowed = false
@@ -526,7 +528,7 @@ func move_character_to_arena_square(character, arena_location, immediate: bool, 
 	var offset_y = $ArenaNode/RowButtons.position.y
 	target_position.y -= character.get_size().y * character.scale.y / 2 + offset_y + character.vertical_offset
 	if buddy_offset != 0:
-		target_position.x += buddy_offset * (character.get_size().x * character.scale.x /4) + character.horizontal_offset
+		target_position.x += buddy_offset * (character.get_size().x * character.scale.x /4) + character.horizontal_offset_buddy
 	if immediate:
 		character.position = target_position
 		update_character_facing()
@@ -788,9 +790,15 @@ func can_select_card(card):
 			var force_selected = get_force_in_selected_cards()
 			var new_force = game_wrapper.get_card_database().get_card_force_value(card.card_id)
 			var total_force = force_selected + new_force
-			return (in_gauge or in_hand) and (total_force <= select_card_up_to_force or can_selected_cards_pay_force(select_card_up_to_force, new_force))
+			var within_force_limit = select_card_up_to_force == -1 or total_force <= select_card_up_to_force
+			return (in_gauge or in_hand) and (within_force_limit or can_selected_cards_pay_force(select_card_up_to_force, new_force))
 		UISubState.UISubState_SelectCards_GaugeForEffect:
-			return in_gauge and len(selected_cards) < select_card_require_max
+			var valid_id = true
+			if select_gauge_require_card_id:
+				var card_db = game_wrapper.get_card_database()
+				var logic_card = card_db.get_card(card.card_id)
+				valid_id = logic_card.definition['id'] == select_gauge_require_card_id
+			return in_gauge and valid_id and len(selected_cards) < select_card_require_max
 		UISubState.UISubState_SelectCards_StrikeCard, UISubState.UISubState_SelectCards_StrikeResponseCard, UISubState.UISubState_SelectCards_OpponentSetsFirst_StrikeCard, UISubState.UISubState_SelectCards_OpponentSetsFirst_StrikeResponseCard, UISubState.UISubState_SelectCards_Mulligan:
 			return in_hand
 		UISubState.UISubState_SelectCards_StrikeCard_FromGauge:
@@ -1853,23 +1861,26 @@ func update_gauge_for_effect_message():
 	var decision_effect = game_wrapper.get_decision_info().effect
 	var to_hand = 'spent_cards_to_hand' in decision_effect and decision_effect['spent_cards_to_hand']
 	var source_card_name = game_wrapper.get_card_database().get_card_name(game_wrapper.get_decision_info().choice_card_id)
+	var gauge_name_str = "gauge"
+	if select_gauge_require_card_name:
+		gauge_name_str = "copies of %s from gauge" % select_gauge_require_card_name
 	if decision_effect['per_gauge_effect']:
 		var effect = decision_effect['per_gauge_effect']
 		var effect_text = CardDefinitions.get_effect_text(effect, false, false, false, source_card_name)
 		if to_hand:
-			effect_str = "Return up to %s gauge to your hand for %s per card." % [decision_effect['gauge_max'], effect_text]
+			effect_str = "Return up to %s %s to your hand for %s per card." % [decision_effect['gauge_max'], gauge_name_str, effect_text]
 		else:
-			effect_str = "Spend up to %s gauge for %s per card." % [decision_effect['gauge_max'], effect_text]
+			effect_str = "Spend up to %s %s for %s per card." % [decision_effect['gauge_max'], gauge_name_str, effect_text]
 	elif decision_effect['overall_effect']:
 		var effect = decision_effect['overall_effect']
 		var effect_text = CardDefinitions.get_effect_text(effect, false, false, false, source_card_name)
 		if to_hand:
 			if effect_text:
-				effect_str = "Return %s gauge to your hand for %s." % [decision_effect['gauge_max'], effect_text]
+				effect_str = "Return %s %s to your hand for %s." % [decision_effect['gauge_max'], gauge_name_str, effect_text]
 			else:
-				effect_str = "Return %s gauge to your hand." % [decision_effect['gauge_max']]
+				effect_str = "Return %s %s to your hand." % [decision_effect['gauge_max'], gauge_name_str]
 		else:
-			effect_str = "Spend %s gauge for %s." % [decision_effect['gauge_max'], effect_text]
+			effect_str = "Spend %s gauge for %s." % [decision_effect['gauge_max'], gauge_name_str, effect_text]
 	var passive_bonus = get_gauge_generated() - len(selected_cards)
 	if passive_bonus > 0:
 		effect_str += "\n%s gauge from passive bonus." % passive_bonus
@@ -1940,7 +1951,10 @@ func update_force_generation_message():
 			if decision_effect['per_force_effect']:
 				var effect = decision_effect['per_force_effect']
 				var effect_text = CardDefinitions.get_effect_text(effect, false, false, false, source_card_name)
-				effect_str = "Generate up to %s force for %s per force." % [decision_effect['force_max'], effect_text]
+				var force_str = "up to %s" % decision_effect['force_max']
+				if decision_effect['force_max'] == -1:
+					force_str = "any amount of"
+				effect_str = "Generate %s force for %s per force." % [force_str, effect_text]
 			elif decision_effect['overall_effect']:
 				var effect = decision_effect['overall_effect']
 				var effect_text = CardDefinitions.get_effect_text(effect, false, false, false, source_card_name)
@@ -2443,6 +2457,11 @@ func _on_gauge_for_effect(event):
 			select_card_must_be_max_or_min = true
 		else:
 			select_card_must_be_max_or_min = false
+		select_gauge_require_card_id = ""
+		select_gauge_require_card_name = ""
+		if 'require_specific_card_id' in effect:
+			select_gauge_require_card_id = effect['require_specific_card_id']
+			select_gauge_require_card_name = effect['require_specific_card_name']
 		begin_gauge_selection(-1, false, UISubState.UISubState_SelectCards_GaugeForEffect)
 	else:
 		ai_gauge_for_effect(effect)
@@ -3028,7 +3047,8 @@ func can_press_ok():
 			UISubState.UISubState_SelectCards_ForceForEffect:
 				var force_selected = get_force_in_selected_cards()
 				if select_card_require_force == -1:
-					return force_selected <= select_card_up_to_force or can_selected_cards_pay_force(select_card_up_to_force)
+					var within_force_limit = select_card_up_to_force == -1 or force_selected <= select_card_up_to_force
+					return within_force_limit or can_selected_cards_pay_force(select_card_up_to_force)
 				return can_selected_cards_pay_force(select_card_require_force)
 			UISubState.UISubState_SelectCards_GaugeForEffect:
 				if select_card_must_be_max_or_min:

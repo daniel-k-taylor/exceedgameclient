@@ -645,7 +645,13 @@ func determine_force_for_effect_actions(game_logic: LocalGame, me : LocalGame.Pl
 		all_force_option_ids.append(card.id)
 
 	var max_force = game_logic.decision_info.effect['force_max']
-	max_force = min(max_force, available_force)
+	if max_force == -1:
+		max_force = available_force
+		options = []
+		for i in range(max_force + 1):
+			options.append(i)
+	else:
+		max_force = min(max_force, available_force)
 	for target_force in options:
 		if target_force > max_force:
 			continue
@@ -656,11 +662,13 @@ func determine_force_for_effect_actions(game_logic: LocalGame, me : LocalGame.Pl
 			possible_actions.append(ForceForEffectAction.new(combo))
 	return possible_actions
 
-func determine_gauge_for_effect_actions(game_logic: LocalGame, me : LocalGame.Player, options : Array):
+func determine_gauge_for_effect_actions(game_logic: LocalGame, me : LocalGame.Player, options : Array, specific_card_id : String):
 	var possible_actions = []
 	var available_gauge = me.gauge.size() + me.free_gauge
 	var all_option_ids = []
 	for card in me.gauge:
+		if specific_card_id and card.definition['id'] != specific_card_id:
+			continue
 		all_option_ids.append(card.id)
 
 	var max_gauge = game_logic.decision_info.effect['gauge_max']
@@ -880,10 +888,10 @@ func pick_force_for_effect(game_logic : LocalGame, my_id : Enums.PlayerId, optio
 	update_ai_state(game_logic, me, opponent)
 	return ai_policy.pick_force_for_effect(possible_actions, game_state)
 
-func pick_gauge_for_effect(game_logic : LocalGame, my_id : Enums.PlayerId, options : Array) -> GaugeForEffectAction:
+func pick_gauge_for_effect(game_logic : LocalGame, my_id : Enums.PlayerId, options : Array, specific_card_id : String = "") -> GaugeForEffectAction:
 	var me = game_logic._get_player(my_id)
 	var opponent = game_logic._get_player(game_logic.get_other_player(my_id))
-	var possible_actions = determine_gauge_for_effect_actions(game_logic, me, options)
+	var possible_actions = determine_gauge_for_effect_actions(game_logic, me, options, specific_card_id)
 	update_ai_state(game_logic, me, opponent)
 	return ai_policy.pick_gauge_for_effect(possible_actions, game_state)
 

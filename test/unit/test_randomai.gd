@@ -202,7 +202,10 @@ func handle_decisions(game: LocalGame):
 					if not ('required' in effect and effect['required']):
 						options.append(0)
 					options.append(effect['gauge_max'])
-				var gauge_action = decision_ai.pick_gauge_for_effect(game, decision_player.my_id, options)
+				var required_card_id = ""
+				if 'require_specific_card_id' in effect:
+					required_card_id = effect['require_specific_card_id']
+				var gauge_action = decision_ai.pick_gauge_for_effect(game, decision_player.my_id, options, required_card_id)
 				assert_true(game.do_gauge_for_effect(decision_ai.game_player, gauge_action.card_ids), "do gauge effect failed")
 			Enums.DecisionType.DecisionType_ChooseFromBoosts:
 				var chooseaction = decision_ai.pick_choose_from_boosts(game, decision_player.my_id, game.decision_info.amount)
@@ -579,3 +582,6 @@ func test_mole_100():
 
 func test_seth_100():
 	run_iterations_with_deck("seth")
+
+func test_enkidu_100():
+	run_iterations_with_deck("enkidu")
