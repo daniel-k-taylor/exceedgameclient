@@ -3950,7 +3950,7 @@
 		"force_cost": 0,
 		"gauge_cost": 0,
 		"range_min": 1,
-		"range_max": 1,
+		"range_max": 2,
 		"speed": 6,
 		"power": 0,
 		"armor": 0,
@@ -3958,15 +3958,14 @@
 		"effects": [
 			{
 				"timing": "hit",
-				"effect_type": "discard_topdeck"
-			},
-			{
-				"timing": "hit",
-				"effect_type": "set_strike_x",
-				"source": "top_discard_power",
+				"effect_type": "discard_topdeck",
 				"and": {
-					"effect_type": "powerup",
-					"amount": "strike_x"
+					"effect_type": "set_strike_x",
+					"source": "top_discard_power",
+					"and": {
+						"effect_type": "powerup",
+						"amount": "strike_x"
+					}
 				}
 			}
 		],

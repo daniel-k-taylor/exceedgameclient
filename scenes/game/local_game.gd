@@ -1680,8 +1680,9 @@ class Player:
 
 		return true
 
-	func draw(num_to_draw : int, is_fake_draw : bool = false):
+	func draw(num_to_draw : int, is_fake_draw : bool = false, from_bottom: bool = false):
 		var events : Array = []
+		var draw_from_index = 0
 		if num_to_draw > 0:
 			if is_fake_draw:
 				# Used by topdeck boost as an easy way to get it in your hand to boost.
@@ -1693,9 +1694,11 @@ class Player:
 
 		for i in range(num_to_draw):
 			if len(deck) > 0:
-				var card = deck[0]
+				if from_bottom:
+					draw_from_index = -1
+				var card = deck[draw_from_index]
 				hand.append(card)
-				deck.remove_at(0)
+				deck.remove_at(draw_from_index)
 				events += [parent.create_event(Enums.EventType.EventType_Draw, my_id, card.id)]
 			else:
 				events += reshuffle_discard(false)
@@ -4132,6 +4135,7 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 			events += [create_event(Enums.EventType.EventType_Strike_DodgeFromOppositeBuddy, performing_player.my_id, 0, "", effect['buddy_name'])]
 			_append_log_full(Enums.LogType.LogType_Effect, performing_player, "will dodge attacks from opponents behind %s!" % effect['buddy_name'])
 		"draw":
+			var from_bottom = 'from_bottom' in effect and effect['from_bottom']
 			var amount = effect['amount']
 			if str(amount) == "strike_x":
 				amount = performing_player.strike_stat_boosts.strike_x
@@ -4139,6 +4143,9 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 				if 'opponent' in effect and effect['opponent']:
 					events += opposing_player.draw(amount)
 					_append_log_full(Enums.LogType.LogType_CardInfo, opposing_player, "draws %s card(s)." % amount)
+				if from_bottom:
+					events += performing_player.draw(amount, false, from_bottom)
+					_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "draws %s card(s) from the bottom." % amount)	
 				else:
 					events += performing_player.draw(amount)
 					_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "draws %s card(s)." % amount)

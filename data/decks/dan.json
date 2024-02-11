@@ -56,6 +56,21 @@
 					"amount": 1
 				}
 			}
+		},
+		{
+			"timing": "end_of_turn",
+			"effect_type": "choice",
+			"choice": [
+				{ "effect_type": "draw", "from_bottom": true, "amount": 1, "and": { "effect_type": "skip_end_of_turn_draw" } },
+				{ "effect_type": "pass"}
+			],
+			"and": {
+				"effect_type": "choice",
+				"choice": [
+					{ "effect_type": "self_discard_choose", "amount": 1 },
+					{ "effect_type": "pass" }
+				]
+			}
 		}
 	],
 	"cards": [
