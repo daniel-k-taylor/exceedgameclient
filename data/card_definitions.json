@@ -15047,6 +15047,11 @@
 				"timing": "during_strike",
 				"effect_type": "only_hits_if_opponent_on_any_buddy",
 				"buddy_name": "Ice Spike"
+			},
+			{
+				"timing": "after",
+				"effect_type": "advance",
+				"amount": 3
 			}
 		],
 		"boost": {
@@ -15063,6 +15068,7 @@
 				{
 					"timing": "immediate",
 					"effect_type": "remove_X_buddies",
+					"reset_strike_x": true,
 					"buddy_name": "Ice Spike",
 					"and": {
 						"effect_type": "draw",
@@ -15071,6 +15077,8 @@
 				},
 				{
 					"timing": "immediate",
+					"condition": "strike_x_greater_than",
+					"condition_amount": 0,
 					"effect_type": "add_to_gauge_boost_play_cleanup"
 				}
 			]
@@ -15381,6 +15389,14 @@
 						{ "effect_type": "advance", "amount": 3 }
 					]
 				}
+			},
+			{
+				"timing": "hit",
+				"effect_type": "choice",
+				"choice": [
+					{ "effect_type": "push", "amount": 1 },
+					{ "effect_type": "pull", "amount": 1 }
+				]
 			}
 		],
 		"boost": {

@@ -205,7 +205,11 @@ func get_condition_text(effect, amount, amount2, detail):
 		"not_advanced_through_buddy":
 			text += "If didn't advance through %s, " % detail
 		"any_buddy_in_opponent_space":
-			text += "If %s is in opponent's space, " % detail
+			text += "If opponent is on %s, " % detail
+		"any_buddy_adjacent_opponent_space":
+			text += "If opponent is adjacent to %s, " % detail
+		"any_buddy_in_or_adjacent_opponent_space":
+			text += "If opponent is on or adjacent to %s, " % detail
 		"not_any_buddy_in_opponent_space":
 			text += "If %s is not in opponent's space, " % detail
 		"at_edge_of_arena":
@@ -706,7 +710,7 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 		"push":
 			var extra_info = ""
 			if 'save_buddy_spaces_entered_as_strike_x' in effect and effect['save_buddy_spaces_entered_as_strike_x']:
-				extra_info = "\nSet X to the number %s the opponent is pushed onto" % effect['buddy_name']
+				extra_info = "\nSet X to the number of %s the opponent is pushed onto" % effect['buddy_name']
 			effect_str += "Push " + str(effect['amount']) + extra_info
 		"push_from_source":
 			effect_str += "Push " + str(effect['amount']) + " from attack source"
