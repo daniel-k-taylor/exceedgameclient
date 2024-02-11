@@ -341,6 +341,7 @@ func setup_character_card(character_card, deck, buddy_character_card):
 	character_card.set_cost(deck['exceed_cost'])
 
 	# Setup buddy if they have one.
+	var created_buddy_cards = []
 	if 'hide_buddy_reference' in deck and deck['hide_buddy_reference']:
 		buddy_character_card.visible = false
 	elif 'buddy_card' in deck:
@@ -355,6 +356,9 @@ func setup_character_card(character_card, deck, buddy_character_card):
 		buddy_character_card.visible = true
 		buddy_character_card.hide_focus()
 		var default_buddy = deck['buddy_cards'][0]
+		if 'buddy_card_graphic_override' in deck:
+			default_buddy = deck['buddy_card_graphic_override'][0]
+		created_buddy_cards.append(default_buddy)
 		var buddy_path = build_character_path(deck['id'], default_buddy, false)
 		var buddy_exceeded_path = buddy_path
 		if 'buddy_exceeds' in deck and deck['buddy_exceeds']:
@@ -364,6 +368,12 @@ func setup_character_card(character_card, deck, buddy_character_card):
 		# Add remaining buddies as extras.
 		for i in range(1, deck['buddy_cards'].size()):
 			var buddy_id = deck['buddy_cards'][i]
+			if 'buddy_card_graphic_override' in deck:
+				buddy_id = deck['buddy_card_graphic_override'][i]
+			if buddy_id in created_buddy_cards:
+				# Skip any that share graphics.
+				continue
+			created_buddy_cards.append(buddy_id)
 			buddy_path = build_character_path(deck['id'], buddy_id, false)
 			buddy_exceeded_path = buddy_path
 			if 'buddy_exceeds' in deck and deck['buddy_exceeds']:
@@ -1824,6 +1834,7 @@ func get_gauge_generated():
 func update_gauge_selection_message():
 	if ui_sub_state == UISubState.UISubState_SelectCards_GaugeForArmor:
 		var gauge_generated = get_gauge_generated()
+		var force_generated_str = "%s gauge selected." % [gauge_generated]
 		var damage_after_armor = max(0, force_for_armor_incoming_damage - 2 * gauge_generated)
 		var ignore_armor_str = ""
 		if force_for_armor_ignore_armor:
@@ -3061,7 +3072,10 @@ func _on_choose_arena_location_for_effect(event):
 				else:
 					instruction_str = "Place %s or select one to move" % buddy_name
 			"move_to_space":
-				instruction_str = "Select a location to move to"
+				var extra_info = decision_info.extra_info
+				if extra_info:
+					extra_info = "\n" + extra_info
+				instruction_str = "Select a location to move to%s" % extra_info
 			"remove_buddy_near_opponent":
 				var buddy_name = decision_info.source
 				instruction_str = "Select %s to remove" % buddy_name

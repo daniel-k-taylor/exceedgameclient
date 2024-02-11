@@ -570,10 +570,14 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 		"calculate_range_from_center":
 			effect_str += "Calculate range from the center of the arena."
 		"draw":
+			var amount = effect['amount']
+			var amount_str = str(amount)
+			if amount is String and amount == "strike_x":
+				amount_str = "X"
 			if 'opponent' in effect and effect['opponent']:
-				effect_str += "Opponent Draw " + str(effect['amount'])
+				effect_str += "Opponent Draw " + amount_str
 			else:
-				effect_str += "Draw " + str(effect['amount'])
+				effect_str += "Draw " + amount_str
 		"draw_any_number":
 			effect_str += "Draw any number of cards."
 		"draw_to":
@@ -700,7 +704,10 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 		"pull_to_buddy":
 			effect_str += "Pull %s to %s" % [str(effect['amount']), effect['buddy_name']]
 		"push":
-			effect_str += "Push " + str(effect['amount'])
+			var extra_info = ""
+			if 'save_buddy_spaces_entered_as_strike_x' in effect and effect['save_buddy_spaces_entered_as_strike_x']:
+				extra_info = "\nSet X to the number %s the opponent is pushed onto" % effect['buddy_name']
+			effect_str += "Push " + str(effect['amount']) + extra_info
 		"push_from_source":
 			effect_str += "Push " + str(effect['amount']) + " from attack source"
 		"push_to_attack_max_range":
@@ -748,6 +755,8 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 			if optional:
 				begin_str = "You may: "
 			effect_str += "%sRemove %s %s opponent's space" % [begin_str, effect['buddy_name'], location_str]
+		"remove_X_buddies":
+			effect_str += "Remove X %ss" % [effect['buddy_name']]
 		"repeat_effect_optionally":
 			effect_str += get_effect_text(effect['linked_effect'], false, false, false)
 			var repeats = str(effect['amount'])

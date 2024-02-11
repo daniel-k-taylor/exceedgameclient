@@ -15063,7 +15063,8 @@
 				{
 					"timing": "immediate",
 					"effect_type": "remove_X_buddies",
-					"linked_effect": {
+					"buddy_name": "Ice Spike",
+					"and": {
 						"effect_type": "draw",
 						"amount": "strike_x"
 					}
@@ -15192,6 +15193,7 @@
 							"effect_type": "push",
 							"amount": 1,
 							"save_buddy_spaces_entered_as_strike_x": true,
+							"buddy_name": "Ice Spike",
 							"and": {
 								"effect_type": "draw",
 								"amount": "strike_x"
@@ -15201,6 +15203,7 @@
 							"effect_type": "push",
 							"amount": 2,
 							"save_buddy_spaces_entered_as_strike_x": true,
+							"buddy_name": "Ice Spike",
 							"and": {
 								"effect_type": "draw",
 								"amount": "strike_x"
@@ -15275,6 +15278,7 @@
 				{
 					"timing": "immediate",
 					"effect_type": "move_to_any_space",
+					"buddy_name": "Ice Spike",
 					"remove_buddies_encountered": 2,
 					"move_min": 0,
 					"move_max": 6

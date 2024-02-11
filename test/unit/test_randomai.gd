@@ -562,6 +562,9 @@ func test_mika_100():
 func test_chaos_100():
 	run_iterations_with_deck("chaos")
 
+func test_polar_100():
+	run_iterations_with_deck("polar")
+
 func test_tinker_100():
 	run_iterations_with_deck("tinker")
 

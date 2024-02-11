@@ -606,7 +606,7 @@ func pick_force_for_armor(game_logic : LocalGame, my_id : Enums.PlayerId, use_ga
 	update_ai_state(game_logic, me, opponent)
 	return ai_policy.pick_force_for_armor(possible_actions, game_state)
 
-func determine_gauge_for_armor_actions(game_logic : LocalGame, me : LocalGame.Player):
+func determine_gauge_for_armor_actions(_game_logic : LocalGame, me : LocalGame.Player):
 	var possible_actions = []
 	var available_gauge = me.gauge.size() + me.free_gauge
 	var all_option_ids = []

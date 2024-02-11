@@ -194,6 +194,20 @@ layout_mode = 2
 texture = ExtResource("3_wh1pl")
 expand_mode = 1
 
+[node name="ExtraCard3" type="TextureRect" parent="ExtraCards"]
+visible = false
+custom_minimum_size = Vector2(250, 350)
+layout_mode = 2
+texture = ExtResource("3_wh1pl")
+expand_mode = 1
+
+[node name="ExtraCard4" type="TextureRect" parent="ExtraCards"]
+visible = false
+custom_minimum_size = Vector2(250, 350)
+layout_mode = 2
+texture = ExtResource("3_wh1pl")
+expand_mode = 1
+
 [connection signal="mouse_entered" from="MainPanelContainer/Focus" to="." method="_on_focus_mouse_entered"]
 [connection signal="mouse_exited" from="MainPanelContainer/Focus" to="." method="_on_focus_mouse_exited"]
 [connection signal="pressed" from="MainPanelContainer/Focus" to="." method="_on_focus_pressed"]

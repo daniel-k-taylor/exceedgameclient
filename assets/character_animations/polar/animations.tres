@@ -77,7 +77,8 @@ animations = [{
 }],
 "loop": true,
 "name": &"idle",
-"speed": 5.0
+"speed": 8.0
 }]
-metadata/flip = false
-metadata/scaling = 0.7
+metadata/flip = true
+metadata/scaling = 1.5
+metadata/vertical_offset = -40.0

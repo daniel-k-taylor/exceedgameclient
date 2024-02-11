@@ -18,6 +18,13 @@
 		"icespike4",
 		"icespike5"
 	],
+	"buddy_card_graphic_override": [
+		"icespike",
+		"icespike",
+		"icespike",
+		"icespike",
+		"icespike"
+	],
 	"buddy_card_graphics_id": [
 		"icespike",
 		"icespike",

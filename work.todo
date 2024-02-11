@@ -14,13 +14,13 @@ In progress:
 
         Cards:
             ☐ "effect_type": "only_hits_if_on_a_buddy", @started(24-02-10 17:19)
-            ☐ "effect_type": "remove_X_buddies",
+            ☐ "effect_type": "remove_X_buddies", @started(24-02-11 02:14)
             ☐ "effect_type": "when_hit_force_for_armor", @started(24-02-10 18:38)
                 - "use_gauge_instead": true, @started(24-02-10 18:39)
             ☐ "condition": "any_buddy_in_or_adjacent_opponent_space" @started(24-02-10 20:23)
             ☐ "condition": "any_buddy_adjacent_opponent_space" @started(24-02-10 20:23)
-            ☐ push - "save_buddy_spaces_entered_as_strike_x": true,
-            ☐ move_to_any_space - "remove_buddies_encountered": 2,
+            ☐ push - "save_buddy_spaces_entered_as_strike_x": true, @started(24-02-11 01:57)
+            ☐ move_to_any_space - "remove_buddies_encountered": 2, @started(24-02-11 01:40)
             ☐ "effect_type": "power_modify_buddies_between", @started(24-02-10 20:55)
             ☐ "condition": "not_any_buddy_in_opponent_space", @started(24-02-10 20:57)
             ☐ "effect_type": "place_next_buddy_onto_self" @started(24-02-10 20:58)
