@@ -139,16 +139,19 @@ func get_gauge_for_effect_summary(effect, card_name_source : String) -> String:
 	var effect_str = ""
 	var to_hand = 'spent_cards_to_hand' in effect and effect['spent_cards_to_hand']
 	var gauge_limit = effect['gauge_max']
+	var gauge_card_str = "gauge"
+	if 'require_specific_card_name' in effect:
+		gauge_card_str = "copies of %s from gauge" % effect['require_specific_card_name']
 	if "per_gauge_effect" in effect and effect['per_gauge_effect'] != null:
 		if to_hand:
-			effect_str += "Return up to %s gauge to your hand. For each, %s" % [str(gauge_limit), get_effect_text(effect['per_gauge_effect'], false, true, true, card_name_source)]
+			effect_str += "Return up to %s %s to your hand. For each, %s" % [str(gauge_limit), gauge_card_str, get_effect_text(effect['per_gauge_effect'], false, true, true, card_name_source)]
 		else:
-			effect_str += "Spend up to %s gauge. For each, %s" % [str(gauge_limit), get_effect_text(effect['per_gauge_effect'], false, true, true, card_name_source)]
+			effect_str += "Spend up to %s %s. For each, %s" % [str(gauge_limit), gauge_card_str, get_effect_text(effect['per_gauge_effect'], false, true, true, card_name_source)]
 	elif 'overall_effect' in effect and effect['overall_effect'] != null:
 		if to_hand:
-			effect_str += "You %s return %s gauge to your hand to %s" % [maymust_str, str(gauge_limit), get_effect_text(effect['overall_effect'], false, true, true, card_name_source)]
+			effect_str += "You %s return %s %s to your hand to %s" % [maymust_str, str(gauge_limit), gauge_card_str, get_effect_text(effect['overall_effect'], false, true, true, card_name_source)]
 		else:
-			effect_str += "You %s spend %s gauge to %s" % [maymust_str, str(gauge_limit), get_effect_text(effect['overall_effect'], false, true, true, card_name_source)]
+			effect_str += "You %s spend %s %s to %s" % [maymust_str, str(gauge_limit), gauge_card_str, get_effect_text(effect['overall_effect'], false, true, true, card_name_source)]
 	return effect_str
 
 func get_timing_text(timing):

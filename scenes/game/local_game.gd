@@ -6372,6 +6372,12 @@ func get_gauge_cost(performing_player, card):
 			"per_sealed_normal":
 				var sealed_normals = performing_player.get_sealed_count_of_type("normal")
 				gauge_cost = max(0, gauge_cost - sealed_normals)
+			"per_card_copy_in_gauge":
+				var card_id = card.definition['gauge_cost_reduction_card_id']
+				for gauge_card in performing_player.gauge:
+					if gauge_card.definition['id'] == card_id:
+						gauge_cost -= 1
+				gauge_cost = max(0, gauge_cost)
 			"free_if_4_specials_in_overdrive":
 				var different_special_count = 0
 				var found_specials = []
@@ -8214,6 +8220,12 @@ func do_gauge_for_effect(performing_player : Player, card_ids : Array) -> bool:
 		if not performing_player.is_card_in_gauge(card_id):
 			printlog("ERROR: Tried to gauge for effect with card not in gauge.")
 			return false
+	if 'require_specific_card_id' in decision_info.effect:
+		var required_card_id = decision_info.effect['require_specific_card_id']
+		for card_id in card_ids:
+			if card_db.get_card(card_id).definition['id'] != required_card_id:
+				printlog("ERROR: Invalid card id selected for card-specific gauge for effect.")
+				return false
 
 	# Cap free gauge to the max gauge cost of the effect.
 	var gauge_generated = min(performing_player.free_gauge, decision_info.effect['gauge_max'])
