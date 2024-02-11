@@ -3944,71 +3944,25 @@
 	{
 		"id": "enkidu_galeedge",
 		"type": "special",
-		"display_name": "Let the Fleur Carry Your Feelings",
+		"display_name": "Gale Edge",
 		"force_cost": 0,
 		"gauge_cost": 0,
 		"range_min": 2,
-		"range_max": 4,
-		"speed": 4,
-		"power": 4,
-		"armor": 0,
-		"guard": 0,
-		"effects": [
-			{
-				"timing": "after",
-				"condition": "opponent_stunned",
-				"effect_type": "choice",
-				"choice": [
-					{
-						"effect_type": "advance", "amount": 2 , "and": { "effect_type": "draw", "amount": 2 }
-					},
-					{
-						"effect_type": "retreat", "amount": 2 , "and": { "effect_type": "draw", "amount": 2 }
-					}
-				]
-			}
-		],
-		"boost": {
-			"boost_type": "immediate",
-			"force_cost": 2,
-			"cancel_cost": -1,
-			"display_name": "Jumping to Conclusions",
-			"effects": [
-				{
-					"timing": "immediate",
-					"effect_type": "reveal_hand",
-					"opponent": true
-				},
-				{
-					"timing": "immediate",
-					"effect_type": "strike"
-				}
-			]
-		}
-	},
-	{
-		"NOTE": "ENKIDU CARDS END",
-		"id": "enkidu_thunderstomp",
-		"type": "special",
-		"display_name": "Ange's Invitation",
-		"force_cost": 0,
-		"gauge_cost": 0,
-		"range_min": 1,
-		"range_max": 2,
-		"speed": 3,
-		"power": 5,
+		"range_max": 3,
+		"speed": 2,
+		"power": 6,
 		"armor": 0,
 		"guard": 0,
 		"effects": [
 			{
 				"timing": "during_strike",
 				"effect_type": "higher_speed_misses",
-				"dodge_at_speed_greater_or_equal": 6
+				"dodge_at_speed_greater_or_equal": 5
 			},
 			{
 				"timing": "after",
 				"effect_type": "advance",
-				"amount": 3
+				"amount": 2
 			}
 		],
 		"boost": {
@@ -4029,6 +3983,61 @@
 				{
 					"timing": "after",
 					"effect_type": "add_to_gauge_immediately_mid_strike_undo_effects"
+				}
+			]
+		}
+	},
+	{
+		"NOTE": "ENKIDU CARDS END",
+		"id": "enkidu_thunderstomp",
+		"type": "special",
+		"display_name": "Thunder Stomp",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 2,
+		"speed": 1,
+		"power": 4,
+		"armor": 1,
+		"guard": 4,
+		"effects": [
+			{
+				"timing": "during_strike",
+				"effect_type": "block_opponent_move"
+			},
+			{
+				"timing": "cleanup",
+				"effect_type": "remove_block_opponent_move"
+			}
+		],
+		"boost": {
+			"boost_type": "immediate",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Maelstrom",
+			"effects": [
+				{
+					"timing": "immediate",
+					"condition": "min_cards_in_hand",
+					"condition_amount": 3,
+					"effect_type": "discard_hand",
+					"and": {
+						"timing": "immediate",
+						"effect_type": "draw",
+						"amount": 4,
+						"and": {
+							"effect_type": "bonus_action"
+						}
+					},
+
+					"negative_condition_effect": {
+						"effect_type": "discard_hand",
+						"and": {
+							"timing": "immediate",
+							"effect_type": "draw",
+							"amount": 4
+						}
+					}
 				}
 			]
 		},
