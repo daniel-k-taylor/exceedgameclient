@@ -611,7 +611,7 @@ class Player:
 	var cannot_move : bool
 	var cannot_move_past_opponent : bool
 	var cannot_move_past_opponent_buddy_id : Variant
-	var ignore_push_and_pull : bool
+	var ignore_push_and_pull : int
 	var extra_effect_after_set_strike
 	var end_of_turn_boost_delay_card_ids : Array
 	var saved_power : int
@@ -704,7 +704,7 @@ class Player:
 		cannot_move = false
 		cannot_move_past_opponent = false
 		cannot_move_past_opponent_buddy_id = null
-		ignore_push_and_pull = false
+		ignore_push_and_pull = 0
 		extra_effect_after_set_strike = null
 		end_of_turn_boost_delay_card_ids = []
 		saved_power = 0
@@ -854,6 +854,12 @@ class Player:
 				return true
 		return false
 
+	func get_copy_in_discards(definition_id : String):
+		for card in discards:
+			if card.definition['id'] == definition_id:
+				return card.id
+		return -1
+
 	func is_card_in_sealed(id : int):
 		for card in sealed:
 			if card.id == id:
@@ -998,6 +1004,16 @@ class Player:
 			var card = gauge[i]
 			if card.id == id:
 				events += add_to_hand(card, true)
+				gauge.remove_at(i)
+				break
+		return events
+
+	func move_card_from_gauge_to_sealed(id : int):
+		var events = []
+		for i in range(len(gauge)):
+			var card = gauge[i]
+			if card.id == id:
+				events += add_to_sealed(card)
 				gauge.remove_at(i)
 				break
 		return events
@@ -1185,6 +1201,12 @@ class Player:
 			if card.id == id:
 				return true
 		return false
+
+	func get_copy_in_gauge(definition_id : String):
+		for card in gauge:
+			if card.definition['id'] == definition_id:
+				return card.id
+		return -1
 
 	func get_discard_count_of_type(limitation : String):
 		var count = 0
@@ -2322,8 +2344,9 @@ class Player:
 			if effect['timing'] == "now":
 				match effect['effect_type']:
 					"ignore_push_and_pull_passive_bonus":
-						ignore_push_and_pull = true
-						parent._append_log_full(Enums.LogType.LogType_Effect, self, "cannot be pushed or pulled!")
+						ignore_push_and_pull += 1
+						if ignore_push_and_pull == 1:
+							parent._append_log_full(Enums.LogType.LogType_Effect, self, "cannot be pushed or pulled!")
 		if parent.active_strike:
 			# Redo continuous effects
 			for effect in _find_during_strike_effects(card):
@@ -2378,8 +2401,9 @@ class Player:
 			if effect['timing'] == "now":
 				match effect['effect_type']:
 					"ignore_push_and_pull_passive_bonus":
-						ignore_push_and_pull = false
-						parent._append_log_full(Enums.LogType.LogType_Effect, self, "no longer ignores pushes and pulls.")
+						ignore_push_and_pull -= 1
+						if ignore_push_and_pull == 0:
+							parent._append_log_full(Enums.LogType.LogType_Effect, self, "no longer ignores pushes and pulls.")
 			elif effect['timing'] == current_timing:
 				# Need to remove these effects from the remaining effects.
 				# Only if the current timing belongs to the player who has this in their continuous boosts.
@@ -4216,8 +4240,11 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 			performing_player.strike_stat_boosts.move_strike_to_opponent_boosts = true
 			events += handle_strike_attack_immediate_removal(performing_player)
 		"guardup":
-			performing_player.strike_stat_boosts.guard += effect['amount']
-			events += [create_event(Enums.EventType.EventType_Strike_GuardUp, performing_player.my_id, effect['amount'])]
+			var amount = effect['amount']
+			if str(amount) == "strike_x":
+				amount = performing_player.strike_stat_boosts.strike_x
+			performing_player.strike_stat_boosts.guard += amount
+			events += [create_event(Enums.EventType.EventType_Strike_GuardUp, performing_player.my_id, amount)]
 		"higher_speed_misses":
 			performing_player.strike_stat_boosts.higher_speed_misses = true
 			if 'dodge_at_speed_greater_or_equal' in effect:
@@ -4235,13 +4262,15 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 		"ignore_push_and_pull":
 			performing_player.strike_stat_boosts.ignore_push_and_pull = true
 		"ignore_push_and_pull_passive_bonus":
-			performing_player.ignore_push_and_pull = true
-			_append_log_full(Enums.LogType.LogType_Effect, performing_player, "cannot be pushed or pulled!")
+			performing_player.ignore_push_and_pull += 1
+			if performing_player.ignore_push_and_pull == 1:
+				_append_log_full(Enums.LogType.LogType_Effect, performing_player, "cannot be pushed or pulled!")
 		"increase_force_spent_before_strike":
 			performing_player.force_spent_before_strike += 1
 		"remove_ignore_push_and_pull_passive_bonus":
-			_append_log_full(Enums.LogType.LogType_Effect, performing_player, "no longer ignores pushes and pulls.")
-			performing_player.ignore_push_and_pull = false
+			performing_player.ignore_push_and_pull -= 1
+			if performing_player.ignore_push_and_pull == 0:
+				_append_log_full(Enums.LogType.LogType_Effect, performing_player, "no longer ignores pushes and pulls.")
 		"look_at_top_opponent_deck":
 			events += opposing_player.reveal_topdeck()
 		"lose_all_armor":
@@ -5119,7 +5148,10 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 		"set_end_of_turn_boost_delay":
 			performing_player.set_end_of_turn_boost_delay(card_id)
 		"set_strike_x":
-			events += do_set_strike_x(performing_player, effect['source'])
+			var extra_info = []
+			if 'extra_info' in effect:
+				extra_info = effect['extra_info']
+			events += do_set_strike_x(performing_player, effect['source'], extra_info)
 		"set_total_power":
 			performing_player.strike_stat_boosts.overwrite_total_power = true
 			performing_player.strike_stat_boosts.overwritten_total_power = effect['amount']
@@ -5219,6 +5251,36 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 			performing_player.skip_end_of_turn_draw = true
 		"specials_invalid":
 			performing_player.specials_invalid = effect['enabled']
+		"specific_card_discard_to_hand":
+			var card_name = effect['card_name']
+			var copy_id = effect['copy_id']
+			var return_effect = null
+			if 'return_effect' in effect:
+				return_effect = effect['return_effect']
+
+			var copy_card_id = performing_player.get_copy_in_discards(copy_id)
+			if copy_card_id != -1:
+				events += performing_player.move_card_from_discard_to_hand(copy_card_id)
+				_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "moves a copy of %s from discard to hand." % card_name)
+				if return_effect:
+					events += do_effect_if_condition_met(performing_player, card_id, return_effect, null)
+			else:
+				_append_log_full(Enums.LogType.LogType_Effect, performing_player, "has no copies of %s in discard." % card_name)
+		"specific_card_seal_from_gauge":
+			var card_name = effect['card_name']
+			var copy_id = effect['copy_id']
+			var seal_effect = null
+			if 'seal_effect' in effect:
+				seal_effect = effect['seal_effect']
+
+			var copy_card_id = performing_player.get_copy_in_gauge(copy_id)
+			if copy_card_id != -1:
+				events += performing_player.move_card_from_gauge_to_sealed(copy_card_id)
+				_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "seals a copy of %s from gauge." % card_name)
+				if seal_effect:
+					events += do_effect_if_condition_met(performing_player, card_id, seal_effect, null)
+			else:
+				_append_log_full(Enums.LogType.LogType_Effect, performing_player, "has no copies of %s in gauge." % card_name)
 		"speedup":
 			performing_player.strike_stat_boosts.speed += effect['amount']
 			events += [create_event(Enums.EventType.EventType_Strike_SpeedUp, performing_player.my_id, effect['amount'])]
@@ -5920,7 +5982,7 @@ func do_remaining_character_action(performing_player : Player):
 			events += check_hand_size_advance_turn(performing_player)
 	return events
 
-func do_set_strike_x(performing_player : Player, source : String):
+func do_set_strike_x(performing_player : Player, source : String, extra_info):
 	var events = []
 
 	var value = 0
@@ -5957,6 +6019,13 @@ func do_set_strike_x(performing_player : Player, source : String):
 		"force_spent_before_strike":
 			value = performing_player.force_spent_before_strike
 			_append_log_full(Enums.LogType.LogType_Strike, performing_player, "'s X for this strike is set to the force spent, %s." % value)
+		"copies_in_gauge":
+			var card_id = extra_info['card_id']
+			var card_name = extra_info['card_name']
+			for card in performing_player.gauge:
+				if card.definition['id'] == card_id:
+					value += 1
+			_append_log_full(Enums.LogType.LogType_Strike, performing_player, "'s X for this strike is set to the number of copies of %s in gauge, %s." % [card_name, value])
 		_:
 			assert(false, "Unknown source for setting X")
 
@@ -6307,6 +6376,12 @@ func get_gauge_cost(performing_player, card):
 			"per_sealed_normal":
 				var sealed_normals = performing_player.get_sealed_count_of_type("normal")
 				gauge_cost = max(0, gauge_cost - sealed_normals)
+			"per_card_copy_in_gauge":
+				var card_id = card.definition['gauge_cost_reduction_card_id']
+				for gauge_card in performing_player.gauge:
+					if gauge_card.definition['id'] == card_id:
+						gauge_cost -= 1
+				gauge_cost = max(0, gauge_cost)
 			"free_if_4_specials_in_overdrive":
 				var different_special_count = 0
 				var found_specials = []
@@ -8094,9 +8169,12 @@ func do_force_for_effect(performing_player : Player, card_ids : Array, treat_ult
 				ultras += 1
 
 	if performing_player.free_force > decision_info.effect['force_max']:
-		force_generated = decision_info.effect['force_max']
+		if decision_info.effect['force_max'] == -1:
+			force_generated += performing_player.free_force
+		else:
+			force_generated = decision_info.effect['force_max']
 
-	if force_generated > decision_info.effect['force_max']:
+	if decision_info.effect['force_max'] != -1 and force_generated > decision_info.effect['force_max']:
 		if force_generated - ultras <= decision_info.effect['force_max']:
 			force_generated = decision_info.effect['force_max']
 		else:
@@ -8146,6 +8224,12 @@ func do_gauge_for_effect(performing_player : Player, card_ids : Array) -> bool:
 		if not performing_player.is_card_in_gauge(card_id):
 			printlog("ERROR: Tried to gauge for effect with card not in gauge.")
 			return false
+	if 'require_specific_card_id' in decision_info.effect:
+		var required_card_id = decision_info.effect['require_specific_card_id']
+		for card_id in card_ids:
+			if card_db.get_card(card_id).definition['id'] != required_card_id:
+				printlog("ERROR: Invalid card id selected for card-specific gauge for effect.")
+				return false
 
 	# Cap free gauge to the max gauge cost of the effect.
 	var gauge_generated = min(performing_player.free_gauge, decision_info.effect['gauge_max'])

@@ -3686,6 +3686,393 @@
 
 
 	{
+		"NOTE": "ENKIDU CARDS START",
+		"id": "enkidu_spiraldualpalmstrike",
+		"type": "ultra",
+		"display_name": "Spiral Dual Palm Strike",
+		"force_cost": 0,
+		"gauge_cost": 2,
+		"range_min": 1,
+		"range_max": 3,
+		"speed": 4,
+		"power": 4,
+		"armor": 6,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "after",
+				"effect_type": "close",
+				"amount": 2,
+				"and": {
+					"effect_type": "lose_all_armor"
+				}
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Immovable Object",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "armorup",
+					"amount": 1,
+					"and": {
+						"effect_type": "guardup",
+						"amount": 1
+					}
+				},
+				{
+					"timing": "now",
+					"effect_type": "ignore_push_and_pull_passive_bonus"
+				},
+				{
+					"timing": "discarded",
+					"effect_type": "remove_ignore_push_and_pull_passive_bonus"
+				},
+				{
+					"timing": "after",
+					"effect_type": "gauge_for_effect",
+					"per_gauge_effect": null,
+					"overall_effect": {
+						"effect_type": "sustain_this",
+						"card_name": "Immovable Object"
+					},
+					"gauge_max": 1
+				}
+			]
+		}
+	},
+	{
+		"id": "enkidu_demonsealabyssalforce",
+		"type": "ultra",
+		"display_name": "Demon Seal: Abyssal Force",
+		"force_cost": 0,
+		"gauge_cost": 6,
+		"gauge_cost_reduction": "per_card_copy_in_gauge",
+		"gauge_cost_reduction_card_id": "enkidu_threepreceptstrike",
+		"range_min": 2,
+		"range_max": 5,
+		"speed": 1,
+		"power": 10,
+		"armor": 0,
+		"guard": 6,
+		"effects": [
+			{
+				"timing": "after",
+				"effect_type": "gain_advantage",
+				"and": {
+					"effect_type": "gauge_for_effect",
+					"require_specific_card_id": "enkidu_threepreceptstrike",
+					"require_specific_card_name": "Three Precept Strike",
+					"per_gauge_effect": {
+						"effect_type": "nothing",
+						"spent_cards_to_hand": true
+					},
+					"overall_effect": null,
+					"spent_cards_to_hand": true,
+					"gauge_max": 6
+				}
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 1,
+			"cancel_cost": -1,
+			"display_name": "Unstoppable Force",
+			"effects": [
+				{
+					"timing": "hit",
+					"effect_type": "gain_advantage"
+				},
+				{
+					"timing": "after",
+					"effect_type": "gauge_for_effect",
+					"per_gauge_effect": null,
+					"overall_effect": {
+						"effect_type": "sustain_this",
+						"card_name": "Unstoppable Force"
+					},
+					"gauge_max": 1
+				}
+			]
+		}
+	},
+	{
+		"id": "enkidu_tidalspin",
+		"type": "special",
+		"display_name": "Tidal Spin",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 1,
+		"speed": 7,
+		"power": 5,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "during_strike",
+				"condition": "not_initiated_strike",
+				"effect_type": "cannot_stun"
+			},
+			{
+				"timing": "after",
+				"effect_type": "advance",
+				"amount": 2
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Tactical",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "speedup",
+					"amount": 1
+				},
+				{
+					"timing": "now",
+					"effect_type": "choice",
+					"choice": [
+						{ "effect_type": "advance", "amount": 1 },
+						{ "effect_type": "retreat", "amount": 1 }
+					]
+				}
+			]
+		}
+	},
+	{
+		"id": "enkidu_threepreceptstrike",
+		"type": "special",
+		"display_name": "Three Precept Strike",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 3,
+		"speed": 5,
+		"power": 3,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "during_strike",
+				"effect_type": "set_strike_x",
+				"source": "copies_in_gauge",
+				"extra_info": {
+					"card_id": "enkidu_threepreceptstrike",
+					"card_name": "Three Precept Strike"
+				},
+				"and": {
+					"effect_type": "powerup",
+					"amount": "strike_x",
+					"and": {
+						"effect_type": "guardup",
+						"amount": "strike_x",
+					}
+				}
+			},
+			{
+				"timing": "after",
+				"effect_type": "close",
+				"amount": 1,
+				"and": {
+					"effect_type": "choice",
+					"choice": [
+						{ "effect_type": "reveal_copy_for_advantage", "copy_id": "enkidu_threepreceptstrike" },
+						{ "effect_type": "pass" }
+					]
+				}
+			}
+		],
+		"boost": {
+			"boost_type": "immediate",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Calamity Crest",
+			"effects": [
+				{
+					"timing": "immediate",
+					"effect_type": "spend_life",
+					"amount": 3,
+					"and": {
+						"effect_type": "add_to_gauge_boost_play_cleanup"
+					}
+				},
+				{
+					"timing": "immediate",
+					"effect_type": "bonus_action"
+				}
+			]
+		}
+	},
+	{
+		"id": "enkidu_chainedkick",
+		"type": "special",
+		"display_name": "Chained Kick",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 2,
+		"speed": 3,
+		"power": 4,
+		"armor": 0,
+		"guard": 4,
+		"effects": [
+			{
+				"timing": "during_strike",
+				"effect_type": "set_strike_x",
+				"source": "copies_in_gauge",
+				"extra_info": {
+					"card_id": "enkidu_threepreceptstrike",
+					"card_name": "Three Precept Strike"
+				},
+				"and": {
+					"effect_type": "powerup",
+					"amount": "strike_x",
+					"and": {
+						"effect_type": "guardup",
+						"amount": "strike_x",
+					}
+				}
+			},
+			{
+				"timing": "before",
+				"effect_type": "advance",
+				"amount": 1
+			}
+		],
+		"boost": {
+			"boost_type": "immediate",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Reckless Run",
+			"effects": [
+				{
+					"timing": "immediate",
+					"effect_type": "advance",
+					"amount": 2
+				},
+				{
+					"timing": "immediate",
+					"effect_type": "force_for_effect",
+					"per_force_effect": {
+						"effect_type": "advance",
+						"amount": 2
+					},
+					"overall_effect": null,
+					"force_max": -1
+				}
+			]
+		}
+	},
+	{
+		"id": "enkidu_galeedge",
+		"type": "special",
+		"display_name": "Gale Edge",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 2,
+		"range_max": 3,
+		"speed": 2,
+		"power": 6,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "during_strike",
+				"effect_type": "higher_speed_misses",
+				"dodge_at_speed_greater_or_equal": 5
+			},
+			{
+				"timing": "after",
+				"effect_type": "advance",
+				"amount": 2
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Chain Shift",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "speedup",
+					"amount": 1
+				},
+				{
+					"timing": "now",
+					"effect_type": "strike"
+				},
+				{
+					"timing": "after",
+					"effect_type": "add_to_gauge_immediately_mid_strike_undo_effects"
+				}
+			]
+		}
+	},
+	{
+		"NOTE": "ENKIDU CARDS END",
+		"id": "enkidu_thunderstomp",
+		"type": "special",
+		"display_name": "Thunder Stomp",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 2,
+		"speed": 1,
+		"power": 4,
+		"armor": 1,
+		"guard": 4,
+		"effects": [
+			{
+				"timing": "during_strike",
+				"effect_type": "block_opponent_move"
+			},
+			{
+				"timing": "cleanup",
+				"effect_type": "remove_block_opponent_move"
+			}
+		],
+		"boost": {
+			"boost_type": "immediate",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Maelstrom",
+			"effects": [
+				{
+					"timing": "immediate",
+					"condition": "min_cards_in_hand",
+					"condition_amount": 3,
+					"effect_type": "discard_hand",
+					"and": {
+						"timing": "immediate",
+						"effect_type": "draw",
+						"amount": 4,
+						"and": {
+							"effect_type": "bonus_action"
+						}
+					},
+					"negative_condition_effect": {
+						"effect_type": "discard_hand",
+						"and": {
+							"timing": "immediate",
+							"effect_type": "draw",
+							"amount": 4
+						}
+					}
+				}
+			]
+		},
+		"NOTEEND": "ENKIDU CARDS END"
+	},
+
+
+	{
 		"NOTE": "FAUST CARDS START",
 		"id": "faust_whatcouldthisbe",
 		"type": "ultra",
@@ -14497,7 +14884,6 @@
 						{ "effect_type": "reveal_copy_for_advantage", "copy_id": "phonon_turningsatisfaction" },
 						{ "effect_type": "pass" }
 					]
-
 				}
 			}
 		],
