@@ -1,0 +1,16 @@
+[gd_resource type="SpriteFrames" load_steps=2 format=3 uid="uid://dyioi2v4skqh6"]
+
+[ext_resource type="Texture2D" uid="uid://ce5e3irprpipg" path="res://assets/character_animations/snowblossom/snowblossom.png" id="1_78a3u"]
+
+[resource]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("1_78a3u")
+}],
+"loop": true,
+"name": &"idle",
+"speed": 5.0
+}]
+metadata/flip = true
+metadata/scaling = 0.7

@@ -1,0 +1,202 @@
+[gd_resource type="SpriteFrames" load_steps=40 format=3 uid="uid://duxl65up681yx"]
+
+[ext_resource type="Texture2D" uid="uid://prhipowjiwps" path="res://assets/character_animations/londrekia/dash_back/398.png" id="1_om408"]
+[ext_resource type="Texture2D" uid="uid://dqr022too5njq" path="res://assets/character_animations/londrekia/dash_back/399.png" id="2_cbuyo"]
+[ext_resource type="Texture2D" uid="uid://den7drpvpdfwl" path="res://assets/character_animations/londrekia/dash_back/400.png" id="3_m3s0y"]
+[ext_resource type="Texture2D" uid="uid://dk1kc7k0jb78n" path="res://assets/character_animations/londrekia/idle/000.png" id="4_lpdt1"]
+[ext_resource type="Texture2D" uid="uid://c7vqsiff8cn6y" path="res://assets/character_animations/londrekia/idle/001.png" id="5_5bq3l"]
+[ext_resource type="Texture2D" uid="uid://blkyf7x0rpiqg" path="res://assets/character_animations/londrekia/idle/002.png" id="6_gyeqy"]
+[ext_resource type="Texture2D" uid="uid://i85nbyaud24v" path="res://assets/character_animations/londrekia/idle/003.png" id="7_yuw7b"]
+[ext_resource type="Texture2D" uid="uid://c7s8g153twb66" path="res://assets/character_animations/londrekia/idle/004.png" id="8_mjm0c"]
+[ext_resource type="Texture2D" uid="uid://2tpy1cus6wrx" path="res://assets/character_animations/londrekia/idle/005.png" id="9_f4e0q"]
+[ext_resource type="Texture2D" uid="uid://dajk2k7cau85v" path="res://assets/character_animations/londrekia/idle/006.png" id="10_5ft86"]
+[ext_resource type="Texture2D" uid="uid://dc76hbkodmtlv" path="res://assets/character_animations/londrekia/idle/007.png" id="11_25dpm"]
+[ext_resource type="Texture2D" uid="uid://budcut4ymtxxf" path="res://assets/character_animations/londrekia/idle/008.png" id="12_1p0xb"]
+[ext_resource type="Texture2D" uid="uid://cex3v8eopcnmh" path="res://assets/character_animations/londrekia/idle/009.png" id="13_2onrr"]
+[ext_resource type="Texture2D" uid="uid://c5jkmmn2apts4" path="res://assets/character_animations/londrekia/idle/010.png" id="14_lhtld"]
+[ext_resource type="Texture2D" uid="uid://borjn30qmpytb" path="res://assets/character_animations/londrekia/idle/011.png" id="15_bws2q"]
+[ext_resource type="Texture2D" uid="uid://3hwallbxynik" path="res://assets/character_animations/londrekia/idle/012.png" id="16_7e41e"]
+[ext_resource type="Texture2D" uid="uid://d4ls74traw8p8" path="res://assets/character_animations/londrekia/idle/013.png" id="17_amn32"]
+[ext_resource type="Texture2D" uid="uid://dsdy4ly7ylcea" path="res://assets/character_animations/londrekia/idle/014.png" id="18_6flxp"]
+[ext_resource type="Texture2D" uid="uid://dsslcnntw6cw2" path="res://assets/character_animations/londrekia/idle/015.png" id="19_jy5da"]
+[ext_resource type="Texture2D" uid="uid://38lywfou68du" path="res://assets/character_animations/londrekia/idle/016.png" id="20_bsp3l"]
+[ext_resource type="Texture2D" uid="uid://dynlvfq1q5lv0" path="res://assets/character_animations/londrekia/idle/017.png" id="21_yi412"]
+[ext_resource type="Texture2D" uid="uid://c43avujlxxbru" path="res://assets/character_animations/londrekia/idle/018.png" id="22_gxuji"]
+[ext_resource type="Texture2D" uid="uid://bp8miq8bpfk15" path="res://assets/character_animations/londrekia/idle/019.png" id="23_xgeaa"]
+[ext_resource type="Texture2D" uid="uid://bof5jfly41bso" path="res://assets/character_animations/londrekia/run/394.png" id="24_5lupu"]
+[ext_resource type="Texture2D" uid="uid://bmvd25v5siqn3" path="res://assets/character_animations/londrekia/run/395.png" id="25_n08a5"]
+[ext_resource type="Texture2D" uid="uid://bjuoqfk41osqy" path="res://assets/character_animations/londrekia/run/401.png" id="26_acbha"]
+[ext_resource type="Texture2D" uid="uid://dj4xgrqtv5xqr" path="res://assets/character_animations/londrekia/run/402.png" id="27_s252q"]
+[ext_resource type="Texture2D" uid="uid://byjb0n8y5vnji" path="res://assets/character_animations/londrekia/run/396.png" id="28_1idy0"]
+[ext_resource type="Texture2D" uid="uid://bwwnfcfjhawci" path="res://assets/character_animations/londrekia/run/397.png" id="29_abkrh"]
+[ext_resource type="Texture2D" uid="uid://352huogcv3ce" path="res://assets/character_animations/londrekia/walk_backward/389.png" id="30_fehio"]
+[ext_resource type="Texture2D" uid="uid://b3hfyw0c21nff" path="res://assets/character_animations/londrekia/walk_backward/390.png" id="31_jijvd"]
+[ext_resource type="Texture2D" uid="uid://bn42d4wkt1pef" path="res://assets/character_animations/londrekia/walk_backward/391.png" id="32_5vscq"]
+[ext_resource type="Texture2D" uid="uid://cpp1np5qqku4o" path="res://assets/character_animations/londrekia/walk_backward/392.png" id="33_ccdce"]
+[ext_resource type="Texture2D" uid="uid://dhb68671ytbyy" path="res://assets/character_animations/londrekia/walk_backward/393.png" id="34_3pxc7"]
+[ext_resource type="Texture2D" uid="uid://baajqs1k5yh65" path="res://assets/character_animations/londrekia/walk_forward/384.png" id="35_2jpk6"]
+[ext_resource type="Texture2D" uid="uid://bn4lidjgfa1vb" path="res://assets/character_animations/londrekia/walk_forward/385.png" id="36_uw44k"]
+[ext_resource type="Texture2D" uid="uid://b0m76mbynhl63" path="res://assets/character_animations/londrekia/walk_forward/386.png" id="37_84ybm"]
+[ext_resource type="Texture2D" uid="uid://inknow8ysli7" path="res://assets/character_animations/londrekia/walk_forward/387.png" id="38_7oq7l"]
+[ext_resource type="Texture2D" uid="uid://pq06an1eu3a8" path="res://assets/character_animations/londrekia/walk_forward/388.png" id="39_s5ynw"]
+
+[resource]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("1_om408")
+}, {
+"duration": 1.0,
+"texture": ExtResource("2_cbuyo")
+}, {
+"duration": 1.0,
+"texture": ExtResource("1_om408")
+}, {
+"duration": 1.0,
+"texture": ExtResource("2_cbuyo")
+}, {
+"duration": 1.0,
+"texture": ExtResource("3_m3s0y")
+}],
+"loop": true,
+"name": &"dash_back",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("4_lpdt1")
+}, {
+"duration": 1.0,
+"texture": ExtResource("5_5bq3l")
+}, {
+"duration": 1.0,
+"texture": ExtResource("6_gyeqy")
+}, {
+"duration": 1.0,
+"texture": ExtResource("7_yuw7b")
+}, {
+"duration": 1.0,
+"texture": ExtResource("8_mjm0c")
+}, {
+"duration": 1.0,
+"texture": ExtResource("9_f4e0q")
+}, {
+"duration": 1.0,
+"texture": ExtResource("10_5ft86")
+}, {
+"duration": 1.0,
+"texture": ExtResource("11_25dpm")
+}, {
+"duration": 1.0,
+"texture": ExtResource("12_1p0xb")
+}, {
+"duration": 1.0,
+"texture": ExtResource("13_2onrr")
+}, {
+"duration": 1.0,
+"texture": ExtResource("14_lhtld")
+}, {
+"duration": 1.0,
+"texture": ExtResource("15_bws2q")
+}, {
+"duration": 1.0,
+"texture": ExtResource("16_7e41e")
+}, {
+"duration": 1.0,
+"texture": ExtResource("17_amn32")
+}, {
+"duration": 1.0,
+"texture": ExtResource("18_6flxp")
+}, {
+"duration": 1.0,
+"texture": ExtResource("19_jy5da")
+}, {
+"duration": 1.0,
+"texture": ExtResource("20_bsp3l")
+}, {
+"duration": 1.0,
+"texture": ExtResource("21_yi412")
+}, {
+"duration": 1.0,
+"texture": ExtResource("22_gxuji")
+}, {
+"duration": 1.0,
+"texture": ExtResource("23_xgeaa")
+}],
+"loop": true,
+"name": &"idle",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("24_5lupu")
+}, {
+"duration": 1.0,
+"texture": ExtResource("25_n08a5")
+}, {
+"duration": 1.0,
+"texture": ExtResource("26_acbha")
+}, {
+"duration": 1.0,
+"texture": ExtResource("27_s252q")
+}, {
+"duration": 1.0,
+"texture": ExtResource("26_acbha")
+}, {
+"duration": 1.0,
+"texture": ExtResource("27_s252q")
+}, {
+"duration": 1.0,
+"texture": ExtResource("28_1idy0")
+}, {
+"duration": 1.0,
+"texture": ExtResource("29_abkrh")
+}],
+"loop": true,
+"name": &"run",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("30_fehio")
+}, {
+"duration": 1.0,
+"texture": ExtResource("31_jijvd")
+}, {
+"duration": 1.0,
+"texture": ExtResource("32_5vscq")
+}, {
+"duration": 1.0,
+"texture": ExtResource("33_ccdce")
+}, {
+"duration": 1.0,
+"texture": ExtResource("34_3pxc7")
+}],
+"loop": true,
+"name": &"walk_backward",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("35_2jpk6")
+}, {
+"duration": 1.0,
+"texture": ExtResource("36_uw44k")
+}, {
+"duration": 1.0,
+"texture": ExtResource("37_84ybm")
+}, {
+"duration": 1.0,
+"texture": ExtResource("38_7oq7l")
+}, {
+"duration": 1.0,
+"texture": ExtResource("39_s5ynw")
+}],
+"loop": true,
+"name": &"walk_forward",
+"speed": 5.0
+}]
+metadata/flip = true
+metadata/scaling = 0.7
+metadata/vertical_offset = -20.0
+metadata/horizontal_offset = 130.0
