@@ -3989,8 +3989,14 @@
 				{
 					"timing": "cleanup",
 					"condition": "not_stunned",
-					"effect_type": "sustain_this",
-					"card_name": "Koryuken"
+					"effect_type": "choice",
+					"choice": [
+						{
+							"effect_type": "sustain_this",
+							"card_name": "Koryuken"
+						},
+						{ "effect_type": "pass" }
+					]
 				}
 			]
 		}

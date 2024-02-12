@@ -14,10 +14,14 @@ const TestCardId5 = 50005
 var player1 : LocalGame.Player
 var player2 : LocalGame.Player
 
-func default_game_setup():
+func default_game_setup(alt_opponent : String = ""):
+	var opponent_deck = default_deck
+	if alt_opponent:
+		opponent_deck = CardDefinitions.get_deck_from_str_id(alt_opponent)
+
 	game_logic = LocalGame.new()
 	var seed_value = randi()
-	game_logic.initialize_game(default_deck, default_deck, "p1", "p2", Enums.PlayerId.PlayerId_Player, seed_value)
+	game_logic.initialize_game(default_deck, opponent_deck, "p1", "p2", Enums.PlayerId.PlayerId_Player, seed_value)
 	game_logic.draw_starting_hands_and_begin()
 	game_logic.do_mulligan(game_logic.player, [])
 	game_logic.do_mulligan(game_logic.opponent, [])
@@ -75,7 +79,13 @@ func after_all():
 
 func do_and_validate_strike(player, card_id, ex_card_id = -1):
 	assert_true(game_logic.can_do_strike(player))
-	assert_true(game_logic.do_strike(player, card_id, false, ex_card_id))
+	if card_id != -1:
+		assert_true(game_logic.do_strike(player, card_id, false, ex_card_id))
+	else:
+		var ws_card_id = player.deck[0].id
+		assert_true(game_logic.do_strike(player, card_id, true, ex_card_id))
+		card_id = ws_card_id
+
 	var events = game_logic.get_latest_events()
 	validate_has_event(events, Enums.EventType.EventType_Strike_Started, player, card_id)
 	if game_logic.game_state == Enums.GameState.GameState_Strike_Opponent_Response or game_logic.game_state == Enums.GameState.GameState_PlayerDecision:
@@ -115,22 +125,28 @@ func validate_discard(player, amount, id):
 			return
 	fail_test("Didn't have required card in discard.")
 
-func handle_simultaneous_effects(initiator, defender):
+func handle_simultaneous_effects(initiator, defender, sim_effect_choice = 0):
 	while game_logic.game_state == Enums.GameState.GameState_PlayerDecision and game_logic.decision_info.type == Enums.DecisionType.DecisionType_ChooseSimultaneousEffect:
 		var decider = initiator
 		if game_logic.decision_info.player == defender.my_id:
 			decider = defender
-		assert_true(game_logic.do_choice(decider, 0), "Failed simuleffect choice")
+		assert_true(game_logic.do_choice(decider, sim_effect_choice), "Failed simuleffect choice")
 
 func execute_strike(initiator, defender, init_card : String, def_card : String, init_choices, def_choices,
-		init_ex = false, def_ex = false, init_force_discard = [], def_force_discard = [], init_extra_cost = 0, init_set_effect_gauge = false, def_set_effect_gauge = false):
+		init_ex = false, def_ex = false, init_force_discard = [], def_force_discard = [], init_extra_cost = 0, init_set_effect_gauge = false, def_set_effect_gauge = false,
+		sim_effect_choice = 0):
 	var all_events = []
-	give_specific_cards(initiator, init_card, defender, def_card)
-	if init_ex:
-		give_player_specific_card(initiator, init_card, TestCardId3)
-		do_and_validate_strike(initiator, TestCardId1, TestCardId3)
+
+	if init_card:
+		give_specific_cards(initiator, init_card, defender, def_card)
+		if init_ex:
+			give_player_specific_card(initiator, init_card, TestCardId3)
+			do_and_validate_strike(initiator, TestCardId1, TestCardId3)
+		else:
+			do_and_validate_strike(initiator, TestCardId1)
 	else:
-		do_and_validate_strike(initiator, TestCardId1)
+		give_player_specific_card(defender, def_card, TestCardId2)
+		do_and_validate_strike(initiator, -1)
 
 	if game_logic.game_state == Enums.GameState.GameState_PlayerDecision and game_logic.active_strike.strike_state == game_logic.StrikeState.StrikeState_Initiator_SetEffects:
 		if init_set_effect_gauge:
@@ -166,7 +182,7 @@ func execute_strike(initiator, defender, init_card : String, def_card : String, 
 			cards.append(defender.gauge[i].id)
 		game_logic.do_pay_strike_cost(defender, cards, false)
 
-	handle_simultaneous_effects(initiator, defender)
+	handle_simultaneous_effects(initiator, defender, sim_effect_choice)
 
 	for i in range(init_choices.size()):
 		assert_eq(game_logic.game_state, Enums.GameState.GameState_PlayerDecision)
@@ -196,28 +212,307 @@ func validate_life(p1, l1, p2, l2):
 ##
 
 
-func test_dan_crit_and_wildswing():
+func test_dan_ua_wild_swing():
 	position_players(player1, 3, player2, 7)
 	give_gauge(player1, 1)
-	give_player_specific_card(player1, "standard_normal_dive", TestCardId1)
-	give_player_specific_card(player2, "standard_normal_spike", TestCardId2)
-	player1.move_card_from_hand_to_deck(TestCardId1)
-	assert_eq(player1.deck[0].id, TestCardId1)
-	assert_true(game_logic.do_strike(player1, -1, true, -1))
-	# On set, Dan has his critical choice.
-	# Has gauge, so crit choice.
-	assert_true(game_logic.do_gauge_for_effect(player1, [player1.gauge[0].id]))
-	assert_true(game_logic.do_strike(player2, TestCardId2, false, -1))
+	give_player_specific_card(player1, "standard_normal_dive", TestCardId3)
+	player1.move_card_from_hand_to_deck(TestCardId3)
+
+	execute_strike(player1, player2, "", "standard_normal_assault", [], [], false, false,
+		[player1.gauge[0].id], [], 0, true)
+	assert_true(player1.is_card_in_gauge(TestCardId3))
 	validate_life(player1, 30, player2, 24)
 	validate_positions(player1, 6, player2, 7)
+	advance_turn(player2)
 
-func test_dan_free_ultra():
+func test_dan_ua_not_wild_swing():
 	position_players(player1, 3, player2, 6)
-	give_player_specific_card(player1, "dan_shissoburaiken", TestCardId1)
-	give_player_specific_card(player2, "standard_normal_spike", TestCardId2)
-	assert_true(game_logic.do_strike(player1, TestCardId1, false, -1))
-	# On set, Dan has critical choice.
-	# No gauge, so no crit
-	assert_true(game_logic.do_strike(player2, TestCardId2, false, -1))
+	give_gauge(player1, 1)
+
+	execute_strike(player1, player2, "standard_normal_dive", "standard_normal_assault", [], [], false, false,
+		[player1.gauge[0].id], [], 0, true)
+	validate_life(player1, 26, player2, 30)
+	validate_positions(player1, 3, player2, 4)
+	advance_turn(player2)
+
+func test_dan_ua_after_invalid():
+	position_players(player1, 3, player2, 6)
+	give_gauge(player1, 1)
+	give_player_specific_card(player1, "standard_normal_dive", TestCardId3)
+	player1.move_card_from_hand_to_deck(TestCardId3)
+
+	execute_strike(player1, player2, "dan_legendarytaunt", "standard_normal_assault", [], [], false, false,
+		[player1.gauge[0].id], [], 0, true)
+	assert_true(player1.is_card_in_gauge(TestCardId3))
+	validate_life(player1, 30, player2, 24)
+	validate_positions(player1, 7, player2, 6)
+	advance_turn(player2)
+
+func test_dan_exceed_ua_from_top():
+	position_players(player1, 3, player2, 6)
+	give_gauge(player1, 2)
+	give_player_specific_card(player1, "standard_normal_dive", TestCardId3)
+	player1.move_card_from_hand_to_deck(TestCardId3)
+
+	assert_true(game_logic.do_exceed(player1, [player1.gauge[0].id, player1.gauge[1].id]))
+	assert_true(game_logic.do_choice(player1, 0))
+	assert_true(game_logic.do_choose_to_discard(player1, []))
+
+	assert_true(player1.is_card_in_hand(TestCardId3))
+	advance_turn(player2)
+
+func test_dan_exceed_ua_from_bottom():
+	position_players(player1, 3, player2, 6)
+	give_gauge(player1, 2)
+	give_player_specific_card(player1, "standard_normal_dive", TestCardId3)
+	player1.move_card_from_hand_to_deck(TestCardId3)
+
+	assert_true(game_logic.do_exceed(player1, [player1.gauge[0].id, player1.gauge[1].id]))
+	assert_true(game_logic.do_choice(player1, 1))
+	assert_true(game_logic.do_choose_to_discard(player1, []))
+
+	assert_eq(player1.deck[0].id, TestCardId3)
+	advance_turn(player2)
+
+func test_dan_haoh_gadouken_with_cards():
+	position_players(player1, 3, player2, 7)
+	give_gauge(player1, 3)
+
+	execute_strike(player1, player2, "dan_haohgadouken", "standard_normal_sweep", [], [], false, false,
+		[], [], 0, true)
+	validate_life(player1, 30, player2, 23)
+	validate_positions(player1, 3, player2, 7)
+	assert_eq(len(player1.gauge), 1)
+	advance_turn(player2)
+
+func test_dan_haoh_gadouken_no_cards():
+	position_players(player1, 3, player2, 7)
+	give_gauge(player1, 3)
+	player1.discard_hand()
+
+	execute_strike(player1, player2, "dan_haohgadouken", "standard_normal_sweep", [], [], false, false,
+		[], [], -3, true)
+	validate_life(player1, 30, player2, 23)
+	validate_positions(player1, 3, player2, 7)
+	assert_eq(len(player1.gauge), 4)
+	advance_turn(player2)
+
+func test_dan_saikyo_power_with_cards():
+	position_players(player1, 4, player2, 7)
+	give_player_specific_card(player1, "dan_haohgadouken", TestCardId3)
+	assert_true(game_logic.do_boost(player1, TestCardId3, []))
+	advance_turn(player2)
+
+	execute_strike(player1, player2, "standard_normal_sweep", "standard_normal_sweep", [], [], false, false,
+		[], [], 0, true)
+	validate_life(player1, 24, player2, 24)
+	validate_positions(player1, 4, player2, 7)
+	advance_turn(player2)
+
+func test_dan_saikyo_power_no_cards():
+	position_players(player1, 4, player2, 7)
+	give_player_specific_card(player1, "dan_haohgadouken", TestCardId3)
+	assert_true(game_logic.do_boost(player1, TestCardId3, []))
+	advance_turn(player2)
+	player1.discard_hand()
+
+	execute_strike(player1, player2, "standard_normal_sweep", "standard_normal_sweep", [], [], false, false,
+		[], [], 0, true)
+	validate_life(player1, 30, player2, 20)
+	validate_positions(player1, 4, player2, 7)
+	advance_turn(player2)
+
+func test_dan_shisso_buraiken_with_cards():
+	position_players(player1, 3, player2, 6)
+	give_gauge(player1, 3)
+
+	execute_strike(player1, player2, "dan_shissoburaiken", "standard_normal_sweep", [], [], false, false,
+		[], [], 0, true)
 	validate_life(player1, 30, player2, 23)
 	validate_positions(player1, 5, player2, 6)
+	assert_eq(len(player1.gauge), 1)
+	advance_turn(player1)
+
+func test_dan_shisso_buraiken_no_cards():
+	position_players(player1, 3, player2, 6)
+	give_gauge(player1, 3)
+	player1.discard_hand()
+
+	execute_strike(player1, player2, "dan_shissoburaiken", "standard_normal_sweep", [], [], false, false,
+		[], [], -3, true)
+	validate_life(player1, 30, player2, 23)
+	validate_positions(player1, 5, player2, 6)
+	assert_eq(len(player1.gauge), 4)
+	advance_turn(player1)
+
+func test_dan_lucky_skip_draw():
+	position_players(player1, 4, player2, 7)
+	var initial_hand_size = len(player1.hand)
+	give_player_specific_card(player1, "dan_shissoburaiken", TestCardId3)
+	assert_true(game_logic.do_boost(player1, TestCardId3, []))
+	assert_true(game_logic.do_card_from_hand_to_gauge(player1, [player1.hand[0].id]))
+	assert_true(game_logic.do_choice(player1, 0))
+	assert_eq(len(player1.hand), initial_hand_size-1)
+	advance_turn(player2)
+
+func test_dan_secret_technique_skip_draw():
+	position_players(player1, 4, player2, 7)
+	player1.discard_hand()
+	give_player_specific_card(player1, "dan_legendarytaunt", TestCardId3)
+	assert_true(game_logic.do_boost(player1, TestCardId3, []))
+	assert_true(game_logic.do_choose_from_topdeck(player1, player1.deck[0].id, "add_to_hand"))
+	assert_true(game_logic.do_choice(player1, 0))
+	assert_eq(len(player1.hand), 1)
+	advance_turn(player2)
+
+
+
+func test_dan_legendary_taunt_no_extra_attack():
+	position_players(player1, 4, player2, 7)
+	give_gauge(player1, 2)
+
+	execute_strike(player1, player2, "dan_legendarytaunt", "standard_normal_spike", [3, 1], [], false, false,
+		[], [], 0, true)
+	assert_true(game_logic.do_choose_to_discard(player1, []))
+	validate_life(player1, 25, player2, 30)
+	validate_positions(player1, 4, player2, 7)
+	assert_true(player1.is_card_in_discards(TestCardId1))
+	advance_turn(player2)
+
+func test_dan_legendary_taunt_extra_attack():
+	position_players(player1, 4, player2, 7)
+	give_player_specific_card(player1, "standard_normal_sweep", TestCardId3)
+	give_gauge(player1, 2)
+
+	execute_strike(player1, player2, "dan_legendarytaunt", "standard_normal_spike", [0, 1], [], false, false,
+		[], [], 0, true)
+	assert_true(game_logic.do_choose_to_discard(player1, [TestCardId3]))
+	validate_life(player1, 30, player2, 24)
+	validate_positions(player1, 5, player2, 7)
+	assert_true(player1.is_card_in_gauge(TestCardId3))
+	assert_true(player1.is_card_in_discards(TestCardId1))
+	advance_turn(player2)
+
+func test_dan_legendary_taunt_extra_attack_miss():
+	position_players(player1, 3, player2, 8)
+	give_player_specific_card(player1, "standard_normal_cross", TestCardId3)
+	give_gauge(player1, 2)
+
+	execute_strike(player1, player2, "dan_legendarytaunt", "standard_normal_spike", [1, 1], [], false, false,
+		[], [], 0, true)
+	assert_true(game_logic.do_choose_to_discard(player1, [TestCardId3]))
+	validate_life(player1, 30, player2, 30)
+	validate_positions(player1, 2, player2, 8)
+	assert_true(player1.is_card_in_discards(TestCardId3))
+	assert_true(player1.is_card_in_discards(TestCardId1))
+	advance_turn(player2)
+
+func test_dan_legendary_taunt_extra_attack_gadouken():
+	position_players(player1, 1, player2, 7)
+	give_player_specific_card(player1, "dan_gadouken", TestCardId3)
+	var to_gauge_id = player1.hand[0].id
+	give_gauge(player1, 2)
+
+	execute_strike(player1, player2, "dan_legendarytaunt", "standard_normal_spike", [1, 1], [], false, false,
+		[], [], 0, true)
+	assert_true(game_logic.do_choose_to_discard(player1, [TestCardId3]))
+	assert_true(game_logic.do_choice(player1, 0))
+	assert_true(game_logic.do_card_from_hand_to_gauge(player1, [to_gauge_id]))
+
+	validate_life(player1, 30, player2, 26)
+	validate_positions(player1, 3, player2, 7)
+	assert_eq(player1.deck[0].id, TestCardId3)
+	assert_true(player1.is_card_in_gauge(to_gauge_id))
+	assert_true(player1.is_card_in_discards(TestCardId1))
+	advance_turn(player2)
+
+func test_dan_legendary_taunt_extra_attack_legendary_taunt():
+	position_players(player1, 1, player2, 9)
+	give_player_specific_card(player1, "dan_legendarytaunt", TestCardId3)
+	give_player_specific_card(player1, "standard_normal_sweep", TestCardId4)
+	give_gauge(player1, 4)
+	player1.move_card_from_hand_to_deck(TestCardId3)
+
+	execute_strike(player1, player2, "dan_legendarytaunt", "standard_normal_spike", [2, 0], [], false, false,
+		[], [], 0, true)
+	assert_true(game_logic.do_choose_to_discard(player1, [TestCardId3]))
+	assert_true(game_logic.do_pay_strike_cost(player1, [player1.gauge[0].id, player1.gauge[1].id], false))
+	assert_true(game_logic.do_choice(player1, 2)) # advance 3
+	assert_true(game_logic.do_choice(player1, 1)) # draw
+	assert_true(game_logic.do_choose_to_discard(player1, [TestCardId4]))
+
+	validate_life(player1, 30, player2, 24)
+	validate_positions(player1, 7, player2, 9)
+	assert_true(player1.is_card_in_gauge(TestCardId4))
+	assert_true(player1.is_card_in_discards(TestCardId1))
+	assert_true(player1.is_card_in_discards(TestCardId3))
+	advance_turn(player2)
+
+func test_dan_legendary_taunt_hit_nirvana_with_extra_attack():
+	game_logic.teardown()
+	game_logic.free()
+	default_game_setup("carlclover")
+
+	position_players(player1, 2, player2, 6)
+	player2.set_buddy_location("nirvana_active", 4)
+	give_player_specific_card(player1, "standard_normal_sweep", TestCardId3)
+	give_gauge(player1, 2)
+
+	execute_strike(player1, player2, "dan_legendarytaunt", "standard_normal_spike", [1, 1], [], false, false,
+		[], [], 0, true)
+	assert_true(game_logic.do_choose_to_discard(player1, [TestCardId3]))
+	assert_true(game_logic.do_choice(player1, 0)) # flips nirvana with sweep
+
+	validate_life(player1, 25, player2, 30)
+	validate_positions(player1, 4, player2, 6)
+	assert_true(player1.is_card_in_gauge(TestCardId3))
+	assert_true(player1.is_card_in_discards(TestCardId1))
+	assert_eq(player2.get_buddy_location("nirvana_active"), -1)
+	assert_eq(player2.get_buddy_location("nirvana_disabled"), 4)
+	advance_turn(player2)
+
+func test_dan_legendary_taunt_hit_nirvana_with_leg_taunt():
+	game_logic.teardown()
+	game_logic.free()
+	default_game_setup("carlclover")
+
+	position_players(player1, 2, player2, 6)
+	player2.set_buddy_location("nirvana_active", 4)
+	give_player_specific_card(player1, "standard_normal_sweep", TestCardId3)
+	give_gauge(player1, 2)
+
+	execute_strike(player1, player2, "dan_legendarytaunt", "standard_normal_spike", [1, 1], [], false, false,
+		[], [], 0, true)
+	assert_true(game_logic.do_choose_to_discard(player1, [TestCardId3]))
+	assert_true(game_logic.do_choice(player1, 1)) # does not flip nirvana with sweep
+	assert_true(game_logic.do_choice(player1, 0)) # flips nirvana with taunt
+
+	validate_life(player1, 30, player2, 24)
+	validate_positions(player1, 4, player2, 6)
+	assert_true(player1.is_card_in_gauge(TestCardId3))
+	assert_true(player1.is_card_in_gauge(TestCardId1))
+	assert_eq(player2.get_buddy_location("nirvana_active"), -1)
+	assert_eq(player2.get_buddy_location("nirvana_disabled"), 4)
+	advance_turn(player2)
+
+func test_dan_legendary_taunt_hit_nirvana_with_leg_taunt_before_moving():
+	game_logic.teardown()
+	game_logic.free()
+	default_game_setup("carlclover")
+
+	position_players(player1, 2, player2, 6)
+	player2.set_buddy_location("nirvana_active", 2)
+	give_player_specific_card(player1, "standard_normal_sweep", TestCardId3)
+	give_gauge(player1, 2)
+
+	execute_strike(player1, player2, "dan_legendarytaunt", "standard_normal_spike", [0, 1, 1], [], false, false,
+		[], [], 0, true, false, 1) # flips nirvana with taunt
+	assert_true(game_logic.do_choose_to_discard(player1, [TestCardId3]))
+
+	validate_life(player1, 30, player2, 24)
+	validate_positions(player1, 4, player2, 6)
+	assert_true(player1.is_card_in_gauge(TestCardId3))
+	assert_true(player1.is_card_in_gauge(TestCardId1))
+	assert_eq(player2.get_buddy_location("nirvana_active"), -1)
+	assert_eq(player2.get_buddy_location("nirvana_disabled"), 2)
+	advance_turn(player2)

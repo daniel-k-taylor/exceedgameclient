@@ -278,6 +278,8 @@ class ExtraAttackData:
 	var extra_attack_hit = false
 	var extra_attack_remaining_effects = []
 	var extra_attack_parent = null
+	var extra_attack_always_miss = false
+	var extra_attack_always_go_to_gauge = false
 
 	func reset():
 		extra_attack_in_progress = false
@@ -290,6 +292,8 @@ class ExtraAttackData:
 		extra_attack_hit = false
 		extra_attack_remaining_effects = []
 		extra_attack_parent = null
+		extra_attack_always_miss = false
+		extra_attack_always_go_to_gauge = false
 
 class Strike:
 	var initiator : Player
@@ -1716,9 +1720,10 @@ class Player:
 			public_topdeck_id = -1
 
 		var draw_from_index = 0
-		if from_bottom:
-			draw_from_index = -1
 		for i in range(num_to_draw):
+			if from_bottom:
+				draw_from_index = len(deck)-1
+
 			if len(deck) > 0:
 				var card = deck[draw_from_index]
 				hand.append(card)
@@ -3322,9 +3327,15 @@ func is_effect_condition_met(performing_player : Player, effect, local_condition
 		elif condition == "used_character_bonus":
 			return performing_player.used_character_bonus
 		elif condition == "hit_opponent":
-			return active_strike.did_player_hit_opponent(performing_player)
+			if active_strike.extra_attack_in_progress:
+				return active_strike.extra_attack_data.extra_attack_hit
+			else:
+				return active_strike.did_player_hit_opponent(performing_player)
 		elif condition == "not_hit_opponent":
-			return not active_strike.did_player_hit_opponent(performing_player)
+			if active_strike.extra_attack_in_progress:
+				return not active_strike.extra_attack_data.extra_attack_hit
+			else:
+				return not active_strike.did_player_hit_opponent(performing_player)
 		elif condition == "not_this_turn_was_strike":
 			return not strike_happened_this_turn
 		elif condition == "last_turn_was_strike":
@@ -4317,8 +4328,12 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 			_append_log_full(Enums.LogType.LogType_Effect, performing_player, "'s before/hit/after effects will resolve %s additional time(s)!" % effect['amount'])
 			duplicate_attack_triggers(performing_player, effect['amount'])
 		"flip_buddy_miss_get_gauge":
-			performing_player.strike_stat_boosts.attack_does_not_hit = true
-			performing_player.strike_stat_boosts.always_add_to_gauge = true
+			if active_strike.extra_attack_in_progress:
+				active_strike.extra_attack_data.extra_attack_always_miss = true
+				active_strike.extra_attack_data.extra_attack_always_go_to_gauge = true
+			else:
+				performing_player.strike_stat_boosts.attack_does_not_hit = true
+				performing_player.strike_stat_boosts.always_add_to_gauge = true
 			events += handle_strike_effect(
 				-1,
 				{
@@ -4872,8 +4887,16 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 			opposing_player.cannot_move_past_opponent_buddy_id = null
 			_append_log_full(Enums.LogType.LogType_Effect, performing_player, "'s %s is no longer blocking opponent movement." % buddy_name)
 		"return_attack_to_top_of_deck":
-			performing_player.strike_stat_boosts.attack_to_topdeck_on_cleanup = true
-			events += handle_strike_attack_immediate_removal(performing_player)
+			if active_strike.extra_attack_in_progress:
+				var extra_card = active_strike.extra_attack_data.extra_attack_card
+				var extra_card_name = extra_card.definition['display_name']
+
+				_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "returns their attack %s to the top of their deck." % extra_card_name)
+				events += performing_player.add_to_top_of_deck(extra_card, true)
+				active_strike.cards_in_play.erase(extra_card) #???
+			else:
+				performing_player.strike_stat_boosts.attack_to_topdeck_on_cleanup = true
+				events += handle_strike_attack_immediate_removal(performing_player)
 		"return_all_copies_of_top_discard_to_hand":
 			events += performing_player.return_all_copies_of_top_discard_to_hand()
 		"nothing":
@@ -6231,11 +6254,11 @@ func get_all_effects_for_timing(timing_name : String, performing_player : Player
 				all_effects.append(effect)
 			elif 'negative_condition_effect' in effect:
 				all_effects.append(effect['negative_condition_effect'])
-		for effect in opponent_given_effects:
-			if ignore_condition or is_effect_condition_met(performing_player, effect, null):
-				all_effects.append(effect)
-			elif 'negative_condition_effect' in effect:
-				all_effects.append(effect['negative_condition_effect'])
+	for effect in opponent_given_effects:
+		if ignore_condition or is_effect_condition_met(performing_player, effect, null):
+			all_effects.append(effect)
+		elif 'negative_condition_effect' in effect:
+			all_effects.append(effect['negative_condition_effect'])
 	for effect in bonus_effects:
 		if ignore_condition or is_effect_condition_met(performing_player, effect, null):
 			all_effects.append(effect)
@@ -6594,6 +6617,9 @@ func is_location_in_range(attacking_player, card, test_location : int):
 func in_range(attacking_player, defending_player, card, combat_logging=false):
 	if attacking_player.strike_stat_boosts.attack_does_not_hit or attacking_player.strike_stat_boosts.overwrite_range_to_invalid:
 		return false
+	if active_strike and active_strike.extra_attack_in_progress:
+		if active_strike.extra_attack_data.extra_attack_always_miss:
+			return false
 	if attacking_player.strike_stat_boosts.only_hits_if_opponent_on_any_buddy:
 		var buddies = attacking_player.get_buddies_on_opponent()
 		if buddies.size() == 0:
@@ -7397,7 +7423,7 @@ func continue_extra_attack(events):
 				events += do_remaining_effects(attacker_player, ExtraAttackState.ExtraAttackState_Complete)
 			ExtraAttackState.ExtraAttackState_Complete:
 				var card_name = attacker_card.definition['display_name']
-				if active_strike.extra_attack_data.extra_attack_hit:
+				if active_strike.extra_attack_data.extra_attack_hit or active_strike.extra_attack_data.extra_attack_always_go_to_gauge:
 					_append_log_full(Enums.LogType.LogType_CardInfo, attacker_player, "adds their extra attack %s to gauge." % card_name)
 					events += attacker_player.add_to_gauge(attacker_card)
 				else:
