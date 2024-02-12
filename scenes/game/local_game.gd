@@ -1732,6 +1732,7 @@ class Player:
 			else:
 				events += reshuffle_discard(false)
 				if not parent.game_over:
+					draw_from_index = len(deck)-1
 					var card = deck[0]
 					hand.append(card)
 					deck.remove_at(draw_from_index)
