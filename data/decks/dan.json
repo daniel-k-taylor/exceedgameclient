@@ -61,16 +61,25 @@
 		},
 		{
 			"timing": "end_of_turn",
-			"effect_type": "choice",
-			"choice": [
-				{ "effect_type": "draw", "from_bottom": true, "amount": 1, "and": { "effect_type": "skip_end_of_turn_draw" } },
-				{ "effect_type": "pass"}
-			],
+			"condition": "not_this_turn_was_strike",
+			"effect_type": "skip_end_of_turn_draw",
 			"and": {
 				"effect_type": "choice",
 				"choice": [
-					{ "effect_type": "self_discard_choose", "amount": 1 },
-					{ "effect_type": "pass" }
+					{ "effect_type": "draw", "amount": 1, "suppress_and_description": true, "and": {
+						"effect_type": "choice",
+						"choice": [
+							{ "effect_type": "self_discard_choose", "amount": 1 },
+							{ "effect_type": "pass" }
+						]
+					} },
+					{ "effect_type": "draw", "from_bottom": true, "amount": 1, "suppress_and_description": true, "and": {
+						"effect_type": "choice",
+						"choice": [
+							{ "effect_type": "self_discard_choose", "amount": 1 },
+							{ "effect_type": "pass" }
+						]
+					} }
 				]
 			}
 		}

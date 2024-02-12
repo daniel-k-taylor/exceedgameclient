@@ -59,9 +59,11 @@ var active_overdrive : bool = false
 var active_overdrive_boost_top_discard_on_cleanup : bool = false
 var active_change_cards : bool = false
 var active_start_of_turn_effects : bool = false
+var active_end_of_turn_effects : bool = false
 var remaining_overdrive_effects = []
 var remaining_character_action_effects = []
 var remaining_start_of_turn_effects = []
+var remaining_end_of_turn_effects = []
 
 var decision_info : DecisionInfo = DecisionInfo.new()
 var active_boost : Boost = null
@@ -2843,19 +2845,16 @@ func get_other_player(test_player : Enums.PlayerId) -> Enums.PlayerId:
 	return Enums.PlayerId.PlayerId_Player
 
 
-func advance_to_next_turn():
-	var events = []
+func start_end_turn():
+	active_end_of_turn_effects = true
 
+	# Queue any end of turn character effects.
 	var player_ending_turn = _get_player(active_turn_player)
-	var other_player = _get_player(get_other_player(active_turn_player))
-
-	# Do any end of turn character effects.
 	var effects = player_ending_turn.get_character_effects_at_timing("end_of_turn")
 	for effect in effects:
-		events += do_effect_if_condition_met(player_ending_turn, -1, effect, null)
+		remaining_end_of_turn_effects.append(effect)
 
-	# Do any end of turn boost effects.
-	# Iterate in reverse as items can be removed.
+	# Queue any end of turn boost effects.
 	for i in range(len(player_ending_turn.continuous_boosts) - 1, -1, -1):
 		var card = player_ending_turn.continuous_boosts[i]
 		for effect in card.definition['boost']['effects']:
@@ -2864,7 +2863,37 @@ func advance_to_next_turn():
 					# This effect is delayed a turn, so remove it from the list and skip it for now.
 					player_ending_turn.end_of_turn_boost_delay_card_ids.erase(card.id)
 					continue
-				events += do_effect_if_condition_met(player_ending_turn, card.id, effect, null)
+				effect['card_id'] = card.id
+				remaining_end_of_turn_effects.append(effect)
+
+	return continue_end_turn()
+
+func continue_end_turn():
+	var events = []
+	var player_ending_turn = _get_player(active_turn_player)
+	change_game_state(Enums.GameState.GameState_Boost_Processing)
+	while remaining_end_of_turn_effects.size() > 0:
+		var effect = remaining_end_of_turn_effects[0]
+		remaining_end_of_turn_effects.erase(effect)
+		var card_id = -1
+		if 'card_id' in effect:
+			card_id = effect['card_id']
+		events += do_effect_if_condition_met(player_ending_turn, card_id, effect, null)
+		if game_state == Enums.GameState.GameState_PlayerDecision:
+			# Player has a decision to make, so stop mid-effect resolve.
+			break
+
+	if game_state != Enums.GameState.GameState_PlayerDecision:
+		active_end_of_turn_effects = false
+		events += advance_to_next_turn()
+
+	return events
+
+func advance_to_next_turn():
+	var events = []
+
+	var player_ending_turn = _get_player(active_turn_player)
+	var other_player = _get_player(get_other_player(active_turn_player))
 
 	# Turn is over, reset state.
 	player.did_end_of_turn_draw = false
@@ -3291,6 +3320,8 @@ func is_effect_condition_met(performing_player : Player, effect, local_condition
 			return active_strike.did_player_hit_opponent(performing_player)
 		elif condition == "not_hit_opponent":
 			return not active_strike.did_player_hit_opponent(performing_player)
+		elif condition == "not_this_turn_was_strike":
+			return not strike_happened_this_turn
 		elif condition == "last_turn_was_strike":
 			return last_turn_was_strike
 		elif condition == "not_last_turn_was_strike":
@@ -7136,7 +7167,7 @@ func continue_resolve_strike(events):
 				if game_over:
 					change_game_state(Enums.GameState.GameState_GameOver)
 				else:
-					events += advance_to_next_turn()
+					events += start_end_turn()
 				break
 
 	if game_state == Enums.GameState.GameState_PlayerDecision and decision_info.type == Enums.DecisionType.DecisionType_ForceBoostSustainTopdeck:
@@ -7734,7 +7765,7 @@ func check_hand_size_advance_turn(performing_player : Player):
 			change_game_state(Enums.GameState.GameState_DiscardDownToMax)
 			events += [create_event(Enums.EventType.EventType_HandSizeExceeded, performing_player.my_id, len(performing_player.hand) - performing_player.max_hand_size)]
 		else:
-			events += advance_to_next_turn()
+			events += start_end_turn()
 	return events
 
 func do_prepare(performing_player) -> bool:
@@ -7777,7 +7808,7 @@ func do_discard_to_max(performing_player : Player, card_ids) -> bool:
 	_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "discards down to their max hand size: %s." % card_names)
 
 	var events = performing_player.discard(card_ids)
-	events += advance_to_next_turn()
+	events += start_end_turn()
 
 	event_queue += events
 	return true
@@ -8371,7 +8402,7 @@ func do_choice(performing_player : Player, choice_index : int) -> bool:
 	return true
 
 func set_player_action_processing_state():
-	if active_start_of_turn_effects or active_overdrive or active_boost \
+	if active_start_of_turn_effects or active_end_of_turn_effects or active_overdrive or active_boost \
 	or active_character_action or active_exceed or active_change_cards:
 		game_state = Enums.GameState.GameState_Boost_Processing
 	elif active_strike:
@@ -8399,6 +8430,8 @@ func continue_player_action_resolution(events, performing_player : Player):
 		if game_state != Enums.GameState.GameState_PlayerDecision:
 			if active_start_of_turn_effects:
 				events += continue_begin_turn()
+			if active_end_of_turn_effects:
+				events += continue_end_turn()
 			elif active_overdrive:
 				# Intentional events = because events are passed in.
 				events = do_remaining_overdrive(events, performing_player)

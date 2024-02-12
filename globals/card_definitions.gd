@@ -588,12 +588,15 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 		"draw":
 			var amount = effect['amount']
 			var amount_str = str(amount)
+			var bottom_str = ""
 			if amount is String and amount == "strike_x":
 				amount_str = "X"
+			if 'from_bottom' in effect:
+				bottom_str = " from bottom of deck"
 			if 'opponent' in effect and effect['opponent']:
-				effect_str += "Opponent Draw " + amount_str
+				effect_str += "Opponent Draw " + amount_str + bottom_str
 			else:
-				effect_str += "Draw " + amount_str
+				effect_str += "Draw " + amount_str + bottom_str
 		"draw_any_number":
 			effect_str += "Draw any number of cards."
 		"draw_to":
