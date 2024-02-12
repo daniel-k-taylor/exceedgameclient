@@ -2188,6 +2188,7 @@ func _on_reshuffle_discard(event):
 	close_popout()
 	update_card_counts()
 	return SmallNoticeDelay
+
 func _on_shuffle_deck(event):
 	var player = event['event_player']
 	var card_parent
@@ -2202,7 +2203,8 @@ func _on_shuffle_deck(event):
 		var card_index = game_wrapper.get_card_index_in_deck(player, card.card_id)
 		new_order[card_index] = card
 	for i in range(len(new_order)):
-		card_parent.move_child(new_order[i], i)	
+		card_parent.move_child(new_order[i], i)
+
 func _on_reshuffle_discard_in_place(event):
 	var player = event['event_player']
 	var card_parent

@@ -3787,21 +3787,23 @@
 				"timing": "before",
 				"effect_type": "choice",
 				"choice": [
-					{ "effect_type": "advance", "amount": 1 },
-					{ "effect_type": "advance", "amount": 2 },
-					{ "effect_type": "advance", "amount": 3 },
-					{ "effect_type": "pass" }
-				],
-				"and": {
-					"effect_type": "choice",
-					"choice": [
-						{ "effect_type": "draw", "amount": 1 },
-						{ "effect_type": "pass" }
-					],
-					"and": {
-						"effect_type": "play_attack_from_hand"
-					}
-				}
+					{ "effect_type": "advance", "amount": 1, "suppress_and_description": true, "and": { "effect_type": "choice", "choice": [
+						{ "effect_type": "draw", "amount": 1, "and": { "effect_type": "play_attack_from_hand" } },
+						{ "effect_type": "play_attack_from_hand" }
+					] } },
+					{ "effect_type": "advance", "amount": 2, "suppress_and_description": true, "and": { "effect_type": "choice", "choice": [
+						{ "effect_type": "draw", "amount": 1, "and": { "effect_type": "play_attack_from_hand" } },
+						{ "effect_type": "play_attack_from_hand" }
+					] } },
+					{ "effect_type": "advance", "amount": 3, "suppress_and_description": true, "and": { "effect_type": "choice", "choice": [
+						{ "effect_type": "draw", "amount": 1, "and": { "effect_type": "play_attack_from_hand" } },
+						{ "effect_type": "play_attack_from_hand" }
+					] } },
+					{ "effect_type": "pass", "suppress_and_description": true, "and": { "effect_type": "choice", "choice": [
+						{ "effect_type": "draw", "amount": 1, "and": { "effect_type": "play_attack_from_hand" } },
+						{ "effect_type": "play_attack_from_hand" }
+					] } }
+				]
 			}
 		],
 		"boost": {
@@ -4092,6 +4094,8 @@
 		},
 		"NOTEEND": "DAN CARDS END"
 	},
+
+
 	{
 		"NOTE": "ENKIDU CARDS START",
 		"id": "enkidu_spiraldualpalmstrike",
