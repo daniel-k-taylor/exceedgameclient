@@ -17,11 +17,12 @@
 			"gauge_max": 1
 		},
 		{
-			"timing": "set_strike",
+			"timing": "during_strike",
 			"condition": "is_critical",
 			"effect_type": "pass",
 			"and": {
 				"condition": "was_wild_swing",
+				"character_effect": true,
 				"effect_type": "powerup",
 				"amount": 1,
 				"and": {
@@ -44,11 +45,12 @@
 			"gauge_max": 1
 		},
 		{
-			"timing": "set_strike",
+			"timing": "during_strike",
 			"condition": "is_critical",
 			"effect_type": "pass",
 			"and": {
 				"condition": "was_wild_swing",
+				"character_effect": true,
 				"effect_type": "powerup",
 				"amount": 1,
 				"and": {

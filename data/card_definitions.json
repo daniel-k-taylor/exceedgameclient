@@ -3789,19 +3789,17 @@
 					{ "effect_type": "advance", "amount": 2 },
 					{ "effect_type": "advance", "amount": 3 },
 					{ "effect_type": "pass" }
-				]
-			},
-			{
-				"timing": "before",
-				"effect_type": "choice",
-				"choice": [
-					{ "effect_type": "draw", "amount": 1 },
-					{ "effect_type": "pass" }
-				]
-			},
-			{
-				"timing": "before",
-				"effect_type": "play_attack_from_hand"
+				],
+				"and": {
+					"effect_type": "choice",
+					"choice": [
+						{ "effect_type": "draw", "amount": 1 },
+						{ "effect_type": "pass" }
+					],
+					"and": {
+						"effect_type": "play_attack_from_hand"
+					}
+				}
 			}
 		],
 		"boost": {
