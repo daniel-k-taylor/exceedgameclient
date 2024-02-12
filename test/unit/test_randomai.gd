@@ -585,3 +585,6 @@ func test_seth_100():
 
 func test_enkidu_100():
 	run_iterations_with_deck("enkidu")
+
+func test_dan_100():
+	run_iterations_with_deck("dan")

@@ -4145,7 +4145,7 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 					_append_log_full(Enums.LogType.LogType_CardInfo, opposing_player, "draws %s card(s)." % amount)
 				if from_bottom:
 					events += performing_player.draw(amount, false, from_bottom)
-					_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "draws %s card(s) from the bottom." % amount)	
+					_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "draws %s card(s) from the bottom." % amount)
 				else:
 					events += performing_player.draw(amount)
 					_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "draws %s card(s)." % amount)
