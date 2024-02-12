@@ -3936,7 +3936,8 @@
 				},
 				{
 					"timing": "immediate",
-					"effect_type": "discard_any_number"
+					"effect_type": "self_discard_choose",
+					"amount": -1
 				},
 				{
 					"timing": "immediate",
@@ -3960,6 +3961,7 @@
 		"effects": [
 			{
 				"timing": "hit",
+				"condition": "deck_not_empty",
 				"effect_type": "discard_topdeck",
 				"and": {
 					"effect_type": "set_strike_x",
@@ -3979,7 +3981,6 @@
 			"effects": [
 				{
 					"timing": "set_strike",
-					"condition": "was_wild_swing",
 					"effect_type": "critical",
 					"character_effect": true
 				},
@@ -3993,6 +3994,7 @@
 		}
 	},
 	{
+		"NOTE": "DAN CARDS END",
 		"id": "dan_saikyoharaigoshi",
 		"type": "special",
 		"display_name": "Saikyo Haraigoshi",
@@ -4014,6 +4016,7 @@
 						"condition_amount": 1,
 						"effect_type": "discard_random",
 						"amount": 1,
+						"suppress_and_description": true,
 						"and": {
 							"effect_type": "powerup",
 							"amount": 1,
@@ -4028,6 +4031,7 @@
 						"condition_amount": 2,
 						"effect_type": "discard_random",
 						"amount": 2,
+						"suppress_and_description": true,
 						"and": {
 							"effect_type": "powerup",
 							"amount": 2,
@@ -4046,6 +4050,7 @@
 						"condition_amount": 3,
 						"effect_type": "discard_random",
 						"amount": 3,
+						"suppress_and_description": true,
 						"and": {
 							"effect_type": "powerup",
 							"amount": 3,
@@ -4062,7 +4067,8 @@
 								}
 							}
 						}
-					}
+					},
+					{ "effect_type": "pass" }
 				]
 			}
 		],
@@ -4074,20 +4080,11 @@
 			"effects": [
 				{
 					"timing": "immediate",
-					"effect_type": "choose_cards_from_top_deck",
-					"look_amount": 1,
-					"action_choices": [
-						"return_to_topdeck"
-					],
-					"can_pass": false,
-					"destination_unchosen": "topdeck"
-				},
-				{
-					"timing": "immediate",
 					"effect_type": "choice",
+					"add_topdeck_card_name_to_choices": [1],
 					"choice": [
-						{ "effect_type": "add_top_deck_to_gauge" },
-						{ "effect_type": "strike" }
+						{ "effect_type": "strike" },
+						{ "effect_type": "add_top_deck_to_gauge" }
 					]
 				}
 			]

@@ -285,6 +285,8 @@ func get_condition_text(effect, amount, amount2, detail):
 			text += ""
 		"is_normal_attack":
 			text += "If you strike with a normal, "
+		"deck_not_empty":
+			text += ""
 		"top_deck_is_normal_attack":
 			text += "If the top card of your deck is a normal, "
 		"is_buddy_special_or_ultra_attack":
@@ -404,7 +406,10 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 		"add_to_gauge_immediately_mid_strike_undo_effects":
 			effect_str += "Add card to gauge (and cancel its effects)."
 		"add_top_deck_to_gauge":
-			effect_str += "Add top card of deck to gauge"
+			var topdeck_card = ""
+			if 'card_name' in effect:
+				topdeck_card = "(%s) " % effect['card_name']
+			effect_str += "Add top card of deck %sto gauge" % topdeck_card
 		"add_top_discard_to_gauge":
 			effect_str += "Add top card of discard pile to gauge"
 		"add_top_discard_to_overdrive":

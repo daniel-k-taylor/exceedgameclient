@@ -42,8 +42,8 @@ const RevealCopyIdRangestart = 80000
 const ReferenceScreenIdRangeStart = 90000
 const NoticeOffsetY = 50
 
-const ChoiceTextLengthSoftCap = 70
-const ChoiceTextLengthHardCap = 90
+const ChoiceTextLengthSoftCap = 45
+const ChoiceTextLengthHardCap = 60
 
 const CardPopoutZIndex = 5
 
@@ -1757,11 +1757,19 @@ func _on_choose_to_discard(event, informative_only : bool):
 	var can_pass = decision_info.can_pass
 	if informative_only or not can_pass:
 		if not decision_info.destination in ["reveal", "sealed", "opponent_overdrive"]:
-			spawn_damage_popup("Forced Discard %s" % str(amount), player)
+			var amount_string = "Forced Discard %s" % str(amount)
+			if amount == -1:
+				amount_string = "Discard Cards"
+			spawn_damage_popup(amount_string, player)
 	if not informative_only:
 		var limitation = decision_info.limitation
 		if player == Enums.PlayerId.PlayerId_Player and not observer_mode:
-			begin_discard_cards_selection(event['number'], event['number'],UISubState.UISubState_SelectCards_DiscardCards_Choose, can_pass)
+			var min_amount = amount
+			var max_amount = amount
+			if amount == -1:
+				min_amount = 0
+				max_amount = game_wrapper.get_player_hand_size(player)
+			begin_discard_cards_selection(min_amount, max_amount, UISubState.UISubState_SelectCards_DiscardCards_Choose, can_pass)
 		else:
 			# AI or other player wait
 			ai_choose_to_discard(amount, limitation, can_pass)
@@ -1802,13 +1810,16 @@ func update_discard_selection_message_choose():
 	if destination == "play_attack":
 		set_instructions("Select a card from your hand to move to play as an extra attack.")
 	else:
+		var optional_string = ""
+		if select_card_require_min == 0:
+			optional_string = "up to "
 		if decision_info.limitation:
 			if decision_info.limitation == "from_array":
-				set_instructions("Select %s more card(s) that %s from your hand to move to %s." % [num_remaining, decision_info.extra_info, destination])
+				set_instructions("Select %s%s more card(s) that %s from your hand to move to %s." % [optional_string, num_remaining, decision_info.extra_info, destination])
 			else:
-				set_instructions("Select %s more %s card(s) from your hand to move to %s%s." % [num_remaining, decision_info.limitation, destination, bonus])
+				set_instructions("Select %s%s more %s card(s) from your hand to move to %s%s." % [optional_string, num_remaining, decision_info.limitation, destination, bonus])
 		else:
-			set_instructions("Select %s more card(s) from your hand to move to %s%s." % [num_remaining, destination, bonus])
+			set_instructions("Select %s%s more card(s) from your hand to move to %s%s." % [optional_string, num_remaining, destination, bonus])
 
 func update_discard_selection_message():
 	var num_remaining = select_card_require_min - len(selected_cards)

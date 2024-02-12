@@ -256,7 +256,7 @@ func get_card_index_in_deck(player_id : Enums.PlayerId, card_id : int):
 		var card = player.deck[i]
 		if card.id == card_id:
 			return i
-	return -1	
+	return -1
 
 func get_card_index_in_discards(player_id : Enums.PlayerId, card_id : int):
 	var player = _get_player(player_id)

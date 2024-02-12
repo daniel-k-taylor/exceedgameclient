@@ -3242,6 +3242,8 @@ func is_effect_condition_met(performing_player : Player, effect, local_condition
 			return initiated_strike and active_strike.initiator_set_face_up
 		elif condition == "is_normal_attack":
 			return active_strike.get_player_card(performing_player).definition['type'] == "normal"
+		elif condition == "deck_not_empty":
+			return performing_player.deck.size() > 0
 		elif condition == "top_deck_is_normal_attack":
 			if performing_player.deck.size() > 0:
 				return performing_player.deck[0].definition['type'] == "normal"
@@ -4188,27 +4190,6 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 				decision_info.limitation.append(i)
 				decision_info.choice.append({
 					"effect_type": "draw",
-					"amount": i
-				})
-
-			change_game_state(Enums.GameState.GameState_PlayerDecision)
-			events += [create_event(Enums.EventType.EventType_PickNumberFromRange, performing_player.my_id, 0)]
-		"discard_any_number":
-			var max_user_can_discard = performing_player.hand.size()
-			decision_info.clear()
-			decision_info.type = Enums.DecisionType.DecisionType_PickNumberFromRange
-			decision_info.player = performing_player.my_id
-			decision_info.choice_card_id = card_id
-			decision_info.effect_type = "self_discard_choose"
-			decision_info.choice = []
-			decision_info.amount_min = 0
-			decision_info.amount = max_user_can_discard
-
-			decision_info.limitation = []
-			for i in range(max_user_can_discard + 1):
-				decision_info.limitation.append(i)
-				decision_info.choice.append({
-					"effect_type": "self_discard_choose",
 					"amount": i
 				})
 
@@ -8786,9 +8767,10 @@ func do_choose_to_discard(performing_player : Player, card_ids):
 		return false
 
 	var amount = decision_info.effect['amount']
-	if not decision_info.can_pass and len(card_ids) != amount and performing_player.hand.size() >= amount:
-		printlog("ERROR: Tried to choose to discard wrong number of cards.")
-		return false
+	if not (decision_info.can_pass or amount == -1):
+		if len(card_ids) != amount and performing_player.hand.size() >= amount:
+			printlog("ERROR: Tried to choose to discard wrong number of cards.")
+			return false
 
 	for card_id in card_ids:
 		if not performing_player.is_card_in_hand(card_id):
