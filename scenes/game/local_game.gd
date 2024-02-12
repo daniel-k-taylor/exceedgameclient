@@ -58,6 +58,7 @@ var active_exceed : bool = false
 var active_overdrive : bool = false
 var active_overdrive_boost_top_discard_on_cleanup : bool = false
 var active_change_cards : bool = false
+var active_dan_effect : bool = false
 var active_start_of_turn_effects : bool = false
 var active_end_of_turn_effects : bool = false
 var remaining_overdrive_effects = []
@@ -649,6 +650,8 @@ class Player:
 	var public_hand_questionable : Array[String]
 	var public_topdeck_id : int
 	var skip_end_of_turn_draw : bool
+	var dan_draw_choice : bool
+	var dan_draw_choice_from_bottom : bool
 
 	func _init(id, player_name, parent_ref, card_db_ref, chosen_deck, card_start_id):
 		my_id = id
@@ -741,6 +744,8 @@ class Player:
 		public_hand_questionable = []
 		public_topdeck_id = -1
 		skip_end_of_turn_draw = false
+		dan_draw_choice = false
+		dan_draw_choice_from_bottom = false
 
 		if "buddy_cards" in deck_def:
 			var buddy_index = 0
@@ -1701,7 +1706,6 @@ class Player:
 
 	func draw(num_to_draw : int, is_fake_draw : bool = false, from_bottom: bool = false, update_if_empty : bool = true):
 		var events : Array = []
-		var draw_from_index = 0
 		if num_to_draw > 0:
 			if is_fake_draw:
 				# Used by topdeck boost as an easy way to get it in your hand to boost.
@@ -1711,10 +1715,11 @@ class Player:
 				on_hand_add_public_card(public_topdeck_id)
 			public_topdeck_id = -1
 
+		var draw_from_index = 0
+		if from_bottom:
+			draw_from_index = -1
 		for i in range(num_to_draw):
 			if len(deck) > 0:
-				if from_bottom:
-					draw_from_index = -1
 				var card = deck[draw_from_index]
 				hand.append(card)
 				deck.remove_at(draw_from_index)
@@ -1724,7 +1729,7 @@ class Player:
 				if not parent.game_over:
 					var card = deck[0]
 					hand.append(card)
-					deck.remove_at(0)
+					deck.remove_at(draw_from_index)
 					events += [parent.create_event(Enums.EventType.EventType_Draw, my_id, card.id)]
 
 			if update_if_empty:
@@ -4188,20 +4193,23 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 			events += [create_event(Enums.EventType.EventType_Strike_DodgeFromOppositeBuddy, performing_player.my_id, 0, "", effect['buddy_name'])]
 			_append_log_full(Enums.LogType.LogType_Effect, performing_player, "will dodge attacks from opponents behind %s!" % effect['buddy_name'])
 		"draw":
-			var from_bottom = 'from_bottom' in effect and effect['from_bottom']
 			var amount = effect['amount']
 			if str(amount) == "strike_x":
 				amount = performing_player.strike_stat_boosts.strike_x
+
+			var from_bottom = false
+			var from_bottom_string = ""
+			if 'from_bottom' in effect and effect['from_bottom']:
+				from_bottom = true
+				from_bottom_string = " from bottom of deck"
+
 			if amount > 0:
 				if 'opponent' in effect and effect['opponent']:
-					events += opposing_player.draw(amount)
-					_append_log_full(Enums.LogType.LogType_CardInfo, opposing_player, "draws %s card(s)." % amount)
-				if from_bottom:
-					events += performing_player.draw(amount, false, from_bottom)
-					_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "draws %s card(s) from the bottom." % amount)
+					events += opposing_player.draw(amount, false, from_bottom)
+					_append_log_full(Enums.LogType.LogType_CardInfo, opposing_player, "draws %s card(s)%s." % [amount, from_bottom_string])
 				else:
-					events += performing_player.draw(amount)
-					_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "draws %s card(s)." % amount)
+					events += performing_player.draw(amount, false, from_bottom)
+					_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "draws %s card(s)%s." % [amount, from_bottom_string])
 		"draw_any_number":
 			var max_user_can_draw = performing_player.deck.size()
 			if performing_player.reshuffle_remaining > 0:
@@ -4447,10 +4455,6 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 			performing_player.ignore_push_and_pull -= 1
 			if performing_player.ignore_push_and_pull == 0:
 				_append_log_full(Enums.LogType.LogType_Effect, performing_player, "no longer ignores pushes and pulls.")
-		"look_at_top_deck":
-			events += performing_player.reveal_topdeck()
-		"look_at_top_opponent_deck":
-			events += opposing_player.reveal_topdeck()
 		"lose_all_armor":
 			if active_strike:
 				_append_log_full(Enums.LogType.LogType_Effect, performing_player, "loses all armor!")
@@ -4766,6 +4770,11 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 				events += opposing_player.reveal_hand_and_topdeck()
 			else:
 				events += performing_player.reveal_hand_and_topdeck()
+		"reveal_topdeck":
+			if 'opponent' in effect and effect['opponent']:
+				events += opposing_player.reveal_topdeck()
+			else:
+				events += performing_player.reveal_topdeck()
 		"reveal_strike":
 			if performing_player == active_strike.initiator:
 				active_strike.initiator_set_face_up = true
@@ -5599,6 +5608,10 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 					if destination == "reveal" and 'and' in effect and effect['and']['effect_type'] == "save_power":
 						_append_log_full(Enums.LogType.LogType_Effect, performing_player, "has no cards in hand to reveal.")
 						performing_player.saved_power = 0
+		"set_dan_draw_choice":
+			performing_player.dan_draw_choice = true
+		"set_dan_draw_choice_INTERNAL":
+			performing_player.dan_draw_choice_from_bottom = effect['from_bottom']
 		"set_end_of_turn_boost_delay":
 			performing_player.set_end_of_turn_boost_delay(card_id)
 		"set_strike_x":
@@ -5659,6 +5672,7 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 		"shuffle_deck":
 			performing_player.random_shuffle_deck()
 			_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "shuffled their deck.")
+			events += [create_event(Enums.EventType.EventType_ReshuffleDeck, performing_player.my_id, 0)]
 		"shuffle_discard_in_place":
 			performing_player.random_shuffle_discard_in_place()
 			_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "shuffled their discard pile.")
@@ -7750,14 +7764,30 @@ func check_hand_size_advance_turn(performing_player : Player):
 		else:
 			_append_log_full(Enums.LogType.LogType_Action, performing_player, "takes an additional action! (%s left)" % performing_player.bonus_actions)
 		events += [create_event(Enums.EventType.EventType_Boost_ActionAfterBoost, performing_player.my_id, performing_player.bonus_actions)]
+	elif performing_player.dan_draw_choice and not active_dan_effect and not performing_player.skip_end_of_turn_draw:
+		var choice_effect = {
+			"effect_type": "choice",
+			"choice": [
+				{ "effect_type": "set_dan_draw_choice_INTERNAL", "from_bottom": false },
+				{ "effect_type": "set_dan_draw_choice_INTERNAL", "from_bottom": true }
+			]
+		}
+		events += handle_strike_effect(-1, choice_effect, performing_player)
+		active_dan_effect = true
 	else:
 		if performing_player.skip_end_of_turn_draw:
 			performing_player.skip_end_of_turn_draw = false
 			_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "skips drawing for end of turn. Their hand size is %s." % len(performing_player.hand))
 		else:
-			events += performing_player.draw(1)
+			var from_bottom_str = ""
+			if active_dan_effect and performing_player.dan_draw_choice_from_bottom:
+				events += performing_player.draw(1, false, true)
+				from_bottom_str = " from bottom of deck"
+			else:
+				events += performing_player.draw(1)
+			active_dan_effect = false
 			performing_player.did_end_of_turn_draw = true
-			_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "draws for end of turn. Their hand size is now %s." % len(performing_player.hand))
+			_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "draws %sfor end of turn. Their hand size is now %s." % [from_bottom_str, len(performing_player.hand)])
 
 		if len(performing_player.hand) > performing_player.max_hand_size:
 			change_game_state(Enums.GameState.GameState_DiscardDownToMax)
@@ -8401,7 +8431,7 @@ func do_choice(performing_player : Player, choice_index : int) -> bool:
 
 func set_player_action_processing_state():
 	if active_start_of_turn_effects or active_end_of_turn_effects or active_overdrive or active_boost \
-	or active_character_action or active_exceed or active_change_cards:
+	or active_character_action or active_exceed or active_change_cards or active_dan_effect:
 		game_state = Enums.GameState.GameState_Boost_Processing
 	elif active_strike:
 		game_state = Enums.GameState.GameState_Strike_Processing
@@ -8428,8 +8458,10 @@ func continue_player_action_resolution(events, performing_player : Player):
 		if game_state != Enums.GameState.GameState_PlayerDecision:
 			if active_start_of_turn_effects:
 				events += continue_begin_turn()
-			if active_end_of_turn_effects:
+			elif active_end_of_turn_effects:
 				events += continue_end_turn()
+			elif active_dan_effect:
+				events += check_hand_size_advance_turn(performing_player)
 			elif active_overdrive:
 				# Intentional events = because events are passed in.
 				events = do_remaining_overdrive(events, performing_player)

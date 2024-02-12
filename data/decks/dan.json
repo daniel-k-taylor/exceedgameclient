@@ -4,6 +4,9 @@
 	"display_name": "Dan Hibiki",
 	"cardback": "cardback_defaultexceed.png",
 	"exceed_cost": 2,
+	"on_exceed": {
+		"effect_type": "set_dan_draw_choice"
+	},
 	"ability_effects": [
 		{
 			"timing": "set_strike",
@@ -61,27 +64,10 @@
 		},
 		{
 			"timing": "end_of_turn",
-			"condition": "not_this_turn_was_strike",
-			"effect_type": "skip_end_of_turn_draw",
-			"and": {
-				"effect_type": "choice",
-				"choice": [
-					{ "effect_type": "draw", "amount": 1, "suppress_and_description": true, "and": {
-						"effect_type": "choice",
-						"choice": [
-							{ "effect_type": "self_discard_choose", "amount": 1 },
-							{ "effect_type": "pass" }
-						]
-					} },
-					{ "effect_type": "draw", "from_bottom": true, "amount": 1, "suppress_and_description": true, "and": {
-						"effect_type": "choice",
-						"choice": [
-							{ "effect_type": "self_discard_choose", "amount": 1 },
-							{ "effect_type": "pass" }
-						]
-					} }
-				]
-			}
+			"condition": "did_end_of_turn_draw",
+			"effect_type": "self_discard_choose",
+			"amount": 1,
+			"optional": true
 		}
 	],
 	"cards": [

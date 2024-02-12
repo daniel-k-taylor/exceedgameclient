@@ -2201,20 +2201,7 @@ func _on_reshuffle_discard(event):
 	return SmallNoticeDelay
 
 func _on_shuffle_deck(event):
-	var player = event['event_player']
-	var card_parent
-	if player == Enums.PlayerId.PlayerId_Player:
-		card_parent = $AllCards/PlayerDeck
-	else:
-		card_parent = $AllCards/OpponentDeck
-	var cards = card_parent.get_children()
-	var new_order = {}
-
-	for card in cards:
-		var card_index = game_wrapper.get_card_index_in_deck(player, card.card_id)
-		new_order[card_index] = card
-	for i in range(len(new_order)):
-		card_parent.move_child(new_order[i], i)
+	update_eyes_on_hand_icons()
 
 func _on_reshuffle_discard_in_place(event):
 	var player = event['event_player']

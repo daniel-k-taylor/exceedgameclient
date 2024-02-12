@@ -847,6 +847,11 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 			effect_str += "Skip your end of turn draw"
 		"use_saved_power_as_printed_power":
 			effect_str += "Your printed power is the revealed card's power"
+		"set_dan_draw_choice_INTERNAL":
+			if effect['from_bottom']:
+				effect_str += "Draw from bottom of deck"
+			else:
+				effect_str += "Draw from top of deck"
 		"set_strike_x":
 			effect_str += "Set X to "
 			match effect['source']:

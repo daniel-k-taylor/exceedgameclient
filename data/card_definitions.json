@@ -340,7 +340,8 @@
 			"effects": [
 				{
 					"timing": "now",
-					"effect_type": "look_at_top_opponent_deck"
+					"effect_type": "reveal_topdeck",
+					"opponent": true
 				},
 				{
 					"timing": "hit",
@@ -19381,7 +19382,8 @@
 				},
 				{
 					"timing": "now",
-					"effect_type": "look_at_top_opponent_deck",
+					"effect_type": "reveal_topdeck",
+					"opponent": true,
 					"and": {
 						"effect_type": "choice",
 						"choice": [
