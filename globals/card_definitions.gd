@@ -207,6 +207,8 @@ func get_condition_text(effect, amount, amount2, detail):
 			text += "If advanced past opponent, "
 		"not_advanced_through_buddy":
 			text += "If didn't advance through %s, " % detail
+		"any_buddy_in_play":
+			text += "If %s is in play, " % detail
 		"any_buddy_in_opponent_space":
 			text += "If opponent is on %s, " % detail
 		"any_buddy_adjacent_opponent_space":
@@ -634,6 +636,13 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 			effect_str += "Name a card. Opponent discards it or reveals not in hand."
 		"may_advance_bonus_spaces":
 			effect_str = "You may Advance/Close %s extra space(s)" % effect['amount']
+		"move_any_buddy":
+			if 'to_opponent' in effect and effect['to_opponent']:
+				effect_str += "Move %s to opponent's space" % effect['buddy_name']
+			else:
+				var move_min = effect['amount_min']
+				var move_max = effect['amount_max']
+				effect_str += "Move %s %s-%s spaces" % [effect['buddy_name'], move_min, move_max]
 		"move_buddy":
 			var strike_str = ""
 			if 'strike_after' in effect and effect['strike_after']:

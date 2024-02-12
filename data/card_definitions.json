@@ -15533,6 +15533,7 @@
 				"amount": 2,
 				"and": {
 					"condition": "any_buddy_in_or_adjacent_opponent_space",
+					"condition_detail": "Ice Spike",
 					"buddy_name": "Ice Spike",
 					"effect_type": "remove_buddy_near_opponent",
 					"offset_allowed": 1,
@@ -15647,6 +15648,7 @@
 				"timing": "hit",
 				"condition": "any_buddy_adjacent_opponent_space",
 				"buddy_name": "Ice Spike",
+				"condition_detail": "Ice Spike",
 				"effect_type": "remove_buddy_near_opponent",
 				"offset_allowed": 1,
 				"same_space_allowed": false,
@@ -15709,10 +15711,12 @@
 				"effect_type": "pass",
 				"and": {
 					"condition": "not_any_buddy_in_opponent_space",
+					"condition_detail": "Ice Spike",
 					"buddy_name": "Ice Spike",
 					"effect_type": "pass",
 					"and": {
 						"condition": "any_buddy_in_play",
+						"condition_detail": "Ice Spike",
 						"buddy_name": "Ice Spike",
 						"effect_type": "move_any_buddy",
 						"to_opponent": true,
@@ -15799,6 +15803,7 @@
 				{
 					"timing": "immediate",
 					"condition": "any_buddy_in_play",
+					"condition_detail": "Ice Spike",
 					"effect_type": "move_any_buddy",
 					"buddy_name": "Ice Spike",
 					"amount_min": 0,
@@ -20413,7 +20418,7 @@
 			"effects": [
 				{
 					"timing": "immediate",
-					"effect_type": "add_to_gauge_immediately"
+					"effect_type": "add_to_gauge_boost_play_cleanup"
 				}
 			]
 		}
