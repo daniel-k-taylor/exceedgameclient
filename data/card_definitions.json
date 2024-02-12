@@ -13956,8 +13956,8 @@
 				{
 					"timing": "immediate",
 					"effect_type": "place_lightningrod",
-            		"source": "choose_discard",
-            		"limitation": "any"
+					"source": "choose_discard",
+					"limitation": "any"
 				}
 			]
 		}
@@ -13982,8 +13982,8 @@
 			{
 				"timing": "cleanup",
 				"effect_type": "place_lightningrod",
-            	"source": "this_card",
-            	"limitation": "attack_range"
+				"source": "this_card",
+				"limitation": "attack_range"
 			}
 		],
 		"boost": {
