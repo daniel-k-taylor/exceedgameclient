@@ -1882,7 +1882,7 @@ func update_gauge_for_effect_message():
 			else:
 				effect_str = "Return %s %s to your hand." % [decision_effect['gauge_max'], gauge_name_str]
 		else:
-			effect_str = "Spend %s gauge for %s." % [decision_effect['gauge_max'], gauge_name_str, effect_text]
+			effect_str = "Spend %s %s for %s." % [decision_effect['gauge_max'], gauge_name_str, effect_text]
 	var passive_bonus = get_gauge_generated() - len(selected_cards)
 	if passive_bonus > 0:
 		effect_str += "\n%s gauge from passive bonus." % passive_bonus

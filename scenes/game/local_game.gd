@@ -2485,7 +2485,7 @@ class Player:
 						opposing_player.strike_stat_boosts.min_range += effect['amount']
 						opposing_player.strike_stat_boosts.max_range += effect['amount2']
 
-	func disable_boost_effects(card : GameCard, buddy_ignore_condition : bool = false):
+	func disable_boost_effects(card : GameCard, buddy_ignore_condition : bool = false, being_discarded : bool = true):
 		var opposing_player = parent._get_player(parent.get_other_player(my_id))
 
 		# Undo timing effects and passive bonuses.
@@ -2494,9 +2494,11 @@ class Player:
 			if effect['timing'] == "now":
 				match effect['effect_type']:
 					"ignore_push_and_pull_passive_bonus":
-						ignore_push_and_pull -= 1
-						if ignore_push_and_pull == 0:
-							parent._append_log_full(Enums.LogType.LogType_Effect, self, "no longer ignores pushes and pulls.")
+						# ensure this won't be doubly-undone by a discard effect
+						if not being_discarded:
+							ignore_push_and_pull -= 1
+							if ignore_push_and_pull == 0:
+								parent._append_log_full(Enums.LogType.LogType_Effect, self, "no longer ignores pushes and pulls.")
 			elif effect['timing'] == current_timing:
 				# Need to remove these effects from the remaining effects.
 				# Only if the current timing belongs to the player who has this in their continuous boosts.
@@ -2619,7 +2621,7 @@ class Player:
 				reenable_boost_effects(card)
 			else:
 				parent._append_log_full(Enums.LogType.LogType_Effect, self, "'s boost %s was disabled." % boost_name)
-				disable_boost_effects(card, true)
+				disable_boost_effects(card, true, false)
 
 	func on_cancel_boost():
 		var events = []
@@ -5629,7 +5631,6 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 		"shuffle_deck":
 			performing_player.random_shuffle_deck()
 			_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "shuffled their deck.")
-			events += [create_event(Enums.EventType.EventType_ReshuffleDeck, performing_player.my_id, 0)]
 		"shuffle_discard_in_place":
 			performing_player.random_shuffle_discard_in_place()
 			_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "shuffled their discard pile.")
@@ -6847,7 +6848,7 @@ func ask_for_cost(performing_player, card, next_state):
 	var events = []
 	var gauge_cost = get_gauge_cost(performing_player, card)
 	var force_cost = card.definition['force_cost']
-	var card_has_cost = gauge_cost > 0 or force_cost > 0
+	var card_has_printed_cost = card.definition['gauge_cost'] > 0 or force_cost > 0
 	var is_special = card.definition['type'] == "special"
 	var is_ultra = card.definition['type'] == "ultra"
 	var gauge_discard_reminder = false
@@ -6864,7 +6865,7 @@ func ask_for_cost(performing_player, card, next_state):
 	# Even if the cost can be paid for free, if the card has a cost wild swing is allowed.
 	var was_wild_swing = active_strike.get_player_wild_strike(performing_player)
 	var can_invalidate_ultra = is_ultra and performing_player.strike_stat_boosts.may_invalidate_ultras
-	var can_invalidate_anyway = (was_wild_swing and card_has_cost) or can_invalidate_ultra
+	var can_invalidate_anyway = (was_wild_swing and card_has_printed_cost) or can_invalidate_ultra
 
 	# Extra attacks live outside of lots of rules.
 	# They cannot fail to pay the cost.
