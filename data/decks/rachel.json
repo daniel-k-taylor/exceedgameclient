@@ -19,6 +19,32 @@
 			"force_cost": 0,
 			"per_turn_limit": 1,
 			"effect": {
+				"effect_type": "take_bonus_actions",
+				"silent_effect": true,
+				"amount": 1,
+				"and": {
+					"effect_type": "choice",
+					"choice": [
+						{
+							"effect_type": "force_for_effect",
+							"per_force_effect": {
+								"effect_type": "close",
+								"amount": 1
+							},
+							"overall_effect": null,
+							"force_max": 2
+						},
+						{
+							"effect_type": "force_for_effect",
+							"per_force_effect": {
+								"effect_type": "retreat",
+								"amount": 1
+							},
+							"overall_effect": null,
+							"force_max": 2
+						}
+					]
+				}
 			}
 		}
 	],
@@ -29,6 +55,50 @@
 			"force_cost": 0,
 			"per_turn_limit": 1,
 			"effect": {
+				"effect_type": "take_bonus_actions",
+				"silent_effect": true,
+				"amount": 1,
+				"and": {
+					"effect_type": "choice",
+					"choice": [
+						{
+							"effect_type": "force_for_effect",
+							"per_force_effect": {
+								"effect_type": "close",
+								"amount": 1
+							},
+							"overall_effect": null,
+							"force_max": 2
+						},
+						{
+							"effect_type": "force_for_effect",
+							"per_force_effect": {
+								"effect_type": "retreat",
+								"amount": 1
+							},
+							"overall_effect": null,
+							"force_max": 2
+						},
+						{
+							"effect_type": "force_for_effect",
+							"per_force_effect": {
+								"effect_type": "push",
+								"amount": 1
+							},
+							"overall_effect": null,
+							"force_max": 2
+						},
+						{
+							"effect_type": "force_for_effect",
+							"per_force_effect": {
+								"effect_type": "pull",
+								"amount": 1
+							},
+							"overall_effect": null,
+							"force_max": 2
+						}
+					]
+				}
 			}
 		}
 	],
