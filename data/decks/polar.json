@@ -78,6 +78,7 @@
 				{
 					"effect_type": "place_next_buddy",
 					"buddy_name": "Ice Spike",
+					"UI_skip_summary": true,
 					"require_unoccupied": true,
 					"destination": "attack_range",
 					"amount": 1
