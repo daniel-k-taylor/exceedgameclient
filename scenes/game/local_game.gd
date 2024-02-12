@@ -4451,8 +4451,6 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 			events += performing_player.reveal_topdeck()
 		"look_at_top_opponent_deck":
 			events += opposing_player.reveal_topdeck()
-		"look_at_opponent_hand":
-			events += opposing_player.reveal_hand()
 		"lose_all_armor":
 			if active_strike:
 				_append_log_full(Enums.LogType.LogType_Effect, performing_player, "loses all armor!")
