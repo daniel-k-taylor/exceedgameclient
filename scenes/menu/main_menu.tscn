@@ -363,10 +363,10 @@ grow_vertical = 1
 
 [node name="VersionContainer" type="PanelContainer" parent="."]
 layout_mode = 0
-offset_left = 1000.0
+offset_left = 950.0
 offset_top = 650.0
-offset_right = 1079.0
-offset_bottom = 690.0
+offset_right = 1083.0
+offset_bottom = 702.0
 
 [node name="MarginContainer" type="MarginContainer" parent="VersionContainer"]
 layout_mode = 2
@@ -382,7 +382,7 @@ theme_override_constants/separation = 10
 [node name="ClientVersionHeader" type="Label" parent="VersionContainer/MarginContainer/HBoxContainer"]
 layout_mode = 2
 theme_override_font_sizes/font_size = 30
-text = "Version"
+text = "Build:"
 
 [node name="ClientVersion" type="Label" parent="VersionContainer/MarginContainer/HBoxContainer"]
 layout_mode = 2

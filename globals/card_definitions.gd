@@ -207,6 +207,14 @@ func get_condition_text(effect, amount, amount2, detail):
 			text += "If advanced past opponent, "
 		"not_advanced_through_buddy":
 			text += "If didn't advance through %s, " % detail
+		"any_buddy_in_opponent_space":
+			text += "If opponent is on %s, " % detail
+		"any_buddy_adjacent_opponent_space":
+			text += "If opponent is adjacent to %s, " % detail
+		"any_buddy_in_or_adjacent_opponent_space":
+			text += "If opponent is on or adjacent to %s, " % detail
+		"not_any_buddy_in_opponent_space":
+			text += "If %s is not in opponent's space, " % detail
 		"at_edge_of_arena":
 			text += "If at arena edge, "
 		"boost_in_play":
@@ -545,6 +553,23 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 			effect_str += "Place %s in any space." % effect['buddy_name']
 		"place_buddy_in_attack_range":
 			effect_str += "Place %s in the attack's range." % effect['buddy_name']
+		"place_next_buddy":
+			var unoccupied_str = ""
+			if effect['require_unoccupied']:
+				unoccupied_str = " in an unoccupied space"
+			var where_str = ""
+			match effect['destination']:
+				"attack_range":
+					where_str = "in the attack's range"
+				"anywhere":
+					where_str = "anywhere"
+				"adjacent_self":
+					where_str = "adjacent to you"
+				"self":
+					where_str = "on your space"
+				_:
+					where_str = "<MISSING DESTINATION STRING>"
+			effect_str += "Place %s %s%s." % [effect['buddy_name'], where_str, unoccupied_str]
 		"play_attack_from_hand":
 				effect_str += "Play an attack from your hand, paying its costs."
 		"calculate_range_from_buddy":
@@ -552,10 +577,14 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 		"calculate_range_from_center":
 			effect_str += "Calculate range from the center of the arena."
 		"draw":
+			var amount = effect['amount']
+			var amount_str = str(amount)
+			if amount is String and amount == "strike_x":
+				amount_str = "X"
 			if 'opponent' in effect and effect['opponent']:
-				effect_str += "Opponent Draw " + str(effect['amount'])
+				effect_str += "Opponent Draw " + amount_str
 			else:
-				effect_str += "Draw " + str(effect['amount'])
+				effect_str += "Draw " + amount_str
 		"draw_any_number":
 			effect_str += "Draw any number of cards."
 		"draw_to":
@@ -685,7 +714,10 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 		"pull_to_buddy":
 			effect_str += "Pull %s to %s" % [str(effect['amount']), effect['buddy_name']]
 		"push":
-			effect_str += "Push " + str(effect['amount'])
+			var extra_info = ""
+			if 'save_buddy_spaces_entered_as_strike_x' in effect and effect['save_buddy_spaces_entered_as_strike_x']:
+				extra_info = "\nSet X to the number of %s the opponent is pushed onto" % effect['buddy_name']
+			effect_str += "Push " + str(effect['amount']) + extra_info
 		"push_from_source":
 			effect_str += "Push " + str(effect['amount']) + " from attack source"
 		"push_to_attack_max_range":
@@ -718,6 +750,23 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 				effect_str += "+" + str(effect['amount']) + "-" + str(effect['amount2']) + " Range per boost in play."
 		"rangeup_per_sealed_normal":
 			effect_str += "+" + str(effect['amount']) + "-" + str(effect['amount2']) + " Range per sealed normal."
+		"remove_buddy_near_opponent":
+			var offset_allowed = effect['offset_allowed']
+			var same_space_allowed = effect['same_space_allowed']
+			var optional = 'optional' in effect and effect['optional']
+			var location_str = ""
+			if same_space_allowed:
+				location_str = "on"
+			if offset_allowed == 1:
+				if same_space_allowed:
+					location_str += " or "
+				location_str += "adjacent to"
+			var begin_str = ""
+			if optional:
+				begin_str = "You may: "
+			effect_str += "%sRemove %s %s opponent's space" % [begin_str, effect['buddy_name'], location_str]
+		"remove_X_buddies":
+			effect_str += "Remove X %ss" % [effect['buddy_name']]
 		"repeat_effect_optionally":
 			effect_str += get_effect_text(effect['linked_effect'], false, false, false)
 			var repeats = str(effect['amount'])

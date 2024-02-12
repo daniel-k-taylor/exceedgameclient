@@ -398,6 +398,7 @@ class Boost:
 class StrikeStatBoosts:
 	var power : int = 0
 	var power_positive_only : int = 0
+	var power_modify_per_buddy_between : int = 0
 	var armor : int = 0
 	var consumed_armor : int = 0
 	var guard : int = 0
@@ -406,6 +407,7 @@ class StrikeStatBoosts:
 	var min_range : int = 0
 	var max_range : int = 0
 	var attack_does_not_hit : bool = false
+	var only_hits_if_opponent_on_any_buddy : bool = false
 	var cannot_go_below_life : int = 0
 	var dodge_attacks : bool = false
 	var dodge_at_range_min : int = -1
@@ -427,7 +429,7 @@ class StrikeStatBoosts:
 	var return_attack_to_hand : bool = false
 	var move_strike_to_boosts : bool = false
 	var move_strike_to_opponent_boosts : bool = false
-	var when_hit_force_for_armor : bool = false
+	var when_hit_force_for_armor : String = ""
 	var stun_immunity : bool = false
 	var was_hit : bool = false
 	var is_ex : bool = false
@@ -464,6 +466,7 @@ class StrikeStatBoosts:
 	func clear():
 		power = 0
 		power_positive_only = 0
+		power_modify_per_buddy_between = 0
 		armor = 0
 		consumed_armor = 0
 		guard = 0
@@ -472,6 +475,7 @@ class StrikeStatBoosts:
 		min_range = 0
 		max_range = 0
 		attack_does_not_hit = false
+		only_hits_if_opponent_on_any_buddy = false
 		cannot_go_below_life = 0
 		dodge_attacks = false
 		dodge_at_range_min = -1
@@ -493,7 +497,7 @@ class StrikeStatBoosts:
 		return_attack_to_hand = false
 		move_strike_to_boosts = false
 		move_strike_to_opponent_boosts = false
-		when_hit_force_for_armor = false
+		when_hit_force_for_armor = ""
 		stun_immunity = false
 		was_hit = false
 		is_ex = false
@@ -1418,6 +1422,69 @@ class Player:
 			buddy_index = buddy_id_to_index[buddy_id]
 		buddy_locations[buddy_index] = new_location
 
+	func get_next_free_buddy_id():
+		for i in range(buddy_locations.size()):
+			if buddy_locations[i] == -1:
+				return buddy_id_to_index.keys()[i]
+		return ""
+
+	func get_buddy_id_at_location(location : int):
+		for i in range(buddy_locations.size()):
+			if buddy_locations[i] == location:
+				return buddy_id_to_index.keys()[i]
+		return ""
+
+	func get_buddies_in_play():
+		var buddies = []
+		for i in range(buddy_locations.size()):
+			if buddy_locations[i] != -1:
+				buddies.append(buddy_id_to_index.keys()[i])
+		return buddies
+
+	func get_buddies_on_opponent():
+		var opposing_player = parent._get_player(parent.get_other_player(my_id))
+		var matching_buddies = []
+		for i in range(buddy_locations.size()):
+			if opposing_player.is_in_location(buddy_locations[i]):
+				matching_buddies.append(buddy_id_to_index.keys()[i])
+		return matching_buddies
+
+	func get_buddies_adjacent_opponent():
+		var opposing_player = parent._get_player(parent.get_other_player(my_id))
+		var matching_buddies = []
+		for i in range(buddy_locations.size()):
+			var location = buddy_locations[i]
+			if not opposing_player.is_in_location(location):
+				if opposing_player.is_in_location(location - 1) or opposing_player.is_in_location(location + 1):
+					matching_buddies.append(buddy_id_to_index.keys()[i])
+		return matching_buddies
+
+	func count_buddies_between_opponent():
+		var opposing_player = parent._get_player(parent.get_other_player(my_id))
+		var count = 0
+		var started = false
+		for location in range(MinArenaLocation, MaxArenaLocation + 1):
+			# Only count starting with the rightmost edge of one of the players.
+			if not started and \
+			((opposing_player.is_in_location(location) and not opposing_player.is_in_location(location + 1)) or \
+			(self.is_in_location(location) and not self.is_in_location(location + 1))):
+				# Found a player, begin counting until the other player is reached.
+				started = true
+			elif started and \
+			(opposing_player.is_in_location(location) or self.is_in_location(location)):
+				# Reached the other end, stop.
+				break
+			elif started and get_buddy_id_at_location(location):
+				count += 1
+
+		return count
+
+	func are_all_buddies_in_play():
+		for i in range(buddy_locations.size()):
+			if buddy_locations[i] == -1:
+				return false
+		return true
+
 	func place_buddy(new_location : int, buddy_id : String = "", silent : bool = false, description : String = ""):
 		var events = []
 		if not buddy_id:
@@ -2116,7 +2183,10 @@ class Player:
 			if is_in_location(buddy_old_pos, old_pos):
 				handle_on_buddy_boosts(false)
 
-	func move_in_direction_by_amount(go_left : bool, amount : int, stop_at_opponent : bool, stop_on_space : int, movement_type : String, is_self_move : bool = true):
+	func move_in_direction_by_amount(go_left : bool, amount : int, stop_at_opponent : bool, stop_on_space : int,
+	movement_type : String, is_self_move : bool = true, remove_my_buddies_encountered : int = 0,
+	set_x_to_buddy_spaces_entered : bool = false
+	):
 		var events = []
 		var direction = -1 if go_left else 1
 		var other_player = parent._get_player(parent.get_other_player(my_id))
@@ -2143,6 +2213,8 @@ class Player:
 		var blocked_by_buddy = false
 		var stopped_on_space = false
 		var distance = 0
+		var my_buddies_encountered_in_order = []
+		var opponent_buddies_encountered_in_order = []
 		for i in range(amount):
 			var target_location = new_location + direction
 			if is_self_move and cannot_move_past_opponent_buddy_id:
@@ -2179,6 +2251,12 @@ class Player:
 			if new_location != updated_new_location:
 				distance += 1
 				new_location = updated_new_location
+				var my_buddy_id = get_buddy_id_at_location(new_location)
+				if my_buddy_id:
+					my_buddies_encountered_in_order.append(my_buddy_id)
+				var opponent_buddy_id = other_player.get_buddy_id_at_location(new_location)
+				if opponent_buddy_id:
+					opponent_buddies_encountered_in_order.append(opponent_buddy_id)
 			else:
 				# at edge of arena
 				break
@@ -2210,9 +2288,21 @@ class Player:
 			on_position_changed(previous_location, get_buddy_location(), is_self_move)
 			events += add_boosts_to_gauge_on_move()
 
+
+		if set_x_to_buddy_spaces_entered:
+			var buddy_spaces_entered = len(opponent_buddies_encountered_in_order)
+			events += other_player.set_strike_x(buddy_spaces_entered, true)
+
+		if remove_my_buddies_encountered > 0:
+			for buddy_id in my_buddies_encountered_in_order:
+				events += remove_buddy(buddy_id)
+				remove_my_buddies_encountered -= 1
+				if remove_my_buddies_encountered == 0:
+					break
+
 		return events
 
-	func move_to(new_location, ignore_restrictions=false):
+	func move_to(new_location, ignore_restrictions=false, remove_buddies_encountered : int = 0):
 		var events = []
 		if arena_location == new_location:
 			return events
@@ -2227,9 +2317,9 @@ class Player:
 				events += add_boosts_to_gauge_on_move()
 		else:
 			if arena_location < new_location:
-				events += move_in_direction_by_amount(false, distance, false, -1, "move")
+				events += move_in_direction_by_amount(false, distance, false, -1, "move", true, remove_buddies_encountered)
 			else:
-				events += move_in_direction_by_amount(true, distance, false, -1, "move")
+				events += move_in_direction_by_amount(true, distance, false, -1, "move", true, remove_buddies_encountered)
 
 		return events
 
@@ -2269,15 +2359,15 @@ class Player:
 
 		return events
 
-	func push(amount):
+	func push(amount, set_x_to_buddy_spaces_entered : bool = false):
 		var events = []
 
 		var other_player = parent._get_player(parent.get_other_player(my_id))
 		var other_location = other_player.arena_location
 		if arena_location < other_location:
-			events += other_player.move_in_direction_by_amount(false, amount, false, -1, "push", false)
+			events += other_player.move_in_direction_by_amount(false, amount, false, -1, "push", false, 0, set_x_to_buddy_spaces_entered)
 		else:
-			events += other_player.move_in_direction_by_amount(true, amount, false, -1, "push", false)
+			events += other_player.move_in_direction_by_amount(true, amount, false, -1, "push", false, 0, set_x_to_buddy_spaces_entered)
 
 		return events
 
@@ -2613,10 +2703,11 @@ class Player:
 				effects.append(effect)
 		return effects
 
-	func set_strike_x(value : int):
+	func set_strike_x(value : int, silent : bool = false):
 		var events = []
 		strike_stat_boosts.strike_x = max(value, 0)
-		events += [parent.create_event(Enums.EventType.EventType_Strike_SetX, my_id, value)]
+		if not silent:
+			events += [parent.create_event(Enums.EventType.EventType_Strike_SetX, my_id, value)]
 		return events
 
 	func get_set_strike_effects(card : GameCard) -> Array:
@@ -3241,6 +3332,18 @@ func is_effect_condition_met(performing_player : Player, effect, local_condition
 			return active_strike.is_player_stunned(performing_player)
 		elif condition == "not_stunned":
 			return not active_strike.is_player_stunned(performing_player)
+		elif condition == "any_buddy_in_opponent_space":
+			var buddies = performing_player.get_buddies_on_opponent()
+			return buddies.size() > 0
+		elif condition == "not_any_buddy_in_opponent_space":
+			var buddies = performing_player.get_buddies_on_opponent()
+			return buddies.size() == 0
+		elif condition == "any_buddy_adjacent_opponent_space":
+			var buddies = performing_player.get_buddies_adjacent_opponent()
+			return buddies.size() > 0
+		elif condition == "any_buddy_in_or_adjacent_opponent_space":
+			var buddies = performing_player.get_buddies_on_opponent() + performing_player.get_buddies_adjacent_opponent()
+			return buddies.size() > 0
 		elif condition == "buddy_in_opponent_space":
 			var buddy_id = ""
 			if 'condition_buddy_id' in effect:
@@ -3248,6 +3351,10 @@ func is_effect_condition_met(performing_player : Player, effect, local_condition
 			if not performing_player.is_buddy_in_play(buddy_id):
 				return false
 			return other_player.is_in_location(performing_player.get_buddy_location(buddy_id))
+		elif condition == "any_buddy_in_play":
+			for buddy_location in performing_player.buddy_locations:
+				if buddy_location != -1:
+					return true
 		elif condition == "buddy_in_play":
 			var buddy_id = ""
 			if 'condition_buddy_id' in effect:
@@ -3368,6 +3475,9 @@ func is_effect_condition_met(performing_player : Player, effect, local_condition
 			var max_amount = effect["condition_amount_max"]
 			var origin = performing_player.get_closest_occupied_space_to(other_player.arena_location)
 			return other_player.is_in_range_of_location(origin, min_amount, max_amount)
+		elif condition == "strike_x_greater_than":
+			var amount = effect['condition_amount']
+			return performing_player.strike_stat_boosts.strike_x > amount
 		elif condition == "was_hit":
 			return performing_player.strike_stat_boosts.was_hit
 		elif condition == "was_wild_swing":
@@ -4310,8 +4420,9 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 			events += [create_event(Enums.EventType.EventType_Strike_EffectChoice, performing_player.my_id, 0, "EffectOption")]
 		"move_to_space":
 			var space = effect['amount']
+			var remove_buddies_encountered = effect['remove_buddies_encountered']
 			var previous_location = performing_player.arena_location
-			events += performing_player.move_to(space)
+			events += performing_player.move_to(space, false, remove_buddies_encountered)
 			_append_log_full(Enums.LogType.LogType_CharacterMovement, performing_player, "moves from space %s to %s." % [str(previous_location), str(performing_player.arena_location)])
 		"move_to_any_space":
 			decision_info.clear()
@@ -4320,6 +4431,12 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 			decision_info.choice_card_id = card_id
 			decision_info.effect_type = "move_to_space"
 			decision_info.choice = []
+			decision_info.extra_info = ""
+
+			var remove_buddies_encountered = 0
+			if 'remove_buddies_encountered' in effect:
+				remove_buddies_encountered = effect['remove_buddies_encountered']
+				decision_info.extra_info = "Remove the first %s %ss you move onto" % [remove_buddies_encountered, effect['buddy_name']]
 
 			var move_min = 0
 			var move_max = 8
@@ -4344,7 +4461,8 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 					decision_info.limitation.append(i)
 					decision_info.choice.append({
 						"effect_type": "move_to_space",
-						"amount": i
+						"amount": i,
+						"remove_buddies_encountered": remove_buddies_encountered,
 					})
 					nowhere_to_move = false
 
@@ -4404,6 +4522,8 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 			else:
 				assert(false, "Target effect for name_range not found.")
 				decision_info.clear()
+		"only_hits_if_opponent_on_any_buddy":
+			performing_player.strike_stat_boosts.only_hits_if_opponent_on_any_buddy = true
 		"opponent_discard_range_or_reveal":
 			var target_range = effect['target_range']
 			var range_name_str = target_range
@@ -4463,6 +4583,98 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 				# Didn't have any that matched, so forced to reveal hand.
 				_append_log_full(Enums.LogType.LogType_Effect, opposing_player, "has no matching cards so their hand is revealed.")
 				events += opposing_player.reveal_hand()
+		"remove_buddy_near_opponent":
+			ignore_extra_effects = true
+			var buddies = []
+			var same_space_allowed = effect['same_space_allowed']
+			var offset_allowed = effect['offset_allowed']
+			var optional = 'optional' in effect and effect['optional']
+			if same_space_allowed:
+				buddies += performing_player.get_buddies_on_opponent()
+			if offset_allowed == 1:
+				buddies += performing_player.get_buddies_adjacent_opponent()
+
+			if buddies.size() > 0:
+				decision_info.clear()
+				decision_info.type = Enums.DecisionType.DecisionType_ChooseArenaLocationForEffect
+				decision_info.player = performing_player.my_id
+				decision_info.choice_card_id = card_id
+				decision_info.effect_type = "remove_buddy_near_opponent"
+				decision_info.choice = []
+				decision_info.limitation = []
+				decision_info.source = effect['buddy_name']
+				var and_effect = null
+				var and_with_bonus = null
+				if 'and' in effect:
+					and_effect = effect['and']
+					and_with_bonus = and_effect
+				if 'if_removed_effect' in effect:
+					var additional_and_effect = and_effect
+					and_with_bonus = effect['if_removed_effect']
+					and_with_bonus['and'] = additional_and_effect
+				if optional:
+					decision_info.limitation.append(0)
+					decision_info.choice.append({
+						"effect_type": "pass",
+						"and": and_effect
+					})
+				for buddy_id in buddies:
+					decision_info.limitation.append(performing_player.get_buddy_location(buddy_id))
+					decision_info.choice.append({
+						"effect_type": "remove_buddy",
+						"buddy_id": buddy_id,
+						"and": and_with_bonus
+					})
+				if decision_info.limitation.size() > 1:
+					# There are multiple choices, so player must choose.
+					change_game_state(Enums.GameState.GameState_PlayerDecision)
+					events += [create_event(Enums.EventType.EventType_ChooseArenaLocationForEffect, performing_player.my_id, 0)]
+				else:
+					# Just do it immediately.
+					events += handle_strike_effect(card_id, decision_info.choice[0], performing_player)
+		"remove_X_buddies":
+			ignore_extra_effects = true
+			if 'reset_strike_x' in effect and effect['reset_strike_x']:
+				performing_player.strike_stat_boosts.strike_x = 0
+			var buddies = performing_player.get_buddies_in_play()
+			if buddies.size() > 0:
+				decision_info.clear()
+				decision_info.type = Enums.DecisionType.DecisionType_ChooseArenaLocationForEffect
+				decision_info.player = performing_player.my_id
+				decision_info.choice_card_id = card_id
+				decision_info.effect_type = "remove_buddy_near_opponent"
+				decision_info.choice = []
+				decision_info.limitation = []
+				decision_info.source = effect['buddy_name']
+				var and_effect = null
+				if 'and' in effect:
+					and_effect = effect['and']
+				# Add optional pass.
+				decision_info.limitation.append(0)
+				decision_info.choice.append({
+					"effect_type": "pass",
+					"and": and_effect
+				})
+				if buddies.size() == 1:
+					# This is the last iteration, so do not include the remove_X_buddies recursive effect.
+					pass
+				else:
+					var additional_and = and_effect
+					and_effect = {
+						"effect_type": "remove_X_buddies",
+						"buddy_name": "Ice Spike",
+						"and": additional_and
+					}
+				for buddy_id in buddies:
+					decision_info.limitation.append(performing_player.get_buddy_location(buddy_id))
+					decision_info.choice.append({
+						"effect_type": "remove_buddy",
+						"increase_strike_x": 1,
+						"buddy_id": buddy_id,
+						"and": and_effect
+					})
+				change_game_state(Enums.GameState.GameState_PlayerDecision)
+				events += [create_event(Enums.EventType.EventType_ChooseArenaLocationForEffect, performing_player.my_id, 0)]
 		"reveal_copy_for_advantage":
 			var copy_id = effect['copy_id']
 			# The player has selected to reveal a copy if they have one.
@@ -4737,6 +4949,176 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 				_append_log_full(Enums.LogType.LogType_CharacterMovement, performing_player, "moves %s to themselves on space %s." % [buddy_name, str(space)])
 			else:
 				_append_log_full(Enums.LogType.LogType_CharacterMovement, performing_player, "moves %s to themselves, from space %s to %s." % [buddy_name, str(old_buddy_pos), str(space)])
+		"place_next_buddy":
+			var require_unoccupied = effect['require_unoccupied']
+			var destination = effect['destination']
+			var num_buddies = effect['amount']
+			var valid_new_positions = [1,2,3,4,5,6,7,8,9]
+			var already_removed_buddy = 'already_removed_buddy' in effect and effect['already_removed_buddy']
+			if already_removed_buddy:
+				valid_new_positions = effect['valid_new_positions']
+			else:
+				# Filter based on destination requirements.
+				match destination:
+					"attack_range":
+						var attack_card = active_strike.get_player_card(performing_player)
+						for i in range(valid_new_positions.size() - 1, -1, -1):
+							var check_position = valid_new_positions[i]
+							if not is_location_in_range(performing_player, attack_card, check_position):
+								valid_new_positions.remove_at(i)
+					"anywhere":
+						pass
+					"adjacent_self":
+						for i in range(valid_new_positions.size() - 1, -1, -1):
+							var check_position = valid_new_positions[i]
+							if not (check_position == performing_player.arena_location - 1 or check_position == performing_player.arena_location + 1):
+								valid_new_positions.remove_at(i)
+					"self":
+						for i in range(valid_new_positions.size() - 1, -1, -1):
+							var check_position = valid_new_positions[i]
+							if not performing_player.is_in_location(check_position):
+								valid_new_positions.remove_at(i)
+					_:
+						assert(false, "Unknown destination for place_next_buddy")
+
+				# Filter based on requiring no players in those spaces.
+				if require_unoccupied:
+					for i in range(valid_new_positions.size() - 1, -1, -1):
+						var check_position = valid_new_positions[i]
+						if performing_player.is_in_location(check_position) or opposing_player.is_in_location(check_position):
+							valid_new_positions.remove_at(i)
+				# Filter out any location that already has your buddy.
+				for i in range(valid_new_positions.size() - 1, -1, -1):
+					var check_position = valid_new_positions[i]
+					if check_position in performing_player.buddy_locations:
+						valid_new_positions.remove_at(i)
+
+			if valid_new_positions.size() > 0:
+				var must_select_other_buddy_first = performing_player.are_all_buddies_in_play()
+				# The player can now select one of these new spaces to place their buddy,
+				# or they can select and existing buddy and remove it first.
+				decision_info.clear()
+				decision_info.type = Enums.DecisionType.DecisionType_ChooseArenaLocationForEffect
+				decision_info.player = performing_player.my_id
+				decision_info.choice_card_id = card_id
+				decision_info.effect_type = "place_next_buddy"
+				decision_info.source = effect['buddy_name']
+				decision_info.choice = []
+				decision_info.limitation = []
+				decision_info.extra_info = must_select_other_buddy_first
+				var and_effect = null
+				if 'and' in effect:
+					and_effect = effect['and']
+				if num_buddies > 1:
+					# Placing multiple buddies, so turn the and effect into a copy of this effect.
+					and_effect = {
+						"effect_type": "place_next_buddy",
+						"buddy_name": effect['buddy_name'],
+						"amount": num_buddies - 1,
+						"destination": destination,
+						"require_unoccupied": require_unoccupied,
+						"and": and_effect
+					}
+				for i in range(MinArenaLocation, MaxArenaLocation + 1):
+					if not must_select_other_buddy_first and i in valid_new_positions:
+						# The player elects to place the next available buddy here.
+						decision_info.limitation.append(i)
+						decision_info.choice.append({
+							"effect_type": "place_buddy_into_space",
+							"buddy_id": performing_player.get_next_free_buddy_id(),
+							"amount": i,
+							"and": and_effect
+						})
+					elif not already_removed_buddy and i in performing_player.buddy_locations:
+						# The player elects to remove this buddy first.
+						decision_info.limitation.append(i)
+						decision_info.choice.append({
+							"effect_type": "remove_buddy",
+							"buddy_id": performing_player.get_buddy_id_at_location(i),
+							"and": {
+								"effect_type": "place_next_buddy",
+								"buddy_name": effect['buddy_name'],
+								"amount": -1, # Additional already in the and effect.
+								"already_removed_buddy": true,
+								"require_unoccupied": require_unoccupied,
+								"destination": destination,
+								"valid_new_positions": valid_new_positions,
+								"and": and_effect
+							}
+						})
+				if decision_info.choice.size() == 1:
+					# Only one choice, so just do it immediately.
+					events += handle_strike_effect(card_id, decision_info.choice[0], performing_player)
+				else:
+					change_game_state(Enums.GameState.GameState_PlayerDecision)
+					events += [create_event(Enums.EventType.EventType_ChooseArenaLocationForEffect, performing_player.my_id, 0)]
+			else:
+				# No valid positions to put the buddy, so skip this.
+				# The and effect will occur normally if one exists.
+				_append_log_full(Enums.LogType.LogType_Effect, performing_player, "has no valid locations to place %s." % effect['buddy_name'])
+		"move_any_buddy":
+			var move_to_opponent = 'to_opponent' in effect and effect['to_opponent']
+			var move_min = effect['amount_min']
+			var move_max = effect['amount_max']
+			var optional = (move_min == 0)
+			var must_select_other_buddy_first = true
+			decision_info.clear()
+			decision_info.type = Enums.DecisionType.DecisionType_ChooseArenaLocationForEffect
+			decision_info.player = performing_player.my_id
+			decision_info.choice_card_id = card_id
+			decision_info.effect_type = "place_next_buddy"
+			decision_info.source = effect['buddy_name']
+			decision_info.choice = []
+			decision_info.limitation = []
+			decision_info.extra_info = must_select_other_buddy_first
+			if optional:
+				decision_info.limitation.append(0)
+				decision_info.choice.append({
+					"effect_type": "pass"
+				})
+			# First, the player has to select a buddy to remove.
+			# Then, they have to place it in a valid space.
+			for location in performing_player.buddy_locations:
+				if location == -1:
+					continue
+				var buddy_id = performing_player.get_buddy_id_at_location(location)
+				var valid_new_positions = []
+				for i in range(MinArenaLocation, MaxArenaLocation + 1):
+					if performing_player.get_buddy_id_at_location(i) != "":
+						# Skip if there is already a buddy here, including self.
+						continue
+					if move_to_opponent and opposing_player.is_in_location(i):
+						valid_new_positions.append(i)
+					else:
+						# Add this space if it is within the amount from the starting buddy location.
+						if abs(location - i) >= move_min and abs(location - i) <= move_max:
+							valid_new_positions.append(i)
+
+				if valid_new_positions.size() > 0:
+					decision_info.limitation.append(location)
+					decision_info.choice.append({
+						"effect_type": "remove_buddy",
+						"buddy_id": buddy_id,
+						"and": {
+							"effect_type": "place_next_buddy",
+							"buddy_name": effect['buddy_name'],
+							"amount": -1,
+							"already_removed_buddy": true,
+							"require_unoccupied": false,
+							"destination": "",
+							"valid_new_positions": valid_new_positions
+						}
+					})
+			var actual_choices = len(decision_info.limitation)
+			if optional:
+				actual_choices -= 1
+
+			# If the only option is to pass, just let this pass.
+			if actual_choices > 0:
+				change_game_state(Enums.GameState.GameState_PlayerDecision)
+				events += [create_event(Enums.EventType.EventType_ChooseArenaLocationForEffect, performing_player.my_id, 0)]
+			else:
+				assert(false, "Unexpected called move_any_buddy but can't.")
 		"play_attack_from_hand":
 			# Implement the choice via discard effect.
 			var discard_effect = {
@@ -4747,6 +5129,8 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 				"destination": "play_attack",
 			}
 			events += handle_strike_effect(card_id, discard_effect, performing_player)
+		"power_modify_per_buddy_between":
+			performing_player.strike_stat_boosts.power_modify_per_buddy_between += effect['amount']
 		"powerup":
 			var amount = effect['amount']
 			if str(amount) == "strike_x":
@@ -4846,8 +5230,9 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 				var buddy_name = performing_player.get_buddy_name(buddy_id)
 				_append_log_full(Enums.LogType.LogType_CharacterMovement, opposing_player, "is pulled %s towards %s, moving from space %s to %s." % [str(effect['amount']), buddy_name, str(previous_location), str(new_location)])
 		"push":
+			var set_x_to_buddy_spaces_entered = 'save_buddy_spaces_entered_as_strike_x' in effect and effect['save_buddy_spaces_entered_as_strike_x']
 			var previous_location = opposing_player.arena_location
-			events += performing_player.push(effect['amount'])
+			events += performing_player.push(effect['amount'], set_x_to_buddy_spaces_entered)
 			var new_location = opposing_player.arena_location
 			var push_amount = abs(other_start - new_location)
 			local_conditions.push_amount = push_amount
@@ -4952,6 +5337,8 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 			# match card.definition['id']'s instead.
 			opposing_player.next_strike_with_or_reveal(named_card.definition['id'])
 		"remove_buddy":
+			if 'increase_strike_x' in effect:
+				performing_player.strike_stat_boosts.strike_x += effect['increase_strike_x']
 			var buddy_id = ""
 			if 'buddy_id' in effect:
 				buddy_id = effect['buddy_id']
@@ -5500,7 +5887,12 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 				}
 				events += [create_event(Enums.EventType.EventType_CardFromHandToGauge_Choice, performing_player.my_id, min_amount, "", max_amount)]
 		"when_hit_force_for_armor":
-			performing_player.strike_stat_boosts.when_hit_force_for_armor = true
+			if 'use_gauge_instead' in effect and effect['use_gauge_instead']:
+				# Ignore if already using Block's force version.
+				if performing_player.strike_stat_boosts.when_hit_force_for_armor != "force":
+					performing_player.strike_stat_boosts.when_hit_force_for_armor = "gauge"
+			else:
+				performing_player.strike_stat_boosts.when_hit_force_for_armor = "force"
 		"zero_vector":
 			change_game_state(Enums.GameState.GameState_PlayerDecision)
 			decision_info.clear()
@@ -5524,7 +5916,7 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 			assert(false, "ERROR: Unhandled effect type: %s" % effect['effect_type'])
 
 	if not ignore_extra_effects:
-		if "and" in effect:
+		if "and" in effect and effect['and']:
 			if not game_state == Enums.GameState.GameState_PlayerDecision:
 				var and_effect = effect['and']
 				events += do_effect_if_condition_met(performing_player, card_id, and_effect, local_conditions)
@@ -5559,11 +5951,11 @@ func change_stats_when_attack_leaves_play(performing_player : Player):
 	performing_player.strike_stat_boosts.armor -= get_card_stat(performing_player, card, "armor")
 	performing_player.strike_stat_boosts.guard -= get_card_stat(performing_player, card, "guard")
 
-	# Assumption! No character that currently has attacks returning to paly can gain
+	# Assumption! No character that currently has attacks returning to play can gain
 	# the focus or block passives twice from a boost and a card somehow.
 	# You would also lose ignore armor/guard but that shouldn't matter.
 	performing_player.strike_stat_boosts.ignore_push_and_pull = false
-	performing_player.strike_stat_boosts.when_hit_force_for_armor = false
+	performing_player.strike_stat_boosts.when_hit_force_for_armor = ""
 
 	# This currently assumes that this would always from the played attack
 	performing_player.strike_stat_boosts.higher_speed_misses = false
@@ -6118,6 +6510,10 @@ func is_location_in_range(attacking_player, card, test_location : int):
 func in_range(attacking_player, defending_player, card, combat_logging=false):
 	if attacking_player.strike_stat_boosts.attack_does_not_hit or attacking_player.strike_stat_boosts.overwrite_range_to_invalid:
 		return false
+	if attacking_player.strike_stat_boosts.only_hits_if_opponent_on_any_buddy:
+		var buddies = attacking_player.get_buddies_on_opponent()
+		if buddies.size() == 0:
+			return false
 	if defending_player.strike_stat_boosts.dodge_attacks:
 		if combat_logging:
 			_append_log_full(Enums.LogType.LogType_Effect, defending_player, "is dodging attacks!")
@@ -6228,8 +6624,15 @@ func get_total_power(performing_player : Player, card : GameCard = null):
 	# For now, just assert we're not doing that.
 	assert(performing_player.strike_stat_boosts.power_bonus_multiplier == 1 or performing_player.strike_stat_boosts.power_bonus_multiplier_positive_only == 1)
 
+	var boosted_power = performing_player.strike_stat_boosts.power
+	if performing_player.strike_stat_boosts.power_modify_per_buddy_between:
+		# NOTE: This does not interact with the positive power multiplier.
+		# If someone ever needs that, this needs to be updated.
+		var buddy_count = performing_player.count_buddies_between_opponent()
+		boosted_power += buddy_count * performing_player.strike_stat_boosts.power_modify_per_buddy_between
+
 	# Multiply all power bonuses.
-	var power_modifier = performing_player.strike_stat_boosts.power * performing_player.strike_stat_boosts.power_bonus_multiplier
+	var power_modifier = boosted_power * performing_player.strike_stat_boosts.power_bonus_multiplier
 
 	# Multiply positive power bonuses and add that in.
 	var positive_multiplier_bonus = performing_player.strike_stat_boosts.power_positive_only
@@ -6507,6 +6910,7 @@ func do_hit_response_effects(offense_player : Player, defense_player : Player, i
 		decision_info.player = defense_player.my_id
 		decision_info.type = Enums.DecisionType.DecisionType_ForceForArmor
 		decision_info.choice_card_id = defender_card.id
+		decision_info.limitation = defense_player.strike_stat_boosts.when_hit_force_for_armor
 		events += [create_event(Enums.EventType.EventType_Strike_ForceForArmor, defense_player.my_id, incoming_damage, "", offense_player.strike_stat_boosts.ignore_armor)]
 
 	return events
@@ -7732,13 +8136,25 @@ func do_force_for_armor(performing_player : Player, card_ids : Array) -> bool:
 		printlog("ERROR: Tried to force for armor for wrong player.")
 		return false
 
+	var use_gauge_instead = decision_info.limitation == "gauge"
 	var events = []
-	for card_id in card_ids:
-		if not performing_player.is_card_in_hand(card_id) and not performing_player.is_card_in_gauge(card_id):
-			printlog("ERROR: Tried to force for armor with card not in hand or gauge.")
-			return false
+	if use_gauge_instead:
+		for card_id in card_ids:
+			if not performing_player.is_card_in_gauge(card_id):
+				printlog("ERROR: Tried to force(gauge) for armor with card not in gauge.")
+				return false
+	else:
+		for card_id in card_ids:
+			if not performing_player.is_card_in_hand(card_id) and not performing_player.is_card_in_gauge(card_id):
+				printlog("ERROR: Tried to force for armor with card not in hand or gauge.")
+				return false
 
-	var force_generated = performing_player.get_force_with_cards(card_ids, "FORCE_FOR_ARMOR", false)
+	var force_generated = 0
+	if use_gauge_instead:
+		force_generated = len(card_ids)
+	else:
+		force_generated = performing_player.get_force_with_cards(card_ids, "FORCE_FOR_ARMOR", false)
+
 	if force_generated > 0:
 		var card_names = ""
 		if card_ids.size() > 0:
@@ -7747,7 +8163,10 @@ func do_force_for_armor(performing_player : Player, card_ids : Array) -> bool:
 				card_names += ", " + card_db.get_card_name(card_ids[i])
 		else:
 			card_names = "passive bonus"
-		_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "discards cards as force for armor: %s." % card_names)
+		if use_gauge_instead:
+			_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "spends gauge for armor: %s." % card_names)
+		else:
+			_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "discards cards as force for armor: %s." % card_names)
 		events += performing_player.discard(card_ids)
 		events += handle_strike_effect(decision_info.choice_card_id, {'effect_type': 'armorup', 'amount': force_generated * 2}, performing_player)
 	# Intentional events = because events are passed in.
