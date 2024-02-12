@@ -1734,7 +1734,7 @@ class Player:
 				if not parent.game_over:
 					if from_bottom:
 						draw_from_index = len(deck)-1
-					var card = deck[0]
+					var card = deck[draw_from_index]
 					hand.append(card)
 					deck.remove_at(draw_from_index)
 					events += [parent.create_event(Enums.EventType.EventType_Draw, my_id, card.id)]
