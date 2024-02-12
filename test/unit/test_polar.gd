@@ -213,55 +213,768 @@ func validate_life(p1, l1, p2, l2):
 ## Tests start here
 ##
 
-# Stomp removal
-# 	fail condition
-# Shovel charge - draw for each spike pushed onto
-#	push 2 but only  move 1 check
-#	draw 0
-# 	boost place 2 spikes anywhere
-# Shovelslam - remove adjacent to push/pull
-#	check on but no adjacent
-#	place spike adjacent - fail/success cases
-# 	boost - remove first 2 spikes encountered
-# Plow - -power for each spike,
-#	move spike at edge (check no spikes available and already has spike)
-# Shovel Drop - place spike on self then move (check already has one)
-#	boost - move a spike (check none)
-# Icicle drop - only hits if spike on space (fail test too)
-#	boost - remove spike to draw more and go to gauge (no gauge if no spike removal)
-#		has no spikes test
-# Snow Slash - block effect works
-#	boost - block effect works with gauge
-#		works with block card
+func validate_spikes(locations, player = player1):
+	var buddy_locs = player.buddy_locations.duplicate()
+	for loc in locations:
+		assert_true(loc in buddy_locs, "validate_spikes() - Missing location %s from buddy locations" % str(loc))
+		buddy_locs.erase(loc)
 
-func test_arakune_exceed_and_strike_with_bonus():
+func get_choice_index_for_position(pos):
+	for i in range(game_logic.decision_info.limitation.size()):
+		var choice_pos = game_logic.decision_info.limitation[i]
+		if pos == choice_pos:
+			return i
+	assert(false, "Unable to find choice index")
+	fail_test("Unable to find choice index")
+	return 0
+
+func test_polar_exceed_empty_board():
 	position_players(player1, 3, player2, 4)
 	give_gauge(player1, 3)
-	give_player_specific_card(player1, "standard_normal_assault", TestCardId3)
-	player1.move_cards_to_overdrive([TestCardId3], "hand")
-	var card_ids_gauge = []
-	for i in range(3):
-		card_ids_gauge.append(player1.gauge[i].id)
-	player1.move_cards_to_overdrive([player1.deck[0].id], "deck")
-	player1.move_cards_to_overdrive([player1.deck[0].id], "deck")
-	player1.move_cards_to_overdrive([player1.deck[0].id], "deck")
-	player1.move_cards_to_overdrive([player1.deck[0].id], "deck")
-	assert_eq(player1.overdrive.size(), 5)
-	assert_eq(player1.hand.size(), 5)
-	assert_true(game_logic.do_exceed(player1, card_ids_gauge))
-	assert_eq(player1.hand.size(), 7)
-	execute_strike(player1, player2, "standard_normal_assault", "standard_normal_cross", [], [], false, false, [], [], 0, [])
-	# Reveal effect
-	assert_true(game_logic.do_choose_from_discard(player1, [TestCardId3]))
-	# Do overdrive effect
-	var topdeck_id = player1.deck[0].id
+	assert_true(game_logic.do_exceed(player1, player1.get_card_ids_in_gauge()))
+	# Place spike anywhere, 1-9
+	assert_eq(game_logic.decision_info.choice.size(), 9) # All 9 options.
+	assert_true(game_logic.do_choice(player1, get_choice_index_for_position(3)))
+	validate_spikes([3,-1,-1,-1,-1])
+	assert_eq(game_logic.decision_info.choice.size(), 9) # All 9 options because you can move them too.
+	assert_true(game_logic.do_choice(player1, get_choice_index_for_position(4)))
+	validate_spikes([3,4,-1,-1,-1])
+	assert_eq(game_logic.decision_info.choice.size(), 9) # All 9 options because you can move them too.
+	assert_true(game_logic.do_choice(player1, get_choice_index_for_position(3)))
+	validate_spikes([-1,4,-1,-1,-1])
+	assert_eq(game_logic.decision_info.choice.size(), 7) # Only 7 options because you can't put it back and 4 is full.
+	assert_true(game_logic.do_choice(player1, get_choice_index_for_position(2)))
+	validate_spikes([2,4,-1,-1,-1])
+	advance_turn(player2)
+
+func test_polar_exceed_mostlyfull_board():
+	position_players(player1, 3, player2, 4)
+	player1.buddy_locations = [1,2,3,4,-1]
+	give_gauge(player1, 3)
+	assert_true(game_logic.do_exceed(player1, player1.get_card_ids_in_gauge()))
+	# Place spike anywhere, 1-9
+	assert_eq(game_logic.decision_info.choice.size(), 9) # All 9 options because you can move them too.
+	assert_true(game_logic.do_choice(player1, get_choice_index_for_position(6)))
+	validate_spikes([1,2,3,4,6])
+	assert_eq(game_logic.decision_info.choice.size(), 5) # Must remove a spike first
+	assert_true(game_logic.do_choice(player1, get_choice_index_for_position(4)))
+	validate_spikes([1,2,3,6,-1])
+	assert_eq(game_logic.decision_info.choice.size(), 4) # Only 4 locations to place it
+	assert_true(game_logic.do_choice(player1, get_choice_index_for_position(8)))
+	validate_spikes([1,2,3,6,8])
+	assert_eq(game_logic.decision_info.choice.size(), 5) # Remove a spike again.
+	assert_true(game_logic.do_choice(player1, get_choice_index_for_position(2)))
+	validate_spikes([1,3,6,8,-1])
+	assert_eq(game_logic.decision_info.choice.size(), 4) # Only 4 locations to place it.
+	assert_true(game_logic.do_choice(player1, get_choice_index_for_position(5)))
+	validate_spikes([1,3,6,8,5])
+	advance_turn(player2)
+
+func test_polar_max_spikes_no_empty():
+	position_players(player1, 3, player2, 4)
+	player1.buddy_locations = [1,2,3,5,6]
+	give_player_specific_card(player1, "standard_normal_assault", TestCardId1)
+	give_player_specific_card(player2, "standard_normal_assault", TestCardId2)
+	assert_true(game_logic.do_strike(player1, TestCardId1, false, -1))
+	assert_true(game_logic.do_strike(player2, TestCardId2, false, -1))
+	# Hit, gain advantage and fail place spike
 	assert_true(game_logic.do_choice(player1, 0))
-	assert_eq(player1.sealed[0].id, topdeck_id)
-	validate_life(player1, 30, player2, 24)
-	# Next turn, overdrive effect
-	assert_true(game_logic.do_choose_from_discard(player1, [player1.overdrive[0].id]))
-	topdeck_id = player1.deck[0].id
-	assert_true(game_logic.do_choice(player1, 0))
-	assert_eq(player1.sealed[1].id, topdeck_id)
-	# Check that I can end my turn from assault.
+	# After no place to place a spike as it is occupied.
+	validate_positions(player1, 3, player2, 4)
+	validate_life(player1, 30, player2, 26)
 	advance_turn(player1)
+
+func test_polar_max_spikes_must_move():
+	position_players(player1, 3, player2, 4)
+	player1.buddy_locations = [1,3,5,6,7]
+	give_player_specific_card(player1, "standard_normal_assault", TestCardId1)
+	give_player_specific_card(player2, "standard_normal_assault", TestCardId2)
+	assert_true(game_logic.do_strike(player1, TestCardId1, false, -1))
+	assert_true(game_logic.do_strike(player2, TestCardId2, false, -1))
+	# Hit, gain advantage and place spike
+	assert_true(game_logic.do_choice(player1, 0)) # Adv
+	# Time to place a spike, but we have to move one first, choices are current spike positions
+	assert_true(game_logic.do_choice(player1, 3)) # Remove from 6
+	# Ice is placed automatically
+	#assert_true(game_logic.do_choice(player1, 0)) # Place at only available loc
+	validate_spikes([1,2,3,5,7])
+	validate_positions(player1, 3, player2, 4)
+	validate_life(player1, 30, player2, 26)
+	advance_turn(player1)
+
+func test_polar_stomp():
+	position_players(player1, 3, player2, 5)
+	player1.exceeded = true # Set this just to verify the +3 power
+	player1.buddy_locations = [-1,-1,-1,6,7]
+	give_player_specific_card(player1, "polar_stomp", TestCardId1)
+	give_player_specific_card(player2, "standard_normal_assault", TestCardId2)
+	assert_true(game_logic.do_strike(player1, TestCardId1, false, -1))
+	assert_true(game_logic.do_strike(player2, TestCardId2, false, -1))
+	# 2 hit effects, stomp and main ice removal
+	assert_true(game_logic.do_choice(player1, 0)) # stomp first
+	validate_positions(player1, 3, player2, 7)
+	# 0 = pass, 2 choices to remove, 6, and 7
+	assert_eq(game_logic.decision_info.choice.size(), 3)
+	assert_true(6 in game_logic.decision_info.limitation)
+	assert_true(game_logic.do_choice(player1, get_choice_index_for_position(6))) # Remove 6 to gain advantage
+	assert_true(game_logic.do_choice(player1, 0)) # Remove loc 7 for +power
+	validate_positions(player1, 3, player2, 7)
+	validate_life(player1, 30, player2, 27)
+	# Exceeded, so you can pass on placing spike, but do it.
+	assert_true(game_logic.do_choice(player1, 0))
+	# After effect to place spike, options should be 1,2,4,5 for positions.
+	assert_true(game_logic.do_choice(player1, get_choice_index_for_position(1)))
+	validate_spikes([-1,-1,-1,-1,1])
+	# Advantage
+	advance_turn(player1)
+
+func test_polar_stomp_no_adjacent():
+	position_players(player1, 3, player2, 5)
+	player1.exceeded = true # Set this just to verify the +3 power
+	player1.buddy_locations = [-1,-1,-1,5,4]
+	give_player_specific_card(player1, "polar_stomp", TestCardId1)
+	give_player_specific_card(player2, "standard_normal_assault", TestCardId2)
+	assert_true(game_logic.do_strike(player1, TestCardId1, false, -1))
+	assert_true(game_logic.do_strike(player2, TestCardId2, false, -1))
+	# 2 hit effects, stomp and main ice removal
+	assert_true(game_logic.do_choice(player1, 1)) # ice removal first
+	assert_true(game_logic.do_choice(player1, 0)) # Remove loc 5 for +power
+	# Then push happens, no options for the gain advantage effect.
+	validate_positions(player1, 3, player2, 7)
+	validate_life(player1, 30, player2, 27)
+	# Exceeded, so you can pass on placing spike, but do it.
+	assert_true(game_logic.do_choice(player1, 0))
+	# After effect ot place spike, options should be  1,2, 4(move it), 5 for positions.
+	assert_eq(game_logic.decision_info.choice.size(), 4)
+	assert_true(game_logic.do_choice(player1, get_choice_index_for_position(5)))
+	validate_spikes([-1,-1,-1,5,4])
+	advance_turn(player2)
+
+func test_polar_stomp_no_adjacent_move_spike_at_end():
+	position_players(player1, 3, player2, 5)
+	player1.exceeded = true # Set this just to verify the +3 power
+	player1.buddy_locations = [-1,-1,-1,5,4]
+	give_player_specific_card(player1, "polar_stomp", TestCardId1)
+	give_player_specific_card(player2, "standard_normal_assault", TestCardId2)
+	assert_true(game_logic.do_strike(player1, TestCardId1, false, -1))
+	assert_true(game_logic.do_strike(player2, TestCardId2, false, -1))
+	# 2 hit effects, stomp and main ice removal
+	assert_true(game_logic.do_choice(player1, 1)) # ice removal first
+	assert_true(game_logic.do_choice(player1, 0)) # Remove loc 5 for +power
+	# Then push happens, no options for the gain advantage effect.
+	validate_positions(player1, 3, player2, 7)
+	validate_life(player1, 30, player2, 27)
+	# Exceeded, so you can pass on placing spike, but do it.
+	assert_true(game_logic.do_choice(player1, 0))
+	# After effect ot place spike, options should be  1,2, 4(move it), 5 for positions.
+	assert_eq(game_logic.decision_info.choice.size(), 4)
+	assert_true(game_logic.do_choice(player1, get_choice_index_for_position(4))) # Move spike 4
+	assert_eq(game_logic.decision_info.choice.size(), 3) # Can place it at 1,2,5
+	assert_true(game_logic.do_choice(player1, get_choice_index_for_position(2))) # Place at 2
+	validate_spikes([-1,-1,-1,-1,2])
+	advance_turn(player2)
+
+
+func test_polar_shovelcharge():
+	position_players(player1, 3, player2, 6)
+	player1.buddy_locations = [1,6,7,8,9]
+	assert_eq(player1.hand.size(), 5)
+	give_player_specific_card(player1, "polar_shovelcharge", TestCardId1)
+	give_player_specific_card(player2, "standard_normal_assault", TestCardId2)
+	assert_true(game_logic.do_strike(player1, TestCardId1, false, -1))
+	assert_true(game_logic.do_strike(player2, TestCardId2, false, -1))
+	# 2 hit effects, shovel charge and main ice removal
+	assert_true(game_logic.do_choice(player1, 0)) # Charge first
+	# Draw and push up to 2. Do 2, drawing for each spike, should draw 3 total here.
+	assert_true(game_logic.do_choice(player1, 1)) # Push 2
+	assert_eq(player1.hand.size(), 8)
+	validate_positions(player1, 5, player2, 8)
+	# Now ice removal effect choice
+	assert_true(game_logic.do_choice(player1, 0)) # Remove loc 8 for +power
+	validate_life(player1, 30, player2, 25)
+	# After effect to place spike, options, positions 4,6, but 6 is taken.
+	assert_eq(game_logic.decision_info.choice.size(), 5) # can place new at 4 or move 1,6,7,9
+	assert_true(game_logic.do_choice(player1, get_choice_index_for_position(4))) # Place at 4
+	validate_spikes([1,4,6,7,9])
+	advance_turn(player2)
+
+func test_polar_shovelcharge_push2_at_edge():
+	position_players(player1, 5, player2, 8)
+	player1.buddy_locations = [1,6,7,8,9]
+	assert_eq(player1.hand.size(), 5)
+	give_player_specific_card(player1, "polar_shovelcharge", TestCardId1)
+	give_player_specific_card(player2, "standard_normal_assault", TestCardId2)
+	assert_true(game_logic.do_strike(player1, TestCardId1, false, -1))
+	assert_true(game_logic.do_strike(player2, TestCardId2, false, -1))
+	# 2 hit effects, shovel charge and main ice removal
+	assert_true(game_logic.do_choice(player1, 0)) # Charge first
+	# Draw and push up to 2. Do 2, drawing for each spike, should draw 3 total here.
+	assert_true(game_logic.do_choice(player1, 1)) # Push 2
+	assert_eq(player1.hand.size(), 7)
+	validate_positions(player1, 7, player2, 9)
+	# Now ice removal effect choice
+	assert_true(game_logic.do_choice(player1, 0)) # Remove loc 9 for +power
+	validate_life(player1, 30, player2, 25)
+	validate_spikes([1,6,7,8,-1])
+	# After effect to place spike, options, no unoccupied at range 1, so it is skipped.
+	advance_turn(player2)
+
+func test_polar_shovelcharge_push2_at_edge_draw_0():
+	position_players(player1, 5, player2, 8)
+	player1.buddy_locations = [1,6,7,8,-1]
+	assert_eq(player1.hand.size(), 5)
+	give_player_specific_card(player1, "polar_shovelcharge", TestCardId1)
+	give_player_specific_card(player2, "standard_normal_assault", TestCardId2)
+	assert_true(game_logic.do_strike(player1, TestCardId1, false, -1))
+	assert_true(game_logic.do_strike(player2, TestCardId2, false, -1))
+	# 2 hit effects, shovel charge and main ice removal
+	assert_true(game_logic.do_choice(player1, 0)) # Charge first
+	# Draw and push up to 2. Do 2, drawing for each spike, should draw 3 total here.
+	assert_true(game_logic.do_choice(player1, 1)) # Push 2
+	assert_eq(player1.hand.size(), 6)
+	validate_positions(player1, 7, player2, 9)
+	# Now ice removal effect choice, but nothing to remove.
+	validate_life(player1, 30, player2, 27)
+	validate_spikes([1,6,7,8,-1])
+	# After effect to place spike, options, no unoccupied at range 1, so it is skipped.
+	advance_turn(player2)
+
+func test_polar_shovelcharge_boost_place2():
+	position_players(player1, 5, player2, 8)
+	give_player_specific_card(player1, "polar_shovelcharge", TestCardId1)
+	assert_true(game_logic.do_boost(player1, TestCardId1))
+	assert_true(game_logic.do_choice(player1, get_choice_index_for_position(4))) # Place at 4
+	assert_true(game_logic.do_choice(player1, get_choice_index_for_position(9))) # Place at 9
+	validate_spikes([9,4,-1,-1,-1])
+	advance_turn(player2)
+
+func test_polar_shovelcharge_boost_place1_move1():
+	position_players(player1, 5, player2, 8)
+	give_player_specific_card(player1, "polar_shovelcharge", TestCardId1)
+	assert_true(game_logic.do_boost(player1, TestCardId1))
+	assert_true(game_logic.do_choice(player1, get_choice_index_for_position(4))) # Place at 4
+	assert_true(game_logic.do_choice(player1, get_choice_index_for_position(4))) # Move 4 to 5
+	assert_true(game_logic.do_choice(player1, get_choice_index_for_position(5))) # Move 4 to 5
+	validate_spikes([5,-1,-1,-1,-1])
+	advance_turn(player2)
+
+func test_polar_shovelslam_fails():
+	position_players(player1, 5, player2, 8)
+	player1.buddy_locations = [8,4,-1,-1,-1]
+	give_player_specific_card(player1, "polar_shovelslam", TestCardId1)
+	give_player_specific_card(player2, "standard_normal_spike", TestCardId2)
+	assert_true(game_logic.do_strike(player1, TestCardId1, false, -1))
+	assert_true(game_logic.do_strike(player2, TestCardId2, false, -1))
+	assert_true(game_logic.do_pay_strike_cost(player1, [player1.hand[0].id], false))
+	# 2 hit effects, shovel slam and main ice removal
+	assert_true(game_logic.do_choice(player1, 0)) # Slam first
+	# Nothing adjacent to opponent, so fails.
+	# Now ice removal effect choice, remove it.
+	assert_true(game_logic.do_choice(player1, 0)) # Remove loc 8, + power
+	validate_life(player1, 30, player2, 23)
+	validate_spikes([4,-1,-1,-1,-1])
+	# 2 after effects, shovel slam adjacent and main attack range
+	assert_true(game_logic.do_choice(player1, 0)) # Slam first
+	assert_eq(game_logic.decision_info.limitation.size(), 2) # Place at 6 or move 4
+	assert_true(game_logic.do_choice(player1, get_choice_index_for_position(6))) # Place at 6
+	validate_spikes([4,6,-1,-1,-1])
+	# After effect to place/move spike, options, 2,3,4,6,7
+	assert_true(game_logic.do_choice(player1, get_choice_index_for_position(7))) # Place at 6
+	validate_spikes([4,6,7,-1,-1])
+	advance_turn(player2)
+
+func test_polar_shovelslam_succeed():
+	position_players(player1, 5, player2, 8)
+	player1.buddy_locations = [8,4,7,-1,-1]
+	give_player_specific_card(player1, "polar_shovelslam", TestCardId1)
+	give_player_specific_card(player2, "standard_normal_spike", TestCardId2)
+	assert_true(game_logic.do_strike(player1, TestCardId1, false, -1))
+	assert_true(game_logic.do_strike(player2, TestCardId2, false, -1))
+	assert_true(game_logic.do_pay_strike_cost(player1, [player1.hand[0].id], false))
+	# 2 hit effects, shovel slam and main ice removal
+	assert_true(game_logic.do_choice(player1, 0)) # Slam first
+	assert_eq(game_logic.decision_info.limitation.size(), 2) # Pass or spot 7.
+	assert_true(game_logic.do_choice(player1, get_choice_index_for_position(7))) # Remove 7 for push/pull 1
+	assert_true(game_logic.do_choice(player1, 1)) # pull 1
+	# Now ice removal effect choice fails because nothing is on 7 anymore.
+	validate_life(player1, 30, player2, 25)
+	validate_spikes([4,8,-1,-1,-1])
+	# 2 after effects, shovel slam adjacent and main attack range
+	assert_true(game_logic.do_choice(player1, 1)) # Attack range first
+	# Options are 2,3,4,6,8
+	assert_true(game_logic.do_choice(player1, get_choice_index_for_position(6))) # Place at 6
+	validate_spikes([4,8,6,-1,-1])
+	# Now adjacent place, but there's no spots so it fails.
+	advance_turn(player2)
+
+func test_polar_shovelslam_boost():
+	position_players(player1, 5, player2, 7)
+	player1.buddy_locations = [5,6,7,8,9]
+	give_player_specific_card(player1, "polar_shovelslam", TestCardId1)
+	assert_true(game_logic.do_boost(player1, TestCardId1))
+	# Can move anywhere within 6, so 0 (pass), 1,2,3,4,6,8,9
+	assert_eq(game_logic.decision_info.limitation.size(), 8)
+	assert_true(game_logic.do_choice(player1, get_choice_index_for_position(9)))
+	# Go to 9, passing through 6, 8, 9, skipping 7.
+	# Expect to remove spikes 6 and 8
+	validate_positions(player1, 9, player2, 7)
+	validate_spikes([5,7,9,-1,-1])
+	advance_turn(player2)
+
+func test_polar_shovelslam_boost_only1_encounter():
+	position_players(player1, 5, player2, 7)
+	player1.buddy_locations = [5,6,7,1,2]
+	give_player_specific_card(player1, "polar_shovelslam", TestCardId1)
+	assert_true(game_logic.do_boost(player1, TestCardId1))
+	# Can move anywhere within 6, so 0 (pass), 1,2,3,4,6,8,9
+	assert_eq(game_logic.decision_info.limitation.size(), 8)
+	assert_true(game_logic.do_choice(player1, get_choice_index_for_position(9)))
+	# Go to 9, passing through 6, 8, 9, skipping 7.
+	# Expect to remove spikes 6 and 8
+	validate_positions(player1, 9, player2, 7)
+	validate_spikes([5,7,-1,1,2])
+	advance_turn(player2)
+
+func test_polar_shovelslam_boost_0_encounter():
+	position_players(player1, 5, player2, 7)
+	player1.buddy_locations = [5,3,7,1,2]
+	give_player_specific_card(player1, "polar_shovelslam", TestCardId1)
+	assert_true(game_logic.do_boost(player1, TestCardId1))
+	# Can move anywhere within 6, so 0 (pass), 1,2,3,4,6,8,9
+	assert_eq(game_logic.decision_info.limitation.size(), 8)
+	assert_true(game_logic.do_choice(player1, get_choice_index_for_position(9)))
+	# Go to 9, passing through 6, 8, 9, skipping 7.
+	# Expect to remove spikes 6 and 8
+	validate_positions(player1, 9, player2, 7)
+	validate_spikes([5,7,3,1,2])
+	advance_turn(player2)
+
+
+func test_polar_polarplow():
+	position_players(player1, 5, player2, 8)
+	player1.buddy_locations = [5,6,8,9,4]
+	give_player_specific_card(player1, "polar_polarplow", TestCardId1)
+	give_player_specific_card(player2, "standard_normal_grasp", TestCardId2)
+	assert_true(game_logic.do_strike(player1, TestCardId1, false, -1))
+	assert_true(game_logic.do_strike(player2, TestCardId2, false, -1))
+	# P2 places ice
+	assert_true(game_logic.do_choice(player2, get_choice_index_for_position(7)))
+	validate_spikes([-1,-1,-1,-1,7], player2)
+	# Before effect fails
+	# Hit effect, can remove ice, but don't just to check power reduction.
+	assert_true(game_logic.do_choice(player1, 1))
+	validate_life(player1, 30, player2, 26) # Only 1 spike between at 6
+	# 2 after effects, place spike and close 3
+	validate_positions(player1, 5, player2, 8)
+	assert_true(game_logic.do_choice(player1, 0)) # Close 3 first
+	validate_positions(player1, 7, player2, 8)
+	# First have to remove a spike since we have 5.
+	assert_eq(game_logic.decision_info.limitation.size(), 5)
+	assert_true(game_logic.do_choice(player1, get_choice_index_for_position(8)))
+	# Can place in both directions, so expect any open space - what we removed and players, so 1,2,3
+	assert_eq(game_logic.decision_info.limitation.size(), 3)
+	assert_true(game_logic.do_choice(player1, get_choice_index_for_position(1)))
+	validate_spikes([1,4,5,6,9])
+	advance_turn(player2)
+
+
+func test_polar_polarplow_edgebonus_cant():
+	position_players(player1, 5, player2, 9)
+	player1.buddy_locations = [5,6,8,9,4]
+	give_player_specific_card(player1, "polar_polarplow", TestCardId1)
+	give_player_specific_card(player2, "standard_normal_grasp", TestCardId2)
+	assert_true(game_logic.do_strike(player1, TestCardId1, false, -1))
+	assert_true(game_logic.do_strike(player2, TestCardId2, false, -1))
+	# P2 places ice automatically.
+	#assert_true(game_logic.do_choice(player2, get_choice_index_for_position(8)))
+	validate_spikes([-1,-1,-1,-1,8], player2)
+	# Before effect fails because there is already a spike there
+	# Hit effect, can remove ice, but don't just to check power reduction.
+	assert_true(game_logic.do_choice(player1, 1))
+	validate_life(player1, 30, player2, 27) # 2 spikes 6 and 8
+	# 2 after effects, place spike and close 3
+	validate_positions(player1, 5, player2, 9)
+	assert_true(game_logic.do_choice(player1, 0)) # Close 3 first
+	validate_positions(player1, 8, player2, 9)
+	# First have to remove a spike since we have 5.
+	assert_eq(game_logic.decision_info.limitation.size(), 5)
+	assert_true(game_logic.do_choice(player1, get_choice_index_for_position(8)))
+	# Can place in both directions, so expect any open space - what we removed and players, so 1,2,3,7
+	assert_eq(game_logic.decision_info.limitation.size(), 4)
+	assert_true(game_logic.do_choice(player1, get_choice_index_for_position(1)))
+	validate_spikes([1,4,5,6,9])
+	advance_turn(player2)
+
+func test_polar_polarplow_edgebonus_get():
+	position_players(player1, 5, player2, 9)
+	player1.buddy_locations = [-1,6,8,2,4]
+	give_player_specific_card(player1, "polar_polarplow", TestCardId1)
+	give_player_specific_card(player2, "standard_normal_grasp", TestCardId2)
+	assert_true(game_logic.do_strike(player1, TestCardId1, false, -1))
+	assert_true(game_logic.do_strike(player2, TestCardId2, false, -1))
+	# P2 places ice automatically.
+	#assert_true(game_logic.do_choice(player2, get_choice_index_for_position(8)))
+	validate_spikes([-1,-1,-1,-1,8], player2)
+	# Before effect lets us move a spike
+	assert_eq(game_logic.decision_info.limitation.size(), 5) # Pass or any spike
+	assert_true(game_logic.do_choice(player1, get_choice_index_for_position(6))) # Move out of the way at 6 to 9
+	validate_spikes([-1,9,8,2,4]) # Moved 6 to 9
+	# Hit effect, go ahead and remove the ice
+	assert_true(game_logic.do_choice(player1, 0)) # Remove 9 for +2 power
+	validate_life(player1, 30, player2, 24) # 1 spike at 8 and +2 power from removing 9
+	# 2 after effects, place spike and close 3
+	validate_positions(player1, 5, player2, 9)
+	assert_true(game_logic.do_choice(player1, 0)) # Close 3 first
+	validate_positions(player1, 8, player2, 9)
+	# 2 open spikes, can place or move at 1-8
+	validate_spikes([-1,-1,8,2,4])
+	assert_eq(game_logic.decision_info.limitation.size(), 8)
+	assert_true(game_logic.do_choice(player1, get_choice_index_for_position(3)))
+	validate_spikes([-1,3,8,2,4])
+	advance_turn(player2)
+
+
+func test_polar_shoveldrop():
+	position_players(player1, 7, player2, 8)
+	give_player_specific_card(player1, "polar_shoveldrop", TestCardId1)
+	give_player_specific_card(player2, "standard_normal_grasp", TestCardId2)
+	assert_true(game_logic.do_strike(player1, TestCardId1, false, -1))
+	assert_true(game_logic.do_strike(player2, TestCardId2, false, -1))
+	# P2 2 hit effects, grasp and ice
+	assert_true(game_logic.do_choice(player2, 0)) # Do grasp
+	# P2 push/pull but fails to move. Ice fails auto.
+	assert_true(game_logic.do_choice(player2, 0))
+	# P2 places ice automatically.
+	validate_spikes([-1,-1,-1,-1,9], player2)
+	# P1 places ice in own space then advance 2/3
+	validate_spikes([-1,-1,-1,-1,7])
+	assert_true(game_logic.do_choice(player1, 0))
+	validate_positions(player1, 9, player2, 8)
+	# 2 hit effects, shoveldrop and ice removal
+	assert_true(game_logic.do_choice(player1, 0)) # Drop
+	assert_true(game_logic.do_choice(player1, 0)) # Push 1
+	validate_positions(player1, 9, player2, 7)
+	assert_true(game_logic.do_choice(player1, 0)) # Ice remove for +power
+	# After place spike at 8 automatically
+	validate_spikes([-1,-1,-1,-1,8])
+	validate_life(player1, 28, player2, 25)
+	advance_turn(player2)
+
+func test_polar_shoveldrop_already_has_one():
+	position_players(player1, 7, player2, 8)
+	player1.buddy_locations = [7,-1,-1,-1,-1]
+	give_player_specific_card(player1, "polar_shoveldrop", TestCardId1)
+	give_player_specific_card(player2, "standard_normal_grasp", TestCardId2)
+	assert_true(game_logic.do_strike(player1, TestCardId1, false, -1))
+	assert_true(game_logic.do_strike(player2, TestCardId2, false, -1))
+	# P2 2 hit effects, grasp and ice
+	assert_true(game_logic.do_choice(player2, 0)) # Do grasp
+	# P2 push/pull but fails to move. Ice fails auto.
+	assert_true(game_logic.do_choice(player2, 0))
+	# P2 places ice automatically.
+	validate_spikes([-1,-1,-1,-1,9], player2)
+	# P1 fails to place spike on self but that doens't change anything
+	validate_spikes([-1,-1,-1,-1,7])
+	assert_true(game_logic.do_choice(player1, 0))
+	validate_positions(player1, 9, player2, 8)
+	# 2 hit effects, shoveldrop and ice removal
+	assert_true(game_logic.do_choice(player1, 0)) # Drop
+	assert_true(game_logic.do_choice(player1, 0)) # Push 1
+	validate_positions(player1, 9, player2, 7)
+	assert_true(game_logic.do_choice(player1, 0)) # Ice remove for +power
+	# After place spike at 8 automatically
+	validate_spikes([-1,-1,-1,-1,8])
+	validate_life(player1, 28, player2, 25)
+	advance_turn(player2)
+
+func test_polar_shoveldrop_boost_nospikes():
+	position_players(player1, 7, player2, 8)
+	give_player_specific_card(player1, "polar_shoveldrop", TestCardId1)
+	assert_true(game_logic.do_boost(player1, TestCardId1, [player1.hand[0].id]))
+	# Why are you buoosting this with no spikeS? no idea.
+	assert_eq(player1.hand.size(), 5)
+	advance_turn(player2)
+
+func test_polar_shoveldrop_boost_move_onto_player():
+	position_players(player1, 7, player2, 8)
+	player1.buddy_locations = [2,5,-1,-1,-1]
+	give_player_specific_card(player1, "polar_shoveldrop", TestCardId1)
+	assert_true(game_logic.do_boost(player1, TestCardId1, [player1.hand[0].id]))
+	# Choose a spike or pass
+	assert_eq(game_logic.decision_info.limitation.size(), 3)
+	assert_true(game_logic.do_choice(player1, get_choice_index_for_position(5)))
+	validate_spikes([2,-1,-1,-1,-1])
+	# Options are 3,4,6,7,8
+	assert_eq(game_logic.decision_info.limitation.size(), 5)
+	assert_true(game_logic.do_choice(player1, get_choice_index_for_position(8)))
+	validate_spikes([2,8,-1,-1,-1])
+	assert_eq(player1.hand.size(), 5)
+	advance_turn(player2)
+
+func test_polar_shoveldrop_boost_move_other_gauge_action():
+	position_players(player1, 7, player2, 8)
+	give_gauge(player1, 1)
+	player1.buddy_locations = [2,5,-1,-1,-1]
+	give_player_specific_card(player1, "polar_shoveldrop", TestCardId1)
+	assert_true(game_logic.do_boost(player1, TestCardId1, [player1.hand[0].id]))
+	# Choose a spike or pass
+	assert_eq(game_logic.decision_info.limitation.size(), 3)
+	assert_true(game_logic.do_choice(player1, get_choice_index_for_position(2)))
+	validate_spikes([5,-1,-1,-1,-1])
+	# Options are 1,3,4
+	assert_eq(game_logic.decision_info.limitation.size(), 3)
+	assert_true(game_logic.do_choice(player1, get_choice_index_for_position(4)))
+	validate_spikes([4,5,-1,-1,-1])
+	assert_true(game_logic.do_gauge_for_effect(player1, [player1.gauge[0].id]))
+	advance_turn(player1) # My turn again
+
+
+func test_polar_icicle_miss():
+	position_players(player1, 6, player2, 9)
+	give_gauge(player1, 3)
+	give_player_specific_card(player1, "polar_icicledrop", TestCardId1)
+	give_player_specific_card(player2, "standard_normal_assault", TestCardId2)
+	assert_true(game_logic.do_strike(player1, TestCardId1, false, -1))
+	assert_true(game_logic.do_strike(player2, TestCardId2, false, -1))
+	assert_true(game_logic.do_pay_strike_cost(player1, player1.get_card_ids_in_gauge(), false))
+	# P2 hits, gain adv and remove ice cohices.
+	assert_true(game_logic.do_choice(player2, 0))
+	#Place ice at 8 automatically.
+	validate_spikes([-1,-1,-1,-1,8], player2)
+
+	# P1 is stun immune, but misses as no spikes
+	# After card and place ice effects
+	assert_true(game_logic.do_choice(player1, 0)) # Card advance choice
+	assert_true(game_logic.do_choice(player1, 1)) #adv 2
+	# Place ice next
+	assert_eq(game_logic.decision_info.limitation.size(), 7) # Place anywhere non-player
+	assert_true(game_logic.do_choice(player1, get_choice_index_for_position(6)))
+	validate_spikes([-1,-1,-1,-1,6])
+	validate_positions(player1, 9, player2, 7)
+	validate_life(player1, 28, player2, 30)
+	assert_eq(player1.gauge.size(), 0)
+	assert_eq(player2.gauge.size(), 1)
+
+	advance_turn(player2)
+
+func test_polar_icicle_hits():
+	position_players(player1, 6, player2, 9)
+	player1.buddy_locations = [-1,-1,-1,7,8]
+	give_gauge(player1, 3)
+	give_player_specific_card(player1, "polar_icicledrop", TestCardId1)
+	give_player_specific_card(player2, "standard_normal_assault", TestCardId2)
+	assert_true(game_logic.do_strike(player1, TestCardId1, false, -1))
+	assert_true(game_logic.do_strike(player2, TestCardId2, false, -1))
+	assert_true(game_logic.do_pay_strike_cost(player1, player1.get_card_ids_in_gauge(), false))
+	# P2 hits, gain adv and remove ice cohices.
+	assert_true(game_logic.do_choice(player2, 0))
+	#Place ice at 8 automatically.
+	validate_spikes([-1,-1,-1,-1,8], player2)
+
+	# P1 is stun immune, and hits since p2 is at 7 now.
+	# On hit can remove ice spike
+	assert_true(game_logic.do_choice(player1, 0))
+	# After card and place ice effects
+	assert_true(game_logic.do_choice(player1, 0)) # Card advance choice
+	assert_true(game_logic.do_choice(player1, 0)) #adv 1
+	# Place ice next
+	validate_positions(player1, 8, player2, 7)
+	assert_eq(game_logic.decision_info.limitation.size(), 8) # Place anywhere non-player
+	assert_true(game_logic.do_choice(player1, get_choice_index_for_position(1)))
+	validate_spikes([-1,-1,-1,8,1])
+	validate_positions(player1, 8, player2, 7)
+	validate_life(player1, 28, player2, 20)
+	assert_eq(player1.gauge.size(), 1)
+	assert_eq(player2.gauge.size(), 1)
+	advance_turn(player2)
+
+
+func test_polar_icicledrop_boost_remove_all():
+	position_players(player1, 6, player2, 9)
+	player1.buddy_locations = [1,2,3,4,5]
+	assert_eq(player1.hand.size(),5)
+	give_player_specific_card(player1, "polar_icicledrop", TestCardId1)
+	assert_true(game_logic.do_boost(player1, TestCardId1))
+	assert_eq(player1.hand.size(),7)
+	# Remove X Buddies
+	# Expect pass and 5 buddy removal
+	assert_eq(game_logic.decision_info.limitation.size(), 6)
+	assert_true(game_logic.do_choice(player1, get_choice_index_for_position(3)))
+	assert_eq(game_logic.decision_info.limitation.size(), 5)
+	assert_true(game_logic.do_choice(player1, get_choice_index_for_position(2)))
+	assert_eq(game_logic.decision_info.limitation.size(), 4)
+	assert_true(game_logic.do_choice(player1, get_choice_index_for_position(5)))
+	assert_eq(game_logic.decision_info.limitation.size(), 3)
+	assert_true(game_logic.do_choice(player1, get_choice_index_for_position(4)))
+	assert_eq(game_logic.decision_info.limitation.size(), 2)
+	assert_true(game_logic.do_choice(player1, get_choice_index_for_position(1)))
+	# Automatically finish, draw 5 more cards, and 1 for end of turn.
+	assert_eq(player1.hand.size(),13)
+	validate_spikes([-1,-1,-1,-1,-1])
+	assert_eq(player1.gauge.size(), 1)
+	var card_ids = []
+	for card in player1.hand:
+		if len(card_ids) == 6:
+			break
+		card_ids.append(card.id)
+	assert_true(game_logic.do_discard_to_max(player1, card_ids))
+	assert_eq(player1.hand.size(),7)
+	advance_turn(player2)
+
+func test_polar_icicledrop_boost_only_2inplay():
+	position_players(player1, 6, player2, 9)
+	player1.buddy_locations = [1,2,-1,-1,-1]
+	assert_eq(player1.hand.size(),5)
+	give_player_specific_card(player1, "polar_icicledrop", TestCardId1)
+	assert_true(game_logic.do_boost(player1, TestCardId1))
+	assert_eq(player1.hand.size(),7)
+	# Remove X Buddies
+	# Expect pass and 2 buddy removal
+	assert_eq(game_logic.decision_info.limitation.size(), 3)
+	assert_true(game_logic.do_choice(player1, get_choice_index_for_position(2)))
+	assert_eq(game_logic.decision_info.limitation.size(), 2)
+	assert_true(game_logic.do_choice(player1, get_choice_index_for_position(1)))
+	# Automatically finish, draw 2 more cards, and 1 for end of turn.
+	assert_eq(player1.hand.size(),10)
+	validate_spikes([-1,-1,-1,-1,-1])
+	assert_eq(player1.gauge.size(), 1)
+	var card_ids = []
+	for card in player1.hand:
+		if len(card_ids) == 3:
+			break
+		card_ids.append(card.id)
+	assert_true(game_logic.do_discard_to_max(player1, card_ids))
+	assert_eq(player1.hand.size(),7)
+	advance_turn(player2)
+
+func test_polar_icicledrop_boost_remove_none():
+	position_players(player1, 6, player2, 9)
+	player1.buddy_locations = [1,2,3,4,5]
+	assert_eq(player1.hand.size(),5)
+	give_player_specific_card(player1, "polar_icicledrop", TestCardId1)
+	assert_true(game_logic.do_boost(player1, TestCardId1))
+	assert_eq(player1.hand.size(),7)
+	# Remove X Buddies
+	# Expect pass and 5 buddy removal
+	assert_eq(game_logic.decision_info.limitation.size(), 6)
+	assert_true(game_logic.do_choice(player1, 0))
+	# Draw 1 for end of turn
+	assert_eq(player1.hand.size(),8)
+	validate_spikes([1,2,3,4,5])
+	assert_eq(player1.gauge.size(), 0)
+	var card_ids = []
+	for card in player1.hand:
+		if len(card_ids) == 1:
+			break
+		card_ids.append(card.id)
+	assert_true(game_logic.do_discard_to_max(player1, card_ids))
+	assert_eq(player1.hand.size(),7)
+	advance_turn(player2)
+
+
+func test_polar_icicledrop_boost_none_to_remove():
+	position_players(player1, 6, player2, 9)
+	player1.buddy_locations = [-1,-1,-1,-1,-1]
+	assert_eq(player1.hand.size(),5)
+	give_player_specific_card(player1, "polar_icicledrop", TestCardId1)
+	assert_true(game_logic.do_boost(player1, TestCardId1))
+	assert_eq(player1.hand.size(),8)
+	# Draw 1 end of turn.
+	assert_eq(player1.gauge.size(), 0)
+	var card_ids = []
+	for card in player1.hand:
+		if len(card_ids) == 1:
+			break
+		card_ids.append(card.id)
+	assert_true(game_logic.do_discard_to_max(player1, card_ids))
+	assert_eq(player1.hand.size(),7)
+	advance_turn(player2)
+
+func test_polar_snowslash():
+	position_players(player1, 6, player2, 9)
+	give_gauge(player1, 2)
+	give_player_specific_card(player1, "polar_snowslash", TestCardId1)
+	give_player_specific_card(player2, "standard_normal_assault", TestCardId2)
+	assert_true(game_logic.do_strike(player1, TestCardId1, false, -1))
+	assert_true(game_logic.do_strike(player2, TestCardId2, false, -1))
+	assert_true(game_logic.do_pay_strike_cost(player1, player1.get_card_ids_in_gauge(), false))
+	# p2 gain adv and ice effects.
+	assert_true(game_logic.do_choice(player2, 0))
+	validate_positions(player1, 6, player2, 7)
+	# p1 hit response
+	assert_true(game_logic.do_force_for_armor(player1, [player1.hand[0].id]))
+	# P2 Place ice at 8 automatically.
+	validate_spikes([-1,-1,-1,-1,8], player2)
+
+	# p1 hits back and pushes 2 or remove ice
+	assert_true(game_logic.do_choice(player1, 0))
+	# No ice
+	# After, place ice, choices 4,5,7,8
+	assert_eq(game_logic.decision_info.limitation.size(), 4)
+	assert_true(game_logic.do_choice(player1, get_choice_index_for_position(5)))
+	validate_spikes([-1,-1,-1,-1,5])
+	validate_positions(player1, 6, player2, 9)
+	validate_life(player1, 30, player2, 26)
+	advance_turn(player2)
+
+
+func test_polar_snowslash_boost_gaugeblock():
+	position_players(player1, 6, player2, 9)
+	give_gauge(player1, 2)
+	give_player_specific_card(player1, "polar_snowslash", TestCardId1)
+	assert_true(game_logic.do_boost(player1, TestCardId1))
+	advance_turn(player2)
+	give_player_specific_card(player1, "standard_normal_sweep", TestCardId3)
+	give_player_specific_card(player2, "standard_normal_assault", TestCardId2)
+	assert_true(game_logic.do_strike(player1, TestCardId3, false, -1))
+	assert_true(game_logic.do_strike(player2, TestCardId2, false, -1))
+	# p2 gain adv and ice effects.
+	assert_true(game_logic.do_choice(player2, 0))
+	validate_positions(player1, 6, player2, 7)
+	# p1 hit response
+	assert_eq(game_logic.decision_info.limitation, "gauge")
+	assert_true(game_logic.do_force_for_armor(player1, [player1.gauge[0].id, player1.gauge[1].id]))
+	# P2 Place ice at 8 automatically.
+	validate_spikes([-1,-1,-1,-1,8], player2)
+
+	# p1 hits back, remove ice fails automatically. Swepe hits, discard or ice first.
+	assert_true(game_logic.do_choice(player1, 0))
+	# After, place ice, choices 3,4,5,8,9
+	assert_eq(game_logic.decision_info.limitation.size(), 5)
+	assert_true(game_logic.do_choice(player1, get_choice_index_for_position(8)))
+	validate_spikes([-1,-1,-1,-1,8])
+	validate_positions(player1, 6, player2, 7)
+	validate_life(player1, 30, player2, 24)
+	advance_turn(player2)
+
+
+func test_polar_snowslash_boost_gaugeblock_with_block_card():
+	position_players(player1, 6, player2, 9)
+	give_gauge(player1, 2)
+	give_player_specific_card(player1, "polar_snowslash", TestCardId1)
+	assert_true(game_logic.do_boost(player1, TestCardId1))
+	advance_turn(player2)
+	give_player_specific_card(player1, "standard_normal_block", TestCardId3)
+	give_player_specific_card(player2, "standard_normal_assault", TestCardId2)
+	assert_true(game_logic.do_strike(player1, TestCardId3, false, -1))
+	assert_true(game_logic.do_strike(player2, TestCardId2, false, -1))
+	# p2 gain adv and ice effects.
+	assert_true(game_logic.do_choice(player2, 0))
+	validate_positions(player1, 6, player2, 7)
+	# p1 hit response
+	assert_eq(game_logic.decision_info.limitation, "force")
+	assert_true(game_logic.do_force_for_armor(player1, [player1.hand[0].id, player1.hand[1].id]))
+	# P2 Place ice at 8 automatically.
+	validate_spikes([-1,-1,-1,-1,8], player2)
+
+	# After simul effect block and ice placing
+	assert_true(game_logic.do_choice(player1, 0))
+	# Can't place ice though.
+
+	validate_spikes([-1,-1,-1,-1,-1])
+	validate_positions(player1, 6, player2, 7)
+	validate_life(player1, 30, player2, 30)
+	assert_eq(player1.gauge.size(), 3)
+	assert_eq(player2.gauge.size(), 1)
+	advance_turn(player2)
+

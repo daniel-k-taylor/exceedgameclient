@@ -15436,8 +15436,13 @@
 			},
 			{
 				"timing": "after",
-				"effect_type": "advance",
-				"amount": 3
+				"effect_type": "choice",
+				"choice": [
+					{ "effect_type": "advance", "amount": 1},
+					{ "effect_type": "advance", "amount": 2},
+					{ "effect_type": "advance", "amount": 3},
+					{ "effect_type": "pass" }
+				]
 			}
 		],
 		"boost": {

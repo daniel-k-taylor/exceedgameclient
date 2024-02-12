@@ -1474,7 +1474,7 @@ class Player:
 			(opposing_player.is_in_location(location) or self.is_in_location(location)):
 				# Reached the other end, stop.
 				break
-			elif started:
+			elif started and get_buddy_id_at_location(location):
 				count += 1
 
 		return count
@@ -2184,7 +2184,7 @@ class Player:
 				handle_on_buddy_boosts(false)
 
 	func move_in_direction_by_amount(go_left : bool, amount : int, stop_at_opponent : bool, stop_on_space : int,
-	movement_type : String, is_self_move : bool = true, remove_buddies_encountered : int = 0,
+	movement_type : String, is_self_move : bool = true, remove_my_buddies_encountered : int = 0,
 	set_x_to_buddy_spaces_entered : bool = false
 	):
 		var events = []
@@ -2213,7 +2213,8 @@ class Player:
 		var blocked_by_buddy = false
 		var stopped_on_space = false
 		var distance = 0
-		var buddies_encountered_in_order = []
+		var my_buddies_encountered_in_order = []
+		var opponent_buddies_encountered_in_order = []
 		for i in range(amount):
 			var target_location = new_location + direction
 			if is_self_move and cannot_move_past_opponent_buddy_id:
@@ -2250,9 +2251,12 @@ class Player:
 			if new_location != updated_new_location:
 				distance += 1
 				new_location = updated_new_location
-				var buddy_id = get_buddy_id_at_location(new_location)
-				if buddy_id:
-					buddies_encountered_in_order.append(buddy_id)
+				var my_buddy_id = get_buddy_id_at_location(new_location)
+				if my_buddy_id:
+					my_buddies_encountered_in_order.append(my_buddy_id)
+				var opponent_buddy_id = other_player.get_buddy_id_at_location(new_location)
+				if opponent_buddy_id:
+					opponent_buddies_encountered_in_order.append(opponent_buddy_id)
 			else:
 				# at edge of arena
 				break
@@ -2286,14 +2290,14 @@ class Player:
 
 
 		if set_x_to_buddy_spaces_entered:
-			var buddy_spaces_entered = len(buddies_encountered_in_order)
-			events += set_strike_x(buddy_spaces_entered, true)
+			var buddy_spaces_entered = len(opponent_buddies_encountered_in_order)
+			events += other_player.set_strike_x(buddy_spaces_entered, true)
 
-		if remove_buddies_encountered > 0:
-			for buddy_id in buddies_encountered_in_order:
+		if remove_my_buddies_encountered > 0:
+			for buddy_id in my_buddies_encountered_in_order:
 				events += remove_buddy(buddy_id)
-				remove_buddies_encountered -= 1
-				if remove_buddies_encountered == 0:
+				remove_my_buddies_encountered -= 1
+				if remove_my_buddies_encountered == 0:
 					break
 
 		return events
@@ -4621,8 +4625,13 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 						"buddy_id": buddy_id,
 						"and": and_with_bonus
 					})
-				change_game_state(Enums.GameState.GameState_PlayerDecision)
-				events += [create_event(Enums.EventType.EventType_ChooseArenaLocationForEffect, performing_player.my_id, 0)]
+				if decision_info.limitation.size() > 1:
+					# There are multiple choices, so player must choose.
+					change_game_state(Enums.GameState.GameState_PlayerDecision)
+					events += [create_event(Enums.EventType.EventType_ChooseArenaLocationForEffect, performing_player.my_id, 0)]
+				else:
+					# Just do it immediately.
+					events += handle_strike_effect(card_id, decision_info.choice[0], performing_player)
 		"remove_X_buddies":
 			ignore_extra_effects = true
 			if 'reset_strike_x' in effect and effect['reset_strike_x']:
@@ -4988,7 +4997,6 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 				var must_select_other_buddy_first = performing_player.are_all_buddies_in_play()
 				# The player can now select one of these new spaces to place their buddy,
 				# or they can select and existing buddy and remove it first.
-				change_game_state(Enums.GameState.GameState_PlayerDecision)
 				decision_info.clear()
 				decision_info.type = Enums.DecisionType.DecisionType_ChooseArenaLocationForEffect
 				decision_info.player = performing_player.my_id
@@ -5038,7 +5046,12 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 								"and": and_effect
 							}
 						})
-				events += [create_event(Enums.EventType.EventType_ChooseArenaLocationForEffect, performing_player.my_id, 0)]
+				if decision_info.choice.size() == 1:
+					# Only one choice, so just do it immediately.
+					events += handle_strike_effect(card_id, decision_info.choice[0], performing_player)
+				else:
+					change_game_state(Enums.GameState.GameState_PlayerDecision)
+					events += [create_event(Enums.EventType.EventType_ChooseArenaLocationForEffect, performing_player.my_id, 0)]
 			else:
 				# No valid positions to put the buddy, so skip this.
 				# The and effect will occur normally if one exists.
@@ -5100,9 +5113,12 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 			if optional:
 				actual_choices -= 1
 
+			# If the only option is to pass, just let this pass.
 			if actual_choices > 0:
 				change_game_state(Enums.GameState.GameState_PlayerDecision)
 				events += [create_event(Enums.EventType.EventType_ChooseArenaLocationForEffect, performing_player.my_id, 0)]
+			else:
+				assert(false, "Unexpected called move_any_buddy but can't.")
 		"play_attack_from_hand":
 			# Implement the choice via discard effect.
 			var discard_effect = {
