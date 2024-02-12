@@ -13701,6 +13701,364 @@
 	},
 
 	{
+		"NOTE": "RACHEL CARDS START",
+		"id": "rachel_clownishcalendula",
+		"type": "ultra",
+		"display_name": "Clownish Calendula",
+		"force_cost": 0,
+		"gauge_cost": 3,
+		"range_min": 3,
+		"range_max": 3,
+		"speed": 3,
+		"power": 12,
+		"armor": 0,
+		"guard": 6,
+		"effects": [
+		],
+		"boost": {
+			"boost_type": "immediate",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Burst",
+			"effects": [
+				{
+					"timing": "immediate",
+					"effect_type": "draw",
+					"amount": 2
+				},
+				{
+					"timing": "immediate",
+					"effect_type": "seal_this"
+				},
+				{
+					"timing": "immediate",
+					"effect_type": "bonus_action"
+				}
+			]
+		}
+	},
+	{
+		"id": "rachel_tempestdahlia",
+		"type": "ultra",
+		"display_name": "Tempest Dahlia",
+		"force_cost": 0,
+		"gauge_cost": 3,
+		"range_min": 3,
+		"range_max": 5,
+		"speed": 6,
+		"power": 5,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "hit",
+				"effect_type": "draw",
+				"amount": 2
+			},
+			{
+				"timing": "after",
+				"effect_type": "choice",
+				"choice": [
+					{ "effect_type": "push", "amount": 1, "and": { "effect_type": "close", "amount": 2 } },
+					{ "effect_type": "push", "amount": 2, "and": { "effect_type": "close", "amount": 2 }  },
+					{ "effect_type": "close", "amount": 2 }
+				]
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 1,
+			"cancel_cost": -1,
+			"display_name": "George XIII",
+			"effects": [
+				{
+					"timing": "now",
+					"effect_type": "place_boost_in_space",
+					"and": {
+						"effect_type": "draw",
+						"amount": 1
+					}
+				},
+				{
+					"timing": "after",
+					"condition": "opponent_in_boost_space",
+					"effect_type": "take_damage",
+					"opponent": true,
+					"nonlethal": true,
+					"amount": 3
+				}
+			]
+		}
+	},
+	{
+		"id": "rachel_badenbadenlily",
+		"type": "ultra",
+		"display_name": "badenbadenlily",
+		"force_cost": 0,
+		"gauge_cost": 2,
+		"range_min": 1,
+		"range_max": 1,
+		"speed": 6,
+		"power": 3,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "during_strike",
+				"effect_type": "range_includes_lightningrods"
+			},
+			{
+				"timing": "hit",
+				"effect_type": "powerup",
+				"amount": "lightningsrods_in_opponent_space"
+			}
+		],
+		"boost": {
+			"boost_type": "immediate",
+			"force_cost": 1,
+			"cancel_cost": -1,
+			"display_name": "Sylpheed Flight",
+			"effects": [
+				{
+					"timing": "immediate",
+					"effect_type": "move_to_lightningrods"
+				},
+				{
+					"timing": "immediate",
+					"effect_type": "bonus_action"
+				}
+			]
+		}
+	},
+	{
+		"id": "rachel_whirlwind",
+		"type": "special",
+		"display_name": "Whirlwind",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 2,
+		"range_max": 3,
+		"speed": 6,
+		"power": 3,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "hit",
+				"effect_type": "choose_sustain_boost",
+				"amount_min": 0,
+				"amount": 1
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Impish Gypsophila",
+			"effects": [
+				{
+					"timing": "now",
+					"effect_type": "place_boost_in_space",
+					"and": {
+						"effect_type": "draw",
+						"amount": 1
+					}
+				},
+				{
+					"timing": "hit",
+					"condition": "opponent_in_boost_space",
+					"effect_type": "powerup",
+					"amount": 1,
+					"and": {
+						"effect_type": "choice",
+						"choice": [
+							{ "effect_type": "push", "amount": 1 },
+							{ "effect_type": "pull", "amount": 1 },
+							{ "effect_type": "pass" }
+						]
+					}
+				}
+			]
+		}
+	},
+	{
+		"id": "rachel_flyinglobelia",
+		"type": "special",
+		"display_name": "Flying Lobelia",
+		"force_cost": 1,
+		"gauge_cost": 0,
+		"range_min": 2,
+		"range_max": 5,
+		"speed": 5,
+		"power": 3,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "hit",
+				"effect_type": "push",
+				"amount": 1
+			},
+			{
+				"timing": "cleanup",
+				"effect_type": "place_lightningrod",
+				"source": "top_discard",
+				"limitation": "attack_range"
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 1,
+			"cancel_cost": -1,
+			"display_name": "Gust of Wind",
+			"effects": [
+				{
+					"timing": "before",
+					"effect_type": "choice",
+					"choice": [
+						{ "effect_type": "push", "amount": 1 },
+						{ "effect_type": "push", "amount": 2 }
+					]
+				}
+			]
+		}
+	},
+	{
+		"id": "rachel_spikedrop",
+		"type": "special",
+		"display_name": "Spike Drop",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 2,
+		"speed": 5,
+		"power": 3,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "during_strike",
+				"effect_type": "ignore_armor"
+			},
+			{
+				"timing": "before",
+				"condition": "boost_in_play",
+				"effect_type": "powerup",
+				"amount": 2
+			}
+		],
+		"boost": {
+			"boost_type": "immediate",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Lotus Barrel",
+			"effects": [
+				{
+					"timing": "immediate",
+					"effect_type": "place_lightningrod",
+            		"source": "choose_discard",
+            		"limitation": "any"
+				}
+			]
+		}
+	},
+	{
+		"id": "rachel_tinylobelia",
+		"type": "special",
+		"display_name": "Tiny Lobelia",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 3,
+		"range_max": 6,
+		"speed": 4,
+		"power": 3,
+		"armor": 0,
+		"guard": 4,
+		"effects": [
+			{
+				"timing": "hit",
+				"effect_type": "add_top_discard_to_gauge"
+			},
+			{
+				"timing": "cleanup",
+				"effect_type": "place_lightningrod",
+            	"source": "this_card",
+            	"limitation": "attack_range"
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Initiative",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "speedup",
+					"amount": 1
+				},
+				{
+					"timing": "hit",
+					"effect_type": "choice",
+					"choice": [
+						{ "effect_type": "draw", "amount": 1 },
+						{ "effect_type": "gain_advantage" }
+					]
+				}
+			]
+		}
+	},
+	{
+		"NOTE": "RACHEL CARDS END",
+		"id": "rachel_electricchair",
+		"type": "special",
+		"display_name": "Electric Chair",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 2,
+		"speed": 1,
+		"power": 5,
+		"armor": 0,
+		"guard": 7,
+		"effects": [
+			{
+				"timing": "hit",
+				"effect_type": "draw",
+				"amount": 1
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Ivy Blossom",
+			"effects": [
+				{
+					"timing": "now",
+					"effect_type": "place_boost_in_space",
+					"and": {
+						"effect_type": "draw",
+						"amount": 1
+					}
+				},
+				{
+					"timing": "cleanup",
+					"condition": "opponent_in_boost_space",
+					"effect_type": "take_damage",
+					"opponent": true,
+					"nonlethal": true,
+					"amount": 1,
+					"and": {
+						"effect_type": "sustain_this"
+					}
+				}
+			]
+		},
+		"NOTEEND": "RACHEL CARDS END"
+	},
+
+	{
 		"NOTE": "RAGNA CARDS START",
 		"id": "ragna_blackonslaught",
 		"type": "ultra",
