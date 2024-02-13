@@ -241,6 +241,8 @@ func _ready():
 
 	player_bonus_panel.visible = false
 	opponent_bonus_panel.visible = false
+	player_bonus_label.text = ""
+	opponent_bonus_label.text = ""
 
 	observer_next_button.visible = observer_mode
 	observer_play_to_live_button.visible = observer_mode
@@ -1112,6 +1114,8 @@ func _on_stunned(event):
 func _on_end_of_strike():
 	player_bonus_panel.visible = false
 	opponent_bonus_panel.visible = false
+	player_bonus_label.text = ""
+	opponent_bonus_label.text = ""
 	for zone in $AllCards.get_children():
 		if zone is Node2D:
 			for card in zone.get_children():
@@ -2372,10 +2376,10 @@ func _on_strike_character_effect(event):
 
 	bonus_panel.visible = true
 	var effect = event['extra_info']
-	var label_text = ""
+	var label_text : String = ""
 	label_text += CardDefinitions.get_effect_text(effect, false, true, true, "", true) + "\n"
 	label_text = label_text.replace(",", "\n")
-	bonus_label.text = label_text
+	bonus_label.text += label_text
 
 func _on_effect_choice(event):
 	var player = event['event_player']

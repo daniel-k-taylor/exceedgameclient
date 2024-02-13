@@ -618,6 +618,7 @@ class Player:
 	var used_character_action_details : Array
 	var used_character_bonus : bool
 	var force_spent_before_strike : int
+	var gauge_spent_before_strike : int
 	var exceed_at_end_of_turn : bool
 	var specials_invalid : bool
 	var mulligan_complete : bool
@@ -719,6 +720,7 @@ class Player:
 		used_character_action_details = []
 		used_character_bonus = false
 		force_spent_before_strike = 0
+		gauge_spent_before_strike = 0
 		exceed_at_end_of_turn = false
 		specials_invalid = false
 		cleanup_boost_to_gauge_cards = []
@@ -2022,6 +2024,14 @@ class Player:
 		reset_public_hand_knowledge()
 		return events
 
+	func discard_gauge():
+		var events = []
+		for i in range(len(gauge)-1, -1, -1):
+			var card = gauge[i]
+			gauge.remove_at(i)
+			events += add_to_discards(card)
+		return events
+
 	func add_hand_to_gauge():
 		var events = []
 		var card_ids = []
@@ -3046,6 +3056,8 @@ func advance_to_next_turn():
 	opponent.used_character_bonus = false
 	player.force_spent_before_strike = 0
 	opponent.force_spent_before_strike = 0
+	player.gauge_spent_before_strike = 0
+	opponent.gauge_spent_before_strike = 0
 	player.moved_self_this_strike = false
 	opponent.moved_self_this_strike = false
 	player.spaces_moved_this_strike = 0
@@ -6094,6 +6106,16 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 			if boosts_in_play > 0:
 				performing_player.strike_stat_boosts.speed += effect['amount'] * boosts_in_play
 				events += [create_event(Enums.EventType.EventType_Strike_SpeedUp, performing_player.my_id, effect['amount'] * boosts_in_play)]
+		"spend_all_gauge_and_save_amount":
+			var gauge_amount = len(performing_player.gauge)
+			var card_names = ""
+			if performing_player.gauge.size() > 0:
+				card_names = ": " + performing_player.gauge[0].definition['display_name']
+				for i in range(1, gauge_amount):
+					card_names += ", " + performing_player.gauge[i].definition['display_name']
+			_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "discards all %s card(s) from their gauge%s." % [gauge_amount, card_names])
+			events += performing_player.discard_gauge()
+			performing_player.gauge_spent_before_strike += gauge_amount
 		"spend_life":
 			var amount = effect['amount']
 			performing_player.life -= amount
@@ -6823,6 +6845,9 @@ func do_set_strike_x(performing_player : Player, source : String, extra_info):
 		"force_spent_before_strike":
 			value = performing_player.force_spent_before_strike
 			_append_log_full(Enums.LogType.LogType_Strike, performing_player, "'s X for this strike is set to the force spent, %s." % value)
+		"gauge_spent_before_strike":
+			value = performing_player.gauge_spent_before_strike
+			_append_log_full(Enums.LogType.LogType_Strike, performing_player, "'s X for this strike is set to the gauge spent, %s." % value)
 		"copies_in_gauge":
 			var card_id = extra_info['card_id']
 			var card_name = extra_info['card_name']

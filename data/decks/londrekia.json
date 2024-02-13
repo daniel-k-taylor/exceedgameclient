@@ -1,14 +1,17 @@
 {
 	"id": "londrekia",
 	"season": 6,
-	"display_name": "Londrekia",
+	"display_name": "Londrekia Light",
 	"cardback": "cardback_londrekia.jpg",
 	"exceed_cost": 1,
 	"character_action_default": [{
 		"gauge_cost": 0,
 		"force_cost": 0,
 		"effect": {
-			"effect_type": "strike"
+			"effect_type": "spend_all_gauge_and_save_amount",
+			"and": {
+				"effect_type": "strike"
+			}
 		}
 	}],
 	"character_action_exceeded": [
@@ -40,21 +43,63 @@
 	],
 	"ability_effects": [
 		{
-			"character_effect": true,
 			"timing": "set_strike",
 			"condition": "used_character_action",
 			"condition_details": ["default", 0],
-			"effect_type": "powerup",
-			"amount": -1,
+			"effect_type": "set_strike_x",
+			"source": "gauge_spent_before_strike"
+		},
+		{
+			"timing": "set_strike",
+			"condition": "used_character_action",
+			"condition_details": ["default", 0],
+			"effect_type": "pass",
 			"and": {
-				"effect_type": "speedup",
-				"amount": -1,
-				"and": {
-					"effect_type": "add_attack_effect",
-					"added_effect": {
-						"timing": "hit",
-						"effect_type": "gain_advantage"
-					}
+				"condition": "strike_x_greater_than",
+				"condition_amount": 0,
+				"character_effect": true,
+				"effect_type": "add_attack_effect",
+				"added_effect": {
+					"timing": "after",
+					"effect_type": "choice",
+					"choice": [
+						{ "effect_type": "advance", "amount": 1 },
+						{ "effect_type": "retreat", "amount": 1 },
+					]
+				}
+			}
+		},
+		{
+			"timing": "set_strike",
+			"condition": "used_character_action",
+			"condition_details": ["default", 0],
+			"effect_type": "pass",
+			"and": {
+				"condition": "strike_x_greater_than",
+				"condition_amount": 1,
+				"character_effect": true,
+				"effect_type": "add_attack_effect",
+				"added_effect": {
+					"timing": "after",
+					"effect_type": "draw",
+					"amount": 2
+				}
+			}
+		},
+		{
+			"timing": "set_strike",
+			"condition": "used_character_action",
+			"condition_details": ["default", 0],
+			"effect_type": "pass",
+			"and": {
+				"condition": "strike_x_greater_than",
+				"condition_amount": 2,
+				"character_effect": true,
+				"effect_type": "add_attack_effect",
+				"added_effect": {
+					"timing": "after",
+					"effect_type": "reveal_hand",
+					"opponent": true
 				}
 			}
 		}
@@ -114,6 +159,14 @@
 		{
 			"definition_id": "londrekia_cocytusiceprison",
 			"image": "londrekia_cocytusiceprison.tres"
+		},
+		{
+			"definition_id": "londrekia_circularstep",
+			"image": "londrekia_circularstep.tres"
+		},
+		{
+			"definition_id": "londrekia_circularstep",
+			"image": "londrekia_circularstep.tres"
 		},
 		{
 			"definition_id": "londrekia_circularstep",

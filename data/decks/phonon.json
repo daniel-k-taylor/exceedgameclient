@@ -49,7 +49,7 @@
 	],
 	"ability_effects": [
 		{
-			"timing": "during_strike",
+			"timing": "set_strike",
 			"condition": "used_character_action",
 			"condition_details": ["default", 0],
 			"effect_type": "pass",
@@ -61,7 +61,7 @@
 			}
 		},
 		{
-			"timing": "during_strike",
+			"timing": "set_strike",
 			"condition": "used_character_action",
 			"condition_details": ["default", 0],
 			"effect_type": "pass",
