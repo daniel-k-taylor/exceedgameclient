@@ -736,6 +736,8 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 				effect_str += "Place %s at range %s-%s" % [effect['buddy_name'], effect['range_min'], effect['range_max']]
 		"place_buddy_onto_self":
 			effect_str += "Place %s onto your space" % effect['buddy_name']
+		"powerdown_per_armor_used":
+			effect_str += "-1 Power per card armor consumed."
 		"powerup":
 			if str(effect['amount']) == "strike_x":
 				effect_str += "+X Power"

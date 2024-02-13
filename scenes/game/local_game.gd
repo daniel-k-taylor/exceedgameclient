@@ -5554,6 +5554,15 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 			events += handle_strike_effect(card_id, discard_effect, performing_player)
 		"power_modify_per_buddy_between":
 			performing_player.strike_stat_boosts.power_modify_per_buddy_between += effect['amount']
+		"powerdown_per_armor_used":
+			var strike_card = active_strike.get_player_card(performing_player)
+			var card_armor = get_card_stat(performing_player, strike_card, "armor")
+			var total_remaining_armor = get_total_armor(performing_player)
+			var consumed_card_armor = max(0, card_armor - total_remaining_armor)
+			var power_change = -consumed_card_armor
+			if power_change < 0:
+				performing_player.add_power_bonus(power_change)
+				events += [create_event(Enums.EventType.EventType_Strike_PowerUp, performing_player.my_id, power_change)]
 		"powerup":
 			var amount = effect['amount']
 			if str(amount) == "strike_x":
