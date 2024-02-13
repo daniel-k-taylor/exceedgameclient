@@ -1,0 +1,17 @@
+[gd_resource type="SpriteFrames" load_steps=2 format=3 uid="uid://far4xcclwg80"]
+
+[ext_resource type="Texture2D" uid="uid://dlf7rm0b16qfd" path="res://assets/character_animations/rachel_ivyblossom/ivyblossom.png" id="1_xsqex"]
+
+[resource]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("1_xsqex")
+}],
+"loop": true,
+"name": &"idle",
+"speed": 8.0
+}]
+metadata/flip = false
+metadata/scaling = 1.1
+metadata/vertical_offset = 0.0

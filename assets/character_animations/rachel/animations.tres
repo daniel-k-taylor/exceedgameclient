@@ -1,25 +1,9 @@
-[gd_resource type="SpriteFrames" load_steps=34 format=3 uid="uid://ce2o44l3scw7w"]
+[gd_resource type="SpriteFrames" load_steps=38 format=3 uid="uid://ce2o44l3scw7w"]
 
-[ext_resource type="Texture2D" uid="uid://cuy0q07h3pgm3" path="res://assets/character_animations/rachel/retreat.png" id="1_je6l2"]
 [ext_resource type="Texture2D" uid="uid://ckqaakewxklg8" path="res://assets/character_animations/rachel/idle.png" id="1_ueh1y"]
+[ext_resource type="Texture2D" uid="uid://g85tjbe8ck80" path="res://assets/character_animations/rachel/backdash.png" id="1_xiryc"]
 [ext_resource type="Texture2D" uid="uid://crdbykpcpjqdh" path="res://assets/character_animations/rachel/dash.png" id="3_l37dk"]
 [ext_resource type="Texture2D" uid="uid://bitklu64n40t6" path="res://assets/character_animations/rachel/walkforward.png" id="4_54gpm"]
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_wa1fr"]
-atlas = ExtResource("1_je6l2")
-region = Rect2(0, 0, 379, 417)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_wku62"]
-atlas = ExtResource("1_je6l2")
-region = Rect2(379, 0, 379, 417)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_xb8gi"]
-atlas = ExtResource("1_je6l2")
-region = Rect2(0, 417, 379, 417)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_gtdkf"]
-atlas = ExtResource("1_je6l2")
-region = Rect2(379, 417, 379, 417)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_my6m3"]
 atlas = ExtResource("1_ueh1y")
@@ -81,6 +65,38 @@ region = Rect2(0, 800, 420, 400)
 atlas = ExtResource("3_l37dk")
 region = Rect2(420, 800, 420, 400)
 
+[sub_resource type="AtlasTexture" id="AtlasTexture_tu7ob"]
+atlas = ExtResource("1_xiryc")
+region = Rect2(0, 0, 368, 375)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_guta1"]
+atlas = ExtResource("1_xiryc")
+region = Rect2(368, 0, 368, 375)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_wxj67"]
+atlas = ExtResource("1_xiryc")
+region = Rect2(0, 375, 368, 375)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_g8lru"]
+atlas = ExtResource("1_xiryc")
+region = Rect2(368, 375, 368, 375)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_sym7o"]
+atlas = ExtResource("1_xiryc")
+region = Rect2(0, 750, 368, 375)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_gqo47"]
+atlas = ExtResource("1_xiryc")
+region = Rect2(368, 750, 368, 375)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_ohdbs"]
+atlas = ExtResource("1_xiryc")
+region = Rect2(0, 1125, 368, 375)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_uq67c"]
+atlas = ExtResource("1_xiryc")
+region = Rect2(368, 1125, 368, 375)
+
 [sub_resource type="AtlasTexture" id="AtlasTexture_gcvq2"]
 atlas = ExtResource("4_54gpm")
 region = Rect2(0, 0, 409, 454)
@@ -123,23 +139,6 @@ region = Rect2(0, 1362, 409, 454)
 
 [resource]
 animations = [{
-"frames": [{
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_wa1fr")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_wku62")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_xb8gi")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_gtdkf")
-}],
-"loop": true,
-"name": &"dash_back",
-"speed": 5.0
-}, {
 "frames": [{
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_my6m3")
@@ -193,7 +192,36 @@ animations = [{
 }],
 "loop": true,
 "name": &"run",
-"speed": 5.0
+"speed": 8.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_tu7ob")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_guta1")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_wxj67")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_g8lru")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_sym7o")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_gqo47")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_ohdbs")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_uq67c")
+}],
+"loop": true,
+"name": &"walk_backward",
+"speed": 8.0
 }, {
 "frames": [{
 "duration": 1.0,
@@ -228,7 +256,7 @@ animations = [{
 }],
 "loop": true,
 "name": &"walk_forward",
-"speed": 5.0
+"speed": 8.0
 }]
 metadata/flip = false
 metadata/scaling = 0.7

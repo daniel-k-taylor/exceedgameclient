@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://cuy0q07h3pgm3"
-path="res://.godot/imported/retreat.png-6eb76f1115e40e1467f793b38c27644f.ctex"
+uid="uid://g85tjbe8ck80"
+path="res://.godot/imported/backdash.png-a45b77eaefaccf8743011f6cda594f79.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/character_animations/rachel/retreat.png"
-dest_files=["res://.godot/imported/retreat.png-6eb76f1115e40e1467f793b38c27644f.ctex"]
+source_file="res://assets/character_animations/rachel/backdash.png"
+dest_files=["res://.godot/imported/backdash.png-a45b77eaefaccf8743011f6cda594f79.ctex"]
 
 [params]
 

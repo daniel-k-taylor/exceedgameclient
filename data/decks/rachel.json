@@ -5,6 +5,39 @@
 	"cardback": "cardback_rachel.jpg",
 	"exceed_cost": 3,
 	"exceed_to_overdrive": true,
+	"buddy_cards": [
+		"ivyblossom1",
+		"ivyblossom2",
+		"georgexiii1",
+		"georgexiii2",
+		"impishgypsophila1",
+		"impishgypsophila2"
+	],
+	"hide_buddy_reference": true,
+	"buddy_card_graphic_override": [
+		"",
+		"",
+		"",
+		"",
+		"",
+		""
+	],
+	"buddy_card_graphics_id": [
+		"rachel_ivyblossom",
+		"rachel_ivyblossom",
+		"rachel_georgexiii",
+		"rachel_georgexiii",
+		"rachel_impishgypsophila",
+		"rachel_impishgypsophila"
+	],
+	"buddy_display_names": [
+		"Ivy Blossom",
+		"Ivy Blossom",
+		"George XIII",
+		"George XIII",
+		"Impish Gypsophila",
+		"Impish Gypsophila"
+	],
 	"overdrive_effect": {
 		"effect_type": "choice",
 		"choice": [
@@ -108,10 +141,6 @@
 			"condition": "manual_reshuffle",
 			"effect_type": "add_set_aside_card_to_deck",
 			"id": "rachel_clownishcalendula"
-		},
-		{
-			"timing": "after",
-			"effect_type": "lightningrods"
 		}
 	],
 	"exceed_ability_effects": [
@@ -120,10 +149,6 @@
 			"condition": "manual_reshuffle",
 			"effect_type": "add_set_aside_card_to_deck",
 			"id": "rachel_clownishcalendula"
-		},
-		{
-			"timing": "after",
-			"effect_type": "lightningrods"
 		}
 	],
 	"cards": [

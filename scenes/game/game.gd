@@ -184,8 +184,8 @@ var game_wrapper : GameWrapper = GameWrapper.new()
 @onready var player_buddy_character_card : CharacterCardBase  = $PlayerDeck/PlayerBuddyCharacterCard
 @onready var opponent_character_card : CharacterCardBase  = $OpponentDeck/OpponentCharacterCard
 @onready var opponent_buddy_character_card : CharacterCardBase  = $OpponentDeck/OpponentBuddyCharacterCard
-@onready var player_buddies : Array[Character] = [$PlayerBuddy, $PlayerBuddy2, $PlayerBuddy3, $PlayerBuddy4, $PlayerBuddy5]
-@onready var opponent_buddies : Array[Character] = [$OpponentBuddy, $OpponentBuddy2, $OpponentBuddy3, $OpponentBuddy4, $OpponentBuddy5]
+@onready var player_buddies : Array[Character] = [$PlayerBuddy, $PlayerBuddy2, $PlayerBuddy3, $PlayerBuddy4, $PlayerBuddy5, $PlayerBuddy6]
+@onready var opponent_buddies : Array[Character] = [$OpponentBuddy, $OpponentBuddy2, $OpponentBuddy3, $OpponentBuddy4, $OpponentBuddy5, $OpponentBuddy6]
 @onready var game_over_stuff = $GameOverStuff
 @onready var game_over_label = $GameOverStuff/GameOverLabel
 @onready var ai_player : AIPlayer = $AIPlayer
@@ -529,6 +529,10 @@ func move_character_to_arena_square(character, arena_location, immediate: bool, 
 	target_position.y -= character.get_size().y * character.scale.y / 2 + offset_y + character.vertical_offset
 	if buddy_offset != 0:
 		target_position.x += buddy_offset * (character.get_size().x * character.scale.x /4) + character.horizontal_offset_buddy
+	if character.use_buddy_extra_offset:
+		# Adjust the buddy to account for having multiple of the same buddy.
+		target_position.x += buddy_offset * 20
+		target_position.y += 15
 	if immediate:
 		character.position = target_position
 		update_character_facing()
@@ -2525,6 +2529,7 @@ func _on_place_buddy(event):
 	var buddy_location = event['number']
 	var buddy_id = event['extra_info']
 	var silent = event['extra_info2']
+	var extra_offset = event['extra_info3']
 	var extra_description = event['reason']
 
 	var action_text = "Place"
@@ -2532,6 +2537,7 @@ func _on_place_buddy(event):
 		action_text = "Remove"
 
 	var buddy = _get_buddy_from_id(player, buddy_id)
+	buddy.set_buddy_extra_offset(extra_offset)
 	if buddy_location == -1:
 		buddy.visible = false
 	else:
@@ -3081,6 +3087,9 @@ func _on_choose_arena_location_for_effect(event):
 		arena_locations_clickable = decision_info.limitation
 		var instruction_str = "Select a location"
 		match effect_type:
+			"place_boost_in_space":
+				var boost_name = decision_info.source
+				instruction_str = "Select a location to place %s" % boost_name
 			"place_buddy_into_space":
 				var buddy_name = decision_info.source
 				instruction_str = "Select a location to place %s" % buddy_name

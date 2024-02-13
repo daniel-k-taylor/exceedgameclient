@@ -630,6 +630,8 @@ class Player:
 	var public_hand_questionable : Array[String]
 	var public_topdeck_id : int
 	var skip_end_of_turn_draw : bool
+	var boost_id_locations : Dictionary # [card_id : int, location : int]
+	var boost_buddy_card_id_to_buddy_id_map : Dictionary # [card_id : int, buddy_id : String]
 
 	func _init(id, player_name, parent_ref, card_db_ref, chosen_deck, card_start_id):
 		my_id = id
@@ -722,6 +724,8 @@ class Player:
 		public_hand_questionable = []
 		public_topdeck_id = -1
 		skip_end_of_turn_draw = false
+		boost_id_locations = {}
+		boost_buddy_card_id_to_buddy_id_map = {}
 
 		if "buddy_cards" in deck_def:
 			var buddy_index = 0
@@ -1485,7 +1489,7 @@ class Player:
 				return false
 		return true
 
-	func place_buddy(new_location : int, buddy_id : String = "", silent : bool = false, description : String = ""):
+	func place_buddy(new_location : int, buddy_id : String = "", silent : bool = false, description : String = "", extra_offset : bool = false):
 		var events = []
 		if not buddy_id:
 			buddy_id = buddy_id_to_index.keys()[0]
@@ -1495,7 +1499,7 @@ class Player:
 			strike_stat_boosts.buddies_that_entered_play_this_strike.append(buddy_id)
 		set_buddy_location(buddy_id, new_location)
 		on_position_changed(arena_location, old_buddy_pos, false)
-		events += [parent.create_event(Enums.EventType.EventType_PlaceBuddy, my_id, get_buddy_location(buddy_id), description, buddy_id, silent)]
+		events += [parent.create_event(Enums.EventType.EventType_PlaceBuddy, my_id, get_buddy_location(buddy_id), description, buddy_id, silent, extra_offset)]
 		return events
 
 	func remove_buddy(buddy_id : String, silent : bool = false):
@@ -1506,7 +1510,7 @@ class Player:
 			var old_buddy_pos = get_buddy_location(buddy_id)
 			set_buddy_location(buddy_id, -1)
 			on_position_changed(arena_location, old_buddy_pos, false)
-			events += [parent.create_event(Enums.EventType.EventType_PlaceBuddy, my_id, get_buddy_location(buddy_id), "", buddy_id, silent)]
+			events += [parent.create_event(Enums.EventType.EventType_PlaceBuddy, my_id, get_buddy_location(buddy_id), "", buddy_id, silent, false)]
 		return events
 
 	func swap_buddy(buddy_id_to_remove : String, buddy_id_to_place : String, description : String):
@@ -1514,6 +1518,50 @@ class Player:
 		var location = get_buddy_location(buddy_id_to_remove)
 		events += remove_buddy(buddy_id_to_remove, true)
 		events += place_buddy(location, buddy_id_to_place, false, description)
+		return events
+
+	func get_buddy_id_for_boost(card_id : int):
+		var card_def = parent.card_db.get_card(card_id).definition
+		assert('linked_buddy_id' in card_def, "Unexpected: Card does not have a linked buddy id.")
+		var linked_buddy_id = card_def['linked_buddy_id']
+
+		if card_id in boost_buddy_card_id_to_buddy_id_map:
+			return boost_buddy_card_id_to_buddy_id_map[card_id]
+		else:
+			# Currently assumes there are only 2 possible linked buddies.
+			var targetid1 = linked_buddy_id + "1"
+			var targetid2 = linked_buddy_id + "2"
+			# Check the values of the map.
+			if targetid1 in boost_buddy_card_id_to_buddy_id_map.values():
+				return targetid2
+			else:
+				return targetid1
+
+	func get_boost_location(card_id : int):
+		# Check if the id is in boost_id_locations as a key.
+		if card_id in boost_id_locations:
+			return boost_id_locations[card_id]
+		return -1
+
+	func add_boost_to_location(card_id : int, location : int):
+		assert(card_id not in boost_id_locations)
+		var buddy_id = get_buddy_id_for_boost(card_id)
+		boost_id_locations[card_id] = location
+		boost_buddy_card_id_to_buddy_id_map[card_id] = buddy_id
+		var extra_offset = buddy_id.ends_with("2")
+
+		var events = []
+		events += place_buddy(location, buddy_id, false, "", extra_offset)
+		return events
+
+	func remove_boost_in_location(card_id : int):
+		# Check if the id is in the dictionary, and if so remove it.
+		var events = []
+		if card_id in boost_id_locations:
+			var buddy_id = get_buddy_id_for_boost(card_id)
+			boost_id_locations.erase(card_id)
+			boost_buddy_card_id_to_buddy_id_map.erase(card_id)
+			events += remove_buddy(buddy_id)
 		return events
 
 	func get_force_with_cards(card_ids : Array, reason : String, treat_ultras_as_single_force : bool):
@@ -2552,6 +2600,9 @@ class Player:
 		var events = []
 		disable_boost_effects(card)
 
+		# Remove it from boost locations if it is in the arena.
+		events += remove_boost_in_location(card.id)
+
 		# Do any discarded effects
 		events += do_discarded_effects_for_boost(card)
 
@@ -3539,7 +3590,7 @@ class LocalStrikeConditions:
 func wait_for_mid_strike_boost():
 	return game_state == Enums.GameState.GameState_PlayerDecision and decision_info.type == Enums.DecisionType.DecisionType_BoostNow
 
-func handle_strike_effect(card_id :int, effect, performing_player : Player):
+func handle_strike_effect(card_id : int, effect, performing_player : Player):
 	printlog("STRIKE: Handling effect %s" % [effect])
 	if 'for_other_player' in effect:
 		performing_player = _get_player(get_other_player(performing_player.my_id))
@@ -4848,9 +4899,40 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 				else:
 					_append_log_full(Enums.LogType.LogType_CardInfo, opposing_player, "discards random card(s): %s." % discarded_names)
 					events += opposing_player.discard(discard_ids)
+		"opponent_in_boost_space":
+			var this_boost_location = performing_player.get_boost_location(card_id)
+			return opposing_player.is_in_location(this_boost_location)
 		"pass":
 			# Do nothing.
 			pass
+		"place_boost_in_space":
+			# Currently assumes any space is valid.
+			change_game_state(Enums.GameState.GameState_PlayerDecision)
+			decision_info.clear()
+			decision_info.type = Enums.DecisionType.DecisionType_ChooseArenaLocationForEffect
+			decision_info.player = performing_player.my_id
+			decision_info.choice_card_id = card_id
+			decision_info.effect_type = "place_boost_in_space"
+			var boost_name = card_db.get_card(card_id).definition['boost']['display_name']
+			decision_info.source = boost_name
+			decision_info.choice = []
+			decision_info.limitation = []
+			var and_effect = null
+			if 'and' in effect:
+				and_effect = effect['and']
+			for i in range(MinArenaLocation, MaxArenaLocation + 1):
+				decision_info.limitation.append(i)
+				decision_info.choice.append({
+					"effect_type": "place_boost_in_space_internal",
+					"card_id": card_id,
+					"location": i,
+					"and": and_effect
+				})
+			events += [create_event(Enums.EventType.EventType_ChooseArenaLocationForEffect, performing_player.my_id, 0)]
+		"place_boost_in_space_internal":
+			var location = effect['location']
+			var placed_card_id = effect['card_id']
+			events += performing_player.add_boost_to_location(placed_card_id, location)
 		"place_buddy_at_range":
 			events += handle_place_buddy_at_range(performing_player, card_id, effect)
 		"place_buddy_into_space":
@@ -6418,6 +6500,9 @@ func do_set_strike_x(performing_player : Player, source : String, extra_info):
 				if card.definition['id'] == card_id:
 					value += 1
 			_append_log_full(Enums.LogType.LogType_Strike, performing_player, "'s X for this strike is set to the number of copies of %s in gauge, %s." % [card_name, value])
+		"lightningsrods_in_opponent_space":
+			# TODO: Count lightning rods
+			pass
 		_:
 			assert(false, "Unknown source for setting X")
 
