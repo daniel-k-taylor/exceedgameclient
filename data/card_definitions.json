@@ -10744,45 +10744,55 @@
 	{
 		"id": "londrekia_snowblossom",
 		"type": "special",
-		"display_name": "Conveying My Vrai Couer",
+		"display_name": "Snow Blossom",
 		"force_cost": 0,
 		"gauge_cost": 0,
-		"range_min": 1,
-		"range_max": 1,
-		"speed": 5,
+		"range_min": 2,
+		"range_max": 5,
+		"speed": 4,
 		"power": 3,
 		"armor": 0,
 		"guard": 0,
 		"effects": [
 			{
-				"timing": "before",
-				"effect_type": "close",
-				"amount": 3
-			},
-			{
-				"timing": "hit",
-				"effect_type": "choice",
-				"choice": [
-					{ "effect_type": "push", "amount": 1 },
-					{ "effect_type": "pull", "amount": 1 }
-				]
+				"timing": "after",
+				"effect_type": "place_buddy_in_attack_range",
+				"buddy_id": "_linked_buddy_id",
+				"buddy_name": "Iceflower",
+				"optional": true,
+				"additional_effect": {
+					"effect_type": "boost_this_then_sustain",
+					"sustain": false
+				}
 			}
 		],
 		"boost": {
 			"boost_type": "continuous",
+			"link_boost_to_buddy": true,
 			"force_cost": 0,
 			"cancel_cost": -1,
-			"display_name": "Overpower",
+			"display_name": "Iceflower",
 			"effects": [
 				{
-					"timing": "during_strike",
-					"effect_type": "powerup",
-					"amount": 1
+					"timing": "when_hit",
+					"condition": "buddy_between_opponent",
+					"condition_buddy_id": "_linked_buddy_id",
+					"condition_detail": "Iceflower",
+					"effect_type": "armorup",
+					"amount": 2,
+					"and": {
+						"effect_type": "stun_immunity",
+						"and": {
+							"effect_type": "discard_this"
+						}
+					}
 				},
 				{
-					"timing": "before",
-					"effect_type": "close",
-					"amount": 1
+					"NOTE": "Trap Boost",
+					"timing": "cleanup",
+					"condition": "not_stunned",
+					"effect_type": "sustain_this",
+					"card_name": "Snow Blossom"
 				}
 			]
 		}

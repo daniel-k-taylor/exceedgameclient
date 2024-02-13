@@ -4,6 +4,19 @@
 	"display_name": "Londrekia Light",
 	"cardback": "cardback_londrekia.jpg",
 	"exceed_cost": 1,
+	"buddy_cards": [
+		"snowblossom1",
+		"snowblossom2"
+	],
+	"hide_buddy_reference": true,
+	"buddy_card_graphics_id": [
+		"snowblossom",
+		"snowblossom"
+	],
+	"buddy_display_names": [
+		"Iceflower",
+		"Iceflower"
+	],
 	"character_action_default": [{
 		"gauge_cost": 0,
 		"force_cost": 0,
@@ -184,11 +197,13 @@
 		},
 		{
 			"definition_id": "londrekia_snowblossom",
-			"image": "londrekia_snowblossom.tres"
+			"image": "londrekia_snowblossom.tres",
+			"linked_buddy": "snowblossom1"
 		},
 		{
 			"definition_id": "londrekia_snowblossom",
-			"image": "londrekia_snowblossom.tres"
+			"image": "londrekia_snowblossom.tres",
+			"linked_buddy": "snowblossom2"
 		},
 		{
 			"definition_id": "londrekia_frozenvine",

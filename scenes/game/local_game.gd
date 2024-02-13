@@ -409,6 +409,7 @@ class Boost:
 	var playing_player : Player
 	var card : GameCard
 	var effects_resolved = 0
+	var handled_boost_placement = false
 	var action_after_boost = false
 	var strike_after_boost = false
 	var strike_after_boost_opponent_first = false
@@ -454,6 +455,7 @@ class StrikeStatBoosts:
 	var discard_attack_now_for_lightningrod : bool = false
 	var return_attack_to_hand : bool = false
 	var move_strike_to_boosts : bool = false
+	var move_strike_to_boosts_sustain : bool = true
 	var move_strike_to_opponent_boosts : bool = false
 	var when_hit_force_for_armor : String = ""
 	var stun_immunity : bool = false
@@ -524,6 +526,7 @@ class StrikeStatBoosts:
 		discard_attack_now_for_lightningrod = false
 		return_attack_to_hand = false
 		move_strike_to_boosts = false
+		move_strike_to_boosts_sustain = true
 		move_strike_to_opponent_boosts = false
 		when_hit_force_for_armor = ""
 		stun_immunity = false
@@ -641,6 +644,7 @@ class Player:
 	var buddy_starting_id : String
 	var buddy_locations : Array[int]
 	var buddy_id_to_index : Dictionary
+	var card_to_linked_buddy_id : Dictionary
 	var do_not_cleanup_buddy_this_turn : bool
 	var cannot_move : bool
 	var cannot_move_past_opponent : bool
@@ -685,6 +689,7 @@ class Player:
 		strike_stat_boosts = StrikeStatBoosts.new()
 		set_aside_cards = []
 		sealed = []
+		card_to_linked_buddy_id = {}
 		for deck_card_def in deck_def['cards']:
 			var card_def = CardDefinitions.get_card(deck_card_def['definition_id'])
 			var card = GameCard.new(card_start_id, card_def, deck_card_def['image'], id)
@@ -698,6 +703,10 @@ class Player:
 				parent.event_queue += [parent.create_event(Enums.EventType.EventType_Seal, my_id, card.id, "", false)]
 			else:
 				deck.append(card)
+			if 'linked_buddy' in deck_card_def:
+				card_to_linked_buddy_id[card.id] = deck_card_def['linked_buddy']
+				card.definition = card.definition.duplicate(true)
+				_update_linked_buddy_ids(card.definition, deck_card_def['linked_buddy'])
 			deck_list.append(card)
 			card_start_id += 1
 		gauge = []
@@ -796,6 +805,20 @@ class Player:
 
 		if 'guile_change_cards_bonus' in deck_def:
 			guile_change_cards_bonus = deck_def['guile_change_cards_bonus']
+
+	func _update_linked_buddy_ids(def_object, linked_id):
+		if def_object is Dictionary:
+			for key in def_object.keys():
+				if def_object[key] is Dictionary or def_object[key] is Array:
+					_update_linked_buddy_ids(def_object[key], linked_id)
+				elif str(def_object[key]) == "_linked_buddy_id":
+					def_object[key] = linked_id
+		elif def_object is Array:
+			for i in range(len(def_object)):
+				if def_object[i] is Dictionary or def_object[i] is Array:
+					_update_linked_buddy_ids(def_object[i], linked_id)
+				elif str(def_object[i]) == "_linked_buddy_id":
+					def_object[i] = linked_id
 
 	func initial_shuffle():
 		if ShuffleEnabled:
@@ -2778,6 +2801,17 @@ class Player:
 			if effect['timing'] == "discarded":
 				var owner_player = parent._get_player(card.owner_id)
 				events += parent.handle_strike_effect(card.id, effect, owner_player)
+
+		# Also remove linked buddy
+		if parent.is_boost_card_linked_to_buddy(card):
+			if card.owner_id == my_id:
+				var buddy_id = card_to_linked_buddy_id[card.id]
+				var remove_effect = {
+					"effect_type": "remove_buddy",
+					"buddy_id": buddy_id,
+					"buddy_name": get_buddy_name(buddy_id)
+				}
+				events += parent.handle_strike_effect(card.id, remove_effect, self)
 		return events
 
 	func cleanup_continuous_boosts():
@@ -3999,8 +4033,13 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 			# This effect is expected to be mid-strike.
 			assert(active_strike)
 			var card_name = card_db.get_card_name(card_id)
-			_append_log_full(Enums.LogType.LogType_Effect, performing_player, "boosts and sustains %s." % card_name)
 			performing_player.strike_stat_boosts.move_strike_to_boosts = true
+			if 'sustain' in effect:
+				performing_player.strike_stat_boosts.move_strike_to_boosts_sustain = effect['sustain']
+			var and_sustain_str = ""
+			if performing_player.strike_stat_boosts.move_strike_to_boosts_sustain:
+				and_sustain_str = " and sustains"
+			_append_log_full(Enums.LogType.LogType_Effect, performing_player, "boosts%s %s." % [and_sustain_str, card_name])
 			# This removes the attack from play, so it needs to affect stats.
 			events += handle_strike_attack_immediate_removal(performing_player)
 			if 'boost_effect' in effect:
@@ -5292,6 +5331,8 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 
 			if 'place_other_buddy_effect' in effect:
 				events += handle_place_buddy_at_range(performing_player, card_id, effect['place_other_buddy_effect'])
+			if 'additional_effect' in effect:
+				events += handle_strike_effect(card_id, effect['additional_effect'], performing_player)
 		"place_buddy_in_any_space":
 			var buddy_id = ""
 			if 'buddy_id' in effect:
@@ -5335,11 +5376,14 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 			for i in range(MinArenaLocation, MaxArenaLocation + 1):
 				if is_location_in_range(performing_player, attack_card, i):
 					decision_info.limitation.append(i)
-					decision_info.choice.append({
+					var new_choice = {
 						"effect_type": "place_buddy_into_space",
 						"buddy_id": buddy_id,
 						"amount": i
-					})
+					}
+					if 'additional_effect' in effect:
+						new_choice['additional_effect'] = effect['additional_effect']
+					decision_info.choice.append(new_choice)
 			if decision_info.limitation.size() > 1 or (not optional and decision_info.limitation.size() > 0):
 				decision_info.type = Enums.DecisionType.DecisionType_ChooseArenaLocationForEffect
 				decision_info.player = performing_player.my_id
@@ -7375,7 +7419,10 @@ func do_hit_response_effects(offense_player : Player, defense_player : Player, i
 		if first_time_only and effect in active_strike.when_hit_effects_processed:
 			continue
 		active_strike.when_hit_effects_processed.append(effect)
-		events += do_effect_if_condition_met(defense_player, -1, effect, null)
+		var card_id = -1
+		if 'card_id' in effect:
+			card_id = effect['card_id']
+		events += do_effect_if_condition_met(defense_player, card_id, effect, null)
 
 		if game_over:
 			change_game_state(Enums.GameState.GameState_GameOver)
@@ -7609,7 +7656,8 @@ func handle_strike_attack_immediate_removal(performing_player : Player):
 	elif performing_player.strike_stat_boosts.move_strike_to_boosts:
 		_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "'s attack %s is set as a continuous boost." % card_name)
 		events += performing_player.add_to_continuous_boosts(card)
-		performing_player.sustained_boosts.append(card.id)
+		if performing_player.strike_stat_boosts.move_strike_to_boosts_sustain:
+			performing_player.sustained_boosts.append(card.id)
 		active_strike.cards_in_play.erase(card)
 	elif performing_player.strike_stat_boosts.attack_to_topdeck_on_cleanup:
 		_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "returns their attack %s to the top of their deck." % card_name)
@@ -7882,6 +7930,9 @@ func begin_resolve_boost(performing_player : Player, card_id : int):
 	events = continue_resolve_boost(events)
 	return events
 
+func is_boost_card_linked_to_buddy(card):
+	return 'link_boost_to_buddy' in card.definition['boost'] and card.definition['boost']['link_boost_to_buddy']
+
 func continue_resolve_boost(events):
 	if game_state == Enums.GameState.GameState_WaitForStrike or game_state == Enums.GameState.GameState_Strike_Opponent_Set_First:
 		active_boost.strike_after_boost = true
@@ -7896,6 +7947,19 @@ func continue_resolve_boost(events):
 			active_boost.strike_after_boost = true
 			if game_state == Enums.GameState.GameState_Strike_Opponent_Set_First:
 				active_boost.strike_after_boost_opponent_first = true
+
+		if not active_boost.handled_boost_placement and is_boost_card_linked_to_buddy(active_boost.card):
+			var buddy_id = active_boost.playing_player.card_to_linked_buddy_id[active_boost.card.id]
+			if not active_boost.playing_player.is_buddy_in_play(buddy_id):
+				var placement_effect = {
+					"effect_type": "place_buddy_in_any_space",
+					"buddy_id": buddy_id,
+					"buddy_name": active_boost.playing_player.get_buddy_name(buddy_id)
+				}
+				events += handle_strike_effect(active_boost.card.id, placement_effect, active_boost.playing_player)
+				if game_state == Enums.GameState.GameState_PlayerDecision:
+					break
+		active_boost.handled_boost_placement = true
 
 		if active_boost.effects_resolved < len(effects):
 			var effect = effects[active_boost.effects_resolved]
@@ -8858,7 +8922,8 @@ func continue_player_action_resolution(events, performing_player : Player):
 				# Intentional events = because events are passed in.
 				events = do_remaining_overdrive(events, performing_player)
 			elif active_boost:
-				active_boost.effects_resolved += 1
+				if active_boost.handled_boost_placement:
+					active_boost.effects_resolved += 1
 				# Intentional events = because events are passed in.
 				events = continue_resolve_boost(events)
 			elif active_strike:
