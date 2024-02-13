@@ -4639,11 +4639,19 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 			else:
 				_append_log_full(Enums.LogType.LogType_Effect, performing_player, "will dodge attacks of a higher speed!")
 		"ignore_armor":
-			performing_player.strike_stat_boosts.ignore_armor = true
-			_append_log_full(Enums.LogType.LogType_Effect, performing_player, "gains ignore armor.")
+			if 'opponent' in effect and effect['opponent']:
+				opposing_player.strike_stat_boosts.ignore_armor = true
+				_append_log_full(Enums.LogType.LogType_Effect, opposing_player, "gains ignore armor.")
+			else:
+				performing_player.strike_stat_boosts.ignore_armor = true
+				_append_log_full(Enums.LogType.LogType_Effect, performing_player, "gains ignore armor.")
 		"ignore_guard":
-			performing_player.strike_stat_boosts.ignore_guard = true
-			_append_log_full(Enums.LogType.LogType_Effect, performing_player, "gains ignore guard.")
+			if 'opponent' in effect and effect['opponent']:
+				opposing_player.strike_stat_boosts.ignore_guard = true
+				_append_log_full(Enums.LogType.LogType_Effect, opposing_player, "gains ignore guard.")
+			else:
+				performing_player.strike_stat_boosts.ignore_guard = true
+				_append_log_full(Enums.LogType.LogType_Effect, performing_player, "gains ignore guard.")
 		"ignore_push_and_pull":
 			performing_player.strike_stat_boosts.ignore_push_and_pull = true
 		"ignore_push_and_pull_passive_bonus":
@@ -7169,6 +7177,11 @@ func check_for_stun(check_player : Player, ignore_guard : bool):
 			events += [create_event(Enums.EventType.EventType_Strike_Stun, check_player.my_id, defense_card.id)]
 			active_strike.set_player_stunned(check_player)
 
+			# Assumes non-decision effects only
+			var effects = check_player.get_character_effects_at_timing("on_stunned")
+			for effect in effects:
+				events += do_effect_if_condition_met(check_player, -1, effect, null)
+
 	return events
 
 func apply_damage(offense_player : Player, defense_player : Player):
@@ -7181,7 +7194,7 @@ func apply_damage(offense_player : Player, defense_player : Player):
 	_append_log_full(Enums.LogType.LogType_Strike, null, "Damage calculation: %s total power vs %s total armor." % [str(power), str(armor)])
 
 	if offense_player.strike_stat_boosts.ignore_armor:
-		_append_log_full(Enums.LogType.LogType_Strike, _get_player(get_other_player(offense_player.my_id)), "ignores Armor!")
+		_append_log_full(Enums.LogType.LogType_Strike, offense_player, "ignores Armor!")
 		armor = 0
 
 	var damage_after_armor = calculate_damage(offense_player, defense_player)
@@ -8155,10 +8168,10 @@ func check_hand_size_advance_turn(performing_player : Player):
 				from_bottom_str = " from bottom of deck"
 			else:
 				events += performing_player.draw(1)
-			active_dan_effect = false
 			performing_player.did_end_of_turn_draw = true
 			_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "draws %sfor end of turn. Their hand size is now %s." % [from_bottom_str, len(performing_player.hand)])
 
+		active_dan_effect = false
 		if len(performing_player.hand) > performing_player.max_hand_size:
 			change_game_state(Enums.GameState.GameState_DiscardDownToMax)
 			events += [create_event(Enums.EventType.EventType_HandSizeExceeded, performing_player.my_id, len(performing_player.hand) - performing_player.max_hand_size)]
@@ -8826,12 +8839,12 @@ func continue_player_action_resolution(events, performing_player : Player):
 		events = []
 	else:
 		if game_state != Enums.GameState.GameState_PlayerDecision:
-			if active_start_of_turn_effects:
-				events += continue_begin_turn()
+			if active_dan_effect:
+				events += check_hand_size_advance_turn(performing_player)
 			elif active_end_of_turn_effects:
 				events += continue_end_turn()
-			elif active_dan_effect:
-				events += check_hand_size_advance_turn(performing_player)
+			elif active_start_of_turn_effects:
+				events += continue_begin_turn()
 			elif active_overdrive:
 				# Intentional events = because events are passed in.
 				events = do_remaining_overdrive(events, performing_player)

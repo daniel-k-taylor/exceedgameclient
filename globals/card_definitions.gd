@@ -656,9 +656,15 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 					effect_str += "+"
 				effect_str += str(effect['amount']) + " Guard"
 		"ignore_armor":
-			effect_str += "Ignore armor"
+			if 'opponent' in effect and effect['opponent']:
+				effect_str += "Opponent ignores armor"
+			else:
+				effect_str += "Ignore armor"
 		"ignore_guard":
-			effect_str += "Ignore guard"
+			if 'opponent' in effect and effect['opponent']:
+				effect_str += "Opponent ignores guard"
+			else:
+				effect_str += "Ignore guard"
 		"ignore_push_and_pull":
 			effect_str += "Ignore Push and Pull"
 		"ignore_push_and_pull_passive_bonus":

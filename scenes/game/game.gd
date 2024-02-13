@@ -1114,8 +1114,6 @@ func _on_stunned(event):
 func _on_end_of_strike():
 	player_bonus_panel.visible = false
 	opponent_bonus_panel.visible = false
-	player_bonus_label.text = ""
-	opponent_bonus_label.text = ""
 	for zone in $AllCards.get_children():
 		if zone is Node2D:
 			for card in zone.get_children():
@@ -2374,7 +2372,9 @@ func _on_strike_character_effect(event):
 		bonus_panel = opponent_bonus_panel
 		bonus_label = opponent_bonus_label
 
-	bonus_panel.visible = true
+	if not bonus_panel.visible:
+		bonus_panel.visible = true
+		bonus_label.text = ""
 	var effect = event['extra_info']
 	var label_text : String = ""
 	label_text += CardDefinitions.get_effect_text(effect, false, true, true, "", true) + "\n"
