@@ -1337,6 +1337,8 @@ func _on_choose_from_discard(event):
 		elif select_card_require_max > 1:
 			card_select_count_str = "%s-%s %scards" % [select_card_require_min, select_card_require_max, limitation]
 		var instruction = "Select %s to move to %s." % [card_select_count_str, destination]
+		if destination == "lightningrod_any_space":
+			instruction = "Select a card from your discard pile to place as a Lightning Rod."
 		var popout_type = CardPopoutType.CardPopoutType_DiscardPlayer
 		if source == "sealed":
 			popout_type = CardPopoutType.CardPopoutType_SealedPlayer
@@ -1760,7 +1762,7 @@ func _on_choose_to_discard(event, informative_only : bool):
 	var decision_info = game_wrapper.get_decision_info()
 	var can_pass = decision_info.can_pass
 	if informative_only or not can_pass:
-		if not decision_info.destination in ["reveal", "sealed", "opponent_overdrive"]:
+		if not decision_info.destination in ["reveal", "sealed", "opponent_overdrive", "lightningrod_any_space"]:
 			var amount_string = "Forced Discard %s" % str(amount)
 			if amount == -1:
 				amount_string = "Discard Cards"
@@ -3113,6 +3115,8 @@ func _on_choose_arena_location_for_effect(event):
 			"place_buddy_into_space":
 				var buddy_name = decision_info.source
 				instruction_str = "Select a location to place %s" % buddy_name
+			"place_lightningrod":
+				instruction_str = "Select a location to place the Lightning Rod"
 			"place_next_buddy":
 				var must_remove = decision_info.extra_info
 				var buddy_name = decision_info.source

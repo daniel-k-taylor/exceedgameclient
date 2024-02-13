@@ -8,7 +8,7 @@ var decks = []
 
 func get_deck_test_deck():
 	for deck in decks:
-		if deck['id'] == "millia":
+		if deck['id'] == "rachel":
 			return deck
 	return get_random_deck(-1)
 
@@ -314,6 +314,8 @@ func get_condition_text(effect, amount, amount2, detail):
 			text += "If you have more cards in hand than opponent, "
 		"opponent_at_edge_of_arena":
 			text += "If opponent at arena edge, "
+		"opponent_at_location":
+			text += "If opponent is at %s, " % detail
 		"opponent_at_max_range":
 			text += "If opponent at attack's max range, "
 		"opponent_between_buddy":
@@ -505,13 +507,17 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 			else:
 				effect_str += "Choose: " + get_choice_summary(effect['choice'], card_name_source)
 		"choose_discard":
-			var source = "discard"
-			if 'source' in effect:
-				source = effect['source']
-			if effect['limitation']:
-				effect_str += "Choose a %s card from %s to move to %s" % [effect['limitation'], source, effect['destination']]
+			var destination = effect['destination']
+			if destination == "lightningrod_any_space":
+				effect_str += "Choose a card from your discard pile to place as a Lightning Rod"
 			else:
-				effect_str += "Choose a card from %s to move to %s" % [source, effect['destination']]
+				var source = "discard"
+				if 'source' in effect:
+					source = effect['source']
+				if effect['limitation']:
+					effect_str += "Choose a %s card from %s to move to %s" % [effect['limitation'], source, destination]
+				else:
+					effect_str += "Choose a card from %s to move to %s" % [source, destination]
 		"choose_sustain_boost":
 			effect_str += "Choose a boost to sustain."
 		"close":
@@ -586,6 +592,20 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 				_:
 					where_str = "<MISSING DESTINATION STRING>"
 			effect_str += "Place %s %s%s." % [effect['buddy_name'], where_str, unoccupied_str]
+		"place_lightningrod":
+			var card_str = ""
+			match effect['source']:
+				"this_attack_card":
+					card_str = "this attack"
+				"top_discard":
+					card_str = "the top card of your discard pile"
+			var where_str = ""
+			match effect['limitation']:
+				"attack_range":
+					where_str = "in the attack's range"
+				"any":
+					where_str = "anywhere"
+			effect_str += "Place %s as a Lightning Rod %s" % [card_str, where_str]
 		"play_attack_from_hand":
 				effect_str += "Play an attack from your hand, paying its costs."
 		"calculate_range_from_buddy":
@@ -643,6 +663,8 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 			effect_str += "Ignore Push and Pull"
 		"increase_force_spent_before_strike":
 			effect_str += get_effect_text(effect['linked_effect'], false, false, false)
+		"lightningrod_strike":
+			effect_str += "Return %s to hand to deal 2 nonlethal damage" % effect['card_name']
 		"reset_character_positions":
 			effect_str += "Move both players to starting positions"
 		"remove_ignore_push_and_pull_passive_bonus":
@@ -855,18 +877,21 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 			else:
 				effect_str += "Draw from top of deck"
 		"set_strike_x":
-			effect_str += "Set X to "
-			match effect['source']:
-				'random_gauge_power':
-					effect_str += "power of random gauge card"
-				'top_discard_power':
-					effect_str += "power of top card of discards"
-				'opponent_speed':
-					effect_str += "opponent's speed"
-				'force_spent_before_strike':
-					effect_str += "force spent before strike"
-				_:
-					effect_str += "(UNKNOWN)"
+			if 'description' in effect:
+				effect_str += effect['description']
+			else:
+				effect_str += "Set X to "
+				match effect['source']:
+					'random_gauge_power':
+						effect_str += "power of random gauge card"
+					'top_discard_power':
+						effect_str += "power of top card of discards"
+					'opponent_speed':
+						effect_str += "opponent's speed"
+					'force_spent_before_strike':
+						effect_str += "force spent before strike"
+					_:
+						effect_str += "(UNKNOWN)"
 		"set_total_power":
 			effect_str += "Your total power is %s" % effect['amount']
 		"seal_attack_on_cleanup":

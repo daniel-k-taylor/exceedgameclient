@@ -14232,11 +14232,18 @@
 			{
 				"timing": "hit",
 				"effect_type": "set_strike_x",
+				"description": "+1 Power for each of your Lightning Rods in the opponent's space",
 				"source": "lightningsrods_in_opponent_space",
 				"and": {
 					"effect_type": "powerup",
 					"amount": "strike_x"
 				}
+			},
+			{
+				"timing": "after",
+				"effect_type": "move_to_any_space",
+				"move_min": 0,
+				"move_max": 2
 			}
 		],
 		"boost": {
@@ -14329,9 +14336,15 @@
 			},
 			{
 				"timing": "cleanup",
-				"effect_type": "place_lightningrod",
-				"source": "top_discard",
-				"limitation": "attack_range"
+				"effect_type": "choice",
+				"choice": [
+					{
+						"effect_type": "place_lightningrod",
+						"source": "top_discard",
+						"limitation": "attack_range"
+					},
+					{ "effect_type": "pass" }
+				]
 			}
 		],
 		"boost": {
@@ -14383,9 +14396,14 @@
 			"effects": [
 				{
 					"timing": "immediate",
-					"effect_type": "place_lightningrod",
-					"source": "choose_discard",
-					"limitation": "any"
+					"effect_type": "choose_discard",
+					"limitation": "",
+					"destination": "lightningrod_any_space",
+					"discard_effect": {
+						"effect_type": "place_lightningrod",
+						"source": "top_discard",
+						"limitation": "any"
+					}
 				}
 			]
 		}
@@ -14409,9 +14427,15 @@
 			},
 			{
 				"timing": "cleanup",
-				"effect_type": "place_lightningrod",
-				"source": "this_card",
-				"limitation": "attack_range"
+				"effect_type": "choice",
+				"choice": [
+					{
+						"effect_type": "place_lightningrod",
+						"source": "this_attack_card",
+						"limitation": "attack_range"
+					},
+					{ "effect_type": "pass" }
+				]
 			}
 		],
 		"boost": {

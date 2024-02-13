@@ -106,6 +106,7 @@ enum EventType {
 	EventType_MulliganDecision,
 	EventType_PickNumberFromRange,
 	EventType_PlaceBuddy,
+	EventType_PlaceLightningRod,
 	EventType_Prepare,
 	EventType_ReadingNormal,
 	EventType_ReshuffleDeck,
