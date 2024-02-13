@@ -4994,11 +4994,14 @@
 					"amount": 3,
 					"bonus_effect": {
 						"condition": "advanced_through",
-						"effect_type": "seal_this",
 						"and": {
 							"effect_type": "bonus_action"
 						}
 					}
+				},
+				{
+					"timing": "immediate",
+					"effect_type": "seal_this"
 				}
 			]
 		}
