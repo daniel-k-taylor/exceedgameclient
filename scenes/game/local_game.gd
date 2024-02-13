@@ -663,6 +663,7 @@ class Player:
 	var dan_draw_choice_from_bottom : bool
 	var boost_id_locations : Dictionary # [card_id : int, location : int]
 	var boost_buddy_card_id_to_buddy_id_map : Dictionary # [card_id : int, buddy_id : String]
+	var effect_on_turn_start
 
 	func _init(id, player_name, parent_ref, card_db_ref, chosen_deck, card_start_id):
 		my_id = id
@@ -762,6 +763,7 @@ class Player:
 		dan_draw_choice_from_bottom = false
 		boost_id_locations = {}
 		boost_buddy_card_id_to_buddy_id_map = {}
+		effect_on_turn_start = false
 
 		if "buddy_cards" in deck_def:
 			var buddy_index = 0
@@ -3141,6 +3143,18 @@ func continue_begin_turn():
 		change_game_state(Enums.GameState.GameState_PickAction)
 		events += [create_event(Enums.EventType.EventType_AdvanceTurn, active_turn_player, 0)]
 
+		# Check if the player has to do a forced action for their turn.
+		if starting_turn_player.effect_on_turn_start:
+			var effect = starting_turn_player.effect_on_turn_start
+			starting_turn_player.effect_on_turn_start = null
+			# Pretend this is a character action.
+			# Currently, this only does a choice which results in bonus action and boosting something.
+			# So execution will resume in do_choice as if this was a character action being processed.
+			active_character_action = true
+			set_player_action_processing_state()
+			events += do_effect_if_condition_met(starting_turn_player, -1, effect, null)
+			# This is not expected to do anything currently, but potentially does some future-proofing.
+			events = continue_player_action_resolution(events, starting_turn_player)
 	return events
 
 func initialize_new_strike(performing_player : Player, opponent_sets_first : bool):
@@ -4074,6 +4088,45 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 				decision_info.clear()
 				decision_info.type = Enums.DecisionType.DecisionType_StrikeNow
 				decision_info.player = performing_player.my_id
+		"boost_as_overdrive":
+			# This effect will occur after all start of turn stuff is done.
+			# This will be carried out as a special forced character action that
+			# automatically happens at that time.
+			performing_player.effect_on_turn_start = {
+				"effect_type": "choice",
+				"choice": [
+					{
+						"effect_type": "boost_as_overdrive_internal",
+						"limitation": effect['limitation'],
+						"valid_zones": effect['valid_zones'],
+					},
+					{
+						"effect_type": "pass",
+						"suppress_and_description": true,
+						"and": {
+							"effect_type": "take_bonus_actions",
+							"amount": 1
+						}
+					}
+				]
+			}
+		"boost_as_overdrive_internal":
+			# All overdrive/start of turn stuff is done and the player chose to boost.
+			# They may not have a continuous boost, but
+			# they need the bonus action regardless as this is in a weird forced character action timing.
+			var valid_zones = effect['valid_zones']
+			var limitation = effect['limitation']
+			performing_player.bonus_actions = 1
+			if performing_player.can_boost_something(valid_zones, effect['limitation']):
+				events += [create_event(Enums.EventType.EventType_ForceStartBoost, performing_player.my_id, 0, "", valid_zones, limitation)]
+				change_game_state(Enums.GameState.GameState_PlayerDecision)
+				decision_info.clear()
+				decision_info.type = Enums.DecisionType.DecisionType_BoostNow
+				decision_info.player = performing_player.my_id
+				decision_info.valid_zones = valid_zones
+				decision_info.limitation = limitation
+			else:
+				_append_log_full(Enums.LogType.LogType_Effect, performing_player, "has no cards available to boost for the overdrive effect.")
 		"buddy_immune_to_flip":
 			performing_player.strike_stat_boosts.buddy_immune_to_flip = true
 		"cannot_go_below_life":

@@ -495,6 +495,8 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 			if 'limitation' in effect and effect['limitation'] == "continuous":
 				limitation_str = "continuous boost(s)"
 			effect_str += "Play and sustain the top %s %s from your discard pile" % [effect['amount'], limitation_str]
+		"boost_as_overdrive_internal":
+			effect_str += "Overdrive Effect: Play a continuous boost from hand."
 		"cannot_go_below_life":
 			effect_str += "Life cannot go below %s" % effect['amount']
 		"cannot_stun":

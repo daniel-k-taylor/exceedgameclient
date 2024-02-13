@@ -25,7 +25,7 @@ In progress:
             ☐ After effect - lightningrod_strike @started(24-02-13 01:36)
 
         Overdrive:
-            ☐ { "effect_type": "boost_play_now" }, - maybe rework? she needs to boost and get another action?
+            ☐ boost_as_overdrive nonsense @started(24-02-13 02:20)
 
 
 
@@ -78,6 +78,7 @@ Tasks:
         ☐ Relevant for Bang too
     ☐ Add combat log preferences to saved data
     ☐ Polar exceed optional
+    ☐ If character action can be done with cards selected, show it in action menu
 
 Bugs:
 

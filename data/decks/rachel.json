@@ -39,11 +39,9 @@
 		"Impish Gypsophila"
 	],
 	"overdrive_effect": {
-		"effect_type": "choice",
-		"choice": [
-			{ "effect_type": "boost_play_now" },
-			{ "effect_type": "pass" }
-		]
+		"effect_type": "boost_as_overdrive",
+		"limitation": "continuous",
+		"valid_zones": [ "hand"]
 	},
 	"character_action_default": [
 		{
