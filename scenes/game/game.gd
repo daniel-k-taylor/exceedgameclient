@@ -2205,7 +2205,9 @@ func _on_reshuffle_discard(event):
 	return SmallNoticeDelay
 
 func _on_shuffle_deck(event):
-	update_eyes_on_hand_icons()
+	var player = event['event_player']
+	if player == Enums.PlayerId.PlayerId_Player:
+		update_eyes_on_hand_icons()
 
 func _on_reshuffle_discard_in_place(event):
 	var player = event['event_player']
