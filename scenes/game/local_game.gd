@@ -7362,7 +7362,8 @@ func ask_for_cost(performing_player, card, next_state):
 			else:
 				decision_info.type = Enums.DecisionType.DecisionType_PayStrikeCost_Required
 
-			if gauge_cost > 0:
+			var still_use_gauge = card.definition['gauge_cost'] > 0 and not performing_player.strike_stat_boosts.may_generate_gauge_with_force
+			if gauge_cost > 0 or still_use_gauge:
 				decision_info.limitation = "gauge"
 				decision_info.cost = gauge_cost
 				events += [create_event(Enums.EventType.EventType_Strike_PayCost_Gauge, performing_player.my_id, card.id, "", gauge_discard_reminder)]
@@ -7370,6 +7371,8 @@ func ask_for_cost(performing_player, card, next_state):
 				decision_info.limitation = "force"
 				decision_info.cost = force_cost
 				events += [create_event(Enums.EventType.EventType_Strike_PayCost_Force, performing_player.my_id, card.id)]
+			else:
+				assert(false, "ERROR: Expected card to have a force to pay")
 			_append_log_full(Enums.LogType.LogType_Strike, performing_player, "is selecting cards to pay the %s cost." % decision_info.limitation)
 		else:
 			# Failed to pay the cost by default.
