@@ -409,7 +409,6 @@ class Boost:
 	var playing_player : Player
 	var card : GameCard
 	var effects_resolved = 0
-	var handled_boost_placement = false
 	var action_after_boost = false
 	var strike_after_boost = false
 	var strike_after_boost_opponent_first = false
@@ -644,7 +643,6 @@ class Player:
 	var buddy_starting_id : String
 	var buddy_locations : Array[int]
 	var buddy_id_to_index : Dictionary
-	var card_to_linked_buddy_id : Dictionary
 	var do_not_cleanup_buddy_this_turn : bool
 	var cannot_move : bool
 	var cannot_move_past_opponent : bool
@@ -689,7 +687,6 @@ class Player:
 		strike_stat_boosts = StrikeStatBoosts.new()
 		set_aside_cards = []
 		sealed = []
-		card_to_linked_buddy_id = {}
 		for deck_card_def in deck_def['cards']:
 			var card_def = CardDefinitions.get_card(deck_card_def['definition_id'])
 			var card = GameCard.new(card_start_id, card_def, deck_card_def['image'], id)
@@ -703,10 +700,6 @@ class Player:
 				parent.event_queue += [parent.create_event(Enums.EventType.EventType_Seal, my_id, card.id, "", false)]
 			else:
 				deck.append(card)
-			if 'linked_buddy' in deck_card_def:
-				card_to_linked_buddy_id[card.id] = deck_card_def['linked_buddy']
-				card.definition = card.definition.duplicate(true)
-				_update_linked_buddy_ids(card.definition, deck_card_def['linked_buddy'])
 			deck_list.append(card)
 			card_start_id += 1
 		gauge = []
@@ -805,20 +798,6 @@ class Player:
 
 		if 'guile_change_cards_bonus' in deck_def:
 			guile_change_cards_bonus = deck_def['guile_change_cards_bonus']
-
-	func _update_linked_buddy_ids(def_object, linked_id):
-		if def_object is Dictionary:
-			for key in def_object.keys():
-				if def_object[key] is Dictionary or def_object[key] is Array:
-					_update_linked_buddy_ids(def_object[key], linked_id)
-				elif str(def_object[key]) == "_linked_buddy_id":
-					def_object[key] = linked_id
-		elif def_object is Array:
-			for i in range(len(def_object)):
-				if def_object[i] is Dictionary or def_object[i] is Array:
-					_update_linked_buddy_ids(def_object[i], linked_id)
-				elif str(def_object[i]) == "_linked_buddy_id":
-					def_object[i] = linked_id
 
 	func initial_shuffle():
 		if ShuffleEnabled:
@@ -2713,9 +2692,6 @@ class Player:
 		var events = []
 		disable_boost_effects(card)
 
-		# Remove it from boost locations if it is in the arena.
-		events += remove_boost_in_location(card.id)
-
 		# Do any discarded effects
 		events += do_discarded_effects_for_boost(card)
 
@@ -2802,16 +2778,9 @@ class Player:
 				var owner_player = parent._get_player(card.owner_id)
 				events += parent.handle_strike_effect(card.id, effect, owner_player)
 
-		# Also remove linked buddy
-		if parent.is_boost_card_linked_to_buddy(card):
-			if card.owner_id == my_id:
-				var buddy_id = card_to_linked_buddy_id[card.id]
-				var remove_effect = {
-					"effect_type": "remove_buddy",
-					"buddy_id": buddy_id,
-					"buddy_name": get_buddy_name(buddy_id)
-				}
-				events += parent.handle_strike_effect(card.id, remove_effect, self)
+		# Remove it from boost locations if it is in the arena.
+		events += remove_boost_in_location(card.id)
+
 		return events
 
 	func cleanup_continuous_boosts():
@@ -3633,6 +3602,9 @@ func is_effect_condition_met(performing_player : Player, effect, local_condition
 			if not performing_player.is_buddy_in_play(buddy_id):
 				return false
 			return other_player.is_in_location(performing_player.get_buddy_location(buddy_id))
+		elif condition == "opponent_in_boost_space":
+			var this_boost_location = performing_player.get_boost_location(effect['card_id'])
+			return other_player.is_in_location(this_boost_location)
 		elif condition == "buddy_between_attack_source":
 			var buddy_id = ""
 			if 'condition_buddy_id' in effect:
@@ -3662,6 +3634,15 @@ func is_effect_condition_met(performing_player : Player, effect, local_condition
 				return buddy_pos > pos1 and buddy_pos < pos2
 			else: # opponent is on the left
 				return buddy_pos > pos2 and buddy_pos < pos1
+		elif condition == "boost_space_between_opponent":
+			var pos1 = performing_player.get_closest_occupied_space_to(other_player.arena_location)
+			var pos2 = other_player.get_closest_occupied_space_to(performing_player.arena_location)
+
+			var this_boost_location = performing_player.get_boost_location(effect['card_id'])
+			if pos1 < pos2: # opponent is on the right
+				return this_boost_location > pos1 and this_boost_location < pos2
+			else: # opponent is on the left
+				return this_boost_location > pos2 and this_boost_location < pos1
 		elif condition == "opponent_between_buddy":
 			var include_buddy_space = 'include_buddy_space' in effect and effect['include_buddy_space']
 			if 'condition_buddy_id' in effect:
@@ -5181,14 +5162,13 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 				else:
 					_append_log_full(Enums.LogType.LogType_CardInfo, opposing_player, "discards random card(s): %s." % discarded_names)
 					events += opposing_player.discard(discard_ids)
-		"opponent_in_boost_space":
-			var this_boost_location = performing_player.get_boost_location(card_id)
-			return opposing_player.is_in_location(this_boost_location)
 		"pass":
 			# Do nothing.
 			pass
 		"place_boost_in_space":
-			# Currently assumes any space is valid.
+			# TODO
+			var in_attack_range = 'in_attack_range' in effect and effect['in_attack_range']
+
 			change_game_state(Enums.GameState.GameState_PlayerDecision)
 			decision_info.clear()
 			decision_info.type = Enums.DecisionType.DecisionType_ChooseArenaLocationForEffect
@@ -5202,7 +5182,15 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 			var and_effect = null
 			if 'and' in effect:
 				and_effect = effect['and']
+			if 'optional' in effect and effect['optional']:
+				decision_info.limitation.append(0)
+				decision_info.choice.append({
+					"effect_type": "pass"
+				})
 			for i in range(MinArenaLocation, MaxArenaLocation + 1):
+				if in_attack_range and not is_location_in_range(performing_player, active_strike.get_player_card(performing_player), i):
+					continue
+
 				decision_info.limitation.append(i)
 				decision_info.choice.append({
 					"effect_type": "place_boost_in_space_internal",
@@ -7929,9 +7917,6 @@ func begin_resolve_boost(performing_player : Player, card_id : int):
 	events = continue_resolve_boost(events)
 	return events
 
-func is_boost_card_linked_to_buddy(card):
-	return 'link_boost_to_buddy' in card.definition['boost'] and card.definition['boost']['link_boost_to_buddy']
-
 func continue_resolve_boost(events):
 	if game_state == Enums.GameState.GameState_WaitForStrike or game_state == Enums.GameState.GameState_Strike_Opponent_Set_First:
 		active_boost.strike_after_boost = true
@@ -7946,19 +7931,6 @@ func continue_resolve_boost(events):
 			active_boost.strike_after_boost = true
 			if game_state == Enums.GameState.GameState_Strike_Opponent_Set_First:
 				active_boost.strike_after_boost_opponent_first = true
-
-		if not active_boost.handled_boost_placement and is_boost_card_linked_to_buddy(active_boost.card):
-			var buddy_id = active_boost.playing_player.card_to_linked_buddy_id[active_boost.card.id]
-			if not active_boost.playing_player.is_buddy_in_play(buddy_id):
-				var placement_effect = {
-					"effect_type": "place_buddy_in_any_space",
-					"buddy_id": buddy_id,
-					"buddy_name": active_boost.playing_player.get_buddy_name(buddy_id)
-				}
-				events += handle_strike_effect(active_boost.card.id, placement_effect, active_boost.playing_player)
-				if game_state == Enums.GameState.GameState_PlayerDecision:
-					break
-		active_boost.handled_boost_placement = true
 
 		if active_boost.effects_resolved < len(effects):
 			var effect = effects[active_boost.effects_resolved]
@@ -8921,8 +8893,7 @@ func continue_player_action_resolution(events, performing_player : Player):
 				# Intentional events = because events are passed in.
 				events = do_remaining_overdrive(events, performing_player)
 			elif active_boost:
-				if active_boost.handled_boost_placement:
-					active_boost.effects_resolved += 1
+				active_boost.effects_resolved += 1
 				# Intentional events = because events are passed in.
 				events = continue_resolve_boost(events)
 			elif active_strike:

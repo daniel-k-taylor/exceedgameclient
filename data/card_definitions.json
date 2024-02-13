@@ -4994,9 +4994,7 @@
 					"amount": 3,
 					"bonus_effect": {
 						"condition": "advanced_through",
-						"and": {
-							"effect_type": "bonus_action"
-						}
+						"effect_type": "bonus_action"
 					}
 				},
 				{
@@ -10766,14 +10764,14 @@
 		"power": 3,
 		"armor": 0,
 		"guard": 0,
+		"linked_buddy_id": "snowblossom",
 		"effects": [
 			{
 				"timing": "after",
-				"effect_type": "place_buddy_in_attack_range",
-				"buddy_id": "_linked_buddy_id",
-				"buddy_name": "Iceflower",
+				"effect_type": "place_boost_in_space",
+				"in_attack_range": true,
 				"optional": true,
-				"additional_effect": {
+				"and": {
 					"effect_type": "boost_this_then_sustain",
 					"sustain": false
 				}
@@ -10781,15 +10779,17 @@
 		],
 		"boost": {
 			"boost_type": "continuous",
-			"link_boost_to_buddy": true,
 			"force_cost": 0,
 			"cancel_cost": -1,
 			"display_name": "Iceflower",
 			"effects": [
 				{
+					"timing": "now",
+					"effect_type": "place_boost_in_space"
+				},
+				{
 					"timing": "when_hit",
-					"condition": "buddy_between_opponent",
-					"condition_buddy_id": "_linked_buddy_id",
+					"condition": "boost_space_between_opponent",
 					"condition_detail": "Iceflower",
 					"effect_type": "armorup",
 					"amount": 2,

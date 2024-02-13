@@ -310,6 +310,8 @@ func get_condition_text(effect, amount, amount2, detail):
 			text += "If %s is between you and attack source, " % detail
 		"buddy_between_opponent":
 			text += "If %s is between you and opponent, " % detail
+		"boost_space_between_opponent":
+			text += "If %s is between you and opponent, " % detail
 		"more_cards_than_opponent":
 			text += "If you have more cards in hand than opponent, "
 		"opponent_at_edge_of_arena":

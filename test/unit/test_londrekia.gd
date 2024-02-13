@@ -10,6 +10,7 @@ const TestCardId2 = 50002
 const TestCardId3 = 50003
 const TestCardId4 = 50004
 const TestCardId5 = 50005
+const TestCardId6 = 50006
 
 var player1 : LocalGame.Player
 var player2 : LocalGame.Player
@@ -144,21 +145,16 @@ func handle_simultaneous_effects(initiator, defender, simul_effect_choices : Arr
 
 func execute_strike(initiator, defender, init_card : String, def_card : String, init_choices, def_choices, init_ex = false, def_ex = false, init_force_discard = [], def_force_discard = [], init_extra_cost = 0, simul_effect_choices = []):
 	var all_events = []
-	var p1_already_played = false
-	if init_card == "_already_played":
-		p1_already_played = true
-		init_card = ""
 	give_specific_cards(initiator, init_card, defender, def_card)
 
-	if not p1_already_played:
-		if init_card:
-			if init_ex:
-				give_player_specific_card(initiator, init_card, TestCardId3)
-				do_and_validate_strike(initiator, TestCardId1, TestCardId3)
-			else:
-				do_and_validate_strike(initiator, TestCardId1)
+	if init_card:
+		if init_ex:
+			give_player_specific_card(initiator, init_card, TestCardId3)
+			do_and_validate_strike(initiator, TestCardId1, TestCardId3)
 		else:
-			do_and_validate_strike(initiator, -1)
+			do_and_validate_strike(initiator, TestCardId1)
+	else:
+		do_and_validate_strike(initiator, -1)
 
 	if game_logic.game_state == Enums.GameState.GameState_PlayerDecision and game_logic.active_strike.strike_state == game_logic.StrikeState.StrikeState_Initiator_SetEffects:
 		game_logic.do_force_for_effect(initiator, init_force_discard, false)
@@ -342,151 +338,133 @@ func test_londrekia_frozen_spire_lost_bonus_armor():
 	validate_life(player1, 30, player2, 30)
 	advance_turn(player2)
 
-func _get_snow_blossom_in_hand(player, idx):
-	var snow_blossom_id = player.card_to_linked_buddy_id.keys()[idx]
-	for i in range(len(player.deck)):
-		var card = player.deck[i]
-		if card.id == snow_blossom_id:
-			player.deck.remove_at(i)
-			player.add_to_hand(card, false)
-			break
-	return snow_blossom_id
-
 func test_londrekia_iceflower_basic():
 	position_players(player1, 3, player2, 6)
-	var snow_blossom_id = _get_snow_blossom_in_hand(player1, 0)
-	var iceflower_buddy_id = player1.card_to_linked_buddy_id[snow_blossom_id]
+	give_player_specific_card(player1, "londrekia_snowblossom", TestCardId4)
 
-	assert_true(game_logic.do_boost(player1, snow_blossom_id, []))
+	assert_true(game_logic.do_boost(player1, TestCardId4, []))
 	assert_true(game_logic.do_choice(player1, 4))
+	var iceflower_buddy_id = player1.get_buddy_id_for_boost(TestCardId4)
 	assert_eq(player1.get_buddy_location(iceflower_buddy_id), 5)
-	assert_true(player1.is_card_in_continuous_boosts(snow_blossom_id))
+	assert_true(player1.is_card_in_continuous_boosts(TestCardId4))
 
 	execute_strike(player2, player1, "uni_normal_sweep", "uni_normal_spike", [], [], true, false)
 	validate_positions(player1, 3, player2, 6)
 	validate_life(player1, 25, player2, 25)
 	assert_false(player1.is_buddy_in_play(iceflower_buddy_id))
-	assert_true(player1.is_card_in_discards(snow_blossom_id))
+	assert_true(player1.is_card_in_discards(TestCardId4))
 	advance_turn(player1)
 
 func test_londrekia_iceflower_sustain_if_not_stunned():
 	position_players(player1, 3, player2, 6)
-	var snow_blossom_id = _get_snow_blossom_in_hand(player1, 1)
-	var iceflower_buddy_id = player1.card_to_linked_buddy_id[snow_blossom_id]
+	give_player_specific_card(player1, "londrekia_snowblossom", TestCardId3)
 
-	assert_true(game_logic.do_boost(player1, snow_blossom_id, []))
+	assert_true(game_logic.do_boost(player1, TestCardId3, []))
 	assert_true(game_logic.do_choice(player1, 8))
+	var iceflower_buddy_id = player1.get_buddy_id_for_boost(TestCardId3)
 	assert_eq(player1.get_buddy_location(iceflower_buddy_id), 9)
-	assert_true(player1.is_card_in_continuous_boosts(snow_blossom_id))
+	assert_true(player1.is_card_in_continuous_boosts(TestCardId3))
 	advance_turn(player2)
 
 	execute_strike(player1, player2, "uni_normal_sweep", "uni_normal_assault", [], [], false, false)
 	validate_positions(player1, 3, player2, 4)
 	validate_life(player1, 26, player2, 24)
 	assert_eq(player1.get_buddy_location(iceflower_buddy_id), 9)
-	assert_true(player1.is_card_in_continuous_boosts(snow_blossom_id))
+	assert_true(player1.is_card_in_continuous_boosts(TestCardId3))
 	advance_turn(player2)
 
 func test_londrekia_iceflower_not_sustained_if_stunned():
 	position_players(player1, 3, player2, 6)
-	var snow_blossom_id = _get_snow_blossom_in_hand(player1, 0)
-	var iceflower_buddy_id = player1.card_to_linked_buddy_id[snow_blossom_id]
+	give_player_specific_card(player1, "londrekia_snowblossom", TestCardId3)
 
-	assert_true(game_logic.do_boost(player1, snow_blossom_id, []))
+	assert_true(game_logic.do_boost(player1, TestCardId3, []))
 	assert_true(game_logic.do_choice(player1, 8))
+	var iceflower_buddy_id = player1.get_buddy_id_for_boost(TestCardId3)
 	assert_eq(player1.get_buddy_location(iceflower_buddy_id), 9)
-	assert_true(player1.is_card_in_continuous_boosts(snow_blossom_id))
+	assert_true(player1.is_card_in_continuous_boosts(TestCardId3))
 	advance_turn(player2)
 
 	execute_strike(player1, player2, "uni_normal_assault", "uni_normal_sweep", [], [], false, false)
 	validate_positions(player1, 5, player2, 6)
 	validate_life(player1, 24, player2, 26)
 	assert_false(player1.is_buddy_in_play(iceflower_buddy_id))
-	assert_true(player1.is_card_in_discards(snow_blossom_id))
+	assert_true(player1.is_card_in_discards(TestCardId3))
 	advance_turn(player1)
 
 func test_londrekia_snow_blossom_not_boosted():
 	position_players(player1, 3, player2, 6)
-	var snow_blossom_id = _get_snow_blossom_in_hand(player1, 0)
-	var iceflower_buddy_id = player1.card_to_linked_buddy_id[snow_blossom_id]
 
-	assert_true(game_logic.do_strike(player1, snow_blossom_id, false, -1))
-	execute_strike(player1, player2, "_already_played", "uni_normal_grasp", [0], [], false, false)
+	execute_strike(player1, player2, "londrekia_snowblossom", "uni_normal_grasp", [0], [], false, false)
 	validate_positions(player1, 3, player2, 6)
 	validate_life(player1, 30, player2, 27)
-	assert_false(player1.is_buddy_in_play(iceflower_buddy_id))
-	assert_true(player1.is_card_in_gauge(snow_blossom_id))
+	assert_false(player1.is_buddy_in_play("snowblossom1"))
+	assert_false(player1.is_buddy_in_play("snowblossom2"))
+	assert_true(player1.is_card_in_gauge(TestCardId1))
 	advance_turn(player2)
 
 func test_londrekia_snow_blossom_boosted_and_sustained():
 	position_players(player1, 3, player2, 6)
-	var snow_blossom_id = _get_snow_blossom_in_hand(player1, 0)
-	var iceflower_buddy_id = player1.card_to_linked_buddy_id[snow_blossom_id]
 
-	assert_true(game_logic.do_strike(player1, snow_blossom_id, false, -1))
 	# placement options: [pass], 1, 5, 6, 7, 8
-	execute_strike(player1, player2, "_already_played", "uni_normal_grasp", [2], [], false, false)
+	execute_strike(player1, player2, "londrekia_snowblossom", "uni_normal_grasp", [2], [], false, false)
+	var iceflower_buddy_id = player1.get_buddy_id_for_boost(TestCardId1)
 	validate_positions(player1, 3, player2, 6)
 	validate_life(player1, 30, player2, 27)
 	assert_eq(player1.get_buddy_location(iceflower_buddy_id), 5)
-	assert_true(player1.is_card_in_continuous_boosts(snow_blossom_id))
+	assert_true(player1.is_card_in_continuous_boosts(TestCardId1))
 	advance_turn(player2)
 
 func test_londrekia_snow_blossom_boosted_but_stunned():
 	position_players(player1, 6, player2, 4)
-	var snow_blossom_id = _get_snow_blossom_in_hand(player1, 0)
-	var iceflower_buddy_id = player1.card_to_linked_buddy_id[snow_blossom_id]
 
-	assert_true(game_logic.do_strike(player1, snow_blossom_id, false, -1))
 	# placement options: [pass], 1, 2, 3, 4, 8, 9
-	execute_strike(player1, player2, "_already_played", "uni_normal_sweep", [4], [], false, false)
+	execute_strike(player1, player2, "londrekia_snowblossom", "uni_normal_sweep", [4], [], false, false)
+	var iceflower_buddy_id = player1.get_buddy_id_for_boost(TestCardId1)
 	validate_positions(player1, 6, player2, 4)
 	validate_life(player1, 24, player2, 27)
 	assert_false(player1.is_buddy_in_play(iceflower_buddy_id))
-	assert_true(player1.is_card_in_discards(snow_blossom_id))
+	assert_true(player1.is_card_in_discards(TestCardId1))
 	advance_turn(player2)
 
 func test_londrekia_snow_blossom_boosted_and_activated():
 	position_players(player1, 6, player2, 3)
-	var snow_blossom_id = _get_snow_blossom_in_hand(player1, 0)
-	var iceflower_buddy_id = player1.card_to_linked_buddy_id[snow_blossom_id]
 
-	assert_true(game_logic.do_strike(player1, snow_blossom_id, false, -1))
 	# placement options: [pass], 1, 2, 3, 4, 8, 9
-	execute_strike(player1, player2, "_already_played", "uni_normal_sweep", [4], [], false, false)
+	execute_strike(player1, player2, "londrekia_snowblossom", "uni_normal_sweep", [4], [], false, false)
+	var iceflower_buddy_id = player1.get_buddy_id_for_boost(TestCardId1)
 	validate_positions(player1, 6, player2, 3)
 	validate_life(player1, 26, player2, 27)
 	assert_false(player1.is_buddy_in_play(iceflower_buddy_id))
-	assert_true(player1.is_card_in_discards(snow_blossom_id))
+	assert_true(player1.is_card_in_discards(TestCardId1))
 	advance_turn(player2)
 
 func test_londrekia_iceflower_double():
 	position_players(player1, 4, player2, 7)
-	var snow_blossom_id_1 = _get_snow_blossom_in_hand(player1, 0)
-	var iceflower_buddy_id_1 = player1.card_to_linked_buddy_id[snow_blossom_id_1]
-	var snow_blossom_id_2 = _get_snow_blossom_in_hand(player1, 1)
-	var iceflower_buddy_id_2 = player1.card_to_linked_buddy_id[snow_blossom_id_2]
+	give_player_specific_card(player1, "londrekia_snowblossom", TestCardId5)
+	give_player_specific_card(player1, "londrekia_snowblossom", TestCardId6)
 
-	assert_true(game_logic.do_boost(player1, snow_blossom_id_1, []))
+	assert_true(game_logic.do_boost(player1, TestCardId5, []))
 	assert_true(game_logic.do_choice(player1, 4))
+	var iceflower_buddy_id_1 = player1.get_buddy_id_for_boost(TestCardId5)
 	assert_eq(player1.get_buddy_location(iceflower_buddy_id_1), 5)
-	assert_true(player1.is_card_in_continuous_boosts(snow_blossom_id_1))
+	assert_true(player1.is_card_in_continuous_boosts(TestCardId5))
 	advance_turn(player2)
 
-	assert_true(game_logic.do_boost(player1, snow_blossom_id_2, []))
+	assert_true(game_logic.do_boost(player1, TestCardId6, []))
 	assert_true(game_logic.do_choice(player1, 1))
+	var iceflower_buddy_id_2 = player1.get_buddy_id_for_boost(TestCardId6)
 	assert_eq(player1.get_buddy_location(iceflower_buddy_id_1), 5)
-	assert_true(player1.is_card_in_continuous_boosts(snow_blossom_id_1))
+	assert_true(player1.is_card_in_continuous_boosts(TestCardId5))
 	assert_eq(player1.get_buddy_location(iceflower_buddy_id_2), 2)
-	assert_true(player1.is_card_in_continuous_boosts(snow_blossom_id_2))
+	assert_true(player1.is_card_in_continuous_boosts(TestCardId6))
 
 	execute_strike(player2, player1, "uni_normal_sweep", "uni_normal_spike", [], [], true, false)
 	validate_positions(player1, 4, player2, 7)
 	validate_life(player1, 25, player2, 25)
 	assert_false(player1.is_buddy_in_play(iceflower_buddy_id_1))
-	assert_true(player1.is_card_in_discards(snow_blossom_id_1))
+	assert_true(player1.is_card_in_discards(TestCardId5))
 	assert_eq(player1.get_buddy_location(iceflower_buddy_id_2), 2)
-	assert_true(player1.is_card_in_continuous_boosts(snow_blossom_id_2))
+	assert_true(player1.is_card_in_continuous_boosts(TestCardId6))
 	advance_turn(player1)
 
 func test_londrekia_dare_glacial_no_gauge():

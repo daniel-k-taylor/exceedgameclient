@@ -197,13 +197,11 @@
 		},
 		{
 			"definition_id": "londrekia_snowblossom",
-			"image": "londrekia_snowblossom.tres",
-			"linked_buddy": "snowblossom1"
+			"image": "londrekia_snowblossom.tres"
 		},
 		{
 			"definition_id": "londrekia_snowblossom",
-			"image": "londrekia_snowblossom.tres",
-			"linked_buddy": "snowblossom2"
+			"image": "londrekia_snowblossom.tres"
 		},
 		{
 			"definition_id": "londrekia_frozenvine",
