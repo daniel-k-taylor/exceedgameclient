@@ -108,6 +108,7 @@ enum EventType {
 	EventType_PlaceBuddy,
 	EventType_Prepare,
 	EventType_ReadingNormal,
+	EventType_ReshuffleDeck,
 	EventType_ReshuffleDeck_Mulligan,
 	EventType_ReshuffleDiscard,
 	EventType_ReshuffleDiscardInPlace,

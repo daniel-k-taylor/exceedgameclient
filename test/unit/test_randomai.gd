@@ -380,6 +380,8 @@ func run_ai_game():
 			turn_events += handle_strike(game_logic, current_ai, other_ai, null, true)
 
 		handle_discard_event(turn_events, game_logic, current_ai, current_player)
+		if game_logic.active_end_of_turn_effects:
+			turn_events += handle_decisions(game_logic) #Handles end of turn
 
 		events += turn_events
 
@@ -585,3 +587,6 @@ func test_seth_100():
 
 func test_enkidu_100():
 	run_iterations_with_deck("enkidu")
+
+func test_dan_100():
+	run_iterations_with_deck("dan")

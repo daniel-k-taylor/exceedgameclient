@@ -698,7 +698,10 @@ func determine_choose_to_discard_options(game_logic, me : LocalGame.Player, to_d
 			elif card.definition['type'] != limitation:
 				continue
 		all_card_ids.append(card.id)
-	to_discard_count = min(to_discard_count, all_card_ids.size())
+	if to_discard_count == -1:
+		to_discard_count = all_card_ids.size()
+	else:
+		to_discard_count = min(to_discard_count, all_card_ids.size())
 	var combinations = []
 	if can_pass:
 		possible_actions.append(ChooseToDiscardAction.new([]))

@@ -340,7 +340,8 @@
 			"effects": [
 				{
 					"timing": "now",
-					"effect_type": "look_at_top_opponent_deck"
+					"effect_type": "reveal_topdeck",
+					"opponent": true
 				},
 				{
 					"timing": "hit",
@@ -3682,6 +3683,422 @@
 			]
 		},
 		"NOTEEND": "CHIPP CARDS END"
+	},
+
+
+	{
+		"NOTE": "DAN CARDS START",
+		"id": "dan_shissoburaiken",
+		"type": "ultra",
+		"display_name": "Shisso Buraiken",
+		"force_cost": 0,
+		"gauge_cost": 3,
+		"gauge_cost_reduction": "free_if_no_cards_in_hand",
+		"range_min": 1,
+		"range_max": 1,
+		"speed": 5,
+		"power": 7,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "before",
+				"effect_type": "close",
+				"amount": 2
+			},
+			{
+				"timing": "hit",
+				"effect_type": "gain_advantage"
+			}
+		],
+		"boost": {
+			"boost_type": "immediate",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Lucky!",
+			"effects": [
+				{
+					"timing": "immediate",
+					"effect_type": "topdeck_from_hand",
+					"min_amount": 1,
+					"max_amount": 1
+				},
+				{
+					"timing": "immediate",
+					"effect_type": "choice",
+					"choice": [
+						{ "effect_type": "skip_end_of_turn_draw" },
+						{ "effect_type": "pass" }
+					]
+				}
+			]
+		}
+	},
+	{
+		"id": "dan_haohgadouken",
+		"type": "ultra",
+		"display_name": "Haoh Gadouken",
+		"force_cost": 0,
+		"gauge_cost": 3,
+		"gauge_cost_reduction": "free_if_no_cards_in_hand",
+		"range_min": 1,
+		"range_max": 4,
+		"speed": 1,
+		"power": 7,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "during_strike",
+				"effect_type": "dodge_at_range",
+				"range_min": 2,
+				"range_max": 5
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Saikyo Power",
+			"effects": [
+				{
+					"timing": "hit",
+					"condition": "max_cards_in_hand",
+					"condition_amount": 0,
+					"effect_type": "powerup",
+					"amount": 4
+				}
+			]
+		}
+	},
+	{
+		"id": "dan_legendarytaunt",
+		"type": "ultra",
+		"display_name": "Legendary Taunt",
+		"force_cost": 0,
+		"gauge_cost": 2,
+		"range_min": -1,
+		"range_max": -1,
+		"speed": 4,
+		"power": 0,
+		"armor": 1,
+		"guard": 5,
+		"effects": [
+			{
+				"timing": "before",
+				"effect_type": "choice",
+				"choice": [
+					{ "effect_type": "advance", "amount": 1, "suppress_and_description": true, "and": { "effect_type": "choice", "choice": [
+						{ "effect_type": "draw", "amount": 1, "and": { "effect_type": "play_attack_from_hand" } },
+						{ "effect_type": "play_attack_from_hand" }
+					] } },
+					{ "effect_type": "advance", "amount": 2, "suppress_and_description": true, "and": { "effect_type": "choice", "choice": [
+						{ "effect_type": "draw", "amount": 1, "and": { "effect_type": "play_attack_from_hand" } },
+						{ "effect_type": "play_attack_from_hand" }
+					] } },
+					{ "effect_type": "advance", "amount": 3, "suppress_and_description": true, "and": { "effect_type": "choice", "choice": [
+						{ "effect_type": "draw", "amount": 1, "and": { "effect_type": "play_attack_from_hand" } },
+						{ "effect_type": "play_attack_from_hand" }
+					] } },
+					{ "effect_type": "pass", "suppress_and_description": true, "and": { "effect_type": "choice", "choice": [
+						{ "effect_type": "draw", "amount": 1, "and": { "effect_type": "play_attack_from_hand" } },
+						{ "effect_type": "play_attack_from_hand" }
+					] } }
+				]
+			}
+		],
+		"boost": {
+			"boost_type": "immediate",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Secret Technique",
+			"effects": [
+				{
+					"timing": "immediate",
+					"effect_type": "choose_cards_from_top_deck",
+					"look_amount": 30,
+					"action_choices": [
+						"add_to_hand"
+					],
+					"can_pass": false,
+					"destination_unchosen": "topdeck"
+				},
+				{
+					"timing": "immediate",
+					"effect_type": "shuffle_deck"
+				},
+				{
+					"timing": "immediate",
+					"effect_type": "discard_to",
+					"amount": 1
+				},
+				{
+					"timing": "immediate",
+					"effect_type": "choice",
+					"choice": [
+						{ "effect_type": "skip_end_of_turn_draw" },
+						{ "effect_type": "pass" }
+					]
+				}
+			]
+		}
+	},
+	{
+		"id": "dan_dankukyaku",
+		"type": "special",
+		"display_name": "Dankukyaku",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 2,
+		"speed": 6,
+		"power": 3,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "before",
+				"effect_type": "advance",
+				"amount": 3,
+				"bonus_effect": {
+					"condition": "advanced_through",
+					"effect_type": "attack_does_not_hit"
+				}
+			},
+			{
+				"timing": "after",
+				"effect_type": "topdeck_from_hand",
+				"min_amount": 1,
+				"max_amount": 1
+			}
+		],
+		"boost": {
+			"boost_type": "immediate",
+			"force_cost": 1,
+			"cancel_cost": -1,
+			"display_name": "Saikyo Leap",
+			"effects": [
+				{
+					"timing": "immediate",
+					"effect_type": "choice",
+					"choice": [
+						{ "effect_type": "advance", "amount": 3 },
+						{ "effect_type": "retreat", "amount": 3 }
+					]
+				},
+				{
+					"timing": "immediate",
+					"effect_type": "gauge_from_hand",
+					"min_amount": 1,
+					"max_amount": 1
+				}
+			]
+		}
+	},
+	{
+		"id": "dan_gadouken",
+		"type": "special",
+		"display_name": "Gadouken",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 4,
+		"speed": 4,
+		"power": 4,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "after",
+				"condition": "hit_opponent",
+				"effect_type": "choice",
+				"choice": [
+					{
+						"effect_type": "return_attack_to_top_of_deck",
+						"and": {
+							"effect_type": "gauge_from_hand",
+							"min_amount": 1,
+							"max_amount": 1
+						}
+					},
+					{ "effect_type": "pass" }
+				]
+			}
+		],
+		"boost": {
+			"boost_type": "immediate",
+			"force_cost": 1,
+			"cancel_cost": -1,
+			"display_name": "Saikyo Vision",
+			"effects": [
+				{
+					"timing": "immediate",
+					"effect_type": "reveal_hand",
+					"opponent": true
+				},
+				{
+					"timing": "immediate",
+					"effect_type": "self_discard_choose",
+					"amount": -1
+				},
+				{
+					"timing": "immediate",
+					"effect_type": "strike"
+				}
+			]
+		}
+	},
+	{
+		"id": "dan_koryuken",
+		"type": "special",
+		"display_name": "Koryuken",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 2,
+		"speed": 6,
+		"power": 0,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "hit",
+				"condition": "deck_not_empty",
+				"effect_type": "discard_topdeck",
+				"and": {
+					"effect_type": "set_strike_x",
+					"source": "top_discard_power",
+					"and": {
+						"effect_type": "powerup",
+						"amount": "strike_x"
+					}
+				}
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Saikyo Glory",
+			"effects": [
+				{
+					"timing": "set_strike",
+					"effect_type": "critical",
+					"character_effect": true
+				},
+				{
+					"timing": "cleanup",
+					"condition": "not_stunned",
+					"effect_type": "choice",
+					"choice": [
+						{
+							"effect_type": "sustain_this",
+							"card_name": "Koryuken"
+						},
+						{ "effect_type": "pass" }
+					]
+				}
+			]
+		}
+	},
+	{
+		"NOTE": "DAN CARDS END",
+		"id": "dan_saikyoharaigoshi",
+		"type": "special",
+		"display_name": "Saikyo Haraigoshi",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 1,
+		"speed": 7,
+		"power": 2,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "hit",
+				"effect_type": "choice",
+				"special_choice_name": "Discard up to 3 cards, Pull 1 and +1 Power for each.",
+				"choice": [
+					{
+						"condition": "min_cards_in_hand",
+						"condition_amount": 1,
+						"effect_type": "discard_random",
+						"amount": 1,
+						"suppress_and_description": true,
+						"and": {
+							"effect_type": "powerup",
+							"amount": 1,
+							"and": {
+								"effect_type": "pull",
+								"amount": 1
+							}
+						}
+					},
+					{
+						"condition": "min_cards_in_hand",
+						"condition_amount": 2,
+						"effect_type": "discard_random",
+						"amount": 2,
+						"suppress_and_description": true,
+						"and": {
+							"effect_type": "powerup",
+							"amount": 2,
+							"and": {
+								"effect_type": "pull",
+								"amount": 1,
+								"and": {
+									"effect_type": "pull",
+									"amount": 1
+								}
+							}
+						}
+					},
+					{
+						"condition": "min_cards_in_hand",
+						"condition_amount": 3,
+						"effect_type": "discard_random",
+						"amount": 3,
+						"suppress_and_description": true,
+						"and": {
+							"effect_type": "powerup",
+							"amount": 3,
+							"and": {
+								"effect_type": "pull",
+								"amount": 1,
+								"and": {
+									"effect_type": "pull",
+									"amount": 1,
+									"and": {
+										"effect_type": "pull",
+										"amount": 1
+									}
+								}
+							}
+						}
+					},
+					{ "effect_type": "pass" }
+				]
+			}
+		],
+		"boost": {
+			"boost_type": "immediate",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Peek",
+			"effects": [
+				{
+					"timing": "immediate",
+					"effect_type": "choice",
+					"add_topdeck_card_name_to_choices": [1],
+					"choice": [
+						{ "effect_type": "strike" },
+						{ "effect_type": "add_top_deck_to_gauge" }
+					]
+				}
+			]
+		},
+		"NOTEEND": "DAN CARDS END"
 	},
 
 
@@ -19339,7 +19756,8 @@
 				},
 				{
 					"timing": "now",
-					"effect_type": "look_at_top_opponent_deck",
+					"effect_type": "reveal_topdeck",
+					"opponent": true,
 					"and": {
 						"effect_type": "choice",
 						"choice": [

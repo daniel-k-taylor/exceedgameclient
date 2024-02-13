@@ -428,6 +428,35 @@ func test_enkidu_immovable_object_double_sustain():
 	assert_true(player1.is_card_in_discards(TestCardId3))
 	advance_turn(player1)
 
+func test_enkidu_immovable_object_gone_after_discard():
+	position_players(player1, 5, player2, 6)
+	give_player_specific_card(player1, "enkidu_spiraldualpalmstrike", TestCardId3)
+	assert_true(game_logic.do_boost(player1, TestCardId3, []))
+
+	execute_strike(player2, player1, "uni_normal_grasp", "uni_normal_sweep", [1], [], false, false)
+	validate_positions(player1, 5, player2, 6)
+	validate_life(player1, 28, player2, 24)
+	assert_true(player1.is_card_in_discards(TestCardId3))
+
+	execute_strike(player1, player2, "uni_normal_sweep", "uni_normal_grasp", [], [1], false, false)
+	validate_positions(player1, 3, player2, 6)
+	validate_life(player1, 25, player2, 18)
+	advance_turn(player2)
+
+func test_enkidu_immovable_object_gone_after_tech():
+	position_players(player1, 5, player2, 6)
+	give_player_specific_card(player1, "enkidu_spiraldualpalmstrike", TestCardId3)
+	give_player_specific_card(player2, "uni_normal_block", TestCardId4)
+	assert_true(game_logic.do_boost(player1, TestCardId3, []))
+
+	assert_true(game_logic.do_boost(player2, TestCardId4, []))
+	assert_true(game_logic.do_boost_name_card_choice_effect(player2, TestCardId3))
+	execute_strike(player2, player1, "uni_normal_grasp", "uni_normal_sweep", [1], [], false, false)
+	validate_positions(player1, 3, player2, 6)
+	validate_life(player1, 27, player2, 24)
+	assert_true(player1.is_card_in_discards(TestCardId3))
+	advance_turn(player1)
+
 func test_enkidu_demon_seal_full_cost():
 	position_players(player1, 4, player2, 6)
 	for card_id in [TestCardId3, TestCardId4, TestCardId5, TestCardId6, TestCardId7, TestCardId8]:

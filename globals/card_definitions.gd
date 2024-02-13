@@ -255,6 +255,11 @@ func get_condition_text(effect, amount, amount2, detail):
 			text += "If you have at least %s card(s) in discard, " % amount
 		"min_cards_in_hand":
 			text += "If you have at least %s card(s) in hand, " % amount
+		"max_cards_in_hand":
+			var amount_str = "%s or fewer" % amount
+			if amount == 0:
+				amount_str = "no"
+			text += "If you have %s card(s) in hand, " % amount_str
 		"min_cards_in_gauge":
 			text += "If you have at least %s card(s) in gauge, " % amount
 		"no_strike_caused":
@@ -285,6 +290,8 @@ func get_condition_text(effect, amount, amount2, detail):
 			text += ""
 		"is_normal_attack":
 			text += "If you strike with a normal, "
+		"deck_not_empty":
+			text += ""
 		"top_deck_is_normal_attack":
 			text += "If the top card of your deck is a normal, "
 		"is_buddy_special_or_ultra_attack":
@@ -406,7 +413,10 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 		"add_to_gauge_immediately_mid_strike_undo_effects":
 			effect_str += "Add card to gauge (and cancel its effects)."
 		"add_top_deck_to_gauge":
-			effect_str += "Add top card of deck to gauge"
+			var topdeck_card = ""
+			if 'card_name' in effect:
+				topdeck_card = "(%s) " % effect['card_name']
+			effect_str += "Add top card of deck %sto gauge" % topdeck_card
 		"add_top_discard_to_gauge":
 			effect_str += "Add top card of discard pile to gauge"
 		"add_top_discard_to_overdrive":
@@ -533,6 +543,8 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 				effect_str += "Discard %s from the top of your deck" % effect['card_name']
 			else:
 				effect_str += "Discard a card from the top of your deck"
+		"discard_random":
+			effect_str += "Discard %s at random from your hand " % effect['amount']
 		"discard_random_and_add_triggers":
 			effect_str += "Discard a random card; add before/hit/after triggers to attack"
 		"dodge_at_range":
@@ -583,12 +595,15 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 		"draw":
 			var amount = effect['amount']
 			var amount_str = str(amount)
+			var bottom_str = ""
 			if amount is String and amount == "strike_x":
 				amount_str = "X"
+			if 'from_bottom' in effect:
+				bottom_str = " from bottom of deck"
 			if 'opponent' in effect and effect['opponent']:
-				effect_str += "Opponent Draw " + amount_str
+				effect_str += "Opponent Draw " + amount_str + bottom_str
 			else:
-				effect_str += "Draw " + amount_str
+				effect_str += "Draw " + amount_str + bottom_str
 		"draw_any_number":
 			effect_str += "Draw any number of cards."
 		"draw_to":
@@ -830,8 +845,15 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 			effect_str += "Initiate face-up"
 		"save_power":
 			effect_str += "Your printed power becomes its Power"
+		"skip_end_of_turn_draw":
+			effect_str += "Skip your end of turn draw"
 		"use_saved_power_as_printed_power":
 			effect_str += "Your printed power is the revealed card's power"
+		"set_dan_draw_choice_INTERNAL":
+			if effect['from_bottom']:
+				effect_str += "Draw from bottom of deck"
+			else:
+				effect_str += "Draw from top of deck"
 		"set_strike_x":
 			effect_str += "Set X to "
 			match effect['source']:
