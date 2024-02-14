@@ -738,11 +738,11 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 		"pull":
 			effect_str += "Pull " + str(effect['amount'])
 		"pull_any_number_of_spaces_and_gain_power":
-			effect_str += "Pull any amount and gain Power per space pulled."
+			effect_str += "Pull any amount and +1 Power per space pulled."
 		"pull_to_buddy":
 			effect_str += "Pull %s to %s" % [str(effect['amount']), effect['buddy_name']]
 		"pull_to_space_and_gain_power":
-			effect_str += "Pull to space " + str(effect['amount']) + " and gain Power per space pulled."
+			effect_str += "Pull to space " + str(effect['amount']) + " and +1 Power per space pulled."
 		"push":
 			var extra_info = ""
 			if 'save_buddy_spaces_entered_as_strike_x' in effect and effect['save_buddy_spaces_entered_as_strike_x']:

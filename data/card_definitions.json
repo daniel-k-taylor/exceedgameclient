@@ -2796,13 +2796,11 @@
 				"timing": "during_strike",
 				"condition": "is_critical",
 				"effect_type": "armorup",
-				"amount": 1
-			},
-			{
-				"timing": "during_strike",
-				"condition": "is_critical",
-				"effect_type": "guardup",
-				"amount": 4
+				"amount": 1,
+				"and": {
+					"effect_type": "guardup",
+					"amount": 4
+				}
 			},
 			{
 				"timing": "before",

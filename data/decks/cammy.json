@@ -17,7 +17,7 @@
 		},
 		{
 			"timing": "set_strike",
-            "effect_type": "range_includes_if_moved_past"
+			"effect_type": "range_includes_if_moved_past"
 		}
 	],
 	"exceed_ability_effects": [
@@ -33,17 +33,17 @@
 		},
 		{
 			"timing": "set_strike",
-            "effect_type": "range_includes_if_moved_past"
+			"effect_type": "range_includes_if_moved_past"
 		},
 		{
 			"timing": "hit",
-            "condition": "moved_past",
-            "effect_type": "powerup",
-            "amount": 1,
-            "and": {
-                "effect_type": "gain_advantage"
-            },
-            "character_effect": true
+			"condition": "moved_past",
+			"effect_type": "powerup",
+			"amount": 1,
+			"and": {
+				"effect_type": "gain_advantage"
+			},
+			"character_effect": true
 		}
 	],
 	"cards": [

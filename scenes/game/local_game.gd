@@ -3610,7 +3610,6 @@ class LocalStrikeConditions:
 	var fully_closed : bool = false
 	var fully_retreated : bool = false
 	var fully_pushed : bool = false
-	var pull_amount : int = 0
 	var push_amount : int = 0
 	var advanced_through : bool = false
 	var advanced_through_buddy : bool = false
@@ -5338,7 +5337,6 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 				events += performing_player.pull(distance)
 				var new_location = opposing_player.arena_location
 				var pull_amount = opposing_player.movement_distance_between(previous_location, new_location)
-				local_conditions.pull_amount = pull_amount
 				if (other_start < performing_start and new_location > performing_start) or (other_start > performing_start and new_location < performing_start):
 					local_conditions.pulled_past = true
 				performing_player.add_power_bonus(pull_amount)
@@ -5485,8 +5483,6 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 			or space > previous_location and performing_player.arena_location > previous_location:
 				events += performing_player.pull(distance)
 				var new_location = opposing_player.arena_location
-				var pull_amount = opposing_player.movement_distance_between(previous_location, new_location)
-				local_conditions.pull_amount = pull_amount
 				if (other_start < performing_start and new_location > performing_start) or (other_start > performing_start and new_location < performing_start):
 					local_conditions.pulled_past = true
 				_append_log_full(Enums.LogType.LogType_CharacterMovement, opposing_player, "is pulled %s, moving from space %s to %s." % [str(distance), str(previous_location), str(new_location)])

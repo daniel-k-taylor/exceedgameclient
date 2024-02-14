@@ -195,6 +195,14 @@ func validate_life(p1, l1, p2, l2):
 ## Tests start here
 ##
 
+func test_cammy_crit_spiral_arrow():
+	position_players(player1, 3, player2, 5)
+	give_gauge(player1, 1)
+	execute_strike(player1, player2, "cammy_spiralarrow", "standard_normal_assault", [], [], false, false,
+		[player1.gauge[0].id], [], 0, true, true)
+	validate_positions(player1, 8, player2, 4)
+	validate_life(player1, 27, player2, 25)
+
 func test_cammy_ua_dive():
 	position_players(player1, 3, player2, 4)
 	execute_strike(player1, player2, "standard_normal_dive", "standard_normal_sweep", [], [], false, false,
