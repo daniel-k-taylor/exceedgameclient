@@ -1,0 +1,171 @@
+{
+	"id": "cammy",
+	"season": 3,
+	"display_name": "Cammy",
+	"cardback": "cardback_defaultexceed.png",
+	"exceed_cost": 3,
+	"ability_effects": [
+		{
+			"timing": "set_strike",
+			"effect_type": "gauge_for_effect",
+			"per_gauge_effect": null,
+			"overall_effect": {
+				"effect_type": "critical",
+				"character_effect": true
+			},
+			"gauge_max": 1
+		},
+		{
+			"timing": "set_strike",
+			"effect_type": "range_includes_if_moved_past"
+		}
+	],
+	"exceed_ability_effects": [
+		{
+			"timing": "set_strike",
+			"effect_type": "gauge_for_effect",
+			"per_gauge_effect": null,
+			"overall_effect": {
+				"effect_type": "critical",
+				"character_effect": true
+			},
+			"gauge_max": 1
+		},
+		{
+			"timing": "set_strike",
+			"effect_type": "range_includes_if_moved_past"
+		},
+		{
+			"timing": "hit",
+			"condition": "moved_past",
+			"effect_type": "powerup",
+			"amount": 1,
+			"and": {
+				"effect_type": "gain_advantage"
+			},
+			"character_effect": true
+		}
+	],
+	"cards": [
+		{
+			"definition_id": "cammy_cqc",
+			"image": "cammy_cqc.tres"
+		},
+		{
+			"definition_id": "cammy_cqc",
+			"image": "cammy_cqc.tres"
+		},
+		{
+			"definition_id": "cammy_gyrodrivesmasher",
+			"image": "cammy_gyrodrivesmasher.tres"
+		},
+		{
+			"definition_id": "cammy_gyrodrivesmasher",
+			"image": "cammy_gyrodrivesmasher.tres"
+		},
+		{
+			"definition_id": "cammy_cannonspike",
+			"image": "cammy_cannonspike.tres"
+		},
+		{
+			"definition_id": "cammy_cannonspike",
+			"image": "cammy_cannonspike.tres"
+		},
+		{
+			"definition_id": "cammy_cannonball",
+			"image": "cammy_cannonball.tres"
+		},
+		{
+			"definition_id": "cammy_cannonball",
+			"image": "cammy_cannonball.tres"
+		},
+		{
+			"definition_id": "cammy_divekick",
+			"image": "cammy_divekick.tres"
+		},
+		{
+			"definition_id": "cammy_divekick",
+			"image": "cammy_divekick.tres"
+		},
+		{
+			"definition_id": "cammy_razorsedgeslicer",
+			"image": "cammy_razorsedgeslicer.tres"
+		},
+		{
+			"definition_id": "cammy_razorsedgeslicer",
+			"image": "cammy_razorsedgeslicer.tres"
+		},
+		{
+			"definition_id": "cammy_spiralarrow",
+			"image": "cammy_spiralarrow.tres"
+		},
+		{
+			"definition_id": "cammy_spiralarrow",
+			"image": "cammy_spiralarrow.tres"
+		},
+		{
+			"definition_id": "standard_normal_grasp",
+			"image": "normal_grasp.tres"
+		},
+		{
+			"definition_id": "standard_normal_grasp",
+			"image": "normal_grasp.tres"
+		},
+		{
+			"definition_id": "standard_normal_cross",
+			"image": "normal_cross.tres"
+		},
+		{
+			"definition_id": "standard_normal_cross",
+			"image": "normal_cross.tres"
+		},
+		{
+			"definition_id": "standard_normal_assault",
+			"image": "normal_assault.tres"
+		},
+		{
+			"definition_id": "standard_normal_assault",
+			"image": "normal_assault.tres"
+		},
+		{
+			"definition_id": "standard_normal_dive",
+			"image": "normal_dive.tres"
+		},
+		{
+			"definition_id": "standard_normal_dive",
+			"image": "normal_dive.tres"
+		},
+		{
+			"definition_id": "standard_normal_spike",
+			"image": "normal_spike.tres"
+		},
+		{
+			"definition_id": "standard_normal_spike",
+			"image": "normal_spike.tres"
+		},
+		{
+			"definition_id": "standard_normal_sweep",
+			"image": "normal_sweep.tres"
+		},
+		{
+			"definition_id": "standard_normal_sweep",
+			"image": "normal_sweep.tres"
+		},
+		{
+			"definition_id": "standard_normal_focus",
+			"image": "normal_focus.tres"
+		},
+		{
+			"definition_id": "standard_normal_focus",
+			"image": "normal_focus.tres"
+		},
+		{
+			"definition_id": "standard_normal_block",
+			"image": "normal_block.tres"
+		},
+		{
+			"definition_id": "standard_normal_block",
+			"image": "normal_block.tres"
+		}
+	]
+}

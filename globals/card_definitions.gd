@@ -253,6 +253,8 @@ func get_condition_text(effect, amount, amount2, detail):
 			text += "If the opponent did not move themselves this strike, "
 		"moved_during_strike":
 			text += "If you moved at least %s space(s) this strike, " % amount
+		"moved_past":
+			text += "If you moved past the opponent, "
 		"min_cards_in_discard":
 			text += "If you have at least %s card(s) in discard, " % amount
 		"min_cards_in_hand":
@@ -776,8 +778,12 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 			effect_str += str(effect['amount']) + " Opponent's Power"
 		"pull":
 			effect_str += "Pull " + str(effect['amount'])
+		"pull_any_number_of_spaces_and_gain_power":
+			effect_str += "Pull any amount and +1 Power per space pulled."
 		"pull_to_buddy":
 			effect_str += "Pull %s to %s" % [str(effect['amount']), effect['buddy_name']]
+		"pull_to_space_and_gain_power":
+			effect_str += "Pull to space " + str(effect['amount']) + " and +1 Power per space pulled."
 		"push":
 			var extra_info = ""
 			if 'save_buddy_spaces_entered_as_strike_x' in effect and effect['save_buddy_spaces_entered_as_strike_x']:
@@ -785,6 +791,10 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 			effect_str += "Push " + str(effect['amount']) + extra_info
 		"push_from_source":
 			effect_str += "Push " + str(effect['amount']) + " from attack source"
+		"push_or_pull_to_any_space":
+			effect_str += "Push or pull to any space."
+		"push_or_pull_to_space":
+			effect_str += "Push or pull to space " + str(effect['amount']) + "."
 		"push_to_attack_max_range":
 			effect_str += "Push to attack's max range"
 		"range_includes_if_moved_past":
