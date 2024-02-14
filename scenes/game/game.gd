@@ -15,6 +15,7 @@ const CharacterCardBase = preload("res://scenes/card/character_card_base.gd")
 const AIPlayer = preload("res://scenes/game/ai_player.gd")
 const DamagePopup = preload("res://scenes/game/damage_popup.gd")
 const Character = preload("res://scenes/game/character.gd")
+const CharacterScene = preload("res://scenes/game/character.tscn")
 const GameWrapper = preload("res://scenes/game/game_wrapper.gd")
 const GameCard = preload("res://scenes/game/game_card.gd")
 const DecisionInfo = preload("res://scenes/game/decision_info.gd")
@@ -24,6 +25,7 @@ const EmoteDialog = preload("res://scenes/game/emote_dialog.gd")
 const ArenaSquare = preload("res://scenes/game/arena_square.gd")
 const EmoteDisplay = preload("res://scenes/game/emote_display.gd")
 const CombatLog = preload("res://scenes/game/combat_log.gd")
+const LocationInfoButtonPair = preload("res://scenes/game/location_infobutton_pair.gd")
 
 @onready var player_emote : EmoteDisplay = $PlayerEmote
 @onready var opponent_emote : EmoteDisplay = $OpponentEmote
@@ -200,6 +202,11 @@ var game_wrapper : GameWrapper = GameWrapper.new()
 @onready var combat_log : CombatLog = $CombatLog
 @onready var observer_next_button : Button = $ObserverNextButton
 @onready var observer_play_to_live_button : Button = $ObserverPlayToLive
+@onready var player_lightningrods : Node2D = $PlayerLightningRods
+@onready var opponent_lightningrods : Node2D = $OpponentLightningRods
+
+var player_lightningrod_tracking = {}
+var opponent_lightningrod_tracking = {}
 
 var current_instruction_text : String = ""
 var current_action_menu_choices : Array = []
@@ -247,7 +254,31 @@ func _ready():
 	observer_next_button.visible = observer_mode
 	observer_play_to_live_button.visible = observer_mode
 
+	for i in range(1, 10):
+		player_lightningrod_tracking[i] = {
+			"card_ids": [],
+			"character": null,
+		}
+		opponent_lightningrod_tracking[i] = {
+			"card_ids": [],
+			"character": null,
+		}
+
+	var location_index = 0
+	for child in $ArenaNode/RowLightningInfoButtons.get_children():
+		if location_index == 0 or location_index == 10:
+			# Skip margin containers
+			location_index += 1
+			continue
+		assert(child is LocationInfoButtonPair)
+		child.button_pressed.connect(func(player_id): _on_locationinfobuttonpair_pressed(player_id, location_index))
+		location_index += 1
+
+
 	setup_characters()
+
+func _on_locationinfobuttonpair_pressed(player_id, location):
+	print("Clicked location %s for player %s" % [location, player_id])
 
 func begin_local_game(vs_info):
 	player_deck = vs_info['player_deck']
@@ -2577,6 +2608,53 @@ func _on_place_buddy(event):
 		return SmallNoticeDelay
 	return 0
 
+func add_lightning_rod(rod_parent, rod_tracking, location, card_id):
+	var rods_at_location = rod_tracking[location]
+	if len(rods_at_location['card_ids']) == 0:
+		# Create a new character for this and add it to rod_parent.
+		var new_character = CharacterScene.instantiate()
+		rod_parent.add_child(new_character)
+		new_character.load_character("rachel_lightningrod")
+		rods_at_location['character'] = new_character
+		var immediate = true
+		move_character_to_arena_square(new_character, location, immediate, Character.CharacterAnim.CharacterAnim_WalkForward, -1)
+	rods_at_location['card_ids'].append(card_id)
+
+func remove_lightning_rod(rod_parent, rod_tracking, location, card_id):
+	var rods_at_location = rod_tracking[location]
+	rods_at_location['card_ids'].erase(card_id)
+	if len(rods_at_location['card_ids']) == 0:
+		rod_parent.remove_child(rods_at_location['character'])
+		rods_at_location['character'].queue_free()
+		rods_at_location['character'] = null
+
+func update_lightningrod_info(player, rod_tracking, location):
+	var rods_at_location = rod_tracking[location]
+	var count =len(rods_at_location['card_ids'])
+	var pair = $ArenaNode/RowLightningInfoButtons.get_child(location)
+	pair.set_number(player, count)
+	# Iterate through all locations for both players
+	# and update the count of lightning rods at each location.
+	pass
+
+func _on_place_lightningrod(event):
+	var player = event['event_player']
+	var card_id = event['number']
+	var location = event['extra_info']
+	var place = event['extra_info2']
+
+	var rod_parent = player_lightningrods
+	var rod_tracking = player_lightningrod_tracking
+	if player == Enums.PlayerId.PlayerId_Opponent:
+		rod_parent = opponent_lightningrods
+		rod_tracking = opponent_lightningrod_tracking
+	if place:
+		add_lightning_rod(rod_parent, rod_tracking, location, card_id)
+	else:
+		remove_lightning_rod(rod_parent, rod_tracking, location, card_id)
+	update_lightningrod_info(player, rod_tracking, location)
+	return SmallNoticeDelay
+
 func _handle_events(events):
 	var delay = 0
 	for event_index in range(events.size()):
@@ -2661,6 +2739,8 @@ func _handle_events(events):
 				_on_mulligan_decision(event)
 			Enums.EventType.EventType_PlaceBuddy:
 				delay = _on_place_buddy(event)
+			Enums.EventType.EventType_PlaceLightningRod:
+				delay = _on_place_lightningrod(event)
 			Enums.EventType.EventType_PickNumberFromRange:
 				_on_pick_number_from_range(event)
 			Enums.EventType.EventType_SwapSealedAndDeck:

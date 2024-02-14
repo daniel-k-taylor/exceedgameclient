@@ -67,8 +67,6 @@ func _ready():
 			continue
 		var deck_data = load_json_file(decks_path + "/" + deck_file)
 		if deck_data:
-			if deck_data['id'] == "rachel":
-				continue #TODO
 			decks.append(deck_data)
 
 func get_card(definition_id):

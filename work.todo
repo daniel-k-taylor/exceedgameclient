@@ -2,10 +2,16 @@
 
 In progress:
     Rachel:
+        ☐ Tiny Lobelia doesn't work
+        ☐ Spike drop - card not removed from discard
+            - probably not for other lobelia either.
+            - probably just needs UI to update it to move from discard to off screen?
+
+
         ☐ UI Button under each circle to popup traps window?
 
-        ☐ EventType_PlaceLightningRod
-            ☐ UI For lightning rods
+        ☐ EventType_PlaceLightningRod @started(24-02-14 03:02)
+            ☐ UI For lightning rods @started(24-02-14 03:02)
 
         "Trap" boosts:
             ☐ "effect_type": "place_boost_in_space", @started(24-02-12 21:28)

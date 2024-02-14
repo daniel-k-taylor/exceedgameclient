@@ -1,0 +1,96 @@
+[gd_scene load_steps=6 format=3 uid="uid://b517dmna12xv3"]
+
+[ext_resource type="Texture2D" uid="uid://buj7ym24l65c3" path="res://assets/icons/lightning.png" id="1_otylp"]
+[ext_resource type="Script" path="res://scenes/game/location_infobutton_pair.gd" id="1_r0cc3"]
+[ext_resource type="Texture2D" uid="uid://bpdpb3e74d2cu" path="res://assets/cards/arena_border_highlight_pressed.png" id="2_f21if"]
+[ext_resource type="Texture2D" uid="uid://b08j76upbucvr" path="res://assets/cards/arena_border_highlight_selected.png" id="3_757qa"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_dsyau"]
+bg_color = Color(0.160784, 0.160784, 0.160784, 1)
+
+[node name="LocationInfoButtonPair" type="HBoxContainer"]
+size_flags_horizontal = 3
+size_flags_vertical = 4
+mouse_filter = 2
+theme_override_constants/separation = 10
+alignment = 1
+script = ExtResource("1_r0cc3")
+
+[node name="PlayerInfo1" type="PanelContainer" parent="."]
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_dsyau")
+
+[node name="MarginContainer" type="MarginContainer" parent="PlayerInfo1"]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/margin_left = 4
+theme_override_constants/margin_top = 4
+theme_override_constants/margin_right = 4
+theme_override_constants/margin_bottom = 4
+
+[node name="HBoxContainer" type="HBoxContainer" parent="PlayerInfo1/MarginContainer"]
+layout_mode = 2
+mouse_filter = 2
+alignment = 1
+
+[node name="TextureRect" type="TextureRect" parent="PlayerInfo1/MarginContainer/HBoxContainer"]
+layout_mode = 2
+mouse_filter = 2
+texture = ExtResource("1_otylp")
+expand_mode = 2
+
+[node name="P1Label" type="Label" parent="PlayerInfo1/MarginContainer/HBoxContainer"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 20
+text = "1"
+
+[node name="P1Button" type="TextureButton" parent="PlayerInfo1"]
+layout_mode = 2
+texture_pressed = ExtResource("2_f21if")
+texture_hover = ExtResource("3_757qa")
+ignore_texture_size = true
+stretch_mode = 0
+
+[node name="PlayerInfo2" type="PanelContainer" parent="."]
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_dsyau")
+
+[node name="MarginContainer" type="MarginContainer" parent="PlayerInfo2"]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/margin_left = 4
+theme_override_constants/margin_top = 4
+theme_override_constants/margin_right = 4
+theme_override_constants/margin_bottom = 4
+
+[node name="HBoxContainer" type="HBoxContainer" parent="PlayerInfo2/MarginContainer"]
+layout_mode = 2
+mouse_filter = 2
+alignment = 1
+
+[node name="TextureRect" type="TextureRect" parent="PlayerInfo2/MarginContainer/HBoxContainer"]
+layout_mode = 2
+mouse_filter = 2
+texture = ExtResource("1_otylp")
+expand_mode = 2
+
+[node name="P2Label" type="Label" parent="PlayerInfo2/MarginContainer/HBoxContainer"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 20
+text = "1"
+
+[node name="P2Button" type="TextureButton" parent="PlayerInfo2"]
+layout_mode = 2
+texture_pressed = ExtResource("2_f21if")
+texture_hover = ExtResource("3_757qa")
+ignore_texture_size = true
+stretch_mode = 0
+
+[connection signal="pressed" from="PlayerInfo1/P1Button" to="." method="_on_p_1_button_pressed"]
+[connection signal="pressed" from="PlayerInfo2/P2Button" to="." method="_on_p_2_button_pressed"]

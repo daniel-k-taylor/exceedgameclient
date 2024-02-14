@@ -1192,7 +1192,7 @@ class Player:
 		for i in range(len(sealed)):
 			var card = sealed[i]
 			if card.id == id:
-				events += add_to_hand(card, sealed_area_is_secret)
+				events += add_to_hand(card, not sealed_area_is_secret)
 				sealed.remove_at(i)
 				break
 		return events
@@ -1202,7 +1202,7 @@ class Player:
 		for i in range(len(sealed)):
 			var card = sealed[i]
 			if card.id == id:
-				events += add_to_top_of_deck(card, sealed_area_is_secret)
+				events += add_to_top_of_deck(card, not sealed_area_is_secret)
 				sealed.remove_at(i)
 				if sealed_area_is_secret:
 					public_topdeck_id = -1
@@ -5660,7 +5660,7 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 
 			decision_info.limitation.append(0)
 			decision_info.choice.append({ "effect_type": "pass" })
-			
+
 			var player_location = performing_player.arena_location
 			var opponent_location = opposing_player.arena_location
 			var nowhere_to_pull = true
@@ -5685,7 +5685,7 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 				events += [create_event(Enums.EventType.EventType_ChooseArenaLocationForEffect, performing_player.my_id, 0)]
 		"pull_to_space_and_gain_power":
 			var space = effect['amount']
-			var previous_location = opposing_player.arena_location 
+			var previous_location = opposing_player.arena_location
 			var distance = opposing_player.movement_distance_between(space, previous_location)
 			if space == previous_location:
 				# This effect should only be called with an actual attempt to pull.
@@ -5831,7 +5831,7 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 			events += [create_event(Enums.EventType.EventType_ChooseArenaLocationForEffect, performing_player.my_id, 0)]
 		"push_or_pull_to_space":
 			var space = effect['amount']
-			var previous_location = opposing_player.arena_location 
+			var previous_location = opposing_player.arena_location
 			var distance = opposing_player.movement_distance_between(space, previous_location)
 			# Convert this to a regular push or pull.
 			if space == previous_location:

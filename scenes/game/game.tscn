@@ -1,4 +1,4 @@
-[gd_scene load_steps=26 format=3 uid="uid://dh7wmx6cbb55x"]
+[gd_scene load_steps=27 format=3 uid="uid://dh7wmx6cbb55x"]
 
 [ext_resource type="Script" path="res://scenes/game/game.gd" id="1_4f5jr"]
 [ext_resource type="Texture2D" uid="uid://dh8tat2r8ttx1" path="res://assets/cards/card_border_highlight.png" id="4_5y76h"]
@@ -8,6 +8,7 @@
 [ext_resource type="PackedScene" uid="uid://cf6aml1lrd2yk" path="res://scenes/game/gauge_panel.tscn" id="6_gtjck"]
 [ext_resource type="PackedScene" uid="uid://u7pf7tbgppmh" path="res://scenes/game/arena_square.tscn" id="6_oqn7w"]
 [ext_resource type="PackedScene" uid="uid://dsc63si41lg6t" path="res://scenes/game/boost_zone.tscn" id="7_gn0of"]
+[ext_resource type="PackedScene" uid="uid://b517dmna12xv3" path="res://scenes/game/location_infobutton_pair.tscn" id="7_txkwl"]
 [ext_resource type="PackedScene" uid="uid://1624xgdxrrg5" path="res://scenes/game/life_scene.tscn" id="8_mqi3u"]
 [ext_resource type="Texture2D" uid="uid://b2ojnoth6qto0" path="res://assets/icons/donut.png" id="9_2vlik"]
 [ext_resource type="Texture2D" uid="uid://60aipui45hh3" path="res://assets/cards/card_border_highlight_discard_pile.png" id="9_dpbn3"]
@@ -200,10 +201,58 @@ layout_mode = 2
 [node name="ArenaSquare9" parent="ArenaNode/RowPlatforms" instance=ExtResource("6_oqn7w")]
 layout_mode = 2
 
+[node name="RowLightningInfoButtons" type="HBoxContainer" parent="ArenaNode"]
+custom_minimum_size = Vector2(1280, 0)
+offset_right = 1280.0
+offset_bottom = 100.0
+mouse_filter = 2
+alignment = 1
+
+[node name="MarginContainer" type="MarginContainer" parent="ArenaNode/RowLightningInfoButtons"]
+custom_minimum_size = Vector2(50, 0)
+layout_mode = 2
+mouse_filter = 2
+
+[node name="LocationInfoPair1" parent="ArenaNode/RowLightningInfoButtons" instance=ExtResource("7_txkwl")]
+layout_mode = 2
+
+[node name="LocationInfoPair2" parent="ArenaNode/RowLightningInfoButtons" instance=ExtResource("7_txkwl")]
+layout_mode = 2
+
+[node name="LocationInfoPair3" parent="ArenaNode/RowLightningInfoButtons" instance=ExtResource("7_txkwl")]
+layout_mode = 2
+
+[node name="LocationInfoPair4" parent="ArenaNode/RowLightningInfoButtons" instance=ExtResource("7_txkwl")]
+layout_mode = 2
+
+[node name="LocationInfoPair5" parent="ArenaNode/RowLightningInfoButtons" instance=ExtResource("7_txkwl")]
+layout_mode = 2
+
+[node name="LocationInfoPair6" parent="ArenaNode/RowLightningInfoButtons" instance=ExtResource("7_txkwl")]
+layout_mode = 2
+
+[node name="LocationInfoPair7" parent="ArenaNode/RowLightningInfoButtons" instance=ExtResource("7_txkwl")]
+layout_mode = 2
+
+[node name="LocationInfoPair8" parent="ArenaNode/RowLightningInfoButtons" instance=ExtResource("7_txkwl")]
+layout_mode = 2
+
+[node name="LocationInfoPair9" parent="ArenaNode/RowLightningInfoButtons" instance=ExtResource("7_txkwl")]
+layout_mode = 2
+
+[node name="MarginContainer2" type="MarginContainer" parent="ArenaNode/RowLightningInfoButtons"]
+custom_minimum_size = Vector2(50, 0)
+layout_mode = 2
+mouse_filter = 2
+
 [node name="WideCharacterMarker" type="Node2D" parent="."]
 visible = false
 position = Vector2(75, -102)
 scale = Vector2(0.25, 0.25)
+
+[node name="PlayerLightningRods" type="Node2D" parent="."]
+
+[node name="OpponentLightningRods" type="Node2D" parent="."]
 
 [node name="PlayerBuddy" parent="." instance=ExtResource("9_rhsuv")]
 visible = false
