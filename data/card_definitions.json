@@ -2506,7 +2506,7 @@
 			},
 			{
 				"timing": "hit",
-				"effect_type": "move_to_any_space_TODO"
+				"effect_type": "push_or_pull_to_any_space"
 			}
 		],
 		"boost": {
@@ -2558,7 +2558,7 @@
 			},
 			{
 				"timing": "hit",
-				"effect_type": "pull_and_power_TODO"
+				"effect_type": "pull_any_number_of_spaces_and_gain_power"
 			}
 		],
 		"boost": {

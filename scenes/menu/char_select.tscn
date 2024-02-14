@@ -65,9 +65,9 @@
 [ext_resource type="Texture2D" uid="uid://cqx52mmwlhi0c" path="res://assets/portraits/mole.png" id="54_ciywr"]
 [ext_resource type="Texture2D" uid="uid://bfvuigxc0xhpm" path="res://assets/portraits/polar.png" id="54_u47ng"]
 [ext_resource type="Texture2D" uid="uid://166in2y3yh6m" path="res://assets/portraits/cviper.png" id="59_b8gjq"]
+[ext_resource type="Texture2D" uid="uid://kb1fci2g1gm3" path="res://assets/portraits/cammy.png" id="60_yxps6"]
 [ext_resource type="Texture2D" uid="uid://dpxsvmo3pfmh5" path="res://assets/portraits/zangief.png" id="63_wfjiw"]
 [ext_resource type="Texture2D" uid="uid://o5kv58ao0tbw" path="res://assets/portraits/dan.png" id="66_ic0dy"]
-[ext_resource type="Texture2D" uid="uid://kb1fci2g1gm3" path="res://assets/portraits/cammy.png" id="60_yxps6"]
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_8u80i"]
 
@@ -548,11 +548,6 @@ layout_mode = 2
 char_id = "akuma"
 portrait_texture = ExtResource("48_4ovfi")
 
-[node name="Cammy" parent="CenterContainer/SFCharacterSelect/Rows/Row2" instance=ExtResource("6_3lmwy")]
-layout_mode = 2
-char_id = "cammy"
-portrait_texture = ExtResource("60_yxps6")
-
 [node name="Sagat" parent="CenterContainer/SFCharacterSelect/Rows/Row2" instance=ExtResource("6_3lmwy")]
 layout_mode = 2
 char_id = "sagat"
@@ -576,6 +571,11 @@ alignment = 1
 layout_mode = 2
 char_id = "zangief"
 portrait_texture = ExtResource("63_wfjiw")
+
+[node name="Cammy" parent="CenterContainer/SFCharacterSelect/Rows/Row3" instance=ExtResource("6_3lmwy")]
+layout_mode = 2
+char_id = "cammy"
+portrait_texture = ExtResource("60_yxps6")
 
 [node name="Dan" parent="CenterContainer/SFCharacterSelect/Rows/Row3" instance=ExtResource("6_3lmwy")]
 layout_mode = 2
@@ -753,8 +753,6 @@ portrait_texture = ExtResource("32_iutun")
 [connection signal="on_pressed" from="CenterContainer/SFCharacterSelect/Rows/Row1/Ken" to="." method="_on_char_button_on_pressed"]
 [connection signal="on_hover" from="CenterContainer/SFCharacterSelect/Rows/Row2/Akuma" to="." method="_on_char_hover"]
 [connection signal="on_pressed" from="CenterContainer/SFCharacterSelect/Rows/Row2/Akuma" to="." method="_on_char_button_on_pressed"]
-[connection signal="on_hover" from="CenterContainer/SFCharacterSelect/Rows/Row2/Cammy" to="." method="_on_char_hover"]
-[connection signal="on_pressed" from="CenterContainer/SFCharacterSelect/Rows/Row2/Cammy" to="." method="_on_char_button_on_pressed"]
 [connection signal="on_hover" from="CenterContainer/SFCharacterSelect/Rows/Row2/Sagat" to="." method="_on_char_hover"]
 [connection signal="on_pressed" from="CenterContainer/SFCharacterSelect/Rows/Row2/Sagat" to="." method="_on_char_button_on_pressed"]
 [connection signal="on_hover" from="CenterContainer/SFCharacterSelect/Rows/Row2/Guile" to="." method="_on_char_hover"]
@@ -763,6 +761,8 @@ portrait_texture = ExtResource("32_iutun")
 [connection signal="on_pressed" from="CenterContainer/SFCharacterSelect/Rows/Row2/C_Viper" to="." method="_on_char_button_on_pressed"]
 [connection signal="on_hover" from="CenterContainer/SFCharacterSelect/Rows/Row3/Zangief" to="." method="_on_char_hover"]
 [connection signal="on_pressed" from="CenterContainer/SFCharacterSelect/Rows/Row3/Zangief" to="." method="_on_char_button_on_pressed"]
+[connection signal="on_hover" from="CenterContainer/SFCharacterSelect/Rows/Row3/Cammy" to="." method="_on_char_hover"]
+[connection signal="on_pressed" from="CenterContainer/SFCharacterSelect/Rows/Row3/Cammy" to="." method="_on_char_button_on_pressed"]
 [connection signal="on_hover" from="CenterContainer/SFCharacterSelect/Rows/Row3/Dan" to="." method="_on_char_hover"]
 [connection signal="on_pressed" from="CenterContainer/SFCharacterSelect/Rows/Row3/Dan" to="." method="_on_char_button_on_pressed"]
 [connection signal="on_hover" from="TabSelect/CategoriesHBox/Season3" to="." method="_on_char_hover"]

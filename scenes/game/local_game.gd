@@ -3610,6 +3610,7 @@ class LocalStrikeConditions:
 	var fully_closed : bool = false
 	var fully_retreated : bool = false
 	var fully_pushed : bool = false
+	var pull_amount : int = 0
 	var push_amount : int = 0
 	var advanced_through : bool = false
 	var advanced_through_buddy : bool = false
@@ -5290,6 +5291,62 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 			if (other_start < performing_start and new_location > performing_start) or (other_start > performing_start and new_location < performing_start):
 				local_conditions.pulled_past = true
 			_append_log_full(Enums.LogType.LogType_CharacterMovement, opposing_player, "is pulled %s, moving from space %s to %s." % [str(effect['amount']), str(previous_location), str(new_location)])
+		"pull_any_number_of_spaces_and_gain_power":
+			decision_info.clear()
+			decision_info.type = Enums.DecisionType.DecisionType_ChooseArenaLocationForEffect
+			decision_info.player = performing_player.my_id
+			decision_info.choice_card_id = card_id
+			decision_info.effect_type = "pull_to_space_and_gain_power"
+			decision_info.choice = []
+			decision_info.extra_info = ""
+			decision_info.limitation = []
+
+			decision_info.limitation.append(0)
+			decision_info.choice.append({ "effect_type": "pass" })
+			
+			var player_location = performing_player.arena_location
+			var opponent_location = opposing_player.arena_location
+			var nowhere_to_pull = true
+			for i in range(MinArenaLocation, MaxArenaLocation+1):
+				if opposing_player.is_overlapping_opponent(i):
+					continue
+				if opponent_location == i:
+					continue
+				if player_location < opponent_location and i > opponent_location:
+					continue
+				if player_location > opponent_location and i < opponent_location:
+					continue
+				decision_info.limitation.append(i)
+				decision_info.choice.append({
+					"effect_type": "pull_to_space_and_gain_power",
+					"amount": i
+				})
+				nowhere_to_pull = false
+
+			if not nowhere_to_pull:
+				change_game_state(Enums.GameState.GameState_PlayerDecision)
+				events += [create_event(Enums.EventType.EventType_ChooseArenaLocationForEffect, performing_player.my_id, 0)]
+		"pull_to_space_and_gain_power":
+			var space = effect['amount']
+			var previous_location = opposing_player.arena_location 
+			var distance = opposing_player.movement_distance_between(space, previous_location)
+			if space == previous_location:
+				# This effect should only be called with an actual attempt to pull.
+				assert(false)
+			elif space < previous_location and performing_player.arena_location < previous_location \
+			or space > previous_location and performing_player.arena_location > previous_location:
+				events += performing_player.pull(distance)
+				var new_location = opposing_player.arena_location
+				var pull_amount = opposing_player.movement_distance_between(previous_location, new_location)
+				local_conditions.pull_amount = pull_amount
+				if (other_start < performing_start and new_location > performing_start) or (other_start > performing_start and new_location < performing_start):
+					local_conditions.pulled_past = true
+				performing_player.add_power_bonus(pull_amount)
+				events += [create_event(Enums.EventType.EventType_Strike_PowerUp, performing_player.my_id, pull_amount)]
+				_append_log_full(Enums.LogType.LogType_CharacterMovement, opposing_player, "is pulled %s, moving from space %s to %s." % [str(distance), str(previous_location), str(new_location)])
+			else:
+				# This effect should not be called with a push.
+				assert(false)
 		"pull_not_past":
 			var previous_location = opposing_player.arena_location
 			events += performing_player.pull_not_past(effect['amount'])
@@ -5389,6 +5446,57 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 				local_conditions.push_amount = push_amount
 				local_conditions.fully_pushed = push_amount == effect['amount']
 				_append_log_full(Enums.LogType.LogType_CharacterMovement, opposing_player, "is pushed %s from the attack source at %s, moving from space %s to %s." % [str(effect['amount']), str(attack_source_location), str(previous_location), str(new_location)])
+		"push_or_pull_to_any_space":
+			decision_info.clear()
+			decision_info.type = Enums.DecisionType.DecisionType_ChooseArenaLocationForEffect
+			decision_info.player = performing_player.my_id
+			decision_info.choice_card_id = card_id
+			decision_info.effect_type = "push_or_pull_to_space"
+			decision_info.choice = []
+			decision_info.extra_info = ""
+			decision_info.limitation = []
+
+			decision_info.limitation.append(0)
+			decision_info.choice.append({ "effect_type": "pass" })
+
+			var opponent_location = opposing_player.arena_location
+			for i in range(MinArenaLocation, MaxArenaLocation+1):
+				if opposing_player.is_overlapping_opponent(i):
+					continue
+				if opponent_location == i:
+					continue
+				decision_info.limitation.append(i)
+				decision_info.choice.append({
+					"effect_type": "push_or_pull_to_space",
+					"amount": i
+				})
+
+			change_game_state(Enums.GameState.GameState_PlayerDecision)
+			events += [create_event(Enums.EventType.EventType_ChooseArenaLocationForEffect, performing_player.my_id, 0)]
+		"push_or_pull_to_space":
+			var space = effect['amount']
+			var previous_location = opposing_player.arena_location 
+			var distance = opposing_player.movement_distance_between(space, previous_location)
+			# Convert this to a regular push or pull.
+			if space == previous_location:
+				# This effect should only be called with an actual attempt to push or pull.
+				assert(false)
+			elif space < previous_location and performing_player.arena_location < previous_location \
+			or space > previous_location and performing_player.arena_location > previous_location:
+				events += performing_player.pull(distance)
+				var new_location = opposing_player.arena_location
+				var pull_amount = opposing_player.movement_distance_between(previous_location, new_location)
+				local_conditions.pull_amount = pull_amount
+				if (other_start < performing_start and new_location > performing_start) or (other_start > performing_start and new_location < performing_start):
+					local_conditions.pulled_past = true
+				_append_log_full(Enums.LogType.LogType_CharacterMovement, opposing_player, "is pulled %s, moving from space %s to %s." % [str(distance), str(previous_location), str(new_location)])
+			else:
+				events += performing_player.push(distance)
+				var new_location = opposing_player.arena_location
+				var push_amount = opposing_player.movement_distance_between(previous_location, new_location)
+				local_conditions.push_amount = push_amount
+				local_conditions.fully_pushed = push_amount == effect['amount']
+				_append_log_full(Enums.LogType.LogType_CharacterMovement, opposing_player, "is pushed %s, moving from space %s to %s." % [str(distance), str(previous_location), str(new_location)])
 		"push_to_attack_max_range":
 			var attack_max_range = get_total_max_range(performing_player)
 			var furthest_location
