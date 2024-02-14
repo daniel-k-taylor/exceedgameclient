@@ -459,6 +459,7 @@ char_id = "bang"
 portrait_texture = ExtResource("47_wqqey")
 
 [node name="Rachel" parent="CenterContainer/BBCharacterSelect/Rows/Row4" instance=ExtResource("6_3lmwy")]
+visible = false
 layout_mode = 2
 char_id = "rachel"
 portrait_texture = ExtResource("50_kgjkx")
