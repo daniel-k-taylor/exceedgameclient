@@ -1,0 +1,43 @@
+[gd_resource type="SpriteFrames" load_steps=6 format=3 uid="uid://pytq0dyi2ete"]
+
+[ext_resource type="Texture2D" uid="uid://djjo0o0xp5p77" path="res://assets/character_animations/rachel_georgexiii/george_spritesheet.png" id="1_xcbmq"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_a8kpc"]
+atlas = ExtResource("1_xcbmq")
+region = Rect2(0, 0, 84, 60)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_u1iu4"]
+atlas = ExtResource("1_xcbmq")
+region = Rect2(84, 0, 84, 60)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_lh65l"]
+atlas = ExtResource("1_xcbmq")
+region = Rect2(0, 60, 84, 60)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_yggtv"]
+atlas = ExtResource("1_xcbmq")
+region = Rect2(84, 60, 84, 60)
+
+[resource]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_a8kpc")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_u1iu4")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_lh65l")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_yggtv")
+}],
+"loop": true,
+"name": &"idle",
+"speed": 8.0
+}]
+metadata/flip = false
+metadata/scaling = 2.0
+metadata/vertical_offset = 0.0
+metadata/horizontal_offset_buddy = -10.0

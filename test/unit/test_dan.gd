@@ -345,6 +345,20 @@ func test_dan_shisso_buraiken_no_cards():
 	assert_eq(len(player1.gauge), 4)
 	advance_turn(player1)
 
+func test_dan_shisso_buraiken_no_cards_wild_swing():
+	position_players(player1, 3, player2, 6)
+	give_gauge(player1, 3)
+	player1.discard_hand()
+	give_player_specific_card(player1, "dan_shissoburaiken", TestCardId3)
+	player1.move_card_from_hand_to_deck(TestCardId3)
+
+	execute_strike(player1, player2, "", "standard_normal_sweep", [], [], false, false,
+		[], [], -3, true)
+	validate_life(player1, 30, player2, 23)
+	validate_positions(player1, 5, player2, 6)
+	assert_eq(len(player1.gauge), 4)
+	advance_turn(player1)
+
 func test_dan_lucky_skip_draw():
 	position_players(player1, 4, player2, 7)
 	var initial_hand_size = len(player1.hand)

@@ -1,0 +1,43 @@
+[gd_resource type="SpriteFrames" load_steps=6 format=3 uid="uid://lg7n8oe52rbc"]
+
+[ext_resource type="Texture2D" uid="uid://bawb7qqmlxos2" path="res://assets/character_animations/rachel_impishgypsophila/pumkin.png" id="1_28eov"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_e674l"]
+atlas = ExtResource("1_28eov")
+region = Rect2(0, 0, 68, 61)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_nylgl"]
+atlas = ExtResource("1_28eov")
+region = Rect2(68, 0, 68, 61)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_vernc"]
+atlas = ExtResource("1_28eov")
+region = Rect2(0, 61, 68, 61)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_aappg"]
+atlas = ExtResource("1_28eov")
+region = Rect2(68, 61, 68, 61)
+
+[resource]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_e674l")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_nylgl")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_vernc")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_aappg")
+}],
+"loop": true,
+"name": &"idle",
+"speed": 8.0
+}]
+metadata/flip = false
+metadata/scaling = 3.0
+metadata/vertical_offset = 100.0
+metadata/horizontal_offset_buddy = -20.0

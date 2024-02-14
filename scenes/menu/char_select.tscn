@@ -1,4 +1,4 @@
-[gd_scene load_steps=70 format=3 uid="uid://cqs72exlwm6at"]
+[gd_scene load_steps=72 format=3 uid="uid://cqs72exlwm6at"]
 
 [ext_resource type="Script" path="res://scenes/menu/char_select.gd" id="1_f3x24"]
 [ext_resource type="PackedScene" uid="uid://nwqxp8pdh1jk" path="res://scenes/menu/char_select_button.tscn" id="6_3lmwy"]
@@ -48,6 +48,7 @@
 [ext_resource type="Texture2D" uid="uid://bc01kjivot83r" path="res://assets/portraits/litchi.png" id="32_tp7xh"]
 [ext_resource type="Texture2D" uid="uid://rdfsol2bgn4x" path="res://assets/portraits/enkidu.png" id="33_7viqn"]
 [ext_resource type="Texture2D" uid="uid://cp4tvk0uhox0p" path="res://assets/portraits/hazama.png" id="33_ymrgl"]
+[ext_resource type="Texture2D" uid="uid://df8no20pc7qcf" path="res://assets/portraits/londrekia.png" id="34_33tvh"]
 [ext_resource type="Texture2D" uid="uid://8nah2fhvu83k" path="res://assets/portraits/nine.png" id="34_h13ui"]
 [ext_resource type="Texture2D" uid="uid://bu2eawlvu1aut" path="res://assets/portraits/taokaka.png" id="37_iqb1f"]
 [ext_resource type="Texture2D" uid="uid://d2hpsnf4ait4n" path="res://assets/portraits/carlclover.png" id="37_wtd7i"]
@@ -61,6 +62,7 @@
 [ext_resource type="Texture2D" uid="uid://drpkmdacjrh2k" path="res://assets/portraits/bang.png" id="47_wqqey"]
 [ext_resource type="Texture2D" uid="uid://c64lam1prprip" path="res://assets/portraits/akuma.png" id="48_4ovfi"]
 [ext_resource type="Texture2D" uid="uid://cr4xuhld5ghtr" path="res://assets/portraits/tinker.png" id="49_xx03j"]
+[ext_resource type="Texture2D" uid="uid://bbm7akb06k1l6" path="res://assets/portraits/rachel.png" id="50_kgjkx"]
 [ext_resource type="Texture2D" uid="uid://dhl6e0y27cppf" path="res://assets/portraits/propeller.png" id="52_4p78r"]
 [ext_resource type="Texture2D" uid="uid://cqx52mmwlhi0c" path="res://assets/portraits/mole.png" id="54_ciywr"]
 [ext_resource type="Texture2D" uid="uid://bfvuigxc0xhpm" path="res://assets/portraits/polar.png" id="54_u47ng"]
@@ -346,6 +348,11 @@ layout_mode = 2
 char_id = "enkidu"
 portrait_texture = ExtResource("33_7viqn")
 
+[node name="Londrekia" parent="CenterContainer/UNICharacterSelect/Rows/Row3" instance=ExtResource("6_3lmwy")]
+layout_mode = 2
+char_id = "londrekia"
+portrait_texture = ExtResource("34_33tvh")
+
 [node name="BBCharacterSelect" type="PanelContainer" parent="CenterContainer"]
 layout_mode = 2
 mouse_filter = 2
@@ -451,6 +458,12 @@ portrait_texture = ExtResource("46_xgovy")
 layout_mode = 2
 char_id = "bang"
 portrait_texture = ExtResource("47_wqqey")
+
+[node name="Rachel" parent="CenterContainer/BBCharacterSelect/Rows/Row4" instance=ExtResource("6_3lmwy")]
+visible = false
+layout_mode = 2
+char_id = "rachel"
+portrait_texture = ExtResource("50_kgjkx")
 
 [node name="SKCharacterSelect" type="PanelContainer" parent="CenterContainer"]
 layout_mode = 2
@@ -697,6 +710,8 @@ portrait_texture = ExtResource("32_iutun")
 [connection signal="on_pressed" from="CenterContainer/UNICharacterSelect/Rows/Row3/Seth" to="." method="_on_char_button_on_pressed"]
 [connection signal="on_hover" from="CenterContainer/UNICharacterSelect/Rows/Row3/Enkidu" to="." method="_on_char_hover"]
 [connection signal="on_pressed" from="CenterContainer/UNICharacterSelect/Rows/Row3/Enkidu" to="." method="_on_char_button_on_pressed"]
+[connection signal="on_hover" from="CenterContainer/UNICharacterSelect/Rows/Row3/Londrekia" to="." method="_on_char_hover"]
+[connection signal="on_pressed" from="CenterContainer/UNICharacterSelect/Rows/Row3/Londrekia" to="." method="_on_char_button_on_pressed"]
 [connection signal="on_hover" from="CenterContainer/BBCharacterSelect/Rows/Row1/Ragna" to="." method="_on_char_hover"]
 [connection signal="on_pressed" from="CenterContainer/BBCharacterSelect/Rows/Row1/Ragna" to="." method="_on_char_button_on_pressed"]
 [connection signal="on_hover" from="CenterContainer/BBCharacterSelect/Rows/Row1/RandomBB" to="." method="_on_char_hover"]
@@ -729,6 +744,8 @@ portrait_texture = ExtResource("32_iutun")
 [connection signal="on_pressed" from="CenterContainer/BBCharacterSelect/Rows/Row4/Platinum" to="." method="_on_char_button_on_pressed"]
 [connection signal="on_hover" from="CenterContainer/BBCharacterSelect/Rows/Row4/Bang" to="." method="_on_char_hover"]
 [connection signal="on_pressed" from="CenterContainer/BBCharacterSelect/Rows/Row4/Bang" to="." method="_on_char_button_on_pressed"]
+[connection signal="on_hover" from="CenterContainer/BBCharacterSelect/Rows/Row4/Rachel" to="." method="_on_char_hover"]
+[connection signal="on_pressed" from="CenterContainer/BBCharacterSelect/Rows/Row4/Rachel" to="." method="_on_char_button_on_pressed"]
 [connection signal="on_hover" from="CenterContainer/SKCharacterSelect/Rows/Row1/ShovelShield" to="." method="_on_char_hover"]
 [connection signal="on_pressed" from="CenterContainer/SKCharacterSelect/Rows/Row1/ShovelShield" to="." method="_on_char_button_on_pressed"]
 [connection signal="on_hover" from="CenterContainer/SKCharacterSelect/Rows/Row1/Plague" to="." method="_on_char_hover"]

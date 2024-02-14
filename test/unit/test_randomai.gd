@@ -593,3 +593,6 @@ func test_dan_100():
 
 func test_cammy_100():
 	run_iterations_with_deck("cammy")
+
+func test_londrekia_100():
+	run_iterations_with_deck("londrekia")
