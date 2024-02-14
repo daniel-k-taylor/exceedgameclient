@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://dpelwm0e18phx"
-path="res://.godot/imported/temp.png-402e78a106fdfc97695e7db2bcb54863.ctex"
+uid="uid://ckxg5ckjtsljd"
+path="res://.godot/imported/cammyhit.png-ec3d8b9f6ac94832d432d3786edf3369.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/character_animations/cammy/idle/temp.png"
-dest_files=["res://.godot/imported/temp.png-402e78a106fdfc97695e7db2bcb54863.ctex"]
+source_file="res://assets/character_animations/cammy/cammyhit.png"
+dest_files=["res://.godot/imported/cammyhit.png-ec3d8b9f6ac94832d432d3786edf3369.ctex"]
 
 [params]
 
