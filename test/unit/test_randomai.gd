@@ -590,3 +590,6 @@ func test_enkidu_100():
 
 func test_dan_100():
 	run_iterations_with_deck("dan")
+
+func test_londrekia_100():
+	run_iterations_with_deck("londrekia")

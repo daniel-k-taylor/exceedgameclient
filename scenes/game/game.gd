@@ -184,8 +184,8 @@ var game_wrapper : GameWrapper = GameWrapper.new()
 @onready var player_buddy_character_card : CharacterCardBase  = $PlayerDeck/PlayerBuddyCharacterCard
 @onready var opponent_character_card : CharacterCardBase  = $OpponentDeck/OpponentCharacterCard
 @onready var opponent_buddy_character_card : CharacterCardBase  = $OpponentDeck/OpponentBuddyCharacterCard
-@onready var player_buddies : Array[Character] = [$PlayerBuddy, $PlayerBuddy2, $PlayerBuddy3, $PlayerBuddy4, $PlayerBuddy5]
-@onready var opponent_buddies : Array[Character] = [$OpponentBuddy, $OpponentBuddy2, $OpponentBuddy3, $OpponentBuddy4, $OpponentBuddy5]
+@onready var player_buddies : Array[Character] = [$PlayerBuddy, $PlayerBuddy2, $PlayerBuddy3, $PlayerBuddy4, $PlayerBuddy5, $PlayerBuddy6]
+@onready var opponent_buddies : Array[Character] = [$OpponentBuddy, $OpponentBuddy2, $OpponentBuddy3, $OpponentBuddy4, $OpponentBuddy5, $OpponentBuddy6]
 @onready var game_over_stuff = $GameOverStuff
 @onready var game_over_label = $GameOverStuff/GameOverLabel
 @onready var ai_player : AIPlayer = $AIPlayer
@@ -241,6 +241,8 @@ func _ready():
 
 	player_bonus_panel.visible = false
 	opponent_bonus_panel.visible = false
+	player_bonus_label.text = ""
+	opponent_bonus_label.text = ""
 
 	observer_next_button.visible = observer_mode
 	observer_play_to_live_button.visible = observer_mode
@@ -529,6 +531,10 @@ func move_character_to_arena_square(character, arena_location, immediate: bool, 
 	target_position.y -= character.get_size().y * character.scale.y / 2 + offset_y + character.vertical_offset
 	if buddy_offset != 0:
 		target_position.x += buddy_offset * (character.get_size().x * character.scale.x /4) + character.horizontal_offset_buddy
+	if character.use_buddy_extra_offset:
+		# Adjust the buddy to account for having multiple of the same buddy.
+		target_position.x += buddy_offset * 20
+		target_position.y += 15
 	if immediate:
 		character.position = target_position
 		update_character_facing()
@@ -1333,6 +1339,8 @@ func _on_choose_from_discard(event):
 		elif select_card_require_max > 1:
 			card_select_count_str = "%s-%s %scards" % [select_card_require_min, select_card_require_max, limitation]
 		var instruction = "Select %s to move to %s." % [card_select_count_str, destination]
+		if destination == "lightningrod_any_space":
+			instruction = "Select a card from your discard pile to place as a Lightning Rod."
 		var popout_type = CardPopoutType.CardPopoutType_DiscardPlayer
 		if source == "sealed":
 			popout_type = CardPopoutType.CardPopoutType_SealedPlayer
@@ -1756,7 +1764,7 @@ func _on_choose_to_discard(event, informative_only : bool):
 	var decision_info = game_wrapper.get_decision_info()
 	var can_pass = decision_info.can_pass
 	if informative_only or not can_pass:
-		if not decision_info.destination in ["reveal", "sealed", "opponent_overdrive"]:
+		if not decision_info.destination in ["reveal", "sealed", "opponent_overdrive", "lightningrod_any_space"]:
 			var amount_string = "Forced Discard %s" % str(amount)
 			if amount == -1:
 				amount_string = "Discard Cards"
@@ -2201,7 +2209,9 @@ func _on_reshuffle_discard(event):
 	return SmallNoticeDelay
 
 func _on_shuffle_deck(event):
-	update_eyes_on_hand_icons()
+	var player = event['event_player']
+	if player == Enums.PlayerId.PlayerId_Player:
+		update_eyes_on_hand_icons()
 
 func _on_reshuffle_discard_in_place(event):
 	var player = event['event_player']
@@ -2362,12 +2372,14 @@ func _on_strike_character_effect(event):
 		bonus_panel = opponent_bonus_panel
 		bonus_label = opponent_bonus_label
 
-	bonus_panel.visible = true
+	if not bonus_panel.visible:
+		bonus_panel.visible = true
+		bonus_label.text = ""
 	var effect = event['extra_info']
-	var label_text = ""
+	var label_text : String = ""
 	label_text += CardDefinitions.get_effect_text(effect, false, true, true, "", true) + "\n"
 	label_text = label_text.replace(",", "\n")
-	bonus_label.text = label_text
+	bonus_label.text += label_text
 
 func _on_effect_choice(event):
 	var player = event['event_player']
@@ -2541,6 +2553,7 @@ func _on_place_buddy(event):
 	var buddy_location = event['number']
 	var buddy_id = event['extra_info']
 	var silent = event['extra_info2']
+	var extra_offset = event['extra_info3']
 	var extra_description = event['reason']
 
 	var action_text = "Place"
@@ -2548,6 +2561,7 @@ func _on_place_buddy(event):
 		action_text = "Remove"
 
 	var buddy = _get_buddy_from_id(player, buddy_id)
+	buddy.set_buddy_extra_offset(extra_offset)
 	if buddy_location == -1:
 		buddy.visible = false
 	else:
@@ -3099,9 +3113,14 @@ func _on_choose_arena_location_for_effect(event):
 		arena_locations_clickable = decision_info.limitation
 		var instruction_str = "Select a location"
 		match effect_type:
+			"place_boost_in_space":
+				var boost_name = decision_info.source
+				instruction_str = "Select a location to place %s" % boost_name
 			"place_buddy_into_space":
 				var buddy_name = decision_info.source
 				instruction_str = "Select a location to place %s" % buddy_name
+			"place_lightningrod":
+				instruction_str = "Select a location to place the Lightning Rod"
 			"place_next_buddy":
 				var must_remove = decision_info.extra_info
 				var buddy_name = decision_info.source

@@ -8,7 +8,7 @@ var decks = []
 
 func get_deck_test_deck():
 	for deck in decks:
-		if deck['id'] == "millia":
+		if deck['id'] == "rachel":
 			return deck
 	return get_random_deck(-1)
 
@@ -67,6 +67,8 @@ func _ready():
 			continue
 		var deck_data = load_json_file(decks_path + "/" + deck_file)
 		if deck_data:
+			if deck_data['id'] == "rachel":
+				continue #TODO
 			decks.append(deck_data)
 
 func get_card(definition_id):
@@ -310,10 +312,14 @@ func get_condition_text(effect, amount, amount2, detail):
 			text += "If %s is between you and attack source, " % detail
 		"buddy_between_opponent":
 			text += "If %s is between you and opponent, " % detail
+		"boost_space_between_opponent":
+			text += "If %s is between you and opponent, " % detail
 		"more_cards_than_opponent":
 			text += "If you have more cards in hand than opponent, "
 		"opponent_at_edge_of_arena":
 			text += "If opponent at arena edge, "
+		"opponent_at_location":
+			text += "If opponent is at %s, " % detail
 		"opponent_at_max_range":
 			text += "If opponent at attack's max range, "
 		"opponent_between_buddy":
@@ -323,6 +329,8 @@ func get_condition_text(effect, amount, amount2, detail):
 				text += "If opponent is between you and %s, " % detail
 		"opponent_buddy_in_range":
 			text += "If you can hit %s, " % detail
+		"opponent_in_boost_space":
+			text += "If opponent on %s, " % detail
 		"is_buddy_special_attack":
 			text += ""
 		"speed_greater_than":
@@ -491,6 +499,8 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 			if 'limitation' in effect and effect['limitation'] == "continuous":
 				limitation_str = "continuous boost(s)"
 			effect_str += "Play and sustain the top %s %s from your discard pile" % [effect['amount'], limitation_str]
+		"boost_as_overdrive_internal":
+			effect_str += "Overdrive Effect: Play a continuous boost from hand."
 		"cannot_go_below_life":
 			effect_str += "Life cannot go below %s" % effect['amount']
 		"cannot_stun":
@@ -503,13 +513,17 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 			else:
 				effect_str += "Choose: " + get_choice_summary(effect['choice'], card_name_source)
 		"choose_discard":
-			var source = "discard"
-			if 'source' in effect:
-				source = effect['source']
-			if effect['limitation']:
-				effect_str += "Choose a %s card from %s to move to %s" % [effect['limitation'], source, effect['destination']]
+			var destination = effect['destination']
+			if destination == "lightningrod_any_space":
+				effect_str += "Choose a card from your discard pile to place as a Lightning Rod"
 			else:
-				effect_str += "Choose a card from %s to move to %s" % [source, effect['destination']]
+				var source = "discard"
+				if 'source' in effect:
+					source = effect['source']
+				if effect['limitation']:
+					effect_str += "Choose a %s card from %s to move to %s" % [effect['limitation'], source, destination]
+				else:
+					effect_str += "Choose a card from %s to move to %s" % [source, destination]
 		"choose_sustain_boost":
 			effect_str += "Choose a boost to sustain."
 		"close":
@@ -584,6 +598,20 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 				_:
 					where_str = "<MISSING DESTINATION STRING>"
 			effect_str += "Place %s %s%s." % [effect['buddy_name'], where_str, unoccupied_str]
+		"place_lightningrod":
+			var card_str = ""
+			match effect['source']:
+				"this_attack_card":
+					card_str = "this attack"
+				"top_discard":
+					card_str = "the top card of your discard pile"
+			var where_str = ""
+			match effect['limitation']:
+				"attack_range":
+					where_str = "in the attack's range"
+				"any":
+					where_str = "anywhere"
+			effect_str += "Place %s as a Lightning Rod %s" % [card_str, where_str]
 		"play_attack_from_hand":
 				effect_str += "Play an attack from your hand, paying its costs."
 		"calculate_range_from_buddy":
@@ -632,15 +660,23 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 					effect_str += "+"
 				effect_str += str(effect['amount']) + " Guard"
 		"ignore_armor":
-			effect_str += "Ignore armor"
+			if 'opponent' in effect and effect['opponent']:
+				effect_str += "Opponent ignores armor"
+			else:
+				effect_str += "Ignore armor"
 		"ignore_guard":
-			effect_str += "Ignore guard"
+			if 'opponent' in effect and effect['opponent']:
+				effect_str += "Opponent ignores guard"
+			else:
+				effect_str += "Ignore guard"
 		"ignore_push_and_pull":
 			effect_str += "Ignore Push and Pull"
 		"ignore_push_and_pull_passive_bonus":
 			effect_str += "Ignore Push and Pull"
 		"increase_force_spent_before_strike":
 			effect_str += get_effect_text(effect['linked_effect'], false, false, false)
+		"lightningrod_strike":
+			effect_str += "Return %s to hand to deal 2 nonlethal damage" % effect['card_name']
 		"reset_character_positions":
 			effect_str += "Move both players to starting positions"
 		"remove_ignore_push_and_pull_passive_bonus":
@@ -704,6 +740,11 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 				effect_str += "Place %s at range %s-%s" % [effect['buddy_name'], effect['range_min'], effect['range_max']]
 		"place_buddy_onto_self":
 			effect_str += "Place %s onto your space" % effect['buddy_name']
+		"powerup_per_armor_used":
+			var amount = str(effect['amount'])
+			if effect['amount'] > 0:
+				amount = "+%s" % amount
+			effect_str += "%s Power per card armor consumed." % amount
 		"powerup":
 			if str(effect['amount']) == "strike_x":
 				effect_str += "+X Power"
@@ -853,18 +894,23 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 			else:
 				effect_str += "Draw from top of deck"
 		"set_strike_x":
-			effect_str += "Set X to "
-			match effect['source']:
-				'random_gauge_power':
-					effect_str += "power of random gauge card"
-				'top_discard_power':
-					effect_str += "power of top card of discards"
-				'opponent_speed':
-					effect_str += "opponent's speed"
-				'force_spent_before_strike':
-					effect_str += "force spent before strike"
-				_:
-					effect_str += "(UNKNOWN)"
+			if 'description' in effect:
+				effect_str += effect['description']
+			else:
+				effect_str += "Set X to "
+				match effect['source']:
+					'random_gauge_power':
+						effect_str += "power of random gauge card"
+					'top_discard_power':
+						effect_str += "power of top card of discards"
+					'opponent_speed':
+						effect_str += "opponent's speed"
+					'force_spent_before_strike':
+						effect_str += "force spent"
+					'gauge_spent_before_strike':
+						effect_str += "gauge spent"
+					_:
+						effect_str += "(UNKNOWN)"
 		"set_total_power":
 			effect_str += "Your total power is %s" % effect['amount']
 		"seal_attack_on_cleanup":
@@ -923,6 +969,8 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 				effect_str += "+" + str(effect['amount']) + " Speed per EVERY boost in play."
 			else:
 				effect_str += "+" + str(effect['amount']) + " Speed per boost in play."
+		"spend_all_gauge_and_save_amount":
+			effect_str += "Discard all cards in gauge"
 		"spend_life":
 			effect_str += "Spend " + str(effect['amount']) + " life"
 		"strike":

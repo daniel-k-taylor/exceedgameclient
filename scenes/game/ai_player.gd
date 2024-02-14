@@ -1,5 +1,7 @@
 extends Node2D
 
+const TEST_PrepareOnly = false
+
 const LocalGame = preload("res://scenes/game/local_game.gd")
 const AIPolicyRandom = preload("res://scenes/game/ai/ai_policy_random.gd")
 const AIPolicyRules = preload("res://scenes/game/ai/ai_policy_rules.gd")
@@ -267,13 +269,14 @@ func determine_possible_turn_actions(game_logic : LocalGame, me : LocalGame.Play
 	var possible_actions = []
 
 	possible_actions += get_prepare_actions(game_logic, me, opponent)
-	possible_actions += get_move_actions(game_logic, me, opponent)
-	possible_actions += get_change_cards_actions(game_logic, me, opponent)
-	possible_actions += get_exceed_actions(game_logic, me, opponent)
-	possible_actions += get_reshuffle_actions(game_logic, me, opponent)
-	possible_actions += get_boost_actions(game_logic, me, opponent, ['hand'], "", false)
-	possible_actions += get_strike_actions(game_logic, me, opponent)
-	possible_actions += get_character_action_actions(game_logic, me, opponent)
+	if not TEST_PrepareOnly:
+		possible_actions += get_move_actions(game_logic, me, opponent)
+		possible_actions += get_change_cards_actions(game_logic, me, opponent)
+		possible_actions += get_exceed_actions(game_logic, me, opponent)
+		possible_actions += get_reshuffle_actions(game_logic, me, opponent)
+		possible_actions += get_boost_actions(game_logic, me, opponent, ['hand'], "", false)
+		possible_actions += get_strike_actions(game_logic, me, opponent)
+		possible_actions += get_character_action_actions(game_logic, me, opponent)
 	return possible_actions
 
 func get_prepare_actions(_game_logic : LocalGame, me : LocalGame.Player, _opponent : LocalGame.Player):

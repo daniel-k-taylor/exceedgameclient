@@ -442,6 +442,7 @@ class StrikeStatBoosts:
 	var dodge_from_opposite_buddy : bool = false
 	var range_includes_opponent : bool = false
 	var range_includes_if_moved_past : bool = false
+	var range_includes_lightningrods : bool = false
 	var ignore_armor : bool = false
 	var ignore_guard : bool = false
 	var ignore_push_and_pull : bool = false
@@ -450,8 +451,10 @@ class StrikeStatBoosts:
 	var deal_nonlethal_damage : bool = false
 	var always_add_to_gauge : bool = false
 	var always_add_to_overdrive : bool = false
+	var discard_attack_now_for_lightningrod : bool = false
 	var return_attack_to_hand : bool = false
 	var move_strike_to_boosts : bool = false
+	var move_strike_to_boosts_sustain : bool = true
 	var move_strike_to_opponent_boosts : bool = false
 	var when_hit_force_for_armor : String = ""
 	var stun_immunity : bool = false
@@ -510,6 +513,7 @@ class StrikeStatBoosts:
 		dodge_from_opposite_buddy = false
 		range_includes_opponent = false
 		range_includes_if_moved_past = false
+		range_includes_lightningrods = false
 		ignore_armor = false
 		ignore_guard = false
 		ignore_push_and_pull = false
@@ -518,8 +522,10 @@ class StrikeStatBoosts:
 		deal_nonlethal_damage = false
 		always_add_to_gauge = false
 		always_add_to_overdrive = false
+		discard_attack_now_for_lightningrod = false
 		return_attack_to_hand = false
 		move_strike_to_boosts = false
+		move_strike_to_boosts_sustain = true
 		move_strike_to_opponent_boosts = false
 		when_hit_force_for_armor = ""
 		stun_immunity = false
@@ -594,6 +600,7 @@ class Player:
 	var deck_def : Dictionary
 	var gauge : Array[GameCard]
 	var continuous_boosts : Array[GameCard]
+	var lightningrod_zones : Array
 	var cleanup_boost_to_gauge_cards : Array
 	var boosts_to_gauge_on_move : Array
 	var on_buddy_boosts : Array
@@ -613,6 +620,7 @@ class Player:
 	var used_character_action_details : Array
 	var used_character_bonus : bool
 	var force_spent_before_strike : int
+	var gauge_spent_before_strike : int
 	var exceed_at_end_of_turn : bool
 	var specials_invalid : bool
 	var mulligan_complete : bool
@@ -656,6 +664,9 @@ class Player:
 	var skip_end_of_turn_draw : bool
 	var dan_draw_choice : bool
 	var dan_draw_choice_from_bottom : bool
+	var boost_id_locations : Dictionary # [card_id : int, location : int]
+	var boost_buddy_card_id_to_buddy_id_map : Dictionary # [card_id : int, buddy_id : String]
+	var effect_on_turn_start
 
 	func _init(id, player_name, parent_ref, card_db_ref, chosen_deck, card_start_id):
 		my_id = id
@@ -693,6 +704,9 @@ class Player:
 			card_start_id += 1
 		gauge = []
 		continuous_boosts = []
+		lightningrod_zones = []
+		for i in range(MinArenaLocation, MaxArenaLocation + 1):
+			lightningrod_zones.append([])
 		discards = []
 		overdrive = []
 		sealed_area_is_secret = 'sealed_area_is_secret' in deck_def and deck_def['sealed_area_is_secret']
@@ -708,6 +722,7 @@ class Player:
 		used_character_action_details = []
 		used_character_bonus = false
 		force_spent_before_strike = 0
+		gauge_spent_before_strike = 0
 		exceed_at_end_of_turn = false
 		specials_invalid = false
 		cleanup_boost_to_gauge_cards = []
@@ -750,6 +765,9 @@ class Player:
 		skip_end_of_turn_draw = false
 		dan_draw_choice = false
 		dan_draw_choice_from_bottom = false
+		boost_id_locations = {}
+		boost_buddy_card_id_to_buddy_id_map = {}
+		effect_on_turn_start = false
 
 		if "buddy_cards" in deck_def:
 			var buddy_index = 0
@@ -1049,6 +1067,39 @@ class Player:
 				gauge.remove_at(i)
 				break
 		return events
+
+	func get_lightningrod_zone_for_location(location : int):
+		return lightningrod_zones[location - 1]
+
+	func is_opponent_on_lightningrod():
+		var other_player = parent._get_player(parent.get_other_player(my_id))
+		for i in range(MinArenaLocation, MaxArenaLocation + 1):
+			var lightningrod_zone = get_lightningrod_zone_for_location(i)
+			if len(lightningrod_zone) > 0 and other_player.is_in_location(i):
+				return true
+		return false
+
+	func place_top_discard_as_lightningrod(location : int):
+		var events = []
+		assert(len(discards) > 0, "Tried to place a card as a lightningrod when there are no discards.")
+		if len(discards) > 0:
+			var card = discards[len(discards) - 1]
+			discards.remove_at(len(discards) - 1)
+			var lightningrod_zone = get_lightningrod_zone_for_location(location)
+			lightningrod_zone.append(card)
+			events += [parent.create_event(Enums.EventType.EventType_PlaceLightningRod, my_id, card.id, "", location, true)]
+			var card_name = parent.card_db.get_card_name(card.id)
+			parent._append_log_full(Enums.LogType.LogType_Effect, self, "places %s as a Lightning Rod at location %s." % [card_name, location])
+		return events
+
+	func remove_lightning_card(card_id : int, location : int):
+		var lightningrod_zone = get_lightningrod_zone_for_location(location)
+		for i in range(len(lightningrod_zone)):
+			var card = lightningrod_zone[i]
+			if card.id == card_id:
+				lightningrod_zone.remove_at(i)
+				return card
+		return null
 
 	func move_card_from_discard_to_deck(id : int, shuffle : bool = true):
 		var events = []
@@ -1513,7 +1564,7 @@ class Player:
 				return false
 		return true
 
-	func place_buddy(new_location : int, buddy_id : String = "", silent : bool = false, description : String = ""):
+	func place_buddy(new_location : int, buddy_id : String = "", silent : bool = false, description : String = "", extra_offset : bool = false):
 		var events = []
 		if not buddy_id:
 			buddy_id = buddy_id_to_index.keys()[0]
@@ -1523,7 +1574,7 @@ class Player:
 			strike_stat_boosts.buddies_that_entered_play_this_strike.append(buddy_id)
 		set_buddy_location(buddy_id, new_location)
 		on_position_changed(arena_location, old_buddy_pos, false)
-		events += [parent.create_event(Enums.EventType.EventType_PlaceBuddy, my_id, get_buddy_location(buddy_id), description, buddy_id, silent)]
+		events += [parent.create_event(Enums.EventType.EventType_PlaceBuddy, my_id, get_buddy_location(buddy_id), description, buddy_id, silent, extra_offset)]
 		return events
 
 	func remove_buddy(buddy_id : String, silent : bool = false):
@@ -1534,7 +1585,7 @@ class Player:
 			var old_buddy_pos = get_buddy_location(buddy_id)
 			set_buddy_location(buddy_id, -1)
 			on_position_changed(arena_location, old_buddy_pos, false)
-			events += [parent.create_event(Enums.EventType.EventType_PlaceBuddy, my_id, get_buddy_location(buddy_id), "", buddy_id, silent)]
+			events += [parent.create_event(Enums.EventType.EventType_PlaceBuddy, my_id, get_buddy_location(buddy_id), "", buddy_id, silent, false)]
 		return events
 
 	func swap_buddy(buddy_id_to_remove : String, buddy_id_to_place : String, description : String):
@@ -1542,6 +1593,50 @@ class Player:
 		var location = get_buddy_location(buddy_id_to_remove)
 		events += remove_buddy(buddy_id_to_remove, true)
 		events += place_buddy(location, buddy_id_to_place, false, description)
+		return events
+
+	func get_buddy_id_for_boost(card_id : int):
+		var card_def = parent.card_db.get_card(card_id).definition
+		assert('linked_buddy_id' in card_def, "Unexpected: Card does not have a linked buddy id.")
+		var linked_buddy_id = card_def['linked_buddy_id']
+
+		if card_id in boost_buddy_card_id_to_buddy_id_map:
+			return boost_buddy_card_id_to_buddy_id_map[card_id]
+		else:
+			# Currently assumes there are only 2 possible linked buddies.
+			var targetid1 = linked_buddy_id + "1"
+			var targetid2 = linked_buddy_id + "2"
+			# Check the values of the map.
+			if targetid1 in boost_buddy_card_id_to_buddy_id_map.values():
+				return targetid2
+			else:
+				return targetid1
+
+	func get_boost_location(card_id : int):
+		# Check if the id is in boost_id_locations as a key.
+		if card_id in boost_id_locations:
+			return boost_id_locations[card_id]
+		return -1
+
+	func add_boost_to_location(card_id : int, location : int):
+		assert(card_id not in boost_id_locations)
+		var buddy_id = get_buddy_id_for_boost(card_id)
+		boost_id_locations[card_id] = location
+		boost_buddy_card_id_to_buddy_id_map[card_id] = buddy_id
+		var extra_offset = buddy_id.ends_with("2")
+
+		var events = []
+		events += place_buddy(location, buddy_id, false, "", extra_offset)
+		return events
+
+	func remove_boost_in_location(card_id : int):
+		# Check if the id is in the dictionary, and if so remove it.
+		var events = []
+		if card_id in boost_id_locations:
+			var buddy_id = get_buddy_id_for_boost(card_id)
+			boost_id_locations.erase(card_id)
+			boost_buddy_card_id_to_buddy_id_map.erase(card_id)
+			events += remove_buddy(buddy_id)
 		return events
 
 	func get_force_with_cards(card_ids : Array, reason : String, treat_ultras_as_single_force : bool):
@@ -1929,6 +2024,14 @@ class Player:
 			parent._append_log_full(Enums.LogType.LogType_CardInfo, self, "discards their hand, containing %s." % card_names)
 		events += discard(card_ids)
 		reset_public_hand_knowledge()
+		return events
+
+	func discard_gauge():
+		var events = []
+		for i in range(len(gauge)-1, -1, -1):
+			var card = gauge[i]
+			gauge.remove_at(i)
+			events += add_to_discards(card)
 		return events
 
 	func add_hand_to_gauge():
@@ -2674,6 +2777,10 @@ class Player:
 			if effect['timing'] == "discarded":
 				var owner_player = parent._get_player(card.owner_id)
 				events += parent.handle_strike_effect(card.id, effect, owner_player)
+
+		# Remove it from boost locations if it is in the arena.
+		events += remove_boost_in_location(card.id)
+
 		return events
 
 	func cleanup_continuous_boosts():
@@ -2720,6 +2827,30 @@ class Player:
 		for effect in deck_def[ability_label]:
 			if effect['timing'] == timing_name:
 				effects.append(effect)
+
+		# Check for lightning rods.
+		if timing_name == "after":
+			for i in range(len(lightningrod_zones)):
+				var location = i + 1
+				for card in lightningrod_zones[i]:
+					var card_name = parent.card_db.get_card_name(card.id)
+					var lightning_effect = {
+						"timing": "after",
+						"condition": "opponent_at_location",
+						"condition_detail": location,
+						"special_choice_name": "Lighting Rod at %s: %s" % [location, card_name],
+						"effect_type": "choice",
+						"choice": [
+							{
+								"effect_type": "lightningrod_strike",
+								"card_name": card_name,
+								"card_id": card.id,
+								"location": location,
+							},
+							{ "effect_type": "pass" }
+						]
+					}
+					effects.append(lightning_effect)
 		return effects
 
 	func get_bonus_effects_at_timing(timing_name : String):
@@ -2928,6 +3059,8 @@ func advance_to_next_turn():
 	opponent.used_character_bonus = false
 	player.force_spent_before_strike = 0
 	opponent.force_spent_before_strike = 0
+	player.gauge_spent_before_strike = 0
+	opponent.gauge_spent_before_strike = 0
 	player.moved_self_this_strike = false
 	opponent.moved_self_this_strike = false
 	player.spaces_moved_this_strike = 0
@@ -3025,6 +3158,18 @@ func continue_begin_turn():
 		change_game_state(Enums.GameState.GameState_PickAction)
 		events += [create_event(Enums.EventType.EventType_AdvanceTurn, active_turn_player, 0)]
 
+		# Check if the player has to do a forced action for their turn.
+		if starting_turn_player.effect_on_turn_start:
+			var effect = starting_turn_player.effect_on_turn_start
+			starting_turn_player.effect_on_turn_start = null
+			# Pretend this is a character action.
+			# Currently, this only does a choice which results in bonus action and boosting something.
+			# So execution will resume in do_choice as if this was a character action being processed.
+			active_character_action = true
+			set_player_action_processing_state()
+			events += do_effect_if_condition_met(starting_turn_player, -1, effect, null)
+			# This is not expected to do anything currently, but potentially does some future-proofing.
+			events = continue_player_action_resolution(events, starting_turn_player)
 	return events
 
 func initialize_new_strike(performing_player : Player, opponent_sets_first : bool):
@@ -3457,6 +3602,9 @@ func is_effect_condition_met(performing_player : Player, effect, local_condition
 			if not performing_player.is_buddy_in_play(buddy_id):
 				return false
 			return other_player.is_in_location(performing_player.get_buddy_location(buddy_id))
+		elif condition == "opponent_in_boost_space":
+			var this_boost_location = performing_player.get_boost_location(effect['card_id'])
+			return other_player.is_in_location(this_boost_location)
 		elif condition == "buddy_between_attack_source":
 			var buddy_id = ""
 			if 'condition_buddy_id' in effect:
@@ -3486,6 +3634,15 @@ func is_effect_condition_met(performing_player : Player, effect, local_condition
 				return buddy_pos > pos1 and buddy_pos < pos2
 			else: # opponent is on the left
 				return buddy_pos > pos2 and buddy_pos < pos1
+		elif condition == "boost_space_between_opponent":
+			var pos1 = performing_player.get_closest_occupied_space_to(other_player.arena_location)
+			var pos2 = other_player.get_closest_occupied_space_to(performing_player.arena_location)
+
+			var this_boost_location = performing_player.get_boost_location(effect['card_id'])
+			if pos1 < pos2: # opponent is on the right
+				return this_boost_location > pos1 and this_boost_location < pos2
+			else: # opponent is on the left
+				return this_boost_location > pos2 and this_boost_location < pos1
 		elif condition == "opponent_between_buddy":
 			var include_buddy_space = 'include_buddy_space' in effect and effect['include_buddy_space']
 			if 'condition_buddy_id' in effect:
@@ -3525,6 +3682,9 @@ func is_effect_condition_met(performing_player : Player, effect, local_condition
 			return true
 		elif condition == "opponent_at_edge_of_arena":
 			return other_player.is_at_edge_of_arena()
+		elif condition == "opponent_at_location":
+			var location = effect['condition_detail']
+			return other_player.is_in_location(location)
 		elif condition == "opponent_at_max_range":
 			assert(active_strike)
 			var max_range = get_total_max_range(performing_player)
@@ -3613,7 +3773,7 @@ class LocalStrikeConditions:
 func wait_for_mid_strike_boost():
 	return game_state == Enums.GameState.GameState_PlayerDecision and decision_info.type == Enums.DecisionType.DecisionType_BoostNow
 
-func handle_strike_effect(card_id :int, effect, performing_player : Player):
+func handle_strike_effect(card_id : int, effect, performing_player : Player):
 	printlog("STRIKE: Handling effect %s" % [effect])
 	if 'for_other_player' in effect:
 		performing_player = _get_player(get_other_player(performing_player.my_id))
@@ -3854,8 +4014,13 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 			# This effect is expected to be mid-strike.
 			assert(active_strike)
 			var card_name = card_db.get_card_name(card_id)
-			_append_log_full(Enums.LogType.LogType_Effect, performing_player, "boosts and sustains %s." % card_name)
 			performing_player.strike_stat_boosts.move_strike_to_boosts = true
+			if 'dont_sustain' in effect: # Should eventually rename effect to be more general
+				performing_player.strike_stat_boosts.move_strike_to_boosts_sustain = not effect['dont_sustain']
+			var and_sustain_str = ""
+			if performing_player.strike_stat_boosts.move_strike_to_boosts_sustain:
+				and_sustain_str = " and sustains"
+			_append_log_full(Enums.LogType.LogType_Effect, performing_player, "boosts%s %s." % [and_sustain_str, card_name])
 			# This removes the attack from play, so it needs to affect stats.
 			events += handle_strike_attack_immediate_removal(performing_player)
 			if 'boost_effect' in effect:
@@ -3955,6 +4120,45 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 				decision_info.clear()
 				decision_info.type = Enums.DecisionType.DecisionType_StrikeNow
 				decision_info.player = performing_player.my_id
+		"boost_as_overdrive":
+			# This effect will occur after all start of turn stuff is done.
+			# This will be carried out as a special forced character action that
+			# automatically happens at that time.
+			performing_player.effect_on_turn_start = {
+				"effect_type": "choice",
+				"choice": [
+					{
+						"effect_type": "boost_as_overdrive_internal",
+						"limitation": effect['limitation'],
+						"valid_zones": effect['valid_zones'],
+					},
+					{
+						"effect_type": "pass",
+						"suppress_and_description": true,
+						"and": {
+							"effect_type": "take_bonus_actions",
+							"amount": 1
+						}
+					}
+				]
+			}
+		"boost_as_overdrive_internal":
+			# All overdrive/start of turn stuff is done and the player chose to boost.
+			# They may not have a continuous boost, but
+			# they need the bonus action regardless as this is in a weird forced character action timing.
+			var valid_zones = effect['valid_zones']
+			var limitation = effect['limitation']
+			performing_player.bonus_actions = 1
+			if performing_player.can_boost_something(valid_zones, effect['limitation']):
+				events += [create_event(Enums.EventType.EventType_ForceStartBoost, performing_player.my_id, 0, "", valid_zones, limitation)]
+				change_game_state(Enums.GameState.GameState_PlayerDecision)
+				decision_info.clear()
+				decision_info.type = Enums.DecisionType.DecisionType_BoostNow
+				decision_info.player = performing_player.my_id
+				decision_info.valid_zones = valid_zones
+				decision_info.limitation = limitation
+			else:
+				_append_log_full(Enums.LogType.LogType_Effect, performing_player, "has no cards available to boost for the overdrive effect.")
 		"buddy_immune_to_flip":
 			performing_player.strike_stat_boosts.buddy_immune_to_flip = true
 		"cannot_go_below_life":
@@ -4455,11 +4659,19 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 			else:
 				_append_log_full(Enums.LogType.LogType_Effect, performing_player, "will dodge attacks of a higher speed!")
 		"ignore_armor":
-			performing_player.strike_stat_boosts.ignore_armor = true
-			_append_log_full(Enums.LogType.LogType_Effect, performing_player, "gains ignore armor.")
+			if 'opponent' in effect and effect['opponent']:
+				opposing_player.strike_stat_boosts.ignore_armor = true
+				_append_log_full(Enums.LogType.LogType_Effect, opposing_player, "gains ignore armor.")
+			else:
+				performing_player.strike_stat_boosts.ignore_armor = true
+				_append_log_full(Enums.LogType.LogType_Effect, performing_player, "gains ignore armor.")
 		"ignore_guard":
-			performing_player.strike_stat_boosts.ignore_guard = true
-			_append_log_full(Enums.LogType.LogType_Effect, performing_player, "gains ignore guard.")
+			if 'opponent' in effect and effect['opponent']:
+				opposing_player.strike_stat_boosts.ignore_guard = true
+				_append_log_full(Enums.LogType.LogType_Effect, opposing_player, "gains ignore guard.")
+			else:
+				performing_player.strike_stat_boosts.ignore_guard = true
+				_append_log_full(Enums.LogType.LogType_Effect, performing_player, "gains ignore guard.")
 		"ignore_push_and_pull":
 			performing_player.strike_stat_boosts.ignore_push_and_pull = true
 		"ignore_push_and_pull_passive_bonus":
@@ -4953,6 +5165,141 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 		"pass":
 			# Do nothing.
 			pass
+		"place_boost_in_space":
+			var in_attack_range = 'in_attack_range' in effect and effect['in_attack_range']
+
+			change_game_state(Enums.GameState.GameState_PlayerDecision)
+			decision_info.clear()
+			decision_info.type = Enums.DecisionType.DecisionType_ChooseArenaLocationForEffect
+			decision_info.player = performing_player.my_id
+			decision_info.choice_card_id = card_id
+			decision_info.effect_type = "place_boost_in_space"
+			var boost_name = card_db.get_card(card_id).definition['boost']['display_name']
+			decision_info.source = boost_name
+			decision_info.choice = []
+			decision_info.limitation = []
+			var and_effect = null
+			if 'and' in effect:
+				and_effect = effect['and']
+			if 'optional' in effect and effect['optional']:
+				decision_info.limitation.append(0)
+				decision_info.choice.append({
+					"effect_type": "pass"
+				})
+			for i in range(MinArenaLocation, MaxArenaLocation + 1):
+				if in_attack_range and not is_location_in_range(performing_player, active_strike.get_player_card(performing_player), i):
+					continue
+
+				decision_info.limitation.append(i)
+				decision_info.choice.append({
+					"effect_type": "place_boost_in_space_internal",
+					"card_id": card_id,
+					"location": i,
+					"and": and_effect
+				})
+			events += [create_event(Enums.EventType.EventType_ChooseArenaLocationForEffect, performing_player.my_id, 0)]
+		"place_boost_in_space_internal":
+			var location = effect['location']
+			var placed_card_id = effect['card_id']
+			events += performing_player.add_boost_to_location(placed_card_id, location)
+		"lightningrod_strike":
+			var lightning_card_id = effect['card_id']
+			var location = effect['location']
+			var card_name = effect['card_name']
+
+			# Remove lightning rod and put the card back in hand.
+			var lightning_card = performing_player.remove_lightning_card(lightning_card_id, location)
+			events += performing_player.add_to_hand(lightning_card, true)
+			_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "adds Lightning Rod %s to their hand." % card_name)
+			events += [create_event(Enums.EventType.EventType_PlaceLightningRod, performing_player.my_id, lightning_card_id, "", location, false)]
+
+			# Deal the damage
+			var damage_effect = {
+				"effect_type": "take_damage",
+				"opponent": true,
+				"nonlethal": true,
+				"amount": 2
+			}
+			events += handle_strike_effect(lightning_card_id, damage_effect, performing_player)
+		"move_to_lightningrods":
+			var valid_locations = []
+			for i in range(MinArenaLocation, MaxArenaLocation + 1):
+				var lightningzone = performing_player.get_lightningrod_zone_for_location(i)
+				if len(lightningzone) > 0:
+					if performing_player.can_move_to(i, true):
+						valid_locations.append(i)
+
+			if len(valid_locations) > 0:
+				# Let the player choose where to go.
+				decision_info.clear()
+				decision_info.type = Enums.DecisionType.DecisionType_ChooseArenaLocationForEffect
+				decision_info.player = performing_player.my_id
+				decision_info.choice_card_id = card_id
+				decision_info.effect_type = "move_to_space"
+				decision_info.choice = []
+				decision_info.limitation = []
+				decision_info.extra_info = ""
+
+				for location in valid_locations:
+					decision_info.limitation.append(location)
+					decision_info.choice.append({
+						"effect_type": "move_to_space",
+						"amount": location,
+						"remove_buddies_encountered": false,
+					})
+
+				change_game_state(Enums.GameState.GameState_PlayerDecision)
+				events += [create_event(Enums.EventType.EventType_ChooseArenaLocationForEffect, performing_player.my_id, 0)]
+			else:
+				_append_log_full(Enums.LogType.LogType_Effect, performing_player, "has no lightning rods to move to!")
+		"place_lightningrod":
+			var source = effect['source']
+			var limitation = effect['limitation']
+			var lightning_card
+			var valid_locations = []
+			match source:
+				"top_discard":
+					lightning_card = performing_player.get_top_discard_card()
+				"this_attack_card":
+					lightning_card = active_strike.get_player_card(performing_player)
+					# If this is the current attack, get rid of it now, putting it on top the discard pile.
+					# This is convenient since now lightning rods always come from the top discard card.
+					performing_player.strike_stat_boosts.discard_attack_now_for_lightningrod = true
+					events += handle_strike_attack_immediate_removal(performing_player)
+				_:
+					assert(false, "Unknown lightningrod source.")
+			match limitation:
+				"any":
+					for i in range(MinArenaLocation, MaxArenaLocation + 1):
+						valid_locations.append(i)
+				"attack_range":
+					assert(active_strike, "No active strike for lightningrod attack_range.")
+					var attack_card = active_strike.get_player_card(performing_player)
+					for i in range(MinArenaLocation, MaxArenaLocation + 1):
+						if is_location_in_range(performing_player, attack_card, i):
+							valid_locations.append(i)
+				_:
+					assert(false, "Unknown lightningrod limitation.")
+
+			if lightning_card and valid_locations:
+				change_game_state(Enums.GameState.GameState_PlayerDecision)
+				decision_info.clear()
+				decision_info.type = Enums.DecisionType.DecisionType_ChooseArenaLocationForEffect
+				decision_info.player = performing_player.my_id
+				decision_info.choice_card_id = card_id
+				decision_info.effect_type = "place_lightningrod"
+				decision_info.choice = []
+				decision_info.limitation = []
+				for i in range(MinArenaLocation, MaxArenaLocation + 1):
+					decision_info.limitation.append(i)
+					decision_info.choice.append({
+						"effect_type": "place_lightningrod_internal",
+						"location": i,
+					})
+				events += [create_event(Enums.EventType.EventType_ChooseArenaLocationForEffect, performing_player.my_id, 0)]
+		"place_lightningrod_internal":
+			var location = effect['location']
+			events += performing_player.place_top_discard_as_lightningrod(location)
 		"place_buddy_at_range":
 			events += handle_place_buddy_at_range(performing_player, card_id, effect)
 		"place_buddy_into_space":
@@ -4991,11 +5338,14 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 				})
 			for i in range(MinArenaLocation, MaxArenaLocation + 1):
 				decision_info.limitation.append(i)
-				decision_info.choice.append({
+				var new_choice = {
 					"effect_type": "place_buddy_into_space",
 					"buddy_id": buddy_id,
 					"amount": i
-				})
+				}
+				if 'additional_effect' in effect:
+					new_choice['and'] = effect['additional_effect']
+				decision_info.choice.append(new_choice)
 			events += [create_event(Enums.EventType.EventType_ChooseArenaLocationForEffect, performing_player.my_id, 0)]
 		"place_buddy_in_attack_range":
 			var buddy_id = ""
@@ -5014,11 +5364,14 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 			for i in range(MinArenaLocation, MaxArenaLocation + 1):
 				if is_location_in_range(performing_player, attack_card, i):
 					decision_info.limitation.append(i)
-					decision_info.choice.append({
+					var new_choice = {
 						"effect_type": "place_buddy_into_space",
 						"buddy_id": buddy_id,
 						"amount": i
-					})
+					}
+					if 'additional_effect' in effect:
+						new_choice['and'] = effect['additional_effect']
+					decision_info.choice.append(new_choice)
 			if decision_info.limitation.size() > 1 or (not optional and decision_info.limitation.size() > 0):
 				decision_info.type = Enums.DecisionType.DecisionType_ChooseArenaLocationForEffect
 				decision_info.player = performing_player.my_id
@@ -5251,6 +5604,11 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 			opposing_player.add_power_bonus(amount)
 			events += [create_event(Enums.EventType.EventType_Strike_PowerUp, performing_player.my_id, amount)]
 			events += [create_event(Enums.EventType.EventType_Strike_PowerUp, opposing_player.my_id, amount)]
+		"powerup_per_armor_used":
+			var armor_consumed = performing_player.strike_stat_boosts.consumed_armor
+			var power_change = armor_consumed * effect['amount']
+			performing_player.add_power_bonus(power_change)
+			events += [create_event(Enums.EventType.EventType_Strike_PowerUp, performing_player.my_id, power_change)]
 		"powerup_per_boost_in_play":
 			var boosts_in_play = performing_player.continuous_boosts.size()
 			if boosts_in_play > 0:
@@ -5397,6 +5755,8 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 			_append_log_full(Enums.LogType.LogType_CharacterMovement, opposing_player, "is pushed to the attack's max range %s, moving from space %s to %s." % [str(attack_max_range), str(previous_location), str(new_location)])
 		"range_includes_if_moved_past":
 			performing_player.strike_stat_boosts.range_includes_if_moved_past = true
+		"range_includes_lightningrods":
+			performing_player.strike_stat_boosts.range_includes_lightningrods = true
 		"rangeup":
 			performing_player.strike_stat_boosts.min_range += effect['amount']
 			performing_player.strike_stat_boosts.max_range += effect['amount2']
@@ -5791,6 +6151,16 @@ func handle_strike_effect(card_id :int, effect, performing_player : Player):
 			if boosts_in_play > 0:
 				performing_player.strike_stat_boosts.speed += effect['amount'] * boosts_in_play
 				events += [create_event(Enums.EventType.EventType_Strike_SpeedUp, performing_player.my_id, effect['amount'] * boosts_in_play)]
+		"spend_all_gauge_and_save_amount":
+			var gauge_amount = len(performing_player.gauge)
+			var card_names = ""
+			if performing_player.gauge.size() > 0:
+				card_names = ": " + performing_player.gauge[0].definition['display_name']
+				for i in range(1, gauge_amount):
+					card_names += ", " + performing_player.gauge[i].definition['display_name']
+			_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "discards all %s card(s) from their gauge%s." % [gauge_amount, card_names])
+			events += performing_player.discard_gauge()
+			performing_player.gauge_spent_before_strike += gauge_amount
 		"spend_life":
 			var amount = effect['amount']
 			performing_player.life -= amount
@@ -6520,6 +6890,9 @@ func do_set_strike_x(performing_player : Player, source : String, extra_info):
 		"force_spent_before_strike":
 			value = performing_player.force_spent_before_strike
 			_append_log_full(Enums.LogType.LogType_Strike, performing_player, "'s X for this strike is set to the force spent, %s." % value)
+		"gauge_spent_before_strike":
+			value = performing_player.gauge_spent_before_strike
+			_append_log_full(Enums.LogType.LogType_Strike, performing_player, "'s X for this strike is set to the gauge spent, %s." % value)
 		"copies_in_gauge":
 			var card_id = extra_info['card_id']
 			var card_name = extra_info['card_name']
@@ -6527,6 +6900,13 @@ func do_set_strike_x(performing_player : Player, source : String, extra_info):
 				if card.definition['id'] == card_id:
 					value += 1
 			_append_log_full(Enums.LogType.LogType_Strike, performing_player, "'s X for this strike is set to the number of copies of %s in gauge, %s." % [card_name, value])
+		"lightningsrods_in_opponent_space":
+			var opposing_player = _get_player(get_other_player(performing_player.my_id))
+			for i in range(MinArenaLocation, MaxArenaLocation + 1):
+				if opposing_player.is_in_location(i):
+					var lightningzone = performing_player.get_lightningrod_zone_for_location(i)
+					value += len(lightningzone)
+			_append_log_full(Enums.LogType.LogType_Strike, opposing_player, "is on %s Lightning Rods." % [value])
 		_:
 			assert(false, "Unknown source for setting X")
 
@@ -6655,7 +7035,10 @@ func in_range(attacking_player, defending_player, card, combat_logging=false):
 	var defender_location = defending_player.arena_location
 	var defender_width = defending_player.extra_width
 	var opponent_in_range = false
-	if attacking_player.strike_stat_boosts.range_includes_opponent:
+	if attacking_player.strike_stat_boosts.range_includes_lightningrods and attacking_player.is_opponent_on_lightningrod():
+		opponent_in_range = true
+		_append_log_full(Enums.LogType.LogType_Strike, defending_player, "is on a Lightning Rod.")
+	elif attacking_player.strike_stat_boosts.range_includes_opponent:
 		opponent_in_range = true
 	else:
 		for defender_space_offset in range(-defender_width, defender_width+1):
@@ -6831,6 +7214,11 @@ func check_for_stun(check_player : Player, ignore_guard : bool):
 			events += [create_event(Enums.EventType.EventType_Strike_Stun, check_player.my_id, defense_card.id)]
 			active_strike.set_player_stunned(check_player)
 
+			# Assumes non-decision effects only
+			var effects = check_player.get_character_effects_at_timing("on_stunned")
+			for effect in effects:
+				events += do_effect_if_condition_met(check_player, -1, effect, null)
+
 	return events
 
 func apply_damage(offense_player : Player, defense_player : Player):
@@ -6843,7 +7231,7 @@ func apply_damage(offense_player : Player, defense_player : Player):
 	_append_log_full(Enums.LogType.LogType_Strike, null, "Damage calculation: %s total power vs %s total armor." % [str(power), str(armor)])
 
 	if offense_player.strike_stat_boosts.ignore_armor:
-		_append_log_full(Enums.LogType.LogType_Strike, _get_player(get_other_player(offense_player.my_id)), "ignores Armor!")
+		_append_log_full(Enums.LogType.LogType_Strike, offense_player, "ignores Armor!")
 		armor = 0
 
 	var damage_after_armor = calculate_damage(offense_player, defense_player)
@@ -6958,7 +7346,8 @@ func ask_for_cost(performing_player, card, next_state):
 			else:
 				decision_info.type = Enums.DecisionType.DecisionType_PayStrikeCost_Required
 
-			if gauge_cost > 0:
+			var still_use_gauge = card.definition['gauge_cost'] > 0 and not performing_player.strike_stat_boosts.may_generate_gauge_with_force
+			if gauge_cost > 0 or still_use_gauge:
 				decision_info.limitation = "gauge"
 				decision_info.cost = gauge_cost
 				events += [create_event(Enums.EventType.EventType_Strike_PayCost_Gauge, performing_player.my_id, card.id, "", gauge_discard_reminder)]
@@ -6966,6 +7355,8 @@ func ask_for_cost(performing_player, card, next_state):
 				decision_info.limitation = "force"
 				decision_info.cost = force_cost
 				events += [create_event(Enums.EventType.EventType_Strike_PayCost_Force, performing_player.my_id, card.id)]
+			else:
+				assert(false, "ERROR: Expected card to have a force to pay")
 			_append_log_full(Enums.LogType.LogType_Strike, performing_player, "is selecting cards to pay the %s cost." % decision_info.limitation)
 		else:
 			# Failed to pay the cost by default.
@@ -7015,7 +7406,10 @@ func do_hit_response_effects(offense_player : Player, defense_player : Player, i
 		if first_time_only and effect in active_strike.when_hit_effects_processed:
 			continue
 		active_strike.when_hit_effects_processed.append(effect)
-		events += do_effect_if_condition_met(defense_player, -1, effect, null)
+		var card_id = -1
+		if 'card_id' in effect:
+			card_id = effect['card_id']
+		events += do_effect_if_condition_met(defense_player, card_id, effect, null)
 
 		if game_over:
 			change_game_state(Enums.GameState.GameState_GameOver)
@@ -7233,7 +7627,11 @@ func handle_strike_attack_immediate_removal(performing_player : Player):
 
 	change_stats_when_attack_leaves_play(performing_player)
 
-	if performing_player.strike_stat_boosts.return_attack_to_hand:
+	if performing_player.strike_stat_boosts.discard_attack_now_for_lightningrod:
+		# No logline since there will be a log about this in the lightning rod effect.
+		events += performing_player.add_to_discards(card)
+		active_strike.cards_in_play.erase(card)
+	elif performing_player.strike_stat_boosts.return_attack_to_hand:
 		_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "returns their attack %s to their hand." % card_name)
 		events += performing_player.add_to_hand(card, true)
 		active_strike.cards_in_play.erase(card)
@@ -7245,7 +7643,8 @@ func handle_strike_attack_immediate_removal(performing_player : Player):
 	elif performing_player.strike_stat_boosts.move_strike_to_boosts:
 		_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "'s attack %s is set as a continuous boost." % card_name)
 		events += performing_player.add_to_continuous_boosts(card)
-		performing_player.sustained_boosts.append(card.id)
+		if performing_player.strike_stat_boosts.move_strike_to_boosts_sustain:
+			performing_player.sustained_boosts.append(card.id)
 		active_strike.cards_in_play.erase(card)
 	elif performing_player.strike_stat_boosts.attack_to_topdeck_on_cleanup:
 		_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "returns their attack %s to the top of their deck." % card_name)
@@ -7813,10 +8212,10 @@ func check_hand_size_advance_turn(performing_player : Player):
 				from_bottom_str = " from bottom of deck"
 			else:
 				events += performing_player.draw(1)
-			active_dan_effect = false
 			performing_player.did_end_of_turn_draw = true
 			_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "draws %sfor end of turn. Their hand size is now %s." % [from_bottom_str, len(performing_player.hand)])
 
+		active_dan_effect = false
 		if len(performing_player.hand) > performing_player.max_hand_size:
 			change_game_state(Enums.GameState.GameState_DiscardDownToMax)
 			events += [create_event(Enums.EventType.EventType_HandSizeExceeded, performing_player.my_id, len(performing_player.hand) - performing_player.max_hand_size)]
@@ -8484,12 +8883,12 @@ func continue_player_action_resolution(events, performing_player : Player):
 		events = []
 	else:
 		if game_state != Enums.GameState.GameState_PlayerDecision:
-			if active_start_of_turn_effects:
-				events += continue_begin_turn()
+			if active_dan_effect:
+				events += check_hand_size_advance_turn(performing_player)
 			elif active_end_of_turn_effects:
 				events += continue_end_turn()
-			elif active_dan_effect:
-				events += check_hand_size_advance_turn(performing_player)
+			elif active_start_of_turn_effects:
+				events += continue_begin_turn()
 			elif active_overdrive:
 				# Intentional events = because events are passed in.
 				events = do_remaining_overdrive(events, performing_player)
@@ -8641,6 +9040,10 @@ func do_choose_from_discard(performing_player : Player, card_ids : Array) -> boo
 					events += performing_player.move_card_from_discard_to_gauge(card_id)
 				"hand":
 					events += performing_player.move_card_from_discard_to_hand(card_id)
+				"lightningrod_any_space":
+					# Bring this card to the top of the discard pile.
+					# The discard_effect will place it as a lightning rod from there.
+					performing_player.bring_card_to_top_of_discard(card_id)
 				"overdrive":
 					events += performing_player.move_cards_to_overdrive([card_id], "discard")
 				"sealed":

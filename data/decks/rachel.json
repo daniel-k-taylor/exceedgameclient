@@ -1,0 +1,279 @@
+{
+	"id": "rachel",
+	"season": 5,
+	"display_name": "Rachel",
+	"cardback": "cardback_rachel.jpg",
+	"exceed_cost": 3,
+	"exceed_to_overdrive": true,
+	"buddy_cards": [
+		"ivyblossom1",
+		"ivyblossom2",
+		"georgexiii1",
+		"georgexiii2",
+		"impishgypsophila1",
+		"impishgypsophila2"
+	],
+	"hide_buddy_reference": true,
+	"buddy_card_graphic_override": [
+		"",
+		"",
+		"",
+		"",
+		"",
+		""
+	],
+	"buddy_card_graphics_id": [
+		"rachel_ivyblossom",
+		"rachel_ivyblossom",
+		"rachel_georgexiii",
+		"rachel_georgexiii",
+		"rachel_impishgypsophila",
+		"rachel_impishgypsophila"
+	],
+	"buddy_display_names": [
+		"Ivy Blossom",
+		"Ivy Blossom",
+		"George XIII",
+		"George XIII",
+		"Impish Gypsophila",
+		"Impish Gypsophila"
+	],
+	"overdrive_effect": {
+		"effect_type": "boost_as_overdrive",
+		"limitation": "continuous",
+		"valid_zones": [ "hand"]
+	},
+	"character_action_default": [
+		{
+			"NOTE": "Once per turn force to close/retreat",
+			"gauge_cost": 0,
+			"force_cost": 0,
+			"per_turn_limit": 1,
+			"effect": {
+				"effect_type": "take_bonus_actions",
+				"silent_effect": true,
+				"amount": 1,
+				"and": {
+					"effect_type": "choice",
+					"choice": [
+						{
+							"effect_type": "force_for_effect",
+							"per_force_effect": {
+								"effect_type": "close",
+								"amount": 1
+							},
+							"overall_effect": null,
+							"force_max": 2
+						},
+						{
+							"effect_type": "force_for_effect",
+							"per_force_effect": {
+								"effect_type": "retreat",
+								"amount": 1
+							},
+							"overall_effect": null,
+							"force_max": 2
+						}
+					]
+				}
+			}
+		}
+	],
+	"character_action_exceeded": [
+		{
+			"NOTE": "Once per turn force to close/retreat/push/pull",
+			"gauge_cost": 0,
+			"force_cost": 0,
+			"per_turn_limit": 1,
+			"effect": {
+				"effect_type": "take_bonus_actions",
+				"silent_effect": true,
+				"amount": 1,
+				"and": {
+					"effect_type": "choice",
+					"choice": [
+						{
+							"effect_type": "force_for_effect",
+							"per_force_effect": {
+								"effect_type": "close",
+								"amount": 1
+							},
+							"overall_effect": null,
+							"force_max": 2
+						},
+						{
+							"effect_type": "force_for_effect",
+							"per_force_effect": {
+								"effect_type": "retreat",
+								"amount": 1
+							},
+							"overall_effect": null,
+							"force_max": 2
+						},
+						{
+							"effect_type": "force_for_effect",
+							"per_force_effect": {
+								"effect_type": "push",
+								"amount": 1
+							},
+							"overall_effect": null,
+							"force_max": 2
+						},
+						{
+							"effect_type": "force_for_effect",
+							"per_force_effect": {
+								"effect_type": "pull",
+								"amount": 1
+							},
+							"overall_effect": null,
+							"force_max": 2
+						}
+					]
+				}
+			}
+		}
+	],
+	"ability_effects": [
+		{
+			"timing": "on_reshuffle",
+			"condition": "manual_reshuffle",
+			"effect_type": "add_set_aside_card_to_deck",
+			"id": "rachel_clownishcalendula"
+		}
+	],
+	"exceed_ability_effects": [
+		{
+			"timing": "on_reshuffle",
+			"condition": "manual_reshuffle",
+			"effect_type": "add_set_aside_card_to_deck",
+			"id": "rachel_clownishcalendula"
+		}
+	],
+	"cards": [
+		{
+			"set_aside": true,
+			"definition_id": "rachel_clownishcalendula",
+			"image": "rachel_clownishcalendula.tres"
+		},
+		{
+			"definition_id": "rachel_tempestdahlia",
+			"image": "rachel_tempestdahlia.tres"
+		},
+		{
+			"definition_id": "rachel_tempestdahlia",
+			"image": "rachel_tempestdahlia.tres"
+		},
+		{
+			"definition_id": "rachel_badenbadenlily",
+			"image": "rachel_badenbadenlily.tres"
+		},
+		{
+			"definition_id": "rachel_badenbadenlily",
+			"image": "rachel_badenbadenlily.tres"
+		},
+		{
+			"definition_id": "rachel_whirlwind",
+			"image": "rachel_whirlwind.tres"
+		},
+		{
+			"definition_id": "rachel_whirlwind",
+			"image": "rachel_whirlwind.tres"
+		},
+		{
+			"definition_id": "rachel_flyinglobelia",
+			"image": "rachel_flyinglobelia.tres"
+		},
+		{
+			"definition_id": "rachel_flyinglobelia",
+			"image": "rachel_flyinglobelia.tres"
+		},
+		{
+			"definition_id": "rachel_spikedrop",
+			"image": "rachel_spikedrop.tres"
+		},
+		{
+			"definition_id": "rachel_spikedrop",
+			"image": "rachel_spikedrop.tres"
+		},
+		{
+			"definition_id": "rachel_tinylobelia",
+			"image": "rachel_tinylobelia.tres"
+		},
+		{
+			"definition_id": "rachel_tinylobelia",
+			"image": "rachel_tinylobelia.tres"
+		},
+		{
+			"definition_id": "rachel_electricchair",
+			"image": "rachel_electricchair.tres"
+		},
+		{
+			"definition_id": "rachel_electricchair",
+			"image": "rachel_electricchair.tres"
+		},
+		{
+			"definition_id": "standard_normal_grasp",
+			"image": "normal_grasp.tres"
+		},
+		{
+			"definition_id": "standard_normal_grasp",
+			"image": "normal_grasp.tres"
+		},
+		{
+			"definition_id": "standard_normal_cross",
+			"image": "normal_cross.tres"
+		},
+		{
+			"definition_id": "standard_normal_cross",
+			"image": "normal_cross.tres"
+		},
+		{
+			"definition_id": "standard_normal_assault",
+			"image": "normal_assault.tres"
+		},
+		{
+			"definition_id": "standard_normal_assault",
+			"image": "normal_assault.tres"
+		},
+		{
+			"definition_id": "standard_normal_dive",
+			"image": "normal_dive.tres"
+		},
+		{
+			"definition_id": "standard_normal_dive",
+			"image": "normal_dive.tres"
+		},
+		{
+			"definition_id": "standard_normal_spike",
+			"image": "normal_spike.tres"
+		},
+		{
+			"definition_id": "standard_normal_spike",
+			"image": "normal_spike.tres"
+		},
+		{
+			"definition_id": "standard_normal_sweep",
+			"image": "normal_sweep.tres"
+		},
+		{
+			"definition_id": "standard_normal_sweep",
+			"image": "normal_sweep.tres"
+		},
+		{
+			"definition_id": "standard_normal_focus",
+			"image": "normal_focus.tres"
+		},
+		{
+			"definition_id": "standard_normal_focus",
+			"image": "normal_focus.tres"
+		},
+		{
+			"definition_id": "standard_normal_block",
+			"image": "normal_block.tres"
+		},
+		{
+			"definition_id": "standard_normal_block",
+			"image": "normal_block.tres"
+		}
+	]
+}

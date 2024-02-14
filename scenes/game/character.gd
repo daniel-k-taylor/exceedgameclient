@@ -16,6 +16,7 @@ var is_wide : bool = false
 var vertical_offset : float = 0
 var horizontal_offset : float = 0
 var horizontal_offset_buddy : float = 0
+var use_buddy_extra_offset : bool = false
 
 var remaining_animation_time : float = -1
 const MoveTime : float = 1.0
@@ -97,6 +98,9 @@ func set_buddy_id(id : String):
 
 func get_buddy_id():
 	return buddy_id
+
+func set_buddy_extra_offset(use_buddy_extra_offset_value : bool):
+	use_buddy_extra_offset = use_buddy_extra_offset_value
 
 func play_animation(named_animation : String):
 	if animation.sprite_frames.has_animation(named_animation):
