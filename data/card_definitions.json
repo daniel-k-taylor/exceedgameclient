@@ -10597,10 +10597,10 @@
 				},
 				{
 					"timing": "hit",
-					"effect_type": "add_boost_to_gauge_on_strike_cleanup",
-					"card_name": "Hail Storm",
+					"effect_type": "gain_advantage",
 					"and": {
-						"effect_type": "gain_advantage"
+						"effect_type": "add_boost_to_gauge_on_strike_cleanup",
+						"card_name": "Hail Storm"
 					}
 				}
 			]
@@ -10773,7 +10773,7 @@
 				"optional": true,
 				"and": {
 					"effect_type": "boost_this_then_sustain",
-					"sustain": false
+					"dont_sustain": true
 				}
 			}
 		],
@@ -10841,10 +10841,10 @@
 				},
 				{
 					"timing": "hit",
-					"effect_type": "add_boost_to_gauge_on_strike_cleanup",
-					"card_name": "Frozen Vine",
+					"effect_type": "gain_advantage",
 					"and": {
-						"effect_type": "gain_advantage"
+						"effect_type": "add_boost_to_gauge_on_strike_cleanup",
+						"card_name": "Frozen Vine"
 					}
 				}
 			]
@@ -10866,7 +10866,8 @@
 		"effects": [
 			{
 				"timing": "before",
-				"effect_type": "powerdown_per_armor_used"
+				"effect_type": "powerup_per_armor_used",
+				"amount": -1
 			}
 		],
 		"boost": {

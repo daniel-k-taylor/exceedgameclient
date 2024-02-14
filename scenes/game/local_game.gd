@@ -4015,8 +4015,8 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 			assert(active_strike)
 			var card_name = card_db.get_card_name(card_id)
 			performing_player.strike_stat_boosts.move_strike_to_boosts = true
-			if 'sustain' in effect:
-				performing_player.strike_stat_boosts.move_strike_to_boosts_sustain = effect['sustain']
+			if 'dont_sustain' in effect: # Should eventually rename effect to be more general
+				performing_player.strike_stat_boosts.move_strike_to_boosts_sustain = not effect['dont_sustain']
 			var and_sustain_str = ""
 			if performing_player.strike_stat_boosts.move_strike_to_boosts_sustain:
 				and_sustain_str = " and sustains"
@@ -5166,7 +5166,6 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 			# Do nothing.
 			pass
 		"place_boost_in_space":
-			# TODO
 			var in_attack_range = 'in_attack_range' in effect and effect['in_attack_range']
 
 			change_game_state(Enums.GameState.GameState_PlayerDecision)
@@ -5319,8 +5318,6 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 
 			if 'place_other_buddy_effect' in effect:
 				events += handle_place_buddy_at_range(performing_player, card_id, effect['place_other_buddy_effect'])
-			if 'additional_effect' in effect:
-				events += handle_strike_effect(card_id, effect['additional_effect'], performing_player)
 		"place_buddy_in_any_space":
 			var buddy_id = ""
 			if 'buddy_id' in effect:
@@ -5341,11 +5338,14 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 				})
 			for i in range(MinArenaLocation, MaxArenaLocation + 1):
 				decision_info.limitation.append(i)
-				decision_info.choice.append({
+				var new_choice = {
 					"effect_type": "place_buddy_into_space",
 					"buddy_id": buddy_id,
 					"amount": i
-				})
+				}
+				if 'additional_effect' in effect:
+					new_choice['and'] = effect['additional_effect']
+				decision_info.choice.append(new_choice)
 			events += [create_event(Enums.EventType.EventType_ChooseArenaLocationForEffect, performing_player.my_id, 0)]
 		"place_buddy_in_attack_range":
 			var buddy_id = ""
@@ -5370,7 +5370,7 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 						"amount": i
 					}
 					if 'additional_effect' in effect:
-						new_choice['additional_effect'] = effect['additional_effect']
+						new_choice['and'] = effect['additional_effect']
 					decision_info.choice.append(new_choice)
 			if decision_info.limitation.size() > 1 or (not optional and decision_info.limitation.size() > 0):
 				decision_info.type = Enums.DecisionType.DecisionType_ChooseArenaLocationForEffect
@@ -5586,11 +5586,6 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 			events += handle_strike_effect(card_id, discard_effect, performing_player)
 		"power_modify_per_buddy_between":
 			performing_player.strike_stat_boosts.power_modify_per_buddy_between += effect['amount']
-		"powerdown_per_armor_used":
-			var power_change = - performing_player.strike_stat_boosts.consumed_armor
-			if power_change < 0:
-				performing_player.add_power_bonus(power_change)
-				events += [create_event(Enums.EventType.EventType_Strike_PowerUp, performing_player.my_id, power_change)]
 		"powerup":
 			var amount = effect['amount']
 			if str(amount) == "strike_x":
@@ -5609,6 +5604,11 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 			opposing_player.add_power_bonus(amount)
 			events += [create_event(Enums.EventType.EventType_Strike_PowerUp, performing_player.my_id, amount)]
 			events += [create_event(Enums.EventType.EventType_Strike_PowerUp, opposing_player.my_id, amount)]
+		"powerup_per_armor_used":
+			var armor_consumed = performing_player.strike_stat_boosts.consumed_armor
+			var power_change = armor_consumed * effect['amount']
+			performing_player.add_power_bonus(power_change)
+			events += [create_event(Enums.EventType.EventType_Strike_PowerUp, performing_player.my_id, power_change)]
 		"powerup_per_boost_in_play":
 			var boosts_in_play = performing_player.continuous_boosts.size()
 			if boosts_in_play > 0:

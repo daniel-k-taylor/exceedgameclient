@@ -738,8 +738,11 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 				effect_str += "Place %s at range %s-%s" % [effect['buddy_name'], effect['range_min'], effect['range_max']]
 		"place_buddy_onto_self":
 			effect_str += "Place %s onto your space" % effect['buddy_name']
-		"powerdown_per_armor_used":
-			effect_str += "-1 Power per card armor consumed."
+		"powerup_per_armor_used":
+			var amount = str(effect['amount'])
+			if effect['amount'] > 0:
+				amount = "+%s" % amount
+			effect_str += "%s Power per card armor consumed." % amount
 		"powerup":
 			if str(effect['amount']) == "strike_x":
 				effect_str += "+X Power"
@@ -965,7 +968,7 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 			else:
 				effect_str += "+" + str(effect['amount']) + " Speed per boost in play."
 		"spend_all_gauge_and_save_amount":
-			effect_str += "Discard all (X) cards in gauge"
+			effect_str += "Discard all cards in gauge"
 		"spend_life":
 			effect_str += "Spend " + str(effect['amount']) + " life"
 		"strike":
