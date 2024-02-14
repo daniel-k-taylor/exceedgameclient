@@ -2640,6 +2640,11 @@
 		"guard": 0,
 		"effects": [
 			{
+				"timing": "during_strike",
+				"condition": "is_critical",
+				"effect_type": "ignore_guard"
+			},
+			{
 				"timing": "before",
 				"effect_type": "advance",
 				"amount": 3
