@@ -195,3 +195,136 @@ func validate_life(p1, l1, p2, l2):
 ## Tests start here
 ##
 
+func test_cammy_ua_dive():
+	position_players(player1, 3, player2, 4)
+	execute_strike(player1, player2, "standard_normal_dive", "standard_normal_sweep", [], [], false, false,
+		[], [], 0, true, true)
+	validate_positions(player1, 7, player2, 4)
+	validate_life(player1, 30, player2, 25)
+
+func test_cammy_standard_spike():
+	position_players(player1, 3, player2, 5)
+	execute_strike(player1, player2, "standard_normal_spike", "standard_normal_sweep", [], [], false, false,
+		[], [], 0, true, true)
+	validate_positions(player1, 3, player2, 5)
+	validate_life(player1, 30, player2, 25)
+
+func test_cammy_slide_grasp():
+	position_players(player1, 3, player2, 5)
+	give_player_specific_card(player1, "cammy_divekick", TestCardId3)
+	assert_true(game_logic.do_boost(player1, TestCardId3, []))
+	advance_turn(player2)
+	execute_strike(player1, player2, "standard_normal_grasp", "standard_normal_sweep", [1], [], false, false,
+		[], [], 0, true, true)
+	validate_positions(player1, 7, player2, 3)
+	validate_life(player1, 30, player2, 27)
+
+func test_cammy_exceeded_ua_dive():
+	position_players(player1, 3, player2, 4)
+	give_gauge(player1, 3)
+	assert_true(game_logic.do_exceed(player1, [player1.gauge[0].id, player1.gauge[1].id, player1.gauge[2].id]))
+	advance_turn(player2)
+	var events = execute_strike(player1, player2, "standard_normal_dive", "standard_normal_sweep", [], [], false, false,
+		[], [], 0, true, true)
+	validate_has_event(events, Enums.EventType.EventType_Strike_GainAdvantage, player1)
+	validate_positions(player1, 7, player2, 4)
+	validate_life(player1, 30, player2, 24)
+
+func test_cammy_exceeded_standard_spike():
+	position_players(player1, 3, player2, 5)
+	give_gauge(player1, 3)
+	assert_true(game_logic.do_exceed(player1, [player1.gauge[0].id, player1.gauge[1].id, player1.gauge[2].id]))
+	advance_turn(player2)
+	execute_strike(player1, player2, "standard_normal_spike", "standard_normal_sweep", [], [], false, false,
+		[], [], 0, true, true)
+	validate_positions(player1, 3, player2, 5)
+	validate_life(player1, 30, player2, 25)
+
+func test_cammy_exceeded_slide_grasp():
+	position_players(player1, 3, player2, 5)
+	give_gauge(player1, 3)
+	assert_true(game_logic.do_exceed(player1, [player1.gauge[0].id, player1.gauge[1].id, player1.gauge[2].id]))
+	advance_turn(player2)
+	give_player_specific_card(player1, "cammy_divekick", TestCardId3)
+	assert_true(game_logic.do_boost(player1, TestCardId3, []))
+	advance_turn(player2)
+	var events = execute_strike(player1, player2, "standard_normal_grasp", "standard_normal_sweep", [1], [], false, false,
+		[], [], 0, true, true)
+	validate_has_event(events, Enums.EventType.EventType_Strike_GainAdvantage, player1)
+	validate_positions(player1, 7, player2, 3)
+	validate_life(player1, 30, player2, 26)
+
+func test_cammy_slide_specials():
+	position_players(player1, 1, player2, 2)
+	give_player_specific_card(player1, "cammy_divekick", TestCardId3)
+	assert_true(game_logic.do_boost(player1, TestCardId3, []))
+	advance_turn(player2)
+	execute_strike(player1, player2, "cammy_spiralarrow", "standard_normal_sweep", [0], [], false, false,
+		[], [], 0, true, true)
+	validate_positions(player1, 6, player2, 2)
+	assert_true(player1.is_card_in_continuous_boosts(TestCardId3))
+	validate_life(player1, 30, player2, 25)
+
+func test_cammy_gds_vs_sweep():
+	position_players(player1, 1, player2, 2)
+	give_gauge(player1, 3)
+	execute_strike(player1, player2, "cammy_gyrodrivesmasher", "standard_normal_sweep", [6], [], false, false,
+		[player1.gauge[0].id], [], 0, true, true)
+	validate_positions(player1, 9, player2, 8)
+	validate_life(player1, 30, player2, 19)
+
+func test_cammy_gds_vs_focus():
+	position_players(player1, 1, player2, 2)
+	give_gauge(player1, 3)
+	execute_strike(player1, player2, "cammy_gyrodrivesmasher", "standard_normal_focus", [6], [], false, false,
+		[player1.gauge[0].id], [], 0, true, true)
+	validate_positions(player1, 9, player2, 2)
+	validate_life(player1, 30, player2, 27)
+
+func test_cammy_exceeded_gds_vs_sweep():
+	position_players(player1, 1, player2, 2)
+	give_gauge(player1, 3)
+	assert_true(game_logic.do_exceed(player1, [player1.gauge[0].id, player1.gauge[1].id, player1.gauge[2].id]))
+	advance_turn(player2)
+	give_gauge(player1, 3)
+	var events = execute_strike(player1, player2, "cammy_gyrodrivesmasher", "standard_normal_sweep", [6], [], false, false,
+		[player1.gauge[0].id], [], 0, true, true)
+	validate_has_event(events, Enums.EventType.EventType_Strike_GainAdvantage, player1)
+	validate_positions(player1, 9, player2, 8)
+	validate_life(player1, 30, player2, 18)
+
+func test_cammy_exceeded_gds_vs_focus():
+	position_players(player1, 1, player2, 2)
+	give_gauge(player1, 3)
+	assert_true(game_logic.do_exceed(player1, [player1.gauge[0].id, player1.gauge[1].id, player1.gauge[2].id]))
+	advance_turn(player2)
+	give_gauge(player1, 3)
+	var events = execute_strike(player1, player2, "cammy_gyrodrivesmasher", "standard_normal_focus", [6], [], false, false,
+		[player1.gauge[0].id], [], 0, true, true)
+	validate_has_event(events, Enums.EventType.EventType_Strike_GainAdvantage, player1)
+	validate_positions(player1, 9, player2, 2)
+	validate_life(player1, 30, player2, 26)
+
+func test_cammy_cqc_vs_grasp():
+	position_players(player1, 1, player2, 2)
+	give_gauge(player1, 4)
+	execute_strike(player1, player2, "cammy_cqc", "standard_normal_grasp", [7], [], false, false,
+		[player1.gauge[0].id], [], 0, true, true)
+	validate_positions(player1, 1, player2, 9)
+	validate_life(player1, 30, player2, 24)
+
+func test_cammy_cqc_vs_spike():
+	position_players(player1, 1, player2, 3)
+	give_gauge(player1, 4)
+	execute_strike(player1, player2, "cammy_cqc", "standard_normal_spike", [], [], false, false,
+		[player1.gauge[0].id], [], 0, true, true)
+	validate_positions(player1, 1, player2, 3)
+	validate_life(player1, 25, player2, 30)
+
+func test_cammy_cqc_vs_focus():
+	position_players(player1, 1, player2, 2)
+	give_gauge(player1, 4)
+	execute_strike(player1, player2, "cammy_cqc", "standard_normal_focus", [6], [], false, false,
+		[player1.gauge[0].id], [], 0, true, true)
+	validate_positions(player1, 1, player2, 2)
+	validate_life(player1, 30, player2, 26)
