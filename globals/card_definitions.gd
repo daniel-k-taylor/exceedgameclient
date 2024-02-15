@@ -714,6 +714,13 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 			effect_str += "Move %s %s space(s)%s" % [effect['buddy_name'], movement_str, strike_str]
 		"move_to_buddy":
 			effect_str += "Move to %s" % effect['buddy_name']
+		"move_to_any_space":
+			if 'move_min' in effect:
+				var move_min = effect['move_min']
+				var move_max = effect['move_max']
+				effect_str += "Advance or Retreat %s-%s" % [move_min, move_max]
+			else:
+				effect_str += "Move to any space."
 		"multiply_power_bonuses":
 			if effect['amount'] == 2:
 				effect_str += "Double power bonuses"

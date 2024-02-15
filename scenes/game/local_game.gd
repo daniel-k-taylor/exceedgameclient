@@ -2842,7 +2842,7 @@ class Player:
 						"timing": "after",
 						"condition": "opponent_at_location",
 						"condition_detail": location,
-						"special_choice_name": "Lighting Rod (%s)" % [location, card_name],
+						"special_choice_name": "Lightning Rod (%s)" % [card_name],
 						"effect_type": "choice",
 						"choice": [
 							{

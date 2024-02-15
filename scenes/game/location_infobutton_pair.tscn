@@ -75,6 +75,7 @@ mouse_filter = 2
 alignment = 1
 
 [node name="TextureRect" type="TextureRect" parent="PlayerInfo2/MarginContainer/HBoxContainer"]
+modulate = Color(0.890196, 0, 0.894118, 1)
 layout_mode = 2
 mouse_filter = 2
 texture = ExtResource("1_otylp")
