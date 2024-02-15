@@ -2842,7 +2842,7 @@ class Player:
 						"timing": "after",
 						"condition": "opponent_at_location",
 						"condition_detail": location,
-						"special_choice_name": "Lighting Rod at %s: %s" % [location, card_name],
+						"special_choice_name": "Lighting Rod (%s)" % [location, card_name],
 						"effect_type": "choice",
 						"choice": [
 							{
@@ -5269,17 +5269,7 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 			var limitation = effect['limitation']
 			var lightning_card
 			var valid_locations = []
-			match source:
-				"top_discard":
-					lightning_card = performing_player.get_top_discard_card()
-				"this_attack_card":
-					lightning_card = active_strike.get_player_card(performing_player)
-					# If this is the current attack, get rid of it now, putting it on top the discard pile.
-					# This is convenient since now lightning rods always come from the top discard card.
-					performing_player.strike_stat_boosts.discard_attack_now_for_lightningrod = true
-					events += handle_strike_attack_immediate_removal(performing_player)
-				_:
-					assert(false, "Unknown lightningrod source.")
+
 			match limitation:
 				"any":
 					for i in range(MinArenaLocation, MaxArenaLocation + 1):
@@ -5292,6 +5282,21 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 							valid_locations.append(i)
 				_:
 					assert(false, "Unknown lightningrod limitation.")
+
+			# Make sure not to handle the attack card before the range check above,
+			# because discarding the attack card here will force the range check
+			# to fail as the attack is no longer valid.
+			match source:
+				"top_discard":
+					lightning_card = performing_player.get_top_discard_card()
+				"this_attack_card":
+					lightning_card = active_strike.get_player_card(performing_player)
+					# If this is the current attack, get rid of it now, putting it on top the discard pile.
+					# This is convenient since now lightning rods always come from the top discard card.
+					performing_player.strike_stat_boosts.discard_attack_now_for_lightningrod = true
+					events += handle_strike_attack_immediate_removal(performing_player)
+				_:
+					assert(false, "Unknown lightningrod source.")
 
 			if lightning_card and valid_locations:
 				change_game_state(Enums.GameState.GameState_PlayerDecision)

@@ -101,6 +101,7 @@ var opponent_deck
 enum ModalDialogType {
 	ModalDialogType_None,
 	ModalDialogType_ExitToMenu,
+	ModalDialogType_CardInform,
 }
 
 var modal_dialog_type : ModalDialogType = ModalDialogType.ModalDialogType_None
@@ -276,8 +277,20 @@ func _ready():
 
 	setup_characters()
 
-func _on_locationinfobuttonpair_pressed(player_id, location):
-	print("Clicked location %s for player %s" % [location, player_id])
+func _on_locationinfobuttonpair_pressed(player, location):
+	var rod_tracking = player_lightningrod_tracking
+	if player == Enums.PlayerId.PlayerId_Opponent:
+		rod_tracking = opponent_lightningrod_tracking
+
+	var card_db = game_wrapper.get_card_database()
+	var info_str : String = ""
+	for card_id in rod_tracking[location]["card_ids"]:
+		var card = card_db.get_card(card_id)
+		info_str += card.definition['display_name'] + "\n"
+	if info_str:
+		info_str = info_str.erase(len(info_str)-1)
+		modal_dialog.set_text_fields("Lightning Rods:\n%s" % info_str, "", "Close")
+		modal_dialog_type = ModalDialogType.ModalDialogType_CardInform
 
 func begin_local_game(vs_info):
 	player_deck = vs_info['player_deck']
@@ -2647,8 +2660,17 @@ func _on_place_lightningrod(event):
 	if player == Enums.PlayerId.PlayerId_Opponent:
 		rod_parent = opponent_lightningrods
 		rod_tracking = opponent_lightningrod_tracking
+
+	# Add or remove the rod as appropriate.
 	if place:
 		add_lightning_rod(rod_parent, rod_tracking, location, card_id)
+
+		# Move the card to the set aside zone.
+		var is_player = player == Enums.PlayerId.PlayerId_Player
+		var card = find_card_on_board(card_id)
+		var deck_position = get_deck_button_position(is_player)
+		card.discard_to(deck_position, CardBase.CardState.CardState_InDeck)
+		reparent_to_zone(card, get_set_aside_zone(is_player))
 	else:
 		remove_lightning_rod(rod_parent, rod_tracking, location, card_id)
 	update_lightningrod_info(player, rod_tracking, location)

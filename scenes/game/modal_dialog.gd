@@ -10,6 +10,7 @@ signal close_button_pressed
 func set_text_fields(message_text, accept_text, cancel_text):
 	message_label.text = message_text
 	accept_button.text = accept_text
+	accept_button.visible = accept_text != ""
 	cancel_button.text = cancel_text
 	cancel_button.visible = cancel_text != ""
 	visible = true
