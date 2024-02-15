@@ -491,6 +491,7 @@ class StrikeStatBoosts:
 	var buddy_immune_to_flip : bool = false
 	var may_generate_gauge_with_force : bool = false
 	var may_invalidate_ultras : bool = false
+	var discard_ex_X_from_top : int = 0
 
 	func clear():
 		power = 0
@@ -562,6 +563,7 @@ class StrikeStatBoosts:
 		buddy_immune_to_flip = false
 		may_generate_gauge_with_force = false
 		may_invalidate_ultras = false
+		discard_ex_X_from_top = 0
 
 	func set_ex():
 		ex_count += 1
@@ -1213,13 +1215,17 @@ class Player:
 				break
 		return events
 
+	func remove_top_card_from_deck():
+		deck.remove_at(0)
+		update_public_hand_if_deck_empty()
+
 	func add_top_deck_to_gauge(amount : int):
 		var events = []
 		for i in range(amount):
 			if len(deck) > 0:
 				var card = deck[0]
 				events += add_to_gauge(card)
-				deck.remove_at(0)
+				remove_top_card_from_deck()
 				public_topdeck_id = -1
 		return events
 
@@ -2070,7 +2076,7 @@ class Player:
 			var card = deck[0]
 			var card_name = parent.card_db.get_card_name(card.id)
 			parent._append_log_full(Enums.LogType.LogType_CardInfo, self, "discards the top card of their deck: %s." % card_name)
-			deck.remove_at(0)
+			remove_top_card_from_deck()
 			public_topdeck_id = -1
 			events += add_to_discards(card)
 		return events
@@ -2195,7 +2201,7 @@ class Player:
 			else:
 				parent.active_strike.defender_card = deck[0]
 				parent.active_strike.defender_wild_strike = true
-			deck.remove_at(0)
+			remove_top_card_from_deck()
 			public_topdeck_id = -1
 			events += [parent.create_event(Enums.EventType.EventType_Strike_WildStrike, my_id, card_id, "", is_immediate_reveal)]
 		return events
@@ -2224,13 +2230,17 @@ class Player:
 		gauge.append(card)
 		return [parent.create_event(Enums.EventType.EventType_AddToGauge, my_id, card.id)]
 
-	func add_to_discards(card : GameCard):
+	func add_to_discards(card : GameCard, from_top : int = 0):
 		if card.owner_id == my_id:
-			discards.append(card)
+			if from_top == 0:
+				discards.append(card)
+			else:
+				# Insert it from_top from the end.
+				discards.insert(len(discards) - from_top, card)
 			return [parent.create_event(Enums.EventType.EventType_AddToDiscard, my_id, card.id)]
 		else:
 			# Card belongs to the other player, so discard it there.
-			return parent._get_player(parent.get_other_player(my_id)).add_to_discards(card)
+			return parent._get_player(parent.get_other_player(my_id)).add_to_discards(card, from_top)
 
 	func add_to_hand(card : GameCard, public : bool):
 		hand.append(card)
@@ -5307,7 +5317,7 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 				decision_info.effect_type = "place_lightningrod"
 				decision_info.choice = []
 				decision_info.limitation = []
-				for i in range(MinArenaLocation, MaxArenaLocation + 1):
+				for i in valid_locations:
 					decision_info.limitation.append(i)
 					decision_info.choice.append({
 						"effect_type": "place_lightningrod_internal",
@@ -7317,6 +7327,10 @@ func calculate_damage(offense_player : Player, defense_player : Player) -> int:
 func check_for_stun(check_player : Player, ignore_guard : bool):
 	var events = []
 
+	if active_strike.is_player_stunned(check_player):
+		# If they're already stunned, can't stun again.
+		return events
+
 	var total_damage = active_strike.get_damage_taken(check_player)
 	var defense_card = active_strike.get_player_card(check_player)
 	var guard = get_total_guard(check_player)
@@ -7430,6 +7444,7 @@ func ask_for_cost(performing_player, card, next_state):
 	var card_has_printed_cost = card.definition['gauge_cost'] > 0 or force_cost > 0
 	var is_special = card.definition['type'] == "special"
 	var is_ultra = card.definition['type'] == "ultra"
+	var is_ex = active_strike.get_player_ex_card(performing_player) != null
 	var gauge_discard_reminder = false
 	if 'gauge_discard_reminder' in card.definition:
 		gauge_discard_reminder = true
@@ -7471,11 +7486,11 @@ func ask_for_cost(performing_player, card, next_state):
 			if gauge_cost > 0 or still_use_gauge:
 				decision_info.limitation = "gauge"
 				decision_info.cost = gauge_cost
-				events += [create_event(Enums.EventType.EventType_Strike_PayCost_Gauge, performing_player.my_id, card.id, "", gauge_discard_reminder)]
+				events += [create_event(Enums.EventType.EventType_Strike_PayCost_Gauge, performing_player.my_id, card.id, "", gauge_discard_reminder, is_ex)]
 			elif force_cost > 0:
 				decision_info.limitation = "force"
 				decision_info.cost = force_cost
-				events += [create_event(Enums.EventType.EventType_Strike_PayCost_Force, performing_player.my_id, card.id)]
+				events += [create_event(Enums.EventType.EventType_Strike_PayCost_Force, performing_player.my_id, card.id, "", false, is_ex)]
 			else:
 				assert(false, "ERROR: Expected card to have a force to pay")
 			_append_log_full(Enums.LogType.LogType_Strike, performing_player, "is selecting cards to pay the %s cost." % decision_info.limitation)
@@ -7599,13 +7614,13 @@ func continue_resolve_strike(events):
 			StrikeState.StrikeState_Initiator_PayCosts:
 				# Discard any EX cards
 				if active_strike.initiator_ex_card != null:
-					events += active_strike.initiator.add_to_discards(active_strike.initiator_ex_card)
+					events += active_strike.initiator.add_to_discards(active_strike.initiator_ex_card, active_strike.initiator.strike_stat_boosts.discard_ex_X_from_top)
 				# Ask player to pay for this card if applicable.
 				events += ask_for_cost(active_strike.initiator, active_strike.initiator_card, StrikeState.StrikeState_Defender_PayCosts)
 			StrikeState.StrikeState_Defender_PayCosts:
 				# Discard any EX cards
 				if active_strike.defender_ex_card != null:
-					events += active_strike.defender.add_to_discards(active_strike.defender_ex_card)
+					events += active_strike.defender.add_to_discards(active_strike.defender_ex_card, active_strike.defender.strike_stat_boosts.discard_ex_X_from_top)
 				# Ask player to pay for this card if applicable.
 				events += ask_for_cost(active_strike.defender, active_strike.defender_card, StrikeState.StrikeState_DuringStrikeBonuses)
 			StrikeState.StrikeState_DuringStrikeBonuses:
@@ -8730,7 +8745,7 @@ func do_strike(performing_player : Player, card_id : int, wild_strike: bool, ex_
 	event_queue += events
 	return true
 
-func do_pay_strike_cost(performing_player : Player, card_ids : Array, wild_strike : bool) -> bool:
+func do_pay_strike_cost(performing_player : Player, card_ids : Array, wild_strike : bool, discard_ex_first : bool = false) -> bool:
 	printlog("SubAction: PAY_STRIKE by %s cards %s wild %s" % [performing_player.name, card_ids, str(wild_strike)])
 	if game_state != Enums.GameState.GameState_PlayerDecision:
 		printlog("ERROR: Tried to pay costs but not in decision state.")
@@ -8749,6 +8764,10 @@ func do_pay_strike_cost(performing_player : Player, card_ids : Array, wild_strik
 	if decision_info.player != performing_player.my_id:
 		printlog("ERROR: Tried to pay costs for wrong player.")
 		return false
+
+	if wild_strike:
+		# Irrelevant if wild swing.
+		discard_ex_first = false
 
 	var events = []
 	if wild_strike:
@@ -8777,6 +8796,9 @@ func do_pay_strike_cost(performing_player : Player, card_ids : Array, wild_strik
 				card_names = "passive bonus"
 			_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "validates by discarding %s." % card_names)
 			events += performing_player.discard(card_ids)
+			if discard_ex_first:
+				performing_player.strike_stat_boosts.discard_ex_X_from_top = len(card_ids)
+
 			if active_strike.extra_attack_in_progress:
 				active_strike.extra_attack_data.extra_attack_state = ExtraAttackState.ExtraAttackState_DuringStrikeBonuses
 			else:

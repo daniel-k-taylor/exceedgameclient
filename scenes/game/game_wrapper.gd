@@ -362,9 +362,9 @@ func submit_card_from_hand_to_gauge(player : Enums.PlayerId, card_ids : Array) -
 	var game_player = _get_player(player)
 	return current_game.do_card_from_hand_to_gauge(game_player, card_ids)
 
-func submit_pay_strike_cost(player : Enums.PlayerId, card_ids : Array, wild_strike : bool) -> bool:
+func submit_pay_strike_cost(player : Enums.PlayerId, card_ids : Array, wild_strike : bool, discard_ex_first : bool) -> bool:
 	var game_player = _get_player(player)
-	return current_game.do_pay_strike_cost(game_player, card_ids, wild_strike)
+	return current_game.do_pay_strike_cost(game_player, card_ids, wild_strike, discard_ex_first)
 
 func submit_exceed(player : Enums.PlayerId, card_ids : Array) -> bool:
 	var game_player = _get_player(player)

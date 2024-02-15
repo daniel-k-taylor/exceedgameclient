@@ -94,6 +94,8 @@ var reference_popout_toggle_enabled = false
 var reference_popout_toggle = false
 var opponent_cards_before_reshuffle = []
 var treat_ultras_as_single_force = false
+var discard_ex_first_for_strike = false
+var current_pay_costs_is_ex = false
 
 var player_deck
 var opponent_deck
@@ -2048,11 +2050,14 @@ func begin_discard_cards_selection(number_to_discard_min, number_to_discard_max,
 	enable_instructions_ui("", true, cancel_allowed)
 	change_ui_state(UIState.UIState_SelectCards, next_sub_state)
 
-func begin_generate_force_selection(amount, can_cancel : bool = true, wild_swing_allowed : bool = false):
+func begin_generate_force_selection(amount, can_cancel : bool = true, wild_swing_allowed : bool = false, ex_discard_order_checkbox : bool = false):
 	# Show the gauge window.
 	_on_player_gauge_gauge_clicked()
 	treat_ultras_as_single_force = false
+	discard_ex_first_for_strike = false
+	current_pay_costs_is_ex = ex_discard_order_checkbox
 	action_menu.set_force_ultra_toggle(false)
+	action_menu.set_discard_ex_first_toggle(false)
 
 	selected_cards = []
 	select_card_require_force = amount
@@ -2060,10 +2065,13 @@ func begin_generate_force_selection(amount, can_cancel : bool = true, wild_swing
 
 	change_ui_state(UIState.UIState_SelectCards)
 
-func begin_gauge_selection(amount : int, wild_swing_allowed : bool, sub_state : UISubState, enable_reminder : bool = false):
+func begin_gauge_selection(amount : int, wild_swing_allowed : bool, sub_state : UISubState, enable_reminder : bool = false, ex_discard_order_checkbox : bool = false):
 	# Show the gauge window.
 	_on_player_gauge_gauge_clicked()
 	selected_cards = []
+	current_pay_costs_is_ex = ex_discard_order_checkbox
+	discard_ex_first_for_strike = false
+	action_menu.set_discard_ex_first_toggle(false)
 	enabled_reminder_text = true if enable_reminder else false
 	if amount != -1:
 		select_card_require_min = amount
@@ -2464,21 +2472,23 @@ func _on_effect_do_strike(event):
 func _on_pay_cost_gauge(event):
 	var player = event['event_player']
 	var enable_reminder = event['extra_info']
+	var is_ex = event['extra_info2']
 	var gauge_cost = game_wrapper.get_decision_info().cost
 	if player == Enums.PlayerId.PlayerId_Player and not observer_mode:
 		var wild_swing_allowed = game_wrapper.get_decision_info().type == Enums.DecisionType.DecisionType_PayStrikeCost_CanWild
-		begin_gauge_selection(gauge_cost, wild_swing_allowed, UISubState.UISubState_SelectCards_StrikeGauge, enable_reminder)
+		begin_gauge_selection(gauge_cost, wild_swing_allowed, UISubState.UISubState_SelectCards_StrikeGauge, enable_reminder, is_ex)
 	else:
 		ai_pay_cost(gauge_cost, false)
 
 func _on_pay_cost_force(event):
 	var player = event['event_player']
 	var force_cost = game_wrapper.get_decision_info().cost
+	var is_ex = event['extra_info2']
 	if player == Enums.PlayerId.PlayerId_Player and not observer_mode:
 		var can_cancel = false
 		var wild_swing_allowed = game_wrapper.get_decision_info().type == Enums.DecisionType.DecisionType_PayStrikeCost_CanWild
 		change_ui_state(null, UISubState.UISubState_SelectCards_StrikeForce)
-		begin_generate_force_selection(force_cost, can_cancel, wild_swing_allowed)
+		begin_generate_force_selection(force_cost, can_cancel, wild_swing_allowed, is_ex)
 	else:
 		ai_pay_cost(force_cost, true)
 
@@ -3002,6 +3012,7 @@ func _update_buttons():
 
 	# Update instructions message
 	var ultra_force_toggle = false
+	var ex_discard_order_toggle = false
 	if ui_state == UIState.UIState_SelectCards:
 		match ui_sub_state:
 			UISubState.UISubState_SelectCards_DiscardCards:
@@ -3025,10 +3036,12 @@ func _update_buttons():
 				ultra_force_toggle = true
 				update_force_generation_message()
 			UISubState.UISubState_SelectCards_StrikeForce:
+				ex_discard_order_toggle = current_pay_costs_is_ex
 				update_force_generation_message()
 			UISubState.UISubState_SelectCards_GaugeForArmor:
 				update_gauge_selection_message()
 			UISubState.UISubState_SelectCards_StrikeGauge:
+				ex_discard_order_toggle = current_pay_costs_is_ex
 				update_gauge_selection_message()
 			UISubState.UISubState_SelectCards_GaugeForEffect:
 				update_gauge_for_effect_message()
@@ -3094,7 +3107,7 @@ func _update_buttons():
 			action_menu_hidden = true
 	action_menu.visible = not action_menu_hidden and (button_choices.size() > 0 or instructions_visible)
 	action_menu_container.visible = action_menu.visible
-	action_menu.set_choices(current_instruction_text, button_choices, ultra_force_toggle, instructions_number_picker_min, instructions_number_picker_max)
+	action_menu.set_choices(current_instruction_text, button_choices, ultra_force_toggle, instructions_number_picker_min, instructions_number_picker_max, ex_discard_order_toggle)
 	current_action_menu_choices = button_choices
 
 func update_boost_summary(boosts_card_holder, boost_box):
@@ -3390,7 +3403,7 @@ func _on_instructions_ok_button_pressed(index : int):
 			UISubState.UISubState_SelectCards_DiscardCardsToGauge:
 				success = game_wrapper.submit_card_from_hand_to_gauge(Enums.PlayerId.PlayerId_Player, selected_card_ids)
 			UISubState.UISubState_SelectCards_StrikeGauge, UISubState.UISubState_SelectCards_StrikeForce:
-				success = game_wrapper.submit_pay_strike_cost(Enums.PlayerId.PlayerId_Player, selected_card_ids, false)
+				success = game_wrapper.submit_pay_strike_cost(Enums.PlayerId.PlayerId_Player, selected_card_ids, false, discard_ex_first_for_strike)
 			UISubState.UISubState_SelectCards_Exceed:
 				success = game_wrapper.submit_exceed(Enums.PlayerId.PlayerId_Player, selected_card_ids)
 			UISubState.UISubState_SelectCards_ForceForEffect:
@@ -3524,10 +3537,10 @@ func _on_wild_swing_button_pressed():
 			success = game_wrapper.submit_strike(Enums.PlayerId.PlayerId_Player, -1, true, -1, true)
 		elif ui_sub_state == UISubState.UISubState_SelectCards_StrikeGauge:
 			close_popout()
-			success = game_wrapper.submit_pay_strike_cost(Enums.PlayerId.PlayerId_Player, [], true)
+			success = game_wrapper.submit_pay_strike_cost(Enums.PlayerId.PlayerId_Player, [], true, false)
 		elif ui_sub_state == UISubState.UISubState_SelectCards_StrikeForce:
 			close_popout()
-			success = game_wrapper.submit_pay_strike_cost(Enums.PlayerId.PlayerId_Player, [], true)
+			success = game_wrapper.submit_pay_strike_cost(Enums.PlayerId.PlayerId_Player, [], true, false)
 	if success:
 		change_ui_state(UIState.UIState_WaitForGameServer)
 	_update_buttons()
@@ -3704,7 +3717,7 @@ func ai_pay_cost(cost, is_force_cost : bool):
 		pay_action = ai_player.pay_strike_force_cost(game_wrapper.current_game, Enums.PlayerId.PlayerId_Opponent, cost, can_wild)
 	else:
 		pay_action = ai_player.pay_strike_gauge_cost(game_wrapper.current_game, Enums.PlayerId.PlayerId_Opponent, cost, can_wild)
-	var success = game_wrapper.submit_pay_strike_cost(Enums.PlayerId.PlayerId_Opponent, pay_action.card_ids, pay_action.wild_swing)
+	var success = game_wrapper.submit_pay_strike_cost(Enums.PlayerId.PlayerId_Opponent, pay_action.card_ids, pay_action.wild_swing, false)
 	if success:
 		change_ui_state(UIState.UIState_WaitForGameServer)
 	else:
@@ -4328,6 +4341,10 @@ func _on_action_menu_ultra_force_toggled(new_value):
 	treat_ultras_as_single_force = new_value
 	_update_buttons()
 
+func _on_action_menu_discard_ex_first_toggled(new_value):
+	discard_ex_first_for_strike = new_value
+	_update_buttons()
+
 func _on_observer_next_button_pressed():
 	if ui_state == UIState.UIState_WaitForGameServer or ui_state == UIState.UIState_WaitingOnOpponent:
 		var processed_something = game_wrapper.observer_process_next_message_from_queue()
@@ -4342,3 +4359,4 @@ func _on_observer_play_to_live_pressed():
 	observer_next_button.text = "LIVE"
 	observer_live = true
 	observer_play_to_live_button.visible = false
+

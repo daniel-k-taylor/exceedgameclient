@@ -840,6 +840,7 @@ offset_bottom = 720.0
 [connection signal="pressed" from="ObserverNextButton" to="." method="_on_observer_next_button_pressed"]
 [connection signal="pressed" from="ObserverPlayToLive" to="." method="_on_observer_play_to_live_pressed"]
 [connection signal="choice_selected" from="AllCards/ActionContainer/ActionMenu" to="." method="_on_action_menu_choice_selected"]
+[connection signal="discard_ex_first_toggled" from="AllCards/ActionContainer/ActionMenu" to="." method="_on_action_menu_discard_ex_first_toggled"]
 [connection signal="ultra_force_toggled" from="AllCards/ActionContainer/ActionMenu" to="." method="_on_action_menu_ultra_force_toggled"]
 [connection signal="close_window" from="AllCards/CardPopout" to="." method="_on_popout_close_window"]
 [connection signal="pressed_cancel" from="AllCards/CardPopout" to="." method="_on_card_popout_pressed_cancel"]
