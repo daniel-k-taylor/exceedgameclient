@@ -274,7 +274,6 @@ func _ready():
 		child.button_pressed.connect(func(player_id): _on_locationinfobuttonpair_pressed(player_id, location_index))
 		location_index += 1
 
-
 	setup_characters()
 
 func _on_locationinfobuttonpair_pressed(player_id, location):

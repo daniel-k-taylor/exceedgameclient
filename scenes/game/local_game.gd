@@ -272,6 +272,7 @@ class ExtraAttackData:
 	var extra_attack_card : GameCard = null
 	var extra_attack_player : Player = null
 	var extra_attack_previous_attack_power_bonus = 0
+	var extra_attack_previous_attack_speed_bonus = 0
 	var extra_attack_previous_attack_min_range_bonus = 0
 	var extra_attack_previous_attack_max_range_bonus = 0
 	var extra_attack_state = ExtraAttackState.ExtraAttackState_None
@@ -286,6 +287,7 @@ class ExtraAttackData:
 		extra_attack_card = null
 		extra_attack_player = null
 		extra_attack_previous_attack_power_bonus = 0
+		extra_attack_previous_attack_speed_bonus = 0
 		extra_attack_previous_attack_min_range_bonus = 0
 		extra_attack_previous_attack_max_range_bonus = 0
 		extra_attack_state = ExtraAttackState.ExtraAttackState_None
@@ -3367,6 +3369,9 @@ func get_total_speed(check_player):
 	var check_card = active_strike.get_player_card(check_player)
 	var bonus_speed = check_player.strike_stat_boosts.speed * check_player.strike_stat_boosts.speed_bonus_multiplier
 	var speed = check_card.definition['speed'] + bonus_speed
+	if active_strike and active_strike.extra_attack_in_progress:
+		# If an extra attack character has ways to get speed multipliers, deal with that then.
+		speed -= active_strike.extra_attack_data.extra_attack_previous_attack_speed_bonus
 	return speed
 
 func strike_determine_order():
@@ -7844,6 +7849,7 @@ func begin_extra_attack(events, performing_player : Player, card_id : int):
 	active_strike.extra_attack_data.extra_attack_card = card_db.get_card(card_id)
 	active_strike.extra_attack_data.extra_attack_player = performing_player
 	active_strike.extra_attack_data.extra_attack_previous_attack_power_bonus = performing_player.strike_stat_boosts.power
+	active_strike.extra_attack_data.extra_attack_previous_attack_speed_bonus = performing_player.strike_stat_boosts.speed
 	active_strike.extra_attack_data.extra_attack_previous_attack_min_range_bonus = performing_player.strike_stat_boosts.min_range
 	active_strike.extra_attack_data.extra_attack_previous_attack_max_range_bonus = performing_player.strike_stat_boosts.max_range
 	active_strike.extra_attack_data.extra_attack_state = ExtraAttackState.ExtraAttackState_PayCosts
