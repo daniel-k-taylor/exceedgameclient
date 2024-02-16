@@ -39,6 +39,8 @@ const LocationInfoButtonPair = preload("res://scenes/game/location_infobutton_pa
 @onready var emote_dialog : EmoteDialog = $EmoteDialog
 @onready var modal_dialog : ModalDialog = $ModalDialog
 
+@onready var PopoutLock = Mutex.new()
+
 const OffScreen = Vector2(-1000, -1000)
 const RevealCopyIdRangestart = 80000
 const ReferenceScreenIdRangeStart = 90000
@@ -1175,11 +1177,10 @@ func _on_advance_turn():
 	if is_local_player_active and not observer_mode:
 		change_ui_state(UIState.UIState_PickTurnAction, UISubState.UISubState_None)
 		clear_selected_cards()
+		close_popout()
 	else:
 		change_ui_state(UIState.UIState_WaitingOnOpponent, UISubState.UISubState_None)
 
-	clear_selected_cards()
-	close_popout()
 	player_bonus_panel.visible = false
 	opponent_bonus_panel.visible = false
 
@@ -4110,7 +4111,9 @@ func close_popout():
 	card_popout.visible = false
 	if popout_showing_node:
 		popout_showing_node.z_index = 0
+	PopoutLock.lock()
 	await clear_card_popout()
+	PopoutLock.unlock()
 
 func update_popout_instructions():
 	if popout_instruction_info and popout_type_showing == popout_instruction_info['popout_type']:
