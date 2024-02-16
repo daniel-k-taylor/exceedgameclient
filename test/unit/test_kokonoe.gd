@@ -742,3 +742,52 @@ func test_kokonoe_flamingbelobog_extraattack_misses():
 	assert_true(player1.is_card_in_gauge(TestCardId1))
 	assert_true(not player1.is_card_in_gauge(TestCardId4))
 	advance_turn(player2)
+
+
+func test_kokonoe_extraattack_unnaffected_by_speed_boost():
+	position_players(player1, 4, player2, 7)
+	give_player_specific_card(player1, "kokonoe_flamingbelobog", TestCardId3)
+	assert_true(game_logic.do_boost(player1, TestCardId3))
+	# Place gravitron
+	assert_true(game_logic.do_choice(player1, 5))
+	assert_eq(player1.get_buddy_location(), 5)
+	advance_turn(player2)
+	give_player_specific_card(player1, "standard_normal_sweep", TestCardId4)
+	assert_true(game_logic.do_boost(player1, TestCardId4))
+	assert_true(game_logic.do_choice(player1, 5))
+	assert_eq(player1.get_buddy_location(), 5)
+	advance_turn(player2)
+
+	# Start strike
+	give_player_specific_card(player1, "kokonoe_banishingrays", TestCardId1)
+	give_player_specific_card(player2, "enkidu_galeedge", TestCardId2)
+	assert_true(game_logic.do_strike(player1, TestCardId1, false, -1))
+	# Don't pay for grav
+	assert_true(game_logic.do_force_for_effect(player1, [], false, true))
+	assert_true(game_logic.do_strike(player2, TestCardId2, false, -1))
+	# Banishing rays goes first, misses.
+	# After choices between card and boost
+	assert_true(game_logic.do_choice(player1, 0)) # Card
+	# Retreat 1
+	assert_true(game_logic.do_choice(player1, 1))
+
+	validate_positions(player1, 3, player2, 7)
+	# Plan here is to hit with flame cage, use extra attack effect,
+	# miss with that attack for lulz,
+	# then resolve the flame cage after effect
+	validate_life(player1, 30, player2, 30)
+	validate_positions(player1, 3, player2, 7)
+	# Now range 4, extra attack goes off.
+	# Player flame cage
+	give_player_specific_card(player1, "kokonoe_flamecage", TestCardId5)
+	assert_true(game_logic.do_choose_to_discard(player1, [TestCardId5]))
+	# Speed 3 so it should hit, +2 power at range 4 for 5 damage.
+	# After push/pull
+	assert_true(game_logic.do_choice(player1, 0)) # Push
+	# p2 should be stunned now.
+	validate_positions(player1, 3, player2, 8)
+	validate_life(player1, 30, player2, 25)
+	assert_eq(player1.gauge.size(), 1) # Only 1 hit.
+	assert_true(player1.is_card_in_gauge(TestCardId5))
+	assert_true(not player1.is_card_in_gauge(TestCardId1))
+	advance_turn(player2)

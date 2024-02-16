@@ -67,8 +67,6 @@ func _ready():
 			continue
 		var deck_data = load_json_file(decks_path + "/" + deck_file)
 		if deck_data:
-			if deck_data['id'] == "rachel":
-				continue #TODO
 			decks.append(deck_data)
 
 func get_card(definition_id):
@@ -128,7 +126,11 @@ func get_force_for_effect_summary(effect, card_name_source : String) -> String:
 	var effect_str = ""
 	var force_limit = effect['force_max']
 	if "per_force_effect" in effect and effect['per_force_effect'] != null:
-		effect_str += "Spend up to %s force. For each, %s" % [str(force_limit), get_effect_text(effect['per_force_effect'], false, true, true, card_name_source)]
+		var per_effect = effect['per_force_effect']
+		if 'combine_multiple_into_one' in per_effect and per_effect['combine_multiple_into_one']:
+			effect_str += "Spend up to %s force. %s" % [str(force_limit), get_effect_text(per_effect, false, true, true, card_name_source)]
+		else:
+			effect_str += "Spend up to %s force. For each, %s" % [str(force_limit), get_effect_text(effect['per_force_effect'], false, true, true, card_name_source)]
 	elif 'overall_effect' in effect and effect['overall_effect'] != null:
 		effect_str += "You may spend %s force to %s" % [str(force_limit), get_effect_text(effect['overall_effect'], false, true, true, card_name_source)]
 	return effect_str
@@ -436,11 +438,14 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 			if 'description' in effect:
 				effect_str += effect['description']
 			else:
-				effect_str += "Advance "
-				if str(effect['amount']) == "strike_x":
-					effect_str += "X"
+				if 'combine_multiple_into_one' in effect and effect['combine_multiple_into_one']:
+					effect_str += "Advance that much."
 				else:
-					effect_str += str(effect['amount'])
+					effect_str += "Advance "
+					if str(effect['amount']) == "strike_x":
+						effect_str += "X"
+					else:
+						effect_str += str(effect['amount'])
 		"advance_INTERNAL":
 			effect_str += "Advance "
 			if str(effect['amount']) == "strike_x":
@@ -529,7 +534,10 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 		"choose_sustain_boost":
 			effect_str += "Choose a boost to sustain."
 		"close":
-			effect_str += "Close " + str(effect['amount'])
+			if 'combine_multiple_into_one' in effect and effect['combine_multiple_into_one']:
+				effect_str += "Close that much."
+			else:
+				effect_str += "Close " + str(effect['amount'])
 		"close_INTERNAL":
 			effect_str += "Close " + str(effect['amount'])
 		"copy_other_hit_effect":
@@ -706,6 +714,13 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 			effect_str += "Move %s %s space(s)%s" % [effect['buddy_name'], movement_str, strike_str]
 		"move_to_buddy":
 			effect_str += "Move to %s" % effect['buddy_name']
+		"move_to_any_space":
+			if 'move_min' in effect:
+				var move_min = effect['move_min']
+				var move_max = effect['move_max']
+				effect_str += "Advance or Retreat %s-%s" % [move_min, move_max]
+			else:
+				effect_str += "Move to any space."
 		"multiply_power_bonuses":
 			if effect['amount'] == 2:
 				effect_str += "Double power bonuses"
@@ -777,7 +792,10 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 				effect_str += "+"
 			effect_str += str(effect['amount']) + " Opponent's Power"
 		"pull":
-			effect_str += "Pull " + str(effect['amount'])
+			if 'combine_multiple_into_one' in effect and effect['combine_multiple_into_one']:
+				effect_str += "Pull that much."
+			else:
+				effect_str += "Pull " + str(effect['amount'])
 		"pull_any_number_of_spaces_and_gain_power":
 			effect_str += "Pull any amount and +1 Power per space pulled."
 		"pull_to_buddy":
@@ -785,10 +803,13 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 		"pull_to_space_and_gain_power":
 			effect_str += "Pull to space " + str(effect['amount']) + " and +1 Power per space pulled."
 		"push":
-			var extra_info = ""
-			if 'save_buddy_spaces_entered_as_strike_x' in effect and effect['save_buddy_spaces_entered_as_strike_x']:
-				extra_info = "\nSet X to the number of %s the opponent is pushed onto" % effect['buddy_name']
-			effect_str += "Push " + str(effect['amount']) + extra_info
+			if 'combine_multiple_into_one' in effect and effect['combine_multiple_into_one']:
+				effect_str += "Push that much."
+			else:
+				var extra_info = ""
+				if 'save_buddy_spaces_entered_as_strike_x' in effect and effect['save_buddy_spaces_entered_as_strike_x']:
+					extra_info = "\nSet X to the number of %s the opponent is pushed onto" % effect['buddy_name']
+				effect_str += "Push " + str(effect['amount']) + extra_info
 		"push_from_source":
 			effect_str += "Push " + str(effect['amount']) + " from attack source"
 		"push_or_pull_to_any_space":
@@ -854,11 +875,14 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 		"reshuffle_discard_into_deck":
 			effect_str += "Reshuffle discard pile into deck"
 		"retreat":
-			effect_str += "Retreat "
-			if str(effect['amount']) == "strike_x":
-				effect_str += "X"
+			if 'combine_multiple_into_one' in effect and effect['combine_multiple_into_one']:
+				effect_str += "Retreat that much."
 			else:
-				effect_str += str(effect['amount'])
+				effect_str += "Retreat "
+				if str(effect['amount']) == "strike_x":
+					effect_str += "X"
+				else:
+					effect_str += str(effect['amount'])
 		"return_attack_to_hand":
 			if 'card_name' in effect:
 				effect_str += "Return %s to hand" % effect['card_name']

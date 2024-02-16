@@ -15,6 +15,7 @@ const CharacterCardBase = preload("res://scenes/card/character_card_base.gd")
 const AIPlayer = preload("res://scenes/game/ai_player.gd")
 const DamagePopup = preload("res://scenes/game/damage_popup.gd")
 const Character = preload("res://scenes/game/character.gd")
+const CharacterScene = preload("res://scenes/game/character.tscn")
 const GameWrapper = preload("res://scenes/game/game_wrapper.gd")
 const GameCard = preload("res://scenes/game/game_card.gd")
 const DecisionInfo = preload("res://scenes/game/decision_info.gd")
@@ -24,6 +25,7 @@ const EmoteDialog = preload("res://scenes/game/emote_dialog.gd")
 const ArenaSquare = preload("res://scenes/game/arena_square.gd")
 const EmoteDisplay = preload("res://scenes/game/emote_display.gd")
 const CombatLog = preload("res://scenes/game/combat_log.gd")
+const LocationInfoButtonPair = preload("res://scenes/game/location_infobutton_pair.gd")
 
 @onready var player_emote : EmoteDisplay = $PlayerEmote
 @onready var opponent_emote : EmoteDisplay = $OpponentEmote
@@ -92,6 +94,8 @@ var reference_popout_toggle_enabled = false
 var reference_popout_toggle = false
 var opponent_cards_before_reshuffle = []
 var treat_ultras_as_single_force = false
+var discard_ex_first_for_strike = false
+var current_pay_costs_is_ex = false
 
 var player_deck
 var opponent_deck
@@ -99,6 +103,7 @@ var opponent_deck
 enum ModalDialogType {
 	ModalDialogType_None,
 	ModalDialogType_ExitToMenu,
+	ModalDialogType_CardInform,
 }
 
 var modal_dialog_type : ModalDialogType = ModalDialogType.ModalDialogType_None
@@ -200,6 +205,11 @@ var game_wrapper : GameWrapper = GameWrapper.new()
 @onready var combat_log : CombatLog = $CombatLog
 @onready var observer_next_button : Button = $ObserverNextButton
 @onready var observer_play_to_live_button : Button = $ObserverPlayToLive
+@onready var player_lightningrods : Node2D = $PlayerLightningRods
+@onready var opponent_lightningrods : Node2D = $OpponentLightningRods
+
+var player_lightningrod_tracking = {}
+var opponent_lightningrod_tracking = {}
 
 var current_instruction_text : String = ""
 var current_action_menu_choices : Array = []
@@ -247,7 +257,42 @@ func _ready():
 	observer_next_button.visible = observer_mode
 	observer_play_to_live_button.visible = observer_mode
 
+	for i in range(1, 10):
+		player_lightningrod_tracking[i] = {
+			"card_ids": [],
+			"character": null,
+		}
+		opponent_lightningrod_tracking[i] = {
+			"card_ids": [],
+			"character": null,
+		}
+
+	var location_index = 0
+	for child in $ArenaNode/RowLightningInfoButtons.get_children():
+		if location_index == 0 or location_index == 10:
+			# Skip margin containers
+			location_index += 1
+			continue
+		assert(child is LocationInfoButtonPair)
+		child.button_pressed.connect(func(player_id): _on_locationinfobuttonpair_pressed(player_id, location_index))
+		location_index += 1
+
 	setup_characters()
+
+func _on_locationinfobuttonpair_pressed(player, location):
+	var rod_tracking = player_lightningrod_tracking
+	if player == Enums.PlayerId.PlayerId_Opponent:
+		rod_tracking = opponent_lightningrod_tracking
+
+	var card_db = game_wrapper.get_card_database()
+	var info_str : String = ""
+	for card_id in rod_tracking[location]["card_ids"]:
+		var card = card_db.get_card(card_id)
+		info_str += card.definition['display_name'] + "\n"
+	if info_str:
+		info_str = info_str.erase(len(info_str)-1)
+		modal_dialog.set_text_fields("Lightning Rods:\n%s" % info_str, "", "Close")
+		modal_dialog_type = ModalDialogType.ModalDialogType_CardInform
 
 func begin_local_game(vs_info):
 	player_deck = vs_info['player_deck']
@@ -2005,11 +2050,14 @@ func begin_discard_cards_selection(number_to_discard_min, number_to_discard_max,
 	enable_instructions_ui("", true, cancel_allowed)
 	change_ui_state(UIState.UIState_SelectCards, next_sub_state)
 
-func begin_generate_force_selection(amount, can_cancel : bool = true, wild_swing_allowed : bool = false):
+func begin_generate_force_selection(amount, can_cancel : bool = true, wild_swing_allowed : bool = false, ex_discard_order_checkbox : bool = false):
 	# Show the gauge window.
 	_on_player_gauge_gauge_clicked()
 	treat_ultras_as_single_force = false
+	discard_ex_first_for_strike = false
+	current_pay_costs_is_ex = ex_discard_order_checkbox
 	action_menu.set_force_ultra_toggle(false)
+	action_menu.set_discard_ex_first_toggle(false)
 
 	selected_cards = []
 	select_card_require_force = amount
@@ -2017,10 +2065,13 @@ func begin_generate_force_selection(amount, can_cancel : bool = true, wild_swing
 
 	change_ui_state(UIState.UIState_SelectCards)
 
-func begin_gauge_selection(amount : int, wild_swing_allowed : bool, sub_state : UISubState, enable_reminder : bool = false):
+func begin_gauge_selection(amount : int, wild_swing_allowed : bool, sub_state : UISubState, enable_reminder : bool = false, ex_discard_order_checkbox : bool = false):
 	# Show the gauge window.
 	_on_player_gauge_gauge_clicked()
 	selected_cards = []
+	current_pay_costs_is_ex = ex_discard_order_checkbox
+	discard_ex_first_for_strike = false
+	action_menu.set_discard_ex_first_toggle(false)
 	enabled_reminder_text = true if enable_reminder else false
 	if amount != -1:
 		select_card_require_min = amount
@@ -2421,21 +2472,23 @@ func _on_effect_do_strike(event):
 func _on_pay_cost_gauge(event):
 	var player = event['event_player']
 	var enable_reminder = event['extra_info']
+	var is_ex = event['extra_info2']
 	var gauge_cost = game_wrapper.get_decision_info().cost
 	if player == Enums.PlayerId.PlayerId_Player and not observer_mode:
 		var wild_swing_allowed = game_wrapper.get_decision_info().type == Enums.DecisionType.DecisionType_PayStrikeCost_CanWild
-		begin_gauge_selection(gauge_cost, wild_swing_allowed, UISubState.UISubState_SelectCards_StrikeGauge, enable_reminder)
+		begin_gauge_selection(gauge_cost, wild_swing_allowed, UISubState.UISubState_SelectCards_StrikeGauge, enable_reminder, is_ex)
 	else:
 		ai_pay_cost(gauge_cost, false)
 
 func _on_pay_cost_force(event):
 	var player = event['event_player']
 	var force_cost = game_wrapper.get_decision_info().cost
+	var is_ex = event['extra_info2']
 	if player == Enums.PlayerId.PlayerId_Player and not observer_mode:
 		var can_cancel = false
 		var wild_swing_allowed = game_wrapper.get_decision_info().type == Enums.DecisionType.DecisionType_PayStrikeCost_CanWild
 		change_ui_state(null, UISubState.UISubState_SelectCards_StrikeForce)
-		begin_generate_force_selection(force_cost, can_cancel, wild_swing_allowed)
+		begin_generate_force_selection(force_cost, can_cancel, wild_swing_allowed, is_ex)
 	else:
 		ai_pay_cost(force_cost, true)
 
@@ -2577,6 +2630,62 @@ func _on_place_buddy(event):
 		return SmallNoticeDelay
 	return 0
 
+func add_lightning_rod(rod_parent, rod_tracking, location, card_id):
+	var rods_at_location = rod_tracking[location]
+	if len(rods_at_location['card_ids']) == 0:
+		# Create a new character for this and add it to rod_parent.
+		var new_character = CharacterScene.instantiate()
+		rod_parent.add_child(new_character)
+		new_character.load_character("rachel_lightningrod")
+		rods_at_location['character'] = new_character
+		var immediate = true
+		move_character_to_arena_square(new_character, location, immediate, Character.CharacterAnim.CharacterAnim_WalkForward, -1)
+	rods_at_location['card_ids'].append(card_id)
+
+func remove_lightning_rod(rod_parent, rod_tracking, location, card_id):
+	var rods_at_location = rod_tracking[location]
+	rods_at_location['card_ids'].erase(card_id)
+	if len(rods_at_location['card_ids']) == 0:
+		rod_parent.remove_child(rods_at_location['character'])
+		rods_at_location['character'].queue_free()
+		rods_at_location['character'] = null
+
+func update_lightningrod_info(player, rod_tracking, location):
+	var rods_at_location = rod_tracking[location]
+	var count =len(rods_at_location['card_ids'])
+	var pair = $ArenaNode/RowLightningInfoButtons.get_child(location)
+	pair.set_number(player, count)
+	# Iterate through all locations for both players
+	# and update the count of lightning rods at each location.
+	pass
+
+func _on_place_lightningrod(event):
+	var player = event['event_player']
+	var card_id = event['number']
+	var location = event['extra_info']
+	var place = event['extra_info2']
+
+	var rod_parent = player_lightningrods
+	var rod_tracking = player_lightningrod_tracking
+	if player == Enums.PlayerId.PlayerId_Opponent:
+		rod_parent = opponent_lightningrods
+		rod_tracking = opponent_lightningrod_tracking
+
+	# Add or remove the rod as appropriate.
+	if place:
+		add_lightning_rod(rod_parent, rod_tracking, location, card_id)
+
+		# Move the card to the set aside zone.
+		var is_player = player == Enums.PlayerId.PlayerId_Player
+		var card = find_card_on_board(card_id)
+		var deck_position = get_deck_button_position(is_player)
+		card.discard_to(deck_position, CardBase.CardState.CardState_InDeck)
+		reparent_to_zone(card, get_set_aside_zone(is_player))
+	else:
+		remove_lightning_rod(rod_parent, rod_tracking, location, card_id)
+	update_lightningrod_info(player, rod_tracking, location)
+	return SmallNoticeDelay
+
 func _handle_events(events):
 	var delay = 0
 	for event_index in range(events.size()):
@@ -2661,6 +2770,8 @@ func _handle_events(events):
 				_on_mulligan_decision(event)
 			Enums.EventType.EventType_PlaceBuddy:
 				delay = _on_place_buddy(event)
+			Enums.EventType.EventType_PlaceLightningRod:
+				delay = _on_place_lightningrod(event)
 			Enums.EventType.EventType_PickNumberFromRange:
 				_on_pick_number_from_range(event)
 			Enums.EventType.EventType_SwapSealedAndDeck:
@@ -2901,6 +3012,7 @@ func _update_buttons():
 
 	# Update instructions message
 	var ultra_force_toggle = false
+	var ex_discard_order_toggle = false
 	if ui_state == UIState.UIState_SelectCards:
 		match ui_sub_state:
 			UISubState.UISubState_SelectCards_DiscardCards:
@@ -2924,10 +3036,12 @@ func _update_buttons():
 				ultra_force_toggle = true
 				update_force_generation_message()
 			UISubState.UISubState_SelectCards_StrikeForce:
+				ex_discard_order_toggle = current_pay_costs_is_ex
 				update_force_generation_message()
 			UISubState.UISubState_SelectCards_GaugeForArmor:
 				update_gauge_selection_message()
 			UISubState.UISubState_SelectCards_StrikeGauge:
+				ex_discard_order_toggle = current_pay_costs_is_ex
 				update_gauge_selection_message()
 			UISubState.UISubState_SelectCards_GaugeForEffect:
 				update_gauge_for_effect_message()
@@ -2993,7 +3107,7 @@ func _update_buttons():
 			action_menu_hidden = true
 	action_menu.visible = not action_menu_hidden and (button_choices.size() > 0 or instructions_visible)
 	action_menu_container.visible = action_menu.visible
-	action_menu.set_choices(current_instruction_text, button_choices, ultra_force_toggle, instructions_number_picker_min, instructions_number_picker_max)
+	action_menu.set_choices(current_instruction_text, button_choices, ultra_force_toggle, instructions_number_picker_min, instructions_number_picker_max, ex_discard_order_toggle)
 	current_action_menu_choices = button_choices
 
 func update_boost_summary(boosts_card_holder, boost_box):
@@ -3289,7 +3403,7 @@ func _on_instructions_ok_button_pressed(index : int):
 			UISubState.UISubState_SelectCards_DiscardCardsToGauge:
 				success = game_wrapper.submit_card_from_hand_to_gauge(Enums.PlayerId.PlayerId_Player, selected_card_ids)
 			UISubState.UISubState_SelectCards_StrikeGauge, UISubState.UISubState_SelectCards_StrikeForce:
-				success = game_wrapper.submit_pay_strike_cost(Enums.PlayerId.PlayerId_Player, selected_card_ids, false)
+				success = game_wrapper.submit_pay_strike_cost(Enums.PlayerId.PlayerId_Player, selected_card_ids, false, discard_ex_first_for_strike)
 			UISubState.UISubState_SelectCards_Exceed:
 				success = game_wrapper.submit_exceed(Enums.PlayerId.PlayerId_Player, selected_card_ids)
 			UISubState.UISubState_SelectCards_ForceForEffect:
@@ -3423,10 +3537,10 @@ func _on_wild_swing_button_pressed():
 			success = game_wrapper.submit_strike(Enums.PlayerId.PlayerId_Player, -1, true, -1, true)
 		elif ui_sub_state == UISubState.UISubState_SelectCards_StrikeGauge:
 			close_popout()
-			success = game_wrapper.submit_pay_strike_cost(Enums.PlayerId.PlayerId_Player, [], true)
+			success = game_wrapper.submit_pay_strike_cost(Enums.PlayerId.PlayerId_Player, [], true, false)
 		elif ui_sub_state == UISubState.UISubState_SelectCards_StrikeForce:
 			close_popout()
-			success = game_wrapper.submit_pay_strike_cost(Enums.PlayerId.PlayerId_Player, [], true)
+			success = game_wrapper.submit_pay_strike_cost(Enums.PlayerId.PlayerId_Player, [], true, false)
 	if success:
 		change_ui_state(UIState.UIState_WaitForGameServer)
 	_update_buttons()
@@ -3603,7 +3717,7 @@ func ai_pay_cost(cost, is_force_cost : bool):
 		pay_action = ai_player.pay_strike_force_cost(game_wrapper.current_game, Enums.PlayerId.PlayerId_Opponent, cost, can_wild)
 	else:
 		pay_action = ai_player.pay_strike_gauge_cost(game_wrapper.current_game, Enums.PlayerId.PlayerId_Opponent, cost, can_wild)
-	var success = game_wrapper.submit_pay_strike_cost(Enums.PlayerId.PlayerId_Opponent, pay_action.card_ids, pay_action.wild_swing)
+	var success = game_wrapper.submit_pay_strike_cost(Enums.PlayerId.PlayerId_Opponent, pay_action.card_ids, pay_action.wild_swing, false)
 	if success:
 		change_ui_state(UIState.UIState_WaitForGameServer)
 	else:
@@ -4227,6 +4341,10 @@ func _on_action_menu_ultra_force_toggled(new_value):
 	treat_ultras_as_single_force = new_value
 	_update_buttons()
 
+func _on_action_menu_discard_ex_first_toggled(new_value):
+	discard_ex_first_for_strike = new_value
+	_update_buttons()
+
 func _on_observer_next_button_pressed():
 	if ui_state == UIState.UIState_WaitForGameServer or ui_state == UIState.UIState_WaitingOnOpponent:
 		var processed_something = game_wrapper.observer_process_next_message_from_queue()
@@ -4241,3 +4359,4 @@ func _on_observer_play_to_live_pressed():
 	observer_next_button.text = "LIVE"
 	observer_live = true
 	observer_play_to_live_button.visible = false
+

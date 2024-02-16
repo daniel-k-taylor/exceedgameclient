@@ -121,6 +121,15 @@ layout_mode = 2
 theme_override_font_sizes/font_size = 24
 text = "Ultras as 1 force"
 
+[node name="CheckHBox2" type="HBoxContainer" parent="OuterMargin/MainVBox"]
+layout_mode = 2
+alignment = 2
+
+[node name="ExDiscardOrderCheck" type="CheckBox" parent="OuterMargin/MainVBox/CheckHBox2"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 24
+text = "Discard EX copy before paying cost"
+
 [node name="NumberSelectionPanel" type="PanelContainer" parent="OuterMargin/MainVBox"]
 layout_mode = 2
 theme_override_styles/panel = SubResource("StyleBoxEmpty_yjcu6")
@@ -491,6 +500,7 @@ shortcut_keys_enabled = false
 
 [connection signal="pressed" from="OuterMargin/MainVBox/PanelContainer/ShowHideHBox/MarginContainer/ShowHideButton" to="." method="_on_show_hide_button_pressed"]
 [connection signal="toggled" from="OuterMargin/MainVBox/CheckHBox/UltrasForceOptionCheck" to="." method="_on_ultras_force_option_check_toggled"]
+[connection signal="toggled" from="OuterMargin/MainVBox/CheckHBox2/ExDiscardOrderCheck" to="." method="_on_ex_discard_order_check_toggled"]
 [connection signal="pressed" from="OuterMargin/MainVBox/NumberSelectionPanel/Hbox/MinusButtonContainer/MinusButton" to="." method="_on_minus_button_pressed"]
 [connection signal="pressed" from="OuterMargin/MainVBox/NumberSelectionPanel/Hbox/PlusButtonContainer/PlusButton" to="." method="_on_plus_button_pressed"]
 [connection signal="pressed" from="OuterMargin/MainVBox/ChoiceButtons/Choice0/Button" to="." method="_on_choice_pressed" binds= [0]]

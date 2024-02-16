@@ -2,6 +2,7 @@ extends PanelContainer
 
 signal choice_selected(choice_index : int)
 signal ultra_force_toggled(new_value : bool)
+signal discard_ex_first_toggled(new_value : bool)
 
 @onready var instructions_label : RichTextLabel = $OuterMargin/MainVBox/PanelContainer/InstructionHBox/InstructionsLabel
 @onready var show_image : TextureRect = $OuterMargin/MainVBox/PanelContainer/ShowHideHBox/MarginContainer/MarginContainer/ShowImage
@@ -15,8 +16,9 @@ var number_panel_current_number : int = 0
 var number_panel_max : int = 0
 var number_panel_min : int = 0
 
-func set_choices(instructions_text : String, choices : Array, ultra_force_toggle : bool, number_picker_min : int, number_picker_max : int):
+func set_choices(instructions_text : String, choices : Array, ultra_force_toggle : bool, number_picker_min : int, number_picker_max : int, ex_discard_order_toggle : bool):
 	$OuterMargin/MainVBox/CheckHBox/UltrasForceOptionCheck.visible = ultra_force_toggle
+	$OuterMargin/MainVBox/CheckHBox2/ExDiscardOrderCheck.visible = ex_discard_order_toggle
 	var col_count = 1
 	if choices.size() > 5:
 		col_count = 3
@@ -67,6 +69,9 @@ func _on_show_hide_button_pressed():
 func set_force_ultra_toggle(value):
 	$OuterMargin/MainVBox/CheckHBox/UltrasForceOptionCheck.button_pressed = value
 
+func set_discard_ex_first_toggle(value):
+	$OuterMargin/MainVBox/CheckHBox2/ExDiscardOrderCheck.button_pressed = value
+
 func _on_ultras_force_option_check_toggled(button_pressed):
 	ultra_force_toggled.emit(button_pressed)
 
@@ -85,3 +90,6 @@ func _on_minus_button_pressed():
 func _on_plus_button_pressed():
 	number_panel_current_number += 1
 	_on_number_picker_update()
+
+func _on_ex_discard_order_check_toggled(button_pressed):
+	discard_ex_first_toggled.emit(button_pressed)

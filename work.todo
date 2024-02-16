@@ -1,32 +1,6 @@
 
 
 In progress:
-    Rachel:
-        ☐ UI Button under each circle to popup traps window?
-
-        ☐ EventType_PlaceLightningRod
-            ☐ UI For lightning rods
-
-        "Trap" boosts:
-            ☐ "effect_type": "place_boost_in_space", @started(24-02-12 21:28)
-            ☐ "condition": "opponent_in_boost_space", @started(24-02-12 21:28)
-
-        Lightning rod effects:
-            ☐ "effect_type": "range_includes_lightningrods" @started(24-02-13 01:09)
-            ☐ set_Strike_x - "source": "lightningsrods_in_opponent_space" @started(24-02-13 01:03)
-            ☐ "effect_type": "move_to_lightningrods" @started(24-02-13 00:57)
-            ☐ "effect_type": "place_lightningrod", @started(24-02-13 00:43)
-                - "source": "top_discard",
-                - "source": "choose_discard",
-                - "source": "this_card",     Make sure it doesn't go to gauge
-                - "limitation": "attack_range"
-                - "limitation": "any"
-                - should be optional
-            ☐ After effect - lightningrod_strike @started(24-02-13 01:36)
-
-        Overdrive:
-            ☐ boost_as_overdrive nonsense @started(24-02-13 02:20)
-
 
 
 Write tests for:
@@ -67,7 +41,6 @@ Tasks:
         ☐ Boost zone panel formatting/change size with text. - Should scroll?
         ☐ Tweak timings on animation lengths
         ☐ Make card ref an icon button
-        ☐ Choice between EX and spent gauge/force cards as to which is on top
         ☐ Range indicator between players
     ☐ Only connect to server if you enter Multiplayer
     ☐ Reorder opponent hand in a way that you can't keep track with effort

@@ -216,12 +216,13 @@ func process_card_from_hand_to_gauge(action_message) -> void:
 	var card_ids = action_message['card_ids']
 	local_game.do_card_from_hand_to_gauge(game_player, card_ids)
 
-func do_pay_strike_cost(player : LocalGame.Player, card_ids : Array, wild_strike : bool) -> bool:
+func do_pay_strike_cost(player : LocalGame.Player, card_ids : Array, wild_strike : bool, discard_ex_first : bool) -> bool:
 	var action_message = {
 		'action_type': 'action_pay_strike_cost',
 		'player_id': _get_player_remote_id(player),
 		'card_ids': card_ids,
 		'wild_strike': wild_strike,
+		'discard_ex_first': discard_ex_first,
 	}
 	NetworkManager.submit_game_message(action_message)
 	return true
@@ -230,7 +231,8 @@ func process_pay_strike_cost(action_message) -> void:
 	var game_player = _get_player_from_remote_id(action_message['player_id'])
 	var card_ids = action_message['card_ids']
 	var wild_strike = action_message['wild_strike']
-	local_game.do_pay_strike_cost(game_player, card_ids, wild_strike)
+	var discard_ex_first = action_message['discard_ex_first']
+	local_game.do_pay_strike_cost(game_player, card_ids, wild_strike, discard_ex_first)
 
 func do_exceed(player : LocalGame.Player, card_ids : Array) -> bool:
 	var action_message = {

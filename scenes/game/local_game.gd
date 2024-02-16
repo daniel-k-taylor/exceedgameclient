@@ -272,6 +272,7 @@ class ExtraAttackData:
 	var extra_attack_card : GameCard = null
 	var extra_attack_player : Player = null
 	var extra_attack_previous_attack_power_bonus = 0
+	var extra_attack_previous_attack_speed_bonus = 0
 	var extra_attack_previous_attack_min_range_bonus = 0
 	var extra_attack_previous_attack_max_range_bonus = 0
 	var extra_attack_state = ExtraAttackState.ExtraAttackState_None
@@ -286,6 +287,7 @@ class ExtraAttackData:
 		extra_attack_card = null
 		extra_attack_player = null
 		extra_attack_previous_attack_power_bonus = 0
+		extra_attack_previous_attack_speed_bonus = 0
 		extra_attack_previous_attack_min_range_bonus = 0
 		extra_attack_previous_attack_max_range_bonus = 0
 		extra_attack_state = ExtraAttackState.ExtraAttackState_None
@@ -1192,7 +1194,7 @@ class Player:
 		for i in range(len(sealed)):
 			var card = sealed[i]
 			if card.id == id:
-				events += add_to_hand(card, sealed_area_is_secret)
+				events += add_to_hand(card, not sealed_area_is_secret)
 				sealed.remove_at(i)
 				break
 		return events
@@ -1202,7 +1204,7 @@ class Player:
 		for i in range(len(sealed)):
 			var card = sealed[i]
 			if card.id == id:
-				events += add_to_top_of_deck(card, sealed_area_is_secret)
+				events += add_to_top_of_deck(card, not sealed_area_is_secret)
 				sealed.remove_at(i)
 				if sealed_area_is_secret:
 					public_topdeck_id = -1
@@ -1211,13 +1213,17 @@ class Player:
 				break
 		return events
 
+	func remove_top_card_from_deck():
+		deck.remove_at(0)
+		update_public_hand_if_deck_empty()
+
 	func add_top_deck_to_gauge(amount : int):
 		var events = []
 		for i in range(amount):
 			if len(deck) > 0:
 				var card = deck[0]
 				events += add_to_gauge(card)
-				deck.remove_at(0)
+				remove_top_card_from_deck()
 				public_topdeck_id = -1
 		return events
 
@@ -1891,7 +1897,7 @@ class Player:
 				events += parent.do_effect_if_condition_met(self, -1, effect, local_conditions)
 		return events
 
-	func discard(card_ids : Array):
+	func discard(card_ids : Array, from_top : int = 0):
 		var events = []
 		for discard_id in card_ids:
 			var found_card = false
@@ -1901,7 +1907,7 @@ class Player:
 				var card = hand[i]
 				if card.id == discard_id:
 					hand.remove_at(i)
-					events += add_to_discards(card)
+					events += add_to_discards(card, from_top)
 					on_hand_remove_public_card(discard_id)
 					found_card = true
 					break
@@ -1912,7 +1918,7 @@ class Player:
 				var card = gauge[i]
 				if card.id == discard_id:
 					gauge.remove_at(i)
-					events += add_to_discards(card)
+					events += add_to_discards(card, from_top)
 					found_card = true
 					break
 			if found_card: continue
@@ -1922,7 +1928,7 @@ class Player:
 				var card = overdrive[i]
 				if card.id == discard_id:
 					overdrive.remove_at(i)
-					events += add_to_discards(card)
+					events += add_to_discards(card, from_top)
 					found_card = true
 					break
 
@@ -2068,7 +2074,7 @@ class Player:
 			var card = deck[0]
 			var card_name = parent.card_db.get_card_name(card.id)
 			parent._append_log_full(Enums.LogType.LogType_CardInfo, self, "discards the top card of their deck: %s." % card_name)
-			deck.remove_at(0)
+			remove_top_card_from_deck()
 			public_topdeck_id = -1
 			events += add_to_discards(card)
 		return events
@@ -2193,7 +2199,7 @@ class Player:
 			else:
 				parent.active_strike.defender_card = deck[0]
 				parent.active_strike.defender_wild_strike = true
-			deck.remove_at(0)
+			remove_top_card_from_deck()
 			public_topdeck_id = -1
 			events += [parent.create_event(Enums.EventType.EventType_Strike_WildStrike, my_id, card_id, "", is_immediate_reveal)]
 		return events
@@ -2222,13 +2228,17 @@ class Player:
 		gauge.append(card)
 		return [parent.create_event(Enums.EventType.EventType_AddToGauge, my_id, card.id)]
 
-	func add_to_discards(card : GameCard):
+	func add_to_discards(card : GameCard, from_top : int = 0):
 		if card.owner_id == my_id:
-			discards.append(card)
+			if from_top == 0:
+				discards.append(card)
+			else:
+				# Insert it from_top from the end.
+				discards.insert(len(discards) - from_top, card)
 			return [parent.create_event(Enums.EventType.EventType_AddToDiscard, my_id, card.id)]
 		else:
 			# Card belongs to the other player, so discard it there.
-			return parent._get_player(parent.get_other_player(my_id)).add_to_discards(card)
+			return parent._get_player(parent.get_other_player(my_id)).add_to_discards(card, from_top)
 
 	func add_to_hand(card : GameCard, public : bool):
 		hand.append(card)
@@ -2840,7 +2850,7 @@ class Player:
 						"timing": "after",
 						"condition": "opponent_at_location",
 						"condition_detail": location,
-						"special_choice_name": "Lighting Rod at %s: %s" % [location, card_name],
+						"special_choice_name": "Lightning Rod (%s)" % [card_name],
 						"effect_type": "choice",
 						"choice": [
 							{
@@ -3367,6 +3377,9 @@ func get_total_speed(check_player):
 	var check_card = active_strike.get_player_card(check_player)
 	var bonus_speed = check_player.strike_stat_boosts.speed * check_player.strike_stat_boosts.speed_bonus_multiplier
 	var speed = check_card.definition['speed'] + bonus_speed
+	if active_strike and active_strike.extra_attack_in_progress:
+		# If an extra attack character has ways to get speed multipliers, deal with that then.
+		speed -= active_strike.extra_attack_data.extra_attack_previous_attack_speed_bonus
 	return speed
 
 func strike_determine_order():
@@ -5234,7 +5247,21 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 				var lightningzone = performing_player.get_lightningrod_zone_for_location(i)
 				if len(lightningzone) > 0:
 					if performing_player.can_move_to(i, true):
-						valid_locations.append(i)
+						if i not in valid_locations:
+							valid_locations.append(i)
+					elif opposing_player.is_in_location(i):
+						# If the opponent is on a lightning rod, you can treat this like Close.
+						var direction = 1
+						if performing_player.arena_location < opposing_player.arena_location:
+							direction = -1
+
+						# Include the next available space closest to the opponent.
+						# Loop from i towards the player.
+						for test_location in range(i, performing_player.arena_location, direction):
+							if performing_player.can_move_to(test_location, true):
+								if test_location not in valid_locations:
+									valid_locations.append(test_location)
+									break
 
 			if len(valid_locations) > 0:
 				# Let the player choose where to go.
@@ -5264,17 +5291,7 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 			var limitation = effect['limitation']
 			var lightning_card
 			var valid_locations = []
-			match source:
-				"top_discard":
-					lightning_card = performing_player.get_top_discard_card()
-				"this_attack_card":
-					lightning_card = active_strike.get_player_card(performing_player)
-					# If this is the current attack, get rid of it now, putting it on top the discard pile.
-					# This is convenient since now lightning rods always come from the top discard card.
-					performing_player.strike_stat_boosts.discard_attack_now_for_lightningrod = true
-					events += handle_strike_attack_immediate_removal(performing_player)
-				_:
-					assert(false, "Unknown lightningrod source.")
+
 			match limitation:
 				"any":
 					for i in range(MinArenaLocation, MaxArenaLocation + 1):
@@ -5288,6 +5305,21 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 				_:
 					assert(false, "Unknown lightningrod limitation.")
 
+			# Make sure not to handle the attack card before the range check above,
+			# because discarding the attack card here will force the range check
+			# to fail as the attack is no longer valid.
+			match source:
+				"top_discard":
+					lightning_card = performing_player.get_top_discard_card()
+				"this_attack_card":
+					lightning_card = active_strike.get_player_card(performing_player)
+					# If this is the current attack, get rid of it now, putting it on top the discard pile.
+					# This is convenient since now lightning rods always come from the top discard card.
+					performing_player.strike_stat_boosts.discard_attack_now_for_lightningrod = true
+					events += handle_strike_attack_immediate_removal(performing_player)
+				_:
+					assert(false, "Unknown lightningrod source.")
+
 			if lightning_card and valid_locations:
 				change_game_state(Enums.GameState.GameState_PlayerDecision)
 				decision_info.clear()
@@ -5297,7 +5329,7 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 				decision_info.effect_type = "place_lightningrod"
 				decision_info.choice = []
 				decision_info.limitation = []
-				for i in range(MinArenaLocation, MaxArenaLocation + 1):
+				for i in valid_locations:
 					decision_info.limitation.append(i)
 					decision_info.choice.append({
 						"effect_type": "place_lightningrod_internal",
@@ -5660,7 +5692,7 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 
 			decision_info.limitation.append(0)
 			decision_info.choice.append({ "effect_type": "pass" })
-			
+
 			var player_location = performing_player.arena_location
 			var opponent_location = opposing_player.arena_location
 			var nowhere_to_pull = true
@@ -5685,7 +5717,7 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 				events += [create_event(Enums.EventType.EventType_ChooseArenaLocationForEffect, performing_player.my_id, 0)]
 		"pull_to_space_and_gain_power":
 			var space = effect['amount']
-			var previous_location = opposing_player.arena_location 
+			var previous_location = opposing_player.arena_location
 			var distance = opposing_player.movement_distance_between(space, previous_location)
 			if space == previous_location:
 				# This effect should only be called with an actual attempt to pull.
@@ -5831,7 +5863,7 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 			events += [create_event(Enums.EventType.EventType_ChooseArenaLocationForEffect, performing_player.my_id, 0)]
 		"push_or_pull_to_space":
 			var space = effect['amount']
-			var previous_location = opposing_player.arena_location 
+			var previous_location = opposing_player.arena_location
 			var distance = opposing_player.movement_distance_between(space, previous_location)
 			# Convert this to a regular push or pull.
 			if space == previous_location:
@@ -7307,6 +7339,10 @@ func calculate_damage(offense_player : Player, defense_player : Player) -> int:
 func check_for_stun(check_player : Player, ignore_guard : bool):
 	var events = []
 
+	if active_strike.is_player_stunned(check_player):
+		# If they're already stunned, can't stun again.
+		return events
+
 	var total_damage = active_strike.get_damage_taken(check_player)
 	var defense_card = active_strike.get_player_card(check_player)
 	var guard = get_total_guard(check_player)
@@ -7420,6 +7456,7 @@ func ask_for_cost(performing_player, card, next_state):
 	var card_has_printed_cost = card.definition['gauge_cost'] > 0 or force_cost > 0
 	var is_special = card.definition['type'] == "special"
 	var is_ultra = card.definition['type'] == "ultra"
+	var is_ex = active_strike.get_player_ex_card(performing_player) != null
 	var gauge_discard_reminder = false
 	if 'gauge_discard_reminder' in card.definition:
 		gauge_discard_reminder = true
@@ -7461,11 +7498,11 @@ func ask_for_cost(performing_player, card, next_state):
 			if gauge_cost > 0 or still_use_gauge:
 				decision_info.limitation = "gauge"
 				decision_info.cost = gauge_cost
-				events += [create_event(Enums.EventType.EventType_Strike_PayCost_Gauge, performing_player.my_id, card.id, "", gauge_discard_reminder)]
+				events += [create_event(Enums.EventType.EventType_Strike_PayCost_Gauge, performing_player.my_id, card.id, "", gauge_discard_reminder, is_ex)]
 			elif force_cost > 0:
 				decision_info.limitation = "force"
 				decision_info.cost = force_cost
-				events += [create_event(Enums.EventType.EventType_Strike_PayCost_Force, performing_player.my_id, card.id)]
+				events += [create_event(Enums.EventType.EventType_Strike_PayCost_Force, performing_player.my_id, card.id, "", false, is_ex)]
 			else:
 				assert(false, "ERROR: Expected card to have a force to pay")
 			_append_log_full(Enums.LogType.LogType_Strike, performing_player, "is selecting cards to pay the %s cost." % decision_info.limitation)
@@ -7844,6 +7881,7 @@ func begin_extra_attack(events, performing_player : Player, card_id : int):
 	active_strike.extra_attack_data.extra_attack_card = card_db.get_card(card_id)
 	active_strike.extra_attack_data.extra_attack_player = performing_player
 	active_strike.extra_attack_data.extra_attack_previous_attack_power_bonus = performing_player.strike_stat_boosts.power
+	active_strike.extra_attack_data.extra_attack_previous_attack_speed_bonus = performing_player.strike_stat_boosts.speed
 	active_strike.extra_attack_data.extra_attack_previous_attack_min_range_bonus = performing_player.strike_stat_boosts.min_range
 	active_strike.extra_attack_data.extra_attack_previous_attack_max_range_bonus = performing_player.strike_stat_boosts.max_range
 	active_strike.extra_attack_data.extra_attack_state = ExtraAttackState.ExtraAttackState_PayCosts
@@ -8719,7 +8757,7 @@ func do_strike(performing_player : Player, card_id : int, wild_strike: bool, ex_
 	event_queue += events
 	return true
 
-func do_pay_strike_cost(performing_player : Player, card_ids : Array, wild_strike : bool) -> bool:
+func do_pay_strike_cost(performing_player : Player, card_ids : Array, wild_strike : bool, discard_ex_first : bool = true) -> bool:
 	printlog("SubAction: PAY_STRIKE by %s cards %s wild %s" % [performing_player.name, card_ids, str(wild_strike)])
 	if game_state != Enums.GameState.GameState_PlayerDecision:
 		printlog("ERROR: Tried to pay costs but not in decision state.")
@@ -8765,7 +8803,11 @@ func do_pay_strike_cost(performing_player : Player, card_ids : Array, wild_strik
 			else:
 				card_names = "passive bonus"
 			_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "validates by discarding %s." % card_names)
-			events += performing_player.discard(card_ids)
+			var where_to_discard = 0
+			if not discard_ex_first and active_strike.get_player_ex_card(performing_player) != null:
+				where_to_discard = 1
+			events += performing_player.discard(card_ids, where_to_discard)
+
 			if active_strike.extra_attack_in_progress:
 				active_strike.extra_attack_data.extra_attack_state = ExtraAttackState.ExtraAttackState_DuringStrikeBonuses
 			else:
@@ -9278,6 +9320,10 @@ func do_force_for_effect(performing_player : Player, card_ids : Array, treat_ult
 		if decision_info.effect['per_force_effect']:
 			decision_effect = decision_info.effect['per_force_effect']
 			effect_times = force_generated
+			if force_generated > 0 and 'combine_multiple_into_one' in decision_effect and decision_effect['combine_multiple_into_one']:
+				# This assumes this effect has no "and" effects.
+				decision_effect['amount'] = effect_times * decision_effect['amount']
+				effect_times = 1
 		elif decision_info.effect['overall_effect']:
 			decision_effect = decision_info.effect['overall_effect']
 			effect_times = 1

@@ -558,6 +558,9 @@ func test_plague_100():
 func test_nine_100():
 	run_iterations_with_deck("nine")
 
+func test_rachel_100():
+	run_iterations_with_deck("rachel")
+
 func test_specter_100():
 	run_iterations_with_deck("specter")
 
