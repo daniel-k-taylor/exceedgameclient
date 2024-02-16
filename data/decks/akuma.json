@@ -18,6 +18,7 @@
 		{
 			"timing": "set_strike",
 			"condition": "is_critical",
+			"character_effect": true,
 			"effect_type": "powerup_both_players",
 			"amount": 2
 		}
@@ -36,6 +37,7 @@
 		{
 			"timing": "set_strike",
 			"condition": "is_critical",
+			"character_effect": true,
 			"effect_type": "powerup_both_players",
 			"amount": 3
 		}

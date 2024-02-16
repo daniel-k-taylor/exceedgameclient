@@ -40,6 +40,7 @@
 		{
 			"timing": "cleanup",
 			"condition": "is_normal_attack",
+			"character_effect": true,
 			"effect_type": "lose_all_armor",
 			"and": {
 				"effect_type": "take_damage",

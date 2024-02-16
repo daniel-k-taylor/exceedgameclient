@@ -29,6 +29,7 @@
 		},
 		{
 			"timing": "on_seal",
+			"character_effect": true,
 			"effect_type": "return_sealed_with_same_speed"
 		},
 		{
@@ -42,6 +43,7 @@
 				"effect_type": "choice",
 				"choice": [
 					{
+						"character_effect": true,
 						"effect_type": "seal_attack_on_cleanup",
 						"and": {
 							"effect_type": "gauge_from_hand",
@@ -63,6 +65,7 @@
 		},
 		{
 			"timing": "on_seal",
+			"character_effect": true,
 			"effect_type": "return_sealed_with_same_speed"
 		},
 		{
@@ -70,6 +73,7 @@
 			"effect_type": "force_for_effect",
 			"per_force_effect": null,
 			"overall_effect": {
+				"character_effect": true,
 				"effect_type": "seal_attack_on_cleanup"
 			},
 			"force_max": 1

@@ -25,11 +25,15 @@
 	}],
 	"ability_effects": [
 		{
-			"character_effect": true,
-			"timing": "hit",
+			"timing": "set_strike",
 			"condition": "used_character_action",
-			"effect_type": "draw",
-			"amount": 1
+			"character_effect": true,
+			"effect_type": "add_attack_effect",
+			"added_effect": {
+				"timing": "hit",
+				"effect_type": "draw",
+				"amount": 1
+			}
 		}
 	],
 	"exceed_ability_effects": [
@@ -38,14 +42,15 @@
 			"timing": "set_strike",
 			"condition": "used_character_action",
 			"effect_type": "powerup",
-			"amount": 1
-		},
-		{
-			"character_effect": true,
-			"timing": "hit",
-			"condition": "used_character_action",
-			"effect_type": "draw",
-			"amount": 2
+			"amount": 1,
+			"and": {
+				"effect_type": "add_attack_effect",
+				"added_effect": {
+					"timing": "hit",
+					"effect_type": "draw",
+					"amount": 2
+				}
+			}
 		}
 	],
 	"cards": [

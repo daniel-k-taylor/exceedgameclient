@@ -1179,6 +1179,8 @@ func _on_advance_turn():
 
 	clear_selected_cards()
 	close_popout()
+	player_bonus_panel.visible = false
+	opponent_bonus_panel.visible = false
 
 	spawn_damage_popup("Ready!", active_player)
 	return SmallNoticeDelay
@@ -2908,6 +2910,8 @@ func _update_buttons():
 
 	var action_buttons_visible = ui_state == UIState.UIState_PickTurnAction
 	if action_buttons_visible:
+		player_bonus_panel.visible = false
+		opponent_bonus_panel.visible = false
 		if len(selected_cards) == 0:
 			set_instructions("Choose an action:")
 			instructions_ok_allowed = false

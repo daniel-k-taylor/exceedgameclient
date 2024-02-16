@@ -43,6 +43,7 @@
 		{
 			"timing": "during_strike",
 			"condition": "is_ex_strike",
+			"character_effect": true,
 			"effect_type": "powerup",
 			"amount": 1
 		}

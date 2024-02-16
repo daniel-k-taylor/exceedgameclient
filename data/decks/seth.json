@@ -4,6 +4,7 @@
 	"display_name": "Seth",
 	"cardback": "cardback_seth.jpg",
 	"exceed_cost": 1,
+	"has_sealed_area": true,
 	"character_action_default": [{
 		"gauge_cost": 0,
 		"force_cost": 0,

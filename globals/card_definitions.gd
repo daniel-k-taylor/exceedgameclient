@@ -193,6 +193,8 @@ func get_timing_text(timing):
 			text += "When you initiate a strike, "
 		"on_reveal":
 			text += ""
+		"on_seal":
+			text += ""
 		"start_of_next_turn":
 			text += "At start of next turn: "
 		"set_strike":
@@ -902,6 +904,8 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 				effect_str += "Return this to hand"
 		"return_all_cards_gauge_to_hand":
 			effect_str += "Return all cards in gauge to hand."
+		"return_sealed_with_same_speed":
+			effect_str += "Return a sealed card with the same speed to hand."
 		"reveal_copy_for_advantage":
 			effect_str += "Reveal a copy of this attack to Gain Advantage"
 		"reveal_hand":

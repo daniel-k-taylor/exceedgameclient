@@ -4542,7 +4542,7 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 			var cards_to_discard = performing_player.pick_random_cards_from_hand(1)
 			if cards_to_discard.size() > 0:
 				events += performing_player.discard(cards_to_discard)
-				add_attack_triggers(performing_player, cards_to_discard, true)
+				events += add_attack_triggers(performing_player, cards_to_discard, true)
 				var discarded_name = card_db.get_card_name(cards_to_discard[0])
 				performing_player.plague_knight_discard_names.append(discarded_name)
 				_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "discards random card: %s." % discarded_name)
@@ -6693,22 +6693,22 @@ func get_striking_card_ids_for_player(check_player : Player) -> Array:
 	return card_ids
 
 func add_attack_triggers(performing_player : Player, card_ids : Array, set_character_effect : bool = false):
-	var new_effects = []
+	var events = []
 	for card_id in card_ids:
 		var card = card_db.get_card(card_id)
 		var card_name = card_db.get_card_name(card.id)
 		_append_log_full(Enums.LogType.LogType_Effect, performing_player, "will add the before/hit/after effects of %s to their attack!" % card_name)
-		var card_effects = []
 		for timing in ["before", "hit", "after"]:
 			for card_effect in card_db.get_card_effects_at_timing(card, timing):
+				var added_effect = {
+					"effect_type": "add_attack_effect",
+					"added_effect": card_effect.duplicate()
+				}
+
 				if set_character_effect:
-					var as_character_effect = card_effect.duplicate()
-					as_character_effect['character_effect'] = true
-					card_effects.append(as_character_effect)
-				else:
-					card_effects.append(card_effect)
-		new_effects += card_effects
-	performing_player.strike_stat_boosts.added_attack_effects += new_effects
+					added_effect['character_effect'] = true
+				events += handle_strike_effect(-1, added_effect, performing_player)
+	return events
 
 func duplicate_attack_triggers(performing_player : Player, amount : int):
 	var card = active_strike.get_player_card(performing_player)

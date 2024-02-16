@@ -17,6 +17,7 @@
 			"limitation": "ultra",
 			"destination": "sealed",
 			"discard_effect": {
+				"character_effect": true,
 				"effect_type": "powerup",
 				"amount": 1,
 				"and": {
