@@ -209,25 +209,212 @@ func validate_life(p1, l1, p2, l2):
 	assert_eq(p1.life, l1)
 	assert_eq(p2.life, l2)
 
+func get_choice_index_for_position(pos):
+	for i in range(game_logic.decision_info.limitation.size()):
+		var choice_pos = game_logic.decision_info.limitation[i]
+		if pos == choice_pos:
+			return i
+	assert(false, "Unable to find choice index")
+	fail_test("Unable to find choice index")
+	return 0
+	
 ##
 ## Tests start here
 ##
-func test_rachel_():
+func test_rachel_ua_exceed_pull2():
 	position_players(player1, 4, player2, 5)
-	validate_positions(player1, 4, player2, 5)
+	player1.exceed()
+	assert_true(game_logic.do_character_action(player1, [], 0))
+	# Choice
+	assert_true(game_logic.do_choice(player1, 3)) # Pull
+	assert_true(game_logic.do_force_for_effect(player1, [player1.hand[0].id, player1.hand[1].id], false))
+	validate_positions(player1, 4, player2, 2)
+	assert_eq(game_logic.active_turn_player, player1.my_id)
+	assert_eq(game_logic.game_state, Enums.GameState.GameState_PickAction)
 
+func test_rachel_ua_exceed_overdrive():
+	position_players(player1, 4, player2, 5)
+	give_gauge(player1, 3)
+	player1.discard_hand()
+	give_player_specific_card(player1, "standard_normal_sweep", TestCardId1)
+	assert_true(game_logic.do_exceed(player1, player1.get_card_ids_in_gauge()))
+	advance_turn(player2)
+	assert_true(game_logic.do_choose_from_discard(player1, [player1.overdrive[0].id]))
+	assert_true(game_logic.do_choice(player1, 0)) # Do it
+	var events = game_logic.get_latest_events()
+	validate_has_event(events, Enums.EventType.EventType_ForceStartBoost, player1)
+	
+	assert_true(game_logic.do_boost(player1, TestCardId1))
+	assert_eq(game_logic.game_state, Enums.GameState.GameState_PickAction)
+	advance_turn(player1)
+
+func test_rachel_ua_exceed_overdrive_nocontinuousboosts():
+	position_players(player1, 4, player2, 5)
+	give_gauge(player1, 3)
+	player1.discard_hand()
+	give_player_specific_card(player1, "standard_normal_dive", TestCardId1)
+	assert_true(game_logic.do_exceed(player1, player1.get_card_ids_in_gauge()))
+	advance_turn(player2)
+	assert_true(game_logic.do_choose_from_discard(player1, [player1.overdrive[0].id]))
+	assert_true(game_logic.do_choice(player1, 0)) # Do it
+	assert_eq(game_logic.game_state, Enums.GameState.GameState_PickAction)
+	advance_turn(player1)
+
+func test_rachel_ua_exceed_overdrive_pass():
+	position_players(player1, 4, player2, 5)
+	give_gauge(player1, 3)
+	player1.discard_hand()
+	give_player_specific_card(player1, "standard_normal_sweep", TestCardId1)
+	assert_true(game_logic.do_exceed(player1, player1.get_card_ids_in_gauge()))
+	advance_turn(player2)
+	assert_true(game_logic.do_choose_from_discard(player1, [player1.overdrive[0].id]))
+	assert_true(game_logic.do_choice(player1, 1))
+	assert_eq(game_logic.game_state, Enums.GameState.GameState_PickAction)
+	advance_turn(player1)
+
+func test_rachel_lobelia_ex_discardex_1st():
+	position_players(player1, 2, player2, 5)
+	give_player_specific_card(player1, "rachel_flyinglobelia", TestCardId1)
+	give_player_specific_card(player1, "rachel_flyinglobelia", TestCardId2)
+	give_player_specific_card(player1, "standard_normal_dive", TestCardId4)
+	give_player_specific_card(player2, "standard_normal_assault", TestCardId3)
+	assert_true(game_logic.do_strike(player1, TestCardId1, false, TestCardId2))
+	assert_true(game_logic.do_strike(player2, TestCardId3, false, -1))
+	# Pay for it
+	assert_true(game_logic.do_pay_strike_cost(player1, [TestCardId4], false, true))
+	validate_positions(player1, 2, player2, 6)
+	validate_life(player1, 30, player2, 26)
+	# On cleanup, set lightning rod
+	assert_true(game_logic.do_choice(player1, 0)) # Place rod (should be lobelia ex copy
+	assert_true(game_logic.do_choice(player1, get_choice_index_for_position(4)))
+	assert_eq(player1.lightningrod_zones[3].size(), 1)
+	assert_eq(player1.lightningrod_zones[3][0].id, TestCardId4)
+	advance_turn(player2)
+
+func test_rachel_lobelia_ex_discardex_last():
+	position_players(player1, 2, player2, 5)
+	give_player_specific_card(player1, "rachel_flyinglobelia", TestCardId1)
+	give_player_specific_card(player1, "rachel_flyinglobelia", TestCardId2)
+	give_player_specific_card(player1, "standard_normal_dive", TestCardId4)
+	give_player_specific_card(player2, "standard_normal_assault", TestCardId3)
+	assert_true(game_logic.do_strike(player1, TestCardId1, false, TestCardId2))
+	assert_true(game_logic.do_strike(player2, TestCardId3, false, -1))
+	# Pay for it
+	assert_true(game_logic.do_pay_strike_cost(player1, [TestCardId4], false, false))
+	validate_positions(player1, 2, player2, 6)
+	validate_life(player1, 30, player2, 26)
+	# On cleanup, set lightning rod
+	assert_true(game_logic.do_choice(player1, 0)) # Place rod (should be lobelia ex copy
+	assert_true(game_logic.do_choice(player1, get_choice_index_for_position(4)))
+	assert_eq(player1.lightningrod_zones[3].size(), 1)
+	assert_eq(player1.lightningrod_zones[3][0].id, TestCardId2)
+	advance_turn(player2)
+
+func test_rachel_dahlia_discard_ex_first():
+	position_players(player1, 2, player2, 5)
+	give_gauge(player1, 2)
+	give_player_specific_card(player1, "rachel_tempestdahlia", TestCardId1)
+	give_player_specific_card(player1, "rachel_tempestdahlia", TestCardId2)
+	give_player_specific_card(player1, "standard_normal_dive", TestCardId4)
+	player1.move_card_from_hand_to_gauge(TestCardId4)
+	give_player_specific_card(player2, "standard_normal_assault", TestCardId3)
+	assert_eq(player1.hand.size(), 7)
+	assert_true(game_logic.do_strike(player1, TestCardId1, false, TestCardId2))
+	assert_true(game_logic.do_strike(player2, TestCardId3, false, -1))
+	# Pay for it
+	assert_true(game_logic.do_pay_strike_cost(player1, player1.get_card_ids_in_gauge(), false, true))
+	# Hit, draw2, push up to 2, then close 2
+	assert_eq(player1.hand.size(), 7)
+	assert_true(game_logic.do_choice(player1, 0)) # Push 1
+	validate_positions(player1, 4, player2, 6)
+	validate_life(player1, 30, player2, 24)
+	assert_eq(player1.get_top_discard_card().id, TestCardId4)
+	assert_eq(player1.gauge.size(), 1)
+	advance_turn(player2)
+
+func test_rachel_dahlia_discard_ex_last():
+	position_players(player1, 2, player2, 5)
+	give_gauge(player1, 2)
+	give_player_specific_card(player1, "rachel_tempestdahlia", TestCardId1)
+	give_player_specific_card(player1, "rachel_tempestdahlia", TestCardId2)
+	give_player_specific_card(player1, "standard_normal_dive", TestCardId4)
+	player1.move_card_from_hand_to_gauge(TestCardId4)
+	give_player_specific_card(player2, "standard_normal_assault", TestCardId3)
+	assert_eq(player1.hand.size(), 7)
+	assert_true(game_logic.do_strike(player1, TestCardId1, false, TestCardId2))
+	assert_true(game_logic.do_strike(player2, TestCardId3, false, -1))
+	# Pay for it
+	assert_true(game_logic.do_pay_strike_cost(player1, player1.get_card_ids_in_gauge(), false, false))
+	# Hit, draw2, push up to 2, then close 2
+	assert_eq(player1.hand.size(), 7)
+	assert_true(game_logic.do_choice(player1, 1)) # Push 2
+	validate_positions(player1, 4, player2, 7)
+	validate_life(player1, 30, player2, 24)
+	assert_eq(player1.get_top_discard_card().id, TestCardId2)
+	assert_eq(player1.gauge.size(), 1)
+	advance_turn(player2)
+
+
+func test_rachel_whirlwind_boost():
+	position_players(player1, 2, player2, 5)
+	give_player_specific_card(player1, "rachel_whirlwind", TestCardId1)
+	give_player_specific_card(player2, "standard_normal_assault", TestCardId3)
+	assert_true(game_logic.do_boost(player1, TestCardId1))
+	assert_true(game_logic.do_choice(player1, get_choice_index_for_position(5)))
+	assert_eq(player1.hand.size(), 7)
+	advance_turn(player2)
+	assert_eq(player1.boost_id_locations[TestCardId1], 5)
+	give_player_specific_card(player1, "rachel_whirlwind", TestCardId2)
+	assert_true(game_logic.do_strike(player1, TestCardId2, false, -1))
+	assert_true(game_logic.do_strike(player2, TestCardId3, false, -1))
+	# Hit effects: whirl sustain, boost hit +1 and push/pull 1
+	assert_true(game_logic.do_choice(player1, 1))
+	assert_true(game_logic.do_choice(player1, 1)) # Pull 1
+	# Sustain
+	assert_true(game_logic.do_choose_from_boosts(player1, [TestCardId1]))
+	validate_positions(player1, 2, player2, 4)
+	validate_life(player1, 30, player2, 26)
+	assert_eq(player1.gauge.size(), 1)
+	assert_eq(player1.boost_id_locations[TestCardId1], 5)
+	advance_turn(player2)
+
+func test_rachel_spikedrop_boost():
+	position_players(player1, 2, player2, 5)
+	player1.discard_hand()
+	give_player_specific_card(player1, "rachel_spikedrop", TestCardId1)
+	assert_true(game_logic.do_boost(player1, TestCardId1))
+	var discard_id = player1.discards[2].id
+	assert_true(game_logic.do_choose_from_discard(player1, [discard_id]))
+	assert_true(game_logic.do_choice(player1, get_choice_index_for_position(2)))
+	assert_eq(player1.lightningrod_zones[1].size(), 1)
+	assert_eq(player1.lightningrod_zones[1][0].id, discard_id)
+	assert_false(player1.is_card_in_discards(discard_id))
+	advance_turn(player2)
+
+func test_rachel_tinylobelia():
+	position_players(player1, 1, player2, 4)
+	player1.discard_hand()
+	give_player_specific_card(player1, "rachel_tinylobelia", TestCardId1)
+	give_player_specific_card(player2, "standard_normal_grasp", TestCardId2)
+	var discard_id = player1.get_top_discard_card().id
+	assert_true(game_logic.do_strike(player1, TestCardId1, false, -1))
+	assert_true(game_logic.do_strike(player2, TestCardId2, false, -1))
+	assert_false(player1.is_card_in_discards(discard_id))
+	assert_eq(player1.gauge[0].id, discard_id)
+	validate_life(player1, 30, player2, 27)
+	validate_positions(player1, 1, player2, 4)
+	assert_true(game_logic.do_choice(player1, 0)) # Place rod
+	assert_true(3 not in game_logic.decision_info.limitation)
+	assert_true(game_logic.do_choice(player1, get_choice_index_for_position(7)))
+	assert_eq(player1.lightningrod_zones[6].size(), 1)
+	assert_eq(player1.lightningrod_zones[6][0].id, TestCardId1)
+	assert_false(player1.is_card_in_discards(TestCardId1))
+	advance_turn(player2)
 
 # Tests to implement
-# UA Exceed pull2 all at once
-# Lobelia ex discard discard ex first
-# Lobelia ex discard discard ex last
-# Tempest Dahlia EX discard ex first
-# Whirlwind boost effect
-# Lobelia Lightning - validate discard card, validate lightning placed in right range
-# Spike Drop boost - choose and place lightning
-# Tiny lobelia - place this attack lightning, validate gauge
 # Electric chair boost, check damage and sustain
 # Dahlia - George effect
 # Baden lily hits on lightning rod across map
 # Does damage based on lightning count, 0 and lots tests
 # Baden boost, move to lightning space
+# Baden boost, can close if space is covered

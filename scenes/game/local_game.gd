@@ -491,7 +491,6 @@ class StrikeStatBoosts:
 	var buddy_immune_to_flip : bool = false
 	var may_generate_gauge_with_force : bool = false
 	var may_invalidate_ultras : bool = false
-	var discard_ex_X_from_top : int = 0
 
 	func clear():
 		power = 0
@@ -563,7 +562,6 @@ class StrikeStatBoosts:
 		buddy_immune_to_flip = false
 		may_generate_gauge_with_force = false
 		may_invalidate_ultras = false
-		discard_ex_X_from_top = 0
 
 	func set_ex():
 		ex_count += 1
@@ -1899,7 +1897,7 @@ class Player:
 				events += parent.do_effect_if_condition_met(self, -1, effect, local_conditions)
 		return events
 
-	func discard(card_ids : Array):
+	func discard(card_ids : Array, from_top : int = 0):
 		var events = []
 		for discard_id in card_ids:
 			var found_card = false
@@ -1909,7 +1907,7 @@ class Player:
 				var card = hand[i]
 				if card.id == discard_id:
 					hand.remove_at(i)
-					events += add_to_discards(card)
+					events += add_to_discards(card, from_top)
 					on_hand_remove_public_card(discard_id)
 					found_card = true
 					break
@@ -1920,7 +1918,7 @@ class Player:
 				var card = gauge[i]
 				if card.id == discard_id:
 					gauge.remove_at(i)
-					events += add_to_discards(card)
+					events += add_to_discards(card, from_top)
 					found_card = true
 					break
 			if found_card: continue
@@ -1930,7 +1928,7 @@ class Player:
 				var card = overdrive[i]
 				if card.id == discard_id:
 					overdrive.remove_at(i)
-					events += add_to_discards(card)
+					events += add_to_discards(card, from_top)
 					found_card = true
 					break
 
@@ -5249,7 +5247,21 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 				var lightningzone = performing_player.get_lightningrod_zone_for_location(i)
 				if len(lightningzone) > 0:
 					if performing_player.can_move_to(i, true):
-						valid_locations.append(i)
+						if i not in valid_locations:
+							valid_locations.append(i)
+					elif opposing_player.is_in_location(i):
+						# If the opponent is on a lightning rod, you can treat this like Close.
+						var direction = 1
+						if performing_player.arena_location < opposing_player.arena_location:
+							direction = -1
+
+						# Include the next available space closest to the opponent.
+						# Loop from i towards the player.
+						for test_location in range(i, performing_player.arena_location, direction):
+							if performing_player.can_move_to(test_location, true):
+								if test_location not in valid_locations:
+									valid_locations.append(test_location)
+									break
 
 			if len(valid_locations) > 0:
 				# Let the player choose where to go.
@@ -7614,13 +7626,13 @@ func continue_resolve_strike(events):
 			StrikeState.StrikeState_Initiator_PayCosts:
 				# Discard any EX cards
 				if active_strike.initiator_ex_card != null:
-					events += active_strike.initiator.add_to_discards(active_strike.initiator_ex_card, active_strike.initiator.strike_stat_boosts.discard_ex_X_from_top)
+					events += active_strike.initiator.add_to_discards(active_strike.initiator_ex_card)
 				# Ask player to pay for this card if applicable.
 				events += ask_for_cost(active_strike.initiator, active_strike.initiator_card, StrikeState.StrikeState_Defender_PayCosts)
 			StrikeState.StrikeState_Defender_PayCosts:
 				# Discard any EX cards
 				if active_strike.defender_ex_card != null:
-					events += active_strike.defender.add_to_discards(active_strike.defender_ex_card, active_strike.defender.strike_stat_boosts.discard_ex_X_from_top)
+					events += active_strike.defender.add_to_discards(active_strike.defender_ex_card)
 				# Ask player to pay for this card if applicable.
 				events += ask_for_cost(active_strike.defender, active_strike.defender_card, StrikeState.StrikeState_DuringStrikeBonuses)
 			StrikeState.StrikeState_DuringStrikeBonuses:
@@ -8795,9 +8807,10 @@ func do_pay_strike_cost(performing_player : Player, card_ids : Array, wild_strik
 			else:
 				card_names = "passive bonus"
 			_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "validates by discarding %s." % card_names)
-			events += performing_player.discard(card_ids)
-			if discard_ex_first:
-				performing_player.strike_stat_boosts.discard_ex_X_from_top = len(card_ids)
+			var where_to_discard = 0
+			if not discard_ex_first:
+				where_to_discard = 1
+			events += performing_player.discard(card_ids, where_to_discard)
 
 			if active_strike.extra_attack_in_progress:
 				active_strike.extra_attack_data.extra_attack_state = ExtraAttackState.ExtraAttackState_DuringStrikeBonuses
