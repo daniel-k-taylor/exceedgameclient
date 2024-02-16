@@ -251,9 +251,10 @@ func test_rachel_ua_exceed_overdrive():
 func test_rachel_ua_exceed_overdrive_nocontinuousboosts():
 	position_players(player1, 4, player2, 5)
 	give_gauge(player1, 3)
+	assert_true(game_logic.do_exceed(player1, player1.get_card_ids_in_gauge()))
+	# Draw for end of turn
 	player1.discard_hand()
 	give_player_specific_card(player1, "standard_normal_dive", TestCardId1)
-	assert_true(game_logic.do_exceed(player1, player1.get_card_ids_in_gauge()))
 	advance_turn(player2)
 	assert_true(game_logic.do_choose_from_discard(player1, [player1.overdrive[0].id]))
 	assert_true(game_logic.do_choice(player1, 0)) # Do it
@@ -411,10 +412,205 @@ func test_rachel_tinylobelia():
 	assert_false(player1.is_card_in_discards(TestCardId1))
 	advance_turn(player2)
 
-# Tests to implement
-# Electric chair boost, check damage and sustain
-# Dahlia - George effect
-# Baden lily hits on lightning rod across map
-# Does damage based on lightning count, 0 and lots tests
-# Baden boost, move to lightning space
-# Baden boost, can close if space is covered
+
+func test_rachel_electricchair():
+	position_players(player1, 1, player2, 4)
+	give_player_specific_card(player1, "rachel_electricchair", TestCardId1)
+	give_player_specific_card(player2, "standard_normal_assault", TestCardId2)
+	assert_eq(player1.hand.size(), 6)
+	assert_true(game_logic.do_boost(player1, TestCardId1))
+	assert_true(game_logic.do_choice(player1, get_choice_index_for_position(4)))
+	assert_eq(player1.hand.size(), 7)
+	advance_turn(player2)
+	give_player_specific_card(player1, "standard_normal_assault", TestCardId3)
+	assert_true(game_logic.do_strike(player1, TestCardId3, false, -1))
+	assert_true(game_logic.do_strike(player2, TestCardId2, false, -1))
+	validate_life(player1, 30, player2, 25)
+	validate_positions(player1, 3, player2, 4)
+	advance_turn(player1)
+	assert_eq(player1.continuous_boosts.size(), 1)
+	assert_eq(player1.continuous_boosts[0].id, TestCardId1)
+	advance_turn(player2)
+	give_player_specific_card(player1, "standard_normal_dive", TestCardId4)
+	give_player_specific_card(player2, "standard_normal_assault", TestCardId5)
+	assert_true(game_logic.do_strike(player1, TestCardId4, false, -1))
+	assert_true(game_logic.do_strike(player2, TestCardId5, false, -1))
+	validate_life(player1, 26, player2, 24)
+	validate_positions(player1, 3, player2, 4)
+	assert_eq(player1.continuous_boosts.size(), 1)
+	assert_eq(player1.continuous_boosts[0].id, TestCardId1)
+	advance_turn(player2)
+
+
+func test_rachel_dahliageorge():
+	position_players(player1, 1, player2, 4)
+	give_player_specific_card(player1, "rachel_tempestdahlia", TestCardId1)
+	give_player_specific_card(player2, "standard_normal_sweep", TestCardId2)
+	assert_eq(player1.hand.size(), 6)
+	assert_true(game_logic.do_boost(player1, TestCardId1, [player1.hand[0].id]))
+	assert_true(game_logic.do_choice(player1, get_choice_index_for_position(4)))
+	assert_eq(player1.hand.size(), 6) # Discarded one to pay
+	advance_turn(player2)
+	give_player_specific_card(player1, "standard_normal_assault", TestCardId3)
+	assert_true(game_logic.do_strike(player1, TestCardId3, false, -1))
+	assert_true(game_logic.do_strike(player2, TestCardId2, false, -1))
+	validate_life(player1, 30, player2, 23)
+	validate_positions(player1, 3, player2, 4)
+	advance_turn(player1)
+	assert_eq(player1.continuous_boosts.size(), 0)
+	advance_turn(player2)
+
+func test_rachel_badenbadenlily_crossmaphit():
+	position_players(player1, 1, player2, 9)
+	player1.discard_hand()
+	var discard1 = player1.get_top_discard_card().id
+	var discard2 = player1.get_top_discard_card().id
+	player1.place_top_discard_as_lightningrod(9)
+	player1.place_top_discard_as_lightningrod(9)
+	give_gauge(player1, 2)
+	give_player_specific_card(player1, "rachel_badenbadenlily", TestCardId1)
+	give_player_specific_card(player2, "standard_normal_sweep", TestCardId2)
+	assert_true(game_logic.do_strike(player1, TestCardId1, false, -1))
+	assert_true(game_logic.do_strike(player2, TestCardId2, false, -1))
+	assert_true(game_logic.do_pay_strike_cost(player1, player1.get_card_ids_in_gauge(), false))
+	validate_life(player1, 30, player2, 25)
+	# After - lily, rod, rod
+	assert_true(game_logic.do_choice(player1, 0)) #Lily
+	# After advance/retreat up to 2
+	assert_true(game_logic.do_choice(player1, get_choice_index_for_position(3)))
+	validate_positions(player1, 3, player2, 9)
+	# Rod 1
+	assert_true(game_logic.do_choice(player1, 0))
+	assert_true(game_logic.do_choice(player1, 0)) # Rod hit
+	validate_life(player1, 30, player2, 23)
+	# Rod 2
+	assert_true(game_logic.do_choice(player1, 0)) # Rod hit
+	validate_life(player1, 30, player2, 21)
+	var events = game_logic.get_latest_events()
+	validate_has_event(events, Enums.EventType.EventType_Strike_Stun, player2)
+	assert_eq(player1.gauge.size(), 1)
+	assert_true(player1.is_card_in_hand(discard1))
+	assert_true(player1.is_card_in_hand(discard2))
+	advance_turn(player2)
+
+
+func test_rachel_badenbadenlily_hit0():
+	position_players(player1, 8, player2, 7)
+	player1.discard_hand()
+	var discard1 = player1.get_top_discard_card().id
+	var discard2 = player1.get_top_discard_card().id
+	player1.place_top_discard_as_lightningrod(9)
+	player1.place_top_discard_as_lightningrod(9)
+	give_gauge(player1, 2)
+	give_player_specific_card(player1, "rachel_badenbadenlily", TestCardId1)
+	give_player_specific_card(player2, "standard_normal_sweep", TestCardId2)
+	assert_true(game_logic.do_strike(player1, TestCardId1, false, -1))
+	assert_true(game_logic.do_strike(player2, TestCardId2, false, -1))
+	assert_true(game_logic.do_pay_strike_cost(player1, player1.get_card_ids_in_gauge(), false))
+	validate_life(player1, 30, player2, 27)
+	# After - lily, rod, rod
+	assert_true(game_logic.do_choice(player1, 0)) #Lily
+	# After advance/retreat up to 2
+	assert_true(game_logic.do_choice(player1, get_choice_index_for_position(5)))
+	validate_positions(player1, 5, player2, 7)
+	# Rod 1 and 2 auto fail
+	validate_life(player1, 24, player2, 27)
+	var events = game_logic.get_latest_events()
+	validate_has_event(events, Enums.EventType.EventType_Strike_Stun, player1)
+	assert_eq(player1.gauge.size(), 1)
+	assert_eq(player2.gauge.size(), 1)
+	assert_false(player1.is_card_in_hand(discard1))
+	assert_false(player1.is_card_in_hand(discard2))
+	assert_false(player1.is_card_in_discards(discard1))
+	assert_false(player1.is_card_in_discards(discard2))
+	advance_turn(player2)
+
+
+func test_rachel_badenbadenlily_boost():
+	position_players(player1, 1, player2, 7)
+	player1.discard_hand()
+	player1.place_top_discard_as_lightningrod(3)
+	player1.place_top_discard_as_lightningrod(5)
+	player1.place_top_discard_as_lightningrod(7)
+	player1.place_top_discard_as_lightningrod(9)
+	give_player_specific_card(player1, "rachel_badenbadenlily", TestCardId1)
+	give_player_specific_card(player1, "rachel_badenbadenlily", TestCardId2)
+	assert_true(game_logic.do_boost(player1, TestCardId1, [TestCardId2]))
+	# Valid choices are 3,5,6
+	assert_eq(game_logic.decision_info.limitation.size(), 4)
+	assert_true(3 in game_logic.decision_info.limitation)
+	assert_true(5 in game_logic.decision_info.limitation)
+	assert_true(6 in game_logic.decision_info.limitation)
+	assert_true(9 in game_logic.decision_info.limitation)
+	assert_true(game_logic.do_choice(player1, get_choice_index_for_position(6)))
+	validate_positions(player1, 6, player2, 7)
+	advance_turn(player1)
+	advance_turn(player2)
+
+
+func test_rachel_badenbadenlily_boost2():
+	position_players(player1, 1, player2, 7)
+	player1.discard_hand()
+	player1.place_top_discard_as_lightningrod(3)
+	player1.place_top_discard_as_lightningrod(5)
+	player1.place_top_discard_as_lightningrod(7)
+	player1.place_top_discard_as_lightningrod(9)
+	give_player_specific_card(player1, "rachel_badenbadenlily", TestCardId1)
+	give_player_specific_card(player1, "rachel_badenbadenlily", TestCardId2)
+	assert_true(game_logic.do_boost(player1, TestCardId1, [TestCardId2]))
+	# Valid choices are 3,5,6, 9
+	assert_eq(game_logic.decision_info.limitation.size(), 4)
+	assert_true(3 in game_logic.decision_info.limitation)
+	assert_true(5 in game_logic.decision_info.limitation)
+	assert_true(6 in game_logic.decision_info.limitation)
+	assert_true(9 in game_logic.decision_info.limitation)
+	assert_true(game_logic.do_choice(player1, get_choice_index_for_position(9)))
+	validate_positions(player1, 9, player2, 7)
+	advance_turn(player1)
+	advance_turn(player2)
+
+func test_rachel_badenbadenlily_boost_none():
+	position_players(player1, 1, player2, 7)
+	player1.discard_hand()
+	give_player_specific_card(player1, "rachel_badenbadenlily", TestCardId1)
+	give_player_specific_card(player1, "rachel_badenbadenlily", TestCardId2)
+	assert_true(game_logic.do_boost(player1, TestCardId1, [TestCardId2]))
+	validate_positions(player1, 1, player2, 7)
+	advance_turn(player1)
+	advance_turn(player2)
+
+
+func test_rachel_badenbadenlily_boost_cantmove():
+	position_players(player1, 1, player2, 7)
+	player1.discard_hand()
+	player1.place_top_discard_as_lightningrod(3)
+	player1.place_top_discard_as_lightningrod(5)
+	player1.place_top_discard_as_lightningrod(7)
+	player1.place_top_discard_as_lightningrod(9)
+	player1.cannot_move = true
+	give_player_specific_card(player1, "rachel_badenbadenlily", TestCardId1)
+	give_player_specific_card(player1, "rachel_badenbadenlily", TestCardId2)
+	assert_true(game_logic.do_boost(player1, TestCardId1, [TestCardId2]))
+	validate_positions(player1, 1, player2, 7)
+	advance_turn(player1)
+	advance_turn(player2)
+
+func test_rachel_badenbadenlily_boost_cantmove_past():
+	position_players(player1, 7, player2, 5)
+	player1.discard_hand()
+	player1.place_top_discard_as_lightningrod(3)
+	player1.place_top_discard_as_lightningrod(5)
+	player1.place_top_discard_as_lightningrod(7)
+	player1.place_top_discard_as_lightningrod(9)
+	player1.cannot_move_past_opponent = true
+	give_player_specific_card(player1, "rachel_badenbadenlily", TestCardId1)
+	give_player_specific_card(player1, "rachel_badenbadenlily", TestCardId2)
+	assert_true(game_logic.do_boost(player1, TestCardId1, [TestCardId2]))
+	# Valid choices are 6, 9
+	assert_eq(game_logic.decision_info.limitation.size(), 2)
+	assert_true(6 in game_logic.decision_info.limitation)
+	assert_true(9 in game_logic.decision_info.limitation)
+	assert_true(game_logic.do_choice(player1, get_choice_index_for_position(6)))
+	validate_positions(player1, 6, player2, 5)
+	advance_turn(player1)
+	advance_turn(player2)

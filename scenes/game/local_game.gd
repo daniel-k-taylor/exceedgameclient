@@ -8757,7 +8757,7 @@ func do_strike(performing_player : Player, card_id : int, wild_strike: bool, ex_
 	event_queue += events
 	return true
 
-func do_pay_strike_cost(performing_player : Player, card_ids : Array, wild_strike : bool, discard_ex_first : bool = false) -> bool:
+func do_pay_strike_cost(performing_player : Player, card_ids : Array, wild_strike : bool, discard_ex_first : bool = true) -> bool:
 	printlog("SubAction: PAY_STRIKE by %s cards %s wild %s" % [performing_player.name, card_ids, str(wild_strike)])
 	if game_state != Enums.GameState.GameState_PlayerDecision:
 		printlog("ERROR: Tried to pay costs but not in decision state.")
@@ -8776,10 +8776,6 @@ func do_pay_strike_cost(performing_player : Player, card_ids : Array, wild_strik
 	if decision_info.player != performing_player.my_id:
 		printlog("ERROR: Tried to pay costs for wrong player.")
 		return false
-
-	if wild_strike:
-		# Irrelevant if wild swing.
-		discard_ex_first = false
 
 	var events = []
 	if wild_strike:
@@ -8808,7 +8804,7 @@ func do_pay_strike_cost(performing_player : Player, card_ids : Array, wild_strik
 				card_names = "passive bonus"
 			_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "validates by discarding %s." % card_names)
 			var where_to_discard = 0
-			if not discard_ex_first:
+			if not discard_ex_first and active_strike.get_player_ex_card(performing_player) != null:
 				where_to_discard = 1
 			events += performing_player.discard(card_ids, where_to_discard)
 
