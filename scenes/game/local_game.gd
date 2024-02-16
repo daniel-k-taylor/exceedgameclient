@@ -7940,6 +7940,10 @@ func continue_extra_attack(events):
 			ExtraAttackState.ExtraAttackState_DuringStrikeBonuses:
 				events += do_effects_for_timing("during_strike", attacker_player, attacker_card, ExtraAttackState.ExtraAttackState_Activation, true)
 			ExtraAttackState.ExtraAttackState_Activation:
+				# Gain armor/guard from the card.
+				attacker_player.strike_stat_boosts.armor += get_card_stat(attacker_player, attacker_card, "armor")
+				attacker_player.strike_stat_boosts.guard += get_card_stat(attacker_player, attacker_card, "guard")
+				# Do the attack starting at Before.
 				active_strike.extra_attack_data.extra_attack_state = ExtraAttackState.ExtraAttackState_Before
 				active_strike.extra_attack_data.extra_attack_remaining_effects = get_all_effects_for_timing("before", attacker_player, attacker_card, true, true)
 			ExtraAttackState.ExtraAttackState_Before:

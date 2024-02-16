@@ -10,6 +10,7 @@ const TestCardId2 = 50002
 const TestCardId3 = 50003
 const TestCardId4 = 50004
 const TestCardId5 = 50005
+const TestCardId6 = 50006
 
 var player1 : LocalGame.Player
 var player2 : LocalGame.Player
@@ -790,4 +791,54 @@ func test_kokonoe_extraattack_unnaffected_by_speed_boost():
 	assert_eq(player1.gauge.size(), 1) # Only 1 hit.
 	assert_true(player1.is_card_in_gauge(TestCardId5))
 	assert_true(not player1.is_card_in_gauge(TestCardId1))
+	advance_turn(player2)
+
+
+func test_kokonoe_extraattack_gainarmor():
+	position_players(player1, 4, player2, 7)
+	give_player_specific_card(player1, "kokonoe_flamingbelobog", TestCardId3)
+	assert_true(game_logic.do_boost(player1, TestCardId3))
+	# Place gravitron
+	assert_true(game_logic.do_choice(player1, 5))
+	assert_eq(player1.get_buddy_location(), 5)
+	advance_turn(player2)
+	give_player_specific_card(player1, "standard_normal_sweep", TestCardId4)
+	assert_true(game_logic.do_boost(player1, TestCardId4))
+	assert_true(game_logic.do_choice(player1, 5))
+	assert_eq(player1.get_buddy_location(), 5)
+	
+	player2.discard_hand()
+	give_player_specific_card(player2, "standard_normal_spike", TestCardId6)
+	assert_true(game_logic.do_boost(player2, TestCardId6))
+	assert_true(game_logic.do_choice(player2, 0)) # Don't place grav
+	assert_eq(player2.get_buddy_location(), -1)
+
+	# Start strike
+	give_player_specific_card(player1, "kokonoe_banishingrays", TestCardId1)
+	give_player_specific_card(player2, "standard_normal_sweep", TestCardId2)
+	assert_true(game_logic.do_strike(player1, TestCardId1, false, -1))
+	# Don't pay for grav
+	assert_true(game_logic.do_force_for_effect(player1, [], false, true))
+	assert_true(game_logic.do_strike(player2, TestCardId2, false, -1))
+	# Banishing rays goes first, hits.
+	# After choices between card and boost
+	assert_true(game_logic.do_choice(player1, 0)) # Card
+	# Retreat 1
+	assert_true(game_logic.do_choice(player1, 1))
+
+	validate_life(player1, 30, player2, 28) # 1 armor from defend
+	validate_positions(player1, 3, player2, 7)
+	# Now range 4, extra attack goes off.
+	# Player flame cage
+	give_player_specific_card(player1, "kokonoe_flamecage", TestCardId5)
+	assert_true(game_logic.do_choose_to_discard(player1, [TestCardId5]))
+	# After push/pull
+	assert_true(game_logic.do_choice(player1, 1)) # pull
+	validate_positions(player1, 3, player2, 6)
+	# The sweep is not stunned, so it hits, but we have 1 armor from flame cage
+	validate_life(player1, 25, player2, 23)
+	assert_eq(player1.gauge.size(), 2) # Both hit
+	assert_eq(player2.gauge.size(), 1)
+	assert_true(player1.is_card_in_gauge(TestCardId5))
+	assert_true(player1.is_card_in_gauge(TestCardId1))
 	advance_turn(player2)
