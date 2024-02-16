@@ -46,6 +46,7 @@ const NoticeOffsetY = 50
 
 const ChoiceTextLengthSoftCap = 45
 const ChoiceTextLengthHardCap = 60
+const MaxBonusPanelWidth = 225
 
 const CardPopoutZIndex = 5
 
@@ -2418,21 +2419,31 @@ func _on_strike_card_activation(event):
 
 func _on_strike_character_effect(event):
 	var player = event['event_player']
-	var is_player = player == Enums.PlayerId.PlayerId_Player
+	var effect = event['extra_info']
+	var label_text : String = ""
+	label_text += CardDefinitions.get_effect_text(effect, false, true, true, "", true)
+	_add_bonus_label_text(player, label_text)
+
+func _add_bonus_label_text(player, new_text : String):
 	var bonus_panel = player_bonus_panel
 	var bonus_label = player_bonus_label
-	if not is_player:
+	if player != Enums.PlayerId.PlayerId_Player:
 		bonus_panel = opponent_bonus_panel
 		bonus_label = opponent_bonus_label
 
 	if not bonus_panel.visible:
 		bonus_panel.visible = true
 		bonus_label.text = ""
-	var effect = event['extra_info']
-	var label_text : String = ""
-	label_text += CardDefinitions.get_effect_text(effect, false, true, true, "", true) + "\n"
-	label_text = label_text.replace(",", "\n")
-	bonus_label.text += label_text
+
+	for line in new_text.split("\n", false):
+		bonus_label.text += "* "
+		for word in line.split(" ", false):
+			bonus_label.text += word + " "
+			if bonus_label.get_content_width() > MaxBonusPanelWidth:
+				# Undo and put it on a new line
+				bonus_label.text = bonus_label.text.trim_suffix(word + " ")
+				bonus_label.text += "\n    " + word + " "
+		bonus_label.text += "\n"
 
 func _on_effect_choice(event):
 	var player = event['event_player']
@@ -2868,6 +2879,7 @@ func _handle_events(events):
 			Enums.EventType.EventType_Strike_Response:
 				_on_strike_started(event, false)
 			Enums.EventType.EventType_Strike_Response_Ex:
+				_add_bonus_label_text(event['event_player'], "EX Strike")
 				_on_strike_started(event, true)
 			Enums.EventType.EventType_Strike_Reveal:
 				delay = _on_strike_reveal(event)
@@ -2878,6 +2890,7 @@ func _handle_events(events):
 			Enums.EventType.EventType_Strike_Started:
 				_on_strike_started(event, false)
 			Enums.EventType.EventType_Strike_Started_Ex:
+				_add_bonus_label_text(event['event_player'], "EX Strike")
 				_on_strike_started(event, true)
 			Enums.EventType.EventType_Strike_Started_ExtraAttack:
 				_on_strike_started_extra_attack(event)
@@ -2891,6 +2904,8 @@ func _handle_events(events):
 				delay = _on_damage(event)
 			Enums.EventType.EventType_Strike_WildStrike:
 				_on_strike_started(event, false)
+				if not event['extra_info']:
+					_add_bonus_label_text(event['event_player'], "Set as Wild Swing")
 				delay = _stat_notice_event(event)
 			_:
 				printlog("ERROR: UNHANDLED EVENT")

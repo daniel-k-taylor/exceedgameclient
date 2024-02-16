@@ -401,7 +401,7 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 				if char_effect_panel:
 					effect_str += get_effect_text(effect['added_effect'], false, false, false, card_name_source, false)
 				else:
-					effect_str += "Add effect:\n" + get_effect_text(effect['added_effect'], false, false, false, card_name_source, false)
+					effect_str += "Add effect -- " + get_effect_text(effect['added_effect'], false, false, false, card_name_source, false)
 		"add_boost_to_gauge_on_strike_cleanup":
 			if card_name_source:
 				effect_str += "Add %s to gauge" % card_name_source
@@ -1070,6 +1070,9 @@ func get_effect_text(effect, short = false, skip_timing = false, skip_condition 
 	var effect_str = ""
 	if 'timing' in effect and not skip_timing:
 		effect_str += get_timing_text(effect['timing'])
+	var effect_separator = ", "
+	if char_effect_panel:
+		effect_separator = "\n"
 
 	var silent_effect = false
 	if 'silent_effect' in effect and effect['silent_effect']:
@@ -1098,11 +1101,11 @@ func get_effect_text(effect, short = false, skip_timing = false, skip_condition 
 	if 'and' in effect:
 		if not 'suppress_and_description' in effect or not effect['suppress_and_description']:
 			if effect_str != "":
-				effect_str += ", "
+				effect_str += effect_separator
 			effect_str += get_effect_text(effect['and'], short, false, false, card_name_source, char_effect_panel)
 	if 'negative_condition_effect' in effect:
 		if not 'suppress_negative_description' in effect or not effect['suppress_negative_description']:
-			effect_str += ", otherwise " + get_effect_text(effect['negative_condition_effect'], short, skip_timing, false, card_name_source)
+			effect_str += "; otherwise " + get_effect_text(effect['negative_condition_effect'], short, skip_timing, false, card_name_source)
 
 	# Remove unnecessary starting colons, e.g. from character_bonus effects
 	if len(effect_str) >= 2 and effect_str.substr(0, 2) == ": ":
