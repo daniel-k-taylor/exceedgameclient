@@ -6489,7 +6489,7 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 			else:
 				_append_log_full(Enums.LogType.LogType_Health, damaged_player, "takes %s non-lethal damage, bringing them to %s life!" % [str(unmitigated_damage), str(damaged_player.life)])
 			if active_strike:
-				active_strike.add_damage_taken(damaged_player, damage)
+				active_strike.add_damage_taken(damaged_player, unmitigated_damage)
 				events += check_for_stun(damaged_player, false)
 			if damaged_player.life < 0:
 				events += trigger_game_over(damaged_player.my_id, Enums.GameOverReason.GameOverReason_Life)
