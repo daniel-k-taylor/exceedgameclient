@@ -453,9 +453,9 @@ texture_pressed = ExtResource("4_5y76h")
 texture_hover = ExtResource("4_5y76h")
 
 [node name="CharBonusPanel" type="PanelContainer" parent="PlayerStrike"]
-offset_left = 350.0
+offset_left = 320.0
 offset_top = 380.0
-offset_right = 532.0
+offset_right = 520.0
 offset_bottom = 529.0
 
 [node name="MarginContainer" type="MarginContainer" parent="PlayerStrike/CharBonusPanel"]
@@ -471,13 +471,13 @@ layout_mode = 2
 [node name="UniqueLabel" type="Label" parent="PlayerStrike/CharBonusPanel/MarginContainer/VBox"]
 layout_mode = 2
 theme_override_font_sizes/font_size = 32
-text = "Char. Bonus"
+text = "Bonus Effects"
 
 [node name="AbilityLabel" type="RichTextLabel" parent="PlayerStrike/CharBonusPanel/MarginContainer/VBox"]
 layout_mode = 2
 size_flags_vertical = 4
-theme_override_font_sizes/normal_font_size = 32
-theme_override_font_sizes/bold_font_size = 32
+theme_override_font_sizes/normal_font_size = 18
+theme_override_font_sizes/bold_font_size = 18
 bbcode_enabled = true
 text = "+0-1 range
 +1 power"
@@ -499,9 +499,9 @@ texture_pressed = ExtResource("4_5y76h")
 texture_hover = ExtResource("4_5y76h")
 
 [node name="CharBonusPanel" type="PanelContainer" parent="OpponentStrike"]
-offset_left = 350.0
+offset_left = 320.0
 offset_top = 75.0
-offset_right = 532.0
+offset_right = 520.0
 offset_bottom = 224.0
 
 [node name="MarginContainer" type="MarginContainer" parent="OpponentStrike/CharBonusPanel"]
@@ -517,13 +517,13 @@ layout_mode = 2
 [node name="UniqueLabel" type="Label" parent="OpponentStrike/CharBonusPanel/MarginContainer/VBox"]
 layout_mode = 2
 theme_override_font_sizes/font_size = 32
-text = "Char. Bonus"
+text = "Bonus Effects"
 
 [node name="AbilityLabel" type="RichTextLabel" parent="OpponentStrike/CharBonusPanel/MarginContainer/VBox"]
 layout_mode = 2
 size_flags_vertical = 4
-theme_override_font_sizes/normal_font_size = 32
-theme_override_font_sizes/bold_font_size = 32
+theme_override_font_sizes/normal_font_size = 18
+theme_override_font_sizes/bold_font_size = 18
 bbcode_enabled = true
 text = "+0-1 range
 +1 power"

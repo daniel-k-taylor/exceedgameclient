@@ -8,6 +8,7 @@
 		{
 			"timing": "after",
 			"condition": "opponent_stunned",
+			"character_effect": true,
 			"effect_type": "choice",
 			"choice": [
 				{ "effect_type": "draw", "amount": 1 },
@@ -21,6 +22,7 @@
 		{
 			"timing": "after",
 			"condition": "opponent_stunned",
+			"character_effect": true,
 			"effect_type": "choice",
 			"choice": [
 				{ "effect_type": "draw", "amount": 1 },

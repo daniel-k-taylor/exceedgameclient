@@ -1,12 +1,13 @@
 {
 	"id": "chipp",
 	"season": 7,
-	"display_name": "Chipp",
+	"display_name": "Chipp Zanuff",
 	"cardback": "cardback_chipp.jpg",
 	"exceed_cost": 2,
 	"ability_effects": [
 		{
 			"timing": "after",
+			"character_effect": true,
 			"effect_type": "choice",
 			"choice": [
 				{ "effect_type": "advance", "amount": 1 },
@@ -18,6 +19,7 @@
 	"exceed_ability_effects": [
 		{
 			"timing": "after",
+			"character_effect": true,
 			"effect_type": "choice",
 			"choice": [
 				{ "effect_type": "advance", "amount": 1 },

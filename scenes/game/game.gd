@@ -46,6 +46,7 @@ const NoticeOffsetY = 50
 
 const ChoiceTextLengthSoftCap = 45
 const ChoiceTextLengthHardCap = 60
+const MaxBonusPanelWidth = 255
 
 const CardPopoutZIndex = 5
 
@@ -63,6 +64,8 @@ var popout_instruction_info = null
 
 var PlayerHandFocusYPos = 720 - (CardBase.get_hand_card_size().y + 20)
 var OpponentHandFocusYPos = CardBase.get_opponent_hand_card_size().y
+
+var ChoiceTagRegex = RegEx.new()
 
 var first_run_done = false
 var select_card_require_min = 0
@@ -276,6 +279,8 @@ func _ready():
 		assert(child is LocationInfoButtonPair)
 		child.button_pressed.connect(func(player_id): _on_locationinfobuttonpair_pressed(player_id, location_index))
 		location_index += 1
+
+	ChoiceTagRegex.compile("\\[.*\\]")
 
 	setup_characters()
 
@@ -1145,6 +1150,15 @@ func _stat_notice_event(event):
 	spawn_damage_popup(notice_text, player)
 	return SmallNoticeDelay
 
+func _set_card_bonus(card_id, bonus, value=true):
+	var card = find_card_on_board(card_id)
+	if bonus == "ex":
+		card.set_ex(value)
+	if bonus == "wild":
+		card.set_wild(value)
+	elif bonus == "critical":
+		card.set_crit(value)
+
 func _on_stunned(event):
 	var card = find_card_on_board(event['number'])
 	var player = event['event_player']
@@ -1164,6 +1178,7 @@ func _on_end_of_strike():
 			for card in zone.get_children():
 				card.set_backlight_visible(false)
 				card.set_stun(false)
+				card.clear_bonuses()
 
 func _on_advance_turn():
 	var active_player : Enums.PlayerId = game_wrapper.get_active_player()
@@ -1174,11 +1189,12 @@ func _on_advance_turn():
 	if is_local_player_active and not observer_mode:
 		change_ui_state(UIState.UIState_PickTurnAction, UISubState.UISubState_None)
 		clear_selected_cards()
+		close_popout()
 	else:
 		change_ui_state(UIState.UIState_WaitingOnOpponent, UISubState.UISubState_None)
 
-	clear_selected_cards()
-	close_popout()
+	player_bonus_panel.visible = false
+	opponent_bonus_panel.visible = false
 
 	spawn_damage_popup("Ready!", active_player)
 	return SmallNoticeDelay
@@ -2341,7 +2357,7 @@ func _move_card_to_strike_area(card, strike_area, new_parent, is_player : bool, 
 	new_parent.add_child(card)
 	layout_player_hand(is_player)
 
-func _on_strike_started(event, is_ex : bool):
+func _on_strike_started(event, is_ex : bool, is_wild : bool = false):
 	var player = event['event_player']
 	var card = find_card_on_board(event['number'])
 	var immediate_reveal_event = false
@@ -2351,6 +2367,13 @@ func _on_strike_started(event, is_ex : bool):
 	var reveal_immediately = immediate_reveal_event or event['extra_info'] == true
 	if reveal_immediately:
 		make_card_revealed(card)
+
+	var is_ex_strike = 'extra_info2' in event and event['extra_info2']
+	if is_ex_strike:
+		_set_card_bonus(event['number'], "ex")
+	if is_wild:
+		_set_card_bonus(event['number'], "wild")
+
 	if player == Enums.PlayerId.PlayerId_Player:
 		_move_card_to_strike_area(card, $PlayerStrike/StrikeZone, $AllCards/Striking, true, is_ex)
 	else:
@@ -2416,21 +2439,31 @@ func _on_strike_card_activation(event):
 
 func _on_strike_character_effect(event):
 	var player = event['event_player']
-	var is_player = player == Enums.PlayerId.PlayerId_Player
+	var effect = event['extra_info']
+	var label_text : String = ""
+	label_text += CardDefinitions.get_effect_text(effect, false, true, true, "", true)
+	_add_bonus_label_text(player, label_text)
+
+func _add_bonus_label_text(player, new_text : String):
 	var bonus_panel = player_bonus_panel
 	var bonus_label = player_bonus_label
-	if not is_player:
+	if player == Enums.PlayerId.PlayerId_Opponent:
 		bonus_panel = opponent_bonus_panel
 		bonus_label = opponent_bonus_label
 
 	if not bonus_panel.visible:
 		bonus_panel.visible = true
 		bonus_label.text = ""
-	var effect = event['extra_info']
-	var label_text : String = ""
-	label_text += CardDefinitions.get_effect_text(effect, false, true, true, "", true) + "\n"
-	label_text = label_text.replace(",", "\n")
-	bonus_label.text += label_text
+
+	for line in new_text.split("\n", false):
+		bonus_label.text += "* "
+		for word in line.split(" ", false):
+			bonus_label.text += word + " "
+			if bonus_label.get_content_width() > MaxBonusPanelWidth:
+				# Undo and put it on a new line
+				bonus_label.text = bonus_label.text.trim_suffix(word + " ")
+				bonus_label.text += "\n    " + word + " "
+		bonus_label.text += "\n"
 
 func _on_effect_choice(event):
 	var player = event['event_player']
@@ -2817,6 +2850,7 @@ func _handle_events(events):
 			Enums.EventType.EventType_Strike_Cleanup:
 				_on_end_of_strike()
 			Enums.EventType.EventType_Strike_Critical:
+				_set_card_bonus(event['number'], "critical")
 				delay = _stat_notice_event(event)
 			Enums.EventType.EventType_Strike_DodgeAttacks, Enums.EventType.EventType_Strike_DodgeAttacksAtRange, Enums.EventType.EventType_Strike_DodgeFromOppositeBuddy:
 				delay = _stat_notice_event(event)
@@ -2888,7 +2922,7 @@ func _handle_events(events):
 			Enums.EventType.EventType_Strike_TookDamage:
 				delay = _on_damage(event)
 			Enums.EventType.EventType_Strike_WildStrike:
-				_on_strike_started(event, false)
+				_on_strike_started(event, false, true)
 				delay = _stat_notice_event(event)
 			_:
 				printlog("ERROR: UNHANDLED EVENT")
@@ -2908,6 +2942,8 @@ func _update_buttons():
 
 	var action_buttons_visible = ui_state == UIState.UIState_PickTurnAction
 	if action_buttons_visible:
+		player_bonus_panel.visible = false
+		opponent_bonus_panel.visible = false
 		if len(selected_cards) == 0:
 			set_instructions("Choose an action:")
 			instructions_ok_allowed = false
@@ -3077,17 +3113,38 @@ func _update_buttons():
 			if 'card_name' in choice:
 				card_name = choice['card_name']
 			card_text += CardDefinitions.get_effect_text(choice, false, true, false, card_name)
-			if len(card_text) > ChoiceTextLengthSoftCap:
-				var break_idx = ChoiceTextLengthSoftCap-1
-				while break_idx < len(card_text)-1 and card_text[break_idx] != " ":
-					break_idx += 1
-					if break_idx >= ChoiceTextLengthHardCap:
-						break
-				if break_idx < len(card_text) - 1:
-					if card_text[break_idx] == " ":
-						card_text = card_text.substr(0, break_idx) + "\n" + card_text.substr(break_idx+1)
+			if len(_choice_text_without_tags(card_text)) > ChoiceTextLengthSoftCap:
+				var real_break_idx = 0
+				var visible_break_idx = 0
+				var in_tag = false
+				while visible_break_idx < ChoiceTextLengthSoftCap-1:
+					if in_tag:
+						if card_text[real_break_idx] == ']':
+							in_tag = false
 					else:
-						card_text = card_text.substr(0, break_idx) + "-\n" + card_text.substr(break_idx)
+						if card_text[real_break_idx] == '[':
+							in_tag = true
+						else:
+							visible_break_idx += 1
+					real_break_idx += 1
+
+				while real_break_idx < len(card_text)-1 and card_text[real_break_idx] != " ":
+					if in_tag:
+						if card_text[real_break_idx] == ']':
+							in_tag = false
+					else:
+						if card_text[real_break_idx] == '[':
+							in_tag = true
+						else:
+							visible_break_idx += 1
+					real_break_idx += 1
+					if visible_break_idx >= ChoiceTextLengthHardCap:
+						break
+				if real_break_idx < len(card_text) - 1:
+					if card_text[real_break_idx] == " ":
+						card_text = card_text.substr(0, real_break_idx) + "\n" + card_text.substr(real_break_idx+1)
+					else:
+						card_text = card_text.substr(0, real_break_idx) + "-\n" + card_text.substr(real_break_idx)
 
 		var disabled = false
 		if "_choice_disabled" in choice and choice["_choice_disabled"]:
@@ -3109,6 +3166,9 @@ func _update_buttons():
 	action_menu_container.visible = action_menu.visible
 	action_menu.set_choices(current_instruction_text, button_choices, ultra_force_toggle, instructions_number_picker_min, instructions_number_picker_max, ex_discard_order_toggle)
 	current_action_menu_choices = button_choices
+
+func _choice_text_without_tags(choice_text):
+	return ChoiceTagRegex.sub(choice_text, "", true)
 
 func update_boost_summary(boosts_card_holder, boost_box):
 	var card_ids = []

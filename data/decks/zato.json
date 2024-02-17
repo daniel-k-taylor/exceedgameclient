@@ -10,6 +10,7 @@
 		{
 			"timing": "after",
 			"condition": "is_normal_attack",
+			"character_effect": true,
 			"effect_type": "place_buddy_in_attack_range",
 			"buddy_name": "Eddie",
 			"optional": true
@@ -17,12 +18,14 @@
 		{
 			"timing": "during_strike",
 			"condition": "is_buddy_special_or_ultra_attack",
+			"character_effect": true,
 			"effect_type": "calculate_range_from_buddy",
 			"buddy_name": "Eddie"
 		},
 		{
 			"timing": "hit",
 			"condition": "is_buddy_special_or_ultra_attack",
+			"character_effect": true,
 			"effect_type": "gain_advantage"
 		},
 		{
@@ -36,6 +39,7 @@
 		{
 			"timing": "after",
 			"condition": "is_normal_attack",
+			"character_effect": true,
 			"effect_type": "place_buddy_in_any_space",
 			"buddy_name": "Eddie",
 			"optional": true
@@ -43,12 +47,14 @@
 		{
 			"timing": "during_strike",
 			"condition": "is_buddy_special_or_ultra_attack",
+			"character_effect": true,
 			"effect_type": "calculate_range_from_buddy",
 			"buddy_name": "Eddie"
 		},
 		{
 			"timing": "hit",
 			"condition": "is_buddy_special_or_ultra_attack",
+			"character_effect": true,
 			"effect_type": "gain_advantage"
 		},
 		{

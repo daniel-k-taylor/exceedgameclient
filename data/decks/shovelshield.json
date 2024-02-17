@@ -47,6 +47,7 @@
 			"and": {
 				"condition": "on_buddy_space",
 				"condition_detail": "Shield Knight",
+				"character_effect": true,
 				"effect_type": "may_advance_bonus_spaces",
 				"amount": 1
 			}
@@ -60,6 +61,7 @@
 			"and": {
 				"condition": "on_buddy_space",
 				"condition_detail": "Shield Knight",
+				"character_effect": true,
 				"effect_type": "may_advance_bonus_spaces",
 				"amount": 1
 			}

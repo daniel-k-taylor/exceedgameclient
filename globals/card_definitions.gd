@@ -6,6 +6,8 @@ var card_definitions_path = "res://data/card_definitions.json"
 var decks_path = "res://data/decks"
 var decks = []
 
+const CardHighlightColor = "#7DF9FF" # Light blue
+
 func get_deck_test_deck():
 	for deck in decks:
 		if deck['id'] == "rachel":
@@ -192,6 +194,8 @@ func get_timing_text(timing):
 		"on_initiate_strike":
 			text += "When you initiate a strike, "
 		"on_reveal":
+			text += ""
+		"on_seal":
 			text += ""
 		"start_of_next_turn":
 			text += "At start of next turn: "
@@ -399,7 +403,7 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 				if char_effect_panel:
 					effect_str += get_effect_text(effect['added_effect'], false, false, false, card_name_source, false)
 				else:
-					effect_str += "Add effect:\n" + get_effect_text(effect['added_effect'], false, false, false, card_name_source, false)
+					effect_str += "Add effect - " + get_effect_text(effect['added_effect'], false, false, false, card_name_source, false)
 		"add_boost_to_gauge_on_strike_cleanup":
 			if card_name_source:
 				effect_str += "Add %s to gauge" % card_name_source
@@ -425,7 +429,7 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 		"add_top_deck_to_gauge":
 			var topdeck_card = ""
 			if 'card_name' in effect:
-				topdeck_card = "(%s) " % effect['card_name']
+				topdeck_card = "([color=%s]%s[/color]) " % [CardHighlightColor, effect['card_name']]
 			effect_str += "Add top card of deck %sto gauge" % topdeck_card
 		"add_top_discard_to_gauge":
 			effect_str += "Add top card of discard pile to gauge"
@@ -562,7 +566,7 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 			effect_str += "Discard a card from the top of the opponent's deck"
 		"discard_topdeck":
 			if 'card_name' in effect:
-				effect_str += "Discard %s from the top of your deck" % effect['card_name']
+				effect_str += "Discard [color=%s]%s[/color] from the top of your deck" % [CardHighlightColor, effect['card_name']]
 			else:
 				effect_str += "Discard a card from the top of your deck"
 		"discard_random":
@@ -902,6 +906,8 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 				effect_str += "Return this to hand"
 		"return_all_cards_gauge_to_hand":
 			effect_str += "Return all cards in gauge to hand."
+		"return_sealed_with_same_speed":
+			effect_str += "Return a sealed card with the same speed to hand."
 		"reveal_copy_for_advantage":
 			effect_str += "Reveal a copy of this attack to Gain Advantage"
 		"reveal_hand":
@@ -961,7 +967,7 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 				effect_str += "Seal this"
 		"seal_topdeck":
 			if 'card_name' in effect:
-				effect_str += "Seal %s from the top of your deck" % effect['card_name']
+				effect_str += "Seal [color=%s]%s[/color] from the top of your deck" % [CardHighlightColor, effect['card_name']]
 			else:
 				effect_str += "Seal the top card of your deck"
 		"self_discard_choose":
@@ -1012,7 +1018,7 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 		"strike_wild":
 			effect_str += "Wild swing"
 			if 'card_name' in effect:
-				effect_str += " (%s on top of deck)" % effect['card_name']
+				effect_str += " ([color=%s]%s[/color] on top of deck)" % [CardHighlightColor, effect['card_name']]
 		"strike_faceup":
 			effect_str += "Strike face-up"
 		"strike_opponent_sets_first":
@@ -1066,6 +1072,9 @@ func get_effect_text(effect, short = false, skip_timing = false, skip_condition 
 	var effect_str = ""
 	if 'timing' in effect and not skip_timing:
 		effect_str += get_timing_text(effect['timing'])
+	var effect_separator = ", "
+	if char_effect_panel:
+		effect_separator = "\n"
 
 	var silent_effect = false
 	if 'silent_effect' in effect and effect['silent_effect']:
@@ -1094,11 +1103,11 @@ func get_effect_text(effect, short = false, skip_timing = false, skip_condition 
 	if 'and' in effect:
 		if not 'suppress_and_description' in effect or not effect['suppress_and_description']:
 			if effect_str != "":
-				effect_str += ", "
+				effect_str += effect_separator
 			effect_str += get_effect_text(effect['and'], short, false, false, card_name_source, char_effect_panel)
 	if 'negative_condition_effect' in effect:
 		if not 'suppress_negative_description' in effect or not effect['suppress_negative_description']:
-			effect_str += ", otherwise " + get_effect_text(effect['negative_condition_effect'], short, skip_timing, false, card_name_source)
+			effect_str += "; otherwise " + get_effect_text(effect['negative_condition_effect'], short, skip_timing, false, card_name_source)
 
 	# Remove unnecessary starting colons, e.g. from character_bonus effects
 	if len(effect_str) >= 2 and effect_str.substr(0, 2) == ": ":

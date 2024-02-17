@@ -133,6 +133,7 @@
 					"effect_type": "remove_buddy",
 					"buddy_name": "Mantenbo",
 					"and": {
+						"character_effect": true,
 						"effect_type": "powerup",
 						"amount": 1,
 						"and": {
@@ -187,6 +188,7 @@
 					"effect_type": "remove_buddy",
 					"buddy_name": "Mantenbo",
 					"and": {
+						"character_effect": true,
 						"effect_type": "powerup",
 						"amount": 1,
 						"and": {
