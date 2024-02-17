@@ -59,6 +59,7 @@
 			"force_cost": 0,
 			"action_name": "Summon/Remove Mantenbo",
 			"per_turn_limit": 1,
+			"shortcut_effect_type": "choice",
 			"effect": {
 				"effect_type": "choice",
 				"choice": [

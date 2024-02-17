@@ -1387,7 +1387,7 @@ func _on_boost_played(event):
 	spawn_damage_popup("Boost!", player)
 	return BoostDelay
 
-func _on_choose_card_hand_to_gauge(event, can_cancel=false):
+func _on_choose_card_hand_to_gauge(event):
 	var player = event['event_player']
 	var min_amount = event['number']
 	var max_amount = event['extra_info']
@@ -1400,7 +1400,7 @@ func _on_choose_card_hand_to_gauge(event, can_cancel=false):
 				prepared_character_action_data = {}
 				change_ui_state(UIState.UIState_WaitForGameServer)
 		else:
-			begin_discard_cards_selection(min_amount, max_amount, UISubState.UISubState_SelectCards_DiscardCardsToGauge, can_cancel)
+			begin_discard_cards_selection(min_amount, max_amount, UISubState.UISubState_SelectCards_DiscardCardsToGauge, false)
 	else:
 		ai_choose_card_hand_to_gauge(min_amount, max_amount)
 
@@ -1896,12 +1896,19 @@ func _on_choose_to_discard(event, informative_only : bool):
 	if not informative_only:
 		var limitation = decision_info.limitation
 		if player == Enums.PlayerId.PlayerId_Player and not observer_mode:
-			var min_amount = amount
-			var max_amount = amount
-			if amount == -1:
-				min_amount = 0
-				max_amount = game_wrapper.get_player_hand_size(player)
-			begin_discard_cards_selection(min_amount, max_amount, UISubState.UISubState_SelectCards_DiscardCards_Choose, can_pass)
+			if prepared_character_action_data_available("self_discard_choose"):
+				var discard_ids = prepared_character_action_data['discard_ids']
+				var success = game_wrapper.submit_choose_to_discard(Enums.PlayerId.PlayerId_Player, discard_ids)
+				if success:
+					prepared_character_action_data = {}
+					change_ui_state(UIState.UIState_WaitForGameServer)
+			else:
+				var min_amount = amount
+				var max_amount = amount
+				if amount == -1:
+					min_amount = 0
+					max_amount = game_wrapper.get_player_hand_size(player)
+				begin_discard_cards_selection(min_amount, max_amount, UISubState.UISubState_SelectCards_DiscardCards_Choose, can_pass)
 		else:
 			# AI or other player wait
 			ai_choose_to_discard(amount, limitation, can_pass)
@@ -1932,6 +1939,8 @@ func set_instructions(text):
 func update_discard_selection_message_choose():
 	var decision_info = game_wrapper.get_decision_info()
 	var destination = decision_info.destination
+	if preparing_character_action:
+		destination = prepared_character_action_data['destination']
 	var num_remaining = select_card_require_min - len(selected_cards)
 	if select_card_require_min == 0:
 		num_remaining = select_card_require_max - len(selected_cards)
@@ -2546,12 +2555,8 @@ func _on_effect_choice(event):
 			return
 
 		var instruction_text = "Select an effect:"
-		var can_cancel = false
 		var extra_choice_text = []
 
-		if event['reason'] == "CharacterEffectOption":
-			instruction_text = "Select an effect for %s:" % prepared_character_action_data['action_name']
-			can_cancel = true
 		if event['reason'] == "EffectOrder":
 			instruction_text = "Select which effect to resolve first:"
 
@@ -2569,7 +2574,7 @@ func _on_effect_choice(event):
 			instruction_text = "Select which effect to copy:"
 		if event['reason'] == "Reading":
 			instruction_text = "You must strike with %s." % event['extra_info']
-		begin_effect_choice(game_wrapper.get_decision_info().choice, instruction_text, extra_choice_text, can_cancel)
+		begin_effect_choice(game_wrapper.get_decision_info().choice, instruction_text, extra_choice_text, false)
 	else:
 		ai_effect_choice(event)
 
@@ -3507,26 +3512,25 @@ func _on_character_action_pressed(action_idx : int = 0):
 				"strike":
 					_on_strike_button_pressed()
 				"gauge_from_hand":
-					var event = {
-						"event_player": Enums.PlayerId.PlayerId_Player,
-						"number": shortcut_effect['min_amount'],
-						"extra_info": shortcut_effect['max_amount']
-					}
-					game_wrapper.get_decision_info().destination = "gauge"
-					_on_choose_card_hand_to_gauge(event, true)
+					select_card_destination = "gauge"
+					begin_discard_cards_selection(shortcut_effect['min_amount'], shortcut_effect['max_amount'], UISubState.UISubState_SelectCards_DiscardCardsToGauge, true)
 				"choice":
-					var event = {
-						"event_player": Enums.PlayerId.PlayerId_Player,
-						"reason": "CharacterEffectOption"
-					}
-					game_wrapper.get_decision_info().choice = shortcut_effect['choice']
-					_on_effect_choice(event)
+					var instruction_text = "Select an effect for %s:" % prepared_character_action_data['action_name']
+					begin_effect_choice(shortcut_effect['choice'], instruction_text, [], true)
 				"boost_from_gauge":
 					var valid_zones = ['gauge']
 					var limitation = ""
 					if 'limitation' in shortcut_effect:
 						limitation = shortcut_effect['limitation']
 					begin_boost_choosing(true, valid_zones, limitation, false)
+				"self_discard_choose":
+					prepared_character_action_data['destination'] = "discard"
+					var min_amount = shortcut_effect['amount']
+					var max_amount = shortcut_effect['amount']
+					if shortcut_effect['amount'] == -1:
+						min_amount = 0
+						max_amount = game_wrapper.get_player_hand_size(Enums.PlayerId.PlayerId_Player)
+					begin_discard_cards_selection(min_amount, max_amount, UISubState.UISubState_SelectCards_DiscardCards_Choose, true)
 				_:
 					assert(false, "Unexpected shortcut character action type")
 					return
@@ -3564,6 +3568,8 @@ func finish_preparing_character_action(selections):
 					begin_generate_force_selection(force_cost)
 					_update_buttons()
 					return
+		"self_discard_choose":
+			prepared_character_action_data['discard_ids'] = selections
 		_:
 			assert(false, "Unexpected prepared character action type")
 			return
