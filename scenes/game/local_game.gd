@@ -9326,6 +9326,7 @@ func do_force_for_effect(performing_player : Player, card_ids : Array, treat_ult
 			effect_times = force_generated
 			if force_generated > 0 and 'combine_multiple_into_one' in decision_effect and decision_effect['combine_multiple_into_one']:
 				# This assumes this effect has no "and" effects.
+				decision_effect = decision_effect.duplicate()
 				decision_effect['amount'] = effect_times * decision_effect['amount']
 				effect_times = 1
 		elif decision_info.effect['overall_effect']:
