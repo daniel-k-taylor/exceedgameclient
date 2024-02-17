@@ -1150,6 +1150,15 @@ func _stat_notice_event(event):
 	spawn_damage_popup(notice_text, player)
 	return SmallNoticeDelay
 
+func _set_card_bonus(card_id, bonus, value=true):
+	var card = find_card_on_board(card_id)
+	if bonus == "ex":
+		card.set_ex(value)
+	if bonus == "wild":
+		card.set_wild(value)
+	elif bonus == "critical":
+		card.set_crit(value)
+
 func _on_stunned(event):
 	var card = find_card_on_board(event['number'])
 	var player = event['event_player']
@@ -1169,6 +1178,7 @@ func _on_end_of_strike():
 			for card in zone.get_children():
 				card.set_backlight_visible(false)
 				card.set_stun(false)
+				card.clear_bonuses()
 
 func _on_advance_turn():
 	var active_player : Enums.PlayerId = game_wrapper.get_active_player()
@@ -2347,7 +2357,7 @@ func _move_card_to_strike_area(card, strike_area, new_parent, is_player : bool, 
 	new_parent.add_child(card)
 	layout_player_hand(is_player)
 
-func _on_strike_started(event, is_ex : bool):
+func _on_strike_started(event, is_ex : bool, is_wild : bool = false):
 	var player = event['event_player']
 	var card = find_card_on_board(event['number'])
 	var immediate_reveal_event = false
@@ -2357,6 +2367,13 @@ func _on_strike_started(event, is_ex : bool):
 	var reveal_immediately = immediate_reveal_event or event['extra_info'] == true
 	if reveal_immediately:
 		make_card_revealed(card)
+
+	var is_ex_strike = 'extra_info2' in event and event['extra_info2']
+	if is_ex_strike:
+		_set_card_bonus(event['number'], "ex")
+	if is_wild:
+		_set_card_bonus(event['number'], "wild")
+
 	if player == Enums.PlayerId.PlayerId_Player:
 		_move_card_to_strike_area(card, $PlayerStrike/StrikeZone, $AllCards/Striking, true, is_ex)
 	else:
@@ -2833,6 +2850,7 @@ func _handle_events(events):
 			Enums.EventType.EventType_Strike_Cleanup:
 				_on_end_of_strike()
 			Enums.EventType.EventType_Strike_Critical:
+				_set_card_bonus(event['number'], "critical")
 				delay = _stat_notice_event(event)
 			Enums.EventType.EventType_Strike_DodgeAttacks, Enums.EventType.EventType_Strike_DodgeAttacksAtRange, Enums.EventType.EventType_Strike_DodgeFromOppositeBuddy:
 				delay = _stat_notice_event(event)
@@ -2882,7 +2900,6 @@ func _handle_events(events):
 			Enums.EventType.EventType_Strike_Response:
 				_on_strike_started(event, false)
 			Enums.EventType.EventType_Strike_Response_Ex:
-				_add_bonus_label_text(event['event_player'], "EX Strike")
 				_on_strike_started(event, true)
 			Enums.EventType.EventType_Strike_Reveal:
 				delay = _on_strike_reveal(event)
@@ -2893,7 +2910,6 @@ func _handle_events(events):
 			Enums.EventType.EventType_Strike_Started:
 				_on_strike_started(event, false)
 			Enums.EventType.EventType_Strike_Started_Ex:
-				_add_bonus_label_text(event['event_player'], "EX Strike")
 				_on_strike_started(event, true)
 			Enums.EventType.EventType_Strike_Started_ExtraAttack:
 				_on_strike_started_extra_attack(event)
@@ -2906,9 +2922,7 @@ func _handle_events(events):
 			Enums.EventType.EventType_Strike_TookDamage:
 				delay = _on_damage(event)
 			Enums.EventType.EventType_Strike_WildStrike:
-				_on_strike_started(event, false)
-				if not event['extra_info']:
-					_add_bonus_label_text(event['event_player'], "Set as Wild Swing")
+				_on_strike_started(event, false, true)
 				delay = _stat_notice_event(event)
 			_:
 				printlog("ERROR: UNHANDLED EVENT")

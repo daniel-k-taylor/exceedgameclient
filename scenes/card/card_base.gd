@@ -29,6 +29,9 @@ const StatPanel = preload("res://scenes/card/stat_panel.gd")
 @onready var icon4 = $CardFocusFeatures/HandIcons/HandPanel/HandMargin/HandVBox/Row2/IconPanel2/Icon
 @onready var icon5 = $CardFocusFeatures/HandIcons/HandPanel/HandMargin/HandVBox/Row3/IconPanel1/Icon
 @onready var icon6 = $CardFocusFeatures/HandIcons/HandPanel/HandMargin/HandVBox/Row3/IconPanel2/Icon
+@onready var bonus_ex = $CardFocusFeatures/BonusEffects/BonusPanel/BonusMargins/HandVBox/ExLabel
+@onready var bonus_wild = $CardFocusFeatures/BonusEffects/BonusPanel/BonusMargins/HandVBox/WildLabel
+@onready var bonus_crit = $CardFocusFeatures/BonusEffects/BonusPanel/BonusMargins/HandVBox/CritLabel
 
 const ActualCardSize = Vector2(250,350)
 const HandCardScale = Vector2(0.7, 0.7)
@@ -187,6 +190,20 @@ func set_backlight_visible(backlight_visible):
 
 func set_stun(stun_visible):
 	stun_indicator.visible = stun_visible
+
+func set_ex(ex_visible):
+	bonus_ex.visible = ex_visible
+
+func set_wild(wild_visible):
+	bonus_wild.visible = wild_visible
+
+func set_crit(crit_visible):
+	bonus_crit.visible = crit_visible
+
+func clear_bonuses():
+	set_ex(false)
+	set_wild(false)
+	set_crit(false)
 
 func is_front_showing():
 	return not card_back.visible
