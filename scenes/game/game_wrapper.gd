@@ -270,6 +270,38 @@ func get_plague_knight_discard_names(player_id : Enums.PlayerId) -> Array:
 func get_buddy_name(player_id : Enums.PlayerId, buddy_id : String):
 	return _get_player(player_id).get_buddy_name(buddy_id)
 
+func get_valid_locations_for_buddy_effect(player_id : Enums.PlayerId, effect : Dictionary):
+	var MinArenaLocation = 1
+	var MaxArenaLocation = 9
+	var locations = []
+
+	var player = _get_player(player_id)
+	var effect_type = effect['effect_type']
+	var buddy_id = ""
+	if 'buddy_id' in effect:
+		buddy_id = effect['buddy_id']
+
+	if effect_type == 'place_buddy_in_any_space':
+		for i in range(MinArenaLocation, MaxArenaLocation + 1):
+			locations.append(i)
+	elif effect_type == 'move_buddy':
+		var min_spaces = effect['amount']
+		var max_spaces = effect['amount2']
+		var buddy_location = player.get_buddy_location(buddy_id)
+		for i in range(MinArenaLocation, MaxArenaLocation + 1):
+			var distance = abs(buddy_location - i)
+			if distance >= min_spaces and distance <= max_spaces:
+				locations.append(i)
+	elif effect_type == 'place_buddy_at_range':
+		var range_min = effect['range_min']
+		var range_max = effect['range_max']
+		for i in range(MinArenaLocation, MaxArenaLocation + 1):
+			var range_origin = player.get_closest_occupied_space_to(i)
+			var distance = abs(range_origin - i)
+			if distance >= range_min and distance <= range_max:
+				locations.append(i)
+	return locations
+
 func get_card_index_in_discards(player_id : Enums.PlayerId, card_id : int):
 	var player = _get_player(player_id)
 	for i in range(len(player.discards)):

@@ -3373,6 +3373,14 @@ func _on_choose_arena_location_for_effect(event):
 	var effect_type = decision_info.effect_type
 	var can_pass = decision_info.limitation[0] == 0
 	if player == Enums.PlayerId.PlayerId_Player and not observer_mode:
+		if prepared_character_action_data_available("place_buddy_effect"):
+			var choice = prepared_character_action_data['choice']
+			var success = game_wrapper.submit_choice(Enums.PlayerId.PlayerId_Player, choice)
+			if success:
+				prepared_character_action_data = {}
+				change_ui_state(UIState.UIState_WaitForGameServer)
+			return
+
 		arena_locations_clickable = decision_info.limitation
 		var instruction_str = "Select a location"
 		match effect_type:
@@ -3531,6 +3539,14 @@ func _on_character_action_pressed(action_idx : int = 0):
 						min_amount = 0
 						max_amount = game_wrapper.get_player_hand_size(Enums.PlayerId.PlayerId_Player)
 					begin_discard_cards_selection(min_amount, max_amount, UISubState.UISubState_SelectCards_DiscardCards_Choose, true)
+				"place_buddy_in_any_space", "move_buddy", "place_buddy_at_range":
+					var locations = game_wrapper.get_valid_locations_for_buddy_effect(Enums.PlayerId.PlayerId_Player, shortcut_effect)
+					prepared_character_action_data['locations'] = locations
+					arena_locations_clickable = locations
+					var buddy_name = shortcut_effect['buddy_name']
+					var instruction_str = "Select a location to place %s" % buddy_name
+					enable_instructions_ui(instruction_str, false, true)
+					change_ui_state(UIState.UIState_SelectArenaLocation, UISubState.UISubState_SelectArena_EffectChoice)
 				_:
 					assert(false, "Unexpected shortcut character action type")
 					return
@@ -3570,6 +3586,14 @@ func finish_preparing_character_action(selections):
 					return
 		"self_discard_choose":
 			prepared_character_action_data['discard_ids'] = selections
+		"place_buddy_in_any_space", "move_buddy", "place_buddy_at_range":
+			var location = selections[0]
+			var location_options = prepared_character_action_data['locations']
+			for i in range(location_options.size()):
+				if location_options[i] == location:
+					prepared_character_action_data['choice'] = i
+					break
+			prepared_character_action_data['effect_type'] = 'place_buddy_effect'
 		_:
 			assert(false, "Unexpected prepared character action type")
 			return
@@ -3857,6 +3881,9 @@ func _on_arena_location_pressed(location):
 		if ui_sub_state == UISubState.UISubState_SelectCards_MoveActionGenerateForce:
 			begin_generate_force_selection(game_wrapper.get_force_to_move_to(Enums.PlayerId.PlayerId_Player, location))
 		elif ui_sub_state == UISubState.UISubState_SelectArena_EffectChoice:
+			if preparing_character_action:
+				finish_preparing_character_action([location])
+				return
 			var decision_info = game_wrapper.get_decision_info()
 			var choice_index = 0
 			for i in range(decision_info.limitation.size()):
