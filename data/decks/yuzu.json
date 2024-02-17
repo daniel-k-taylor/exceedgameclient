@@ -65,8 +65,13 @@
 			}
 		},
 		{
-			"timing": "cleanup",
-			"effect_type": "discard_strike_after_cleanup"
+			"timing": "set_strike",
+			"character_effect": true,
+			"effect_type": "add_attack_effect",
+			"added_effect": {
+				"timing": "cleanup",
+				"effect_type": "discard_strike_after_cleanup"
+			}
 		}
 	],
 	"cards": [

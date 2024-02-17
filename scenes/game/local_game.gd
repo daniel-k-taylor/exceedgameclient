@@ -4370,7 +4370,8 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 		"critical":
 			performing_player.strike_stat_boosts.critical = true
 			_append_log_full(Enums.LogType.LogType_Effect, performing_player, "'s strike is Critical!")
-			events += [create_event(Enums.EventType.EventType_Strike_Critical, performing_player.my_id, 0)]
+			var strike_card = active_strike.get_player_card(performing_player)
+			events += [create_event(Enums.EventType.EventType_Strike_Critical, performing_player.my_id, strike_card.id)]
 		"discard_this":
 			if active_boost:
 				active_boost.discard_on_cleanup = true
@@ -4542,7 +4543,7 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 			var cards_to_discard = performing_player.pick_random_cards_from_hand(1)
 			if cards_to_discard.size() > 0:
 				events += performing_player.discard(cards_to_discard)
-				add_attack_triggers(performing_player, cards_to_discard, true)
+				events += add_attack_triggers(performing_player, cards_to_discard, true)
 				var discarded_name = card_db.get_card_name(cards_to_discard[0])
 				performing_player.plague_knight_discard_names.append(discarded_name)
 				_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "discards random card: %s." % discarded_name)
@@ -6693,22 +6694,22 @@ func get_striking_card_ids_for_player(check_player : Player) -> Array:
 	return card_ids
 
 func add_attack_triggers(performing_player : Player, card_ids : Array, set_character_effect : bool = false):
-	var new_effects = []
+	var events = []
 	for card_id in card_ids:
 		var card = card_db.get_card(card_id)
 		var card_name = card_db.get_card_name(card.id)
 		_append_log_full(Enums.LogType.LogType_Effect, performing_player, "will add the before/hit/after effects of %s to their attack!" % card_name)
-		var card_effects = []
 		for timing in ["before", "hit", "after"]:
 			for card_effect in card_db.get_card_effects_at_timing(card, timing):
+				var added_effect = {
+					"effect_type": "add_attack_effect",
+					"added_effect": card_effect.duplicate()
+				}
+
 				if set_character_effect:
-					var as_character_effect = card_effect.duplicate()
-					as_character_effect['character_effect'] = true
-					card_effects.append(as_character_effect)
-				else:
-					card_effects.append(card_effect)
-		new_effects += card_effects
-	performing_player.strike_stat_boosts.added_attack_effects += new_effects
+					added_effect['character_effect'] = true
+				events += handle_strike_effect(-1, added_effect, performing_player)
+	return events
 
 func duplicate_attack_triggers(performing_player : Player, amount : int):
 	var card = active_strike.get_player_card(performing_player)
@@ -8634,12 +8635,13 @@ func do_strike(performing_player : Player, card_id : int, wild_strike: bool, ex_
 			printlog("ERROR: Strike response from wrong player.")
 			return false
 
+	var ex_strike = ex_card_id != -1
 	if performing_player.next_strike_from_gauge:
 		if not wild_strike and not performing_player.is_card_in_gauge(card_id):
 			if not (game_state == Enums.GameState.GameState_Strike_Opponent_Set_First or performing_player.next_strike_random_gauge):
 				printlog("ERROR: Tried to strike with a card not in gauge.")
 				return false
-		if ex_card_id != -1:
+		if ex_strike:
 			printlog("ERROR: Tried to ex strike from gauge.")
 			return false
 	elif performing_player.next_strike_from_sealed:
@@ -8647,7 +8649,7 @@ func do_strike(performing_player : Player, card_id : int, wild_strike: bool, ex_
 			if not game_state == Enums.GameState.GameState_Strike_Opponent_Set_First:
 				printlog("ERROR: Tried to strike with a card not in sealed.")
 				return false
-		if ex_card_id != -1:
+		if ex_strike:
 			printlog("ERROR: Tried to ex strike from sealed.")
 			return false
 	else:
@@ -8655,10 +8657,10 @@ func do_strike(performing_player : Player, card_id : int, wild_strike: bool, ex_
 			if not (game_state == Enums.GameState.GameState_Strike_Opponent_Set_First or performing_player.next_strike_random_gauge):
 				printlog("ERROR: Tried to strike with a card not in hand.")
 				return false
-		if ex_card_id != -1 and not performing_player.is_card_in_hand(ex_card_id):
+		if ex_strike and not performing_player.is_card_in_hand(ex_card_id):
 			printlog("ERROR: Tried to strike with a ex card not in hand.")
 			return false
-	if ex_card_id != -1 and not card_db.are_same_card(card_id, ex_card_id):
+	if ex_strike and not card_db.are_same_card(card_id, ex_card_id):
 		printlog("ERROR: Tried to strike with a ex card that doesn't match.")
 		return false
 
@@ -8700,7 +8702,7 @@ func do_strike(performing_player : Player, card_id : int, wild_strike: bool, ex_
 				else:
 					performing_player.remove_card_from_hand(card_id, false, true)
 
-				if ex_card_id != -1:
+				if ex_strike:
 					_append_log_full(Enums.LogType.LogType_Strike, performing_player, "sets an EX attack!")
 					active_strike.initiator_ex_card = card_db.get_card(ex_card_id)
 					performing_player.remove_card_from_hand(ex_card_id, false, true)
@@ -8716,9 +8718,9 @@ func do_strike(performing_player : Player, card_id : int, wild_strike: bool, ex_
 				_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "sets %s as a face-up attack!" % card_name)
 
 			# Send the EX first as that is visual and logic is triggered off the regular one.
-			if ex_card_id != -1:
+			if ex_strike:
 				events += [create_event(Enums.EventType.EventType_Strike_Started_Ex, performing_player.my_id, ex_card_id, "", reveal_immediately)]
-			events += [create_event(Enums.EventType.EventType_Strike_Started, performing_player.my_id, card_id, "", reveal_immediately)]
+			events += [create_event(Enums.EventType.EventType_Strike_Started, performing_player.my_id, card_id, "", reveal_immediately, ex_strike)]
 			# Intentional events = because events are passed in
 			events = continue_setup_strike(events)
 
@@ -8746,16 +8748,16 @@ func do_strike(performing_player : Player, card_id : int, wild_strike: bool, ex_
 			else:
 				active_strike.defender_card = card_db.get_card(card_id)
 				performing_player.remove_card_from_hand(card_id, false, true)
-				if ex_card_id != -1:
+				if ex_strike:
 					_append_log_full(Enums.LogType.LogType_Strike, performing_player, "sets an EX attack!")
 					active_strike.defender_ex_card = card_db.get_card(ex_card_id)
 					performing_player.remove_card_from_hand(ex_card_id, false, true)
 				else:
 					_append_log_full(Enums.LogType.LogType_Strike, performing_player, "sets their attack.")
 			# Send the EX first as that is visual and logic is triggered off the regular one.
-			if ex_card_id != -1:
+			if ex_strike:
 				events += [create_event(Enums.EventType.EventType_Strike_Response_Ex, performing_player.my_id, ex_card_id)]
-			events += [create_event(Enums.EventType.EventType_Strike_Response, performing_player.my_id, card_id)]
+			events += [create_event(Enums.EventType.EventType_Strike_Response, performing_player.my_id, card_id, "", false, ex_strike)]
 			# Intentional events = because events are passed in.
 			events = continue_setup_strike(events)
 	event_queue += events

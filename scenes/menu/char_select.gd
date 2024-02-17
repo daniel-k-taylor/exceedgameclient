@@ -20,6 +20,10 @@ signal close_character_select
 
 var default_char_id : String = "random"
 
+@onready var label_font_normal = 42
+@onready var label_font_small = 32
+@onready var label_length_threshold = 15
+
 func _ready():
 	show_season(charselect_s7, season_button_s7)
 
@@ -46,6 +50,11 @@ func update_hover(char_id):
 		var deck = CardDefinitions.get_deck_from_str_id(char_id)
 		hover_label.text = deck['display_name']
 		hover_portrait.texture = load("res://assets/portraits/" + char_id + ".png")
+
+	if len(hover_label.text) <= label_length_threshold:
+		hover_label.set("theme_override_font_sizes/font_size", label_font_normal)
+	else:
+		hover_label.set("theme_override_font_sizes/font_size", label_font_small)
 
 func show_char_select(char_id : String):
 	default_char_id = char_id

@@ -1,7 +1,7 @@
 {
 	"id": "ragna",
 	"season": 5,
-	"display_name": "Ragna",
+	"display_name": "Ragna the Bloodedge",
 	"cardback": "cardback_ragna.jpg",
 	"exceed_cost": 4,
 	"exceed_to_overdrive": true,
@@ -37,6 +37,7 @@
 		},
 		{
 			"timing": "hit",
+			"character_effect": true,
 			"effect_type": "gain_life",
 			"amount": 1
 		}

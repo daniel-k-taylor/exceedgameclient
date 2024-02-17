@@ -17,7 +17,8 @@
 		},
 		{
 			"timing": "set_strike",
-			"effect_type": "range_includes_if_moved_past"
+			"effect_type": "range_includes_if_moved_past",
+			"character_effect": true
 		}
 	],
 	"exceed_ability_effects": [
@@ -33,7 +34,8 @@
 		},
 		{
 			"timing": "set_strike",
-			"effect_type": "range_includes_if_moved_past"
+			"effect_type": "range_includes_if_moved_past",
+			"character_effect": true
 		},
 		{
 			"timing": "hit",

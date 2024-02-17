@@ -42,6 +42,7 @@
 	"ability_effects": [
 		{
 			"timing": "after",
+			"character_effect": true,
 			"effect_type": "place_next_buddy",
 			"buddy_name": "Ice Spike",
 			"require_unoccupied": true,
@@ -60,6 +61,7 @@
 					"same_space_allowed": true,
 					"buddy_name": "Ice Spike",
 					"and": {
+						"character_effect": true,
 						"effect_type": "powerup",
 						"amount": 2
 					}
@@ -76,6 +78,7 @@
 			"effect_type": "choice",
 			"choice": [
 				{
+					"character_effect": true,
 					"effect_type": "place_next_buddy",
 					"buddy_name": "Ice Spike",
 					"UI_skip_summary": true,
@@ -98,6 +101,7 @@
 					"same_space_allowed": true,
 					"buddy_name": "Ice Spike",
 					"and": {
+						"character_effect": true,
 						"effect_type": "powerup",
 						"amount": 3
 					}

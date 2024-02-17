@@ -23,21 +23,26 @@
 			"id": "taokaka_attackmeowpow"
 		},
 		{
-			"timing": "before",
+			"timing": "set_strike",
 			"condition": "initiated_strike",
 			"effect_type": "pass",
 			"and": {
 				"condition": "was_wild_swing",
-				"effect_type": "advance",
-				"amount": 2,
-				"and": {
-					"effect_type": "force_for_effect",
-					"per_force_effect": null,
-					"overall_effect": {
-						"effect_type": "retreat",
-						"amount": 2
-					},
-					"force_max": 1
+				"effect_type": "add_attack_effect",
+				"character_effect": true,
+				"added_effect": {
+					"timing": "before",
+					"effect_type": "advance",
+					"amount": 2,
+					"and": {
+						"effect_type": "force_for_effect",
+						"per_force_effect": null,
+						"overall_effect": {
+							"effect_type": "retreat",
+							"amount": 2
+						},
+						"force_max": 1
+					}
 				}
 			}
 		}
@@ -50,16 +55,21 @@
 			"id": "taokaka_attackmeowpow"
 		},
 		{
-			"timing": "before",
+			"timing": "set_strike",
 			"condition": "initiated_strike",
-			"effect_type": "advance",
-			"amount": 2,
-			"and": {
-				"effect_type": "choice",
-				"choice": [
-					{ "effect_type": "retreat", "amount": 2 },
-					{ "effect_type": "pass" }
-				]
+			"effect_type": "add_attack_effect",
+			"character_effect": true,
+			"added_effect": {
+				"timing": "before",
+				"effect_type": "advance",
+				"amount": 2,
+				"and": {
+					"effect_type": "choice",
+					"choice": [
+						{ "effect_type": "retreat", "amount": 2 },
+						{ "effect_type": "pass" }
+					]
+				}
 			}
 		}
 	],

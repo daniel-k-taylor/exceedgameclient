@@ -8,6 +8,7 @@
 		{
 			"timing": "hit",
 			"condition": "is_normal_attack",
+			"character_effect": true,
 			"effect_type": "choice",
 			"choice": [
 				{ "effect_type": "push", "amount": 1 },
@@ -20,6 +21,7 @@
 		{
 			"timing": "hit",
 			"condition": "is_normal_attack",
+			"character_effect": true,
 			"effect_type": "draw",
 			"amount": 1,
 			"and": {

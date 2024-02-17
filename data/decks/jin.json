@@ -1,7 +1,7 @@
 {
 	"id": "jin",
 	"season": 5,
-	"display_name": "Jin",
+	"display_name": "Jin Kisaragi",
 	"cardback": "cardback_jin.jpg",
 	"exceed_cost": 4,
 	"exceed_to_overdrive": true,
@@ -25,21 +25,15 @@
 			"effect_type": "gauge_for_effect",
 			"per_gauge_effect": null,
 			"overall_effect": {
-				"effect_type": "set_used_character_bonus",
-				"linked_effect": {
+				"character_effect": true,
+				"effect_type": "add_attack_effect",
+				"added_effect": {
 					"timing": "after",
 					"effect_type": "draw",
 					"amount": 2
 				}
 			},
 			"gauge_max": 1
-		},
-		{
-			"character_effect": true,
-			"timing": "after",
-			"condition": "used_character_bonus",
-			"effect_type": "draw",
-			"amount": 2
 		}
 	],
 	"exceed_ability_effects": [
@@ -50,16 +44,22 @@
 			"id": "jin_arcticdungeon"
 		},
 		{
+			"timing": "set_strike",
 			"character_effect": true,
-			"timing": "hit",
-			"effect_type": "opponent_discard_choose",
-			"amount": 1
-		},
-		{
-			"character_effect": true,
-			"timing": "after",
-			"effect_type": "draw",
-			"amount": 1
+			"effect_type": "add_attack_effect",
+			"added_effect": {
+				"timing": "hit",
+				"effect_type": "opponent_discard_choose",
+				"amount": 1
+			},
+			"and": {
+				"effect_type": "add_attack_effect",
+				"added_effect": {
+					"timing": "after",
+					"effect_type": "draw",
+					"amount": 1
+				}
+			}
 		}
 	],
 	"cards": [

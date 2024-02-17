@@ -366,6 +366,79 @@ texture = ExtResource("7_vbrtw")
 expand_mode = 1
 stretch_mode = 4
 
+[node name="BonusEffects" type="Node2D" parent="CardFocusFeatures"]
+position = Vector2(120, -130)
+
+[node name="BonusPanel" type="PanelContainer" parent="CardFocusFeatures/BonusEffects"]
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -110.0
+offset_bottom = 152.0
+grow_horizontal = 0
+theme_override_styles/panel = SubResource("StyleBoxEmpty_0ooqv")
+
+[node name="BonusMargins" type="MarginContainer" parent="CardFocusFeatures/BonusEffects/BonusPanel"]
+layout_mode = 2
+size_flags_horizontal = 8
+
+[node name="HandVBox" type="VBoxContainer" parent="CardFocusFeatures/BonusEffects/BonusPanel/BonusMargins"]
+layout_mode = 2
+
+[node name="ExLabel" type="RichTextLabel" parent="CardFocusFeatures/BonusEffects/BonusPanel/BonusMargins/HandVBox"]
+visible = false
+layout_mode = 2
+mouse_filter = 2
+theme_override_colors/font_shadow_color = Color(0.713726, 0.0470588, 1, 1)
+theme_override_colors/font_outline_color = Color(0.886275, 0.733333, 1, 1)
+theme_override_constants/shadow_offset_x = 1
+theme_override_constants/shadow_offset_y = 1
+theme_override_constants/shadow_outline_size = 12
+theme_override_constants/outline_size = 5
+theme_override_font_sizes/bold_italics_font_size = 42
+bbcode_enabled = true
+text = "[right][color=blue][b][i]EX  [/i][/b][/color][/right]"
+fit_content = true
+scroll_active = false
+autowrap_mode = 0
+shortcut_keys_enabled = false
+
+[node name="WildLabel" type="RichTextLabel" parent="CardFocusFeatures/BonusEffects/BonusPanel/BonusMargins/HandVBox"]
+visible = false
+layout_mode = 2
+mouse_filter = 2
+theme_override_colors/font_shadow_color = Color(0, 0.921569, 0.85098, 1)
+theme_override_colors/font_outline_color = Color(0, 0.278431, 0.133333, 1)
+theme_override_constants/shadow_offset_x = 1
+theme_override_constants/shadow_offset_y = 1
+theme_override_constants/shadow_outline_size = 12
+theme_override_constants/outline_size = 5
+theme_override_font_sizes/bold_italics_font_size = 41
+bbcode_enabled = true
+text = "[right][color=yellow][b][i]WILD [/i][/b][/color][/right]"
+fit_content = true
+scroll_active = false
+autowrap_mode = 0
+shortcut_keys_enabled = false
+
+[node name="CritLabel" type="RichTextLabel" parent="CardFocusFeatures/BonusEffects/BonusPanel/BonusMargins/HandVBox"]
+visible = false
+layout_mode = 2
+mouse_filter = 2
+theme_override_colors/font_shadow_color = Color(0.717647, 0.317647, 0, 1)
+theme_override_colors/font_outline_color = Color(0.243137, 0.0901961, 0, 1)
+theme_override_constants/shadow_offset_x = 1
+theme_override_constants/shadow_offset_y = 1
+theme_override_constants/shadow_outline_size = 12
+theme_override_constants/outline_size = 5
+theme_override_font_sizes/bold_italics_font_size = 42
+bbcode_enabled = true
+text = "[right][color=red][b][i]CRITICAL [/i][/b][/color][/right]"
+fit_content = true
+scroll_active = false
+autowrap_mode = 0
+shortcut_keys_enabled = false
+
 [node name="CancelContainer" type="Node2D" parent="CardFocusFeatures"]
 
 [node name="Stopwatch" type="Sprite2D" parent="CardFocusFeatures/CancelContainer"]

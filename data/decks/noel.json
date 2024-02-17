@@ -47,13 +47,14 @@
 			"timing": "set_strike",
 			"condition": "initiated_strike",
 			"effect_type": "speedup",
-			"amount": 1
-		},
-		{
-			"character_effect": true,
-			"timing": "hit",
-			"condition": "initiated_strike",
-			"effect_type": "gain_advantage"
+			"amount": 1,
+			"and": {
+				"effect_type": "add_attack_effect",
+				"added_effect": {
+					"timing": "hit",
+					"effect_type": "gain_advantage"
+				}
+			}
 		}
 	],
 	"cards": [
