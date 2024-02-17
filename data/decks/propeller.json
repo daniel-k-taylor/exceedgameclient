@@ -18,6 +18,7 @@
 		"gauge_cost": 0,
 		"force_cost": 0,
 		"action_name": "Move 1 and Strike",
+		"shortcut_effect_type": "choice",
 		"effect": {
 			"effect_type": "choice",
 			"choice": [
