@@ -1182,12 +1182,15 @@ func _stat_notice_event(event):
 
 func _set_card_bonus(card_id, bonus, value=true):
 	var card = find_card_on_board(card_id)
-	if bonus == "ex":
-		card.set_ex(value)
-	if bonus == "wild":
-		card.set_wild(value)
-	elif bonus == "critical":
-		card.set_crit(value)
+	match bonus:
+		"ex":
+			card.set_ex(value)
+		"wild":
+			card.set_wild(value)
+		"critical":
+			card.set_crit(value)
+		_:
+			assert(false, "Set card bonus for unknown effect")
 
 func _on_stunned(event):
 	var card = find_card_on_board(event['number'])
