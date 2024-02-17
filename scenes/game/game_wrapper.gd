@@ -114,6 +114,21 @@ func get_player_mulligan_complete(id):
 func get_player_character_action(id, action_idx = 0):
 	return _get_player(id).get_character_action(action_idx)
 
+func get_player_character_action_shortcut_effect(id, action_idx = 0):
+	var character_action = get_player_character_action(id, action_idx)
+	if 'shortcut_effect_type' in character_action:
+		var shortcut_effect_type = character_action['shortcut_effect_type']
+		var found_effect = character_action['effect']
+		var continue_searching = true
+		while continue_searching:
+			continue_searching = false
+			if found_effect['effect_type'] == shortcut_effect_type:
+				return found_effect
+			elif 'and' in found_effect:
+				found_effect = found_effect['and']
+				continue_searching = true
+	return {}
+
 func get_player_character_action_count(id):
 	return _get_player(id).get_character_action_count()
 

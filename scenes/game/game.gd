@@ -99,6 +99,8 @@ var opponent_cards_before_reshuffle = []
 var treat_ultras_as_single_force = false
 var discard_ex_first_for_strike = false
 var current_pay_costs_is_ex = false
+var preparing_character_action = false
+var prepared_character_action_data = {}
 
 var player_deck
 var opponent_deck
@@ -1787,7 +1789,15 @@ func _on_force_start_strike(event):
 		disable_ex = event['extra_info2']
 	spawn_damage_popup("Strike!", player)
 	if player == Enums.PlayerId.PlayerId_Player and not observer_mode:
-		begin_strike_choosing(false, false, false, disable_wild_swing, disable_ex)
+		if prepared_character_action_data:
+			var card_id = prepared_character_action_data['card_id']
+			var ex_card_id = prepared_character_action_data['ex_card_id']
+			prepared_character_action_data = {}
+			var success = game_wrapper.submit_strike(Enums.PlayerId.PlayerId_Player, card_id, false, ex_card_id)
+			if success:
+				change_ui_state(UIState.UIState_WaitForGameServer)
+		else:
+			begin_strike_choosing(false, false, false, disable_wild_swing, disable_ex)
 	else:
 		ai_forced_strike(disable_wild_swing, disable_ex)
 	return SmallNoticeDelay
@@ -2145,7 +2155,10 @@ func begin_strike_choosing(strike_response : bool, cancel_allowed : bool,
 	select_card_require_min = 1
 	select_card_require_max = 1
 	var can_cancel = cancel_allowed and not strike_response
-	var dialogue = "Select a card to strike with."
+	var character_action_str = ""
+	if preparing_character_action:
+		character_action_str = " using character action"
+	var dialogue = "Select a card to strike with%s." % character_action_str
 	var cards_that_will_not_hit = game_wrapper.get_will_not_hit_card_names(Enums.PlayerId.PlayerId_Player)
 	if cards_that_will_not_hit.size() > 0:
 		for card in cards_that_will_not_hit:
@@ -3442,9 +3455,26 @@ func _on_character_action_pressed(action_idx : int = 0):
 	elif gauge_cost > 0:
 		begin_gauge_selection(gauge_cost, false, UISubState.UISubState_SelectCards_CharacterAction_Gauge)
 	else:
-		game_wrapper.submit_character_action(Enums.PlayerId.PlayerId_Player, [], action_idx)
+		var character_action_shortcut_effect = game_wrapper.get_player_character_action_shortcut_effect(Enums.PlayerId.PlayerId_Player, action_idx)
+		if character_action_shortcut_effect:
+			prepared_character_action_data = {'action_idx': action_idx}
+			match character_action_shortcut_effect['effect_type']:
+				"strike":
+					preparing_character_action = true
+					_on_strike_button_pressed()
+				_:
+					assert(false, "Unexpected shortcut character action type")
+					return
+		else:
+			complete_character_action_pressed(action_idx)
+
+func complete_character_action_pressed(action_idx : int = 0):
+	var success = game_wrapper.submit_character_action(Enums.PlayerId.PlayerId_Player, [], action_idx)
+	if success:
+		popout_instruction_info = null
 		change_ui_state(UIState.UIState_WaitForGameServer)
-		_update_buttons()
+	_update_buttons()
+
 
 func _on_choice_pressed(choice):
 	# Make sure to unset these so the UI goes away.
@@ -3473,6 +3503,14 @@ func _on_instructions_ok_button_pressed(index : int):
 		deselect_all_cards()
 		close_popout()
 		var success = false
+
+		if preparing_character_action:
+			prepared_character_action_data['card_id'] = single_card_id
+			prepared_character_action_data['ex_card_id'] = ex_card_id
+			preparing_character_action = false
+			complete_character_action_pressed(prepared_character_action_data['action_idx'])
+			return
+
 		match ui_sub_state:
 			UISubState.UISubState_SelectCards_BoostCancel:
 				success = game_wrapper.submit_boost_cancel(Enums.PlayerId.PlayerId_Player, selected_card_ids, true)
@@ -3600,6 +3638,9 @@ func _on_instructions_cancel_button_pressed():
 				var ignore_costs = select_boost_options["ignore_costs"]
 				begin_boost_choosing(can_cancel, valid_zones, limitation, ignore_costs)
 			else:
+				if preparing_character_action:
+					preparing_character_action = false
+					prepared_character_action_data = {}
 				change_ui_state(UIState.UIState_PickTurnAction, UISubState.UISubState_None)
 		_:
 			match ui_state:
@@ -3608,6 +3649,9 @@ func _on_instructions_cancel_button_pressed():
 						if ui_sub_state == UISubState.UISubState_SelectArena_EffectChoice:
 							success = game_wrapper.submit_choice(Enums.PlayerId.PlayerId_Player, 0)
 						else:
+							if preparing_character_action:
+								preparing_character_action = false
+								prepared_character_action_data = {}
 							change_ui_state(UIState.UIState_PickTurnAction, UISubState.UISubState_None)
 				UIState.UIState_SelectCards:
 					if instructions_cancel_allowed:
@@ -3616,6 +3660,9 @@ func _on_instructions_cancel_button_pressed():
 						if ui_sub_state == UISubState.UISubState_SelectCards_BoostCancel:
 							success = game_wrapper.submit_boost_cancel(Enums.PlayerId.PlayerId_Player, [], false)
 						else:
+							if preparing_character_action:
+								preparing_character_action = false
+								prepared_character_action_data = {}
 							change_ui_state(UIState.UIState_PickTurnAction, UISubState.UISubState_None)
 	if success:
 		popout_instruction_info = null
