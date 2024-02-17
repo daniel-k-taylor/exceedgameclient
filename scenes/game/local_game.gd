@@ -36,7 +36,7 @@ const StrikeStaticConditions = [
 	"was_wild_swing",
 	"last_turn_was_strike",
 	"speed_greater_than",
-	"is_special_or_ultra_attack", "is_normal_attack", "is_special_attack",
+	"is_special_or_ultra_attack", "is_normal_attack", "is_special_attack", "is_buddy_special_or_ultra_attack",
 	"discarded_matches_attack_speed",
 	"canceled_this_turn"
 ]

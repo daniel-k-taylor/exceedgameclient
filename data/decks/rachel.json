@@ -38,6 +38,14 @@
 		"Impish Gypsophila",
 		"Impish Gypsophila"
 	],
+	"buddy_cards_foreground": [
+		true,
+		true,
+		true,
+		true,
+		true,
+		true
+	],
 	"overdrive_effect": {
 		"effect_type": "boost_as_overdrive",
 		"limitation": "continuous",
