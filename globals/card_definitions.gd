@@ -6,6 +6,8 @@ var card_definitions_path = "res://data/card_definitions.json"
 var decks_path = "res://data/decks"
 var decks = []
 
+const CardHighlightColor = "#7DF9FF"
+
 func get_deck_test_deck():
 	for deck in decks:
 		if deck['id'] == "rachel":
@@ -427,7 +429,7 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 		"add_top_deck_to_gauge":
 			var topdeck_card = ""
 			if 'card_name' in effect:
-				topdeck_card = "(%s) " % effect['card_name']
+				topdeck_card = "([color=%s]%s[/color]) " % [CardHighlightColor, effect['card_name']]
 			effect_str += "Add top card of deck %sto gauge" % topdeck_card
 		"add_top_discard_to_gauge":
 			effect_str += "Add top card of discard pile to gauge"
@@ -564,7 +566,7 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 			effect_str += "Discard a card from the top of the opponent's deck"
 		"discard_topdeck":
 			if 'card_name' in effect:
-				effect_str += "Discard %s from the top of your deck" % effect['card_name']
+				effect_str += "Discard [color=%s]%s[/color] from the top of your deck" % [CardHighlightColor, effect['card_name']]
 			else:
 				effect_str += "Discard a card from the top of your deck"
 		"discard_random":
@@ -965,7 +967,7 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 				effect_str += "Seal this"
 		"seal_topdeck":
 			if 'card_name' in effect:
-				effect_str += "Seal %s from the top of your deck" % effect['card_name']
+				effect_str += "Seal [color=%s]%s[/color] from the top of your deck" % [CardHighlightColor, effect['card_name']]
 			else:
 				effect_str += "Seal the top card of your deck"
 		"self_discard_choose":
@@ -1016,7 +1018,8 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 		"strike_wild":
 			effect_str += "Wild swing"
 			if 'card_name' in effect:
-				effect_str += " (%s on top of deck)" % effect['card_name']
+				# TODO: repeat for similar effects, test
+				effect_str += " ([color=%s]%s[/color] on top of deck)" % [CardHighlightColor, effect['card_name']]
 		"strike_faceup":
 			effect_str += "Strike face-up"
 		"strike_opponent_sets_first":

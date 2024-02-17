@@ -3097,17 +3097,38 @@ func _update_buttons():
 			if 'card_name' in choice:
 				card_name = choice['card_name']
 			card_text += CardDefinitions.get_effect_text(choice, false, true, false, card_name)
-			if len(card_text) > ChoiceTextLengthSoftCap:
-				var break_idx = ChoiceTextLengthSoftCap-1
-				while break_idx < len(card_text)-1 and card_text[break_idx] != " ":
-					break_idx += 1
-					if break_idx >= ChoiceTextLengthHardCap:
-						break
-				if break_idx < len(card_text) - 1:
-					if card_text[break_idx] == " ":
-						card_text = card_text.substr(0, break_idx) + "\n" + card_text.substr(break_idx+1)
+			if len(_choice_text_without_tags(card_text)) > ChoiceTextLengthSoftCap:
+				var real_break_idx = 0
+				var visible_break_idx = 0
+				var in_tag = false
+				while visible_break_idx < ChoiceTextLengthSoftCap-1:
+					if in_tag:
+						if card_text[real_break_idx] == ']':
+							in_tag = false
 					else:
-						card_text = card_text.substr(0, break_idx) + "-\n" + card_text.substr(break_idx)
+						if card_text[real_break_idx] == '[':
+							in_tag = true
+						else:
+							visible_break_idx += 1
+					real_break_idx += 1
+
+				while real_break_idx < len(card_text)-1 and card_text[real_break_idx] != " ":
+					if in_tag:
+						if card_text[real_break_idx] == ']':
+							in_tag = false
+					else:
+						if card_text[real_break_idx] == '[':
+							in_tag = true
+						else:
+							visible_break_idx += 1
+					real_break_idx += 1
+					if visible_break_idx >= ChoiceTextLengthHardCap:
+						break
+				if real_break_idx < len(card_text) - 1:
+					if card_text[real_break_idx] == " ":
+						card_text = card_text.substr(0, real_break_idx) + "\n" + card_text.substr(real_break_idx+1)
+					else:
+						card_text = card_text.substr(0, real_break_idx) + "-\n" + card_text.substr(real_break_idx)
 
 		var disabled = false
 		if "_choice_disabled" in choice and choice["_choice_disabled"]:
@@ -3129,6 +3150,11 @@ func _update_buttons():
 	action_menu_container.visible = action_menu.visible
 	action_menu.set_choices(current_instruction_text, button_choices, ultra_force_toggle, instructions_number_picker_min, instructions_number_picker_max, ex_discard_order_toggle)
 	current_action_menu_choices = button_choices
+
+func _choice_text_without_tags(choice_text):
+	var regex = RegEx.new()
+	regex.compile("\\[.*\\]")
+	return regex.sub(choice_text, "", true)
 
 func update_boost_summary(boosts_card_holder, boost_box):
 	var card_ids = []
