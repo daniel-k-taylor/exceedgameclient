@@ -254,6 +254,8 @@ scale = Vector2(0.25, 0.25)
 
 [node name="OpponentLightningRods" type="Node2D" parent="."]
 
+[node name="BackgroundBuddies" type="Node2D" parent="."]
+
 [node name="PlayerBuddy" parent="." instance=ExtResource("9_rhsuv")]
 visible = false
 position = Vector2(75, -102)
@@ -321,6 +323,8 @@ scale = Vector2(0.5, 0.5)
 [node name="OpponentCharacter" parent="." instance=ExtResource("9_rhsuv")]
 position = Vector2(146, -68)
 scale = Vector2(0.5, 0.5)
+
+[node name="ForegroundBuddies" type="Node2D" parent="."]
 
 [node name="AIMoveButton" type="Button" parent="."]
 visible = false

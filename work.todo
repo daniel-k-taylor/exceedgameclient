@@ -25,6 +25,7 @@ Tasks:
     Main Features:
         ☐ Search for match while observing/playing AI
         ☐ Azure DB for game logs on match completion
+        ☐ Match available notification while you're observing
     High Pri UI Improvements:
         ☐ Background image + life panel backgrounds
         ☐ Card popout has choice buttons for gauge selection

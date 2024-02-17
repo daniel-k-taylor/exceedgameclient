@@ -36,7 +36,7 @@ const StrikeStaticConditions = [
 	"was_wild_swing",
 	"last_turn_was_strike",
 	"speed_greater_than",
-	"is_special_or_ultra_attack", "is_normal_attack", "is_special_attack",
+	"is_special_or_ultra_attack", "is_normal_attack", "is_special_attack", "is_buddy_special_or_ultra_attack",
 	"discarded_matches_attack_speed",
 	"canceled_this_turn"
 ]
@@ -6490,7 +6490,7 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 			else:
 				_append_log_full(Enums.LogType.LogType_Health, damaged_player, "takes %s non-lethal damage, bringing them to %s life!" % [str(unmitigated_damage), str(damaged_player.life)])
 			if active_strike:
-				active_strike.add_damage_taken(damaged_player, damage)
+				active_strike.add_damage_taken(damaged_player, unmitigated_damage)
 				events += check_for_stun(damaged_player, false)
 			if damaged_player.life < 0:
 				events += trigger_game_over(damaged_player.my_id, Enums.GameOverReason.GameOverReason_Life)
@@ -9328,6 +9328,7 @@ func do_force_for_effect(performing_player : Player, card_ids : Array, treat_ult
 			effect_times = force_generated
 			if force_generated > 0 and 'combine_multiple_into_one' in decision_effect and decision_effect['combine_multiple_into_one']:
 				# This assumes this effect has no "and" effects.
+				decision_effect = decision_effect.duplicate()
 				decision_effect['amount'] = effect_times * decision_effect['amount']
 				effect_times = 1
 		elif decision_info.effect['overall_effect']:

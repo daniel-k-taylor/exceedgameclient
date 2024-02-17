@@ -614,3 +614,21 @@ func test_rachel_badenbadenlily_boost_cantmove_past():
 	validate_positions(player1, 6, player2, 5)
 	advance_turn(player1)
 	advance_turn(player2)
+
+func test_rachel_spikedrop_george():
+	position_players(player1, 7, player2, 5)
+	
+	give_player_specific_card(player1, "rachel_tempestdahlia", TestCardId2)
+	assert_true(game_logic.do_boost(player1, TestCardId2, [player1.hand[0].id]))
+	assert_true(game_logic.do_choice(player1, get_choice_index_for_position(5)))
+	advance_turn(player2)
+	give_player_specific_card(player1, "rachel_spikedrop", TestCardId1)
+	give_player_specific_card(player2, "standard_normal_focus", TestCardId3)
+	give_player_specific_card(player2, "standard_normal_focus", TestCardId4)
+	assert_true(game_logic.do_strike(player1, TestCardId1, false, -1))
+	assert_true(game_logic.do_strike(player2, TestCardId3, false, TestCardId4))
+	# Spike drop hits for 5 ignoring armor
+	# After George does 3 blocked by armor
+	validate_positions(player1, 7, player2, 5)
+	validate_life(player1, 25, player2, 25)
+	advance_turn(player2)

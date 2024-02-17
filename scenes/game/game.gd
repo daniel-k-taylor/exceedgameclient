@@ -194,6 +194,8 @@ var game_wrapper : GameWrapper = GameWrapper.new()
 @onready var opponent_buddy_character_card : CharacterCardBase  = $OpponentDeck/OpponentBuddyCharacterCard
 @onready var player_buddies : Array[Character] = [$PlayerBuddy, $PlayerBuddy2, $PlayerBuddy3, $PlayerBuddy4, $PlayerBuddy5, $PlayerBuddy6]
 @onready var opponent_buddies : Array[Character] = [$OpponentBuddy, $OpponentBuddy2, $OpponentBuddy3, $OpponentBuddy4, $OpponentBuddy5, $OpponentBuddy6]
+@onready var foreground_buddies_parent : Node2D = $ForegroundBuddies
+@onready var background_buddies_parent : Node2D = $BackgroundBuddies
 @onready var game_over_stuff = $GameOverStuff
 @onready var game_over_label = $GameOverStuff/GameOverLabel
 @onready var ai_player : AIPlayer = $AIPlayer
@@ -346,6 +348,34 @@ func begin_remote_game(game_start_message):
 
 func is_player_overdrive_visible(player_id : Enums.PlayerId):
 	return game_wrapper.is_player_in_overdrive(player_id)
+
+func add_buddy_to_zone(player : Enums.PlayerId, buddy : Node2D, buddy_id):
+	var deck_def = player_deck
+	var buddies = player_buddies
+	if player == Enums.PlayerId.PlayerId_Opponent:
+		deck_def = opponent_deck
+		buddies = opponent_buddies
+	var buddy_index = 0
+	if 'buddy_cards' in deck_def and deck_def['buddy_cards']:
+		for i in range(len(deck_def['buddy_cards'])):
+			if buddy_id == deck_def['buddy_cards'][i]:
+				buddy_index = i
+				break
+	var is_foreground_buddy = 'buddy_cards_foreground' in deck_def and deck_def['buddy_cards_foreground'][buddy_index]
+	var zone = background_buddies_parent
+	if is_foreground_buddy:
+		zone = foreground_buddies_parent
+	buddy.get_parent().remove_child(buddy)
+	zone.add_child(buddy)
+
+	# Keep buddies in the specific order in their definition so they layer correctly.
+	# For example, Rachel's George is in front of Ivy Blossom.
+	var child_index = 0
+	var children = zone.get_children()
+	for buddy_node in buddies:
+		if buddy_node in children:
+			zone.move_child(buddy_node, child_index)
+			child_index += 1
 
 func setup_characters():
 	$PlayerCharacter.load_character(player_deck['id'])
@@ -1152,12 +1182,15 @@ func _stat_notice_event(event):
 
 func _set_card_bonus(card_id, bonus, value=true):
 	var card = find_card_on_board(card_id)
-	if bonus == "ex":
-		card.set_ex(value)
-	if bonus == "wild":
-		card.set_wild(value)
-	elif bonus == "critical":
-		card.set_crit(value)
+	match bonus:
+		"ex":
+			card.set_ex(value)
+		"wild":
+			card.set_wild(value)
+		"critical":
+			card.set_crit(value)
+		_:
+			assert(false, "Set card bonus for unknown effect")
 
 func _on_stunned(event):
 	var card = find_card_on_board(event['number'])
@@ -2647,6 +2680,7 @@ func _on_place_buddy(event):
 		action_text = "Remove"
 
 	var buddy = _get_buddy_from_id(player, buddy_id)
+	add_buddy_to_zone(player, buddy, buddy_id)
 	buddy.set_buddy_extra_offset(extra_offset)
 	if buddy_location == -1:
 		buddy.visible = false

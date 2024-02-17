@@ -5,6 +5,9 @@
 	"cardback": "cardback_kokonoe.jpg",
 	"buddy_card": "gravitron",
 	"buddy_display_name": "Gravitron",
+	"buddy_cards_foreground": [
+		true
+	],
 	"exceed_cost": 2,
 	"exceed_to_overdrive": true,
 	"on_exceed": {
@@ -16,7 +19,6 @@
 		}
 	},
 	"overdrive_effect": {
-		"effect_type": "choice",
 		"effect_type": "place_buddy_in_any_space",
 		"buddy_name": "Gravitron",
 		"optional": true
