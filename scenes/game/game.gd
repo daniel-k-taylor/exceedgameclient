@@ -48,7 +48,7 @@ const NoticeOffsetY = 50
 
 const ChoiceTextLengthSoftCap = 45
 const ChoiceTextLengthHardCap = 60
-const MaxBonusPanelWidth = 225
+const MaxBonusPanelWidth = 255
 
 const CardPopoutZIndex = 5
 
