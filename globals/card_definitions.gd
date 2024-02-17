@@ -6,7 +6,7 @@ var card_definitions_path = "res://data/card_definitions.json"
 var decks_path = "res://data/decks"
 var decks = []
 
-const CardHighlightColor = "#7DF9FF"
+const CardHighlightColor = "#7DF9FF" # Light blue
 
 func get_deck_test_deck():
 	for deck in decks:
@@ -403,7 +403,7 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 				if char_effect_panel:
 					effect_str += get_effect_text(effect['added_effect'], false, false, false, card_name_source, false)
 				else:
-					effect_str += "Add effect -- " + get_effect_text(effect['added_effect'], false, false, false, card_name_source, false)
+					effect_str += "Add effect - " + get_effect_text(effect['added_effect'], false, false, false, card_name_source, false)
 		"add_boost_to_gauge_on_strike_cleanup":
 			if card_name_source:
 				effect_str += "Add %s to gauge" % card_name_source
@@ -1018,7 +1018,6 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 		"strike_wild":
 			effect_str += "Wild swing"
 			if 'card_name' in effect:
-				# TODO: repeat for similar effects, test
 				effect_str += " ([color=%s]%s[/color] on top of deck)" % [CardHighlightColor, effect['card_name']]
 		"strike_faceup":
 			effect_str += "Strike face-up"

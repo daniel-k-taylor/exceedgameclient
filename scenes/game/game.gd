@@ -67,6 +67,8 @@ var popout_instruction_info = null
 var PlayerHandFocusYPos = 720 - (CardBase.get_hand_card_size().y + 20)
 var OpponentHandFocusYPos = CardBase.get_opponent_hand_card_size().y
 
+var ChoiceTagRegex = RegEx.new()
+
 var first_run_done = false
 var select_card_require_min = 0
 var select_card_require_max = 0
@@ -279,6 +281,8 @@ func _ready():
 		assert(child is LocationInfoButtonPair)
 		child.button_pressed.connect(func(player_id): _on_locationinfobuttonpair_pressed(player_id, location_index))
 		location_index += 1
+
+	ChoiceTagRegex.compile("\\[.*\\]")
 
 	setup_characters()
 
@@ -2428,7 +2432,7 @@ func _on_strike_character_effect(event):
 func _add_bonus_label_text(player, new_text : String):
 	var bonus_panel = player_bonus_panel
 	var bonus_label = player_bonus_label
-	if player != Enums.PlayerId.PlayerId_Player:
+	if player == Enums.PlayerId.PlayerId_Opponent:
 		bonus_panel = opponent_bonus_panel
 		bonus_label = opponent_bonus_label
 
@@ -3152,9 +3156,7 @@ func _update_buttons():
 	current_action_menu_choices = button_choices
 
 func _choice_text_without_tags(choice_text):
-	var regex = RegEx.new()
-	regex.compile("\\[.*\\]")
-	return regex.sub(choice_text, "", true)
+	return ChoiceTagRegex.sub(choice_text, "", true)
 
 func update_boost_summary(boosts_card_holder, boost_box):
 	var card_ids = []
