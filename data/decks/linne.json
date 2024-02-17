@@ -29,6 +29,7 @@
 			"gauge_cost": 0,
 			"force_cost": 0,
 			"can_boost_continuous_boost_from_gauge": true,
+			"shortcut_effect_type": "boost_from_gauge",
 			"effect": {
 				"effect_type": "boost_from_gauge",
 				"limitation": "continuous"

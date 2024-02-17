@@ -1230,6 +1230,7 @@ func _on_advance_turn():
 
 	player_bonus_panel.visible = false
 	opponent_bonus_panel.visible = false
+	prepared_character_action_data = {}
 
 	spawn_damage_popup("Ready!", active_player)
 	return SmallNoticeDelay
@@ -1781,7 +1782,15 @@ func _on_force_start_boost(event):
 
 	spawn_damage_popup("Boost!", player)
 	if player == Enums.PlayerId.PlayerId_Player and not observer_mode:
-		begin_boost_choosing(false, valid_zones, limitation, ignore_costs)
+		if prepared_character_action_data_available('boost_from_gauge'):
+			var boost_card = prepared_character_action_data['boost_card']
+			var boost_force = prepared_character_action_data['boost_force']
+			var success = game_wrapper.submit_boost(Enums.PlayerId.PlayerId_Player, boost_card, boost_force)
+			if success:
+				prepared_character_action_data = {}
+				change_ui_state(UIState.UIState_WaitForGameServer)
+		else:
+			begin_boost_choosing(false, valid_zones, limitation, ignore_costs)
 	else:
 		ai_do_boost(valid_zones, limitation, ignore_costs)
 	return SmallNoticeDelay
@@ -2230,10 +2239,11 @@ func begin_boost_choosing(can_cancel : bool, valid_zones : Array, limitation : S
 	var limitation_str = "card"
 	if limitation:
 		limitation_str = limitation + " boost"
-	var instructions = "Select a %s to boost." % limitation_str
-
+	var character_action_str = ""
+	if preparing_character_action:
+		character_action_str = " for %s" % prepared_character_action_data['action_name']
 	var zone_str = '/'.join(valid_zones)
-	instructions = "Select a %s to boost from %s." % [limitation_str, zone_str]
+	var instructions = "Select a %s to boost from %s%s." % [limitation_str, zone_str, character_action_str]
 	if 'gauge' in valid_zones:
 		_on_player_gauge_gauge_clicked()
 	elif 'discard' in valid_zones: # can't open two zones at once
@@ -3511,6 +3521,12 @@ func _on_character_action_pressed(action_idx : int = 0):
 					}
 					game_wrapper.get_decision_info().choice = shortcut_effect['choice']
 					_on_effect_choice(event)
+				"boost_from_gauge":
+					var valid_zones = ['gauge']
+					var limitation = ""
+					if 'limitation' in shortcut_effect:
+						limitation = shortcut_effect['limitation']
+					begin_boost_choosing(true, valid_zones, limitation, false)
 				_:
 					assert(false, "Unexpected shortcut character action type")
 					return
@@ -3534,6 +3550,20 @@ func finish_preparing_character_action(selections):
 			prepared_character_action_data['hand_to_gauge_cards'] = selections
 		"choice":
 			prepared_character_action_data['choice'] = selections[0]
+		"boost_from_gauge":
+			if 'boost_card' in prepared_character_action_data and prepared_character_action_data['boost_card']:
+				# Returning after paying force cost
+				prepared_character_action_data['boost_force'] = selections
+			else:
+				prepared_character_action_data['boost_card'] = single_card_id
+				prepared_character_action_data['boost_force'] = []
+				var force_cost = game_wrapper.get_card_database().get_card_boost_force_cost(single_card_id)
+				if not select_boost_options['ignore_costs'] and force_cost > 0:
+					selected_boost_to_pay_for = single_card_id
+					change_ui_state(null, UISubState.UISubState_SelectCards_ForceForBoost)
+					begin_generate_force_selection(force_cost)
+					_update_buttons()
+					return
 		_:
 			assert(false, "Unexpected prepared character action type")
 			return
@@ -3550,7 +3580,6 @@ func complete_character_action_pressed(action_idx : int = 0):
 
 func prepared_character_action_data_available(effect_type):
 	return prepared_character_action_data and prepared_character_action_data['effect_type'] == effect_type and not preparing_character_action
-
 
 func _on_choice_pressed(choice):
 	# Make sure to unset these so the UI goes away.
