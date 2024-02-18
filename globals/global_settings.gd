@@ -3,13 +3,19 @@ extends Node
 const ReleaseLoggingEnabled = false # If true, log even on release builds.
 const UseAzureServerAlways = true # If true, always defaults to the azure server.
 var MuteEmotes = false
-const ClientVersionString : String = "20240217.0132"
+const ClientVersionString : String = "240217.1700" # YYMMDD.HHMM
 
 # Persistent Settings
 var BGMEnabled = true
 var DefaultPlayerName = ""
 
 const user_settings_file = "user://settings.json"
+
+func get_client_version() -> String:
+	var prepend = ""
+	if OS.is_debug_build():
+		prepend = "dev_"
+	return prepend + ClientVersionString
 
 func is_logging_enabled() -> bool:
 	if ReleaseLoggingEnabled:

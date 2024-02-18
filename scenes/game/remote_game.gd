@@ -480,3 +480,20 @@ func process_emote(action_message) -> void:
 	var is_image_emote = action_message['is_image_emote']
 	var emote = action_message['emote']
 	local_game.do_emote(game_player, is_image_emote, emote)
+
+func do_match_result():
+	# Only the winner should be reporting.
+	var winning_player_number = _player_info['player_number']
+	var p1 = Enums.PlayerId.PlayerId_Player
+	var p2 = Enums.PlayerId.PlayerId_Opponent
+	if winning_player_number == 2:
+		p1 = Enums.PlayerId.PlayerId_Opponent
+		p2 = Enums.PlayerId.PlayerId_Player
+	var action_message = {
+		'action_type': 'match_result',
+		'winning_player': winning_player_number,
+		'p1life': _get_player(p1).life,
+		'p2life': _get_player(p2).life,
+	}
+	NetworkManager.submit_game_message(action_message)
+	return true

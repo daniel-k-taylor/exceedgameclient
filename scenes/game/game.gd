@@ -320,12 +320,14 @@ func begin_remote_game(game_start_message):
 		'id': game_start_message['player1_id'],
 		'deck_id': game_start_message['player1_deck_id'],
 		'deck': CardDefinitions.get_deck_from_str_id(game_start_message['player1_deck_id']),
+		'player_number': 1,
 	}
 	var player2_info = {
 		'name': game_start_message['player2_name'],
 		'id': game_start_message['player2_id'],
 		'deck_id': game_start_message['player2_deck_id'],
 		'deck': CardDefinitions.get_deck_from_str_id(game_start_message['player2_deck_id']),
+		'player_number': 2,
 	}
 	var seed_value = game_start_message['seed_value']
 	var starting_player = Enums.PlayerId.PlayerId_Player
@@ -1863,6 +1865,7 @@ func _on_game_over(event):
 		game_over_label.text = "DEFEAT"
 	else:
 		game_over_label.text = "WIN!"
+		game_wrapper.submit_match_result()
 
 func _on_prepare(event):
 	var player = event['event_player']

@@ -480,3 +480,6 @@ func submit_choose_from_topdeck(player: Enums.PlayerId, card_id : int, action : 
 func submit_emote(player: Enums.PlayerId, is_image_emote : bool, emote : String):
 	var game_player = _get_player(player)
 	return current_game.do_emote(game_player, is_image_emote, emote)
+
+func submit_match_result():
+	return current_game.do_match_result()
