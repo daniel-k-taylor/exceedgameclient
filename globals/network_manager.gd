@@ -219,7 +219,7 @@ func _handle_players_update(message):
 func join_room(player_name, room_name, deck_id_str : String):
 	if not _socket: return
 	var join_room_message = {
-		"version": GlobalSettings.ClientVersionString,
+		"version": GlobalSettings.get_client_version(),
 		"type": "join_room",
 		"player_name": player_name,
 		"room_id": room_name,
@@ -231,7 +231,7 @@ func join_room(player_name, room_name, deck_id_str : String):
 func observe_room(player_name, room_name):
 	if not _socket: return
 	var observe_room_message = {
-		"version": GlobalSettings.ClientVersionString,
+		"version": GlobalSettings.get_client_version(),
 		"type": "observe_room",
 		"player_name": player_name,
 		"room_id": room_name,
@@ -242,7 +242,7 @@ func observe_room(player_name, room_name):
 func join_matchmaking(player_name, deck_id_str : String):
 	if not _socket: return
 	var message = {
-		"version": GlobalSettings.ClientVersionString,
+		"version": GlobalSettings.get_client_version(),
 		"type": "join_matchmaking",
 		"player_name": player_name,
 		"deck_id": deck_id_str,
@@ -267,7 +267,7 @@ func submit_game_message(message):
 func set_player_name(player_name):
 	if not _socket: return
 	var message = {
-		"version": GlobalSettings.ClientVersionString,
+		"version": GlobalSettings.get_client_version(),
 		"type": "set_name",
 		"player_name": player_name,
 	}
