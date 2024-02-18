@@ -20,6 +20,7 @@
 	"character_action_default": [{
 		"gauge_cost": 0,
 		"force_cost": 0,
+		"shortcut_effect_type": "strike",
 		"effect": {
 			"effect_type": "spend_all_gauge_and_save_amount",
 			"and": {
@@ -40,6 +41,7 @@
 			"force_cost": 0,
 			"min_hand_size": 1,
 			"action_name": "Revert",
+			"shortcut_effect_type": "gauge_from_hand",
 			"effect": {
 				"effect_type": "gauge_from_hand",
 				"min_amount": 1,

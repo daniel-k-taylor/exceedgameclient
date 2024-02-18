@@ -99,6 +99,8 @@ var opponent_cards_before_reshuffle = []
 var treat_ultras_as_single_force = false
 var discard_ex_first_for_strike = false
 var current_pay_costs_is_ex = false
+var preparing_character_action = false
+var prepared_character_action_data = {}
 
 var player_deck
 var opponent_deck
@@ -1228,6 +1230,7 @@ func _on_advance_turn():
 
 	player_bonus_panel.visible = false
 	opponent_bonus_panel.visible = false
+	prepared_character_action_data = {}
 
 	spawn_damage_popup("Ready!", active_player)
 	return SmallNoticeDelay
@@ -1390,7 +1393,14 @@ func _on_choose_card_hand_to_gauge(event):
 	var max_amount = event['extra_info']
 	select_card_destination = game_wrapper.get_decision_info().destination
 	if player == Enums.PlayerId.PlayerId_Player and not observer_mode:
-		begin_discard_cards_selection(min_amount, max_amount, UISubState.UISubState_SelectCards_DiscardCardsToGauge)
+		if prepared_character_action_data_available('gauge_from_hand'):
+			var selected_card_ids = prepared_character_action_data['hand_to_gauge_cards']
+			var success = game_wrapper.submit_card_from_hand_to_gauge(Enums.PlayerId.PlayerId_Player, selected_card_ids)
+			if success:
+				prepared_character_action_data = {}
+				change_ui_state(UIState.UIState_WaitForGameServer)
+		else:
+			begin_discard_cards_selection(min_amount, max_amount, UISubState.UISubState_SelectCards_DiscardCardsToGauge, false)
 	else:
 		ai_choose_card_hand_to_gauge(min_amount, max_amount)
 
@@ -1772,7 +1782,15 @@ func _on_force_start_boost(event):
 
 	spawn_damage_popup("Boost!", player)
 	if player == Enums.PlayerId.PlayerId_Player and not observer_mode:
-		begin_boost_choosing(false, valid_zones, limitation, ignore_costs)
+		if prepared_character_action_data_available('boost_from_gauge'):
+			var boost_card = prepared_character_action_data['boost_card']
+			var boost_force = prepared_character_action_data['boost_force']
+			var success = game_wrapper.submit_boost(Enums.PlayerId.PlayerId_Player, boost_card, boost_force)
+			if success:
+				prepared_character_action_data = {}
+				change_ui_state(UIState.UIState_WaitForGameServer)
+		else:
+			begin_boost_choosing(false, valid_zones, limitation, ignore_costs)
 	else:
 		ai_do_boost(valid_zones, limitation, ignore_costs)
 	return SmallNoticeDelay
@@ -1787,7 +1805,19 @@ func _on_force_start_strike(event):
 		disable_ex = event['extra_info2']
 	spawn_damage_popup("Strike!", player)
 	if player == Enums.PlayerId.PlayerId_Player and not observer_mode:
-		begin_strike_choosing(false, false, false, disable_wild_swing, disable_ex)
+		if prepared_character_action_data_available('strike'):
+			var success = false
+			if 'wild_swing' in prepared_character_action_data and prepared_character_action_data['wild_swing']:
+				success = game_wrapper.submit_strike(Enums.PlayerId.PlayerId_Player, -1, true, -1)
+			else:
+				var card_id = prepared_character_action_data['card_id']
+				var ex_card_id = prepared_character_action_data['ex_card_id']
+				success = game_wrapper.submit_strike(Enums.PlayerId.PlayerId_Player, card_id, false, ex_card_id)
+			if success:
+				prepared_character_action_data = {}
+				change_ui_state(UIState.UIState_WaitForGameServer)
+		else:
+			begin_strike_choosing(false, false, false, disable_wild_swing, disable_ex)
 	else:
 		ai_forced_strike(disable_wild_swing, disable_ex)
 	return SmallNoticeDelay
@@ -1866,12 +1896,19 @@ func _on_choose_to_discard(event, informative_only : bool):
 	if not informative_only:
 		var limitation = decision_info.limitation
 		if player == Enums.PlayerId.PlayerId_Player and not observer_mode:
-			var min_amount = amount
-			var max_amount = amount
-			if amount == -1:
-				min_amount = 0
-				max_amount = game_wrapper.get_player_hand_size(player)
-			begin_discard_cards_selection(min_amount, max_amount, UISubState.UISubState_SelectCards_DiscardCards_Choose, can_pass)
+			if prepared_character_action_data_available("self_discard_choose"):
+				var discard_ids = prepared_character_action_data['discard_ids']
+				var success = game_wrapper.submit_choose_to_discard(Enums.PlayerId.PlayerId_Player, discard_ids)
+				if success:
+					prepared_character_action_data = {}
+					change_ui_state(UIState.UIState_WaitForGameServer)
+			else:
+				var min_amount = amount
+				var max_amount = amount
+				if amount == -1:
+					min_amount = 0
+					max_amount = game_wrapper.get_player_hand_size(player)
+				begin_discard_cards_selection(min_amount, max_amount, UISubState.UISubState_SelectCards_DiscardCards_Choose, can_pass)
 		else:
 			# AI or other player wait
 			ai_choose_to_discard(amount, limitation, can_pass)
@@ -1902,6 +1939,8 @@ func set_instructions(text):
 func update_discard_selection_message_choose():
 	var decision_info = game_wrapper.get_decision_info()
 	var destination = decision_info.destination
+	if preparing_character_action:
+		destination = prepared_character_action_data['destination']
 	var num_remaining = select_card_require_min - len(selected_cards)
 	if select_card_require_min == 0:
 		num_remaining = select_card_require_max - len(selected_cards)
@@ -1941,6 +1980,8 @@ func update_discard_to_gauge_selection_message():
 		phrase = "on top of your deck"
 	if select_card_destination == "deck":
 		phrase = "into your deck"
+	if preparing_character_action:
+		phrase += " for %s" % prepared_character_action_data['action_name']
 	if select_card_require_min == select_card_require_max:
 		var num_remaining = select_card_require_min - len(selected_cards)
 		set_instructions("Select %s more card(s) from your hand to put %s." % [num_remaining, phrase])
@@ -2135,8 +2176,8 @@ func begin_gauge_selection(amount : int, wild_swing_allowed : bool, sub_state : 
 
 	change_ui_state(UIState.UIState_SelectCards, sub_state)
 
-func begin_effect_choice(choices, instruction_text : String, extra_choice_text):
-	enable_instructions_ui(instruction_text, false, false, false, false, choices, false, extra_choice_text)
+func begin_effect_choice(choices, instruction_text : String, extra_choice_text, can_cancel = false):
+	enable_instructions_ui(instruction_text, false, can_cancel, false, false, choices, false, extra_choice_text)
 	change_ui_state(UIState.UIState_MakeChoice, UISubState.UISubState_None)
 
 func begin_strike_choosing(strike_response : bool, cancel_allowed : bool,
@@ -2145,7 +2186,10 @@ func begin_strike_choosing(strike_response : bool, cancel_allowed : bool,
 	select_card_require_min = 1
 	select_card_require_max = 1
 	var can_cancel = cancel_allowed and not strike_response
-	var dialogue = "Select a card to strike with."
+	var character_action_str = ""
+	if preparing_character_action:
+		character_action_str = " using %s" % prepared_character_action_data['action_name']
+	var dialogue = "Select a card to strike with%s." % character_action_str
 	var cards_that_will_not_hit = game_wrapper.get_will_not_hit_card_names(Enums.PlayerId.PlayerId_Player)
 	if cards_that_will_not_hit.size() > 0:
 		for card in cards_that_will_not_hit:
@@ -2204,10 +2248,11 @@ func begin_boost_choosing(can_cancel : bool, valid_zones : Array, limitation : S
 	var limitation_str = "card"
 	if limitation:
 		limitation_str = limitation + " boost"
-	var instructions = "Select a %s to boost." % limitation_str
-
+	var character_action_str = ""
+	if preparing_character_action:
+		character_action_str = " for %s" % prepared_character_action_data['action_name']
 	var zone_str = '/'.join(valid_zones)
-	instructions = "Select a %s to boost from %s." % [limitation_str, zone_str]
+	var instructions = "Select a %s to boost from %s%s." % [limitation_str, zone_str, character_action_str]
 	if 'gauge' in valid_zones:
 		_on_player_gauge_gauge_clicked()
 	elif 'discard' in valid_zones: # can't open two zones at once
@@ -2501,8 +2546,17 @@ func _add_bonus_label_text(player, new_text : String):
 func _on_effect_choice(event):
 	var player = event['event_player']
 	if player == Enums.PlayerId.PlayerId_Player and not observer_mode:
+		if prepared_character_action_data_available("choice"):
+			var choice = prepared_character_action_data['choice']
+			var success = game_wrapper.submit_choice(Enums.PlayerId.PlayerId_Player, choice)
+			if success:
+				prepared_character_action_data = {}
+				change_ui_state(UIState.UIState_WaitForGameServer)
+			return
+
 		var instruction_text = "Select an effect:"
 		var extra_choice_text = []
+
 		if event['reason'] == "EffectOrder":
 			instruction_text = "Select which effect to resolve first:"
 
@@ -2520,7 +2574,7 @@ func _on_effect_choice(event):
 			instruction_text = "Select which effect to copy:"
 		if event['reason'] == "Reading":
 			instruction_text = "You must strike with %s." % event['extra_info']
-		begin_effect_choice(game_wrapper.get_decision_info().choice, instruction_text, extra_choice_text)
+		begin_effect_choice(game_wrapper.get_decision_info().choice, instruction_text, extra_choice_text, false)
 	else:
 		ai_effect_choice(event)
 
@@ -3046,6 +3100,58 @@ func _update_buttons():
 			instructions_wild_swing_allowed = false
 			button_choices.append({ "text": strike_text, "action": _on_shortcut_strike_pressed, "disabled": not can_strike or not game_wrapper.can_do_strike(Enums.PlayerId.PlayerId_Player) })
 			button_choices.append({ "text": boost_text, "action": _on_shortcut_boost_pressed, "disabled": not can_boost or not game_wrapper.can_do_boost(Enums.PlayerId.PlayerId_Player) })
+
+			# Check for character actions with card-related shortcuts
+			for i in range(game_wrapper.get_player_character_action_count(Enums.PlayerId.PlayerId_Player)):
+				var char_action = game_wrapper.get_player_character_action(Enums.PlayerId.PlayerId_Player, i)
+				var action_has_shortcut = false
+				var shortcut_condition_met = false
+				var action_name = ""
+				if 'shortcut_effect_type' in char_action:
+					var shortcut_effect = game_wrapper.get_player_character_action_shortcut_effect(Enums.PlayerId.PlayerId_Player, i)
+					if char_action['shortcut_effect_type'] == "strike":
+						action_has_shortcut = true
+						action_name = "Strike with "
+						shortcut_condition_met = can_strike
+					elif char_action['shortcut_effect_type'] == "gauge_from_hand":
+						action_has_shortcut = true
+						action_name = "Move to Gauge for "
+						var min_cards = shortcut_effect['min_amount']
+						var max_cards = shortcut_effect['max_amount']
+						var valid_card_count = min_cards <= len(selected_cards) and len(selected_cards) <= max_cards
+						shortcut_condition_met = valid_card_count and only_in_hand
+					elif char_action['shortcut_effect_type'] == "self_discard_choose":
+						action_has_shortcut = true
+						action_name = "Discard for "
+						var min_cards = shortcut_effect['amount']
+						var max_cards = shortcut_effect['amount']
+						if shortcut_effect['amount'] == -1:
+							min_cards = 0
+							max_cards = game_wrapper.get_player_hand_size(Enums.PlayerId.PlayerId_Player)
+						var valid_card_count = min_cards <= len(selected_cards) and len(selected_cards) <= max_cards
+						shortcut_condition_met = valid_card_count and only_in_hand
+					elif char_action['shortcut_effect_type'] == "boost_from_gauge":
+						action_has_shortcut = true
+						action_name = "Boost with "
+						if len(selected_cards) == 1:
+							var valid_zones = ['gauge']
+							var limitation = ""
+							if 'limitation' in shortcut_effect:
+								limitation = shortcut_effect['limitation']
+							shortcut_condition_met = game_wrapper.can_player_boost(Enums.PlayerId.PlayerId_Player, selected_cards[0].card_id, valid_zones, limitation, false)
+
+				if action_has_shortcut:
+					var action_possible = game_wrapper.can_do_character_action(Enums.PlayerId.PlayerId_Player, i)
+					if 'action_name' in char_action:
+						action_name += char_action['action_name']
+					else:
+						action_name += "Character Action"
+					var force_cost = char_action['force_cost']
+					var gauge_cost = char_action['gauge_cost']
+					# NOTE: at the moment shortcuts aren't used for any effects with a cost, may not behave properly otherwise
+					assert(force_cost == 0 and gauge_cost == 0)
+					button_choices.append({ "text": action_name, "action": func(): _on_shortcut_character_action_pressed(i), "disabled": not action_possible or not shortcut_condition_met })
+
 			button_choices.append({ "text": "Change Cards", "action": _on_shortcut_change_pressed, "disabled": not game_wrapper.can_do_change(Enums.PlayerId.PlayerId_Player) })
 			button_choices.append({ "text": "Deselect card(s)", "action": _on_shortcut_cancel_pressed, "disabled": false })
 
@@ -3063,22 +3169,18 @@ func _update_buttons():
 		button_choices.append({ "text": "OK", "action": func(): _on_instructions_ok_button_pressed(0), "disabled": not can_press_ok() })
 
 	var cancel_text = "Cancel"
-	match ui_sub_state:
-		UISubState.UISubState_SelectCards_BoostCancel, UISubState.UISubState_SelectCards_Mulligan, UISubState.UISubState_SelectCards_ForceForEffect, UISubState.UISubState_SelectCards_DiscardCardsToGauge, UISubState.UISubState_SelectCards_ChooseDiscardToDestination:
-			cancel_text = "Pass"
-		UISubState.UISubState_SelectCards_ChooseBoostsToSustain, UISubState.UISubState_SelectCards_ChooseFromTopdeck:
-			cancel_text = "Pass"
-		UISubState.UISubState_SelectArena_EffectChoice:
-			cancel_text = "Pass"
-		UISubState.UISubState_SelectCards_GaugeForEffect:
-			cancel_text = "Pass"
-		_:
-			cancel_text = "Cancel"
-
-	if instructions_cancel_allowed:
-		button_choices.append({ "text": cancel_text, "action": _on_instructions_cancel_button_pressed })
-	if instructions_wild_swing_allowed:
-		button_choices.append({ "text": "Wild Swing", "action": _on_wild_swing_button_pressed })
+	if not preparing_character_action:
+		match ui_sub_state:
+			UISubState.UISubState_SelectCards_BoostCancel, UISubState.UISubState_SelectCards_Mulligan, UISubState.UISubState_SelectCards_ForceForEffect, UISubState.UISubState_SelectCards_DiscardCardsToGauge, UISubState.UISubState_SelectCards_ChooseDiscardToDestination:
+				cancel_text = "Pass"
+			UISubState.UISubState_SelectCards_ChooseBoostsToSustain, UISubState.UISubState_SelectCards_ChooseFromTopdeck:
+				cancel_text = "Pass"
+			UISubState.UISubState_SelectArena_EffectChoice:
+				cancel_text = "Pass"
+			UISubState.UISubState_SelectCards_GaugeForEffect:
+				cancel_text = "Pass"
+			_:
+				cancel_text = "Cancel"
 
 	# Update instructions message
 	var ultra_force_toggle = false
@@ -3188,6 +3290,11 @@ func _update_buttons():
 			button_choices.append({ "text": card_text, "action": choice["_choice_func"], "disabled": disabled })
 		else:
 			button_choices.append({ "text": card_text, "action": func(): _on_choice_pressed(choice_value), "disabled": disabled })
+
+	if instructions_cancel_allowed:
+		button_choices.append({ "text": cancel_text, "action": _on_instructions_cancel_button_pressed })
+	if instructions_wild_swing_allowed:
+		button_choices.append({ "text": "Wild Swing", "action": _on_wild_swing_button_pressed })
 
 	# Set the Action Menu state
 	var action_menu_hidden = false
@@ -3318,6 +3425,14 @@ func _on_choose_arena_location_for_effect(event):
 	var effect_type = decision_info.effect_type
 	var can_pass = decision_info.limitation[0] == 0
 	if player == Enums.PlayerId.PlayerId_Player and not observer_mode:
+		if prepared_character_action_data_available("place_buddy_effect"):
+			var choice = prepared_character_action_data['choice']
+			var success = game_wrapper.submit_choice(Enums.PlayerId.PlayerId_Player, choice)
+			if success:
+				prepared_character_action_data = {}
+				change_ui_state(UIState.UIState_WaitForGameServer)
+			return
+
 		arena_locations_clickable = decision_info.limitation
 		var instruction_str = "Select a location"
 		match effect_type:
@@ -3442,9 +3557,111 @@ func _on_character_action_pressed(action_idx : int = 0):
 	elif gauge_cost > 0:
 		begin_gauge_selection(gauge_cost, false, UISubState.UISubState_SelectCards_CharacterAction_Gauge)
 	else:
-		game_wrapper.submit_character_action(Enums.PlayerId.PlayerId_Player, [], action_idx)
+		var shortcut_effect = game_wrapper.get_player_character_action_shortcut_effect(Enums.PlayerId.PlayerId_Player, action_idx)
+		if shortcut_effect:
+			preparing_character_action = true
+			prepared_character_action_data = {
+				'effect_type': shortcut_effect['effect_type'],
+				'action_idx': action_idx,
+				'action_name': "Character Action"
+			}
+			if 'action_name' in character_action:
+				prepared_character_action_data['action_name'] = character_action['action_name']
+
+			match shortcut_effect['effect_type']:
+				"strike":
+					_on_strike_button_pressed()
+				"gauge_from_hand":
+					select_card_destination = "gauge"
+					begin_discard_cards_selection(shortcut_effect['min_amount'], shortcut_effect['max_amount'], UISubState.UISubState_SelectCards_DiscardCardsToGauge, true)
+				"choice":
+					var instruction_text = "Select an effect for %s:" % prepared_character_action_data['action_name']
+					begin_effect_choice(shortcut_effect['choice'], instruction_text, [], true)
+				"boost_from_gauge":
+					var valid_zones = ['gauge']
+					var limitation = ""
+					if 'limitation' in shortcut_effect:
+						limitation = shortcut_effect['limitation']
+					begin_boost_choosing(true, valid_zones, limitation, false)
+				"self_discard_choose":
+					prepared_character_action_data['destination'] = "discard"
+					var min_amount = shortcut_effect['amount']
+					var max_amount = shortcut_effect['amount']
+					if shortcut_effect['amount'] == -1:
+						min_amount = 0
+						max_amount = game_wrapper.get_player_hand_size(Enums.PlayerId.PlayerId_Player)
+					begin_discard_cards_selection(min_amount, max_amount, UISubState.UISubState_SelectCards_DiscardCards_Choose, true)
+				"place_buddy_in_any_space", "move_buddy", "place_buddy_at_range":
+					var locations = game_wrapper.get_valid_locations_for_buddy_effect(Enums.PlayerId.PlayerId_Player, shortcut_effect)
+					prepared_character_action_data['locations'] = locations
+					arena_locations_clickable = locations
+					var buddy_name = shortcut_effect['buddy_name']
+					var instruction_str = "Select a location to place %s" % buddy_name
+					enable_instructions_ui(instruction_str, false, true)
+					change_ui_state(UIState.UIState_SelectArenaLocation, UISubState.UISubState_SelectArena_EffectChoice)
+				_:
+					assert(false, "Unexpected shortcut character action type")
+					return
+		else:
+			complete_character_action_pressed(action_idx)
+
+func finish_preparing_character_action(selections):
+	var single_card_id = -1
+	var ex_card_id = -1
+	if len(selections) == 1:
+		single_card_id = selections[0]
+	if len(selections) == 2:
+		single_card_id = selections[0]
+		ex_card_id = selections[1]
+
+	match prepared_character_action_data['effect_type']:
+		"strike":
+			prepared_character_action_data['card_id'] = single_card_id
+			prepared_character_action_data['ex_card_id'] = ex_card_id
+		"gauge_from_hand":
+			prepared_character_action_data['hand_to_gauge_cards'] = selections
+		"choice":
+			prepared_character_action_data['choice'] = selections[0]
+		"boost_from_gauge":
+			if 'boost_card' in prepared_character_action_data and prepared_character_action_data['boost_card']:
+				# Returning after paying force cost
+				prepared_character_action_data['boost_force'] = selections
+			else:
+				prepared_character_action_data['boost_card'] = single_card_id
+				prepared_character_action_data['boost_force'] = []
+				var force_cost = game_wrapper.get_card_database().get_card_boost_force_cost(single_card_id)
+				if force_cost > 0:
+					selected_boost_to_pay_for = single_card_id
+					change_ui_state(null, UISubState.UISubState_SelectCards_ForceForBoost)
+					begin_generate_force_selection(force_cost)
+					_update_buttons()
+					return
+		"self_discard_choose":
+			prepared_character_action_data['discard_ids'] = selections
+		"place_buddy_in_any_space", "move_buddy", "place_buddy_at_range":
+			var location = selections[0]
+			var location_options = prepared_character_action_data['locations']
+			for i in range(location_options.size()):
+				if location_options[i] == location:
+					prepared_character_action_data['choice'] = i
+					break
+			prepared_character_action_data['effect_type'] = 'place_buddy_effect'
+		_:
+			assert(false, "Unexpected prepared character action type")
+			return
+
+	complete_character_action_pressed(prepared_character_action_data['action_idx'])
+
+func complete_character_action_pressed(action_idx : int = 0):
+	preparing_character_action = false
+	var success = game_wrapper.submit_character_action(Enums.PlayerId.PlayerId_Player, [], action_idx)
+	if success:
+		popout_instruction_info = null
 		change_ui_state(UIState.UIState_WaitForGameServer)
-		_update_buttons()
+	_update_buttons()
+
+func prepared_character_action_data_available(effect_type):
+	return prepared_character_action_data and prepared_character_action_data['effect_type'] == effect_type and not preparing_character_action
 
 func _on_choice_pressed(choice):
 	# Make sure to unset these so the UI goes away.
@@ -3453,9 +3670,12 @@ func _on_choice_pressed(choice):
 	instructions_number_picker_min = -1
 	instructions_number_picker_max = -1
 
-	var success = game_wrapper.submit_choice(Enums.PlayerId.PlayerId_Player, choice)
-	if success:
-		change_ui_state(UIState.UIState_WaitForGameServer)
+	if preparing_character_action:
+		finish_preparing_character_action([choice])
+	else:
+		var success = game_wrapper.submit_choice(Enums.PlayerId.PlayerId_Player, choice)
+		if success:
+			change_ui_state(UIState.UIState_WaitForGameServer)
 	_update_buttons()
 
 func _on_instructions_ok_button_pressed(index : int):
@@ -3473,6 +3693,11 @@ func _on_instructions_ok_button_pressed(index : int):
 		deselect_all_cards()
 		close_popout()
 		var success = false
+
+		if preparing_character_action:
+			finish_preparing_character_action(selected_card_ids)
+			return
+
 		match ui_sub_state:
 			UISubState.UISubState_SelectCards_BoostCancel:
 				success = game_wrapper.submit_boost_cancel(Enums.PlayerId.PlayerId_Player, selected_card_ids, true)
@@ -3541,6 +3766,20 @@ func _on_instructions_cancel_button_pressed():
 		return
 
 	var success = false
+
+	if preparing_character_action:
+		deselect_all_cards()
+		close_popout()
+		preparing_character_action = false
+		prepared_character_action_data = {}
+		current_effect_choices = []
+		current_effect_extra_choice_text = []
+		instructions_number_picker_min = -1
+		instructions_number_picker_max = -1
+		change_ui_state(UIState.UIState_PickTurnAction, UISubState.UISubState_None)
+		_update_buttons()
+		return
+
 	match ui_sub_state:
 		UISubState.UISubState_SelectCards_ForceForArmor:
 			deselect_all_cards()
@@ -3625,6 +3864,12 @@ func _on_instructions_cancel_button_pressed():
 func _on_wild_swing_button_pressed():
 	var success = false
 	if ui_state == UIState.UIState_SelectCards:
+		if preparing_character_action:
+			prepared_character_action_data['wild_swing'] = true
+			complete_character_action_pressed(prepared_character_action_data['action_idx'])
+			_update_buttons()
+			return
+
 		if ui_sub_state == UISubState.UISubState_SelectCards_StrikeCard or ui_sub_state == UISubState.UISubState_SelectCards_StrikeResponseCard:
 			success = game_wrapper.submit_strike(Enums.PlayerId.PlayerId_Player, -1, true, -1)
 		elif ui_sub_state == UISubState.UISubState_SelectCards_OpponentSetsFirst_StrikeCard or ui_sub_state == UISubState.UISubState_SelectCards_OpponentSetsFirst_StrikeResponseCard:
@@ -3672,6 +3917,19 @@ func _on_shortcut_boost_pressed():
 		change_ui_state(UIState.UIState_WaitForGameServer)
 	_update_buttons()
 
+func _on_shortcut_character_action_pressed(action_idx : int = 0):
+	var selected_card_ids : Array = []
+	for card in selected_cards:
+		selected_card_ids.append(card.card_id)
+	deselect_all_cards()
+
+	var shortcut_effect = game_wrapper.get_player_character_action_shortcut_effect(Enums.PlayerId.PlayerId_Player, action_idx)
+	prepared_character_action_data = {
+		'effect_type': shortcut_effect['effect_type'],
+		'action_idx': action_idx,
+	}
+	finish_preparing_character_action(selected_card_ids)
+
 func _on_shortcut_change_pressed():
 	change_ui_state(null, UISubState.UISubState_SelectCards_ForceForChange)
 	select_card_require_force = -1
@@ -3688,6 +3946,9 @@ func _on_arena_location_pressed(location):
 		if ui_sub_state == UISubState.UISubState_SelectCards_MoveActionGenerateForce:
 			begin_generate_force_selection(game_wrapper.get_force_to_move_to(Enums.PlayerId.PlayerId_Player, location))
 		elif ui_sub_state == UISubState.UISubState_SelectArena_EffectChoice:
+			if preparing_character_action:
+				finish_preparing_character_action([location])
+				return
 			var decision_info = game_wrapper.get_decision_info()
 			var choice_index = 0
 			for i in range(decision_info.limitation.size()):

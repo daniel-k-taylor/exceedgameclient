@@ -44,6 +44,7 @@
 			"force_cost": 0,
 			"action_name": "Move Mantenbo",
 			"requires_buddy_in_play": "true",
+			"shortcut_effect_type": "move_buddy",
 			"effect": {
 				"condition": "buddy_in_play",
 				"condition_detail": "Mantenbo",
@@ -59,6 +60,7 @@
 			"force_cost": 0,
 			"action_name": "Summon/Remove Mantenbo",
 			"per_turn_limit": 1,
+			"shortcut_effect_type": "choice",
 			"effect": {
 				"effect_type": "choice",
 				"choice": [
@@ -91,6 +93,7 @@
 			"force_cost": 0,
 			"action_name": "Move Mantenbo",
 			"requires_buddy_in_play": "true",
+			"shortcut_effect_type": "move_buddy",
 			"effect": {
 				"condition": "buddy_in_play",
 				"condition_detail": "Mantenbo",
