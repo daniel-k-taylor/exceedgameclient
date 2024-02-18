@@ -663,6 +663,7 @@ class Player:
 	var plague_knight_discard_names : Array[String]
 	var public_hand : Array[String]
 	var public_hand_questionable : Array[String]
+	var public_hand_tracked_topdeck : Array[int]
 	var public_topdeck_id : int
 	var skip_end_of_turn_draw : bool
 	var dan_draw_choice : bool
@@ -765,6 +766,7 @@ class Player:
 		plague_knight_discard_names = []
 		public_hand = []
 		public_hand_questionable = []
+		public_hand_tracked_topdeck = []
 		public_topdeck_id = -1
 		skip_end_of_turn_draw = false
 		dan_draw_choice = false
@@ -978,9 +980,21 @@ class Player:
 			public_hand_questionable.append_array(public_hand)
 			public_hand = []
 
+	func on_hand_track_topdeck(card_id : int):
+		public_hand_tracked_topdeck.append(card_id)
+
+	func on_hand_removed_topdeck(card_id : int):
+		# If this card was being tracked because it went to the topdeck
+		# from the hand, then when it is removed to a public zone,
+		# it should no longer be tracked.
+		if card_id in public_hand_tracked_topdeck:
+			public_hand_tracked_topdeck.erase(card_id)
+			on_hand_remove_public_card(card_id)
+
 	func reset_public_hand_knowledge():
 		public_hand = []
 		public_hand_questionable = []
+		public_hand_tracked_topdeck = []
 
 	func get_public_hand_info():
 		var public_hand_info = {
@@ -1036,7 +1050,9 @@ class Player:
 				deck.insert(destination_index, card)
 				hand.remove_at(i)
 				on_hand_remove_secret_card()
-				public_topdeck_id = -1
+				if destination_index == 0:
+					on_hand_track_topdeck(id)
+					public_topdeck_id = -1
 				events += [parent.create_event(Enums.EventType.EventType_AddToDeck, my_id, card.id)]
 				break
 		return events
@@ -1224,6 +1240,7 @@ class Player:
 				var card = deck[0]
 				events += add_to_gauge(card)
 				remove_top_card_from_deck()
+				on_hand_removed_topdeck(card.id)
 				public_topdeck_id = -1
 		return events
 
@@ -1831,6 +1848,8 @@ class Player:
 				var card = deck[draw_from_index]
 				hand.append(card)
 				deck.remove_at(draw_from_index)
+				if draw_from_index == 0:
+					on_hand_removed_topdeck(card.id)
 				events += [parent.create_event(Enums.EventType.EventType_Draw, my_id, card.id)]
 			else:
 				events += reshuffle_discard(false)
@@ -2075,6 +2094,7 @@ class Player:
 			var card_name = parent.card_db.get_card_name(card.id)
 			parent._append_log_full(Enums.LogType.LogType_CardInfo, self, "discards the top card of their deck: %s." % card_name)
 			remove_top_card_from_deck()
+			on_hand_removed_topdeck(card.id)
 			public_topdeck_id = -1
 			events += add_to_discards(card)
 		return events
@@ -2088,6 +2108,7 @@ class Player:
 				parent._append_log_full(Enums.LogType.LogType_CardInfo, self, "seals the top card of their deck facedown.")
 			else:
 				parent._append_log_full(Enums.LogType.LogType_CardInfo, self, "seals the top card of their deck: %s." % card_name)
+				on_hand_removed_topdeck(card.id)
 			events += parent.do_seal_effect(self, card.id, "deck")
 		return events
 
@@ -3324,14 +3345,22 @@ func begin_resolve_strike(events):
 	active_strike.in_setup = false
 
 	# Handle known cards, don't include wild swings.
+	# However, wild swings do get removed from known cards if they were being tracked
+	# from having been put on top deck.
 	if not active_strike.get_player_wild_strike(active_strike.initiator):
 		active_strike.initiator.on_hand_remove_public_card(active_strike.initiator_card.id)
 		if active_strike.initiator_ex_card != null:
 			active_strike.initiator.on_hand_remove_public_card(active_strike.initiator_ex_card.id)
+	else:
+		active_strike.initiator.on_hand_removed_topdeck(active_strike.initiator_card.id)
+
 	if not active_strike.get_player_wild_strike(active_strike.defender):
 		active_strike.defender.on_hand_remove_public_card(active_strike.defender_card.id)
 		if active_strike.defender_ex_card != null:
 			active_strike.defender.on_hand_remove_public_card(active_strike.defender_ex_card.id)
+	else:
+		active_strike.defender.on_hand_removed_topdeck(active_strike.defender_card.id)
+
 	active_strike.initiator.update_public_hand_if_deck_empty()
 	active_strike.defender.update_public_hand_if_deck_empty()
 
