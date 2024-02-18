@@ -3104,80 +3104,53 @@ func _update_buttons():
 			# Check for character actions with card-related shortcuts
 			for i in range(game_wrapper.get_player_character_action_count(Enums.PlayerId.PlayerId_Player)):
 				var char_action = game_wrapper.get_player_character_action(Enums.PlayerId.PlayerId_Player, i)
+				var action_has_shortcut = false
+				var shortcut_condition_met = false
+				var action_name = ""
 				if 'shortcut_effect_type' in char_action:
+					var shortcut_effect = game_wrapper.get_player_character_action_shortcut_effect(Enums.PlayerId.PlayerId_Player, i)
 					if char_action['shortcut_effect_type'] == "strike":
-						var action_possible = game_wrapper.can_do_character_action(Enums.PlayerId.PlayerId_Player, i)
-						var action_name = "Strike with Character Action"
-						if 'action_name' in char_action:
-							action_name = char_action['action_name']
-						var force_cost = char_action['force_cost']
-						var gauge_cost = char_action['gauge_cost']
-						# NOTE: at the moment shortcuts aren't used for any effects with a cost, may not behave properly otherwise
-						assert(force_cost == 0 and gauge_cost == 0)
-						button_choices.append({ "text": action_name, "action": func(): _on_shortcut_character_action_pressed(i), "disabled": not action_possible or not can_strike })
+						action_has_shortcut = true
+						action_name = "Strike with "
+						shortcut_condition_met = can_strike
 					elif char_action['shortcut_effect_type'] == "gauge_from_hand":
-						var action_possible = game_wrapper.can_do_character_action(Enums.PlayerId.PlayerId_Player, i)
-						var action_name = "Move to Gauge for "
-						if 'action_name' in char_action:
-							action_name += char_action['action_name']
-						else:
-							action_name += "Character Action"
-
-						var force_cost = char_action['force_cost']
-						var gauge_cost = char_action['gauge_cost']
-						# NOTE: at the moment shortcuts aren't used for any effects with a cost, may not behave properly otherwise
-						assert(force_cost == 0 and gauge_cost == 0)
-
-						var shortcut_effect = game_wrapper.get_player_character_action_shortcut_effect(Enums.PlayerId.PlayerId_Player, i)
+						action_has_shortcut = true
+						action_name = "Move to Gauge for "
 						var min_cards = shortcut_effect['min_amount']
 						var max_cards = shortcut_effect['max_amount']
 						var valid_card_count = min_cards <= len(selected_cards) and len(selected_cards) <= max_cards
-						var can_gauge_from_hand = valid_card_count and only_in_hand
-						button_choices.append({ "text": action_name, "action": func(): _on_shortcut_character_action_pressed(i), "disabled": not action_possible or not can_gauge_from_hand })
+						shortcut_condition_met = valid_card_count and only_in_hand
 					elif char_action['shortcut_effect_type'] == "self_discard_choose":
-						var action_possible = game_wrapper.can_do_character_action(Enums.PlayerId.PlayerId_Player, i)
-						var action_name = "Discard for "
-						if 'action_name' in char_action:
-							action_name += char_action['action_name']
-						else:
-							action_name += "Character Action"
-
-						var force_cost = char_action['force_cost']
-						var gauge_cost = char_action['gauge_cost']
-						# NOTE: at the moment shortcuts aren't used for any effects with a cost, may not behave properly otherwise
-						assert(force_cost == 0 and gauge_cost == 0)
-
-						var shortcut_effect = game_wrapper.get_player_character_action_shortcut_effect(Enums.PlayerId.PlayerId_Player, i)
+						action_has_shortcut = true
+						action_name = "Discard for "
 						var min_cards = shortcut_effect['amount']
 						var max_cards = shortcut_effect['amount']
 						if shortcut_effect['amount'] == -1:
 							min_cards = 0
 							max_cards = game_wrapper.get_player_hand_size(Enums.PlayerId.PlayerId_Player)
 						var valid_card_count = min_cards <= len(selected_cards) and len(selected_cards) <= max_cards
-						var can_discard_choose = valid_card_count and only_in_hand
-						button_choices.append({ "text": action_name, "action": func(): _on_shortcut_character_action_pressed(i), "disabled": not action_possible or not can_discard_choose })
+						shortcut_condition_met = valid_card_count and only_in_hand
 					elif char_action['shortcut_effect_type'] == "boost_from_gauge":
-						var action_possible = game_wrapper.can_do_character_action(Enums.PlayerId.PlayerId_Player, i)
-						var action_name = "Boost with "
-						if 'action_name' in char_action:
-							action_name += char_action['action_name']
-						else:
-							action_name += "Character Action"
-
-						var force_cost = char_action['force_cost']
-						var gauge_cost = char_action['gauge_cost']
-						# NOTE: at the moment shortcuts aren't used for any effects with a cost, may not behave properly otherwise
-						assert(force_cost == 0 and gauge_cost == 0)
-
-						var can_boost_from_gauge = false
+						action_has_shortcut = true
+						action_name = "Boost with "
 						if len(selected_cards) == 1:
-							var shortcut_effect = game_wrapper.get_player_character_action_shortcut_effect(Enums.PlayerId.PlayerId_Player, i)
 							var valid_zones = ['gauge']
 							var limitation = ""
 							if 'limitation' in shortcut_effect:
 								limitation = shortcut_effect['limitation']
-							can_boost_from_gauge = game_wrapper.can_player_boost(Enums.PlayerId.PlayerId_Player, selected_cards[0].card_id, valid_zones, limitation, false)
-						button_choices.append({ "text": action_name, "action": func(): _on_shortcut_character_action_pressed(i), "disabled": not action_possible or not can_boost_from_gauge })
+							shortcut_condition_met = game_wrapper.can_player_boost(Enums.PlayerId.PlayerId_Player, selected_cards[0].card_id, valid_zones, limitation, false)
+
+				if action_has_shortcut:
+					var action_possible = game_wrapper.can_do_character_action(Enums.PlayerId.PlayerId_Player, i)
+					if 'action_name' in char_action:
+						action_name += char_action['action_name']
+					else:
+						action_name += "Character Action"
+					var force_cost = char_action['force_cost']
+					var gauge_cost = char_action['gauge_cost']
+					# NOTE: at the moment shortcuts aren't used for any effects with a cost, may not behave properly otherwise
+					assert(force_cost == 0 and gauge_cost == 0)
+					button_choices.append({ "text": action_name, "action": func(): _on_shortcut_character_action_pressed(i), "disabled": not action_possible or not shortcut_condition_met })
 
 			button_choices.append({ "text": "Change Cards", "action": _on_shortcut_change_pressed, "disabled": not game_wrapper.can_do_change(Enums.PlayerId.PlayerId_Player) })
 			button_choices.append({ "text": "Deselect card(s)", "action": _on_shortcut_cancel_pressed, "disabled": false })
