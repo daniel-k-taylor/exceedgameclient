@@ -9676,3 +9676,6 @@ func do_emote(performing_player : Player, is_image_emote : bool, emote : String)
 	events += [create_event(Enums.EventType.EventType_Emote, performing_player.my_id, is_image_emote, emote)]
 	event_queue += events
 	return true
+
+func do_match_result():
+	return true
