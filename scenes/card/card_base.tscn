@@ -433,7 +433,7 @@ theme_override_constants/shadow_outline_size = 12
 theme_override_constants/outline_size = 5
 theme_override_font_sizes/bold_italics_font_size = 42
 bbcode_enabled = true
-text = "[right][color=red][b][i]CRITICAL [/i][/b][/color][/right]"
+text = "[right][color=red][b][i]CRIT [/i][/b][/color][/right]"
 fit_content = true
 scroll_active = false
 autowrap_mode = 0
