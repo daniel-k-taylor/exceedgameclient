@@ -7,6 +7,7 @@
 	"character_action_default": [{
 		"gauge_cost": 0,
 		"force_cost": 0,
+		"shortcut_effect_type": "choice",
 		"effect": {
 			"effect_type": "choice",
 			"choice": [
@@ -18,6 +19,7 @@
 	"character_action_exceeded": [{
 		"gauge_cost": 0,
 		"force_cost": 0,
+		"shortcut_effect_type": "choice",
 		"effect": {
 			"effect_type": "choice",
 			"choice": [
