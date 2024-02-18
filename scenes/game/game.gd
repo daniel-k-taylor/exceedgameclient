@@ -1948,7 +1948,7 @@ func update_discard_selection_message_choose():
 	if select_card_require_min == 0:
 		num_remaining = select_card_require_max - len(selected_cards)
 	var bonus = ""
-	if decision_info.bonus_effect:
+	if decision_info.bonus_effect and not preparing_character_action:
 		var effect_text = CardDefinitions.get_effect_text(decision_info.bonus_effect, false, false, false, "")
 		bonus = "\nfor %s" % effect_text
 	if destination == "play_attack":
@@ -1957,7 +1957,7 @@ func update_discard_selection_message_choose():
 		var optional_string = ""
 		if select_card_require_min == 0:
 			optional_string = "up to "
-		if decision_info.limitation:
+		if decision_info.limitation and not preparing_character_action:
 			if decision_info.limitation == "from_array":
 				set_instructions("Select %s%s more card(s) that %s from your hand to move to %s." % [optional_string, num_remaining, decision_info.extra_info, destination])
 			else:
