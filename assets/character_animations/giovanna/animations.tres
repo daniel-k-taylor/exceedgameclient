@@ -1,16 +1,16 @@
 [gd_resource type="SpriteFrames" load_steps=2 format=3 uid="uid://bvy88pd0nrd3a"]
 
-[ext_resource type="Texture2D" uid="uid://f4gvlwoxvxag" path="res://assets/character_animations/giovanna/idle/giovanna-strive-sprite4.png" id="1_wuc4b"]
+[ext_resource type="Texture2D" uid="uid://hmjmnb21qarr" path="res://assets/character_animations/giovanna/idle/gio_idle_frame.png" id="1_l53ah"]
 
 [resource]
 animations = [{
 "frames": [{
 "duration": 1.0,
-"texture": ExtResource("1_wuc4b")
+"texture": ExtResource("1_l53ah")
 }],
 "loop": true,
 "name": &"idle",
 "speed": 5.0
 }]
 metadata/flip = true
-metadata/scaling = 0.4
+metadata/scaling = 0.25

@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://f4gvlwoxvxag"
-path="res://.godot/imported/giovanna-strive-sprite4.png-1e9b64ef0badf4edaf15fc4436a251b0.ctex"
+uid="uid://hmjmnb21qarr"
+path="res://.godot/imported/gio_idle_frame.png-2d86498ee0ba13804103978f54f18770.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/character_animations/giovanna/idle/giovanna-strive-sprite4.png"
-dest_files=["res://.godot/imported/giovanna-strive-sprite4.png-1e9b64ef0badf4edaf15fc4436a251b0.ctex"]
+source_file="res://assets/character_animations/giovanna/idle/gio_idle_frame.png"
+dest_files=["res://.godot/imported/gio_idle_frame.png-2d86498ee0ba13804103978f54f18770.ctex"]
 
 [params]
 
@@ -31,4 +31,4 @@ process/normal_map_invert_y=false
 process/hdr_as_srgb=false
 process/hdr_clamp_exposure=false
 process/size_limit=0
-detect_3d/compress_to=1
+detect_3d/compress_to=0
