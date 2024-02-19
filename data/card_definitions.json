@@ -14526,7 +14526,7 @@
 	{
 		"id": "orie_divinethrust",
 		"type": "special",
-		"display_name": "Chasing le Reve",
+		"display_name": "Divine Thrust",
 		"force_cost": 0,
 		"gauge_cost": 0,
 		"range_min": 1,
@@ -14539,32 +14539,27 @@
 			{
 				"timing": "after",
 				"effect_type": "advance",
-				"amount": 3,
-				"and": {
-					"effect_type": "draw",
-					"amount": 1
-				}
+				"amount": 4
 			}
 		],
 		"boost": {
 			"boost_type": "continuous",
 			"force_cost": 0,
 			"cancel_cost": -1,
-			"display_name": "Windmill",
+			"display_name": "Aggressive",
 			"effects": [
 				{
 					"timing": "during_strike",
-					"effect_type": "powerup_opponent",
-					"amount": 3
+					"effect_type": "powerup",
+					"amount": 1
 				},
 				{
 					"timing": "now",
-					"effect_type": "bonus_action"
-				},
-				{
-					"timing": "before",
-					"effect_type": "close",
-					"amount": 2
+					"effect_type": "choice",
+					"choice": [
+						{ "effect_type": "advance", "amount": 1 },
+						{ "effect_type": "retreat", "amount": 1 }
+					]
 				}
 			]
 		}
@@ -14572,34 +14567,94 @@
 	{
 		"id": "orie_tome",
 		"type": "special",
-		"display_name": "Plumage Dancing in the Wind",
+		"display_name": "To Me! (Command Order)",
 		"force_cost": 0,
 		"gauge_cost": 0,
 		"range_min": 1,
-		"range_max": 1,
-		"speed": 6,
+		"range_max": 2,
+		"speed": 4,
 		"power": 3,
 		"armor": 0,
 		"guard": 0,
 		"effects": [
 			{
 				"timing": "during_strike",
-				"condition": "initiated_strike",
-				"effect_type": "powerup",
-				"amount": 2
+				"effect_type": "stun_immunity",
+				"and": {
+					"effect_type": "ignore_push_and_pull"
+				}
 			},
 			{
+				"timing": "hit",
+				"effect_type": "gain_advantage",
+				"and": {
+					"effect_type": "choice",
+					"choice": [
+						{ "effect_type": "advance", "amount": 1 },
+						{ "effect_type": "retreat", "amount": 1 }
+					]
+				}
+			}
+		],
+		"boost": {
+			"boost_type": "immediate",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Aerial Leap",
+			"effects": [
+				{
+					"timing": "immediate",
+					"effect_type": "advance",
+					"amount": 4,
+					"bonus_effect": {
+						"condition": "advanced_through",
+						"effect_type": "choice",
+						"choice": [
+							{ "effect_type": "strike" },
+							{ "effect_type": "pass" }
+						]
+					}
+				}
+			]
+		}
+	},
+	{
+		"id": "orie_sealinghoplon",
+		"type": "special",
+		"display_name": "Sealing Hoplon",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 3,
+		"speed": 3,
+		"power": 2,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
 				"timing": "during_strike",
-				"condition": "not_initiated_strike",
-				"effect_type": "speedup",
-				"amount": 1
+				"effect_type": "stun_immunity",
+				"and": {
+					"effect_type": "ignore_guard"
+				}
+			},
+			{
+				"timing": "hit",
+				"effect_type": "gain_advantage",
+				"and": {
+					"effect_type": "choice",
+					"choice": [
+						{ "effect_type": "advance", "amount": 1 },
+						{ "effect_type": "retreat", "amount": 1 }
+					]
+				}
 			}
 		],
 		"boost": {
 			"boost_type": "continuous",
-			"force_cost": 1,
+			"force_cost": 0,
 			"cancel_cost": -1,
-			"display_name": "Reach",
+			"display_name": "Wide",
 			"effects": [
 				{
 					"timing": "during_strike",
@@ -14609,53 +14664,11 @@
 				},
 				{
 					"timing": "now",
-					"effect_type": "strike"
-				}
-			]
-		}
-	},
-	{
-		"id": "orie_sealinghoplon",
-		"type": "special",
-		"display_name": "Conveying My Vrai Couer",
-		"force_cost": 0,
-		"gauge_cost": 0,
-		"range_min": 1,
-		"range_max": 1,
-		"speed": 5,
-		"power": 3,
-		"armor": 0,
-		"guard": 0,
-		"effects": [
-			{
-				"timing": "before",
-				"effect_type": "close",
-				"amount": 3
-			},
-			{
-				"timing": "hit",
-				"effect_type": "choice",
-				"choice": [
-					{ "effect_type": "push", "amount": 1 },
-					{ "effect_type": "pull", "amount": 1 }
-				]
-			}
-		],
-		"boost": {
-			"boost_type": "continuous",
-			"force_cost": 0,
-			"cancel_cost": -1,
-			"display_name": "Overpower",
-			"effects": [
-				{
-					"timing": "during_strike",
-					"effect_type": "powerup",
-					"amount": 1
-				},
-				{
-					"timing": "before",
-					"effect_type": "close",
-					"amount": 1
+					"effect_type": "choice",
+					"choice": [
+						{ "effect_type": "advance", "amount": 1 },
+						{ "effect_type": "retreat", "amount": 1 }
+					]
 				}
 			]
 		}
@@ -14663,44 +14676,51 @@
 	{
 		"id": "orie_succession",
 		"type": "special",
-		"display_name": "Let the Fleur Carry Your Feelings",
+		"display_name": "Succession",
 		"force_cost": 0,
 		"gauge_cost": 0,
-		"range_min": 2,
-		"range_max": 4,
-		"speed": 4,
-		"power": 4,
+		"range_min": 3,
+		"range_max": 5,
+		"speed": 2,
+		"power": 3,
 		"armor": 0,
 		"guard": 0,
 		"effects": [
 			{
-				"timing": "after",
-				"condition": "opponent_stunned",
-				"effect_type": "choice",
-				"choice": [
-					{
-						"effect_type": "advance", "amount": 2 , "and": { "effect_type": "draw", "amount": 2 }
-					},
-					{
-						"effect_type": "retreat", "amount": 2 , "and": { "effect_type": "draw", "amount": 2 }
-					}
-				]
+				"timing": "during_strike",
+				"effect_type": "stun_immunity"
+			},
+			{
+				"timing": "hit",
+				"effect_type": "gain_advantage",
+				"and": {
+					"effect_type": "pull",
+					"amount": 3
+				}
 			}
 		],
 		"boost": {
-			"boost_type": "immediate",
-			"force_cost": 2,
+			"boost_type": "continuous",
+			"force_cost": 0,
 			"cancel_cost": -1,
-			"display_name": "Jumping to Conclusions",
+			"display_name": "Defensive",
 			"effects": [
 				{
-					"timing": "immediate",
-					"effect_type": "reveal_hand",
-					"opponent": true
+					"timing": "during_strike",
+					"effect_type": "armorup",
+					"amount": 1,
+					"and": {
+						"effect_type": "guardup",
+						"amount": 1
+					}
 				},
 				{
-					"timing": "immediate",
-					"effect_type": "strike"
+					"timing": "now",
+					"effect_type": "choice",
+					"choice": [
+						{ "effect_type": "advance", "amount": 1 },
+						{ "effect_type": "retreat", "amount": 1 }
+					]
 				}
 			]
 		}
@@ -14709,12 +14729,12 @@
 		"NOTE": "ORIE CARDS END",
 		"id": "orie_sacredarrow",
 		"type": "special",
-		"display_name": "Ange's Invitation",
+		"display_name": "Sacred Arrow",
 		"force_cost": 0,
 		"gauge_cost": 0,
 		"range_min": 1,
 		"range_max": 2,
-		"speed": 3,
+		"speed": 2,
 		"power": 5,
 		"armor": 0,
 		"guard": 0,
@@ -14722,19 +14742,14 @@
 			{
 				"timing": "during_strike",
 				"effect_type": "higher_speed_misses",
-				"dodge_at_speed_greater_or_equal": 6
-			},
-			{
-				"timing": "after",
-				"effect_type": "advance",
-				"amount": 3
+				"dodge_at_speed_greater_or_equal": 5
 			}
 		],
 		"boost": {
 			"boost_type": "continuous",
 			"force_cost": 0,
 			"cancel_cost": -1,
-			"display_name": "Chain Shift",
+			"display_name": "Tactical",
 			"effects": [
 				{
 					"timing": "during_strike",
@@ -14743,11 +14758,11 @@
 				},
 				{
 					"timing": "now",
-					"effect_type": "strike"
-				},
-				{
-					"timing": "after",
-					"effect_type": "add_to_gauge_immediately_mid_strike_undo_effects"
+					"effect_type": "choice",
+					"choice": [
+						{ "effect_type": "advance", "amount": 1 },
+						{ "effect_type": "retreat", "amount": 1 }
+					]
 				}
 			]
 		},
