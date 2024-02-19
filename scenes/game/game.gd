@@ -44,6 +44,11 @@ const RevealCopyIdRangestart = 80000
 const ReferenceScreenIdRangeStart = 90000
 const NoticeOffsetY = 50
 
+const GameTimerLength = 15 * 60 # 15 minutes
+var player_clock_remaining = GameTimerLength
+var opponent_clock_remaining = GameTimerLength
+var current_clock_user : Enums.PlayerId = Enums.PlayerId.PlayerId_Unassigned
+
 const ChoiceTextLengthSoftCap = 45
 const ChoiceTextLengthHardCap = 60
 const MaxBonusPanelWidth = 255
@@ -683,8 +688,27 @@ func _process(delta):
 			if show_thinking_spinner_in < 0:
 				$OpponentDeck/ThinkingIndicator.visible = true
 				$OpponentDeck/ThinkingIndicator.radial_initial_angle += delta * 360
+				current_clock_user = Enums.PlayerId.PlayerId_Opponent
 	else:
 		$OpponentDeck/ThinkingIndicator.visible = false
+		if current_clock_user == Enums.PlayerId.PlayerId_Unassigned:
+			if show_thinking_spinner_in < 0:
+				# Start the countdown
+				show_thinking_spinner_in = ThinkingSpinnerWaitBeforeShowTime
+			else:
+				show_thinking_spinner_in -= delta
+				if show_thinking_spinner_in < 0:
+					current_clock_user = Enums.PlayerId.PlayerId_Player
+
+	if current_clock_user != Enums.PlayerId.PlayerId_Unassigned:
+		if current_clock_user == Enums.PlayerId.PlayerId_Player:
+			player_clock_remaining -= delta
+		else:
+			opponent_clock_remaining -= delta
+		_update_clocks()
+
+func _update_clocks():
+	pass
 
 func begin_delay(delay : float, remaining_events : Array):
 	if ui_state != UIState.UIState_PlayingAnimation:
@@ -1935,6 +1959,10 @@ func change_ui_state(new_state, new_sub_state = null):
 		printlog("UI: Sub state = %s" % UISubState.keys()[ui_sub_state])
 	update_card_counts()
 	_update_buttons()
+
+	if new_state == UIState.UIState_WaitingOnOpponent or new_state == UIState.UIState_WaitForGameServer:
+		show_thinking_spinner_in = -1
+		current_clock_user = Enums.PlayerId.PlayerId_Unassigned
 
 func set_instructions(text):
 	current_instruction_text = text
