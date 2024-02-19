@@ -44,7 +44,7 @@ const RevealCopyIdRangestart = 80000
 const ReferenceScreenIdRangeStart = 90000
 const NoticeOffsetY = 50
 
-const GameTimerLength : float = 10 #15 * 60 + 5 # 15 minutes and 5 buffer seconds
+const GameTimerLength : float = 15 * 60 + 5 # 15 minutes and 5 buffer seconds
 var player_clock_remaining : float = GameTimerLength
 var opponent_clock_remaining : float = GameTimerLength
 var current_clock_user : Enums.PlayerId = Enums.PlayerId.PlayerId_Unassigned
@@ -260,8 +260,9 @@ func _ready():
 
 	if not game_wrapper.is_ai_game():
 		$AIMoveButton.visible = false
-		$PlayerLife.set_clock(GameTimerLength)
-		$OpponentLife.set_clock(GameTimerLength)
+		if not observer_mode:
+			$PlayerLife.set_clock(GameTimerLength)
+			$OpponentLife.set_clock(GameTimerLength)
 
 	$PlayerLife.set_life(game_wrapper.get_player_life(Enums.PlayerId.PlayerId_Player))
 	$OpponentLife.set_life(game_wrapper.get_player_life(Enums.PlayerId.PlayerId_Opponent))
@@ -717,7 +718,7 @@ func _process_clock(delta):
 				player_clock_remaining -= delta
 				if not player_notified_of_clock:
 					player_notified_of_clock = true
-					if GlobalSettings.GameSoundsEnabled:
+					if GlobalSettings.GameSoundsEnabled and not observer_mode:
 						turnstart_audio.play()
 			elif current_clock_user == Enums.PlayerId.PlayerId_Opponent:
 				opponent_clock_remaining -= delta
@@ -735,6 +736,7 @@ func is_mulligan_done():
 
 func _update_clocks():
 	if game_wrapper.is_ai_game(): return
+	if observer_mode: return
 	$PlayerLife.set_clock(player_clock_remaining)
 	$OpponentLife.set_clock(opponent_clock_remaining)
 
