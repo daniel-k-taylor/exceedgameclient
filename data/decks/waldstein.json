@@ -70,8 +70,11 @@
 				"effect_type": "guardup",
 				"amount": 2,
 				"and": {
-					"timing": "cleanup",
-					"effect_type": "seal_this"
+					"effect_type": "add_attack_effect",
+					"added_effect": {
+						"timing": "cleanup",
+						"effect_type": "seal_this"
+					}
 				}
 			}
 		}

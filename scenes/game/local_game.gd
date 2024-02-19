@@ -7088,7 +7088,7 @@ func do_set_strike_x(performing_player : Player, source : String, extra_info):
 				_append_log_full(Enums.LogType.LogType_Strike, performing_player, "has no cards in gauge, so X is set to 0.")
 		"top_discard_power":
 			if len(performing_player.discards) > 0:
-				var card = performing_player.discards[-1]
+				var card = performing_player.get_top_discard_card()
 				var power = get_card_stat(performing_player, card, 'power')
 				value = max(power, 0)
 				var card_name = card_db.get_card_name(card.id)
@@ -7542,9 +7542,9 @@ func ask_for_cost(performing_player, card, next_state):
 
 	var card_in_invalid_list = card.definition['display_name'] in performing_player.cards_invalid_during_strike
 
-	var invalid_if_faceup = 'invalid_if_not_set_face_up' in card.definition and card.definition['invalid_if_not_set_face_up']
+	var invalidate_if_not_faceup = 'invalid_if_not_set_face_up' in card.definition and card.definition['invalid_if_not_set_face_up']
 	var invalid_because_facedown = false
-	if invalid_if_faceup:
+	if invalidate_if_not_faceup:
 		if performing_player == active_strike.initiator:
 			invalid_because_facedown = not active_strike.initiator_set_face_up
 		else:
