@@ -752,12 +752,12 @@ func get_discard_location(discard_node):
 	var discard_pos = discard_node.global_position + discard_node.size * discard_node.scale /2
 	return discard_pos
 
-func discard_card(card, discard_node, new_parent, is_player : bool):
+func discard_card(card, discard_node, new_parent, is_player : bool, from_top : int):
 	var discard_pos = get_discard_location(discard_node)
 	# Make sure the card is faceup.
 	make_card_revealed(card)
 	card.discard_to(discard_pos, CardBase.CardState.CardState_Discarded)
-	reparent_to_zone(card, new_parent)
+	reparent_to_zone(card, new_parent, from_top)
 	layout_player_hand(is_player)
 
 func get_deck_button(is_player : bool):
@@ -1597,11 +1597,12 @@ func clear_selected_cards():
 func _on_discard_event(event):
 	var player = event['event_player']
 	var discard_id = event['number']
+	var from_top = event['extra_info']
 	var card = find_card_on_board(discard_id)
 	if player == Enums.PlayerId.PlayerId_Player:
-		discard_card(card, $PlayerDeck/Discard, $AllCards/PlayerDiscards, true)
+		discard_card(card, $PlayerDeck/Discard, $AllCards/PlayerDiscards, true, from_top)
 	else:
-		discard_card(card, $OpponentDeck/Discard, $AllCards/OpponentDiscards, false)
+		discard_card(card, $OpponentDeck/Discard, $AllCards/OpponentDiscards, false, from_top)
 	update_card_counts()
 
 func find_card_on_board(card_id) -> CardBase:
@@ -1628,9 +1629,14 @@ func get_all_player_cards() -> Array:
 	found_cards += $AllCards/Striking.get_children()
 	return found_cards
 
-func reparent_to_zone(card, zone):
+func reparent_to_zone(card, zone, from_top : int = 0):
 	card.get_parent().remove_child(card)
 	zone.add_child(card)
+	if from_top > 0:
+		# Use negative because this is from the end.
+		# Add 1 since -1 would just be on the end where it already is.
+		from_top += 1
+		zone.move_child(card, -from_top)
 
 func _on_add_to_gauge(event):
 	var player = event['event_player']
@@ -2212,10 +2218,10 @@ func begin_generate_force_selection(amount, can_cancel : bool = true, wild_swing
 	# Show the gauge window.
 	_on_player_gauge_gauge_clicked()
 	treat_ultras_as_single_force = false
-	discard_ex_first_for_strike = false
+	discard_ex_first_for_strike = true
 	current_pay_costs_is_ex = ex_discard_order_checkbox
 	action_menu.set_force_ultra_toggle(false)
-	action_menu.set_discard_ex_first_toggle(false)
+	action_menu.set_discard_ex_first_toggle(true)
 
 	selected_cards = []
 	select_card_require_force = amount
@@ -2228,8 +2234,8 @@ func begin_gauge_selection(amount : int, wild_swing_allowed : bool, sub_state : 
 	_on_player_gauge_gauge_clicked()
 	selected_cards = []
 	current_pay_costs_is_ex = ex_discard_order_checkbox
-	discard_ex_first_for_strike = false
-	action_menu.set_discard_ex_first_toggle(false)
+	discard_ex_first_for_strike = true
+	action_menu.set_discard_ex_first_toggle(true)
 	enabled_reminder_text = true if enable_reminder else false
 	if amount != -1:
 		select_card_require_min = amount
