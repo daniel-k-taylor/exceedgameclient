@@ -54,6 +54,9 @@ func get_game_state() -> Enums.GameState:
 func get_active_player() -> Enums.PlayerId:
 	return current_game.get_active_player()
 
+func get_priority_player() -> Enums.PlayerId:
+	return current_game.get_priority_player()
+
 func get_decision_info() -> DecisionInfo:
 	return current_game.get_decision_info()
 
@@ -481,5 +484,5 @@ func submit_emote(player: Enums.PlayerId, is_image_emote : bool, emote : String)
 	var game_player = _get_player(player)
 	return current_game.do_emote(game_player, is_image_emote, emote)
 
-func submit_match_result():
-	return current_game.do_match_result()
+func submit_match_result(player_clock_remaining, opponent_clock_remaining):
+	return current_game.do_match_result(player_clock_remaining, opponent_clock_remaining)

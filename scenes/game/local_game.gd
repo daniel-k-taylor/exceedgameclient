@@ -2941,6 +2941,17 @@ var last_turn_was_strike : bool = false
 func get_active_player() -> Enums.PlayerId:
 	return active_turn_player
 
+func get_priority_player() -> Enums.PlayerId:
+	match game_state:
+		Enums.GameState.GameState_PickAction, Enums.GameState.GameState_DiscardDownToMax:
+			return active_turn_player
+		Enums.GameState.GameState_PlayerDecision, Enums.GameState.GameState_WaitForStrike, \
+		Enums.GameState.GameState_Strike_Opponent_Response, Enums.GameState.GameState_Strike_Opponent_Set_First:
+			return decision_info.player
+		_:
+			# Any other states are internal processing.
+			return active_turn_player
+
 var random_number_generator : RandomNumberGenerator = RandomNumberGenerator.new()
 
 func shuffle_array(arr) -> void:
@@ -9758,5 +9769,5 @@ func do_emote(performing_player : Player, is_image_emote : bool, emote : String)
 	event_queue += events
 	return true
 
-func do_match_result():
+func do_match_result(_player_clock_remaining, _opponent_clock_remaining):
 	return true

@@ -1,4 +1,4 @@
-[gd_scene load_steps=27 format=3 uid="uid://dh7wmx6cbb55x"]
+[gd_scene load_steps=28 format=3 uid="uid://dh7wmx6cbb55x"]
 
 [ext_resource type="Script" path="res://scenes/game/game.gd" id="1_4f5jr"]
 [ext_resource type="Texture2D" uid="uid://dh8tat2r8ttx1" path="res://assets/cards/card_border_highlight.png" id="4_5y76h"]
@@ -26,6 +26,7 @@
 [ext_resource type="PackedScene" uid="uid://b8kmmrd5jmqdd" path="res://scenes/game/modal_dialog.tscn" id="21_qe5we"]
 [ext_resource type="PackedScene" uid="uid://belqon3ac2y7a" path="res://scenes/game/emote_display.tscn" id="21_sd8mp"]
 [ext_resource type="PackedScene" uid="uid://i2fmgsopd4xp" path="res://scenes/game/emote_dialog.tscn" id="23_rqqoa"]
+[ext_resource type="AudioStream" uid="uid://bthgiipjqcob5" path="res://assets/sounds/turnstart.wav" id="27_aidi8"]
 
 [node name="GameScene" type="Node2D"]
 script = ExtResource("1_4f5jr")
@@ -817,6 +818,9 @@ anchor_right = 0.0
 anchor_bottom = 0.0
 offset_right = 1280.0
 offset_bottom = 720.0
+
+[node name="TurnStartAudio" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("27_aidi8")
 
 [connection signal="pressed" from="ArenaNode/RowButtons/ArenaSquare1/Button" to="." method="_on_arena_location_pressed" binds= [1]]
 [connection signal="pressed" from="ArenaNode/RowButtons/ArenaSquare2/Button" to="." method="_on_arena_location_pressed" binds= [2]]

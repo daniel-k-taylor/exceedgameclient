@@ -13,6 +13,15 @@ layout_mode = 3
 anchors_preset = 0
 script = ExtResource("1_y33ag")
 
+[node name="Clock" type="Label" parent="."]
+layout_mode = 0
+offset_left = -120.0
+offset_right = -61.0
+offset_bottom = 34.0
+theme_override_font_sizes/font_size = 24
+text = "88:88"
+horizontal_alignment = 2
+
 [node name="TurnIndicator" type="TextureRect" parent="."]
 layout_mode = 2
 offset_left = -55.0
