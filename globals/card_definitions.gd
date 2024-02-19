@@ -689,6 +689,8 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 			effect_str += "Ignore Push and Pull"
 		"increase_force_spent_before_strike":
 			effect_str += get_effect_text(effect['linked_effect'], false, false, false)
+		"increase_movement_effects":
+			effect_str += "Increase advance/retreat effects by %s" % effect['amount']
 		"lightningrod_strike":
 			effect_str += "Return %s to hand to deal 2 nonlethal damage" % effect['card_name']
 		"reset_character_positions":

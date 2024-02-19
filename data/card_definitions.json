@@ -14441,23 +14441,28 @@
 		"NOTE": "ORIE CARDS START",
 		"id": "orie_luminousembrace",
 		"type": "ultra",
-		"display_name": "Atmosphere of the Aether",
+		"display_name": "Luminous Embrace",
 		"force_cost": 0,
 		"gauge_cost": 3,
-		"range_min": 1,
-		"range_max": 2,
-		"speed": 6,
-		"power": 4,
+		"range_min": 3,
+		"range_max": 6,
+		"speed": 2,
+		"power": 7,
 		"armor": 0,
 		"guard": 0,
 		"effects": [
 			{
-				"timing": "hit",
-				"effect_type": "push",
-				"amount": 3,
+				"timing": "during_strike",
+				"effect_type": "dodge_at_range",
+				"range_min": 4,
+				"range_max": 9
+			},
+			{
+				"timing": "after",
+				"effect_type": "close",
+				"amount": 5,
 				"and": {
-					"effect_type": "draw",
-					"amount": 2
+					"effect_type": "gain_advantage"
 				}
 			}
 		],
@@ -14465,20 +14470,20 @@
 			"boost_type": "continuous",
 			"force_cost": 0,
 			"cancel_cost": -1,
-			"display_name": "Zephyr",
+			"display_name": "Fifth Executor",
 			"effects": [
 				{
-					"timing": "during_strike",
-					"effect_type": "speedup",
-					"amount": 2,
+					"timing": "hit",
+					"effect_type": "set_total_power",
+					"amount": 5,
 					"and": {
-						"effect_type": "powerup_opponent",
-						"amount": 3
+						"effect_type": "add_boost_to_gauge_on_strike_cleanup",
+						"card_name": "Luminous Embrace"
 					}
 				},
 				{
 					"timing": "now",
-					"effect_type": "bonus_action"
+					"effect_type": "strike"
 				}
 			]
 		}
@@ -14486,39 +14491,38 @@
 	{
 		"id": "orie_restinpeace",
 		"type": "ultra",
-		"display_name": "Lumiere of the Dawn",
+		"display_name": "Rest in Peace",
 		"force_cost": 0,
-		"gauge_cost": 3,
+		"gauge_cost": 2,
 		"range_min": 1,
-		"range_max": 1,
-		"speed": 4,
-		"power": 9,
+		"range_max": 2,
+		"speed": 0,
+		"power": 1,
 		"armor": 6,
 		"guard": 0,
 		"effects": [
 			{
-				"timing": "before",
-				"condition": "speed_greater_than",
-				"condition_amount": "OPPONENT_SPEED",
-				"effect_type": "attack_does_not_hit",
-				"and": {
-					"effect_type": "lose_all_armor"
-				}
+				"timing": "hit",
+				"condition": "was_hit",
+				"effect_type": "powerup",
+				"amount": 6
 			}
 		],
 		"boost": {
-			"boost_type": "immediate",
-			"force_cost": 1,
+			"boost_type": "continuous",
+			"force_cost": 0,
 			"cancel_cost": -1,
-			"display_name": "Surge Forward",
+			"display_name": "The Ruler",
 			"effects": [
 				{
-					"timing": "immediate",
-					"effect_type": "advance",
-					"amount": 3,
-					"and": {
-						"effect_type": "bonus_action"
-					}
+					"timing": "during_strike",
+					"effect_type": "increase_movement_effects",
+					"amount": 1
+				},
+				{
+					"timing": "now",
+					"effect_type": "draw",
+					"amount": 1
 				}
 			]
 		}
