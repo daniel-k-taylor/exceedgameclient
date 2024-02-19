@@ -6070,7 +6070,7 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 			_append_log_full(Enums.LogType.LogType_Effect, performing_player, "sets their attack's printed power to %s!" % performing_player.saved_power)
 		"use_top_discard_as_printed_power":
 			if len(performing_player.discards) > 0:
-				var card = performing_player.discards[-1]
+				var card = performing_player.get_top_discard_card()
 				var power = max(get_card_stat(performing_player, card, 'power'), 0)
 				performing_player.strike_stat_boosts.overwritten_printed_power = power
 				var card_name = card_db.get_card_name(card.id)
