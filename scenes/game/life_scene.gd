@@ -16,9 +16,13 @@ func set_life(amount):
 
 func set_clock(seconds : int):
 	$Clock.visible = true
+	var negative_str = ""
+	if seconds < 0:
+		negative_str = "-"
+		seconds = abs(seconds)
 	var minutes = seconds / 60.0
 	var seconds_display = fmod(seconds, 60)
-	var mmss_string : String = "%02d:%02d" % [minutes, seconds_display]
+	var mmss_string : String = "%s%02d:%02d" % [negative_str, minutes, seconds_display]
 	clock.text = mmss_string
 	
 

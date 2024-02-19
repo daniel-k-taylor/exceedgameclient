@@ -26,7 +26,7 @@
 [ext_resource type="PackedScene" uid="uid://b8kmmrd5jmqdd" path="res://scenes/game/modal_dialog.tscn" id="21_qe5we"]
 [ext_resource type="PackedScene" uid="uid://belqon3ac2y7a" path="res://scenes/game/emote_display.tscn" id="21_sd8mp"]
 [ext_resource type="PackedScene" uid="uid://i2fmgsopd4xp" path="res://scenes/game/emote_dialog.tscn" id="23_rqqoa"]
-[ext_resource type="AudioStream" uid="uid://54afpshvpn0d" path="res://assets/sounds/turnstart.wav" id="27_aidi8"]
+[ext_resource type="AudioStream" uid="uid://bthgiipjqcob5" path="res://assets/sounds/turnstart.wav" id="27_aidi8"]
 
 [node name="GameScene" type="Node2D"]
 script = ExtResource("1_4f5jr")

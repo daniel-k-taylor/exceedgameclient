@@ -44,7 +44,7 @@ const RevealCopyIdRangestart = 80000
 const ReferenceScreenIdRangeStart = 90000
 const NoticeOffsetY = 50
 
-const GameTimerLength : float = 15 * 60 + 5 # 15 minutes and 5 buffer seconds
+const GameTimerLength : float = 10 #15 * 60 + 5 # 15 minutes and 5 buffer seconds
 var player_clock_remaining : float = GameTimerLength
 var opponent_clock_remaining : float = GameTimerLength
 var current_clock_user : Enums.PlayerId = Enums.PlayerId.PlayerId_Unassigned
