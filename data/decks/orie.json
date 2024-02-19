@@ -46,50 +46,26 @@
 			"timing": "set_strike",
 			"condition": "used_character_action",
 			"condition_details": ["default", 0],
-			"effect_type": "powerup",
-			"amount": -1,
-			"and": {
-				"effect_type": "speedup",
-				"amount": -1,
-				"and": {
-					"effect_type": "add_attack_effect",
-					"added_effect": {
-						"timing": "hit",
-						"effect_type": "gain_advantage"
-					}
-				}
+			"effect_type": "add_attack_effect",
+			"added_effect": {
+				"timing": "during_strike",
+				"condition": "is_special_or_ultra_attack",
+				"effect_type": "armorup",
+				"amount": 2
 			}
 		}
 	],
 	"exceed_ability_effects": [
 		{
+			"character_effect": true,
 			"timing": "set_strike",
 			"condition": "used_character_action",
 			"condition_details": ["exceed", 0],
-			"effect_type": "choice",
-			"choice": [
-				{
-					"character_effect": true,
-					"effect_type": "powerup_opponent",
-					"amount": 1,
-					"and": {
-						"effect_type": "powerup",
-						"amount": 2
-					}
-				},
-				{
-					"character_effect": true,
-					"effect_type": "powerup_opponent",
-					"amount": 1,
-					"and": {
-						"effect_type": "add_attack_effect",
-						"added_effect": {
-							"timing": "hit",
-							"effect_type": "gain_advantage"
-						}
-					}
-				}
-			]
+			"effect_type": "add_attack_effect",
+			"added_effect": {
+				"timing": "hit",
+				"effect_type": "use_top_discard_as_printed_power"
+			}
 		}
 	],
 	"cards": [

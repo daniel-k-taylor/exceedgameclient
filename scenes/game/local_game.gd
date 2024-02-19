@@ -6057,6 +6057,17 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 			performing_player.strike_stat_boosts.overwrite_printed_power = true
 			performing_player.strike_stat_boosts.overwritten_printed_power = performing_player.saved_power
 			_append_log_full(Enums.LogType.LogType_Effect, performing_player, "sets their attack's printed power to %s!" % performing_player.saved_power)
+		"use_top_discard_as_printed_power":
+			if len(performing_player.discards) > 0:
+				var card = performing_player.discards[-1]
+				var power = max(get_card_stat(performing_player, card, 'power'), 0)
+				performing_player.strike_stat_boosts.overwritten_printed_power = power
+				var card_name = card_db.get_card_name(card.id)
+				_append_log_full(Enums.LogType.LogType_Effect, performing_player, "sets their attack's printed power to the power of %s on top of discards, %s!" % [card_name, power])
+			else:
+				performing_player.strike_stat_boosts.overwritten_printed_power = 0
+				_append_log_full(Enums.LogType.LogType_Effect, performing_player, "has no discards, their attack's printed power is set to 0.")
+			performing_player.strike_stat_boosts.overwrite_printed_power = true
 		"seal_attack_on_cleanup":
 			performing_player.strike_stat_boosts.seal_attack_on_cleanup = true
 		"seal_card_INTERNAL":
