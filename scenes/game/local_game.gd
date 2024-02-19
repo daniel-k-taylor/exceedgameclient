@@ -2463,8 +2463,8 @@ class Player:
 		events += [parent.create_event(Enums.EventType.EventType_Move, my_id, new_location, movement_type, amount, previous_location)]
 		if position_changed:
 			on_position_changed(previous_location, get_buddy_location(), is_self_move)
-			events += add_boosts_to_gauge_on_move()
-
+			if is_self_move:
+				events += add_boosts_to_gauge_on_move()
 
 		if set_x_to_buddy_spaces_entered:
 			var buddy_spaces_entered = len(opponent_buddies_encountered_in_order)
@@ -2491,7 +2491,7 @@ class Player:
 			events += [parent.create_event(Enums.EventType.EventType_Move, my_id, new_location, "move", distance, previous_location)]
 			if previous_location != arena_location:
 				on_position_changed(previous_location, get_buddy_location(), true)
-				events += add_boosts_to_gauge_on_move()
+				# This is used for resetting positions; don't process remove-on-move boosts, since it's not an advance/retreat
 		else:
 			if arena_location < new_location:
 				events += move_in_direction_by_amount(false, distance, false, -1, "move", true, remove_buddies_encountered)

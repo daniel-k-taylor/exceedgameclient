@@ -260,6 +260,17 @@ func test_hyde_charged_attack_advance_before():
 	validate_positions(player1, 5, player2, 6)
 	validate_life(player1, 26, player2, 28)
 
+func test_hyde_charged_attack_pushed_before():
+	position_players(player1, 5, player2, 6)
+
+	give_player_specific_card(player1, "hyde_redcladcraver", TestCardId3)
+	assert_true(game_logic.do_boost(player1, TestCardId3))
+	advance_turn(player2)
+	execute_strike(player1, player2, "uni_normal_sweep", "uni_normal_grasp", [], [1])
+	assert_true(player1.is_card_in_discards(TestCardId3))
+	validate_positions(player1, 3, player2, 6)
+	validate_life(player1, 27, player2, 22)
+
 func test_hyde_dead_set_daze_ex_speed_boost():
 	position_players(player1, 3, player2, 4)
 
