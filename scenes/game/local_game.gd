@@ -26,6 +26,7 @@ const StrikeStaticConditions = [
 	"initiated_strike", "not_initiated_strike",
 	"exceeded", "not_exceeded",
 	"buddy_in_play",
+	"boost_caused_start_of_turn_strike",
 	"used_character_bonus",
 	"used_character_action",
 	"hit_opponent",
@@ -308,6 +309,7 @@ class Strike:
 	var initiator_wild_strike : bool = false
 	var initiator_set_from_gauge : bool = false
 	var initiator_set_face_up : bool = false
+	var defender_set_face_up : bool = false
 	var defender_wild_strike : bool = false
 	var strike_state
 	var starting_distance : int = -1
@@ -623,6 +625,7 @@ class Player:
 	var used_character_action : bool
 	var used_character_action_details : Array
 	var used_character_bonus : bool
+	var start_of_turn_strike : bool
 	var force_spent_before_strike : int
 	var gauge_spent_before_strike : int
 	var exceed_at_end_of_turn : bool
@@ -727,6 +730,7 @@ class Player:
 		used_character_action = false
 		used_character_action_details = []
 		used_character_bonus = false
+		start_of_turn_strike = false
 		force_spent_before_strike = 0
 		gauge_spent_before_strike = 0
 		exceed_at_end_of_turn = false
@@ -3092,6 +3096,8 @@ func advance_to_next_turn():
 	opponent.used_character_action_details = []
 	player.used_character_bonus = false
 	opponent.used_character_bonus = false
+	player.start_of_turn_strike = false
+	opponent.start_of_turn_strike = false
 	player.force_spent_before_strike = 0
 	opponent.force_spent_before_strike = 0
 	player.gauge_spent_before_strike = 0
@@ -3200,8 +3206,9 @@ func continue_begin_turn():
 			var effect = starting_turn_player.effect_on_turn_start
 			starting_turn_player.effect_on_turn_start = null
 			# Pretend this is a character action.
-			# Currently, this only does a choice which results in bonus action and boosting something.
-			# So execution will resume in do_choice as if this was a character action being processed.
+			# Currently, this either does a choice which results in bonus action and boosting something
+			# or causes a strike to begin. So execution will resume in do_choice or do_strike as if this
+			# was the appropriate action
 			active_character_action = true
 			set_player_action_processing_state()
 			events += do_effect_if_condition_met(starting_turn_player, -1, effect, null)
@@ -3521,6 +3528,8 @@ func is_effect_condition_met(performing_player : Player, effect, local_condition
 				return true
 		elif condition == "used_character_bonus":
 			return performing_player.used_character_bonus
+		elif condition == "boost_caused_start_of_turn_strike":
+			return performing_player.start_of_turn_strike
 		elif condition == "hit_opponent":
 			if active_strike.extra_attack_in_progress:
 				return active_strike.extra_attack_data.extra_attack_hit
@@ -4423,6 +4432,11 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 			events += performing_player.discard_topdeck()
 		"draw_or_discard_to":
 			events += handle_player_draw_or_discard_to_effect(performing_player, card_id, effect)
+		"draw_for_card_in_hand":
+			var hand_size = performing_player.hand.size()
+			if hand_size > 0:
+				_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "draws %s card(s)." % hand_size)
+				events += performing_player.draw(hand_size)
 		"draw_to":
 			var target_hand_size = effect['amount']
 			var hand_size = performing_player.hand.size()
@@ -5068,6 +5082,11 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 				active_strike.initiator_set_face_up = true
 				_append_log_full(Enums.LogType.LogType_Strike, performing_player, "initiates with a face-up attack!")
 				var card_name = card_db.get_card_name(active_strike.initiator_card.id)
+				_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "is striking with %s." % card_name)
+			else:
+				active_strike.defender_set_face_up = true
+				_append_log_full(Enums.LogType.LogType_Strike, performing_player, "responds with a face-up attack!")
+				var card_name = card_db.get_card_name(active_strike.defender_card.id)
 				_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "is striking with %s." % card_name)
 			events += [create_event(Enums.EventType.EventType_RevealStrike_OnePlayer, performing_player.my_id, 0)]
 		"may_generate_gauge_with_force":
@@ -6015,10 +6034,10 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 			events += performing_player.reshuffle_discard(false, true)
 		"retreat":
 			var amount = effect['amount']
-			amount += performing_player.strike_stat_boosts.increase_movement_effects_by
-
 			if str(amount) == "strike_x":
 				amount = performing_player.strike_stat_boosts.strike_x
+			amount += performing_player.strike_stat_boosts.increase_movement_effects_by
+
 			var previous_location = performing_player.arena_location
 			events += performing_player.retreat(amount)
 			var new_location = performing_player.arena_location
@@ -6364,6 +6383,9 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 			if performing_player.life <= 0:
 				_append_log_full(Enums.LogType.LogType_Default, performing_player, "has no life remaining!")
 				events += on_death(performing_player)
+		"start_of_turn_strike":
+			performing_player.start_of_turn_strike = true
+			performing_player.effect_on_turn_start = { "effect_type": "strike" }
 		"strike":
 			# Cannot strike during a strike.
 			if not active_strike:
@@ -7066,7 +7088,7 @@ func do_set_strike_x(performing_player : Player, source : String, extra_info):
 				_append_log_full(Enums.LogType.LogType_Strike, performing_player, "has no cards in gauge, so X is set to 0.")
 		"top_discard_power":
 			if len(performing_player.discards) > 0:
-				var card = performing_player.discards[-1]
+				var card = performing_player.get_top_discard_card()
 				var power = get_card_stat(performing_player, card, 'power')
 				value = max(power, 0)
 				var card_name = card_db.get_card_name(card.id)
@@ -7513,13 +7535,21 @@ func ask_for_cost(performing_player, card, next_state):
 	if 'gauge_discard_reminder' in card.definition:
 		gauge_discard_reminder = true
 
-	if performing_player.strike_stat_boosts.may_generate_gauge_with_force:
+	if performing_player.strike_stat_boosts.may_generate_gauge_with_force and gauge_cost > 0:
 		# Convert the gauge cost to a force cost.
 		force_cost = gauge_cost
 		gauge_cost = 0
 
 	var card_in_invalid_list = card.definition['display_name'] in performing_player.cards_invalid_during_strike
-	var card_forced_invalid = (is_special and performing_player.specials_invalid) or card_in_invalid_list
+
+	var invalidate_if_not_faceup = 'invalid_if_not_set_face_up' in card.definition and card.definition['invalid_if_not_set_face_up']
+	var invalid_because_facedown = false
+	if invalidate_if_not_faceup:
+		if performing_player == active_strike.initiator:
+			invalid_because_facedown = not active_strike.initiator_set_face_up
+		else:
+			invalid_because_facedown = not active_strike.defender_set_face_up
+	var card_forced_invalid = (is_special and performing_player.specials_invalid) or card_in_invalid_list or invalid_because_facedown
 	# Even if the cost can be paid for free, if the card has a cost wild swing is allowed.
 	var was_wild_swing = active_strike.get_player_wild_strike(performing_player)
 	var can_invalidate_ultra = is_ultra and performing_player.strike_stat_boosts.may_invalidate_ultras
