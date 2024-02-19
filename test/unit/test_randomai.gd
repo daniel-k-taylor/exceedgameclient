@@ -338,28 +338,33 @@ func run_ai_game():
 
 		var turn_events = []
 		turn_events += handle_decisions(game_logic) #Handles overdrives
-		var turn_action = current_ai.take_turn(game_logic, current_player.my_id)
-		if turn_action is AIPlayer.PrepareAction:
-			turn_events += handle_prepare(game_logic, current_player)
-		elif turn_action is AIPlayer.MoveAction:
-			turn_events += handle_move(game_logic, current_player, turn_action)
-		elif turn_action is AIPlayer.ChangeCardsAction:
-			turn_events += handle_change_cards(game_logic, current_player, turn_action)
-		elif turn_action is AIPlayer.ExceedAction:
-			turn_events += handle_exceed(game_logic, other_ai, current_player, turn_action)
-		elif turn_action is AIPlayer.ReshuffleAction:
-			turn_events += handle_reshuffle(game_logic, current_player)
-		elif turn_action is AIPlayer.BoostAction:
-			turn_events += handle_boost(game_logic, current_ai, other_ai, current_player, turn_action)
-		elif turn_action is AIPlayer.StrikeAction:
-			turn_events += handle_strike(game_logic, current_ai, other_ai, turn_action)
-		elif turn_action is AIPlayer.CharacterActionAction:
-			turn_events += handle_character_action(game_logic, current_ai, other_ai, turn_action)
-		else:
-			fail_test("Unknown turn action: %s" % turn_action)
-			assert(false, "Unknown turn action: %s" % turn_action)
+
+		if game_logic.game_state != Enums.GameState.GameState_WaitForStrike:
+			var turn_action = current_ai.take_turn(game_logic, current_player.my_id)
+			if turn_action is AIPlayer.PrepareAction:
+				turn_events += handle_prepare(game_logic, current_player)
+			elif turn_action is AIPlayer.MoveAction:
+				turn_events += handle_move(game_logic, current_player, turn_action)
+			elif turn_action is AIPlayer.ChangeCardsAction:
+				turn_events += handle_change_cards(game_logic, current_player, turn_action)
+			elif turn_action is AIPlayer.ExceedAction:
+				turn_events += handle_exceed(game_logic, other_ai, current_player, turn_action)
+			elif turn_action is AIPlayer.ReshuffleAction:
+				turn_events += handle_reshuffle(game_logic, current_player)
+			elif turn_action is AIPlayer.BoostAction:
+				turn_events += handle_boost(game_logic, current_ai, other_ai, current_player, turn_action)
+			elif turn_action is AIPlayer.StrikeAction:
+				turn_events += handle_strike(game_logic, current_ai, other_ai, turn_action)
+			elif turn_action is AIPlayer.CharacterActionAction:
+				turn_events += handle_character_action(game_logic, current_ai, other_ai, turn_action)
+			else:
+				fail_test("Unknown turn action: %s" % turn_action)
+				assert(false, "Unknown turn action: %s" % turn_action)
 
 		turn_events += handle_decisions(game_logic)
+		if game_logic._get_player(game_logic.active_turn_player) != current_player:
+			continue
+
 		if game_logic.game_state == Enums.GameState.GameState_WaitForStrike:
 			# Can theoretically get here after a boost or an exceed.
 			var strike_action = null
@@ -599,3 +604,9 @@ func test_cammy_100():
 
 func test_londrekia_100():
 	run_iterations_with_deck("londrekia")
+
+func test_orie_100():
+	run_iterations_with_deck("orie")
+
+func test_waldstein_100():
+	run_iterations_with_deck("waldstein")

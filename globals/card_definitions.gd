@@ -237,6 +237,8 @@ func get_condition_text(effect, amount, amount2, detail):
 			text += "If initiated strike, "
 		"hit_opponent":
 			text += "If hit opponent, "
+		"not_hit_opponent":
+			text += "If did not hit opponent, "
 		"last_turn_was_strike":
 			text += "If last turn was a strike, "
 		"not_last_turn_was_strike":
@@ -286,6 +288,8 @@ func get_condition_text(effect, amount, amount2, detail):
 			text += ""
 		"used_character_bonus":
 			text += ""
+		"boost_caused_start_of_turn_strike":
+			text += "If this boost makes you strike, "
 		"range":
 			text += "If the opponent is at range %s, " % amount
 		"range_greater_or_equal":
@@ -297,7 +301,7 @@ func get_condition_text(effect, amount, amount2, detail):
 		"is_special_attack":
 			text += ""
 		"is_special_or_ultra_attack":
-			text += ""
+			text += "For specials/ultras, "
 		"is_normal_attack":
 			text += "If you strike with a normal, "
 		"deck_not_empty":
@@ -689,6 +693,8 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 			effect_str += "Ignore Push and Pull"
 		"increase_force_spent_before_strike":
 			effect_str += get_effect_text(effect['linked_effect'], false, false, false)
+		"increase_movement_effects":
+			effect_str += "Increase advance/retreat effects by %s" % effect['amount']
 		"lightningrod_strike":
 			effect_str += "Return %s to hand to deal 2 nonlethal damage" % effect['card_name']
 		"reset_character_positions":
@@ -754,6 +760,8 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 			effect_str += "Opponent wild swings."
 		"pass":
 			effect_str += "Pass"
+			if 'description' in effect:
+				effect_str += " (%s)" % effect['description']
 		"place_buddy_at_range":
 			if effect['range_min'] == effect['range_max']:
 				effect_str += "Place %s at range %s" % [effect['buddy_name'], effect['range_min']]
@@ -928,6 +936,8 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 			effect_str += "Skip your end of turn draw"
 		"use_saved_power_as_printed_power":
 			effect_str += "Your printed power is the revealed card's power"
+		"use_top_discard_as_printed_power":
+			effect_str += "Your printed power is the top discard's power"
 		"set_dan_draw_choice_INTERNAL":
 			if effect['from_bottom']:
 				effect_str += "Draw from bottom of deck"
@@ -1013,6 +1023,8 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 			effect_str += "Discard all cards in gauge"
 		"spend_life":
 			effect_str += "Spend " + str(effect['amount']) + " life"
+		"start_of_turn_strike":
+			effect_str += "Strike"
 		"strike":
 			effect_str += "Strike"
 		"strike_wild":

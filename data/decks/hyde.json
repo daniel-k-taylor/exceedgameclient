@@ -73,8 +73,11 @@
 			"effect_type": "powerup",
 			"amount": 3,
 			"and": {
-				"timing": "cleanup",
-				"effect_type": "seal_this"
+				"effect_type": "add_attack_effect",
+				"added_effect": {
+					"timing": "cleanup",
+					"effect_type": "seal_this"
+				}
 			}
 		}
 	],

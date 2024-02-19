@@ -1,0 +1,61 @@
+[gd_resource type="SpriteFrames" load_steps=13 format=3 uid="uid://2mjn3k0vaq6n"]
+
+[ext_resource type="Texture2D" uid="uid://cxy5crhfflgk2" path="res://assets/character_animations/waldstein/idle/000.png" id="1_yn7cq"]
+[ext_resource type="Texture2D" uid="uid://dlsxusn4461te" path="res://assets/character_animations/waldstein/idle/001.png" id="2_pd8tx"]
+[ext_resource type="Texture2D" uid="uid://buydpxi71v3ib" path="res://assets/character_animations/waldstein/idle/002.png" id="3_hncyi"]
+[ext_resource type="Texture2D" uid="uid://vv7qnxupehqx" path="res://assets/character_animations/waldstein/idle/003.png" id="4_k3e6v"]
+[ext_resource type="Texture2D" uid="uid://bc3tr37w2qbrg" path="res://assets/character_animations/waldstein/idle/004.png" id="5_xmrem"]
+[ext_resource type="Texture2D" uid="uid://gpndx5uekdx3" path="res://assets/character_animations/waldstein/idle/005.png" id="6_mku5p"]
+[ext_resource type="Texture2D" uid="uid://bysf80debwfu8" path="res://assets/character_animations/waldstein/idle/006.png" id="7_8cy4n"]
+[ext_resource type="Texture2D" uid="uid://4uox2q4unmi8" path="res://assets/character_animations/waldstein/idle/007.png" id="8_oqiuo"]
+[ext_resource type="Texture2D" uid="uid://c78q826i6eexq" path="res://assets/character_animations/waldstein/idle/008.png" id="9_ixdwl"]
+[ext_resource type="Texture2D" uid="uid://dfjm6p6yei208" path="res://assets/character_animations/waldstein/idle/009.png" id="10_t10p6"]
+[ext_resource type="Texture2D" uid="uid://bmvxg4qo7r6h3" path="res://assets/character_animations/waldstein/idle/010.png" id="11_lpnea"]
+[ext_resource type="Texture2D" uid="uid://df6g3v6vr18gn" path="res://assets/character_animations/waldstein/idle/011.png" id="12_0haug"]
+
+[resource]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("1_yn7cq")
+}, {
+"duration": 1.0,
+"texture": ExtResource("2_pd8tx")
+}, {
+"duration": 1.0,
+"texture": ExtResource("3_hncyi")
+}, {
+"duration": 1.0,
+"texture": ExtResource("4_k3e6v")
+}, {
+"duration": 1.0,
+"texture": ExtResource("5_xmrem")
+}, {
+"duration": 1.0,
+"texture": ExtResource("6_mku5p")
+}, {
+"duration": 1.0,
+"texture": ExtResource("7_8cy4n")
+}, {
+"duration": 1.0,
+"texture": ExtResource("8_oqiuo")
+}, {
+"duration": 1.0,
+"texture": ExtResource("9_ixdwl")
+}, {
+"duration": 1.0,
+"texture": ExtResource("10_t10p6")
+}, {
+"duration": 1.0,
+"texture": ExtResource("11_lpnea")
+}, {
+"duration": 1.0,
+"texture": ExtResource("12_0haug")
+}],
+"loop": true,
+"name": &"idle",
+"speed": 5.0
+}]
+metadata/flip = true
+metadata/scaling = 0.7
+metadata/vertical_offset = -10.0
