@@ -21773,53 +21773,48 @@
 	{
 		"id": "waldstein_wirbelwind",
 		"type": "special",
-		"display_name": "To Me! (Command Order)",
+		"display_name": "Wirbelwind",
 		"force_cost": 0,
 		"gauge_cost": 0,
 		"range_min": 1,
 		"range_max": 2,
 		"speed": 4,
-		"power": 3,
-		"armor": 0,
-		"guard": 0,
+		"power": 6,
+		"armor": 1,
+		"guard": 2,
 		"effects": [
 			{
 				"timing": "during_strike",
-				"effect_type": "stun_immunity",
-				"and": {
-					"effect_type": "ignore_push_and_pull"
-				}
+				"effect_type": "dodge_at_range",
+				"range_min": 4,
+				"range_max": 9
 			},
 			{
 				"timing": "hit",
-				"effect_type": "gain_advantage",
-				"and": {
-					"effect_type": "choice",
-					"choice": [
-						{ "effect_type": "advance", "amount": 1 },
-						{ "effect_type": "retreat", "amount": 1 }
-					]
-				}
+				"effect_type": "push",
+				"amount": 3
+			},
+			{
+				"timing": "after",
+				"effect_type": "advance",
+				"amount": 2
 			}
 		],
 		"boost": {
 			"boost_type": "immediate",
 			"force_cost": 0,
 			"cancel_cost": -1,
-			"display_name": "Aerial Leap",
+			"display_name": "Blowback",
 			"effects": [
 				{
 					"timing": "immediate",
-					"effect_type": "advance",
-					"amount": 4,
-					"bonus_effect": {
-						"condition": "advanced_through",
-						"effect_type": "choice",
-						"choice": [
-							{ "effect_type": "strike" },
-							{ "effect_type": "pass" }
-						]
-					}
+					"condition": "range",
+					"condition_amount": 1,
+					"effect_type": "choice",
+					"choice": [
+						{ "effect_type": "push", "amount": 1, "and": { "effect_type": "strike" } },
+						{ "effect_type": "push", "amount": 2, "and": { "effect_type": "strike" } }
+					]
 				}
 			]
 		}
@@ -21827,89 +21822,35 @@
 	{
 		"id": "waldstein_eisennagel",
 		"type": "special",
-		"display_name": "Sealing Hoplon",
+		"display_name": "Eisen Nagel",
 		"force_cost": 0,
 		"gauge_cost": 0,
-		"range_min": 1,
-		"range_max": 3,
+		"range_min": 2,
+		"range_max": 4,
 		"speed": 3,
-		"power": 2,
-		"armor": 0,
-		"guard": 0,
+		"power": 6,
+		"armor": 1,
+		"guard": 2,
 		"effects": [
 			{
-				"timing": "during_strike",
-				"effect_type": "stun_immunity",
-				"and": {
-					"effect_type": "ignore_guard"
-				}
+				"timing": "hit",
+				"effect_type": "choice",
+				"choice": [
+					{ "effect_type": "push", "amount": 1 },
+					{ "effect_type": "pull", "amount": 1 }
+				]
 			},
 			{
-				"timing": "hit",
-				"effect_type": "gain_advantage",
-				"and": {
-					"effect_type": "choice",
-					"choice": [
-						{ "effect_type": "advance", "amount": 1 },
-						{ "effect_type": "retreat", "amount": 1 }
-					]
-				}
+				"timing": "after",
+				"condition": "opponent_stunned",
+				"effect_type": "gain_advantage"
 			}
 		],
 		"boost": {
 			"boost_type": "continuous",
 			"force_cost": 0,
 			"cancel_cost": -1,
-			"display_name": "Wide",
-			"effects": [
-				{
-					"timing": "during_strike",
-					"effect_type": "rangeup",
-					"amount": 0,
-					"amount2": 1
-				},
-				{
-					"timing": "now",
-					"effect_type": "choice",
-					"choice": [
-						{ "effect_type": "advance", "amount": 1 },
-						{ "effect_type": "retreat", "amount": 1 }
-					]
-				}
-			]
-		}
-	},
-	{
-		"id": "waldstein_sturmangriff",
-		"type": "special",
-		"display_name": "Succession",
-		"force_cost": 0,
-		"gauge_cost": 0,
-		"range_min": 3,
-		"range_max": 5,
-		"speed": 2,
-		"power": 3,
-		"armor": 0,
-		"guard": 0,
-		"effects": [
-			{
-				"timing": "during_strike",
-				"effect_type": "stun_immunity"
-			},
-			{
-				"timing": "hit",
-				"effect_type": "gain_advantage",
-				"and": {
-					"effect_type": "pull",
-					"amount": 3
-				}
-			}
-		],
-		"boost": {
-			"boost_type": "continuous",
-			"force_cost": 0,
-			"cancel_cost": -1,
-			"display_name": "Defensive",
+			"display_name": "Flex",
 			"effects": [
 				{
 					"timing": "during_strike",
@@ -21922,11 +21863,62 @@
 				},
 				{
 					"timing": "now",
-					"effect_type": "choice",
-					"choice": [
-						{ "effect_type": "advance", "amount": 1 },
-						{ "effect_type": "retreat", "amount": 1 }
-					]
+					"effect_type": "strike"
+				}
+			]
+		}
+	},
+	{
+		"id": "waldstein_sturmangriff",
+		"type": "special",
+		"display_name": "Sturmangriff",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 1,
+		"speed": 2,
+		"power": 5,
+		"armor": 1,
+		"guard": 2,
+		"effects": [
+			{
+				"timing": "before",
+				"effect_type": "close",
+				"amount": 4
+			},
+			{
+				"timing": "hit",
+				"effect_type": "choice",
+				"choice": [
+					{ "effect_type": "push", "amount": 3 },
+					{ "effect_type": "pull", "amount": 3 }
+				]
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Face Me!",
+			"effects": [
+				{
+					"timing": "now",
+					"effect_type": "draw",
+					"amount": 2
+				},
+				{
+					"timing": "start_of_next_turn",
+					"effect_type": "start_of_turn_strike"
+				},
+				{
+					"timing": "during_strike",
+					"condition": "boost_caused_start_of_turn_strike",
+					"effect_type": "speedup",
+					"amount": 2,
+					"and": {
+						"effect_type": "armorup",
+						"amount": 2
+					}
 				}
 			]
 		}
@@ -21935,40 +21927,52 @@
 		"NOTE": "WALDSTEIN CARDS END",
 		"id": "waldstein_ferzenvolf",
 		"type": "special",
-		"display_name": "Sacred Arrow",
+		"display_name": "Ferzen Volf",
 		"force_cost": 0,
 		"gauge_cost": 0,
 		"range_min": 1,
-		"range_max": 2,
-		"speed": 2,
-		"power": 5,
-		"armor": 0,
-		"guard": 0,
+		"range_max": 3,
+		"speed": 1,
+		"power": 4,
+		"armor": 1,
+		"guard": 2,
 		"effects": [
 			{
 				"timing": "during_strike",
-				"effect_type": "higher_speed_misses",
-				"dodge_at_speed_greater_or_equal": 5
+				"effect_type": "ignore_push_and_pull"
+			},
+			{
+				"timing": "before",
+				"condition": "range",
+				"condition_amount": 1,
+				"effect_type": "push",
+				"amount": 2,
+				"and": {
+					"effect_type": "powerup",
+					"amount": 2
+				}
+			},
+			{
+				"timing": "hit",
+				"effect_type": "push",
+				"amount": 2
 			}
 		],
 		"boost": {
 			"boost_type": "continuous",
-			"force_cost": 0,
+			"force_cost": 1,
 			"cancel_cost": -1,
-			"display_name": "Tactical",
+			"display_name": "Reach",
 			"effects": [
 				{
 					"timing": "during_strike",
-					"effect_type": "speedup",
-					"amount": 1
+					"effect_type": "rangeup",
+					"amount": 0,
+					"amount2": 1
 				},
 				{
 					"timing": "now",
-					"effect_type": "choice",
-					"choice": [
-						{ "effect_type": "advance", "amount": 1 },
-						{ "effect_type": "retreat", "amount": 1 }
-					]
+					"effect_type": "strike"
 				}
 			]
 		},

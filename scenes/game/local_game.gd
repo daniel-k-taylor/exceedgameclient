@@ -26,6 +26,7 @@ const StrikeStaticConditions = [
 	"initiated_strike", "not_initiated_strike",
 	"exceeded", "not_exceeded",
 	"buddy_in_play",
+	"boost_caused_start_of_turn_strike",
 	"used_character_bonus",
 	"used_character_action",
 	"hit_opponent",
@@ -623,6 +624,7 @@ class Player:
 	var used_character_action : bool
 	var used_character_action_details : Array
 	var used_character_bonus : bool
+	var start_of_turn_strike : bool
 	var force_spent_before_strike : int
 	var gauge_spent_before_strike : int
 	var exceed_at_end_of_turn : bool
@@ -727,6 +729,7 @@ class Player:
 		used_character_action = false
 		used_character_action_details = []
 		used_character_bonus = false
+		start_of_turn_strike = false
 		force_spent_before_strike = 0
 		gauge_spent_before_strike = 0
 		exceed_at_end_of_turn = false
@@ -3092,6 +3095,8 @@ func advance_to_next_turn():
 	opponent.used_character_action_details = []
 	player.used_character_bonus = false
 	opponent.used_character_bonus = false
+	player.start_of_turn_strike = false
+	opponent.start_of_turn_strike = false
 	player.force_spent_before_strike = 0
 	opponent.force_spent_before_strike = 0
 	player.gauge_spent_before_strike = 0
@@ -3200,8 +3205,9 @@ func continue_begin_turn():
 			var effect = starting_turn_player.effect_on_turn_start
 			starting_turn_player.effect_on_turn_start = null
 			# Pretend this is a character action.
-			# Currently, this only does a choice which results in bonus action and boosting something.
-			# So execution will resume in do_choice as if this was a character action being processed.
+			# Currently, this either does a choice which results in bonus action and boosting something
+			# or causes a strike to begin. So execution will resume in do_choice or do_strike as if this
+			# was the appropriate action
 			active_character_action = true
 			set_player_action_processing_state()
 			events += do_effect_if_condition_met(starting_turn_player, -1, effect, null)
@@ -3521,6 +3527,8 @@ func is_effect_condition_met(performing_player : Player, effect, local_condition
 				return true
 		elif condition == "used_character_bonus":
 			return performing_player.used_character_bonus
+		elif condition == "boost_caused_start_of_turn_strike":
+			return performing_player.start_of_turn_strike
 		elif condition == "hit_opponent":
 			if active_strike.extra_attack_in_progress:
 				return active_strike.extra_attack_data.extra_attack_hit
@@ -6364,6 +6372,9 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 			if performing_player.life <= 0:
 				_append_log_full(Enums.LogType.LogType_Default, performing_player, "has no life remaining!")
 				events += on_death(performing_player)
+		"start_of_turn_strike":
+			performing_player.start_of_turn_strike = true
+			performing_player.effect_on_turn_start = { "effect_type": "strike" }
 		"strike":
 			# Cannot strike during a strike.
 			if not active_strike:

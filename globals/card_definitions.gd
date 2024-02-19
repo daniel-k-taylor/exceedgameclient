@@ -286,6 +286,8 @@ func get_condition_text(effect, amount, amount2, detail):
 			text += ""
 		"used_character_bonus":
 			text += ""
+		"boost_caused_start_of_turn_strike":
+			text += "If this boost makes you strike, "
 		"range":
 			text += "If the opponent is at range %s, " % amount
 		"range_greater_or_equal":
@@ -1017,6 +1019,8 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 			effect_str += "Discard all cards in gauge"
 		"spend_life":
 			effect_str += "Spend " + str(effect['amount']) + " life"
+		"start_of_turn_strike":
+			effect_str += "Strike"
 		"strike":
 			effect_str += "Strike"
 		"strike_wild":
