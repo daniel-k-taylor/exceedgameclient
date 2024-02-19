@@ -253,20 +253,20 @@ text = "Player    -      Room"
 
 [node name="ReconnectToServerButton" type="Button" parent="."]
 layout_mode = 0
-offset_left = 43.0
-offset_top = 581.0
-offset_right = 335.0
-offset_bottom = 673.0
+offset_left = 476.0
+offset_top = 589.0
+offset_right = 768.0
+offset_bottom = 681.0
 theme_override_font_sizes/font_size = 32
 text = "Reconnect to 
 Server"
 
 [node name="ServerStatusLabel" type="Label" parent="."]
 layout_mode = 0
-offset_left = 465.0
-offset_top = 614.0
-offset_right = 796.0
-offset_bottom = 659.0
+offset_left = 460.0
+offset_top = 674.0
+offset_right = 791.0
+offset_bottom = 719.0
 theme_override_font_sizes/font_size = 32
 text = "Connecting to server...."
 
@@ -329,9 +329,9 @@ text = "10"
 [node name="SettingsPanel" type="MarginContainer" parent="."]
 custom_minimum_size = Vector2(100, 100)
 layout_mode = 0
-offset_left = 1100.0
+offset_left = 20.0
 offset_top = 600.0
-offset_right = 1200.0
+offset_right = 291.0
 offset_bottom = 700.0
 
 [node name="VBoxContainer" type="VBoxContainer" parent="SettingsPanel"]
@@ -342,6 +342,12 @@ layout_mode = 2
 theme_override_font_sizes/font_size = 30
 button_pressed = true
 text = "BGM"
+
+[node name="GameSoundsCheckBox" type="CheckBox" parent="SettingsPanel/VBoxContainer"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 30
+button_pressed = true
+text = "Game Turn Sound"
 
 [node name="ModalList" parent="." instance=ExtResource("9_ro6xo")]
 visible = false
@@ -406,5 +412,6 @@ text = "##"
 [connection signal="pressed" from="PlayerListContainer/PlayerListHBox/PlayersButton" to="." method="_on_players_button_pressed"]
 [connection signal="pressed" from="RoomListContainer/RoomListHBox/MatchesButton" to="." method="_on_matches_button_pressed"]
 [connection signal="toggled" from="SettingsPanel/VBoxContainer/BGMCheckBox" to="." method="_on_bgm_check_box_toggled"]
+[connection signal="toggled" from="SettingsPanel/VBoxContainer/GameSoundsCheckBox" to="." method="_on_game_sounds_check_box_toggled"]
 [connection signal="join_match_pressed" from="ModalList" to="." method="_on_modal_list_join_match_pressed"]
 [connection signal="observe_match_pressed" from="ModalList" to="." method="_on_modal_list_observe_match_pressed"]

@@ -375,6 +375,9 @@ func _on_bgm_check_box_toggled(button_pressed : bool):
 	else:
 		stop_music()
 
+func _on_game_sounds_check_box_toggled(button_pressed):
+	GlobalSettings.set_game_sounds_enabled(button_pressed)
+
 func _on_players_button_pressed():
 	modal_list.show_player_list()
 
@@ -395,4 +398,3 @@ func _on_modal_list_observe_match_pressed(row_index):
 	var player_name = get_player_name()
 	NetworkManager.observe_room(player_name, room_name)
 	update_buttons(true)
-

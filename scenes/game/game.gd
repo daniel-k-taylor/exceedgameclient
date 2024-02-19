@@ -44,10 +44,13 @@ const RevealCopyIdRangestart = 80000
 const ReferenceScreenIdRangeStart = 90000
 const NoticeOffsetY = 50
 
-const GameTimerLength = 15 * 60 # 15 minutes
-var player_clock_remaining = GameTimerLength
-var opponent_clock_remaining = GameTimerLength
+const GameTimerLength : float = 15 * 60 + 5 # 15 minutes and 5 buffer seconds
+var player_clock_remaining : float = GameTimerLength
+var opponent_clock_remaining : float = GameTimerLength
 var current_clock_user : Enums.PlayerId = Enums.PlayerId.PlayerId_Unassigned
+const GameTimerClockServerDelay : float = 0.2
+var clock_delay_remaining : float = -1
+var player_notified_of_clock : bool = false
 
 const ChoiceTextLengthSoftCap = 45
 const ChoiceTextLengthHardCap = 60
@@ -219,6 +222,7 @@ var game_wrapper : GameWrapper = GameWrapper.new()
 @onready var observer_play_to_live_button : Button = $ObserverPlayToLive
 @onready var player_lightningrods : Node2D = $PlayerLightningRods
 @onready var opponent_lightningrods : Node2D = $OpponentLightningRods
+@onready var turnstart_audio : AudioStreamPlayer = $TurnStartAudio
 
 var player_lightningrod_tracking = {}
 var opponent_lightningrod_tracking = {}
@@ -256,6 +260,8 @@ func _ready():
 
 	if not game_wrapper.is_ai_game():
 		$AIMoveButton.visible = false
+		$PlayerLife.set_clock(GameTimerLength)
+		$OpponentLife.set_clock(GameTimerLength)
 
 	$PlayerLife.set_life(game_wrapper.get_player_life(Enums.PlayerId.PlayerId_Player))
 	$OpponentLife.set_life(game_wrapper.get_player_life(Enums.PlayerId.PlayerId_Opponent))
@@ -688,27 +694,49 @@ func _process(delta):
 			if show_thinking_spinner_in < 0:
 				$OpponentDeck/ThinkingIndicator.visible = true
 				$OpponentDeck/ThinkingIndicator.radial_initial_angle += delta * 360
-				current_clock_user = Enums.PlayerId.PlayerId_Opponent
 	else:
 		$OpponentDeck/ThinkingIndicator.visible = false
-		if current_clock_user == Enums.PlayerId.PlayerId_Unassigned:
-			if show_thinking_spinner_in < 0:
-				# Start the countdown
-				show_thinking_spinner_in = ThinkingSpinnerWaitBeforeShowTime
-			else:
-				show_thinking_spinner_in -= delta
-				if show_thinking_spinner_in < 0:
-					current_clock_user = Enums.PlayerId.PlayerId_Player
 
-	if current_clock_user != Enums.PlayerId.PlayerId_Unassigned:
-		if current_clock_user == Enums.PlayerId.PlayerId_Player:
-			player_clock_remaining -= delta
+	_process_clock(delta)
+
+func _process_clock(delta):
+	if clock_delay_remaining > 0:
+		clock_delay_remaining -= delta
+		if clock_delay_remaining <= 0:
+			# Courtesy delay is over, assign the clock user.
+			if current_clock_user == Enums.PlayerId.PlayerId_Unassigned:
+				current_clock_user = game_wrapper.get_priority_player()
+
+	if current_clock_user != Enums.PlayerId.PlayerId_Unassigned and ui_state != UIState.UIState_GameOver:
+		if events_to_process.size() > 0:
+			# Don't count down the clock while there are events to process.
+			player_notified_of_clock = false
+			return
+		elif is_mulligan_done():
+			if current_clock_user == Enums.PlayerId.PlayerId_Player:
+				player_clock_remaining -= delta
+				if not player_notified_of_clock:
+					player_notified_of_clock = true
+					if GlobalSettings.GameSoundsEnabled:
+						turnstart_audio.play()
+			elif current_clock_user == Enums.PlayerId.PlayerId_Opponent:
+				opponent_clock_remaining -= delta
+				player_notified_of_clock = false
 		else:
-			opponent_clock_remaining -= delta
+			# Mulligan is special in that both clocks count
+			if not game_wrapper.get_player_mulligan_complete(Enums.PlayerId.PlayerId_Player):
+				player_clock_remaining -= delta
+			if not game_wrapper.get_player_mulligan_complete(Enums.PlayerId.PlayerId_Opponent):
+				opponent_clock_remaining -= delta
 		_update_clocks()
 
+func is_mulligan_done():
+	return game_wrapper.get_player_mulligan_complete(Enums.PlayerId.PlayerId_Player) and game_wrapper.get_player_mulligan_complete(Enums.PlayerId.PlayerId_Opponent)
+
 func _update_clocks():
-	pass
+	if game_wrapper.is_ai_game(): return
+	$PlayerLife.set_clock(player_clock_remaining)
+	$OpponentLife.set_clock(opponent_clock_remaining)
 
 func begin_delay(delay : float, remaining_events : Array):
 	if ui_state != UIState.UIState_PlayingAnimation:
@@ -1889,7 +1917,8 @@ func _on_game_over(event):
 		game_over_label.text = "DEFEAT"
 	else:
 		game_over_label.text = "WIN!"
-		game_wrapper.submit_match_result()
+		if not observer_mode:
+			game_wrapper.submit_match_result(player_clock_remaining, opponent_clock_remaining)
 
 func _on_prepare(event):
 	var player = event['event_player']
@@ -1963,6 +1992,12 @@ func change_ui_state(new_state, new_sub_state = null):
 	if new_state == UIState.UIState_WaitingOnOpponent or new_state == UIState.UIState_WaitForGameServer:
 		show_thinking_spinner_in = -1
 		current_clock_user = Enums.PlayerId.PlayerId_Unassigned
+		clock_delay_remaining = GameTimerClockServerDelay
+	elif new_state == UIState.UIState_PlayingAnimation:
+		current_clock_user = Enums.PlayerId.PlayerId_Unassigned
+		clock_delay_remaining = GameTimerClockServerDelay
+	else:
+		current_clock_user = Enums.PlayerId.PlayerId_Player
 
 func set_instructions(text):
 	current_instruction_text = text

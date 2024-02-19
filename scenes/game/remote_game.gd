@@ -87,6 +87,9 @@ func get_game_state() -> Enums.GameState:
 func get_active_player() -> Enums.PlayerId:
 	return local_game.get_active_player()
 
+func get_priority_player() -> Enums.PlayerId:
+	return local_game.get_priority_player()
+
 func get_decision_info() -> DecisionInfo:
 	return local_game.get_decision_info()
 
@@ -481,19 +484,25 @@ func process_emote(action_message) -> void:
 	var emote = action_message['emote']
 	local_game.do_emote(game_player, is_image_emote, emote)
 
-func do_match_result():
+func do_match_result(player_clock_remaining, opponent_clock_remaining):
 	# Only the winner should be reporting.
 	var winning_player_number = _player_info['player_number']
 	var p1 = Enums.PlayerId.PlayerId_Player
 	var p2 = Enums.PlayerId.PlayerId_Opponent
+	var p1clock = player_clock_remaining
+	var p2clock = opponent_clock_remaining
 	if winning_player_number == 2:
 		p1 = Enums.PlayerId.PlayerId_Opponent
 		p2 = Enums.PlayerId.PlayerId_Player
+		p1clock = opponent_clock_remaining
+		p2clock = player_clock_remaining
 	var action_message = {
 		'action_type': 'match_result',
 		'winning_player': winning_player_number,
 		'p1life': _get_player(p1).life,
 		'p2life': _get_player(p2).life,
+		'p1clock': p1clock,
+		'p2clock': p2clock,
 	}
 	NetworkManager.submit_game_message(action_message)
 	return true

@@ -1,13 +1,14 @@
 extends Node
 
 const ReleaseLoggingEnabled = false # If true, log even on release builds.
-const UseAzureServerAlways = true # If true, always defaults to the azure server.
+const UseAzureServerAlways = false # If true, always defaults to the azure server.
 var MuteEmotes = false
 const ClientVersionString : String = "240219.1540" # YYMMDD.HHMM
 
 # Persistent Settings
 var BGMEnabled = true
 var DefaultPlayerName = ""
+var GameSoundsEnabled = true
 
 const user_settings_file = "user://settings.json"
 
@@ -43,12 +44,15 @@ func load_persistent_settings():
 		BGMEnabled = json['BGMEnabled']
 	if 'DefaultPlayerName' in json and json['DefaultPlayerName'] is String:
 		DefaultPlayerName = json['DefaultPlayerName']
+	if 'GameSoundsEnabled' in json and json['GameSoundsEnabled'] is bool:
+		GameSoundsEnabled = json['GameSoundsEnabled']
 
 
 func save_persistent_settings():
 	var settings = {
 		"BGMEnabled": BGMEnabled,
-		"DefaultPlayerName": DefaultPlayerName
+		"DefaultPlayerName": DefaultPlayerName,
+		"GameSoundsEnabled": GameSoundsEnabled
 	}
 
 	var file = FileAccess.open(user_settings_file, FileAccess.WRITE)
@@ -56,6 +60,10 @@ func save_persistent_settings():
 
 func set_bgm(value : bool):
 	BGMEnabled = value
+	save_persistent_settings()
+
+func set_game_sounds_enabled(value : bool):
+	GameSoundsEnabled = value
 	save_persistent_settings()
 
 func set_player_name(value : String):
