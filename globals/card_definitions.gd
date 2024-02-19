@@ -297,7 +297,7 @@ func get_condition_text(effect, amount, amount2, detail):
 		"is_special_attack":
 			text += ""
 		"is_special_or_ultra_attack":
-			text += ""
+			text += "For specials/ultras, "
 		"is_normal_attack":
 			text += "If you strike with a normal, "
 		"deck_not_empty":
@@ -689,6 +689,8 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 			effect_str += "Ignore Push and Pull"
 		"increase_force_spent_before_strike":
 			effect_str += get_effect_text(effect['linked_effect'], false, false, false)
+		"increase_movement_effects":
+			effect_str += "Increase advance/retreat effects by %s" % effect['amount']
 		"lightningrod_strike":
 			effect_str += "Return %s to hand to deal 2 nonlethal damage" % effect['card_name']
 		"reset_character_positions":
@@ -928,6 +930,8 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 			effect_str += "Skip your end of turn draw"
 		"use_saved_power_as_printed_power":
 			effect_str += "Your printed power is the revealed card's power"
+		"use_top_discard_as_printed_power":
+			effect_str += "Your printed power is the top discard's power"
 		"set_dan_draw_choice_INTERNAL":
 			if effect['from_bottom']:
 				effect_str += "Draw from bottom of deck"

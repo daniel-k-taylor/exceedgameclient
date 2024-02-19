@@ -491,6 +491,7 @@ class StrikeStatBoosts:
 	var buddy_immune_to_flip : bool = false
 	var may_generate_gauge_with_force : bool = false
 	var may_invalidate_ultras : bool = false
+	var increase_movement_effects_by : int = 0
 
 	func clear():
 		power = 0
@@ -562,6 +563,7 @@ class StrikeStatBoosts:
 		buddy_immune_to_flip = false
 		may_generate_gauge_with_force = false
 		may_invalidate_ultras = false
+		increase_movement_effects_by = 0
 
 	func set_ex():
 		ex_count += 1
@@ -3965,6 +3967,7 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 			var amount = effect['amount']
 			if str(amount) == "strike_x":
 				amount = performing_player.strike_stat_boosts.strike_x
+			amount += performing_player.strike_stat_boosts.increase_movement_effects_by
 
 			var stop_on_space = -1
 			if 'stop_on_space' in effect:
@@ -4366,6 +4369,8 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 				ignore_extra_effects = true
 		"close_INTERNAL":
 			var amount = effect['amount']
+			amount += performing_player.strike_stat_boosts.increase_movement_effects_by
+
 			var previous_location = performing_player.arena_location
 			events += performing_player.close(amount)
 			var new_location = performing_player.arena_location
@@ -4730,6 +4735,10 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 				_append_log_full(Enums.LogType.LogType_Effect, performing_player, "cannot be pushed or pulled!")
 		"increase_force_spent_before_strike":
 			performing_player.force_spent_before_strike += 1
+		"increase_movement_effects":
+			var amount = effect['amount']
+			performing_player.strike_stat_boosts.increase_movement_effects_by += amount
+			_append_log_full(Enums.LogType.LogType_Effect, performing_player, "'s advance and retreat effects are increased by %s!" % amount)
 		"remove_ignore_push_and_pull_passive_bonus":
 			performing_player.ignore_push_and_pull -= 1
 			if performing_player.ignore_push_and_pull == 0:
@@ -6006,6 +6015,8 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 			events += performing_player.reshuffle_discard(false, true)
 		"retreat":
 			var amount = effect['amount']
+			amount += performing_player.strike_stat_boosts.increase_movement_effects_by
+
 			if str(amount) == "strike_x":
 				amount = performing_player.strike_stat_boosts.strike_x
 			var previous_location = performing_player.arena_location
@@ -6086,6 +6097,17 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 			performing_player.strike_stat_boosts.overwrite_printed_power = true
 			performing_player.strike_stat_boosts.overwritten_printed_power = performing_player.saved_power
 			_append_log_full(Enums.LogType.LogType_Effect, performing_player, "sets their attack's printed power to %s!" % performing_player.saved_power)
+		"use_top_discard_as_printed_power":
+			if len(performing_player.discards) > 0:
+				var card = performing_player.get_top_discard_card()
+				var power = max(get_card_stat(performing_player, card, 'power'), 0)
+				performing_player.strike_stat_boosts.overwritten_printed_power = power
+				var card_name = card_db.get_card_name(card.id)
+				_append_log_full(Enums.LogType.LogType_Effect, performing_player, "sets their attack's printed power to the power of %s on top of discards, %s!" % [card_name, power])
+			else:
+				performing_player.strike_stat_boosts.overwritten_printed_power = 0
+				_append_log_full(Enums.LogType.LogType_Effect, performing_player, "has no discards, their attack's printed power is set to 0.")
+			performing_player.strike_stat_boosts.overwrite_printed_power = true
 		"seal_attack_on_cleanup":
 			performing_player.strike_stat_boosts.seal_attack_on_cleanup = true
 		"seal_card_INTERNAL":
