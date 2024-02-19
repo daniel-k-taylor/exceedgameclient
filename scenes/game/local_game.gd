@@ -309,6 +309,7 @@ class Strike:
 	var initiator_wild_strike : bool = false
 	var initiator_set_from_gauge : bool = false
 	var initiator_set_face_up : bool = false
+	var defender_set_face_up : bool = false
 	var defender_wild_strike : bool = false
 	var strike_state
 	var starting_distance : int = -1
@@ -4431,6 +4432,11 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 			events += performing_player.discard_topdeck()
 		"draw_or_discard_to":
 			events += handle_player_draw_or_discard_to_effect(performing_player, card_id, effect)
+		"draw_for_card_in_hand":
+			var hand_size = performing_player.hand.size()
+			if hand_size > 0:
+				_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "draws %s card(s)." % hand_size)
+				events += performing_player.draw(hand_size)
 		"draw_to":
 			var target_hand_size = effect['amount']
 			var hand_size = performing_player.hand.size()
@@ -5076,6 +5082,11 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 				active_strike.initiator_set_face_up = true
 				_append_log_full(Enums.LogType.LogType_Strike, performing_player, "initiates with a face-up attack!")
 				var card_name = card_db.get_card_name(active_strike.initiator_card.id)
+				_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "is striking with %s." % card_name)
+			else:
+				active_strike.defender_set_face_up = true
+				_append_log_full(Enums.LogType.LogType_Strike, performing_player, "responds with a face-up attack!")
+				var card_name = card_db.get_card_name(active_strike.defender_card.id)
 				_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "is striking with %s." % card_name)
 			events += [create_event(Enums.EventType.EventType_RevealStrike_OnePlayer, performing_player.my_id, 0)]
 		"may_generate_gauge_with_force":
@@ -7530,7 +7541,15 @@ func ask_for_cost(performing_player, card, next_state):
 		gauge_cost = 0
 
 	var card_in_invalid_list = card.definition['display_name'] in performing_player.cards_invalid_during_strike
-	var card_forced_invalid = (is_special and performing_player.specials_invalid) or card_in_invalid_list
+
+	var invalid_if_faceup = 'invalid_if_not_set_face_up' in card.definition and card.definition['invalid_if_not_set_face_up']
+	var invalid_because_facedown = false
+	if invalid_if_faceup:
+		if performing_player == active_strike.initiator:
+			invalid_because_facedown = not active_strike.initiator_set_face_up
+		else:
+			invalid_because_facedown = not active_strike.defender_set_face_up
+	var card_forced_invalid = (is_special and performing_player.specials_invalid) or card_in_invalid_list or invalid_because_facedown
 	# Even if the cost can be paid for free, if the card has a cost wild swing is allowed.
 	var was_wild_swing = active_strike.get_player_wild_strike(performing_player)
 	var can_invalidate_ultra = is_ultra and performing_player.strike_stat_boosts.may_invalidate_ultras
