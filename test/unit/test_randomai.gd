@@ -599,3 +599,6 @@ func test_cammy_100():
 
 func test_londrekia_100():
 	run_iterations_with_deck("londrekia")
+
+func test_orie_100():
+	run_iterations_with_deck("orie")
