@@ -6034,10 +6034,10 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 			events += performing_player.reshuffle_discard(false, true)
 		"retreat":
 			var amount = effect['amount']
-			amount += performing_player.strike_stat_boosts.increase_movement_effects_by
-
 			if str(amount) == "strike_x":
 				amount = performing_player.strike_stat_boosts.strike_x
+			amount += performing_player.strike_stat_boosts.increase_movement_effects_by
+
 			var previous_location = performing_player.arena_location
 			events += performing_player.retreat(amount)
 			var new_location = performing_player.arena_location
@@ -7535,7 +7535,7 @@ func ask_for_cost(performing_player, card, next_state):
 	if 'gauge_discard_reminder' in card.definition:
 		gauge_discard_reminder = true
 
-	if performing_player.strike_stat_boosts.may_generate_gauge_with_force:
+	if performing_player.strike_stat_boosts.may_generate_gauge_with_force and gauge_cost > 0:
 		# Convert the gauge cost to a force cost.
 		force_cost = gauge_cost
 		gauge_cost = 0
