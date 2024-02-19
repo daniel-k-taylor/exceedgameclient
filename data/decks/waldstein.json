@@ -3,6 +3,7 @@
 	"season": 6,
 	"display_name": "Waldstein",
 	"cardback": "cardback_waldstein.jpg",
+	"has_sealed_area": true,
 	"exceed_cost": 1,
 	"character_action_default": [{
 		"gauge_cost": 0,
@@ -48,10 +49,12 @@
 			"condition_details": ["default", 0],
 			"effect_type": "add_attack_effect",
 			"added_effect": {
-				"timing": "during_strike",
-				"condition": "is_special_or_ultra_attack",
-				"effect_type": "armorup",
-				"amount": 2
+				"timing": "hit",
+				"effect_type": "choice",
+				"choice": [
+					{ "effect_type": "push", "amount": 1 },
+					{ "effect_type": "pull", "amount": 1 }
+				]
 			}
 		}
 	],
@@ -61,10 +64,15 @@
 			"timing": "set_strike",
 			"condition": "used_character_action",
 			"condition_details": ["exceed", 0],
-			"effect_type": "add_attack_effect",
-			"added_effect": {
-				"timing": "hit",
-				"effect_type": "use_top_discard_as_printed_power"
+			"effect_type": "powerup",
+			"amount": 2,
+			"and": {
+				"effect_type": "guardup",
+				"amount": 2,
+				"and": {
+					"timing": "cleanup",
+					"effect_type": "seal_this"
+				}
 			}
 		}
 	],
