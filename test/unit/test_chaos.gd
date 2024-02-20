@@ -299,6 +299,14 @@ func test_chaos_dissect_barrage_from_chaos():
 	validate_positions(player1, 8, player2, 4)
 	validate_life(player1, 30, player2, 25)
 
+func test_chaos_dissect_barrage_on_opponent():
+	position_players(player1, 2, player2, 4)
+	give_gauge(player1, 2)
+	assert_true(game_logic.do_character_action(player1, []))
+	execute_strike(player1, player2, "chaos_dissectbarrage", "uni_normal_assault", [], [], false, false, 4)
+	validate_positions(player1, 3, player2, 4)
+	validate_life(player1, 30, player2, 25)
+
 func test_chaos_chaos_code_normal():
 	position_players(player1, 2, player2, 7)
 	give_player_specific_card(player1, "chaos_deeprevenance", TestCardId3)
