@@ -2262,7 +2262,7 @@ class Player:
 			else:
 				# Insert it from_top from the end.
 				discards.insert(len(discards) - from_top, card)
-			return [parent.create_event(Enums.EventType.EventType_AddToDiscard, my_id, card.id)]
+			return [parent.create_event(Enums.EventType.EventType_AddToDiscard, my_id, card.id, "", from_top)]
 		else:
 			# Card belongs to the other player, so discard it there.
 			return parent._get_player(parent.get_other_player(my_id)).add_to_discards(card, from_top)
