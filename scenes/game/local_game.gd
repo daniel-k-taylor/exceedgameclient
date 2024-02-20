@@ -2493,9 +2493,16 @@ class Player:
 				on_position_changed(previous_location, get_buddy_location(), true)
 				# This is used for resetting positions; don't process remove-on-move boosts, since it's not an advance/retreat
 		else:
+			var other_player = parent._get_player(parent.get_other_player(my_id))
 			if arena_location < new_location:
+				if other_player.is_in_location(new_location):
+					new_location = other_player.get_closest_occupied_space_to(arena_location) - 1
+					distance = movement_distance_between(arena_location, new_location)
 				events += move_in_direction_by_amount(false, distance, false, -1, "move", true, remove_buddies_encountered)
 			else:
+				if other_player.is_in_location(new_location):
+					new_location = other_player.get_closest_occupied_space_to(arena_location) + 1
+					distance = movement_distance_between(arena_location, new_location)
 				events += move_in_direction_by_amount(true, distance, false, -1, "move", true, remove_buddies_encountered)
 
 		return events
