@@ -2745,6 +2745,12 @@ class Player:
 		# Do any discarded effects
 		events += do_discarded_effects_for_boost(card)
 
+		# Update internal boost arrays
+		for boost_array in [boosts_to_gauge_on_move, on_buddy_boosts]:
+			var card_idx = boost_array.find(card.id)
+			if card_idx != -1:
+				boost_array.remove_at(card_idx)
+
 		# Add to gauge or discard as appropriate.
 		for i in range(len(continuous_boosts)):
 			if continuous_boosts[i].id == card.id:

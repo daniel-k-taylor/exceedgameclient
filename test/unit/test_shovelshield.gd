@@ -367,3 +367,19 @@ func test_shovelshield_inseperable_where_are_you_going():
 	execute_strike(player2, player1, "standard_normal_grasp","standard_normal_assault", [1], [1], false, false)
 	validate_positions(player1, 4, player2, 5)
 	validate_life(player1, 30, player2, 26)
+
+func test_shovelshield_inseperable_teched_on_buddy():
+	position_players(player1, 4, player2, 5)
+	player1.set_buddy_location("shieldknight", 4)
+	player1.on_position_changed(3, 3, false)
+
+	give_player_specific_card(player1, "shovelshield_tandemattack", TestCardId3)
+	assert_true(game_logic.do_boost(player1, TestCardId3, [player1.hand[0].id]))
+
+	give_player_specific_card(player2, "standard_normal_dive", TestCardId4)
+	assert_true(game_logic.do_boost(player2, TestCardId4, []))
+	assert_true(game_logic.do_boost_name_card_choice_effect(player2, TestCardId3))
+
+	execute_strike(player1, player2, "standard_normal_sweep","standard_normal_grasp", [], [1], false, false)
+	validate_positions(player1, 2, player2, 5)
+	validate_life(player1, 27, player2, 24)
