@@ -487,14 +487,19 @@ func get_strike_actions(game_logic : LocalGame, me : LocalGame.Player, _opponent
 
 			possible_actions.append(StrikeAction.new(card.id, -1, false))
 	else:
-		for card in me.hand:
+		var card_options = me.hand.duplicate()
+		for card in me.continuous_boosts:
+			if 'must_set_from_boost' in card.definition and card.definition['must_set_from_boost']:
+				card_options.append(card)
+
+		for card in card_options:
 			if card.definition['gauge_cost'] > me.gauge.size():
 				# Skip cards we can't pay for.
 				# But remember them in case we have 0 options and must strike with something?
 				possible_actions_cant_pay.append(StrikeAction.new(card.id, -1, false))
 				continue
 
-			if not disable_ex:
+			if not disable_ex and card in me.hand:
 				var ex_card_id = get_ex_option_in_hand(game_logic, me, card.id)
 				if ex_card_id not in added_ex_options and card.id not in added_ex_options:
 					# If we can play EX, add that as an option.

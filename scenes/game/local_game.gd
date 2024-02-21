@@ -2625,7 +2625,7 @@ class Player:
 						ignore_push_and_pull += 1
 						if ignore_push_and_pull == 1:
 							parent._append_log_full(Enums.LogType.LogType_Effect, self, "cannot be pushed or pulled!")
-		if parent.active_strike:
+		if parent.active_strike and not parent.active_strike.in_setup:
 			# Redo continuous effects
 			for effect in _find_during_strike_effects(card):
 				if not parent.is_effect_condition_met(self, effect, null):
@@ -2694,7 +2694,7 @@ class Player:
 					# Remove it from the ongoing remaining effects.
 					parent.remove_remaining_effect(effect, card.id)
 
-		if parent.active_strike:
+		if parent.active_strike and not parent.active_strike.in_setup:
 			# Undo continuous effects
 			for effect in _find_during_strike_effects(card):
 				if not buddy_ignore_condition and not parent.is_effect_condition_met(self, effect, null):
