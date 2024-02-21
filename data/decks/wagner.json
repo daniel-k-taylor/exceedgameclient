@@ -7,17 +7,41 @@
 	"character_action_default": [{
 		"gauge_cost": 0,
 		"force_cost": 0,
-		"shortcut_effect_type": "strike",
+		"shortcut_effect_type": "choice",
 		"effect": {
-			"effect_type": "strike"
+			"effect_type": "choice",
+			"choice": [
+				{ "effect_type": "close", "amount": 1 },
+				{ "effect_type": "retreat", "amount": 1 }
+			],
+			"and": {
+				"effect_type": "boost_or_reveal_hand",
+				"limitation": "continuous"
+			}
 		}
 	}],
 	"character_action_exceeded": [
 		{
-			"gauge_cost": 1,
+			"gauge_cost": 0,
 			"force_cost": 0,
+			"shortcut_effect_type": "choice",
 			"effect": {
-				"effect_type": "strike"
+				"effect_type": "choice",
+				"choice": [
+					{ "effect_type": "close", "amount": 1 },
+					{ "effect_type": "retreat", "amount": 1 }
+				],
+				"and": {
+					"condition": "can_continuous_boost_from_gauge",
+					"effect_type": "take_bonus_actions",
+					"amount": 1,
+					"silent": true,
+					"disable_strike_action": true,
+					"and": {
+						"effect_type": "boost_from_gauge",
+						"limitation": "continuous"
+					}
+				}
 			}
 		},
 		{
@@ -41,56 +65,8 @@
 		}
 	],
 	"ability_effects": [
-		{
-			"character_effect": true,
-			"timing": "set_strike",
-			"condition": "used_character_action",
-			"condition_details": ["default", 0],
-			"effect_type": "powerup",
-			"amount": -1,
-			"and": {
-				"effect_type": "speedup",
-				"amount": -1,
-				"and": {
-					"effect_type": "add_attack_effect",
-					"added_effect": {
-						"timing": "hit",
-						"effect_type": "gain_advantage"
-					}
-				}
-			}
-		}
 	],
 	"exceed_ability_effects": [
-		{
-			"timing": "set_strike",
-			"condition": "used_character_action",
-			"condition_details": ["exceed", 0],
-			"effect_type": "choice",
-			"choice": [
-				{
-					"character_effect": true,
-					"effect_type": "powerup_opponent",
-					"amount": 1,
-					"and": {
-						"effect_type": "powerup",
-						"amount": 2
-					}
-				},
-				{
-					"character_effect": true,
-					"effect_type": "powerup_opponent",
-					"amount": 1,
-					"and": {
-						"effect_type": "add_attack_effect",
-						"added_effect": {
-							"timing": "hit",
-							"effect_type": "gain_advantage"
-						}
-					}
-				}
-			]
-		}
 	],
 	"cards": [
 		{

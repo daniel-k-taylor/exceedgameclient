@@ -676,6 +676,7 @@ class Player:
 	var boost_id_locations : Dictionary # [card_id : int, location : int]
 	var boost_buddy_card_id_to_buddy_id_map : Dictionary # [card_id : int, buddy_id : String]
 	var effect_on_turn_start
+	var strike_action_disabled : bool
 
 	func _init(id, player_name, parent_ref, card_db_ref, chosen_deck, card_start_id):
 		my_id = id
@@ -780,6 +781,7 @@ class Player:
 		boost_id_locations = {}
 		boost_buddy_card_id_to_buddy_id_map = {}
 		effect_on_turn_start = false
+		strike_action_disabled = false
 
 		if "buddy_cards" in deck_def:
 			var buddy_index = 0
@@ -3134,6 +3136,8 @@ func advance_to_next_turn():
 	opponent.cards_invalid_during_strike = []
 	player.plague_knight_discard_names = []
 	opponent.plague_knight_discard_names = []
+	player.strike_action_disabled = false
+	opponent.strike_action_disabled = false
 
 	# Update strike turn tracking
 	last_turn_was_strike = strike_happened_this_turn
@@ -3831,6 +3835,8 @@ func is_effect_condition_met(performing_player : Player, effect, local_condition
 				return top_discard_card.definition['boost']['boost_type'] == "continuous"
 			else:
 				return false
+		elif condition == "can_continuous_boost_from_gauge":
+			return performing_player.can_boost_something(['gauge'], 'continuous')
 		else:
 			assert(false, "Unimplemented condition")
 		# Unmet condition
@@ -4089,6 +4095,19 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 			# Doing the boost here in handle_strike_effect is awkward as do_boost is ideal but
 			# queues all the events. Instead, set a flag and do it on overdrive cleanup.
 			active_overdrive_boost_top_discard_on_cleanup = true
+		"boost_or_reveal_hand":
+			# This effect is expected to be a character action.
+			if performing_player.can_boost_something(['hand'], effect['limitation']):
+				events += [create_event(Enums.EventType.EventType_ForceStartBoost, performing_player.my_id, 0, "", ['hand'], effect['limitation'])]
+				change_game_state(Enums.GameState.GameState_PlayerDecision)
+				decision_info.clear()
+				decision_info.type = Enums.DecisionType.DecisionType_BoostNow
+				decision_info.player = performing_player.my_id
+				decision_info.valid_zones = ['hand']
+				decision_info.limitation = effect['limitation']
+			else:
+				_append_log_full(Enums.LogType.LogType_Effect, performing_player, "has no valid cards in hand to boost with.")
+				events += performing_player.reveal_hand()
 		"boost_this_then_sustain":
 			# This effect is expected to be mid-strike.
 			assert(active_strike)
@@ -6553,12 +6572,19 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 			_append_log_full(Enums.LogType.LogType_CharacterMovement, performing_player, "moves from space %s to %s." % [str(old_space), str(performing_player.arena_location)])
 			_append_log_full(Enums.LogType.LogType_CharacterMovement, performing_player, "moves %s from space %s to %s." % [performing_player.get_buddy_name(), str(old_buddy_space), str(performing_player.get_buddy_location())])
 		"take_bonus_actions":
+			var silent = false
+			if 'silent' in effect:
+				silent = effect['silent']
+
 			# Cannot take bonus actions during a strike.
 			if not active_strike:
 				var num = effect['amount']
 				performing_player.bonus_actions += num
 				performing_player.cancel_blocked_this_turn = true
-				_append_log_full(Enums.LogType.LogType_Effect, performing_player, "gains %s bonus actions!" % str(num))
+				if 'disable_strike_action' in effect and effect['disable_strike_action']:
+					performing_player.strike_action_disabled = true
+				if not silent:
+					_append_log_full(Enums.LogType.LogType_Effect, performing_player, "gains %s bonus actions!" % str(num))
 		"take_damage":
 			var nonlethal = 'nonlethal' in effect and effect['nonlethal']
 			var damaged_player = performing_player
@@ -8429,7 +8455,8 @@ func can_do_strike(performing_player : Player):
 		return false
 	if active_turn_player != performing_player.my_id:
 		return false
-
+	if performing_player.strike_action_disabled:
+		return false
 	# Can always wild swing!
 
 	return true
