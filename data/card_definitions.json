@@ -21643,44 +21643,39 @@
 		"NOTE": "WAGNER CARDS START",
 		"id": "wagner_megiddo",
 		"type": "ultra",
-		"display_name": "Atmosphere of the Aether",
+		"display_name": "Megiddo L'or Celeste",
 		"force_cost": 0,
-		"gauge_cost": 3,
+		"gauge_cost": 2,
 		"range_min": 1,
 		"range_max": 2,
 		"speed": 6,
-		"power": 4,
+		"power": 6,
 		"armor": 0,
 		"guard": 0,
+		"must_set_from_boost": true,
 		"effects": [
 			{
-				"timing": "hit",
-				"effect_type": "push",
-				"amount": 3,
-				"and": {
-					"effect_type": "draw",
-					"amount": 2
-				}
+				"timing": "after",
+				"effect_type": "seal_this",
+				"card_name": "Megiddo L'or Celeste"
 			}
 		],
 		"boost": {
 			"boost_type": "continuous",
 			"force_cost": 0,
 			"cancel_cost": -1,
-			"display_name": "Zephyr",
+			"display_name": "Ancile",
 			"effects": [
 				{
 					"timing": "during_strike",
-					"effect_type": "speedup",
-					"amount": 2,
-					"and": {
-						"effect_type": "powerup_opponent",
-						"amount": 3
-					}
+					"effect_type": "armorup",
+					"amount": 1
 				},
 				{
-					"timing": "now",
-					"effect_type": "bonus_action"
+					"timing": "cleanup",
+					"condition": "not_stunned",
+					"effect_type": "sustain_this",
+					"card_name": "Ancile"
 				}
 			]
 		}
@@ -21688,39 +21683,39 @@
 	{
 		"id": "wagner_hitzefalke",
 		"type": "ultra",
-		"display_name": "Lumiere of the Dawn",
+		"display_name": "Hitze Falke",
 		"force_cost": 0,
-		"gauge_cost": 3,
-		"range_min": 1,
-		"range_max": 1,
-		"speed": 4,
-		"power": 9,
-		"armor": 6,
-		"guard": 0,
+		"gauge_cost": 2,
+		"range_min": 3,
+		"range_max": 4,
+		"speed": 1,
+		"power": 7,
+		"armor": 3,
+		"guard": 3,
+		"must_set_from_boost": true,
 		"effects": [
 			{
-				"timing": "before",
-				"condition": "speed_greater_than",
-				"condition_amount": "OPPONENT_SPEED",
-				"effect_type": "attack_does_not_hit",
-				"and": {
-					"effect_type": "lose_all_armor"
-				}
+				"timing": "after",
+				"effect_type": "seal_this",
+				"card_name": "Hitze Falke"
 			}
 		],
 		"boost": {
-			"boost_type": "immediate",
-			"force_cost": 1,
+			"boost_type": "continuous",
+			"force_cost": 0,
 			"cancel_cost": -1,
-			"display_name": "Surge Forward",
+			"display_name": "Flame Brand",
 			"effects": [
 				{
-					"timing": "immediate",
-					"effect_type": "advance",
-					"amount": 3,
-					"and": {
-						"effect_type": "bonus_action"
-					}
+					"timing": "during_strike",
+					"effect_type": "powerup",
+					"amount": 1
+				},
+				{
+					"timing": "cleanup",
+					"condition": "not_stunned",
+					"effect_type": "sustain_this",
+					"card_name": "Flame Brand"
 				}
 			]
 		}

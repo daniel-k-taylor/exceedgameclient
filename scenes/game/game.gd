@@ -894,6 +894,10 @@ func can_select_card(card):
 	var in_choice_zone = is_card_in_player_reference($AllCards/ChoiceZone.get_children(), card.card_id)
 
 	if ui_state == UIState.UIState_PickTurnAction:
+		if in_player_boosts:if in_player_boosts:
+			var card_db = game_wrapper.get_card_database()
+			var logic_card = card_db.get_card(card.card_id)
+			return 'must_set_from_boost' in logic_card.definition and logic_card.definition['must_set_from_boost']
 		return in_hand or in_gauge
 	match ui_sub_state:
 		UISubState.UISubState_SelectCards_DiscardCards, UISubState.UISubState_SelectCards_DiscardCardsToGauge:
@@ -944,6 +948,10 @@ func can_select_card(card):
 				valid_id = logic_card.definition['id'] == select_gauge_require_card_id
 			return in_gauge and valid_id and len(selected_cards) < select_card_require_max
 		UISubState.UISubState_SelectCards_StrikeCard, UISubState.UISubState_SelectCards_StrikeResponseCard, UISubState.UISubState_SelectCards_OpponentSetsFirst_StrikeCard, UISubState.UISubState_SelectCards_OpponentSetsFirst_StrikeResponseCard, UISubState.UISubState_SelectCards_Mulligan:
+			if in_player_boosts:
+				var card_db = game_wrapper.get_card_database()
+				var logic_card = card_db.get_card(card.card_id)
+				return 'must_set_from_boost' in logic_card.definition and logic_card.definition['must_set_from_boost']
 			return in_hand
 		UISubState.UISubState_SelectCards_StrikeCard_FromGauge:
 			return in_gauge
@@ -3149,9 +3157,12 @@ func _update_buttons():
 			var can_strike = false
 			var can_boost = false
 			var only_in_hand = true
+			var only_in_boosts = true
 			for card in selected_cards:
 				if not game_wrapper.is_card_in_hand(Enums.PlayerId.PlayerId_Player, card.card_id):
 					only_in_hand = false
+				if not game_wrapper.is_card_in_boosts(Enums.PlayerId.PlayerId_Player, card.card_id):
+					only_in_boosts = false
 			if only_in_hand:
 				if len(selected_cards) == 1:
 					can_strike = true
@@ -3164,6 +3175,10 @@ func _update_buttons():
 					if card_db.are_same_card(card1.card_id, card2.card_id):
 						can_strike = true
 						strike_text = "EX Strike"
+			elif only_in_boosts:
+				if len(selected_cards) == 1:
+					var logic_card = card_db.get_card(selected_cards[0].card_id)
+					can_strike = 'must_set_from_boost' in logic_card.definition and logic_card.definition['must_set_from_boost']
 			if can_strike:
 				card_name = card_db.get_card(selected_cards[0].card_id).definition['display_name']
 				strike_text += " (%s)" % card_name
@@ -3400,6 +3415,12 @@ func update_boost_summary(boosts_card_holder, boost_box):
 	var boost_summary = ""
 	for effect in effects:
 		boost_summary += CardDefinitions.get_effect_text(effect) + "\n"
+
+	for card_id in card_ids:
+		var card = card_db.get_card(card_id)
+		if 'must_set_from_boost' in card.definition and card.definition['must_set_from_boost']:
+			var attack_name = card.definition['display_name']
+			boost_summary += "[color=green](Can set %s as attack!)[/color]\n" % attack_name
 	boost_box.set_text(boost_summary)
 
 func update_arena_squares():
@@ -3449,7 +3470,11 @@ func can_press_ok():
 				return force_selected >= 1
 			UISubState.UISubState_SelectCards_StrikeCard, UISubState.UISubState_SelectCards_StrikeResponseCard, UISubState.UISubState_SelectCards_OpponentSetsFirst_StrikeCard, UISubState.UISubState_SelectCards_OpponentSetsFirst_StrikeResponseCard:
 				# As a special exception, allow 2 cards if exactly 2 cards and they're the same card.
+				# EX attacks can't be set from boosts, however.
 				if len(selected_cards) == 2:
+					if (game_wrapper.is_card_in_boosts(Enums.PlayerId.PlayerId_Player, selected_cards[0].card_id) or
+						game_wrapper.is_card_in_boosts(Enums.PlayerId.PlayerId_Player, selected_cards[1].card_id)):
+							return false
 					var card_db = game_wrapper.get_card_database()
 					var card1 = selected_cards[0]
 					var card2 = selected_cards[1]

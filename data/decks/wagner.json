@@ -3,6 +3,7 @@
 	"season": 6,
 	"display_name": "Miyashiro Erika Wagner",
 	"cardback": "cardback_wagner.jpg",
+	"has_sealed_area": true,
 	"exceed_cost": 1,
 	"character_action_default": [{
 		"gauge_cost": 0,
