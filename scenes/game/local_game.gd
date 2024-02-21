@@ -4026,6 +4026,10 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 			var damage_dealt = active_strike.get_damage_taken(opposing_player)
 			performing_player.strike_stat_boosts.armor += damage_dealt
 			events += [create_event(Enums.EventType.EventType_Strike_ArmorUp, performing_player.my_id, damage_dealt)]
+		"armorup_current_power":
+			var current_power = get_total_power(performing_player)
+			performing_player.strike_stat_boosts.armor += current_power
+			events += [create_event(Enums.EventType.EventType_Strike_ArmorUp, performing_player.my_id, current_power)]
 		"armorup_times_gauge":
 			var amount = performing_player.gauge.size() * effect['amount']
 			performing_player.strike_stat_boosts.armor += amount
