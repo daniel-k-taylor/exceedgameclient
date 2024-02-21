@@ -21640,6 +21640,363 @@
 
 
 	{
+		"NOTE": "WAGNER CARDS START",
+		"id": "wagner_megiddo",
+		"type": "ultra",
+		"display_name": "Megiddo L'or Celeste",
+		"force_cost": 0,
+		"gauge_cost": 2,
+		"range_min": 1,
+		"range_max": 2,
+		"speed": 6,
+		"power": 6,
+		"armor": 0,
+		"guard": 0,
+		"must_set_from_boost": true,
+		"effects": [
+			{
+				"timing": "after",
+				"effect_type": "seal_this",
+				"card_name": "Megiddo L'or Celeste"
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Ancile",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "armorup",
+					"amount": 1
+				},
+				{
+					"timing": "cleanup",
+					"condition": "not_stunned",
+					"effect_type": "sustain_this",
+					"card_name": "Megiddo L'or Celeste"
+				}
+			]
+		}
+	},
+	{
+		"id": "wagner_hitzefalke",
+		"type": "ultra",
+		"display_name": "Hitze Falke",
+		"force_cost": 0,
+		"gauge_cost": 2,
+		"range_min": 3,
+		"range_max": 4,
+		"speed": 1,
+		"power": 7,
+		"armor": 3,
+		"guard": 3,
+		"must_set_from_boost": true,
+		"effects": [
+			{
+				"timing": "after",
+				"effect_type": "seal_this",
+				"card_name": "Hitze Falke"
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Flame Brand",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "powerup",
+					"amount": 1
+				},
+				{
+					"timing": "cleanup",
+					"condition": "not_stunned",
+					"effect_type": "sustain_this",
+					"card_name": "Hitze Falke"
+				}
+			]
+		}
+	},
+	{
+		"id": "wagner_schildzack",
+		"type": "special",
+		"display_name": "Schild Zack",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 2,
+		"range_max": 2,
+		"speed": 6,
+		"power": 5,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "after",
+				"condition": "not_hit_opponent",
+				"effect_type": "choice",
+				"choice": [
+					{
+						"effect_type": "boost_this_then_sustain",
+						"boost_effect": {
+							"effect_type": "armorup",
+							"amount": 1,
+							"and": {
+								"effect_type": "guardup",
+								"amount": 3
+							}
+						}
+					},
+					{ "effect_type": "pass" }
+				]
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Defend",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "armorup",
+					"amount": 1,
+					"and": {
+						"effect_type": "guardup",
+						"amount": 3
+					}
+				}
+			]
+		}
+	},
+	{
+		"id": "wagner_filthydog",
+		"type": "special",
+		"display_name": "Filthy Dog!",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 1,
+		"speed": 6,
+		"power": 3,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "during_strike",
+				"condition": "not_initiated_strike",
+				"effect_type": "speedup",
+				"amount": 1
+			},
+			{
+				"timing": "hit",
+				"condition": "initiated_strike",
+				"effect_type": "gain_advantage"
+			}
+		],
+		"boost": {
+			"boost_type": "immediate",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Recover",
+			"effects": [
+				{
+					"timing": "immediate",
+					"effect_type": "choice",
+					"choice": [
+						{ "effect_type": "advance", "amount": 1, "suppress_and_description": true, "bonus_effect": {
+							"condition": "advanced_through",
+							"effect_type": "choose_discard",
+							"limitation": "special/ultra",
+							"destination": "hand",
+							"amount": 1,
+							"amount_min": 1
+						}},
+						{ "effect_type": "advance", "amount": 2, "suppress_and_description": true, "bonus_effect": {
+							"condition": "advanced_through",
+							"effect_type": "choose_discard",
+							"limitation": "special/ultra",
+							"destination": "hand",
+							"amount": 1,
+							"amount_min": 1
+						}},
+						{ "effect_type": "advance", "amount": 3, "suppress_and_description": true, "bonus_effect": {
+							"condition": "advanced_through",
+							"effect_type": "choose_discard",
+							"limitation": "special/ultra",
+							"destination": "hand",
+							"amount": 1,
+							"amount_min": 1
+						}},
+						{ "effect_type": "pass" }
+					]
+				}
+			]
+		}
+	},
+	{
+		"id": "wagner_kugelblitz",
+		"type": "special",
+		"display_name": "Kugel Blitz",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 1,
+		"speed": 5,
+		"power": 4,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "before",
+				"effect_type": "close",
+				"amount": 2
+			},
+			{
+				"timing": "after",
+				"effect_type": "advance",
+				"amount": 2,
+				"and": {
+					"condition": "not_hit_opponent",
+					"effect_type": "choice",
+					"choice": [
+						{ "effect_type": "boost_this_then_sustain" },
+						{ "effect_type": "pass" }
+					]
+				}
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Overpower",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "powerup",
+					"amount": 1
+				},
+				{
+					"timing": "before",
+					"effect_type": "close",
+					"amount": 1
+				}
+			]
+		}
+	},
+	{
+		"id": "wagner_wackenroder",
+		"type": "special",
+		"display_name": "Wackenroder",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 2,
+		"range_max": 3,
+		"speed": 4,
+		"power": 6,
+		"armor": 0,
+		"guard": 4,
+		"effects": [
+			{
+				"timing": "hit",
+				"effect_type": "push",
+				"amount": 2
+			},
+			{
+				"timing": "after",
+				"effect_type": "retreat",
+				"amount": 1
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Deflection",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "powerup",
+					"amount": 1
+				},
+				{
+					"timing": "hit",
+					"effect_type": "armorup_current_power"
+				}
+			]
+		}
+	},
+	{
+		"NOTE": "WAGNER CARDS END",
+		"id": "wagner_sturmbrecher",
+		"type": "special",
+		"display_name": "Sturm Brecher",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 2,
+		"speed": 4,
+		"power": 5,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "hit",
+				"effect_type": "push",
+				"amount": 3
+			},
+			{
+				"timing": "after",
+				"condition": "not_hit_opponent",
+				"effect_type": "choice",
+				"choice": [
+					{
+						"effect_type": "boost_this_then_sustain",
+						"boost_effect": {
+							"effect_type": "speedup",
+							"amount": 1,
+							"and": {
+								"effect_type": "choice",
+								"choice": [
+									{ "effect_type": "advance", "amount": 1 },
+									{ "effect_type": "retreat", "amount": 1 }
+								]
+							}
+						}
+					},
+					{ "effect_type": "pass" }
+				]
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Tactical",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "speedup",
+					"amount": 1
+				},
+				{
+					"timing": "now",
+					"effect_type": "choice",
+					"choice": [
+						{ "effect_type": "advance", "amount": 1 },
+						{ "effect_type": "retreat", "amount": 1 }
+					]
+				}
+			]
+		},
+		"NOTEEND": "WAGNER CARDS END"
+	},
+
+
+	{
 		"NOTE": "WALDSTEIN CARDS START",
 		"id": "waldstein_katastrophe",
 		"type": "ultra",

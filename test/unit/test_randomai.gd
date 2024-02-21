@@ -610,3 +610,6 @@ func test_orie_100():
 
 func test_waldstein_100():
 	run_iterations_with_deck("waldstein")
+
+func test_wagner_100():
+	run_iterations_with_deck("wagner")

@@ -308,9 +308,11 @@ class Strike:
 	var initiator_first : bool
 	var initiator_wild_strike : bool = false
 	var initiator_set_from_gauge : bool = false
+	var initiator_set_from_boosts : bool = false
 	var initiator_set_face_up : bool = false
 	var defender_set_face_up : bool = false
 	var defender_wild_strike : bool = false
+	var defender_set_from_boosts : bool = false
 	var strike_state
 	var starting_distance : int = -1
 	var in_setup : bool = true
@@ -676,6 +678,7 @@ class Player:
 	var boost_id_locations : Dictionary # [card_id : int, location : int]
 	var boost_buddy_card_id_to_buddy_id_map : Dictionary # [card_id : int, buddy_id : String]
 	var effect_on_turn_start
+	var strike_action_disabled : bool
 
 	func _init(id, player_name, parent_ref, card_db_ref, chosen_deck, card_start_id):
 		my_id = id
@@ -780,6 +783,7 @@ class Player:
 		boost_id_locations = {}
 		boost_buddy_card_id_to_buddy_id_map = {}
 		effect_on_turn_start = false
+		strike_action_disabled = false
 
 		if "buddy_cards" in deck_def:
 			var buddy_index = 0
@@ -2621,7 +2625,7 @@ class Player:
 						ignore_push_and_pull += 1
 						if ignore_push_and_pull == 1:
 							parent._append_log_full(Enums.LogType.LogType_Effect, self, "cannot be pushed or pulled!")
-		if parent.active_strike:
+		if parent.active_strike and not parent.active_strike.in_setup:
 			# Redo continuous effects
 			for effect in _find_during_strike_effects(card):
 				if not parent.is_effect_condition_met(self, effect, null):
@@ -2690,7 +2694,7 @@ class Player:
 					# Remove it from the ongoing remaining effects.
 					parent.remove_remaining_effect(effect, card.id)
 
-		if parent.active_strike:
+		if parent.active_strike and not parent.active_strike.in_setup:
 			# Undo continuous effects
 			for effect in _find_during_strike_effects(card):
 				if not buddy_ignore_condition and not parent.is_effect_condition_met(self, effect, null):
@@ -2741,6 +2745,12 @@ class Player:
 		# Do any discarded effects
 		events += do_discarded_effects_for_boost(card)
 
+		# Update internal boost arrays
+		for boost_array in [boosts_to_gauge_on_move, on_buddy_boosts]:
+			var card_idx = boost_array.find(card.id)
+			if card_idx != -1:
+				boost_array.remove_at(card_idx)
+
 		# Add to gauge or discard as appropriate.
 		for i in range(len(continuous_boosts)):
 			if continuous_boosts[i].id == card.id:
@@ -2754,6 +2764,8 @@ class Player:
 					events += add_to_overdrive(card)
 				elif destination == "sealed":
 					events += add_to_sealed(card)
+				elif destination == "strike":
+					pass
 				else:
 					events += add_to_discards(card)
 				continuous_boosts.remove_at(i)
@@ -3134,6 +3146,8 @@ func advance_to_next_turn():
 	opponent.cards_invalid_during_strike = []
 	player.plague_knight_discard_names = []
 	opponent.plague_knight_discard_names = []
+	player.strike_action_disabled = false
+	opponent.strike_action_disabled = false
 
 	# Update strike turn tracking
 	last_turn_was_strike = strike_happened_this_turn
@@ -3831,6 +3845,8 @@ func is_effect_condition_met(performing_player : Player, effect, local_condition
 				return top_discard_card.definition['boost']['boost_type'] == "continuous"
 			else:
 				return false
+		elif condition == "can_continuous_boost_from_gauge":
+			return performing_player.can_boost_something(['gauge'], 'continuous')
 		else:
 			assert(false, "Unimplemented condition")
 		# Unmet condition
@@ -4020,6 +4036,10 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 			var damage_dealt = active_strike.get_damage_taken(opposing_player)
 			performing_player.strike_stat_boosts.armor += damage_dealt
 			events += [create_event(Enums.EventType.EventType_Strike_ArmorUp, performing_player.my_id, damage_dealt)]
+		"armorup_current_power":
+			var current_power = get_total_power(performing_player)
+			performing_player.strike_stat_boosts.armor += current_power
+			events += [create_event(Enums.EventType.EventType_Strike_ArmorUp, performing_player.my_id, current_power)]
 		"armorup_times_gauge":
 			var amount = performing_player.gauge.size() * effect['amount']
 			performing_player.strike_stat_boosts.armor += amount
@@ -4089,6 +4109,19 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 			# Doing the boost here in handle_strike_effect is awkward as do_boost is ideal but
 			# queues all the events. Instead, set a flag and do it on overdrive cleanup.
 			active_overdrive_boost_top_discard_on_cleanup = true
+		"boost_or_reveal_hand":
+			# This effect is expected to be a character action.
+			if performing_player.can_boost_something(['hand'], effect['limitation']):
+				events += [create_event(Enums.EventType.EventType_ForceStartBoost, performing_player.my_id, 0, "", ['hand'], effect['limitation'])]
+				change_game_state(Enums.GameState.GameState_PlayerDecision)
+				decision_info.clear()
+				decision_info.type = Enums.DecisionType.DecisionType_BoostNow
+				decision_info.player = performing_player.my_id
+				decision_info.valid_zones = ['hand']
+				decision_info.limitation = effect['limitation']
+			else:
+				_append_log_full(Enums.LogType.LogType_Effect, performing_player, "has no valid cards in hand to boost with.")
+				events += performing_player.reveal_hand()
 		"boost_this_then_sustain":
 			# This effect is expected to be mid-strike.
 			assert(active_strike)
@@ -6553,12 +6586,19 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 			_append_log_full(Enums.LogType.LogType_CharacterMovement, performing_player, "moves from space %s to %s." % [str(old_space), str(performing_player.arena_location)])
 			_append_log_full(Enums.LogType.LogType_CharacterMovement, performing_player, "moves %s from space %s to %s." % [performing_player.get_buddy_name(), str(old_buddy_space), str(performing_player.get_buddy_location())])
 		"take_bonus_actions":
+			var silent = false
+			if 'silent' in effect:
+				silent = effect['silent']
+
 			# Cannot take bonus actions during a strike.
 			if not active_strike:
 				var num = effect['amount']
 				performing_player.bonus_actions += num
 				performing_player.cancel_blocked_this_turn = true
-				_append_log_full(Enums.LogType.LogType_Effect, performing_player, "gains %s bonus actions!" % str(num))
+				if 'disable_strike_action' in effect and effect['disable_strike_action']:
+					performing_player.strike_action_disabled = true
+				if not silent:
+					_append_log_full(Enums.LogType.LogType_Effect, performing_player, "gains %s bonus actions!" % str(num))
 		"take_damage":
 			var nonlethal = 'nonlethal' in effect and effect['nonlethal']
 			var damaged_player = performing_player
@@ -7567,7 +7607,16 @@ func ask_for_cost(performing_player, card, next_state):
 			invalid_because_facedown = not active_strike.initiator_set_face_up
 		else:
 			invalid_because_facedown = not active_strike.defender_set_face_up
-	var card_forced_invalid = (is_special and performing_player.specials_invalid) or card_in_invalid_list or invalid_because_facedown
+
+	var invalidate_if_not_set_from_boosts = 'must_set_from_boost' in card.definition and card.definition['must_set_from_boost']
+	var invalid_because_not_set_from_boosts = false
+	if invalidate_if_not_set_from_boosts:
+		if performing_player == active_strike.initiator:
+			invalid_because_not_set_from_boosts = not active_strike.initiator_set_from_boosts
+		else:
+			invalid_because_not_set_from_boosts = not active_strike.defender_set_from_boosts
+
+	var card_forced_invalid = (is_special and performing_player.specials_invalid) or card_in_invalid_list or invalid_because_facedown or invalid_because_not_set_from_boosts
 	# Even if the cost can be paid for free, if the card has a cost wild swing is allowed.
 	var was_wild_swing = active_strike.get_player_wild_strike(performing_player)
 	var can_invalidate_ultra = is_ultra and performing_player.strike_stat_boosts.may_invalidate_ultras
@@ -8429,7 +8478,8 @@ func can_do_strike(performing_player : Player):
 		return false
 	if active_turn_player != performing_player.my_id:
 		return false
-
+	if performing_player.strike_action_disabled:
+		return false
 	# Can always wild swing!
 
 	return true
@@ -8735,6 +8785,7 @@ func do_strike(performing_player : Player, card_id : int, wild_strike: bool, ex_
 			return false
 
 	var ex_strike = ex_card_id != -1
+	var strike_from_boosts = false
 	if performing_player.next_strike_from_gauge:
 		if not wild_strike and not performing_player.is_card_in_gauge(card_id):
 			if not (game_state == Enums.GameState.GameState_Strike_Opponent_Set_First or performing_player.next_strike_random_gauge):
@@ -8753,7 +8804,16 @@ func do_strike(performing_player : Player, card_id : int, wild_strike: bool, ex_
 			return false
 	else:
 		if not wild_strike and not performing_player.is_card_in_hand(card_id):
-			if not (game_state == Enums.GameState.GameState_Strike_Opponent_Set_First or performing_player.next_strike_random_gauge):
+			if performing_player.is_card_in_continuous_boosts(card_id):
+				strike_from_boosts = true
+				var card = card_db.get_card(card_id)
+				if not 'must_set_from_boost' in card.definition or not card.definition['must_set_from_boost']:
+					printlog("ERROR: Tried to strike with a card not in hand.")
+					return false
+				elif ex_strike:
+					printlog("ERROR: Tried to EX strike from boost area.")
+					return false
+			elif not (game_state == Enums.GameState.GameState_Strike_Opponent_Set_First or performing_player.next_strike_random_gauge):
 				printlog("ERROR: Tried to strike with a card not in hand.")
 				return false
 		if ex_strike and not performing_player.is_card_in_hand(ex_card_id):
@@ -8798,6 +8858,9 @@ func do_strike(performing_player : Player, card_id : int, wild_strike: bool, ex_
 				elif performing_player.next_strike_from_sealed:
 					performing_player.remove_card_from_sealed(card_id)
 					performing_player.next_strike_from_sealed = false
+				elif strike_from_boosts:
+					performing_player.remove_from_continuous_boosts(card_db.get_card(card_id), "strike")
+					active_strike.initiator_set_from_boosts = true
 				else:
 					performing_player.remove_card_from_hand(card_id, false, true)
 
@@ -8809,7 +8872,7 @@ func do_strike(performing_player : Player, card_id : int, wild_strike: bool, ex_
 					_append_log_full(Enums.LogType.LogType_Strike, performing_player, "sets their attack.")
 
 			var reveal_immediately = false
-			if active_strike.initiator.next_strike_faceup:
+			if active_strike.initiator.next_strike_faceup or strike_from_boosts:
 				reveal_immediately = true
 				active_strike.initiator_set_face_up = true
 				active_strike.initiator.next_strike_faceup = false
@@ -8846,7 +8909,12 @@ func do_strike(performing_player : Player, card_id : int, wild_strike: bool, ex_
 				card_id = active_strike.defender_card.id
 			else:
 				active_strike.defender_card = card_db.get_card(card_id)
-				performing_player.remove_card_from_hand(card_id, false, true)
+				if strike_from_boosts:
+					performing_player.remove_from_continuous_boosts(card_db.get_card(card_id), "strike")
+					active_strike.defender_set_from_boosts = true
+				else:
+					performing_player.remove_card_from_hand(card_id, false, true)
+
 				if ex_strike:
 					_append_log_full(Enums.LogType.LogType_Strike, performing_player, "sets an EX attack!")
 					active_strike.defender_ex_card = card_db.get_card(ex_card_id)
@@ -8856,7 +8924,7 @@ func do_strike(performing_player : Player, card_id : int, wild_strike: bool, ex_
 			# Send the EX first as that is visual and logic is triggered off the regular one.
 			if ex_strike:
 				events += [create_event(Enums.EventType.EventType_Strike_Response_Ex, performing_player.my_id, ex_card_id)]
-			events += [create_event(Enums.EventType.EventType_Strike_Response, performing_player.my_id, card_id, "", false, ex_strike)]
+			events += [create_event(Enums.EventType.EventType_Strike_Response, performing_player.my_id, card_id, "", strike_from_boosts, ex_strike)]
 			# Intentional events = because events are passed in.
 			events = continue_setup_strike(events)
 	event_queue += events

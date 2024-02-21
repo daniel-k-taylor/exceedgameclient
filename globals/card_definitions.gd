@@ -464,6 +464,8 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 			effect_str += "+" + str(effect['amount']) + " Armor"
 		"armorup_damage_dealt":
 			effect_str += "+ Armor per damage dealt"
+		"armorup_current_power":
+			effect_str += "+ Armor equal to power"
 		"attack_does_not_hit":
 			effect_str += "Attack does not hit."
 		"attack_is_ex":
@@ -1110,13 +1112,13 @@ func get_effect_text(effect, short = false, skip_timing = false, skip_condition 
 
 		effect_str += get_effect_type_text(effect, card_name_source, char_effect_panel)
 
-	if not short and 'bonus_effect' in effect:
+	var suppress_and_description = 'suppress_and_description' in effect and effect['suppress_and_description']
+	if not short and 'bonus_effect' in effect and not suppress_and_description:
 		effect_str += "; " + get_effect_text(effect['bonus_effect'], false, false, false, card_name_source, char_effect_panel)
-	if 'and' in effect:
-		if not 'suppress_and_description' in effect or not effect['suppress_and_description']:
-			if effect_str != "":
-				effect_str += effect_separator
-			effect_str += get_effect_text(effect['and'], short, false, false, card_name_source, char_effect_panel)
+	if 'and' in effect and not suppress_and_description:
+		if effect_str != "":
+			effect_str += effect_separator
+		effect_str += get_effect_text(effect['and'], short, false, false, card_name_source, char_effect_panel)
 	if 'negative_condition_effect' in effect:
 		if not 'suppress_negative_description' in effect or not effect['suppress_negative_description']:
 			effect_str += "; otherwise " + get_effect_text(effect['negative_condition_effect'], short, skip_timing, false, card_name_source)
