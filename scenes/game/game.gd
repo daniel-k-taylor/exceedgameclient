@@ -3158,10 +3158,14 @@ func _update_buttons():
 			var can_boost = false
 			var only_in_hand = true
 			var only_in_boosts = true
+			var any_in_boosts = false
 			for card in selected_cards:
 				if not game_wrapper.is_card_in_hand(Enums.PlayerId.PlayerId_Player, card.card_id):
 					only_in_hand = false
-				if not game_wrapper.is_card_in_boosts(Enums.PlayerId.PlayerId_Player, card.card_id):
+
+				if game_wrapper.is_card_in_boosts(Enums.PlayerId.PlayerId_Player, card.card_id):
+					any_in_boosts = true
+				else:
 					only_in_boosts = false
 			if only_in_hand:
 				if len(selected_cards) == 1:
@@ -3241,7 +3245,7 @@ func _update_buttons():
 					assert(force_cost == 0 and gauge_cost == 0)
 					button_choices.append({ "text": action_name, "action": func(): _on_shortcut_character_action_pressed(i), "disabled": not action_possible or not shortcut_condition_met })
 
-			button_choices.append({ "text": "Change Cards", "action": _on_shortcut_change_pressed, "disabled": not game_wrapper.can_do_change(Enums.PlayerId.PlayerId_Player) })
+			button_choices.append({ "text": "Change Cards", "action": _on_shortcut_change_pressed, "disabled": not game_wrapper.can_do_change(Enums.PlayerId.PlayerId_Player) or any_in_boosts })
 			button_choices.append({ "text": "Deselect card(s)", "action": _on_shortcut_cancel_pressed, "disabled": false })
 
 	# Update instructions UI visibility
