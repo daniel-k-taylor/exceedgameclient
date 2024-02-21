@@ -21675,7 +21675,7 @@
 					"timing": "cleanup",
 					"condition": "not_stunned",
 					"effect_type": "sustain_this",
-					"card_name": "Ancile"
+					"card_name": "Megiddo L'or Celeste"
 				}
 			]
 		}
@@ -21715,7 +21715,7 @@
 					"timing": "cleanup",
 					"condition": "not_stunned",
 					"effect_type": "sustain_this",
-					"card_name": "Flame Brand"
+					"card_name": "Hitze Falke"
 				}
 			]
 		}

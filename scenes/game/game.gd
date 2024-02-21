@@ -894,7 +894,7 @@ func can_select_card(card):
 	var in_choice_zone = is_card_in_player_reference($AllCards/ChoiceZone.get_children(), card.card_id)
 
 	if ui_state == UIState.UIState_PickTurnAction:
-		if in_player_boosts:if in_player_boosts:
+		if in_player_boosts:
 			var card_db = game_wrapper.get_card_database()
 			var logic_card = card_db.get_card(card.card_id)
 			return 'must_set_from_boost' in logic_card.definition and logic_card.definition['must_set_from_boost']
