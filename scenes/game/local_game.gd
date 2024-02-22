@@ -496,6 +496,8 @@ class StrikeStatBoosts:
 	var may_generate_gauge_with_force : bool = false
 	var may_invalidate_ultras : bool = false
 	var increase_movement_effects_by : int = 0
+	var increase_move_opponent_effects_by : int = 0
+	var increase_draw_effects_by : int = 0
 
 	func clear():
 		power = 0
@@ -568,6 +570,8 @@ class StrikeStatBoosts:
 		may_generate_gauge_with_force = false
 		may_invalidate_ultras = false
 		increase_movement_effects_by = 0
+		increase_move_opponent_effects_by = 0
+		increase_draw_effects_by = 0
 
 	func set_ex():
 		ex_count += 1
@@ -4533,6 +4537,7 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 			var amount = effect['amount']
 			if str(amount) == "strike_x":
 				amount = performing_player.strike_stat_boosts.strike_x
+			amount += performing_player.strike_stat_boosts.increase_draw_effects_by
 
 			var from_bottom = false
 			var from_bottom_string = ""
@@ -4798,12 +4803,20 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 			performing_player.ignore_push_and_pull += 1
 			if performing_player.ignore_push_and_pull == 1:
 				_append_log_full(Enums.LogType.LogType_Effect, performing_player, "cannot be pushed or pulled!")
+		"increase_draw_effects":
+			var amount = effect['amount']
+			performing_player.strike_stat_boosts.increase_draw_effects_by += amount
+			_append_log_full(Enums.LogType.LogType_Effect, performing_player, "'s draw effects are increased by %s!" % amount)
 		"increase_force_spent_before_strike":
 			performing_player.force_spent_before_strike += 1
 		"increase_movement_effects":
 			var amount = effect['amount']
 			performing_player.strike_stat_boosts.increase_movement_effects_by += amount
 			_append_log_full(Enums.LogType.LogType_Effect, performing_player, "'s advance and retreat effects are increased by %s!" % amount)
+		"increase_move_opponent_effects":
+			var amount = effect['amount']
+			performing_player.strike_stat_boosts.increase_move_opponent_effects_by += amount
+			_append_log_full(Enums.LogType.LogType_Effect, performing_player, "'s push and pull effects are increased by %s!" % amount)
 		"remove_ignore_push_and_pull_passive_bonus":
 			performing_player.ignore_push_and_pull -= 1
 			if performing_player.ignore_push_and_pull == 0:
@@ -5784,11 +5797,14 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 			events += [create_event(Enums.EventType.EventType_Strike_PowerUp, opposing_player.my_id, effect['amount'])]
 		"pull":
 			var previous_location = opposing_player.arena_location
-			events += performing_player.pull(effect['amount'])
+			var amount = effect['amount']
+			amount += performing_player.strike_stat_boosts.increase_move_opponent_effects_by
+
+			events += performing_player.pull(amount)
 			var new_location = opposing_player.arena_location
 			if (other_start < performing_start and new_location > performing_start) or (other_start > performing_start and new_location < performing_start):
 				local_conditions.pulled_past = true
-			_append_log_full(Enums.LogType.LogType_CharacterMovement, opposing_player, "is pulled %s, moving from space %s to %s." % [str(effect['amount']), str(previous_location), str(new_location)])
+			_append_log_full(Enums.LogType.LogType_CharacterMovement, opposing_player, "is pulled %s, moving from space %s to %s." % [str(amount), str(previous_location), str(new_location)])
 		"pull_any_number_of_spaces_and_gain_power":
 			decision_info.clear()
 			decision_info.type = Enums.DecisionType.DecisionType_ChooseArenaLocationForEffect
@@ -5895,12 +5911,15 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 		"push":
 			var set_x_to_buddy_spaces_entered = 'save_buddy_spaces_entered_as_strike_x' in effect and effect['save_buddy_spaces_entered_as_strike_x']
 			var previous_location = opposing_player.arena_location
-			events += performing_player.push(effect['amount'], set_x_to_buddy_spaces_entered)
+			var amount = effect['amount']
+			amount += performing_player.strike_stat_boosts.increase_move_opponent_effects_by
+
+			events += performing_player.push(amount, set_x_to_buddy_spaces_entered)
 			var new_location = opposing_player.arena_location
 			var push_amount = abs(other_start - new_location)
 			local_conditions.push_amount = push_amount
-			local_conditions.fully_pushed = push_amount == effect['amount']
-			_append_log_full(Enums.LogType.LogType_CharacterMovement, opposing_player, "is pushed %s, moving from space %s to %s." % [str(effect['amount']), str(previous_location), str(new_location)])
+			local_conditions.fully_pushed = push_amount == amount
+			_append_log_full(Enums.LogType.LogType_CharacterMovement, opposing_player, "is pushed %s, moving from space %s to %s." % [str(amount), str(previous_location), str(new_location)])
 		"push_from_source":
 			var attack_source_location = get_attack_origin(performing_player, opposing_player.arena_location)
 			if opposing_player.is_in_location(attack_source_location):
