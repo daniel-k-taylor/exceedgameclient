@@ -6595,6 +6595,7 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 				var num = effect['amount']
 				performing_player.bonus_actions += num
 				performing_player.cancel_blocked_this_turn = true
+				performing_player.strike_action_disabled = false
 				if 'disable_strike_action' in effect and effect['disable_strike_action']:
 					performing_player.strike_action_disabled = true
 				if not silent:

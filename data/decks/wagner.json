@@ -59,7 +59,8 @@
 					"effect_type": "revert",
 					"and": {
 						"effect_type": "take_bonus_actions",
-						"amount": 1
+						"amount": 1,
+						"disable_strike_action": false
 					}
 				}
 			}
