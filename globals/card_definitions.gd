@@ -1034,6 +1034,8 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 				effect_str += "+" + str(effect['amount']) + " Speed per EVERY boost in play."
 			else:
 				effect_str += "+" + str(effect['amount']) + " Speed per boost in play."
+		"spend_all_force_and_save_amount":
+			effect_str += "Spend all hand/gauge as force"
 		"spend_all_gauge_and_save_amount":
 			effect_str += "Discard all cards in gauge"
 		"spend_life":

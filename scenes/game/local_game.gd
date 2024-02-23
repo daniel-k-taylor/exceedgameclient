@@ -4728,10 +4728,13 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 			else:
 				var available_gauge = performing_player.get_available_gauge()
 				var can_do_something = false
+				var bonus_effect = {}
 				if effect['per_gauge_effect'] and available_gauge > 0:
 					can_do_something = true
 				elif effect['overall_effect'] and available_gauge >= effect['gauge_max']:
 					can_do_something = true
+				if 'bonus_effect' in effect:
+					bonus_effect = effect['bonus_effect']
 				if can_do_something:
 					change_game_state(Enums.GameState.GameState_PlayerDecision)
 					decision_info.clear()
@@ -4739,6 +4742,7 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 					decision_info.type = Enums.DecisionType.DecisionType_GaugeForEffect
 					decision_info.choice_card_id = card_id
 					decision_info.effect = effect
+					decision_info.bonus_effect = bonus_effect
 					events += [create_event(Enums.EventType.EventType_GaugeForEffect, performing_player.my_id, 0)]
 		"gain_advantage":
 			next_turn_player = performing_player.my_id
@@ -6438,12 +6442,31 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 			if boosts_in_play > 0:
 				performing_player.strike_stat_boosts.speed += effect['amount'] * boosts_in_play
 				events += [create_event(Enums.EventType.EventType_Strike_SpeedUp, performing_player.my_id, effect['amount'] * boosts_in_play)]
+		"spend_all_force_and_save_amount":
+			var force_amount = performing_player.get_available_force()
+			var card_names = ""
+			if performing_player.hand.size() > 0:
+				card_names = ": " + performing_player.hand[0].definition['display_name']
+				for i in range(1, len(performing_player.hand)):
+					card_names += ", " + performing_player.hand[i].definition['display_name']
+			if performing_player.gauge.size() > 0:
+				if card_names == "":
+					card_names += ": "
+				else:
+					card_names += ", "
+				card_names += performing_player.gauge[0].definition['display_name']
+				for i in range(1, len(performing_player.gauge)):
+					card_names += ", " + performing_player.gauge[i].definition['display_name']
+			_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "spends all cards in hand an gauge to generate %s force%s." % [force_amount, card_names])
+			events += performing_player.discard_hand()
+			events += performing_player.discard_gauge()
+			performing_player.force_spent_before_strike += force_amount
 		"spend_all_gauge_and_save_amount":
-			var gauge_amount = len(performing_player.gauge)
+			var gauge_amount = performing_player.get_available_gauge()
 			var card_names = ""
 			if performing_player.gauge.size() > 0:
 				card_names = ": " + performing_player.gauge[0].definition['display_name']
-				for i in range(1, gauge_amount):
+				for i in range(1, len(performing_player.gauge)):
 					card_names += ", " + performing_player.gauge[i].definition['display_name']
 			_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "discards all %s card(s) from their gauge%s." % [gauge_amount, card_names])
 			events += performing_player.discard_gauge()
@@ -9588,6 +9611,11 @@ func do_gauge_for_effect(performing_player : Player, card_ids : Array) -> bool:
 		if decision_info.effect['per_gauge_effect']:
 			decision_effect = decision_info.effect['per_gauge_effect']
 			effect_times = gauge_generated
+			if gauge_generated > 0 and 'combine_multiple_into_one' in decision_effect and decision_effect['combine_multiple_into_one']:
+				# This assumes this effect has no "and" effects.
+				decision_effect = decision_effect.duplicate()
+				decision_effect['amount'] = effect_times * decision_effect['amount']
+				effect_times = 1
 		elif decision_info.effect['overall_effect']:
 			decision_effect = decision_info.effect['overall_effect']
 			effect_times = 1
@@ -9606,6 +9634,9 @@ func do_gauge_for_effect(performing_player : Player, card_ids : Array) -> bool:
 			events += performing_player.discard(card_ids)
 		for i in range(0, effect_times):
 			events += handle_strike_effect(decision_info.choice_card_id, decision_effect, performing_player)
+
+	if decision_info.bonus_effect:
+		events += handle_strike_effect(decision_info.choice_card_id, decision_info.bonus_effect, performing_player)
 
 	# Intentional events = because events are passed in.
 	events = continue_player_action_resolution(events, performing_player)

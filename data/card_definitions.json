@@ -21732,23 +21732,38 @@
 	{
 		"id": "vatista_lateusorbis",
 		"type": "ultra",
-		"display_name": "Chasing le Reve",
+		"display_name": "Lateus Orbis",
 		"force_cost": 0,
 		"gauge_cost": 3,
-		"range_min": 1,
-		"range_max": 2,
-		"speed": 6,
-		"power": 3,
+		"range_min": 3,
+		"range_max": 8,
+		"speed": 3,
+		"power": 6,
 		"armor": 0,
-		"guard": 0,
+		"guard": 5,
 		"effects": [
 			{
-				"timing": "after",
-				"effect_type": "advance",
-				"amount": 3,
+				"timing": "hit",
+				"effect_type": "spend_all_force_and_save_amount",
 				"and": {
-					"effect_type": "draw",
-					"amount": 1
+					"effect_type": "set_strike_x",
+					"source": "force_spent_before_strike",
+					"and": {
+						"effect_type": "powerup",
+						"amount": "strike_x",
+						"suppress_and_description": true,
+						"and": {
+							"effect_type": "force_for_effect",
+							"other_player": true,
+							"per_force_effect": {
+								"combine_multiple_into_one": true,
+								"effect_type": "armorup",
+								"amount": 1
+							},
+							"overall_effect": null,
+							"force_max": -1
+						}
+					}
 				}
 			}
 		],
@@ -21756,21 +21771,22 @@
 			"boost_type": "continuous",
 			"force_cost": 0,
 			"cancel_cost": -1,
-			"display_name": "Windmill",
+			"display_name": "Autonomic Nerve",
 			"effects": [
 				{
-					"timing": "during_strike",
-					"effect_type": "powerup_opponent",
-					"amount": 3
-				},
-				{
-					"timing": "now",
-					"effect_type": "bonus_action"
-				},
-				{
-					"timing": "before",
-					"effect_type": "close",
-					"amount": 2
+					"timing": "hit",
+					"effect_type": "gauge_for_effect",
+					"per_gauge_effect": {
+						"combine_multiple_into_one": true,
+						"effect_type": "powerup",
+						"amount": 1,
+					},
+					"overall_effect": null,
+					"gauge_max": 6,
+					"bonus_effect": {
+						"effect_type": "add_boost_to_gauge_on_strike_cleanup",
+						"card_name": "Lateus Orbis"
+					}
 				}
 			]
 		}
@@ -21906,7 +21922,7 @@
 					"effect_type": "gain_advantage",
 					"and": {
 						"effect_type": "add_boost_to_gauge_on_strike_cleanup",
-						"card_name": "Frozen Vine"
+						"card_name": "Mikoruseo"
 					}
 				}
 			]
