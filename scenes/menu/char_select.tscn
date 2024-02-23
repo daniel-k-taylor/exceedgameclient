@@ -1,4 +1,4 @@
-[gd_scene load_steps=75 format=3 uid="uid://cqs72exlwm6at"]
+[gd_scene load_steps=76 format=3 uid="uid://cqs72exlwm6at"]
 
 [ext_resource type="Script" path="res://scenes/menu/char_select.gd" id="1_f3x24"]
 [ext_resource type="PackedScene" uid="uid://nwqxp8pdh1jk" path="res://scenes/menu/char_select_button.tscn" id="6_3lmwy"]
@@ -55,6 +55,7 @@
 [ext_resource type="Texture2D" uid="uid://bu2eawlvu1aut" path="res://assets/portraits/taokaka.png" id="37_iqb1f"]
 [ext_resource type="Texture2D" uid="uid://cqspv7l4mhdqc" path="res://assets/portraits/wagner.png" id="37_wga4c"]
 [ext_resource type="Texture2D" uid="uid://d2hpsnf4ait4n" path="res://assets/portraits/carlclover.png" id="37_wtd7i"]
+[ext_resource type="Texture2D" uid="uid://dhcce70vnns76" path="res://assets/portraits/vatista.png" id="38_aybhs"]
 [ext_resource type="Texture2D" uid="uid://brexpvmhajw2c" path="res://assets/portraits/guile.png" id="39_8wdmm"]
 [ext_resource type="Texture2D" uid="uid://bsnhwfau216op" path="res://assets/portraits/arakune.png" id="40_pcigi"]
 [ext_resource type="Texture2D" uid="uid://drfi3wl1nmdbh" path="res://assets/portraits/hakumen.png" id="41_d18gh"]
@@ -378,6 +379,11 @@ portrait_texture = ExtResource("36_5mgdp")
 layout_mode = 2
 char_id = "wagner"
 portrait_texture = ExtResource("37_wga4c")
+
+[node name="Vatista" parent="CenterContainer/UNICharacterSelect/Rows/Row4" instance=ExtResource("6_3lmwy")]
+layout_mode = 2
+char_id = "vatista"
+portrait_texture = ExtResource("38_aybhs")
 
 [node name="BBCharacterSelect" type="PanelContainer" parent="CenterContainer"]
 layout_mode = 2
@@ -743,6 +749,8 @@ portrait_texture = ExtResource("32_iutun")
 [connection signal="on_pressed" from="CenterContainer/UNICharacterSelect/Rows/Row4/Waldstein" to="." method="_on_char_button_on_pressed"]
 [connection signal="on_hover" from="CenterContainer/UNICharacterSelect/Rows/Row4/Wagner" to="." method="_on_char_hover"]
 [connection signal="on_pressed" from="CenterContainer/UNICharacterSelect/Rows/Row4/Wagner" to="." method="_on_char_button_on_pressed"]
+[connection signal="on_hover" from="CenterContainer/UNICharacterSelect/Rows/Row4/Vatista" to="." method="_on_char_hover"]
+[connection signal="on_pressed" from="CenterContainer/UNICharacterSelect/Rows/Row4/Vatista" to="." method="_on_char_button_on_pressed"]
 [connection signal="on_hover" from="CenterContainer/BBCharacterSelect/Rows/Row1/Ragna" to="." method="_on_char_hover"]
 [connection signal="on_pressed" from="CenterContainer/BBCharacterSelect/Rows/Row1/Ragna" to="." method="_on_char_button_on_pressed"]
 [connection signal="on_hover" from="CenterContainer/BBCharacterSelect/Rows/Row1/RandomBB" to="." method="_on_char_hover"]

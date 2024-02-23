@@ -21640,6 +21640,348 @@
 
 
 	{
+		"NOTE": "VATISTA CARDS START",
+		"id": "vatista_zahhishio",
+		"type": "ultra",
+		"display_name": "Zahhishio",
+		"force_cost": 0,
+		"gauge_cost": 2,
+		"range_min": 1,
+		"range_max": 2,
+		"speed": 6,
+		"power": 2,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "before",
+				"effect_type": "add_hand_to_gauge",
+				"and": {
+					"effect_type": "gain_advantage"
+				}
+			},
+			{
+				"timing": "hit",
+				"effect_type": "push",
+				"amount": 3
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Curse Commandment",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "powerup",
+					"amount": 3
+				},
+				{
+					"timing": "now",
+					"effect_type": "strike_from_gauge"
+				}
+			]
+		}
+	},
+	{
+		"id": "vatista_transvoranse",
+		"type": "ultra",
+		"display_name": "Transvoranse",
+		"force_cost": 0,
+		"gauge_cost": 1,
+		"range_min": 2,
+		"range_max": 3,
+		"speed": 4,
+		"power": 4,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "during_strike",
+				"effect_type": "ignore_guard"
+			},
+			{
+				"timing": "after",
+				"effect_type": "advance",
+				"amount": 2,
+				"and": {
+					"effect_type": "draw",
+					"amount": 1
+				}
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Charged Attack",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "powerup",
+					"amount": 2
+				},
+				{
+					"timing": "now",
+					"effect_type": "add_boost_to_gauge_on_move"
+				}
+			]
+		}
+	},
+	{
+		"id": "vatista_lateusorbis",
+		"type": "ultra",
+		"display_name": "Lateus Orbis",
+		"force_cost": 0,
+		"gauge_cost": 3,
+		"range_min": 3,
+		"range_max": 8,
+		"speed": 3,
+		"power": 6,
+		"armor": 0,
+		"guard": 5,
+		"effects": [
+			{
+				"timing": "hit",
+				"effect_type": "spend_all_force_and_save_amount",
+				"and": {
+					"effect_type": "set_strike_x",
+					"source": "force_spent_before_strike",
+					"and": {
+						"effect_type": "powerup",
+						"amount": "strike_x",
+						"suppress_and_description": true,
+						"and": {
+							"effect_type": "immediate_force_for_armor",
+							"opponent": true,
+							"amount": 1
+						}
+					}
+				}
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Autonomic Nerve",
+			"effects": [
+				{
+					"timing": "hit",
+					"effect_type": "gauge_for_effect",
+					"per_gauge_effect": {
+						"combine_multiple_into_one": true,
+						"effect_type": "powerup",
+						"amount": 1,
+					},
+					"overall_effect": null,
+					"gauge_max": 6,
+					"bonus_effect": {
+						"effect_type": "add_boost_to_gauge_on_strike_cleanup",
+						"card_name": "Lateus Orbis"
+					}
+				}
+			]
+		}
+	},
+	{
+		"id": "vatista_armabellum",
+		"type": "ultra",
+		"display_name": "Armabellum",
+		"force_cost": 0,
+		"gauge_cost": 1,
+		"range_min": 1,
+		"range_max": 3,
+		"speed": 2,
+		"power": 2,
+		"armor": 0,
+		"guard": 5,
+		"effects": [
+			{
+				"timing": "hit",
+				"effect_type": "gauge_from_hand",
+				"min_amount": 0,
+				"max_amount": 3,
+				"per_card_effect": {
+					"effect_type": "powerup",
+					"amount": 1
+				}
+			},
+			{
+				"timing": "after",
+				"effect_type": "choice",
+				"choice": [
+					{ "effect_type": "close", "amount": 1 },
+					{ "effect_type": "retreat", "amount": 1 }
+				]
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Crimson Wings",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "speedup",
+					"amount": 1
+				},
+				{
+					"timing": "now",
+					"effect_type": "add_boost_to_gauge_on_move"
+				}
+			]
+		}
+	},
+	{
+		"id": "vatista_ruberangelus",
+		"type": "ultra",
+		"display_name": "Ruber Angelus",
+		"force_cost": 0,
+		"gauge_cost": 2,
+		"range_min": 1,
+		"range_max": 2,
+		"speed": 2,
+		"power": 6,
+		"armor": 1,
+		"guard": 3,
+		"effects": [
+			{
+				"timing": "hit",
+				"effect_type": "push",
+				"amount": 2
+			},
+			{
+				"timing": "after",
+				"effect_type": "choice",
+				"choice": [
+					{ "effect_type": "advance", "amount": 4 },
+					{ "effect_type": "pass" }
+				]
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Restriction",
+			"effects": [
+				{
+					"timing": "hit",
+					"effect_type": "choice",
+					"choice": [
+						{ "effect_type": "push", "amount": 1 },
+						{ "effect_type": "pull", "amount": 1 }
+					]
+				},
+				{
+					"timing": "now",
+					"effect_type": "add_boost_to_gauge_on_move"
+				}
+			]
+		}
+	},
+	{
+		"id": "vatista_mikoruseo",
+		"type": "special",
+		"display_name": "Mikoruseo",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 3,
+		"range_max": 8,
+		"speed": 5,
+		"power": 2,
+		"armor": 2,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "during_strike",
+				"effect_type": "cannot_stun"
+			},
+			{
+				"timing": "after",
+				"condition": "hit_opponent",
+				"effect_type": "draw",
+				"amount": 1
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Swift Attack",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "speedup",
+					"amount": 1
+				},
+				{
+					"timing": "hit",
+					"effect_type": "gain_advantage",
+					"and": {
+						"effect_type": "add_boost_to_gauge_on_strike_cleanup",
+						"card_name": "Mikoruseo"
+					}
+				}
+			]
+		}
+	},
+	{
+		"NOTE": "VATISTA CARDS END",
+		"id": "vatista_lumenstella",
+		"type": "special",
+		"display_name": "Lumen Stella",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 3,
+		"range_max": 6,
+		"speed": 3,
+		"power": 5,
+		"armor": 0,
+		"guard": 5,
+		"effects": [
+			{
+				"timing": "hit",
+				"effect_type": "push",
+				"amount": 1,
+				"and": {
+					"effect_type": "draw",
+					"amount": 1
+				}
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 1,
+			"cancel_cost": -1,
+			"display_name": "Instant Flight",
+			"effects": [
+				{
+					"timing": "before",
+					"effect_type": "reveal_topdeck",
+					"reveal_to_both": true,
+					"and": {
+						"effect_type": "set_strike_x",
+						"source": "top_deck_power",
+						"and": {
+							"effect_type": "choice_altered_values",
+							"choice": [
+								{ "effect_type": "advance", "amount": "strike_x" },
+								{ "effect_type": "retreat", "amount": "strike_x" }
+							]
+						}
+					}
+				}
+			]
+		},
+		"NOTEEND": "VATISTA CARDS END"
+	},
+
+
+	{
 		"NOTE": "WAGNER CARDS START",
 		"id": "wagner_megiddo",
 		"type": "ultra",
@@ -22520,7 +22862,7 @@
 					"effect_type": "powerup",
 					"amount": "strike_x",
 					"and": {
-						"effect_type": "choice",
+						"effect_type": "choice_altered_values",
 						"choice": [
 							{ "effect_type": "advance", "amount": "strike_x" },
 							{ "effect_type": "retreat", "amount": "strike_x" }

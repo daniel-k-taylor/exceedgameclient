@@ -114,6 +114,8 @@ func get_choice_summary(choice, card_name_source : String):
 			summary_text += " or "
 		if effect_summary.min_value != null and effect_summary.effect['effect_type'] not in ["spend_life"]:
 			if effect_summary.min_value == effect_summary.max_value:
+				if str(effect_summary.min_value) == "strike_x":
+					effect_summary.min_value = "X"
 				summary_text += get_effect_type_heading(effect_summary.effect) + str(effect_summary.min_value)
 			else:
 				summary_text += get_effect_type_heading(effect_summary.effect) + str(effect_summary.min_value) + "-" + str(effect_summary.max_value)
@@ -529,6 +531,13 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 				effect_str += effect['special_choice_name']
 			else:
 				effect_str += "Choose: " + get_choice_summary(effect['choice'], card_name_source)
+		"choice_altered_values":
+			if 'opponent' in effect and effect['opponent']:
+				effect_str += "Opponent "
+			if 'special_choice_name' in effect:
+				effect_str += effect['special_choice_name']
+			else:
+				effect_str += "Choose: " + get_choice_summary(effect['choice'], card_name_source)
 		"choose_discard":
 			var destination = effect['destination']
 			if destination == "lightningrod_any_space":
@@ -693,10 +702,14 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 			effect_str += "Ignore Push and Pull"
 		"ignore_push_and_pull_passive_bonus":
 			effect_str += "Ignore Push and Pull"
+		"increase_draw_effects":
+			effect_str += "Increase draw effects by %s" % effect['amount']
 		"increase_force_spent_before_strike":
 			effect_str += get_effect_text(effect['linked_effect'], false, false, false)
 		"increase_movement_effects":
 			effect_str += "Increase advance/retreat effects by %s" % effect['amount']
+		"increase_move_opponent_effects":
+			effect_str += "Increase push/pull effects by %s" % effect['amount']
 		"lightningrod_strike":
 			effect_str += "Return %s to hand to deal 2 nonlethal damage" % effect['card_name']
 		"reset_character_positions":
@@ -930,6 +943,11 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 				effect_str += "Reveal opponent hand and top card of deck"
 			else:
 				effect_str += "Reveal your hand and top card of deck"
+		"reveal_topdeck":
+			if 'opponent' in effect and effect['opponent']:
+				effect_str += "Reveal top card of opponent's deck"
+			else:
+				effect_str += "Reveal top card of deck"
 		"reveal_strike":
 			effect_str += "Initiate face-up"
 		"save_power":
@@ -955,6 +973,8 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 						effect_str += "power of random gauge card"
 					'top_discard_power':
 						effect_str += "power of top card of discards"
+					'top_deck_power':
+						effect_str += "power of top card of deck"
 					'opponent_speed':
 						effect_str += "opponent's speed"
 					'force_spent_before_strike':
@@ -1021,6 +1041,8 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 				effect_str += "+" + str(effect['amount']) + " Speed per EVERY boost in play."
 			else:
 				effect_str += "+" + str(effect['amount']) + " Speed per boost in play."
+		"spend_all_force_and_save_amount":
+			effect_str += "Spend all hand/gauge as force"
 		"spend_all_gauge_and_save_amount":
 			effect_str += "Discard all cards in gauge"
 		"spend_life":

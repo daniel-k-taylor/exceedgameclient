@@ -440,6 +440,21 @@ func test_dan_legendary_taunt_extra_attack_gadouken():
 	assert_true(player1.is_card_in_discards(TestCardId1))
 	advance_turn(player2)
 
+func test_dan_legendary_taunt_extra_attack_shisso_buraiken():
+	position_players(player1, 4, player2, 7)
+	player1.hand = []
+	give_player_specific_card(player1, "dan_shissoburaiken", TestCardId3)
+	give_gauge(player1, 2)
+
+	execute_strike(player1, player2, "dan_legendarytaunt", "standard_normal_spike", [3, 1], [], false, false,
+		[], [], 0, true)
+	assert_true(game_logic.do_choose_to_discard(player1, [TestCardId3]))
+	validate_life(player1, 30, player2, 23)
+	validate_positions(player1, 6, player2, 7)
+	assert_true(player1.is_card_in_gauge(TestCardId3))
+	assert_true(player1.is_card_in_discards(TestCardId1))
+	advance_turn(player1)
+
 func test_dan_legendary_taunt_extra_attack_legendary_taunt():
 	position_players(player1, 1, player2, 9)
 	give_player_specific_card(player1, "dan_legendarytaunt", TestCardId3)
