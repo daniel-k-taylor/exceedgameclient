@@ -114,6 +114,8 @@ func get_choice_summary(choice, card_name_source : String):
 			summary_text += " or "
 		if effect_summary.min_value != null and effect_summary.effect['effect_type'] not in ["spend_life"]:
 			if effect_summary.min_value == effect_summary.max_value:
+				if str(effect_summary.min_value) == "strike_x":
+					effect_summary.min_value = "X"
 				summary_text += get_effect_type_heading(effect_summary.effect) + str(effect_summary.min_value)
 			else:
 				summary_text += get_effect_type_heading(effect_summary.effect) + str(effect_summary.min_value) + "-" + str(effect_summary.max_value)
@@ -934,6 +936,11 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 				effect_str += "Reveal opponent hand and top card of deck"
 			else:
 				effect_str += "Reveal your hand and top card of deck"
+		"reveal_topdeck":
+			if 'opponent' in effect and effect['opponent']:
+				effect_str += "Reveal top card of opponent's deck"
+			else:
+				effect_str += "Reveal top card of deck"
 		"reveal_strike":
 			effect_str += "Initiate face-up"
 		"save_power":
@@ -959,6 +966,8 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 						effect_str += "power of random gauge card"
 					'top_discard_power':
 						effect_str += "power of top card of discards"
+					'top_deck_power':
+						effect_str += "power of top card of deck"
 					'opponent_speed':
 						effect_str += "opponent's speed"
 					'force_spent_before_strike':

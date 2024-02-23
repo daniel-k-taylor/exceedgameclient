@@ -21865,44 +21865,45 @@
 	{
 		"id": "vatista_mikoruseo",
 		"type": "special",
-		"display_name": "Let the Fleur Carry Your Feelings",
+		"display_name": "Mikoruseo",
 		"force_cost": 0,
 		"gauge_cost": 0,
-		"range_min": 2,
-		"range_max": 4,
-		"speed": 4,
-		"power": 4,
-		"armor": 0,
+		"range_min": 3,
+		"range_max": 8,
+		"speed": 5,
+		"power": 2,
+		"armor": 2,
 		"guard": 0,
 		"effects": [
 			{
+				"timing": "during_strike",
+				"effect_type": "cannot_stun"
+			},
+			{
 				"timing": "after",
-				"condition": "opponent_stunned",
-				"effect_type": "choice",
-				"choice": [
-					{
-						"effect_type": "advance", "amount": 2 , "and": { "effect_type": "draw", "amount": 2 }
-					},
-					{
-						"effect_type": "retreat", "amount": 2 , "and": { "effect_type": "draw", "amount": 2 }
-					}
-				]
+				"condition": "hit_opponent",
+				"effect_type": "draw",
+				"amount": 1
 			}
 		],
 		"boost": {
-			"boost_type": "immediate",
-			"force_cost": 2,
+			"boost_type": "continuous",
+			"force_cost": 0,
 			"cancel_cost": -1,
-			"display_name": "Jumping to Conclusions",
+			"display_name": "Swift Attack",
 			"effects": [
 				{
-					"timing": "immediate",
-					"effect_type": "reveal_hand",
-					"opponent": true
+					"timing": "during_strike",
+					"effect_type": "speedup",
+					"amount": 1
 				},
 				{
-					"timing": "immediate",
-					"effect_type": "strike"
+					"timing": "hit",
+					"effect_type": "gain_advantage",
+					"and": {
+						"effect_type": "add_boost_to_gauge_on_strike_cleanup",
+						"card_name": "Frozen Vine"
+					}
 				}
 			]
 		}
@@ -21911,45 +21912,47 @@
 		"NOTE": "VATISTA CARDS END",
 		"id": "vatista_lumenstella",
 		"type": "special",
-		"display_name": "Ange's Invitation",
+		"display_name": "Lumen Stella",
 		"force_cost": 0,
 		"gauge_cost": 0,
-		"range_min": 1,
-		"range_max": 2,
+		"range_min": 3,
+		"range_max": 6,
 		"speed": 3,
 		"power": 5,
 		"armor": 0,
-		"guard": 0,
+		"guard": 5,
 		"effects": [
 			{
-				"timing": "during_strike",
-				"effect_type": "higher_speed_misses",
-				"dodge_at_speed_greater_or_equal": 6
-			},
-			{
-				"timing": "after",
-				"effect_type": "advance",
-				"amount": 3
+				"timing": "hit",
+				"effect_type": "push",
+				"amount": 1,
+				"and": {
+					"effect_type": "draw",
+					"amount": 1
+				}
 			}
 		],
 		"boost": {
 			"boost_type": "continuous",
-			"force_cost": 0,
+			"force_cost": 1,
 			"cancel_cost": -1,
-			"display_name": "Chain Shift",
+			"display_name": "Instant Flight",
 			"effects": [
 				{
-					"timing": "during_strike",
-					"effect_type": "speedup",
-					"amount": 1
-				},
-				{
-					"timing": "now",
-					"effect_type": "strike"
-				},
-				{
-					"timing": "after",
-					"effect_type": "add_to_gauge_immediately_mid_strike_undo_effects"
+					"timing": "before",
+					"effect_type": "reveal_topdeck",
+					"reveal_to_both": true,
+					"and": {
+						"effect_type": "set_strike_x",
+						"source": "top_deck_power",
+						"and": {
+							"effect_type": "choice",
+							"choice": [
+								{ "effect_type": "advance", "amount": "strike_x" },
+								{ "effect_type": "retreat", "amount": "strike_x" }
+							]
+						}
+					}
 				}
 			]
 		},

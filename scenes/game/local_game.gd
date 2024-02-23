@@ -2168,14 +2168,14 @@ class Player:
 		events += reveal_topdeck()
 		return events
 
-	func reveal_topdeck():
+	func reveal_topdeck(reveal_to_both : bool = false):
 		var events = []
 		if deck.size() == 0:
 			parent._append_log_full(Enums.LogType.LogType_CardInfo, self, "has no cards in their deck to reveal.")
 			return events
 
 		var card_name = parent.card_db.get_card_name(deck[0].id)
-		if self == parent.player:
+		if self == parent.player and not reveal_to_both:
 			parent._append_log_full(Enums.LogType.LogType_CardInfo, self, "reveals the top card of their deck to the opponent.")
 		else:
 			parent._append_log_full(Enums.LogType.LogType_CardInfo, self, "reveals the top card of their deck: %s." % card_name)
@@ -5140,7 +5140,10 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 			if 'opponent' in effect and effect['opponent']:
 				events += opposing_player.reveal_topdeck()
 			else:
-				events += performing_player.reveal_topdeck()
+				var reveal_to_both = false
+				if 'reveal_to_both' in effect and effect['reveal_to_both']:
+					reveal_to_both = true
+				events += performing_player.reveal_topdeck(reveal_to_both)
 		"reveal_strike":
 			if performing_player == active_strike.initiator:
 				active_strike.initiator_set_face_up = true
@@ -7172,6 +7175,15 @@ func do_set_strike_x(performing_player : Player, source : String, extra_info):
 				_append_log_full(Enums.LogType.LogType_Strike, performing_player, "'s X for this strike is set to the power of %s on top of discards, %s." % [card_name, value])
 			else:
 				_append_log_full(Enums.LogType.LogType_Strike, performing_player, "has no discards, so X is set to 0.")
+		"top_deck_power":
+			if len(performing_player.deck) > 0:
+				var card = performing_player.get_top_deck_card()
+				var power = get_card_stat(performing_player, card, 'power')
+				value = max(power, 0)
+				var card_name = card_db.get_card_name(card.id)
+				_append_log_full(Enums.LogType.LogType_Strike, performing_player, "'s X for this strike is set to the power of %s on top of deck, %s." % [card_name, value])
+			else:
+				_append_log_full(Enums.LogType.LogType_Strike, performing_player, "'s deck is empty, so X is set to 0.")
 		"opponent_speed":
 			if active_strike:
 				if performing_player == active_strike.initiator:
