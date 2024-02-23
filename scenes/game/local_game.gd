@@ -1384,7 +1384,7 @@ class Player:
 					if card.definition['type'] == "special" or card.definition['type'] == "ultra":
 						cards.append(card)
 				"can_pay_cost":
-					var gauge_cost = parent.get_gauge_cost(self, card)
+					var gauge_cost = parent.get_gauge_cost(self, card, true)
 					var force_cost = card.definition['force_cost']
 					if strike_stat_boosts.may_generate_gauge_with_force:
 						# Convert the gauge cost to a force cost.
@@ -7620,7 +7620,7 @@ func on_death(performing_player):
 		events += trigger_game_over(performing_player.my_id, Enums.GameOverReason.GameOverReason_Life)
 	return events
 
-func get_gauge_cost(performing_player, card):
+func get_gauge_cost(performing_player, card, check_if_card_in_hand = false):
 	var gauge_cost = card.definition['gauge_cost']
 	var is_ex = active_strike.will_be_ex(performing_player)
 	if 'gauge_cost_ex' in card.definition and is_ex:
@@ -7641,6 +7641,8 @@ func get_gauge_cost(performing_player, card):
 				gauge_cost = max(0, gauge_cost)
 			"free_if_no_cards_in_hand":
 				var hand_size = performing_player.hand.size()
+				if check_if_card_in_hand and card in performing_player.hand:
+					hand_size -= 1
 				if hand_size == 0:
 					gauge_cost = 0
 			"free_if_4_specials_in_overdrive":
