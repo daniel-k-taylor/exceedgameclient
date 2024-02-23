@@ -4313,8 +4313,10 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 			# Make a deep copy of the choices and replace any needed values.
 			var updated_choices = effect['choice'].duplicate(true)
 			for choice_effect in updated_choices:
-				if choice_effect['amount'] == "TOTAL_POWER":
+				if str(choice_effect['amount']) == "TOTAL_POWER":
 					choice_effect['amount'] = get_total_power(performing_player)
+				elif str(choice_effect['amount']) == "strike_x":
+					choice_effect['amount'] = performing_player.strike_stat_boosts.strike_x
 
 			# Same as normal choice.
 			change_game_state(Enums.GameState.GameState_PlayerDecision)
@@ -6479,7 +6481,7 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 			_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "spends all cards in hand an gauge to generate %s force%s." % [force_amount, card_names])
 			events += performing_player.discard_hand()
 			events += performing_player.discard_gauge()
-			performing_player.force_spent_before_strike += force_amount
+			performing_player.force_spent_before_strike = force_amount
 		"spend_all_gauge_and_save_amount":
 			var gauge_amount = performing_player.get_available_gauge()
 			var card_names = ""
@@ -6489,7 +6491,7 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 					card_names += ", " + performing_player.gauge[i].definition['display_name']
 			_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "discards all %s card(s) from their gauge%s." % [gauge_amount, card_names])
 			events += performing_player.discard_gauge()
-			performing_player.gauge_spent_before_strike += gauge_amount
+			performing_player.gauge_spent_before_strike = gauge_amount
 		"spend_life":
 			var amount = effect['amount']
 			performing_player.life -= amount

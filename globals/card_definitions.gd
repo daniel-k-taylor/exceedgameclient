@@ -531,6 +531,13 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 				effect_str += effect['special_choice_name']
 			else:
 				effect_str += "Choose: " + get_choice_summary(effect['choice'], card_name_source)
+		"choice_altered_values":
+			if 'opponent' in effect and effect['opponent']:
+				effect_str += "Opponent "
+			if 'special_choice_name' in effect:
+				effect_str += effect['special_choice_name']
+			else:
+				effect_str += "Choose: " + get_choice_summary(effect['choice'], card_name_source)
 		"choose_discard":
 			var destination = effect['destination']
 			if destination == "lightningrod_any_space":
