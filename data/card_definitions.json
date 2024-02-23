@@ -21794,72 +21794,32 @@
 	{
 		"id": "vatista_armabellum",
 		"type": "ultra",
-		"display_name": "Plumage Dancing in the Wind",
+		"display_name": "Armabellum",
 		"force_cost": 0,
 		"gauge_cost": 1,
 		"range_min": 1,
-		"range_max": 1,
-		"speed": 6,
-		"power": 3,
+		"range_max": 3,
+		"speed": 2,
+		"power": 2,
 		"armor": 0,
-		"guard": 0,
+		"guard": 5,
 		"effects": [
-			{
-				"timing": "during_strike",
-				"condition": "initiated_strike",
-				"effect_type": "powerup",
-				"amount": 2
-			},
-			{
-				"timing": "during_strike",
-				"condition": "not_initiated_strike",
-				"effect_type": "speedup",
-				"amount": 1
-			}
-		],
-		"boost": {
-			"boost_type": "continuous",
-			"force_cost": 1,
-			"cancel_cost": -1,
-			"display_name": "Reach",
-			"effects": [
-				{
-					"timing": "during_strike",
-					"effect_type": "rangeup",
-					"amount": 0,
-					"amount2": 1
-				},
-				{
-					"timing": "now",
-					"effect_type": "strike"
-				}
-			]
-		}
-	},
-	{
-		"id": "vatista_ruberangelus",
-		"type": "ultra",
-		"display_name": "Conveying My Vrai Couer",
-		"force_cost": 0,
-		"gauge_cost": 2,
-		"range_min": 1,
-		"range_max": 1,
-		"speed": 5,
-		"power": 3,
-		"armor": 0,
-		"guard": 0,
-		"effects": [
-			{
-				"timing": "before",
-				"effect_type": "close",
-				"amount": 3
-			},
 			{
 				"timing": "hit",
+				"effect_type": "gauge_from_hand",
+				"min_amount": 0,
+				"max_amount": 3,
+				"per_card_effect": {
+					"effect_type": "powerup",
+					"amount": 1
+				}
+			},
+			{
+				"timing": "after",
 				"effect_type": "choice",
 				"choice": [
-					{ "effect_type": "push", "amount": 1 },
-					{ "effect_type": "pull", "amount": 1 }
+					{ "effect_type": "close", "amount": 1 },
+					{ "effect_type": "retreat", "amount": 1 }
 				]
 			}
 		],
@@ -21867,17 +21827,64 @@
 			"boost_type": "continuous",
 			"force_cost": 0,
 			"cancel_cost": -1,
-			"display_name": "Overpower",
+			"display_name": "Crimson Wings",
 			"effects": [
 				{
 					"timing": "during_strike",
-					"effect_type": "powerup",
-					"amount": 1
+					"effect_type": "speedup",
+					"amount": 2
 				},
 				{
-					"timing": "before",
-					"effect_type": "close",
-					"amount": 1
+					"timing": "now",
+					"effect_type": "add_boost_to_gauge_on_move"
+				}
+			]
+		}
+	},
+	{
+		"id": "vatista_ruberangelus",
+		"type": "ultra",
+		"display_name": "Ruber Angelus",
+		"force_cost": 0,
+		"gauge_cost": 2,
+		"range_min": 1,
+		"range_max": 2,
+		"speed": 2,
+		"power": 6,
+		"armor": 1,
+		"guard": 3,
+		"effects": [
+			{
+				"timing": "hit",
+				"effect_type": "push",
+				"amount": 2
+			},
+			{
+				"timing": "after",
+				"effect_type": "choice",
+				"choice": [
+					{ "effect_type": "advance", "amount": 4 },
+					{ "effect_type": "pass" }
+				]
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Restriction",
+			"effects": [
+				{
+					"timing": "hit",
+					"effect_type": "choice",
+					"choice": [
+						{ "effect_type": "push", "amount": 1 },
+						{ "effect_type": "pull", "amount": 1 }
+					]
+				},
+				{
+					"timing": "now",
+					"effect_type": "add_boost_to_gauge_on_move"
 				}
 			]
 		}

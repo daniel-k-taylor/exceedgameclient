@@ -4767,6 +4767,9 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 					"min_amount": min_amount,
 					"max_amount": max_amount,
 				}
+				decision_info.bonus_effect = {}
+				if 'per_card_effect' in effect and effect['per_card_effect']:
+					decision_info.bonus_effect = effect['per_card_effect']
 				events += [create_event(Enums.EventType.EventType_CardFromHandToGauge_Choice, performing_player.my_id, min_amount, "", max_amount)]
 			else:
 				_append_log_full(Enums.LogType.LogType_Effect, performing_player, "has no cards in hand to put in gauge.")
@@ -9153,23 +9156,27 @@ func do_card_from_hand_to_gauge(performing_player : Player, card_ids : Array) ->
 
 	var events = []
 	if card_ids.size() > 0:
-		var card_names = card_db.get_card_names(card_ids)
 		for card_id in card_ids:
+			var card_name = card_db.get_card_name(card_id)
 			if decision_info.destination == "gauge":
 				events += performing_player.move_card_from_hand_to_gauge(card_id)
-				_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "moves cards (%s) from hand to gauge." % card_names)
+				_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "moves a card (%s) from hand to gauge." % card_name)
 			elif decision_info.destination == "topdeck":
 				events += performing_player.move_card_from_hand_to_deck(card_id)
-				card_names = str(card_ids.size())
 				_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "moves %s card(s) from hand to top of deck." % str(card_ids.size()))
 			elif decision_info.destination == "deck":
 				events += performing_player.shuffle_card_from_hand_to_deck(card_id)
-				card_names = str(card_ids.size())
 				_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "shuffles %s card(s) from hand into deck." % str(card_ids.size()))
 			else:
 				assert(false, "Unknown destination for do_card_from_hand_to_gauge")
 
 	set_player_action_processing_state()
+
+	if decision_info.bonus_effect and card_ids.size() > 0:
+		var per_card_effect = decision_info.bonus_effect.duplicate()
+		per_card_effect['amount'] = card_ids.size() * per_card_effect['amount']
+		events += handle_strike_effect(decision_info.choice_card_id, per_card_effect, performing_player)
+
 	# Intentional events = because events are passed in.
 	events = continue_player_action_resolution(events, performing_player)
 	event_queue += events
