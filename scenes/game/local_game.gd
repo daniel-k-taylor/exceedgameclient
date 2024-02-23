@@ -4810,6 +4810,22 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 			performing_player.ignore_push_and_pull += 1
 			if performing_player.ignore_push_and_pull == 1:
 				_append_log_full(Enums.LogType.LogType_Effect, performing_player, "cannot be pushed or pulled!")
+		"immediate_force_for_armor":
+			var offense_player = opposing_player
+			var defense_player = performing_player
+			if 'opponent' in effect and effect['opponent']:
+				offense_player = performing_player
+				defense_player = opposing_player
+			var incoming_damage = calculate_damage(offense_player, defense_player)
+
+			change_game_state(Enums.GameState.GameState_PlayerDecision)
+			decision_info.clear()
+			decision_info.player = defense_player.my_id
+			decision_info.type = Enums.DecisionType.DecisionType_ForceForArmor
+			decision_info.choice_card_id = card_id
+			decision_info.limitation = "force"
+			decision_info.amount = effect['amount']
+			events += [create_event(Enums.EventType.EventType_Strike_ForceForArmor, defense_player.my_id, incoming_damage, "", offense_player.strike_stat_boosts.ignore_armor)]
 		"increase_draw_effects":
 			var amount = effect['amount']
 			performing_player.strike_stat_boosts.increase_draw_effects_by += amount
@@ -7772,10 +7788,12 @@ func do_hit_response_effects(offense_player : Player, defense_player : Player, i
 
 	if defense_player.strike_stat_boosts.when_hit_force_for_armor:
 		change_game_state(Enums.GameState.GameState_PlayerDecision)
+		decision_info.clear()
 		decision_info.player = defense_player.my_id
 		decision_info.type = Enums.DecisionType.DecisionType_ForceForArmor
 		decision_info.choice_card_id = defender_card.id
 		decision_info.limitation = defense_player.strike_stat_boosts.when_hit_force_for_armor
+		decision_info.amount = 2
 		events += [create_event(Enums.EventType.EventType_Strike_ForceForArmor, defense_player.my_id, incoming_damage, "", offense_player.strike_stat_boosts.ignore_armor)]
 
 	return events
@@ -9094,8 +9112,9 @@ func do_force_for_armor(performing_player : Player, card_ids : Array) -> bool:
 			_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "spends gauge for armor: %s." % card_names)
 		else:
 			_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "discards cards as force for armor: %s." % card_names)
+		var armor_per_force = decision_info.amount
 		events += performing_player.discard(card_ids)
-		events += handle_strike_effect(decision_info.choice_card_id, {'effect_type': 'armorup', 'amount': force_generated * 2}, performing_player)
+		events += handle_strike_effect(decision_info.choice_card_id, {'effect_type': 'armorup', 'amount': force_generated * armor_per_force}, performing_player)
 	# Intentional events = because events are passed in.
 	events = continue_resolve_strike(events)
 	event_queue += events

@@ -97,6 +97,7 @@ var arena_locations_clickable = []
 var selected_arena_location = 0
 var force_for_armor_incoming_damage = 0
 var force_for_armor_ignore_armor = false
+var force_for_armor_amount = 2
 var popout_exlude_card_ids = []
 var selected_character_action = 0
 var cached_player_location = 0
@@ -2081,12 +2082,12 @@ func update_gauge_selection_message():
 	if ui_sub_state == UISubState.UISubState_SelectCards_GaugeForArmor:
 		var gauge_generated = get_gauge_generated()
 		var force_generated_str = "%s gauge selected." % [gauge_generated]
-		var damage_after_armor = max(0, force_for_armor_incoming_damage - 2 * gauge_generated)
+		var damage_after_armor = max(0, force_for_armor_incoming_damage - force_for_armor_amount * gauge_generated)
 		var ignore_armor_str = ""
 		if force_for_armor_ignore_armor:
 			damage_after_armor = force_for_armor_incoming_damage
 			ignore_armor_str = "Armor Ignored! "
-		set_instructions("Spend Gauge to generate force for +2 Armor each.\n%s\n%sYou will take %s damage." % [force_generated_str, ignore_armor_str, damage_after_armor])
+		set_instructions("Spend Gauge to generate force for +%s Armor each.\n%s\n%sYou will take %s damage." % [force_for_armor_amount, force_generated_str, ignore_armor_str, damage_after_armor])
 	else:
 		var num_remaining = select_card_require_min - get_gauge_generated()
 		var discard_reminder = ""
@@ -2174,12 +2175,12 @@ func update_force_generation_message():
 		UISubState.UISubState_SelectCards_ForceForChange:
 			set_instructions("Select cards to generate force to draw new cards.\n%s" % [force_generated_str])
 		UISubState.UISubState_SelectCards_ForceForArmor:
-			var damage_after_armor = max(0, force_for_armor_incoming_damage - 2 * force_selected)
+			var damage_after_armor = max(0, force_for_armor_incoming_damage - force_for_armor_amount * force_selected)
 			var ignore_armor_str = ""
 			if force_for_armor_ignore_armor:
 				damage_after_armor = force_for_armor_incoming_damage
 				ignore_armor_str = "Armor Ignored! "
-			set_instructions("Select cards to generate force for +2 Armor each.\n%s\n%sYou will take %s damage." % [force_generated_str, ignore_armor_str, damage_after_armor])
+			set_instructions("Select cards to generate force for +%s Armor each.\n%s\n%sYou will take %s damage." % [force_for_armor_amount, force_generated_str, ignore_armor_str, damage_after_armor])
 		UISubState.UISubState_SelectCards_StrikeForce:
 			set_instructions("Select cards to generate %s force for this strike.\n%s" % [select_card_require_force, force_generated_str])
 		UISubState.UISubState_SelectCards_ForceForEffect:
@@ -2703,6 +2704,7 @@ func _on_force_for_armor(event):
 	var use_gauge_instead = game_wrapper.get_decision_info().limitation == "gauge"
 	force_for_armor_incoming_damage = event['number']
 	force_for_armor_ignore_armor = event['extra_info']
+	force_for_armor_amount = game_wrapper.get_decision_info().amount
 	if player == Enums.PlayerId.PlayerId_Player and not observer_mode:
 		if use_gauge_instead:
 			begin_gauge_selection(-1, false, UISubState.UISubState_SelectCards_GaugeForArmor)

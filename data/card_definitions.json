@@ -21753,15 +21753,9 @@
 						"amount": "strike_x",
 						"suppress_and_description": true,
 						"and": {
-							"effect_type": "force_for_effect",
-							"other_player": true,
-							"per_force_effect": {
-								"combine_multiple_into_one": true,
-								"effect_type": "armorup",
-								"amount": 1
-							},
-							"overall_effect": null,
-							"force_max": -1
+							"effect_type": "immediate_force_for_armor",
+							"opponent": true,
+							"amount": 1
 						}
 					}
 				}
