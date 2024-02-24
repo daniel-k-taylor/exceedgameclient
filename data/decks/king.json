@@ -14,64 +14,21 @@
 	"can_boost_from_extra": true,
 	"exceed_cost": 3,
 	"on_exceed": {
-		"effect_type": "choice",
-		"choice": [
-			{ "effect_type": "advance", "amount": 1},
-			{ "effect_type": "advance", "amount": 2},
-			{ "effect_type": "retreat", "amount": 1},
-			{ "effect_type": "retreat", "amount": 2},
-			{ "effect_type": "pass" }
-		]
+		"effect_type": "draw",
+		"amount": 2
 	},
-	"character_action_exceeded": [{
-		"gauge_cost": 0,
-		"force_cost": 0,
-		"action_name": "Move 1 and Strike",
-		"shortcut_effect_type": "choice",
-		"effect": {
-			"effect_type": "choice",
-			"choice": [
-				{
-					"effect_type": "advance",
-					"amount": 1,
-					"and":
-						{ "effect_type": "strike" }
-				},
-				{
-					"effect_type": "retreat",
-					"amount": 1,
-					"and":
-						{ "effect_type": "strike" }
-				}
-			]
-		}
-	}],
 	"ability_effects": [
 		{
-			"timing": "hit",
-			"condition": "is_special_or_ultra_attack",
-			"effect_type": "pass",
-			"silent_effect": true,
-			"and": {
-				"condition": "opponent_at_max_range",
-				"character_effect": true,
-				"effect_type": "powerup",
-				"amount": 2
-			}
+			"timing": "on_continuous_boost",
+			"effect_type": "draw",
+			"amount": 1
 		}
 	],
 	"exceed_ability_effects": [
 		{
-			"timing": "hit",
-			"condition": "is_special_or_ultra_attack",
-			"effect_type": "pass",
-			"silent_effect": true,
-			"and": {
-				"condition": "opponent_at_max_range",
-				"character_effect": true,
-				"effect_type": "powerup",
-				"amount": 2
-			}
+			"timing": "on_continuous_boost",
+			"effect_type": "draw",
+			"amount": 1
 		}
 	],
 	"cards": [
