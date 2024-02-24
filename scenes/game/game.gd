@@ -108,6 +108,7 @@ var discard_ex_first_for_strike = false
 var current_pay_costs_is_ex = false
 var preparing_character_action = false
 var prepared_character_action_data = {}
+var player_can_boost_from_extra = false
 
 var player_deck
 var opponent_deck
@@ -432,6 +433,7 @@ func setup_characters():
 	$OpponentZones/OpponentOverdrive.visible = is_player_overdrive_visible(Enums.PlayerId.PlayerId_Opponent)
 	setup_character_card(player_character_card, player_deck, player_buddy_character_card)
 	setup_character_card(opponent_character_card, opponent_deck, opponent_buddy_character_card)
+	player_can_boost_from_extra = 'can_boost_from_extra' in player_deck and player_deck['can_boost_from_extra']
 
 func setup_character_card(character_card, deck, buddy_character_card):
 	character_card.set_name_text(deck['display_name'])
@@ -520,19 +522,19 @@ func create_character_reference_card(path_root : String, exceeded : bool, zone):
 	var image_path = path_root + "character_default.jpg"
 	if exceeded:
 		image_path = path_root + "character_exceeded.jpg"
-	_create_reference_card(image_path, "Character Card", zone)
+	_create_reference_card(image_path, "Character Card", zone, CardBase.CharacterCardReferenceId)
 
-func create_buddy_reference_card(path_root : String, buddy_id, exceeded : bool, zone):
+func create_buddy_reference_card(path_root : String, buddy_id, exceeded : bool, zone, click_buddy_id):
 	var image_path = path_root + buddy_id + ".jpg"
 	if exceeded:
 		image_path = path_root + buddy_id + "_exceeded.jpg"
-	_create_reference_card(image_path, "Extra Card", zone)
+	_create_reference_card(image_path, "Extra Card", zone, click_buddy_id)
 
-func _create_reference_card(image_path : String, card_name : String, zone):
+func _create_reference_card(image_path : String, card_name : String, zone, card_id : int):
 	var new_card : CardBase = CardBaseScene.instantiate()
 	zone.add_child(new_card)
 	new_card.initialize_card(
-		CardBase.CharacterCardReferenceId,
+		card_id,
 		image_path,
 		image_path,
 		false
@@ -546,14 +548,17 @@ func _create_reference_card(image_path : String, card_name : String, zone):
 	new_card.change_state(CardBase.CardState.CardState_Offscreen)
 	new_card.flip_card_to_front(true)
 
+	if card_id not in [CardBase.CharacterCardReferenceId, CardBase.BuddyCardReferenceId]:
+		new_card.clicked_card.connect(on_card_clicked)
+
 func get_card_root_path(deck_id : String):
 	return "res://assets/cards/" + deck_id + "/"
 
 func get_card_image_path(deck_id : String, game_card : GameCard):
 	return get_card_root_path(deck_id) + game_card.image
 
-func spawn_deck(deck_id, deck_list, deck_card_zone, copy_zone, buddy_graphic_list,
-		buddy_copy_zone, set_aside_zone, card_back_image, is_opponent):
+func spawn_deck(deck_id, deck_list, deck_card_zone, copy_zone, buddy_graphic_list, buddy_copy_zone,
+		allow_click_buddy, set_aside_zone, card_back_image, is_opponent):
 	var card_db = game_wrapper.get_card_database()
 	var card_root_path = get_card_root_path(deck_id)
 	for card in deck_list:
@@ -569,19 +574,16 @@ func spawn_deck(deck_id, deck_list, deck_card_zone, copy_zone, buddy_graphic_lis
 	create_character_reference_card(card_root_path, false, copy_zone)
 	create_character_reference_card(card_root_path, true, copy_zone)
 
-	# Setup buddy if they have one.
-	var created_buddy_cards = []
-	if buddy_graphic_list:
-		for buddy_id in buddy_graphic_list:
-			if buddy_id in created_buddy_cards:
-				# Skip any that share graphics.
-				continue
-			created_buddy_cards.append(buddy_id)
-			create_buddy_reference_card(card_root_path, buddy_id, false, buddy_copy_zone)
-
 	var previous_def_id = ""
+	var buddy_card_id_links = {}
 	for card in deck_list:
 		var logic_card : GameCard = card_db.get_card(card.id)
+
+		# Associates clickable buddy cards with deck cards;
+		#   only accounts for one copy, ignored if allow_click_buddy is false
+		if logic_card.definition['id'] in buddy_graphic_list:
+			buddy_card_id_links[logic_card.definition['id']] = card.id
+
 		if logic_card.hide_from_reference:
 			continue
 		var image_path = card_root_path + logic_card.image
@@ -592,6 +594,19 @@ func spawn_deck(deck_id, deck_list, deck_card_zone, copy_zone, buddy_graphic_lis
 			copy_card.change_state(CardBase.CardState.CardState_Offscreen)
 			copy_card.flip_card_to_front(true)
 			previous_def_id = card.definition['id']
+
+	# Setup buddy if they have one.
+	var created_buddy_cards = []
+	if buddy_graphic_list:
+		for buddy_id in buddy_graphic_list:
+			if buddy_id in created_buddy_cards:
+				# Skip any that share graphics.
+				continue
+			created_buddy_cards.append(buddy_id)
+			var buddy_card_id = CardBase.BuddyCardReferenceId
+			if allow_click_buddy:
+				buddy_card_id = buddy_card_id_links[buddy_id]
+			create_buddy_reference_card(card_root_path, buddy_id, false, buddy_copy_zone, buddy_card_id)
 
 func spawn_damage_popup(value:String, notice_player : Enums.PlayerId):
 	var popup = get_damage_popup()
@@ -644,10 +659,12 @@ func spawn_all_cards():
 				if 'buddy_exceeds' in deck and deck['buddy_exceeds']:
 					graphic_list.append(buddy_card + "_exceeded")
 
+	var player_can_click_buddy = 'can_boost_from_extra' in player_deck and player_deck['can_boost_from_extra']
+
 	spawn_deck(player_deck_id, game_wrapper.get_player_deck_list(Enums.PlayerId.PlayerId_Player), $AllCards/PlayerDeck, $AllCards/PlayerAllCopy,
-		player_buddy_graphics, $AllCards/PlayerBuddyCopy, $AllCards/PlayerSetAside, player_cardback, false)
+		player_buddy_graphics, $AllCards/PlayerBuddyCopy, player_can_click_buddy, $AllCards/PlayerSetAside, player_cardback, false)
 	spawn_deck(opponent_deck_id, game_wrapper.get_player_deck_list(Enums.PlayerId.PlayerId_Opponent), $AllCards/OpponentDeck, $AllCards/OpponentAllCopy,
-		opponent_buddy_graphics, $AllCards/OpponentBuddyCopy, $AllCards/OpponentSetAside, opponent_cardback, true)
+		opponent_buddy_graphics, $AllCards/OpponentBuddyCopy, false, $AllCards/OpponentSetAside, opponent_cardback, true)
 
 func get_arena_location_button(arena_location):
 	var target_square = arena_layout.get_child(arena_location - 1)
@@ -987,7 +1004,13 @@ func can_select_card(card):
 		UISubState.UISubState_SelectCards_ForceForBoost:
 			return (in_gauge or in_hand) and selected_boost_to_pay_for != card.card_id
 		UISubState.UISubState_SelectCards_DiscardContinuousBoost:
-			return (in_player_boosts or (not game_wrapper.get_decision_info().limitation and in_opponent_boosts)) and len(selected_cards) < select_card_require_max
+			if (in_player_boosts or (not game_wrapper.get_decision_info().limitation and in_opponent_boosts)) and len(selected_cards) < select_card_require_max:
+				var card_db = game_wrapper.get_card_database()
+				var logic_card = card_db.get_card(card.card_id)
+				if 'cannot_discard' in logic_card.definition['boost'] and logic_card.definition['boost']['cannot_discard']:
+					return false
+				return true
+			return false
 		UISubState.UISubState_SelectCards_DiscardOpponentGauge:
 			return in_opponent_gauge and len(selected_cards) < select_card_require_max
 		UISubState.UISubState_SelectCards_DiscardFromReference:
@@ -1382,7 +1405,7 @@ func _on_discard_continuous_boost_begin(event):
 	if player == Enums.PlayerId.PlayerId_Player and not observer_mode:
 		# Show the boost window.
 		var instruction_qualifier = "a"
-		if limitation == "mine" or game_wrapper.get_player_continuous_boost_count(player) == 0:
+		if limitation == "mine" or game_wrapper.get_player_discardable_boost_count(player) == 0:
 			instruction_qualifier = "your"
 		selected_cards = []
 		select_card_require_min = 1
@@ -1405,7 +1428,7 @@ func _on_discard_continuous_boost_begin(event):
 			"cancel_visible": can_pass,
 		}
 		enable_instructions_ui(instruction_text, true, can_pass, false)
-		if limitation == "mine" or game_wrapper.get_player_continuous_boost_count(Enums.PlayerId.PlayerId_Opponent) == 0:
+		if limitation == "mine" or game_wrapper.get_player_discardable_boost_count(Enums.PlayerId.PlayerId_Opponent) == 0:
 			_on_player_boost_zone_clicked_zone()
 		else:
 			_on_opponent_boost_zone_clicked_zone()
@@ -2366,6 +2389,8 @@ func begin_boost_choosing(can_cancel : bool, valid_zones : Array, limitation : S
 		_on_player_gauge_gauge_clicked()
 	elif 'discard' in valid_zones: # can't open two zones at once
 		_on_player_discard_button_pressed()
+	elif 'extra' in valid_zones:
+		_on_player_buddy_button_pressed(true)
 
 	enable_instructions_ui(instructions, true, can_cancel)
 	change_ui_state(UIState.UIState_SelectCards, UISubState.UISubState_SelectCards_PlayBoost)
@@ -3663,7 +3688,10 @@ func _on_reshuffle_button_pressed():
 	_update_buttons()
 
 func _on_boost_button_pressed():
-	begin_boost_choosing(true, ['hand'], "", false)
+	var valid_zones = ['hand']
+	if player_can_boost_from_extra:
+		valid_zones.append('extra')
+	begin_boost_choosing(true, valid_zones, "", false)
 
 func _on_strike_button_pressed():
 	begin_strike_choosing(false, true)
@@ -4488,7 +4516,7 @@ func popout_show_normal_only() -> bool:
 	return false
 
 func show_popout(popout_type : CardPopoutType, popout_title : String, card_node,
-		show_amount : bool = true, force_hide_reshuffle = false):
+		show_amount : bool = true, force_hide_reshuffle = false, extra_only_show_boosts = false):
 	close_popout()
 
 	var card_popout = CardPopoutScene.instantiate()
@@ -4498,6 +4526,7 @@ func show_popout(popout_type : CardPopoutType, popout_title : String, card_node,
 	card_popout.pressed_cancel.connect(_on_card_popout_pressed_cancel)
 	card_popout.pressed_toggle.connect(_on_card_popout_pressed_toggle)
 	card_popout.card_clicked.connect(_on_card_popout_card_clicked)
+
 	popout_type_showing = popout_type
 
 	var toggle_text = ""
@@ -4514,6 +4543,12 @@ func show_popout(popout_type : CardPopoutType, popout_title : String, card_node,
 	update_popout_instructions()
 	card_popout.set_title(popout_title)
 	var cards = card_node.get_children()
+	if popout_type == CardPopoutType.CardPopoutType_BuddyPlayer and extra_only_show_boosts:
+		var filtered_cards = []
+		for card in cards:
+			if game_wrapper.can_player_boost(Enums.PlayerId.PlayerId_Player, card.card_id, ['extra'], "", true):
+				filtered_cards.append(card)
+		cards = filtered_cards
 	var filtering_allowed = popout_type == CardPopoutType.CardPopoutType_ReferenceOpponent
 	_update_popout_cards(cards, filtering_allowed, show_amount)
 
@@ -4576,8 +4611,8 @@ func _on_player_reference_button_pressed():
 	reference_title += ")"
 	show_popout(CardPopoutType.CardPopoutType_ReferencePlayer, reference_title, $AllCards/PlayerAllCopy, false)
 
-func _on_player_buddy_button_pressed():
-	show_popout(CardPopoutType.CardPopoutType_BuddyPlayer, "YOUR EXTRA CARDS", $AllCards/PlayerBuddyCopy)
+func _on_player_buddy_button_pressed(only_show_boosts = false):
+	show_popout(CardPopoutType.CardPopoutType_BuddyPlayer, "YOUR EXTRA CARDS", $AllCards/PlayerBuddyCopy, true, false, only_show_boosts)
 
 func _on_opponent_reference_button_pressed(switch_toggle : bool = false, hide_reshuffle : bool = false):
 	if switch_toggle:

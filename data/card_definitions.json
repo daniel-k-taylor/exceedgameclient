@@ -9091,6 +9091,188 @@
 
 	{
 		"NOTE": "KING CARDS START",
+		"id": "king_decree_kinglystrut",
+		"type": "decree_royal",
+		"display_name": "Royal Decree: Kingly Strut",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 0,
+		"range_max": 0,
+		"speed": 0,
+		"power": 0,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 3,
+			"cancel_cost": -1,
+			"display_name": "Kingly Strut",
+			"cannot_discard": true,
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "powerup",
+					"amount": 2,
+					"and": {
+						"effect_type": "armorup",
+						"amount": 2
+					}
+				},
+				{
+					"timing": "now",
+					"effect_type": "choice",
+					"choice": [
+						{ "effect_type": "close", "amount": 1 },
+						{ "effect_type": "close", "amount": 2 }
+					]
+				},
+				{
+					"timing": "cleanup",
+					"effect_type": "seal_this_boost",
+					"card_name": "Kingly Strut"
+				}
+			]
+		}
+	},
+	{
+		"id": "king_decree_lordlymight",
+		"type": "decree_royal",
+		"display_name": "Royal Decree: Lordly Might",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 0,
+		"range_max": 0,
+		"speed": 0,
+		"power": 0,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 3,
+			"cancel_cost": -1,
+			"display_name": "Lordly Might",
+			"cannot_discard": true,
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "powerup",
+					"amount": 1,
+					"and": {
+						"effect_type": "speedup",
+						"amount": 2
+					}
+				},
+				{
+					"timing": "cleanup",
+					"effect_type": "seal_this_boost",
+					"card_name": "Lordly Might"
+				}
+			]
+		}
+	},
+	{
+		"id": "king_decree_magnificentcape",
+		"type": "decree_glorious",
+		"display_name": "Glorious Decree: Magnificent Cape",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 0,
+		"range_max": 0,
+		"speed": 0,
+		"power": 0,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 4,
+			"cancel_cost": -1,
+			"display_name": "Magnificent Cape",
+			"cannot_discard": true,
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "powerup",
+					"amount": 3,
+					"and": {
+						"effect_type": "armorup",
+						"amount": 3
+					}
+				},
+				{
+					"timing": "hit",
+					"condition": "range",
+					"condition_amount": 1,
+					"effect_type": "opponent_discard_random",
+					"amount": 2
+				},
+				{
+					"timing": "after",
+					"effect_type": "draw",
+					"amount": 2
+				},
+				{
+					"timing": "cleanup",
+					"effect_type": "seal_this_boost",
+					"card_name": "Magnificent Cape"
+				}
+			]
+		}
+	},
+	{
+		"id": "king_decree_paytowin",
+		"type": "decree_glorious",
+		"display_name": "Glorious Decree: Pay To Win",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 0,
+		"range_max": 0,
+		"speed": 0,
+		"power": 0,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 4,
+			"cancel_cost": -1,
+			"display_name": "Pay To Win",
+			"cannot_discard": true,
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "powerup",
+					"amount": 2,
+					"and": {
+						"effect_type": "speedup",
+						"amount": 2
+					}
+				},
+				{
+					"timing": "now",
+					"effect_type": "choice",
+					"choice": [
+						{ "effect_type": "close", "amount": 1 },
+						{ "effect_type": "close", "amount": 2 },
+						{ "effect_type": "close", "amount": 3 },
+						{ "effect_type": "pass" }
+					]
+				},
+				{
+					"timing": "cleanup",
+					"effect_type": "seal_this_boost",
+					"card_name": "Pay To Win"
+				}
+			]
+		}
+	},
+	{
 		"id": "king_kingofcards",
 		"type": "ultra",
 		"display_name": "Full Broadside",

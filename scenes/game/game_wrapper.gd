@@ -90,8 +90,8 @@ func get_player_sealed_size(id):
 func get_player_overdrive_size(id):
 	return _get_player(id).overdrive.size()
 
-func get_player_continuous_boost_count(id):
-	return _get_player(id).continuous_boosts.size()
+func get_player_discardable_boost_count(id):
+	return _get_player(id).get_discardable_continuous_boosts().size()
 
 func get_player_discards_size(id):
 	return _get_player(id).discards.size()
@@ -216,6 +216,13 @@ func is_card_in_sealed(player_id : Enums.PlayerId, card_id : int):
 			return true
 	return false
 
+func is_card_set_aside(player_id : Enums.PlayerId, card_id : int):
+	var player = _get_player(player_id)
+	for card in player.set_aside_cards:
+		if card.id == card_id:
+			return true
+	return false
+
 func is_card_in_overdrive(player_id : Enums.PlayerId, card_id : int):
 	var player = _get_player(player_id)
 	for card in player.overdrive:
@@ -326,7 +333,8 @@ func can_player_boost(player_id : Enums.PlayerId, card_id : int, valid_zones : A
 	var zone_func_map = {
 		"hand": is_card_in_hand,
 		"gauge": is_card_in_gauge,
-		"discard": is_card_in_discards
+		"discard": is_card_in_discards,
+		"extra": is_card_set_aside
 	}
 
 	var in_valid_zone = false
@@ -341,6 +349,8 @@ func can_player_boost(player_id : Enums.PlayerId, card_id : int, valid_zones : A
 	if limitation:
 		if card.definition['boost']['boost_type'] != limitation and card.definition['type'] != limitation:
 			return false
+	if card.definition['type'] == "decree_glorious" and not is_player_exceeded(player_id):
+		return false
 
 	if ignore_costs:
 		return true

@@ -945,6 +945,14 @@ class Player:
 	func get_overdrive_effect():
 		return deck_def['overdrive_effect']
 
+	func get_discardable_continuous_boosts():
+		var valid_boosts = []
+		for boost in continuous_boosts:
+			if 'cannot_discard' in boost.definition['boost'] and boost.definition['boost']['cannot_discard']:
+				continue
+			valid_boosts.append(boost)
+		return valid_boosts
+
 	func remove_card_from_hand(id : int, is_revealed : bool, is_revealed_on_strike_reveal : bool):
 		for i in range(len(hand)):
 			if hand[i].id == id:
@@ -973,6 +981,12 @@ class Player:
 		for i in range(len(sealed)):
 			if sealed[i].id == id:
 				sealed.remove_at(i)
+				break
+
+	func remove_card_from_set_aside(id : int):
+		for i in range(len(set_aside_cards)):
+			if set_aside_cards[i].id == id:
+				set_aside_cards.remove_at(i)
 				break
 
 	func on_hand_add_public_card(card_id : int):
@@ -4579,8 +4593,8 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 			change_game_state(Enums.GameState.GameState_PlayerDecision)
 			events += [create_event(Enums.EventType.EventType_PickNumberFromRange, performing_player.my_id, 0)]
 		"discard_continuous_boost":
-			var my_boosts = performing_player.continuous_boosts
-			var opponent_boosts = opposing_player.continuous_boosts
+			var my_boosts = performing_player.get_discardable_continuous_boosts()
+			var opponent_boosts = opposing_player.get_discardable_continuous_boosts()
 			decision_info.clear()
 			decision_info.limitation = ""
 			if 'limitation' in effect:
@@ -8291,6 +8305,7 @@ func begin_resolve_boost(performing_player : Player, card_id : int):
 	performing_player.remove_card_from_hand(card_id, true, false)
 	performing_player.remove_card_from_gauge(card_id)
 	performing_player.remove_card_from_discards(card_id)
+	performing_player.remove_card_from_set_aside(card_id)
 	events += [create_event(Enums.EventType.EventType_Boost_Played, performing_player.my_id, card_id)]
 
 	# Resolve all immediate/now effects

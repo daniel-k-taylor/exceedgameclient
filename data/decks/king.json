@@ -3,6 +3,7 @@
 	"season": 4,
 	"display_name": "King Knight",
 	"cardback": "cardback_king.jpg",
+	"has_sealed_area": true,
 	"buddy_cards": [
 		"king_decree_lordlymight",
 		"king_decree_kinglystrut",
@@ -10,6 +11,7 @@
 		"king_decree_magnificentcape"
 	],
 	"no_buddy_card_graphics": true,
+	"can_boost_from_extra": true,
 	"exceed_cost": 3,
 	"on_exceed": {
 		"effect_type": "choice",
@@ -73,6 +75,30 @@
 		}
 	],
 	"cards": [
+		{
+			"set_aside": true,
+			"hide_from_reference": true,
+			"definition_id": "king_decree_kinglystrut",
+			"image": "king_decree_kinglystrut.jpg"
+		},
+		{
+			"set_aside": true,
+			"hide_from_reference": true,
+			"definition_id": "king_decree_lordlymight",
+			"image": "king_decree_lordlymight.jpg"
+		},
+		{
+			"set_aside": true,
+			"hide_from_reference": true,
+			"definition_id": "king_decree_magnificentcape",
+			"image": "king_decree_magnificentcape.jpg"
+		},
+		{
+			"set_aside": true,
+			"hide_from_reference": true,
+			"definition_id": "king_decree_paytowin",
+			"image": "king_decree_paytowin.jpg"
+		},
 		{
 			"definition_id": "king_kingofcards",
 			"image": "king_kingofcards.tres"
