@@ -3,6 +3,13 @@
 	"season": 4,
 	"display_name": "King Knight",
 	"cardback": "cardback_king.jpg",
+	"buddy_cards": [
+		"king_decree_lordlymight",
+		"king_decree_kinglystrut",
+		"king_decree_paytowin",
+		"king_decree_magnificentcape"
+	],
+	"no_buddy_card_graphics": true,
 	"exceed_cost": 3,
 	"on_exceed": {
 		"effect_type": "choice",

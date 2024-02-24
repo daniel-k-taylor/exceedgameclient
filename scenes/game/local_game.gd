@@ -6478,7 +6478,7 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 				card_names += performing_player.gauge[0].definition['display_name']
 				for i in range(1, len(performing_player.gauge)):
 					card_names += ", " + performing_player.gauge[i].definition['display_name']
-			_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "spends all cards in hand an gauge to generate %s force%s." % [force_amount, card_names])
+			_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "spends all cards in hand and gauge to generate %s force%s." % [force_amount, card_names])
 			events += performing_player.discard_hand()
 			events += performing_player.discard_gauge()
 			performing_player.force_spent_before_strike = force_amount

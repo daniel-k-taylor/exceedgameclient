@@ -133,6 +133,8 @@ enum CardPopoutType {
 	CardPopoutType_BoostOpponent,
 	CardPopoutType_ReferencePlayer,
 	CardPopoutType_ReferenceOpponent,
+	CardPopoutType_BuddyPlayer,
+	CardPopoutType_BuddyOpponent,
 	CardPopoutType_RevealedOpponent,
 	CardPopoutType_ChoiceZone,
 }
@@ -403,15 +405,21 @@ func setup_characters():
 		opponent_buddies[0].load_character(opponent_deck['buddy_card'])
 		opponent_buddies[0].set_buddy_id(opponent_deck['buddy_card'])
 	if 'buddy_cards' in player_deck:
-		for i in range(0, player_deck['buddy_cards'].size()):
-			player_buddies[i].visible = false
-			player_buddies[i].load_character(player_deck['buddy_card_graphics_id'][i])
-			player_buddies[i].set_buddy_id(player_deck['buddy_cards'][i])
+		if 'no_buddy_card_graphics' in player_deck and player_deck['no_buddy_card_graphics']:
+			pass
+		else:
+			for i in range(0, player_deck['buddy_cards'].size()):
+				player_buddies[i].visible = false
+				player_buddies[i].load_character(player_deck['buddy_card_graphics_id'][i])
+				player_buddies[i].set_buddy_id(player_deck['buddy_cards'][i])
 	if 'buddy_cards' in opponent_deck:
-		for i in range(0, opponent_deck['buddy_cards'].size()):
-			opponent_buddies[i].visible = false
-			opponent_buddies[i].load_character(opponent_deck['buddy_card_graphics_id'][i])
-			opponent_buddies[i].set_buddy_id(opponent_deck['buddy_cards'][i])
+		if 'no_buddy_card_graphics' in opponent_deck and opponent_deck['no_buddy_card_graphics']:
+			pass
+		else:
+			for i in range(0, opponent_deck['buddy_cards'].size()):
+				opponent_buddies[i].visible = false
+				opponent_buddies[i].load_character(opponent_deck['buddy_card_graphics_id'][i])
+				opponent_buddies[i].set_buddy_id(opponent_deck['buddy_cards'][i])
 	if player_deck['id'] == opponent_deck['id']:
 		$OpponentCharacter.modulate = Color(1, 0.38, 0.55)
 		for buddy in opponent_buddies:
@@ -512,7 +520,15 @@ func create_character_reference_card(path_root : String, exceeded : bool, zone):
 	var image_path = path_root + "character_default.jpg"
 	if exceeded:
 		image_path = path_root + "character_exceeded.jpg"
+	_create_reference_card(image_path, "Character Card", zone)
 
+func create_buddy_reference_card(path_root : String, buddy_id, exceeded : bool, zone):
+	var image_path = path_root + buddy_id + ".jpg"
+	if exceeded:
+		image_path = path_root + buddy_id + "_exceeded.jpg"
+	_create_reference_card(image_path, "Extra Card", zone)
+
+func _create_reference_card(image_path : String, card_name : String, zone):
 	var new_card : CardBase = CardBaseScene.instantiate()
 	zone.add_child(new_card)
 	new_card.initialize_card(
@@ -521,7 +537,7 @@ func create_character_reference_card(path_root : String, exceeded : bool, zone):
 		image_path,
 		false
 	)
-	new_card.name = "Character Card"
+	new_card.name = card_name
 	new_card.raised_card.connect(on_card_raised)
 	new_card.lowered_card.connect(on_card_lowered)
 
@@ -536,7 +552,8 @@ func get_card_root_path(deck_id : String):
 func get_card_image_path(deck_id : String, game_card : GameCard):
 	return get_card_root_path(deck_id) + game_card.image
 
-func spawn_deck(deck_id, deck_list, deck_card_zone, copy_zone, set_aside_zone, card_back_image, is_opponent):
+func spawn_deck(deck_id, deck_list, deck_card_zone, copy_zone, buddy_graphic_list,
+		buddy_copy_zone, set_aside_zone, card_back_image, is_opponent):
 	var card_db = game_wrapper.get_card_database()
 	var card_root_path = get_card_root_path(deck_id)
 	for card in deck_list:
@@ -551,6 +568,16 @@ func spawn_deck(deck_id, deck_list, deck_card_zone, copy_zone, set_aside_zone, c
 
 	create_character_reference_card(card_root_path, false, copy_zone)
 	create_character_reference_card(card_root_path, true, copy_zone)
+
+	# Setup buddy if they have one.
+	var created_buddy_cards = []
+	if buddy_graphic_list:
+		for buddy_id in buddy_graphic_list:
+			if buddy_id in created_buddy_cards:
+				# Skip any that share graphics.
+				continue
+			created_buddy_cards.append(buddy_id)
+			create_buddy_reference_card(card_root_path, buddy_id, false, buddy_copy_zone)
 
 	var previous_def_id = ""
 	for card in deck_list:
@@ -597,8 +624,30 @@ func spawn_all_cards():
 	var player_cardback = "res://assets/cardbacks/" + player_deck['cardback']
 	var opponent_cardback = "res://assets/cardbacks/" + opponent_deck['cardback']
 
-	spawn_deck(player_deck_id, game_wrapper.get_player_deck_list(Enums.PlayerId.PlayerId_Player), $AllCards/PlayerDeck, $AllCards/PlayerAllCopy, $AllCards/PlayerSetAside, player_cardback, false)
-	spawn_deck(opponent_deck_id, game_wrapper.get_player_deck_list(Enums.PlayerId.PlayerId_Opponent), $AllCards/OpponentDeck, $AllCards/OpponentAllCopy, $AllCards/OpponentSetAside, opponent_cardback, true)
+	var player_buddy_graphics = []
+	var opponent_buddy_graphics = []
+	for deck_graphic_pair in [[player_deck, player_buddy_graphics], [opponent_deck, opponent_buddy_graphics]]:
+		var deck = deck_graphic_pair[0]
+		var graphic_list = deck_graphic_pair[1]
+		if 'hide_buddy_reference' in deck and deck['hide_buddy_reference']:
+			continue
+		elif 'buddy_card' in deck:
+			graphic_list.append(deck['buddy_card'])
+			if 'buddy_exceeds' in deck and deck['buddy_exceeds']:
+				graphic_list.append(deck['buddy_card'] + "_exceeded")
+		elif 'buddy_card_graphic_override' in deck:
+			for buddy_card in deck['buddy_card_graphic_override']:
+				graphic_list.append(buddy_card)
+		elif 'buddy_cards' in deck:
+			for buddy_card in deck['buddy_cards']:
+				graphic_list.append(buddy_card)
+				if 'buddy_exceeds' in deck and deck['buddy_exceeds']:
+					graphic_list.append(buddy_card + "_exceeded")
+
+	spawn_deck(player_deck_id, game_wrapper.get_player_deck_list(Enums.PlayerId.PlayerId_Player), $AllCards/PlayerDeck, $AllCards/PlayerAllCopy,
+		player_buddy_graphics, $AllCards/PlayerBuddyCopy, $AllCards/PlayerSetAside, player_cardback, false)
+	spawn_deck(opponent_deck_id, game_wrapper.get_player_deck_list(Enums.PlayerId.PlayerId_Opponent), $AllCards/OpponentDeck, $AllCards/OpponentAllCopy,
+		opponent_buddy_graphics, $AllCards/OpponentBuddyCopy, $AllCards/OpponentSetAside, opponent_cardback, true)
 
 func get_arena_location_button(arena_location):
 	var target_square = arena_layout.get_child(arena_location - 1)
@@ -4527,6 +4576,9 @@ func _on_player_reference_button_pressed():
 	reference_title += ")"
 	show_popout(CardPopoutType.CardPopoutType_ReferencePlayer, reference_title, $AllCards/PlayerAllCopy, false)
 
+func _on_player_buddy_button_pressed():
+	show_popout(CardPopoutType.CardPopoutType_BuddyPlayer, "YOUR EXTRA CARDS", $AllCards/PlayerBuddyCopy)
+
 func _on_opponent_reference_button_pressed(switch_toggle : bool = false, hide_reshuffle : bool = false):
 	if switch_toggle:
 		reference_popout_toggle = not reference_popout_toggle
@@ -4566,6 +4618,9 @@ func _on_opponent_reference_button_pressed(switch_toggle : bool = false, hide_re
 		popout_title += "+sealed"
 	popout_title += ")"
 	show_popout(CardPopoutType.CardPopoutType_ReferenceOpponent, popout_title, $AllCards/OpponentAllCopy, false, hide_reshuffle)
+
+func _on_opponent_buddy_button_pressed():
+	show_popout(CardPopoutType.CardPopoutType_BuddyOpponent, "THEIR EXTRA CARDS", $AllCards/OpponentBuddyCopy)
 
 func _on_exit_to_menu_pressed():
 	modal_dialog.set_text_fields("Are you sure you want to quit?", "QUIT TO\nMENU", "CANCEL")
