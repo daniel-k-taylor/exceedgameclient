@@ -21773,7 +21773,7 @@
 					"per_gauge_effect": {
 						"combine_multiple_into_one": true,
 						"effect_type": "powerup",
-						"amount": 1,
+						"amount": 1
 					},
 					"overall_effect": null,
 					"gauge_max": 6,
