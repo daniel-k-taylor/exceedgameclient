@@ -1,4 +1,4 @@
-[gd_scene load_steps=76 format=3 uid="uid://cqs72exlwm6at"]
+[gd_scene load_steps=77 format=3 uid="uid://cqs72exlwm6at"]
 
 [ext_resource type="Script" path="res://scenes/menu/char_select.gd" id="1_f3x24"]
 [ext_resource type="PackedScene" uid="uid://nwqxp8pdh1jk" path="res://scenes/menu/char_select_button.tscn" id="6_3lmwy"]
@@ -71,6 +71,7 @@
 [ext_resource type="Texture2D" uid="uid://cqx52mmwlhi0c" path="res://assets/portraits/mole.png" id="54_ciywr"]
 [ext_resource type="Texture2D" uid="uid://bfvuigxc0xhpm" path="res://assets/portraits/polar.png" id="54_u47ng"]
 [ext_resource type="Texture2D" uid="uid://166in2y3yh6m" path="res://assets/portraits/cviper.png" id="59_b8gjq"]
+[ext_resource type="Texture2D" uid="uid://pdqg26xfmkdq" path="res://assets/portraits/king.png" id="60_wx7g8"]
 [ext_resource type="Texture2D" uid="uid://kb1fci2g1gm3" path="res://assets/portraits/cammy.png" id="60_yxps6"]
 [ext_resource type="Texture2D" uid="uid://dpxsvmo3pfmh5" path="res://assets/portraits/zangief.png" id="63_wfjiw"]
 [ext_resource type="Texture2D" uid="uid://o5kv58ao0tbw" path="res://assets/portraits/dan.png" id="66_ic0dy"]
@@ -530,6 +531,11 @@ layout_mode = 2
 char_id = "specter"
 portrait_texture = ExtResource("42_vmogd")
 
+[node name="King" parent="CenterContainer/SKCharacterSelect/Rows/Row1" instance=ExtResource("6_3lmwy")]
+layout_mode = 2
+char_id = "king"
+portrait_texture = ExtResource("60_wx7g8")
+
 [node name="Row2" type="HBoxContainer" parent="CenterContainer/SKCharacterSelect/Rows"]
 layout_mode = 2
 alignment = 1
@@ -793,6 +799,8 @@ portrait_texture = ExtResource("32_iutun")
 [connection signal="on_pressed" from="CenterContainer/SKCharacterSelect/Rows/Row1/RandomSF" to="." method="_on_char_button_on_pressed"]
 [connection signal="on_hover" from="CenterContainer/SKCharacterSelect/Rows/Row1/Specter" to="." method="_on_char_hover"]
 [connection signal="on_pressed" from="CenterContainer/SKCharacterSelect/Rows/Row1/Specter" to="." method="_on_char_button_on_pressed"]
+[connection signal="on_hover" from="CenterContainer/SKCharacterSelect/Rows/Row1/King" to="." method="_on_char_hover"]
+[connection signal="on_pressed" from="CenterContainer/SKCharacterSelect/Rows/Row1/King" to="." method="_on_char_button_on_pressed"]
 [connection signal="on_hover" from="CenterContainer/SKCharacterSelect/Rows/Row2/Tinker" to="." method="_on_char_hover"]
 [connection signal="on_pressed" from="CenterContainer/SKCharacterSelect/Rows/Row2/Tinker" to="." method="_on_char_button_on_pressed"]
 [connection signal="on_hover" from="CenterContainer/SKCharacterSelect/Rows/Row2/Polar" to="." method="_on_char_hover"]
