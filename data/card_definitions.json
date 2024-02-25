@@ -9500,7 +9500,7 @@
 					"timing": "immediate",
 					"condition": "not_discarding_boost",
 					"effect_type": "bonus_action"
-				},
+				}
 			]
 		}
 	},
