@@ -9618,7 +9618,7 @@ func do_force_for_effect(performing_player : Player, card_ids : Array, treat_ult
 		var effect_times = 0
 		if decision_info.effect['per_force_effect']:
 			decision_effect = decision_info.effect['per_force_effect']
-			var interval = 1
+			var interval = 1.0
 			if 'force_effect_interval' in decision_info.effect:
 				interval = decision_info.effect['force_effect_interval']
 			effect_times = floor(force_generated / interval)
