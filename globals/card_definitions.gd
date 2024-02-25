@@ -296,11 +296,11 @@ func get_condition_text(effect, amount, amount2, detail):
 		"boost_caused_start_of_turn_strike":
 			text += "If this boost makes you strike, "
 		"range":
-			text += "If the opponent is at range %s, " % amount
+			text += "If opponent at range %s from attack, " % amount
 		"range_greater_or_equal":
-			text += "If the opponent is at range %s+, " % amount
+			text += "If opponent at range %s+ from attack, " % amount
 		"range_multiple":
-			text += "If the opponent is at range %s-%s, " % [amount, amount2]
+			text += "If opponent at range %s-%s from attack, " % [amount, amount2]
 		"exceeded":
 			text += "If in Exceed Mode: "
 		"opponent_exceeded":
