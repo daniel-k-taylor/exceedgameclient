@@ -616,3 +616,6 @@ func test_wagner_100():
 
 func test_vatista_100():
 	run_iterations_with_deck("vatista")
+
+func test_king_100():
+	run_iterations_with_deck("king")

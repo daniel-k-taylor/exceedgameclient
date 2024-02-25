@@ -268,13 +268,17 @@ func take_boost(game_logic : LocalGame, my_id : Enums.PlayerId, valid_zones : Ar
 func determine_possible_turn_actions(game_logic : LocalGame, me : LocalGame.Player, opponent : LocalGame.Player):
 	var possible_actions = []
 
+	var boost_zones = ['hand']
+	if 'can_boost_from_extra' in me.deck_def and me.deck_def['can_boost_from_extra']:
+		boost_zones.append('extra')
+
 	possible_actions += get_prepare_actions(game_logic, me, opponent)
 	if not TEST_PrepareOnly:
 		possible_actions += get_move_actions(game_logic, me, opponent)
 		possible_actions += get_change_cards_actions(game_logic, me, opponent)
 		possible_actions += get_exceed_actions(game_logic, me, opponent)
 		possible_actions += get_reshuffle_actions(game_logic, me, opponent)
-		possible_actions += get_boost_actions(game_logic, me, opponent, ['hand'], "", false)
+		possible_actions += get_boost_actions(game_logic, me, opponent, boost_zones, "", false)
 		possible_actions += get_strike_actions(game_logic, me, opponent)
 		possible_actions += get_character_action_actions(game_logic, me, opponent)
 	return possible_actions
@@ -423,11 +427,14 @@ func get_boost_actions(game_logic : LocalGame, me : LocalGame.Player, opponent :
 	var zone_map = {
 		"hand": me.hand,
 		"gauge": me.gauge,
-		"discard": me.discards
+		"discard": me.discards,
+		"extra": me.set_aside_cards
 	}
 
 	for zone in valid_zones:
 		for card in zone_map[zone]:
+			if card.definition['type'] == "decree_glorious" and not me.exceeded:
+				continue
 			if limitation:
 				if card.definition['boost']['boost_type'] != limitation and card.definition['type'] != limitation:
 					continue

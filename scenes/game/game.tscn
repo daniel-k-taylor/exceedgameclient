@@ -739,6 +739,10 @@ mouse_filter = 2
 
 [node name="OpponentAllCopy" type="Node2D" parent="AllCards"]
 
+[node name="PlayerBuddyCopy" type="Node2D" parent="AllCards"]
+
+[node name="OpponentBuddyCopy" type="Node2D" parent="AllCards"]
+
 [node name="OpponentRevealed" type="Node2D" parent="AllCards"]
 
 [node name="ChoiceZone" type="Node2D" parent="AllCards"]
@@ -828,7 +832,9 @@ stream = ExtResource("27_aidi8")
 [connection signal="pressed" from="ArenaNode/RowButtons/ArenaSquare9/Button" to="." method="_on_arena_location_pressed" binds= [9]]
 [connection signal="pressed" from="AIMoveButton" to="." method="_on_ai_move_button_pressed"]
 [connection signal="pressed" from="PlayerDeck/PlayerCharacterCard" to="." method="_on_player_reference_button_pressed"]
+[connection signal="pressed" from="PlayerDeck/PlayerBuddyCharacterCard" to="." method="_on_player_buddy_button_pressed"]
 [connection signal="pressed" from="OpponentDeck/OpponentCharacterCard" to="." method="_on_opponent_reference_button_pressed"]
+[connection signal="pressed" from="OpponentDeck/OpponentBuddyCharacterCard" to="." method="_on_opponent_buddy_button_pressed"]
 [connection signal="gauge_clicked" from="PlayerZones/PlayerGauge" to="." method="_on_player_gauge_gauge_clicked"]
 [connection signal="gauge_clicked" from="PlayerZones/PlayerOverdrive" to="." method="_on_player_overdrive_gauge_clicked"]
 [connection signal="gauge_clicked" from="PlayerZones/PlayerSealed" to="." method="_on_player_sealed_clicked"]

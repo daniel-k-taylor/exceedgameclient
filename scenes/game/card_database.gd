@@ -82,7 +82,9 @@ func get_card_force_value(id : int) -> int:
 	var card = get_card(id)
 	if card.definition['type'] == 'ultra':
 		return 2
-	return 1
+	elif card.definition['type'] in ['normal', 'special']:
+		return 1
+	return 0
 
 func is_normal_card(id : int) -> bool:
 	if id < 0: return false

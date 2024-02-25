@@ -25,6 +25,7 @@ const StrikeStaticConditions = [
 	"was_hit",
 	"initiated_strike", "not_initiated_strike",
 	"exceeded", "not_exceeded",
+	"opponent_exceeded", "opponent_not_exceeded",
 	"buddy_in_play",
 	"boost_caused_start_of_turn_strike",
 	"used_character_bonus",
@@ -419,6 +420,7 @@ class Boost:
 	var strike_after_boost = false
 	var strike_after_boost_opponent_first = false
 	var discard_on_cleanup = false
+	var discarded_already = false
 	var seal_on_cleanup = false
 	var cancel_resolved = false
 	var cleanup_to_gauge_card_ids = []
@@ -945,6 +947,14 @@ class Player:
 	func get_overdrive_effect():
 		return deck_def['overdrive_effect']
 
+	func get_discardable_continuous_boosts():
+		var valid_boosts = []
+		for boost in continuous_boosts:
+			if 'cannot_discard' in boost.definition['boost'] and boost.definition['boost']['cannot_discard']:
+				continue
+			valid_boosts.append(boost)
+		return valid_boosts
+
 	func remove_card_from_hand(id : int, is_revealed : bool, is_revealed_on_strike_reveal : bool):
 		for i in range(len(hand)):
 			if hand[i].id == id:
@@ -973,6 +983,12 @@ class Player:
 		for i in range(len(sealed)):
 			if sealed[i].id == id:
 				sealed.remove_at(i)
+				break
+
+	func remove_card_from_set_aside(id : int):
+		for i in range(len(set_aside_cards)):
+			if set_aside_cards[i].id == id:
+				set_aside_cards.remove_at(i)
 				break
 
 	func on_hand_add_public_card(card_id : int):
@@ -3615,6 +3631,10 @@ func is_effect_condition_met(performing_player : Player, effect, local_condition
 			return performing_player.exceeded
 		elif condition == "not_exceeded":
 			return not performing_player.exceeded
+		elif condition == "opponent_exceeded":
+			return other_player.exceeded
+		elif condition == "opponent_not_exceeded":
+			return not other_player.exceeded
 		elif condition == "max_cards_in_hand":
 			var amount = effect['condition_amount']
 			return performing_player.hand.size() <= amount
@@ -3791,18 +3811,18 @@ func is_effect_condition_met(performing_player : Player, effect, local_condition
 			return performing_player.overdrive.size() == 0
 		elif condition == "range":
 			var amount = effect['condition_amount']
-			var origin = performing_player.get_closest_occupied_space_to(other_player.arena_location)
+			var origin = get_attack_origin(performing_player, other_player.arena_location)
 			return other_player.is_in_range_of_location(origin, amount, amount)
 		elif condition == "range_greater_or_equal":
 			var amount = effect['condition_amount']
-			var origin = performing_player.get_closest_occupied_space_to(other_player.arena_location)
+			var origin = get_attack_origin(performing_player, other_player.arena_location)
 			var farthest_point = other_player.get_furthest_edge_from(origin)
 			var distance = abs(origin - farthest_point)
 			return distance >= amount
 		elif condition == "range_multiple":
 			var min_amount = effect["condition_amount_min"]
 			var max_amount = effect["condition_amount_max"]
-			var origin = performing_player.get_closest_occupied_space_to(other_player.arena_location)
+			var origin = get_attack_origin(performing_player, other_player.arena_location)
 			return other_player.is_in_range_of_location(origin, min_amount, max_amount)
 		elif condition == "strike_x_greater_than":
 			var amount = effect['condition_amount']
@@ -3851,6 +3871,18 @@ func is_effect_condition_met(performing_player : Player, effect, local_condition
 				return false
 		elif condition == "can_continuous_boost_from_gauge":
 			return performing_player.can_boost_something(['gauge'], 'continuous')
+		elif condition == "not_discarding_boost":
+			return active_boost and not active_boost.discard_on_cleanup
+		elif condition == "not_sustained":
+			var boost_card_id = effect["condition_card_id"]
+			for card_id in performing_player.sustained_boosts:
+				var card = card_db.get_card(card_id)
+				if card.definition['id'] == boost_card_id:
+					return false
+			return true
+		elif condition == "discarded_copy_of_attack":
+			var card = active_strike.get_player_card(performing_player)
+			return performing_player.get_copy_in_discards(card.definition['id']) != -1
 		else:
 			assert(false, "Unimplemented condition")
 		# Unmet condition
@@ -4075,6 +4107,11 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 				active_boost.action_after_boost = true
 		"boost_additional":
 			assert(active_boost, "ERROR: Additional boost effect when a boost isn't in play")
+
+			if 'discard_this_first' in effect and effect['discard_this_first']:
+				_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "discards the boosted card %s." % active_boost.card.definition['display_name'])
+				active_boost.discarded_already = true
+				events += performing_player.add_to_discards(active_boost.card)
 
 			var valid_zones = ['hand']
 			if 'valid_zones' in effect:
@@ -4579,8 +4616,8 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 			change_game_state(Enums.GameState.GameState_PlayerDecision)
 			events += [create_event(Enums.EventType.EventType_PickNumberFromRange, performing_player.my_id, 0)]
 		"discard_continuous_boost":
-			var my_boosts = performing_player.continuous_boosts
-			var opponent_boosts = opposing_player.continuous_boosts
+			var my_boosts = performing_player.get_discardable_continuous_boosts()
+			var opponent_boosts = opposing_player.get_discardable_continuous_boosts()
 			decision_info.clear()
 			decision_info.limitation = ""
 			if 'limitation' in effect:
@@ -4728,7 +4765,10 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 				}
 				events += handle_strike_effect(card_id, changed_effect, performing_player)
 			else:
-				var available_gauge = performing_player.get_available_gauge()
+				var gauge_player = performing_player
+				if 'other_player' in effect and effect['other_player']:
+					gauge_player = opposing_player
+				var available_gauge = gauge_player.get_available_gauge()
 				var can_do_something = false
 				var bonus_effect = {}
 				if effect['per_gauge_effect'] and available_gauge > 0:
@@ -4740,12 +4780,12 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 				if can_do_something:
 					change_game_state(Enums.GameState.GameState_PlayerDecision)
 					decision_info.clear()
-					decision_info.player = performing_player.my_id
+					decision_info.player = gauge_player.my_id
 					decision_info.type = Enums.DecisionType.DecisionType_GaugeForEffect
 					decision_info.choice_card_id = card_id
 					decision_info.effect = effect
 					decision_info.bonus_effect = bonus_effect
-					events += [create_event(Enums.EventType.EventType_GaugeForEffect, performing_player.my_id, 0)]
+					events += [create_event(Enums.EventType.EventType_GaugeForEffect, gauge_player.my_id, 0)]
 		"gain_advantage":
 			next_turn_player = performing_player.my_id
 			events += [create_event(Enums.EventType.EventType_Strike_GainAdvantage, performing_player.my_id, 0)]
@@ -6478,7 +6518,7 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 				card_names += performing_player.gauge[0].definition['display_name']
 				for i in range(1, len(performing_player.gauge)):
 					card_names += ", " + performing_player.gauge[i].definition['display_name']
-			_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "spends all cards in hand an gauge to generate %s force%s." % [force_amount, card_names])
+			_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "spends all cards in hand and gauge to generate %s force%s." % [force_amount, card_names])
 			events += performing_player.discard_hand()
 			events += performing_player.discard_gauge()
 			performing_player.force_spent_before_strike = force_amount
@@ -8291,6 +8331,7 @@ func begin_resolve_boost(performing_player : Player, card_id : int):
 	performing_player.remove_card_from_hand(card_id, true, false)
 	performing_player.remove_card_from_gauge(card_id)
 	performing_player.remove_card_from_discards(card_id)
+	performing_player.remove_card_from_set_aside(card_id)
 	events += [create_event(Enums.EventType.EventType_Boost_Played, performing_player.my_id, card_id)]
 
 	# Resolve all immediate/now effects
@@ -8370,7 +8411,7 @@ func boost_finish_resolving_card(performing_player : Player):
 			_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "set and sustained %s as a continuous boost." % _get_boost_and_card_name(active_boost.card))
 		else:
 			_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "set %s as a continuous boost." % _get_boost_and_card_name(active_boost.card))
-	else:
+	elif not active_boost.discarded_already:
 		if active_boost.seal_on_cleanup:
 			_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "seals the boosted card %s." % active_boost.card.definition['display_name'])
 			events += do_seal_effect(performing_player, active_boost.card.id, "")
@@ -9577,7 +9618,10 @@ func do_force_for_effect(performing_player : Player, card_ids : Array, treat_ult
 		var effect_times = 0
 		if decision_info.effect['per_force_effect']:
 			decision_effect = decision_info.effect['per_force_effect']
-			effect_times = force_generated
+			var interval = 1.0
+			if 'force_effect_interval' in decision_info.effect:
+				interval = decision_info.effect['force_effect_interval']
+			effect_times = floor(force_generated / interval)
 			if force_generated > 0 and 'combine_multiple_into_one' in decision_effect and decision_effect['combine_multiple_into_one']:
 				# This assumes this effect has no "and" effects.
 				decision_effect = decision_effect.duplicate()

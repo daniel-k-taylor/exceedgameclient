@@ -59,6 +59,7 @@ enum CardState {
 }
 
 const CharacterCardReferenceId = -2
+const BuddyCardReferenceId = -3
 
 var state : CardState = CardState.CardState_InDeck
 var return_state : CardState = CardState.CardState_InDeck

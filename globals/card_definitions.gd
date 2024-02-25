@@ -134,7 +134,10 @@ func get_force_for_effect_summary(effect, card_name_source : String) -> String:
 		if 'combine_multiple_into_one' in per_effect and per_effect['combine_multiple_into_one']:
 			effect_str += "Spend up to %s force. %s" % [str(force_limit), get_effect_text(per_effect, false, true, true, card_name_source)]
 		else:
-			effect_str += "Spend up to %s force. For each, %s" % [str(force_limit), get_effect_text(effect['per_force_effect'], false, true, true, card_name_source)]
+			var each_every_str = "each"
+			if 'force_effect_interval' in effect:
+				each_every_str = "every %s" % effect['force_effect_interval']
+			effect_str += "Spend up to %s force. For %s, %s" % [str(force_limit), each_every_str, get_effect_text(effect['per_force_effect'], false, true, true, card_name_source)]
 	elif 'overall_effect' in effect and effect['overall_effect'] != null:
 		effect_str += "You may spend %s force to %s" % [str(force_limit), get_effect_text(effect['overall_effect'], false, true, true, card_name_source)]
 	return effect_str
@@ -293,13 +296,15 @@ func get_condition_text(effect, amount, amount2, detail):
 		"boost_caused_start_of_turn_strike":
 			text += "If this boost makes you strike, "
 		"range":
-			text += "If the opponent is at range %s, " % amount
+			text += "If opponent at range %s from attack, " % amount
 		"range_greater_or_equal":
-			text += "If the opponent is at range %s+, " % amount
+			text += "If opponent at range %s+ from attack, " % amount
 		"range_multiple":
-			text += "If the opponent is at range %s-%s, " % [amount, amount2]
+			text += "If opponent at range %s-%s from attack, " % [amount, amount2]
 		"exceeded":
 			text += "If in Exceed Mode: "
+		"opponent_exceeded":
+			text += "If opponent in Exceed Mode: "
 		"is_special_attack":
 			text += ""
 		"is_special_or_ultra_attack":
@@ -368,6 +373,10 @@ func get_condition_text(effect, amount, amount2, detail):
 			text += "If you have %s or more bonus power, " % amount
 		"opponent_total_guard_greater_or_equal":
 			text += "If the opponent has %s or more guard, " % amount
+		"discarded_copy_of_attack":
+			text += "If there is a discarded copy of your attack, "
+		"not_sustained":
+			text += ""
 		_:
 			text += "MISSING CONDITION"
 	return text
@@ -438,7 +447,10 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 				topdeck_card = "([color=%s]%s[/color]) " % [CardHighlightColor, effect['card_name']]
 			effect_str += "Add top card of deck %sto gauge" % topdeck_card
 		"add_top_discard_to_gauge":
-			effect_str += "Add top card of discard pile to gauge"
+			if 'amount' in effect:
+				effect_str += "Add top %s card(s) of discard pile to gauge" % effect['amount']
+			else:
+				effect_str += "Add top card of discard pile to gauge"
 		"add_top_discard_to_overdrive":
 			if 'card_name' in effect:
 				effect_str += "Add %s from top of discard pile to overdrive" % effect['card_name']
@@ -483,6 +495,18 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 			effect_str += ""
 		"bonus_action":
 			effect_str += "Take another action"
+		'boost_additional':
+			var limitation_str = "boost"
+			if 'limitation' in effect and effect['limitation']:
+				limitation_str = effect['limitation'] + " boost"
+			var ignore_costs_str = ""
+			if 'ignore_costs' in effect and effect['ignore_costs']:
+				ignore_costs_str = " (ignoring costs)"
+			if 'valid_zones' in effect:
+				var zone_string = "/".join(effect['valid_zones'])
+				effect_str += "Play a %s from %s%s." % [limitation_str, zone_string, ignore_costs_str]
+			else:
+				effect_str += "Play a %s from hand%s." % [limitation_str, ignore_costs_str]
 		'boost_then_strike':
 			var wild_str = ""
 			if 'wild_strike' in effect and effect['wild_strike']:
