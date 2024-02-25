@@ -3811,18 +3811,18 @@ func is_effect_condition_met(performing_player : Player, effect, local_condition
 			return performing_player.overdrive.size() == 0
 		elif condition == "range":
 			var amount = effect['condition_amount']
-			var origin = performing_player.get_closest_occupied_space_to(other_player.arena_location)
+			var origin = get_attack_origin(performing_player, other_player.arena_location)
 			return other_player.is_in_range_of_location(origin, amount, amount)
 		elif condition == "range_greater_or_equal":
 			var amount = effect['condition_amount']
-			var origin = performing_player.get_closest_occupied_space_to(other_player.arena_location)
+			var origin = get_attack_origin(performing_player, other_player.arena_location)
 			var farthest_point = other_player.get_furthest_edge_from(origin)
 			var distance = abs(origin - farthest_point)
 			return distance >= amount
 		elif condition == "range_multiple":
 			var min_amount = effect["condition_amount_min"]
 			var max_amount = effect["condition_amount_max"]
-			var origin = performing_player.get_closest_occupied_space_to(other_player.arena_location)
+			var origin = get_attack_origin(performing_player, other_player.arena_location)
 			return other_player.is_in_range_of_location(origin, min_amount, max_amount)
 		elif condition == "strike_x_greater_than":
 			var amount = effect['condition_amount']
