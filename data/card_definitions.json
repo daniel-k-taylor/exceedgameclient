@@ -9548,58 +9548,38 @@
 	{
 		"id": "king_sceptersmite",
 		"type": "special",
-		"display_name": "Saber Lunge",
+		"display_name": "Scepter Smite",
 		"force_cost": 0,
 		"gauge_cost": 0,
 		"range_min": 1,
-		"range_max": 3,
-		"speed": 6,
-		"power": 2,
+		"range_max": 2,
+		"speed": 4,
+		"power": 4,
 		"armor": 0,
 		"guard": 0,
 		"effects": [
 			{
 				"timing": "hit",
-				"effect_type": "advance",
-				"amount": 4,
-				"suppress_and_description": true,
-				"and": {
-					"effect_type": "choice",
-					"choice": [
-						{ "effect_type": "gain_advantage" },
-						{
-							"effect_type": "add_attack_effect",
-							"added_effect": {
-								"timing": "after",
-								"effect_type": "return_attack_to_hand",
-								"card_name": "Saber Lunge"
-							}
-						}
-					]
-				}
+				"condition": "opponent_total_guard_greater_or_equal",
+				"condition_amount": 4,
+				"effect_type": "powerup",
+				"amount": 2
 			}
 		],
 		"boost": {
 			"boost_type": "continuous",
-			"force_cost": 0,
+			"force_cost": 1,
 			"cancel_cost": -1,
-			"display_name": "Blade Flourish",
+			"display_name": "Charge Up",
 			"effects": [
 				{
 					"timing": "during_strike",
 					"effect_type": "powerup",
-					"amount": 1,
+					"amount": 2,
 					"and": {
-						"effect_type": "speedup",
-						"amount": 1
+						"effect_type": "guardup",
+						"amount": 2
 					}
-				},
-				{
-					"timing": "now",
-					"condition": "range",
-					"condition_amount": 2,
-					"effect_type": "draw",
-					"amount": 1
 				}
 			]
 		}
@@ -9608,56 +9588,54 @@
 		"NOTE": "KING CARDS END",
 		"id": "king_shoulderbash",
 		"type": "special",
-		"display_name": "Swoop",
-		"force_cost": 1,
+		"display_name": "Shoulder Bash",
+		"force_cost": 0,
 		"gauge_cost": 0,
 		"range_min": 1,
 		"range_max": 1,
-		"speed": 7,
-		"power": 1,
+		"speed": 2,
+		"power": 5,
 		"armor": 0,
-		"guard": 0,
+		"guard": 6,
 		"effects": [
+			{
+				"timing": "before",
+				"effect_type": "close",
+				"amount": 2
+			},
 			{
 				"timing": "after",
 				"effect_type": "choice",
 				"choice": [
 					{ "effect_type": "advance", "amount": 1 },
 					{ "effect_type": "advance", "amount": 2 },
-					{ "effect_type": "advance", "amount": 3 },
 					{ "effect_type": "pass"}
 				]
-			},
-			{
-				"timing": "cleanup",
-				"effect_type": "boost_this_then_sustain",
-				"boost_effect": {
-					"condition": "range",
-					"condition_amount": 3,
-					"effect_type": "gauge_from_hand",
-					"min_amount": 0,
-					"max_amount": 1
-				}
 			}
 		],
 		"boost": {
 			"boost_type": "continuous",
-			"force_cost": 0,
+			"force_cost": 1,
 			"cancel_cost": -1,
-			"display_name": "Rose Toss",
+			"display_name": "Brutal Coronation",
 			"effects": [
 				{
 					"timing": "during_strike",
 					"effect_type": "powerup",
-					"amount": 1
+					"amount": 1,
+					"and": {
+						"effect_type": "armorup",
+						"amount": 1,
+						"and": {
+							"effect_type": "guardup",
+							"amount": 1
+						}
+					}
 				},
 				{
 					"timing": "now",
-					"condition": "range",
-					"condition_amount": 3,
-					"effect_type": "gauge_from_hand",
-					"min_amount": 0,
-					"max_amount": 1
+					"effect_type": "draw_to",
+					"amount": 3
 				}
 			]
 		},
