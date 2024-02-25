@@ -4630,9 +4630,6 @@ func _on_player_reference_button_pressed():
 	reference_title += ")"
 	show_popout(CardPopoutType.CardPopoutType_ReferencePlayer, reference_title, $AllCards/PlayerAllCopy, false)
 
-func _on_player_buddy_button_pressed(only_show_boosts = false):
-	show_popout(CardPopoutType.CardPopoutType_BuddyPlayer, "YOUR EXTRA CARDS", $AllCards/PlayerBuddyCopy, true, false, only_show_boosts)
-
 func _on_opponent_reference_button_pressed(switch_toggle : bool = false, hide_reshuffle : bool = false):
 	if switch_toggle:
 		reference_popout_toggle = not reference_popout_toggle
@@ -4672,6 +4669,9 @@ func _on_opponent_reference_button_pressed(switch_toggle : bool = false, hide_re
 		popout_title += "+sealed"
 	popout_title += ")"
 	show_popout(CardPopoutType.CardPopoutType_ReferenceOpponent, popout_title, $AllCards/OpponentAllCopy, false, hide_reshuffle)
+
+func _on_player_buddy_button_pressed(only_show_boosts = false):
+	show_popout(CardPopoutType.CardPopoutType_BuddyPlayer, "YOUR EXTRA CARDS", $AllCards/PlayerBuddyCopy, true, false, only_show_boosts)
 
 func _on_opponent_buddy_button_pressed():
 	show_popout(CardPopoutType.CardPopoutType_BuddyOpponent, "THEIR EXTRA CARDS", $AllCards/OpponentBuddyCopy)
