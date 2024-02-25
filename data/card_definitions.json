@@ -9361,59 +9361,56 @@
 	{
 		"id": "king_healinghammer",
 		"type": "special",
-		"display_name": "Cannonball",
-		"force_cost": 0,
+		"display_name": "Healing Hammer",
+		"force_cost": 1,
 		"gauge_cost": 0,
-		"range_min": 4,
-		"range_max": 6,
-		"speed": 3,
-		"power": 4,
+		"range_min": 1,
+		"range_max": 2,
+		"speed": 6,
+		"power": 2,
 		"armor": 0,
-		"guard": 3,
+		"guard": 0,
 		"effects": [
 			{
-				"timing": "during_strike",
-				"effect_type": "ignore_armor"
-			},
-			{
-				"timing": "hit",
+				"timing": "after",
+				"condition": "hit_opponent",
 				"effect_type": "choice",
 				"choice": [
 					{
-						"effect_type": "push",
-						"amount": 1,
-						"and":
-							{ "effect_type": "draw", "amount": 1}
+						"effect_type": "seal_this",
+						"and": {
+							"effect_type": "gain_life",
+							"amount": 4,
+							"and": {
+								"effect_type": "add_top_discard_to_gauge",
+								"amount": 2
+							}
+						}
 					},
-					{ "effect_type": "draw", "amount": 1}
-				]
-			},
-			{
-				"timing": "after",
-				"effect_type": "choice",
-				"choice": [
-					{ "effect_type": "advance", "amount": 1},
-					{ "effect_type": "advance", "amount": 2}
+					{ "effect_type": "pass" }
 				]
 			}
 		],
 		"boost": {
-			"boost_type": "immediate",
-			"force_cost": 0,
+			"boost_type": "continuous",
+			"force_cost": 1,
 			"cancel_cost": -1,
-			"display_name": "Quick Step",
+			"display_name": "To Me, Minions!",
 			"effects": [
 				{
-					"timing": "immediate",
+					"timing": "during_strike",
+					"effect_type": "speedup",
+					"amount": 1
+				},
+				{
+					"timing": "now",
 					"effect_type": "choice",
 					"choice": [
 						{ "effect_type": "advance", "amount": 1 },
-						{ "effect_type": "retreat", "amount": 1 }
+						{ "effect_type": "advance", "amount": 2 },
+						{ "effect_type": "retreat", "amount": 1 },
+						{ "effect_type": "retreat", "amount": 2 }
 					]
-				},
-				{
-					"timing": "immediate",
-					"effect_type": "bonus_action"
 				}
 			]
 		}
@@ -9421,48 +9418,63 @@
 	{
 		"id": "king_scepterslam",
 		"type": "special",
-		"display_name": "Headwind",
+		"display_name": "Scepter Slam",
 		"force_cost": 0,
 		"gauge_cost": 0,
-		"range_min": 3,
-		"range_max": 4,
+		"range_min": 1,
+		"range_max": 1,
 		"speed": 5,
-		"power": 1,
+		"power": 2,
 		"armor": 0,
 		"guard": 0,
 		"effects": [
 			{
 				"timing": "before",
-				"condition": "range_multiple",
-				"condition_amount_min": 1,
-				"condition_amount_max": 2,
-				"effect_type": "push",
-				"amount": 2,
-				"and": {
-					"effect_type": "powerup",
-					"amount": 2
-				}
-			}
-		],
-		"boost": {
-			"boost_type": "continuous",
-			"force_cost": 0,
-			"cancel_cost": -1,
-			"display_name": "Wind Stream",
-			"effects": [
-				{
-					"timing": "during_strike",
+				"effect_type": "close",
+				"amount": 3
+			},
+			{
+				"timing": "hit",
+				"effect_type": "force_for_effect",
+				"per_force_effect": {
 					"effect_type": "powerup",
 					"amount": 1
 				},
+				"overall_effect": null,
+				"force_max": 3
+			}
+		],
+		"boost": {
+			"boost_type": "immediate",
+			"force_cost": 1,
+			"cancel_cost": -1,
+			"display_name": "Unsteady Ground",
+			"effects": [
 				{
-					"timing": "before",
+					"timing": "immediate",
 					"effect_type": "choice",
 					"choice": [
 						{ "effect_type": "push", "amount": 1 },
-						{ "effect_type": "push", "amount": 2 }
+						{ "effect_type": "push", "amount": 2 },
+						{ "effect_type": "pull", "amount": 1 },
+						{ "effect_type": "pull", "amount": 2 }
 					]
-				}
+				},
+				{
+					"timing": "immediate",
+					"effect_type": "gauge_for_effect",
+					"other_player": true,
+					"per_gauge_effect": null,
+					"overall_effect": {
+						"effect_type": "discard_this"
+					},
+					"gauge_max": 1
+				},
+				{
+					"timing": "immediate",
+					"condition": "not_discarding_boost",
+					"effect_type": "bonus_action"
+				},
 			]
 		}
 	},

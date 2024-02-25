@@ -438,7 +438,10 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 				topdeck_card = "([color=%s]%s[/color]) " % [CardHighlightColor, effect['card_name']]
 			effect_str += "Add top card of deck %sto gauge" % topdeck_card
 		"add_top_discard_to_gauge":
-			effect_str += "Add top card of discard pile to gauge"
+			if 'amount' in effect:
+				effect_str += "Add top %s card(s) of discard pile to gauge" % effect['amount']
+			else:
+				effect_str += "Add top card of discard pile to gauge"
 		"add_top_discard_to_overdrive":
 			if 'card_name' in effect:
 				effect_str += "Add %s from top of discard pile to overdrive" % effect['card_name']

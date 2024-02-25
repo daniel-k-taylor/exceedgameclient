@@ -3865,6 +3865,8 @@ func is_effect_condition_met(performing_player : Player, effect, local_condition
 				return false
 		elif condition == "can_continuous_boost_from_gauge":
 			return performing_player.can_boost_something(['gauge'], 'continuous')
+		elif condition == "not_discarding_boost":
+			return active_boost and not active_boost.discard_on_cleanup
 		else:
 			assert(false, "Unimplemented condition")
 		# Unmet condition
@@ -4742,7 +4744,10 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 				}
 				events += handle_strike_effect(card_id, changed_effect, performing_player)
 			else:
-				var available_gauge = performing_player.get_available_gauge()
+				var gauge_player = performing_player
+				if 'other_player' in effect and effect['other_player']:
+					gauge_player = opposing_player
+				var available_gauge = gauge_player.get_available_gauge()
 				var can_do_something = false
 				var bonus_effect = {}
 				if effect['per_gauge_effect'] and available_gauge > 0:
@@ -4754,12 +4759,12 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 				if can_do_something:
 					change_game_state(Enums.GameState.GameState_PlayerDecision)
 					decision_info.clear()
-					decision_info.player = performing_player.my_id
+					decision_info.player = gauge_player.my_id
 					decision_info.type = Enums.DecisionType.DecisionType_GaugeForEffect
 					decision_info.choice_card_id = card_id
 					decision_info.effect = effect
 					decision_info.bonus_effect = bonus_effect
-					events += [create_event(Enums.EventType.EventType_GaugeForEffect, performing_player.my_id, 0)]
+					events += [create_event(Enums.EventType.EventType_GaugeForEffect, gauge_player.my_id, 0)]
 		"gain_advantage":
 			next_turn_player = performing_player.my_id
 			events += [create_event(Enums.EventType.EventType_Strike_GainAdvantage, performing_player.my_id, 0)]
