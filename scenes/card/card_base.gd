@@ -5,14 +5,7 @@ signal lowered_card(card)
 signal clicked_card(card)
 
 const StatPanel = preload("res://scenes/card/stat_panel.gd")
-@onready var range_panel : StatPanel = $CardFocusFeatures/CardContainer/CardBox/AbiltiesImagePanel/StatsHBox/StatsColumn/RangePanel
-@onready var speed_panel : StatPanel = $CardFocusFeatures/CardContainer/CardBox/AbiltiesImagePanel/StatsHBox/StatsColumn/SpeedPanel
-@onready var power_panel : StatPanel = $CardFocusFeatures/CardContainer/CardBox/AbiltiesImagePanel/StatsHBox/StatsColumn/PowerPanel
-@onready var armor_panel : StatPanel = $CardFocusFeatures/CardContainer/CardBox/AbiltiesImagePanel/StatsHBox/StatsColumn/ArmorPanel
-@onready var guard_panel : StatPanel = $CardFocusFeatures/CardContainer/CardBox/AbiltiesImagePanel/StatsHBox/StatsColumn/GuardPanel
-@onready var card_box = $CardFocusFeatures/CardContainer/CardBox
-@onready var cancel_container = $CardFocusFeatures/CancelContainer
-@onready var cancel_cost_label = $CardFocusFeatures/CancelContainer/CancelCost
+@onready var card_container = $CardFocusFeatures/CardContainer
 @onready var card_back = $CardFocusFeatures/CardContainer/CardBack
 @onready var fancy_card = $CardFocusFeatures/CardContainer/FancyCard
 @onready var backlight = $CardFocusFeatures/Backlight
@@ -81,6 +74,8 @@ var animate_flip = false
 var animation_length = 0
 var manual_flip_needed = false
 var skip_flip_when_drawing = false
+var remaining_count = -1
+var hand_icon_state = {}
 
 var follow_mouse = false
 var saved_hand_index = -1
@@ -91,9 +86,7 @@ var resting_rotation
 var resting_scale
 var focus_pos
 var focus_rot
-var focus_y_pos
 var cancel_visible_on_front
-var use_custom_card_image = false
 var card_image
 var cardback_image
 
@@ -115,7 +108,6 @@ func _ready():
 	remaining_count_obj.visible = false
 	remaining_count_label.text = ""
 	hand_icons_obj.visible = false
-	#$CardContainer/Focus.modulate = HighlightColor
 
 	hand_texture = load("res://assets/icons/hand.png")
 	question_texture = load("res://assets/icons/handquestion.png")
@@ -127,6 +119,7 @@ func _ready():
 
 func set_remaining_count(count : int):
 	remaining_count_obj.visible = true
+	remaining_count = count
 	if count == 0:
 		remaining_count_label.text = "None"
 		fancy_card.modulate = GreyedOutColor
@@ -134,7 +127,16 @@ func set_remaining_count(count : int):
 		remaining_count_label.text = "%s Left" % count
 		fancy_card.modulate = NormalColor
 
+func get_remaining_count():
+	return remaining_count
+
 func update_hand_icons(known : int, questionable : int, on_topdeck : bool, player_hand : bool):
+	hand_icon_state = {
+		"known": known,
+		"questionable": questionable,
+		"on_topdeck": on_topdeck,
+		"player_hand": player_hand
+	}
 	if known or questionable or on_topdeck:
 		hand_icons_obj.visible = true
 	else:
@@ -165,9 +167,18 @@ func update_hand_icons(known : int, questionable : int, on_topdeck : bool, playe
 	for i in range(set_count, 6):
 		icons[i].visible = false
 
+func update_hand_icons_from_state(icon_state):
+	update_hand_icons(icon_state["known"], icon_state["questionable"], icon_state["on_topdeck"], icon_state["player_hand"])
+
+func get_hand_icon_state():
+	return hand_icon_state
+
 func set_label(label : String):
 	remaining_count_obj.visible = true
 	remaining_count_label.text = label
+
+func get_label():
+	return remaining_count_label.text
 
 func clear_label():
 	remaining_count_obj.visible = false
@@ -176,14 +187,10 @@ func clear_label():
 func flip_card_to_front(front):
 	if front:
 		card_back.visible = false
-		card_box.visible = use_custom_card_image
-		fancy_card.visible = not use_custom_card_image
-		cancel_container.visible = cancel_visible_on_front
+		fancy_card.visible = true
 	else:
 		card_back.visible = true
-		card_box.visible = false
 		fancy_card.visible = false
-		cancel_container.visible = false
 
 func set_backlight_visible(backlight_visible):
 	backlight.visible = backlight_visible
@@ -298,9 +305,8 @@ func position_card_in_hand(dst_pos, dst_rot):
 func _process(_delta):
 	pass
 
-func initialize_card(id, card_title, image, card_back_image, range_min, range_max, speed, power, armor, guard, effect_text, boost_cost, boost_text, strike_cost, cancel_cost, hand_focus_y_pos, is_opponent: bool):
+func initialize_card(id, image, card_back_image, is_opponent: bool):
 	card_id = id
-	$CardFocusFeatures/CardContainer/CardBox/TitleRow/TitlePanel/TitleNameBox/TitleName.text = card_title
 	var starting_scale = HandCardScale
 	if is_opponent:
 		starting_scale = OpponentHandCardScale
@@ -310,35 +316,25 @@ func initialize_card(id, card_title, image, card_back_image, range_min, range_ma
 	focus_feature.scale = starting_scale
 	card_image = image
 	cardback_image = card_back_image
-	if image != "":
-		use_custom_card_image = false
-		fancy_card.texture = load(image)
-		fancy_card.visible = true
-		card_box.visible = false
-	else:
-		use_custom_card_image = true
+	assert(image, "Must have image for card")
+	fancy_card.texture = load(image)
+	fancy_card.visible = true
 	if cardback_image:
 		card_back.texture = load(card_back_image)
 
-	# Set Stats
-	range_panel.set_stats("RANGE", range_min, range_max)
-	speed_panel.set_stats("SPEED", speed, speed)
-	power_panel.set_stats("POWER", power, power, true)
-	armor_panel.set_stats("ARMOR", armor, armor, true)
-	guard_panel.set_stats("GUARD", guard, guard, true)
-
-	cancel_visible_on_front = use_custom_card_image and cancel_cost != -1
-	cancel_cost_label.text = str(cancel_cost)
-
-	# Set Effect and Boost
-	$CardFocusFeatures/CardContainer/CardBox/EffectBox/EffectText.text = "[center]%s[/center]" % effect_text
-	$CardFocusFeatures/CardContainer/CardBox/BoostBox/BoostDetailsBox/BoostCostIcon/BoostCost.text = "  %s" % boost_cost
-	$CardFocusFeatures/CardContainer/CardBox/BoostBox/BoostDetailsBox/BoostText.text = "%s" % boost_text
-	$CardFocusFeatures/CardContainer/CardBox/TitleRow/TitleIcon.visible = strike_cost == 0
-	$CardFocusFeatures/CardContainer/CardBox/TitleRow/CardCost.visible = strike_cost != 0
-	$CardFocusFeatures/CardContainer/CardBox/TitleRow/CardCost.text = "  " + str(strike_cost)
-
-	focus_y_pos = hand_focus_y_pos
+func initialize_simple(id, image, card_back_image):
+	card_id = id
+	var starting_scale = HandCardScale
+	default_scale = starting_scale
+	resting_scale = starting_scale
+	card_features.scale = starting_scale
+	focus_feature.scale = starting_scale
+	card_image = image
+	cardback_image = card_back_image
+	fancy_card.texture = load(image)
+	fancy_card.visible = true
+	if cardback_image:
+		card_back.texture = load(card_back_image)
 
 func set_card_and_focus(pos, rot, sca):
 	if pos != null:
@@ -404,6 +400,11 @@ func change_state(new_state):
 	state = new_state
 
 func clamp_to_screen(center_pos : Vector2, size: Vector2) -> Vector2:
+	var global_pos = Vector2(0,0)
+	if state == CardState.CardState_InPopout:
+		global_pos = card_container.global_position
+	center_pos = global_pos + center_pos
+
 	var screen_size = get_viewport().content_scale_size
 	var top_left = center_pos - size / 2
 	var new_top_left = top_left
@@ -416,6 +417,8 @@ func clamp_to_screen(center_pos : Vector2, size: Vector2) -> Vector2:
 	if new_top_left.y + size.y > screen_size.y:
 		new_top_left.y = screen_size.y - size.y
 	var new_center = new_top_left + size / 2
+
+	new_center = new_center - global_pos
 	return new_center
 
 func focus():

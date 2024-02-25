@@ -3,6 +3,9 @@
 In progress:
 
 
+Bug:
+    ☐ Play invalid extra attack leads to invalid wild swings.
+
 Write tests for:
     Axl:
     Testament:

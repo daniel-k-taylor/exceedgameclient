@@ -1,46 +1,47 @@
-extends PanelContainer
+extends Control
 
 signal close_window
 signal pressed_ok(index)
 signal pressed_cancel
 signal pressed_toggle
+signal card_clicked(card_id)
 
 const ColsAtMaxSize = 5
 const SlotsAtExpectedCols = 10
 const MaxCols = 20
 const MaxSlotCount = 40
-const DefaultSeparation = 20
-const MinSeparation = -220
+const DefaultSeparation = 0
+const MinSeparation = -120
 
 var used_slots = 0
 var total_cols = 0
 
-@onready var instruction_box = $PopoutVBox/HBoxContainer/RestOfThing
-@onready var instruction_label = $PopoutVBox/HBoxContainer/RestOfThing/InstructionLabel
-@onready var instruction_button_ok = $PopoutVBox/HBoxContainer/RestOfThing/InstructionButtonOk
-@onready var instruction_button_ok2 = $PopoutVBox/HBoxContainer/RestOfThing/InstructionButtonOk2
-@onready var instruction_button_cancel = $PopoutVBox/HBoxContainer/RestOfThing/InstructionButtonCancel
-@onready var toggle_container = $PopoutVBox/ToggleContainer
-@onready var toggle_button = $PopoutVBox/ToggleContainer/WithBuffer/ReshuffleToggle
+const CardBaseScene = preload("res://scenes/card/card_base.tscn")
+const CardBase = preload("res://scenes/card/card_base.gd")
 
-# Called when the node enters the scene tree for the first time.
-func _ready():
-	clear(0)
-
-func shrink_size():
-	reset_size()
+@onready var instruction_box = $PopoutContainer/PopoutVBox/RestOfThing
+@onready var instruction_label = $PopoutContainer/PopoutVBox/RestOfThing/InstructionLabel
+@onready var instruction_button_ok = $PopoutContainer/PopoutVBox/RestOfThing/InstructionButtonOk
+@onready var instruction_button_ok2 = $PopoutContainer/PopoutVBox/RestOfThing/InstructionButtonOk2
+@onready var instruction_button_cancel = $PopoutContainer/PopoutVBox/RestOfThing/InstructionButtonCancel
+@onready var toggle_container = $PopoutContainer/PopoutVBox/ToggleContainer
+@onready var toggle_button = $PopoutContainer/PopoutVBox/ToggleContainer/WithBuffer/ReshuffleToggle
+@onready var title_label = $PopoutContainer/PopoutVBox/HBoxContainer/TitleLabel
+@onready var title_amount = $PopoutContainer/PopoutVBox/HBoxContainer/TitleAmount
+@onready var rows = $PopoutContainer/PopoutVBox/Margin/Rows
+@onready var popout_container = $PopoutContainer
 
 func _input(event):
 	if (event is InputEventMouseButton) and event.pressed:
 		var evLocal = make_input_local(event)
-		if !Rect2(Vector2(0,0),size).has_point(evLocal.position):
+		if !Rect2(Vector2(0,0),popout_container.size).has_point(evLocal.position):
 			close_window.emit()
 
 func set_title(text : String):
-	$PopoutVBox/HBoxContainer/TitleLabel.text = text
+	title_label.text = text
 
 func set_amount(text : String):
-	$PopoutVBox/HBoxContainer/TitleAmount.text = text
+	title_amount.text = text
 
 func set_instructions(instruction_info):
 	if instruction_info == null:
@@ -74,71 +75,78 @@ func set_reference_toggle(toggle_text, toggle_visible):
 		toggle_button.text = toggle_text
 		toggle_button.disabled = false
 
-func adjust_spacing():
-	if used_slots > SlotsAtExpectedCols:
-		@warning_ignore("integer_division")
-		var extra_cols = floor((used_slots - SlotsAtExpectedCols) / 2) + 1
-		var percent : float = float(extra_cols) / (MaxCols - ColsAtMaxSize)
-		var sep = floor(lerpf(DefaultSeparation, MinSeparation, percent))
-		$PopoutVBox/Margin/Row.add_theme_constant_override("separation", sep)
-	else:
-		$PopoutVBox/Margin/Row.add_theme_constant_override("separation", DefaultSeparation)
-	shrink_size()
-
-func clear(visible_slots : int):
-	# For the currently visible spots, set them invisible.
-	for i in range(used_slots):
+func show_cards(cards : Array):
+	var total_cards = len(cards)
+	used_slots = total_cards
+	total_cols = min(ceil(total_cards / 2.0), MaxCols)
+	for i in range(total_cards):
+		var card = cards[i]
+		var new_card = CardBaseScene.instantiate()
+		new_card.clicked_card.connect(on_card_clicked)
 		var spot = get_spot(i)
-		spot.visible = false
-		if i % 2 == 0:
-			spot.get_parent().visible = spot.visible
+		spot.add_child(new_card)
+		new_card.initialize_simple(card.card_id, card.card_image, card.cardback_image)
+		new_card.flip_card_to_front(true)
 
-	# Update the used slots and column count.
-	used_slots = visible_slots
-	@warning_ignore("integer_division")
-	total_cols = floor((used_slots + 1) / 2)
+		var label = card.get_label()
+		if label:
+			new_card.set_label(label)
 
-	# Now set the new used slots visible.
-	for i in range(used_slots):
-		var spot = get_spot(i)
-		spot.visible = true
-		spot.get_parent().visible = true
+		var remaining_count = card.get_remaining_count()
+		if remaining_count != -1:
+			new_card.set_remaining_count(remaining_count)
 
-	# Fix up spacing and wait a couple frames to let the container adjust.
+		var icon_state = card.get_hand_icon_state()
+		if icon_state:
+			new_card.update_hand_icons_from_state(icon_state)
+
 	adjust_spacing()
-	await get_tree().process_frame
-	await get_tree().process_frame
+	popout_container.reset_size()
+
+	for i in range(total_cards):
+		var spot = get_spot(i)
+		var card : CardBase = spot.get_child(0)
+		var pos = Vector2(0,0)
+		var adjusted_pos = pos + CardBase.ReferenceCardScale * CardBase.ActualCardSize / 2
+		card.set_card_and_focus(adjusted_pos, null, null)
+		card.change_state(CardBase.CardState.CardState_InPopout)
+		card.set_resting_position(adjusted_pos, 0)
+
+func modify_card_selection(card_id, selected):
+	for row in rows.get_children():
+		for spot in row.get_children():
+			if spot.get_child_count() == 0:
+				continue
+			var card : CardBase = spot.get_child(0)
+			if card.card_id == card_id:
+				card.set_selected(selected)
+
+func adjust_spacing():
+	for child in rows.get_children():
+		if used_slots > SlotsAtExpectedCols:
+			var extra_cols = floor((used_slots - SlotsAtExpectedCols) / 2.0) + 1
+			var percent : float = float(extra_cols) / (MaxCols - ColsAtMaxSize)
+			var sep = floor(lerpf(DefaultSeparation, MinSeparation, percent))
+			child.add_theme_constant_override("separation", sep)
+		else:
+			child.add_theme_constant_override("separation", DefaultSeparation)
 
 func get_spot(slot_index):
-	# Slots should be given out in the order first row then second row.
 	var row_num = 0
-	var col_num = 0
-	@warning_ignore("integer_division")
-	if used_slots > 0:
-		row_num = floor(slot_index / total_cols)
-		col_num = (slot_index % total_cols)
-		if row_num >= 2:
-			# Since the objects are Spot1/Spot2, row_num can't be 2 or more.
-			# Somehow we snuck into the next col?
-			row_num = 0
-			assert(false)
-	var col = $PopoutVBox/Margin/Row.get_node("Col%s" % str(col_num + 1))
-	var spot = col.get_node("Spot%s" % str(row_num + 1))
-	return spot
+	var col_num = slot_index
+	if slot_index >= total_cols:
+		row_num = 1
+		col_num = slot_index - total_cols
+	var row = rows.get_child(row_num)
+	var col = row.get_child(col_num)
+	col.visible = true
+	return col
 
-func get_slot_position(slot_index : int) -> Vector2:
-	var spot = get_spot(slot_index)
-	if spot:
-		var pos = spot.global_position
-		return pos
-	else:
-		# Something weird happened, default to something to not crash
-		# We should at least have a slot 0, right?
-		return get_spot(0).global_position
+func on_card_clicked(card : CardBase):
+	card_clicked.emit(card.card_id)
 
 func _on_close_window_button_pressed():
 	close_window.emit()
-
 
 func _on_instruction_button_ok_pressed():
 	pressed_ok.emit(0)

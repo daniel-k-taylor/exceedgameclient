@@ -1,4 +1,4 @@
-[gd_scene load_steps=28 format=3 uid="uid://dh7wmx6cbb55x"]
+[gd_scene load_steps=27 format=3 uid="uid://dh7wmx6cbb55x"]
 
 [ext_resource type="Script" path="res://scenes/game/game.gd" id="1_4f5jr"]
 [ext_resource type="Texture2D" uid="uid://dh8tat2r8ttx1" path="res://assets/cards/card_border_highlight.png" id="4_5y76h"]
@@ -14,7 +14,6 @@
 [ext_resource type="Texture2D" uid="uid://60aipui45hh3" path="res://assets/cards/card_border_highlight_discard_pile.png" id="9_dpbn3"]
 [ext_resource type="PackedScene" uid="uid://ckjlv124xttrc" path="res://scenes/game/character.tscn" id="9_rhsuv"]
 [ext_resource type="Texture2D" uid="uid://dbijqidxd2ned" path="res://assets/icons/cards.png" id="11_nsv2h"]
-[ext_resource type="PackedScene" uid="uid://dxtsdthw5sxbc" path="res://scenes/game/card_popout.tscn" id="14_lyeqj"]
 [ext_resource type="Texture2D" uid="uid://ded5jrn5yju2j" path="res://assets/cards/card_border_highlight_pressed.png" id="16_laiwo"]
 [ext_resource type="PackedScene" uid="uid://dal56iqk5k8rh" path="res://scenes/game/action_menu.tscn" id="17_8hgvk"]
 [ext_resource type="Texture2D" uid="uid://cj7nvglef8cu" path="res://assets/cards/solbadguy/normal_grasp.tres" id="17_acwgt"]
@@ -708,12 +707,6 @@ layout_mode = 2
 size_flags_horizontal = 3
 mouse_filter = 2
 
-[node name="CardPopout" parent="AllCards" instance=ExtResource("14_lyeqj")]
-visible = false
-offset_right = 685.0
-offset_bottom = 154.0
-scale = Vector2(0.6, 0.6)
-
 [node name="PlayerBoosts" type="Node2D" parent="AllCards"]
 
 [node name="OpponentBoosts" type="Node2D" parent="AllCards"]
@@ -819,6 +812,8 @@ anchor_bottom = 0.0
 offset_right = 1280.0
 offset_bottom = 720.0
 
+[node name="CardPopoutParent" type="Node2D" parent="."]
+
 [node name="TurnStartAudio" type="AudioStreamPlayer" parent="."]
 stream = ExtResource("27_aidi8")
 
@@ -850,10 +845,6 @@ stream = ExtResource("27_aidi8")
 [connection signal="choice_selected" from="AllCards/ActionContainer/ActionMenu" to="." method="_on_action_menu_choice_selected"]
 [connection signal="discard_ex_first_toggled" from="AllCards/ActionContainer/ActionMenu" to="." method="_on_action_menu_discard_ex_first_toggled"]
 [connection signal="ultra_force_toggled" from="AllCards/ActionContainer/ActionMenu" to="." method="_on_action_menu_ultra_force_toggled"]
-[connection signal="close_window" from="AllCards/CardPopout" to="." method="_on_popout_close_window"]
-[connection signal="pressed_cancel" from="AllCards/CardPopout" to="." method="_on_card_popout_pressed_cancel"]
-[connection signal="pressed_ok" from="AllCards/CardPopout" to="." method="_on_card_popout_pressed_ok"]
-[connection signal="pressed_toggle" from="AllCards/CardPopout" to="." method="_on_card_popout_pressed_toggle"]
 [connection signal="pressed" from="PlayerDiscardButton" to="." method="_on_player_discard_button_pressed"]
 [connection signal="pressed" from="OpponentDiscardButton" to="." method="_on_opponent_discard_button_pressed"]
 [connection signal="pressed" from="ExitToMenu" to="." method="_on_exit_to_menu_pressed"]

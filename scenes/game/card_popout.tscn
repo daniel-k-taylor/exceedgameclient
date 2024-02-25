@@ -1,86 +1,96 @@
-[gd_scene load_steps=4 format=3 uid="uid://dxtsdthw5sxbc"]
+[gd_scene load_steps=3 format=3 uid="uid://dxtsdthw5sxbc"]
 
-[ext_resource type="Texture2D" uid="uid://dh8tat2r8ttx1" path="res://assets/cards/card_border_highlight.png" id="1_jo5c8"]
 [ext_resource type="Script" path="res://scenes/game/card_popout.gd" id="1_n2e25"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_r26q8"]
 bg_color = Color(0.227451, 0.227451, 0.227451, 1)
 
-[node name="CardPopout" type="PanelContainer"]
-offset_right = 250.0
+[node name="CardPopout" type="Control"]
+z_index = 5
+custom_minimum_size = Vector2(1280, 720)
+layout_mode = 3
+anchors_preset = 0
+offset_right = 685.0
 offset_bottom = 350.0
-theme_override_styles/panel = SubResource("StyleBoxFlat_r26q8")
+mouse_filter = 2
 script = ExtResource("1_n2e25")
 
-[node name="PopoutVBox" type="VBoxContainer" parent="."]
-layout_mode = 2
+[node name="PopoutContainer" type="PanelContainer" parent="."]
+layout_mode = 0
+offset_right = 685.0
+offset_bottom = 215.0
+theme_override_styles/panel = SubResource("StyleBoxFlat_r26q8")
 
-[node name="CloseWindowButton" type="Button" parent="PopoutVBox"]
+[node name="PopoutVBox" type="VBoxContainer" parent="PopoutContainer"]
+layout_mode = 2
+theme_override_constants/separation = -3
+
+[node name="CloseWindowButton" type="Button" parent="PopoutContainer/PopoutVBox"]
 layout_mode = 2
 theme_override_font_sizes/font_size = 28
 text = "CLOSE WINDOW"
 
-[node name="HBoxContainer" type="HBoxContainer" parent="PopoutVBox"]
+[node name="HBoxContainer" type="HBoxContainer" parent="PopoutContainer/PopoutVBox"]
 layout_mode = 2
 
-[node name="LeftMargin" type="MarginContainer" parent="PopoutVBox/HBoxContainer"]
+[node name="LeftMargin" type="MarginContainer" parent="PopoutContainer/PopoutVBox/HBoxContainer"]
 custom_minimum_size = Vector2(20, 0)
 layout_mode = 2
 
-[node name="TitleLabel" type="Label" parent="PopoutVBox/HBoxContainer"]
+[node name="TitleLabel" type="Label" parent="PopoutContainer/PopoutVBox/HBoxContainer"]
 layout_mode = 2
-theme_override_font_sizes/font_size = 38
+theme_override_font_sizes/font_size = 34
 text = "GAUGE"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="Buffer" type="MarginContainer" parent="PopoutVBox/HBoxContainer"]
+[node name="Buffer" type="MarginContainer" parent="PopoutContainer/PopoutVBox/HBoxContainer"]
 custom_minimum_size = Vector2(20, 0)
 layout_mode = 2
 
-[node name="TitleAmount" type="Label" parent="PopoutVBox/HBoxContainer"]
+[node name="TitleAmount" type="Label" parent="PopoutContainer/PopoutVBox/HBoxContainer"]
 layout_mode = 2
-theme_override_font_sizes/font_size = 38
+theme_override_font_sizes/font_size = 34
 text = "##"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="Buffer2" type="MarginContainer" parent="PopoutVBox/HBoxContainer"]
+[node name="Buffer2" type="MarginContainer" parent="PopoutContainer/PopoutVBox/HBoxContainer"]
 custom_minimum_size = Vector2(20, 0)
 layout_mode = 2
 
-[node name="RestOfThing" type="HBoxContainer" parent="PopoutVBox/HBoxContainer"]
+[node name="RestOfThing" type="HBoxContainer" parent="PopoutContainer/PopoutVBox"]
 layout_mode = 2
 size_flags_horizontal = 3
 alignment = 2
 
-[node name="InstructionLabel" type="Label" parent="PopoutVBox/HBoxContainer/RestOfThing"]
+[node name="InstructionLabel" type="Label" parent="PopoutContainer/PopoutVBox/RestOfThing"]
 layout_mode = 2
-theme_override_font_sizes/font_size = 38
+theme_override_font_sizes/font_size = 34
 text = "Name a card."
 
-[node name="InstructionButtonOk" type="Button" parent="PopoutVBox/HBoxContainer/RestOfThing"]
+[node name="InstructionButtonOk" type="Button" parent="PopoutContainer/PopoutVBox/RestOfThing"]
 layout_mode = 2
 theme_override_font_sizes/font_size = 38
 text = "OK"
 
-[node name="InstructionButtonOk2" type="Button" parent="PopoutVBox/HBoxContainer/RestOfThing"]
+[node name="InstructionButtonOk2" type="Button" parent="PopoutContainer/PopoutVBox/RestOfThing"]
 visible = false
 layout_mode = 2
 theme_override_font_sizes/font_size = 38
 text = "Option2"
 
-[node name="InstructionButtonCancel" type="Button" parent="PopoutVBox/HBoxContainer/RestOfThing"]
+[node name="InstructionButtonCancel" type="Button" parent="PopoutContainer/PopoutVBox/RestOfThing"]
 layout_mode = 2
 theme_override_font_sizes/font_size = 38
 text = "Cancel"
 
-[node name="Buffer2" type="MarginContainer" parent="PopoutVBox/HBoxContainer/RestOfThing"]
+[node name="Buffer2" type="MarginContainer" parent="PopoutContainer/PopoutVBox/RestOfThing"]
 custom_minimum_size = Vector2(20, 0)
 layout_mode = 2
 theme_override_constants/margin_right = 20
 
-[node name="Margin" type="MarginContainer" parent="PopoutVBox"]
+[node name="Margin" type="MarginContainer" parent="PopoutContainer/PopoutVBox"]
 layout_mode = 2
 size_flags_horizontal = 0
 size_flags_vertical = 0
@@ -89,366 +99,292 @@ theme_override_constants/margin_top = 20
 theme_override_constants/margin_right = 20
 theme_override_constants/margin_bottom = 10
 
-[node name="Row" type="HBoxContainer" parent="PopoutVBox/Margin"]
+[node name="Rows" type="VBoxContainer" parent="PopoutContainer/PopoutVBox/Margin"]
 layout_mode = 2
-size_flags_horizontal = 0
-size_flags_vertical = 0
 theme_override_constants/separation = 20
 
-[node name="Col1" type="VBoxContainer" parent="PopoutVBox/Margin/Row"]
+[node name="Row0" type="HBoxContainer" parent="PopoutContainer/PopoutVBox/Margin/Rows"]
+layout_mode = 2
+theme_override_constants/separation = -300
+
+[node name="Col0" type="TextureRect" parent="PopoutContainer/PopoutVBox/Margin/Rows/Row0"]
 visible = false
+custom_minimum_size = Vector2(150, 210)
 layout_mode = 2
-size_flags_vertical = 0
-theme_override_constants/separation = 40
+expand_mode = 1
 
-[node name="Spot1" type="TextureRect" parent="PopoutVBox/Margin/Row/Col1"]
-modulate = Color(1, 1, 1, 0)
-layout_mode = 2
-texture = ExtResource("1_jo5c8")
-
-[node name="Spot2" type="TextureRect" parent="PopoutVBox/Margin/Row/Col1"]
-modulate = Color(1, 1, 1, 0)
-layout_mode = 2
-texture = ExtResource("1_jo5c8")
-
-[node name="Col2" type="VBoxContainer" parent="PopoutVBox/Margin/Row"]
+[node name="Col1" type="TextureRect" parent="PopoutContainer/PopoutVBox/Margin/Rows/Row0"]
 visible = false
+custom_minimum_size = Vector2(150, 210)
 layout_mode = 2
-size_flags_vertical = 0
-theme_override_constants/separation = 40
+expand_mode = 1
 
-[node name="Spot1" type="TextureRect" parent="PopoutVBox/Margin/Row/Col2"]
-modulate = Color(1, 1, 1, 0)
-layout_mode = 2
-texture = ExtResource("1_jo5c8")
-
-[node name="Spot2" type="TextureRect" parent="PopoutVBox/Margin/Row/Col2"]
-modulate = Color(1, 1, 1, 0)
-layout_mode = 2
-texture = ExtResource("1_jo5c8")
-
-[node name="Col3" type="VBoxContainer" parent="PopoutVBox/Margin/Row"]
+[node name="Col2" type="TextureRect" parent="PopoutContainer/PopoutVBox/Margin/Rows/Row0"]
 visible = false
+custom_minimum_size = Vector2(150, 210)
 layout_mode = 2
-size_flags_vertical = 0
-theme_override_constants/separation = 40
+expand_mode = 1
 
-[node name="Spot1" type="TextureRect" parent="PopoutVBox/Margin/Row/Col3"]
-modulate = Color(1, 1, 1, 0)
-layout_mode = 2
-texture = ExtResource("1_jo5c8")
-
-[node name="Spot2" type="TextureRect" parent="PopoutVBox/Margin/Row/Col3"]
-modulate = Color(1, 1, 1, 0)
-layout_mode = 2
-texture = ExtResource("1_jo5c8")
-
-[node name="Col4" type="VBoxContainer" parent="PopoutVBox/Margin/Row"]
+[node name="Col3" type="TextureRect" parent="PopoutContainer/PopoutVBox/Margin/Rows/Row0"]
 visible = false
+custom_minimum_size = Vector2(150, 210)
 layout_mode = 2
-size_flags_vertical = 0
-theme_override_constants/separation = 40
+expand_mode = 1
 
-[node name="Spot1" type="TextureRect" parent="PopoutVBox/Margin/Row/Col4"]
-modulate = Color(1, 1, 1, 0)
-layout_mode = 2
-texture = ExtResource("1_jo5c8")
-
-[node name="Spot2" type="TextureRect" parent="PopoutVBox/Margin/Row/Col4"]
-modulate = Color(1, 1, 1, 0)
-layout_mode = 2
-texture = ExtResource("1_jo5c8")
-
-[node name="Col5" type="VBoxContainer" parent="PopoutVBox/Margin/Row"]
+[node name="Col4" type="TextureRect" parent="PopoutContainer/PopoutVBox/Margin/Rows/Row0"]
 visible = false
+custom_minimum_size = Vector2(150, 210)
 layout_mode = 2
-size_flags_vertical = 0
-theme_override_constants/separation = 40
+expand_mode = 1
 
-[node name="Spot1" type="TextureRect" parent="PopoutVBox/Margin/Row/Col5"]
-modulate = Color(1, 1, 1, 0)
-layout_mode = 2
-texture = ExtResource("1_jo5c8")
-
-[node name="Spot2" type="TextureRect" parent="PopoutVBox/Margin/Row/Col5"]
-modulate = Color(1, 1, 1, 0)
-layout_mode = 2
-texture = ExtResource("1_jo5c8")
-
-[node name="Col6" type="VBoxContainer" parent="PopoutVBox/Margin/Row"]
+[node name="Col5" type="TextureRect" parent="PopoutContainer/PopoutVBox/Margin/Rows/Row0"]
 visible = false
+custom_minimum_size = Vector2(150, 210)
 layout_mode = 2
-size_flags_vertical = 0
-theme_override_constants/separation = 40
+expand_mode = 1
 
-[node name="Spot1" type="TextureRect" parent="PopoutVBox/Margin/Row/Col6"]
-modulate = Color(1, 1, 1, 0)
-layout_mode = 2
-texture = ExtResource("1_jo5c8")
-
-[node name="Spot2" type="TextureRect" parent="PopoutVBox/Margin/Row/Col6"]
-modulate = Color(1, 1, 1, 0)
-layout_mode = 2
-texture = ExtResource("1_jo5c8")
-
-[node name="Col7" type="VBoxContainer" parent="PopoutVBox/Margin/Row"]
+[node name="Col6" type="TextureRect" parent="PopoutContainer/PopoutVBox/Margin/Rows/Row0"]
 visible = false
+custom_minimum_size = Vector2(150, 210)
 layout_mode = 2
-size_flags_vertical = 0
-theme_override_constants/separation = 40
+expand_mode = 1
 
-[node name="Spot1" type="TextureRect" parent="PopoutVBox/Margin/Row/Col7"]
-modulate = Color(1, 1, 1, 0)
-layout_mode = 2
-texture = ExtResource("1_jo5c8")
-
-[node name="Spot2" type="TextureRect" parent="PopoutVBox/Margin/Row/Col7"]
-modulate = Color(1, 1, 1, 0)
-layout_mode = 2
-texture = ExtResource("1_jo5c8")
-
-[node name="Col8" type="VBoxContainer" parent="PopoutVBox/Margin/Row"]
+[node name="Col7" type="TextureRect" parent="PopoutContainer/PopoutVBox/Margin/Rows/Row0"]
 visible = false
+custom_minimum_size = Vector2(150, 210)
 layout_mode = 2
-size_flags_vertical = 0
-theme_override_constants/separation = 40
+expand_mode = 1
 
-[node name="Spot1" type="TextureRect" parent="PopoutVBox/Margin/Row/Col8"]
-modulate = Color(1, 1, 1, 0)
-layout_mode = 2
-texture = ExtResource("1_jo5c8")
-
-[node name="Spot2" type="TextureRect" parent="PopoutVBox/Margin/Row/Col8"]
-modulate = Color(1, 1, 1, 0)
-layout_mode = 2
-texture = ExtResource("1_jo5c8")
-
-[node name="Col9" type="VBoxContainer" parent="PopoutVBox/Margin/Row"]
+[node name="Col8" type="TextureRect" parent="PopoutContainer/PopoutVBox/Margin/Rows/Row0"]
 visible = false
+custom_minimum_size = Vector2(150, 210)
 layout_mode = 2
-size_flags_vertical = 0
-theme_override_constants/separation = 40
+expand_mode = 1
 
-[node name="Spot1" type="TextureRect" parent="PopoutVBox/Margin/Row/Col9"]
-modulate = Color(1, 1, 1, 0)
-layout_mode = 2
-texture = ExtResource("1_jo5c8")
-
-[node name="Spot2" type="TextureRect" parent="PopoutVBox/Margin/Row/Col9"]
-modulate = Color(1, 1, 1, 0)
-layout_mode = 2
-texture = ExtResource("1_jo5c8")
-
-[node name="Col10" type="VBoxContainer" parent="PopoutVBox/Margin/Row"]
+[node name="Col9" type="TextureRect" parent="PopoutContainer/PopoutVBox/Margin/Rows/Row0"]
 visible = false
+custom_minimum_size = Vector2(150, 210)
 layout_mode = 2
-size_flags_vertical = 0
-theme_override_constants/separation = 40
+expand_mode = 1
 
-[node name="Spot1" type="TextureRect" parent="PopoutVBox/Margin/Row/Col10"]
-modulate = Color(1, 1, 1, 0)
-layout_mode = 2
-texture = ExtResource("1_jo5c8")
-
-[node name="Spot2" type="TextureRect" parent="PopoutVBox/Margin/Row/Col10"]
-modulate = Color(1, 1, 1, 0)
-layout_mode = 2
-texture = ExtResource("1_jo5c8")
-
-[node name="Col11" type="VBoxContainer" parent="PopoutVBox/Margin/Row"]
+[node name="Col10" type="TextureRect" parent="PopoutContainer/PopoutVBox/Margin/Rows/Row0"]
 visible = false
+custom_minimum_size = Vector2(150, 210)
 layout_mode = 2
-size_flags_vertical = 0
-theme_override_constants/separation = 40
+expand_mode = 1
 
-[node name="Spot1" type="TextureRect" parent="PopoutVBox/Margin/Row/Col11"]
-modulate = Color(1, 1, 1, 0)
-layout_mode = 2
-texture = ExtResource("1_jo5c8")
-
-[node name="Spot2" type="TextureRect" parent="PopoutVBox/Margin/Row/Col11"]
-modulate = Color(1, 1, 1, 0)
-layout_mode = 2
-texture = ExtResource("1_jo5c8")
-
-[node name="Col12" type="VBoxContainer" parent="PopoutVBox/Margin/Row"]
+[node name="Col11" type="TextureRect" parent="PopoutContainer/PopoutVBox/Margin/Rows/Row0"]
 visible = false
+custom_minimum_size = Vector2(150, 210)
 layout_mode = 2
-size_flags_vertical = 0
-theme_override_constants/separation = 40
+expand_mode = 1
 
-[node name="Spot1" type="TextureRect" parent="PopoutVBox/Margin/Row/Col12"]
-modulate = Color(1, 1, 1, 0)
-layout_mode = 2
-texture = ExtResource("1_jo5c8")
-
-[node name="Spot2" type="TextureRect" parent="PopoutVBox/Margin/Row/Col12"]
-modulate = Color(1, 1, 1, 0)
-layout_mode = 2
-texture = ExtResource("1_jo5c8")
-
-[node name="Col13" type="VBoxContainer" parent="PopoutVBox/Margin/Row"]
+[node name="Col12" type="TextureRect" parent="PopoutContainer/PopoutVBox/Margin/Rows/Row0"]
 visible = false
+custom_minimum_size = Vector2(150, 210)
 layout_mode = 2
-size_flags_vertical = 0
-theme_override_constants/separation = 40
+expand_mode = 1
 
-[node name="Spot1" type="TextureRect" parent="PopoutVBox/Margin/Row/Col13"]
-modulate = Color(1, 1, 1, 0)
-layout_mode = 2
-texture = ExtResource("1_jo5c8")
-
-[node name="Spot2" type="TextureRect" parent="PopoutVBox/Margin/Row/Col13"]
-modulate = Color(1, 1, 1, 0)
-layout_mode = 2
-texture = ExtResource("1_jo5c8")
-
-[node name="Col14" type="VBoxContainer" parent="PopoutVBox/Margin/Row"]
+[node name="Col13" type="TextureRect" parent="PopoutContainer/PopoutVBox/Margin/Rows/Row0"]
 visible = false
+custom_minimum_size = Vector2(150, 210)
 layout_mode = 2
-size_flags_vertical = 0
-theme_override_constants/separation = 40
+expand_mode = 1
 
-[node name="Spot1" type="TextureRect" parent="PopoutVBox/Margin/Row/Col14"]
-modulate = Color(1, 1, 1, 0)
-layout_mode = 2
-texture = ExtResource("1_jo5c8")
-
-[node name="Spot2" type="TextureRect" parent="PopoutVBox/Margin/Row/Col14"]
-modulate = Color(1, 1, 1, 0)
-layout_mode = 2
-texture = ExtResource("1_jo5c8")
-
-[node name="Col15" type="VBoxContainer" parent="PopoutVBox/Margin/Row"]
+[node name="Col14" type="TextureRect" parent="PopoutContainer/PopoutVBox/Margin/Rows/Row0"]
 visible = false
+custom_minimum_size = Vector2(150, 210)
 layout_mode = 2
-size_flags_vertical = 0
-theme_override_constants/separation = 40
+expand_mode = 1
 
-[node name="Spot1" type="TextureRect" parent="PopoutVBox/Margin/Row/Col15"]
-modulate = Color(1, 1, 1, 0)
-layout_mode = 2
-texture = ExtResource("1_jo5c8")
-
-[node name="Spot2" type="TextureRect" parent="PopoutVBox/Margin/Row/Col15"]
-modulate = Color(1, 1, 1, 0)
-layout_mode = 2
-texture = ExtResource("1_jo5c8")
-
-[node name="Col16" type="VBoxContainer" parent="PopoutVBox/Margin/Row"]
+[node name="Col15" type="TextureRect" parent="PopoutContainer/PopoutVBox/Margin/Rows/Row0"]
 visible = false
+custom_minimum_size = Vector2(150, 210)
 layout_mode = 2
-size_flags_vertical = 0
-theme_override_constants/separation = 40
+expand_mode = 1
 
-[node name="Spot1" type="TextureRect" parent="PopoutVBox/Margin/Row/Col16"]
-modulate = Color(1, 1, 1, 0)
-layout_mode = 2
-texture = ExtResource("1_jo5c8")
-
-[node name="Spot2" type="TextureRect" parent="PopoutVBox/Margin/Row/Col16"]
-modulate = Color(1, 1, 1, 0)
-layout_mode = 2
-texture = ExtResource("1_jo5c8")
-
-[node name="Col17" type="VBoxContainer" parent="PopoutVBox/Margin/Row"]
+[node name="Col16" type="TextureRect" parent="PopoutContainer/PopoutVBox/Margin/Rows/Row0"]
 visible = false
+custom_minimum_size = Vector2(150, 210)
 layout_mode = 2
-size_flags_vertical = 0
-theme_override_constants/separation = 40
+expand_mode = 1
 
-[node name="Spot1" type="TextureRect" parent="PopoutVBox/Margin/Row/Col17"]
-modulate = Color(1, 1, 1, 0)
-layout_mode = 2
-texture = ExtResource("1_jo5c8")
-
-[node name="Spot2" type="TextureRect" parent="PopoutVBox/Margin/Row/Col17"]
-modulate = Color(1, 1, 1, 0)
-layout_mode = 2
-texture = ExtResource("1_jo5c8")
-
-[node name="Col18" type="VBoxContainer" parent="PopoutVBox/Margin/Row"]
+[node name="Col17" type="TextureRect" parent="PopoutContainer/PopoutVBox/Margin/Rows/Row0"]
 visible = false
+custom_minimum_size = Vector2(150, 210)
 layout_mode = 2
-size_flags_vertical = 0
-theme_override_constants/separation = 40
+expand_mode = 1
 
-[node name="Spot1" type="TextureRect" parent="PopoutVBox/Margin/Row/Col18"]
-modulate = Color(1, 1, 1, 0)
-layout_mode = 2
-texture = ExtResource("1_jo5c8")
-
-[node name="Spot2" type="TextureRect" parent="PopoutVBox/Margin/Row/Col18"]
-modulate = Color(1, 1, 1, 0)
-layout_mode = 2
-texture = ExtResource("1_jo5c8")
-
-[node name="Col19" type="VBoxContainer" parent="PopoutVBox/Margin/Row"]
+[node name="Col18" type="TextureRect" parent="PopoutContainer/PopoutVBox/Margin/Rows/Row0"]
 visible = false
+custom_minimum_size = Vector2(150, 210)
 layout_mode = 2
-size_flags_vertical = 0
-theme_override_constants/separation = 40
+expand_mode = 1
 
-[node name="Spot1" type="TextureRect" parent="PopoutVBox/Margin/Row/Col19"]
-modulate = Color(1, 1, 1, 0)
-layout_mode = 2
-texture = ExtResource("1_jo5c8")
-
-[node name="Spot2" type="TextureRect" parent="PopoutVBox/Margin/Row/Col19"]
-modulate = Color(1, 1, 1, 0)
-layout_mode = 2
-texture = ExtResource("1_jo5c8")
-
-[node name="Col20" type="VBoxContainer" parent="PopoutVBox/Margin/Row"]
+[node name="Col19" type="TextureRect" parent="PopoutContainer/PopoutVBox/Margin/Rows/Row0"]
 visible = false
+custom_minimum_size = Vector2(150, 210)
 layout_mode = 2
-size_flags_vertical = 0
-theme_override_constants/separation = 40
+expand_mode = 1
 
-[node name="Spot1" type="TextureRect" parent="PopoutVBox/Margin/Row/Col20"]
-modulate = Color(1, 1, 1, 0)
+[node name="Row1" type="HBoxContainer" parent="PopoutContainer/PopoutVBox/Margin/Rows"]
 layout_mode = 2
-texture = ExtResource("1_jo5c8")
+theme_override_constants/separation = -300
 
-[node name="Spot2" type="TextureRect" parent="PopoutVBox/Margin/Row/Col20"]
-modulate = Color(1, 1, 1, 0)
+[node name="Col0" type="TextureRect" parent="PopoutContainer/PopoutVBox/Margin/Rows/Row1"]
+visible = false
+custom_minimum_size = Vector2(150, 210)
 layout_mode = 2
-texture = ExtResource("1_jo5c8")
+expand_mode = 1
 
-[node name="BottomMargin" type="MarginContainer" parent="PopoutVBox"]
+[node name="Col1" type="TextureRect" parent="PopoutContainer/PopoutVBox/Margin/Rows/Row1"]
+visible = false
+custom_minimum_size = Vector2(150, 210)
+layout_mode = 2
+expand_mode = 1
+
+[node name="Col2" type="TextureRect" parent="PopoutContainer/PopoutVBox/Margin/Rows/Row1"]
+visible = false
+custom_minimum_size = Vector2(150, 210)
+layout_mode = 2
+expand_mode = 1
+
+[node name="Col3" type="TextureRect" parent="PopoutContainer/PopoutVBox/Margin/Rows/Row1"]
+visible = false
+custom_minimum_size = Vector2(150, 210)
+layout_mode = 2
+expand_mode = 1
+
+[node name="Col4" type="TextureRect" parent="PopoutContainer/PopoutVBox/Margin/Rows/Row1"]
+visible = false
+custom_minimum_size = Vector2(150, 210)
+layout_mode = 2
+expand_mode = 1
+
+[node name="Col5" type="TextureRect" parent="PopoutContainer/PopoutVBox/Margin/Rows/Row1"]
+visible = false
+custom_minimum_size = Vector2(150, 210)
+layout_mode = 2
+expand_mode = 1
+
+[node name="Col6" type="TextureRect" parent="PopoutContainer/PopoutVBox/Margin/Rows/Row1"]
+visible = false
+custom_minimum_size = Vector2(150, 210)
+layout_mode = 2
+expand_mode = 1
+
+[node name="Col7" type="TextureRect" parent="PopoutContainer/PopoutVBox/Margin/Rows/Row1"]
+visible = false
+custom_minimum_size = Vector2(150, 210)
+layout_mode = 2
+expand_mode = 1
+
+[node name="Col8" type="TextureRect" parent="PopoutContainer/PopoutVBox/Margin/Rows/Row1"]
+visible = false
+custom_minimum_size = Vector2(150, 210)
+layout_mode = 2
+expand_mode = 1
+
+[node name="Col9" type="TextureRect" parent="PopoutContainer/PopoutVBox/Margin/Rows/Row1"]
+visible = false
+custom_minimum_size = Vector2(150, 210)
+layout_mode = 2
+expand_mode = 1
+
+[node name="Col10" type="TextureRect" parent="PopoutContainer/PopoutVBox/Margin/Rows/Row1"]
+visible = false
+custom_minimum_size = Vector2(150, 210)
+layout_mode = 2
+expand_mode = 1
+
+[node name="Col11" type="TextureRect" parent="PopoutContainer/PopoutVBox/Margin/Rows/Row1"]
+visible = false
+custom_minimum_size = Vector2(150, 210)
+layout_mode = 2
+expand_mode = 1
+
+[node name="Col12" type="TextureRect" parent="PopoutContainer/PopoutVBox/Margin/Rows/Row1"]
+visible = false
+custom_minimum_size = Vector2(150, 210)
+layout_mode = 2
+expand_mode = 1
+
+[node name="Col13" type="TextureRect" parent="PopoutContainer/PopoutVBox/Margin/Rows/Row1"]
+visible = false
+custom_minimum_size = Vector2(150, 210)
+layout_mode = 2
+expand_mode = 1
+
+[node name="Col14" type="TextureRect" parent="PopoutContainer/PopoutVBox/Margin/Rows/Row1"]
+visible = false
+custom_minimum_size = Vector2(150, 210)
+layout_mode = 2
+expand_mode = 1
+
+[node name="Col15" type="TextureRect" parent="PopoutContainer/PopoutVBox/Margin/Rows/Row1"]
+visible = false
+custom_minimum_size = Vector2(150, 210)
+layout_mode = 2
+expand_mode = 1
+
+[node name="Col16" type="TextureRect" parent="PopoutContainer/PopoutVBox/Margin/Rows/Row1"]
+visible = false
+custom_minimum_size = Vector2(150, 210)
+layout_mode = 2
+expand_mode = 1
+
+[node name="Col17" type="TextureRect" parent="PopoutContainer/PopoutVBox/Margin/Rows/Row1"]
+visible = false
+custom_minimum_size = Vector2(150, 210)
+layout_mode = 2
+expand_mode = 1
+
+[node name="Col18" type="TextureRect" parent="PopoutContainer/PopoutVBox/Margin/Rows/Row1"]
+visible = false
+custom_minimum_size = Vector2(150, 210)
+layout_mode = 2
+expand_mode = 1
+
+[node name="Col19" type="TextureRect" parent="PopoutContainer/PopoutVBox/Margin/Rows/Row1"]
+visible = false
+custom_minimum_size = Vector2(150, 210)
+layout_mode = 2
+expand_mode = 1
+
+[node name="BottomMargin" type="MarginContainer" parent="PopoutContainer/PopoutVBox"]
 custom_minimum_size = Vector2(0, 10)
 layout_mode = 2
 
-[node name="ToggleContainer" type="VBoxContainer" parent="PopoutVBox"]
+[node name="ToggleContainer" type="VBoxContainer" parent="PopoutContainer/PopoutVBox"]
 layout_mode = 2
 
-[node name="WithBuffer" type="HBoxContainer" parent="PopoutVBox/ToggleContainer"]
+[node name="WithBuffer" type="HBoxContainer" parent="PopoutContainer/PopoutVBox/ToggleContainer"]
 layout_mode = 2
 
-[node name="LeftBuffer" type="MarginContainer" parent="PopoutVBox/ToggleContainer/WithBuffer"]
+[node name="LeftBuffer" type="MarginContainer" parent="PopoutContainer/PopoutVBox/ToggleContainer/WithBuffer"]
 custom_minimum_size = Vector2(20, 0)
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_constants/margin_right = 20
 
-[node name="ReshuffleToggle" type="Button" parent="PopoutVBox/ToggleContainer/WithBuffer"]
+[node name="ReshuffleToggle" type="Button" parent="PopoutContainer/PopoutVBox/ToggleContainer/WithBuffer"]
 layout_mode = 2
 theme_override_font_sizes/font_size = 24
 text = "View Cards Before Reshuffle"
 
-[node name="RightBuffer" type="MarginContainer" parent="PopoutVBox/ToggleContainer/WithBuffer"]
+[node name="RightBuffer" type="MarginContainer" parent="PopoutContainer/PopoutVBox/ToggleContainer/WithBuffer"]
 custom_minimum_size = Vector2(20, 0)
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_stretch_ratio = 7.0
 theme_override_constants/margin_right = 20
 
-[node name="BottomerMargin" type="MarginContainer" parent="PopoutVBox/ToggleContainer"]
+[node name="BottomerMargin" type="MarginContainer" parent="PopoutContainer/PopoutVBox/ToggleContainer"]
 custom_minimum_size = Vector2(0, 10)
 layout_mode = 2
 
-[connection signal="pressed" from="PopoutVBox/CloseWindowButton" to="." method="_on_close_window_button_pressed"]
-[connection signal="pressed" from="PopoutVBox/HBoxContainer/RestOfThing/InstructionButtonOk" to="." method="_on_instruction_button_ok_pressed"]
-[connection signal="pressed" from="PopoutVBox/HBoxContainer/RestOfThing/InstructionButtonOk2" to="." method="_on_instruction_button_ok2_pressed"]
-[connection signal="pressed" from="PopoutVBox/HBoxContainer/RestOfThing/InstructionButtonCancel" to="." method="_on_instruction_button_cancel_pressed"]
-[connection signal="pressed" from="PopoutVBox/ToggleContainer/WithBuffer/ReshuffleToggle" to="." method="_on_reshuffle_toggle_pressed"]
+[connection signal="pressed" from="PopoutContainer/PopoutVBox/CloseWindowButton" to="." method="_on_close_window_button_pressed"]
+[connection signal="pressed" from="PopoutContainer/PopoutVBox/RestOfThing/InstructionButtonOk" to="." method="_on_instruction_button_ok_pressed"]
+[connection signal="pressed" from="PopoutContainer/PopoutVBox/RestOfThing/InstructionButtonOk2" to="." method="_on_instruction_button_ok2_pressed"]
+[connection signal="pressed" from="PopoutContainer/PopoutVBox/RestOfThing/InstructionButtonCancel" to="." method="_on_instruction_button_cancel_pressed"]
+[connection signal="pressed" from="PopoutContainer/PopoutVBox/ToggleContainer/WithBuffer/ReshuffleToggle" to="." method="_on_reshuffle_toggle_pressed"]
