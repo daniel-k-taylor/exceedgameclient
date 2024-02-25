@@ -4563,11 +4563,7 @@ func show_popout(popout_type : CardPopoutType, popout_title : String, card_node,
 	card_popout.set_title(popout_title)
 	var cards = card_node.get_children()
 	if popout_type == CardPopoutType.CardPopoutType_BuddyPlayer and extra_only_show_boosts:
-		var filtered_cards = []
-		for card in cards:
-			if game_wrapper.can_player_boost(Enums.PlayerId.PlayerId_Player, card.card_id, ['extra'], "", true):
-				filtered_cards.append(card)
-		cards = filtered_cards
+		cards = cards.filter(func(card): return game_wrapper.can_player_boost(Enums.PlayerId.PlayerId_Player, card.card_id, ['extra'], "", true))
 	var filtering_allowed = popout_type == CardPopoutType.CardPopoutType_ReferenceOpponent
 	_update_popout_cards(cards, filtering_allowed, show_amount)
 
