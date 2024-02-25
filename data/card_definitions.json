@@ -9481,30 +9481,53 @@
 	{
 		"id": "king_spinjump",
 		"type": "special",
-		"display_name": "Propeller Pull",
+		"display_name": "Spin Jump",
 		"force_cost": 0,
 		"gauge_cost": 0,
 		"range_min": 1,
-		"range_max": 2,
-		"speed": 2,
+		"range_max": 1,
+		"speed": 5,
 		"power": 4,
 		"armor": 0,
-		"guard": 6,
+		"guard": 0,
 		"effects": [
 			{
 				"timing": "before",
+				"effect_type": "close",
+				"amount": 1
+			},
+			{
+				"timing": "hit",
 				"effect_type": "choice",
 				"choice": [
 					{
-						"effect_type": "pull",
-						"amount": 2,
+						"effect_type": "advance", "amount": 3, "suppress_and_description": true,
 						"and": {
-							"condition": "pulled_past",
-							"effect_type": "opponent_discard_random",
-							"amount": 1
+							"effect_type": "choice",
+							"choice": [
+								{
+									"effect_type": "boost_then_sustain",
+									"valid_zones": [ "hand" ],
+									"limitation": "continuous"
+								},
+								{ "effect_type": "pass" }
+							]
 						}
 					},
-					{ "effect_type": "pass" }
+					{
+						"effect_type": "advance", "amount": 4, "suppress_and_description": true,
+						"and": {
+							"effect_type": "choice",
+							"choice": [
+								{
+									"effect_type": "boost_then_sustain",
+									"valid_zones": [ "hand" ],
+									"limitation": "continuous"
+								},
+								{ "effect_type": "pass" }
+							]
+						}
+					}
 				]
 			}
 		],
@@ -9512,20 +9535,12 @@
 			"boost_type": "continuous",
 			"force_cost": 1,
 			"cancel_cost": -1,
-			"display_name": "Jet Stream",
+			"display_name": "Edict",
 			"effects": [
 				{
 					"timing": "during_strike",
-					"effect_type": "speedup",
-					"amount": 1
-				},
-				{
-					"timing": "before",
-					"effect_type": "choice",
-					"choice": [
-						{ "effect_type": "pull", "amount": 1 },
-						{ "effect_type": "pull", "amount": 2 }
-					]
+					"condition": "discarded_copy_of_attack",
+					"effect_type": "attack_is_ex"
 				}
 			]
 		}

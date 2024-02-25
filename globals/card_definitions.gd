@@ -368,6 +368,8 @@ func get_condition_text(effect, amount, amount2, detail):
 			text += "If you have %s or more bonus power, " % amount
 		"opponent_total_guard_greater_or_equal":
 			text += "If the opponent has %s or more guard, " % amount
+		"discarded_copy_of_attack":
+			text += "If there is a discarded copy of your attack, "
 		_:
 			text += "MISSING CONDITION"
 	return text

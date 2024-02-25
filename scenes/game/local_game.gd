@@ -3867,6 +3867,9 @@ func is_effect_condition_met(performing_player : Player, effect, local_condition
 			return performing_player.can_boost_something(['gauge'], 'continuous')
 		elif condition == "not_discarding_boost":
 			return active_boost and not active_boost.discard_on_cleanup
+		elif condition == "discarded_copy_of_attack":
+			var card = active_strike.get_player_card(performing_player)
+			return performing_player.get_copy_in_discards(card.definition['id']) != -1
 		else:
 			assert(false, "Unimplemented condition")
 		# Unmet condition
