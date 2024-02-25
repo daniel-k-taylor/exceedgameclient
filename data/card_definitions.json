@@ -9130,6 +9130,8 @@
 				},
 				{
 					"timing": "cleanup",
+					"condition": "not_sustained",
+					"condition_card_id": "king_decree_kinglystrut",
 					"effect_type": "seal_this_boost",
 					"card_name": "Kingly Strut"
 				}
@@ -9168,6 +9170,8 @@
 				},
 				{
 					"timing": "cleanup",
+					"condition": "not_sustained",
+					"condition_card_id": "king_decree_lordlymight",
 					"effect_type": "seal_this_boost",
 					"card_name": "Lordly Might"
 				}
@@ -9198,26 +9202,26 @@
 				{
 					"timing": "during_strike",
 					"effect_type": "powerup",
-					"amount": 3,
+					"amount": 2,
 					"and": {
-						"effect_type": "armorup",
-						"amount": 3
+						"effect_type": "speedup",
+						"amount": 2
 					}
 				},
 				{
-					"timing": "hit",
-					"condition": "range",
-					"condition_amount": 1,
-					"effect_type": "opponent_discard_random",
-					"amount": 2
-				},
-				{
-					"timing": "after",
-					"effect_type": "draw",
-					"amount": 2
+					"timing": "now",
+					"effect_type": "choice",
+					"choice": [
+						{ "effect_type": "close", "amount": 1 },
+						{ "effect_type": "close", "amount": 2 },
+						{ "effect_type": "close", "amount": 3 },
+						{ "effect_type": "pass" }
+					]
 				},
 				{
 					"timing": "cleanup",
+					"condition": "not_sustained",
+					"condition_card_id": "king_decree_magnificentcape",
 					"effect_type": "seal_this_boost",
 					"card_name": "Magnificent Cape"
 				}
@@ -9248,24 +9252,28 @@
 				{
 					"timing": "during_strike",
 					"effect_type": "powerup",
-					"amount": 2,
+					"amount": 3,
 					"and": {
-						"effect_type": "speedup",
-						"amount": 2
+						"effect_type": "armorup",
+						"amount": 3
 					}
 				},
 				{
-					"timing": "now",
-					"effect_type": "choice",
-					"choice": [
-						{ "effect_type": "close", "amount": 1 },
-						{ "effect_type": "close", "amount": 2 },
-						{ "effect_type": "close", "amount": 3 },
-						{ "effect_type": "pass" }
-					]
+					"timing": "hit",
+					"condition": "range",
+					"condition_amount": 1,
+					"effect_type": "opponent_discard_random",
+					"amount": 2
+				},
+				{
+					"timing": "after",
+					"effect_type": "draw",
+					"amount": 2
 				},
 				{
 					"timing": "cleanup",
+					"condition": "not_sustained",
+					"condition_card_id": "king_decree_paytowin",
 					"effect_type": "seal_this_boost",
 					"card_name": "Pay To Win"
 				}
@@ -9275,50 +9283,49 @@
 	{
 		"id": "king_kingofcards",
 		"type": "ultra",
-		"display_name": "Full Broadside",
+		"display_name": "King of Cards",
 		"force_cost": 0,
 		"gauge_cost": 3,
-		"range_min": 2,
-		"range_max": 4,
-		"speed": 2,
+		"range_min": 1,
+		"range_max": 2,
+		"speed": 6,
 		"power": 6,
 		"armor": 0,
 		"guard": 0,
 		"effects": [
 			{
-				"timing": "during_strike",
-				"effect_type": "stun_immunity"
-			},
-			{
-				"timing": "before",
-				"condition": "opponent_not_moved_this_strike",
-				"effect_type": "choice",
-				"choice": [
-					{ "effect_type": "push", "amount": 1 },
-					{ "effect_type": "push", "amount": 2 },
-					{ "effect_type": "push", "amount": 3 },
-					{ "effect_type": "pull", "amount": 1 },
-					{ "effect_type": "pull", "amount": 2 },
-					{ "effect_type": "pull", "amount": 3 },
-					{ "effect_type": "pass"}
-				]
+				"timing": "hit",
+				"effect_type": "force_for_effect",
+				"force_effect_interval": 3,
+				"per_force_effect": {
+					"effect_type": "powerup",
+					"amount": 3,
+					"and": {
+						"effect_type": "add_top_discard_to_gauge"
+					}
+				},
+				"overall_effect": null,
+				"force_max": 9,
+				"force_discard_reminder": true
 			}
 		],
 		"boost": {
-			"boost_type": "immediate",
+			"boost_type": "continuous",
 			"force_cost": 0,
 			"cancel_cost": -1,
-			"display_name": "Private Reserve",
+			"display_name": "Kingmaker",
 			"effects": [
 				{
-					"timing": "immediate",
-					"effect_type": "boost_additional",
-					"limitation": "continuous",
-					"valid_zones": [ "discard" ]
+					"timing": "during_strike",
+					"condition": "exceeded",
+					"effect_type": "speedup",
+					"amount": 2
 				},
 				{
-					"timing": "immediate",
-					"effect_type": "shuffle_discard_in_place"
+					"timing": "during_strike",
+					"condition": "opponent_exceeded",
+					"effect_type": "powerup",
+					"amount": 2
 				}
 			]
 		}
@@ -9326,34 +9333,53 @@
 	{
 		"id": "king_victorytrumpets",
 		"type": "ultra",
-		"display_name": "Launcher",
+		"display_name": "Victory Trumpets",
 		"force_cost": 0,
 		"gauge_cost": 2,
-		"range_min": 4,
+		"range_min": 2,
 		"range_max": 4,
-		"speed": 7,
-		"power": 3,
-		"armor": 0,
-		"guard": 0,
+		"speed": 3,
+		"power": 0,
+		"armor": 2,
+		"guard": 4,
 		"effects": [
+			{
+				"timing": "during_strike",
+				"effect_type": "calculate_range_from_center"
+			},
 			{
 				"timing": "hit",
 				"effect_type": "pull",
-				"amount": 3,
-				"and": {
-					"effect_type": "gain_advantage"
-				}
+				"amount": 3
+			},
+			{
+				"timing": "after",
+				"effect_type": "sustain_all_boosts"
 			}
 		],
 		"boost": {
 			"boost_type": "immediate",
-			"force_cost": 1,
+			"force_cost": 0,
 			"cancel_cost": -1,
-			"display_name": "Fly Up",
+			"display_name": "Royal Tribute",
 			"effects": [
 				{
 					"timing": "immediate",
-					"effect_type": "move_to_any_space"
+					"effect_type": "draw",
+					"amount": 2
+				},
+				{
+					"timing": "immediate",
+					"effect_type": "choice",
+					"choice": [
+						{
+							"effect_type": "boost_additional",
+							"discard_this_first": true,
+							"limitation": "",
+							"valid_zones": [ "hand", "extra" ]
+						},
+						{ "effect_type": "pass" }
+					]
 				}
 			]
 		}

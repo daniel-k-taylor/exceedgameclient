@@ -2245,11 +2245,16 @@ func update_force_generation_message():
 				var force_str = "up to %s" % decision_effect['force_max']
 				if decision_effect['force_max'] == -1:
 					force_str = "any amount of"
-				effect_str = "Generate %s force for %s per force." % [force_str, effect_text]
+				var per_force_str = "force"
+				if 'force_effect_interval' in decision_effect:
+					per_force_str = "%s force" % decision_effect['force_effect_interval']
+				effect_str = "Generate %s force for %s per %s." % [force_str, effect_text, per_force_str]
 			elif decision_effect['overall_effect']:
 				var effect = decision_effect['overall_effect']
 				var effect_text = CardDefinitions.get_effect_text(effect, false, false, false, source_card_name)
 				effect_str = "Generate %s force for %s." % [decision_effect['force_max'], effect_text]
+			if 'force_discard_reminder' in decision_effect and decision_effect['force_discard_reminder']:
+				effect_str += "\nThe last card(s) selected will be on top of the discard pile."
 			effect_str += "\n%s" % [force_generated_str]
 			set_instructions(effect_str)
 
