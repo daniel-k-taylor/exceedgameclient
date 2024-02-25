@@ -923,6 +923,7 @@ func can_select_card(card):
 	var in_hand = game_wrapper.is_card_in_hand(Enums.PlayerId.PlayerId_Player, card.card_id)
 	var in_discard = game_wrapper.is_card_in_discards(Enums.PlayerId.PlayerId_Player, card.card_id)
 	var in_sealed = game_wrapper.is_card_in_sealed(Enums.PlayerId.PlayerId_Player, card.card_id)
+	var in_set_aside = game_wrapper.is_card_set_aside(Enums.PlayerId.PlayerId_Player, card.card_id)
 	var in_overdrive = game_wrapper.is_card_in_overdrive(Enums.PlayerId.PlayerId_Player, card.card_id)
 	var in_player_boosts = game_wrapper.is_card_in_boosts(Enums.PlayerId.PlayerId_Player, card.card_id)
 	var is_sustained = game_wrapper.is_card_sustained(Enums.PlayerId.PlayerId_Player, card.card_id)
@@ -936,6 +937,8 @@ func can_select_card(card):
 			var card_db = game_wrapper.get_card_database()
 			var logic_card = card_db.get_card(card.card_id)
 			return 'must_set_from_boost' in logic_card.definition and logic_card.definition['must_set_from_boost']
+		elif in_set_aside and player_can_boost_from_extra:
+			return game_wrapper.can_player_boost(Enums.PlayerId.PlayerId_Player, card.card_id, ['extra'], "", true)
 		return in_hand or in_gauge
 	match ui_sub_state:
 		UISubState.UISubState_SelectCards_DiscardCards, UISubState.UISubState_SelectCards_DiscardCardsToGauge:
@@ -3211,21 +3214,25 @@ func _update_buttons():
 			var can_boost = false
 			var only_in_hand = true
 			var only_in_boosts = true
-			var any_in_boosts = false
+			var only_set_aside = true
+			var allow_change_cards = true
 			for card in selected_cards:
 				if not game_wrapper.is_card_in_hand(Enums.PlayerId.PlayerId_Player, card.card_id):
 					only_in_hand = false
 
-				if game_wrapper.is_card_in_boosts(Enums.PlayerId.PlayerId_Player, card.card_id):
-					any_in_boosts = true
+				if not game_wrapper.is_card_set_aside(Enums.PlayerId.PlayerId_Player, card.card_id):
+					only_set_aside = false
 				else:
+					allow_change_cards = false
+
+				if not game_wrapper.is_card_in_boosts(Enums.PlayerId.PlayerId_Player, card.card_id):
 					only_in_boosts = false
+				else:
+					allow_change_cards = false
 			if only_in_hand:
 				if len(selected_cards) == 1:
 					can_strike = true
 					can_boost = true
-					var boost_name = card_db.get_card(selected_cards[0].card_id).definition['boost']['display_name']
-					boost_text += " (%s)" % boost_name
 				elif len(selected_cards) == 2:
 					var card1 = selected_cards[0]
 					var card2 = selected_cards[1]
@@ -3236,9 +3243,16 @@ func _update_buttons():
 				if len(selected_cards) == 1:
 					var logic_card = card_db.get_card(selected_cards[0].card_id)
 					can_strike = 'must_set_from_boost' in logic_card.definition and logic_card.definition['must_set_from_boost']
+			elif only_set_aside:
+				if len(selected_cards) == 1 and player_can_boost_from_extra:
+					can_boost = game_wrapper.can_player_boost(Enums.PlayerId.PlayerId_Player, selected_cards[0].card_id, ['extra'], "", false)
+
 			if can_strike:
 				card_name = card_db.get_card(selected_cards[0].card_id).definition['display_name']
 				strike_text += " (%s)" % card_name
+			if can_boost:
+				var boost_name = card_db.get_card(selected_cards[0].card_id).definition['boost']['display_name']
+				boost_text += " (%s)" % boost_name
 
 			set_instructions("Do what with %s?" % card_name)
 			instructions_ok_allowed = false
@@ -3298,7 +3312,7 @@ func _update_buttons():
 					assert(force_cost == 0 and gauge_cost == 0)
 					button_choices.append({ "text": action_name, "action": func(): _on_shortcut_character_action_pressed(i), "disabled": not action_possible or not shortcut_condition_met })
 
-			button_choices.append({ "text": "Change Cards", "action": _on_shortcut_change_pressed, "disabled": not game_wrapper.can_do_change(Enums.PlayerId.PlayerId_Player) or any_in_boosts })
+			button_choices.append({ "text": "Change Cards", "action": _on_shortcut_change_pressed, "disabled": not game_wrapper.can_do_change(Enums.PlayerId.PlayerId_Player) or not allow_change_cards })
 			button_choices.append({ "text": "Deselect card(s)", "action": _on_shortcut_cancel_pressed, "disabled": false })
 
 	# Update instructions UI visibility
