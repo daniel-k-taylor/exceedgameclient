@@ -101,6 +101,7 @@ theme_override_constants/margin_bottom = 10
 
 [node name="Rows" type="VBoxContainer" parent="PopoutContainer/PopoutVBox/Margin"]
 layout_mode = 2
+theme_override_constants/separation = 20
 
 [node name="Row0" type="HBoxContainer" parent="PopoutContainer/PopoutVBox/Margin/Rows"]
 layout_mode = 2
