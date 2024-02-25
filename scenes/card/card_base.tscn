@@ -1,12 +1,9 @@
-[gd_scene load_steps=15 format=3 uid="uid://cl8i21571i4qa"]
+[gd_scene load_steps=12 format=3 uid="uid://cl8i21571i4qa"]
 
 [ext_resource type="Script" path="res://scenes/card/card_base.gd" id="1_o734l"]
-[ext_resource type="Texture2D" uid="uid://dal2ec8wws714" path="res://icon.svg" id="1_xb23j"]
-[ext_resource type="PackedScene" uid="uid://dh3sjq06r8ou2" path="res://scenes/card/stat_panel.tscn" id="2_ujv87"]
 [ext_resource type="Texture2D" uid="uid://cj7nvglef8cu" path="res://assets/cards/solbadguy/normal_grasp.tres" id="4_krtfi"]
 [ext_resource type="Texture2D" uid="uid://cpolsw2tyi4m" path="res://assets/cardbacks/cardback_blue.svg" id="4_pvdi7"]
 [ext_resource type="Texture2D" uid="uid://cy0pcorknc8op" path="res://assets/cards/border_thin_pressed.png" id="6_h5u6x"]
-[ext_resource type="Texture2D" uid="uid://c7ojn7hf8n4li" path="res://assets/icons/stopwatch.png" id="7_rrupl"]
 [ext_resource type="Texture2D" uid="uid://kl32dakt7bnv" path="res://assets/icons/hand.png" id="7_vbrtw"]
 [ext_resource type="Texture2D" uid="uid://xusjesyfjald" path="res://assets/icons/x.png" id="8_wk1ir"]
 
@@ -58,163 +55,6 @@ mouse_filter = 2
 layout_mode = 2
 mouse_filter = 2
 color = Color(0, 0, 0, 1)
-
-[node name="CardBox" type="VBoxContainer" parent="CardFocusFeatures/CardContainer"]
-layout_mode = 2
-mouse_filter = 2
-theme_override_constants/separation = 2
-
-[node name="TopMargin" type="MarginContainer" parent="CardFocusFeatures/CardContainer/CardBox"]
-custom_minimum_size = Vector2(0, 10)
-layout_mode = 2
-
-[node name="TitleRow" type="HBoxContainer" parent="CardFocusFeatures/CardContainer/CardBox"]
-layout_mode = 2
-theme_override_constants/separation = 5
-
-[node name="LeftMargin" type="MarginContainer" parent="CardFocusFeatures/CardContainer/CardBox/TitleRow"]
-layout_mode = 2
-
-[node name="CardCost" type="Label" parent="CardFocusFeatures/CardContainer/CardBox/TitleRow"]
-layout_mode = 2
-size_flags_vertical = 1
-theme_override_font_sizes/font_size = 16
-text = "  8"
-horizontal_alignment = 1
-
-[node name="TitleIcon" type="TextureRect" parent="CardFocusFeatures/CardContainer/CardBox/TitleRow"]
-visible = false
-layout_mode = 2
-texture = ExtResource("1_xb23j")
-expand_mode = 3
-
-[node name="TitlePanel" type="PanelContainer" parent="CardFocusFeatures/CardContainer/CardBox/TitleRow"]
-layout_mode = 2
-
-[node name="TitleBackground" type="ColorRect" parent="CardFocusFeatures/CardContainer/CardBox/TitleRow/TitlePanel"]
-custom_minimum_size = Vector2(200, 0)
-layout_mode = 2
-
-[node name="TitleNameBox" type="HBoxContainer" parent="CardFocusFeatures/CardContainer/CardBox/TitleRow/TitlePanel"]
-custom_minimum_size = Vector2(0, 24)
-layout_mode = 2
-
-[node name="TitleNameMargin" type="MarginContainer" parent="CardFocusFeatures/CardContainer/CardBox/TitleRow/TitlePanel/TitleNameBox"]
-layout_mode = 2
-
-[node name="TitleName" type="RichTextLabel" parent="CardFocusFeatures/CardContainer/CardBox/TitleRow/TitlePanel/TitleNameBox"]
-layout_mode = 2
-size_flags_horizontal = 3
-theme_override_colors/default_color = Color(0, 0, 0, 1)
-theme_override_font_sizes/normal_font_size = 18
-text = "Super Cool Move Name"
-
-[node name="UnderTitleMargin" type="MarginContainer" parent="CardFocusFeatures/CardContainer/CardBox"]
-layout_mode = 2
-
-[node name="AbiltiesImagePanel" type="PanelContainer" parent="CardFocusFeatures/CardContainer/CardBox"]
-custom_minimum_size = Vector2(0, 200)
-layout_mode = 2
-
-[node name="ImagePanel" type="PanelContainer" parent="CardFocusFeatures/CardContainer/CardBox/AbiltiesImagePanel"]
-layout_mode = 2
-
-[node name="CardImage" type="TextureRect" parent="CardFocusFeatures/CardContainer/CardBox/AbiltiesImagePanel/ImagePanel"]
-layout_mode = 2
-size_flags_horizontal = 8
-texture = ExtResource("1_xb23j")
-expand_mode = 2
-
-[node name="StatsHBox" type="HBoxContainer" parent="CardFocusFeatures/CardContainer/CardBox/AbiltiesImagePanel"]
-layout_mode = 2
-size_flags_vertical = 3
-
-[node name="StatsLeftMargin" type="MarginContainer" parent="CardFocusFeatures/CardContainer/CardBox/AbiltiesImagePanel/StatsHBox"]
-layout_mode = 2
-
-[node name="StatsColumn" type="VBoxContainer" parent="CardFocusFeatures/CardContainer/CardBox/AbiltiesImagePanel/StatsHBox"]
-layout_mode = 2
-theme_override_constants/separation = 7
-
-[node name="RangePanel" parent="CardFocusFeatures/CardContainer/CardBox/AbiltiesImagePanel/StatsHBox/StatsColumn" instance=ExtResource("2_ujv87")]
-layout_mode = 2
-
-[node name="SpeedPanel" parent="CardFocusFeatures/CardContainer/CardBox/AbiltiesImagePanel/StatsHBox/StatsColumn" instance=ExtResource("2_ujv87")]
-layout_mode = 2
-
-[node name="PowerPanel" parent="CardFocusFeatures/CardContainer/CardBox/AbiltiesImagePanel/StatsHBox/StatsColumn" instance=ExtResource("2_ujv87")]
-layout_mode = 2
-
-[node name="ArmorPanel" parent="CardFocusFeatures/CardContainer/CardBox/AbiltiesImagePanel/StatsHBox/StatsColumn" instance=ExtResource("2_ujv87")]
-layout_mode = 2
-
-[node name="GuardPanel" parent="CardFocusFeatures/CardContainer/CardBox/AbiltiesImagePanel/StatsHBox/StatsColumn" instance=ExtResource("2_ujv87")]
-layout_mode = 2
-
-[node name="BelowImageMargin" type="MarginContainer" parent="CardFocusFeatures/CardContainer/CardBox"]
-layout_mode = 2
-
-[node name="EffectBox" type="MarginContainer" parent="CardFocusFeatures/CardContainer/CardBox"]
-layout_mode = 2
-theme_override_constants/margin_left = 20
-
-[node name="EffectBackground" type="ColorRect" parent="CardFocusFeatures/CardContainer/CardBox/EffectBox"]
-custom_minimum_size = Vector2(230, 40)
-layout_mode = 2
-color = Color(0, 0, 0, 1)
-
-[node name="EffectText" type="RichTextLabel" parent="CardFocusFeatures/CardContainer/CardBox/EffectBox"]
-layout_mode = 2
-bbcode_enabled = true
-text = "[b]HIT:[/b] Do something cool
-[b]AFTER:[/b] Do something else"
-fit_content = true
-
-[node name="EffectBoostMargin" type="MarginContainer" parent="CardFocusFeatures/CardContainer/CardBox"]
-layout_mode = 2
-
-[node name="BoostBox" type="MarginContainer" parent="CardFocusFeatures/CardContainer/CardBox"]
-layout_mode = 2
-
-[node name="BoostBackground" type="ColorRect" parent="CardFocusFeatures/CardContainer/CardBox/BoostBox"]
-custom_minimum_size = Vector2(230, 40)
-layout_mode = 2
-color = Color(0.294118, 0, 0.294118, 1)
-
-[node name="BoostDetailsBox" type="HBoxContainer" parent="CardFocusFeatures/CardContainer/CardBox/BoostBox"]
-custom_minimum_size = Vector2(0, 40)
-layout_mode = 2
-theme_override_constants/separation = 5
-
-[node name="BoostCostIcon" type="TextureRect" parent="CardFocusFeatures/CardContainer/CardBox/BoostBox/BoostDetailsBox"]
-custom_minimum_size = Vector2(30, 40)
-layout_mode = 2
-size_flags_horizontal = 4
-size_flags_vertical = 4
-expand_mode = 1
-stretch_mode = 4
-
-[node name="BoostCost" type="RichTextLabel" parent="CardFocusFeatures/CardContainer/CardBox/BoostBox/BoostDetailsBox/BoostCostIcon"]
-layout_mode = 1
-anchors_preset = 14
-anchor_top = 0.5
-anchor_right = 1.0
-anchor_bottom = 0.5
-offset_top = -21.0
-offset_bottom = 21.0
-grow_horizontal = 2
-grow_vertical = 2
-theme_override_font_sizes/normal_font_size = 32
-bbcode_enabled = true
-text = "  8"
-
-[node name="BoostText" type="RichTextLabel" parent="CardFocusFeatures/CardContainer/CardBox/BoostBox/BoostDetailsBox"]
-layout_mode = 2
-size_flags_horizontal = 3
-bbcode_enabled = true
-text = "[b]HIT:[/b] Do something cool
-[b]AFTER:[/b] Do something else"
-fit_content = true
 
 [node name="FancyCard" type="TextureRect" parent="CardFocusFeatures/CardContainer"]
 visible = false
@@ -438,22 +278,6 @@ fit_content = true
 scroll_active = false
 autowrap_mode = 0
 shortcut_keys_enabled = false
-
-[node name="CancelContainer" type="Node2D" parent="CardFocusFeatures"]
-
-[node name="Stopwatch" type="Sprite2D" parent="CardFocusFeatures/CancelContainer"]
-position = Vector2(74, 52)
-scale = Vector2(0.06, 0.06)
-texture = ExtResource("7_rrupl")
-
-[node name="CancelCost" type="Label" parent="CardFocusFeatures/CancelContainer"]
-offset_left = 86.0
-offset_top = 6.0
-offset_right = 126.0
-offset_bottom = 93.0
-theme_override_font_sizes/font_size = 65
-text = "8"
-horizontal_alignment = 1
 
 [node name="StunIndicator" type="Node2D" parent="CardFocusFeatures"]
 visible = false

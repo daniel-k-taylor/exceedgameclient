@@ -10,6 +10,7 @@ const CardBaseScene = preload("res://scenes/card/card_base.tscn")
 const CardBase = preload("res://scenes/card/card_base.gd")
 const Enums = preload("res://scenes/game/enums.gd")
 const CardPopout = preload("res://scenes/game/card_popout.gd")
+const CardPopoutScene = preload("res://scenes/game/card_popout.tscn")
 const GaugePanel = preload("res://scenes/game/gauge_panel.gd")
 const CharacterCardBase = preload("res://scenes/card/character_card_base.gd")
 const AIPlayer = preload("res://scenes/game/ai_player.gd")
@@ -69,9 +70,6 @@ var damage_popup_pool:Array[DamagePopup] = []
 
 var insert_ai_pause = false
 var popout_instruction_info = null
-
-var PlayerHandFocusYPos = 720 - (CardBase.get_hand_card_size().y + 20)
-var OpponentHandFocusYPos = CardBase.get_opponent_hand_card_size().y
 
 var ChoiceTagRegex = RegEx.new()
 
@@ -140,7 +138,6 @@ enum CardPopoutType {
 }
 
 var popout_type_showing : CardPopoutType = CardPopoutType.CardPopoutType_GaugePlayer
-var popout_showing_node = null
 
 enum UIState {
 	UIState_Initializing,
@@ -198,7 +195,7 @@ var previous_ui_state : UIState = UIState.UIState_Initializing
 var previous_ui_sub_state : UISubState = UISubState.UISubState_None
 
 var game_wrapper : GameWrapper = GameWrapper.new()
-@onready var card_popout : CardPopout = $AllCards/CardPopout
+@onready var card_popout_parent : Node2D = $CardPopoutParent
 @onready var player_character_card : CharacterCardBase  = $PlayerDeck/PlayerCharacterCard
 @onready var player_buddy_character_card : CharacterCardBase  = $PlayerDeck/PlayerBuddyCharacterCard
 @onready var opponent_character_card : CharacterCardBase  = $OpponentDeck/OpponentCharacterCard
@@ -520,21 +517,8 @@ func create_character_reference_card(path_root : String, exceeded : bool, zone):
 	zone.add_child(new_card)
 	new_card.initialize_card(
 		CardBase.CharacterCardReferenceId,
-		"",
 		image_path,
 		image_path,
-		0,
-		0,
-		0,
-		0,
-		0,
-		0,
-		"",
-		0,
-		"",
-		0,
-		-1,
-		0,
 		false
 	)
 	new_card.name = "Character Card"
@@ -552,13 +536,13 @@ func get_card_root_path(deck_id : String):
 func get_card_image_path(deck_id : String, game_card : GameCard):
 	return get_card_root_path(deck_id) + game_card.image
 
-func spawn_deck(deck_id, deck_list, deck_card_zone, copy_zone, set_aside_zone, card_back_image, hand_focus_y_pos, is_opponent):
+func spawn_deck(deck_id, deck_list, deck_card_zone, copy_zone, set_aside_zone, card_back_image, is_opponent):
 	var card_db = game_wrapper.get_card_database()
 	var card_root_path = get_card_root_path(deck_id)
 	for card in deck_list:
 		var logic_card : GameCard = card_db.get_card(card.id)
 		var image_path = get_card_image_path(deck_id, logic_card)
-		var new_card = create_card(card.id, logic_card.definition, image_path, card_back_image, deck_card_zone, hand_focus_y_pos, is_opponent)
+		var new_card = create_card(card.id, logic_card.definition, image_path, card_back_image, deck_card_zone, is_opponent)
 		if observer_mode:
 			new_card.skip_flip_when_drawing = true
 		if logic_card.set_aside:
@@ -575,7 +559,7 @@ func spawn_deck(deck_id, deck_list, deck_card_zone, copy_zone, set_aside_zone, c
 			continue
 		var image_path = card_root_path + logic_card.image
 		if previous_def_id != logic_card.definition['id']:
-			var copy_card = create_card(card.id + ReferenceScreenIdRangeStart, logic_card.definition, image_path, card_back_image, copy_zone, 0, is_opponent)
+			var copy_card = create_card(card.id + ReferenceScreenIdRangeStart, logic_card.definition, image_path, card_back_image, copy_zone, is_opponent)
 			copy_card.set_card_and_focus(OffScreen, 0, CardBase.ReferenceCardScale)
 			copy_card.resting_scale = CardBase.ReferenceCardScale
 			copy_card.change_state(CardBase.CardState.CardState_Offscreen)
@@ -613,8 +597,8 @@ func spawn_all_cards():
 	var player_cardback = "res://assets/cardbacks/" + player_deck['cardback']
 	var opponent_cardback = "res://assets/cardbacks/" + opponent_deck['cardback']
 
-	spawn_deck(player_deck_id, game_wrapper.get_player_deck_list(Enums.PlayerId.PlayerId_Player), $AllCards/PlayerDeck, $AllCards/PlayerAllCopy, $AllCards/PlayerSetAside, player_cardback, PlayerHandFocusYPos, false)
-	spawn_deck(opponent_deck_id, game_wrapper.get_player_deck_list(Enums.PlayerId.PlayerId_Opponent), $AllCards/OpponentDeck, $AllCards/OpponentAllCopy, $AllCards/OpponentSetAside, opponent_cardback, OpponentHandFocusYPos, true)
+	spawn_deck(player_deck_id, game_wrapper.get_player_deck_list(Enums.PlayerId.PlayerId_Player), $AllCards/PlayerDeck, $AllCards/PlayerAllCopy, $AllCards/PlayerSetAside, player_cardback, false)
+	spawn_deck(opponent_deck_id, game_wrapper.get_player_deck_list(Enums.PlayerId.PlayerId_Opponent), $AllCards/OpponentDeck, $AllCards/OpponentAllCopy, $AllCards/OpponentSetAside, opponent_cardback, true)
 
 func get_arena_location_button(arena_location):
 	var target_square = arena_layout.get_child(arena_location - 1)
@@ -810,7 +794,7 @@ func update_card_counts():
 func get_card_node_name(id):
 	return "Card_" + str(id)
 
-func create_card(id, card_def, image, card_back_image, parent, hand_focus_y_pos, is_opponent : bool) -> CardBase:
+func create_card(id, card_def, image, card_back_image, parent, is_opponent : bool) -> CardBase:
 	var new_card : CardBase = CardBaseScene.instantiate()
 	parent.add_child(new_card)
 	var strike_cost = card_def['gauge_cost']
@@ -818,21 +802,8 @@ func create_card(id, card_def, image, card_back_image, parent, hand_focus_y_pos,
 		strike_cost = card_def['force_cost']
 	new_card.initialize_card(
 		id,
-		card_def['display_name'],
 		image,
 		card_back_image,
-		card_def['range_min'],
-		card_def['range_max'],
-		card_def['speed'],
-		card_def['power'],
-		card_def['armor'],
-		card_def['guard'],
-		CardDefinitions.get_effects_text(card_def['effects']),
-		card_def['boost']['force_cost'],
-		CardDefinitions.get_boost_text(card_def['boost']['effects']),
-		strike_cost,
-		card_def['boost']['cancel_cost'],
-		hand_focus_y_pos,
 		is_opponent
 	)
 	new_card.name = get_card_node_name(id)
@@ -1009,8 +980,14 @@ func can_select_card(card):
 
 func deselect_all_cards():
 	for card in selected_cards:
-		card.set_selected(false)
+		modify_card_selection(card, false)
 	selected_cards = []
+
+func modify_card_selection(card, selected):
+	card.set_selected(selected)
+	if card_popout_parent.get_child_count() > 0:
+		var popout = card_popout_parent.get_child(0)
+		popout.modify_card_selection(card.card_id, selected)
 
 func on_card_clicked(card : CardBase):
 	if observer_mode:
@@ -1029,12 +1006,17 @@ func on_card_clicked(card : CardBase):
 			# Selected, add to cards.
 			if can_select_card(card):
 				selected_cards.append(card)
-				card.set_selected(true)
+				modify_card_selection(card, true)
 		else:
 			# Deselect
 			selected_cards.remove_at(index)
-			card.set_selected(false)
+			modify_card_selection(card, false)
 		_update_buttons()
+
+func _on_card_popout_card_clicked(card_id : int):
+	var card = find_card_on_board(card_id)
+	if card:
+		on_card_clicked(card)
 
 func sort_player_hand(hand_zone):
 	# Only intended to be called for the player, not opponent.
@@ -1288,7 +1270,7 @@ func _on_advance_turn():
 
 	if is_local_player_active and not observer_mode:
 		change_ui_state(UIState.UIState_PickTurnAction, UISubState.UISubState_None)
-		clear_selected_cards()
+		deselect_all_cards()
 		close_popout()
 	else:
 		change_ui_state(UIState.UIState_WaitingOnOpponent, UISubState.UISubState_None)
@@ -1305,7 +1287,7 @@ func _on_post_boost_action(event):
 	spawn_damage_popup("Bonus Action", player)
 	if player == Enums.PlayerId.PlayerId_Player and not observer_mode:
 		change_ui_state(UIState.UIState_PickTurnAction, UISubState.UISubState_None)
-		clear_selected_cards()
+		deselect_all_cards()
 		close_popout()
 	else:
 		ai_take_turn()
@@ -1597,11 +1579,6 @@ func begin_choose_from_topdeck(action_choices, look_amount, can_pass):
 	_on_choice_popout_show_button_pressed()
 
 	change_ui_state(UIState.UIState_SelectCards, UISubState.UISubState_SelectCards_ChooseFromTopdeck)
-
-func clear_selected_cards():
-	for card in selected_cards:
-		card.set_selected(false)
-	selected_cards = []
 
 func _on_discard_event(event):
 	var player = event['event_player']
@@ -2472,7 +2449,7 @@ func add_revealed_card(card_id : int):
 	var card_db = game_wrapper.get_card_database()
 	var logic_card : GameCard = card_db.get_card(card_id)
 	var card_image = get_card_image_path(opponent_deck['id'], logic_card)
-	var copy_card = create_card(card_id + RevealCopyIdRangestart, logic_card.definition, card_image, "", $AllCards/OpponentRevealed, 0, true)
+	var copy_card = create_card(card_id + RevealCopyIdRangestart, logic_card.definition, card_image, "", $AllCards/OpponentRevealed, true)
 	copy_card.set_card_and_focus(OffScreen, 0, CardBase.ReferenceCardScale)
 	copy_card.resting_scale = CardBase.ReferenceCardScale
 	copy_card.change_state(CardBase.CardState.CardState_Offscreen)
@@ -4424,152 +4401,55 @@ func card_in_selected_cards(card):
 			return true
 	return false
 
-func _update_popout_cards(cards_in_popout : Array, not_visible_position : Vector2, card_return_state : CardBase.CardState, filtering_allowed : bool = false, show_amount : bool = true):
+func _update_popout_cards(cards_in_popout : Array, filtering_allowed : bool = false, show_amount : bool = true):
+	var card_popout = card_popout_parent.get_child(0)
 	if show_amount:
 		card_popout.set_amount(str(len(cards_in_popout)))
 	else:
 		card_popout.set_amount("")
-	if card_popout.visible:
-		# Clear first which sets the size/positions correctly.
-		await card_popout.clear(len(cards_in_popout))
-		var card_subset = []
-		for card in cards_in_popout:
-			if filtering_allowed and popout_show_normal_only() and not game_wrapper.get_card_database().is_normal_card(card.card_id - ReferenceScreenIdRangeStart):
-				continue
-			card_subset.append(card)
-		for i in range(len(card_subset)):
-			var card = card_subset[i]
-			card.set_selected(card_in_selected_cards(card))
-			# Assign positions
-			var pos = card_popout.get_slot_position(i)
-			var adjusted_pos = pos + CardBase.ReferenceCardScale * CardBase.ActualCardSize / 2
-			card.set_card_and_focus(adjusted_pos, null, null)
-			card.change_state(CardBase.CardState.CardState_InPopout)
-			card.set_resting_position(adjusted_pos, 0)
-	else:
-		# When clearing, set the cards first before awaiting.
-		for i in range(len(cards_in_popout)):
-			var card = cards_in_popout[i]
-			card.set_selected(false)
-			# Assign back to hidden area.
-			card.set_card_and_focus(not_visible_position, null, null)
-			match card.state:
-				CardBase.CardState.CardState_InPopout, CardBase.CardState.CardState_Unfocusing, CardBase.CardState.CardState_Focusing:
-					card.unfocus()
-					card.change_state(card_return_state)
-			card.set_resting_position(not_visible_position, 0)
-		await card_popout.clear(0)
 
-func clear_card_popout():
-	# Gauges
-	await _update_popout_cards(
-		$AllCards/PlayerGauge.get_children(),
-		$PlayerZones/PlayerGauge.get_center_pos(),
-		CardBase.CardState.CardState_InGauge
-	)
-	await _update_popout_cards(
-		$AllCards/OpponentGauge.get_children(),
-		$OpponentZones/OpponentGauge.get_center_pos(),
-		CardBase.CardState.CardState_InGauge
-	)
+	var cards = []
+	for card in cards_in_popout:
+		if filtering_allowed and popout_show_normal_only() and not game_wrapper.get_card_database().is_normal_card(card.card_id - ReferenceScreenIdRangeStart):
+			continue
+		cards.append(card)
 
-	# Sealed area
-	await _update_popout_cards(
-		$AllCards/PlayerSealed.get_children(),
-		$PlayerZones/PlayerSealed.get_center_pos(),
-		CardBase.CardState.CardState_InGauge
-	)
-	await _update_popout_cards(
-		$AllCards/OpponentSealed.get_children(),
-		$OpponentZones/OpponentSealed.get_center_pos(),
-		CardBase.CardState.CardState_InGauge
-	)
-
-	# Overdrive area
-	await _update_popout_cards(
-		$AllCards/PlayerOverdrive.get_children(),
-		$PlayerZones/PlayerOverdrive.get_center_pos(),
-		CardBase.CardState.CardState_InGauge
-	)
-	await _update_popout_cards(
-		$AllCards/OpponentOverdrive.get_children(),
-		$OpponentZones/OpponentOverdrive.get_center_pos(),
-		CardBase.CardState.CardState_InGauge
-	)
-
-	# Discards
-	await _update_popout_cards(
-		$AllCards/PlayerDiscards.get_children(),
-		get_discard_location($PlayerDeck/Discard),
-		CardBase.CardState.CardState_Discarded
-	)
-	await _update_popout_cards(
-		$AllCards/OpponentDiscards.get_children(),
-		get_discard_location($OpponentDeck/Discard),
-		CardBase.CardState.CardState_Discarded
-	)
-
-	# Boosts
-	await _update_popout_cards(
-		$AllCards/PlayerBoosts.get_children(),
-		get_boost_zone_center($PlayerBoostZone),
-		CardBase.CardState.CardState_InBoost
-	)
-	await _update_popout_cards(
-		$AllCards/OpponentBoosts.get_children(),
-		get_boost_zone_center($OpponentBoostZone),
-		CardBase.CardState.CardState_InBoost
-	)
-
-	# Reference
-	await _update_popout_cards(
-		$AllCards/PlayerAllCopy.get_children(),
-		OffScreen,
-		CardBase.CardState.CardState_Offscreen
-	)
-	await _update_popout_cards(
-		$AllCards/OpponentAllCopy.get_children(),
-		OffScreen,
-		CardBase.CardState.CardState_Offscreen
-	)
-
-	# Revealed
-	await _update_popout_cards(
-		$AllCards/OpponentRevealed.get_children(),
-		OffScreen,
-		CardBase.CardState.CardState_Offscreen
-	)
-
-	# Choice Zone
-	await _update_popout_cards(
-		$AllCards/ChoiceZone.get_children(),
-		OffScreen,
-		CardBase.CardState.CardState_InDeck
-	)
+	card_popout.show_cards(cards)
+	for card in selected_cards:
+		card_popout.modify_card_selection(card.card_id, true)
 
 func close_popout():
-	card_popout.visible = false
-	if popout_showing_node:
-		popout_showing_node.z_index = 0
-	await clear_card_popout()
+	while card_popout_parent.get_child_count() > 0:
+		var child = card_popout_parent.get_child(0)
+		card_popout_parent.remove_child(child)
+		child.queue_free()
 
 func update_popout_instructions():
+	if card_popout_parent.get_child_count() == 0:
+		return
+	var popout = card_popout_parent.get_child(0)
 	if popout_instruction_info and popout_type_showing == popout_instruction_info['popout_type']:
-		card_popout.set_instructions(popout_instruction_info)
+		popout.set_instructions(popout_instruction_info)
 	else:
-		card_popout.set_instructions(null)
+		popout.set_instructions(null)
 
 func popout_show_normal_only() -> bool:
 	if popout_instruction_info and 'normal_only' in popout_instruction_info:
 		return popout_instruction_info['normal_only']
 	return false
 
-func show_popout(popout_type : CardPopoutType, popout_title : String, card_node, card_rest_position : Vector2, card_rest_state : CardBase.CardState,
+func show_popout(popout_type : CardPopoutType, popout_title : String, card_node,
 		show_amount : bool = true, force_hide_reshuffle = false):
-	card_popout.z_index = CardPopoutZIndex
+	close_popout()
+
+	var card_popout = CardPopoutScene.instantiate()
+	card_popout_parent.add_child(card_popout)
+	card_popout.close_window.connect(_on_popout_close_window)
+	card_popout.pressed_ok.connect(_on_card_popout_pressed_ok)
+	card_popout.pressed_cancel.connect(_on_card_popout_pressed_cancel)
+	card_popout.pressed_toggle.connect(_on_card_popout_pressed_toggle)
+	card_popout.card_clicked.connect(_on_card_popout_card_clicked)
 	popout_type_showing = popout_type
-	popout_showing_node = card_node
-	popout_showing_node.z_index = card_popout.z_index
 
 	var toggle_text = ""
 	var toggle_visible = false
@@ -4584,13 +4464,9 @@ func show_popout(popout_type : CardPopoutType, popout_title : String, card_node,
 
 	update_popout_instructions()
 	card_popout.set_title(popout_title)
-	if card_popout.visible:
-		card_popout.visible = false
-		await clear_card_popout()
-	card_popout.visible = true
 	var cards = card_node.get_children()
 	var filtering_allowed = popout_type == CardPopoutType.CardPopoutType_ReferenceOpponent
-	_update_popout_cards(cards, card_rest_position, card_rest_state, filtering_allowed, show_amount)
+	_update_popout_cards(cards, filtering_allowed, show_amount)
 
 func get_boost_zone_center(zone):
 	var pos = zone.global_position + CardBase.get_hand_card_size() / 2
@@ -4598,56 +4474,45 @@ func get_boost_zone_center(zone):
 	return pos
 
 func _on_player_gauge_gauge_clicked():
-	await close_popout()
-	show_popout(CardPopoutType.CardPopoutType_GaugePlayer, "YOUR GAUGE", $AllCards/PlayerGauge, $PlayerZones/PlayerGauge.get_center_pos(), CardBase.CardState.CardState_InGauge)
+	show_popout(CardPopoutType.CardPopoutType_GaugePlayer, "YOUR GAUGE", $AllCards/PlayerGauge)
 
 func _on_opponent_gauge_gauge_clicked():
-	await close_popout()
-	show_popout(CardPopoutType.CardPopoutType_GaugeOpponent, "THEIR GAUGE", $AllCards/OpponentGauge, $OpponentZones/OpponentGauge.get_center_pos(), CardBase.CardState.CardState_InGauge)
+	show_popout(CardPopoutType.CardPopoutType_GaugeOpponent, "THEIR GAUGE", $AllCards/OpponentGauge)
 
 func _on_player_sealed_clicked():
-	await close_popout()
-	show_popout(CardPopoutType.CardPopoutType_SealedPlayer, "YOUR SEALED AREA", $AllCards/PlayerSealed, $PlayerZones/PlayerSealed.get_center_pos(), CardBase.CardState.CardState_InGauge)
+	show_popout(CardPopoutType.CardPopoutType_SealedPlayer, "YOUR SEALED AREA", $AllCards/PlayerSealed)
 
 func _on_opponent_sealed_clicked():
-	await close_popout()
-	show_popout(CardPopoutType.CardPopoutType_SealedOpponent, "THEIR SEALED AREA", $AllCards/OpponentSealed, $OpponentZones/OpponentSealed.get_center_pos(), CardBase.CardState.CardState_InGauge)
+	show_popout(CardPopoutType.CardPopoutType_SealedOpponent, "THEIR SEALED AREA", $AllCards/OpponentSealed)
 
 func _on_player_overdrive_gauge_clicked():
-	await close_popout()
-	show_popout(CardPopoutType.CardPopoutType_OverdrivePlayer, "YOUR OVERDRIVE", $AllCards/PlayerOverdrive, $PlayerZones/PlayerOverdrive.get_center_pos(), CardBase.CardState.CardState_InGauge)
+	show_popout(CardPopoutType.CardPopoutType_OverdrivePlayer, "YOUR OVERDRIVE", $AllCards/PlayerOverdrive)
 
 func _on_opponent_overdrive_gauge_clicked():
-	await close_popout()
-	show_popout(CardPopoutType.CardPopoutType_OverdriveOpponent, "THEIR OVERDRIVE", $AllCards/OpponentOverdrive, $OpponentZones/OpponentOverdrive.get_center_pos(), CardBase.CardState.CardState_InGauge)
+	show_popout(CardPopoutType.CardPopoutType_OverdriveOpponent, "THEIR OVERDRIVE", $AllCards/OpponentOverdrive)
 
 func _on_player_discard_button_pressed():
-	await close_popout()
-	show_popout(CardPopoutType.CardPopoutType_DiscardPlayer, "YOUR DISCARDS", $AllCards/PlayerDiscards, get_discard_location($PlayerDeck/Discard), CardBase.CardState.CardState_Discarded)
+	show_popout(CardPopoutType.CardPopoutType_DiscardPlayer, "YOUR DISCARDS", $AllCards/PlayerDiscards)
 
 func _on_opponent_discard_button_pressed():
-	await close_popout()
-	show_popout(CardPopoutType.CardPopoutType_DiscardOpponent, "THEIR DISCARD", $AllCards/OpponentDiscards, get_discard_location($OpponentDeck/Discard), CardBase.CardState.CardState_Discarded)
+	show_popout(CardPopoutType.CardPopoutType_DiscardOpponent, "THEIR DISCARD", $AllCards/OpponentDiscards)
 
 func _on_player_boost_zone_clicked_zone():
-	await close_popout()
 	var sustained_card_ids = game_wrapper.get_player_sustained_boosts(Enums.PlayerId.PlayerId_Player)
 	for card in $AllCards/PlayerBoosts.get_children():
 		if card.card_id in sustained_card_ids:
 			card.set_label("Sustained")
 		else:
 			card.clear_label()
-	show_popout(CardPopoutType.CardPopoutType_BoostPlayer, "YOUR BOOSTS", $AllCards/PlayerBoosts, get_boost_zone_center($PlayerBoostZone), CardBase.CardState.CardState_InBoost)
+	show_popout(CardPopoutType.CardPopoutType_BoostPlayer, "YOUR BOOSTS", $AllCards/PlayerBoosts)
 
 func _on_opponent_boost_zone_clicked_zone():
-	await close_popout()
-	show_popout(CardPopoutType.CardPopoutType_BoostOpponent, "THEIR BOOSTS", $AllCards/OpponentBoosts, get_boost_zone_center($OpponentBoostZone), CardBase.CardState.CardState_InBoost)
+	show_popout(CardPopoutType.CardPopoutType_BoostOpponent, "THEIR BOOSTS", $AllCards/OpponentBoosts)
 
 func _on_popout_close_window():
-	await close_popout()
+	close_popout()
 
 func _on_player_reference_button_pressed():
-	await close_popout()
 	for card in $AllCards/PlayerAllCopy.get_children():
 		if card.card_id < 0:
 			continue
@@ -4660,11 +4525,9 @@ func _on_player_reference_button_pressed():
 	if game_wrapper.is_player_sealed_area_secret(Enums.PlayerId.PlayerId_Player):
 		reference_title += "+sealed"
 	reference_title += ")"
-	show_popout(CardPopoutType.CardPopoutType_ReferencePlayer, reference_title, $AllCards/PlayerAllCopy, OffScreen, CardBase.CardState.CardState_Offscreen, false)
+	show_popout(CardPopoutType.CardPopoutType_ReferencePlayer, reference_title, $AllCards/PlayerAllCopy, false)
 
 func _on_opponent_reference_button_pressed(switch_toggle : bool = false, hide_reshuffle : bool = false):
-	await close_popout()
-
 	if switch_toggle:
 		reference_popout_toggle = not reference_popout_toggle
 	else:
@@ -4702,7 +4565,7 @@ func _on_opponent_reference_button_pressed(switch_toggle : bool = false, hide_re
 	if game_wrapper.is_player_sealed_area_secret(Enums.PlayerId.PlayerId_Player):
 		popout_title += "+sealed"
 	popout_title += ")"
-	show_popout(CardPopoutType.CardPopoutType_ReferenceOpponent, popout_title, $AllCards/OpponentAllCopy, OffScreen, CardBase.CardState.CardState_Offscreen, false, hide_reshuffle)
+	show_popout(CardPopoutType.CardPopoutType_ReferenceOpponent, popout_title, $AllCards/OpponentAllCopy, false, hide_reshuffle)
 
 func _on_exit_to_menu_pressed():
 	modal_dialog.set_text_fields("Are you sure you want to quit?", "QUIT TO\nMENU", "CANCEL")
@@ -4716,7 +4579,6 @@ func _quit_to_menu():
 	queue_free()
 
 func _on_revealed_cards_button_pressed():
-	await close_popout()
 	reset_revealed_cards()
 	var public_hand_info = game_wrapper.get_player_public_hand_info(Enums.PlayerId.PlayerId_Opponent)
 	var card_ids = []
@@ -4751,7 +4613,7 @@ func _on_revealed_cards_button_pressed():
 		on_topdeck = card_str_id == public_hand_info['topdeck']
 		card.update_hand_icons(known_count, questionable_count, on_topdeck, false)
 
-	show_popout(CardPopoutType.CardPopoutType_RevealedOpponent, "KNOWN CARDS", $AllCards/OpponentRevealed, OffScreen, CardBase.CardState.CardState_Offscreen)
+	show_popout(CardPopoutType.CardPopoutType_RevealedOpponent, "KNOWN CARDS", $AllCards/OpponentRevealed)
 
 func _on_card_popout_pressed_ok(index):
 	_on_instructions_ok_button_pressed(index)
@@ -4777,8 +4639,7 @@ func _on_action_menu_choice_selected(choice_index):
 	action.call()
 
 func _on_choice_popout_show_button_pressed():
-	await close_popout()
-	show_popout(CardPopoutType.CardPopoutType_ChoiceZone, "TOP OF DECK", $AllCards/ChoiceZone, OffScreen, CardBase.CardState.CardState_InDeck)
+	show_popout(CardPopoutType.CardPopoutType_ChoiceZone, "TOP OF DECK", $AllCards/ChoiceZone)
 
 func _on_modal_dialog_accept_button_pressed():
 	match modal_dialog_type:
