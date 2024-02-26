@@ -1475,8 +1475,7 @@ func _on_name_opponent_card_begin(event):
 		var instruction_text = "Name an opponent card."
 		if select_card_name_card_both_players:
 			instruction_text = "Name a card."
-		# Show the boost window.
-		_on_opponent_reference_button_pressed(false, true)
+
 		selected_cards = []
 		select_card_require_min = 1
 		select_card_require_max = 1
@@ -1491,8 +1490,8 @@ func _on_name_opponent_card_begin(event):
 			"normal_only": normal_only,
 		}
 		enable_instructions_ui("Name opponent card.", true, cancel_allowed, false)
-
 		change_ui_state(UIState.UIState_SelectCards, UISubState.UISubState_SelectCards_DiscardFromReference)
+		_on_opponent_reference_button_pressed(false, true)
 	else:
 		ai_name_opponent_card(normal_only, select_card_name_card_both_players)
 	return SmallNoticeDelay

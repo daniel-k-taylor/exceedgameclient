@@ -532,3 +532,34 @@ func test_king_royal_tribute():
 	assert_true(game_logic.do_choice(player1, 2))
 	validate_positions(player1, 5, player2, 4)
 	advance_turn(player2)
+
+
+func test_king_exceed_2_glorious():
+	position_players(player1, 1, player2, 4)
+	player1.exceeded = true
+	player1.discard_hand()
+	give_gauge(player1, 4)
+	var decree_id = -1
+	for card in player1.set_aside_cards:
+		if card.definition['id'] == "king_decree_paytowin":
+			decree_id = card.id
+			break
+	assert_true(game_logic.do_boost(player1, decree_id, player1.get_card_ids_in_gauge()))
+	advance_turn(player2)
+	execute_strike(player1, player2, "standard_normal_assault", "standard_normal_assault", [], [], false, false)
+	validate_positions(player1, 3, player2, 4)
+	validate_life(player1, 30, player2, 23)
+	give_gauge(player1, 4)
+	for card in player1.set_aside_cards:
+		if card.definition['id'] == "king_decree_magnificentcape":
+			decree_id = card.id
+			break
+	assert_true(game_logic.do_boost(player1, decree_id, player1.get_card_ids_in_gauge()))
+	assert_true(game_logic.do_choice(player1, 1))
+	validate_positions(player1, 3, player2, 4)
+	
+	advance_turn(player2)
+	assert_eq(player1.continuous_boosts.size(), 1)
+	assert_eq(player1.sealed.size(), 1)
+	assert_eq(player1.set_aside_cards.size(), 2)
+	
