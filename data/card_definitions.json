@@ -17458,8 +17458,8 @@
 				"timing": "before",
 				"effect_type": "choice",
 				"choice": [
-					{ "effect_type": "push", "amount": 3 },
-					{ "effect_type": "pull", "amount": 3 }
+					{ "effect_type": "push", "amount": 2 },
+					{ "effect_type": "pull", "amount": 2 }
 				]
 			},
 			{
