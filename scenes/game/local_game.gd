@@ -6914,6 +6914,13 @@ func get_card_stat(check_player : Player, card : GameCard, stat : String) -> int
 		value = get_total_power(check_player, card)
 	elif str(value) == "RANGE_TO_OPPONENT":
 		value = check_player.distance_to_opponent()
+	elif str(value) == "INCLUDE_OPPONENT_IF_MOVED_PAST":
+		value = -1
+		# NOTE: This probably isn't necessary for any mechanics, but
+		# this would be slightly wrong if someone has a +range boost of any kind.
+		# If a character can do that and also cares about range, then worry about that then.
+		if active_strike and check_player.strike_stat_boosts.range_includes_opponent:
+			value = check_player.distance_to_opponent()
 	return value
 
 func get_striking_card_ids_for_player(check_player : Player) -> Array:

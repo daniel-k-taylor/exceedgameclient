@@ -1,10 +1,20 @@
 
 
 In progress:
+    Chunli:
+        ☐ "effect_type": "opponent_discard_normals_or_reveal",
 
+        ☐ "range_min": "INCLUDE_OPPONENT_IF_MOVED_PAST", @started(24-02-26 02:38)
+
+        ☐ "condition": "advanced_through", - separate from the movement
+
+        ☐ animations
+        ☐ card tres
+        ☐ char select
 
 Bug:
     ☐ Play invalid extra attack leads to invalid wild swings.
+    ☐ rangeup_per_boost_in_play and mid-strike Tech interactions (chunli/linne)
 
 Write tests for:
     Axl:
