@@ -879,6 +879,8 @@ func pick_choose_from_discard(game_logic : LocalGame, my_id : Enums.PlayerId, ch
 	for card in source_cards:
 		var can_choose = false
 		match limitation:
+			"normal":
+				can_choose = card.definition['type'] == "normal"
 			"special":
 				can_choose = card.definition['type'] == "special"
 			"ultra":

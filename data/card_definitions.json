@@ -2443,7 +2443,7 @@
 			},
 			{
 				"timing": "hit",
-				"condition": "advanced_through",
+				"condition": "moved_past",
 				"effect_type": "choice",
 				"choice": [
 					{ "effect_type": "push", "amount": 2 },

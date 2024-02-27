@@ -1350,6 +1350,9 @@ class Player:
 		var count = 0
 		for card in discards:
 			match limitation:
+				"normal":
+					if card.definition['type'] == "normal":
+						count += 1
 				"special":
 					if card.definition['type'] == "special":
 						count += 1
@@ -1390,6 +1393,9 @@ class Player:
 		var cards = []
 		for card in hand:
 			match limitation:
+				"normal":
+					if card.definition['type'] == "normal":
+						cards.append(card)
 				"special":
 					if card.definition['type'] == "special":
 						cards.append(card)
@@ -5027,6 +5033,33 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 				decision_info.clear()
 		"only_hits_if_opponent_on_any_buddy":
 			performing_player.strike_stat_boosts.only_hits_if_opponent_on_any_buddy = true
+		"opponent_discard_normals_or_reveal":
+			var amount = effect['amount']
+			var normals_in_hand = opposing_player.get_cards_in_hand_of_type("normal")
+			var normal_ids = []
+			for card in normals_in_hand:
+				normal_ids.append(card.id)
+			if normal_ids.size() < amount:
+				# Discard all normals and reveal hand.
+				_append_log_full(Enums.LogType.LogType_Effect, opposing_player, "discards all normals and reveals their hand.")
+				events += opposing_player.discard(normal_ids)
+				events += opposing_player.reveal_hand()
+			else:
+				# Opponent chooses which 3 to discard, even if they only have 3 to hide if they have 3 or more normals.
+				change_game_state(Enums.GameState.GameState_PlayerDecision)
+				decision_info.clear()
+				decision_info.type = Enums.DecisionType.DecisionType_ChooseToDiscard
+				decision_info.effect_type = "opponent_discard_choose_internal"
+				decision_info.effect = effect
+				decision_info.bonus_effect = null
+				decision_info.destination = "discard"
+				decision_info.limitation = "normal"
+				decision_info.can_pass = false
+
+				decision_info.choice_card_id = card_id
+				decision_info.player = opposing_player.my_id
+				events += [create_event(Enums.EventType.EventType_Strike_ChooseToDiscard, opposing_player.my_id, amount)]
+
 		"opponent_discard_range_or_reveal":
 			var target_range = effect['target_range']
 			var range_name_str = target_range
@@ -6916,8 +6949,9 @@ func get_card_stat(check_player : Player, card : GameCard, stat : String) -> int
 		value = check_player.distance_to_opponent()
 	elif str(value) == "INCLUDE_OPPONENT_IF_MOVED_PAST":
 		value = -1
-		# NOTE: This probably isn't necessary for any mechanics, but
-		# this would be slightly wrong if someone has a +range boost of any kind.
+		# NOTE: This probably isn't necessary for any mechanics as the card that uses this
+		# does the effect range_includes_if_moved_past.
+		# However, this will be slightly wrong if someone has a +range boost of any kind.
 		# If a character can do that and also cares about range, then worry about that then.
 		if active_strike and check_player.strike_stat_boosts.range_includes_opponent:
 			value = check_player.distance_to_opponent()
@@ -9465,6 +9499,10 @@ func do_choose_from_discard(performing_player : Player, card_ids : Array) -> boo
 		var card = card_db.get_card(card_id)
 		var limitation = decision_info.limitation
 		match limitation:
+			"normal":
+				if card.definition['type'] != "normal":
+					printlog("ERROR: Tried to choose from discard with card that doesn't meet limitation normal.")
+					return false
 			"special":
 				if card.definition['type'] != "special":
 					printlog("ERROR: Tried to choose from discard with card that doesn't meet limitation special.")
