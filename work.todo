@@ -2,10 +2,13 @@
 
 In progress:
 
-
 Bug:
     ☐ Play invalid extra attack leads to invalid wild swings.
-
+    ☐ Review mid-strike Tech interactions:
+        - rangeup_per_boost_in_play and mid-strike Tech interactions (chunli/linne)
+        - Faust remove boost effects needs to be reviewed, stuff like powerup_opponent and other random effects that Faust can remove mid-strike
+        - probably any during_strike ability?
+        - Relevant for Bang too
 Write tests for:
     Axl:
     Testament:
@@ -27,14 +30,11 @@ Write tests for:
 Tasks:
     Main Features:
         ☐ Search for match while observing/playing AI
-        ☐ Azure DB for game logs on match completion
         ☐ Match available notification while you're observing
     High Pri UI Improvements:
         ☐ Background image + life panel backgrounds
         ☐ Card popout has choice buttons for gauge selection
         ☐ If making a decision, minimizing card popout has a blinking icon to reopen it
-        ☐ Rework character_effect window to allow mulitple abilities, scan for them all at set_strike/during_strike timing, add as strike goes on
-            ☐ resize text
     Tests:
         ☐ Move
         ☐ Reshuffle
@@ -50,12 +50,9 @@ Tasks:
     ☐ Reorder opponent hand in a way that you can't keep track with effort
     ☐ Add a info screen after character select on the main menu you can click to show all card for the character.
     ☐ Combat Log always on screen?
-    ☐ Faust remove boost effects needs to be reviewed, stuff like powerup_opponent and other random effects that Faust can remove mid-strike
-        ☐ probably any during_strike ability?
-        ☐ Relevant for Bang too
+
     ☐ Add combat log preferences to saved data
     ☐ Polar exceed optional
-    ☐ If character action can be done with cards selected, show it in action menu
 
 Bugs:
 

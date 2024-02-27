@@ -2171,6 +2171,362 @@
 		},
 		"NOTEEND": "BANG CARDS END"
 	},
+
+
+	{
+		"NOTE": "CHUNLI CARDS START",
+		"id": "chunli_hosenka",
+		"type": "ultra",
+		"display_name": "Hosenka",
+		"force_cost": 0,
+		"gauge_cost": 4,
+		"range_min": 1,
+		"range_max": 2,
+		"speed": 4,
+		"power": 9,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "during_strike",
+				"condition": "is_critical",
+				"effect_type": "powerup",
+				"amount": 2
+			},
+			{
+				"timing": "before",
+				"effect_type": "close",
+				"amount": 2
+			}
+		],
+		"boost": {
+			"boost_type": "immediate",
+			"force_cost": 2,
+			"cancel_cost": -1,
+			"display_name": "Ultra Parry",
+			"effects": [
+				{
+					"timing": "immediate",
+					"effect_type": "opponent_discard_normals_or_reveal",
+					"amount": 3
+				}
+			]
+		}
+	},
+	{
+		"id": "chunli_kikousho",
+		"type": "ultra",
+		"display_name": "Kikousho",
+		"force_cost": 0,
+		"gauge_cost": 2,
+		"range_min": 1,
+		"range_max": 3,
+		"speed": 2,
+		"power": 7,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "during_strike",
+				"effect_type": "dodge_at_range",
+				"range_min": 4,
+				"range_max": 9
+			},
+			{
+				"timing": "after",
+				"condition": "not_hit_opponent",
+				"effect_type": "draw",
+				"amount": 1,
+				"and": {
+					"effect_type": "add_top_discard_to_gauge",
+					"amount": 2
+				}
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 1,
+			"cancel_cost": -1,
+			"display_name": "Faultless Focus",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "stun_immunity"
+				},
+				{
+					"timing": "now",
+					"effect_type": "strike"
+				},
+				{
+					"timing": "hit",
+					"effect_type": "add_boost_to_gauge_on_strike_cleanup",
+					"card_name": "Kikousho"
+				}
+			]
+		}
+	},
+	{
+		"id": "chunli_lightninglegs",
+		"type": "special",
+		"display_name": "Lightning Legs",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 2,
+		"speed": 6,
+		"power": 3,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "after",
+				"condition": "is_critical",
+				"effect_type": "pass",
+				"and": {
+					"condition": "hit_opponent",
+					"effect_type": "choice",
+					"choice": [
+						{
+							"effect_type": "return_attack_to_top_of_deck",
+							"and": {
+								"effect_type": "choose_sustain_boost",
+								"amount_min": 1,
+								"amount": 1
+							}
+						},
+						{ "effect_type": "pass"}
+					]
+				}
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Repeating Attack",
+			"effects": [
+				{
+					"timing": "after",
+					"condition": "hit_opponent",
+					"effect_type": "choice",
+					"choice": [
+						{
+							"effect_type": "return_attack_to_top_of_deck",
+							"and": {
+								"effect_type": "add_boost_to_gauge_on_strike_cleanup",
+								"card_name": "Lightning Legs"
+							}
+						},
+						{ "effect_type": "pass"}
+					]
+				}
+			]
+		}
+	},
+	{
+		"id": "chunli_flippingaxkick",
+		"type": "special",
+		"display_name": "Flipping Ax Kick",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 2,
+		"speed": 5,
+		"power": 3,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "during_strike",
+				"condition": "is_critical",
+				"effect_type": "powerup",
+				"amount": 2
+			},
+			{
+				"timing": "before",
+				"effect_type": "advance",
+				"amount": 2
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Power Attack",
+			"effects": [
+				{
+					"timing": "hit",
+					"effect_type": "powerup",
+					"amount": 1,
+					"and": {
+						"effect_type": "gain_advantage",
+						"and": {
+							"effect_type": "add_boost_to_gauge_on_strike_cleanup",
+							"card_name": "Flipping Ax Kick"
+						}
+					}
+				}
+			]
+		}
+	},
+	{
+		"id": "chunli_headstomp",
+		"type": "special",
+		"display_name": "Head Stomp",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": "INCLUDE_OPPONENT_IF_MOVED_PAST",
+		"range_max": "INCLUDE_OPPONENT_IF_MOVED_PAST",
+		"speed": 5,
+		"power": 5,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "before",
+				"effect_type": "range_includes_if_moved_past",
+				"and": {
+					"effect_type": "advance",
+					"amount": 3
+				}
+			},
+			{
+				"timing": "hit",
+				"condition": "is_critical",
+				"effect_type": "powerup",
+				"amount": 1,
+				"and": {
+					"effect_type": "draw",
+					"amount": 1
+				}
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Swift Attack",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "speedup",
+					"amount": 1
+				},
+				{
+					"timing": "hit",
+					"effect_type": "gain_advantage",
+					"and": {
+						"effect_type": "add_boost_to_gauge_on_strike_cleanup",
+						"card_name": "Head Stomp"
+					}
+				}
+			]
+		}
+	},
+	{
+		"id": "chunli_spinningbirdkick",
+		"type": "special",
+		"display_name": "Spinning Bird Kick",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 2,
+		"speed": 4,
+		"power": 5,
+		"armor": 0,
+		"guard": 4,
+		"effects": [
+			{
+				"timing": "before",
+				"effect_type": "advance",
+				"amount": 3
+			},
+			{
+				"timing": "hit",
+				"condition": "moved_past",
+				"effect_type": "choice",
+				"choice": [
+					{ "effect_type": "push", "amount": 2 },
+					{ "effect_type": "pull", "amount": 2 }
+				]
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 1,
+			"cancel_cost": -1,
+			"display_name": "Guard Crush",
+			"effects": [
+				{
+					"timing": "now",
+					"effect_type": "strike"
+				},
+				{
+					"timing": "hit",
+					"effect_type": "ignore_guard",
+					"and": {
+						"effect_type": "add_boost_to_gauge_on_strike_cleanup",
+						"card_name": "Spinning Bird Kick"
+					}
+				}
+			]
+		}
+	},
+	{
+		"NOTE": "CHUNLI CARDS END",
+		"id": "chunli_kikoken",
+		"type": "special",
+		"display_name": "Kikoken",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 3,
+		"range_max": 5,
+		"speed": 2,
+		"power": 4,
+		"armor": 0,
+		"guard": 4,
+		"effects": [
+			{
+				"timing": "during_strike",
+				"condition": "is_critical",
+				"effect_type": "armorup",
+				"amount": 4
+			},
+			{
+				"timing": "after",
+				"effect_type": "lose_all_armor",
+				"and": {
+					"effect_type": "choice",
+					"choice": [
+						{ "effect_type": "advance", "amount": 1 },
+						{ "effect_type": "retreat", "amount": 1 }
+					]
+				}
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Overhead",
+			"effects": [
+				{
+					"timing": "now",
+					"effect_type": "strike"
+				},
+				{
+					"timing": "hit",
+					"effect_type": "ignore_armor",
+					"and": {
+						"effect_type": "add_boost_to_gauge_on_strike_cleanup",
+						"card_name": "Kikoken"
+					}
+				}
+			]
+		},
+		"NOTEEND": "CHUNLI CARDS END"
+	},
+
 	{
 		"NOTE": "C.VIPER CARDS START",
 		"id": "cviper_burningdance",
@@ -8612,17 +8968,16 @@
 			"display_name": "Overhead",
 			"effects": [
 				{
-					"timing": "during_strike",
-					"effect_type": "ignore_armor"
-				},
-				{
 					"timing": "now",
 					"effect_type": "strike"
 				},
 				{
 					"timing": "hit",
-					"effect_type": "add_boost_to_gauge_on_strike_cleanup",
-					"card_name": "Crystal Strike"
+					"effect_type": "ignore_armor",
+					"and": {
+						"effect_type": "add_boost_to_gauge_on_strike_cleanup",
+						"card_name": "Crystal Strike"
+					}
 				}
 			]
 		}
@@ -17114,13 +17469,12 @@
 					"effect_type": "strike"
 				},
 				{
-					"timing": "during_strike",
-					"effect_type": "ignore_armor"
-				},
-				{
 					"timing": "hit",
-					"effect_type": "add_boost_to_gauge_on_strike_cleanup",
-					"card_name": "Shoryuken"
+					"effect_type": "ignore_armor",
+					"and": {
+						"effect_type": "add_boost_to_gauge_on_strike_cleanup",
+						"card_name": "Shoryuken"
+					}
 				}
 			]
 		},

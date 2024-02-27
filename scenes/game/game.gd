@@ -948,6 +948,8 @@ func can_select_card(card):
 			var meets_limitation = true
 			var card_type = game_wrapper.get_card_database().get_card(card.card_id).definition['type']
 			match limitation:
+				"normal":
+					meets_limitation = card_type == "normal"
 				"ultra":
 					meets_limitation = card_type == "ultra"
 				"special":
@@ -1029,6 +1031,8 @@ func can_select_card(card):
 			var source = game_wrapper.get_decision_info().source
 			var meets_limitation = false
 			match limitation:
+				"normal":
+					meets_limitation = card_type == "normal"
 				"special":
 					meets_limitation = card_type == "special"
 				"ultra":
