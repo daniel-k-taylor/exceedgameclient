@@ -22916,6 +22916,363 @@
 
 
 	{
+		"NOTE": "VEGA CARDS START",
+		"id": "vega_bloodyhighclaw",
+		"type": "ultra",
+		"display_name": "Bloody High Claw",
+		"force_cost": 0,
+		"gauge_cost": 3,
+		"range_min": 1,
+		"range_max": 2,
+		"speed": 6,
+		"power": 4,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "before",
+				"condition": "min_spaces_behind_opponent",
+				"condition_amount": 3,
+				"effect_type": "powerup",
+				"amount": 3
+			},
+			{
+				"timing": "hit",
+				"effect_type": "move_to_any_space"
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 1,
+			"cancel_cost": -1,
+			"display_name": "Claw",
+			"effects": [
+				{
+					"timing": "set_strike",
+					"effect_type": "critical",
+					"character_effect": true
+				},
+				{
+					"timing": "during_strike",
+					"effect_type": "rangeup",
+					"amount": 0,
+					"amount2": 1
+				},
+				{
+					"timing": "cleanup",
+					"condition": "not_stunned",
+					"effect_type": "force_for_effect",
+					"per_force_effect": null,
+					"overall_effect": {
+						"effect_type": "sustain_this",
+						"card_name": "Bloody High Claw"
+					},
+					"force_max": 1
+				}
+			]
+		}
+	},
+	{
+		"id": "vega_splendidclaw",
+		"type": "ultra",
+		"display_name": "Splendid Claw",
+		"force_cost": 0,
+		"gauge_cost": 3,
+		"range_min": 1,
+		"range_max": 2,
+		"speed": 4,
+		"power": 7,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "before",
+				"effect_type": "close",
+				"amount": 3
+			},
+			{
+				"timing": "hit",
+				"effect_type": "opponent_discard_random",
+				"amount": 3
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Mask",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "powerup",
+					"amount": 1,
+					"and": {
+						"effect_type": "armorup",
+						"amount": 1
+					}
+				},
+				{
+					"timing": "cleanup",
+					"condition": "not_stunned",
+					"effect_type": "force_for_effect",
+					"per_force_effect": null,
+					"overall_effect": {
+						"effect_type": "sustain_this",
+						"card_name": "Splendid Claw"
+					},
+					"force_max": 1
+				}
+			]
+		}
+	},
+	{
+		"id": "vega_scarletterror",
+		"type": "special",
+		"display_name": "Scarlet Terror",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 2,
+		"speed": 6,
+		"power": 3,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "during_strike",
+				"condition": "is_critical",
+				"effect_type": "speedup",
+				"amount": 2
+			},
+			{
+				"timing": "before",
+				"effect_type": "close",
+				"amount": 2
+			}
+		],
+		"boost": {
+			"boost_type": "immediate",
+			"force_cost": 2,
+			"cancel_cost": -1,
+			"display_name": "Repel Leap",
+			"effects": [
+				{
+					"timing": "immediate",
+					"condition": "at_edge_of_arena",
+					"effect_type": "vega_ua_guarantee",
+					"and": {
+						"effect_type": "move_to_any_space",
+						"and": {
+							"effect_type": "strike"
+						}
+					}
+				}
+			]
+		}
+	},
+	{
+		"id": "vega_flyingbarcelonaattack",
+		"type": "special",
+		"display_name": "Flying Barcelona Attack",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 2,
+		"speed": 3,
+		"power": 5,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "during_strike",
+				"condition": "is_critical",
+				"effect_type": "powerup",
+				"amount": 2
+			},
+			{
+				"timing": "before",
+				"effect_type": "advance",
+				"amount": 9,
+				"and": {
+					"effect_type": "close",
+					"amount": 1
+				}
+			}
+		],
+		"boost": {
+			"boost_type": "immediate",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Wall Leap",
+			"effects": [
+				{
+					"timing": "immediate",
+					"effect_type": "advance",
+					"amount": 9
+				}
+			]
+		}
+	},
+	{
+		"id": "vega_skyhighclaw",
+		"type": "special",
+		"display_name": "Sky High Claw",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 1,
+		"speed": 3,
+		"power": 4,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "during_strike",
+				"condition": "is_critical",
+				"effect_type": "powerup",
+				"amount": 2
+			},
+			{
+				"timing": "before",
+				"effect_type": "close",
+				"amount": 3
+			}
+		],
+		"boost": {
+			"boost_type": "immediate",
+			"force_cost": 1,
+			"cancel_cost": -1,
+			"display_name": "Retrieve",
+			"effects": [
+				{
+					"timing": "immediate",
+					"effect_type": "choice",
+					"choice": [
+						{ "effect_type": "advance", "amount": 3, "bonus_effect": {
+							"condition": "advanced_through",
+							"effect_type": "choose_discard",
+							"limitation": "continuous",
+							"destination": "play_boost",
+							"amount": 1,
+							"amount_min": 1,
+							"discard_effect": {
+								"effect_type": "boost_then_sustain_topdiscard",
+								"amount": "DISCARDED_COUNT",
+								"sustain": false
+							}
+						} },
+						{ "effect_type": "retreat", "amount": 3 }
+					]
+				}
+			]
+		}
+	},
+	{
+		"id": "vega_pounce",
+		"type": "special",
+		"display_name": "Pounce",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 2,
+		"speed": 2,
+		"power": 5,
+		"armor": 0,
+		"guard": 4,
+		"effects": [
+			{
+				"timing": "during_strike",
+				"condition": "is_critical",
+				"effect_type": "armorup",
+				"amount": 2
+			},
+			{
+				"timing": "before",
+				"effect_type": "close",
+				"amount": 2
+			},
+			{
+				"timing": "hit",
+				"effect_type": "opponent_discard_random",
+				"amount": 1
+			}
+		],
+		"boost": {
+			"boost_type": "immediate",
+			"force_cost": 1,
+			"cancel_cost": -1,
+			"display_name": "Dancer's Step",
+			"effects": [
+				{
+					"timing": "immediate",
+					"effect_type": "choice",
+					"choice": [
+						{ "effect_type": "retreat", "amount": 1 },
+						{ "effect_type": "retreat", "amount": 2 },
+						{ "effect_type": "pass" }
+					]
+				},
+				{
+					"timing": "immediate",
+					"effect_type": "strike"
+				}
+			]
+		}
+	},
+	{
+		"NOTE": "VEGA CARDS END",
+		"id": "vega_rollingcrystalflash",
+		"type": "special",
+		"display_name": "Rolling Crystal Flash",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 1,
+		"speed": 2,
+		"power": 3,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "during_strike",
+				"effect_type": "speedup_by_spaces_modifier",
+				"amount": 1
+			},
+			{
+				"timing": "before",
+				"effect_type": "close",
+				"amount": 5
+			},
+			{
+				"timing": "hit",
+				"effect_type": "push",
+				"amount": 3
+			}
+		],
+		"boost": {
+			"boost_type": "immediate",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "High Jump",
+			"effects": [
+				{
+					"timing": "immediate",
+					"effect_type": "choice",
+					"choice": [
+						{ "effect_type": "advance", "amount": 3, "bonus_effect": {
+							"condition": "advanced_through",
+							"effect_type": "add_to_gauge_boost_play_cleanup"
+						} },
+						{ "effect_type": "retreat", "amount": 3 }
+					]
+				}
+			]
+		},
+		"NOTEEND": "VEGA CARDS END"
+	},
+
+
+	{
 		"NOTE": "WAGNER CARDS START",
 		"id": "wagner_megiddo",
 		"type": "ultra",
