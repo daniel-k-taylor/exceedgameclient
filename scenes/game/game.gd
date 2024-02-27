@@ -660,11 +660,12 @@ func spawn_all_cards():
 					graphic_list.append(buddy_card + "_exceeded")
 
 	var player_can_click_buddy = 'can_boost_from_extra' in player_deck and player_deck['can_boost_from_extra']
+	var opponent_can_click_buddy = 'can_boost_from_extra' in opponent_deck and opponent_deck['can_boost_from_extra']
 
 	spawn_deck(player_deck_id, game_wrapper.get_player_deck_list(Enums.PlayerId.PlayerId_Player), $AllCards/PlayerDeck, $AllCards/PlayerAllCopy,
 		player_buddy_graphics, $AllCards/PlayerBuddyCopy, player_can_click_buddy, $AllCards/PlayerSetAside, player_cardback, false)
 	spawn_deck(opponent_deck_id, game_wrapper.get_player_deck_list(Enums.PlayerId.PlayerId_Opponent), $AllCards/OpponentDeck, $AllCards/OpponentAllCopy,
-		opponent_buddy_graphics, $AllCards/OpponentBuddyCopy, false, $AllCards/OpponentSetAside, opponent_cardback, true)
+		opponent_buddy_graphics, $AllCards/OpponentBuddyCopy, opponent_can_click_buddy, $AllCards/OpponentSetAside, opponent_cardback, true)
 
 func get_arena_location_button(arena_location):
 	var target_square = arena_layout.get_child(arena_location - 1)
@@ -4567,8 +4568,23 @@ func show_popout(popout_type : CardPopoutType, popout_title : String, card_node,
 	update_popout_instructions()
 	card_popout.set_title(popout_title)
 	var cards = card_node.get_children()
-	if popout_type == CardPopoutType.CardPopoutType_BuddyPlayer and extra_only_show_boosts:
-		cards = cards.filter(func(card): return game_wrapper.can_player_boost(Enums.PlayerId.PlayerId_Player, card.card_id, ['extra'], "", true))
+
+	var check_player = Enums.PlayerId.PlayerId_Unassigned
+	if popout_type == CardPopoutType.CardPopoutType_BuddyPlayer:
+		check_player = Enums.PlayerId.PlayerId_Player
+		if extra_only_show_boosts:
+			cards = cards.filter(func(card): return game_wrapper.can_player_boost(Enums.PlayerId.PlayerId_Player, card.card_id, ['extra'], "", true))
+	elif popout_type == CardPopoutType.CardPopoutType_BuddyOpponent:
+		check_player = Enums.PlayerId.PlayerId_Opponent
+	if check_player != Enums.PlayerId.PlayerId_Unassigned:
+		var filtered_cards = []
+		for card in cards:
+			if card.card_id != CardBase.BuddyCardReferenceId:
+				if not game_wrapper.is_card_set_aside(check_player, card.card_id):
+					continue
+			filtered_cards.append(card)
+		cards = filtered_cards
+
 	var filtering_allowed = popout_type == CardPopoutType.CardPopoutType_ReferenceOpponent
 	_update_popout_cards(cards, filtering_allowed, show_amount)
 
