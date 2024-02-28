@@ -1,8 +1,21 @@
 
 
 In progress:
-    Vega:
-
+    Bison:
+        Nightmare:
+            ☐ "effect_type": "attack_does_not_hit", @started(24-02-27 22:39)
+				☐ "opponent": true,
+        Devil Reverse boost:
+            ☐ "condition": "less_cards_than_opponent", @started(24-02-27 22:38)
+        Psycho Crusher boost:
+            ☐ "effect_type": "powerup_per_gauge", @started(24-02-27 22:37)
+                "amount": 1,
+                "amount_max": 5
+        Shadaloo:
+            ☐ "effect_type": "name_card_opponent_discards", @started(24-02-27 22:35)
+					"discard_effect": {
+						"effect_type": "strike"
+					}
 
 Bug:
     ☐ Play invalid extra attack leads to invalid wild swings.

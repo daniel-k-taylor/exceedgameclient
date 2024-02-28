@@ -335,6 +335,8 @@ func get_condition_text(effect, amount, amount2, detail):
 			text += "If %s is between you and opponent, " % detail
 		"boost_space_between_opponent":
 			text += "If %s is between you and opponent, " % detail
+		"less_cards_than_opponent":
+			text += "If the opponent has more cards in hand than you, "
 		"more_cards_than_opponent":
 			text += "If you have more cards in hand than opponent, "
 		"opponent_at_edge_of_arena":
@@ -483,7 +485,10 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 		"armorup_current_power":
 			effect_str += "+ Armor equal to power"
 		"attack_does_not_hit":
-			effect_str += "Attack does not hit."
+			if 'opponent' in effect and effect['opponent']:
+				effect_str += "Opponent's attack does not hit."
+			else:
+				effect_str += "Attack does not hit."
 		"attack_is_ex":
 			effect_str += "Next Strike is EX"
 		"become_wide":
@@ -833,6 +838,8 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 			effect_str += " Power"
 		"powerup_per_boost_in_play":
 			effect_str += "+" + str(effect['amount']) + " Power per boost in play."
+		"powerup_per_gauge":
+			effect_str += "+" + str(effect['amount']) + " Power per card in gauge up to " + effect['amount_max'] + "."
 		"powerup_per_sealed_normal":
 			var max_text = ""
 			if 'maximum' in effect:
