@@ -5,41 +5,30 @@
 	"cardback": "cardback_treasure.jpg",
 	"exceed_cost": 3,
 	"on_exceed": {
-		"effect_type": "choice",
-		"choice": [
-			{ "effect_type": "pull", "amount": 1},
-			{ "effect_type": "pull", "amount": 2},
-			{ "effect_type": "pull", "amount": 3},
-			{ "effect_type": "pass" }
-		]
+		"effect_type": "generate_free_force",
+		"amount": 1,
+		"and": {
+			"effect_type": "choice",
+			"choice": [
+				{ "effect_type": "pull", "amount": 1},
+				{ "effect_type": "pull", "amount": 2},
+				{ "effect_type": "pull", "amount": 3},
+				{ "effect_type": "pass" }
+			]
+		}
 	},
 	"ability_effects": [
 		{
-			"timing": "hit",
-			"condition": "is_special_or_ultra_attack",
-			"effect_type": "pass",
-			"silent_effect": true,
-			"and": {
-				"condition": "opponent_at_max_range",
-				"character_effect": true,
-				"effect_type": "powerup",
-				"amount": 2
-			}
+			"timing": "set_strike",
+			"effect_type": "generate_free_force",
+			"amount": 1
+		},
+		{
+			"timing": "cleanup",
+			"effect_type": "remove_generate_free_force"
 		}
 	],
 	"exceed_ability_effects": [
-		{
-			"timing": "hit",
-			"condition": "is_special_or_ultra_attack",
-			"effect_type": "pass",
-			"silent_effect": true,
-			"and": {
-				"condition": "opponent_at_max_range",
-				"character_effect": true,
-				"effect_type": "powerup",
-				"amount": 2
-			}
-		}
 	],
 	"cards": [
 		{

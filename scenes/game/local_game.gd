@@ -1707,7 +1707,7 @@ class Player:
 	func get_force_with_cards(card_ids : Array, reason : String, treat_ultras_as_single_force : bool, use_free_force : bool):
 		var force_generated = force_cost_reduction
 		if use_free_force:
-			force_generated += use_free_force
+			force_generated += free_force
 
 		var has_card_in_gauge = false
 		for card_id in card_ids:
@@ -4858,7 +4858,7 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 			else:
 				_append_log_full(Enums.LogType.LogType_Effect, performing_player, "has no cards in hand to put in gauge.")
 		"generate_free_force":
-			performing_player.free_force += effect['amount']
+			performing_player.free_force = effect['amount']
 			_append_log_full(Enums.LogType.LogType_Effect, performing_player, "can generate %s force for free!" % performing_player.free_force)
 		"remove_generate_free_force":
 			_append_log_full(Enums.LogType.LogType_Effect, performing_player, "no longer generates free force.")

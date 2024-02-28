@@ -2200,6 +2200,8 @@ func get_force_in_selected_cards():
 
 func can_selected_cards_pay_force(force_cost : int, bonus_card_force_value : int = 0):
 	var max_force_selected = game_wrapper.get_player_force_cost_reduction(Enums.PlayerId.PlayerId_Player)
+	if use_free_force:
+		max_force_selected += game_wrapper.get_player_free_force(Enums.PlayerId.PlayerId_Player)
 	var ultras = 0
 	var card_db = game_wrapper.get_card_database()
 	for card in selected_cards:
@@ -4171,16 +4173,16 @@ func ai_handle_prepare():
 func ai_handle_move(action : AIPlayer.MoveAction):
 	var location = action.location
 	var card_ids = action.force_card_ids
-	var use_free_force = action.use_free_force
-	var success = game_wrapper.submit_move(Enums.PlayerId.PlayerId_Opponent, card_ids, location, use_free_force)
+	var do_use_free_force = action.use_free_force
+	var success = game_wrapper.submit_move(Enums.PlayerId.PlayerId_Opponent, card_ids, location, do_use_free_force)
 	if not success:
 		printlog("FAILED AI MOVE")
 	return success
 
 func ai_handle_change_cards(action : AIPlayer.ChangeCardsAction):
 	var card_ids = action.card_ids
-	var use_free_force = action.use_free_force
-	var success = game_wrapper.submit_change(Enums.PlayerId.PlayerId_Opponent, card_ids, false, use_free_force)
+	var do_use_free_force = action.use_free_force
+	var success = game_wrapper.submit_change(Enums.PlayerId.PlayerId_Opponent, card_ids, false, do_use_free_force)
 	if not success:
 		printlog("FAILED AI CHANGE CARDS")
 	return success
@@ -4201,8 +4203,8 @@ func ai_handle_reshuffle():
 func ai_handle_boost(action : AIPlayer.BoostAction):
 	var card_id = action.card_id
 	var payment_card_ids = action.payment_card_ids
-	var use_free_force = action.use_free_force
-	var success = game_wrapper.submit_boost(Enums.PlayerId.PlayerId_Opponent, card_id, payment_card_ids, use_free_force)
+	var do_use_free_force = action.use_free_force
+	var success = game_wrapper.submit_boost(Enums.PlayerId.PlayerId_Opponent, card_id, payment_card_ids, do_use_free_force)
 	if not success:
 		printlog("FAILED AI BOOST")
 	return success
