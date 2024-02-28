@@ -1049,7 +1049,8 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 			else:
 				effect_str += optional_text + "Discard " + str(effect['amount']) + limitation + " card(s)" + bonus
 		"set_used_character_bonus":
-			effect_str += ": " + get_effect_text(effect['linked_effect'], false, false, false)
+			if 'linked_effect' in effect:
+				effect_str += ": " + get_effect_text(effect['linked_effect'], false, false, false)
 		"shuffle_hand_to_deck":
 			effect_str += "Shuffle hand into deck"
 		"shuffle_sealed_to_deck":
