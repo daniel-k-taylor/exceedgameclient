@@ -4048,6 +4048,7 @@ func _on_wild_swing_button_pressed():
 		if preparing_character_action:
 			prepared_character_action_data['wild_swing'] = true
 			complete_character_action_pressed(prepared_character_action_data['action_idx'])
+			deselect_all_cards()
 			_update_buttons()
 			return
 
@@ -4062,6 +4063,7 @@ func _on_wild_swing_button_pressed():
 			close_popout()
 			success = game_wrapper.submit_pay_strike_cost(Enums.PlayerId.PlayerId_Player, [], true, false)
 	if success:
+		deselect_all_cards()
 		change_ui_state(UIState.UIState_WaitForGameServer)
 	_update_buttons()
 
