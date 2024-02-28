@@ -40,7 +40,7 @@ const StrikeStaticConditions = [
 	"speed_greater_than",
 	"is_special_or_ultra_attack", "is_normal_attack", "is_special_attack", "is_buddy_special_or_ultra_attack",
 	"discarded_matches_attack_speed",
-	"canceled_this_turn"
+	"canceled_this_turn",
 ]
 
 var event_queue = []
@@ -478,6 +478,7 @@ class StrikeStatBoosts:
 	var power_bonus_multiplier : int = 1
 	var power_bonus_multiplier_positive_only : int = 1
 	var speed_bonus_multiplier : int = 1
+	var speedup_by_spaces_modifier : int = 0
 	var active_character_effects = []
 	var added_attack_effects = []
 	var ex_count : int = 0
@@ -552,6 +553,7 @@ class StrikeStatBoosts:
 		power_bonus_multiplier = 1
 		power_bonus_multiplier_positive_only = 1
 		speed_bonus_multiplier = 1
+		speedup_by_spaces_modifier = 0
 		active_character_effects = []
 		added_attack_effects = []
 		ex_count = 0
@@ -2953,6 +2955,9 @@ class Player:
 		for effect in deck_def[ability_label]:
 			if effect['timing'] == "on_continuous_boost" and is_continuous_boost:
 				effects.append(effect)
+		for effect in deck_def[ability_label]:
+			if effect['timing'] == "on_any_boost":
+				effects.append(effect)
 		return effects
 
 	func set_strike_x(value : int, silent : bool = false):
@@ -3472,6 +3477,11 @@ func get_total_speed(check_player):
 
 	var check_card = active_strike.get_player_card(check_player)
 	var bonus_speed = check_player.strike_stat_boosts.speed * check_player.strike_stat_boosts.speed_bonus_multiplier
+	if check_player.strike_stat_boosts.speedup_by_spaces_modifier > 0:
+		# Note: This does not interact with speed multipliers.
+		# If a later character has that, it will need to be implemented.
+		var empty_spaces_between = check_player.distance_to_opponent() - 1
+		bonus_speed += empty_spaces_between * check_player.strike_stat_boosts.speedup_by_spaces_modifier
 	var speed = check_card.definition['speed'] + bonus_speed
 	if active_strike and active_strike.extra_attack_in_progress:
 		# If an extra attack character has ways to get speed multipliers, deal with that then.
@@ -3656,6 +3666,22 @@ func is_effect_condition_met(performing_player : Player, effect, local_condition
 		elif condition == "min_cards_in_gauge":
 			var amount = effect['condition_amount']
 			return performing_player.gauge.size() >= amount
+		elif condition == "min_spaces_behind_opponent":
+			var amount = effect['condition_amount']
+			var spaces_behind = 0
+			# Default to assuming player is to the right and counting from left to right.
+			var start = MinArenaLocation
+			var direction = 1
+			if performing_player.arena_location < other_player.arena_location:
+				# Player to left.
+				# Count starting from max and stop when you find the player.
+				start = MaxArenaLocation
+				direction = -1
+			for i in range(start, other_player.arena_location, direction):
+				if other_player.is_in_location(i):
+					break
+				spaces_behind += 1
+			return spaces_behind >= amount
 		elif condition == "manual_reshuffle":
 			return local_conditions.manual_reshuffle
 		elif condition == "more_cards_than_opponent":
@@ -4954,11 +4980,18 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 			if 'move_max' in effect:
 				move_max = effect['move_max']
 
+			var and_effect = null
+			if 'and' in effect:
+				and_effect = effect['and']
+
 			decision_info.limitation = []
 			# If not moving is an option, enable "pass" button
 			if move_min == 0:
 				decision_info.limitation.append(0)
-				decision_info.choice.append({ "effect_type": "pass" })
+				decision_info.choice.append({
+					"effect_type": "pass",
+					"and": and_effect,
+				})
 
 			var nowhere_to_move = true
 			var player_location = performing_player.arena_location
@@ -4972,6 +5005,7 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 						"effect_type": "move_to_space",
 						"amount": i,
 						"remove_buddies_encountered": remove_buddies_encountered,
+						"and": and_effect,
 					})
 					nowhere_to_move = false
 
@@ -6529,6 +6563,11 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 			var amount = performing_player.gauge.size()
 			performing_player.strike_stat_boosts.speed += amount
 			events += [create_event(Enums.EventType.EventType_Strike_SpeedUp, performing_player.my_id, amount)]
+		"speedup_by_spaces_modifier":
+			performing_player.strike_stat_boosts.speedup_by_spaces_modifier = effect['amount']
+			# Count empty spaces so distance - 1.
+			var empty_spaces_between = performing_player.distance_to_opponent() - 1
+			events += [create_event(Enums.EventType.EventType_Strike_SpeedUp, performing_player.my_id, empty_spaces_between)]
 		"speedup_per_boost_in_play":
 			var boosts_in_play = performing_player.continuous_boosts.size()
 			if 'all_boosts' in effect and effect['all_boosts']:

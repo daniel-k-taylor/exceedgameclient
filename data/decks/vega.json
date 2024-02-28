@@ -1,12 +1,13 @@
 {
-	"id": "chunli",
+	"id": "vega",
 	"season": 3,
-	"display_name": "Chun-Li",
+	"display_name": "Vega",
 	"cardback": "cardback_defaultexceed.png",
 	"exceed_cost": 3,
 	"ability_effects": [
 		{
 			"timing": "set_strike",
+			"condition": "is_not_critical",
 			"effect_type": "gauge_for_effect",
 			"per_gauge_effect": null,
 			"overall_effect": {
@@ -16,17 +17,26 @@
 			"gauge_max": 1
 		},
 		{
-			"timing": "on_any_boost",
-			"effect_type": "choice",
-			"choice": [
-				{ "effect_type": "retreat", "amount": 1 },
-				{ "effect_type": "pass"}
-			]
+			"timing": "set_strike",
+			"condition": "at_edge_of_arena",
+			"effect_type": "pass",
+			"and": {
+				"condition": "is_special_or_ultra_attack",
+				"effect_type": "set_used_character_bonus"
+			}
+		},
+		{
+			"timing": "set_strike",
+			"condition": "used_character_bonus",
+			"character_effect": true,
+			"effect_type": "powerup",
+			"amount": 2
 		}
 	],
 	"exceed_ability_effects": [
 		{
 			"timing": "set_strike",
+			"condition": "is_not_critical",
 			"effect_type": "gauge_for_effect",
 			"per_gauge_effect": null,
 			"overall_effect": {
@@ -36,77 +46,82 @@
 			"gauge_max": 1
 		},
 		{
-			"timing": "on_any_boost",
-			"effect_type": "choice",
-			"choice": [
-				{ "effect_type": "retreat", "amount": 1 },
-				{ "effect_type": "pass"}
-			]
+			"timing": "set_strike",
+			"condition": "at_edge_of_arena",
+			"effect_type": "pass",
+			"and": {
+				"condition": "is_special_or_ultra_attack",
+				"effect_type": "set_used_character_bonus"
+			}
 		},
 		{
-			"timing": "during_strike",
+			"timing": "set_strike",
+			"condition": "used_character_bonus",
 			"character_effect": true,
-			"effect_type": "rangeup_per_boost_in_play",
-			"amount": 0,
-			"amount2": 1
+			"effect_type": "powerup",
+			"amount": 3,
+			"and": {
+				"effect_type": "speedup",
+				"amount": 1
+			}
 		}
 	],
 	"cards": [
 		{
-			"definition_id": "chunli_hosenka",
-			"image": "chunli_hosenka.tres"
+			"definition_id": "vega_bloodyhighclaw",
+			"image": "vega_bloodyhighclaw.tres"
 		},
 		{
-			"definition_id": "chunli_hosenka",
-			"image": "chunli_hosenka.tres"
+			"definition_id": "vega_bloodyhighclaw",
+			"image": "vega_bloodyhighclaw.tres"
 		},
 		{
-			"definition_id": "chunli_kikousho",
-			"image": "chunli_kikousho.tres"
+			"definition_id": "vega_splendidclaw",
+			"image": "vega_splendidclaw.tres"
 		},
 		{
-			"definition_id": "chunli_kikousho",
-			"image": "chunli_kikousho.tres"
+			"definition_id": "vega_splendidclaw",
+			"image": "vega_splendidclaw.tres"
 		},
 		{
-			"definition_id": "chunli_lightninglegs",
-			"image": "chunli_lightninglegs.tres"
+			"definition_id": "vega_scarletterror",
+			"image": "vega_scarletterror.tres"
 		},
 		{
-			"definition_id": "chunli_lightninglegs",
-			"image": "chunli_lightninglegs.tres"
+			"definition_id": "vega_scarletterror",
+			"image": "vega_scarletterror.tres"
 		},
 		{
-			"definition_id": "chunli_flippingaxkick",
-			"image": "chunli_flippingaxkick.tres"
+			"definition_id": "vega_flyingbarcelonaattack",
+			"image": "vega_flyingbarcelonaattack.tres"
 		},
 		{
-			"definition_id": "chunli_flippingaxkick",
-			"image": "chunli_flippingaxkick.tres"
+			"definition_id": "vega_flyingbarcelonaattack",
+			"image": "vega_flyingbarcelonaattack.tres"
 		},
 		{
-			"definition_id": "chunli_headstomp",
-			"image": "chunli_headstomp.tres"
+			"definition_id": "vega_skyhighclaw",
+			"image": "vega_skyhighclaw.tres"
 		},
 		{
-			"definition_id": "chunli_headstomp",
-			"image": "chunli_headstomp.tres"
+			"definition_id": "vega_skyhighclaw",
+			"image": "vega_skyhighclaw.tres"
 		},
 		{
-			"definition_id": "chunli_spinningbirdkick",
-			"image": "chunli_spinningbirdkick.tres"
+			"definition_id": "vega_pounce",
+			"image": "vega_pounce.tres"
 		},
 		{
-			"definition_id": "chunli_spinningbirdkick",
-			"image": "chunli_spinningbirdkick.tres"
+			"definition_id": "vega_pounce",
+			"image": "vega_pounce.tres"
 		},
 		{
-			"definition_id": "chunli_kikoken",
-			"image": "chunli_kikoken.tres"
+			"definition_id": "vega_rollingcrystalflash",
+			"image": "vega_rollingcrystalflash.tres"
 		},
 		{
-			"definition_id": "chunli_kikoken",
-			"image": "chunli_kikoken.tres"
+			"definition_id": "vega_rollingcrystalflash",
+			"image": "vega_rollingcrystalflash.tres"
 		},
 		{
 			"definition_id": "standard_normal_grasp",

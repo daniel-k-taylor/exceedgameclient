@@ -279,6 +279,8 @@ func get_condition_text(effect, amount, amount2, detail):
 			text += "If you have %s card(s) in hand, " % amount_str
 		"min_cards_in_gauge":
 			text += "If you have at least %s card(s) in gauge, " % amount
+		"min_spaces_behind_opponent":
+			text += "If there are %s or more spaces behind the opponent, " % amount
 		"no_strike_caused":
 			text += "If no strike caused, "
 		"stunned":
@@ -1047,7 +1049,8 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 			else:
 				effect_str += optional_text + "Discard " + str(effect['amount']) + limitation + " card(s)" + bonus
 		"set_used_character_bonus":
-			effect_str += ": " + get_effect_text(effect['linked_effect'], false, false, false)
+			if 'linked_effect' in effect:
+				effect_str += ": " + get_effect_text(effect['linked_effect'], false, false, false)
 		"shuffle_hand_to_deck":
 			effect_str += "Shuffle hand into deck"
 		"shuffle_sealed_to_deck":

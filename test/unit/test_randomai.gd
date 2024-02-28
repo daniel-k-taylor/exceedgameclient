@@ -604,7 +604,10 @@ func test_cammy_100():
 
 func test_chunli_100():
 	run_iterations_with_deck("chunli")
-	
+
+func test_vega_100():
+	run_iterations_with_deck("vega")
+
 func test_londrekia_100():
 	run_iterations_with_deck("londrekia")
 
