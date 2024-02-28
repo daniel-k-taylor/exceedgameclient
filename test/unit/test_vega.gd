@@ -355,7 +355,7 @@ func test_vega_skyhighclaw_boost_doit():
 	# Advance or retreat 3.
 	assert_true(game_logic.do_choice(player1, 0)) # Advance 3
 	validate_positions(player1, 9, player2, 7)
-	assert_true(game_logic.do_choose_from_discard(player1, [TestCardId1]))
+	assert_true(game_logic.do_boost(player1, TestCardId1))
 	assert_eq(player1.continuous_boosts.size(), 1)
 	assert_eq(player1.continuous_boosts[0].id, TestCardId1)
 	advance_turn(player2)

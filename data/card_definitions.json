@@ -23033,7 +23033,7 @@
 		"gauge_cost": 0,
 		"range_min": 1,
 		"range_max": 2,
-		"speed": 6,
+		"speed": 4,
 		"power": 3,
 		"armor": 0,
 		"guard": 0,
@@ -23059,7 +23059,7 @@
 				{
 					"timing": "immediate",
 					"condition": "at_edge_of_arena",
-					"effect_type": "vega_ua_guarantee",
+					"effect_type": "set_used_character_bonus",
 					"and": {
 						"effect_type": "move_to_any_space",
 						"and": {
@@ -23150,16 +23150,10 @@
 					"choice": [
 						{ "effect_type": "advance", "amount": 3, "bonus_effect": {
 							"condition": "advanced_through",
-							"effect_type": "choose_discard",
+							"effect_type": "boost_additional",
 							"limitation": "continuous",
-							"destination": "play_boost",
-							"amount": 1,
-							"amount_min": 1,
-							"discard_effect": {
-								"effect_type": "boost_then_sustain_topdiscard",
-								"amount": "DISCARDED_COUNT",
-								"sustain": false
-							}
+							"valid_zones": [ "discard" ],
+							"ignore_costs": true
 						} },
 						{ "effect_type": "retreat", "amount": 3 }
 					]

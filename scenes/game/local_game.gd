@@ -41,7 +41,6 @@ const StrikeStaticConditions = [
 	"is_special_or_ultra_attack", "is_normal_attack", "is_special_attack", "is_buddy_special_or_ultra_attack",
 	"discarded_matches_attack_speed",
 	"canceled_this_turn",
-	"has_vega_ua_guarantee", "not_has_vega_ua_guarantee",
 ]
 
 var event_queue = []
@@ -688,7 +687,6 @@ class Player:
 	var boost_buddy_card_id_to_buddy_id_map : Dictionary # [card_id : int, buddy_id : String]
 	var effect_on_turn_start
 	var strike_action_disabled : bool
-	var vega_ua_guarantee : bool
 
 	func _init(id, player_name, parent_ref, card_db_ref, chosen_deck, card_start_id):
 		my_id = id
@@ -794,7 +792,6 @@ class Player:
 		boost_buddy_card_id_to_buddy_id_map = {}
 		effect_on_turn_start = false
 		strike_action_disabled = false
-		vega_ua_guarantee = false
 
 		if "buddy_cards" in deck_def:
 			var buddy_index = 0
@@ -3182,8 +3179,6 @@ func advance_to_next_turn():
 	opponent.plague_knight_discard_names = []
 	player.strike_action_disabled = false
 	opponent.strike_action_disabled = false
-	player.vega_ua_guarantee = false
-	opponent.vega_ua_guarantee = false
 
 	# Update strike turn tracking
 	last_turn_was_strike = strike_happened_this_turn
@@ -3920,10 +3915,6 @@ func is_effect_condition_met(performing_player : Player, effect, local_condition
 		elif condition == "discarded_copy_of_attack":
 			var card = active_strike.get_player_card(performing_player)
 			return performing_player.get_copy_in_discards(card.definition['id']) != -1
-		elif condition == "has_vega_ua_guarantee":
-			return performing_player.vega_ua_guarantee
-		elif condition == "not_has_vega_ua_guarantee":
-			return not performing_player.vega_ua_guarantee
 		else:
 			assert(false, "Unimplemented condition")
 		# Unmet condition
@@ -4269,36 +4260,27 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 			else:
 				_append_log_full(Enums.LogType.LogType_Effect, performing_player, "has no cards in deck to boost with.")
 		"boost_then_sustain_topdiscard":
-			if active_strike:
-				var boost_card_id = performing_player.get_top_continuous_boost_in_discard()
-				if boost_card_id != -1:
-					var sustain = true
-					if 'sustain' in effect and not effect['sustain']:
-						sustain = false
-					performing_player.cancel_blocked_this_turn = true
-					change_game_state(Enums.GameState.GameState_PlayerDecision)
-					decision_info.clear()
-					decision_info.type = Enums.DecisionType.DecisionType_ForceBoostSustainTopDiscard
-					decision_info.player = performing_player.my_id
-					active_strike.remaining_forced_boosts_sustaining = sustain
-					var amount = effect['amount']
-					if amount is String and amount == "DISCARDED_COUNT":
-						amount = len(effect['discarded_card_ids'])
-					active_strike.remaining_forced_boosts = amount
-					active_strike.remaining_forced_boosts_source = "topdiscard"
-					active_strike.remaining_forced_boosts_player_id = performing_player.my_id
-				else:
-					_append_log_full(Enums.LogType.LogType_Effect, performing_player, "has no cards in discards to boost with.")
+			# This effect is expected to be mid-strike.
+			assert(active_strike)
+			var boost_card_id = performing_player.get_top_continuous_boost_in_discard()
+			if boost_card_id != -1:
+				var sustain = true
+				if 'sustain' in effect and not effect['sustain']:
+					sustain = false
+				performing_player.cancel_blocked_this_turn = true
+				change_game_state(Enums.GameState.GameState_PlayerDecision)
+				decision_info.clear()
+				decision_info.type = Enums.DecisionType.DecisionType_ForceBoostSustainTopDiscard
+				decision_info.player = performing_player.my_id
+				active_strike.remaining_forced_boosts_sustaining = sustain
+				var amount = effect['amount']
+				if amount is String and amount == "DISCARDED_COUNT":
+					amount = len(effect['discarded_card_ids'])
+				active_strike.remaining_forced_boosts = amount
+				active_strike.remaining_forced_boosts_source = "topdiscard"
+				active_strike.remaining_forced_boosts_player_id = performing_player.my_id
 			else:
-				# If not an active strike, assume that this boost can just be moved to continuous boosts without issue.
-				var boost_card = performing_player.get_top_discard_card()
-				if boost_card and boost_card.definition['boost']['boost_type'] == "continuous":
-					# Assume this card is just moving to the continuous boosts.
-					# Also assume there are no now effects.
-					performing_player.remove_card_from_discards(boost_card.id)
-					events += performing_player.add_to_continuous_boosts(boost_card)
-				else:
-					_append_log_full(Enums.LogType.LogType_Effect, performing_player, "has no cards in discards to boost with.")
+				_append_log_full(Enums.LogType.LogType_Effect, performing_player, "has no cards in discards to boost with.")
 		"boost_then_strike":
 			# This effect is expected to be a character action.
 			var valid_zones = ['hand']
@@ -6844,8 +6826,6 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 					performing_player.strike_stat_boosts.when_hit_force_for_armor = "gauge"
 			else:
 				performing_player.strike_stat_boosts.when_hit_force_for_armor = "force"
-		"vega_ua_guarantee":
-			performing_player.vega_ua_guarantee = true
 		"zero_vector":
 			change_game_state(Enums.GameState.GameState_PlayerDecision)
 			decision_info.clear()
