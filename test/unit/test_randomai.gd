@@ -1,7 +1,7 @@
 extends GutTest
 
 # Leave at 1 checked in so someone doesn't accidentally run all tests at 100.
-const RandomIterations = 100
+const RandomIterations = 1
 
 const LocalGame = preload("res://scenes/game/local_game.gd")
 const GameCard = preload("res://scenes/game/game_card.gd")
