@@ -379,10 +379,6 @@ func get_condition_text(effect, amount, amount2, detail):
 			text += "If there is a discarded copy of your attack, "
 		"not_sustained":
 			text += ""
-		"has_vega_ua_guarantee":
-			text += ""
-		"not_has_vega_ua_guarantee":
-			text += ""
 		_:
 			text += "MISSING CONDITION"
 	return text
@@ -572,8 +568,6 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 			var destination = effect['destination']
 			if destination == "lightningrod_any_space":
 				effect_str += "Choose a card from your discard pile to place as a Lightning Rod"
-			elif destination == "play_boost":
-				effect_str += "Choose continuous boost from your discard pile to put into play."
 			else:
 				var source = "discard"
 				if 'source' in effect:
