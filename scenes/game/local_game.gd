@@ -5926,6 +5926,7 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 			var amount_per_gauge = effect['amount']
 			var gauge_size = performing_player.gauge.size()
 			var total_powerup = amount_per_gauge * gauge_size
+			total_powerup = min(total_powerup, effect['amount_max'])
 			if total_powerup > 0:
 				performing_player.add_power_bonus(total_powerup)
 				events += [create_event(Enums.EventType.EventType_Strike_PowerUp, performing_player.my_id, total_powerup)]
