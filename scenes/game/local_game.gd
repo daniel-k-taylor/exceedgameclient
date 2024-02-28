@@ -670,6 +670,7 @@ class Player:
 	var end_of_turn_boost_delay_card_ids : Array
 	var saved_power : int
 	var movement_limit : int
+	var force_cost_reduction : int
 	var free_force : int
 	var free_gauge : int
 	var guile_change_cards_bonus : bool
@@ -775,6 +776,7 @@ class Player:
 		extra_effect_after_set_strike = null
 		end_of_turn_boost_delay_card_ids = []
 		saved_power = 0
+		force_cost_reduction = 0
 		free_force = 0
 		free_gauge = 0
 		guile_change_cards_bonus = false
@@ -1702,8 +1704,11 @@ class Player:
 			events += remove_buddy(buddy_id)
 		return events
 
-	func get_force_with_cards(card_ids : Array, reason : String, treat_ultras_as_single_force : bool):
-		var force_generated = free_force
+	func get_force_with_cards(card_ids : Array, reason : String, treat_ultras_as_single_force : bool, use_free_force : bool):
+		var force_generated = force_cost_reduction
+		if use_free_force:
+			force_generated += use_free_force
+
 		var has_card_in_gauge = false
 		for card_id in card_ids:
 			if treat_ultras_as_single_force:
@@ -1719,12 +1724,12 @@ class Player:
 
 		return force_generated
 
-	func can_pay_cost_with(card_ids : Array, force_cost : int, gauge_cost : int):
+	func can_pay_cost_with(card_ids : Array, force_cost : int, gauge_cost : int, use_free_force : bool):
 		if force_cost and gauge_cost:
 			# UNEXPECTED - NOT IMPLEMENTED
 			assert(false)
 		elif force_cost:
-			var force_generated = get_force_with_cards(card_ids, "GENERIC_PAY_FORCE_COST", false)
+			var force_generated = get_force_with_cards(card_ids, "GENERIC_PAY_FORCE_COST", false, use_free_force)
 			for card_id in card_ids:
 				if not is_card_in_hand(card_id) and not is_card_in_gauge(card_id):
 					assert(false)
@@ -2318,7 +2323,7 @@ class Player:
 		return [parent.create_event(Enums.EventType.EventType_AddToDeck, my_id, card.id)]
 
 	func get_available_force():
-		var force = free_force
+		var force = force_cost_reduction + free_force
 		for card in hand:
 			force += card_database.get_card_force_value(card.id)
 		for card in gauge:
@@ -4754,14 +4759,14 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 			var buddy_name = opposing_player.get_buddy_name(effect['buddy_to_remove'])
 			_append_log_full(Enums.LogType.LogType_Effect, performing_player, "flips %s, missing %s." % [buddy_name, opposing_player.name])
 		"force_costs_reduced_passive":
-			performing_player.free_force += effect['amount']
-			_append_log_full(Enums.LogType.LogType_Effect, performing_player, "now has their force costs reduced by %s!" % performing_player.free_force)
+			performing_player.force_cost_reduction += effect['amount']
+			_append_log_full(Enums.LogType.LogType_Effect, performing_player, "now has their force costs reduced by %s!" % performing_player.force_cost_reduction)
 		"remove_force_costs_reduced_passive":
-			performing_player.free_force -= effect['amount']
-			if performing_player.free_force == 0:
+			performing_player.force_cost_reduction -= effect['amount']
+			if performing_player.force_cost_reduction == 0:
 				_append_log_full(Enums.LogType.LogType_Effect, performing_player, "no longer has their force costs reduced.")
 			else:
-				_append_log_full(Enums.LogType.LogType_Effect, performing_player, "now only has their force costs reduced by %s." % performing_player.free_force)
+				_append_log_full(Enums.LogType.LogType_Effect, performing_player, "now only has their force costs reduced by %s." % performing_player.force_cost_reduction)
 		"gauge_costs_reduced_passive":
 			if 'remove' in effect and effect['remove']:
 				performing_player.free_gauge -= effect['amount']
@@ -4852,6 +4857,12 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 				events += [create_event(Enums.EventType.EventType_CardFromHandToGauge_Choice, performing_player.my_id, min_amount, "", max_amount)]
 			else:
 				_append_log_full(Enums.LogType.LogType_Effect, performing_player, "has no cards in hand to put in gauge.")
+		"generate_free_force":
+			performing_player.free_force += effect['amount']
+			_append_log_full(Enums.LogType.LogType_Effect, performing_player, "can generate %s force for free!" % performing_player.free_force)
+		"remove_generate_free_force":
+			_append_log_full(Enums.LogType.LogType_Effect, performing_player, "no longer generates free force.")
+			performing_player.free_force = 0
 		"give_to_player":
 			performing_player.strike_stat_boosts.move_strike_to_opponent_boosts = true
 			events += handle_strike_attack_immediate_removal(performing_player)
@@ -7846,7 +7857,7 @@ func ask_for_cost(performing_player, card, next_state):
 		card_forced_invalid = false
 		can_invalidate_anyway = false
 
-	if performing_player.can_pay_cost_with([], force_cost, gauge_cost) and not card_forced_invalid and not can_invalidate_anyway:
+	if performing_player.can_pay_cost_with([], force_cost, gauge_cost, false) and not card_forced_invalid and not can_invalidate_anyway:
 		if active_strike.extra_attack_in_progress:
 			active_strike.extra_attack_data.extra_attack_state = next_state
 		else:
@@ -8803,7 +8814,7 @@ func do_reshuffle(performing_player : Player) -> bool:
 	event_queue += events
 	return true
 
-func do_move(performing_player : Player, card_ids, new_arena_location) -> bool:
+func do_move(performing_player : Player, card_ids, new_arena_location, use_free_force : bool = false) -> bool:
 	printlog("MainAction: MOVE by %s to %s" % [performing_player.name, str(new_arena_location)])
 	if not can_do_move(performing_player):
 		printlog("ERROR: Cannot perform the move action for this player.")
@@ -8823,7 +8834,7 @@ func do_move(performing_player : Player, card_ids, new_arena_location) -> bool:
 
 	# Ensure cards generate enough force.
 	var required_force = performing_player.get_force_to_move_to(new_arena_location)
-	var generated_force = performing_player.get_force_with_cards(card_ids, "MOVE", false)
+	var generated_force = performing_player.get_force_with_cards(card_ids, "MOVE", false, use_free_force)
 
 	if generated_force < required_force:
 		printlog("ERROR: Not enough force with these cards to move there.")
@@ -8847,7 +8858,7 @@ func do_move(performing_player : Player, card_ids, new_arena_location) -> bool:
 	event_queue += events
 	return true
 
-func do_change(performing_player : Player, card_ids, treat_ultras_as_single_force : bool) -> bool:
+func do_change(performing_player : Player, card_ids, treat_ultras_as_single_force : bool, use_free_force : bool = false) -> bool:
 	printlog("MainAction: CHANGE_CARDS by %s - %s" % [performing_player.name, card_ids])
 	if not can_do_change(performing_player):
 		printlog("ERROR: Cannot do change action for this player.")
@@ -8865,7 +8876,7 @@ func do_change(performing_player : Player, card_ids, treat_ultras_as_single_forc
 
 	var events = []
 	events += [create_event(Enums.EventType.EventType_ChangeCards, performing_player.my_id, 0)]
-	var force_generated = performing_player.get_force_with_cards(card_ids, "CHANGE_CARDS", treat_ultras_as_single_force)
+	var force_generated = performing_player.get_force_with_cards(card_ids, "CHANGE_CARDS", treat_ultras_as_single_force, use_free_force)
 	events += performing_player.discard(card_ids)
 
 	# Handle Guile's Change Cards strike bonus
@@ -8950,7 +8961,7 @@ func do_exceed(performing_player : Player, card_ids : Array) -> bool:
 	event_queue += events
 	return true
 
-func do_boost(performing_player : Player, card_id : int, payment_card_ids : Array = []) -> bool:
+func do_boost(performing_player : Player, card_id : int, payment_card_ids : Array = [], use_free_force = false) -> bool:
 	printlog("MainAction: BOOST by %s - %s" % [get_player_name(performing_player.my_id), card_db.get_card_id(card_id)])
 	if game_state != Enums.GameState.GameState_PickAction or performing_player.my_id != active_turn_player:
 		if not wait_for_mid_strike_boost():
@@ -8961,7 +8972,7 @@ func do_boost(performing_player : Player, card_id : int, payment_card_ids : Arra
 	var card = card_db.get_card(card_id)
 	if not decision_info.ignore_costs:
 		var force_cost = card.definition['boost']['force_cost']
-		if not performing_player.can_pay_cost_with(payment_card_ids, force_cost, 0):
+		if not performing_player.can_pay_cost_with(payment_card_ids, force_cost, 0, use_free_force):
 			printlog("ERROR: Tried to boost action but can't pay force cost with these cards.")
 			return false
 
@@ -9150,7 +9161,7 @@ func do_strike(performing_player : Player, card_id : int, wild_strike: bool, ex_
 	event_queue += events
 	return true
 
-func do_pay_strike_cost(performing_player : Player, card_ids : Array, wild_strike : bool, discard_ex_first : bool = true) -> bool:
+func do_pay_strike_cost(performing_player : Player, card_ids : Array, wild_strike : bool, discard_ex_first : bool = true, use_free_force = false) -> bool:
 	printlog("SubAction: PAY_STRIKE by %s cards %s wild %s" % [performing_player.name, card_ids, str(wild_strike)])
 	if game_state != Enums.GameState.GameState_PlayerDecision:
 		printlog("ERROR: Tried to pay costs but not in decision state.")
@@ -9187,7 +9198,7 @@ func do_pay_strike_cost(performing_player : Player, card_ids : Array, wild_strik
 			force_cost = gauge_cost
 			gauge_cost = 0
 
-		if performing_player.can_pay_cost_with(card_ids, force_cost, gauge_cost):
+		if performing_player.can_pay_cost_with(card_ids, force_cost, gauge_cost, use_free_force):
 			var card_names = ""
 			if card_ids.size() > 0:
 				card_names = card_db.get_card_name(card_ids[0])
@@ -9217,7 +9228,7 @@ func do_pay_strike_cost(performing_player : Player, card_ids : Array, wild_strik
 	event_queue += events
 	return true
 
-func do_force_for_armor(performing_player : Player, card_ids : Array) -> bool:
+func do_force_for_armor(performing_player : Player, card_ids : Array, use_free_force : bool = false) -> bool:
 	printlog("SubAction: FORCEARMOR by %s cards %s" % [performing_player.name, card_ids])
 	if game_state != Enums.GameState.GameState_PlayerDecision or decision_info.type != Enums.DecisionType.DecisionType_ForceForArmor:
 		printlog("ERROR: Tried to force for armor but not in decision state.")
@@ -9243,7 +9254,7 @@ func do_force_for_armor(performing_player : Player, card_ids : Array) -> bool:
 	if use_gauge_instead:
 		force_generated = len(card_ids)
 	else:
-		force_generated = performing_player.get_force_with_cards(card_ids, "FORCE_FOR_ARMOR", false)
+		force_generated = performing_player.get_force_with_cards(card_ids, "FORCE_FOR_ARMOR", false, use_free_force)
 
 	if force_generated > 0:
 		var card_names = ""
@@ -9667,7 +9678,7 @@ func do_choose_from_discard(performing_player : Player, card_ids : Array) -> boo
 	event_queue += events
 	return true
 
-func do_force_for_effect(performing_player : Player, card_ids : Array, treat_ultras_as_single_force : bool, cancel : bool = false) -> bool:
+func do_force_for_effect(performing_player : Player, card_ids : Array, treat_ultras_as_single_force : bool, cancel : bool = false, use_free_force : bool = false) -> bool:
 	printlog("SubAction: FORCE_FOR_EFFECT by %s cards %s" % [performing_player.name, card_ids])
 	if game_state != Enums.GameState.GameState_PlayerDecision or decision_info.type != Enums.DecisionType.DecisionType_ForceForEffect:
 		printlog("ERROR: Tried to force for effect but not in decision state.")
@@ -9682,7 +9693,7 @@ func do_force_for_effect(performing_player : Player, card_ids : Array, treat_ult
 			printlog("ERROR: Tried to force for effect with card not in hand or gauge.")
 			return false
 
-	var force_generated = performing_player.get_force_with_cards(card_ids, "FORCE_FOR_EFFECT", treat_ultras_as_single_force)
+	var force_generated = performing_player.get_force_with_cards(card_ids, "FORCE_FOR_EFFECT", treat_ultras_as_single_force, use_free_force)
 	if cancel:
 		force_generated = 0
 	var ultras = 0
@@ -9694,9 +9705,9 @@ func do_force_for_effect(performing_player : Player, card_ids : Array, treat_ult
 			if force_value == 2:
 				ultras += 1
 
-	if performing_player.free_force > decision_info.effect['force_max']:
+	if performing_player.force_cost_reduction > decision_info.effect['force_max']:
 		if decision_info.effect['force_max'] == -1:
-			force_generated += performing_player.free_force
+			force_generated += performing_player.force_cost_reduction
 		else:
 			force_generated = decision_info.effect['force_max']
 
@@ -9868,7 +9879,7 @@ func do_choose_to_discard(performing_player : Player, card_ids):
 	event_queue += events
 	return true
 
-func do_character_action(performing_player : Player, card_ids, action_idx : int = 0):
+func do_character_action(performing_player : Player, card_ids, action_idx : int = 0, use_free_force = false):
 	printlog("MainAction: CHARACTER_ACTION %s by %s" % [str(action_idx), get_player_name(performing_player.my_id)])
 	if game_state != Enums.GameState.GameState_PickAction:
 		printlog("ERROR: Tried to character action but not in correct game state.")
@@ -9881,7 +9892,7 @@ func do_character_action(performing_player : Player, card_ids, action_idx : int 
 	var action = performing_player.get_character_action(action_idx)
 	var force_cost = action['force_cost']
 	var gauge_cost = action['gauge_cost']
-	if not performing_player.can_pay_cost_with(card_ids, force_cost, gauge_cost):
+	if not performing_player.can_pay_cost_with(card_ids, force_cost, gauge_cost, use_free_force):
 		printlog("ERROR: Tried to character action but can't pay cost with these cards.")
 		return false
 

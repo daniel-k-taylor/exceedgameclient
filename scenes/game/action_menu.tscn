@@ -112,6 +112,15 @@ stretch_mode = 4
 [node name="Spacing" type="MarginContainer" parent="OuterMargin/MainVBox"]
 layout_mode = 2
 
+[node name="CheckHBox3" type="HBoxContainer" parent="OuterMargin/MainVBox"]
+layout_mode = 2
+alignment = 2
+
+[node name="FreeForceOptionCheck" type="CheckBox" parent="OuterMargin/MainVBox/CheckHBox3"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 24
+text = "Use free generated force"
+
 [node name="CheckHBox" type="HBoxContainer" parent="OuterMargin/MainVBox"]
 layout_mode = 2
 alignment = 2
@@ -499,6 +508,7 @@ autowrap_mode = 0
 shortcut_keys_enabled = false
 
 [connection signal="pressed" from="OuterMargin/MainVBox/PanelContainer/ShowHideHBox/MarginContainer/ShowHideButton" to="." method="_on_show_hide_button_pressed"]
+[connection signal="toggled" from="OuterMargin/MainVBox/CheckHBox3/FreeForceOptionCheck" to="." method="_on_free_force_check_toggled"]
 [connection signal="toggled" from="OuterMargin/MainVBox/CheckHBox/UltrasForceOptionCheck" to="." method="_on_ultras_force_option_check_toggled"]
 [connection signal="toggled" from="OuterMargin/MainVBox/CheckHBox2/ExDiscardOrderCheck" to="." method="_on_ex_discard_order_check_toggled"]
 [connection signal="pressed" from="OuterMargin/MainVBox/NumberSelectionPanel/Hbox/MinusButtonContainer/MinusButton" to="." method="_on_minus_button_pressed"]
