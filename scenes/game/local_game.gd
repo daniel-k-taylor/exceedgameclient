@@ -4811,6 +4811,9 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 				if 'other_player' in effect and effect['other_player']:
 					gauge_player = opposing_player
 				var available_gauge = gauge_player.get_available_gauge()
+				if effect['gauge_max'] == -1:
+					effect = effect.duplicate()
+					effect['gauge_max'] = available_gauge
 				var can_do_something = false
 				var bonus_effect = {}
 				if effect['per_gauge_effect'] and available_gauge > 0:
@@ -4845,12 +4848,17 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 				decision_info.player = performing_player.my_id
 				decision_info.choice_card_id = card_id
 				decision_info.destination = "gauge"
+
 				var min_amount = effect['min_amount']
 				var max_amount = effect['max_amount']
+				if 'amount_is_gauge_spent' in effect and effect['amount_is_gauge_spent']:
+					min_amount = performing_player.gauge_spent_before_strike
+					max_amount = performing_player.gauge_spent_before_strike
 				decision_info.effect = {
 					"min_amount": min_amount,
 					"max_amount": max_amount,
 				}
+
 				decision_info.bonus_effect = {}
 				if 'per_card_effect' in effect and effect['per_card_effect']:
 					decision_info.bonus_effect = effect['per_card_effect']
@@ -4922,6 +4930,8 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 			_append_log_full(Enums.LogType.LogType_Effect, performing_player, "'s draw effects are increased by %s!" % amount)
 		"increase_force_spent_before_strike":
 			performing_player.force_spent_before_strike += 1
+		"increase_gauge_spent_before_strike":
+			performing_player.gauge_spent_before_strike += 1
 		"increase_movement_effects":
 			var amount = effect['amount']
 			performing_player.strike_stat_boosts.increase_movement_effects_by += amount

@@ -23050,21 +23050,36 @@
 		],
 		"boost": {
 			"boost_type": "immediate",
-			"force_cost": 0,
+			"force_cost": 1,
 			"cancel_cost": -1,
-			"display_name": "Quick Step",
+			"display_name": "Redistribute",
 			"effects": [
 				{
 					"timing": "immediate",
-					"effect_type": "choice",
-					"choice": [
-						{ "effect_type": "advance", "amount": 1 },
-						{ "effect_type": "retreat", "amount": 1 }
-					]
+					"effect_type": "gauge_for_effect",
+					"per_gauge_effect": {
+						"effect_type": "nothing",
+						"spent_cards_to_hand": true,
+						"suppress_and_description": true,
+						"and": {
+							"effect_type": "increase_gauge_spent_before_strike"
+						}
+					},
+					"overall_effect": null,
+					"spent_cards_to_hand": true,
+					"gauge_max": -1
 				},
 				{
 					"timing": "immediate",
-					"effect_type": "bonus_action"
+					"effect_type": "gauge_from_hand",
+					"min_amount": -1,
+					"max_amount": -1,
+					"amount_is_gauge_spent": true
+				},
+				{
+					"timing": "immediate",
+					"effect_type": "add_top_discard_to_gauge",
+					"amount": 1
 				}
 			]
 		}
