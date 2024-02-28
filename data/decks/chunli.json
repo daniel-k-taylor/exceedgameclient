@@ -16,7 +16,7 @@
 			"gauge_max": 1
 		},
 		{
-			"timing": "on_continuous_boost",
+			"timing": "on_any_boost",
 			"effect_type": "choice",
 			"choice": [
 				{ "effect_type": "retreat", "amount": 1 },
@@ -36,7 +36,7 @@
 			"gauge_max": 1
 		},
 		{
-			"timing": "on_continuous_boost",
+			"timing": "on_any_boost",
 			"effect_type": "choice",
 			"choice": [
 				{ "effect_type": "retreat", "amount": 1 },
@@ -45,6 +45,7 @@
 		},
 		{
 			"timing": "during_strike",
+			"character_effect": true,
 			"effect_type": "rangeup_per_boost_in_play",
 			"amount": 0,
 			"amount2": 1

@@ -21,11 +21,11 @@
 			"condition": "at_edge_of_arena",
 			"effect_type": "add_attack_effect",
 			"added_effect": {
-				"condition": "is_special_or_ultra_attack",
+				"condition": "not_has_vega_ua_guarantee",
 				"timing": "during_strike",
 				"effect_type": "pass",
 				"and": {
-					"condition": "not_has_vega_ua_guarantee",
+					"condition": "is_special_or_ultra_attack",
 					"character_effect": true,
 					"effect_type": "powerup",
 					"amount": 2
@@ -57,11 +57,11 @@
 			"condition": "at_edge_of_arena",
 			"effect_type": "add_attack_effect",
 			"added_effect": {
-				"condition": "is_special_or_ultra_attack",
+				"condition": "not_has_vega_ua_guarantee",
 				"timing": "during_strike",
 				"effect_type": "pass",
 				"and": {
-					"condition": "not_has_vega_ua_guarantee",
+					"condition": "is_special_or_ultra_attack",
 					"character_effect": true,
 					"effect_type": "powerup",
 					"amount": 3,

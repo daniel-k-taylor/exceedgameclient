@@ -40,7 +40,8 @@ const StrikeStaticConditions = [
 	"speed_greater_than",
 	"is_special_or_ultra_attack", "is_normal_attack", "is_special_attack", "is_buddy_special_or_ultra_attack",
 	"discarded_matches_attack_speed",
-	"canceled_this_turn"
+	"canceled_this_turn",
+	"has_vega_ua_guarantee", "not_has_vega_ua_guarantee",
 ]
 
 var event_queue = []
@@ -478,6 +479,7 @@ class StrikeStatBoosts:
 	var power_bonus_multiplier : int = 1
 	var power_bonus_multiplier_positive_only : int = 1
 	var speed_bonus_multiplier : int = 1
+	var speedup_by_spaces_modifier : int = 0
 	var active_character_effects = []
 	var added_attack_effects = []
 	var ex_count : int = 0
@@ -552,6 +554,7 @@ class StrikeStatBoosts:
 		power_bonus_multiplier = 1
 		power_bonus_multiplier_positive_only = 1
 		speed_bonus_multiplier = 1
+		speedup_by_spaces_modifier = 0
 		active_character_effects = []
 		added_attack_effects = []
 		ex_count = 0
@@ -685,6 +688,7 @@ class Player:
 	var boost_buddy_card_id_to_buddy_id_map : Dictionary # [card_id : int, buddy_id : String]
 	var effect_on_turn_start
 	var strike_action_disabled : bool
+	var vega_ua_guarantee : bool
 
 	func _init(id, player_name, parent_ref, card_db_ref, chosen_deck, card_start_id):
 		my_id = id
@@ -790,6 +794,7 @@ class Player:
 		boost_buddy_card_id_to_buddy_id_map = {}
 		effect_on_turn_start = false
 		strike_action_disabled = false
+		vega_ua_guarantee = false
 
 		if "buddy_cards" in deck_def:
 			var buddy_index = 0
@@ -2953,6 +2958,9 @@ class Player:
 		for effect in deck_def[ability_label]:
 			if effect['timing'] == "on_continuous_boost" and is_continuous_boost:
 				effects.append(effect)
+		for effect in deck_def[ability_label]:
+			if effect['timing'] == "on_any_boost":
+				effects.append(effect)
 		return effects
 
 	func set_strike_x(value : int, silent : bool = false):
@@ -3174,6 +3182,8 @@ func advance_to_next_turn():
 	opponent.plague_knight_discard_names = []
 	player.strike_action_disabled = false
 	opponent.strike_action_disabled = false
+	player.vega_ua_guarantee = false
+	opponent.vega_ua_guarantee = false
 
 	# Update strike turn tracking
 	last_turn_was_strike = strike_happened_this_turn
@@ -3472,6 +3482,11 @@ func get_total_speed(check_player):
 
 	var check_card = active_strike.get_player_card(check_player)
 	var bonus_speed = check_player.strike_stat_boosts.speed * check_player.strike_stat_boosts.speed_bonus_multiplier
+	if check_player.strike_stat_boosts.speedup_by_spaces_modifier > 0:
+		# Note: This does not interact with speed multipliers.
+		# If a later character has that, it will need to be implemented.
+		var empty_spaces_between = check_player.distance_to_opponent() - 1
+		bonus_speed += empty_spaces_between * check_player.strike_stat_boosts.speedup_by_spaces_modifier
 	var speed = check_card.definition['speed'] + bonus_speed
 	if active_strike and active_strike.extra_attack_in_progress:
 		# If an extra attack character has ways to get speed multipliers, deal with that then.
@@ -3656,6 +3671,22 @@ func is_effect_condition_met(performing_player : Player, effect, local_condition
 		elif condition == "min_cards_in_gauge":
 			var amount = effect['condition_amount']
 			return performing_player.gauge.size() >= amount
+		elif condition == "min_spaces_behind_opponent":
+			var amount = effect['condition_amount']
+			var spaces_behind = 0
+			# Default to assuming player is to the right and counting from left to right.
+			var start = MinArenaLocation
+			var direction = 1
+			if performing_player.arena_location < other_player.arena_location:
+				# Player to left.
+				# Count starting from max and stop when you find the player.
+				start = MaxArenaLocation
+				direction = -1
+			for i in range(start, other_player.arena_location, direction):
+				if other_player.is_in_location(i):
+					break
+				spaces_behind += 1
+			return spaces_behind >= amount
 		elif condition == "manual_reshuffle":
 			return local_conditions.manual_reshuffle
 		elif condition == "more_cards_than_opponent":
@@ -3889,6 +3920,10 @@ func is_effect_condition_met(performing_player : Player, effect, local_condition
 		elif condition == "discarded_copy_of_attack":
 			var card = active_strike.get_player_card(performing_player)
 			return performing_player.get_copy_in_discards(card.definition['id']) != -1
+		elif condition == "has_vega_ua_guarantee":
+			return performing_player.vega_ua_guarantee
+		elif condition == "not_has_vega_ua_guarantee":
+			return not performing_player.vega_ua_guarantee
 		else:
 			assert(false, "Unimplemented condition")
 		# Unmet condition
@@ -4234,27 +4269,36 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 			else:
 				_append_log_full(Enums.LogType.LogType_Effect, performing_player, "has no cards in deck to boost with.")
 		"boost_then_sustain_topdiscard":
-			# This effect is expected to be mid-strike.
-			assert(active_strike)
-			var boost_card_id = performing_player.get_top_continuous_boost_in_discard()
-			if boost_card_id != -1:
-				var sustain = true
-				if 'sustain' in effect and not effect['sustain']:
-					sustain = false
-				performing_player.cancel_blocked_this_turn = true
-				change_game_state(Enums.GameState.GameState_PlayerDecision)
-				decision_info.clear()
-				decision_info.type = Enums.DecisionType.DecisionType_ForceBoostSustainTopDiscard
-				decision_info.player = performing_player.my_id
-				active_strike.remaining_forced_boosts_sustaining = sustain
-				var amount = effect['amount']
-				if amount is String and amount == "DISCARDED_COUNT":
-					amount = len(effect['discarded_card_ids'])
-				active_strike.remaining_forced_boosts = amount
-				active_strike.remaining_forced_boosts_source = "topdiscard"
-				active_strike.remaining_forced_boosts_player_id = performing_player.my_id
+			if active_strike:
+				var boost_card_id = performing_player.get_top_continuous_boost_in_discard()
+				if boost_card_id != -1:
+					var sustain = true
+					if 'sustain' in effect and not effect['sustain']:
+						sustain = false
+					performing_player.cancel_blocked_this_turn = true
+					change_game_state(Enums.GameState.GameState_PlayerDecision)
+					decision_info.clear()
+					decision_info.type = Enums.DecisionType.DecisionType_ForceBoostSustainTopDiscard
+					decision_info.player = performing_player.my_id
+					active_strike.remaining_forced_boosts_sustaining = sustain
+					var amount = effect['amount']
+					if amount is String and amount == "DISCARDED_COUNT":
+						amount = len(effect['discarded_card_ids'])
+					active_strike.remaining_forced_boosts = amount
+					active_strike.remaining_forced_boosts_source = "topdiscard"
+					active_strike.remaining_forced_boosts_player_id = performing_player.my_id
+				else:
+					_append_log_full(Enums.LogType.LogType_Effect, performing_player, "has no cards in discards to boost with.")
 			else:
-				_append_log_full(Enums.LogType.LogType_Effect, performing_player, "has no cards in discards to boost with.")
+				# If not an active strike, assume that this boost can just be moved to continuous boosts without issue.
+				var boost_card = performing_player.get_top_discard_card()
+				if boost_card and boost_card.definition['boost']['boost_type'] == "continuous":
+					# Assume this card is just moving to the continuous boosts.
+					# Also assume there are no now effects.
+					performing_player.remove_card_from_discards(boost_card.id)
+					events += performing_player.add_to_continuous_boosts(boost_card)
+				else:
+					_append_log_full(Enums.LogType.LogType_Effect, performing_player, "has no cards in discards to boost with.")
 		"boost_then_strike":
 			# This effect is expected to be a character action.
 			var valid_zones = ['hand']
@@ -4954,11 +4998,18 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 			if 'move_max' in effect:
 				move_max = effect['move_max']
 
+			var and_effect = null
+			if 'and' in effect:
+				and_effect = effect['and']
+
 			decision_info.limitation = []
 			# If not moving is an option, enable "pass" button
 			if move_min == 0:
 				decision_info.limitation.append(0)
-				decision_info.choice.append({ "effect_type": "pass" })
+				decision_info.choice.append({
+					"effect_type": "pass",
+					"and": and_effect,
+				})
 
 			var nowhere_to_move = true
 			var player_location = performing_player.arena_location
@@ -4972,6 +5023,7 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 						"effect_type": "move_to_space",
 						"amount": i,
 						"remove_buddies_encountered": remove_buddies_encountered,
+						"and": and_effect,
 					})
 					nowhere_to_move = false
 
@@ -6529,6 +6581,11 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 			var amount = performing_player.gauge.size()
 			performing_player.strike_stat_boosts.speed += amount
 			events += [create_event(Enums.EventType.EventType_Strike_SpeedUp, performing_player.my_id, amount)]
+		"speedup_by_spaces_modifier":
+			performing_player.strike_stat_boosts.speedup_by_spaces_modifier = effect['amount']
+			# Count empty spaces so distance - 1.
+			var empty_spaces_between = performing_player.distance_to_opponent() - 1
+			events += [create_event(Enums.EventType.EventType_Strike_SpeedUp, performing_player.my_id, empty_spaces_between)]
 		"speedup_per_boost_in_play":
 			var boosts_in_play = performing_player.continuous_boosts.size()
 			if 'all_boosts' in effect and effect['all_boosts']:
@@ -6787,6 +6844,8 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 					performing_player.strike_stat_boosts.when_hit_force_for_armor = "gauge"
 			else:
 				performing_player.strike_stat_boosts.when_hit_force_for_armor = "force"
+		"vega_ua_guarantee":
+			performing_player.vega_ua_guarantee = true
 		"zero_vector":
 			change_game_state(Enums.GameState.GameState_PlayerDecision)
 			decision_info.clear()

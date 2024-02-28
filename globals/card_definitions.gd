@@ -279,6 +279,8 @@ func get_condition_text(effect, amount, amount2, detail):
 			text += "If you have %s card(s) in hand, " % amount_str
 		"min_cards_in_gauge":
 			text += "If you have at least %s card(s) in gauge, " % amount
+		"min_spaces_behind_opponent":
+			text += "If there are %s or more spaces behind the opponent, " % amount
 		"no_strike_caused":
 			text += "If no strike caused, "
 		"stunned":
@@ -376,6 +378,10 @@ func get_condition_text(effect, amount, amount2, detail):
 		"discarded_copy_of_attack":
 			text += "If there is a discarded copy of your attack, "
 		"not_sustained":
+			text += ""
+		"has_vega_ua_guarantee":
+			text += ""
+		"not_has_vega_ua_guarantee":
 			text += ""
 		_:
 			text += "MISSING CONDITION"

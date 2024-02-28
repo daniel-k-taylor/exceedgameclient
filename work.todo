@@ -2,20 +2,6 @@
 
 In progress:
     Vega:
-        BloodY:
-            ☐ "condition": "min_spaces_behind_opponent",
-                - "condition_amount": 3,
-        Scarlet Terror:
-            ☐ "effect_type": "move_to_any_space", - allow and effect
-            ☐ "effect_type": "vega_ua_guarantee",
-            ☐ "condition": "not_has_vega_ua_guarantee",
-            ☐ "condition": "has_vega_ua_guarantee",
-        SkyHighClaw:
-            ☐ test boost
-        High Jump:
-            ☐ boost to gauge
-        Rolling Crystal Flash:
-            ☐ "effect_type": "speedup_by_spaces_modifier",
 
 
 Bug:
