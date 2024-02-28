@@ -1570,6 +1570,8 @@ func _on_choose_from_discard(event):
 		var instruction = "Select %s to move to %s." % [card_select_count_str, destination]
 		if destination == "lightningrod_any_space":
 			instruction = "Select a card from your discard pile to place as a Lightning Rod."
+		elif destination == "play_boost":
+			instruction = "Select a continuous boost from your discard pile to put into play."
 		var popout_type = CardPopoutType.CardPopoutType_DiscardPlayer
 		if source == "sealed":
 			popout_type = CardPopoutType.CardPopoutType_SealedPlayer

@@ -572,6 +572,8 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 			var destination = effect['destination']
 			if destination == "lightningrod_any_space":
 				effect_str += "Choose a card from your discard pile to place as a Lightning Rod"
+			elif destination == "play_boost":
+				effect_str += "Choose continuous boost from your discard pile to put into play."
 			else:
 				var source = "discard"
 				if 'source' in effect:
