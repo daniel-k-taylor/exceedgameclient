@@ -7,36 +7,12 @@
 	"on_exceed": {
 		"effect_type": "choice",
 		"choice": [
-			{ "effect_type": "advance", "amount": 1},
-			{ "effect_type": "advance", "amount": 2},
-			{ "effect_type": "retreat", "amount": 1},
-			{ "effect_type": "retreat", "amount": 2},
+			{ "effect_type": "pull", "amount": 1},
+			{ "effect_type": "pull", "amount": 2},
+			{ "effect_type": "pull", "amount": 3},
 			{ "effect_type": "pass" }
 		]
 	},
-	"character_action_exceeded": [{
-		"gauge_cost": 0,
-		"force_cost": 0,
-		"action_name": "Move 1 and Strike",
-		"shortcut_effect_type": "choice",
-		"effect": {
-			"effect_type": "choice",
-			"choice": [
-				{
-					"effect_type": "advance",
-					"amount": 1,
-					"and":
-						{ "effect_type": "strike" }
-				},
-				{
-					"effect_type": "retreat",
-					"amount": 1,
-					"and":
-						{ "effect_type": "strike" }
-				}
-			]
-		}
-	}],
 	"ability_effects": [
 		{
 			"timing": "hit",
