@@ -839,7 +839,7 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 		"powerup_per_boost_in_play":
 			effect_str += "+" + str(effect['amount']) + " Power per boost in play."
 		"powerup_per_gauge":
-			effect_str += "+" + str(effect['amount']) + " Power per card in gauge up to " + effect['amount_max'] + "."
+			effect_str += "+" + str(effect['amount']) + " Power per card in gauge up to " + str(effect['amount_max']) + "."
 		"powerup_per_sealed_normal":
 			var max_text = ""
 			if 'maximum' in effect:
