@@ -18,6 +18,7 @@ func set_ai_policy(new_policy):
 
 class AIPlayerState:
 	var player_id : Enums.PlayerId
+	var deck_id
 	var life
 	var deck
 	var full_deck
@@ -205,6 +206,7 @@ func update_ai_state(_game_logic : LocalGame, me : LocalGame.Player, opponent : 
 	game_state.card_db = _game_logic.get_card_database()
 
 	game_state.my_state.player_id = me.my_id
+	game_state.my_state.deck_id = me.deck_def['id']
 	game_state.my_state.life = me.life
 	game_state.my_state.deck = create_sanitized_card_id_array(me.deck)
 	game_state.my_state.full_deck = me.deck_list
@@ -219,6 +221,7 @@ func update_ai_state(_game_logic : LocalGame, me : LocalGame.Player, opponent : 
 	game_state.my_state.reshuffle_remaining = me.reshuffle_remaining
 
 	game_state.opponent_state.player_id = opponent.my_id
+	game_state.opponent_state.deck_id = opponent.deck_def['id']
 	game_state.opponent_state.life = opponent.life
 	game_state.opponent_state.deck = create_sanitized_card_id_array(opponent.deck)
 	game_state.opponent_state.full_deck = opponent.deck_list
@@ -342,6 +345,11 @@ func get_change_cards_actions(_game_logic : LocalGame, me : LocalGame.Player, _o
 	var possible_actions = []
 	var total_change_card_options = len(me.hand) + len(me.gauge)
 	possible_actions.append(ChangeCardsAction.new([]))
+
+	if total_change_card_options > 5:
+		# Considering more options takes too long.
+		# And you never really need to CC more than this.
+		total_change_card_options = 5
 
 	if total_change_card_options > 0:
 		# Create the combined list.
@@ -637,6 +645,10 @@ func determine_gauge_for_armor_actions(_game_logic : LocalGame, me : LocalGame.P
 func determine_force_for_armor_actions(game_logic : LocalGame, me : LocalGame.Player):
 	var possible_actions = []
 	var available_force = me.get_available_force()
+	if available_force > 4:
+		# Considering every possible option takes way too long.
+		# You're never going to need more than +8 armor AI.
+		available_force = 4
 	var all_force_option_ids = []
 	for card in me.hand:
 		all_force_option_ids.append(card.id)

@@ -3684,6 +3684,8 @@ func is_effect_condition_met(performing_player : Player, effect, local_condition
 			return spaces_behind >= amount
 		elif condition == "manual_reshuffle":
 			return local_conditions.manual_reshuffle
+		elif condition == "less_cards_than_opponent":
+			return performing_player.hand.size() < other_player.hand.size()
 		elif condition == "more_cards_than_opponent":
 			return performing_player.hand.size() > other_player.hand.size()
 		elif condition == "moved_past":
@@ -4113,9 +4115,12 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 			performing_player.strike_stat_boosts.armor += amount
 			events += [create_event(Enums.EventType.EventType_Strike_ArmorUp, performing_player.my_id, amount)]
 		"attack_does_not_hit":
-			performing_player.strike_stat_boosts.attack_does_not_hit = true
+			var affected_player = performing_player
+			if 'opponent' in effect and effect['opponent']:
+				affected_player = opposing_player
+			affected_player.strike_stat_boosts.attack_does_not_hit = true
 			if 'hide_notice' not in effect or not effect['hide_notice']:
-				events += [create_event(Enums.EventType.EventType_Strike_AttackDoesNotHit, performing_player.my_id, card_id)]
+				events += [create_event(Enums.EventType.EventType_Strike_AttackDoesNotHit, affected_player.my_id, card_id)]
 		"attack_is_ex":
 			performing_player.strike_stat_boosts.set_ex()
 			events += [create_event(Enums.EventType.EventType_Strike_ExUp, performing_player.my_id, card_id)]
@@ -5022,6 +5027,8 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 			decision_info.effect_type = "name_card_opponent_discards_internal"
 			decision_info.choice_card_id = card_id
 			decision_info.player = performing_player.my_id
+			if 'discard_effect' in effect:
+				decision_info.bonus_effect = effect['discard_effect']
 			events += [create_event(Enums.EventType.EventType_Boost_NameCardOpponentDiscards, performing_player.my_id, 1)]
 		"name_card_opponent_discards_internal":
 			var named_card_name = NullNamedCard
@@ -5031,7 +5038,11 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 				# this should discard "by name", so instead of using that
 				# match card.definition['id']'s instead.
 				named_card_name = named_card.definition['id']
+			var before_discard_count = opposing_player.discards.size()
 			events += opposing_player.discard_matching_or_reveal(named_card_name)
+			var discarded_card = before_discard_count < opposing_player.discards.size()
+			if discarded_card and decision_info.bonus_effect:
+				handle_strike_effect(decision_info.choice_card_id, decision_info.bonus_effect, performing_player)
 		"name_range":
 			decision_info.clear()
 			decision_info.type = Enums.DecisionType.DecisionType_PickNumberFromRange
@@ -5911,6 +5922,14 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 				var amount = effect['amount'] * boosts_in_play
 				performing_player.add_power_bonus(amount)
 				events += [create_event(Enums.EventType.EventType_Strike_PowerUp, performing_player.my_id, effect['amount'] * boosts_in_play)]
+		"powerup_per_gauge":
+			var amount_per_gauge = effect['amount']
+			var gauge_size = performing_player.gauge.size()
+			var total_powerup = amount_per_gauge * gauge_size
+			total_powerup = min(total_powerup, effect['amount_max'])
+			if total_powerup > 0:
+				performing_player.add_power_bonus(total_powerup)
+				events += [create_event(Enums.EventType.EventType_Strike_PowerUp, performing_player.my_id, total_powerup)]
 		"powerup_per_sealed_normal":
 			var sealed_normals = performing_player.get_sealed_count_of_type("normal")
 			if sealed_normals > 0:

@@ -1,0 +1,41 @@
+[gd_resource type="SpriteFrames" load_steps=6 format=3 uid="uid://c2iok11psmgiu"]
+
+[ext_resource type="Texture2D" uid="uid://c6hcpkdu1fnna" path="res://assets/character_animations/bison/bison-hdstance.png" id="1_mytgv"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_awulb"]
+atlas = ExtResource("1_mytgv")
+region = Rect2(0, 0, 435, 514)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_fe2yv"]
+atlas = ExtResource("1_mytgv")
+region = Rect2(435, 0, 435, 514)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_tm22s"]
+atlas = ExtResource("1_mytgv")
+region = Rect2(0, 514, 435, 514)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_uiuy4"]
+atlas = ExtResource("1_mytgv")
+region = Rect2(435, 514, 435, 514)
+
+[resource]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_awulb")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_fe2yv")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_tm22s")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_uiuy4")
+}],
+"loop": true,
+"name": &"idle",
+"speed": 6.0
+}]
+metadata/flip = true
+metadata/scaling = 0.5
