@@ -2492,7 +2492,7 @@
 				"effect_type": "powerup",
 				"amount": 1,
 				"and": {
-					"effect_type": "armorup",
+					"effect_type": "guardup",
 					"amount": 6,
 					"and": {
 						"effect_type": "ignore_armor"
