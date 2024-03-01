@@ -1521,13 +1521,19 @@ class Player:
 		else:
 			return arena_location - extra_width
 
-	func movement_distance_between(initial_location : int, target_location : int):
+	func movement_distance_between(initial_location : int, target_location : int, anchor_closest_location : bool = false):
 		var other_player = parent._get_player(parent.get_other_player(my_id))
 		var other_location = other_player.arena_location
 		var other_width = other_player.extra_width
 
 		var distance = abs(initial_location - target_location)
+		if anchor_closest_location:
+			# Use the closest position for player's location rather than the center
+			distance += extra_width
 		if (initial_location < other_location and other_location < target_location) or (initial_location > other_location and other_location > target_location):
+			if anchor_closest_location:
+				# Account for the "closest location" changing
+				distance += 2 * extra_width
 			distance -= 1 + (2 * extra_width) + (2 * other_width)
 		return distance
 
@@ -6071,6 +6077,31 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 			if not nowhere_to_pull:
 				change_game_state(Enums.GameState.GameState_PlayerDecision)
 				events += [create_event(Enums.EventType.EventType_ChooseArenaLocationForEffect, performing_player.my_id, 0)]
+		"pull_to_range":
+			var target_range = effect['amount']
+			var target_closest_location
+			var previous_location = opposing_player.arena_location
+			var previous_closest_location = opposing_player.get_closest_occupied_space_to(performing_player.arena_location)
+			var origin = performing_player.get_closest_occupied_space_to(previous_location)
+			var starting_range = abs(previous_closest_location - origin)
+			if performing_player.is_left_of_location(previous_closest_location):
+				if starting_range >= target_range:
+					# Past target range; should end on the right
+					target_closest_location = min(origin + target_range, MaxArenaLocation)
+				else:
+					# Closer than target range; should end on left
+					target_closest_location = max(origin - target_range, MinArenaLocation)
+			else:
+				# vice-versa
+				if starting_range >= target_range:
+					target_closest_location = max(origin - target_range, MinArenaLocation)
+				else:
+					target_closest_location = min(origin + target_range, MaxArenaLocation)
+
+			var pull_needed = opposing_player.movement_distance_between(previous_closest_location, target_closest_location, true)
+			events += performing_player.pull(pull_needed)
+			var new_location = opposing_player.arena_location
+			_append_log_full(Enums.LogType.LogType_CharacterMovement, opposing_player, "is pulled to range %s, moving from space %s to %s." % [str(target_range), str(previous_location), str(new_location)])
 		"pull_to_space_and_gain_power":
 			var space = effect['amount']
 			var previous_location = opposing_player.arena_location
@@ -6150,6 +6181,10 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 			var push_amount = abs(other_start - new_location)
 			local_conditions.push_amount = push_amount
 			local_conditions.fully_pushed = push_amount == amount
+			if 'save_unpushed_spaces_as_strike_x' in effect and effect['save_unpushed_spaces_as_strike_x']:
+				var unpushed_spaces = amount - push_amount
+				_append_log_full(Enums.LogType.LogType_Strike, performing_player, "'s X for this strike is set to the number of spaces not pushed, %s." % unpushed_spaces)
+				events += performing_player.set_strike_x(unpushed_spaces)
 			_append_log_full(Enums.LogType.LogType_CharacterMovement, opposing_player, "is pushed %s, moving from space %s to %s." % [str(amount), str(previous_location), str(new_location)])
 		"push_from_source":
 			var attack_source_location = get_attack_origin(performing_player, opposing_player.arena_location)
@@ -6635,6 +6670,16 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 				_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "moves a copy of %s from discard to hand." % card_name)
 				if return_effect:
 					events += do_effect_if_condition_met(performing_player, card_id, return_effect, null)
+			else:
+				_append_log_full(Enums.LogType.LogType_Effect, performing_player, "has no copies of %s in discard." % card_name)
+		"specific_card_discard_to_gauge":
+			var card_name = effect['card_name']
+			var copy_id = effect['copy_id']
+
+			var copy_card_id = performing_player.get_copy_in_discards(copy_id)
+			if copy_card_id != -1:
+				events += performing_player.move_card_from_discard_to_gauge(copy_card_id)
+				_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "moves a copy of %s from discard to gauge." % card_name)
 			else:
 				_append_log_full(Enums.LogType.LogType_Effect, performing_player, "has no copies of %s in discard." % card_name)
 		"specific_card_seal_from_gauge":

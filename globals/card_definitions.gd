@@ -675,7 +675,7 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 					where_str = "anywhere"
 			effect_str += "Place %s as a Lightning Rod %s" % [card_str, where_str]
 		"place_topdeck_under_boost":
-			effect_str += "Place the top card of deck under %s; draw all when discarded" % effect['card_name']
+			effect_str += "Place top of deck under %s; draw all when discarded" % effect['card_name']
 		"play_attack_from_hand":
 			effect_str += "Play an attack from your hand, paying its costs."
 		"calculate_range_from_buddy":
@@ -864,6 +864,8 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 				effect_str += "Pull " + str(effect['amount'])
 		"pull_any_number_of_spaces_and_gain_power":
 			effect_str += "Pull any amount and +1 Power per space pulled."
+		"pull_to_range":
+			effect_str += "Pull to range %s" % str(effect['amount'])
 		"pull_to_buddy":
 			effect_str += "Pull %s to %s" % [str(effect['amount']), effect['buddy_name']]
 		"pull_to_space_and_gain_power":
@@ -875,6 +877,8 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 				var extra_info = ""
 				if 'save_buddy_spaces_entered_as_strike_x' in effect and effect['save_buddy_spaces_entered_as_strike_x']:
 					extra_info = "\nSet X to the number of %s the opponent is pushed onto" % effect['buddy_name']
+				if 'save_unpushed_spaces_as_strike_x' in effect and effect['save_unpushed_spaces_as_strike_x']:
+					extra_info = "\nSet X to the number of spaces they couldn't be pushed"
 				effect_str += "Push " + str(effect['amount']) + extra_info
 		"push_from_source":
 			effect_str += "Push " + str(effect['amount']) + " from attack source"
@@ -1070,6 +1074,8 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 			effect_str += "Shuffle sealed cards into deck"
 		"sidestep_dialogue":
 			effect_str += "Named card will not hit this strike"
+		"specific_card_discard_to_gauge":
+			effect_str += "Add a copy of %s from discard to Gauge" % effect['card_name']
 		"speedup":
 			if effect['amount'] > 0:
 				effect_str += "+"
