@@ -557,9 +557,8 @@ func test_king_exceed_2_glorious():
 	assert_true(game_logic.do_boost(player1, decree_id, player1.get_card_ids_in_gauge()))
 	assert_true(game_logic.do_choice(player1, 1))
 	validate_positions(player1, 3, player2, 4)
-	
+
 	advance_turn(player2)
 	assert_eq(player1.continuous_boosts.size(), 1)
 	assert_eq(player1.sealed.size(), 1)
 	assert_eq(player1.set_aside_cards.size(), 2)
-	

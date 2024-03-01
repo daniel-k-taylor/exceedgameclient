@@ -1529,13 +1529,10 @@ class Player:
 		var other_width = other_player.extra_width
 
 		var distance = abs(initial_location - target_location)
-		if anchor_closest_location:
-			# Use the closest position for player's location rather than the center
-			distance += extra_width
 		if (initial_location < other_location and other_location < target_location) or (initial_location > other_location and other_location > target_location):
 			if anchor_closest_location:
 				# Account for the "closest location" changing
-				distance += 2 * extra_width
+				distance += (2 * extra_width)
 			distance -= 1 + (2 * extra_width) + (2 * other_width)
 		return distance
 
