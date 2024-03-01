@@ -1087,15 +1087,23 @@ class Player:
 				for card in hand:
 					on_hand_add_public_card(card.id)
 
-	func move_card_from_hand_to_deck(id : int, destination_index : int = 0):
+	func move_card_from_hand_to_deck(id : int, destination_index : int = 0, on_bottom : bool = false):
 		var events = []
 		for i in range(len(hand)):
 			var card = hand[i]
 			if card.id == id:
-				deck.insert(destination_index, card)
+				var to_top_deck = false
+				if on_bottom:
+					deck.append(card)
+				else:
+					deck.insert(destination_index, card)
+					to_top_deck = destination_index == 0
+
+				if len(deck) == 1:
+					to_top_deck = true
 				hand.remove_at(i)
 				on_hand_remove_secret_card()
-				if destination_index == 0:
+				if to_top_deck:
 					on_hand_track_topdeck(id)
 					public_topdeck_id = -1
 				events += [parent.create_event(Enums.EventType.EventType_AddToDeck, my_id, card.id)]
@@ -3693,7 +3701,10 @@ func is_effect_condition_met(performing_player : Player, effect, local_condition
 			var printed_speed_of_attack = attack_card.definition['speed']
 			return speed_of_discarded == printed_speed_of_attack
 		elif condition == "not_full_close":
-			return  not local_conditions.fully_closed
+			return not local_conditions.fully_closed
+		elif condition == "moved_less_than":
+			var amount = effect['condition_amount']
+			return local_conditions.movement_amount < amount
 		elif condition == "advanced_through":
 			return local_conditions.advanced_through
 		elif condition == "not_advanced_through":
@@ -3997,6 +4008,7 @@ class LocalStrikeConditions:
 	var advanced_through_buddy : bool = false
 	var pulled_past : bool = false
 	var manual_reshuffle : bool = false
+	var movement_amount : int = 0
 
 func wait_for_mid_strike_boost():
 	return game_state == Enums.GameState.GameState_PlayerDecision and decision_info.type == Enums.DecisionType.DecisionType_BoostNow
@@ -4153,8 +4165,11 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 			var previous_location = performing_player.arena_location
 			events += performing_player.advance(amount, stop_on_space)
 			var new_location = performing_player.arena_location
+			var advance_amount = abs(performing_start - new_location)
 			_append_log_full(Enums.LogType.LogType_CharacterMovement, performing_player, "advances %s, moving from space %s to %s." % [str(amount), str(previous_location), str(new_location)])
 			if (performing_start < other_start and new_location > other_start) or (performing_start > other_start and new_location < other_start):
+				# The opponent's space doesn't count as one you move through
+				advance_amount -= 1
 				local_conditions.advanced_through = true
 				performing_player.moved_past_this_strike = true
 				if performing_player.strike_stat_boosts.range_includes_if_moved_past:
@@ -4163,6 +4178,7 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 			if ((performing_player.is_in_or_left_of_location(buddy_start, performing_start) and performing_player.is_in_or_right_of_location(buddy_start, new_location)) or
 					(performing_player.is_in_or_right_of_location(buddy_start, performing_start) and performing_player.is_in_or_left_of_location(buddy_start, new_location))):
 				local_conditions.advanced_through_buddy = true
+			local_conditions.movement_amount = advance_amount
 		"armorup":
 			performing_player.strike_stat_boosts.armor += effect['amount']
 			events += [create_event(Enums.EventType.EventType_Strike_ArmorUp, performing_player.my_id, effect['amount'])]
@@ -4414,6 +4430,25 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 				decision_info.limitation = limitation
 			else:
 				_append_log_full(Enums.LogType.LogType_Effect, performing_player, "has no cards available to boost for the overdrive effect.")
+		"bottomdeck_from_hand":
+			if len(performing_player.hand) > 0:
+				change_game_state(Enums.GameState.GameState_PlayerDecision)
+				decision_info.clear()
+				decision_info.type = Enums.DecisionType.DecisionType_CardFromHandToGauge
+				decision_info.player = performing_player.my_id
+				decision_info.choice_card_id = card_id
+				decision_info.destination = "bottomdeck"
+				var min_amount = effect['min_amount']
+				var max_amount = effect['max_amount']
+				if max_amount == -1:
+					max_amount = len(performing_player.hand)
+				decision_info.effect = {
+					"min_amount": min_amount,
+					"max_amount": max_amount,
+				}
+				if 'per_card_effect' in effect and effect['per_card_effect']:
+					decision_info.bonus_effect = effect['per_card_effect']
+				events += [create_event(Enums.EventType.EventType_CardFromHandToGauge_Choice, performing_player.my_id, min_amount, "", max_amount)]
 		"buddy_immune_to_flip":
 			performing_player.strike_stat_boosts.buddy_immune_to_flip = true
 		"cannot_go_below_life":
@@ -4585,6 +4620,7 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 			if 'save_spaces_as_strike_x' in effect and effect['save_spaces_as_strike_x']:
 				_append_log_full(Enums.LogType.LogType_Strike, performing_player, "'s X for this strike is set to the number of spaces closed, %s." % close_amount)
 				events += performing_player.set_strike_x(close_amount)
+			local_conditions.movement_amount = close_amount
 		"copy_other_hit_effect":
 			var card = active_strike.get_player_card(performing_player)
 			var hit_effects = get_all_effects_for_timing("hit", performing_player, card)
@@ -6397,6 +6433,7 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 			var new_location = performing_player.arena_location
 			var retreat_amount = abs(performing_start - new_location)
 			local_conditions.fully_retreated = retreat_amount == amount
+			local_conditions.movement_amount = retreat_amount
 			_append_log_full(Enums.LogType.LogType_CharacterMovement, performing_player, "retreats %s, moving from space %s to %s." % [str(amount), str(previous_location), str(new_location)])
 		"repeat_effect_optionally":
 			if active_strike:
@@ -7143,6 +7180,8 @@ func get_card_stat(check_player : Player, card : GameCard, stat : String) -> int
 			assert(false, "ERROR: No support for interpreting X outside of strikes")
 	elif str(value) == "CARDS_IN_HAND":
 		value = check_player.hand.size()
+	elif str(value) == "CARDS_IN_HAND_MAX_7":
+		value = min(check_player.hand.size(), 7)
 	elif str(value) == "TOTAL_POWER":
 		value = get_total_power(check_player, card)
 	elif str(value) == "RANGE_TO_OPPONENT":
@@ -7532,6 +7571,9 @@ func do_set_strike_x(performing_player : Player, source : String, extra_info):
 				if card.definition['id'] == card_id:
 					value += 1
 			_append_log_full(Enums.LogType.LogType_Strike, performing_player, "'s X for this strike is set to the number of copies of %s in gauge, %s." % [card_name, value])
+		"cards_in_hand":
+			value = len(performing_player.hand)
+			_append_log_full(Enums.LogType.LogType_Strike, performing_player, "'s X for this strike is set to the number of cards in hand, %s." % value)
 		"lightningsrods_in_opponent_space":
 			var opposing_player = _get_player(get_other_player(performing_player.my_id))
 			for i in range(MinArenaLocation, MaxArenaLocation + 1):
@@ -9482,18 +9524,27 @@ func do_card_from_hand_to_gauge(performing_player : Player, card_ids : Array) ->
 	var events = []
 	if card_ids.size() > 0:
 		for card_id in card_ids:
-			var card_name = card_db.get_card_name(card_id)
 			if decision_info.destination == "gauge":
 				events += performing_player.move_card_from_hand_to_gauge(card_id)
-				_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "moves a card (%s) from hand to gauge." % card_name)
 			elif decision_info.destination == "topdeck":
 				events += performing_player.move_card_from_hand_to_deck(card_id)
-				_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "moves %s card(s) from hand to top of deck." % str(card_ids.size()))
+			elif decision_info.destination == "bottomdeck":
+				events += performing_player.move_card_from_hand_to_deck(card_id, 0, true)
 			elif decision_info.destination == "deck":
 				events += performing_player.shuffle_card_from_hand_to_deck(card_id)
-				_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "shuffles %s card(s) from hand into deck." % str(card_ids.size()))
 			else:
 				assert(false, "Unknown destination for do_card_from_hand_to_gauge")
+
+	# Log message
+	if decision_info.destination == "gauge":
+		var card_names = card_db.get_card_names(card_ids)
+		_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "moves %s card(s) from hand to gauge: %s" % [str(card_ids.size()), card_names])
+	elif decision_info.destination == "topdeck":
+		_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "moves %s card(s) from hand to top of deck." % str(card_ids.size()))
+	elif decision_info.destination == "bottomdeck":
+		_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "moves %s card(s) from hand to bottom of deck." % str(card_ids.size()))
+	elif decision_info.destination == "deck":
+		_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "shuffles %s card(s) from hand into deck." % str(card_ids.size()))
 
 	set_player_action_processing_state()
 

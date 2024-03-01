@@ -2134,6 +2134,8 @@ func update_discard_to_gauge_selection_message():
 	var phrase = "in your gauge"
 	if select_card_destination == "topdeck":
 		phrase = "on top of your deck"
+	if select_card_destination == "bottomdeck":
+		phrase = "on the bottom of your deck (in selected order)"
 	if select_card_destination == "deck":
 		phrase = "into your deck"
 	if preparing_character_action:

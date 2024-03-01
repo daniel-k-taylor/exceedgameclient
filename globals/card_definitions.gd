@@ -260,6 +260,8 @@ func get_condition_text(effect, amount, amount2, detail):
 			text += "If pushed %s or more spaces, " % amount
 		"not_full_close":
 			text += "If not full close, "
+		"moved_less_than":
+			text += "If moved fewer than %s spaces, " % amount
 		"not_initiated_strike":
 			text += "If opponent initiated strike, "
 		"not_moved_self_this_strike":
@@ -1025,6 +1027,8 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 						effect_str += "power of top card of deck"
 					'opponent_speed':
 						effect_str += "opponent's speed"
+					'cards_in_hand':
+						effect_str += "number of cards in hand"
 					'force_spent_before_strike':
 						effect_str += "force spent"
 					'gauge_spent_before_strike':

@@ -6,7 +6,7 @@
 	"exceed_cost": 4,
 	"disable_end_of_turn_draw": true,
 	"on_exceed": {
-		"effect_type": "discard_hand",
+		"effect_type": "shuffle_hand_to_deck",
 		"and": {
 			"effect_type": "reshuffle_discard_into_deck",
 			"and": {
