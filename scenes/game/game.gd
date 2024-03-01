@@ -225,9 +225,25 @@ var game_wrapper : GameWrapper = GameWrapper.new()
 @onready var player_lightningrods : Node2D = $PlayerLightningRods
 @onready var opponent_lightningrods : Node2D = $OpponentLightningRods
 @onready var turnstart_audio : AudioStreamPlayer = $TurnStartAudio
+@onready var boostinfo_dict : Dictionary = {
+	Enums.PlayerId.PlayerId_Player: [
+		$PlayerZones/BoostInfoContainer/PlayerBoostInfoButton1,
+		$PlayerZones/BoostInfoContainer/PlayerBoostInfoButton2
+	],
+	Enums.PlayerId.PlayerId_Opponent: [
+		$OpponentZones/BoostInfoContainer/OpponentBoostInfoButton1,
+		$OpponentZones/BoostInfoContainer/OpponentBoostInfoButton2
+	]
+}
+@onready var boostinfo_parent_dict : Dictionary = {
+	Enums.PlayerId.PlayerId_Player: $PlayerZones/BoostInfoContainer,
+	Enums.PlayerId.PlayerId_Opponent: $OpponentZones/BoostInfoContainer
+}
 
 var player_lightningrod_tracking = {}
 var opponent_lightningrod_tracking = {}
+var player_underboost_tracking = []
+var opponent_underboost_tracking = []
 
 var current_instruction_text : String = ""
 var current_action_menu_choices : Array = []
@@ -2961,6 +2977,69 @@ func _on_place_lightningrod(event):
 	update_lightningrod_info(player, rod_tracking, location)
 	return SmallNoticeDelay
 
+func setup_underboost_info(player, underboost_tracking, index, boost_card_id):
+	underboost_tracking.append({
+		"card_ids": [],
+		"boost_card": boost_card_id
+	})
+	var boostinfo = boostinfo_dict[player][index]
+	boostinfo.set_visibility(true)
+	boostinfo_parent_dict[player].visible = true
+
+func add_underboost_card(underboost_tracking, index, card_id):
+	var cards_under_boost = underboost_tracking[index]
+	cards_under_boost['card_ids'].append(card_id)
+
+func reset_underboost_info(player, underboost_tracking, index):
+	underboost_tracking.remove_at(index)
+	var boostinfo = boostinfo_dict[player][index]
+	boostinfo.reset()
+
+	if not underboost_tracking:
+		boostinfo_parent_dict[player].visible = false
+
+func update_underboost_info(player, underboost_tracking, index):
+	var cards_under_boost = underboost_tracking[index]
+	var count = len(cards_under_boost['card_ids'])
+	var boostinfo = boostinfo_dict[player][index]
+	boostinfo.set_number(count)
+
+func _on_place_underboost(event):
+	var player = event['event_player']
+	var boost_card_id = event['number']
+	var new_card_id = event['extra_info']
+	var place = event['extra_info2']
+
+	var underboost_tracking = player_underboost_tracking
+	if player == Enums.PlayerId.PlayerId_Opponent:
+		underboost_tracking = opponent_underboost_tracking
+	var index = 0
+	for underboost_info in underboost_tracking:
+		if underboost_info['boost_card'] == boost_card_id:
+			break
+		index += 1
+
+	if new_card_id == -1:
+		if place:
+			# Set up boost info indicator
+			setup_underboost_info(player, underboost_tracking, index, boost_card_id)
+		else:
+			# Remove boost info indicator
+			reset_underboost_info(player, underboost_tracking, index)
+	else:
+		# Add new card under boost
+		add_underboost_card(underboost_tracking, index, new_card_id)
+
+		# Move the card to the set aside zone.
+		var is_player = player == Enums.PlayerId.PlayerId_Player
+		var card = find_card_on_board(new_card_id)
+		var deck_position = get_deck_button_position(is_player)
+		card.discard_to(deck_position, CardBase.CardState.CardState_InDeck)
+		reparent_to_zone(card, get_set_aside_zone(is_player))
+
+		update_underboost_info(player, underboost_tracking, index)
+	return SmallNoticeDelay
+
 func _handle_events(events):
 	var delay = 0
 	for event_index in range(events.size()):
@@ -3045,6 +3124,8 @@ func _handle_events(events):
 				_on_mulligan_decision(event)
 			Enums.EventType.EventType_PlaceBuddy:
 				delay = _on_place_buddy(event)
+			Enums.EventType.EventType_PlaceCardUnderBoost:
+				delay = _on_place_underboost(event)
 			Enums.EventType.EventType_PlaceLightningRod:
 				delay = _on_place_lightningrod(event)
 			Enums.EventType.EventType_PickNumberFromRange:

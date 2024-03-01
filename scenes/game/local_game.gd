@@ -617,6 +617,7 @@ class Player:
 	var gauge : Array[GameCard]
 	var continuous_boosts : Array[GameCard]
 	var lightningrod_zones : Array
+	var underboost_map : Dictionary
 	var cleanup_boost_to_gauge_cards : Array
 	var boosts_to_gauge_on_move : Array
 	var on_buddy_boosts : Array
@@ -728,6 +729,7 @@ class Player:
 		lightningrod_zones = []
 		for i in range(MinArenaLocation, MaxArenaLocation + 1):
 			lightningrod_zones.append([])
+		underboost_map = {}
 		discards = []
 		overdrive = []
 		sealed_area_is_secret = 'sealed_area_is_secret' in deck_def and deck_def['sealed_area_is_secret']
@@ -1125,6 +1127,9 @@ class Player:
 	func get_lightningrod_zone_for_location(location : int):
 		return lightningrod_zones[location - 1]
 
+	func get_cards_under_boost(card_id : int):
+		return underboost_map[card_id]
+
 	func is_opponent_on_lightningrod():
 		var other_player = parent._get_player(parent.get_other_player(my_id))
 		for i in range(MinArenaLocation, MaxArenaLocation + 1):
@@ -1154,6 +1159,30 @@ class Player:
 				lightningrod_zone.remove_at(i)
 				return card
 		return null
+
+	func setup_boost_with_cards_under(boost_card_id : int):
+		var events = []
+		underboost_map[boost_card_id] = []
+		events += [parent.create_event(Enums.EventType.EventType_PlaceCardUnderBoost, my_id, boost_card_id, "", -1, true)]
+		return events
+
+	func place_top_deck_under_boost(boost_card_id : int):
+		var events = []
+		if len(deck) > 0:
+			var card = get_top_deck_card()
+			deck.remove_at(0)
+			var underboost_cards = get_cards_under_boost(boost_card_id)
+			underboost_cards.append(card)
+			events += [parent.create_event(Enums.EventType.EventType_PlaceCardUnderBoost, my_id, boost_card_id, "", card.id, true)]
+			var card_name = parent.card_db.get_card_name(boost_card_id)
+			parent._append_log_full(Enums.LogType.LogType_Effect, self, "places the top card of their deck under %s." % card_name)
+		return events
+
+	func remove_boost_with_cards_under(boost_card_id : int):
+		var events = []
+		underboost_map.erase(boost_card_id)
+		events += [parent.create_event(Enums.EventType.EventType_PlaceCardUnderBoost, my_id, boost_card_id, "", -1, false)]
+		return events
 
 	func move_card_from_discard_to_deck(id : int, shuffle : bool = true):
 		var events = []
@@ -3244,19 +3273,35 @@ func start_begin_turn():
 		var card = starting_turn_player.continuous_boosts[i]
 		for effect in card.definition['boost']['effects']:
 			if effect['timing'] == "start_of_next_turn":
-				effect['card_id'] = card.id
-				remaining_start_of_turn_effects.append(effect)
+				var effect_with_id = effect.duplicate()
+				effect_with_id['card_id'] = card.id
+				remaining_start_of_turn_effects.append(effect_with_id)
+	var other_player = _get_player(get_other_player(starting_turn_player.my_id))
+	for i in range(len(other_player.continuous_boosts) - 1, -1, -1):
+		var card = other_player.continuous_boosts[i]
+		for effect in card.definition['boost']['effects']:
+			if effect['timing'] == "opponent_start_of_next_turn":
+				var effect_with_id = effect.duplicate()
+				effect_with_id['card_id'] = card.id
+				remaining_start_of_turn_effects.append(effect_with_id)
 
 	return continue_begin_turn()
 
 func continue_begin_turn():
 	var events = []
 	var starting_turn_player = _get_player(active_turn_player)
+	var other_player = _get_player(get_other_player(starting_turn_player.my_id))
 	change_game_state(Enums.GameState.GameState_Boost_Processing)
 	while remaining_start_of_turn_effects.size() > 0:
 		var effect = remaining_start_of_turn_effects[0]
 		remaining_start_of_turn_effects.erase(effect)
-		events += do_effect_if_condition_met(starting_turn_player, effect['card_id'], effect, null)
+		if effect['timing'] == "start_of_next_turn":
+			events += do_effect_if_condition_met(starting_turn_player, effect['card_id'], effect, null)
+		elif effect['timing'] == "opponent_start_of_next_turn":
+			events += do_effect_if_condition_met(other_player, effect['card_id'], effect, null)
+		else:
+			assert(false, "Unexpected timing for start of turn effect")
+
 		if game_state == Enums.GameState.GameState_PlayerDecision:
 			# Player has a decision to make, so stop mid-effect resolve.
 			break
@@ -5732,6 +5777,17 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 				_append_log_full(Enums.LogType.LogType_CharacterMovement, performing_player, "moves %s to themselves on space %s." % [buddy_name, str(space)])
 			else:
 				_append_log_full(Enums.LogType.LogType_CharacterMovement, performing_player, "moves %s to themselves, from space %s to %s." % [buddy_name, str(old_buddy_pos), str(space)])
+		"place_topdeck_under_boost":
+			events += performing_player.place_top_deck_under_boost(card_id)
+		"play_boost_with_cards_under":
+			events += performing_player.setup_boost_with_cards_under(card_id)
+		"draw_cards_under_boost_and_remove":
+			var boost_name = card_db.get_card_name(card_id)
+			var cards_under_boost = performing_player.get_cards_under_boost(card_id)
+			_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "adds %s card(s) under %s to their hand." % [len(cards_under_boost), boost_name])
+			for card in cards_under_boost:
+				events += performing_player.add_to_hand(card, false)
+			events += performing_player.remove_boost_with_cards_under(card_id)
 		"place_next_buddy":
 			var require_unoccupied = effect['require_unoccupied']
 			var destination = effect['destination']

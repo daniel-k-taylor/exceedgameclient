@@ -1,4 +1,4 @@
-[gd_scene load_steps=27 format=3 uid="uid://dh7wmx6cbb55x"]
+[gd_scene load_steps=28 format=3 uid="uid://dh7wmx6cbb55x"]
 
 [ext_resource type="Script" path="res://scenes/game/game.gd" id="1_4f5jr"]
 [ext_resource type="Texture2D" uid="uid://dh8tat2r8ttx1" path="res://assets/cards/card_border_highlight.png" id="4_5y76h"]
@@ -8,12 +8,13 @@
 [ext_resource type="PackedScene" uid="uid://cf6aml1lrd2yk" path="res://scenes/game/gauge_panel.tscn" id="6_gtjck"]
 [ext_resource type="PackedScene" uid="uid://u7pf7tbgppmh" path="res://scenes/game/arena_square.tscn" id="6_oqn7w"]
 [ext_resource type="PackedScene" uid="uid://dsc63si41lg6t" path="res://scenes/game/boost_zone.tscn" id="7_gn0of"]
-[ext_resource type="PackedScene" uid="uid://b517dmna12xv3" path="res://scenes/game/location_infobutton_pair.tscn" id="7_txkwl"]
+[ext_resource type="PackedScene" path="res://scenes/game/location_infobutton_pair.tscn" id="7_txkwl"]
 [ext_resource type="PackedScene" uid="uid://1624xgdxrrg5" path="res://scenes/game/life_scene.tscn" id="8_mqi3u"]
 [ext_resource type="Texture2D" uid="uid://b2ojnoth6qto0" path="res://assets/icons/donut.png" id="9_2vlik"]
 [ext_resource type="Texture2D" uid="uid://60aipui45hh3" path="res://assets/cards/card_border_highlight_discard_pile.png" id="9_dpbn3"]
 [ext_resource type="PackedScene" uid="uid://ckjlv124xttrc" path="res://scenes/game/character.tscn" id="9_rhsuv"]
 [ext_resource type="Texture2D" uid="uid://dbijqidxd2ned" path="res://assets/icons/cards.png" id="11_nsv2h"]
+[ext_resource type="PackedScene" uid="uid://b7ip37tv4588b" path="res://scenes/game/boost_infobutton.tscn" id="16_2v64s"]
 [ext_resource type="Texture2D" uid="uid://ded5jrn5yju2j" path="res://assets/cards/card_border_highlight_pressed.png" id="16_laiwo"]
 [ext_resource type="PackedScene" uid="uid://dal56iqk5k8rh" path="res://scenes/game/action_menu.tscn" id="17_8hgvk"]
 [ext_resource type="Texture2D" uid="uid://cj7nvglef8cu" path="res://assets/cards/solbadguy/normal_grasp.tres" id="17_acwgt"]
@@ -605,6 +606,18 @@ label_text = "OVERDRIVE"
 layout_mode = 2
 label_text = "SEALED"
 
+[node name="BoostInfoContainer" type="HBoxContainer" parent="PlayerZones"]
+visible = false
+layout_mode = 2
+size_flags_horizontal = 4
+alignment = 1
+
+[node name="PlayerBoostInfoButton1" parent="PlayerZones/BoostInfoContainer" instance=ExtResource("16_2v64s")]
+layout_mode = 2
+
+[node name="PlayerBoostInfoButton2" parent="PlayerZones/BoostInfoContainer" instance=ExtResource("16_2v64s")]
+layout_mode = 2
+
 [node name="CombatLogButton" type="Button" parent="PlayerZones"]
 layout_mode = 2
 theme_override_font_sizes/font_size = 17
@@ -628,6 +641,18 @@ label_text = "OVERDRIVE"
 [node name="OpponentSealed" parent="OpponentZones" instance=ExtResource("6_gtjck")]
 layout_mode = 2
 label_text = "SEALED"
+
+[node name="BoostInfoContainer" type="HBoxContainer" parent="OpponentZones"]
+visible = false
+layout_mode = 2
+size_flags_horizontal = 4
+alignment = 1
+
+[node name="OpponentBoostInfoButton1" parent="OpponentZones/BoostInfoContainer" instance=ExtResource("16_2v64s")]
+layout_mode = 2
+
+[node name="OpponentBoostInfoButton2" parent="OpponentZones/BoostInfoContainer" instance=ExtResource("16_2v64s")]
+layout_mode = 2
 
 [node name="RevealedCardsButton" type="Button" parent="OpponentZones"]
 layout_mode = 2

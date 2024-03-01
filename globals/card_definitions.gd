@@ -204,6 +204,8 @@ func get_timing_text(timing):
 			text += ""
 		"start_of_next_turn":
 			text += "At start of next turn: "
+		"opponent_start_of_next_turn":
+			text += "At start of opponent's turn: "
 		"set_strike":
 			text += "When you set a strike, "
 		"when_hit":
@@ -672,8 +674,10 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 				"any":
 					where_str = "anywhere"
 			effect_str += "Place %s as a Lightning Rod %s" % [card_str, where_str]
+		"place_topdeck_under_boost":
+			effect_str += "Place the top card of deck under %s; draw all when discarded" % effect['card_name']
 		"play_attack_from_hand":
-				effect_str += "Play an attack from your hand, paying its costs."
+			effect_str += "Play an attack from your hand, paying its costs."
 		"calculate_range_from_buddy":
 			effect_str += "Calculate range from %s." % effect['buddy_name']
 		"calculate_range_from_center":

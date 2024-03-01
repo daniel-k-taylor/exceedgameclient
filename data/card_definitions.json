@@ -23112,22 +23112,28 @@
 		],
 		"boost": {
 			"boost_type": "continuous",
-			"force_cost": 0,
+			"force_cost": 1,
 			"cancel_cost": -1,
-			"display_name": "Wind Stream",
+			"display_name": "Sunken Treasure",
 			"effects": [
+				{
+					"timing": "now",
+					"effect_type": "play_boost_with_cards_under"
+				},
 				{
 					"timing": "during_strike",
 					"effect_type": "powerup",
-					"amount": 1
+					"amount": 2
 				},
 				{
-					"timing": "before",
-					"effect_type": "choice",
-					"choice": [
-						{ "effect_type": "push", "amount": 1 },
-						{ "effect_type": "push", "amount": 2 }
-					]
+					"timing": "opponent_start_of_next_turn",
+					"opponent": true,
+					"effect_type": "place_topdeck_under_boost",
+					"card_name": "Dive Charge"
+				},
+				{
+					"timing": "discarded",
+					"effect_type": "draw_cards_under_boost_and_remove"
 				}
 			]
 		}
