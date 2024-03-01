@@ -694,6 +694,11 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 				effect_str += "Opponent Draw " + amount_str + bottom_str
 			else:
 				effect_str += "Draw " + amount_str + bottom_str
+		"draw_for_card_in_gauge":
+			var every_str = "every card"
+			if 'per_gauge' in effect:
+				every_str = "every %s card(s)" % effect['per_gauge']
+			effect_str += "Draw for %s in your gauge" % every_str
 		"draw_any_number":
 			effect_str += "Draw any number of cards."
 		"draw_to":

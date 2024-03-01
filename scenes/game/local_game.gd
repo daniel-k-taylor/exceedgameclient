@@ -279,6 +279,7 @@ class ExtraAttackData:
 	var extra_attack_previous_attack_max_range_bonus = 0
 	var extra_attack_state = ExtraAttackState.ExtraAttackState_None
 	var extra_attack_hit = false
+	var extra_attack_hit_response_state = {}
 	var extra_attack_remaining_effects = []
 	var extra_attack_parent = null
 	var extra_attack_always_miss = false
@@ -315,6 +316,7 @@ class Strike:
 	var defender_wild_strike : bool = false
 	var defender_set_from_boosts : bool = false
 	var strike_state
+	var hit_response_state : Dictionary = {}
 	var starting_distance : int = -1
 	var in_setup : bool = true
 	var waiting_for_reading_response : bool = false
@@ -4084,7 +4086,7 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 			var actual_amount = min(amount, len(performing_player.discards))
 			if actual_amount > 0:
 				var card_ids = []
-				for i in range(performing_player.discards.size() - 1, -1, -1):
+				for i in range(performing_player.discards.size() - 1, performing_player.discards.size() - 1 - actual_amount, -1):
 					card_ids.append(performing_player.discards[i].id)
 				var card_names = card_db.get_card_names(card_ids)
 				_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "adds the top %s card(s) of their discards to gauge: %s." % [amount, card_names])
@@ -4619,6 +4621,13 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 			events += performing_player.discard_topdeck()
 		"draw_or_discard_to":
 			events += handle_player_draw_or_discard_to_effect(performing_player, card_id, effect)
+		"draw_for_card_in_gauge":
+			var draw_amount = performing_player.gauge.size()
+			if 'per_gauge' in effect:
+				draw_amount = floor(draw_amount / effect['per_gauge'])
+			if draw_amount > 0:
+				_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "draws %s card(s)." % draw_amount)
+				events += performing_player.draw(draw_amount)
 		"draw_for_card_in_hand":
 			var hand_size = performing_player.hand.size()
 			if hand_size > 0:
@@ -8024,20 +8033,21 @@ func ask_for_cost(performing_player, card, next_state):
 			events += [create_event(Enums.EventType.EventType_Strike_PayCost_Unable, performing_player.my_id, new_wild_card.id)]
 	return events
 
-func do_hit_response_effects(offense_player : Player, defense_player : Player, incoming_damage : int, next_state):
+func do_hit_response_effects(offense_player : Player, defense_player : Player, incoming_damage : int, hit_response_state : Dictionary, next_state):
 	# If more of these are added, need to sequence them to ensure all handled correctly.
 	var events = []
 
 	var defender_card = active_strike.get_player_card(defense_player)
-	if active_strike.extra_attack_in_progress:
-		active_strike.extra_attack_data.extra_attack_state = next_state
-	else:
-		active_strike.strike_state = next_state
 
-	# Assumes these will be armor-related.
-	# No choices currently allowed at this timing.
-	var effects = get_all_effects_for_timing("when_hit", defense_player, defender_card)
-	for effect in effects:
+	if not hit_response_state:
+		hit_response_state['effects'] = get_all_effects_for_timing("when_hit", defense_player, defender_card)
+		hit_response_state['effect_index'] = 0
+	var effects = hit_response_state['effects']
+	var effect_index = hit_response_state['effect_index']
+	while effect_index < len(effects):
+		var effect = effects[effect_index]
+		effect_index += 1 # So it goes to the next effect when returning
+
 		var first_time_only = 'first_time_only' in effect and effect['first_time_only']
 		if first_time_only and effect in active_strike.when_hit_effects_processed:
 			continue
@@ -8046,11 +8056,19 @@ func do_hit_response_effects(offense_player : Player, defense_player : Player, i
 		if 'card_id' in effect:
 			card_id = effect['card_id']
 		events += do_effect_if_condition_met(defense_player, card_id, effect, null)
+		if game_state == Enums.GameState.GameState_PlayerDecision:
+			hit_response_state['effect_index'] = effect_index
+			return events
 
 		if game_over:
 			change_game_state(Enums.GameState.GameState_GameOver)
 			return events
 
+	hit_response_state.clear()
+	if active_strike.extra_attack_in_progress:
+		active_strike.extra_attack_data.extra_attack_state = next_state
+	else:
+		active_strike.strike_state = next_state
 
 	if defense_player.strike_stat_boosts.when_hit_force_for_armor:
 		change_game_state(Enums.GameState.GameState_PlayerDecision)
@@ -8154,7 +8172,7 @@ func continue_resolve_strike(events):
 				events += do_remaining_effects(player1, StrikeState.StrikeState_Card1_Hit_Response)
 			StrikeState.StrikeState_Card1_Hit_Response:
 				var incoming_damage = calculate_damage(player1, player2)
-				events += do_hit_response_effects(player1, player2, incoming_damage, StrikeState.StrikeState_Card1_ApplyDamage)
+				events += do_hit_response_effects(player1, player2, incoming_damage, active_strike.hit_response_state, StrikeState.StrikeState_Card1_ApplyDamage)
 			StrikeState.StrikeState_Card1_ApplyDamage:
 				events += apply_damage(player1, player2)
 				active_strike.strike_state = StrikeState.StrikeState_Card1_After
@@ -8188,7 +8206,7 @@ func continue_resolve_strike(events):
 				events += do_remaining_effects(player2, StrikeState.StrikeState_Card2_Hit_Response)
 			StrikeState.StrikeState_Card2_Hit_Response:
 				var incoming_damage = calculate_damage(player2, player1)
-				events += do_hit_response_effects(player2, player1, incoming_damage, StrikeState.StrikeState_Card2_ApplyDamage)
+				events += do_hit_response_effects(player2, player1, incoming_damage, active_strike.hit_response_state, StrikeState.StrikeState_Card2_ApplyDamage)
 			StrikeState.StrikeState_Card2_ApplyDamage:
 				events += apply_damage(player2, player1)
 				active_strike.strike_state = StrikeState.StrikeState_Card2_After
@@ -8451,7 +8469,7 @@ func continue_extra_attack(events):
 				events += do_remaining_effects(attacker_player, ExtraAttackState.ExtraAttackState_Hit_Response)
 			ExtraAttackState.ExtraAttackState_Hit_Response:
 				var incoming_damage = calculate_damage(attacker_player, defender_player)
-				events += do_hit_response_effects(attacker_player, defender_player, incoming_damage, ExtraAttackState.ExtraAttackState_Hit_ApplyDamage)
+				events += do_hit_response_effects(attacker_player, defender_player, incoming_damage, active_strike.extra_attack_data.extra_attack_hit_response_state, ExtraAttackState.ExtraAttackState_Hit_ApplyDamage)
 			ExtraAttackState.ExtraAttackState_Hit_ApplyDamage:
 				events += apply_damage(attacker_player, defender_player)
 				active_strike.extra_attack_data.extra_attack_state = ExtraAttackState.ExtraAttackState_After

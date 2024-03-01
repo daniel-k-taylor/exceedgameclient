@@ -22936,50 +22936,46 @@
 		"NOTE": "TREASURE CARDS START",
 		"id": "treasure_maelstromchest",
 		"type": "ultra",
-		"display_name": "Full Broadside",
+		"display_name": "Maelstrom Chest",
 		"force_cost": 0,
 		"gauge_cost": 3,
-		"range_min": 2,
-		"range_max": 4,
-		"speed": 2,
-		"power": 6,
+		"range_min": 0,
+		"range_max": 1,
+		"speed": 5,
+		"power": 4,
 		"armor": 0,
 		"guard": 0,
 		"effects": [
 			{
 				"timing": "during_strike",
-				"effect_type": "stun_immunity"
+				"effect_type": "calculate_range_from_center"
 			},
 			{
-				"timing": "before",
-				"condition": "opponent_not_moved_this_strike",
-				"effect_type": "choice",
-				"choice": [
-					{ "effect_type": "push", "amount": 1 },
-					{ "effect_type": "push", "amount": 2 },
-					{ "effect_type": "push", "amount": 3 },
-					{ "effect_type": "pull", "amount": 1 },
-					{ "effect_type": "pull", "amount": 2 },
-					{ "effect_type": "pull", "amount": 3 },
-					{ "effect_type": "pass"}
-				]
+				"timing": "hit",
+				"effect_type": "force_for_effect",
+				"per_force_effect": {
+					"effect_type": "powerup",
+					"amount": 1
+				},
+				"overall_effect": null,
+				"force_max": 4
 			}
 		],
 		"boost": {
-			"boost_type": "immediate",
-			"force_cost": 0,
+			"boost_type": "continuous",
+			"force_cost": 1,
 			"cancel_cost": -1,
-			"display_name": "Private Reserve",
+			"display_name": "Diving Suit",
 			"effects": [
 				{
-					"timing": "immediate",
-					"effect_type": "boost_additional",
-					"limitation": "continuous",
-					"valid_zones": [ "discard" ]
-				},
-				{
-					"timing": "immediate",
-					"effect_type": "shuffle_discard_in_place"
+					"timing": "when_hit",
+					"effect_type": "force_for_effect",
+					"per_force_effect": null,
+					"overall_effect": {
+						"effect_type": "armorup",
+						"amount": 3
+					},
+					"force_max": 2
 				}
 			]
 		}
@@ -22987,34 +22983,40 @@
 	{
 		"id": "treasure_anglercall",
 		"type": "ultra",
-		"display_name": "Launcher",
+		"display_name": "Angler Call",
 		"force_cost": 0,
-		"gauge_cost": 2,
-		"range_min": 4,
+		"gauge_cost": 3,
+		"range_min": 2,
 		"range_max": 4,
-		"speed": 7,
-		"power": 3,
-		"armor": 0,
+		"speed": 1,
+		"power": 8,
+		"armor": 3,
 		"guard": 0,
 		"effects": [
 			{
-				"timing": "hit",
-				"effect_type": "pull",
-				"amount": 3,
-				"and": {
-					"effect_type": "gain_advantage"
-				}
+				"timing": "during_strike",
+				"effect_type": "stun_immunity"
 			}
 		],
 		"boost": {
-			"boost_type": "immediate",
+			"boost_type": "continuous",
 			"force_cost": 1,
 			"cancel_cost": -1,
-			"display_name": "Fly Up",
+			"display_name": "Secure Vault",
 			"effects": [
 				{
-					"timing": "immediate",
-					"effect_type": "move_to_any_space"
+					"timing": "hit",
+					"effect_type": "force_for_effect",
+					"per_force_effect": {
+						"effect_type": "add_top_discard_to_gauge",
+						"amount": 1,
+						"and": {
+							"effect_type": "draw_for_card_in_gauge",
+							"per_gauge": 2
+						}
+					},
+					"overall_effect": null,
+					"force_max": 2
 				}
 			]
 		}
