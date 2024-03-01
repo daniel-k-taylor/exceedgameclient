@@ -204,6 +204,8 @@ func get_timing_text(timing):
 			text += ""
 		"start_of_next_turn":
 			text += "At start of next turn: "
+		"opponent_start_of_next_turn":
+			text += "At start of opponent's turn: "
 		"set_strike":
 			text += "When you set a strike, "
 		"when_hit":
@@ -672,8 +674,10 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 				"any":
 					where_str = "anywhere"
 			effect_str += "Place %s as a Lightning Rod %s" % [card_str, where_str]
+		"place_topdeck_under_boost":
+			effect_str += "Place top of deck under %s; draw all when discarded" % effect['card_name']
 		"play_attack_from_hand":
-				effect_str += "Play an attack from your hand, paying its costs."
+			effect_str += "Play an attack from your hand, paying its costs."
 		"calculate_range_from_buddy":
 			effect_str += "Calculate range from %s." % effect['buddy_name']
 		"calculate_range_from_center":
@@ -690,6 +694,11 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 				effect_str += "Opponent Draw " + amount_str + bottom_str
 			else:
 				effect_str += "Draw " + amount_str + bottom_str
+		"draw_for_card_in_gauge":
+			var every_str = "every card"
+			if 'per_gauge' in effect:
+				every_str = "every %s card(s)" % effect['per_gauge']
+			effect_str += "Draw for %s in your gauge" % every_str
 		"draw_any_number":
 			effect_str += "Draw any number of cards."
 		"draw_to":
@@ -712,6 +721,8 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 			effect_str += "Gain " + str(effect['amount']) + " life"
 		"gauge_from_hand":
 			effect_str += "Add a card from hand to gauge"
+		"generate_free_force":
+			effect_str += "Generate %s force for free" % effect['amount']
 		"guardup":
 			if str(effect['amount']) == "strike_x":
 				effect_str += "+X Guard"
@@ -858,6 +869,8 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 				effect_str += "Pull " + str(effect['amount'])
 		"pull_any_number_of_spaces_and_gain_power":
 			effect_str += "Pull any amount and +1 Power per space pulled."
+		"pull_to_range":
+			effect_str += "Pull to range %s" % str(effect['amount'])
 		"pull_to_buddy":
 			effect_str += "Pull %s to %s" % [str(effect['amount']), effect['buddy_name']]
 		"pull_to_space_and_gain_power":
@@ -869,6 +882,8 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 				var extra_info = ""
 				if 'save_buddy_spaces_entered_as_strike_x' in effect and effect['save_buddy_spaces_entered_as_strike_x']:
 					extra_info = "\nSet X to the number of %s the opponent is pushed onto" % effect['buddy_name']
+				if 'save_unpushed_spaces_as_strike_x' in effect and effect['save_unpushed_spaces_as_strike_x']:
+					extra_info = "\nSet X to the number of spaces they couldn't be pushed"
 				effect_str += "Push " + str(effect['amount']) + extra_info
 		"push_from_source":
 			effect_str += "Push " + str(effect['amount']) + " from attack source"
@@ -1064,6 +1079,8 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 			effect_str += "Shuffle sealed cards into deck"
 		"sidestep_dialogue":
 			effect_str += "Named card will not hit this strike"
+		"specific_card_discard_to_gauge":
+			effect_str += "Add a copy of %s from discard to Gauge" % effect['card_name']
 		"speedup":
 			if effect['amount'] > 0:
 				effect_str += "+"

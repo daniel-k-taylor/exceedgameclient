@@ -99,12 +99,14 @@ func handle_prepare(game : LocalGame, gameplayer : LocalGame.Player):
 func handle_move(game: LocalGame, gameplayer : LocalGame.Player, action : AIPlayer.MoveAction):
 	var location = action.location
 	var card_ids = action.force_card_ids
-	assert_true(game.do_move(gameplayer, card_ids, location), "do move failed")
+	var use_free_force = action.use_free_force
+	assert_true(game.do_move(gameplayer, card_ids, location, use_free_force), "do move failed")
 	return game.get_latest_events()
 
 func handle_change_cards(game: LocalGame, gameplayer : LocalGame.Player, action : AIPlayer.ChangeCardsAction):
 	var card_ids = action.card_ids
-	assert_true(game.do_change(gameplayer, card_ids, false), "do change failed")
+	var use_free_force = action.use_free_force
+	assert_true(game.do_change(gameplayer, card_ids, false, use_free_force), "do change failed")
 	return game.get_latest_events()
 
 func handle_exceed(game: LocalGame, otherai, gameplayer : LocalGame.Player, action : AIPlayer.ExceedAction):
@@ -128,7 +130,7 @@ func handle_reshuffle(game: LocalGame, gameplayer : LocalGame.Player):
 func handle_boost(game: LocalGame, aiplayer : AIPlayer, otherai : AIPlayer, gameplayer : LocalGame.Player, action : AIPlayer.BoostAction):
 	var events = []
 	var card_id = action.card_id
-	assert_true(game.do_boost(gameplayer, card_id, action.payment_card_ids), "do boost failed")
+	assert_true(game.do_boost(gameplayer, card_id, action.payment_card_ids, action.use_free_force), "do boost failed")
 	events += game.get_latest_events()
 	events += handle_decisions(game)
 
@@ -170,14 +172,14 @@ func handle_decisions(game: LocalGame):
 					pay_action = decision_ai.pay_strike_gauge_cost(game, decision_player.my_id, cost, can_wild)
 				else:
 					pay_action = decision_ai.pay_strike_force_cost(game, decision_player.my_id, cost, can_wild)
-				assert_true(game.do_pay_strike_cost(decision_player, pay_action.card_ids, pay_action.wild_swing), "do pay failed")
+				assert_true(game.do_pay_strike_cost(decision_player, pay_action.card_ids, pay_action.wild_swing, true, pay_action.use_free_force), "do pay failed")
 			Enums.DecisionType.DecisionType_EffectChoice, Enums.DecisionType.DecisionType_ChooseSimultaneousEffect:
 				var effect_action = decision_ai.pick_effect_choice(game, decision_player.my_id)
 				assert_true(game.do_choice(decision_ai.game_player, effect_action.choice), "do strike choice failed")
 			Enums.DecisionType.DecisionType_ForceForArmor:
 				var use_gauge_instead = game.decision_info.limitation == "gauge"
 				var forceforarmor_action = decision_ai.pick_force_for_armor(game, decision_player.my_id, use_gauge_instead)
-				assert_true(game.do_force_for_armor(decision_ai.game_player, forceforarmor_action.card_ids), "do force armor failed")
+				assert_true(game.do_force_for_armor(decision_ai.game_player, forceforarmor_action.card_ids, forceforarmor_action.use_free_force), "do force armor failed")
 			Enums.DecisionType.DecisionType_CardFromHandToGauge:
 				var cardfromhandtogauge_action = decision_ai.pick_card_hand_to_gauge(game, decision_player.my_id, game.decision_info.effect['min_amount'], game.decision_info.effect['max_amount'])
 				assert_true(game.do_card_from_hand_to_gauge(decision_ai.game_player, cardfromhandtogauge_action.card_ids), "do card hand strike failed")
@@ -191,7 +193,7 @@ func handle_decisions(game: LocalGame):
 					options.append(0)
 					options.append(effect['force_max'])
 				var forceforeffect_action = decision_ai.pick_force_for_effect(game, decision_player.my_id, options)
-				assert_true(game.do_force_for_effect(decision_ai.game_player, forceforeffect_action.card_ids, false), "do force effect failed")
+				assert_true(game.do_force_for_effect(decision_ai.game_player, forceforeffect_action.card_ids, false, false, forceforeffect_action.use_free_force), "do force effect failed")
 			Enums.DecisionType.DecisionType_GaugeForEffect:
 				var effect = game.decision_info.effect
 				var options = []
@@ -226,7 +228,7 @@ func handle_decisions(game: LocalGame):
 				assert_true(game.do_boost_name_card_choice_effect(decision_player, decision_action.card_id), "do discard opponent gauge failed")
 			Enums.DecisionType.DecisionType_BoostNow:
 				var boostnow_action = decision_ai.take_boost(game, decision_player.my_id, game.decision_info.valid_zones, game.decision_info.limitation, game.decision_info.ignore_costs)
-				assert_true(game.do_boost(decision_player, boostnow_action.card_id, boostnow_action.payment_card_ids), "do boost now failed")
+				assert_true(game.do_boost(decision_player, boostnow_action.card_id, boostnow_action.payment_card_ids, boostnow_action.use_free_force), "do boost now failed")
 			Enums.DecisionType.DecisionType_ChooseFromTopDeck:
 				var decision_info = game.decision_info
 				var action_choices = decision_info.action
@@ -311,7 +313,7 @@ func handle_strike(game: LocalGame, aiplayer : AIPlayer, otherai : AIPlayer, act
 	return events
 
 func handle_character_action(game: LocalGame, aiplayer : AIPlayer, _otherai : AIPlayer, action : AIPlayer.CharacterActionAction):
-	assert_true(game.do_character_action(aiplayer.game_player, action.card_ids, action.action_idx), "character action failed")
+	assert_true(game.do_character_action(aiplayer.game_player, action.card_ids, action.action_idx, action.use_free_force), "character action failed")
 	var events = []
 	events += game.get_latest_events()
 	events += handle_decisions(game)
@@ -601,7 +603,7 @@ func test_dan_100():
 
 func test_bison_100():
 	run_iterations_with_deck("bison")
-	
+
 func test_cammy_100():
 	run_iterations_with_deck("cammy")
 
@@ -628,3 +630,6 @@ func test_vatista_100():
 
 func test_king_100():
 	run_iterations_with_deck("king")
+
+func test_treasure_100():
+	run_iterations_with_deck("treasure")

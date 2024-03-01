@@ -1,0 +1,45 @@
+[gd_scene load_steps=4 format=3 uid="uid://b7ip37tv4588b"]
+
+[ext_resource type="Script" path="res://scenes/game/boost_infobutton.gd" id="1_bu7ns"]
+[ext_resource type="Texture2D" uid="uid://cwp618cwyofhm" path="res://assets/icons/treasure_chest.png" id="2_dbs6t"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_dsyau"]
+bg_color = Color(0.160784, 0.160784, 0.160784, 1)
+
+[node name="BoostInfoButton" type="HBoxContainer"]
+size_flags_horizontal = 3
+size_flags_vertical = 4
+mouse_filter = 2
+theme_override_constants/separation = 10
+alignment = 1
+script = ExtResource("1_bu7ns")
+
+[node name="BackgroundPanel" type="PanelContainer" parent="."]
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_dsyau")
+
+[node name="MarginContainer" type="MarginContainer" parent="BackgroundPanel"]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/margin_left = 4
+theme_override_constants/margin_top = 4
+theme_override_constants/margin_right = 4
+theme_override_constants/margin_bottom = 4
+
+[node name="HBoxContainer" type="HBoxContainer" parent="BackgroundPanel/MarginContainer"]
+layout_mode = 2
+mouse_filter = 2
+alignment = 1
+
+[node name="TextureRect" type="TextureRect" parent="BackgroundPanel/MarginContainer/HBoxContainer"]
+layout_mode = 2
+mouse_filter = 2
+texture = ExtResource("2_dbs6t")
+
+[node name="Label" type="Label" parent="BackgroundPanel/MarginContainer/HBoxContainer"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 20
+text = "1"

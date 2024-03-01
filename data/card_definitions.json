@@ -22933,6 +22933,388 @@
 
 
 	{
+		"NOTE": "TREASURE CARDS START",
+		"id": "treasure_maelstromchest",
+		"type": "ultra",
+		"display_name": "Maelstrom Chest",
+		"force_cost": 0,
+		"gauge_cost": 3,
+		"range_min": 0,
+		"range_max": 1,
+		"speed": 5,
+		"power": 4,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "during_strike",
+				"effect_type": "calculate_range_from_center"
+			},
+			{
+				"timing": "hit",
+				"effect_type": "force_for_effect",
+				"per_force_effect": {
+					"effect_type": "powerup",
+					"amount": 1
+				},
+				"overall_effect": null,
+				"force_max": 4
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 1,
+			"cancel_cost": -1,
+			"display_name": "Diving Suit",
+			"effects": [
+				{
+					"timing": "when_hit",
+					"effect_type": "force_for_effect",
+					"per_force_effect": null,
+					"overall_effect": {
+						"effect_type": "armorup",
+						"amount": 3
+					},
+					"force_max": 2
+				}
+			]
+		}
+	},
+	{
+		"id": "treasure_anglercall",
+		"type": "ultra",
+		"display_name": "Angler Call",
+		"force_cost": 0,
+		"gauge_cost": 3,
+		"range_min": 2,
+		"range_max": 4,
+		"speed": 1,
+		"power": 8,
+		"armor": 3,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "during_strike",
+				"effect_type": "stun_immunity"
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 1,
+			"cancel_cost": -1,
+			"display_name": "Secure Vault",
+			"effects": [
+				{
+					"timing": "hit",
+					"effect_type": "force_for_effect",
+					"per_force_effect": {
+						"effect_type": "add_top_discard_to_gauge",
+						"amount": 1,
+						"and": {
+							"effect_type": "draw_for_card_in_gauge",
+							"per_gauge": 2
+						}
+					},
+					"overall_effect": null,
+					"force_max": 2
+				}
+			]
+		}
+	},
+	{
+		"id": "treasure_scuttleslam",
+		"type": "special",
+		"display_name": "Scuttle Slam",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 1,
+		"speed": 6,
+		"power": 3,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "before",
+				"effect_type": "advance",
+				"amount": 1
+			},
+			{
+				"timing": "hit",
+				"effect_type": "force_for_effect",
+				"per_force_effect": {
+					"effect_type": "push",
+					"amount": 1
+				},
+				"overall_effect": null,
+				"force_max": 2
+			}
+		],
+		"boost": {
+			"boost_type": "immediate",
+			"force_cost": 1,
+			"cancel_cost": -1,
+			"display_name": "Redistribute",
+			"effects": [
+				{
+					"timing": "immediate",
+					"effect_type": "gauge_for_effect",
+					"per_gauge_effect": {
+						"effect_type": "nothing",
+						"spent_cards_to_hand": true,
+						"suppress_and_description": true,
+						"and": {
+							"effect_type": "increase_gauge_spent_before_strike"
+						}
+					},
+					"overall_effect": null,
+					"spent_cards_to_hand": true,
+					"gauge_max": -1
+				},
+				{
+					"timing": "immediate",
+					"effect_type": "gauge_from_hand",
+					"min_amount": -1,
+					"max_amount": -1,
+					"amount_is_gauge_spent": true
+				},
+				{
+					"timing": "immediate",
+					"effect_type": "add_top_discard_to_gauge",
+					"amount": 1
+				}
+			]
+		}
+	},
+	{
+		"id": "treasure_divecharge",
+		"type": "special",
+		"display_name": "Dive Charge",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 1,
+		"speed": 4,
+		"power": 3,
+		"armor": 0,
+		"guard": 3,
+		"effects": [
+			{
+				"timing": "before",
+				"effect_type": "close",
+				"amount": 2
+			},
+			{
+				"timing": "hit",
+				"effect_type": "push",
+				"amount": 3,
+				"save_unpushed_spaces_as_strike_x": true,
+				"and": {
+					"effect_type": "powerup",
+					"amount": "strike_x"
+				}
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 1,
+			"cancel_cost": -1,
+			"display_name": "Sunken Treasure",
+			"effects": [
+				{
+					"timing": "now",
+					"effect_type": "play_boost_with_cards_under"
+				},
+				{
+					"timing": "during_strike",
+					"effect_type": "powerup",
+					"amount": 2
+				},
+				{
+					"timing": "opponent_start_of_next_turn",
+					"opponent": true,
+					"effect_type": "place_topdeck_under_boost",
+					"card_name": "Dive Charge"
+				},
+				{
+					"timing": "discarded",
+					"effect_type": "draw_cards_under_boost_and_remove"
+				}
+			]
+		}
+	},
+	{
+		"id": "treasure_treasurecoin",
+		"type": "special",
+		"display_name": "Treasure Coin",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 2,
+		"range_max": 2,
+		"speed": 3,
+		"power": 3,
+		"armor": 0,
+		"guard": 3,
+		"effects": [
+			{
+				"timing": "before",
+				"effect_type": "force_for_effect",
+				"per_force_effect": {
+					"effect_type": "rangeup",
+					"amount": 0,
+					"amount2": 1,
+					"and": {
+						"effect_type": "powerup",
+						"amount": 1
+					}
+				},
+				"overall_effect": null,
+				"force_max": 3
+			},
+			{
+				"timing": "hit",
+				"effect_type": "specific_card_discard_to_gauge",
+				"copy_id": "treasure_treasurecoin",
+				"card_name": "Treasure Coin"
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 1,
+			"cancel_cost": -1,
+			"display_name": "Salvage Operation",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "powerup",
+					"amount": 1,
+					"and": {
+						"effect_type": "armorup",
+						"amount": 1
+					}
+				},
+				{
+					"timing": "hit",
+					"effect_type": "choose_discard",
+					"limitation": "",
+					"destination": "hand"
+				}
+			]
+		}
+	},
+	{
+		"id": "treasure_anchorlaunch",
+		"type": "special",
+		"display_name": "Anchor Launch",
+		"force_cost": 1,
+		"gauge_cost": 0,
+		"range_min": 3,
+		"range_max": 6,
+		"speed": 2,
+		"power": 6,
+		"armor": 2,
+		"guard": 5,
+		"effects": [
+			{
+				"timing": "hit",
+				"effect_type": "opponent_discard_random",
+				"amount": 1,
+				"and": {
+					"effect_type": "pull_to_range",
+					"amount": 2
+				}
+			},
+			{
+				"timing": "after",
+				"condition": "not_hit_opponent",
+				"effect_type": "choice",
+				"choice": [
+					{ "effect_type": "advance", "amount": 4 },
+					{ "effect_type": "advance", "amount": 5 },
+					{ "effect_type": "advance", "amount": 6 }
+				]
+			}
+		],
+		"boost": {
+			"boost_type": "immediate",
+			"force_cost": 1,
+			"cancel_cost": -1,
+			"display_name": "Anchor Zip",
+			"effects": [
+				{
+					"timing": "immediate",
+					"effect_type": "move_to_any_space",
+					"move_min": 0,
+					"move_max": 4
+				},
+				{
+					"timing": "immediate",
+					"effect_type": "draw",
+					"amount": 2
+				}
+			]
+		}
+	},
+	{
+		"NOTE": "TREASURE CARDS END",
+		"id": "treasure_aquamine",
+		"type": "special",
+		"display_name": "Aqua Mine",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 2,
+		"speed": 2,
+		"power": 5,
+		"armor": 0,
+		"guard": 6,
+		"effects": [
+			{
+				"timing": "hit",
+				"condition": "opponent_moved_or_was_moved",
+				"condition_amount": 1,
+				"effect_type": "powerup",
+				"amount": 2
+			},
+			{
+				"timing": "after",
+				"effect_type": "force_for_effect",
+				"per_force_effect": {
+					"effect_type": "retreat",
+					"amount": 1
+				},
+				"overall_effect": null,
+				"force_max": 2
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 1,
+			"cancel_cost": -1,
+			"display_name": "High Tide",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "armorup",
+					"amount": 2
+				},
+				{
+					"timing": "before",
+					"effect_type": "force_for_effect",
+					"per_force_effect": null,
+					"overall_effect": {
+						"effect_type": "push",
+						"amount": 1
+					},
+					"force_max": 2
+				}
+			]
+		},
+		"NOTEEND": "TREASURE CARDS END"
+	},
+
+
+	{
 		"NOTE": "VATISTA CARDS START",
 		"id": "vatista_zahhishio",
 		"type": "ultra",

@@ -52,14 +52,18 @@ class PrepareAction:
 class MoveAction:
 	var location
 	var force_card_ids
-	func _init(to_location, cards_to_get_there):
+	var use_free_force
+	func _init(to_location, cards_to_get_there, do_use_free_force):
 		location = to_location
 		force_card_ids = cards_to_get_there
+		use_free_force = do_use_free_force
 
 class ChangeCardsAction:
 	var card_ids
-	func _init(card_id_combination):
+	var use_free_force
+	func _init(card_id_combination, do_use_free_force):
 		card_ids = card_id_combination
+		use_free_force = do_use_free_force
 
 class ExceedAction:
 	var card_ids
@@ -72,9 +76,11 @@ class ReshuffleAction:
 class BoostAction:
 	var card_id
 	var payment_card_ids
-	func _init(boost_card_id, boost_payment_card_ids):
+	var use_free_force
+	func _init(boost_card_id, boost_payment_card_ids, do_use_free_force):
 		card_id = boost_card_id
 		payment_card_ids = boost_payment_card_ids
+		use_free_force = do_use_free_force
 
 class StrikeAction:
 	var card_id
@@ -88,9 +94,11 @@ class StrikeAction:
 class PayStrikeCostAction:
 	var card_ids
 	var wild_swing
-	func _init(card_id_combination, wild):
+	var use_free_force
+	func _init(card_id_combination, wild, do_use_free_force):
 		card_ids = card_id_combination
 		wild_swing = wild
+		use_free_force = do_use_free_force
 
 class EffectChoiceAction:
 	var choice
@@ -99,13 +107,17 @@ class EffectChoiceAction:
 
 class ForceForArmorAction:
 	var card_ids
-	func _init(card_id_combination):
+	var use_free_force
+	func _init(card_id_combination, do_use_free_force):
 		card_ids = card_id_combination
+		use_free_force = do_use_free_force
 
 class ForceForEffectAction:
 	var card_ids
-	func _init(card_id_combination):
+	var use_free_force
+	func _init(card_id_combination, do_use_free_force):
 		card_ids = card_id_combination
+		use_free_force = do_use_free_force
 
 class GaugeForEffectAction:
 	var card_ids
@@ -176,9 +188,11 @@ class ChooseFromTopdeckAction:
 class CharacterActionAction:
 	var card_ids
 	var action_idx
-	func _init(card_id_combination, action_idx_value):
+	var use_free_force
+	func _init(card_id_combination, action_idx_value, do_use_free_force):
 		card_ids = card_id_combination
 		self.action_idx = action_idx_value
+		use_free_force = do_use_free_force
 
 class ChooseArenaLocationAction:
 	var location
@@ -295,6 +309,7 @@ func get_prepare_actions(_game_logic : LocalGame, me : LocalGame.Player, _oppone
 func get_move_actions(game_logic : LocalGame, me : LocalGame.Player, opponent : LocalGame.Player):
 	var possible_move_actions = []
 	var available_force = me.get_available_force()
+	var free_force_available = me.free_force
 	if me.cannot_move:
 		return possible_move_actions
 
@@ -312,23 +327,28 @@ func get_move_actions(game_logic : LocalGame, me : LocalGame.Player, opponent : 
 			for card in me.gauge:
 				all_force_option_ids.append(card.id)
 			var combinations = []
-			generate_force_combinations(game_logic, me,  all_force_option_ids, force_to_move_here, [], 0, combinations)
-			for combo in combinations:
-				possible_move_actions.append(MoveAction.new(i, combo))
+			generate_force_combinations(game_logic, me, all_force_option_ids, force_to_move_here, free_force_available, false, [], 0, combinations)
+			for combo_result in combinations:
+				var combo = combo_result[0]
+				var used_free_force = combo_result[1]
+				possible_move_actions.append(MoveAction.new(i, combo, used_free_force))
 	return possible_move_actions
 
-func generate_force_combinations(game_logic : LocalGame, me : LocalGame.Player, cards, force_target, current_combination, current_index, combinations):
-	var current_force = me.free_force
+func generate_force_combinations(game_logic : LocalGame, me : LocalGame.Player, cards, force_target, free_force_available, used_free_force, current_combination, current_index, combinations):
+	var current_force = me.force_cost_reduction
 	var card_db = game_logic.get_card_database()
 	for card_id in current_combination:
 		current_force += card_db.get_card_force_value(card_id)
 	if current_force >= force_target:
-		combinations.append(current_combination.duplicate())
+		combinations.append([current_combination.duplicate(), used_free_force])
 		return
+
+	if free_force_available > 0:
+		generate_force_combinations(game_logic, me, cards, force_target - free_force_available, 0, true, current_combination, current_index, combinations)
 
 	for i in range(current_index, cards.size()):
 		current_combination.append(cards[i])
-		generate_force_combinations(game_logic, me, cards, force_target, current_combination, i + 1, combinations)
+		generate_force_combinations(game_logic, me, cards, force_target, 0, used_free_force, current_combination, i + 1, combinations)
 		current_combination.pop_back()
 
 func generate_card_count_combinations(cards, hand_size, current_combination, current_index, combinations):
@@ -344,7 +364,10 @@ func generate_card_count_combinations(cards, hand_size, current_combination, cur
 func get_change_cards_actions(_game_logic : LocalGame, me : LocalGame.Player, _opponent : LocalGame.Player):
 	var possible_actions = []
 	var total_change_card_options = len(me.hand) + len(me.gauge)
-	possible_actions.append(ChangeCardsAction.new([]))
+	possible_actions.append(ChangeCardsAction.new([], false))
+	var free_force_available = me.free_force
+	if free_force_available > 0:
+		possible_actions.append(ChangeCardsAction.new([], true))
 
 	if total_change_card_options > 5:
 		# Considering more options takes too long.
@@ -364,7 +387,9 @@ func get_change_cards_actions(_game_logic : LocalGame, me : LocalGame.Player, _o
 			var combinations = []
 			generate_card_count_combinations(all_change_card_ids, target_size, [], 0, combinations)
 			for combination in combinations:
-				possible_actions.append(ChangeCardsAction.new(combination))
+				possible_actions.append(ChangeCardsAction.new(combination, false))
+				if free_force_available > 0:
+					possible_actions.append(ChangeCardsAction.new(combination, true))
 
 	return possible_actions
 
@@ -438,6 +463,7 @@ func get_boost_actions(game_logic : LocalGame, me : LocalGame.Player, opponent :
 		"discard": me.discards,
 		"extra": me.set_aside_cards
 	}
+	var free_force_available = me.free_force
 
 	for zone in valid_zones:
 		for card in zone_map[zone]:
@@ -456,11 +482,13 @@ func get_boost_actions(game_logic : LocalGame, me : LocalGame.Player, opponent :
 						all_force_option_ids.append(payment_card.id)
 					all_force_option_ids.erase(card.id)
 					var combinations = []
-					generate_force_combinations(game_logic, me,  all_force_option_ids, cost, [], 0, combinations)
-					for combo in combinations:
-						possible_actions.append(BoostAction.new(card.id, combo))
+					generate_force_combinations(game_logic, me,  all_force_option_ids, cost, free_force_available, false, [], 0, combinations)
+					for combo_result in combinations:
+						var combo = combo_result[0]
+						var use_free_force = combo_result[1]
+						possible_actions.append(BoostAction.new(card.id, combo, use_free_force))
 				else:
-					possible_actions.append(BoostAction.new(card.id, []))
+					possible_actions.append(BoostAction.new(card.id, [], false))
 	return possible_actions
 
 func get_ex_option_in_hand(game_logic : LocalGame, me : LocalGame.Player, card_id : int):
@@ -534,6 +562,7 @@ func get_strike_actions(game_logic : LocalGame, me : LocalGame.Player, _opponent
 
 func get_character_action_actions(game_logic : LocalGame, me : LocalGame.Player, _opponent : LocalGame.Player):
 	var possible_actions = []
+	var free_force_available = me.free_force
 	for action_idx in range(me.get_character_action_count()):
 		if me.can_do_character_action(action_idx):
 			var action = me.get_character_action(action_idx)
@@ -546,16 +575,18 @@ func get_character_action_actions(game_logic : LocalGame, me : LocalGame.Player,
 				for card in me.gauge:
 					all_force_option_ids.append(card.id)
 				var combinations = []
-				generate_force_combinations(game_logic, me,  all_force_option_ids, force_cost, [], 0, combinations)
-				for combo in combinations:
-					possible_actions.append(CharacterActionAction.new(combo, action_idx))
+				generate_force_combinations(game_logic, me,  all_force_option_ids, force_cost, free_force_available, false, [], 0, combinations)
+				for combo_result in combinations:
+					var combo = combo_result[0]
+					var use_free_force = combo_result[1]
+					possible_actions.append(CharacterActionAction.new(combo, action_idx, use_free_force))
 			elif gauge_cost > 0:
 				var combinations = get_combinations_to_pay_gauge(me, gauge_cost)
 				for combination in combinations:
-					possible_actions.append(CharacterActionAction.new(combination, action_idx))
+					possible_actions.append(CharacterActionAction.new(combination, action_idx, false))
 			else:
 				# No cost.
-				possible_actions.append(CharacterActionAction.new([], action_idx))
+				possible_actions.append(CharacterActionAction.new([], action_idx, false))
 	return possible_actions
 
 func pay_strike_force_cost(game_logic : LocalGame, my_id : Enums.PlayerId, force_cost : int, wild_swing_allowed : bool) -> PayStrikeCostAction:
@@ -577,29 +608,32 @@ func pay_strike_gauge_cost(game_logic : LocalGame, my_id : Enums.PlayerId, gauge
 func determine_pay_strike_force_cost_actions(game_logic : LocalGame, me : LocalGame.Player, force_cost : int, wild_swing_allowed : bool):
 	var possible_actions = []
 	if wild_swing_allowed:
-		possible_actions.append(PayStrikeCostAction.new([], true))
+		possible_actions.append(PayStrikeCostAction.new([], true, false))
 
 	var all_force_option_ids = []
+	var free_force_available = me.free_force
 	for card in me.hand:
 		all_force_option_ids.append(card.id)
 	for card in me.gauge:
 		all_force_option_ids.append(card.id)
 	var combinations = []
-	generate_force_combinations(game_logic, me, all_force_option_ids, force_cost, [], 0, combinations)
-	for combo in combinations:
-		possible_actions.append(PayStrikeCostAction.new(combo, false))
+	generate_force_combinations(game_logic, me, all_force_option_ids, force_cost, free_force_available, false, [], 0, combinations)
+	for combo_result in combinations:
+		var combo = combo_result[0]
+		var use_free_force = combo_result[1]
+		possible_actions.append(PayStrikeCostAction.new(combo, false, use_free_force))
 
 	return possible_actions
 
 func determine_pay_strike_gauge_cost_actions(me : LocalGame.Player, gauge_cost : int, wild_swing_allowed : bool):
 	var possible_actions = []
 	if wild_swing_allowed:
-		possible_actions.append(PayStrikeCostAction.new([], true))
+		possible_actions.append(PayStrikeCostAction.new([], true, false))
 
 	if len(me.gauge) >= gauge_cost:
 		var combinations = get_combinations_to_pay_gauge(me, gauge_cost)
 		for combination in combinations:
-			possible_actions.append(PayStrikeCostAction.new(combination, false))
+			possible_actions.append(PayStrikeCostAction.new(combination, false, false))
 
 	return possible_actions
 
@@ -639,7 +673,7 @@ func determine_gauge_for_armor_actions(_game_logic : LocalGame, me : LocalGame.P
 		# Generate an action for every possible combination of cards that can get here.
 		var combinations = get_combinations_to_pay_gauge(me, target_gauge)
 		for combo in combinations:
-			possible_actions.append(ForceForArmorAction.new(combo))
+			possible_actions.append(ForceForArmorAction.new(combo, false))
 	return possible_actions
 
 func determine_force_for_armor_actions(game_logic : LocalGame, me : LocalGame.Player):
@@ -649,7 +683,9 @@ func determine_force_for_armor_actions(game_logic : LocalGame, me : LocalGame.Pl
 		# Considering every possible option takes way too long.
 		# You're never going to need more than +8 armor AI.
 		available_force = 4
+	var free_force_available = me.free_force
 	var all_force_option_ids = []
+
 	for card in me.hand:
 		all_force_option_ids.append(card.id)
 	for card in me.gauge:
@@ -657,14 +693,17 @@ func determine_force_for_armor_actions(game_logic : LocalGame, me : LocalGame.Pl
 	for target_force in range(0, available_force + 1):
 		# Generate an action for every possible combination of cards that can get here.
 		var combinations = []
-		generate_force_combinations(game_logic, me,  all_force_option_ids, target_force, [], 0, combinations)
-		for combo in combinations:
-			possible_actions.append(ForceForArmorAction.new(combo))
+		generate_force_combinations(game_logic, me,  all_force_option_ids, target_force, free_force_available, false, [], 0, combinations)
+		for combo_result in combinations:
+			var combo = combo_result[0]
+			var use_free_force = combo_result[1]
+			possible_actions.append(ForceForArmorAction.new(combo, use_free_force))
 	return possible_actions
 
 func determine_force_for_effect_actions(game_logic: LocalGame, me : LocalGame.Player, options : Array):
 	var possible_actions = []
 	var available_force = me.get_available_force()
+	var free_force_available = me.free_force
 	var all_force_option_ids = []
 	for card in me.hand:
 		all_force_option_ids.append(card.id)
@@ -684,9 +723,11 @@ func determine_force_for_effect_actions(game_logic: LocalGame, me : LocalGame.Pl
 			continue
 		# Generate an action for every possible combination of cards that can get here.
 		var combinations = []
-		generate_force_combinations(game_logic, me,  all_force_option_ids, target_force, [], 0, combinations)
-		for combo in combinations:
-			possible_actions.append(ForceForEffectAction.new(combo))
+		generate_force_combinations(game_logic, me,  all_force_option_ids, target_force, free_force_available, false, [], 0, combinations)
+		for combo_result in combinations:
+			var combo = combo_result[0]
+			var use_free_force = combo_result[1]
+			possible_actions.append(ForceForEffectAction.new(combo, use_free_force))
 	return possible_actions
 
 func determine_gauge_for_effect_actions(game_logic: LocalGame, me : LocalGame.Player, options : Array, specific_card_id : String):

@@ -251,11 +251,14 @@ func get_player_available_force(player_id : Enums.PlayerId):
 func get_player_free_force(player_id : Enums.PlayerId):
 	return _get_player(player_id).free_force
 
+func get_player_force_cost_reduction(player_id : Enums.PlayerId):
+	return _get_player(player_id).force_cost_reduction
+
 func get_player_free_gauge(player_id : Enums.PlayerId):
 	return _get_player(player_id).free_gauge
 
-func get_player_force_for_cards(player_id : Enums.PlayerId, card_ids : Array, reason : String, treat_ultras_as_single_force : bool):
-	return _get_player(player_id).get_force_with_cards(card_ids, reason, treat_ultras_as_single_force)
+func get_player_force_for_cards(player_id : Enums.PlayerId, card_ids : Array, reason : String, treat_ultras_as_single_force : bool, use_free_force : bool):
+	return _get_player(player_id).get_force_with_cards(card_ids, reason, treat_ultras_as_single_force, use_free_force)
 
 func get_force_to_move_to(player_id : Enums.PlayerId, location : int):
 	return _get_player(player_id).get_force_to_move_to(location)
@@ -426,37 +429,37 @@ func submit_card_from_hand_to_gauge(player : Enums.PlayerId, card_ids : Array) -
 	var game_player = _get_player(player)
 	return current_game.do_card_from_hand_to_gauge(game_player, card_ids)
 
-func submit_pay_strike_cost(player : Enums.PlayerId, card_ids : Array, wild_strike : bool, discard_ex_first : bool) -> bool:
+func submit_pay_strike_cost(player : Enums.PlayerId, card_ids : Array, wild_strike : bool, discard_ex_first : bool, use_free_force : bool) -> bool:
 	var game_player = _get_player(player)
-	return current_game.do_pay_strike_cost(game_player, card_ids, wild_strike, discard_ex_first)
+	return current_game.do_pay_strike_cost(game_player, card_ids, wild_strike, discard_ex_first, use_free_force)
 
 func submit_exceed(player : Enums.PlayerId, card_ids : Array) -> bool:
 	var game_player = _get_player(player)
 	return current_game.do_exceed(game_player, card_ids)
 
-func submit_move(player : Enums.PlayerId, card_ids : Array, new_arena_location : int) -> bool:
+func submit_move(player : Enums.PlayerId, card_ids : Array, new_arena_location : int, use_free_force : bool) -> bool:
 	var game_player = _get_player(player)
-	return current_game.do_move(game_player, card_ids, new_arena_location)
+	return current_game.do_move(game_player, card_ids, new_arena_location, use_free_force)
 
-func submit_change(player : Enums.PlayerId, card_ids : Array, treat_ultras_as_single_force : bool) -> bool:
+func submit_change(player : Enums.PlayerId, card_ids : Array, treat_ultras_as_single_force : bool, use_free_force : bool) -> bool:
 	var game_player = _get_player(player)
-	return current_game.do_change(game_player, card_ids, treat_ultras_as_single_force)
+	return current_game.do_change(game_player, card_ids, treat_ultras_as_single_force, use_free_force)
 
 func submit_strike(player : Enums.PlayerId, card_id : int, wild_strike: bool, ex_card_id : int, opponent_sets_first : bool = false) -> bool:
 	var game_player = _get_player(player)
 	return current_game.do_strike(game_player, card_id, wild_strike, ex_card_id, opponent_sets_first)
 
-func submit_force_for_armor(player : Enums.PlayerId, card_ids : Array) -> bool:
+func submit_force_for_armor(player : Enums.PlayerId, card_ids : Array, use_free_force : bool) -> bool:
 	var game_player = _get_player(player)
-	return current_game.do_force_for_armor(game_player, card_ids)
+	return current_game.do_force_for_armor(game_player, card_ids, use_free_force)
 
 func submit_mulligan(player : Enums.PlayerId, card_ids : Array) -> bool:
 	var game_player = _get_player(player)
 	return current_game.do_mulligan(game_player, card_ids)
 
-func submit_boost(player : Enums.PlayerId, card_id : int, payment_card_ids) -> bool:
+func submit_boost(player : Enums.PlayerId, card_id : int, payment_card_ids, use_free_force : bool) -> bool:
 	var game_player = _get_player(player)
-	return current_game.do_boost(game_player, card_id, payment_card_ids)
+	return current_game.do_boost(game_player, card_id, payment_card_ids, use_free_force)
 
 func submit_choose_from_boosts(player: Enums.PlayerId, card_ids : Array) -> bool:
 	var game_player = _get_player(player)
@@ -466,9 +469,9 @@ func submit_choose_from_discard(player: Enums.PlayerId, card_ids : Array) -> boo
 	var game_player = _get_player(player)
 	return current_game.do_choose_from_discard(game_player, card_ids)
 
-func submit_force_for_effect(player: Enums.PlayerId, card_ids : Array, treat_ultras_as_single_force : bool, cancel : bool = false) -> bool:
+func submit_force_for_effect(player: Enums.PlayerId, card_ids : Array, treat_ultras_as_single_force : bool, cancel : bool = false, use_free_force : bool = false) -> bool:
 	var game_player = _get_player(player)
-	return current_game.do_force_for_effect(game_player, card_ids, treat_ultras_as_single_force, cancel)
+	return current_game.do_force_for_effect(game_player, card_ids, treat_ultras_as_single_force, cancel, use_free_force)
 
 func submit_gauge_for_effect(player: Enums.PlayerId, card_ids : Array) -> bool:
 	var game_player = _get_player(player)
@@ -478,9 +481,9 @@ func submit_choose_to_discard(player: Enums.PlayerId, card_ids : Array) -> bool:
 	var game_player = _get_player(player)
 	return current_game.do_choose_to_discard(game_player, card_ids)
 
-func submit_character_action(player: Enums.PlayerId, card_ids : Array, action_idx : int = 0) -> bool:
+func submit_character_action(player: Enums.PlayerId, card_ids : Array, action_idx : int = 0, use_free_force = false) -> bool:
 	var game_player = _get_player(player)
-	return current_game.do_character_action(game_player, card_ids, action_idx)
+	return current_game.do_character_action(game_player, card_ids, action_idx, use_free_force)
 
 func submit_bonus_turn_action(player: Enums.PlayerId, action_index : int) -> bool:
 	var game_player = _get_player(player)
