@@ -60,7 +60,7 @@ var active_exceed : bool = false
 var active_overdrive : bool = false
 var active_overdrive_boost_top_discard_on_cleanup : bool = false
 var active_change_cards : bool = false
-var active_dan_effect : bool = false
+var active_special_draw_effect : bool = false
 var active_start_of_turn_effects : bool = false
 var active_end_of_turn_effects : bool = false
 var remaining_overdrive_effects = []
@@ -653,6 +653,7 @@ class Player:
 	var wild_strike_on_boost_cleanup : bool
 	var max_hand_size : int
 	var starting_hand_size_bonus : int
+	var draw_at_end_of_turn : int
 	var pre_strike_movement : int
 	var moved_self_this_strike : bool
 	var moved_past_this_strike : bool
@@ -687,6 +688,7 @@ class Player:
 	var skip_end_of_turn_draw : bool
 	var dan_draw_choice : bool
 	var dan_draw_choice_from_bottom : bool
+	var enchantress_draw_choice : bool
 	var boost_id_locations : Dictionary # [card_id : int, location : int]
 	var boost_buddy_card_id_to_buddy_id_map : Dictionary # [card_id : int, buddy_id : String]
 	var effect_on_turn_start
@@ -794,6 +796,7 @@ class Player:
 		skip_end_of_turn_draw = false
 		dan_draw_choice = false
 		dan_draw_choice_from_bottom = false
+		enchantress_draw_choice = false
 		boost_id_locations = {}
 		boost_buddy_card_id_to_buddy_id_map = {}
 		effect_on_turn_start = false
@@ -820,6 +823,10 @@ class Player:
 		starting_hand_size_bonus = 0
 		if 'bonus_starting_hand' in deck_def:
 			starting_hand_size_bonus = deck_def['bonus_starting_hand']
+
+		draw_at_end_of_turn = true
+		if 'disable_end_of_turn_draw' in deck_def:
+			draw_at_end_of_turn = not deck_def['disable_end_of_turn_draw']
 
 		if 'buddy_starting_offset' in deck_def:
 			buddy_starting_offset = deck_def['buddy_starting_offset']
@@ -6558,6 +6565,8 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 			performing_player.dan_draw_choice = true
 		"set_dan_draw_choice_INTERNAL":
 			performing_player.dan_draw_choice_from_bottom = effect['from_bottom']
+		"set_enchantress_draw_choice":
+			performing_player.enchantress_draw_choice = true
 		"set_end_of_turn_boost_delay":
 			performing_player.set_end_of_turn_boost_delay(card_id)
 		"set_strike_x":
@@ -8856,7 +8865,7 @@ func check_hand_size_advance_turn(performing_player : Player):
 		else:
 			_append_log_full(Enums.LogType.LogType_Action, performing_player, "takes an additional action! (%s left)" % performing_player.bonus_actions)
 		events += [create_event(Enums.EventType.EventType_Boost_ActionAfterBoost, performing_player.my_id, performing_player.bonus_actions)]
-	elif performing_player.dan_draw_choice and not active_dan_effect and not performing_player.skip_end_of_turn_draw:
+	elif performing_player.dan_draw_choice and not active_special_draw_effect and not performing_player.skip_end_of_turn_draw:
 		var choice_effect = {
 			"effect_type": "choice",
 			"choice": [
@@ -8865,14 +8874,24 @@ func check_hand_size_advance_turn(performing_player : Player):
 			]
 		}
 		events += handle_strike_effect(-1, choice_effect, performing_player)
-		active_dan_effect = true
+		active_special_draw_effect = true
+	elif performing_player.enchantress_draw_choice and not active_special_draw_effect and not performing_player.skip_end_of_turn_draw:
+		var choice_effect = {
+			"effect_type": "choice",
+			"choice": [
+				{ "effect_type": "draw_to", "amount": 7 },
+				{ "effect_type": "draw", "amount": 1 }
+			]
+		}
+		events += handle_strike_effect(-1, choice_effect, performing_player)
+		active_special_draw_effect = true
 	else:
 		if performing_player.skip_end_of_turn_draw:
 			performing_player.skip_end_of_turn_draw = false
 			_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "skips drawing for end of turn. Their hand size is %s." % len(performing_player.hand))
-		else:
+		elif performing_player.draw_at_end_of_turn:
 			var from_bottom_str = ""
-			if active_dan_effect and performing_player.dan_draw_choice_from_bottom:
+			if active_special_draw_effect and performing_player.dan_draw_choice_from_bottom:
 				events += performing_player.draw(1, false, true)
 				from_bottom_str = " from bottom of deck"
 			else:
@@ -8880,7 +8899,7 @@ func check_hand_size_advance_turn(performing_player : Player):
 			performing_player.did_end_of_turn_draw = true
 			_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "draws %sfor end of turn. Their hand size is now %s." % [from_bottom_str, len(performing_player.hand)])
 
-		active_dan_effect = false
+		active_special_draw_effect = false
 		if len(performing_player.hand) > performing_player.max_hand_size:
 			change_game_state(Enums.GameState.GameState_DiscardDownToMax)
 			events += [create_event(Enums.EventType.EventType_HandSizeExceeded, performing_player.my_id, len(performing_player.hand) - performing_player.max_hand_size)]
@@ -9551,7 +9570,7 @@ func do_choice(performing_player : Player, choice_index : int) -> bool:
 
 func set_player_action_processing_state():
 	if active_start_of_turn_effects or active_end_of_turn_effects or active_overdrive or active_boost \
-	or active_character_action or active_exceed or active_change_cards or active_dan_effect:
+	or active_character_action or active_exceed or active_change_cards or active_special_draw_effect:
 		game_state = Enums.GameState.GameState_Boost_Processing
 	elif active_strike:
 		game_state = Enums.GameState.GameState_Strike_Processing
@@ -9576,7 +9595,7 @@ func continue_player_action_resolution(events, performing_player : Player):
 		events = []
 	else:
 		if game_state != Enums.GameState.GameState_PlayerDecision:
-			if active_dan_effect:
+			if active_special_draw_effect:
 				events += check_hand_size_advance_turn(performing_player)
 			elif active_end_of_turn_effects:
 				events += continue_end_turn()

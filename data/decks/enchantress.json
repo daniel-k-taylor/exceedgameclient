@@ -4,66 +4,33 @@
 	"display_name": "The Enchantress",
 	"cardback": "cardback_enchantress.jpg",
 	"exceed_cost": 4,
+	"disable_end_of_turn_draw": true,
 	"on_exceed": {
-		"effect_type": "choice",
-		"choice": [
-			{ "effect_type": "advance", "amount": 1},
-			{ "effect_type": "advance", "amount": 2},
-			{ "effect_type": "retreat", "amount": 1},
-			{ "effect_type": "retreat", "amount": 2},
-			{ "effect_type": "pass" }
-		]
-	},
-	"character_action_exceeded": [{
-		"gauge_cost": 0,
-		"force_cost": 0,
-		"action_name": "Move 1 and Strike",
-		"shortcut_effect_type": "choice",
-		"effect": {
-			"effect_type": "choice",
-			"choice": [
-				{
-					"effect_type": "advance",
-					"amount": 1,
-					"and":
-						{ "effect_type": "strike" }
-				},
-				{
-					"effect_type": "retreat",
-					"amount": 1,
-					"and":
-						{ "effect_type": "strike" }
-				}
-			]
+		"effect_type": "discard_hand",
+		"and": {
+			"effect_type": "reshuffle_discard_into_deck",
+			"and": {
+				"effect_type": "set_enchantress_draw_choice"
+			}
 		}
-	}],
+	},
 	"ability_effects": [
 		{
-			"timing": "hit",
-			"condition": "is_special_or_ultra_attack",
-			"effect_type": "pass",
-			"silent_effect": true,
-			"and": {
-				"condition": "opponent_at_max_range",
-				"character_effect": true,
-				"effect_type": "powerup",
-				"amount": 2
-			}
+			"timing": "end_of_turn",
+			"condition": "max_cards_in_hand",
+			"condition_amount": 0,
+			"effect_type": "draw_to",
+			"amount": 6
+		},
+		{
+			"timing": "cleanup",
+			"condition": "max_cards_in_hand",
+			"condition_amount": 0,
+			"effect_type": "draw_to",
+			"amount": 6
 		}
 	],
 	"exceed_ability_effects": [
-		{
-			"timing": "hit",
-			"condition": "is_special_or_ultra_attack",
-			"effect_type": "pass",
-			"silent_effect": true,
-			"and": {
-				"condition": "opponent_at_max_range",
-				"character_effect": true,
-				"effect_type": "powerup",
-				"amount": 2
-			}
-		}
 	],
 	"cards": [
 		{
