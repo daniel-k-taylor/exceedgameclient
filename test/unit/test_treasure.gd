@@ -357,6 +357,27 @@ func test_treasure_anchor_launch_pull_tinker_tank_blocked():
 	validate_life(player1, 30, player2, 20)
 	player1.gauge = []
 
+	position_players(player1, 3, player2, 5)
+	execute_strike(player1, player2, "treasure_anchorlaunch", "standard_normal_spike", [], [], false, false, true,
+		[], 0, true)
+	validate_positions(player1, 3, player2, 5)
+	validate_life(player1, 30, player2, 14)
+	advance_turn(player2)
+
+func test_treasure_anchor_launch_pull_tinker_tank_boundary():
+	game_logic.teardown()
+	game_logic.free()
+	default_game_setup("tinker")
+
+	give_gauge(player2, 5)
+	player2.life = 1
+	position_players(player1, 3, player2, 4)
+	execute_strike(player1, player2, "standard_normal_assault", "standard_normal_assault", [], [], false, false)
+	assert_eq(player2.extra_width, 1)
+	validate_positions(player1, 3, player2, 7)
+	validate_life(player1, 30, player2, 20)
+	player1.gauge = []
+
 	position_players(player1, 6, player2, 4)
 	execute_strike(player1, player2, "treasure_anchorlaunch", "standard_normal_spike", [], [], false, false, true,
 		[], 0, true)

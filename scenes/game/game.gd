@@ -4667,14 +4667,20 @@ func show_popout(popout_type : CardPopoutType, popout_title : String, card_node,
 	card_popout.set_title(popout_title)
 	var cards = card_node.get_children()
 
+	# Handling filtering for the extra card popout; checks which cards haven't already been played
 	var check_player = Enums.PlayerId.PlayerId_Unassigned
 	if popout_type == CardPopoutType.CardPopoutType_BuddyPlayer:
 		check_player = Enums.PlayerId.PlayerId_Player
+		# This is used when showing cards that can be played as boosts
 		if extra_only_show_boosts:
 			cards = cards.filter(func(card): return game_wrapper.can_player_boost(Enums.PlayerId.PlayerId_Player, card.card_id, ['extra'], "", true))
 	elif popout_type == CardPopoutType.CardPopoutType_BuddyOpponent:
 		check_player = Enums.PlayerId.PlayerId_Opponent
+
 	if check_player != Enums.PlayerId.PlayerId_Unassigned:
+		# If this was set, then the extra card popout is being opened
+		# For all buddy cards linked to a specific game card, only include them if they're still
+		#  in the set-aside area
 		var filtered_cards = []
 		for card in cards:
 			if card.card_id != CardBase.BuddyCardReferenceId:

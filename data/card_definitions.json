@@ -23032,7 +23032,7 @@
 		"speed": 6,
 		"power": 3,
 		"armor": 0,
-		"guard": 3,
+		"guard": 0,
 		"effects": [
 			{
 				"timing": "before",

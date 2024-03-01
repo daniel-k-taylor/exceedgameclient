@@ -1173,6 +1173,7 @@ class Player:
 		if len(deck) > 0:
 			var card = get_top_deck_card()
 			deck.remove_at(0)
+			public_topdeck_id = -1
 			var underboost_cards = get_cards_under_boost(boost_card_id)
 			underboost_cards.append(card)
 			events += [parent.create_event(Enums.EventType.EventType_PlaceCardUnderBoost, my_id, boost_card_id, "", card.id, true)]
@@ -1523,14 +1524,16 @@ class Player:
 		else:
 			return arena_location - extra_width
 
-	func movement_distance_between(initial_location : int, target_location : int, anchor_closest_location : bool = false):
+	func movement_distance_between(initial_location : int, target_location : int, use_closest_location_to_opponent : bool = false):
+		# By default, locations are calculated from the center of the character.
+		# If use_closest_location_to_opponent is set, will instead use the closest point to the opponent (for range-based positioning).
 		var other_player = parent._get_player(parent.get_other_player(my_id))
 		var other_location = other_player.arena_location
 		var other_width = other_player.extra_width
 
 		var distance = abs(initial_location - target_location)
 		if (initial_location < other_location and other_location < target_location) or (initial_location > other_location and other_location > target_location):
-			if anchor_closest_location:
+			if use_closest_location_to_opponent:
 				# Account for the "closest location" changing
 				distance += (2 * extra_width)
 			distance -= 1 + (2 * extra_width) + (2 * other_width)
@@ -6092,16 +6095,18 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 			var starting_range = abs(previous_closest_location - origin)
 			if performing_player.is_left_of_location(previous_closest_location):
 				if starting_range >= target_range:
-					# Past target range; should end on the right
+					# Past target range; opponent should end on the right
 					target_closest_location = min(origin + target_range, MaxArenaLocation)
 				else:
-					# Closer than target range; should end on left
+					# Closer than target range; opponent should end on left
 					target_closest_location = max(origin - target_range, MinArenaLocation)
 			else:
-				# vice-versa
+				# If player is to the right
 				if starting_range >= target_range:
+					# Past target range; opponent should end on the left
 					target_closest_location = max(origin - target_range, MinArenaLocation)
 				else:
+					# Closer than target range; opponent should end on right
 					target_closest_location = min(origin + target_range, MaxArenaLocation)
 
 			var pull_needed = opposing_player.movement_distance_between(previous_closest_location, target_closest_location, true)
