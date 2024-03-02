@@ -2072,7 +2072,7 @@ func _on_hand_size_exceeded(event):
 func _on_choose_to_discard(event, informative_only : bool):
 	var player = event['event_player']
 	var amount = event['number']
-	var allow_fewer = event['extra_info']
+	var allow_fewer = false or event['extra_info']
 	var decision_info = game_wrapper.get_decision_info()
 	var can_pass = decision_info.can_pass
 	if informative_only or not can_pass:

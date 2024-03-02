@@ -399,6 +399,8 @@ func get_effect_type_heading(effect):
 			effect_str += "Close "
 		"draw":
 			effect_str += "Draw "
+		"self_discard_choose":
+			effect_str += "Discard "
 		"pass":
 			effect_str += ""
 		"pull":
@@ -718,6 +720,13 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 			effect_str += "Draw any number of cards."
 		"draw_to":
 			effect_str += "Draw until you have %s cards in hand" % str(effect['amount'])
+		"opponent_draw_or_discard_to":
+			var amount_str = "%s cards in hand" % str(effect['amount'])
+			if str(effect['amount']) == 'other_player_hand_size':
+				amount_str = "the same number of cards as you"
+			effect_str += "Opponent draws or discards until they have %s" % amount_str
+			if 'per_draw_effect' in effect:
+				effect_str += "\nIf they draw: per card drawn, " + get_effect_text(effect['per_draw_effect'], false, false, false)
 		"exceed_now":
 			effect_str += "Exceed"
 		"extra_trigger_resolutions":
@@ -879,6 +888,8 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 			effect_str += " Power"
 		"powerup_per_boost_in_play":
 			effect_str += "+" + str(effect['amount']) + " Power per boost in play."
+		"powerup_per_card_in_hand":
+			effect_str += "+" + str(effect['amount']) + " Power per card in hand up to " + str(effect['amount_max']) + "."
 		"powerup_per_gauge":
 			effect_str += "+" + str(effect['amount']) + " Power per card in gauge up to " + str(effect['amount_max']) + "."
 		"powerup_per_sealed_normal":
@@ -952,6 +963,8 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 				effect_str += "+" + str(effect['amount']) + "-" + str(effect['amount2']) + " Range per EVERY boost in play."
 			else:
 				effect_str += "+" + str(effect['amount']) + "-" + str(effect['amount2']) + " Range per boost in play."
+		"rangeup_per_card_in_hand":
+			effect_str += "+" + str(effect['amount']) + "-" + str(effect['amount2']) + " Range per card in hand."
 		"rangeup_per_sealed_normal":
 			effect_str += "+" + str(effect['amount']) + "-" + str(effect['amount2']) + " Range per sealed normal."
 		"remove_buddy_near_opponent":

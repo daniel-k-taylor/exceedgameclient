@@ -5164,50 +5164,45 @@
 		"NOTE": "ENCHANTRESS CARDS START",
 		"id": "enchantress_rapidbeam",
 		"type": "ultra",
-		"display_name": "Full Broadside",
+		"display_name": "Rapid Beam",
 		"force_cost": 0,
 		"gauge_cost": 3,
-		"range_min": 2,
-		"range_max": 4,
-		"speed": 2,
-		"power": 6,
+		"range_min": 5,
+		"range_max": 8,
+		"speed": 4,
+		"power": 4,
 		"armor": 0,
 		"guard": 0,
 		"effects": [
 			{
-				"timing": "during_strike",
-				"effect_type": "stun_immunity"
-			},
-			{
-				"timing": "before",
-				"condition": "opponent_not_moved_this_strike",
-				"effect_type": "choice",
-				"choice": [
-					{ "effect_type": "push", "amount": 1 },
-					{ "effect_type": "push", "amount": 2 },
-					{ "effect_type": "push", "amount": 3 },
-					{ "effect_type": "pull", "amount": 1 },
-					{ "effect_type": "pull", "amount": 2 },
-					{ "effect_type": "pull", "amount": 3 },
-					{ "effect_type": "pass"}
-				]
+				"timing": "hit",
+				"effect_type": "powerup_per_card_in_hand",
+				"amount": 1,
+				"amount_max": 7
 			}
 		],
 		"boost": {
 			"boost_type": "immediate",
-			"force_cost": 0,
+			"force_cost": 2,
 			"cancel_cost": -1,
-			"display_name": "Private Reserve",
+			"display_name": "Dark Strafe",
 			"effects": [
 				{
 					"timing": "immediate",
-					"effect_type": "boost_additional",
-					"limitation": "continuous",
-					"valid_zones": [ "discard" ]
+					"effect_type": "move_to_any_space"
 				},
 				{
 					"timing": "immediate",
-					"effect_type": "shuffle_discard_in_place"
+					"effect_type": "choice",
+					"choice": [
+						{ "effect_type": "draw", "amount": 1 },
+						{ "effect_type": "draw", "amount": 2 },
+						{ "effect_type": "draw", "amount": 3 },
+						{ "effect_type": "self_discard_choose", "amount": 1 },
+						{ "effect_type": "self_discard_choose", "amount": 2 },
+						{ "effect_type": "self_discard_choose", "amount": 3 },
+						{ "effect_type": "pass" }
+					]
 				}
 			]
 		}
@@ -5215,34 +5210,38 @@
 	{
 		"id": "enchantress_shatteringscream",
 		"type": "ultra",
-		"display_name": "Launcher",
+		"display_name": "Shattering Scream",
 		"force_cost": 0,
-		"gauge_cost": 2,
-		"range_min": 4,
-		"range_max": 4,
-		"speed": 7,
-		"power": 3,
+		"gauge_cost": 3,
+		"range_min": 1,
+		"range_max": 1,
+		"speed": 4,
+		"power": 6,
 		"armor": 0,
-		"guard": 0,
+		"guard": 6,
 		"effects": [
 			{
-				"timing": "hit",
-				"effect_type": "pull",
-				"amount": 3,
-				"and": {
-					"effect_type": "gain_advantage"
-				}
+				"timing": "before",
+				"effect_type": "rangeup_per_card_in_hand",
+				"amount": 0,
+				"amount2": 1
 			}
 		],
 		"boost": {
-			"boost_type": "immediate",
-			"force_cost": 1,
+			"boost_type": "continuous",
+			"force_cost": 2,
 			"cancel_cost": -1,
-			"display_name": "Fly Up",
+			"display_name": "Critical Attack",
 			"effects": [
 				{
-					"timing": "immediate",
-					"effect_type": "move_to_any_space"
+					"timing": "hit",
+					"effect_type": "opponent_draw_or_discard_to",
+					"amount": "other_player_hand_size",
+					"per_draw_effect": {
+						"effect_type": "powerup_opponent",
+						"amount": 1,
+						"describe_as_self": true
+					}
 				}
 			]
 		}

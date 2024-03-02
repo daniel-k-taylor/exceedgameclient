@@ -6111,6 +6111,14 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 				var amount = effect['amount'] * boosts_in_play
 				performing_player.add_power_bonus(amount)
 				events += [create_event(Enums.EventType.EventType_Strike_PowerUp, performing_player.my_id, effect['amount'] * boosts_in_play)]
+		"powerup_per_card_in_hand":
+			var amount_per_hand = effect['amount']
+			var hand_size = performing_player.hand.size()
+			var total_powerup = amount_per_hand * hand_size
+			total_powerup = min(total_powerup, effect['amount_max'])
+			if total_powerup > 0:
+				performing_player.add_power_bonus(total_powerup)
+				events += [create_event(Enums.EventType.EventType_Strike_PowerUp, performing_player.my_id, total_powerup)]
 		"powerup_per_gauge":
 			var amount_per_gauge = effect['amount']
 			var gauge_size = performing_player.gauge.size()
@@ -6421,6 +6429,12 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 				performing_player.strike_stat_boosts.min_range += effect['amount'] * boosts_in_play
 				performing_player.strike_stat_boosts.max_range += effect['amount2'] * boosts_in_play
 				events += [create_event(Enums.EventType.EventType_Strike_RangeUp, performing_player.my_id, effect['amount'] * boosts_in_play, "", effect['amount2'] * boosts_in_play)]
+		"rangeup_per_card_in_hand":
+			var hand_size = performing_player.hand.size()
+			if hand_size > 0:
+				performing_player.strike_stat_boosts.min_range += effect['amount'] * hand_size
+				performing_player.strike_stat_boosts.max_range += effect['amount2'] * hand_size
+				events += [create_event(Enums.EventType.EventType_Strike_RangeUp, performing_player.my_id, effect['amount'] * hand_size, "", effect['amount2'] * hand_size)]
 		"rangeup_per_sealed_normal":
 			var sealed_normals = performing_player.get_sealed_count_of_type("normal")
 			if sealed_normals > 0:
@@ -7219,11 +7233,18 @@ func do_seal_effect(performing_player : Player, card_id : int, source : String, 
 func handle_player_draw_or_discard_to_effect(performing_player : Player, card_id, effect):
 	var events = []
 	var target_hand_size = effect['amount']
+	if str(target_hand_size) == 'other_player_hand_size':
+		var other_player = _get_player(get_other_player(performing_player.my_id))
+		target_hand_size = other_player.hand.size()
 	var hand_size = performing_player.hand.size()
 	if hand_size < target_hand_size:
 		var amount_to_draw = target_hand_size - hand_size
 		events += performing_player.draw(amount_to_draw)
 		_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "draws %s card(s) to reach a hand size of %s." % [amount_to_draw, target_hand_size])
+		if 'per_draw_effect' in effect and amount_to_draw > 0:
+			var per_draw_effect = effect['per_draw_effect'].duplicate()
+			per_draw_effect['amount'] = amount_to_draw * per_draw_effect['amount']
+			events += handle_strike_effect(card_id, per_draw_effect, performing_player)
 	elif hand_size > target_hand_size:
 		var amount_to_discard = hand_size - target_hand_size
 		var discard_effect = {
