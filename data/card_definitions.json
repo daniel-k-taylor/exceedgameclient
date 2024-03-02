@@ -5466,56 +5466,53 @@
 		"NOTE": "ENCHANTRESS CARDS END",
 		"id": "enchantress_spiralorb",
 		"type": "special",
-		"display_name": "Swoop",
+		"display_name": "Spiral Orb",
 		"force_cost": 1,
 		"gauge_cost": 0,
 		"range_min": 1,
-		"range_max": 1,
-		"speed": 7,
-		"power": 1,
-		"armor": 0,
-		"guard": 0,
+		"range_max": 3,
+		"speed": 1,
+		"power": 4,
+		"armor": 2,
+		"guard": 4,
 		"effects": [
+			{
+				"timing": "hit",
+				"effect_type": "choice",
+				"choice": [
+					{ "effect_type": "draw", "amount": 1 },
+					{ "effect_type": "draw", "amount": 2 },
+					{ "effect_type": "self_discard_choose", "amount": 1 },
+					{ "effect_type": "self_discard_choose", "amount": 2 },
+					{ "effect_type": "pass" }
+				]
+			},
 			{
 				"timing": "after",
 				"effect_type": "choice",
 				"choice": [
-					{ "effect_type": "advance", "amount": 1 },
-					{ "effect_type": "advance", "amount": 2 },
-					{ "effect_type": "advance", "amount": 3 },
-					{ "effect_type": "pass"}
+					{ "effect_type": "draw", "amount": 1 },
+					{ "effect_type": "self_discard_choose", "amount": 1 },
+					{ "effect_type": "pass" }
 				]
-			},
-			{
-				"timing": "cleanup",
-				"effect_type": "boost_this_then_sustain",
-				"boost_effect": {
-					"condition": "range",
-					"condition_amount": 3,
-					"effect_type": "gauge_from_hand",
-					"min_amount": 0,
-					"max_amount": 1
-				}
 			}
 		],
 		"boost": {
 			"boost_type": "continuous",
 			"force_cost": 0,
 			"cancel_cost": -1,
-			"display_name": "Rose Toss",
+			"display_name": "Destructive Force",
 			"effects": [
 				{
-					"timing": "during_strike",
-					"effect_type": "powerup",
-					"amount": 1
-				},
-				{
-					"timing": "now",
-					"condition": "range",
-					"condition_amount": 3,
-					"effect_type": "gauge_from_hand",
-					"min_amount": 0,
-					"max_amount": 1
+					"timing": "hit",
+					"effect_type": "opponent_discard_choose",
+					"amount": 2,
+					"allow_fewer": true,
+					"smaller_discard_effect": {
+						"effect_type": "powerup_opponent",
+						"amount": 3,
+						"describe_as_self": true
+					}
 				}
 			]
 		},

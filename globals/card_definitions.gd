@@ -826,10 +826,18 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 			if 'destination' in effect:
 				if effect['destination'] == "reveal":
 					destination_str = "reveals"
+
 			var amount_str = str(effect['amount'])
 			if amount_str == "force_spent_before_strike":
 				amount_str = "that many"
-			effect_str += "Opponent " + destination_str + " " + amount_str + " card(s)"
+
+			var allow_fewer = 'allow_fewer' in effect and effect['allow_fewer']
+			var up_to_text = ""
+			if allow_fewer:
+				up_to_text = " up to"
+			effect_str += "Opponent " + destination_str + up_to_text + " " + amount_str + " card(s)"
+			if 'smaller_discard_effect' in effect:
+				effect_str += "\nIf they discard less: " + get_effect_text(effect['smaller_discard_effect'], false, false, false)
 		"opponent_discard_random":
 			var dest_str = ""
 			if 'destination' in effect:
@@ -883,7 +891,10 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 		"powerup_opponent":
 			if effect['amount'] > 0:
 				effect_str += "+"
-			effect_str += str(effect['amount']) + " Opponent's Power"
+			if 'describe_as_self' in effect and effect['describe_as_self']:
+				effect_str += str(effect['amount']) + " Power"
+			else:
+				effect_str += str(effect['amount']) + " Opponent's Power"
 		"pull":
 			if 'combine_multiple_into_one' in effect and effect['combine_multiple_into_one']:
 				effect_str += "Pull that much."

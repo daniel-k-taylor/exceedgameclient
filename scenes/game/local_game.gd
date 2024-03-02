@@ -5558,6 +5558,7 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 			# Do nothing.
 			pass
 		"opponent_discard_choose":
+			var allow_fewer = 'allow_fewer' in effect and effect['allow_fewer']
 			var destination = "discard"
 			if 'destination' in effect:
 				destination = effect['destination']
@@ -5570,7 +5571,7 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 				# intentionally performing_player, rather than choice_player
 				this_effect['amount'] = performing_player.force_spent_before_strike
 
-			if opposing_player.hand.size() > this_effect['amount']:
+			if opposing_player.hand.size() > this_effect['amount'] or (allow_fewer and opposing_player.hand.size() > 0):
 				change_game_state(Enums.GameState.GameState_PlayerDecision)
 				decision_info.clear()
 				decision_info.type = Enums.DecisionType.DecisionType_ChooseToDiscard
@@ -5583,7 +5584,7 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 
 				decision_info.choice_card_id = card_id
 				decision_info.player = opposing_player.my_id
-				events += [create_event(Enums.EventType.EventType_Strike_ChooseToDiscard, opposing_player.my_id, this_effect['amount'])]
+				events += [create_event(Enums.EventType.EventType_Strike_ChooseToDiscard, opposing_player.my_id, this_effect['amount'], "", allow_fewer)]
 			else:
 				events += [create_event(Enums.EventType.EventType_Strike_ChooseToDiscard_Info, opposing_player.my_id, this_effect['amount'])]
 				# Forced to discard whole hand.
@@ -5597,6 +5598,8 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 					discard_effect = discard_effect.duplicate()
 					discard_effect['discarded_card_ids'] = card_ids
 					events += do_effect_if_condition_met(opposing_player, card_id, discard_effect, local_conditions)
+				elif len(card_ids) < effect['amount'] and 'smaller_discard_effect' in effect:
+					events += do_effect_if_condition_met(opposing_player, card_id, effect['smaller_discard_effect'], local_conditions)
 		"opponent_discard_choose_internal":
 			var cards = effect['card_ids']
 			var card_names = card_db.get_card_names(cards)
@@ -10116,7 +10119,8 @@ func do_choose_to_discard(performing_player : Player, card_ids):
 		target_player = other_player
 
 	var amount = decision_info.effect['amount']
-	if not (decision_info.can_pass or amount == -1):
+	var allow_fewer = 'allow_fewer' in decision_info.effect and decision_info.effect['allow_fewer']
+	if not (decision_info.can_pass or amount == -1 or allow_fewer):
 		if len(card_ids) != amount and target_player.hand.size() >= amount:
 			printlog("ERROR: Tried to choose to discard wrong number of cards.")
 			return false
@@ -10149,6 +10153,8 @@ func do_choose_to_discard(performing_player : Player, card_ids):
 	if not skip_effect and decision_info.bonus_effect:
 		effect['and'] = decision_info.bonus_effect.duplicate()
 		effect['and']['discarded_card_ids'] = card_ids
+	if len(card_ids) < decision_info.effect['amount'] and 'smaller_discard_effect' in decision_info.effect:
+		effect['and'] = decision_info.effect['smaller_discard_effect'].duplicate()
 
 	var events = []
 	set_player_action_processing_state()

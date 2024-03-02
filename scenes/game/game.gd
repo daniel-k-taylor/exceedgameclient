@@ -2072,6 +2072,7 @@ func _on_hand_size_exceeded(event):
 func _on_choose_to_discard(event, informative_only : bool):
 	var player = event['event_player']
 	var amount = event['number']
+	var allow_fewer = event['extra_info']
 	var decision_info = game_wrapper.get_decision_info()
 	var can_pass = decision_info.can_pass
 	if informative_only or not can_pass:
@@ -2095,10 +2096,12 @@ func _on_choose_to_discard(event, informative_only : bool):
 				if amount == -1:
 					min_amount = 0
 					max_amount = game_wrapper.get_player_hand_size(player)
+				elif allow_fewer:
+					min_amount = 0
 				begin_discard_cards_selection(min_amount, max_amount, UISubState.UISubState_SelectCards_DiscardCards_Choose, can_pass)
 		else:
 			# AI or other player wait
-			ai_choose_to_discard(amount, limitation, can_pass)
+			ai_choose_to_discard(amount, limitation, can_pass, allow_fewer)
 	return SmallNoticeDelay
 
 
@@ -4590,10 +4593,10 @@ func ai_mulligan_decision():
 		print("FAILED AI MULLIGAN")
 	test_init()
 
-func ai_choose_to_discard(amount, limitation, can_pass):
+func ai_choose_to_discard(amount, limitation, can_pass, allow_fewer):
 	change_ui_state(UIState.UIState_WaitForGameServer)
 	if not game_wrapper.is_ai_game(): return
-	var discard_action = ai_player.pick_choose_to_discard(game_wrapper.current_game, Enums.PlayerId.PlayerId_Opponent, amount, limitation, can_pass)
+	var discard_action = ai_player.pick_choose_to_discard(game_wrapper.current_game, Enums.PlayerId.PlayerId_Opponent, amount, limitation, can_pass, allow_fewer)
 	var success = game_wrapper.submit_choose_to_discard(Enums.PlayerId.PlayerId_Opponent, discard_action.card_ids)
 	if success:
 		change_ui_state(UIState.UIState_WaitForGameServer)
