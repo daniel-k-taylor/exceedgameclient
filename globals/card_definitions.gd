@@ -585,6 +585,19 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 					effect_str += "Choose a %s card from %s to move to %s" % [effect['limitation'], source, destination]
 				else:
 					effect_str += "Choose a card from %s to move to %s" % [source, destination]
+		"choose_opponent_card_to_discard":
+			var opponent = effect['opponent'] if 'opponent' in effect else false
+			var use_discarded_card_ids = effect['use_discarded_card_ids'] if 'use_discarded_card_ids' in effect else false
+			if opponent:
+				if use_discarded_card_ids:
+					effect_str += "Opponent chooses one to discard"
+				else:
+					effect_str += "Opponent chooses a card in your hand to discard"
+			else:
+				if use_discarded_card_ids:
+					effect_str += "Choose one to discard"
+				else:
+					effect_str += "Choose a card in the opponent's hand to discard"
 		"choose_sustain_boost":
 			effect_str += "Choose a boost to sustain."
 		"close":
@@ -1056,24 +1069,34 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 				effect_str += "Seal the top card of your deck"
 		"self_discard_choose":
 			var destination = effect['destination'] if 'destination' in effect else "discard"
+			var opponent = effect['opponent'] if 'opponent' in effect else false
 			var limitation = ""
-			if 'limitation' in effect:
+			if 'limitation' in effect and effect['limitation']:
 				limitation = " " + effect['limitation']
 			var bonus = ""
 			var optional = 'optional' in effect and effect['optional']
 			var optional_text = ""
 			if optional:
-				optional_text = "You may: "
+				if opponent:
+					optional_text += "Opponent may: "
+				else:
+					optional_text = "You may: "
+			elif opponent:
+				optional_text += "Opponent must: "
+
+			var amount_str = str(effect['amount'])
+			if amount_str == "force_spent_before_strike":
+				amount_str = "that many"
 			if 'discard_effect' in effect:
 				bonus= "\nfor: " + get_effect_text(effect['discard_effect'], false, false, false)
 			if destination == "sealed":
-				effect_str += optional_text + "Seal " + str(effect['amount']) + limitation + " card(s)" + bonus
+				effect_str += optional_text + "Seal " + amount_str + limitation + " card(s)" + bonus
 			elif destination == "reveal":
-				effect_str += optional_text + "Reveal " + str(effect['amount']) + limitation + " card(s)" + bonus
+				effect_str += optional_text + "Reveal " + amount_str + limitation + " card(s)" + bonus
 			elif destination == "opponent_overdrive":
-				effect_str += optional_text + "Add " + str(effect['amount']) + limitation + " card(s) from hand to your opponent's overdrive" + bonus
+				effect_str += optional_text + "Add " + amount_str + limitation + " card(s) from hand to your opponent's overdrive" + bonus
 			else:
-				effect_str += optional_text + "Discard " + str(effect['amount']) + limitation + " card(s)" + bonus
+				effect_str += optional_text + "Discard " + amount_str + limitation + " card(s)" + bonus
 		"set_used_character_bonus":
 			if 'linked_effect' in effect:
 				effect_str += ": " + get_effect_text(effect['linked_effect'], false, false, false)

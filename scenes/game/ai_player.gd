@@ -775,6 +775,14 @@ func determine_choose_to_discard_options(game_logic, me : LocalGame.Player, to_d
 		possible_actions.append(ChooseToDiscardAction.new(combo))
 	return possible_actions
 
+func determine_choose_opponent_card_to_discard_options(card_ids : Array):
+	var possible_actions = []
+	var combinations = []
+	generate_card_count_combinations(card_ids, 1, [], 0, combinations)
+	for combo in combinations:
+		possible_actions.append(ChooseToDiscardAction.new(combo))
+	return possible_actions
+
 func pick_strike(game_logic : LocalGame, my_id : Enums.PlayerId, alternate_source : String = "", disable_wild_swing : bool = false, disable_ex : bool = false) -> StrikeAction:
 	var me = game_logic._get_player(my_id)
 	var opponent = game_logic._get_player(game_logic.get_other_player(my_id))
@@ -974,6 +982,13 @@ func pick_choose_to_discard(game_logic : LocalGame, my_id : Enums.PlayerId, to_d
 	var possible_actions = determine_choose_to_discard_options(game_logic, me, to_discard_count, limitation, can_pass)
 	update_ai_state(game_logic, me, opponent)
 	return ai_policy.pick_choose_to_discard(possible_actions, game_state)
+
+func pick_choose_opponent_card_to_discard(game_logic : LocalGame, my_id : Enums.PlayerId, discard_option_ids : Array) -> ChooseToDiscardAction:
+	var me = game_logic._get_player(my_id)
+	var opponent = game_logic._get_player(game_logic.get_other_player(my_id))
+	var possible_actions = determine_choose_opponent_card_to_discard_options(discard_option_ids)
+	update_ai_state(game_logic, me, opponent)
+	return ai_policy.pick_choose_opponent_card_to_discard(possible_actions, game_state)
 
 func pick_choose_from_topdeck(game_logic : LocalGame, my_id : Enums.PlayerId, action_choices : Array, look_amount : int, can_pass : bool) -> ChooseFromTopdeckAction:
 	var me = game_logic._get_player(my_id)

@@ -8,7 +8,7 @@
 [ext_resource type="PackedScene" uid="uid://cf6aml1lrd2yk" path="res://scenes/game/gauge_panel.tscn" id="6_gtjck"]
 [ext_resource type="PackedScene" uid="uid://u7pf7tbgppmh" path="res://scenes/game/arena_square.tscn" id="6_oqn7w"]
 [ext_resource type="PackedScene" uid="uid://dsc63si41lg6t" path="res://scenes/game/boost_zone.tscn" id="7_gn0of"]
-[ext_resource type="PackedScene" uid="uid://b517dmna12xv3" path="res://scenes/game/location_infobutton_pair.tscn" id="7_txkwl"]
+[ext_resource type="PackedScene" path="res://scenes/game/location_infobutton_pair.tscn" id="7_txkwl"]
 [ext_resource type="PackedScene" uid="uid://1624xgdxrrg5" path="res://scenes/game/life_scene.tscn" id="8_mqi3u"]
 [ext_resource type="Texture2D" uid="uid://b2ojnoth6qto0" path="res://assets/icons/donut.png" id="9_2vlik"]
 [ext_resource type="Texture2D" uid="uid://60aipui45hh3" path="res://assets/cards/card_border_highlight_discard_pile.png" id="9_dpbn3"]

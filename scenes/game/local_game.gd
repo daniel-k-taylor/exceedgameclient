@@ -4569,6 +4569,35 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 					_append_log_full(Enums.LogType.LogType_Effect, performing_player, "has no %s cards in %s." % [effect['limitation'], source])
 				else:
 					_append_log_full(Enums.LogType.LogType_Effect, performing_player, "has no cards in %s." % source)
+		"choose_opponent_card_to_discard":
+			var choice_player = performing_player
+			var choice_other_player = opposing_player
+			if 'opponent' in effect and effect['opponent']:
+				choice_player = opposing_player
+				choice_other_player = performing_player
+
+			var cards_available = choice_other_player.get_card_ids_in_hand()
+			if 'use_discarded_card_ids' in effect and effect['use_discarded_card_ids']:
+				cards_available = effect['discarded_card_ids']
+			var decision_effect = effect.duplicate()
+			decision_effect['amount'] = 1
+			if cards_available.size() > 0:
+				change_game_state(Enums.GameState.GameState_PlayerDecision)
+				decision_info.clear()
+				decision_info.type = Enums.DecisionType.DecisionType_ChooseToDiscard
+				decision_info.effect_type = "choose_opponent_card_to_discard_internal"
+				decision_info.effect = decision_effect
+				decision_info.choice_card_id = card_id
+				decision_info.player = choice_player.my_id
+				decision_info.choice = cards_available
+				events += [create_event(Enums.EventType.EventType_ChooseOpponentCardToDiscard, choice_player.my_id, 0)]
+			else:
+				_append_log_full(Enums.LogType.LogType_Effect, choice_other_player, "has no cards in hand to discard.")
+		"choose_opponent_card_to_discard_internal":
+			var card_ids = effect['card_ids']
+			var card_names = card_db.get_card_names(card_ids)
+			_append_log_full(Enums.LogType.LogType_CardInfo, opposing_player, "has card(s) discarded by %s: %s." % [performing_player.name, card_names])
+			events += opposing_player.discard(card_ids)
 		"choose_sustain_boost":
 			var choice_count = performing_player.continuous_boosts.size()
 			choice_count -= performing_player.sustained_boosts.size()
@@ -6560,6 +6589,9 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 		"seal_hand":
 			events += performing_player.seal_hand()
 		"self_discard_choose":
+			var choice_player = performing_player
+			if 'opponent' in effect and effect['opponent']:
+				choice_player = opposing_player
 			var optional = 'optional' in effect and effect['optional']
 			var limitation = ""
 			if 'limitation' in effect:
@@ -6570,34 +6602,48 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 			var discard_effect = null
 			if 'discard_effect' in effect:
 				discard_effect = effect['discard_effect']
-			var cards_available = performing_player.get_cards_in_hand_of_type(limitation)
+			var cards_available = choice_player.get_cards_in_hand_of_type(limitation)
+
+			var this_effect = effect.duplicate()
+			if str(this_effect['amount']) == "force_spent_before_strike":
+				# intentionally performing_player, rather than choice_player
+				this_effect['amount'] = performing_player.force_spent_before_strike
 			# Even if #cards == effect amount, still do the choosing manually because of all the additional
 			# functionality that has been added to this besides discarding.
-			if cards_available.size() >= effect['amount'] or (optional and cards_available.size() > 0):
+			if cards_available.size() >= this_effect['amount'] or (optional and cards_available.size() > 0):
 				change_game_state(Enums.GameState.GameState_PlayerDecision)
 				decision_info.clear()
 				decision_info.type = Enums.DecisionType.DecisionType_ChooseToDiscard
 				decision_info.effect_type = "self_discard_choose_internal"
-				decision_info.effect = effect
+				decision_info.effect = this_effect
 				decision_info.choice_card_id = card_id
-				decision_info.player = performing_player.my_id
+				decision_info.player = choice_player.my_id
 				decision_info.destination = destination
 				decision_info.limitation = limitation
 				decision_info.bonus_effect = discard_effect
 				decision_info.can_pass = optional
-				events += [create_event(Enums.EventType.EventType_Strike_ChooseToDiscard, performing_player.my_id, effect['amount'])]
+				events += [create_event(Enums.EventType.EventType_Strike_ChooseToDiscard, choice_player.my_id, this_effect['amount'])]
 			else:
 				if not optional and cards_available.size() > 0:
-					events += [create_event(Enums.EventType.EventType_Strike_ChooseToDiscard_Info, performing_player.my_id, effect['amount'])]
+					events += [create_event(Enums.EventType.EventType_Strike_ChooseToDiscard_Info, choice_player.my_id, this_effect['amount'])]
 					# Forced to discard whole hand.
+					var card_ids = choice_player.get_card_ids_in_hand()
 					if destination == "discard":
-						events += performing_player.discard_hand()
+						events += choice_player.discard_hand()
 					elif destination == "sealed":
-						events += performing_player.seal_hand()
+						events += choice_player.seal_hand()
+					elif destination == "reveal":
+						events += choice_player.reveal_hand()
+
+					if discard_effect:
+						discard_effect = discard_effect.duplicate()
+						discard_effect['discarded_card_ids'] = card_ids
+						events += do_effect_if_condition_met(choice_player, card_id, discard_effect, local_conditions)
 				elif cards_available.size() == 0:
-					if destination == "reveal" and 'and' in effect and effect['and']['effect_type'] == "save_power":
-						_append_log_full(Enums.LogType.LogType_Effect, performing_player, "has no cards in hand to reveal.")
-						performing_player.saved_power = 0
+					if destination == "reveal":
+						_append_log_full(Enums.LogType.LogType_Effect, choice_player, "has no cards in hand to reveal.")
+						if 'and' in this_effect and this_effect['and']['effect_type'] == "save_power":
+							choice_player.saved_power = 0
 		"set_dan_draw_choice":
 			performing_player.dan_draw_choice = true
 		"set_dan_draw_choice_INTERNAL":
@@ -10043,16 +10089,29 @@ func do_choose_to_discard(performing_player : Player, card_ids):
 		printlog("ERROR: Tried to make a choice but not in decision state.")
 		return false
 
+	var target_opponent = false
+	var target_player = performing_player
+	var other_player = _get_player(get_other_player(performing_player.my_id))
+	if decision_info.effect['effect_type'] == "choose_opponent_card_to_discard":
+		target_opponent = true
+		target_player = other_player
+
 	var amount = decision_info.effect['amount']
 	if not (decision_info.can_pass or amount == -1):
-		if len(card_ids) != amount and performing_player.hand.size() >= amount:
+		if len(card_ids) != amount and target_player.hand.size() >= amount:
 			printlog("ERROR: Tried to choose to discard wrong number of cards.")
 			return false
 
 	for card_id in card_ids:
-		if not performing_player.is_card_in_hand(card_id):
-			printlog("ERROR: Tried to choose to discard with card not in hand.")
-			return false
+		if not target_opponent:
+			if not performing_player.is_card_in_hand(card_id):
+				printlog("ERROR: Tried to choose to discard with card not in hand.")
+				return false
+		else:
+			if not other_player.is_card_in_hand(card_id):
+				printlog("ERROR: Tried to discard opponent card not in their hand.")
+				return false
+
 		if decision_info.limitation and not decision_info.limitation == "can_pay_cost" and not decision_info.limitation == "from_array":
 			var card = card_db.get_card(card_id)
 			if card.definition['type'] != decision_info.limitation:
@@ -10069,7 +10128,8 @@ func do_choose_to_discard(performing_player : Player, card_ids):
 		"destination": decision_info.destination
 	}
 	if not skip_effect and decision_info.bonus_effect:
-		effect['and'] = decision_info.bonus_effect
+		effect['and'] = decision_info.bonus_effect.duplicate()
+		effect['and']['discarded_card_ids'] = card_ids
 
 	var events = []
 	set_player_action_processing_state()

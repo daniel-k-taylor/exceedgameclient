@@ -5428,26 +5428,42 @@
 			}
 		],
 		"boost": {
-			"boost_type": "continuous",
+			"boost_type": "immediate",
 			"force_cost": 0,
 			"cancel_cost": -1,
-			"display_name": "Blade Flourish",
+			"display_name": "Mind Control",
 			"effects": [
 				{
-					"timing": "during_strike",
-					"effect_type": "powerup",
-					"amount": 1,
-					"and": {
-						"effect_type": "speedup",
-						"amount": 1
-					}
+					"timing": "immediate",
+					"effect_type": "force_for_effect",
+					"per_force_effect": {
+						"effect_type": "increase_force_spent_before_strike",
+						"linked_effect": {
+							"timing": "immediate",
+							"effect_type": "self_discard_choose",
+							"opponent": true,
+							"optional": false,
+							"amount": "force_spent_before_strike",
+							"limitation": "",
+							"destination": "reveal"
+						}
+					},
+					"overall_effect": null,
+					"force_max": 3
 				},
 				{
-					"timing": "now",
-					"condition": "range",
-					"condition_amount": 2,
-					"effect_type": "draw",
-					"amount": 1
+					"timing": "immediate",
+					"effect_type": "self_discard_choose",
+					"opponent": true,
+					"optional": false,
+					"amount": "force_spent_before_strike",
+					"limitation": "",
+					"destination": "reveal",
+					"discard_effect": {
+						"effect_type": "choose_opponent_card_to_discard",
+						"opponent": true, "NOTE": "need to transfer control back to enchantress",
+						"use_discarded_card_ids": true
+					}
 				}
 			]
 		}
