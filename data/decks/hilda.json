@@ -1,0 +1,209 @@
+{
+	"id": "hilda",
+	"season": 6,
+	"display_name": "Hilda",
+	"cardback": "cardback_hilda.jpg",
+	"exceed_cost": 1,
+	"buddy_card": "hilda_condensitygloom",
+	"no_buddy_card_graphics": true,
+	"buddy_display_name": "Condensity Gloom",
+	"character_action_default": [{
+		"gauge_cost": 0,
+		"force_cost": 0,
+		"shortcut_effect_type": "strike",
+		"effect": {
+			"effect_type": "strike"
+		}
+	}],
+	"character_action_exceeded": [
+		{
+			"gauge_cost": 1,
+			"force_cost": 0,
+			"shortcut_effect_type": "choice",
+			"effect": {
+				"effect_type": "choice",
+				"choice": [
+					{ "effect_type": "push", "amount": 1 },
+					{ "effect_type": "pull", "amount": 1 },
+					{ "effect_type": "draw", "amount": 1 }
+				],
+				"and": {
+					"effect_type": "take_bonus_actions",
+					"amount": 1,
+					"silent": true,
+					"disable_strike_action": true
+				}
+			}
+		},
+		{
+			"gauge_cost": 0,
+			"force_cost": 0,
+			"min_hand_size": 1,
+			"action_name": "Revert",
+			"shortcut_effect_type": "gauge_from_hand",
+			"effect": {
+				"effect_type": "gauge_from_hand",
+				"min_amount": 1,
+				"max_amount": 1,
+				"and": {
+					"effect_type": "revert",
+					"and": {
+						"effect_type": "take_bonus_actions",
+						"amount": 1
+					}
+				}
+			}
+		}
+	],
+	"ability_effects": [
+		{
+			"timing": "set_strike",
+			"condition": "used_character_action",
+			"character_effect": true,
+			"effect_type": "add_attack_effect",
+			"added_effect": {
+				"timing": "during_strike",
+				"condition": "is_normal_attack",
+				"effect_type": "rangeup",
+				"amount": 1,
+				"amount2": 1,
+				"and": {
+					"effect_type": "powerup",
+					"amount": -1
+				}
+			}
+		}
+	],
+	"exceed_ability_effects": [
+	],
+	"cards": [
+		{
+			"definition_id": "hilda_inthedarkness",
+			"image": "hilda_inthedarkness.tres"
+		},
+		{
+			"definition_id": "hilda_inthedarkness",
+			"image": "hilda_inthedarkness.tres"
+		},
+		{
+			"definition_id": "hilda_impalement",
+			"image": "hilda_impalement.tres"
+		},
+		{
+			"definition_id": "hilda_impalement",
+			"image": "hilda_impalement.tres"
+		},
+		{
+			"definition_id": "hilda_skewer",
+			"image": "hilda_skewer.tres"
+		},
+		{
+			"definition_id": "hilda_skewer",
+			"image": "hilda_skewer.tres"
+		},
+		{
+			"definition_id": "hilda_skewer",
+			"image": "hilda_skewer.tres"
+		},
+		{
+			"definition_id": "hilda_skewer",
+			"image": "hilda_skewer.tres"
+		},
+		{
+			"definition_id": "hilda_trifurket",
+			"image": "hilda_trifurket.tres"
+		},
+		{
+			"definition_id": "hilda_trifurket",
+			"image": "hilda_trifurket.tres"
+		},
+		{
+			"definition_id": "hilda_revenantpillar",
+			"image": "hilda_revenantpillar.tres"
+		},
+		{
+			"definition_id": "hilda_revenantpillar",
+			"image": "hilda_revenantpillar.tres"
+		},
+		{
+			"definition_id": "hilda_interference",
+			"image": "hilda_interference.tres"
+		},
+		{
+			"definition_id": "hilda_interference",
+			"image": "hilda_interference.tres"
+		},
+		{
+			"definition_id": "hilda_condensitygloom",
+			"image": "hilda_condensitygloom.tres"
+		},
+		{
+			"definition_id": "hilda_condensitygloom",
+			"image": "hilda_condensitygloom.tres"
+		},
+		{
+			"definition_id": "uni_normal_grasp",
+			"image": "normal_grasp.tres"
+		},
+		{
+			"definition_id": "uni_normal_grasp",
+			"image": "normal_grasp.tres"
+		},
+		{
+			"definition_id": "uni_normal_cross",
+			"image": "normal_cross.tres"
+		},
+		{
+			"definition_id": "uni_normal_cross",
+			"image": "normal_cross.tres"
+		},
+		{
+			"definition_id": "uni_normal_assault",
+			"image": "normal_assault.tres"
+		},
+		{
+			"definition_id": "uni_normal_assault",
+			"image": "normal_assault.tres"
+		},
+		{
+			"definition_id": "uni_normal_dive",
+			"image": "normal_dive.tres"
+		},
+		{
+			"definition_id": "uni_normal_dive",
+			"image": "normal_dive.tres"
+		},
+		{
+			"definition_id": "uni_normal_spike",
+			"image": "normal_spike.tres"
+		},
+		{
+			"definition_id": "uni_normal_spike",
+			"image": "normal_spike.tres"
+		},
+		{
+			"definition_id": "uni_normal_sweep",
+			"image": "normal_sweep.tres"
+		},
+		{
+			"definition_id": "uni_normal_sweep",
+			"image": "normal_sweep.tres"
+		},
+		{
+			"definition_id": "uni_normal_focus",
+			"image": "normal_focus.tres"
+		},
+		{
+			"definition_id": "uni_normal_focus",
+			"image": "normal_focus.tres"
+		},
+		{
+			"definition_id": "uni_normal_block",
+			"image": "normal_block.tres"
+		},
+		{
+			"definition_id": "uni_normal_block",
+			"image": "normal_block.tres"
+		}
+	]
+}

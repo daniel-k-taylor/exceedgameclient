@@ -1,0 +1,70 @@
+[gd_resource type="SpriteFrames" load_steps=10 format=3 uid="uid://b6o2iprdfmg4l"]
+
+[ext_resource type="Texture2D" uid="uid://creq0erghbp4h" path="res://assets/character_animations/hilda_condensitygloom/gloomsheet.png" id="1_lmvip"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_agjfn"]
+atlas = ExtResource("1_lmvip")
+region = Rect2(0, 0, 256, 228)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_wr0nn"]
+atlas = ExtResource("1_lmvip")
+region = Rect2(256, 0, 256, 228)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_pkdgl"]
+atlas = ExtResource("1_lmvip")
+region = Rect2(512, 0, 256, 228)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_30vis"]
+atlas = ExtResource("1_lmvip")
+region = Rect2(768, 0, 256, 228)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_jieom"]
+atlas = ExtResource("1_lmvip")
+region = Rect2(1024, 0, 256, 228)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_l10sv"]
+atlas = ExtResource("1_lmvip")
+region = Rect2(1280, 0, 256, 228)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_qeyt1"]
+atlas = ExtResource("1_lmvip")
+region = Rect2(1536, 0, 256, 228)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_5e0ll"]
+atlas = ExtResource("1_lmvip")
+region = Rect2(1792, 0, 256, 228)
+
+[resource]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_agjfn")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_wr0nn")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_pkdgl")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_30vis")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_jieom")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_l10sv")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_qeyt1")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_5e0ll")
+}],
+"loop": true,
+"name": &"idle",
+"speed": 5.0
+}]
+metadata/flip = false
+metadata/scaling = 0.8
+metadata/vertical_offset = 100.0

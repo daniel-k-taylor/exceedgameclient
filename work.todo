@@ -1,6 +1,29 @@
 
 
 In progress:
+    Hilda:
+        In The darkness:
+            ☐ "effect_type": "swap_power_speed"
+        Impalement:
+            ☐ "effect_type": "powerup_per_spent_gauge_matching_range_to_opponent",
+            ☐ "effect_type": "invert_range"
+        TriFurket:
+            ☐ "add_bottomdiscard_card_name_to_choices": [0,1],
+				"choice": [
+					{ "effect_type": "add_bottom_discard_to_gauge" },
+					{ "effect_type": "add_bottom_discard_to_hand" }
+				]
+            ☐ "effect_type": "gauge_from_hand",
+                ☐ "opponent": true,
+                ☐ not enough cards in hand, do as many as you can @started(24-03-02 13:14)
+        Revenant Pillar:
+            ☐ "effect_type": "choose_multiple",
+        Intereference:
+            ☐ push - "amount": "OPPONENT_SPEED"
+        Condensity:
+            ☐ "optional_place_buddy_in_space": true,
+        UA:
+            ☐ Test both
 
 Bug:
     ☐ Play invalid extra attack leads to invalid wild swings.

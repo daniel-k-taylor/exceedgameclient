@@ -4992,6 +4992,9 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 					"max_amount": max_amount,
 				}
 
+				if min_amount > performing_player.hand.size():
+					min_amount = performing_player.hand.size()
+
 				decision_info.bonus_effect = {}
 				if 'per_card_effect' in effect and effect['per_card_effect']:
 					decision_info.bonus_effect = effect['per_card_effect']

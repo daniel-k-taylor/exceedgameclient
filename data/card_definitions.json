@@ -7379,6 +7379,325 @@
 	},
 
 	{
+		"NOTE": "HILDA CARDS START",
+		"id": "hilda_inthedarkness",
+		"type": "ultra",
+		"display_name": "In The Darkness",
+		"force_cost": 0,
+		"gauge_cost": 3,
+		"range_min": 4,
+		"range_max": 4,
+		"speed": 7,
+		"power": 2,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "hit",
+				"effect_type": "gain_advantage",
+				"and": {
+					"effect_type": "choice",
+					"choice": [
+						{ "effect_type": "push", "amount": 2, "suppress_and_description": true, "and": { "effect_type": "draw", "amount": 3 } },
+						{ "effect_type": "pull", "amount": 2, "suppress_and_description": true, "and": { "effect_type": "draw", "amount": 3 } }
+					]
+				}
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Masquerade",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "swap_power_speed"
+				}
+			]
+		}
+	},
+	{
+		"id": "hilda_impalement",
+		"type": "ultra",
+		"display_name": "Impalement",
+		"force_cost": 0,
+		"gauge_cost": 2,
+		"range_min": 3,
+		"range_max": 8,
+		"speed": 6,
+		"power": 2,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "hit",
+				"effect_type": "powerup_per_spent_gauge_matching_range_to_opponent",
+				"amount": 2
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 1,
+			"cancel_cost": -1,
+			"display_name": "Paradox",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "powerup",
+					"amount": -1
+				},
+				{
+					"timing": "during_strike",
+					"effect_type": "invert_range"
+				}
+			]
+		}
+	},
+	{
+		"id": "hilda_skewer",
+		"type": "special",
+		"display_name": "Skewer",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 8,
+		"speed": 6,
+		"power": 2,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "during_strike",
+				"effect_type": "cannot_stun"
+			},
+			{
+				"timing": "hit",
+				"effect_type": "choice",
+				"choice": [
+					{ "effect_type": "push", "amount": 1 },
+					{ "effect_type": "pull", "amount": 1 },
+					{ "effect_type": "draw", "amount": 1 }
+				]
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Power attack",
+			"effects": [
+				{
+					"timing": "hit",
+					"effect_type": "powerup",
+					"amount": 1,
+					"and": {
+						"effect_type": "gain_advantage",
+						"and": {
+							"effect_type": "add_boost_to_gauge_on_strike_cleanup",
+							"card_name": "Skewer"
+						}
+					}
+				}
+			]
+		}
+	},
+	{
+		"id": "hilda_trifurket",
+		"type": "special",
+		"display_name": "Tri-Furket",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 2,
+		"speed": 4,
+		"power": 4,
+		"armor": 1,
+		"guard": 4,
+		"effects": [
+			{
+				"timing": "before",
+				"condition": "was_hit",
+				"effect_type": "rangeup",
+				"amount": 0,
+				"amount2": 2
+			},
+			{
+				"timing": "hit",
+				"effect_type": "choice",
+				"add_bottomdiscard_card_name_to_choices": [0,1],
+				"choice": [
+					{ "effect_type": "add_bottom_discard_to_gauge" },
+					{ "effect_type": "add_bottom_discard_to_hand" }
+				]
+			}
+		],
+		"boost": {
+			"boost_type": "immediate",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "The Darkness",
+			"effects": [
+				{
+					"timing": "immediate",
+					"effect_type": "gauge_from_hand",
+					"opponent": true,
+					"min_amount": 3,
+					"max_amount": 3
+				},
+				{
+					"timing": "immediate",
+					"effect_type": "gauge_from_hand",
+					"min_amount": 3,
+					"max_amount": 3
+				}
+			]
+		}
+	},
+	{
+		"id": "hilda_revenantpillar",
+		"type": "special",
+		"display_name": "Revenant Pillar",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 3,
+		"range_max": 5,
+		"speed": 2,
+		"power": 5,
+		"armor": 0,
+		"guard": 5,
+		"effects": [
+			{
+				"timing": "hit",
+				"effect_type": "choose_multiple",
+				"choice": [
+					{ "effect_type": "push", "amount": 1 },
+					{ "effect_type": "pull", "amount": 1 },
+					{ "effect_type": "draw", "amount": 1 },
+					{ "effect_type": "opponent_discard_random", "amount": 1 },
+					{ "effect_type": "gain_advantage" }
+				],
+				"amount": 2
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Charged Attack",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "powerup",
+					"amount": 2
+				},
+				{
+					"timing": "now",
+					"effect_type": "add_boost_to_gauge_on_move"
+				}
+			]
+		}
+	},
+	{
+		"id": "hilda_interference",
+		"type": "special",
+		"display_name": "Interference",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 3,
+		"speed": 2,
+		"power": 4,
+		"armor": 0,
+		"guard": 6,
+		"effects": [
+			{
+				"timing": "hit",
+				"effect_type": "push",
+				"amount": "OPPONENT_SPEED"
+			}
+		],
+		"boost": {
+			"boost_type": "immediate",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "The Light",
+			"effects": [
+				{
+					"timing": "immediate",
+					"effect_type": "draw",
+					"amount": 3,
+					"and": {
+						"effect_type": "draw",
+						"amount": 3,
+						"opponent": true
+					}
+				},
+				{
+					"timing": "immediate",
+					"effect_type": "bonus_action"
+				}
+			]
+		}
+	},
+	{
+		"NOTE": "HILDA CARDS END",
+		"id": "hilda_condensitygloom",
+		"type": "special",
+		"display_name": "Condensity Gloom",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 0,
+		"range_max": 1,
+		"speed": 2,
+		"power": 5,
+		"armor": 1,
+		"guard": 4,
+		"optional_place_buddy_in_space": true,
+		"effects": [
+			{
+				"timing": "set_strike",
+				"condition": "buddy_in_play",
+				"effect_type": "reveal_strike",
+				"and": {
+					"effect_type": "calculate_range_from_buddy"
+				}
+			},
+			{
+				"timing": "after",
+				"condition": "buddy_in_play",
+				"effect_type": "pass",
+				"and": {
+					"condition": "buddy_space_unoccupied",
+					"effect_type": "choice",
+					"choice": [
+						{ "effect_type": "move_to_buddy" },
+						{ "effect_type": "pass" }
+					]
+				}
+			}
+		],
+		"boost": {
+			"boost_type": "immediate",
+			"force_cost": 1,
+			"cancel_cost": -1,
+			"display_name": "Fadeaway",
+			"effects": [
+				{
+					"timing": "immediate",
+					"effect_type": "retreat",
+					"amount": 2
+				},
+				{
+					"timing": "immediate",
+					"effect_type": "bonus_action"
+				}
+			]
+		},
+		"NOTEEND": "HILDA CARDS END"
+	},
+
+	{
 		"NOTE": "HYDE CARDS START",
 		"id": "hyde_gyrovortex",
 		"type": "ultra",
