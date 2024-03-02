@@ -4590,6 +4590,7 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 				decision_info.choice_card_id = card_id
 				decision_info.player = choice_player.my_id
 				decision_info.choice = cards_available
+				decision_info.limitation = ""
 				events += [create_event(Enums.EventType.EventType_ChooseOpponentCardToDiscard, choice_player.my_id, 0)]
 			else:
 				_append_log_full(Enums.LogType.LogType_Effect, choice_other_player, "has no cards in hand to discard.")

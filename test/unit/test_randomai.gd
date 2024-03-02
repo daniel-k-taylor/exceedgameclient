@@ -218,10 +218,16 @@ func handle_decisions(game: LocalGame):
 				assert(success)
 				assert_true(success, "do choose from discard failed")
 			Enums.DecisionType.DecisionType_ChooseToDiscard:
-				var amount = game.decision_info.effect['amount']
-				var limitation = game.decision_info.limitation
-				var can_pass = game.decision_info.can_pass
-				var chooseaction = decision_ai.pick_choose_to_discard(game, decision_player.my_id, amount, limitation, can_pass)
+				var chooseaction
+				if game.decision_info.effect['effect_type'] == "choose_opponent_card_to_discard":
+					var card_ids = game.decision_info.choice
+					chooseaction = decision_ai.pick_choose_opponent_card_to_discard(game,  decision_player.my_id, card_ids)
+				else:
+					var amount = game.decision_info.effect['amount']
+					var limitation = game.decision_info.limitation
+					var can_pass = game.decision_info.can_pass
+					var allow_fewer = 'allow_fewer' in game.decision_info.effect and game.decision_info.effect['allow_fewer']
+					chooseaction = decision_ai.pick_choose_to_discard(game, decision_player.my_id, amount, limitation, can_pass, allow_fewer)
 				assert_true(game.do_choose_to_discard(decision_ai.game_player, chooseaction.card_ids), "do choose to discard failed")
 			Enums.DecisionType.DecisionType_ChooseDiscardOpponentGauge:
 				var decision_action = decision_ai.pick_discard_opponent_gauge(game, decision_player.my_id)
@@ -633,3 +639,6 @@ func test_king_100():
 
 func test_treasure_100():
 	run_iterations_with_deck("treasure")
+
+func test_enchantress_100():
+	run_iterations_with_deck("enchantress")
