@@ -19,18 +19,19 @@
 		{
 			"timing": "set_strike",
 			"condition": "at_edge_of_arena",
-			"effect_type": "pass",
-			"and": {
-				"condition": "is_special_or_ultra_attack",
-				"effect_type": "set_used_character_bonus"
-			}
+			"effect_type": "set_used_character_bonus"
 		},
 		{
 			"timing": "set_strike",
 			"condition": "used_character_bonus",
 			"character_effect": true,
-			"effect_type": "powerup",
-			"amount": 2
+			"effect_type": "add_attack_effect",
+			"added_effect": {
+				"timing": "during_strike",
+				"condition": "is_special_or_ultra_attack",
+				"effect_type": "powerup",
+				"amount": 2
+			}
 		}
 	],
 	"exceed_ability_effects": [
@@ -48,21 +49,22 @@
 		{
 			"timing": "set_strike",
 			"condition": "at_edge_of_arena",
-			"effect_type": "pass",
-			"and": {
-				"condition": "is_special_or_ultra_attack",
-				"effect_type": "set_used_character_bonus"
-			}
+			"effect_type": "set_used_character_bonus"
 		},
 		{
 			"timing": "set_strike",
 			"condition": "used_character_bonus",
 			"character_effect": true,
-			"effect_type": "powerup",
-			"amount": 3,
-			"and": {
-				"effect_type": "speedup",
-				"amount": 1
+			"effect_type": "add_attack_effect",
+			"added_effect": {
+				"timing": "during_strike",
+				"condition": "is_special_or_ultra_attack",
+				"effect_type": "powerup",
+				"amount": 3,
+				"and": {
+					"effect_type": "speedup",
+					"amount": 1
+				}
 			}
 		}
 	],

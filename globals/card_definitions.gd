@@ -260,6 +260,8 @@ func get_condition_text(effect, amount, amount2, detail):
 			text += "If pushed %s or more spaces, " % amount
 		"not_full_close":
 			text += "If not full close, "
+		"moved_less_than":
+			text += "If moved fewer than %s spaces, " % amount
 		"not_initiated_strike":
 			text += "If opponent initiated strike, "
 		"not_moved_self_this_strike":
@@ -397,6 +399,8 @@ func get_effect_type_heading(effect):
 			effect_str += "Close "
 		"draw":
 			effect_str += "Draw "
+		"self_discard_choose":
+			effect_str += "Discard "
 		"pass":
 			effect_str += ""
 		"pull":
@@ -583,6 +587,19 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 					effect_str += "Choose a %s card from %s to move to %s" % [effect['limitation'], source, destination]
 				else:
 					effect_str += "Choose a card from %s to move to %s" % [source, destination]
+		"choose_opponent_card_to_discard":
+			var opponent = effect['opponent'] if 'opponent' in effect else false
+			var use_discarded_card_ids = effect['use_discarded_card_ids'] if 'use_discarded_card_ids' in effect else false
+			if opponent:
+				if use_discarded_card_ids:
+					effect_str += "Opponent chooses one to discard"
+				else:
+					effect_str += "Opponent chooses a card in your hand to discard"
+			else:
+				if use_discarded_card_ids:
+					effect_str += "Choose one to discard"
+				else:
+					effect_str += "Choose a card in the opponent's hand to discard"
 		"choose_sustain_boost":
 			effect_str += "Choose a boost to sustain."
 		"close":
@@ -703,6 +720,13 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 			effect_str += "Draw any number of cards."
 		"draw_to":
 			effect_str += "Draw until you have %s cards in hand" % str(effect['amount'])
+		"opponent_draw_or_discard_to":
+			var amount_str = "%s cards in hand" % str(effect['amount'])
+			if str(effect['amount']) == 'other_player_hand_size':
+				amount_str = "the same number of cards as you"
+			effect_str += "Opponent draws or discards until they have %s" % amount_str
+			if 'per_draw_effect' in effect:
+				effect_str += "\nIf they draw: per card drawn, " + get_effect_text(effect['per_draw_effect'], false, false, false)
 		"exceed_now":
 			effect_str += "Exceed"
 		"extra_trigger_resolutions":
@@ -807,7 +831,22 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 		"remove_opponent_cant_move_past":
 			effect_str += ""
 		"opponent_discard_choose":
-			effect_str += "Opponent discards " + str(effect['amount']) + " cards."
+			var destination_str = "discards"
+			if 'destination' in effect:
+				if effect['destination'] == "reveal":
+					destination_str = "reveals"
+
+			var amount_str = str(effect['amount'])
+			if amount_str == "force_spent_before_strike":
+				amount_str = "that many"
+
+			var allow_fewer = 'allow_fewer' in effect and effect['allow_fewer']
+			var up_to_text = ""
+			if allow_fewer:
+				up_to_text = " up to"
+			effect_str += "Opponent " + destination_str + up_to_text + " " + amount_str + " card(s)"
+			if 'smaller_discard_effect' in effect:
+				effect_str += "\nIf they discard less: " + get_effect_text(effect['smaller_discard_effect'], false, false, false)
 		"opponent_discard_random":
 			var dest_str = ""
 			if 'destination' in effect:
@@ -849,6 +888,8 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 			effect_str += " Power"
 		"powerup_per_boost_in_play":
 			effect_str += "+" + str(effect['amount']) + " Power per boost in play."
+		"powerup_per_card_in_hand":
+			effect_str += "+" + str(effect['amount']) + " Power per card in hand up to " + str(effect['amount_max']) + "."
 		"powerup_per_gauge":
 			effect_str += "+" + str(effect['amount']) + " Power per card in gauge up to " + str(effect['amount_max']) + "."
 		"powerup_per_sealed_normal":
@@ -861,7 +902,10 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 		"powerup_opponent":
 			if effect['amount'] > 0:
 				effect_str += "+"
-			effect_str += str(effect['amount']) + " Opponent's Power"
+			if 'describe_as_self' in effect and effect['describe_as_self']:
+				effect_str += str(effect['amount']) + " Power"
+			else:
+				effect_str += str(effect['amount']) + " Opponent's Power"
 		"pull":
 			if 'combine_multiple_into_one' in effect and effect['combine_multiple_into_one']:
 				effect_str += "Pull that much."
@@ -919,6 +963,8 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 				effect_str += "+" + str(effect['amount']) + "-" + str(effect['amount2']) + " Range per EVERY boost in play."
 			else:
 				effect_str += "+" + str(effect['amount']) + "-" + str(effect['amount2']) + " Range per boost in play."
+		"rangeup_per_card_in_hand":
+			effect_str += "+" + str(effect['amount']) + "-" + str(effect['amount2']) + " Range per card in hand."
 		"rangeup_per_sealed_normal":
 			effect_str += "+" + str(effect['amount']) + "-" + str(effect['amount2']) + " Range per sealed normal."
 		"remove_buddy_near_opponent":
@@ -1025,6 +1071,8 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 						effect_str += "power of top card of deck"
 					'opponent_speed':
 						effect_str += "opponent's speed"
+					'cards_in_hand':
+						effect_str += "number of cards in hand"
 					'force_spent_before_strike':
 						effect_str += "force spent"
 					'gauge_spent_before_strike':
@@ -1053,23 +1101,27 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 		"self_discard_choose":
 			var destination = effect['destination'] if 'destination' in effect else "discard"
 			var limitation = ""
-			if 'limitation' in effect:
+			if 'limitation' in effect and effect['limitation']:
 				limitation = " " + effect['limitation']
 			var bonus = ""
 			var optional = 'optional' in effect and effect['optional']
 			var optional_text = ""
 			if optional:
 				optional_text = "You may: "
+
+			var amount_str = str(effect['amount'])
+			if amount_str == "force_spent_before_strike":
+				amount_str = "that many"
 			if 'discard_effect' in effect:
 				bonus= "\nfor: " + get_effect_text(effect['discard_effect'], false, false, false)
 			if destination == "sealed":
-				effect_str += optional_text + "Seal " + str(effect['amount']) + limitation + " card(s)" + bonus
+				effect_str += optional_text + "Seal " + amount_str + limitation + " card(s)" + bonus
 			elif destination == "reveal":
-				effect_str += optional_text + "Reveal " + str(effect['amount']) + limitation + " card(s)" + bonus
+				effect_str += optional_text + "Reveal " + amount_str + limitation + " card(s)" + bonus
 			elif destination == "opponent_overdrive":
-				effect_str += optional_text + "Add " + str(effect['amount']) + limitation + " card(s) from hand to your opponent's overdrive" + bonus
+				effect_str += optional_text + "Add " + amount_str + limitation + " card(s) from hand to your opponent's overdrive" + bonus
 			else:
-				effect_str += optional_text + "Discard " + str(effect['amount']) + limitation + " card(s)" + bonus
+				effect_str += optional_text + "Discard " + amount_str + limitation + " card(s)" + bonus
 		"set_used_character_bonus":
 			if 'linked_effect' in effect:
 				effect_str += ": " + get_effect_text(effect['linked_effect'], false, false, false)

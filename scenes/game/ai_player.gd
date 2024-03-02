@@ -751,9 +751,17 @@ func determine_gauge_for_effect_actions(game_logic: LocalGame, me : LocalGame.Pl
 			possible_actions.append(GaugeForEffectAction.new(combo))
 	return possible_actions
 
-func determine_choose_to_discard_options(game_logic, me : LocalGame.Player, to_discard_count : int, limitation : String, can_pass : bool):
+func determine_choose_to_discard_options(game_logic, me : LocalGame.Player, to_discard_count : int, limitation : String, can_pass : bool, allow_fewer : bool):
 	var possible_actions = []
 	var all_card_ids = []
+	var min_count = to_discard_count
+	var max_count = to_discard_count
+	if to_discard_count == -1:
+		min_count = 0
+		max_count = len(me.hand)
+	elif allow_fewer:
+		min_count = 0
+
 	for card in me.hand:
 		if limitation:
 			if limitation == "from_array":
@@ -770,7 +778,17 @@ func determine_choose_to_discard_options(game_logic, me : LocalGame.Player, to_d
 	var combinations = []
 	if can_pass:
 		possible_actions.append(ChooseToDiscardAction.new([]))
-	generate_card_count_combinations(all_card_ids, to_discard_count, [], 0, combinations)
+
+	for discard_count in range(min_count, max_count+1):
+		generate_card_count_combinations(all_card_ids, discard_count, [], 0, combinations)
+		for combo in combinations:
+			possible_actions.append(ChooseToDiscardAction.new(combo))
+	return possible_actions
+
+func determine_choose_opponent_card_to_discard_options(card_ids : Array):
+	var possible_actions = []
+	var combinations = []
+	generate_card_count_combinations(card_ids, 1, [], 0, combinations)
 	for combo in combinations:
 		possible_actions.append(ChooseToDiscardAction.new(combo))
 	return possible_actions
@@ -968,12 +986,19 @@ func pick_gauge_for_effect(game_logic : LocalGame, my_id : Enums.PlayerId, optio
 	update_ai_state(game_logic, me, opponent)
 	return ai_policy.pick_gauge_for_effect(possible_actions, game_state)
 
-func pick_choose_to_discard(game_logic : LocalGame, my_id : Enums.PlayerId, to_discard_count : int, limitation : String, can_pass : bool) -> ChooseToDiscardAction:
+func pick_choose_to_discard(game_logic : LocalGame, my_id : Enums.PlayerId, to_discard_count : int, limitation : String, can_pass : bool, allow_fewer : bool = false) -> ChooseToDiscardAction:
 	var me = game_logic._get_player(my_id)
 	var opponent = game_logic._get_player(game_logic.get_other_player(my_id))
-	var possible_actions = determine_choose_to_discard_options(game_logic, me, to_discard_count, limitation, can_pass)
+	var possible_actions = determine_choose_to_discard_options(game_logic, me, to_discard_count, limitation, can_pass, allow_fewer)
 	update_ai_state(game_logic, me, opponent)
 	return ai_policy.pick_choose_to_discard(possible_actions, game_state)
+
+func pick_choose_opponent_card_to_discard(game_logic : LocalGame, my_id : Enums.PlayerId, discard_option_ids : Array) -> ChooseToDiscardAction:
+	var me = game_logic._get_player(my_id)
+	var opponent = game_logic._get_player(game_logic.get_other_player(my_id))
+	var possible_actions = determine_choose_opponent_card_to_discard_options(discard_option_ids)
+	update_ai_state(game_logic, me, opponent)
+	return ai_policy.pick_choose_opponent_card_to_discard(possible_actions, game_state)
 
 func pick_choose_from_topdeck(game_logic : LocalGame, my_id : Enums.PlayerId, action_choices : Array, look_amount : int, can_pass : bool) -> ChooseFromTopdeckAction:
 	var me = game_logic._get_player(my_id)

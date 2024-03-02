@@ -5161,6 +5161,365 @@
 
 
 	{
+		"NOTE": "ENCHANTRESS CARDS START",
+		"id": "enchantress_rapidbeam",
+		"type": "ultra",
+		"display_name": "Rapid Beam",
+		"force_cost": 0,
+		"gauge_cost": 3,
+		"range_min": 5,
+		"range_max": 8,
+		"speed": 4,
+		"power": 4,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "hit",
+				"effect_type": "powerup_per_card_in_hand",
+				"amount": 1,
+				"amount_max": 7
+			}
+		],
+		"boost": {
+			"boost_type": "immediate",
+			"force_cost": 2,
+			"cancel_cost": -1,
+			"display_name": "Dark Strafe",
+			"effects": [
+				{
+					"timing": "immediate",
+					"effect_type": "move_to_any_space"
+				},
+				{
+					"timing": "immediate",
+					"effect_type": "choice",
+					"choice": [
+						{ "effect_type": "draw", "amount": 1 },
+						{ "effect_type": "draw", "amount": 2 },
+						{ "effect_type": "draw", "amount": 3 },
+						{ "effect_type": "self_discard_choose", "amount": 1 },
+						{ "effect_type": "self_discard_choose", "amount": 2 },
+						{ "effect_type": "self_discard_choose", "amount": 3 },
+						{ "effect_type": "pass" }
+					]
+				}
+			]
+		}
+	},
+	{
+		"id": "enchantress_shatteringscream",
+		"type": "ultra",
+		"display_name": "Shattering Scream",
+		"force_cost": 0,
+		"gauge_cost": 3,
+		"range_min": 1,
+		"range_max": 1,
+		"speed": 4,
+		"power": 6,
+		"armor": 0,
+		"guard": 6,
+		"effects": [
+			{
+				"timing": "before",
+				"effect_type": "rangeup_per_card_in_hand",
+				"amount": 0,
+				"amount2": 1
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 2,
+			"cancel_cost": -1,
+			"display_name": "Critical Attack",
+			"effects": [
+				{
+					"timing": "hit",
+					"effect_type": "opponent_draw_or_discard_to",
+					"amount": "other_player_hand_size",
+					"per_draw_effect": {
+						"effect_type": "powerup_opponent",
+						"amount": 1,
+						"describe_as_self": true
+					}
+				}
+			]
+		}
+	},
+	{
+		"id": "enchantress_homingorb",
+		"type": "special",
+		"display_name": "Homing Orb",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": "CARDS_IN_HAND_MAX_7",
+		"range_max": "CARDS_IN_HAND_MAX_7",
+		"speed": 6,
+		"power": 3,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "hit",
+				"effect_type": "choice",
+				"choice": [
+					{ "effect_type": "push", "amount": 1 },
+					{ "effect_type": "pull", "amount": 1 }
+				]
+			}
+		],
+		"boost": {
+			"boost_type": "immediate",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Ground Break",
+			"effects": [
+				{
+					"timing": "immediate",
+					"effect_type": "choice",
+					"opponent": true,
+					"choice": [
+						{ "effect_type": "advance", "amount": 1, "bonus_effect": {
+							"condition": "moved_less_than", "condition_amount": 2,
+							"effect_type": "take_damage", "nonlethal": true, "amount": 5
+						} },
+						{ "effect_type": "advance", "amount": 2, "bonus_effect": {
+							"condition": "moved_less_than", "condition_amount": 2,
+							"effect_type": "take_damage", "nonlethal": true, "amount": 5
+						} },
+						{ "effect_type": "retreat", "amount": 1, "bonus_effect": {
+							"condition": "moved_less_than", "condition_amount": 2,
+							"effect_type": "take_damage", "nonlethal": true, "amount": 5
+						} },
+						{ "effect_type": "retreat", "amount": 2, "bonus_effect": {
+							"condition": "moved_less_than", "condition_amount": 2,
+							"effect_type": "take_damage", "nonlethal": true, "amount": 5
+						} },
+						{ "effect_type": "take_damage", "nonlethal": true, "amount": 5 }
+					]
+				}
+			]
+		}
+	},
+	{
+		"id": "enchantress_magicshot",
+		"type": "special",
+		"display_name": "Magic Shot",
+		"force_cost": 1,
+		"gauge_cost": 0,
+		"range_min": 2,
+		"range_max": 5,
+		"speed": 5,
+		"power": 2,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "hit",
+				"effect_type": "add_top_discard_to_gauge"
+			}
+		],
+		"boost": {
+			"boost_type": "immediate",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Rebirth",
+			"effects": [
+				{
+					"timing": "immediate",
+					"effect_type": "bottomdeck_from_hand",
+					"min_amount": 0,
+					"max_amount": -1,
+					"per_card_effect": {
+						"effect_type": "draw",
+						"amount": 1
+					}
+				},
+				{
+					"timing": "immediate",
+					"effect_type": "draw",
+					"amount": 1
+				}
+			]
+		}
+	},
+	{
+		"id": "enchantress_firewave",
+		"type": "special",
+		"display_name": "Fire Wave",
+		"force_cost": 1,
+		"gauge_cost": 0,
+		"range_min": 3,
+		"range_max": 6,
+		"speed": 4,
+		"power": 4,
+		"armor": 0,
+		"guard": 4,
+		"effects": [
+			{
+				"timing": "during_strike",
+				"condition": "max_cards_in_hand",
+				"condition_amount": 2,
+				"effect_type": "armorup",
+				"amount": 2
+			},
+			{
+				"timing": "after",
+				"effect_type": "push",
+				"amount": 2
+			}
+		],
+		"boost": {
+			"boost_type": "immediate",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Will Made Real",
+			"effects": [
+				{
+					"timing": "immediate",
+					"effect_type": "choice",
+					"choice": [
+						{ "effect_type": "draw", "amount": 1 },
+						{ "effect_type": "draw", "amount": 2 },
+						{ "effect_type": "self_discard_choose", "amount": 1 },
+						{ "effect_type": "self_discard_choose", "amount": 2 },
+						{ "effect_type": "pass" }
+					]
+				},
+				{
+					"timing": "immediate",
+					"effect_type": "strike"
+				}
+			]
+		}
+	},
+	{
+		"id": "enchantress_flyingcharge",
+		"type": "special",
+		"display_name": "Flying Charge",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 1,
+		"speed": 4,
+		"power": 4,
+		"armor": 0,
+		"guard": 4,
+		"effects": [
+			{
+				"timing": "before",
+				"effect_type": "force_for_effect",
+				"per_force_effect": {
+					"combine_multiple_into_one": true,
+					"effect_type": "close",
+					"amount": 1
+				},
+				"overall_effect": null,
+				"force_max": 3
+			},
+			{
+				"timing": "after",
+				"effect_type": "set_strike_x",
+				"source": "cards_in_hand",
+				"and": {
+					"effect_type": "advance", "amount": "strike_x"
+				}
+			}
+		],
+		"boost": {
+			"boost_type": "immediate",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Mind Control",
+			"effects": [
+				{
+					"timing": "immediate",
+					"effect_type": "force_for_effect",
+					"per_force_effect": {
+						"effect_type": "increase_force_spent_before_strike",
+						"linked_effect": {
+							"timing": "immediate",
+							"effect_type": "opponent_discard_choose",
+							"amount": "force_spent_before_strike",
+							"destination": "reveal"
+						}
+					},
+					"overall_effect": null,
+					"force_max": 3
+				},
+				{
+					"timing": "immediate",
+					"effect_type": "opponent_discard_choose",
+					"amount": "force_spent_before_strike",
+					"destination": "reveal",
+					"discard_effect": {
+						"effect_type": "choose_opponent_card_to_discard",
+						"opponent": true, "NOTE": "need to transfer control back to enchantress",
+						"use_discarded_card_ids": true
+					}
+				}
+			]
+		}
+	},
+	{
+		"NOTE": "ENCHANTRESS CARDS END",
+		"id": "enchantress_spiralorb",
+		"type": "special",
+		"display_name": "Spiral Orb",
+		"force_cost": 1,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 3,
+		"speed": 1,
+		"power": 4,
+		"armor": 2,
+		"guard": 4,
+		"effects": [
+			{
+				"timing": "hit",
+				"effect_type": "choice",
+				"choice": [
+					{ "effect_type": "draw", "amount": 1 },
+					{ "effect_type": "draw", "amount": 2 },
+					{ "effect_type": "self_discard_choose", "amount": 1 },
+					{ "effect_type": "self_discard_choose", "amount": 2 },
+					{ "effect_type": "pass" }
+				]
+			},
+			{
+				"timing": "after",
+				"effect_type": "choice",
+				"choice": [
+					{ "effect_type": "draw", "amount": 1 },
+					{ "effect_type": "self_discard_choose", "amount": 1 },
+					{ "effect_type": "pass" }
+				]
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Destructive Force",
+			"effects": [
+				{
+					"timing": "hit",
+					"effect_type": "opponent_discard_choose",
+					"amount": 2,
+					"allow_fewer": true,
+					"smaller_discard_effect": {
+						"effect_type": "powerup_opponent",
+						"amount": 3,
+						"describe_as_self": true
+					}
+				}
+			]
+		},
+		"NOTEEND": "ENCHANTRESS CARDS END"
+	},
+
+
+	{
 		"NOTE": "ENKIDU CARDS START",
 		"id": "enkidu_spiraldualpalmstrike",
 		"type": "ultra",

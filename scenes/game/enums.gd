@@ -92,6 +92,7 @@ enum EventType {
 	EventType_ChooseFromBoosts,
 	EventType_ChooseFromDiscard,
 	EventType_ChooseFromTopDeck,
+	EventType_ChooseOpponentCardToDiscard,
 	EventType_Draw,
 	EventType_Emote,
 	EventType_Exceed,
