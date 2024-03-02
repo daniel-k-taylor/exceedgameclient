@@ -5558,34 +5558,56 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 			# Do nothing.
 			pass
 		"opponent_discard_choose":
-			if opposing_player.hand.size() > effect['amount']:
+			var destination = "discard"
+			if 'destination' in effect:
+				destination = effect['destination']
+			var discard_effect = null
+			if 'discard_effect' in effect:
+				discard_effect = effect['discard_effect']
+
+			var this_effect = effect.duplicate()
+			if str(this_effect['amount']) == "force_spent_before_strike":
+				# intentionally performing_player, rather than choice_player
+				this_effect['amount'] = performing_player.force_spent_before_strike
+
+			if opposing_player.hand.size() > this_effect['amount']:
 				change_game_state(Enums.GameState.GameState_PlayerDecision)
 				decision_info.clear()
 				decision_info.type = Enums.DecisionType.DecisionType_ChooseToDiscard
 				decision_info.effect_type = "opponent_discard_choose_internal"
-				decision_info.effect = effect
-				decision_info.bonus_effect = null
-				decision_info.destination = "discard"
+				decision_info.effect = this_effect
+				decision_info.bonus_effect = discard_effect
+				decision_info.destination = destination
 				decision_info.limitation = ""
 				decision_info.can_pass = false
 
 				decision_info.choice_card_id = card_id
 				decision_info.player = opposing_player.my_id
-				events += [create_event(Enums.EventType.EventType_Strike_ChooseToDiscard, opposing_player.my_id, effect['amount'])]
+				events += [create_event(Enums.EventType.EventType_Strike_ChooseToDiscard, opposing_player.my_id, this_effect['amount'])]
 			else:
-				events += [create_event(Enums.EventType.EventType_Strike_ChooseToDiscard_Info, opposing_player.my_id, effect['amount'])]
+				events += [create_event(Enums.EventType.EventType_Strike_ChooseToDiscard_Info, opposing_player.my_id, this_effect['amount'])]
 				# Forced to discard whole hand.
-				var card_ids = []
-				for card in opposing_player.hand:
-					card_ids.append(card.id)
-				var card_names = card_db.get_card_names(card_ids)
-				_append_log_full(Enums.LogType.LogType_CardInfo, opposing_player, "has card(s) discarded by %s: %s." % [performing_player.name, card_names])
-				events += opposing_player.discard(card_ids)
+				var card_ids = opposing_player.get_card_ids_in_hand()
+				if destination == "discard":
+					events += opposing_player.discard_hand()
+				elif destination == "reveal":
+					events += opposing_player.reveal_hand()
+
+				if discard_effect:
+					discard_effect = discard_effect.duplicate()
+					discard_effect['discarded_card_ids'] = card_ids
+					events += do_effect_if_condition_met(opposing_player, card_id, discard_effect, local_conditions)
 		"opponent_discard_choose_internal":
 			var cards = effect['card_ids']
 			var card_names = card_db.get_card_names(cards)
-			_append_log_full(Enums.LogType.LogType_CardInfo, opposing_player, "has %s choose cards to discard: %s." % [performing_player.name, card_names])
-			events += performing_player.discard(cards)
+			if effect['destination'] == "discard":
+				_append_log_full(Enums.LogType.LogType_CardInfo, opposing_player, "has %s choose cards to discard: %s." % [performing_player.name, card_names])
+				events += performing_player.discard(cards)
+			elif effect['destination'] == "reveal":
+				_append_log_full(Enums.LogType.LogType_CardInfo, opposing_player, "has %s choose cards to reveal: %s." % [performing_player.name, card_names])
+				performing_player.reveal_card_ids(cards)
+				for revealed_card_id in cards:
+					events += [create_event(Enums.EventType.EventType_RevealCard, performing_player.my_id, revealed_card_id)]
 		"opponent_discard_hand":
 			var num_discarded = opposing_player.hand.size()
 			events += opposing_player.discard_hand()
@@ -6589,9 +6611,6 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 		"seal_hand":
 			events += performing_player.seal_hand()
 		"self_discard_choose":
-			var choice_player = performing_player
-			if 'opponent' in effect and effect['opponent']:
-				choice_player = opposing_player
 			var optional = 'optional' in effect and effect['optional']
 			var limitation = ""
 			if 'limitation' in effect:
@@ -6602,7 +6621,7 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 			var discard_effect = null
 			if 'discard_effect' in effect:
 				discard_effect = effect['discard_effect']
-			var cards_available = choice_player.get_cards_in_hand_of_type(limitation)
+			var cards_available = performing_player.get_cards_in_hand_of_type(limitation)
 
 			var this_effect = effect.duplicate()
 			if str(this_effect['amount']) == "force_spent_before_strike":
@@ -6617,33 +6636,33 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 				decision_info.effect_type = "self_discard_choose_internal"
 				decision_info.effect = this_effect
 				decision_info.choice_card_id = card_id
-				decision_info.player = choice_player.my_id
+				decision_info.player = performing_player.my_id
 				decision_info.destination = destination
 				decision_info.limitation = limitation
 				decision_info.bonus_effect = discard_effect
 				decision_info.can_pass = optional
-				events += [create_event(Enums.EventType.EventType_Strike_ChooseToDiscard, choice_player.my_id, this_effect['amount'])]
+				events += [create_event(Enums.EventType.EventType_Strike_ChooseToDiscard, performing_player.my_id, this_effect['amount'])]
 			else:
 				if not optional and cards_available.size() > 0:
-					events += [create_event(Enums.EventType.EventType_Strike_ChooseToDiscard_Info, choice_player.my_id, this_effect['amount'])]
+					events += [create_event(Enums.EventType.EventType_Strike_ChooseToDiscard_Info, performing_player.my_id, this_effect['amount'])]
 					# Forced to discard whole hand.
-					var card_ids = choice_player.get_card_ids_in_hand()
+					var card_ids = performing_player.get_card_ids_in_hand()
 					if destination == "discard":
-						events += choice_player.discard_hand()
+						events += performing_player.discard_hand()
 					elif destination == "sealed":
-						events += choice_player.seal_hand()
+						events += performing_player.seal_hand()
 					elif destination == "reveal":
-						events += choice_player.reveal_hand()
+						events += performing_player.reveal_hand()
 
 					if discard_effect:
 						discard_effect = discard_effect.duplicate()
 						discard_effect['discarded_card_ids'] = card_ids
-						events += do_effect_if_condition_met(choice_player, card_id, discard_effect, local_conditions)
+						events += do_effect_if_condition_met(performing_player, card_id, discard_effect, local_conditions)
 				elif cards_available.size() == 0:
 					if destination == "reveal":
-						_append_log_full(Enums.LogType.LogType_Effect, choice_player, "has no cards in hand to reveal.")
+						_append_log_full(Enums.LogType.LogType_Effect, performing_player, "has no cards in hand to reveal.")
 						if 'and' in this_effect and this_effect['and']['effect_type'] == "save_power":
-							choice_player.saved_power = 0
+							performing_player.saved_power = 0
 		"set_dan_draw_choice":
 			performing_player.dan_draw_choice = true
 		"set_dan_draw_choice_INTERNAL":

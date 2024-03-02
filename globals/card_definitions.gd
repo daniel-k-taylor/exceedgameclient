@@ -822,7 +822,14 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 		"remove_opponent_cant_move_past":
 			effect_str += ""
 		"opponent_discard_choose":
-			effect_str += "Opponent discards " + str(effect['amount']) + " cards."
+			var destination_str = "discards"
+			if 'destination' in effect:
+				if effect['destination'] == "reveal":
+					destination_str = "reveals"
+			var amount_str = str(effect['amount'])
+			if amount_str == "force_spent_before_strike":
+				amount_str = "that many"
+			effect_str += "Opponent " + destination_str + " " + amount_str + " card(s)"
 		"opponent_discard_random":
 			var dest_str = ""
 			if 'destination' in effect:
@@ -1069,7 +1076,6 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 				effect_str += "Seal the top card of your deck"
 		"self_discard_choose":
 			var destination = effect['destination'] if 'destination' in effect else "discard"
-			var opponent = effect['opponent'] if 'opponent' in effect else false
 			var limitation = ""
 			if 'limitation' in effect and effect['limitation']:
 				limitation = " " + effect['limitation']
@@ -1077,12 +1083,7 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 			var optional = 'optional' in effect and effect['optional']
 			var optional_text = ""
 			if optional:
-				if opponent:
-					optional_text += "Opponent may: "
-				else:
-					optional_text = "You may: "
-			elif opponent:
-				optional_text += "Opponent must: "
+				optional_text = "You may: "
 
 			var amount_str = str(effect['amount'])
 			if amount_str == "force_spent_before_strike":

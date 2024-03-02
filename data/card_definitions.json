@@ -5440,11 +5440,8 @@
 						"effect_type": "increase_force_spent_before_strike",
 						"linked_effect": {
 							"timing": "immediate",
-							"effect_type": "self_discard_choose",
-							"opponent": true,
-							"optional": false,
+							"effect_type": "opponent_discard_choose",
 							"amount": "force_spent_before_strike",
-							"limitation": "",
 							"destination": "reveal"
 						}
 					},
@@ -5453,11 +5450,8 @@
 				},
 				{
 					"timing": "immediate",
-					"effect_type": "self_discard_choose",
-					"opponent": true,
-					"optional": false,
+					"effect_type": "opponent_discard_choose",
 					"amount": "force_spent_before_strike",
-					"limitation": "",
 					"destination": "reveal",
 					"discard_effect": {
 						"effect_type": "choose_opponent_card_to_discard",
