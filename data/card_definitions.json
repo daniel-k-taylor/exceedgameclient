@@ -7569,7 +7569,7 @@
 		"effects": [
 			{
 				"timing": "hit",
-				"effect_type": "choose_multiple",
+				"effect_type": "choice",
 				"choice": [
 					{ "effect_type": "push", "amount": 1 },
 					{ "effect_type": "pull", "amount": 1 },

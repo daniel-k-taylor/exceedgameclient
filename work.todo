@@ -3,23 +3,23 @@
 In progress:
     Hilda:
         In The darkness:
-            ☐ "effect_type": "swap_power_speed"
+            ☐ "effect_type": "swap_power_speed" @started(24-03-02 15:23)
         Impalement:
-            ☐ "effect_type": "powerup_per_spent_gauge_matching_range_to_opponent",
-            ☐ "effect_type": "invert_range"
+            ☐ "effect_type": "powerup_per_spent_gauge_matching_range_to_opponent", @started(24-03-02 16:23)
+            ☐ "effect_type": "invert_range" @started(24-03-02 15:32)
         TriFurket:
-            ☐ "add_bottomdiscard_card_name_to_choices": [0,1],
+            ☐ "add_bottomdiscard_card_name_to_choices": [0,1], @started(24-03-02 16:40)
 				"choice": [
 					{ "effect_type": "add_bottom_discard_to_gauge" },
 					{ "effect_type": "add_bottom_discard_to_hand" }
 				]
-            ☐ "effect_type": "gauge_from_hand",
-                ☐ "opponent": true,
+            ☐ "effect_type": "gauge_from_hand", @started(24-03-02 16:27)
+                ☐ "opponent": true, @started(24-03-02 16:27)
                 ☐ not enough cards in hand, do as many as you can @started(24-03-02 13:14)
         Revenant Pillar:
-            ☐ "effect_type": "choose_multiple",
+            ☐ "effect_type": "choose_multiple", @started(24-03-02 18:06)
         Intereference:
-            ☐ push - "amount": "OPPONENT_SPEED"
+            ☐ push - "amount": "OPPONENT_SPEED" @started(24-03-02 16:26)
         Condensity:
             ☐ "optional_place_buddy_in_space": true,
         UA:

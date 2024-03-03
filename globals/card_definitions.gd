@@ -451,6 +451,16 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 			effect_str += "Add card to gauge"
 		"add_to_gauge_immediately_mid_strike_undo_effects":
 			effect_str += "Add card to gauge (and cancel its effects)."
+		"add_bottom_discard_to_gauge":
+			var card_str = ""
+			if 'card_name' in effect:
+				card_str = "([color=%s]%s[/color]) " % [CardHighlightColor, effect['card_name']]
+			effect_str += "Add bottom card of discard pile %sto gauge" % card_str
+		"add_bottom_discard_to_hand":
+			var card_str = ""
+			if 'card_name' in effect:
+				card_str = "([color=%s]%s[/color]) " % [CardHighlightColor, effect['card_name']]
+			effect_str += "Add bottom card of discard pile %sto hand" % card_str
 		"add_top_deck_to_gauge":
 			var topdeck_card = ""
 			if 'card_name' in effect:
@@ -562,12 +572,15 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 		"cannot_stun":
 			effect_str += "Attack does not stun"
 		"choice":
+			var multiple_str = ""
+			if 'amount' in effect:
+				multiple_str = str(effect['amount']) + " "
 			if 'opponent' in effect and effect['opponent']:
 				effect_str += "Opponent "
 			if 'special_choice_name' in effect:
 				effect_str += effect['special_choice_name']
 			else:
-				effect_str += "Choose: " + get_choice_summary(effect['choice'], card_name_source)
+				effect_str += "Choose" + multiple_str + ": " + get_choice_summary(effect['choice'], card_name_source)
 		"choice_altered_values":
 			if 'opponent' in effect and effect['opponent']:
 				effect_str += "Opponent "
@@ -776,6 +789,8 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 			effect_str += "Increase advance/retreat effects by %s" % effect['amount']
 		"increase_move_opponent_effects":
 			effect_str += "Increase push/pull effects by %s" % effect['amount']
+		"invert_range":
+			effect_str += "Attack Range is inverted"
 		"lightningrod_strike":
 			effect_str += "Return %s to hand to deal 2 nonlethal damage" % effect['card_name']
 		"reset_character_positions":
@@ -892,6 +907,8 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 			effect_str += "+" + str(effect['amount']) + " Power per card in hand up to " + str(effect['amount_max']) + "."
 		"powerup_per_gauge":
 			effect_str += "+" + str(effect['amount']) + " Power per card in gauge up to " + str(effect['amount_max']) + "."
+		"powerup_per_spent_gauge_matching_range_to_opponent":
+			effect_str += "+" + str(effect['amount']) + " Power per spent gauge matching range to opponent."
 		"powerup_per_sealed_normal":
 			var max_text = ""
 			if 'maximum' in effect:
@@ -922,6 +939,8 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 		"push":
 			if 'combine_multiple_into_one' in effect and effect['combine_multiple_into_one']:
 				effect_str += "Push that much."
+			elif str(effect['amount']) == "OPPONENT_SPEED":
+				effect_str += "Push X. X is the opponent's Speed"
 			else:
 				var extra_info = ""
 				if 'save_buddy_spaces_entered_as_strike_x' in effect and effect['save_buddy_spaces_entered_as_strike_x']:
@@ -1180,6 +1199,8 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 			effect_str += effect['description']
 		"swap_deck_and_sealed":
 			effect_str += "Swap all sealed cards with deck"
+		"swap_power_speed":
+			effect_str += "Swap Power and Speed"
 		"take_bonus_actions":
 			if 'use_simple_description' in effect and effect['use_simple_description']:
 				effect_str += "Take another action."
