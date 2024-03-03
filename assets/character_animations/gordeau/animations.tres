@@ -129,9 +129,6 @@ animations = [{
 }, {
 "frames": [{
 "duration": 1.0,
-"texture": ExtResource("20_3asp4")
-}, {
-"duration": 1.0,
 "texture": ExtResource("21_2od4v")
 }, {
 "duration": 1.0,
@@ -246,4 +243,4 @@ animations = [{
 }]
 metadata/flip = true
 metadata/scaling = 0.7
-metadata/vertical_offset = -30.0
+metadata/vertical_offset = 0.0
