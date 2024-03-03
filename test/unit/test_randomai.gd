@@ -532,6 +532,9 @@ func test_taokaka_100():
 func test_yuzu_100():
 	run_iterations_with_deck("yuzu")
 
+func test_hilda_100():
+	run_iterations_with_deck("hilda")
+
 func test_hyde_100():
 	run_iterations_with_deck("hyde")
 
