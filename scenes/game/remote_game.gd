@@ -137,7 +137,6 @@ func can_move_to(player : LocalGame.Player, location : int) -> bool:
 ### Action Functions ###
 
 func _submit_game_message(action_message):
-	_save_game_message(action_message)
 	NetworkManager.submit_game_message(action_message)
 
 func do_prepare(player : LocalGame.Player) -> bool:
