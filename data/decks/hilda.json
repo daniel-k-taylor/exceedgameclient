@@ -5,8 +5,11 @@
 	"cardback": "cardback_hilda.jpg",
 	"exceed_cost": 1,
 	"buddy_card": "hilda_condensitygloom",
-	"no_buddy_card_graphics": true,
 	"buddy_display_name": "Condensity Gloom",
+	"buddy_cards_foreground": [
+		true
+	],
+	"hide_buddy_reference": true,
 	"character_action_default": [{
 		"gauge_cost": 0,
 		"force_cost": 0,

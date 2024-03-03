@@ -301,7 +301,7 @@ animations = [{
 }],
 "loop": true,
 "name": &"idle",
-"speed": 5.0
+"speed": 6.0
 }]
 metadata/flip = true
-metadata/scaling = 0.7
+metadata/scaling = 0.65

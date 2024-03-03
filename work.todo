@@ -21,7 +21,6 @@ In progress:
         Intereference:
             ☐ push - "amount": "OPPONENT_SPEED" @started(24-03-02 16:26)
         Condensity:
-            ☐ "optional_place_buddy_in_space": true,
         UA:
             ☐ Test both
 
@@ -69,6 +68,7 @@ Tasks:
         ☐ Tweak timings on animation lengths
         ☐ Make card ref an icon button
         ☐ Range indicator between players
+        ☐ Hilda Condensity/Happy Chaos Steady Aim - played not faceup is obvious which card it is due to delay while player decides choice
     ☐ Only connect to server if you enter Multiplayer
     ☐ Reorder opponent hand in a way that you can't keep track with effort
     ☐ Add a info screen after character select on the main menu you can click to show all card for the character.

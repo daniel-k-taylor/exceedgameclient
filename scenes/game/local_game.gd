@@ -3557,8 +3557,8 @@ func begin_resolve_strike(events):
 	return events
 
 func get_total_speed(check_player, ignore_swap : bool = false):
-	if performing_player.strike_stat_boosts.swap_power_speed and not ignore_swap:
-		return get_total_power(performing_player, true)
+	if check_player.strike_stat_boosts.swap_power_speed and not ignore_swap:
+		return get_total_power(check_player, true)
 
 	if check_player.strike_stat_boosts.overwrite_total_speed:
 		return check_player.strike_stat_boosts.overwritten_total_speed
@@ -6197,13 +6197,13 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 				events += [create_event(Enums.EventType.EventType_Strike_PowerUp, performing_player.my_id, total_powerup)]
 		"powerup_per_spent_gauge_matching_range_to_opponent":
 			var amount_per_gauge = effect['amount']
-			var range = performing_player.distance_to_opponent()
+			var distance = performing_player.distance_to_opponent()
 			var matching_count = 0
 			for payment_card_id in performing_player.strike_stat_boosts.strike_payment_card_ids:
 				var payment_card = card_db.get_card(payment_card_id)
-				var printed_min = get_card_stat(attacking_player, payment_card, 'range_min')
-				var printed_max = get_card_stat(attacking_player, payment_card, 'range_max')
-				if range >= printed_min and range <= printed_max:
+				var printed_min = get_card_stat(performing_player, payment_card, 'range_min')
+				var printed_max = get_card_stat(performing_player, payment_card, 'range_max')
+				if distance >= printed_min and distance <= printed_max:
 					matching_count += 1
 
 			var total_powerup = amount_per_gauge * matching_count
