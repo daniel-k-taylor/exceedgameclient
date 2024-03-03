@@ -8820,6 +8820,331 @@
 		"NOTEEND": "GOLDLEWIS CARDS END"
 	},
 
+
+	{
+		"NOTE": "GORDEAU CARDS START",
+		"id": "gordeau_soulexodus",
+		"type": "ultra",
+		"display_name": "Soul Exodus",
+		"force_cost": 0,
+		"gauge_cost": 3,
+		"range_min": 1,
+		"range_max": 3,
+		"speed": 5,
+		"power": 1,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "hit",
+				"effect_type": "gain_advantage",
+				"and": {
+					"effect_type": "opponent_discard_choose",
+					"amount": 2,
+					"discard_effect": {
+						"effect_type": "add_top_deck_to_gauge",
+						"amount": "num_discarded_card_ids",
+						"opponent": true, "NOTE": "need to transfer control back to gordeau"
+					}
+				}
+			}
+		],
+		"boost": {
+			"boost_type": "immediate",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Snatcher",
+			"effects": [
+				{
+					"timing": "immediate",
+					"condition": "range",
+					"condition_amount": 1,
+					"effect_type": "reveal_hand",
+					"opponent": true,
+					"and": {
+						"effect_type": "choose_opponent_card_to_discard"
+					}
+				},
+				{
+					"timing": "immediate",
+					"condition": "range",
+					"condition_amount": 1,
+					"effect_type": "draw",
+					"amount": 1
+				}
+			]
+		}
+	},
+	{
+		"id": "gordeau_rustynail",
+		"type": "ultra",
+		"display_name": "Rusty Nail",
+		"force_cost": 0,
+		"gauge_cost": 1,
+		"range_min": 3,
+		"range_max": 6,
+		"speed": 5,
+		"power": 3,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "after",
+				"condition": "opponent_stunned",
+				"effect_type": "choice",
+				"choice": [
+					{ "effect_type": "advance", "amount": 2 },
+					{ "effect_type": "retreat", "amount": 2 }
+				]
+			}
+		],
+		"boost": {
+			"boost_type": "immediate",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Assimilation",
+			"effects": [
+				{
+					"timing": "immediate",
+					"effect_type": "choice",
+					"choice": [
+						{ "effect_type": "advance", "amount": 2 },
+						{ "effect_type": "retreat", "amount": 2 }
+					]
+				},
+				{
+					"timing": "immediate",
+					"condition": "more_cards_than_opponent",
+					"effect_type": "bonus_action"
+				}
+			]
+		}
+	},
+	{
+		"id": "gordeau_turbulence",
+		"type": "ultra",
+		"display_name": "Turbulence",
+		"force_cost": 0,
+		"gauge_cost": 3,
+		"range_min": 1,
+		"range_max": 4,
+		"speed": 3,
+		"power": 6,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "during_strike",
+				"condition": "not_initiated_strike",
+				"effect_type": "speedup",
+				"amount": 2
+			},
+			{
+				"timing": "after",
+				"effect_type": "close",
+				"amount": 3
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Devourer",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "speedup",
+					"amount": 1
+				},
+				{
+					"timing": "before",
+					"effect_type": "powerup_per_card_in_opponent_hand",
+					"amount": 1,
+					"per_card": 2
+				}
+			]
+		}
+	},
+	{
+		"id": "gordeau_mortalglide",
+		"type": "special",
+		"display_name": "Mortal Glide",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 1,
+		"speed": 6,
+		"power": 3,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "hit",
+				"effect_type": "gain_advantage"
+			},
+			{
+				"timing": "after",
+				"effect_type": "advance",
+				"amount": 5
+			}
+		],
+		"boost": {
+			"boost_type": "immediate",
+			"force_cost": 1,
+			"cancel_cost": -1,
+			"display_name": "Fadeaway",
+			"effects": [
+				{
+					"timing": "immediate",
+					"effect_type": "retreat",
+					"amount": 2,
+					"and": {
+						"effect_type": "bonus_action"
+					}
+				}
+			]
+		}
+	},
+	{
+		"id": "gordeau_preciseaim",
+		"type": "special",
+		"display_name": "Precise Aim",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 2,
+		"speed": 5,
+		"power": 4,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "hit",
+				"effect_type": "push",
+				"amount": 3
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Tactical",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "speedup",
+					"amount": 1
+				},
+				{
+					"timing": "now",
+					"effect_type": "choice",
+					"choice": [
+						{ "effect_type": "advance", "amount": 1 },
+						{ "effect_type": "retreat", "amount": 1 }
+					]
+				}
+			]
+		}
+	},
+	{
+		"id": "gordeau_mortalslide",
+		"type": "special",
+		"display_name": "Mortal Slide",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 4,
+		"range_max": 8,
+		"speed": 4,
+		"power": 3,
+		"armor": 0,
+		"guard": 4,
+		"effects": [
+			{
+				"timing": "hit",
+				"effect_type": "pull",
+				"amount": 4
+			},
+			{
+				"timing": "after",
+				"condition": "range",
+				"condition_amount": 1,
+				"effect_type": "gain_advantage"
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Godlike",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "powerup",
+					"amount": 2
+				},
+				{
+					"timing": "after",
+					"condition": "hit_opponent",
+					"effect_type": "gauge_for_effect",
+					"per_gauge_effect": null,
+					"overall_effect": {
+						"effect_type": "sustain_this",
+						"card_name": "Mortal Slide"
+					},
+					"gauge_max": 2
+				}
+			]
+		}
+	},
+	{
+		"NOTE": "GORDEAU CARDS END",
+		"id": "gordeau_grimreaper",
+		"type": "special",
+		"display_name": "Grim Reaper",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 3,
+		"range_max": 6,
+		"speed": 3,
+		"power": 4,
+		"armor": 0,
+		"guard": 4,
+		"effects": [
+			{
+				"timing": "hit",
+				"effect_type": "pull",
+				"amount": 2,
+				"and": {
+					"effect_type": "gauge_for_effect",
+					"per_gauge_effect": null,
+					"overall_effect": {
+						"effect_type": "gain_advantage"
+					},
+					"gauge_max": 1
+				}
+			}
+		],
+		"boost": {
+			"boost_type": "immediate",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Blowback",
+			"effects": [
+				{
+					"timing": "immediate",
+					"condition": "range",
+					"condition_amount": 1,
+					"effect_type": "choice",
+					"choice": [
+						{ "effect_type": "push", "amount": 1, "and": { "effect_type": "strike" } },
+						{ "effect_type": "push", "amount": 2, "and": { "effect_type": "strike" } }
+					]
+				}
+			]
+		},
+		"NOTEEND": "GORDEAU CARDS END"
+	},
+
 	{
 		"NOTE": "GUILE CARDS START",
 		"id": "guile_flashexplosion",

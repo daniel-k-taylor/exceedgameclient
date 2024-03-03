@@ -462,10 +462,18 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 				card_str = "([color=%s]%s[/color]) " % [CardHighlightColor, effect['card_name']]
 			effect_str += "Add bottom card of discard pile %sto hand" % card_str
 		"add_top_deck_to_gauge":
+			var player_str = "Add"
+			if 'opponent' in effect and effect['opponent']:
+				player_str = "Opponent adds"
+			var amount_str = "top card"
+			if 'amount' in effect:
+				amount_str = "top %s card(s)" % effect['amount']
+				if effect['amount'] == 'num_discarded_card_ids':
+					amount_str = "that many top cards"
 			var topdeck_card = ""
 			if 'card_name' in effect:
 				topdeck_card = "([color=%s]%s[/color]) " % [CardHighlightColor, effect['card_name']]
-			effect_str += "Add top card of deck %sto gauge" % topdeck_card
+			effect_str += "%s %s of deck %sto gauge" % [player_str, amount_str, topdeck_card]
 		"add_top_discard_to_gauge":
 			if 'amount' in effect:
 				effect_str += "Add top %s card(s) of discard pile to gauge" % effect['amount']
@@ -840,7 +848,10 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 		"nonlethal_attack":
 			effect_str += "Deal non-lethal damage"
 		"nothing":
-			effect_str += ""
+			if 'description' in effect:
+				effect_str += effect['description']
+			else:
+				effect_str += ""
 		"opponent_cant_move_past":
 			effect_str += "Opponent cannot Advance past you"
 		"remove_opponent_cant_move_past":
@@ -905,6 +916,11 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 			effect_str += "+" + str(effect['amount']) + " Power per boost in play."
 		"powerup_per_card_in_hand":
 			effect_str += "+" + str(effect['amount']) + " Power per card in hand up to " + str(effect['amount_max']) + "."
+		"powerup_per_card_in_opponent_hand":
+			var every_str = "card"
+			if 'per_card' in effect:
+				every_str = "%s cards" % effect['per_card']
+			effect_str += "+" + str(effect['amount']) + " Power for every " + every_str + " in opponent's hand."
 		"powerup_per_gauge":
 			effect_str += "+" + str(effect['amount']) + " Power per card in gauge up to " + str(effect['amount_max']) + "."
 		"powerup_per_spent_gauge_matching_range_to_opponent":

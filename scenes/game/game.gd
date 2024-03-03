@@ -256,6 +256,8 @@ var instructions_number_picker_min = -1
 var instructions_number_picker_max = -1
 var show_thinking_spinner_in : float = 0
 const ThinkingSpinnerWaitBeforeShowTime = 1.0
+var starting_message = null
+var replay_button_visible = false
 var observer_mode = false
 var observer_live = false
 var exiting = false
@@ -296,6 +298,7 @@ func _ready():
 
 	observer_next_button.visible = observer_mode
 	observer_play_to_live_button.visible = observer_mode
+	combat_log.set_replay_button_visibility(replay_button_visible)
 
 	for i in range(1, 10):
 		player_lightningrod_tracking[i] = {
@@ -337,13 +340,16 @@ func _on_locationinfobuttonpair_pressed(player, location):
 		modal_dialog_type = ModalDialogType.ModalDialogType_CardInform
 
 func begin_local_game(vs_info):
+	replay_button_visible = false
 	player_deck = vs_info['player_deck']
 	opponent_deck = vs_info['opponent_deck']
 	var randomize_first_player = vs_info['randomize_first_vs_ai']
 	game_wrapper.initialize_local_game(player_deck, opponent_deck, randomize_first_player)
 
 func begin_remote_game(game_start_message):
+	starting_message = game_start_message.duplicate()
 	observer_mode = 'observer_mode' in game_start_message and game_start_message['observer_mode']
+	replay_button_visible = not observer_mode
 	var starting_message_queue = []
 	if observer_mode:
 		starting_message_queue = game_start_message['observer_log']
@@ -4931,6 +4937,11 @@ func _on_combat_log_button_pressed():
 func _on_combat_log_close_button_pressed():
 	combat_log.visible = false
 
+func _on_combat_log_replay_button_pressed():
+	var messages_list = [starting_message.duplicate()] + game_wrapper.get_message_history()
+	var replay_log = {'messages': messages_list}
+	var replay_log_string = JSON.stringify(replay_log)
+	DisplayServer.clipboard_set(replay_log_string)
 
 func _on_action_menu_choice_selected(choice_index):
 	var action = current_action_menu_choices[choice_index]['action']
@@ -4976,9 +4987,16 @@ func _on_observer_next_button_pressed():
 			observer_next_button.disabled = true
 			observer_next_button.text = "LIVE"
 			observer_live = true
+			observer_play_to_live_button.text = "Pause"
 
 func _on_observer_play_to_live_pressed():
-	observer_next_button.disabled = true
-	observer_next_button.text = "LIVE"
-	observer_live = true
-	observer_play_to_live_button.visible = false
+	if observer_live:
+		observer_next_button.disabled = false
+		observer_next_button.text = "Next Event"
+		observer_live = false
+		observer_play_to_live_button.text = "Go To Live"
+	else:
+		observer_next_button.disabled = true
+		observer_next_button.text = "LIVE"
+		observer_live = true
+		observer_play_to_live_button.text = "Pause"

@@ -44,11 +44,15 @@
 			]
 		},
 		{
-			"timing": "during_strike",
+			"timing": "set_strike",
 			"character_effect": true,
-			"effect_type": "rangeup_per_boost_in_play",
-			"amount": 0,
-			"amount2": 1
+			"effect_type": "add_attack_effect",
+			"added_effect": {
+				"timing": "during_strike",
+				"effect_type": "rangeup_per_boost_in_play",
+				"amount": 0,
+				"amount2": 1
+			}
 		}
 	],
 	"cards": [

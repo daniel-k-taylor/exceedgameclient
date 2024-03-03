@@ -231,6 +231,25 @@ offset_bottom = 240.0
 theme_override_font_sizes/font_size = 32
 text = "Update Name"
 
+[node name="EnterReplayBox" type="TextEdit" parent="."]
+custom_minimum_size = Vector2(100, 50)
+layout_mode = 0
+offset_left = 20.0
+offset_top = 440.0
+offset_right = 308.0
+offset_bottom = 501.0
+theme_override_font_sizes/font_size = 34
+placeholder_text = "Paste Replay Here"
+
+[node name="ViewReplayButton" type="Button" parent="."]
+layout_mode = 0
+offset_left = 60.0
+offset_top = 510.0
+offset_right = 264.0
+offset_bottom = 560.0
+theme_override_font_sizes/font_size = 32
+text = "View Replay"
+
 [node name="PlayerList" type="ItemList" parent="."]
 layout_mode = 0
 offset_left = 944.0
@@ -406,6 +425,8 @@ text = "##"
 [connection signal="focus_entered" from="PlayerNameBox" to="." method="_on_player_name_box_focus_entered"]
 [connection signal="text_changed" from="PlayerNameBox" to="." method="_on_player_name_box_text_changed"]
 [connection signal="pressed" from="UpdateNameButton" to="." method="_on_update_name_button_pressed"]
+[connection signal="focus_entered" from="EnterReplayBox" to="." method="_on_enter_replay_box_focus_entered"]
+[connection signal="pressed" from="ViewReplayButton" to="." method="_on_view_replay_button_pressed"]
 [connection signal="pressed" from="ReconnectToServerButton" to="." method="_on_reconnect_to_server_button_pressed"]
 [connection signal="close_character_select" from="CharSelect" to="." method="_on_char_select_close_character_select"]
 [connection signal="select_character" from="CharSelect" to="." method="_on_char_select_select_character"]

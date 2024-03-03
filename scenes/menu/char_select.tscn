@@ -52,6 +52,7 @@
 [ext_resource type="Texture2D" uid="uid://8nah2fhvu83k" path="res://assets/portraits/nine.png" id="34_h13ui"]
 [ext_resource type="Texture2D" uid="uid://dtgwcnwivshj7" path="res://assets/portraits/orie.png" id="35_lunhb"]
 [ext_resource type="Texture2D" uid="uid://b21g5y5br5cut" path="res://assets/portraits/waldstein.png" id="36_5mgdp"]
+[ext_resource type="Texture2D" uid="uid://dxebolla2aied" path="res://assets/portraits/gordeau.png" id="36_ny6wr"]
 [ext_resource type="Texture2D" uid="uid://bvf0iynr0sbxa" path="res://assets/portraits/hilda.png" id="36_vyxlh"]
 [ext_resource type="Texture2D" uid="uid://bu2eawlvu1aut" path="res://assets/portraits/taokaka.png" id="37_iqb1f"]
 [ext_resource type="Texture2D" uid="uid://cqspv7l4mhdqc" path="res://assets/portraits/wagner.png" id="37_wga4c"]
@@ -380,6 +381,11 @@ portrait_texture = ExtResource("29_r57n1")
 [node name="Row4" type="HBoxContainer" parent="CenterContainer/UNICharacterSelect/Rows"]
 layout_mode = 2
 alignment = 1
+
+[node name="Gordeau" parent="CenterContainer/UNICharacterSelect/Rows/Row4" instance=ExtResource("6_3lmwy")]
+layout_mode = 2
+char_id = "gordeau"
+portrait_texture = ExtResource("36_ny6wr")
 
 [node name="Hilda" parent="CenterContainer/UNICharacterSelect/Rows/Row4" instance=ExtResource("6_3lmwy")]
 layout_mode = 2
@@ -818,6 +824,8 @@ portrait_texture = ExtResource("32_iutun")
 [connection signal="on_pressed" from="CenterContainer/UNICharacterSelect/Rows/Row3/Londrekia" to="." method="_on_char_button_on_pressed"]
 [connection signal="on_hover" from="CenterContainer/UNICharacterSelect/Rows/Row3/Mika" to="." method="_on_char_hover"]
 [connection signal="on_pressed" from="CenterContainer/UNICharacterSelect/Rows/Row3/Mika" to="." method="_on_char_button_on_pressed"]
+[connection signal="on_hover" from="CenterContainer/UNICharacterSelect/Rows/Row4/Gordeau" to="." method="_on_char_hover"]
+[connection signal="on_pressed" from="CenterContainer/UNICharacterSelect/Rows/Row4/Gordeau" to="." method="_on_char_button_on_pressed"]
 [connection signal="on_hover" from="CenterContainer/UNICharacterSelect/Rows/Row4/Hilda" to="." method="_on_char_hover"]
 [connection signal="on_pressed" from="CenterContainer/UNICharacterSelect/Rows/Row4/Hilda" to="." method="_on_char_button_on_pressed"]
 [connection signal="on_hover" from="CenterContainer/UNICharacterSelect/Rows/Row4/Chaos" to="." method="_on_char_hover"]
