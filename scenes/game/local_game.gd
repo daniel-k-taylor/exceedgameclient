@@ -4268,6 +4268,7 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 			# You cannot take bonus actions during a strike.
 			if not active_strike:
 				active_boost.action_after_boost = true
+				performing_player.strike_action_disabled = false
 		"boost_additional":
 			assert(active_boost, "ERROR: Additional boost effect when a boost isn't in play")
 

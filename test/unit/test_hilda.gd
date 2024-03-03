@@ -88,8 +88,9 @@ func do_strike_response(player, card_id, ex_card = -1):
 	var events = game_logic.get_latest_events()
 	return events
 
-func advance_turn(player):
-	assert_true(game_logic.do_prepare(player))
+func advance_turn(player, skip_prepare = false):
+	if not skip_prepare:
+		assert_true(game_logic.do_prepare(player))
 	if player.hand.size() > 7:
 		var cards = []
 		var to_discard = player.hand.size() - 7
@@ -199,10 +200,275 @@ func get_cards_from_gauge(player : LocalGame.Player, amount : int):
 		card_ids.append(player.gauge[i].id)
 	return card_ids
 
+
+func get_choice_index_for_position(pos):
+	for i in range(game_logic.decision_info.limitation.size()):
+		var choice_pos = game_logic.decision_info.limitation[i]
+		if pos == choice_pos:
+			return i
+	assert(false, "Unable to find choice index")
+	fail_test("Unable to find choice index")
+	return 0
+
 ##
 ## Tests start here
 ##
 
-func test_hilda_():
-	position_players(player1, 3, player2, 5)
-	validate_positions(player1, 3, player2, 5)
+func test_hilda_inthedarkness_boost_and_interference():
+	position_players(player1, 8, player2, 9)
+	give_player_specific_card(player1, "hilda_inthedarkness", TestCardId3)
+	assert_true(game_logic.do_boost(player1, TestCardId3))
+	give_player_specific_card(player2, "standard_normal_sweep", TestCardId4)
+	assert_true(game_logic.do_boost(player2, TestCardId4))
+	advance_turn(player2, true)
+	assert_eq(player2.hand.size(), 7)
+	execute_strike(player1, player2, "standard_normal_sweep", "hilda_interference", [], [], false, false)
+	# P1 sweep is now speed 6 power 2
+	# P2 is speed 4 because light
+	# P1 hits for 2 and discards p2 card
+	# P2 hits back and pushs 6
+	validate_life(player1, 26, player2, 28)
+	assert_eq(player2.hand.size(), 6)
+	validate_positions(player1, 2, player2, 9)
+
+func test_hilda_impalement_attack_ex_max_bonus():
+	position_players(player1, 2, player2, 5)
+	give_player_specific_card(player1, "hilda_skewer", TestCardId3)
+	give_player_specific_card(player1, "hilda_skewer", TestCardId4)
+	player1.move_card_from_hand_to_gauge(TestCardId3)
+	player1.move_card_from_hand_to_gauge(TestCardId4)
+	give_player_specific_card(player1, "hilda_impalement", TestCardId1)
+	give_player_specific_card(player1, "hilda_impalement", TestCardId5)
+	give_player_specific_card(player2, "standard_normal_sweep", TestCardId2)
+	assert_true(game_logic.do_strike(player1, TestCardId1, false, TestCardId5))
+	assert_true(game_logic.do_strike(player2, TestCardId2, false, -1))
+	assert_true(game_logic.do_pay_strike_cost(player1, player1.get_card_ids_in_gauge(), false))
+	validate_life(player1, 30, player2, 23)
+	validate_positions(player1, 2, player2, 5)
+
+func test_hilda_impalement_attack_ex_1_bonus():
+	position_players(player1, 2, player2, 5)
+	give_player_specific_card(player1, "hilda_skewer", TestCardId3)
+	give_player_specific_card(player1, "hilda_trifurket", TestCardId4)
+	player1.move_card_from_hand_to_gauge(TestCardId3)
+	player1.move_card_from_hand_to_gauge(TestCardId4)
+	give_player_specific_card(player1, "hilda_impalement", TestCardId1)
+	give_player_specific_card(player1, "hilda_impalement", TestCardId5)
+	give_player_specific_card(player2, "standard_normal_sweep", TestCardId2)
+	assert_true(game_logic.do_strike(player1, TestCardId1, false, TestCardId5))
+	assert_true(game_logic.do_strike(player2, TestCardId2, false, -1))
+	assert_true(game_logic.do_pay_strike_cost(player1, player1.get_card_ids_in_gauge(), false))
+	validate_life(player1, 25, player2, 25)
+	validate_positions(player1, 2, player2, 5)
+
+
+func test_hilda_impalement_invertrange():
+	position_players(player1, 2, player2, 5)
+	give_player_specific_card(player1, "hilda_impalement", TestCardId5)
+	assert_true(game_logic.do_boost(player1, TestCardId5, [player1.hand[0].id]))
+	advance_turn(player2)
+	give_player_specific_card(player1, "standard_normal_grasp", TestCardId1)
+	give_player_specific_card(player2, "standard_normal_sweep", TestCardId2)
+	assert_true(game_logic.do_strike(player1, TestCardId1, false, -1))
+	assert_true(game_logic.do_strike(player2, TestCardId2, false, -1))
+	assert_true(game_logic.do_choice(player1, 0))
+	validate_life(player1, 30, player2, 28)
+	validate_positions(player1, 2, player2, 6)
+
+func test_hilda_ua_grasp():
+	position_players(player1, 2, player2, 4)
+	assert_true(game_logic.do_character_action(player1, [], 0))
+	give_player_specific_card(player1, "standard_normal_grasp", TestCardId1)
+	give_player_specific_card(player2, "standard_normal_sweep", TestCardId2)
+	assert_true(game_logic.do_strike(player1, TestCardId1, false, -1))
+	assert_true(game_logic.do_strike(player2, TestCardId2, false, -1))
+	assert_true(game_logic.do_choice(player1, 1))
+	validate_life(player1, 30, player2, 28)
+	validate_positions(player1, 2, player2, 6)
+
+func test_hilda_ua_grasp_min_range_miss():
+	position_players(player1, 2, player2, 3)
+	assert_true(game_logic.do_character_action(player1, [], 0))
+	give_player_specific_card(player1, "standard_normal_grasp", TestCardId1)
+	give_player_specific_card(player2, "standard_normal_sweep", TestCardId2)
+	assert_true(game_logic.do_strike(player1, TestCardId1, false, -1))
+	assert_true(game_logic.do_strike(player2, TestCardId2, false, -1))
+	validate_life(player1, 24, player2, 30)
+	validate_positions(player1, 2, player2, 3)
+
+func test_hilda_trifurket_bottom_to_gauge():
+	position_players(player1, 2, player2, 3)
+	player1.discard_hand()
+	give_player_specific_card(player1, "hilda_trifurket", TestCardId1)
+	give_player_specific_card(player2, "standard_normal_assault", TestCardId2)
+	assert_true(game_logic.do_strike(player1, TestCardId1, false, -1))
+	assert_true(game_logic.do_strike(player2, TestCardId2, false, -1))
+	var bottom_discard_id = player1.discards[0].id
+	assert_true(game_logic.do_choice(player1, 0)) # Gauge
+	
+	validate_life(player1, 27, player2, 26)
+	validate_positions(player1, 2, player2, 3)
+	assert_eq(player1.gauge.size(), 2)
+	assert_eq(player1.gauge[0].id, bottom_discard_id)
+	assert_eq(player1.gauge[1].id, TestCardId1)
+
+func test_hilda_trifurket_bottom_to_hand():
+	position_players(player1, 2, player2, 3)
+	player1.discard_hand()
+	give_player_specific_card(player1, "hilda_trifurket", TestCardId1)
+	give_player_specific_card(player2, "standard_normal_assault", TestCardId2)
+	assert_true(game_logic.do_strike(player1, TestCardId1, false, -1))
+	assert_true(game_logic.do_strike(player2, TestCardId2, false, -1))
+	var bottom_discard_id = player1.discards[0].id
+	assert_true(game_logic.do_choice(player1, 1)) # Hand
+	
+	validate_life(player1, 27, player2, 26)
+	validate_positions(player1, 2, player2, 3)
+	assert_eq(player1.hand.size(), 1)
+	assert_eq(player1.hand[0].id, bottom_discard_id)
+	assert_eq(player1.gauge.size(), 1)
+	assert_eq(player1.gauge[0].id, TestCardId1)
+
+func test_hilda_trifurket_bottom_to_gauge_empty():
+	position_players(player1, 2, player2, 3)
+	give_player_specific_card(player1, "hilda_trifurket", TestCardId1)
+	give_player_specific_card(player2, "standard_normal_assault", TestCardId2)
+	assert_true(game_logic.do_strike(player1, TestCardId1, false, -1))
+	assert_true(game_logic.do_strike(player2, TestCardId2, false, -1))
+	assert_true(game_logic.do_choice(player1, 0)) # Gauge
+	
+	validate_life(player1, 27, player2, 26)
+	validate_positions(player1, 2, player2, 3)
+	assert_eq(player1.gauge.size(), 1)
+	assert_eq(player1.gauge[0].id, TestCardId1)
+	
+	
+
+func test_hilda_trifurket_boost():
+	position_players(player1, 2, player2, 3)
+	player2.discard_hand()
+	give_player_specific_card(player2, "standard_normal_assault", TestCardId2)
+	give_player_specific_card(player1, "hilda_trifurket", TestCardId1)
+	assert_true(game_logic.do_boost(player1, TestCardId1))
+	
+	assert_true(game_logic.do_card_from_hand_to_gauge(player2, [TestCardId2]))
+	var p1cards = []
+	for i in range(3):
+		p1cards.append(player1.hand[i].id)
+	assert_true(game_logic.do_card_from_hand_to_gauge(player1, p1cards))
+	
+	validate_positions(player1, 2, player2, 3)
+	assert_eq(player1.gauge.size(), 3)
+	assert_eq(player1.gauge[0].id, p1cards[0])
+	assert_eq(player1.gauge[1].id, p1cards[1])
+	assert_eq(player1.gauge[2].id, p1cards[2])
+	assert_eq(player2.gauge.size(), 1)
+	assert_eq(player2.gauge[0].id, TestCardId2)
+	advance_turn(player2)
+
+func test_hilda_revenantpillar_choosemultiple():
+	position_players(player1, 2, player2, 5)
+	assert_eq(player1.hand.size(), 5)
+	give_player_specific_card(player1, "hilda_revenantpillar", TestCardId1)
+	give_player_specific_card(player2, "standard_normal_sweep", TestCardId2)
+	assert_true(game_logic.do_strike(player1, TestCardId1, false, -1))
+	assert_true(game_logic.do_strike(player2, TestCardId2, false, -1))
+	# Choose 2, push, pull, draw, discard opp random, advantage
+	assert_eq(game_logic.decision_info.choice.size(), 5)
+	assert_true(game_logic.do_choice(player1, 0)) # Push 1
+	validate_positions(player1, 2, player2, 6)
+	assert_eq(player1.hand.size(), 5)
+	assert_eq(game_logic.decision_info.choice.size(), 4)
+	assert_true(game_logic.do_choice(player1, 1)) # Draw 1
+	assert_eq(player1.hand.size(), 6)
+	validate_positions(player1, 2, player2, 6)
+	validate_life(player1, 30, player2, 25)
+	advance_turn(player2)
+
+func test_hilda_revenantpillar_choosemultiple2():
+	position_players(player1, 2, player2, 5)
+	assert_eq(player1.hand.size(), 5)
+	give_player_specific_card(player1, "hilda_revenantpillar", TestCardId1)
+	give_player_specific_card(player2, "standard_normal_sweep", TestCardId2)
+	assert_true(game_logic.do_strike(player1, TestCardId1, false, -1))
+	assert_true(game_logic.do_strike(player2, TestCardId2, false, -1))
+	# Choose 2, push, pull, draw, discard opp random, advantage
+	assert_eq(game_logic.decision_info.choice.size(), 5)
+	assert_true(game_logic.do_choice(player1, 4)) # advantage
+	validate_positions(player1, 2, player2, 5)
+	assert_eq(player1.hand.size(), 5)
+	assert_eq(game_logic.decision_info.choice.size(), 4)
+	assert_true(game_logic.do_choice(player1, 0)) # push 1
+	assert_eq(player1.hand.size(), 5)
+	validate_positions(player1, 2, player2, 6)
+	validate_life(player1, 30, player2, 25)
+	advance_turn(player1)
+
+
+func test_hilda_revenantpillar_choosemultiple3():
+	position_players(player1, 2, player2, 5)
+	assert_eq(player1.hand.size(), 5)
+	give_player_specific_card(player1, "hilda_revenantpillar", TestCardId1)
+	give_player_specific_card(player2, "standard_normal_sweep", TestCardId2)
+	assert_true(game_logic.do_strike(player1, TestCardId1, false, -1))
+	assert_true(game_logic.do_strike(player2, TestCardId2, false, -1))
+	# Choose 2, push, pull, draw, discard opp random, advantage
+	assert_eq(game_logic.decision_info.choice.size(), 5)
+	assert_true(game_logic.do_choice(player1, 2)) # draw
+	validate_positions(player1, 2, player2, 5)
+	assert_eq(player1.hand.size(), 6)
+	assert_eq(game_logic.decision_info.choice.size(), 4)
+	assert_true(game_logic.do_choice(player1, 2)) # discard
+	assert_eq(player1.hand.size(), 5)
+	validate_positions(player1, 2, player2, 5)
+	validate_life(player1, 24, player2, 25)
+	advance_turn(player2)
+
+
+func test_hilda_ua_exceed():
+	position_players(player1, 2, player2, 3)
+	give_gauge(player1, 5)
+	player1.exceeded = true
+	assert_true(game_logic.do_character_action(player1, [player1.gauge[0].id], 0))
+	assert_true(game_logic.do_choice(player1, 0)) # Push
+	assert_true(game_logic.do_character_action(player1, [player1.gauge[0].id], 0))
+	assert_true(game_logic.do_choice(player1, 0)) # Push
+	assert_true(game_logic.do_character_action(player1, [player1.gauge[0].id], 0))
+	assert_true(game_logic.do_choice(player1, 0)) # Push
+	validate_positions(player1, 2, player2, 6)
+	assert_eq(player1.hand.size(), 5)
+	assert_eq(player2.hand.size(), 6)
+	give_player_specific_card(player1, "hilda_interference", TestCardId3)
+	assert_true(game_logic.do_boost(player1, TestCardId3))
+	assert_eq(player1.hand.size(), 8)
+	assert_eq(player2.hand.size(), 9)
+	execute_strike(player1, player2, "standard_normal_dive", "standard_normal_dive", [], [], false, false)
+	validate_life(player1, 30, player2, 25)
+	advance_turn(player2)
+
+
+func test_hilda_condensity_ex_space():
+	position_players(player1, 2, player2, 6)
+	give_player_specific_card(player1, "hilda_condensitygloom", TestCardId1)
+	give_player_specific_card(player1, "hilda_condensitygloom", TestCardId5)
+	give_player_specific_card(player2, "standard_normal_sweep", TestCardId2)
+	assert_true(game_logic.do_strike(player1, TestCardId1, false, TestCardId5))
+	assert_true(game_logic.do_choice(player1, get_choice_index_for_position(5)))
+	assert_true(game_logic.do_strike(player2, TestCardId2, false, -1))
+	# After, you can go to it
+	assert_true(game_logic.do_choice(player1, 0))
+	validate_life(player1, 26, player2, 24)
+	validate_positions(player1, 5, player2, 6)
+	advance_turn(player2)
+
+
+func test_hilda_condensity_notinspace():
+	position_players(player1, 2, player2, 5)
+	give_player_specific_card(player1, "hilda_condensitygloom", TestCardId1)
+	give_player_specific_card(player2, "standard_normal_assault", TestCardId2)
+	assert_true(game_logic.do_strike(player1, TestCardId1, false, -1))
+	assert_true(game_logic.do_choice(player1, 0)) # Pass
+	assert_true(game_logic.do_strike(player2, TestCardId2, false, -1))
+	validate_life(player1, 27, player2, 25)
+	validate_positions(player1, 2, player2, 3)
+	advance_turn(player2)

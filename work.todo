@@ -1,28 +1,6 @@
 
 
 In progress:
-    Hilda:
-        In The darkness:
-            ☐ "effect_type": "swap_power_speed" @started(24-03-02 15:23)
-        Impalement:
-            ☐ "effect_type": "powerup_per_spent_gauge_matching_range_to_opponent", @started(24-03-02 16:23)
-            ☐ "effect_type": "invert_range" @started(24-03-02 15:32)
-        TriFurket:
-            ☐ "add_bottomdiscard_card_name_to_choices": [0,1], @started(24-03-02 16:40)
-				"choice": [
-					{ "effect_type": "add_bottom_discard_to_gauge" },
-					{ "effect_type": "add_bottom_discard_to_hand" }
-				]
-            ☐ "effect_type": "gauge_from_hand", @started(24-03-02 16:27)
-                ☐ "opponent": true, @started(24-03-02 16:27)
-                ☐ not enough cards in hand, do as many as you can @started(24-03-02 13:14)
-        Revenant Pillar:
-            ☐ "effect_type": "choose_multiple", @started(24-03-02 18:06)
-        Intereference:
-            ☐ push - "amount": "OPPONENT_SPEED" @started(24-03-02 16:26)
-        Condensity:
-        UA:
-            ☐ Test both
 
 Bug:
     ☐ Play invalid extra attack leads to invalid wild swings.
@@ -31,6 +9,7 @@ Bug:
         - Faust remove boost effects needs to be reviewed, stuff like powerup_opponent and other random effects that Faust can remove mid-strike
         - probably any during_strike ability?
         - Relevant for Bang too
+    ☐ Hilda Condensity/Happy Chaos Steady Aim - played not faceup is obvious which card it is due to delay while player decides choice
 Write tests for:
     Axl:
     Testament:
@@ -57,10 +36,6 @@ Tasks:
         ☐ Background image + life panel backgrounds
         ☐ Card popout has choice buttons for gauge selection
         ☐ If making a decision, minimizing card popout has a blinking icon to reopen it
-    Tests:
-        ☐ Move
-        ☐ Reshuffle
-        ☐ Change cards
     Misc/Low pri:
         ☐ allow AI to take bonus turn actions (like axl's boost thing)
         ☐ Sum continuous boost stat bonuses into a single line
@@ -68,7 +43,6 @@ Tasks:
         ☐ Tweak timings on animation lengths
         ☐ Make card ref an icon button
         ☐ Range indicator between players
-        ☐ Hilda Condensity/Happy Chaos Steady Aim - played not faceup is obvious which card it is due to delay while player decides choice
     ☐ Only connect to server if you enter Multiplayer
     ☐ Reorder opponent hand in a way that you can't keep track with effort
     ☐ Add a info screen after character select on the main menu you can click to show all card for the character.
