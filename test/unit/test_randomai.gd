@@ -642,3 +642,6 @@ func test_treasure_100():
 
 func test_enchantress_100():
 	run_iterations_with_deck("enchantress")
+
+func test_gordeau_100():
+	run_iterations_with_deck("gordeau")
