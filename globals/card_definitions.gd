@@ -825,7 +825,10 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 		"nonlethal_attack":
 			effect_str += "Deal non-lethal damage"
 		"nothing":
-			effect_str += ""
+			if 'description' in effect:
+				effect_str += effect['description']
+			else:
+				effect_str += ""
 		"opponent_cant_move_past":
 			effect_str += "Opponent cannot Advance past you"
 		"remove_opponent_cant_move_past":

@@ -17,7 +17,20 @@
 			"gauge_cost": 1,
 			"force_cost": 0,
 			"effect": {
-				"effect_type": "strike"
+				"effect_type": "take_bonus_actions",
+				"amount": 1,
+				"and": {
+					"effect_type": "force_for_effect",
+					"other_player": true,
+					"continuation_switch_player_control": true,
+					"per_force_effect": null,
+					"required": true,
+					"overall_effect": {
+						"effect_type": "nothing",
+						"description": "suffering"
+					},
+					"force_max": 1
+				}
 			}
 		},
 		{
@@ -46,51 +59,15 @@
 			"timing": "set_strike",
 			"condition": "used_character_action",
 			"condition_details": ["default", 0],
-			"effect_type": "powerup",
-			"amount": -1,
-			"and": {
-				"effect_type": "speedup",
-				"amount": -1,
-				"and": {
-					"effect_type": "add_attack_effect",
-					"added_effect": {
-						"timing": "hit",
-						"effect_type": "gain_advantage"
-					}
-				}
+			"effect_type": "add_attack_effect",
+			"added_effect": {
+				"timing": "hit",
+				"effect_type": "opponent_discard_choose",
+				"amount": 1
 			}
 		}
 	],
 	"exceed_ability_effects": [
-		{
-			"timing": "set_strike",
-			"condition": "used_character_action",
-			"condition_details": ["exceed", 0],
-			"effect_type": "choice",
-			"choice": [
-				{
-					"character_effect": true,
-					"effect_type": "powerup_opponent",
-					"amount": 1,
-					"and": {
-						"effect_type": "powerup",
-						"amount": 2
-					}
-				},
-				{
-					"character_effect": true,
-					"effect_type": "powerup_opponent",
-					"amount": 1,
-					"and": {
-						"effect_type": "add_attack_effect",
-						"added_effect": {
-							"timing": "hit",
-							"effect_type": "gain_advantage"
-						}
-					}
-				}
-			]
-		}
 	],
 	"cards": [
 		{
