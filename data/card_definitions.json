@@ -7658,6 +7658,7 @@
 			{
 				"timing": "set_strike",
 				"condition": "buddy_in_play",
+				"condition_detail": "Condensity Gloom",
 				"effect_type": "reveal_strike",
 				"and": {
 					"effect_type": "calculate_range_from_buddy"
@@ -7666,15 +7667,23 @@
 			{
 				"timing": "after",
 				"condition": "buddy_in_play",
+				"condition_detail": "Condensity Gloom",
 				"effect_type": "pass",
 				"and": {
 					"condition": "buddy_space_unoccupied",
+					"condition_detail": "Condensity Gloom",
 					"effect_type": "choice",
 					"choice": [
-						{ "effect_type": "move_to_buddy" },
+						{ "effect_type": "move_to_buddy", "buddy_name": "Condensity Gloom" },
 						{ "effect_type": "pass" }
 					]
 				}
+			},
+			{
+				"timing": "cleanup",
+				"condition": "buddy_in_play",
+				"effect_type": "remove_buddy",
+				"buddy_name": "Condensity Gloom"
 			}
 		],
 		"boost": {
