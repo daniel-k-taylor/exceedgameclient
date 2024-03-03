@@ -10026,6 +10026,10 @@ func do_force_for_effect(performing_player : Player, card_ids : Array, treat_ult
 			printlog("ERROR: Tried to force for effect with too much force.")
 			return false
 
+	var continuation_player = performing_player
+	if 'continuation_switch_player_control' in decision_info.effect and decision_info.effect['continuation_switch_player_control']:
+		continuation_player = _get_player(get_other_player(performing_player.my_id))
+
 	set_player_action_processing_state()
 	if force_generated > 0:
 		var card_names = ""
@@ -10059,9 +10063,6 @@ func do_force_for_effect(performing_player : Player, card_ids : Array, treat_ult
 			events += handle_strike_effect(decision_info.choice_card_id, decision_effect, performing_player)
 
 	# Intentional events = because events are passed in.
-	var continuation_player = performing_player
-	if 'continuation_switch_player_control' in decision_info.effect and decision_info.effect['continuation_switch_player_control']:
-		continuation_player = _get_player(get_other_player(performing_player.my_id))
 	events = continue_player_action_resolution(events, continuation_player)
 	event_queue += events
 	return true
