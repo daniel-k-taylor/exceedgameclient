@@ -15,6 +15,7 @@ const ModalDialog = preload("res://scenes/game/modal_dialog.gd")
 @onready var selecting_player : bool = true
 
 @onready var player_name_box : TextEdit = $PlayerNameBox
+@onready var replay_data_box : TextEdit = $EnterReplayBox
 
 @onready var start_ai_button : Button = $MenuList/VSAIBox/FightSettings/StartButton
 @onready var randomize_first_box : CheckBox = $MenuList/VSAIBox/FightSettings/RandomizeFirstCheckbox
@@ -368,6 +369,9 @@ func _on_player_name_box_focus_entered():
 func _on_player_name_box_text_changed():
 	cropLineToMaxLength_name_text_edit(player_name_box.text, PlayerNameMaxLen)
 
+func _on_enter_replay_box_focus_entered():
+	replay_data_box.select_all()
+
 func _on_bgm_check_box_toggled(button_pressed : bool):
 	GlobalSettings.set_bgm(button_pressed)
 	if GlobalSettings.BGMEnabled:
@@ -398,3 +402,8 @@ func _on_modal_list_observe_match_pressed(row_index):
 	var player_name = get_player_name()
 	NetworkManager.observe_room(player_name, room_name)
 	update_buttons(true)
+
+func _on_view_replay_button_pressed():
+	if replay_data_box.text:
+		var replay_data = JSON.parse_string(replay_data_box.text)
+		_on_observe_game_started(replay_data)

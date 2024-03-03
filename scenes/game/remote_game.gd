@@ -66,6 +66,8 @@ func observer_process_next_message_from_queue():
 	if _game_message_queue.size() > 0:
 		var message = _game_message_queue[0]
 		_game_message_queue.remove_at(0)
+		if message['action_type'] == "match_result":
+			return false
 		_process_game_message(message)
 		return true
 	else:

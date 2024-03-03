@@ -4938,8 +4938,8 @@ func _on_combat_log_close_button_pressed():
 	combat_log.visible = false
 
 func _on_combat_log_replay_button_pressed():
-	var replay_log = starting_message.duplicate()
-	replay_log['observer_log'] = game_wrapper.get_message_history()
+	var messages_list = [starting_message.duplicate()] + game_wrapper.get_message_history()
+	var replay_log = {'messages': messages_list}
 	var replay_log_string = JSON.stringify(replay_log)
 	DisplayServer.clipboard_set(replay_log_string)
 
