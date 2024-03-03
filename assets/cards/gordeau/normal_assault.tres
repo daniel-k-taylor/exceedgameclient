@@ -1,0 +1,7 @@
+[gd_resource type="AtlasTexture" load_steps=2 format=3 uid="uid://r0am060jljk8"]
+
+[ext_resource type="Texture2D" uid="uid://cwju8sno3sga7" path="res://assets/cards/gordeau/normals.jpg" id="1_5kbr8"]
+
+[resource]
+atlas = ExtResource("1_5kbr8")
+region = Rect2(1500, 0, 750, 1024)
