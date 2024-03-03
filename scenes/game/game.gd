@@ -4987,9 +4987,16 @@ func _on_observer_next_button_pressed():
 			observer_next_button.disabled = true
 			observer_next_button.text = "LIVE"
 			observer_live = true
+			observer_play_to_live_button.text = "Pause"
 
 func _on_observer_play_to_live_pressed():
-	observer_next_button.disabled = true
-	observer_next_button.text = "LIVE"
-	observer_live = true
-	observer_play_to_live_button.visible = false
+	if observer_live:
+		observer_next_button.disabled = false
+		observer_next_button.text = "Next Event"
+		observer_live = false
+		observer_play_to_live_button.text = "Go To Live"
+	else:
+		observer_next_button.disabled = true
+		observer_next_button.text = "LIVE"
+		observer_live = true
+		observer_play_to_live_button.text = "Pause"
