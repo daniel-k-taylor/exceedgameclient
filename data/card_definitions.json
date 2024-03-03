@@ -7485,7 +7485,7 @@
 			"boost_type": "continuous",
 			"force_cost": 0,
 			"cancel_cost": -1,
-			"display_name": "Power attack",
+			"display_name": "Power Attack",
 			"effects": [
 				{
 					"timing": "hit",
