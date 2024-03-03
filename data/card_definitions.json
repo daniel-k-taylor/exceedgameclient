@@ -8492,44 +8492,52 @@
 		"NOTE": "GORDEAU CARDS START",
 		"id": "gordeau_soulexodus",
 		"type": "ultra",
-		"display_name": "Atmosphere of the Aether",
+		"display_name": "Soul Exodus",
 		"force_cost": 0,
 		"gauge_cost": 3,
 		"range_min": 1,
-		"range_max": 2,
-		"speed": 6,
-		"power": 4,
+		"range_max": 3,
+		"speed": 5,
+		"power": 1,
 		"armor": 0,
 		"guard": 0,
 		"effects": [
 			{
 				"timing": "hit",
-				"effect_type": "push",
-				"amount": 3,
+				"effect_type": "gain_advantage",
 				"and": {
-					"effect_type": "draw",
-					"amount": 2
+					"effect_type": "opponent_discard_choose",
+					"amount": 2,
+					"discard_effect": {
+						"effect_type": "add_top_deck_to_gauge",
+						"amount": "num_discarded_card_ids",
+						"opponent": true, "NOTE": "need to transfer control back to gordeau"
+					}
 				}
 			}
 		],
 		"boost": {
-			"boost_type": "continuous",
+			"boost_type": "immediate",
 			"force_cost": 0,
 			"cancel_cost": -1,
-			"display_name": "Zephyr",
+			"display_name": "Snatcher",
 			"effects": [
 				{
-					"timing": "during_strike",
-					"effect_type": "speedup",
-					"amount": 2,
+					"timing": "immediate",
+					"condition": "range",
+					"condition_amount": 1,
+					"effect_type": "reveal_hand",
+					"opponent": true,
 					"and": {
-						"effect_type": "powerup_opponent",
-						"amount": 3
+						"effect_type": "choose_opponent_card_to_discard"
 					}
 				},
 				{
-					"timing": "now",
-					"effect_type": "bonus_action"
+					"timing": "immediate",
+					"condition": "range",
+					"condition_amount": 1,
+					"effect_type": "draw",
+					"amount": 1
 				}
 			]
 		}
@@ -8537,39 +8545,44 @@
 	{
 		"id": "gordeau_rustynail",
 		"type": "ultra",
-		"display_name": "Lumiere of the Dawn",
+		"display_name": "Rusty Nail",
 		"force_cost": 0,
 		"gauge_cost": 1,
-		"range_min": 1,
-		"range_max": 1,
-		"speed": 4,
-		"power": 9,
-		"armor": 6,
+		"range_min": 3,
+		"range_max": 6,
+		"speed": 5,
+		"power": 3,
+		"armor": 0,
 		"guard": 0,
 		"effects": [
 			{
-				"timing": "before",
-				"condition": "speed_greater_than",
-				"condition_amount": "OPPONENT_SPEED",
-				"effect_type": "attack_does_not_hit",
-				"and": {
-					"effect_type": "lose_all_armor"
-				}
+				"timing": "after",
+				"condition": "opponent_stunned",
+				"effect_type": "choice",
+				"choice": [
+					{ "effect_type": "advance", "amount": 2 },
+					{ "effect_type": "retreat", "amount": 2 }
+				]
 			}
 		],
 		"boost": {
 			"boost_type": "immediate",
-			"force_cost": 1,
+			"force_cost": 0,
 			"cancel_cost": -1,
-			"display_name": "Surge Forward",
+			"display_name": "Assimilation",
 			"effects": [
 				{
 					"timing": "immediate",
-					"effect_type": "advance",
-					"amount": 3,
-					"and": {
-						"effect_type": "bonus_action"
-					}
+					"effect_type": "choice",
+					"choice": [
+						{ "effect_type": "advance", "amount": 2 },
+						{ "effect_type": "retreat", "amount": 2 }
+					]
+				},
+				{
+					"timing": "immediate",
+					"condition": "more_cards_than_opponent",
+					"effect_type": "bonus_action"
 				}
 			]
 		}
@@ -8577,45 +8590,44 @@
 	{
 		"id": "gordeau_turbulence",
 		"type": "ultra",
-		"display_name": "Chasing le Reve",
+		"display_name": "Turbulence",
 		"force_cost": 0,
 		"gauge_cost": 3,
 		"range_min": 1,
-		"range_max": 2,
-		"speed": 6,
-		"power": 3,
+		"range_max": 4,
+		"speed": 3,
+		"power": 6,
 		"armor": 0,
 		"guard": 0,
 		"effects": [
 			{
+				"timing": "during_strike",
+				"condition": "not_initiated_strike",
+				"effect_type": "speedup",
+				"amount": 2
+			},
+			{
 				"timing": "after",
-				"effect_type": "advance",
-				"amount": 3,
-				"and": {
-					"effect_type": "draw",
-					"amount": 1
-				}
+				"effect_type": "close",
+				"amount": 3
 			}
 		],
 		"boost": {
 			"boost_type": "continuous",
 			"force_cost": 0,
 			"cancel_cost": -1,
-			"display_name": "Windmill",
+			"display_name": "Devourer",
 			"effects": [
 				{
 					"timing": "during_strike",
-					"effect_type": "powerup_opponent",
-					"amount": 3
-				},
-				{
-					"timing": "now",
-					"effect_type": "bonus_action"
+					"effect_type": "speedup",
+					"amount": 1
 				},
 				{
 					"timing": "before",
-					"effect_type": "close",
-					"amount": 2
+					"effect_type": "powerup_per_card_in_opponent_hand",
+					"amount": 1,
+					"per_card": 2
 				}
 			]
 		}

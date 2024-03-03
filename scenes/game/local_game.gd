@@ -4089,17 +4089,22 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 			_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "adds boosted card %s to gauge." % card_name)
 			events += performing_player.remove_from_continuous_boosts(card, "gauge")
 		"add_top_deck_to_gauge":
+			var target_player = performing_player
+			if 'opponent' in effect and effect['opponent']:
+				target_player = opposing_player
 			var amount = 1
 			if 'amount' in effect:
 				amount = effect['amount']
+				if str(amount) == "num_discarded_card_ids":
+					amount = len(effect['discarded_card_ids'])
 
-			var actual_amount = min(amount, len(performing_player.deck))
+			var actual_amount = min(amount, len(target_player.deck))
 			if actual_amount > 0:
-				var card_names = _card_list_to_string(performing_player.deck.slice(0, actual_amount))
-				_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "adds the top %s card(s) of their deck to gauge: %s." % [amount, card_names])
+				var card_names = _card_list_to_string(target_player.deck.slice(0, actual_amount))
+				_append_log_full(Enums.LogType.LogType_CardInfo, target_player, "adds the top %s card(s) of their deck to gauge: %s." % [amount, card_names])
 			else:
-				_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "has no cards in their deck to add to gauge.")
-			events += performing_player.add_top_deck_to_gauge(amount)
+				_append_log_full(Enums.LogType.LogType_CardInfo, target_player, "has no cards in their deck to add to gauge.")
+			events += target_player.add_top_deck_to_gauge(amount)
 		"add_top_discard_to_gauge":
 			var amount = 1
 			if 'amount' in effect:
@@ -6120,6 +6125,15 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 			var hand_size = performing_player.hand.size()
 			var total_powerup = amount_per_hand * hand_size
 			total_powerup = min(total_powerup, effect['amount_max'])
+			if total_powerup > 0:
+				performing_player.add_power_bonus(total_powerup)
+				events += [create_event(Enums.EventType.EventType_Strike_PowerUp, performing_player.my_id, total_powerup)]
+		"powerup_per_card_in_opponent_hand":
+			var amount_per_hand = effect['amount']
+			var hand_size = opposing_player.hand.size()
+			if 'per_card' in effect:
+				hand_size = floor(hand_size / effect['per_card'])
+			var total_powerup = amount_per_hand * hand_size
 			if total_powerup > 0:
 				performing_player.add_power_bonus(total_powerup)
 				events += [create_event(Enums.EventType.EventType_Strike_PowerUp, performing_player.my_id, total_powerup)]
