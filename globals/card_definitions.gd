@@ -581,8 +581,8 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 			effect_str += "Attack does not stun"
 		"choice":
 			var multiple_str = ""
-			if 'amount' in effect:
-				multiple_str = str(effect['amount']) + " "
+			if 'mulitple_amount' in effect:
+				multiple_str = " " + str(effect['mulitple_amount'])
 			if 'opponent' in effect and effect['opponent']:
 				effect_str += "Opponent "
 			if 'special_choice_name' in effect:

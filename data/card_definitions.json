@@ -7577,7 +7577,7 @@
 					{ "effect_type": "opponent_discard_random", "amount": 1 },
 					{ "effect_type": "gain_advantage" }
 				],
-				"amount": 2
+				"multiple_amount": 2
 			}
 		],
 		"boost": {

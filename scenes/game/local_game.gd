@@ -4511,8 +4511,8 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 			performing_player.strike_stat_boosts.cannot_stun = true
 		"choice":
 			var multiple = 1
-			if 'amount' in effect:
-				multiple = effect['amount']
+			if 'multiple_amount' in effect:
+				multiple = effect['multiple_amount']
 			var choice_player = performing_player
 			if 'opponent' in effect and effect['opponent']:
 				choice_player = opposing_player
@@ -9820,7 +9820,7 @@ func do_choice(performing_player : Player, choice_index : int) -> bool:
 		var and_choice_effect = {
 			"effect_type": "choice",
 				"choice": choice_list,
-				"amount": remaining_choices
+				"multiple_amount": remaining_choices
 		}
 		effect['and'] = and_choice_effect
 
