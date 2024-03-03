@@ -4547,7 +4547,7 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 
 			decision_info.choice = effect['choice']
 			decision_info.choice_card_id = card_id
-			decision_info.amount = multiple
+			decision_info.multiple_choice_amount = multiple
 			events += [create_event(Enums.EventType.EventType_Strike_EffectChoice, choice_player.my_id, 0, "EffectOption")]
 		"choice_altered_values":
 			# Make a deep copy of the choices and replace any needed values.
@@ -9806,13 +9806,13 @@ func do_choice(performing_player : Player, choice_index : int) -> bool:
 	var copying_effect = false
 	if decision_info.effect_type:
 		copying_effect = decision_info.effect_type == "copy_other_hit_effect"
-	if decision_info.amount > 1:
+	if decision_info.multiple_choice_amount > 1:
 		# This is a "choose multiple" effect, so the player can choose again
 		# from the remaining effects.
 		# Add an "and" to the effect the player chose.
 		# Only include choices from the original that weren't chosen.
 		# NOTE: This assumes that none of the effects have "and" on them already.
-		var remaining_choices = decision_info.amount - 1
+		var remaining_choices = decision_info.multiple_choice_amount - 1
 		var choice_list = []
 		for i in range(decision_info.choice.size()):
 			if i != choice_index:
