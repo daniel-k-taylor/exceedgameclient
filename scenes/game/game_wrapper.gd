@@ -19,6 +19,11 @@ func get_combat_log(log_filters, player_color, opponent_color) -> String:
 	log_string = log_string.replace("{_opponent_color}", opponent_color)
 	return log_string
 
+func get_message_history() -> Array:
+	if current_game:
+		return current_game.get_message_history()
+	return []
+
 func is_ai_game() -> bool:
 	return current_game is LocalGame
 

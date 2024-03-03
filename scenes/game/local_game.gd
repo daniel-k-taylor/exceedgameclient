@@ -80,6 +80,9 @@ func get_combat_log(log_type_filters):
 	var log_strings = filtered_log.map(_full_log_item_to_string)
 	return "\n".join(log_strings)
 
+func get_message_history() -> Array:
+	return []
+
 func _full_log_item_to_string(log_item):
 	var log_type = log_item['log_type']
 	var log_player = log_item['log_player']

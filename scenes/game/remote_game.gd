@@ -12,12 +12,16 @@ var _player_info
 var _opponent_info
 var _observer_mode : bool
 var _game_message_queue : Array
+var _game_message_history : Array
 
 func get_latest_events() -> Array:
 	return local_game.get_latest_events()
 
 func get_combat_log(log_filters) -> String:
 	return local_game.get_combat_log(log_filters)
+
+func get_message_history() -> Array:
+	return _game_message_history
 
 func _get_player(id):
 	return local_game._get_player(id)
@@ -39,6 +43,7 @@ func get_striking_card_ids_for_player(player : LocalGame.Player) -> Array:
 
 func initialize_game(player_info, opponent_info, starting_player : Enums.PlayerId, seed_value : int, observer_mode : bool, starting_message_queue : Array):
 	_game_message_queue = starting_message_queue
+	_game_message_history = []
 
 	_player_info = player_info
 	_opponent_info = opponent_info
@@ -61,16 +66,24 @@ func observer_process_next_message_from_queue():
 	if _game_message_queue.size() > 0:
 		var message = _game_message_queue[0]
 		_game_message_queue.remove_at(0)
+		if message['action_type'] == "match_result":
+			return false
 		_process_game_message(message)
 		return true
 	else:
 		return false
 
 func _process_game_message(game_message):
+	_save_game_message(game_message)
 	var action_type = game_message['action_type']
 	var action_function_name = action_type.replace("action_", "process_")
 	var action_function = Callable(self, action_function_name)
 	action_function.call(game_message)
+
+func _save_game_message(game_message):
+	var updated_game_message = game_message.duplicate()
+	updated_game_message['your_player_id'] = _player_info['id']
+	_game_message_history.append(updated_game_message)
 
 func _on_disconnected():
 	local_game.do_quit(Enums.PlayerId.PlayerId_Player, Enums.GameOverReason.GameOverReason_Disconnect)
@@ -123,12 +136,16 @@ func can_move_to(player : LocalGame.Player, location : int) -> bool:
 
 ### Action Functions ###
 
+func _submit_game_message(action_message):
+	_save_game_message(action_message)
+	NetworkManager.submit_game_message(action_message)
+
 func do_prepare(player : LocalGame.Player) -> bool:
 	var action_message = {
 		'action_type': 'action_prepare',
 		'player_id': _get_player_remote_id(player),
 	}
-	NetworkManager.submit_game_message(action_message)
+	_submit_game_message(action_message)
 	return true
 
 func process_prepare(action_message) -> void:
@@ -140,7 +157,7 @@ func do_reshuffle(player : LocalGame.Player) -> bool:
 		'action_type': 'action_reshuffle',
 		'player_id': _get_player_remote_id(player),
 	}
-	NetworkManager.submit_game_message(action_message)
+	_submit_game_message(action_message)
 	return true
 
 func process_reshuffle(action_message) -> void:
@@ -153,7 +170,7 @@ func do_choice(player : LocalGame.Player, choice_index : int) -> bool:
 		'player_id': _get_player_remote_id(player),
 		'choice_index': choice_index,
 	}
-	NetworkManager.submit_game_message(action_message)
+	_submit_game_message(action_message)
 	return true
 
 func process_choice(action_message) -> void:
@@ -168,7 +185,7 @@ func do_boost_cancel(player : LocalGame.Player, gauge_card_ids : Array, doing_ca
 		'gauge_card_ids': gauge_card_ids,
 		'doing_cancel': doing_cancel,
 	}
-	NetworkManager.submit_game_message(action_message)
+	_submit_game_message(action_message)
 	return true
 
 func process_boost_cancel(action_message) -> void:
@@ -183,7 +200,7 @@ func do_boost_name_card_choice_effect(player : LocalGame.Player, card_id : int) 
 		'player_id': _get_player_remote_id(player),
 		'card_id': card_id,
 	}
-	NetworkManager.submit_game_message(action_message)
+	_submit_game_message(action_message)
 	return true
 
 func process_boost_name_card_choice_effect(action_message) -> void:
@@ -197,7 +214,7 @@ func do_discard_to_max(player : LocalGame.Player, card_ids : Array) -> bool:
 		'player_id': _get_player_remote_id(player),
 		'card_ids': card_ids,
 	}
-	NetworkManager.submit_game_message(action_message)
+	_submit_game_message(action_message)
 	return true
 
 func process_discard_to_max(action_message) -> void:
@@ -211,7 +228,7 @@ func do_card_from_hand_to_gauge(player : LocalGame.Player, card_ids : Array) -> 
 		'player_id': _get_player_remote_id(player),
 		'card_ids': card_ids,
 	}
-	NetworkManager.submit_game_message(action_message)
+	_submit_game_message(action_message)
 	return true
 
 func process_card_from_hand_to_gauge(action_message) -> void:
@@ -228,7 +245,7 @@ func do_pay_strike_cost(player : LocalGame.Player, card_ids : Array, wild_strike
 		'discard_ex_first': discard_ex_first,
 		'use_free_force': use_free_force
 	}
-	NetworkManager.submit_game_message(action_message)
+	_submit_game_message(action_message)
 	return true
 
 func process_pay_strike_cost(action_message) -> void:
@@ -245,7 +262,7 @@ func do_exceed(player : LocalGame.Player, card_ids : Array) -> bool:
 		'player_id': _get_player_remote_id(player),
 		'card_ids': card_ids,
 	}
-	NetworkManager.submit_game_message(action_message)
+	_submit_game_message(action_message)
 	return true
 
 func process_exceed(action_message) -> void:
@@ -261,7 +278,7 @@ func do_move(player : LocalGame.Player, card_ids : Array, new_arena_location : i
 		'new_arena_location': new_arena_location,
 		'use_free_force': use_free_force,
 	}
-	NetworkManager.submit_game_message(action_message)
+	_submit_game_message(action_message)
 	return true
 
 func process_move(action_message) -> void:
@@ -279,7 +296,7 @@ func do_change(player : LocalGame.Player, card_ids : Array, treat_ultras_as_sing
 		'treat_ultras_as_single_force': treat_ultras_as_single_force,
 		'use_free_force': use_free_force,
 	}
-	NetworkManager.submit_game_message(action_message)
+	_submit_game_message(action_message)
 	return true
 
 func process_change(action_message) -> void:
@@ -299,7 +316,7 @@ func do_strike(player : LocalGame.Player, card_id : int, wild_strike: bool, ex_c
 		'ex_card_id': ex_card_id,
 		'opponent_sets_first': opponent_sets_first,
 	}
-	NetworkManager.submit_game_message(action_message)
+	_submit_game_message(action_message)
 	return true
 
 func process_strike(action_message) -> void:
@@ -317,7 +334,7 @@ func do_force_for_armor(player : LocalGame.Player, card_ids : Array, use_free_fo
 		'card_ids': card_ids,
 		'use_free_force': use_free_force,
 	}
-	NetworkManager.submit_game_message(action_message)
+	_submit_game_message(action_message)
 	return true
 
 func process_force_for_armor(action_message) -> void:
@@ -332,7 +349,7 @@ func do_mulligan(player : LocalGame.Player, card_ids : Array) -> bool:
 		'player_id': _get_player_remote_id(player),
 		'card_ids': card_ids,
 	}
-	NetworkManager.submit_game_message(action_message)
+	_submit_game_message(action_message)
 	return true
 
 func process_mulligan(action_message) -> void:
@@ -348,7 +365,7 @@ func do_boost(player : LocalGame.Player, card_id : int, payment_card_ids = [], u
 		'payment_card_ids': payment_card_ids,
 		'use_free_force': use_free_force,
 	}
-	NetworkManager.submit_game_message(action_message)
+	_submit_game_message(action_message)
 	return true
 
 func process_boost(action_message) -> void:
@@ -364,7 +381,7 @@ func do_choose_from_boosts(player : LocalGame.Player, card_ids : Array) -> bool:
 		'player_id': _get_player_remote_id(player),
 		'card_ids': card_ids,
 	}
-	NetworkManager.submit_game_message(action_message)
+	_submit_game_message(action_message)
 	return true
 
 func process_choose_from_boosts(action_message) -> void:
@@ -378,7 +395,7 @@ func do_choose_from_discard(player : LocalGame.Player, card_ids : Array) -> bool
 		'player_id': _get_player_remote_id(player),
 		'card_ids': card_ids,
 	}
-	NetworkManager.submit_game_message(action_message)
+	_submit_game_message(action_message)
 	return true
 
 func process_choose_from_discard(action_message) -> void:
@@ -395,7 +412,7 @@ func do_force_for_effect(player : LocalGame.Player, card_ids : Array, treat_ultr
 		'cancel': cancel,
 		'use_free_force': use_free_force,
 	}
-	NetworkManager.submit_game_message(action_message)
+	_submit_game_message(action_message)
 	return true
 
 func process_force_for_effect(action_message) -> void:
@@ -412,7 +429,7 @@ func do_gauge_for_effect(player : LocalGame.Player, card_ids : Array) -> bool:
 		'player_id': _get_player_remote_id(player),
 		'card_ids': card_ids,
 	}
-	NetworkManager.submit_game_message(action_message)
+	_submit_game_message(action_message)
 	return true
 
 func process_gauge_for_effect(action_message) -> void:
@@ -426,7 +443,7 @@ func do_choose_to_discard(player : LocalGame.Player, card_ids : Array) -> bool:
 		'player_id': _get_player_remote_id(player),
 		'card_ids': card_ids,
 	}
-	NetworkManager.submit_game_message(action_message)
+	_submit_game_message(action_message)
 	return true
 
 func process_choose_to_discard(action_message) -> void:
@@ -442,7 +459,7 @@ func do_character_action(player : LocalGame.Player, card_ids : Array, action_idx
 		'action_idx': action_idx,
 		'use_free_force': use_free_force
 	}
-	NetworkManager.submit_game_message(action_message)
+	_submit_game_message(action_message)
 	return true
 
 func process_character_action(action_message) -> void:
@@ -458,7 +475,7 @@ func do_bonus_turn_action(player : LocalGame.Player, action_index : int) -> bool
 		'player_id': _get_player_remote_id(player),
 		'action_index': action_index,
 	}
-	NetworkManager.submit_game_message(action_message)
+	_submit_game_message(action_message)
 	return true
 
 func process_bonus_action(action_message) -> void:
@@ -473,7 +490,7 @@ func do_choose_from_topdeck(player : LocalGame.Player, card_id : int, action : S
 		'card_id': card_id,
 		'action': action,
 	}
-	NetworkManager.submit_game_message(action_message)
+	_submit_game_message(action_message)
 	return true
 
 func process_choose_from_topdeck(action_message) -> void:
@@ -489,7 +506,7 @@ func do_emote(player : LocalGame.Player, is_image_emote : bool, emote : String):
 		'is_image_emote': is_image_emote,
 		'emote': emote,
 	}
-	NetworkManager.submit_game_message(action_message)
+	_submit_game_message(action_message)
 	return true
 
 func process_emote(action_message) -> void:
@@ -518,5 +535,5 @@ func do_match_result(player_clock_remaining, opponent_clock_remaining):
 		'p1clock': p1clock,
 		'p2clock': p2clock,
 	}
-	NetworkManager.submit_game_message(action_message)
+	_submit_game_message(action_message)
 	return true
