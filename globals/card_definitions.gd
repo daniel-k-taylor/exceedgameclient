@@ -170,6 +170,8 @@ func get_timing_text(timing):
 	match timing:
 		"action":
 			text += "[b]Action:[/b] "
+		"opponent_action":
+			text += "[b]Opponent Action:[/b]"
 		"after":
 			text += "[b]After:[/b] "
 		"both_players_after":
@@ -921,6 +923,11 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 			if 'per_card' in effect:
 				every_str = "%s cards" % effect['per_card']
 			effect_str += "+" + str(effect['amount']) + " Power for every " + every_str + " in opponent's hand."
+		"powerup_per_guard":
+			var max_text = ""
+			if 'maximum' in effect:
+				max_text = " (max %s)" % effect['maximum']
+			effect_str += "+" + str(effect['amount']) + " Power per guard%s." % max_text
 		"powerup_per_gauge":
 			effect_str += "+" + str(effect['amount']) + " Power per card in gauge up to " + str(effect['amount_max']) + "."
 		"powerup_per_spent_gauge_matching_range_to_opponent":

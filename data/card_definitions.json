@@ -2397,41 +2397,83 @@
 	{
 		"id": "beheaded_twindaggers",
 		"type": "special",
-		"display_name": "Healing Hammer",
-		"force_cost": 1,
+		"display_name": "Twin Daggers",
+		"force_cost": 0,
 		"gauge_cost": 0,
 		"range_min": 1,
 		"range_max": 2,
 		"speed": 6,
-		"power": 2,
+		"power": 3,
 		"armor": 0,
 		"guard": 0,
 		"effects": [
 			{
-				"timing": "after",
-				"condition": "hit_opponent",
-				"effect_type": "choice",
-				"choice": [
-					{
-						"effect_type": "seal_this",
-						"and": {
-							"effect_type": "gain_life",
-							"amount": 4,
-							"and": {
-								"effect_type": "add_top_discard_to_gauge",
-								"amount": 2
-							}
-						}
-					},
-					{ "effect_type": "pass" }
-				]
+				"timing": "hit",
+				"condition": "last_turn_was_strike",
+				"effect_type": "powerup",
+				"amount": 2
 			}
 		],
 		"boost": {
 			"boost_type": "continuous",
 			"force_cost": 1,
 			"cancel_cost": -1,
-			"display_name": "To Me, Minions!",
+			"display_name": "Wolf Trap",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "block_opponent_move"
+				},
+				{
+					"timing": "now",
+					"effect_type": "block_opponent_move"
+				},
+				{
+					"timing": "discarded",
+					"effect_type": "remove_block_opponent_move"
+				},
+				{
+					"timing": "opponent_action",
+					"text": "Take 2 damage, remove Wolf Trap",
+					"effect_type": "take_damage",
+					"nonlethal": true,
+					"amount": 2,
+					"and": {
+						"effect_type": "discard_this"
+					}
+				}
+			]
+		}
+	},
+	{
+		"id": "beheaded_diveattack",
+		"type": "special",
+		"display_name": "Dive Attack",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 1,
+		"speed": 5,
+		"power": 3,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "before",
+				"effect_type": "close",
+				"amount": 3
+			},
+			{
+				"timing": "hit",
+				"effect_type": "push",
+				"amount": 1
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Tornado",
 			"effects": [
 				{
 					"timing": "during_strike",
@@ -2443,73 +2485,8 @@
 					"effect_type": "choice",
 					"choice": [
 						{ "effect_type": "advance", "amount": 1 },
-						{ "effect_type": "advance", "amount": 2 },
-						{ "effect_type": "retreat", "amount": 1 },
-						{ "effect_type": "retreat", "amount": 2 }
+						{ "effect_type": "retreat", "amount": 1 }
 					]
-				}
-			]
-		}
-	},
-	{
-		"id": "beheaded_diveattack",
-		"type": "special",
-		"display_name": "Scepter Slam",
-		"force_cost": 0,
-		"gauge_cost": 0,
-		"range_min": 1,
-		"range_max": 1,
-		"speed": 5,
-		"power": 2,
-		"armor": 0,
-		"guard": 0,
-		"effects": [
-			{
-				"timing": "before",
-				"effect_type": "close",
-				"amount": 3
-			},
-			{
-				"timing": "hit",
-				"effect_type": "force_for_effect",
-				"per_force_effect": {
-					"effect_type": "powerup",
-					"amount": 1
-				},
-				"overall_effect": null,
-				"force_max": 3
-			}
-		],
-		"boost": {
-			"boost_type": "immediate",
-			"force_cost": 1,
-			"cancel_cost": -1,
-			"display_name": "Unsteady Ground",
-			"effects": [
-				{
-					"timing": "immediate",
-					"effect_type": "choice",
-					"choice": [
-						{ "effect_type": "push", "amount": 1 },
-						{ "effect_type": "push", "amount": 2 },
-						{ "effect_type": "pull", "amount": 1 },
-						{ "effect_type": "pull", "amount": 2 }
-					]
-				},
-				{
-					"timing": "immediate",
-					"effect_type": "gauge_for_effect",
-					"other_player": true,
-					"per_gauge_effect": null,
-					"overall_effect": {
-						"effect_type": "discard_this"
-					},
-					"gauge_max": 1
-				},
-				{
-					"timing": "immediate",
-					"condition": "not_discarding_boost",
-					"effect_type": "bonus_action"
 				}
 			]
 		}
@@ -2517,66 +2494,38 @@
 	{
 		"id": "beheaded_wrenchingwhip",
 		"type": "special",
-		"display_name": "Spin Jump",
+		"display_name": "Wrenching Whip",
 		"force_cost": 0,
 		"gauge_cost": 0,
 		"range_min": 1,
-		"range_max": 1,
+		"range_max": 3,
 		"speed": 5,
-		"power": 4,
+		"power": 3,
 		"armor": 0,
 		"guard": 0,
 		"effects": [
 			{
-				"timing": "before",
-				"effect_type": "close",
-				"amount": 1
-			},
-			{
 				"timing": "hit",
 				"effect_type": "choice",
 				"choice": [
-					{
-						"effect_type": "advance", "amount": 3, "suppress_and_description": true,
-						"and": {
-							"effect_type": "choice",
-							"choice": [
-								{
-									"effect_type": "boost_then_sustain",
-									"valid_zones": [ "hand" ],
-									"limitation": "continuous"
-								},
-								{ "effect_type": "pass" }
-							]
-						}
-					},
-					{
-						"effect_type": "advance", "amount": 4, "suppress_and_description": true,
-						"and": {
-							"effect_type": "choice",
-							"choice": [
-								{
-									"effect_type": "boost_then_sustain",
-									"valid_zones": [ "hand" ],
-									"limitation": "continuous"
-								},
-								{ "effect_type": "pass" }
-							]
-						}
-					}
+					{ "effect_type": "push", "amount": 1 },
+					{ "effect_type": "pull", "amount": 1 }
 				]
 			}
 		],
 		"boost": {
-			"boost_type": "continuous",
-			"force_cost": 1,
+			"boost_type": "immediate",
+			"force_cost": 0,
 			"cancel_cost": -1,
-			"display_name": "Edict",
+			"display_name": "Dodge Roll",
 			"effects": [
 				{
-					"timing": "during_strike",
-					"condition": "discarded_copy_of_attack",
-					"effect_type": "attack_is_ex"
+					"timing": "immediate",
+					"effect_type": "choice",
+					"choice": [
+						{ "effect_type": "advance", "amount": 3 },
+						{ "effect_type": "retreat", "amount": 3 }
+					]
 				}
 			]
 		}
@@ -2584,19 +2533,19 @@
 	{
 		"id": "beheaded_infantrybow",
 		"type": "special",
-		"display_name": "Scepter Smite",
+		"display_name": "Infantry Bow",
 		"force_cost": 0,
 		"gauge_cost": 0,
-		"range_min": 1,
-		"range_max": 2,
+		"range_min": 2,
+		"range_max": 5,
 		"speed": 4,
-		"power": 4,
+		"power": 2,
 		"armor": 0,
 		"guard": 0,
 		"effects": [
 			{
 				"timing": "hit",
-				"condition": "opponent_total_guard_greater_or_equal",
+				"condition": "range_greater_or_equal",
 				"condition_amount": 4,
 				"effect_type": "powerup",
 				"amount": 2
@@ -2604,18 +2553,19 @@
 		],
 		"boost": {
 			"boost_type": "continuous",
-			"force_cost": 1,
+			"force_cost": 0,
 			"cancel_cost": -1,
-			"display_name": "Charge Up",
+			"display_name": "Knife Dance",
 			"effects": [
 				{
 					"timing": "during_strike",
-					"effect_type": "powerup",
-					"amount": 2,
-					"and": {
-						"effect_type": "guardup",
-						"amount": 2
-					}
+					"effect_type": "rangeup",
+					"amount": 0,
+					"amount2": 1
+				},
+				{
+					"timing": "hit",
+					"effect_type": "gain_advantage"
 				}
 			]
 		}
@@ -2624,15 +2574,15 @@
 		"NOTE": "BEHEADED CARDS END",
 		"id": "beheaded_assaultshield",
 		"type": "special",
-		"display_name": "Shoulder Bash",
+		"display_name": "Assault Shield",
 		"force_cost": 0,
 		"gauge_cost": 0,
 		"range_min": 1,
 		"range_max": 1,
-		"speed": 2,
-		"power": 5,
-		"armor": 0,
-		"guard": 6,
+		"speed": 1,
+		"power": 1,
+		"armor": 2,
+		"guard": 2,
 		"effects": [
 			{
 				"timing": "before",
@@ -2640,38 +2590,32 @@
 				"amount": 2
 			},
 			{
-				"timing": "after",
-				"effect_type": "choice",
-				"choice": [
-					{ "effect_type": "advance", "amount": 1 },
-					{ "effect_type": "advance", "amount": 2 },
-					{ "effect_type": "pass"}
-				]
+				"timing": "hit",
+				"condition": "was_hit",
+				"effect_type": "powerup_per_guard",
+				"amount": 1,
+				"maximum": 5
 			}
 		],
 		"boost": {
 			"boost_type": "continuous",
-			"force_cost": 1,
+			"force_cost": 0,
 			"cancel_cost": -1,
-			"display_name": "Brutal Coronation",
+			"display_name": "Corrupted Power",
 			"effects": [
 				{
 					"timing": "during_strike",
 					"effect_type": "powerup",
-					"amount": 1,
-					"and": {
-						"effect_type": "armorup",
-						"amount": 1,
-						"and": {
-							"effect_type": "guardup",
-							"amount": 1
-						}
-					}
+					"amount": 2
 				},
 				{
 					"timing": "now",
-					"effect_type": "draw_to",
-					"amount": 3
+					"effect_type": "draw",
+					"amount": 2,
+					"and": {
+						"effect_type": "discard_random",
+						"amount": 1
+					}
 				}
 			]
 		},

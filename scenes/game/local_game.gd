@@ -1869,6 +1869,8 @@ class Player:
 
 	func get_bonus_actions():
 		var actions = parent.get_boost_effects_at_timing("action", self)
+		var other_player = parent._get_player(parent.get_other_player(my_id))
+		actions += parent.get_boost_effects_at_timing("opponent_action", other_player)
 		return actions
 
 	func get_character_action(i : int = 0):
@@ -6226,6 +6228,14 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 			if total_powerup > 0:
 				performing_player.add_power_bonus(total_powerup)
 				events += [create_event(Enums.EventType.EventType_Strike_PowerUp, performing_player.my_id, total_powerup)]
+		"powerup_per_guard":
+			var guard = get_total_guard(performing_player)
+			if guard > 0:
+				var bonus_power = effect['amount'] * guard
+				if 'maximum' in effect:
+					bonus_power = min(bonus_power, effect['maximum'])
+				performing_player.add_power_bonus(bonus_power)
+				events += [create_event(Enums.EventType.EventType_Strike_PowerUp, performing_player.my_id, bonus_power)]
 		"powerup_per_spent_gauge_matching_range_to_opponent":
 			var amount_per_gauge = effect['amount']
 			var distance = performing_player.distance_to_opponent()
