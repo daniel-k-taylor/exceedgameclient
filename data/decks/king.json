@@ -12,6 +12,7 @@
 	],
 	"no_buddy_card_graphics": true,
 	"can_boost_from_extra": true,
+	"link_extra_cards_to_buddies": true,
 	"exceed_cost": 3,
 	"on_exceed": {
 		"effect_type": "draw",

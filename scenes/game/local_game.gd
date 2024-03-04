@@ -1832,7 +1832,8 @@ class Player:
 		var zone_map = {
 			"hand": hand,
 			"gauge": gauge,
-			"discard": discards
+			"discard": discards,
+			"extra": set_aside_cards
 		}
 
 		for zone in valid_zones:
@@ -1868,6 +1869,8 @@ class Player:
 
 	func get_bonus_actions():
 		var actions = parent.get_boost_effects_at_timing("action", self)
+		var other_player = parent._get_player(parent.get_other_player(my_id))
+		actions += parent.get_boost_effects_at_timing("opponent_action", other_player)
 		return actions
 
 	func get_character_action(i : int = 0):
@@ -4305,6 +4308,18 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 				assert(false)
 				printlog("ERROR: Unimplemented path to boost_applies_if_on_buddy")
 			performing_player.set_boost_applies_if_on_buddy(card_id)
+		"boost_from_extra":
+			# This effect is expected to be a character action.
+			if performing_player.can_boost_something(['extra'], effect['limitation']):
+				events += [create_event(Enums.EventType.EventType_ForceStartBoost, performing_player.my_id, 0, "", ['extra'], effect['limitation'])]
+				change_game_state(Enums.GameState.GameState_PlayerDecision)
+				decision_info.clear()
+				decision_info.type = Enums.DecisionType.DecisionType_BoostNow
+				decision_info.player = performing_player.my_id
+				decision_info.valid_zones = ['extra']
+				decision_info.limitation = effect['limitation']
+			else:
+				_append_log_full(Enums.LogType.LogType_Effect, performing_player, "has no valid extra cards to boost with.")
 		"boost_from_gauge":
 			# This effect is expected to be a character action.
 			if performing_player.can_boost_something(['gauge'], effect['limitation']):
@@ -6213,6 +6228,14 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 			if total_powerup > 0:
 				performing_player.add_power_bonus(total_powerup)
 				events += [create_event(Enums.EventType.EventType_Strike_PowerUp, performing_player.my_id, total_powerup)]
+		"powerup_per_guard":
+			var guard = get_total_guard(performing_player)
+			if guard > 0:
+				var bonus_power = effect['amount'] * guard
+				if 'maximum' in effect:
+					bonus_power = min(bonus_power, effect['maximum'])
+				performing_player.add_power_bonus(bonus_power)
+				events += [create_event(Enums.EventType.EventType_Strike_PowerUp, performing_player.my_id, bonus_power)]
 		"powerup_per_spent_gauge_matching_range_to_opponent":
 			var amount_per_gauge = effect['amount']
 			var distance = performing_player.distance_to_opponent()
@@ -7129,10 +7152,11 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 			events += [create_event(Enums.EventType.EventType_SustainBoost, performing_player.my_id, -1)]
 		"sustain_this":
 			performing_player.sustained_boosts.append(card_id)
-			var card = card_db.get_card(card_id)
-			var boost_name = _get_boost_and_card_name(card)
-			_append_log_full(Enums.LogType.LogType_Effect, performing_player, "sustains their continuous boost %s." % boost_name)
-			events += [create_event(Enums.EventType.EventType_SustainBoost, performing_player.my_id, card_id)]
+			if 'hide_effect' not in effect or not effect['hide_effect']:
+				var card = card_db.get_card(card_id)
+				var boost_name = _get_boost_and_card_name(card)
+				_append_log_full(Enums.LogType.LogType_Effect, performing_player, "sustains their continuous boost %s." % boost_name)
+				events += [create_event(Enums.EventType.EventType_SustainBoost, performing_player.my_id, card_id)]
 		"swap_buddy":
 			var buddy_id_to_remove = effect['buddy_to_remove']
 			var buddy_id_to_place = effect['buddy_to_place']

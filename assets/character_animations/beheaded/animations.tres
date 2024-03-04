@@ -1,0 +1,16 @@
+[gd_resource type="SpriteFrames" load_steps=2 format=3 uid="uid://buemf0lb8hkc8"]
+
+[ext_resource type="Texture2D" uid="uid://bqg7i265er53y" path="res://assets/character_animations/beheaded/beheaded_image.png" id="1_cot11"]
+
+[resource]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("1_cot11")
+}],
+"loop": true,
+"name": &"idle",
+"speed": 8.0
+}]
+metadata/flip = false
+metadata/scaling = 0.5

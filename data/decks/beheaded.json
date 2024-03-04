@@ -1,0 +1,179 @@
+{
+	"id": "beheaded",
+	"season": 4,
+	"display_name": "The Beheaded",
+	"cardback": "cardback_beheaded.jpg",
+	"buddy_cards": [
+		"beheaded_trait_brutality",
+		"beheaded_trait_survival",
+		"beheaded_trait_tactics"
+	],
+	"no_buddy_card_graphics": true,
+	"link_extra_cards_to_buddies": true,
+	"exceed_cost": 2,
+	"on_exceed": {
+		"effect_type": "boost_from_extra",
+		"limitation": ""
+	},
+	"ability_effects": [
+	],
+	"exceed_ability_effects": [
+		{
+			"timing": "set_strike",
+			"character_effect": true,
+			"effect_type": "powerup",
+			"amount": 1,
+			"and": {
+				"effect_type": "speedup",
+				"amount": 1,
+				"and": {
+					"effect_type": "add_attack_effect",
+					"added_effect": {
+						"timing": "cleanup",
+						"effect_type": "revert"
+					}
+				}
+			}
+		}
+	],
+	"cards": [
+		{
+			"set_aside": true,
+			"hide_from_reference": true,
+			"definition_id": "beheaded_trait_brutality",
+			"image": "beheaded_trait_brutality.jpg"
+		},
+		{
+			"set_aside": true,
+			"hide_from_reference": true,
+			"definition_id": "beheaded_trait_survival",
+			"image": "beheaded_trait_survival.jpg"
+		},
+		{
+			"set_aside": true,
+			"hide_from_reference": true,
+			"definition_id": "beheaded_trait_tactics",
+			"image": "beheaded_trait_tactics.jpg"
+		},
+		{
+			"definition_id": "beheaded_waveofdenial",
+			"image": "beheaded_waveofdenial.tres"
+		},
+		{
+			"definition_id": "beheaded_waveofdenial",
+			"image": "beheaded_waveofdenial.tres"
+		},
+		{
+			"definition_id": "beheaded_phaser",
+			"image": "beheaded_phaser.tres"
+		},
+		{
+			"definition_id": "beheaded_phaser",
+			"image": "beheaded_phaser.tres"
+		},
+		{
+			"definition_id": "beheaded_twindaggers",
+			"image": "beheaded_twindaggers.tres"
+		},
+		{
+			"definition_id": "beheaded_twindaggers",
+			"image": "beheaded_twindaggers.tres"
+		},
+		{
+			"definition_id": "beheaded_diveattack",
+			"image": "beheaded_diveattack.tres"
+		},
+		{
+			"definition_id": "beheaded_diveattack",
+			"image": "beheaded_diveattack.tres"
+		},
+		{
+			"definition_id": "beheaded_wrenchingwhip",
+			"image": "beheaded_wrenchingwhip.tres"
+		},
+		{
+			"definition_id": "beheaded_wrenchingwhip",
+			"image": "beheaded_wrenchingwhip.tres"
+		},
+		{
+			"definition_id": "beheaded_infantrybow",
+			"image": "beheaded_infantrybow.tres"
+		},
+		{
+			"definition_id": "beheaded_infantrybow",
+			"image": "beheaded_infantrybow.tres"
+		},
+		{
+			"definition_id": "beheaded_assaultshield",
+			"image": "beheaded_assaultshield.tres"
+		},
+		{
+			"definition_id": "beheaded_assaultshield",
+			"image": "beheaded_assaultshield.tres"
+		},
+		{
+			"definition_id": "standard_normal_grasp",
+			"image": "normal_grasp.tres"
+		},
+		{
+			"definition_id": "standard_normal_grasp",
+			"image": "normal_grasp.tres"
+		},
+		{
+			"definition_id": "standard_normal_cross",
+			"image": "normal_cross.tres"
+		},
+		{
+			"definition_id": "standard_normal_cross",
+			"image": "normal_cross.tres"
+		},
+		{
+			"definition_id": "standard_normal_assault",
+			"image": "normal_assault.tres"
+		},
+		{
+			"definition_id": "standard_normal_assault",
+			"image": "normal_assault.tres"
+		},
+		{
+			"definition_id": "standard_normal_dive",
+			"image": "normal_dive.tres"
+		},
+		{
+			"definition_id": "standard_normal_dive",
+			"image": "normal_dive.tres"
+		},
+		{
+			"definition_id": "standard_normal_spike",
+			"image": "normal_spike.tres"
+		},
+		{
+			"definition_id": "standard_normal_spike",
+			"image": "normal_spike.tres"
+		},
+		{
+			"definition_id": "standard_normal_sweep",
+			"image": "normal_sweep.tres"
+		},
+		{
+			"definition_id": "standard_normal_sweep",
+			"image": "normal_sweep.tres"
+		},
+		{
+			"definition_id": "standard_normal_focus",
+			"image": "normal_focus.tres"
+		},
+		{
+			"definition_id": "standard_normal_focus",
+			"image": "normal_focus.tres"
+		},
+		{
+			"definition_id": "standard_normal_block",
+			"image": "normal_block.tres"
+		},
+		{
+			"definition_id": "standard_normal_block",
+			"image": "normal_block.tres"
+		}
+	]
+}

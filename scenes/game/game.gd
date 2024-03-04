@@ -685,8 +685,8 @@ func spawn_all_cards():
 				if 'buddy_exceeds' in deck and deck['buddy_exceeds']:
 					graphic_list.append(buddy_card + "_exceeded")
 
-	var player_can_click_buddy = 'can_boost_from_extra' in player_deck and player_deck['can_boost_from_extra']
-	var opponent_can_click_buddy = 'can_boost_from_extra' in opponent_deck and opponent_deck['can_boost_from_extra']
+	var player_can_click_buddy = 'link_extra_cards_to_buddies' in player_deck and player_deck['link_extra_cards_to_buddies']
+	var opponent_can_click_buddy = 'link_extra_cards_to_buddies' in opponent_deck and opponent_deck['link_extra_cards_to_buddies']
 
 	spawn_deck(player_deck_id, game_wrapper.get_player_deck_list(Enums.PlayerId.PlayerId_Player), $AllCards/PlayerDeck, $AllCards/PlayerAllCopy,
 		player_buddy_graphics, $AllCards/PlayerBuddyCopy, player_can_click_buddy, $AllCards/PlayerSetAside, player_cardback, false)
@@ -3643,7 +3643,8 @@ func update_boost_summary(boosts_card_holder, boost_box):
 					effects.append(effect)
 	var boost_summary = ""
 	for effect in effects:
-		boost_summary += CardDefinitions.get_effect_text(effect) + "\n"
+		if 'hide_effect' not in effect or not effect['hide_effect']:
+			boost_summary += CardDefinitions.get_effect_text(effect) + "\n"
 
 	for card_id in card_ids:
 		var card = card_db.get_card(card_id)

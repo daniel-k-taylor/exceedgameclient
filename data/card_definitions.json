@@ -2174,6 +2174,443 @@
 
 
 	{
+		"NOTE": "BEHEADED CARDS START",
+		"id": "beheaded_trait_brutality",
+		"type": "trait",
+		"display_name": "Trait: Brutality",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 0,
+		"range_max": 0,
+		"speed": 0,
+		"power": 0,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Brutality",
+			"cannot_discard": true,
+			"effects": [
+				{
+					"timing": "during_strike",
+					"condition": "is_special_or_ultra_attack",
+					"effect_type": "powerup",
+					"amount": 2
+				},
+				{
+					"timing": "cleanup",
+					"effect_type": "sustain_this",
+					"card_name": "Brutality",
+					"resolve_before_simultaneous_effects": true,
+					"hide_effect": true
+				}
+			]
+		}
+	},
+	{
+		"id": "beheaded_trait_survival",
+		"type": "trait",
+		"display_name": "Trait: Survival",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 0,
+		"range_max": 0,
+		"speed": 0,
+		"power": 0,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Survival",
+			"cannot_discard": true,
+			"effects": [
+				{
+					"timing": "during_strike",
+					"condition": "is_special_or_ultra_attack",
+					"effect_type": "armorup",
+					"amount": 1,
+					"and": {
+						"effect_type": "guardup",
+						"amount": 2
+					}
+				},
+				{
+					"timing": "cleanup",
+					"effect_type": "sustain_this",
+					"card_name": "Survival",
+					"resolve_before_simultaneous_effects": true,
+					"hide_effect": true
+				}
+			]
+		}
+	},
+	{
+		"id": "beheaded_trait_tactics",
+		"type": "trait",
+		"display_name": "Trait: Tactics",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 0,
+		"range_max": 0,
+		"speed": 0,
+		"power": 0,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Tactics",
+			"cannot_discard": true,
+			"effects": [
+				{
+					"timing": "during_strike",
+					"condition": "is_special_or_ultra_attack",
+					"effect_type": "rangeup",
+					"amount": 0,
+					"amount2": 1
+				},
+				{
+					"timing": "cleanup",
+					"effect_type": "sustain_this",
+					"card_name": "Tactics",
+					"resolve_before_simultaneous_effects": true,
+					"hide_effect": true
+				}
+			]
+		}
+	},
+	{
+		"id": "beheaded_waveofdenial",
+		"type": "ultra",
+		"display_name": "Wave of Denial",
+		"force_cost": 0,
+		"gauge_cost": 1,
+		"range_min": 1,
+		"range_max": 1,
+		"speed": 7,
+		"power": 2,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "hit",
+				"effect_type": "push",
+				"amount": 3,
+				"and": {
+					"condition": "opponent_at_edge_of_arena",
+					"effect_type": "powerup",
+					"amount": 2
+				}
+			}
+		],
+		"boost": {
+			"boost_type": "immediate",
+			"force_cost": 1,
+			"cancel_cost": -1,
+			"display_name": "Spartan Sandals",
+			"effects": [
+				{
+					"timing": "immediate",
+					"effect_type": "push",
+					"amount": 2,
+					"and": {
+						"condition": "opponent_at_edge_of_arena",
+						"effect_type": "bonus_action"
+					}
+				}
+			]
+		}
+	},
+	{
+		"id": "beheaded_phaser",
+		"type": "ultra",
+		"display_name": "Phaser",
+		"force_cost": 0,
+		"gauge_cost": 1,
+		"range_min": 1,
+		"range_max": 1,
+		"speed": 4,
+		"power": 0,
+		"armor": 0,
+		"guard": 4,
+		"effects": [
+			{
+				"timing": "during_strike",
+				"effect_type": "set_total_power",
+				"amount": 0
+			},
+			{
+				"timing": "before",
+				"effect_type": "close",
+				"amount": 8,
+				"and": {
+					"effect_type": "advance",
+					"amount": 1
+				}
+			},
+			{
+				"timing": "hit",
+				"effect_type": "gain_advantage",
+				"and": {
+					"effect_type": "boost_this_then_sustain"
+				}
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 1,
+			"cancel_cost": -1,
+			"display_name": "Giant Killer",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "powerup",
+					"amount": 4
+				}
+			]
+		}
+	},
+	{
+		"id": "beheaded_twindaggers",
+		"type": "special",
+		"display_name": "Twin Daggers",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 2,
+		"speed": 6,
+		"power": 3,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "hit",
+				"condition": "last_turn_was_strike",
+				"effect_type": "powerup",
+				"amount": 2
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 1,
+			"cancel_cost": -1,
+			"display_name": "Wolf Trap",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "block_opponent_move"
+				},
+				{
+					"timing": "now",
+					"effect_type": "block_opponent_move"
+				},
+				{
+					"timing": "discarded",
+					"effect_type": "remove_block_opponent_move"
+				},
+				{
+					"timing": "opponent_action",
+					"text": "Take 2 damage, remove Wolf Trap",
+					"effect_type": "take_damage",
+					"nonlethal": true,
+					"amount": 2,
+					"and": {
+						"effect_type": "discard_this"
+					}
+				}
+			]
+		}
+	},
+	{
+		"id": "beheaded_diveattack",
+		"type": "special",
+		"display_name": "Dive Attack",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 1,
+		"speed": 5,
+		"power": 3,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "before",
+				"effect_type": "close",
+				"amount": 3
+			},
+			{
+				"timing": "hit",
+				"effect_type": "push",
+				"amount": 1
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Tornado",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "speedup",
+					"amount": 1
+				},
+				{
+					"timing": "now",
+					"effect_type": "choice",
+					"choice": [
+						{ "effect_type": "advance", "amount": 1 },
+						{ "effect_type": "retreat", "amount": 1 }
+					]
+				}
+			]
+		}
+	},
+	{
+		"id": "beheaded_wrenchingwhip",
+		"type": "special",
+		"display_name": "Wrenching Whip",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 3,
+		"speed": 5,
+		"power": 3,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "hit",
+				"effect_type": "choice",
+				"choice": [
+					{ "effect_type": "push", "amount": 1 },
+					{ "effect_type": "pull", "amount": 1 }
+				]
+			}
+		],
+		"boost": {
+			"boost_type": "immediate",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Dodge Roll",
+			"effects": [
+				{
+					"timing": "immediate",
+					"effect_type": "choice",
+					"choice": [
+						{ "effect_type": "advance", "amount": 3 },
+						{ "effect_type": "retreat", "amount": 3 }
+					]
+				}
+			]
+		}
+	},
+	{
+		"id": "beheaded_infantrybow",
+		"type": "special",
+		"display_name": "Infantry Bow",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 2,
+		"range_max": 5,
+		"speed": 4,
+		"power": 2,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "hit",
+				"condition": "range_greater_or_equal",
+				"condition_amount": 4,
+				"effect_type": "powerup",
+				"amount": 2
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Knife Dance",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "rangeup",
+					"amount": 0,
+					"amount2": 1
+				},
+				{
+					"timing": "hit",
+					"effect_type": "gain_advantage"
+				}
+			]
+		}
+	},
+	{
+		"NOTE": "BEHEADED CARDS END",
+		"id": "beheaded_assaultshield",
+		"type": "special",
+		"display_name": "Assault Shield",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 1,
+		"speed": 1,
+		"power": 1,
+		"armor": 2,
+		"guard": 2,
+		"effects": [
+			{
+				"timing": "before",
+				"effect_type": "close",
+				"amount": 2
+			},
+			{
+				"timing": "hit",
+				"condition": "was_hit",
+				"effect_type": "powerup_per_guard",
+				"amount": 1,
+				"maximum": 5
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Corrupted Power",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "powerup",
+					"amount": 2
+				},
+				{
+					"timing": "now",
+					"effect_type": "draw",
+					"amount": 2,
+					"and": {
+						"effect_type": "discard_random",
+						"amount": 1
+					}
+				}
+			]
+		},
+		"NOTEEND": "BEHEADED CARDS END"
+	},
+
+
+	{
 		"NOTE": "BISON CARDS START",
 		"id": "bison_nightmarebooster",
 		"type": "ultra",

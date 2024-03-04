@@ -648,3 +648,6 @@ func test_enchantress_100():
 
 func test_gordeau_100():
 	run_iterations_with_deck("gordeau")
+
+func test_beheaded_100():
+	run_iterations_with_deck("beheaded")
