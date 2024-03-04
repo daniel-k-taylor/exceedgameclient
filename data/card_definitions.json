@@ -2174,6 +2174,534 @@
 
 
 	{
+		"NOTE": "BEHEADED CARDS START",
+		"id": "beheaded_trait_brutality",
+		"type": "trait",
+		"display_name": "Royal Decree: Kingly Strut",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 0,
+		"range_max": 0,
+		"speed": 0,
+		"power": 0,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 3,
+			"cancel_cost": -1,
+			"display_name": "Kingly Strut",
+			"cannot_discard": true,
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "powerup",
+					"amount": 2,
+					"and": {
+						"effect_type": "armorup",
+						"amount": 2
+					}
+				},
+				{
+					"timing": "now",
+					"effect_type": "choice",
+					"choice": [
+						{ "effect_type": "close", "amount": 1 },
+						{ "effect_type": "close", "amount": 2 }
+					]
+				},
+				{
+					"timing": "cleanup",
+					"condition": "not_sustained",
+					"condition_card_id": "king_decree_kinglystrut",
+					"effect_type": "seal_this_boost",
+					"card_name": "Kingly Strut"
+				}
+			]
+		}
+	},
+	{
+		"id": "beheaded_trait_survival",
+		"type": "trait",
+		"display_name": "Royal Decree: Lordly Might",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 0,
+		"range_max": 0,
+		"speed": 0,
+		"power": 0,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 3,
+			"cancel_cost": -1,
+			"display_name": "Lordly Might",
+			"cannot_discard": true,
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "powerup",
+					"amount": 1,
+					"and": {
+						"effect_type": "speedup",
+						"amount": 2
+					}
+				},
+				{
+					"timing": "cleanup",
+					"condition": "not_sustained",
+					"condition_card_id": "king_decree_lordlymight",
+					"effect_type": "seal_this_boost",
+					"card_name": "Lordly Might"
+				}
+			]
+		}
+	},
+	{
+		"id": "beheaded_trait_tactics",
+		"type": "trait",
+		"display_name": "Glorious Decree: Magnificent Cape",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 0,
+		"range_max": 0,
+		"speed": 0,
+		"power": 0,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 4,
+			"cancel_cost": -1,
+			"display_name": "Magnificent Cape",
+			"cannot_discard": true,
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "powerup",
+					"amount": 2,
+					"and": {
+						"effect_type": "speedup",
+						"amount": 2
+					}
+				},
+				{
+					"timing": "now",
+					"effect_type": "choice",
+					"choice": [
+						{ "effect_type": "close", "amount": 1 },
+						{ "effect_type": "close", "amount": 2 },
+						{ "effect_type": "close", "amount": 3 },
+						{ "effect_type": "pass" }
+					]
+				},
+				{
+					"timing": "cleanup",
+					"condition": "not_sustained",
+					"condition_card_id": "king_decree_magnificentcape",
+					"effect_type": "seal_this_boost",
+					"card_name": "Magnificent Cape"
+				}
+			]
+		}
+	},
+	{
+		"id": "beheaded_waveofdenial",
+		"type": "ultra",
+		"display_name": "King of Cards",
+		"force_cost": 0,
+		"gauge_cost": 3,
+		"range_min": 1,
+		"range_max": 2,
+		"speed": 6,
+		"power": 6,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "hit",
+				"effect_type": "force_for_effect",
+				"force_effect_interval": 3,
+				"per_force_effect": {
+					"effect_type": "powerup",
+					"amount": 3,
+					"and": {
+						"effect_type": "add_top_discard_to_gauge"
+					}
+				},
+				"overall_effect": null,
+				"force_max": 9,
+				"force_discard_reminder": true
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Kingmaker",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"condition": "exceeded",
+					"effect_type": "speedup",
+					"amount": 2
+				},
+				{
+					"timing": "during_strike",
+					"condition": "opponent_exceeded",
+					"effect_type": "powerup",
+					"amount": 2
+				}
+			]
+		}
+	},
+	{
+		"id": "beheaded_phaser",
+		"type": "ultra",
+		"display_name": "Victory Trumpets",
+		"force_cost": 0,
+		"gauge_cost": 2,
+		"range_min": 2,
+		"range_max": 4,
+		"speed": 3,
+		"power": 0,
+		"armor": 2,
+		"guard": 4,
+		"effects": [
+			{
+				"timing": "during_strike",
+				"effect_type": "calculate_range_from_center"
+			},
+			{
+				"timing": "hit",
+				"effect_type": "pull",
+				"amount": 3
+			},
+			{
+				"timing": "after",
+				"effect_type": "sustain_all_boosts"
+			}
+		],
+		"boost": {
+			"boost_type": "immediate",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Royal Tribute",
+			"effects": [
+				{
+					"timing": "immediate",
+					"effect_type": "draw",
+					"amount": 2
+				},
+				{
+					"timing": "immediate",
+					"effect_type": "choice",
+					"choice": [
+						{
+							"effect_type": "boost_additional",
+							"discard_this_first": true,
+							"limitation": "",
+							"valid_zones": [ "hand", "extra" ]
+						},
+						{ "effect_type": "pass" }
+					]
+				}
+			]
+		}
+	},
+	{
+		"id": "beheaded_twindaggers",
+		"type": "special",
+		"display_name": "Healing Hammer",
+		"force_cost": 1,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 2,
+		"speed": 6,
+		"power": 2,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "after",
+				"condition": "hit_opponent",
+				"effect_type": "choice",
+				"choice": [
+					{
+						"effect_type": "seal_this",
+						"and": {
+							"effect_type": "gain_life",
+							"amount": 4,
+							"and": {
+								"effect_type": "add_top_discard_to_gauge",
+								"amount": 2
+							}
+						}
+					},
+					{ "effect_type": "pass" }
+				]
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 1,
+			"cancel_cost": -1,
+			"display_name": "To Me, Minions!",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "speedup",
+					"amount": 1
+				},
+				{
+					"timing": "now",
+					"effect_type": "choice",
+					"choice": [
+						{ "effect_type": "advance", "amount": 1 },
+						{ "effect_type": "advance", "amount": 2 },
+						{ "effect_type": "retreat", "amount": 1 },
+						{ "effect_type": "retreat", "amount": 2 }
+					]
+				}
+			]
+		}
+	},
+	{
+		"id": "beheaded_diveattack",
+		"type": "special",
+		"display_name": "Scepter Slam",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 1,
+		"speed": 5,
+		"power": 2,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "before",
+				"effect_type": "close",
+				"amount": 3
+			},
+			{
+				"timing": "hit",
+				"effect_type": "force_for_effect",
+				"per_force_effect": {
+					"effect_type": "powerup",
+					"amount": 1
+				},
+				"overall_effect": null,
+				"force_max": 3
+			}
+		],
+		"boost": {
+			"boost_type": "immediate",
+			"force_cost": 1,
+			"cancel_cost": -1,
+			"display_name": "Unsteady Ground",
+			"effects": [
+				{
+					"timing": "immediate",
+					"effect_type": "choice",
+					"choice": [
+						{ "effect_type": "push", "amount": 1 },
+						{ "effect_type": "push", "amount": 2 },
+						{ "effect_type": "pull", "amount": 1 },
+						{ "effect_type": "pull", "amount": 2 }
+					]
+				},
+				{
+					"timing": "immediate",
+					"effect_type": "gauge_for_effect",
+					"other_player": true,
+					"per_gauge_effect": null,
+					"overall_effect": {
+						"effect_type": "discard_this"
+					},
+					"gauge_max": 1
+				},
+				{
+					"timing": "immediate",
+					"condition": "not_discarding_boost",
+					"effect_type": "bonus_action"
+				}
+			]
+		}
+	},
+	{
+		"id": "beheaded_wrenchingwhip",
+		"type": "special",
+		"display_name": "Spin Jump",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 1,
+		"speed": 5,
+		"power": 4,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "before",
+				"effect_type": "close",
+				"amount": 1
+			},
+			{
+				"timing": "hit",
+				"effect_type": "choice",
+				"choice": [
+					{
+						"effect_type": "advance", "amount": 3, "suppress_and_description": true,
+						"and": {
+							"effect_type": "choice",
+							"choice": [
+								{
+									"effect_type": "boost_then_sustain",
+									"valid_zones": [ "hand" ],
+									"limitation": "continuous"
+								},
+								{ "effect_type": "pass" }
+							]
+						}
+					},
+					{
+						"effect_type": "advance", "amount": 4, "suppress_and_description": true,
+						"and": {
+							"effect_type": "choice",
+							"choice": [
+								{
+									"effect_type": "boost_then_sustain",
+									"valid_zones": [ "hand" ],
+									"limitation": "continuous"
+								},
+								{ "effect_type": "pass" }
+							]
+						}
+					}
+				]
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 1,
+			"cancel_cost": -1,
+			"display_name": "Edict",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"condition": "discarded_copy_of_attack",
+					"effect_type": "attack_is_ex"
+				}
+			]
+		}
+	},
+	{
+		"id": "beheaded_infantrybow",
+		"type": "special",
+		"display_name": "Scepter Smite",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 2,
+		"speed": 4,
+		"power": 4,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "hit",
+				"condition": "opponent_total_guard_greater_or_equal",
+				"condition_amount": 4,
+				"effect_type": "powerup",
+				"amount": 2
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 1,
+			"cancel_cost": -1,
+			"display_name": "Charge Up",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "powerup",
+					"amount": 2,
+					"and": {
+						"effect_type": "guardup",
+						"amount": 2
+					}
+				}
+			]
+		}
+	},
+	{
+		"NOTE": "BEHEADED CARDS END",
+		"id": "beheaded_assaultshield",
+		"type": "special",
+		"display_name": "Shoulder Bash",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 1,
+		"speed": 2,
+		"power": 5,
+		"armor": 0,
+		"guard": 6,
+		"effects": [
+			{
+				"timing": "before",
+				"effect_type": "close",
+				"amount": 2
+			},
+			{
+				"timing": "after",
+				"effect_type": "choice",
+				"choice": [
+					{ "effect_type": "advance", "amount": 1 },
+					{ "effect_type": "advance", "amount": 2 },
+					{ "effect_type": "pass"}
+				]
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 1,
+			"cancel_cost": -1,
+			"display_name": "Brutal Coronation",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "powerup",
+					"amount": 1,
+					"and": {
+						"effect_type": "armorup",
+						"amount": 1,
+						"and": {
+							"effect_type": "guardup",
+							"amount": 1
+						}
+					}
+				},
+				{
+					"timing": "now",
+					"effect_type": "draw_to",
+					"amount": 3
+				}
+			]
+		},
+		"NOTEEND": "BEHEADED CARDS END"
+	},
+
+
+	{
 		"NOTE": "BISON CARDS START",
 		"id": "bison_nightmarebooster",
 		"type": "ultra",

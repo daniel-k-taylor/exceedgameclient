@@ -13,4 +13,4 @@ animations = [{
 "speed": 8.0
 }]
 metadata/flip = false
-metadata/scaling = 1.0
+metadata/scaling = 0.5

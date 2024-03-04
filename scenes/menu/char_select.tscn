@@ -1,4 +1,4 @@
-[gd_scene load_steps=84 format=3 uid="uid://cqs72exlwm6at"]
+[gd_scene load_steps=85 format=3 uid="uid://cqs72exlwm6at"]
 
 [ext_resource type="Script" path="res://scenes/menu/char_select.gd" id="1_f3x24"]
 [ext_resource type="PackedScene" uid="uid://nwqxp8pdh1jk" path="res://scenes/menu/char_select_button.tscn" id="6_3lmwy"]
@@ -79,6 +79,7 @@
 [ext_resource type="Texture2D" uid="uid://dpxsvmo3pfmh5" path="res://assets/portraits/zangief.png" id="63_wfjiw"]
 [ext_resource type="Texture2D" uid="uid://dsjoq0rmngr2b" path="res://assets/portraits/treasure.png" id="65_k18ea"]
 [ext_resource type="Texture2D" uid="uid://o5kv58ao0tbw" path="res://assets/portraits/dan.png" id="66_ic0dy"]
+[ext_resource type="Texture2D" uid="uid://cfdkso82ks6al" path="res://assets/portraits/beheaded.png" id="69_7oqe0"]
 [ext_resource type="Texture2D" uid="uid://bhf4128x5imup" path="res://assets/portraits/chunli.png" id="75_x64mb"]
 [ext_resource type="Texture2D" uid="uid://b7mv0ajelb1us" path="res://assets/portraits/vega.png" id="76_k4evp"]
 [ext_resource type="Texture2D" uid="uid://y516s7duw503" path="res://assets/portraits/bison.png" id="77_vkb7f"]
@@ -618,6 +619,19 @@ layout_mode = 2
 char_id = "polar"
 portrait_texture = ExtResource("54_u47ng")
 
+[node name="Buffer" type="MarginContainer" parent="CenterContainer/SKCharacterSelect/Cols"]
+custom_minimum_size = Vector2(20, 0)
+layout_mode = 2
+
+[node name="Col4" type="VBoxContainer" parent="CenterContainer/SKCharacterSelect/Cols"]
+layout_mode = 2
+alignment = 1
+
+[node name="Beheaded" parent="CenterContainer/SKCharacterSelect/Cols/Col4" instance=ExtResource("6_3lmwy")]
+layout_mode = 2
+char_id = "beheaded"
+portrait_texture = ExtResource("69_7oqe0")
+
 [node name="SFCharacterSelect" type="PanelContainer" parent="CenterContainer"]
 layout_mode = 2
 mouse_filter = 2
@@ -890,6 +904,8 @@ portrait_texture = ExtResource("32_iutun")
 [connection signal="on_pressed" from="CenterContainer/SKCharacterSelect/Cols/Col3/Plague" to="." method="_on_char_button_on_pressed"]
 [connection signal="on_hover" from="CenterContainer/SKCharacterSelect/Cols/Col3/Polar" to="." method="_on_char_hover"]
 [connection signal="on_pressed" from="CenterContainer/SKCharacterSelect/Cols/Col3/Polar" to="." method="_on_char_button_on_pressed"]
+[connection signal="on_hover" from="CenterContainer/SKCharacterSelect/Cols/Col4/Beheaded" to="." method="_on_char_hover"]
+[connection signal="on_pressed" from="CenterContainer/SKCharacterSelect/Cols/Col4/Beheaded" to="." method="_on_char_button_on_pressed"]
 [connection signal="on_hover" from="CenterContainer/SFCharacterSelect/Rows/Row1/Sagat" to="." method="_on_char_hover"]
 [connection signal="on_pressed" from="CenterContainer/SFCharacterSelect/Rows/Row1/Sagat" to="." method="_on_char_button_on_pressed"]
 [connection signal="on_hover" from="CenterContainer/SFCharacterSelect/Rows/Row1/Ryu" to="." method="_on_char_hover"]
