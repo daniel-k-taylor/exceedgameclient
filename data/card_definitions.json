@@ -2177,7 +2177,7 @@
 		"NOTE": "BEHEADED CARDS START",
 		"id": "beheaded_trait_brutality",
 		"type": "trait",
-		"display_name": "Royal Decree: Kingly Strut",
+		"display_name": "Trait: Brutality",
 		"force_cost": 0,
 		"gauge_cost": 0,
 		"range_min": 0,
@@ -2190,34 +2190,23 @@
 		],
 		"boost": {
 			"boost_type": "continuous",
-			"force_cost": 3,
+			"force_cost": 0,
 			"cancel_cost": -1,
-			"display_name": "Kingly Strut",
+			"display_name": "Brutality",
 			"cannot_discard": true,
 			"effects": [
 				{
 					"timing": "during_strike",
+					"condition": "is_special_or_ultra_attack",
 					"effect_type": "powerup",
-					"amount": 2,
-					"and": {
-						"effect_type": "armorup",
-						"amount": 2
-					}
-				},
-				{
-					"timing": "now",
-					"effect_type": "choice",
-					"choice": [
-						{ "effect_type": "close", "amount": 1 },
-						{ "effect_type": "close", "amount": 2 }
-					]
+					"amount": 2
 				},
 				{
 					"timing": "cleanup",
-					"condition": "not_sustained",
-					"condition_card_id": "king_decree_kinglystrut",
-					"effect_type": "seal_this_boost",
-					"card_name": "Kingly Strut"
+					"effect_type": "sustain_this",
+					"card_name": "Brutality",
+					"resolve_before_simultaneous_effects": true,
+					"hide_effect": true
 				}
 			]
 		}
@@ -2225,7 +2214,7 @@
 	{
 		"id": "beheaded_trait_survival",
 		"type": "trait",
-		"display_name": "Royal Decree: Lordly Might",
+		"display_name": "Trait: Survival",
 		"force_cost": 0,
 		"gauge_cost": 0,
 		"range_min": 0,
@@ -2238,26 +2227,27 @@
 		],
 		"boost": {
 			"boost_type": "continuous",
-			"force_cost": 3,
+			"force_cost": 0,
 			"cancel_cost": -1,
-			"display_name": "Lordly Might",
+			"display_name": "Survival",
 			"cannot_discard": true,
 			"effects": [
 				{
 					"timing": "during_strike",
-					"effect_type": "powerup",
+					"condition": "is_special_or_ultra_attack",
+					"effect_type": "armorup",
 					"amount": 1,
 					"and": {
-						"effect_type": "speedup",
+						"effect_type": "guardup",
 						"amount": 2
 					}
 				},
 				{
 					"timing": "cleanup",
-					"condition": "not_sustained",
-					"condition_card_id": "king_decree_lordlymight",
-					"effect_type": "seal_this_boost",
-					"card_name": "Lordly Might"
+					"effect_type": "sustain_this",
+					"card_name": "Survival",
+					"resolve_before_simultaneous_effects": true,
+					"hide_effect": true
 				}
 			]
 		}
@@ -2265,7 +2255,7 @@
 	{
 		"id": "beheaded_trait_tactics",
 		"type": "trait",
-		"display_name": "Glorious Decree: Magnificent Cape",
+		"display_name": "Trait: Tactics",
 		"force_cost": 0,
 		"gauge_cost": 0,
 		"range_min": 0,
@@ -2278,36 +2268,24 @@
 		],
 		"boost": {
 			"boost_type": "continuous",
-			"force_cost": 4,
+			"force_cost": 0,
 			"cancel_cost": -1,
-			"display_name": "Magnificent Cape",
+			"display_name": "Tactics",
 			"cannot_discard": true,
 			"effects": [
 				{
 					"timing": "during_strike",
-					"effect_type": "powerup",
-					"amount": 2,
-					"and": {
-						"effect_type": "speedup",
-						"amount": 2
-					}
-				},
-				{
-					"timing": "now",
-					"effect_type": "choice",
-					"choice": [
-						{ "effect_type": "close", "amount": 1 },
-						{ "effect_type": "close", "amount": 2 },
-						{ "effect_type": "close", "amount": 3 },
-						{ "effect_type": "pass" }
-					]
+					"condition": "is_special_or_ultra_attack",
+					"effect_type": "rangeup",
+					"amount": 0,
+					"amount2": 1
 				},
 				{
 					"timing": "cleanup",
-					"condition": "not_sustained",
-					"condition_card_id": "king_decree_magnificentcape",
-					"effect_type": "seal_this_boost",
-					"card_name": "Magnificent Cape"
+					"effect_type": "sustain_this",
+					"card_name": "Tactics",
+					"resolve_before_simultaneous_effects": true,
+					"hide_effect": true
 				}
 			]
 		}

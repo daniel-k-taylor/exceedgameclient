@@ -1079,6 +1079,8 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 				effect_str += "Reveal top card of deck"
 		"reveal_strike":
 			effect_str += "Initiate face-up"
+		"revert":
+			effect_str += "Revert"
 		"save_power":
 			effect_str += "Your printed power becomes its Power"
 		"skip_end_of_turn_draw":
@@ -1246,6 +1248,9 @@ func get_effect_text(effect, short = false, skip_timing = false, skip_condition 
 		if 'card_name' in effect:
 			card_name_source = effect['card_name']
 	var effect_str = ""
+	if 'hide_effect' in effect and effect['hide_effect']:
+		return effect_str
+
 	if 'timing' in effect and not skip_timing:
 		effect_str += get_timing_text(effect['timing'])
 	var effect_separator = ", "

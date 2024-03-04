@@ -9,14 +9,32 @@
 		"beheaded_trait_tactics"
 	],
 	"no_buddy_card_graphics": true,
+	"link_extra_cards_to_buddies": true,
 	"exceed_cost": 2,
 	"on_exceed": {
-		"effect_type": "draw",
-		"amount": 2
+		"effect_type": "boost_from_extra",
+		"limitation": ""
 	},
 	"ability_effects": [
 	],
 	"exceed_ability_effects": [
+		{
+			"timing": "set_strike",
+			"character_effect": true,
+			"effect_type": "powerup",
+			"amount": 1,
+			"and": {
+				"effect_type": "speedup",
+				"amount": 1,
+				"and": {
+					"effect_type": "add_attack_effect",
+					"added_effect": {
+						"timing": "cleanup",
+						"effect_type": "revert"
+					}
+				}
+			}
+		}
 	],
 	"cards": [
 		{
