@@ -171,7 +171,7 @@ func get_timing_text(timing):
 		"action":
 			text += "[b]Action:[/b] "
 		"opponent_action":
-			text += "[b]Opponent Action:[/b]"
+			text += "[b]Opponent Action:[/b] "
 		"after":
 			text += "[b]After:[/b] "
 		"both_players_after":

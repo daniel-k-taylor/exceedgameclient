@@ -3643,7 +3643,8 @@ func update_boost_summary(boosts_card_holder, boost_box):
 					effects.append(effect)
 	var boost_summary = ""
 	for effect in effects:
-		boost_summary += CardDefinitions.get_effect_text(effect) + "\n"
+		if 'hide_effect' not in effect or not effect['hide_effect']:
+			boost_summary += CardDefinitions.get_effect_text(effect) + "\n"
 
 	for card_id in card_ids:
 		var card = card_db.get_card(card_id)
