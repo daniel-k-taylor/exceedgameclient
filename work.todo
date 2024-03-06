@@ -2,6 +2,7 @@
 
 In progress:
 
+
 Bug:
     ☐ Play invalid extra attack leads to invalid wild swings.
     ☐ Review mid-strike Tech interactions:
@@ -10,7 +11,8 @@ Bug:
         - probably any during_strike ability?
         - Relevant for Bang too
     ☐ Hilda Condensity/Happy Chaos Steady Aim - played not faceup is obvious which card it is due to delay while player decides choice
-Write tests for:
+    ☐ cpu tech brutality/beheaded cards
+ Write tests for:
     Axl:
     Testament:
     Zato:

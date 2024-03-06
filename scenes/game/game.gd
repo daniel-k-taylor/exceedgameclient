@@ -1594,7 +1594,10 @@ func _on_choose_from_discard(event):
 			card_select_count_str = "%s %scards" % [select_card_require_min, limitation]
 		elif select_card_require_max > 1:
 			card_select_count_str = "%s-%s %scards" % [select_card_require_min, select_card_require_max, limitation]
-		var instruction = "Select %s to move to %s." % [card_select_count_str, destination]
+		var destination_str = destination
+		if destination == "deck_noshuffle":
+			destination_str = "top deck"
+		var instruction = "Select %s to move to %s." % [card_select_count_str, destination_str]
 		if destination == "lightningrod_any_space":
 			instruction = "Select a card from your discard pile to place as a Lightning Rod."
 		var popout_type = CardPopoutType.CardPopoutType_DiscardPlayer

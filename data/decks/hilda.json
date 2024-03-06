@@ -62,6 +62,7 @@
 		{
 			"timing": "set_strike",
 			"condition": "used_character_action",
+			"condition_details": ["default", 0],
 			"character_effect": true,
 			"effect_type": "add_attack_effect",
 			"added_effect": {
