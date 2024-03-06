@@ -648,6 +648,7 @@ class Player:
 	var used_character_action_details : Array
 	var used_character_bonus : bool
 	var start_of_turn_strike : bool
+	var total_force_spent_this_turn : int
 	var force_spent_before_strike : int
 	var gauge_spent_before_strike : int
 	var exceed_at_end_of_turn : bool
@@ -3234,6 +3235,8 @@ func advance_to_next_turn():
 	opponent.used_character_bonus = false
 	player.start_of_turn_strike = false
 	opponent.start_of_turn_strike = false
+	player.total_force_spent_this_turn = 0
+	opponent.total_force_spent_this_turn = 0
 	player.force_spent_before_strike = 0
 	opponent.force_spent_before_strike = 0
 	player.gauge_spent_before_strike = 0
@@ -5119,6 +5122,10 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 				amount = performing_player.strike_stat_boosts.strike_x
 			performing_player.strike_stat_boosts.guard += amount
 			events += [create_event(Enums.EventType.EventType_Strike_GuardUp, performing_player.my_id, amount)]
+		"guardup_per_force_spent_this_turn":
+			var amount = performing_player.total_force_spent_this_turn * effect['amount']
+			performing_player.strike_stat_boosts.guard += amount
+			events += [create_event(Enums.EventType.EventType_Strike_GuardUp, performing_player.my_id, amount)]
 		"higher_speed_misses":
 			performing_player.strike_stat_boosts.higher_speed_misses = true
 			if 'dodge_at_speed_greater_or_equal' in effect:
@@ -6999,6 +7006,10 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 			if boosts_in_play > 0:
 				performing_player.strike_stat_boosts.speed += effect['amount'] * boosts_in_play
 				events += [create_event(Enums.EventType.EventType_Strike_SpeedUp, performing_player.my_id, effect['amount'] * boosts_in_play)]
+		"speedup_per_force_spent_this_turn":
+			var amount = performing_player.total_force_spent_this_turn * effect['amount']
+			performing_player.strike_stat_boosts.speed += amount
+			events += [create_event(Enums.EventType.EventType_Strike_SpeedUp, performing_player.my_id, amount)]
 		"spend_all_force_and_save_amount":
 			var force_amount = performing_player.get_available_force()
 			var card_names = ""
@@ -9288,6 +9299,7 @@ func do_move(performing_player : Player, card_ids, new_arena_location, use_free_
 	if generated_force < required_force:
 		printlog("ERROR: Not enough force with these cards to move there.")
 		return false
+	performing_player.total_force_spent_this_turn += required_force
 
 	var events = performing_player.discard(card_ids)
 	var old_location = performing_player.arena_location
@@ -9341,6 +9353,7 @@ func do_change(performing_player : Player, card_ids, treat_ultras_as_single_forc
 		_append_log_full(Enums.LogType.LogType_Effect, performing_player, "generates %s force." % force_generated)
 	_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "draws %s card(s)." % force_generated)
 	events += performing_player.draw(force_generated)
+	performing_player.total_force_spent_this_turn += force_generated
 
 	# Handle Guile's Exceed strike bonus
 	# Otherwise just end the turn.
@@ -9424,6 +9437,7 @@ func do_boost(performing_player : Player, card_id : int, payment_card_ids : Arra
 		if not performing_player.can_pay_cost_with(payment_card_ids, force_cost, 0, use_free_force):
 			printlog("ERROR: Tried to boost action but can't pay force cost with these cards.")
 			return false
+		performing_player.total_force_spent_this_turn += force_cost
 
 	# TODO: use decision info to check if additional boost ids are allowed, queue for boosting if so
 	if additional_boost_ids:
@@ -9667,6 +9681,7 @@ func do_pay_strike_cost(performing_player : Player, card_ids : Array, wild_strik
 			if not discard_ex_first and active_strike.get_player_ex_card(performing_player) != null:
 				where_to_discard = 1
 			events += performing_player.discard(card_ids, where_to_discard)
+			performing_player.total_force_spent_this_turn += force_cost
 
 			if active_strike.extra_attack_in_progress:
 				active_strike.extra_attack_data.extra_attack_state = ExtraAttackState.ExtraAttackState_DuringStrikeBonuses
@@ -9711,6 +9726,7 @@ func do_force_for_armor(performing_player : Player, card_ids : Array, use_free_f
 		force_generated = len(card_ids)
 	else:
 		force_generated = performing_player.get_force_with_cards(card_ids, "FORCE_FOR_ARMOR", false, use_free_force)
+	performing_player.total_force_spent_this_turn += force_generated
 
 	if force_generated > 0:
 		var card_names = ""
@@ -10199,6 +10215,7 @@ func do_force_for_effect(performing_player : Player, card_ids : Array, treat_ult
 		else:
 			printlog("ERROR: Tried to force for effect with too much force.")
 			return false
+	performing_player.total_force_spent_this_turn += force_generated
 
 	var continuation_player = performing_player
 	if 'continuation_switch_player_control' in decision_info.effect and decision_info.effect['continuation_switch_player_control']:
@@ -10411,6 +10428,7 @@ func do_character_action(performing_player : Player, card_ids, action_idx : int 
 			card_names += ", " + card_db.get_card_name(card_ids[0])
 		_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "pays for the action by discarding %s." % card_names)
 		events += performing_player.discard(card_ids)
+	performing_player.total_force_spent_this_turn += force_cost
 
 	# Do the character action effects.
 	events += [create_event(Enums.EventType.EventType_CharacterAction, performing_player.my_id, 0)]

@@ -222,6 +222,8 @@ func get_condition_text(effect, amount, amount2, detail):
 	match condition:
 		"advanced_through":
 			text += "If advanced past opponent, "
+		"not_advanced_through":
+			text += "If didn't advance past opponent, "
 		"not_advanced_through_buddy":
 			text += "If didn't advance through %s, " % detail
 		"any_buddy_in_play":
@@ -793,6 +795,8 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 				if effect['amount'] > 0:
 					effect_str += "+"
 				effect_str += str(effect['amount']) + " Guard"
+		"guardup_per_force_spent_this_turn":
+			effect_str += "+" + str(effect['amount']) + " Guard per force spent this turn."
 		"ignore_armor":
 			if 'opponent' in effect and effect['opponent']:
 				effect_str += "Opponent ignores armor"
@@ -1194,16 +1198,21 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 		"specific_card_discard_to_gauge":
 			effect_str += "Add a copy of %s from discard to Gauge" % effect['card_name']
 		"speedup":
-			if effect['amount'] > 0:
-				effect_str += "+"
-			#else: str() converts it to - already.
-				#effect_str += "-"
-			effect_str += str(effect['amount']) + " Speed"
+			if str(effect['amount']) == "strike_x":
+				effect_str += "+X Speed"
+			else:
+				if effect['amount'] > 0:
+					effect_str += "+"
+				#else: str() converts it to - already.
+					#effect_str += "-"
+				effect_str += str(effect['amount']) + " Speed"
 		"speedup_per_boost_in_play":
 			if 'all_boosts' in effect and effect['all_boosts']:
 				effect_str += "+" + str(effect['amount']) + " Speed per EVERY boost in play."
 			else:
 				effect_str += "+" + str(effect['amount']) + " Speed per boost in play."
+		"speedup_per_force_spent_this_turn":
+			effect_str += "+" + str(effect['amount']) + " Speed per force spent this turn."
 		"spend_all_force_and_save_amount":
 			effect_str += "Spend all hand/gauge as force"
 		"spend_all_gauge_and_save_amount":
