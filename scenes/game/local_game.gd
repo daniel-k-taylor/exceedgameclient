@@ -4337,6 +4337,24 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 			# Doing the boost here in handle_strike_effect is awkward as do_boost is ideal but
 			# queues all the events. Instead, set a flag and do it on overdrive cleanup.
 			active_overdrive_boost_top_discard_on_cleanup = true
+		"boost_multiple":
+			var valid_zones = ['hand']
+			if 'valid_zones' in effect:
+				valid_zones = effect['valid_zones']
+			var amount = effect['amount']
+			if performing_player.can_boost_something(valid_zones, effect['limitation']):
+				events += [create_event(Enums.EventType.EventType_ForceStartBoost, performing_player.my_id, amount, "", valid_zones, effect['limitation'])]
+				change_game_state(Enums.GameState.GameState_PlayerDecision)
+				decision_info.clear()
+				decision_info.type = Enums.DecisionType.DecisionType_BoostNow
+				decision_info.amount = amount
+				decision_info.player = performing_player.my_id
+				decision_info.valid_zones = valid_zones
+				decision_info.limitation = effect['limitation']
+				decision_info.ignore_costs = 'ignore_costs' in effect and effect['ignore_costs']
+				performing_player.cancel_blocked_this_turn = true
+			else:
+				_append_log_full(Enums.LogType.LogType_Effect, performing_player, "has no cards available to boost.")
 		"boost_or_reveal_hand":
 			# This effect is expected to be a character action.
 			if performing_player.can_boost_something(['hand'], effect['limitation']):
@@ -8836,23 +8854,34 @@ func do_discard_boost(events):
 	decision_info.type = Enums.DecisionType.DecisionType_BoostNow
 	do_boost(performing_player, boost_card_id)
 
-func begin_resolve_boost(performing_player : Player, card_id : int):
+func begin_resolve_boost(performing_player : Player, card_id : int, additional_boost_ids = []):
 	var events = []
 
-	var new_boost = Boost.new()
-	if active_boost:
-		if active_strike:
-			assert(false, "No current support for boosts that play other boosts mid-strike")
-		new_boost.parent_boost = active_boost
+	# If boosting multiple cards, treat as parent boosts to "queue" them
+	var more_boosts_to_play = true
+	while more_boosts_to_play:
+		var new_boost = Boost.new()
+		if active_boost:
+			if active_strike:
+				assert(false, "No current support for boosts that play other boosts mid-strike")
+			new_boost.parent_boost = active_boost
 
-	active_boost = new_boost
-	active_boost.playing_player = performing_player
-	active_boost.card = card_db.get_card(card_id)
-	performing_player.remove_card_from_hand(card_id, true, false)
-	performing_player.remove_card_from_gauge(card_id)
-	performing_player.remove_card_from_discards(card_id)
-	performing_player.remove_card_from_set_aside(card_id)
-	events += [create_event(Enums.EventType.EventType_Boost_Played, performing_player.my_id, card_id)]
+		active_boost = new_boost
+		active_boost.playing_player = performing_player
+		active_boost.card = card_db.get_card(card_id)
+		performing_player.remove_card_from_hand(card_id, true, false)
+		performing_player.remove_card_from_gauge(card_id)
+		performing_player.remove_card_from_discards(card_id)
+		performing_player.remove_card_from_set_aside(card_id)
+		events += [create_event(Enums.EventType.EventType_Boost_Played, performing_player.my_id, card_id)]
+
+		if additional_boost_ids:
+			card_id = additional_boost_ids.pop_front()
+			# Must offset effects_resolved because the boost-chaining functionality assumes that
+			#  boost_aditional will be an effect of the boost itself
+			active_boost.effects_resolved -= 1
+		else:
+			more_boosts_to_play = false
 
 	# Resolve all immediate/now effects
 	# If continuous, put it into continous boost tracking.
@@ -9381,7 +9410,7 @@ func do_exceed(performing_player : Player, card_ids : Array) -> bool:
 	event_queue += events
 	return true
 
-func do_boost(performing_player : Player, card_id : int, payment_card_ids : Array = [], use_free_force = false) -> bool:
+func do_boost(performing_player : Player, card_id : int, payment_card_ids : Array = [], use_free_force = false, additional_boost_ids : Array = []) -> bool:
 	printlog("MainAction: BOOST by %s - %s" % [get_player_name(performing_player.my_id), card_db.get_card_id(card_id)])
 	if game_state != Enums.GameState.GameState_PickAction or performing_player.my_id != active_turn_player:
 		if not wait_for_mid_strike_boost():
@@ -9396,6 +9425,12 @@ func do_boost(performing_player : Player, card_id : int, payment_card_ids : Arra
 			printlog("ERROR: Tried to boost action but can't pay force cost with these cards.")
 			return false
 
+	# TODO: use decision info to check if additional boost ids are allowed, queue for boosting if so
+	if additional_boost_ids:
+		if decision_info.amount <= 1:
+			printlog("ERROR: Tried to boost with multiple cards when not allowed.")
+			return false
+
 	if game_state == Enums.GameState.GameState_PickAction:
 		_append_log_full(Enums.LogType.LogType_Action, performing_player, "Turn Action: Boost")
 	_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "boosts %s." % _get_boost_and_card_name(card))
@@ -9408,7 +9443,7 @@ func do_boost(performing_player : Player, card_id : int, payment_card_ids : Arra
 		_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "discards cards to pay for the boost: %s." % card_names)
 		events += performing_player.discard(payment_card_ids)
 
-	events += begin_resolve_boost(performing_player, card_id)
+	events += begin_resolve_boost(performing_player, card_id, additional_boost_ids)
 	event_queue += events
 	return true
 

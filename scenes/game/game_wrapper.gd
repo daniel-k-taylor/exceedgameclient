@@ -462,9 +462,9 @@ func submit_mulligan(player : Enums.PlayerId, card_ids : Array) -> bool:
 	var game_player = _get_player(player)
 	return current_game.do_mulligan(game_player, card_ids)
 
-func submit_boost(player : Enums.PlayerId, card_id : int, payment_card_ids, use_free_force : bool) -> bool:
+func submit_boost(player : Enums.PlayerId, card_id : int, payment_card_ids, use_free_force : bool, additional_boost_ids : Array = []) -> bool:
 	var game_player = _get_player(player)
-	return current_game.do_boost(game_player, card_id, payment_card_ids, use_free_force)
+	return current_game.do_boost(game_player, card_id, payment_card_ids, use_free_force, additional_boost_ids)
 
 func submit_choose_from_boosts(player: Enums.PlayerId, card_ids : Array) -> bool:
 	var game_player = _get_player(player)

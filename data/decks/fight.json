@@ -7,62 +7,43 @@
 	"on_exceed": {
 		"effect_type": "choice",
 		"choice": [
-			{ "effect_type": "advance", "amount": 1},
-			{ "effect_type": "advance", "amount": 2},
-			{ "effect_type": "retreat", "amount": 1},
-			{ "effect_type": "retreat", "amount": 2},
+			{
+				"effect_type": "boost_multiple",
+				"limitation": "continuous",
+				"amount": 2,
+				"valid_zones": ["hand", "discard", "gauge"],
+				"ignore_costs": true,
+				"NOTE": "need to shuffle discard after"
+			},
 			{ "effect_type": "pass" }
 		]
 	},
-	"character_action_exceeded": [{
-		"gauge_cost": 0,
-		"force_cost": 0,
-		"action_name": "Move 1 and Strike",
-		"shortcut_effect_type": "choice",
-		"effect": {
-			"effect_type": "choice",
-			"choice": [
-				{
-					"effect_type": "advance",
-					"amount": 1,
-					"and":
-						{ "effect_type": "strike" }
-				},
-				{
-					"effect_type": "retreat",
-					"amount": 1,
-					"and":
-						{ "effect_type": "strike" }
-				}
-			]
-		}
-	}],
 	"ability_effects": [
 		{
-			"timing": "hit",
-			"condition": "is_special_or_ultra_attack",
-			"effect_type": "pass",
-			"silent_effect": true,
-			"and": {
-				"condition": "opponent_at_max_range",
+			"timing": "set_strike",
+			"effect_type": "force_for_effect",
+			"per_force_effect": {
 				"character_effect": true,
+				"combine_multiple_into_one": true,
 				"effect_type": "powerup",
-				"amount": 2
-			}
+				"amount": 1
+			},
+			"overall_effect": null,
+			"force_max": 2
 		}
 	],
 	"exceed_ability_effects": [
 		{
-			"timing": "hit",
-			"condition": "is_special_or_ultra_attack",
-			"effect_type": "pass",
-			"silent_effect": true,
-			"and": {
-				"condition": "opponent_at_max_range",
+			"timing": "set_strike",
+			"effect_type": "force_for_effect",
+			"per_force_effect": {
 				"character_effect": true,
+				"combine_multiple_into_one": true,
 				"effect_type": "powerup",
-				"amount": 2
-			}
+				"amount": 1
+			},
+			"overall_effect": null,
+			"force_max": 3
 		}
 	],
 	"cards": [

@@ -540,6 +540,19 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 				effect_str += "Play a %s from %s%s." % [limitation_str, zone_string, ignore_costs_str]
 			else:
 				effect_str += "Play a %s from hand%s." % [limitation_str, ignore_costs_str]
+		'boost_multiple':
+			var amount_str = "1-%s" % effect['amount']
+			var limitation_str = "boost(s)"
+			if 'limitation' in effect and effect['limitation']:
+				limitation_str = effect['limitation'] + " boost(s)"
+			var ignore_costs_str = ""
+			if 'ignore_costs' in effect and effect['ignore_costs']:
+				ignore_costs_str = " (ignoring costs)"
+			if 'valid_zones' in effect:
+				var zone_string = "/".join(effect['valid_zones'])
+				effect_str += "Play %s %s from %s%s." % [amount_str, limitation_str, zone_string, ignore_costs_str]
+			else:
+				effect_str += "Play %s %s from hand%s." % [amount_str, limitation_str, ignore_costs_str]
 		'boost_then_strike':
 			var wild_str = ""
 			if 'wild_strike' in effect and effect['wild_strike']:

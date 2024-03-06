@@ -1031,8 +1031,14 @@ func can_select_card(card):
 			var select_boost_valid_zones = select_boost_options['valid_zones']
 			var select_boost_limitation = select_boost_options['limitation']
 			var select_boost_ignore_costs = select_boost_options['ignore_costs']
+			var select_boost_amount = select_boost_options['boost_amount']
+			var valid_amount = false
+			if select_boost_amount <= 1:
+				valid_amount = len(selected_cards) == 0
+			else:
+				valid_amount = len(selected_cards) < select_boost_amount
 			var valid_card = game_wrapper.can_player_boost(Enums.PlayerId.PlayerId_Player, card.card_id, select_boost_valid_zones, select_boost_limitation, select_boost_ignore_costs)
-			return len(selected_cards) == 0 and valid_card
+			return valid_amount and valid_card
 		UISubState.UISubState_SelectCards_ForceForBoost:
 			return (in_gauge or in_hand) and selected_boost_to_pay_for != card.card_id
 		UISubState.UISubState_SelectCards_DiscardContinuousBoost:
@@ -1974,6 +1980,10 @@ func _on_force_start_boost(event):
 	var limitation = event['extra_info2']
 	var ignore_costs = event['extra_info3'] or false
 
+	var boost_amount = 1
+	if event['number'] > 1:
+		boost_amount = event['number']
+
 	spawn_damage_popup("Boost!", player)
 	if player == Enums.PlayerId.PlayerId_Player and not observer_mode:
 		if prepared_character_action_data_available('boost_from_gauge'):
@@ -1984,9 +1994,9 @@ func _on_force_start_boost(event):
 				prepared_character_action_data = {}
 				change_ui_state(UIState.UIState_WaitForGameServer)
 		else:
-			begin_boost_choosing(false, valid_zones, limitation, ignore_costs)
+			begin_boost_choosing(false, valid_zones, limitation, ignore_costs, boost_amount)
 	else:
-		ai_do_boost(valid_zones, limitation, ignore_costs)
+		ai_do_boost(valid_zones, limitation, ignore_costs, boost_amount)
 	return SmallNoticeDelay
 
 func _on_force_start_strike(event):
@@ -2457,24 +2467,32 @@ func begin_gauge_strike_choosing(strike_response : bool, cancel_allowed : bool, 
 			new_sub_state = UISubState.UISubState_SelectCards_StrikeCard_FromSealed
 	change_ui_state(UIState.UIState_SelectCards, new_sub_state)
 
-func begin_boost_choosing(can_cancel : bool, valid_zones : Array, limitation : String, ignore_costs : bool):
+func begin_boost_choosing(can_cancel : bool, valid_zones : Array, limitation : String, ignore_costs : bool, boost_amount : int):
 	selected_cards = []
+	var count_str = "a"
+	var plural = ""
 	select_card_require_min = 1
-	select_card_require_max = 1
+	if boost_amount <= 1:
+		select_card_require_max = 1
+	else:
+		select_card_require_max = boost_amount
+		count_str = "up to %s" % boost_amount
+		plural = "(s)"
 	select_boost_options = {
 		"can_cancel": can_cancel,
 		"valid_zones": valid_zones,
 		"limitation": limitation,
-		"ignore_costs": ignore_costs
+		"ignore_costs": ignore_costs,
+		"boost_amount": boost_amount
 	}
-	var limitation_str = "card"
+	var limitation_str = "card%s" % plural
 	if limitation:
-		limitation_str = limitation + " boost"
+		limitation_str = limitation + " boost%s" % plural
 	var character_action_str = ""
 	if preparing_character_action:
 		character_action_str = " for %s" % prepared_character_action_data['action_name']
 	var zone_str = '/'.join(valid_zones)
-	var instructions = "Select a %s to boost from %s%s." % [limitation_str, zone_str, character_action_str]
+	var instructions = "Select %s %s to boost from %s%s." % [count_str, limitation_str, zone_str, character_action_str]
 	if 'gauge' in valid_zones:
 		_on_player_gauge_gauge_clicked()
 	elif 'discard' in valid_zones: # can't open two zones at once
@@ -3737,7 +3755,7 @@ func can_press_ok():
 				else:
 					return get_gauge_generated() >= select_card_require_min and get_gauge_generated() <= select_card_require_max
 			UISubState.UISubState_SelectCards_PlayBoost:
-				return len(selected_cards) == 1
+				return selected_cards_between_min_and_max()
 			UISubState.UISubState_SelectCards_ForceForBoost:
 				return can_selected_cards_pay_force(select_card_require_force)
 	else: # Some other non-select cards state.
@@ -3867,7 +3885,7 @@ func _on_boost_button_pressed():
 	var valid_zones = ['hand']
 	if player_can_boost_from_extra:
 		valid_zones.append('extra')
-	begin_boost_choosing(true, valid_zones, "", false)
+	begin_boost_choosing(true, valid_zones, "", false, 1)
 
 func _on_strike_button_pressed():
 	begin_strike_choosing(false, true)
@@ -3917,7 +3935,7 @@ func _on_character_action_pressed(action_idx : int = 0):
 					var limitation = ""
 					if 'limitation' in shortcut_effect:
 						limitation = shortcut_effect['limitation']
-					begin_boost_choosing(true, valid_zones, limitation, false)
+					begin_boost_choosing(true, valid_zones, limitation, false, 1)
 				"self_discard_choose":
 					prepared_character_action_data['destination'] = "discard"
 					var min_amount = shortcut_effect['amount']
@@ -4085,11 +4103,13 @@ func _on_instructions_ok_button_pressed(index : int):
 			UISubState.UISubState_SelectCards_PlayBoost:
 				var force_cost = game_wrapper.get_card_database().get_card_boost_force_cost(single_card_id)
 				if not select_boost_options['ignore_costs'] and force_cost > 0:
+					assert(select_boost_options['boost_amount'] <= 1, "WARNING: Can't currently handle force costs for multiple boosts")
 					selected_boost_to_pay_for = single_card_id
 					change_ui_state(null, UISubState.UISubState_SelectCards_ForceForBoost)
 					begin_generate_force_selection(force_cost)
 				else:
-					success = game_wrapper.submit_boost(Enums.PlayerId.PlayerId_Player, single_card_id, [], use_free_force)
+					var additional_boost_ids = selected_card_ids.slice(1)
+					success = game_wrapper.submit_boost(Enums.PlayerId.PlayerId_Player, single_card_id, [], use_free_force, additional_boost_ids)
 			UISubState.UISubState_SelectCards_ForceForBoost:
 				success = game_wrapper.submit_boost(Enums.PlayerId.PlayerId_Player, selected_boost_to_pay_for, selected_card_ids, use_free_force)
 			UISubState.UISubState_PickNumberFromRange:
@@ -4176,7 +4196,8 @@ func _on_instructions_cancel_button_pressed():
 				var valid_zones = select_boost_options["valid_zones"]
 				var limitation = select_boost_options["limitation"]
 				var ignore_costs = select_boost_options["ignore_costs"]
-				begin_boost_choosing(can_cancel, valid_zones, limitation, ignore_costs)
+				var boost_amount = select_boost_options["boost_amount"]
+				begin_boost_choosing(can_cancel, valid_zones, limitation, ignore_costs, boost_amount)
 			else:
 				change_ui_state(UIState.UIState_PickTurnAction, UISubState.UISubState_None)
 		_:
@@ -4347,7 +4368,8 @@ func ai_handle_boost(action : AIPlayer.BoostAction):
 	var card_id = action.card_id
 	var payment_card_ids = action.payment_card_ids
 	var do_use_free_force = action.use_free_force
-	var success = game_wrapper.submit_boost(Enums.PlayerId.PlayerId_Opponent, card_id, payment_card_ids, do_use_free_force)
+	var additional_boost_ids = action.additional_boost_ids
+	var success = game_wrapper.submit_boost(Enums.PlayerId.PlayerId_Opponent, card_id, payment_card_ids, do_use_free_force, additional_boost_ids)
 	if not success:
 		printlog("FAILED AI BOOST")
 	return success
@@ -4397,10 +4419,10 @@ func ai_take_turn():
 	else:
 		print("FAILED AI TURN")
 
-func ai_do_boost(valid_zones : Array, limitation : String, ignore_costs : bool = false):
+func ai_do_boost(valid_zones : Array, limitation : String, ignore_costs : bool = false, boost_amount : int = 1):
 	change_ui_state(UIState.UIState_WaitForGameServer)
 	if not game_wrapper.is_ai_game(): return
-	var boost_action = ai_player.take_boost(game_wrapper.current_game, Enums.PlayerId.PlayerId_Opponent, valid_zones, limitation, ignore_costs)
+	var boost_action = ai_player.take_boost(game_wrapper.current_game, Enums.PlayerId.PlayerId_Opponent, valid_zones, limitation, ignore_costs, boost_amount)
 	var success = ai_handle_boost(boost_action)
 	if success:
 		change_ui_state(UIState.UIState_WaitForGameServer)
