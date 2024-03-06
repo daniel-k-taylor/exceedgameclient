@@ -1,4 +1,4 @@
-[gd_scene load_steps=85 format=3 uid="uid://cqs72exlwm6at"]
+[gd_scene load_steps=86 format=3 uid="uid://cqs72exlwm6at"]
 
 [ext_resource type="Script" path="res://scenes/menu/char_select.gd" id="1_f3x24"]
 [ext_resource type="PackedScene" uid="uid://nwqxp8pdh1jk" path="res://scenes/menu/char_select_button.tscn" id="6_3lmwy"]
@@ -72,6 +72,7 @@
 [ext_resource type="Texture2D" uid="uid://dhl6e0y27cppf" path="res://assets/portraits/propeller.png" id="52_4p78r"]
 [ext_resource type="Texture2D" uid="uid://cqx52mmwlhi0c" path="res://assets/portraits/mole.png" id="54_ciywr"]
 [ext_resource type="Texture2D" uid="uid://bfvuigxc0xhpm" path="res://assets/portraits/polar.png" id="54_u47ng"]
+[ext_resource type="Texture2D" uid="uid://b8ojef5yh5ax3" path="res://assets/portraits/fight.png" id="58_mypvv"]
 [ext_resource type="Texture2D" uid="uid://166in2y3yh6m" path="res://assets/portraits/cviper.png" id="59_b8gjq"]
 [ext_resource type="Texture2D" uid="uid://b532a4180cfl2" path="res://assets/portraits/enchantress.png" id="60_0ur62"]
 [ext_resource type="Texture2D" uid="uid://pdqg26xfmkdq" path="res://assets/portraits/king.png" id="60_wx7g8"]
@@ -552,6 +553,19 @@ theme_override_styles/panel = SubResource("StyleBoxEmpty_8u80i")
 layout_mode = 2
 alignment = 1
 
+[node name="Col0" type="VBoxContainer" parent="CenterContainer/SKCharacterSelect/Cols"]
+layout_mode = 2
+alignment = 1
+
+[node name="Fight" parent="CenterContainer/SKCharacterSelect/Cols/Col0" instance=ExtResource("6_3lmwy")]
+layout_mode = 2
+char_id = "fight"
+portrait_texture = ExtResource("58_mypvv")
+
+[node name="BufferLeft" type="MarginContainer" parent="CenterContainer/SKCharacterSelect/Cols"]
+custom_minimum_size = Vector2(20, 0)
+layout_mode = 2
+
 [node name="Col1" type="VBoxContainer" parent="CenterContainer/SKCharacterSelect/Cols"]
 layout_mode = 2
 alignment = 1
@@ -619,7 +633,7 @@ layout_mode = 2
 char_id = "polar"
 portrait_texture = ExtResource("54_u47ng")
 
-[node name="Buffer" type="MarginContainer" parent="CenterContainer/SKCharacterSelect/Cols"]
+[node name="BufferRight" type="MarginContainer" parent="CenterContainer/SKCharacterSelect/Cols"]
 custom_minimum_size = Vector2(20, 0)
 layout_mode = 2
 
@@ -882,6 +896,8 @@ portrait_texture = ExtResource("32_iutun")
 [connection signal="on_pressed" from="CenterContainer/BBCharacterSelect/Rows/Row3/Nu13" to="." method="_on_char_button_on_pressed"]
 [connection signal="on_hover" from="CenterContainer/BBCharacterSelect/Rows/Row3/Litchi" to="." method="_on_char_hover"]
 [connection signal="on_pressed" from="CenterContainer/BBCharacterSelect/Rows/Row3/Litchi" to="." method="_on_char_button_on_pressed"]
+[connection signal="on_hover" from="CenterContainer/SKCharacterSelect/Cols/Col0/Fight" to="." method="_on_char_hover"]
+[connection signal="on_pressed" from="CenterContainer/SKCharacterSelect/Cols/Col0/Fight" to="." method="_on_char_button_on_pressed"]
 [connection signal="on_hover" from="CenterContainer/SKCharacterSelect/Cols/Col1/Tinker" to="." method="_on_char_hover"]
 [connection signal="on_pressed" from="CenterContainer/SKCharacterSelect/Cols/Col1/Tinker" to="." method="_on_char_button_on_pressed"]
 [connection signal="on_hover" from="CenterContainer/SKCharacterSelect/Cols/Col1/ShovelShield" to="." method="_on_char_hover"]
