@@ -13,7 +13,7 @@
 				"amount": 2,
 				"valid_zones": ["hand", "discard", "gauge"],
 				"ignore_costs": true,
-				"NOTE": "need to shuffle discard after"
+				"shuffle_discard_after": true
 			},
 			{ "effect_type": "pass" }
 		]

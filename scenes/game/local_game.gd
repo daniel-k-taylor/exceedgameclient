@@ -425,6 +425,7 @@ class Boost:
 	var strike_after_boost = false
 	var strike_after_boost_opponent_first = false
 	var discard_on_cleanup = false
+	var shuffle_discard_on_cleanup = false
 	var discarded_already = false
 	var seal_on_cleanup = false
 	var cancel_resolved = false
@@ -4258,7 +4259,7 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 			events += [create_event(Enums.EventType.EventType_Strike_ArmorUp, performing_player.my_id, amount)]
 		"armorup_opponent_per_force_spent_this_turn":
 			var amount = performing_player.total_force_spent_this_turn * effect['amount']
-			opposing_player.strike_stat_boosts.speed += amount
+			opposing_player.strike_stat_boosts.armor += amount
 			events += [create_event(Enums.EventType.EventType_Strike_ArmorUp, opposing_player.my_id, amount)]
 		"attack_does_not_hit":
 			var affected_player = performing_player
@@ -4351,6 +4352,9 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 			if 'valid_zones' in effect:
 				valid_zones = effect['valid_zones']
 			var amount = effect['amount']
+			var shuffle_discard_after = false
+			if 'shuffle_discard_after' in effect:
+				shuffle_discard_after = effect['shuffle_discard_after']
 			if performing_player.can_boost_something(valid_zones, effect['limitation']):
 				events += [create_event(Enums.EventType.EventType_ForceStartBoost, performing_player.my_id, amount, "", valid_zones, effect['limitation'])]
 				change_game_state(Enums.GameState.GameState_PlayerDecision)
@@ -4361,6 +4365,7 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 				decision_info.valid_zones = valid_zones
 				decision_info.limitation = effect['limitation']
 				decision_info.ignore_costs = 'ignore_costs' in effect and effect['ignore_costs']
+				decision_info.extra_info = shuffle_discard_after
 				performing_player.cancel_blocked_this_turn = true
 			else:
 				_append_log_full(Enums.LogType.LogType_Effect, performing_player, "has no cards available to boost.")
@@ -6600,7 +6605,7 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 			var amount_min = performing_player.total_force_spent_this_turn * effect['amount']
 			var amount_max = performing_player.total_force_spent_this_turn * effect['amount2']
 			performing_player.strike_stat_boosts.min_range += amount_min
-			performing_player.strike_stat_boosts.min_range += amount_max
+			performing_player.strike_stat_boosts.max_range += amount_max
 			events += [create_event(Enums.EventType.EventType_Strike_RangeUp, performing_player.my_id, amount_min, "", amount_max)]
 		"rangeup_per_sealed_normal":
 			var sealed_normals = performing_player.get_sealed_count_of_type("normal")
@@ -8881,7 +8886,7 @@ func do_discard_boost(events):
 	decision_info.type = Enums.DecisionType.DecisionType_BoostNow
 	do_boost(performing_player, boost_card_id)
 
-func begin_resolve_boost(performing_player : Player, card_id : int, additional_boost_ids = []):
+func begin_resolve_boost(performing_player : Player, card_id : int, additional_boost_ids = [], shuffle_discard_after : bool = false):
 	var events = []
 
 	# If boosting multiple cards, treat as parent boosts to "queue" them
@@ -8896,6 +8901,7 @@ func begin_resolve_boost(performing_player : Player, card_id : int, additional_b
 		active_boost = new_boost
 		active_boost.playing_player = performing_player
 		active_boost.card = card_db.get_card(card_id)
+		active_boost.shuffle_discard_on_cleanup = shuffle_discard_after
 		performing_player.remove_card_from_hand(card_id, true, false)
 		performing_player.remove_card_from_gauge(card_id)
 		performing_player.remove_card_from_discards(card_id)
@@ -9020,6 +9026,10 @@ func boost_play_cleanup(events, performing_player : Player):
 		active_boost = active_boost.parent_boost
 		active_boost.effects_resolved += 1
 		return continue_resolve_boost(events)
+
+	if active_boost.shuffle_discard_on_cleanup:
+		var shuffle_effect = { "effect_type": "shuffle_discard_in_place" }
+		events += handle_strike_effect(-1, shuffle_effect, performing_player)
 
 	var preparing_strike = false
 	if performing_player.strike_on_boost_cleanup and not active_boost.strike_after_boost and not active_strike:
@@ -9472,7 +9482,9 @@ func do_boost(performing_player : Player, card_id : int, payment_card_ids : Arra
 		_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "discards cards to pay for the boost: %s." % card_names)
 		events += performing_player.discard(payment_card_ids)
 
-	events += begin_resolve_boost(performing_player, card_id, additional_boost_ids)
+	var shuffle_discard_on_boost_cleanup = false or decision_info.extra_info
+
+	events += begin_resolve_boost(performing_player, card_id, additional_boost_ids, shuffle_discard_on_boost_cleanup)
 	event_queue += events
 	return true
 

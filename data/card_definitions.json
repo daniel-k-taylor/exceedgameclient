@@ -6778,7 +6778,7 @@
 				"effect_type": "ignore_guard"
 			},
 			{
-				"timing": "hit",
+				"timing": "before",
 				"effect_type": "rangeup_per_force_spent_this_turn",
 				"amount": 0,
 				"amount2": 1
