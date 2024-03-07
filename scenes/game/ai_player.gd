@@ -502,7 +502,7 @@ func get_boost_actions(game_logic : LocalGame, me : LocalGame.Player, opponent :
 			var combinations = []
 			generate_card_count_combinations(multiple_boost_options, boost_count, [], 0, combinations)
 			for combination in combinations:
-				possible_actions.append(BoostAction.new(combinations[0], [], false, combination.slice(1)))
+				possible_actions.append(BoostAction.new(combination[0], [], false, combination.slice(1)))
 	return possible_actions
 
 func get_ex_option_in_hand(game_logic : LocalGame, me : LocalGame.Player, card_id : int):

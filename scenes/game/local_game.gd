@@ -4148,6 +4148,8 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 				amount = effect['amount']
 				if str(amount) == "num_discarded_card_ids":
 					amount = len(effect['discarded_card_ids'])
+				elif str(amount) == "force_spent_this_turn":
+					amount = performing_player.total_force_spent_this_turn
 
 			var actual_amount = min(amount, len(target_player.deck))
 			if actual_amount > 0:
@@ -4254,6 +4256,10 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 			var amount = performing_player.gauge.size() * effect['amount']
 			performing_player.strike_stat_boosts.armor += amount
 			events += [create_event(Enums.EventType.EventType_Strike_ArmorUp, performing_player.my_id, amount)]
+		"armorup_opponent_per_force_spent_this_turn":
+			var amount = performing_player.total_force_spent_this_turn * effect['amount']
+			opposing_player.strike_stat_boosts.speed += amount
+			events += [create_event(Enums.EventType.EventType_Strike_ArmorUp, opposing_player.my_id, amount)]
 		"attack_does_not_hit":
 			var affected_player = performing_player
 			if 'opponent' in effect and effect['opponent']:
@@ -6245,6 +6251,10 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 			if total_powerup > 0:
 				performing_player.add_power_bonus(total_powerup)
 				events += [create_event(Enums.EventType.EventType_Strike_PowerUp, performing_player.my_id, total_powerup)]
+		"powerup_per_force_spent_this_turn":
+			var amount = performing_player.total_force_spent_this_turn * effect['amount']
+			performing_player.add_power_bonus(amount)
+			events += [create_event(Enums.EventType.EventType_Strike_PowerUp, performing_player.my_id, amount)]
 		"powerup_per_gauge":
 			var amount_per_gauge = effect['amount']
 			var gauge_size = performing_player.gauge.size()
@@ -6586,6 +6596,12 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 				performing_player.strike_stat_boosts.min_range += effect['amount'] * hand_size
 				performing_player.strike_stat_boosts.max_range += effect['amount2'] * hand_size
 				events += [create_event(Enums.EventType.EventType_Strike_RangeUp, performing_player.my_id, effect['amount'] * hand_size, "", effect['amount2'] * hand_size)]
+		"rangeup_per_force_spent_this_turn":
+			var amount_min = performing_player.total_force_spent_this_turn * effect['amount']
+			var amount_max = performing_player.total_force_spent_this_turn * effect['amount2']
+			performing_player.strike_stat_boosts.min_range += amount_min
+			performing_player.strike_stat_boosts.min_range += amount_max
+			events += [create_event(Enums.EventType.EventType_Strike_RangeUp, performing_player.my_id, amount_min, "", amount_max)]
 		"rangeup_per_sealed_normal":
 			var sealed_normals = performing_player.get_sealed_count_of_type("normal")
 			if sealed_normals > 0:
@@ -9439,7 +9455,6 @@ func do_boost(performing_player : Player, card_id : int, payment_card_ids : Arra
 			return false
 		performing_player.total_force_spent_this_turn += force_cost
 
-	# TODO: use decision info to check if additional boost ids are allowed, queue for boosting if so
 	if additional_boost_ids:
 		if decision_info.amount <= 1:
 			printlog("ERROR: Tried to boost with multiple cards when not allowed.")

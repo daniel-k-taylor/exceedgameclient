@@ -474,6 +474,8 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 				amount_str = "top %s card(s)" % effect['amount']
 				if effect['amount'] == 'num_discarded_card_ids':
 					amount_str = "that many top cards"
+				elif effect['amount'] == 'force_spent_this_turn':
+					amount_str = "a card per force spent this turn from top"
 			var topdeck_card = ""
 			if 'card_name' in effect:
 				topdeck_card = "([color=%s]%s[/color]) " % [CardHighlightColor, effect['card_name']]
@@ -512,6 +514,10 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 			effect_str += "+ Armor per damage dealt"
 		"armorup_current_power":
 			effect_str += "+ Armor equal to power"
+		"armorup_opponent_per_force_spent_this_turn":
+			if effect['amount'] >= 0:
+				effect_str += "+"
+			effect_str += str(effect['amount']) + " to opponent's Armor per force spent this turn."
 		"attack_does_not_hit":
 			if 'opponent' in effect and effect['opponent']:
 				effect_str += "Opponent's attack does not hit."
@@ -943,6 +949,8 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 			if 'per_card' in effect:
 				every_str = "%s cards" % effect['per_card']
 			effect_str += "+" + str(effect['amount']) + " Power for every " + every_str + " in opponent's hand."
+		"powerup_per_force_spent_this_turn":
+			effect_str += "+" + str(effect['amount']) + " Power per force spent this turn."
 		"powerup_per_guard":
 			var max_text = ""
 			if 'maximum' in effect:
@@ -1027,6 +1035,8 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 				effect_str += "+" + str(effect['amount']) + "-" + str(effect['amount2']) + " Range per boost in play."
 		"rangeup_per_card_in_hand":
 			effect_str += "+" + str(effect['amount']) + "-" + str(effect['amount2']) + " Range per card in hand."
+		"speedup_per_force_spent_this_turn":
+			effect_str += "+" + str(effect['amount']) + "-" + str(effect['amount2']) + " Range per force spent this turn."
 		"rangeup_per_sealed_normal":
 			effect_str += "+" + str(effect['amount']) + "-" + str(effect['amount2']) + " Range per sealed normal."
 		"remove_buddy_near_opponent":

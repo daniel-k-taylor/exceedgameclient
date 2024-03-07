@@ -6689,50 +6689,40 @@
 		"NOTE": "FIGHT CARDS START",
 		"id": "fight_lightninggun",
 		"type": "ultra",
-		"display_name": "Full Broadside",
+		"display_name": "Lightning Gun",
 		"force_cost": 0,
 		"gauge_cost": 2,
-		"range_min": 2,
-		"range_max": 4,
-		"speed": 2,
-		"power": 6,
+		"range_min": 1,
+		"range_max": 3,
+		"speed": 6,
+		"power": 2,
 		"armor": 0,
 		"guard": 0,
 		"effects": [
 			{
-				"timing": "during_strike",
-				"effect_type": "stun_immunity"
-			},
-			{
-				"timing": "before",
-				"condition": "opponent_not_moved_this_strike",
-				"effect_type": "choice",
-				"choice": [
-					{ "effect_type": "push", "amount": 1 },
-					{ "effect_type": "push", "amount": 2 },
-					{ "effect_type": "push", "amount": 3 },
-					{ "effect_type": "pull", "amount": 1 },
-					{ "effect_type": "pull", "amount": 2 },
-					{ "effect_type": "pull", "amount": 3 },
-					{ "effect_type": "pass"}
-				]
+				"timing": "hit",
+				"effect_type": "powerup_per_force_spent_this_turn",
+				"amount": 1
 			}
 		],
 		"boost": {
-			"boost_type": "immediate",
+			"boost_type": "continuous",
 			"force_cost": 0,
 			"cancel_cost": -1,
-			"display_name": "Private Reserve",
+			"display_name": "Arachnomorph",
 			"effects": [
 				{
-					"timing": "immediate",
-					"effect_type": "boost_additional",
-					"limitation": "continuous",
-					"valid_zones": [ "discard" ]
+					"timing": "during_strike",
+					"effect_type": "speedup",
+					"amount": 1
 				},
 				{
-					"timing": "immediate",
-					"effect_type": "shuffle_discard_in_place"
+					"timing": "now",
+					"effect_type": "choice",
+					"choice": [
+						{ "effect_type": "advance", "amount": 1 },
+						{ "effect_type": "retreat", "amount": 1 }
+					]
 				}
 			]
 		}
@@ -6740,34 +6730,32 @@
 	{
 		"id": "fight_railgun",
 		"type": "ultra",
-		"display_name": "Launcher",
+		"display_name": "Rail Gun",
 		"force_cost": 0,
 		"gauge_cost": 4,
-		"range_min": 4,
-		"range_max": 4,
-		"speed": 7,
-		"power": 3,
+		"range_min": 3,
+		"range_max": 8,
+		"speed": 5,
+		"power": 7,
 		"armor": 0,
 		"guard": 0,
 		"effects": [
 			{
 				"timing": "hit",
-				"effect_type": "pull",
-				"amount": 3,
-				"and": {
-					"effect_type": "gain_advantage"
-				}
+				"effect_type": "armorup_opponent_per_force_spent_this_turn",
+				"amount": -1
 			}
 		],
 		"boost": {
-			"boost_type": "immediate",
+			"boost_type": "continuous",
 			"force_cost": 1,
 			"cancel_cost": -1,
-			"display_name": "Fly Up",
+			"display_name": "Mothorb",
 			"effects": [
 				{
-					"timing": "immediate",
-					"effect_type": "move_to_any_space"
+					"timing": "hit",
+					"effect_type": "add_top_deck_to_gauge",
+					"amount": "force_spent_this_turn"
 				}
 			]
 		}
@@ -6775,59 +6763,45 @@
 	{
 		"id": "fight_flamethrower",
 		"type": "ultra",
-		"display_name": "Cannonball",
+		"display_name": "Flamethrower",
 		"force_cost": 0,
 		"gauge_cost": 2,
-		"range_min": 4,
-		"range_max": 6,
-		"speed": 3,
+		"range_min": 1,
+		"range_max": 1,
+		"speed": 5,
 		"power": 4,
 		"armor": 0,
-		"guard": 3,
+		"guard": 0,
 		"effects": [
 			{
 				"timing": "during_strike",
-				"effect_type": "ignore_armor"
+				"effect_type": "ignore_guard"
 			},
 			{
 				"timing": "hit",
-				"effect_type": "choice",
-				"choice": [
-					{
-						"effect_type": "push",
-						"amount": 1,
-						"and":
-							{ "effect_type": "draw", "amount": 1}
-					},
-					{ "effect_type": "draw", "amount": 1}
-				]
-			},
-			{
-				"timing": "after",
-				"effect_type": "choice",
-				"choice": [
-					{ "effect_type": "advance", "amount": 1},
-					{ "effect_type": "advance", "amount": 2}
-				]
+				"effect_type": "rangeup_per_force_spent_this_turn",
+				"amount": 0,
+				"amount2": 1
 			}
 		],
 		"boost": {
-			"boost_type": "immediate",
-			"force_cost": 0,
+			"boost_type": "continuous",
+			"force_cost": 1,
 			"cancel_cost": -1,
-			"display_name": "Quick Step",
+			"display_name": "Explorb",
 			"effects": [
 				{
-					"timing": "immediate",
+					"timing": "now",
 					"effect_type": "choice",
 					"choice": [
-						{ "effect_type": "advance", "amount": 1 },
-						{ "effect_type": "retreat", "amount": 1 }
+						{ "effect_type": "advance", "amount": 2 },
+						{ "effect_type": "retreat", "amount": 2 }
 					]
 				},
 				{
-					"timing": "immediate",
-					"effect_type": "bonus_action"
+					"timing": "hit",
+					"effect_type": "add_top_deck_to_gauge",
+					"amount": 2
 				}
 			]
 		}
@@ -7001,7 +6975,7 @@
 			"effects": [
 				{
 					"timing": "during_strike",
-					"effect_type": "speed",
+					"effect_type": "speedup",
 					"amount": 1
 				},
 				{
