@@ -4450,7 +4450,7 @@
 			},
 			{
 				"timing": "hit",
-				"condition": "range",
+				"condition": "range_from_self",
 				"condition_amount": 1,
 				"effect_type": "powerup",
 				"amount": 2,
@@ -6682,6 +6682,310 @@
 			]
 		},
 		"NOTEEND": "FAUST CARDS END"
+	},
+
+
+	{
+		"NOTE": "FIGHT CARDS START",
+		"id": "fight_lightninggun",
+		"type": "ultra",
+		"display_name": "Lightning Gun",
+		"force_cost": 0,
+		"gauge_cost": 2,
+		"range_min": 1,
+		"range_max": 3,
+		"speed": 6,
+		"power": 2,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "hit",
+				"effect_type": "powerup_per_force_spent_this_turn",
+				"amount": 1
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Arachnomorph",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "speedup",
+					"amount": 1
+				},
+				{
+					"timing": "now",
+					"effect_type": "choice",
+					"choice": [
+						{ "effect_type": "advance", "amount": 1 },
+						{ "effect_type": "retreat", "amount": 1 }
+					]
+				}
+			]
+		}
+	},
+	{
+		"id": "fight_railgun",
+		"type": "ultra",
+		"display_name": "Rail Gun",
+		"force_cost": 0,
+		"gauge_cost": 4,
+		"range_min": 3,
+		"range_max": 8,
+		"speed": 5,
+		"power": 7,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "hit",
+				"effect_type": "armorup_opponent_per_force_spent_this_turn",
+				"amount": -1
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 1,
+			"cancel_cost": -1,
+			"display_name": "Mothorb",
+			"effects": [
+				{
+					"timing": "hit",
+					"effect_type": "add_top_deck_to_gauge",
+					"amount": "force_spent_this_turn"
+				}
+			]
+		}
+	},
+	{
+		"id": "fight_flamethrower",
+		"type": "ultra",
+		"display_name": "Flamethrower",
+		"force_cost": 0,
+		"gauge_cost": 2,
+		"range_min": 1,
+		"range_max": 1,
+		"speed": 5,
+		"power": 4,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "during_strike",
+				"effect_type": "ignore_guard"
+			},
+			{
+				"timing": "before",
+				"effect_type": "rangeup_per_force_spent_this_turn",
+				"amount": 0,
+				"amount2": 1
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 1,
+			"cancel_cost": -1,
+			"display_name": "Explorb",
+			"effects": [
+				{
+					"timing": "now",
+					"effect_type": "choice",
+					"choice": [
+						{ "effect_type": "advance", "amount": 2 },
+						{ "effect_type": "retreat", "amount": 2 }
+					]
+				},
+				{
+					"timing": "hit",
+					"effect_type": "add_top_deck_to_gauge",
+					"amount": 2
+				}
+			]
+		}
+	},
+	{
+		"id": "fight_explosiveshot",
+		"type": "special",
+		"display_name": "Explosive Shot",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 3,
+		"range_max": 5,
+		"speed": 5,
+		"power": 3,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "during_strike",
+				"effect_type": "ignore_armor"
+			},
+			{
+				"timing": "hit",
+				"effect_type": "add_top_discard_to_gauge"
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Shoot Orb",
+			"effects": [
+				{
+					"timing": "hit",
+					"condition": "range_greater_or_equal",
+					"condition_amount": 3,
+					"effect_type": "powerup",
+					"amount": 3
+				}
+			]
+		}
+	},
+	{
+		"id": "fight_retreatingbolts",
+		"type": "special",
+		"display_name": "Retreating Bolts",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 3,
+		"range_max": 3,
+		"speed": 4,
+		"power": 2,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "during_strike",
+				"effect_type": "speedup_per_force_spent_this_turn",
+				"amount": 1
+			},
+			{
+				"timing": "before",
+				"effect_type": "retreat",
+				"amount": 2
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 1,
+			"cancel_cost": -1,
+			"display_name": "Deadlock Boots",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "stun_immunity"
+				},
+				{
+					"timing": "now",
+					"effect_type": "choice",
+					"choice": [
+						{ "effect_type": "advance", "amount": 1 },
+						{ "effect_type": "retreat", "amount": 1 }
+					]
+				}
+			]
+		}
+	},
+	{
+		"id": "fight_powerjump",
+		"type": "special",
+		"display_name": "Power Jump",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 2,
+		"speed": 3,
+		"power": 2,
+		"armor": 1,
+		"guard": 3,
+		"effects": [
+			{
+				"timing": "hit",
+				"effect_type": "retreat",
+				"amount": 2
+			},
+			{
+				"timing": "after",
+				"effect_type": "push",
+				"amount": 1
+			}
+		],
+		"boost": {
+			"boost_type": "immediate",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Dash",
+			"effects": [
+				{
+					"timing": "immediate",
+					"effect_type": "choice",
+					"choice": [
+						{
+							"effect_type": "advance",
+							"amount": 2,
+							"bonus_effect": {
+								"condition": "not_advanced_through",
+								"effect_type": "add_to_gauge_boost_play_cleanup"
+							}
+						},
+						{
+							"effect_type": "retreat",
+							"amount": 2,
+							"and": {
+								"effect_type": "add_to_gauge_boost_play_cleanup"
+							}
+						}
+					]
+				}
+			]
+		}
+	},
+	{
+		"NOTE": "FIGHT CARDS END",
+		"id": "fight_electrocharge",
+		"type": "special",
+		"display_name": "Electro Charge",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 4,
+		"range_max": 6,
+		"speed": 1,
+		"power": 5,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "during_strike",
+				"effect_type": "guardup_per_force_spent_this_turn",
+				"amount": 3
+			},
+			{
+				"timing": "hit",
+				"effect_type": "add_top_discard_to_gauge"
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Speed Shell",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "speedup",
+					"amount": 1
+				},
+				{
+					"timing": "after",
+					"effect_type": "retreat",
+					"amount": 1
+				}
+			]
+		},
+		"NOTEEND": "FIGHT CARDS END"
 	},
 
 

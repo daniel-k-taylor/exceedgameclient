@@ -356,13 +356,14 @@ func process_mulligan(action_message) -> void:
 	var card_ids = action_message['card_ids']
 	local_game.do_mulligan(game_player, card_ids)
 
-func do_boost(player : LocalGame.Player, card_id : int, payment_card_ids = [], use_free_force : bool = false) -> bool:
+func do_boost(player : LocalGame.Player, card_id : int, payment_card_ids = [], use_free_force : bool = false, additional_boost_ids = []) -> bool:
 	var action_message = {
 		'action_type': 'action_boost',
 		'player_id': _get_player_remote_id(player),
 		'card_id': card_id,
 		'payment_card_ids': payment_card_ids,
 		'use_free_force': use_free_force,
+		'additional_boost_ids': additional_boost_ids
 	}
 	_submit_game_message(action_message)
 	return true
@@ -372,7 +373,8 @@ func process_boost(action_message) -> void:
 	var card_id = action_message['card_id']
 	var payment_card_ids = action_message['payment_card_ids']
 	var use_free_force = action_message['use_free_force']
-	local_game.do_boost(game_player, card_id, payment_card_ids, use_free_force)
+	var additional_boost_ids = action_message['additional_boost_ids']
+	local_game.do_boost(game_player, card_id, payment_card_ids, use_free_force, additional_boost_ids)
 
 func do_choose_from_boosts(player : LocalGame.Player, card_ids : Array) -> bool:
 	var action_message = {

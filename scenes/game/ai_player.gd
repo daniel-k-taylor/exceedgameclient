@@ -77,10 +77,12 @@ class BoostAction:
 	var card_id
 	var payment_card_ids
 	var use_free_force
-	func _init(boost_card_id, boost_payment_card_ids, do_use_free_force):
+	var additional_boost_ids
+	func _init(boost_card_id, boost_payment_card_ids, do_use_free_force, additional_boosts):
 		card_id = boost_card_id
 		payment_card_ids = boost_payment_card_ids
 		use_free_force = do_use_free_force
+		additional_boost_ids = additional_boosts
 
 class StrikeAction:
 	var card_id
@@ -274,11 +276,11 @@ func take_turn(game_logic : LocalGame, my_id : Enums.PlayerId):
 	update_ai_state(game_logic, me, opponent)
 	return ai_policy.pick_turn_action(possible_actions, game_state)
 
-func take_boost(game_logic : LocalGame, my_id : Enums.PlayerId, valid_zones : Array, limitation : String, ignore_costs : bool) -> BoostAction:
+func take_boost(game_logic : LocalGame, my_id : Enums.PlayerId, valid_zones : Array, limitation : String, ignore_costs : bool, boost_amount : int) -> BoostAction:
 	var me = game_logic._get_player(my_id)
 	var opponent = game_logic._get_player(game_logic.get_other_player(my_id))
 	# Decide which action makes the most sense to take.
-	var possible_actions = get_boost_actions(game_logic, me, opponent, valid_zones, limitation, ignore_costs)
+	var possible_actions = get_boost_actions(game_logic, me, opponent, valid_zones, limitation, ignore_costs, boost_amount)
 	update_ai_state(game_logic, me, opponent)
 	return ai_policy.pick_boost_action(possible_actions, game_state)
 
@@ -295,7 +297,7 @@ func determine_possible_turn_actions(game_logic : LocalGame, me : LocalGame.Play
 		possible_actions += get_change_cards_actions(game_logic, me, opponent)
 		possible_actions += get_exceed_actions(game_logic, me, opponent)
 		possible_actions += get_reshuffle_actions(game_logic, me, opponent)
-		possible_actions += get_boost_actions(game_logic, me, opponent, boost_zones, "", false)
+		possible_actions += get_boost_actions(game_logic, me, opponent, boost_zones, "", false, 1)
 		possible_actions += get_strike_actions(game_logic, me, opponent)
 		possible_actions += get_character_action_actions(game_logic, me, opponent)
 	return possible_actions
@@ -455,7 +457,7 @@ func get_boost_options_for_card(game_logic : LocalGame, me : LocalGame.Player, o
 
 	return choices
 
-func get_boost_actions(game_logic : LocalGame, me : LocalGame.Player, opponent : LocalGame.Player, valid_zones : Array, limitation : String, ignore_costs : bool):
+func get_boost_actions(game_logic : LocalGame, me : LocalGame.Player, opponent : LocalGame.Player, valid_zones : Array, limitation : String, ignore_costs : bool, boost_amount : int):
 	var possible_actions = []
 	var zone_map = {
 		"hand": me.hand,
@@ -465,6 +467,7 @@ func get_boost_actions(game_logic : LocalGame, me : LocalGame.Player, opponent :
 	}
 	var free_force_available = me.free_force
 
+	var multiple_boost_options = []
 	for zone in valid_zones:
 		for card in zone_map[zone]:
 			if card.definition['type'] == "decree_glorious" and not me.exceeded:
@@ -475,6 +478,7 @@ func get_boost_actions(game_logic : LocalGame, me : LocalGame.Player, opponent :
 			if does_boost_work(game_logic, me, opponent, card.id):
 				var cost = card.definition['boost']['force_cost']
 				if not ignore_costs and cost > 0:
+					assert(boost_amount <= 1)
 					var all_force_option_ids = []
 					for payment_card in me.hand:
 						all_force_option_ids.append(payment_card.id)
@@ -486,9 +490,19 @@ func get_boost_actions(game_logic : LocalGame, me : LocalGame.Player, opponent :
 					for combo_result in combinations:
 						var combo = combo_result[0]
 						var use_free_force = combo_result[1]
-						possible_actions.append(BoostAction.new(card.id, combo, use_free_force))
+						possible_actions.append(BoostAction.new(card.id, combo, use_free_force, []))
 				else:
-					possible_actions.append(BoostAction.new(card.id, [], false))
+					if boost_amount <= 1:
+						possible_actions.append(BoostAction.new(card.id, [], false, []))
+					else:
+						multiple_boost_options.append(card.id)
+	# If selecting multiple boosts, generate actions for their combinations
+	if boost_amount > 1:
+		for boost_count in range(1, boost_amount+1):
+			var combinations = []
+			generate_card_count_combinations(multiple_boost_options, boost_count, [], 0, combinations)
+			for combination in combinations:
+				possible_actions.append(BoostAction.new(combination[0], [], false, combination.slice(1)))
 	return possible_actions
 
 func get_ex_option_in_hand(game_logic : LocalGame, me : LocalGame.Player, card_id : int):
