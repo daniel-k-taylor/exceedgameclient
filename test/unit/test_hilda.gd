@@ -472,3 +472,15 @@ func test_hilda_condensity_notinspace():
 	validate_life(player1, 27, player2, 25)
 	validate_positions(player1, 2, player2, 3)
 	advance_turn(player2)
+
+
+func test_hilda_condensity_wild():
+	position_players(player1, 2, player2, 5)
+	give_player_specific_card(player1, "hilda_condensitygloom", TestCardId1)
+	player1.move_card_from_hand_to_deck(TestCardId1, 0)
+	give_player_specific_card(player2, "standard_normal_assault", TestCardId2)
+	assert_true(game_logic.do_strike(player1, -1, true, -1))
+	assert_true(game_logic.do_strike(player2, TestCardId2, false, -1))
+	validate_life(player1, 27, player2, 25)
+	validate_positions(player1, 2, player2, 3)
+	advance_turn(player2)

@@ -8397,7 +8397,7 @@
 		"effects": [
 			{
 				"timing": "set_strike",
-				"conditon": "was_not_wild_swing",
+				"condition": "was_not_wild_swing",
 				"effect_type": "place_buddy_in_any_space",
 				"optional": true,
 				"buddy_name": "your attack"
