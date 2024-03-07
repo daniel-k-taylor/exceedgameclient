@@ -472,9 +472,9 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 			var amount_str = "top card"
 			if 'amount' in effect:
 				amount_str = "top %s card(s)" % effect['amount']
-				if effect['amount'] == 'num_discarded_card_ids':
+				if str(effect['amount']) == 'num_discarded_card_ids':
 					amount_str = "that many top cards"
-				elif effect['amount'] == 'force_spent_this_turn':
+				elif str(effect['amount']) == 'force_spent_this_turn':
 					amount_str = "a card per force spent this turn from top"
 			var topdeck_card = ""
 			if 'card_name' in effect:

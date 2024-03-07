@@ -1265,7 +1265,10 @@ func _stat_notice_event(event):
 		Enums.EventType.EventType_BlockMovement:
 			notice_text = "Movement Blocked!"
 		Enums.EventType.EventType_Strike_ArmorUp:
-			notice_text = "+%d Armor" % number
+			var text = ""
+			if number > 0:
+				text += "+"
+			notice_text = "%s%s Armor" % [text, number]
 		Enums.EventType.EventType_Strike_AttackDoesNotHit:
 			notice_text = "Miss!"
 		Enums.EventType.EventType_CharacterAction:
