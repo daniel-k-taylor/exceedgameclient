@@ -434,6 +434,15 @@ func test_carlclover_cantabile_disabled_skip_move():
 	assert_eq(player2.gauge.size(), 0)
 	advance_turn(player1)
 
+func test_carlclover_volante_powerup():
+	position_players(player1, 3, player2, 4)
+	player1.set_buddy_location("nirvana_active", 7)
+	player2.set_buddy_location("nirvana_active", 9)
+	execute_strike(player1, player2, "carlclover_volante", "standard_normal_assault", [0], [], false, false, [], [], 0, [])
+	validate_positions(player1, 5, player2, 4)
+	validate_life(player1, 27, player2, 24)
+	advance_turn(player1)
+
 func test_carlclover_rhapsody_cantflip():
 	position_players(player1, 4, player2, 9)
 	give_gauge(player1, 3)

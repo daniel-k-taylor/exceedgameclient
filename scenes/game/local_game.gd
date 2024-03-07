@@ -3948,6 +3948,10 @@ func is_effect_condition_met(performing_player : Player, effect, local_condition
 			var amount = effect['condition_amount']
 			var origin = get_attack_origin(performing_player, other_player.arena_location)
 			return other_player.is_in_range_of_location(origin, amount, amount)
+		elif condition == "range_from_self":
+			var amount = effect['condition_amount']
+			var origin = performing_player.get_closest_occupied_space_to(other_player.arena_location)
+			return other_player.is_in_range_of_location(origin, amount, amount)
 		elif condition == "range_greater_or_equal":
 			var amount = effect['condition_amount']
 			var origin = get_attack_origin(performing_player, other_player.arena_location)

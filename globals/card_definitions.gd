@@ -307,6 +307,8 @@ func get_condition_text(effect, amount, amount2, detail):
 			text += "If this boost makes you strike, "
 		"range":
 			text += "If opponent at range %s from attack, " % amount
+		"range_from_self":
+			text += "If opponent at range %s from you, " % amount
 		"range_greater_or_equal":
 			text += "If opponent at range %s+ from attack, " % amount
 		"range_multiple":

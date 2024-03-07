@@ -4450,7 +4450,7 @@
 			},
 			{
 				"timing": "hit",
-				"condition": "range",
+				"condition": "range_from_self",
 				"condition_amount": 1,
 				"effect_type": "powerup",
 				"amount": 2,
