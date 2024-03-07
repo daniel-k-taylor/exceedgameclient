@@ -4359,8 +4359,11 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 			var shuffle_discard_after = false
 			if 'shuffle_discard_after' in effect:
 				shuffle_discard_after = effect['shuffle_discard_after']
+			var ignore_costs = false
+			if 'ignore_costs' in effect:
+				ignore_costs = effect['ignore_costs']
 			if performing_player.can_boost_something(valid_zones, effect['limitation']):
-				events += [create_event(Enums.EventType.EventType_ForceStartBoost, performing_player.my_id, amount, "", valid_zones, effect['limitation'])]
+				events += [create_event(Enums.EventType.EventType_ForceStartBoost, performing_player.my_id, amount, "", valid_zones, effect['limitation'], ignore_costs)]
 				change_game_state(Enums.GameState.GameState_PlayerDecision)
 				decision_info.clear()
 				decision_info.type = Enums.DecisionType.DecisionType_BoostNow
@@ -4368,7 +4371,7 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 				decision_info.player = performing_player.my_id
 				decision_info.valid_zones = valid_zones
 				decision_info.limitation = effect['limitation']
-				decision_info.ignore_costs = 'ignore_costs' in effect and effect['ignore_costs']
+				decision_info.ignore_costs = ignore_costs
 				decision_info.extra_info = shuffle_discard_after
 				performing_player.cancel_blocked_this_turn = true
 			else:
@@ -4408,15 +4411,18 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 			var valid_zones = ['hand']
 			if 'valid_zones' in effect:
 				valid_zones = effect['valid_zones']
+			var ignore_costs = false
+			if 'ignore_costs' in effect:
+				ignore_costs = effect['ignore_costs']
 			if performing_player.can_boost_something(valid_zones, effect['limitation']):
-				events += [create_event(Enums.EventType.EventType_ForceStartBoost, performing_player.my_id, 0, "", valid_zones, effect['limitation'])]
+				events += [create_event(Enums.EventType.EventType_ForceStartBoost, performing_player.my_id, 0, "", valid_zones, effect['limitation'], ignore_costs)]
 				change_game_state(Enums.GameState.GameState_PlayerDecision)
 				decision_info.clear()
 				decision_info.type = Enums.DecisionType.DecisionType_BoostNow
 				decision_info.player = performing_player.my_id
 				decision_info.valid_zones = valid_zones
 				decision_info.limitation = effect['limitation']
-				decision_info.ignore_costs = 'ignore_costs' in effect and effect['ignore_costs']
+				decision_info.ignore_costs = ignore_costs
 				var sustain = true
 				if 'sustain' in effect and not effect['sustain']:
 					sustain = false
