@@ -419,6 +419,8 @@ func get_effect_type_heading(effect):
 			effect_str += "Retreat "
 		"move_buddy":
 			effect_str += "Move %s " % effect['buddy_name']
+		"opponent_discard_random":
+			effect_str += "Opponent randomly discards "
 		_:
 			effect_str += "MISSING EFFECT HEADING"
 	return effect_str
