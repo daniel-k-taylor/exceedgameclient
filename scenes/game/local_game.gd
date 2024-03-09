@@ -8327,7 +8327,7 @@ func ask_for_cost(performing_player, card, next_state):
 		if not card_forced_invalid and performing_player.can_pay_cost(force_cost, gauge_cost):
 			change_game_state(Enums.GameState.GameState_PlayerDecision)
 			decision_info.player = performing_player.my_id
-			if was_wild_swing:
+			if was_wild_swing or can_invalidate_anyway:
 				decision_info.type = Enums.DecisionType.DecisionType_PayStrikeCost_CanWild
 			else:
 				decision_info.type = Enums.DecisionType.DecisionType_PayStrikeCost_Required
