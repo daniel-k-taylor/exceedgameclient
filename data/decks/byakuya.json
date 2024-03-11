@@ -5,10 +5,10 @@
 	"cardback": "cardback_byakuya.jpg",
 	"exceed_cost": 1,
 	"buddy_cards": [
-		"webtrap1",
-		"webtrap2",
-		"webtrap3",
-		"webtrap4"
+		"webtrapA1",
+		"webtrapA2",
+		"webtrapB1",
+		"webtrapB2"
 	],
 	"hide_buddy_reference": true,
 	"buddy_card_graphics_id": [

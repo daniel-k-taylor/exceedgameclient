@@ -212,6 +212,8 @@ func get_timing_text(timing):
 			text += "When you set a strike, "
 		"when_hit":
 			text += "When hit, "
+		"on_stop_on_space":
+			text += "When boost entered during strike, stop movement; "
 		_:
 			text += "MISSING TIMING"
 	return text

@@ -3661,6 +3661,10 @@ func update_boost_summary(boosts_card_holder, boost_box):
 	var effects = []
 	for card_id in card_ids:
 		var card = card_db.get_card(card_id)
+		if 'stop_on_space_effect' in card.definition['boost']:
+			var stop_on_space_effect = card.definition['boost']['stop_on_space_effect'].duplicate()
+			stop_on_space_effect['timing'] = "on_stop_on_space"
+			effects.append(stop_on_space_effect)
 		for effect in card.definition['boost']['effects']:
 			if effect['timing'] != "now" or effect['effect_type'] in ["force_costs_reduced_passive", "ignore_push_and_pull_passive_bonus"]:
 				if effect['timing'] != "discarded":

@@ -338,6 +338,7 @@ class Strike:
 	var remaining_forced_boosts_sustaining = false
 	var cards_in_play: Array[GameCard] = []
 	var when_hit_effects_processed = []
+	var queued_stop_on_space_boosts = []
 
 	var extra_attack_in_progress = false
 	var extra_attack_data : ExtraAttackData = ExtraAttackData.new()
@@ -702,6 +703,7 @@ class Player:
 	var enchantress_draw_choice : bool
 	var boost_id_locations : Dictionary # [card_id : int, location : int]
 	var boost_buddy_card_id_to_buddy_id_map : Dictionary # [card_id : int, buddy_id : String]
+	var stop_on_boost_space_ids : Array
 	var effect_on_turn_start
 	var strike_action_disabled : bool
 
@@ -810,6 +812,7 @@ class Player:
 		enchantress_draw_choice = false
 		boost_id_locations = {}
 		boost_buddy_card_id_to_buddy_id_map = {}
+		stop_on_boost_space_ids = []
 		effect_on_turn_start = false
 		strike_action_disabled = false
 
@@ -1752,11 +1755,13 @@ class Player:
 			return boost_id_locations[card_id]
 		return -1
 
-	func add_boost_to_location(card_id : int, location : int):
+	func add_boost_to_location(card_id : int, location : int, stop_on_space_effect : bool):
 		assert(card_id not in boost_id_locations)
 		var buddy_id = get_buddy_id_for_boost(card_id)
 		boost_id_locations[card_id] = location
 		boost_buddy_card_id_to_buddy_id_map[card_id] = buddy_id
+		if stop_on_space_effect:
+			stop_on_boost_space_ids.append(card_id)
 		var extra_offset = buddy_id.ends_with("2")
 
 		var events = []
@@ -1770,6 +1775,8 @@ class Player:
 			var buddy_id = get_buddy_id_for_boost(card_id)
 			boost_id_locations.erase(card_id)
 			boost_buddy_card_id_to_buddy_id_map.erase(card_id)
+			if card_id in stop_on_boost_space_ids:
+				stop_on_boost_space_ids.erase(card_id)
 			events += remove_buddy(buddy_id)
 		return events
 
@@ -2554,6 +2561,22 @@ class Player:
 				# then stop the movement.
 				movement_shortened = true
 				stopped_on_space = true
+			if parent.active_strike and not parent.active_strike.in_setup:
+				var all_stop_on_space_boosts = {}
+				for boost_id in stop_on_boost_space_ids:
+					all_stop_on_space_boosts[boost_id] = get_boost_location(boost_id)
+				for boost_id in other_player.stop_on_boost_space_ids:
+					all_stop_on_space_boosts[boost_id] = other_player.get_boost_location(boost_id)
+
+				for boost_id in all_stop_on_space_boosts:
+					var boost_location = all_stop_on_space_boosts[boost_id]
+					if boost_location != -1 and is_in_location(boost_location, new_location):
+						movement_shortened = true
+						stopped_on_space = true
+						parent.active_strike.queued_stop_on_space_boosts.append(boost_id)
+
+			# Delays breaking in case a space is multiple movement-stopping boosts is entered
+			if movement_shortened:
 				break
 
 		if movement_shortened:
@@ -2561,7 +2584,7 @@ class Player:
 				var other_buddy_name = other_player.get_buddy_name(cannot_move_past_opponent_buddy_id)
 				parent._append_log_full(Enums.LogType.LogType_CharacterMovement, self, "cannot move past %s's %s!" % [other_player.name, other_buddy_name])
 			elif stopped_on_space:
-				parent._append_log_full(Enums.LogType.LogType_CharacterMovement, self, "forced to stop at %s by an effect!" % str(stop_on_space))
+				parent._append_log_full(Enums.LogType.LogType_CharacterMovement, self, "forced to stop at %s by an effect!" % str(new_location))
 			else:
 				parent._append_log_full(Enums.LogType.LogType_CharacterMovement, self, "cannot move past %s!" % other_player.name)
 
@@ -5771,6 +5794,7 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 			pass
 		"place_boost_in_space":
 			var in_attack_range = 'in_attack_range' in effect and effect['in_attack_range']
+			var stop_on_space_effect = 'stop_on_space_effect' in effect and 'stop_on_space_effect'
 
 			change_game_state(Enums.GameState.GameState_PlayerDecision)
 			decision_info.clear()
@@ -5799,13 +5823,15 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 					"effect_type": "place_boost_in_space_internal",
 					"card_id": card_id,
 					"location": i,
-					"and": and_effect
+					"and": and_effect,
+					"stop_on_space_effect": stop_on_space_effect
 				})
 			events += [create_event(Enums.EventType.EventType_ChooseArenaLocationForEffect, performing_player.my_id, 0)]
 		"place_boost_in_space_internal":
 			var location = effect['location']
 			var placed_card_id = effect['card_id']
-			events += performing_player.add_boost_to_location(placed_card_id, location)
+			var stop_on_space_effect = effect['stop_on_space_effect']
+			events += performing_player.add_boost_to_location(placed_card_id, location, stop_on_space_effect)
 		"lightningrod_strike":
 			var lightning_card_id = effect['card_id']
 			var location = effect['location']
@@ -7667,7 +7693,18 @@ func get_first_remaining_effect():
 func do_remaining_effects(performing_player : Player, next_state):
 	var events = []
 
-	while get_remaining_effect_count() > 0:
+	# Before normal effect handling, proccess boosts whose spaces have just been entered
+	while active_strike.queued_stop_on_space_boosts:
+		var entered_boost_id = active_strike.queued_stop_on_space_boosts.pop_front()
+		var entered_boost_card = card_db.get_card(entered_boost_id)
+		var owning_player = _get_player(entered_boost_card.owner_id)
+		var effect = entered_boost_card.definition['boost']['stop_on_space_effect']
+
+		events += do_effect_if_condition_met(owning_player, entered_boost_id, effect, null)
+		if game_state == Enums.GameState.GameState_PlayerDecision:
+			break
+
+	while get_remaining_effect_count() > 0 and not game_state == Enums.GameState.GameState_PlayerDecision:
 		if get_remaining_effect_count() > 1:
 			# Check to see if any of these effects actually have their condition met (or have a negative condition).
 			# If more than 1, send only those choices to the player.

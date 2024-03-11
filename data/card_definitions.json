@@ -2975,13 +2975,14 @@
 		"type": "ultra",
 		"display_name": "Hail Storm",
 		"force_cost": 0,
-		"gauge_cost": 2,
+		"gauge_cost": 4,
 		"range_min": 1,
 		"range_max": 8,
 		"speed": 6,
 		"power": 3,
 		"armor": 0,
 		"guard": 0,
+		"linked_buddy_id": "webtrapA",
 		"effects": [
 			{
 				"timing": "hit",
@@ -2991,24 +2992,34 @@
 		],
 		"boost": {
 			"boost_type": "continuous",
-			"force_cost": 1,
+			"force_cost": 0,
 			"cancel_cost": -1,
-			"display_name": "Riddle",
+			"display_name": "Web Trap",
 			"effects": [
 				{
-					"timing": "before",
-					"effect_type": "close",
-					"amount": 2
+					"timing": "now",
+					"effect_type": "place_boost_in_space",
+					"stop_on_space_effect": true
 				},
 				{
-					"timing": "hit",
-					"effect_type": "gain_advantage",
-					"and": {
-						"effect_type": "add_boost_to_gauge_on_strike_cleanup",
-						"card_name": "Hail Storm"
-					}
+					"NOTE": "Trap Boost",
+					"timing": "cleanup",
+					"condition": "not_stunned",
+					"effect_type": "sustain_this",
+					"card_name": "Web Trap"
 				}
-			]
+			],
+			"stop_on_space_effect": {
+				"effect_type": "discard_this",
+				"and": {
+					"effect_type": "choice",
+					"choice": [
+						{ "effect_type": "push", "amount": 1 },
+						{ "effect_type": "pull", "amount": 1 },
+						{ "effect_type": "gain_advantage" }
+					]
+				}
+			}
 		}
 	},
 	{
@@ -3016,13 +3027,14 @@
 		"type": "ultra",
 		"display_name": "Frozen Cleave",
 		"force_cost": 0,
-		"gauge_cost": 1,
+		"gauge_cost": 2,
 		"range_min": 1,
 		"range_max": 2,
 		"speed": 6,
 		"power": 1,
 		"armor": 0,
 		"guard": 0,
+		"linked_buddy_id": "webtrapB",
 		"effects": [
 			{
 				"timing": "hit",
@@ -3036,20 +3048,35 @@
 			}
 		],
 		"boost": {
-			"boost_type": "immediate",
+			"boost_type": "continuous",
 			"force_cost": 0,
 			"cancel_cost": -1,
-			"display_name": "Surprise Attack",
+			"display_name": "Web Trap",
 			"effects": [
 				{
-					"timing": "immediate",
-					"effect_type": "advance",
-					"amount": 3,
-					"and": {
-						"effect_type": "strike"
-					}
+					"timing": "now",
+					"effect_type": "place_boost_in_space",
+					"stop_on_space_effect": true
+				},
+				{
+					"NOTE": "Trap Boost",
+					"timing": "cleanup",
+					"condition": "not_stunned",
+					"effect_type": "sustain_this",
+					"card_name": "Web Trap"
 				}
-			]
+			],
+			"stop_on_space_effect": {
+				"effect_type": "discard_this",
+				"and": {
+					"effect_type": "choice",
+					"choice": [
+						{ "effect_type": "push", "amount": 1 },
+						{ "effect_type": "pull", "amount": 1 },
+						{ "effect_type": "gain_advantage" }
+					]
+				}
+			}
 		}
 	},
 	{
