@@ -1,0 +1,311 @@
+{
+	"id": "byakuya",
+	"season": 6,
+	"display_name": "Byakuya",
+	"cardback": "cardback_byakuya.jpg",
+	"exceed_cost": 1,
+	"buddy_cards": [
+		"webtrap1",
+		"webtrap2",
+		"webtrap3",
+		"webtrap4"
+	],
+	"hide_buddy_reference": true,
+	"buddy_card_graphics_id": [
+		"webtrap",
+		"webtrap",
+		"webtrap",
+		"webtrap"
+	],
+	"buddy_display_names": [
+		"Web Trap",
+		"Web Trap",
+		"Web Trap",
+		"Web Trap"
+	],
+	"character_action_default": [{
+		"gauge_cost": 0,
+		"force_cost": 0,
+		"shortcut_effect_type": "strike",
+		"effect": {
+			"effect_type": "spend_all_gauge_and_save_amount",
+			"and": {
+				"effect_type": "strike"
+			}
+		}
+	}],
+	"character_action_exceeded": [
+		{
+			"gauge_cost": 1,
+			"force_cost": 0,
+			"effect": {
+				"effect_type": "strike"
+			}
+		},
+		{
+			"gauge_cost": 0,
+			"force_cost": 0,
+			"min_hand_size": 1,
+			"action_name": "Revert",
+			"shortcut_effect_type": "gauge_from_hand",
+			"effect": {
+				"effect_type": "gauge_from_hand",
+				"min_amount": 1,
+				"max_amount": 1,
+				"and": {
+					"effect_type": "revert",
+					"and": {
+						"effect_type": "take_bonus_actions",
+						"amount": 1
+					}
+				}
+			}
+		}
+	],
+	"ability_effects": [
+		{
+			"timing": "set_strike",
+			"condition": "used_character_action",
+			"condition_details": ["default", 0],
+			"effect_type": "set_strike_x",
+			"source": "gauge_spent_before_strike"
+		},
+		{
+			"timing": "set_strike",
+			"condition": "used_character_action",
+			"condition_details": ["default", 0],
+			"effect_type": "pass",
+			"and": {
+				"condition": "strike_x_greater_than",
+				"condition_amount": 0,
+				"character_effect": true,
+				"effect_type": "add_attack_effect",
+				"added_effect": {
+					"timing": "after",
+					"effect_type": "choice",
+					"choice": [
+						{ "effect_type": "advance", "amount": 1 },
+						{ "effect_type": "retreat", "amount": 1 },
+					]
+				}
+			}
+		},
+		{
+			"timing": "set_strike",
+			"condition": "used_character_action",
+			"condition_details": ["default", 0],
+			"effect_type": "pass",
+			"and": {
+				"condition": "strike_x_greater_than",
+				"condition_amount": 1,
+				"character_effect": true,
+				"effect_type": "add_attack_effect",
+				"added_effect": {
+					"timing": "after",
+					"effect_type": "draw",
+					"amount": 2
+				}
+			}
+		},
+		{
+			"timing": "set_strike",
+			"condition": "used_character_action",
+			"condition_details": ["default", 0],
+			"effect_type": "pass",
+			"and": {
+				"condition": "strike_x_greater_than",
+				"condition_amount": 2,
+				"character_effect": true,
+				"effect_type": "add_attack_effect",
+				"added_effect": {
+					"timing": "after",
+					"effect_type": "reveal_hand",
+					"opponent": true
+				}
+			}
+		}
+	],
+	"exceed_ability_effects": [
+		{
+			"timing": "set_strike",
+			"condition": "used_character_action",
+			"condition_details": ["exceed", 0],
+			"character_effect": true,
+			"effect_type": "powerup",
+			"amount": 2,
+			"and": {
+				"effect_type": "speedup",
+				"amount": 1,
+				"and": {
+					"effect_type": "ignore_guard",
+					"opponent": true,
+					"and": {
+						"effect_type": "ignore_armor",
+						"opponent": true
+					}
+				}
+			}
+		},
+		{
+			"timing": "on_stunned",
+			"effect_type": "spend_all_gauge_and_save_amount",
+			"and": {
+				"effect_type": "set_strike_x",
+				"source": "gauge_spent_before_strike",
+				"and": {
+					"effect_type": "draw",
+					"amount": "strike_x",
+					"and": {
+						"effect_type": "revert"
+					}
+				}
+			}
+		}
+	],
+	"cards": [
+		{
+			"definition_id": "byakuya_becomeapartofme",
+			"image": "byakuya_becomeapartofme.tres"
+		},
+		{
+			"definition_id": "byakuya_becomeapartofme",
+			"image": "byakuya_becomeapartofme.tres"
+		},
+		{
+			"definition_id": "byakuya_endlessnightmare",
+			"image": "byakuya_endlessnightmare.tres"
+		},
+		{
+			"definition_id": "byakuya_endlessnightmare",
+			"image": "byakuya_endlessnightmare.tres"
+		},
+		{
+			"definition_id": "byakuya_caughtyou",
+			"image": "byakuya_caughtyou.tres"
+		},
+		{
+			"definition_id": "byakuya_caughtyou",
+			"image": "byakuya_caughtyou.tres"
+		},
+		{
+			"definition_id": "byakuya_minced",
+			"image": "byakuya_minced.tres"
+		},
+		{
+			"definition_id": "byakuya_minced",
+			"image": "byakuya_minced.tres"
+		},
+		{
+			"definition_id": "byakuya_minced",
+			"image": "byakuya_minced.tres"
+		},
+		{
+			"definition_id": "byakuya_minced",
+			"image": "byakuya_minced.tres"
+		},
+		{
+			"definition_id": "byakuya_howshallicookyou",
+			"image": "byakuya_howshallicookyou.tres"
+		},
+		{
+			"definition_id": "byakuya_howshallicookyou",
+			"image": "byakuya_howshallicookyou.tres"
+		},
+		{
+			"definition_id": "byakuya_howshallicookyou",
+			"image": "byakuya_howshallicookyou.tres"
+		},
+		{
+			"definition_id": "byakuya_howshallicookyou",
+			"image": "byakuya_howshallicookyou.tres"
+		},
+		{
+			"definition_id": "byakuya_illplantitsomewhere",
+			"image": "byakuya_illplantitsomewhere.tres"
+		},
+		{
+			"definition_id": "byakuya_illplantitsomewhere",
+			"image": "byakuya_illplantitsomewhere.tres"
+		},
+		{
+			"definition_id": "byakuya_orshredded",
+			"image": "byakuya_orshredded.tres"
+		},
+		{
+			"definition_id": "byakuya_orshredded",
+			"image": "byakuya_orshredded.tres"
+		},
+		{
+			"definition_id": "byakuya_orshredded",
+			"image": "byakuya_orshredded.tres"
+		},
+		{
+			"definition_id": "byakuya_orshredded",
+			"image": "byakuya_orshredded.tres"
+		},
+		{
+			"definition_id": "uni_normal_grasp",
+			"image": "normal_grasp.tres"
+		},
+		{
+			"definition_id": "uni_normal_grasp",
+			"image": "normal_grasp.tres"
+		},
+		{
+			"definition_id": "uni_normal_cross",
+			"image": "normal_cross.tres"
+		},
+		{
+			"definition_id": "uni_normal_cross",
+			"image": "normal_cross.tres"
+		},
+		{
+			"definition_id": "uni_normal_assault",
+			"image": "normal_assault.tres"
+		},
+		{
+			"definition_id": "uni_normal_assault",
+			"image": "normal_assault.tres"
+		},
+		{
+			"definition_id": "uni_normal_dive",
+			"image": "normal_dive.tres"
+		},
+		{
+			"definition_id": "uni_normal_dive",
+			"image": "normal_dive.tres"
+		},
+		{
+			"definition_id": "uni_normal_spike",
+			"image": "normal_spike.tres"
+		},
+		{
+			"definition_id": "uni_normal_spike",
+			"image": "normal_spike.tres"
+		},
+		{
+			"definition_id": "uni_normal_sweep",
+			"image": "normal_sweep.tres"
+		},
+		{
+			"definition_id": "uni_normal_sweep",
+			"image": "normal_sweep.tres"
+		},
+		{
+			"definition_id": "uni_normal_focus",
+			"image": "normal_focus.tres"
+		},
+		{
+			"definition_id": "uni_normal_focus",
+			"image": "normal_focus.tres"
+		},
+		{
+			"definition_id": "uni_normal_block",
+			"image": "normal_block.tres"
+		},
+		{
+			"definition_id": "uni_normal_block",
+			"image": "normal_block.tres"
+		}
+	]
+}
