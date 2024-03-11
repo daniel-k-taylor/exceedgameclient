@@ -116,6 +116,8 @@ func get_choice_summary(choice, card_name_source : String):
 			if effect_summary.min_value == effect_summary.max_value:
 				if str(effect_summary.min_value) == "strike_x":
 					effect_summary.min_value = "X"
+				elif str(effect_summary.min_value) == "TOTAL_POWER":
+					effect_summary.min_value = "your Total Power"
 				summary_text += get_effect_type_heading(effect_summary.effect) + str(effect_summary.min_value)
 			else:
 				summary_text += get_effect_type_heading(effect_summary.effect) + str(effect_summary.min_value) + "-" + str(effect_summary.max_value)
@@ -981,6 +983,8 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 		"pull":
 			if 'combine_multiple_into_one' in effect and effect['combine_multiple_into_one']:
 				effect_str += "Pull that much."
+			elif str(effect['amount']) == "TOTAL_POWER":
+				effect_str += "Pull X. X is the total Power of the attack"
 			else:
 				effect_str += "Pull " + str(effect['amount'])
 		"pull_any_number_of_spaces_and_gain_power":
@@ -996,6 +1000,8 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 				effect_str += "Push that much."
 			elif str(effect['amount']) == "OPPONENT_SPEED":
 				effect_str += "Push X. X is the opponent's Speed"
+			elif str(effect['amount']) == "TOTAL_POWER":
+				effect_str += "Push X. X is the total Power of the attack"
 			else:
 				var extra_info = ""
 				if 'save_buddy_spaces_entered_as_strike_x' in effect and effect['save_buddy_spaces_entered_as_strike_x']:
