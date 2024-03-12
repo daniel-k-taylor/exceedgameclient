@@ -3400,6 +3400,7 @@ func continue_begin_turn():
 		# Transition to the pick action state, the player can now make their action for the turn.
 		_append_log_full(Enums.LogType.LogType_Default, starting_turn_player, "'s Turn Start!")
 		change_game_state(Enums.GameState.GameState_PickAction)
+		decision_info.clear()
 		events += [create_event(Enums.EventType.EventType_AdvanceTurn, active_turn_player, 0)]
 
 		# Check if the player has to do a forced action for their turn.
@@ -9166,6 +9167,7 @@ func boost_finish_resolving_card(performing_player : Player):
 	return events
 
 func boost_play_cleanup(events, performing_player : Player):
+	decision_info.clear()
 	# Account for boosts that played other boosts
 	if active_boost.parent_boost:
 		# Pass on any relevant fields.
@@ -10572,13 +10574,15 @@ func do_choose_to_discard(performing_player : Player, card_ids):
 		"destination": decision_info.destination
 	}
 	var repeat_bonus_times = 0
+	var repeat_bonus_effect = null
 	if not skip_effect and decision_info.bonus_effect:
-		repeat_bonus_times = 1
 		var per_discard_effect = 'per_discard' in decision_info.bonus_effect and decision_info.bonus_effect['per_discard']
-		effect['and'] = decision_info.bonus_effect.duplicate()
-		effect['and']['discarded_card_ids'] = card_ids
 		if per_discard_effect:
-			repeat_bonus_times = len(card_ids) - 1
+			repeat_bonus_effect = decision_info.bonus_effect.duplicate()
+			repeat_bonus_times = len(card_ids)
+		else:
+			effect['and'] = decision_info.bonus_effect.duplicate()
+			effect['and']['discarded_card_ids'] = card_ids
 	if len(card_ids) < decision_info.effect['amount'] and 'smaller_discard_effect' in decision_info.effect:
 		effect['and'] = decision_info.effect['smaller_discard_effect'].duplicate()
 
@@ -10586,8 +10590,9 @@ func do_choose_to_discard(performing_player : Player, card_ids):
 	set_player_action_processing_state()
 
 	events += do_effect_if_condition_met(performing_player, decision_info.choice_card_id, effect, null)
-	for i in range(repeat_bonus_times):
-		events += handle_strike_effect(decision_info.choice_card_id, effect['and'], performing_player)
+	if repeat_bonus_effect:
+		for i in range(repeat_bonus_times):
+			events += handle_strike_effect(decision_info.choice_card_id, repeat_bonus_effect, performing_player)
 	# Intentional events = because events are passed in.
 	events = continue_player_action_resolution(events, performing_player)
 	event_queue += events

@@ -1,7 +1,7 @@
 extends GutTest
 
 # Leave at 1 checked in so someone doesn't accidentally run all tests at 100.
-const RandomIterations = 1
+const RandomIterations = 30
 
 const LocalGame = preload("res://scenes/game/local_game.gd")
 const GameCard = preload("res://scenes/game/game_card.gd")
@@ -657,3 +657,6 @@ func test_beheaded_100():
 
 func test_fight_100():
 	run_iterations_with_deck("fight")
+
+func test_byakuya_100():
+	run_iterations_with_deck("byakuya")

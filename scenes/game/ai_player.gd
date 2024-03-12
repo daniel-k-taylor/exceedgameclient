@@ -575,12 +575,12 @@ func get_strike_actions(game_logic : LocalGame, me : LocalGame.Player, _opponent
 			# Always consider playing this.
 			possible_actions.append(StrikeAction.new(card.id, -1, false))
 
+	if require_ex:
+		possible_actions = possible_actions.filter(func(strike_action): return strike_action.ex_card_id != -1)
+
 	if len(possible_actions) == 0:
 		# If we're forced to strike no matter what, we have to use an ultra we can't pay for.
 		possible_actions += possible_actions_cant_pay
-
-	if require_ex:
-		possible_actions = possible_actions.filter(func(strike_action): return strike_action.ex_card_id != -1)
 
 	return possible_actions
 
