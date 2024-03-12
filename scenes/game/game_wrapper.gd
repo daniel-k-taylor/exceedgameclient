@@ -179,7 +179,6 @@ func count_cards_in_deck_and_hand(player_id : Enums.PlayerId, card_str_id : Stri
 		for striking_id in striking_card_ids:
 			if striking_id == card_str_id:
 				count += 1
-		# TODO: will probably need secret sealed areas once implemented
 	return count
 
 func is_card_in_gauge(player_id : Enums.PlayerId, card_id : int):

@@ -10548,7 +10548,7 @@ func do_choose_to_discard(performing_player : Player, card_ids):
 				printlog("ERROR: Tried to discard opponent card not in their hand.")
 				return false
 
-		if decision_info.limitation and not decision_info.limitation == "can_pay_cost" and not decision_info.limitation == "from_array":
+		if decision_info.limitation and decision_info.limitation not in ["can_pay_cost", "from_array", "same-named"]:
 			var card = card_db.get_card(card_id)
 			if card.definition['type'] != decision_info.limitation:
 				printlog("ERROR: Tried to choose to discard with card that doesn't meet limitation.")
@@ -10563,9 +10563,14 @@ func do_choose_to_discard(performing_player : Player, card_ids):
 		"card_ids": card_ids,
 		"destination": decision_info.destination
 	}
+	var repeat_bonus_times = 0
 	if not skip_effect and decision_info.bonus_effect:
+		repeat_bonus_times = 1
+		var per_discard_effect = 'per_discard' in decision_info.bonus_effect and decision_info.bonus_effect['per_discard']
 		effect['and'] = decision_info.bonus_effect.duplicate()
 		effect['and']['discarded_card_ids'] = card_ids
+		if per_discard_effect:
+			repeat_bonus_times = len(card_ids) - 1
 	if len(card_ids) < decision_info.effect['amount'] and 'smaller_discard_effect' in decision_info.effect:
 		effect['and'] = decision_info.effect['smaller_discard_effect'].duplicate()
 
@@ -10573,6 +10578,8 @@ func do_choose_to_discard(performing_player : Player, card_ids):
 	set_player_action_processing_state()
 
 	events += do_effect_if_condition_met(performing_player, decision_info.choice_card_id, effect, null)
+	for i in range(repeat_bonus_times):
+		events += handle_strike_effect(decision_info.choice_card_id, effect['and'], performing_player)
 	# Intentional events = because events are passed in.
 	events = continue_player_action_resolution(events, performing_player)
 	event_queue += events

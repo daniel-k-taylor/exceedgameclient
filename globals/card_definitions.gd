@@ -1205,6 +1205,8 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 				amount_str = "that many"
 			if 'discard_effect' in effect:
 				bonus= "\nfor: " + get_effect_text(effect['discard_effect'], false, false, false)
+				if 'per_discard' in effect['discard_effect'] and effect['discard_effect']['per_discard']:
+					bonus += " for each"
 			if destination == "sealed":
 				effect_str += optional_text + "Seal " + amount_str + limitation + " card(s)" + bonus
 			elif destination == "reveal":

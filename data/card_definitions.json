@@ -3198,25 +3198,30 @@
 	{
 		"id": "byakuya_howshallicookyou",
 		"type": "special",
-		"display_name": "Snow Blossom",
+		"display_name": "How Shall I Cook You?",
 		"force_cost": 0,
 		"gauge_cost": 0,
-		"range_min": 2,
-		"range_max": 5,
-		"speed": 4,
+		"range_min": 1,
+		"range_max": 2,
+		"speed": 5,
 		"power": 3,
 		"armor": 0,
 		"guard": 0,
-		"linked_buddy_id": "snowblossom",
 		"effects": [
 			{
-				"timing": "after",
-				"effect_type": "place_boost_in_space",
-				"in_attack_range": true,
-				"optional": true,
-				"and": {
-					"effect_type": "boost_this_then_sustain",
-					"dont_sustain": true
+				"timing": "hit",
+				"effect_type": "self_discard_choose",
+				"amount": -1,
+				"limitation": "same-named",
+				"destination": "reveal",
+				"discard_effect": {
+					"per_discard": true,
+					"effect_type": "powerup",
+					"amount": 1,
+					"and": {
+						"effect_type": "pull",
+						"amount": 1
+					}
 				}
 			}
 		],

@@ -775,7 +775,7 @@ func determine_gauge_for_effect_actions(game_logic: LocalGame, me : LocalGame.Pl
 			possible_actions.append(GaugeForEffectAction.new(combo))
 	return possible_actions
 
-func determine_choose_to_discard_options(game_logic, me : LocalGame.Player, to_discard_count : int, limitation : String, can_pass : bool, allow_fewer : bool):
+func determine_choose_to_discard_options(game_logic, me : LocalGame.Player, to_discard_count : int, limitation : String, can_pass : bool, allow_fewer : bool, given_array = null):
 	var possible_actions = []
 	var all_card_ids = []
 	var min_count = to_discard_count
@@ -786,11 +786,26 @@ func determine_choose_to_discard_options(game_logic, me : LocalGame.Player, to_d
 	elif allow_fewer:
 		min_count = 0
 
+	if limitation and limitation == "same-named":
+		var card_name_map = {}
+		for card in me.hand:
+			var card_name = card.definition['display_name']
+			if card_name in card_name_map:
+				card_name_map[card_name].append(card.id)
+			else:
+				card_name_map[card_name] = [card.id]
+
+		for card_name in card_name_map:
+			possible_actions += determine_choose_to_discard_options(game_logic, me, to_discard_count,
+				"from_array", can_pass, allow_fewer, card_name_map[card_name])
+
+	if limitation and limitation == "from_array":
+		if given_array == null:
+			given_array = game_logic.decision_info.choice
 	for card in me.hand:
 		if limitation:
 			if limitation == "from_array":
-				var ids = game_logic.decision_info.choice
-				if card.id not in ids:
+				if card.id not in given_array:
 					continue
 			elif card.definition['type'] != limitation:
 				continue

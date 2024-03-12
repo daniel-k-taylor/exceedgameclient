@@ -975,7 +975,9 @@ func can_select_card(card):
 		UISubState.UISubState_SelectCards_DiscardCards_Choose:
 			var limitation = game_wrapper.get_decision_info().limitation
 			var meets_limitation = true
-			var card_type = game_wrapper.get_card_database().get_card(card.card_id).definition['type']
+			var game_card = game_wrapper.get_card_database().get_card(card.card_id)
+			var card_type = game_card.definition['type']
+			var card_name = game_card.definition['display_name']
 			match limitation:
 				"normal":
 					meets_limitation = card_type == "normal"
@@ -988,6 +990,13 @@ func can_select_card(card):
 				"from_array":
 					var card_ids = game_wrapper.get_decision_info().choice
 					meets_limitation = card.card_id in card_ids
+				"same-named":
+					meets_limitation = true
+					for selected_card in selected_cards:
+						var compare_card = game_wrapper.get_card_database().get_card(selected_card.card_id)
+						if compare_card.definition['display_name'] != card_name:
+							meets_limitation = false
+							break
 				_:
 					meets_limitation = true
 			return in_hand and meets_limitation and len(selected_cards) < select_card_require_max
@@ -2185,6 +2194,8 @@ func update_discard_selection_message_choose():
 	if decision_info.bonus_effect and not preparing_character_action:
 		var effect_text = CardDefinitions.get_effect_text(decision_info.bonus_effect, false, false, false, "")
 		bonus = "\nfor %s" % effect_text
+		if 'per_discard' in decision_info.bonus_effect and decision_info.bonus_effect['per_discard']:
+			bonus += " for each"
 	if destination == "play_attack":
 		set_instructions("Select a card from your hand to move to play as an extra attack.")
 	else:
