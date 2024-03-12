@@ -28,18 +28,23 @@
 		"force_cost": 0,
 		"shortcut_effect_type": "strike",
 		"effect": {
-			"effect_type": "spend_all_gauge_and_save_amount",
-			"and": {
-				"effect_type": "strike"
-			}
+			"effect_type": "strike"
 		}
 	}],
 	"character_action_exceeded": [
 		{
-			"gauge_cost": 1,
+			"gauge_cost": 2,
 			"force_cost": 0,
 			"effect": {
-				"effect_type": "strike"
+				"effect_type": "draw",
+				"amount": 2,
+				"and": {
+					"effect_type": "choice",
+					"choice": [
+						{ "effect_type": "strike_with_ex" },
+						{ "effect_type": "pass" }
+					]
+				}
 			}
 		},
 		{
@@ -67,60 +72,15 @@
 			"timing": "set_strike",
 			"condition": "used_character_action",
 			"condition_details": ["default", 0],
-			"effect_type": "set_strike_x",
-			"source": "gauge_spent_before_strike"
-		},
-		{
-			"timing": "set_strike",
-			"condition": "used_character_action",
-			"condition_details": ["default", 0],
-			"effect_type": "pass",
-			"and": {
-				"condition": "strike_x_greater_than",
-				"condition_amount": 0,
+			"effect_type": "discard_boost_in_opponent_space",
+			"boost_name": "Web Trap",
+			"overall_effect": {
 				"character_effect": true,
-				"effect_type": "add_attack_effect",
-				"added_effect": {
-					"timing": "after",
-					"effect_type": "choice",
-					"choice": [
-						{ "effect_type": "advance", "amount": 1 },
-						{ "effect_type": "retreat", "amount": 1 },
-					]
-				}
-			}
-		},
-		{
-			"timing": "set_strike",
-			"condition": "used_character_action",
-			"condition_details": ["default", 0],
-			"effect_type": "pass",
-			"and": {
-				"condition": "strike_x_greater_than",
-				"condition_amount": 1,
-				"character_effect": true,
-				"effect_type": "add_attack_effect",
-				"added_effect": {
-					"timing": "after",
-					"effect_type": "draw",
+				"effect_type": "powerup",
+				"amount": 2,
+				"and": {
+					"effect_type": "speedup",
 					"amount": 2
-				}
-			}
-		},
-		{
-			"timing": "set_strike",
-			"condition": "used_character_action",
-			"condition_details": ["default", 0],
-			"effect_type": "pass",
-			"and": {
-				"condition": "strike_x_greater_than",
-				"condition_amount": 2,
-				"character_effect": true,
-				"effect_type": "add_attack_effect",
-				"added_effect": {
-					"timing": "after",
-					"effect_type": "reveal_hand",
-					"opponent": true
 				}
 			}
 		}
@@ -132,34 +92,7 @@
 			"condition_details": ["exceed", 0],
 			"character_effect": true,
 			"effect_type": "powerup",
-			"amount": 2,
-			"and": {
-				"effect_type": "speedup",
-				"amount": 1,
-				"and": {
-					"effect_type": "ignore_guard",
-					"opponent": true,
-					"and": {
-						"effect_type": "ignore_armor",
-						"opponent": true
-					}
-				}
-			}
-		},
-		{
-			"timing": "on_stunned",
-			"effect_type": "spend_all_gauge_and_save_amount",
-			"and": {
-				"effect_type": "set_strike_x",
-				"source": "gauge_spent_before_strike",
-				"and": {
-					"effect_type": "draw",
-					"amount": "strike_x",
-					"and": {
-						"effect_type": "revert"
-					}
-				}
-			}
+			"amount": 1
 		}
 	],
 	"cards": [

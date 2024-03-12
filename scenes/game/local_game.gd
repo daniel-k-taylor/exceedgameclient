@@ -1876,6 +1876,25 @@ class Player:
 		if available_gauge < cancel_cost: return false
 		return true
 
+	func can_ex_strike_with_something():
+		if has_ex_boost():
+			return true
+
+		var card_ids_in_hand = []
+		for card in hand:
+			if card.definition['id'] in card_ids_in_hand:
+				return true
+			card_ids_in_hand.append(card.definition['id'])
+		return false
+
+	func has_ex_boost():
+		# May need more thorough effect scanning if anyone other than Byakuya uses this
+		for card in continuous_boosts:
+			for effect in card.definition['boost']['effects']:
+				if effect['effect_type'] == "attack_is_ex":
+					return true
+		return false
+
 	func get_bonus_actions():
 		var actions = parent.get_boost_effects_at_timing("action", self)
 		var other_player = parent._get_player(parent.get_other_player(my_id))
@@ -4936,6 +4955,42 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 
 			change_game_state(Enums.GameState.GameState_PlayerDecision)
 			events += [create_event(Enums.EventType.EventType_PickNumberFromRange, performing_player.my_id, 0)]
+		"discard_boost_in_opponent_space":
+			decision_info.clear()
+			decision_info.destination = "discard"
+			var boost_name = ""
+			if 'boost_name' in effect:
+				boost_name = effect['boost_name']
+			if 'overall_effect' in effect:
+				decision_info.effect = effect['overall_effect']
+			else:
+				decision_info.effect = null
+
+			var valid_boosts = []
+			for boost in performing_player.get_discardable_continuous_boosts():
+				if boost_name and boost.definition['boost']['display_name'] != boost_name:
+					continue
+				var boost_location = performing_player.get_boost_location(boost.id)
+				if boost_location != -1 and opposing_player.is_in_location(boost_location):
+					valid_boosts.append(boost)
+
+			if len(valid_boosts) == 1:
+				var discard_effect = {
+					"effect_type": "discard_continuous_boost_INTERNAL",
+					"card_id": valid_boosts[0].id,
+				}
+				events += handle_strike_effect(card_id, discard_effect, performing_player)
+			elif len(valid_boosts) > 1:
+				# Player gets to pick which continuous boost to discard.
+				decision_info.limitation = "in_opponent_space"
+				change_game_state(Enums.GameState.GameState_PlayerDecision)
+				decision_info.type = Enums.DecisionType.DecisionType_ChooseDiscardContinuousBoost
+				decision_info.effect_type = "discard_continuous_boost_INTERNAL"
+				decision_info.choice_card_id = card_id
+				decision_info.can_pass = false
+				decision_info.player = performing_player.my_id
+				decision_info.extra_info = boost_name
+				events += [create_event(Enums.EventType.EventType_Boost_DiscardContinuousChoice, performing_player.my_id, 1, "", boost_name)]
 		"discard_continuous_boost":
 			var my_boosts = performing_player.get_discardable_continuous_boosts()
 			var opponent_boosts = opposing_player.get_discardable_continuous_boosts()
@@ -4978,7 +5033,7 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 
 				# Do any bonus effect
 				if decision_info.effect:
-					handle_strike_effect(card_id, decision_info.effect, performing_player)
+					events += handle_strike_effect(card_id, decision_info.effect, performing_player)
 		"discard_hand":
 			events += performing_player.discard_hand()
 		"discard_opponent_gauge":
@@ -7220,6 +7275,19 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 			change_game_state(Enums.GameState.GameState_AutoStrike)
 			decision_info.clear()
 			decision_info.effect_type = "happychaos_deusexmachina"
+		"strike_with_ex":
+			if performing_player.can_ex_strike_with_something():
+				change_game_state(Enums.GameState.GameState_WaitForStrike)
+				decision_info.clear()
+				decision_info.type = Enums.DecisionType.DecisionType_StrikeNow
+				decision_info.player = performing_player.my_id
+				if performing_player.has_ex_boost():
+					# Then any attack would be a valid EX
+					events += [create_event(Enums.EventType.EventType_ForceStartStrike, performing_player.my_id, 0)]
+				else:
+					decision_info.limitation = "EX"
+					var disable_wild_swing = true
+					events += [create_event(Enums.EventType.EventType_ForceStartStrike, performing_player.my_id, 0, "", disable_wild_swing)]
 		"strike_wild":
 			change_game_state(Enums.GameState.GameState_WaitForStrike)
 			var strike_info = {
@@ -9559,6 +9627,11 @@ func do_strike(performing_player : Player, card_id : int, wild_strike: bool, ex_
 			return false
 
 	var ex_strike = ex_card_id != -1
+	if str(decision_info.limitation) == "EX":
+		if not ex_strike and not performing_player.has_ex_boost():
+			printlog("ERROR: Tried to strike without an EX when one was required.")
+			return false
+
 	var strike_from_boosts = false
 	if performing_player.next_strike_from_gauge:
 		if not wild_strike and not performing_player.is_card_in_gauge(card_id):

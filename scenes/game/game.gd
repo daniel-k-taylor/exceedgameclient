@@ -84,11 +84,13 @@ var select_card_destination = ""
 var select_gauge_require_card_id = ""
 var select_gauge_require_card_name = ""
 var select_boost_options = {}
+var select_card_name_boost_restriction = ""
 var selected_boost_to_pay_for = -1
 var instructions_ok_allowed = false
 var instructions_cancel_allowed = false
 var instructions_wild_swing_allowed = false
 var instructions_ex_allowed = false
+var instructions_ex_required = false
 var selected_cards = []
 var enabled_reminder_text = false
 var arena_locations_clickable = []
@@ -1042,9 +1044,15 @@ func can_select_card(card):
 		UISubState.UISubState_SelectCards_ForceForBoost:
 			return (in_gauge or in_hand) and selected_boost_to_pay_for != card.card_id
 		UISubState.UISubState_SelectCards_DiscardContinuousBoost:
-			if (in_player_boosts or (not game_wrapper.get_decision_info().limitation and in_opponent_boosts)) and len(selected_cards) < select_card_require_max:
+			var limitation = game_wrapper.get_decision_info().limitation
+			if limitation in ["mine", "in_opponent_space"] and in_opponent_boosts:
+				return false
+			if len(selected_cards) < select_card_require_max:
 				var card_db = game_wrapper.get_card_database()
 				var logic_card = card_db.get_card(card.card_id)
+				if limitation == "in_opponent_space" and select_card_name_boost_restriction:
+					if logic_card.definition['boost']['display_name'] != select_card_name_boost_restriction:
+						return false
 				if 'cannot_discard' in logic_card.definition['boost'] and logic_card.definition['boost']['cannot_discard']:
 					return false
 				return true
@@ -1448,7 +1456,7 @@ func _on_discard_continuous_boost_begin(event):
 	if player == Enums.PlayerId.PlayerId_Player and not observer_mode:
 		# Show the boost window.
 		var instruction_qualifier = "a"
-		if limitation == "mine" or game_wrapper.get_player_discardable_boost_count(player) == 0:
+		if limitation in ["mine", "in_opponent_space"] or game_wrapper.get_player_discardable_boost_count(player) == 0:
 			instruction_qualifier = "your"
 		selected_cards = []
 		select_card_require_min = 1
@@ -1471,13 +1479,16 @@ func _on_discard_continuous_boost_begin(event):
 			"cancel_visible": can_pass,
 		}
 		enable_instructions_ui(instruction_text, true, can_pass, false)
-		if limitation == "mine" or game_wrapper.get_player_discardable_boost_count(Enums.PlayerId.PlayerId_Opponent) == 0:
+		if limitation == "in_opponent_space":
+			select_card_name_boost_restriction = event['extra_info']
+			_on_player_boost_zone_clicked_zone()
+		elif limitation == "mine" or game_wrapper.get_player_discardable_boost_count(Enums.PlayerId.PlayerId_Opponent) == 0:
 			_on_player_boost_zone_clicked_zone()
 		else:
 			_on_opponent_boost_zone_clicked_zone()
 		change_ui_state(UIState.UIState_SelectCards, UISubState.UISubState_SelectCards_DiscardContinuousBoost)
 	else:
-		ai_discard_continuous_boost(limitation, can_pass)
+		ai_discard_continuous_boost(limitation, can_pass, event['extra_info'])
 
 func _on_discard_opponent_gauge(event):
 	var player = event['event_player']
@@ -2006,10 +2017,14 @@ func _on_force_start_strike(event):
 	var player = event['event_player']
 	var disable_wild_swing = false
 	var disable_ex = false
+	var require_ex = false
 	if event['extra_info']: #not null
 		disable_wild_swing = event['extra_info']
 	if event['extra_info2']:
 		disable_ex = event['extra_info2']
+	var decision_info = game_wrapper.get_decision_info()
+	if decision_info.limitation == "EX":
+		require_ex = true
 	spawn_damage_popup("Strike!", player)
 	if player == Enums.PlayerId.PlayerId_Player and not observer_mode:
 		if prepared_character_action_data_available('strike'):
@@ -2024,9 +2039,9 @@ func _on_force_start_strike(event):
 				prepared_character_action_data = {}
 				change_ui_state(UIState.UIState_WaitForGameServer)
 		else:
-			begin_strike_choosing(false, false, false, disable_wild_swing, disable_ex)
+			begin_strike_choosing(false, false, false, disable_wild_swing, disable_ex, require_ex)
 	else:
-		ai_forced_strike(disable_wild_swing, disable_ex)
+		ai_forced_strike(disable_wild_swing, disable_ex, require_ex)
 	return SmallNoticeDelay
 
 func _on_strike_from_gauge(event):
@@ -2351,12 +2366,13 @@ func update_force_generation_message():
 			effect_str += "\n%s" % [force_generated_str]
 			set_instructions(effect_str)
 
-func enable_instructions_ui(message, can_ok, can_cancel, can_wild_swing : bool = false, can_ex : bool = true, choices = [], show_number_picker : bool  = false, extra_choice_text = []):
+func enable_instructions_ui(message, can_ok, can_cancel, can_wild_swing : bool = false, can_ex : bool = true, choices = [], show_number_picker : bool  = false, extra_choice_text = [], require_ex = false):
 	set_instructions(message)
 	instructions_ok_allowed = can_ok
 	instructions_cancel_allowed = can_cancel
 	instructions_wild_swing_allowed = can_wild_swing
 	instructions_ex_allowed = can_ex
+	instructions_ex_required = require_ex
 	current_effect_choices = choices
 	current_effect_extra_choice_text = extra_choice_text
 	instructions_number_picker_min = -1
@@ -2416,7 +2432,7 @@ func begin_effect_choice(choices, instruction_text : String, extra_choice_text, 
 	change_ui_state(UIState.UIState_MakeChoice, UISubState.UISubState_None)
 
 func begin_strike_choosing(strike_response : bool, cancel_allowed : bool,
-		opponent_sets_first : bool = false, disable_wild_swing : bool = false, disable_ex : bool = false):
+		opponent_sets_first : bool = false, disable_wild_swing : bool = false, disable_ex : bool = false, require_ex = false):
 	selected_cards = []
 	select_card_require_min = 1
 	select_card_require_max = 1
@@ -2424,7 +2440,10 @@ func begin_strike_choosing(strike_response : bool, cancel_allowed : bool,
 	var character_action_str = ""
 	if preparing_character_action:
 		character_action_str = " using %s" % prepared_character_action_data['action_name']
-	var dialogue = "Select a card to strike with%s." % character_action_str
+	var attack_string = "a card"
+	if require_ex:
+		attack_string = "an EX attack"
+	var dialogue = "Select %s to strike with%s." % [attack_string, character_action_str]
 	var cards_that_will_not_hit = game_wrapper.get_will_not_hit_card_names(Enums.PlayerId.PlayerId_Player)
 	if cards_that_will_not_hit.size() > 0:
 		for card in cards_that_will_not_hit:
@@ -2433,7 +2452,8 @@ func begin_strike_choosing(strike_response : bool, cancel_allowed : bool,
 	if plague_knight_discard_names.size() > 0:
 		for card in plague_knight_discard_names:
 			dialogue += "\nPlague Knight discarded " + card +"."
-	enable_instructions_ui(dialogue, true, can_cancel, not disable_wild_swing, not disable_ex)
+	enable_instructions_ui(dialogue, true, can_cancel, not disable_wild_swing, not disable_ex,
+		[], false, [], require_ex)
 	var new_sub_state
 	if strike_response:
 		if opponent_sets_first:
@@ -3730,14 +3750,18 @@ func can_press_ok():
 				# As a special exception, allow 2 cards if exactly 2 cards and they're the same card.
 				# EX attacks can't be set from boosts, however.
 				if len(selected_cards) == 2:
+					if not instructions_ex_allowed:
+						return false
 					if (game_wrapper.is_card_in_boosts(Enums.PlayerId.PlayerId_Player, selected_cards[0].card_id) or
 						game_wrapper.is_card_in_boosts(Enums.PlayerId.PlayerId_Player, selected_cards[1].card_id)):
 							return false
 					var card_db = game_wrapper.get_card_database()
 					var card1 = selected_cards[0]
 					var card2 = selected_cards[1]
-					return card_db.are_same_card(card1.card_id, card2.card_id) and instructions_ex_allowed
-				return len(selected_cards) == 1
+					return card_db.are_same_card(card1.card_id, card2.card_id)
+				elif len(selected_cards) == 1:
+					return not instructions_ex_required
+				return false
 			UISubState.UISubState_SelectCards_StrikeForce:
 				return can_selected_cards_pay_force(select_card_require_force)
 			UISubState.UISubState_SelectCards_StrikeCard_FromGauge:
@@ -4074,6 +4098,7 @@ func _on_instructions_ok_button_pressed(index : int):
 			UISubState.UISubState_SelectCards_CharacterAction_Force, UISubState.UISubState_SelectCards_CharacterAction_Gauge:
 				success = game_wrapper.submit_character_action(Enums.PlayerId.PlayerId_Player, selected_card_ids, selected_character_action, use_free_force)
 			UISubState.UISubState_SelectCards_DiscardContinuousBoost, UISubState.UISubState_SelectCards_DiscardOpponentGauge:
+				select_card_name_boost_restriction = ""
 				success = game_wrapper.submit_boost_name_card_choice_effect(Enums.PlayerId.PlayerId_Player, single_card_id)
 			UISubState.UISubState_SelectCards_DiscardFromReference:
 				success = game_wrapper.submit_boost_name_card_choice_effect(Enums.PlayerId.PlayerId_Player, single_card_id - ReferenceScreenIdRangeStart)
@@ -4180,6 +4205,7 @@ func _on_instructions_cancel_button_pressed():
 			close_popout()
 			success = game_wrapper.submit_choose_from_discard(Enums.PlayerId.PlayerId_Player, [])
 		UISubState.UISubState_SelectCards_DiscardContinuousBoost:
+			select_card_name_boost_restriction = ""
 			deselect_all_cards()
 			close_popout()
 			success = game_wrapper.submit_boost_name_card_choice_effect(Enums.PlayerId.PlayerId_Player, -1)
@@ -4539,10 +4565,10 @@ func ai_discard(event):
 	else:
 		print("FAILED AI DISCARD")
 
-func ai_forced_strike(disable_wild_swing : bool = false, disable_ex : bool = false):
+func ai_forced_strike(disable_wild_swing : bool = false, disable_ex : bool = false, require_ex : bool = false):
 	change_ui_state(UIState.UIState_WaitForGameServer)
 	if not game_wrapper.is_ai_game(): return
-	var strike_action = ai_player.pick_strike(game_wrapper.current_game, Enums.PlayerId.PlayerId_Opponent, "", disable_wild_swing, disable_ex)
+	var strike_action = ai_player.pick_strike(game_wrapper.current_game, Enums.PlayerId.PlayerId_Opponent, "", disable_wild_swing, disable_ex, require_ex)
 	ai_handle_strike(strike_action)
 
 func ai_strike_from_gauge(source : String):
@@ -4561,10 +4587,10 @@ func ai_boost_cancel_decision(gauge_cost):
 	else:
 		print("FAILED AI BOOST CANCEL")
 
-func ai_discard_continuous_boost(limitation, can_pass):
+func ai_discard_continuous_boost(limitation, can_pass, boost_name_restriction):
 	change_ui_state(UIState.UIState_WaitForGameServer)
 	if not game_wrapper.is_ai_game(): return
-	var pick_action = ai_player.pick_discard_continuous(game_wrapper.current_game, Enums.PlayerId.PlayerId_Opponent,limitation, can_pass)
+	var pick_action = ai_player.pick_discard_continuous(game_wrapper.current_game, Enums.PlayerId.PlayerId_Opponent,limitation, can_pass, boost_name_restriction)
 	var success = game_wrapper.submit_boost_name_card_choice_effect(Enums.PlayerId.PlayerId_Opponent, pick_action.card_id)
 	if success:
 		change_ui_state(UIState.UIState_WaitForGameServer)

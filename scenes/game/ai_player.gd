@@ -514,7 +514,7 @@ func get_ex_option_in_hand(game_logic : LocalGame, me : LocalGame.Player, card_i
 			return card.id
 	return -1
 
-func get_strike_actions(game_logic : LocalGame, me : LocalGame.Player, _opponent : LocalGame.Player, alternate_source : String = "", disable_wild_swing : bool = false, disable_ex : bool = false):
+func get_strike_actions(game_logic : LocalGame, me : LocalGame.Player, _opponent : LocalGame.Player, alternate_source : String = "", disable_wild_swing : bool = false, disable_ex : bool = false, require_ex : bool = false):
 	var possible_actions = []
 	var possible_actions_cant_pay = []
 	# Always allow wild swing if allowed.
@@ -553,7 +553,14 @@ func get_strike_actions(game_logic : LocalGame, me : LocalGame.Player, _opponent
 			if card.definition['gauge_cost'] > me.gauge.size():
 				# Skip cards we can't pay for.
 				# But remember them in case we have 0 options and must strike with something?
-				possible_actions_cant_pay.append(StrikeAction.new(card.id, -1, false))
+				if require_ex:
+					var ex_card_id = get_ex_option_in_hand(game_logic, me, card.id)
+					if card in me.hand and ex_card_id not in added_ex_options and card.id not in added_ex_options:
+						added_ex_options.append(ex_card_id)
+						added_ex_options.append(card.id)
+						possible_actions_cant_pay.append(StrikeAction.new(card.id, ex_card_id, false))
+				else:
+					possible_actions_cant_pay.append(StrikeAction.new(card.id, -1, false))
 				continue
 
 			if not disable_ex and card in me.hand:
@@ -571,6 +578,9 @@ func get_strike_actions(game_logic : LocalGame, me : LocalGame.Player, _opponent
 	if len(possible_actions) == 0:
 		# If we're forced to strike no matter what, we have to use an ultra we can't pay for.
 		possible_actions += possible_actions_cant_pay
+
+	if require_ex:
+		possible_actions = possible_actions.filter(func(strike_action): return strike_action.ex_card_id != -1)
 
 	return possible_actions
 
@@ -807,10 +817,10 @@ func determine_choose_opponent_card_to_discard_options(card_ids : Array):
 		possible_actions.append(ChooseToDiscardAction.new(combo))
 	return possible_actions
 
-func pick_strike(game_logic : LocalGame, my_id : Enums.PlayerId, alternate_source : String = "", disable_wild_swing : bool = false, disable_ex : bool = false) -> StrikeAction:
+func pick_strike(game_logic : LocalGame, my_id : Enums.PlayerId, alternate_source : String = "", disable_wild_swing : bool = false, disable_ex : bool = false, require_ex : bool = false) -> StrikeAction:
 	var me = game_logic._get_player(my_id)
 	var opponent = game_logic._get_player(game_logic.get_other_player(my_id))
-	var possible_actions = get_strike_actions(game_logic, me, opponent, alternate_source, disable_wild_swing, disable_ex)
+	var possible_actions = get_strike_actions(game_logic, me, opponent, alternate_source, disable_wild_swing, disable_ex, require_ex)
 	update_ai_state(game_logic, me, opponent)
 	return ai_policy.pick_strike(possible_actions, game_state)
 
@@ -850,19 +860,32 @@ func pick_cancel(game_logic : LocalGame, my_id : Enums.PlayerId, gauge_cost : in
 	update_ai_state(game_logic, me, opponent)
 	return ai_policy.pick_cancel(possible_actions, game_state)
 
-func pick_discard_continuous(game_logic : LocalGame, my_id : Enums.PlayerId, limitation, can_pass) -> DiscardContinuousBoostAction:
+func pick_discard_continuous(game_logic : LocalGame, my_id : Enums.PlayerId, limitation, can_pass, boost_name_restriction) -> DiscardContinuousBoostAction:
 	var me = game_logic._get_player(my_id)
 	var opponent = game_logic._get_player(game_logic.get_other_player(my_id))
 	var possible_actions = []
 	if can_pass:
 		possible_actions.append(DiscardContinuousBoostAction.new(-1, true))
 	for card in me.continuous_boosts:
-		possible_actions.append(DiscardContinuousBoostAction.new(card.id, true))
-	if limitation != "mine":
+		if can_pick_discard_continuous(me, opponent, card, limitation, boost_name_restriction):
+			possible_actions.append(DiscardContinuousBoostAction.new(card.id, true))
+	if limitation not in ["mine", "in_opponent_space"]:
 		for card in opponent.continuous_boosts:
-			possible_actions.append(DiscardContinuousBoostAction.new(card.id, false))
+			if can_pick_discard_continuous(me, opponent, card, limitation, boost_name_restriction):
+				possible_actions.append(DiscardContinuousBoostAction.new(card.id, false))
 	update_ai_state(game_logic, me, opponent)
 	return ai_policy.pick_discard_continuous(possible_actions, game_state)
+
+func can_pick_discard_continuous(me : LocalGame.Player, opponent : LocalGame.Player, card, limitation, boost_name_restriction):
+	if 'cannot_discard' in card.definition['boost'] and card.definition['boost']['cannot_discard']:
+		return false
+	if limitation == "in_opponent_space":
+		var card_location = me.get_boost_location(card.id)
+		if card_location == -1 or not opponent.is_in_location(card_location):
+			return false
+		if boost_name_restriction and card.definition['boost']['display_name'] != boost_name_restriction:
+			return false
+	return true
 
 func pick_discard_opponent_gauge(game_logic : LocalGame, my_id : Enums.PlayerId) -> DiscardGaugeAction:
 	var me = game_logic._get_player(my_id)
