@@ -95,6 +95,7 @@ enum EventType {
 	EventType_ChooseOpponentCardToDiscard,
 	EventType_Draw,
 	EventType_Emote,
+	EventType_EffectDoBoost,
 	EventType_Exceed,
 	EventType_ExceedRevert,
 	EventType_ForceForEffect,

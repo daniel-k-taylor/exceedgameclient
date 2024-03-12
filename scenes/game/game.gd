@@ -2854,6 +2854,14 @@ func _on_effect_do_strike(event):
 	else:
 		ai_strike_effect_do_strike(card_id, wild_swing, ex_card_id)
 
+func _on_effect_do_boost(event):
+	var player = event['event_player']
+	var card_id = event['number']
+	if player == Enums.PlayerId.PlayerId_Player and not observer_mode:
+		game_wrapper.submit_boost(player, card_id, [], false)
+	else:
+		ai_effect_do_boost(card_id)
+
 func _on_pay_cost_gauge(event):
 	var player = event['event_player']
 	var enable_reminder = event['extra_info']
@@ -3198,6 +3206,8 @@ func _handle_events(events):
 				_on_draw_event(event)
 			Enums.EventType.EventType_Emote:
 				_on_emote(event)
+			Enums.EventType.EventType_EffectDoBoost:
+				_on_effect_do_boost(event)
 			Enums.EventType.EventType_Exceed:
 				delay = _on_exceed_event(event)
 			Enums.EventType.EventType_ExceedRevert:
@@ -4406,6 +4416,15 @@ func ai_handle_boost(action : AIPlayer.BoostAction):
 	if not success:
 		printlog("FAILED AI BOOST")
 	return success
+
+func ai_effect_do_boost(card_id : int):
+	change_ui_state(UIState.UIState_WaitForGameServer)
+	if not game_wrapper.is_ai_game(): return
+	var success = game_wrapper.submit_boost(Enums.PlayerId.PlayerId_Opponent, card_id, [], false)
+	if success:
+		change_ui_state(UIState.UIState_WaitForGameServer)
+	else:
+		print("FAILED AI EFFECT CAUSED BOOST")
 
 func ai_handle_strike(action : AIPlayer.StrikeAction):
 	var card_id = action.card_id

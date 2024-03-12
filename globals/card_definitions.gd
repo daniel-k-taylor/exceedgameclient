@@ -397,6 +397,8 @@ func get_condition_text(effect, amount, amount2, detail):
 			text += "If there is a discarded copy of your attack, "
 		"not_sustained":
 			text += ""
+		"boost_in_play_or_parents":
+			text += "If a \"%s\" boost is in play, " % detail
 		_:
 			text += "MISSING CONDITION"
 	return text
@@ -571,6 +573,8 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 				effect_str += "Play %s %s from %s%s." % [amount_str, limitation_str, zone_string, ignore_costs_str]
 			else:
 				effect_str += "Play %s %s from hand%s." % [amount_str, limitation_str, ignore_costs_str]
+		'boost_specific_card':
+			effect_str += "Play a \"%s\" boost from hand" % effect['boost_name']
 		'boost_then_strike':
 			var wild_str = ""
 			if 'wild_strike' in effect and effect['wild_strike']:

@@ -3139,42 +3139,58 @@
 	{
 		"id": "byakuya_minced",
 		"type": "special",
-		"display_name": "Circular Step",
+		"display_name": "Minced?",
 		"force_cost": 0,
 		"gauge_cost": 0,
 		"range_min": 1,
-		"range_max": 2,
-		"speed": 6,
-		"power": 2,
+		"range_max": 1,
+		"speed": 7,
+		"power": 3,
 		"armor": 0,
 		"guard": 0,
 		"effects": [
 			{
-				"timing": "before",
+				"timing": "hit",
 				"effect_type": "advance",
-				"amount": 1,
-				"and": {
-					"effect_type": "choice",
-					"choice": [
-						{ "effect_type": "reveal_copy_for_advantage", "copy_id": "londrekia_circularstep" },
-						{ "effect_type": "pass" }
-					]
-				}
+				"amount": 3
 			}
 		],
 		"boost": {
-			"boost_type": "immediate",
+			"boost_type": "continuous",
 			"force_cost": 0,
 			"cancel_cost": -1,
-			"display_name": "Veil Off",
+			"display_name": "Menace",
 			"effects": [
 				{
-					"timing": "immediate",
-					"effect_type": "exceed_now"
+					"timing": "now",
+					"effect_type": "choice",
+					"choice": [
+						{ "effect_type": "advance", "amount": 1 },
+						{ "effect_type": "retreat", "amount": 1 }
+					]
 				},
 				{
-					"timing": "immediate",
-					"effect_type": "add_to_gauge_boost_play_cleanup"
+					"timing": "now",
+					"effect_type": "draw",
+					"amount": 1
+				},
+				{
+					"timing": "now",
+					"condition": "boost_in_play_or_parents",
+					"condition_detail": "Predator",
+					"effect_type": "strike",
+					"negative_condition_effect": {
+						"effect_type": "choice",
+						"choice": [
+							{ "effect_type": "boost_specific_card", "boost_name": "Predator" },
+							{ "effect_type": "pass" }
+						]
+					}
+				},
+				{
+					"timing": "during_strike",
+					"effect_type": "nothing",
+					"description": "[Menace in play]"
 				}
 			]
 		}
@@ -3301,18 +3317,29 @@
 			"boost_type": "continuous",
 			"force_cost": 0,
 			"cancel_cost": -1,
-			"display_name": "Power Attack",
+			"display_name": "Predator",
 			"effects": [
 				{
-					"timing": "hit",
+					"timing": "during_strike",
 					"effect_type": "powerup",
-					"amount": 1,
-					"and": {
-						"effect_type": "gain_advantage",
-						"and": {
-							"effect_type": "add_boost_to_gauge_on_strike_cleanup",
-							"card_name": "Frozen Spire"
-						}
+					"amount": 1
+				},
+				{
+					"timing": "now",
+					"effect_type": "draw",
+					"amount": 1
+				},
+				{
+					"timing": "now",
+					"condition": "boost_in_play_or_parents",
+					"condition_detail": "Menace",
+					"effect_type": "strike",
+					"negative_condition_effect": {
+						"effect_type": "choice",
+						"choice": [
+							{ "effect_type": "boost_specific_card", "boost_name": "Menace" },
+							{ "effect_type": "pass" }
+						]
 					}
 				}
 			]

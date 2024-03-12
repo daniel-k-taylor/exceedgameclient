@@ -4067,6 +4067,17 @@ func is_effect_condition_met(performing_player : Player, effect, local_condition
 		elif condition == "discarded_copy_of_attack":
 			var card = active_strike.get_player_card(performing_player)
 			return performing_player.get_copy_in_discards(card.definition['id']) != -1
+		elif condition == "boost_in_play_or_parents":
+			var boost_name = effect["condition_detail"]
+			for card in performing_player.continuous_boosts:
+				if card.definition['boost']['display_name'] == boost_name:
+					return true
+			var check_parent_boost = active_boost
+			while check_parent_boost:
+				if check_parent_boost.card.definition['boost']['display_name'] == boost_name:
+					return true
+				check_parent_boost = check_parent_boost.parent_boost
+			return false
 		else:
 			assert(false, "Unimplemented condition")
 		# Unmet condition
@@ -4434,6 +4445,23 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 			else:
 				_append_log_full(Enums.LogType.LogType_Effect, performing_player, "has no valid cards in hand to boost with.")
 				events += performing_player.reveal_hand()
+		"boost_specific_card":
+			var boost_name = effect['boost_name']
+			var boost_card_id = -1
+			for card in performing_player.hand:
+				if card.definition['boost']['display_name'] == boost_name:
+					boost_card_id = card.id
+					break
+			if boost_card_id != -1:
+				# Have to set this for do_boost to behave, though it's not technically a decision
+				change_game_state(Enums.GameState.GameState_PlayerDecision)
+				decision_info.clear()
+				decision_info.type = Enums.DecisionType.DecisionType_BoostNow
+				decision_info.player = performing_player.my_id
+				decision_info.valid_zones = ['hand']
+				decision_info.limitation = ""
+				decision_info.ignore_costs = false
+				events += [create_event(Enums.EventType.EventType_EffectDoBoost, performing_player.my_id, boost_card_id)]
 		"boost_this_then_sustain":
 			# This effect is expected to be mid-strike.
 			assert(active_strike)
