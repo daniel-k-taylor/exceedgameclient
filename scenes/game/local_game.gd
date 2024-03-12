@@ -2955,6 +2955,7 @@ class Player:
 	func handle_on_buddy_boosts(enable):
 		for card_id in on_buddy_boosts:
 			var card = parent.card_db.get_card(card_id)
+			assert(card in continuous_boosts)
 			var boost_name = parent._get_boost_and_card_name(card)
 			if enable:
 				parent._append_log_full(Enums.LogType.LogType_Effect, self, "'s boost %s re-activated." % boost_name)
@@ -2981,7 +2982,7 @@ class Player:
 		for effect in card.definition['boost']['effects']:
 			if effect['timing'] == "discarded":
 				var owner_player = parent._get_player(card.owner_id)
-				events += parent.handle_strike_effect(card.id, effect, owner_player)
+				events += parent.do_effect_if_condition_met(owner_player, card.id, effect, null)
 
 		# Remove it from boost locations if it is in the arena.
 		events += remove_boost_in_location(card.id)

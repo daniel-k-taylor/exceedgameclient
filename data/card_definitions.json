@@ -22583,6 +22583,8 @@
 				},
 				{
 					"timing": "discarded",
+					"condition": "on_buddy_space",
+					"condition_detail": "Shield Knight",
 					"effect_type": "remove_ignore_push_and_pull_passive_bonus"
 				}
 			]
