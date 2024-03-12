@@ -7798,19 +7798,19 @@ func get_first_remaining_effect():
 func do_remaining_effects(performing_player : Player, next_state):
 	var events = []
 
-	# Before normal effect handling, proccess boosts whose spaces have just been entered
-	while active_strike.queued_stop_on_space_boosts:
-		var entered_boost_id = active_strike.queued_stop_on_space_boosts.pop_front()
-		var entered_boost_card = card_db.get_card(entered_boost_id)
-		var owning_player = _get_player(entered_boost_card.owner_id)
-		var effect = entered_boost_card.definition['boost']['stop_on_space_effect']
+	while (active_strike.queued_stop_on_space_boosts or get_remaining_effect_count() > 0) and not game_state == Enums.GameState.GameState_PlayerDecision:
+		# Before normal effect handling, proccess boosts whose spaces have just been entered
+		if active_strike.queued_stop_on_space_boosts:
+			var entered_boost_id = active_strike.queued_stop_on_space_boosts.pop_front()
+			var entered_boost_card = card_db.get_card(entered_boost_id)
+			var owning_player = _get_player(entered_boost_card.owner_id)
+			var effect = entered_boost_card.definition['boost']['stop_on_space_effect']
 
-		events += do_effect_if_condition_met(owning_player, entered_boost_id, effect, null)
-		if game_state == Enums.GameState.GameState_PlayerDecision:
-			break
+			events += do_effect_if_condition_met(owning_player, entered_boost_id, effect, null)
+			if game_state == Enums.GameState.GameState_PlayerDecision:
+				break
 
-	while get_remaining_effect_count() > 0 and not game_state == Enums.GameState.GameState_PlayerDecision:
-		if get_remaining_effect_count() > 1:
+		elif get_remaining_effect_count() > 1:
 			# Check to see if any of these effects actually have their condition met (or have a negative condition).
 			# If more than 1, send only those choices to the player.
 			# If only 1 does, remove it from the list and do it immediately.
@@ -7868,7 +7868,7 @@ func do_remaining_effects(performing_player : Player, next_state):
 		if game_over:
 			return events
 
-	if get_remaining_effect_count() == 0 and not game_state == Enums.GameState.GameState_PlayerDecision:
+	if not active_strike.queued_stop_on_space_boosts and get_remaining_effect_count() == 0 and not game_state == Enums.GameState.GameState_PlayerDecision:
 		active_strike.effects_resolved_in_timing = 0
 		if active_strike.extra_attack_in_progress:
 			active_strike.extra_attack_data.extra_attack_state = next_state
