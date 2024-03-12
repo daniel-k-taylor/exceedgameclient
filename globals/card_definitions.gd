@@ -581,10 +581,13 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 				wild_str = "Wild "
 			effect_str += "Boost, then %sStrike if you weren't caused to Strike" % wild_str
 		"boost_this_then_sustain":
+			var sustain_str = "and sustain "
+			if 'dont_sustain' in effect and effect['dont_sustain']:
+				sustain_str = ""
 			if card_name_source:
-				effect_str += "Boost and sustain %s" % card_name_source
+				effect_str += "Boost %s%s" % [sustain_str, card_name_source]
 			else:
-				effect_str += "Boost and sustain this"
+				effect_str += "Boost %sthis" % sustain_str
 		"boost_then_sustain":
 			var sustain_str = " and sustain"
 			if 'sustain' in effect and not effect['sustain']:
@@ -600,6 +603,8 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 				effect_str += "Play%s a %s from %s%s." % [sustain_str, limitation_str, zone_string, ignore_costs_str]
 			else:
 				effect_str += "Play%s a %s from hand%s." % [sustain_str, limitation_str, ignore_costs_str]
+			if 'play_boost_effect' in effect:
+				effect_str += " If you do, %s" % get_effect_text(effect['play_boost_effect'])
 		"boost_then_sustain_topdeck":
 			if 'description' in effect:
 				effect_str += effect['description']

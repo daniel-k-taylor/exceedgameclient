@@ -4487,6 +4487,9 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 			var ignore_costs = false
 			if 'ignore_costs' in effect:
 				ignore_costs = effect['ignore_costs']
+			var bonus_effect = null
+			if 'play_boost_effect' in effect:
+				bonus_effect = effect['play_boost_effect']
 			if performing_player.can_boost_something(valid_zones, effect['limitation']):
 				events += [create_event(Enums.EventType.EventType_ForceStartBoost, performing_player.my_id, 0, "", valid_zones, effect['limitation'], ignore_costs)]
 				change_game_state(Enums.GameState.GameState_PlayerDecision)
@@ -4496,6 +4499,7 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 				decision_info.valid_zones = valid_zones
 				decision_info.limitation = effect['limitation']
 				decision_info.ignore_costs = ignore_costs
+				decision_info.bonus_effect = bonus_effect
 				var sustain = true
 				if 'sustain' in effect and not effect['sustain']:
 					sustain = false
@@ -9630,6 +9634,10 @@ func do_boost(performing_player : Player, card_id : int, payment_card_ids : Arra
 		events += performing_player.discard(payment_card_ids)
 
 	var shuffle_discard_on_boost_cleanup = false or decision_info.extra_info
+
+	# Bonus effects for playing a boost, assumed to be non-blocking
+	if decision_info.bonus_effect:
+		events += do_effect_if_condition_met(performing_player, -1, decision_info.bonus_effect, null)
 
 	events += begin_resolve_boost(performing_player, card_id, additional_boost_ids, shuffle_discard_on_boost_cleanup)
 	event_queue += events
