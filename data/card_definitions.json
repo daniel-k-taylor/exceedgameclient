@@ -3082,61 +3082,56 @@
 	{
 		"id": "byakuya_caughtyou",
 		"type": "special",
-		"display_name": "Cocytus Ice Prison",
+		"display_name": "Caught You!",
 		"force_cost": 0,
 		"gauge_cost": 0,
-		"range_min": 3,
-		"range_max": 3,
-		"speed": 2,
-		"power": 6,
+		"range_min": 1,
+		"range_max": 4,
+		"speed": 8,
+		"power": 3,
 		"armor": 0,
 		"guard": 0,
 		"effects": [
 			{
-				"timing": "during_strike",
-				"effect_type": "block_opponent_move"
+				"timing": "before",
+				"condition": "opponent_speed_less_or_equal",
+				"condition_amount": 4,
+				"effect_type": "attack_does_not_hit"
 			},
 			{
-				"timing": "after",
-				"effect_type": "choice",
-				"choice": [
-					{ "effect_type": "advance", "amount": 1, "suppress_and_description": true, "and": {
-						"effect_type": "draw", "amount": 2, "and": { "effect_type": "gain_advantage" }
-					} },
-					{ "effect_type": "retreat", "amount": 1, "suppress_and_description": true, "and": {
-						"effect_type": "draw", "amount": 2, "and": { "effect_type": "gain_advantage" }
-					} }
-				]
-			},
-			{
-				"timing": "cleanup",
-				"effect_type": "remove_block_opponent_move"
+				"timing": "hit",
+				"effect_type": "gain_advantage"
 			}
 		],
 		"boost": {
 			"boost_type": "continuous",
 			"force_cost": 0,
 			"cancel_cost": -1,
-			"display_name": "Dare Glacial",
+			"display_name": "Disrespect",
 			"effects": [
 				{
-					"timing": "during_strike",
-					"effect_type": "ignore_armor"
+					"timing": "now",
+					"effect_type": "choice",
+					"choice": [
+						{ "effect_type": "retreat", "amount": 1 },
+						{ "effect_type": "retreat", "amount": 2 },
+						{ "effect_type": "retreat", "amount": 3 },
+						{ "effect_type": "pass" }
+					]
 				},
 				{
-					"timing": "hit",
-					"effect_type": "spend_all_gauge_and_save_amount",
-					"and": {
-						"effect_type": "set_strike_x",
-						"source": "gauge_spent_before_strike",
-						"and": {
-							"effect_type": "powerup",
-							"amount": "strike_x",
-							"and": {
-								"effect_type": "gain_advantage"
-							}
-						}
-					}
+					"timing": "opponent_set_strike",
+					"NOTE": "processed from opponent's perspective",
+					"condition": "initiated_strike",
+					"condition_detail": "opponent ",
+					"effect_type": "draw",
+					"opponent": true,
+					"hide_opponent_in_description": true,
+					"amount": 3
+				},
+				{
+					"timing": "start_of_next_turn",
+					"effect_type": "discard_this"
 				}
 			]
 		}

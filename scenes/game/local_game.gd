@@ -4044,6 +4044,8 @@ func is_effect_condition_met(performing_player : Player, effect, local_condition
 				return get_total_speed(performing_player) > get_total_speed(other_player)
 			else:
 				return get_total_speed(performing_player) > effect['condition_amount']
+		elif condition == "opponent_speed_less_or_equal":
+			return get_total_speed(other_player) <= effect['condition_amount']
 		elif condition == "top_discard_is_continous_boost":
 			var top_discard_card = performing_player.get_top_discard_card()
 			if top_discard_card:
@@ -7636,8 +7638,9 @@ func get_all_effects_for_timing(timing_name : String, performing_player : Player
 	var other_player = _get_player(get_other_player(performing_player.my_id))
 	both_players_boost_effects += get_boost_effects_at_timing("both_players_" + timing_name, other_player)
 
-	# Check for opponent-given character effects
+	# Check for opponent-given effects
 	var opponent_given_effects = other_player.get_character_effects_at_timing("opponent_" + timing_name)
+	opponent_given_effects += get_boost_effects_at_timing("opponent_" + timing_name, other_player)
 
 	var all_effects = []
 	for effect in card_effects:

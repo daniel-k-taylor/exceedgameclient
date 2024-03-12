@@ -210,6 +210,8 @@ func get_timing_text(timing):
 			text += "At start of opponent's turn: "
 		"set_strike":
 			text += "When you set a strike, "
+		"opponent_set_strike":
+			text += ""
 		"when_hit":
 			text += "When hit, "
 		"on_stop_on_space":
@@ -247,7 +249,7 @@ func get_condition_text(effect, amount, amount2, detail):
 		"discarded_matches_attack_speed":
 			text += "If discarded card matches attack speed, "
 		"initiated_strike":
-			text += "If initiated strike, "
+			text += "If %sinitiated strike, " % detail
 		"hit_opponent":
 			text += "If hit opponent, "
 		"not_hit_opponent":
@@ -373,6 +375,8 @@ func get_condition_text(effect, amount, amount2, detail):
 				text += "If your speed is greater than opponent's, "
 			else:
 				text += "If your speed is greater than %s, " % amount
+		"opponent_speed_less_or_equal":
+			text += "If the opponent's speed is %s or lower, " % amount
 		"was_wild_swing":
 			text += "If this was a wild swing, "
 		"was_strike_from_gauge":
@@ -761,7 +765,10 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 			if 'from_bottom' in effect:
 				bottom_str = " from bottom of deck"
 			if 'opponent' in effect and effect['opponent']:
-				effect_str += "Opponent Draw " + amount_str + bottom_str
+				if 'hide_opponent_in_description' in effect and effect['hide_opponent_in_description']:
+					effect_str += "Draw " + amount_str + bottom_str
+				else:
+					effect_str += "Opponent Draw " + amount_str + bottom_str
 			else:
 				effect_str += "Draw " + amount_str + bottom_str
 		"draw_for_card_in_gauge":
