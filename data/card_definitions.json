@@ -2970,6 +2970,454 @@
 
 
 	{
+		"NOTE": "BYAKUYA CARDS START",
+		"id": "byakuya_becomeapartofme",
+		"type": "ultra",
+		"display_name": "Become a Part of Me",
+		"force_cost": 0,
+		"gauge_cost": 4,
+		"range_min": 1,
+		"range_max": 3,
+		"speed": 5,
+		"power": 6,
+		"armor": 0,
+		"guard": 0,
+		"linked_buddy_id": "webtrapA",
+		"effects": [
+			{
+				"timing": "hit",
+				"effect_type": "choice",
+				"choice": [
+					{ "effect_type": "push", "amount": 1 },
+					{ "effect_type": "push", "amount": 2 },
+					{ "effect_type": "pull", "amount": 1 },
+					{ "effect_type": "pull", "amount": 2 },
+					{ "effect_type": "pass" }
+				]
+			},
+			{
+				"timing": "after",
+				"effect_type": "choice",
+				"choice": [
+					{
+						"effect_type": "boost_this_then_sustain",
+						"dont_sustain": true,
+						"boost_effect": {
+							"effect_type": "place_boost_in_space",
+							"stop_on_space_effect": true
+						}
+					},
+					{ "effect_type": "pass" }
+				]
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Web Trap",
+			"effects": [
+				{
+					"timing": "now",
+					"effect_type": "place_boost_in_space",
+					"stop_on_space_effect": true
+				},
+				{
+					"NOTE": "Trap Boost",
+					"timing": "cleanup",
+					"condition": "not_stunned",
+					"effect_type": "sustain_this",
+					"card_name": "Web Trap"
+				}
+			],
+			"stop_on_space_effect": {
+				"effect_type": "discard_this",
+				"and": {
+					"effect_type": "choice",
+					"choice": [
+						{ "effect_type": "push", "amount": 1 },
+						{ "effect_type": "pull", "amount": 1 },
+						{ "effect_type": "gain_advantage" }
+					]
+				}
+			}
+		}
+	},
+	{
+		"id": "byakuya_endlessnightmare",
+		"type": "ultra",
+		"display_name": "Endless Nightmare",
+		"force_cost": 0,
+		"gauge_cost": 2,
+		"range_min": 1,
+		"range_max": 1,
+		"speed": 4,
+		"power": 3,
+		"armor": 0,
+		"guard": 0,
+		"linked_buddy_id": "webtrapB",
+		"effects": [
+			{
+				"timing": "during_strike",
+				"effect_type": "ignore_guard"
+			},
+			{
+				"timing": "after",
+				"condition": "hit_opponent",
+				"effect_type": "choice",
+				"choice": [
+					{
+						"effect_type": "gain_advantage",
+						"and": {
+							"effect_type": "boost_this_then_sustain",
+							"dont_sustain": true,
+							"boost_effect": {
+								"effect_type": "place_boost_in_space",
+								"stop_on_space_effect": true
+							}
+						}
+					},
+					{ "effect_type": "pass" }
+				]
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Web Trap",
+			"effects": [
+				{
+					"timing": "now",
+					"effect_type": "place_boost_in_space",
+					"stop_on_space_effect": true
+				},
+				{
+					"NOTE": "Trap Boost",
+					"timing": "cleanup",
+					"condition": "not_stunned",
+					"effect_type": "sustain_this",
+					"card_name": "Web Trap"
+				}
+			],
+			"stop_on_space_effect": {
+				"effect_type": "discard_this",
+				"and": {
+					"effect_type": "choice",
+					"choice": [
+						{ "effect_type": "push", "amount": 1 },
+						{ "effect_type": "pull", "amount": 1 },
+						{ "effect_type": "gain_advantage" }
+					]
+				}
+			}
+		}
+	},
+	{
+		"id": "byakuya_caughtyou",
+		"type": "special",
+		"display_name": "Caught You!",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 4,
+		"speed": 8,
+		"power": 3,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "before",
+				"condition": "opponent_speed_less_or_equal",
+				"condition_amount": 4,
+				"effect_type": "attack_does_not_hit"
+			},
+			{
+				"timing": "hit",
+				"effect_type": "gain_advantage"
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Disrespect",
+			"effects": [
+				{
+					"timing": "now",
+					"effect_type": "choice",
+					"choice": [
+						{ "effect_type": "retreat", "amount": 1 },
+						{ "effect_type": "retreat", "amount": 2 },
+						{ "effect_type": "retreat", "amount": 3 },
+						{ "effect_type": "pass" }
+					]
+				},
+				{
+					"timing": "opponent_set_strike",
+					"NOTE": "processed from opponent's perspective",
+					"condition": "initiated_strike",
+					"condition_detail": "opponent ",
+					"effect_type": "draw",
+					"opponent": true,
+					"hide_opponent_in_description": true,
+					"amount": 3
+				},
+				{
+					"timing": "start_of_next_turn",
+					"effect_type": "discard_this"
+				}
+			]
+		}
+	},
+	{
+		"id": "byakuya_minced",
+		"type": "special",
+		"display_name": "Minced?",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 1,
+		"speed": 7,
+		"power": 3,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "hit",
+				"effect_type": "advance",
+				"amount": 3
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Menace",
+			"effects": [
+				{
+					"timing": "now",
+					"effect_type": "choice",
+					"choice": [
+						{ "effect_type": "advance", "amount": 1 },
+						{ "effect_type": "retreat", "amount": 1 }
+					]
+				},
+				{
+					"timing": "now",
+					"effect_type": "draw",
+					"amount": 1
+				},
+				{
+					"timing": "now",
+					"condition": "boost_in_play_or_parents",
+					"condition_detail": "Predator",
+					"effect_type": "strike",
+					"negative_condition_effect": {
+						"effect_type": "choice",
+						"choice": [
+							{ "effect_type": "boost_specific_card", "boost_name": "Predator" },
+							{ "effect_type": "pass" }
+						]
+					}
+				},
+				{
+					"timing": "during_strike",
+					"effect_type": "nothing",
+					"description": "[Menace in play]"
+				}
+			]
+		}
+	},
+	{
+		"id": "byakuya_howshallicookyou",
+		"type": "special",
+		"display_name": "How Shall I Cook You?",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 2,
+		"speed": 5,
+		"power": 3,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "hit",
+				"effect_type": "self_discard_choose",
+				"amount": -1,
+				"limitation": "same-named",
+				"destination": "reveal",
+				"discard_effect": {
+					"per_discard": true,
+					"effect_type": "powerup",
+					"amount": 1,
+					"and": {
+						"effect_type": "pull",
+						"amount": 1
+					}
+				}
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Soul's Oath",
+			"effects": [
+				{
+					"timing": "before",
+					"effect_type": "choice",
+					"choice": [
+						{ "effect_type": "advance", "amount": 1, "and":
+							{ "effect_type": "seal_this_boost", "card_name": "How Shall I Cook You?" } },
+						{ "effect_type": "retreat", "amount": 1, "and":
+							{ "effect_type": "seal_this_boost", "card_name": "How Shall I Cook You?"  } },
+						{ "effect_type": "push", "amount": 1, "and":
+							{ "effect_type": "seal_this_boost", "card_name": "How Shall I Cook You?"  } },
+						{ "effect_type": "pull", "amount": 1, "and":
+							{ "effect_type": "seal_this_boost", "card_name": "How Shall I Cook You?"  } },
+						{ "effect_type": "pass" }
+					]
+				},
+				{
+					"timing": "cleanup",
+					"skip_if_boost_sustained": true,
+					"effect_type": "choice",
+					"choice": [
+						{
+							"effect_type": "spend_life",
+							"amount": 1,
+							"and": {
+								"effect_type": "sustain_this",
+								"card_name": "How Shall I Cook You?"
+							}
+						},
+						{ "effect_type": "pass" }
+					]
+				}
+			]
+		}
+	},
+	{
+		"id": "byakuya_illplantitsomewhere",
+		"type": "special",
+		"display_name": "I'll Plant It Somewhere Over Here",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 2,
+		"range_max": 4,
+		"speed": 4,
+		"power": 3,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "hit",
+				"effect_type": "choice",
+				"choice": [
+					{ "effect_type": "push", "amount": 1 },
+					{ "effect_type": "pull", "amount": 1 }
+				]
+			},
+			{
+				"timing": "after",
+				"effect_type": "choice",
+				"choice": [
+					{
+						"effect_type": "boost_then_sustain",
+						"valid_zones": [ "hand", "gauge" ],
+						"sustain": false,
+						"limitation": "ultra",
+						"play_boost_effect": {
+							"effect_type": "gain_advantage"
+						}
+					},
+					{ "effect_type": "pass" }
+				]
+			}
+		],
+		"boost": {
+			"boost_type": "immediate",
+			"force_cost": 3,
+			"cancel_cost": -1,
+			"display_name": "Chelicerata",
+			"effects": [
+				{
+					"timing": "immediate",
+					"effect_type": "draw",
+					"amount": 7
+				}
+			]
+		}
+	},
+	{
+		"NOTE": "BYAKUYA CARDS END",
+		"id": "byakuya_orshredded",
+		"type": "special",
+		"display_name": "Or... Shredded?",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 2,
+		"range_max": 5,
+		"speed": 3,
+		"power": 4,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "during_strike",
+				"condition": "is_ex_strike",
+				"effect_type": "speedup",
+				"amount": 1
+			},
+			{
+				"timing": "after",
+				"effect_type": "advance",
+				"amount": 2
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Predator",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "powerup",
+					"amount": 1
+				},
+				{
+					"timing": "now",
+					"effect_type": "draw",
+					"amount": 1
+				},
+				{
+					"timing": "now",
+					"condition": "boost_in_play_or_parents",
+					"condition_detail": "Menace",
+					"effect_type": "strike",
+					"negative_condition_effect": {
+						"effect_type": "choice",
+						"choice": [
+							{ "effect_type": "boost_specific_card", "boost_name": "Menace" },
+							{ "effect_type": "pass" }
+						]
+					}
+				},
+				{
+					"timing": "during_strike",
+					"effect_type": "nothing",
+					"description": "[Predator in play]"
+				}
+			]
+		},
+		"NOTEEND": "BYAKUYA CARDS END"
+	},
+
+
+	{
 		"NOTE": "CHUNLI CARDS START",
 		"id": "chunli_hosenka",
 		"type": "ultra",
@@ -22231,6 +22679,8 @@
 				},
 				{
 					"timing": "discarded",
+					"condition": "on_buddy_space",
+					"condition_detail": "Shield Knight",
 					"effect_type": "remove_ignore_push_and_pull_passive_bonus"
 				}
 			]

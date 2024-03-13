@@ -263,7 +263,8 @@ func handle_decisions(game: LocalGame):
 			Enums.DecisionType.DecisionType_ChooseDiscardContinuousBoost:
 				var limitation = game.decision_info.limitation
 				var can_pass = game.decision_info.can_pass
-				var choose_action = decision_ai.pick_discard_continuous(game, decision_player.my_id, limitation, can_pass)
+				var boost_name_restriction = game.decision_info.extra_info
+				var choose_action = decision_ai.pick_discard_continuous(game, decision_player.my_id, limitation, can_pass, boost_name_restriction)
 				assert_true(game.do_boost_name_card_choice_effect(decision_player, choose_action.card_id), "do boost name strike s2 failed")
 			_:
 				assert(false, "Unimplemented decision type")
@@ -380,6 +381,8 @@ func run_ai_game():
 				strike_action = current_ai.pick_strike(game_logic, current_player.my_id, "gauge")
 			elif current_player.next_strike_from_sealed:
 				strike_action = current_ai.pick_strike(game_logic, current_player.my_id, "sealed")
+			elif str(game_logic.decision_info.limitation) == "EX":
+				strike_action = current_ai.pick_strike(game_logic, current_player.my_id, "", true, false, true)
 			else:
 				strike_action = current_ai.pick_strike(game_logic, current_player.my_id)
 			turn_events += handle_strike(game_logic, current_ai, other_ai, strike_action)
@@ -654,3 +657,6 @@ func test_beheaded_100():
 
 func test_fight_100():
 	run_iterations_with_deck("fight")
+
+func test_byakuya_100():
+	run_iterations_with_deck("byakuya")

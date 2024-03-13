@@ -1,0 +1,17 @@
+[gd_resource type="SpriteFrames" load_steps=2 format=3 uid="uid://dfj54qvurqpse"]
+
+[ext_resource type="Texture2D" uid="uid://bg0wc5isrccoc" path="res://assets/character_animations/webtrap/webtrap.png" id="1_qp4b4"]
+
+[resource]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("1_qp4b4")
+}],
+"loop": true,
+"name": &"idle",
+"speed": 5.0
+}]
+metadata/flip = true
+metadata/scaling = 0.8
+metadata/vertical_offset = 20.0

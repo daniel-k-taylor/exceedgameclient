@@ -14,10 +14,13 @@ const TestCardId5 = 50005
 var player1 : LocalGame.Player
 var player2 : LocalGame.Player
 
-func default_game_setup():
+func default_game_setup(alt_opponent : String = ""):
+	var opponent_deck = default_deck
+	if alt_opponent:
+		opponent_deck = CardDefinitions.get_deck_from_str_id(alt_opponent)
 	game_logic = LocalGame.new()
 	var seed_value = randi()
-	game_logic.initialize_game(default_deck, default_deck, "p1", "p2", Enums.PlayerId.PlayerId_Player, seed_value)
+	game_logic.initialize_game(default_deck, opponent_deck, "p1", "p2", Enums.PlayerId.PlayerId_Player, seed_value)
 	game_logic.draw_starting_hands_and_begin()
 	game_logic.do_mulligan(game_logic.player, [])
 	game_logic.do_mulligan(game_logic.opponent, [])
@@ -336,3 +339,20 @@ func test_cammy_cqc_vs_focus():
 		[player1.gauge[0].id], [], 0, true, true)
 	validate_positions(player1, 1, player2, 2)
 	validate_life(player1, 30, player2, 26)
+
+func test_cammy_double_range_dodge():
+	game_logic.teardown()
+	game_logic.free()
+	default_game_setup("ryu")
+
+	position_players(player1, 3, player2, 7)
+	give_gauge(player1, 1)
+	give_player_specific_card(player1, "cammy_cqc", TestCardId3)
+	assert_true(game_logic.do_boost(player1, TestCardId3, []))
+	advance_turn(player2)
+
+	execute_strike(player1, player2, "cammy_razorsedgeslicer", "ryu_hadoken", [], [], false, false,
+		[player1.gauge[0].id], [], 0, true, true)
+	validate_positions(player1, 8, player2, 7)
+	validate_life(player1, 30, player2, 26)
+	advance_turn(player2)

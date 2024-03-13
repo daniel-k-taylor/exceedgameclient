@@ -331,10 +331,11 @@ func test_fight_railgun_armor_not_negative():
 func test_fight_railgun_armor_not_ignore():
 	position_players(player1, 3, player2, 6)
 	give_gauge(player1, 4)
+	give_player_specific_card(player2, "standard_normal_grasp", TestCardId3)
 
 	execute_strike(player1, player2, "fight_railgun", "standard_normal_block", [], [], false, false,
 		[player1.hand[0].id, player1.hand[1].id], [])
-	assert_true(game_logic.do_force_for_armor(player2, [player2.hand[0].id]))
+	assert_true(game_logic.do_force_for_armor(player2, [TestCardId3]))
 	validate_positions(player1, 3, player2, 6)
 	validate_life(player1, 30, player2, 23)
 	advance_turn(player2)

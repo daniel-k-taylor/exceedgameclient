@@ -212,8 +212,12 @@ func get_timing_text(timing):
 			text += "At start of opponent's turn: "
 		"set_strike":
 			text += "When you set a strike, "
+		"opponent_set_strike":
+			text += ""
 		"when_hit":
 			text += "When hit, "
+		"on_stop_on_space":
+			text += "When boost entered during strike, stop movement; "
 		_:
 			text += "MISSING TIMING"
 	return text
@@ -247,7 +251,7 @@ func get_condition_text(effect, amount, amount2, detail):
 		"discarded_matches_attack_speed":
 			text += "If discarded card matches attack speed, "
 		"initiated_strike":
-			text += "If initiated strike, "
+			text += "If %sinitiated strike, " % detail
 		"hit_opponent":
 			text += "If hit opponent, "
 		"not_hit_opponent":
@@ -373,6 +377,8 @@ func get_condition_text(effect, amount, amount2, detail):
 				text += "If your speed is greater than opponent's, "
 			else:
 				text += "If your speed is greater than %s, " % amount
+		"opponent_speed_less_or_equal":
+			text += "If the opponent's speed is %s or lower, " % amount
 		"was_wild_swing":
 			text += "If this was a wild swing, "
 		"was_strike_from_gauge":
@@ -393,6 +399,8 @@ func get_condition_text(effect, amount, amount2, detail):
 			text += "If there is a discarded copy of your attack, "
 		"not_sustained":
 			text += ""
+		"boost_in_play_or_parents":
+			text += "If a \"%s\" boost is in play, " % detail
 		_:
 			text += "MISSING CONDITION"
 	return text
@@ -567,16 +575,21 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 				effect_str += "Play %s %s from %s%s." % [amount_str, limitation_str, zone_string, ignore_costs_str]
 			else:
 				effect_str += "Play %s %s from hand%s." % [amount_str, limitation_str, ignore_costs_str]
+		'boost_specific_card':
+			effect_str += "Play a \"%s\" boost from hand" % effect['boost_name']
 		'boost_then_strike':
 			var wild_str = ""
 			if 'wild_strike' in effect and effect['wild_strike']:
 				wild_str = "Wild "
 			effect_str += "Boost, then %sStrike if you weren't caused to Strike" % wild_str
 		"boost_this_then_sustain":
+			var sustain_str = "and sustain "
+			if 'dont_sustain' in effect and effect['dont_sustain']:
+				sustain_str = ""
 			if card_name_source:
-				effect_str += "Boost and sustain %s" % card_name_source
+				effect_str += "Boost %s%s" % [sustain_str, card_name_source]
 			else:
-				effect_str += "Boost and sustain this"
+				effect_str += "Boost %sthis" % sustain_str
 		"boost_then_sustain":
 			var sustain_str = " and sustain"
 			if 'sustain' in effect and not effect['sustain']:
@@ -592,6 +605,8 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 				effect_str += "Play%s a %s from %s%s." % [sustain_str, limitation_str, zone_string, ignore_costs_str]
 			else:
 				effect_str += "Play%s a %s from hand%s." % [sustain_str, limitation_str, ignore_costs_str]
+			if 'play_boost_effect' in effect:
+				effect_str += " If you do, %s" % get_effect_text(effect['play_boost_effect'])
 		"boost_then_sustain_topdeck":
 			if 'description' in effect:
 				effect_str += effect['description']
@@ -761,7 +776,10 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 			if 'from_bottom' in effect:
 				bottom_str = " from bottom of deck"
 			if 'opponent' in effect and effect['opponent']:
-				effect_str += "Opponent Draw " + amount_str + bottom_str
+				if 'hide_opponent_in_description' in effect and effect['hide_opponent_in_description']:
+					effect_str += "Draw " + amount_str + bottom_str
+				else:
+					effect_str += "Opponent Draw " + amount_str + bottom_str
 			else:
 				effect_str += "Draw " + amount_str + bottom_str
 		"draw_for_card_in_gauge":
@@ -1198,6 +1216,8 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 				amount_str = "that many"
 			if 'discard_effect' in effect:
 				bonus= "\nfor: " + get_effect_text(effect['discard_effect'], false, false, false)
+				if 'per_discard' in effect['discard_effect'] and effect['discard_effect']['per_discard']:
+					bonus += " for each"
 			if destination == "sealed":
 				effect_str += optional_text + "Seal " + amount_str + limitation + " card(s)" + bonus
 			elif destination == "reveal":
@@ -1258,6 +1278,8 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 				effect_str += "EX Strike"
 			else:
 				effect_str += "Strike"
+		"strike_with_ex":
+			effect_str += "Strike with EX"
 		"stun_immunity":
 			effect_str += "Stun Immunity"
 		"sustain_this":
