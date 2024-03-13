@@ -2581,14 +2581,19 @@ class Player:
 				movement_shortened = true
 				stopped_on_space = true
 			if parent.active_strike and not parent.active_strike.in_setup:
-				var all_stop_on_space_boosts = {}
-				for boost_id in stop_on_boost_space_ids:
-					all_stop_on_space_boosts[boost_id] = get_boost_location(boost_id)
-				for boost_id in other_player.stop_on_boost_space_ids:
-					all_stop_on_space_boosts[boost_id] = other_player.get_boost_location(boost_id)
+				var all_stop_on_space_boosts = []
+				var boost_location_map = {}
+				var boost_space_resolution_order = [self, other_player]
+				if self == parent.active_strike.defender:
+					boost_space_resolution_order = [other_player, self]
+
+				for check_player in boost_space_resolution_order:
+					for boost_id in check_player.stop_on_boost_space_ids:
+						all_stop_on_space_boosts.append(boost_id)
+						boost_location_map[boost_id] = check_player.get_boost_location(boost_id)
 
 				for boost_id in all_stop_on_space_boosts:
-					var boost_location = all_stop_on_space_boosts[boost_id]
+					var boost_location = boost_location_map[boost_id]
 					if boost_location != -1 and is_in_location(boost_location, new_location):
 						movement_shortened = true
 						stopped_on_space = true

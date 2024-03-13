@@ -3405,6 +3405,11 @@
 							{ "effect_type": "pass" }
 						]
 					}
+				},
+				{
+					"timing": "during_strike",
+					"effect_type": "nothing",
+					"description": "[Predator in play]"
 				}
 			]
 		},
