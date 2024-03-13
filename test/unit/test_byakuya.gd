@@ -697,6 +697,8 @@ func test_byakuya_predator_no_menace_dont_play():
 	position_players(player1, 3, player2, 7)
 	player1.hand = []
 	give_player_specific_card(player1, "byakuya_orshredded", TestCardId3)
+	give_player_specific_card(player1, "standard_normal_grasp", TestCardId4)
+	player1.move_card_from_hand_to_deck(TestCardId4)
 
 	assert_true(game_logic.do_boost(player1, TestCardId3, []))
 	assert_true(game_logic.do_choice(player1, 0))
@@ -707,6 +709,8 @@ func test_byakuya_menace_no_predator_dont_play():
 	position_players(player1, 3, player2, 7)
 	player1.hand = []
 	give_player_specific_card(player1, "byakuya_minced", TestCardId3)
+	give_player_specific_card(player1, "standard_normal_grasp", TestCardId4)
+	player1.move_card_from_hand_to_deck(TestCardId4)
 
 	assert_true(game_logic.do_boost(player1, TestCardId3, []))
 	assert_true(game_logic.do_choice(player1, 0))
