@@ -3,7 +3,7 @@ extends Node
 const ReleaseLoggingEnabled = false # If true, log even on release builds.
 const UseAzureServerAlways = true # If true, always defaults to the azure server.
 var MuteEmotes = false
-const ClientVersionString : String = "240309.1301" # YYMMDD.HHMM
+const ClientVersionString : String = "240313.0120" # YYMMDD.HHMM
 
 # Persistent Settings
 var BGMEnabled = true
