@@ -449,8 +449,8 @@ class StrikeStatBoosts:
 	var only_hits_if_opponent_on_any_buddy : bool = false
 	var cannot_go_below_life : int = 0
 	var dodge_attacks : bool = false
-	var dodge_at_range_min : int = -1
-	var dodge_at_range_max : int = -1
+	var dodge_at_range_min : Dictionary = {}
+	var dodge_at_range_max : Dictionary = {}
 	var dodge_at_range_late_calculate_with : String = ""
 	var dodge_at_range_from_buddy : bool = false
 	var dodge_at_speed_greater_or_equal : int = -1
@@ -527,8 +527,8 @@ class StrikeStatBoosts:
 		only_hits_if_opponent_on_any_buddy = false
 		cannot_go_below_life = 0
 		dodge_attacks = false
-		dodge_at_range_min = -1
-		dodge_at_range_max = -1
+		dodge_at_range_min = {}
+		dodge_at_range_max = {}
 		dodge_at_range_late_calculate_with = ""
 		dodge_at_range_from_buddy = false
 		dodge_at_speed_greater_or_equal = -1
@@ -2794,13 +2794,13 @@ class Player:
 							strike_stat_boosts.dodge_at_range_late_calculate_with = effect['special_range']
 							parent._append_log_full(Enums.LogType.LogType_Effect, self, "will dodge attacks from range %s!" % current_range)
 						else:
-							strike_stat_boosts.dodge_at_range_min = effect['amount']
-							strike_stat_boosts.dodge_at_range_max = effect['amount2']
+							strike_stat_boosts.dodge_at_range_min[card.id] = effect['amount']
+							strike_stat_boosts.dodge_at_range_max[card.id] = effect['amount2']
 							if effect['from_buddy']:
 								strike_stat_boosts.dodge_at_range_from_buddy = effect['from_buddy']
-							var dodge_range = str(strike_stat_boosts.dodge_at_range_min)
-							if strike_stat_boosts.dodge_at_range_min != strike_stat_boosts.dodge_at_range_max:
-								dodge_range += "-%s" % strike_stat_boosts.dodge_at_range_max
+							var dodge_range = str(strike_stat_boosts.dodge_at_range_min[card.id])
+							if strike_stat_boosts.dodge_at_range_min[card.id] != strike_stat_boosts.dodge_at_range_max[card.id]:
+								dodge_range += "-%s" % strike_stat_boosts.dodge_at_range_max[card.id]
 							parent._append_log_full(Enums.LogType.LogType_Effect, self, "will dodge attacks from range %s!" % dodge_range)
 					"powerup":
 						add_power_bonus(effect['amount'])
@@ -2863,12 +2863,12 @@ class Player:
 							strike_stat_boosts.dodge_at_range_late_calculate_with = ""
 							parent._append_log_full(Enums.LogType.LogType_Effect, self, "will no longer dodge attacks from range %s!" % current_range)
 						else:
-							var dodge_range = str(strike_stat_boosts.dodge_at_range_min)
-							if strike_stat_boosts.dodge_at_range_min != strike_stat_boosts.dodge_at_range_max:
-								dodge_range += "-%s" % strike_stat_boosts.dodge_at_range_max
+							var dodge_range = str(strike_stat_boosts.dodge_at_range_min[card.id])
+							if strike_stat_boosts.dodge_at_range_min[card.id] != strike_stat_boosts.dodge_at_range_max[card.id]:
+								dodge_range += "-%s" % strike_stat_boosts.dodge_at_range_max[card.id]
 							parent._append_log_full(Enums.LogType.LogType_Effect, self, "will no longer dodge attacks from range %s." % dodge_range)
-							strike_stat_boosts.dodge_at_range_min = -1
-							strike_stat_boosts.dodge_at_range_max = -1
+							strike_stat_boosts.dodge_at_range_min.erase(card.id)
+							strike_stat_boosts.dodge_at_range_max.erase(card.id)
 							strike_stat_boosts.dodge_at_range_from_buddy = false
 					"powerup":
 						remove_power_bonus(effect['amount'])
@@ -4938,8 +4938,11 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 				performing_player.strike_stat_boosts.dodge_at_range_late_calculate_with  = effect['special_range']
 				events += [create_event(Enums.EventType.EventType_Strike_DodgeAttacksAtRange, performing_player.my_id, current_range, "", current_range, "")]
 			else:
-				performing_player.strike_stat_boosts.dodge_at_range_min = effect['range_min']
-				performing_player.strike_stat_boosts.dodge_at_range_max = effect['range_max']
+				var effect_card_id = card_id
+				if 'card_id' in effect:
+					effect_card_id = effect['card_id']
+				performing_player.strike_stat_boosts.dodge_at_range_min[effect_card_id] = effect['range_min']
+				performing_player.strike_stat_boosts.dodge_at_range_max[effect_card_id] = effect['range_max']
 				var buddy_name = null
 				if 'from_buddy' in effect:
 					performing_player.strike_stat_boosts.dodge_at_range_from_buddy = effect['from_buddy']
@@ -8166,32 +8169,34 @@ func in_range(attacking_player, defending_player, card, combat_logging=false):
 	# Apply special late calculation range dodges
 	if defending_player.strike_stat_boosts.dodge_at_range_late_calculate_with == "OVERDRIVE_COUNT":
 		var overdrive_count = defending_player.overdrive.size()
-		defending_player.strike_stat_boosts.dodge_at_range_min = overdrive_count
-		defending_player.strike_stat_boosts.dodge_at_range_max = overdrive_count
+		defending_player.strike_stat_boosts.dodge_at_range_min[-2] = overdrive_count
+		defending_player.strike_stat_boosts.dodge_at_range_max[-2] = overdrive_count
 
 	# Range dodge
-	if defending_player.strike_stat_boosts.dodge_at_range_min != -1:
-		var dodge_range_string = str(defending_player.strike_stat_boosts.dodge_at_range_min)
-		if defending_player.strike_stat_boosts.dodge_at_range_max != defending_player.strike_stat_boosts.dodge_at_range_min:
-			dodge_range_string += "-%s" % str(defending_player.strike_stat_boosts.dodge_at_range_max)
+	if defending_player.strike_stat_boosts.dodge_at_range_min:
+		for dodge_key in defending_player.strike_stat_boosts.dodge_at_range_min:
+			var dodge_range_min = defending_player.strike_stat_boosts.dodge_at_range_min[dodge_key]
+			var dodge_range_max = defending_player.strike_stat_boosts.dodge_at_range_max[dodge_key]
 
-		if defending_player.strike_stat_boosts.dodge_at_range_from_buddy:
-			var buddy_location = defending_player.get_buddy_location()
-			var buddy_attack_source_location = attack_source_location
-			if standard_source:
-				buddy_attack_source_location = attacking_player.get_closest_occupied_space_to(buddy_location)
-			var buddy_distance = abs(buddy_attack_source_location - buddy_location)
-			if defending_player.strike_stat_boosts.dodge_at_range_min <= buddy_distance and buddy_distance <= defending_player.strike_stat_boosts.dodge_at_range_max:
-				if combat_logging:
-					_append_log_full(Enums.LogType.LogType_Effect, defending_player, "is dodging attacks at range %s from %s!" % [dodge_range_string, defending_player.get_buddy_name()])
-				return false
-		else:
-			var dodge_range_min = defending_player.strike_stat_boosts.dodge_at_range_min
-			var dodge_range_max = defending_player.strike_stat_boosts.dodge_at_range_max
-			if defending_player.is_in_range_of_location(attack_source_location, dodge_range_min, dodge_range_max):
-				if combat_logging:
-					_append_log_full(Enums.LogType.LogType_Effect, defending_player, "is dodging attacks at range %s!" % dodge_range_string)
-				return false
+			var dodge_range_string = str(dodge_range_min)
+			if dodge_range_max != dodge_range_min:
+				dodge_range_string += "-%s" % str(dodge_range_max)
+
+			if defending_player.strike_stat_boosts.dodge_at_range_from_buddy:
+				var buddy_location = defending_player.get_buddy_location()
+				var buddy_attack_source_location = attack_source_location
+				if standard_source:
+					buddy_attack_source_location = attacking_player.get_closest_occupied_space_to(buddy_location)
+				var buddy_distance = abs(buddy_attack_source_location - buddy_location)
+				if dodge_range_min <= buddy_distance and buddy_distance <= dodge_range_max:
+					if combat_logging:
+						_append_log_full(Enums.LogType.LogType_Effect, defending_player, "is dodging attacks at range %s from %s!" % [dodge_range_string, defending_player.get_buddy_name()])
+					return false
+			else:
+				if defending_player.is_in_range_of_location(attack_source_location, dodge_range_min, dodge_range_max):
+					if combat_logging:
+						_append_log_full(Enums.LogType.LogType_Effect, defending_player, "is dodging attacks at range %s!" % dodge_range_string)
+					return false
 
 	# Speed dodge
 	var attacking_speed = get_total_speed(attacking_player)
