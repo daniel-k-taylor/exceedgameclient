@@ -2584,7 +2584,7 @@ class Player:
 				var all_stop_on_space_boosts = []
 				var boost_location_map = {}
 				var boost_space_resolution_order = [self, other_player]
-				if self == parent.active_strike.defender:
+				if not is_self_move:
 					boost_space_resolution_order = [other_player, self]
 
 				for check_player in boost_space_resolution_order:

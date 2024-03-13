@@ -874,7 +874,7 @@ func test_byakuya_endlessnightmare_boost_stunned():
 	advance_turn(player1)
 
 
-# TODO: Unclear what should happen in these tests; currently assumes that initiator's web resolves first
+# TODO: Unclear what should happen in these tests; currently assumes that active player's web resolves first
 
 func test_byakuya_webtrap_mirror_stacked_initiator():
 	position_players(player1, 3, player2, 6)
@@ -922,10 +922,38 @@ func test_byakuya_webtrap_mirror_stacked_defender():
 	assert_true(player2.is_card_in_continuous_boosts(TestCardId4))
 
 	execute_strike(player1, player2, "uni_normal_sweep", "uni_normal_dive", [], [], false, false)
-	assert_true(game_logic.do_choice(player1, 1))
 	assert_true(game_logic.do_choice(player2, 0))
+	assert_true(game_logic.do_choice(player1, 1))
 	validate_positions(player1, 2, player2, 4)
 	validate_life(player1, 30, player2, 24)
+	assert_false(player1.is_buddy_in_play(webtrap_buddy_id1))
+	assert_true(player1.is_card_in_discards(TestCardId3))
+	assert_false(player2.is_buddy_in_play(webtrap_buddy_id2))
+	assert_true(player2.is_card_in_discards(TestCardId4))
+	advance_turn(player2)
+
+func test_byakuya_webtrap_mirror_stacked_forced_movement():
+	position_players(player1, 6, player2, 7)
+	give_player_specific_card(player1, "byakuya_endlessnightmare", TestCardId3)
+	give_player_specific_card(player2, "byakuya_becomeapartofme", TestCardId4)
+
+	assert_true(game_logic.do_boost(player1, TestCardId3, []))
+	assert_true(game_logic.do_choice(player1, 4))
+	var webtrap_buddy_id1 = player1.get_buddy_id_for_boost(TestCardId3)
+	assert_eq(player1.get_buddy_location(webtrap_buddy_id1), 5)
+	assert_true(player1.is_card_in_continuous_boosts(TestCardId3))
+
+	assert_true(game_logic.do_boost(player2, TestCardId4, []))
+	assert_true(game_logic.do_choice(player2, 4))
+	var webtrap_buddy_id2 = player2.get_buddy_id_for_boost(TestCardId4)
+	assert_eq(player2.get_buddy_location(webtrap_buddy_id2), 5)
+	assert_true(player2.is_card_in_continuous_boosts(TestCardId4))
+
+	execute_strike(player1, player2, "uni_normal_sweep", "uni_normal_grasp", [], [1], false, false)
+	assert_true(game_logic.do_choice(player2, 0))
+	assert_true(game_logic.do_choice(player1, 1))
+	validate_positions(player1, 4, player2, 6)
+	validate_life(player1, 27, player2, 24)
 	assert_false(player1.is_buddy_in_play(webtrap_buddy_id1))
 	assert_true(player1.is_card_in_discards(TestCardId3))
 	assert_false(player2.is_buddy_in_play(webtrap_buddy_id2))
