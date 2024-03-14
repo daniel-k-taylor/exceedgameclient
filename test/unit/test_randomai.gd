@@ -660,3 +660,6 @@ func test_fight_100():
 
 func test_byakuya_100():
 	run_iterations_with_deck("byakuya")
+
+func test_merkava_100():
+	run_iterations_with_deck("merkava")

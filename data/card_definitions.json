@@ -15062,6 +15062,397 @@
 	},
 
 	{
+		"NOTE": "MERKAVA CARDS START",
+		"id": "merkava_idefile",
+		"type": "ultra",
+		"display_name": "I, Defile",
+		"force_cost": 0,
+		"gauge_cost": 8,
+		"gauge_cost_reduction": "set_to_range_to_opponent",
+		"range_min": 1,
+		"range_max": 8,
+		"speed": 8,
+		"power": "RANGE_TO_OPPONENT",
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Dark Bite",
+			"effects": [
+				{
+					"timing": "now",
+					"effect_type": "strike"
+				},
+				{
+					"timing": "during_strike",
+					"effect_type": "attack_includes_range",
+					"amount": 1
+				}
+			]
+		}
+	},
+	{
+		"id": "merkava_iresentfullyrage",
+		"type": "ultra",
+		"display_name": "I, Resentfully Rage",
+		"force_cost": 0,
+		"gauge_cost": 3,
+		"range_min": 1,
+		"range_max": 3,
+		"speed": 5,
+		"power": 6,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "hit",
+				"effect_type": "push_to_range",
+				"amount": 5
+			},
+			{
+				"timing": "after",
+				"effect_type": "choice",
+				"choice": [
+					{ "effect_type": "return_attack_to_top_of_deck" },
+					{ "effect_type": "pass" }
+				]
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Jormungandr",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"condition": "is_normal_attack",
+					"effect_type": "rangeup",
+					"amount": 1,
+					"amount2": 2
+				},
+				{
+					"timing": "after",
+					"condition": "is_special_or_ultra_attack",
+					"effect_type": "sustain_this",
+					"card_name": "I, Resentfully Rage"
+				}
+			]
+		}
+	},
+	{
+		"id": "merkava_icaptureanddevour",
+		"type": "special",
+		"display_name": "I, Capture and Devour",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 3,
+		"range_max": 6,
+		"speed": 6,
+		"power": 1,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "hit",
+				"effect_type": "close",
+				"amount": 5,
+				"and": {
+					"effect_type": "gain_advantage"
+				}
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Slithering",
+			"effects": [
+				{
+					"timing": "before",
+					"effect_type": "choice",
+					"choice": [
+						{ "effect_type": "advance", "amount": 1 },
+						{ "effect_type": "retreat", "amount": 1 }
+					]
+				}
+			]
+		}
+	},
+	{
+		"id": "merkava_ibreatheout",
+		"type": "special",
+		"display_name": "I, Breathe Out",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 2,
+		"range_max": 4,
+		"speed": 5,
+		"power": 3,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "after",
+				"effect_type": "retreat",
+				"amount": 2,
+				"and": {
+					"effect_type": "choice",
+					"choice": [
+						{ "effect_type": "return_attack_to_top_of_deck" },
+						{ "effect_type": "pass" }
+					]
+				}
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 1,
+			"cancel_cost": -1,
+			"display_name": "Instant Flight",
+			"effects": [
+				{
+					"timing": "before",
+					"effect_type": "reveal_topdeck",
+					"reveal_to_both": true,
+					"and": {
+						"effect_type": "set_strike_x",
+						"source": "top_deck_power",
+						"and": {
+							"effect_type": "choice_altered_values",
+							"choice": [
+								{ "effect_type": "advance", "amount": "strike_x" },
+								{ "effect_type": "retreat", "amount": "strike_x" }
+							]
+						}
+					}
+				}
+			]
+		}
+	},
+	{
+		"id": "merkava_idrillthrough",
+		"type": "special",
+		"display_name": "I, Drill Through",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 1,
+		"speed": 5,
+		"power": 2,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "before",
+				"effect_type": "force_for_effect",
+				"per_force_effect": {
+					"effect_type": "powerup",
+					"amount": 1,
+					"and": {
+						"effect_type": "close",
+						"amount": 1
+					}
+				},
+				"overall_effect": null,
+				"force_max": 3
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Madness",
+			"effects": [
+				{
+					"timing": "now",
+					"effect_type": "strike"
+				},
+				{
+					"timing": "hit",
+					"condition": "max_cards_in_hand",
+					"condition_amount": 0,
+					"effect_type": "powerup",
+					"amount": 4
+				}
+			]
+		}
+	},
+	{
+		"id": "merkava_irampage",
+		"type": "special",
+		"display_name": "I, Rampage",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 3,
+		"speed": 4,
+		"power": 4,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "before",
+				"effect_type": "advance",
+				"amount": 3
+			},
+			{
+				"timing": "hit",
+				"effect_type": "choice",
+				"choice": [
+					{ "effect_type": "push", "amount": 1 },
+					{ "effect_type": "pull", "amount": 1 }
+				]
+			},
+			{
+				"timing": "after",
+				"effect_type": "choice",
+				"choice": [
+					{ "effect_type": "return_attack_to_top_of_deck" },
+					{ "effect_type": "pass" }
+				]
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Deflection",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "powerup",
+					"amount": 1
+				},
+				{
+					"timing": "hit",
+					"effect_type": "armorup_current_power"
+				}
+			]
+		}
+	},
+	{
+		"id": "merkava_iagitate",
+		"type": "special",
+		"display_name": "I, Agitate",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 3,
+		"speed": 3,
+		"power": 5,
+		"armor": 0,
+		"guard": 5,
+		"effects": [
+			{
+				"timing": "hit",
+				"effect_type": "reveal_topdeck",
+				"reveal_to_both": true,
+				"and": {
+					"effect_type": "set_strike_x",
+					"source": "top_deck_power",
+					"and": {
+						"effect_type": "choice_altered_values",
+						"choice": [
+							{ "effect_type": "push", "amount": "strike_x" },
+							{ "effect_type": "pull", "amount": "strike_x" }
+						]
+					}
+				}
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Lie In Wait",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "guardup",
+					"amount": 3
+				},
+				{
+					"timing": "discarded",
+					"effect_type": "draw",
+					"amount": 2
+				}
+			]
+		}
+	},
+	{
+		"NOTE": "MERKAVA CARDS END",
+		"id": "merkava_ipersistentlycling",
+		"type": "special",
+		"display_name": "I, Persistently Cling",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 0,
+		"range_max": 0,
+		"speed": 1,
+		"power": 7,
+		"armor": 0,
+		"guard": 5,
+		"effects": [
+			{
+				"timing": "set_strike",
+				"condition": "was_not_wild_swing",
+				"effect_type": "place_buddy_in_any_space",
+				"optional": true,
+				"buddy_name": "your attack"
+			},
+			{
+				"timing": "set_strike",
+				"condition": "buddy_in_play",
+				"condition_detail": "I, Persistently Cling",
+				"effect_type": "reveal_strike",
+				"and": {
+					"effect_type": "calculate_range_from_buddy"
+				}
+			},
+			{
+				"timing": "after",
+				"condition": "not_hit_opponent",
+				"effect_type": "return_attack_to_hand",
+				"card_name": "I, Persistently Cling"
+			},
+			{
+				"timing": "cleanup",
+				"condition": "buddy_in_play",
+				"effect_type": "remove_buddy",
+				"buddy_name": "I, Persistently Cling"
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Wide",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "rangeup",
+					"amount": 0,
+					"amount2": 1
+				},
+				{
+					"timing": "now",
+					"effect_type": "choice",
+					"choice": [
+						{ "effect_type": "advance", "amount": 1 },
+						{ "effect_type": "retreat", "amount": 1 }
+					]
+				}
+			]
+		},
+		"NOTEEND": "MERKAVA CARDS END"
+	},
+
+	{
 		"NOTE": "MIKA CARDS START",
 		"id": "mika_revolution",
 		"type": "ultra",

@@ -22,7 +22,6 @@
 		{
 			"gauge_cost": 1,
 			"force_cost": 0,
-			"shortcut_effect_type": "choice",
 			"effect": {
 				"effect_type": "choice",
 				"choice": [

@@ -499,3 +499,19 @@ func test_vatista_curse_commandment_empty_gauge():
 	validate_positions(player1, 3, player2, 5)
 	validate_life(player1, 30, player2, 24)
 	advance_turn(player2)
+
+func test_vatista_double_gauge_boost_on_move():
+	position_players(player1, 3, player2, 4)
+	give_player_specific_card(player1, "vatista_armabellum", TestCardId3)
+	give_player_specific_card(player1, "vatista_transvoranse", TestCardId4)
+
+	assert_true(game_logic.do_boost(player1, TestCardId3, []))
+	advance_turn(player2)
+	assert_true(game_logic.do_boost(player1, TestCardId4, []))
+	advance_turn(player2)
+
+	assert_true(game_logic.do_move(player1, [player1.hand[0].id], 2))
+	validate_positions(player1, 2, player2, 4)
+	assert_true(player1.is_card_in_gauge(TestCardId3))
+	assert_true(player1.is_card_in_gauge(TestCardId4))
+	advance_turn(player2)

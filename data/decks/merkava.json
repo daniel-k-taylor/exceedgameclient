@@ -1,0 +1,212 @@
+{
+	"id": "merkava",
+	"season": 6,
+	"display_name": "Merkava",
+	"cardback": "cardback_merkava.jpg",
+	"exceed_cost": 1,
+	"buddy_card": "merkava_ipersistentlycling",
+	"buddy_display_name": "I, Persistently Cling",
+	"buddy_cards_foreground": [
+		true
+	],
+	"hide_buddy_reference": true,
+	"character_action_default": [{
+		"gauge_cost": 0,
+		"force_cost": 0,
+		"shortcut_effect_type": "choice",
+		"effect": {
+			"NOTE": "Because of how the shortcuts work, the choice is actually processed before the effect begins, so you can't see what's revealed early",
+
+			"effect_type": "reveal_topdeck",
+			"reveal_to_both": true,
+			"and": {
+				"effect_type": "set_strike_x",
+				"source": "top_deck_power",
+				"and": {
+					"effect_type": "choice",
+					"choice": [
+						{ "effect_type": "advance", "amount": "strike_x" },
+						{ "effect_type": "retreat", "amount": "strike_x" }
+					]
+				}
+			}
+		}
+	}],
+	"character_action_exceeded": [
+		{
+			"gauge_cost": 0,
+			"force_cost": 0,
+			"shortcut_effect_type": "gauge_for_effect",
+			"effect": {
+				"effect_type": "gauge_for_effect",
+				"required": true,
+				"per_gauge_effect": null,
+				"overall_effect": {
+					"effect_type": "set_strike_x",
+					"source": "top_discard_power",
+					"and": {
+						"effect_type": "choice_altered_values",
+						"choice": [
+							{ "effect_type": "advance", "amount": "strike_x" },
+							{ "effect_type": "retreat", "amount": "strike_x" }
+						]
+					}
+				},
+				"gauge_max": 1
+			}
+		},
+		{
+			"gauge_cost": 0,
+			"force_cost": 0,
+			"min_hand_size": 1,
+			"action_name": "Revert",
+			"shortcut_effect_type": "gauge_from_hand",
+			"effect": {
+				"effect_type": "gauge_from_hand",
+				"min_amount": 1,
+				"max_amount": 1,
+				"and": {
+					"effect_type": "revert",
+					"and": {
+						"effect_type": "take_bonus_actions",
+						"amount": 1
+					}
+				}
+			}
+		}
+	],
+	"ability_effects": [
+	],
+	"exceed_ability_effects": [
+	],
+	"cards": [
+		{
+			"definition_id": "merkava_idefile",
+			"image": "merkava_idefile.tres"
+		},
+		{
+			"definition_id": "merkava_idefile",
+			"image": "merkava_idefile.tres"
+		},
+		{
+			"definition_id": "merkava_iresentfullyrage",
+			"image": "merkava_iresentfullyrage.tres"
+		},
+		{
+			"definition_id": "merkava_iresentfullyrage",
+			"image": "merkava_iresentfullyrage.tres"
+		},
+		{
+			"definition_id": "merkava_icaptureanddevour",
+			"image": "merkava_icaptureanddevour.tres"
+		},
+		{
+			"definition_id": "merkava_icaptureanddevour",
+			"image": "merkava_icaptureanddevour.tres"
+		},
+		{
+			"definition_id": "merkava_ibreatheout",
+			"image": "merkava_ibreatheout.tres"
+		},
+		{
+			"definition_id": "merkava_ibreatheout",
+			"image": "merkava_ibreatheout.tres"
+		},
+		{
+			"definition_id": "merkava_idrillthrough",
+			"image": "merkava_idrillthrough.tres"
+		},
+		{
+			"definition_id": "merkava_idrillthrough",
+			"image": "merkava_idrillthrough.tres"
+		},
+		{
+			"definition_id": "merkava_irampage",
+			"image": "merkava_irampage.tres"
+		},
+		{
+			"definition_id": "merkava_irampage",
+			"image": "merkava_irampage.tres"
+		},
+		{
+			"definition_id": "merkava_iagitate",
+			"image": "merkava_iagitate.tres"
+		},
+		{
+			"definition_id": "merkava_iagitate",
+			"image": "merkava_iagitate.tres"
+		},
+		{
+			"definition_id": "merkava_ipersistentlycling",
+			"image": "merkava_ipersistentlycling.tres"
+		},
+		{
+			"definition_id": "merkava_ipersistentlycling",
+			"image": "merkava_ipersistentlycling.tres"
+		},
+		{
+			"definition_id": "uni_normal_grasp",
+			"image": "normal_grasp.tres"
+		},
+		{
+			"definition_id": "uni_normal_grasp",
+			"image": "normal_grasp.tres"
+		},
+		{
+			"definition_id": "uni_normal_cross",
+			"image": "normal_cross.tres"
+		},
+		{
+			"definition_id": "uni_normal_cross",
+			"image": "normal_cross.tres"
+		},
+		{
+			"definition_id": "uni_normal_assault",
+			"image": "normal_assault.tres"
+		},
+		{
+			"definition_id": "uni_normal_assault",
+			"image": "normal_assault.tres"
+		},
+		{
+			"definition_id": "uni_normal_dive",
+			"image": "normal_dive.tres"
+		},
+		{
+			"definition_id": "uni_normal_dive",
+			"image": "normal_dive.tres"
+		},
+		{
+			"definition_id": "uni_normal_spike",
+			"image": "normal_spike.tres"
+		},
+		{
+			"definition_id": "uni_normal_spike",
+			"image": "normal_spike.tres"
+		},
+		{
+			"definition_id": "uni_normal_sweep",
+			"image": "normal_sweep.tres"
+		},
+		{
+			"definition_id": "uni_normal_sweep",
+			"image": "normal_sweep.tres"
+		},
+		{
+			"definition_id": "uni_normal_focus",
+			"image": "normal_focus.tres"
+		},
+		{
+			"definition_id": "uni_normal_focus",
+			"image": "normal_focus.tres"
+		},
+		{
+			"definition_id": "uni_normal_block",
+			"image": "normal_block.tres"
+		},
+		{
+			"definition_id": "uni_normal_block",
+			"image": "normal_block.tres"
+		}
+	]
+}

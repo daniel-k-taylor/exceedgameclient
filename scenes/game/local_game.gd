@@ -458,6 +458,7 @@ class StrikeStatBoosts:
 	var range_includes_opponent : bool = false
 	var range_includes_if_moved_past : bool = false
 	var range_includes_lightningrods : bool = false
+	var attack_includes_ranges : Array = []
 	var ignore_armor : bool = false
 	var ignore_guard : bool = false
 	var ignore_push_and_pull : bool = false
@@ -536,6 +537,7 @@ class StrikeStatBoosts:
 		range_includes_opponent = false
 		range_includes_if_moved_past = false
 		range_includes_lightningrods = false
+		attack_includes_ranges = []
 		ignore_armor = false
 		ignore_guard = false
 		ignore_push_and_pull = false
@@ -1048,7 +1050,8 @@ class Player:
 		# it should no longer be tracked.
 		if card_id in public_hand_tracked_topdeck:
 			public_hand_tracked_topdeck.erase(card_id)
-			on_hand_remove_public_card(card_id)
+			if card_id not in get_card_ids_in_hand():
+				on_hand_remove_public_card(card_id)
 
 	func reset_public_hand_knowledge():
 		public_hand = []
@@ -1971,6 +1974,7 @@ class Player:
 
 	func draw(num_to_draw : int, is_fake_draw : bool = false, from_bottom: bool = false, update_if_empty : bool = true):
 		var events : Array = []
+
 		if num_to_draw > 0:
 			if is_fake_draw:
 				# Used by topdeck boost as an easy way to get it in your hand to boost.
@@ -2949,12 +2953,12 @@ class Player:
 
 	func add_boosts_to_gauge_on_move():
 		var events = []
-		for card_id in boosts_to_gauge_on_move:
+		while boosts_to_gauge_on_move:
+			var card_id = boosts_to_gauge_on_move[0]
 			var card = parent.card_db.get_card(card_id)
 			var card_name = parent.card_db.get_card_name(card_id)
 			parent._append_log_full(Enums.LogType.LogType_CardInfo, self, "adds boosted card %s to gauge after moving." % card_name)
-			events += remove_from_continuous_boosts(card, "gauge")
-		boosts_to_gauge_on_move = []
+			events += remove_from_continuous_boosts(card, "gauge") # This also removes it from boosts_to_gauge_on_move
 		return events
 
 	func handle_on_buddy_boosts(enable):
@@ -4334,6 +4338,8 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 			affected_player.strike_stat_boosts.attack_does_not_hit = true
 			if 'hide_notice' not in effect or not effect['hide_notice']:
 				events += [create_event(Enums.EventType.EventType_Strike_AttackDoesNotHit, affected_player.my_id, card_id)]
+		"attack_includes_range":
+			performing_player.strike_stat_boosts.attack_includes_ranges.append(effect['amount'])
 		"attack_is_ex":
 			performing_player.strike_stat_boosts.set_ex()
 			events += [create_event(Enums.EventType.EventType_Strike_ExUp, performing_player.my_id, card_id)]
@@ -6707,6 +6713,19 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 			events += performing_player.push(push_needed)
 			var new_location = opposing_player.arena_location
 			_append_log_full(Enums.LogType.LogType_CharacterMovement, opposing_player, "is pushed to the attack's max range %s, moving from space %s to %s." % [str(attack_max_range), str(previous_location), str(new_location)])
+		"push_to_range":
+			var target_range = effect['amount']
+			var furthest_location
+			var previous_location = opposing_player.arena_location
+			var origin = performing_player.get_closest_occupied_space_to(previous_location)
+			if performing_player.arena_location < opposing_player.arena_location:
+				furthest_location = max(origin + target_range, MinArenaLocation)
+			else:
+				furthest_location = min(origin - target_range, MaxArenaLocation)
+			var push_needed = abs(furthest_location - opposing_player.get_closest_occupied_space_to(performing_player.arena_location))
+			events += performing_player.push(push_needed)
+			var new_location = opposing_player.arena_location
+			_append_log_full(Enums.LogType.LogType_CharacterMovement, opposing_player, "is pushed to range %s, moving from space %s to %s." % [str(target_range), str(previous_location), str(new_location)])
 		"range_includes_if_moved_past":
 			performing_player.strike_stat_boosts.range_includes_if_moved_past = true
 		"range_includes_lightningrods":
@@ -8097,9 +8116,12 @@ func is_location_in_range(attacking_player, card, test_location : int):
 			return false
 	var attack_source_location = get_attack_origin(attacking_player, test_location)
 
-	var distance = abs(attack_source_location - test_location)
+	var distance : int = abs(attack_source_location - test_location)
 	if min_range <= distance and distance <= max_range:
 		return in_range_return_value
+	for included_range in attacking_player.strike_stat_boosts.attack_includes_ranges:
+		if included_range == distance:
+			return in_range_return_value
 	return not in_range_return_value
 
 func in_range(attacking_player, defending_player, card, combat_logging=false):
@@ -8161,10 +8183,13 @@ func in_range(attacking_player, defending_player, card, combat_logging=false):
 		var range_string = str(min_range)
 		if min_range != max_range:
 			range_string += "-%s" % str(max_range)
+		var include_str = ""
+		if attacking_player.strike_stat_boosts.attack_includes_ranges:
+			include_str = " (including range(s) %s)" % ", ".join(attacking_player.strike_stat_boosts.attack_includes_ranges)
 		var invert_str = ""
 		if attacking_player.strike_stat_boosts.invert_range:
 			invert_str = ", but inverted"
-		_append_log_full(Enums.LogType.LogType_Strike, attacking_player, "has range %s%s." % [range_string, invert_str])
+		_append_log_full(Enums.LogType.LogType_Strike, attacking_player, "has range %s%s%s." % [range_string, include_str, invert_str])
 
 	# Apply special late calculation range dodges
 	if defending_player.strike_stat_boosts.dodge_at_range_late_calculate_with == "OVERDRIVE_COUNT":
@@ -8384,7 +8409,7 @@ func on_death(performing_player):
 		events += trigger_game_over(performing_player.my_id, Enums.GameOverReason.GameOverReason_Life)
 	return events
 
-func get_gauge_cost(performing_player, card, check_if_card_in_hand = false):
+func get_gauge_cost(performing_player : Player, card, check_if_card_in_hand = false):
 	var gauge_cost = card.definition['gauge_cost']
 	var is_ex = active_strike.will_be_ex(performing_player)
 	if 'gauge_cost_ex' in card.definition and is_ex:
@@ -8418,7 +8443,9 @@ func get_gauge_cost(performing_player, card, check_if_card_in_hand = false):
 						found_specials.append(overdrive_card.definition['id'])
 				if different_special_count == 4:
 					gauge_cost = 0
-
+			"set_to_range_to_opponent":
+				var range_to_opponent = performing_player.distance_to_opponent()
+				gauge_cost = range_to_opponent
 
 	return gauge_cost
 

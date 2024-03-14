@@ -1,4 +1,4 @@
-[gd_scene load_steps=87 format=3 uid="uid://cqs72exlwm6at"]
+[gd_scene load_steps=88 format=3 uid="uid://cqs72exlwm6at"]
 
 [ext_resource type="Script" path="res://scenes/menu/char_select.gd" id="1_f3x24"]
 [ext_resource type="PackedScene" uid="uid://nwqxp8pdh1jk" path="res://scenes/menu/char_select_button.tscn" id="6_3lmwy"]
@@ -47,6 +47,7 @@
 [ext_resource type="Texture2D" uid="uid://juesnkghbyjd" path="res://assets/portraits/plague.png" id="32_o7q1n"]
 [ext_resource type="Texture2D" uid="uid://bc01kjivot83r" path="res://assets/portraits/litchi.png" id="32_tp7xh"]
 [ext_resource type="Texture2D" uid="uid://rdfsol2bgn4x" path="res://assets/portraits/enkidu.png" id="33_7viqn"]
+[ext_resource type="Texture2D" uid="uid://cvn8gtpys5n4r" path="res://assets/portraits/merkava.png" id="33_gp8r2"]
 [ext_resource type="Texture2D" uid="uid://cp4tvk0uhox0p" path="res://assets/portraits/hazama.png" id="33_ymrgl"]
 [ext_resource type="Texture2D" uid="uid://df8no20pc7qcf" path="res://assets/portraits/londrekia.png" id="34_33tvh"]
 [ext_resource type="Texture2D" uid="uid://8nah2fhvu83k" path="res://assets/portraits/nine.png" id="34_h13ui"]
@@ -365,6 +366,11 @@ portrait_texture = ExtResource("24_sf5mp")
 [node name="Row3" type="HBoxContainer" parent="CenterContainer/UNICharacterSelect/Rows"]
 layout_mode = 2
 alignment = 1
+
+[node name="Merkava" parent="CenterContainer/UNICharacterSelect/Rows/Row3" instance=ExtResource("6_3lmwy")]
+layout_mode = 2
+char_id = "merkava"
+portrait_texture = ExtResource("33_gp8r2")
 
 [node name="Nanase" parent="CenterContainer/UNICharacterSelect/Rows/Row3" instance=ExtResource("6_3lmwy")]
 layout_mode = 2
@@ -852,6 +858,8 @@ portrait_texture = ExtResource("32_iutun")
 [connection signal="on_pressed" from="CenterContainer/UNICharacterSelect/Rows/Row2/Linne" to="." method="_on_char_button_on_pressed"]
 [connection signal="on_hover" from="CenterContainer/UNICharacterSelect/Rows/Row2/Yuzu" to="." method="_on_char_hover"]
 [connection signal="on_pressed" from="CenterContainer/UNICharacterSelect/Rows/Row2/Yuzu" to="." method="_on_char_button_on_pressed"]
+[connection signal="on_hover" from="CenterContainer/UNICharacterSelect/Rows/Row3/Merkava" to="." method="_on_char_hover"]
+[connection signal="on_pressed" from="CenterContainer/UNICharacterSelect/Rows/Row3/Merkava" to="." method="_on_char_button_on_pressed"]
 [connection signal="on_hover" from="CenterContainer/UNICharacterSelect/Rows/Row3/Nanase" to="." method="_on_char_hover"]
 [connection signal="on_pressed" from="CenterContainer/UNICharacterSelect/Rows/Row3/Nanase" to="." method="_on_char_button_on_pressed"]
 [connection signal="on_hover" from="CenterContainer/UNICharacterSelect/Rows/Row3/Seth" to="." method="_on_char_hover"]
