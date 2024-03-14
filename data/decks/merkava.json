@@ -37,6 +37,7 @@
 		{
 			"gauge_cost": 0,
 			"force_cost": 0,
+			"shortcut_effect_type": "gauge_for_effect",
 			"effect": {
 				"effect_type": "gauge_for_effect",
 				"required": true,

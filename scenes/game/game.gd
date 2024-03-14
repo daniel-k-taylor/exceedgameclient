@@ -2265,6 +2265,8 @@ func update_gauge_selection_message():
 func update_gauge_for_effect_message():
 	var effect_str = ""
 	var decision_effect = game_wrapper.get_decision_info().effect
+	if preparing_character_action:
+		decision_effect = prepared_character_action_data['effect']
 	var to_hand = 'spent_cards_to_hand' in decision_effect and decision_effect['spent_cards_to_hand']
 	var source_card_name = game_wrapper.get_card_database().get_card_name(game_wrapper.get_decision_info().choice_card_id)
 	var gauge_name_str = "gauge"
@@ -2433,7 +2435,7 @@ func begin_gauge_selection(amount : int, wild_swing_allowed : bool, sub_state : 
 		UISubState.UISubState_SelectCards_Exceed, UISubState.UISubState_SelectCards_BoostCancel, UISubState.UISubState_SelectCards_CharacterAction_Gauge:
 			cancel_allowed = true
 		UISubState.UISubState_SelectCards_GaugeForEffect:
-			cancel_allowed = select_card_require_min == 0
+			cancel_allowed = select_card_require_min == 0 or preparing_character_action
 	enable_instructions_ui("", true, cancel_allowed, wild_swing_allowed)
 
 	change_ui_state(UIState.UIState_SelectCards, sub_state)
@@ -2935,6 +2937,14 @@ func _on_gauge_for_effect(event):
 	var player = event['event_player']
 	var effect = game_wrapper.get_decision_info().effect
 	if player == Enums.PlayerId.PlayerId_Player and not observer_mode:
+		if prepared_character_action_data_available("gauge_for_effect"):
+			var card_ids = prepared_character_action_data['gauge_ids']
+			var success = game_wrapper.submit_gauge_for_effect(Enums.PlayerId.PlayerId_Player, card_ids)
+			if success:
+				prepared_character_action_data = {}
+				change_ui_state(UIState.UIState_WaitForGameServer)
+			return
+
 		select_card_require_min = 0
 		if 'required' in effect and effect['required']:
 			select_card_require_min = effect['gauge_max']
@@ -3429,12 +3439,16 @@ func _update_buttons():
 			var can_strike = false
 			var can_boost = false
 			var only_in_hand = true
+			var only_in_gauge = true
 			var only_in_boosts = true
 			var only_set_aside = true
 			var allow_change_cards = true
 			for card in selected_cards:
 				if not game_wrapper.is_card_in_hand(Enums.PlayerId.PlayerId_Player, card.card_id):
 					only_in_hand = false
+
+				if not game_wrapper.is_card_in_gauge(Enums.PlayerId.PlayerId_Player, card.card_id):
+					only_in_gauge = false
 
 				if not game_wrapper.is_card_set_aside(Enums.PlayerId.PlayerId_Player, card.card_id):
 					only_set_aside = false
@@ -3515,6 +3529,15 @@ func _update_buttons():
 							if 'limitation' in shortcut_effect:
 								limitation = shortcut_effect['limitation']
 							shortcut_condition_met = game_wrapper.can_player_boost(Enums.PlayerId.PlayerId_Player, selected_cards[0].card_id, valid_zones, limitation, false)
+					elif char_action['shortcut_effect_type'] == "gauge_for_effect":
+						action_has_shortcut = true
+						action_name = "Spend for "
+						var min_cards = 0
+						if 'required' in shortcut_effect and shortcut_effect['required']:
+							min_cards = shortcut_effect['gauge_max']
+						var max_cards = shortcut_effect['gauge_max']
+						var valid_card_count = min_cards <= len(selected_cards) and len(selected_cards) <= max_cards
+						shortcut_condition_met = valid_card_count and only_in_gauge
 
 				if action_has_shortcut:
 					var action_possible = game_wrapper.can_do_character_action(Enums.PlayerId.PlayerId_Player, i)
@@ -4004,6 +4027,22 @@ func _on_character_action_pressed(action_idx : int = 0):
 					var instruction_str = "Select a location to place %s" % buddy_name
 					enable_instructions_ui(instruction_str, false, true)
 					change_ui_state(UIState.UIState_SelectArenaLocation, UISubState.UISubState_SelectArena_EffectChoice)
+				"gauge_for_effect":
+					prepared_character_action_data['effect'] = shortcut_effect
+					select_card_require_min = 0
+					if 'required' in shortcut_effect and shortcut_effect['required']:
+						select_card_require_min = shortcut_effect['gauge_max']
+					select_card_require_max = shortcut_effect['gauge_max']
+					if shortcut_effect['overall_effect']:
+						select_card_must_be_max_or_min = true
+					else:
+						select_card_must_be_max_or_min = false
+					select_gauge_require_card_id = ""
+					select_gauge_require_card_name = ""
+					if 'require_specific_card_id' in shortcut_effect:
+						select_gauge_require_card_id = shortcut_effect['require_specific_card_id']
+						select_gauge_require_card_name = shortcut_effect['require_specific_card_name']
+					begin_gauge_selection(-1, false, UISubState.UISubState_SelectCards_GaugeForEffect)
 				_:
 					assert(false, "Unexpected shortcut character action type")
 					return
@@ -4051,6 +4090,8 @@ func finish_preparing_character_action(selections):
 					prepared_character_action_data['choice'] = i
 					break
 			prepared_character_action_data['effect_type'] = 'place_buddy_effect'
+		"gauge_for_effect":
+			prepared_character_action_data['gauge_ids'] = selections
 		_:
 			assert(false, "Unexpected prepared character action type")
 			return
