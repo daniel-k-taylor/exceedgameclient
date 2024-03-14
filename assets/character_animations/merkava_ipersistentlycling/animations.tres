@@ -1,29 +1,45 @@
-[gd_resource type="SpriteFrames" load_steps=5 format=3 uid="uid://ddxblpn2gske8"]
+[gd_resource type="SpriteFrames" load_steps=9 format=3 uid="uid://ddxblpn2gske8"]
 
 [ext_resource type="Texture2D" uid="uid://duv7l0k1qrvq2" path="res://assets/character_animations/merkava_ipersistentlycling/frames/268.png" id="1_ijopy"]
 [ext_resource type="Texture2D" uid="uid://cbmqoyuwk5n8q" path="res://assets/character_animations/merkava_ipersistentlycling/frames/269.png" id="2_rnm87"]
 [ext_resource type="Texture2D" uid="uid://g16x0lil63um" path="res://assets/character_animations/merkava_ipersistentlycling/frames/270.png" id="3_8rgvs"]
 [ext_resource type="Texture2D" uid="uid://ddxem0ofwgd75" path="res://assets/character_animations/merkava_ipersistentlycling/frames/271.png" id="4_qi5bs"]
 
+[sub_resource type="AtlasTexture" id="AtlasTexture_ghwe8"]
+atlas = ExtResource("1_ijopy")
+region = Rect2(650, 714, 400, 150)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_mfy51"]
+atlas = ExtResource("2_rnm87")
+region = Rect2(650, 714, 400, 150)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_v7jvp"]
+atlas = ExtResource("3_8rgvs")
+region = Rect2(650, 714, 400, 150)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_j7wgw"]
+atlas = ExtResource("4_qi5bs")
+region = Rect2(650, 714, 400, 150)
+
 [resource]
 animations = [{
 "frames": [{
 "duration": 1.0,
-"texture": ExtResource("1_ijopy")
+"texture": SubResource("AtlasTexture_ghwe8")
 }, {
 "duration": 1.0,
-"texture": ExtResource("2_rnm87")
+"texture": SubResource("AtlasTexture_mfy51")
 }, {
 "duration": 1.0,
-"texture": ExtResource("3_8rgvs")
+"texture": SubResource("AtlasTexture_v7jvp")
 }, {
 "duration": 1.0,
-"texture": ExtResource("4_qi5bs")
+"texture": SubResource("AtlasTexture_j7wgw")
 }],
 "loop": true,
 "name": &"idle",
 "speed": 12.0
 }]
-metadata/flip = false
-metadata/scaling = 0.8
-metadata/vertical_offset = 100.0
+metadata/flip = true
+metadata/scaling = 1.5
+metadata/vertical_offset = 0.0
