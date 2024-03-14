@@ -15,8 +15,7 @@
 		"force_cost": 0,
 		"shortcut_effect_type": "choice",
 		"effect": {
-			"NOTE": "Because of how the shortcuts work, the choice is actually processed
-				before the effect begins, so you can't see what's revealed early",
+			"NOTE": "Because of how the shortcuts work, the choice is actually processed before the effect begins, so you can't see what's revealed early",
 
 			"effect_type": "reveal_topdeck",
 			"reveal_to_both": true,
