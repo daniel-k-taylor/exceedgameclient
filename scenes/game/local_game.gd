@@ -2949,12 +2949,12 @@ class Player:
 
 	func add_boosts_to_gauge_on_move():
 		var events = []
-		for card_id in boosts_to_gauge_on_move:
+		while boosts_to_gauge_on_move:
+			var card_id = boosts_to_gauge_on_move[0]
 			var card = parent.card_db.get_card(card_id)
 			var card_name = parent.card_db.get_card_name(card_id)
 			parent._append_log_full(Enums.LogType.LogType_CardInfo, self, "adds boosted card %s to gauge after moving." % card_name)
-			events += remove_from_continuous_boosts(card, "gauge")
-		boosts_to_gauge_on_move = []
+			events += remove_from_continuous_boosts(card, "gauge") # This also removes it from boosts_to_gauge_on_move
 		return events
 
 	func handle_on_buddy_boosts(enable):
