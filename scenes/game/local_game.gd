@@ -1050,7 +1050,8 @@ class Player:
 		# it should no longer be tracked.
 		if card_id in public_hand_tracked_topdeck:
 			public_hand_tracked_topdeck.erase(card_id)
-			on_hand_remove_public_card(card_id)
+			if card_id not in get_card_ids_in_hand():
+				on_hand_remove_public_card(card_id)
 
 	func reset_public_hand_knowledge():
 		public_hand = []
@@ -1973,6 +1974,7 @@ class Player:
 
 	func draw(num_to_draw : int, is_fake_draw : bool = false, from_bottom: bool = false, update_if_empty : bool = true):
 		var events : Array = []
+
 		if num_to_draw > 0:
 			if is_fake_draw:
 				# Used by topdeck boost as an easy way to get it in your hand to boost.

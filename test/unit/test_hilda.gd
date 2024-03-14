@@ -305,7 +305,7 @@ func test_hilda_trifurket_bottom_to_gauge():
 	assert_true(game_logic.do_strike(player2, TestCardId2, false, -1))
 	var bottom_discard_id = player1.discards[0].id
 	assert_true(game_logic.do_choice(player1, 0)) # Gauge
-	
+
 	validate_life(player1, 27, player2, 26)
 	validate_positions(player1, 2, player2, 3)
 	assert_eq(player1.gauge.size(), 2)
@@ -321,7 +321,7 @@ func test_hilda_trifurket_bottom_to_hand():
 	assert_true(game_logic.do_strike(player2, TestCardId2, false, -1))
 	var bottom_discard_id = player1.discards[0].id
 	assert_true(game_logic.do_choice(player1, 1)) # Hand
-	
+
 	validate_life(player1, 27, player2, 26)
 	validate_positions(player1, 2, player2, 3)
 	assert_eq(player1.hand.size(), 1)
@@ -336,13 +336,13 @@ func test_hilda_trifurket_bottom_to_gauge_empty():
 	assert_true(game_logic.do_strike(player1, TestCardId1, false, -1))
 	assert_true(game_logic.do_strike(player2, TestCardId2, false, -1))
 	assert_true(game_logic.do_choice(player1, 0)) # Gauge
-	
+
 	validate_life(player1, 27, player2, 26)
 	validate_positions(player1, 2, player2, 3)
 	assert_eq(player1.gauge.size(), 1)
 	assert_eq(player1.gauge[0].id, TestCardId1)
-	
-	
+
+
 
 func test_hilda_trifurket_boost():
 	position_players(player1, 2, player2, 3)
@@ -350,13 +350,13 @@ func test_hilda_trifurket_boost():
 	give_player_specific_card(player2, "standard_normal_assault", TestCardId2)
 	give_player_specific_card(player1, "hilda_trifurket", TestCardId1)
 	assert_true(game_logic.do_boost(player1, TestCardId1))
-	
+
 	assert_true(game_logic.do_card_from_hand_to_gauge(player2, [TestCardId2]))
 	var p1cards = []
 	for i in range(3):
 		p1cards.append(player1.hand[i].id)
 	assert_true(game_logic.do_card_from_hand_to_gauge(player1, p1cards))
-	
+
 	validate_positions(player1, 2, player2, 3)
 	assert_eq(player1.gauge.size(), 3)
 	assert_eq(player1.gauge[0].id, p1cards[0])
