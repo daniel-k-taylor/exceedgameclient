@@ -15065,37 +15065,32 @@
 		"NOTE": "MERKAVA CARDS START",
 		"id": "merkava_idefile",
 		"type": "ultra",
-		"display_name": "In The Darkness",
+		"display_name": "I, Defile",
 		"force_cost": 0,
-		"gauge_cost": 3,
-		"range_min": 4,
-		"range_max": 4,
-		"speed": 7,
-		"power": 2,
+		"gauge_cost": 8,
+		"gauge_cost_reduction": "set_to_range_to_opponent",
+		"range_min": 1,
+		"range_max": 8,
+		"speed": 8,
+		"power": "RANGE_TO_OPPONENT",
 		"armor": 0,
 		"guard": 0,
 		"effects": [
-			{
-				"timing": "hit",
-				"effect_type": "gain_advantage",
-				"and": {
-					"effect_type": "choice",
-					"choice": [
-						{ "effect_type": "push", "amount": 2, "suppress_and_description": true, "and": { "effect_type": "draw", "amount": 3 } },
-						{ "effect_type": "pull", "amount": 2, "suppress_and_description": true, "and": { "effect_type": "draw", "amount": 3 } }
-					]
-				}
-			}
 		],
 		"boost": {
 			"boost_type": "continuous",
 			"force_cost": 0,
 			"cancel_cost": -1,
-			"display_name": "Masquerade",
+			"display_name": "Dark Bite",
 			"effects": [
 				{
+					"timing": "now",
+					"effect_type": "strike"
+				},
+				{
 					"timing": "during_strike",
-					"effect_type": "swap_power_speed"
+					"effect_type": "attack_includes_range",
+					"amount": 1
 				}
 			]
 		}
@@ -15103,36 +15098,48 @@
 	{
 		"id": "merkava_iresentfullyrage",
 		"type": "ultra",
-		"display_name": "Impalement",
+		"display_name": "I, Resentfully Rage",
 		"force_cost": 0,
-		"gauge_cost": 2,
-		"range_min": 3,
-		"range_max": 8,
-		"speed": 6,
-		"power": 2,
+		"gauge_cost": 3,
+		"range_min": 1,
+		"range_max": 3,
+		"speed": 5,
+		"power": 6,
 		"armor": 0,
 		"guard": 0,
 		"effects": [
 			{
 				"timing": "hit",
-				"effect_type": "powerup_per_spent_gauge_matching_range_to_opponent",
-				"amount": 2
+				"effect_type": "push_to_range",
+				"amount": 5
+			},
+			{
+				"timing": "after",
+				"effect_type": "choice",
+				"choice": [
+					{ "effect_type": "return_attack_to_top_of_deck" },
+					{ "effect_type": "pass" }
+				]
 			}
 		],
 		"boost": {
 			"boost_type": "continuous",
-			"force_cost": 1,
+			"force_cost": 0,
 			"cancel_cost": -1,
-			"display_name": "Paradox",
+			"display_name": "Jormungandr",
 			"effects": [
 				{
 					"timing": "during_strike",
-					"effect_type": "powerup",
-					"amount": -1
+					"condition": "is_normal_attack",
+					"effect_type": "rangeup",
+					"amount": 1,
+					"amount2": 2
 				},
 				{
-					"timing": "during_strike",
-					"effect_type": "invert_range"
+					"timing": "after",
+					"condition": "is_special_or_ultra_attack",
+					"effect_type": "sustain_this",
+					"card_name": "I, Resentfully Rage"
 				}
 			]
 		}

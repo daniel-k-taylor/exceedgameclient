@@ -537,6 +537,8 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 				effect_str += "Opponent's attack does not hit."
 			else:
 				effect_str += "Attack does not hit."
+		"attack_includes_range":
+			effect_str += "Attack includes Range %s" % effect['amount']
 		"attack_is_ex":
 			effect_str += "Next Strike is EX"
 		"become_wide":
@@ -1035,6 +1037,8 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 			effect_str += "Push or pull to space " + str(effect['amount']) + "."
 		"push_to_attack_max_range":
 			effect_str += "Push to attack's max range"
+		"push_to_range":
+			effect_str += "Push to range %s" % effect['amount']
 		"range_includes_if_moved_past":
 			effect_str += "If you move past the opponent, your range includes them"
 		"rangeup":

@@ -43,3 +43,4 @@ animations = [{
 metadata/flip = true
 metadata/scaling = 1.5
 metadata/vertical_offset = 0.0
+metadata/horizontal_offset_buddy = 20.0
