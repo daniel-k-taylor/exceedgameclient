@@ -1,0 +1,29 @@
+[gd_resource type="SpriteFrames" load_steps=5 format=3 uid="uid://ddxblpn2gske8"]
+
+[ext_resource type="Texture2D" uid="uid://duv7l0k1qrvq2" path="res://assets/character_animations/merkava_ipersistentlycling/frames/268.png" id="1_ijopy"]
+[ext_resource type="Texture2D" uid="uid://cbmqoyuwk5n8q" path="res://assets/character_animations/merkava_ipersistentlycling/frames/269.png" id="2_rnm87"]
+[ext_resource type="Texture2D" uid="uid://g16x0lil63um" path="res://assets/character_animations/merkava_ipersistentlycling/frames/270.png" id="3_8rgvs"]
+[ext_resource type="Texture2D" uid="uid://ddxem0ofwgd75" path="res://assets/character_animations/merkava_ipersistentlycling/frames/271.png" id="4_qi5bs"]
+
+[resource]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("1_ijopy")
+}, {
+"duration": 1.0,
+"texture": ExtResource("2_rnm87")
+}, {
+"duration": 1.0,
+"texture": ExtResource("3_8rgvs")
+}, {
+"duration": 1.0,
+"texture": ExtResource("4_qi5bs")
+}],
+"loop": true,
+"name": &"idle",
+"speed": 12.0
+}]
+metadata/flip = false
+metadata/scaling = 0.8
+metadata/vertical_offset = 100.0

@@ -1,0 +1,7 @@
+[gd_resource type="AtlasTexture" load_steps=2 format=3 uid="uid://bwdvrp8l10vir"]
+
+[ext_resource type="Texture2D" uid="uid://cnk7eui1e5krq" path="res://assets/cards/merkava/specials.jpg" id="1_r0ckt"]
+
+[resource]
+atlas = ExtResource("1_r0ckt")
+region = Rect2(2250, 0, 750, 1024)
