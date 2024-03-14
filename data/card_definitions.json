@@ -15140,47 +15140,38 @@
 	{
 		"id": "merkava_icaptureanddevour",
 		"type": "special",
-		"display_name": "Skewer",
+		"display_name": "I, Capture and Devour",
 		"force_cost": 0,
 		"gauge_cost": 0,
-		"range_min": 1,
-		"range_max": 8,
+		"range_min": 3,
+		"range_max": 6,
 		"speed": 6,
-		"power": 2,
+		"power": 1,
 		"armor": 0,
 		"guard": 0,
 		"effects": [
 			{
-				"timing": "during_strike",
-				"effect_type": "cannot_stun"
-			},
-			{
 				"timing": "hit",
-				"effect_type": "choice",
-				"choice": [
-					{ "effect_type": "push", "amount": 1 },
-					{ "effect_type": "pull", "amount": 1 },
-					{ "effect_type": "draw", "amount": 1 }
-				]
+				"effect_type": "close",
+				"amount": 5,
+				"and": {
+					"effect_type": "gain_advantage"
+				}
 			}
 		],
 		"boost": {
 			"boost_type": "continuous",
 			"force_cost": 0,
 			"cancel_cost": -1,
-			"display_name": "Power Attack",
+			"display_name": "Slithering",
 			"effects": [
 				{
-					"timing": "hit",
-					"effect_type": "powerup",
-					"amount": 1,
-					"and": {
-						"effect_type": "gain_advantage",
-						"and": {
-							"effect_type": "add_boost_to_gauge_on_strike_cleanup",
-							"card_name": "Skewer"
-						}
-					}
+					"timing": "before",
+					"effect_type": "choice",
+					"choice": [
+						{ "effect_type": "advance", "amount": 1 },
+						{ "effect_type": "retreat", "amount": 1 }
+					]
 				}
 			]
 		}
@@ -15188,45 +15179,48 @@
 	{
 		"id": "merkava_ibreatheout",
 		"type": "special",
-		"display_name": "Skewer",
+		"display_name": "I, Breathe Out",
 		"force_cost": 0,
 		"gauge_cost": 0,
-		"range_min": 1,
-		"range_max": 8,
-		"speed": 6,
-		"power": 2,
+		"range_min": 2,
+		"range_max": 4,
+		"speed": 5,
+		"power": 3,
 		"armor": 0,
 		"guard": 0,
 		"effects": [
 			{
-				"timing": "during_strike",
-				"effect_type": "cannot_stun"
-			},
-			{
-				"timing": "hit",
-				"effect_type": "choice",
-				"choice": [
-					{ "effect_type": "push", "amount": 1 },
-					{ "effect_type": "pull", "amount": 1 },
-					{ "effect_type": "draw", "amount": 1 }
-				]
+				"timing": "after",
+				"effect_type": "retreat",
+				"amount": 2,
+				"and": {
+					"effect_type": "choice",
+					"choice": [
+						{ "effect_type": "return_attack_to_top_of_deck" },
+						{ "effect_type": "pass" }
+					]
+				}
 			}
 		],
 		"boost": {
 			"boost_type": "continuous",
-			"force_cost": 0,
+			"force_cost": 1,
 			"cancel_cost": -1,
-			"display_name": "Power Attack",
+			"display_name": "Instant Flight",
 			"effects": [
 				{
-					"timing": "hit",
-					"effect_type": "powerup",
-					"amount": 1,
+					"timing": "before",
+					"effect_type": "reveal_topdeck",
+					"reveal_to_both": true,
 					"and": {
-						"effect_type": "gain_advantage",
+						"effect_type": "set_strike_x",
+						"source": "top_deck_power",
 						"and": {
-							"effect_type": "add_boost_to_gauge_on_strike_cleanup",
-							"card_name": "Skewer"
+							"effect_type": "choice_altered_values",
+							"choice": [
+								{ "effect_type": "advance", "amount": "strike_x" },
+								{ "effect_type": "retreat", "amount": "strike_x" }
+							]
 						}
 					}
 				}
@@ -15236,51 +15230,47 @@
 	{
 		"id": "merkava_idrillthrough",
 		"type": "special",
-		"display_name": "Tri-Furket",
+		"display_name": "I, Drill Through",
 		"force_cost": 0,
 		"gauge_cost": 0,
 		"range_min": 1,
-		"range_max": 2,
-		"speed": 4,
-		"power": 4,
-		"armor": 1,
-		"guard": 4,
+		"range_max": 1,
+		"speed": 5,
+		"power": 2,
+		"armor": 0,
+		"guard": 0,
 		"effects": [
 			{
 				"timing": "before",
-				"condition": "was_hit",
-				"effect_type": "rangeup",
-				"amount": 0,
-				"amount2": 2
-			},
-			{
-				"timing": "hit",
-				"effect_type": "choice",
-				"add_bottomdiscard_card_name_to_choices": [0,1],
-				"choice": [
-					{ "effect_type": "add_bottom_discard_to_gauge" },
-					{ "effect_type": "add_bottom_discard_to_hand" }
-				]
+				"effect_type": "force_for_effect",
+				"per_force_effect": {
+					"effect_type": "powerup",
+					"amount": 1,
+					"and": {
+						"effect_type": "close",
+						"amount": 1
+					}
+				},
+				"overall_effect": null,
+				"force_max": 3
 			}
 		],
 		"boost": {
-			"boost_type": "immediate",
+			"boost_type": "continuous",
 			"force_cost": 0,
 			"cancel_cost": -1,
-			"display_name": "The Darkness",
+			"display_name": "Madness",
 			"effects": [
 				{
-					"timing": "immediate",
-					"effect_type": "gauge_from_hand",
-					"opponent": true,
-					"min_amount": 3,
-					"max_amount": 3
+					"timing": "now",
+					"effect_type": "strike"
 				},
 				{
-					"timing": "immediate",
-					"effect_type": "gauge_from_hand",
-					"min_amount": 3,
-					"max_amount": 3
+					"timing": "hit",
+					"condition": "max_cards_in_hand",
+					"condition_amount": 0,
+					"effect_type": "powerup",
+					"amount": 4
 				}
 			]
 		}
@@ -15288,43 +15278,52 @@
 	{
 		"id": "merkava_irampage",
 		"type": "special",
-		"display_name": "Revenant Pillar",
+		"display_name": "I, Rampage",
 		"force_cost": 0,
 		"gauge_cost": 0,
-		"range_min": 3,
-		"range_max": 5,
-		"speed": 2,
-		"power": 5,
+		"range_min": 1,
+		"range_max": 3,
+		"speed": 4,
+		"power": 4,
 		"armor": 0,
-		"guard": 5,
+		"guard": 0,
 		"effects": [
+			{
+				"timing": "before",
+				"effect_type": "advance",
+				"amount": 3
+			},
 			{
 				"timing": "hit",
 				"effect_type": "choice",
 				"choice": [
 					{ "effect_type": "push", "amount": 1 },
-					{ "effect_type": "pull", "amount": 1 },
-					{ "effect_type": "draw", "amount": 1 },
-					{ "effect_type": "opponent_discard_random", "amount": 1 },
-					{ "effect_type": "gain_advantage" }
-				],
-				"multiple_amount": 2
+					{ "effect_type": "pull", "amount": 1 }
+				]
+			},
+			{
+				"timing": "after",
+				"effect_type": "choice",
+				"choice": [
+					{ "effect_type": "return_attack_to_top_of_deck" },
+					{ "effect_type": "pass" }
+				]
 			}
 		],
 		"boost": {
 			"boost_type": "continuous",
 			"force_cost": 0,
 			"cancel_cost": -1,
-			"display_name": "Charged Attack",
+			"display_name": "Deflection",
 			"effects": [
 				{
 					"timing": "during_strike",
 					"effect_type": "powerup",
-					"amount": 2
+					"amount": 1
 				},
 				{
-					"timing": "now",
-					"effect_type": "add_boost_to_gauge_on_move"
+					"timing": "hit",
+					"effect_type": "armorup_current_power"
 				}
 			]
 		}
@@ -15332,41 +15331,48 @@
 	{
 		"id": "merkava_iagitate",
 		"type": "special",
-		"display_name": "Interference",
+		"display_name": "I, Agitate",
 		"force_cost": 0,
 		"gauge_cost": 0,
 		"range_min": 1,
 		"range_max": 3,
-		"speed": 2,
-		"power": 4,
+		"speed": 3,
+		"power": 5,
 		"armor": 0,
-		"guard": 6,
+		"guard": 5,
 		"effects": [
 			{
 				"timing": "hit",
-				"effect_type": "push",
-				"amount": "OPPONENT_SPEED"
+				"effect_type": "reveal_topdeck",
+				"reveal_to_both": true,
+				"and": {
+					"effect_type": "set_strike_x",
+					"source": "top_deck_power",
+					"and": {
+						"effect_type": "choice_altered_values",
+						"choice": [
+							{ "effect_type": "push", "amount": "strike_x" },
+							{ "effect_type": "pull", "amount": "strike_x" }
+						]
+					}
+				}
 			}
 		],
 		"boost": {
-			"boost_type": "immediate",
+			"boost_type": "continuous",
 			"force_cost": 0,
 			"cancel_cost": -1,
-			"display_name": "The Light",
+			"display_name": "Lie In Wait",
 			"effects": [
 				{
-					"timing": "immediate",
-					"effect_type": "draw",
-					"amount": 3,
-					"and": {
-						"effect_type": "draw",
-						"amount": 3,
-						"opponent": true
-					}
+					"timing": "during_strike",
+					"effect_type": "guardup",
+					"amount": 3
 				},
 				{
-					"timing": "immediate",
-					"effect_type": "bonus_action"
+					"timing": "discarded",
+					"effect_type": "draw",
+					"amount": 2
 				}
 			]
 		}
@@ -15375,15 +15381,15 @@
 		"NOTE": "MERKAVA CARDS END",
 		"id": "merkava_ipersistentlycling",
 		"type": "special",
-		"display_name": "Condensity Gloom",
+		"display_name": "I, Persistently Cling",
 		"force_cost": 0,
 		"gauge_cost": 0,
 		"range_min": 0,
-		"range_max": 1,
-		"speed": 2,
-		"power": 5,
-		"armor": 1,
-		"guard": 4,
+		"range_max": 0,
+		"speed": 1,
+		"power": 7,
+		"armor": 0,
+		"guard": 5,
 		"effects": [
 			{
 				"timing": "set_strike",
@@ -15395,7 +15401,7 @@
 			{
 				"timing": "set_strike",
 				"condition": "buddy_in_play",
-				"condition_detail": "Condensity Gloom",
+				"condition_detail": "I, Persistently Cling",
 				"effect_type": "reveal_strike",
 				"and": {
 					"effect_type": "calculate_range_from_buddy"
@@ -15403,40 +15409,36 @@
 			},
 			{
 				"timing": "after",
-				"condition": "buddy_in_play",
-				"condition_detail": "Condensity Gloom",
-				"effect_type": "pass",
-				"and": {
-					"condition": "buddy_space_unoccupied",
-					"condition_detail": "Condensity Gloom",
-					"effect_type": "choice",
-					"choice": [
-						{ "effect_type": "move_to_buddy", "buddy_name": "Condensity Gloom" },
-						{ "effect_type": "pass" }
-					]
-				}
+				"condition": "not_hit_opponent",
+				"effect_type": "return_attack_to_hand",
+				"card_name": "I, Persistently Cling"
 			},
 			{
 				"timing": "cleanup",
 				"condition": "buddy_in_play",
 				"effect_type": "remove_buddy",
-				"buddy_name": "Condensity Gloom"
+				"buddy_name": "I, Persistently Cling"
 			}
 		],
 		"boost": {
-			"boost_type": "immediate",
-			"force_cost": 1,
+			"boost_type": "continuous",
+			"force_cost": 0,
 			"cancel_cost": -1,
-			"display_name": "Fadeaway",
+			"display_name": "Wide",
 			"effects": [
 				{
-					"timing": "immediate",
-					"effect_type": "retreat",
-					"amount": 2
+					"timing": "during_strike",
+					"effect_type": "rangeup",
+					"amount": 0,
+					"amount2": 1
 				},
 				{
-					"timing": "immediate",
-					"effect_type": "bonus_action"
+					"timing": "now",
+					"effect_type": "choice",
+					"choice": [
+						{ "effect_type": "advance", "amount": 1 },
+						{ "effect_type": "retreat", "amount": 1 }
+					]
 				}
 			]
 		},
