@@ -1771,6 +1771,16 @@ class Player:
 		events += place_buddy(location, buddy_id, false, "", extra_offset)
 		return events
 
+	func change_boost_location(card_id : int, location : int):
+		assert(card_id in boost_id_locations)
+		var buddy_id = get_buddy_id_for_boost(card_id)
+		boost_id_locations[card_id] = location
+		var extra_offset = buddy_id.ends_with("2")
+
+		var events = []
+		events += place_buddy(location, buddy_id, false, "", extra_offset)
+		return events
+
 	func remove_boost_in_location(card_id : int):
 		# Check if the id is in the dictionary, and if so remove it.
 		var events = []
@@ -5899,7 +5909,11 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 			pass
 		"place_boost_in_space":
 			var in_attack_range = 'in_attack_range' in effect and effect['in_attack_range']
+			var valid_locations = null
+			if 'valid_locations' in effect:
+				valid_locations = effect['valid_locations']
 			var stop_on_space_effect = 'stop_on_space_effect' in effect and 'stop_on_space_effect'
+			var boost_already_placed = 'boost_already_placed' in effect and effect['boost_already_placed']
 
 			change_game_state(Enums.GameState.GameState_PlayerDecision)
 			decision_info.clear()
@@ -5922,6 +5936,8 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 			for i in range(MinArenaLocation, MaxArenaLocation + 1):
 				if in_attack_range and not is_location_in_range(performing_player, active_strike.get_player_card(performing_player), i):
 					continue
+				if valid_locations != null and i not in valid_locations:
+					continue
 
 				decision_info.limitation.append(i)
 				decision_info.choice.append({
@@ -5929,14 +5945,19 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 					"card_id": card_id,
 					"location": i,
 					"and": and_effect,
-					"stop_on_space_effect": stop_on_space_effect
+					"stop_on_space_effect": stop_on_space_effect,
+					"boost_already_placed": boost_already_placed
 				})
 			events += [create_event(Enums.EventType.EventType_ChooseArenaLocationForEffect, performing_player.my_id, 0)]
 		"place_boost_in_space_internal":
 			var location = effect['location']
 			var placed_card_id = effect['card_id']
 			var stop_on_space_effect = effect['stop_on_space_effect']
-			events += performing_player.add_boost_to_location(placed_card_id, location, stop_on_space_effect)
+
+			if effect['boost_already_placed']:
+				events += performing_player.change_boost_location(placed_card_id, location)
+			else:
+				events += performing_player.add_boost_to_location(placed_card_id, location, stop_on_space_effect)
 		"lightningrod_strike":
 			var lightning_card_id = effect['card_id']
 			var location = effect['location']
@@ -6276,6 +6297,74 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 				# No valid positions to put the buddy, so skip this.
 				# The and effect will occur normally if one exists.
 				_append_log_full(Enums.LogType.LogType_Effect, performing_player, "has no valid locations to place %s." % effect['buddy_name'])
+		"move_any_boost":
+			var move_min = effect['amount_min']
+			var move_max = effect['amount_max']
+			var must_select_other_buddy_first = true
+			decision_info.clear()
+			decision_info.type = Enums.DecisionType.DecisionType_ChooseArenaLocationForEffect
+			decision_info.player = performing_player.my_id
+			decision_info.choice_card_id = card_id
+			decision_info.effect_type = "place_boost_in_space"
+			decision_info.source = effect['boost_name']
+			decision_info.choice = []
+			decision_info.limitation = []
+			decision_info.extra_info = must_select_other_buddy_first
+
+			var location_choice_map = {}
+
+			# First, the player has to select a boost to remove.
+			# Then, they have to place it in a valid space.
+			for boost in performing_player.continuous_boosts:
+				if boost.definition['boost']['display_name'] != effect['boost_name']:
+					continue
+				var boost_id = boost.id
+				var location = performing_player.get_boost_location(boost.id)
+				if location == -1:
+					continue
+
+				var valid_locations = []
+				for i in range(MinArenaLocation, MaxArenaLocation + 1):
+					# Add this space if it is within the amount from the starting buddy location.
+					if abs(location - i) >= move_min and abs(location - i) <= move_max:
+						valid_locations.append(i)
+
+				if valid_locations.size() > 0:
+					var boost_str = _get_boost_and_card_name(boost)
+					if location not in location_choice_map:
+						location_choice_map[location] = []
+					location_choice_map[location].append({
+						"effect_type": "place_boost_in_space",
+						"boost_name": boost_str,
+						"card_id": boost_id,
+						"boost_already_placed": true,
+						"valid_locations": valid_locations
+					})
+
+			# Account for multiple boosts in the same space
+			for location in range(MinArenaLocation, MaxArenaLocation + 1):
+				if location not in location_choice_map:
+					continue
+
+				var location_choices = location_choice_map[location]
+				decision_info.limitation.append(location)
+				if len(location_choices) == 1:
+					decision_info.choice.append(location_choices[0])
+				else:
+					var choice_effect = {
+						"effect_type": "choice",
+						"choice": location_choices
+					}
+					decision_info.choice.append(choice_effect)
+
+			var actual_choices = len(decision_info.limitation)
+
+			# If the only option is to pass, just let this pass.
+			if actual_choices > 0:
+				change_game_state(Enums.GameState.GameState_PlayerDecision)
+				events += [create_event(Enums.EventType.EventType_ChooseArenaLocationForEffect, performing_player.my_id, 0)]
+			else:
+				assert(false, "Unexpected called move_any_boost but can't.")
 		"move_any_buddy":
 			var move_to_opponent = 'to_opponent' in effect and effect['to_opponent']
 			var move_min = effect['amount_min']

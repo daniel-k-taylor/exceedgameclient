@@ -32,9 +32,20 @@
 	"character_action_default": [{
 		"gauge_cost": 0,
 		"force_cost": 0,
-		"shortcut_effect_type": "strike",
+		"shortcut_effect_type": "move_any_boost",
 		"effect": {
-			"effect_type": "strike"
+			"condition": "any_buddy_in_play",
+			"effect_type": "move_any_boost",
+			"boost_name": "Dissolve",
+			"amount_min": 1,
+			"amount_max": 1,
+			"and": {
+				"effect_type": "choice",
+				"choice": [
+					{ "effect_type": "advance", "amount": 1 },
+					{ "effect_type": "retreat", "amount": 1 }
+				]
+			}
 		}
 	}],
 	"character_action_exceeded": [
@@ -74,22 +85,6 @@
 		}
 	],
 	"ability_effects": [
-		{
-			"timing": "set_strike",
-			"condition": "used_character_action",
-			"condition_details": ["default", 0],
-			"effect_type": "discard_boost_in_opponent_space",
-			"boost_name": "Web Trap",
-			"overall_effect": {
-				"character_effect": true,
-				"effect_type": "powerup",
-				"amount": 2,
-				"and": {
-					"effect_type": "speedup",
-					"amount": 2
-				}
-			}
-		}
 	],
 	"exceed_ability_effects": [
 		{

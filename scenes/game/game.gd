@@ -4027,6 +4027,21 @@ func _on_character_action_pressed(action_idx : int = 0):
 					var instruction_str = "Select a location to place %s" % buddy_name
 					enable_instructions_ui(instruction_str, false, true)
 					change_ui_state(UIState.UIState_SelectArenaLocation, UISubState.UISubState_SelectArena_EffectChoice)
+				"move_any_boost":
+					var locations = game_wrapper.get_valid_locations_for_buddy_effect(Enums.PlayerId.PlayerId_Player, shortcut_effect)
+					if len(locations) == 0:
+						# No buddies in play; handle effect normally
+						preparing_character_action = false
+						prepared_character_action_data = {}
+						complete_character_action_pressed(action_idx)
+						return
+
+					prepared_character_action_data['locations'] = locations
+					arena_locations_clickable = locations
+					var boost_name = shortcut_effect['boost_name']
+					var instruction_str = "Select a %s boost to move" % boost_name
+					enable_instructions_ui(instruction_str, false, true)
+					change_ui_state(UIState.UIState_SelectArenaLocation, UISubState.UISubState_SelectArena_EffectChoice)
 				"gauge_for_effect":
 					prepared_character_action_data['effect'] = shortcut_effect
 					select_card_require_min = 0
@@ -4082,7 +4097,7 @@ func finish_preparing_character_action(selections):
 					return
 		"self_discard_choose":
 			prepared_character_action_data['discard_ids'] = selections
-		"place_buddy_in_any_space", "move_buddy", "place_buddy_at_range":
+		"place_buddy_in_any_space", "move_buddy", "place_buddy_at_range", "move_any_boost":
 			var location = selections[0]
 			var location_options = prepared_character_action_data['locations']
 			for i in range(location_options.size()):

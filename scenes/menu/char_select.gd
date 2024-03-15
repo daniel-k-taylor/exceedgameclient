@@ -30,13 +30,16 @@ var char_id_history : Array = []
 @onready var label_length_threshold = 15
 
 func _ready():
+	update_carmine_visibility()
+	show_season(charselect_s7, season_button_s7)
+
+func update_carmine_visibility():
 	if not GlobalSettings.CarmineUnlocked:
 		carmine_portrait.modulate = Color(1, 1, 1, 0)
 		carmine_button.mouse_filter = MOUSE_FILTER_IGNORE
 	else:
 		carmine_portrait.modulate = Color(1, 1, 1, 1)
 		carmine_button.mouse_filter = MOUSE_FILTER_STOP
-	show_season(charselect_s7, season_button_s7)
 
 func update_hover(char_id):
 	if char_id == "random_s7":
@@ -68,6 +71,7 @@ func update_hover(char_id):
 		hover_label.set("theme_override_font_sizes/font_size", label_font_small)
 
 func show_char_select(char_id : String):
+	update_carmine_visibility()
 	default_char_id = char_id
 	update_hover(char_id)
 
@@ -107,8 +111,7 @@ func _on_char_button_on_pressed(character_id : String):
 			if character_id.begins_with("random"):
 				if character_id == "random_s6" and check_carmine_unlocked():
 					GlobalSettings.set_carmine_unlocked(true)
-					carmine_portrait.modulate = Color(1, 1, 1, 1)
-					carmine_button.mouse_filter = MOUSE_FILTER_STOP
+					update_carmine_visibility()
 					character_id = "carmine"
 					carmine_unlocked.emit()
 				char_id_history = []

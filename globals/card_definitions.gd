@@ -940,6 +940,15 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 			effect_str += "Pass"
 			if 'description' in effect:
 				effect_str += " (%s)" % effect['description']
+		"place_boost_in_space":
+			var place_str = "Place"
+			if 'boost_already_placed' in effect and effect['boost_already_placed']:
+				place_str = "Move"
+			var boost_str = "boost"
+			if 'boost_name' in effect:
+				boost_str = effect['boost_name']
+
+			effect_str += "%s %s." % [place_str, boost_str]
 		"place_buddy_at_range":
 			if effect['range_min'] == effect['range_max']:
 				effect_str += "Place %s at range %s" % [effect['buddy_name'], effect['range_min']]
