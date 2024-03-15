@@ -314,10 +314,12 @@ class Strike:
 	var initiator_wild_strike : bool = false
 	var initiator_set_from_gauge : bool = false
 	var initiator_set_from_boosts : bool = false
+	var initiator_set_from_boost_space : int = -1
 	var initiator_set_face_up : bool = false
 	var defender_set_face_up : bool = false
 	var defender_wild_strike : bool = false
 	var defender_set_from_boosts : bool = false
+	var defender_set_from_boost_space : int = -1
 	var strike_state
 	var hit_response_state : Dictionary = {}
 	var starting_distance : int = -1
@@ -379,6 +381,12 @@ class Strike:
 			return false
 		# ensure that the strike from gauge wasn't invalidated
 		return initiator_set_from_gauge and not initiator_wild_strike
+
+	func get_player_set_from_boosts(performing_player : Player) -> bool:
+		# ensure that the strike from boosts wasn't invalidated
+		if performing_player == initiator:
+			return initiator_set_from_boosts and not initiator_wild_strike
+		return defender_set_from_boosts and not defender_wild_strike
 
 	func is_player_stunned(question_player : Player) -> bool:
 		if get_player(1) == question_player:
@@ -4054,6 +4062,8 @@ func is_effect_condition_met(performing_player : Player, effect, local_condition
 			return not active_strike.get_player_wild_strike(performing_player)
 		elif condition == "was_strike_from_gauge":
 			return active_strike.get_player_strike_from_gauge(performing_player)
+		elif condition == "was_set_from_boosts":
+			return active_strike.get_player_set_from_boosts(performing_player)
 		elif condition == "is_critical":
 			return performing_player.strike_stat_boosts.critical
 		elif condition == "is_not_critical":
@@ -6910,9 +6920,16 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 		"range_includes_lightningrods":
 			performing_player.strike_stat_boosts.range_includes_lightningrods = true
 		"rangeup":
-			performing_player.strike_stat_boosts.min_range += effect['amount']
-			performing_player.strike_stat_boosts.max_range += effect['amount2']
-			events += [create_event(Enums.EventType.EventType_Strike_RangeUp, performing_player.my_id, effect['amount'], "", effect['amount2'])]
+			var min_amount = effect['amount']
+			if str(min_amount) == "strike_x":
+				min_amount = performing_player.strike_stat_boosts.strike_x
+			var max_amount = effect['amount2']
+			if str(max_amount) == "strike_x":
+				max_amount = performing_player.strike_stat_boosts.strike_x
+
+			performing_player.strike_stat_boosts.min_range += min_amount
+			performing_player.strike_stat_boosts.max_range += max_amount
+			events += [create_event(Enums.EventType.EventType_Strike_RangeUp, performing_player.my_id, min_amount, "", max_amount)]
 		"rangeup_both_players":
 			performing_player.strike_stat_boosts.min_range += effect['amount']
 			performing_player.strike_stat_boosts.max_range += effect['amount2']
@@ -6998,6 +7015,11 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 			performing_player.strike_stat_boosts.calculate_range_from_space = performing_player.get_buddy_location(buddy_id)
 		"calculate_range_from_center":
 			performing_player.strike_stat_boosts.calculate_range_from_space = CenterArenaLocation
+		"calculate_range_from_set_from_boost_space":
+			if performing_player == active_strike.initiator:
+				performing_player.strike_stat_boosts.calculate_range_from_space = active_strike.initiator_set_from_boost_space
+			else:
+				performing_player.strike_stat_boosts.calculate_range_from_space = active_strike.defender_set_from_boost_space
 		"reshuffle_discard_into_deck":
 			events += performing_player.reshuffle_discard(false, true)
 		"retreat":
@@ -8213,6 +8235,11 @@ func do_set_strike_x(performing_player : Player, source : String, extra_info):
 					var lightningzone = performing_player.get_lightningrod_zone_for_location(i)
 					value += len(lightningzone)
 			_append_log_full(Enums.LogType.LogType_Strike, opposing_player, "is on %s Lightning Rods." % [value])
+		"ultras_used_to_pay_gauge_cost":
+			for payment_card_id in performing_player.strike_stat_boosts.strike_payment_card_ids:
+				var payment_card = card_db.get_card(payment_card_id)
+				if payment_card.definition['type'] == "ultra":
+					value += 1
 		_:
 			assert(false, "Unknown source for setting X")
 
@@ -9917,7 +9944,9 @@ func do_strike(performing_player : Player, card_id : int, wild_strike: bool, ex_
 			if performing_player.is_card_in_continuous_boosts(card_id):
 				strike_from_boosts = true
 				var card = card_db.get_card(card_id)
-				if not 'must_set_from_boost' in card.definition or not card.definition['must_set_from_boost']:
+				var must_set_from_boost = 'must_set_from_boost' in card.definition and card.definition['must_set_from_boost']
+				var may_set_from_boost = 'may_set_from_boost' in card.definition and card.definition['may_set_from_boost']
+				if not must_set_from_boost and not may_set_from_boost:
 					printlog("ERROR: Tried to strike with a card not in hand.")
 					return false
 				elif ex_strike:
@@ -9969,7 +9998,9 @@ func do_strike(performing_player : Player, card_id : int, wild_strike: bool, ex_
 					performing_player.remove_card_from_sealed(card_id)
 					performing_player.next_strike_from_sealed = false
 				elif strike_from_boosts:
-					performing_player.remove_from_continuous_boosts(card_db.get_card(card_id), "strike")
+					if card_id in performing_player.boost_id_locations:
+						active_strike.initiator_set_from_boost_space = performing_player.get_boost_location(card_id)
+					events += performing_player.remove_from_continuous_boosts(card_db.get_card(card_id), "strike")
 					active_strike.initiator_set_from_boosts = true
 				else:
 					performing_player.remove_card_from_hand(card_id, false, true)
@@ -10020,7 +10051,9 @@ func do_strike(performing_player : Player, card_id : int, wild_strike: bool, ex_
 			else:
 				active_strike.defender_card = card_db.get_card(card_id)
 				if strike_from_boosts:
-					performing_player.remove_from_continuous_boosts(card_db.get_card(card_id), "strike")
+					if card_id in performing_player.boost_id_locations:
+						active_strike.defender_set_from_boost_space = performing_player.get_boost_location(card_id)
+					events += performing_player.remove_from_continuous_boosts(card_db.get_card(card_id), "strike")
 					active_strike.defender_set_from_boosts = true
 				else:
 					performing_player.remove_card_from_hand(card_id, false, true)

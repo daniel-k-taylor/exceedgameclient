@@ -4945,42 +4945,33 @@
 		"NOTE": "CARMINE CARDS START",
 		"id": "carmine_twist",
 		"type": "ultra",
-		"display_name": "Become a Part of Me",
+		"display_name": "Twist!",
 		"force_cost": 0,
-		"gauge_cost": 4,
+		"gauge_cost": 1,
 		"range_min": 1,
-		"range_max": 3,
-		"speed": 5,
-		"power": 6,
+		"range_max": 2,
+		"speed": 7,
+		"power": 2,
 		"armor": 0,
 		"guard": 0,
 		"linked_buddy_id": "dissolveA",
 		"effects": [
 			{
-				"timing": "hit",
-				"effect_type": "choice",
-				"choice": [
-					{ "effect_type": "push", "amount": 1 },
-					{ "effect_type": "push", "amount": 2 },
-					{ "effect_type": "pull", "amount": 1 },
-					{ "effect_type": "pull", "amount": 2 },
-					{ "effect_type": "pass" }
-				]
-			},
-			{
 				"timing": "after",
-				"effect_type": "choice",
-				"choice": [
-					{
-						"effect_type": "boost_this_then_sustain",
-						"dont_sustain": true,
-						"boost_effect": {
-							"effect_type": "place_boost_in_space",
-							"stop_on_space_effect": true
-						}
-					},
-					{ "effect_type": "pass" }
-				]
+				"effect_type": "gain_advantage",
+				"and": {
+					"effect_type": "choice",
+					"choice": [
+						{
+							"effect_type": "boost_this_then_sustain",
+							"dont_sustain": true,
+							"boost_effect": {
+								"effect_type": "place_boost_in_space"
+							}
+						},
+						{ "effect_type": "pass" }
+					]
+				}
 			}
 		],
 		"boost": {
@@ -5022,39 +5013,31 @@
 	{
 		"id": "carmine_bedevoured",
 		"type": "ultra",
-		"display_name": "Endless Nightmare",
+		"display_name": "Hahahaha! Be Devoured!",
 		"force_cost": 0,
-		"gauge_cost": 2,
+		"gauge_cost": 3,
 		"range_min": 1,
 		"range_max": 1,
-		"speed": 4,
+		"speed": 6,
 		"power": 3,
 		"armor": 0,
 		"guard": 0,
 		"linked_buddy_id": "dissolveB",
 		"effects": [
 			{
-				"timing": "during_strike",
-				"effect_type": "ignore_guard"
-			},
-			{
-				"timing": "after",
-				"condition": "hit_opponent",
-				"effect_type": "choice",
-				"choice": [
-					{
-						"effect_type": "gain_advantage",
-						"and": {
-							"effect_type": "boost_this_then_sustain",
-							"dont_sustain": true,
-							"boost_effect": {
-								"effect_type": "place_boost_in_space",
-								"stop_on_space_effect": true
-							}
-						}
-					},
-					{ "effect_type": "pass" }
-				]
+				"timing": "before",
+				"effect_type": "set_strike_x",
+				"source": "ultras_used_to_pay_gauge_cost",
+				"and": {
+					"effect_type": "rangeup",
+					"amount": 0,
+					"amount2": "strike_x",
+					"and": {
+						"effect_type": "powerup",
+						"amount": "strike_x",
+						"multiplier": 2
+					}
+				}
 			}
 		],
 		"boost": {
@@ -5096,26 +5079,26 @@
 	{
 		"id": "carmine_thisistheend",
 		"type": "ultra",
-		"display_name": "Caught You!",
+		"display_name": "You Shit! This is the END!",
 		"force_cost": 0,
-		"gauge_cost": 1,
-		"range_min": 1,
-		"range_max": 4,
-		"speed": 8,
-		"power": 3,
-		"armor": 0,
+		"gauge_cost": 3,
+		"range_min": 0,
+		"range_max": 1,
+		"speed": 2,
+		"power": 7,
+		"armor": 2,
 		"guard": 0,
 		"linked_buddy_id": "dissolveC",
+		"may_set_from_boost": true,
 		"effects": [
 			{
-				"timing": "before",
-				"condition": "opponent_speed_less_or_equal",
-				"condition_amount": 4,
-				"effect_type": "attack_does_not_hit"
+				"timing": "during_strike",
+				"effect_type": "stun_immunity"
 			},
 			{
-				"timing": "hit",
-				"effect_type": "gain_advantage"
+				"timing": "set_strike",
+				"condition": "was_set_from_boosts",
+				"effect_type": "calculate_range_from_set_from_boost_space"
 			}
 		],
 		"boost": {
@@ -5300,7 +5283,7 @@
 		"NOTE": "CARMINE CARDS END",
 		"id": "carmine_givemethat",
 		"type": "special",
-		"display_name": "Give me that!",
+		"display_name": "Give Me That!",
 		"force_cost": 0,
 		"gauge_cost": 0,
 		"range_min": 1,

@@ -387,6 +387,8 @@ func get_condition_text(effect, amount, amount2, detail):
 			text += "If this was a wild swing, "
 		"was_strike_from_gauge":
 			text += "If set from gauge, "
+		"was_set_from_boosts":
+			text += "If set from boosts, "
 		"was_hit":
 			text += "If you were hit, "
 		"matches_named_card":
@@ -780,6 +782,8 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 			effect_str += "Calculate range from %s's current location" % effect['buddy_name']
 		"calculate_range_from_center":
 			effect_str += "Calculate range from the center of the arena."
+		"calculate_range_from_set_from_boost_space":
+			effect_str += "Calculate range from the space it was in."
 		"draw":
 			var amount = effect['amount']
 			var amount_str = str(amount)
@@ -971,15 +975,19 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 				amount = "+%s" % amount
 			effect_str += "%s Power per card armor consumed." % amount
 		"powerup":
+			var multiplier_string = ""
+			if 'multiplier' in effect and effect['multiplier'] != 1:
+				multiplier_string += " (x%s)" % str(effect['multiplier'])
+
 			if str(effect['amount']) == "strike_x":
-				effect_str += "+X Power"
+				effect_str += "+X%s Power" % multiplier_string
 			elif str(effect['amount']) == "DISCARDED_COUNT":
-				effect_str += "+1 Power for each card in your discard pile."
+				effect_str += "+1%s Power for each card in your discard pile." % multiplier_string
 			else:
 				if effect['amount'] > 0:
 					effect_str += "+"
 				effect_str += str(effect['amount'])
-				effect_str += " Power"
+				effect_str += "%s Power" % multiplier_string
 		"powerup_both_players":
 			effect_str += "Both players "
 			if effect['amount'] > 0:
@@ -1062,14 +1070,21 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 		"range_includes_if_moved_past":
 			effect_str += "If you move past the opponent, your range includes them"
 		"rangeup":
-			if effect['amount'] != effect['amount2']:
+			if str(effect['amount']) != str(effect['amount2']):
 				# Skip the first one if they're the same.
-				if effect['amount'] >= 0:
+				if str(effect['amount']) == "strike_x":
+					effect_str += "+X - "
+				else:
+					if effect['amount'] >= 0:
+						effect_str += "+"
+					effect_str += str(effect['amount']) + " - "
+			if str(effect['amount2']) == "strike_x":
+				effect_str += "+X"
+			else:
+				if effect['amount2'] >= 0:
 					effect_str += "+"
-				effect_str += str(effect['amount']) + " - "
-			if effect['amount2'] >= 0:
-				effect_str += "+"
-			effect_str += str(effect['amount2']) + " Range"
+				effect_str += str(effect['amount2'])
+			effect_str += " Range"
 		"rangeup_both_players":
 			effect_str += "Both players "
 			if effect['amount'] != effect['amount2']:
@@ -1203,6 +1218,8 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 						effect_str += "force spent"
 					'gauge_spent_before_strike':
 						effect_str += "gauge spent"
+					'ultras_used_to_pay_gauge_cost':
+						effect_str += "number of ultras used to pay cost"
 					_:
 						effect_str += "(UNKNOWN)"
 		"set_total_power":
