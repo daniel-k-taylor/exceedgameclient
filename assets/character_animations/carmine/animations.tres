@@ -77,15 +77,6 @@ animations = [{
 "texture": ExtResource("2_n36aa")
 }, {
 "duration": 1.0,
-"texture": ExtResource("3_nlio1")
-}, {
-"duration": 1.0,
-"texture": ExtResource("2_n36aa")
-}, {
-"duration": 1.0,
-"texture": ExtResource("3_nlio1")
-}, {
-"duration": 1.0,
 "texture": ExtResource("4_guems")
 }, {
 "duration": 1.0,
