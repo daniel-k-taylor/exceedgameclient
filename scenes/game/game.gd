@@ -4029,13 +4029,6 @@ func _on_character_action_pressed(action_idx : int = 0):
 					change_ui_state(UIState.UIState_SelectArenaLocation, UISubState.UISubState_SelectArena_EffectChoice)
 				"move_any_boost":
 					var locations = game_wrapper.get_valid_locations_for_buddy_effect(Enums.PlayerId.PlayerId_Player, shortcut_effect)
-					if len(locations) == 0:
-						# No buddies in play; handle effect normally
-						preparing_character_action = false
-						prepared_character_action_data = {}
-						complete_character_action_pressed(action_idx)
-						return
-
 					prepared_character_action_data['locations'] = locations
 					arena_locations_clickable = locations
 					var boost_name = shortcut_effect['boost_name']

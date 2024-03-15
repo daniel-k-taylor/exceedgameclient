@@ -1956,6 +1956,8 @@ class Player:
 
 		if 'can_boost_continuous_boost_from_gauge' in action and action['can_boost_continuous_boost_from_gauge']:
 			if not can_boost_something(['gauge'], 'continuous'): return false
+		if 'can_boost_ultra_boost_from_gauge' in action and action['can_boost_ultra_boost_from_gauge']:
+			if not can_boost_something(['gauge'], 'ultra'): return false
 
 		if 'min_hand_size' in action:
 			if len(hand) < action['min_hand_size']: return false

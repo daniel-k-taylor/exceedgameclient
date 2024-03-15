@@ -50,18 +50,13 @@
 	}],
 	"character_action_exceeded": [
 		{
-			"gauge_cost": 2,
+			"gauge_cost": 0,
 			"force_cost": 0,
+			"shortcut_effect_type": "boost_from_gauge",
+			"can_boost_ultra_boost_from_gauge": true,
 			"effect": {
-				"effect_type": "draw",
-				"amount": 2,
-				"and": {
-					"effect_type": "choice",
-					"choice": [
-						{ "effect_type": "strike_with_ex" },
-						{ "effect_type": "pass" }
-					]
-				}
+				"effect_type": "boost_from_gauge",
+				"limitation": "ultra"
 			}
 		},
 		{
@@ -88,12 +83,14 @@
 	],
 	"exceed_ability_effects": [
 		{
-			"timing": "set_strike",
+			"timing": "on_continuous_boost",
 			"condition": "used_character_action",
 			"condition_details": ["exceed", 0],
-			"character_effect": true,
-			"effect_type": "powerup",
-			"amount": 1
+			"effect_type": "choice",
+			"choice": [
+				{ "effect_type": "advance", "amount": 1 },
+				{ "effect_type": "retreat", "amount": 1 }
+			]
 		}
 	],
 	"cards": [

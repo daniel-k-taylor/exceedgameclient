@@ -1371,7 +1371,7 @@ func get_effect_text(effect, short = false, skip_timing = false, skip_condition 
 	var suppress_and_description = 'suppress_and_description' in effect and effect['suppress_and_description']
 	if not short and 'bonus_effect' in effect and not suppress_and_description:
 		effect_str += "; " + get_effect_text(effect['bonus_effect'], false, false, false, card_name_source, char_effect_panel)
-	if 'and' in effect and not suppress_and_description:
+	if 'and' in effect and effect['and'] and not suppress_and_description:
 		if effect_str != "":
 			effect_str += effect_separator
 		effect_str += get_effect_text(effect['and'], short, false, false, card_name_source, char_effect_panel)
