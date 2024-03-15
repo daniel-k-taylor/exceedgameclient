@@ -24,6 +24,7 @@ const ModalDialog = preload("res://scenes/game/modal_dialog.gd")
 @onready var join_box = $MenuList/JoinBox
 @onready var matchmake_button = $MenuList/MatchmakeButton
 @onready var bgm_checkbox = $SettingsPanel/VBoxContainer/BGMCheckBox
+@onready var game_sound_checkbox = $SettingsPanel/VBoxContainer/GameSoundsCheckBox
 
 @onready var char_select = $CharSelect
 @onready var change_player_character_button : Button = $PlayerChooser/ChangePlayerCharacterButton
@@ -67,6 +68,7 @@ func _ready():
 
 func settings_loaded():
 	bgm_checkbox.button_pressed = GlobalSettings.BGMEnabled
+	game_sound_checkbox.button_pressed = GlobalSettings.GameSoundsEnabled
 	start_music()
 
 func stop_music():
@@ -291,8 +293,11 @@ func _on_matchmake_button_pressed():
 	var chosen_deck_id = chosen_deck['id']
 	if player_selected_character.begins_with("random"):
 		chosen_deck_id = player_selected_character + "#" + chosen_deck_id
-	NetworkManager.join_matchmaking(player_name, chosen_deck_id)
-	update_buttons(true)
+	if chosen_deck_id in GlobalSettings.CharacterBanlist:
+		_on_join_failed("This character is banned\nfrom public matchmaking.")
+	else:
+		NetworkManager.join_matchmaking(player_name, chosen_deck_id)
+		update_buttons(true)
 
 func _on_char_select_close_character_select():
 	char_select.visible = false
@@ -407,3 +412,6 @@ func _on_view_replay_button_pressed():
 	if replay_data_box.text:
 		var replay_data = JSON.parse_string(replay_data_box.text)
 		_on_observe_game_started(replay_data)
+
+func _on_char_select_carmine_unlocked():
+	$SpecialSelectAudio.play()

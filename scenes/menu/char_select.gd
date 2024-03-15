@@ -2,6 +2,7 @@ extends Control
 
 signal select_character(char_id)
 signal close_character_select
+signal carmine_unlocked
 
 @onready var hover_label : Label = $HoverBox/HBoxContainer/VBoxContainer/Label
 @onready var hover_portrait : TextureRect = $HoverBox/HBoxContainer/VBoxContainer/Portrait
@@ -18,13 +19,23 @@ signal close_character_select
 @onready var season_button_s6 = $TabSelect/CategoriesHBox/Season6
 @onready var season_button_s7 = $TabSelect/CategoriesHBox/Season7
 
+@onready var carmine_portrait = $CenterContainer/UNICharacterSelect/Rows/Row5/Carmine
+@onready var carmine_button = $CenterContainer/UNICharacterSelect/Rows/Row5/Carmine/Button
+
 var default_char_id : String = "random"
+var char_id_history : Array = []
 
 @onready var label_font_normal = 42
 @onready var label_font_small = 32
 @onready var label_length_threshold = 15
 
 func _ready():
+	if not GlobalSettings.CarmineUnlocked:
+		carmine_portrait.modulate = Color(1, 1, 1, 0)
+		carmine_button.mouse_filter = MOUSE_FILTER_IGNORE
+	else:
+		carmine_portrait.modulate = Color(1, 1, 1, 1)
+		carmine_button.mouse_filter = MOUSE_FILTER_STOP
 	show_season(charselect_s7, season_button_s7)
 
 func update_hover(char_id):
@@ -92,7 +103,30 @@ func _on_char_button_on_pressed(character_id : String):
 		elif character_id == "season7":
 			show_season(charselect_s7, season_button_s7)
 	else:
+		if not GlobalSettings.CarmineUnlocked:
+			if character_id.begins_with("random"):
+				if character_id == "random_s6" and check_carmine_unlocked():
+					GlobalSettings.set_carmine_unlocked(true)
+					carmine_portrait.modulate = Color(1, 1, 1, 1)
+					carmine_button.mouse_filter = MOUSE_FILTER_STOP
+					character_id = "carmine"
+					carmine_unlocked.emit()
+				char_id_history = []
+			else:
+				char_id_history.append(character_id)
+
 		select_character.emit(character_id)
+
+func check_carmine_unlocked():
+	var password = "carmine"
+	if len(char_id_history) < len(password):
+		return false
+
+	for i in range(len(password)):
+		var check_char_id = char_id_history[i]
+		if not check_char_id.to_lower().begins_with(password[i]):
+			return false
+	return true
 
 func _on_char_hover(char_id : String, enter : bool):
 	if char_id.begins_with("season"):

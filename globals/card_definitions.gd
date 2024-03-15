@@ -22,6 +22,8 @@ func get_random_deck(season : int):
 	else:
 		var season_decks = []
 		for deck in decks:
+			if deck['id'] in GlobalSettings.CharacterBanlist:
+				continue
 			if deck['season'] == season:
 				season_decks.append(deck)
 		var random_index = randi() % len(season_decks)
