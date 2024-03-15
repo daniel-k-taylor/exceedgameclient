@@ -5157,58 +5157,46 @@
 	{
 		"id": "carmine_thrust",
 		"type": "special",
-		"display_name": "Minced?",
+		"display_name": "Thrust!",
 		"force_cost": 0,
 		"gauge_cost": 0,
-		"range_min": 1,
+		"range_min": 0,
 		"range_max": 1,
-		"speed": 7,
+		"speed": 6,
 		"power": 3,
 		"armor": 0,
 		"guard": 0,
 		"effects": [
 			{
-				"timing": "hit",
-				"effect_type": "advance",
-				"amount": 3
+				"timing": "before",
+				"condition": "any_buddy_in_play",
+				"condition_detail": "Dissolve",
+				"effect_type": "choose_calculate_range_from_buddy",
+				"buddy_name": "Dissolve",
+				"optional": true
 			}
 		],
 		"boost": {
 			"boost_type": "continuous",
-			"force_cost": 0,
+			"force_cost": 1,
 			"cancel_cost": -1,
-			"display_name": "Menace",
+			"display_name": "Bloodletting",
 			"effects": [
 				{
-					"timing": "now",
-					"effect_type": "choice",
-					"choice": [
-						{ "effect_type": "advance", "amount": 1 },
-						{ "effect_type": "retreat", "amount": 1 }
-					]
-				},
-				{
-					"timing": "now",
-					"effect_type": "draw",
-					"amount": 1
-				},
-				{
-					"timing": "now",
-					"condition": "boost_in_play_or_parents",
-					"condition_detail": "Predator",
-					"effect_type": "strike",
-					"negative_condition_effect": {
-						"effect_type": "choice",
-						"choice": [
-							{ "effect_type": "boost_specific_card", "boost_name": "Predator" },
-							{ "effect_type": "pass" }
-						]
-					}
-				},
-				{
 					"timing": "during_strike",
-					"effect_type": "nothing",
-					"description": "[Menace in play]"
+					"effect_type": "guardup",
+					"amount": 3
+				},
+				{
+					"timing": "before",
+					"condition": "was_hit",
+					"effect_type": "rangeup",
+					"amount": 0,
+					"amount2": 1,
+					"and": {
+						"effect_type": "powerup",
+						"amount": 2
+					}
 				}
 			]
 		}
@@ -5216,68 +5204,51 @@
 	{
 		"id": "carmine_spin",
 		"type": "special",
-		"display_name": "How Shall I Cook You?",
+		"display_name": "Spin!",
 		"force_cost": 0,
 		"gauge_cost": 0,
 		"range_min": 1,
-		"range_max": 2,
-		"speed": 5,
-		"power": 3,
+		"range_max": 4,
+		"speed": 2,
+		"power": 4,
 		"armor": 0,
-		"guard": 0,
+		"guard": 6,
 		"effects": [
 			{
-				"timing": "hit",
-				"effect_type": "self_discard_choose",
-				"amount": -1,
-				"limitation": "same-named",
-				"destination": "reveal",
-				"discard_effect": {
-					"per_discard": true,
-					"effect_type": "powerup",
-					"amount": 1,
-					"and": {
-						"effect_type": "pull",
-						"amount": 1
-					}
+				"timing": "after",
+				"effect_type": "move_to_any_space",
+				"move_in_attack_range": true,
+				"advance_only": true,
+				"optional": true,
+				"bonus_effect": {
+					"condition": "advanced_through",
+					"effect_type": "gain_advantage"
 				}
 			}
 		],
 		"boost": {
-			"boost_type": "continuous",
+			"boost_type": "immediate",
 			"force_cost": 0,
 			"cancel_cost": -1,
-			"display_name": "Soul's Oath",
+			"display_name": "Rein Blood",
 			"effects": [
 				{
-					"timing": "before",
-					"effect_type": "choice",
-					"choice": [
-						{ "effect_type": "advance", "amount": 1, "and":
-							{ "effect_type": "seal_this_boost", "card_name": "How Shall I Cook You?" } },
-						{ "effect_type": "retreat", "amount": 1, "and":
-							{ "effect_type": "seal_this_boost", "card_name": "How Shall I Cook You?"  } },
-						{ "effect_type": "push", "amount": 1, "and":
-							{ "effect_type": "seal_this_boost", "card_name": "How Shall I Cook You?"  } },
-						{ "effect_type": "pull", "amount": 1, "and":
-							{ "effect_type": "seal_this_boost", "card_name": "How Shall I Cook You?"  } },
-						{ "effect_type": "pass" }
-					]
+					"timing": "immediate",
+					"effect_type": "take_damage",
+					"nonlethal": true,
+					"amount": 1,
+					"and": {
+						"effect_type": "boost_additional",
+						"limitation": "ultra",
+						"valid_zones": [ "discard" ]
+					}
 				},
 				{
-					"timing": "cleanup",
-					"skip_if_boost_sustained": true,
+					"timing": "immediate",
 					"effect_type": "choice",
 					"choice": [
-						{
-							"effect_type": "spend_life",
-							"amount": 1,
-							"and": {
-								"effect_type": "sustain_this",
-								"card_name": "How Shall I Cook You?"
-							}
-						},
-						{ "effect_type": "pass" }
+						{ "effect_type": "advance", "amount": 2 },
+						{ "effect_type": "retreat", "amount": 2 }
 					]
 				}
 			]
@@ -5286,51 +5257,41 @@
 	{
 		"id": "carmine_pulverize",
 		"type": "special",
-		"display_name": "I'll Plant It Somewhere Over Here",
+		"display_name": "Pulverize!",
 		"force_cost": 0,
 		"gauge_cost": 0,
-		"range_min": 2,
-		"range_max": 4,
-		"speed": 4,
-		"power": 3,
-		"armor": 0,
-		"guard": 0,
+		"range_min": 1,
+		"range_max": 3,
+		"speed": 1,
+		"power": 4,
+		"armor": 2,
+		"guard": 5,
 		"effects": [
 			{
 				"timing": "hit",
-				"effect_type": "choice",
-				"choice": [
-					{ "effect_type": "push", "amount": 1 },
-					{ "effect_type": "pull", "amount": 1 }
-				]
-			},
-			{
-				"timing": "after",
-				"effect_type": "choice",
-				"choice": [
-					{
-						"effect_type": "boost_then_sustain",
-						"valid_zones": [ "hand", "gauge" ],
-						"sustain": false,
-						"limitation": "ultra",
-						"play_boost_effect": {
-							"effect_type": "gain_advantage"
-						}
-					},
-					{ "effect_type": "pass" }
-				]
+				"effect_type": "push_to_attack_max_range"
 			}
 		],
 		"boost": {
 			"boost_type": "immediate",
-			"force_cost": 3,
+			"force_cost": 0,
 			"cancel_cost": -1,
-			"display_name": "Chelicerata",
+			"display_name": "Reckless Run",
 			"effects": [
 				{
 					"timing": "immediate",
-					"effect_type": "draw",
-					"amount": 7
+					"effect_type": "advance",
+					"amount": 2
+				},
+				{
+					"timing": "immediate",
+					"effect_type": "force_for_effect",
+					"per_force_effect": {
+						"effect_type": "advance",
+						"amount": 2
+					},
+					"overall_effect": null,
+					"force_max": -1
 				}
 			]
 		}
@@ -5339,61 +5300,57 @@
 		"NOTE": "CARMINE CARDS END",
 		"id": "carmine_givemethat",
 		"type": "special",
-		"display_name": "Or... Shredded?",
+		"display_name": "Give me that!",
 		"force_cost": 0,
 		"gauge_cost": 0,
-		"range_min": 2,
-		"range_max": 5,
-		"speed": 3,
-		"power": 4,
-		"armor": 0,
-		"guard": 0,
+		"range_min": 1,
+		"range_max": 1,
+		"speed": 1,
+		"power": 3,
+		"armor": 3,
+		"guard": 3,
 		"effects": [
 			{
 				"timing": "during_strike",
-				"condition": "is_ex_strike",
-				"effect_type": "speedup",
-				"amount": 1
+				"effect_type": "ignore_armor"
 			},
 			{
-				"timing": "after",
-				"effect_type": "advance",
-				"amount": 2
+				"timing": "hit",
+				"effect_type": "gain_life",
+				"amount": 2,
+				"and": {
+					"effect_type": "choice",
+					"choice": [
+						{ "effect_type": "push", "amount": 2 },
+						{ "effect_type": "pull", "amount": 2 }
+					]
+				}
 			}
 		],
 		"boost": {
-			"boost_type": "continuous",
+			"boost_type": "immediate",
 			"force_cost": 0,
 			"cancel_cost": -1,
-			"display_name": "Predator",
+			"display_name": "Blood Spike",
 			"effects": [
 				{
-					"timing": "during_strike",
-					"effect_type": "powerup",
-					"amount": 1
-				},
-				{
-					"timing": "now",
-					"effect_type": "draw",
-					"amount": 1
-				},
-				{
-					"timing": "now",
-					"condition": "boost_in_play_or_parents",
-					"condition_detail": "Menace",
-					"effect_type": "strike",
-					"negative_condition_effect": {
-						"effect_type": "choice",
-						"choice": [
-							{ "effect_type": "boost_specific_card", "boost_name": "Menace" },
-							{ "effect_type": "pass" }
-						]
+					"timing": "immediate",
+					"condition": "any_buddy_in_opponent_space",
+					"condition_detail": "Dissolve",
+					"effect_type": "take_damage",
+					"opponent": true,
+					"nonlethal": true,
+					"amount": 2,
+					"and": {
+						"effect_type": "bonus_action",
+						"and": {
+							"effect_type": "choice",
+							"choice": [
+								{ "effect_type": "push", "amount": 1 },
+								{ "effect_type": "pull", "amount": 1 }
+							]
+						}
 					}
-				},
-				{
-					"timing": "during_strike",
-					"effect_type": "nothing",
-					"description": "[Predator in play]"
 				}
 			]
 		},

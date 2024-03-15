@@ -477,7 +477,7 @@ class StrikeStatBoosts:
 	var was_hit : bool = false
 	var is_ex : bool = false
 	var higher_speed_misses : bool = false
-	var calculate_range_from_center : bool = false
+	var calculate_range_from_space : int = -1
 	var calculate_range_from_buddy : bool = false
 	var calculate_range_from_buddy_id : String = ""
 	var attack_to_topdeck_on_cleanup : bool = false
@@ -556,7 +556,7 @@ class StrikeStatBoosts:
 		was_hit = false
 		is_ex = false
 		higher_speed_misses = false
-		calculate_range_from_center = false
+		calculate_range_from_space = -1
 		calculate_range_from_buddy = false
 		calculate_range_from_buddy_id = ""
 		attack_to_topdeck_on_cleanup = false
@@ -4739,6 +4739,43 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 			decision_info.choice = updated_choices
 			decision_info.choice_card_id = card_id
 			events += [create_event(Enums.EventType.EventType_Strike_EffectChoice, performing_player.my_id, 0, "EffectOption")]
+		"choose_calculate_range_from_buddy":
+			var optional = 'optional' in effect and effect['optional']
+			decision_info.clear()
+			decision_info.type = Enums.DecisionType.DecisionType_ChooseArenaLocationForEffect
+			decision_info.player = performing_player.my_id
+			decision_info.choice_card_id = card_id
+			decision_info.effect_type = "calculate_range_from_buddy_current_location"
+			decision_info.source = effect['buddy_name']
+			decision_info.choice = []
+			decision_info.limitation = []
+			if optional:
+				decision_info.limitation.append(0)
+				decision_info.choice.append({
+					"effect_type": "pass"
+				})
+
+			for location in performing_player.buddy_locations:
+				if location == -1:
+					continue
+				var buddy_id = performing_player.get_buddy_id_at_location(location)
+
+				if location not in decision_info.limitation:
+					decision_info.limitation.append(location)
+					decision_info.choice.append({
+						"effect_type": "calculate_range_from_buddy_current_location",
+						"buddy_id": buddy_id
+					})
+			var actual_choices = len(decision_info.limitation)
+			if optional:
+				actual_choices -= 1
+
+			# If the only option is to pass, just let this pass.
+			if actual_choices > 0:
+				change_game_state(Enums.GameState.GameState_PlayerDecision)
+				events += [create_event(Enums.EventType.EventType_ChooseArenaLocationForEffect, performing_player.my_id, 0)]
+			else:
+				assert(false, "Unexpected called choose_calculate_range_from_buddy but can't.")
 		"choose_cards_from_top_deck":
 			var look_amount = min(effect['look_amount'], performing_player.deck.size())
 			if look_amount == 0:
@@ -5409,7 +5446,19 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 			var remove_buddies_encountered = effect['remove_buddies_encountered']
 			var previous_location = performing_player.arena_location
 			events += performing_player.move_to(space, false, remove_buddies_encountered)
+			var new_location = performing_player.arena_location
 			_append_log_full(Enums.LogType.LogType_CharacterMovement, performing_player, "moves from space %s to %s." % [str(previous_location), str(performing_player.arena_location)])
+
+			if (performing_start < other_start and new_location > other_start) or (performing_start > other_start and new_location < other_start):
+				# The opponent's space doesn't count as one you move through
+				local_conditions.advanced_through = true
+				performing_player.moved_past_this_strike = true
+				if performing_player.strike_stat_boosts.range_includes_if_moved_past:
+					performing_player.strike_stat_boosts.range_includes_opponent = true
+					_append_log_full(Enums.LogType.LogType_Effect, performing_player, "advanced through the opponent, putting them in range!")
+			if ((performing_player.is_in_or_left_of_location(buddy_start, performing_start) and performing_player.is_in_or_right_of_location(buddy_start, new_location)) or
+					(performing_player.is_in_or_right_of_location(buddy_start, performing_start) and performing_player.is_in_or_left_of_location(buddy_start, new_location))):
+				local_conditions.advanced_through_buddy = true
 		"move_to_any_space":
 			decision_info.clear()
 			decision_info.type = Enums.DecisionType.DecisionType_ChooseArenaLocationForEffect
@@ -5426,37 +5475,61 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 
 			var move_min = 0
 			var move_max = 8
+			var move_in_attack_range = 'move_in_attack_range' in effect and effect['move_in_attack_range']
 			if 'move_min' in effect:
 				move_min = effect['move_min']
 			if 'move_max' in effect:
 				move_max = effect['move_max']
 
+			var advance_only = 'advance_only' in effect and effect['advance_only']
+
 			var and_effect = null
+			var bonus_effect = null
 			if 'and' in effect:
 				and_effect = effect['and']
+			if 'bonus_effect' in effect:
+				bonus_effect = effect['bonus_effect']
 
 			decision_info.limitation = []
 			# If not moving is an option, enable "pass" button
-			if move_min == 0:
+			if move_min == 0 or ('optional' in effect and effect['optional']):
 				decision_info.limitation.append(0)
 				decision_info.choice.append({
 					"effect_type": "pass",
-					"and": and_effect,
+					"and": and_effect
 				})
 
 			var nowhere_to_move = true
 			var player_location = performing_player.arena_location
+			var opponent_location = opposing_player.arena_location
 			for i in range(MinArenaLocation, MaxArenaLocation+1):
 				if not performing_player.can_move_to(i, true):
 					continue
-				var movement_distance = performing_player.movement_distance_between(player_location, i)
-				if move_min <= movement_distance and movement_distance <= move_max:
+
+				if advance_only:
+					if performing_player.is_left_of_location(opponent_location) and performing_player.is_right_of_location(i):
+						continue
+					elif performing_player.is_right_of_location(opponent_location) and performing_player.is_left_of_location(i):
+						continue
+
+				var valid_space = false
+				if move_in_attack_range:
+					var arena_distance = abs(i - get_attack_origin(performing_player, opponent_location))
+					var min_range = get_total_min_range(performing_player)
+					var max_range = get_total_max_range(performing_player)
+					valid_space = min_range <= arena_distance and arena_distance <= max_range
+				else:
+					var movement_distance = performing_player.movement_distance_between(player_location, i)
+					valid_space = move_min <= movement_distance and movement_distance <= move_max
+
+				if valid_space:
 					decision_info.limitation.append(i)
 					decision_info.choice.append({
 						"effect_type": "move_to_space",
 						"amount": i,
 						"remove_buddies_encountered": remove_buddies_encountered,
 						"and": and_effect,
+						"bonus_effect": bonus_effect
 					})
 					nowhere_to_move = false
 
@@ -6918,8 +6991,13 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 			performing_player.strike_stat_boosts.calculate_range_from_buddy_id = ""
 			if 'buddy_id' in effect:
 				performing_player.strike_stat_boosts.calculate_range_from_buddy_id = effect['buddy_id']
+		"calculate_range_from_buddy_current_location":
+			var buddy_id = ""
+			if 'buddy_id' in effect:
+				buddy_id = effect['buddy_id']
+			performing_player.strike_stat_boosts.calculate_range_from_space = performing_player.get_buddy_location(buddy_id)
 		"calculate_range_from_center":
-			performing_player.strike_stat_boosts.calculate_range_from_center = true
+			performing_player.strike_stat_boosts.calculate_range_from_space = CenterArenaLocation
 		"reshuffle_discard_into_deck":
 			events += performing_player.reshuffle_discard(false, true)
 		"retreat":
@@ -8262,7 +8340,7 @@ func in_range(attacking_player, defending_player, card, combat_logging=false):
 		standard_source = false
 		if not attacking_player.is_buddy_in_play(attacking_player.strike_stat_boosts.calculate_range_from_buddy_id):
 			return false
-	if attacking_player.strike_stat_boosts.calculate_range_from_center:
+	if attacking_player.strike_stat_boosts.calculate_range_from_space != -1:
 		standard_source = false
 	var attack_source_location = get_attack_origin(attacking_player, defending_player.arena_location)
 
@@ -8426,8 +8504,8 @@ func get_attack_origin(performing_player : Player, target_location : int):
 	var origin = performing_player.get_closest_occupied_space_to(target_location)
 	if performing_player.strike_stat_boosts.calculate_range_from_buddy:
 		origin = performing_player.get_buddy_location(performing_player.strike_stat_boosts.calculate_range_from_buddy_id)
-	elif performing_player.strike_stat_boosts.calculate_range_from_center:
-		origin = CenterArenaLocation
+	elif performing_player.strike_stat_boosts.calculate_range_from_space != -1:
+		origin = performing_player.strike_stat_boosts.calculate_range_from_space
 	return origin
 
 func calculate_damage(offense_player : Player, defense_player : Player) -> int:
@@ -9140,8 +9218,8 @@ func determine_if_attack_hits(events, attacker_player : Player, defender_player 
 		var buddy_location = attacker_player.get_buddy_location(attacker_player.strike_stat_boosts.calculate_range_from_buddy_id)
 		var buddy_name = attacker_player.get_buddy_name(attacker_player.strike_stat_boosts.calculate_range_from_buddy_id)
 		_append_log_full(Enums.LogType.LogType_Strike, null, "Range check: attacking from %s's %s (space %s) to %s (space %s)." % [attacker_player.name, buddy_name, buddy_location, defender_player.name, defender_player.arena_location])
-	elif attacker_player.strike_stat_boosts.calculate_range_from_center:
-		_append_log_full(Enums.LogType.LogType_Strike, null, "Range check: %s attacking from center of arena (space %s) to %s (space %s)." % [attacker_player.name, CenterArenaLocation, defender_player.name, defender_player.arena_location])
+	elif attacker_player.strike_stat_boosts.calculate_range_from_space != -1:
+		_append_log_full(Enums.LogType.LogType_Strike, null, "Range check: %s attacking from space %s to %s (space %s)." % [attacker_player.name, attacker_player.strike_stat_boosts.calculate_range_from_space, defender_player.name, defender_player.arena_location])
 	else:
 		_append_log_full(Enums.LogType.LogType_Strike, null, "Range check: attacking from %s (space %s) to %s (space %s)." % [attacker_player.name, attacker_player.arena_location, defender_player.name, defender_player.arena_location])
 

@@ -35,6 +35,7 @@
 		"shortcut_effect_type": "move_any_boost",
 		"effect": {
 			"condition": "any_buddy_in_play",
+			"condition_detail": "Dissolve",
 			"effect_type": "move_any_boost",
 			"boost_name": "Dissolve",
 			"amount_min": 1,

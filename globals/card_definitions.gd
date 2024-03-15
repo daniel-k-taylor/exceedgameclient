@@ -646,6 +646,11 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 				effect_str += effect['special_choice_name']
 			else:
 				effect_str += "Choose: " + get_choice_summary(effect['choice'], card_name_source)
+		"choose_calculate_range_from_buddy":
+			var optional_str = "Choose"
+			if 'optional' in effect and effect['optional']:
+				optional_str = "You may choose"
+			effect_str += optional_str + " a %s to calculate range from" % effect['buddy_name']
 		"choose_discard":
 			var destination = effect['destination']
 			if destination == "lightningrod_any_space":
@@ -771,6 +776,8 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 			effect_str += "Play an attack from your hand, paying its costs."
 		"calculate_range_from_buddy":
 			effect_str += "Calculate range from %s." % effect['buddy_name']
+		"calculate_range_from_buddy_current_location":
+			effect_str += "Calculate range from %s's current location" % effect['buddy_name']
 		"calculate_range_from_center":
 			effect_str += "Calculate range from the center of the arena."
 		"draw":
