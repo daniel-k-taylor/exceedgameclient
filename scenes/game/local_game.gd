@@ -3983,6 +3983,21 @@ func is_effect_condition_met(performing_player : Player, effect, local_condition
 			var buddy_location = other_player.get_buddy_location(buddy_id)
 			var attack_card = active_strike.get_player_card(performing_player)
 			return is_location_in_range(performing_player, attack_card, buddy_location) or performing_player.is_in_location(buddy_location)
+		elif condition == "boost_space_in_range_towards_opponent":
+			if not active_strike:
+				return false
+			var this_boost_location = performing_player.get_boost_location(effect['card_id'])
+			var attack_card = active_strike.get_player_card(performing_player)
+
+			# Check if boost is toward the opponent
+			var self_pos = performing_player.get_closest_occupied_space_to(other_player.arena_location)
+			var opponent_pos = other_player.get_closest_occupied_space_to(performing_player.arena_location)
+			if self_pos < opponent_pos and self_pos > this_boost_location:
+				return false
+			elif self_pos > opponent_pos and self_pos < this_boost_location:
+				return false
+
+			return is_location_in_range(performing_player, attack_card, this_boost_location)
 		elif condition == "buddy_space_unoccupied":
 			var buddy_id = ""
 			if 'condition_buddy_id' in effect:

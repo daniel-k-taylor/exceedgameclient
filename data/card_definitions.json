@@ -4991,8 +4991,23 @@
 			"effects": [
 				{
 					"timing": "now",
-					"effect_type": "place_boost_in_space",
-					"stop_on_space_effect": true
+					"effect_type": "place_boost_in_space"
+				},
+				{
+					"timing": "before",
+					"condition": "boost_space_in_range_towards_opponent",
+					"condition_detail": "Dissolve",
+					"effect_type": "rangeup",
+					"amount": 0,
+					"amount2": 1,
+					"and": {
+						"effect_type": "powerup",
+						"amount": 2,
+						"and": {
+							"effect_type": "add_boost_to_gauge_on_strike_cleanup",
+							"card_name": "Twist!"
+						}
+					}
 				},
 				{
 					"NOTE": "Trap Boost",
@@ -5050,8 +5065,23 @@
 			"effects": [
 				{
 					"timing": "now",
-					"effect_type": "place_boost_in_space",
-					"stop_on_space_effect": true
+					"effect_type": "place_boost_in_space"
+				},
+				{
+					"timing": "before",
+					"condition": "boost_space_in_range_towards_opponent",
+					"condition_detail": "Dissolve",
+					"effect_type": "rangeup",
+					"amount": 0,
+					"amount2": 1,
+					"and": {
+						"effect_type": "powerup",
+						"amount": 2,
+						"and": {
+							"effect_type": "add_boost_to_gauge_on_strike_cleanup",
+							"card_name": "Hahahaha! Be Devoured!"
+						}
+					}
 				},
 				{
 					"NOTE": "Trap Boost",
@@ -5096,8 +5126,23 @@
 			"effects": [
 				{
 					"timing": "now",
-					"effect_type": "place_boost_in_space",
-					"stop_on_space_effect": true
+					"effect_type": "place_boost_in_space"
+				},
+				{
+					"timing": "before",
+					"condition": "boost_space_in_range_towards_opponent",
+					"condition_detail": "Dissolve",
+					"effect_type": "rangeup",
+					"amount": 0,
+					"amount2": 1,
+					"and": {
+						"effect_type": "powerup",
+						"amount": 2,
+						"and": {
+							"effect_type": "add_boost_to_gauge_on_strike_cleanup",
+							"card_name": "You Shit! This is the End!"
+						}
+					}
 				},
 				{
 					"NOTE": "Trap Boost",

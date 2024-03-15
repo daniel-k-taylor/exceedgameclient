@@ -372,6 +372,8 @@ func get_condition_text(effect, amount, amount2, detail):
 			text += "If you can hit %s, " % detail
 		"opponent_in_boost_space":
 			text += "If opponent on %s, " % detail
+		"boost_space_in_range_towards_opponent":
+			text += "If %s in range towards opponent, " % detail
 		"is_buddy_special_attack":
 			text += ""
 		"speed_greater_than":
