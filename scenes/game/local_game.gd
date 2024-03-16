@@ -7689,7 +7689,7 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 			elif active_character_action:
 				remaining_character_action_effects.append(effect['and'])
 
-		if "bonus_effect" in effect:
+		if "bonus_effect" in effect and effect['bonus_effect']:
 			if not game_state == Enums.GameState.GameState_PlayerDecision:
 				var bonus_effect = effect['bonus_effect']
 				events += do_effect_if_condition_met(performing_player, card_id, bonus_effect, local_conditions)
