@@ -296,7 +296,7 @@ func _on_matchmake_button_pressed():
 	if chosen_deck_id in GlobalSettings.CharacterBanlist:
 		if not $SpecialSelectAudio.playing:
 			$SpecialSelectAudio.play()
-		_on_join_failed("This character is banned\nfrom public matchmaking.")
+		_on_join_failed("\"Weaklings should stay away...\"\n(This character is banned\nfrom public matchmaking.)")
 	else:
 		NetworkManager.join_matchmaking(player_name, chosen_deck_id)
 		update_buttons(true)
