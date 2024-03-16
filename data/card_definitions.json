@@ -4940,6 +4940,406 @@
 		"NOTEEND": "CARLCLOVER CARDS END"
 	},
 
+
+	{
+		"NOTE": "CARMINE CARDS START",
+		"id": "carmine_twist",
+		"type": "ultra",
+		"display_name": "Twist!",
+		"force_cost": 0,
+		"gauge_cost": 1,
+		"range_min": 1,
+		"range_max": 2,
+		"speed": 7,
+		"power": 2,
+		"armor": 0,
+		"guard": 0,
+		"linked_buddy_id": "dissolveA",
+		"effects": [
+			{
+				"timing": "after",
+				"effect_type": "gain_advantage",
+				"and": {
+					"effect_type": "choice",
+					"choice": [
+						{
+							"effect_type": "boost_this_then_sustain",
+							"dont_sustain": true,
+							"boost_effect": {
+								"effect_type": "place_boost_in_space"
+							}
+						},
+						{ "effect_type": "pass" }
+					]
+				}
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Dissolve",
+			"effects": [
+				{
+					"timing": "now",
+					"effect_type": "place_boost_in_space"
+				},
+				{
+					"timing": "before",
+					"condition": "boost_space_in_range_towards_opponent",
+					"condition_detail": "Dissolve",
+					"effect_type": "rangeup",
+					"amount": 0,
+					"amount2": 1,
+					"and": {
+						"effect_type": "powerup",
+						"amount": 2,
+						"and": {
+							"effect_type": "add_boost_to_gauge_on_strike_cleanup",
+							"card_name": "Twist!"
+						}
+					}
+				},
+				{
+					"NOTE": "Trap Boost",
+					"timing": "cleanup",
+					"condition": "not_stunned",
+					"effect_type": "sustain_this",
+					"card_name": "Dissolve"
+				}
+			]
+		}
+	},
+	{
+		"id": "carmine_bedevoured",
+		"type": "ultra",
+		"display_name": "Hahahaha! Be Devoured!",
+		"force_cost": 0,
+		"gauge_cost": 3,
+		"range_min": 1,
+		"range_max": 1,
+		"speed": 6,
+		"power": 3,
+		"armor": 0,
+		"guard": 0,
+		"linked_buddy_id": "dissolveB",
+		"effects": [
+			{
+				"timing": "before",
+				"effect_type": "set_strike_x",
+				"source": "ultras_used_to_pay_gauge_cost",
+				"and": {
+					"effect_type": "rangeup",
+					"amount": 0,
+					"amount2": "strike_x",
+					"and": {
+						"effect_type": "powerup",
+						"amount": "strike_x",
+						"multiplier": 2
+					}
+				}
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Dissolve",
+			"effects": [
+				{
+					"timing": "now",
+					"effect_type": "place_boost_in_space"
+				},
+				{
+					"timing": "before",
+					"condition": "boost_space_in_range_towards_opponent",
+					"condition_detail": "Dissolve",
+					"effect_type": "rangeup",
+					"amount": 0,
+					"amount2": 1,
+					"and": {
+						"effect_type": "powerup",
+						"amount": 2,
+						"and": {
+							"effect_type": "add_boost_to_gauge_on_strike_cleanup",
+							"card_name": "Hahahaha! Be Devoured!"
+						}
+					}
+				},
+				{
+					"NOTE": "Trap Boost",
+					"timing": "cleanup",
+					"condition": "not_stunned",
+					"effect_type": "sustain_this",
+					"card_name": "Dissolve"
+				}
+			]
+		}
+	},
+	{
+		"id": "carmine_thisistheend",
+		"type": "ultra",
+		"display_name": "You Shit! This is the END!",
+		"force_cost": 0,
+		"gauge_cost": 3,
+		"range_min": 0,
+		"range_max": 1,
+		"speed": 2,
+		"power": 7,
+		"armor": 2,
+		"guard": 0,
+		"linked_buddy_id": "dissolveC",
+		"may_set_from_boost": true,
+		"effects": [
+			{
+				"timing": "during_strike",
+				"effect_type": "stun_immunity"
+			},
+			{
+				"timing": "set_strike",
+				"condition": "was_set_from_boosts",
+				"effect_type": "calculate_range_from_set_from_boost_space"
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Dissolve",
+			"effects": [
+				{
+					"timing": "now",
+					"effect_type": "place_boost_in_space"
+				},
+				{
+					"timing": "before",
+					"condition": "boost_space_in_range_towards_opponent",
+					"condition_detail": "Dissolve",
+					"effect_type": "rangeup",
+					"amount": 0,
+					"amount2": 1,
+					"and": {
+						"effect_type": "powerup",
+						"amount": 2,
+						"and": {
+							"effect_type": "add_boost_to_gauge_on_strike_cleanup",
+							"card_name": "You Shit! This is the End!"
+						}
+					}
+				},
+				{
+					"NOTE": "Trap Boost",
+					"timing": "cleanup",
+					"condition": "not_stunned",
+					"effect_type": "sustain_this",
+					"card_name": "Dissolve"
+				}
+			]
+		}
+	},
+	{
+		"id": "carmine_thrust",
+		"type": "special",
+		"display_name": "Thrust!",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 0,
+		"range_max": 1,
+		"speed": 6,
+		"power": 3,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "before",
+				"condition": "any_buddy_in_play",
+				"condition_detail": "Dissolve",
+				"effect_type": "choose_calculate_range_from_buddy",
+				"buddy_name": "Dissolve",
+				"optional": true
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 1,
+			"cancel_cost": -1,
+			"display_name": "Bloodletting",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "guardup",
+					"amount": 3
+				},
+				{
+					"timing": "before",
+					"condition": "was_hit",
+					"effect_type": "rangeup",
+					"amount": 0,
+					"amount2": 1,
+					"and": {
+						"effect_type": "powerup",
+						"amount": 2
+					}
+				}
+			]
+		}
+	},
+	{
+		"id": "carmine_spin",
+		"type": "special",
+		"display_name": "Spin!",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 4,
+		"speed": 2,
+		"power": 4,
+		"armor": 0,
+		"guard": 6,
+		"effects": [
+			{
+				"timing": "after",
+				"effect_type": "move_to_any_space",
+				"move_in_attack_range": true,
+				"advance_only": true,
+				"optional": true,
+				"bonus_effect": {
+					"condition": "advanced_through",
+					"effect_type": "gain_advantage"
+				}
+			}
+		],
+		"boost": {
+			"boost_type": "immediate",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Rein Blood",
+			"effects": [
+				{
+					"timing": "immediate",
+					"effect_type": "take_damage",
+					"nonlethal": true,
+					"amount": 1,
+					"and": {
+						"effect_type": "boost_additional",
+						"limitation": "ultra",
+						"valid_zones": [ "discard" ]
+					}
+				},
+				{
+					"timing": "immediate",
+					"effect_type": "choice",
+					"choice": [
+						{ "effect_type": "advance", "amount": 2 },
+						{ "effect_type": "retreat", "amount": 2 }
+					]
+				}
+			]
+		}
+	},
+	{
+		"id": "carmine_pulverize",
+		"type": "special",
+		"display_name": "Pulverize!",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 3,
+		"speed": 1,
+		"power": 4,
+		"armor": 2,
+		"guard": 5,
+		"effects": [
+			{
+				"timing": "hit",
+				"effect_type": "push_to_attack_max_range"
+			}
+		],
+		"boost": {
+			"boost_type": "immediate",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Reckless Run",
+			"effects": [
+				{
+					"timing": "immediate",
+					"effect_type": "advance",
+					"amount": 2
+				},
+				{
+					"timing": "immediate",
+					"effect_type": "force_for_effect",
+					"per_force_effect": {
+						"effect_type": "advance",
+						"amount": 2
+					},
+					"overall_effect": null,
+					"force_max": -1
+				}
+			]
+		}
+	},
+	{
+		"NOTE": "CARMINE CARDS END",
+		"id": "carmine_givemethat",
+		"type": "special",
+		"display_name": "Give Me That!",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 1,
+		"speed": 1,
+		"power": 3,
+		"armor": 3,
+		"guard": 3,
+		"effects": [
+			{
+				"timing": "during_strike",
+				"effect_type": "ignore_armor"
+			},
+			{
+				"timing": "hit",
+				"effect_type": "gain_life",
+				"amount": 2,
+				"and": {
+					"effect_type": "choice",
+					"choice": [
+						{ "effect_type": "push", "amount": 2 },
+						{ "effect_type": "pull", "amount": 2 }
+					]
+				}
+			}
+		],
+		"boost": {
+			"boost_type": "immediate",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Blood Spike",
+			"effects": [
+				{
+					"timing": "immediate",
+					"condition": "any_buddy_in_opponent_space",
+					"condition_detail": "Dissolve",
+					"effect_type": "take_damage",
+					"opponent": true,
+					"nonlethal": true,
+					"amount": 2,
+					"and": {
+						"effect_type": "bonus_action",
+						"and": {
+							"effect_type": "choice",
+							"choice": [
+								{ "effect_type": "push", "amount": 1 },
+								{ "effect_type": "pull", "amount": 1 }
+							]
+						}
+					}
+				}
+			]
+		},
+		"NOTEEND": "CARMINE CARDS END"
+	},
+
 	{
 		"NOTE": "CHAOS CARDS START",
 		"id": "chaos_dissectbarrage",

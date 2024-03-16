@@ -1,4 +1,4 @@
-[gd_scene load_steps=88 format=3 uid="uid://cqs72exlwm6at"]
+[gd_scene load_steps=89 format=3 uid="uid://cqs72exlwm6at"]
 
 [ext_resource type="Script" path="res://scenes/menu/char_select.gd" id="1_f3x24"]
 [ext_resource type="PackedScene" uid="uid://nwqxp8pdh1jk" path="res://scenes/menu/char_select_button.tscn" id="6_3lmwy"]
@@ -63,6 +63,7 @@
 [ext_resource type="Texture2D" uid="uid://brexpvmhajw2c" path="res://assets/portraits/guile.png" id="39_8wdmm"]
 [ext_resource type="Texture2D" uid="uid://bsnhwfau216op" path="res://assets/portraits/arakune.png" id="40_pcigi"]
 [ext_resource type="Texture2D" uid="uid://drfi3wl1nmdbh" path="res://assets/portraits/hakumen.png" id="41_d18gh"]
+[ext_resource type="Texture2D" uid="uid://c615p015m78le" path="res://assets/portraits/carmine.png" id="42_82uod"]
 [ext_resource type="Texture2D" uid="uid://bnyj6tteeavxq" path="res://assets/portraits/specter.png" id="42_vmogd"]
 [ext_resource type="Texture2D" uid="uid://des5jexyu0ie7" path="res://assets/portraits/kokonoe.png" id="44_li72n"]
 [ext_resource type="Texture2D" uid="uid://c1aaxfvy8dxha" path="res://assets/portraits/sagat.png" id="45_6fv30"]
@@ -419,6 +420,11 @@ alignment = 1
 layout_mode = 2
 char_id = "gordeau"
 portrait_texture = ExtResource("36_ny6wr")
+
+[node name="Carmine" parent="CenterContainer/UNICharacterSelect/Rows/Row5" instance=ExtResource("6_3lmwy")]
+layout_mode = 2
+char_id = "carmine"
+portrait_texture = ExtResource("42_82uod")
 
 [node name="Chaos" parent="CenterContainer/UNICharacterSelect/Rows/Row5" instance=ExtResource("6_3lmwy")]
 layout_mode = 2
@@ -876,6 +882,8 @@ portrait_texture = ExtResource("32_iutun")
 [connection signal="on_pressed" from="CenterContainer/UNICharacterSelect/Rows/Row4/Hilda" to="." method="_on_char_button_on_pressed"]
 [connection signal="on_hover" from="CenterContainer/UNICharacterSelect/Rows/Row5/Gordeau" to="." method="_on_char_hover"]
 [connection signal="on_pressed" from="CenterContainer/UNICharacterSelect/Rows/Row5/Gordeau" to="." method="_on_char_button_on_pressed"]
+[connection signal="on_hover" from="CenterContainer/UNICharacterSelect/Rows/Row5/Carmine" to="." method="_on_char_hover"]
+[connection signal="on_pressed" from="CenterContainer/UNICharacterSelect/Rows/Row5/Carmine" to="." method="_on_char_button_on_pressed"]
 [connection signal="on_hover" from="CenterContainer/UNICharacterSelect/Rows/Row5/Chaos" to="." method="_on_char_hover"]
 [connection signal="on_pressed" from="CenterContainer/UNICharacterSelect/Rows/Row5/Chaos" to="." method="_on_char_button_on_pressed"]
 [connection signal="on_hover" from="CenterContainer/BBCharacterSelect/Rows/Row1/Taokaka" to="." method="_on_char_hover"]
