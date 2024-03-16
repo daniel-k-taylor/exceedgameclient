@@ -317,6 +317,10 @@ func get_valid_locations_for_buddy_effect(player_id : Enums.PlayerId, effect : D
 			var distance = abs(range_origin - i)
 			if distance >= range_min and distance <= range_max:
 				locations.append(i)
+	elif effect_type == 'move_any_boost':
+		for i in range(MinArenaLocation, MaxArenaLocation + 1):
+			if i in player.buddy_locations:
+				locations.append(i)
 	return locations
 
 func get_card_index_in_discards(player_id : Enums.PlayerId, card_id : int):

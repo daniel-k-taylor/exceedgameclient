@@ -965,7 +965,11 @@ func can_select_card(card):
 		if in_player_boosts:
 			var card_db = game_wrapper.get_card_database()
 			var logic_card = card_db.get_card(card.card_id)
-			return 'must_set_from_boost' in logic_card.definition and logic_card.definition['must_set_from_boost']
+			if 'must_set_from_boost' in logic_card.definition and logic_card.definition['must_set_from_boost']:
+				return true
+			if 'may_set_from_boost' in logic_card.definition and logic_card.definition['may_set_from_boost']:
+				return true
+			return false
 		elif in_set_aside and player_can_boost_from_extra:
 			return game_wrapper.can_player_boost(Enums.PlayerId.PlayerId_Player, card.card_id, ['extra'], "", true)
 		return in_hand or in_gauge
@@ -1032,7 +1036,11 @@ func can_select_card(card):
 			if in_player_boosts:
 				var card_db = game_wrapper.get_card_database()
 				var logic_card = card_db.get_card(card.card_id)
-				return 'must_set_from_boost' in logic_card.definition and logic_card.definition['must_set_from_boost']
+				if 'must_set_from_boost' in logic_card.definition and logic_card.definition['must_set_from_boost']:
+					return true
+				if 'may_set_from_boost' in logic_card.definition and logic_card.definition['may_set_from_boost']:
+					return true
+				return false
 			return in_hand
 		UISubState.UISubState_SelectCards_StrikeCard_FromGauge:
 			return in_gauge
@@ -3472,7 +3480,9 @@ func _update_buttons():
 			elif only_in_boosts:
 				if len(selected_cards) == 1:
 					var logic_card = card_db.get_card(selected_cards[0].card_id)
-					can_strike = 'must_set_from_boost' in logic_card.definition and logic_card.definition['must_set_from_boost']
+					var must_set_from_boost = 'must_set_from_boost' in logic_card.definition and logic_card.definition['must_set_from_boost']
+					var may_set_from_boost = 'may_set_from_boost' in logic_card.definition and logic_card.definition['may_set_from_boost']
+					can_strike = must_set_from_boost or may_set_from_boost
 			elif only_set_aside:
 				if len(selected_cards) == 1 and player_can_boost_from_extra:
 					can_boost = game_wrapper.can_player_boost(Enums.PlayerId.PlayerId_Player, selected_cards[0].card_id, ['extra'], "", false)
@@ -3740,7 +3750,9 @@ func update_boost_summary(boosts_card_holder, boost_box):
 
 	for card_id in card_ids:
 		var card = card_db.get_card(card_id)
-		if 'must_set_from_boost' in card.definition and card.definition['must_set_from_boost']:
+		var must_set_from_boost = 'must_set_from_boost' in card.definition and card.definition['must_set_from_boost']
+		var may_set_from_boost = 'may_set_from_boost' in card.definition and card.definition['may_set_from_boost']
+		if must_set_from_boost or may_set_from_boost:
 			var attack_name = card.definition['display_name']
 			boost_summary += "[color=green](Can set %s as attack!)[/color]\n" % attack_name
 	boost_box.set_text(boost_summary)
@@ -4027,6 +4039,14 @@ func _on_character_action_pressed(action_idx : int = 0):
 					var instruction_str = "Select a location to place %s" % buddy_name
 					enable_instructions_ui(instruction_str, false, true)
 					change_ui_state(UIState.UIState_SelectArenaLocation, UISubState.UISubState_SelectArena_EffectChoice)
+				"move_any_boost":
+					var locations = game_wrapper.get_valid_locations_for_buddy_effect(Enums.PlayerId.PlayerId_Player, shortcut_effect)
+					prepared_character_action_data['locations'] = locations
+					arena_locations_clickable = locations
+					var boost_name = shortcut_effect['boost_name']
+					var instruction_str = "Select a %s boost to move" % boost_name
+					enable_instructions_ui(instruction_str, false, true)
+					change_ui_state(UIState.UIState_SelectArenaLocation, UISubState.UISubState_SelectArena_EffectChoice)
 				"gauge_for_effect":
 					prepared_character_action_data['effect'] = shortcut_effect
 					select_card_require_min = 0
@@ -4082,7 +4102,7 @@ func finish_preparing_character_action(selections):
 					return
 		"self_discard_choose":
 			prepared_character_action_data['discard_ids'] = selections
-		"place_buddy_in_any_space", "move_buddy", "place_buddy_at_range":
+		"place_buddy_in_any_space", "move_buddy", "place_buddy_at_range", "move_any_boost":
 			var location = selections[0]
 			var location_options = prepared_character_action_data['locations']
 			for i in range(location_options.size()):

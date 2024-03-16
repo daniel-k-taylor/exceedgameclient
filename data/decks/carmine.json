@@ -1,0 +1,219 @@
+{
+	"id": "carmine",
+	"season": 6,
+	"display_name": "Carmine",
+	"cardback": "cardback_carmine.jpg",
+	"exceed_cost": 1,
+	"buddy_cards": [
+		"dissolveA1",
+		"dissolveA2",
+		"dissolveB1",
+		"dissolveB2",
+		"dissolveC1",
+		"dissolveC2"
+	],
+	"hide_buddy_reference": true,
+	"buddy_card_graphics_id": [
+		"dissolve",
+		"dissolve",
+		"dissolve",
+		"dissolve",
+		"dissolve",
+		"dissolve"
+	],
+	"buddy_display_names": [
+		"Dissolve",
+		"Dissolve",
+		"Dissolve",
+		"Dissolve",
+		"Dissolve",
+		"Dissolve"
+	],
+	"character_action_default": [{
+		"gauge_cost": 0,
+		"force_cost": 0,
+		"shortcut_effect_type": "move_any_boost",
+		"effect": {
+			"condition": "any_buddy_in_play",
+			"condition_detail": "Dissolve",
+			"effect_type": "move_any_boost",
+			"boost_name": "Dissolve",
+			"amount_min": 1,
+			"amount_max": 1,
+			"and": {
+				"effect_type": "choice",
+				"choice": [
+					{ "effect_type": "advance", "amount": 1 },
+					{ "effect_type": "retreat", "amount": 1 }
+				]
+			}
+		}
+	}],
+	"character_action_exceeded": [
+		{
+			"gauge_cost": 0,
+			"force_cost": 0,
+			"shortcut_effect_type": "boost_from_gauge",
+			"can_boost_ultra_boost_from_gauge": true,
+			"effect": {
+				"effect_type": "boost_from_gauge",
+				"limitation": "ultra"
+			}
+		},
+		{
+			"gauge_cost": 0,
+			"force_cost": 0,
+			"min_hand_size": 1,
+			"action_name": "Revert",
+			"shortcut_effect_type": "gauge_from_hand",
+			"effect": {
+				"effect_type": "gauge_from_hand",
+				"min_amount": 1,
+				"max_amount": 1,
+				"and": {
+					"effect_type": "revert",
+					"and": {
+						"effect_type": "take_bonus_actions",
+						"amount": 1
+					}
+				}
+			}
+		}
+	],
+	"ability_effects": [
+	],
+	"exceed_ability_effects": [
+		{
+			"timing": "on_continuous_boost",
+			"condition": "used_character_action",
+			"condition_details": ["exceed", 0],
+			"effect_type": "choice",
+			"choice": [
+				{ "effect_type": "advance", "amount": 1 },
+				{ "effect_type": "retreat", "amount": 1 }
+			]
+		}
+	],
+	"cards": [
+		{
+			"definition_id": "carmine_twist",
+			"image": "carmine_twist.tres"
+		},
+		{
+			"definition_id": "carmine_twist",
+			"image": "carmine_twist.tres"
+		},
+		{
+			"definition_id": "carmine_bedevoured",
+			"image": "carmine_bedevoured.tres"
+		},
+		{
+			"definition_id": "carmine_bedevoured",
+			"image": "carmine_bedevoured.tres"
+		},
+		{
+			"definition_id": "carmine_thisistheend",
+			"image": "carmine_thisistheend.tres"
+		},
+		{
+			"definition_id": "carmine_thisistheend",
+			"image": "carmine_thisistheend.tres"
+		},
+		{
+			"definition_id": "carmine_thrust",
+			"image": "carmine_thrust.tres"
+		},
+		{
+			"definition_id": "carmine_thrust",
+			"image": "carmine_thrust.tres"
+		},
+		{
+			"definition_id": "carmine_spin",
+			"image": "carmine_spin.tres"
+		},
+		{
+			"definition_id": "carmine_spin",
+			"image": "carmine_spin.tres"
+		},
+		{
+			"definition_id": "carmine_pulverize",
+			"image": "carmine_pulverize.tres"
+		},
+		{
+			"definition_id": "carmine_pulverize",
+			"image": "carmine_pulverize.tres"
+		},
+		{
+			"definition_id": "carmine_givemethat",
+			"image": "carmine_givemethat.tres"
+		},
+		{
+			"definition_id": "carmine_givemethat",
+			"image": "carmine_givemethat.tres"
+		},
+		{
+			"definition_id": "uni_normal_grasp",
+			"image": "normal_grasp.tres"
+		},
+		{
+			"definition_id": "uni_normal_grasp",
+			"image": "normal_grasp.tres"
+		},
+		{
+			"definition_id": "uni_normal_cross",
+			"image": "normal_cross.tres"
+		},
+		{
+			"definition_id": "uni_normal_cross",
+			"image": "normal_cross.tres"
+		},
+		{
+			"definition_id": "uni_normal_assault",
+			"image": "normal_assault.tres"
+		},
+		{
+			"definition_id": "uni_normal_assault",
+			"image": "normal_assault.tres"
+		},
+		{
+			"definition_id": "uni_normal_dive",
+			"image": "normal_dive.tres"
+		},
+		{
+			"definition_id": "uni_normal_dive",
+			"image": "normal_dive.tres"
+		},
+		{
+			"definition_id": "uni_normal_spike",
+			"image": "normal_spike.tres"
+		},
+		{
+			"definition_id": "uni_normal_spike",
+			"image": "normal_spike.tres"
+		},
+		{
+			"definition_id": "uni_normal_sweep",
+			"image": "normal_sweep.tres"
+		},
+		{
+			"definition_id": "uni_normal_sweep",
+			"image": "normal_sweep.tres"
+		},
+		{
+			"definition_id": "uni_normal_focus",
+			"image": "normal_focus.tres"
+		},
+		{
+			"definition_id": "uni_normal_focus",
+			"image": "normal_focus.tres"
+		},
+		{
+			"definition_id": "uni_normal_block",
+			"image": "normal_block.tres"
+		},
+		{
+			"definition_id": "uni_normal_block",
+			"image": "normal_block.tres"
+		}
+	]
+}

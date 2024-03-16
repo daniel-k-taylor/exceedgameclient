@@ -5,6 +5,8 @@ const UseAzureServerAlways = true # If true, always defaults to the azure server
 var MuteEmotes = false
 const ClientVersionString : String = "240314.0947" # YYMMDD.HHMM
 
+const CharacterBanlist = ['carmine']
+
 # Persistent Settings
 var BGMEnabled = true
 var DefaultPlayerName = ""

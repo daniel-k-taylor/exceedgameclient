@@ -548,6 +548,8 @@ func get_strike_actions(game_logic : LocalGame, me : LocalGame.Player, _opponent
 		for card in me.continuous_boosts:
 			if 'must_set_from_boost' in card.definition and card.definition['must_set_from_boost']:
 				card_options.append(card)
+			elif 'may_set_from_boost' in card.definition and card.definition['may_set_from_boost']:
+				card_options.append(card)
 
 		for card in card_options:
 			if card.definition['gauge_cost'] > me.gauge.size():
