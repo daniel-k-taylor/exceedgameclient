@@ -18,6 +18,8 @@ func get_random_deck(season : int):
 	# Randomize
 	if season == -1:
 		var random_index = randi() % len(decks)
+		while decks[random_index]['id'] in GlobalSettings.CharacterBanlist:
+			random_index = randi() % len(decks)
 		return decks[random_index]
 	else:
 		var season_decks = []

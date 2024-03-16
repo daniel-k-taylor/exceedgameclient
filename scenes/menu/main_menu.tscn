@@ -433,7 +433,6 @@ text = "##"
 [connection signal="focus_entered" from="EnterReplayBox" to="." method="_on_enter_replay_box_focus_entered"]
 [connection signal="pressed" from="ViewReplayButton" to="." method="_on_view_replay_button_pressed"]
 [connection signal="pressed" from="ReconnectToServerButton" to="." method="_on_reconnect_to_server_button_pressed"]
-[connection signal="carmine_unlocked" from="CharSelect" to="." method="_on_char_select_carmine_unlocked"]
 [connection signal="close_character_select" from="CharSelect" to="." method="_on_char_select_close_character_select"]
 [connection signal="select_character" from="CharSelect" to="." method="_on_char_select_select_character"]
 [connection signal="pressed" from="PlayerListContainer/PlayerListHBox/PlayersButton" to="." method="_on_players_button_pressed"]

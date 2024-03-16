@@ -11,7 +11,6 @@ const CharacterBanlist = ['carmine']
 var BGMEnabled = true
 var DefaultPlayerName = ""
 var GameSoundsEnabled = true
-var CarmineUnlocked = false
 
 const user_settings_file = "user://settings.json"
 
@@ -49,16 +48,13 @@ func load_persistent_settings():
 		DefaultPlayerName = json['DefaultPlayerName']
 	if 'GameSoundsEnabled' in json and json['GameSoundsEnabled'] is bool:
 		GameSoundsEnabled = json['GameSoundsEnabled']
-	if 'CarmineUnlocked' in json and json['CarmineUnlocked'] is bool:
-		CarmineUnlocked = json['CarmineUnlocked']
 
 
 func save_persistent_settings():
 	var settings = {
 		"BGMEnabled": BGMEnabled,
 		"DefaultPlayerName": DefaultPlayerName,
-		"GameSoundsEnabled": GameSoundsEnabled,
-		"CarmineUnlocked": CarmineUnlocked
+		"GameSoundsEnabled": GameSoundsEnabled
 	}
 
 	var file = FileAccess.open(user_settings_file, FileAccess.WRITE)
@@ -74,8 +70,4 @@ func set_game_sounds_enabled(value : bool):
 
 func set_player_name(value : String):
 	DefaultPlayerName = value
-	save_persistent_settings()
-
-func set_carmine_unlocked(value : bool):
-	CarmineUnlocked = value
 	save_persistent_settings()
