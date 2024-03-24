@@ -340,6 +340,13 @@ func other_player(id : Enums.PlayerId) -> Enums.PlayerId:
 func get_card_database() -> CardDatabase:
 	return current_game.get_card_database()
 
+func get_player_extra_attack_card_options(player_id : Enums.PlayerId) -> Array:
+	var cards = _get_player(player_id).get_cards_in_hand_of_type("can_pay_cost")
+	var card_ids = []
+	for card in cards:
+		card_ids.append(card.id)
+	return card_ids
+
 func can_player_boost(player_id : Enums.PlayerId, card_id : int, valid_zones : Array, limitation : String, ignore_costs : bool) -> bool:
 	var zone_func_map = {
 		"hand": is_card_in_hand,

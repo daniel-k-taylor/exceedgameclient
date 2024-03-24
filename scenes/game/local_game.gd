@@ -1502,7 +1502,7 @@ class Player:
 							force_cost += 1
 							if card.definition['type'] == "ultra":
 								force_cost += 1
-					if can_pay_cost(gauge_cost, force_cost):
+					if can_pay_cost(force_cost, gauge_cost):
 						cards.append(card)
 				_:
 					cards.append(card)
@@ -3767,6 +3767,8 @@ func is_effect_condition_met(performing_player : Player, effect, local_condition
 				return true
 		elif condition == "used_character_bonus":
 			return performing_player.used_character_bonus
+		elif condition == "not_used_character_bonus":
+			return not performing_player.used_character_bonus
 		elif condition == "boost_caused_start_of_turn_strike":
 			return performing_player.start_of_turn_strike
 		elif condition == "hit_opponent":
