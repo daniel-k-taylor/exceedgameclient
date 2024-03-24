@@ -1502,7 +1502,7 @@ class Player:
 							force_cost += 1
 							if card.definition['type'] == "ultra":
 								force_cost += 1
-					if can_pay_cost(gauge_cost, force_cost):
+					if can_pay_cost(force_cost, gauge_cost):
 						cards.append(card)
 				_:
 					cards.append(card)

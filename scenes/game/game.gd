@@ -983,6 +983,9 @@ func can_select_card(card):
 			var card_type = game_card.definition['type']
 			var card_name = game_card.definition['display_name']
 			match limitation:
+				"can_pay_cost":
+					var card_options = game_wrapper.get_player_extra_attack_card_options(Enums.PlayerId.PlayerId_Player)
+					meets_limitation = card.card_id in card_options
 				"normal":
 					meets_limitation = card_type == "normal"
 				"ultra":
