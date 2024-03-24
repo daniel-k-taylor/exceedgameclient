@@ -5,7 +5,6 @@ In progress:
 
 Bug:
     Breaking:
-        ☐ Repel Leap doesn't work on Normals
         ☐ Play invalid extra attack leads to invalid wild swings - Dan and Koko
         ☐ Review mid-strike Tech interactions:
             - rangeup_per_boost_in_play and mid-strike Tech interactions (chunli/linne)
