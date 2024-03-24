@@ -332,6 +332,30 @@ func test_vega_scarletterror_boost_exceeded_no_difference_edge():
 	advance_turn(player2)
 
 
+func test_vega_scarletterror_boost_default_edge_normal():
+	position_players(player1, 1, player2, 7)
+	give_player_specific_card(player1, "vega_scarletterror", TestCardId3)
+	assert_true(game_logic.do_boost(player1, TestCardId3, [player1.hand[0].id, player1.hand[1].id]))
+	assert_true(game_logic.do_choice(player1, get_choice_index_for_position(9)))
+	validate_positions(player1, 9, player2, 7)
+	execute_strike(player1, player2, "standard_normal_cross", "standard_normal_cross", [], [], false, false, [], [], 0, false, false)
+	validate_positions(player1, 9, player2, 7)
+	validate_life(player1, 30, player2, 25)
+	advance_turn(player2)
+	
+func test_vega_scarletterror_boost_exceeded_edge_normal():
+	position_players(player1, 1, player2, 7)
+	player1.exceeded = true
+	give_player_specific_card(player1, "vega_scarletterror", TestCardId3)
+	assert_true(game_logic.do_boost(player1, TestCardId3, [player1.hand[0].id, player1.hand[1].id]))
+	assert_true(game_logic.do_choice(player1, get_choice_index_for_position(9)))
+	validate_positions(player1, 9, player2, 7)
+	execute_strike(player1, player2, "standard_normal_assault", "standard_normal_cross", [], [], false, false, [], [], 0, false, false)
+	validate_positions(player1, 8, player2, 7)
+	validate_life(player1, 30, player2, 23)
+	advance_turn(player1)
+
+
 func test_vega_skyhighclaw_boost_miss():
 	position_players(player1, 1, player2, 7)
 	give_player_specific_card(player1, "vega_bloodyhighclaw", TestCardId1)

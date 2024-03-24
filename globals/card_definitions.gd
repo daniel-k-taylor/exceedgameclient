@@ -313,6 +313,8 @@ func get_condition_text(effect, amount, amount2, detail):
 			text += ""
 		"used_character_bonus":
 			text += ""
+		"not_used_character_bonus":
+			text += ""
 		"boost_caused_start_of_turn_strike":
 			text += "If this boost makes you strike, "
 		"range":
