@@ -4,14 +4,18 @@ In progress:
 
 
 Bug:
-    ☐ Play invalid extra attack leads to invalid wild swings.
-    ☐ Review mid-strike Tech interactions:
-        - rangeup_per_boost_in_play and mid-strike Tech interactions (chunli/linne)
-        - Faust remove boost effects needs to be reviewed, stuff like powerup_opponent and other random effects that Faust can remove mid-strike
-        - probably any during_strike ability?
-        - Relevant for Bang too
-    ☐ Hilda Condensity/Happy Chaos Steady Aim - played not faceup is obvious which card it is due to delay while player decides choice
-    ☐ cpu tech brutality/beheaded cards
+    Breaking:
+        ☐ Repel Leap doesn't work on Normals
+        ☐ Play invalid extra attack leads to invalid wild swings - Dan and Koko
+        ☐ Review mid-strike Tech interactions:
+            - rangeup_per_boost_in_play and mid-strike Tech interactions (chunli/linne)
+            - Faust remove boost effects needs to be reviewed, stuff like powerup_opponent and other random effects that Faust can remove mid-strike
+            - probably any during_strike ability?
+            - Relevant for Bang too
+    Nice to have:
+        ☐ Hilda Condensity/Happy Chaos Steady Aim - played not faceup is obvious which card it is due to delay while player decides choice
+        ☐ cpu tech brutality/beheaded cards
+        ☐ Shadaloo Intelligence from AI hangs
  Write tests for:
     Axl:
     Testament:
