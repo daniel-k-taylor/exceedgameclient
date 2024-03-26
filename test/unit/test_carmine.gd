@@ -473,6 +473,62 @@ func test_carmine_thrust_use_dissolve():
 	assert_true(player1.is_card_in_gauge(TestCardId3))
 	advance_turn(player2)
 
+func test_carmine_thrust_dissolve_towards_opponent():
+	position_players(player1, 2, player2, 8)
+	give_player_specific_card(player1, "carmine_twist", TestCardId3)
+	give_player_specific_card(player1, "carmine_twist", TestCardId4)
+
+	assert_true(game_logic.do_boost(player1, TestCardId3, []))
+	assert_true(game_logic.do_choice(player1, 4))
+	var dissolve_buddy_id1 = player1.get_buddy_id_for_boost(TestCardId3)
+	assert_eq(player1.get_buddy_location(dissolve_buddy_id1), 5)
+	assert_true(player1.is_card_in_continuous_boosts(TestCardId3))
+	advance_turn(player2)
+
+	assert_true(game_logic.do_boost(player1, TestCardId4, []))
+	assert_true(game_logic.do_choice(player1, 6))
+	var dissolve_buddy_id2 = player1.get_buddy_id_for_boost(TestCardId4)
+	assert_eq(player1.get_buddy_location(dissolve_buddy_id2), 7)
+	assert_true(player1.is_card_in_continuous_boosts(TestCardId4))
+	advance_turn(player2)
+
+	execute_strike(player1, player2, "carmine_thrust", "uni_normal_grasp", [1], [], false, false)
+	validate_positions(player1, 2, player2, 8)
+	validate_life(player1, 30, player2, 23)
+	assert_false(player1.is_buddy_in_play(dissolve_buddy_id1))
+	assert_true(player1.is_card_in_gauge(TestCardId3))
+	assert_false(player1.is_buddy_in_play(dissolve_buddy_id2))
+	assert_true(player1.is_card_in_gauge(TestCardId4))
+	advance_turn(player2)
+
+func test_carmine_thrust_dissolve_not_towards_opponent():
+	position_players(player1, 2, player2, 8)
+	give_player_specific_card(player1, "carmine_twist", TestCardId3)
+	give_player_specific_card(player1, "carmine_twist", TestCardId4)
+
+	assert_true(game_logic.do_boost(player1, TestCardId3, []))
+	assert_true(game_logic.do_choice(player1, 4))
+	var dissolve_buddy_id1 = player1.get_buddy_id_for_boost(TestCardId3)
+	assert_eq(player1.get_buddy_location(dissolve_buddy_id1), 5)
+	assert_true(player1.is_card_in_continuous_boosts(TestCardId3))
+	advance_turn(player2)
+
+	assert_true(game_logic.do_boost(player1, TestCardId4, []))
+	assert_true(game_logic.do_choice(player1, 2))
+	var dissolve_buddy_id2 = player1.get_buddy_id_for_boost(TestCardId4)
+	assert_eq(player1.get_buddy_location(dissolve_buddy_id2), 3)
+	assert_true(player1.is_card_in_continuous_boosts(TestCardId4))
+	advance_turn(player2)
+
+	execute_strike(player1, player2, "carmine_thrust", "uni_normal_grasp", [1], [], false, false)
+	validate_positions(player1, 2, player2, 8)
+	validate_life(player1, 30, player2, 30)
+	assert_false(player1.is_buddy_in_play(dissolve_buddy_id1))
+	assert_true(player1.is_card_in_gauge(TestCardId3))
+	assert_eq(player1.get_buddy_location(dissolve_buddy_id2), 3)
+	assert_true(player1.is_card_in_continuous_boosts(TestCardId4))
+	advance_turn(player2)
+
 func test_carmine_spin_no_advantage():
 	position_players(player1, 3, player2, 6)
 
