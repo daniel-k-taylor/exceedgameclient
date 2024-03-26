@@ -3998,7 +3998,7 @@ func is_effect_condition_met(performing_player : Player, effect, local_condition
 			var attack_card = active_strike.get_player_card(performing_player)
 
 			# Check if boost is toward the opponent
-			var self_pos = performing_player.get_closest_occupied_space_to(other_player.arena_location)
+			var self_pos = get_attack_origin(performing_player, other_player.arena_location)
 			var opponent_pos = other_player.get_closest_occupied_space_to(performing_player.arena_location)
 			if self_pos < opponent_pos and self_pos > this_boost_location:
 				return false
