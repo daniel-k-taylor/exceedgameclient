@@ -495,6 +495,11 @@ class StrikeStatBoosts:
 	var power_bonus_multiplier_positive_only : int = 1
 	var speed_bonus_multiplier : int = 1
 	var speedup_by_spaces_modifier : int = 0
+	var speedup_per_boost_modifier : int = 0
+	var speedup_per_boost_modifier_all_boosts : bool = false
+	var rangeup_min_per_boost_modifier : int = 0
+	var rangeup_max_per_boost_modifier : int = 0
+	var rangeup_per_boost_modifier_all_boosts : bool = false
 	var active_character_effects = []
 	var added_attack_effects = []
 	var ex_count : int = 0
@@ -574,6 +579,11 @@ class StrikeStatBoosts:
 		power_bonus_multiplier_positive_only = 1
 		speed_bonus_multiplier = 1
 		speedup_by_spaces_modifier = 0
+		speedup_per_boost_modifier = 0
+		speedup_per_boost_modifier_all_boosts = false
+		rangeup_min_per_boost_modifier = 0
+		rangeup_max_per_boost_modifier = 0
+		rangeup_per_boost_modifier_all_boosts = false
 		active_character_effects = []
 		added_attack_effects = []
 		ex_count = 0
@@ -3653,6 +3663,14 @@ func get_total_speed(check_player, ignore_swap : bool = false):
 		# If a later character has that, it will need to be implemented.
 		var empty_spaces_between = check_player.distance_to_opponent() - 1
 		bonus_speed += empty_spaces_between * check_player.strike_stat_boosts.speedup_by_spaces_modifier
+	if check_player.strike_stat_boosts.speedup_per_boost_modifier > 0:
+		# same note on speed multipliers
+		var boosts_in_play = check_player.continuous_boosts.size()
+		if check_player.strike_stat_boosts.speedup_per_boost_modifier_all_boosts:
+			var opposing_player = _get_player(get_other_player(check_player.my_id))
+			boosts_in_play += opposing_player.continuous_boosts.size()
+		if boosts_in_play > 0:
+			bonus_speed += check_player.strike_stat_boosts.speedup_per_boost_modifier * boosts_in_play
 	var speed = check_card.definition['speed'] + bonus_speed
 	if active_strike and active_strike.extra_attack_in_progress:
 		# If an extra attack character has ways to get speed multipliers, deal with that then.
@@ -6945,6 +6963,16 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 				performing_player.strike_stat_boosts.min_range += effect['amount'] * boosts_in_play
 				performing_player.strike_stat_boosts.max_range += effect['amount2'] * boosts_in_play
 				events += [create_event(Enums.EventType.EventType_Strike_RangeUp, performing_player.my_id, effect['amount'] * boosts_in_play, "", effect['amount2'] * boosts_in_play)]
+		"rangeup_per_boost_modifier":
+			performing_player.strike_stat_boosts.rangeup_min_per_boost_modifier = effect['amount']
+			performing_player.strike_stat_boosts.rangeup_max_per_boost_modifier = effect['amount2']
+			performing_player.strike_stat_boosts.rangeup_per_boost_modifier_all_boosts = false
+			var boosts_in_play = performing_player.continuous_boosts.size()
+			if 'all_boosts' in effect and effect['all_boosts']:
+				performing_player.strike_stat_boosts.rangeup_per_boost_modifier_all_boosts = true
+				boosts_in_play += opposing_player.continuous_boosts.size()
+			if boosts_in_play > 0:
+				events += [create_event(Enums.EventType.EventType_Strike_RangeUp, performing_player.my_id, effect['amount'] * boosts_in_play, "", effect['amount2'] * boosts_in_play)]
 		"rangeup_per_card_in_hand":
 			var hand_size = performing_player.hand.size()
 			if hand_size > 0:
@@ -7380,6 +7408,15 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 			# Count empty spaces so distance - 1.
 			var empty_spaces_between = performing_player.distance_to_opponent() - 1
 			events += [create_event(Enums.EventType.EventType_Strike_SpeedUp, performing_player.my_id, empty_spaces_between)]
+		"speedup_per_boost_modifier":
+			performing_player.strike_stat_boosts.speedup_per_boost_modifier = effect['amount']
+			performing_player.strike_stat_boosts.speedup_per_boost_modifier_all_boosts = false
+			var boosts_in_play = performing_player.continuous_boosts.size()
+			if 'all_boosts' in effect and effect['all_boosts']:
+				performing_player.strike_stat_boosts.speedup_per_boost_modifier_all_boosts = true
+				boosts_in_play += opposing_player.continuous_boosts.size()
+			if boosts_in_play > 0:
+				events += [create_event(Enums.EventType.EventType_Strike_SpeedUp, performing_player.my_id, effect['amount'] * boosts_in_play)]
 		"speedup_per_boost_in_play":
 			var boosts_in_play = performing_player.continuous_boosts.size()
 			if 'all_boosts' in effect and effect['all_boosts']:
@@ -8515,6 +8552,13 @@ func get_total_min_range(performing_player : Player):
 
 	var min_range = get_card_stat(performing_player, card, 'range_min')
 	var min_range_modifier = performing_player.strike_stat_boosts.min_range
+	if performing_player.strike_stat_boosts.rangeup_min_per_boost_modifier > 0:
+		var boosts_in_play = performing_player.continuous_boosts.size()
+		if performing_player.strike_stat_boosts.rangeup_per_boost_modifier_all_boosts:
+			var opposing_player = _get_player(get_other_player(performing_player.my_id))
+			boosts_in_play += opposing_player.continuous_boosts.size()
+		if boosts_in_play > 0:
+			min_range_modifier += performing_player.strike_stat_boosts.rangeup_min_per_boost_modifier * boosts_in_play
 	return min_range + min_range_modifier
 
 func get_total_max_range(performing_player : Player):
@@ -8525,6 +8569,13 @@ func get_total_max_range(performing_player : Player):
 
 	var max_range = get_card_stat(performing_player, card, 'range_max')
 	var max_range_modifier = performing_player.strike_stat_boosts.max_range
+	if performing_player.strike_stat_boosts.rangeup_max_per_boost_modifier > 0:
+		var boosts_in_play = performing_player.continuous_boosts.size()
+		if performing_player.strike_stat_boosts.rangeup_per_boost_modifier_all_boosts:
+			var opposing_player = _get_player(get_other_player(performing_player.my_id))
+			boosts_in_play += opposing_player.continuous_boosts.size()
+		if boosts_in_play > 0:
+			max_range_modifier += performing_player.strike_stat_boosts.rangeup_max_per_boost_modifier * boosts_in_play
 	return max_range + max_range_modifier
 
 func get_attack_origin(performing_player : Player, target_location : int):

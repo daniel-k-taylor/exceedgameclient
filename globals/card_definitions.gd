@@ -1102,6 +1102,11 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 				effect_str += "+" + str(effect['amount']) + "-" + str(effect['amount2']) + " Range per EVERY boost in play."
 			else:
 				effect_str += "+" + str(effect['amount']) + "-" + str(effect['amount2']) + " Range per boost in play."
+		"rangeup_per_boost_modifier":
+			if 'all_boosts' in effect and effect['all_boosts']:
+				effect_str += "+" + str(effect['amount']) + "-" + str(effect['amount2']) + " Range per EVERY boost in play."
+			else:
+				effect_str += "+" + str(effect['amount']) + "-" + str(effect['amount2']) + " Range per boost in play."
 		"rangeup_per_card_in_hand":
 			effect_str += "+" + str(effect['amount']) + "-" + str(effect['amount2']) + " Range per card in hand."
 		"rangeup_per_force_spent_this_turn":
@@ -1290,6 +1295,11 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 					#effect_str += "-"
 				effect_str += str(effect['amount']) + " Speed"
 		"speedup_per_boost_in_play":
+			if 'all_boosts' in effect and effect['all_boosts']:
+				effect_str += "+" + str(effect['amount']) + " Speed per EVERY boost in play."
+			else:
+				effect_str += "+" + str(effect['amount']) + " Speed per boost in play."
+		"speedup_per_boost_modifier":
 			if 'all_boosts' in effect and effect['all_boosts']:
 				effect_str += "+" + str(effect['amount']) + " Speed per EVERY boost in play."
 			else:

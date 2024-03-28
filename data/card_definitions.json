@@ -14117,14 +14117,14 @@
 			},
 			{
 				"timing": "during_strike",
-				"effect_type": "rangeup_per_boost_in_play",
+				"effect_type": "rangeup_per_boost_modifier",
 				"all_boosts": true,
 				"amount": 0,
 				"amount2": 1
 			},
 			{
 				"timing": "during_strike",
-				"effect_type": "speedup_per_boost_in_play",
+				"effect_type": "speedup_per_boost_modifier",
 				"all_boosts": true,
 				"amount": 1
 			}
