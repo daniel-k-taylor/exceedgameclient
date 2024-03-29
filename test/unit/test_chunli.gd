@@ -62,7 +62,7 @@ func validate_has_no_event(events, event_type, target_player):
 		if event['event_type'] == event_type:
 			if event['event_player'] == target_player.my_id:
 				fail_test("Event not supposed to be found: %s" % event_type)
-	
+
 func before_each():
 	default_game_setup()
 
@@ -272,7 +272,7 @@ func test_chunli_exceed_ua():
 	assert_true(game_logic.do_choice(player1, 0)) # Retreat 1
 	validate_positions(player1, 2, player2, 5)
 	advance_turn(player2)
-	
+
 	execute_strike(player1, player2, "standard_normal_grasp", "standard_normal_dive", [], [], false, false, [], [], 0, false, false)
 	assert_true(game_logic.do_choice(player1, 0)) #push 1
 	validate_positions(player1, 2, player2, 6)
@@ -285,17 +285,17 @@ func test_chunli_ultra_parry_all():
 	give_player_specific_card(player2, "standard_normal_grasp", TestCardId3)
 	give_player_specific_card(player2, "standard_normal_spike", TestCardId4)
 	give_player_specific_card(player2, "chunli_headstomp", TestCardId5)
-	
+
 	# Ultra parry
 	give_player_specific_card(player1, "chunli_hosenka", TestCardId1)
 	assert_true(game_logic.do_boost(player1, TestCardId1, [player1.hand[0].id, player1.hand[1].id]))
-	
+
 	# P2 auto discards 2 cards and reveals hand.
 	assert_eq(player2.hand.size(), 1)
 	assert_eq(player2.hand[0].id, TestCardId5)
 	var events = game_logic.get_latest_events()
 	validate_has_event(events, Enums.EventType.EventType_RevealHand, player2)
-	
+
 	# Chun resolve boost
 	assert_true(game_logic.do_choice(player1, 1))
 	validate_positions(player1, 4, player2, 5)
@@ -309,18 +309,18 @@ func test_chunli_ultra_parry_choose():
 	give_player_specific_card(player2, "standard_normal_grasp", TestCardId3)
 	give_player_specific_card(player2, "standard_normal_spike", TestCardId4)
 	give_player_specific_card(player2, "chunli_headstomp", TestCardId5)
-	
+
 	# Ultra parry
 	give_player_specific_card(player1, "chunli_hosenka", TestCardId1)
 	assert_true(game_logic.do_boost(player1, TestCardId1, [player1.hand[0].id, player1.hand[1].id]))
-	
+
 	# P2 chooses even though he has just 3.
 	assert_true(game_logic.do_choose_to_discard(player2, [TestCardId2, TestCardId3, TestCardId4]))
 	assert_eq(player2.hand.size(), 1)
 	assert_eq(player2.hand[0].id, TestCardId5)
 	var events = game_logic.get_latest_events()
 	validate_has_no_event(events, Enums.EventType.EventType_RevealHand, player2)
-	
+
 	# Chun resolve boost
 	assert_true(game_logic.do_choice(player1, 1))
 	validate_positions(player1, 4, player2, 5)
