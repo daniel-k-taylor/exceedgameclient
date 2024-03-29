@@ -6,7 +6,6 @@ In progress:
 Bug:
     Breaking:
         ☐ Review mid-strike Tech interactions:
-            - rangeup_per_boost_in_play and mid-strike Tech interactions (chunli/linne)
             - Faust remove boost effects needs to be reviewed, stuff like powerup_opponent and other random effects that Faust can remove mid-strike
             - probably any during_strike ability?
             - Relevant for Bang too
