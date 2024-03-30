@@ -1862,7 +1862,7 @@
 				{
 					"timing": "after",
 					"condition": "exceeded",
-					"effect_type": "return_attack_to_hand",
+					"effect_type": "return_this_boost_to_hand_strike_effect",
 					"card_name":  "Infinite Chaos-Fist of the Void"
 				}
 			]
