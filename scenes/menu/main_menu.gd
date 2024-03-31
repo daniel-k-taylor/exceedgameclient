@@ -67,7 +67,7 @@ func _ready():
 	modal_list.visible = false
 
 func settings_loaded():
-	player_selected_character = GlobalSettings.PlayerCharacter or "solbadguy"
+	player_selected_character = GlobalSettings.PlayerCharacter if GlobalSettings.PlayerCharacter else "solbadguy"
 	update_char(player_selected_character, true)
 	bgm_checkbox.button_pressed = GlobalSettings.BGMEnabled
 	game_sound_checkbox.button_pressed = GlobalSettings.GameSoundsEnabled
