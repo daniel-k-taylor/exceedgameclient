@@ -68,6 +68,7 @@ func _ready():
 
 func settings_loaded():
 	player_selected_character = GlobalSettings.PlayerCharacter
+	update_char(player_selected_character, true)
 	bgm_checkbox.button_pressed = GlobalSettings.BGMEnabled
 	game_sound_checkbox.button_pressed = GlobalSettings.GameSoundsEnabled
 	start_music()

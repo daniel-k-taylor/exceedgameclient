@@ -34,10 +34,10 @@ func get_server_url() -> String:
 	else:
 		return local_url
 
-func load_persistent_settings():
+func load_persistent_settings() -> bool:  # returns success code
 	if not FileAccess.file_exists(user_settings_file):
 		print("Unable to load settings file.")
-		return # Error! We don't have a save to load.
+		return false # Error! We don't have a save to load.
 
 	var file = FileAccess.open(user_settings_file, FileAccess.READ)
 	var text = file.get_as_text()
@@ -49,17 +49,18 @@ func load_persistent_settings():
 		DefaultPlayerName = json['DefaultPlayerName']
 	if 'GameSoundsEnabled' in json and json['GameSoundsEnabled'] is bool:
 		GameSoundsEnabled = json['GameSoundsEnabled']
-	if 'PlayerCharacter' in json and json['PlayerCharacter'] is String:
+	if 'PlayerCharacter' in json and json['PlayerCharacter'] is String and not json['PlayerCharacter'].is_empty():
 		PlayerCharacter = json['PlayerCharacter']
 	else:
 		PlayerCharacter = 'solbadguy'
+	return true
 
 func save_persistent_settings():
 	var settings = {
 		"BGMEnabled": BGMEnabled,
 		"DefaultPlayerName": DefaultPlayerName,
 		"GameSoundsEnabled": GameSoundsEnabled,
-		"PlayerCharacter": PlayerCharacter
+		"PlayerCharacter": PlayerCharacter,
 	}
 
 	var file = FileAccess.open(user_settings_file, FileAccess.WRITE)
