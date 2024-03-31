@@ -67,6 +67,7 @@ func _ready():
 	modal_list.visible = false
 
 func settings_loaded():
+	player_selected_character = GlobalSettings.PlayerCharacter
 	bgm_checkbox.button_pressed = GlobalSettings.BGMEnabled
 	game_sound_checkbox.button_pressed = GlobalSettings.GameSoundsEnabled
 	start_music()
@@ -304,7 +305,7 @@ func _on_matchmake_button_pressed():
 func _on_char_select_close_character_select():
 	char_select.visible = false
 
-func update_char(label, portrait, char_id):
+func update_char(label, portrait, char_id, save: bool):
 	var display_name = "Random"
 	if char_id == "random_s7":
 		char_id = "random"
@@ -323,6 +324,8 @@ func update_char(label, portrait, char_id):
 		display_name = deck['display_name']
 	label.text = display_name
 	portrait.texture = load("res://assets/portraits/" + char_id + ".png")
+	if save:
+		GlobalSettings.set_player_character(char_id)
 	if len(display_name) <= label_length_threshold:
 		label.set("theme_override_font_sizes/font_size", label_font_normal)
 	else:
@@ -331,10 +334,10 @@ func update_char(label, portrait, char_id):
 func _on_char_select_select_character(char_id):
 	if selecting_player:
 		player_selected_character = char_id
-		update_char(player_char_label, player_char_portrait, char_id)
+		update_char(player_char_label, player_char_portrait, char_id, true)
 	else:
-		opponent_selected_character =char_id
-		update_char(opponent_char_label, opponent_char_portrait, char_id)
+		opponent_selected_character = char_id
+		update_char(opponent_char_label, opponent_char_portrait, char_id, false)
 	_on_char_select_close_character_select()
 
 func _on_change_player_character_button_pressed(is_player : bool):
