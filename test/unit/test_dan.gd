@@ -455,6 +455,21 @@ func test_dan_legendary_taunt_extra_attack_shisso_buraiken():
 	assert_true(player1.is_card_in_discards(TestCardId1))
 	advance_turn(player1)
 
+func test_dan_legendary_taunt_extra_attack_shisso_buraiken_payit():
+	position_players(player1, 4, player2, 7)
+	give_player_specific_card(player1, "dan_shissoburaiken", TestCardId3)
+	give_gauge(player1, 5)
+
+	execute_strike(player1, player2, "dan_legendarytaunt", "standard_normal_spike", [3, 1], [], false, false,
+		[], [], 0, true)
+	assert_true(game_logic.do_choose_to_discard(player1, [TestCardId3]))
+	assert_true(game_logic.do_pay_strike_cost(player1, [player1.gauge[0].id, player1.gauge[1].id, player1.gauge[2].id], false))
+	validate_life(player1, 30, player2, 23)
+	validate_positions(player1, 6, player2, 7)
+	assert_true(player1.is_card_in_gauge(TestCardId3))
+	assert_true(player1.is_card_in_discards(TestCardId1))
+	advance_turn(player1)
+
 func test_dan_legendary_taunt_extra_attack_legendary_taunt():
 	position_players(player1, 1, player2, 9)
 	give_player_specific_card(player1, "dan_legendarytaunt", TestCardId3)
