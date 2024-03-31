@@ -362,27 +362,42 @@ class Strike:
 			return initiator
 
 	func get_player_card(performing_player : Player) -> GameCard:
+		if extra_attack_in_progress and performing_player == extra_attack_data.extra_attack_player:
+			return extra_attack_data.extra_attack_card
+
 		if performing_player == initiator:
 			return initiator_card
 		return defender_card
 
 	func get_player_ex_card(performing_player : Player) -> GameCard:
+		if extra_attack_in_progress and performing_player == extra_attack_data.extra_attack_player:
+			return null
+
 		if performing_player == initiator:
 			return initiator_ex_card
 		return defender_ex_card
 
 	func get_player_wild_strike(performing_player : Player) -> bool:
+		if extra_attack_in_progress and performing_player == extra_attack_data.extra_attack_player:
+			return false
+
 		if performing_player == initiator:
 			return initiator_wild_strike
 		return defender_wild_strike
 
 	func get_player_strike_from_gauge(performing_player : Player) -> bool:
+		if extra_attack_in_progress and performing_player == extra_attack_data.extra_attack_player:
+			return false
+
 		if performing_player == defender:
 			return false
 		# ensure that the strike from gauge wasn't invalidated
 		return initiator_set_from_gauge and not initiator_wild_strike
 
 	func get_player_set_from_boosts(performing_player : Player) -> bool:
+		if extra_attack_in_progress and performing_player == extra_attack_data.extra_attack_player:
+			return false
+
 		# ensure that the strike from boosts wasn't invalidated
 		if performing_player == initiator:
 			return initiator_set_from_boosts and not initiator_wild_strike
@@ -416,6 +431,9 @@ class Strike:
 		return defender_damage_taken
 
 	func will_be_ex(performing_player : Player) -> bool:
+		if extra_attack_in_progress and performing_player == extra_attack_data.extra_attack_player:
+			return false
+
 		for boost_card in performing_player.continuous_boosts:
 			var effects = boost_card.definition['boost']['effects']
 			for effect in effects:
