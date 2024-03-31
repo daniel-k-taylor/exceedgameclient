@@ -305,10 +305,9 @@ func _on_matchmake_button_pressed():
 func _on_char_select_close_character_select():
 	char_select.visible = false
 
-func update_char(char_id, is_player: bool):
+func update_char(char_id: String, is_player: bool) -> void:
 	var label = player_char_label if is_player else opponent_char_label
 	var portrait = player_char_portrait if is_player else opponent_char_portrait
-
 	var display_name = "Random"
 	if char_id == "random_s7":
 		char_id = "random"
