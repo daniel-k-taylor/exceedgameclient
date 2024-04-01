@@ -67,6 +67,8 @@ func _ready():
 	modal_list.visible = false
 
 func settings_loaded():
+	player_selected_character = GlobalSettings.PlayerCharacter if GlobalSettings.PlayerCharacter else "solbadguy"
+	update_char(player_selected_character, true)
 	bgm_checkbox.button_pressed = GlobalSettings.BGMEnabled
 	game_sound_checkbox.button_pressed = GlobalSettings.GameSoundsEnabled
 	start_music()
@@ -304,37 +306,41 @@ func _on_matchmake_button_pressed():
 func _on_char_select_close_character_select():
 	char_select.visible = false
 
-func update_char(label, portrait, char_id):
+func update_char(char_id: String, is_player: bool) -> void:
+	var label = player_char_label if is_player else opponent_char_label
+	var portrait = player_char_portrait if is_player else opponent_char_portrait
 	var display_name = "Random"
+	if is_player:
+		player_selected_character = char_id
+		GlobalSettings.set_player_character(char_id)
+	else:
+		opponent_selected_character = char_id
+	var portrait_id: String
 	if char_id == "random_s7":
-		char_id = "random"
+		portrait_id = "random"
 	elif char_id == "random_s6":
-		char_id = "unilogo"
+		portrait_id = "unilogo"
 	elif char_id == "random_s5":
-		char_id = "blazbluelogo2"
+		portrait_id = "blazbluelogo2"
 	elif char_id == "random_s4":
-		char_id = "sklogo"
+		portrait_id = "sklogo"
 	elif char_id == "random_s3":
-		char_id = "sflogo"
+		portrait_id = "sflogo"
 	elif char_id == "random":
-		char_id = "exceedrandom"
+		portrait_id = "exceedrandom"
 	else:
 		var deck = CardDefinitions.get_deck_from_str_id(char_id)
 		display_name = deck['display_name']
+		portrait_id = char_id
 	label.text = display_name
-	portrait.texture = load("res://assets/portraits/" + char_id + ".png")
+	portrait.texture = load("res://assets/portraits/" + portrait_id + ".png")
 	if len(display_name) <= label_length_threshold:
 		label.set("theme_override_font_sizes/font_size", label_font_normal)
 	else:
 		label.set("theme_override_font_sizes/font_size", label_font_small)
 
 func _on_char_select_select_character(char_id):
-	if selecting_player:
-		player_selected_character = char_id
-		update_char(player_char_label, player_char_portrait, char_id)
-	else:
-		opponent_selected_character =char_id
-		update_char(opponent_char_label, opponent_char_portrait, char_id)
+	update_char(char_id, selecting_player)
 	_on_char_select_close_character_select()
 
 func _on_change_player_character_button_pressed(is_player : bool):
