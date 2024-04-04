@@ -342,6 +342,8 @@ func get_move_actions(game_logic : LocalGame, me : LocalGame.Player, opponent : 
 func generate_force_combinations(game_logic : LocalGame, me : LocalGame.Player, cards, force_target, free_force_available):
 	var current_force = me.force_cost_reduction
 	var card_db = game_logic.get_card_database()
+	if current_force == force_target:
+		return [[[], false]]
 
 	var candidates = [[current_force]]  # Each entry in result is a list whose car is a force count and whose cdr is a list of cards
 	for card_id in cards:
@@ -366,6 +368,8 @@ func generate_force_combinations(game_logic : LocalGame, me : LocalGame.Player, 
 ## Given a list of card IDs `cards`, return all subsets of size `hand_size`. (If not `exact`, return
 ## all subsets of size *up to* `hand_size`.
 func generate_card_count_combinations(cards, hand_size, exact=true):
+	if hand_size == 0:
+		return [[]]
 	var subsets = [[]]
 	for card_id in cards:
 		for i in range(subsets.size()):
