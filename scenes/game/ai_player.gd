@@ -336,7 +336,6 @@ func get_move_actions(game_logic : LocalGame, me : LocalGame.Player, opponent : 
 	return possible_move_actions
 
 func generate_force_combinations(game_logic : LocalGame, me : LocalGame.Player, cards, force_target, free_force_available):
-	print("Generating force combinations from cards %s" % [cards])
 	var current_force = me.force_cost_reduction
 	var card_db = game_logic.get_card_database()
 
@@ -358,7 +357,6 @@ func generate_force_combinations(game_logic : LocalGame, me : LocalGame.Player, 
 			result.append([candidate.slice(1, candidate.size(), 1, true), false])
 		elif candidate[0] >= force_target - free_force_available:
 			result.append([candidate.slice(1, candidate.size(), 1, true), true])
-	print("Got result %s" % [result])
 	return result
 
 func generate_card_count_combinations(cards, hand_size, current_combination, current_index, combinations):
