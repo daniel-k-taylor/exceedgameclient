@@ -328,30 +328,38 @@ func get_move_actions(game_logic : LocalGame, me : LocalGame.Player, opponent : 
 				all_force_option_ids.append(card.id)
 			for card in me.gauge:
 				all_force_option_ids.append(card.id)
-			var combinations = []
-			generate_force_combinations(game_logic, me, all_force_option_ids, force_to_move_here, free_force_available, false, [], 0, combinations)
+			var combinations = generate_force_combinations(game_logic, me, all_force_option_ids, force_to_move_here, free_force_available)
 			for combo_result in combinations:
 				var combo = combo_result[0]
 				var used_free_force = combo_result[1]
 				possible_move_actions.append(MoveAction.new(i, combo, used_free_force))
 	return possible_move_actions
 
-func generate_force_combinations(game_logic : LocalGame, me : LocalGame.Player, cards, force_target, free_force_available, used_free_force, current_combination, current_index, combinations):
+func generate_force_combinations(game_logic : LocalGame, me : LocalGame.Player, cards, force_target, free_force_available):
+	print("Generating force combinations from cards %s" % [cards])
 	var current_force = me.force_cost_reduction
 	var card_db = game_logic.get_card_database()
-	for card_id in current_combination:
-		current_force += card_db.get_card_force_value(card_id)
-	if current_force >= force_target:
-		combinations.append([current_combination.duplicate(), used_free_force])
-		return
 
-	if free_force_available > 0:
-		generate_force_combinations(game_logic, me, cards, force_target - free_force_available, 0, true, current_combination, current_index, combinations)
-
-	for i in range(current_index, cards.size()):
-		current_combination.append(cards[i])
-		generate_force_combinations(game_logic, me, cards, force_target, 0, used_free_force, current_combination, i + 1, combinations)
-		current_combination.pop_back()
+	var candidates = [[current_force]]  # Each entry in result is a list whose car is a force count and whose cdr is a list of cards
+	for card_id in cards:
+		var card_force_value = card_db.get_card_force_value(card_id)
+		for i in range(candidates.size()):
+			# Set iteration range prior to adding anything or you'll end up reprocessing new candidates
+			# that were already added during the current pass.
+			var combination = candidates[i]
+			if combination[0] < force_target:
+				if combination.size() == 1:
+					candidates.append([combination[0] + card_force_value, card_id])
+				else:
+					candidates.append([combination[0] + card_force_value] + combination.slice(1, combination.size(), 1, true) + [card_id])
+	var result = []
+	for candidate in candidates:
+		if candidate[0] >= force_target:
+			result.append([candidate.slice(1, candidate.size(), 1, true), false])
+		elif candidate[0] >= force_target - free_force_available:
+			result.append([candidate.slice(1, candidate.size(), 1, true), true])
+	print("Got result %s" % [result])
+	return result
 
 func generate_card_count_combinations(cards, hand_size, current_combination, current_index, combinations):
 	if current_combination.size() == hand_size:
@@ -485,8 +493,7 @@ func get_boost_actions(game_logic : LocalGame, me : LocalGame.Player, opponent :
 					for payment_card in me.gauge:
 						all_force_option_ids.append(payment_card.id)
 					all_force_option_ids.erase(card.id)
-					var combinations = []
-					generate_force_combinations(game_logic, me,  all_force_option_ids, cost, free_force_available, false, [], 0, combinations)
+					var combinations = generate_force_combinations(game_logic, me,  all_force_option_ids, cost, free_force_available)
 					for combo_result in combinations:
 						var combo = combo_result[0]
 						var use_free_force = combo_result[1]
@@ -600,8 +607,7 @@ func get_character_action_actions(game_logic : LocalGame, me : LocalGame.Player,
 					all_force_option_ids.append(card.id)
 				for card in me.gauge:
 					all_force_option_ids.append(card.id)
-				var combinations = []
-				generate_force_combinations(game_logic, me,  all_force_option_ids, force_cost, free_force_available, false, [], 0, combinations)
+				var combinations = generate_force_combinations(game_logic, me,  all_force_option_ids, force_cost, free_force_available)
 				for combo_result in combinations:
 					var combo = combo_result[0]
 					var use_free_force = combo_result[1]
@@ -642,8 +648,7 @@ func determine_pay_strike_force_cost_actions(game_logic : LocalGame, me : LocalG
 		all_force_option_ids.append(card.id)
 	for card in me.gauge:
 		all_force_option_ids.append(card.id)
-	var combinations = []
-	generate_force_combinations(game_logic, me, all_force_option_ids, force_cost, free_force_available, false, [], 0, combinations)
+	var combinations = generate_force_combinations(game_logic, me, all_force_option_ids, force_cost, free_force_available)
 	for combo_result in combinations:
 		var combo = combo_result[0]
 		var use_free_force = combo_result[1]
@@ -718,8 +723,7 @@ func determine_force_for_armor_actions(game_logic : LocalGame, me : LocalGame.Pl
 		all_force_option_ids.append(card.id)
 	for target_force in range(0, available_force + 1):
 		# Generate an action for every possible combination of cards that can get here.
-		var combinations = []
-		generate_force_combinations(game_logic, me,  all_force_option_ids, target_force, free_force_available, false, [], 0, combinations)
+		var combinations = generate_force_combinations(game_logic, me,  all_force_option_ids, target_force, free_force_available)
 		for combo_result in combinations:
 			var combo = combo_result[0]
 			var use_free_force = combo_result[1]
@@ -748,8 +752,7 @@ func determine_force_for_effect_actions(game_logic: LocalGame, me : LocalGame.Pl
 		if target_force > max_force:
 			continue
 		# Generate an action for every possible combination of cards that can get here.
-		var combinations = []
-		generate_force_combinations(game_logic, me,  all_force_option_ids, target_force, free_force_available, false, [], 0, combinations)
+		var combinations = generate_force_combinations(game_logic, me,  all_force_option_ids, target_force, free_force_available)
 		for combo_result in combinations:
 			var combo = combo_result[0]
 			var use_free_force = combo_result[1]
