@@ -363,14 +363,17 @@ func generate_force_combinations(game_logic : LocalGame, me : LocalGame.Player, 
 			result.append([candidate.slice(1, candidate.size(), 1, true), true])
 	return result
 
-## Given a list of card IDs `cards`, return all subsets of size `hand_size`.
-func generate_card_count_combinations(cards, hand_size):
+## Given a list of card IDs `cards`, return all subsets of size `hand_size`. (If not `exact`, return
+## all subsets of size *up to* `hand_size`.
+func generate_card_count_combinations(cards, hand_size, exact=true):
 	var subsets = [[]]
 	for card_id in cards:
 		for i in range(subsets.size()):
 			var subset = subsets[i]
 			if subset.size() < hand_size:
 				subsets.append(subset.duplicate() + [card_id])
+	if not exact:
+		return subsets
 	var result = []
 	for subset in subsets:
 		if subset.size() == hand_size:
@@ -399,12 +402,11 @@ func get_change_cards_actions(_game_logic : LocalGame, me : LocalGame.Player, _o
 			all_change_card_ids.append(card.id)
 
 		# Calculate every permutation of moves at this point.
-		for target_size in range(1, total_change_card_options + 1):
-			var combinations = generate_card_count_combinations(all_change_card_ids, target_size)
-			for combination in combinations:
-				possible_actions.append(ChangeCardsAction.new(combination, false))
-				if free_force_available > 0:
-					possible_actions.append(ChangeCardsAction.new(combination, true))
+		var combinations = generate_card_count_combinations(all_change_card_ids, total_change_card_options, false)
+		for i in range(1, combinations.size()):  # range excludes the first element, which is always empty
+			possible_actions.append(ChangeCardsAction.new(combinations[i], false))
+			if free_force_available > 0:
+				possible_actions.append(ChangeCardsAction.new(combinations[i], true))
 
 	return possible_actions
 
