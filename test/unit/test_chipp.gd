@@ -247,3 +247,28 @@ func test_chipp_genrouzan_boost_goesaway():
 	validate_life(player1, 24, player2, 27)
 	assert_eq(player1.gauge.size(), 2)
 	assert_eq(player1.hand.size(), 5)
+
+func test_chipp_exceed_cancel_draw_optional():
+	position_players(player1, 3, player2, 5)
+	player1.exceeded = true
+	give_gauge(player1, 1)
+	give_player_specific_card(player1, "chipp_alphablade", TestCardId3)
+	assert_true(game_logic.do_boost(player1, TestCardId3))
+	assert_eq(player1.hand.size(), 5)
+	assert_true(game_logic.do_boost_cancel(player1, [player1.gauge[0].id], true))
+	assert_true(game_logic.do_choice(player1, 0))
+	assert_eq(player1.hand.size(), 6)
+	advance_turn(player1)
+
+
+func test_chipp_exceed_cancel_draw_optional_dont():
+	position_players(player1, 3, player2, 5)
+	player1.exceeded = true
+	give_gauge(player1, 1)
+	give_player_specific_card(player1, "chipp_alphablade", TestCardId3)
+	assert_true(game_logic.do_boost(player1, TestCardId3))
+	assert_eq(player1.hand.size(), 5)
+	assert_true(game_logic.do_boost_cancel(player1, [player1.gauge[0].id], true))
+	assert_true(game_logic.do_choice(player1, 1))
+	assert_eq(player1.hand.size(), 5)
+	advance_turn(player1)

@@ -29,8 +29,11 @@
 		},
 		{
 			"timing": "on_cancel_boost",
-			"effect_type": "draw",
-			"amount": 1
+			"effect_type": "choice",
+			"choice": [
+				{ "effect_type": "draw", "amount": 1 },
+				{ "effect_type": "pass" }
+			]
 		}
 	],
 	"cards": [
