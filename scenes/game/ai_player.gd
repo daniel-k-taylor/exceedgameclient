@@ -363,15 +363,19 @@ func generate_force_combinations(game_logic : LocalGame, me : LocalGame.Player, 
 			result.append([candidate.slice(1, candidate.size(), 1, true), true])
 	return result
 
+## Given a list of card IDs `cards`, return all subsets of size `hand_size`.
 func generate_card_count_combinations(cards, hand_size, current_combination, current_index, combinations):
-	if current_combination.size() == hand_size:
-		combinations.append(current_combination.duplicate())
-		return
-
-	for i in range(current_index, cards.size()):
-		current_combination.append(cards[i])
-		generate_card_count_combinations(cards, hand_size, current_combination, i + 1, combinations)
-		current_combination.pop_back()
+	var subsets = [[]]
+	for card_id in cards:
+		for i in range(subsets.size()):
+			var subset = subsets[i]
+			if subset.size() < hand_size:
+				subsets.append(subset.duplicate() + [card_id])
+	var result = []
+	for subset in subsets:
+		if subset.size() == hand_size:
+			result.append(subset)
+	return result
 
 func get_change_cards_actions(_game_logic : LocalGame, me : LocalGame.Player, _opponent : LocalGame.Player):
 	var possible_actions = []
