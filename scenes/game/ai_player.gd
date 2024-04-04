@@ -335,6 +335,10 @@ func get_move_actions(game_logic : LocalGame, me : LocalGame.Player, opponent : 
 				possible_move_actions.append(MoveAction.new(i, combo, used_free_force))
 	return possible_move_actions
 
+## Given a list of card IDs `cards`, return all combinations of card IDs that can be spent to generate
+## `force_target` Force, with up to `free_force_available` units worth of slack. The actual return value
+## is a list of pairs [combination, free_force_used], where the latter is true iff at least one point of
+## the "slack" is necessary for the combination.
 func generate_force_combinations(game_logic : LocalGame, me : LocalGame.Player, cards, force_target, free_force_available):
 	var current_force = me.force_cost_reduction
 	var card_db = game_logic.get_card_database()
