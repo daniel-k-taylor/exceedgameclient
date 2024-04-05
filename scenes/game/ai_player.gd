@@ -345,7 +345,8 @@ func generate_force_combinations(game_logic : LocalGame, me : LocalGame.Player, 
 	if current_force == force_target:
 		return [[[], false]]
 
-	var candidates = [[current_force]]  # Each entry in result is a list whose car is a force count and whose cdr is a list of cards
+	var candidates = [[current_force]]  # Each entry in result is a list whose first element is a force count
+	                                    # and whose remainder is a list of cards
 	for card_id in cards:
 		var card_force_value = card_db.get_card_force_value(card_id)
 		for i in range(candidates.size()):
