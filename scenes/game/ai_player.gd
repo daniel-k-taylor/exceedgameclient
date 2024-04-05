@@ -350,8 +350,8 @@ func generate_force_combinations(game_logic : LocalGame, me : LocalGame.Player, 
 	for card_id in cards:
 		var card_force_value = card_db.get_card_force_value(card_id)
 		for i in range(candidates.size()):
-			# Set iteration range prior to adding anything or you'll end up reprocessing new candidates
-			# that were already added during the current pass.
+			# Only process candidates that already existed at the beginning of this iteration
+			# (that is, ignore the ones we're about to append below, to avoid duplication).
 			var combination = candidates[i]
 			if combination[0] < force_target:
 				if combination.size() == 1:
