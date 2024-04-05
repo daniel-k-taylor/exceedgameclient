@@ -129,7 +129,8 @@ func handle_simultaneous_effects(initiator, defender):
 		assert_true(game_logic.do_choice(decider, 0), "Failed simuleffect choice")
 
 func execute_strike(initiator, defender, init_card : String, def_card : String, init_choices, def_choices,
-		init_ex = false, def_ex = false, init_force_discard = [], def_force_discard = [], init_extra_cost = 0, init_set_effect_gauge = false, def_set_effect_gauge = false):
+		init_ex = false, def_ex = false, init_force_discard = [], def_force_discard = [], init_extra_cost = 0,
+		init_set_effect_gauge = false, def_set_effect_gauge = false):
 	var all_events = []
 	give_specific_cards(initiator, init_card, defender, def_card)
 	if init_ex:
@@ -175,14 +176,14 @@ func execute_strike(initiator, defender, init_card : String, def_card : String, 
 	handle_simultaneous_effects(initiator, defender)
 
 	for i in range(init_choices.size()):
-		assert_eq(game_logic.game_state, Enums.GameState.GameState_PlayerDecision)
-		assert_true(game_logic.do_choice(initiator, init_choices[i]))
+		assert_eq(game_logic.game_state, Enums.GameState.GameState_PlayerDecision, "not in decision for choice 1")
+		assert_true(game_logic.do_choice(initiator, init_choices[i]), "choice 1 failed")
 		handle_simultaneous_effects(initiator, defender)
 	handle_simultaneous_effects(initiator, defender)
 
 	for i in range(def_choices.size()):
-		assert_eq(game_logic.game_state, Enums.GameState.GameState_PlayerDecision)
-		assert_true(game_logic.do_choice(defender, def_choices[i]))
+		assert_eq(game_logic.game_state, Enums.GameState.GameState_PlayerDecision, "not in decision for choice 2")
+		assert_true(game_logic.do_choice(defender, def_choices[i]), "choice 2 failed")
 		handle_simultaneous_effects(initiator, defender)
 
 	var events = game_logic.get_latest_events()
@@ -196,3 +197,15 @@ func validate_positions(p1, l1, p2, l2):
 func validate_life(p1, l1, p2, l2):
 	assert_eq(p1.life, l1)
 	assert_eq(p2.life, l2)
+
+func get_cards_from_hand(player : LocalGame.Player, amount : int):
+	var card_ids = []
+	for i in range(amount):
+		card_ids.append(player.hand[i].id)
+	return card_ids
+
+func get_cards_from_gauge(player : LocalGame.Player, amount : int):
+	var card_ids = []
+	for i in range(amount):
+		card_ids.append(player.gauge[i].id)
+	return card_ids
