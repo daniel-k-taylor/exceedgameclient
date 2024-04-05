@@ -28298,9 +28298,13 @@
 			{
 				"timing": "after",
 				"condition": "is_critical",
-				"effect_type": "move_to_any_space",
-				"move_min": 1,
-				"move_max": 2
+				"effect_type": "choice",
+				"choice": [
+					{ "effect_type": "advance", "amount": 1 },
+					{ "effect_type": "advance", "amount": 2 },
+					{ "effect_type": "retreat", "amount": 1 },
+					{ "effect_type": "retreat", "amount": 2 }
+				]
 			}
 		],
 		"boost": {
