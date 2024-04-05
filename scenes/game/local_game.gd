@@ -1,3 +1,4 @@
+class_name LocalGame
 extends Node2D
 
 const Enums = preload("res://scenes/game/enums.gd")
