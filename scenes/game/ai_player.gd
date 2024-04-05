@@ -328,40 +328,62 @@ func get_move_actions(game_logic : LocalGame, me : LocalGame.Player, opponent : 
 				all_force_option_ids.append(card.id)
 			for card in me.gauge:
 				all_force_option_ids.append(card.id)
-			var combinations = []
-			generate_force_combinations(game_logic, me, all_force_option_ids, force_to_move_here, free_force_available, false, [], 0, combinations)
+			var combinations = generate_force_combinations(game_logic, me, all_force_option_ids, force_to_move_here, free_force_available)
 			for combo_result in combinations:
 				var combo = combo_result[0]
 				var used_free_force = combo_result[1]
 				possible_move_actions.append(MoveAction.new(i, combo, used_free_force))
 	return possible_move_actions
 
-func generate_force_combinations(game_logic : LocalGame, me : LocalGame.Player, cards, force_target, free_force_available, used_free_force, current_combination, current_index, combinations):
+## Given a list of card IDs `cards`, return all combinations of card IDs that can be spent to generate
+## `force_target` Force, with up to `free_force_available` units worth of slack. The actual return value
+## is a list of pairs [combination, free_force_used], where the latter is true iff at least one point of
+## the "slack" is necessary for the combination.
+func generate_force_combinations(game_logic : LocalGame, me : LocalGame.Player, cards, force_target, free_force_available):
 	var current_force = me.force_cost_reduction
 	var card_db = game_logic.get_card_database()
-	for card_id in current_combination:
-		current_force += card_db.get_card_force_value(card_id)
 	if current_force >= force_target:
-		combinations.append([current_combination.duplicate(), used_free_force])
-		return
+		return [[[], false]]
 
-	if free_force_available > 0:
-		generate_force_combinations(game_logic, me, cards, force_target - free_force_available, 0, true, current_combination, current_index, combinations)
+	var candidates = [[current_force]]  # Each entry in result is a list whose first element is a force count
+	                                    # and whose remainder is a list of cards
+	for card_id in cards:
+		var card_force_value = card_db.get_card_force_value(card_id)
+		for i in range(candidates.size()):
+			# Only process candidates that already existed at the beginning of this iteration
+			# (that is, ignore the ones we're about to append below, to avoid duplication).
+			var combination = candidates[i]
+			if combination[0] < force_target:
+				if combination.size() == 1:
+					candidates.append([combination[0] + card_force_value, card_id])
+				else:
+					candidates.append([combination[0] + card_force_value] + combination.slice(1, combination.size(), 1, true) + [card_id])
+	var result = []
+	for candidate in candidates:
+		if candidate[0] >= force_target:
+			result.append([candidate.slice(1, candidate.size(), 1, true), false])
+		elif candidate[0] >= force_target - free_force_available:
+			result.append([candidate.slice(1, candidate.size(), 1, true), true])
+	return result
 
-	for i in range(current_index, cards.size()):
-		current_combination.append(cards[i])
-		generate_force_combinations(game_logic, me, cards, force_target, 0, used_free_force, current_combination, i + 1, combinations)
-		current_combination.pop_back()
-
-func generate_card_count_combinations(cards, hand_size, current_combination, current_index, combinations):
-	if current_combination.size() == hand_size:
-		combinations.append(current_combination.duplicate())
-		return
-
-	for i in range(current_index, cards.size()):
-		current_combination.append(cards[i])
-		generate_card_count_combinations(cards, hand_size, current_combination, i + 1, combinations)
-		current_combination.pop_back()
+## Given a list of card IDs `cards`, return all subsets of size `hand_size`. (If not `exact`, return
+## all subsets of size *up to* `hand_size`.
+func generate_card_count_combinations(cards, hand_size, exact=true):
+	if hand_size == 0:
+		return [[]]
+	var subsets = [[]]
+	for card_id in cards:
+		for i in range(subsets.size()):
+			var subset = subsets[i]
+			if subset.size() < hand_size:
+				subsets.append(subset.duplicate() + [card_id])
+	if not exact:
+		return subsets
+	var result = []
+	for subset in subsets:
+		if subset.size() == hand_size:
+			result.append(subset)
+	return result
 
 func get_change_cards_actions(_game_logic : LocalGame, me : LocalGame.Player, _opponent : LocalGame.Player):
 	var possible_actions = []
@@ -385,13 +407,11 @@ func get_change_cards_actions(_game_logic : LocalGame, me : LocalGame.Player, _o
 			all_change_card_ids.append(card.id)
 
 		# Calculate every permutation of moves at this point.
-		for target_size in range(1, total_change_card_options + 1):
-			var combinations = []
-			generate_card_count_combinations(all_change_card_ids, target_size, [], 0, combinations)
-			for combination in combinations:
-				possible_actions.append(ChangeCardsAction.new(combination, false))
-				if free_force_available > 0:
-					possible_actions.append(ChangeCardsAction.new(combination, true))
+		var combinations = generate_card_count_combinations(all_change_card_ids, total_change_card_options, false)
+		for i in range(1, combinations.size()):  # range excludes the first element, which is always empty
+			possible_actions.append(ChangeCardsAction.new(combinations[i], false))
+			if free_force_available > 0:
+				possible_actions.append(ChangeCardsAction.new(combinations[i], true))
 
 	return possible_actions
 
@@ -402,10 +422,9 @@ func get_combinations_to_pay_gauge(me : LocalGame.Player, gauge_cost : int):
 	var combinations = []
 	var cost_to_pay = max(gauge_cost - me.free_gauge, 0)
 	if cost_to_pay == 0:
-		combinations.append([])
+		return [[]]
 	else:
-		generate_card_count_combinations(gauge_card_options, cost_to_pay, [], 0, combinations)
-	return combinations
+		return generate_card_count_combinations(gauge_card_options, cost_to_pay)
 
 func get_exceed_actions(_game_logic : LocalGame, me : LocalGame.Player, _opponent : LocalGame.Player):
 	var possible_actions = []
@@ -485,8 +504,7 @@ func get_boost_actions(game_logic : LocalGame, me : LocalGame.Player, opponent :
 					for payment_card in me.gauge:
 						all_force_option_ids.append(payment_card.id)
 					all_force_option_ids.erase(card.id)
-					var combinations = []
-					generate_force_combinations(game_logic, me,  all_force_option_ids, cost, free_force_available, false, [], 0, combinations)
+					var combinations = generate_force_combinations(game_logic, me,  all_force_option_ids, cost, free_force_available)
 					for combo_result in combinations:
 						var combo = combo_result[0]
 						var use_free_force = combo_result[1]
@@ -499,8 +517,7 @@ func get_boost_actions(game_logic : LocalGame, me : LocalGame.Player, opponent :
 	# If selecting multiple boosts, generate actions for their combinations
 	if boost_amount > 1:
 		for boost_count in range(1, boost_amount+1):
-			var combinations = []
-			generate_card_count_combinations(multiple_boost_options, boost_count, [], 0, combinations)
+			var combinations = generate_card_count_combinations(multiple_boost_options, boost_count)
 			for combination in combinations:
 				possible_actions.append(BoostAction.new(combination[0], [], false, combination.slice(1)))
 	return possible_actions
@@ -600,8 +617,7 @@ func get_character_action_actions(game_logic : LocalGame, me : LocalGame.Player,
 					all_force_option_ids.append(card.id)
 				for card in me.gauge:
 					all_force_option_ids.append(card.id)
-				var combinations = []
-				generate_force_combinations(game_logic, me,  all_force_option_ids, force_cost, free_force_available, false, [], 0, combinations)
+				var combinations = generate_force_combinations(game_logic, me,  all_force_option_ids, force_cost, free_force_available)
 				for combo_result in combinations:
 					var combo = combo_result[0]
 					var use_free_force = combo_result[1]
@@ -642,8 +658,7 @@ func determine_pay_strike_force_cost_actions(game_logic : LocalGame, me : LocalG
 		all_force_option_ids.append(card.id)
 	for card in me.gauge:
 		all_force_option_ids.append(card.id)
-	var combinations = []
-	generate_force_combinations(game_logic, me, all_force_option_ids, force_cost, free_force_available, false, [], 0, combinations)
+	var combinations = generate_force_combinations(game_logic, me, all_force_option_ids, force_cost, free_force_available)
 	for combo_result in combinations:
 		var combo = combo_result[0]
 		var use_free_force = combo_result[1]
@@ -718,8 +733,7 @@ func determine_force_for_armor_actions(game_logic : LocalGame, me : LocalGame.Pl
 		all_force_option_ids.append(card.id)
 	for target_force in range(0, available_force + 1):
 		# Generate an action for every possible combination of cards that can get here.
-		var combinations = []
-		generate_force_combinations(game_logic, me,  all_force_option_ids, target_force, free_force_available, false, [], 0, combinations)
+		var combinations = generate_force_combinations(game_logic, me,  all_force_option_ids, target_force, free_force_available)
 		for combo_result in combinations:
 			var combo = combo_result[0]
 			var use_free_force = combo_result[1]
@@ -748,8 +762,7 @@ func determine_force_for_effect_actions(game_logic: LocalGame, me : LocalGame.Pl
 		if target_force > max_force:
 			continue
 		# Generate an action for every possible combination of cards that can get here.
-		var combinations = []
-		generate_force_combinations(game_logic, me,  all_force_option_ids, target_force, free_force_available, false, [], 0, combinations)
+		var combinations = generate_force_combinations(game_logic, me,  all_force_option_ids, target_force, free_force_available)
 		for combo_result in combinations:
 			var combo = combo_result[0]
 			var use_free_force = combo_result[1]
@@ -816,20 +829,17 @@ func determine_choose_to_discard_options(game_logic, me : LocalGame.Player, to_d
 		to_discard_count = all_card_ids.size()
 	else:
 		to_discard_count = min(to_discard_count, all_card_ids.size())
-	var combinations = []
 	if can_pass:
 		possible_actions.append(ChooseToDiscardAction.new([]))
 
 	for discard_count in range(min_count, max_count+1):
-		generate_card_count_combinations(all_card_ids, discard_count, [], 0, combinations)
-		for combo in combinations:
+		for combo in generate_card_count_combinations(all_card_ids, discard_count):
 			possible_actions.append(ChooseToDiscardAction.new(combo))
 	return possible_actions
 
 func determine_choose_opponent_card_to_discard_options(card_ids : Array):
 	var possible_actions = []
-	var combinations = []
-	generate_card_count_combinations(card_ids, 1, [], 0, combinations)
+	var combinations = generate_card_count_combinations(card_ids, 1)
 	for combo in combinations:
 		possible_actions.append(ChooseToDiscardAction.new(combo))
 	return possible_actions
@@ -860,8 +870,7 @@ func determine_discard_to_max_options(me : LocalGame.Player, to_discard_count: i
 	var all_card_ids = []
 	for card in me.hand:
 		all_card_ids.append(card.id)
-	var combinations = []
-	generate_card_count_combinations(all_card_ids, to_discard_count, [], 0, combinations)
+	var combinations = generate_card_count_combinations(all_card_ids, to_discard_count)
 	for combo in combinations:
 		possible_actions.append(DiscardToMaxAction.new(combo))
 	return possible_actions
@@ -946,8 +955,7 @@ func pick_card_hand_to_gauge(game_logic : LocalGame, my_id : Enums.PlayerId, min
 		var all_card_ids = []
 		for card in me.hand:
 			all_card_ids.append(card.id)
-		var combinations = []
-		generate_card_count_combinations(all_card_ids, i, [], 0, combinations)
+		var combinations = generate_card_count_combinations(all_card_ids, i)
 		for combo in combinations:
 			possible_actions.append(HandToGaugeAction.new(combo))
 
@@ -958,7 +966,6 @@ func pick_mulligan(game_logic : LocalGame, my_id : Enums.PlayerId) -> MulliganAc
 	var me = game_logic._get_player(my_id)
 	var opponent = game_logic._get_player(game_logic.get_other_player(my_id))
 	var possible_actions = []
-	var combinations = []
 	# Always can mulligan 0 cards.
 	possible_actions.append(MulliganAction.new([]))
 	var hand_size = me.hand.size()
@@ -966,8 +973,7 @@ func pick_mulligan(game_logic : LocalGame, my_id : Enums.PlayerId) -> MulliganAc
 	for card in me.hand:
 		all_card_ids.append(card.id)
 	for target_size in range(1, hand_size + 1):
-		generate_card_count_combinations(all_card_ids, target_size, [], 0, combinations)
-		for combo in combinations:
+		for combo in generate_card_count_combinations(all_card_ids, target_size):
 			possible_actions.append(MulliganAction.new(combo))
 	update_ai_state(game_logic, me, opponent)
 	return ai_policy.pick_mulligan(possible_actions, game_state)
@@ -982,8 +988,7 @@ func pick_choose_from_boosts(game_logic : LocalGame, my_id : Enums.PlayerId, cho
 			continue
 		possible_choice_cards.append(card.id)
 
-	var combinations = []
-	generate_card_count_combinations(possible_choice_cards, choose_count, [], 0, combinations)
+	var combinations = generate_card_count_combinations(possible_choice_cards, choose_count)
 	for combo in combinations:
 		possible_actions.append(ChooseFromBoostsAction.new(combo))
 	update_ai_state(game_logic, me, opponent)
@@ -1019,8 +1024,7 @@ func pick_choose_from_discard(game_logic : LocalGame, my_id : Enums.PlayerId, ch
 		if can_choose:
 			possible_choice_cards.append(card.id)
 
-	var combinations = []
-	generate_card_count_combinations(possible_choice_cards, choose_count, [], 0, combinations)
+	var combinations = generate_card_count_combinations(possible_choice_cards, choose_count)
 	for combo in combinations:
 		possible_actions.append(ChooseFromDiscardAction.new(combo))
 	update_ai_state(game_logic, me, opponent)
