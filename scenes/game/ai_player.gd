@@ -345,8 +345,10 @@ func generate_force_combinations(game_logic : LocalGame, me : LocalGame.Player, 
 	if current_force >= force_target:
 		return [[[], false]]
 
-	var candidates = [[current_force]]  # Each entry in result is a list whose first element is a force count
-	                                    # and whose remainder is a list of cards
+	# Each entry in result is a list whose first element is a force count
+	# and whose remainder is a list of cards
+	var candidates = [[current_force]]  
+	
 	for card_id in cards:
 		var card_force_value = card_db.get_card_force_value(card_id)
 		for i in range(candidates.size()):
@@ -419,7 +421,6 @@ func get_combinations_to_pay_gauge(me : LocalGame.Player, gauge_cost : int):
 	var gauge_card_options = []
 	for card in me.gauge:
 		gauge_card_options.append(card.id)
-	var combinations = []
 	var cost_to_pay = max(gauge_cost - me.free_gauge, 0)
 	if cost_to_pay == 0:
 		return [[]]
