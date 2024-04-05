@@ -39,9 +39,9 @@ func give_player_specific_card(player, def_id, card_id):
 	player.hand.append(card)
 
 func give_specific_cards(p1, id1, p2, id2):
-	if p1:
+	if p1 and id1:
 		give_player_specific_card(p1, id1, TestCardId1)
-	if p2:
+	if p2 and id2:
 		give_player_specific_card(p2, id2, TestCardId2)
 
 func position_players(p1, loc1, p2, loc2):
@@ -63,6 +63,16 @@ func validate_has_event(events, event_type, target_player, number = null):
 					return
 	fail_test("Event not found: %s" % event_type)
 
+func validate_not_has_event(events, event_type, target_player, number = null):
+	for event in events:
+		if event['event_type'] == event_type:
+			if event['event_player'] == target_player.my_id:
+				if number != null and event['number'] == number:
+					fail_test("Event found: %s" % event_type)
+				elif number == null:
+					fail_test("Event found: %s" % event_type)
+	return
+
 func before_each():
 	default_game_setup()
 
@@ -81,7 +91,13 @@ func after_all():
 
 func do_and_validate_strike(player, card_id, ex_card_id = -1):
 	assert_true(game_logic.can_do_strike(player))
-	assert_true(game_logic.do_strike(player, card_id, false, ex_card_id))
+	if card_id != -1:
+		assert_true(game_logic.do_strike(player, card_id, false, ex_card_id))
+	else:
+		var ws_card_id = player.deck[0].id
+		assert_true(game_logic.do_strike(player, card_id, true, ex_card_id))
+		card_id = ws_card_id
+
 	var events = game_logic.get_latest_events()
 	validate_has_event(events, Enums.EventType.EventType_Strike_Started, player, card_id)
 	if game_logic.game_state == Enums.GameState.GameState_Strike_Opponent_Response or game_logic.game_state == Enums.GameState.GameState_PlayerDecision:
@@ -121,27 +137,39 @@ func validate_discard(player, amount, id):
 			return
 	fail_test("Didn't have required card in discard.")
 
-func handle_simultaneous_effects(initiator, defender):
+func handle_simultaneous_effects(initiator, defender, simul_effect_choices : Array):
 	while game_logic.game_state == Enums.GameState.GameState_PlayerDecision and game_logic.decision_info.type == Enums.DecisionType.DecisionType_ChooseSimultaneousEffect:
 		var decider = initiator
 		if game_logic.decision_info.player == defender.my_id:
 			decider = defender
-		assert_true(game_logic.do_choice(decider, 0), "Failed simuleffect choice")
+		var choice = 0
+		if len(simul_effect_choices) > 0:
+			choice = simul_effect_choices[0]
+			simul_effect_choices.remove_at(0)
+		assert_true(game_logic.do_choice(decider, choice), "Failed simuleffect choice")
 
 func execute_strike(initiator, defender, init_card : String, def_card : String, init_choices, def_choices,
 		init_ex = false, def_ex = false, init_force_discard = [], def_force_discard = [], init_extra_cost = 0,
-		init_set_effect_gauge = false, def_set_effect_gauge = false):
+		init_set_effect_gauge = false, def_set_effect_gauge = false, simul_effect_choices = [], set_choice = -1):
 	var all_events = []
 	give_specific_cards(initiator, init_card, defender, def_card)
-	if init_ex:
-		give_player_specific_card(initiator, init_card, TestCardId3)
-		do_and_validate_strike(initiator, TestCardId1, TestCardId3)
+
+	if init_card:
+		if init_ex:
+			give_player_specific_card(initiator, init_card, TestCardId3)
+			do_and_validate_strike(initiator, TestCardId1, TestCardId3)
+		else:
+			do_and_validate_strike(initiator, TestCardId1)
 	else:
-		do_and_validate_strike(initiator, TestCardId1)
+		do_and_validate_strike(initiator, -1)  # wild swing
 
 	if game_logic.game_state == Enums.GameState.GameState_PlayerDecision and game_logic.active_strike.strike_state == game_logic.StrikeState.StrikeState_Initiator_SetEffects:
 		if init_set_effect_gauge:
 			assert_true(game_logic.do_gauge_for_effect(initiator, init_force_discard), "failed do_gauge_for_effect")
+		elif set_choice > -1:
+			# set_choice only gets used by Waldstein and Mole Knight, so it's a little safer to
+			# guard it behind this condition rather than let it be the default decision method
+			game_logic.do_choice(initiator, set_choice)
 		else:
 			assert_true(game_logic.do_force_for_effect(initiator, init_force_discard, false), "failed do_force_for_effect")
 
@@ -154,6 +182,8 @@ func execute_strike(initiator, defender, init_card : String, def_card : String, 
 	if game_logic.game_state == Enums.GameState.GameState_PlayerDecision and game_logic.active_strike.strike_state == game_logic.StrikeState.StrikeState_Defender_SetEffects:
 		if def_set_effect_gauge:
 			assert_true(game_logic.do_gauge_for_effect(defender, def_force_discard), "failed defender do_gauge_for_effect")
+		elif set_choice > -1:
+			game_logic.do_choice(defender, set_choice)	
 		else:
 			assert_true(game_logic.do_force_for_effect(defender, def_force_discard, false), "failed defender do_force_for_effect")
 
@@ -173,18 +203,18 @@ func execute_strike(initiator, defender, init_card : String, def_card : String, 
 			cards.append(defender.gauge[i].id)
 		game_logic.do_pay_strike_cost(defender, cards, false)
 
-	handle_simultaneous_effects(initiator, defender)
+	handle_simultaneous_effects(initiator, defender, simul_effect_choices)
 
 	for i in range(init_choices.size()):
 		assert_eq(game_logic.game_state, Enums.GameState.GameState_PlayerDecision, "not in decision for choice 1")
 		assert_true(game_logic.do_choice(initiator, init_choices[i]), "choice 1 failed")
-		handle_simultaneous_effects(initiator, defender)
-	handle_simultaneous_effects(initiator, defender)
+		handle_simultaneous_effects(initiator, defender, simul_effect_choices)
+	handle_simultaneous_effects(initiator, defender, simul_effect_choices)
 
 	for i in range(def_choices.size()):
 		assert_eq(game_logic.game_state, Enums.GameState.GameState_PlayerDecision, "not in decision for choice 2")
 		assert_true(game_logic.do_choice(defender, def_choices[i]), "choice 2 failed")
-		handle_simultaneous_effects(initiator, defender)
+		handle_simultaneous_effects(initiator, defender, simul_effect_choices)
 
 	var events = game_logic.get_latest_events()
 	all_events += events
