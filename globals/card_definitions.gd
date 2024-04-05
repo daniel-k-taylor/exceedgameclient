@@ -4,7 +4,7 @@ var card_data = []
 
 var card_definitions_path = "res://data/card_definitions.json"
 var decks_path = "res://data/decks"
-var decks = []
+var decks = []  # An array of (JSON) dictionaries
 
 const CardHighlightColor = "#7DF9FF" # Light blue
 
