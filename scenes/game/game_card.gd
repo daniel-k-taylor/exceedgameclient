@@ -1,3 +1,4 @@
+class_name GameCard
 extends Node
 
 var id

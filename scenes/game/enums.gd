@@ -1,3 +1,4 @@
+class_name Enums
 extends Node
 
 enum PlayerId {
@@ -21,17 +22,17 @@ enum DecisionType {
 	DecisionType_BoostNow,
 	DecisionType_ChooseArenaLocationForEffect,
 	DecisionType_ChooseDiscardContinuousBoost,
-	DecisionType_ChooseDiscardOpponentGauge,
+	DecisionType_ChooseDiscardOpponentGauge,  # 5
 	DecisionType_ChooseFromBoosts,
 	DecisionType_ChooseFromDiscard,
 	DecisionType_ChooseFromTopDeck,
 	DecisionType_ChooseSimultaneousEffect,
-	DecisionType_EffectChoice,
+	DecisionType_EffectChoice,  # 10
 	DecisionType_ForceBoostSustainTopdeck,
 	DecisionType_ForceBoostSustainTopDiscard,
 	DecisionType_ForceForEffect,
 	DecisionType_GaugeForEffect,
-	DecisionType_NameCard_OpponentDiscards,
+	DecisionType_NameCard_OpponentDiscards,  # 15
 	DecisionType_ChooseToDiscard,
 	DecisionType_PayStrikeCost_Required,
 	DecisionType_PayStrikeCost_CanWild,
@@ -72,102 +73,102 @@ enum EventType {
 	EventType_AddToDeck,
 	EventType_AddToHand,
 	EventType_AddToOverdrive,
-	EventType_AdvanceTurn,
+	EventType_AdvanceTurn,     # 5
 	EventType_BecomeWide,
 	EventType_BlockMovement,
 	EventType_Boost_ActionAfterBoost,
 	EventType_Boost_CancelDecision,
-	EventType_Boost_DiscardContinuousChoice,
+	EventType_Boost_DiscardContinuousChoice,  # 10
 	EventType_Boost_DiscardOpponentGauge,
 	EventType_Boost_Played,
 	EventType_Boost_Canceled,
 	EventType_Boost_Continuous_Added,
-	EventType_Boost_NameCardOpponentDiscards,
+	EventType_Boost_NameCardOpponentDiscards, # 15
 	EventType_Boost_Sidestep,
 	EventType_Boost_ZeroVector,
 	EventType_CardFromHandToGauge_Choice,
 	EventType_ChangeCards,
-	EventType_CharacterAction,
+	EventType_CharacterAction,                # 20
 	EventType_ChooseArenaLocationForEffect,
 	EventType_ChooseFromBoosts,
 	EventType_ChooseFromDiscard,
 	EventType_ChooseFromTopDeck,
-	EventType_ChooseOpponentCardToDiscard,
+	EventType_ChooseOpponentCardToDiscard,    # 25
 	EventType_Draw,
 	EventType_Emote,
 	EventType_EffectDoBoost,
 	EventType_Exceed,
-	EventType_ExceedRevert,
+	EventType_ExceedRevert,          # 30
 	EventType_ForceForEffect,
 	EventType_GaugeForEffect,
 	EventType_ForceStartBoost,
 	EventType_ForceStartStrike,
-	EventType_GameOver,
+	EventType_GameOver,              # 35
 	EventType_HandSizeExceeded,
 	EventType_Move,
 	EventType_MulliganDecision,
 	EventType_PickNumberFromRange,
-	EventType_PlaceBuddy,
+	EventType_PlaceBuddy,            # 40
 	EventType_PlaceCardUnderBoost,
 	EventType_PlaceLightningRod,
 	EventType_Prepare,
 	EventType_ReadingNormal,
-	EventType_ReshuffleDeck,
+	EventType_ReshuffleDeck,         # 45
 	EventType_ReshuffleDeck_Mulligan,
 	EventType_ReshuffleDiscard,
 	EventType_ReshuffleDiscardInPlace,
 	EventType_RevealCard,
-	EventType_RevealHand,
+	EventType_RevealHand,            # 50
 	EventType_RevealRandomGauge,
 	EventType_RevealStrike_OnePlayer,
 	EventType_RevealTopDeck,
 	EventType_Seal,
-	EventType_SetCardAside,
+	EventType_SetCardAside,          # 55
 	EventType_Strike_ArmorUp,
 	EventType_Strike_AttackDoesNotHit,
 	EventType_Strike_CardActivation,
 	EventType_Strike_CharacterEffect,
-	EventType_Strike_Critical,
+	EventType_Strike_Critical,       # 60
 	EventType_Strike_DodgeAttacks,
 	EventType_Strike_DodgeAttacksAtRange,
 	EventType_Strike_DodgeFromOppositeBuddy,
 	EventType_Strike_DoResponseNow,
-	EventType_Strike_EffectChoice,
+	EventType_Strike_EffectChoice,   # 65
 	EventType_Strike_EffectDoStrike,
 	EventType_Strike_ExUp,
 	EventType_Strike_ForceForArmor,
 	EventType_Strike_ForceWildSwing,
-	EventType_Strike_FromGauge,
+	EventType_Strike_FromGauge,      # 70
 	EventType_Strike_GainAdvantage,
 	EventType_Strike_GainLife,
 	EventType_Strike_GuardUp,
 	EventType_Strike_IgnoredPushPull,
-	EventType_Strike_Miss,
+	EventType_Strike_Miss,           # 75
 	EventType_Strike_ChooseToDiscard,
 	EventType_Strike_ChooseToDiscard_Info,
 	EventType_Strike_Cleanup,
 	EventType_Strike_OpponentCantMovePast,
-	EventType_Strike_OpponentSetsFirst,
+	EventType_Strike_OpponentSetsFirst,    # 80
 	EventType_Strike_OpponentSetsFirst_DefenderSet,
 	EventType_Strike_OpponentSetsFirst_InitiatorSet,
 	EventType_Strike_PayCost_Gauge,
 	EventType_Strike_PayCost_Force,
-	EventType_Strike_PayCost_Unable,
+	EventType_Strike_PayCost_Unable, # 85
 	EventType_Strike_PowerUp,
 	EventType_Strike_RandomGaugeStrike,
 	EventType_Strike_RangeUp,
 	EventType_Strike_Response,
-	EventType_Strike_Response_Ex,
+	EventType_Strike_Response_Ex,    # 90
 	EventType_Strike_Reveal,
 	EventType_Strike_SpeedUp,
 	EventType_Strike_SetX,
 	EventType_Strike_Started,
-	EventType_Strike_Started_Ex,
+	EventType_Strike_Started_Ex,     # 95
 	EventType_Strike_Started_ExtraAttack,
 	EventType_Strike_Stun,
 	EventType_Strike_Stun_Immunity,
 	EventType_Strike_TookDamage,
-	EventType_Strike_WildStrike,
+	EventType_Strike_WildStrike,     # 100
 	EventType_SustainBoost,
 	EventType_SwapSealedAndDeck,
 }
