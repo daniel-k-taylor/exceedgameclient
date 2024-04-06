@@ -13649,7 +13649,7 @@
 			"boost_type": "continuous",
 			"force_cost": 0,
 			"cancel_cost": -1,
-			"display_name": "Shock State",
+			"display_name": "Faith",
 			"effects": [
 				{
 					"timing": "during_strike",
