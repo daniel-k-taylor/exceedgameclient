@@ -22,17 +22,17 @@ enum DecisionType {
 	DecisionType_BoostNow,
 	DecisionType_ChooseArenaLocationForEffect,
 	DecisionType_ChooseDiscardContinuousBoost,
-	DecisionType_ChooseDiscardOpponentGauge,
+	DecisionType_ChooseDiscardOpponentGauge,  # 5
 	DecisionType_ChooseFromBoosts,
 	DecisionType_ChooseFromDiscard,
 	DecisionType_ChooseFromTopDeck,
 	DecisionType_ChooseSimultaneousEffect,
-	DecisionType_EffectChoice,
+	DecisionType_EffectChoice,  # 10
 	DecisionType_ForceBoostSustainTopdeck,
 	DecisionType_ForceBoostSustainTopDiscard,
 	DecisionType_ForceForEffect,
 	DecisionType_GaugeForEffect,
-	DecisionType_NameCard_OpponentDiscards,
+	DecisionType_NameCard_OpponentDiscards,  # 15
 	DecisionType_ChooseToDiscard,
 	DecisionType_PayStrikeCost_Required,
 	DecisionType_PayStrikeCost_CanWild,

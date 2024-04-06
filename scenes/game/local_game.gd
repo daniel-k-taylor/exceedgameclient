@@ -44,7 +44,7 @@ const StrikeStaticConditions = [
 	"canceled_this_turn",
 ]
 
-var event_queue = []
+var event_queue = []  # This is purely a logging utility
 
 func get_latest_events() -> Array:
 	var events = event_queue

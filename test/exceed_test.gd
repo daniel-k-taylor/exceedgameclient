@@ -29,7 +29,7 @@ func default_game_setup(alt_opponent : String = ""):
 	game_logic.do_mulligan(game_logic.opponent, [])
 	player1 = game_logic.player
 	player2 = game_logic.opponent
-	game_logic.get_latest_events()
+	game_logic.get_latest_events()  # just to clear the event queue
 
 func give_player_specific_card(player, def_id):
 	var card_def = CardDefinitions.get_card(def_id)

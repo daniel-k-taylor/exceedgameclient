@@ -3,6 +3,9 @@ extends ExceedGutTest
 func who_am_i():
 	return "yuzu"
 
+## Character action: Add a card from your hand to your Gauge. If you have 4+ cards in
+##     your Gauge after this, Exceed (at no cost).
+
 func test_yuzu_ua_under_four_gauge():
 	position_players(player1, 3, player2, 5)
 	give_gauge(player1, 1)
