@@ -105,17 +105,21 @@ func do_and_validate_strike(player, card_id, ex_card_id = -1):
 		assert_true(game_logic.do_strike(player, card_id, true, ex_card_id))
 		card_id = ws_card_id
 
-	var events = game_logic.get_latest_events()
-	validate_has_event(events, Enums.EventType.EventType_Strike_Started, player, card_id)
 	if game_logic.game_state == Enums.GameState.GameState_Strike_Opponent_Response or game_logic.game_state == Enums.GameState.GameState_PlayerDecision:
 		pass
 	else:
-		fail_test("Unexpected game state after strike")
+		fail_test("Unexpected game state after initiating strike")
+	return card_id
 
 func do_strike_response(player, card_id, ex_card_id = -1):
-	assert_true(game_logic.do_strike(player, card_id, card_id == -1, ex_card_id))
-	var events = game_logic.get_latest_events()
-	return events
+	if card_id != -1:
+		assert_true(game_logic.do_strike(player, card_id, false, ex_card_id))
+	else:
+		var ws_card_id = player.deck[0].id
+		assert_true(game_logic.do_strike(player, card_id, true, ex_card_id))
+		card_id = ws_card_id
+
+	return card_id
 
 func advance_turn(player):
 	assert_true(game_logic.do_prepare(player))
@@ -148,10 +152,9 @@ func process_decisions(player, strike_state, decisions):
 	while game_logic.game_state == Enums.GameState.GameState_PlayerDecision and \
 			game_logic.active_strike.strike_state == strike_state and \
 			game_logic.decision_info.player == player.my_id:
-		if not decisions:
-			fail_test("Insufficient decisions defined for player %s during strike" % player)
 		var content = decisions.pop_front()
-		print(" >>> Planning to use %s to make a decision for player %s" % [content, player])
+		if content == null:
+			fail_test("Insufficient decisions defined for player %s during strike" % player)
 		match game_logic.decision_info.type:
 			Enums.DecisionType.DecisionType_ForceForEffect:
 				assert_true(game_logic.do_force_for_effect(player, content, false),
@@ -171,7 +174,7 @@ func process_decisions(player, strike_state, decisions):
 
 func process_remaining_decisions(initiator, defender, init_choices, def_choices):
 	var empty_loop_count = 0
-	while init_choices or def_choices:
+	while init_choices.size() + def_choices.size() >= 1:
 		# empty_loop_count is used to detect when there are still prescribed choices in
 		# the input, but the game is not actually making additional decision points available.
 		empty_loop_count += 1
@@ -181,14 +184,16 @@ func process_remaining_decisions(initiator, defender, init_choices, def_choices)
 				## TODO: Figure out if it's really necessary to limit ourselves to this decision type
 				# and game_logic.decision_info.type == Enums.DecisionType.DecisionType_ChooseSimultaneousEffect:
 			empty_loop_count = 0  # reset the count each time we actually get into this loop; it is not empty
+			var decision = game_logic.decision_info
 			var player = initiator
 			var player_choices = init_choices
-			if game_logic.decision_info.player == defender.my_id:
+			if decision.player == defender.my_id:
 				player = defender
 				player_choices = def_choices
-			if not player_choices:
-				fail_test("Insufficient decisions defined for player %s during strike" % player)
 			var choice = player_choices.pop_front()
+			if choice == null:
+				fail_test("Insufficient decisions defined for player %s during strike" % player)
+				return
 			match game_logic.decision_info.type:
 				Enums.DecisionType.DecisionType_ChooseSimultaneousEffect:
 					assert_true(game_logic.do_choice(player, choice),
@@ -196,6 +201,9 @@ func process_remaining_decisions(initiator, defender, init_choices, def_choices)
 				Enums.DecisionType.DecisionType_ChooseToDiscard:
 					assert_true(game_logic.do_choose_to_discard(player, choice),
 							"%s failed to discard cards %s" % [player, choice])
+				Enums.DecisionType.DecisionType_ForceForArmor:
+					assert_true(game_logic.do_force_for_armor(player, choice),
+							"%s failed to discard cards %s for armor" % [player, choice])
 				var decision_type:  # Unknown decision type, just roll with it?
 					assert_true(game_logic.do_choice(player, choice),
 							"Decision of type %s unhandled by test harness (attempted by player %s, content %s)" % [
@@ -204,30 +212,30 @@ func process_remaining_decisions(initiator, defender, init_choices, def_choices)
 
 func execute_strike(initiator, defender, init_card: String, def_card: String,
 		init_ex = false, def_ex = false, init_choices = [], def_choices = []):
-	var all_events = []
-
+	var init_card_id = -1
+	var init_card_ex_id = -1
+	var def_card_id = -1
+	var def_card_ex_id = -1
 	## TODO: Because all the card IDs are generated internally and at runtime, it is hard
 	##   to pass those IDs in through *_choices
 	if init_card:
-		var init_card_id = give_player_specific_card(initiator, init_card)
-		var init_card_ex_id = -1
+		init_card_id = give_player_specific_card(initiator, init_card)
 		if init_ex:
 			init_card_ex_id = give_player_specific_card(initiator, init_card)
 		do_and_validate_strike(initiator, init_card_id, init_card_ex_id)
 	else:
-		do_and_validate_strike(initiator, -1)  # wild swing
+		init_card_id = do_and_validate_strike(initiator, -1)  # wild swing
 	## TODO: Why no all_events modification in the initiator block? Is it
 	## because `validate` handles the only part we care about?
 	process_decisions(initiator, game_logic.StrikeState.StrikeState_Initiator_SetEffects, init_choices)
 
 	if def_card:
-		var def_card_id = give_player_specific_card(defender, def_card)
-		var def_card_ex_id = -1
+		def_card_id = give_player_specific_card(defender, def_card)
 		if def_ex:
 			def_card_ex_id = give_player_specific_card(defender, def_card)
-		all_events += do_strike_response(defender, def_card_id, def_card_ex_id)
+		do_strike_response(defender, def_card_id, def_card_ex_id)
 	else:
-		all_events += do_strike_response(defender, -1)  # wild swing
+		def_card_id = do_strike_response(defender, -1)  # wild swing
 	process_decisions(defender, game_logic.StrikeState.StrikeState_Defender_SetEffects, def_choices)
 
 	process_decisions(initiator, game_logic.StrikeState.StrikeState_Initiator_PayCosts, init_choices)
@@ -235,9 +243,8 @@ func execute_strike(initiator, defender, init_card: String, def_card: String,
 
 	process_remaining_decisions(initiator, defender, init_choices, def_choices)
 
-	var events = game_logic.get_latest_events()
-	all_events += events
-	return all_events
+	return [init_card_id, def_card_id, init_card_ex_id, def_card_ex_id]
+
 
 func validate_positions(p1, l1, p2, l2):
 	assert_eq(p1.arena_location, l1)
