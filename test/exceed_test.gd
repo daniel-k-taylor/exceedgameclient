@@ -152,7 +152,9 @@ func process_decisions(player, strike_state, decisions):
 			game_logic.decision_info.player == player.my_id:
 		var content = decisions.pop_front()
 		if content == null:
-			fail_test("Insufficient decisions defined for player %s during strike" % player)
+			fail_test("Player %s needed to decide on %s during %s but wasn't told how to" % [
+					player.my_id, Enums.DecisionType.keys()[game_logic.decision_info.type],
+					LocalGame.StrikeState.keys()[strike_state]])
 			return
 		match game_logic.decision_info.type:
 			Enums.DecisionType.DecisionType_ForceForEffect:
@@ -193,7 +195,7 @@ func process_remaining_decisions(initiator, defender, init_choices, def_choices)
 				player_choices = def_choices
 			var choice = player_choices.pop_front()
 			if choice == null:
-				fail_test("Insufficient decisions defined for player %s during strike" % player)
+				fail_test("Insufficient decisions defined for player %s during strike" % player.my_id)
 				return
 			match game_logic.decision_info.type:
 				Enums.DecisionType.DecisionType_ChooseSimultaneousEffect:
@@ -216,6 +218,9 @@ func process_remaining_decisions(initiator, defender, init_choices, def_choices)
 		## TODO: Does the loop need to wait a tick or two here for the game engine to
 		##     present another decision?
 		# wait_seconds(0.01)
+	if game_logic.game_state == Enums.GameState.GameState_PlayerDecision:
+		fail_test("Insufficient decisions defined for player %s during strike" % game_logic.decision_info.player)
+		return
 
 func execute_strike(initiator, defender, init_card: String, def_card: String,
 		init_ex = false, def_ex = false, init_choices = [], def_choices = []):

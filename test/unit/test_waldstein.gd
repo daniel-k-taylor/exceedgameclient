@@ -145,64 +145,115 @@ func test_waldstein_the_destroyers_special():
 	var boost_id = give_player_specific_card(player1, "waldstein_werfenerschlagen")
 	assert_true(game_logic.do_boost(player1, boost_id, []))
 	advance_turn(player2)
-	# Expected: Wirbelwind is not a Normal and hits at its normal range of 1~2.
+	# Expected: Wirbelwind is not a Normal and hits at its normal range of 1~2 for its normal amount of damage.
 	#     It goes first and hits for 6, and Sweep retaliates for 6 - 1 (Wirbelwind) = 5.
-	execute_strike(player1, player2, "waldstein_wirbelwind", "uni_normal_sweep")
+	execute_strike(player1, player2, "waldstein_wirbelwind", "uni_normal_sweep",
+			false, false, [0], [])  # Choose the ordering of After: effects
 	validate_positions(player1, 5, player2, 7)
 	validate_life(player1, 25, player2, 24)
 	# Expected: Boost is still discarded because the attack did hit
 	assert_true(player1.is_card_in_discards(boost_id))
 
-# func test_waldstein_verderben_faceup_initiate():
-# 	position_players(player1, 3, player2, 6)
-# 	give_gauge(player1, 4)
-# 	give_player_specific_card(player1, "uni_normal_assault", TestCardId3)
-# 	player1.move_card_from_hand_to_deck(TestCardId3)
+func test_waldstein_the_destroyers_special_miss():
+	position_players(player1, 3, player2, 6)
+	var boost_id = give_player_specific_card(player1, "waldstein_werfenerschlagen")
+	assert_true(game_logic.do_boost(player1, boost_id, []))
+	advance_turn(player2)
+	# Expected: Wirbelwind is not a Normal and misses (its 1~2 is not expanded to 3~4).
+	#     Waldstein advances into Focus's range and gets hit for 4 - 1 (Wirbelwind) = 3.
+	execute_strike(player1, player2, "waldstein_wirbelwind", "uni_normal_focus",
+			false, false, [0], [])  # Choose the ordering of After: effects
+	validate_positions(player1, 5, player2, 6)
+	validate_life(player1, 27, player2, 30)
+	# Expected: Boost is recurs due to the miss (even though the card wasn't a Normal).
+	assert_true(player1.is_card_in_hand(boost_id))
 
-# 	execute_strike(player1, player2, "waldstein_verderben", "uni_normal_sweep", [], [], false, false,
-# 		[], [], 0, false, false, [], 0)
-# 	validate_positions(player1, 3, player2, 6)
-# 	validate_life(player1, 28, player2, 20)
-# 	advance_turn(player2)
+func test_waldstein_the_destroyers_ultra():
+	position_players(player1, 3, player2, 4)
+	var p1_gauge = give_gauge(player1, 2)
+	var boost_id = give_player_specific_card(player1, "waldstein_werfenerschlagen")
+	assert_true(game_logic.do_boost(player1, boost_id, []))
+	advance_turn(player2)
+	# Expected: Katastrophe is not a Normal and hits at its normal range of 1~2.
+	execute_strike(player1, player2, "waldstein_katastrophe", "uni_normal_dive",
+			false, false, [p1_gauge], [])  # Pay for Ultra
+	validate_positions(player1, 3, player2, 9)
+	validate_life(player1, 30, player2, 23)
+	# Expected: Boost is still discarded
+	assert_true(player1.is_card_in_discards(boost_id))
 
-# func test_waldstein_verderben_faceup_response():
-# 	position_players(player1, 3, player2, 6)
-# 	give_gauge(player1, 4)
-# 	give_player_specific_card(player1, "uni_normal_assault", TestCardId3)
-# 	player1.move_card_from_hand_to_deck(TestCardId3)
-# 	advance_turn(player1)
+func test_waldstein_the_destroyers_ultra_miss():
+	position_players(player1, 3, player2, 6)
+	var p1_gauge = give_gauge(player1, 2)
+	var boost_id = give_player_specific_card(player1, "waldstein_werfenerschlagen")
+	assert_true(game_logic.do_boost(player1, boost_id, []))
+	advance_turn(player2)
+	# Expected: Katastrophe is not a Normal and misses at its normal range of 1~2.
+	execute_strike(player1, player2, "waldstein_katastrophe", "uni_normal_dive",
+			false, false, [p1_gauge], [])  # Pay for Ultra
+	validate_positions(player1, 3, player2, 2)
+	validate_life(player1, 25, player2, 30)
+	# Expected: Boost is recurs due to the miss
+	assert_true(player1.is_card_in_hand(boost_id))
 
-# 	execute_strike(player2, player1, "uni_normal_sweep", "waldstein_verderben", [], [], false, false,
-# 		[], [], 0, false, false, [], 0)
-# 	validate_positions(player1, 3, player2, 6)
-# 	validate_life(player1, 28, player2, 20)
-# 	advance_turn(player1)
+## Verderben (3~4/10/1|4/0) -- Stun Immunity. This attack must be set face-up.
+##     (Otherwise, it becomes invalid.)
+	
+func test_waldstein_verderben_faceup_initiate():
+	position_players(player1, 3, player2, 6)
+	var p1_gauge = give_gauge(player1, 4)
+	var wild_swing_id = give_player_specific_card(player1, "uni_normal_assault")
+	player1.move_card_from_hand_to_deck(wild_swing_id)
 
-# func test_waldstein_verderben_facedown():
-# 	position_players(player1, 3, player2, 6)
-# 	give_gauge(player1, 4)
-# 	give_player_specific_card(player1, "uni_normal_assault", TestCardId3)
-# 	player1.move_card_from_hand_to_deck(TestCardId3)
+	execute_strike(player1, player2, "waldstein_verderben", "uni_normal_sweep",
+		false, false, [0, p1_gauge], [])  # Set attack face-up, pay gauge cost
+	# Sweep hits first for 6 - 4 (Verderben) = 2, fails to stun (Verderben).
+	# Verderben retaliates for 10.
+	validate_positions(player1, 3, player2, 6)
+	validate_life(player1, 28, player2, 20)
 
-# 	execute_strike(player1, player2, "waldstein_verderben", "uni_normal_sweep", [], [], false, false,
-# 		[], [], 0, false, false, [], 1)
-# 	validate_positions(player1, 5, player2, 6)
-# 	validate_life(player1, 24, player2, 26)
-# 	assert_true(player1.is_card_in_discards(TestCardId1))
-# 	assert_true(player1.is_card_in_gauge(TestCardId3))
-# 	advance_turn(player1)
+func test_waldstein_verderben_faceup_response():
+	position_players(player1, 3, player2, 6)
+	var p1_gauge = give_gauge(player1, 4)
+	var wild_swing_id = give_player_specific_card(player1, "uni_normal_assault")
+	player1.move_card_from_hand_to_deck(wild_swing_id)
+	advance_turn(player1)
 
-# func test_waldstein_verderben_wildswung():
-# 	position_players(player1, 3, player2, 6)
-# 	give_gauge(player1, 4)
-# 	give_player_specific_card(player1, "uni_normal_assault", TestCardId3)
-# 	player1.move_card_from_hand_to_deck(TestCardId3)
-# 	give_player_specific_card(player1, "waldstein_verderben", TestCardId4)
-# 	player1.move_card_from_hand_to_deck(TestCardId4)
+	execute_strike(player2, player1, "uni_normal_sweep", "waldstein_verderben",
+		false, false, [], [0, p1_gauge])  # Set attack face-up, pay gauge cost
+	validate_positions(player1, 3, player2, 6)
+	validate_life(player1, 28, player2, 20)
 
-# 	execute_strike(player1, player2, "", "uni_normal_sweep", [], [], false, false)
-# 	validate_positions(player1, 5, player2, 6)
-# 	validate_life(player1, 24, player2, 26)
-# 	assert_true(player1.is_card_in_discards(TestCardId4))
-# 	assert_true(player1.is_card_in_gauge(TestCardId3))
-# 	advance_turn(player1)
+func test_waldstein_verderben_facedown():
+	position_players(player1, 3, player2, 6)
+	var p1_gauge = give_gauge(player1, 4)
+	var wild_swing_id = give_player_specific_card(player1, "uni_normal_assault")
+	player1.move_card_from_hand_to_deck(wild_swing_id)
+
+	var cards_used = execute_strike(player1, player2, "waldstein_verderben", "uni_normal_sweep",
+			false, false, [1], [])  # Set attack face-down
+	# Expected: Verderben is invalidated and Waldstein swings with Assault into Sweep
+	validate_positions(player1, 5, player2, 6)
+	validate_life(player1, 24, player2, 26)
+	assert_true(player1.is_card_in_discards(cards_used[0]))  # Initiator's attack, i.e. Verderben
+	assert_true(player1.is_card_in_gauge(wild_swing_id))
+	assert_eq(player1.gauge.size(), 5)  # Did not have to pay for the invalid ultra
+
+func test_waldstein_verderben_wildswung():
+	position_players(player1, 3, player2, 6)
+	var p1_gauge = give_gauge(player1, 4)
+	var assault_id = give_player_specific_card(player1, "uni_normal_assault")
+	player1.move_card_from_hand_to_deck(assault_id)
+	var verderben_id = give_player_specific_card(player1, "waldstein_verderben")
+	player1.move_card_from_hand_to_deck(verderben_id)
+
+	execute_strike(player1, player2, "", "uni_normal_sweep")
+	# Expected: Waldstein is not offered the chance to wild swing Verderben face-up
+	#         (If he is, you will get an error about "needed to decide on ... but wasn't told how to)
+	#     Waldstein wild swings Assault into Sweep
+	validate_positions(player1, 5, player2, 6)
+	validate_life(player1, 24, player2, 26)
+	assert_true(player1.is_card_in_discards(verderben_id))
+	assert_true(player1.is_card_in_gauge(assault_id))
+	assert_eq(player1.gauge.size(), 5)  # Did not have to pay for the invalid ultra
+
