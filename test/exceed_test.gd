@@ -23,7 +23,8 @@ func default_game_setup(alt_opponent : String = ""):
 		opponent_deck = CardDefinitions.get_deck_from_str_id(alt_opponent)
 	game_logic = LocalGame.new()
 	var seed_value = randi()
-	game_logic.initialize_game(default_deck, opponent_deck, "p1", "p2", Enums.PlayerId.PlayerId_Player, seed_value)
+	game_logic.initialize_game(default_deck, opponent_deck, "p1", "p2",
+			Enums.PlayerId.PlayerId_Player, seed_value)
 	game_logic.draw_starting_hands_and_begin()
 	game_logic.do_mulligan(game_logic.player, [])
 	game_logic.do_mulligan(game_logic.opponent, [])
@@ -64,9 +65,8 @@ func validate_has_event(events, event_type, target_player, number = null):
 	for event in events:
 		if event['event_type'] == event_type:
 			if event['event_player'] == target_player.my_id:
-				if number != null and event['number'] == number:
-					return
-				elif number == null:
+				if number == null or event['number'] == number:
+					pass_test("Found event %s" % event_type)
 					return
 	fail_test("Event not found: %s" % event_type)
 
@@ -74,11 +74,9 @@ func validate_not_has_event(events, event_type, target_player, number = null):
 	for event in events:
 		if event['event_type'] == event_type:
 			if event['event_player'] == target_player.my_id:
-				if number != null and event['number'] == number:
+				if number == null or event['number'] == number:
 					fail_test("Event found: %s" % event_type)
-				elif number == null:
-					fail_test("Event found: %s" % event_type)
-	return
+					return
 
 func before_each():
 	default_game_setup()
@@ -105,10 +103,12 @@ func do_and_validate_strike(player, card_id, ex_card_id = -1):
 		assert_true(game_logic.do_strike(player, card_id, true, ex_card_id))
 		card_id = ws_card_id
 
-	if game_logic.game_state == Enums.GameState.GameState_Strike_Opponent_Response or game_logic.game_state == Enums.GameState.GameState_PlayerDecision:
+	if game_logic.game_state == Enums.GameState.GameState_Strike_Opponent_Response or \
+			game_logic.game_state == Enums.GameState.GameState_PlayerDecision:
 		pass
 	else:
 		fail_test("Unexpected game state after initiating strike")
+		## TODO: Figure out if the test should terminate early here
 	return card_id
 
 func do_strike_response(player, card_id, ex_card_id = -1):
@@ -132,21 +132,19 @@ func advance_turn(player):
 
 func validate_gauge(player, amount, id):
 	assert_eq(len(player.gauge), amount)
-	if len(player.gauge) != amount: return
-	if amount == 0: return
-	for card in player.gauge:
-		if card.id == id:
-			return
-	fail_test("Didn't have required card in gauge.")
+	if amount == 0 or len(player.gauge) != amount:
+		return
+	assert_true(
+		player.gauge.any(func (card): return card.id == id),
+		"Didn't find card %s in gauge." % id)
 
 func validate_discard(player, amount, id):
 	assert_eq(len(player.discards), amount)
-	if len(player.discards) != amount: return
-	if amount == 0: return
-	for card in player.discards:
-		if card.id == id:
-			return
-	fail_test("Didn't have required card in discard.")
+	if amount == 0 or len(player.discards) != amount:
+		return
+	assert_true(
+		player.discard.any(func (card): return card.id == id),
+		"Didn't find card %s in discard." % id)
 
 func process_decisions(player, strike_state, decisions):
 	while game_logic.game_state == Enums.GameState.GameState_PlayerDecision and \
@@ -155,6 +153,7 @@ func process_decisions(player, strike_state, decisions):
 		var content = decisions.pop_front()
 		if content == null:
 			fail_test("Insufficient decisions defined for player %s during strike" % player)
+			return
 		match game_logic.decision_info.type:
 			Enums.DecisionType.DecisionType_ForceForEffect:
 				assert_true(game_logic.do_force_for_effect(player, content, false),
@@ -179,7 +178,9 @@ func process_remaining_decisions(initiator, defender, init_choices, def_choices)
 		# the input, but the game is not actually making additional decision points available.
 		empty_loop_count += 1
 		if empty_loop_count >= 3:
-			fail_test("Game is not providing decision points to process initiator choices %s or defender choices %s" % [init_choices, def_choices])
+			fail_test("Game is not providing decision points to process initiator" +
+					" choices %s or defender choices %s" % [init_choices, def_choices])
+			return
 		while game_logic.game_state == Enums.GameState.GameState_PlayerDecision:
 				## TODO: Figure out if it's really necessary to limit ourselves to this decision type
 				# and game_logic.decision_info.type == Enums.DecisionType.DecisionType_ChooseSimultaneousEffect:
@@ -205,10 +206,16 @@ func process_remaining_decisions(initiator, defender, init_choices, def_choices)
 					assert_true(game_logic.do_force_for_armor(player, choice),
 							"%s failed to discard cards %s for armor" % [player, choice])
 				var decision_type:  # Unknown decision type, just roll with it?
+					if typeof(choice) == Variant.Type.TYPE_ARRAY:
+						fail_test("Attempting to apply array choice %s to a decision of type %s" % [
+								choice, Enums.DecisionType.keys()[decision_type]])
+						return
 					assert_true(game_logic.do_choice(player, choice),
 							"Decision of type %s unhandled by test harness (attempted by player %s, content %s)" % [
 									decision_type, player, choice])
-		wait_seconds(0.01)
+		## TODO: Does the loop need to wait a tick or two here for the game engine to
+		##     present another decision?
+		# wait_seconds(0.01)
 
 func execute_strike(initiator, defender, init_card: String, def_card: String,
 		init_ex = false, def_ex = false, init_choices = [], def_choices = []):
