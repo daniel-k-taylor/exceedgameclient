@@ -1,382 +1,259 @@
-extends GutTest
+extends ExceedGutTest
 
-const LocalGame = preload("res://scenes/game/local_game.gd")
-const GameCard = preload("res://scenes/game/game_card.gd")
-const Enums = preload("res://scenes/game/enums.gd")
-var game_logic : LocalGame
-var default_deck = CardDefinitions.get_deck_from_str_id("waldstein")
-const TestCardId1 = 50001
-const TestCardId2 = 50002
-const TestCardId3 = 50003
-const TestCardId4 = 50004
-const TestCardId5 = 50005
+func who_am_i():
+	return "waldstein"
 
-var player1 : LocalGame.Player
-var player2 : LocalGame.Player
-
-func default_game_setup():
-	game_logic = LocalGame.new()
-	var seed_value = randi()
-	game_logic.initialize_game(default_deck, default_deck, "p1", "p2", Enums.PlayerId.PlayerId_Player, seed_value)
-	game_logic.draw_starting_hands_and_begin()
-	game_logic.do_mulligan(game_logic.player, [])
-	game_logic.do_mulligan(game_logic.opponent, [])
-	player1 = game_logic.player
-	player2 = game_logic.opponent
-	game_logic.get_latest_events()
-
-func give_player_specific_card(player, def_id, card_id):
-	var card_def = CardDefinitions.get_card(def_id)
-	var card = GameCard.new(card_id, card_def, "image", player.my_id)
-	var card_db = game_logic.get_card_database()
-	card_db._test_insert_card(card)
-	player.hand.append(card)
-
-func give_specific_cards(p1, id1, p2, id2):
-	if p1 and id1:
-		give_player_specific_card(p1, id1, TestCardId1)
-	if p2 and id2:
-		give_player_specific_card(p2, id2, TestCardId2)
-
-func position_players(p1, loc1, p2, loc2):
-	p1.arena_location = loc1
-	p2.arena_location = loc2
-
-func give_gauge(player, amount):
-	for i in range(amount):
-		player.add_to_gauge(player.deck[0])
-		player.deck.remove_at(0)
-
-func validate_has_event(events, event_type, target_player, number = null):
-	for event in events:
-		if event['event_type'] == event_type:
-			if event['event_player'] == target_player.my_id:
-				if number != null and event['number'] == number:
-					return
-				elif number == null:
-					return
-	fail_test("Event not found: %s" % event_type)
-
-func validate_not_has_event(events, event_type, target_player, number = null):
-	for event in events:
-		if event['event_type'] == event_type:
-			if event['event_player'] == target_player.my_id:
-				if number != null and event['number'] == number:
-					fail_test("Event found: %s" % event_type)
-				elif number == null:
-					fail_test("Event found: %s" % event_type)
-	return
-
-func before_each():
-	default_game_setup()
-
-	gut.p("ran setup", 2)
-
-func after_each():
-	game_logic.teardown()
-	game_logic.free()
-	gut.p("ran teardown", 2)
-
-func before_all():
-	gut.p("ran run setup", 2)
-
-func after_all():
-	gut.p("ran run teardown", 2)
-
-func do_and_validate_strike(player, card_id, ex_card_id = -1):
-	assert_true(game_logic.can_do_strike(player))
-	if card_id != -1:
-		assert_true(game_logic.do_strike(player, card_id, false, ex_card_id))
-	else:
-		var ws_card_id = player.deck[0].id
-		assert_true(game_logic.do_strike(player, card_id, true, ex_card_id))
-		card_id = ws_card_id
-
-	var events = game_logic.get_latest_events()
-	validate_has_event(events, Enums.EventType.EventType_Strike_Started, player, card_id)
-	if game_logic.game_state == Enums.GameState.GameState_Strike_Opponent_Response or game_logic.game_state == Enums.GameState.GameState_PlayerDecision:
-		pass
-	else:
-		fail_test("Unexpected game state after strike")
-
-func do_strike_response(player, card_id, ex_card = -1):
-	assert_true(game_logic.do_strike(player, card_id, false, ex_card))
-	var events = game_logic.get_latest_events()
-	return events
-
-func advance_turn(player):
-	assert_true(game_logic.do_prepare(player))
-	if player.hand.size() > 7:
-		var cards = []
-		var to_discard = player.hand.size() - 7
-		for i in range(to_discard):
-			cards.append(player.hand[i].id)
-		assert_true(game_logic.do_discard_to_max(player, cards))
-
-func validate_gauge(player, amount, id):
-	assert_eq(len(player.gauge), amount)
-	if len(player.gauge) != amount: return
-	if amount == 0: return
-	for card in player.gauge:
-		if card.id == id:
-			return
-	fail_test("Didn't have required card in gauge.")
-
-func validate_discard(player, amount, id):
-	assert_eq(len(player.discards), amount)
-	if len(player.discards) != amount: return
-	if amount == 0: return
-	for card in player.discards:
-		if card.id == id:
-			return
-	fail_test("Didn't have required card in discard.")
-
-func handle_simultaneous_effects(initiator, defender, simul_effect_choices : Array):
-	while game_logic.game_state == Enums.GameState.GameState_PlayerDecision and game_logic.decision_info.type == Enums.DecisionType.DecisionType_ChooseSimultaneousEffect:
-		var decider = initiator
-		if game_logic.decision_info.player == defender.my_id:
-			decider = defender
-		var choice = 0
-		if len(simul_effect_choices) > 0:
-			choice = simul_effect_choices[0]
-			simul_effect_choices.remove_at(0)
-		assert_true(game_logic.do_choice(decider, choice), "Failed simuleffect choice")
-
-func execute_strike(initiator, defender, init_card : String, def_card : String, init_choices, def_choices, init_ex = false, def_ex = false, init_force_discard = [], def_force_discard = [], init_extra_cost = 0, simul_effect_choices = [], set_choice=0):
-	var all_events = []
-	give_specific_cards(initiator, init_card, defender, def_card)
-
-	if init_card:
-		if init_ex:
-			give_player_specific_card(initiator, init_card, TestCardId3)
-			do_and_validate_strike(initiator, TestCardId1, TestCardId3)
-		else:
-			do_and_validate_strike(initiator, TestCardId1)
-	else:
-		do_and_validate_strike(initiator, -1)
-
-	if game_logic.game_state == Enums.GameState.GameState_PlayerDecision and game_logic.active_strike.strike_state == game_logic.StrikeState.StrikeState_Initiator_SetEffects:
-		if init_force_discard:
-			game_logic.do_force_for_effect(initiator, init_force_discard, false)
-		else:
-			game_logic.do_choice(initiator, set_choice)
-
-	if def_ex:
-		give_player_specific_card(defender, def_card, TestCardId4)
-		all_events += do_strike_response(defender, TestCardId2, TestCardId4)
-	elif def_card:
-		all_events += do_strike_response(defender, TestCardId2)
-
-	if game_logic.game_state == Enums.GameState.GameState_PlayerDecision and game_logic.active_strike.strike_state == game_logic.StrikeState.StrikeState_Defender_SetEffects:
-		if def_force_discard:
-			game_logic.do_force_for_effect(defender, def_force_discard, false)
-		else:
-			game_logic.do_choice(defender, set_choice)
-
-	# Pay any costs from gauge
-	if game_logic.active_strike and game_logic.active_strike.strike_state == game_logic.StrikeState.StrikeState_Initiator_PayCosts:
-		var cost = game_logic.active_strike.initiator_card.definition['gauge_cost'] + init_extra_cost
-		var cards = []
-		for i in range(cost):
-			cards.append(initiator.gauge[i].id)
-		game_logic.do_pay_strike_cost(initiator, cards, false)
-
-	# Pay any costs from gauge
-	if game_logic.active_strike and game_logic.active_strike.strike_state == game_logic.StrikeState.StrikeState_Defender_PayCosts:
-		var cost = game_logic.active_strike.defender_card.definition['gauge_cost']
-		var cards = []
-		for i in range(cost):
-			cards.append(defender.gauge[i].id)
-		game_logic.do_pay_strike_cost(defender, cards, false)
-
-	handle_simultaneous_effects(initiator, defender, simul_effect_choices)
-
-	for i in range(init_choices.size()):
-		assert_eq(game_logic.game_state, Enums.GameState.GameState_PlayerDecision)
-		assert_true(game_logic.do_choice(initiator, init_choices[i]))
-		handle_simultaneous_effects(initiator, defender, simul_effect_choices)
-	handle_simultaneous_effects(initiator, defender, simul_effect_choices)
-
-	for i in range(def_choices.size()):
-		assert_eq(game_logic.game_state, Enums.GameState.GameState_PlayerDecision)
-		assert_true(game_logic.do_choice(defender, def_choices[i]))
-		handle_simultaneous_effects(initiator, defender, simul_effect_choices)
-
-	var events = game_logic.get_latest_events()
-	all_events += events
-	return all_events
-
-func validate_positions(p1, l1, p2, l2):
-	assert_eq(p1.arena_location, l1)
-	assert_eq(p2.arena_location, l2)
-
-func validate_life(p1, l1, p2, l2):
-	assert_eq(p1.life, l1)
-	assert_eq(p2.life, l2)
-
-##
-## Tests start here
-##
+## Ferzen Volf (1~3/4/1|1/2) -- You cannot be pushed or pulled.
+##     Before, Range 1: Push 2 and +2 Power.
+##     Hit: Push 2.
 
 func test_waldstein_ferzen_volf_range_one():
 	position_players(player1, 4, player2, 5)
 
-	execute_strike(player1, player2, "waldstein_ferzenvolf", "uni_normal_grasp", [], [1], false, false)
+	execute_strike(player1, player2, "waldstein_ferzenvolf", "uni_normal_grasp",
+			false, false, [], [1])
+	# Expected: Grasp fails to push Waldstein, so the Range 1 effects of Ferzen Volf kick in.
 	validate_positions(player1, 4, player2, 9)
 	validate_life(player1, 28, player2, 24)
-	advance_turn(player2)
 
 func test_waldstein_ferzen_volf_range_two():
 	position_players(player1, 4, player2, 6)
 
-	execute_strike(player1, player2, "waldstein_ferzenvolf", "uni_normal_grasp", [], [], false, false)
+	execute_strike(player1, player2, "waldstein_ferzenvolf", "uni_normal_grasp")
+	# Expected: Grasp misses, Ferzen Volf just hits with its printed stats.
 	validate_positions(player1, 4, player2, 8)
 	validate_life(player1, 30, player2, 26)
-	advance_turn(player2)
+
+## Sturmangriff (1/5/2|1/2) -- Before: Close 4. Hit: Push or pull 3.
+## Sturmangriff boost -- At the start of your turn, Strike. If you do, your attack has
+##     +2 Speed and +2 Armor. Now: Draw 2.
 
 func test_waldstein_face_me_opponent_strikes():
 	position_players(player1, 4, player2, 6)
 	player1.hand = []
-	give_player_specific_card(player1, "waldstein_sturmangriff", TestCardId3)
-	assert_true(game_logic.do_boost(player1, TestCardId3, []))
+	var boost_id = give_player_specific_card(player1, "waldstein_sturmangriff")
+	assert_true(game_logic.do_boost(player1, boost_id, []))
+	# Expected: Waldstein draws 2 from the boost and 1 from end of turn.
 	assert_eq(len(player1.hand), 3)
 
-	execute_strike(player2, player1, "uni_normal_sweep", "waldstein_sturmangriff", [], [], false, false)
+	execute_strike(player2, player1, "uni_normal_sweep", "waldstein_sturmangriff")
+	# Expected: Sweep connects for 6; in particular, the boost buffs don't apply
+	#     on the opponent strike, so Sturmangriff is both slower than Sweep and
+	#     gets stunned by it.
 	validate_positions(player1, 4, player2, 6)
 	validate_life(player1, 25, player2, 30)
-	advance_turn(player1)
 
 func test_waldstein_face_me_opponent_doesnt_strike():
 	position_players(player1, 4, player2, 7)
 	player1.hand = []
-	give_player_specific_card(player1, "waldstein_sturmangriff", TestCardId3)
-	assert_true(game_logic.do_boost(player1, TestCardId3, []))
+	var boost_id = give_player_specific_card(player1, "waldstein_sturmangriff")
+	assert_true(game_logic.do_boost(player1, boost_id, []))
 	assert_eq(len(player1.hand), 3)
 
-	advance_turn(player2)
+	# Give the opponent a speed boost (EX) so that Sturmangriff needs its
+	# Speed buff to go first.
+	var cross_id = give_player_specific_card(player2, "uni_normal_cross")
+	assert_true(game_logic.do_boost(player2, cross_id, []))
+	# Expected: Game to automatically initiates a strike on Waldstein's behalf
 	assert_eq(game_logic.game_state, Enums.GameState.GameState_WaitForStrike)
 
-	execute_strike(player1, player2, "waldstein_sturmangriff", "uni_normal_sweep", [0], [], false, false)
+	# Expected: Sturmangriff outspeeds EX Sweep (2 + 2 > 2 + 1), closes to 6,
+	#     hits for 5 - 1 (EX) = 4, failing to stun. EX Sweep retaliates for
+	#     6 + 1 (EX) - 1 (Sturmangriff) - 2 (boost) = 4.
+	execute_strike(player1, player2, "waldstein_sturmangriff", "uni_normal_sweep",
+			false, false, [0], [])  # Waldstein chooses to push 3
 	validate_positions(player1, 6, player2, 9)
-	validate_life(player1, 27, player2, 25)
-	advance_turn(player2)
+	validate_life(player1, 26, player2, 26)
+
+## Katastrophe boost -- For each card in your hand, draw 1.
 
 func test_waldstein_hecatoncheir_no_cards():
 	position_players(player1, 4, player2, 6)
 	player1.hand = []
-	give_player_specific_card(player1, "waldstein_katastrophe", TestCardId3)
-	assert_true(game_logic.do_boost(player1, TestCardId3, []))
+	var boost_id = give_player_specific_card(player1, "waldstein_katastrophe")
+	assert_true(game_logic.do_boost(player1, boost_id, []))
+	# Expected: Waldstein only ends up with the one card from end of turn.
 	assert_eq(len(player1.hand), 1)
-	advance_turn(player2)
 
 func test_waldstein_hecatoncheir_one_card():
 	position_players(player1, 4, player2, 6)
 	player1.hand = []
-	give_player_specific_card(player1, "waldstein_katastrophe", TestCardId3)
-	give_player_specific_card(player1, "uni_normal_grasp", TestCardId4)
-	assert_true(game_logic.do_boost(player1, TestCardId3, []))
+	var boost_id = give_player_specific_card(player1, "waldstein_katastrophe")
+	give_player_specific_card(player1, "uni_normal_grasp")
+	assert_true(game_logic.do_boost(player1, boost_id, []))
+	# Expected: Waldstein draws 1 from the boost and 1 from end of turn.
 	assert_eq(len(player1.hand), 3)
-	advance_turn(player2)
 
 func test_waldstein_hecatoncheir_several_cards():
 	position_players(player1, 4, player2, 6)
-	var hand_size = len(player1.hand)
-	give_player_specific_card(player1, "waldstein_katastrophe", TestCardId3)
-	assert_true(game_logic.do_boost(player1, TestCardId3, []))
+	var hand_size = len(player1.hand)  # Should be five but that's a test suite detail
+	var boost_id = give_player_specific_card(player1, "waldstein_katastrophe")
+	assert_true(game_logic.do_boost(player1, boost_id, []))
+	# Expected: Hand size is now doubled plus 1 from end of turn
+	var events = game_logic.get_latest_events()
+	validate_has_event(events, Enums.EventType.EventType_HandSizeExceeded, player1)
 	assert_eq(len(player1.hand), (hand_size*2) + 1)
-	var cards = []
+
 	var to_discard = player1.hand.size() - 7
-	for i in range(to_discard):
-		cards.append(player1.hand[i].id)
+	var cards = player1.hand.slice(0, to_discard).map(func (card): return card.id)
 	assert_true(game_logic.do_discard_to_max(player1, cards))
-	advance_turn(player2)
+
+## Werfen Erschlagen boost -- Your Normal attacks has +2~2 Range and +2 Power.
+##     After: If your attack did not hit, return this to your hand.
 
 func test_waldstein_the_destroyers_normal_hit():
 	position_players(player1, 3, player2, 6)
-	give_player_specific_card(player1, "waldstein_werfenerschlagen", TestCardId3)
-	assert_true(game_logic.do_boost(player1, TestCardId3, []))
+	var boost_id = give_player_specific_card(player1, "waldstein_werfenerschlagen")
+	assert_true(game_logic.do_boost(player1, boost_id, []))
 	advance_turn(player2)
 
-	execute_strike(player1, player2, "uni_normal_grasp", "uni_normal_assault", [3], [], false, false)
+	execute_strike(player1, player2, "uni_normal_grasp", "uni_normal_assault",
+			false, false, [3], [])  # Pull 2 with Grasp
+	# Expected: Grasp hits at range 3 for 3 + 2.
 	validate_positions(player1, 3, player2, 4)
 	validate_life(player1, 30, player2, 25)
-	assert_true(player1.is_card_in_discards(TestCardId3))
-	advance_turn(player2)
+	# Expected: Boost does not recur
+	assert_true(player1.is_card_in_discards(boost_id))
 
 func test_waldstein_the_destroyers_normal_miss():
 	position_players(player1, 3, player2, 4)
-	give_player_specific_card(player1, "waldstein_werfenerschlagen", TestCardId3)
-	assert_true(game_logic.do_boost(player1, TestCardId3, []))
+	var boost_id = give_player_specific_card(player1, "waldstein_werfenerschlagen")
+	assert_true(game_logic.do_boost(player1, boost_id, []))
 	advance_turn(player2)
 
-	execute_strike(player1, player2, "uni_normal_grasp", "uni_normal_assault", [], [], false, false)
+	execute_strike(player1, player2, "uni_normal_grasp", "uni_normal_assault")
+	# Expected: Grasp misses at range 1
 	validate_positions(player1, 3, player2, 4)
 	validate_life(player1, 26, player2, 30)
-	assert_true(player1.is_card_in_hand(TestCardId3))
+	# Expected: Boost recurs because Grasp missed
+	assert_true(player1.is_card_in_hand(boost_id))
+
+func test_waldstein_the_destroyers_stunned():
+	position_players(player1, 3, player2, 4)
+	var boost_id = give_player_specific_card(player1, "waldstein_werfenerschlagen")
+	assert_true(game_logic.do_boost(player1, boost_id, []))
 	advance_turn(player2)
 
+	execute_strike(player1, player2, "uni_normal_dive", "uni_normal_assault")
+	# Expected: Waldstein gets stunned out of the boost's After: effect
+	validate_positions(player1, 3, player2, 4)
+	validate_life(player1, 26, player2, 30)
+	assert_true(player1.is_card_in_discards(boost_id))
+	
 func test_waldstein_the_destroyers_special():
 	position_players(player1, 3, player2, 4)
-	give_player_specific_card(player1, "waldstein_werfenerschlagen", TestCardId3)
-	assert_true(game_logic.do_boost(player1, TestCardId3, []))
+	var boost_id = give_player_specific_card(player1, "waldstein_werfenerschlagen")
+	assert_true(game_logic.do_boost(player1, boost_id, []))
 	advance_turn(player2)
-
-	execute_strike(player1, player2, "waldstein_wirbelwind", "uni_normal_sweep", [], [], false, false)
+	# Expected: Wirbelwind is not a Normal and hits at its normal range of 1~2 for its normal amount of damage.
+	#     It goes first and hits for 6, and Sweep retaliates for 6 - 1 (Wirbelwind) = 5.
+	execute_strike(player1, player2, "waldstein_wirbelwind", "uni_normal_sweep",
+			false, false, [0], [])  # Choose the ordering of After: effects
 	validate_positions(player1, 5, player2, 7)
 	validate_life(player1, 25, player2, 24)
-	assert_true(player1.is_card_in_discards(TestCardId3))
-	advance_turn(player2)
+	# Expected: Boost is still discarded because the attack did hit
+	assert_true(player1.is_card_in_discards(boost_id))
 
+func test_waldstein_the_destroyers_special_miss():
+	position_players(player1, 3, player2, 6)
+	var boost_id = give_player_specific_card(player1, "waldstein_werfenerschlagen")
+	assert_true(game_logic.do_boost(player1, boost_id, []))
+	advance_turn(player2)
+	# Expected: Wirbelwind is not a Normal and misses (its 1~2 is not expanded to 3~4).
+	#     Waldstein advances into Focus's range and gets hit for 4 - 1 (Wirbelwind) = 3.
+	execute_strike(player1, player2, "waldstein_wirbelwind", "uni_normal_focus",
+			false, false, [0], [])  # Choose the ordering of After: effects
+	validate_positions(player1, 5, player2, 6)
+	validate_life(player1, 27, player2, 30)
+	# Expected: Boost is recurs due to the miss (even though the card wasn't a Normal).
+	assert_true(player1.is_card_in_hand(boost_id))
+
+func test_waldstein_the_destroyers_ultra():
+	position_players(player1, 3, player2, 4)
+	var p1_gauge = give_gauge(player1, 2)
+	var boost_id = give_player_specific_card(player1, "waldstein_werfenerschlagen")
+	assert_true(game_logic.do_boost(player1, boost_id, []))
+	advance_turn(player2)
+	# Expected: Katastrophe is not a Normal and hits at its normal range of 1~2.
+	execute_strike(player1, player2, "waldstein_katastrophe", "uni_normal_dive",
+			false, false, [p1_gauge], [])  # Pay for Ultra
+	validate_positions(player1, 3, player2, 9)
+	validate_life(player1, 30, player2, 23)
+	# Expected: Boost is still discarded
+	assert_true(player1.is_card_in_discards(boost_id))
+
+func test_waldstein_the_destroyers_ultra_miss():
+	position_players(player1, 3, player2, 6)
+	var p1_gauge = give_gauge(player1, 2)
+	var boost_id = give_player_specific_card(player1, "waldstein_werfenerschlagen")
+	assert_true(game_logic.do_boost(player1, boost_id, []))
+	advance_turn(player2)
+	# Expected: Katastrophe is not a Normal and misses at its normal range of 1~2.
+	execute_strike(player1, player2, "waldstein_katastrophe", "uni_normal_dive",
+			false, false, [p1_gauge], [])  # Pay for Ultra
+	validate_positions(player1, 3, player2, 2)
+	validate_life(player1, 25, player2, 30)
+	# Expected: Boost is recurs due to the miss
+	assert_true(player1.is_card_in_hand(boost_id))
+
+## Verderben (3~4/10/1|4/0) -- Stun Immunity. This attack must be set face-up.
+##     (Otherwise, it becomes invalid.)
+	
 func test_waldstein_verderben_faceup_initiate():
 	position_players(player1, 3, player2, 6)
-	give_gauge(player1, 4)
-	give_player_specific_card(player1, "uni_normal_assault", TestCardId3)
-	player1.move_card_from_hand_to_deck(TestCardId3)
+	var p1_gauge = give_gauge(player1, 4)
+	var wild_swing_id = give_player_specific_card(player1, "uni_normal_assault")
+	player1.move_card_from_hand_to_deck(wild_swing_id)
 
-	execute_strike(player1, player2, "waldstein_verderben", "uni_normal_sweep", [], [], false, false,
-		[], [], 0, [], 0)
+	execute_strike(player1, player2, "waldstein_verderben", "uni_normal_sweep",
+		false, false, [0, p1_gauge], [])  # Set attack face-up, pay gauge cost
+	# Sweep hits first for 6 - 4 (Verderben) = 2, fails to stun (Verderben).
+	# Verderben retaliates for 10.
 	validate_positions(player1, 3, player2, 6)
 	validate_life(player1, 28, player2, 20)
-	advance_turn(player2)
 
 func test_waldstein_verderben_faceup_response():
 	position_players(player1, 3, player2, 6)
-	give_gauge(player1, 4)
-	give_player_specific_card(player1, "uni_normal_assault", TestCardId3)
-	player1.move_card_from_hand_to_deck(TestCardId3)
+	var p1_gauge = give_gauge(player1, 4)
+	var wild_swing_id = give_player_specific_card(player1, "uni_normal_assault")
+	player1.move_card_from_hand_to_deck(wild_swing_id)
 	advance_turn(player1)
 
-	execute_strike(player2, player1, "uni_normal_sweep", "waldstein_verderben", [], [], false, false,
-		[], [], 0, [], 0)
+	execute_strike(player2, player1, "uni_normal_sweep", "waldstein_verderben",
+		false, false, [], [0, p1_gauge])  # Set attack face-up, pay gauge cost
 	validate_positions(player1, 3, player2, 6)
 	validate_life(player1, 28, player2, 20)
-	advance_turn(player1)
 
 func test_waldstein_verderben_facedown():
 	position_players(player1, 3, player2, 6)
-	give_gauge(player1, 4)
-	give_player_specific_card(player1, "uni_normal_assault", TestCardId3)
-	player1.move_card_from_hand_to_deck(TestCardId3)
+	var p1_gauge = give_gauge(player1, 4)
+	var wild_swing_id = give_player_specific_card(player1, "uni_normal_assault")
+	player1.move_card_from_hand_to_deck(wild_swing_id)
 
-	execute_strike(player1, player2, "waldstein_verderben", "uni_normal_sweep", [], [], false, false,
-		[], [], 0, [], 1)
+	var cards_used = execute_strike(player1, player2, "waldstein_verderben", "uni_normal_sweep",
+			false, false, [1], [])  # Set attack face-down
+	# Expected: Verderben is invalidated and Waldstein swings with Assault into Sweep
 	validate_positions(player1, 5, player2, 6)
 	validate_life(player1, 24, player2, 26)
-	assert_true(player1.is_card_in_discards(TestCardId1))
-	assert_true(player1.is_card_in_gauge(TestCardId3))
-	advance_turn(player1)
+	assert_true(player1.is_card_in_discards(cards_used[0]))  # Initiator's attack, i.e. Verderben
+	assert_true(player1.is_card_in_gauge(wild_swing_id))
+	assert_eq(player1.gauge.size(), 5)  # Did not have to pay for the invalid ultra
 
 func test_waldstein_verderben_wildswung():
 	position_players(player1, 3, player2, 6)
-	give_gauge(player1, 4)
-	give_player_specific_card(player1, "uni_normal_assault", TestCardId3)
-	player1.move_card_from_hand_to_deck(TestCardId3)
-	give_player_specific_card(player1, "waldstein_verderben", TestCardId4)
-	player1.move_card_from_hand_to_deck(TestCardId4)
+	var p1_gauge = give_gauge(player1, 4)
+	var assault_id = give_player_specific_card(player1, "uni_normal_assault")
+	player1.move_card_from_hand_to_deck(assault_id)
+	var verderben_id = give_player_specific_card(player1, "waldstein_verderben")
+	player1.move_card_from_hand_to_deck(verderben_id)
 
-	execute_strike(player1, player2, "", "uni_normal_sweep", [], [], false, false)
+	execute_strike(player1, player2, "", "uni_normal_sweep")
+	# Expected: Waldstein is not offered the chance to wild swing Verderben face-up
+	#         (If he is, you will get an error about "needed to decide on ... but wasn't told how to)
+	#     Waldstein wild swings Assault into Sweep
 	validate_positions(player1, 5, player2, 6)
 	validate_life(player1, 24, player2, 26)
-	assert_true(player1.is_card_in_discards(TestCardId4))
-	assert_true(player1.is_card_in_gauge(TestCardId3))
-	advance_turn(player1)
+	assert_true(player1.is_card_in_discards(verderben_id))
+	assert_true(player1.is_card_in_gauge(assault_id))
+	assert_eq(player1.gauge.size(), 5)  # Did not have to pay for the invalid ultra
+
