@@ -8,9 +8,9 @@ var player1 : LocalGame.Player
 var player2 : LocalGame.Player
 
 ### !!! IMPORTANT
-# Subclasses must override this function
+# Subclasses must override this function to return a character name
 func who_am_i():
-	return "no-one-lmao"
+	return "override-who_am_i()-with-a-character-name-pls"
 
 func next_id():
 	next_test_card_id += 1
@@ -184,7 +184,7 @@ func process_remaining_decisions(initiator, defender, init_choices, def_choices)
 					" choices %s or defender choices %s" % [init_choices, def_choices])
 			return
 		while game_logic.game_state == Enums.GameState.GameState_PlayerDecision:
-				## TODO: Figure out if it's really necessary to limit ourselves to this decision type
+				## TODO: Figure out if it's really necessary to limit ourselves to this game state
 				# and game_logic.decision_info.type == Enums.DecisionType.DecisionType_ChooseSimultaneousEffect:
 			empty_loop_count = 0  # reset the count each time we actually get into this loop; it is not empty
 			var decision = game_logic.decision_info
@@ -228,8 +228,9 @@ func execute_strike(initiator, defender, init_card: String, def_card: String,
 	var init_card_ex_id = -1
 	var def_card_id = -1
 	var def_card_ex_id = -1
-	## TODO: Because all the card IDs are generated internally and at runtime, it is hard
-	##   to pass those IDs in through *_choices
+	## TODO: Figure out what to do if one of the *_choices needs to use a card
+	##   ID that will not be assigned until the `give_player_specific_card`
+	##   calls below.
 	if init_card:
 		init_card_id = give_player_specific_card(initiator, init_card)
 		if init_ex:
