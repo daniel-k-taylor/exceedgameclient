@@ -1,24 +1,28 @@
+class_name CardDatabase
 extends Node
 
-const GameCard = preload("res://scenes/game/game_card.gd")
-
-var all_cards : Array[GameCard] = []
+var all_cards = {}  # int (runtime id) --> GameCard
 
 func teardown():
-	for card in all_cards:
+	for card in all_cards.values():
 		card.free()
-	all_cards = []
+	all_cards = {}
+
+## Basic operations
 
 func add_card(card : GameCard) -> void:
-	all_cards.append(card)
+	all_cards[card.id] = card
 
 func get_card(id : int):
-	if id == -1:
-		return "(NO CARD)"
-	for card in all_cards:
-		if card.id == id:
-			return card
-	return null
+	return all_cards.get(id, null)
+
+func id_exists(id: int):
+	return id in all_cards
+
+func list_all_cards():
+	return all_cards.values()
+
+## Actual lookup utilities
 
 func get_card_sort_key(card_id : int):
 	var gamecard = get_card(card_id)
@@ -40,37 +44,27 @@ func get_card_sort_key(card_id : int):
 	return "%s_%s" % [sort_key, display_name]
 
 func get_card_names(card_ids) -> String:
-	var card_names = ""
-	for id in card_ids:
-		card_names += get_card_name(id) + ", "
-	if card_names:
-		card_names = card_names.substr(0, card_names.length() - 2)
-	return card_names
+	return ", ".join(card_ids.map(get_card_name))
 
 func _test_insert_card(card : GameCard):
-	for check_card in all_cards:
-		if card.id == check_card.id:
-			all_cards.erase(check_card)
-			check_card.free()
-			break
-	all_cards.append(card)
+	if id_exists(card.id):
+		get_card(card.id).free()
+	add_card(card)
 
 func get_card_name(id : int) -> String:
-	for card in all_cards:
-		if card.id == id:
-			return card.definition['display_name']
+	if id_exists(id):
+		return get_card(id).definition['display_name']
 	return "MISSING CARD"
 
 func get_card_name_by_card_definition_id(id : String) -> String:
-	for card in all_cards:
+	for card in list_all_cards():
 		if card.definition['id'] == id:
 			return card.definition['display_name']
 	return "MISSING CARD"
 
-func get_card_id(id : int) -> String:
-	for card in all_cards:
-		if card.id == id:
-			return card.definition['id']
+func get_card_id(id : int) -> String:  # runtime id --> definition id
+	if id_exists(id):
+		return get_card(id).definition['id']
 	return "MISSING CARD"
 
 func are_same_card(id1 : int, id2 : int) -> bool:
