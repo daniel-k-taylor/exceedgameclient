@@ -164,7 +164,7 @@ func process_decisions(player, strike_state, decisions):
 		var content = decisions.pop_front()
 		if content == null:
 			fail_test("Player %s needed to decide on %s during %s but wasn't told how to" % [
-					player.my_id, Enums.DecisionType.keys()[game_logic.decision_info.type],
+					player.my_id + 1, Enums.DecisionType.keys()[game_logic.decision_info.type],
 					LocalGame.StrikeState.keys()[strike_state]])
 			return
 		match game_logic.decision_info.type:
