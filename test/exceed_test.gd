@@ -332,7 +332,7 @@ func execute_strike(initiator: LocalGame.Player, defender: LocalGame.Player,
 			def_card_ex_id = give_player_specific_card(defender, def_card_def_id)
 		do_strike_response(defender, def_card_id, def_card_ex_id)
 	else:
-		def_card_id = do_strike_response(defender, -1)  # wild swing
+		def_card_id = do_and_validate_strike(defender, -1)  # wild swing
 	process_decisions(defender, game_logic.StrikeState.StrikeState_Defender_SetEffects, def_choices)
 
 	process_decisions(initiator, game_logic.StrikeState.StrikeState_Initiator_PayCosts, init_choices)
