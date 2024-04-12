@@ -13,15 +13,13 @@ func get_deck_test_deck():
 
 func get_random_deck(season : int):
 	# Randomize
+	var unbanned_decks = decks.values().filter(func (deck):
+			return deck['id'] not in GlobalSettings.CharacterBanList)
 	if season == -1:
-		var deck_names = decks.keys()
-		var random_deck = deck_names.pick_random()
-		while random_deck in GlobalSettings.CharacterBanlist:
-			random_deck = deck_names.pick_random()
-		return decks[random_deck]
+		return unbanned_decks.pick_random()
 	else:
-		var season_decks = decks.values().filter(func (deck):
-				return deck['id'] not in GlobalSettings.CharacterBanlist and deck['season'] == season)
+		var season_decks = unbanned_decks.filter(func (deck):
+				return deck['season'] == season)
 		return season_decks.pick_random()
 
 func get_deck_from_str_id(str_id : String):
