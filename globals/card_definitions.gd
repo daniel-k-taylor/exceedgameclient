@@ -4,33 +4,23 @@ var card_data = []
 
 var card_definitions_path = "res://data/card_definitions.json"
 var decks_path = "res://data/decks"
-var decks = []  # An array of (JSON) dictionaries
+var decks = {}  # A dictionary of (JSON) dictionaries
 
 const CardHighlightColor = "#7DF9FF" # Light blue
 
 func get_deck_test_deck():
-	for deck in decks:
-		if deck['id'] == "rachel":
-			return deck
-	return get_random_deck(-1)
+	return decks.get("rachel", get_random_deck(-1))
 
 func get_random_deck(season : int):
 	# Randomize
+	var unbanned_decks = decks.values().filter(func (deck):
+			return deck['id'] not in GlobalSettings.CharacterBanList)
 	if season == -1:
-		var random_index = randi() % len(decks)
-		while decks[random_index]['id'] in GlobalSettings.CharacterBanlist:
-			random_index = randi() % len(decks)
-		return decks[random_index]
+		return unbanned_decks.pick_random()
 	else:
-		var season_decks = []
-		for deck in decks:
-			if deck['id'] in GlobalSettings.CharacterBanlist:
-				continue
-			if deck['season'] == season:
-				season_decks.append(deck)
-		var random_index = randi() % len(season_decks)
-		return season_decks[random_index]
-
+		var season_decks = unbanned_decks.filter(func (deck):
+				return deck['season'] == season)
+		return season_decks.pick_random()
 
 func get_deck_from_str_id(str_id : String):
 	if str_id == "random_s7":
@@ -45,9 +35,7 @@ func get_deck_from_str_id(str_id : String):
 		return get_random_deck(3)
 	if str_id == "random":
 		return get_random_deck(-1)
-	for deck in decks:
-		if deck['id'] == str_id:
-			return deck
+	return decks.get(str_id)
 
 func get_portrait_asset_path(deck_id : String) -> String:
 	# Only take part after # if there is one.
@@ -73,7 +61,7 @@ func _ready():
 			continue
 		var deck_data = load_json_file(decks_path + "/" + deck_file)
 		if deck_data:
-			decks.append(deck_data)
+			decks[deck_data['id']] = deck_data
 
 func get_card(definition_id):
 	for card in card_data:
