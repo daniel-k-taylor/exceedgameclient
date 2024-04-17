@@ -9,6 +9,8 @@ const Enums = preload("res://scenes/game/enums.gd")
 
 var game_logic : LocalGame
 var default_deck = CardDefinitions.get_deck_from_str_id("solbadguy")
+var opponent_deck = CardDefinitions.get_deck_from_str_id("solbadguy")
+
 
 var player1 : LocalGame.Player
 var player2 : LocalGame.Player
@@ -19,7 +21,7 @@ func game_setup(policy_type = AIPolicyRules):
 	game_logic = LocalGame.new()
 	var seed_value = randi()
 	game_logic.initialize_game(
-			default_deck, CardDefinitions.get_deck_from_str_id("random"),
+			default_deck, opponent_deck,
 			"p1", "p2", Enums.PlayerId.PlayerId_Player, seed_value)
 	game_logic.draw_starting_hands_and_begin()
 	game_logic.get_latest_events()
@@ -405,13 +407,15 @@ func test_random_ai_players():
 		print(event)
 	game_teardown()
 	pass_test("Finished match")
+	game_teardown()
 
 func run_iterations_with_deck(deck_id : String):
 	default_deck = CardDefinitions.get_deck_from_str_id(deck_id)
 	for i in range(RandomIterations):
-		var opponent_deck = CardDefinitions.get_deck_from_str_id("random" if i > 0 else deck_id)
-		print("==== RUNNING TEST %d vs %s====" % [i + 1, opponent_deck.id])
+		opponent_deck = CardDefinitions.get_deck_from_str_id(
+				"random" if i > 0 else deck_id)
 		game_setup()
+		print("==== RUNNING TEST %d vs %s ====" % [i + 1, opponent_deck['id']])
 		run_ai_game()
 		game_teardown()
 	pass_test("Finished match")
