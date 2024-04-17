@@ -14,7 +14,7 @@ func get_deck_test_deck():
 func get_random_deck(season : int):
 	# Randomize
 	var unbanned_decks = decks.values().filter(func (deck):
-			return deck['id'] not in GlobalSettings.CharacterBanList)
+			return deck['id'] not in GlobalSettings.CharacterBanlist)
 	if season == -1:
 		return unbanned_decks.pick_random()
 	else:
