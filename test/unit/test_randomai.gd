@@ -18,7 +18,9 @@ var ai2 : AIPlayer
 func game_setup(policy_type = AIPolicyRules):
 	game_logic = LocalGame.new()
 	var seed_value = randi()
-	game_logic.initialize_game(default_deck, default_deck, "p1", "p2", Enums.PlayerId.PlayerId_Player, seed_value)
+	game_logic.initialize_game(
+			default_deck, CardDefinitions.get_deck_from_str_id("random"),
+			"p1", "p2", Enums.PlayerId.PlayerId_Player, seed_value)
 	game_logic.draw_starting_hands_and_begin()
 	game_logic.get_latest_events()
 	player1 = game_logic.player
@@ -407,7 +409,8 @@ func test_random_ai_players():
 func run_iterations_with_deck(deck_id : String):
 	default_deck = CardDefinitions.get_deck_from_str_id(deck_id)
 	for i in range(RandomIterations):
-		print("==== RUNNING TEST %d ====" % i)
+		var opponent_deck = CardDefinitions.get_deck_from_str_id("random" if i > 0 else deck_id)
+		print("==== RUNNING TEST %d vs %s====" % [i + 1, opponent_deck.id])
 		game_setup()
 		run_ai_game()
 		game_teardown()
