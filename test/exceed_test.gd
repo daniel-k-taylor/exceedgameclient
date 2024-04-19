@@ -213,7 +213,7 @@ func process_remaining_decisions(initiator, defender, init_choices, def_choices)
 				player_choices = def_choices
 			var choice = player_choices.pop_front()
 			if choice == null:
-				fail_test("Insufficient decisions defined for player %s during strike" % player.my_id)
+				fail_test("Insufficient decisions defined for player %s during strike" % (player.my_id))
 				return
 			match game_logic.decision_info.type:
 				Enums.DecisionType.DecisionType_ChooseSimultaneousEffect:
