@@ -10307,7 +10307,7 @@ func do_boost_cancel(performing_player : Player, gauge_card_ids : Array, doing_c
 ## the move is not specified, and is instead defined by the currently active
 ## decision.
 func do_relocate_card_from_hand(performing_player : Player, card_ids : Array) -> bool:
-	printlog("SubAction: CARD_HAND_TO_SOMEWHERE by %s: %s" % [get_player_name(performing_player.my_id), card_ids])
+	printlog("SubAction: RELOCATE_CARD_FROM_HAND by %s: %s" % [get_player_name(performing_player.my_id), card_ids])
 	if decision_info.player != performing_player.my_id:
 		printlog("ERROR: Tried to do_relocate_card_from_hand for wrong player.")
 		return false
