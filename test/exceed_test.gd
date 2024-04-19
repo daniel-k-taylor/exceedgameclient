@@ -62,13 +62,15 @@ func give_gauge(player, amount):
 	return card_ids
 
 func validate_has_event(events, event_type, target_player, number = null):
+	var acc = []
 	for event in events:
 		if event['event_type'] == event_type:
 			if event['event_player'] == target_player.my_id:
 				if number == null or event['number'] == number:
-					pass_test("Found event %s" % event_type)
-					return
-	fail_test("Event not found: %s" % event_type)
+					acc.append(event)
+	assert_gt(acc.size(), 0,
+			"Did not find event of type %s" % Enums.EventType.keys()[event_type])
+	return acc
 
 func validate_not_has_event(events, event_type, target_player, number = null):
 	for event in events:
@@ -232,6 +234,9 @@ func process_remaining_decisions(initiator, defender, init_choices, def_choices)
 				Enums.DecisionType.DecisionType_ForceForArmor:
 					assert_true(game_logic.do_force_for_armor(player, choice),
 							"%s failed to discard cards %s for armor" % [player, choice])
+				Enums.DecisionType.DecisionType_ForceForEffect:
+					assert_true(game_logic.do_force_for_effect(player, choice, false),
+							"%s failed to discard cards %s for an effect" % [player, choice])
 				Enums.DecisionType.DecisionType_ChooseArenaLocationForEffect:
 					# Find the index in decision_info.limitation that maps to
 					# the (1-based) arena location `choice`. (If choice is 0,
@@ -297,9 +302,15 @@ func process_remaining_decisions(initiator, defender, init_choices, def_choices)
 ##     pass in the 1-based number for that space (a conversion happens
 ##     silently). In all other cases, assume you are working with a simple
 ##     0-based array of options.
+## exit_after_validation -- If this is true, the test harness passes control
+##     back to the test proper after validating attacks instead of attempting to
+##     resolve all remaining strike decisions using *_choices. This can be
+##     useful if you need to check certain game states in the middle of a
+##     strike.
+
 func execute_strike(initiator: LocalGame.Player, defender: LocalGame.Player,
 		init_card: Variant, def_card: Variant, init_ex = false, def_ex = false,
-		init_choices = [], def_choices = []):
+		init_choices = [], def_choices = [], exit_after_validation = false):
 	var init_card_id = -1
 	var init_card_ex_id = -1
 	var def_card_id = -1
@@ -338,10 +349,10 @@ func execute_strike(initiator: LocalGame.Player, defender: LocalGame.Player,
 	process_decisions(initiator, game_logic.StrikeState.StrikeState_Initiator_PayCosts, init_choices)
 	process_decisions(defender, game_logic.StrikeState.StrikeState_Defender_PayCosts, def_choices)
 
-	process_remaining_decisions(initiator, defender, init_choices, def_choices)
+	if not exit_after_validation:
+		process_remaining_decisions(initiator, defender, init_choices, def_choices)
 
 	return [init_card_id, def_card_id, init_card_ex_id, def_card_ex_id]
-
 
 func validate_positions(p1, l1, p2, l2):
 	assert_eq(p1.arena_location, l1,
@@ -374,3 +385,8 @@ func select_space(num: int):
 	# DecisionType_ChooseArenaLocationForEffect, so you won't need to provide it
 	# explicitly for *_choices content.
 	return game_logic.decision_info.limitation.find(num)
+
+func show_player_data(player: LocalGame.Player):
+	print(" >>>> Player %s continuous boosts: %s" % [player.my_id, player.continuous_boosts])
+	print(" >>>> Player %s strike stat boosts: %s" % [player.my_id, player.strike_stat_boosts])
+
