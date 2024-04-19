@@ -233,7 +233,7 @@ func test_nine_swap_normal():
 
 	execute_strike(player1, player2, "standard_normal_assault","standard_normal_assault", [0], [], false, false)
 	var card_to_choose = player1.hand[0]
-	assert_true(game_logic.do_card_from_hand_to_gauge(player1, [card_to_choose.id]))
+	assert_true(game_logic.do_relocate_card_from_hand(player1, [card_to_choose.id]))
 
 	assert_true(player1.is_card_in_gauge(card_to_choose.id))
 	assert_true(player1.is_card_in_sealed(TestCardId1))

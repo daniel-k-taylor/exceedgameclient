@@ -216,7 +216,7 @@ func test_bison_ua():
 	assert_eq(player1.hand.size(), 5)
 	var id = player1.hand[0].id
 	assert_true(game_logic.do_character_action(player1, []))
-	assert_true(game_logic.do_card_from_hand_to_gauge(player1, [id]))
+	assert_true(game_logic.do_relocate_card_from_hand(player1, [id]))
 	assert_eq(player1.hand.size(), 6)
 	assert_eq(player1.gauge.size(), 1)
 	assert_eq(player1.gauge[0].id, id)
@@ -228,13 +228,13 @@ func test_bison_ua_exceed():
 	assert_true(game_logic.do_exceed(player1, player1.get_card_ids_in_gauge()))
 	assert_eq(player1.hand.size(), 5)
 	var ids = [player1.hand[0].id, player1.hand[1].id, player1.hand[2].id]
-	assert_true(game_logic.do_card_from_hand_to_gauge(player1, ids))
+	assert_true(game_logic.do_relocate_card_from_hand(player1, ids))
 	assert_eq(player1.gauge.size(), 3)
 	assert_eq(player1.hand.size(), 6)
 	advance_turn(player2)
 	assert_true(game_logic.do_character_action(player1, []))
 	var new_ids = [player1.hand[0].id, player1.hand[1].id]
-	assert_true(game_logic.do_card_from_hand_to_gauge(player1, new_ids))
+	assert_true(game_logic.do_relocate_card_from_hand(player1, new_ids))
 	assert_eq(player1.gauge.size(), 5)
 	assert_eq(player1.hand.size(), 7)
 	advance_turn(player2)

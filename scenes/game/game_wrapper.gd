@@ -442,7 +442,7 @@ func submit_discard_to_max(player : Enums.PlayerId, card_ids : Array) -> bool:
 
 func submit_card_from_hand_to_gauge(player : Enums.PlayerId, card_ids : Array) -> bool:
 	var game_player = _get_player(player)
-	return current_game.do_card_from_hand_to_gauge(game_player, card_ids)
+	return current_game.do_relocate_card_from_hand(game_player, card_ids)
 
 func submit_pay_strike_cost(player : Enums.PlayerId, card_ids : Array, wild_strike : bool, discard_ex_first : bool, use_free_force : bool) -> bool:
 	var game_player = _get_player(player)

@@ -351,11 +351,11 @@ func test_hilda_trifurket_boost():
 	give_player_specific_card(player1, "hilda_trifurket", TestCardId1)
 	assert_true(game_logic.do_boost(player1, TestCardId1))
 
-	assert_true(game_logic.do_card_from_hand_to_gauge(player2, [TestCardId2]))
+	assert_true(game_logic.do_relocate_card_from_hand(player2, [TestCardId2]))
 	var p1cards = []
 	for i in range(3):
 		p1cards.append(player1.hand[i].id)
-	assert_true(game_logic.do_card_from_hand_to_gauge(player1, p1cards))
+	assert_true(game_logic.do_relocate_card_from_hand(player1, p1cards))
 
 	validate_positions(player1, 2, player2, 3)
 	assert_eq(player1.gauge.size(), 3)

@@ -261,7 +261,7 @@ func test_propeller_swoop_range_three():
 	execute_strike(player1, player2, "propeller_swoop","standard_normal_assault", [2], [], false, false)
 	validate_positions(player1, 8, player2, 5)
 	validate_life(player1, 30, player2, 27)
-	assert_true(game_logic.do_card_from_hand_to_gauge(player1, [TestCardId3]))
+	assert_true(game_logic.do_relocate_card_from_hand(player1, [TestCardId3]))
 	assert_true(player1.is_card_in_continuous_boosts(TestCardId1))
 	assert_true(player1.is_card_in_gauge(TestCardId3))
 	advance_turn(player2)

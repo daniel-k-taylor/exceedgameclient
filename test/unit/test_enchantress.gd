@@ -454,7 +454,7 @@ func test_enchantress_rebirth():
 	give_player_specific_card(player1, "standard_normal_grasp", TestCardId4)
 
 	assert_true(game_logic.do_boost(player1, TestCardId1, []))
-	assert_true(game_logic.do_card_from_hand_to_gauge(player1, [TestCardId2, TestCardId3, TestCardId4]))
+	assert_true(game_logic.do_relocate_card_from_hand(player1, [TestCardId2, TestCardId3, TestCardId4]))
 	assert_eq(len(player1.hand), 4)
 	assert_eq(player1.deck[len(player1.deck)-1].id, TestCardId4)
 	assert_eq(player1.deck[len(player1.deck)-2].id, TestCardId3)

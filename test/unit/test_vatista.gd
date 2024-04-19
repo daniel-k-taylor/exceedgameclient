@@ -317,7 +317,7 @@ func test_vatista_armabellum_no_cards():
 	give_gauge(player1, 1)
 
 	execute_strike(player1, player2, "vatista_armabellum", "uni_normal_grasp", [], [], false, false)
-	assert_true(game_logic.do_card_from_hand_to_gauge(player1, []))
+	assert_true(game_logic.do_relocate_card_from_hand(player1, []))
 	assert_true(game_logic.do_choice(player1, 1))
 	validate_positions(player1, 2, player2, 5)
 	validate_life(player1, 30, player2, 28)
@@ -328,7 +328,7 @@ func test_vatista_armabellum_add_cards():
 	give_gauge(player1, 1)
 
 	execute_strike(player1, player2, "vatista_armabellum", "uni_normal_grasp", [], [], false, false)
-	assert_true(game_logic.do_card_from_hand_to_gauge(player1, [player1.hand[0].id, player1.hand[1].id, player1.hand[2].id]))
+	assert_true(game_logic.do_relocate_card_from_hand(player1, [player1.hand[0].id, player1.hand[1].id, player1.hand[2].id]))
 	assert_true(game_logic.do_choice(player1, 0))
 	validate_positions(player1, 4, player2, 5)
 	validate_life(player1, 30, player2, 25)

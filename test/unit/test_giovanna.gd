@@ -206,7 +206,7 @@ func test_gio_charaction_exceeded():
 	assert_true(game_logic.do_exceed(player1, [player1.gauge[0].id, player1.gauge[1].id,player1.gauge[2].id]))
 	var events = game_logic.get_latest_events()
 	validate_has_event(events, Enums.EventType.EventType_CardFromHandToGauge_Choice, player1)
-	assert_true(game_logic.do_card_from_hand_to_gauge(player1, [player1.hand[0].id]))
+	assert_true(game_logic.do_relocate_card_from_hand(player1, [player1.hand[0].id]))
 	advance_turn(player2)
 	assert_eq(player1.hand.size(), 5)
 	assert_true(game_logic.do_character_action(player1, [player1.gauge[0].id]))
