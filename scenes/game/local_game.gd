@@ -4212,8 +4212,7 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 				performing_player.strike_stat_boosts.added_attack_effects.append(effect_to_add)
 		"add_boost_to_gauge_on_strike_cleanup":
 			if card_id == -1:
-				assert(false)
-				printlog("ERROR: Unimplemented path to add_boost_to_gauge_on_strike_cleanup")
+				assert(false, "ERROR: Unimplemented path to add_boost_to_gauge_on_strike_cleanup")
 			#performing_player.add_boost_to_gauge_on_strike_cleanup(card_id)
 			# Switching to doing it immediately
 			var card = card_db.get_card(card_id)
