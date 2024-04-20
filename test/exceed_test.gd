@@ -133,7 +133,7 @@ func do_strike_response(player, card_id, ex_card_id = -1):
 
 func advance_turn(player):
 	assert_true(game_logic.do_prepare(player),
-			"Player %s tried to prepare but could not." % (player.my_id))
+			"Player %s tried to prepare but could not." % player.my_id)
 	if player.hand.size() > 7:
 		var cards = []
 		var to_discard = player.hand.size() - 7
@@ -206,7 +206,7 @@ func process_remaining_decisions(initiator, defender, init_choices, def_choices)
 				player_choices = def_choices
 			var choice = player_choices.pop_front()
 			if choice == null:
-				fail_test("Insufficient decisions defined for player %s during strike" % (player.my_id))
+				fail_test("Insufficient decisions defined for player %s during strike" % player.my_id)
 				return
 			match game_logic.decision_info.type:
 				Enums.DecisionType.DecisionType_ChooseSimultaneousEffect:
