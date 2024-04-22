@@ -174,6 +174,12 @@ text = "ab"
 color = Color(0.0862745, 0.760784, 0.968627, 1)
 edit_alpha = false
 
+[node name="CardColorPicker" type="ColorPickerButton" parent="PanelContainer/OuterMargin/VerticalLayout/LogFilters"]
+layout_mode = 2
+text = "ab"
+color = Color(0.490196, 0.976471, 1, 1)
+edit_alpha = false
+
 [connection signal="pressed" from="CloseOuterClick" to="." method="_on_close_button_pressed"]
 [connection signal="pressed" from="PanelContainer/OuterMargin/VerticalLayout/CloseButton" to="." method="_on_close_button_pressed"]
 [connection signal="pressed" from="PanelContainer/OuterMargin/VerticalLayout/LogButtons/CopyButton" to="." method="_on_copy_button_pressed"]
@@ -186,3 +192,4 @@ edit_alpha = false
 [connection signal="toggled" from="PanelContainer/OuterMargin/VerticalLayout/LogFilters/PlayerMovement" to="." method="_on_log_filter_player_movement_toggle"]
 [connection signal="color_changed" from="PanelContainer/OuterMargin/VerticalLayout/LogFilters/PlayerColorPicker" to="." method="_on_player_color_changed"]
 [connection signal="color_changed" from="PanelContainer/OuterMargin/VerticalLayout/LogFilters/OpponentColorPicker" to="." method="_on_opponent_color_changed"]
+[connection signal="color_changed" from="PanelContainer/OuterMargin/VerticalLayout/LogFilters/CardColorPicker" to="." method="_on_card_color_changed"]

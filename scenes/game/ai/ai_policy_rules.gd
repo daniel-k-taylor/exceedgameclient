@@ -1,33 +1,63 @@
+class_name AIPolicyRules
 extends Node
 
 const AIPlayer = preload("res://scenes/game/ai_player.gd")
 const GameCard = preload("res://scenes/game/game_card.gd")
 const Enums = preload("res://scenes/game/enums.gd")
 
+
+var __factorial_cache = {
+	"cache_max": 7,
+	0: 1, 1: 1, 2: 2, 3: 6, 4: 24,
+	5: 120, 6: 720, 7: 5040,
+	}
+
 func _factorial(n: int) -> int:
-	var result = 1
-	for i in range(2, n + 1):
-		result *= i
-	return result
+	if n not in __factorial_cache:
+		for i in range(__factorial_cache["cache_max"] + 1, n + 1):
+			__factorial_cache[i] = __factorial_cache[i-1] * i
+	return __factorial_cache[n]
+
+
+var __combinations_cache = {
+	[0, 0]: 1, [1, 0]: 1, [1, 1]: 1,
+	[2, 0]: 1, [2, 1]: 2, [2, 2]: 1,
+	}
 
 func _combinations(n: int, r: int) -> int:
-	@warning_ignore("integer_division")
-	return _factorial(n) / (_factorial(r) * _factorial(n - r))
+	if n < r:
+		return 0
+	if [n, r] not in __combinations_cache:
+		if r == 0 or r == n:
+			__combinations_cache[[n, r]] = 1
+		else:
+			__combinations_cache[[n, r]] = _combinations(n-1, r) + _combinations(n-1, r-1)
+	return __combinations_cache[[n, r]]
 
+
+## Return the probability of hitting at least one of the IDs in `cards_to_find` when
+## choosing `num_draws` elements at random from `deck`, without replacement.
 func _probability_of_drawing(cards_to_find: Array, num_draws: int, deck: Array) -> float:
 	var total_cards = deck.size()
 	var total_success_cards = 0
 	for card in deck:
 		if card in cards_to_find:
 			total_success_cards += 1
+	if total_success_cards == 0:
+		return 0.0
 
-	var success_probability : float = 0.0
-	for i in range(1, num_draws + 1):
-		var success_cases : float = _combinations(total_success_cards, i) * _combinations(total_cards - total_success_cards, num_draws - i)
-		var total_cases : float = _combinations(total_cards, num_draws)
-		success_probability += success_cases / total_cases
+	if num_draws == 1:
+		return total_success_cards * 1.0 / total_cards
 
-	return success_probability
+	if num_draws > total_cards:
+		num_draws = total_cards
+
+	# For higher draw counts, it's easier to compute the odds of *not* hitting and then
+	# subtract from 1.
+	var total_cases = _combinations(total_cards, num_draws)
+	var total_miss_cases = _combinations(total_cards - total_success_cards, num_draws)
+	var miss_probability = 1.0 * total_miss_cases / total_cases
+	return 1.0 - miss_probability
 
 
 func get_hand_card_probabilities():
