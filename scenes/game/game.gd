@@ -1587,7 +1587,7 @@ func _on_choose_card_hand_to_gauge(event):
 	if player == Enums.PlayerId.PlayerId_Player and not observer_mode:
 		if prepared_character_action_data_available('gauge_from_hand'):
 			var selected_card_ids = prepared_character_action_data['hand_to_gauge_cards']
-			var success = game_wrapper.submit_card_from_hand_to_gauge(Enums.PlayerId.PlayerId_Player, selected_card_ids)
+			var success = game_wrapper.submit_relocate_card_from_hand(Enums.PlayerId.PlayerId_Player, selected_card_ids)
 			if success:
 				prepared_character_action_data = {}
 				change_ui_state(UIState.UIState_WaitForGameServer)
@@ -4194,7 +4194,7 @@ func _on_instructions_ok_button_pressed(index : int):
 			UISubState.UISubState_SelectCards_ChooseBoostsToSustain:
 				success = game_wrapper.submit_choose_from_boosts(Enums.PlayerId.PlayerId_Player, selected_card_ids)
 			UISubState.UISubState_SelectCards_DiscardCardsToGauge:
-				success = game_wrapper.submit_card_from_hand_to_gauge(Enums.PlayerId.PlayerId_Player, selected_card_ids)
+				success = game_wrapper.submit_relocate_card_from_hand(Enums.PlayerId.PlayerId_Player, selected_card_ids)
 			UISubState.UISubState_SelectCards_StrikeGauge, UISubState.UISubState_SelectCards_StrikeForce:
 				success = game_wrapper.submit_pay_strike_cost(Enums.PlayerId.PlayerId_Player, selected_card_ids, false, discard_ex_first_for_strike, use_free_force)
 			UISubState.UISubState_SelectCards_Exceed:
@@ -4280,7 +4280,7 @@ func _on_instructions_cancel_button_pressed():
 		UISubState.UISubState_SelectCards_DiscardCardsToGauge:
 			deselect_all_cards()
 			close_popout()
-			success = game_wrapper.submit_card_from_hand_to_gauge(Enums.PlayerId.PlayerId_Player, [])
+			success = game_wrapper.submit_relocate_card_from_hand(Enums.PlayerId.PlayerId_Player, [])
 		UISubState.UISubState_SelectCards_ChooseBoostsToSustain:
 			deselect_all_cards()
 			close_popout()
@@ -4715,7 +4715,7 @@ func ai_choose_card_hand_to_gauge(min_amount, max_amount):
 	change_ui_state(UIState.UIState_WaitForGameServer)
 	if not game_wrapper.is_ai_game(): return
 	var cardfromhandtogauge_action = ai_player.pick_card_hand_to_gauge(game_wrapper.current_game, Enums.PlayerId.PlayerId_Opponent, min_amount, max_amount)
-	var success = game_wrapper.submit_card_from_hand_to_gauge(Enums.PlayerId.PlayerId_Opponent, cardfromhandtogauge_action.card_ids)
+	var success = game_wrapper.submit_relocate_card_from_hand(Enums.PlayerId.PlayerId_Opponent, cardfromhandtogauge_action.card_ids)
 	if success:
 		change_ui_state(UIState.UIState_WaitForGameServer)
 	else:

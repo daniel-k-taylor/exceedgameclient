@@ -441,7 +441,7 @@ func submit_discard_to_max(player : Enums.PlayerId, card_ids : Array) -> bool:
 	var game_player = _get_player(player)
 	return current_game.do_discard_to_max(game_player, card_ids)
 
-func submit_card_from_hand_to_gauge(player : Enums.PlayerId, card_ids : Array) -> bool:
+func submit_relocate_card_from_hand(player : Enums.PlayerId, card_ids : Array) -> bool:
 	var game_player = _get_player(player)
 	return current_game.do_relocate_card_from_hand(game_player, card_ids)
 
