@@ -95,12 +95,18 @@ func after_all():
 	gut.p("ran run teardown", 2)
 
 func do_and_validate_strike(player, card_id, ex_card_id = -1):
-	assert_true(game_logic.can_do_strike(player))
+	assert_true(game_logic.can_do_strike(player),
+			"Player %s is unable to perform a strike" % player)
 	if card_id != -1:
-		assert_true(game_logic.do_strike(player, card_id, false, ex_card_id))
+		assert_true(game_logic.do_strike(player, card_id, false, ex_card_id),
+				"Unsuccessful attempt to initiate strike with %s%s" % [
+						"EX " if ex_card_id >= 0 else "",
+						game_logic.get_card_database().get_card_name(card_id)])
 	else:
 		var ws_card_id = player.deck[0].id
-		assert_true(game_logic.do_strike(player, card_id, true, ex_card_id))
+		assert_true(game_logic.do_strike(player, card_id, true, ex_card_id),
+				"Unsuccessful attempt to initiate with wild swing (%s)" % [
+						game_logic.get_card_database().get_card_name(ws_card_id)])
 		card_id = ws_card_id
 
 	if game_logic.game_state == Enums.GameState.GameState_Strike_Opponent_Response or \
@@ -113,16 +119,21 @@ func do_and_validate_strike(player, card_id, ex_card_id = -1):
 
 func do_strike_response(player, card_id, ex_card_id = -1):
 	if card_id != -1:
-		assert_true(game_logic.do_strike(player, card_id, false, ex_card_id))
+		assert_true(game_logic.do_strike(player, card_id, false, ex_card_id),
+				"Unsuccessful attempt to initiate strike with %s%s" % [
+						"EX " if ex_card_id >= 0 else "",
+						game_logic.get_card_database().get_card_name(card_id)])
 	else:
 		var ws_card_id = player.deck[0].id
-		assert_true(game_logic.do_strike(player, card_id, true, ex_card_id))
+		assert_true(game_logic.do_strike(player, card_id, true, ex_card_id),
+				"Unsuccessful attempt to initiate with wild swing (%s)" % [
+						game_logic.get_card_database().get_card_name(ws_card_id)])
 		card_id = ws_card_id
-
 	return card_id
 
 func advance_turn(player):
-	assert_true(game_logic.do_prepare(player))
+	assert_true(game_logic.do_prepare(player),
+			"Player %s tried to prepare but could not." % player.my_id)
 	if player.hand.size() > 7:
 		var cards = []
 		var to_discard = player.hand.size() - 7
@@ -222,30 +233,70 @@ func process_remaining_decisions(initiator, defender, init_choices, def_choices)
 		fail_test("Insufficient decisions defined for player %s during strike" % game_logic.decision_info.player)
 		return
 
-func execute_strike(initiator, defender, init_card: String, def_card: String,
-		init_ex = false, def_ex = false, init_choices = [], def_choices = []):
+## Cause a strike.
+##
+## initiator, defender -- Player objects
+##
+## init_card, def_card -- The cards played by the corresponding player. If the
+##     argument is a string, the card whose database ID matches that string will
+##     be spawned into the corresponding player's hand. If the argument is an
+##     integer, the card whose *runtime* ID matches that integer will be played as
+##     part of the strike.
+##   Notes: If a string is provided, the new cards will have runtime IDs that
+##       are only generated after this function is called. If you need to refer
+##       to those runtime IDs during the strike -- for example, as arguments to
+##       *_choices -- spawn the cards in beforehand with
+##       `give_player_specific_card` then pass in those IDs directly.
+##          If you pass in an ID, no attempt is made to confirm that the card
+##       with that runtime ID is in an appropriate place or even that it exists
+##       in the first place. This is to allow for characters with weird
+##       functionality like striking from their Gauge or sealed area. It's on
+##       you to make sure the ID doesn't correspond to, say, a card in the wrong
+##       player's hand.
+##
+## init_ex, def_ex -- Set these to true if the strike should be made EX as
+##     played from hand. An extra copy of the *_card will be made in the
+##     corresponding player's hand and assigned a new ID.
+##
+## init_choices, def_choices -- Whenever a player needs to make a decision, that
+##     player pops the leftmost element from their *_choices array for that
+##     decision. It is incumbent upon the test author to make sure that
+##     *_choices has the right number and type of arguments. Remember that these
+##     decisions must be defined even for things that might not matter, like
+##     trigger ordering.
+func execute_strike(initiator: LocalGame.Player, defender: LocalGame.Player,
+		init_card: Variant, def_card: Variant, init_ex = false, def_ex = false,
+		init_choices = [], def_choices = []):
 	var init_card_id = -1
 	var init_card_ex_id = -1
 	var def_card_id = -1
 	var def_card_ex_id = -1
-	## TODO: Figure out what to do if one of the *_choices needs to use a card
-	##   ID that will not be assigned until the `give_player_specific_card`
-	##   calls below.
-	if init_card:
+
+	if typeof(init_card) == Variant.Type.TYPE_STRING and init_card:
 		init_card_id = give_player_specific_card(initiator, init_card)
 		if init_ex:
 			init_card_ex_id = give_player_specific_card(initiator, init_card)
 		do_and_validate_strike(initiator, init_card_id, init_card_ex_id)
+	elif typeof(init_card) == Variant.Type.TYPE_INT and init_card >= 0:
+		init_card_id = init_card
+		if init_ex:
+			var init_card_def_id = game_logic.get_card_database().get_card_id(init_card)
+			init_card_ex_id = give_player_specific_card(initiator, init_card_def_id)
+		do_and_validate_strike(initiator, init_card_id, init_card_ex_id)
 	else:
 		init_card_id = do_and_validate_strike(initiator, -1)  # wild swing
-	## TODO: Why no all_events modification in the initiator block? Is it
-	## because `validate` handles the only part we care about?
 	process_decisions(initiator, game_logic.StrikeState.StrikeState_Initiator_SetEffects, init_choices)
 
-	if def_card:
+	if typeof(def_card) == Variant.Type.TYPE_STRING and def_card:
 		def_card_id = give_player_specific_card(defender, def_card)
 		if def_ex:
 			def_card_ex_id = give_player_specific_card(defender, def_card)
+		do_strike_response(defender, def_card_id, def_card_ex_id)
+	elif typeof(def_card) == Variant.Type.TYPE_INT and def_card >= 0:
+		def_card_id = def_card
+		if def_ex:
+			var def_card_def_id = game_logic.get_card_database().get_card_id(def_card)
+			def_card_ex_id = give_player_specific_card(defender, def_card_def_id)
 		do_strike_response(defender, def_card_id, def_card_ex_id)
 	else:
 		def_card_id = do_strike_response(defender, -1)  # wild swing
