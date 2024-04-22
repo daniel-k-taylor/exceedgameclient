@@ -1,442 +1,269 @@
-extends GutTest
+extends ExceedGutTest
 
-const LocalGame = preload("res://scenes/game/local_game.gd")
-const GameCard = preload("res://scenes/game/game_card.gd")
-const Enums = preload("res://scenes/game/enums.gd")
-var game_logic : LocalGame
-var default_deck = CardDefinitions.get_deck_from_str_id("wagner")
-const TestCardId1 = 50001
-const TestCardId2 = 50002
-const TestCardId3 = 50003
-const TestCardId4 = 50004
-const TestCardId5 = 50005
+func who_am_i():
+	return "wagner"
 
-var player1 : LocalGame.Player
-var player2 : LocalGame.Player
-
-func default_game_setup():
-	game_logic = LocalGame.new()
-	var seed_value = randi()
-	game_logic.initialize_game(default_deck, default_deck, "p1", "p2", Enums.PlayerId.PlayerId_Player, seed_value)
-	game_logic.draw_starting_hands_and_begin()
-	game_logic.do_mulligan(game_logic.player, [])
-	game_logic.do_mulligan(game_logic.opponent, [])
-	player1 = game_logic.player
-	player2 = game_logic.opponent
-	game_logic.get_latest_events()
-
-func give_player_specific_card(player, def_id, card_id):
-	var card_def = CardDefinitions.get_card(def_id)
-	var card = GameCard.new(card_id, card_def, "image", player.my_id)
-	var card_db = game_logic.get_card_database()
-	card_db._test_insert_card(card)
-	player.hand.append(card)
-
-func give_specific_cards(p1, id1, p2, id2):
-	if p1 and id1:
-		give_player_specific_card(p1, id1, TestCardId1)
-	if p2 and id2:
-		give_player_specific_card(p2, id2, TestCardId2)
-
-func position_players(p1, loc1, p2, loc2):
-	p1.arena_location = loc1
-	p2.arena_location = loc2
-
-func give_gauge(player, amount):
-	for i in range(amount):
-		player.add_to_gauge(player.deck[0])
-		player.deck.remove_at(0)
-
-func validate_has_event(events, event_type, target_player, number = null):
-	for event in events:
-		if event['event_type'] == event_type:
-			if event['event_player'] == target_player.my_id:
-				if number != null and event['number'] == number:
-					return
-				elif number == null:
-					return
-	fail_test("Event not found: %s" % event_type)
-
-func validate_not_has_event(events, event_type, target_player, number = null):
-	for event in events:
-		if event['event_type'] == event_type:
-			if event['event_player'] == target_player.my_id:
-				if number != null and event['number'] == number:
-					fail_test("Event found: %s" % event_type)
-				elif number == null:
-					fail_test("Event found: %s" % event_type)
-	return
-
-func before_each():
-	default_game_setup()
-
-	gut.p("ran setup", 2)
-
-func after_each():
-	game_logic.teardown()
-	game_logic.free()
-	gut.p("ran teardown", 2)
-
-func before_all():
-	gut.p("ran run setup", 2)
-
-func after_all():
-	gut.p("ran run teardown", 2)
-
-func do_and_validate_strike(player, card_id, ex_card_id = -1):
-	assert_true(game_logic.can_do_strike(player))
-	if card_id != -1:
-		assert_true(game_logic.do_strike(player, card_id, false, ex_card_id))
-	else:
-		var ws_card_id = player.deck[0].id
-		assert_true(game_logic.do_strike(player, card_id, true, ex_card_id))
-		card_id = ws_card_id
-
-	var events = game_logic.get_latest_events()
-	validate_has_event(events, Enums.EventType.EventType_Strike_Started, player, card_id)
-	if game_logic.game_state == Enums.GameState.GameState_Strike_Opponent_Response or game_logic.game_state == Enums.GameState.GameState_PlayerDecision:
-		pass
-	else:
-		fail_test("Unexpected game state after strike")
-
-func do_strike_response(player, card_id, ex_card = -1):
-	assert_true(game_logic.do_strike(player, card_id, false, ex_card))
-	var events = game_logic.get_latest_events()
-	return events
-
-func advance_turn(player):
-	assert_true(game_logic.do_prepare(player))
-	if player.hand.size() > 7:
-		var cards = []
-		var to_discard = player.hand.size() - 7
-		for i in range(to_discard):
-			cards.append(player.hand[i].id)
-		assert_true(game_logic.do_discard_to_max(player, cards))
-
-func validate_gauge(player, amount, id):
-	assert_eq(len(player.gauge), amount)
-	if len(player.gauge) != amount: return
-	if amount == 0: return
-	for card in player.gauge:
-		if card.id == id:
-			return
-	fail_test("Didn't have required card in gauge.")
-
-func validate_discard(player, amount, id):
-	assert_eq(len(player.discards), amount)
-	if len(player.discards) != amount: return
-	if amount == 0: return
-	for card in player.discards:
-		if card.id == id:
-			return
-	fail_test("Didn't have required card in discard.")
-
-func handle_simultaneous_effects(initiator, defender, simul_effect_choices : Array):
-	while game_logic.game_state == Enums.GameState.GameState_PlayerDecision and game_logic.decision_info.type == Enums.DecisionType.DecisionType_ChooseSimultaneousEffect:
-		var decider = initiator
-		if game_logic.decision_info.player == defender.my_id:
-			decider = defender
-		var choice = 0
-		if len(simul_effect_choices) > 0:
-			choice = simul_effect_choices[0]
-			simul_effect_choices.remove_at(0)
-		assert_true(game_logic.do_choice(decider, choice), "Failed simuleffect choice")
-
-func execute_strike(initiator, defender, init_card : String, def_card : String, init_choices, def_choices, init_ex = false, def_ex = false, init_force_discard = [], def_force_discard = [], init_extra_cost = 0, simul_effect_choices = [], strike_boost_id=0):
-	var all_events = []
-	give_specific_cards(initiator, init_card, defender, def_card)
-
-	if init_card:
-		if init_ex:
-			give_player_specific_card(initiator, init_card, TestCardId3)
-			do_and_validate_strike(initiator, TestCardId1, TestCardId3)
-		else:
-			do_and_validate_strike(initiator, TestCardId1)
-	elif strike_boost_id:
-		do_and_validate_strike(initiator, strike_boost_id)
-	else:
-		do_and_validate_strike(initiator, -1)
-
-	if game_logic.game_state == Enums.GameState.GameState_PlayerDecision and game_logic.active_strike.strike_state == game_logic.StrikeState.StrikeState_Initiator_SetEffects:
-		if init_force_discard:
-			game_logic.do_force_for_effect(initiator, init_force_discard, false)
-
-	if def_ex:
-		give_player_specific_card(defender, def_card, TestCardId4)
-		all_events += do_strike_response(defender, TestCardId2, TestCardId4)
-	elif def_card:
-		all_events += do_strike_response(defender, TestCardId2)
-
-	if game_logic.game_state == Enums.GameState.GameState_PlayerDecision and game_logic.active_strike.strike_state == game_logic.StrikeState.StrikeState_Defender_SetEffects:
-		if def_force_discard:
-			game_logic.do_force_for_effect(defender, def_force_discard, false)
-
-	# Pay any costs from gauge
-	if game_logic.active_strike and game_logic.active_strike.strike_state == game_logic.StrikeState.StrikeState_Initiator_PayCosts:
-		var cost = game_logic.active_strike.initiator_card.definition['gauge_cost'] + init_extra_cost
-		var cards = []
-		for i in range(cost):
-			cards.append(initiator.gauge[i].id)
-		game_logic.do_pay_strike_cost(initiator, cards, false)
-
-	# Pay any costs from gauge
-	if game_logic.active_strike and game_logic.active_strike.strike_state == game_logic.StrikeState.StrikeState_Defender_PayCosts:
-		var cost = game_logic.active_strike.defender_card.definition['gauge_cost']
-		var cards = []
-		for i in range(cost):
-			cards.append(defender.gauge[i].id)
-		game_logic.do_pay_strike_cost(defender, cards, false)
-
-	handle_simultaneous_effects(initiator, defender, simul_effect_choices)
-
-	for i in range(init_choices.size()):
-		assert_eq(game_logic.game_state, Enums.GameState.GameState_PlayerDecision)
-		assert_true(game_logic.do_choice(initiator, init_choices[i]))
-		handle_simultaneous_effects(initiator, defender, simul_effect_choices)
-	handle_simultaneous_effects(initiator, defender, simul_effect_choices)
-
-	for i in range(def_choices.size()):
-		assert_eq(game_logic.game_state, Enums.GameState.GameState_PlayerDecision)
-		assert_true(game_logic.do_choice(defender, def_choices[i]))
-		handle_simultaneous_effects(initiator, defender, simul_effect_choices)
-
-	var events = game_logic.get_latest_events()
-	all_events += events
-	return all_events
-
-func validate_positions(p1, l1, p2, l2):
-	assert_eq(p1.arena_location, l1)
-	assert_eq(p2.arena_location, l2)
-
-func validate_life(p1, l1, p2, l2):
-	assert_eq(p1.life, l1)
-	assert_eq(p2.life, l2)
-
-##
-## Tests start here
-##
+## Character ability -- Action: Close or Retreat 1. Play a Continuous Boost from
+## your hand or reveal a hand with none.
 
 func test_wagner_ua_with_boost():
 	position_players(player1, 3, player2, 6)
 	player1.hand = []
-	give_player_specific_card(player1, "uni_normal_cross", TestCardId3)
+	var cross_id = give_player_specific_card(player1, "uni_normal_cross")
 
 	assert_true(game_logic.do_character_action(player1, []))
-	assert_true(game_logic.do_choice(player1, 0))
-	assert_true(game_logic.do_boost(player1, TestCardId3, []))
+	assert_true(game_logic.do_choice(player1, 0))  # Close 1
+	assert_true(game_logic.do_boost(player1, cross_id, []))
 	var events = game_logic.get_latest_events()
 
-	assert_true(player1.is_card_in_continuous_boosts(TestCardId3))
+	assert_true(player1.is_card_in_continuous_boosts(cross_id))
 	validate_positions(player1, 4, player2, 6)
 	validate_not_has_event(events, Enums.EventType.EventType_RevealHand, player1, 0)
-	advance_turn(player2)
+	assert_eq(game_logic.get_active_player(), player2.my_id)
 
 func test_wagner_ua_with_no_boost():
 	position_players(player1, 3, player2, 6)
 	player1.hand = []
-	give_player_specific_card(player1, "uni_normal_dive", TestCardId3)
+	var dive_id = give_player_specific_card(player1, "uni_normal_dive")
 
 	assert_true(game_logic.do_character_action(player1, []))
-	assert_true(game_logic.do_choice(player1, 1))
+	assert_true(game_logic.do_choice(player1, 1))  # Retreat 1
 	var events = game_logic.get_latest_events()
 
 	validate_positions(player1, 2, player2, 6)
+	# Hand revealed due to lack of continuous boosts
 	validate_has_event(events, Enums.EventType.EventType_RevealHand, player1, 0)
-	advance_turn(player2)
+
+## Exceed character ability -- Action: Close or Retreat 1. Play a Continuous
+## Boost from your Gauge; if you did, and if it did not cause a strike, take
+## another action other than Strike.
 
 func test_wagner_exceed_ua_with_boost_no_strike():
 	position_players(player1, 3, player2, 6)
 	player1.exceed()
 	player1.hand = []
-	give_player_specific_card(player1, "uni_normal_cross", TestCardId3)
-	player1.move_card_from_hand_to_gauge(TestCardId3)
+	var cross_id = give_player_specific_card(player1, "uni_normal_cross")
+	player1.move_card_from_hand_to_gauge(cross_id)
 
 	assert_true(game_logic.do_character_action(player1, []))
 	assert_true(game_logic.do_choice(player1, 0))
-	assert_true(game_logic.do_boost(player1, TestCardId3, []))
+	# Note: The enforcement of the "from Gauge" portion of the action is done
+	# from the UI. It is not checked in this test.
+	assert_true(game_logic.do_boost(player1, cross_id, []))
+	assert_false(game_logic.can_do_strike(player1))
+	assert_eq(game_logic.get_active_player(), player1.my_id)
 	assert_true(game_logic.do_prepare(player1))
-	game_logic.get_latest_events()
 
-	assert_true(player1.is_card_in_continuous_boosts(TestCardId3))
+	assert_true(player1.is_card_in_continuous_boosts(cross_id))
 	validate_positions(player1, 4, player2, 6)
-	advance_turn(player2)
 
 func test_wagner_exceed_ua_with_boost_strike():
 	position_players(player1, 3, player2, 6)
 	player1.exceed()
 	player1.hand = []
-	give_player_specific_card(player1, "uni_normal_sweep", TestCardId3)
-	player1.move_card_from_hand_to_gauge(TestCardId3)
+	var sweep_id = give_player_specific_card(player1, "uni_normal_sweep")
+	player1.move_card_from_hand_to_gauge(sweep_id)
 
 	assert_true(game_logic.do_character_action(player1, []))
 	assert_true(game_logic.do_choice(player1, 0))
-	assert_true(game_logic.do_boost(player1, TestCardId3, []))
-	execute_strike(player1, player2, "uni_normal_sweep", "uni_normal_assault", [], [], false, false)
+	assert_true(game_logic.do_boost(player1, sweep_id, []))
+	execute_strike(player1, player2, "uni_normal_sweep", "uni_normal_assault")
 	validate_positions(player1, 4, player2, 5)
 	validate_life(player1, 29, player2, 24)
-	advance_turn(player2)
 
 func test_wagner_exceed_ua_with_no_boost():
 	position_players(player1, 3, player2, 6)
 	player1.exceed()
 	player1.hand = []
-	give_player_specific_card(player1, "uni_normal_cross", TestCardId3)
-	player1.move_card_from_hand_to_gauge(TestCardId3)
+	var cross_id = give_player_specific_card(player1, "uni_normal_cross")
+	player1.move_card_from_hand_to_gauge(cross_id)
 
 	assert_true(game_logic.do_character_action(player1, []))
 	assert_true(game_logic.do_choice(player1, 0))
-	assert_true(game_logic.do_boost(player1, TestCardId3, []))
+	assert_true(game_logic.do_boost(player1, cross_id, []))
 
 	assert_true(game_logic.do_character_action(player1, []))
 	assert_true(game_logic.do_choice(player1, 0))
-	game_logic.get_latest_events()
 
-	assert_true(player1.is_card_in_continuous_boosts(TestCardId3))
+	assert_eq(game_logic.get_active_player(), player2.my_id)
+	assert_true(player1.is_card_in_continuous_boosts(cross_id))
 	validate_positions(player1, 5, player2, 6)
-	advance_turn(player2)
+
+## Filthy Dog! boost -- Advance up to 3. If you advanced past the opponent, add
+## a Special or Ultra from your discard pile to your hand.
 
 func test_wagner_recover_no_crossup():
 	position_players(player1, 3, player2, 6)
-	give_player_specific_card(player1, "wagner_filthydog", TestCardId3)
-	give_player_specific_card(player1, "wagner_megiddo", TestCardId4)
-	player1.discard([TestCardId4])
+	var boost_id = give_player_specific_card(player1, "wagner_filthydog")
+	var discard_id = give_player_specific_card(player1, "wagner_megiddo")
+	player1.discard([discard_id])
 
-	assert_true(game_logic.do_boost(player1, TestCardId3, []))
-	assert_true(game_logic.do_choice(player1, 1))
+	assert_true(game_logic.do_boost(player1, boost_id, []))
+	assert_true(game_logic.do_choice(player1, 1))  # Advance 2
 
 	validate_positions(player1, 5, player2, 6)
-	advance_turn(player2)
+	assert_ne(game_logic.game_state, Enums.GameState.GameState_PlayerDecision,
+			"Wagner is offered a Recover choice despite lack of crossup")
+	assert_eq(game_logic.get_active_player(), player2.my_id)
 
 func test_wagner_recover_crossup():
 	position_players(player1, 3, player2, 6)
-	give_player_specific_card(player1, "wagner_filthydog", TestCardId3)
-	give_player_specific_card(player1, "wagner_megiddo", TestCardId4)
-	player1.discard([TestCardId4])
+	var boost_id = give_player_specific_card(player1, "wagner_filthydog")
+	var special_id = give_player_specific_card(player1, "wagner_megiddo")
+	var normal_id = give_player_specific_card(player1, "uni_normal_dive")
+	player1.discard([special_id, normal_id])
 
-	assert_true(game_logic.do_boost(player1, TestCardId3, []))
-	assert_true(game_logic.do_choice(player1, 2))
-	assert_true(game_logic.do_choose_from_discard(player1, [TestCardId4]))
+	assert_true(game_logic.do_boost(player1, boost_id, []))
+	assert_true(game_logic.do_choice(player1, 2))  # Advance 3
+	assert_false(game_logic.do_choose_from_discard(player1, [normal_id]),
+			"Wagner was permitted to recur a non-Special/Ultra from discard.")
+	assert_true(game_logic.do_choose_from_discard(player1, [special_id]),
+			"Wagner failed to recover a Special from discard.")
 
 	validate_positions(player1, 7, player2, 6)
-	assert_true(player1.is_card_in_hand(TestCardId4))
-	advance_turn(player2)
+	assert_true(player1.is_card_in_hand(special_id))
+	assert_eq(game_logic.get_active_player(), player2.my_id)
+
+## Kugel Blitz (1/4/5) -- Before: Close 2.
+##     After: Advance 2. If this did not hit, you may add it to your Boost area
+##       as a Continuous Boost (+1 POW, Before: Close 1) and sustain it.
 
 func test_wagner_kugel_blitz_hit():
 	position_players(player1, 3, player2, 6)
 
-	execute_strike(player1, player2, "wagner_kugelblitz", "uni_normal_assault", [], [], false, false)
+	var strike_cards = execute_strike(player1, player2, "wagner_kugelblitz", "uni_normal_assault")
 	validate_positions(player1, 8, player2, 6)
 	validate_life(player1, 30, player2, 26)
-	assert_true(player1.is_card_in_gauge(TestCardId1))
-	advance_turn(player2)
+	assert_true(player1.is_card_in_gauge(strike_cards[0]))
 
 func test_wagner_kugel_blitz_miss():
 	position_players(player1, 2, player2, 6)
 
-	execute_strike(player1, player2, "wagner_kugelblitz", "uni_normal_assault", [0], [], false, false)
+	var strike_cards = execute_strike(player1, player2, "wagner_kugelblitz", "uni_normal_assault",
+			false, false, [0], [])  # Confirm After: effect
 	validate_positions(player1, 7, player2, 6)
 	validate_life(player1, 26, player2, 30)
-	assert_true(player1.is_card_in_continuous_boosts(TestCardId1))
-	advance_turn(player2)
+	assert_true(player1.is_card_in_continuous_boosts(strike_cards[0]))
+
+## Schild Zack (2/5/6) -- After: If this did not hit, you may add it to your
+##     Boost area as a Continuous Boost (+1 ARM, +3 GRD) and sustain it.
 
 func test_wagner_schild_zack_hit():
 	position_players(player1, 4, player2, 6)
 
-	execute_strike(player1, player2, "wagner_schildzack", "uni_normal_assault", [], [], false, false)
+	var strike_cards = execute_strike(player1, player2, "wagner_schildzack", "uni_normal_assault")
 	validate_positions(player1, 4, player2, 6)
 	validate_life(player1, 30, player2, 25)
-	assert_true(player1.is_card_in_gauge(TestCardId1))
-	advance_turn(player2)
+	assert_true(player1.is_card_in_gauge(strike_cards[0]))
 
 func test_wagner_schild_zack_miss():
 	position_players(player1, 3, player2, 6)
 
-	execute_strike(player1, player2, "wagner_schildzack", "uni_normal_assault", [0], [], false, false)
+	var strike_cards = execute_strike(player1, player2, "wagner_schildzack", "uni_normal_assault",
+			false, false, [0], [])  # Confirm After: effect
 	validate_positions(player1, 3, player2, 4)
-	validate_life(player1, 27, player2, 30)
-	assert_true(player1.is_card_in_continuous_boosts(TestCardId1))
-	advance_turn(player2)
+	validate_life(player1, 27, player2, 30)  # +1 ARM from boost applies during current strike
+	assert_true(player1.is_card_in_continuous_boosts(strike_cards[0]))
+
+## Sturm Brecher (1~2/5/4) -- Hit: Push 3. After: If this did not hit, you may
+##     add this to your Boost area as a Continuous Boost (+1 SPD, Now: Move 1)
+##     and sustain it.
 
 func test_wagner_sturm_brecher_hit():
 	position_players(player1, 4, player2, 6)
 
-	execute_strike(player1, player2, "wagner_sturmbrecher", "uni_normal_dive", [], [], false, false)
+	var strike_cards = execute_strike(player1, player2, "wagner_sturmbrecher", "uni_normal_dive")
 	validate_positions(player1, 4, player2, 9)
 	validate_life(player1, 30, player2, 25)
-	assert_true(player1.is_card_in_gauge(TestCardId1))
+	assert_true(player1.is_card_in_gauge(strike_cards[0]))
 	advance_turn(player2)
 
 func test_wagner_sturm_brecher_miss():
 	position_players(player1, 3, player2, 7)
 
-	execute_strike(player1, player2, "wagner_sturmbrecher", "uni_normal_dive", [0, 1], [], false, false)
+	var strike_cards = execute_strike(player1, player2, "wagner_sturmbrecher", "uni_normal_dive",
+			false, false, [0, 1], [])  # Confirm After: effect; retreat with Now: on boost
 	validate_positions(player1, 2, player2, 4)
 	validate_life(player1, 30, player2, 30)
-	assert_true(player1.is_card_in_continuous_boosts(TestCardId1))
+	assert_true(player1.is_card_in_continuous_boosts(strike_cards[0]))
 	advance_turn(player2)
+
+## Wacken Roder boost -- +1 POW. Hit: Gain ARM equal to your POW.
 
 func test_wagner_deflection():
 	position_players(player1, 3, player2, 6)
-	give_player_specific_card(player1, "wagner_wackenroder", TestCardId4)
-	assert_true(game_logic.do_boost(player1, TestCardId4, []))
+	var wackenroder_id = give_player_specific_card(player1, "wagner_wackenroder")
+	assert_true(game_logic.do_boost(player1, wackenroder_id, []))
 	advance_turn(player2)
 
-	execute_strike(player1, player2, "uni_normal_assault", "uni_normal_sweep", [], [], true, false)
+	execute_strike(player1, player2, "uni_normal_assault", "uni_normal_sweep",
+			true, false, [0], [])  # EX assault; must specify Hit: trigger ordering
 	validate_positions(player1, 5, player2, 6)
-	validate_life(player1, 30, player2, 24)
-	advance_turn(player1)
+	validate_life(player1, 30, player2, 24)  # EX Assault + Boost = 6 POW -> 6 ARM
+	advance_turn(player1)  # Advantage turn
+
+## Hitze Falke (3~4/7/1|3/3) -- You may set this attack face-up from your Boost
+##     area. If this attack is set in any other way, it is invalid.
+##     After: Seal this.
+
+# ## strike_boost_id gets used because Wagner's Ultras must be set from her Boost area or be invalid.
 
 func test_wagner_hitze_falke_invalid_from_hand():
 	position_players(player1, 3, player2, 7)
 	give_gauge(player1, 2)
-	give_player_specific_card(player1, "uni_normal_dive", TestCardId3)
-	player1.move_card_from_hand_to_deck(TestCardId3)
+	var dive_id = give_player_specific_card(player1, "uni_normal_dive")
+	player1.move_card_from_hand_to_deck(dive_id)
 
-	execute_strike(player1, player2, "wagner_hitzefalke", "uni_normal_sweep", [], [], false, false)
-	position_players(player1, 6, player2, 7)
+	var strike_cards = execute_strike(player1, player2, "wagner_hitzefalke", "uni_normal_sweep")
+	# Expected: Wagner invalidates Hitze Falke and wild swings Dive
+	validate_positions(player1, 6, player2, 7)
 	validate_life(player1, 24, player2, 25)
-	assert_true(player1.is_card_in_discards(TestCardId1))
-	assert_true(player1.is_card_in_gauge(TestCardId3))
+	assert_true(player1.is_card_in_discards(strike_cards[0]))
+	assert_true(player1.is_card_in_gauge(dive_id))
 	advance_turn(player2)
 
 func test_wagner_hitze_falke_valid_from_boosts():
 	position_players(player1, 3, player2, 7)
-	give_gauge(player1, 2)
-	give_player_specific_card(player1, "wagner_hitzefalke", TestCardId3)
-	assert_true(game_logic.do_boost(player1, TestCardId3, []))
+	var p1_gauge = give_gauge(player1, 2)
+	var hitzefalke_id = give_player_specific_card(player1, "wagner_hitzefalke")
+	assert_true(game_logic.do_boost(player1, hitzefalke_id, []))
 	advance_turn(player2)
 
-	execute_strike(player1, player2, "", "uni_normal_sweep", [], [], false, false, [], [],
-		0, [], TestCardId3)
-	position_players(player1, 3, player2, 7)
+	execute_strike(player1, player2, hitzefalke_id, "uni_normal_sweep",
+		false, false, [p1_gauge], [])  # Pay for Ultra
+	validate_positions(player1, 3, player2, 7)
 	validate_life(player1, 30, player2, 23)
-	assert_true(player1.is_card_in_sealed(TestCardId3))
+	assert_true(player1.is_card_in_sealed(hitzefalke_id))
 	advance_turn(player2)
+
+## Megiddo (1~2/6/6) -- You may set this attack face-up from your Boost area. If
+##     this attack is set in any other way, it is invalid.
+##     After: Seal this.
 
 func test_wagner_megiddo_invalid_from_hand():
 	position_players(player1, 3, player2, 5)
 	give_gauge(player1, 2)
-	give_player_specific_card(player1, "uni_normal_assault", TestCardId3)
-	player1.move_card_from_hand_to_deck(TestCardId3)
+	var assault_id = give_player_specific_card(player1, "uni_normal_assault")
+	player1.move_card_from_hand_to_deck(assault_id)
 
-	execute_strike(player1, player2, "wagner_megiddo", "uni_normal_sweep", [], [], false, false)
-	position_players(player1, 4, player2, 5)
+	var strike_cards = execute_strike(player1, player2, "wagner_megiddo", "uni_normal_sweep")
+	# Expected: Wagner invalidates Megiddo and wild swings Assault
+	validate_positions(player1, 4, player2, 5)
 	validate_life(player1, 24, player2, 26)
-	assert_true(player1.is_card_in_discards(TestCardId1))
-	assert_true(player1.is_card_in_gauge(TestCardId3))
+	assert_true(player1.is_card_in_discards(strike_cards[0]))
+	assert_true(player1.is_card_in_gauge(assault_id))
 	advance_turn(player1)
 
 func test_wagner_megiddo_valid_from_boosts():
 	position_players(player1, 3, player2, 5)
-	give_gauge(player1, 2)
-	give_player_specific_card(player1, "wagner_megiddo", TestCardId3)
-	assert_true(game_logic.do_boost(player1, TestCardId3, []))
+	var p1_gauge = give_gauge(player1, 2)
+	var megiddo_id = give_player_specific_card(player1, "wagner_megiddo")
+	assert_true(game_logic.do_boost(player1, megiddo_id, []))
 	advance_turn(player2)
 
-	execute_strike(player1, player2, "", "uni_normal_sweep", [], [], false, false, [], [],
-		0, [], TestCardId3)
-	position_players(player1, 3, player2, 5)
+	execute_strike(player1, player2, megiddo_id, "uni_normal_sweep",
+			false, false, [p1_gauge], [])  # Pay for Ultra
+	validate_positions(player1, 3, player2, 5)
 	validate_life(player1, 24, player2, 24)
-	assert_true(player1.is_card_in_sealed(TestCardId3))
+	assert_true(player1.is_card_in_sealed(megiddo_id))
 	advance_turn(player2)
-
