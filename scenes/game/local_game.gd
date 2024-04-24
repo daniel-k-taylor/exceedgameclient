@@ -10305,17 +10305,20 @@ func do_boost_cancel(performing_player : Player, gauge_card_ids : Array, doing_c
 	event_queue += events
 	return true
 
-func do_card_from_hand_to_gauge(performing_player : Player, card_ids : Array) -> bool:
-	printlog("SubAction: CARD_HAND_TO_GAUGE by %s: %s" % [get_player_name(performing_player.my_id), card_ids])
+## Select cards from `performing_player`'s hand to be moved. The destination of
+## the move is not specified, and is instead defined by the currently active
+## decision.
+func do_relocate_card_from_hand(performing_player : Player, card_ids : Array) -> bool:
+	printlog("SubAction: RELOCATE_CARD_FROM_HAND by %s: %s" % [get_player_name(performing_player.my_id), card_ids])
 	if decision_info.player != performing_player.my_id:
-		printlog("ERROR: Tried to do_card_from_hand_to_gauge for wrong player.")
+		printlog("ERROR: Tried to do_relocate_card_from_hand for wrong player.")
 		return false
 	if game_state != Enums.GameState.GameState_PlayerDecision or decision_info.type != Enums.DecisionType.DecisionType_CardFromHandToGauge:
-		printlog("ERROR: Tried to do_card_from_hand_to_gauge but not in decision state.")
+		printlog("ERROR: Tried to do_relocate_card_from_hand but not in decision state.")
 		return false
 	for card_id in card_ids:
 		if not performing_player.is_card_in_hand(card_id):
-			printlog("ERROR: Tried to do_card_from_hand_to_gauge with card not in hand.")
+			printlog("ERROR: Tried to do_relocate_card_from_hand with card not in hand.")
 			return false
 
 	var events = []
@@ -10330,7 +10333,7 @@ func do_card_from_hand_to_gauge(performing_player : Player, card_ids : Array) ->
 			elif decision_info.destination == "deck":
 				events += performing_player.shuffle_card_from_hand_to_deck(card_id)
 			else:
-				assert(false, "Unknown destination for do_card_from_hand_to_gauge")
+				assert(false, "Unhandled destination %s for do_relocate_card_from_hand" % decision_info.destination)
 
 	# Log message
 	if decision_info.destination == "gauge":

@@ -182,7 +182,7 @@ func handle_decisions(game: LocalGame):
 				assert_true(game.do_force_for_armor(decision_ai.game_player, forceforarmor_action.card_ids, forceforarmor_action.use_free_force), "do force armor failed")
 			Enums.DecisionType.DecisionType_CardFromHandToGauge:
 				var cardfromhandtogauge_action = decision_ai.pick_card_hand_to_gauge(game, decision_player.my_id, game.decision_info.effect['min_amount'], game.decision_info.effect['max_amount'])
-				assert_true(game.do_card_from_hand_to_gauge(decision_ai.game_player, cardfromhandtogauge_action.card_ids), "do card hand strike failed")
+				assert_true(game.do_relocate_card_from_hand(decision_ai.game_player, cardfromhandtogauge_action.card_ids), "do card hand strike failed")
 			Enums.DecisionType.DecisionType_ForceForEffect:
 				var effect = game.decision_info.effect
 				var options = []

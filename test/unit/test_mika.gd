@@ -260,7 +260,7 @@ func test_mika_crash_pachelbel():
 	assert_true(game_logic.do_choose_to_discard(player1, [player1.hand[0].id]))
 	assert_true(game_logic.do_choice(player1, 0))
 	assert_true(game_logic.do_boost(player1, TestCardId4))
-	assert_true(game_logic.do_card_from_hand_to_gauge(player1, [TestCardId3]))
+	assert_true(game_logic.do_relocate_card_from_hand(player1, [TestCardId3]))
 	execute_strike(player1, player2, "", "uni_normal_focus", [], [])
 	validate_positions(player1, 6, player2, 5)
 	validate_life(player1, 30, player2, 27)

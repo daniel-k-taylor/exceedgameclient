@@ -364,7 +364,7 @@ func test_dan_lucky_skip_draw():
 	var initial_hand_size = len(player1.hand)
 	give_player_specific_card(player1, "dan_shissoburaiken", TestCardId3)
 	assert_true(game_logic.do_boost(player1, TestCardId3, []))
-	assert_true(game_logic.do_card_from_hand_to_gauge(player1, [player1.hand[0].id]))
+	assert_true(game_logic.do_relocate_card_from_hand(player1, [player1.hand[0].id]))
 	assert_true(game_logic.do_choice(player1, 0))
 	assert_eq(len(player1.hand), initial_hand_size-1)
 	advance_turn(player2)
@@ -431,7 +431,7 @@ func test_dan_legendary_taunt_extra_attack_gadouken():
 		[], [], 0, true)
 	assert_true(game_logic.do_choose_to_discard(player1, [TestCardId3]))
 	assert_true(game_logic.do_choice(player1, 0))
-	assert_true(game_logic.do_card_from_hand_to_gauge(player1, [to_gauge_id]))
+	assert_true(game_logic.do_relocate_card_from_hand(player1, [to_gauge_id]))
 
 	validate_life(player1, 30, player2, 26)
 	validate_positions(player1, 3, player2, 7)

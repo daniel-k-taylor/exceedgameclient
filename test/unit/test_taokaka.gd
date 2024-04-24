@@ -233,7 +233,7 @@ func test_taokaka_hexaedge_becomingtwo():
 	assert_true(game_logic.do_boost(player1, TestCardId3, [player1.hand[0].id]))
 	give_player_specific_card(player1, "standard_normal_cross", TestCardId4)
 	give_player_specific_card(player2, "standard_normal_sweep", TestCardId2)
-	assert_true(game_logic.do_card_from_hand_to_gauge(player1, [TestCardId4]))
+	assert_true(game_logic.do_relocate_card_from_hand(player1, [TestCardId4]))
 	assert_true(game_logic.do_strike(player1, -1, true, -1))
 	assert_true(game_logic.do_strike(player2, TestCardId2, false, -1))
 	validate_positions(player1, 4, player2, 6)

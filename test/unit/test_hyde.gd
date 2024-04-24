@@ -212,7 +212,7 @@ func test_hyde_ua_not_striking():
 	validate_has_event(events, Enums.EventType.EventType_CardFromHandToGauge_Choice, player1)
 	assert_eq(game_logic.game_state, Enums.GameState.GameState_PlayerDecision)
 	var card_to_choose = player1.hand[0]
-	assert_true(game_logic.do_card_from_hand_to_gauge(player1, [card_to_choose.id]))
+	assert_true(game_logic.do_relocate_card_from_hand(player1, [card_to_choose.id]))
 	events = game_logic.get_latest_events()
 	assert_true(player1.is_card_in_gauge(card_to_choose.id))
 	validate_positions(player1, 3, player2, 5)

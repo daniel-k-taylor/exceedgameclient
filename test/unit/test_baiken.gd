@@ -231,7 +231,7 @@ func test_baiken_kabari_boost_pass():
 	give_player_specific_card(player1, "baiken_kabari", TestCardId3)
 	assert_true(game_logic.do_boost(player1, TestCardId3))
 	assert_eq(game_logic.game_state, Enums.GameState.GameState_PlayerDecision)
-	assert_true(game_logic.do_card_from_hand_to_gauge(player1, []))
+	assert_true(game_logic.do_relocate_card_from_hand(player1, []))
 	assert_eq(game_logic.game_state, Enums.GameState.GameState_PickAction)
 	assert_eq(game_logic.active_turn_player, player2.my_id)
 
@@ -241,7 +241,7 @@ func test_baiken_kabari_boost_add_card():
 	give_player_specific_card(player1, "baiken_kabari", TestCardId3)
 	assert_true(game_logic.do_boost(player1, TestCardId3))
 	assert_eq(game_logic.game_state, Enums.GameState.GameState_PlayerDecision)
-	assert_true(game_logic.do_card_from_hand_to_gauge(player1, [TestCardId4]))
+	assert_true(game_logic.do_relocate_card_from_hand(player1, [TestCardId4]))
 	assert_eq(player1.gauge.size(), 1)
 	assert_true(game_logic.do_boost_cancel(player1, [], false))
 	assert_eq(player1.hand.size(), 6)
