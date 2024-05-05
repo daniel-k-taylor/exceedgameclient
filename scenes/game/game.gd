@@ -41,6 +41,7 @@ const LocationInfoButtonPair = preload("res://scenes/game/location_infobutton_pa
 @onready var modal_dialog : ModalDialog = $ModalDialog
 
 const OffScreen = Vector2(-1000, -1000)
+const ChoiceCopyIdRangeStart = 70000
 const RevealCopyIdRangestart = 80000
 const ReferenceScreenIdRangeStart = 90000
 const NoticeOffsetY = 50
@@ -1744,7 +1745,7 @@ func begin_choose_opponent_card_to_discard(card_ids):
 	for card_id in card_ids:
 		var logic_card : GameCard = card_db.get_card(card_id)
 		var card_image = get_card_image_path(opponent_deck['id'], logic_card)
-		var copy_card = create_card(card_id + RevealCopyIdRangestart, logic_card.definition, card_image, "", choice_zone_parent, true)
+		var copy_card = create_card(card_id + ChoiceCopyIdRangeStart, logic_card.definition, card_image, "", choice_zone_parent, true)
 		copy_card.set_card_and_focus(OffScreen, 0, CardBase.ReferenceCardScale)
 		copy_card.resting_scale = CardBase.ReferenceCardScale
 		copy_card.change_state(CardBase.CardState.CardState_Offscreen)
@@ -4177,7 +4178,7 @@ func _on_instructions_ok_button_pressed(index : int):
 				var chosen_action = action_choices[index]
 				success = game_wrapper.submit_choose_from_topdeck(Enums.PlayerId.PlayerId_Player, single_card_id, chosen_action)
 			UISubState.UISubState_SelectCards_ChooseOpponentCardToDiscard:
-				var adjusted_id = single_card_id - RevealCopyIdRangestart
+				var adjusted_id = single_card_id - ChoiceCopyIdRangeStart
 				success = game_wrapper.submit_choose_to_discard(Enums.PlayerId.PlayerId_Player, [adjusted_id])
 				clear_choice_zone()
 			UISubState.UISubState_SelectCards_ChooseDiscardToDestination:
