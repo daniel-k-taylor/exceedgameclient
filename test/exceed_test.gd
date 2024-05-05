@@ -179,6 +179,13 @@ func process_decisions(player, strike_state, decisions):
 				# TODO: See if anyone needs it to be more than 0
 				assert_true(game_logic.do_pay_strike_cost(player, content, false),
 						"%s failed to pay a Strike cost using %s" % [player, content])
+			Enums.DecisionType.DecisionType_ChooseArenaLocationForEffect:
+				# Find the index in decision_info.limitation that maps to
+				# the (1-based) arena location `content`. (If content is 0,
+				# decline to move instead. Script should error with
+				# do_choice(player, -1) if that's not an option.
+				assert_true(game_logic.do_choice(player, select_space(content)),
+						"%s failed to move to location %s" % [player, content])
 			var decision_type:  # Unknown decision type, just roll with it
 				assert_true(game_logic.do_choice(player, content),
 						"Decision of type %s unhandled by test harness (attempted by player %s, content %s)" % [
@@ -218,6 +225,13 @@ func process_remaining_decisions(initiator, defender, init_choices, def_choices)
 				Enums.DecisionType.DecisionType_ForceForArmor:
 					assert_true(game_logic.do_force_for_armor(player, choice),
 							"%s failed to discard cards %s for armor" % [player, choice])
+				Enums.DecisionType.DecisionType_ChooseArenaLocationForEffect:
+					# Find the index in decision_info.limitation that maps to
+					# the (1-based) arena location `choice`. (If choice is 0,
+					# decline to move instead. Script should error with
+					# do_choice(player, -1) if that's not an option.
+					assert_true(game_logic.do_choice(player, select_space(choice)),
+							"%s failed to move to location %s" % [player, choice])
 				var decision_type:  # Unknown decision type, just roll with it?
 					if typeof(choice) == Variant.Type.TYPE_ARRAY:
 						fail_test("Attempting to apply array choice %s to a decision of type %s" % [
@@ -264,6 +278,11 @@ func process_remaining_decisions(initiator, defender, init_choices, def_choices)
 ##     *_choices has the right number and type of arguments. Remember that these
 ##     decisions must be defined even for things that might not matter, like
 ##     trigger ordering.
+##
+##     As a special case for decisions that explicitly call for an arena space,
+##     pass in the 1-based number for that space (a conversion happens
+##     silently). In all other cases, assume you are working with a simple
+##     0-based array of options.
 func execute_strike(initiator: LocalGame.Player, defender: LocalGame.Player,
 		init_card: Variant, def_card: Variant, init_ex = false, def_ex = false,
 		init_choices = [], def_choices = []):
@@ -329,3 +348,13 @@ func get_cards_from_gauge(player : LocalGame.Player, amount : int):
 	for i in range(amount):
 		card_ids.append(player.gauge[i].id)
 	return card_ids
+
+## Assuming the game is at a decision point where a space must be selected,
+## convert the desired (1-based) arena space number into an index for the
+## choice.
+func select_space(num: int):
+	# Note that in particular, this conversion is performed silently in the
+	# execute_strike macro whenever it hits a
+	# DecisionType_ChooseArenaLocationForEffect, so you won't need to provide it
+	# explicitly for *_choices content.
+	return game_logic.decision_info.limitation.find(num)
