@@ -4,7 +4,6 @@ In progress:
     ☐ Tager exceed is may
 Bug:
     Breaking:
-        ☐ Gordeau - Snatcher boost, don't let player select cards from the Known Cards then reopen to discard.
         ☐ Review mid-strike Tech interactions:
             - Faust remove boost effects needs to be reviewed, stuff like powerup_opponent and other random effects that Faust can remove mid-strike
             - probably any during_strike ability?
