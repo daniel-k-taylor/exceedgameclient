@@ -5353,6 +5353,10 @@
 		"power": 5,
 		"armor": 0,
 		"guard": 0,
+		"on_invalid": {
+			"effect_type": "remove_buddy",
+			"buddy_name": "your attack"
+		},
 		"effects": [
 			{
 				"timing": "after",
@@ -5396,6 +5400,10 @@
 		"power": 10,
 		"armor": 2,
 		"guard": 5,
+		"on_invalid": {
+			"effect_type": "remove_buddy",
+			"buddy_name": "your attack"
+		},
 		"effects": [
 			{
 				"timing": "during_strike",
