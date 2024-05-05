@@ -15,3 +15,6 @@ func _init(card_id, card_def, card_image, owning_player_id):
 	owner_id = owning_player_id
 	set_aside = false
 	hide_from_reference = false
+
+func _to_string():
+	return '%s (%s)' % [definition.id, id]

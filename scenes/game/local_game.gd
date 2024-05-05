@@ -9049,7 +9049,10 @@ func continue_resolve_strike(events):
 					events += strike_send_attack_to_discard_or_gauge(player1, card1)
 				if card2 in active_strike.cards_in_play:
 					events += strike_send_attack_to_discard_or_gauge(player2, card2)
-				assert(active_strike.cards_in_play.size() == 0, "ERROR: cards still in play after strike should have been cleaned up")
+				assert(active_strike.cards_in_play.size() == 0,
+						"ERROR: %s still in play after strike should have been cleaned up" %
+								", ".join(active_strike.cards_in_play.map(
+										func (card): return "%s" % card)))
 
 				# Remove all stat boosts.
 				player.strike_stat_boosts.clear()
