@@ -120,13 +120,13 @@ func do_and_validate_strike(player, card_id, ex_card_id = -1):
 func do_strike_response(player, card_id, ex_card_id = -1):
 	if card_id != -1:
 		assert_true(game_logic.do_strike(player, card_id, false, ex_card_id),
-				"Unsuccessful attempt to initiate strike with %s%s" % [
+				"Unsuccessful attempt to respond to strike with %s%s" % [
 						"EX " if ex_card_id >= 0 else "",
 						game_logic.get_card_database().get_card_name(card_id)])
 	else:
 		var ws_card_id = player.deck[0].id
 		assert_true(game_logic.do_strike(player, card_id, true, ex_card_id),
-				"Unsuccessful attempt to initiate with wild swing (%s)" % [
+				"Unsuccessful attempt to respond with wild swing (%s)" % [
 						game_logic.get_card_database().get_card_name(ws_card_id)])
 		card_id = ws_card_id
 	return card_id
