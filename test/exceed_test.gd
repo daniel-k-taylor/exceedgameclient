@@ -330,12 +330,14 @@ func execute_strike(initiator: LocalGame.Player, defender: LocalGame.Player,
 
 
 func validate_positions(p1, l1, p2, l2):
-	assert_eq(p1.arena_location, l1)
-	assert_eq(p2.arena_location, l2)
+	assert_eq(p1.arena_location, l1,
+			"Player 1 is in space %s instead of space %s" % [p1.arena_location, l1])
+	assert_eq(p2.arena_location, l2,
+			"Player 2 is in space %s instead of space %s" % [p2.arena_location, l2])
 
 func validate_life(p1, l1, p2, l2):
-	assert_eq(p1.life, l1)
-	assert_eq(p2.life, l2)
+	assert_eq(p1.life, l1, "Player 1 has %s life instead of %s" % [p1.life, l1])
+	assert_eq(p2.life, l2, "Player 2 has %s life instead of %s" % [p2.life, l2])
 
 func get_cards_from_hand(player : LocalGame.Player, amount : int):
 	var card_ids = []
