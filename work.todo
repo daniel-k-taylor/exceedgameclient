@@ -1,8 +1,7 @@
 
 
 In progress:
-
-
+    ☐ Tager exceed is may
 Bug:
     Breaking:
         ☐ Review mid-strike Tech interactions:
@@ -36,6 +35,9 @@ Tasks:
     Main Features:
         ☐ Search for match while observing/playing AI
         ☐ Match available notification while you're observing
+        ☐ Rematch button
+        ☐ Rejoin after disconnect
+        ☐ Are you sure when playing tech effect boost that does nothing
     High Pri UI Improvements:
         ☐ Background image + life panel backgrounds
         ☐ Card popout has choice buttons for gauge selection
