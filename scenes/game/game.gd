@@ -1067,6 +1067,8 @@ func can_select_card(card):
 			var limitation = game_wrapper.get_decision_info().limitation
 			if limitation in ["mine", "in_opponent_space"] and in_opponent_boosts:
 				return false
+			if not in_player_boosts and not in_opponent_boosts:
+				return false
 			if len(selected_cards) < select_card_require_max:
 				var card_db = game_wrapper.get_card_database()
 				var logic_card = card_db.get_card(card.card_id)
