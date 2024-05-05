@@ -41,19 +41,18 @@ func test_chaos_ua_normal():
 	validate_positions(player1, 2, player2, 7)
 	validate_life(player1, 30, player2, 30)
 
+func test_chaos_ua_invalidated_ultra():
+	position_players(player1, 2, player2, 7)
+	var wild_swing_id = give_player_specific_card(player1, "chaos_spewout")
+	player1.move_card_from_hand_to_deck(wild_swing_id)
 
-# func test_chaos_ua_invalidated_ultra():
-# 	position_players(player1, 2, player2, 7)
-# 	var wild_swing_id = give_player_specific_card(player1, "chaos_spewout")
-# 	player1.move_card_from_hand_to_deck(wild_swing_id)
-
-# 	assert_true(game_logic.do_character_action(player1, []))
-# 	var strike_cards = execute_strike(player1, player2, "chaos_deeprevenance", "uni_normal_sweep",
-# 			false, false, [5, 1], [])
-# 	# Expected: The replacement Wild Swing (Spew Out) doesn't hit even though it
-# 	#     would have if it were set directly via the character action.
-# 	validate_positions(player1, 1, player2, 7)
-# 	validate_life(player1, 30, player2, 30)
+	assert_true(game_logic.do_character_action(player1, []))
+	var strike_cards = execute_strike(player1, player2, "chaos_deeprevenance", "uni_normal_sweep",
+			false, false, [5, 1], [])
+	# Expected: The replacement Wild Swing (Spew Out) doesn't hit even though it
+	#     would have if it were set directly via the character action.
+	validate_positions(player1, 1, player2, 7)
+	validate_life(player1, 30, player2, 30)
 
 ## Cold Reflection (1~2/2/4) -- If this was not set in a space, +2 Speed.
 ##     Hit: Push 3 (from Chaos).
