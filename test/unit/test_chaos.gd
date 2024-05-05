@@ -19,6 +19,19 @@ func test_chaos_ua_special():
 	validate_positions(player1, 1, player2, 7)
 	validate_life(player1, 30, player2, 26)
 
+func test_chaos_ua_wild_swing():
+	position_players(player1, 2, player2, 7)
+	var wild_swing_id = give_player_specific_card(player1, "chaos_spewout")
+	player1.move_card_from_hand_to_deck(wild_swing_id)
+	assert_true(game_logic.do_character_action(player1, []))
+	validate_has_event(game_logic.get_latest_events(),
+			Enums.EventType.EventType_ForceStartStrike, player1)
+
+	execute_strike(player1, player2, -1, "uni_normal_sweep",  # Wild Swing
+			false, false, [5, 1], [])  # Set attack in space 5, Retreat 1 during After:
+	validate_positions(player1, 1, player2, 7)
+	validate_life(player1, 30, player2, 26)
+
 func test_chaos_ua_normal():
 	position_players(player1, 2, player2, 7)
 	assert_true(game_logic.do_character_action(player1, []))
@@ -27,6 +40,7 @@ func test_chaos_ua_normal():
 			false, false, [5], [])  # Set attack in space 5 (no real effect)
 	validate_positions(player1, 2, player2, 7)
 	validate_life(player1, 30, player2, 30)
+
 
 # func test_chaos_ua_invalidated_ultra():
 # 	position_players(player1, 2, player2, 7)
