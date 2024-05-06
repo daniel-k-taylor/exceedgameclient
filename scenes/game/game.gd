@@ -41,7 +41,6 @@ const LocationInfoButtonPair = preload("res://scenes/game/location_infobutton_pa
 @onready var modal_dialog : ModalDialog = $ModalDialog
 
 const OffScreen = Vector2(-1000, -1000)
-const ChoiceCopyIdRangeStart = 70000
 const RevealCopyIdRangestart = 80000
 const ReferenceScreenIdRangeStart = 90000
 const NoticeOffsetY = 50
@@ -204,6 +203,7 @@ var previous_ui_state : UIState = UIState.UIState_Initializing
 var previous_ui_sub_state : UISubState = UISubState.UISubState_None
 
 var game_wrapper : GameWrapper = GameWrapper.new()
+var ai_player : AIPlayer
 @onready var card_popout_parent : Node2D = $CardPopoutParent
 @onready var choice_zone_parent : Node2D = $AllCards/ChoiceZone
 @onready var player_character_card : CharacterCardBase  = $PlayerDeck/PlayerCharacterCard
@@ -216,7 +216,6 @@ var game_wrapper : GameWrapper = GameWrapper.new()
 @onready var background_buddies_parent : Node2D = $BackgroundBuddies
 @onready var game_over_stuff = $GameOverStuff
 @onready var game_over_label = $GameOverStuff/GameOverLabel
-@onready var ai_player : AIPlayer = $AIPlayer
 @onready var opponent_name_label : Label = $OpponentDeck/OpponentName
 @onready var player_bonus_panel = $PlayerStrike/CharBonusPanel
 @onready var opponent_bonus_panel = $OpponentStrike/CharBonusPanel
@@ -289,6 +288,8 @@ func _ready():
 		if not observer_mode:
 			$PlayerLife.set_clock(GameTimerLength)
 			$OpponentLife.set_clock(GameTimerLength)
+	else:
+		ai_player = AIPlayer.new(game_wrapper.current_game)
 
 	$PlayerLife.set_life(game_wrapper.get_player_life(Enums.PlayerId.PlayerId_Player))
 	$OpponentLife.set_life(game_wrapper.get_player_life(Enums.PlayerId.PlayerId_Opponent))
@@ -1068,8 +1069,6 @@ func can_select_card(card):
 			var limitation = game_wrapper.get_decision_info().limitation
 			if limitation in ["mine", "in_opponent_space"] and in_opponent_boosts:
 				return false
-			if not in_player_boosts and not in_opponent_boosts:
-				return false
 			if len(selected_cards) < select_card_require_max:
 				var card_db = game_wrapper.get_card_database()
 				var logic_card = card_db.get_card(card.card_id)
@@ -1745,7 +1744,7 @@ func begin_choose_opponent_card_to_discard(card_ids):
 	for card_id in card_ids:
 		var logic_card : GameCard = card_db.get_card(card_id)
 		var card_image = get_card_image_path(opponent_deck['id'], logic_card)
-		var copy_card = create_card(card_id + ChoiceCopyIdRangeStart, logic_card.definition, card_image, "", choice_zone_parent, true)
+		var copy_card = create_card(card_id + RevealCopyIdRangestart, logic_card.definition, card_image, "", choice_zone_parent, true)
 		copy_card.set_card_and_focus(OffScreen, 0, CardBase.ReferenceCardScale)
 		copy_card.resting_scale = CardBase.ReferenceCardScale
 		copy_card.change_state(CardBase.CardState.CardState_Offscreen)
@@ -4178,7 +4177,7 @@ func _on_instructions_ok_button_pressed(index : int):
 				var chosen_action = action_choices[index]
 				success = game_wrapper.submit_choose_from_topdeck(Enums.PlayerId.PlayerId_Player, single_card_id, chosen_action)
 			UISubState.UISubState_SelectCards_ChooseOpponentCardToDiscard:
-				var adjusted_id = single_card_id - ChoiceCopyIdRangeStart
+				var adjusted_id = single_card_id - RevealCopyIdRangestart
 				success = game_wrapper.submit_choose_to_discard(Enums.PlayerId.PlayerId_Player, [adjusted_id])
 				clear_choice_zone()
 			UISubState.UISubState_SelectCards_ChooseDiscardToDestination:

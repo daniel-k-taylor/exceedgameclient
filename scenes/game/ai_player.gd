@@ -1,24 +1,83 @@
+## Basic framework for AI behavior.
+
+## This file describes a bunch of hooks and basic functions used to provide an
+## AI with options, then relay the AI's choice from those options back to the
+## game controller. The actual AI decision-making is done within its
+## [i]policy[/i], which is a Node that implements the laundry list of pick_*
+## functions. See ai_random_policy.gd for a very basic (but complete!) example.
+
+## After initialization, the main entry point into the code is through
+## [method take_turn], which is called by game.gd's `ai_take_turn`. `take_turn`
+## accepts a summary of the game state and returns an instance of one of the
+## various *Action classes defined in this file. `ai_take_turn` then uses
+## that return value to manifest the appropriate changes in the game proper.
+
+## `take_turn` enumerates all legal actions for the AI to take, then passes
+## them to policy and handles the return. Note that each possible variant of
+## a (game) action counts as a distinct (AI) action; for example, the choice
+## of which cards to discard for Force generation during a Walk.
+
+## A broad overview of the main chunks of this file:
+
+##   - class *State: Data wrappers for parts of game state.
+##   - class *Action: Represents an action the AI may or chooses to take,
+##         including parameters like which cards to discard in payment.
+##   - func get_*_actions: List all possible Action objects representing
+##         the named game action.
+##   - func pay_*, pick_*: Entry points for AI decisions that are not at
+##         the top of a turn; for example, a mid-strike decision on movement.
+
+class_name AIPlayer
 extends Node2D
 
 const TEST_PrepareOnly = false
 
 const LocalGame = preload("res://scenes/game/local_game.gd")
-const AIPolicyRandom = preload("res://scenes/game/ai/ai_policy_random.gd")
-const AIPolicyRules = preload("res://scenes/game/ai/ai_policy_rules.gd")
 const Enums = preload("res://scenes/game/enums.gd")
 const CardDatabase = preload("res://scenes/game/card_database.gd")
 
-var game_player : LocalGame.Player
-var game_state : AIGameState = AIGameState.new()
+var game_logic : LocalGame
+var game_state : AIGameState
+var ai_policy
 
-var ai_policy = AIPolicyRules.new()
+# TODO: Check if unused in production? Seems like this should just be
+# encapsulated in game_state.
+var game_player : LocalGame.Player
+
+func _init(local_game: LocalGame, player: LocalGame.Player, policy = null):
+	game_logic = local_game
+	game_player = player
+	game_opponent = local_game.get_player(local_game.get_other_player(player.my_id))
+	game_state = AIGameState.new(game_logic, game_player, game_opponent)
+	if policy == null:
+		ai_policy = AIPolicyRules.new()
+	else:
+		ai_policy = policy
 
 func set_ai_policy(new_policy):
+	ai_policy.free()
 	ai_policy = new_policy
 
+# We're going to do some metaprogramming stuff below and need to know how to
+# handle certain Godot internals. These are a dictionary to get faster lookup,
+# as though that matters at N < 10.
+# TODO: Figure out if this stuff needs to be punted up to Global scope.
+const IGNORE_PROPERTIES = {  # Don't duplicate these properties in duplicate()
+	'RefCounted': 1, 'script': 1, 'Built-in script': 1,
+	}
+const DUPLICABLE_TYPES = {  # Call duplicate recursively on properties of these types
+	Variant.Type.TYPE_OBJECT: 1, Variant.Type.TYPE_ARRAY: 1, Variant.Type.TYPE_DICTIONARY: 1,
+	}
+
+## The AI states are static representations of game state; perhaps even the
+## current one. They replicate a bunch of primitives and basic collections so
+## that they can be reasoned about without affecting the state of the actual
+## game.
+
 class AIPlayerState:
+	## The underlying game object that this player state reflects.
+	var source: LocalGame.Player
 	var player_id : Enums.PlayerId
-	var deck_id
 	var life
 	var deck
 	var full_deck
@@ -32,6 +91,54 @@ class AIPlayerState:
 	var exceeded
 	var reshuffle_remaining
 
+	func _init(player: LocalGame.Player, update: bool = true):
+		source = player
+		if update:
+			update()
+
+	## Syncs the data into this object to the state of the actual game.
+	func update():
+		player_id = source.my_id
+		life = source.life
+		deck = AIPlayer.create_card_id_array(source.deck)
+		full_deck = source.deck_list
+		hand = AIPlayer.create_card_id_array(source.hand)
+		discards = AIPlayer.create_card_id_array(source.discards)
+		continuous_boosts = AIPlayer.create_card_id_array(source.continuous_boosts)
+		gauge = AIPlayer.create_card_id_array(source.gauge)
+		arena_location = source.arena_location
+		buddy_locations = source.buddy_locations
+		exceed_cost = source.get_exceed_cost()
+		exceeded = source.exceeded
+		reshuffle_remaining = source.reshuffle_remaining
+
+	func duplicate(deep: bool = true):
+		var new_state = AIPlayerState.new(source, false)
+		for property in self.get_property_list():
+			var name = property['name']
+			if name in AIPlayer.IGNORE_PROPERTIES or name == 'source':
+				continue
+
+			var value = self._get(name)
+			if value == null:
+				new_state._set(name, null)
+				continue
+
+			var type = property['type']
+			if deep and type in AIPlayer.DUPLICABLE_TYPES:
+				if type != Variant.Type.TYPE_OBJECT or value.has_method('duplicate'):
+					new_state._set(name, value.duplicate(deep))
+				else:
+					push_warning(
+							'Property %s of AIPlayerState (or the thing it stores)' +
+							' does not support deep copy; copying reference instead.' %
+							name)
+					new_state._set(name, value)
+			else:
+				new_state._set(name, value)
+		return new_state
+
+
 class AIStrikeState:
 	var active : bool = false
 	var initiator : Enums.PlayerId
@@ -40,12 +147,96 @@ class AIStrikeState:
 	var defender_card_id : int
 	var defender_ex_card_id : int
 
+	func update(game_logic: LocalGame):
+		self.active = game_logic.active_strike != null
+		if self.active:
+			var source = game_logic.active_strike
+			self.initiator = source.initiator.my_id
+			
+			self.initiator_card_id = source.initiator_card.id if source.initiator_card else -1
+			self.initiator_ex_card_id = source.initiator_ex_card.id if source.initiator_ex_card else -1
+			self.defender_card_id = source.defender_card.id if source.defender_card else -1
+			self.defender_ex_card_id = source.defender_ex_card.id if source.defender_ex_card else -1
+			
+	func duplicate(deep: bool = true):
+		var new_state = AIStrikeState.new(source, false)
+		for property in self.get_property_list():
+			var name = property['name']
+			if name in AIPlayer.IGNORE_PROPERTIES or name == 'source':
+				continue
+
+			var value = self._get(name)
+			if value == null:
+				new_state._set(name, null)
+				continue
+
+			var type = property['type']
+			if deep and type in AIPlayer.DUPLICABLE_TYPES:
+				if type != Variant.Type.TYPE_OBJECT or value.has_method('duplicate'):
+					new_state._set(name, value.duplicate(deep))
+				else:
+					push_warning(
+							'Property %s of AIStrikeState (or the thing it stores)' +
+							' does not support deep copy; copying reference instead.' %
+							name)
+					new_state._set(name, value)
+			else:
+				new_state._set(name, value)
+		return new_state
+
+			
 class AIGameState:
-	var my_state = AIPlayerState.new()
-	var opponent_state = AIPlayerState.new()
-	var active_strike = AIStrikeState.new()
+	var source: LocalGame
+	var player: LocalGame.Player
+	var opponent: LocalGame.Player
+	var my_state: AIPlayerState
+	var opponent_state: AIPlayerState
+	var active_strike: AIStrikeState
+	var active_turn_player: Enums.PlayerId
 	var card_db : CardDatabase
 
+	func _init(game_logic: LocalGame, player: LocalGame.Player = null, opponent: LocalGame.Player = null):
+		self.source = game_logic
+		self.card_db = game_logic.get_card_database()
+		self.player = player
+		self.opponent = opponent
+		my_state = AIPlayerState.new(player)
+		opponent_state = AIPlayerState.new(opponent)
+		active_strike = AIStrikeState.new()
+
+	func update():
+		self.active_turn_player = source.get_active_player()
+		self.my_state.update()
+		self.opponent_state.update()
+		self.active_strike.update(source)
+
+	func duplicate(deep: bool = true):
+		var new_state = AIGameState.new(source, false)
+		for property in self.get_property_list():
+			var name = property['name']
+			if name in AIPlayer.IGNORE_PROPERTIES or name == 'source':
+				continue
+
+			var value = self._get(name)
+			if value == null:
+				new_state._set(name, null)
+				continue
+
+			var type = property['type']
+			if deep and type in AIPlayer.DUPLICABLE_TYPES:
+				if type != Variant.Type.TYPE_OBJECT or value.has_method('duplicate'):
+					new_state._set(name, value.duplicate(deep))
+				else:
+					push_warning(
+							'Property %s of AIGameState (or the thing it stores)' +
+							' does not support deep copy; copying reference instead.' %
+							name)
+					new_state._set(name, value)
+			else:
+				new_state._set(name, value)
+		return new_state
+
+	
 class PrepareAction:
 	pass
 
@@ -206,129 +397,77 @@ class NumberFromRangeAction:
 	func _init(chosen_number):
 		number = chosen_number
 
-func create_sanitized_card_id_array(card_array):
+static func create_sanitized_card_id_array(card_array):
 	var card_ids = []
 	for i in range(card_array.size()):
 		card_ids.append(-1)
 	return card_ids
 
-func create_card_id_array(card_array):
+static func create_card_id_array(card_array):
 	var card_ids = []
 	for card in card_array:
 		card_ids.append(card.id)
 	return card_ids
 
-func update_ai_state(_game_logic : LocalGame, me : LocalGame.Player, opponent : LocalGame.Player):
-	game_state.card_db = _game_logic.get_card_database()
-
-	game_state.my_state.player_id = me.my_id
-	game_state.my_state.deck_id = me.deck_def['id']
-	game_state.my_state.life = me.life
-	game_state.my_state.deck = create_sanitized_card_id_array(me.deck)
-	game_state.my_state.full_deck = me.deck_list
-	game_state.my_state.hand = create_card_id_array(me.hand)
-	game_state.my_state.discards = create_card_id_array(me.discards)
-	game_state.my_state.continuous_boosts = create_card_id_array(me.continuous_boosts)
-	game_state.my_state.gauge = create_card_id_array(me.gauge)
-	game_state.my_state.arena_location = me.arena_location
-	game_state.my_state.buddy_locations = me.buddy_locations
-	game_state.my_state.exceed_cost = me.get_exceed_cost()
-	game_state.my_state.exceeded = me.exceeded
-	game_state.my_state.reshuffle_remaining = me.reshuffle_remaining
-
-	game_state.opponent_state.player_id = opponent.my_id
-	game_state.opponent_state.deck_id = opponent.deck_def['id']
-	game_state.opponent_state.life = opponent.life
-	game_state.opponent_state.deck = create_sanitized_card_id_array(opponent.deck)
-	game_state.opponent_state.full_deck = opponent.deck_list
-	game_state.opponent_state.hand = create_sanitized_card_id_array(opponent.hand)
-	game_state.opponent_state.discards = create_card_id_array(opponent.discards)
-	game_state.opponent_state.continuous_boosts = create_card_id_array(opponent.continuous_boosts)
-	game_state.opponent_state.gauge = create_card_id_array(opponent.gauge)
-	game_state.opponent_state.arena_location = opponent.arena_location
-	game_state.opponent_state.buddy_locations = opponent.buddy_locations
-	game_state.opponent_state.exceed_cost = opponent.get_exceed_cost()
-	game_state.opponent_state.exceeded = opponent.exceeded
-	game_state.opponent_state.reshuffle_remaining = opponent.reshuffle_remaining
-
-	game_state.active_strike.active = _game_logic.active_strike != null
-	if game_state.active_strike.active:
-		game_state.active_strike.initiator = _game_logic.active_strike.initiator.my_id
-		game_state.active_strike.initiator_card_id = -1
-		if _game_logic.active_strike.initiator_card:
-			game_state.active_strike.initiator_card_id = _game_logic.active_strike.initiator_card.id
-		game_state.active_strike.initiator_ex_card_id = -1
-		if _game_logic.active_strike.initiator_ex_card:
-			game_state.active_strike.initiator_ex_card_id = _game_logic.active_strike.initiator_ex_card.id
-		game_state.active_strike.defender_card_id = -1
-		if _game_logic.active_strike.defender_card:
-			game_state.active_strike.defender_card_id = _game_logic.active_strike.defender_card.id
-		game_state.active_strike.defender_ex_card_id = -1
-		if _game_logic.active_strike.defender_ex_card:
-			game_state.active_strike.defender_ex_card_id = _game_logic.active_strike.defender_ex_card.id
-
-
-func take_turn(game_logic : LocalGame, my_id : Enums.PlayerId):
-	var me = game_logic._get_player(my_id)
-	var opponent = game_logic._get_player(game_logic.get_other_player(my_id))
-	# Decide which action makes the most sense to take.
-	var possible_actions = determine_possible_turn_actions(game_logic, me, opponent)
-	update_ai_state(game_logic, me, opponent)
+func take_turn():
+	game_state.update()
+	var possible_actions = determine_possible_turn_actions()
 	return ai_policy.pick_turn_action(possible_actions, game_state)
 
-func take_boost(game_logic : LocalGame, my_id : Enums.PlayerId, valid_zones : Array, limitation : String, ignore_costs : bool, boost_amount : int) -> BoostAction:
-	var me = game_logic._get_player(my_id)
-	var opponent = game_logic._get_player(game_logic.get_other_player(my_id))
-	# Decide which action makes the most sense to take.
-	var possible_actions = get_boost_actions(game_logic, me, opponent, valid_zones, limitation, ignore_costs, boost_amount)
-	update_ai_state(game_logic, me, opponent)
+func take_boost(valid_zones : Array, limitation : String, ignore_costs : bool, boost_amount : int) -> BoostAction:
+	game_state.update()
+	var possible_actions = get_boost_actions(valid_zones, limitation, ignore_costs, boost_amount)
 	return ai_policy.pick_boost_action(possible_actions, game_state)
 
-func determine_possible_turn_actions(game_logic : LocalGame, me : LocalGame.Player, opponent : LocalGame.Player):
+# TODO: Change all references to game_player below to consult game_state
+# instead? And possibly take game_state as an input if we ever need to generate
+# possible actions out of a hypothetical scenario.
+
+func determine_possible_turn_actions():
 	var possible_actions = []
 
 	var boost_zones = ['hand']
-	if 'can_boost_from_extra' in me.deck_def and me.deck_def['can_boost_from_extra']:
+	if 'can_boost_from_extra' in game_player.deck_def and game_player.deck_def['can_boost_from_extra']:
 		boost_zones.append('extra')
 
-	possible_actions += get_prepare_actions(game_logic, me, opponent)
+	possible_actions += get_prepare_actions()
 	if not TEST_PrepareOnly:
-		possible_actions += get_move_actions(game_logic, me, opponent)
-		possible_actions += get_change_cards_actions(game_logic, me, opponent)
-		possible_actions += get_exceed_actions(game_logic, me, opponent)
-		possible_actions += get_reshuffle_actions(game_logic, me, opponent)
-		possible_actions += get_boost_actions(game_logic, me, opponent, boost_zones, "", false, 1)
-		possible_actions += get_strike_actions(game_logic, me, opponent)
-		possible_actions += get_character_action_actions(game_logic, me, opponent)
+		possible_actions += get_move_actions()
+		possible_actions += get_change_cards_actions()
+		possible_actions += get_exceed_actions()
+		possible_actions += get_reshuffle_actions()
+		possible_actions += get_boost_actions(boost_zones, "", false, 1)
+		possible_actions += get_strike_actions()
+		possible_actions += get_character_action_actions()
 	return possible_actions
 
-func get_prepare_actions(_game_logic : LocalGame, me : LocalGame.Player, _opponent : LocalGame.Player):
+func get_prepare_actions():
 	# Don't allow if you insta-lose from doing so.
-	if me.reshuffle_remaining == 0 and len(me.deck) < 2:
+	if game_player.reshuffle_remaining == 0 and len(game_player.deck) < 2:
 		return []
 	return [PrepareAction.new()]
 
-func get_move_actions(game_logic : LocalGame, me : LocalGame.Player, opponent : LocalGame.Player):
+func get_move_actions():
 	var possible_move_actions = []
-	var available_force = me.get_available_force()
-	var free_force_available = me.free_force
-	if me.cannot_move:
+	var available_force = game_player.get_available_force()
+	var free_force_available = game_player.free_force
+	if game_player.cannot_move:
 		return possible_move_actions
 
 	for i in range(1, 10):
-		if me.arena_location == i or opponent.arena_location == i:
+		if game_player.arena_location == i or game_opponent.arena_location == i:
 			continue
-		if not me.can_move_to(i, false):
+		if not game_player.can_move_to(i, false):
 			continue
-		var force_to_move_here = me.get_force_to_move_to(i)
+		var force_to_move_here = game_player.get_force_to_move_to(i)
 		if available_force >= force_to_move_here:
 			# Generate an action for every possible combination of cards that can get here.
 			var all_force_option_ids = []
-			for card in me.hand:
+			for card in game_player.hand:
 				all_force_option_ids.append(card.id)
-			for card in me.gauge:
+			for card in game_player.gauge:
 				all_force_option_ids.append(card.id)
-			var combinations = generate_force_combinations(game_logic, me, all_force_option_ids, force_to_move_here, free_force_available)
+			var combinations = generate_force_combinations(game_logic, game_player, all_force_option_ids, force_to_move_here, free_force_available)
 			for combo_result in combinations:
 				var combo = combo_result[0]
 				var used_free_force = combo_result[1]
@@ -339,16 +478,16 @@ func get_move_actions(game_logic : LocalGame, me : LocalGame.Player, opponent : 
 ## `force_target` Force, with up to `free_force_available` units worth of slack. The actual return value
 ## is a list of pairs [combination, free_force_used], where the latter is true iff at least one point of
 ## the "slack" is necessary for the combination.
-func generate_force_combinations(game_logic : LocalGame, me : LocalGame.Player, cards, force_target, free_force_available):
-	var current_force = me.force_cost_reduction
+func generate_force_combinations(cards, force_target, free_force_available):
+	var current_force = game_player.force_cost_reduction
 	var card_db = game_logic.get_card_database()
 	if current_force >= force_target:
 		return [[[], false]]
 
 	# Each entry in result is a list whose first element is a force count
 	# and whose remainder is a list of cards
-	var candidates = [[current_force]]  
-	
+	var candidates = [[current_force]]
+
 	for card_id in cards:
 		var card_force_value = card_db.get_card_force_value(card_id)
 		for i in range(candidates.size()):
