@@ -3258,6 +3258,8 @@ func get_player_name(player_id : Enums.PlayerId) -> String:
 		return player.name
 	return opponent.name
 
+# TODO: This function is frequently called from outside and probably shouldn't
+# start with an underscore.
 func _get_player(player_id : Enums.PlayerId) -> Player:
 	if player_id == Enums.PlayerId.PlayerId_Player:
 		return player

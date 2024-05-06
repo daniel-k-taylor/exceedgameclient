@@ -48,7 +48,7 @@ var game_opponent: LocalGame.Player
 func _init(local_game: LocalGame, player: LocalGame.Player, policy = null):
 	game_logic = local_game
 	game_player = player
-	game_opponent = local_game.get_player(local_game.get_other_player(player.my_id))
+	game_opponent = local_game._get_player(local_game.get_other_player(player.my_id))
 	game_state = AIGameState.new(game_logic, game_player, game_opponent)
 	if policy == null:
 		ai_policy = AIPolicyRules.new()
@@ -81,6 +81,11 @@ class AIPlayerState:
 	var player_id : Enums.PlayerId
 	var life
 	var deck
+	# `kit` is the character-defining JSON, which contains the UA/XA and
+	# anything else that isn't a deck card proper
+	var kit
+	# `full_deck` is the full definitions of the actual cards in the deck,
+	# including Astral Heats
 	var full_deck
 	var hand
 	var discards
@@ -102,6 +107,7 @@ class AIPlayerState:
 		player_id = source.my_id
 		life = source.life
 		deck = AIPlayer.create_card_id_array(source.deck)
+		kit = source.deck_def
 		full_deck = source.deck_list
 		hand = AIPlayer.create_card_id_array(source.hand)
 		discards = AIPlayer.create_card_id_array(source.discards)
