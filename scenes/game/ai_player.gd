@@ -42,7 +42,8 @@ var ai_policy
 
 # TODO: Check if unused in production? Seems like this should just be
 # encapsulated in game_state.
-var game_player : LocalGame.Player
+var game_player: LocalGame.Player
+var game_opponent: LocalGame.Player
 
 func _init(local_game: LocalGame, player: LocalGame.Player, policy = null):
 	game_logic = local_game
@@ -94,7 +95,7 @@ class AIPlayerState:
 	func _init(player: LocalGame.Player, update: bool = true):
 		source = player
 		if update:
-			update()
+			self.update()
 
 	## Syncs the data into this object to the state of the actual game.
 	func update():
@@ -159,7 +160,7 @@ class AIStrikeState:
 			self.defender_ex_card_id = source.defender_ex_card.id if source.defender_ex_card else -1
 			
 	func duplicate(deep: bool = true):
-		var new_state = AIStrikeState.new(source, false)
+		var new_state = AIStrikeState.new()
 		for property in self.get_property_list():
 			var name = property['name']
 			if name in AIPlayer.IGNORE_PROPERTIES or name == 'source':
@@ -195,14 +196,20 @@ class AIGameState:
 	var active_turn_player: Enums.PlayerId
 	var card_db : CardDatabase
 
-	func _init(game_logic: LocalGame, player: LocalGame.Player = null, opponent: LocalGame.Player = null):
+	func _init(
+			game_logic: LocalGame,
+			player: LocalGame.Player = null,
+			opponent: LocalGame.Player = null,
+			update: bool = true):
 		self.source = game_logic
 		self.card_db = game_logic.get_card_database()
 		self.player = player
 		self.opponent = opponent
-		my_state = AIPlayerState.new(player)
-		opponent_state = AIPlayerState.new(opponent)
+		my_state = AIPlayerState.new(player, false)
+		opponent_state = AIPlayerState.new(opponent, false)
 		active_strike = AIStrikeState.new()
+		if update:
+			self.update()
 
 	func update():
 		self.active_turn_player = source.get_active_player()
@@ -211,7 +218,7 @@ class AIGameState:
 		self.active_strike.update(source)
 
 	func duplicate(deep: bool = true):
-		var new_state = AIGameState.new(source, false)
+		var new_state = AIGameState.new(source, player, opponent)
 		for property in self.get_property_list():
 			var name = property['name']
 			if name in AIPlayer.IGNORE_PROPERTIES or name == 'source':
@@ -574,7 +581,7 @@ func get_exceed_actions():
 	if exceed_cost == -1 or exceed_cost > game_player.gauge.size():
 		return []
 
-	var combinations = get_combinations_to_pay_gauge(game_player, game_player.get_exceed_cost())
+	var combinations = get_combinations_to_pay_gauge(game_player.get_exceed_cost())
 	for combination in combinations:
 		possible_actions.append(ExceedAction.new(combination))
 	return possible_actions
@@ -781,7 +788,7 @@ func pay_strike_force_cost(force_cost : int, wild_swing_allowed : bool) -> PaySt
 func pay_strike_gauge_cost(gauge_cost : int, wild_swing_allowed : bool) -> PayStrikeCostAction:
 	# Decide which action makes the most sense to take.
 	game_state.update()
-	var possible_actions = determine_pay_strike_gauge_cost_actions(game_player, gauge_cost, wild_swing_allowed)
+	var possible_actions = determine_pay_strike_gauge_cost_actions(gauge_cost, wild_swing_allowed)
 	return ai_policy.pick_pay_strike_gauge_cost(possible_actions, game_state)
 
 func determine_pay_strike_force_cost_actions(force_cost : int, wild_swing_allowed : bool):
@@ -1017,11 +1024,11 @@ func pick_discard_continuous(limitation, can_pass, boost_name_restriction) -> Di
 	if can_pass:
 		possible_actions.append(DiscardContinuousBoostAction.new(-1, true))
 	for card in game_player.continuous_boosts:
-		if can_pick_discard_continuous(game_player, game_opponent, card, limitation, boost_name_restriction):
+		if can_pick_discard_continuous(card, limitation, boost_name_restriction):
 			possible_actions.append(DiscardContinuousBoostAction.new(card.id, true))
 	if limitation not in ["mine", "in_opponent_space"]:
 		for card in game_opponent.continuous_boosts:
-			if can_pick_discard_continuous(game_player, game_opponent, card, limitation, boost_name_restriction):
+			if can_pick_discard_continuous(card, limitation, boost_name_restriction):
 				possible_actions.append(DiscardContinuousBoostAction.new(card.id, false))
 	return ai_policy.pick_discard_continuous(possible_actions, game_state)
 

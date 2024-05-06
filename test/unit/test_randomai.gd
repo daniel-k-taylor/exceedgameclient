@@ -76,7 +76,7 @@ func handle_discard_event(events, game : LocalGame, aiplayer : AIPlayer, gamepla
 	if game.game_state == Enums.GameState.GameState_DiscardDownToMax:
 		var event = get_event(events, Enums.EventType.EventType_HandSizeExceeded)
 		var discard_required_count = event['number']
-		var discard_action = aiplayer.pick_discard_to_max(game, gameplayer.my_id, discard_required_count)
+		var discard_action = aiplayer.pick_discard_to_max(discard_required_count)
 		assert_true(game.do_discard_to_max(gameplayer, discard_action.card_ids), "do discard failed")
 		events += game.get_latest_events()
 
