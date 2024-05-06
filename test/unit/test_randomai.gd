@@ -6,9 +6,6 @@ const RandomIterations = 1
 const LocalGame = preload("res://scenes/game/local_game.gd")
 const GameCard = preload("res://scenes/game/game_card.gd")
 const Enums = preload("res://scenes/game/enums.gd")
-const AIPlayer = preload("res://scenes/game/ai_player.gd")
-const AIPolicyRandom = preload("res://scenes/game/ai/ai_policy_random.gd")
-const AIPolicyRules = preload("res://scenes/game/ai/ai_policy_rules.gd")
 
 var game_logic : LocalGame
 var default_deck = CardDefinitions.get_deck_from_str_id("solbadguy")
@@ -17,10 +14,8 @@ var player1 : LocalGame.Player
 var player2 : LocalGame.Player
 var ai1 : AIPlayer
 var ai2 : AIPlayer
-var ai_policy
 
-func game_setup(policy = AIPolicyRules.new()):
-	ai_policy = policy
+func game_setup(policy_type = AIPolicyRules):
 	game_logic = LocalGame.new()
 	var seed_value = randi()
 	game_logic.initialize_game(default_deck, default_deck, "p1", "p2", Enums.PlayerId.PlayerId_Player, seed_value)
@@ -28,20 +23,18 @@ func game_setup(policy = AIPolicyRules.new()):
 	game_logic.get_latest_events()
 	player1 = game_logic.player
 	player2 = game_logic.opponent
-	ai1 = AIPlayer.new()
-	ai1.ai_policy.free()
-	ai1.set_ai_policy(ai_policy)
+	ai1 = AIPlayer.new(policy_type.new())
 	ai1.game_player = player1
-	ai2 = AIPlayer.new()
-	ai2.ai_policy.free()
-	ai2.set_ai_policy(ai_policy)
+	ai2 = AIPlayer.new(policy_type.new())
 	ai2.game_player = player2
 
 func game_teardown():
+	# TODO: Move this logic into the real game so that it doesn't memory leak
 	game_logic.teardown()
 	game_logic.free()
-	ai_policy.free()
+	ai1.ai_policy.free()
 	ai1.free()
+	ai2.ai_policy.free()
 	ai2.free()
 
 func validate_has_event(events, event_type, event_player, number = null):
@@ -55,12 +48,9 @@ func validate_has_event(events, event_type, event_player, number = null):
 	assert(false, "Validate Event not found: %s" % str(event_type))
 
 func before_each():
-	game_setup()
-
 	gut.p("ran setup", 2)
 
 func after_each():
-	game_teardown()
 	gut.p("ran teardown", 2)
 
 func before_all():
@@ -405,33 +395,26 @@ func run_ai_game():
 	return events
 
 func test_random_ai_players():
-	game_teardown()
-	game_setup(AIPolicyRandom.new())
+	game_setup(AIPolicyRandom)
 	var events = run_ai_game()
 
 	print("!!! GAME OVER !!!")
 	for event in events:
 		print(event)
+	game_teardown()
 	pass_test("Finished match")
 
 func run_iterations_with_deck(deck_id : String):
 	default_deck = CardDefinitions.get_deck_from_str_id(deck_id)
-	game_teardown()
-	game_setup()
 	for i in range(RandomIterations):
 		print("==== RUNNING TEST %d ====" % i)
+		game_setup()
 		run_ai_game()
 		game_teardown()
-		game_setup()
 	pass_test("Finished match")
 
 func test_sol_100():
-	for i in range(RandomIterations):
-		print("==== RUNNING TEST %d ====" % i)
-		run_ai_game()
-		game_teardown()
-		game_setup()
-	pass_test("Finished match")
+	run_iterations_with_deck("solbadguy")
 
 func test_ky_100():
 	run_iterations_with_deck("kykisuke")
