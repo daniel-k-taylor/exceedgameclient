@@ -289,7 +289,7 @@ func _ready():
 			$PlayerLife.set_clock(GameTimerLength)
 			$OpponentLife.set_clock(GameTimerLength)
 	else:
-		ai_player = AIPlayer.new(game_wrapper.current_game)
+		ai_player = AIPlayer.new(game_wrapper.current_game, game_wrapper.current_game.opponent)
 
 	$PlayerLife.set_life(game_wrapper.get_player_life(Enums.PlayerId.PlayerId_Player))
 	$OpponentLife.set_life(game_wrapper.get_player_life(Enums.PlayerId.PlayerId_Opponent))
@@ -4523,7 +4523,7 @@ func ai_take_turn():
 	change_ui_state(UIState.UIState_WaitForGameServer)
 	if not game_wrapper.is_ai_game(): return
 	var success = false
-	var turn_action = ai_player.take_turn(game_wrapper.current_game, Enums.PlayerId.PlayerId_Opponent)
+	var turn_action = ai_player.take_turn()
 	if turn_action is AIPlayer.PrepareAction:
 		success = ai_handle_prepare()
 	elif turn_action is AIPlayer.MoveAction:
