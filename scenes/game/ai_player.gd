@@ -1,4 +1,4 @@
-## Basic framework for AI behavior.
+## AI player controller object.
 
 ## This file describes a bunch of hooks and basic functions used to provide an
 ## AI with options, then relay the AI's choice from those options back to the
@@ -6,16 +6,18 @@
 ## [i]policy[/i], which is a Node that implements the laundry list of pick_*
 ## functions. See ai_random_policy.gd for a very basic (but complete!) example.
 
-## After initialization, the main entry point into the code is through
-## [method take_turn], which is called by game.gd's `ai_take_turn`. `take_turn`
-## accepts a summary of the game state and returns an instance of one of the
-## various *Action classes defined in this file. `ai_take_turn` then uses
-## that return value to manifest the appropriate changes in the game proper.
+## The player is initialized with a reference to the relevant game and player
+## objects. After that, the main entry point into the code is through [method take_turn],
+## which is called by game.gd's `ai_take_turn`. `take_turn` consults the stored
+## game state the game state and returns an instance of one of the various
+## *Action classes defined in this file. `ai_take_turn` then uses that return
+## value to manifest the appropriate changes in the game proper.
 
-## `take_turn` enumerates all legal actions for the AI to take, then passes
-## them to policy and handles the return. Note that each possible variant of
-## a (game) action counts as a distinct (AI) action; for example, the choice
-## of which cards to discard for Force generation during a Walk.
+## `take_turn` enumerates all legal actions for the AI to take, then passes them
+## to policy (and then forwards the return value back to game.gd as described
+## above). Note that each possible variant of a (game) action counts as a
+## distinct (AI) action; for example, the choice of which cards to discard for
+## Force generation during a Walk.
 
 ## A broad overview of the main chunks of this file:
 
