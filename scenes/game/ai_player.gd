@@ -30,6 +30,7 @@
 ##         the top of a turn; for example, a mid-strike decision on movement.
 
 class_name AIPlayer
+extends Resource
 
 const TEST_PrepareOnly = false
 
@@ -60,23 +61,12 @@ func set_ai_policy(new_policy):
 	ai_policy.free()
 	ai_policy = new_policy
 
-# We're going to do some metaprogramming stuff below and need to know how to
-# handle certain Godot internals. These are a dictionary to get faster lookup,
-# as though that matters at N < 10.
-# TODO: Figure out if this stuff needs to be punted up to Global scope.
-const IGNORE_PROPERTIES = {  # Don't duplicate these properties in duplicate()
-	'RefCounted': 1, 'script': 1, 'Built-in script': 1,
-	}
-const DUPLICABLE_TYPES = {  # Call duplicate recursively on properties of these types
-	Variant.Type.TYPE_OBJECT: 1, Variant.Type.TYPE_ARRAY: 1, Variant.Type.TYPE_DICTIONARY: 1,
-	}
-
 ## The AI states are static representations of game state; perhaps even the
 ## current one. They replicate a bunch of primitives and basic collections so
 ## that they can be reasoned about without affecting the state of the actual
 ## game.
 
-class AIPlayerState:
+class AIPlayerState extends Resource:
 	## The underlying game object that this player state reflects.
 	var source: LocalGame.Player
 	var player_id : Enums.PlayerId
@@ -120,34 +110,8 @@ class AIPlayerState:
 		exceeded = source.exceeded
 		reshuffle_remaining = source.reshuffle_remaining
 
-	func duplicate(deep: bool = true):
-		var new_state = AIPlayerState.new(source, false)
-		for property in self.get_property_list():
-			var name = property['name']
-			if name in AIPlayer.IGNORE_PROPERTIES or name == 'source':
-				continue
 
-			var value = self.get(name)
-			if value == null:
-				new_state._set(name, null)
-				continue
-
-			var type = property['type']
-			if deep and type in AIPlayer.DUPLICABLE_TYPES:
-				if type != Variant.Type.TYPE_OBJECT or value.has_method('duplicate'):
-					new_state._set(name, value.duplicate(deep))
-				else:
-					push_warning(
-							'Property %s of AIPlayerState (or the thing it stores)' +
-							' does not support deep copy; copying reference instead.' %
-							name)
-					new_state._set(name, value)
-			else:
-				new_state._set(name, value)
-		return new_state
-
-
-class AIStrikeState:
+class AIStrikeState extends Resource:
 	var active : bool = false
 	var initiator : Enums.PlayerId
 	var initiator_card_id : int
@@ -166,34 +130,8 @@ class AIStrikeState:
 			self.defender_card_id = source.defender_card.id if source.defender_card else -1
 			self.defender_ex_card_id = source.defender_ex_card.id if source.defender_ex_card else -1
 
-	func duplicate(deep: bool = true):
-		var new_state = AIStrikeState.new()
-		for property in self.get_property_list():
-			var name = property['name']
-			if name in AIPlayer.IGNORE_PROPERTIES or name == 'source':
-				continue
 
-			var value = self.get(name)
-			if value == null:
-				new_state._set(name, null)
-				continue
-
-			var type = property['type']
-			if deep and type in AIPlayer.DUPLICABLE_TYPES:
-				if type != Variant.Type.TYPE_OBJECT or value.has_method('duplicate'):
-					new_state._set(name, value.duplicate(deep))
-				else:
-					push_warning(
-							'Property %s of AIStrikeState (or the thing it stores)' +
-							' does not support deep copy; copying reference instead.' %
-							name)
-					new_state._set(name, value)
-			else:
-				new_state._set(name, value)
-		return new_state
-
-
-class AIGameState:
+class AIGameState extends Resource:
 	var source: LocalGame
 	var player: LocalGame.Player
 	var opponent: LocalGame.Player
@@ -223,32 +161,6 @@ class AIGameState:
 		self.my_state.update()
 		self.opponent_state.update()
 		self.active_strike.update(source)
-
-	func duplicate(deep: bool = true):
-		var new_state = AIGameState.new(source, player, opponent)
-		for property in self.get_property_list():
-			var name = property['name']
-			if name in AIPlayer.IGNORE_PROPERTIES or name == 'source':
-				continue
-
-			var value = self.get(name)
-			if value == null:
-				new_state._set(name, null)
-				continue
-
-			var type = property['type']
-			if deep and type in AIPlayer.DUPLICABLE_TYPES:
-				if type != Variant.Type.TYPE_OBJECT or value.has_method('duplicate'):
-					new_state._set(name, value.duplicate(deep))
-				else:
-					push_warning(
-							'Property %s of AIGameState (or the thing it stores)' +
-							' does not support deep copy; copying reference instead.' %
-							name)
-					new_state._set(name, value)
-			else:
-				new_state._set(name, value)
-		return new_state
 
 
 class PrepareAction:
