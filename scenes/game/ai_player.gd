@@ -975,24 +975,16 @@ func pick_discard_opponent_gauge() -> DiscardGaugeAction:
 
 func pick_name_opponent_card(normal_only : bool, can_use_own_reference : bool = false) -> NameCardAction:
 	game_state.update()
-	var possible_actions = []
-	# TODO: Correctly implement card deduplication (skipping every other
-	# card doesn't work for characters like Happy Chaos who have multiple
-	# odd-count sets).
-	for i in range(0, game_opponent.deck_list.size(), 2):
-		# Skip every other card to avoid dupes.
-		var card = game_opponent.deck_list[i]
-		if normal_only and card.definition['type'] != "normal":
-			continue
-		possible_actions.append(NameCardAction.new(card.id))
+	var possible_actions = {}
+	var all_cards = game_opponent.deck_list.duplicate()
 	if can_use_own_reference:
-		for i in range(0, game_player.deck_list.size(), 2):
-			# Skip every other card to avoid dupes
-			var card = game_player.deck_list[i]
-			if normal_only and card.definition['type'] != "normal":
-				continue
-			possible_actions.append(NameCardAction.new(card.id))
-	return ai_policy.pick_name_opponent_card(possible_actions, game_state)
+		all_cards.append_array(game_player.deck_list.duplicate())
+	for card in all_cards:
+		if normal_only and card.definition['type'] != 'normal':
+			continue
+		if card.definition['id'] not in possible_actions:
+			possible_actions[card.definition['id']] = NameCardAction.new(card.id)
+	return ai_policy.pick_name_opponent_card(possible_actions.values(), game_state)
 
 func pick_card_hand_to_gauge(min_amount : int, max_amount : int) -> HandToGaugeAction:
 	game_state.update()
