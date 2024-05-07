@@ -31,9 +31,7 @@ func game_teardown():
 	game_logic.teardown()
 	game_logic.free()
 	ai1.ai_policy.free()
-	ai1.free()
 	ai2.ai_policy.free()
-	ai2.free()
 
 func validate_has_event(events, event_type, event_player, number = null):
 	for event in events:
