@@ -13,7 +13,6 @@ const CardPopout = preload("res://scenes/game/card_popout.gd")
 const CardPopoutScene = preload("res://scenes/game/card_popout.tscn")
 const GaugePanel = preload("res://scenes/game/gauge_panel.gd")
 const CharacterCardBase = preload("res://scenes/card/character_card_base.gd")
-const AIPlayer = preload("res://scenes/game/ai_player.gd")
 const DamagePopup = preload("res://scenes/game/damage_popup.gd")
 const Character = preload("res://scenes/game/character.gd")
 const CharacterScene = preload("res://scenes/game/character.tscn")
@@ -290,8 +289,7 @@ func _ready():
 			$PlayerLife.set_clock(GameTimerLength)
 			$OpponentLife.set_clock(GameTimerLength)
 	else:
-		ai_player = $AIPlayer
-		ai_player.initialize(game_wrapper.current_game, game_wrapper.current_game.opponent)
+		ai_player = AIPlayer.new(game_wrapper.current_game, game_wrapper.current_game.opponent)
 
 	$PlayerLife.set_life(game_wrapper.get_player_life(Enums.PlayerId.PlayerId_Player))
 	$OpponentLife.set_life(game_wrapper.get_player_life(Enums.PlayerId.PlayerId_Opponent))

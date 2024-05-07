@@ -28,7 +28,6 @@
 ##         the top of a turn; for example, a mid-strike decision on movement.
 
 class_name AIPlayer
-extends Node2D
 
 const TEST_PrepareOnly = false
 
@@ -45,7 +44,7 @@ var ai_policy
 var game_player: LocalGame.Player
 var game_opponent: LocalGame.Player
 
-func initialize(local_game: LocalGame, player: LocalGame.Player, policy = null):
+func _init(local_game: LocalGame, player: LocalGame.Player, policy = null):
 	game_logic = local_game
 	game_player = player
 	game_opponent = local_game._get_player(local_game.get_other_player(player.my_id))
@@ -126,7 +125,7 @@ class AIPlayerState:
 			if name in AIPlayer.IGNORE_PROPERTIES or name == 'source':
 				continue
 
-			var value = self._get(name)
+			var value = self.get(name)
 			if value == null:
 				new_state._set(name, null)
 				continue
@@ -172,7 +171,7 @@ class AIStrikeState:
 			if name in AIPlayer.IGNORE_PROPERTIES or name == 'source':
 				continue
 
-			var value = self._get(name)
+			var value = self.get(name)
 			if value == null:
 				new_state._set(name, null)
 				continue
@@ -230,7 +229,7 @@ class AIGameState:
 			if name in AIPlayer.IGNORE_PROPERTIES or name == 'source':
 				continue
 
-			var value = self._get(name)
+			var value = self.get(name)
 			if value == null:
 				new_state._set(name, null)
 				continue
