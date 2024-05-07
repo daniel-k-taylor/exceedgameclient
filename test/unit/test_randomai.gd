@@ -23,8 +23,10 @@ func game_setup(policy_type = AIPolicyRules):
 	game_logic.get_latest_events()
 	player1 = game_logic.player
 	player2 = game_logic.opponent
-	ai1 = AIPlayer.new(game_logic, player1, policy_type.new())
-	ai2 = AIPlayer.new(game_logic, player2, policy_type.new())
+	ai1 = AIPlayer.new()
+	ai1.initialize(game_logic, player1, policy_type.new())
+	ai2 = AIPlayer.new()
+	ai2.initialize(game_logic, player2, policy_type.new())
 
 func game_teardown():
 	# TODO: Move this logic into the real game so that it doesn't memory leak

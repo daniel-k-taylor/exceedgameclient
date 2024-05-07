@@ -45,7 +45,7 @@ var ai_policy
 var game_player: LocalGame.Player
 var game_opponent: LocalGame.Player
 
-func _init(local_game: LocalGame, player: LocalGame.Player, policy = null):
+func initialize(local_game: LocalGame, player: LocalGame.Player, policy = null):
 	game_logic = local_game
 	game_player = player
 	game_opponent = local_game._get_player(local_game.get_other_player(player.my_id))
@@ -97,9 +97,9 @@ class AIPlayerState:
 	var exceeded
 	var reshuffle_remaining
 
-	func _init(player: LocalGame.Player, update: bool = true):
+	func _init(player: LocalGame.Player, do_update: bool = true):
 		source = player
-		if update:
+		if do_update:
 			self.update()
 
 	## Syncs the data into this object to the state of the actual game.
@@ -159,12 +159,12 @@ class AIStrikeState:
 		if self.active:
 			var source = game_logic.active_strike
 			self.initiator = source.initiator.my_id
-			
+
 			self.initiator_card_id = source.initiator_card.id if source.initiator_card else -1
 			self.initiator_ex_card_id = source.initiator_ex_card.id if source.initiator_ex_card else -1
 			self.defender_card_id = source.defender_card.id if source.defender_card else -1
 			self.defender_ex_card_id = source.defender_ex_card.id if source.defender_ex_card else -1
-			
+
 	func duplicate(deep: bool = true):
 		var new_state = AIStrikeState.new()
 		for property in self.get_property_list():
@@ -191,7 +191,7 @@ class AIStrikeState:
 				new_state._set(name, value)
 		return new_state
 
-			
+
 class AIGameState:
 	var source: LocalGame
 	var player: LocalGame.Player
@@ -204,17 +204,17 @@ class AIGameState:
 
 	func _init(
 			game_logic: LocalGame,
-			player: LocalGame.Player = null,
-			opponent: LocalGame.Player = null,
-			update: bool = true):
+			the_player: LocalGame.Player = null,
+			the_opponent: LocalGame.Player = null,
+			do_update: bool = true):
 		self.source = game_logic
 		self.card_db = game_logic.get_card_database()
-		self.player = player
-		self.opponent = opponent
-		my_state = AIPlayerState.new(player, false)
-		opponent_state = AIPlayerState.new(opponent, false)
+		self.player = the_player
+		self.opponent = the_opponent
+		my_state = AIPlayerState.new(the_player, false)
+		opponent_state = AIPlayerState.new(the_opponent, false)
 		active_strike = AIStrikeState.new()
-		if update:
+		if do_update:
 			self.update()
 
 	func update():
@@ -249,7 +249,7 @@ class AIGameState:
 				new_state._set(name, value)
 		return new_state
 
-	
+
 class PrepareAction:
 	pass
 
