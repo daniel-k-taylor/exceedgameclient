@@ -42,8 +42,7 @@ var game_logic : LocalGame
 var game_state : AIGameState
 var ai_policy
 
-# TODO: Check if unused in production? Seems like this should just be
-# encapsulated in game_state.
+# TODO: Remove these once they're being passed into functions as part of AIGameState.
 var game_player: LocalGame.Player
 var game_opponent: LocalGame.Player
 
@@ -72,12 +71,12 @@ class AIPlayerState extends Resource:
 	var player_id : Enums.PlayerId
 	var life
 	var deck
-	# `kit` is the character-defining JSON, which contains the UA/XA and
-	# anything else that isn't a deck card proper
-	var kit
-	# `full_deck` is the full definitions of the actual cards in the deck,
+	# `deck_def` is the character-defining JSON, which contains the UA/XA,
+	# buddies, and everything in the player's kit in general.
+	var deck_def
+	# `deck_list` is the full definitions of the actual cards in the deck,
 	# including Astral Heats
-	var full_deck
+	var deck_list
 	var hand
 	var discards
 	var continuous_boosts
@@ -91,22 +90,25 @@ class AIPlayerState extends Resource:
 	func _init(player: LocalGame.Player, do_update: bool = true):
 		source = player
 		if do_update:
-			self.update()
+			self.update(true)
 
 	## Syncs the data into this object to the state of the actual game.
-	func update():
-		player_id = source.my_id
+	func update(full: bool = false):
+		if full:
+			# These things aren't expected to ever change during a game, so
+			# updating them once (on init) should be good enough
+			player_id = source.my_id
+			deck_def = source.deck_def
+			deck_list = source.deck_list
+			exceed_cost = source.get_exceed_cost()
 		life = source.life
 		deck = AIPlayer.create_card_id_array(source.deck)
-		kit = source.deck_def
-		full_deck = source.deck_list
 		hand = AIPlayer.create_card_id_array(source.hand)
 		discards = AIPlayer.create_card_id_array(source.discards)
 		continuous_boosts = AIPlayer.create_card_id_array(source.continuous_boosts)
 		gauge = AIPlayer.create_card_id_array(source.gauge)
 		arena_location = source.arena_location
 		buddy_locations = source.buddy_locations
-		exceed_cost = source.get_exceed_cost()
 		exceeded = source.exceeded
 		reshuffle_remaining = source.reshuffle_remaining
 
@@ -141,6 +143,8 @@ class AIGameState extends Resource:
 	var active_turn_player: Enums.PlayerId
 	var card_db : CardDatabase
 
+	# TODO: Investigate any caveats about Resource.duplicate() interacting with
+	# _init() required arguments.
 	func _init(
 			game_logic: LocalGame,
 			the_player: LocalGame.Player = null,
@@ -154,12 +158,12 @@ class AIGameState extends Resource:
 		opponent_state = AIPlayerState.new(the_opponent, false)
 		active_strike = AIStrikeState.new()
 		if do_update:
-			self.update()
+			self.update(true)
 
-	func update():
+	func update(full: bool = false):
 		self.active_turn_player = source.get_active_player()
-		self.my_state.update()
-		self.opponent_state.update()
+		self.my_state.update(full)
+		self.opponent_state.update(full)
 		self.active_strike.update(source)
 
 
@@ -972,6 +976,9 @@ func pick_discard_opponent_gauge() -> DiscardGaugeAction:
 func pick_name_opponent_card(normal_only : bool, can_use_own_reference : bool = false) -> NameCardAction:
 	game_state.update()
 	var possible_actions = []
+	# TODO: Correctly implement card deduplication (skipping every other
+	# card doesn't work for characters like Happy Chaos who have multiple
+	# odd-count sets).
 	for i in range(0, game_opponent.deck_list.size(), 2):
 		# Skip every other card to avoid dupes.
 		var card = game_opponent.deck_list[i]
@@ -979,9 +986,8 @@ func pick_name_opponent_card(normal_only : bool, can_use_own_reference : bool = 
 			continue
 		possible_actions.append(NameCardAction.new(card.id))
 	if can_use_own_reference:
-		# TODO: cull this down so normals aren't included twice.
 		for i in range(0, game_player.deck_list.size(), 2):
-			# Skip every other card to avoid dupes.
+			# Skip every other card to avoid dupes
 			var card = game_player.deck_list[i]
 			if normal_only and card.definition['type'] != "normal":
 				continue
