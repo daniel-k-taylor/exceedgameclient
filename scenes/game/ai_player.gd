@@ -975,16 +975,21 @@ func pick_discard_opponent_gauge() -> DiscardGaugeAction:
 
 func pick_name_opponent_card(normal_only : bool, can_use_own_reference : bool = false) -> NameCardAction:
 	game_state.update()
+	var card_ids = generate_distinct_opponent_card_ids(
+			game_state, normal_only, can_use_own_reference)
+	return ai_policy.pick_name_opponent_card(func (card_id): return NameCardAction.new(card_id), game_state)
+
+func generate_distinct_opponent_card_ids(the_game_state, normal_only: bool, can_use_own_reference: bool = false):
 	var possible_actions = {}
-	var all_cards = game_opponent.deck_list.duplicate()
+	var all_cards = the_game_state.opponent_state.deck_list.duplicate()
 	if can_use_own_reference:
-		all_cards.append_array(game_player.deck_list.duplicate())
+		all_cards.append_array(the_game_state.my_state.deck_list.duplicate())
 	for card in all_cards:
 		if normal_only and card.definition['type'] != 'normal':
 			continue
 		if card.definition['id'] not in possible_actions:
-			possible_actions[card.definition['id']] = NameCardAction.new(card.id)
-	return ai_policy.pick_name_opponent_card(possible_actions.values(), game_state)
+			possible_actions[card.definition['id']] = card.id
+	return possible_actions.values()
 
 func pick_card_hand_to_gauge(min_amount : int, max_amount : int) -> HandToGaugeAction:
 	game_state.update()
