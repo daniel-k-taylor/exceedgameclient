@@ -219,7 +219,7 @@ func pick_turn_action(possible_actions : Array, ai_game_state : AIPlayer.AIGameS
 
 		# Try to character action.
 		var skip_character_action = false
-		if ai_game_state.my_state.deck_id == 'bison' and ai_game_state.my_state.gauge.size() > 3:
+		if ai_game_state.my_state.deck_def['id'] == 'bison' and ai_game_state.my_state.gauge.size() > 3:
 			# Bison AI takes way too long when it builds up tons of gauge.
 			skip_character_action = true
 

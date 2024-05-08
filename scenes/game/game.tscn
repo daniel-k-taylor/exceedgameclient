@@ -1,4 +1,4 @@
-[gd_scene load_steps=28 format=3 uid="uid://dh7wmx6cbb55x"]
+[gd_scene load_steps=27 format=3 uid="uid://dh7wmx6cbb55x"]
 
 [ext_resource type="Script" path="res://scenes/game/game.gd" id="1_4f5jr"]
 [ext_resource type="Texture2D" uid="uid://dh8tat2r8ttx1" path="res://assets/cards/card_border_highlight.png" id="4_5y76h"]
@@ -19,7 +19,6 @@
 [ext_resource type="PackedScene" uid="uid://dal56iqk5k8rh" path="res://scenes/game/action_menu.tscn" id="17_8hgvk"]
 [ext_resource type="Texture2D" uid="uid://cj7nvglef8cu" path="res://assets/cards/solbadguy/normal_grasp.tres" id="17_acwgt"]
 [ext_resource type="Texture2D" uid="uid://mn1hj4i3k7l7" path="res://assets/cards/card_border_highlight_selected.png" id="17_rr8uh"]
-[ext_resource type="Script" path="res://scenes/game/ai_player.gd" id="18_hlntt"]
 [ext_resource type="PackedScene" uid="uid://dvan4a8ftuplj" path="res://scenes/card/character_card_base.tscn" id="18_imast"]
 [ext_resource type="PackedScene" uid="uid://w87ls4e8oasj" path="res://scenes/game/combat_log.tscn" id="18_k7mnw"]
 [ext_resource type="Texture2D" uid="uid://hj14gadm15wr" path="res://assets/icons/speechbubble.png" id="21_86687"]
@@ -30,9 +29,6 @@
 
 [node name="GameScene" type="Node2D"]
 script = ExtResource("1_4f5jr")
-
-[node name="AIPlayer" type="Node2D" parent="."]
-script = ExtResource("18_hlntt")
 
 [node name="Background" type="ColorRect" parent="."]
 offset_right = 1280.0
