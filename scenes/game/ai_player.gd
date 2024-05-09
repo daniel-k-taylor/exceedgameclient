@@ -977,7 +977,8 @@ func pick_name_opponent_card(normal_only : bool, can_use_own_reference : bool = 
 	game_state.update()
 	var card_ids = generate_distinct_opponent_card_ids(
 			game_state, normal_only, can_use_own_reference)
-	return ai_policy.pick_name_opponent_card(func (card_id): return NameCardAction.new(card_id), game_state)
+	return ai_policy.pick_name_opponent_card(
+		card_ids.map(func (card_id): return NameCardAction.new(card_id)), game_state)
 
 func generate_distinct_opponent_card_ids(the_game_state, normal_only: bool, can_use_own_reference: bool = false):
 	var possible_actions = {}
