@@ -200,50 +200,90 @@ func test_vega_skyhighclaw_boost_doit():
 	assert_eq(player1.continuous_boosts[0].id, bhc_id)
 	advance_turn(player2)  # No further action from P1 (does not have to pay BHC Force costs)
 
-# func test_vega_rollingcrystalflash_boost_miss():
-# 	position_players(player1, 1, player2, 7)
-# 	give_player_specific_card(player1, "vega_rollingcrystalflash", TestCardId2)
-# 	assert_true(game_logic.do_boost(player1, TestCardId2))
-# 	# Advance or retreat 3.
-# 	assert_true(game_logic.do_choice(player1, 0)) # Advance 3
-# 	validate_positions(player1, 4, player2, 7)
-# 	assert_eq(player1.gauge.size(), 0)
-# 	advance_turn(player2)
+## Rolling Crystal Flash (1/3/2) -- For each space between you and the opponent, +1 Speed.
+##     Before: Close 5. Hit: Push 3.
+## Boost: Move 3. If you moved past the opponent, add this card to your gauge.
+	
+func test_vega_rollingcrystalflash_boost_miss():
+	position_players(player1, 1, player2, 7)
+	var rcf_id = give_player_specific_card(player1, "vega_rollingcrystalflash")
+	assert_true(game_logic.do_boost(player1, rcf_id))
+	# Advance or retreat 3.
+	assert_true(game_logic.do_choice(player1, 0)) # Advance 3
+	validate_positions(player1, 4, player2, 7)
+	assert_eq(player1.gauge.size(), 0)
+	advance_turn(player2)
 
-# func test_vega_rollingcrystalflash_boost_doit():
-# 	position_players(player1, 4, player2, 7)
-# 	give_player_specific_card(player1, "vega_rollingcrystalflash", TestCardId2)
-# 	assert_true(game_logic.do_boost(player1, TestCardId2))
-# 	# Advance or retreat 3.
-# 	assert_true(game_logic.do_choice(player1, 0)) # Advance 3
-# 	validate_positions(player1, 8, player2, 7)
-# 	assert_eq(player1.gauge.size(), 1)
-# 	assert_eq(player1.gauge[0].id, TestCardId2)
-# 	advance_turn(player2)
+func test_vega_rollingcrystalflash_boost_doit():
+	position_players(player1, 4, player2, 7)
+	var rcf_id = give_player_specific_card(player1, "vega_rollingcrystalflash")
+	assert_true(game_logic.do_boost(player1, rcf_id))
+	# Advance or retreat 3.
+	assert_true(game_logic.do_choice(player1, 0)) # Advance 3
+	validate_positions(player1, 8, player2, 7)
+	assert_eq(player1.gauge.size(), 1)
+	assert_eq(player1.gauge[0].id, rcf_id)
+	advance_turn(player2)
 
-# func test_vega_rollingcrystalflash_speedboost_tooslow():
-# 	position_players(player1, 4, player2, 7)
-# 	execute_strike(player1, player2, "vega_rollingcrystalflash", "standard_normal_assault", [], [], false, false, [], [], 0, false, false)
-# 	# Flash is speed 2 + 2 < 5
-# 	validate_positions(player1, 4, player2, 5)
-# 	validate_life(player1, 26, player2, 30)
-# 	advance_turn(player2)
+func test_vega_rollingcrystalflash_speedboost_tooslow():
+	position_players(player1, 4, player2, 7)
+	execute_strike(player1, player2, "vega_rollingcrystalflash", "standard_normal_assault")
+	# Flash is speed 2 + 2 < 5
+	validate_positions(player1, 4, player2, 5)
+	validate_life(player1, 26, player2, 30)
+	advance_turn(player2)
 
-# func test_vega_rollingcrystalflash_speedboost_justright():
-# 	position_players(player1, 3, player2, 7)
-# 	execute_strike(player1, player2, "vega_rollingcrystalflash", "standard_normal_assault", [], [], false, false, [], [], 0, false, false)
-# 	# Flash is speed 2 + 3 = 5
-# 	validate_positions(player1, 6, player2, 9)
-# 	validate_life(player1, 30, player2, 27)
-# 	advance_turn(player2)
+func test_vega_rollingcrystalflash_speedboost_justright():
+	position_players(player1, 3, player2, 7)
+	execute_strike(player1, player2, "vega_rollingcrystalflash", "standard_normal_assault")
+	# Flash is speed 2 + 3 = 5
+	validate_positions(player1, 6, player2, 9)
+	validate_life(player1, 30, player2, 27)
+	advance_turn(player2)
 
-# func test_vega_rollingcrystalflash_weirdinteraction_nanase():
-# 	position_players(player1, 5, player2, 9)
-# 	give_gauge(player2, 4)
-# 	# Lumiere misses since rolling crystal is back to speed 2 by the time it hits.
-# 	execute_strike(player1, player2, "vega_rollingcrystalflash", "nanase_lumiereofthedawn", [], [], false, false, [], [player2.gauge[0].id], 0, false, true)
-# 	validate_positions(player1, 8, player2, 9)
-# 	validate_life(player1, 30, player2, 30)
-# 	assert_eq(player1.gauge.size(), 1)
-# 	assert_eq(player2.gauge.size(), 0)
-# 	advance_turn(player2)
+func test_vega_rollingcrystalflash_speed_reset_vs_active():
+	# Since RCF's Speed boost is a passive, it should be treated as its printed
+	# value (2) after its B: effect closes to adjacency.
+	position_players(player1, 5, player2, 9)
+	var p2_gauge = give_gauge(player2, 3)
+	# Lumiere of the Dawn (Speed 4) -- B: If your Speed is greater than your
+	#     opponent's, this attack does not hit and you lose all Armor.
+	execute_strike(player1, player2, "vega_rollingcrystalflash", "nanase_lumiereofthedawn",
+			false, false, [], [[], p2_gauge])  # P2 decline Critical, pay for Ultra
+	# Expected: Vega closes at Speed 5 and hits for 3 - 6 = 0. "Nanase" misses
+	#     since Vega's Speed is checked at 2.
+	validate_positions(player1, 8, player2, 9)
+	validate_life(player1, 30, player2, 30)
+	assert_eq(player1.gauge.size(), 1)
+	assert_eq(player2.gauge.size(), 0)
+	advance_turn(player2)
+
+func test_vega_rollingcrystalflash_speed_reset_attack_only():
+	# When RCF's Speed is re-evaluated for whatever reason, it still includes
+	# bonuses other than the one printed on the attack itself.
+	position_players(player1, 5, player2, 9)
+	var boost_id = give_player_specific_card(player1, "standard_normal_sweep")
+	assert_true(game_logic.do_boost(player1, boost_id))
+	var p2_gauge = give_gauge(player2, 3)
+	advance_turn(player2)
+	# Lumiere of the Dawn (Speed 4) -- B: If your Speed is greater than your
+	#     opponent's, this attack does not hit and you lose all Armor.
+	execute_strike(player1, player2, "vega_rollingcrystalflash", "nanase_lumiereofthedawn",
+			false, false, [], [[], p2_gauge])  # P2 decline Critical, pay for Ultra
+	# Expected: Vega closes at Speed 7 and hits for 3 - 6 = 0. "Nanase" hits
+	#     since Vega's Speed is 2 + 2 = 4, retaining the Speed boost from Light.
+	validate_positions(player1, 8, player2, 9)
+	validate_life(player1, 19, player2, 30)  # Power 9 + 2 (UA) since P2 is actually Vega using a Nanase attack
+	assert_eq(player1.gauge.size(), 1)
+	assert_eq(player2.gauge.size(), 1)
+	advance_turn(player2)
+
+func test_vega_rollingcrystalflash_speed_reset_vs_passive():
+	position_players(player1, 5, player2, 9)
+	# Conceal (Speed 2) -- Attacks with Speed 5+ do not hit you. A: Retreat 1.
+	execute_strike(player1, player2, "chaos_conceal", "vega_rollingcrystalflash")
+	# Expected: Vega (P2) closes at speed 5 and successfully hits for 3 + 2 (UA) = 5.
+	validate_positions(player1, 2, player2, 6)
+	validate_life(player1, 25, player2, 30)
+	assert_eq(player2.gauge.size(), 1)
+	advance_turn(player2)
