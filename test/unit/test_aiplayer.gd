@@ -440,12 +440,12 @@ func test_duplicate_game_state():
 	var new_game_state = ai1.game_state.copy(true)
 	assert_true(new_game_state is AIPlayer.AIGameState)
 	assert_not_same(ai1.game_state, new_game_state)
-	assert_true(AIPlayer.AIResource.equals(ai1.game_state, new_game_state))
+	assert_true(AIResource.equals(ai1.game_state, new_game_state))
 	assert_not_same(ai1.game_state.my_state, new_game_state.my_state)
 	assert_same(ai1.game_state.player, new_game_state.player)
 	
 	new_game_state.my_state.arena_location -= 1
-	assert_false(AIPlayer.AIResource.equals(ai1.game_state, new_game_state),
+	assert_false(AIResource.equals(ai1.game_state, new_game_state),
 			'Changing new self-location to %s also changed original self-location to %s' % [
 					new_game_state.my_state.arena_location, ai1.game_state.my_state.arena_location
 			])

@@ -50,7 +50,7 @@ func _init(local_game: LocalGame, player: LocalGame.Player, policy = null):
 	game_logic = local_game
 	game_player = player
 	game_opponent = local_game._get_player(local_game.get_other_player(player.my_id))
-	game_state = AIGameState.new(game_logic, game_player, game_opponent)
+	game_state = AIGameState.new(game_logic, game_player, game_opponent, true)
 	if policy == null:
 		ai_policy = AIPolicyRules.new()
 	else:
@@ -59,123 +59,6 @@ func _init(local_game: LocalGame, player: LocalGame.Player, policy = null):
 func set_ai_policy(new_policy):
 	ai_policy.free()
 	ai_policy = new_policy
-
-# These constants support the manual implementations of duplicate() we'll use
-# for our custom Resources. They are dictionaries to get faster lookup, as
-# though that matters at N < 10.
-# TODO: Figure out if this stuff needs to be punted up to Global scope.
-const IGNORE_PROPERTIES = {  # Don't duplicate these properties in duplicate()
-	# Godot built-ins
-	'RefCounted': 1, 'script': 1, 'Built-in script': 1, 'Resource': 1,
-	'resource_name': 1, 'resource_path': 1, 'resource_local_to_scene': 1,
-	# Custom stuff
-	'source': 1,
-	}
-const DUPLICABLE_TYPES = {  # Call duplicate recursively on properties of these types
-	Variant.Type.TYPE_OBJECT: 1, Variant.Type.TYPE_ARRAY: 1, Variant.Type.TYPE_DICTIONARY: 1,
-	}
-
-
-class AIResource extends Resource:
-	var source
-
-	func copy_impl(klass, deep: bool = true):
-		var new_resource = klass.new(source)
-		for property in self.get_property_list():
-			var name = property['name']
-			if name in AIPlayer.IGNORE_PROPERTIES:
-				continue
-
-			var value = self.get(name)
-			# We have to check value type directly instead of using
-			# property['type'] because get_property_list() also uses
-			# 'type': Variant.Type.TYPE_NIL to indicate a property
-			# with an *unspecified* type.
-			var type = typeof(value)
-
-			if deep and type in AIPlayer.DUPLICABLE_TYPES:
-				if type != Variant.Type.TYPE_OBJECT:
-					new_resource.set(name, value.duplicate(deep))
-				elif value.has_method('copy'):
-					new_resource.set(name, value.copy(deep))
-				else:
-					push_warning(
-							'Property %s of %s (or the thing it stores)' % [name, klass] +
-							' does not support deep copy; copying reference instead.'
-							)
-					new_resource.set(name, value)
-			else:
-				new_resource.set(name, value)
-		return new_resource
-
-	# Do value-based comparison for two things. Basically a way to get around
-	# the fact that Godot only natively supports reference equality for objects.
-	# We don't expect to call this often except for testing purposes.
-	static func equals(a: Variant, b: Variant):
-		if typeof(a) != typeof(b):
-			return false
-
-		match typeof(a):
-			# While Godot already does recursive value comparison for arrays
-			# and dictionaries, if any of the collection contents are
-			# objects we have to handle the recursion ourselves.
-			Variant.Type.TYPE_ARRAY:
-				if a.size() != b.size():
-					return false
-				for i in range(a.size()):
-					if not AIResource.equals(a[i], b[i]):
-						return false
-				return true
-			Variant.Type.TYPE_DICTIONARY:
-				var a_keys = a.keys()
-				var b_keys = b.keys()
-				a_keys.sort()
-				b_keys.sort()
-				if not AIResource.equals(a_keys, b_keys):
-					return false
-				for key in a_keys:
-					if not AIResource.equals(a[key], b[key]):
-						return false
-				return true
-			# For generic objects, we'll only do recursion for AIResource, i.e.
-			# objects that mostly behave like Python named tuples. There are
-			# just as many objects that we definitely don't want to compare in
-			# linear time; for example, LocalGame.
-			Variant.Type.TYPE_OBJECT:
-				if not (a is AIResource and b is AIResource):
-					return a == b
-				var a_properties = a.get_property_list()
-				var b_properties = b.get_property_list()
-				a_properties.sort_custom(func(x, y): return x['name'] < y['name'])
-				b_properties.sort_custom(func(x, y): return x['name'] < y['name'])
-				print('Comparing property lists %s and %s' % [a_properties, b_properties])
-				if a_properties != b_properties:
-					# At least we can rely on these to just be Array[Dictionary[String -> Primitive]]
-					return false
-				for property in a_properties:
-					var name = property['name']
-					if name in AIPlayer.IGNORE_PROPERTIES:
-						continue
-					print('Comparing a.%s (%s) to b.%s (%s)' % [
-							name, a.get(name), name, b.get(name)])
-					if not AIResource.equals(a.get(name), b.get(name)):
-						return false
-				return true
-			Variant.Type.TYPE_FLOAT:
-				# There are also a bunch of vector-like built-ins that use their
-				# own built-in .is_equal_approx, but unfortunately
-				# @Global.is_equal_approx doesn't support them as inputs, and
-				# there's no quick way to check for them other than listing them
-				# all out (i.e. you can't do maybe_vector.has_method('is_equal_approx')
-				# because they don't have .has_method; and you can't just try it
-				# and see because this language doesn't have error handling). So
-				# we're just going to hope that this is enough. If it isn't,
-				# either add an appropriate branch to this match statement, or
-				# use an Array instead of a vector-like.
-				return is_equal_approx(a, b)
-			_:
-				return a == b
-
 
 ## The AI states are static representations of game state; perhaps even the
 ## current one. They replicate a bunch of primitives and basic collections so
