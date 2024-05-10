@@ -60,14 +60,130 @@ func set_ai_policy(new_policy):
 	ai_policy.free()
 	ai_policy = new_policy
 
+# These constants support the manual implementations of duplicate() we'll use
+# for our custom Resources. They are dictionaries to get faster lookup, as
+# though that matters at N < 10.
+# TODO: Figure out if this stuff needs to be punted up to Global scope.
+const IGNORE_PROPERTIES = {  # Don't duplicate these properties in duplicate()
+	# Godot built-ins
+	'RefCounted': 1, 'script': 1, 'Built-in script': 1, 'Resource': 1,
+	'resource_name': 1, 'resource_path': 1, 'resource_local_to_scene': 1,
+	# Custom stuff
+	'source': 1,
+	}
+const DUPLICABLE_TYPES = {  # Call duplicate recursively on properties of these types
+	Variant.Type.TYPE_OBJECT: 1, Variant.Type.TYPE_ARRAY: 1, Variant.Type.TYPE_DICTIONARY: 1,
+	}
+
+
+class AIResource extends Resource:
+	var source
+
+	func copy_impl(klass, deep: bool = true):
+		var new_resource = klass.new(source)
+		for property in self.get_property_list():
+			var name = property['name']
+			if name in AIPlayer.IGNORE_PROPERTIES:
+				continue
+
+			var value = self.get(name)
+			# We have to check value type directly instead of using
+			# property['type'] because get_property_list() also uses
+			# 'type': Variant.Type.TYPE_NIL to indicate a property
+			# with an *unspecified* type.
+			var type = typeof(value)
+
+			if deep and type in AIPlayer.DUPLICABLE_TYPES:
+				if type != Variant.Type.TYPE_OBJECT:
+					new_resource.set(name, value.duplicate(deep))
+				elif value.has_method('copy'):
+					new_resource.set(name, value.copy(deep))
+				else:
+					push_warning(
+							'Property %s of %s (or the thing it stores)' % [name, klass] +
+							' does not support deep copy; copying reference instead.'
+							)
+					new_resource.set(name, value)
+			else:
+				new_resource.set(name, value)
+		return new_resource
+
+	# Do value-based comparison for two things. Basically a way to get around
+	# the fact that Godot only natively supports reference equality for objects.
+	# We don't expect to call this often except for testing purposes.
+	static func equals(a: Variant, b: Variant):
+		if typeof(a) != typeof(b):
+			return false
+
+		match typeof(a):
+			# While Godot already does recursive value comparison for arrays
+			# and dictionaries, if any of the collection contents are
+			# objects we have to handle the recursion ourselves.
+			Variant.Type.TYPE_ARRAY:
+				if a.size() != b.size():
+					return false
+				for i in range(a.size()):
+					if not AIResource.equals(a[i], b[i]):
+						return false
+				return true
+			Variant.Type.TYPE_DICTIONARY:
+				var a_keys = a.keys()
+				var b_keys = b.keys()
+				a_keys.sort()
+				b_keys.sort()
+				if not AIResource.equals(a_keys, b_keys):
+					return false
+				for key in a_keys:
+					if not AIResource.equals(a[key], b[key]):
+						return false
+				return true
+			# For generic objects, we'll only do recursion for AIResource, i.e.
+			# objects that mostly behave like Python named tuples. There are
+			# just as many objects that we definitely don't want to compare in
+			# linear time; for example, LocalGame.
+			Variant.Type.TYPE_OBJECT:
+				if not (a is AIResource and b is AIResource):
+					return a == b
+				var a_properties = a.get_property_list()
+				var b_properties = b.get_property_list()
+				a_properties.sort_custom(func(x, y): return x['name'] < y['name'])
+				b_properties.sort_custom(func(x, y): return x['name'] < y['name'])
+				print('Comparing property lists %s and %s' % [a_properties, b_properties])
+				if a_properties != b_properties:
+					# At least we can rely on these to just be Array[Dictionary[String -> Primitive]]
+					return false
+				for property in a_properties:
+					var name = property['name']
+					if name in AIPlayer.IGNORE_PROPERTIES:
+						continue
+					print('Comparing a.%s (%s) to b.%s (%s)' % [
+							name, a.get(name), name, b.get(name)])
+					if not AIResource.equals(a.get(name), b.get(name)):
+						return false
+				return true
+			Variant.Type.TYPE_FLOAT:
+				# There are also a bunch of vector-like built-ins that use their
+				# own built-in .is_equal_approx, but unfortunately
+				# @Global.is_equal_approx doesn't support them as inputs, and
+				# there's no quick way to check for them other than listing them
+				# all out (i.e. you can't do maybe_vector.has_method('is_equal_approx')
+				# because they don't have .has_method; and you can't just try it
+				# and see because this language doesn't have error handling). So
+				# we're just going to hope that this is enough. If it isn't,
+				# either add an appropriate branch to this match statement, or
+				# use an Array instead of a vector-like.
+				return is_equal_approx(a, b)
+			_:
+				return a == b
+
+
 ## The AI states are static representations of game state; perhaps even the
 ## current one. They replicate a bunch of primitives and basic collections so
 ## that they can be reasoned about without affecting the state of the actual
 ## game.
 
-class AIPlayerState extends Resource:
+class AIPlayerState extends AIResource:
 	## The underlying game object that this player state reflects.
-	var source: LocalGame.Player
 	var player_id : Enums.PlayerId
 	var life
 	var deck
@@ -87,7 +203,7 @@ class AIPlayerState extends Resource:
 	var exceeded
 	var reshuffle_remaining
 
-	func _init(player: LocalGame.Player, do_update: bool = true):
+	func _init(player: LocalGame.Player, do_update: bool = false):
 		source = player
 		if do_update:
 			self.update(true)
@@ -112,8 +228,11 @@ class AIPlayerState extends Resource:
 		exceeded = source.exceeded
 		reshuffle_remaining = source.reshuffle_remaining
 
+	func copy(deep: bool = true):
+		return copy_impl(AIPlayerState, deep)
 
-class AIStrikeState extends Resource:
+
+class AIStrikeState extends AIResource:
 	var active : bool = false
 	var initiator : Enums.PlayerId
 	var initiator_card_id : int
@@ -121,20 +240,27 @@ class AIStrikeState extends Resource:
 	var defender_card_id : int
 	var defender_ex_card_id : int
 
-	func update(game_logic: LocalGame):
-		self.active = game_logic.active_strike != null
+	func _init(game_logic: LocalGame, do_update: bool = false):
+		self.source = game_logic
+		if do_update:
+			self.update()
+
+	func update():
+		self.active = source.active_strike != null
 		if self.active:
-			var source = game_logic.active_strike
-			self.initiator = source.initiator.my_id
+			var source_strike = source.active_strike
+			self.initiator = source_strike.initiator.my_id
 
-			self.initiator_card_id = source.initiator_card.id if source.initiator_card else -1
-			self.initiator_ex_card_id = source.initiator_ex_card.id if source.initiator_ex_card else -1
-			self.defender_card_id = source.defender_card.id if source.defender_card else -1
-			self.defender_ex_card_id = source.defender_ex_card.id if source.defender_ex_card else -1
+			self.initiator_card_id = source_strike.initiator_card.id if source_strike.initiator_card else -1
+			self.initiator_ex_card_id = source_strike.initiator_ex_card.id if source_strike.initiator_ex_card else -1
+			self.defender_card_id = source_strike.defender_card.id if source_strike.defender_card else -1
+			self.defender_ex_card_id = source_strike.defender_ex_card.id if source_strike.defender_ex_card else -1
+
+	func copy(deep: bool = true):
+		return copy_impl(AIStrikeState, deep)
 
 
-class AIGameState extends Resource:
-	var source: LocalGame
+class AIGameState extends AIResource:
 	var player: LocalGame.Player
 	var opponent: LocalGame.Player
 	var my_state: AIPlayerState
@@ -149,14 +275,14 @@ class AIGameState extends Resource:
 			game_logic: LocalGame,
 			the_player: LocalGame.Player = null,
 			the_opponent: LocalGame.Player = null,
-			do_update: bool = true):
+			do_update: bool = false):
 		self.source = game_logic
 		self.card_db = game_logic.get_card_database()
 		self.player = the_player
-		self.opponent = the_opponent
 		my_state = AIPlayerState.new(the_player, false)
+		self.opponent = the_opponent
 		opponent_state = AIPlayerState.new(the_opponent, false)
-		active_strike = AIStrikeState.new()
+		active_strike = AIStrikeState.new(game_logic)
 		if do_update:
 			self.update(true)
 
@@ -164,7 +290,10 @@ class AIGameState extends Resource:
 		self.active_turn_player = source.get_active_player()
 		self.my_state.update(full)
 		self.opponent_state.update(full)
-		self.active_strike.update(source)
+		self.active_strike.update()
+
+	func copy(deep: bool = true):
+		return copy_impl(AIGameState, deep)
 
 
 class PrepareAction:
@@ -978,7 +1107,7 @@ func pick_name_opponent_card(normal_only : bool, can_use_own_reference : bool = 
 	var card_ids = generate_distinct_opponent_card_ids(
 			game_state, normal_only, can_use_own_reference)
 	return ai_policy.pick_name_opponent_card(
-		card_ids.map(func (card_id): return NameCardAction.new(card_id)), game_state)
+			card_ids.map(func (card_id): return NameCardAction.new(card_id)), game_state)
 
 func generate_distinct_opponent_card_ids(the_game_state, normal_only: bool, can_use_own_reference: bool = false):
 	var possible_actions = {}
