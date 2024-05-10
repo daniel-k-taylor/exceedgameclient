@@ -10,7 +10,7 @@
 ##
 ##   * _init
 ##     * One required argument corresponding to `source`.
-##     * If _init can update from source upon object creation, default arguments
+##     * If _init can update from source upon object creation, argument values
 ##       should be set so that the default behavior is that it *doesn't*.
 ##   * copy
 ##     * This is probably just a call to copy_impl but also passes in the
