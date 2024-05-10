@@ -213,7 +213,8 @@ func process_remaining_decisions(initiator, defender, init_choices, def_choices)
 				player_choices = def_choices
 			var choice = player_choices.pop_front()
 			if choice == null:
-				fail_test("Insufficient decisions defined for player %s during strike" % player.my_id)
+				fail_test("Insufficient decisions defined for player %s during strike; missing input for %s" % [
+						player.my_id, Enums.DecisionType.keys()[game_logic.decision_info.type]])
 				return
 			match game_logic.decision_info.type:
 				Enums.DecisionType.DecisionType_ChooseSimultaneousEffect:
@@ -222,6 +223,12 @@ func process_remaining_decisions(initiator, defender, init_choices, def_choices)
 				Enums.DecisionType.DecisionType_ChooseToDiscard:
 					assert_true(game_logic.do_choose_to_discard(player, choice),
 							"%s failed to discard cards %s" % [player, choice])
+				Enums.DecisionType.DecisionType_ForceForEffect:
+					assert_true(game_logic.do_force_for_effect(player, choice, false),
+							"%s failed to perform a Force effect using %s" % [player, choice])
+				Enums.DecisionType.DecisionType_GaugeForEffect:
+					assert_true(game_logic.do_gauge_for_effect(player, choice),
+							"%s failed to perform a Gauge effect using %s" % [player, choice])
 				Enums.DecisionType.DecisionType_ForceForArmor:
 					assert_true(game_logic.do_force_for_armor(player, choice),
 							"%s failed to discard cards %s for armor" % [player, choice])
@@ -232,6 +239,10 @@ func process_remaining_decisions(initiator, defender, init_choices, def_choices)
 					# do_choice(player, -1) if that's not an option.
 					assert_true(game_logic.do_choice(player, select_space(choice)),
 							"%s failed to move to location %s" % [player, choice])
+				Enums.DecisionType.DecisionType_CardFromHandToGauge:
+					assert_true(game_logic.do_relocate_card_from_hand(player, choice),
+							"%s failed to relocate cards %s from hand to somewhere else." % [
+									player, choice])
 				var decision_type:  # Unknown decision type, just roll with it?
 					if typeof(choice) == Variant.Type.TYPE_ARRAY:
 						fail_test("Attempting to apply array choice %s to a decision of type %s" % [
@@ -244,7 +255,10 @@ func process_remaining_decisions(initiator, defender, init_choices, def_choices)
 		##     present another decision?
 		# wait_seconds(0.01)
 	if game_logic.game_state == Enums.GameState.GameState_PlayerDecision:
-		fail_test("Insufficient decisions defined for player %s during strike" % game_logic.decision_info.player)
+		var message = []
+		message.append("Insufficient decisions defined for player %s during strike;" % game_logic.decision_info.player)
+		message.append("missing input for %s" % Enums.DecisionType.keys()[game_logic.decision_info.type])
+		fail_test(" ".join(message))
 		return
 
 ## Cause a strike.
