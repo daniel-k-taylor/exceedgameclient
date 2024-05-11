@@ -330,8 +330,9 @@ func test_king_spin_jump_draw_boost():
 func test_king_edict_no_copies():
 	position_players(player1, 3, player2, 6)
 	give_player_specific_card(player1, "king_spinjump", TestCardId3)
+	give_player_specific_card(player1, "standard_normal_grasp", TestCardId4)
 
-	assert_true(game_logic.do_boost(player1, TestCardId3, [player1.hand[0].id]))
+	assert_true(game_logic.do_boost(player1, TestCardId3, [TestCardId4]))
 	advance_turn(player2)
 
 	execute_strike(player1, player2, "standard_normal_sweep", "standard_normal_spike", [], [], false, false)
