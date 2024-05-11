@@ -47,6 +47,8 @@ func before_each():
 	gut.p("ran setup", 2)
 
 func after_each():
+	if is_instance_valid(game_logic):
+		game_teardown()
 	gut.p("ran teardown", 2)
 
 func before_all():
@@ -395,8 +397,6 @@ func run_ai_game():
 func test_list_cards():
 	default_deck = CardDefinitions.get_deck_from_str_id('ryu')
 	game_setup()
-	var policy = ai1.ai_policy
-
 	ai1.game_state.update()
 	var card_ids = ai1.generate_distinct_opponent_card_ids(ai1.game_state, false, false)
 	assert_eq(card_ids.size(), 15,  # 8 Normals, 5 Specials, 2 Ultras
@@ -413,8 +413,6 @@ func test_list_cards():
 func test_list_cards_chaos():
 	default_deck = CardDefinitions.get_deck_from_str_id('happychaos')
 	game_setup()
-	var policy = ai1.ai_policy
-
 	ai1.game_state.update()
 	var card_ids = ai1.generate_distinct_opponent_card_ids(ai1.game_state, false, false)
 	assert_eq(card_ids.size(), 14,  # 8 Normals, 2 Specials, 3 Ultras, Deus Ex
@@ -428,6 +426,13 @@ func test_list_cards_chaos():
 				'Card %s was duplicated in the list of possible cards to pick' % card_names[i])
 	game_teardown()
 
+func test_name_opponent_card():
+	default_deck = CardDefinitions.get_deck_from_str_id('happychaos')
+	game_setup()
+	ai1.game_state.update()
+	var name_card_action = ai1.pick_name_opponent_card(false, false)
+	assert_true(name_card_action is AIPlayer.NameCardAction)
+	game_teardown()
 
 func test_random_ai_players():
 	game_setup(AIPolicyRandom)
