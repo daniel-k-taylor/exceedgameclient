@@ -7,8 +7,8 @@ class TestResource extends AIResource:
 	
 	func _init(the_source = null):
 		self.original = the_source
-		self.scalar = randi_range(1, 1000000)
-		self.list = ["string", randi_range(1, 1000000), Resource.new()]
+		self.scalar = -1
+		self.list = ["string", -1, Resource.new()]
 		self.json = {
 				'name': 'json',
 				17: Resource.new(),
@@ -32,12 +32,15 @@ class TestSubresource extends AIResource:
 func test_original_equals_copy():
 	var source = Node.new()
 	var original = TestResource.new(source)
+	original.scalar = 1000
+	original.list[1] = 2000
 	var copy = original.copy()
 
 	assert_not_same(original, copy, 'Copy is just a reference to the original')
-	assert_same(copy.original, original)
+	assert_same(copy.original, original, 'Copy does not contain a reference to the original')
 	assert_eq(original.scalar, copy.scalar, 'Scalar %s incorrectly copied' % original.scalar)
 	assert_eq(original.list, copy.list, 'List %s incorrectly copied' % [original.list])
+	assert_eq(original.list[1], copy.list[1], 'Primitive Array member not copied by value')
 	assert_same(original.list[2], copy.list[2], 'Generic object was not copied by reference')
 	assert_not_same(original.json, copy.json, 'Dictionary copied by reference')
 
@@ -46,7 +49,6 @@ func test_original_equals_copy():
 	# nested TestSubresource that will get cloned by copy(). The Resource should
 	# be copied by reference.
 	assert_eq(json_diff.differences.size(), 1)
-	assert_has(json_diff.differences, 'nested_list')
 	assert_has(json_diff.differences['nested_list'].differences, 0)
 	assert_has(json_diff.differences['nested_list'].differences[0].differences, 'and')
 	assert_same(original.json[17], copy.json[17])
@@ -72,4 +74,6 @@ func test_original_not_equals_modified_copy():
 	assert_ne(original.list.size(), copy.list.size())
 	assert_does_not_have(original.json['nested_list'][0], 'even')
 	assert_ne(original.json['nested_list'][0]['and'], copy.json['nested_list'][0]['and'])
+
+	assert_false(AIResource.equals(original, copy), 'Bespoke (in)equality check failed')
 	source.free()
