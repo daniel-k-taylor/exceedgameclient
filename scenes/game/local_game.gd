@@ -5604,7 +5604,7 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 			events += [create_event(Enums.EventType.EventType_Boost_NameCardOpponentDiscards, performing_player.my_id, 1)]
 		"name_card_opponent_discards_internal":
 			var named_card_name = NullNamedCard
-			if effect['card_id'] != -1:
+			if effect['card_id'] > 0:
 				var named_card = card_db.get_card(effect['card_id'])
 				# named_card is the individual card but
 				# this should discard "by name", so instead of using that

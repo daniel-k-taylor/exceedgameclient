@@ -1,226 +1,23 @@
-extends GutTest
+extends ExceedGutTest
 
-const LocalGame = preload("res://scenes/game/local_game.gd")
-const GameCard = preload("res://scenes/game/game_card.gd")
-const Enums = preload("res://scenes/game/enums.gd")
-var game_logic : LocalGame
-var default_deck = CardDefinitions.get_deck_from_str_id("vatista")
-const TestCardId1 = 50001
-const TestCardId2 = 50002
-const TestCardId3 = 50003
-const TestCardId4 = 50004
-const TestCardId5 = 50005
+func who_am_i():
+	return "vatista"
 
-var player1 : LocalGame.Player
-var player2 : LocalGame.Player
 
-func default_game_setup():
-	game_logic = LocalGame.new()
-	var seed_value = randi()
-	game_logic.initialize_game(default_deck, default_deck, "p1", "p2", Enums.PlayerId.PlayerId_Player, seed_value)
-	game_logic.draw_starting_hands_and_begin()
-	game_logic.do_mulligan(game_logic.player, [])
-	game_logic.do_mulligan(game_logic.opponent, [])
-	player1 = game_logic.player
-	player2 = game_logic.opponent
-	game_logic.get_latest_events()
+## Note: When converting execute_strike, the integer after the pair of arrays is
+## init_extra_cost which is an extra gauge cost
 
-func give_player_specific_card(player, def_id, card_id):
-	var card_def = CardDefinitions.get_card(def_id)
-	var card = GameCard.new(card_id, card_def, "image", player.my_id)
-	var card_db = game_logic.get_card_database()
-	card_db._test_insert_card(card)
-	player.hand.append(card)
-
-func give_specific_cards(p1, id1, p2, id2):
-	if p1 and id1:
-		give_player_specific_card(p1, id1, TestCardId1)
-	if p2 and id2:
-		give_player_specific_card(p2, id2, TestCardId2)
-
-func position_players(p1, loc1, p2, loc2):
-	p1.arena_location = loc1
-	p2.arena_location = loc2
-
-func give_gauge(player, amount):
-	for i in range(amount):
-		player.add_to_gauge(player.deck[0])
-		player.deck.remove_at(0)
-
-func validate_has_event(events, event_type, target_player, number = null):
-	for event in events:
-		if event['event_type'] == event_type:
-			if event['event_player'] == target_player.my_id:
-				if number != null and event['number'] == number:
-					return
-				elif number == null:
-					return
-	fail_test("Event not found: %s" % event_type)
-
-func validate_not_has_event(events, event_type, target_player, number = null):
-	for event in events:
-		if event['event_type'] == event_type:
-			if event['event_player'] == target_player.my_id:
-				if number != null and event['number'] == number:
-					fail_test("Event found: %s" % event_type)
-				elif number == null:
-					fail_test("Event found: %s" % event_type)
-	return
-
-func before_each():
-	default_game_setup()
-
-	gut.p("ran setup", 2)
-
-func after_each():
-	game_logic.teardown()
-	game_logic.free()
-	gut.p("ran teardown", 2)
-
-func before_all():
-	gut.p("ran run setup", 2)
-
-func after_all():
-	gut.p("ran run teardown", 2)
-
-func do_and_validate_strike(player, card_id, ex_card_id = -1):
-	assert_true(game_logic.can_do_strike(player))
-	if card_id != -1:
-		assert_true(game_logic.do_strike(player, card_id, false, ex_card_id))
-	else:
-		var ws_card_id = player.deck[0].id
-		assert_true(game_logic.do_strike(player, card_id, true, ex_card_id))
-		card_id = ws_card_id
-
-	var events = game_logic.get_latest_events()
-	validate_has_event(events, Enums.EventType.EventType_Strike_Started, player, card_id)
-	if game_logic.game_state == Enums.GameState.GameState_Strike_Opponent_Response or game_logic.game_state == Enums.GameState.GameState_PlayerDecision:
-		pass
-	else:
-		fail_test("Unexpected game state after strike")
-
-func do_strike_response(player, card_id, ex_card = -1):
-	assert_true(game_logic.do_strike(player, card_id, false, ex_card))
-	var events = game_logic.get_latest_events()
-	return events
-
-func advance_turn(player):
-	assert_true(game_logic.do_prepare(player))
-	if player.hand.size() > 7:
-		var cards = []
-		var to_discard = player.hand.size() - 7
-		for i in range(to_discard):
-			cards.append(player.hand[i].id)
-		assert_true(game_logic.do_discard_to_max(player, cards))
-
-func validate_gauge(player, amount, id):
-	assert_eq(len(player.gauge), amount)
-	if len(player.gauge) != amount: return
-	if amount == 0: return
-	for card in player.gauge:
-		if card.id == id:
-			return
-	fail_test("Didn't have required card in gauge.")
-
-func validate_discard(player, amount, id):
-	assert_eq(len(player.discards), amount)
-	if len(player.discards) != amount: return
-	if amount == 0: return
-	for card in player.discards:
-		if card.id == id:
-			return
-	fail_test("Didn't have required card in discard.")
-
-func handle_simultaneous_effects(initiator, defender, simul_effect_choices : Array):
-	while game_logic.game_state == Enums.GameState.GameState_PlayerDecision and game_logic.decision_info.type == Enums.DecisionType.DecisionType_ChooseSimultaneousEffect:
-		var decider = initiator
-		if game_logic.decision_info.player == defender.my_id:
-			decider = defender
-		var choice = 0
-		if len(simul_effect_choices) > 0:
-			choice = simul_effect_choices[0]
-			simul_effect_choices.remove_at(0)
-		assert_true(game_logic.do_choice(decider, choice), "Failed simuleffect choice")
-
-func execute_strike(initiator, defender, init_card : String, def_card : String, init_choices, def_choices, init_ex = false, def_ex = false, init_force_discard = [], def_force_discard = [], init_extra_cost = 0, simul_effect_choices = [], specific_card=0):
-	var all_events = []
-	give_specific_cards(initiator, init_card, defender, def_card)
-
-	if init_card:
-		if init_ex:
-			give_player_specific_card(initiator, init_card, TestCardId3)
-			do_and_validate_strike(initiator, TestCardId1, TestCardId3)
-		else:
-			do_and_validate_strike(initiator, TestCardId1)
-	elif specific_card:
-		do_and_validate_strike(initiator, specific_card)
-	else:
-		do_and_validate_strike(initiator, -1)
-
-	if game_logic.game_state == Enums.GameState.GameState_PlayerDecision and game_logic.active_strike.strike_state == game_logic.StrikeState.StrikeState_Initiator_SetEffects:
-		if init_force_discard:
-			game_logic.do_force_for_effect(initiator, init_force_discard, false)
-
-	if def_ex:
-		give_player_specific_card(defender, def_card, TestCardId4)
-		all_events += do_strike_response(defender, TestCardId2, TestCardId4)
-	elif def_card:
-		all_events += do_strike_response(defender, TestCardId2)
-
-	if game_logic.game_state == Enums.GameState.GameState_PlayerDecision and game_logic.active_strike.strike_state == game_logic.StrikeState.StrikeState_Defender_SetEffects:
-		if def_force_discard:
-			game_logic.do_force_for_effect(defender, def_force_discard, false)
-
-	# Pay any costs from gauge
-	if game_logic.active_strike and game_logic.active_strike.strike_state == game_logic.StrikeState.StrikeState_Initiator_PayCosts:
-		var cost = game_logic.active_strike.initiator_card.definition['gauge_cost'] + init_extra_cost
-		var cards = []
-		for i in range(cost):
-			cards.append(initiator.gauge[i].id)
-		game_logic.do_pay_strike_cost(initiator, cards, false)
-
-	# Pay any costs from gauge
-	if game_logic.active_strike and game_logic.active_strike.strike_state == game_logic.StrikeState.StrikeState_Defender_PayCosts:
-		var cost = game_logic.active_strike.defender_card.definition['gauge_cost']
-		var cards = []
-		for i in range(cost):
-			cards.append(defender.gauge[i].id)
-		game_logic.do_pay_strike_cost(defender, cards, false)
-
-	handle_simultaneous_effects(initiator, defender, simul_effect_choices)
-
-	for i in range(init_choices.size()):
-		assert_eq(game_logic.game_state, Enums.GameState.GameState_PlayerDecision)
-		assert_true(game_logic.do_choice(initiator, init_choices[i]))
-		handle_simultaneous_effects(initiator, defender, simul_effect_choices)
-	handle_simultaneous_effects(initiator, defender, simul_effect_choices)
-
-	for i in range(def_choices.size()):
-		assert_eq(game_logic.game_state, Enums.GameState.GameState_PlayerDecision)
-		assert_true(game_logic.do_choice(defender, def_choices[i]))
-		handle_simultaneous_effects(initiator, defender, simul_effect_choices)
-
-	var events = game_logic.get_latest_events()
-	all_events += events
-	return all_events
-
-func validate_positions(p1, l1, p2, l2):
-	assert_eq(p1.arena_location, l1)
-	assert_eq(p2.arena_location, l2)
-
-func validate_life(p1, l1, p2, l2):
-	assert_eq(p1.life, l1)
-	assert_eq(p2.life, l2)
-
-##
-## Tests start here
-##
+## Character ability: Action: Strike. Push, Pull, and Draw effects on your
+## attacks are increased by 1.
+##     Note: In-game, the options are displayed unmodified, and instead there is
+##       a pop-up in the lower left indicating the presence of the buff.
 
 func test_vatista_ua_pull():
 	position_players(player1, 5, player2, 6)
 
 	assert_true(game_logic.do_character_action(player1, [], 0))
-	execute_strike(player1, player2, "uni_normal_grasp", "uni_normal_grasp", [3], [], false, false)
+	execute_strike(player1, player2, "uni_normal_grasp", "uni_normal_grasp",
+			false, false, [3], [])  # Pull 3 (listed as "pull 2")
 	validate_positions(player1, 5, player2, 2)
 	validate_life(player1, 30, player2, 27)
 	advance_turn(player2)
@@ -230,19 +27,23 @@ func test_vatista_ua_push_draw():
 	var hand_size = len(player1.hand)
 
 	assert_true(game_logic.do_character_action(player1, [], 0))
-	execute_strike(player1, player2, "vatista_lumenstella", "uni_normal_grasp", [], [], false, false)
-	validate_positions(player1, 2, player2, 7)
+	execute_strike(player1, player2, "vatista_lumenstella", "uni_normal_grasp")
+	validate_positions(player1, 2, player2, 7)  # Expected: Push 1 -> Push 2
 	validate_life(player1, 30, player2, 25)
-	assert_eq(len(player1.hand), hand_size+2)
+	assert_eq(len(player1.hand), hand_size+2)   # Expected: Draw 1 -> Draw 2
 	advance_turn(player2)
+
+## Exceed ability: (2 Gauge) Action: Strike. Push, Pull, Advance, Retreat, and
+## Draw effects on your attacks are increased by 2.
 
 func test_vatista_exceed_ua_pull():
 	position_players(player1, 5, player2, 6)
 	player1.exceed()
-	give_gauge(player1, 2)
+	var p1_gauge = give_gauge(player1, 2)
 
-	assert_true(game_logic.do_character_action(player1, [player1.gauge[0].id, player1.gauge[1].id], 0))
-	execute_strike(player1, player2, "uni_normal_grasp", "uni_normal_grasp", [3], [], false, false)
+	assert_true(game_logic.do_character_action(player1, p1_gauge, 0))
+	execute_strike(player1, player2, "uni_normal_grasp", "uni_normal_grasp",
+			false, false, [3], [])  # Pull 2 -> Pull 4
 	validate_positions(player1, 5, player2, 1)
 	validate_life(player1, 30, player2, 27)
 	advance_turn(player2)
@@ -251,126 +52,202 @@ func test_vatista_exceed_ua_push_draw():
 	position_players(player1, 2, player2, 5)
 	var hand_size = len(player1.hand)
 	player1.exceed()
-	give_gauge(player1, 2)
+	var p1_gauge = give_gauge(player1, 2)
 
-	assert_true(game_logic.do_character_action(player1, [player1.gauge[0].id, player1.gauge[1].id], 0))
-	execute_strike(player1, player2, "vatista_lumenstella", "uni_normal_grasp", [], [], false, false)
-	validate_positions(player1, 2, player2, 8)
+	assert_true(game_logic.do_character_action(player1, p1_gauge, 0))
+	execute_strike(player1, player2, "vatista_lumenstella", "uni_normal_grasp")
+	validate_positions(player1, 2, player2, 8)  # Push 1 -> Push 3
 	validate_life(player1, 30, player2, 25)
-	assert_eq(len(player1.hand), hand_size+3)
+	assert_eq(len(player1.hand), hand_size+3)   # Draw 1 -> Draw 3
 	advance_turn(player2)
+
+func test_vatista_exceed_ua_dive():
+	# Dive still benefits from the extra movement
+	position_players(player1, 2, player2, 7)
+	player1.exceed()
+	var p1_gauge = give_gauge(player1, 2)
+
+	assert_true(game_logic.do_character_action(player1, p1_gauge, 0))
+	execute_strike(player1, player2, "uni_normal_dive", "uni_normal_sweep")
+	validate_positions(player1, 8, player2, 7)  # Advance 3 -> Advance 5
+	validate_life(player1, 30, player2, 25)
+	advance_turn(player2)
+
+func test_vatista_exceed_ua_close():
+	# Close effects should be treated as a subtype of Advance
+	position_players(player1, 2, player2, 7)
+	player1.exceed()
+	var p1_gauge = give_gauge(player1, 2)
+
+	assert_true(game_logic.do_character_action(player1, p1_gauge, 0))
+	execute_strike(player1, player2, "uni_normal_assault", "uni_normal_sweep")
+	validate_positions(player1, 6, player2, 7)  # Close 2 -> Close 4
+	validate_life(player1, 24, player2, 26)
+	advance_turn(player1)
 
 func test_vatista_exceed_ua_retreat():
 	position_players(player1, 7, player2, 8)
 	player1.exceed()
-	give_gauge(player1, 2)
+	var p1_gauge = give_gauge(player1, 2)
 
-	assert_true(game_logic.do_character_action(player1, [player1.gauge[0].id, player1.gauge[1].id], 0))
-	execute_strike(player1, player2, "uni_normal_cross", "uni_normal_sweep", [], [], false, false)
-	validate_positions(player1, 2, player2, 8)
+	assert_true(game_logic.do_character_action(player1, p1_gauge, 0))
+	execute_strike(player1, player2, "uni_normal_cross", "uni_normal_sweep")
+	validate_positions(player1, 2, player2, 8)  # Retreat 3 -> Retreat 5
 	validate_life(player1, 30, player2, 27)
 	advance_turn(player2)
+
+func test_vatista_exceed_ua_affects_boosts():
+	position_players(player1, 4, player2, 5)
+	player1.exceed()
+	var p1_gauge = give_gauge(player1, 2)
+	var thrust_id = give_player_specific_card(player2, "faust_thrust")
+
+	advance_turn(player1)
+	# Thrust boost: Both Players have "B: Advance 1." and "A: Discard this."
+	assert_true(game_logic.do_boost(player2, thrust_id, []))
+
+	assert_true(game_logic.do_character_action(player1, p1_gauge, 0))
+	execute_strike(player1, player2, "uni_normal_cross", "uni_normal_sweep",
+			false, false, [0], [])  # Explicitly choose A: effect order
+	validate_positions(player1, 9, player2, 5)  # Advance 3, then Retreat 5
+	validate_life(player1, 30, player2, 30)
+	advance_turn(player2)
+
+## Lumen Stella boost -- (1 Force) Before: Reveal the top card of your deck.
+##     Advance or Retreat X, where X is the revealed card's Power.
 
 func test_vatista_instant_flight():
 	position_players(player1, 2, player2, 7)
-	give_player_specific_card(player1, "vatista_lumenstella", TestCardId3)
-	assert_true(game_logic.do_boost(player1, TestCardId3, [player1.hand[0].id]))
+	var lumen_id = give_player_specific_card(player1, "vatista_lumenstella")
+	assert_true(game_logic.do_boost(player1, lumen_id, [player1.hand[0].id]))
 	advance_turn(player2)
 
-	give_player_specific_card(player1, "uni_normal_assault", TestCardId4)
-	player1.move_card_from_hand_to_deck(TestCardId4)
-	execute_strike(player1, player2, "uni_normal_grasp", "uni_normal_grasp", [0, 2], [], false, false)
+	var assault_id = give_player_specific_card(player1, "uni_normal_assault")
+	player1.move_card_from_hand_to_deck(assault_id)
+	execute_strike(player1, player2, "uni_normal_grasp", "uni_normal_grasp",
+			false, false, [0, 2], [])  # B: Advance 4, H: Pull 1
 	validate_positions(player1, 6, player2, 5)
 	validate_life(player1, 30, player2, 27)
+	advance_turn(player2)
+
+func test_vatista_instant_flight_power_boost():
+	# Bonus Power from boosts should not apply to the revealed attack
+	position_players(player1, 2, player2, 7)
+	var lumen_id = give_player_specific_card(player1, "vatista_lumenstella")
+	assert_true(game_logic.do_boost(player1, lumen_id, [player1.hand[0].id]))
+	advance_turn(player2)
+	var grasp_id = give_player_specific_card(player1, "standard_normal_grasp")
+	assert_true(game_logic.do_boost(player1, grasp_id, []))
+	advance_turn(player2)
+
+	var assault_id = give_player_specific_card(player1, "uni_normal_grasp")
+	player1.move_card_from_hand_to_deck(assault_id)
+	execute_strike(player1, player2, "uni_normal_grasp", "uni_normal_grasp",
+			false, false, [0], [])  # B: Advance 3, mutual whiff
+	validate_positions(player1, 5, player2, 7)
+	validate_life(player1, 30, player2, 30)
 	advance_turn(player2)
 
 func test_vatista_exceed_ua_instant_flight():
 	position_players(player1, 2, player2, 9)
 	player1.exceed()
-	give_gauge(player1, 2)
-	give_player_specific_card(player1, "vatista_lumenstella", TestCardId3)
-	assert_true(game_logic.do_boost(player1, TestCardId3, [player1.hand[0].id]))
+	var p1_gauge = give_gauge(player1, 2)
+	var lumen_id = give_player_specific_card(player1, "vatista_lumenstella")
+	assert_true(game_logic.do_boost(player1, lumen_id, [player1.hand[0].id]))
 	advance_turn(player2)
 
-	give_player_specific_card(player1, "uni_normal_assault", TestCardId4)
-	player1.move_card_from_hand_to_deck(TestCardId4)
-	assert_true(game_logic.do_character_action(player1, [player1.gauge[0].id, player1.gauge[1].id], 0))
-	execute_strike(player1, player2, "uni_normal_grasp", "uni_normal_grasp", [0, 2], [], false, false)
+	var assault_id = give_player_specific_card(player1, "uni_normal_assault")
+	player1.move_card_from_hand_to_deck(assault_id)
+	assert_true(game_logic.do_character_action(player1, p1_gauge, 0))
+	execute_strike(player1, player2, "uni_normal_grasp", "uni_normal_grasp",
+			false, false, [0, 2], [])  # B: Advance 6, H: Pull 3
 	validate_positions(player1, 8, player2, 5)
 	validate_life(player1, 30, player2, 27)
 	advance_turn(player2)
 
 func test_vatista_instant_flight_empty_deck():
+	# Revealing the top of an empty deck does nothing; only a wild swing or a
+	# proper draw can cause a reshuffle.
 	position_players(player1, 3, player2, 5)
-	give_player_specific_card(player1, "vatista_lumenstella", TestCardId3)
-	assert_true(game_logic.do_boost(player1, TestCardId3, [player1.hand[0].id]))
+	var lumen_id = give_player_specific_card(player1, "vatista_lumenstella")
+	assert_true(game_logic.do_boost(player1, lumen_id, [player1.hand[0].id]))
 	advance_turn(player2)
 
 	player1.deck = []
-	execute_strike(player1, player2, "uni_normal_grasp", "uni_normal_focus", [1], [], false, false)
+	execute_strike(player1, player2, "uni_normal_grasp", "uni_normal_focus",
+			false, false, [1], [])
 	validate_positions(player1, 3, player2, 5)
 	validate_life(player1, 26, player2, 30)
 	advance_turn(player2)
 
+## Armabellum (1 Gauge, 1~3/2/2|0/5) -- H: Add up to 3 cards from your hand to
+##     your Gauge. For each card added this way, +1 Power.
+##     A: Close or Retreat 1.
+
 func test_vatista_armabellum_no_cards():
 	position_players(player1, 3, player2, 5)
-	give_gauge(player1, 1)
+	var p1_gauge = give_gauge(player1, 1)
 
-	execute_strike(player1, player2, "vatista_armabellum", "uni_normal_grasp", [], [], false, false)
-	assert_true(game_logic.do_relocate_card_from_hand(player1, []))
-	assert_true(game_logic.do_choice(player1, 1))
+	execute_strike(player1, player2, "vatista_armabellum", "uni_normal_grasp",
+			false, false, [p1_gauge, [], 1], [])  # Decline adding cards; Retreat 1
 	validate_positions(player1, 2, player2, 5)
 	validate_life(player1, 30, player2, 28)
 	advance_turn(player2)
 
 func test_vatista_armabellum_add_cards():
 	position_players(player1, 3, player2, 5)
-	give_gauge(player1, 1)
+	var p1_gauge = give_gauge(player1, 1)
 
-	execute_strike(player1, player2, "vatista_armabellum", "uni_normal_grasp", [], [], false, false)
-	assert_true(game_logic.do_relocate_card_from_hand(player1, [player1.hand[0].id, player1.hand[1].id, player1.hand[2].id]))
-	assert_true(game_logic.do_choice(player1, 0))
+	execute_strike(player1, player2, "vatista_armabellum", "uni_normal_grasp",
+			false, false,
+			[p1_gauge, player1.hand.slice(0, 3).map(func (card): return card.id), 0],
+			[])  # Add 3 cards; Close 1
 	validate_positions(player1, 4, player2, 5)
 	validate_life(player1, 30, player2, 25)
 	advance_turn(player2)
 
+## Lateus Orbis (3 Gauge, 3~8/6/3|0/5) -- H: Spend all cards in your hand and
+##     Gauge as Force. For each Force spent, +1 Power. The opponent may spend
+##     any amount of Force for +1 Armor each.
+
 func test_vatista_lateus_orbis_boneless():
 	position_players(player1, 3, player2, 7)
-	give_gauge(player1, 3)
+	var p1_gauge = give_gauge(player1, 3)
 	player1.hand = []
 
-	execute_strike(player1, player2, "vatista_lateusorbis", "uni_normal_grasp", [], [], false, false)
-	assert_true(game_logic.do_force_for_armor(player2, []))
+	execute_strike(player1, player2, "vatista_lateusorbis", "uni_normal_grasp",
+			false, false, [p1_gauge], [[]])  # Pay for Ultra; opponent spends nothing
 	validate_positions(player1, 3, player2, 7)
 	validate_life(player1, 30, player2, 24)
 	advance_turn(player2)
 
 func test_vatista_lateus_orbis_opponent_blocks():
 	position_players(player1, 3, player2, 7)
-	give_gauge(player1, 3)
+	var p1_gauge = give_gauge(player1, 3)
 	player1.hand = []
 	player2.hand = []
-	give_player_specific_card(player2, "uni_normal_grasp", TestCardId3)
-	give_player_specific_card(player2, "uni_normal_grasp", TestCardId4)
-	give_player_specific_card(player2, "vatista_lateusorbis", TestCardId5)
+	var p2_hand = []
+	for card in ["uni_normal_grasp", "uni_normal_grasp", "vatista_lateusorbis"]:
+		p2_hand.append(give_player_specific_card(player2, card))
 
-	execute_strike(player1, player2, "vatista_lateusorbis", "uni_normal_grasp", [], [], false, false)
-	assert_true(game_logic.do_force_for_armor(player2, [player2.hand[0].id, player2.hand[1].id, player2.hand[2].id]))
-	# 4 force total
+	execute_strike(player1, player2, "vatista_lateusorbis", "uni_normal_grasp",
+			false, false, [p1_gauge], [p2_hand])
+	# P1 pays for Ultra, spends no Force from hand
+	# P2 pays 3 cards from hand; 4 Force total
 	validate_positions(player1, 3, player2, 7)
 	validate_life(player1, 30, player2, 28)
 	advance_turn(player2)
 
 func test_vatista_lateus_orbis_hand_force():
 	position_players(player1, 3, player2, 7)
-	give_gauge(player1, 3)
+	var p1_gauge = give_gauge(player1, 3)
 	player1.hand = []
-	give_player_specific_card(player1, "uni_normal_grasp", TestCardId3)
-	give_player_specific_card(player1, "uni_normal_grasp", TestCardId4)
-	give_player_specific_card(player1, "vatista_lateusorbis", TestCardId5)
+	for card in ["uni_normal_grasp", "uni_normal_grasp", "vatista_lateusorbis"]:
+		give_player_specific_card(player1, card)
 
-	execute_strike(player1, player2, "vatista_lateusorbis", "uni_normal_grasp", [], [], false, false)
-	assert_true(game_logic.do_force_for_armor(player2, []))
+	execute_strike(player1, player2, "vatista_lateusorbis", "uni_normal_grasp",
+			false, false, [p1_gauge], [[]])
+	# P1 pays for Ultra, pays 3 cards for 4 Force and hits for 6 + 4 = 10
 	validate_positions(player1, 3, player2, 7)
 	validate_life(player1, 30, player2, 20)
 	assert_eq(len(player1.hand), 0)
@@ -378,74 +255,75 @@ func test_vatista_lateus_orbis_hand_force():
 
 func test_vatista_lateus_orbis_extra_gauge():
 	position_players(player1, 3, player2, 7)
-	give_gauge(player1, 3)
+	var p1_gauge = give_gauge(player1, 3)
 	player1.hand = []
-	give_player_specific_card(player1, "uni_normal_grasp", TestCardId3)
-	give_player_specific_card(player1, "uni_normal_grasp", TestCardId4)
-	give_player_specific_card(player1, "vatista_lateusorbis", TestCardId5)
-	player1.move_card_from_hand_to_gauge(TestCardId3)
-	player1.move_card_from_hand_to_gauge(TestCardId4)
-	player1.move_card_from_hand_to_gauge(TestCardId5)
+	for card in ["uni_normal_grasp", "uni_normal_grasp", "vatista_lateusorbis"]:
+		player1.move_card_from_hand_to_gauge(give_player_specific_card(player1, card))
 
-	execute_strike(player1, player2, "vatista_lateusorbis", "uni_normal_grasp", [], [], false, false)
-	assert_true(game_logic.do_force_for_armor(player2, []))
+	execute_strike(player1, player2, "vatista_lateusorbis", "uni_normal_grasp",
+			false, false, [p1_gauge], [[]])
 	validate_positions(player1, 3, player2, 7)
 	validate_life(player1, 30, player2, 20)
-	assert_eq(len(player1.gauge), 1)
+	assert_eq(len(player1.gauge), 1)  # Attack added to Gauge
 	advance_turn(player2)
 
 func test_vatista_lateus_orbis_die():
 	position_players(player1, 3, player2, 7)
-	give_player_specific_card(player1, "uni_normal_grasp", TestCardId3)
-	give_player_specific_card(player1, "uni_normal_grasp", TestCardId4)
-	give_player_specific_card(player1, "uni_normal_grasp", TestCardId5)
-	player1.move_card_from_hand_to_gauge(TestCardId3)
-	player1.move_card_from_hand_to_gauge(TestCardId4)
-	player1.move_card_from_hand_to_gauge(TestCardId5)
+	var p1_gauge = []
+	for _i in range(3):
+		p1_gauge.append(give_player_specific_card(player1, "uni_normal_grasp"))
+		player1.move_card_from_hand_to_gauge(p1_gauge[-1])
 	give_gauge(player1, 10)
 	var available_force = player1.get_available_force() - 3
 
-	execute_strike(player1, player2, "vatista_lateusorbis", "uni_normal_grasp", [], [], false, false)
-	assert_true(game_logic.do_force_for_armor(player2, []))
+	execute_strike(player1, player2, "vatista_lateusorbis", "uni_normal_grasp",
+			false, false, [p1_gauge], [[]])
 	validate_positions(player1, 3, player2, 7)
 	validate_life(player1, 30, player2, 24 - available_force)
 	assert_eq(len(player1.hand), 0)
 	assert_eq(len(player1.gauge), 1)
 	advance_turn(player2)
 
+## Lateus Orbis boost -- Hit: Spend up to 6 Gauge for +1 Power each, then add
+##     this to your Gauge.
+	
 func test_vatista_autonomic_nerve_no_gauge():
 	position_players(player1, 5, player2, 6)
-	give_player_specific_card(player1, "vatista_lateusorbis", TestCardId3)
-	assert_true(game_logic.do_boost(player1, TestCardId3, []))
+	var lateus_id = give_player_specific_card(player1, "vatista_lateusorbis")
+	assert_true(game_logic.do_boost(player1, lateus_id, []))
 	advance_turn(player2)
 
-	execute_strike(player1, player2, "uni_normal_grasp", "uni_normal_grasp", [0], [], false, false)
+	execute_strike(player1, player2, "uni_normal_grasp", "uni_normal_grasp",
+			false, false, [0, 0], [])  # Choose effect ordering; push 1
 	validate_positions(player1, 5, player2, 7)
 	validate_life(player1, 30, player2, 27)
-	assert_true(player1.is_card_in_gauge(TestCardId3))
+	assert_true(player1.is_card_in_gauge(lateus_id))
 	advance_turn(player2)
 
 func test_vatista_autonomic_nerve_big_gauge():
 	position_players(player1, 5, player2, 6)
-	give_player_specific_card(player1, "vatista_lateusorbis", TestCardId3)
-	assert_true(game_logic.do_boost(player1, TestCardId3, []))
+	var lateus_id = give_player_specific_card(player1, "vatista_lateusorbis")
+	assert_true(game_logic.do_boost(player1, lateus_id, []))
 	advance_turn(player2)
 
-	give_gauge(player1, 6)
-	execute_strike(player1, player2, "uni_normal_grasp", "uni_normal_grasp", [0], [], false, false)
-	assert_true(game_logic.do_gauge_for_effect(player1,
-		[player1.gauge[0].id, player1.gauge[1].id, player1.gauge[2].id, player1.gauge[3].id, player1.gauge[4].id, player1.gauge[5].id]))
+	var p1_gauge = give_gauge(player1, 6)
+	execute_strike(player1, player2, "uni_normal_grasp", "uni_normal_grasp",
+			false, false, [0, 0, p1_gauge], [])  # Choose effect ordering; push 1; spend [6] for +6 Power
 	validate_positions(player1, 5, player2, 7)
 	validate_life(player1, 30, player2, 21)
-	assert_true(player1.is_card_in_gauge(TestCardId3))
+	assert_true(player1.is_card_in_gauge(lateus_id))
 	advance_turn(player2)
 
+## Zahhishio (2 Gauge; 1~2/2/6) -- B: Add all the cards in your hand to your Gauge. Gain Advantage.
+##     H: Push 3.
+	
 func test_vatista_zahhishio_no_hand():
 	position_players(player1, 3, player2, 5)
-	give_gauge(player1, 2)
+	var p1_gauge = give_gauge(player1, 2)
 	player1.hand = []
 
-	execute_strike(player1, player2, "vatista_zahhishio", "uni_normal_grasp", [], [], false, false)
+	execute_strike(player1, player2, "vatista_zahhishio", "uni_normal_grasp",
+			false, false, [p1_gauge], [])
 	validate_positions(player1, 3, player2, 8)
 	validate_life(player1, 30, player2, 28)
 	assert_eq(len(player1.hand), 0)
@@ -454,64 +332,112 @@ func test_vatista_zahhishio_no_hand():
 
 func test_vatista_zahhishio_with_hand_hit():
 	position_players(player1, 3, player2, 5)
-	give_gauge(player1, 2)
+	var p1_gauge = give_gauge(player1, 2)
 	var hand_size = len(player1.hand)
 
-	execute_strike(player1, player2, "vatista_zahhishio", "uni_normal_grasp", [], [], false, false)
+	execute_strike(player1, player2, "vatista_zahhishio", "uni_normal_grasp",
+			false, false, [p1_gauge], [])
 	validate_positions(player1, 3, player2, 8)
 	validate_life(player1, 30, player2, 28)
 	assert_eq(len(player1.hand), 0)
-	assert_eq(len(player1.gauge), 1+hand_size)
+	assert_eq(len(player1.gauge), 1 + hand_size)
 	advance_turn(player1)
 
 func test_vatista_zahhishio_with_hand_miss():
 	position_players(player1, 3, player2, 6)
-	give_gauge(player1, 2)
+	var p1_gauge = give_gauge(player1, 2)
 	var hand_size = len(player1.hand)
 
-	execute_strike(player1, player2, "vatista_zahhishio", "uni_normal_grasp", [], [], false, false)
+	execute_strike(player1, player2, "vatista_zahhishio", "uni_normal_grasp",
+			false, false, [p1_gauge], [])
 	validate_positions(player1, 3, player2, 6)
 	validate_life(player1, 30, player2, 30)
 	assert_eq(len(player1.hand), 0)
 	assert_eq(len(player1.gauge), hand_size)
 	advance_turn(player1)
 
+## Zahhishio boost -- +3 Power. Now: Strike with a card from your Gauge, face-up.
+
 func test_vatista_curse_commandment():
 	position_players(player1, 3, player2, 4)
-	give_player_specific_card(player1, "vatista_zahhishio", TestCardId3)
-	give_player_specific_card(player1, "uni_normal_grasp", TestCardId4)
-	player1.move_card_from_hand_to_gauge(TestCardId4)
+	var boost_id = give_player_specific_card(player1, "vatista_zahhishio")
+	var grasp_id = give_player_specific_card(player1, "uni_normal_grasp")
+	player1.move_card_from_hand_to_gauge(grasp_id)
 
-	assert_true(game_logic.do_boost(player1, TestCardId3, []))
-	execute_strike(player1, player2, "", "uni_normal_grasp", [0], [], false, false, [], [], 0, [], TestCardId4)
+	assert_true(game_logic.do_boost(player1, boost_id, []))
+	execute_strike(player1, player2, grasp_id, "uni_normal_grasp",
+			false, false, [0], [])  # Push 1
 	validate_positions(player1, 3, player2, 5)
 	validate_life(player1, 30, player2, 24)
 	advance_turn(player2)
 
 func test_vatista_curse_commandment_empty_gauge():
+	# When failing to Strike with a face-up card from Gauge (because Gauge is
+	# empty), wild swing instead.
 	position_players(player1, 3, player2, 4)
-	give_player_specific_card(player1, "vatista_zahhishio", TestCardId3)
-	give_player_specific_card(player1, "uni_normal_grasp", TestCardId4)
-	player1.move_card_from_hand_to_deck(TestCardId4)
+	var boost_id = give_player_specific_card(player1, "vatista_zahhishio")
+	var grasp_id = give_player_specific_card(player1, "uni_normal_grasp")
+	player1.move_card_from_hand_to_deck(grasp_id)
 
-	assert_true(game_logic.do_boost(player1, TestCardId3, []))
-	execute_strike(player1, player2, "", "uni_normal_grasp", [0], [], false, false, [], [], 0, [])
+	assert_true(game_logic.do_boost(player1, boost_id, []))
+	execute_strike(player1, player2, "", "uni_normal_grasp", false, false, [0], [])  # wild swing
 	validate_positions(player1, 3, player2, 5)
 	validate_life(player1, 30, player2, 24)
 	advance_turn(player2)
 
+## Armabellum and Transvoranse boosts have "When you advance or retreat, add
+##     this to your Gauge."
+	
 func test_vatista_double_gauge_boost_on_move():
 	position_players(player1, 3, player2, 4)
-	give_player_specific_card(player1, "vatista_armabellum", TestCardId3)
-	give_player_specific_card(player1, "vatista_transvoranse", TestCardId4)
+	var arma_id = give_player_specific_card(player1, "vatista_armabellum")
+	var trans_id = give_player_specific_card(player1, "vatista_transvoranse")
 
-	assert_true(game_logic.do_boost(player1, TestCardId3, []))
+	assert_true(game_logic.do_boost(player1, arma_id, []))
 	advance_turn(player2)
-	assert_true(game_logic.do_boost(player1, TestCardId4, []))
+	assert_true(game_logic.do_boost(player1, trans_id, []))
 	advance_turn(player2)
 
 	assert_true(game_logic.do_move(player1, [player1.hand[0].id], 2))
 	validate_positions(player1, 2, player2, 4)
-	assert_true(player1.is_card_in_gauge(TestCardId3))
-	assert_true(player1.is_card_in_gauge(TestCardId4))
+	assert_true(player1.is_card_in_gauge(arma_id))
+	assert_true(player1.is_card_in_gauge(trans_id))
 	advance_turn(player2)
+
+func test_vatista_double_gauge_boost_on_attack():
+	position_players(player1, 2, player2, 4)
+	var arma_id = give_player_specific_card(player1, "vatista_armabellum")
+	var trans_id = give_player_specific_card(player1, "vatista_transvoranse")
+
+	assert_true(game_logic.do_boost(player1, arma_id, []))
+	advance_turn(player2)
+	assert_true(game_logic.do_boost(player1, trans_id, []))
+	advance_turn(player2)
+
+	execute_strike(player1, player2, "uni_normal_assault", "uni_normal_cross")
+	validate_positions(player1, 3, player2, 4)
+	# Speed boost lets Assault outspeed Cross, but the Power boost goes away before
+	# damage is assessed.
+	assert_true(player1.is_card_in_gauge(arma_id))
+	assert_true(player1.is_card_in_gauge(trans_id))
+	validate_life(player1, 30, player2, 26)
+	advance_turn(player1)
+
+func test_vatista_double_gauge_boost_on_null_move():
+	position_players(player1, 3, player2, 4)
+	var arma_id = give_player_specific_card(player1, "vatista_armabellum")
+	var trans_id = give_player_specific_card(player1, "vatista_transvoranse")
+
+	assert_true(game_logic.do_boost(player1, arma_id, []))
+	advance_turn(player2)
+	assert_true(game_logic.do_boost(player1, trans_id, []))
+	advance_turn(player2)
+
+	execute_strike(player1, player2, "uni_normal_assault", "uni_normal_cross")
+	validate_positions(player1, 3, player2, 4)
+	# Speed boost lets Assault outspeed Cross; Power boost does not go away
+	# because no actual movement occurs.
+	assert_false(player1.is_card_in_gauge(arma_id))
+	assert_false(player1.is_card_in_gauge(trans_id))
+	validate_life(player1, 30, player2, 24)
+	advance_turn(player1)
