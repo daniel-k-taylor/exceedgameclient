@@ -9,9 +9,11 @@
 ## A class that extends AIResource should implement:
 ##
 ##   * _init
-##     * One required argument corresponding to `source`.
-##     * If _init can update from source upon object creation, argument values
-##       should be set so that the default behavior is that it *doesn't*.
+##     * Takes zero required arguments.
+##     * If all arguments have their default value, the resulting object should
+##       be as close to a blank slate as possible; for example, if there are
+##       _init behaviors that perform a sync-to-original, these should *not*
+##       happen if all values are default.
 ##   * copy
 ##     * This is probably just a call to copy_impl but also passes in the
 ##       identity of the subclass.
@@ -20,29 +22,24 @@ class_name AIResource
 extends Resource
 
 # AIResources usually reflect data coming from a particular source. We retain a
-# reference to that source since we'll often want to sync our values to it.
-var source
+# reference to that source since we'll sometimes want to sync our values to it.
+# Copies of an AIResource instead point to the original.
+var original
 
-# These constants support the manual implementations of duplicate() we'll use
-# for our custom Resources. They are dictionaries to get faster lookup, as
-# though that matters at N < 10.
-# TODO: Figure out if this stuff needs to be punted up to Global scope.
-const IGNORE_PROPERTIES = {  # Don't duplicate these properties in duplicate()
+const IGNORE_PROPERTIES = {  # Don't duplicate these properties in copy()
 	# Godot built-ins
 	'RefCounted': 1, 'script': 1, 'Built-in script': 1, 'Resource': 1,
 	'resource_name': 1, 'resource_path': 1, 'resource_local_to_scene': 1,
-	# Custom stuff
-	'source': 1,
-	}
-const DUPLICABLE_TYPES = {  # Call duplicate recursively on properties of these types
-	Variant.Type.TYPE_OBJECT: 1, Variant.Type.TYPE_ARRAY: 1, Variant.Type.TYPE_DICTIONARY: 1,
 	}
 
 func copy_impl(klass, deep: bool = true):
-	var new_resource = klass.new(source)
+	var new_resource = klass.new()
 	for property in self.get_property_list():
 		var name = property['name']
 		if name in IGNORE_PROPERTIES:
+			continue
+		if name == 'original':
+			new_resource.original = self
 			continue
 
 		var value = self.get(name)
@@ -63,6 +60,15 @@ func copy_impl(klass, deep: bool = true):
 		else:
 			new_resource.set(name, value)
 	return new_resource
+
+
+func true_original():
+	if original is AIResource:
+		if original.original == null:
+			return original
+		else:
+			return original.true_original()
+	return original
 
 
 static func deep_copy_array(x: Array):
@@ -150,7 +156,7 @@ static func equals(a: Variant, b: Variant):
 				return false
 			for property in a_properties:
 				var name = property['name']
-				if name in IGNORE_PROPERTIES:
+				if name in IGNORE_PROPERTIES or name == 'original':
 					continue
 				if not AIResource.equals(a.get(name), b.get(name)):
 					return false

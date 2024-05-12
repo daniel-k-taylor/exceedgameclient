@@ -86,13 +86,14 @@ class AIPlayerState extends AIResource:
 	var exceeded
 	var reshuffle_remaining
 
-	func _init(player: LocalGame.Player, do_update: bool = false):
-		source = player
+	func _init(player: LocalGame.Player = null, do_update: bool = false):
+		self.original = player
 		if do_update:
 			self.update(true)
 
 	## Syncs the data into this object to the state of the actual game.
 	func update(full: bool = false):
+		var source = self.true_original()
 		if full:
 			# These things aren't expected to ever change during a game, so
 			# updating them once (on init) should be good enough
@@ -123,12 +124,13 @@ class AIStrikeState extends AIResource:
 	var defender_card_id : int
 	var defender_ex_card_id : int
 
-	func _init(game_logic: LocalGame, do_update: bool = false):
-		self.source = game_logic
+	func _init(game_logic: LocalGame = null, do_update: bool = false):
+		self.original = game_logic
 		if do_update:
 			self.update()
 
 	func update():
+		var source = self.true_original()
 		self.active = source.active_strike != null
 		if self.active:
 			var source_strike = source.active_strike
@@ -152,24 +154,26 @@ class AIGameState extends AIResource:
 	var active_turn_player: Enums.PlayerId
 	var card_db : CardDatabase
 
-	# TODO: Investigate any caveats about Resource.duplicate() interacting with
-	# _init() required arguments.
 	func _init(
-			game_logic: LocalGame,
+			game_logic: LocalGame = null,
 			the_player: LocalGame.Player = null,
 			the_opponent: LocalGame.Player = null,
 			do_update: bool = false):
-		self.source = game_logic
-		self.card_db = game_logic.get_card_database()
+		self.original = game_logic
+		if game_logic:
+			self.card_db = game_logic.get_card_database()
 		self.player = the_player
-		my_state = AIPlayerState.new(the_player, false)
+		if the_player:
+			my_state = AIPlayerState.new(the_player, false)
 		self.opponent = the_opponent
-		opponent_state = AIPlayerState.new(the_opponent, false)
+		if the_opponent:
+			opponent_state = AIPlayerState.new(the_opponent, false)
 		active_strike = AIStrikeState.new(game_logic)
 		if do_update:
 			self.update(true)
 
 	func update(full: bool = false):
+		var source = self.true_original()
 		self.active_turn_player = source.get_active_player()
 		self.my_state.update(full)
 		self.opponent_state.update(full)

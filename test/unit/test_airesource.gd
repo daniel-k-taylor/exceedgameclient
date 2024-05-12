@@ -5,8 +5,8 @@ class TestResource extends AIResource:
 	var list
 	var json
 	
-	func _init(the_source):
-		self.source = the_source
+	func _init(the_source = null):
+		self.original = the_source
 		self.scalar = randi_range(1, 1000000)
 		self.list = ["string", randi_range(1, 1000000), Resource.new()]
 		self.json = {
@@ -21,8 +21,8 @@ class TestResource extends AIResource:
 class TestSubresource extends AIResource:
 	var data
 
-	func _init(the_source):
-		self.source = the_source
+	func _init(the_source = null):
+		self.original = the_source
 		self.data = randi_range(1, 1000000)
 
 	func copy(deep: bool = true):
@@ -35,7 +35,7 @@ func test_original_equals_copy():
 	var copy = original.copy()
 
 	assert_not_same(original, copy, 'Copy is just a reference to the original')
-	assert_same(original.source, copy.source, 'Source was duplicated when it should not have been')
+	assert_same(copy.original, original)
 	assert_eq(original.scalar, copy.scalar, 'Scalar %s incorrectly copied' % original.scalar)
 	assert_eq(original.list, copy.list, 'List %s incorrectly copied' % [original.list])
 	assert_same(original.list[2], copy.list[2], 'Generic object was not copied by reference')
