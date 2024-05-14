@@ -99,6 +99,8 @@ func test_duplicate_game_state():
 	assert_true(AIResource.equals(ai1.game_state, new_game_state))
 	assert_not_same(ai1.game_state.my_state, new_game_state.my_state)
 	assert_same(ai1.game_state.player, new_game_state.player)
+	assert_same(new_game_state.true_original(), game_logic)
+	assert_true(new_game_state.active_strike.true_original(), game_logic)
 	
 	new_game_state.my_state.arena_location -= 1
 	assert_false(AIResource.equals(ai1.game_state, new_game_state),
