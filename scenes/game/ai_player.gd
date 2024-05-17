@@ -65,7 +65,7 @@ func set_ai_policy(new_policy):
 ## that they can be reasoned about without affecting the state of the actual
 ## game.
 
-class AIPlayerState extends AIResource:
+class AIPlayerState extends CopyableResource:
 	## The underlying game object that this player state reflects.
 	var player_id : Enums.PlayerId
 	var life
@@ -116,7 +116,7 @@ class AIPlayerState extends AIResource:
 		return copy_impl(AIPlayerState, deep)
 
 
-class AIStrikeState extends AIResource:
+class AIStrikeState extends CopyableResource:
 	var active : bool = false
 	var initiator : Enums.PlayerId
 	var initiator_card_id : int
@@ -145,7 +145,7 @@ class AIStrikeState extends AIResource:
 		return copy_impl(AIStrikeState, deep)
 
 
-class AIGameState extends AIResource:
+class AIGameState extends CopyableResource:
 	var player: LocalGame.Player
 	var opponent: LocalGame.Player
 	var my_state: AIPlayerState

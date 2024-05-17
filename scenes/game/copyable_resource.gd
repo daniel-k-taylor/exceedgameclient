@@ -6,7 +6,7 @@
 ## duplicated (and Resources only support duplication for objects whose _init
 ## contains no required arguments), and always check equality by reference only.
 ##
-## A class that extends AIResource should implement:
+## A class that extends CopyableResource should implement:
 ##
 ##   * _init
 ##     * Takes zero required arguments.
@@ -18,12 +18,12 @@
 ##     * This is probably just a call to copy_impl but also passes in the
 ##       identity of the subclass.
 
-class_name AIResource
+class_name CopyableResource
 extends Resource
 
-# AIResources usually reflect data coming from a particular source. We retain a
-# reference to that source since we'll sometimes want to sync our values to it.
-# Copies of an AIResource instead point to the original.
+# CopyableResources usually reflect data coming from a particular source. We
+# retain a reference to that source since we'll sometimes want to sync our
+# values to it. Copies of an CopyableResource instead point to the original.
 var original
 
 const IGNORE_PROPERTIES = {  # Don't duplicate these properties in copy()
@@ -52,9 +52,9 @@ func copy_impl(klass, deep: bool = true):
 		# of the collection contents are objects we have to handle the recursion
 		# ourselves.
 		if deep and type == Variant.Type.TYPE_ARRAY:
-			new_resource.set(name, AIResource.deep_copy_array(value))
+			new_resource.set(name, CopyableResource.deep_copy_array(value))
 		elif deep and type == Variant.Type.TYPE_DICTIONARY:
-			new_resource.set(name, AIResource.deep_copy_dictionary(value))
+			new_resource.set(name, CopyableResource.deep_copy_dictionary(value))
 		elif deep and type == Variant.Type.TYPE_OBJECT and value.has_method('copy'):
 			new_resource.set(name, value.copy(true))
 		else:
@@ -63,7 +63,7 @@ func copy_impl(klass, deep: bool = true):
 
 
 func true_original():
-	if original is AIResource:
+	if original is CopyableResource:
 		if original.original == null:
 			return original
 		else:
@@ -126,7 +126,7 @@ static func equals(a: Variant, b: Variant):
 			if a.size() != b.size():
 				return false
 			for i in range(a.size()):
-				if not AIResource.equals(a[i], b[i]):
+				if not CopyableResource.equals(a[i], b[i]):
 					return false
 			return true
 		Variant.Type.TYPE_DICTIONARY:
@@ -134,18 +134,18 @@ static func equals(a: Variant, b: Variant):
 			var b_keys = b.keys()
 			a_keys.sort()
 			b_keys.sort()
-			if not AIResource.equals(a_keys, b_keys):
+			if not CopyableResource.equals(a_keys, b_keys):
 				return false
 			for key in a_keys:
-				if not AIResource.equals(a[key], b[key]):
+				if not CopyableResource.equals(a[key], b[key]):
 					return false
 			return true
-		# For generic objects, we'll only do recursion for AIResource, i.e.
-		# objects that mostly behave like Python named tuples. There are
+		# For generic objects, we'll only do recursion for CopyableResource,
+		# i.e. objects that mostly behave like Python named tuples. There are
 		# just as many objects that we definitely don't want to compare in
 		# linear time; for example, LocalGame.
 		Variant.Type.TYPE_OBJECT:
-			if not (a is AIResource and b is AIResource):
+			if not (a is CopyableResource and b is CopyableResource):
 				return a == b
 			var a_properties = a.get_property_list()
 			var b_properties = b.get_property_list()
@@ -158,21 +158,20 @@ static func equals(a: Variant, b: Variant):
 				var name = property['name']
 				if name in IGNORE_PROPERTIES or name == 'original':
 					continue
-				if not AIResource.equals(a.get(name), b.get(name)):
+				if not CopyableResource.equals(a.get(name), b.get(name)):
 					return false
 			return true
 		Variant.Type.TYPE_FLOAT:
-			# There are also a bunch of vector-like built-ins that use their
-			# own built-in .is_equal_approx, but unfortunately
-			# @Global.is_equal_approx doesn't support them as inputs, and
-			# there's no quick way to check for them other than listing them
-			# all out (i.e. you can't do maybe_vector.has_method('is_equal_approx')
-			# because they don't have .has_method; and you can't just try it
-			# and see because this language doesn't have error handling). So
-			# we're just going to hope that this is enough. If it isn't,
-			# either add an appropriate branch to this match statement, or
-			# use an Array instead of a vector-like.
+			# There are also a bunch of vector-like built-ins that use their own
+			# built-in .is_equal_approx(), but unfortunately
+			# @Global.is_equal_approx() doesn't support them as inputs, and
+			# there's no quick way to check for them other than listing them all
+			# out (i.e. you can't do maybe_vector.has_method('is_equal_approx')
+			# because they don't have .has_method; and you can't just try it and
+			# see because this language doesn't have error handling). So we're
+			# just going to hope that this is enough. If it isn't, either add an
+			# appropriate branch to this match statement, or use an Array
+			# instead of a vector-like.
 			return is_equal_approx(a, b)
 		_:
 			return a == b
-

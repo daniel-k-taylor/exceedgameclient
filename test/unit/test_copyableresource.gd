@@ -1,6 +1,6 @@
 extends GutTest
 
-class TestResource extends AIResource:
+class TestResource extends CopyableResource:
 	var scalar
 	var list
 	var json
@@ -18,7 +18,7 @@ class TestResource extends AIResource:
 	func copy(deep: bool = true):
 		return self.copy_impl(TestResource, deep)
 
-class TestSubresource extends AIResource:
+class TestSubresource extends CopyableResource:
 	var data
 
 	func _init(the_source = null):
@@ -53,10 +53,10 @@ func test_original_equals_copy():
 	assert_has(json_diff.differences['nested_list'].differences[0].differences, 'and')
 	assert_same(original.json[17], copy.json[17])
 	assert_not_same(original.json['nested_list'][0]['and'], copy.json['nested_list'][0]['and'])
-	assert_true(AIResource.equals(original.json['nested_list'][0]['and'], copy.json['nested_list'][0]['and']))
-	assert_true(AIResource.equals(original.json, copy.json))
+	assert_true(CopyableResource.equals(original.json['nested_list'][0]['and'], copy.json['nested_list'][0]['and']))
+	assert_true(CopyableResource.equals(original.json, copy.json))
 	
-	assert_true(AIResource.equals(original, copy), 'Bespoke equality check failed')
+	assert_true(CopyableResource.equals(original, copy), 'Bespoke equality check failed')
 	source.free()
 
 
@@ -75,5 +75,5 @@ func test_original_not_equals_modified_copy():
 	assert_does_not_have(original.json['nested_list'][0], 'even')
 	assert_ne(original.json['nested_list'][0]['and'], copy.json['nested_list'][0]['and'])
 
-	assert_false(AIResource.equals(original, copy), 'Bespoke (in)equality check failed')
+	assert_false(CopyableResource.equals(original, copy), 'Bespoke (in)equality check failed')
 	source.free()
