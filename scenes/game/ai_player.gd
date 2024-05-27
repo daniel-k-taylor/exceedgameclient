@@ -50,7 +50,7 @@ func _init(local_game: LocalGame, player: LocalGame.Player, policy = null):
 	game_logic = local_game
 	game_player = player
 	game_opponent = local_game._get_player(local_game.get_other_player(player.my_id))
-	game_state = AIGameState.new(game_logic, game_player, game_opponent)
+	game_state = AIGameState.new(game_logic, game_player, game_opponent, true)
 	if policy == null:
 		ai_policy = AIPolicyRules.new()
 	else:
@@ -65,9 +65,8 @@ func set_ai_policy(new_policy):
 ## that they can be reasoned about without affecting the state of the actual
 ## game.
 
-class AIPlayerState extends Resource:
+class AIPlayerState extends CopyableResource:
 	## The underlying game object that this player state reflects.
-	var source: LocalGame.Player
 	var player_id : Enums.PlayerId
 	var life
 	var deck
@@ -87,13 +86,14 @@ class AIPlayerState extends Resource:
 	var exceeded
 	var reshuffle_remaining
 
-	func _init(player: LocalGame.Player, do_update: bool = true):
-		source = player
+	func _init(player: LocalGame.Player = null, do_update: bool = false):
+		self.original = player
 		if do_update:
 			self.update(true)
 
 	## Syncs the data into this object to the state of the actual game.
 	func update(full: bool = false):
+		var source = self.true_original()
 		if full:
 			# These things aren't expected to ever change during a game, so
 			# updating them once (on init) should be good enough
@@ -112,8 +112,11 @@ class AIPlayerState extends Resource:
 		exceeded = source.exceeded
 		reshuffle_remaining = source.reshuffle_remaining
 
+	func copy(deep: bool = true):
+		return copy_impl(AIPlayerState, deep)
 
-class AIStrikeState extends Resource:
+
+class AIStrikeState extends CopyableResource:
 	var active : bool = false
 	var initiator : Enums.PlayerId
 	var initiator_card_id : int
@@ -121,20 +124,28 @@ class AIStrikeState extends Resource:
 	var defender_card_id : int
 	var defender_ex_card_id : int
 
-	func update(game_logic: LocalGame):
-		self.active = game_logic.active_strike != null
+	func _init(game_logic: LocalGame = null, do_update: bool = false):
+		self.original = game_logic
+		if do_update:
+			self.update()
+
+	func update():
+		var source = self.true_original()
+		self.active = source.active_strike != null
 		if self.active:
-			var source = game_logic.active_strike
-			self.initiator = source.initiator.my_id
+			var source_strike = source.active_strike
+			self.initiator = source_strike.initiator.my_id
 
-			self.initiator_card_id = source.initiator_card.id if source.initiator_card else -1
-			self.initiator_ex_card_id = source.initiator_ex_card.id if source.initiator_ex_card else -1
-			self.defender_card_id = source.defender_card.id if source.defender_card else -1
-			self.defender_ex_card_id = source.defender_ex_card.id if source.defender_ex_card else -1
+			self.initiator_card_id = source_strike.initiator_card.id if source_strike.initiator_card else -1
+			self.initiator_ex_card_id = source_strike.initiator_ex_card.id if source_strike.initiator_ex_card else -1
+			self.defender_card_id = source_strike.defender_card.id if source_strike.defender_card else -1
+			self.defender_ex_card_id = source_strike.defender_ex_card.id if source_strike.defender_ex_card else -1
+
+	func copy(deep: bool = true):
+		return copy_impl(AIStrikeState, deep)
 
 
-class AIGameState extends Resource:
-	var source: LocalGame
+class AIGameState extends CopyableResource:
 	var player: LocalGame.Player
 	var opponent: LocalGame.Player
 	var my_state: AIPlayerState
@@ -143,28 +154,33 @@ class AIGameState extends Resource:
 	var active_turn_player: Enums.PlayerId
 	var card_db : CardDatabase
 
-	# TODO: Investigate any caveats about Resource.duplicate() interacting with
-	# _init() required arguments.
 	func _init(
-			game_logic: LocalGame,
+			game_logic: LocalGame = null,
 			the_player: LocalGame.Player = null,
 			the_opponent: LocalGame.Player = null,
-			do_update: bool = true):
-		self.source = game_logic
-		self.card_db = game_logic.get_card_database()
+			do_update: bool = false):
+		self.original = game_logic
+		if game_logic:
+			self.card_db = game_logic.get_card_database()
 		self.player = the_player
+		if the_player:
+			my_state = AIPlayerState.new(the_player, false)
 		self.opponent = the_opponent
-		my_state = AIPlayerState.new(the_player, false)
-		opponent_state = AIPlayerState.new(the_opponent, false)
-		active_strike = AIStrikeState.new()
+		if the_opponent:
+			opponent_state = AIPlayerState.new(the_opponent, false)
+		active_strike = AIStrikeState.new(game_logic)
 		if do_update:
 			self.update(true)
 
 	func update(full: bool = false):
+		var source = self.true_original()
 		self.active_turn_player = source.get_active_player()
 		self.my_state.update(full)
 		self.opponent_state.update(full)
-		self.active_strike.update(source)
+		self.active_strike.update()
+
+	func copy(deep: bool = true):
+		return copy_impl(AIGameState, deep)
 
 
 class PrepareAction:
@@ -978,7 +994,7 @@ func pick_name_opponent_card(normal_only : bool, can_use_own_reference : bool = 
 	var card_ids = generate_distinct_opponent_card_ids(
 			game_state, normal_only, can_use_own_reference)
 	return ai_policy.pick_name_opponent_card(
-		card_ids.map(func (card_id): return NameCardAction.new(card_id)), game_state)
+			card_ids.map(func (card_id): return NameCardAction.new(card_id)), game_state)
 
 func generate_distinct_opponent_card_ids(the_game_state, normal_only: bool, can_use_own_reference: bool = false):
 	var possible_actions = {}

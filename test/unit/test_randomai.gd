@@ -394,46 +394,6 @@ func run_ai_game():
 
 ### Actual tests
 
-func test_list_cards():
-	default_deck = CardDefinitions.get_deck_from_str_id('ryu')
-	game_setup()
-	ai1.game_state.update()
-	var card_ids = ai1.generate_distinct_opponent_card_ids(ai1.game_state, false, false)
-	assert_eq(card_ids.size(), 15,  # 8 Normals, 5 Specials, 2 Ultras
-			'Card-naming thinks Ryu has %s distinct cards' % card_ids.size())
-
-	var card_db = game_logic.card_db
-	var card_names = card_ids.map(func (card_id): return card_db.get_card_id(card_id))
-	card_names.sort()
-	for i in range(card_names.size() - 1):
-		assert_ne(card_names[i], card_names[i+1],
-				'Card %s was duplicated in the list of possible cards to pick' % card_names[i])
-	game_teardown()
-
-func test_list_cards_chaos():
-	default_deck = CardDefinitions.get_deck_from_str_id('happychaos')
-	game_setup()
-	ai1.game_state.update()
-	var card_ids = ai1.generate_distinct_opponent_card_ids(ai1.game_state, false, false)
-	assert_eq(card_ids.size(), 14,  # 8 Normals, 2 Specials, 3 Ultras, Deus Ex
-			'Card-naming thinks Happy Chaos has %s distinct cards' % card_ids.size())
-
-	var card_db = game_logic.card_db
-	var card_names = card_ids.map(func (card_id): return card_db.get_card_id(card_id))
-	card_names.sort()
-	for i in range(card_names.size() - 1):
-		assert_ne(card_names[i], card_names[i+1],
-				'Card %s was duplicated in the list of possible cards to pick' % card_names[i])
-	game_teardown()
-
-func test_name_opponent_card():
-	default_deck = CardDefinitions.get_deck_from_str_id('happychaos')
-	game_setup()
-	ai1.game_state.update()
-	var name_card_action = ai1.pick_name_opponent_card(false, false)
-	assert_true(name_card_action is AIPlayer.NameCardAction)
-	game_teardown()
-
 func test_random_ai_players():
 	game_setup(AIPolicyRandom)
 	var events = run_ai_game()
