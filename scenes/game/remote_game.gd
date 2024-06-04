@@ -48,7 +48,8 @@ func _get_player_from_remote_id(remote_id : int):
 func get_striking_card_ids_for_player(player : LocalGame.Player) -> Array:
 	return local_game.get_striking_card_ids_for_player(player)
 
-func initialize_game(player_info, opponent_info, starting_player : Enums.PlayerId, seed_value : int, observer_mode : bool, starting_message_queue : Array):
+func initialize_game(player_info, opponent_info, starting_player : Enums.PlayerId, 
+		seed_value : int, observer_mode : bool, starting_message_queue : Array):
 	_game_message_queue = starting_message_queue
 	_game_message_history = []
 
@@ -56,7 +57,8 @@ func initialize_game(player_info, opponent_info, starting_player : Enums.PlayerI
 	_opponent_info = opponent_info
 	_observer_mode = observer_mode
 	local_game = LocalGame.new()
-	local_game.initialize_game(player_info['deck'], opponent_info['deck'], player_info['name'], opponent_info['name'], starting_player, seed_value)
+	local_game.initialize_game(player_info['deck'], opponent_info['deck'], 
+		player_info['name'], opponent_info['name'], starting_player, seed_value)
 	local_game.draw_starting_hands_and_begin()
 
 	NetworkManager.connect("game_message_received", _on_remote_game_message)
@@ -545,3 +547,6 @@ func do_match_result(player_clock_remaining, opponent_clock_remaining):
 	}
 	_submit_game_message(action_message)
 	return true
+	
+func trigger_timeout(event_player : Enums.PlayerId, reason : Enums.GameOverReason):
+	local_game.do_timeout(event_player, reason)

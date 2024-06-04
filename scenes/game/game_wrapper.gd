@@ -1,3 +1,6 @@
+# The wrapper manages signals from a remote player, the ai, or the local player
+# so that the game engine and the interface don't have to care which is which.
+
 extends Node
 
 const LocalGame = preload("res://scenes/game/local_game.gd")
@@ -34,16 +37,24 @@ func initialize_local_game(player_deck, opponent_deck, randomize_first_player):
 	var first_player = Enums.PlayerId.PlayerId_Player
 	if randomize_first_player and randi() % 2 == 0:
 		first_player = Enums.PlayerId.PlayerId_Opponent
-	current_game.initialize_game(player_deck, opponent_deck, "Player", "CPU", first_player, seed_value)
+	current_game.initialize_game(player_deck, opponent_deck, "Player", "CPU", 
+		first_player, seed_value)
 	current_game.draw_starting_hands_and_begin()
 
-func initialize_remote_game(player_info, opponent_info, starting_player : Enums.PlayerId, seed_value : int, observer_mode : bool, starting_message_queue : Array):
+func initialize_remote_game(player_info, opponent_info, starting_player : Enums.PlayerId, 
+	seed_value : int, observer_mode : bool, starting_message_queue : Array):
 	current_game = RemoteGame.new()
-	current_game.initialize_game(player_info, opponent_info, starting_player, seed_value, observer_mode, starting_message_queue)
+	current_game.initialize_game(player_info, opponent_info, starting_player, 
+		seed_value, observer_mode, starting_message_queue)
 
+# Deletes the current game
 func end_game():
 	current_game.free()
 	current_game = null
+
+# Triggers a timeout
+func trigger_timeout(losing_player : Enums.PlayerId, reason : Enums.GameOverReason):
+	current_game.trigger_timeout(losing_player, reason)
 
 func observer_process_next_message_from_queue():
 	return current_game.observer_process_next_message_from_queue()

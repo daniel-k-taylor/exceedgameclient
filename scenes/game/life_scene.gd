@@ -15,6 +15,7 @@ func set_life(amount):
 	health_bar.set_health(amount)
 
 func set_clock(seconds : int):
+	print("seconds: ", seconds)
 	$Clock.visible = true
 	var negative_str = ""
 	if seconds < 0:
@@ -23,7 +24,7 @@ func set_clock(seconds : int):
 	var minutes = seconds / 60.0
 	var seconds_display = fmod(seconds, 60)
 	var mmss_string : String = "%s%02d:%02d" % [negative_str, minutes, seconds_display]
-	clock.text = mmss_string
+	$Clock.text = mmss_string
 	
 
 func set_turn_indicator(show_indicator):

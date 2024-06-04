@@ -1,3 +1,5 @@
+# This is an instance of the game.
+
 extends Node2D
 
 signal returning_from_game
@@ -45,9 +47,9 @@ const RevealCopyIdRangestart = 80000
 const ReferenceScreenIdRangeStart = 90000
 const NoticeOffsetY = 50
 
-const GameTimerLength : float = 15 * 60 + 5 # 15 minutes and 5 buffer seconds
-var player_clock_remaining : float = GameTimerLength
-var opponent_clock_remaining : float = GameTimerLength
+var player_clock_remaining : float = GlobalSettings.DefaultStartingTimer
+var opponent_clock_remaining : float = GlobalSettings.DefaultStartingTimer
+var enforce_timer = GlobalSettings.DefaultEnforceTimer
 var current_clock_user : Enums.PlayerId = Enums.PlayerId.PlayerId_Unassigned
 const GameTimerClockServerDelay : float = 0.2
 var clock_delay_remaining : float = -1
@@ -285,9 +287,6 @@ func _ready():
 
 	if not game_wrapper.is_ai_game():
 		$AIMoveButton.visible = false
-		if not observer_mode:
-			$PlayerLife.set_clock(GameTimerLength)
-			$OpponentLife.set_clock(GameTimerLength)
 	else:
 		ai_player = AIPlayer.new(game_wrapper.current_game, game_wrapper.current_game.opponent)
 
@@ -354,6 +353,16 @@ func begin_remote_game(game_start_message):
 	starting_message = game_start_message.duplicate()
 	observer_mode = 'observer_mode' in game_start_message and game_start_message['observer_mode']
 	replay_button_visible = not observer_mode
+	print(game_start_message)
+	var starting_timer = game_start_message['starting_timer']*60 + 5
+	enforce_timer = game_start_message['enforce_timer']
+	player_clock_remaining = starting_timer
+	opponent_clock_remaining = starting_timer
+
+	if not observer_mode:
+		$PlayerLife.set_clock(starting_timer)
+		$OpponentLife.set_clock(starting_timer)
+	
 	var starting_message_queue = []
 	if observer_mode:
 		starting_message_queue = game_start_message['observer_log']
@@ -376,6 +385,7 @@ func begin_remote_game(game_start_message):
 	var starting_player = Enums.PlayerId.PlayerId_Player
 	var my_player_info
 	var opponent_player_info
+
 	if game_start_message['your_player_id'] == game_start_message['player1_id']:
 		my_player_info = player1_info
 		player_deck = player1_info['deck']
@@ -391,7 +401,8 @@ func begin_remote_game(game_start_message):
 		if game_start_message['starting_player_id'] == game_start_message['player1_id']:
 			starting_player = Enums.PlayerId.PlayerId_Opponent
 
-	game_wrapper.initialize_remote_game(my_player_info, opponent_player_info, starting_player, seed_value, observer_mode, starting_message_queue)
+	game_wrapper.initialize_remote_game(my_player_info, opponent_player_info, 
+		starting_player, seed_value, observer_mode, starting_message_queue,)
 
 func is_player_overdrive_visible(player_id : Enums.PlayerId):
 	return game_wrapper.is_player_in_overdrive(player_id)
@@ -821,6 +832,9 @@ func _update_clocks():
 	if observer_mode: return
 	$PlayerLife.set_clock(player_clock_remaining)
 	$OpponentLife.set_clock(opponent_clock_remaining)
+	if enforce_timer and player_clock_remaining <= 0:
+		game_wrapper.trigger_timeout(Enums.PlayerId.PlayerId_Player, 
+			Enums.GameOverReason.GameOverReason_Timeout)
 
 func begin_delay(delay : float, remaining_events : Array):
 	if ui_state != UIState.UIState_PlayingAnimation:

@@ -6,6 +6,9 @@ var MuteEmotes = false
 const ClientVersionString : String = "240505.1500" # YYMMDD.HHMM
 
 const CharacterBanlist = ['carmine']
+const DefaultStartingTimer = 15
+const DefaultStartingBestOf = 1
+const DefaultEnforceTimer = true
 
 # Persistent Settings
 var BGMEnabled = true
@@ -13,6 +16,9 @@ var DefaultPlayerName = ""
 var GameSoundsEnabled = true
 var PlayerCharacter = ""
 var CombatLogSettings = {}
+var CustomStartingTimer = DefaultStartingTimer
+var CustomStartingBestOf = DefaultStartingBestOf
+var EnforceTimer = DefaultEnforceTimer
 
 const user_settings_file = "user://settings.json"
 

@@ -123,6 +123,8 @@ func _handle_room_join_failed(failed_message):
 	print(error_message)
 	room_join_failed.emit(error_message)
 
+# Accepts a message from the game server indicating a game started.
+# Rebroadcasts the message to our scripts.
 func _handle_game_start(game_start_message):
 	var player1_id = game_start_message["player1_id"]
 	var player1_name = game_start_message["player1_name"]
@@ -216,7 +218,9 @@ func _handle_players_update(message):
 
 ### Commands ###
 
-func join_room(player_name, room_name, deck_id_str : String):
+func join_room(player_name, room_name, deck_id_str : String, 
+		starting_timer : int,
+		enforce_timer : bool):
 	if not _socket: return
 	var join_room_message = {
 		"version": GlobalSettings.get_client_version(),
@@ -224,6 +228,8 @@ func join_room(player_name, room_name, deck_id_str : String):
 		"player_name": player_name,
 		"room_id": room_name,
 		"deck_id": deck_id_str,
+		"starting_timer": starting_timer,
+		"enforce_timer": enforce_timer
 	}
 	var json = JSON.stringify(join_room_message)
 	_socket.send_text(json)
