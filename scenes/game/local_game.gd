@@ -4244,7 +4244,10 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 			_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "will draw the set-aside card %s." % _log_card_name(card_name))
 			events += performing_player.add_set_aside_card_to_deck(effect['id'])
 		"add_strike_to_gauge_after_cleanup":
-			performing_player.strike_stat_boosts.always_add_to_gauge = true
+			if active_strike.extra_attack_in_progress:
+				active_strike.extra_attack_data.extra_attack_always_go_to_gauge = true
+			else:
+				performing_player.strike_stat_boosts.always_add_to_gauge = true
 		"add_strike_to_overdrive_after_cleanup":
 			performing_player.strike_stat_boosts.always_add_to_overdrive = true
 			events += handle_strike_attack_immediate_removal(performing_player)
@@ -9213,6 +9216,7 @@ func begin_extra_attack(events, performing_player : Player, card_id : int):
 
 	# Extra attacks are unaffected by the attack_does_not_hit effect from hitting Nirvana or the effect on Block.
 	performing_player.strike_stat_boosts.attack_does_not_hit = false
+	performing_player.strike_stat_boosts.overwrite_total_power = false
 
 	# This can happen with more After effects to resolve.
 	# This should be fine as we use a different remaining effects list.
