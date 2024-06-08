@@ -4,11 +4,19 @@ In progress:
     ☐ Tager exceed is may
 Bug:
     Breaking:
+        Treasure:
+            ☐ Knows what is in the chest on dive charge
+        Kokonoe:
+            ☐ Block as first attack makes second attack do no damage
+            ☐ Block as 2nd attack does not go to gauge
         ☐ Review mid-strike Tech interactions:
             - Faust remove boost effects needs to be reviewed, stuff like powerup_opponent and other random effects that Faust can remove mid-strike
             - probably any during_strike ability?
             - Relevant for Bang too
     Nice to have:
+        ☐ Highlight zone that you need popout selection
+        ☐ Some characters default to character action for strike and have a way to turn it off?
+        ☐ Move action buttons around
         ☐ Hilda Condensity/Happy Chaos Steady Aim - played not faceup is obvious which card it is due to delay while player decides choice
         ☐ cpu tech brutality/beheaded cards
         ☐ Shadaloo Intelligence from AI hangs
