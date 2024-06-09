@@ -226,7 +226,7 @@ func test_waldstein_verderben_faceup_response():
 
 func test_waldstein_verderben_facedown():
 	position_players(player1, 3, player2, 6)
-	var p1_gauge = give_gauge(player1, 4)
+	give_gauge(player1, 4)
 	var wild_swing_id = give_player_specific_card(player1, "uni_normal_assault")
 	player1.move_card_from_hand_to_deck(wild_swing_id)
 
@@ -241,7 +241,7 @@ func test_waldstein_verderben_facedown():
 
 func test_waldstein_verderben_wildswung():
 	position_players(player1, 3, player2, 6)
-	var p1_gauge = give_gauge(player1, 4)
+	give_gauge(player1, 4)
 	var assault_id = give_player_specific_card(player1, "uni_normal_assault")
 	player1.move_card_from_hand_to_deck(assault_id)
 	var verderben_id = give_player_specific_card(player1, "waldstein_verderben")

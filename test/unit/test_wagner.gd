@@ -24,7 +24,7 @@ func test_wagner_ua_with_boost():
 func test_wagner_ua_with_no_boost():
 	position_players(player1, 3, player2, 6)
 	player1.hand = []
-	var dive_id = give_player_specific_card(player1, "uni_normal_dive")
+	give_player_specific_card(player1, "uni_normal_dive")
 
 	assert_true(game_logic.do_character_action(player1, []))
 	assert_true(game_logic.do_choice(player1, 1))  # Retreat 1

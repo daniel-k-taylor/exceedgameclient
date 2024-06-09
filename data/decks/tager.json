@@ -4,6 +4,7 @@
 	"display_name": "Iron Tager",
 	"cardback": "cardback_tager.jpg",
 	"movement_limit": 2,
+	"movement_limit_optional_exceeded": true,
 	"exceed_cost": 5,
 	"exceed_to_overdrive": true,
 	"on_exceed": {
@@ -51,6 +52,16 @@
 				"effect_type": "guardup",
 				"amount": 4
 			}
+		},
+		{
+			"timing": "on_advance_or_close",
+			"condition": "exceeded",
+			"effect_type": "may_ignore_movement_limit"
+		},
+		{
+			"timing": "on_retreat",
+			"condition": "exceeded",
+			"effect_type": "may_ignore_movement_limit"
 		}
 	],
 	"cards": [

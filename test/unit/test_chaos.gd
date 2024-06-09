@@ -47,7 +47,7 @@ func test_chaos_ua_invalidated_ultra():
 	player1.move_card_from_hand_to_deck(wild_swing_id)
 
 	assert_true(game_logic.do_character_action(player1, []))
-	var strike_cards = execute_strike(player1, player2, "chaos_deeprevenance", "uni_normal_sweep",
+	execute_strike(player1, player2, "chaos_deeprevenance", "uni_normal_sweep",
 			false, false, [5, 1], [])
 	# Expected: The replacement Wild Swing (Spew Out) doesn't hit even though it
 	#     would have if it were set directly via the character action.
