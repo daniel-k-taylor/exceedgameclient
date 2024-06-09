@@ -953,8 +953,11 @@ class Player:
 			end_of_turn_boost_delay_card_ids.append(card_id)
 
 	func exceed():
-		exceeded = true
 		var events = []
+		if exceeded:
+			return events
+
+		exceeded = true
 		parent._append_log_full(Enums.LogType.LogType_Effect, self, "Exceeds!")
 		events += [parent.create_event(Enums.EventType.EventType_Exceed, my_id, 0)]
 
@@ -4109,9 +4112,13 @@ func is_effect_condition_met(performing_player : Player, effect, local_condition
 		elif condition == "was_hit":
 			return performing_player.strike_stat_boosts.was_hit
 		elif condition == "was_wild_swing":
-			return active_strike.get_player_wild_strike(performing_player)
+			if active_strike:
+				return active_strike.get_player_wild_strike(performing_player)
+			return false
 		elif condition == "was_not_wild_swing":
-			return not active_strike.get_player_wild_strike(performing_player)
+			if active_strike:
+				return not active_strike.get_player_wild_strike(performing_player)
+			return false
 		elif condition == "was_strike_from_gauge":
 			return active_strike.get_player_strike_from_gauge(performing_player)
 		elif condition == "was_set_from_boosts":
