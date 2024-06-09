@@ -133,6 +133,9 @@ func do_strike_response(player, card_id, ex_card_id = -1):
 		card_id = ws_card_id
 	return card_id
 
+# Get through `player`'s turn by preparing (and automatically discarding if
+# necessary). Can be useful as a functional test to conform that it is, in fact,
+# `player`'s turn at the point when it's invoked.
 func advance_turn(player):
 	assert_true(game_logic.do_prepare(player),
 			"Player %s tried to prepare but could not." % player.my_id)
@@ -389,4 +392,3 @@ func select_space(num: int):
 func show_player_data(player: LocalGame.Player):
 	print(" >>>> Player %s continuous boosts: %s" % [player.my_id, player.continuous_boosts])
 	print(" >>>> Player %s strike stat boosts: %s" % [player.my_id, player.strike_stat_boosts])
-
