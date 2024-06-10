@@ -219,8 +219,7 @@ func _handle_players_update(message):
 ### Commands ###
 
 func join_room(player_name, room_name, deck_id_str : String, 
-		starting_timer : int,
-		enforce_timer : bool):
+		starting_timer : int, enforce_timer : bool, minimum_time_per_turn : int):
 	if not _socket: return
 	var join_room_message = {
 		"version": GlobalSettings.get_client_version(),
@@ -229,7 +228,8 @@ func join_room(player_name, room_name, deck_id_str : String,
 		"room_id": room_name,
 		"deck_id": deck_id_str,
 		"starting_timer": starting_timer,
-		"enforce_timer": enforce_timer
+		"enforce_timer": enforce_timer,
+		"minimum_time_per_turn": minimum_time_per_turn
 	}
 	var json = JSON.stringify(join_room_message)
 	_socket.send_text(json)
@@ -252,6 +252,9 @@ func join_matchmaking(player_name, deck_id_str : String):
 		"type": "join_matchmaking",
 		"player_name": player_name,
 		"deck_id": deck_id_str,
+		"starting_timer": GlobalSettings.MatchmakingStartingTimer,
+		"enforce_timer": GlobalSettings.MatchmakingEnforceTimer,
+		"minimum_time_per_turn": GlobalSettings.MatchmakingMinimumTimePerTurn
 	}
 	var json = JSON.stringify(message)
 	_socket.send_text(json)

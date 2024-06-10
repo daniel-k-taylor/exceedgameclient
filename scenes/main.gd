@@ -16,11 +16,6 @@ func _ready():
 	$MainMenu.settings_loaded()
 	NetworkManager.connect_to_server()
 
-
-# Called every frame. 'delta' is the elapsed time since the previous frame.
-func _process(_delta):
-	pass
-
 func _on_return_from_game():
 	$MainMenu.visible = true
 	$MainMenu.returned_from_game()

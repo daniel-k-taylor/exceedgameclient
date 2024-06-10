@@ -18,15 +18,12 @@ const ModalDialog = preload("res://scenes/game/modal_dialog.gd")
 @onready var replay_data_box : TextEdit = $EnterReplayBox
 
 @onready var start_ai_button : Button = $MenuList/VSAIBox/StartButton
-@onready var randomize_first_box : CheckBox = $PreferencesWindow/VBoxContainer/AIFirstPlayerCheckbox
 @onready var room_select : LineEdit = $MenuList/JoinBox/RoomNameBox
 @onready var join_room_button = $MenuList/JoinBox/JoinButton
 @onready var join_box = $MenuList/JoinBox
 @onready var matchmake_button = $MenuList/MatchmakeButton
-@onready var settings_button = $MenuList/SettingsButton
-@onready var settings_popup = $PreferencesWindow
-@onready var bgm_checkbox = $PreferencesWindow/VBoxContainer/BGMCheckBox
-@onready var game_sound_checkbox = $PreferencesWindow/VBoxContainer/GameSoundsCheckBox
+@onready var settings_button = $SettingsButton
+@onready var settings_window = $PreferencesWindow
 
 @onready var char_select = $CharSelect
 @onready var change_player_character_button : Button = $PlayerChooser/ChangePlayerCharacterButton
@@ -69,21 +66,15 @@ func _ready():
 	modal_list.visible = false
 	
 	# Initialize settings window
-	settings_popup.visible = false
-	bgm_checkbox.toggled.connect(_on_bgm_check_box_toggled)
+	settings_window.visible = false
+	settings_window.bgm_check_toggled.connect(_on_bgm_check_toggled)
 
 func settings_loaded():
 	player_selected_character = GlobalSettings.PlayerCharacter if GlobalSettings.PlayerCharacter else "solbadguy"
 	update_char(player_selected_character, true)
-	bgm_checkbox.button_pressed = GlobalSettings.BGMEnabled
-	game_sound_checkbox.button_pressed = GlobalSettings.GameSoundsEnabled
 	start_music()
 
-# Called every frame. 'delta' is the elapsed time since the previous frame.
-func _process(_delta):
-	pass
-
-func _on_bgm_check_box_toggled(_button_pressed):
+func _on_bgm_check_toggled():
 	if GlobalSettings.BGMEnabled:
 		start_music()
 	else:
@@ -117,9 +108,13 @@ func _on_start_button_pressed():
 	var opponent_deck = CardDefinitions.get_deck_from_str_id(opponent_selected_character)
 	var player_name = get_player_name()
 	var opponent_name = "CPU"
-	var randomize_first = randomize_first_box.button_pressed
-	start_game.emit(get_vs_info(player_name, player_deck, player_random_tag, 
-			opponent_name, opponent_deck, opponent_random_tag, randomize_first))
+	start_game.emit(get_vs_info(player_name, 
+		player_deck, 
+		player_random_tag, 
+		opponent_name, 
+		opponent_deck, 
+		opponent_random_tag, 
+		GlobalSettings.RandomizeFirstVsAI))
 
 func _on_quit_button_pressed():
 	get_tree().quit()
@@ -204,8 +199,7 @@ func _on_observe_game_started(data):
 	start_remote_game.emit(get_vs_info(player_name, player_deck_object, 
 		player_random_tag, opponent_name, opponent_deck_object, opponent_random_tag), start_data)
 
-# Accepts a signal from within the game scripts that a game has started
-# (currently from _handle_game_start in network manager)
+# Handles a signal from _handle_game_start in network manager
 func _on_remote_game_started(data):
 	just_clicked_matchmake = false
 	$MatchStartingAudio.play()
@@ -275,13 +269,16 @@ func _on_join_button_pressed():
 	var chosen_deck_id = chosen_deck['id']
 	if player_selected_character.begins_with("random"):
 		chosen_deck_id = player_selected_character + "#" + chosen_deck_id
-	NetworkManager.join_room(player_name, room_name, chosen_deck_id, 
-		GlobalSettings.CustomStartingTimer, GlobalSettings.EnforceTimer)
+	NetworkManager.join_room(player_name, 
+		room_name, 
+		chosen_deck_id, 
+		GlobalSettings.CustomStartingTimer, 
+		GlobalSettings.CustomEnforceTimer,
+		GlobalSettings.CustomMinimumTimePerTurn)
 	update_buttons(true)
 
 func update_buttons(joining : bool):
 	start_ai_button.disabled = joining
-	randomize_first_box.disabled = joining
 	change_player_character_button.disabled = joining
 	room_select.editable = not joining
 	join_box.visible = not joining
@@ -362,7 +359,6 @@ func _on_char_select_select_character(char_id):
 
 func _on_change_player_character_button_pressed(is_player : bool):
 	var char_id = player_selected_character
-	print("what the fuck")
 	if not is_player:
 		char_id = opponent_selected_character
 	char_select.show_char_select(char_id)
@@ -430,4 +426,5 @@ func _on_view_replay_button_pressed():
 		_on_observe_game_started(replay_data)
 
 func _on_settings_button_pressed():
-	settings_popup.visible = true
+	settings_window.visible = true
+

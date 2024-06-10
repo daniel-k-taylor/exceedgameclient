@@ -65,7 +65,7 @@ enum GameOverReason {
 	GameOverReason_Decked,
 	GameOverReason_Disconnect,
 	GameOverReason_Quit,
-	GameOverReason_Timeout
+	GameOverReason_ClockRanOut
 }
 
 enum EventType {

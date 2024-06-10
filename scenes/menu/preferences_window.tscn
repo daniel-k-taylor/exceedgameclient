@@ -5,32 +5,31 @@
 [node name="PreferencesWindow" type="PopupPanel"]
 title = "Settings"
 initial_position = 1
-size = Vector2i(468, 485)
+size = Vector2i(536, 538)
 visible = true
 borderless = false
-keep_title_visible = true
 script = ExtResource("1_ttn5r")
 
 [node name="ColorRect" type="ColorRect" parent="."]
 offset_left = 4.0
 offset_top = 4.0
-offset_right = 464.0
-offset_bottom = 481.0
+offset_right = 532.0
+offset_bottom = 534.0
 color = Color(4.21144e-07, 0.300865, 0.300865, 1)
 
 [node name="VBoxContainer" type="VBoxContainer" parent="."]
 offset_left = 4.0
 offset_top = 4.0
-offset_right = 464.0
-offset_bottom = 481.0
+offset_right = 532.0
+offset_bottom = 534.0
 
-[node name="BGMCheckBox" type="CheckBox" parent="VBoxContainer"]
+[node name="BGMCheckbutton" type="CheckButton" parent="VBoxContainer"]
 layout_mode = 2
 theme_override_font_sizes/font_size = 30
 button_pressed = true
 text = "Main Menu Background Music"
 
-[node name="GameSoundsCheckBox" type="CheckBox" parent="VBoxContainer"]
+[node name="GameSoundsCheckbutton" type="CheckButton" parent="VBoxContainer"]
 layout_mode = 2
 theme_override_font_sizes/font_size = 30
 button_pressed = true
@@ -72,24 +71,8 @@ text = "Starting Timers:"
 
 [node name="StartingTimersSelection" type="OptionButton" parent="VBoxContainer"]
 layout_mode = 2
-item_count = 7
-selected = 3
-popup/item_0/text = "6:00"
-popup/item_0/id = 6
-popup/item_1/text = "9:00"
-popup/item_1/id = 9
-popup/item_2/text = "12:00"
-popup/item_2/id = 12
-popup/item_3/text = "15:00"
-popup/item_3/id = 15
-popup/item_4/text = "20:00"
-popup/item_4/id = 20
-popup/item_5/text = "25:00"
-popup/item_5/id = 25
-popup/item_6/text = "30:00"
-popup/item_6/id = 30
 
-[node name="EnforceTimerCheckBox" type="CheckBox" parent="VBoxContainer"]
+[node name="EnforceTimerCheckbutton" type="CheckButton" parent="VBoxContainer"]
 layout_mode = 2
 theme_override_font_sizes/font_size = 28
 button_pressed = true
@@ -103,11 +86,21 @@ layout_mode = 2
 theme_override_font_sizes/font_size = 32
 text = "AI games"
 
-[node name="AIFirstPlayerCheckbox" type="CheckBox" parent="VBoxContainer"]
+[node name="AIFirstPlayerCheckbutton" type="CheckButton" parent="VBoxContainer"]
 layout_mode = 2
 text = "Randomize first player vs AI"
 
-[connection signal="toggled" from="VBoxContainer/BGMCheckBox" to="." method="_on_bgm_check_box_toggled"]
-[connection signal="toggled" from="VBoxContainer/GameSoundsCheckBox" to="." method="_on_game_sounds_check_box_toggled"]
+[node name="MinTimeAtStartOfTurnLabel" type="Label" parent="VBoxContainer"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 32
+text = "Minimum Time At Start Of Each Turn"
+
+[node name="MinimumTimeSelection" type="OptionButton" parent="VBoxContainer"]
+layout_mode = 2
+
+[connection signal="toggled" from="VBoxContainer/BGMCheckbutton" to="." method="_on_bgm_check_box_toggled"]
+[connection signal="toggled" from="VBoxContainer/GameSoundsCheckbutton" to="." method="_on_game_sounds_check_box_toggled"]
 [connection signal="item_selected" from="VBoxContainer/StartingTimersSelection" to="." method="_on_starting_timers_selection_item_selected"]
-[connection signal="toggled" from="VBoxContainer/EnforceTimerCheckBox" to="." method="_on_enforce_timer_check_box_toggled"]
+[connection signal="toggled" from="VBoxContainer/EnforceTimerCheckbutton" to="." method="_on_enforce_timer_check_box_toggled"]
+[connection signal="toggled" from="VBoxContainer/AIFirstPlayerCheckbutton" to="." method="_on_ai_first_player_checkbutton_toggled"]
+[connection signal="item_selected" from="VBoxContainer/MinimumTimeSelection" to="." method="_on_minimum_time_selection_item_selected"]

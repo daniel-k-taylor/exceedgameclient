@@ -47,9 +47,11 @@ const RevealCopyIdRangestart = 80000
 const ReferenceScreenIdRangeStart = 90000
 const NoticeOffsetY = 50
 
+var starting_timer : float = GlobalSettings.DefaultStartingTimer
 var player_clock_remaining : float = GlobalSettings.DefaultStartingTimer
 var opponent_clock_remaining : float = GlobalSettings.DefaultStartingTimer
 var enforce_timer = GlobalSettings.DefaultEnforceTimer
+var minimum_time_per_turn = GlobalSettings.DefaultMinimumTimePerTurn
 var current_clock_user : Enums.PlayerId = Enums.PlayerId.PlayerId_Unassigned
 const GameTimerClockServerDelay : float = 0.2
 var clock_delay_remaining : float = -1
@@ -293,6 +295,9 @@ func _ready():
 	$PlayerLife.set_life(game_wrapper.get_player_life(Enums.PlayerId.PlayerId_Player))
 	$OpponentLife.set_life(game_wrapper.get_player_life(Enums.PlayerId.PlayerId_Opponent))
 	game_over_stuff.visible = false
+	if not observer_mode:
+		$PlayerLife.set_clock(starting_timer)
+		$OpponentLife.set_clock(starting_timer)
 
 	player_bonus_panel.visible = false
 	opponent_bonus_panel.visible = false
@@ -353,15 +358,12 @@ func begin_remote_game(game_start_message):
 	starting_message = game_start_message.duplicate()
 	observer_mode = 'observer_mode' in game_start_message and game_start_message['observer_mode']
 	replay_button_visible = not observer_mode
-	print(game_start_message)
-	var starting_timer = game_start_message['starting_timer']*60 + 5
+	# Add a few seconds to starting timers to account for loading screen
+	starting_timer = game_start_message['starting_timer'] + 4
 	enforce_timer = game_start_message['enforce_timer']
+	minimum_time_per_turn = game_start_message['minimum_time_per_turn']
 	player_clock_remaining = starting_timer
 	opponent_clock_remaining = starting_timer
-
-	if not observer_mode:
-		$PlayerLife.set_clock(starting_timer)
-		$OpponentLife.set_clock(starting_timer)
 	
 	var starting_message_queue = []
 	if observer_mode:
@@ -401,8 +403,12 @@ func begin_remote_game(game_start_message):
 		if game_start_message['starting_player_id'] == game_start_message['player1_id']:
 			starting_player = Enums.PlayerId.PlayerId_Opponent
 
-	game_wrapper.initialize_remote_game(my_player_info, opponent_player_info, 
-		starting_player, seed_value, observer_mode, starting_message_queue,)
+	game_wrapper.initialize_remote_game(my_player_info, 
+		opponent_player_info, 
+		starting_player, 
+		seed_value, 
+		observer_mode, 
+		starting_message_queue)
 
 func is_player_overdrive_visible(player_id : Enums.PlayerId):
 	return game_wrapper.is_player_in_overdrive(player_id)
@@ -598,8 +604,16 @@ func get_card_root_path(deck_id : String):
 func get_card_image_path(deck_id : String, game_card : GameCard):
 	return get_card_root_path(deck_id) + game_card.image
 
-func spawn_deck(deck_id, deck_list, deck_card_zone, copy_zone, buddy_graphic_list, buddy_copy_zone,
-		allow_click_buddy, set_aside_zone, card_back_image, is_opponent):
+func spawn_deck(deck_id, 
+		deck_list, 
+		deck_card_zone, 
+		copy_zone, 
+		buddy_graphic_list, 
+		buddy_copy_zone,
+		allow_click_buddy, 
+		set_aside_zone, 
+		card_back_image, 
+		is_opponent):
 	var card_db = game_wrapper.get_card_database()
 	var card_root_path = get_card_root_path(deck_id)
 	for card in deck_list:
@@ -666,7 +680,10 @@ func get_damage_popup() -> DamagePopup:
 			func():damage_popup_pool.append(new_popup))
 		return new_popup
 
-func spawn_emote(player_id : Enums.PlayerId, is_image_emote : bool, emote : String, emote_display : EmoteDisplay):
+func spawn_emote(player_id : Enums.PlayerId, 
+		is_image_emote : bool, 
+		emote : String, 
+		emote_display : EmoteDisplay):
 	var pos = get_notice_position(player_id)
 	pos.y -= NoticeOffsetY
 	if game_wrapper.get_player_location(player_id) > 5:
@@ -713,7 +730,11 @@ func get_arena_location_button(arena_location):
 	var button = target_square.get_node("Button")
 	return button
 
-func move_character_to_arena_square(character, arena_location, immediate: bool, move_anim : Character.CharacterAnim, buddy_offset : int = 0):
+func move_character_to_arena_square(character, 
+		arena_location, 
+		immediate: bool, 
+		move_anim : Character.CharacterAnim, 
+		buddy_offset : int = 0):
 	var target_square = arena_layout.get_child(arena_location - 1)
 	var target_position = target_square.global_position + target_square.size/2
 	var offset_y = $ArenaNode/RowButtons.position.y
@@ -830,11 +851,10 @@ func is_mulligan_done():
 func _update_clocks():
 	if game_wrapper.is_ai_game(): return
 	if observer_mode: return
-	$PlayerLife.set_clock(player_clock_remaining)
-	$OpponentLife.set_clock(opponent_clock_remaining)
+	$PlayerLife.set_clock(player_clock_remaining, enforce_timer and player_clock_remaining <= minimum_time_per_turn)
+	$OpponentLife.set_clock(opponent_clock_remaining, enforce_timer and opponent_clock_remaining <= minimum_time_per_turn)
 	if enforce_timer and player_clock_remaining <= 0:
-		game_wrapper.trigger_timeout(Enums.PlayerId.PlayerId_Player, 
-			Enums.GameOverReason.GameOverReason_Timeout)
+		game_wrapper.submit_clock_ran_out()
 
 func begin_delay(delay : float, remaining_events : Array):
 	if ui_state != UIState.UIState_PlayingAnimation:
@@ -1433,8 +1453,12 @@ func _on_advance_turn():
 		change_ui_state(UIState.UIState_PickTurnAction, UISubState.UISubState_None)
 		deselect_all_cards()
 		close_popout()
+		if player_clock_remaining < minimum_time_per_turn:
+			player_clock_remaining = minimum_time_per_turn
 	else:
 		change_ui_state(UIState.UIState_WaitingOnOpponent, UISubState.UISubState_None)
+		if opponent_clock_remaining < minimum_time_per_turn:
+			opponent_clock_remaining = minimum_time_per_turn
 
 	player_bonus_panel.visible = false
 	opponent_bonus_panel.visible = false
@@ -3430,8 +3454,8 @@ func _update_buttons():
 			instructions_ok_allowed = false
 			instructions_cancel_allowed = false
 			instructions_wild_swing_allowed = false
-			button_choices.append({ "text": "Prepare", "action": _on_prepare_button_pressed, "disabled": not game_wrapper.can_do_prepare(Enums.PlayerId.PlayerId_Player) })
 			button_choices.append({ "text": "Move", "action": _on_move_button_pressed, "disabled": not game_wrapper.can_do_move(Enums.PlayerId.PlayerId_Player) })
+			button_choices.append({ "text": "Prepare", "action": _on_prepare_button_pressed, "disabled": not game_wrapper.can_do_prepare(Enums.PlayerId.PlayerId_Player) })			
 			button_choices.append({ "text": "Change Cards", "action": _on_change_button_pressed, "disabled": not game_wrapper.can_do_change(Enums.PlayerId.PlayerId_Player) })
 			var exceed_cost = game_wrapper.get_player_exceed_cost(Enums.PlayerId.PlayerId_Player)
 			if exceed_cost >= 0 and not game_wrapper.is_player_exceeded(Enums.PlayerId.PlayerId_Player):
