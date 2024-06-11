@@ -16,11 +16,6 @@ func _ready():
 	$MainMenu.settings_loaded()
 	NetworkManager.connect_to_server()
 
-
-# Called every frame. 'delta' is the elapsed time since the previous frame.
-func _process(_delta):
-	pass
-
 func _on_return_from_game():
 	$MainMenu.visible = true
 	$MainMenu.returned_from_game()
@@ -51,6 +46,7 @@ func _on_main_menu_start_game(vs_info):
 	add_child(game)
 	create_versus_splash(vs_info)
 
+# Listens for a signal from _start_remote_game in main_menu.
 func _on_main_menu_start_remote_game(vs_info, data):
 	$MainMenu.visible = false
 	$MainMenu.stop_music()

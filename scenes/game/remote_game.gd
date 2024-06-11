@@ -1,7 +1,8 @@
 #### !!! WARNING !!!
 # This file handles the communication of actions between clients. When a local
-# game calls `do_X`, it transmits a dictionary-like message with key `action:
-# "action_Y"`, which the client on the other side then handles with
+# game calls `do_X`, it transmits a dictionary-like message to the game server,
+# with key `'action_type': "action_Y"`. The game server sends this to both clients,
+# and the clients on both sides then handle the message with
 # `process_Z()`. Because this mapping is done through string manipulation, it is
 # important that X == Y == Z.
 
@@ -48,7 +49,12 @@ func _get_player_from_remote_id(remote_id : int):
 func get_striking_card_ids_for_player(player : LocalGame.Player) -> Array:
 	return local_game.get_striking_card_ids_for_player(player)
 
-func initialize_game(player_info, opponent_info, starting_player : Enums.PlayerId, seed_value : int, observer_mode : bool, starting_message_queue : Array):
+func initialize_game(player_info, 
+		opponent_info, 
+		starting_player : Enums.PlayerId, 
+		seed_value : int, 
+		observer_mode : bool, 
+		starting_message_queue : Array):
 	_game_message_queue = starting_message_queue
 	_game_message_history = []
 
@@ -56,7 +62,8 @@ func initialize_game(player_info, opponent_info, starting_player : Enums.PlayerI
 	_opponent_info = opponent_info
 	_observer_mode = observer_mode
 	local_game = LocalGame.new()
-	local_game.initialize_game(player_info['deck'], opponent_info['deck'], player_info['name'], opponent_info['name'], starting_player, seed_value)
+	local_game.initialize_game(player_info['deck'], opponent_info['deck'], 
+		player_info['name'], opponent_info['name'], starting_player, seed_value)
 	local_game.draw_starting_hands_and_begin()
 
 	NetworkManager.connect("game_message_received", _on_remote_game_message)
@@ -545,3 +552,19 @@ func do_match_result(player_clock_remaining, opponent_clock_remaining):
 	}
 	_submit_game_message(action_message)
 	return true
+	
+# In order to make sure a player only gets a game over for seeing the clock
+# on their screen run out, this function assumes that the local player
+# is the one whose clock ran out and should only be called when this is true.
+func do_clock_ran_out():
+	var action_message = {
+		'action_type': 'action_clock_ran_out',
+		'clock_ran_out_player': _player_info['id']
+	}
+	_submit_game_message(action_message)
+
+func process_clock_ran_out(action_message):
+	if _player_info['id'] == action_message['clock_ran_out_player']:
+		local_game.do_clock_ran_out(Enums.PlayerId.PlayerId_Player)
+	else:
+		local_game.do_clock_ran_out(Enums.PlayerId.PlayerId_Opponent)

@@ -1,3 +1,6 @@
+# The wrapper manages signals from a remote player, or the local player,
+# so that the game engine and the interface don't have to care which is which.
+
 extends Node
 
 const LocalGame = preload("res://scenes/game/local_game.gd")
@@ -34,16 +37,35 @@ func initialize_local_game(player_deck, opponent_deck, randomize_first_player):
 	var first_player = Enums.PlayerId.PlayerId_Player
 	if randomize_first_player and randi() % 2 == 0:
 		first_player = Enums.PlayerId.PlayerId_Opponent
-	current_game.initialize_game(player_deck, opponent_deck, "Player", "CPU", first_player, seed_value)
+	current_game.initialize_game(player_deck, 
+		opponent_deck, 
+		"Player", 
+		"CPU", 
+		first_player, 
+		seed_value)
 	current_game.draw_starting_hands_and_begin()
 
-func initialize_remote_game(player_info, opponent_info, starting_player : Enums.PlayerId, seed_value : int, observer_mode : bool, starting_message_queue : Array):
+func initialize_remote_game(player_info, 
+		opponent_info, 
+		starting_player : Enums.PlayerId, 
+		seed_value : int, 
+		observer_mode : bool, 
+		starting_message_queue : Array):
 	current_game = RemoteGame.new()
-	current_game.initialize_game(player_info, opponent_info, starting_player, seed_value, observer_mode, starting_message_queue)
+	current_game.initialize_game(player_info, 
+		opponent_info, 
+		starting_player, 
+		seed_value, 
+		observer_mode, 
+		starting_message_queue)
 
+# Deletes the current game
 func end_game():
 	current_game.free()
 	current_game = null
+
+func do_clock_ran_out():
+	current_game.do_clock_ran_out()
 
 func observer_process_next_message_from_queue():
 	return current_game.observer_process_next_message_from_queue()
@@ -157,7 +179,9 @@ func get_all_non_immediate_continuous_boost_effects(id):
 func is_player_sealed_area_secret(id):
 	return _get_player(id).sealed_area_is_secret
 
-func count_cards_in_deck_and_hand(player_id : Enums.PlayerId, card_str_id : String, override_card_list = null):
+func count_cards_in_deck_and_hand(player_id : Enums.PlayerId, 
+	card_str_id : String, 
+	override_card_list = null):
 	var player = _get_player(player_id)
 	var count = 0
 
@@ -262,7 +286,11 @@ func get_player_force_cost_reduction(player_id : Enums.PlayerId):
 func get_player_free_gauge(player_id : Enums.PlayerId):
 	return _get_player(player_id).free_gauge
 
-func get_player_force_for_cards(player_id : Enums.PlayerId, card_ids : Array, reason : String, treat_ultras_as_single_force : bool, use_free_force : bool):
+func get_player_force_for_cards(player_id : Enums.PlayerId, 
+	card_ids : Array, 
+	reason : String, 
+	treat_ultras_as_single_force : bool, 
+	use_free_force : bool):
 	return _get_player(player_id).get_force_with_cards(card_ids, reason, treat_ultras_as_single_force, use_free_force)
 
 func get_force_to_move_to(player_id : Enums.PlayerId, location : int):
@@ -348,7 +376,11 @@ func get_player_extra_attack_card_options(player_id : Enums.PlayerId) -> Array:
 		card_ids.append(card.id)
 	return card_ids
 
-func can_player_boost(player_id : Enums.PlayerId, card_id : int, valid_zones : Array, limitation : String, ignore_costs : bool) -> bool:
+func can_player_boost(player_id : Enums.PlayerId, 
+		card_id : int, 
+		valid_zones : Array, 
+		limitation : String, 
+		ignore_costs : bool) -> bool:
 	var zone_func_map = {
 		"hand": is_card_in_hand,
 		"gauge": is_card_in_gauge,
@@ -497,7 +529,10 @@ func submit_choose_to_discard(player: Enums.PlayerId, card_ids : Array) -> bool:
 	var game_player = _get_player(player)
 	return current_game.do_choose_to_discard(game_player, card_ids)
 
-func submit_character_action(player: Enums.PlayerId, card_ids : Array, action_idx : int = 0, use_free_force = false) -> bool:
+func submit_character_action(player: Enums.PlayerId, 
+	card_ids : Array, 
+	action_idx : int = 0, 
+	use_free_force = false) -> bool:
 	var game_player = _get_player(player)
 	return current_game.do_character_action(game_player, card_ids, action_idx, use_free_force)
 
