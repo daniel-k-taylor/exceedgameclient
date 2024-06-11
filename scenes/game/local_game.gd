@@ -740,6 +740,7 @@ class Player:
 	var end_of_turn_boost_delay_card_ids : Array
 	var saved_power : int
 	var movement_limit : int
+	var movement_limit_optional_exceeded : bool
 	var force_cost_reduction : int
 	var free_force : int
 	var free_gauge : int
@@ -884,6 +885,10 @@ class Player:
 		if 'movement_limit' in deck_def:
 			movement_limit = deck_def['movement_limit']
 
+		movement_limit_optional_exceeded = false
+		if 'movement_limit_optional_exceeded' in deck_def:
+			movement_limit_optional_exceeded = deck_def['movement_limit_optional_exceeded']
+
 		max_hand_size = MaxHandSize
 		if 'alt_hand_size' in deck_def:
 			max_hand_size = deck_def['alt_hand_size']
@@ -960,8 +965,11 @@ class Player:
 			end_of_turn_boost_delay_card_ids.append(card_id)
 
 	func exceed():
-		exceeded = true
 		var events = []
+		if exceeded:
+			return events
+
+		exceeded = true
 		parent._append_log_full(Enums.LogType.LogType_Effect, self, "Exceeds!")
 		events += [parent.create_event(Enums.EventType.EventType_Exceed, my_id, 0)]
 
@@ -2524,7 +2532,7 @@ class Player:
 
 		var distance = movement_distance_between(arena_location, new_arena_location)
 		var required_force = get_force_to_move_to(new_arena_location)
-		if distance > movement_limit:
+		if distance > movement_limit and not (exceeded and movement_limit_optional_exceeded):
 			return false
 		return required_force <= get_available_force()
 
@@ -2734,7 +2742,8 @@ class Player:
 	func close(amount):
 		var events = []
 
-		amount = min(amount, movement_limit)
+		if not (exceeded and movement_limit_optional_exceeded):
+			amount = min(amount, movement_limit)
 		var other_location = parent._get_player(parent.get_other_player(my_id)).arena_location
 		if arena_location < other_location:
 			events += move_in_direction_by_amount(false, amount, true, -1, "close")
@@ -2746,7 +2755,8 @@ class Player:
 	func advance(amount, stop_on_space):
 		var events = []
 
-		amount = min(amount, movement_limit)
+		if not (exceeded and movement_limit_optional_exceeded):
+			amount = min(amount, movement_limit)
 		var other_location = parent._get_player(parent.get_other_player(my_id)).arena_location
 		if arena_location < other_location:
 			events += move_in_direction_by_amount(false, amount, false, stop_on_space, "advance")
@@ -2758,7 +2768,8 @@ class Player:
 	func retreat(amount):
 		var events = []
 
-		amount = min(amount, movement_limit)
+		if not (exceeded and movement_limit_optional_exceeded):
+			amount = min(amount, movement_limit)
 		var other_location = parent._get_player(parent.get_other_player(my_id)).arena_location
 		if arena_location < other_location:
 			events += move_in_direction_by_amount(true, amount, false, -1, "retreat")
@@ -4131,9 +4142,13 @@ func is_effect_condition_met(performing_player : Player, effect, local_condition
 		elif condition == "was_hit":
 			return performing_player.strike_stat_boosts.was_hit
 		elif condition == "was_wild_swing":
-			return active_strike.get_player_wild_strike(performing_player)
+			if active_strike:
+				return active_strike.get_player_wild_strike(performing_player)
+			return false
 		elif condition == "was_not_wild_swing":
-			return not active_strike.get_player_wild_strike(performing_player)
+			if active_strike:
+				return not active_strike.get_player_wild_strike(performing_player)
+			return false
 		elif condition == "was_strike_from_gauge":
 			return active_strike.get_player_strike_from_gauge(performing_player)
 		elif condition == "was_set_from_boosts":
@@ -4274,7 +4289,10 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 			_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "will draw the set-aside card %s." % _log_card_name(card_name))
 			events += performing_player.add_set_aside_card_to_deck(effect['id'])
 		"add_strike_to_gauge_after_cleanup":
-			performing_player.strike_stat_boosts.always_add_to_gauge = true
+			if active_strike.extra_attack_in_progress:
+				active_strike.extra_attack_data.extra_attack_always_go_to_gauge = true
+			else:
+				performing_player.strike_stat_boosts.always_add_to_gauge = true
 		"add_strike_to_overdrive_after_cleanup":
 			performing_player.strike_stat_boosts.always_add_to_overdrive = true
 			events += handle_strike_attack_immediate_removal(performing_player)
@@ -5524,6 +5542,41 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 			decision_info.choice = choice
 			decision_info.choice_card_id = card_id
 			events += [create_event(Enums.EventType.EventType_Strike_EffectChoice, performing_player.my_id, 0, "EffectOption")]
+		"may_ignore_movement_limit":
+			var movement_type = decision_info.source
+			var movement_amount = decision_info.amount
+			var followups = decision_info.limitation
+
+			var limited_amount = min(movement_amount, performing_player.movement_limit)
+			if movement_amount == limited_amount:
+				# There's no choice, so just do nothing because it is irrelevant.
+				pass
+			else:
+				var choice = [
+					{
+						'effect_type': movement_type + '_INTERNAL',
+						'amount': movement_amount
+					},
+					{
+						'effect_type': movement_type + '_INTERNAL',
+						'amount': limited_amount
+					}
+				]
+				if followups['and']:
+					choice[0]['and'] = followups['and']
+					choice[1]['and'] = followups['and']
+				if followups['bonus_effect']:
+					choice[0]['bonus_effect'] = followups['bonus_effect']
+					choice[1]['bonus_effect'] = followups['bonus_effect']
+
+				_append_log_full(Enums.LogType.LogType_Effect, performing_player, "may ignore the movement limit!")
+				change_game_state(Enums.GameState.GameState_PlayerDecision)
+				decision_info.clear()
+				decision_info.type = Enums.DecisionType.DecisionType_EffectChoice
+				decision_info.player = performing_player.my_id
+				decision_info.choice = choice
+				decision_info.choice_card_id = card_id
+				events += [create_event(Enums.EventType.EventType_Strike_EffectChoice, performing_player.my_id, 0, "EffectOption")]
 		"move_to_space":
 			var space = effect['amount']
 			var remove_buddies_encountered = effect['remove_buddies_encountered']
@@ -7106,6 +7159,25 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 		"reshuffle_discard_into_deck":
 			events += performing_player.reshuffle_discard(false, true)
 		"retreat":
+			decision_info.clear()
+			decision_info.source = "retreat"
+			decision_info.amount = effect['amount']
+			decision_info.limitation = { 'and': null, 'bonus_effect': null }
+			if 'and' in effect:
+				decision_info.limitation['and'] = effect['and']
+			if 'bonus_effect' in effect:
+				decision_info.limitation['bonus_effect'] = effect['bonus_effect']
+
+			var effects = performing_player.get_character_effects_at_timing("on_retreat")
+			for sub_effect in effects:
+				events += do_effect_if_condition_met(performing_player, -1, sub_effect, null)
+			if game_state != Enums.GameState.GameState_PlayerDecision:
+				var retreat_effect = effect.duplicate()
+				retreat_effect['effect_type'] = "retreat_INTERNAL"
+				events += handle_strike_effect(card_id, retreat_effect, performing_player)
+				# and/bonus_effect should be handled by internal version
+				ignore_extra_effects = true
+		"retreat_INTERNAL":
 			var amount = effect['amount']
 			if str(amount) == "strike_x":
 				amount = performing_player.strike_stat_boosts.strike_x
@@ -9243,6 +9315,7 @@ func begin_extra_attack(events, performing_player : Player, card_id : int):
 
 	# Extra attacks are unaffected by the attack_does_not_hit effect from hitting Nirvana or the effect on Block.
 	performing_player.strike_stat_boosts.attack_does_not_hit = false
+	performing_player.strike_stat_boosts.overwrite_total_power = false
 
 	# This can happen with more After effects to resolve.
 	# This should be fine as we use a different remaining effects list.

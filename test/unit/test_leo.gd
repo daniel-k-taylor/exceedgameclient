@@ -271,3 +271,41 @@ func test_leo_blitz_exceed_wild():
 	validate_life(player1, 30, player2, 24)
 	validate_positions(player1, 3, player2, 5)
 	advance_turn(player1)
+
+func test_leo_exceeded_replace_with_wild_get_bonus():
+	player1.exceeded = true
+	position_players(player1, 3, player2, 5)
+	var card = give_player_specific_card(player1, "gg_normal_slash", TestCardId3)
+	player1.hand.erase(card)
+	player1.deck.insert(0, card)
+	give_player_specific_card(player1, "leo_leidenschaft", TestCardId4)
+	give_player_specific_card(player2, "gg_normal_cross", TestCardId5)
+	assert_true(game_logic.do_strike(player1, TestCardId4, false, -1))
+	assert_true(game_logic.do_strike(player2, TestCardId5, false, -1))
+	validate_life(player1, 30, player2, 25)
+	validate_positions(player1, 4, player2, 5)
+
+func test_leo_zweites_get_bonus():
+	position_players(player1, 3, player2, 5)
+	var card = give_player_specific_card(player1, "leo_zweites", TestCardId3)
+	player1.hand.erase(card)
+	player1.deck.insert(0, card)
+	give_player_specific_card(player2, "gg_normal_slash", TestCardId5)
+	assert_true(game_logic.do_strike(player1, -1, true, -1))
+	assert_true(game_logic.do_strike(player2, TestCardId5, false, -1))
+	validate_life(player1, 30, player2, 26)
+	validate_positions(player1, 6, player2, 5)
+	advance_turn(player1)
+
+func test_leo_exceeded_zweites_get_bonus_once():
+	player1.exceeded = true
+	position_players(player1, 3, player2, 5)
+	var card = give_player_specific_card(player1, "leo_zweites", TestCardId3)
+	player1.hand.erase(card)
+	player1.deck.insert(0, card)
+	give_player_specific_card(player2, "gg_normal_cross", TestCardId5)
+	assert_true(game_logic.do_strike(player1, -1, true, -1))
+	assert_true(game_logic.do_strike(player2, TestCardId5, false, -1))
+	validate_life(player1, 30, player2, 26)
+	validate_positions(player1, 6, player2, 5)
+	advance_turn(player1)

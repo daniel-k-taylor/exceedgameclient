@@ -208,11 +208,53 @@ func test_tager_movement_limit():
 	position_players(player1, 5, player2, 7)
 	assert_true(game_logic.do_move(player1, [player1.hand[0].id,player1.hand[1].id,player1.hand[2].id], 8))
 
+func test_tager_movement_limit_exceeded_move():
+	player1.exceeded = true
+	position_players(player1, 1, player2, 7)
+	assert_true(game_logic.do_move(player1, [player1.hand[0].id,player1.hand[1].id,player1.hand[2].id, player1.hand[3].id], 5))
+	validate_positions(player1, 5, player2, 7)
+
 func test_tager_movement_limit_dive():
 	position_players(player1, 3, player2, 7)
 	execute_strike(player1, player2, "standard_normal_dive", "standard_normal_spike", [], [], false, false, [], [], 0, [])
 	validate_positions(player1, 5, player2, 7)
 	validate_life(player1, 25, player2, 30)
+	advance_turn(player2)
+
+func test_tager_exceed_movement_limit_dive():
+	player1.exceeded = true
+	position_players(player1, 3, player2, 7)
+	execute_strike(player1, player2, "standard_normal_dive", "standard_normal_spike", [], [], false, false, [], [], 0, [])
+	assert_true(game_logic.do_choice(player1, 0)) # Move full amount
+	validate_positions(player1, 6, player2, 7)
+	validate_life(player1, 30, player2, 24)
+	advance_turn(player2)
+	
+func test_tager_exceed_movement_limit_dive_limit():
+	player1.exceeded = true
+	position_players(player1, 3, player2, 7)
+	execute_strike(player1, player2, "standard_normal_dive", "standard_normal_spike", [], [], false, false, [], [], 0, [])
+	assert_true(game_logic.do_choice(player1, 1)) # Don't move full for some reason
+	validate_positions(player1, 5, player2, 7)
+	validate_life(player1, 25, player2, 30)
+	advance_turn(player2)
+	
+func test_tager_exceed_movement_limit_cross():
+	player1.exceeded = true
+	position_players(player1, 6, player2, 7)
+	execute_strike(player1, player2, "standard_normal_cross", "standard_normal_sweep", [], [], false, false, [], [], 0, [])
+	assert_true(game_logic.do_choice(player1, 0)) # Move full amount
+	validate_positions(player1, 3, player2, 7)
+	validate_life(player1, 30, player2, 26)
+	advance_turn(player2)
+
+func test_tager_exceed_assault_no_choice():
+	player1.exceeded = true
+	position_players(player1, 4, player2, 7)
+	execute_strike(player1, player2, "standard_normal_assault", "standard_normal_spike", [], [], false, false, [], [], 0, [])
+	validate_positions(player1, 6, player2, 7)
+	validate_life(player1, 30, player2, 25)
+	advance_turn(player1)
 
 func test_tager_spark_bolt_slow():
 	position_players(player1, 3, player2, 6)

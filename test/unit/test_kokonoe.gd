@@ -842,3 +842,111 @@ func test_kokonoe_extraattack_gainarmor():
 	assert_true(player1.is_card_in_gauge(TestCardId5))
 	assert_true(player1.is_card_in_gauge(TestCardId1))
 	advance_turn(player2)
+
+
+func test_kokonoe_extraattack_blockfirst_works():
+	position_players(player1, 4, player2, 8)
+	give_player_specific_card(player1, "kokonoe_flamingbelobog", TestCardId3)
+	assert_true(game_logic.do_boost(player1, TestCardId3))
+	# Place gravitron
+	assert_true(game_logic.do_choice(player1, 5))
+	assert_eq(player1.get_buddy_location(), 5)
+	advance_turn(player2)
+
+	# Start strike
+	give_player_specific_card(player1, "standard_normal_block", TestCardId1)
+	give_player_specific_card(player2, "standard_normal_sweep", TestCardId2)
+	assert_true(game_logic.do_strike(player1, TestCardId1, false, -1))
+	# Don't pay for grav
+	assert_true(game_logic.do_force_for_effect(player1, [], false, true))
+	assert_true(game_logic.do_strike(player2, TestCardId2, false, -1))
+	# Sweep goes first, missing, then block goes, after player chooses order block or extra attack.
+	assert_true(game_logic.do_choice(player1, 0)) # Choose block first.
+	validate_life(player1, 30, player2, 30)
+	validate_positions(player1, 4, player2, 8)
+	
+	# Now range 4, extra attack goes off.
+	# Player flame cage
+	give_player_specific_card(player1, "kokonoe_flamecage", TestCardId5)
+	assert_true(game_logic.do_choose_to_discard(player1, [TestCardId5]))
+	# After push/pull
+	assert_true(game_logic.do_choice(player1, 1)) # pull
+	validate_positions(player1, 4, player2, 7)
+	
+	# P2 took full damage
+	validate_life(player1, 30, player2, 25)
+	assert_eq(player1.gauge.size(), 2) # Block and flame cage should end up in gauge
+	assert_eq(player2.gauge.size(), 0)
+	assert_true(player1.is_card_in_gauge(TestCardId5))
+	assert_true(player1.is_card_in_gauge(TestCardId1))
+	advance_turn(player2)
+
+
+func test_kokonoe_extraattack_blockfirst_works2():
+	position_players(player1, 4, player2, 8)
+	give_player_specific_card(player1, "kokonoe_flamingbelobog", TestCardId3)
+	assert_true(game_logic.do_boost(player1, TestCardId3))
+	# Place gravitron
+	assert_true(game_logic.do_choice(player1, 5))
+	assert_eq(player1.get_buddy_location(), 5)
+	advance_turn(player2)
+
+	# Start strike
+	give_player_specific_card(player1, "standard_normal_block", TestCardId1)
+	give_player_specific_card(player2, "standard_normal_sweep", TestCardId2)
+	assert_true(game_logic.do_strike(player1, TestCardId1, false, -1))
+	# Don't pay for grav
+	assert_true(game_logic.do_force_for_effect(player1, [], false, true))
+	assert_true(game_logic.do_strike(player2, TestCardId2, false, -1))
+	# Sweep goes first, missing, then block goes, after player chooses order block or extra attack.
+	assert_true(game_logic.do_choice(player1, 1)) # Extra attack first
+	validate_life(player1, 30, player2, 30)
+	validate_positions(player1, 4, player2, 8)
+	
+	# Now range 4, extra attack goes off.
+	# Player flame cage
+	give_player_specific_card(player1, "kokonoe_flamecage", TestCardId5)
+	assert_true(game_logic.do_choose_to_discard(player1, [TestCardId5]))
+	# After push/pull
+	assert_true(game_logic.do_choice(player1, 1)) # pull
+	validate_positions(player1, 4, player2, 7)
+	
+	# P2 took full damage
+	validate_life(player1, 30, player2, 25)
+	assert_eq(player1.gauge.size(), 2) # Block and flame cage should end up in gauge
+	assert_eq(player2.gauge.size(), 0)
+	assert_true(player1.is_card_in_gauge(TestCardId5))
+	assert_true(player1.is_card_in_gauge(TestCardId1))
+	advance_turn(player2)
+
+
+func test_kokonoe_extraattack_blocksecond_gauged():
+	position_players(player1, 4, player2, 8)
+	give_player_specific_card(player1, "kokonoe_flamingbelobog", TestCardId3)
+	assert_true(game_logic.do_boost(player1, TestCardId3))
+	# Place gravitron
+	assert_true(game_logic.do_choice(player1, 5))
+	assert_eq(player1.get_buddy_location(), 5)
+	advance_turn(player2)
+
+	# Start strike
+	give_player_specific_card(player1, "standard_normal_sweep", TestCardId1)
+	give_player_specific_card(player2, "standard_normal_sweep", TestCardId2)
+	assert_true(game_logic.do_strike(player1, TestCardId1, false, -1))
+	# Don't pay for grav
+	assert_true(game_logic.do_force_for_effect(player1, [], false, true))
+	assert_true(game_logic.do_strike(player2, TestCardId2, false, -1))
+	validate_life(player1, 30, player2, 30)
+	validate_positions(player1, 4, player2, 8)
+	
+	# Now range 4, extra attack goes off.
+	# Player block
+	give_player_specific_card(player1, "standard_normal_block", TestCardId5)
+	assert_true(game_logic.do_choose_to_discard(player1, [TestCardId5]))
+	validate_positions(player1, 4, player2, 8)
+	
+	validate_life(player1, 30, player2, 30)
+	assert_eq(player1.gauge.size(), 1) # First sweep missed, 2nd block should go to gauge.
+	assert_eq(player2.gauge.size(), 0)
+	assert_true(player1.is_card_in_gauge(TestCardId5))
+	advance_turn(player2)

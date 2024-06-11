@@ -3,6 +3,7 @@
 	"season": 6,
 	"display_name": "Byakuya",
 	"cardback": "cardback_byakuya.jpg",
+	"has_sealed_area": true,
 	"exceed_cost": 1,
 	"buddy_cards": [
 		"webtrapA1",

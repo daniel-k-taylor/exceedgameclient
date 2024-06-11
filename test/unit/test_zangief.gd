@@ -104,7 +104,7 @@ func test_zangief_flyingpowerbomb_boost_discard_4_with_X_eval_fails():
 	assert_true(game_logic.do_boost(player1, power_bomb_id))
 
 	player2.discard_hand()
-	var frustration_id = give_player_specific_card(player2, "phonon_impulsivefrustration")
+	give_player_specific_card(player2, "phonon_impulsivefrustration")
 	# Range 2~X where X is the attack's Power (printed 3)
 	# Zangief calls "4", which whiffs because the continuous boost only applies during a strike or something
 	assert_true(game_logic.do_choice(player1, 4))

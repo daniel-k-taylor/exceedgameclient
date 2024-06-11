@@ -366,6 +366,8 @@ func get_condition_text(effect, amount, amount2, detail):
 			text += "If opponent on %s, " % detail
 		"boost_space_in_range_towards_opponent":
 			text += "If %s in range towards opponent, " % detail
+		"opponent_moved_or_was_moved":
+			text += "If opponent moved or was moved, "
 		"is_buddy_special_attack":
 			text += ""
 		"speed_greater_than":
@@ -1140,6 +1142,12 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 					effect_str += "X"
 				else:
 					effect_str += str(effect['amount'])
+		"retreat_INTERNAL":
+			effect_str += "Retreat "
+			if str(effect['amount']) == "strike_x":
+				effect_str += "X"
+			else:
+				effect_str += str(effect['amount'])
 		"return_attack_to_hand":
 			if 'card_name' in effect:
 				effect_str += "Return %s to hand" % effect['card_name']

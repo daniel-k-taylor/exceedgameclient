@@ -173,7 +173,7 @@ func test_vega_scarletterror_boost_exceeded_edge_normal():
 
 func test_vega_skyhighclaw_boost_miss():
 	position_players(player1, 1, player2, 7)
-	var bhc_id = give_player_specific_card(player1, "vega_bloodyhighclaw")
+	give_player_specific_card(player1, "vega_bloodyhighclaw")
 	player1.discard_hand()
 	player1.draw(3)
 
