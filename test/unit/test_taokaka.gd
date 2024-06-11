@@ -50,10 +50,7 @@ func test_taokaka_hexaedge_becomingtwo():
 	var hexaedge_id = give_player_specific_card(player1, "taokaka_hexaedge")
 	var cross_id = give_player_specific_card(player1, "standard_normal_cross")
 	assert_true(game_logic.do_boost(player1, hexaedge_id, [player1.hand[0].id]))
-	## TODO: This function is misnamed! It moves cards from hand to *wherever
-	## the current decision requires them to go*. In this case, it is actually
-	## topdeck.
-	assert_true(game_logic.do_card_from_hand_to_gauge(player1, [cross_id]))
+	assert_true(game_logic.do_relocate_card_from_hand(player1, [cross_id]))  # to topdeck
 
 	execute_strike(player1, player2, "", "standard_normal_sweep",
 			false, false, [[]], [])  # Decline force payment for retreat

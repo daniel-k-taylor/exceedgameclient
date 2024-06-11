@@ -178,9 +178,9 @@ func process_decisions(player, strike_state, decisions):
 				# `choice`, interpret them as optional boolean arguments to
 				# do_force_for_effect, prioritizing filling the last parameters
 				# first.
-				var use_free_force = pop_trailing_boolean(choice, false)
-				var ui_cancel = pop_trailing_boolean(choice, false)
-				var treat_ultras_as_single_force = pop_trailing_boolean(choice, false)
+				var use_free_force = pop_trailing_boolean(content, false)
+				var ui_cancel = pop_trailing_boolean(content, false)
+				var treat_ultras_as_single_force = pop_trailing_boolean(content, false)
 				assert_true(game_logic.do_force_for_effect(player, content, false),
 						"%s failed to perform a Force effect using %s" % [player, content])
 			Enums.DecisionType.DecisionType_GaugeForEffect:
