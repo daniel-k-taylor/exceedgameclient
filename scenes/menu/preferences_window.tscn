@@ -5,7 +5,7 @@
 [node name="PreferencesWindow" type="PopupPanel"]
 title = "Settings"
 initial_position = 1
-size = Vector2i(536, 538)
+size = Vector2i(537, 538)
 visible = true
 borderless = false
 script = ExtResource("1_ttn5r")
@@ -13,27 +13,27 @@ script = ExtResource("1_ttn5r")
 [node name="ColorRect" type="ColorRect" parent="."]
 offset_left = 4.0
 offset_top = 4.0
-offset_right = 532.0
+offset_right = 533.0
 offset_bottom = 534.0
 color = Color(4.21144e-07, 0.300865, 0.300865, 1)
 
 [node name="VBoxContainer" type="VBoxContainer" parent="."]
 offset_left = 4.0
 offset_top = 4.0
-offset_right = 532.0
+offset_right = 533.0
 offset_bottom = 534.0
 
 [node name="BGMCheckbutton" type="CheckButton" parent="VBoxContainer"]
 layout_mode = 2
 theme_override_font_sizes/font_size = 30
 button_pressed = true
-text = "Main Menu Background Music"
+text = "Main menu background music"
 
 [node name="GameSoundsCheckbutton" type="CheckButton" parent="VBoxContainer"]
 layout_mode = 2
 theme_override_font_sizes/font_size = 30
 button_pressed = true
-text = "Game Turn Sound"
+text = "Game turn sounds"
 
 [node name="HSeparator" type="HSeparator" parent="VBoxContainer"]
 layout_mode = 2
@@ -42,6 +42,28 @@ layout_mode = 2
 layout_mode = 2
 theme_override_font_sizes/font_size = 32
 text = "Custom Room Creation"
+
+[node name="EnforceTimerCheckbutton" type="CheckButton" parent="VBoxContainer"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 28
+button_pressed = true
+text = "Enforce timers with game loss"
+
+[node name="StartingTimersLabel" type="Label" parent="VBoxContainer"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 28
+text = "Starting timers:"
+
+[node name="StartingTimersSelection" type="OptionButton" parent="VBoxContainer"]
+layout_mode = 2
+
+[node name="MinTimePerChoiceLabel" type="Label" parent="VBoxContainer"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 28
+text = "Minimum time to make each choice"
+
+[node name="MinimumTimeSelection" type="OptionButton" parent="VBoxContainer"]
+layout_mode = 2
 
 [node name="BestOfLabel" type="Label" parent="VBoxContainer"]
 layout_mode = 2
@@ -64,20 +86,6 @@ popup/item_3/id = 7
 popup/item_4/text = "∞"
 popup/item_4/id = 0
 
-[node name="StartingTimersLabel" type="Label" parent="VBoxContainer"]
-layout_mode = 2
-theme_override_font_sizes/font_size = 28
-text = "Starting Timers:"
-
-[node name="StartingTimersSelection" type="OptionButton" parent="VBoxContainer"]
-layout_mode = 2
-
-[node name="EnforceTimerCheckbutton" type="CheckButton" parent="VBoxContainer"]
-layout_mode = 2
-theme_override_font_sizes/font_size = 28
-button_pressed = true
-text = "Enforce timer with game loss"
-
 [node name="HSeparator2" type="HSeparator" parent="VBoxContainer"]
 layout_mode = 2
 
@@ -88,19 +96,12 @@ text = "AI games"
 
 [node name="AIFirstPlayerCheckbutton" type="CheckButton" parent="VBoxContainer"]
 layout_mode = 2
+theme_override_font_sizes/font_size = 28
 text = "Randomize first player vs AI"
-
-[node name="MinTimeAtStartOfTurnLabel" type="Label" parent="VBoxContainer"]
-layout_mode = 2
-theme_override_font_sizes/font_size = 32
-text = "Minimum Time At Start Of Each Turn"
-
-[node name="MinimumTimeSelection" type="OptionButton" parent="VBoxContainer"]
-layout_mode = 2
 
 [connection signal="toggled" from="VBoxContainer/BGMCheckbutton" to="." method="_on_bgm_check_box_toggled"]
 [connection signal="toggled" from="VBoxContainer/GameSoundsCheckbutton" to="." method="_on_game_sounds_check_box_toggled"]
-[connection signal="item_selected" from="VBoxContainer/StartingTimersSelection" to="." method="_on_starting_timers_selection_item_selected"]
 [connection signal="toggled" from="VBoxContainer/EnforceTimerCheckbutton" to="." method="_on_enforce_timer_check_box_toggled"]
-[connection signal="toggled" from="VBoxContainer/AIFirstPlayerCheckbutton" to="." method="_on_ai_first_player_checkbutton_toggled"]
+[connection signal="item_selected" from="VBoxContainer/StartingTimersSelection" to="." method="_on_starting_timers_selection_item_selected"]
 [connection signal="item_selected" from="VBoxContainer/MinimumTimeSelection" to="." method="_on_minimum_time_selection_item_selected"]
+[connection signal="toggled" from="VBoxContainer/AIFirstPlayerCheckbutton" to="." method="_on_ai_first_player_checkbutton_toggled"]

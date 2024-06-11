@@ -274,7 +274,7 @@ func _on_join_button_pressed():
 		chosen_deck_id, 
 		GlobalSettings.CustomStartingTimer, 
 		GlobalSettings.CustomEnforceTimer,
-		GlobalSettings.CustomMinimumTimePerTurn)
+		GlobalSettings.CustomMinimumTimePerChoice)
 	update_buttons(true)
 
 func update_buttons(joining : bool):

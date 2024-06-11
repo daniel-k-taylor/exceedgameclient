@@ -51,8 +51,9 @@ var starting_timer : float = GlobalSettings.DefaultStartingTimer
 var player_clock_remaining : float = GlobalSettings.DefaultStartingTimer
 var opponent_clock_remaining : float = GlobalSettings.DefaultStartingTimer
 var enforce_timer = GlobalSettings.DefaultEnforceTimer
-var minimum_time_per_turn = GlobalSettings.DefaultMinimumTimePerTurn
+var minimum_time_per_choice = GlobalSettings.DefaultMinimumTimePerChoice
 var current_clock_user : Enums.PlayerId = Enums.PlayerId.PlayerId_Unassigned
+var new_clock_user_assigned : bool = false
 const GameTimerClockServerDelay : float = 0.2
 var clock_delay_remaining : float = -1
 var player_notified_of_clock : bool = false
@@ -361,7 +362,7 @@ func begin_remote_game(game_start_message):
 	# Add a few seconds to starting timers to account for loading screen
 	starting_timer = game_start_message['starting_timer'] + 4
 	enforce_timer = game_start_message['enforce_timer']
-	minimum_time_per_turn = game_start_message['minimum_time_per_turn']
+	minimum_time_per_choice = game_start_message['minimum_time_per_choice']
 	player_clock_remaining = starting_timer
 	opponent_clock_remaining = starting_timer
 	
@@ -409,6 +410,10 @@ func begin_remote_game(game_start_message):
 		seed_value, 
 		observer_mode, 
 		starting_message_queue)
+
+func set_player_as_clock_user(player_id : Enums.PlayerId):
+	current_clock_user = player_id
+	new_clock_user_assigned = true
 
 func is_player_overdrive_visible(player_id : Enums.PlayerId):
 	return game_wrapper.is_player_in_overdrive(player_id)
@@ -820,7 +825,7 @@ func _process_clock(delta):
 		if clock_delay_remaining <= 0:
 			# Courtesy delay is over, assign the clock user.
 			if current_clock_user == Enums.PlayerId.PlayerId_Unassigned:
-				current_clock_user = game_wrapper.get_priority_player()
+				set_player_as_clock_user(game_wrapper.get_priority_player())
 
 	if current_clock_user != Enums.PlayerId.PlayerId_Unassigned and ui_state != UIState.UIState_GameOver:
 		if events_to_process.size() > 0:
@@ -830,11 +835,19 @@ func _process_clock(delta):
 		elif is_mulligan_done():
 			if current_clock_user == Enums.PlayerId.PlayerId_Player:
 				player_clock_remaining -= delta
+				if new_clock_user_assigned:
+					new_clock_user_assigned = false
+					if enforce_timer and player_clock_remaining < minimum_time_per_choice:
+						player_clock_remaining = minimum_time_per_choice
 				if not player_notified_of_clock:
 					player_notified_of_clock = true
 					if GlobalSettings.GameSoundsEnabled and not observer_mode:
 						turnstart_audio.play()
 			elif current_clock_user == Enums.PlayerId.PlayerId_Opponent:
+				if new_clock_user_assigned:
+					new_clock_user_assigned = false
+					if enforce_timer and opponent_clock_remaining < minimum_time_per_choice:
+						opponent_clock_remaining = minimum_time_per_choice
 				opponent_clock_remaining -= delta
 				player_notified_of_clock = false
 		else:
@@ -851,10 +864,10 @@ func is_mulligan_done():
 func _update_clocks():
 	if game_wrapper.is_ai_game(): return
 	if observer_mode: return
-	$PlayerLife.set_clock(player_clock_remaining, enforce_timer and player_clock_remaining <= minimum_time_per_turn)
-	$OpponentLife.set_clock(opponent_clock_remaining, enforce_timer and opponent_clock_remaining <= minimum_time_per_turn)
+	$PlayerLife.set_clock(player_clock_remaining, enforce_timer and player_clock_remaining <= minimum_time_per_choice)
+	$OpponentLife.set_clock(opponent_clock_remaining, enforce_timer and opponent_clock_remaining <= minimum_time_per_choice)
 	if enforce_timer and player_clock_remaining <= 0:
-		game_wrapper.submit_clock_ran_out()
+		game_wrapper.do_clock_ran_out()
 
 func begin_delay(delay : float, remaining_events : Array):
 	if ui_state != UIState.UIState_PlayingAnimation:
@@ -1453,12 +1466,8 @@ func _on_advance_turn():
 		change_ui_state(UIState.UIState_PickTurnAction, UISubState.UISubState_None)
 		deselect_all_cards()
 		close_popout()
-		if player_clock_remaining < minimum_time_per_turn:
-			player_clock_remaining = minimum_time_per_turn
 	else:
 		change_ui_state(UIState.UIState_WaitingOnOpponent, UISubState.UISubState_None)
-		if opponent_clock_remaining < minimum_time_per_turn:
-			opponent_clock_remaining = minimum_time_per_turn
 
 	player_bonus_panel.visible = false
 	opponent_bonus_panel.visible = false
@@ -2230,7 +2239,7 @@ func change_ui_state(new_state, new_sub_state = null):
 		current_clock_user = Enums.PlayerId.PlayerId_Unassigned
 		clock_delay_remaining = GameTimerClockServerDelay
 	else:
-		current_clock_user = Enums.PlayerId.PlayerId_Player
+		set_player_as_clock_user(Enums.PlayerId.PlayerId_Player)
 
 func set_instructions(text):
 	current_instruction_text = text

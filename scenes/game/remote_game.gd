@@ -556,7 +556,7 @@ func do_match_result(player_clock_remaining, opponent_clock_remaining):
 # In order to make sure a player only gets a game over for seeing the clock
 # on their screen run out, this function assumes that the local player
 # is the one whose clock ran out and should only be called when this is true.
-func submit_clock_ran_out():
+func do_clock_ran_out():
 	var action_message = {
 		'action_type': 'action_clock_ran_out',
 		'clock_ran_out_player': _player_info['id']

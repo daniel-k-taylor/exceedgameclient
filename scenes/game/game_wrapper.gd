@@ -64,8 +64,8 @@ func end_game():
 	current_game.free()
 	current_game = null
 
-func submit_clock_ran_out():
-	current_game.submit_clock_ran_out()
+func do_clock_ran_out():
+	current_game.do_clock_ran_out()
 
 func observer_process_next_message_from_queue():
 	return current_game.observer_process_next_message_from_queue()
