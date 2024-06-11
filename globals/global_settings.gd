@@ -1,11 +1,23 @@
 extends Node
 
+signal settings_loaded
+
 const ReleaseLoggingEnabled = false # If true, log even on release builds.
 const UseAzureServerAlways = true # If true, always defaults to the azure server.
 var MuteEmotes = false
 const ClientVersionString : String = "240505.1500" # YYMMDD.HHMM
 
 const CharacterBanlist = ['carmine']
+# All times are in seconds
+const DefaultStartingTimer : int = 15 * 60
+const DefaultEnforceTimer : bool = false
+const DefaultMinimumTimePerChoice : int = 20
+const DefaultBestOf : int = 1
+const DefaultRandomizeFirstVsAi : bool = false
+const MatchmakingStartingTimer : int = 15 * 60
+const MatchmakingEnforceTimer : bool = false
+const MatchmakingMinimumTimePerChoice : int = 20
+const MatchmakingBestOf : int = 1
 
 # Persistent Settings
 var BGMEnabled = true
@@ -13,6 +25,11 @@ var DefaultPlayerName = ""
 var GameSoundsEnabled = true
 var PlayerCharacter = ""
 var CombatLogSettings = {}
+var CustomStartingTimer : int = DefaultStartingTimer
+var CustomBestOf : int = DefaultBestOf
+var CustomEnforceTimer : bool = DefaultEnforceTimer
+var CustomMinimumTimePerChoice : int = DefaultMinimumTimePerChoice
+var RandomizeFirstVsAI : bool = DefaultRandomizeFirstVsAi
 
 const user_settings_file = "user://settings.json"
 
@@ -52,11 +69,21 @@ func load_persistent_settings() -> bool:  # returns success code
 		GameSoundsEnabled = json['GameSoundsEnabled']
 	if 'CombatLogSettings' in json and json['CombatLogSettings'] is Dictionary:
 		CombatLogSettings = json['CombatLogSettings']
-
+	if 'CustomStartingTimer' in json: #raise concern
+		CustomStartingTimer = json['CustomStartingTimer']
+	if 'CustomEnforceTimer' in json and json['CustomEnforceTimer'] is bool:
+		CustomEnforceTimer = json['CustomEnforceTimer']
+	if 'CustomBestOf' in json:
+		CustomBestOf = json['CustomBestOf']
+	if 'CustomMinimumTimePerChoice' in json:
+		CustomMinimumTimePerChoice = json['CustomMinimumTimePerChoice']
+	if 'RandomizeFirstVsAI' in json and json['RandomizeFirstVsAI'] is bool:
+		RandomizeFirstVsAI = json['RandomizeFirstVsAI']
 	if 'PlayerCharacter' in json and json['PlayerCharacter'] is String and not json['PlayerCharacter'].is_empty():
 		PlayerCharacter = json['PlayerCharacter']
 	else:
 		PlayerCharacter = 'solbadguy'
+	settings_loaded.emit()
 	return true
 
 
@@ -66,7 +93,12 @@ func save_persistent_settings():
 		"DefaultPlayerName": DefaultPlayerName,
 		"GameSoundsEnabled": GameSoundsEnabled,
 		"PlayerCharacter": PlayerCharacter,
-		"CombatLogSettings": CombatLogSettings
+		"CombatLogSettings": CombatLogSettings,
+		"CustomStartingTimer": CustomStartingTimer,
+		"CustomEnforceTimer": CustomEnforceTimer,
+		"CustomBestOf": CustomBestOf,
+		"CustomMinimumTimePerChoice": CustomMinimumTimePerChoice,
+		"RandomizeFirstVsAI": RandomizeFirstVsAI
 	}
 
 	var file = FileAccess.open(user_settings_file, FileAccess.WRITE)
@@ -90,4 +122,20 @@ func set_player_character(value: String):
 
 func set_combat_log_setting(setting : String, value):
 	CombatLogSettings[setting] = value
+	save_persistent_settings()
+	
+func set_randomize_first_player_vs_ai(value : bool):
+	RandomizeFirstVsAI = value
+	save_persistent_settings()
+
+func set_starting_timers(value : int):
+	CustomStartingTimer = value
+	save_persistent_settings()
+
+func set_enforce_timers(value : bool):
+	CustomEnforceTimer = value
+	save_persistent_settings()
+
+func set_minimum_time_per_choice(value : int):
+	CustomMinimumTimePerChoice = value
 	save_persistent_settings()
