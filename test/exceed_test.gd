@@ -138,7 +138,7 @@ func do_strike_response(player, card_id, ex_card_id = -1):
 # `player`'s turn at the point when it's invoked.
 func advance_turn(player):
 	assert_true(game_logic.do_prepare(player),
-			"Player %s tried to prepare but could not." % player.my_id)
+			"Player %s tried to prepare but could not." % (player.my_id + 1))
 	if player.hand.size() > 7:
 		var cards = []
 		var to_discard = player.hand.size() - 7
@@ -174,15 +174,31 @@ func process_decisions(player, strike_state, decisions):
 			return
 		match game_logic.decision_info.type:
 			Enums.DecisionType.DecisionType_ForceForEffect:
+				# In cases where optional booleans are provided at the end of
+				# `choice`, interpret them as optional boolean arguments to
+				# do_force_for_effect, prioritizing filling the last parameters
+				# first.
+				var use_free_force = pop_trailing_boolean(choice, false)
+				var ui_cancel = pop_trailing_boolean(choice, false)
+				var treat_ultras_as_single_force = pop_trailing_boolean(choice, false)
 				assert_true(game_logic.do_force_for_effect(player, content, false),
 						"%s failed to perform a Force effect using %s" % [player, content])
 			Enums.DecisionType.DecisionType_GaugeForEffect:
 				assert_true(game_logic.do_gauge_for_effect(player, content),
 						"%s failed to perform a Gauge effect using %s" % [player, content])
 			Enums.DecisionType.DecisionType_PayStrikeCost_Required, Enums.DecisionType.DecisionType_PayStrikeCost_CanWild:
-				# There is sometimes an init_extra_cost here
-				# TODO: See if anyone needs it to be more than 0
-				assert_true(game_logic.do_pay_strike_cost(player, content, false),
+				# `content` is usually a list of card IDs. However, we support
+				# additional optional boolean parameters corresponding to the
+				# signature of do_pay_strike_cost:
+				#   wild_strike, discard_ex_first, use_free_force
+				# in *reverse* order; that is, if there are exactly two optional
+				# parameters specified in `content`, they will be taken as
+				# discard_ex_first and use_free_force in that order.
+				var use_free_force = pop_trailing_boolean(content, false)
+				var discard_ex_first = pop_trailing_boolean(content, true)
+				var wild_strike = pop_trailing_boolean(content, false)
+				assert_true(game_logic.do_pay_strike_cost(player, content,
+								wild_strike, discard_ex_first, use_free_force),
 						"%s failed to pay a Strike cost using %s" % [player, content])
 			Enums.DecisionType.DecisionType_ChooseArenaLocationForEffect:
 				# Find the index in decision_info.limitation that maps to
@@ -229,17 +245,25 @@ func process_remaining_decisions(initiator, defender, init_choices, def_choices)
 					assert_true(game_logic.do_choose_to_discard(player, choice),
 							"%s failed to discard cards %s" % [player, choice])
 				Enums.DecisionType.DecisionType_ForceForEffect:
-					assert_true(game_logic.do_force_for_effect(player, choice, false),
+					# In cases where optional booleans are provided at the end
+					# of `choice`, interpret them as optional boolean arguments
+					# to do_force_for_effect, prioritizing filling the last
+					# parameters first.
+					var use_free_force = pop_trailing_boolean(choice, false)
+					var ui_cancel = pop_trailing_boolean(choice, false)
+					var treat_ultras_as_single_force = pop_trailing_boolean(choice, false)
+					assert_true(game_logic.do_force_for_effect(player, choice,
+									treat_ultras_as_single_force, ui_cancel, use_free_force),
 							"%s failed to perform a Force effect using %s" % [player, choice])
 				Enums.DecisionType.DecisionType_GaugeForEffect:
 					assert_true(game_logic.do_gauge_for_effect(player, choice),
 							"%s failed to perform a Gauge effect using %s" % [player, choice])
 				Enums.DecisionType.DecisionType_ForceForArmor:
-					assert_true(game_logic.do_force_for_armor(player, choice),
+					# In cases where an optional boolean is provided at the end
+					# of `choice`, interpret it as use_free_force.
+					var use_free_force = pop_trailing_boolean(choice, false)
+					assert_true(game_logic.do_force_for_armor(player, choice, use_free_force),
 							"%s failed to discard cards %s for armor" % [player, choice])
-				Enums.DecisionType.DecisionType_ForceForEffect:
-					assert_true(game_logic.do_force_for_effect(player, choice, false),
-							"%s failed to discard cards %s for an effect" % [player, choice])
 				Enums.DecisionType.DecisionType_ChooseArenaLocationForEffect:
 					# Find the index in decision_info.limitation that maps to
 					# the (1-based) arena location `choice`. (If choice is 0,
@@ -392,3 +416,9 @@ func select_space(num: int):
 func show_player_data(player: LocalGame.Player):
 	print(" >>>> Player %s continuous boosts: %s" % [player.my_id, player.continuous_boosts])
 	print(" >>>> Player %s strike stat boosts: %s" % [player.my_id, player.strike_stat_boosts])
+
+func pop_trailing_boolean(list, default_value):
+	if len(list) == 0 or typeof(list[-1]) != Variant.Type.TYPE_BOOL:
+		return default_value
+	else:
+		return list.pop_back()
