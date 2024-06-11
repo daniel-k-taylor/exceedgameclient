@@ -1,9 +1,12 @@
-[gd_scene load_steps=18 format=3 uid="uid://o8vjxrpicjsm"]
+[gd_scene load_steps=21 format=3 uid="uid://o8vjxrpicjsm"]
 
 [ext_resource type="Script" path="res://scenes/menu/main_menu.gd" id="1_bk4ch"]
+[ext_resource type="Texture2D" uid="uid://c3qodhvhxwf2v" path="res://assets/cards/arena_border_highlight.png" id="2_1a5y0"]
 [ext_resource type="PackedScene" uid="uid://cqs72exlwm6at" path="res://scenes/menu/char_select.tscn" id="2_6qq11"]
 [ext_resource type="Texture2D" uid="uid://ci2dh7hdi1ye4" path="res://assets/icons/gear.png" id="2_141tj"]
+[ext_resource type="Texture2D" uid="uid://bpdpb3e74d2cu" path="res://assets/cards/arena_border_highlight_pressed.png" id="3_exiqm"]
 [ext_resource type="Texture2D" uid="uid://8pvgp7ipunso" path="res://assets/portraits/solbadguy.png" id="3_n1nv2"]
+[ext_resource type="Texture2D" uid="uid://b08j76upbucvr" path="res://assets/cards/arena_border_highlight_selected.png" id="4_4qgms"]
 [ext_resource type="Texture2D" uid="uid://mn1hj4i3k7l7" path="res://assets/cards/card_border_highlight_selected.png" id="4_ekoth"]
 [ext_resource type="Texture2D" uid="uid://ded5jrn5yju2j" path="res://assets/cards/card_border_highlight_pressed.png" id="5_xie03"]
 [ext_resource type="AudioStream" uid="uid://0cjnajbh1p00" path="res://assets/sounds/match_available.mp3" id="6_6ru3f"]
@@ -51,13 +54,29 @@ horizontal_alignment = 1
 vertical_alignment = 1
 
 [node name="SettingsButton" type="TextureButton" parent="."]
+custom_minimum_size = Vector2(50, 50)
 layout_mode = 2
 offset_left = 1152.0
-offset_top = 32.0
-offset_right = 1672.0
-offset_bottom = 552.0
-scale = Vector2(0.12, 0.12)
-texture_normal = ExtResource("2_141tj")
+offset_top = 16.0
+offset_right = 1402.0
+offset_bottom = 366.0
+texture_normal = ExtResource("2_1a5y0")
+texture_pressed = ExtResource("3_exiqm")
+texture_hover = ExtResource("4_4qgms")
+
+[node name="MarginContainer" type="MarginContainer" parent="SettingsButton"]
+layout_mode = 0
+offset_right = 100.0
+offset_bottom = 100.0
+theme_override_constants/margin_left = 15
+theme_override_constants/margin_top = 15
+theme_override_constants/margin_right = 15
+theme_override_constants/margin_bottom = 15
+
+[node name="GearIcon" type="TextureRect" parent="SettingsButton/MarginContainer"]
+layout_mode = 2
+texture = ExtResource("2_141tj")
+expand_mode = 1
 
 [node name="MenuList" type="VBoxContainer" parent="."]
 layout_mode = 0
