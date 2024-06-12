@@ -365,7 +365,7 @@ func begin_remote_game(game_start_message):
 	minimum_time_per_choice = game_start_message['minimum_time_per_choice']
 	player_clock_remaining = starting_timer
 	opponent_clock_remaining = starting_timer
-	
+
 	var starting_message_queue = []
 	if observer_mode:
 		starting_message_queue = game_start_message['observer_log']
@@ -404,11 +404,11 @@ func begin_remote_game(game_start_message):
 		if game_start_message['starting_player_id'] == game_start_message['player1_id']:
 			starting_player = Enums.PlayerId.PlayerId_Opponent
 
-	game_wrapper.initialize_remote_game(my_player_info, 
-		opponent_player_info, 
-		starting_player, 
-		seed_value, 
-		observer_mode, 
+	game_wrapper.initialize_remote_game(my_player_info,
+		opponent_player_info,
+		starting_player,
+		seed_value,
+		observer_mode,
 		starting_message_queue)
 
 func set_player_as_clock_user(player_id : Enums.PlayerId):
@@ -609,15 +609,15 @@ func get_card_root_path(deck_id : String):
 func get_card_image_path(deck_id : String, game_card : GameCard):
 	return get_card_root_path(deck_id) + game_card.image
 
-func spawn_deck(deck_id, 
-		deck_list, 
-		deck_card_zone, 
-		copy_zone, 
-		buddy_graphic_list, 
+func spawn_deck(deck_id,
+		deck_list,
+		deck_card_zone,
+		copy_zone,
+		buddy_graphic_list,
 		buddy_copy_zone,
-		allow_click_buddy, 
-		set_aside_zone, 
-		card_back_image, 
+		allow_click_buddy,
+		set_aside_zone,
+		card_back_image,
 		is_opponent):
 	var card_db = game_wrapper.get_card_database()
 	var card_root_path = get_card_root_path(deck_id)
@@ -685,9 +685,9 @@ func get_damage_popup() -> DamagePopup:
 			func():damage_popup_pool.append(new_popup))
 		return new_popup
 
-func spawn_emote(player_id : Enums.PlayerId, 
-		is_image_emote : bool, 
-		emote : String, 
+func spawn_emote(player_id : Enums.PlayerId,
+		is_image_emote : bool,
+		emote : String,
 		emote_display : EmoteDisplay):
 	var pos = get_notice_position(player_id)
 	pos.y -= NoticeOffsetY
@@ -735,10 +735,10 @@ func get_arena_location_button(arena_location):
 	var button = target_square.get_node("Button")
 	return button
 
-func move_character_to_arena_square(character, 
-		arena_location, 
-		immediate: bool, 
-		move_anim : Character.CharacterAnim, 
+func move_character_to_arena_square(character,
+		arena_location,
+		immediate: bool,
+		move_anim : Character.CharacterAnim,
 		buddy_offset : int = 0):
 	var target_square = arena_layout.get_child(arena_location - 1)
 	var target_position = target_square.global_position + target_square.size/2
@@ -2316,7 +2316,7 @@ func update_gauge_selection_message():
 		if force_for_armor_ignore_armor:
 			damage_after_armor = force_for_armor_incoming_damage
 			ignore_armor_str = "Armor Ignored! "
-		set_instructions("Spend Gauge to generate force for +%s Armor each.\n%s\n%sYou will take %s damage." % [force_for_armor_amount, force_generated_str, ignore_armor_str, damage_after_armor])
+		set_instructions("Spend Gauge for +%s Armor each.\n%s\n%sYou will take %s damage." % [force_for_armor_amount, force_generated_str, ignore_armor_str, damage_after_armor])
 	else:
 		var num_remaining = select_card_require_min - get_gauge_generated()
 		var discard_reminder = ""
@@ -3464,7 +3464,7 @@ func _update_buttons():
 			instructions_cancel_allowed = false
 			instructions_wild_swing_allowed = false
 			button_choices.append({ "text": "Move", "action": _on_move_button_pressed, "disabled": not game_wrapper.can_do_move(Enums.PlayerId.PlayerId_Player) })
-			button_choices.append({ "text": "Prepare", "action": _on_prepare_button_pressed, "disabled": not game_wrapper.can_do_prepare(Enums.PlayerId.PlayerId_Player) })			
+			button_choices.append({ "text": "Prepare", "action": _on_prepare_button_pressed, "disabled": not game_wrapper.can_do_prepare(Enums.PlayerId.PlayerId_Player) })
 			button_choices.append({ "text": "Change Cards", "action": _on_change_button_pressed, "disabled": not game_wrapper.can_do_change(Enums.PlayerId.PlayerId_Player) })
 			var exceed_cost = game_wrapper.get_player_exceed_cost(Enums.PlayerId.PlayerId_Player)
 			if exceed_cost >= 0 and not game_wrapper.is_player_exceeded(Enums.PlayerId.PlayerId_Player):

@@ -1361,7 +1361,9 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 		"topdeck_from_hand":
 			effect_str += "Put a card from your hand on top of your deck"
 		"when_hit_force_for_armor":
-			effect_str += "When hit, generate force for " + str(effect['amount']) + " armor each."
+			effect_str += ("When hit, generate %s for %s armor each." % [
+					"gauge" if effect.get("use_gauge_instead", false) else "force",
+					effect["amount"]])
 		"zero_vector_dialogue":
 			effect_str += "Named card is invalid for both players."
 		_:
