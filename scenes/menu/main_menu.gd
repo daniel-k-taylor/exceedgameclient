@@ -64,7 +64,7 @@ func _ready():
 	_on_char_select_select_character(opponent_selected_character)
 	modal_dialog.visible = false
 	modal_list.visible = false
-	
+
 	# Initialize settings window
 	settings_window.visible = false
 	settings_window.bgm_check_toggled.connect(_on_bgm_check_toggled)
@@ -108,12 +108,12 @@ func _on_start_button_pressed():
 	var opponent_deck = CardDefinitions.get_deck_from_str_id(opponent_selected_character)
 	var player_name = get_player_name()
 	var opponent_name = "CPU"
-	start_game.emit(get_vs_info(player_name, 
-		player_deck, 
-		player_random_tag, 
-		opponent_name, 
-		opponent_deck, 
-		opponent_random_tag, 
+	start_game.emit(get_vs_info(player_name,
+		player_deck,
+		player_random_tag,
+		opponent_name,
+		opponent_deck,
+		opponent_random_tag,
 		GlobalSettings.RandomizeFirstVsAI))
 
 func _on_quit_button_pressed():
@@ -146,7 +146,7 @@ func _on_disconnected():
 	just_clicked_matchmake = false
 	_on_players_update([], [], false)
 
-func get_vs_info(player_name, player_deck, player_random_tag, opponent_name, 
+func get_vs_info(player_name, player_deck, player_random_tag, opponent_name,
 		opponent_deck, opponent_random_tag, randomize_first_vs_ai = false):
 	return {
 		'player_name': player_name,
@@ -196,7 +196,7 @@ func _on_observe_game_started(data):
 
 	var player_deck_object = CardDefinitions.get_deck_from_str_id(player_deck_no_random)
 	var opponent_deck_object = CardDefinitions.get_deck_from_str_id(opponent_deck_no_random)
-	start_remote_game.emit(get_vs_info(player_name, player_deck_object, 
+	start_remote_game.emit(get_vs_info(player_name, player_deck_object,
 		player_random_tag, opponent_name, opponent_deck_object, opponent_random_tag), start_data)
 
 # Handles a signal from _handle_game_start in network manager
@@ -231,7 +231,7 @@ func _on_remote_game_started(data):
 
 	var player_deck_object = CardDefinitions.get_deck_from_str_id(player_deck_no_random)
 	var opponent_deck_object = CardDefinitions.get_deck_from_str_id(opponent_deck_no_random)
-	start_remote_game.emit(get_vs_info(player_name, player_deck_object, 
+	start_remote_game.emit(get_vs_info(player_name, player_deck_object,
 		player_random_tag, opponent_name, opponent_deck_object, opponent_random_tag), data)
 
 func _on_players_update(players, matches, match_available : bool):
@@ -269,10 +269,10 @@ func _on_join_button_pressed():
 	var chosen_deck_id = chosen_deck['id']
 	if player_selected_character.begins_with("random"):
 		chosen_deck_id = player_selected_character + "#" + chosen_deck_id
-	NetworkManager.join_room(player_name, 
-		room_name, 
-		chosen_deck_id, 
-		GlobalSettings.CustomStartingTimer, 
+	NetworkManager.join_room(player_name,
+		room_name,
+		chosen_deck_id,
+		GlobalSettings.CustomStartingTimer,
 		GlobalSettings.CustomEnforceTimer,
 		GlobalSettings.CustomMinimumTimePerChoice)
 	update_buttons(true)
@@ -309,11 +309,7 @@ func _on_matchmake_button_pressed():
 	var chosen_deck_id = chosen_deck['id']
 	if player_selected_character.begins_with("random"):
 		chosen_deck_id = player_selected_character + "#" + chosen_deck_id
-	if chosen_deck_id in GlobalSettings.CharacterBanlist:
-		if not $SpecialSelectAudio.playing:
-			$SpecialSelectAudio.play()
-		_on_join_failed("\"Weaklings should stay away...\"\n(This character is banned\nfrom public matchmaking.)")
-	else:
+	if not _is_banned_character(chosen_deck_id):
 		NetworkManager.join_matchmaking(player_name, chosen_deck_id)
 		update_buttons(true)
 
@@ -405,12 +401,26 @@ func _on_players_button_pressed():
 func _on_matches_button_pressed():
 	modal_list.show_match_list()
 
+func _is_banned_character(chosen_deck_id):
+	if chosen_deck_id in GlobalSettings.CharacterBanlist:
+		if not $SpecialSelectAudio.playing:
+			$SpecialSelectAudio.play()
+		_on_join_failed("\"Weaklings should stay away...\"\n(This character is banned\nfrom public matchmaking.)")
+		return true
+	return false
 
 func _on_modal_list_join_match_pressed(row_index):
 	var matches = NetworkManager.get_match_list()
 	var selected_match = matches[row_index]
 	room_select.text = selected_match['name']
-	_on_join_button_pressed()
+
+	var chosen_deck = CardDefinitions.get_deck_from_str_id(player_selected_character)
+	var chosen_deck_id = chosen_deck['id']
+	if player_selected_character.begins_with("random"):
+		chosen_deck_id = player_selected_character + "#" + chosen_deck_id
+
+	if not _is_banned_character(chosen_deck_id):
+		_on_join_button_pressed()
 
 func _on_modal_list_observe_match_pressed(row_index):
 	var matches = NetworkManager.get_match_list()

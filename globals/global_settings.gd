@@ -5,7 +5,7 @@ signal settings_loaded
 const ReleaseLoggingEnabled = false # If true, log even on release builds.
 const UseAzureServerAlways = true # If true, always defaults to the azure server.
 var MuteEmotes = false
-const ClientVersionString : String = "240611.0230" # YYMMDD.HHMM
+const ClientVersionString : String = "240612.0100" # YYMMDD.HHMM
 
 const CharacterBanlist = ['carmine']
 # All times are in seconds
@@ -123,7 +123,7 @@ func set_player_character(value: String):
 func set_combat_log_setting(setting : String, value):
 	CombatLogSettings[setting] = value
 	save_persistent_settings()
-	
+
 func set_randomize_first_player_vs_ai(value : bool):
 	RandomizeFirstVsAI = value
 	save_persistent_settings()
