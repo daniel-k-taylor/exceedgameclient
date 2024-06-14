@@ -296,13 +296,15 @@
 			"display_name": "Power of Hatred",
 			"effects": [
 				{
-					"timing": "hit",
+					"timing": "during_strike",
 					"effect_type": "powerup",
-					"amount": 2,
-					"and": {
-						"effect_type": "add_boost_to_gauge_on_strike_cleanup",
-						"card_name": "Zugaihasatsu"
-					}
+					"amount": 2
+				},
+				{
+					"timing": "after",
+					"condition": "hit_opponent",
+					"effect_type": "add_boost_to_gauge_on_strike_cleanup",
+					"card_name": "Zugaihasatsu"
 				}
 			]
 		},
