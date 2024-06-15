@@ -1,5 +1,5 @@
 # This is the main game engine.
-# 
+#
 # Actions from either player are sent to this script via game_wrapper.gd.
 # The wrapper protects the engine from having to care whether player inputs
 # are from the local player, from a remote player, or were generated
@@ -161,11 +161,11 @@ func printlog(text):
 func is_number(test_value):
 	return test_value is int or test_value is float
 
-func create_event(event_type : Enums.EventType, 
-		event_player : Enums.PlayerId, 
-		num : int, reason: String = "", 
-		extra_info = null, 
-		extra_info2 = null, 
+func create_event(event_type : Enums.EventType,
+		event_player : Enums.PlayerId,
+		num : int, reason: String = "",
+		extra_info = null,
+		extra_info2 = null,
 		extra_info3 = null):
 	var card_name = card_db.get_card_name(num)
 	var playerstr = "Player"
@@ -3222,11 +3222,11 @@ func get_random_int() -> int:
 func get_random_int_range(from : int, to : int) -> int:
 	return random_number_generator.randi_range(from, to)
 
-func initialize_game(player_deck, 
-		opponent_deck, 
-		player_name : String, 
-		opponent_name : String, 
-		first_player : Enums.PlayerId, 
+func initialize_game(player_deck,
+		opponent_deck,
+		player_name : String,
+		opponent_name : String,
+		first_player : Enums.PlayerId,
 		seed_value : int):
 	random_number_generator.seed = seed_value
 	card_db = CardDatabase.new()
@@ -3235,17 +3235,17 @@ func initialize_game(player_deck,
 	if first_player == Enums.PlayerId.PlayerId_Opponent:
 		player_card_id_start = 200
 		opponent_card_id_start = 100
-	player = Player.new(Enums.PlayerId.PlayerId_Player, 
-		player_name, 
-		self, 
-		card_db, 
-		player_deck, 
+	player = Player.new(Enums.PlayerId.PlayerId_Player,
+		player_name,
+		self,
+		card_db,
+		player_deck,
 		player_card_id_start)
-	opponent = Player.new(Enums.PlayerId.PlayerId_Opponent, 
-		opponent_name, 
-		self, 
-		card_db, 
-		opponent_deck, 
+	opponent = Player.new(Enums.PlayerId.PlayerId_Opponent,
+		opponent_name,
+		self,
+		card_db,
+		opponent_deck,
 		opponent_card_id_start)
 
 	active_turn_player = first_player
@@ -3256,7 +3256,7 @@ func initialize_game(player_deck,
 	starting_player.starting_location = 3
 	if starting_player.buddy_starting_offset != BuddyStartsOutOfArena:
 		var buddy_space = 3 + starting_player.buddy_starting_offset
-		event_queue += starting_player.place_buddy(buddy_space, 
+		event_queue += starting_player.place_buddy(buddy_space,
 			starting_player.buddy_starting_id, true)
 	second_player.arena_location = 7
 	second_player.starting_location = 7
@@ -3271,8 +3271,8 @@ func draw_starting_hands_and_begin():
 	var starting_player = _get_player(active_turn_player)
 	var second_player = _get_player(next_turn_player)
 	_append_log_full(Enums.LogType.LogType_Default, null,
-		"Game Start - %s as %s (1st) vs %s as %s (2nd)" % [starting_player.name, 
-			starting_player.deck_def['display_name'], second_player.name, 
+		"Game Start - %s as %s (1st) vs %s as %s (2nd)" % [starting_player.name,
+			starting_player.deck_def['display_name'], second_player.name,
 			second_player.deck_def['display_name']])
 	events += starting_player.draw(StartingHandFirstPlayer + starting_player.starting_hand_size_bonus)
 	events += second_player.draw(StartingHandSecondPlayer + second_player.starting_hand_size_bonus)
@@ -3749,7 +3749,12 @@ func strike_determine_order():
 	active_strike.initiator_first = initiator_speed >= defender_speed
 	_append_log_full(Enums.LogType.LogType_Strike, null, "%s has speed %s, %s has speed %s." % [active_strike.initiator.name, initiator_speed, active_strike.defender.name, defender_speed])
 
-func do_effect_if_condition_met(performing_player : Player, card_id : int, effect, local_conditions : LocalStrikeConditions):
+func do_effect_if_condition_met(
+	performing_player : Player,
+	card_id : int, effect,
+	local_conditions : LocalStrikeConditions,
+	recorded_failed_effects = null
+	):
 	var events = []
 
 	if 'skip_if_boost_sustained' in effect and effect['skip_if_boost_sustained']:
@@ -3761,6 +3766,8 @@ func do_effect_if_condition_met(performing_player : Player, card_id : int, effec
 	elif 'negative_condition_effect' in effect:
 		var negative_condition_effect = effect['negative_condition_effect']
 		events += handle_strike_effect(card_id, negative_condition_effect, performing_player)
+	elif recorded_failed_effects != null:
+		recorded_failed_effects.append(effect)
 	return events
 
 func is_effect_condition_met(performing_player : Player, effect, local_conditions : LocalStrikeConditions):
@@ -8410,7 +8417,14 @@ func do_set_strike_x(performing_player : Player, source : String, extra_info):
 	events += performing_player.set_strike_x(value)
 	return events
 
-func do_effects_for_timing(timing_name : String, performing_player : Player, card : GameCard, next_state, only_card_and_bonus_effects : bool = false):
+func do_effects_for_timing(
+	timing_name : String,
+	performing_player : Player,
+	card : GameCard,
+	next_state,
+	only_card_and_bonus_effects : bool = false,
+	recorded_failed_effects = null
+	):
 	var events = []
 	var effects = card_db.get_card_effects_at_timing(card, timing_name)
 	var boost_effects = get_boost_effects_at_timing(timing_name, performing_player)
@@ -8429,7 +8443,7 @@ func do_effects_for_timing(timing_name : String, performing_player : Player, car
 		if active_strike.effects_resolved_in_timing < len(effects):
 			# Resolve card effects
 			var effect = effects[active_strike.effects_resolved_in_timing]
-			events += do_effect_if_condition_met(performing_player, card.id, effect, null)
+			events += do_effect_if_condition_met(performing_player, card.id, effect, null, recorded_failed_effects)
 			if game_state == Enums.GameState.GameState_PlayerDecision:
 				# Player has a decision to make, so stop mid-effect resolve.
 				break
@@ -8439,7 +8453,7 @@ func do_effects_for_timing(timing_name : String, performing_player : Player, car
 		elif boost_effects_resolved < len(boost_effects):
 			# Resolve boost effects
 			var effect = boost_effects[boost_effects_resolved]
-			events += do_effect_if_condition_met(performing_player, card.id, effect, null)
+			events += do_effect_if_condition_met(performing_player, card.id, effect, null, recorded_failed_effects)
 			if game_state == Enums.GameState.GameState_PlayerDecision:
 				# Player has a decision to make, so stop mid-effect resolve.
 				break
@@ -8449,7 +8463,7 @@ func do_effects_for_timing(timing_name : String, performing_player : Player, car
 		elif character_effects_resolved < len(character_effects):
 			# Resolve character effects
 			var effect = character_effects[character_effects_resolved]
-			events += do_effect_if_condition_met(performing_player, card.id, effect, null)
+			events += do_effect_if_condition_met(performing_player, card.id, effect, null, recorded_failed_effects)
 			if game_state == Enums.GameState.GameState_PlayerDecision:
 				# Player has a decision to make, so stop mid-effect resolve.
 				break
@@ -8459,7 +8473,7 @@ func do_effects_for_timing(timing_name : String, performing_player : Player, car
 		elif bonus_effects_resolved < len(bonus_effects):
 			# Resolve bonus effects
 			var effect = bonus_effects[bonus_effects_resolved]
-			events += do_effect_if_condition_met(performing_player, card.id, effect, null)
+			events += do_effect_if_condition_met(performing_player, card.id, effect, null, recorded_failed_effects)
 			if game_state == Enums.GameState.GameState_PlayerDecision:
 				# Player has a decision to make, so stop mid-effect resolve.
 				break
@@ -9056,9 +9070,48 @@ func continue_resolve_strike(events):
 				active_strike.cards_in_play += [active_strike.initiator_card, active_strike.defender_card]
 				_append_log_full(Enums.LogType.LogType_Strike, active_strike.initiator, "initiated with %s; %s responded with %s." % [active_strike.initiator_card.definition['display_name'], active_strike.defender.name, active_strike.defender_card.definition['display_name']])
 				log_boosts_in_play()
-				events += do_effects_for_timing("during_strike", active_strike.initiator, active_strike.initiator_card, StrikeState.StrikeState_DuringStrikeBonuses)
+				var during_strike_failed_effects_initiator = []
+				var during_strike_failed_effects_defender = []
+				events += do_effects_for_timing(
+					"during_strike",
+					active_strike.initiator,
+					active_strike.initiator_card,
+					StrikeState.StrikeState_DuringStrikeBonuses,
+					false,
+					during_strike_failed_effects_initiator
+				)
 				# Should never be interrupted by player decisions.
-				events += do_effects_for_timing("during_strike", active_strike.defender, active_strike.defender_card, StrikeState.StrikeState_Card1_Activation)
+				events += do_effects_for_timing(
+					"during_strike",
+					active_strike.defender,
+					active_strike.defender_card,
+					StrikeState.StrikeState_DuringStrikeBonuses,
+					false,
+					during_strike_failed_effects_defender
+				)
+
+				# Retry any effects that the condition failed but they might be true now!
+				var check_failed_effects = true
+				while check_failed_effects:
+					# As long as there are effects being resolved, keep resolving them.
+					check_failed_effects = false
+					# Iterate through during_strike_failed_effects in reverse as we're removing items.
+					for i in range(len(during_strike_failed_effects_initiator)-1, -1, -1):
+						var effect = during_strike_failed_effects_initiator[i]
+						if is_effect_condition_met(active_strike.initiator, effect, null):
+							events += handle_strike_effect(active_strike.initiator_card.id, effect, active_strike.initiator)
+							during_strike_failed_effects_initiator.erase(effect)
+							check_failed_effects = true
+
+					for i in range(len(during_strike_failed_effects_defender)-1, -1, -1):
+						var effect = during_strike_failed_effects_defender[i]
+						if is_effect_condition_met(active_strike.defender, effect, null):
+							events += handle_strike_effect(active_strike.defender_card.id, effect, active_strike.defender)
+							during_strike_failed_effects_defender.erase(effect)
+							check_failed_effects = true
+
+				active_strike.strike_state = StrikeState.StrikeState_Card1_Activation
+
 				strike_determine_order()
 			StrikeState.StrikeState_Card1_Activation:
 				var card_name = card_db.get_card_name(card1.id)
