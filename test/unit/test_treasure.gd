@@ -3,10 +3,6 @@ extends ExceedGutTest
 func who_am_i():
 	return "treasure"
 
-func original_execute_strike(initiator, defender, init_card : String, def_card : String, init_choices, def_choices, init_ex = false, def_ex = false,
-		init_use_free_force = false, def_force_discard = [], init_extra_cost = 0, init_force_special = false):
-	pass
-
 ##
 ## Tests start here
 ##

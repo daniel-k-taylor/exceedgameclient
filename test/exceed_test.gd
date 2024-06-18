@@ -188,7 +188,8 @@ func process_decisions(player, strike_state, decisions):
 				var use_free_force = pop_trailing_boolean(content, false)
 				var ui_cancel = pop_trailing_boolean(content, false)
 				var treat_ultras_as_single_force = pop_trailing_boolean(content, false)
-				assert_true(game_logic.do_force_for_effect(player, content, false),
+				assert_true(game_logic.do_force_for_effect(player, content,
+								treat_ultras_as_single_force, ui_cancel, use_free_force),
 						"%s failed to perform a Force effect using %s" % [player, content])
 			Enums.DecisionType.DecisionType_GaugeForEffect:
 				assert_true(game_logic.do_gauge_for_effect(player, content),
