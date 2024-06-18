@@ -182,7 +182,7 @@ func process_decisions(player, strike_state, decisions):
 		match game_logic.decision_info.type:
 			Enums.DecisionType.DecisionType_ForceForEffect:
 				# In cases where optional booleans are provided at the end of
-				# `choice`, interpret them as optional boolean arguments to
+				# `content`, interpret them as optional boolean arguments to
 				# do_force_for_effect, prioritizing filling the last parameters
 				# first.
 				var use_free_force = pop_trailing_boolean(content, false)
