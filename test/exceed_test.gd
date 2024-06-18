@@ -138,13 +138,20 @@ func do_strike_response(player, card_id, ex_card_id = -1):
 # `player`'s turn at the point when it's invoked.
 func advance_turn(player):
 	assert_true(game_logic.do_prepare(player),
-			"Player %s tried to prepare but could not." % (player.my_id + 1))
+			"Player %s tried to prepare but could not (%s)." % [
+					player.my_id + 1, game_or_decision_state_string()])
 	if player.hand.size() > 7:
 		var cards = []
 		var to_discard = player.hand.size() - 7
 		for i in range(to_discard):
 			cards.append(player.hand[i].id)
 		assert_true(game_logic.do_discard_to_max(player, cards))
+
+func game_or_decision_state_string():
+	if game_logic.game_state == Enums.GameState.GameState_PlayerDecision:
+		return Enums.DecisionType.keys()[game_logic.decision_info.type]
+	else:
+		return Enums.GameState.keys()[game_logic.game_state]
 
 func validate_gauge(player, amount, id):
 	assert_eq(len(player.gauge), amount)
