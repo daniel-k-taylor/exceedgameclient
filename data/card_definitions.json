@@ -25147,17 +25147,21 @@
 				{
 					"timing": "cleanup",
 					"condition": "not_stunned",
-					"effect_type": "choice",
-					"choice": [
-						{
-							"effect_type": "return_attack_to_hand",
-							"and": {
-								"effect_type": "add_boost_to_gauge_on_strike_cleanup",
-								"card_name": "Scythe Swing"
-							}
-						},
-						{ "effect_type": "pass" }
-					]
+					"effect_type": "pass",
+					"and": {
+						"condition": "attack_still_in_play",
+						"effect_type": "choice",
+						"choice": [
+							{
+								"effect_type": "return_attack_to_hand",
+								"and": {
+									"effect_type": "add_boost_to_gauge_on_strike_cleanup",
+									"card_name": "Scythe Swing"
+								}
+							},
+							{ "effect_type": "pass" }
+						]
+					}
 				}
 			]
 		},
