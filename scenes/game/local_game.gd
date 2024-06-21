@@ -3849,6 +3849,9 @@ func is_effect_condition_met(performing_player : Player, effect, local_condition
 			return active_strike.will_be_ex(performing_player)
 		elif condition == "at_edge_of_arena":
 			return performing_player.is_at_edge_of_arena()
+		elif condition == "attack_still_in_play":
+			var card = active_strike.get_player_card(performing_player)
+			return card in active_strike.cards_in_play
 		elif condition == "boost_in_play":
 			return performing_player.continuous_boosts.size() > 0
 		elif condition == "no_boost_in_play":
