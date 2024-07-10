@@ -168,7 +168,7 @@ func get_deck_id_without_random_tag(deck_id):
 		return deck_id.split("#")[1]
 	return deck_id
 
-func _on_observe_game_started(data):
+func _on_observe_game_started(data, is_replay = false):
 	just_clicked_matchmake = false
 
 	# Observe games pass in the full message log up to this point.
@@ -192,6 +192,7 @@ func _on_observe_game_started(data):
 	start_data['player2_deck_id'] = opponent_deck_no_random
 
 	start_data['observer_mode'] = true
+	start_data['replay_mode'] = is_replay
 	start_data['observer_log'] = message_log.slice(1)
 
 	var player_deck_object = CardDefinitions.get_deck_from_str_id(player_deck_no_random)
@@ -433,7 +434,7 @@ func _on_modal_list_observe_match_pressed(row_index):
 func _on_view_replay_button_pressed():
 	if replay_data_box.text:
 		var replay_data = JSON.parse_string(replay_data_box.text)
-		_on_observe_game_started(replay_data)
+		_on_observe_game_started(replay_data, true)
 
 func _on_settings_button_pressed():
 	settings_window.visible = true

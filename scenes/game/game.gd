@@ -267,6 +267,7 @@ var starting_message = null
 var replay_button_visible = false
 var observer_mode = false
 var observer_live = false
+var replay_mode = false
 var exiting = false
 
 @onready var CenterCardOval = Vector2(get_viewport().content_scale_size) * Vector2(0.5, 1.35)
@@ -307,7 +308,7 @@ func _ready():
 
 	observer_next_button.visible = observer_mode
 	observer_play_to_live_button.visible = observer_mode
-	combat_log.set_replay_button_visibility(replay_button_visible)
+	combat_log.set_replay_button_visibility(false)
 
 	for i in range(1, 10):
 		player_lightningrod_tracking[i] = {
@@ -358,6 +359,7 @@ func begin_local_game(vs_info):
 func begin_remote_game(game_start_message):
 	starting_message = game_start_message.duplicate()
 	observer_mode = 'observer_mode' in game_start_message and game_start_message['observer_mode']
+	replay_mode = 'replay_mode' in game_start_message and game_start_message['replay_mode']
 	replay_button_visible = not observer_mode
 	# Add a few seconds to starting timers to account for loading screen
 	starting_timer = game_start_message['starting_timer'] + 4
@@ -409,6 +411,7 @@ func begin_remote_game(game_start_message):
 		starting_player,
 		seed_value,
 		observer_mode,
+		replay_mode,
 		starting_message_queue)
 
 func set_player_as_clock_user(player_id : Enums.PlayerId):
@@ -625,7 +628,7 @@ func spawn_deck(deck_id,
 		var logic_card : GameCard = card_db.get_card(card.id)
 		var image_path = get_card_image_path(deck_id, logic_card)
 		var new_card = create_card(card.id, logic_card.definition, image_path, card_back_image, deck_card_zone, is_opponent)
-		if observer_mode:
+		if observer_mode and not replay_mode:
 			new_card.skip_flip_when_drawing = true
 		if logic_card.set_aside:
 			reparent_to_zone(new_card, set_aside_zone)
@@ -2149,6 +2152,7 @@ func _on_force_wild_swing(event):
 func _on_game_over(event):
 	printlog("GAME OVER for %s" % game_wrapper.get_player_name(event['event_player']))
 	game_over_stuff.visible = true
+	combat_log.set_replay_button_visibility(replay_button_visible)
 	change_ui_state(UIState.UIState_GameOver, UISubState.UISubState_None)
 	_update_buttons()
 	var player = event['event_player']

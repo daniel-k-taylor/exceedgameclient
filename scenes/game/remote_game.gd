@@ -19,6 +19,7 @@ var local_game : LocalGame
 var _player_info
 var _opponent_info
 var _observer_mode : bool
+var _replay_mode : bool
 var _game_message_queue : Array
 var _game_message_history : Array
 
@@ -54,6 +55,7 @@ func initialize_game(player_info,
 		starting_player : Enums.PlayerId, 
 		seed_value : int, 
 		observer_mode : bool, 
+		replay_mode : bool, 
 		starting_message_queue : Array):
 	_game_message_queue = starting_message_queue
 	_game_message_history = []
@@ -61,6 +63,7 @@ func initialize_game(player_info,
 	_player_info = player_info
 	_opponent_info = opponent_info
 	_observer_mode = observer_mode
+	_replay_mode = replay_mode
 	local_game = LocalGame.new()
 	local_game.initialize_game(player_info['deck'], opponent_info['deck'], 
 		player_info['name'], opponent_info['name'], starting_player, seed_value)
@@ -100,7 +103,8 @@ func _save_game_message(game_message):
 	_game_message_history.append(updated_game_message)
 
 func _on_disconnected():
-	local_game.do_quit(Enums.PlayerId.PlayerId_Player, Enums.GameOverReason.GameOverReason_Disconnect)
+	if not _replay_mode:
+		local_game.do_quit(Enums.PlayerId.PlayerId_Player, Enums.GameOverReason.GameOverReason_Disconnect)
 
 func _on_remote_player_quit(_is_disconnect : bool):
 	var reason = Enums.GameOverReason.GameOverReason_Quit

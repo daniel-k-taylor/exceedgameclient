@@ -50,6 +50,7 @@ func initialize_remote_game(player_info,
 		starting_player : Enums.PlayerId, 
 		seed_value : int, 
 		observer_mode : bool, 
+		replay_mode : bool, 
 		starting_message_queue : Array):
 	current_game = RemoteGame.new()
 	current_game.initialize_game(player_info, 
@@ -57,6 +58,7 @@ func initialize_remote_game(player_info,
 		starting_player, 
 		seed_value, 
 		observer_mode, 
+		replay_mode, 
 		starting_message_queue)
 
 # Deletes the current game
