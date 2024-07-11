@@ -9,13 +9,16 @@ const PlayerNameMaxLen = 12
 const ModalList = preload("res://scenes/menu/modal_list.gd")
 const ModalDialog = preload("res://scenes/game/modal_dialog.gd")
 
+#These only get set and used if run on web
+var window
+var file_load_callback
+
 @onready var player_list : ItemList = $PlayerList
 @onready var player_selected_character : String = "solbadguy"
 @onready var opponent_selected_character : String = "kykisuke"
 @onready var selecting_player : bool = true
 
 @onready var player_name_box : TextEdit = $PlayerNameBox
-@onready var replay_data_box : TextEdit = $EnterReplayBox
 
 @onready var start_ai_button : Button = $MenuList/VSAIBox/StartButton
 @onready var room_select : LineEdit = $MenuList/JoinBox/RoomNameBox
@@ -24,6 +27,7 @@ const ModalDialog = preload("res://scenes/game/modal_dialog.gd")
 @onready var matchmake_button = $MenuList/MatchmakeButton
 @onready var settings_button = $SettingsButton
 @onready var settings_window = $PreferencesWindow
+@onready var file_dialog = $FileDialog
 
 @onready var char_select = $CharSelect
 @onready var change_player_character_button : Button = $PlayerChooser/ChangePlayerCharacterButton
@@ -64,10 +68,18 @@ func _ready():
 	_on_char_select_select_character(opponent_selected_character)
 	modal_dialog.visible = false
 	modal_list.visible = false
+	file_dialog.visible = false
 
 	# Initialize settings window
 	settings_window.visible = false
 	settings_window.bgm_check_toggled.connect(_on_bgm_check_toggled)
+
+	if OS.has_feature("web"):
+		#setupFileLoad defined in the HTML5 export header
+		#calls load_replay when file gets user-selected by window.input.click()
+		window = JavaScriptBridge.get_interface("window")
+		file_load_callback = JavaScriptBridge.create_callback(load_replay)
+		window.setupFileLoad(file_load_callback)
 
 func settings_loaded():
 	player_selected_character = GlobalSettings.PlayerCharacter if GlobalSettings.PlayerCharacter else "solbadguy"
@@ -94,6 +106,8 @@ func returned_from_game():
 	update_buttons(false)
 	just_clicked_matchmake = false
 	start_music()
+	if OS.has_feature("web"):
+		window.setupFileLoad(file_load_callback)
 
 func _on_start_button_pressed():
 	# For local play, random selection is still random at this point.
@@ -393,9 +407,6 @@ func _on_player_name_box_focus_entered():
 func _on_player_name_box_text_changed():
 	cropLineToMaxLength_name_text_edit(player_name_box.text, PlayerNameMaxLen)
 
-func _on_enter_replay_box_focus_entered():
-	replay_data_box.select_all()
-
 func _on_players_button_pressed():
 	modal_list.show_player_list()
 
@@ -431,11 +442,18 @@ func _on_modal_list_observe_match_pressed(row_index):
 	NetworkManager.observe_room(player_name, room_name)
 	update_buttons(true)
 
-func _on_view_replay_button_pressed():
-	if replay_data_box.text:
-		var replay_data = JSON.parse_string(replay_data_box.text)
-		_on_observe_game_started(replay_data, true)
+func _on_load_replay_button_pressed():
+	if OS.has_feature("web"):
+		window.input.click()
+	else:
+		file_dialog.visible = true
 
 func _on_settings_button_pressed():
 	settings_window.visible = true
 
+func load_replay(data):
+	var replay_data = JSON.parse_string(data[0])
+	_on_observe_game_started(replay_data, true)
+
+func _on_file_dialog_file_selected(path):
+	load_replay([FileAccess.get_file_as_string(path)])

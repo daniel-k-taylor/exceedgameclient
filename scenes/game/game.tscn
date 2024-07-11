@@ -620,6 +620,12 @@ theme_override_font_sizes/font_size = 17
 text = "Combat
 Log"
 
+[node name="SaveReplayButton" type="Button" parent="PlayerZones"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 17
+text = "Save
+Replay"
+
 [node name="OpponentZones" type="VBoxContainer" parent="."]
 offset_left = 208.0
 offset_top = 8.0
@@ -842,6 +848,11 @@ offset_bottom = 720.0
 [node name="TurnStartAudio" type="AudioStreamPlayer" parent="."]
 stream = ExtResource("27_aidi8")
 
+[node name="FileDialog" type="FileDialog" parent="."]
+initial_position = 1
+size = Vector2i(800, 400)
+access = 2
+
 [connection signal="pressed" from="ArenaNode/RowButtons/ArenaSquare1/Button" to="." method="_on_arena_location_pressed" binds= [1]]
 [connection signal="pressed" from="ArenaNode/RowButtons/ArenaSquare2/Button" to="." method="_on_arena_location_pressed" binds= [2]]
 [connection signal="pressed" from="ArenaNode/RowButtons/ArenaSquare3/Button" to="." method="_on_arena_location_pressed" binds= [3]]
@@ -860,6 +871,7 @@ stream = ExtResource("27_aidi8")
 [connection signal="gauge_clicked" from="PlayerZones/PlayerOverdrive" to="." method="_on_player_overdrive_gauge_clicked"]
 [connection signal="gauge_clicked" from="PlayerZones/PlayerSealed" to="." method="_on_player_sealed_clicked"]
 [connection signal="pressed" from="PlayerZones/CombatLogButton" to="." method="_on_combat_log_button_pressed"]
+[connection signal="pressed" from="PlayerZones/SaveReplayButton" to="." method="_on_save_replay_button_pressed"]
 [connection signal="gauge_clicked" from="OpponentZones/OpponentGauge" to="." method="_on_opponent_gauge_gauge_clicked"]
 [connection signal="gauge_clicked" from="OpponentZones/OpponentOverdrive" to="." method="_on_opponent_overdrive_gauge_clicked"]
 [connection signal="gauge_clicked" from="OpponentZones/OpponentSealed" to="." method="_on_opponent_sealed_clicked"]
@@ -879,7 +891,7 @@ stream = ExtResource("27_aidi8")
 [connection signal="pressed" from="EmoteButton" to="." method="_on_emote_button_pressed"]
 [connection signal="close_button_pressed" from="CombatLog" to="." method="_on_combat_log_close_button_pressed"]
 [connection signal="filter_toggle_update" from="CombatLog" to="." method="_on_combat_log_button_pressed"]
-[connection signal="replay_button_pressed" from="CombatLog" to="." method="_on_combat_log_replay_button_pressed"]
 [connection signal="close_button_pressed" from="EmoteDialog" to="." method="_on_emote_dialog_close_button_pressed"]
 [connection signal="emote_selected" from="EmoteDialog" to="." method="_on_emote_dialog_emote_selected"]
 [connection signal="accept_button_pressed" from="ModalDialog" to="." method="_on_modal_dialog_accept_button_pressed"]
+[connection signal="file_selected" from="FileDialog" to="." method="_on_file_dialog_file_selected"]

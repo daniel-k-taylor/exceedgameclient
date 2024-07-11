@@ -2,7 +2,6 @@ extends CenterContainer
 
 signal close_button_pressed
 signal filter_toggle_update
-signal replay_button_pressed
 
 const Enums = preload("res://scenes/game/enums.gd")
 
@@ -11,7 +10,6 @@ var DEFAULT_OPPONENT_COLOR = "#16c2f7"
 var DEFAULT_CARD_COLOR = "#7DF9FF"
 
 @onready var log_text = $PanelContainer/OuterMargin/VerticalLayout/LogText
-@onready var replay_button = $PanelContainer/OuterMargin/VerticalLayout/LogButtons/ReplayButton
 
 @onready var toggle_checkboxes = [
 	$PanelContainer/OuterMargin/VerticalLayout/LogFilters/Actions,
@@ -83,9 +81,6 @@ func get_filters():
 			filters.append(log_type)
 	return filters
 
-func set_replay_button_visibility(replay_visible : bool):
-	replay_button.visible = replay_visible
-
 func _on_log_filter_actions_toggle(state):
 	log_filter_toggles[Enums.LogType.LogType_Action] = state
 	GlobalSettings.set_combat_log_setting('filter_action', state)
@@ -124,9 +119,6 @@ func _on_copy_button_pressed():
 	#var current_clipboard = DisplayServer.clipboard_get()
 	# Set the contents of the clipboard
 	DisplayServer.clipboard_set(log_text.text)
-
-func _on_export_button_pressed():
-	replay_button_pressed.emit()
 
 func _on_player_color_changed(color):
 	log_player_color = "#%02x%02x%02x" % [color.r8, color.g8, color.b8]

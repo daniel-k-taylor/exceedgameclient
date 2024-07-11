@@ -41,6 +41,9 @@ const LocationInfoButtonPair = preload("res://scenes/game/location_infobutton_pa
 @onready var emote_dialog : EmoteDialog = $EmoteDialog
 @onready var modal_dialog : ModalDialog = $ModalDialog
 
+@onready var save_replay_button = $PlayerZones/SaveReplayButton
+@onready var file_dialog = $FileDialog
+
 const OffScreen = Vector2(-1000, -1000)
 const ChoiceCopyIdRangeStart = 70000
 const RevealCopyIdRangestart = 80000
@@ -264,7 +267,7 @@ var instructions_number_picker_max = -1
 var show_thinking_spinner_in : float = 0
 const ThinkingSpinnerWaitBeforeShowTime = 1.0
 var starting_message = null
-var replay_button_visible = false
+var replay_saving_enabled = false
 var observer_mode = false
 var observer_live = false
 var replay_mode = false
@@ -308,7 +311,9 @@ func _ready():
 
 	observer_next_button.visible = observer_mode
 	observer_play_to_live_button.visible = observer_mode
-	combat_log.set_replay_button_visibility(false)
+	
+	save_replay_button.visible = false
+	file_dialog.visible = false
 
 	for i in range(1, 10):
 		player_lightningrod_tracking[i] = {
@@ -350,7 +355,7 @@ func _on_locationinfobuttonpair_pressed(player, location):
 		modal_dialog_type = ModalDialogType.ModalDialogType_CardInform
 
 func begin_local_game(vs_info):
-	replay_button_visible = false
+	replay_saving_enabled = false
 	player_deck = vs_info['player_deck']
 	opponent_deck = vs_info['opponent_deck']
 	var randomize_first_player = vs_info['randomize_first_vs_ai']
@@ -360,7 +365,7 @@ func begin_remote_game(game_start_message):
 	starting_message = game_start_message.duplicate()
 	observer_mode = 'observer_mode' in game_start_message and game_start_message['observer_mode']
 	replay_mode = 'replay_mode' in game_start_message and game_start_message['replay_mode']
-	replay_button_visible = not observer_mode
+	replay_saving_enabled = true
 	# Add a few seconds to starting timers to account for loading screen
 	starting_timer = game_start_message['starting_timer'] + 4
 	enforce_timer = game_start_message['enforce_timer']
@@ -2152,7 +2157,7 @@ func _on_force_wild_swing(event):
 func _on_game_over(event):
 	printlog("GAME OVER for %s" % game_wrapper.get_player_name(event['event_player']))
 	game_over_stuff.visible = true
-	combat_log.set_replay_button_visibility(replay_button_visible)
+	save_replay_button.visible = replay_saving_enabled
 	change_ui_state(UIState.UIState_GameOver, UISubState.UISubState_None)
 	_update_buttons()
 	var player = event['event_player']
@@ -5145,11 +5150,32 @@ func _on_combat_log_button_pressed():
 func _on_combat_log_close_button_pressed():
 	combat_log.visible = false
 
-func _on_combat_log_replay_button_pressed():
+func generate_replay_string():
 	var messages_list = [starting_message.duplicate()] + game_wrapper.get_message_history()
 	var replay_log = {'messages': messages_list}
-	var replay_log_string = JSON.stringify(replay_log)
-	DisplayServer.clipboard_set(replay_log_string)
+	return JSON.stringify(replay_log)
+
+func replay_name():
+	var filename = Time.get_datetime_string_from_system(false, true).substr(2, 14).replace(":","h")
+	filename = filename + " %s (%s) vs %s (%s).txt" % [
+		player_deck["id"],
+		game_wrapper.get_player_name(Enums.PlayerId.PlayerId_Player),
+		opponent_deck["id"],
+		game_wrapper.get_player_name(Enums.PlayerId.PlayerId_Opponent)]
+	return filename
+
+func _on_save_replay_button_pressed():
+	if OS.has_feature("web"):
+		var replay_string = generate_replay_string()
+		JavaScriptBridge.download_buffer(replay_string.to_utf8_buffer(), replay_name(), "text/plain")
+	else:
+		file_dialog.current_file = replay_name()
+		file_dialog.visible = true
+
+func _on_file_dialog_file_selected(path):
+	var file_access = FileAccess.open(path, FileAccess.WRITE)
+	file_access.store_string(generate_replay_string())
+	file_access.close()
 
 func _on_action_menu_choice_selected(choice_index):
 	var action = current_action_menu_choices[choice_index]['action']
