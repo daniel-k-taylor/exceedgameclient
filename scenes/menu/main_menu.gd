@@ -452,8 +452,14 @@ func _on_settings_button_pressed():
 	settings_window.visible = true
 
 func load_replay(data):
-	var replay_data = JSON.parse_string(data[0])
-	_on_observe_game_started(replay_data, true)
+	var json = JSON.new()
+	if json.parse(data[0]) == OK:
+		var replay_data = json.data
+		_on_observe_game_started(replay_data, true)
+	else:
+		var error_message = "JSON Parse Error: " + json.get_error_message()
+		modal_dialog.set_text_fields(error_message, "OK", "")
+		update_buttons(false)
 
 func _on_file_dialog_file_selected(path):
 	load_replay([FileAccess.get_file_as_string(path)])

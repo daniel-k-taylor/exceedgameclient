@@ -5155,7 +5155,7 @@ func generate_replay_string():
 	var replay_log = {'messages': messages_list}
 	return JSON.stringify(replay_log)
 
-func replay_name():
+func get_replay_filename():
 	var filename = Time.get_datetime_string_from_system(false, true).substr(2, 14).replace(":","h")
 	filename = filename + " %s (%s) vs %s (%s).txt" % [
 		player_deck["id"],
@@ -5167,9 +5167,9 @@ func replay_name():
 func _on_save_replay_button_pressed():
 	if OS.has_feature("web"):
 		var replay_string = generate_replay_string()
-		JavaScriptBridge.download_buffer(replay_string.to_utf8_buffer(), replay_name(), "text/plain")
+		JavaScriptBridge.download_buffer(replay_string.to_utf8_buffer(), get_replay_filename(), "text/plain")
 	else:
-		file_dialog.current_file = replay_name()
+		file_dialog.current_file = get_replay_filename()
 		file_dialog.visible = true
 
 func _on_file_dialog_file_selected(path):
