@@ -250,24 +250,14 @@ offset_bottom = 243.0
 theme_override_font_sizes/font_size = 32
 text = "Update Name"
 
-[node name="EnterReplayBox" type="TextEdit" parent="."]
-custom_minimum_size = Vector2(100, 50)
-layout_mode = 0
-offset_left = 16.0
-offset_top = 440.0
-offset_right = 320.0
-offset_bottom = 501.0
-theme_override_font_sizes/font_size = 34
-placeholder_text = "Replay Code"
-
-[node name="ViewReplayButton" type="Button" parent="."]
+[node name="LoadReplayButton" type="Button" parent="."]
 layout_mode = 0
 offset_left = 16.0
 offset_top = 520.0
 offset_right = 320.0
 offset_bottom = 573.0
 theme_override_font_sizes/font_size = 32
-text = "View Replay"
+text = "Load Replay"
 
 [node name="PlayerList" type="ItemList" parent="."]
 layout_mode = 0
@@ -416,6 +406,14 @@ text = "##"
 [node name="PreferencesWindow" parent="." instance=ExtResource("12_7sva6")]
 visible = false
 
+[node name="FileDialog" type="FileDialog" parent="."]
+title = "Open a File"
+initial_position = 1
+size = Vector2i(800, 400)
+ok_button_text = "Open"
+file_mode = 0
+access = 2
+
 [connection signal="pressed" from="SettingsButton" to="." method="_on_settings_button_pressed"]
 [connection signal="pressed" from="MenuList/VSAIBox/StartButton" to="." method="_on_start_button_pressed"]
 [connection signal="pressed" from="MenuList/VSAIBox/OpponentChooser/ChangePlayerCharacterButton" to="." method="_on_change_player_character_button_pressed" binds= [false]]
@@ -428,8 +426,7 @@ visible = false
 [connection signal="focus_entered" from="PlayerNameBox" to="." method="_on_player_name_box_focus_entered"]
 [connection signal="text_changed" from="PlayerNameBox" to="." method="_on_player_name_box_text_changed"]
 [connection signal="pressed" from="UpdateNameButton" to="." method="_on_update_name_button_pressed"]
-[connection signal="focus_entered" from="EnterReplayBox" to="." method="_on_enter_replay_box_focus_entered"]
-[connection signal="pressed" from="ViewReplayButton" to="." method="_on_view_replay_button_pressed"]
+[connection signal="pressed" from="LoadReplayButton" to="." method="_on_load_replay_button_pressed"]
 [connection signal="pressed" from="ReconnectToServerButton" to="." method="_on_reconnect_to_server_button_pressed"]
 [connection signal="close_character_select" from="CharSelect" to="." method="_on_char_select_close_character_select"]
 [connection signal="select_character" from="CharSelect" to="." method="_on_char_select_select_character"]
@@ -437,3 +434,4 @@ visible = false
 [connection signal="pressed" from="RoomListContainer/RoomListHBox/MatchesButton" to="." method="_on_matches_button_pressed"]
 [connection signal="join_match_pressed" from="ModalList" to="." method="_on_modal_list_join_match_pressed"]
 [connection signal="observe_match_pressed" from="ModalList" to="." method="_on_modal_list_observe_match_pressed"]
+[connection signal="file_selected" from="FileDialog" to="." method="_on_file_dialog_file_selected"]

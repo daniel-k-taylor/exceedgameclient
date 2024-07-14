@@ -115,11 +115,6 @@ layout_mode = 2
 size_flags_horizontal = 3
 text = "Copy Log to Clipboard"
 
-[node name="ReplayButton" type="Button" parent="PanelContainer/OuterMargin/VerticalLayout/LogButtons"]
-layout_mode = 2
-size_flags_horizontal = 3
-text = "Copy Replay to Clipboard"
-
 [node name="LogFilters" type="HBoxContainer" parent="PanelContainer/OuterMargin/VerticalLayout"]
 layout_mode = 2
 
@@ -183,7 +178,6 @@ edit_alpha = false
 [connection signal="pressed" from="CloseOuterClick" to="." method="_on_close_button_pressed"]
 [connection signal="pressed" from="PanelContainer/OuterMargin/VerticalLayout/CloseButton" to="." method="_on_close_button_pressed"]
 [connection signal="pressed" from="PanelContainer/OuterMargin/VerticalLayout/LogButtons/CopyButton" to="." method="_on_copy_button_pressed"]
-[connection signal="pressed" from="PanelContainer/OuterMargin/VerticalLayout/LogButtons/ReplayButton" to="." method="_on_export_button_pressed"]
 [connection signal="toggled" from="PanelContainer/OuterMargin/VerticalLayout/LogFilters/Actions" to="." method="_on_log_filter_actions_toggle"]
 [connection signal="toggled" from="PanelContainer/OuterMargin/VerticalLayout/LogFilters/CardInfo" to="." method="_on_log_filter_card_info_toggle"]
 [connection signal="toggled" from="PanelContainer/OuterMargin/VerticalLayout/LogFilters/Effects" to="." method="_on_log_filter_effects_toggle"]
