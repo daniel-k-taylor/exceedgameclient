@@ -5164,7 +5164,10 @@ func _on_combat_log_close_button_pressed():
 
 func generate_replay_string():
 	var messages_list = [starting_message.duplicate()] + game_wrapper.get_message_history()
-	var replay_log = {'messages': messages_list}
+	var replay_log = {
+		'messages': messages_list,
+		'version': GlobalSettings.get_client_version(),
+	}
 	return JSON.stringify(replay_log)
 
 func get_replay_filename():

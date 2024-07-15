@@ -455,7 +455,12 @@ func load_replay(data):
 	var json = JSON.new()
 	if json.parse(data[0]) == OK:
 		var replay_data = json.data
-		_on_observe_game_started(replay_data, true)
+		if 'version' in replay_data and GlobalSettings.get_client_version() == replay_data['version']:
+			_on_observe_game_started(replay_data, true)
+		else:
+			var error_message = "Client version does not match replay version"
+			modal_dialog.set_text_fields(error_message, "OK", "")
+			update_buttons(false)
 	else:
 		var error_message = "JSON Parse Error: " + json.get_error_message()
 		modal_dialog.set_text_fields(error_message, "OK", "")
