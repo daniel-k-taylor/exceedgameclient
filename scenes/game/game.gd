@@ -311,7 +311,10 @@ func _ready():
 
 	observer_next_button.visible = observer_mode
 	observer_play_to_live_button.visible = observer_mode
-	
+	if replay_mode:
+		observer_play_to_live_button.visible = false
+		observer_next_button.position = observer_play_to_live_button.position
+
 	save_replay_button.visible = false
 	file_dialog.visible = false
 
@@ -966,7 +969,11 @@ func create_card(id, card_def, image, card_back_image, parent, is_opponent : boo
 
 func add_card_to_hand(id : int, is_player : bool) -> CardBase:
 	var card = find_card_on_board(id)
-	if not is_player: card.manual_flip_needed = true
+	if not is_player:
+		if replay_mode and GlobalSettings.ReplayShowOpponentHand:
+			pass
+		else:
+			card.manual_flip_needed = true
 	var hand_zone = get_hand_zone(is_player)
 	card.get_parent().remove_child(card)
 	hand_zone.add_child(card)
@@ -1285,6 +1292,9 @@ func layout_player_hand(is_player : bool):
 		else:
 			var spawn_spot = $OpponentHand/HandSpawn
 			var hand_center = spawn_spot.global_position + spawn_spot.size * spawn_spot.scale /2
+			if replay_mode and GlobalSettings.ReplayShowOpponentHand:
+				# Make sure the cards are visible.
+				hand_center.y += 85
 			var min_x = hand_center.x - 200
 			var max_x = hand_center.x + 200
 			if num_cards == 1:
@@ -1297,10 +1307,12 @@ func layout_player_hand(is_player : bool):
 				var new_diff = step * (num_cards - 1)
 				max_x = hand_center.x + new_diff / 2
 				min_x = hand_center.x - new_diff / 2
-				# Shuffle children in hand_zone
-				var children = hand_zone.get_children()
-				for child in children:
-					hand_zone.move_child(child, randi() % num_cards)
+
+				# Shuffle children in hand_zone if not a replay.
+				if not replay_mode:
+					var children = hand_zone.get_children()
+					for child in children:
+						hand_zone.move_child(child, randi() % num_cards)
 
 				for i in range(num_cards):
 					var pos = Vector2(min_x + step * i, hand_center.y)
@@ -5219,7 +5231,10 @@ func _on_observer_next_button_pressed():
 		if not processed_something:
 			# Caught up to live play.
 			observer_next_button.disabled = true
-			observer_next_button.text = "LIVE"
+			if replay_mode:
+				observer_next_button.text = "GAME OVER"
+			else:
+				observer_next_button.text = "LIVE"
 			observer_live = true
 			observer_play_to_live_button.text = "Pause"
 
