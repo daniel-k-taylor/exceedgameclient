@@ -9,6 +9,7 @@ signal bgm_check_toggled
 @onready var bgm_checkbutton = $VBoxContainer/BGMCheckbutton
 @onready var game_sound_checkbutton = $VBoxContainer/GameSoundsCheckbutton
 @onready var ai_first_player_checkbutton = $VBoxContainer/AIFirstPlayerCheckbutton
+@onready var replay_show_opponent_hand_button = $VBoxContainer/ReplayShowOpponentHandButton
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
@@ -30,6 +31,7 @@ func display_loaded_settings():
 	game_sound_checkbutton.set_pressed_no_signal(GlobalSettings.GameSoundsEnabled)
 	timer_selection.select(timer_selection.get_item_index(GlobalSettings.CustomStartingTimer))
 	minimum_time_selection.select(minimum_time_selection.get_item_index((GlobalSettings.CustomMinimumTimePerChoice)))
+	replay_show_opponent_hand_button.set_pressed_no_signal(GlobalSettings.ReplayShowOpponentHand)
 	
 func _on_bgm_check_box_toggled(button_pressed):
 	GlobalSettings.set_bgm(button_pressed)
@@ -50,3 +52,5 @@ func _on_minimum_time_selection_item_selected(_index):
 func _on_ai_first_player_checkbutton_toggled(button_pressed):
 	GlobalSettings.set_randomize_first_player_vs_ai(button_pressed)
 
+func _on_replay_show_opponent_hand_button_toggled(button_pressed):
+	GlobalSettings.set_replay_show_opponent_hand(button_pressed)

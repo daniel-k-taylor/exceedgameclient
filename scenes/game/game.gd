@@ -41,6 +41,9 @@ const LocationInfoButtonPair = preload("res://scenes/game/location_infobutton_pa
 @onready var emote_dialog : EmoteDialog = $EmoteDialog
 @onready var modal_dialog : ModalDialog = $ModalDialog
 
+@onready var save_replay_button = $PlayerZones/SaveReplayButton
+@onready var file_dialog = $FileDialog
+
 const OffScreen = Vector2(-1000, -1000)
 const ChoiceCopyIdRangeStart = 70000
 const RevealCopyIdRangestart = 80000
@@ -264,9 +267,10 @@ var instructions_number_picker_max = -1
 var show_thinking_spinner_in : float = 0
 const ThinkingSpinnerWaitBeforeShowTime = 1.0
 var starting_message = null
-var replay_button_visible = false
+var replay_saving_enabled = false
 var observer_mode = false
 var observer_live = false
+var replay_mode = false
 var exiting = false
 
 @onready var CenterCardOval = Vector2(get_viewport().content_scale_size) * Vector2(0.5, 1.35)
@@ -307,7 +311,12 @@ func _ready():
 
 	observer_next_button.visible = observer_mode
 	observer_play_to_live_button.visible = observer_mode
-	combat_log.set_replay_button_visibility(replay_button_visible)
+	if replay_mode:
+		observer_play_to_live_button.visible = false
+		observer_next_button.position = observer_play_to_live_button.position
+
+	save_replay_button.visible = false
+	file_dialog.visible = false
 
 	for i in range(1, 10):
 		player_lightningrod_tracking[i] = {
@@ -349,7 +358,7 @@ func _on_locationinfobuttonpair_pressed(player, location):
 		modal_dialog_type = ModalDialogType.ModalDialogType_CardInform
 
 func begin_local_game(vs_info):
-	replay_button_visible = false
+	replay_saving_enabled = false
 	player_deck = vs_info['player_deck']
 	opponent_deck = vs_info['opponent_deck']
 	var randomize_first_player = vs_info['randomize_first_vs_ai']
@@ -358,7 +367,8 @@ func begin_local_game(vs_info):
 func begin_remote_game(game_start_message):
 	starting_message = game_start_message.duplicate()
 	observer_mode = 'observer_mode' in game_start_message and game_start_message['observer_mode']
-	replay_button_visible = not observer_mode
+	replay_mode = 'replay_mode' in game_start_message and game_start_message['replay_mode']
+	replay_saving_enabled = true
 	# Add a few seconds to starting timers to account for loading screen
 	starting_timer = game_start_message['starting_timer'] + 4
 	enforce_timer = game_start_message['enforce_timer']
@@ -409,6 +419,7 @@ func begin_remote_game(game_start_message):
 		starting_player,
 		seed_value,
 		observer_mode,
+		replay_mode,
 		starting_message_queue)
 
 func set_player_as_clock_user(player_id : Enums.PlayerId):
@@ -625,7 +636,7 @@ func spawn_deck(deck_id,
 		var logic_card : GameCard = card_db.get_card(card.id)
 		var image_path = get_card_image_path(deck_id, logic_card)
 		var new_card = create_card(card.id, logic_card.definition, image_path, card_back_image, deck_card_zone, is_opponent)
-		if observer_mode:
+		if observer_mode and not replay_mode:
 			new_card.skip_flip_when_drawing = true
 		if logic_card.set_aside:
 			reparent_to_zone(new_card, set_aside_zone)
@@ -958,7 +969,11 @@ func create_card(id, card_def, image, card_back_image, parent, is_opponent : boo
 
 func add_card_to_hand(id : int, is_player : bool) -> CardBase:
 	var card = find_card_on_board(id)
-	if not is_player: card.manual_flip_needed = true
+	if not is_player:
+		if replay_mode and GlobalSettings.ReplayShowOpponentHand:
+			pass
+		else:
+			card.manual_flip_needed = true
 	var hand_zone = get_hand_zone(is_player)
 	card.get_parent().remove_child(card)
 	hand_zone.add_child(card)
@@ -1277,6 +1292,9 @@ func layout_player_hand(is_player : bool):
 		else:
 			var spawn_spot = $OpponentHand/HandSpawn
 			var hand_center = spawn_spot.global_position + spawn_spot.size * spawn_spot.scale /2
+			if replay_mode and GlobalSettings.ReplayShowOpponentHand:
+				# Make sure the cards are visible.
+				hand_center.y += 85
 			var min_x = hand_center.x - 200
 			var max_x = hand_center.x + 200
 			if num_cards == 1:
@@ -1289,10 +1307,12 @@ func layout_player_hand(is_player : bool):
 				var new_diff = step * (num_cards - 1)
 				max_x = hand_center.x + new_diff / 2
 				min_x = hand_center.x - new_diff / 2
-				# Shuffle children in hand_zone
-				var children = hand_zone.get_children()
-				for child in children:
-					hand_zone.move_child(child, randi() % num_cards)
+
+				# Shuffle children in hand_zone if not a replay.
+				if not replay_mode:
+					var children = hand_zone.get_children()
+					for child in children:
+						hand_zone.move_child(child, randi() % num_cards)
 
 				for i in range(num_cards):
 					var pos = Vector2(min_x + step * i, hand_center.y)
@@ -2149,6 +2169,7 @@ func _on_force_wild_swing(event):
 func _on_game_over(event):
 	printlog("GAME OVER for %s" % game_wrapper.get_player_name(event['event_player']))
 	game_over_stuff.visible = true
+	save_replay_button.visible = replay_saving_enabled
 	change_ui_state(UIState.UIState_GameOver, UISubState.UISubState_None)
 	_update_buttons()
 	var player = event['event_player']
@@ -5141,11 +5162,32 @@ func _on_combat_log_button_pressed():
 func _on_combat_log_close_button_pressed():
 	combat_log.visible = false
 
-func _on_combat_log_replay_button_pressed():
+func generate_replay_string():
 	var messages_list = [starting_message.duplicate()] + game_wrapper.get_message_history()
 	var replay_log = {'messages': messages_list}
-	var replay_log_string = JSON.stringify(replay_log)
-	DisplayServer.clipboard_set(replay_log_string)
+	return JSON.stringify(replay_log)
+
+func get_replay_filename():
+	var filename = Time.get_datetime_string_from_system(false, true).substr(2, 14).replace(":","h")
+	filename = filename + " %s (%s) vs %s (%s).txt" % [
+		player_deck["id"],
+		game_wrapper.get_player_name(Enums.PlayerId.PlayerId_Player),
+		opponent_deck["id"],
+		game_wrapper.get_player_name(Enums.PlayerId.PlayerId_Opponent)]
+	return filename
+
+func _on_save_replay_button_pressed():
+	if OS.has_feature("web"):
+		var replay_string = generate_replay_string()
+		JavaScriptBridge.download_buffer(replay_string.to_utf8_buffer(), get_replay_filename(), "text/plain")
+	else:
+		file_dialog.current_file = get_replay_filename()
+		file_dialog.visible = true
+
+func _on_file_dialog_file_selected(path):
+	var file_access = FileAccess.open(path, FileAccess.WRITE)
+	file_access.store_string(generate_replay_string())
+	file_access.close()
 
 func _on_action_menu_choice_selected(choice_index):
 	var action = current_action_menu_choices[choice_index]['action']
@@ -5189,7 +5231,10 @@ func _on_observer_next_button_pressed():
 		if not processed_something:
 			# Caught up to live play.
 			observer_next_button.disabled = true
-			observer_next_button.text = "LIVE"
+			if replay_mode:
+				observer_next_button.text = "GAME OVER"
+			else:
+				observer_next_button.text = "LIVE"
 			observer_live = true
 			observer_play_to_live_button.text = "Pause"
 

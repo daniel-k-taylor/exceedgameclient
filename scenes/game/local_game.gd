@@ -560,6 +560,21 @@ class StrikeStatBoosts:
 	var invert_range : bool = false
 	var strike_payment_card_ids : Array = []
 
+	func _to_string():
+		# TODO: Handle all properties
+		var boosts = []
+		if power or power_positive_only or power_modify_per_buddy_between:
+			boosts.append("%+d%s POW" % [
+					power, "*" if power_modify_per_buddy_between else ""])
+		if armor:
+			if consumed_armor:
+				boosts.append("%+d/%d ARM" % [consumed_armor, armor])
+			else:
+				boosts.append("%+d ARM" % armor)
+		boosts.append_array(active_character_effects)
+		boosts.append_array(added_attack_effects)
+		return "[%s]" % ", ".join(boosts)
+
 	func clear():
 		power = 0
 		power_positive_only = 0
@@ -3834,6 +3849,9 @@ func is_effect_condition_met(performing_player : Player, effect, local_condition
 			return active_strike.will_be_ex(performing_player)
 		elif condition == "at_edge_of_arena":
 			return performing_player.is_at_edge_of_arena()
+		elif condition == "attack_still_in_play":
+			var card = active_strike.get_player_card(performing_player)
+			return card in active_strike.cards_in_play
 		elif condition == "boost_in_play":
 			return performing_player.continuous_boosts.size() > 0
 		elif condition == "no_boost_in_play":

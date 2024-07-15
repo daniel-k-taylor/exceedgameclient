@@ -62,13 +62,15 @@ func give_gauge(player, amount):
 	return card_ids
 
 func validate_has_event(events, event_type, target_player, number = null):
+	var acc = []
 	for event in events:
 		if event['event_type'] == event_type:
 			if event['event_player'] == target_player.my_id:
 				if number == null or event['number'] == number:
-					pass_test("Found event %s" % event_type)
-					return
-	fail_test("Event not found: %s" % event_type)
+					acc.append(event)
+	assert_gt(acc.size(), 0,
+			"Did not find event of type %s" % Enums.EventType.keys()[event_type])
+	return acc
 
 func validate_not_has_event(events, event_type, target_player, number = null):
 	for event in events:
@@ -131,15 +133,25 @@ func do_strike_response(player, card_id, ex_card_id = -1):
 		card_id = ws_card_id
 	return card_id
 
+# Get through `player`'s turn by preparing (and automatically discarding if
+# necessary). Can be useful as a functional test to conform that it is, in fact,
+# `player`'s turn at the point when it's invoked.
 func advance_turn(player):
 	assert_true(game_logic.do_prepare(player),
-			"Player %s tried to prepare but could not." % player.my_id)
+			"Player %s tried to prepare but could not (%s)." % [
+					player.my_id + 1, game_or_decision_state_string()])
 	if player.hand.size() > 7:
 		var cards = []
 		var to_discard = player.hand.size() - 7
 		for i in range(to_discard):
 			cards.append(player.hand[i].id)
 		assert_true(game_logic.do_discard_to_max(player, cards))
+
+func game_or_decision_state_string():
+	if game_logic.game_state == Enums.GameState.GameState_PlayerDecision:
+		return Enums.DecisionType.keys()[game_logic.decision_info.type]
+	else:
+		return Enums.GameState.keys()[game_logic.game_state]
 
 func validate_gauge(player, amount, id):
 	assert_eq(len(player.gauge), amount)
@@ -164,20 +176,37 @@ func process_decisions(player, strike_state, decisions):
 		var content = decisions.pop_front()
 		if content == null:
 			fail_test("Player %s needed to decide on %s during %s but wasn't told how to" % [
-					player.my_id, Enums.DecisionType.keys()[game_logic.decision_info.type],
+					player.my_id + 1, Enums.DecisionType.keys()[game_logic.decision_info.type],
 					LocalGame.StrikeState.keys()[strike_state]])
 			return
 		match game_logic.decision_info.type:
 			Enums.DecisionType.DecisionType_ForceForEffect:
-				assert_true(game_logic.do_force_for_effect(player, content, false),
+				# In cases where optional booleans are provided at the end of
+				# `content`, interpret them as optional boolean arguments to
+				# do_force_for_effect, prioritizing filling the last parameters
+				# first.
+				var use_free_force = pop_trailing_boolean(content, false)
+				var ui_cancel = pop_trailing_boolean(content, false)
+				var treat_ultras_as_single_force = pop_trailing_boolean(content, false)
+				assert_true(game_logic.do_force_for_effect(player, content,
+								treat_ultras_as_single_force, ui_cancel, use_free_force),
 						"%s failed to perform a Force effect using %s" % [player, content])
 			Enums.DecisionType.DecisionType_GaugeForEffect:
 				assert_true(game_logic.do_gauge_for_effect(player, content),
 						"%s failed to perform a Gauge effect using %s" % [player, content])
 			Enums.DecisionType.DecisionType_PayStrikeCost_Required, Enums.DecisionType.DecisionType_PayStrikeCost_CanWild:
-				# There is sometimes an init_extra_cost here
-				# TODO: See if anyone needs it to be more than 0
-				assert_true(game_logic.do_pay_strike_cost(player, content, false),
+				# `content` is usually a list of card IDs. However, we support
+				# additional optional boolean parameters corresponding to the
+				# signature of do_pay_strike_cost:
+				#   wild_strike, discard_ex_first, use_free_force
+				# in *reverse* order; that is, if there are exactly two optional
+				# parameters specified in `content`, they will be taken as
+				# discard_ex_first and use_free_force in that order.
+				var use_free_force = pop_trailing_boolean(content, false)
+				var discard_ex_first = pop_trailing_boolean(content, true)
+				var wild_strike = pop_trailing_boolean(content, false)
+				assert_true(game_logic.do_pay_strike_cost(player, content,
+								wild_strike, discard_ex_first, use_free_force),
 						"%s failed to pay a Strike cost using %s" % [player, content])
 			Enums.DecisionType.DecisionType_ChooseArenaLocationForEffect:
 				# Find the index in decision_info.limitation that maps to
@@ -224,13 +253,24 @@ func process_remaining_decisions(initiator, defender, init_choices, def_choices)
 					assert_true(game_logic.do_choose_to_discard(player, choice),
 							"%s failed to discard cards %s" % [player, choice])
 				Enums.DecisionType.DecisionType_ForceForEffect:
-					assert_true(game_logic.do_force_for_effect(player, choice, false),
+					# In cases where optional booleans are provided at the end
+					# of `choice`, interpret them as optional boolean arguments
+					# to do_force_for_effect, prioritizing filling the last
+					# parameters first.
+					var use_free_force = pop_trailing_boolean(choice, false)
+					var ui_cancel = pop_trailing_boolean(choice, false)
+					var treat_ultras_as_single_force = pop_trailing_boolean(choice, false)
+					assert_true(game_logic.do_force_for_effect(player, choice,
+									treat_ultras_as_single_force, ui_cancel, use_free_force),
 							"%s failed to perform a Force effect using %s" % [player, choice])
 				Enums.DecisionType.DecisionType_GaugeForEffect:
 					assert_true(game_logic.do_gauge_for_effect(player, choice),
 							"%s failed to perform a Gauge effect using %s" % [player, choice])
 				Enums.DecisionType.DecisionType_ForceForArmor:
-					assert_true(game_logic.do_force_for_armor(player, choice),
+					# In cases where an optional boolean is provided at the end
+					# of `choice`, interpret it as use_free_force.
+					var use_free_force = pop_trailing_boolean(choice, false)
+					assert_true(game_logic.do_force_for_armor(player, choice, use_free_force),
 							"%s failed to discard cards %s for armor" % [player, choice])
 				Enums.DecisionType.DecisionType_ChooseArenaLocationForEffect:
 					# Find the index in decision_info.limitation that maps to
@@ -297,9 +337,15 @@ func process_remaining_decisions(initiator, defender, init_choices, def_choices)
 ##     pass in the 1-based number for that space (a conversion happens
 ##     silently). In all other cases, assume you are working with a simple
 ##     0-based array of options.
+## exit_after_validation -- If this is true, the test harness passes control
+##     back to the test proper after validating attacks instead of attempting to
+##     resolve all remaining strike decisions using *_choices. This can be
+##     useful if you need to check certain game states in the middle of a
+##     strike.
+
 func execute_strike(initiator: LocalGame.Player, defender: LocalGame.Player,
 		init_card: Variant, def_card: Variant, init_ex = false, def_ex = false,
-		init_choices = [], def_choices = []):
+		init_choices = [], def_choices = [], exit_after_validation = false):
 	var init_card_id = -1
 	var init_card_ex_id = -1
 	var def_card_id = -1
@@ -338,10 +384,10 @@ func execute_strike(initiator: LocalGame.Player, defender: LocalGame.Player,
 	process_decisions(initiator, game_logic.StrikeState.StrikeState_Initiator_PayCosts, init_choices)
 	process_decisions(defender, game_logic.StrikeState.StrikeState_Defender_PayCosts, def_choices)
 
-	process_remaining_decisions(initiator, defender, init_choices, def_choices)
+	if not exit_after_validation:
+		process_remaining_decisions(initiator, defender, init_choices, def_choices)
 
 	return [init_card_id, def_card_id, init_card_ex_id, def_card_ex_id]
-
 
 func validate_positions(p1, l1, p2, l2):
 	assert_eq(p1.arena_location, l1,
@@ -374,3 +420,13 @@ func select_space(num: int):
 	# DecisionType_ChooseArenaLocationForEffect, so you won't need to provide it
 	# explicitly for *_choices content.
 	return game_logic.decision_info.limitation.find(num)
+
+func show_player_data(player: LocalGame.Player):
+	print(" >>>> Player %s continuous boosts: %s" % [player.my_id, player.continuous_boosts])
+	print(" >>>> Player %s strike stat boosts: %s" % [player.my_id, player.strike_stat_boosts])
+
+func pop_trailing_boolean(list, default_value):
+	if len(list) == 0 or typeof(list[-1]) != Variant.Type.TYPE_BOOL:
+		return default_value
+	else:
+		return list.pop_back()

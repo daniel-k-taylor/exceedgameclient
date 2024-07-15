@@ -11,7 +11,7 @@ const CardHighlightColor = "#7DF9FF" # Light blue
 func get_deck_test_deck():
 	return decks.get("rachel", get_random_deck(-1))
 
-func get_random_deck(season : int):
+func get_random_deck(season : int) -> Dictionary:
 	# Randomize
 	var unbanned_decks = decks.values().filter(func (deck):
 			return deck['id'] not in GlobalSettings.CharacterBanlist)
@@ -22,7 +22,7 @@ func get_random_deck(season : int):
 				return deck['season'] == season)
 		return season_decks.pick_random()
 
-func get_deck_from_str_id(str_id : String):
+func get_deck_from_str_id(str_id : String) -> Dictionary:
 	if str_id == "random_s7":
 		return get_random_deck(7)
 	if str_id == "random_s6":
@@ -236,6 +236,8 @@ func get_condition_text(effect, amount, amount2, detail):
 			text += "If %s is not in opponent's space, " % detail
 		"at_edge_of_arena":
 			text += "If at arena edge, "
+		"attack_still_in_play":
+			text += "If your attack is still in play, "
 		"boost_in_play":
 			text += "If a boost is in play, "
 		"canceled_this_turn":

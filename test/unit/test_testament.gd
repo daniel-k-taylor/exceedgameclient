@@ -201,6 +201,41 @@ func get_cards_from_gauge(player : LocalGame.Player, amount : int):
 ## Tests start here
 ##
 
-func test_testament_():
-	position_players(player1, 3, player2, 4)
-	validate_positions(player1, 3, player2, 4)
+func test_testament_unholy_courtesy():
+	position_players(player1, 3, player2, 6)
+	give_player_specific_card(player1, "testament_scytheswing", TestCardId1)
+	assert_true(game_logic.do_boost(player1, TestCardId1))
+	advance_turn(player2)
+	give_player_specific_card(player1, "testament_unholydiver", TestCardId2)
+	give_player_specific_card(player2, "testament_unholydiver", TestCardId3)
+	assert_true(game_logic.do_strike(player1, TestCardId2, false, -1))
+	assert_true(game_logic.do_strike(player2, TestCardId3, false, -1))
+	# P1 hits and gets the unholy diver choice
+	assert_true(game_logic.do_choice(player1, 0)) # Boost it
+	# Then they get the advance/retreat choice.
+	assert_true(game_logic.do_choice(player1, 0)) # Advance 1
+	# Then the scythe boost does nothing and this remains in play.
+	assert_eq(player1.gauge.size(), 0)
+	assert_eq(player1.continuous_boosts.size(), 1)
+	validate_positions(player1, 4, player2, 6)
+	advance_turn(player2)
+
+func test_testament_unholy_courtesy_no_boostsustain():
+	position_players(player1, 3, player2, 6)
+	give_player_specific_card(player1, "testament_scytheswing", TestCardId1)
+	assert_true(game_logic.do_boost(player1, TestCardId1))
+	advance_turn(player2)
+	give_player_specific_card(player1, "testament_unholydiver", TestCardId2)
+	give_player_specific_card(player2, "testament_unholydiver", TestCardId3)
+	assert_true(game_logic.do_strike(player1, TestCardId2, false, -1))
+	assert_true(game_logic.do_strike(player2, TestCardId3, false, -1))
+	# P1 hits and gets the unholy diver choice
+	assert_true(game_logic.do_choice(player1, 1)) # Pass on this
+	# Then they get the scythe swing boost choice.
+	assert_true(game_logic.do_choice(player1, 0)) # Return it to hand
+	assert_eq(player1.gauge.size(), 1)
+	assert_eq(player1.gauge[0].id, TestCardId1)
+	assert_eq(player1.continuous_boosts.size(), 0)
+	assert_eq(player1.hand[player1.hand.size()-1].id, TestCardId2)
+	validate_positions(player1, 3, player2, 6)
+	advance_turn(player2)
