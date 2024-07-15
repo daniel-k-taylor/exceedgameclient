@@ -5,7 +5,7 @@
 [node name="PreferencesWindow" type="PopupPanel"]
 title = "Settings"
 initial_position = 1
-size = Vector2i(537, 538)
+size = Vector2i(537, 582)
 visible = true
 borderless = false
 script = ExtResource("1_ttn5r")
@@ -14,14 +14,14 @@ script = ExtResource("1_ttn5r")
 offset_left = 4.0
 offset_top = 4.0
 offset_right = 533.0
-offset_bottom = 534.0
+offset_bottom = 578.0
 color = Color(4.21144e-07, 0.300865, 0.300865, 1)
 
 [node name="VBoxContainer" type="VBoxContainer" parent="."]
 offset_left = 4.0
 offset_top = 4.0
 offset_right = 533.0
-offset_bottom = 534.0
+offset_bottom = 578.0
 
 [node name="BGMCheckbutton" type="CheckButton" parent="VBoxContainer"]
 layout_mode = 2
@@ -34,6 +34,12 @@ layout_mode = 2
 theme_override_font_sizes/font_size = 30
 button_pressed = true
 text = "Game turn sounds"
+
+[node name="ReplayShowOpponentHandButton" type="CheckButton" parent="VBoxContainer"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 30
+button_pressed = true
+text = "Replays show opponent hand"
 
 [node name="HSeparator" type="HSeparator" parent="VBoxContainer"]
 layout_mode = 2
@@ -101,6 +107,7 @@ text = "Randomize first player vs AI"
 
 [connection signal="toggled" from="VBoxContainer/BGMCheckbutton" to="." method="_on_bgm_check_box_toggled"]
 [connection signal="toggled" from="VBoxContainer/GameSoundsCheckbutton" to="." method="_on_game_sounds_check_box_toggled"]
+[connection signal="toggled" from="VBoxContainer/ReplayShowOpponentHandButton" to="." method="_on_replay_show_opponent_hand_button_toggled"]
 [connection signal="toggled" from="VBoxContainer/EnforceTimerCheckbutton" to="." method="_on_enforce_timer_check_box_toggled"]
 [connection signal="item_selected" from="VBoxContainer/StartingTimersSelection" to="." method="_on_starting_timers_selection_item_selected"]
 [connection signal="item_selected" from="VBoxContainer/MinimumTimeSelection" to="." method="_on_minimum_time_selection_item_selected"]

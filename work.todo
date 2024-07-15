@@ -1,6 +1,7 @@
 
 
 In progress:
+
 Bug:
     Breaking:
         Treasure:
@@ -10,6 +11,8 @@ Bug:
             - probably any during_strike ability?
             - Relevant for Bang too
     Nice to have:
+        ☐ Load replays from the server via match id - display match id to user, load from blob storage via id, simplify id from guid
+        ☐ Palchelbel Cannon and other min_amount=0 shouldn't have an OK button and pass button for 0.
         ☐ Highlight zone that you need popout selection
         ☐ Some characters default to character action for strike and have a way to turn it off?
         ☐ Move action buttons around

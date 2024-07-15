@@ -30,6 +30,7 @@ var CustomBestOf : int = DefaultBestOf
 var CustomEnforceTimer : bool = DefaultEnforceTimer
 var CustomMinimumTimePerChoice : int = DefaultMinimumTimePerChoice
 var RandomizeFirstVsAI : bool = DefaultRandomizeFirstVsAi
+var ReplayShowOpponentHand : bool = false
 
 const user_settings_file = "user://settings.json"
 
@@ -79,6 +80,8 @@ func load_persistent_settings() -> bool:  # returns success code
 		CustomMinimumTimePerChoice = json['CustomMinimumTimePerChoice']
 	if 'RandomizeFirstVsAI' in json and json['RandomizeFirstVsAI'] is bool:
 		RandomizeFirstVsAI = json['RandomizeFirstVsAI']
+	if 'ReplayShowOpponentHand' in json and json['ReplayShowOpponentHand'] is bool:
+		ReplayShowOpponentHand = json['ReplayShowOpponentHand']
 	if 'PlayerCharacter' in json and json['PlayerCharacter'] is String and not json['PlayerCharacter'].is_empty():
 		PlayerCharacter = json['PlayerCharacter']
 	else:
@@ -98,7 +101,8 @@ func save_persistent_settings():
 		"CustomEnforceTimer": CustomEnforceTimer,
 		"CustomBestOf": CustomBestOf,
 		"CustomMinimumTimePerChoice": CustomMinimumTimePerChoice,
-		"RandomizeFirstVsAI": RandomizeFirstVsAI
+		"RandomizeFirstVsAI": RandomizeFirstVsAI,
+		"ReplayShowOpponentHand": ReplayShowOpponentHand,
 	}
 
 	var file = FileAccess.open(user_settings_file, FileAccess.WRITE)
@@ -126,6 +130,10 @@ func set_combat_log_setting(setting : String, value):
 
 func set_randomize_first_player_vs_ai(value : bool):
 	RandomizeFirstVsAI = value
+	save_persistent_settings()
+
+func set_replay_show_opponent_hand(value : bool):
+	ReplayShowOpponentHand = value
 	save_persistent_settings()
 
 func set_starting_timers(value : int):
