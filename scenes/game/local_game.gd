@@ -3466,6 +3466,10 @@ func advance_to_next_turn():
 			# until we get to a top-level function that was called from game_wrapper.
 			# For simplicity though, advance_to_next_turn is left as is.
 			events = do_remaining_overdrive(events, starting_turn_player)
+		elif starting_turn_player.exceeded and starting_turn_player.has_overdrive and starting_turn_player.overdrive.size() == 0:
+			# Overdrive is empty, so revert to normal.
+			events += starting_turn_player.revert_exceed()
+			events += start_begin_turn()
 		else:
 			events += start_begin_turn()
 	return events
