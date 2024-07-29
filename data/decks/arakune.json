@@ -81,8 +81,22 @@
 							"effect_type": "choice",
 							"add_topdeck_card_name_to_choices": [0],
 							"choice": [
-								{ "effect_type": "seal_topdeck" },
-								{ "effect_type": "pass" }
+								{
+									"effect_type": "seal_topdeck",
+									"suppress_and_description": true,
+									"and": {
+										"condition": "overdrive_empty",
+										"effect_type": "revert"
+									}
+								},
+								{
+									"effect_type": "pass",
+									"suppress_and_description": true,
+									"and": {
+										"condition": "overdrive_empty",
+										"effect_type": "revert"
+									}
+								}
 							]
 						}
 					}
@@ -93,8 +107,22 @@
 					"effect_type": "choice",
 					"add_topdeck_card_name_to_choices": [0],
 					"choice": [
-						{ "effect_type": "seal_topdeck" },
-						{ "effect_type": "pass" }
+						{
+							"effect_type": "seal_topdeck",
+							"suppress_and_description": true,
+							"and": {
+								"condition": "overdrive_empty",
+								"effect_type": "revert"
+							}
+						},
+						{
+							"effect_type": "pass",
+							"suppress_and_description": true,
+							"and": {
+								"condition": "overdrive_empty",
+								"effect_type": "revert"
+							}
+						}
 					]
 				}
 			}
