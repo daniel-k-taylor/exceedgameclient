@@ -321,10 +321,12 @@ func test_arakune_exceed_revert_on_last_card_nomatch():
 	assert_true(game_logic.do_choice(player1, 0))
 	assert_eq(player1.sealed[0].id, topdeck_id)
 	validate_life(player1, 30, player2, 27)
-	# Next turn, no overdrive effect because no longer exceeded.
-	assert_false(player1.exceeded)
+	# Stays exceeded until start of next turn.
+	assert_true(player1.exceeded)
 	# Player 2's turn
 	advance_turn(player2)
+	assert_false(player1.exceeded)
+	advance_turn(player1)
 
 func test_arakune_exceed_and_strike_with_bonus_finverse_range1():
 	position_players(player1, 3, player2, 4)
