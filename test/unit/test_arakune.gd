@@ -244,6 +244,88 @@ func test_arakune_exceed_and_strike_with_bonus():
 	# Check that I can end my turn from assault.
 	advance_turn(player1)
 
+func test_arakune_exceed_revert_on_last_card():
+	position_players(player1, 3, player2, 4)
+	give_gauge(player1, 3)
+	give_player_specific_card(player1, "standard_normal_assault", TestCardId3)
+	player1.move_cards_to_overdrive([TestCardId3], "hand")
+	var card_ids_gauge = []
+	for i in range(3):
+		card_ids_gauge.append(player1.gauge[i].id)
+	player1.move_cards_to_overdrive([player1.deck[0].id], "deck")
+	player1.move_cards_to_overdrive([player1.deck[0].id], "deck")
+	player1.move_cards_to_overdrive([player1.deck[0].id], "deck")
+	player1.move_cards_to_overdrive([player1.deck[0].id], "deck")
+	assert_eq(player1.overdrive.size(), 5)
+	assert_eq(player1.hand.size(), 5)
+	assert_true(game_logic.do_exceed(player1, card_ids_gauge))
+	assert_eq(player1.hand.size(), 7)
+	
+	# Remove all but the first overdrive cards to test the final strike.
+	player1.discard([
+		player1.overdrive[1].id,
+		player1.overdrive[2].id,
+		player1.overdrive[3].id,
+		player1.overdrive[4].id,
+		player1.overdrive[5].id,
+		player1.overdrive[6].id,
+		player1.overdrive[7].id,
+	])
+	
+	execute_strike(player1, player2, "standard_normal_assault", "standard_normal_cross", [], [], false, false, [], [], 0, [])
+	# Reveal effect
+	assert_true(game_logic.do_choose_from_discard(player1, [TestCardId3]))
+	# Do overdrive effect
+	var topdeck_id = player1.deck[0].id
+	assert_true(game_logic.do_choice(player1, 0))
+	assert_eq(player1.sealed[0].id, topdeck_id)
+	validate_life(player1, 30, player2, 24)
+	# Next turn, no overdrive effect because no longer exceeded.
+	assert_false(player1.exceeded)
+	# Check that I can end my turn from assault.
+	advance_turn(player1)
+	
+func test_arakune_exceed_revert_on_last_card_nomatch():
+	position_players(player1, 3, player2, 4)
+	give_gauge(player1, 3)
+	give_player_specific_card(player1, "standard_normal_assault", TestCardId3)
+	player1.move_cards_to_overdrive([TestCardId3], "hand")
+	var card_ids_gauge = []
+	for i in range(3):
+		card_ids_gauge.append(player1.gauge[i].id)
+	player1.move_cards_to_overdrive([player1.deck[0].id], "deck")
+	player1.move_cards_to_overdrive([player1.deck[0].id], "deck")
+	player1.move_cards_to_overdrive([player1.deck[0].id], "deck")
+	player1.move_cards_to_overdrive([player1.deck[0].id], "deck")
+	assert_eq(player1.overdrive.size(), 5)
+	assert_eq(player1.hand.size(), 5)
+	assert_true(game_logic.do_exceed(player1, card_ids_gauge))
+	assert_eq(player1.hand.size(), 7)
+	
+	# Remove all but the first overdrive cards to test the final strike.
+	player1.discard([
+		player1.overdrive[1].id,
+		player1.overdrive[2].id,
+		player1.overdrive[3].id,
+		player1.overdrive[4].id,
+		player1.overdrive[5].id,
+		player1.overdrive[6].id,
+		player1.overdrive[7].id,
+	])
+	
+	execute_strike(player1, player2, "standard_normal_cross", "standard_normal_cross", [], [], false, false, [], [], 0, [])
+	# Reveal effect
+	assert_true(game_logic.do_choose_from_discard(player1, [TestCardId3]))
+	# Do overdrive effect
+	var topdeck_id = player1.deck[0].id
+	assert_true(game_logic.do_choice(player1, 0))
+	assert_eq(player1.sealed[0].id, topdeck_id)
+	validate_life(player1, 30, player2, 27)
+	# Next turn, no overdrive effect because no longer exceeded.
+	assert_false(player1.exceeded)
+	# Player 2's turn
+	advance_turn(player2)
+
 func test_arakune_exceed_and_strike_with_bonus_finverse_range1():
 	position_players(player1, 3, player2, 4)
 	give_player_specific_card(player1, "standard_normal_grasp", TestCardId3)
