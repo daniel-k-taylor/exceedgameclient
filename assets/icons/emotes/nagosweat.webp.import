@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://152c0smeixr4"
-path="res://.godot/imported/axlgrab.webp-74c2db7833712554fac7f4c42656095c.ctex"
+uid="uid://c6f6tw16jamo5"
+path="res://.godot/imported/nagosweat.webp-0660509bb128cf61cf0fed07959c8067.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/icons/emotes/axlgrab.webp"
-dest_files=["res://.godot/imported/axlgrab.webp-74c2db7833712554fac7f4c42656095c.ctex"]
+source_file="res://assets/icons/emotes/nagosweat.webp"
+dest_files=["res://.godot/imported/nagosweat.webp-0660509bb128cf61cf0fed07959c8067.ctex"]
 
 [params]
 
