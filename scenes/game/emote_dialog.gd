@@ -15,7 +15,8 @@ const emote_text_strings = [
 	"Good Luck, Have Fun!",
 	"Nice!",
 	"OH NO!",
-	"Good Game",
+	"Good Game!",
+	"Thinking..."
 ]
 
 func _ready():
