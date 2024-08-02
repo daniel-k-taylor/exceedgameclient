@@ -5,7 +5,7 @@
 [ext_resource type="Texture2D" uid="uid://b08j76upbucvr" path="res://assets/cards/arena_border_highlight_selected.png" id="3_jg3kg"]
 
 [node name="EmoteIconContainer" type="PanelContainer"]
-custom_minimum_size = Vector2(64, 64)
+custom_minimum_size = Vector2(86, 86)
 script = ExtResource("1_cwyuq")
 
 [node name="EmoteIcon" type="TextureRect" parent="."]
