@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://b1kvi65sqqkn2"
-path="res://.godot/imported/elpheltragingdemon.jpg-5b2bc72caf8e89113f7bd5877918c9d2.ctex"
+uid="uid://ix8quel68y4h"
+path="res://.godot/imported/ryusideye2.png-046fa81d1c677287a4d6e74076d57fbd.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/icons/emotes/elpheltragingdemon.jpg"
-dest_files=["res://.godot/imported/elpheltragingdemon.jpg-5b2bc72caf8e89113f7bd5877918c9d2.ctex"]
+source_file="res://assets/icons/emotes/ryusideye2.png"
+dest_files=["res://.godot/imported/ryusideye2.png-046fa81d1c677287a4d6e74076d57fbd.ctex"]
 
 [params]
 
