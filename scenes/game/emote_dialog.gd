@@ -14,7 +14,8 @@ const emotes_path = "res://assets/icons/emotes"
 const emote_text_strings = [
 	"Good Luck, Have Fun!",
 	"Nice!",
-	"OH NO!",
+	"BRB!",
+	"Got To Run...",
 	"Good Game!",
 	"Thinking..."
 ]

@@ -1,6 +1,6 @@
 # Exceed fan game client
 This is a Godot project for an implementation of the Exceed Fighting System card game from Level 99 Games.
-I do not own any of the art IP in this project and have affiliation with any of the creators.
+I do not own any of the art IP in this project and do not have affiliation with any of the creators.
 
 The goal of this project is to have a playable version of the game in a web browser.
 
