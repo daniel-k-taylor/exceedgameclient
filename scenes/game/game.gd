@@ -5167,6 +5167,7 @@ func generate_replay_string():
 	var replay_log = {
 		'messages': messages_list,
 		'version': GlobalSettings.get_client_version(),
+		'replay_version': GlobalSettings.ReplayVersion,
 	}
 	return JSON.stringify(replay_log)
 

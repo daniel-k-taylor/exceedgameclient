@@ -312,9 +312,9 @@ func test_platinum_dreamsally_move():
 	# Cleanup choice, do it in both cases.
 	# Don't specifically check what was in deck to keep it random,
 	# but no boost should possibly interfere with ending the turn.
-	# NOTE: Player 2 goes first because they were faster.
-	assert_true(game_logic.do_choice(player2, 0))
+	# NOTE: Player 1 goes first because they initiated the strike.
 	assert_true(game_logic.do_choice(player1, 0))
+	assert_true(game_logic.do_choice(player2, 0))
 
 	advance_turn(player2)
 

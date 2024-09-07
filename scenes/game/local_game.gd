@@ -9209,32 +9209,32 @@ func continue_resolve_strike(events):
 			StrikeState.StrikeState_Cleanup:
 				_append_log_full(Enums.LogType.LogType_Strike, null, "Starting strike cleanup.")
 				active_strike.strike_state = StrikeState.StrikeState_Cleanup_Player1Effects
-				active_strike.remaining_effect_list = get_all_effects_for_timing("cleanup", player1, card1)
+				active_strike.remaining_effect_list = get_all_effects_for_timing("cleanup", active_strike.initiator, active_strike.initiator_card)
 			StrikeState.StrikeState_Cleanup_Player1Effects:
-				events += do_remaining_effects(player1, StrikeState.StrikeState_Cleanup_Player1EffectsComplete)
+				events += do_remaining_effects(active_strike.initiator, StrikeState.StrikeState_Cleanup_Player1EffectsComplete)
 			StrikeState.StrikeState_Cleanup_Player1EffectsComplete:
 				active_strike.strike_state = StrikeState.StrikeState_Cleanup_Player2Effects
-				active_strike.remaining_effect_list = get_all_effects_for_timing("cleanup", player2, card2)
+				active_strike.remaining_effect_list = get_all_effects_for_timing("cleanup", active_strike.defender, active_strike.defender_card)
 			StrikeState.StrikeState_Cleanup_Player2Effects:
-				events += do_remaining_effects(player2, StrikeState.StrikeState_Cleanup_Complete)
+				events += do_remaining_effects(active_strike.defender, StrikeState.StrikeState_Cleanup_Complete)
 			StrikeState.StrikeState_Cleanup_Complete:
 				# Handle cleanup effects that cause attack cards to leave play before the standard timing
-				events += handle_strike_attack_cleanup(player1, card1)
-				events += handle_strike_attack_cleanup(player2, card2)
+				events += handle_strike_attack_cleanup(active_strike.initiator, active_strike.initiator_card)
+				events += handle_strike_attack_cleanup(active_strike.defender, active_strike.defender_card)
 
 				# Remove any Reading effects
 				player1.reading_card_id = ""
 				player2.reading_card_id = ""
 
 				# Cleanup any continuous boosts.
-				events += player1.cleanup_continuous_boosts()
-				events += player2.cleanup_continuous_boosts()
+				events += active_strike.initiator.cleanup_continuous_boosts()
+				events += active_strike.defender.cleanup_continuous_boosts()
 
 				# Cleanup attacks, if hit, move card to gauge, otherwise move to discard.
-				if card1 in active_strike.cards_in_play:
-					events += strike_send_attack_to_discard_or_gauge(player1, card1)
-				if card2 in active_strike.cards_in_play:
-					events += strike_send_attack_to_discard_or_gauge(player2, card2)
+				if active_strike.initiator_card in active_strike.cards_in_play:
+					events += strike_send_attack_to_discard_or_gauge(active_strike.initiator, active_strike.initiator_card)
+				if active_strike.defender_card in active_strike.cards_in_play:
+					events += strike_send_attack_to_discard_or_gauge(active_strike.defender, active_strike.defender_card)
 				assert(active_strike.cards_in_play.size() == 0,
 						"ERROR: %s still in play after strike should have been cleaned up" %
 								", ".join(active_strike.cards_in_play.map(
