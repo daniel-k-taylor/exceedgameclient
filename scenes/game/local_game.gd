@@ -6763,14 +6763,21 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 				events += [create_event(Enums.EventType.EventType_Strike_PowerUp, performing_player.my_id, bonus_power)]
 		"powerup_per_spent_gauge_matching_range_to_opponent":
 			var amount_per_gauge = effect['amount']
-			var distance = performing_player.distance_to_opponent()
 			var matching_count = 0
+			var player_location = performing_player.arena_location
+			var opponent_location = opposing_player.arena_location
+			var opponent_width = opposing_player.extra_width
 			for payment_card_id in performing_player.strike_stat_boosts.strike_payment_card_ids:
 				var payment_card = card_db.get_card(payment_card_id)
 				var printed_min = get_card_stat(performing_player, payment_card, 'range_min')
 				var printed_max = get_card_stat(performing_player, payment_card, 'range_max')
-				if distance >= printed_min and distance <= printed_max:
-					matching_count += 1
+
+				for opponent_space_offset in range(-opponent_width, opponent_width+1):
+					var opponent_space = opponent_location + opponent_space_offset
+					var distance : int = abs(player_location - opponent_space)
+					if printed_min <= distance and distance <= printed_max:
+						matching_count += 1
+						break
 
 			var total_powerup = amount_per_gauge * matching_count
 			if total_powerup > 0:

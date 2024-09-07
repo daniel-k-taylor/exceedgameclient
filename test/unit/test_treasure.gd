@@ -382,16 +382,16 @@ func test_treasure_diving_suit_not_hit():
 	advance_turn(player2)
 
 func test_treasure_diving_suit_hit():
-	position_players(player1, 3, player2, 6)
+	position_players(player1, 3, player2, 5)
 	var chest_id = give_player_specific_card(player1, "treasure_maelstromchest")
 
 	assert_true(game_logic.do_boost(player1, chest_id, [player1.hand[0].id]))
 	advance_turn(player2)
 
-	execute_strike(player1, player2, "standard_normal_grasp", "standard_normal_sweep",
+	execute_strike(player1, player2, "standard_normal_grasp", "standard_normal_focus",
 			false, false, [[player1.hand[0].id, true]], [])
-	validate_positions(player1, 3, player2, 6)
-	validate_life(player1, 27, player2, 30)
+	validate_positions(player1, 3, player2, 5)
+	validate_life(player1, 29, player2, 30)
 	advance_turn(player2)
 
 func test_treasure_diving_suit_plus_block():
