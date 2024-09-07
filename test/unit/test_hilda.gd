@@ -277,3 +277,51 @@ func test_hilda_condensity_wild():
 	validate_life(player1, 27, player2, 25)
 	validate_positions(player1, 2, player2, 3)
 	advance_turn(player2)
+
+
+func setup_exceeded_tinker_knight():
+	game_logic.teardown()
+	game_logic.free()
+	default_game_setup("tinker")
+
+	give_gauge(player2, 5)
+	player2.life = 1
+	position_players(player1, 3, player2, 4)
+	execute_strike(player1, player2, "standard_normal_assault", "standard_normal_assault")
+	assert_eq(player2.extra_width, 1)
+	validate_positions(player1, 3, player2, 7)
+	validate_life(player1, 30, player2, 20)
+	player1.gauge = []
+	# Don't need to advance_turn(player2) due to advantage from Assault
+
+# Reproduced bug; impalement gauge cards should properly account for tinker tank's full size
+func test_hilda_impalement_pay_revenant_darkness_vs_tinker():
+	setup_exceeded_tinker_knight()
+	position_players(player1, 3, player2, 7)
+	var darknessId = give_player_specific_card(player1, "hilda_inthedarkness")
+	var revenantId = give_player_specific_card(player1, "hilda_revenantpillar")
+	player1.move_card_from_hand_to_gauge(darknessId)
+	player1.move_card_from_hand_to_gauge(revenantId)
+	var impalementId1 = give_player_specific_card(player1, "hilda_impalement")
+	var impalementId2 = give_player_specific_card(player1, "hilda_impalement")
+	var sweepId = give_player_specific_card(player2, "standard_normal_sweep")
+	assert_true(game_logic.do_strike(player1, impalementId1, false, impalementId2))
+	assert_true(game_logic.do_strike(player2, sweepId, false, -1))
+	assert_true(game_logic.do_pay_strike_cost(player1, player1.get_card_ids_in_gauge(), false))
+	validate_life(player1, 30, player2, 13)
+	validate_positions(player1, 3, player2, 7)
+
+func test_hilda_impalement_pay_revenant_darkness_vs_not_tinker():
+	position_players(player1, 3, player2, 6)
+	var darknessId = give_player_specific_card(player1, "hilda_inthedarkness")
+	var revenantId = give_player_specific_card(player1, "hilda_revenantpillar")
+	player1.move_card_from_hand_to_gauge(darknessId)
+	player1.move_card_from_hand_to_gauge(revenantId)
+	var impalementId1 = give_player_specific_card(player1, "hilda_impalement")
+	var impalementId2 = give_player_specific_card(player1, "hilda_impalement")
+	var sweepId = give_player_specific_card(player2, "standard_normal_sweep")
+	assert_true(game_logic.do_strike(player1, impalementId1, false, impalementId2))
+	assert_true(game_logic.do_strike(player2, sweepId, false, -1))
+	assert_true(game_logic.do_pay_strike_cost(player1, player1.get_card_ids_in_gauge(), false))
+	validate_life(player1, 25, player2, 25)
+	validate_positions(player1, 3, player2, 6)
