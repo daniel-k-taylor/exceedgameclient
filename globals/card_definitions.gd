@@ -33,6 +33,8 @@ func get_deck_from_str_id(str_id : String) -> Dictionary:
 		return get_random_deck(4)
 	if str_id == "random_s3":
 		return get_random_deck(3)
+	if str_id == "random_s2":
+		return get_random_deck(2)
 	if str_id == "random":
 		return get_random_deck(-1)
 	return decks.get(str_id)

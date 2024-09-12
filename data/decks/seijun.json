@@ -1,0 +1,163 @@
+{
+	"id": "seijun",
+	"season": 2,
+	"display_name": "Seijun",
+	"cardback": "cardback_defaultexceed.png",
+	"alt_hand_size": 9,
+	"bonus_starting_hand": 2,
+	"exceed_cost": 5,
+	"character_action_default": [{
+		"gauge_cost": 0,
+		"force_cost": 0,
+		"shortcut_effect_type": "choice",
+		"effect": {
+			"effect_type": "choice",
+			"choice": [
+				{ "effect_type": "advance", "amount": 1 },
+				{ "effect_type": "retreat", "amount": 1 }
+			]
+		}
+	}],
+	"character_action_exceeded": [{
+		"gauge_cost": 0,
+		"force_cost": 0,
+		"shortcut_effect_type": "choice",
+		"effect": {
+			"effect_type": "choice",
+			"choice": [
+				{ "effect_type": "advance", "amount": 1 },
+				{ "effect_type": "retreat", "amount": 1 }
+			],
+			"and": {
+				"effect_type": "draw",
+				"amount": 1
+			}
+		}
+	}],
+	"ability_effects": [
+	],
+	"exceed_ability_effects": [
+	],
+	"cards": [
+		{
+			"definition_id": "seijun_taleofninesorrows",
+			"image": "seijun_taleofninesorrows.tres"
+		},
+		{
+			"definition_id": "seijun_taleofninesorrows",
+			"image": "seijun_taleofninesorrows.tres"
+		},
+		{
+			"definition_id": "seijun_taleofseventrials",
+			"image": "seijun_taleofseventrials.tres"
+		},
+		{
+			"definition_id": "seijun_taleofseventrials",
+			"image": "seijun_taleofseventrials.tres"
+		},
+		{
+			"definition_id": "seijun_inksplash",
+			"image": "seijun_inksplash.tres"
+		},
+		{
+			"definition_id": "seijun_inksplash",
+			"image": "seijun_inksplash.tres"
+		},
+		{
+			"definition_id": "seijun_yokaibanishing",
+			"image": "seijun_yokaibanishing.tres"
+		},
+		{
+			"definition_id": "seijun_yokaibanishing",
+			"image": "seijun_yokaibanishing.tres"
+		},
+		{
+			"definition_id": "seijun_inariguidance",
+			"image": "seijun_inariguidance.tres"
+		},
+		{
+			"definition_id": "seijun_inariguidance",
+			"image": "seijun_inariguidance.tres"
+		},
+		{
+			"definition_id": "seijun_inkspike",
+			"image": "seijun_inkspike.tres"
+		},
+		{
+			"definition_id": "seijun_inkspike",
+			"image": "seijun_inkspike.tres"
+		},
+		{
+			"definition_id": "seijun_foxfire",
+			"image": "seijun_foxfire.tres"
+		},
+		{
+			"definition_id": "seijun_foxfire",
+			"image": "seijun_foxfire.tres"
+		},
+		{
+			"definition_id": "standard_normal_grasp",
+			"image": "normal_grasp.tres"
+		},
+		{
+			"definition_id": "standard_normal_grasp",
+			"image": "normal_grasp.tres"
+		},
+		{
+			"definition_id": "standard_normal_cross",
+			"image": "normal_cross.tres"
+		},
+		{
+			"definition_id": "standard_normal_cross",
+			"image": "normal_cross.tres"
+		},
+		{
+			"definition_id": "standard_normal_assault",
+			"image": "normal_assault.tres"
+		},
+		{
+			"definition_id": "standard_normal_assault",
+			"image": "normal_assault.tres"
+		},
+		{
+			"definition_id": "standard_normal_dive",
+			"image": "normal_dive.tres"
+		},
+		{
+			"definition_id": "standard_normal_dive",
+			"image": "normal_dive.tres"
+		},
+		{
+			"definition_id": "standard_normal_spike",
+			"image": "normal_spike.tres"
+		},
+		{
+			"definition_id": "standard_normal_spike",
+			"image": "normal_spike.tres"
+		},
+		{
+			"definition_id": "standard_normal_sweep",
+			"image": "normal_sweep.tres"
+		},
+		{
+			"definition_id": "standard_normal_sweep",
+			"image": "normal_sweep.tres"
+		},
+		{
+			"definition_id": "standard_normal_focus",
+			"image": "normal_focus.tres"
+		},
+		{
+			"definition_id": "standard_normal_focus",
+			"image": "normal_focus.tres"
+		},
+		{
+			"definition_id": "standard_normal_block",
+			"image": "normal_block.tres"
+		},
+		{
+			"definition_id": "standard_normal_block",
+			"image": "normal_block.tres"
+		}
+	]
+}

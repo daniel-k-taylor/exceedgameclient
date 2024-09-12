@@ -1,0 +1,16 @@
+[gd_resource type="SpriteFrames" load_steps=2 format=3 uid="uid://daqbufq3xesjj"]
+
+[ext_resource type="Texture2D" uid="uid://cqunojr8axtww" path="res://assets/cards/seijun/character_default.jpg" id="1_m66jf"]
+
+[resource]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("1_m66jf")
+}],
+"loop": true,
+"name": &"idle",
+"speed": 5.0
+}]
+metadata/flip = true
+metadata/scaling = 0.3
