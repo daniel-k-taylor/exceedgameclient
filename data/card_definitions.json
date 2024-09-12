@@ -23133,14 +23133,14 @@
 			}
 		],
 		"boost": {
-			"boost_type": "immediate",
-			"force_cost": 0,
+			"boost_type": "transform",
+			"force_cost": -1,
 			"cancel_cost": -1,
-			"display_name": "Ki Charge",
+			"display_name": "Watchful Guardian",
 			"effects": [
 				{
-					"timing": "immediate",
-					"effect_type": "add_to_gauge_boost_play_cleanup"
+					"timing": "hit",
+					"effect_type": "nothing"
 				}
 			]
 		}
@@ -23175,22 +23175,14 @@
 			}
 		],
 		"boost": {
-			"boost_type": "immediate",
-			"force_cost": 0,
+			"boost_type": "transform",
+			"force_cost": -1,
 			"cancel_cost": -1,
-			"display_name": "Quick Step",
+			"display_name": "Meddlesome",
 			"effects": [
 				{
-					"timing": "immediate",
-					"effect_type": "choice",
-					"choice": [
-						{ "effect_type": "advance", "amount": 1 },
-						{ "effect_type": "retreat", "amount": 1 }
-					]
-				},
-				{
-					"timing": "immediate",
-					"effect_type": "bonus_action"
+					"timing": "hit",
+					"effect_type": "nothing"
 				}
 			]
 		}
@@ -23223,19 +23215,14 @@
 			}
 		],
 		"boost": {
-			"boost_type": "continuous",
-			"force_cost": 0,
+			"boost_type": "transform",
+			"force_cost": -1,
 			"cancel_cost": -1,
-			"display_name": "Swift",
+			"display_name": "Kitsune's Pride",
 			"effects": [
 				{
-					"timing": "during_strike",
-					"effect_type": "powerup",
-					"amount": 1,
-					"and": {
-						"effect_type": "speedup",
-						"amount": 1
-					}
+					"timing": "hit",
+					"effect_type": "nothing"
 				}
 			]
 		}
@@ -23275,19 +23262,14 @@
 			}
 		],
 		"boost": {
-			"boost_type": "continuous",
-			"force_cost": 0,
+			"boost_type": "transform",
+			"force_cost": -1,
 			"cancel_cost": -1,
-			"display_name": "Defensive",
+			"display_name": "Kitsune Wrath",
 			"effects": [
 				{
-					"timing": "during_strike",
-					"effect_type": "powerup",
-					"amount": 2,
-					"and": {
-						"effect_type": "armorup",
-						"amount": 1
-					}
+					"timing": "hit",
+					"effect_type": "nothing"
 				}
 			]
 		}
@@ -23321,7 +23303,7 @@
 		],
 		"boost": {
 			"boost_type": "transform",
-			"force_cost": 0,
+			"force_cost": -1,
 			"cancel_cost": -1,
 			"display_name": "Ninth Tail",
 			"effects": [

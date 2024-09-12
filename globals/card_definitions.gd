@@ -1362,6 +1362,11 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 			if 'nonlethal' in effect and effect['nonlethal']:
 				nonlethal_str = " nonlethal"
 			effect_str += "%s %s%s damage" % [who_str, str(effect['amount']), nonlethal_str]
+		"transform_attack":
+			if 'card_name' in effect:
+				effect_str += "Transform %s" % effect['card_name']
+			else:
+				effect_str += "Transform attack"
 		"topdeck_from_hand":
 			effect_str += "Put a card from your hand on top of your deck"
 		"when_hit_force_for_armor":

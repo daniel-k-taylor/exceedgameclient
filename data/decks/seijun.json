@@ -6,6 +6,7 @@
 	"alt_hand_size": 9,
 	"bonus_starting_hand": 2,
 	"exceed_cost": 5,
+	"exceed_transform_discount": true,
 	"character_action_default": [{
 		"gauge_cost": 0,
 		"force_cost": 0,
