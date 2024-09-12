@@ -620,6 +620,7 @@ class StrikeStatBoosts:
 		return_attack_to_hand = false
 		move_strike_to_boosts = false
 		move_strike_to_boosts_sustain = true
+		move_strike_to_transforms = false
 		move_strike_to_opponent_boosts = false
 		when_hit_force_for_armor = ""
 		stun_immunity = false
@@ -955,8 +956,11 @@ class Player:
 
 	func get_exceed_cost():
 		var cost = exceed_cost
-		if 'exceed_cost_reduced_by' in deck_def and deck_def['exceed_cost_reduced_by'] == "overdrive_count":
-			cost -= len(overdrive)
+		if 'exceed_cost_reduced_by' in deck_def:
+			if deck_def['exceed_cost_reduced_by'] == "overdrive_count":
+				cost -= len(overdrive)
+			elif deck_def['exceed_cost_reduced_by'] == "transform_discount":
+				cost -= 2 * len(transforms)
 			cost = max(0, cost)
 		return cost
 
