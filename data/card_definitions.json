@@ -23122,8 +23122,18 @@
 			"display_name": "Watchful Guardian",
 			"effects": [
 				{
-					"timing": "hit",
-					"effect_type": "nothing"
+					"timing": "on_prepare",
+					"effect_type": "force_for_effect",
+					"per_force_effect": null,
+					"overall_effect": {
+						"effect_type": "choice",
+						"choice": [
+							{ "effect_type": "advance", "amount": 1 },
+							{ "effect_type": "retreat", "amount": 1 },
+						]
+					},
+					"force_max": 1,
+					"override_description": "After prepare, spend 1F to move 1"
 				}
 			]
 		}
@@ -23197,8 +23207,17 @@
 			"display_name": "Kitsune's Pride",
 			"effects": [
 				{
-					"timing": "hit",
-					"effect_type": "nothing"
+					"timing": "set_strike",
+					"effect_type": "force_for_effect",
+					"per_force_effect": null,
+					"overall_effect": {
+						"character_effect": true,
+						"effect_type": "rangeup",
+						"amount": 0,
+						"amount2": 1
+					},
+					"force_max": 2,
+					"override_description": "On set, spend 2F for +0~1 RNG"
 				}
 			]
 		}
@@ -23225,8 +23244,17 @@
 			"display_name": "Kitsune Wrath",
 			"effects": [
 				{
-					"timing": "hit",
-					"effect_type": "nothing"
+					"timing": "set_strike",
+					"condition": "is_ex_strike",
+					"effect_type": "force_for_effect",
+					"per_force_effect": {
+						"character_effect": true,
+						"effect_type": "powerup",
+						"amount": 1
+					},
+					"overall_effect": null,
+					"force_max": 2,
+					"override_description": "On set EX, spend up to 2F for +1 PWR each"
 				}
 			]
 		}
@@ -23259,7 +23287,9 @@
 			"effects": [
 				{
 					"timing": "hit",
-					"effect_type": "nothing"
+					"condition": "less_cards_than_opponent",
+					"effect_type": "powerup",
+					"amount": 2
 				}
 			]
 		},

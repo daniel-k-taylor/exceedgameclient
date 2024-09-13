@@ -405,6 +405,8 @@ func get_condition_text(effect, amount, amount2, detail):
 			text += ""
 		"boost_in_play_or_parents":
 			text += "If a \"%s\" boost is in play, " % detail
+		"is_ex_strike":
+			text += "If attack is EX, "
 		_:
 			text += "MISSING CONDITION"
 	return text
@@ -1388,6 +1390,8 @@ func get_effect_text(effect, short = false, skip_timing = false, skip_condition 
 	var effect_str = ""
 	if 'hide_effect' in effect and effect['hide_effect']:
 		return effect_str
+	if 'override_description' in effect:
+		return effect['override_description']
 
 	if 'timing' in effect and not skip_timing:
 		effect_str += get_timing_text(effect['timing'])

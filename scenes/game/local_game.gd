@@ -66,6 +66,7 @@ var active_strike : Strike = null
 var active_character_action : bool = false
 var active_exceed : bool = false
 var active_overdrive : bool = false
+var active_prepare : bool = false
 var active_overdrive_boost_top_discard_on_cleanup : bool = false
 var active_change_cards : bool = false
 var active_special_draw_effect : bool = false
@@ -75,6 +76,7 @@ var remaining_overdrive_effects = []
 var remaining_character_action_effects = []
 var remaining_start_of_turn_effects = []
 var remaining_end_of_turn_effects = []
+var prepare_effects_resolved : int = 0
 
 var decision_info : DecisionInfo = DecisionInfo.new()
 var active_boost : Boost = null
@@ -10048,9 +10050,39 @@ func do_prepare(performing_player) -> bool:
 	_append_log_full(Enums.LogType.LogType_Action, performing_player, "Turn Action: Prepare")
 	_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "draws a card.")
 	events += performing_player.draw(1)
-	events += check_hand_size_advance_turn(performing_player)
-	event_queue += events
+
+	active_prepare = true
+	prepare_effects_resolved = 0
+	event_queue += continue_resolve_prepare(performing_player, events)
 	return true
+
+func continue_resolve_prepare(performing_player : Player, events):
+	# Assuming that a strike can't be started in here
+	change_game_state(Enums.GameState.GameState_Boost_Processing)
+
+	var boost_effects = get_boost_effects_at_timing("on_prepare", performing_player)
+	var character_effects = performing_player.get_character_effects_at_timing("on_prepare")
+	for effect in character_effects:
+		effect['card_id'] = -1
+	var prepare_effects = boost_effects + character_effects
+
+	while true:
+		if prepare_effects_resolved < len(prepare_effects):
+			var effect = prepare_effects[prepare_effects_resolved]
+			events += do_effect_if_condition_met(performing_player, -1, effect, null)
+			if game_state == Enums.GameState.GameState_PlayerDecision:
+				break
+			prepare_effects_resolved += 1
+		else:
+			active_prepare = false
+			events += check_hand_size_advance_turn(performing_player)
+			break
+
+		if game_over:
+			break
+
+	return events
+
 
 func do_discard_to_max(performing_player : Player, card_ids) -> bool:
 	printlog("SubAction: DISCARD_TO_MAX by %s - %s" % [get_player_name(performing_player.my_id), card_ids])
@@ -10807,7 +10839,7 @@ func do_choice(performing_player : Player, choice_index : int) -> bool:
 
 func set_player_action_processing_state():
 	if active_start_of_turn_effects or active_end_of_turn_effects or active_overdrive or active_boost \
-	or active_character_action or active_exceed or active_change_cards or active_special_draw_effect:
+	or active_character_action or active_exceed or active_change_cards or active_prepare or active_special_draw_effect:
 		game_state = Enums.GameState.GameState_Boost_Processing
 	elif active_strike:
 		game_state = Enums.GameState.GameState_Strike_Processing
@@ -10859,6 +10891,10 @@ func continue_player_action_resolution(events, performing_player : Player):
 				active_change_cards = false
 				if game_state != Enums.GameState.GameState_WaitForStrike:
 					events += check_hand_size_advance_turn(performing_player)
+			elif active_prepare:
+				prepare_effects_resolved += 1
+				# Intentional events = because events are passed in.
+				events = continue_resolve_prepare(performing_player, events)
 			else:
 				# End of turn states (pick action for next player or discard down for current) or strikes are expected.
 				if game_state == Enums.GameState.GameState_PickAction or game_state == Enums.GameState.GameState_DiscardDownToMax or game_state == Enums.GameState.GameState_WaitForStrike:
