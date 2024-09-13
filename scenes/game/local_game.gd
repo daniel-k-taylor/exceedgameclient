@@ -542,6 +542,7 @@ class StrikeStatBoosts:
 	var rangeup_min_per_boost_modifier : int = 0
 	var rangeup_max_per_boost_modifier : int = 0
 	var rangeup_per_boost_modifier_all_boosts : bool = false
+	var guardup_per_two_cards_in_hand : bool = false
 	var active_character_effects = []
 	var added_attack_effects = []
 	var ex_count : int = 0
@@ -642,6 +643,7 @@ class StrikeStatBoosts:
 		rangeup_min_per_boost_modifier = 0
 		rangeup_max_per_boost_modifier = 0
 		rangeup_per_boost_modifier_all_boosts = false
+		guardup_per_two_cards_in_hand = false
 		active_character_effects = []
 		added_attack_effects = []
 		ex_count = 0
@@ -3539,6 +3541,7 @@ func start_begin_turn():
 				effect_with_id['card_id'] = card.id
 				remaining_start_of_turn_effects.append(effect_with_id)
 
+	remaining_start_of_turn_effects += starting_turn_player.get_character_effects_at_timing("start_of_next_turn")
 	return continue_begin_turn()
 
 func continue_begin_turn():
@@ -3549,10 +3552,15 @@ func continue_begin_turn():
 	while remaining_start_of_turn_effects.size() > 0:
 		var effect = remaining_start_of_turn_effects[0]
 		remaining_start_of_turn_effects.erase(effect)
+
+		var card_id = -1
+		if 'card_id' in effect:
+			card_id = effect['card_id']
+
 		if effect['timing'] == "start_of_next_turn":
-			events += do_effect_if_condition_met(starting_turn_player, effect['card_id'], effect, null)
+			events += do_effect_if_condition_met(starting_turn_player, card_id, effect, null)
 		elif effect['timing'] == "opponent_start_of_next_turn":
-			events += do_effect_if_condition_met(other_player, effect['card_id'], effect, null)
+			events += do_effect_if_condition_met(other_player, card_id, effect, null)
 		else:
 			assert(false, "Unexpected timing for start of turn effect")
 
@@ -5512,6 +5520,10 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 			var amount = performing_player.total_force_spent_this_turn * effect['amount']
 			performing_player.strike_stat_boosts.guard += amount
 			events += [create_event(Enums.EventType.EventType_Strike_GuardUp, performing_player.my_id, amount)]
+		"guardup_per_two_cards_in_hand":
+			performing_player.strike_stat_boosts.guardup_per_two_cards_in_hand = true
+			var guard_boost = floor(len(performing_player.hand) / 2)
+			events += [create_event(Enums.EventType.EventType_Strike_GuardUp, performing_player.my_id, guard_boost)]
 		"higher_speed_misses":
 			performing_player.strike_stat_boosts.higher_speed_misses = true
 			if 'dodge_at_speed_greater_or_equal' in effect:
@@ -7454,6 +7466,12 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 			performing_player.enchantress_draw_choice = true
 		"set_end_of_turn_boost_delay":
 			performing_player.set_end_of_turn_boost_delay(card_id)
+		"set_max_hand_size":
+			performing_player.max_hand_size = effect['amount']
+			var new_size_string = "3 spaces wide"
+			if 'description' in effect:
+				new_size_string = effect['description']
+			_append_log_full(Enums.LogType.LogType_Effect, performing_player, "'s maximum hand size is now %s!" % new_size_string)
 		"set_strike_x":
 			var extra_info = []
 			if 'extra_info' in effect:
@@ -8761,6 +8779,10 @@ func get_total_guard(performing_player : Player):
 	var card = active_strike.get_player_card(performing_player)
 	var guard = get_card_stat(performing_player, card, 'guard')
 	var guard_modifier = performing_player.strike_stat_boosts.guard
+
+	if performing_player.strike_stat_boosts.guardup_per_two_cards_in_hand:
+		guard_modifier += floor(len(performing_player.hand) / 2)
+
 	return guard + guard_modifier
 
 func get_total_min_range(performing_player : Player):

@@ -3922,7 +3922,7 @@ func update_boost_summary(boosts_card_holder, boost_box):
 	var boost_summary = ""
 	for effect in transform_effects:
 		if 'hide_effect' not in effect or not effect['hide_effect']:
-			boost_summary += "[color=purple][TF][/color]" + CardDefinitions.get_effect_text(effect) + "\n"
+			boost_summary += "[color=purple][TF][/color] " + CardDefinitions.get_effect_text(effect) + "\n"
 	for effect in normal_effects:
 		if 'hide_effect' not in effect or not effect['hide_effect']:
 			boost_summary += CardDefinitions.get_effect_text(effect) + "\n"

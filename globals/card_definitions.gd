@@ -842,6 +842,8 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 				effect_str += str(effect['amount']) + " Guard"
 		"guardup_per_force_spent_this_turn":
 			effect_str += "+" + str(effect['amount']) + " Guard per force spent this turn."
+		"guardup_per_two_cards_in_hand":
+			effect_str += "+1 Guard per 2 cards in hand"
 		"ignore_armor":
 			if 'opponent' in effect and effect['opponent']:
 				effect_str += "Opponent ignores armor"

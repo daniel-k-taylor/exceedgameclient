@@ -7,37 +7,33 @@
 	"bonus_starting_hand": 2,
 	"exceed_cost": 5,
 	"exceed_cost_reduced_by": "transform_discount",
-	"character_action_default": [{
-		"gauge_cost": 0,
-		"force_cost": 0,
-		"shortcut_effect_type": "choice",
-		"effect": {
-			"effect_type": "choice",
-			"choice": [
-				{ "effect_type": "advance", "amount": 1 },
-				{ "effect_type": "retreat", "amount": 1 }
-			]
-		}
-	}],
-	"character_action_exceeded": [{
-		"gauge_cost": 0,
-		"force_cost": 0,
-		"shortcut_effect_type": "choice",
-		"effect": {
-			"effect_type": "choice",
-			"choice": [
-				{ "effect_type": "advance", "amount": 1 },
-				{ "effect_type": "retreat", "amount": 1 }
-			],
-			"and": {
-				"effect_type": "draw",
-				"amount": 1
+	"exceed_animation": "seijun_exceed",
+	"ability_effects": [
+		{
+			"character_effect": true,
+			"timing": "set_strike",
+			"effect_type": "add_attack_effect",
+			"added_effect": {
+				"timing": "during_strike",
+				"effect_type": "guardup_per_two_cards_in_hand"
 			}
 		}
-	}],
-	"ability_effects": [
 	],
+	"on_exceed": {
+		"effect_type": "draw",
+		"amount": 3,
+		"and": {
+			"effect_type": "set_max_hand_size",
+			"amount": 99,
+			"description": "unlimited"
+		}
+	},
 	"exceed_ability_effects": [
+		{
+			"timing": "start_of_next_turn",
+			"effect_type": "draw",
+			"amount": 1
+		}
 	],
 	"cards": [
 		{
