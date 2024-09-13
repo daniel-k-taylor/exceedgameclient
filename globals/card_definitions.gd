@@ -407,6 +407,8 @@ func get_condition_text(effect, amount, amount2, detail):
 			text += "If a \"%s\" boost is in play, " % detail
 		"is_ex_strike":
 			text += "If attack is EX, "
+		"same_card_as_boost_in_hand":
+			text += ""
 		_:
 			text += "MISSING CONDITION"
 	return text
@@ -696,6 +698,8 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 			effect_str += "Critical Strike"
 		"discard_this":
 			effect_str += "Discard this"
+		"discard_same_card_as_boost":
+			effect_str += "Discard a copy of the boosted card"
 		"discard_strike_after_cleanup":
 			effect_str += "Discard attack on cleanup"
 		"discard_continuous_boost":
@@ -880,6 +884,8 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 			effect_str += "Lose all armor"
 		"name_card_opponent_discards":
 			effect_str += "Name a card. Opponent discards it or reveals not in hand."
+		"negate_boost":
+			effect_str += "Discard opponent's boost without effect"
 		"may_advance_bonus_spaces":
 			effect_str = "You may Advance/Close %s extra space(s)" % effect['amount']
 		"move_any_buddy":

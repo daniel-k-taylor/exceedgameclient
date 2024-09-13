@@ -481,6 +481,9 @@ class Boost:
 	var discarded_already = false
 	var seal_on_cleanup = false
 	var cancel_resolved = false
+	var checked_counter = false
+	var counters_resolved = 0
+	var boost_negated = false
 	var cleanup_to_gauge_card_ids = []
 	var cleanup_to_hand_card_ids = []
 	var parent_boost = null
@@ -1044,6 +1047,26 @@ class Player:
 		for card in hand:
 			if card.definition['id'] == definition_id:
 				return card.id
+		return -1
+
+	func is_card_in_hand_match_normals(compare_card : GameCard):
+		var is_normal = compare_card.definition['type'] == "normal"
+		for card in hand:
+			if card.id == compare_card.id:
+				return true
+			elif is_normal and card.definition['type'] == "normal":
+				if card.definition['speed'] == compare_card.definition['speed']:
+					return true
+		return false
+
+	func get_copy_in_hand_match_normals(compare_card : GameCard):
+		var is_normal = compare_card.definition['type'] == "normal"
+		for card in hand:
+			if card.definition['id'] == compare_card.definition['id']:
+				return card.id
+			elif is_normal and card.definition['type'] == "normal":
+				if card.definition['speed'] == compare_card.definition['speed']:
+					return card.id
 		return -1
 
 	func is_card_in_discards(id : int):
@@ -3222,6 +3245,20 @@ class Player:
 				effects.append(effect)
 		return effects
 
+	func get_counter_boost_effects():
+		var effects = []
+		var ability_label = "ability_effects"
+		if exceeded:
+			ability_label = "exceed_ability_effects"
+		for effect in deck_def[ability_label]:
+			if effect['timing'] == "counter_boost":
+				effects.append(effect)
+		for card in get_continuous_boosts_and_transforms():
+			for effect in card.definition['boost']['effects']:
+				if effect['timing'] == "counter_boost":
+					effects.append(effect)
+		return effects
+
 	func set_strike_x(value : int, silent : bool = false):
 		var events = []
 		strike_stat_boosts.strike_x = max(value, 0)
@@ -4296,6 +4333,9 @@ func is_effect_condition_met(performing_player : Player, effect, local_condition
 					return true
 				check_parent_boost = check_parent_boost.parent_boost
 			return false
+		elif condition == "same_card_as_boost_in_hand":
+			assert(active_boost)
+			return performing_player.is_card_in_hand_match_normals(active_boost.card)
 		else:
 			assert(false, "Unimplemented condition")
 		# Unmet condition
@@ -5145,6 +5185,11 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 				_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "discards the boosted card %s." % _log_card_name(card_name))
 				events += performing_player.remove_from_continuous_boosts(card)
 				events += opposing_player.remove_from_continuous_boosts(card)
+		"discard_same_card_as_boost":
+			assert(active_boost)
+			var boost_copy_id = performing_player.get_copy_in_hand_match_normals(active_boost.card)
+			_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "discards a copy of the boosted card %s." % [_log_card_name(active_boost.card.definition['display_name'])])
+			events += performing_player.discard([boost_copy_id])
 		"discard_strike_after_cleanup":
 			performing_player.strike_stat_boosts.discard_attack_on_cleanup = true
 		"discard_opponent_topdeck":
@@ -5817,6 +5862,11 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 			else:
 				assert(false, "Target effect for name_range not found.")
 				decision_info.clear()
+		"negate_boost":
+			assert(active_boost)
+			_append_log_full(Enums.LogType.LogType_Effect, active_boost.playing_player, "'s boost effect is negated.")
+			active_boost.boost_negated = true
+			active_boost.discard_on_cleanup = true
 		"only_hits_if_opponent_on_any_buddy":
 			performing_player.strike_stat_boosts.only_hits_if_opponent_on_any_buddy = true
 		"opponent_discard_normals_or_reveal":
@@ -9709,11 +9759,26 @@ func continue_resolve_boost(events):
 
 	var effects = card_db.get_card_boost_effects_now_immediate(active_boost.card)
 	var character_effects = active_boost.playing_player.get_on_boost_effects(active_boost.card)
+	var other_player = _get_player(get_other_player(active_boost.playing_player.my_id))
+	var counter_effects = other_player.get_counter_boost_effects()
 	while true:
 		if game_state == Enums.GameState.GameState_WaitForStrike or game_state == Enums.GameState.GameState_Strike_Opponent_Set_First:
 			active_boost.strike_after_boost = true
 			if game_state == Enums.GameState.GameState_Strike_Opponent_Set_First:
 				active_boost.strike_after_boost_opponent_first = true
+
+		if not active_boost.checked_counter and not active_boost.boost_negated:
+			if active_boost.counters_resolved < len(counter_effects):
+				var effect = counter_effects[active_boost.counters_resolved]
+				events += do_effect_if_condition_met(other_player, -1, effect, null)
+				if game_state == Enums.GameState.GameState_PlayerDecision:
+					break
+
+				active_boost.counters_resolved += 1
+			else:
+				active_boost.checked_counter = true
+		if active_boost.boost_negated and active_boost.effects_resolved < len(effects) + len(character_effects):
+			active_boost.effects_resolved = len(effects) + len(character_effects)
 
 		if active_boost.effects_resolved < len(effects):
 			var effect = effects[active_boost.effects_resolved]
@@ -9735,14 +9800,15 @@ func continue_resolve_boost(events):
 			# After all effects are resolved, discard/move the card then check for cancel.
 			events += boost_finish_resolving_card(active_boost.playing_player)
 			active_boost.effects_resolved += 1
-			if active_boost.playing_player.can_cancel(active_boost.card) and not active_boost.strike_after_boost:
-				var cancel_cost = card_db.get_card_cancel_cost(active_boost.card.id)
-				change_game_state(Enums.GameState.GameState_PlayerDecision)
-				decision_info.type = Enums.DecisionType.DecisionType_BoostCancel
-				decision_info.player = active_boost.playing_player.my_id
-				decision_info.choice = cancel_cost
-				events += [create_event(Enums.EventType.EventType_Boost_CancelDecision, active_boost.playing_player.my_id, cancel_cost)]
-				break
+			if not active_boost.boost_negated:
+				if active_boost.playing_player.can_cancel(active_boost.card) and not active_boost.strike_after_boost:
+					var cancel_cost = card_db.get_card_cancel_cost(active_boost.card.id)
+					change_game_state(Enums.GameState.GameState_PlayerDecision)
+					decision_info.type = Enums.DecisionType.DecisionType_BoostCancel
+					decision_info.player = active_boost.playing_player.my_id
+					decision_info.choice = cancel_cost
+					events += [create_event(Enums.EventType.EventType_Boost_CancelDecision, active_boost.playing_player.my_id, cancel_cost)]
+					break
 		else:
 			# Intentional events = because events are passed in.
 			events = boost_play_cleanup(events, active_boost.playing_player)
@@ -10874,7 +10940,10 @@ func continue_player_action_resolution(events, performing_player : Player):
 				# Intentional events = because events are passed in.
 				events = do_remaining_overdrive(events, performing_player)
 			elif active_boost:
-				active_boost.effects_resolved += 1
+				if active_boost.checked_counter:
+					active_boost.effects_resolved += 1
+				else:
+					active_boost.counters_resolved += 1
 				# Intentional events = because events are passed in.
 				events = continue_resolve_boost(events)
 			elif active_strike:

@@ -23172,8 +23172,19 @@
 			"display_name": "Meddlesome",
 			"effects": [
 				{
-					"timing": "hit",
-					"effect_type": "nothing"
+					"timing": "counter_boost",
+					"effect_type": "choice",
+					"choice": [
+						{
+							"condition": "same_card_as_boost_in_hand",
+							"effect_type": "discard_same_card_as_boost",
+							"and": {
+								"effect_type": "negate_boost"
+							}
+						},
+						{ "effect_type": "pass" },
+					],
+					"override_description": "On opponent boost, discard copy to negate"
 				}
 			]
 		}
