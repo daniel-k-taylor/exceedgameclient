@@ -3806,7 +3806,7 @@ func get_total_speed(check_player, ignore_swap : bool = false):
 			boosts_in_play += opposing_player.continuous_boosts.size()
 		if boosts_in_play > 0:
 			bonus_speed += check_player.strike_stat_boosts.speedup_per_boost_modifier * boosts_in_play
-	var speed = check_card.definition['speed'] + bonus_speed
+	var speed = get_card_stat(check_player, check_card, 'speed') + bonus_speed
 	if active_strike and active_strike.extra_attack_in_progress:
 		# If an extra attack character has ways to get speed multipliers, deal with that then.
 		speed -= active_strike.extra_attack_data.extra_attack_previous_attack_speed_bonus
@@ -3959,9 +3959,9 @@ func is_effect_condition_met(performing_player : Player, effect, local_condition
 			var discarded_card_ids = effect['discarded_card_ids']
 			assert(discarded_card_ids.size() == 1)
 			var card = card_db.get_card(discarded_card_ids[0])
-			var speed_of_discarded = card.definition['speed']
+			var speed_of_discarded = get_card_stat(performing_player, card, 'speed')
 			var attack_card = active_strike.get_player_card(performing_player)
-			var printed_speed_of_attack = attack_card.definition['speed']
+			var printed_speed_of_attack = get_card_stat(performing_player, attack_card, 'speed')
 			return speed_of_discarded == printed_speed_of_attack
 		elif condition == "not_full_close":
 			return not local_conditions.fully_closed
@@ -7284,6 +7284,7 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 		"repeat_effect_optionally":
 			if active_strike:
 				var amount = effect['amount']
+				var not_optional = 'not_optional' in effect and effect['not_optional']
 				var first_not_automatic = 'first_not_automatic' in effect and effect['first_not_automatic']
 				if str(amount) == "every_two_sealed_normals":
 					var sealed_normals = performing_player.get_sealed_count_of_type("normal")
@@ -7294,17 +7295,21 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 				var linked_effect = effect['linked_effect']
 				if amount > 0:
 					var repeat_effect = {
-						"card_id": card_id,
-						"effect_type": "choice",
-						"choice": [
-							{
-								"effect_type": "repeat_effect_optionally",
-								"amount": amount-1,
-								"linked_effect": linked_effect
-							},
-							{ "effect_type": "pass" }
-						]
-					}
+							"card_id": card_id,
+							"effect_type": "repeat_effect_optionally",
+							"amount": amount-1,
+							"not_optional": not_optional,
+							"linked_effect": linked_effect
+						}
+					if not not_optional:
+						repeat_effect = {
+							"card_id": card_id,
+							"effect_type": "choice",
+							"choice": [
+								repeat_effect,
+								{ "effect_type": "pass" }
+							]
+						}
 					add_remaining_effect(repeat_effect)
 				if not first_not_automatic:
 					events += handle_strike_effect(card_id, linked_effect, performing_player)
@@ -7327,7 +7332,7 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 			var sealed_card = card_db.get_card(sealed_card_id)
 			var target_card = null
 			for card in performing_player.sealed:
-				if card.definition['speed'] == sealed_card.definition['speed']:
+				if get_card_stat(performing_player, card, 'speed') == get_card_stat(performing_player, sealed_card, 'speed'):
 					target_card = card
 					break
 			if target_card:
@@ -7917,6 +7922,8 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 			# This effect is expected to be at the end of a strike.
 			assert(active_strike)
 			var card_name = card_db.get_card_name(card_id)
+			if 'card_name' in effect:
+				card_name = effect['card_name']
 			performing_player.strike_stat_boosts.move_strike_to_transforms = true
 			_append_log_full(Enums.LogType.LogType_Effect, performing_player, "transforms %s." % [_log_card_name(card_name)])
 		"when_hit_force_for_armor":
@@ -8092,6 +8099,7 @@ func get_card_stat(check_player : Player, card : GameCard, stat : String) -> int
 	elif str(value) == "CARDS_IN_HAND_MAX_7":
 		value = min(check_player.hand.size(), 7)
 	elif str(value) == "TOTAL_POWER":
+		assert(stat != 'power')
 		value = get_total_power(check_player, false, card)
 	elif str(value) == "RANGE_TO_OPPONENT":
 		value = check_player.distance_to_opponent()
@@ -8103,6 +8111,13 @@ func get_card_stat(check_player : Player, card : GameCard, stat : String) -> int
 		# If a character can do that and also cares about range, then worry about that then.
 		if active_strike and check_player.strike_stat_boosts.range_includes_opponent:
 			value = check_player.distance_to_opponent()
+
+	var stat_limit = value
+	if stat == 'speed' and 'max_base_speed' in card.definition:
+		stat_limit = card.definition['max_base_speed']
+	if stat == 'power' and 'max_base_power' in card.definition:
+		stat_limit = card.definition['max_base_power']
+	value = min(value, stat_limit)
 	return value
 
 func get_striking_card_ids_for_player(check_player : Player) -> Array:

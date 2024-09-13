@@ -23029,42 +23029,34 @@
 		"NOTE": "SEIJUN CARDS START",
 		"id": "seijun_taleofninesorrows",
 		"type": "ultra",
-		"display_name": "Metsu Hadoken",
+		"display_name": "Tale of Nine Sorrows",
 		"force_cost": 0,
 		"gauge_cost": 4,
-		"range_min": 3,
-		"range_max": 5,
-		"speed": 5,
-		"power": 7,
+		"range_min": 1,
+		"range_max": 3,
+		"speed": 4,
+		"power": 9,
 		"armor": 0,
-		"guard": 0,
+		"guard": 4,
 		"effects": [
-			{
-				"timing": "after",
-				"effect_type": "choice",
-				"choice": [
-					{ "effect_type": "advance", "amount": 1 },
-					{ "effect_type": "advance", "amount": 2 },
-					{ "effect_type": "retreat", "amount": 1 },
-					{ "effect_type": "retreat", "amount": 2 },
-					{ "effect_type": "pass" }
-				]
-			}
 		],
 		"boost": {
-			"boost_type": "continuous",
-			"force_cost": 1,
+			"boost_type": "immediate",
+			"force_cost": 0,
 			"cancel_cost": -1,
-			"display_name": "Way of the Warrior",
+			"display_name": "Ancient Ambition",
 			"effects": [
 				{
-					"timing": "during_strike",
-					"effect_type": "powerup",
-					"amount": 2,
-					"and": {
-						"effect_type": "speedup",
-						"amount": 2
-					}
+					"timing": "immediate",
+					"effect_type": "choice",
+					"choice": [
+						{ "effect_type": "draw", "amount": 1 },
+						{ "effect_type": "draw", "amount": 2 },
+						{ "effect_type": "draw", "amount": 3 },
+						{ "effect_type": "draw", "amount": 4 },
+						{ "effect_type": "draw", "amount": 5 },
+						{ "effect_type": "pass" }
+					]
 				}
 			]
 		}
@@ -23072,40 +23064,38 @@
 	{
 		"id": "seijun_taleofseventrials",
 		"type": "ultra",
-		"display_name": "Metsu Shoryuken",
+		"display_name": "Tale of Seven Trials",
 		"force_cost": 0,
 		"gauge_cost": 4,
 		"range_min": 1,
-		"range_max": 1,
-		"speed": 5,
-		"power": 7,
+		"range_max": 7,
+		"speed": 2,
+		"power": "CARDS_IN_HAND",
+		"max_base_power": 15,
 		"armor": 0,
 		"guard": 0,
 		"effects": [
-			{
-				"timing": "during_strike",
-				"condition": "not_initiated_strike",
-				"effect_type": "speedup",
-				"amount": 3
-			}
 		],
 		"boost": {
-			"boost_type": "immediate",
+			"boost_type": "continuous",
 			"force_cost": 1,
 			"cancel_cost": -1,
-			"display_name": "Lightning Reflexes",
+			"display_name": "Heart of the Mountain",
 			"effects": [
 				{
-					"timing": "immediate",
-					"effect_type": "choice",
-					"choice": [
-						{ "effect_type": "advance", "amount": 2 },
-						{ "effect_type": "retreat", "amount": 2 }
-					]
+					"timing": "during_strike",
+					"effect_type": "stun_immunity",
+					"and": {
+						"effect_type": "opponent_cant_move_past"
+					}
 				},
 				{
-					"timing": "immediate",
-					"effect_type": "strike"
+					"timing": "now",
+					"effect_type": "opponent_cant_move_past"
+				},
+				{
+					"timing": "discarded",
+					"effect_type": "remove_opponent_cant_move_past"
 				}
 			]
 		}
@@ -23113,24 +23103,17 @@
 	{
 		"id": "seijun_inksplash",
 		"type": "special",
-		"display_name": "Donkey Kick",
+		"display_name": "Ink Splash",
 		"force_cost": 0,
 		"gauge_cost": 0,
 		"range_min": 1,
-		"range_max": 2,
-		"speed": 4,
-		"power": 6,
+		"range_max": 3,
+		"speed": "CARDS_IN_HAND",
+		"max_base_speed": 7,
+		"power": 4,
 		"armor": 0,
-		"guard": 4,
+		"guard": 0,
 		"effects": [
-			{
-				"timing": "hit",
-				"effect_type": "push",
-				"amount": 2,
-				"and": {
-					"effect_type": "gain_advantage"
-				}
-			}
 		],
 		"boost": {
 			"boost_type": "transform",
@@ -23148,30 +23131,28 @@
 	{
 		"id": "seijun_yokaibanishing",
 		"type": "special",
-		"display_name": "One Inch Punch",
+		"display_name": "Yokai Banishing",
 		"force_cost": 0,
 		"gauge_cost": 0,
 		"range_min": 1,
-		"range_max": 1,
-		"speed": 3,
-		"power": 5,
+		"range_max": 2,
+		"speed": 6,
+		"power": 1,
 		"armor": 0,
-		"guard": 6,
+		"guard": 0,
 		"effects": [
 			{
-				"timing": "during_strike",
-				"condition": "is_critical",
-				"effect_type": "armorup",
-				"amount": 2
-			},
-			{
-				"timing": "during_strike",
-				"effect_type": "ignore_armor"
-			},
-			{
 				"timing": "hit",
-				"effect_type": "push",
-				"amount": 3
+				"effect_type": "repeat_effect_optionally",
+				"amount": 2,
+				"not_optional": true,
+				"linked_effect": {
+					"effect_type": "choice",
+					"choice": [
+						{ "effect_type": "draw", "amount": 1 },
+						{ "effect_type": "push", "amount": 1 }
+					]
+				}
 			}
 		],
 		"boost": {
@@ -23190,28 +23171,23 @@
 	{
 		"id": "seijun_inariguidance",
 		"type": "special",
-		"display_name": "Tatsumaki Senpukyaku",
+		"display_name": "Inari Guidance",
 		"force_cost": 0,
 		"gauge_cost": 0,
-		"range_min": 1,
-		"range_max": 2,
-		"speed": 3,
+		"range_min": 2,
+		"range_max": 3,
+		"speed": 4,
 		"power": 5,
 		"armor": 0,
-		"guard": 4,
+		"guard": 0,
 		"effects": [
 			{
 				"timing": "before",
-				"effect_type": "advance",
-				"amount": 2,
-				"and": {
-					"condition": "advanced_through",
-					"effect_type": "add_attack_effect",
-					"added_effect": {
-						"timing": "hit",
-						"effect_type": "gain_advantage"
-					}
-				}
+				"effect_type": "choice",
+				"choice": [
+					{ "effect_type": "advance", "amount": 9 },
+					{ "effect_type": "pass" }
+				]
 			}
 		],
 		"boost": {
@@ -23230,36 +23206,17 @@
 	{
 		"id": "seijun_inkspike",
 		"type": "special",
-		"display_name": "Hadoken",
+		"display_name": "Ink Spike",
 		"force_cost": 0,
 		"gauge_cost": 0,
-		"range_min": 3,
-		"range_max": 6,
+		"range_min": 1,
+		"range_max": 3,
 		"speed": 4,
-		"power": 4,
+		"power": "CARDS_IN_HAND",
+		"max_base_power": 7,
 		"armor": 0,
 		"guard": 0,
 		"effects": [
-			{
-				"timing": "during_strike",
-				"condition": "is_critical",
-				"effect_type": "speedup",
-				"amount": 2
-			},
-			{
-				"timing": "after",
-				"condition": "hit_opponent",
-				"effect_type": "choice",
-				"choice": [
-					{
-						"effect_type": "return_attack_to_top_of_deck",
-						"and": {
-							"effect_type": "add_top_discard_to_gauge"
-						}
-					},
-					{ "effect_type": "pass" }
-				]
-			}
 		],
 		"boost": {
 			"boost_type": "transform",
@@ -23278,27 +23235,20 @@
 		"NOTE": "SEIJUN CARDS END",
 		"id": "seijun_foxfire",
 		"type": "special",
-		"display_name": "Shoryuken",
+		"display_name": "Fox Fire",
 		"force_cost": 0,
 		"gauge_cost": 0,
 		"range_min": 1,
-		"range_max": 1,
-		"speed": 5,
-		"power": 4,
+		"range_max": 2,
+		"speed": 3,
+		"power": 6,
 		"armor": 0,
-		"guard": 0,
+		"guard": 4,
 		"effects": [
 			{
-				"timing": "during_strike",
-				"condition": "not_initiated_strike",
-				"effect_type": "speedup",
+				"timing": "after",
+				"effect_type": "push",
 				"amount": 2
-			},
-			{
-				"timing": "before",
-				"condition": "is_critical",
-				"effect_type": "close",
-				"amount": 1
 			}
 		],
 		"boost": {
