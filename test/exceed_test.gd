@@ -143,9 +143,9 @@ func advance_turn(player):
 	assert_true(game_logic.do_prepare(player),
 			"Player %s tried to prepare but could not (%s)." % [
 					player.my_id + 1, game_or_decision_state_string()])
-	if player.hand.size() > 7:
+	if player.hand.size() > player.max_hand_size:
 		var cards = []
-		var to_discard = player.hand.size() - 7
+		var to_discard = player.hand.size() - player.max_hand_size
 		for i in range(to_discard):
 			cards.append(player.hand[i].id)
 		assert_true(game_logic.do_discard_to_max(player, cards))

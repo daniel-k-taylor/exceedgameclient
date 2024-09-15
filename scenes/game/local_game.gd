@@ -2125,25 +2125,23 @@ class Player:
 
 		var draw_from_index = 0
 		for i in range(num_to_draw):
-			if from_bottom:
-				draw_from_index = len(deck)-1
+			var draw_finished = false
+			while not draw_finished:
+				if from_bottom:
+					draw_from_index = len(deck)-1
 
-			if len(deck) > 0:
-				var card = deck[draw_from_index]
-				hand.append(card)
-				deck.remove_at(draw_from_index)
-				if draw_from_index == 0:
-					on_hand_removed_topdeck(card.id)
-				events += [parent.create_event(Enums.EventType.EventType_Draw, my_id, card.id)]
-			else:
-				events += reshuffle_discard(false)
-				if not parent.game_over:
-					if from_bottom:
-						draw_from_index = len(deck)-1
+				if len(deck) > 0:
 					var card = deck[draw_from_index]
 					hand.append(card)
 					deck.remove_at(draw_from_index)
+					if draw_from_index == 0:
+						on_hand_removed_topdeck(card.id)
 					events += [parent.create_event(Enums.EventType.EventType_Draw, my_id, card.id)]
+					draw_finished = true
+				else:
+					events += reshuffle_discard(false)
+					if parent.game_over:
+						draw_finished = true
 
 			if update_if_empty:
 				update_public_hand_if_deck_empty()
@@ -3094,6 +3092,12 @@ class Player:
 
 	func is_card_in_continuous_boosts(id : int):
 		for card in continuous_boosts:
+			if card.id == id:
+				return true
+		return false
+
+	func is_card_in_transforms(id : int):
+		for card in transforms:
 			if card.id == id:
 				return true
 		return false
@@ -5569,7 +5573,8 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 			events += [create_event(Enums.EventType.EventType_Strike_GuardUp, performing_player.my_id, amount)]
 		"guardup_per_two_cards_in_hand":
 			performing_player.strike_stat_boosts.guardup_per_two_cards_in_hand = true
-			var guard_boost = floor(len(performing_player.hand) / 2)
+			var hand_size = len(performing_player.hand)
+			var guard_boost = floor(hand_size / 2.0)
 			events += [create_event(Enums.EventType.EventType_Strike_GuardUp, performing_player.my_id, guard_boost)]
 		"higher_speed_misses":
 			performing_player.strike_stat_boosts.higher_speed_misses = true
@@ -8848,7 +8853,8 @@ func get_total_guard(performing_player : Player):
 	var guard_modifier = performing_player.strike_stat_boosts.guard
 
 	if performing_player.strike_stat_boosts.guardup_per_two_cards_in_hand:
-		guard_modifier += floor(len(performing_player.hand) / 2)
+		var hand_size = len(performing_player.hand)
+		guard_modifier += floor(hand_size / 2.0)
 
 	return guard + guard_modifier
 
