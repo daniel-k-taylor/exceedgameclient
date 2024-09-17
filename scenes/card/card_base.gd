@@ -90,6 +90,7 @@ var focus_rot
 var cancel_visible_on_front
 var card_image
 var cardback_image
+var card_url_loaded_image
 
 var selected = false
 
@@ -306,7 +307,7 @@ func position_card_in_hand(dst_pos, dst_rot):
 func _process(_delta):
 	pass
 
-func initialize_card(id, image, card_back_image, is_opponent: bool):
+func initialize_card(id, image, card_back_image, is_opponent: bool, url_loaded_image):
 	card_id = id
 	var starting_scale = HandCardScale
 	if is_opponent:
@@ -315,24 +316,37 @@ func initialize_card(id, image, card_back_image, is_opponent: bool):
 	resting_scale = starting_scale
 	card_features.scale = starting_scale
 	focus_feature.scale = starting_scale
+
 	card_image = image
 	cardback_image = card_back_image
+	card_url_loaded_image = url_loaded_image
 	assert(image, "Must have image for card")
-	fancy_card.texture = load(image)
+
+	if url_loaded_image:
+		fancy_card.texture = url_loaded_image
+	else:
+		fancy_card.texture = load(image)
+
 	fancy_card.visible = true
 	if cardback_image:
 		card_back.texture = load(card_back_image)
 
-func initialize_simple(id, image, card_back_image):
+func initialize_simple(id, image, card_back_image, url_loaded_image):
 	card_id = id
 	var starting_scale = HandCardScale
 	default_scale = starting_scale
 	resting_scale = starting_scale
 	card_features.scale = starting_scale
 	focus_feature.scale = starting_scale
+
 	card_image = image
 	cardback_image = card_back_image
-	fancy_card.texture = load(image)
+	card_url_loaded_image = url_loaded_image
+	if url_loaded_image:
+		fancy_card.texture = url_loaded_image
+	else:
+		fancy_card.texture = load(image)
+
 	fancy_card.visible = true
 	if cardback_image:
 		card_back.texture = load(card_back_image)

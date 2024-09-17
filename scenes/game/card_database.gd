@@ -2,6 +2,7 @@ class_name CardDatabase
 extends Node
 
 var all_cards = {}  # int (runtime id) --> GameCard
+var card_images : CardImageLoader
 
 func teardown():
 	for card in all_cards.values():
@@ -10,8 +11,13 @@ func teardown():
 
 ## Basic operations
 
+func _init(card_image_loader):
+	card_images = card_image_loader
+
 func add_card(card : GameCard) -> void:
 	all_cards[card.id] = card
+	if !card.image_atlas.is_empty():
+		card_images.load_image_page(card.image_atlas)
 
 func get_card(id : int):
 	return all_cards.get(id, null)

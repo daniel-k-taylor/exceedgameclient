@@ -83,6 +83,10 @@ var game_state : Enums.GameState = Enums.GameState.GameState_NotStarted
 
 var full_combat_log : Array = []
 
+var image_loader : CardImageLoader
+func _init(card_image_loader):
+	image_loader = card_image_loader
+
 func get_combat_log(log_type_filters):
 	var filtered_log = full_combat_log.filter(func (item): return item['log_type'] in log_type_filters)
 	var log_strings = filtered_log.map(_full_log_item_to_string)
@@ -798,7 +802,15 @@ class Player:
 		sealed = []
 		for deck_card_def in deck_def['cards']:
 			var card_def = CardDefinitions.get_card(deck_card_def['definition_id'])
-			var card = GameCard.new(card_start_id, card_def, deck_card_def['image'], id)
+
+			var image_atlas = {}
+			var image_index = 0
+			if 'image_resources' in deck_def:
+				image_atlas = deck_def['image_resources'][deck_card_def['image_name']]
+				image_index = deck_card_def['image_index']
+
+			var card = GameCard.new(card_start_id, card_def, deck_card_def['image'], id,
+				image_atlas, image_index)
 			card_database.add_card(card)
 			if 'set_aside' in deck_card_def and deck_card_def['set_aside']:
 				card.set_aside = true
@@ -3244,7 +3256,7 @@ func initialize_game(player_deck,
 		first_player : Enums.PlayerId,
 		seed_value : int):
 	random_number_generator.seed = seed_value
-	card_db = CardDatabase.new()
+	card_db = CardDatabase.new(image_loader)
 	var player_card_id_start = 100
 	var opponent_card_id_start = 200
 	if first_player == Enums.PlayerId.PlayerId_Opponent:

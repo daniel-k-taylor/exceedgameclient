@@ -21,7 +21,8 @@ func default_game_setup(alt_opponent : String = ""):
 	var opponent_deck = default_deck
 	if alt_opponent:
 		opponent_deck = CardDefinitions.get_deck_from_str_id(alt_opponent)
-	game_logic = LocalGame.new()
+	var image_loader = CardImageLoader.new(true)
+	game_logic = LocalGame.new(image_loader)
 	var seed_value = randi()
 	game_logic.initialize_game(default_deck, opponent_deck, "p1", "p2",
 			Enums.PlayerId.PlayerId_Player, seed_value)

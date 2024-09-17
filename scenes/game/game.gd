@@ -82,6 +82,7 @@ var popout_instruction_info = null
 var ChoiceTagRegex = RegEx.new()
 
 var first_run_done = false
+var first_run_in_progress = false
 var select_card_require_min = 0
 var select_card_require_max = 0
 var select_card_name_card_both_players = false
@@ -282,8 +283,17 @@ func printlog(text):
 		print("UI: %s" % text)
 
 # Called when the node enters the scene tree for the first time.
+var started_directly : bool = true
+var image_loader : CardImageLoader
+
+func set_not_started_directly():
+	started_directly = false
+
 func _ready():
-	if player_deck == null:
+	image_loader = CardImageLoader.new()
+	add_child(image_loader)
+
+	if started_directly:
 		# Started this scene directly.
 		var vs_info = {
 			'player_deck': CardDefinitions.get_deck_test_deck(),
@@ -291,7 +301,9 @@ func _ready():
 			'randomize_first_vs_ai': false
 		}
 		begin_local_game(vs_info)
+		initialization_after_begin_game()
 
+func initialization_after_begin_game():
 	if not game_wrapper.is_ai_game():
 		$AIMoveButton.visible = false
 	else:
@@ -362,7 +374,7 @@ func begin_local_game(vs_info):
 	player_deck = vs_info['player_deck']
 	opponent_deck = vs_info['opponent_deck']
 	var randomize_first_player = vs_info['randomize_first_vs_ai']
-	game_wrapper.initialize_local_game(player_deck, opponent_deck, randomize_first_player)
+	game_wrapper.initialize_local_game(player_deck, opponent_deck, randomize_first_player, image_loader)
 
 func begin_remote_game(game_start_message):
 	starting_message = game_start_message.duplicate()
@@ -420,7 +432,8 @@ func begin_remote_game(game_start_message):
 		seed_value,
 		observer_mode,
 		replay_mode,
-		starting_message_queue)
+		starting_message_queue,
+		image_loader)
 
 func set_player_as_clock_user(player_id : Enums.PlayerId):
 	current_clock_user = player_id
@@ -560,7 +573,7 @@ func build_character_path(deck_id, character_id, exceed):
 
 func finish_initialization():
 	opponent_name_label.text = game_wrapper.get_player_name(Enums.PlayerId.PlayerId_Opponent)
-	spawn_all_cards()
+	await spawn_all_cards()
 
 func test_init():
 	if Test_StartWithGauge:
@@ -578,8 +591,9 @@ func first_run():
 	update_arena_squares()
 	_update_buttons()
 
-	finish_initialization()
+	await finish_initialization()
 	change_ui_state(UIState.UIState_WaitForGameServer)
+	first_run_done = true
 
 func create_character_reference_card(path_root : String, exceeded : bool, zone):
 	var image_path = path_root + "character_default.jpg"
@@ -600,7 +614,8 @@ func _create_reference_card(image_path : String, card_name : String, zone, card_
 		card_id,
 		image_path,
 		image_path,
-		false
+		false,
+		null
 	)
 	new_card.name = card_name
 	new_card.raised_card.connect(on_card_raised)
@@ -635,7 +650,8 @@ func spawn_deck(deck_id,
 	for card in deck_list:
 		var logic_card : GameCard = card_db.get_card(card.id)
 		var image_path = get_card_image_path(deck_id, logic_card)
-		var new_card = create_card(card.id, logic_card.definition, image_path, card_back_image, deck_card_zone, is_opponent)
+		var new_card = await create_card(card.id, logic_card.definition, image_path, card_back_image,
+			deck_card_zone, is_opponent, logic_card.get_image_url_index_data())
 		if observer_mode and not replay_mode:
 			new_card.skip_flip_when_drawing = true
 		if logic_card.set_aside:
@@ -659,7 +675,8 @@ func spawn_deck(deck_id,
 			continue
 		var image_path = card_root_path + logic_card.image
 		if previous_def_id != logic_card.definition['id']:
-			var copy_card = create_card(card.id + ReferenceScreenIdRangeStart, logic_card.definition, image_path, card_back_image, copy_zone, is_opponent)
+			var copy_card = await create_card(card.id + ReferenceScreenIdRangeStart, logic_card.definition,
+				image_path, card_back_image, copy_zone, is_opponent, logic_card.get_image_url_index_data())
 			copy_card.set_card_and_focus(OffScreen, 0, CardBase.ReferenceCardScale)
 			copy_card.resting_scale = CardBase.ReferenceCardScale
 			copy_card.change_state(CardBase.CardState.CardState_Offscreen)
@@ -736,9 +753,9 @@ func spawn_all_cards():
 	var player_can_click_buddy = 'link_extra_cards_to_buddies' in player_deck and player_deck['link_extra_cards_to_buddies']
 	var opponent_can_click_buddy = 'link_extra_cards_to_buddies' in opponent_deck and opponent_deck['link_extra_cards_to_buddies']
 
-	spawn_deck(player_deck_id, game_wrapper.get_player_deck_list(Enums.PlayerId.PlayerId_Player), $AllCards/PlayerDeck, $AllCards/PlayerAllCopy,
+	await spawn_deck(player_deck_id, game_wrapper.get_player_deck_list(Enums.PlayerId.PlayerId_Player), $AllCards/PlayerDeck, $AllCards/PlayerAllCopy,
 		player_buddy_graphics, $AllCards/PlayerBuddyCopy, player_can_click_buddy, $AllCards/PlayerSetAside, player_cardback, false)
-	spawn_deck(opponent_deck_id, game_wrapper.get_player_deck_list(Enums.PlayerId.PlayerId_Opponent), $AllCards/OpponentDeck, $AllCards/OpponentAllCopy,
+	await spawn_deck(opponent_deck_id, game_wrapper.get_player_deck_list(Enums.PlayerId.PlayerId_Opponent), $AllCards/OpponentDeck, $AllCards/OpponentAllCopy,
 		opponent_buddy_graphics, $AllCards/OpponentBuddyCopy, opponent_can_click_buddy, $AllCards/OpponentSetAside, opponent_cardback, true)
 
 func get_arena_location_button(arena_location):
@@ -788,8 +805,10 @@ func _process(delta):
 	if exiting:
 		return
 	if not first_run_done:
-		first_run()
-		first_run_done = true
+		if not first_run_in_progress:
+			first_run_in_progress = true
+			await first_run()
+		return
 	if ui_state == UIState.UIState_PlayingAnimation:
 		remaining_delay -= delta
 		if remaining_delay <= 0:
@@ -949,18 +968,25 @@ func update_card_counts():
 func get_card_node_name(id):
 	return "Card_" + str(id)
 
-func create_card(id, card_def, image, card_back_image, parent, is_opponent : bool) -> CardBase:
+func create_card(id, card_def, image, card_back_image, parent, is_opponent : bool, image_url_index) -> CardBase:
 	var new_card : CardBase = CardBaseScene.instantiate()
 	parent.add_child(new_card)
 	var strike_cost = card_def['gauge_cost']
 	if strike_cost == 0:
 		strike_cost = card_def['force_cost']
+
+	var url_loaded_image = null
+	if image_url_index:
+		url_loaded_image = await image_loader.get_card_image(image_url_index["url"], image_url_index["index"])
+
 	new_card.initialize_card(
 		id,
 		image,
 		card_back_image,
-		is_opponent
+		is_opponent,
+		url_loaded_image
 	)
+
 	new_card.name = get_card_node_name(id)
 	new_card.raised_card.connect(on_card_raised)
 	new_card.lowered_card.connect(on_card_lowered)
@@ -1813,7 +1839,8 @@ func begin_choose_opponent_card_to_discard(card_ids):
 	for card_id in card_ids:
 		var logic_card : GameCard = card_db.get_card(card_id)
 		var card_image = get_card_image_path(opponent_deck['id'], logic_card)
-		var copy_card = create_card(card_id + ChoiceCopyIdRangeStart, logic_card.definition, card_image, "", choice_zone_parent, true)
+		var copy_card = await create_card(card_id + ChoiceCopyIdRangeStart, logic_card.definition,
+			card_image, "", choice_zone_parent, true, logic_card.get_image_url_index_data())
 		copy_card.set_card_and_focus(OffScreen, 0, CardBase.ReferenceCardScale)
 		copy_card.resting_scale = CardBase.ReferenceCardScale
 		copy_card.change_state(CardBase.CardState.CardState_Offscreen)
@@ -2750,7 +2777,8 @@ func add_revealed_card(card_id : int):
 	var card_db = game_wrapper.get_card_database()
 	var logic_card : GameCard = card_db.get_card(card_id)
 	var card_image = get_card_image_path(opponent_deck['id'], logic_card)
-	var copy_card = create_card(card_id + RevealCopyIdRangestart, logic_card.definition, card_image, "", $AllCards/OpponentRevealed, true)
+	var copy_card = await create_card(card_id + RevealCopyIdRangestart, logic_card.definition, card_image,
+		"", $AllCards/OpponentRevealed, true, logic_card.get_image_url_index_data())
 	copy_card.set_card_and_focus(OffScreen, 0, CardBase.ReferenceCardScale)
 	copy_card.resting_scale = CardBase.ReferenceCardScale
 	copy_card.change_state(CardBase.CardState.CardState_Offscreen)

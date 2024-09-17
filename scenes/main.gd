@@ -16,6 +16,9 @@ func _ready():
 	$MainMenu.settings_loaded()
 	NetworkManager.connect_to_server()
 
+	var http_request = HTTPRequest.new()
+	add_child(http_request)
+
 func _on_return_from_game():
 	$MainMenu.visible = true
 	$MainMenu.returned_from_game()
@@ -42,8 +45,10 @@ func _on_main_menu_start_game(vs_info):
 	$MainMenu.stop_music()
 	game = GameScene.instantiate()
 	game.connect("returning_from_game", _on_return_from_game)
-	game.begin_local_game(vs_info)
+	game.set_not_started_directly()
 	add_child(game)
+	game.begin_local_game(vs_info)
+	game.initialization_after_begin_game()
 	create_versus_splash(vs_info)
 
 # Listens for a signal from _start_remote_game in main_menu.
@@ -52,6 +57,8 @@ func _on_main_menu_start_remote_game(vs_info, data):
 	$MainMenu.stop_music()
 	game = GameScene.instantiate()
 	game.connect("returning_from_game", _on_return_from_game)
-	game.begin_remote_game(data)
+	game.set_not_started_directly()
 	add_child(game)
+	game.begin_remote_game(data)
+	game.initialization_after_begin_game()
 	create_versus_splash(vs_info)
