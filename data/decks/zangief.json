@@ -2,7 +2,6 @@
 	"id": "zangief",
 	"season": 3,
 	"display_name": "Zangief",
-	"cardback": "cardback_defaultexceed.png",
 	"exceed_cost": 3,
 	"on_exceed": {
 		"effect_type": "choice",
@@ -69,6 +68,18 @@
 		}
 	],
 	"image_resources": {
+		"character_default": {
+			"url": "https://i.imgur.com/cTRX9mh.jpeg",
+			"multiple_cards": false
+		},
+		"character_exceeded": {
+			"url": "https://i.imgur.com/kloV3TF.jpeg",
+			"multiple_cards": false
+		},
+		"cardback": {
+			"url": "https://i.imgur.com/igYZhPh.png",
+			"multiple_cards": false
+		},
 		"specials": {
 			"url": "https://i.imgur.com/7V6ulyz.jpeg",
 			"multiple_cards": true

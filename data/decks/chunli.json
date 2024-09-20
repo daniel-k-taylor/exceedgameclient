@@ -2,7 +2,6 @@
 	"id": "chunli",
 	"season": 3,
 	"display_name": "Chun-Li",
-	"cardback": "cardback_defaultexceed.png",
 	"exceed_cost": 3,
 	"ability_effects": [
 		{
@@ -56,6 +55,18 @@
 		}
 	],
 	"image_resources": {
+		"character_default": {
+			"url": "https://i.imgur.com/8PlvX7B.jpeg",
+			"multiple_cards": false
+		},
+		"character_exceeded": {
+			"url": "https://i.imgur.com/DlVnWrv.jpeg",
+			"multiple_cards": false
+		},
+		"cardback": {
+			"url": "https://i.imgur.com/igYZhPh.png",
+			"multiple_cards": false
+		},
 		"specials": {
 			"url": "https://i.imgur.com/gGLXf48.jpeg",
 			"multiple_cards": true

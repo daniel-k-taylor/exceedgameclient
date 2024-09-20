@@ -2,7 +2,6 @@
 	"id": "cammy",
 	"season": 3,
 	"display_name": "Cammy",
-	"cardback": "cardback_defaultexceed.png",
 	"exceed_cost": 3,
 	"ability_effects": [
 		{
@@ -49,6 +48,18 @@
 		}
 	],
 	"image_resources": {
+		"character_default": {
+			"url": "https://i.imgur.com/GtFasOz.jpeg",
+			"multiple_cards": false
+		},
+		"character_exceeded": {
+			"url": "https://i.imgur.com/4IAQ3kI.jpeg",
+			"multiple_cards": false
+		},
+		"cardback": {
+			"url": "https://i.imgur.com/igYZhPh.png",
+			"multiple_cards": false
+		},
 		"specials": {
 			"url": "https://i.imgur.com/HTiaOfp.jpeg",
 			"multiple_cards": true

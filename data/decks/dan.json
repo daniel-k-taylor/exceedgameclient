@@ -2,7 +2,6 @@
 	"id": "dan",
 	"season": 3,
 	"display_name": "Dan Hibiki",
-	"cardback": "cardback_defaultexceed.png",
 	"exceed_cost": 2,
 	"on_exceed": {
 		"effect_type": "set_dan_draw_choice"
@@ -71,6 +70,18 @@
 		}
 	],
 	"image_resources": {
+		"character_default": {
+			"url": "https://i.imgur.com/XlGRdjA.jpeg",
+			"multiple_cards": false
+		},
+		"character_exceeded": {
+			"url": "https://i.imgur.com/ATndgNk.jpeg",
+			"multiple_cards": false
+		},
+		"cardback": {
+			"url": "https://i.imgur.com/igYZhPh.png",
+			"multiple_cards": false
+		},
 		"specials": {
 			"url": "https://i.imgur.com/7F7oHlM.jpeg",
 			"multiple_cards": true

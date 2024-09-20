@@ -2,7 +2,6 @@
 	"id": "vega",
 	"season": 3,
 	"display_name": "Vega",
-	"cardback": "cardback_defaultexceed.png",
 	"exceed_cost": 3,
 	"ability_effects": [
 		{
@@ -93,6 +92,18 @@
 		}
 	],
 	"image_resources": {
+		"character_default": {
+			"url": "https://i.imgur.com/ef9BJn7.jpeg",
+			"multiple_cards": false
+		},
+		"character_exceeded": {
+			"url": "https://i.imgur.com/RiBeRZz.jpeg",
+			"multiple_cards": false
+		},
+		"cardback": {
+			"url": "https://i.imgur.com/igYZhPh.png",
+			"multiple_cards": false
+		},
 		"specials": {
 			"url": "https://i.imgur.com/QVSOm50.jpeg",
 			"multiple_cards": true

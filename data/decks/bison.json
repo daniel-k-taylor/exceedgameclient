@@ -2,7 +2,6 @@
 	"id": "bison",
 	"season": 3,
 	"display_name": "M. Bison",
-	"cardback": "cardback_defaultexceed.png",
 	"exceed_cost": 3,
 	"on_exceed": {
 		"effect_type": "gauge_from_hand",
@@ -70,6 +69,18 @@
 		}
 	],
 	"image_resources": {
+		"character_default": {
+			"url": "https://i.imgur.com/s1GOT0M.jpeg",
+			"multiple_cards": false
+		},
+		"character_exceeded": {
+			"url": "https://i.imgur.com/4xdQdxl.jpeg",
+			"multiple_cards": false
+		},
+		"cardback": {
+			"url": "https://i.imgur.com/igYZhPh.png",
+			"multiple_cards": false
+		},
 		"specials": {
 			"url": "https://i.imgur.com/30gSWlD.jpeg",
 			"multiple_cards": true

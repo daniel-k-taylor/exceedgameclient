@@ -2,7 +2,6 @@
 	"id": "guile",
 	"season": 3,
 	"display_name": "Guile",
-	"cardback": "cardback_defaultexceed.png",
 	"exceed_cost": 2,
 	"guile_change_cards_bonus": true,
 	"on_exceed": {
@@ -35,6 +34,18 @@
 		}
 	],
 	"image_resources": {
+		"character_default": {
+			"url": "https://i.imgur.com/E379lZa.jpeg",
+			"multiple_cards": false
+		},
+		"character_exceeded": {
+			"url": "https://i.imgur.com/5V1hb9r.jpeg",
+			"multiple_cards": false
+		},
+		"cardback": {
+			"url": "https://i.imgur.com/igYZhPh.png",
+			"multiple_cards": false
+		},
 		"specials": {
 			"url": "https://i.imgur.com/7H6UJmc.jpeg",
 			"multiple_cards": true
