@@ -2,7 +2,6 @@
 	"id": "beheaded",
 	"season": 4,
 	"display_name": "The Beheaded",
-	"cardback": "cardback_beheaded.jpg",
 	"buddy_cards": [
 		"beheaded_trait_brutality",
 		"beheaded_trait_survival",
@@ -37,6 +36,18 @@
 		}
 	],
 	"image_resources": {
+		"character_default": {
+			"url": "https://i.imgur.com/aGBsbck.jpeg",
+			"multiple_cards": false
+		},
+		"character_exceeded": {
+			"url": "https://i.imgur.com/QRSPlfK.jpeg",
+			"multiple_cards": false
+		},
+		"cardback": {
+			"url": "https://i.imgur.com/MfMlgg9.jpg",
+			"multiple_cards": false
+		},
 		"specials": {
 			"url": "https://i.imgur.com/jLbyVUW.jpeg",
 			"multiple_cards": true
@@ -45,15 +56,15 @@
 			"url": "https://i.imgur.com/a0cqvcG.jpg",
 			"multiple_cards": true
 		},
-		"trait_brutality": {
+		"beheaded_trait_brutality": {
 			"url": "https://i.imgur.com/CvazfAy.jpeg",
 			"multiple_cards": false
 		},
-		"trait_survival": {
+		"beheaded_trait_survival": {
 			"url": "https://i.imgur.com/JJBszgP.jpeg",
 			"multiple_cards": false
 		},
-		"trait_tactics": {
+		"beheaded_trait_tactics": {
 			"url": "https://i.imgur.com/L3F9Ud0.jpeg",
 			"multiple_cards": false
 		}
@@ -63,21 +74,21 @@
 			"set_aside": true,
 			"hide_from_reference": true,
 			"definition_id": "beheaded_trait_brutality",
-			"image_name": "trait_brutality",
+			"image_name": "beheaded_trait_brutality",
 			"image_index": 0
 		},
 		{
 			"set_aside": true,
 			"hide_from_reference": true,
 			"definition_id": "beheaded_trait_survival",
-			"image_name": "trait_survival",
+			"image_name": "beheaded_trait_survival",
 			"image_index": 0
 		},
 		{
 			"set_aside": true,
 			"hide_from_reference": true,
 			"definition_id": "beheaded_trait_tactics",
-			"image_name": "trait_tactics",
+			"image_name": "beheaded_trait_tactics",
 			"image_index": 0
 		},
 		{

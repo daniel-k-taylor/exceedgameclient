@@ -2,7 +2,6 @@
 	"id": "mole",
 	"season": 4,
 	"display_name": "Mole Knight",
-	"cardback": "cardback_mole.jpg",
 	"exceed_cost": 4,
 	"buddy_card": "burrow",
 	"buddy_display_name": "Burrow",
@@ -87,6 +86,26 @@
 		}
 	],
 	"image_resources": {
+		"character_default": {
+			"url": "https://i.imgur.com/FjUlTmd.jpeg",
+			"multiple_cards": false
+		},
+		"character_exceeded": {
+			"url": "https://i.imgur.com/AcvNFft.jpeg",
+			"multiple_cards": false
+		},
+		"cardback": {
+			"url": "https://i.imgur.com/djfLNqb.jpg",
+			"multiple_cards": false
+		},
+		"burrow": {
+			"url": "https://i.imgur.com/ttr2T9I.jpeg",
+			"multiple_cards": false
+		},
+		"burrow_exceeded": {
+			"url": "https://i.imgur.com/ZNNT5EY.jpeg",
+			"multiple_cards": false
+		},
 		"specials": {
 			"url": "https://i.imgur.com/7YiXZD1.jpeg",
 			"multiple_cards": true

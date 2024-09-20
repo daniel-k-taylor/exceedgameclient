@@ -2,7 +2,6 @@
 	"id": "polar",
 	"season": 4,
 	"display_name": "Polar Knight",
-	"cardback": "cardback_polar.jpg",
 	"exceed_cost": 3,
 	"on_exceed": {
 		"effect_type": "place_next_buddy",
@@ -113,6 +112,22 @@
 		}
 	],
 	"image_resources": {
+		"character_default": {
+			"url": "https://i.imgur.com/RMYPlnv.jpeg",
+			"multiple_cards": false
+		},
+		"character_exceeded": {
+			"url": "https://i.imgur.com/shgweee.jpeg",
+			"multiple_cards": false
+		},
+		"cardback": {
+			"url": "https://i.imgur.com/RrodOn3.jpg",
+			"multiple_cards": false
+		},
+		"icespike": {
+			"url": "https://i.imgur.com/nYf8GqL.jpeg",
+			"multiple_cards": false
+		},
 		"specials": {
 			"url": "https://i.imgur.com/0d2KK6g.jpeg",
 			"multiple_cards": true
