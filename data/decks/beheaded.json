@@ -36,144 +36,199 @@
 			}
 		}
 	],
+	"image_resources": {
+		"specials": {
+			"url": "https://i.imgur.com/jLbyVUW.jpeg",
+			"multiple_cards": true
+		},
+		"normals": {
+			"url": "https://i.imgur.com/a0cqvcG.jpg",
+			"multiple_cards": true
+		},
+		"trait_brutality": {
+			"url": "https://i.imgur.com/CvazfAy.jpeg",
+			"multiple_cards": false
+		},
+		"trait_survival": {
+			"url": "https://i.imgur.com/JJBszgP.jpeg",
+			"multiple_cards": false
+		},
+		"trait_tactics": {
+			"url": "https://i.imgur.com/L3F9Ud0.jpeg",
+			"multiple_cards": false
+		}
+	},
 	"cards": [
 		{
 			"set_aside": true,
 			"hide_from_reference": true,
 			"definition_id": "beheaded_trait_brutality",
-			"image": "beheaded_trait_brutality.jpg"
+			"image_name": "trait_brutality",
+			"image_index": 0
 		},
 		{
 			"set_aside": true,
 			"hide_from_reference": true,
 			"definition_id": "beheaded_trait_survival",
-			"image": "beheaded_trait_survival.jpg"
+			"image_name": "trait_survival",
+			"image_index": 0
 		},
 		{
 			"set_aside": true,
 			"hide_from_reference": true,
 			"definition_id": "beheaded_trait_tactics",
-			"image": "beheaded_trait_tactics.jpg"
+			"image_name": "trait_tactics",
+			"image_index": 0
 		},
 		{
 			"definition_id": "beheaded_waveofdenial",
-			"image": "beheaded_waveofdenial.tres"
+			"image_name": "specials",
+			"image_index": 5
 		},
 		{
 			"definition_id": "beheaded_waveofdenial",
-			"image": "beheaded_waveofdenial.tres"
+			"image_name": "specials",
+			"image_index": 5
 		},
 		{
 			"definition_id": "beheaded_phaser",
-			"image": "beheaded_phaser.tres"
+			"image_name": "specials",
+			"image_index": 6
 		},
 		{
 			"definition_id": "beheaded_phaser",
-			"image": "beheaded_phaser.tres"
+			"image_name": "specials",
+			"image_index": 6
 		},
 		{
 			"definition_id": "beheaded_twindaggers",
-			"image": "beheaded_twindaggers.tres"
+			"image_name": "specials",
+			"image_index": 0
 		},
 		{
 			"definition_id": "beheaded_twindaggers",
-			"image": "beheaded_twindaggers.tres"
+			"image_name": "specials",
+			"image_index": 0
 		},
 		{
 			"definition_id": "beheaded_diveattack",
-			"image": "beheaded_diveattack.tres"
+			"image_name": "specials",
+			"image_index": 1
 		},
 		{
 			"definition_id": "beheaded_diveattack",
-			"image": "beheaded_diveattack.tres"
+			"image_name": "specials",
+			"image_index": 1
 		},
 		{
 			"definition_id": "beheaded_wrenchingwhip",
-			"image": "beheaded_wrenchingwhip.tres"
+			"image_name": "specials",
+			"image_index": 2
 		},
 		{
 			"definition_id": "beheaded_wrenchingwhip",
-			"image": "beheaded_wrenchingwhip.tres"
+			"image_name": "specials",
+			"image_index": 2
 		},
 		{
 			"definition_id": "beheaded_infantrybow",
-			"image": "beheaded_infantrybow.tres"
+			"image_name": "specials",
+			"image_index": 3
 		},
 		{
 			"definition_id": "beheaded_infantrybow",
-			"image": "beheaded_infantrybow.tres"
+			"image_name": "specials",
+			"image_index": 3
 		},
 		{
 			"definition_id": "beheaded_assaultshield",
-			"image": "beheaded_assaultshield.tres"
+			"image_name": "specials",
+			"image_index": 4
 		},
 		{
 			"definition_id": "beheaded_assaultshield",
-			"image": "beheaded_assaultshield.tres"
+			"image_name": "specials",
+			"image_index": 4
 		},
 		{
 			"definition_id": "standard_normal_grasp",
-			"image": "normal_grasp.tres"
+			"image_name": "normals",
+			"image_index": 0
 		},
 		{
 			"definition_id": "standard_normal_grasp",
-			"image": "normal_grasp.tres"
+			"image_name": "normals",
+			"image_index": 0
 		},
 		{
 			"definition_id": "standard_normal_cross",
-			"image": "normal_cross.tres"
+			"image_name": "normals",
+			"image_index": 1
 		},
 		{
 			"definition_id": "standard_normal_cross",
-			"image": "normal_cross.tres"
+			"image_name": "normals",
+			"image_index": 1
 		},
 		{
 			"definition_id": "standard_normal_assault",
-			"image": "normal_assault.tres"
+			"image_name": "normals",
+			"image_index": 2
 		},
 		{
 			"definition_id": "standard_normal_assault",
-			"image": "normal_assault.tres"
+			"image_name": "normals",
+			"image_index": 2
 		},
 		{
 			"definition_id": "standard_normal_dive",
-			"image": "normal_dive.tres"
+			"image_name": "normals",
+			"image_index": 3
 		},
 		{
 			"definition_id": "standard_normal_dive",
-			"image": "normal_dive.tres"
+			"image_name": "normals",
+			"image_index": 3
 		},
 		{
 			"definition_id": "standard_normal_spike",
-			"image": "normal_spike.tres"
+			"image_name": "normals",
+			"image_index": 4
 		},
 		{
 			"definition_id": "standard_normal_spike",
-			"image": "normal_spike.tres"
+			"image_name": "normals",
+			"image_index": 4
 		},
 		{
 			"definition_id": "standard_normal_sweep",
-			"image": "normal_sweep.tres"
+			"image_name": "normals",
+			"image_index": 5
 		},
 		{
 			"definition_id": "standard_normal_sweep",
-			"image": "normal_sweep.tres"
+			"image_name": "normals",
+			"image_index": 5
 		},
 		{
 			"definition_id": "standard_normal_focus",
-			"image": "normal_focus.tres"
+			"image_name": "normals",
+			"image_index": 6
 		},
 		{
 			"definition_id": "standard_normal_focus",
-			"image": "normal_focus.tres"
+			"image_name": "normals",
+			"image_index": 6
 		},
 		{
 			"definition_id": "standard_normal_block",
-			"image": "normal_block.tres"
+			"image_name": "normals",
+			"image_index": 7
 		},
 		{
 			"definition_id": "standard_normal_block",
-			"image": "normal_block.tres"
+			"image_name": "normals",
+			"image_index": 7
 		}
 	]
 }

@@ -54,126 +54,166 @@
 			"gauge_max": 1
 		}
 	],
+	"image_resources": {
+		"specials": {
+			"url": "https://i.imgur.com/PDUmgKR.jpeg",
+			"multiple_cards": true
+		},
+		"normals": {
+			"url": "https://i.imgur.com/opQdscv.jpg",
+			"multiple_cards": true
+		}
+	},
 	"cards": [
 		{
 			"definition_id": "specter_barrierlantern",
-			"image": "specter_barrierlantern.tres"
+			"image_name": "specials",
+			"image_index": 5
 		},
 		{
 			"definition_id": "specter_barrierlantern",
-			"image": "specter_barrierlantern.tres"
+			"image_name": "specials",
+			"image_index": 5
 		},
 		{
 			"definition_id": "specter_dreadreaper",
-			"image": "specter_dreadreaper.tres"
+			"image_name": "specials",
+			"image_index": 6
 		},
 		{
 			"definition_id": "specter_dreadreaper",
-			"image": "specter_dreadreaper.tres"
+			"image_name": "specials",
+			"image_index": 6
 		},
 		{
 			"definition_id": "specter_spiderscythe",
-			"image": "specter_spiderscythe.tres"
+			"image_name": "specials",
+			"image_index": 0
 		},
 		{
 			"definition_id": "specter_spiderscythe",
-			"image": "specter_spiderscythe.tres"
+			"image_name": "specials",
+			"image_index": 0
 		},
 		{
 			"definition_id": "specter_throwingsickle",
-			"image": "specter_throwingsickle.tres"
+			"image_name": "specials",
+			"image_index": 1
 		},
 		{
 			"definition_id": "specter_throwingsickle",
-			"image": "specter_throwingsickle.tres"
+			"image_name": "specials",
+			"image_index": 1
 		},
 		{
 			"definition_id": "specter_boundingsoul",
-			"image": "specter_boundingsoul.tres"
+			"image_name": "specials",
+			"image_index": 2
 		},
 		{
 			"definition_id": "specter_boundingsoul",
-			"image": "specter_boundingsoul.tres"
+			"image_name": "specials",
+			"image_index": 2
 		},
 		{
 			"definition_id": "specter_spinscythe",
-			"image": "specter_spinscythe.tres"
+			"image_name": "specials",
+			"image_index": 3
 		},
 		{
 			"definition_id": "specter_spinscythe",
-			"image": "specter_spinscythe.tres"
+			"image_name": "specials",
+			"image_index": 3
 		},
 		{
 			"definition_id": "specter_dreadtalon",
-			"image": "specter_dreadtalon.tres"
+			"image_name": "specials",
+			"image_index": 4
 		},
 		{
 			"definition_id": "specter_dreadtalon",
-			"image": "specter_dreadtalon.tres"
+			"image_name": "specials",
+			"image_index": 4
 		},
 		{
 			"definition_id": "standard_normal_grasp",
-			"image": "normal_grasp.tres"
+			"image_name": "normals",
+			"image_index": 0
 		},
 		{
 			"definition_id": "standard_normal_grasp",
-			"image": "normal_grasp.tres"
+			"image_name": "normals",
+			"image_index": 0
 		},
 		{
 			"definition_id": "standard_normal_cross",
-			"image": "normal_cross.tres"
+			"image_name": "normals",
+			"image_index": 1
 		},
 		{
 			"definition_id": "standard_normal_cross",
-			"image": "normal_cross.tres"
+			"image_name": "normals",
+			"image_index": 1
 		},
 		{
 			"definition_id": "standard_normal_assault",
-			"image": "normal_assault.tres"
+			"image_name": "normals",
+			"image_index": 2
 		},
 		{
 			"definition_id": "standard_normal_assault",
-			"image": "normal_assault.tres"
+			"image_name": "normals",
+			"image_index": 2
 		},
 		{
 			"definition_id": "standard_normal_dive",
-			"image": "normal_dive.tres"
+			"image_name": "normals",
+			"image_index": 3
 		},
 		{
 			"definition_id": "standard_normal_dive",
-			"image": "normal_dive.tres"
+			"image_name": "normals",
+			"image_index": 3
 		},
 		{
 			"definition_id": "standard_normal_spike",
-			"image": "normal_spike.tres"
+			"image_name": "normals",
+			"image_index": 4
 		},
 		{
 			"definition_id": "standard_normal_spike",
-			"image": "normal_spike.tres"
+			"image_name": "normals",
+			"image_index": 4
 		},
 		{
 			"definition_id": "standard_normal_sweep",
-			"image": "normal_sweep.tres"
+			"image_name": "normals",
+			"image_index": 5
 		},
 		{
 			"definition_id": "standard_normal_sweep",
-			"image": "normal_sweep.tres"
+			"image_name": "normals",
+			"image_index": 5
 		},
 		{
 			"definition_id": "standard_normal_focus",
-			"image": "normal_focus.tres"
+			"image_name": "normals",
+			"image_index": 6
 		},
 		{
 			"definition_id": "standard_normal_focus",
-			"image": "normal_focus.tres"
+			"image_name": "normals",
+			"image_index": 6
 		},
 		{
 			"definition_id": "standard_normal_block",
-			"image": "normal_block.tres"
+			"image_name": "normals",
+			"image_index": 7
 		},
 		{
 			"definition_id": "standard_normal_block",
-			"image": "normal_block.tres"
+			"image_name": "normals",
+			"image_index": 7
 		}
 	]
 }

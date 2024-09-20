@@ -32,150 +32,210 @@
 			"amount": 1
 		}
 	],
+	"image_resources": {
+		"specials": {
+			"url": "https://i.imgur.com/DvOMYog.jpeg",
+			"multiple_cards": true
+		},
+		"normals": {
+			"url": "https://i.imgur.com/AGmmf1d.jpg",
+			"multiple_cards": true
+		},
+		"decree_kinglystrut": {
+			"url": "https://i.imgur.com/c1WKSti.jpeg",
+			"multiple_cards": false
+		},
+		"decree_lordlymight": {
+			"url": "https://i.imgur.com/HBcPJQd.jpeg",
+			"multiple_cards": false
+		},
+		"decree_magnificentcape": {
+			"url": "https://i.imgur.com/F9xfsu0.jpeg",
+			"multiple_cards": false
+		},
+		"decree_paytowin": {
+			"url": "https://i.imgur.com/10BnuLp.jpeg",
+			"multiple_cards": false
+		}
+	},
 	"cards": [
 		{
 			"set_aside": true,
 			"hide_from_reference": true,
 			"definition_id": "king_decree_kinglystrut",
-			"image": "king_decree_kinglystrut.jpg"
+			"image_name": "decree_kinglystrut",
+			"image_index": 0
 		},
 		{
 			"set_aside": true,
 			"hide_from_reference": true,
 			"definition_id": "king_decree_lordlymight",
-			"image": "king_decree_lordlymight.jpg"
+			"image_name": "decree_lordlymight",
+			"image_index": 0
 		},
 		{
 			"set_aside": true,
 			"hide_from_reference": true,
 			"definition_id": "king_decree_magnificentcape",
-			"image": "king_decree_magnificentcape.jpg"
+			"image_name": "decree_magnificentcape",
+			"image_index": 0
 		},
 		{
 			"set_aside": true,
 			"hide_from_reference": true,
 			"definition_id": "king_decree_paytowin",
-			"image": "king_decree_paytowin.jpg"
+			"image_name": "decree_paytowin",
+			"image_index": 0
 		},
 		{
 			"definition_id": "king_kingofcards",
-			"image": "king_kingofcards.tres"
+			"image_name": "specials",
+			"image_index": 5
 		},
 		{
 			"definition_id": "king_kingofcards",
-			"image": "king_kingofcards.tres"
+			"image_name": "specials",
+			"image_index": 5
 		},
 		{
 			"definition_id": "king_victorytrumpets",
-			"image": "king_victorytrumpets.tres"
+			"image_name": "specials",
+			"image_index": 6
 		},
 		{
 			"definition_id": "king_victorytrumpets",
-			"image": "king_victorytrumpets.tres"
+			"image_name": "specials",
+			"image_index": 6
 		},
 		{
 			"definition_id": "king_healinghammer",
-			"image": "king_healinghammer.tres"
+			"image_name": "specials",
+			"image_index": 0
 		},
 		{
 			"definition_id": "king_healinghammer",
-			"image": "king_healinghammer.tres"
+			"image_name": "specials",
+			"image_index": 0
 		},
 		{
 			"definition_id": "king_scepterslam",
-			"image": "king_scepterslam.tres"
+			"image_name": "specials",
+			"image_index": 1
 		},
 		{
 			"definition_id": "king_scepterslam",
-			"image": "king_scepterslam.tres"
+			"image_name": "specials",
+			"image_index": 1
 		},
 		{
 			"definition_id": "king_spinjump",
-			"image": "king_spinjump.tres"
+			"image_name": "specials",
+			"image_index": 2
 		},
 		{
 			"definition_id": "king_spinjump",
-			"image": "king_spinjump.tres"
+			"image_name": "specials",
+			"image_index": 2
 		},
 		{
 			"definition_id": "king_sceptersmite",
-			"image": "king_sceptersmite.tres"
+			"image_name": "specials",
+			"image_index": 3
 		},
 		{
 			"definition_id": "king_sceptersmite",
-			"image": "king_sceptersmite.tres"
+			"image_name": "specials",
+			"image_index": 3
 		},
 		{
 			"definition_id": "king_shoulderbash",
-			"image": "king_shoulderbash.tres"
+			"image_name": "specials",
+			"image_index": 4
 		},
 		{
 			"definition_id": "king_shoulderbash",
-			"image": "king_shoulderbash.tres"
+			"image_name": "specials",
+			"image_index": 4
 		},
 		{
 			"definition_id": "standard_normal_grasp",
-			"image": "normal_grasp.tres"
+			"image_name": "normals",
+			"image_index": 0
 		},
 		{
 			"definition_id": "standard_normal_grasp",
-			"image": "normal_grasp.tres"
+			"image_name": "normals",
+			"image_index": 0
 		},
 		{
 			"definition_id": "standard_normal_cross",
-			"image": "normal_cross.tres"
+			"image_name": "normals",
+			"image_index": 1
 		},
 		{
 			"definition_id": "standard_normal_cross",
-			"image": "normal_cross.tres"
+			"image_name": "normals",
+			"image_index": 1
 		},
 		{
 			"definition_id": "standard_normal_assault",
-			"image": "normal_assault.tres"
+			"image_name": "normals",
+			"image_index": 2
 		},
 		{
 			"definition_id": "standard_normal_assault",
-			"image": "normal_assault.tres"
+			"image_name": "normals",
+			"image_index": 2
 		},
 		{
 			"definition_id": "standard_normal_dive",
-			"image": "normal_dive.tres"
+			"image_name": "normals",
+			"image_index": 3
 		},
 		{
 			"definition_id": "standard_normal_dive",
-			"image": "normal_dive.tres"
+			"image_name": "normals",
+			"image_index": 3
 		},
 		{
 			"definition_id": "standard_normal_spike",
-			"image": "normal_spike.tres"
+			"image_name": "normals",
+			"image_index": 4
 		},
 		{
 			"definition_id": "standard_normal_spike",
-			"image": "normal_spike.tres"
+			"image_name": "normals",
+			"image_index": 4
 		},
 		{
 			"definition_id": "standard_normal_sweep",
-			"image": "normal_sweep.tres"
+			"image_name": "normals",
+			"image_index": 5
 		},
 		{
 			"definition_id": "standard_normal_sweep",
-			"image": "normal_sweep.tres"
+			"image_name": "normals",
+			"image_index": 5
 		},
 		{
 			"definition_id": "standard_normal_focus",
-			"image": "normal_focus.tres"
+			"image_name": "normals",
+			"image_index": 6
 		},
 		{
 			"definition_id": "standard_normal_focus",
-			"image": "normal_focus.tres"
+			"image_name": "normals",
+			"image_index": 6
 		},
 		{
 			"definition_id": "standard_normal_block",
-			"image": "normal_block.tres"
+			"image_name": "normals",
+			"image_index": 7
 		},
 		{
 			"definition_id": "standard_normal_block",
-			"image": "normal_block.tres"
+			"image_name": "normals",
+			"image_index": 7
 		}
 	]
 }

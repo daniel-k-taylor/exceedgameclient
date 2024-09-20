@@ -40,126 +40,166 @@
 			]
 		}
 	],
+	"image_resources": {
+		"specials": {
+			"url": "https://i.imgur.com/nW70UrN.jpeg",
+			"multiple_cards": true
+		},
+		"normals": {
+			"url": "https://i.imgur.com/9wutpZY.jpg",
+			"multiple_cards": true
+		}
+	},
 	"cards": [
 		{
 			"definition_id": "plague_castlecrasher",
-			"image": "plague_castlecrasher.tres"
+			"image_name": "specials",
+			"image_index": 5
 		},
 		{
 			"definition_id": "plague_castlecrasher",
-			"image": "plague_castlecrasher.tres"
+			"image_name": "specials",
+			"image_index": 5
 		},
 		{
 			"definition_id": "plague_tripledose",
-			"image": "plague_tripledose.tres"
+			"image_name": "specials",
+			"image_index": 6
 		},
 		{
 			"definition_id": "plague_tripledose",
-			"image": "plague_tripledose.tres"
+			"image_name": "specials",
+			"image_index": 6
 		},
 		{
 			"definition_id": "plague_perfectpitch",
-			"image": "plague_perfectpitch.tres"
+			"image_name": "specials",
+			"image_index": 0
 		},
 		{
 			"definition_id": "plague_perfectpitch",
-			"image": "plague_perfectpitch.tres"
+			"image_name": "specials",
+			"image_index": 0
 		},
 		{
 			"definition_id": "plague_staffofsurging",
-			"image": "plague_staffofsurging.tres"
+			"image_name": "specials",
+			"image_index": 1
 		},
 		{
 			"definition_id": "plague_staffofsurging",
-			"image": "plague_staffofsurging.tres"
+			"image_name": "specials",
+			"image_index": 1
 		},
 		{
 			"definition_id": "plague_longpitch",
-			"image": "plague_longpitch.tres"
+			"image_name": "specials",
+			"image_index": 2
 		},
 		{
 			"definition_id": "plague_longpitch",
-			"image": "plague_longpitch.tres"
+			"image_name": "specials",
+			"image_index": 2
 		},
 		{
 			"definition_id": "plague_chainreaction",
-			"image": "plague_chainreaction.tres"
+			"image_name": "specials",
+			"image_index": 3
 		},
 		{
 			"definition_id": "plague_chainreaction",
-			"image": "plague_chainreaction.tres"
+			"image_name": "specials",
+			"image_index": 3
 		},
 		{
 			"definition_id": "plague_giantbomb",
-			"image": "plague_giantbomb.tres"
+			"image_name": "specials",
+			"image_index": 4
 		},
 		{
 			"definition_id": "plague_giantbomb",
-			"image": "plague_giantbomb.tres"
+			"image_name": "specials",
+			"image_index": 4
 		},
 		{
 			"definition_id": "standard_normal_grasp",
-			"image": "normal_grasp.tres"
+			"image_name": "normals",
+			"image_index": 0
 		},
 		{
 			"definition_id": "standard_normal_grasp",
-			"image": "normal_grasp.tres"
+			"image_name": "normals",
+			"image_index": 0
 		},
 		{
 			"definition_id": "standard_normal_cross",
-			"image": "normal_cross.tres"
+			"image_name": "normals",
+			"image_index": 1
 		},
 		{
 			"definition_id": "standard_normal_cross",
-			"image": "normal_cross.tres"
+			"image_name": "normals",
+			"image_index": 1
 		},
 		{
 			"definition_id": "standard_normal_assault",
-			"image": "normal_assault.tres"
+			"image_name": "normals",
+			"image_index": 2
 		},
 		{
 			"definition_id": "standard_normal_assault",
-			"image": "normal_assault.tres"
+			"image_name": "normals",
+			"image_index": 2
 		},
 		{
 			"definition_id": "standard_normal_dive",
-			"image": "normal_dive.tres"
+			"image_name": "normals",
+			"image_index": 3
 		},
 		{
 			"definition_id": "standard_normal_dive",
-			"image": "normal_dive.tres"
+			"image_name": "normals",
+			"image_index": 3
 		},
 		{
 			"definition_id": "standard_normal_spike",
-			"image": "normal_spike.tres"
+			"image_name": "normals",
+			"image_index": 4
 		},
 		{
 			"definition_id": "standard_normal_spike",
-			"image": "normal_spike.tres"
+			"image_name": "normals",
+			"image_index": 4
 		},
 		{
 			"definition_id": "standard_normal_sweep",
-			"image": "normal_sweep.tres"
+			"image_name": "normals",
+			"image_index": 5
 		},
 		{
 			"definition_id": "standard_normal_sweep",
-			"image": "normal_sweep.tres"
+			"image_name": "normals",
+			"image_index": 5
 		},
 		{
 			"definition_id": "standard_normal_focus",
-			"image": "normal_focus.tres"
+			"image_name": "normals",
+			"image_index": 6
 		},
 		{
 			"definition_id": "standard_normal_focus",
-			"image": "normal_focus.tres"
+			"image_name": "normals",
+			"image_index": 6
 		},
 		{
 			"definition_id": "standard_normal_block",
-			"image": "normal_block.tres"
+			"image_name": "normals",
+			"image_index": 7
 		},
 		{
 			"definition_id": "standard_normal_block",
-			"image": "normal_block.tres"
+			"image_name": "normals",
+			"image_index": 7
 		}
 	]
 }
