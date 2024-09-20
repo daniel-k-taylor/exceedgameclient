@@ -2,7 +2,6 @@
 	"id": "fight",
 	"season": 4,
 	"display_name": "Fight",
-	"cardback": "cardback_fight.jpg",
 	"exceed_cost": 3,
 	"on_exceed": {
 		"effect_type": "choice",
@@ -47,6 +46,18 @@
 		}
 	],
 	"image_resources": {
+		"character_default": {
+			"url": "https://i.imgur.com/XsuCKKZ.jpeg",
+			"multiple_cards": false
+		},
+		"character_exceeded": {
+			"url": "https://i.imgur.com/a8IG6c6.jpeg",
+			"multiple_cards": false
+		},
+		"cardback": {
+			"url": "https://i.imgur.com/Ep5ma7U.jpg",
+			"multiple_cards": false
+		},
 		"specials": {
 			"url": "https://i.imgur.com/l4P9sfU.jpeg",
 			"multiple_cards": true

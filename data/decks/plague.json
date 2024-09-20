@@ -2,7 +2,6 @@
 	"id": "plague",
 	"season": 4,
 	"display_name": "Plague Knight",
-	"cardback": "cardback_plague.jpg",
 	"exceed_cost": 2,
 	"ability_effects": [
 		{
@@ -41,6 +40,18 @@
 		}
 	],
 	"image_resources": {
+		"character_default": {
+			"url": "https://i.imgur.com/q4kA8Ef.jpeg",
+			"multiple_cards": false
+		},
+		"character_exceeded": {
+			"url": "https://i.imgur.com/bCXBHNl.jpeg",
+			"multiple_cards": false
+		},
+		"cardback": {
+			"url": "https://i.imgur.com/fncv8EO.jpg",
+			"multiple_cards": false
+		},
 		"specials": {
 			"url": "https://i.imgur.com/nW70UrN.jpeg",
 			"multiple_cards": true

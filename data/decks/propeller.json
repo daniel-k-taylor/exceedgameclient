@@ -2,7 +2,6 @@
 	"id": "propeller",
 	"season": 4,
 	"display_name": "Propeller Knight",
-	"cardback": "cardback_propeller.jpg",
 	"exceed_cost": 2,
 	"on_exceed": {
 		"effect_type": "choice",
@@ -66,6 +65,18 @@
 		}
 	],
 	"image_resources": {
+		"character_default": {
+			"url": "https://i.imgur.com/Fw9YHpy.jpeg",
+			"multiple_cards": false
+		},
+		"character_exceeded": {
+			"url": "https://i.imgur.com/4j7IwDR.jpeg",
+			"multiple_cards": false
+		},
+		"cardback": {
+			"url": "https://i.imgur.com/WerX1bQ.jpg",
+			"multiple_cards": false
+		},
 		"specials": {
 			"url": "https://i.imgur.com/cpPy0ax.jpeg",
 			"multiple_cards": true

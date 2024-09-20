@@ -2,7 +2,6 @@
 	"id": "king",
 	"season": 4,
 	"display_name": "King Knight",
-	"cardback": "cardback_king.jpg",
 	"has_sealed_area": true,
 	"buddy_cards": [
 		"king_decree_lordlymight",
@@ -33,6 +32,18 @@
 		}
 	],
 	"image_resources": {
+		"character_default": {
+			"url": "https://i.imgur.com/Bgs1eSj.jpeg",
+			"multiple_cards": false
+		},
+		"character_exceeded": {
+			"url": "https://i.imgur.com/3aqiRvT.jpeg",
+			"multiple_cards": false
+		},
+		"cardback": {
+			"url": "https://i.imgur.com/PC0OqwD.jpg",
+			"multiple_cards": false
+		},
 		"specials": {
 			"url": "https://i.imgur.com/DvOMYog.jpeg",
 			"multiple_cards": true
@@ -41,19 +52,19 @@
 			"url": "https://i.imgur.com/AGmmf1d.jpg",
 			"multiple_cards": true
 		},
-		"decree_kinglystrut": {
+		"king_decree_kinglystrut": {
 			"url": "https://i.imgur.com/c1WKSti.jpeg",
 			"multiple_cards": false
 		},
-		"decree_lordlymight": {
+		"king_decree_lordlymight": {
 			"url": "https://i.imgur.com/HBcPJQd.jpeg",
 			"multiple_cards": false
 		},
-		"decree_magnificentcape": {
+		"king_decree_magnificentcape": {
 			"url": "https://i.imgur.com/F9xfsu0.jpeg",
 			"multiple_cards": false
 		},
-		"decree_paytowin": {
+		"king_decree_paytowin": {
 			"url": "https://i.imgur.com/10BnuLp.jpeg",
 			"multiple_cards": false
 		}
@@ -63,28 +74,28 @@
 			"set_aside": true,
 			"hide_from_reference": true,
 			"definition_id": "king_decree_kinglystrut",
-			"image_name": "decree_kinglystrut",
+			"image_name": "king_decree_kinglystrut",
 			"image_index": 0
 		},
 		{
 			"set_aside": true,
 			"hide_from_reference": true,
 			"definition_id": "king_decree_lordlymight",
-			"image_name": "decree_lordlymight",
+			"image_name": "king_decree_lordlymight",
 			"image_index": 0
 		},
 		{
 			"set_aside": true,
 			"hide_from_reference": true,
 			"definition_id": "king_decree_magnificentcape",
-			"image_name": "decree_magnificentcape",
+			"image_name": "king_decree_magnificentcape",
 			"image_index": 0
 		},
 		{
 			"set_aside": true,
 			"hide_from_reference": true,
 			"definition_id": "king_decree_paytowin",
-			"image_name": "decree_paytowin",
+			"image_name": "king_decree_paytowin",
 			"image_index": 0
 		},
 		{

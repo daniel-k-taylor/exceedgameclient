@@ -2,7 +2,6 @@
 	"id": "tinker",
 	"season": 4,
 	"display_name": "Tinker Knight",
-	"cardback": "cardback_tinker.jpg",
 	"exceed_cost": -1,
 	"wide_animation": "tinker_tank",
 	"starting_life": 15,
@@ -48,6 +47,18 @@
 		}
 	],
 	"image_resources": {
+		"character_default": {
+			"url": "https://i.imgur.com/qJXsBRv.jpeg",
+			"multiple_cards": false
+		},
+		"character_exceeded": {
+			"url": "https://i.imgur.com/Km0NYV3.jpg",
+			"multiple_cards": false
+		},
+		"cardback": {
+			"url": "https://i.imgur.com/zFWi5Vd.jpg",
+			"multiple_cards": false
+		},
 		"specials": {
 			"url": "https://i.imgur.com/14yY86X.jpeg",
 			"multiple_cards": true

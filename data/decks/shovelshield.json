@@ -2,7 +2,6 @@
 	"id": "shovelshield",
 	"season": 4,
 	"display_name": "Shovel & Shield Knight",
-	"cardback": "cardback_shovelshield.jpg",
 	"exceed_cost": 3,
 	"buddy_card": "shieldknight",
 	"buddy_display_name": "Shield Knight",
@@ -78,6 +77,26 @@
 		}
 	],
 	"image_resources": {
+		"character_default": {
+			"url": "https://i.imgur.com/zvQSKLv.jpeg",
+			"multiple_cards": false
+		},
+		"character_exceeded": {
+			"url": "https://i.imgur.com/oIOeUy0.jpeg",
+			"multiple_cards": false
+		},
+		"cardback": {
+			"url": "https://i.imgur.com/Y2m5n5K.jpg",
+			"multiple_cards": false
+		},
+		"shieldknight": {
+			"url": "https://i.imgur.com/8VTxxbZ.jpeg",
+			"multiple_cards": false
+		},
+		"shieldknight_exceeded": {
+			"url": "https://i.imgur.com/aMGfRhv.jpeg",
+			"multiple_cards": false
+		},
 		"specials": {
 			"url": "https://i.imgur.com/pHmyjXD.jpeg",
 			"multiple_cards": true

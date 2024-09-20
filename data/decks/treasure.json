@@ -2,7 +2,6 @@
 	"id": "treasure",
 	"season": 4,
 	"display_name": "Treasure Knight",
-	"cardback": "cardback_treasure.jpg",
 	"exceed_cost": 3,
 	"on_exceed": {
 		"effect_type": "generate_free_force",
@@ -31,6 +30,18 @@
 	"exceed_ability_effects": [
 	],
 	"image_resources": {
+		"character_default": {
+			"url": "https://i.imgur.com/3dcm4I1.jpeg",
+			"multiple_cards": false
+		},
+		"character_exceeded": {
+			"url": "https://i.imgur.com/VT2RIBH.jpeg",
+			"multiple_cards": false
+		},
+		"cardback": {
+			"url": "https://i.imgur.com/lER7O5b.jpg",
+			"multiple_cards": false
+		},
 		"specials": {
 			"url": "https://i.imgur.com/xNXEhEF.jpeg",
 			"multiple_cards": true

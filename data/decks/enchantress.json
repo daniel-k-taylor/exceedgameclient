@@ -2,7 +2,6 @@
 	"id": "enchantress",
 	"season": 4,
 	"display_name": "The Enchantress",
-	"cardback": "cardback_enchantress.jpg",
 	"exceed_cost": 4,
 	"disable_end_of_turn_draw": true,
 	"on_exceed": {
@@ -33,6 +32,18 @@
 	"exceed_ability_effects": [
 	],
 	"image_resources": {
+		"character_default": {
+			"url": "https://i.imgur.com/OhxNWjk.jpeg",
+			"multiple_cards": false
+		},
+		"character_exceeded": {
+			"url": "https://i.imgur.com/9RIXdLo.jpeg",
+			"multiple_cards": false
+		},
+		"cardback": {
+			"url": "https://i.imgur.com/jANKwbe.jpg",
+			"multiple_cards": false
+		},
 		"specials": {
 			"url": "https://i.imgur.com/hltEPTp.jpeg",
 			"multiple_cards": true

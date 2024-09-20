@@ -2,7 +2,6 @@
 	"id": "specter",
 	"season": 4,
 	"display_name": "Specter Knight",
-	"cardback": "cardback_specter.jpg",
 	"has_sealed_area": true,
 	"sealed_area_is_secret": true,
 	"exceed_cost": 4,
@@ -55,6 +54,18 @@
 		}
 	],
 	"image_resources": {
+		"character_default": {
+			"url": "https://i.imgur.com/JLKu8gl.jpeg",
+			"multiple_cards": false
+		},
+		"character_exceeded": {
+			"url": "https://i.imgur.com/T5IzNfh.jpeg",
+			"multiple_cards": false
+		},
+		"cardback": {
+			"url": "https://i.imgur.com/aGCo16y.jpg",
+			"multiple_cards": false
+		},
 		"specials": {
 			"url": "https://i.imgur.com/PDUmgKR.jpeg",
 			"multiple_cards": true
