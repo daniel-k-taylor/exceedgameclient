@@ -11031,7 +11031,7 @@
 			"boost_type": "continuous",
 			"force_cost": 0,
 			"cancel_cost": -1,
-			"display_name": "Discipline",
+			"display_name": "Military Discipline",
 			"effects": [
 				{
 					"timing": "during_strike",

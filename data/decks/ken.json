@@ -71,126 +71,166 @@
 			"gauge_max": 1
 		}
 	],
+	"image_resources": {
+		"specials": {
+			"url": "https://i.imgur.com/ln74Y6r.jpeg",
+			"multiple_cards": true
+		},
+		"normals": {
+			"url": "https://i.imgur.com/tXuqP40.jpeg",
+			"multiple_cards": true
+		}
+	},
 	"cards": [
 		{
 			"definition_id": "ken_shinryuken",
-			"image": "ken_shinryuken.tres"
+			"image_name": "specials",
+			"image_index": 5
 		},
 		{
 			"definition_id": "ken_shinryuken",
-			"image": "ken_shinryuken.tres"
+			"image_name": "specials",
+			"image_index": 5
 		},
 		{
 			"definition_id": "ken_gurensenpukyaku",
-			"image": "ken_gurensenpukyaku.tres"
+			"image_name": "specials",
+			"image_index": 6
 		},
 		{
 			"definition_id": "ken_gurensenpukyaku",
-			"image": "ken_gurensenpukyaku.tres"
+			"image_name": "specials",
+			"image_index": 6
 		},
 		{
 			"definition_id": "ken_axekick",
-			"image": "ken_axekick.tres"
+			"image_name": "specials",
+			"image_index": 2
 		},
 		{
 			"definition_id": "ken_axekick",
-			"image": "ken_axekick.tres"
+			"image_name": "specials",
+			"image_index": 2
 		},
 		{
 			"definition_id": "ken_kneebash",
-			"image": "ken_kneebash.tres"
+			"image_name": "specials",
+			"image_index": 4
 		},
 		{
 			"definition_id": "ken_kneebash",
-			"image": "ken_kneebash.tres"
+			"image_name": "specials",
+			"image_index": 4
 		},
 		{
 			"definition_id": "ken_tatsumakisenpukyaku",
-			"image": "ken_tatsumakisenpukyaku.tres"
+			"image_name": "specials",
+			"image_index": 3
 		},
 		{
 			"definition_id": "ken_tatsumakisenpukyaku",
-			"image": "ken_tatsumakisenpukyaku.tres"
+			"image_name": "specials",
+			"image_index": 3
 		},
 		{
 			"definition_id": "ken_hadoken",
-			"image": "ken_hadoken.tres"
+			"image_name": "specials",
+			"image_index": 1
 		},
 		{
 			"definition_id": "ken_hadoken",
-			"image": "ken_hadoken.tres"
+			"image_name": "specials",
+			"image_index": 1
 		},
 		{
 			"definition_id": "ken_shoryuken",
-			"image": "ken_shoryuken.tres"
+			"image_name": "specials",
+			"image_index": 0
 		},
 		{
 			"definition_id": "ken_shoryuken",
-			"image": "ken_shoryuken.tres"
+			"image_name": "specials",
+			"image_index": 0
 		},
 		{
 			"definition_id": "standard_normal_grasp",
-			"image": "normal_grasp.tres"
+			"image_name": "normals",
+			"image_index": 0
 		},
 		{
 			"definition_id": "standard_normal_grasp",
-			"image": "normal_grasp.tres"
+			"image_name": "normals",
+			"image_index": 0
 		},
 		{
 			"definition_id": "standard_normal_cross",
-			"image": "normal_cross.tres"
+			"image_name": "normals",
+			"image_index": 1
 		},
 		{
 			"definition_id": "standard_normal_cross",
-			"image": "normal_cross.tres"
+			"image_name": "normals",
+			"image_index": 1
 		},
 		{
 			"definition_id": "standard_normal_assault",
-			"image": "normal_assault.tres"
+			"image_name": "normals",
+			"image_index": 2
 		},
 		{
 			"definition_id": "standard_normal_assault",
-			"image": "normal_assault.tres"
+			"image_name": "normals",
+			"image_index": 2
 		},
 		{
 			"definition_id": "standard_normal_dive",
-			"image": "normal_dive.tres"
+			"image_name": "normals",
+			"image_index": 3
 		},
 		{
 			"definition_id": "standard_normal_dive",
-			"image": "normal_dive.tres"
+			"image_name": "normals",
+			"image_index": 3
 		},
 		{
 			"definition_id": "standard_normal_spike",
-			"image": "normal_spike.tres"
+			"image_name": "normals",
+			"image_index": 4
 		},
 		{
 			"definition_id": "standard_normal_spike",
-			"image": "normal_spike.tres"
+			"image_name": "normals",
+			"image_index": 4
 		},
 		{
 			"definition_id": "standard_normal_sweep",
-			"image": "normal_sweep.tres"
+			"image_name": "normals",
+			"image_index": 5
 		},
 		{
 			"definition_id": "standard_normal_sweep",
-			"image": "normal_sweep.tres"
+			"image_name": "normals",
+			"image_index": 5
 		},
 		{
 			"definition_id": "standard_normal_focus",
-			"image": "normal_focus.tres"
+			"image_name": "normals",
+			"image_index": 6
 		},
 		{
 			"definition_id": "standard_normal_focus",
-			"image": "normal_focus.tres"
+			"image_name": "normals",
+			"image_index": 6
 		},
 		{
 			"definition_id": "standard_normal_block",
-			"image": "normal_block.tres"
+			"image_name": "normals",
+			"image_index": 7
 		},
 		{
 			"definition_id": "standard_normal_block",
-			"image": "normal_block.tres"
+			"image_name": "normals",
+			"image_index": 7
 		}
 	]
 }

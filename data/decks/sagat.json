@@ -65,126 +65,166 @@
 			]
 		}
 	],
+	"image_resources": {
+		"specials": {
+			"url": "https://i.imgur.com/Pr9qd0K.jpeg",
+			"multiple_cards": true
+		},
+		"normals": {
+			"url": "https://i.imgur.com/tXuqP40.jpeg",
+			"multiple_cards": true
+		}
+	},
 	"cards": [
 		{
 			"definition_id": "sagat_tigerdestruction",
-			"image": "sagat_tigerdestruction.tres"
+			"image_name": "specials",
+			"image_index": 6
 		},
 		{
 			"definition_id": "sagat_tigerdestruction",
-			"image": "sagat_tigerdestruction.tres"
+			"image_name": "specials",
+			"image_index": 6
 		},
 		{
 			"definition_id": "sagat_tigercannon",
-			"image": "sagat_tigercannon.tres"
+			"image_name": "specials",
+			"image_index": 5
 		},
 		{
 			"definition_id": "sagat_tigercannon",
-			"image": "sagat_tigercannon.tres"
+			"image_name": "specials",
+			"image_index": 5
 		},
 		{
 			"definition_id": "sagat_tigershot",
-			"image": "sagat_tigershot.tres"
+			"image_name": "specials",
+			"image_index": 1
 		},
 		{
 			"definition_id": "sagat_tigershot",
-			"image": "sagat_tigershot.tres"
+			"image_name": "specials",
+			"image_index": 1
 		},
 		{
 			"definition_id": "sagat_lowstepkick",
-			"image": "sagat_lowstepkick.tres"
+			"image_name": "specials",
+			"image_index": 0
 		},
 		{
 			"definition_id": "sagat_lowstepkick",
-			"image": "sagat_lowstepkick.tres"
+			"image_name": "specials",
+			"image_index": 0
 		},
 		{
 			"definition_id": "sagat_lowtigershot",
-			"image": "sagat_lowtigershot.tres"
+			"image_name": "specials",
+			"image_index": 4
 		},
 		{
 			"definition_id": "sagat_lowtigershot",
-			"image": "sagat_lowtigershot.tres"
+			"image_name": "specials",
+			"image_index": 4
 		},
 		{
 			"definition_id": "sagat_tigerknee",
-			"image": "sagat_tigerknee.tres"
+			"image_name": "specials",
+			"image_index": 3
 		},
 		{
 			"definition_id": "sagat_tigerknee",
-			"image": "sagat_tigerknee.tres"
+			"image_name": "specials",
+			"image_index": 3
 		},
 		{
 			"definition_id": "sagat_tigeruppercut",
-			"image": "sagat_tigeruppercut.tres"
+			"image_name": "specials",
+			"image_index": 2
 		},
 		{
 			"definition_id": "sagat_tigeruppercut",
-			"image": "sagat_tigeruppercut.tres"
+			"image_name": "specials",
+			"image_index": 2
 		},
 		{
 			"definition_id": "standard_normal_grasp",
-			"image": "normal_grasp.tres"
+			"image_name": "normals",
+			"image_index": 0
 		},
 		{
 			"definition_id": "standard_normal_grasp",
-			"image": "normal_grasp.tres"
+			"image_name": "normals",
+			"image_index": 0
 		},
 		{
 			"definition_id": "standard_normal_cross",
-			"image": "normal_cross.tres"
+			"image_name": "normals",
+			"image_index": 1
 		},
 		{
 			"definition_id": "standard_normal_cross",
-			"image": "normal_cross.tres"
+			"image_name": "normals",
+			"image_index": 1
 		},
 		{
 			"definition_id": "standard_normal_assault",
-			"image": "normal_assault.tres"
+			"image_name": "normals",
+			"image_index": 2
 		},
 		{
 			"definition_id": "standard_normal_assault",
-			"image": "normal_assault.tres"
+			"image_name": "normals",
+			"image_index": 2
 		},
 		{
 			"definition_id": "standard_normal_dive",
-			"image": "normal_dive.tres"
+			"image_name": "normals",
+			"image_index": 3
 		},
 		{
 			"definition_id": "standard_normal_dive",
-			"image": "normal_dive.tres"
+			"image_name": "normals",
+			"image_index": 3
 		},
 		{
 			"definition_id": "standard_normal_spike",
-			"image": "normal_spike.tres"
+			"image_name": "normals",
+			"image_index": 4
 		},
 		{
 			"definition_id": "standard_normal_spike",
-			"image": "normal_spike.tres"
+			"image_name": "normals",
+			"image_index": 4
 		},
 		{
 			"definition_id": "standard_normal_sweep",
-			"image": "normal_sweep.tres"
+			"image_name": "normals",
+			"image_index": 5
 		},
 		{
 			"definition_id": "standard_normal_sweep",
-			"image": "normal_sweep.tres"
+			"image_name": "normals",
+			"image_index": 5
 		},
 		{
 			"definition_id": "standard_normal_focus",
-			"image": "normal_focus.tres"
+			"image_name": "normals",
+			"image_index": 6
 		},
 		{
 			"definition_id": "standard_normal_focus",
-			"image": "normal_focus.tres"
+			"image_name": "normals",
+			"image_index": 6
 		},
 		{
 			"definition_id": "standard_normal_block",
-			"image": "normal_block.tres"
+			"image_name": "normals",
+			"image_index": 7
 		},
 		{
 			"definition_id": "standard_normal_block",
-			"image": "normal_block.tres"
+			"image_name": "normals",
+			"image_index": 7
 		}
 	]
 }

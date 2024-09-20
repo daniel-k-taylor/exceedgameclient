@@ -34,126 +34,166 @@
 			"gauge_max": 1
 		}
 	],
+	"image_resources": {
+		"specials": {
+			"url": "https://i.imgur.com/7H6UJmc.jpeg",
+			"multiple_cards": true
+		},
+		"normals": {
+			"url": "https://i.imgur.com/tXuqP40.jpeg",
+			"multiple_cards": true
+		}
+	},
 	"cards": [
 		{
 			"definition_id": "guile_flashexplosion",
-			"image": "guile_flashexplosion.tres"
+			"image_name": "specials",
+			"image_index": 6
 		},
 		{
 			"definition_id": "guile_flashexplosion",
-			"image": "guile_flashexplosion.tres"
+			"image_name": "specials",
+			"image_index": 6
 		},
 		{
 			"definition_id": "guile_sonichurricane",
-			"image": "guile_sonichurricane.tres"
+			"image_name": "specials",
+			"image_index": 5
 		},
 		{
 			"definition_id": "guile_sonichurricane",
-			"image": "guile_sonichurricane.tres"
+			"image_name": "specials",
+			"image_index": 5
 		},
 		{
 			"definition_id": "guile_doublesweepkick",
-			"image": "guile_doublesweepkick.tres"
+			"image_name": "specials",
+			"image_index": 0
 		},
 		{
 			"definition_id": "guile_doublesweepkick",
-			"image": "guile_doublesweepkick.tres"
+			"image_name": "specials",
+			"image_index": 0
 		},
 		{
 			"definition_id": "guile_flashkick",
-			"image": "guile_flashkick.tres"
+			"image_name": "specials",
+			"image_index": 4
 		},
 		{
 			"definition_id": "guile_flashkick",
-			"image": "guile_flashkick.tres"
+			"image_name": "specials",
+			"image_index": 4
 		},
 		{
 			"definition_id": "guile_reversespinkick",
-			"image": "guile_reversespinkick.tres"
+			"image_name": "specials",
+			"image_index": 3
 		},
 		{
 			"definition_id": "guile_reversespinkick",
-			"image": "guile_reversespinkick.tres"
+			"image_name": "specials",
+			"image_index": 3
 		},
 		{
 			"definition_id": "guile_sonicboom",
-			"image": "guile_sonicboom.tres"
+			"image_name": "specials",
+			"image_index": 2
 		},
 		{
 			"definition_id": "guile_sonicboom",
-			"image": "guile_sonicboom.tres"
+			"image_name": "specials",
+			"image_index": 2
 		},
 		{
 			"definition_id": "guile_spinningbackknuckle",
-			"image": "guile_spinningbackknuckle.tres"
+			"image_name": "specials",
+			"image_index": 1
 		},
 		{
 			"definition_id": "guile_spinningbackknuckle",
-			"image": "guile_spinningbackknuckle.tres"
+			"image_name": "specials",
+			"image_index": 1
 		},
 		{
 			"definition_id": "standard_normal_grasp",
-			"image": "normal_grasp.tres"
+			"image_name": "normals",
+			"image_index": 0
 		},
 		{
 			"definition_id": "standard_normal_grasp",
-			"image": "normal_grasp.tres"
+			"image_name": "normals",
+			"image_index": 0
 		},
 		{
 			"definition_id": "standard_normal_cross",
-			"image": "normal_cross.tres"
+			"image_name": "normals",
+			"image_index": 1
 		},
 		{
 			"definition_id": "standard_normal_cross",
-			"image": "normal_cross.tres"
+			"image_name": "normals",
+			"image_index": 1
 		},
 		{
 			"definition_id": "standard_normal_assault",
-			"image": "normal_assault.tres"
+			"image_name": "normals",
+			"image_index": 2
 		},
 		{
 			"definition_id": "standard_normal_assault",
-			"image": "normal_assault.tres"
+			"image_name": "normals",
+			"image_index": 2
 		},
 		{
 			"definition_id": "standard_normal_dive",
-			"image": "normal_dive.tres"
+			"image_name": "normals",
+			"image_index": 3
 		},
 		{
 			"definition_id": "standard_normal_dive",
-			"image": "normal_dive.tres"
+			"image_name": "normals",
+			"image_index": 3
 		},
 		{
 			"definition_id": "standard_normal_spike",
-			"image": "normal_spike.tres"
+			"image_name": "normals",
+			"image_index": 4
 		},
 		{
 			"definition_id": "standard_normal_spike",
-			"image": "normal_spike.tres"
+			"image_name": "normals",
+			"image_index": 4
 		},
 		{
 			"definition_id": "standard_normal_sweep",
-			"image": "normal_sweep.tres"
+			"image_name": "normals",
+			"image_index": 5
 		},
 		{
 			"definition_id": "standard_normal_sweep",
-			"image": "normal_sweep.tres"
+			"image_name": "normals",
+			"image_index": 5
 		},
 		{
 			"definition_id": "standard_normal_focus",
-			"image": "normal_focus.tres"
+			"image_name": "normals",
+			"image_index": 6
 		},
 		{
 			"definition_id": "standard_normal_focus",
-			"image": "normal_focus.tres"
+			"image_name": "normals",
+			"image_index": 6
 		},
 		{
 			"definition_id": "standard_normal_block",
-			"image": "normal_block.tres"
+			"image_name": "normals",
+			"image_index": 7
 		},
 		{
 			"definition_id": "standard_normal_block",
-			"image": "normal_block.tres"
+			"image_name": "normals",
+			"image_index": 7
 		}
 	]
 }

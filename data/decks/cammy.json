@@ -48,126 +48,166 @@
 			"character_effect": true
 		}
 	],
+	"image_resources": {
+		"specials": {
+			"url": "https://i.imgur.com/HTiaOfp.jpeg",
+			"multiple_cards": true
+		},
+		"normals": {
+			"url": "https://i.imgur.com/tXuqP40.jpeg",
+			"multiple_cards": true
+		}
+	},
 	"cards": [
 		{
 			"definition_id": "cammy_cqc",
-			"image": "cammy_cqc.tres"
+			"image_name": "specials",
+			"image_index": 6
 		},
 		{
 			"definition_id": "cammy_cqc",
-			"image": "cammy_cqc.tres"
+			"image_name": "specials",
+			"image_index": 6
 		},
 		{
 			"definition_id": "cammy_gyrodrivesmasher",
-			"image": "cammy_gyrodrivesmasher.tres"
+			"image_name": "specials",
+			"image_index": 5
 		},
 		{
 			"definition_id": "cammy_gyrodrivesmasher",
-			"image": "cammy_gyrodrivesmasher.tres"
+			"image_name": "specials",
+			"image_index": 5
 		},
 		{
 			"definition_id": "cammy_cannonspike",
-			"image": "cammy_cannonspike.tres"
+			"image_name": "specials",
+			"image_index": 0
 		},
 		{
 			"definition_id": "cammy_cannonspike",
-			"image": "cammy_cannonspike.tres"
+			"image_name": "specials",
+			"image_index": 0
 		},
 		{
 			"definition_id": "cammy_cannonball",
-			"image": "cammy_cannonball.tres"
+			"image_name": "specials",
+			"image_index": 3
 		},
 		{
 			"definition_id": "cammy_cannonball",
-			"image": "cammy_cannonball.tres"
+			"image_name": "specials",
+			"image_index": 3
 		},
 		{
 			"definition_id": "cammy_divekick",
-			"image": "cammy_divekick.tres"
+			"image_name": "specials",
+			"image_index": 1
 		},
 		{
 			"definition_id": "cammy_divekick",
-			"image": "cammy_divekick.tres"
+			"image_name": "specials",
+			"image_index": 1
 		},
 		{
 			"definition_id": "cammy_razorsedgeslicer",
-			"image": "cammy_razorsedgeslicer.tres"
+			"image_name": "specials",
+			"image_index": 4
 		},
 		{
 			"definition_id": "cammy_razorsedgeslicer",
-			"image": "cammy_razorsedgeslicer.tres"
+			"image_name": "specials",
+			"image_index": 4
 		},
 		{
 			"definition_id": "cammy_spiralarrow",
-			"image": "cammy_spiralarrow.tres"
+			"image_name": "specials",
+			"image_index": 2
 		},
 		{
 			"definition_id": "cammy_spiralarrow",
-			"image": "cammy_spiralarrow.tres"
+			"image_name": "specials",
+			"image_index": 2
 		},
 		{
 			"definition_id": "standard_normal_grasp",
-			"image": "normal_grasp.tres"
+			"image_name": "normals",
+			"image_index": 0
 		},
 		{
 			"definition_id": "standard_normal_grasp",
-			"image": "normal_grasp.tres"
+			"image_name": "normals",
+			"image_index": 0
 		},
 		{
 			"definition_id": "standard_normal_cross",
-			"image": "normal_cross.tres"
+			"image_name": "normals",
+			"image_index": 1
 		},
 		{
 			"definition_id": "standard_normal_cross",
-			"image": "normal_cross.tres"
+			"image_name": "normals",
+			"image_index": 1
 		},
 		{
 			"definition_id": "standard_normal_assault",
-			"image": "normal_assault.tres"
+			"image_name": "normals",
+			"image_index": 2
 		},
 		{
 			"definition_id": "standard_normal_assault",
-			"image": "normal_assault.tres"
+			"image_name": "normals",
+			"image_index": 2
 		},
 		{
 			"definition_id": "standard_normal_dive",
-			"image": "normal_dive.tres"
+			"image_name": "normals",
+			"image_index": 3
 		},
 		{
 			"definition_id": "standard_normal_dive",
-			"image": "normal_dive.tres"
+			"image_name": "normals",
+			"image_index": 3
 		},
 		{
 			"definition_id": "standard_normal_spike",
-			"image": "normal_spike.tres"
+			"image_name": "normals",
+			"image_index": 4
 		},
 		{
 			"definition_id": "standard_normal_spike",
-			"image": "normal_spike.tres"
+			"image_name": "normals",
+			"image_index": 4
 		},
 		{
 			"definition_id": "standard_normal_sweep",
-			"image": "normal_sweep.tres"
+			"image_name": "normals",
+			"image_index": 5
 		},
 		{
 			"definition_id": "standard_normal_sweep",
-			"image": "normal_sweep.tres"
+			"image_name": "normals",
+			"image_index": 5
 		},
 		{
 			"definition_id": "standard_normal_focus",
-			"image": "normal_focus.tres"
+			"image_name": "normals",
+			"image_index": 6
 		},
 		{
 			"definition_id": "standard_normal_focus",
-			"image": "normal_focus.tres"
+			"image_name": "normals",
+			"image_index": 6
 		},
 		{
 			"definition_id": "standard_normal_block",
-			"image": "normal_block.tres"
+			"image_name": "normals",
+			"image_index": 7
 		},
 		{
 			"definition_id": "standard_normal_block",
-			"image": "normal_block.tres"
+			"image_name": "normals",
+			"image_index": 7
 		}
 	]
 }
