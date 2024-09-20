@@ -66,22 +66,46 @@ func _process_request_queue():
 	processing_queue = false
 	image_queue_advanced.emit()
 
-func _image_request_completed(_result, _response_code, _headers, body):
+func _image_request_completed(_result, _response_code, headers, body):
+	var image_type = "jpg"
+	for header in headers:
+		if header.begins_with("Content-Type"):
+			# The header should look something like "Content-Type: image/png"
+			if header.split("/")[-1] == "png":
+				image_type = "png"
+				break
 	var image = Image.new()
-	var error = image.load_jpg_from_buffer(body)
-	if error != OK:
-		push_error("Error loading card image")
-		finished_loading_image.emit(null)
+	var load_success = false
+
+	if image_type == "png":
+		var error = image.load_png_from_buffer(body)
+		if error == OK:
+			load_success = true
 	else:
+		var error = image.load_jpg_from_buffer(body)
+		if error == OK:
+			load_success = true
+
+	if load_success:
 		var texture = ImageTexture.create_from_image(image)
 		finished_loading_image.emit(texture)
+	else:
+		push_error("Error loading card image")
+		finished_loading_image.emit(null)
 
 func get_card_image(image_url, image_index):
 	if test_mode:
 		return ImageTexture.create_from_image(Image.new())
 
 	while image_url not in loaded_images:
+		if image_url not in image_load_queue:
+			image_load_queue.append(image_url)
+			image_load_atlas_map[image_url] = {
+				"url": image_url,
+				"multiple_cards": false
+			}
 		await image_queue_advanced
+
 	var image_set = loaded_images[image_url]
 	if image_set:
 		return image_set[image_index]

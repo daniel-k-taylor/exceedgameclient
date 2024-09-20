@@ -513,9 +513,18 @@ func setup_characters():
 
 func setup_character_card(character_card, deck, buddy_character_card):
 	character_card.set_name_text(deck['display_name'])
-	var character_default_path = "res://assets/cards/" + deck['id'] + "/character_default.jpg"
-	var character_exceeded_path = "res://assets/cards/" + deck['id'] + "/character_exceeded.jpg"
-	character_card.set_image(character_default_path, character_exceeded_path)
+
+	if 'image_resources' in deck:
+		var loaded_character_image = await image_loader.get_card_image(
+			deck['image_resources']['character_default']['url'], 0)
+		var loaded_exceed_image = await image_loader.get_card_image(
+			deck['image_resources']['character_exceeded']['url'], 0)
+		character_card.set_image("", "", loaded_character_image, loaded_exceed_image)
+	else:
+		var character_default_path = "res://assets/cards/" + deck['id'] + "/character_default.jpg"
+		var character_exceeded_path = "res://assets/cards/" + deck['id'] + "/character_exceeded.jpg"
+		character_card.set_image(character_default_path, character_exceeded_path, null, null)
+
 	var on_exceed_text = ""
 	if 'on_exceed' in deck:
 		on_exceed_text = CardDefinitions.get_on_exceed_text(deck['on_exceed'])
@@ -535,7 +544,7 @@ func setup_character_card(character_card, deck, buddy_character_card):
 		var buddy_exceeded_path = buddy_path
 		if 'buddy_exceeds' in deck and deck['buddy_exceeds']:
 			buddy_exceeded_path = build_character_path(deck['id'], deck['buddy_card'], true)
-		buddy_character_card.set_image(buddy_path, buddy_exceeded_path)
+		buddy_character_card.set_image(buddy_path, buddy_exceeded_path, null, null) # TODO
 	elif 'buddy_cards' in deck:
 		buddy_character_card.visible = true
 		buddy_character_card.hide_focus()
@@ -547,7 +556,7 @@ func setup_character_card(character_card, deck, buddy_character_card):
 		var buddy_exceeded_path = buddy_path
 		if 'buddy_exceeds' in deck and deck['buddy_exceeds']:
 			buddy_exceeded_path = build_character_path(deck['id'], default_buddy, true)
-		buddy_character_card.set_image(buddy_path, buddy_exceeded_path)
+		buddy_character_card.set_image(buddy_path, buddy_exceeded_path, null, null) # TODO
 
 		# Add remaining buddies as extras.
 		for i in range(1, deck['buddy_cards'].size()):
@@ -595,28 +604,41 @@ func first_run():
 	change_ui_state(UIState.UIState_WaitForGameServer)
 	first_run_done = true
 
-func create_character_reference_card(path_root : String, exceeded : bool, zone):
-	var image_path = path_root + "character_default.jpg"
-	if exceeded:
-		image_path = path_root + "character_exceeded.jpg"
-	_create_reference_card(image_path, "Character Card", zone, CardBase.CharacterCardReferenceId)
+func create_character_reference_card(path_root : String, exceeded : bool, zone, image_resources):
+	if image_resources:
+		var image_url = image_resources['character_default']['url']
+		if exceeded:
+			image_url = image_resources['character_exceeded']['url']
+		_create_reference_card("[TODO: remove]", "Character Card", zone, CardBase.CharacterCardReferenceId, image_url)
+	else:
+		var image_path = path_root + "character_default.jpg"
+		if exceeded:
+			image_path = path_root + "character_exceeded.jpg"
+		_create_reference_card(image_path, "Character Card", zone, CardBase.CharacterCardReferenceId, "")
 
-func create_buddy_reference_card(path_root : String, buddy_id, exceeded : bool, zone, click_buddy_id):
+func create_buddy_reference_card(path_root : String, buddy_id, exceeded : bool, zone, click_buddy_id, image_resources):
+	# TODO
 	var image_path = path_root + buddy_id + ".jpg"
 	if exceeded:
 		image_path = path_root + buddy_id + "_exceeded.jpg"
-	_create_reference_card(image_path, "Extra Card", zone, click_buddy_id)
+	_create_reference_card(image_path, "Extra Card", zone, click_buddy_id, "")
 
 func _create_reference_card(image_path : String, card_name : String, zone,
-		card_id : int):
+		card_id : int, image_url : String):
 	var new_card : CardBase = CardBaseScene.instantiate()
 	zone.add_child(new_card)
+
+	var url_loaded_image = null
+	if image_url:
+		url_loaded_image = await image_loader.get_card_image(image_url, 0)
+
 	new_card.initialize_card(
 		card_id,
 		image_path,
-		image_path,
+		"",
 		false,
-		null,
+		url_loaded_image,
+		"",
 		card_name,
 		""
 	)
@@ -647,14 +669,19 @@ func spawn_deck(deck_id,
 		allow_click_buddy,
 		set_aside_zone,
 		card_back_image,
-		is_opponent):
+		is_opponent,
+		image_resources):
 	var card_db = game_wrapper.get_card_database()
 	var card_root_path = get_card_root_path(deck_id)
+	var card_back_url = ""
+	if image_resources:
+		card_back_url = image_resources['cardback']['url']
+
 	for card in deck_list:
 		var logic_card : GameCard = card_db.get_card(card.id)
 		var image_path = get_card_image_path(deck_id, logic_card)
 		var new_card = await create_card(card.id, logic_card.definition, image_path, card_back_image,
-			deck_card_zone, is_opponent, logic_card.get_image_url_index_data(),
+			deck_card_zone, is_opponent, logic_card.get_image_url_index_data(), card_back_url,
 			logic_card.definition['display_name'], logic_card.definition['boost']['display_name'])
 		if observer_mode and not replay_mode:
 			new_card.skip_flip_when_drawing = true
@@ -662,8 +689,8 @@ func spawn_deck(deck_id,
 			reparent_to_zone(new_card, set_aside_zone)
 		new_card.set_card_and_focus(OffScreen, 0, null)
 
-	create_character_reference_card(card_root_path, false, copy_zone)
-	create_character_reference_card(card_root_path, true, copy_zone)
+	create_character_reference_card(card_root_path, false, copy_zone, image_resources)
+	create_character_reference_card(card_root_path, true, copy_zone, image_resources)
 
 	var previous_def_id = ""
 	var buddy_card_id_links = {}
@@ -681,7 +708,7 @@ func spawn_deck(deck_id,
 		if previous_def_id != logic_card.definition['id']:
 			var copy_card = await create_card(card.id + ReferenceScreenIdRangeStart, logic_card.definition,
 				image_path, card_back_image, copy_zone, is_opponent, logic_card.get_image_url_index_data(),
-				logic_card.definition['display_name'], logic_card.definition['boost']['display_name'])
+				card_back_url, logic_card.definition['display_name'], logic_card.definition['boost']['display_name'])
 			copy_card.set_card_and_focus(OffScreen, 0, CardBase.ReferenceCardScale)
 			copy_card.resting_scale = CardBase.ReferenceCardScale
 			copy_card.change_state(CardBase.CardState.CardState_Offscreen)
@@ -699,7 +726,7 @@ func spawn_deck(deck_id,
 			var buddy_card_id = CardBase.BuddyCardReferenceId
 			if allow_click_buddy:
 				buddy_card_id = buddy_card_id_links[buddy_id]
-			create_buddy_reference_card(card_root_path, buddy_id, false, buddy_copy_zone, buddy_card_id)
+			create_buddy_reference_card(card_root_path, buddy_id, false, buddy_copy_zone, buddy_card_id, image_resources)
 
 func spawn_damage_popup(value:String, notice_player : Enums.PlayerId):
 	var popup = get_damage_popup()
@@ -732,8 +759,12 @@ func spawn_emote(player_id : Enums.PlayerId,
 func spawn_all_cards():
 	var player_deck_id = player_deck['id']
 	var opponent_deck_id = opponent_deck['id']
-	var player_cardback = "res://assets/cardbacks/" + player_deck['cardback']
-	var opponent_cardback = "res://assets/cardbacks/" + opponent_deck['cardback']
+	var player_cardback = ""
+	if 'cardback' in player_deck:
+		player_cardback = "res://assets/cardbacks/" + player_deck['cardback']
+	var opponent_cardback = ""
+	if 'cardback' in opponent_deck:
+		opponent_cardback = "res://assets/cardbacks/" + opponent_deck['cardback']
 
 	var player_buddy_graphics = []
 	var opponent_buddy_graphics = []
@@ -758,10 +789,19 @@ func spawn_all_cards():
 	var player_can_click_buddy = 'link_extra_cards_to_buddies' in player_deck and player_deck['link_extra_cards_to_buddies']
 	var opponent_can_click_buddy = 'link_extra_cards_to_buddies' in opponent_deck and opponent_deck['link_extra_cards_to_buddies']
 
+	var player_image_resources = {}
+	if 'image_resources' in player_deck:
+		player_image_resources = player_deck['image_resources']
+	var opponent_image_resoruces = {}
+	if 'image_resources' in opponent_deck:
+		opponent_image_resoruces = opponent_deck['image_resources']
+
 	await spawn_deck(player_deck_id, game_wrapper.get_player_deck_list(Enums.PlayerId.PlayerId_Player), $AllCards/PlayerDeck, $AllCards/PlayerAllCopy,
-		player_buddy_graphics, $AllCards/PlayerBuddyCopy, player_can_click_buddy, $AllCards/PlayerSetAside, player_cardback, false)
+		player_buddy_graphics, $AllCards/PlayerBuddyCopy, player_can_click_buddy, $AllCards/PlayerSetAside, player_cardback, false,
+		player_image_resources)
 	await spawn_deck(opponent_deck_id, game_wrapper.get_player_deck_list(Enums.PlayerId.PlayerId_Opponent), $AllCards/OpponentDeck, $AllCards/OpponentAllCopy,
-		opponent_buddy_graphics, $AllCards/OpponentBuddyCopy, opponent_can_click_buddy, $AllCards/OpponentSetAside, opponent_cardback, true)
+		opponent_buddy_graphics, $AllCards/OpponentBuddyCopy, opponent_can_click_buddy, $AllCards/OpponentSetAside, opponent_cardback, true,
+		opponent_image_resoruces)
 
 func get_arena_location_button(arena_location):
 	var target_square = arena_layout.get_child(arena_location - 1)
@@ -974,7 +1014,7 @@ func get_card_node_name(id):
 	return "Card_" + str(id)
 
 func create_card(id, card_def, image, card_back_image, parent, is_opponent : bool,
-		image_url_index, card_name, boost_name) -> CardBase:
+		image_url_index, cardback_url, card_name, boost_name) -> CardBase:
 	var new_card : CardBase = CardBaseScene.instantiate()
 	parent.add_child(new_card)
 	var strike_cost = card_def['gauge_cost']
@@ -984,6 +1024,9 @@ func create_card(id, card_def, image, card_back_image, parent, is_opponent : boo
 	var url_loaded_image = null
 	if image_url_index:
 		url_loaded_image = await image_loader.get_card_image(image_url_index["url"], image_url_index["index"])
+	var url_loaded_cardback = null
+	if cardback_url:
+		url_loaded_cardback = await image_loader.get_card_image(cardback_url, 0)
 
 	new_card.initialize_card(
 		id,
@@ -991,6 +1034,7 @@ func create_card(id, card_def, image, card_back_image, parent, is_opponent : boo
 		card_back_image,
 		is_opponent,
 		url_loaded_image,
+		url_loaded_cardback,
 		card_name,
 		boost_name
 	)
@@ -1848,7 +1892,7 @@ func begin_choose_opponent_card_to_discard(card_ids):
 		var logic_card : GameCard = card_db.get_card(card_id)
 		var card_image = get_card_image_path(opponent_deck['id'], logic_card)
 		var copy_card = await create_card(card_id + ChoiceCopyIdRangeStart, logic_card.definition,
-			card_image, "", choice_zone_parent, true, logic_card.get_image_url_index_data(),
+			card_image, "", choice_zone_parent, true, logic_card.get_image_url_index_data(), "",
 			logic_card.definition['display_name'], logic_card.definition['boost']['display_name'])
 		copy_card.set_card_and_focus(OffScreen, 0, CardBase.ReferenceCardScale)
 		copy_card.resting_scale = CardBase.ReferenceCardScale
@@ -2787,7 +2831,7 @@ func add_revealed_card(card_id : int):
 	var logic_card : GameCard = card_db.get_card(card_id)
 	var card_image = get_card_image_path(opponent_deck['id'], logic_card)
 	var copy_card = await create_card(card_id + RevealCopyIdRangestart, logic_card.definition, card_image,
-		"", $AllCards/OpponentRevealed, true, logic_card.get_image_url_index_data(),
+		"", $AllCards/OpponentRevealed, true, logic_card.get_image_url_index_data(), "",
 			logic_card.definition['display_name'], logic_card.definition['boost']['display_name'])
 	copy_card.set_card_and_focus(OffScreen, 0, CardBase.ReferenceCardScale)
 	copy_card.resting_scale = CardBase.ReferenceCardScale

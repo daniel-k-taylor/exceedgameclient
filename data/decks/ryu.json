@@ -2,7 +2,6 @@
 	"id": "ryu",
 	"season": 3,
 	"display_name": "Ryu",
-	"cardback": "cardback_defaultexceed.png",
 	"exceed_cost": 2,
 	"character_action_default": [{
 		"gauge_cost": 0,
@@ -57,6 +56,18 @@
 		}
 	],
 	"image_resources": {
+		"character_default": {
+			"url": "https://i.imgur.com/dQLfmLi.jpeg",
+			"multiple_cards": false
+		},
+		"character_exceeded": {
+			"url": "https://i.imgur.com/rD09jP6.jpeg",
+			"multiple_cards": false
+		},
+		"cardback": {
+			"url": "https://i.imgur.com/igYZhPh.png",
+			"multiple_cards": false
+		},
 		"specials": {
 			"url": "https://i.imgur.com/cvpfwj1.jpeg",
 			"multiple_cards": true

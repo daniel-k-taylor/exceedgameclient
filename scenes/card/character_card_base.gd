@@ -60,11 +60,17 @@ func exceed(is_exceed : bool):
 	fancy_card.visible = not is_exceed
 	fancy_exceed_card.visible = is_exceed
 
-func set_image(image_path, exceed_image_path):
+func set_image(image_path, exceed_image_path, loaded_image, exceed_loaded_image):
 	#$MainPanelContainer/MainContainer/VerticalLayout/ImageMarginContainer/ImageHBox/CharacterImage.texture = load(image_path)
 	#$MainPanelContainer/MainContainer/VerticalLayout/ImageMarginContainer/ImageHBox/CharacterExceedImage.texture = load(exceed_image_path)
-	fancy_card.texture = load(image_path)
-	fancy_exceed_card.texture = load(exceed_image_path)
+	if loaded_image:
+		fancy_card.texture = loaded_image
+		fancy_exceed_card.texture = exceed_loaded_image
+		# TODO: something for failure to load image
+	else:
+		fancy_card.texture = load(image_path)
+		fancy_exceed_card.texture = load(exceed_image_path)
+
 	main_container.visible = false
 	fancy_card.visible = true
 	fancy_exceed_card.visible = false

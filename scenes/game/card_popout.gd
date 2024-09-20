@@ -86,7 +86,7 @@ func show_cards(cards : Array):
 		var spot = get_spot(i)
 		spot.add_child(new_card)
 		new_card.initialize_simple(card.card_id, card.card_image, card.cardback_image,
-			card.card_url_loaded_image, card.card_attack_name, card.card_boost_name)
+			card.card_url_loaded_image, card.card_url_loaded_cardback, card.card_attack_name, card.card_boost_name)
 		new_card.flip_card_to_front(true)
 
 		var label = card.get_label()

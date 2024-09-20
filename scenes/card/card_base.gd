@@ -94,6 +94,7 @@ var cancel_visible_on_front
 var card_image
 var cardback_image
 var card_url_loaded_image
+var card_url_loaded_cardback
 var card_attack_name
 var card_boost_name
 
@@ -313,7 +314,7 @@ func _process(_delta):
 	pass
 
 func initialize_card(id, image, card_back_image, is_opponent: bool,
-		url_loaded_image, card_name, boost_name):
+		url_loaded_image, url_loaded_cardback, card_name, boost_name):
 	card_id = id
 	var starting_scale = HandCardScale
 	if is_opponent:
@@ -326,6 +327,7 @@ func initialize_card(id, image, card_back_image, is_opponent: bool,
 	card_image = image
 	cardback_image = card_back_image
 	card_url_loaded_image = url_loaded_image
+	card_url_loaded_cardback = url_loaded_cardback
 	card_attack_name = card_name
 	card_boost_name = boost_name
 	assert(image, "Must have image for card")
@@ -341,11 +343,13 @@ func initialize_card(id, image, card_back_image, is_opponent: bool,
 			target_card_node = backup_label
 
 	target_card_node.visible = true
-	if cardback_image:
+	if url_loaded_cardback:
+		card_back.texture = url_loaded_cardback
+	elif cardback_image:
 		card_back.texture = load(card_back_image)
 
 func initialize_simple(id, image, card_back_image,
-		url_loaded_image, card_name, boost_name):
+		url_loaded_image, url_loaded_cardback, card_name, boost_name):
 	card_id = id
 	var starting_scale = HandCardScale
 	default_scale = starting_scale
@@ -356,6 +360,7 @@ func initialize_simple(id, image, card_back_image,
 	card_image = image
 	cardback_image = card_back_image
 	card_url_loaded_image = url_loaded_image
+	card_url_loaded_cardback = url_loaded_cardback
 	card_attack_name = card_name
 	card_boost_name = boost_name
 
@@ -370,7 +375,9 @@ func initialize_simple(id, image, card_back_image,
 			target_card_node = backup_label
 
 	target_card_node.visible = true
-	if cardback_image:
+	if url_loaded_cardback:
+		card_back.texture = url_loaded_cardback
+	elif cardback_image:
 		card_back.texture = load(card_back_image)
 
 func set_card_and_focus(pos, rot, sca):
