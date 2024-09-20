@@ -76,11 +76,17 @@ func set_image(image_path, exceed_image_path, loaded_image, exceed_loaded_image)
 	fancy_exceed_card.visible = false
 	exceed_cost_panel.visible = false
 
-func set_extra_image(index, image_path, exceed_image_path):
+func set_extra_image(index, image_path, exceed_image_path, loaded_image, exceed_loaded_image):
 	extra_cards_to_show_on_focus = max(extra_cards_to_show_on_focus, index)
 	var child = extra_cards.get_child(index)
-	child.texture = load(image_path)
-	child.texture = load(exceed_image_path)
+
+	if loaded_image:
+		child.texture = loaded_image
+		child.texture = exceed_loaded_image
+		# TODO: something for failure to load image
+	else:
+		child.texture = load(image_path)
+		child.texture = load(exceed_image_path)
 
 	var extra_image_scale = 1
 	if extra_cards_to_show_on_focus >= EXTRA_IMAGE_SCALE_THRESHOLD:

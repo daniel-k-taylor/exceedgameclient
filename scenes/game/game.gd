@@ -540,11 +540,22 @@ func setup_character_card(character_card, deck, buddy_character_card):
 	elif 'buddy_card' in deck:
 		buddy_character_card.visible = true
 		buddy_character_card.hide_focus()
-		var buddy_path = build_character_path(deck['id'], deck['buddy_card'], false)
-		var buddy_exceeded_path = buddy_path
-		if 'buddy_exceeds' in deck and deck['buddy_exceeds']:
-			buddy_exceeded_path = build_character_path(deck['id'], deck['buddy_card'], true)
-		buddy_character_card.set_image(buddy_path, buddy_exceeded_path, null, null) # TODO
+		var buddy_card_id = deck['buddy_card']
+
+		if 'image_resources' in deck:
+			var loaded_buddy_image = await image_loader.get_card_image(
+				deck['image_resources'][buddy_card_id]['url'], 0)
+			var loaded_buddy_exceed_image = loaded_buddy_image
+			if 'buddy_exceeds' in deck and deck['buddy_exceeds']:
+				loaded_buddy_exceed_image = await image_loader.get_card_image(
+					deck['image_resources'][buddy_card_id + '_exceeded']['url'], 0)
+			buddy_character_card.set_image("", "", loaded_buddy_image, loaded_buddy_exceed_image)
+		else:
+			var buddy_path = build_character_path(deck['id'], buddy_card_id, false)
+			var buddy_exceeded_path = buddy_path
+			if 'buddy_exceeds' in deck and deck['buddy_exceeds']:
+				buddy_exceeded_path = build_character_path(deck['id'], buddy_card_id, true)
+			buddy_character_card.set_image(buddy_path, buddy_exceeded_path, null, null)
 	elif 'buddy_cards' in deck:
 		buddy_character_card.visible = true
 		buddy_character_card.hide_focus()
@@ -552,11 +563,21 @@ func setup_character_card(character_card, deck, buddy_character_card):
 		if 'buddy_card_graphic_override' in deck:
 			default_buddy = deck['buddy_card_graphic_override'][0]
 		created_buddy_cards.append(default_buddy)
-		var buddy_path = build_character_path(deck['id'], default_buddy, false)
-		var buddy_exceeded_path = buddy_path
-		if 'buddy_exceeds' in deck and deck['buddy_exceeds']:
-			buddy_exceeded_path = build_character_path(deck['id'], default_buddy, true)
-		buddy_character_card.set_image(buddy_path, buddy_exceeded_path, null, null) # TODO
+
+		if 'image_resources' in deck:
+			var loaded_buddy_image = await image_loader.get_card_image(
+				deck['image_resources'][default_buddy]['url'], 0)
+			var loaded_buddy_exceed_image = loaded_buddy_image
+			if 'buddy_exceeds' in deck and deck['buddy_exceeds']:
+				loaded_buddy_exceed_image = await image_loader.get_card_image(
+					deck['image_resources'][default_buddy + '_exceeded']['url'], 0)
+			buddy_character_card.set_image("", "", loaded_buddy_image, loaded_buddy_exceed_image)
+		else:
+			var buddy_path = build_character_path(deck['id'], default_buddy, false)
+			var buddy_exceeded_path = buddy_path
+			if 'buddy_exceeds' in deck and deck['buddy_exceeds']:
+				buddy_exceeded_path = build_character_path(deck['id'], default_buddy, true)
+			buddy_character_card.set_image(buddy_path, buddy_exceeded_path, null, null)
 
 		# Add remaining buddies as extras.
 		for i in range(1, deck['buddy_cards'].size()):
@@ -567,11 +588,21 @@ func setup_character_card(character_card, deck, buddy_character_card):
 				# Skip any that share graphics.
 				continue
 			created_buddy_cards.append(buddy_id)
-			buddy_path = build_character_path(deck['id'], buddy_id, false)
-			buddy_exceeded_path = buddy_path
-			if 'buddy_exceeds' in deck and deck['buddy_exceeds']:
-				buddy_exceeded_path = build_character_path(deck['id'], buddy_id, true)
-			buddy_character_card.set_extra_image(i, buddy_path, buddy_exceeded_path)
+
+			if 'image_resources' in deck:
+				var loaded_buddy_image = await image_loader.get_card_image(
+					deck['image_resources'][buddy_id]['url'], 0)
+				var loaded_buddy_exceed_image = loaded_buddy_image
+				if 'buddy_exceeds' in deck and deck['buddy_exceeds']:
+					loaded_buddy_exceed_image = await image_loader.get_card_image(
+						deck['image_resources'][buddy_id + '_exceeded']['url'], 0)
+				buddy_character_card.set_extra_image(i, "", "", loaded_buddy_image, loaded_buddy_exceed_image)
+			else:
+				var buddy_path = build_character_path(deck['id'], buddy_id, false)
+				var buddy_exceeded_path = buddy_path
+				if 'buddy_exceeds' in deck and deck['buddy_exceeds']:
+					buddy_exceeded_path = build_character_path(deck['id'], buddy_id, true)
+				buddy_character_card.set_extra_image(i, buddy_path, buddy_exceeded_path, null, null)
 	else:
 		buddy_character_card.visible = false
 
@@ -617,11 +648,16 @@ func create_character_reference_card(path_root : String, exceeded : bool, zone, 
 		_create_reference_card(image_path, "Character Card", zone, CardBase.CharacterCardReferenceId, "")
 
 func create_buddy_reference_card(path_root : String, buddy_id, exceeded : bool, zone, click_buddy_id, image_resources):
-	# TODO
-	var image_path = path_root + buddy_id + ".jpg"
-	if exceeded:
-		image_path = path_root + buddy_id + "_exceeded.jpg"
-	_create_reference_card(image_path, "Extra Card", zone, click_buddy_id, "")
+	if image_resources:
+		var image_url = image_resources[buddy_id]['url'] # TODO: check if any redirection is needed
+		if exceeded:
+			image_url = image_resources[buddy_id + '_exceeded']['url']
+		_create_reference_card("[TODO: remove]", "Extra Card", zone, click_buddy_id, image_url)
+	else:
+		var image_path = path_root + buddy_id + ".jpg"
+		if exceeded:
+			image_path = path_root + buddy_id + "_exceeded.jpg"
+		_create_reference_card(image_path, "Extra Card", zone, click_buddy_id, "")
 
 func _create_reference_card(image_path : String, card_name : String, zone,
 		card_id : int, image_url : String):
