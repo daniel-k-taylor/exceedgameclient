@@ -69,181 +69,151 @@
 	"cards": [
 		{
 			"definition_id": "ryu_metsuhadoken",
-			"image": "",
 			"image_name": "specials",
 			"image_index": 5
 		},
 		{
 			"definition_id": "ryu_metsuhadoken",
-			"image": "",
 			"image_name": "specials",
 			"image_index": 5
 		},
 		{
 			"definition_id": "ryu_metsushoryuken",
-			"image": "",
 			"image_name": "specials",
 			"image_index": 6
 		},
 		{
 			"definition_id": "ryu_metsushoryuken",
-			"image": "",
 			"image_name": "specials",
 			"image_index": 6
 		},
 		{
 			"definition_id": "ryu_donkeykick",
-			"image": "",
 			"image_name": "specials",
 			"image_index": 2
 		},
 		{
 			"definition_id": "ryu_donkeykick",
-			"image": "",
 			"image_name": "specials",
 			"image_index": 2
 		},
 		{
 			"definition_id": "ryu_oneinchpunch",
-			"image": "",
 			"image_name": "specials",
 			"image_index": 4
 		},
 		{
 			"definition_id": "ryu_oneinchpunch",
-			"image": "",
 			"image_name": "specials",
 			"image_index": 4
 		},
 		{
 			"definition_id": "ryu_tatsumakisenpukyaku",
-			"image": "",
 			"image_name": "specials",
 			"image_index": 3
 		},
 		{
 			"definition_id": "ryu_tatsumakisenpukyaku",
-			"image": "",
 			"image_name": "specials",
 			"image_index": 3
 		},
 		{
 			"definition_id": "ryu_hadoken",
-			"image": "",
 			"image_name": "specials",
 			"image_index": 1
 		},
 		{
 			"definition_id": "ryu_hadoken",
-			"image": "",
 			"image_name": "specials",
 			"image_index": 1
 		},
 		{
 			"definition_id": "ryu_shoryuken",
-			"image": "",
 			"image_name": "specials",
 			"image_index": 0
 		},
 		{
 			"definition_id": "ryu_shoryuken",
-			"image": "",
 			"image_name": "specials",
 			"image_index": 0
 		},
 		{
 			"definition_id": "standard_normal_grasp",
-			"image": "",
 			"image_name": "normals",
 			"image_index": 0
 		},
 		{
 			"definition_id": "standard_normal_grasp",
-			"image": "",
 			"image_name": "normals",
 			"image_index": 0
 		},
 		{
 			"definition_id": "standard_normal_cross",
-			"image": "",
 			"image_name": "normals",
 			"image_index": 1
 		},
 		{
 			"definition_id": "standard_normal_cross",
-			"image": "",
 			"image_name": "normals",
 			"image_index": 1
 		},
 		{
 			"definition_id": "standard_normal_assault",
-			"image": "",
 			"image_name": "normals",
 			"image_index": 2
 		},
 		{
 			"definition_id": "standard_normal_assault",
-			"image": "",
 			"image_name": "normals",
 			"image_index": 2
 		},
 		{
 			"definition_id": "standard_normal_dive",
-			"image": "",
 			"image_name": "normals",
 			"image_index": 3
 		},
 		{
 			"definition_id": "standard_normal_dive",
-			"image": "",
 			"image_name": "normals",
 			"image_index": 3
 		},
 		{
 			"definition_id": "standard_normal_spike",
-			"image": "",
 			"image_name": "normals",
 			"image_index": 4
 		},
 		{
 			"definition_id": "standard_normal_spike",
-			"image": "",
 			"image_name": "normals",
 			"image_index": 4
 		},
 		{
 			"definition_id": "standard_normal_sweep",
-			"image": "",
 			"image_name": "normals",
 			"image_index": 5
 		},
 		{
 			"definition_id": "standard_normal_sweep",
-			"image": "",
 			"image_name": "normals",
 			"image_index": 5
 		},
 		{
 			"definition_id": "standard_normal_focus",
-			"image": "",
 			"image_name": "normals",
 			"image_index": 6
 		},
 		{
 			"definition_id": "standard_normal_focus",
-			"image": "",
 			"image_name": "normals",
 			"image_index": 6
 		},
 		{
 			"definition_id": "standard_normal_block",
-			"image": "",
 			"image_name": "normals",
 			"image_index": 7
 		},
 		{
 			"definition_id": "standard_normal_block",
-			"image": "",
 			"image_name": "normals",
 			"image_index": 7
 		}

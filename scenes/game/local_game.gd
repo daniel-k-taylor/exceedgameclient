@@ -809,7 +809,10 @@ class Player:
 				image_atlas = deck_def['image_resources'][deck_card_def['image_name']]
 				image_index = deck_card_def['image_index']
 
-			var card = GameCard.new(card_start_id, card_def, deck_card_def['image'], id,
+			var old_image_field = ""
+			if 'image' in deck_card_def:
+				old_image_field = deck_card_def['image']
+			var card = GameCard.new(card_start_id, card_def, old_image_field, id,
 				image_atlas, image_index)
 			card_database.add_card(card)
 			if 'set_aside' in deck_card_def and deck_card_def['set_aside']:
