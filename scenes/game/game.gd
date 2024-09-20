@@ -607,7 +607,8 @@ func create_buddy_reference_card(path_root : String, buddy_id, exceeded : bool, 
 		image_path = path_root + buddy_id + "_exceeded.jpg"
 	_create_reference_card(image_path, "Extra Card", zone, click_buddy_id)
 
-func _create_reference_card(image_path : String, card_name : String, zone, card_id : int):
+func _create_reference_card(image_path : String, card_name : String, zone,
+		card_id : int):
 	var new_card : CardBase = CardBaseScene.instantiate()
 	zone.add_child(new_card)
 	new_card.initialize_card(
@@ -615,7 +616,9 @@ func _create_reference_card(image_path : String, card_name : String, zone, card_
 		image_path,
 		image_path,
 		false,
-		null
+		null,
+		card_name,
+		""
 	)
 	new_card.name = card_name
 	new_card.raised_card.connect(on_card_raised)
@@ -651,7 +654,8 @@ func spawn_deck(deck_id,
 		var logic_card : GameCard = card_db.get_card(card.id)
 		var image_path = get_card_image_path(deck_id, logic_card)
 		var new_card = await create_card(card.id, logic_card.definition, image_path, card_back_image,
-			deck_card_zone, is_opponent, logic_card.get_image_url_index_data())
+			deck_card_zone, is_opponent, logic_card.get_image_url_index_data(),
+			logic_card.definition['display_name'], logic_card.definition['boost']['display_name'])
 		if observer_mode and not replay_mode:
 			new_card.skip_flip_when_drawing = true
 		if logic_card.set_aside:
@@ -676,7 +680,8 @@ func spawn_deck(deck_id,
 		var image_path = card_root_path + logic_card.image
 		if previous_def_id != logic_card.definition['id']:
 			var copy_card = await create_card(card.id + ReferenceScreenIdRangeStart, logic_card.definition,
-				image_path, card_back_image, copy_zone, is_opponent, logic_card.get_image_url_index_data())
+				image_path, card_back_image, copy_zone, is_opponent, logic_card.get_image_url_index_data(),
+				logic_card.definition['display_name'], logic_card.definition['boost']['display_name'])
 			copy_card.set_card_and_focus(OffScreen, 0, CardBase.ReferenceCardScale)
 			copy_card.resting_scale = CardBase.ReferenceCardScale
 			copy_card.change_state(CardBase.CardState.CardState_Offscreen)
@@ -968,7 +973,8 @@ func update_card_counts():
 func get_card_node_name(id):
 	return "Card_" + str(id)
 
-func create_card(id, card_def, image, card_back_image, parent, is_opponent : bool, image_url_index) -> CardBase:
+func create_card(id, card_def, image, card_back_image, parent, is_opponent : bool,
+		image_url_index, card_name, boost_name) -> CardBase:
 	var new_card : CardBase = CardBaseScene.instantiate()
 	parent.add_child(new_card)
 	var strike_cost = card_def['gauge_cost']
@@ -984,7 +990,9 @@ func create_card(id, card_def, image, card_back_image, parent, is_opponent : boo
 		image,
 		card_back_image,
 		is_opponent,
-		url_loaded_image
+		url_loaded_image,
+		card_name,
+		boost_name
 	)
 
 	new_card.name = get_card_node_name(id)
@@ -1840,7 +1848,8 @@ func begin_choose_opponent_card_to_discard(card_ids):
 		var logic_card : GameCard = card_db.get_card(card_id)
 		var card_image = get_card_image_path(opponent_deck['id'], logic_card)
 		var copy_card = await create_card(card_id + ChoiceCopyIdRangeStart, logic_card.definition,
-			card_image, "", choice_zone_parent, true, logic_card.get_image_url_index_data())
+			card_image, "", choice_zone_parent, true, logic_card.get_image_url_index_data(),
+			logic_card.definition['display_name'], logic_card.definition['boost']['display_name'])
 		copy_card.set_card_and_focus(OffScreen, 0, CardBase.ReferenceCardScale)
 		copy_card.resting_scale = CardBase.ReferenceCardScale
 		copy_card.change_state(CardBase.CardState.CardState_Offscreen)
@@ -2778,7 +2787,8 @@ func add_revealed_card(card_id : int):
 	var logic_card : GameCard = card_db.get_card(card_id)
 	var card_image = get_card_image_path(opponent_deck['id'], logic_card)
 	var copy_card = await create_card(card_id + RevealCopyIdRangestart, logic_card.definition, card_image,
-		"", $AllCards/OpponentRevealed, true, logic_card.get_image_url_index_data())
+		"", $AllCards/OpponentRevealed, true, logic_card.get_image_url_index_data(),
+			logic_card.definition['display_name'], logic_card.definition['boost']['display_name'])
 	copy_card.set_card_and_focus(OffScreen, 0, CardBase.ReferenceCardScale)
 	copy_card.resting_scale = CardBase.ReferenceCardScale
 	copy_card.change_state(CardBase.CardState.CardState_Offscreen)

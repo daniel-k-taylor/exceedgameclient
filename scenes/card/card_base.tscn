@@ -56,12 +56,28 @@ layout_mode = 2
 mouse_filter = 2
 color = Color(0, 0, 0, 1)
 
-[node name="FancyCard" type="TextureRect" parent="CardFocusFeatures/CardContainer"]
+[node name="CardFront" type="MarginContainer" parent="CardFocusFeatures/CardContainer"]
+layout_mode = 2
+
+[node name="FancyCard" type="TextureRect" parent="CardFocusFeatures/CardContainer/CardFront"]
 visible = false
 layout_mode = 2
 mouse_filter = 2
 texture = ExtResource("4_krtfi")
 expand_mode = 1
+
+[node name="BackupLabel" type="MarginContainer" parent="CardFocusFeatures/CardContainer/CardFront"]
+visible = false
+layout_mode = 2
+size_flags_vertical = 4
+
+[node name="CardNameText" type="RichTextLabel" parent="CardFocusFeatures/CardContainer/CardFront/BackupLabel"]
+layout_mode = 2
+bbcode_enabled = true
+text = "[center]Attack: sample text[/center]
+[center]Boost: sample text[/center]"
+fit_content = true
+scroll_active = false
 
 [node name="CardBack" type="TextureRect" parent="CardFocusFeatures/CardContainer"]
 visible = false

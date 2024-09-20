@@ -46,19 +46,22 @@ func _process_request_queue():
 		push_error("Error loading card image: " + image_url)
 	var image = await finished_loading_image
 
-	if is_multiple:
-		var grid_width = image.get_width() / CARD_WIDTH
-		var grid_height = image.get_height() / CARD_HEIGHT
-		var image_grid = []
-		for y in range(grid_height):
-			for x in range(grid_width):
-				var atlas_texture = AtlasTexture.new()
-				atlas_texture.atlas = image
-				atlas_texture.region = Rect2(x * CARD_WIDTH, y * CARD_HEIGHT, CARD_WIDTH, CARD_HEIGHT)
-				image_grid.append(atlas_texture)
-		loaded_images[image_url] = image_grid
+	if image:
+		if is_multiple:
+			var grid_width = image.get_width() / CARD_WIDTH
+			var grid_height = image.get_height() / CARD_HEIGHT
+			var image_grid = []
+			for y in range(grid_height):
+				for x in range(grid_width):
+					var atlas_texture = AtlasTexture.new()
+					atlas_texture.atlas = image
+					atlas_texture.region = Rect2(x * CARD_WIDTH, y * CARD_HEIGHT, CARD_WIDTH, CARD_HEIGHT)
+					image_grid.append(atlas_texture)
+			loaded_images[image_url] = image_grid
+		else:
+			loaded_images[image_url] = [image]
 	else:
-		loaded_images[image_url] = [image]
+		loaded_images[image_url] = null
 	image_load_queue.pop_at(0)
 	processing_queue = false
 	image_queue_advanced.emit()
@@ -68,9 +71,10 @@ func _image_request_completed(_result, _response_code, _headers, body):
 	var error = image.load_jpg_from_buffer(body)
 	if error != OK:
 		push_error("Error loading card image")
-
-	var texture = ImageTexture.create_from_image(image)
-	finished_loading_image.emit(texture)
+		finished_loading_image.emit(null)
+	else:
+		var texture = ImageTexture.create_from_image(image)
+		finished_loading_image.emit(texture)
 
 func get_card_image(image_url, image_index):
 	if test_mode:
@@ -78,4 +82,8 @@ func get_card_image(image_url, image_index):
 
 	while image_url not in loaded_images:
 		await image_queue_advanced
-	return loaded_images[image_url][image_index]
+	var image_set = loaded_images[image_url]
+	if image_set:
+		return image_set[image_index]
+	else:
+		return null

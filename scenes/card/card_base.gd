@@ -7,7 +7,10 @@ signal clicked_card(card)
 const StatPanel = preload("res://scenes/card/stat_panel.gd")
 @onready var card_container = $CardFocusFeatures/CardContainer
 @onready var card_back = $CardFocusFeatures/CardContainer/CardBack
-@onready var fancy_card = $CardFocusFeatures/CardContainer/FancyCard
+@onready var card_front = $CardFocusFeatures/CardContainer/CardFront
+@onready var fancy_card = $CardFocusFeatures/CardContainer/CardFront/FancyCard
+@onready var backup_label = $CardFocusFeatures/CardContainer/CardFront/BackupLabel
+@onready var backup_label_text = $CardFocusFeatures/CardContainer/CardFront/BackupLabel/CardNameText
 @onready var backlight = $CardFocusFeatures/Backlight
 @onready var stun_indicator = $CardFocusFeatures/StunIndicator
 @onready var card_features = $CardFocusFeatures
@@ -91,6 +94,8 @@ var cancel_visible_on_front
 var card_image
 var cardback_image
 var card_url_loaded_image
+var card_attack_name
+var card_boost_name
 
 var selected = false
 
@@ -124,10 +129,10 @@ func set_remaining_count(count : int):
 	remaining_count = count
 	if count == 0:
 		remaining_count_label.text = "None"
-		fancy_card.modulate = GreyedOutColor
+		card_front.modulate = GreyedOutColor
 	else:
 		remaining_count_label.text = "%s Left" % count
-		fancy_card.modulate = NormalColor
+		card_front.modulate = NormalColor
 
 func get_remaining_count():
 	return remaining_count
@@ -189,10 +194,10 @@ func clear_label():
 func flip_card_to_front(front):
 	if front:
 		card_back.visible = false
-		fancy_card.visible = true
+		card_front.visible = true
 	else:
 		card_back.visible = true
-		fancy_card.visible = false
+		card_front.visible = false
 
 func set_backlight_visible(backlight_visible):
 	backlight.visible = backlight_visible
@@ -307,7 +312,8 @@ func position_card_in_hand(dst_pos, dst_rot):
 func _process(_delta):
 	pass
 
-func initialize_card(id, image, card_back_image, is_opponent: bool, url_loaded_image):
+func initialize_card(id, image, card_back_image, is_opponent: bool,
+		url_loaded_image, card_name, boost_name):
 	card_id = id
 	var starting_scale = HandCardScale
 	if is_opponent:
@@ -320,18 +326,26 @@ func initialize_card(id, image, card_back_image, is_opponent: bool, url_loaded_i
 	card_image = image
 	cardback_image = card_back_image
 	card_url_loaded_image = url_loaded_image
+	card_attack_name = card_name
+	card_boost_name = boost_name
 	assert(image, "Must have image for card")
 
+	var target_card_node = fancy_card
 	if url_loaded_image:
 		fancy_card.texture = url_loaded_image
 	else:
-		fancy_card.texture = load(image)
+		if image.split('/')[-1]:
+			fancy_card.texture = load(image)
+		else:
+			backup_label_text.text = "[center]Card: " + card_name + "\nBoost: " + boost_name + "[/center]"
+			target_card_node = backup_label
 
-	fancy_card.visible = true
+	target_card_node.visible = true
 	if cardback_image:
 		card_back.texture = load(card_back_image)
 
-func initialize_simple(id, image, card_back_image, url_loaded_image):
+func initialize_simple(id, image, card_back_image,
+		url_loaded_image, card_name, boost_name):
 	card_id = id
 	var starting_scale = HandCardScale
 	default_scale = starting_scale
@@ -342,12 +356,20 @@ func initialize_simple(id, image, card_back_image, url_loaded_image):
 	card_image = image
 	cardback_image = card_back_image
 	card_url_loaded_image = url_loaded_image
+	card_attack_name = card_name
+	card_boost_name = boost_name
+
+	var target_card_node = fancy_card
 	if url_loaded_image:
 		fancy_card.texture = url_loaded_image
 	else:
-		fancy_card.texture = load(image)
+		if image.split('/')[-1]:
+			fancy_card.texture = load(image)
+		else:
+			backup_label_text.text = "[center]Card: " + card_name + "\nBoost: " + boost_name + "[/center]"
+			target_card_node = backup_label
 
-	fancy_card.visible = true
+	target_card_node.visible = true
 	if cardback_image:
 		card_back.texture = load(card_back_image)
 
