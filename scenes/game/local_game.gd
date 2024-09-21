@@ -802,18 +802,9 @@ class Player:
 		sealed = []
 		for deck_card_def in deck_def['cards']:
 			var card_def = CardDefinitions.get_card(deck_card_def['definition_id'])
-
-			var image_atlas = {}
-			var image_index = 0
-			if 'image_resources' in deck_def:
-				image_atlas = deck_def['image_resources'][deck_card_def['image_name']]
-				image_index = deck_card_def['image_index']
-
-			var old_image_field = ""
-			if 'image' in deck_card_def:
-				old_image_field = deck_card_def['image']
-			var card = GameCard.new(card_start_id, card_def, old_image_field, id,
-				image_atlas, image_index)
+			var image_atlas = deck_def['image_resources'][deck_card_def['image_name']]
+			var image_index = deck_card_def['image_index']
+			var card = GameCard.new(card_start_id, card_def, id, image_atlas, image_index)
 			card_database.add_card(card)
 			if 'set_aside' in deck_card_def and deck_card_def['set_aside']:
 				card.set_aside = true

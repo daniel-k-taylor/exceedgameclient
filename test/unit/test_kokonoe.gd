@@ -33,7 +33,7 @@ func default_game_setup(alt_opponent : String = ""):
 
 func give_player_specific_card(player, def_id, card_id):
 	var card_def = CardDefinitions.get_card(def_id)
-	var card = GameCard.new(card_id, card_def, "image", player.my_id)
+	var card = GameCard.new(card_id, card_def, player.my_id)
 	var card_db = game_logic.get_card_database()
 	card_db._test_insert_card(card)
 	player.hand.append(card)

@@ -2,7 +2,6 @@
 	"id": "axl",
 	"season": 7,
 	"display_name": "Axl Low",
-	"cardback": "cardback_axl.jpg",
 	"exceed_cost": 3,
 	"on_exceed": {
 		"effect_type": "draw",

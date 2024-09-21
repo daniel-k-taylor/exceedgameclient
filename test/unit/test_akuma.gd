@@ -32,7 +32,7 @@ func default_game_setup(alt_opponent : String = ""):
 
 func give_player_specific_card(player, def_id, card_id):
 	var card_def = CardDefinitions.get_card(def_id)
-	var card = GameCard.new(card_id, card_def, "image", player.my_id)
+	var card = GameCard.new(card_id, card_def, player.my_id)
 	var card_db = game_logic.get_card_database()
 	card_db._test_insert_card(card)
 	player.hand.append(card)
@@ -388,11 +388,11 @@ func test_akuma_vs_arakune_positive_bonus_check():
 	position_players(player1, 3, player2, 5)
 	player1.exceeded = true
 	advance_turn(player1)
-	
+
 	# Arakune boosts his stupid +1 range -1 power thing.
 	give_player_specific_card(player2, "arakune_ytwodash", TestCardId3)
 	assert_true(game_logic.do_boost(player2, TestCardId3))
-	
+
 	# Player 1's turn to strike.
 	give_gauge(player1, 5)
 	give_player_specific_card(player1, "akuma_demonarmageddon", TestCardId1)
