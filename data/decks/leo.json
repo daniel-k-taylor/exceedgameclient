@@ -2,7 +2,6 @@
 	"id": "leo",
 	"season": 7,
 	"display_name": "Leo Whitefang",
-	"cardback": "cardback_leo.jpg",
 	"exceed_cost": -1,
 	"ability_effects": [
 		{
@@ -52,126 +51,178 @@
 			"effect_type": "revert"
 		}
 	],
+	"image_resources": {
+		"character_default": {
+			"url": "https://i.imgur.com/9r5nKru.jpeg",
+			"multiple_cards": false
+		},
+		"character_exceeded": {
+			"url": "https://i.imgur.com/1bdLfdb.jpeg",
+			"multiple_cards": false
+		},
+		"cardback": {
+			"url": "https://i.imgur.com/0ObTbvQ.jpg",
+			"multiple_cards": false
+		},
+		"specials": {
+			"url": "https://i.imgur.com/DJkbF0F.jpeg",
+			"multiple_cards": true
+		},
+		"normals": {
+			"url": "https://i.imgur.com/3Mn6BIa.jpg",
+			"multiple_cards": true
+		}
+	},
 	"cards": [
 		{
 			"definition_id": "leo_stahlwirbel",
-			"image": "leo_stahlwirbel.tres"
+			"image_name": "specials",
+			"image_index": 5
 		},
 		{
 			"definition_id": "leo_stahlwirbel",
-			"image": "leo_stahlwirbel.tres"
+			"image_name": "specials",
+			"image_index": 5
 		},
 		{
 			"definition_id": "leo_leidenschaft",
-			"image": "leo_leidenschaft.tres"
+			"image_name": "specials",
+			"image_index": 6
 		},
 		{
 			"definition_id": "leo_leidenschaft",
-			"image": "leo_leidenschaft.tres"
+			"image_name": "specials",
+			"image_index": 6
 		},
 		{
 			"definition_id": "leo_zweites",
-			"image": "leo_zweites.tres"
+			"image_name": "specials",
+			"image_index": 0
 		},
 		{
 			"definition_id": "leo_zweites",
-			"image": "leo_zweites.tres"
+			"image_name": "specials",
+			"image_index": 0
 		},
 		{
 			"definition_id": "leo_blitzschlag",
-			"image": "leo_blitzschlag.tres"
+			"image_name": "specials",
+			"image_index": 1
 		},
 		{
 			"definition_id": "leo_blitzschlag",
-			"image": "leo_blitzschlag.tres"
+			"image_name": "specials",
+			"image_index": 1
 		},
 		{
 			"definition_id": "leo_eisensturm",
-			"image": "leo_eisensturm.tres"
+			"image_name": "specials",
+			"image_index": 2
 		},
 		{
 			"definition_id": "leo_eisensturm",
-			"image": "leo_eisensturm.tres"
+			"image_name": "specials",
+			"image_index": 2
 		},
 		{
 			"definition_id": "leo_gravierte",
-			"image": "leo_gravierte.tres"
+			"image_name": "specials",
+			"image_index": 3
 		},
 		{
 			"definition_id": "leo_gravierte",
-			"image": "leo_gravierte.tres"
+			"image_name": "specials",
+			"image_index": 3
 		},
 		{
 			"definition_id": "leo_kahnschild",
-			"image": "leo_kahnschild.tres"
+			"image_name": "specials",
+			"image_index": 4
 		},
 		{
 			"definition_id": "leo_kahnschild",
-			"image": "leo_kahnschild.tres"
+			"image_name": "specials",
+			"image_index": 4
 		},
 		{
 			"definition_id": "gg_normal_grasp",
-			"image": "normal_grasp.tres"
+			"image_name": "normals",
+			"image_index": 0
 		},
 		{
 			"definition_id": "gg_normal_grasp",
-			"image": "normal_grasp.tres"
+			"image_name": "normals",
+			"image_index": 0
 		},
 		{
 			"definition_id": "gg_normal_cross",
-			"image": "normal_cross.tres"
+			"image_name": "normals",
+			"image_index": 1
 		},
 		{
 			"definition_id": "gg_normal_cross",
-			"image": "normal_cross.tres"
+			"image_name": "normals",
+			"image_index": 1
 		},
 		{
 			"definition_id": "gg_normal_slash",
-			"image": "normal_assault.tres"
+			"image_name": "normals",
+			"image_index": 2
 		},
 		{
 			"definition_id": "gg_normal_slash",
-			"image": "normal_assault.tres"
+			"image_name": "normals",
+			"image_index": 2
 		},
 		{
 			"definition_id": "gg_normal_dive",
-			"image": "normal_dive.tres"
+			"image_name": "normals",
+			"image_index": 3
 		},
 		{
 			"definition_id": "gg_normal_dive",
-			"image": "normal_dive.tres"
+			"image_name": "normals",
+			"image_index": 3
 		},
 		{
 			"definition_id": "gg_normal_dust",
-			"image": "normal_spike.tres"
+			"image_name": "normals",
+			"image_index": 4
 		},
 		{
 			"definition_id": "gg_normal_dust",
-			"image": "normal_spike.tres"
+			"image_name": "normals",
+			"image_index": 4
 		},
 		{
 			"definition_id": "gg_normal_sweep",
-			"image": "normal_sweep.tres"
+			"image_name": "normals",
+			"image_index": 5
 		},
 		{
 			"definition_id": "gg_normal_sweep",
-			"image": "normal_sweep.tres"
+			"image_name": "normals",
+			"image_index": 5
 		},
 		{
 			"definition_id": "gg_normal_focus",
-			"image": "normal_focus.tres"
+			"image_name": "normals",
+			"image_index": 6
 		},
 		{
 			"definition_id": "gg_normal_focus",
-			"image": "normal_focus.tres"
+			"image_name": "normals",
+			"image_index": 6
 		},
 		{
 			"definition_id": "gg_normal_block",
-			"image": "normal_block.tres"
+			"image_name": "normals",
+			"image_index": 7
 		},
 		{
 			"definition_id": "gg_normal_block",
-			"image": "normal_block.tres"
+			"image_name": "normals",
+			"image_index": 7
 		}
 	]
 }

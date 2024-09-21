@@ -2,7 +2,6 @@
 	"id": "jacko",
 	"season": 7,
 	"display_name": "Jack-O",
-	"cardback": "cardback_jacko.jpg",
 	"exceed_cost": 2,
 	"on_exceed": {
 		"effect_type": "draw",
@@ -29,126 +28,178 @@
 	],
 	"exceed_ability_effects": [
 	],
+	"image_resources": {
+		"character_default": {
+			"url": "https://i.imgur.com/RWRBSLp.jpeg",
+			"multiple_cards": false
+		},
+		"character_exceeded": {
+			"url": "https://i.imgur.com/zg0ZdXe.jpeg",
+			"multiple_cards": false
+		},
+		"cardback": {
+			"url": "https://i.imgur.com/YL1bV4g.jpg",
+			"multiple_cards": false
+		},
+		"specials": {
+			"url": "https://i.imgur.com/3tFLmJn.jpeg",
+			"multiple_cards": true
+		},
+		"normals": {
+			"url": "https://i.imgur.com/WgFWf8v.jpg",
+			"multiple_cards": true
+		}
+	},
 	"cards": [
 		{
 			"definition_id": "jacko_cheerservanton",
-			"image": "jacko_cheerservanton.tres"
+			"image_name": "specials",
+			"image_index": 5
 		},
 		{
 			"definition_id": "jacko_cheerservanton",
-			"image": "jacko_cheerservanton.tres"
+			"image_name": "specials",
+			"image_index": 5
 		},
 		{
 			"definition_id": "jacko_foreverelysiondriver",
-			"image": "jacko_foreverelysiondriver.tres"
+			"image_name": "specials",
+			"image_index": 6
 		},
 		{
 			"definition_id": "jacko_foreverelysiondriver",
-			"image": "jacko_foreverelysiondriver.tres"
+			"image_name": "specials",
+			"image_index": 6
 		},
 		{
 			"definition_id": "jacko_ironpumpkin",
-			"image": "jacko_ironpumpkin.tres"
+			"image_name": "specials",
+			"image_index": 0
 		},
 		{
 			"definition_id": "jacko_ironpumpkin",
-			"image": "jacko_ironpumpkin.tres"
+			"image_name": "specials",
+			"image_index": 0
 		},
 		{
 			"definition_id": "jacko_chainofchiron",
-			"image": "jacko_chainofchiron.tres"
+			"image_name": "specials",
+			"image_index": 1
 		},
 		{
 			"definition_id": "jacko_chainofchiron",
-			"image": "jacko_chainofchiron.tres"
+			"image_name": "specials",
+			"image_index": 1
 		},
 		{
 			"definition_id": "jacko_servantshoot",
-			"image": "jacko_servantshoot.tres"
+			"image_name": "specials",
+			"image_index": 2
 		},
 		{
 			"definition_id": "jacko_servantshoot",
-			"image": "jacko_servantshoot.tres"
+			"image_name": "specials",
+			"image_index": 2
 		},
 		{
 			"definition_id": "jacko_throwservant",
-			"image": "jacko_throwservant.tres"
+			"image_name": "specials",
+			"image_index": 3
 		},
 		{
 			"definition_id": "jacko_throwservant",
-			"image": "jacko_throwservant.tres"
+			"image_name": "specials",
+			"image_index": 3
 		},
 		{
 			"definition_id": "jacko_countdown",
-			"image": "jacko_countdown.tres"
+			"image_name": "specials",
+			"image_index": 4
 		},
 		{
 			"definition_id": "jacko_countdown",
-			"image": "jacko_countdown.tres"
+			"image_name": "specials",
+			"image_index": 4
 		},
 		{
 			"definition_id": "gg_normal_grasp",
-			"image": "normal_grasp.tres"
+			"image_name": "normals",
+			"image_index": 0
 		},
 		{
 			"definition_id": "gg_normal_grasp",
-			"image": "normal_grasp.tres"
+			"image_name": "normals",
+			"image_index": 0
 		},
 		{
 			"definition_id": "gg_normal_cross",
-			"image": "normal_cross.tres"
+			"image_name": "normals",
+			"image_index": 1
 		},
 		{
 			"definition_id": "gg_normal_cross",
-			"image": "normal_cross.tres"
+			"image_name": "normals",
+			"image_index": 1
 		},
 		{
 			"definition_id": "gg_normal_slash",
-			"image": "normal_assault.tres"
+			"image_name": "normals",
+			"image_index": 2
 		},
 		{
 			"definition_id": "gg_normal_slash",
-			"image": "normal_assault.tres"
+			"image_name": "normals",
+			"image_index": 2
 		},
 		{
 			"definition_id": "gg_normal_dive",
-			"image": "normal_dive.tres"
+			"image_name": "normals",
+			"image_index": 3
 		},
 		{
 			"definition_id": "gg_normal_dive",
-			"image": "normal_dive.tres"
+			"image_name": "normals",
+			"image_index": 3
 		},
 		{
 			"definition_id": "gg_normal_dust",
-			"image": "normal_spike.tres"
+			"image_name": "normals",
+			"image_index": 4
 		},
 		{
 			"definition_id": "gg_normal_dust",
-			"image": "normal_spike.tres"
+			"image_name": "normals",
+			"image_index": 4
 		},
 		{
 			"definition_id": "gg_normal_sweep",
-			"image": "normal_sweep.tres"
+			"image_name": "normals",
+			"image_index": 5
 		},
 		{
 			"definition_id": "gg_normal_sweep",
-			"image": "normal_sweep.tres"
+			"image_name": "normals",
+			"image_index": 5
 		},
 		{
 			"definition_id": "gg_normal_focus",
-			"image": "normal_focus.tres"
+			"image_name": "normals",
+			"image_index": 6
 		},
 		{
 			"definition_id": "gg_normal_focus",
-			"image": "normal_focus.tres"
+			"image_name": "normals",
+			"image_index": 6
 		},
 		{
 			"definition_id": "gg_normal_block",
-			"image": "normal_block.tres"
+			"image_name": "normals",
+			"image_index": 7
 		},
 		{
 			"definition_id": "gg_normal_block",
-			"image": "normal_block.tres"
+			"image_name": "normals",
+			"image_index": 7
 		}
 	]
 }

@@ -7225,7 +7225,7 @@
 			"boost_type": "immediate",
 			"force_cost": 0,
 			"cancel_cost": -1,
-			"display_name": "Alone Infection",
+			"display_name": "Alone Infection/Destructive Goodwill",
 			"effects": [
 				{
 					"timing": "immediate",
@@ -7361,7 +7361,7 @@
 			"boost_type": "continuous",
 			"force_cost": 0,
 			"cancel_cost": -1,
-			"display_name": "100t Weight",
+			"display_name": "100t Weight/Hammer",
 			"effects": [
 				{
 					"timing": "now",
@@ -7418,7 +7418,7 @@
 			"boost_type": "continuous",
 			"force_cost": 0,
 			"cancel_cost": 1,
-			"display_name": "Fanfare",
+			"display_name": "Fanfare/Trumpet",
 			"effects": [
 				{
 					"timing": "during_strike",
@@ -7470,7 +7470,7 @@
 			"boost_type": "continuous",
 			"force_cost": 0,
 			"cancel_cost": 1,
-			"display_name": "Banana Peel",
+			"display_name": "Banana Peel/Donut",
 			"effects": [
 				{
 					"timing": "both_players_before",
@@ -7520,7 +7520,7 @@
 			"boost_type": "continuous",
 			"force_cost": 0,
 			"cancel_cost": -1,
-			"display_name": "Bomb",
+			"display_name": "Bomb/Meteors",
 			"effects": [
 				{
 					"timing": "now",

@@ -2,7 +2,6 @@
 	"id": "millia",
 	"season": 7,
 	"display_name": "Millia Rage",
-	"cardback": "cardback_millia.jpg",
 	"exceed_cost": 3,
 	"ability_effects": [
 		{
@@ -33,126 +32,178 @@
 			]
 		}
 	],
+	"image_resources": {
+		"character_default": {
+			"url": "https://i.imgur.com/QmwtiTN.jpeg",
+			"multiple_cards": false
+		},
+		"character_exceeded": {
+			"url": "https://i.imgur.com/wncqAkM.jpeg",
+			"multiple_cards": false
+		},
+		"cardback": {
+			"url": "https://i.imgur.com/8G228CY.jpg",
+			"multiple_cards": false
+		},
+		"specials": {
+			"url": "https://i.imgur.com/XUnesfH.jpeg",
+			"multiple_cards": true
+		},
+		"normals": {
+			"url": "https://i.imgur.com/Ylad5LZ.jpg",
+			"multiple_cards": true
+		}
+	},
 	"cards": [
 		{
 			"definition_id": "millia_septemvoices",
-			"image": "millia_septemvoices.tres"
+			"image_name": "specials",
+			"image_index": 5
 		},
 		{
 			"definition_id": "millia_septemvoices",
-			"image": "millia_septemvoices.tres"
+			"image_name": "specials",
+			"image_index": 5
 		},
 		{
 			"definition_id": "millia_winger",
-			"image": "millia_winger.tres"
+			"image_name": "specials",
+			"image_index": 6
 		},
 		{
 			"definition_id": "millia_winger",
-			"image": "millia_winger.tres"
+			"image_name": "specials",
+			"image_index": 6
 		},
 		{
 			"definition_id": "millia_lowkick",
-			"image": "millia_lowkick.tres"
+			"image_name": "specials",
+			"image_index": 0
 		},
 		{
 			"definition_id": "millia_lowkick",
-			"image": "millia_lowkick.tres"
+			"image_name": "specials",
+			"image_index": 0
 		},
 		{
 			"definition_id": "millia_badmoon",
-			"image": "millia_badmoon.tres"
+			"image_name": "specials",
+			"image_index": 1
 		},
 		{
 			"definition_id": "millia_badmoon",
-			"image": "millia_badmoon.tres"
+			"image_name": "specials",
+			"image_index": 1
 		},
 		{
 			"definition_id": "millia_swingbraid",
-			"image": "millia_swingbraid.tres"
+			"image_name": "specials",
+			"image_index": 2
 		},
 		{
 			"definition_id": "millia_swingbraid",
-			"image": "millia_swingbraid.tres"
+			"image_name": "specials",
+			"image_index": 2
 		},
 		{
 			"definition_id": "millia_tandemtop",
-			"image": "millia_tandemtop.tres"
+			"image_name": "specials",
+			"image_index": 3
 		},
 		{
 			"definition_id": "millia_tandemtop",
-			"image": "millia_tandemtop.tres"
+			"image_name": "specials",
+			"image_index": 3
 		},
 		{
 			"definition_id": "millia_ironsavior",
-			"image": "millia_ironsavior.tres"
+			"image_name": "specials",
+			"image_index": 4
 		},
 		{
 			"definition_id": "millia_ironsavior",
-			"image": "millia_ironsavior.tres"
+			"image_name": "specials",
+			"image_index": 4
 		},
 		{
 			"definition_id": "gg_normal_grasp",
-			"image": "normal_grasp.tres"
+			"image_name": "normals",
+			"image_index": 0
 		},
 		{
 			"definition_id": "gg_normal_grasp",
-			"image": "normal_grasp.tres"
+			"image_name": "normals",
+			"image_index": 0
 		},
 		{
 			"definition_id": "gg_normal_cross",
-			"image": "normal_cross.tres"
+			"image_name": "normals",
+			"image_index": 1
 		},
 		{
 			"definition_id": "gg_normal_cross",
-			"image": "normal_cross.tres"
+			"image_name": "normals",
+			"image_index": 1
 		},
 		{
 			"definition_id": "gg_normal_slash",
-			"image": "normal_assault.tres"
+			"image_name": "normals",
+			"image_index": 2
 		},
 		{
 			"definition_id": "gg_normal_slash",
-			"image": "normal_assault.tres"
+			"image_name": "normals",
+			"image_index": 2
 		},
 		{
 			"definition_id": "gg_normal_dive",
-			"image": "normal_dive.tres"
+			"image_name": "normals",
+			"image_index": 3
 		},
 		{
 			"definition_id": "gg_normal_dive",
-			"image": "normal_dive.tres"
+			"image_name": "normals",
+			"image_index": 3
 		},
 		{
 			"definition_id": "gg_normal_dust",
-			"image": "normal_spike.tres"
+			"image_name": "normals",
+			"image_index": 4
 		},
 		{
 			"definition_id": "gg_normal_dust",
-			"image": "normal_spike.tres"
+			"image_name": "normals",
+			"image_index": 4
 		},
 		{
 			"definition_id": "gg_normal_sweep",
-			"image": "normal_sweep.tres"
+			"image_name": "normals",
+			"image_index": 5
 		},
 		{
 			"definition_id": "gg_normal_sweep",
-			"image": "normal_sweep.tres"
+			"image_name": "normals",
+			"image_index": 5
 		},
 		{
 			"definition_id": "gg_normal_focus",
-			"image": "normal_focus.tres"
+			"image_name": "normals",
+			"image_index": 6
 		},
 		{
 			"definition_id": "gg_normal_focus",
-			"image": "normal_focus.tres"
+			"image_name": "normals",
+			"image_index": 6
 		},
 		{
 			"definition_id": "gg_normal_block",
-			"image": "normal_block.tres"
+			"image_name": "normals",
+			"image_index": 7
 		},
 		{
 			"definition_id": "gg_normal_block",
-			"image": "normal_block.tres"
+			"image_name": "normals",
+			"image_index": 7
 		}
 	]
 }
