@@ -2,7 +2,6 @@
 	"id": "rachel",
 	"season": 5,
 	"display_name": "Rachel Alucard",
-	"cardback": "cardback_rachel.jpg",
 	"exceed_cost": 3,
 	"exceed_to_overdrive": true,
 	"buddy_cards": [
@@ -165,131 +164,184 @@
 			"id": "rachel_clownishcalendula"
 		}
 	],
+	"image_resources": {
+		"character_default": {
+			"url": "https://i.imgur.com/3U218Px.jpeg",
+			"multiple_cards": false
+		},
+		"character_exceeded": {
+			"url": "https://i.imgur.com/zxSohXx.jpeg",
+			"multiple_cards": false
+		},
+		"cardback": {
+			"url": "https://i.imgur.com/AQiQAec.jpg",
+			"multiple_cards": false
+		},
+		"specials": {
+			"url": "https://i.imgur.com/ELQbQco.jpeg",
+			"multiple_cards": true
+		},
+		"normals": {
+			"url": "https://i.imgur.com/2HMhROh.jpg",
+			"multiple_cards": true
+		}
+	},
 	"cards": [
 		{
 			"set_aside": true,
 			"definition_id": "rachel_clownishcalendula",
-			"image": "rachel_clownishcalendula.tres"
+			"image_name": "specials",
+			"image_index": 7
 		},
 		{
 			"definition_id": "rachel_tempestdahlia",
-			"image": "rachel_tempestdahlia.tres"
+			"image_name": "specials",
+			"image_index": 5
 		},
 		{
 			"definition_id": "rachel_tempestdahlia",
-			"image": "rachel_tempestdahlia.tres"
+			"image_name": "specials",
+			"image_index": 5
 		},
 		{
 			"definition_id": "rachel_badenbadenlily",
-			"image": "rachel_badenbadenlily.tres"
+			"image_name": "specials",
+			"image_index": 6
 		},
 		{
 			"definition_id": "rachel_badenbadenlily",
-			"image": "rachel_badenbadenlily.tres"
+			"image_name": "specials",
+			"image_index": 6
 		},
 		{
 			"definition_id": "rachel_whirlwind",
-			"image": "rachel_whirlwind.tres"
+			"image_name": "specials",
+			"image_index": 0
 		},
 		{
 			"definition_id": "rachel_whirlwind",
-			"image": "rachel_whirlwind.tres"
+			"image_name": "specials",
+			"image_index": 0
 		},
 		{
 			"definition_id": "rachel_flyinglobelia",
-			"image": "rachel_flyinglobelia.tres"
+			"image_name": "specials",
+			"image_index": 1
 		},
 		{
 			"definition_id": "rachel_flyinglobelia",
-			"image": "rachel_flyinglobelia.tres"
+			"image_name": "specials",
+			"image_index": 1
 		},
 		{
 			"definition_id": "rachel_spikedrop",
-			"image": "rachel_spikedrop.tres"
+			"image_name": "specials",
+			"image_index": 2
 		},
 		{
 			"definition_id": "rachel_spikedrop",
-			"image": "rachel_spikedrop.tres"
+			"image_name": "specials",
+			"image_index": 2
 		},
 		{
 			"definition_id": "rachel_tinylobelia",
-			"image": "rachel_tinylobelia.tres"
+			"image_name": "specials",
+			"image_index": 3
 		},
 		{
 			"definition_id": "rachel_tinylobelia",
-			"image": "rachel_tinylobelia.tres"
+			"image_name": "specials",
+			"image_index": 3
 		},
 		{
 			"definition_id": "rachel_electricchair",
-			"image": "rachel_electricchair.tres"
+			"image_name": "specials",
+			"image_index": 4
 		},
 		{
 			"definition_id": "rachel_electricchair",
-			"image": "rachel_electricchair.tres"
+			"image_name": "specials",
+			"image_index": 4
 		},
 		{
 			"definition_id": "standard_normal_grasp",
-			"image": "normal_grasp.tres"
+			"image_name": "normals",
+			"image_index": 0
 		},
 		{
 			"definition_id": "standard_normal_grasp",
-			"image": "normal_grasp.tres"
+			"image_name": "normals",
+			"image_index": 0
 		},
 		{
 			"definition_id": "standard_normal_cross",
-			"image": "normal_cross.tres"
+			"image_name": "normals",
+			"image_index": 1
 		},
 		{
 			"definition_id": "standard_normal_cross",
-			"image": "normal_cross.tres"
+			"image_name": "normals",
+			"image_index": 1
 		},
 		{
 			"definition_id": "standard_normal_assault",
-			"image": "normal_assault.tres"
+			"image_name": "normals",
+			"image_index": 2
 		},
 		{
 			"definition_id": "standard_normal_assault",
-			"image": "normal_assault.tres"
+			"image_name": "normals",
+			"image_index": 2
 		},
 		{
 			"definition_id": "standard_normal_dive",
-			"image": "normal_dive.tres"
+			"image_name": "normals",
+			"image_index": 3
 		},
 		{
 			"definition_id": "standard_normal_dive",
-			"image": "normal_dive.tres"
+			"image_name": "normals",
+			"image_index": 3
 		},
 		{
 			"definition_id": "standard_normal_spike",
-			"image": "normal_spike.tres"
+			"image_name": "normals",
+			"image_index": 4
 		},
 		{
 			"definition_id": "standard_normal_spike",
-			"image": "normal_spike.tres"
+			"image_name": "normals",
+			"image_index": 4
 		},
 		{
 			"definition_id": "standard_normal_sweep",
-			"image": "normal_sweep.tres"
+			"image_name": "normals",
+			"image_index": 5
 		},
 		{
 			"definition_id": "standard_normal_sweep",
-			"image": "normal_sweep.tres"
+			"image_name": "normals",
+			"image_index": 5
 		},
 		{
 			"definition_id": "standard_normal_focus",
-			"image": "normal_focus.tres"
+			"image_name": "normals",
+			"image_index": 6
 		},
 		{
 			"definition_id": "standard_normal_focus",
-			"image": "normal_focus.tres"
+			"image_name": "normals",
+			"image_index": 6
 		},
 		{
 			"definition_id": "standard_normal_block",
-			"image": "normal_block.tres"
+			"image_name": "normals",
+			"image_index": 7
 		},
 		{
 			"definition_id": "standard_normal_block",
-			"image": "normal_block.tres"
+			"image_name": "normals",
+			"image_index": 7
 		}
 	]
 }
