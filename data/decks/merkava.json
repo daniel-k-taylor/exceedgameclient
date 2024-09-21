@@ -2,7 +2,6 @@
 	"id": "merkava",
 	"season": 6,
 	"display_name": "Merkava",
-	"cardback": "cardback_merkava.jpg",
 	"exceed_cost": 1,
 	"buddy_card": "merkava_ipersistentlycling",
 	"buddy_display_name": "I, Persistently Cling",
@@ -79,134 +78,188 @@
 	],
 	"exceed_ability_effects": [
 	],
+	"image_resources": {
+		"character_default": {
+			"url": "https://i.imgur.com/OTO0YX6.jpeg",
+			"multiple_cards": false
+		},
+		"character_exceeded": {
+			"url": "https://i.imgur.com/HiNpv7N.jpeg",
+			"multiple_cards": false
+		},
+		"cardback": {
+			"url": "https://i.imgur.com/IZpJ6SH.jpg",
+			"multiple_cards": false
+		},
+		"specials": {
+			"url": "https://i.imgur.com/tCKYZV6.jpeg",
+			"multiple_cards": true
+		},
+		"normals": {
+			"url": "https://i.imgur.com/GUU6Uo1.jpg",
+			"multiple_cards": true
+		}
+	},
 	"cards": [
 		{
 			"definition_id": "merkava_idefile",
-			"image": "merkava_idefile.tres"
+			"image_name": "specials",
+			"image_index": 6
 		},
 		{
 			"definition_id": "merkava_idefile",
-			"image": "merkava_idefile.tres"
+			"image_name": "specials",
+			"image_index": 6
 		},
 		{
 			"definition_id": "merkava_iresentfullyrage",
-			"image": "merkava_iresentfullyrage.tres"
+			"image_name": "specials",
+			"image_index": 7
 		},
 		{
 			"definition_id": "merkava_iresentfullyrage",
-			"image": "merkava_iresentfullyrage.tres"
+			"image_name": "specials",
+			"image_index": 7
 		},
 		{
 			"definition_id": "merkava_icaptureanddevour",
-			"image": "merkava_icaptureanddevour.tres"
+			"image_name": "specials",
+			"image_index": 0
 		},
 		{
 			"definition_id": "merkava_icaptureanddevour",
-			"image": "merkava_icaptureanddevour.tres"
+			"image_name": "specials",
+			"image_index": 0
 		},
 		{
 			"definition_id": "merkava_ibreatheout",
-			"image": "merkava_ibreatheout.tres"
+			"image_name": "specials",
+			"image_index": 1
 		},
 		{
 			"definition_id": "merkava_ibreatheout",
-			"image": "merkava_ibreatheout.tres"
+			"image_name": "specials",
+			"image_index": 1
 		},
 		{
 			"definition_id": "merkava_idrillthrough",
-			"image": "merkava_idrillthrough.tres"
+			"image_name": "specials",
+			"image_index": 2
 		},
 		{
 			"definition_id": "merkava_idrillthrough",
-			"image": "merkava_idrillthrough.tres"
+			"image_name": "specials",
+			"image_index": 2
 		},
 		{
 			"definition_id": "merkava_irampage",
-			"image": "merkava_irampage.tres"
+			"image_name": "specials",
+			"image_index": 3
 		},
 		{
 			"definition_id": "merkava_irampage",
-			"image": "merkava_irampage.tres"
+			"image_name": "specials",
+			"image_index": 3
 		},
 		{
 			"definition_id": "merkava_iagitate",
-			"image": "merkava_iagitate.tres"
+			"image_name": "specials",
+			"image_index": 4
 		},
 		{
 			"definition_id": "merkava_iagitate",
-			"image": "merkava_iagitate.tres"
+			"image_name": "specials",
+			"image_index": 4
 		},
 		{
 			"definition_id": "merkava_ipersistentlycling",
-			"image": "merkava_ipersistentlycling.tres"
+			"image_name": "specials",
+			"image_index": 5
 		},
 		{
 			"definition_id": "merkava_ipersistentlycling",
-			"image": "merkava_ipersistentlycling.tres"
+			"image_name": "specials",
+			"image_index": 5
 		},
 		{
 			"definition_id": "uni_normal_grasp",
-			"image": "normal_grasp.tres"
+			"image_name": "normals",
+			"image_index": 0
 		},
 		{
 			"definition_id": "uni_normal_grasp",
-			"image": "normal_grasp.tres"
+			"image_name": "normals",
+			"image_index": 0
 		},
 		{
 			"definition_id": "uni_normal_cross",
-			"image": "normal_cross.tres"
+			"image_name": "normals",
+			"image_index": 1
 		},
 		{
 			"definition_id": "uni_normal_cross",
-			"image": "normal_cross.tres"
+			"image_name": "normals",
+			"image_index": 1
 		},
 		{
 			"definition_id": "uni_normal_assault",
-			"image": "normal_assault.tres"
+			"image_name": "normals",
+			"image_index": 2
 		},
 		{
 			"definition_id": "uni_normal_assault",
-			"image": "normal_assault.tres"
+			"image_name": "normals",
+			"image_index": 2
 		},
 		{
 			"definition_id": "uni_normal_dive",
-			"image": "normal_dive.tres"
+			"image_name": "normals",
+			"image_index": 3
 		},
 		{
 			"definition_id": "uni_normal_dive",
-			"image": "normal_dive.tres"
+			"image_name": "normals",
+			"image_index": 3
 		},
 		{
 			"definition_id": "uni_normal_spike",
-			"image": "normal_spike.tres"
+			"image_name": "normals",
+			"image_index": 4
 		},
 		{
 			"definition_id": "uni_normal_spike",
-			"image": "normal_spike.tres"
+			"image_name": "normals",
+			"image_index": 4
 		},
 		{
 			"definition_id": "uni_normal_sweep",
-			"image": "normal_sweep.tres"
+			"image_name": "normals",
+			"image_index": 5
 		},
 		{
 			"definition_id": "uni_normal_sweep",
-			"image": "normal_sweep.tres"
+			"image_name": "normals",
+			"image_index": 5
 		},
 		{
 			"definition_id": "uni_normal_focus",
-			"image": "normal_focus.tres"
+			"image_name": "normals",
+			"image_index": 6
 		},
 		{
 			"definition_id": "uni_normal_focus",
-			"image": "normal_focus.tres"
+			"image_name": "normals",
+			"image_index": 6
 		},
 		{
 			"definition_id": "uni_normal_block",
-			"image": "normal_block.tres"
+			"image_name": "normals",
+			"image_index": 7
 		},
 		{
 			"definition_id": "uni_normal_block",
-			"image": "normal_block.tres"
+			"image_name": "normals",
+			"image_index": 7
 		}
 	]
 }

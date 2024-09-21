@@ -2,7 +2,6 @@
 	"id": "hyde",
 	"season": 6,
 	"display_name": "Hyde Kido",
-	"cardback": "cardback_hyde.jpg",
 	"has_sealed_area": true,
 	"exceed_cost": 1,
 	"character_action_default": [{
@@ -81,134 +80,188 @@
 			}
 		}
 	],
+	"image_resources": {
+		"character_default": {
+			"url": "https://i.imgur.com/POyXL4D.jpeg",
+			"multiple_cards": false
+		},
+		"character_exceeded": {
+			"url": "https://i.imgur.com/fjMYSwU.jpeg",
+			"multiple_cards": false
+		},
+		"cardback": {
+			"url": "https://i.imgur.com/k7KiFGI.jpg",
+			"multiple_cards": false
+		},
+		"specials": {
+			"url": "https://i.imgur.com/f3ihDIl.jpeg",
+			"multiple_cards": true
+		},
+		"normals": {
+			"url": "https://i.imgur.com/o3x2gNh.jpg",
+			"multiple_cards": true
+		}
+	},
 	"cards": [
 		{
 			"definition_id": "hyde_gyrovortex",
-			"image": "hyde_gyrovortex.tres"
+			"image_name": "specials",
+			"image_index": 5
 		},
 		{
 			"definition_id": "hyde_gyrovortex",
-			"image": "hyde_gyrovortex.tres"
+			"image_name": "specials",
+			"image_index": 5
 		},
 		{
 			"definition_id": "hyde_deadsetdaze",
-			"image": "hyde_deadsetdaze.tres"
+			"image_name": "specials",
+			"image_index": 6
 		},
 		{
 			"definition_id": "hyde_deadsetdaze",
-			"image": "hyde_deadsetdaze.tres"
+			"image_name": "specials",
+			"image_index": 6
 		},
 		{
 			"definition_id": "hyde_vacantshift",
-			"image": "hyde_vacantshift.tres"
+			"image_name": "specials",
+			"image_index": 0
 		},
 		{
 			"definition_id": "hyde_vacantshift",
-			"image": "hyde_vacantshift.tres"
+			"image_name": "specials",
+			"image_index": 0
 		},
 		{
 			"definition_id": "hyde_redcladcraver",
-			"image": "hyde_redcladcraver.tres"
+			"image_name": "specials",
+			"image_index": 1
 		},
 		{
 			"definition_id": "hyde_redcladcraver",
-			"image": "hyde_redcladcraver.tres"
+			"image_name": "specials",
+			"image_index": 1
 		},
 		{
 			"definition_id": "hyde_redcladcraver",
-			"image": "hyde_redcladcraver.tres"
+			"image_name": "specials",
+			"image_index": 1
 		},
 		{
 			"definition_id": "hyde_blackorbiter",
-			"image": "hyde_blackorbiter.tres"
+			"image_name": "specials",
+			"image_index": 2
 		},
 		{
 			"definition_id": "hyde_blackorbiter",
-			"image": "hyde_blackorbiter.tres"
+			"image_name": "specials",
+			"image_index": 2
 		},
 		{
 			"definition_id": "hyde_palebringer",
-			"image": "hyde_palebringer.tres"
+			"image_name": "specials",
+			"image_index": 3
 		},
 		{
 			"definition_id": "hyde_palebringer",
-			"image": "hyde_palebringer.tres"
+			"image_name": "specials",
+			"image_index": 3
 		},
 		{
 			"definition_id": "hyde_palebringer",
-			"image": "hyde_palebringer.tres"
+			"image_name": "specials",
+			"image_index": 3
 		},
 		{
 			"definition_id": "hyde_shadowscare",
-			"image": "hyde_shadowscare.tres"
+			"image_name": "specials",
+			"image_index": 4
 		},
 		{
 			"definition_id": "hyde_shadowscare",
-			"image": "hyde_shadowscare.tres"
+			"image_name": "specials",
+			"image_index": 4
 		},
 		{
 			"definition_id": "uni_normal_grasp",
-			"image": "normal_grasp.tres"
+			"image_name": "normals",
+			"image_index": 0
 		},
 		{
 			"definition_id": "uni_normal_grasp",
-			"image": "normal_grasp.tres"
+			"image_name": "normals",
+			"image_index": 0
 		},
 		{
 			"definition_id": "uni_normal_cross",
-			"image": "normal_cross.tres"
+			"image_name": "normals",
+			"image_index": 1
 		},
 		{
 			"definition_id": "uni_normal_cross",
-			"image": "normal_cross.tres"
+			"image_name": "normals",
+			"image_index": 1
 		},
 		{
 			"definition_id": "uni_normal_assault",
-			"image": "normal_assault.tres"
+			"image_name": "normals",
+			"image_index": 2
 		},
 		{
 			"definition_id": "uni_normal_assault",
-			"image": "normal_assault.tres"
+			"image_name": "normals",
+			"image_index": 2
 		},
 		{
 			"definition_id": "uni_normal_dive",
-			"image": "normal_dive.tres"
+			"image_name": "normals",
+			"image_index": 3
 		},
 		{
 			"definition_id": "uni_normal_dive",
-			"image": "normal_dive.tres"
+			"image_name": "normals",
+			"image_index": 3
 		},
 		{
 			"definition_id": "uni_normal_spike",
-			"image": "normal_spike.tres"
+			"image_name": "normals",
+			"image_index": 4
 		},
 		{
 			"definition_id": "uni_normal_spike",
-			"image": "normal_spike.tres"
+			"image_name": "normals",
+			"image_index": 4
 		},
 		{
 			"definition_id": "uni_normal_sweep",
-			"image": "normal_sweep.tres"
+			"image_name": "normals",
+			"image_index": 5
 		},
 		{
 			"definition_id": "uni_normal_sweep",
-			"image": "normal_sweep.tres"
+			"image_name": "normals",
+			"image_index": 5
 		},
 		{
 			"definition_id": "uni_normal_focus",
-			"image": "normal_focus.tres"
+			"image_name": "normals",
+			"image_index": 6
 		},
 		{
 			"definition_id": "uni_normal_focus",
-			"image": "normal_focus.tres"
+			"image_name": "normals",
+			"image_index": 6
 		},
 		{
 			"definition_id": "uni_normal_block",
-			"image": "normal_block.tres"
+			"image_name": "normals",
+			"image_index": 7
 		},
 		{
 			"definition_id": "uni_normal_block",
-			"image": "normal_block.tres"
+			"image_name": "normals",
+			"image_index": 7
 		}
 	]
 }

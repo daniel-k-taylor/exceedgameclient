@@ -2,7 +2,6 @@
 	"id": "yuzu",
 	"season": 6,
 	"display_name": "Yuzuriha",
-	"cardback": "cardback_yuzu.jpg",
 	"exceed_cost": 1,
 	"character_action_default": [{
 		"gauge_cost": 0,
@@ -76,126 +75,178 @@
 			}
 		}
 	],
+	"image_resources": {
+		"character_default": {
+			"url": "https://i.imgur.com/0kh8bK8.jpeg",
+			"multiple_cards": false
+		},
+		"character_exceeded": {
+			"url": "https://i.imgur.com/Jc4RKTg.jpeg",
+			"multiple_cards": false
+		},
+		"cardback": {
+			"url": "https://i.imgur.com/8eJRAA7.jpg",
+			"multiple_cards": false
+		},
+		"specials": {
+			"url": "https://i.imgur.com/431gwo8.jpeg",
+			"multiple_cards": true
+		},
+		"normals": {
+			"url": "https://i.imgur.com/4MA79SP.jpg",
+			"multiple_cards": true
+		}
+	},
 	"cards": [
 		{
 			"definition_id": "yuzu_kashou",
-			"image": "yuzu_kashou.tres"
+			"image_name": "specials",
+			"image_index": 5
 		},
 		{
 			"definition_id": "yuzu_kashou",
-			"image": "yuzu_kashou.tres"
+			"image_name": "specials",
+			"image_index": 5
 		},
 		{
 			"definition_id": "yuzu_kurenai",
-			"image": "yuzu_kurenai.tres"
+			"image_name": "specials",
+			"image_index": 6
 		},
 		{
 			"definition_id": "yuzu_kurenai",
-			"image": "yuzu_kurenai.tres"
+			"image_name": "specials",
+			"image_index": 6
 		},
 		{
 			"definition_id": "yuzu_yaeichirin",
-			"image": "yuzu_yaeichirin.tres"
+			"image_name": "specials",
+			"image_index": 0
 		},
 		{
 			"definition_id": "yuzu_yaeichirin",
-			"image": "yuzu_yaeichirin.tres"
+			"image_name": "specials",
+			"image_index": 0
 		},
 		{
 			"definition_id": "yuzu_overhere",
-			"image": "yuzu_overhere.tres"
+			"image_name": "specials",
+			"image_index": 1
 		},
 		{
 			"definition_id": "yuzu_overhere",
-			"image": "yuzu_overhere.tres"
+			"image_name": "specials",
+			"image_index": 1
 		},
 		{
 			"definition_id": "yuzu_tachi",
-			"image": "yuzu_tachi.tres"
+			"image_name": "specials",
+			"image_index": 2
 		},
 		{
 			"definition_id": "yuzu_tachi",
-			"image": "yuzu_tachi.tres"
+			"image_name": "specials",
+			"image_index": 2
 		},
 		{
 			"definition_id": "yuzu_saki",
-			"image": "yuzu_saki.tres"
+			"image_name": "specials",
+			"image_index": 3
 		},
 		{
 			"definition_id": "yuzu_saki",
-			"image": "yuzu_saki.tres"
+			"image_name": "specials",
+			"image_index": 3
 		},
 		{
 			"definition_id": "yuzu_kiri",
-			"image": "yuzu_kiri.tres"
+			"image_name": "specials",
+			"image_index": 4
 		},
 		{
 			"definition_id": "yuzu_kiri",
-			"image": "yuzu_kiri.tres"
+			"image_name": "specials",
+			"image_index": 4
 		},
 		{
 			"definition_id": "uni_normal_grasp",
-			"image": "normal_grasp.tres"
+			"image_name": "normals",
+			"image_index": 0
 		},
 		{
 			"definition_id": "uni_normal_grasp",
-			"image": "normal_grasp.tres"
+			"image_name": "normals",
+			"image_index": 0
 		},
 		{
 			"definition_id": "uni_normal_cross",
-			"image": "normal_cross.tres"
+			"image_name": "normals",
+			"image_index": 1
 		},
 		{
 			"definition_id": "uni_normal_cross",
-			"image": "normal_cross.tres"
+			"image_name": "normals",
+			"image_index": 1
 		},
 		{
 			"definition_id": "uni_normal_assault",
-			"image": "normal_assault.tres"
+			"image_name": "normals",
+			"image_index": 2
 		},
 		{
 			"definition_id": "uni_normal_assault",
-			"image": "normal_assault.tres"
+			"image_name": "normals",
+			"image_index": 2
 		},
 		{
 			"definition_id": "uni_normal_dive",
-			"image": "normal_dive.tres"
+			"image_name": "normals",
+			"image_index": 3
 		},
 		{
 			"definition_id": "uni_normal_dive",
-			"image": "normal_dive.tres"
+			"image_name": "normals",
+			"image_index": 3
 		},
 		{
 			"definition_id": "uni_normal_spike",
-			"image": "normal_spike.tres"
+			"image_name": "normals",
+			"image_index": 4
 		},
 		{
 			"definition_id": "uni_normal_spike",
-			"image": "normal_spike.tres"
+			"image_name": "normals",
+			"image_index": 4
 		},
 		{
 			"definition_id": "uni_normal_sweep",
-			"image": "normal_sweep.tres"
+			"image_name": "normals",
+			"image_index": 5
 		},
 		{
 			"definition_id": "uni_normal_sweep",
-			"image": "normal_sweep.tres"
+			"image_name": "normals",
+			"image_index": 5
 		},
 		{
 			"definition_id": "uni_normal_focus",
-			"image": "normal_focus.tres"
+			"image_name": "normals",
+			"image_index": 6
 		},
 		{
 			"definition_id": "uni_normal_focus",
-			"image": "normal_focus.tres"
+			"image_name": "normals",
+			"image_index": 6
 		},
 		{
 			"definition_id": "uni_normal_block",
-			"image": "normal_block.tres"
+			"image_name": "normals",
+			"image_index": 7
 		},
 		{
 			"definition_id": "uni_normal_block",
-			"image": "normal_block.tres"
+			"image_name": "normals",
+			"image_index": 7
 		}
 	]
 }
