@@ -1,7 +1,0 @@
-[gd_resource type="AtlasTexture" load_steps=2 format=3 uid="uid://b8qs0i8yb2gmg"]
-
-[ext_resource type="Texture2D" uid="uid://clcj7r85663sw" path="res://assets/cards/ramlethal/normals.jpg" id="1_4xrey"]
-
-[resource]
-atlas = ExtResource("1_4xrey")
-region = Rect2(750, 0, 750, 1024)

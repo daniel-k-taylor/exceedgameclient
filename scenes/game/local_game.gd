@@ -143,6 +143,7 @@ func _get_boost_and_card_name(card):
 func teardown():
 	card_db.teardown()
 	card_db.free()
+	image_loader.free()
 	decision_info.free()
 
 func change_game_state(new_state : Enums.GameState):

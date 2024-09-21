@@ -64,6 +64,7 @@ func initialize_remote_game(player_info,
 
 # Deletes the current game
 func end_game():
+	current_game.teardown()
 	current_game.free()
 	current_game = null
 

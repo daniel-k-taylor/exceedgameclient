@@ -17,10 +17,10 @@
 [ext_resource type="PackedScene" uid="uid://b7ip37tv4588b" path="res://scenes/game/boost_infobutton.tscn" id="16_2v64s"]
 [ext_resource type="Texture2D" uid="uid://ded5jrn5yju2j" path="res://assets/cards/card_border_highlight_pressed.png" id="16_laiwo"]
 [ext_resource type="PackedScene" uid="uid://dal56iqk5k8rh" path="res://scenes/game/action_menu.tscn" id="17_8hgvk"]
-[ext_resource type="Texture2D" uid="uid://cj7nvglef8cu" path="res://assets/cards/solbadguy/normal_grasp.tres" id="17_acwgt"]
 [ext_resource type="Texture2D" uid="uid://mn1hj4i3k7l7" path="res://assets/cards/card_border_highlight_selected.png" id="17_rr8uh"]
 [ext_resource type="PackedScene" uid="uid://dvan4a8ftuplj" path="res://scenes/card/character_card_base.tscn" id="18_imast"]
 [ext_resource type="PackedScene" uid="uid://w87ls4e8oasj" path="res://scenes/game/combat_log.tscn" id="18_k7mnw"]
+[ext_resource type="Texture2D" uid="uid://cj7nvglef8cu" path="res://assets/cards/normal_grasp.tres" id="20_sjmm0"]
 [ext_resource type="Texture2D" uid="uid://hj14gadm15wr" path="res://assets/icons/speechbubble.png" id="21_86687"]
 [ext_resource type="PackedScene" uid="uid://b8kmmrd5jmqdd" path="res://scenes/game/modal_dialog.tscn" id="21_qe5we"]
 [ext_resource type="PackedScene" uid="uid://belqon3ac2y7a" path="res://scenes/game/emote_display.tscn" id="21_sd8mp"]
@@ -805,7 +805,7 @@ visible = false
 z_index = 20
 position = Vector2(640, 300)
 scale = Vector2(0.5, 0.5)
-texture = ExtResource("17_acwgt")
+texture = ExtResource("20_sjmm0")
 
 [node name="PlayerEmote" parent="." instance=ExtResource("21_sd8mp")]
 

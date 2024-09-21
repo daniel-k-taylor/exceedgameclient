@@ -1,7 +1,0 @@
-[gd_resource type="AtlasTexture" load_steps=2 format=3 uid="uid://butjk2e7103ax"]
-
-[ext_resource type="Texture2D" uid="uid://dw0ccoua5ql7e" path="res://assets/cards/merkava/normals.jpg" id="1_cnmiq"]
-
-[resource]
-atlas = ExtResource("1_cnmiq")
-region = Rect2(0, 0, 750, 1024)
