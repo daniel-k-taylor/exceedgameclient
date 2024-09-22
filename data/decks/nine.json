@@ -2,7 +2,6 @@
 	"id": "nine",
 	"season": 5,
 	"display_name": "Nine the Phantom",
-	"cardback": "cardback_nine.jpg",
 	"has_sealed_area": true,
 	"exceed_cost": 4,
 	"exceed_to_overdrive": true,
@@ -79,156 +78,213 @@
 			"force_max": 1
 		}
 	],
+	"image_resources": {
+		"character_default": {
+			"url": "https://i.imgur.com/R1EzqZU.jpeg",
+			"multiple_cards": false
+		},
+		"character_exceeded": {
+			"url": "https://i.imgur.com/ul2AnMP.jpeg",
+			"multiple_cards": false
+		},
+		"cardback": {
+			"url": "https://i.imgur.com/U0sSwJa.jpg",
+			"multiple_cards": false
+		},
+		"specials": {
+			"url": "https://i.imgur.com/RhpF7Zi.jpeg",
+			"multiple_cards": true
+		},
+		"normals": {
+			"url": "https://i.imgur.com/Wj6izpx.jpg",
+			"multiple_cards": true
+		}
+	},
 	"cards": [
 		{
 			"set_aside": true,
 			"definition_id": "nine_colorlessvoid",
-			"image": "nine_colorlessvoid.tres"
+			"image_name": "specials",
+			"image_index": 9
 		},
 		{
 			"start_sealed": true,
 			"definition_id": "nine_azuriteinferno",
-			"image": "nine_azuriteinferno.tres"
+			"image_name": "specials",
+			"image_index": 7
 		},
 		{
 			"definition_id": "nine_azuriteinferno",
-			"image": "nine_azuriteinferno.tres"
+			"image_name": "specials",
+			"image_index": 7
 		},
 		{
 			"start_sealed": true,
 			"definition_id": "nine_flamepunisher",
-			"image": "nine_flamepunisher.tres"
+			"image_name": "specials",
+			"image_index": 8
 		},
 		{
 			"definition_id": "nine_flamepunisher",
-			"image": "nine_flamepunisher.tres"
+			"image_name": "specials",
+			"image_index": 8
 		},
 		{
 			"start_sealed": true,
 			"definition_id": "nine_lapislazuli",
-			"image": "nine_lapislazuli.tres"
+			"image_name": "specials",
+			"image_index": 0
 		},
 		{
 			"definition_id": "nine_lapislazuli",
-			"image": "nine_lapislazuli.tres"
+			"image_name": "specials",
+			"image_index": 0
 		},
 		{
 			"start_sealed": true,
 			"definition_id": "nine_emerald",
-			"image": "nine_emerald.tres"
+			"image_name": "specials",
+			"image_index": 1
 		},
 		{
 			"definition_id": "nine_emerald",
-			"image": "nine_emerald.tres"
+			"image_name": "specials",
+			"image_index": 1
 		},
 		{
 			"start_sealed": true,
 			"definition_id": "nine_morganite",
-			"image": "nine_morganite.tres"
+			"image_name": "specials",
+			"image_index": 2
 		},
 		{
 			"definition_id": "nine_morganite",
-			"image": "nine_morganite.tres"
+			"image_name": "specials",
+			"image_index": 2
 		},
 		{
 			"start_sealed": true,
 			"definition_id": "nine_coral",
-			"image": "nine_coral.tres"
+			"image_name": "specials",
+			"image_index": 3
 		},
 		{
 			"definition_id": "nine_coral",
-			"image": "nine_coral.tres"
+			"image_name": "specials",
+			"image_index": 3
 		},
 		{
 			"start_sealed": true,
 			"definition_id": "nine_kunzite",
-			"image": "nine_kunzite.tres"
+			"image_name": "specials",
+			"image_index": 4
 		},
 		{
 			"definition_id": "nine_kunzite",
-			"image": "nine_kunzite.tres"
+			"image_name": "specials",
+			"image_index": 4
 		},
 		{
 			"start_sealed": true,
 			"definition_id": "nine_amethyst",
-			"image": "nine_amethyst.tres"
+			"image_name": "specials",
+			"image_index": 5
 		},
 		{
 			"definition_id": "nine_amethyst",
-			"image": "nine_amethyst.tres"
+			"image_name": "specials",
+			"image_index": 5
 		},
 		{
 			"start_sealed": true,
 			"definition_id": "nine_navypressure",
-			"image": "nine_navypressure.tres"
+			"image_name": "specials",
+			"image_index": 6
 		},
 		{
 			"definition_id": "nine_navypressure",
-			"image": "nine_navypressure.tres"
+			"image_name": "specials",
+			"image_index": 6
 		},
 		{
 			"definition_id": "standard_normal_grasp",
-			"image": "normal_grasp.tres"
+			"image_name": "normals",
+			"image_index": 0
 		},
 		{
 			"definition_id": "standard_normal_grasp",
-			"image": "normal_grasp.tres"
+			"image_name": "normals",
+			"image_index": 0
 		},
 		{
 			"definition_id": "standard_normal_cross",
-			"image": "normal_cross.tres"
+			"image_name": "normals",
+			"image_index": 1
 		},
 		{
 			"definition_id": "standard_normal_cross",
-			"image": "normal_cross.tres"
+			"image_name": "normals",
+			"image_index": 1
 		},
 		{
 			"definition_id": "standard_normal_assault",
-			"image": "normal_assault.tres"
+			"image_name": "normals",
+			"image_index": 2
 		},
 		{
 			"definition_id": "standard_normal_assault",
-			"image": "normal_assault.tres"
+			"image_name": "normals",
+			"image_index": 2
 		},
 		{
 			"definition_id": "standard_normal_dive",
-			"image": "normal_dive.tres"
+			"image_name": "normals",
+			"image_index": 3
 		},
 		{
 			"definition_id": "standard_normal_dive",
-			"image": "normal_dive.tres"
+			"image_name": "normals",
+			"image_index": 3
 		},
 		{
 			"definition_id": "standard_normal_spike",
-			"image": "normal_spike.tres"
+			"image_name": "normals",
+			"image_index": 4
 		},
 		{
 			"definition_id": "standard_normal_spike",
-			"image": "normal_spike.tres"
+			"image_name": "normals",
+			"image_index": 4
 		},
 		{
 			"definition_id": "standard_normal_sweep",
-			"image": "normal_sweep.tres"
+			"image_name": "normals",
+			"image_index": 5
 		},
 		{
 			"definition_id": "standard_normal_sweep",
-			"image": "normal_sweep.tres"
+			"image_name": "normals",
+			"image_index": 5
 		},
 		{
 			"definition_id": "standard_normal_focus",
-			"image": "normal_focus.tres"
+			"image_name": "normals",
+			"image_index": 6
 		},
 		{
 			"definition_id": "standard_normal_focus",
-			"image": "normal_focus.tres"
+			"image_name": "normals",
+			"image_index": 6
 		},
 		{
 			"definition_id": "standard_normal_block",
-			"image": "normal_block.tres"
+			"image_name": "normals",
+			"image_index": 7
 		},
 		{
 			"definition_id": "standard_normal_block",
-			"image": "normal_block.tres"
+			"image_name": "normals",
+			"image_index": 7
 		}
 	]
 }

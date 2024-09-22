@@ -2,7 +2,6 @@
 	"id": "noel",
 	"season": 5,
 	"display_name": "Noel Vermillion",
-	"cardback": "cardback_noel.jpg",
 	"exceed_cost": 4,
 	"exceed_to_overdrive": true,
 	"on_exceed": {
@@ -57,131 +56,184 @@
 			}
 		}
 	],
+	"image_resources": {
+		"character_default": {
+			"url": "https://i.imgur.com/xaX2NHe.jpeg",
+			"multiple_cards": false
+		},
+		"character_exceeded": {
+			"url": "https://i.imgur.com/YwdPXbg.jpeg",
+			"multiple_cards": false
+		},
+		"cardback": {
+			"url": "https://i.imgur.com/vg5c0Zr.jpg",
+			"multiple_cards": false
+		},
+		"specials": {
+			"url": "https://i.imgur.com/nfYESGn.jpeg",
+			"multiple_cards": true
+		},
+		"normals": {
+			"url": "https://i.imgur.com/MNulPgy.jpg",
+			"multiple_cards": true
+		}
+	},
 	"cards": [
 		{
 			"set_aside": true,
 			"definition_id": "noel_valkyrieveil",
-			"image": "noel_valkyrieveil.tres"
+			"image_name": "specials",
+			"image_index": 7
 		},
 		{
 			"definition_id": "noel_bulletstorm",
-			"image": "noel_bulletstorm.tres"
+			"image_name": "specials",
+			"image_index": 6
 		},
 		{
 			"definition_id": "noel_bulletstorm",
-			"image": "noel_bulletstorm.tres"
+			"image_name": "specials",
+			"image_index": 6
 		},
 		{
 			"definition_id": "noel_zerogunfenrir",
-			"image": "noel_zerogunfenrir.tres"
+			"image_name": "specials",
+			"image_index": 5
 		},
 		{
 			"definition_id": "noel_zerogunfenrir",
-			"image": "noel_zerogunfenrir.tres"
+			"image_name": "specials",
+			"image_index": 5
 		},
 		{
 			"definition_id": "noel_assaultthrough",
-			"image": "noel_assaultthrough.tres"
+			"image_name": "specials",
+			"image_index": 3
 		},
 		{
 			"definition_id": "noel_assaultthrough",
-			"image": "noel_assaultthrough.tres"
+			"image_name": "specials",
+			"image_index": 3
 		},
 		{
 			"definition_id": "noel_muzzleflitter",
-			"image": "noel_muzzleflitter.tres"
+			"image_name": "specials",
+			"image_index": 2
 		},
 		{
 			"definition_id": "noel_muzzleflitter",
-			"image": "noel_muzzleflitter.tres"
+			"image_name": "specials",
+			"image_index": 2
 		},
 		{
 			"definition_id": "noel_opticbarrel",
-			"image": "noel_opticbarrel.tres"
+			"image_name": "specials",
+			"image_index": 4
 		},
 		{
 			"definition_id": "noel_opticbarrel",
-			"image": "noel_opticbarrel.tres"
+			"image_name": "specials",
+			"image_index": 4
 		},
 		{
 			"definition_id": "noel_springraid",
-			"image": "noel_springraid.tres"
+			"image_name": "specials",
+			"image_index": 0
 		},
 		{
 			"definition_id": "noel_springraid",
-			"image": "noel_springraid.tres"
+			"image_name": "specials",
+			"image_index": 0
 		},
 		{
 			"definition_id": "noel_typeone",
-			"image": "noel_typeone.tres"
+			"image_name": "specials",
+			"image_index": 1
 		},
 		{
 			"definition_id": "noel_typeone",
-			"image": "noel_typeone.tres"
+			"image_name": "specials",
+			"image_index": 1
 		},
 		{
 			"definition_id": "standard_normal_grasp",
-			"image": "normal_grasp.tres"
+			"image_name": "normals",
+			"image_index": 0
 		},
 		{
 			"definition_id": "standard_normal_grasp",
-			"image": "normal_grasp.tres"
+			"image_name": "normals",
+			"image_index": 0
 		},
 		{
 			"definition_id": "standard_normal_cross",
-			"image": "normal_cross.tres"
+			"image_name": "normals",
+			"image_index": 1
 		},
 		{
 			"definition_id": "standard_normal_cross",
-			"image": "normal_cross.tres"
+			"image_name": "normals",
+			"image_index": 1
 		},
 		{
 			"definition_id": "standard_normal_assault",
-			"image": "normal_assault.tres"
+			"image_name": "normals",
+			"image_index": 2
 		},
 		{
 			"definition_id": "standard_normal_assault",
-			"image": "normal_assault.tres"
+			"image_name": "normals",
+			"image_index": 2
 		},
 		{
 			"definition_id": "standard_normal_dive",
-			"image": "normal_dive.tres"
+			"image_name": "normals",
+			"image_index": 3
 		},
 		{
 			"definition_id": "standard_normal_dive",
-			"image": "normal_dive.tres"
+			"image_name": "normals",
+			"image_index": 3
 		},
 		{
 			"definition_id": "standard_normal_spike",
-			"image": "normal_spike.tres"
+			"image_name": "normals",
+			"image_index": 4
 		},
 		{
 			"definition_id": "standard_normal_spike",
-			"image": "normal_spike.tres"
+			"image_name": "normals",
+			"image_index": 4
 		},
 		{
 			"definition_id": "standard_normal_sweep",
-			"image": "normal_sweep.tres"
+			"image_name": "normals",
+			"image_index": 5
 		},
 		{
 			"definition_id": "standard_normal_sweep",
-			"image": "normal_sweep.tres"
+			"image_name": "normals",
+			"image_index": 5
 		},
 		{
 			"definition_id": "standard_normal_focus",
-			"image": "normal_focus.tres"
+			"image_name": "normals",
+			"image_index": 6
 		},
 		{
 			"definition_id": "standard_normal_focus",
-			"image": "normal_focus.tres"
+			"image_name": "normals",
+			"image_index": 6
 		},
 		{
 			"definition_id": "standard_normal_block",
-			"image": "normal_block.tres"
+			"image_name": "normals",
+			"image_index": 7
 		},
 		{
 			"definition_id": "standard_normal_block",
-			"image": "normal_block.tres"
+			"image_name": "normals",
+			"image_index": 7
 		}
 	]
 }

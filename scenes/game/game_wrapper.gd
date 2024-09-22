@@ -31,38 +31,40 @@ func get_message_history() -> Array:
 func is_ai_game() -> bool:
 	return current_game is LocalGame
 
-func initialize_local_game(player_deck, opponent_deck, randomize_first_player):
-	current_game = LocalGame.new()
+func initialize_local_game(player_deck, opponent_deck, randomize_first_player, image_loader):
+	current_game = LocalGame.new(image_loader)
 	var seed_value = randi()
 	var first_player = Enums.PlayerId.PlayerId_Player
 	if randomize_first_player and randi() % 2 == 0:
 		first_player = Enums.PlayerId.PlayerId_Opponent
-	current_game.initialize_game(player_deck, 
-		opponent_deck, 
-		"Player", 
-		"CPU", 
-		first_player, 
+	current_game.initialize_game(player_deck,
+		opponent_deck,
+		"Player",
+		"CPU",
+		first_player,
 		seed_value)
 	current_game.draw_starting_hands_and_begin()
 
-func initialize_remote_game(player_info, 
-		opponent_info, 
-		starting_player : Enums.PlayerId, 
-		seed_value : int, 
-		observer_mode : bool, 
-		replay_mode : bool, 
-		starting_message_queue : Array):
-	current_game = RemoteGame.new()
-	current_game.initialize_game(player_info, 
-		opponent_info, 
-		starting_player, 
-		seed_value, 
-		observer_mode, 
-		replay_mode, 
+func initialize_remote_game(player_info,
+		opponent_info,
+		starting_player : Enums.PlayerId,
+		seed_value : int,
+		observer_mode : bool,
+		replay_mode : bool,
+		starting_message_queue : Array,
+		image_loader : CardImageLoader):
+	current_game = RemoteGame.new(image_loader)
+	current_game.initialize_game(player_info,
+		opponent_info,
+		starting_player,
+		seed_value,
+		observer_mode,
+		replay_mode,
 		starting_message_queue)
 
 # Deletes the current game
 func end_game():
+	current_game.teardown()
 	current_game.free()
 	current_game = null
 
@@ -181,8 +183,8 @@ func get_all_non_immediate_continuous_boost_effects(id):
 func is_player_sealed_area_secret(id):
 	return _get_player(id).sealed_area_is_secret
 
-func count_cards_in_deck_and_hand(player_id : Enums.PlayerId, 
-	card_str_id : String, 
+func count_cards_in_deck_and_hand(player_id : Enums.PlayerId,
+	card_str_id : String,
 	override_card_list = null):
 	var player = _get_player(player_id)
 	var count = 0
@@ -288,10 +290,10 @@ func get_player_force_cost_reduction(player_id : Enums.PlayerId):
 func get_player_free_gauge(player_id : Enums.PlayerId):
 	return _get_player(player_id).free_gauge
 
-func get_player_force_for_cards(player_id : Enums.PlayerId, 
-	card_ids : Array, 
-	reason : String, 
-	treat_ultras_as_single_force : bool, 
+func get_player_force_for_cards(player_id : Enums.PlayerId,
+	card_ids : Array,
+	reason : String,
+	treat_ultras_as_single_force : bool,
 	use_free_force : bool):
 	return _get_player(player_id).get_force_with_cards(card_ids, reason, treat_ultras_as_single_force, use_free_force)
 
@@ -362,6 +364,14 @@ func get_card_index_in_discards(player_id : Enums.PlayerId, card_id : int):
 			return i
 	return -1
 
+func get_ex_transform_copy(player_id : Enums.PlayerId, card_id : int) -> int:
+	var card_db = current_game.get_card_database()
+	var card = card_db.get_card(card_id)
+	for hand_card in _get_player(player_id).hand:
+		if hand_card.definition['id'] == card.definition['id'] and hand_card.id != card_id:
+			return hand_card.id
+	return -1
+
 func other_player(id : Enums.PlayerId) -> Enums.PlayerId:
 	if id == Enums.PlayerId.PlayerId_Player:
 		return Enums.PlayerId.PlayerId_Opponent
@@ -378,10 +388,10 @@ func get_player_extra_attack_card_options(player_id : Enums.PlayerId) -> Array:
 		card_ids.append(card.id)
 	return card_ids
 
-func can_player_boost(player_id : Enums.PlayerId, 
-		card_id : int, 
-		valid_zones : Array, 
-		limitation : String, 
+func can_player_boost(player_id : Enums.PlayerId,
+		card_id : int,
+		valid_zones : Array,
+		limitation : String,
 		ignore_costs : bool) -> bool:
 	var zone_func_map = {
 		"hand": is_card_in_hand,
@@ -404,6 +414,8 @@ func can_player_boost(player_id : Enums.PlayerId,
 			return false
 	if card.definition['type'] == "decree_glorious" and not is_player_exceeded(player_id):
 		return false
+	if card.definition['boost']['boost_type'] == "transform":
+		return false
 
 	if ignore_costs:
 		return true
@@ -411,6 +423,17 @@ func can_player_boost(player_id : Enums.PlayerId,
 	var boosting_card_force_value = card_db.get_card_force_value(card_id)
 	var force_available = get_player_available_force(player_id) - boosting_card_force_value
 	return force_cost <= force_available
+
+func can_player_ex_transform(player_id : Enums.PlayerId, card_id : int) -> bool:
+	if not is_card_in_hand(player_id, card_id):
+		return false
+
+	var card_db = current_game.get_card_database()
+	var card = card_db.get_card(card_id)
+	if card.definition['boost']['boost_type'] != "transform":
+		return false
+
+	return get_ex_transform_copy(player_id, card_id) != -1
 
 func can_do_prepare(player : Enums.PlayerId) -> bool:
 	var game_player = _get_player(player)
@@ -435,6 +458,10 @@ func can_do_reshuffle(player : Enums.PlayerId) -> bool:
 func can_do_boost(player : Enums.PlayerId) -> bool:
 	var game_player = _get_player(player)
 	return current_game.can_do_boost(game_player)
+
+func can_do_ex_transform(player : Enums.PlayerId) -> bool:
+	var game_player = _get_player(player)
+	return current_game.can_do_ex_transform(game_player)
 
 func can_do_strike(player : Enums.PlayerId) -> bool:
 	var game_player = _get_player(player)
@@ -531,9 +558,9 @@ func submit_choose_to_discard(player: Enums.PlayerId, card_ids : Array) -> bool:
 	var game_player = _get_player(player)
 	return current_game.do_choose_to_discard(game_player, card_ids)
 
-func submit_character_action(player: Enums.PlayerId, 
-	card_ids : Array, 
-	action_idx : int = 0, 
+func submit_character_action(player: Enums.PlayerId,
+	card_ids : Array,
+	action_idx : int = 0,
 	use_free_force = false) -> bool:
 	var game_player = _get_player(player)
 	return current_game.do_character_action(game_player, card_ids, action_idx, use_free_force)

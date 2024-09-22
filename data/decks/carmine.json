@@ -2,7 +2,6 @@
 	"id": "carmine",
 	"season": 6,
 	"display_name": "Carmine",
-	"cardback": "cardback_carmine.jpg",
 	"exceed_cost": 1,
 	"buddy_cards": [
 		"dissolveA1",
@@ -94,126 +93,178 @@
 			]
 		}
 	],
+	"image_resources": {
+		"character_default": {
+			"url": "https://i.imgur.com/yXiZkz4.jpeg",
+			"multiple_cards": false
+		},
+		"character_exceeded": {
+			"url": "https://i.imgur.com/2wrKYg6.jpeg",
+			"multiple_cards": false
+		},
+		"cardback": {
+			"url": "https://i.imgur.com/KHXP54G.jpg",
+			"multiple_cards": false
+		},
+		"specials": {
+			"url": "https://i.imgur.com/mIRPccs.jpeg",
+			"multiple_cards": true
+		},
+		"normals": {
+			"url": "https://i.imgur.com/JgxAZ44.jpg",
+			"multiple_cards": true
+		}
+	},
 	"cards": [
 		{
 			"definition_id": "carmine_twist",
-			"image": "carmine_twist.tres"
+			"image_name": "specials",
+			"image_index": 4
 		},
 		{
 			"definition_id": "carmine_twist",
-			"image": "carmine_twist.tres"
+			"image_name": "specials",
+			"image_index": 4
 		},
 		{
 			"definition_id": "carmine_bedevoured",
-			"image": "carmine_bedevoured.tres"
+			"image_name": "specials",
+			"image_index": 5
 		},
 		{
 			"definition_id": "carmine_bedevoured",
-			"image": "carmine_bedevoured.tres"
+			"image_name": "specials",
+			"image_index": 5
 		},
 		{
 			"definition_id": "carmine_thisistheend",
-			"image": "carmine_thisistheend.tres"
+			"image_name": "specials",
+			"image_index": 6
 		},
 		{
 			"definition_id": "carmine_thisistheend",
-			"image": "carmine_thisistheend.tres"
+			"image_name": "specials",
+			"image_index": 6
 		},
 		{
 			"definition_id": "carmine_thrust",
-			"image": "carmine_thrust.tres"
+			"image_name": "specials",
+			"image_index": 0
 		},
 		{
 			"definition_id": "carmine_thrust",
-			"image": "carmine_thrust.tres"
+			"image_name": "specials",
+			"image_index": 0
 		},
 		{
 			"definition_id": "carmine_spin",
-			"image": "carmine_spin.tres"
+			"image_name": "specials",
+			"image_index": 1
 		},
 		{
 			"definition_id": "carmine_spin",
-			"image": "carmine_spin.tres"
+			"image_name": "specials",
+			"image_index": 1
 		},
 		{
 			"definition_id": "carmine_pulverize",
-			"image": "carmine_pulverize.tres"
+			"image_name": "specials",
+			"image_index": 2
 		},
 		{
 			"definition_id": "carmine_pulverize",
-			"image": "carmine_pulverize.tres"
+			"image_name": "specials",
+			"image_index": 2
 		},
 		{
 			"definition_id": "carmine_givemethat",
-			"image": "carmine_givemethat.tres"
+			"image_name": "specials",
+			"image_index": 3
 		},
 		{
 			"definition_id": "carmine_givemethat",
-			"image": "carmine_givemethat.tres"
+			"image_name": "specials",
+			"image_index": 3
 		},
 		{
 			"definition_id": "uni_normal_grasp",
-			"image": "normal_grasp.tres"
+			"image_name": "normals",
+			"image_index": 0
 		},
 		{
 			"definition_id": "uni_normal_grasp",
-			"image": "normal_grasp.tres"
+			"image_name": "normals",
+			"image_index": 0
 		},
 		{
 			"definition_id": "uni_normal_cross",
-			"image": "normal_cross.tres"
+			"image_name": "normals",
+			"image_index": 1
 		},
 		{
 			"definition_id": "uni_normal_cross",
-			"image": "normal_cross.tres"
+			"image_name": "normals",
+			"image_index": 1
 		},
 		{
 			"definition_id": "uni_normal_assault",
-			"image": "normal_assault.tres"
+			"image_name": "normals",
+			"image_index": 2
 		},
 		{
 			"definition_id": "uni_normal_assault",
-			"image": "normal_assault.tres"
+			"image_name": "normals",
+			"image_index": 2
 		},
 		{
 			"definition_id": "uni_normal_dive",
-			"image": "normal_dive.tres"
+			"image_name": "normals",
+			"image_index": 3
 		},
 		{
 			"definition_id": "uni_normal_dive",
-			"image": "normal_dive.tres"
+			"image_name": "normals",
+			"image_index": 3
 		},
 		{
 			"definition_id": "uni_normal_spike",
-			"image": "normal_spike.tres"
+			"image_name": "normals",
+			"image_index": 4
 		},
 		{
 			"definition_id": "uni_normal_spike",
-			"image": "normal_spike.tres"
+			"image_name": "normals",
+			"image_index": 4
 		},
 		{
 			"definition_id": "uni_normal_sweep",
-			"image": "normal_sweep.tres"
+			"image_name": "normals",
+			"image_index": 5
 		},
 		{
 			"definition_id": "uni_normal_sweep",
-			"image": "normal_sweep.tres"
+			"image_name": "normals",
+			"image_index": 5
 		},
 		{
 			"definition_id": "uni_normal_focus",
-			"image": "normal_focus.tres"
+			"image_name": "normals",
+			"image_index": 6
 		},
 		{
 			"definition_id": "uni_normal_focus",
-			"image": "normal_focus.tres"
+			"image_name": "normals",
+			"image_index": 6
 		},
 		{
 			"definition_id": "uni_normal_block",
-			"image": "normal_block.tres"
+			"image_name": "normals",
+			"image_index": 7
 		},
 		{
 			"definition_id": "uni_normal_block",
-			"image": "normal_block.tres"
+			"image_name": "normals",
+			"image_index": 7
 		}
 	]
 }

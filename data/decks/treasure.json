@@ -2,7 +2,6 @@
 	"id": "treasure",
 	"season": 4,
 	"display_name": "Treasure Knight",
-	"cardback": "cardback_treasure.jpg",
 	"exceed_cost": 3,
 	"on_exceed": {
 		"effect_type": "generate_free_force",
@@ -30,126 +29,178 @@
 	],
 	"exceed_ability_effects": [
 	],
+	"image_resources": {
+		"character_default": {
+			"url": "https://i.imgur.com/3dcm4I1.jpeg",
+			"multiple_cards": false
+		},
+		"character_exceeded": {
+			"url": "https://i.imgur.com/VT2RIBH.jpeg",
+			"multiple_cards": false
+		},
+		"cardback": {
+			"url": "https://i.imgur.com/lER7O5b.jpg",
+			"multiple_cards": false
+		},
+		"specials": {
+			"url": "https://i.imgur.com/xNXEhEF.jpeg",
+			"multiple_cards": true
+		},
+		"normals": {
+			"url": "https://i.imgur.com/9zRrqIa.jpg",
+			"multiple_cards": true
+		}
+	},
 	"cards": [
 		{
 			"definition_id": "treasure_maelstromchest",
-			"image": "treasure_maelstromchest.tres"
+			"image_name": "specials",
+			"image_index": 5
 		},
 		{
 			"definition_id": "treasure_maelstromchest",
-			"image": "treasure_maelstromchest.tres"
+			"image_name": "specials",
+			"image_index": 5
 		},
 		{
 			"definition_id": "treasure_anglercall",
-			"image": "treasure_anglercall.tres"
+			"image_name": "specials",
+			"image_index": 6
 		},
 		{
 			"definition_id": "treasure_anglercall",
-			"image": "treasure_anglercall.tres"
+			"image_name": "specials",
+			"image_index": 6
 		},
 		{
 			"definition_id": "treasure_scuttleslam",
-			"image": "treasure_scuttleslam.tres"
+			"image_name": "specials",
+			"image_index": 0
 		},
 		{
 			"definition_id": "treasure_scuttleslam",
-			"image": "treasure_scuttleslam.tres"
+			"image_name": "specials",
+			"image_index": 0
 		},
 		{
 			"definition_id": "treasure_divecharge",
-			"image": "treasure_divecharge.tres"
+			"image_name": "specials",
+			"image_index": 1
 		},
 		{
 			"definition_id": "treasure_divecharge",
-			"image": "treasure_divecharge.tres"
+			"image_name": "specials",
+			"image_index": 1
 		},
 		{
 			"definition_id": "treasure_treasurecoin",
-			"image": "treasure_treasurecoin.tres"
+			"image_name": "specials",
+			"image_index": 2
 		},
 		{
 			"definition_id": "treasure_treasurecoin",
-			"image": "treasure_treasurecoin.tres"
+			"image_name": "specials",
+			"image_index": 2
 		},
 		{
 			"definition_id": "treasure_anchorlaunch",
-			"image": "treasure_anchorlaunch.tres"
+			"image_name": "specials",
+			"image_index": 3
 		},
 		{
 			"definition_id": "treasure_anchorlaunch",
-			"image": "treasure_anchorlaunch.tres"
+			"image_name": "specials",
+			"image_index": 3
 		},
 		{
 			"definition_id": "treasure_aquamine",
-			"image": "treasure_aquamine.tres"
+			"image_name": "specials",
+			"image_index": 4
 		},
 		{
 			"definition_id": "treasure_aquamine",
-			"image": "treasure_aquamine.tres"
+			"image_name": "specials",
+			"image_index": 4
 		},
 		{
 			"definition_id": "standard_normal_grasp",
-			"image": "normal_grasp.tres"
+			"image_name": "normals",
+			"image_index": 0
 		},
 		{
 			"definition_id": "standard_normal_grasp",
-			"image": "normal_grasp.tres"
+			"image_name": "normals",
+			"image_index": 0
 		},
 		{
 			"definition_id": "standard_normal_cross",
-			"image": "normal_cross.tres"
+			"image_name": "normals",
+			"image_index": 1
 		},
 		{
 			"definition_id": "standard_normal_cross",
-			"image": "normal_cross.tres"
+			"image_name": "normals",
+			"image_index": 1
 		},
 		{
 			"definition_id": "standard_normal_assault",
-			"image": "normal_assault.tres"
+			"image_name": "normals",
+			"image_index": 2
 		},
 		{
 			"definition_id": "standard_normal_assault",
-			"image": "normal_assault.tres"
+			"image_name": "normals",
+			"image_index": 2
 		},
 		{
 			"definition_id": "standard_normal_dive",
-			"image": "normal_dive.tres"
+			"image_name": "normals",
+			"image_index": 3
 		},
 		{
 			"definition_id": "standard_normal_dive",
-			"image": "normal_dive.tres"
+			"image_name": "normals",
+			"image_index": 3
 		},
 		{
 			"definition_id": "standard_normal_spike",
-			"image": "normal_spike.tres"
+			"image_name": "normals",
+			"image_index": 4
 		},
 		{
 			"definition_id": "standard_normal_spike",
-			"image": "normal_spike.tres"
+			"image_name": "normals",
+			"image_index": 4
 		},
 		{
 			"definition_id": "standard_normal_sweep",
-			"image": "normal_sweep.tres"
+			"image_name": "normals",
+			"image_index": 5
 		},
 		{
 			"definition_id": "standard_normal_sweep",
-			"image": "normal_sweep.tres"
+			"image_name": "normals",
+			"image_index": 5
 		},
 		{
 			"definition_id": "standard_normal_focus",
-			"image": "normal_focus.tres"
+			"image_name": "normals",
+			"image_index": 6
 		},
 		{
 			"definition_id": "standard_normal_focus",
-			"image": "normal_focus.tres"
+			"image_name": "normals",
+			"image_index": 6
 		},
 		{
 			"definition_id": "standard_normal_block",
-			"image": "normal_block.tres"
+			"image_name": "normals",
+			"image_index": 7
 		},
 		{
 			"definition_id": "standard_normal_block",
-			"image": "normal_block.tres"
+			"image_name": "normals",
+			"image_index": 7
 		}
 	]
 }

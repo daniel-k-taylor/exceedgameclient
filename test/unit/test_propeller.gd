@@ -4,6 +4,7 @@ const LocalGame = preload("res://scenes/game/local_game.gd")
 const GameCard = preload("res://scenes/game/game_card.gd")
 const Enums = preload("res://scenes/game/enums.gd")
 var game_logic : LocalGame
+var image_loader : CardImageLoader
 var default_deck = CardDefinitions.get_deck_from_str_id("propeller")
 const TestCardId1 = 50001
 const TestCardId2 = 50002
@@ -18,7 +19,8 @@ func default_game_setup(alt_opponent : String = ""):
 	var opponent_deck = default_deck
 	if alt_opponent:
 		opponent_deck = CardDefinitions.get_deck_from_str_id(alt_opponent)
-	game_logic = LocalGame.new()
+	image_loader = CardImageLoader.new(true)
+	game_logic = LocalGame.new(image_loader)
 	var seed_value = randi()
 	game_logic.initialize_game(default_deck, opponent_deck, "p1", "p2", Enums.PlayerId.PlayerId_Player, seed_value)
 	game_logic.draw_starting_hands_and_begin()
@@ -30,14 +32,14 @@ func default_game_setup(alt_opponent : String = ""):
 
 func give_player_specific_card(player, def_id, card_id):
 	var card_def = CardDefinitions.get_card(def_id)
-	var card = GameCard.new(card_id, card_def, "image", player.my_id)
+	var card = GameCard.new(card_id, card_def, player.my_id)
 	var card_db = game_logic.get_card_database()
 	card_db._test_insert_card(card)
 	player.hand.append(card)
 
 func give_player_specific_discard(player, def_id, card_id):
 	var card_def = CardDefinitions.get_card(def_id)
-	var card = GameCard.new(card_id, card_def, "image", player.my_id)
+	var card = GameCard.new(card_id, card_def, player.my_id)
 	var card_db = game_logic.get_card_database()
 	card_db._test_insert_card(card)
 	player.discards.append(card)

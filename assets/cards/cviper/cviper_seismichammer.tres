@@ -1,7 +1,0 @@
-[gd_resource type="AtlasTexture" load_steps=2 format=3 uid="uid://d1kisnoopw50l"]
-
-[ext_resource type="Texture2D" uid="uid://bcequmraaqybf" path="res://assets/cards/cviper/specials.jpeg" id="1_6hdlc"]
-
-[resource]
-atlas = ExtResource("1_6hdlc")
-region = Rect2(0, 1024, 750, 1024)

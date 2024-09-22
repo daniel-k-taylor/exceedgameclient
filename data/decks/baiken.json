@@ -2,7 +2,6 @@
 	"id": "baiken",
 	"season": 7,
 	"display_name": "Baiken",
-	"cardback": "cardback_baiken.jpg",
 	"exceed_cost": 3,
 	"character_action_default": [{
 		"gauge_cost": 1,
@@ -36,126 +35,178 @@
 			"amount": 1
 		}
 	],
+	"image_resources": {
+		"character_default": {
+			"url": "https://i.imgur.com/lffuhca.jpeg",
+			"multiple_cards": false
+		},
+		"character_exceeded": {
+			"url": "https://i.imgur.com/ud5rYyr.jpeg",
+			"multiple_cards": false
+		},
+		"cardback": {
+			"url": "https://i.imgur.com/F1AdTtW.jpg",
+			"multiple_cards": false
+		},
+		"specials": {
+			"url": "https://i.imgur.com/jKxrSWD.jpeg",
+			"multiple_cards": true
+		},
+		"normals": {
+			"url": "https://i.imgur.com/OBZvavZ.jpg",
+			"multiple_cards": true
+		}
+	},
 	"cards": [
 		{
 			"definition_id": "baiken_kenjyu",
-			"image": "baiken_kenjyu.tres"
+			"image_name": "specials",
+			"image_index": 5
 		},
 		{
 			"definition_id": "baiken_kenjyu",
-			"image": "baiken_kenjyu.tres"
+			"image_name": "specials",
+			"image_index": 5
 		},
 		{
 			"definition_id": "baiken_tsurane",
-			"image": "baiken_tsurane.tres"
+			"image_name": "specials",
+			"image_index": 6
 		},
 		{
 			"definition_id": "baiken_tsurane",
-			"image": "baiken_tsurane.tres"
+			"image_name": "specials",
+			"image_index": 6
 		},
 		{
 			"definition_id": "baiken_kabari",
-			"image": "baiken_kabari.tres"
+			"image_name": "specials",
+			"image_index": 0
 		},
 		{
 			"definition_id": "baiken_kabari",
-			"image": "baiken_kabari.tres"
+			"image_name": "specials",
+			"image_index": 0
 		},
 		{
 			"definition_id": "baiken_youzansen",
-			"image": "baiken_youzansen.tres"
+			"image_name": "specials",
+			"image_index": 1
 		},
 		{
 			"definition_id": "baiken_youzansen",
-			"image": "baiken_youzansen.tres"
+			"image_name": "specials",
+			"image_index": 1
 		},
 		{
 			"definition_id": "baiken_karatakewari",
-			"image": "baiken_karatakewari.tres"
+			"image_name": "specials",
+			"image_index": 2
 		},
 		{
 			"definition_id": "baiken_karatakewari",
-			"image": "baiken_karatakewari.tres"
+			"image_name": "specials",
+			"image_index": 2
 		},
 		{
 			"definition_id": "baiken_tatamigaeshi",
-			"image": "baiken_tatamigaeshi.tres"
+			"image_name": "specials",
+			"image_index": 3
 		},
 		{
 			"definition_id": "baiken_tatamigaeshi",
-			"image": "baiken_tatamigaeshi.tres"
+			"image_name": "specials",
+			"image_index": 3
 		},
 		{
 			"definition_id": "baiken_hiiragi",
-			"image": "baiken_hiiragi.tres"
+			"image_name": "specials",
+			"image_index": 4
 		},
 		{
 			"definition_id": "baiken_hiiragi",
-			"image": "baiken_hiiragi.tres"
+			"image_name": "specials",
+			"image_index": 4
 		},
 		{
 			"definition_id": "gg_normal_grasp",
-			"image": "normal_grasp.tres"
+			"image_name": "normals",
+			"image_index": 0
 		},
 		{
 			"definition_id": "gg_normal_grasp",
-			"image": "normal_grasp.tres"
+			"image_name": "normals",
+			"image_index": 0
 		},
 		{
 			"definition_id": "gg_normal_cross",
-			"image": "normal_cross.tres"
+			"image_name": "normals",
+			"image_index": 1
 		},
 		{
 			"definition_id": "gg_normal_cross",
-			"image": "normal_cross.tres"
+			"image_name": "normals",
+			"image_index": 1
 		},
 		{
 			"definition_id": "gg_normal_slash",
-			"image": "normal_assault.tres"
+			"image_name": "normals",
+			"image_index": 2
 		},
 		{
 			"definition_id": "gg_normal_slash",
-			"image": "normal_assault.tres"
+			"image_name": "normals",
+			"image_index": 2
 		},
 		{
 			"definition_id": "gg_normal_dive",
-			"image": "normal_dive.tres"
+			"image_name": "normals",
+			"image_index": 3
 		},
 		{
 			"definition_id": "gg_normal_dive",
-			"image": "normal_dive.tres"
+			"image_name": "normals",
+			"image_index": 3
 		},
 		{
 			"definition_id": "gg_normal_dust",
-			"image": "normal_spike.tres"
+			"image_name": "normals",
+			"image_index": 4
 		},
 		{
 			"definition_id": "gg_normal_dust",
-			"image": "normal_spike.tres"
+			"image_name": "normals",
+			"image_index": 4
 		},
 		{
 			"definition_id": "gg_normal_sweep",
-			"image": "normal_sweep.tres"
+			"image_name": "normals",
+			"image_index": 5
 		},
 		{
 			"definition_id": "gg_normal_sweep",
-			"image": "normal_sweep.tres"
+			"image_name": "normals",
+			"image_index": 5
 		},
 		{
 			"definition_id": "gg_normal_focus",
-			"image": "normal_focus.tres"
+			"image_name": "normals",
+			"image_index": 6
 		},
 		{
 			"definition_id": "gg_normal_focus",
-			"image": "normal_focus.tres"
+			"image_name": "normals",
+			"image_index": 6
 		},
 		{
 			"definition_id": "gg_normal_block",
-			"image": "normal_block.tres"
+			"image_name": "normals",
+			"image_index": 7
 		},
 		{
 			"definition_id": "gg_normal_block",
-			"image": "normal_block.tres"
+			"image_name": "normals",
+			"image_index": 7
 		}
 	]
 }

@@ -7,6 +7,7 @@ const GameCard = preload("res://scenes/game/game_card.gd")
 const Enums = preload("res://scenes/game/enums.gd")
 
 var game_logic : LocalGame
+var image_loader : CardImageLoader
 var default_deck = CardDefinitions.get_deck_from_str_id("solbadguy")
 
 var player1 : LocalGame.Player
@@ -15,7 +16,8 @@ var ai1 : AIPlayer
 var ai2 : AIPlayer
 
 func game_setup(policy_type = AIPolicyRules):
-	game_logic = LocalGame.new()
+	image_loader = CardImageLoader.new(true)
+	game_logic = LocalGame.new(image_loader)
 	var seed_value = randi()
 	game_logic.initialize_game(default_deck, default_deck, "p1", "p2", Enums.PlayerId.PlayerId_Player, seed_value)
 	game_logic.draw_starting_hands_and_begin()
@@ -31,6 +33,7 @@ func game_teardown():
 	game_logic.free()
 	ai1.ai_policy.free()
 	ai2.ai_policy.free()
+
 
 func before_each():
 	gut.p("ran setup", 2)
@@ -101,7 +104,7 @@ func test_duplicate_game_state():
 	assert_same(ai1.game_state.player, new_game_state.player)
 	assert_same(new_game_state.true_original(), game_logic)
 	assert_same(new_game_state.active_strike.true_original(), game_logic)
-	
+
 	new_game_state.my_state.arena_location -= 1
 	assert_false(CopyableResource.equals(ai1.game_state, new_game_state),
 			'Changing new self-location to %s also changed original self-location to %s' % [

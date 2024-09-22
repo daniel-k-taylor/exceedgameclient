@@ -2,7 +2,6 @@
 	"id": "bang",
 	"season": 5,
 	"display_name": "Shishigami Bang",
-	"cardback": "cardback_bang.jpg",
 	"exceed_cost": 4,
 	"exceed_to_overdrive": true,
 	"on_exceed": {
@@ -48,131 +47,184 @@
 			"amount": 1
 		}
 	],
+	"image_resources": {
+		"character_default": {
+			"url": "https://i.imgur.com/TcepW5u.jpeg",
+			"multiple_cards": false
+		},
+		"character_exceeded": {
+			"url": "https://i.imgur.com/gtc0M3r.jpeg",
+			"multiple_cards": false
+		},
+		"cardback": {
+			"url": "https://i.imgur.com/uLj1uVy.jpg",
+			"multiple_cards": false
+		},
+		"specials": {
+			"url": "https://i.imgur.com/BEYa6cu.jpeg",
+			"multiple_cards": true
+		},
+		"normals": {
+			"url": "https://i.imgur.com/3u51rI3.jpg",
+			"multiple_cards": true
+		}
+	},
 	"cards": [
 		{
 			"set_aside": true,
 			"definition_id": "bang_theultimatebang",
-			"image": "bang_theultimatebang.tres"
+			"image_name": "specials",
+			"image_index": 7
 		},
 		{
 			"definition_id": "bang_infinitechaosfistofthevoid",
-			"image": "bang_infinitechaosfistofthevoid.tres"
+			"image_name": "specials",
+			"image_index": 4
 		},
 		{
 			"definition_id": "bang_infinitechaosfistofthevoid",
-			"image": "bang_infinitechaosfistofthevoid.tres"
+			"image_name": "specials",
+			"image_index": 4
 		},
 		{
 			"definition_id": "bang_hypershadowstepstrike",
-			"image": "bang_hypershadowstepstrike.tres"
+			"image_name": "specials",
+			"image_index": 5
 		},
 		{
 			"definition_id": "bang_hypershadowstepstrike",
-			"image": "bang_hypershadowstepstrike.tres"
+			"image_name": "specials",
+			"image_index": 5
 		},
 		{
 			"definition_id": "bang_fataleruption",
-			"image": "bang_fataleruption.tres"
+			"image_name": "specials",
+			"image_index": 6
 		},
 		{
 			"definition_id": "bang_fataleruption",
-			"image": "bang_fataleruption.tres"
+			"image_name": "specials",
+			"image_index": 6
 		},
 		{
 			"definition_id": "bang_bangstyleshuriken",
-			"image": "bang_bangstyleshuriken.tres"
+			"image_name": "specials",
+			"image_index": 0
 		},
 		{
 			"definition_id": "bang_bangstyleshuriken",
-			"image": "bang_bangstyleshuriken.tres"
+			"image_name": "specials",
+			"image_index": 0
 		},
 		{
 			"definition_id": "bang_unstoppablepalmthrust",
-			"image": "bang_unstoppablepalmthrust.tres"
+			"image_name": "specials",
+			"image_index": 1
 		},
 		{
 			"definition_id": "bang_unstoppablepalmthrust",
-			"image": "bang_unstoppablepalmthrust.tres"
+			"image_name": "specials",
+			"image_index": 1
 		},
 		{
 			"definition_id": "bang_voidtempestkick",
-			"image": "bang_voidtempestkick.tres"
+			"image_name": "specials",
+			"image_index": 2
 		},
 		{
 			"definition_id": "bang_voidtempestkick",
-			"image": "bang_voidtempestkick.tres"
+			"image_name": "specials",
+			"image_index": 2
 		},
 		{
 			"definition_id": "bang_pulverizingblastjutsu",
-			"image": "bang_pulverizingblastjutsu.tres"
+			"image_name": "specials",
+			"image_index": 3
 		},
 		{
 			"definition_id": "bang_pulverizingblastjutsu",
-			"image": "bang_pulverizingblastjutsu.tres"
+			"image_name": "specials",
+			"image_index": 3
 		},
 		{
 			"definition_id": "standard_normal_grasp",
-			"image": "normal_grasp.tres"
+			"image_name": "normals",
+			"image_index": 0
 		},
 		{
 			"definition_id": "standard_normal_grasp",
-			"image": "normal_grasp.tres"
+			"image_name": "normals",
+			"image_index": 0
 		},
 		{
 			"definition_id": "standard_normal_cross",
-			"image": "normal_cross.tres"
+			"image_name": "normals",
+			"image_index": 1
 		},
 		{
 			"definition_id": "standard_normal_cross",
-			"image": "normal_cross.tres"
+			"image_name": "normals",
+			"image_index": 1
 		},
 		{
 			"definition_id": "standard_normal_assault",
-			"image": "normal_assault.tres"
+			"image_name": "normals",
+			"image_index": 2
 		},
 		{
 			"definition_id": "standard_normal_assault",
-			"image": "normal_assault.tres"
+			"image_name": "normals",
+			"image_index": 2
 		},
 		{
 			"definition_id": "standard_normal_dive",
-			"image": "normal_dive.tres"
+			"image_name": "normals",
+			"image_index": 3
 		},
 		{
 			"definition_id": "standard_normal_dive",
-			"image": "normal_dive.tres"
+			"image_name": "normals",
+			"image_index": 3
 		},
 		{
 			"definition_id": "standard_normal_spike",
-			"image": "normal_spike.tres"
+			"image_name": "normals",
+			"image_index": 4
 		},
 		{
 			"definition_id": "standard_normal_spike",
-			"image": "normal_spike.tres"
+			"image_name": "normals",
+			"image_index": 4
 		},
 		{
 			"definition_id": "standard_normal_sweep",
-			"image": "normal_sweep.tres"
+			"image_name": "normals",
+			"image_index": 5
 		},
 		{
 			"definition_id": "standard_normal_sweep",
-			"image": "normal_sweep.tres"
+			"image_name": "normals",
+			"image_index": 5
 		},
 		{
 			"definition_id": "standard_normal_focus",
-			"image": "normal_focus.tres"
+			"image_name": "normals",
+			"image_index": 6
 		},
 		{
 			"definition_id": "standard_normal_focus",
-			"image": "normal_focus.tres"
+			"image_name": "normals",
+			"image_index": 6
 		},
 		{
 			"definition_id": "standard_normal_block",
-			"image": "normal_block.tres"
+			"image_name": "normals",
+			"image_index": 7
 		},
 		{
 			"definition_id": "standard_normal_block",
-			"image": "normal_block.tres"
+			"image_name": "normals",
+			"image_index": 7
 		}
 	]
 }

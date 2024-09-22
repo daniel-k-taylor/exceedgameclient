@@ -1,4 +1,4 @@
-[gd_scene load_steps=89 format=3 uid="uid://cqs72exlwm6at"]
+[gd_scene load_steps=91 format=3 uid="uid://cqs72exlwm6at"]
 
 [ext_resource type="Script" path="res://scenes/menu/char_select.gd" id="1_f3x24"]
 [ext_resource type="PackedScene" uid="uid://nwqxp8pdh1jk" path="res://scenes/menu/char_select_button.tscn" id="6_3lmwy"]
@@ -87,6 +87,8 @@
 [ext_resource type="Texture2D" uid="uid://bhf4128x5imup" path="res://assets/portraits/chunli.png" id="75_x64mb"]
 [ext_resource type="Texture2D" uid="uid://b7mv0ajelb1us" path="res://assets/portraits/vega.png" id="76_k4evp"]
 [ext_resource type="Texture2D" uid="uid://y516s7duw503" path="res://assets/portraits/bison.png" id="77_vkb7f"]
+[ext_resource type="Texture2D" uid="uid://d0320c0pak5br" path="res://assets/portraits/seijun.png" id="87_4uyi6"]
+[ext_resource type="Texture2D" uid="uid://5nai1cf4dcy" path="res://assets/portraits/sclogo.png" id="88_687x2"]
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_8u80i"]
 
@@ -751,6 +753,30 @@ layout_mode = 2
 char_id = "vega"
 portrait_texture = ExtResource("76_k4evp")
 
+[node name="SCCharacterSelect" type="PanelContainer" parent="CenterContainer"]
+layout_mode = 2
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxEmpty_8u80i")
+
+[node name="Rows" type="VBoxContainer" parent="CenterContainer/SCCharacterSelect"]
+layout_mode = 2
+mouse_filter = 2
+alignment = 1
+
+[node name="Row1" type="HBoxContainer" parent="CenterContainer/SCCharacterSelect/Rows"]
+layout_mode = 2
+alignment = 1
+
+[node name="Seijun" parent="CenterContainer/SCCharacterSelect/Rows/Row1" instance=ExtResource("6_3lmwy")]
+layout_mode = 2
+char_id = "seijun"
+portrait_texture = ExtResource("87_4uyi6")
+
+[node name="RandomSC" parent="CenterContainer/SCCharacterSelect/Rows/Row1" instance=ExtResource("6_3lmwy")]
+layout_mode = 2
+char_id = "random_s2"
+portrait_texture = ExtResource("88_687x2")
+
 [node name="TabSelect" type="VBoxContainer" parent="."]
 layout_mode = 1
 anchors_preset = 5
@@ -768,6 +794,11 @@ layout_mode = 2
 
 [node name="CategoriesHBox" type="HBoxContainer" parent="TabSelect"]
 layout_mode = 2
+
+[node name="Season2" parent="TabSelect/CategoriesHBox" instance=ExtResource("6_3lmwy")]
+layout_mode = 2
+char_id = "season2"
+portrait_texture = ExtResource("88_687x2")
 
 [node name="Season3" parent="TabSelect/CategoriesHBox" instance=ExtResource("6_3lmwy")]
 layout_mode = 2
@@ -972,6 +1003,12 @@ portrait_texture = ExtResource("32_iutun")
 [connection signal="on_pressed" from="CenterContainer/SFCharacterSelect/Rows/Row3/C_Viper" to="." method="_on_char_button_on_pressed"]
 [connection signal="on_hover" from="CenterContainer/SFCharacterSelect/Rows/Row3/Vega" to="." method="_on_char_hover"]
 [connection signal="on_pressed" from="CenterContainer/SFCharacterSelect/Rows/Row3/Vega" to="." method="_on_char_button_on_pressed"]
+[connection signal="on_hover" from="CenterContainer/SCCharacterSelect/Rows/Row1/Seijun" to="." method="_on_char_hover"]
+[connection signal="on_pressed" from="CenterContainer/SCCharacterSelect/Rows/Row1/Seijun" to="." method="_on_char_button_on_pressed"]
+[connection signal="on_hover" from="CenterContainer/SCCharacterSelect/Rows/Row1/RandomSC" to="." method="_on_char_hover"]
+[connection signal="on_pressed" from="CenterContainer/SCCharacterSelect/Rows/Row1/RandomSC" to="." method="_on_char_button_on_pressed"]
+[connection signal="on_hover" from="TabSelect/CategoriesHBox/Season2" to="." method="_on_char_hover"]
+[connection signal="on_pressed" from="TabSelect/CategoriesHBox/Season2" to="." method="_on_char_button_on_pressed"]
 [connection signal="on_hover" from="TabSelect/CategoriesHBox/Season3" to="." method="_on_char_hover"]
 [connection signal="on_pressed" from="TabSelect/CategoriesHBox/Season3" to="." method="_on_char_button_on_pressed"]
 [connection signal="on_hover" from="TabSelect/CategoriesHBox/Season4" to="." method="_on_char_hover"]

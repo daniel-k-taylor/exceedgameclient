@@ -82,6 +82,7 @@ var popout_instruction_info = null
 var ChoiceTagRegex = RegEx.new()
 
 var first_run_done = false
+var first_run_in_progress = false
 var select_card_require_min = 0
 var select_card_require_max = 0
 var select_card_name_card_both_players = false
@@ -282,8 +283,17 @@ func printlog(text):
 		print("UI: %s" % text)
 
 # Called when the node enters the scene tree for the first time.
+var started_directly : bool = true
+var image_loader : CardImageLoader
+
+func set_not_started_directly():
+	started_directly = false
+
 func _ready():
-	if player_deck == null:
+	image_loader = CardImageLoader.new()
+	add_child(image_loader)
+
+	if started_directly:
 		# Started this scene directly.
 		var vs_info = {
 			'player_deck': CardDefinitions.get_deck_test_deck(),
@@ -291,7 +301,9 @@ func _ready():
 			'randomize_first_vs_ai': false
 		}
 		begin_local_game(vs_info)
+		initialization_after_begin_game()
 
+func initialization_after_begin_game():
 	if not game_wrapper.is_ai_game():
 		$AIMoveButton.visible = false
 	else:
@@ -362,7 +374,7 @@ func begin_local_game(vs_info):
 	player_deck = vs_info['player_deck']
 	opponent_deck = vs_info['opponent_deck']
 	var randomize_first_player = vs_info['randomize_first_vs_ai']
-	game_wrapper.initialize_local_game(player_deck, opponent_deck, randomize_first_player)
+	game_wrapper.initialize_local_game(player_deck, opponent_deck, randomize_first_player, image_loader)
 
 func begin_remote_game(game_start_message):
 	starting_message = game_start_message.duplicate()
@@ -420,7 +432,8 @@ func begin_remote_game(game_start_message):
 		seed_value,
 		observer_mode,
 		replay_mode,
-		starting_message_queue)
+		starting_message_queue,
+		image_loader)
 
 func set_player_as_clock_user(player_id : Enums.PlayerId):
 	current_clock_user = player_id
@@ -500,9 +513,13 @@ func setup_characters():
 
 func setup_character_card(character_card, deck, buddy_character_card):
 	character_card.set_name_text(deck['display_name'])
-	var character_default_path = "res://assets/cards/" + deck['id'] + "/character_default.jpg"
-	var character_exceeded_path = "res://assets/cards/" + deck['id'] + "/character_exceeded.jpg"
-	character_card.set_image(character_default_path, character_exceeded_path)
+
+	var loaded_character_image = await image_loader.get_card_image(
+		deck['image_resources']['character_default']['url'], 0)
+	var loaded_exceed_image = await image_loader.get_card_image(
+		deck['image_resources']['character_exceeded']['url'], 0)
+	character_card.set_image(loaded_character_image, loaded_exceed_image)
+
 	var on_exceed_text = ""
 	if 'on_exceed' in deck:
 		on_exceed_text = CardDefinitions.get_on_exceed_text(deck['on_exceed'])
@@ -518,11 +535,15 @@ func setup_character_card(character_card, deck, buddy_character_card):
 	elif 'buddy_card' in deck:
 		buddy_character_card.visible = true
 		buddy_character_card.hide_focus()
-		var buddy_path = build_character_path(deck['id'], deck['buddy_card'], false)
-		var buddy_exceeded_path = buddy_path
+		var buddy_card_id = deck['buddy_card']
+
+		var loaded_buddy_image = await image_loader.get_card_image(
+			deck['image_resources'][buddy_card_id]['url'], 0)
+		var loaded_buddy_exceed_image = loaded_buddy_image
 		if 'buddy_exceeds' in deck and deck['buddy_exceeds']:
-			buddy_exceeded_path = build_character_path(deck['id'], deck['buddy_card'], true)
-		buddy_character_card.set_image(buddy_path, buddy_exceeded_path)
+			loaded_buddy_exceed_image = await image_loader.get_card_image(
+				deck['image_resources'][buddy_card_id + '_exceeded']['url'], 0)
+		buddy_character_card.set_image(loaded_buddy_image, loaded_buddy_exceed_image)
 	elif 'buddy_cards' in deck:
 		buddy_character_card.visible = true
 		buddy_character_card.hide_focus()
@@ -530,11 +551,14 @@ func setup_character_card(character_card, deck, buddy_character_card):
 		if 'buddy_card_graphic_override' in deck:
 			default_buddy = deck['buddy_card_graphic_override'][0]
 		created_buddy_cards.append(default_buddy)
-		var buddy_path = build_character_path(deck['id'], default_buddy, false)
-		var buddy_exceeded_path = buddy_path
+
+		var loaded_buddy_image = await image_loader.get_card_image(
+			deck['image_resources'][default_buddy]['url'], 0)
+		var loaded_buddy_exceed_image = loaded_buddy_image
 		if 'buddy_exceeds' in deck and deck['buddy_exceeds']:
-			buddy_exceeded_path = build_character_path(deck['id'], default_buddy, true)
-		buddy_character_card.set_image(buddy_path, buddy_exceeded_path)
+			loaded_buddy_exceed_image = await image_loader.get_card_image(
+				deck['image_resources'][default_buddy + '_exceeded']['url'], 0)
+		buddy_character_card.set_image(loaded_buddy_image, loaded_buddy_exceed_image)
 
 		# Add remaining buddies as extras.
 		for i in range(1, deck['buddy_cards'].size()):
@@ -545,22 +569,20 @@ func setup_character_card(character_card, deck, buddy_character_card):
 				# Skip any that share graphics.
 				continue
 			created_buddy_cards.append(buddy_id)
-			buddy_path = build_character_path(deck['id'], buddy_id, false)
-			buddy_exceeded_path = buddy_path
+
+			loaded_buddy_image = await image_loader.get_card_image(
+				deck['image_resources'][buddy_id]['url'], 0)
+			loaded_buddy_exceed_image = loaded_buddy_image
 			if 'buddy_exceeds' in deck and deck['buddy_exceeds']:
-				buddy_exceeded_path = build_character_path(deck['id'], buddy_id, true)
-			buddy_character_card.set_extra_image(i, buddy_path, buddy_exceeded_path)
+				loaded_buddy_exceed_image = await image_loader.get_card_image(
+					deck['image_resources'][buddy_id + '_exceeded']['url'], 0)
+			buddy_character_card.set_extra_image(i, loaded_buddy_image, loaded_buddy_exceed_image)
 	else:
 		buddy_character_card.visible = false
 
-func build_character_path(deck_id, character_id, exceed):
-	if exceed:
-		return "res://assets/cards/" + deck_id + "/" + character_id + "_exceeded.jpg"
-	return "res://assets/cards/" + deck_id + "/" + character_id + ".jpg"
-
 func finish_initialization():
 	opponent_name_label.text = game_wrapper.get_player_name(Enums.PlayerId.PlayerId_Opponent)
-	spawn_all_cards()
+	await spawn_all_cards()
 
 func test_init():
 	if Test_StartWithGauge:
@@ -578,29 +600,36 @@ func first_run():
 	update_arena_squares()
 	_update_buttons()
 
-	finish_initialization()
+	await finish_initialization()
 	change_ui_state(UIState.UIState_WaitForGameServer)
+	first_run_done = true
 
-func create_character_reference_card(path_root : String, exceeded : bool, zone):
-	var image_path = path_root + "character_default.jpg"
+func create_character_reference_card(exceeded : bool, zone, image_resources):
+	var image_url = image_resources['character_default']['url']
 	if exceeded:
-		image_path = path_root + "character_exceeded.jpg"
-	_create_reference_card(image_path, "Character Card", zone, CardBase.CharacterCardReferenceId)
+		image_url = image_resources['character_exceeded']['url']
+	_create_reference_card(image_url, "Character Card", zone, CardBase.CharacterCardReferenceId)
 
-func create_buddy_reference_card(path_root : String, buddy_id, exceeded : bool, zone, click_buddy_id):
-	var image_path = path_root + buddy_id + ".jpg"
+func create_buddy_reference_card(buddy_id, exceeded : bool, zone, click_buddy_id, image_resources):
+	var image_url = image_resources[buddy_id]['url']
 	if exceeded:
-		image_path = path_root + buddy_id + "_exceeded.jpg"
-	_create_reference_card(image_path, "Extra Card", zone, click_buddy_id)
+		image_url = image_resources[buddy_id + '_exceeded']['url']
+	_create_reference_card(image_url, "Extra Card", zone, click_buddy_id)
 
-func _create_reference_card(image_path : String, card_name : String, zone, card_id : int):
+func _create_reference_card(image_url : String, card_name : String, zone,
+		card_id : int):
 	var new_card : CardBase = CardBaseScene.instantiate()
 	zone.add_child(new_card)
+
+	var url_loaded_image = await image_loader.get_card_image(image_url, 0)
+
 	new_card.initialize_card(
 		card_id,
-		image_path,
-		image_path,
-		false
+		url_loaded_image,
+		"",
+		false,
+		card_name,
+		""
 	)
 	new_card.name = card_name
 	new_card.raised_card.connect(on_card_raised)
@@ -614,36 +643,30 @@ func _create_reference_card(image_path : String, card_name : String, zone, card_
 	if card_id not in [CardBase.CharacterCardReferenceId, CardBase.BuddyCardReferenceId]:
 		new_card.clicked_card.connect(on_card_clicked)
 
-func get_card_root_path(deck_id : String):
-	return "res://assets/cards/" + deck_id + "/"
-
-func get_card_image_path(deck_id : String, game_card : GameCard):
-	return get_card_root_path(deck_id) + game_card.image
-
-func spawn_deck(deck_id,
-		deck_list,
+func spawn_deck(deck_list,
 		deck_card_zone,
 		copy_zone,
 		buddy_graphic_list,
 		buddy_copy_zone,
 		allow_click_buddy,
 		set_aside_zone,
-		card_back_image,
-		is_opponent):
+		is_opponent,
+		image_resources):
 	var card_db = game_wrapper.get_card_database()
-	var card_root_path = get_card_root_path(deck_id)
+	var card_back_url = image_resources['cardback']['url']
+
 	for card in deck_list:
 		var logic_card : GameCard = card_db.get_card(card.id)
-		var image_path = get_card_image_path(deck_id, logic_card)
-		var new_card = create_card(card.id, logic_card.definition, image_path, card_back_image, deck_card_zone, is_opponent)
+		var new_card = await create_card(card.id, logic_card.definition, logic_card.get_image_url_index_data(), card_back_url,
+			deck_card_zone, is_opponent, logic_card.definition['display_name'], logic_card.definition['boost']['display_name'])
 		if observer_mode and not replay_mode:
 			new_card.skip_flip_when_drawing = true
 		if logic_card.set_aside:
 			reparent_to_zone(new_card, set_aside_zone)
 		new_card.set_card_and_focus(OffScreen, 0, null)
 
-	create_character_reference_card(card_root_path, false, copy_zone)
-	create_character_reference_card(card_root_path, true, copy_zone)
+	create_character_reference_card(false, copy_zone, image_resources)
+	create_character_reference_card(true, copy_zone, image_resources)
 
 	var previous_def_id = ""
 	var buddy_card_id_links = {}
@@ -657,9 +680,10 @@ func spawn_deck(deck_id,
 
 		if logic_card.hide_from_reference:
 			continue
-		var image_path = card_root_path + logic_card.image
 		if previous_def_id != logic_card.definition['id']:
-			var copy_card = create_card(card.id + ReferenceScreenIdRangeStart, logic_card.definition, image_path, card_back_image, copy_zone, is_opponent)
+			var copy_card = await create_card(card.id + ReferenceScreenIdRangeStart, logic_card.definition,
+				logic_card.get_image_url_index_data(), card_back_url, copy_zone, is_opponent,
+				logic_card.definition['display_name'], logic_card.definition['boost']['display_name'])
 			copy_card.set_card_and_focus(OffScreen, 0, CardBase.ReferenceCardScale)
 			copy_card.resting_scale = CardBase.ReferenceCardScale
 			copy_card.change_state(CardBase.CardState.CardState_Offscreen)
@@ -677,7 +701,7 @@ func spawn_deck(deck_id,
 			var buddy_card_id = CardBase.BuddyCardReferenceId
 			if allow_click_buddy:
 				buddy_card_id = buddy_card_id_links[buddy_id]
-			create_buddy_reference_card(card_root_path, buddy_id, false, buddy_copy_zone, buddy_card_id)
+			create_buddy_reference_card(buddy_id, false, buddy_copy_zone, buddy_card_id, image_resources)
 
 func spawn_damage_popup(value:String, notice_player : Enums.PlayerId):
 	var popup = get_damage_popup()
@@ -708,11 +732,6 @@ func spawn_emote(player_id : Enums.PlayerId,
 	emote_display.play_emote(is_image_emote, emote, pos, height)
 
 func spawn_all_cards():
-	var player_deck_id = player_deck['id']
-	var opponent_deck_id = opponent_deck['id']
-	var player_cardback = "res://assets/cardbacks/" + player_deck['cardback']
-	var opponent_cardback = "res://assets/cardbacks/" + opponent_deck['cardback']
-
 	var player_buddy_graphics = []
 	var opponent_buddy_graphics = []
 	for deck_graphic_pair in [[player_deck, player_buddy_graphics], [opponent_deck, opponent_buddy_graphics]]:
@@ -736,10 +755,13 @@ func spawn_all_cards():
 	var player_can_click_buddy = 'link_extra_cards_to_buddies' in player_deck and player_deck['link_extra_cards_to_buddies']
 	var opponent_can_click_buddy = 'link_extra_cards_to_buddies' in opponent_deck and opponent_deck['link_extra_cards_to_buddies']
 
-	spawn_deck(player_deck_id, game_wrapper.get_player_deck_list(Enums.PlayerId.PlayerId_Player), $AllCards/PlayerDeck, $AllCards/PlayerAllCopy,
-		player_buddy_graphics, $AllCards/PlayerBuddyCopy, player_can_click_buddy, $AllCards/PlayerSetAside, player_cardback, false)
-	spawn_deck(opponent_deck_id, game_wrapper.get_player_deck_list(Enums.PlayerId.PlayerId_Opponent), $AllCards/OpponentDeck, $AllCards/OpponentAllCopy,
-		opponent_buddy_graphics, $AllCards/OpponentBuddyCopy, opponent_can_click_buddy, $AllCards/OpponentSetAside, opponent_cardback, true)
+	var player_image_resources = player_deck['image_resources']
+	var opponent_image_resources = opponent_deck['image_resources']
+
+	await spawn_deck(game_wrapper.get_player_deck_list(Enums.PlayerId.PlayerId_Player), $AllCards/PlayerDeck, $AllCards/PlayerAllCopy,
+		player_buddy_graphics, $AllCards/PlayerBuddyCopy, player_can_click_buddy, $AllCards/PlayerSetAside, false, player_image_resources)
+	await spawn_deck(game_wrapper.get_player_deck_list(Enums.PlayerId.PlayerId_Opponent), $AllCards/OpponentDeck, $AllCards/OpponentAllCopy,
+		opponent_buddy_graphics, $AllCards/OpponentBuddyCopy, opponent_can_click_buddy, $AllCards/OpponentSetAside, true, opponent_image_resources)
 
 func get_arena_location_button(arena_location):
 	var target_square = arena_layout.get_child(arena_location - 1)
@@ -788,8 +810,10 @@ func _process(delta):
 	if exiting:
 		return
 	if not first_run_done:
-		first_run()
-		first_run_done = true
+		if not first_run_in_progress:
+			first_run_in_progress = true
+			await first_run()
+		return
 	if ui_state == UIState.UIState_PlayingAnimation:
 		remaining_delay -= delta
 		if remaining_delay <= 0:
@@ -949,18 +973,29 @@ func update_card_counts():
 func get_card_node_name(id):
 	return "Card_" + str(id)
 
-func create_card(id, card_def, image, card_back_image, parent, is_opponent : bool) -> CardBase:
+func create_card(id, card_def, image_url_index, cardback_url, parent, is_opponent : bool, card_name, boost_name) -> CardBase:
 	var new_card : CardBase = CardBaseScene.instantiate()
 	parent.add_child(new_card)
 	var strike_cost = card_def['gauge_cost']
 	if strike_cost == 0:
 		strike_cost = card_def['force_cost']
+
+	var url_loaded_image = null
+	if image_url_index:
+		url_loaded_image = await image_loader.get_card_image(image_url_index["url"], image_url_index["index"])
+	var url_loaded_cardback = null
+	if cardback_url:
+		url_loaded_cardback = await image_loader.get_card_image(cardback_url, 0)
+
 	new_card.initialize_card(
 		id,
-		image,
-		card_back_image,
-		is_opponent
+		url_loaded_image,
+		url_loaded_cardback,
+		is_opponent,
+		card_name,
+		boost_name
 	)
+
 	new_card.name = get_card_node_name(id)
 	new_card.raised_card.connect(on_card_raised)
 	new_card.lowered_card.connect(on_card_lowered)
@@ -1118,12 +1153,23 @@ func can_select_card(card):
 			var select_boost_limitation = select_boost_options['limitation']
 			var select_boost_ignore_costs = select_boost_options['ignore_costs']
 			var select_boost_amount = select_boost_options['boost_amount']
+
 			var valid_amount = false
 			if select_boost_amount <= 1:
 				valid_amount = len(selected_cards) == 0
 			else:
 				valid_amount = len(selected_cards) < select_boost_amount
-			var valid_card = game_wrapper.can_player_boost(Enums.PlayerId.PlayerId_Player, card.card_id, select_boost_valid_zones, select_boost_limitation, select_boost_ignore_costs)
+
+			var card_db = game_wrapper.get_card_database()
+			var logic_card = card_db.get_card(card.card_id)
+
+			var valid_card = false
+			if logic_card.definition['boost']['boost_type'] == "transform":
+				# Currently assumes that transforms can only be selected for the ex transform action
+				if game_wrapper.can_do_ex_transform(Enums.PlayerId.PlayerId_Player): # checks timing
+					valid_card = game_wrapper.can_player_ex_transform(Enums.PlayerId.PlayerId_Player, card.card_id)
+			else:
+				valid_card = game_wrapper.can_player_boost(Enums.PlayerId.PlayerId_Player, card.card_id, select_boost_valid_zones, select_boost_limitation, select_boost_ignore_costs)
 			return valid_amount and valid_card
 		UISubState.UISubState_SelectCards_ForceForBoost:
 			return (in_gauge or in_hand) and selected_boost_to_pay_for != card.card_id
@@ -1168,6 +1214,8 @@ func can_select_card(card):
 					meets_limitation = card_type in ["special", "ultra"]
 				"continuous":
 					meets_limitation = logic_card.definition['boost']['boost_type'] == "continuous"
+				"transform":
+					meets_limitation = logic_card.definition['boost']['boost_type'] == "transform"
 				_:
 					meets_limitation = true
 			var in_correct_source = false
@@ -1539,6 +1587,23 @@ func _on_continuous_boost_added(event):
 	spawn_damage_popup("+ Continuous Boost", player)
 	return SmallNoticeDelay
 
+func _on_transform_added(event):
+	var player = event['event_player']
+	var card = find_card_on_board(event['number'])
+	make_card_revealed(card)
+	var boost_zone = $PlayerBoostZone
+	var boost_card_loc = $AllCards/PlayerBoosts
+
+	if player == Enums.PlayerId.PlayerId_Opponent:
+		boost_zone = $OpponentBoostZone
+		boost_card_loc = $AllCards/OpponentBoosts
+
+	var pos = get_boost_zone_center(boost_zone)
+	card.discard_to(pos, CardBase.CardState.CardState_InBoost)
+	reparent_to_zone(card, boost_card_loc)
+	spawn_damage_popup("+ Transform", player)
+	return SmallNoticeDelay
+
 func _on_discard_continuous_boost_begin(event):
 	var player = event['event_player']
 	var decision_info = game_wrapper.get_decision_info()
@@ -1641,13 +1706,18 @@ func _on_name_opponent_card_begin(event):
 func _on_boost_played(event):
 	var player = event['event_player']
 	var card = find_card_on_board(event['number'])
+	var is_transform = event['reason'] == "Transform"
 	make_card_revealed(card)
 	var target_zone = $PlayerStrike/StrikeZone
 	var is_player = player == Enums.PlayerId.PlayerId_Player
 	if not is_player:
 		target_zone = $OpponentStrike/StrikeZone
 	_move_card_to_strike_area(card, target_zone, $AllCards/Striking, is_player, false)
-	spawn_damage_popup("Boost!", player)
+
+	var boost_text = "Boost!"
+	if is_transform:
+		boost_text = "EX Transform!"
+	spawn_damage_popup(boost_text, player)
 	return BoostDelay
 
 func _on_choose_card_hand_to_gauge(event):
@@ -1812,8 +1882,9 @@ func begin_choose_opponent_card_to_discard(card_ids):
 	var card_db = game_wrapper.get_card_database()
 	for card_id in card_ids:
 		var logic_card : GameCard = card_db.get_card(card_id)
-		var card_image = get_card_image_path(opponent_deck['id'], logic_card)
-		var copy_card = create_card(card_id + ChoiceCopyIdRangeStart, logic_card.definition, card_image, "", choice_zone_parent, true)
+		var copy_card = await create_card(card_id + ChoiceCopyIdRangeStart, logic_card.definition,
+			logic_card.get_image_url_index_data(), "", choice_zone_parent, true,
+			logic_card.definition['display_name'], logic_card.definition['boost']['display_name'])
 		copy_card.set_card_and_focus(OffScreen, 0, CardBase.ReferenceCardScale)
 		copy_card.resting_scale = CardBase.ReferenceCardScale
 		copy_card.change_state(CardBase.CardState.CardState_Offscreen)
@@ -2611,7 +2682,15 @@ func begin_boost_choosing(can_cancel : bool, valid_zones : Array, limitation : S
 	if preparing_character_action:
 		character_action_str = " for %s" % prepared_character_action_data['action_name']
 	var zone_str = '/'.join(valid_zones)
-	var instructions = "Select %s %s to boost from %s%s." % [count_str, limitation_str, zone_str, character_action_str]
+
+	var available_boost_actions = []
+	if game_wrapper.can_do_boost(Enums.PlayerId.PlayerId_Player):
+		available_boost_actions.append("boost")
+	if game_wrapper.can_do_ex_transform(Enums.PlayerId.PlayerId_Player):
+		available_boost_actions.append("transform")
+	var available_boost_action_str = '/'.join(available_boost_actions)
+
+	var instructions = "Select %s %s to %s from %s%s." % [count_str, limitation_str, available_boost_action_str, zone_str, character_action_str]
 	if 'gauge' in valid_zones:
 		_on_player_gauge_gauge_clicked()
 	elif 'discard' in valid_zones: # can't open two zones at once
@@ -2749,8 +2828,8 @@ func reset_revealed_cards():
 func add_revealed_card(card_id : int):
 	var card_db = game_wrapper.get_card_database()
 	var logic_card : GameCard = card_db.get_card(card_id)
-	var card_image = get_card_image_path(opponent_deck['id'], logic_card)
-	var copy_card = create_card(card_id + RevealCopyIdRangestart, logic_card.definition, card_image, "", $AllCards/OpponentRevealed, true)
+	var copy_card = await create_card(card_id + RevealCopyIdRangestart, logic_card.definition, logic_card.get_image_url_index_data(),
+		"", $AllCards/OpponentRevealed, true, logic_card.definition['display_name'], logic_card.definition['boost']['display_name'])
 	copy_card.set_card_and_focus(OffScreen, 0, CardBase.ReferenceCardScale)
 	copy_card.resting_scale = CardBase.ReferenceCardScale
 	copy_card.change_state(CardBase.CardState.CardState_Offscreen)
@@ -3459,6 +3538,8 @@ func _handle_events(events):
 			Enums.EventType.EventType_Strike_WildStrike:
 				_on_strike_started(event, false, true)
 				delay = _stat_notice_event(event)
+			Enums.EventType.EventType_Transform_Added:
+				delay = _on_transform_added(event)
 			_:
 				printlog("ERROR: UNHANDLED EVENT")
 				assert(false)
@@ -3492,7 +3573,9 @@ func _update_buttons():
 				button_choices.append({ "text": "Exceed (%s Gauge)" % exceed_cost, "action": _on_exceed_button_pressed, "disabled": not game_wrapper.can_do_exceed(Enums.PlayerId.PlayerId_Player) })
 			if game_wrapper.can_do_reshuffle(Enums.PlayerId.PlayerId_Player):
 				button_choices.append({ "text": "Manual Reshuffle", "action": _on_reshuffle_button_pressed, "disabled": false })
-			button_choices.append({ "text": "Boost", "action": _on_boost_button_pressed, "disabled": not game_wrapper.can_do_boost(Enums.PlayerId.PlayerId_Player) })
+			var ex_transform_available = game_wrapper.can_do_ex_transform(Enums.PlayerId.PlayerId_Player)
+			var ex_transform_text = "/Transform" if ex_transform_available else ""
+			button_choices.append({ "text": "Boost" + ex_transform_text, "action": _on_boost_button_pressed, "disabled": not (game_wrapper.can_do_boost(Enums.PlayerId.PlayerId_Player) or ex_transform_available) })
 			button_choices.append({ "text": "Strike", "action": _on_strike_button_pressed, "disabled": not game_wrapper.can_do_strike(Enums.PlayerId.PlayerId_Player) })
 			for i in range(game_wrapper.get_player_character_action_count(Enums.PlayerId.PlayerId_Player)):
 				var char_action = game_wrapper.get_player_character_action(Enums.PlayerId.PlayerId_Player, i)
@@ -3521,6 +3604,7 @@ func _update_buttons():
 			var boost_text = "Boost"
 			var can_strike = false
 			var can_boost = false
+			var can_ex_transform = false
 			var only_in_hand = true
 			var only_in_gauge = true
 			var only_in_boosts = true
@@ -3545,13 +3629,23 @@ func _update_buttons():
 			if only_in_hand:
 				if len(selected_cards) == 1:
 					can_strike = true
-					can_boost = true
+					var logic_card = card_db.get_card(selected_cards[0].card_id)
+					if logic_card.definition["boost"]["boost_type"] == "transform":
+						boost_text = "EX Transform"
+						can_ex_transform = game_wrapper.can_player_ex_transform(Enums.PlayerId.PlayerId_Player, selected_cards[0].card_id)
+					else:
+						can_boost = true
 				elif len(selected_cards) == 2:
 					var card1 = selected_cards[0]
 					var card2 = selected_cards[1]
 					if card_db.are_same_card(card1.card_id, card2.card_id):
 						can_strike = true
 						strike_text = "EX Strike"
+
+						var logic_card = card_db.get_card(card1.card_id)
+						if logic_card.definition["boost"]["boost_type"] == "transform":
+							can_ex_transform = true
+							boost_text = "EX Transform"
 			elif only_in_boosts:
 				if len(selected_cards) == 1:
 					var logic_card = card_db.get_card(selected_cards[0].card_id)
@@ -3565,7 +3659,7 @@ func _update_buttons():
 			if can_strike:
 				card_name = card_db.get_card(selected_cards[0].card_id).definition['display_name']
 				strike_text += " (%s)" % card_name
-			if can_boost:
+			if can_boost or can_ex_transform:
 				var boost_name = card_db.get_card(selected_cards[0].card_id).definition['boost']['display_name']
 				boost_text += " (%s)" % boost_name
 
@@ -3574,7 +3668,8 @@ func _update_buttons():
 			instructions_cancel_allowed = false
 			instructions_wild_swing_allowed = false
 			button_choices.append({ "text": strike_text, "action": _on_shortcut_strike_pressed, "disabled": not can_strike or not game_wrapper.can_do_strike(Enums.PlayerId.PlayerId_Player) })
-			button_choices.append({ "text": boost_text, "action": _on_shortcut_boost_pressed, "disabled": not can_boost or not game_wrapper.can_do_boost(Enums.PlayerId.PlayerId_Player) })
+			button_choices.append({ "text": boost_text, "action": _on_shortcut_boost_pressed,
+				"disabled": (not can_boost or not game_wrapper.can_do_boost(Enums.PlayerId.PlayerId_Player)) and (not can_ex_transform or not game_wrapper.can_do_ex_transform(Enums.PlayerId.PlayerId_Player)) })
 
 			# Check for character actions with card-related shortcuts
 			for i in range(game_wrapper.get_player_character_action_count(Enums.PlayerId.PlayerId_Player)):
@@ -3807,21 +3902,30 @@ func update_boost_summary(boosts_card_holder, boost_box):
 	var card_db = game_wrapper.get_card_database()
 	for card in boosts_card_holder.get_children():
 		card_ids.append(card.card_id)
-	var effects = []
+	var transform_effects = []
+	var normal_effects = []
 	for card_id in card_ids:
 		var card = card_db.get_card(card_id)
+		var add_to_effects = normal_effects
+		if card.definition['boost']['boost_type'] == "transform":
+			add_to_effects = transform_effects
+
 		if 'stop_on_space_effect' in card.definition['boost']:
 			var stop_on_space_effect = card.definition['boost']['stop_on_space_effect'].duplicate()
 			stop_on_space_effect['timing'] = "on_stop_on_space"
-			effects.append(stop_on_space_effect)
+			add_to_effects.append(stop_on_space_effect)
 		for effect in card.definition['boost']['effects']:
 			if effect['timing'] != "now" or effect['effect_type'] in ["force_costs_reduced_passive", "ignore_push_and_pull_passive_bonus"]:
 				if effect['timing'] != "discarded":
-					effects.append(effect)
+					add_to_effects.append(effect)
+
 	var boost_summary = ""
-	for effect in effects:
+	for effect in normal_effects:
 		if 'hide_effect' not in effect or not effect['hide_effect']:
 			boost_summary += CardDefinitions.get_effect_text(effect) + "\n"
+	for effect in transform_effects:
+		if 'hide_effect' not in effect or not effect['hide_effect']:
+			boost_summary += "[color=purple][TF][/color] " + CardDefinitions.get_effect_text(effect) + "\n"
 
 	for card_id in card_ids:
 		var card = card_db.get_card(card_id)
@@ -4290,15 +4394,20 @@ func _on_instructions_ok_button_pressed(index : int):
 			UISubState.UISubState_SelectCards_Mulligan:
 				success = game_wrapper.submit_mulligan(Enums.PlayerId.PlayerId_Player, selected_card_ids)
 			UISubState.UISubState_SelectCards_PlayBoost:
-				var force_cost = game_wrapper.get_card_database().get_card_boost_force_cost(single_card_id)
-				if not select_boost_options['ignore_costs'] and force_cost > 0:
-					assert(select_boost_options['boost_amount'] <= 1, "WARNING: Can't currently handle force costs for multiple boosts")
-					selected_boost_to_pay_for = single_card_id
-					change_ui_state(null, UISubState.UISubState_SelectCards_ForceForBoost)
-					begin_generate_force_selection(force_cost)
+				var logic_card = game_wrapper.get_card_database().get_card(single_card_id)
+				if logic_card.definition['boost']['boost_type'] == "transform":
+					var ex_transform_id = game_wrapper.get_ex_transform_copy(Enums.PlayerId.PlayerId_Player, single_card_id)
+					success = game_wrapper.submit_boost(Enums.PlayerId.PlayerId_Player, single_card_id, [ex_transform_id], false, [])
 				else:
-					var additional_boost_ids = selected_card_ids.slice(1)
-					success = game_wrapper.submit_boost(Enums.PlayerId.PlayerId_Player, single_card_id, [], use_free_force, additional_boost_ids)
+					var force_cost = game_wrapper.get_card_database().get_card_boost_force_cost(single_card_id)
+					if not select_boost_options['ignore_costs'] and force_cost > 0:
+						assert(select_boost_options['boost_amount'] <= 1, "WARNING: Can't currently handle force costs for multiple boosts")
+						selected_boost_to_pay_for = single_card_id
+						change_ui_state(null, UISubState.UISubState_SelectCards_ForceForBoost)
+						begin_generate_force_selection(force_cost)
+					else:
+						var additional_boost_ids = selected_card_ids.slice(1)
+						success = game_wrapper.submit_boost(Enums.PlayerId.PlayerId_Player, single_card_id, [], use_free_force, additional_boost_ids)
 			UISubState.UISubState_SelectCards_ForceForBoost:
 				success = game_wrapper.submit_boost(Enums.PlayerId.PlayerId_Player, selected_boost_to_pay_for, selected_card_ids, use_free_force)
 			UISubState.UISubState_PickNumberFromRange:
@@ -4456,14 +4565,24 @@ func _on_shortcut_boost_pressed():
 	deselect_all_cards()
 
 	var success = false
-	var force_cost = game_wrapper.get_card_database().get_card_boost_force_cost(card_id)
-	if force_cost > 0:
-		select_boost_options = {}
-		selected_boost_to_pay_for = card_id
-		change_ui_state(null, UISubState.UISubState_SelectCards_ForceForBoost)
-		begin_generate_force_selection(force_cost)
+
+	var logic_card = game_wrapper.get_card_database().get_card(card_id)
+	if logic_card.definition['boost']['boost_type'] == "transform":
+		var ex_transform_id = -1
+		if len(selected_cards) > 0:
+			ex_transform_id = selected_cards[1]
+		else:
+			ex_transform_id = game_wrapper.get_ex_transform_copy(Enums.PlayerId.PlayerId_Player, card_id)
+		success = game_wrapper.submit_boost(Enums.PlayerId.PlayerId_Player, card_id, [ex_transform_id], false)
 	else:
-		success = game_wrapper.submit_boost(Enums.PlayerId.PlayerId_Player, card_id, [], use_free_force)
+		var force_cost = game_wrapper.get_card_database().get_card_boost_force_cost(card_id)
+		if force_cost > 0:
+			select_boost_options = {}
+			selected_boost_to_pay_for = card_id
+			change_ui_state(null, UISubState.UISubState_SelectCards_ForceForBoost)
+			begin_generate_force_selection(force_cost)
+		else:
+			success = game_wrapper.submit_boost(Enums.PlayerId.PlayerId_Player, card_id, [], use_free_force)
 
 	if success:
 		change_ui_state(UIState.UIState_WaitForGameServer)

@@ -2,7 +2,6 @@
 	"id": "ramlethal",
 	"season": 7,
 	"display_name": "Ramlethal Valentine",
-	"cardback": "cardback_ram.jpg",
 	"exceed_cost": 3,
 	"on_exceed": {
 		"effect_type": "draw",
@@ -40,126 +39,178 @@
 			"force_max": 2
 		}
 	],
+	"image_resources": {
+		"character_default": {
+			"url": "https://i.imgur.com/wnYKjDf.jpeg",
+			"multiple_cards": false
+		},
+		"character_exceeded": {
+			"url": "https://i.imgur.com/wpEnHkE.jpeg",
+			"multiple_cards": false
+		},
+		"cardback": {
+			"url": "https://i.imgur.com/qOFJBXb.jpg",
+			"multiple_cards": false
+		},
+		"specials": {
+			"url": "https://i.imgur.com/DEl3xd1.jpeg",
+			"multiple_cards": true
+		},
+		"normals": {
+			"url": "https://i.imgur.com/shKYdPO.jpg",
+			"multiple_cards": true
+		}
+	},
 	"cards": [
 		{
 			"definition_id": "ramlethal_mortobato",
-			"image": "mortobato.tres"
+			"image_name": "specials",
+			"image_index": 6
 		},
 		{
 			"definition_id": "ramlethal_mortobato",
-			"image": "mortobato.tres"
+			"image_name": "specials",
+			"image_index": 6
 		},
 		{
 			"definition_id": "ramlethal_calvados",
-			"image": "calvados.tres"
+			"image_name": "specials",
+			"image_index": 7
 		},
 		{
 			"definition_id": "ramlethal_calvados",
-			"image": "calvados.tres"
+			"image_name": "specials",
+			"image_index": 7
 		},
 		{
 			"definition_id": "ramlethal_dauro",
-			"image": "dauro.tres"
+			"image_name": "specials",
+			"image_index": 0
 		},
 		{
 			"definition_id": "ramlethal_dauro",
-			"image": "dauro.tres"
+			"image_name": "specials",
+			"image_index": 0
 		},
 		{
 			"definition_id": "ramlethal_bajoneto",
-			"image": "bajoneto.tres"
+			"image_name": "specials",
+			"image_index": 1
 		},
 		{
 			"definition_id": "ramlethal_bajoneto",
-			"image": "bajoneto2.tres"
+			"image_name": "specials",
+			"image_index": 2
 		},
 		{
 			"definition_id": "ramlethal_erarlumo",
-			"image": "erarlumo.tres"
+			"image_name": "specials",
+			"image_index": 3
 		},
 		{
 			"definition_id": "ramlethal_erarlumo",
-			"image": "erarlumo.tres"
+			"image_name": "specials",
+			"image_index": 3
 		},
 		{
 			"definition_id": "ramlethal_agresaordono",
-			"image": "agresaordono.tres"
+			"image_name": "specials",
+			"image_index": 4
 		},
 		{
 			"definition_id": "ramlethal_agresaordono",
-			"image": "agresaordono.tres"
+			"image_name": "specials",
+			"image_index": 4
 		},
 		{
 			"definition_id": "ramlethal_sabrobato",
-			"image": "sabrobato.tres"
+			"image_name": "specials",
+			"image_index": 5
 		},
 		{
 			"definition_id": "ramlethal_sabrobato",
-			"image": "sabrobato.tres"
+			"image_name": "specials",
+			"image_index": 5
 		},
 		{
 			"definition_id": "gg_normal_grasp",
-			"image": "normal_grasp.tres"
+			"image_name": "normals",
+			"image_index": 0
 		},
 		{
 			"definition_id": "gg_normal_grasp",
-			"image": "normal_grasp.tres"
+			"image_name": "normals",
+			"image_index": 0
 		},
 		{
 			"definition_id": "gg_normal_cross",
-			"image": "normal_cross.tres"
+			"image_name": "normals",
+			"image_index": 1
 		},
 		{
 			"definition_id": "gg_normal_cross",
-			"image": "normal_cross.tres"
+			"image_name": "normals",
+			"image_index": 1
 		},
 		{
 			"definition_id": "gg_normal_slash",
-			"image": "normal_assault.tres"
+			"image_name": "normals",
+			"image_index": 2
 		},
 		{
 			"definition_id": "gg_normal_slash",
-			"image": "normal_assault.tres"
+			"image_name": "normals",
+			"image_index": 2
 		},
 		{
 			"definition_id": "gg_normal_dive",
-			"image": "normal_dive.tres"
+			"image_name": "normals",
+			"image_index": 3
 		},
 		{
 			"definition_id": "gg_normal_dive",
-			"image": "normal_dive.tres"
+			"image_name": "normals",
+			"image_index": 3
 		},
 		{
 			"definition_id": "gg_normal_dust",
-			"image": "normal_spike.tres"
+			"image_name": "normals",
+			"image_index": 4
 		},
 		{
 			"definition_id": "gg_normal_dust",
-			"image": "normal_spike.tres"
+			"image_name": "normals",
+			"image_index": 4
 		},
 		{
 			"definition_id": "gg_normal_sweep",
-			"image": "normal_sweep.tres"
+			"image_name": "normals",
+			"image_index": 5
 		},
 		{
 			"definition_id": "gg_normal_sweep",
-			"image": "normal_sweep.tres"
+			"image_name": "normals",
+			"image_index": 5
 		},
 		{
 			"definition_id": "gg_normal_focus",
-			"image": "normal_focus.tres"
+			"image_name": "normals",
+			"image_index": 6
 		},
 		{
 			"definition_id": "gg_normal_focus",
-			"image": "normal_focus.tres"
+			"image_name": "normals",
+			"image_index": 6
 		},
 		{
 			"definition_id": "gg_normal_block",
-			"image": "normal_block.tres"
+			"image_name": "normals",
+			"image_index": 7
 		},
 		{
 			"definition_id": "gg_normal_block",
-			"image": "normal_block.tres"
+			"image_name": "normals",
+			"image_index": 7
 		}
 	]
 }

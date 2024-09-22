@@ -1,7 +1,0 @@
-[gd_resource type="AtlasTexture" load_steps=2 format=3 uid="uid://dhpmejk4h0jjh"]
-
-[ext_resource type="Texture2D" uid="uid://blpehrwemw81t" path="res://assets/cards/hakumen/normals.jpg" id="1_3iiyl"]
-
-[resource]
-atlas = ExtResource("1_3iiyl")
-region = Rect2(1500, 0, 750, 1024)

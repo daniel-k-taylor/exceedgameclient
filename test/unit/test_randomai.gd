@@ -8,6 +8,7 @@ const GameCard = preload("res://scenes/game/game_card.gd")
 const Enums = preload("res://scenes/game/enums.gd")
 
 var game_logic : LocalGame
+var image_loader : CardImageLoader
 var default_deck = CardDefinitions.get_deck_from_str_id("solbadguy")
 var opponent_deck = CardDefinitions.get_deck_from_str_id("solbadguy")
 
@@ -17,7 +18,8 @@ var ai1 : AIPlayer
 var ai2 : AIPlayer
 
 func game_setup(policy_type = AIPolicyRules):
-	game_logic = LocalGame.new()
+	image_loader = CardImageLoader.new(true)
+	game_logic = LocalGame.new(image_loader)
 	var seed_value = randi()
 	game_logic.initialize_game(
 			default_deck, opponent_deck,
@@ -654,3 +656,6 @@ func test_merkava_100():
 
 func test_carmine_100():
 	run_iterations_with_deck("carmine")
+
+func test_seijun_100():
+	run_iterations_with_deck("seijun")

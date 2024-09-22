@@ -60,21 +60,26 @@ func exceed(is_exceed : bool):
 	fancy_card.visible = not is_exceed
 	fancy_exceed_card.visible = is_exceed
 
-func set_image(image_path, exceed_image_path):
+func set_image(loaded_image, exceed_loaded_image):
 	#$MainPanelContainer/MainContainer/VerticalLayout/ImageMarginContainer/ImageHBox/CharacterImage.texture = load(image_path)
 	#$MainPanelContainer/MainContainer/VerticalLayout/ImageMarginContainer/ImageHBox/CharacterExceedImage.texture = load(exceed_image_path)
-	fancy_card.texture = load(image_path)
-	fancy_exceed_card.texture = load(exceed_image_path)
+
+	fancy_card.texture = loaded_image
+	fancy_exceed_card.texture = exceed_loaded_image
+	# TODO: something for failure to load image
+
 	main_container.visible = false
 	fancy_card.visible = true
 	fancy_exceed_card.visible = false
 	exceed_cost_panel.visible = false
 
-func set_extra_image(index, image_path, exceed_image_path):
+func set_extra_image(index, loaded_image, exceed_loaded_image):
 	extra_cards_to_show_on_focus = max(extra_cards_to_show_on_focus, index)
 	var child = extra_cards.get_child(index)
-	child.texture = load(image_path)
-	child.texture = load(exceed_image_path)
+
+	child.texture = loaded_image
+	child.texture = exceed_loaded_image
+	# TODO: something for failure to load image
 
 	var extra_image_scale = 1
 	if extra_cards_to_show_on_focus >= EXTRA_IMAGE_SCALE_THRESHOLD:
