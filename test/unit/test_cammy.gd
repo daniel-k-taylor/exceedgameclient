@@ -70,7 +70,6 @@ func before_each():
 func after_each():
 	game_logic.teardown()
 	game_logic.free()
-	image_loader.free()
 	gut.p("ran teardown", 2)
 
 func before_all():
@@ -346,7 +345,6 @@ func test_cammy_cqc_vs_focus():
 func test_cammy_double_range_dodge():
 	game_logic.teardown()
 	game_logic.free()
-	image_loader.free()
 	default_game_setup("ryu")
 
 	position_players(player1, 3, player2, 7)

@@ -70,7 +70,6 @@ func before_each():
 func after_each():
 	game_logic.teardown()
 	game_logic.free()
-	image_loader.free()
 	gut.p("ran teardown", 2)
 
 func before_all():
@@ -530,7 +529,6 @@ func test_hazama_eternalcoils_with_force_reduced_full5():
 func test_hazama_v_sagat_crit_mid_opponent_sets_first():
 	game_logic.teardown()
 	game_logic.free()
-	image_loader.free()
 	default_game_setup("sagat")
 	position_players(player1, 3, player2, 6)
 	give_gauge(player2, 1)
