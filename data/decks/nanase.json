@@ -2,7 +2,6 @@
 	"id": "nanase",
 	"season": 6,
 	"display_name": "Nanase",
-	"cardback": "cardback_nanase.jpg",
 	"exceed_cost": 1,
 	"character_action_default": [{
 		"gauge_cost": 0,
@@ -92,126 +91,178 @@
 			]
 		}
 	],
+	"image_resources": {
+		"character_default": {
+			"url": "https://i.imgur.com/1wtgJvE.jpeg",
+			"multiple_cards": false
+		},
+		"character_exceeded": {
+			"url": "https://i.imgur.com/wULYmHt.jpeg",
+			"multiple_cards": false
+		},
+		"cardback": {
+			"url": "https://i.imgur.com/EKYM3f1.jpg",
+			"multiple_cards": false
+		},
+		"specials": {
+			"url": "https://i.imgur.com/W4NJsoR.jpeg",
+			"multiple_cards": true
+		},
+		"normals": {
+			"url": "https://i.imgur.com/Zs2cqmO.jpg",
+			"multiple_cards": true
+		}
+	},
 	"cards": [
 		{
 			"definition_id": "nanase_atmosphereoftheaether",
-			"image": "nanase_atmosphereoftheaether.tres"
+			"image_name": "specials",
+			"image_index": 5
 		},
 		{
 			"definition_id": "nanase_atmosphereoftheaether",
-			"image": "nanase_atmosphereoftheaether.tres"
+			"image_name": "specials",
+			"image_index": 5
 		},
 		{
 			"definition_id": "nanase_lumiereofthedawn",
-			"image": "nanase_lumiereofthedawn.tres"
+			"image_name": "specials",
+			"image_index": 6
 		},
 		{
 			"definition_id": "nanase_lumiereofthedawn",
-			"image": "nanase_lumiereofthedawn.tres"
+			"image_name": "specials",
+			"image_index": 6
 		},
 		{
 			"definition_id": "nanase_chasinglereve",
-			"image": "nanase_chasinglereve.tres"
+			"image_name": "specials",
+			"image_index": 0
 		},
 		{
 			"definition_id": "nanase_chasinglereve",
-			"image": "nanase_chasinglereve.tres"
+			"image_name": "specials",
+			"image_index": 0
 		},
 		{
 			"definition_id": "nanase_plumagedancinginthewind",
-			"image": "nanase_plumagedancinginthewind.tres"
+			"image_name": "specials",
+			"image_index": 1
 		},
 		{
 			"definition_id": "nanase_plumagedancinginthewind",
-			"image": "nanase_plumagedancinginthewind.tres"
+			"image_name": "specials",
+			"image_index": 1
 		},
 		{
 			"definition_id": "nanase_conveyingmyvraicouer",
-			"image": "nanase_conveyingmyvraicouer.tres"
+			"image_name": "specials",
+			"image_index": 2
 		},
 		{
 			"definition_id": "nanase_conveyingmyvraicouer",
-			"image": "nanase_conveyingmyvraicouer.tres"
+			"image_name": "specials",
+			"image_index": 2
 		},
 		{
 			"definition_id": "nanase_letthefleurcarryyourfeelings",
-			"image": "nanase_letthefleurcarryyourfeelings.tres"
+			"image_name": "specials",
+			"image_index": 3
 		},
 		{
 			"definition_id": "nanase_letthefleurcarryyourfeelings",
-			"image": "nanase_letthefleurcarryyourfeelings.tres"
+			"image_name": "specials",
+			"image_index": 3
 		},
 		{
 			"definition_id": "nanase_angesinvitation",
-			"image": "nanase_angesinvitation.tres"
+			"image_name": "specials",
+			"image_index": 4
 		},
 		{
 			"definition_id": "nanase_angesinvitation",
-			"image": "nanase_angesinvitation.tres"
+			"image_name": "specials",
+			"image_index": 4
 		},
 		{
 			"definition_id": "uni_normal_grasp",
-			"image": "normal_grasp.tres"
+			"image_name": "normals",
+			"image_index": 0
 		},
 		{
 			"definition_id": "uni_normal_grasp",
-			"image": "normal_grasp.tres"
+			"image_name": "normals",
+			"image_index": 0
 		},
 		{
 			"definition_id": "uni_normal_cross",
-			"image": "normal_cross.tres"
+			"image_name": "normals",
+			"image_index": 1
 		},
 		{
 			"definition_id": "uni_normal_cross",
-			"image": "normal_cross.tres"
+			"image_name": "normals",
+			"image_index": 1
 		},
 		{
 			"definition_id": "uni_normal_assault",
-			"image": "normal_assault.tres"
+			"image_name": "normals",
+			"image_index": 2
 		},
 		{
 			"definition_id": "uni_normal_assault",
-			"image": "normal_assault.tres"
+			"image_name": "normals",
+			"image_index": 2
 		},
 		{
 			"definition_id": "uni_normal_dive",
-			"image": "normal_dive.tres"
+			"image_name": "normals",
+			"image_index": 3
 		},
 		{
 			"definition_id": "uni_normal_dive",
-			"image": "normal_dive.tres"
+			"image_name": "normals",
+			"image_index": 3
 		},
 		{
 			"definition_id": "uni_normal_spike",
-			"image": "normal_spike.tres"
+			"image_name": "normals",
+			"image_index": 4
 		},
 		{
 			"definition_id": "uni_normal_spike",
-			"image": "normal_spike.tres"
+			"image_name": "normals",
+			"image_index": 4
 		},
 		{
 			"definition_id": "uni_normal_sweep",
-			"image": "normal_sweep.tres"
+			"image_name": "normals",
+			"image_index": 5
 		},
 		{
 			"definition_id": "uni_normal_sweep",
-			"image": "normal_sweep.tres"
+			"image_name": "normals",
+			"image_index": 5
 		},
 		{
 			"definition_id": "uni_normal_focus",
-			"image": "normal_focus.tres"
+			"image_name": "normals",
+			"image_index": 6
 		},
 		{
 			"definition_id": "uni_normal_focus",
-			"image": "normal_focus.tres"
+			"image_name": "normals",
+			"image_index": 6
 		},
 		{
 			"definition_id": "uni_normal_block",
-			"image": "normal_block.tres"
+			"image_name": "normals",
+			"image_index": 7
 		},
 		{
 			"definition_id": "uni_normal_block",
-			"image": "normal_block.tres"
+			"image_name": "normals",
+			"image_index": 7
 		}
 	]
 }

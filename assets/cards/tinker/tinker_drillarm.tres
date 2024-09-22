@@ -1,7 +1,0 @@
-[gd_resource type="AtlasTexture" load_steps=2 format=3 uid="uid://dorcu3inl3mwd"]
-
-[ext_resource type="Texture2D" uid="uid://bglx6w4y7j0t8" path="res://assets/cards/tinker/specials.jpg" id="1_treoc"]
-
-[resource]
-atlas = ExtResource("1_treoc")
-region = Rect2(2250, 0, 750, 1024)

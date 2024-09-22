@@ -2,7 +2,6 @@
 	"id": "jin",
 	"season": 5,
 	"display_name": "Jin Kisaragi",
-	"cardback": "cardback_jin.jpg",
 	"exceed_cost": 4,
 	"exceed_to_overdrive": true,
 	"on_exceed": {
@@ -62,131 +61,184 @@
 			}
 		}
 	],
+	"image_resources": {
+		"character_default": {
+			"url": "https://i.imgur.com/A45XyrN.jpeg",
+			"multiple_cards": false
+		},
+		"character_exceeded": {
+			"url": "https://i.imgur.com/bnOeUdC.jpeg",
+			"multiple_cards": false
+		},
+		"cardback": {
+			"url": "https://i.imgur.com/mujeqZx.jpg",
+			"multiple_cards": false
+		},
+		"specials": {
+			"url": "https://i.imgur.com/cjgjzK6.jpeg",
+			"multiple_cards": true
+		},
+		"normals": {
+			"url": "https://i.imgur.com/X9wCvLN.jpg",
+			"multiple_cards": true
+		}
+	},
 	"cards": [
 		{
 			"set_aside": true,
 			"definition_id": "jin_arcticdungeon",
-			"image": "jin_arcticdungeon.tres"
+			"image_name": "specials",
+			"image_index": 7
 		},
 		{
 			"definition_id": "jin_moonsong",
-			"image": "jin_moonsong.tres"
+			"image_name": "specials",
+			"image_index": 5
 		},
 		{
 			"definition_id": "jin_moonsong",
-			"image": "jin_moonsong.tres"
+			"image_name": "specials",
+			"image_index": 5
 		},
 		{
 			"definition_id": "jin_icefang",
-			"image": "jin_icefang.tres"
+			"image_name": "specials",
+			"image_index": 6
 		},
 		{
 			"definition_id": "jin_icefang",
-			"image": "jin_icefang.tres"
+			"image_name": "specials",
+			"image_index": 6
 		},
 		{
 			"definition_id": "jin_violentice",
-			"image": "jin_violentice.tres"
+			"image_name": "specials",
+			"image_index": 0
 		},
 		{
 			"definition_id": "jin_violentice",
-			"image": "jin_violentice.tres"
+			"image_name": "specials",
+			"image_index": 0
 		},
 		{
 			"definition_id": "jin_crystalstrike",
-			"image": "jin_crystalstrike.tres"
+			"image_name": "specials",
+			"image_index": 1
 		},
 		{
 			"definition_id": "jin_crystalstrike",
-			"image": "jin_crystalstrike.tres"
+			"image_name": "specials",
+			"image_index": 1
 		},
 		{
 			"definition_id": "jin_permafrost",
-			"image": "jin_permafrost.tres"
+			"image_name": "specials",
+			"image_index": 2
 		},
 		{
 			"definition_id": "jin_permafrost",
-			"image": "jin_permafrost.tres"
+			"image_name": "specials",
+			"image_index": 2
 		},
 		{
 			"definition_id": "jin_iceblade",
-			"image": "jin_iceblade.tres"
+			"image_name": "specials",
+			"image_index": 3
 		},
 		{
 			"definition_id": "jin_iceblade",
-			"image": "jin_iceblade.tres"
+			"image_name": "specials",
+			"image_index": 3
 		},
 		{
 			"definition_id": "jin_dualicestrike",
-			"image": "jin_dualicestrike.tres"
+			"image_name": "specials",
+			"image_index": 4
 		},
 		{
 			"definition_id": "jin_dualicestrike",
-			"image": "jin_dualicestrike.tres"
+			"image_name": "specials",
+			"image_index": 4
 		},
 		{
 			"definition_id": "standard_normal_grasp",
-			"image": "normal_grasp.tres"
+			"image_name": "normals",
+			"image_index": 0
 		},
 		{
 			"definition_id": "standard_normal_grasp",
-			"image": "normal_grasp.tres"
+			"image_name": "normals",
+			"image_index": 0
 		},
 		{
 			"definition_id": "standard_normal_cross",
-			"image": "normal_cross.tres"
+			"image_name": "normals",
+			"image_index": 1
 		},
 		{
 			"definition_id": "standard_normal_cross",
-			"image": "normal_cross.tres"
+			"image_name": "normals",
+			"image_index": 1
 		},
 		{
 			"definition_id": "standard_normal_assault",
-			"image": "normal_assault.tres"
+			"image_name": "normals",
+			"image_index": 2
 		},
 		{
 			"definition_id": "standard_normal_assault",
-			"image": "normal_assault.tres"
+			"image_name": "normals",
+			"image_index": 2
 		},
 		{
 			"definition_id": "standard_normal_dive",
-			"image": "normal_dive.tres"
+			"image_name": "normals",
+			"image_index": 3
 		},
 		{
 			"definition_id": "standard_normal_dive",
-			"image": "normal_dive.tres"
+			"image_name": "normals",
+			"image_index": 3
 		},
 		{
 			"definition_id": "standard_normal_spike",
-			"image": "normal_spike.tres"
+			"image_name": "normals",
+			"image_index": 4
 		},
 		{
 			"definition_id": "standard_normal_spike",
-			"image": "normal_spike.tres"
+			"image_name": "normals",
+			"image_index": 4
 		},
 		{
 			"definition_id": "standard_normal_sweep",
-			"image": "normal_sweep.tres"
+			"image_name": "normals",
+			"image_index": 5
 		},
 		{
 			"definition_id": "standard_normal_sweep",
-			"image": "normal_sweep.tres"
+			"image_name": "normals",
+			"image_index": 5
 		},
 		{
 			"definition_id": "standard_normal_focus",
-			"image": "normal_focus.tres"
+			"image_name": "normals",
+			"image_index": 6
 		},
 		{
 			"definition_id": "standard_normal_focus",
-			"image": "normal_focus.tres"
+			"image_name": "normals",
+			"image_index": 6
 		},
 		{
 			"definition_id": "standard_normal_block",
-			"image": "normal_block.tres"
+			"image_name": "normals",
+			"image_index": 7
 		},
 		{
 			"definition_id": "standard_normal_block",
-			"image": "normal_block.tres"
+			"image_name": "normals",
+			"image_index": 7
 		}
 	]
 }

@@ -2,7 +2,6 @@
 	"id": "mole",
 	"season": 4,
 	"display_name": "Mole Knight",
-	"cardback": "cardback_mole.jpg",
 	"exceed_cost": 4,
 	"buddy_card": "burrow",
 	"buddy_display_name": "Burrow",
@@ -86,126 +85,186 @@
 			]
 		}
 	],
+	"image_resources": {
+		"character_default": {
+			"url": "https://i.imgur.com/FjUlTmd.jpeg",
+			"multiple_cards": false
+		},
+		"character_exceeded": {
+			"url": "https://i.imgur.com/AcvNFft.jpeg",
+			"multiple_cards": false
+		},
+		"cardback": {
+			"url": "https://i.imgur.com/djfLNqb.jpg",
+			"multiple_cards": false
+		},
+		"burrow": {
+			"url": "https://i.imgur.com/ttr2T9I.jpeg",
+			"multiple_cards": false
+		},
+		"burrow_exceeded": {
+			"url": "https://i.imgur.com/ZNNT5EY.jpeg",
+			"multiple_cards": false
+		},
+		"specials": {
+			"url": "https://i.imgur.com/7YiXZD1.jpeg",
+			"multiple_cards": true
+		},
+		"normals": {
+			"url": "https://i.imgur.com/bqXMzQr.jpg",
+			"multiple_cards": true
+		}
+	},
 	"cards": [
 		{
 			"definition_id": "mole_erupt",
-			"image": "mole_erupt.tres"
+			"image_name": "specials",
+			"image_index": 5
 		},
 		{
 			"definition_id": "mole_erupt",
-			"image": "mole_erupt.tres"
+			"image_name": "specials",
+			"image_index": 5
 		},
 		{
 			"definition_id": "mole_cavein",
-			"image": "mole_cavein.tres"
+			"image_name": "specials",
+			"image_index": 6
 		},
 		{
 			"definition_id": "mole_cavein",
-			"image": "mole_cavein.tres"
+			"image_name": "specials",
+			"image_index": 6
 		},
 		{
 			"definition_id": "mole_burrowdig",
-			"image": "mole_burrowdig.tres"
+			"image_name": "specials",
+			"image_index": 0
 		},
 		{
 			"definition_id": "mole_burrowdig",
-			"image": "mole_burrowdig.tres"
+			"image_name": "specials",
+			"image_index": 0
 		},
 		{
 			"definition_id": "mole_headbutt",
-			"image": "mole_headbutt.tres"
+			"image_name": "specials",
+			"image_index": 1
 		},
 		{
 			"definition_id": "mole_headbutt",
-			"image": "mole_headbutt.tres"
+			"image_name": "specials",
+			"image_index": 1
 		},
 		{
 			"definition_id": "mole_divingdig",
-			"image": "mole_divingdig.tres"
+			"image_name": "specials",
+			"image_index": 2
 		},
 		{
 			"definition_id": "mole_divingdig",
-			"image": "mole_divingdig.tres"
+			"image_name": "specials",
+			"image_index": 2
 		},
 		{
 			"definition_id": "mole_blockpush",
-			"image": "mole_blockpush.tres"
+			"image_name": "specials",
+			"image_index": 3
 		},
 		{
 			"definition_id": "mole_blockpush",
-			"image": "mole_blockpush.tres"
+			"image_name": "specials",
+			"image_index": 3
 		},
 		{
 			"definition_id": "mole_bellyslide",
-			"image": "mole_bellyslide.tres"
+			"image_name": "specials",
+			"image_index": 4
 		},
 		{
 			"definition_id": "mole_bellyslide",
-			"image": "mole_bellyslide.tres"
+			"image_name": "specials",
+			"image_index": 4
 		},
 		{
 			"definition_id": "standard_normal_grasp",
-			"image": "normal_grasp.tres"
+			"image_name": "normals",
+			"image_index": 0
 		},
 		{
 			"definition_id": "standard_normal_grasp",
-			"image": "normal_grasp.tres"
+			"image_name": "normals",
+			"image_index": 0
 		},
 		{
 			"definition_id": "standard_normal_cross",
-			"image": "normal_cross.tres"
+			"image_name": "normals",
+			"image_index": 1
 		},
 		{
 			"definition_id": "standard_normal_cross",
-			"image": "normal_cross.tres"
+			"image_name": "normals",
+			"image_index": 1
 		},
 		{
 			"definition_id": "standard_normal_assault",
-			"image": "normal_assault.tres"
+			"image_name": "normals",
+			"image_index": 2
 		},
 		{
 			"definition_id": "standard_normal_assault",
-			"image": "normal_assault.tres"
+			"image_name": "normals",
+			"image_index": 2
 		},
 		{
 			"definition_id": "standard_normal_dive",
-			"image": "normal_dive.tres"
+			"image_name": "normals",
+			"image_index": 3
 		},
 		{
 			"definition_id": "standard_normal_dive",
-			"image": "normal_dive.tres"
+			"image_name": "normals",
+			"image_index": 3
 		},
 		{
 			"definition_id": "standard_normal_spike",
-			"image": "normal_spike.tres"
+			"image_name": "normals",
+			"image_index": 4
 		},
 		{
 			"definition_id": "standard_normal_spike",
-			"image": "normal_spike.tres"
+			"image_name": "normals",
+			"image_index": 4
 		},
 		{
 			"definition_id": "standard_normal_sweep",
-			"image": "normal_sweep.tres"
+			"image_name": "normals",
+			"image_index": 5
 		},
 		{
 			"definition_id": "standard_normal_sweep",
-			"image": "normal_sweep.tres"
+			"image_name": "normals",
+			"image_index": 5
 		},
 		{
 			"definition_id": "standard_normal_focus",
-			"image": "normal_focus.tres"
+			"image_name": "normals",
+			"image_index": 6
 		},
 		{
 			"definition_id": "standard_normal_focus",
-			"image": "normal_focus.tres"
+			"image_name": "normals",
+			"image_index": 6
 		},
 		{
 			"definition_id": "standard_normal_block",
-			"image": "normal_block.tres"
+			"image_name": "normals",
+			"image_index": 7
 		},
 		{
 			"definition_id": "standard_normal_block",
-			"image": "normal_block.tres"
+			"image_name": "normals",
+			"image_index": 7
 		}
 	]
 }

@@ -2,6 +2,7 @@ class_name ExceedGutTest
 extends GutTest
 
 var game_logic : LocalGame
+var image_loader : CardImageLoader
 var next_test_card_id = 50000
 
 var player1 : LocalGame.Player
@@ -21,7 +22,8 @@ func default_game_setup(alt_opponent : String = ""):
 	var opponent_deck = default_deck
 	if alt_opponent:
 		opponent_deck = CardDefinitions.get_deck_from_str_id(alt_opponent)
-	game_logic = LocalGame.new()
+	image_loader = CardImageLoader.new(true)
+	game_logic = LocalGame.new(image_loader)
 	var seed_value = randi()
 	game_logic.initialize_game(default_deck, opponent_deck, "p1", "p2",
 			Enums.PlayerId.PlayerId_Player, seed_value)
@@ -35,7 +37,7 @@ func default_game_setup(alt_opponent : String = ""):
 func give_player_specific_card(player, def_id):
 	var card_def = CardDefinitions.get_card(def_id)
 	var card_id = next_id()
-	var card = GameCard.new(card_id, card_def, "image", player.my_id)
+	var card = GameCard.new(card_id, card_def, player.my_id)
 	var card_db = game_logic.get_card_database()
 	card_db._test_insert_card(card)
 	player.hand.append(card)
@@ -88,6 +90,7 @@ func before_each():
 func after_each():
 	game_logic.teardown()
 	game_logic.free()
+	image_loader.free()
 	gut.p("ran teardown", 2)
 
 func before_all():

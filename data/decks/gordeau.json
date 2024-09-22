@@ -2,7 +2,6 @@
 	"id": "gordeau",
 	"season": 6,
 	"display_name": "Gordeau",
-	"cardback": "cardback_gordeau.jpg",
 	"exceed_cost": 1,
 	"character_action_default": [{
 		"gauge_cost": 0,
@@ -69,122 +68,173 @@
 	],
 	"exceed_ability_effects": [
 	],
+	"image_resources": {
+		"character_default": {
+			"url": "https://i.imgur.com/v0xz0uH.jpeg",
+			"multiple_cards": false
+		},
+		"character_exceeded": {
+			"url": "https://i.imgur.com/yBcoxYs.jpeg",
+			"multiple_cards": false
+		},
+		"cardback": {
+			"url": "https://i.imgur.com/qlN4UaJ.jpg",
+			"multiple_cards": false
+		},
+		"specials": {
+			"url": "https://i.imgur.com/gnlJbET.jpeg",
+			"multiple_cards": true
+		},
+		"normals": {
+			"url": "https://i.imgur.com/ATF1pkD.jpg",
+			"multiple_cards": true
+		}
+	},
 	"cards": [
 		{
 			"definition_id": "gordeau_soulexodus",
-			"image": "gordeau_soulexodus.tres"
+			"image_name": "specials",
+			"image_index": 5
 		},
 		{
 			"definition_id": "gordeau_rustynail",
-			"image": "gordeau_rustynail.tres"
+			"image_name": "specials",
+			"image_index": 4
 		},
 		{
 			"definition_id": "gordeau_rustynail",
-			"image": "gordeau_rustynail.tres"
+			"image_name": "specials",
+			"image_index": 4
 		},
 		{
 			"definition_id": "gordeau_turbulence",
-			"image": "gordeau_turbulence.tres"
+			"image_name": "specials",
+			"image_index": 6
 		},
 		{
 			"definition_id": "gordeau_turbulence",
-			"image": "gordeau_turbulence.tres"
+			"image_name": "specials",
+			"image_index": 6
 		},
 		{
 			"definition_id": "gordeau_mortalglide",
-			"image": "gordeau_mortalglide.tres"
+			"image_name": "specials",
+			"image_index": 0
 		},
 		{
 			"definition_id": "gordeau_mortalglide",
-			"image": "gordeau_mortalglide.tres"
+			"image_name": "specials",
+			"image_index": 0
 		},
 		{
 			"definition_id": "gordeau_preciseaim",
-			"image": "gordeau_preciseaim.tres"
+			"image_name": "specials",
+			"image_index": 1
 		},
 		{
 			"definition_id": "gordeau_preciseaim",
-			"image": "gordeau_preciseaim.tres"
+			"image_name": "specials",
+			"image_index": 1
 		},
 		{
 			"definition_id": "gordeau_mortalslide",
-			"image": "gordeau_mortalslide.tres"
+			"image_name": "specials",
+			"image_index": 2
 		},
 		{
 			"definition_id": "gordeau_mortalslide",
-			"image": "gordeau_mortalslide.tres"
+			"image_name": "specials",
+			"image_index": 2
 		},
 		{
 			"definition_id": "gordeau_grimreaper",
-			"image": "gordeau_grimreaper.tres"
+			"image_name": "specials",
+			"image_index": 3
 		},
 		{
 			"definition_id": "gordeau_grimreaper",
-			"image": "gordeau_grimreaper.tres"
+			"image_name": "specials",
+			"image_index": 3
 		},
 		{
 			"definition_id": "uni_normal_grasp",
-			"image": "normal_grasp.tres"
+			"image_name": "normals",
+			"image_index": 0
 		},
 		{
 			"definition_id": "uni_normal_grasp",
-			"image": "normal_grasp.tres"
+			"image_name": "normals",
+			"image_index": 0
 		},
 		{
 			"definition_id": "uni_normal_cross",
-			"image": "normal_cross.tres"
+			"image_name": "normals",
+			"image_index": 1
 		},
 		{
 			"definition_id": "uni_normal_cross",
-			"image": "normal_cross.tres"
+			"image_name": "normals",
+			"image_index": 1
 		},
 		{
 			"definition_id": "uni_normal_assault",
-			"image": "normal_assault.tres"
+			"image_name": "normals",
+			"image_index": 2
 		},
 		{
 			"definition_id": "uni_normal_assault",
-			"image": "normal_assault.tres"
+			"image_name": "normals",
+			"image_index": 2
 		},
 		{
 			"definition_id": "uni_normal_dive",
-			"image": "normal_dive.tres"
+			"image_name": "normals",
+			"image_index": 3
 		},
 		{
 			"definition_id": "uni_normal_dive",
-			"image": "normal_dive.tres"
+			"image_name": "normals",
+			"image_index": 3
 		},
 		{
 			"definition_id": "uni_normal_spike",
-			"image": "normal_spike.tres"
+			"image_name": "normals",
+			"image_index": 4
 		},
 		{
 			"definition_id": "uni_normal_spike",
-			"image": "normal_spike.tres"
+			"image_name": "normals",
+			"image_index": 4
 		},
 		{
 			"definition_id": "uni_normal_sweep",
-			"image": "normal_sweep.tres"
+			"image_name": "normals",
+			"image_index": 5
 		},
 		{
 			"definition_id": "uni_normal_sweep",
-			"image": "normal_sweep.tres"
+			"image_name": "normals",
+			"image_index": 5
 		},
 		{
 			"definition_id": "uni_normal_focus",
-			"image": "normal_focus.tres"
+			"image_name": "normals",
+			"image_index": 6
 		},
 		{
 			"definition_id": "uni_normal_focus",
-			"image": "normal_focus.tres"
+			"image_name": "normals",
+			"image_index": 6
 		},
 		{
 			"definition_id": "uni_normal_block",
-			"image": "normal_block.tres"
+			"image_name": "normals",
+			"image_index": 7
 		},
 		{
 			"definition_id": "uni_normal_block",
-			"image": "normal_block.tres"
+			"image_name": "normals",
+			"image_index": 7
 		}
 	]
 }

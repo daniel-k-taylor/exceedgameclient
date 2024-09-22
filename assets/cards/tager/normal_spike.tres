@@ -1,7 +1,0 @@
-[gd_resource type="AtlasTexture" load_steps=2 format=3 uid="uid://ng6t4lvnk7k6"]
-
-[ext_resource type="Texture2D" uid="uid://dx835bvhlxgat" path="res://assets/cards/tager/normals.jpg" id="1_2vmpp"]
-
-[resource]
-atlas = ExtResource("1_2vmpp")
-region = Rect2(0, 1024, 750, 1024)

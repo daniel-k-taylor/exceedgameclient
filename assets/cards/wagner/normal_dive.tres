@@ -1,7 +1,0 @@
-[gd_resource type="AtlasTexture" load_steps=2 format=3 uid="uid://bw131acfiuj1r"]
-
-[ext_resource type="Texture2D" uid="uid://cufjrpy1gu28a" path="res://assets/cards/wagner/normals.jpg" id="1_5ctcx"]
-
-[resource]
-atlas = ExtResource("1_5ctcx")
-region = Rect2(2250, 0, 750, 1024)

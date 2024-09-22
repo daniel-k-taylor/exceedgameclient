@@ -2,7 +2,6 @@
 	"id": "taokaka",
 	"season": 5,
 	"display_name": "Taokaka",
-	"cardback": "cardback_taokaka.jpg",
 	"exceed_cost": 3,
 	"exceed_to_overdrive": true,
 	"on_exceed": {
@@ -73,131 +72,184 @@
 			}
 		}
 	],
+	"image_resources": {
+		"character_default": {
+			"url": "https://i.imgur.com/ipSpJeW.jpeg",
+			"multiple_cards": false
+		},
+		"character_exceeded": {
+			"url": "https://i.imgur.com/JjSuY2N.jpeg",
+			"multiple_cards": false
+		},
+		"cardback": {
+			"url": "https://i.imgur.com/CDi8p96.jpg",
+			"multiple_cards": false
+		},
+		"specials": {
+			"url": "https://i.imgur.com/KT0MIo1.jpeg",
+			"multiple_cards": true
+		},
+		"normals": {
+			"url": "https://i.imgur.com/IdQWUeN.jpg",
+			"multiple_cards": true
+		}
+	},
 	"cards": [
 		{
 			"set_aside": true,
 			"definition_id": "taokaka_attackmeowpow",
-			"image": "taokaka_attackmeowpow.tres"
+			"image_name": "specials",
+			"image_index": 7
 		},
 		{
 			"definition_id": "taokaka_hexaedge",
-			"image": "taokaka_hexaedge.tres"
+			"image_name": "specials",
+			"image_index": 5
 		},
 		{
 			"definition_id": "taokaka_hexaedge",
-			"image": "taokaka_hexaedge.tres"
+			"image_name": "specials",
+			"image_index": 5
 		},
 		{
 			"definition_id": "taokaka_immabeatthecrapouttayou",
-			"image": "taokaka_immabeatthecrapouttayou.tres"
+			"image_name": "specials",
+			"image_index": 6
 		},
 		{
 			"definition_id": "taokaka_immabeatthecrapouttayou",
-			"image": "taokaka_immabeatthecrapouttayou.tres"
+			"image_name": "specials",
+			"image_index": 6
 		},
 		{
 			"definition_id": "taokaka_catspiritone",
-			"image": "taokaka_catspiritone.tres"
+			"image_name": "specials",
+			"image_index": 0
 		},
 		{
 			"definition_id": "taokaka_catspiritone",
-			"image": "taokaka_catspiritone.tres"
+			"image_name": "specials",
+			"image_index": 0
 		},
 		{
 			"definition_id": "taokaka_kittylitterspecial",
-			"image": "taokaka_kittylitterspecial.tres"
+			"image_name": "specials",
+			"image_index": 1
 		},
 		{
 			"definition_id": "taokaka_kittylitterspecial",
-			"image": "taokaka_kittylitterspecial.tres"
+			"image_name": "specials",
+			"image_index": 1
 		},
 		{
 			"definition_id": "taokaka_doublepawstrike",
-			"image": "taokaka_doublepawstrike.tres"
+			"image_name": "specials",
+			"image_index": 2
 		},
 		{
 			"definition_id": "taokaka_doublepawstrike",
-			"image": "taokaka_doublepawstrike.tres"
+			"image_name": "specials",
+			"image_index": 2
 		},
 		{
 			"definition_id": "taokaka_slashyslashy",
-			"image": "taokaka_slashyslashy.tres"
+			"image_name": "specials",
+			"image_index": 3
 		},
 		{
 			"definition_id": "taokaka_slashyslashy",
-			"image": "taokaka_slashyslashy.tres"
+			"image_name": "specials",
+			"image_index": 3
 		},
 		{
 			"definition_id": "taokaka_trickedge",
-			"image": "taokaka_trickedge.tres"
+			"image_name": "specials",
+			"image_index": 4
 		},
 		{
 			"definition_id": "taokaka_trickedge",
-			"image": "taokaka_trickedge.tres"
+			"image_name": "specials",
+			"image_index": 4
 		},
 		{
 			"definition_id": "standard_normal_grasp",
-			"image": "normal_grasp.tres"
+			"image_name": "normals",
+			"image_index": 0
 		},
 		{
 			"definition_id": "standard_normal_grasp",
-			"image": "normal_grasp.tres"
+			"image_name": "normals",
+			"image_index": 0
 		},
 		{
 			"definition_id": "standard_normal_cross",
-			"image": "normal_cross.tres"
+			"image_name": "normals",
+			"image_index": 1
 		},
 		{
 			"definition_id": "standard_normal_cross",
-			"image": "normal_cross.tres"
+			"image_name": "normals",
+			"image_index": 1
 		},
 		{
 			"definition_id": "standard_normal_assault",
-			"image": "normal_assault.tres"
+			"image_name": "normals",
+			"image_index": 2
 		},
 		{
 			"definition_id": "standard_normal_assault",
-			"image": "normal_assault.tres"
+			"image_name": "normals",
+			"image_index": 2
 		},
 		{
 			"definition_id": "standard_normal_dive",
-			"image": "normal_dive.tres"
+			"image_name": "normals",
+			"image_index": 3
 		},
 		{
 			"definition_id": "standard_normal_dive",
-			"image": "normal_dive.tres"
+			"image_name": "normals",
+			"image_index": 3
 		},
 		{
 			"definition_id": "standard_normal_spike",
-			"image": "normal_spike.tres"
+			"image_name": "normals",
+			"image_index": 4
 		},
 		{
 			"definition_id": "standard_normal_spike",
-			"image": "normal_spike.tres"
+			"image_name": "normals",
+			"image_index": 4
 		},
 		{
 			"definition_id": "standard_normal_sweep",
-			"image": "normal_sweep.tres"
+			"image_name": "normals",
+			"image_index": 5
 		},
 		{
 			"definition_id": "standard_normal_sweep",
-			"image": "normal_sweep.tres"
+			"image_name": "normals",
+			"image_index": 5
 		},
 		{
 			"definition_id": "standard_normal_focus",
-			"image": "normal_focus.tres"
+			"image_name": "normals",
+			"image_index": 6
 		},
 		{
 			"definition_id": "standard_normal_focus",
-			"image": "normal_focus.tres"
+			"image_name": "normals",
+			"image_index": 6
 		},
 		{
 			"definition_id": "standard_normal_block",
-			"image": "normal_block.tres"
+			"image_name": "normals",
+			"image_index": 7
 		},
 		{
 			"definition_id": "standard_normal_block",
-			"image": "normal_block.tres"
+			"image_name": "normals",
+			"image_index": 7
 		}
 	]
 }

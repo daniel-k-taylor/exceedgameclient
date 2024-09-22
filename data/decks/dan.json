@@ -2,7 +2,6 @@
 	"id": "dan",
 	"season": 3,
 	"display_name": "Dan Hibiki",
-	"cardback": "cardback_defaultexceed.png",
 	"exceed_cost": 2,
 	"on_exceed": {
 		"effect_type": "set_dan_draw_choice"
@@ -70,126 +69,178 @@
 			"optional": true
 		}
 	],
+	"image_resources": {
+		"character_default": {
+			"url": "https://i.imgur.com/XlGRdjA.jpeg",
+			"multiple_cards": false
+		},
+		"character_exceeded": {
+			"url": "https://i.imgur.com/ATndgNk.jpeg",
+			"multiple_cards": false
+		},
+		"cardback": {
+			"url": "https://i.imgur.com/igYZhPh.png",
+			"multiple_cards": false
+		},
+		"specials": {
+			"url": "https://i.imgur.com/7F7oHlM.jpeg",
+			"multiple_cards": true
+		},
+		"normals": {
+			"url": "https://i.imgur.com/tXuqP40.jpeg",
+			"multiple_cards": true
+		}
+	},
 	"cards": [
 		{
 			"definition_id": "dan_haohgadouken",
-			"image": "dan_haohgadouken.tres"
+			"image_name": "specials",
+			"image_index": 6
 		},
 		{
 			"definition_id": "dan_haohgadouken",
-			"image": "dan_haohgadouken.tres"
+			"image_name": "specials",
+			"image_index": 6
 		},
 		{
 			"definition_id": "dan_legendarytaunt",
-			"image": "dan_legendarytaunt.tres"
+			"image_name": "specials",
+			"image_index": 5
 		},
 		{
 			"definition_id": "dan_legendarytaunt",
-			"image": "dan_legendarytaunt.tres"
+			"image_name": "specials",
+			"image_index": 5
 		},
 		{
 			"definition_id": "dan_shissoburaiken",
-			"image": "dan_shissoburaiken.tres"
+			"image_name": "specials",
+			"image_index": 4
 		},
 		{
 			"definition_id": "dan_shissoburaiken",
-			"image": "dan_shissoburaiken.tres"
+			"image_name": "specials",
+			"image_index": 4
 		},
 		{
 			"definition_id": "dan_dankukyaku",
-			"image": "dan_dankukyaku.tres"
+			"image_name": "specials",
+			"image_index": 1
 		},
 		{
 			"definition_id": "dan_dankukyaku",
-			"image": "dan_dankukyaku.tres"
+			"image_name": "specials",
+			"image_index": 1
 		},
 		{
 			"definition_id": "dan_gadouken",
-			"image": "dan_gadouken.tres"
+			"image_name": "specials",
+			"image_index": 3
 		},
 		{
 			"definition_id": "dan_gadouken",
-			"image": "dan_gadouken.tres"
+			"image_name": "specials",
+			"image_index": 3
 		},
 		{
 			"definition_id": "dan_koryuken",
-			"image": "dan_koryuken.tres"
+			"image_name": "specials",
+			"image_index": 2
 		},
 		{
 			"definition_id": "dan_koryuken",
-			"image": "dan_koryuken.tres"
+			"image_name": "specials",
+			"image_index": 2
 		},
 		{
 			"definition_id": "dan_saikyoharaigoshi",
-			"image": "dan_saikyoharaigoshi.tres"
+			"image_name": "specials",
+			"image_index": 0
 		},
 		{
 			"definition_id": "dan_saikyoharaigoshi",
-			"image": "dan_saikyoharaigoshi.tres"
+			"image_name": "specials",
+			"image_index": 0
 		},
 		{
 			"definition_id": "standard_normal_grasp",
-			"image": "normal_grasp.tres"
+			"image_name": "normals",
+			"image_index": 0
 		},
 		{
 			"definition_id": "standard_normal_grasp",
-			"image": "normal_grasp.tres"
+			"image_name": "normals",
+			"image_index": 0
 		},
 		{
 			"definition_id": "standard_normal_cross",
-			"image": "normal_cross.tres"
+			"image_name": "normals",
+			"image_index": 1
 		},
 		{
 			"definition_id": "standard_normal_cross",
-			"image": "normal_cross.tres"
+			"image_name": "normals",
+			"image_index": 1
 		},
 		{
 			"definition_id": "standard_normal_assault",
-			"image": "normal_assault.tres"
+			"image_name": "normals",
+			"image_index": 2
 		},
 		{
 			"definition_id": "standard_normal_assault",
-			"image": "normal_assault.tres"
+			"image_name": "normals",
+			"image_index": 2
 		},
 		{
 			"definition_id": "standard_normal_dive",
-			"image": "normal_dive.tres"
+			"image_name": "normals",
+			"image_index": 3
 		},
 		{
 			"definition_id": "standard_normal_dive",
-			"image": "normal_dive.tres"
+			"image_name": "normals",
+			"image_index": 3
 		},
 		{
 			"definition_id": "standard_normal_spike",
-			"image": "normal_spike.tres"
+			"image_name": "normals",
+			"image_index": 4
 		},
 		{
 			"definition_id": "standard_normal_spike",
-			"image": "normal_spike.tres"
+			"image_name": "normals",
+			"image_index": 4
 		},
 		{
 			"definition_id": "standard_normal_sweep",
-			"image": "normal_sweep.tres"
+			"image_name": "normals",
+			"image_index": 5
 		},
 		{
 			"definition_id": "standard_normal_sweep",
-			"image": "normal_sweep.tres"
+			"image_name": "normals",
+			"image_index": 5
 		},
 		{
 			"definition_id": "standard_normal_focus",
-			"image": "normal_focus.tres"
+			"image_name": "normals",
+			"image_index": 6
 		},
 		{
 			"definition_id": "standard_normal_focus",
-			"image": "normal_focus.tres"
+			"image_name": "normals",
+			"image_index": 6
 		},
 		{
 			"definition_id": "standard_normal_block",
-			"image": "normal_block.tres"
+			"image_name": "normals",
+			"image_index": 7
 		},
 		{
 			"definition_id": "standard_normal_block",
-			"image": "normal_block.tres"
+			"image_name": "normals",
+			"image_index": 7
 		}
 	]
 }

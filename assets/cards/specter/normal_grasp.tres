@@ -1,7 +1,0 @@
-[gd_resource type="AtlasTexture" load_steps=2 format=3 uid="uid://upscjy3a481u"]
-
-[ext_resource type="Texture2D" uid="uid://drxqvsb4x12vf" path="res://assets/cards/specter/normals.jpg" id="1_dvgqh"]
-
-[resource]
-atlas = ExtResource("1_dvgqh")
-region = Rect2(0, 0, 750, 1024)

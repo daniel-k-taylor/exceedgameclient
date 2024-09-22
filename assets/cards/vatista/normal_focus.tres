@@ -1,7 +1,0 @@
-[gd_resource type="AtlasTexture" load_steps=2 format=3 uid="uid://c5n3x0em0oh5p"]
-
-[ext_resource type="Texture2D" uid="uid://b7acgq3r6pyrw" path="res://assets/cards/vatista/normals.jpg" id="1_oargr"]
-
-[resource]
-atlas = ExtResource("1_oargr")
-region = Rect2(1500, 1024, 750, 1024)

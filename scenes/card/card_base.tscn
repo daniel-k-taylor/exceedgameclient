@@ -1,7 +1,7 @@
 [gd_scene load_steps=12 format=3 uid="uid://cl8i21571i4qa"]
 
 [ext_resource type="Script" path="res://scenes/card/card_base.gd" id="1_o734l"]
-[ext_resource type="Texture2D" uid="uid://cj7nvglef8cu" path="res://assets/cards/solbadguy/normal_grasp.tres" id="4_krtfi"]
+[ext_resource type="Texture2D" uid="uid://cj7nvglef8cu" path="res://assets/cards/normal_grasp.tres" id="4_krtfi"]
 [ext_resource type="Texture2D" uid="uid://cpolsw2tyi4m" path="res://assets/cardbacks/cardback_blue.svg" id="4_pvdi7"]
 [ext_resource type="Texture2D" uid="uid://cy0pcorknc8op" path="res://assets/cards/border_thin_pressed.png" id="6_h5u6x"]
 [ext_resource type="Texture2D" uid="uid://kl32dakt7bnv" path="res://assets/icons/hand.png" id="7_vbrtw"]
@@ -56,12 +56,28 @@ layout_mode = 2
 mouse_filter = 2
 color = Color(0, 0, 0, 1)
 
-[node name="FancyCard" type="TextureRect" parent="CardFocusFeatures/CardContainer"]
+[node name="CardFront" type="MarginContainer" parent="CardFocusFeatures/CardContainer"]
+layout_mode = 2
+
+[node name="FancyCard" type="TextureRect" parent="CardFocusFeatures/CardContainer/CardFront"]
 visible = false
 layout_mode = 2
 mouse_filter = 2
 texture = ExtResource("4_krtfi")
 expand_mode = 1
+
+[node name="BackupLabel" type="MarginContainer" parent="CardFocusFeatures/CardContainer/CardFront"]
+visible = false
+layout_mode = 2
+size_flags_vertical = 4
+
+[node name="CardNameText" type="RichTextLabel" parent="CardFocusFeatures/CardContainer/CardFront/BackupLabel"]
+layout_mode = 2
+bbcode_enabled = true
+text = "[center]Attack: sample text[/center]
+[center]Boost: sample text[/center]"
+fit_content = true
+scroll_active = false
 
 [node name="CardBack" type="TextureRect" parent="CardFocusFeatures/CardContainer"]
 visible = false

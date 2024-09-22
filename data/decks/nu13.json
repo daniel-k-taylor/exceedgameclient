@@ -2,7 +2,6 @@
 	"id": "nu13",
 	"season": 5,
 	"display_name": "Nu-13",
-	"cardback": "cardback_nu13.jpg",
 	"exceed_cost": 3,
 	"exceed_to_overdrive": true,
 	"on_exceed": {
@@ -59,131 +58,184 @@
 			}
 		}
 	],
+	"image_resources": {
+		"character_default": {
+			"url": "https://i.imgur.com/R0zIrAW.jpeg",
+			"multiple_cards": false
+		},
+		"character_exceeded": {
+			"url": "https://i.imgur.com/dlv9Btt.jpeg",
+			"multiple_cards": false
+		},
+		"cardback": {
+			"url": "https://i.imgur.com/bZ74m3y.jpg",
+			"multiple_cards": false
+		},
+		"specials": {
+			"url": "https://i.imgur.com/beu36BL.jpeg",
+			"multiple_cards": true
+		},
+		"normals": {
+			"url": "https://i.imgur.com/il5eKSN.jpg",
+			"multiple_cards": true
+		}
+	},
 	"cards": [
 		{
 			"set_aside": true,
 			"definition_id": "nu13_swordofdestruction",
-			"image": "nu13_swordofdestruction.tres"
+			"image_name": "specials",
+			"image_index": 7
 		},
 		{
 			"definition_id": "nu13_calamitysword",
-			"image": "nu13_calamitysword.tres"
+			"image_name": "specials",
+			"image_index": 5
 		},
 		{
 			"definition_id": "nu13_calamitysword",
-			"image": "nu13_calamitysword.tres"
+			"image_name": "specials",
+			"image_index": 5
 		},
 		{
 			"definition_id": "nu13_legacyedge",
-			"image": "nu13_legacyedge.tres"
+			"image_name": "specials",
+			"image_index": 6
 		},
 		{
 			"definition_id": "nu13_legacyedge",
-			"image": "nu13_legacyedge.tres"
+			"image_name": "specials",
+			"image_index": 6
 		},
 		{
 			"definition_id": "nu13_swordsummoner",
-			"image": "nu13_swordsummoner.tres"
+			"image_name": "specials",
+			"image_index": 0
 		},
 		{
 			"definition_id": "nu13_swordsummoner",
-			"image": "nu13_swordsummoner.tres"
+			"image_name": "specials",
+			"image_index": 0
 		},
 		{
 			"definition_id": "nu13_suprarage",
-			"image": "nu13_suprarage.tres"
+			"image_name": "specials",
+			"image_index": 1
 		},
 		{
 			"definition_id": "nu13_suprarage",
-			"image": "nu13_suprarage.tres"
+			"image_name": "specials",
+			"image_index": 1
 		},
 		{
 			"definition_id": "nu13_sworddance",
-			"image": "nu13_sworddance.tres"
+			"image_name": "specials",
+			"image_index": 3
 		},
 		{
 			"definition_id": "nu13_sworddance",
-			"image": "nu13_sworddance.tres"
+			"image_name": "specials",
+			"image_index": 3
 		},
 		{
 			"definition_id": "nu13_sicklestorm",
-			"image": "nu13_sicklestorm.tres"
+			"image_name": "specials",
+			"image_index": 2
 		},
 		{
 			"definition_id": "nu13_sicklestorm",
-			"image": "nu13_sicklestorm.tres"
+			"image_name": "specials",
+			"image_index": 2
 		},
 		{
 			"definition_id": "nu13_spikechaser",
-			"image": "nu13_spikechaser.tres"
+			"image_name": "specials",
+			"image_index": 4
 		},
 		{
 			"definition_id": "nu13_spikechaser",
-			"image": "nu13_spikechaser.tres"
+			"image_name": "specials",
+			"image_index": 4
 		},
 		{
 			"definition_id": "standard_normal_grasp",
-			"image": "normal_grasp.tres"
+			"image_name": "normals",
+			"image_index": 0
 		},
 		{
 			"definition_id": "standard_normal_grasp",
-			"image": "normal_grasp.tres"
+			"image_name": "normals",
+			"image_index": 0
 		},
 		{
 			"definition_id": "standard_normal_cross",
-			"image": "normal_cross.tres"
+			"image_name": "normals",
+			"image_index": 1
 		},
 		{
 			"definition_id": "standard_normal_cross",
-			"image": "normal_cross.tres"
+			"image_name": "normals",
+			"image_index": 1
 		},
 		{
 			"definition_id": "standard_normal_assault",
-			"image": "normal_assault.tres"
+			"image_name": "normals",
+			"image_index": 2
 		},
 		{
 			"definition_id": "standard_normal_assault",
-			"image": "normal_assault.tres"
+			"image_name": "normals",
+			"image_index": 2
 		},
 		{
 			"definition_id": "standard_normal_dive",
-			"image": "normal_dive.tres"
+			"image_name": "normals",
+			"image_index": 3
 		},
 		{
 			"definition_id": "standard_normal_dive",
-			"image": "normal_dive.tres"
+			"image_name": "normals",
+			"image_index": 3
 		},
 		{
 			"definition_id": "standard_normal_spike",
-			"image": "normal_spike.tres"
+			"image_name": "normals",
+			"image_index": 4
 		},
 		{
 			"definition_id": "standard_normal_spike",
-			"image": "normal_spike.tres"
+			"image_name": "normals",
+			"image_index": 4
 		},
 		{
 			"definition_id": "standard_normal_sweep",
-			"image": "normal_sweep.tres"
+			"image_name": "normals",
+			"image_index": 5
 		},
 		{
 			"definition_id": "standard_normal_sweep",
-			"image": "normal_sweep.tres"
+			"image_name": "normals",
+			"image_index": 5
 		},
 		{
 			"definition_id": "standard_normal_focus",
-			"image": "normal_focus.tres"
+			"image_name": "normals",
+			"image_index": 6
 		},
 		{
 			"definition_id": "standard_normal_focus",
-			"image": "normal_focus.tres"
+			"image_name": "normals",
+			"image_index": 6
 		},
 		{
 			"definition_id": "standard_normal_block",
-			"image": "normal_block.tres"
+			"image_name": "normals",
+			"image_index": 7
 		},
 		{
 			"definition_id": "standard_normal_block",
-			"image": "normal_block.tres"
+			"image_name": "normals",
+			"image_index": 7
 		}
 	]
 }

@@ -2,7 +2,6 @@
 	"id": "platinum",
 	"season": 5,
 	"display_name": "Platinum the Trinity",
-	"cardback": "cardback_platinum.jpg",
 	"exceed_cost": 3,
 	"exceed_to_overdrive": true,
 	"on_exceed": {
@@ -68,131 +67,184 @@
 			]
 		}
 	],
+	"image_resources": {
+		"character_default": {
+			"url": "https://i.imgur.com/gUz4yEB.jpeg",
+			"multiple_cards": false
+		},
+		"character_exceeded": {
+			"url": "https://i.imgur.com/EhEKnk3.jpeg",
+			"multiple_cards": false
+		},
+		"cardback": {
+			"url": "https://i.imgur.com/PzA1Qc5.jpg",
+			"multiple_cards": false
+		},
+		"specials": {
+			"url": "https://i.imgur.com/p47ivWp.jpeg",
+			"multiple_cards": true
+		},
+		"normals": {
+			"url": "https://i.imgur.com/eLQAyCh.jpg",
+			"multiple_cards": true
+		}
+	},
 	"cards": [
 		{
 			"set_aside": true,
 			"definition_id": "platinum_shininglayeredforce",
-			"image": "platinum_shininglayeredforce.tres"
+			"image_name": "specials",
+			"image_index": 7
 		},
 		{
 			"definition_id": "platinum_curedottyphoon",
-			"image": "platinum_curedottyphoon.tres"
+			"image_name": "specials",
+			"image_index": 5
 		},
 		{
 			"definition_id": "platinum_curedottyphoon",
-			"image": "platinum_curedottyphoon.tres"
+			"image_name": "specials",
+			"image_index": 5
 		},
 		{
 			"definition_id": "platinum_miraclejeanne",
-			"image": "platinum_miraclejeanne.tres"
+			"image_name": "specials",
+			"image_index": 6
 		},
 		{
 			"definition_id": "platinum_miraclejeanne",
-			"image": "platinum_miraclejeanne.tres"
+			"image_name": "specials",
+			"image_index": 6
 		},
 		{
 			"definition_id": "platinum_mystiquemomo",
-			"image": "platinum_mystiquemomo.tres"
+			"image_name": "specials",
+			"image_index": 0
 		},
 		{
 			"definition_id": "platinum_mystiquemomo",
-			"image": "platinum_mystiquemomo.tres"
+			"image_name": "specials",
+			"image_index": 0
 		},
 		{
 			"definition_id": "platinum_mamicircular",
-			"image": "platinum_mamicircular.tres"
+			"image_name": "specials",
+			"image_index": 1
 		},
 		{
 			"definition_id": "platinum_mamicircular",
-			"image": "platinum_mamicircular.tres"
+			"image_name": "specials",
+			"image_index": 1
 		},
 		{
 			"definition_id": "platinum_dramaticsammy",
-			"image": "platinum_dramaticsammy.tres"
+			"image_name": "specials",
+			"image_index": 2
 		},
 		{
 			"definition_id": "platinum_dramaticsammy",
-			"image": "platinum_dramaticsammy.tres"
+			"image_name": "specials",
+			"image_index": 2
 		},
 		{
 			"definition_id": "platinum_happymagicka",
-			"image": "platinum_happymagicka.tres"
+			"image_name": "specials",
+			"image_index": 3
 		},
 		{
 			"definition_id": "platinum_happymagicka",
-			"image": "platinum_happymagicka.tres"
+			"image_name": "specials",
+			"image_index": 3
 		},
 		{
 			"definition_id": "platinum_dreamsally",
-			"image": "platinum_dreamsally.tres"
+			"image_name": "specials",
+			"image_index": 4
 		},
 		{
 			"definition_id": "platinum_dreamsally",
-			"image": "platinum_dreamsally.tres"
+			"image_name": "specials",
+			"image_index": 4
 		},
 		{
 			"definition_id": "standard_normal_grasp",
-			"image": "normal_grasp.tres"
+			"image_name": "normals",
+			"image_index": 0
 		},
 		{
 			"definition_id": "standard_normal_grasp",
-			"image": "normal_grasp.tres"
+			"image_name": "normals",
+			"image_index": 0
 		},
 		{
 			"definition_id": "standard_normal_cross",
-			"image": "normal_cross.tres"
+			"image_name": "normals",
+			"image_index": 1
 		},
 		{
 			"definition_id": "standard_normal_cross",
-			"image": "normal_cross.tres"
+			"image_name": "normals",
+			"image_index": 1
 		},
 		{
 			"definition_id": "standard_normal_assault",
-			"image": "normal_assault.tres"
+			"image_name": "normals",
+			"image_index": 2
 		},
 		{
 			"definition_id": "standard_normal_assault",
-			"image": "normal_assault.tres"
+			"image_name": "normals",
+			"image_index": 2
 		},
 		{
 			"definition_id": "standard_normal_dive",
-			"image": "normal_dive.tres"
+			"image_name": "normals",
+			"image_index": 3
 		},
 		{
 			"definition_id": "standard_normal_dive",
-			"image": "normal_dive.tres"
+			"image_name": "normals",
+			"image_index": 3
 		},
 		{
 			"definition_id": "standard_normal_spike",
-			"image": "normal_spike.tres"
+			"image_name": "normals",
+			"image_index": 4
 		},
 		{
 			"definition_id": "standard_normal_spike",
-			"image": "normal_spike.tres"
+			"image_name": "normals",
+			"image_index": 4
 		},
 		{
 			"definition_id": "standard_normal_sweep",
-			"image": "normal_sweep.tres"
+			"image_name": "normals",
+			"image_index": 5
 		},
 		{
 			"definition_id": "standard_normal_sweep",
-			"image": "normal_sweep.tres"
+			"image_name": "normals",
+			"image_index": 5
 		},
 		{
 			"definition_id": "standard_normal_focus",
-			"image": "normal_focus.tres"
+			"image_name": "normals",
+			"image_index": 6
 		},
 		{
 			"definition_id": "standard_normal_focus",
-			"image": "normal_focus.tres"
+			"image_name": "normals",
+			"image_index": 6
 		},
 		{
 			"definition_id": "standard_normal_block",
-			"image": "normal_block.tres"
+			"image_name": "normals",
+			"image_index": 7
 		},
 		{
 			"definition_id": "standard_normal_block",
-			"image": "normal_block.tres"
+			"image_name": "normals",
+			"image_index": 7
 		}
 	]
 }

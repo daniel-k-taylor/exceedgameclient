@@ -5,10 +5,12 @@ const GameCard = preload("res://scenes/game/game_card.gd")
 const Enums = preload("res://scenes/game/enums.gd")
 
 var game_logic : LocalGame
+var image_loader : CardImageLoader
 var default_deck = CardDefinitions.get_deck_from_str_id("solbadguy")
 
 func default_game_setup():
-	game_logic = LocalGame.new()
+	image_loader = CardImageLoader.new(true)
+	game_logic = LocalGame.new(image_loader)
 	var seed_value = randi()
 	game_logic.initialize_game(default_deck, default_deck, "p1", "p2", Enums.PlayerId.PlayerId_Player, seed_value)
 	game_logic.draw_starting_hands_and_begin()
@@ -23,6 +25,7 @@ func before_each():
 func after_each():
 	game_logic.teardown()
 	game_logic.free()
+	image_loader.free()
 	gut.p("ran teardown", 2)
 
 func before_all():

@@ -1,7 +1,0 @@
-[gd_resource type="AtlasTexture" load_steps=2 format=3 uid="uid://wjoyubdjq1nt"]
-
-[ext_resource type="Texture2D" uid="uid://bya3vtwaumxfb" path="res://assets/cards/litchi/normals.jpg" id="1_0y2ka"]
-
-[resource]
-atlas = ExtResource("1_0y2ka")
-region = Rect2(750, 0, 750, 1024)

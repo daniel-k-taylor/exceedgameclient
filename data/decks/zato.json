@@ -2,7 +2,6 @@
 	"id": "zato",
 	"season": 7,
 	"display_name": "Zato-1",
-	"cardback": "cardback_zato.jpg",
 	"exceed_cost": 2,
 	"buddy_card": "eddie",
 	"buddy_display_name": "Eddie",
@@ -64,134 +63,192 @@
 			"buddy_name": "Eddie"
 		}
 	],
+	"image_resources": {
+		"character_default": {
+			"url": "https://i.imgur.com/X1HSW4h.jpeg",
+			"multiple_cards": false
+		},
+		"character_exceeded": {
+			"url": "https://i.imgur.com/K6vcO8T.jpeg",
+			"multiple_cards": false
+		},
+		"cardback": {
+			"url": "https://i.imgur.com/OjHK2l6.jpg",
+			"multiple_cards": false
+		},
+		"eddie": {
+			"url": "https://i.imgur.com/UCKf7iu.jpeg",
+			"multiple_cards": false
+		},
+		"specials": {
+			"url": "https://i.imgur.com/i2gkjcp.jpeg",
+			"multiple_cards": true
+		},
+		"normals": {
+			"url": "https://i.imgur.com/akBEcjP.jpg",
+			"multiple_cards": true
+		}
+	},
 	"cards": [
 		{
 			"definition_id": "zato_sunvoid",
-			"image": "zato_sunvoid.tres"
+			"image_name": "specials",
+			"image_index": 6
 		},
 		{
 			"definition_id": "zato_sunvoid",
-			"image": "zato_sunvoid.tres"
+			"image_name": "specials",
+			"image_index": 6
 		},
 		{
 			"definition_id": "zato_amorphous",
-			"image": "zato_amorphous.tres"
+			"image_name": "specials",
+			"image_index": 7
 		},
 		{
 			"definition_id": "zato_amorphous",
-			"image": "zato_amorphous.tres"
+			"image_name": "specials",
+			"image_index": 7
 		},
 		{
 			"definition_id": "zato_pierce",
-			"image": "zato_pierce.tres"
+			"image_name": "specials",
+			"image_index": 0
 		},
 		{
 			"definition_id": "zato_pierce",
-			"image": "zato_pierce.tres"
+			"image_name": "specials",
+			"image_index": 0
 		},
 		{
 			"definition_id": "zato_leap",
-			"image": "zato_leap.tres"
+			"image_name": "specials",
+			"image_index": 1
 		},
 		{
 			"definition_id": "zato_leap",
-			"image": "zato_leap.tres"
+			"image_name": "specials",
+			"image_index": 1
 		},
 		{
 			"definition_id": "zato_invitehell",
-			"image": "zato_invitehell.tres"
+			"image_name": "specials",
+			"image_index": 2
 		},
 		{
 			"definition_id": "zato_invitehell",
-			"image": "zato_invitehell.tres"
+			"image_name": "specials",
+			"image_index": 2
 		},
 		{
 			"definition_id": "zato_thatsalot",
-			"image": "zato_thatsalot.tres"
+			"image_name": "specials",
+			"image_index": 3
 		},
 		{
 			"definition_id": "zato_thatsalot",
-			"image": "zato_thatsalot.tres"
+			"image_name": "specials",
+			"image_index": 3
 		},
 		{
 			"definition_id": "zato_damnedfang",
-			"image": "zato_damnedfang.tres"
+			"image_name": "specials",
+			"image_index": 4
 		},
 		{
 			"definition_id": "zato_damnedfang",
-			"image": "zato_damnedfang.tres"
+			"image_name": "specials",
+			"image_index": 4
 		},
 		{
 			"definition_id": "zato_oppose",
-			"image": "zato_oppose.tres"
+			"image_name": "specials",
+			"image_index": 5
 		},
 		{
 			"definition_id": "zato_oppose",
-			"image": "zato_oppose.tres"
+			"image_name": "specials",
+			"image_index": 5
 		},
 		{
 			"definition_id": "gg_normal_grasp",
-			"image": "normal_grasp.tres"
+			"image_name": "normals",
+			"image_index": 0
 		},
 		{
 			"definition_id": "gg_normal_grasp",
-			"image": "normal_grasp.tres"
+			"image_name": "normals",
+			"image_index": 0
 		},
 		{
 			"definition_id": "gg_normal_cross",
-			"image": "normal_cross.tres"
+			"image_name": "normals",
+			"image_index": 1
 		},
 		{
 			"definition_id": "gg_normal_cross",
-			"image": "normal_cross.tres"
+			"image_name": "normals",
+			"image_index": 1
 		},
 		{
 			"definition_id": "gg_normal_slash",
-			"image": "normal_assault.tres"
+			"image_name": "normals",
+			"image_index": 2
 		},
 		{
 			"definition_id": "gg_normal_slash",
-			"image": "normal_assault.tres"
+			"image_name": "normals",
+			"image_index": 2
 		},
 		{
 			"definition_id": "gg_normal_dive",
-			"image": "normal_dive.tres"
+			"image_name": "normals",
+			"image_index": 3
 		},
 		{
 			"definition_id": "gg_normal_dive",
-			"image": "normal_dive.tres"
+			"image_name": "normals",
+			"image_index": 3
 		},
 		{
 			"definition_id": "gg_normal_dust",
-			"image": "normal_spike.tres"
+			"image_name": "normals",
+			"image_index": 4
 		},
 		{
 			"definition_id": "gg_normal_dust",
-			"image": "normal_spike.tres"
+			"image_name": "normals",
+			"image_index": 4
 		},
 		{
 			"definition_id": "gg_normal_sweep",
-			"image": "normal_sweep.tres"
+			"image_name": "normals",
+			"image_index": 5
 		},
 		{
 			"definition_id": "gg_normal_sweep",
-			"image": "normal_sweep.tres"
+			"image_name": "normals",
+			"image_index": 5
 		},
 		{
 			"definition_id": "gg_normal_focus",
-			"image": "normal_focus.tres"
+			"image_name": "normals",
+			"image_index": 6
 		},
 		{
 			"definition_id": "gg_normal_focus",
-			"image": "normal_focus.tres"
+			"image_name": "normals",
+			"image_index": 6
 		},
 		{
 			"definition_id": "gg_normal_block",
-			"image": "normal_block.tres"
+			"image_name": "normals",
+			"image_index": 7
 		},
 		{
 			"definition_id": "gg_normal_block",
-			"image": "normal_block.tres"
+			"image_name": "normals",
+			"image_index": 7
 		}
 	]
 }

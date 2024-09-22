@@ -1,7 +1,0 @@
-[gd_resource type="AtlasTexture" load_steps=2 format=3 uid="uid://dbvfdluj30lnn"]
-
-[ext_resource type="Texture2D" uid="uid://b21sbqfh1vu4f" path="res://assets/cards/londrekia/specials.jpg" id="1_lk52o"]
-
-[resource]
-atlas = ExtResource("1_lk52o")
-region = Rect2(1500, 0, 750, 1024)

@@ -282,6 +282,7 @@ func test_hilda_condensity_wild():
 func setup_exceeded_tinker_knight():
 	game_logic.teardown()
 	game_logic.free()
+	image_loader.free()
 	default_game_setup("tinker")
 
 	give_gauge(player2, 5)
