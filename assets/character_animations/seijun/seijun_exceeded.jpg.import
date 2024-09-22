@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://cqunojr8axtww"
-path="res://.godot/imported/character_default.jpg-cbf086f4661e7cc97c4f4eb4aac4e8d7.ctex"
+uid="uid://h8sg34alkc4i"
+path="res://.godot/imported/seijun_exceeded.jpg-4455225f91c80d12ebe88d9cfb98afce.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/cards/seijun/character_default.jpg"
-dest_files=["res://.godot/imported/character_default.jpg-cbf086f4661e7cc97c4f4eb4aac4e8d7.ctex"]
+source_file="res://assets/character_animations/seijun/seijun_exceeded.jpg"
+dest_files=["res://.godot/imported/seijun_exceeded.jpg-4455225f91c80d12ebe88d9cfb98afce.ctex"]
 
 [params]
 

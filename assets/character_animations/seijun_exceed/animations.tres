@@ -1,6 +1,6 @@
 [gd_resource type="SpriteFrames" load_steps=2 format=3 uid="uid://dxxd4o4ujxoyt"]
 
-[ext_resource type="Texture2D" uid="uid://h8sg34alkc4i" path="res://assets/cards/seijun/character_exceeded.jpg" id="1_l3dnd"]
+[ext_resource type="Texture2D" uid="uid://h8sg34alkc4i" path="res://assets/character_animations/seijun/seijun_exceeded.jpg" id="1_l3dnd"]
 
 [resource]
 animations = [{

@@ -657,3 +657,6 @@ func test_merkava_100():
 
 func test_carmine_100():
 	run_iterations_with_deck("carmine")
+
+func test_seijun_100():
+	run_iterations_with_deck("seijun")

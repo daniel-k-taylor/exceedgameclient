@@ -2,7 +2,6 @@
 	"id": "seijun",
 	"season": 2,
 	"display_name": "Seijun",
-	"cardback": "cardback_defaultexceed.png",
 	"alt_hand_size": 9,
 	"bonus_starting_hand": 2,
 	"exceed_cost": 5,
@@ -35,126 +34,178 @@
 			"amount": 1
 		}
 	],
+	"image_resources": {
+		"character_default": {
+			"url": "https://i.imgur.com/zoZQipn.jpeg",
+			"multiple_cards": false
+		},
+		"character_exceeded": {
+			"url": "https://i.imgur.com/NtH1Zdl.jpeg",
+			"multiple_cards": false
+		},
+		"cardback": {
+			"url": "https://i.imgur.com/igYZhPh.png",
+			"multiple_cards": false
+		},
+		"specials": {
+			"url": "https://i.imgur.com/bbkaKsO.jpeg",
+			"multiple_cards": true
+		},
+		"normals": {
+			"url": "https://i.imgur.com/1pnJnEb.jpeg",
+			"multiple_cards": true
+		}
+	},
 	"cards": [
 		{
 			"definition_id": "seijun_taleofninesorrows",
-			"image": "seijun_taleofninesorrows.tres"
+			"image_name": "specials",
+			"image_index": 5
 		},
 		{
 			"definition_id": "seijun_taleofninesorrows",
-			"image": "seijun_taleofninesorrows.tres"
+			"image_name": "specials",
+			"image_index": 5
 		},
 		{
 			"definition_id": "seijun_taleofseventrials",
-			"image": "seijun_taleofseventrials.tres"
+			"image_name": "specials",
+			"image_index": 6
 		},
 		{
 			"definition_id": "seijun_taleofseventrials",
-			"image": "seijun_taleofseventrials.tres"
+			"image_name": "specials",
+			"image_index": 6
 		},
 		{
 			"definition_id": "seijun_inksplash",
-			"image": "seijun_inksplash.tres"
+			"image_name": "specials",
+			"image_index": 0
 		},
 		{
 			"definition_id": "seijun_inksplash",
-			"image": "seijun_inksplash.tres"
+			"image_name": "specials",
+			"image_index": 0
 		},
 		{
 			"definition_id": "seijun_yokaibanishing",
-			"image": "seijun_yokaibanishing.tres"
+			"image_name": "specials",
+			"image_index": 1
 		},
 		{
 			"definition_id": "seijun_yokaibanishing",
-			"image": "seijun_yokaibanishing.tres"
+			"image_name": "specials",
+			"image_index": 1
 		},
 		{
 			"definition_id": "seijun_inariguidance",
-			"image": "seijun_inariguidance.tres"
+			"image_name": "specials",
+			"image_index": 2
 		},
 		{
 			"definition_id": "seijun_inariguidance",
-			"image": "seijun_inariguidance.tres"
+			"image_name": "specials",
+			"image_index": 2
 		},
 		{
 			"definition_id": "seijun_inkspike",
-			"image": "seijun_inkspike.tres"
+			"image_name": "specials",
+			"image_index": 3
 		},
 		{
 			"definition_id": "seijun_inkspike",
-			"image": "seijun_inkspike.tres"
+			"image_name": "specials",
+			"image_index": 3
 		},
 		{
 			"definition_id": "seijun_foxfire",
-			"image": "seijun_foxfire.tres"
+			"image_name": "specials",
+			"image_index": 4
 		},
 		{
 			"definition_id": "seijun_foxfire",
-			"image": "seijun_foxfire.tres"
+			"image_name": "specials",
+			"image_index": 4
 		},
 		{
 			"definition_id": "standard_normal_grasp",
-			"image": "normal_grasp.tres"
+			"image_name": "normals",
+			"image_index": 0
 		},
 		{
 			"definition_id": "standard_normal_grasp",
-			"image": "normal_grasp.tres"
+			"image_name": "normals",
+			"image_index": 0
 		},
 		{
 			"definition_id": "standard_normal_cross",
-			"image": "normal_cross.tres"
+			"image_name": "normals",
+			"image_index": 1
 		},
 		{
 			"definition_id": "standard_normal_cross",
-			"image": "normal_cross.tres"
+			"image_name": "normals",
+			"image_index": 1
 		},
 		{
 			"definition_id": "standard_normal_assault",
-			"image": "normal_assault.tres"
+			"image_name": "normals",
+			"image_index": 2
 		},
 		{
 			"definition_id": "standard_normal_assault",
-			"image": "normal_assault.tres"
+			"image_name": "normals",
+			"image_index": 2
 		},
 		{
 			"definition_id": "standard_normal_dive",
-			"image": "normal_dive.tres"
+			"image_name": "normals",
+			"image_index": 3
 		},
 		{
 			"definition_id": "standard_normal_dive",
-			"image": "normal_dive.tres"
+			"image_name": "normals",
+			"image_index": 3
 		},
 		{
 			"definition_id": "standard_normal_spike",
-			"image": "normal_spike.tres"
+			"image_name": "normals",
+			"image_index": 4
 		},
 		{
 			"definition_id": "standard_normal_spike",
-			"image": "normal_spike.tres"
+			"image_name": "normals",
+			"image_index": 4
 		},
 		{
 			"definition_id": "standard_normal_sweep",
-			"image": "normal_sweep.tres"
+			"image_name": "normals",
+			"image_index": 5
 		},
 		{
 			"definition_id": "standard_normal_sweep",
-			"image": "normal_sweep.tres"
+			"image_name": "normals",
+			"image_index": 5
 		},
 		{
 			"definition_id": "standard_normal_focus",
-			"image": "normal_focus.tres"
+			"image_name": "normals",
+			"image_index": 6
 		},
 		{
 			"definition_id": "standard_normal_focus",
-			"image": "normal_focus.tres"
+			"image_name": "normals",
+			"image_index": 6
 		},
 		{
 			"definition_id": "standard_normal_block",
-			"image": "normal_block.tres"
+			"image_name": "normals",
+			"image_index": 7
 		},
 		{
 			"definition_id": "standard_normal_block",
-			"image": "normal_block.tres"
+			"image_name": "normals",
+			"image_index": 7
 		}
 	]
 }
