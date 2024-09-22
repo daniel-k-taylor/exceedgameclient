@@ -1,0 +1,211 @@
+{
+	"id": "seijun",
+	"season": 2,
+	"display_name": "Seijun",
+	"alt_hand_size": 9,
+	"bonus_starting_hand": 2,
+	"exceed_cost": 5,
+	"exceed_cost_reduced_by": "transform_discount",
+	"exceed_animation": "seijun_exceed",
+	"ability_effects": [
+		{
+			"character_effect": true,
+			"timing": "set_strike",
+			"effect_type": "add_attack_effect",
+			"added_effect": {
+				"timing": "during_strike",
+				"effect_type": "guardup_per_two_cards_in_hand"
+			}
+		}
+	],
+	"on_exceed": {
+		"effect_type": "draw",
+		"amount": 3,
+		"and": {
+			"effect_type": "set_max_hand_size",
+			"amount": 99,
+			"description": "unlimited"
+		}
+	},
+	"exceed_ability_effects": [
+		{
+			"timing": "start_of_next_turn",
+			"effect_type": "draw",
+			"amount": 1
+		}
+	],
+	"image_resources": {
+		"character_default": {
+			"url": "https://i.imgur.com/zoZQipn.jpeg",
+			"multiple_cards": false
+		},
+		"character_exceeded": {
+			"url": "https://i.imgur.com/NtH1Zdl.jpeg",
+			"multiple_cards": false
+		},
+		"cardback": {
+			"url": "https://i.imgur.com/igYZhPh.png",
+			"multiple_cards": false
+		},
+		"specials": {
+			"url": "https://i.imgur.com/bbkaKsO.jpeg",
+			"multiple_cards": true
+		},
+		"normals": {
+			"url": "https://i.imgur.com/1pnJnEb.jpeg",
+			"multiple_cards": true
+		}
+	},
+	"cards": [
+		{
+			"definition_id": "seijun_taleofninesorrows",
+			"image_name": "specials",
+			"image_index": 5
+		},
+		{
+			"definition_id": "seijun_taleofninesorrows",
+			"image_name": "specials",
+			"image_index": 5
+		},
+		{
+			"definition_id": "seijun_taleofseventrials",
+			"image_name": "specials",
+			"image_index": 6
+		},
+		{
+			"definition_id": "seijun_taleofseventrials",
+			"image_name": "specials",
+			"image_index": 6
+		},
+		{
+			"definition_id": "seijun_inksplash",
+			"image_name": "specials",
+			"image_index": 0
+		},
+		{
+			"definition_id": "seijun_inksplash",
+			"image_name": "specials",
+			"image_index": 0
+		},
+		{
+			"definition_id": "seijun_yokaibanishing",
+			"image_name": "specials",
+			"image_index": 1
+		},
+		{
+			"definition_id": "seijun_yokaibanishing",
+			"image_name": "specials",
+			"image_index": 1
+		},
+		{
+			"definition_id": "seijun_inariguidance",
+			"image_name": "specials",
+			"image_index": 2
+		},
+		{
+			"definition_id": "seijun_inariguidance",
+			"image_name": "specials",
+			"image_index": 2
+		},
+		{
+			"definition_id": "seijun_inkspike",
+			"image_name": "specials",
+			"image_index": 3
+		},
+		{
+			"definition_id": "seijun_inkspike",
+			"image_name": "specials",
+			"image_index": 3
+		},
+		{
+			"definition_id": "seijun_foxfire",
+			"image_name": "specials",
+			"image_index": 4
+		},
+		{
+			"definition_id": "seijun_foxfire",
+			"image_name": "specials",
+			"image_index": 4
+		},
+		{
+			"definition_id": "standard_normal_grasp",
+			"image_name": "normals",
+			"image_index": 0
+		},
+		{
+			"definition_id": "standard_normal_grasp",
+			"image_name": "normals",
+			"image_index": 0
+		},
+		{
+			"definition_id": "standard_normal_cross",
+			"image_name": "normals",
+			"image_index": 1
+		},
+		{
+			"definition_id": "standard_normal_cross",
+			"image_name": "normals",
+			"image_index": 1
+		},
+		{
+			"definition_id": "standard_normal_assault",
+			"image_name": "normals",
+			"image_index": 2
+		},
+		{
+			"definition_id": "standard_normal_assault",
+			"image_name": "normals",
+			"image_index": 2
+		},
+		{
+			"definition_id": "standard_normal_dive",
+			"image_name": "normals",
+			"image_index": 3
+		},
+		{
+			"definition_id": "standard_normal_dive",
+			"image_name": "normals",
+			"image_index": 3
+		},
+		{
+			"definition_id": "standard_normal_spike",
+			"image_name": "normals",
+			"image_index": 4
+		},
+		{
+			"definition_id": "standard_normal_spike",
+			"image_name": "normals",
+			"image_index": 4
+		},
+		{
+			"definition_id": "standard_normal_sweep",
+			"image_name": "normals",
+			"image_index": 5
+		},
+		{
+			"definition_id": "standard_normal_sweep",
+			"image_name": "normals",
+			"image_index": 5
+		},
+		{
+			"definition_id": "standard_normal_focus",
+			"image_name": "normals",
+			"image_index": 6
+		},
+		{
+			"definition_id": "standard_normal_focus",
+			"image_name": "normals",
+			"image_index": 6
+		},
+		{
+			"definition_id": "standard_normal_block",
+			"image_name": "normals",
+			"image_index": 7
+		},
+		{
+			"definition_id": "standard_normal_block",
+			"image_name": "normals",
+			"image_index": 7
+		}
+	]
+}

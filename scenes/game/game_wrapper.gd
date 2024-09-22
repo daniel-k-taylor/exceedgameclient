@@ -364,6 +364,14 @@ func get_card_index_in_discards(player_id : Enums.PlayerId, card_id : int):
 			return i
 	return -1
 
+func get_ex_transform_copy(player_id : Enums.PlayerId, card_id : int) -> int:
+	var card_db = current_game.get_card_database()
+	var card = card_db.get_card(card_id)
+	for hand_card in _get_player(player_id).hand:
+		if hand_card.definition['id'] == card.definition['id'] and hand_card.id != card_id:
+			return hand_card.id
+	return -1
+
 func other_player(id : Enums.PlayerId) -> Enums.PlayerId:
 	if id == Enums.PlayerId.PlayerId_Player:
 		return Enums.PlayerId.PlayerId_Opponent
@@ -406,6 +414,8 @@ func can_player_boost(player_id : Enums.PlayerId,
 			return false
 	if card.definition['type'] == "decree_glorious" and not is_player_exceeded(player_id):
 		return false
+	if card.definition['boost']['boost_type'] == "transform":
+		return false
 
 	if ignore_costs:
 		return true
@@ -413,6 +423,17 @@ func can_player_boost(player_id : Enums.PlayerId,
 	var boosting_card_force_value = card_db.get_card_force_value(card_id)
 	var force_available = get_player_available_force(player_id) - boosting_card_force_value
 	return force_cost <= force_available
+
+func can_player_ex_transform(player_id : Enums.PlayerId, card_id : int) -> bool:
+	if not is_card_in_hand(player_id, card_id):
+		return false
+
+	var card_db = current_game.get_card_database()
+	var card = card_db.get_card(card_id)
+	if card.definition['boost']['boost_type'] != "transform":
+		return false
+
+	return get_ex_transform_copy(player_id, card_id) != -1
 
 func can_do_prepare(player : Enums.PlayerId) -> bool:
 	var game_player = _get_player(player)
@@ -437,6 +458,10 @@ func can_do_reshuffle(player : Enums.PlayerId) -> bool:
 func can_do_boost(player : Enums.PlayerId) -> bool:
 	var game_player = _get_player(player)
 	return current_game.can_do_boost(game_player)
+
+func can_do_ex_transform(player : Enums.PlayerId) -> bool:
+	var game_player = _get_player(player)
+	return current_game.can_do_ex_transform(game_player)
 
 func can_do_strike(player : Enums.PlayerId) -> bool:
 	var game_player = _get_player(player)

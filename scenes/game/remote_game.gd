@@ -149,6 +149,9 @@ func can_do_reshuffle(player : LocalGame.Player) -> bool:
 func can_do_boost(player : LocalGame.Player) -> bool:
 	return local_game.can_do_boost(player)
 
+func can_do_ex_transform(player : LocalGame.Player) -> bool:
+	return local_game.can_do_ex_transform(player)
+
 func can_do_strike(player : LocalGame.Player) -> bool:
 	return local_game.can_do_strike(player)
 

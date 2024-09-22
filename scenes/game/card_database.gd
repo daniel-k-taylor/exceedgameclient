@@ -34,6 +34,8 @@ func get_card_sort_key(card_id : int):
 	var gamecard = get_card(card_id)
 	var card_type = gamecard.definition['type']
 	var speed = gamecard.definition['speed']
+	if speed is String:
+		speed = 20
 	var display_name = gamecard.definition['display_name']
 	var sort_key = 0
 	if card_type == "normal":

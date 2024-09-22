@@ -578,6 +578,8 @@ func get_boost_actions(valid_zones : Array, limitation : String, ignore_costs : 
 		for card in zone_map[zone]:
 			if card.definition['type'] == "decree_glorious" and not game_player.exceeded:
 				continue
+			if card.definition['boost']['boost_type'] == "transform":
+				continue
 			if limitation:
 				if card.definition['boost']['boost_type'] != limitation and card.definition['type'] != limitation:
 					continue
@@ -1075,6 +1077,8 @@ func pick_choose_from_discard(choose_count : int) -> ChooseFromDiscardAction:
 				can_choose = card.definition['type'] in ["special", "ultra"]
 			"continuous":
 				can_choose = card.definition['boost']['boost_type'] == "continuous"
+			"transform":
+				can_choose = card.definition['boost']['boost_type'] == "transform"
 			_:
 				can_choose = true
 		if can_choose:

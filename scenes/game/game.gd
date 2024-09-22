@@ -1153,12 +1153,23 @@ func can_select_card(card):
 			var select_boost_limitation = select_boost_options['limitation']
 			var select_boost_ignore_costs = select_boost_options['ignore_costs']
 			var select_boost_amount = select_boost_options['boost_amount']
+
 			var valid_amount = false
 			if select_boost_amount <= 1:
 				valid_amount = len(selected_cards) == 0
 			else:
 				valid_amount = len(selected_cards) < select_boost_amount
-			var valid_card = game_wrapper.can_player_boost(Enums.PlayerId.PlayerId_Player, card.card_id, select_boost_valid_zones, select_boost_limitation, select_boost_ignore_costs)
+
+			var card_db = game_wrapper.get_card_database()
+			var logic_card = card_db.get_card(card.card_id)
+
+			var valid_card = false
+			if logic_card.definition['boost']['boost_type'] == "transform":
+				# Currently assumes that transforms can only be selected for the ex transform action
+				if game_wrapper.can_do_ex_transform(Enums.PlayerId.PlayerId_Player): # checks timing
+					valid_card = game_wrapper.can_player_ex_transform(Enums.PlayerId.PlayerId_Player, card.card_id)
+			else:
+				valid_card = game_wrapper.can_player_boost(Enums.PlayerId.PlayerId_Player, card.card_id, select_boost_valid_zones, select_boost_limitation, select_boost_ignore_costs)
 			return valid_amount and valid_card
 		UISubState.UISubState_SelectCards_ForceForBoost:
 			return (in_gauge or in_hand) and selected_boost_to_pay_for != card.card_id
@@ -1203,6 +1214,8 @@ func can_select_card(card):
 					meets_limitation = card_type in ["special", "ultra"]
 				"continuous":
 					meets_limitation = logic_card.definition['boost']['boost_type'] == "continuous"
+				"transform":
+					meets_limitation = logic_card.definition['boost']['boost_type'] == "transform"
 				_:
 					meets_limitation = true
 			var in_correct_source = false
@@ -1574,6 +1587,23 @@ func _on_continuous_boost_added(event):
 	spawn_damage_popup("+ Continuous Boost", player)
 	return SmallNoticeDelay
 
+func _on_transform_added(event):
+	var player = event['event_player']
+	var card = find_card_on_board(event['number'])
+	make_card_revealed(card)
+	var boost_zone = $PlayerBoostZone
+	var boost_card_loc = $AllCards/PlayerBoosts
+
+	if player == Enums.PlayerId.PlayerId_Opponent:
+		boost_zone = $OpponentBoostZone
+		boost_card_loc = $AllCards/OpponentBoosts
+
+	var pos = get_boost_zone_center(boost_zone)
+	card.discard_to(pos, CardBase.CardState.CardState_InBoost)
+	reparent_to_zone(card, boost_card_loc)
+	spawn_damage_popup("+ Transform", player)
+	return SmallNoticeDelay
+
 func _on_discard_continuous_boost_begin(event):
 	var player = event['event_player']
 	var decision_info = game_wrapper.get_decision_info()
@@ -1676,13 +1706,18 @@ func _on_name_opponent_card_begin(event):
 func _on_boost_played(event):
 	var player = event['event_player']
 	var card = find_card_on_board(event['number'])
+	var is_transform = event['reason'] == "Transform"
 	make_card_revealed(card)
 	var target_zone = $PlayerStrike/StrikeZone
 	var is_player = player == Enums.PlayerId.PlayerId_Player
 	if not is_player:
 		target_zone = $OpponentStrike/StrikeZone
 	_move_card_to_strike_area(card, target_zone, $AllCards/Striking, is_player, false)
-	spawn_damage_popup("Boost!", player)
+
+	var boost_text = "Boost!"
+	if is_transform:
+		boost_text = "EX Transform!"
+	spawn_damage_popup(boost_text, player)
 	return BoostDelay
 
 func _on_choose_card_hand_to_gauge(event):
@@ -2647,7 +2682,15 @@ func begin_boost_choosing(can_cancel : bool, valid_zones : Array, limitation : S
 	if preparing_character_action:
 		character_action_str = " for %s" % prepared_character_action_data['action_name']
 	var zone_str = '/'.join(valid_zones)
-	var instructions = "Select %s %s to boost from %s%s." % [count_str, limitation_str, zone_str, character_action_str]
+
+	var available_boost_actions = []
+	if game_wrapper.can_do_boost(Enums.PlayerId.PlayerId_Player):
+		available_boost_actions.append("boost")
+	if game_wrapper.can_do_ex_transform(Enums.PlayerId.PlayerId_Player):
+		available_boost_actions.append("transform")
+	var available_boost_action_str = '/'.join(available_boost_actions)
+
+	var instructions = "Select %s %s to %s from %s%s." % [count_str, limitation_str, available_boost_action_str, zone_str, character_action_str]
 	if 'gauge' in valid_zones:
 		_on_player_gauge_gauge_clicked()
 	elif 'discard' in valid_zones: # can't open two zones at once
@@ -3495,6 +3538,8 @@ func _handle_events(events):
 			Enums.EventType.EventType_Strike_WildStrike:
 				_on_strike_started(event, false, true)
 				delay = _stat_notice_event(event)
+			Enums.EventType.EventType_Transform_Added:
+				delay = _on_transform_added(event)
 			_:
 				printlog("ERROR: UNHANDLED EVENT")
 				assert(false)
@@ -3528,7 +3573,9 @@ func _update_buttons():
 				button_choices.append({ "text": "Exceed (%s Gauge)" % exceed_cost, "action": _on_exceed_button_pressed, "disabled": not game_wrapper.can_do_exceed(Enums.PlayerId.PlayerId_Player) })
 			if game_wrapper.can_do_reshuffle(Enums.PlayerId.PlayerId_Player):
 				button_choices.append({ "text": "Manual Reshuffle", "action": _on_reshuffle_button_pressed, "disabled": false })
-			button_choices.append({ "text": "Boost", "action": _on_boost_button_pressed, "disabled": not game_wrapper.can_do_boost(Enums.PlayerId.PlayerId_Player) })
+			var ex_transform_available = game_wrapper.can_do_ex_transform(Enums.PlayerId.PlayerId_Player)
+			var ex_transform_text = "/Transform" if ex_transform_available else ""
+			button_choices.append({ "text": "Boost" + ex_transform_text, "action": _on_boost_button_pressed, "disabled": not (game_wrapper.can_do_boost(Enums.PlayerId.PlayerId_Player) or ex_transform_available) })
 			button_choices.append({ "text": "Strike", "action": _on_strike_button_pressed, "disabled": not game_wrapper.can_do_strike(Enums.PlayerId.PlayerId_Player) })
 			for i in range(game_wrapper.get_player_character_action_count(Enums.PlayerId.PlayerId_Player)):
 				var char_action = game_wrapper.get_player_character_action(Enums.PlayerId.PlayerId_Player, i)
@@ -3557,6 +3604,7 @@ func _update_buttons():
 			var boost_text = "Boost"
 			var can_strike = false
 			var can_boost = false
+			var can_ex_transform = false
 			var only_in_hand = true
 			var only_in_gauge = true
 			var only_in_boosts = true
@@ -3581,13 +3629,23 @@ func _update_buttons():
 			if only_in_hand:
 				if len(selected_cards) == 1:
 					can_strike = true
-					can_boost = true
+					var logic_card = card_db.get_card(selected_cards[0].card_id)
+					if logic_card.definition["boost"]["boost_type"] == "transform":
+						boost_text = "EX Transform"
+						can_ex_transform = game_wrapper.can_player_ex_transform(Enums.PlayerId.PlayerId_Player, selected_cards[0].card_id)
+					else:
+						can_boost = true
 				elif len(selected_cards) == 2:
 					var card1 = selected_cards[0]
 					var card2 = selected_cards[1]
 					if card_db.are_same_card(card1.card_id, card2.card_id):
 						can_strike = true
 						strike_text = "EX Strike"
+
+						var logic_card = card_db.get_card(card1.card_id)
+						if logic_card.definition["boost"]["boost_type"] == "transform":
+							can_ex_transform = true
+							boost_text = "EX Transform"
 			elif only_in_boosts:
 				if len(selected_cards) == 1:
 					var logic_card = card_db.get_card(selected_cards[0].card_id)
@@ -3601,7 +3659,7 @@ func _update_buttons():
 			if can_strike:
 				card_name = card_db.get_card(selected_cards[0].card_id).definition['display_name']
 				strike_text += " (%s)" % card_name
-			if can_boost:
+			if can_boost or can_ex_transform:
 				var boost_name = card_db.get_card(selected_cards[0].card_id).definition['boost']['display_name']
 				boost_text += " (%s)" % boost_name
 
@@ -3610,7 +3668,8 @@ func _update_buttons():
 			instructions_cancel_allowed = false
 			instructions_wild_swing_allowed = false
 			button_choices.append({ "text": strike_text, "action": _on_shortcut_strike_pressed, "disabled": not can_strike or not game_wrapper.can_do_strike(Enums.PlayerId.PlayerId_Player) })
-			button_choices.append({ "text": boost_text, "action": _on_shortcut_boost_pressed, "disabled": not can_boost or not game_wrapper.can_do_boost(Enums.PlayerId.PlayerId_Player) })
+			button_choices.append({ "text": boost_text, "action": _on_shortcut_boost_pressed,
+				"disabled": (not can_boost or not game_wrapper.can_do_boost(Enums.PlayerId.PlayerId_Player)) and (not can_ex_transform or not game_wrapper.can_do_ex_transform(Enums.PlayerId.PlayerId_Player)) })
 
 			# Check for character actions with card-related shortcuts
 			for i in range(game_wrapper.get_player_character_action_count(Enums.PlayerId.PlayerId_Player)):
@@ -3843,21 +3902,30 @@ func update_boost_summary(boosts_card_holder, boost_box):
 	var card_db = game_wrapper.get_card_database()
 	for card in boosts_card_holder.get_children():
 		card_ids.append(card.card_id)
-	var effects = []
+	var transform_effects = []
+	var normal_effects = []
 	for card_id in card_ids:
 		var card = card_db.get_card(card_id)
+		var add_to_effects = normal_effects
+		if card.definition['boost']['boost_type'] == "transform":
+			add_to_effects = transform_effects
+
 		if 'stop_on_space_effect' in card.definition['boost']:
 			var stop_on_space_effect = card.definition['boost']['stop_on_space_effect'].duplicate()
 			stop_on_space_effect['timing'] = "on_stop_on_space"
-			effects.append(stop_on_space_effect)
+			add_to_effects.append(stop_on_space_effect)
 		for effect in card.definition['boost']['effects']:
 			if effect['timing'] != "now" or effect['effect_type'] in ["force_costs_reduced_passive", "ignore_push_and_pull_passive_bonus"]:
 				if effect['timing'] != "discarded":
-					effects.append(effect)
+					add_to_effects.append(effect)
+
 	var boost_summary = ""
-	for effect in effects:
+	for effect in normal_effects:
 		if 'hide_effect' not in effect or not effect['hide_effect']:
 			boost_summary += CardDefinitions.get_effect_text(effect) + "\n"
+	for effect in transform_effects:
+		if 'hide_effect' not in effect or not effect['hide_effect']:
+			boost_summary += "[color=purple][TF][/color] " + CardDefinitions.get_effect_text(effect) + "\n"
 
 	for card_id in card_ids:
 		var card = card_db.get_card(card_id)
@@ -4326,15 +4394,20 @@ func _on_instructions_ok_button_pressed(index : int):
 			UISubState.UISubState_SelectCards_Mulligan:
 				success = game_wrapper.submit_mulligan(Enums.PlayerId.PlayerId_Player, selected_card_ids)
 			UISubState.UISubState_SelectCards_PlayBoost:
-				var force_cost = game_wrapper.get_card_database().get_card_boost_force_cost(single_card_id)
-				if not select_boost_options['ignore_costs'] and force_cost > 0:
-					assert(select_boost_options['boost_amount'] <= 1, "WARNING: Can't currently handle force costs for multiple boosts")
-					selected_boost_to_pay_for = single_card_id
-					change_ui_state(null, UISubState.UISubState_SelectCards_ForceForBoost)
-					begin_generate_force_selection(force_cost)
+				var logic_card = game_wrapper.get_card_database().get_card(single_card_id)
+				if logic_card.definition['boost']['boost_type'] == "transform":
+					var ex_transform_id = game_wrapper.get_ex_transform_copy(Enums.PlayerId.PlayerId_Player, single_card_id)
+					success = game_wrapper.submit_boost(Enums.PlayerId.PlayerId_Player, single_card_id, [ex_transform_id], false, [])
 				else:
-					var additional_boost_ids = selected_card_ids.slice(1)
-					success = game_wrapper.submit_boost(Enums.PlayerId.PlayerId_Player, single_card_id, [], use_free_force, additional_boost_ids)
+					var force_cost = game_wrapper.get_card_database().get_card_boost_force_cost(single_card_id)
+					if not select_boost_options['ignore_costs'] and force_cost > 0:
+						assert(select_boost_options['boost_amount'] <= 1, "WARNING: Can't currently handle force costs for multiple boosts")
+						selected_boost_to_pay_for = single_card_id
+						change_ui_state(null, UISubState.UISubState_SelectCards_ForceForBoost)
+						begin_generate_force_selection(force_cost)
+					else:
+						var additional_boost_ids = selected_card_ids.slice(1)
+						success = game_wrapper.submit_boost(Enums.PlayerId.PlayerId_Player, single_card_id, [], use_free_force, additional_boost_ids)
 			UISubState.UISubState_SelectCards_ForceForBoost:
 				success = game_wrapper.submit_boost(Enums.PlayerId.PlayerId_Player, selected_boost_to_pay_for, selected_card_ids, use_free_force)
 			UISubState.UISubState_PickNumberFromRange:
@@ -4492,14 +4565,24 @@ func _on_shortcut_boost_pressed():
 	deselect_all_cards()
 
 	var success = false
-	var force_cost = game_wrapper.get_card_database().get_card_boost_force_cost(card_id)
-	if force_cost > 0:
-		select_boost_options = {}
-		selected_boost_to_pay_for = card_id
-		change_ui_state(null, UISubState.UISubState_SelectCards_ForceForBoost)
-		begin_generate_force_selection(force_cost)
+
+	var logic_card = game_wrapper.get_card_database().get_card(card_id)
+	if logic_card.definition['boost']['boost_type'] == "transform":
+		var ex_transform_id = -1
+		if len(selected_cards) > 0:
+			ex_transform_id = selected_cards[1]
+		else:
+			ex_transform_id = game_wrapper.get_ex_transform_copy(Enums.PlayerId.PlayerId_Player, card_id)
+		success = game_wrapper.submit_boost(Enums.PlayerId.PlayerId_Player, card_id, [ex_transform_id], false)
 	else:
-		success = game_wrapper.submit_boost(Enums.PlayerId.PlayerId_Player, card_id, [], use_free_force)
+		var force_cost = game_wrapper.get_card_database().get_card_boost_force_cost(card_id)
+		if force_cost > 0:
+			select_boost_options = {}
+			selected_boost_to_pay_for = card_id
+			change_ui_state(null, UISubState.UISubState_SelectCards_ForceForBoost)
+			begin_generate_force_selection(force_cost)
+		else:
+			success = game_wrapper.submit_boost(Enums.PlayerId.PlayerId_Player, card_id, [], use_free_force)
 
 	if success:
 		change_ui_state(UIState.UIState_WaitForGameServer)

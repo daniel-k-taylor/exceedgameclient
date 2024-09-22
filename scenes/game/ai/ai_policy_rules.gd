@@ -217,6 +217,8 @@ func pick_turn_action(possible_actions : Array, ai_game_state : AIPlayer.AIGameS
 				if boost_choices.size() > 0:
 					return boost_choices[randi() % boost_choices.size()]
 
+		# TODO: consider EX transform
+
 		# Try to character action.
 		var skip_character_action = false
 		if ai_game_state.my_state.deck_def['id'] == 'bison' and ai_game_state.my_state.gauge.size() > 3:

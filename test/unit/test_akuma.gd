@@ -70,7 +70,6 @@ func before_each():
 func after_each():
 	game_logic.teardown()
 	game_logic.free()
-	image_loader.free()
 	gut.p("ran teardown", 2)
 
 func before_all():
@@ -383,7 +382,6 @@ func test_akuma_instanthellmurder_enough():
 func test_akuma_vs_arakune_positive_bonus_check():
 	game_logic.teardown()
 	game_logic.free()
-	image_loader.free()
 	default_game_setup("arakune")
 	position_players(player1, 3, player2, 5)
 	player1.exceeded = true

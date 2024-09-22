@@ -127,7 +127,6 @@ func test_treasure_anchor_launch_miss():
 func setup_exceeded_tinker_knight():
 	game_logic.teardown()
 	game_logic.free()
-	image_loader.free()
 	default_game_setup("tinker")
 
 	give_gauge(player2, 5)

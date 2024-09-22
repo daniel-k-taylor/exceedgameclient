@@ -66,6 +66,7 @@ var active_strike : Strike = null
 var active_character_action : bool = false
 var active_exceed : bool = false
 var active_overdrive : bool = false
+var active_prepare : bool = false
 var active_overdrive_boost_top_discard_on_cleanup : bool = false
 var active_change_cards : bool = false
 var active_special_draw_effect : bool = false
@@ -75,6 +76,7 @@ var remaining_overdrive_effects = []
 var remaining_character_action_effects = []
 var remaining_start_of_turn_effects = []
 var remaining_end_of_turn_effects = []
+var prepare_effects_resolved : int = 0
 
 var decision_info : DecisionInfo = DecisionInfo.new()
 var active_boost : Boost = null
@@ -460,6 +462,8 @@ class Strike:
 			for effect in effects:
 				if effect['timing'] == 'during_strike' and effect['effect_type'] == "attack_is_ex":
 					return true
+		if performing_player.strike_stat_boosts.is_ex:
+			return true
 		if performing_player == initiator:
 			return initiator_ex_card != null
 		else:
@@ -477,6 +481,9 @@ class Boost:
 	var discarded_already = false
 	var seal_on_cleanup = false
 	var cancel_resolved = false
+	var checked_counter = false
+	var counters_resolved = 0
+	var boost_negated = false
 	var cleanup_to_gauge_card_ids = []
 	var cleanup_to_hand_card_ids = []
 	var parent_boost = null
@@ -518,6 +525,7 @@ class StrikeStatBoosts:
 	var return_attack_to_hand : bool = false
 	var move_strike_to_boosts : bool = false
 	var move_strike_to_boosts_sustain : bool = true
+	var move_strike_to_transforms : bool = false
 	var move_strike_to_opponent_boosts : bool = false
 	var when_hit_force_for_armor : String = ""
 	var stun_immunity : bool = false
@@ -539,6 +547,7 @@ class StrikeStatBoosts:
 	var rangeup_min_per_boost_modifier : int = 0
 	var rangeup_max_per_boost_modifier : int = 0
 	var rangeup_per_boost_modifier_all_boosts : bool = false
+	var guardup_per_two_cards_in_hand : bool = false
 	var active_character_effects = []
 	var added_attack_effects = []
 	var ex_count : int = 0
@@ -617,6 +626,7 @@ class StrikeStatBoosts:
 		return_attack_to_hand = false
 		move_strike_to_boosts = false
 		move_strike_to_boosts_sustain = true
+		move_strike_to_transforms = false
 		move_strike_to_opponent_boosts = false
 		when_hit_force_for_armor = ""
 		stun_immunity = false
@@ -638,6 +648,7 @@ class StrikeStatBoosts:
 		rangeup_min_per_boost_modifier = 0
 		rangeup_max_per_boost_modifier = 0
 		rangeup_per_boost_modifier_all_boosts = false
+		guardup_per_two_cards_in_hand = false
 		active_character_effects = []
 		added_attack_effects = []
 		ex_count = 0
@@ -703,6 +714,7 @@ class Player:
 	var deck_def : Dictionary
 	var gauge : Array[GameCard]
 	var continuous_boosts : Array[GameCard]
+	var transforms : Array[GameCard]
 	var lightningrod_zones : Array
 	var underboost_map : Dictionary
 	var cleanup_boost_to_gauge_cards : Array
@@ -820,6 +832,7 @@ class Player:
 			card_start_id += 1
 		gauge = []
 		continuous_boosts = []
+		transforms = []
 		lightningrod_zones = []
 		for i in range(MinArenaLocation, MaxArenaLocation + 1):
 			lightningrod_zones.append([])
@@ -950,8 +963,11 @@ class Player:
 
 	func get_exceed_cost():
 		var cost = exceed_cost
-		if 'exceed_cost_reduced_by' in deck_def and deck_def['exceed_cost_reduced_by'] == "overdrive_count":
-			cost -= len(overdrive)
+		if 'exceed_cost_reduced_by' in deck_def:
+			if deck_def['exceed_cost_reduced_by'] == "overdrive_count":
+				cost -= len(overdrive)
+			elif deck_def['exceed_cost_reduced_by'] == "transform_discount":
+				cost -= 2 * len(transforms)
 			cost = max(0, cost)
 		return cost
 
@@ -1031,6 +1047,26 @@ class Player:
 		for card in hand:
 			if card.definition['id'] == definition_id:
 				return card.id
+		return -1
+
+	func is_card_in_hand_match_normals(compare_card : GameCard):
+		var is_normal = compare_card.definition['type'] == "normal"
+		for card in hand:
+			if card.id == compare_card.id:
+				return true
+			elif is_normal and card.definition['type'] == "normal":
+				if card.definition['speed'] == compare_card.definition['speed']:
+					return true
+		return false
+
+	func get_copy_in_hand_match_normals(compare_card : GameCard):
+		var is_normal = compare_card.definition['type'] == "normal"
+		for card in hand:
+			if card.definition['id'] == compare_card.definition['id']:
+				return card.id
+			elif is_normal and card.definition['type'] == "normal":
+				if card.definition['speed'] == compare_card.definition['speed']:
+					return card.id
 		return -1
 
 	func is_card_in_discards(id : int):
@@ -1942,6 +1978,9 @@ class Player:
 
 		for zone in valid_zones:
 			for card in zone_map[zone]:
+				if card.definition['boost']['boost_type'] == "transform":
+					continue
+
 				var meets_limitation = true
 				if limitation:
 					if card.definition['boost']['boost_type'] == limitation or card.definition['type'] == limitation:
@@ -1957,6 +1996,12 @@ class Player:
 				var cost = parent.card_db.get_card_boost_force_cost(card.id)
 				if force_available_when_boosting_this >= cost:
 					return true
+		return false
+
+	func has_card_name_transformed(card : GameCard):
+		for transformed_card in transforms:
+			if transformed_card.definition['display_name'] == card.definition['display_name']:
+				return true
 		return false
 
 	func can_cancel(card : GameCard):
@@ -2080,25 +2125,23 @@ class Player:
 
 		var draw_from_index = 0
 		for i in range(num_to_draw):
-			if from_bottom:
-				draw_from_index = len(deck)-1
+			var draw_finished = false
+			while not draw_finished:
+				if from_bottom:
+					draw_from_index = len(deck)-1
 
-			if len(deck) > 0:
-				var card = deck[draw_from_index]
-				hand.append(card)
-				deck.remove_at(draw_from_index)
-				if draw_from_index == 0:
-					on_hand_removed_topdeck(card.id)
-				events += [parent.create_event(Enums.EventType.EventType_Draw, my_id, card.id)]
-			else:
-				events += reshuffle_discard(false)
-				if not parent.game_over:
-					if from_bottom:
-						draw_from_index = len(deck)-1
+				if len(deck) > 0:
 					var card = deck[draw_from_index]
 					hand.append(card)
 					deck.remove_at(draw_from_index)
+					if draw_from_index == 0:
+						on_hand_removed_topdeck(card.id)
 					events += [parent.create_event(Enums.EventType.EventType_Draw, my_id, card.id)]
+					draw_finished = true
+				else:
+					events += reshuffle_discard(false)
+					if parent.game_over:
+						draw_finished = true
 
 			if update_if_empty:
 				update_public_hand_if_deck_empty()
@@ -2845,6 +2888,20 @@ class Player:
 		events += [parent.create_event(Enums.EventType.EventType_Boost_Continuous_Added, my_id, card.id)]
 		return events
 
+	func add_to_transforms(card : GameCard):
+		var events = []
+		for boost_card in transforms:
+			if boost_card.id == card.id:
+				assert(false, "Should not have transform already here.")
+			elif boost_card.definition['display_name'] == card.definition['display_name']:
+				assert(false, "Should not be able to transform two cards with same name.")
+		transforms.append(card)
+		events += [parent.create_event(Enums.EventType.EventType_Transform_Added, my_id, card.id)]
+		return events
+
+	func get_continuous_boosts_and_transforms():
+		return continuous_boosts + transforms
+
 	func _find_during_strike_effects(card : GameCard):
 		var found_effects = []
 		for effect in card.definition['boost']['effects']:
@@ -3027,7 +3084,7 @@ class Player:
 
 	func get_all_non_immediate_continuous_boost_effects():
 		var effects = []
-		for card in continuous_boosts:
+		for card in get_continuous_boosts_and_transforms():
 			for effect in card.definition['boost']['effects']:
 				if effect['timing'] != "now":
 					effects.append(effect)
@@ -3035,6 +3092,12 @@ class Player:
 
 	func is_card_in_continuous_boosts(id : int):
 		for card in continuous_boosts:
+			if card.id == id:
+				return true
+		return false
+
+	func is_card_in_transforms(id : int):
+		for card in transforms:
 			if card.id == id:
 				return true
 		return false
@@ -3184,6 +3247,20 @@ class Player:
 		for effect in deck_def[ability_label]:
 			if effect['timing'] == "on_any_boost":
 				effects.append(effect)
+		return effects
+
+	func get_counter_boost_effects():
+		var effects = []
+		var ability_label = "ability_effects"
+		if exceeded:
+			ability_label = "exceed_ability_effects"
+		for effect in deck_def[ability_label]:
+			if effect['timing'] == "counter_boost":
+				effects.append(effect)
+		for card in get_continuous_boosts_and_transforms():
+			for effect in card.definition['boost']['effects']:
+				if effect['timing'] == "counter_boost":
+					effects.append(effect)
 		return effects
 
 	func set_strike_x(value : int, silent : bool = false):
@@ -3344,8 +3421,9 @@ func start_end_turn():
 		remaining_end_of_turn_effects.append(effect)
 
 	# Queue any end of turn boost effects.
-	for i in range(len(player_ending_turn.continuous_boosts) - 1, -1, -1):
-		var card = player_ending_turn.continuous_boosts[i]
+	var boost_list = player_ending_turn.get_continuous_boosts_and_transforms()
+	for i in range(len(boost_list) - 1, -1, -1):
+		var card = boost_list[i]
 		for effect in card.definition['boost']['effects']:
 			if effect['timing'] == "end_of_turn":
 				if card.id in player_ending_turn.end_of_turn_boost_delay_card_ids:
@@ -3487,22 +3565,26 @@ func start_begin_turn():
 	# Handle any start of turn boost effects.
 	# Iterate in reverse as items can be removed.
 	var starting_turn_player = _get_player(active_turn_player)
-	for i in range(len(starting_turn_player.continuous_boosts) - 1, -1, -1):
-		var card = starting_turn_player.continuous_boosts[i]
+	var starting_player_boost_list = starting_turn_player.get_continuous_boosts_and_transforms()
+	for i in range(len(starting_player_boost_list) - 1, -1, -1):
+		var card = starting_player_boost_list[i]
 		for effect in card.definition['boost']['effects']:
 			if effect['timing'] == "start_of_next_turn":
 				var effect_with_id = effect.duplicate()
 				effect_with_id['card_id'] = card.id
 				remaining_start_of_turn_effects.append(effect_with_id)
+
 	var other_player = _get_player(get_other_player(starting_turn_player.my_id))
-	for i in range(len(other_player.continuous_boosts) - 1, -1, -1):
-		var card = other_player.continuous_boosts[i]
+	var other_player_boost_list = other_player.get_continuous_boosts_and_transforms()
+	for i in range(len(other_player_boost_list) - 1, -1, -1):
+		var card = other_player_boost_list[i]
 		for effect in card.definition['boost']['effects']:
 			if effect['timing'] == "opponent_start_of_next_turn":
 				var effect_with_id = effect.duplicate()
 				effect_with_id['card_id'] = card.id
 				remaining_start_of_turn_effects.append(effect_with_id)
 
+	remaining_start_of_turn_effects += starting_turn_player.get_character_effects_at_timing("start_of_next_turn")
 	return continue_begin_turn()
 
 func continue_begin_turn():
@@ -3513,10 +3595,15 @@ func continue_begin_turn():
 	while remaining_start_of_turn_effects.size() > 0:
 		var effect = remaining_start_of_turn_effects[0]
 		remaining_start_of_turn_effects.erase(effect)
+
+		var card_id = -1
+		if 'card_id' in effect:
+			card_id = effect['card_id']
+
 		if effect['timing'] == "start_of_next_turn":
-			events += do_effect_if_condition_met(starting_turn_player, effect['card_id'], effect, null)
+			events += do_effect_if_condition_met(starting_turn_player, card_id, effect, null)
 		elif effect['timing'] == "opponent_start_of_next_turn":
-			events += do_effect_if_condition_met(other_player, effect['card_id'], effect, null)
+			events += do_effect_if_condition_met(other_player, card_id, effect, null)
 		else:
 			assert(false, "Unexpected timing for start of turn effect")
 
@@ -3762,7 +3849,7 @@ func get_total_speed(check_player, ignore_swap : bool = false):
 			boosts_in_play += opposing_player.continuous_boosts.size()
 		if boosts_in_play > 0:
 			bonus_speed += check_player.strike_stat_boosts.speedup_per_boost_modifier * boosts_in_play
-	var speed = check_card.definition['speed'] + bonus_speed
+	var speed = get_card_stat(check_player, check_card, 'speed') + bonus_speed
 	if active_strike and active_strike.extra_attack_in_progress:
 		# If an extra attack character has ways to get speed multipliers, deal with that then.
 		speed -= active_strike.extra_attack_data.extra_attack_previous_attack_speed_bonus
@@ -3915,9 +4002,9 @@ func is_effect_condition_met(performing_player : Player, effect, local_condition
 			var discarded_card_ids = effect['discarded_card_ids']
 			assert(discarded_card_ids.size() == 1)
 			var card = card_db.get_card(discarded_card_ids[0])
-			var speed_of_discarded = card.definition['speed']
+			var speed_of_discarded = get_card_stat(performing_player, card, 'speed')
 			var attack_card = active_strike.get_player_card(performing_player)
-			var printed_speed_of_attack = attack_card.definition['speed']
+			var printed_speed_of_attack = get_card_stat(performing_player, attack_card, 'speed')
 			return speed_of_discarded == printed_speed_of_attack
 		elif condition == "not_full_close":
 			return not local_conditions.fully_closed
@@ -4250,6 +4337,9 @@ func is_effect_condition_met(performing_player : Player, effect, local_condition
 					return true
 				check_parent_boost = check_parent_boost.parent_boost
 			return false
+		elif condition == "same_card_as_boost_in_hand":
+			assert(active_boost)
+			return performing_player.is_card_in_hand_match_normals(active_boost.card)
 		else:
 			assert(false, "Unimplemented condition")
 		# Unmet condition
@@ -5099,6 +5189,11 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 				_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "discards the boosted card %s." % _log_card_name(card_name))
 				events += performing_player.remove_from_continuous_boosts(card)
 				events += opposing_player.remove_from_continuous_boosts(card)
+		"discard_same_card_as_boost":
+			assert(active_boost)
+			var boost_copy_id = performing_player.get_copy_in_hand_match_normals(active_boost.card)
+			_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "discards a copy of the boosted card %s." % [_log_card_name(active_boost.card.definition['display_name'])])
+			events += performing_player.discard([boost_copy_id])
 		"discard_strike_after_cleanup":
 			performing_player.strike_stat_boosts.discard_attack_on_cleanup = true
 		"discard_opponent_topdeck":
@@ -5476,6 +5571,11 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 			var amount = performing_player.total_force_spent_this_turn * effect['amount']
 			performing_player.strike_stat_boosts.guard += amount
 			events += [create_event(Enums.EventType.EventType_Strike_GuardUp, performing_player.my_id, amount)]
+		"guardup_per_two_cards_in_hand":
+			performing_player.strike_stat_boosts.guardup_per_two_cards_in_hand = true
+			var hand_size = len(performing_player.hand)
+			var guard_boost = floor(hand_size / 2.0)
+			events += [create_event(Enums.EventType.EventType_Strike_GuardUp, performing_player.my_id, guard_boost)]
 		"higher_speed_misses":
 			performing_player.strike_stat_boosts.higher_speed_misses = true
 			if 'dodge_at_speed_greater_or_equal' in effect:
@@ -5767,6 +5867,11 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 			else:
 				assert(false, "Target effect for name_range not found.")
 				decision_info.clear()
+		"negate_boost":
+			assert(active_boost)
+			_append_log_full(Enums.LogType.LogType_Effect, active_boost.playing_player, "'s boost effect is negated.")
+			active_boost.boost_negated = true
+			active_boost.discard_on_cleanup = true
 		"only_hits_if_opponent_on_any_buddy":
 			performing_player.strike_stat_boosts.only_hits_if_opponent_on_any_buddy = true
 		"opponent_discard_normals_or_reveal":
@@ -7236,6 +7341,7 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 		"repeat_effect_optionally":
 			if active_strike:
 				var amount = effect['amount']
+				var not_optional = 'not_optional' in effect and effect['not_optional']
 				var first_not_automatic = 'first_not_automatic' in effect and effect['first_not_automatic']
 				if str(amount) == "every_two_sealed_normals":
 					var sealed_normals = performing_player.get_sealed_count_of_type("normal")
@@ -7246,17 +7352,21 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 				var linked_effect = effect['linked_effect']
 				if amount > 0:
 					var repeat_effect = {
-						"card_id": card_id,
-						"effect_type": "choice",
-						"choice": [
-							{
-								"effect_type": "repeat_effect_optionally",
-								"amount": amount-1,
-								"linked_effect": linked_effect
-							},
-							{ "effect_type": "pass" }
-						]
-					}
+							"card_id": card_id,
+							"effect_type": "repeat_effect_optionally",
+							"amount": amount-1,
+							"not_optional": not_optional,
+							"linked_effect": linked_effect
+						}
+					if not not_optional:
+						repeat_effect = {
+							"card_id": card_id,
+							"effect_type": "choice",
+							"choice": [
+								repeat_effect,
+								{ "effect_type": "pass" }
+							]
+						}
 					add_remaining_effect(repeat_effect)
 				if not first_not_automatic:
 					events += handle_strike_effect(card_id, linked_effect, performing_player)
@@ -7279,7 +7389,7 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 			var sealed_card = card_db.get_card(sealed_card_id)
 			var target_card = null
 			for card in performing_player.sealed:
-				if card.definition['speed'] == sealed_card.definition['speed']:
+				if get_card_stat(performing_player, card, 'speed') == get_card_stat(performing_player, sealed_card, 'speed'):
 					target_card = card
 					break
 			if target_card:
@@ -7418,6 +7528,12 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 			performing_player.enchantress_draw_choice = true
 		"set_end_of_turn_boost_delay":
 			performing_player.set_end_of_turn_boost_delay(card_id)
+		"set_max_hand_size":
+			performing_player.max_hand_size = effect['amount']
+			var new_size_string = "3 spaces wide"
+			if 'description' in effect:
+				new_size_string = effect['description']
+			_append_log_full(Enums.LogType.LogType_Effect, performing_player, "'s maximum hand size is now %s!" % new_size_string)
 		"set_strike_x":
 			var extra_info = []
 			if 'extra_info' in effect:
@@ -7859,6 +7975,14 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 					"max_amount": max_amount,
 				}
 				events += [create_event(Enums.EventType.EventType_CardFromHandToGauge_Choice, performing_player.my_id, min_amount, "", max_amount)]
+		"transform_attack":
+			# This effect is expected to be at the end of a strike.
+			assert(active_strike)
+			var card_name = card_db.get_card_name(card_id)
+			if 'card_name' in effect:
+				card_name = effect['card_name']
+			performing_player.strike_stat_boosts.move_strike_to_transforms = true
+			_append_log_full(Enums.LogType.LogType_Effect, performing_player, "transforms %s." % [_log_card_name(card_name)])
 		"when_hit_force_for_armor":
 			if 'use_gauge_instead' in effect and effect['use_gauge_instead']:
 				# Ignore if already using Block's force version.
@@ -8032,6 +8156,7 @@ func get_card_stat(check_player : Player, card : GameCard, stat : String) -> int
 	elif str(value) == "CARDS_IN_HAND_MAX_7":
 		value = min(check_player.hand.size(), 7)
 	elif str(value) == "TOTAL_POWER":
+		assert(stat != 'power')
 		value = get_total_power(check_player, false, card)
 	elif str(value) == "RANGE_TO_OPPONENT":
 		value = check_player.distance_to_opponent()
@@ -8043,6 +8168,13 @@ func get_card_stat(check_player : Player, card : GameCard, stat : String) -> int
 		# If a character can do that and also cares about range, then worry about that then.
 		if active_strike and check_player.strike_stat_boosts.range_includes_opponent:
 			value = check_player.distance_to_opponent()
+
+	var stat_limit = value
+	if stat == 'speed' and 'max_base_speed' in card.definition:
+		stat_limit = card.definition['max_base_speed']
+	if stat == 'power' and 'max_base_power' in card.definition:
+		stat_limit = card.definition['max_base_power']
+	value = min(value, stat_limit)
 	return value
 
 func get_striking_card_ids_for_player(check_player : Player) -> Array:
@@ -8089,7 +8221,7 @@ func duplicate_attack_triggers(performing_player : Player, amount : int):
 
 func get_boost_effects_at_timing(timing_name : String, performing_player : Player):
 	var effects = []
-	for boost_card in performing_player.continuous_boosts:
+	for boost_card in performing_player.get_continuous_boosts_and_transforms():
 		for effect in boost_card.definition['boost']['effects']:
 			if effect['timing'] == timing_name:
 				var effect_with_id = effect.duplicate(true)
@@ -8719,6 +8851,11 @@ func get_total_guard(performing_player : Player):
 	var card = active_strike.get_player_card(performing_player)
 	var guard = get_card_stat(performing_player, card, 'guard')
 	var guard_modifier = performing_player.strike_stat_boosts.guard
+
+	if performing_player.strike_stat_boosts.guardup_per_two_cards_in_hand:
+		var hand_size = len(performing_player.hand)
+		guard_modifier += floor(hand_size / 2.0)
+
 	return guard + guard_modifier
 
 func get_total_min_range(performing_player : Player):
@@ -9217,11 +9354,13 @@ func continue_resolve_strike(events):
 				_append_log_full(Enums.LogType.LogType_Strike, null, "Starting strike cleanup.")
 				active_strike.strike_state = StrikeState.StrikeState_Cleanup_Player1Effects
 				active_strike.remaining_effect_list = get_all_effects_for_timing("cleanup", active_strike.initiator, active_strike.initiator_card)
+				strike_add_transform_option(active_strike.initiator, active_strike.initiator_card)
 			StrikeState.StrikeState_Cleanup_Player1Effects:
 				events += do_remaining_effects(active_strike.initiator, StrikeState.StrikeState_Cleanup_Player1EffectsComplete)
 			StrikeState.StrikeState_Cleanup_Player1EffectsComplete:
 				active_strike.strike_state = StrikeState.StrikeState_Cleanup_Player2Effects
 				active_strike.remaining_effect_list = get_all_effects_for_timing("cleanup", active_strike.defender, active_strike.defender_card)
+				strike_add_transform_option(active_strike.defender, active_strike.defender_card)
 			StrikeState.StrikeState_Cleanup_Player2Effects:
 				events += do_remaining_effects(active_strike.defender, StrikeState.StrikeState_Cleanup_Complete)
 			StrikeState.StrikeState_Cleanup_Complete:
@@ -9269,6 +9408,27 @@ func continue_resolve_strike(events):
 		events = []
 
 	return events
+
+func strike_add_transform_option(performing_player : Player, card : GameCard):
+	assert(active_strike)
+
+	if performing_player.has_card_name_transformed(card):
+		return
+
+	var hit = active_strike.player1_hit
+	if active_strike.get_player(2) == performing_player:
+		hit = active_strike.player2_hit
+
+	if hit and card.definition['boost']['boost_type'] == "transform":
+		var added_effect = {
+			"card_id": -1,
+			"effect_type": "choice",
+			"choice": [
+				{ "effect_type": "transform_attack", "card_name": card.definition['display_name'] },
+				{ "effect_type": "pass" }
+			]
+		}
+		add_remaining_effect(added_effect)
 
 func handle_strike_attack_immediate_removal(performing_player : Player):
 	var events = []
@@ -9347,7 +9507,10 @@ func strike_send_attack_to_discard_or_gauge(performing_player : Player, card):
 		hit = active_strike.player2_hit
 	var card_name = card.definition['display_name']
 
-	if hit or stat_boosts.always_add_to_gauge:
+	if performing_player.strike_stat_boosts.move_strike_to_transforms:
+		_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "transforms their attack %s." % _log_card_name(card_name))
+		events += performing_player.add_to_transforms(card)
+	elif hit or stat_boosts.always_add_to_gauge:
 		_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "adds their attack %s to gauge." % _log_card_name(card_name))
 		events += performing_player.add_to_gauge(card)
 	else:
@@ -9602,11 +9765,26 @@ func continue_resolve_boost(events):
 
 	var effects = card_db.get_card_boost_effects_now_immediate(active_boost.card)
 	var character_effects = active_boost.playing_player.get_on_boost_effects(active_boost.card)
+	var other_player = _get_player(get_other_player(active_boost.playing_player.my_id))
+	var counter_effects = other_player.get_counter_boost_effects()
 	while true:
 		if game_state == Enums.GameState.GameState_WaitForStrike or game_state == Enums.GameState.GameState_Strike_Opponent_Set_First:
 			active_boost.strike_after_boost = true
 			if game_state == Enums.GameState.GameState_Strike_Opponent_Set_First:
 				active_boost.strike_after_boost_opponent_first = true
+
+		if not active_boost.checked_counter and not active_boost.boost_negated:
+			if active_boost.counters_resolved < len(counter_effects):
+				var effect = counter_effects[active_boost.counters_resolved]
+				events += do_effect_if_condition_met(other_player, -1, effect, null)
+				if game_state == Enums.GameState.GameState_PlayerDecision:
+					break
+
+				active_boost.counters_resolved += 1
+			else:
+				active_boost.checked_counter = true
+		if active_boost.boost_negated and active_boost.effects_resolved < len(effects) + len(character_effects):
+			active_boost.effects_resolved = len(effects) + len(character_effects)
 
 		if active_boost.effects_resolved < len(effects):
 			var effect = effects[active_boost.effects_resolved]
@@ -9628,14 +9806,15 @@ func continue_resolve_boost(events):
 			# After all effects are resolved, discard/move the card then check for cancel.
 			events += boost_finish_resolving_card(active_boost.playing_player)
 			active_boost.effects_resolved += 1
-			if active_boost.playing_player.can_cancel(active_boost.card) and not active_boost.strike_after_boost:
-				var cancel_cost = card_db.get_card_cancel_cost(active_boost.card.id)
-				change_game_state(Enums.GameState.GameState_PlayerDecision)
-				decision_info.type = Enums.DecisionType.DecisionType_BoostCancel
-				decision_info.player = active_boost.playing_player.my_id
-				decision_info.choice = cancel_cost
-				events += [create_event(Enums.EventType.EventType_Boost_CancelDecision, active_boost.playing_player.my_id, cancel_cost)]
-				break
+			if not active_boost.boost_negated:
+				if active_boost.playing_player.can_cancel(active_boost.card) and not active_boost.strike_after_boost:
+					var cancel_cost = card_db.get_card_cancel_cost(active_boost.card.id)
+					change_game_state(Enums.GameState.GameState_PlayerDecision)
+					decision_info.type = Enums.DecisionType.DecisionType_BoostCancel
+					decision_info.player = active_boost.playing_player.my_id
+					decision_info.choice = cancel_cost
+					events += [create_event(Enums.EventType.EventType_Boost_CancelDecision, active_boost.playing_player.my_id, cancel_cost)]
+					break
 		else:
 			# Intentional events = because events are passed in.
 			events = boost_play_cleanup(events, active_boost.playing_player)
@@ -9850,6 +10029,23 @@ func can_do_boost(performing_player : Player):
 
 	return true
 
+func can_do_ex_transform(performing_player : Player):
+	if game_state != Enums.GameState.GameState_PickAction:
+		return false
+	if active_turn_player != performing_player.my_id:
+		return false
+
+	var transform_options = []
+	for card in performing_player.hand:
+		if card.definition['boost']['boost_type'] != "transform":
+			continue
+		var card_name = card.definition['display_name']
+		if card_name in transform_options:
+			return true
+		transform_options.append(card_name)
+
+	return false
+
 func can_do_strike(performing_player : Player):
 	if game_state == Enums.GameState.GameState_WaitForStrike and decision_info.player == performing_player.my_id:
 		return true
@@ -9926,9 +10122,39 @@ func do_prepare(performing_player) -> bool:
 	_append_log_full(Enums.LogType.LogType_Action, performing_player, "Turn Action: Prepare")
 	_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "draws a card.")
 	events += performing_player.draw(1)
-	events += check_hand_size_advance_turn(performing_player)
-	event_queue += events
+
+	active_prepare = true
+	prepare_effects_resolved = 0
+	event_queue += continue_resolve_prepare(performing_player, events)
 	return true
+
+func continue_resolve_prepare(performing_player : Player, events):
+	# Assuming that a strike can't be started in here
+	change_game_state(Enums.GameState.GameState_Boost_Processing)
+
+	var boost_effects = get_boost_effects_at_timing("on_prepare", performing_player)
+	var character_effects = performing_player.get_character_effects_at_timing("on_prepare")
+	for effect in character_effects:
+		effect['card_id'] = -1
+	var prepare_effects = boost_effects + character_effects
+
+	while true:
+		if prepare_effects_resolved < len(prepare_effects):
+			var effect = prepare_effects[prepare_effects_resolved]
+			events += do_effect_if_condition_met(performing_player, -1, effect, null)
+			if game_state == Enums.GameState.GameState_PlayerDecision:
+				break
+			prepare_effects_resolved += 1
+		else:
+			active_prepare = false
+			events += check_hand_size_advance_turn(performing_player)
+			break
+
+		if game_over:
+			break
+
+	return events
+
 
 func do_discard_to_max(performing_player : Player, card_ids) -> bool:
 	printlog("SubAction: DISCARD_TO_MAX by %s - %s" % [get_player_name(performing_player.my_id), card_ids])
@@ -10130,6 +10356,15 @@ func do_boost(performing_player : Player, card_id : int, payment_card_ids : Arra
 			return false
 
 	var card = card_db.get_card(card_id)
+	# Redirection to transform handler
+	if card.definition['boost']['boost_type'] == "transform":
+		if len(payment_card_ids) == 1:
+			return do_ex_transform(performing_player, card_id, payment_card_ids[0])
+		else:
+			printlog("ERROR: Tried to transform as action without a second copy")
+			assert(false)
+			return false
+
 	if not decision_info.ignore_costs:
 		var force_cost = card.definition['boost']['force_cost']
 		if not performing_player.can_pay_cost_with(payment_card_ids, force_cost, 0, use_free_force):
@@ -10161,6 +10396,47 @@ func do_boost(performing_player : Player, card_id : int, payment_card_ids : Arra
 		events += do_effect_if_condition_met(performing_player, -1, decision_info.bonus_effect, null)
 
 	events += begin_resolve_boost(performing_player, card_id, additional_boost_ids, shuffle_discard_on_boost_cleanup)
+	event_queue += events
+	return true
+
+func do_ex_transform(performing_player : Player, card_id : int, ex_card_id : int):
+	printlog("Redirected to EX Transform")
+	if game_state != Enums.GameState.GameState_PickAction or performing_player.my_id != active_turn_player:
+		printlog("ERROR: Tried to EX transform but not your turn")
+		assert(false)
+		return false
+
+	var card = card_db.get_card(card_id)
+	var ex_card = card_db.get_card(ex_card_id)
+	if card.definition['boost']['boost_type'] != "transform":
+		printlog("ERROR: Tried to transform a card without a transform")
+		assert(false)
+		return false
+
+	if card.definition['display_name'] != ex_card.definition['display_name']:
+		printlog("ERROR: Tried to EX transform with mismatching cards")
+		assert(false)
+		return false
+
+	if performing_player.has_card_name_transformed(card):
+		printlog("ERROR: Tried to transform a previously-transformed card")
+		assert(false)
+		return false
+
+	if game_state == Enums.GameState.GameState_PickAction:
+		_append_log_full(Enums.LogType.LogType_Action, performing_player, "Turn Action: EX Transform")
+	_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "transforms %s." % _get_boost_and_card_name(card))
+
+	var events = []
+	var card_name = card.definition['display_name']
+	_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "discards another copy of %s." % _log_card_name(card_name))
+	events += performing_player.discard([ex_card_id])
+
+	performing_player.remove_card_from_hand(card_id, true, false)
+	events += [create_event(Enums.EventType.EventType_Boost_Played, performing_player.my_id, card_id, "Transform")]
+	events += performing_player.add_to_transforms(card)
+	events += check_hand_size_advance_turn(performing_player)
+
 	event_queue += events
 	return true
 
@@ -10635,7 +10911,7 @@ func do_choice(performing_player : Player, choice_index : int) -> bool:
 
 func set_player_action_processing_state():
 	if active_start_of_turn_effects or active_end_of_turn_effects or active_overdrive or active_boost \
-	or active_character_action or active_exceed or active_change_cards or active_special_draw_effect:
+	or active_character_action or active_exceed or active_change_cards or active_prepare or active_special_draw_effect:
 		game_state = Enums.GameState.GameState_Boost_Processing
 	elif active_strike:
 		game_state = Enums.GameState.GameState_Strike_Processing
@@ -10670,7 +10946,10 @@ func continue_player_action_resolution(events, performing_player : Player):
 				# Intentional events = because events are passed in.
 				events = do_remaining_overdrive(events, performing_player)
 			elif active_boost:
-				active_boost.effects_resolved += 1
+				if active_boost.checked_counter:
+					active_boost.effects_resolved += 1
+				else:
+					active_boost.counters_resolved += 1
 				# Intentional events = because events are passed in.
 				events = continue_resolve_boost(events)
 			elif active_strike:
@@ -10687,6 +10966,10 @@ func continue_player_action_resolution(events, performing_player : Player):
 				active_change_cards = false
 				if game_state != Enums.GameState.GameState_WaitForStrike:
 					events += check_hand_size_advance_turn(performing_player)
+			elif active_prepare:
+				prepare_effects_resolved += 1
+				# Intentional events = because events are passed in.
+				events = continue_resolve_prepare(performing_player, events)
 			else:
 				# End of turn states (pick action for next player or discard down for current) or strikes are expected.
 				if game_state == Enums.GameState.GameState_PickAction or game_state == Enums.GameState.GameState_DiscardDownToMax or game_state == Enums.GameState.GameState_WaitForStrike:

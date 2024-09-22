@@ -35,7 +35,6 @@ func game_teardown():
 	# TODO: Move this logic into the real game so that it doesn't memory leak
 	game_logic.teardown()
 	game_logic.free()
-	image_loader.free()
 	ai1.ai_policy.free()
 	ai2.ai_policy.free()
 
@@ -657,3 +656,6 @@ func test_merkava_100():
 
 func test_carmine_100():
 	run_iterations_with_deck("carmine")
+
+func test_seijun_100():
+	run_iterations_with_deck("seijun")

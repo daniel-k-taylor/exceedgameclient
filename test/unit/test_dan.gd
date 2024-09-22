@@ -71,7 +71,6 @@ func before_each():
 func after_each():
 	game_logic.teardown()
 	game_logic.free()
-	image_loader.free()
 	gut.p("ran teardown", 2)
 
 func before_all():
@@ -498,7 +497,6 @@ func test_dan_legendary_taunt_extra_attack_legendary_taunt():
 func test_dan_legendary_taunt_hit_nirvana_with_extra_attack():
 	game_logic.teardown()
 	game_logic.free()
-	image_loader.free()
 	default_game_setup("carlclover")
 
 	position_players(player1, 2, player2, 6)
@@ -522,7 +520,6 @@ func test_dan_legendary_taunt_hit_nirvana_with_extra_attack():
 func test_dan_legendary_taunt_hit_nirvana_with_leg_taunt():
 	game_logic.teardown()
 	game_logic.free()
-	image_loader.free()
 	default_game_setup("carlclover")
 
 	position_players(player1, 2, player2, 6)
@@ -547,7 +544,6 @@ func test_dan_legendary_taunt_hit_nirvana_with_leg_taunt():
 func test_dan_legendary_taunt_hit_nirvana_with_leg_taunt_before_moving():
 	game_logic.teardown()
 	game_logic.free()
-	image_loader.free()
 	default_game_setup("carlclover")
 
 	position_players(player1, 2, player2, 6)

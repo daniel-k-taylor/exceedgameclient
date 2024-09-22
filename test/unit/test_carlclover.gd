@@ -70,7 +70,6 @@ func before_each():
 func after_each():
 	game_logic.teardown()
 	game_logic.free()
-	image_loader.free()
 	gut.p("ran teardown", 2)
 
 func before_all():
@@ -218,7 +217,6 @@ func validate_life(p1, l1, p2, l2):
 func test_carlclover_vs_hazama_get_bonus_when_he_moves():
 	game_logic.teardown()
 	game_logic.free()
-	image_loader.free()
 	default_game_setup("hazama")
 	position_players(player1, 3, player2, 4)
 	player1.set_buddy_location("nirvana_active", 4)
