@@ -3,8 +3,6 @@ extends CenterContainer
 signal close_button_pressed
 signal filter_toggle_update
 
-const Enums = preload("res://scenes/game/enums.gd")
-
 var DEFAULT_PLAYER_COLOR = "red"
 var DEFAULT_OPPONENT_COLOR = "#16c2f7"
 var DEFAULT_CARD_COLOR = "#7DF9FF"

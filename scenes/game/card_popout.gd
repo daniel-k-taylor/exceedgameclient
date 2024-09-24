@@ -159,4 +159,3 @@ func _on_instruction_button_cancel_pressed():
 
 func _on_reshuffle_toggle_pressed():
 	pressed_toggle.emit()
-

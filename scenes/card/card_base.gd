@@ -1,7 +1,10 @@
 extends Node2D
 
+@warning_ignore("unused_signal")
 signal raised_card(card)
+@warning_ignore("unused_signal")
 signal lowered_card(card)
+@warning_ignore("unused_signal")
 signal clicked_card(card)
 
 const StatPanel = preload("res://scenes/card/stat_panel.gd")

@@ -8,9 +8,6 @@
 
 extends Node
 
-const LocalGame = preload("res://scenes/game/local_game.gd")
-const Enums = preload("res://scenes/game/enums.gd")
-const CardDatabase = preload("res://scenes/game/card_database.gd")
 const DecisionInfo = preload("res://scenes/game/decision_info.gd")
 
 

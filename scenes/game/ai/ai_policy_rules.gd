@@ -1,10 +1,6 @@
 class_name AIPolicyRules
 extends Node
 
-const AIPlayer = preload("res://scenes/game/ai_player.gd")
-const GameCard = preload("res://scenes/game/game_card.gd")
-const Enums = preload("res://scenes/game/enums.gd")
-
 
 var __factorial_cache = {
 	"cache_max": 7,
