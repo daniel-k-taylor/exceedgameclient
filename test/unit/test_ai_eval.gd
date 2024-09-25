@@ -1,11 +1,9 @@
 extends GutTest
 
-const AIRules = preload("res://scenes/game/ai/ai_policy_rules.gd")
-
-var ai_rules : AIRules
+var ai_rules : AIPolicyRules
 
 func before_each():
-	ai_rules = AIRules.new()
+	ai_rules = AIPolicyRules.new()
 
 	gut.p("ran setup", 2)
 
@@ -40,5 +38,3 @@ func test_array():
 	var events = [1,2,3,4,5]
 	helper(events)
 	assert_eq(events.size(), 7)
-
-

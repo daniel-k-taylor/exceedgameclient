@@ -1,3 +1,4 @@
+class_name StatPanel
 extends PanelContainer
 
 

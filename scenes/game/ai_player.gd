@@ -34,10 +34,6 @@ extends Resource
 
 const TEST_PrepareOnly = false
 
-const LocalGame = preload("res://scenes/game/local_game.gd")
-const Enums = preload("res://scenes/game/enums.gd")
-const CardDatabase = preload("res://scenes/game/card_database.gd")
-
 var game_logic : LocalGame
 var game_state : AIGameState
 var ai_policy

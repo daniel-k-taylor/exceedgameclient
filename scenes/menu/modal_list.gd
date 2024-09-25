@@ -1,10 +1,8 @@
+class_name ModalList
 extends CenterContainer
 
 signal join_match_pressed(row_index : int)
 signal observe_match_pressed(row_index : int)
-
-
-const Table = preload("res://scenes/menu/table.gd")
 
 @onready var table : Table = $PanelContainer/Margin/Table
 

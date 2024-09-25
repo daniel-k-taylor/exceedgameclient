@@ -1,8 +1,6 @@
 extends GutTest
 
-const LocalGame = preload("res://scenes/game/local_game.gd")
-const GameCard = preload("res://scenes/game/game_card.gd")
-const Enums = preload("res://scenes/game/enums.gd")
+
 var game_logic : LocalGame
 var image_loader : CardImageLoader
 var default_deck = CardDefinitions.get_deck_from_str_id("chipp")

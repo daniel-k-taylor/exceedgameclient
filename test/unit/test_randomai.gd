@@ -3,9 +3,7 @@ extends GutTest
 # Leave at 1 checked in so someone doesn't accidentally run all tests at 100.
 const RandomIterations = 1
 
-const LocalGame = preload("res://scenes/game/local_game.gd")
-const GameCard = preload("res://scenes/game/game_card.gd")
-const Enums = preload("res://scenes/game/enums.gd")
+
 
 var game_logic : LocalGame
 var image_loader : CardImageLoader

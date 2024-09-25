@@ -256,4 +256,3 @@ func test_waldstein_verderben_wildswung():
 	assert_true(player1.is_card_in_discards(verderben_id))
 	assert_true(player1.is_card_in_gauge(assault_id))
 	assert_eq(player1.gauge.size(), 5)  # Did not have to pay for the invalid ultra
-

@@ -1,3 +1,4 @@
+class_name EmoteIcon
 extends PanelContainer
 
 signal pressed(image_path)

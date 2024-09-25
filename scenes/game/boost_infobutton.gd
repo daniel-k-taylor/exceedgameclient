@@ -1,6 +1,5 @@
+class_name BoostInfoButton
 extends HBoxContainer
-
-const Enums = preload("res://scenes/game/enums.gd")
 
 @onready var container : PanelContainer = $BackgroundPanel
 @onready var label : Label = $BackgroundPanel/MarginContainer/HBoxContainer/Label

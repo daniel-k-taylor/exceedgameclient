@@ -1,3 +1,4 @@
+class_name ModalDialog
 extends CenterContainer
 
 signal accept_button_pressed
@@ -22,4 +23,3 @@ func _on_close_button_pressed():
 func _on_accept_button_pressed():
 	visible = false
 	accept_button_pressed.emit()
-

@@ -1,3 +1,4 @@
+class_name ArenaSquare
 extends CenterContainer
 
 @onready var empty_square : TextureRect = $Normal
