@@ -1,3 +1,4 @@
+class_name ActionMenu
 extends PanelContainer
 
 signal choice_selected(choice_index : int)
@@ -17,12 +18,12 @@ var number_panel_current_number : int = 0
 var number_panel_max : int = 0
 var number_panel_min : int = 0
 
-func set_choices(instructions_text : String, 
-		choices : Array, 
+func set_choices(instructions_text : String,
+		choices : Array,
 		ultra_force_toggle : bool,
-		number_picker_min : int, 
-		number_picker_max : int, 
-		ex_discard_order_toggle : bool, 
+		number_picker_min : int,
+		number_picker_max : int,
+		ex_discard_order_toggle : bool,
 		free_force_toggle : bool):
 	$OuterMargin/MainVBox/CheckHBox/UltrasForceOptionCheck.visible = ultra_force_toggle
 	$OuterMargin/MainVBox/CheckHBox2/ExDiscardOrderCheck.visible = ex_discard_order_toggle

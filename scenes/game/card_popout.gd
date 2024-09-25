@@ -1,3 +1,4 @@
+class_name CardPopout
 extends Control
 
 signal close_window
@@ -17,7 +18,6 @@ var used_slots = 0
 var total_cols = 0
 
 const CardBaseScene = preload("res://scenes/card/card_base.tscn")
-const CardBase = preload("res://scenes/card/card_base.gd")
 
 @onready var instruction_box = $PopoutContainer/PopoutVBox/RestOfThing
 @onready var instruction_label = $PopoutContainer/PopoutVBox/RestOfThing/InstructionLabel

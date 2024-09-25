@@ -1,10 +1,8 @@
 # The wrapper manages signals from a remote player, or the local player,
 # so that the game engine and the interface don't have to care which is which.
 
+class_name GameWrapper
 extends Node
-
-const RemoteGame = preload("res://scenes/game/remote_game.gd")
-const DecisionInfo = preload("res://scenes/game/decision_info.gd")
 
 var current_game
 

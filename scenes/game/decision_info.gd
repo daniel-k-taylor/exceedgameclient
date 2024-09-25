@@ -1,3 +1,4 @@
+class_name DecisionInfo
 extends Node
 
 var player : Enums.PlayerId

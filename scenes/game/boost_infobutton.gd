@@ -1,3 +1,4 @@
+class_name BoostInfoButton
 extends HBoxContainer
 
 @onready var container : PanelContainer = $BackgroundPanel

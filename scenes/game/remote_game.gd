@@ -6,10 +6,8 @@
 # `process_Z()`. Because this mapping is done through string manipulation, it is
 # important that X == Y == Z.
 
+class_name RemoteGame
 extends Node
-
-const DecisionInfo = preload("res://scenes/game/decision_info.gd")
-
 
 var local_game : LocalGame
 

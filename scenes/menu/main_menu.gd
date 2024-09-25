@@ -1,3 +1,4 @@
+class_name MainMenu
 extends Control
 
 signal start_game(vs_info)
@@ -5,9 +6,6 @@ signal start_remote_game(vs_info, data)
 
 const RoomMaxLen = 12
 const PlayerNameMaxLen = 12
-
-const ModalList = preload("res://scenes/menu/modal_list.gd")
-const ModalDialog = preload("res://scenes/game/modal_dialog.gd")
 
 #These only get set and used if run on web
 var window

@@ -1,3 +1,4 @@
+class_name CharSelectButton
 extends PanelContainer
 
 signal on_pressed(char_id)

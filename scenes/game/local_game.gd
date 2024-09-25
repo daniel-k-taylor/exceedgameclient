@@ -8,8 +8,6 @@
 class_name LocalGame
 extends Node2D
 
-const DecisionInfo = preload("res://scenes/game/decision_info.gd")
-
 const BuddyStartsOutOfArena = -10
 const NullNamedCard = "_"
 

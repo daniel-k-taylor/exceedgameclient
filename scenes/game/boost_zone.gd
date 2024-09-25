@@ -1,3 +1,4 @@
+class_name BoostZone
 extends Node2D
 
 signal clicked_zone

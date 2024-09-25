@@ -1,3 +1,4 @@
+class_name Table
 extends Control
 
 signal row_button_clicked(row_index : int, button_index : int)

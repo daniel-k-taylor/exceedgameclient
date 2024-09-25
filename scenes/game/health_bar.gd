@@ -1,3 +1,4 @@
+class_name HealthBar
 extends Node2D
 
 const MaxHealth = 30
@@ -43,6 +44,3 @@ func _physics_process(delta):
 			lost_bar.value = 0
 		else:
 			lost_bar.value = lerpf(lost_bar.value, health_bar.value, (AnimationLength - remaining_animation_time) / AnimationLength)
-
-
-

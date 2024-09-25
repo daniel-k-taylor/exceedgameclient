@@ -1,3 +1,4 @@
+class_name EmoteDisplay
 extends Node2D
 
 @onready var panel : PanelContainer = $Panel
@@ -32,5 +33,3 @@ func play_emote(is_image_emote : bool, emote : String, start_pos: Vector2, heigh
 	var tween_length = animation_player.get_animation("Rise and Fade").length
 
 	tween.tween_property(panel, "position", end_pos, tween_length).from(start_pos)
-
-

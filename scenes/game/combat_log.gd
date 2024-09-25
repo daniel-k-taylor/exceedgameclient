@@ -1,3 +1,4 @@
+class_name CombatLog
 extends CenterContainer
 
 signal close_button_pressed

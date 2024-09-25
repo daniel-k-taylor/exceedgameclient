@@ -1,3 +1,4 @@
+class_name LocationInfoButtonPair
 extends HBoxContainer
 
 signal button_pressed(player)

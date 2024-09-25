@@ -1,5 +1,5 @@
 # This is an instance of the game.
-
+class_name Game
 extends Node2D
 
 signal returning_from_game
@@ -9,23 +9,8 @@ const UseHugeCard = false
 const Test_StartWithGauge = false
 
 const CardBaseScene = preload("res://scenes/card/card_base.tscn")
-const CardBase = preload("res://scenes/card/card_base.gd")
-const CardPopout = preload("res://scenes/game/card_popout.gd")
 const CardPopoutScene = preload("res://scenes/game/card_popout.tscn")
-const GaugePanel = preload("res://scenes/game/gauge_panel.gd")
-const CharacterCardBase = preload("res://scenes/card/character_card_base.gd")
-const DamagePopup = preload("res://scenes/game/damage_popup.gd")
-const Character = preload("res://scenes/game/character.gd")
 const CharacterScene = preload("res://scenes/game/character.tscn")
-const GameWrapper = preload("res://scenes/game/game_wrapper.gd")
-const DecisionInfo = preload("res://scenes/game/decision_info.gd")
-const ActionMenu = preload("res://scenes/game/action_menu.gd")
-const ModalDialog = preload("res://scenes/game/modal_dialog.gd")
-const EmoteDialog = preload("res://scenes/game/emote_dialog.gd")
-const ArenaSquare = preload("res://scenes/game/arena_square.gd")
-const EmoteDisplay = preload("res://scenes/game/emote_display.gd")
-const CombatLog = preload("res://scenes/game/combat_log.gd")
-const LocationInfoButtonPair = preload("res://scenes/game/location_infobutton_pair.gd")
 
 @onready var player_emote : EmoteDisplay = $PlayerEmote
 @onready var opponent_emote : EmoteDisplay = $OpponentEmote
