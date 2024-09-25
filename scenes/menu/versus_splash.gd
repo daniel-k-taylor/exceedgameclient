@@ -1,3 +1,4 @@
+class_name VersusSplash
 extends Node2D
 
 var start_me_position = Vector2(-950,20)

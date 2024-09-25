@@ -1,3 +1,4 @@
+class_name CharSelect
 extends Control
 
 signal select_character(char_id)

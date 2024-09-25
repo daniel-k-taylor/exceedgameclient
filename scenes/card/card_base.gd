@@ -1,10 +1,13 @@
+class_name CardBase
 extends Node2D
 
+@warning_ignore("unused_signal")
 signal raised_card(card)
+@warning_ignore("unused_signal")
 signal lowered_card(card)
+@warning_ignore("unused_signal")
 signal clicked_card(card)
 
-const StatPanel = preload("res://scenes/card/stat_panel.gd")
 @onready var card_container = $CardFocusFeatures/CardContainer
 @onready var card_back = $CardFocusFeatures/CardContainer/CardBack
 @onready var card_front = $CardFocusFeatures/CardContainer/CardFront

@@ -1,8 +1,7 @@
+class_name LocationInfoButtonPair
 extends HBoxContainer
 
 signal button_pressed(player)
-
-const Enums = preload("res://scenes/game/enums.gd")
 
 @onready var p1_container : PanelContainer = $PlayerInfo1
 @onready var p2_container : PanelContainer = $PlayerInfo2

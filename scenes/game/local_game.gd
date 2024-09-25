@@ -8,11 +8,6 @@
 class_name LocalGame
 extends Node2D
 
-const Enums = preload("res://scenes/game/enums.gd")
-const CardDatabase = preload("res://scenes/game/card_database.gd")
-const GameCard = preload("res://scenes/game/game_card.gd")
-const DecisionInfo = preload("res://scenes/game/decision_info.gd")
-
 const BuddyStartsOutOfArena = -10
 const NullNamedCard = "_"
 

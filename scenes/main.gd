@@ -2,9 +2,7 @@ extends Node2D
 var game : Node2D
 var splash : Node2D
 
-const VersusSplash = preload("res://scenes/menu/versus_splash.gd")
 const VersusSplashScene = preload("res://scenes/menu/versus_splash.tscn")
-
 const GameScene = preload("res://scenes/game/game.tscn")
 
 const VersusSplashTimeout = 3.0

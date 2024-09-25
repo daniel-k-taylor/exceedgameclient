@@ -17,13 +17,13 @@
 [ext_resource type="PackedScene" uid="uid://b8kmmrd5jmqdd" path="res://scenes/game/modal_dialog.tscn" id="10_stodf"]
 [ext_resource type="PackedScene" uid="uid://dx5u3h8ppeab0" path="res://scenes/menu/preferences_window.tscn" id="12_7sva6"]
 
-[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_0f2dl"]
-
 [sub_resource type="StyleBoxTexture" id="StyleBoxTexture_i6bch"]
 texture = ExtResource("4_ekoth")
 
 [sub_resource type="StyleBoxTexture" id="StyleBoxTexture_tii02"]
 texture = ExtResource("5_xie03")
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_0f2dl"]
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_22gnv"]
 
@@ -138,9 +138,9 @@ text = "Sol Badguy"
 
 [node name="ChangePlayerCharacterButton" type="Button" parent="MenuList/VSAIBox/OpponentChooser"]
 layout_mode = 2
-theme_override_styles/normal = SubResource("StyleBoxEmpty_0f2dl")
 theme_override_styles/hover = SubResource("StyleBoxTexture_i6bch")
 theme_override_styles/pressed = SubResource("StyleBoxTexture_tii02")
+theme_override_styles/normal = SubResource("StyleBoxEmpty_0f2dl")
 
 [node name="MatchmakeButton" type="Button" parent="MenuList"]
 layout_mode = 2
@@ -226,9 +226,9 @@ text = "Sol Badguy"
 
 [node name="ChangePlayerCharacterButton" type="Button" parent="PlayerChooser"]
 layout_mode = 2
-theme_override_styles/normal = SubResource("StyleBoxEmpty_0f2dl")
 theme_override_styles/hover = SubResource("StyleBoxTexture_i6bch")
 theme_override_styles/pressed = SubResource("StyleBoxTexture_tii02")
+theme_override_styles/normal = SubResource("StyleBoxEmpty_0f2dl")
 
 [node name="PlayerNameBox" type="TextEdit" parent="."]
 custom_minimum_size = Vector2(100, 50)

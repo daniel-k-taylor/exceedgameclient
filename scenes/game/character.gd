@@ -1,3 +1,4 @@
+class_name Character
 extends Node2D
 
 enum AnimationState {
@@ -143,4 +144,3 @@ func _physics_process(delta):
 			play_animation("idle")
 		else:
 			position = current_position.lerp(target_position, (MoveTime - remaining_animation_time) / MoveTime)
-

@@ -1,3 +1,4 @@
+class_name CharacterCardBase
 extends Node2D
 
 signal pressed

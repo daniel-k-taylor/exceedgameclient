@@ -1,3 +1,4 @@
+class_name EmoteDialog
 extends CenterContainer
 
 signal emote_selected(is_image_emote : bool, emote : String)
@@ -8,7 +9,6 @@ signal close_button_pressed
 @onready var text_buttons = $PanelContainer/OuterMargin/VerticalLayout/TextButtons
 
 const EmoteIconScene = preload("res://scenes/game/emote_icon.tscn")
-const EmoteIcon = preload("res://scenes/game/emote_icon.gd")
 const emotes_path = "res://assets/icons/emotes"
 
 const emote_text_strings = [
