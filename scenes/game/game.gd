@@ -3617,7 +3617,7 @@ func _update_buttons():
 						boost_text = "EX Transform"
 						can_ex_transform = game_wrapper.can_player_ex_transform(Enums.PlayerId.PlayerId_Player, selected_cards[0].card_id)
 					else:
-						can_boost = true
+						can_boost = game_wrapper.can_player_boost(Enums.PlayerId.PlayerId_Player, selected_cards[0].card_id, ["hand"], "", false)
 				elif len(selected_cards) == 2:
 					var card1 = selected_cards[0]
 					var card2 = selected_cards[1]
@@ -3629,6 +3629,10 @@ func _update_buttons():
 						if logic_card.definition["boost"]["boost_type"] == "transform":
 							can_ex_transform = true
 							boost_text = "EX Transform"
+					elif card_db.get_card(card1.card_id).definition['type'] == "normal" and \
+							card_db.get_card(card2.card_id).definition['boost']['boost_type'] == "overload":
+						can_strike = true
+						strike_text = "EX Strike"
 			elif only_in_boosts:
 				if len(selected_cards) == 1:
 					var logic_card = card_db.get_card(selected_cards[0].card_id)
@@ -3976,6 +3980,9 @@ func can_press_ok():
 					var card_db = game_wrapper.get_card_database()
 					var card1 = selected_cards[0]
 					var card2 = selected_cards[1]
+					if card_db.get_card(card1.card_id).definition['type'] == "normal" and \
+							card_db.get_card(card2.card_id).definition['boost']['boost_type'] == "overload":
+								return true
 					return card_db.are_same_card(card1.card_id, card2.card_id)
 				elif len(selected_cards) == 1:
 					return not instructions_ex_required

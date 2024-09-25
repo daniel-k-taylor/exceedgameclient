@@ -4969,20 +4969,11 @@
 			}
 		],
 		"boost": {
-			"boost_type": "continuous",
-			"force_cost": 1,
+			"boost_type": "overload",
+			"force_cost": -1,
 			"cancel_cost": -1,
-			"display_name": "Way of the Warrior",
+			"display_name": "Overload",
 			"effects": [
-				{
-					"timing": "during_strike",
-					"effect_type": "powerup",
-					"amount": 2,
-					"and": {
-						"effect_type": "speedup",
-						"amount": 2
-					}
-				}
 			]
 		}
 	},
@@ -5007,23 +4998,11 @@
 			}
 		],
 		"boost": {
-			"boost_type": "immediate",
-			"force_cost": 1,
+			"boost_type": "overload",
+			"force_cost": -1,
 			"cancel_cost": -1,
-			"display_name": "Lightning Reflexes",
+			"display_name": "Overload",
 			"effects": [
-				{
-					"timing": "immediate",
-					"effect_type": "choice",
-					"choice": [
-						{ "effect_type": "advance", "amount": 2 },
-						{ "effect_type": "retreat", "amount": 2 }
-					]
-				},
-				{
-					"timing": "immediate",
-					"effect_type": "strike"
-				}
 			]
 		}
 	},

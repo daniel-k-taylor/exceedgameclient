@@ -1973,7 +1973,7 @@ class Player:
 
 		for zone in valid_zones:
 			for card in zone_map[zone]:
-				if card.definition['boost']['boost_type'] == "transform":
+				if card.definition['boost']['boost_type'] in ["transform", "overload"]:
 					continue
 
 				var meets_limitation = true
@@ -2016,10 +2016,19 @@ class Player:
 			return true
 
 		var card_ids_in_hand = []
+		var has_normal = false
+		var has_overload = false
 		for card in hand:
 			if card.definition['id'] in card_ids_in_hand:
 				return true
 			card_ids_in_hand.append(card.definition['id'])
+
+			if card.definition['type'] == "normal":
+				has_normal = true
+			if card.definition['boost']['boost_type'] == "overload":
+				has_overload = true
+			if has_normal and has_overload:
+				return true
 		return false
 
 	func has_ex_boost():
@@ -3721,6 +3730,7 @@ func strike_setup_defender_response(events):
 			var ex_card_id = -1
 			if len(reading_cards) >= 2:
 				ex_card_id = reading_cards[1].id
+				# TODO: need to be able to select an overload as the ex card; probably send all potential ex options and then have game do card choice if more than 2?
 
 			# Send choice to player
 			change_game_state(Enums.GameState.GameState_PlayerDecision)
@@ -10360,6 +10370,11 @@ func do_boost(performing_player : Player, card_id : int, payment_card_ids : Arra
 			assert(false)
 			return false
 
+	if card.definition['boost']['boost_type'] == "overload":
+		printlog("ERROR: Tried to boost a card with an overload")
+		assert(false)
+		return false
+
 	if not decision_info.ignore_costs:
 		var force_cost = card.definition['boost']['force_cost']
 		if not performing_player.can_pay_cost_with(payment_card_ids, force_cost, 0, use_free_force):
@@ -10501,8 +10516,10 @@ func do_strike(performing_player : Player, card_id : int, wild_strike: bool, ex_
 			printlog("ERROR: Tried to strike with a ex card not in hand.")
 			return false
 	if ex_strike and not card_db.are_same_card(card_id, ex_card_id):
-		printlog("ERROR: Tried to strike with a ex card that doesn't match.")
-		return false
+		if card_db.get_card(card_id).definition['type'] == "normal" and \
+				card_db.get_card(ex_card_id).definition['boost']['boost_type'] != "overload":
+			printlog("ERROR: Tried to strike with a ex card that doesn't match.")
+			return false
 
 	# Begin the strike
 	var events = []
