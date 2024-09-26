@@ -22,6 +22,9 @@ var image_loader : CardImageLoader
 func _init(card_image_loader):
 	image_loader = card_image_loader
 
+func teardown():
+	return local_game.teardown()
+
 func get_latest_events() -> Array:
 	return local_game.get_latest_events()
 

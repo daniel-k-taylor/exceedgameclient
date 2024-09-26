@@ -1341,6 +1341,8 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 		"strike_response_reading":
 			if 'ex_card_id' in effect:
 				effect_str += "EX Strike"
+				if 'overload_name' in effect:
+					effect_str += " (Overload: %s)" % effect['overload_name']
 			else:
 				effect_str += "Strike"
 		"strike_with_ex":

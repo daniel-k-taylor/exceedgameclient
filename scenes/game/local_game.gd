@@ -3730,7 +3730,13 @@ func strike_setup_defender_response(events):
 			var ex_card_id = -1
 			if len(reading_cards) >= 2:
 				ex_card_id = reading_cards[1].id
-				# TODO: need to be able to select an overload as the ex card; probably send all potential ex options and then have game do card choice if more than 2?
+
+			# Add potential overloads as options for EX
+			var overload_options = {}
+			if reading_card.definition['type'] == "normal":
+				for card in active_strike.defender.hand:
+					if card.definition['id'] not in overload_options and card.definition['boost']['boost_type'] == "overload":
+						overload_options[card.definition['id']] = card
 
 			# Send choice to player
 			change_game_state(Enums.GameState.GameState_PlayerDecision)
@@ -3742,6 +3748,13 @@ func strike_setup_defender_response(events):
 				{ "effect_type": "strike_response_reading", "card_id": reading_card.id },
 				{ "effect_type": "strike_response_reading", "card_id": reading_card.id, "ex_card_id": ex_card_id, "_choice_disabled": ex_card_id == -1 },
 			]
+
+			for overload_option_id in overload_options:
+				var overload_card = overload_options[overload_option_id]
+				decision_info.choice.append(
+					{ "effect_type": "strike_response_reading", "card_id": reading_card.id, "ex_card_id": overload_card.id, "overload_name": overload_card.definition['display_name'] }
+				)
+
 			events += [create_event(Enums.EventType.EventType_Strike_EffectChoice, defender_id, 0, "Reading", reading_card.definition['display_name'])]
 			active_strike.waiting_for_reading_response = true
 			ask_for_response = false
