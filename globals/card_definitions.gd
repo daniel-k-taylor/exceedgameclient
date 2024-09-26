@@ -1136,6 +1136,8 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 			if optional:
 				begin_str = "You may: "
 			effect_str += "%sRemove %s %s opponent's space" % [begin_str, effect['buddy_name'], location_str]
+		"reduce_discard_amount":
+			effect_str += "Reduce discard effects by %s" % effect['amount']
 		"remove_X_buddies":
 			effect_str += "Remove X %ss" % [effect['buddy_name']]
 		"repeat_effect_optionally":
