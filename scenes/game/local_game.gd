@@ -3961,6 +3961,8 @@ func is_effect_condition_met(performing_player : Player, effect, local_condition
 			var special = active_strike.get_player_card(performing_player).definition['type'] == "special"
 			var ultra = active_strike.get_player_card(performing_player).definition['type'] == "ultra"
 			return special or ultra
+		elif condition == "opponent_is_special_attack":
+			return active_strike.get_player_card(other_player).definition['type'] == "special"
 		elif condition == "is_ex_strike":
 			return active_strike.will_be_ex(performing_player)
 		elif condition == "at_edge_of_arena":

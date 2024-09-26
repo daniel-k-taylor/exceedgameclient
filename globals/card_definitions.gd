@@ -325,6 +325,8 @@ func get_condition_text(effect, amount, amount2, detail):
 			text += ""
 		"is_special_or_ultra_attack":
 			text += "For specials/ultras, "
+		"opponent_is_special_attack":
+			text += "If opponent strikes with a special, "
 		"is_normal_attack":
 			text += "If you strike with a normal, "
 		"deck_not_empty":

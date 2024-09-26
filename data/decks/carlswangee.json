@@ -3,9 +3,43 @@
 	"season": 2,
 	"display_name": "Carl Swangee",
 	"exceed_cost": 4,
+	"exceed_animation": "carlswangee_exceed",
 	"ability_effects": [
+		{
+			"character_effect": true,
+			"timing": "set_strike",
+			"effect_type": "add_attack_effect",
+			"added_effect": {
+				"timing": "during_strike",
+				"condition": "opponent_is_special_attack",
+				"effect_type": "armorup",
+				"amount": 1
+			}
+		}
 	],
 	"exceed_ability_effects": [
+		{
+			"character_effect": true,
+			"timing": "set_strike",
+			"effect_type": "add_attack_effect",
+			"added_effect": {
+				"timing": "during_strike",
+				"condition": "opponent_is_special_attack",
+				"effect_type": "armorup",
+				"amount": 1
+			}
+		},
+		{
+			"character_effect": true,
+			"timing": "set_strike",
+			"effect_type": "add_attack_effect",
+			"added_effect": {
+				"timing": "during_strike",
+				"condition": "is_normal_attack",
+				"effect_type": "powerup",
+				"amount": 2
+			}
+		}
 	],
 	"image_resources": {
 		"character_default": {
