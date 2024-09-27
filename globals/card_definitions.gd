@@ -149,6 +149,9 @@ func get_gauge_for_effect_summary(effect, card_name_source : String) -> String:
 	var gauge_card_str = "gauge"
 	if 'require_specific_card_name' in effect:
 		gauge_card_str = "copies of %s from gauge" % effect['require_specific_card_name']
+	elif 'valid_card_types' in effect:
+		gauge_card_str = "%s(s) from gauge" % '/'.join(effect['valid_card_types'])
+
 	if "per_gauge_effect" in effect and effect['per_gauge_effect'] != null:
 		if to_hand:
 			effect_str += "Return up to %s %s to your hand. For each, %s" % [str(gauge_limit), gauge_card_str, get_effect_text(effect['per_gauge_effect'], false, true, true, card_name_source)]

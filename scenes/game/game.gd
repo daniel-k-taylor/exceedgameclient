@@ -75,6 +75,7 @@ var select_card_up_to_force = 0
 var select_card_destination = ""
 var select_gauge_require_card_id = ""
 var select_gauge_require_card_name = ""
+var select_gauge_valid_card_types = []
 var select_boost_options = {}
 var select_card_name_boost_restriction = ""
 var selected_boost_to_pay_for = -1
@@ -1112,11 +1113,14 @@ func can_select_card(card):
 			return (in_gauge or in_hand) and (within_force_limit or can_selected_cards_pay_force(select_card_up_to_force, new_force))
 		UISubState.UISubState_SelectCards_GaugeForEffect:
 			var valid_id = true
+			var valid_type = true
+			var card_db = game_wrapper.get_card_database()
+			var logic_card = card_db.get_card(card.card_id)
 			if select_gauge_require_card_id:
-				var card_db = game_wrapper.get_card_database()
-				var logic_card = card_db.get_card(card.card_id)
 				valid_id = logic_card.definition['id'] == select_gauge_require_card_id
-			return in_gauge and valid_id and len(selected_cards) < select_card_require_max
+			if select_gauge_valid_card_types:
+				valid_type = logic_card.definition['type'] in select_gauge_valid_card_types
+			return in_gauge and valid_id and valid_type and len(selected_cards) < select_card_require_max
 		UISubState.UISubState_SelectCards_StrikeCard, UISubState.UISubState_SelectCards_StrikeResponseCard, UISubState.UISubState_SelectCards_OpponentSetsFirst_StrikeCard, UISubState.UISubState_SelectCards_OpponentSetsFirst_StrikeResponseCard, UISubState.UISubState_SelectCards_Mulligan:
 			if in_player_boosts:
 				var card_db = game_wrapper.get_card_database()
@@ -2409,6 +2413,9 @@ func update_gauge_for_effect_message():
 	var gauge_name_str = "gauge"
 	if select_gauge_require_card_name:
 		gauge_name_str = "copies of %s from gauge" % select_gauge_require_card_name
+	elif select_gauge_valid_card_types:
+		gauge_name_str = "%s(s) from gauge" % '/'.join(select_gauge_valid_card_types)
+
 	if decision_effect['per_gauge_effect']:
 		var effect = decision_effect['per_gauge_effect']
 		var effect_text = CardDefinitions.get_effect_text(effect, false, false, false, source_card_name)
@@ -3100,9 +3107,12 @@ func _on_gauge_for_effect(event):
 			select_card_must_be_max_or_min = false
 		select_gauge_require_card_id = ""
 		select_gauge_require_card_name = ""
+		select_gauge_valid_card_types = []
 		if 'require_specific_card_id' in effect:
 			select_gauge_require_card_id = effect['require_specific_card_id']
 			select_gauge_require_card_name = effect['require_specific_card_name']
+		if 'valid_card_types' in effect:
+			select_gauge_valid_card_types = effect['valid_card_types']
 		begin_gauge_selection(-1, false, UISubState.UISubState_SelectCards_GaugeForEffect)
 	else:
 		ai_gauge_for_effect(effect)
@@ -4228,9 +4238,12 @@ func _on_character_action_pressed(action_idx : int = 0):
 						select_card_must_be_max_or_min = false
 					select_gauge_require_card_id = ""
 					select_gauge_require_card_name = ""
+					select_gauge_valid_card_types = []
 					if 'require_specific_card_id' in shortcut_effect:
 						select_gauge_require_card_id = shortcut_effect['require_specific_card_id']
 						select_gauge_require_card_name = shortcut_effect['require_specific_card_name']
+					if 'valid_card_types' in shortcut_effect:
+						select_gauge_valid_card_types = shortcut_effect['valid_card_types']
 					begin_gauge_selection(-1, false, UISubState.UISubState_SelectCards_GaugeForEffect)
 				_:
 					assert(false, "Unexpected shortcut character action type")

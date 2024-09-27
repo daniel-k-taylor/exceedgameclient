@@ -504,6 +504,7 @@ class StrikeStatBoosts:
 	var dodge_at_range_from_buddy : bool = false
 	var dodge_at_speed_greater_or_equal : int = -1
 	var dodge_from_opposite_buddy : bool = false
+	var dodge_normals : bool = false
 	var range_includes_opponent : bool = false
 	var range_includes_if_moved_past : bool = false
 	var range_includes_lightningrods : bool = false
@@ -605,6 +606,7 @@ class StrikeStatBoosts:
 		dodge_at_range_late_calculate_with = ""
 		dodge_at_range_from_buddy = false
 		dodge_at_speed_greater_or_equal = -1
+		dodge_normals = false
 		dodge_from_opposite_buddy = false
 		range_includes_opponent = false
 		range_includes_if_moved_past = false
@@ -5286,6 +5288,9 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 			performing_player.strike_stat_boosts.dodge_from_opposite_buddy = true
 			events += [create_event(Enums.EventType.EventType_Strike_DodgeFromOppositeBuddy, performing_player.my_id, 0, "", effect['buddy_name'])]
 			_append_log_full(Enums.LogType.LogType_Effect, performing_player, "will dodge attacks from opponents behind %s!" % effect['buddy_name'])
+		"dodge_normals":
+			performing_player.strike_stat_boosts.dodge_normals = true
+			_append_log_full(Enums.LogType.LogType_Effect, performing_player, "is now dodging normal attacks!")
 		"draw":
 			var amount = effect['amount']
 			if str(amount) == "strike_x":
@@ -8751,6 +8756,11 @@ func in_range(attacking_player, defending_player, card, combat_logging=false):
 			_append_log_full(Enums.LogType.LogType_Effect, defending_player, "is dodging attacks!")
 		return false
 
+	if defending_player.strike_stat_boosts.dodge_normals and card.definition['type'] == "normal":
+		if combat_logging:
+			_append_log_full(Enums.LogType.LogType_Effect, defending_player, "is dodging normal attacks!")
+		return false
+
 	if defending_player.strike_stat_boosts.dodge_from_opposite_buddy and defending_player.is_buddy_in_play():
 		var buddy_pos = defending_player.get_buddy_location()
 		var dodging = false
@@ -11343,6 +11353,12 @@ func do_gauge_for_effect(performing_player : Player, card_ids : Array) -> bool:
 		for card_id in card_ids:
 			if card_db.get_card(card_id).definition['id'] != required_card_id:
 				printlog("ERROR: Invalid card id selected for card-specific gauge for effect.")
+				return false
+
+	if 'valid_card_types' in decision_info.effect:
+		for card_id in card_ids:
+			if card_db.get_card(card_id).definition['type'] not in decision_info.effect['valid_card_types']:
+				printlog("ERROR: Invalid card type selected for type-specific gauge for effect.")
 				return false
 
 	# Cap free gauge to the max gauge cost of the effect.
