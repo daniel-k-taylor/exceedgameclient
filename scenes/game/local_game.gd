@@ -6276,7 +6276,7 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 				# Forced to discard whole hand.
 				var card_ids = []
 				if discard_amount > 0 and opposing_player.hand.size() > 0:
-					assert(opposing_player.hand.size() >= discard_amount)
+					assert(opposing_player.hand.size() <= discard_amount)
 					card_ids = opposing_player.get_card_ids_in_hand()
 					if destination == "discard":
 						events += opposing_player.discard_hand()

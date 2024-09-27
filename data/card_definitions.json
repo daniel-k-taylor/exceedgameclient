@@ -5203,7 +5203,8 @@
 					"valid_card_types": ["normal"],
 					"per_gauge_effect": null,
 					"overall_effect": {
-						"effect_type": "add_to_gauge_boost_play_cleanup"
+						"effect_type": "add_to_gauge_boost_play_cleanup",
+						"spent_cards_to_hand": true
 					},
 					"spent_cards_to_hand": true,
 					"gauge_max": 1

@@ -347,7 +347,8 @@ func process_remaining_decisions(initiator, defender, init_choices, def_choices)
 
 func execute_strike(initiator: LocalGame.Player, defender: LocalGame.Player,
 		init_card: Variant, def_card: Variant, init_ex = false, def_ex = false,
-		init_choices = [], def_choices = [], exit_after_validation = false):
+		init_choices = [], def_choices = [], exit_after_validation = false,
+		init_alt_ex_card: Variant = "", def_alt_ex_card: Variant = ""):
 	var init_card_id = -1
 	var init_card_ex_id = -1
 	var def_card_id = -1
@@ -356,12 +357,17 @@ func execute_strike(initiator: LocalGame.Player, defender: LocalGame.Player,
 	if typeof(init_card) == Variant.Type.TYPE_STRING and init_card:
 		init_card_id = give_player_specific_card(initiator, init_card)
 		if init_ex:
-			init_card_ex_id = give_player_specific_card(initiator, init_card)
+			var init_card_def_id = init_card
+			if init_alt_ex_card:
+				init_card_def_id = init_alt_ex_card
+			init_card_ex_id = give_player_specific_card(initiator, init_card_def_id)
 		do_and_validate_strike(initiator, init_card_id, init_card_ex_id)
 	elif typeof(init_card) == Variant.Type.TYPE_INT and init_card >= 0:
 		init_card_id = init_card
 		if init_ex:
 			var init_card_def_id = game_logic.get_card_database().get_card_id(init_card)
+			if init_alt_ex_card:
+				init_card_def_id = init_alt_ex_card
 			init_card_ex_id = give_player_specific_card(initiator, init_card_def_id)
 		do_and_validate_strike(initiator, init_card_id, init_card_ex_id)
 	else:
@@ -371,12 +377,17 @@ func execute_strike(initiator: LocalGame.Player, defender: LocalGame.Player,
 	if typeof(def_card) == Variant.Type.TYPE_STRING and def_card:
 		def_card_id = give_player_specific_card(defender, def_card)
 		if def_ex:
-			def_card_ex_id = give_player_specific_card(defender, def_card)
+			var def_card_def_id = def_card
+			if def_alt_ex_card:
+				def_card_def_id = def_alt_ex_card
+			def_card_ex_id = give_player_specific_card(defender, def_card_def_id)
 		do_strike_response(defender, def_card_id, def_card_ex_id)
 	elif typeof(def_card) == Variant.Type.TYPE_INT and def_card >= 0:
 		def_card_id = def_card
 		if def_ex:
 			var def_card_def_id = game_logic.get_card_database().get_card_id(def_card)
+			if def_alt_ex_card:
+				def_card_def_id = def_alt_ex_card
 			def_card_ex_id = give_player_specific_card(defender, def_card_def_id)
 		do_strike_response(defender, def_card_id, def_card_ex_id)
 	else:
