@@ -5910,6 +5910,8 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 		"opponent_discard_normals_or_reveal":
 			var amount = effect['amount']
 			amount -= opposing_player.strike_stat_boosts.reduce_discard_effects_by
+			var adjusted_effect = effect.duplicate()
+			adjusted_effect['amount'] = amount
 
 			var normals_in_hand = opposing_player.get_cards_in_hand_of_type("normal")
 			var normal_ids = []
@@ -5926,7 +5928,7 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 				decision_info.clear()
 				decision_info.type = Enums.DecisionType.DecisionType_ChooseToDiscard
 				decision_info.effect_type = "opponent_discard_choose_internal"
-				decision_info.effect = effect
+				decision_info.effect = adjusted_effect
 				decision_info.bonus_effect = null
 				decision_info.destination = "discard"
 				decision_info.limitation = "normal"
@@ -6253,8 +6255,9 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 				discard_amount -= opposing_player.strike_stat_boosts.reduce_discard_effects_by
 				if discard_amount < 0:
 					discard_amount = 0
+			this_effect['amount'] = discard_amount
 
-			if opposing_player.hand.size() > discard_amount or (allow_fewer and opposing_player.hand.size() > 0):
+			if discard_amount > 0 and (opposing_player.hand.size() > discard_amount or (allow_fewer and opposing_player.hand.size() > 0)):
 				change_game_state(Enums.GameState.GameState_PlayerDecision)
 				decision_info.clear()
 				decision_info.type = Enums.DecisionType.DecisionType_ChooseToDiscard
@@ -6271,11 +6274,14 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 			else:
 				events += [create_event(Enums.EventType.EventType_Strike_ChooseToDiscard_Info, opposing_player.my_id, discard_amount)]
 				# Forced to discard whole hand.
-				var card_ids = opposing_player.get_card_ids_in_hand()
-				if destination == "discard":
-					events += opposing_player.discard_hand()
-				elif destination == "reveal":
-					events += opposing_player.reveal_hand()
+				var card_ids = []
+				if discard_amount > 0 and opposing_player.hand.size() > 0:
+					assert(opposing_player.hand.size() >= discard_amount)
+					card_ids = opposing_player.get_card_ids_in_hand()
+					if destination == "discard":
+						events += opposing_player.discard_hand()
+					elif destination == "reveal":
+						events += opposing_player.reveal_hand()
 
 				if discard_effect:
 					discard_effect = discard_effect.duplicate()
@@ -6299,7 +6305,7 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 
 			if opposing_player.strike_stat_boosts.reduce_discard_effects_by > 0:
 				var manual_discard_effect = {
-					"effect_type": "opponent_discard_chooose",
+					"effect_type": "opponent_discard_choose",
 					"amount": num_discarded
 				} # opponent_discard_choose will handle the smaller discard amount
 				events += handle_strike_effect(card_id, manual_discard_effect, performing_player)
