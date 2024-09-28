@@ -4942,6 +4942,277 @@
 		"NOTEEND": "CARLCLOVER CARDS END"
 	},
 
+	{
+		"NOTE": "CARLSWANGEE CARDS START",
+		"id": "carlswangee_authorizedforce",
+		"type": "ultra",
+		"display_name": "Authorized Force",
+		"force_cost": 0,
+		"gauge_cost": 4,
+		"range_min": 1,
+		"range_max": 1,
+		"speed": 6,
+		"power": 10,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+		],
+		"boost": {
+			"boost_type": "overload",
+			"force_cost": -1,
+			"cancel_cost": -1,
+			"display_name": "Overload",
+			"effects": [
+			]
+		}
+	},
+	{
+		"id": "carlswangee_autonomicresponse",
+		"type": "ultra",
+		"display_name": "Autonomic Response",
+		"force_cost": 0,
+		"gauge_cost": 2,
+		"range_min": 1,
+		"range_max": 3,
+		"speed": 1,
+		"power": 6,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "during_strike",
+				"effect_type": "dodge_normals"
+			}
+		],
+		"boost": {
+			"boost_type": "overload",
+			"force_cost": -1,
+			"cancel_cost": -1,
+			"display_name": "Overload",
+			"effects": [
+			]
+		}
+	},
+	{
+		"id": "carlswangee_improvisedweapon",
+		"type": "special",
+		"display_name": "Improvised Weapon",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 3,
+		"range_max": 6,
+		"speed": 6,
+		"power": 1,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "hit",
+				"condition": "not_initiated_strike",
+				"effect_type": "return_attack_to_hand",
+				"not_immediate": true,
+				"card_name": "Improvised Weapon" ,
+				"negative_condition_effect": {
+					"effect_type": "gain_advantage"
+				}
+			}
+		],
+		"boost": {
+			"boost_type": "immediate",
+			"force_cost": 1,
+			"cancel_cost": -1,
+			"display_name": "Investigate",
+			"effects": [
+				{
+					"timing": "immediate",
+					"effect_type": "opponent_discard_random",
+					"amount": 1,
+					"and": {
+						"condition": "opponent_top_discard_is_special",
+						"effect_type": "opponent_discard_choose",
+						"amount": 1
+					}
+				}
+			]
+		}
+	},
+	{
+		"id": "carlswangee_disarmingstrike",
+		"type": "special",
+		"display_name": "Disarming Strike",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 1,
+		"speed": 6,
+		"power": 2,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "before",
+				"effect_type": "close",
+				"amount": 2
+			},
+			{
+				"timing": "hit",
+				"effect_type": "opponent_discard_normals_or_reveal",
+				"amount": 1
+			}
+		],
+		"boost": {
+			"boost_type": "immediate",
+			"force_cost": 1,
+			"cancel_cost": -1,
+			"display_name": "Disarming Maneuver",
+			"effects": [
+				{
+					"timing": "immediate",
+					"effect_type": "advance",
+					"amount": 2,
+					"bonus_effect": {
+						"condition": "advanced_through",
+						"effect_type": "opponent_discard_random",
+						"amount": 1
+					}
+				}
+			]
+		}
+	},
+	{
+		"id": "carlswangee_swangeeelbow",
+		"type": "special",
+		"display_name": "Swangee Elbow",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 1,
+		"speed": 4,
+		"power": 4,
+		"armor": 0,
+		"guard": 4,
+		"effects": [
+			{
+				"timing": "during_strike",
+				"effect_type": "ignore_armor",
+				"and": {
+					"effect_type": "ignore_guard"
+				}
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 1,
+			"cancel_cost": -1,
+			"display_name": "Armor Up",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "armorup",
+					"amount": 3
+				}
+			]
+		}
+	},
+	{
+		"id": "carlswangee_ceaseanddesist",
+		"type": "special",
+		"display_name": "Cease & Desist",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 3,
+		"speed": 3,
+		"power": 3,
+		"armor": 3,
+		"guard": 3,
+		"effects": [
+			{
+				"timing": "during_strike",
+				"effect_type": "reduce_discard_amount",
+				"amount": 1
+			},
+			{
+				"timing": "after",
+				"effect_type": "draw",
+				"amount": 1,
+				"and": {
+					"effect_type": "lose_all_armor"
+				}
+			}
+		],
+		"boost": {
+			"boost_type": "immediate",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Headlong Run",
+			"effects": [
+				{
+					"timing": "immediate",
+					"effect_type": "choice",
+					"choice": [
+						{ "effect_type": "close", "amount": 1 },
+						{ "effect_type": "close", "amount": 2 },
+						{ "effect_type": "close", "amount": 3 },
+						{ "effect_type": "close", "amount": 4 },
+						{ "effect_type": "close", "amount": 5 },
+						{ "effect_type": "close", "amount": 6 },
+						{ "effect_type": "pass" }
+					]
+				}
+			]
+		}
+	},
+	{
+		"NOTE": "CARLSWANGEE CARDS END",
+		"id": "carlswangee_powershort",
+		"type": "special",
+		"display_name": "Power Short",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 2,
+		"speed": 2,
+		"power": 7,
+		"armor": 2,
+		"guard": 3,
+		"effects": [
+			{
+				"timing": "during_strike",
+				"effect_type": "ignore_push_and_pull"
+			},
+			{
+				"timing": "after",
+				"effect_type": "lose_all_armor",
+				"and": {
+					"condition": "not_hit_opponent",
+					"effect_type": "take_damage",
+					"amount": 3
+				}
+			}
+		],
+		"boost": {
+			"boost_type": "immediate",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Precision Engineering",
+			"effects": [
+				{
+					"timing": "immediate",
+					"effect_type": "gauge_for_effect",
+					"valid_card_types": ["normal"],
+					"per_gauge_effect": null,
+					"overall_effect": {
+						"effect_type": "add_to_gauge_boost_play_cleanup",
+						"spent_cards_to_hand": true
+					},
+					"spent_cards_to_hand": true,
+					"gauge_max": 1
+				}
+			]
+		},
+		"NOTEEND": "CARLSWANGEE CARDS END"
+	},
 
 	{
 		"NOTE": "CARMINE CARDS START",

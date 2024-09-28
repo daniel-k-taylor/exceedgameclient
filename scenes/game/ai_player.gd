@@ -574,7 +574,7 @@ func get_boost_actions(valid_zones : Array, limitation : String, ignore_costs : 
 		for card in zone_map[zone]:
 			if card.definition['type'] == "decree_glorious" and not game_player.exceeded:
 				continue
-			if card.definition['boost']['boost_type'] == "transform":
+			if card.definition['boost']['boost_type'] in ["transform", "overload"]:
 				continue
 			if limitation:
 				if card.definition['boost']['boost_type'] != limitation and card.definition['type'] != limitation:

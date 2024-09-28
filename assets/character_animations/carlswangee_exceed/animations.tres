@@ -1,0 +1,16 @@
+[gd_resource type="SpriteFrames" load_steps=2 format=3 uid="uid://cfb0ab7a51a3w"]
+
+[ext_resource type="Texture2D" uid="uid://0mvnaynepbpj" path="res://assets/character_animations/carlswangee_exceed/swangee_back.jpeg" id="1_6gi0m"]
+
+[resource]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("1_6gi0m")
+}],
+"loop": true,
+"name": &"idle",
+"speed": 5.0
+}]
+metadata/flip = true
+metadata/scaling = 1.0

@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://h8sg34alkc4i"
-path="res://.godot/imported/seijun_exceeded.jpg-4455225f91c80d12ebe88d9cfb98afce.ctex"
+uid="uid://d1pts2t23b72v"
+path="res://.godot/imported/swangee_front.jpeg-538eed3d1561f80796c861bb99bc027e.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/character_animations/seijun/seijun_exceeded.jpg"
-dest_files=["res://.godot/imported/seijun_exceeded.jpg-4455225f91c80d12ebe88d9cfb98afce.ctex"]
+source_file="res://assets/character_animations/carlswangee/swangee_front.jpeg"
+dest_files=["res://.godot/imported/swangee_front.jpeg-538eed3d1561f80796c861bb99bc027e.ctex"]
 
 [params]
 

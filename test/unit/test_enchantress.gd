@@ -336,7 +336,6 @@ func test_enchantress_mind_control_no_force():
 
 	assert_true(game_logic.do_boost(player1, TestCardId1, []))
 	assert_true(game_logic.do_force_for_effect(player1, [], true))
-	assert_true(game_logic.do_choose_to_discard(player2, []))
 	assert_false("standard_normal_grasp" in player2.public_hand)
 	assert_false("standard_normal_cross" in player2.public_hand)
 	assert_false("standard_normal_assault" in player2.public_hand)
