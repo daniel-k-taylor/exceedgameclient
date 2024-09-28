@@ -504,6 +504,7 @@ class StrikeStatBoosts:
 	var dodge_at_range_from_buddy : bool = false
 	var dodge_at_speed_greater_or_equal : int = -1
 	var dodge_from_opposite_buddy : bool = false
+	var dodge_normals : bool = false
 	var range_includes_opponent : bool = false
 	var range_includes_if_moved_past : bool = false
 	var range_includes_lightningrods : bool = false
@@ -564,6 +565,7 @@ class StrikeStatBoosts:
 	var may_invalidate_ultras : bool = false
 	var increase_movement_effects_by : int = 0
 	var increase_move_opponent_effects_by : int = 0
+	var reduce_discard_effects_by : int = 0
 	var increase_draw_effects_by : int = 0
 	var swap_power_speed : bool = false
 	var invert_range : bool = false
@@ -604,6 +606,7 @@ class StrikeStatBoosts:
 		dodge_at_range_late_calculate_with = ""
 		dodge_at_range_from_buddy = false
 		dodge_at_speed_greater_or_equal = -1
+		dodge_normals = false
 		dodge_from_opposite_buddy = false
 		range_includes_opponent = false
 		range_includes_if_moved_past = false
@@ -666,6 +669,7 @@ class StrikeStatBoosts:
 		increase_movement_effects_by = 0
 		increase_move_opponent_effects_by = 0
 		increase_draw_effects_by = 0
+		reduce_discard_effects_by = 0
 		swap_power_speed = false
 		invert_range = false
 		strike_payment_card_ids = []
@@ -1973,7 +1977,7 @@ class Player:
 
 		for zone in valid_zones:
 			for card in zone_map[zone]:
-				if card.definition['boost']['boost_type'] == "transform":
+				if card.definition['boost']['boost_type'] in ["transform", "overload"]:
 					continue
 
 				var meets_limitation = true
@@ -2016,10 +2020,19 @@ class Player:
 			return true
 
 		var card_ids_in_hand = []
+		var has_normal = false
+		var has_overload = false
 		for card in hand:
 			if card.definition['id'] in card_ids_in_hand:
 				return true
 			card_ids_in_hand.append(card.definition['id'])
+
+			if card.definition['type'] == "normal":
+				has_normal = true
+			if card.definition['boost']['boost_type'] == "overload":
+				has_overload = true
+			if has_normal and has_overload:
+				return true
 		return false
 
 	func has_ex_boost():
@@ -3722,6 +3735,13 @@ func strike_setup_defender_response(events):
 			if len(reading_cards) >= 2:
 				ex_card_id = reading_cards[1].id
 
+			# Add potential overloads as options for EX
+			var overload_options = {}
+			if reading_card.definition['type'] == "normal":
+				for card in active_strike.defender.hand:
+					if card.definition['id'] not in overload_options and card.definition['boost']['boost_type'] == "overload":
+						overload_options[card.definition['id']] = card
+
 			# Send choice to player
 			change_game_state(Enums.GameState.GameState_PlayerDecision)
 			var defender_id = active_strike.defender.my_id
@@ -3732,6 +3752,13 @@ func strike_setup_defender_response(events):
 				{ "effect_type": "strike_response_reading", "card_id": reading_card.id },
 				{ "effect_type": "strike_response_reading", "card_id": reading_card.id, "ex_card_id": ex_card_id, "_choice_disabled": ex_card_id == -1 },
 			]
+
+			for overload_option_id in overload_options:
+				var overload_card = overload_options[overload_option_id]
+				decision_info.choice.append(
+					{ "effect_type": "strike_response_reading", "card_id": reading_card.id, "ex_card_id": overload_card.id, "overload_name": overload_card.definition['display_name'] }
+				)
+
 			events += [create_event(Enums.EventType.EventType_Strike_EffectChoice, defender_id, 0, "Reading", reading_card.definition['display_name'])]
 			active_strike.waiting_for_reading_response = true
 			ask_for_response = false
@@ -3938,6 +3965,8 @@ func is_effect_condition_met(performing_player : Player, effect, local_condition
 			var special = active_strike.get_player_card(performing_player).definition['type'] == "special"
 			var ultra = active_strike.get_player_card(performing_player).definition['type'] == "ultra"
 			return special or ultra
+		elif condition == "opponent_is_special_attack":
+			return active_strike.get_player_card(other_player).definition['type'] == "special"
 		elif condition == "is_ex_strike":
 			return active_strike.will_be_ex(performing_player)
 		elif condition == "at_edge_of_arena":
@@ -4305,6 +4334,12 @@ func is_effect_condition_met(performing_player : Player, effect, local_condition
 			var top_discard_card = performing_player.get_top_discard_card()
 			if top_discard_card:
 				return top_discard_card.definition['boost']['boost_type'] == "continuous"
+			else:
+				return false
+		elif condition == "opponent_top_discard_is_special":
+			var top_discard_card = other_player.get_top_discard_card()
+			if top_discard_card:
+				return top_discard_card.definition['type'] == "special"
 			else:
 				return false
 		elif condition == "can_continuous_boost_from_gauge":
@@ -5253,6 +5288,9 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 			performing_player.strike_stat_boosts.dodge_from_opposite_buddy = true
 			events += [create_event(Enums.EventType.EventType_Strike_DodgeFromOppositeBuddy, performing_player.my_id, 0, "", effect['buddy_name'])]
 			_append_log_full(Enums.LogType.LogType_Effect, performing_player, "will dodge attacks from opponents behind %s!" % effect['buddy_name'])
+		"dodge_normals":
+			performing_player.strike_stat_boosts.dodge_normals = true
+			_append_log_full(Enums.LogType.LogType_Effect, performing_player, "is now dodging normal attacks!")
 		"draw":
 			var amount = effect['amount']
 			if str(amount) == "strike_x":
@@ -5871,6 +5909,10 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 			performing_player.strike_stat_boosts.only_hits_if_opponent_on_any_buddy = true
 		"opponent_discard_normals_or_reveal":
 			var amount = effect['amount']
+			amount -= opposing_player.strike_stat_boosts.reduce_discard_effects_by
+			var adjusted_effect = effect.duplicate()
+			adjusted_effect['amount'] = amount
+
 			var normals_in_hand = opposing_player.get_cards_in_hand_of_type("normal")
 			var normal_ids = []
 			for card in normals_in_hand:
@@ -5880,13 +5922,13 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 				_append_log_full(Enums.LogType.LogType_Effect, opposing_player, "discards all normals and reveals their hand.")
 				events += opposing_player.discard(normal_ids)
 				events += opposing_player.reveal_hand()
-			else:
-				# Opponent chooses which 3 to discard, even if they only have 3 to hide if they have 3 or more normals.
+			elif amount > 0:
+				# Opponent chooses which to discard, even if they only have that many to hide how many normals they have.
 				change_game_state(Enums.GameState.GameState_PlayerDecision)
 				decision_info.clear()
 				decision_info.type = Enums.DecisionType.DecisionType_ChooseToDiscard
 				decision_info.effect_type = "opponent_discard_choose_internal"
-				decision_info.effect = effect
+				decision_info.effect = adjusted_effect
 				decision_info.bonus_effect = null
 				decision_info.destination = "discard"
 				decision_info.limitation = "normal"
@@ -6208,8 +6250,14 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 			if str(this_effect['amount']) == "force_spent_before_strike":
 				# intentionally performing_player, rather than choice_player
 				this_effect['amount'] = performing_player.force_spent_before_strike
+			var discard_amount = this_effect['amount']
+			if not allow_fewer:
+				discard_amount -= opposing_player.strike_stat_boosts.reduce_discard_effects_by
+				if discard_amount < 0:
+					discard_amount = 0
+			this_effect['amount'] = discard_amount
 
-			if opposing_player.hand.size() > this_effect['amount'] or (allow_fewer and opposing_player.hand.size() > 0):
+			if discard_amount > 0 and (opposing_player.hand.size() > discard_amount or (allow_fewer and opposing_player.hand.size() > 0)):
 				change_game_state(Enums.GameState.GameState_PlayerDecision)
 				decision_info.clear()
 				decision_info.type = Enums.DecisionType.DecisionType_ChooseToDiscard
@@ -6222,21 +6270,24 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 
 				decision_info.choice_card_id = card_id
 				decision_info.player = opposing_player.my_id
-				events += [create_event(Enums.EventType.EventType_Strike_ChooseToDiscard, opposing_player.my_id, this_effect['amount'], "", allow_fewer)]
+				events += [create_event(Enums.EventType.EventType_Strike_ChooseToDiscard, opposing_player.my_id, discard_amount, "", allow_fewer)]
 			else:
-				events += [create_event(Enums.EventType.EventType_Strike_ChooseToDiscard_Info, opposing_player.my_id, this_effect['amount'])]
+				events += [create_event(Enums.EventType.EventType_Strike_ChooseToDiscard_Info, opposing_player.my_id, discard_amount)]
 				# Forced to discard whole hand.
-				var card_ids = opposing_player.get_card_ids_in_hand()
-				if destination == "discard":
-					events += opposing_player.discard_hand()
-				elif destination == "reveal":
-					events += opposing_player.reveal_hand()
+				var card_ids = []
+				if discard_amount > 0 and opposing_player.hand.size() > 0:
+					assert(opposing_player.hand.size() <= discard_amount)
+					card_ids = opposing_player.get_card_ids_in_hand()
+					if destination == "discard":
+						events += opposing_player.discard_hand()
+					elif destination == "reveal":
+						events += opposing_player.reveal_hand()
 
 				if discard_effect:
 					discard_effect = discard_effect.duplicate()
 					discard_effect['discarded_card_ids'] = card_ids
 					events += do_effect_if_condition_met(opposing_player, card_id, discard_effect, local_conditions)
-				elif len(card_ids) < effect['amount'] and 'smaller_discard_effect' in effect:
+				elif len(card_ids) < discard_amount and 'smaller_discard_effect' in effect:
 					events += do_effect_if_condition_met(opposing_player, card_id, effect['smaller_discard_effect'], local_conditions)
 		"opponent_discard_choose_internal":
 			var cards = effect['card_ids']
@@ -6251,12 +6302,27 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 					events += [create_event(Enums.EventType.EventType_RevealCard, performing_player.my_id, revealed_card_id)]
 		"opponent_discard_hand":
 			var num_discarded = opposing_player.hand.size()
-			events += opposing_player.discard_hand()
+
+			if opposing_player.strike_stat_boosts.reduce_discard_effects_by > 0:
+				var manual_discard_effect = {
+					"effect_type": "opponent_discard_choose",
+					"amount": num_discarded
+				} # opponent_discard_choose will handle the smaller discard amount
+				events += handle_strike_effect(card_id, manual_discard_effect, performing_player)
+				num_discarded -= opposing_player.strike_stat_boosts.reduce_discard_effects_by
+			else:
+				events += opposing_player.discard_hand()
+
 			if 'save_num_discarded_as_strike_x' in effect and effect['save_num_discarded_as_strike_x']:
 				_append_log_full(Enums.LogType.LogType_Strike, performing_player, "'s X for this strike is set to the number of discarded cards, %s." % num_discarded)
 				events += performing_player.set_strike_x(num_discarded)
 		"opponent_discard_random":
-			var discard_ids = opposing_player.pick_random_cards_from_hand(effect['amount'])
+			var discard_amount = effect['amount']
+			discard_amount -= opposing_player.strike_stat_boosts.reduce_discard_effects_by
+			if discard_amount < 0:
+				discard_amount = 0
+
+			var discard_ids = opposing_player.pick_random_cards_from_hand(discard_amount)
 			if discard_ids.size() > 0:
 				var discarded_names = card_db.get_card_names(discard_ids)
 				if 'destination' in effect and effect['destination'] == "overdrive":
@@ -7299,6 +7365,10 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 				performing_player.strike_stat_boosts.calculate_range_from_space = active_strike.initiator_set_from_boost_space
 			else:
 				performing_player.strike_stat_boosts.calculate_range_from_space = active_strike.defender_set_from_boost_space
+		"reduce_discard_amount":
+			var amount = effect['amount']
+			performing_player.strike_stat_boosts.reduce_discard_effects_by += amount
+			_append_log_full(Enums.LogType.LogType_Effect, performing_player, "'s discard amounts are reduced by %s!" % amount)
 		"reshuffle_discard_into_deck":
 			events += performing_player.reshuffle_discard(false, true)
 		"retreat":
@@ -7378,7 +7448,8 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 			events += performing_player.return_all_cards_gauge_to_hand()
 		"return_attack_to_hand":
 			performing_player.strike_stat_boosts.return_attack_to_hand = true
-			events += handle_strike_attack_immediate_removal(performing_player)
+			if 'not_immediate' not in effect or not effect['not_immediate']:
+				events += handle_strike_attack_immediate_removal(performing_player)
 		"return_sealed_with_same_speed":
 			var sealed_card_id = decision_info.amount
 			var sealed_card = card_db.get_card(sealed_card_id)
@@ -8691,6 +8762,11 @@ func in_range(attacking_player, defending_player, card, combat_logging=false):
 			_append_log_full(Enums.LogType.LogType_Effect, defending_player, "is dodging attacks!")
 		return false
 
+	if defending_player.strike_stat_boosts.dodge_normals and card.definition['type'] == "normal":
+		if combat_logging:
+			_append_log_full(Enums.LogType.LogType_Effect, defending_player, "is dodging normal attacks!")
+		return false
+
 	if defending_player.strike_stat_boosts.dodge_from_opposite_buddy and defending_player.is_buddy_in_play():
 		var buddy_pos = defending_player.get_buddy_location()
 		var dodging = false
@@ -9490,6 +9566,10 @@ func handle_strike_attack_cleanup(performing_player : Player, card):
 	elif performing_player.strike_stat_boosts.discard_attack_on_cleanup:
 		_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "discards their attack %s." % _log_card_name(card_name))
 		events += performing_player.add_to_discards(card)
+		active_strike.cards_in_play.erase(card)
+	elif performing_player.strike_stat_boosts.return_attack_to_hand:
+		_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "returns their attack %s to their hand." % _log_card_name(card_name))
+		events += performing_player.add_to_hand(card, true)
 		active_strike.cards_in_play.erase(card)
 
 	return events
@@ -10360,6 +10440,11 @@ func do_boost(performing_player : Player, card_id : int, payment_card_ids : Arra
 			assert(false)
 			return false
 
+	if card.definition['boost']['boost_type'] == "overload":
+		printlog("ERROR: Tried to boost a card with an overload")
+		assert(false)
+		return false
+
 	if not decision_info.ignore_costs:
 		var force_cost = card.definition['boost']['force_cost']
 		if not performing_player.can_pay_cost_with(payment_card_ids, force_cost, 0, use_free_force):
@@ -10501,8 +10586,10 @@ func do_strike(performing_player : Player, card_id : int, wild_strike: bool, ex_
 			printlog("ERROR: Tried to strike with a ex card not in hand.")
 			return false
 	if ex_strike and not card_db.are_same_card(card_id, ex_card_id):
-		printlog("ERROR: Tried to strike with a ex card that doesn't match.")
-		return false
+		if card_db.get_card(card_id).definition['type'] == "normal" and \
+				card_db.get_card(ex_card_id).definition['boost']['boost_type'] != "overload":
+			printlog("ERROR: Tried to strike with a ex card that doesn't match.")
+			return false
 
 	# Begin the strike
 	var events = []
@@ -11272,6 +11359,12 @@ func do_gauge_for_effect(performing_player : Player, card_ids : Array) -> bool:
 		for card_id in card_ids:
 			if card_db.get_card(card_id).definition['id'] != required_card_id:
 				printlog("ERROR: Invalid card id selected for card-specific gauge for effect.")
+				return false
+
+	if 'valid_card_types' in decision_info.effect:
+		for card_id in card_ids:
+			if card_db.get_card(card_id).definition['type'] not in decision_info.effect['valid_card_types']:
+				printlog("ERROR: Invalid card type selected for type-specific gauge for effect.")
 				return false
 
 	# Cap free gauge to the max gauge cost of the effect.

@@ -149,6 +149,9 @@ func get_gauge_for_effect_summary(effect, card_name_source : String) -> String:
 	var gauge_card_str = "gauge"
 	if 'require_specific_card_name' in effect:
 		gauge_card_str = "copies of %s from gauge" % effect['require_specific_card_name']
+	elif 'valid_card_types' in effect:
+		gauge_card_str = "%s(s) from gauge" % '/'.join(effect['valid_card_types'])
+
 	if "per_gauge_effect" in effect and effect['per_gauge_effect'] != null:
 		if to_hand:
 			effect_str += "Return up to %s %s to your hand. For each, %s" % [str(gauge_limit), gauge_card_str, get_effect_text(effect['per_gauge_effect'], false, true, true, card_name_source)]
@@ -325,6 +328,8 @@ func get_condition_text(effect, amount, amount2, detail):
 			text += ""
 		"is_special_or_ultra_attack":
 			text += "For specials/ultras, "
+		"opponent_is_special_attack":
+			text += "If opponent strikes with a special, "
 		"is_normal_attack":
 			text += "If you strike with a normal, "
 		"deck_not_empty":
@@ -1134,6 +1139,8 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 			if optional:
 				begin_str = "You may: "
 			effect_str += "%sRemove %s %s opponent's space" % [begin_str, effect['buddy_name'], location_str]
+		"reduce_discard_amount":
+			effect_str += "Reduce discard effects by %s" % effect['amount']
 		"remove_X_buddies":
 			effect_str += "Remove X %ss" % [effect['buddy_name']]
 		"repeat_effect_optionally":
@@ -1341,6 +1348,8 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 		"strike_response_reading":
 			if 'ex_card_id' in effect:
 				effect_str += "EX Strike"
+				if 'overload_name' in effect:
+					effect_str += " (Overload: %s)" % effect['overload_name']
 			else:
 				effect_str += "Strike"
 		"strike_with_ex":
