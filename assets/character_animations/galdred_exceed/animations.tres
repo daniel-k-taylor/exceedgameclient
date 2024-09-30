@@ -1,0 +1,16 @@
+[gd_resource type="SpriteFrames" load_steps=2 format=3 uid="uid://b5233fxk3rxs3"]
+
+[ext_resource type="Texture2D" uid="uid://gmokl5dmfpv4" path="res://assets/character_animations/galdred_exceed/galdred_back.jpeg" id="1_nkd31"]
+
+[resource]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("1_nkd31")
+}],
+"loop": true,
+"name": &"idle",
+"speed": 5.0
+}]
+metadata/flip = true
+metadata/scaling = 0.3

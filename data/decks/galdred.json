@@ -1,0 +1,186 @@
+{
+	"id": "galdred",
+	"season": 2,
+	"display_name": "Galdred",
+	"exceed_cost": 6,
+	"exceed_cost_reduced_by": "transform_discount",
+	"exceed_animation": "galdred_exceed",
+	"ability_effects": [
+	],
+	"exceed_ability_effects": [
+	],
+	"image_resources": {
+		"character_default": {
+			"url": "https://i.imgur.com/5NF4GDg.jpeg",
+			"multiple_cards": false
+		},
+		"character_exceeded": {
+			"url": "https://i.imgur.com/Ft58Zdk.jpeg",
+			"multiple_cards": false
+		},
+		"cardback": {
+			"url": "https://i.imgur.com/s6wpKBq.jpeg",
+			"multiple_cards": false
+		},
+		"specials": {
+			"url": "https://i.imgur.com/djSzinK.jpeg",
+			"multiple_cards": true
+		},
+		"normals": {
+			"url": "https://i.imgur.com/1pnJnEb.jpeg",
+			"multiple_cards": true
+		}
+	},
+	"cards": [
+		{
+			"definition_id": "seijun_taleofninesorrows",
+			"image_name": "specials",
+			"image_index": 5
+		},
+		{
+			"definition_id": "seijun_taleofninesorrows",
+			"image_name": "specials",
+			"image_index": 5
+		},
+		{
+			"definition_id": "seijun_taleofseventrials",
+			"image_name": "specials",
+			"image_index": 6
+		},
+		{
+			"definition_id": "seijun_taleofseventrials",
+			"image_name": "specials",
+			"image_index": 6
+		},
+		{
+			"definition_id": "seijun_inksplash",
+			"image_name": "specials",
+			"image_index": 0
+		},
+		{
+			"definition_id": "seijun_inksplash",
+			"image_name": "specials",
+			"image_index": 0
+		},
+		{
+			"definition_id": "seijun_yokaibanishing",
+			"image_name": "specials",
+			"image_index": 1
+		},
+		{
+			"definition_id": "seijun_yokaibanishing",
+			"image_name": "specials",
+			"image_index": 1
+		},
+		{
+			"definition_id": "seijun_inariguidance",
+			"image_name": "specials",
+			"image_index": 2
+		},
+		{
+			"definition_id": "seijun_inariguidance",
+			"image_name": "specials",
+			"image_index": 2
+		},
+		{
+			"definition_id": "seijun_inkspike",
+			"image_name": "specials",
+			"image_index": 3
+		},
+		{
+			"definition_id": "seijun_inkspike",
+			"image_name": "specials",
+			"image_index": 3
+		},
+		{
+			"definition_id": "seijun_foxfire",
+			"image_name": "specials",
+			"image_index": 4
+		},
+		{
+			"definition_id": "seijun_foxfire",
+			"image_name": "specials",
+			"image_index": 4
+		},
+		{
+			"definition_id": "standard_normal_grasp",
+			"image_name": "normals",
+			"image_index": 0
+		},
+		{
+			"definition_id": "standard_normal_grasp",
+			"image_name": "normals",
+			"image_index": 0
+		},
+		{
+			"definition_id": "standard_normal_cross",
+			"image_name": "normals",
+			"image_index": 1
+		},
+		{
+			"definition_id": "standard_normal_cross",
+			"image_name": "normals",
+			"image_index": 1
+		},
+		{
+			"definition_id": "standard_normal_assault",
+			"image_name": "normals",
+			"image_index": 2
+		},
+		{
+			"definition_id": "standard_normal_assault",
+			"image_name": "normals",
+			"image_index": 2
+		},
+		{
+			"definition_id": "standard_normal_dive",
+			"image_name": "normals",
+			"image_index": 3
+		},
+		{
+			"definition_id": "standard_normal_dive",
+			"image_name": "normals",
+			"image_index": 3
+		},
+		{
+			"definition_id": "standard_normal_spike",
+			"image_name": "normals",
+			"image_index": 4
+		},
+		{
+			"definition_id": "standard_normal_spike",
+			"image_name": "normals",
+			"image_index": 4
+		},
+		{
+			"definition_id": "standard_normal_sweep",
+			"image_name": "normals",
+			"image_index": 5
+		},
+		{
+			"definition_id": "standard_normal_sweep",
+			"image_name": "normals",
+			"image_index": 5
+		},
+		{
+			"definition_id": "standard_normal_focus",
+			"image_name": "normals",
+			"image_index": 6
+		},
+		{
+			"definition_id": "standard_normal_focus",
+			"image_name": "normals",
+			"image_index": 6
+		},
+		{
+			"definition_id": "standard_normal_block",
+			"image_name": "normals",
+			"image_index": 7
+		},
+		{
+			"definition_id": "standard_normal_block",
+			"image_name": "normals",
+			"image_index": 7
+		}
+	]
+}
