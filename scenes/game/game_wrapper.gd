@@ -315,6 +315,9 @@ func get_plague_knight_discard_names(player_id : Enums.PlayerId) -> Array:
 func get_buddy_name(player_id : Enums.PlayerId, buddy_id : String):
 	return _get_player(player_id).get_buddy_name(buddy_id)
 
+func get_face_attack_card(player_id : Enums.PlayerId):
+	return _get_player(player_id).get_face_attack_card()
+
 func get_valid_locations_for_buddy_effect(player_id : Enums.PlayerId, effect : Dictionary):
 	var MinArenaLocation = 1
 	var MaxArenaLocation = 9
@@ -517,9 +520,10 @@ func submit_change(player : Enums.PlayerId, card_ids : Array, treat_ultras_as_si
 	var game_player = _get_player(player)
 	return current_game.do_change(game_player, card_ids, treat_ultras_as_single_force, use_free_force)
 
-func submit_strike(player : Enums.PlayerId, card_id : int, wild_strike: bool, ex_card_id : int, opponent_sets_first : bool = false) -> bool:
+func submit_strike(player : Enums.PlayerId, card_id : int, wild_strike: bool, ex_card_id : int,
+		opponent_sets_first : bool = false, use_face_attack : bool = false) -> bool:
 	var game_player = _get_player(player)
-	return current_game.do_strike(game_player, card_id, wild_strike, ex_card_id, opponent_sets_first)
+	return current_game.do_strike(game_player, card_id, wild_strike, ex_card_id, opponent_sets_first, use_face_attack)
 
 func submit_force_for_armor(player : Enums.PlayerId, card_ids : Array, use_free_force : bool) -> bool:
 	var game_player = _get_player(player)

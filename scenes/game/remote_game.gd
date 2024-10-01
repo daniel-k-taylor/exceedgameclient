@@ -329,7 +329,7 @@ func process_change(action_message) -> void:
 	local_game.do_change(game_player, card_ids, treat_ultras_as_single_force, use_free_force)
 
 func do_strike(player : LocalGame.Player, card_id : int, wild_strike: bool, ex_card_id : int,
-		opponent_sets_first : bool = false) -> bool:
+		opponent_sets_first : bool = false, use_face_attack : bool = false) -> bool:
 	var action_message = {
 		'action_type': 'action_strike',
 		'player_id': _get_player_remote_id(player),
@@ -337,6 +337,7 @@ func do_strike(player : LocalGame.Player, card_id : int, wild_strike: bool, ex_c
 		'wild_strike': wild_strike,
 		'ex_card_id': ex_card_id,
 		'opponent_sets_first': opponent_sets_first,
+		'use_face_attack': use_face_attack
 	}
 	_submit_game_message(action_message)
 	return true
@@ -347,7 +348,8 @@ func process_strike(action_message) -> void:
 	var wild_strike = action_message['wild_strike']
 	var ex_card_id = action_message['ex_card_id']
 	var opponent_sets_first = action_message['opponent_sets_first']
-	local_game.do_strike(game_player, card_id, wild_strike, ex_card_id, opponent_sets_first)
+	var use_face_attack = action_message['use_face_attack']
+	local_game.do_strike(game_player, card_id, wild_strike, ex_card_id, opponent_sets_first, use_face_attack)
 
 func do_force_for_armor(player : LocalGame.Player, card_ids : Array, use_free_force : bool = false) -> bool:
 	var action_message = {

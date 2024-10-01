@@ -792,6 +792,7 @@ class Player:
 	var stop_on_boost_space_ids : Array
 	var effect_on_turn_start
 	var strike_action_disabled : bool
+	var face_attack_id : String
 
 	func _init(id, player_name, parent_ref, card_db_ref, chosen_deck, card_start_id):
 		my_id = id
@@ -904,6 +905,7 @@ class Player:
 		stop_on_boost_space_ids = []
 		effect_on_turn_start = false
 		strike_action_disabled = false
+		face_attack_id = ""
 
 		if "buddy_cards" in deck_def:
 			var buddy_index = 0
@@ -1725,6 +1727,11 @@ class Player:
 			buddy_id = buddy_id_to_index.keys()[0]
 		var buddy_index = buddy_id_to_index[buddy_id]
 		return deck_def['buddy_display_names'][buddy_index]
+
+	func get_face_attack_card():
+		if face_attack_id:
+			return get_set_aside_card(face_attack_id)
+		return null
 
 	func is_buddy_in_play(buddy_id : String = ""):
 		if not buddy_id:
@@ -5445,6 +5452,8 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 				var discarded_name = card_db.get_card_name(cards_to_discard[0])
 				performing_player.plague_knight_discard_names.append(discarded_name)
 				_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "discards random card: %s." % discarded_name)
+		"enable_end_of_turn_draw":
+			performing_player.draw_at_end_of_turn = true
 		"exceed_end_of_turn":
 			performing_player.exceed_at_end_of_turn = true
 		"exceed_now":
@@ -7594,6 +7603,8 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 			performing_player.enchantress_draw_choice = true
 		"set_end_of_turn_boost_delay":
 			performing_player.set_end_of_turn_boost_delay(card_id)
+		"set_face_attack":
+			performing_player.face_attack_id = effect['card_id']
 		"set_max_hand_size":
 			performing_player.max_hand_size = effect['amount']
 			var new_size_string = "3 spaces wide"
@@ -7915,7 +7926,7 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 			decision_info.clear()
 			decision_info.type = Enums.DecisionType.DecisionType_StrikeNow
 			decision_info.player = performing_player.my_id
-			performing_player.next_strike_random_gauge = true
+			performing_player.nexte_strike_random_gauge = true
 		"strike_response_reading":
 			var card = effect['card_id']
 			var ex_card = -1
@@ -10168,15 +10179,17 @@ func check_hand_size_advance_turn(performing_player : Player):
 		if performing_player.skip_end_of_turn_draw:
 			performing_player.skip_end_of_turn_draw = false
 			_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "skips drawing for end of turn. Their hand size is %s." % len(performing_player.hand))
-		elif performing_player.draw_at_end_of_turn:
-			var from_bottom_str = ""
-			if active_special_draw_effect and performing_player.dan_draw_choice_from_bottom:
-				events += performing_player.draw(1, false, true)
-				from_bottom_str = " from bottom of deck"
-			else:
-				events += performing_player.draw(1)
+		else:
+			# Set this regardless so characters that don't draw at end of turn know to do something else
 			performing_player.did_end_of_turn_draw = true
-			_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "draws %sfor end of turn. Their hand size is now %s." % [from_bottom_str, len(performing_player.hand)])
+			if performing_player.draw_at_end_of_turn:
+				var from_bottom_str = ""
+				if active_special_draw_effect and performing_player.dan_draw_choice_from_bottom:
+					events += performing_player.draw(1, false, true)
+					from_bottom_str = " from bottom of deck"
+				else:
+					events += performing_player.draw(1)
+				_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "draws %sfor end of turn. Their hand size is now %s." % [from_bottom_str, len(performing_player.hand)])
 
 		active_special_draw_effect = false
 		if len(performing_player.hand) > performing_player.max_hand_size:
@@ -10521,7 +10534,7 @@ func do_ex_transform(performing_player : Player, card_id : int, ex_card_id : int
 	return true
 
 func do_strike(performing_player : Player, card_id : int, wild_strike: bool, ex_card_id : int,
-		opponent_sets_first : bool = false) -> bool:
+		opponent_sets_first : bool = false, use_face_attack : bool = false) -> bool:
 	printlog("MainAction: STRIKE by %s card %s wild %s" % [get_player_name(performing_player.my_id), card_db.get_card_id(card_id), str(wild_strike)])
 	if game_state == Enums.GameState.GameState_PickAction:
 		if performing_player.my_id != active_turn_player:
@@ -10547,6 +10560,18 @@ func do_strike(performing_player : Player, card_id : int, wild_strike: bool, ex_
 	if str(decision_info.limitation) == "EX":
 		if not ex_strike and not performing_player.has_ex_boost():
 			printlog("ERROR: Tried to strike without an EX when one was required.")
+			return false
+
+	var events = []
+
+	if use_face_attack:
+		# Find the face attack and update the card id
+		var face_attack_card = performing_player.get_face_attack_card()
+		if face_attack_card:
+			card_id = face_attack_card.id
+			events += performing_player.add_to_hand(face_attack_card, false)
+		else:
+			printlog("ERROR: Could not find face attack to strike with.")
 			return false
 
 	var strike_from_boosts = false
@@ -10592,7 +10617,6 @@ func do_strike(performing_player : Player, card_id : int, wild_strike: bool, ex_
 			return false
 
 	# Begin the strike
-	var events = []
 
 	# Lay down the strike
 	match game_state:

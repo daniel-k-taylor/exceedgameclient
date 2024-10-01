@@ -84,6 +84,7 @@ var instructions_cancel_allowed = false
 var instructions_wild_swing_allowed = false
 var instructions_ex_allowed = false
 var instructions_ex_required = false
+var instructions_face_attack_card = null
 var selected_cards = []
 var enabled_reminder_text = false
 var arena_locations_clickable = []
@@ -2523,7 +2524,8 @@ func update_force_generation_message():
 			effect_str += "\n%s" % [force_generated_str]
 			set_instructions(effect_str)
 
-func enable_instructions_ui(message, can_ok, can_cancel, can_wild_swing : bool = false, can_ex : bool = true, choices = [], show_number_picker : bool  = false, extra_choice_text = [], require_ex = false):
+func enable_instructions_ui(message, can_ok, can_cancel, can_wild_swing : bool = false, can_ex : bool = true,
+		choices = [], show_number_picker : bool  = false, extra_choice_text = [], require_ex = false, face_attack_card = null):
 	set_instructions(message)
 	instructions_ok_allowed = can_ok
 	instructions_cancel_allowed = can_cancel
@@ -2534,6 +2536,7 @@ func enable_instructions_ui(message, can_ok, can_cancel, can_wild_swing : bool =
 	current_effect_extra_choice_text = extra_choice_text
 	instructions_number_picker_min = -1
 	instructions_number_picker_max = -1
+	instructions_face_attack_card = face_attack_card
 	if show_number_picker:
 		instructions_number_picker_min = game_wrapper.get_decision_info().amount_min
 		instructions_number_picker_max = game_wrapper.get_decision_info().amount
@@ -2609,8 +2612,9 @@ func begin_strike_choosing(strike_response : bool, cancel_allowed : bool,
 	if plague_knight_discard_names.size() > 0:
 		for card in plague_knight_discard_names:
 			dialogue += "\nPlague Knight discarded " + card +"."
+	var face_attack_card = game_wrapper.get_face_attack_card(Enums.PlayerId.PlayerId_Player)
 	enable_instructions_ui(dialogue, true, can_cancel, not disable_wild_swing, not disable_ex,
-		[], false, [], require_ex)
+		[], false, [], require_ex, face_attack_card)
 	var new_sub_state
 	if strike_response:
 		if opponent_sets_first:
@@ -3558,6 +3562,7 @@ func _update_buttons():
 			instructions_ok_allowed = false
 			instructions_cancel_allowed = false
 			instructions_wild_swing_allowed = false
+			instructions_face_attack_card = null
 			button_choices.append({ "text": "Move", "action": _on_move_button_pressed, "disabled": not game_wrapper.can_do_move(Enums.PlayerId.PlayerId_Player) })
 			button_choices.append({ "text": "Prepare", "action": _on_prepare_button_pressed, "disabled": not game_wrapper.can_do_prepare(Enums.PlayerId.PlayerId_Player) })
 			button_choices.append({ "text": "Change Cards", "action": _on_change_button_pressed, "disabled": not game_wrapper.can_do_change(Enums.PlayerId.PlayerId_Player) })
@@ -3664,6 +3669,7 @@ func _update_buttons():
 			instructions_ok_allowed = false
 			instructions_cancel_allowed = false
 			instructions_wild_swing_allowed = false
+			instructions_face_attack_card = null
 			button_choices.append({ "text": strike_text, "action": _on_shortcut_strike_pressed, "disabled": not can_strike or not game_wrapper.can_do_strike(Enums.PlayerId.PlayerId_Player) })
 			button_choices.append({ "text": boost_text, "action": _on_shortcut_boost_pressed,
 				"disabled": (not can_boost or not game_wrapper.can_do_boost(Enums.PlayerId.PlayerId_Player)) and (not can_ex_transform or not game_wrapper.can_do_ex_transform(Enums.PlayerId.PlayerId_Player)) })
@@ -3878,6 +3884,9 @@ func _update_buttons():
 		button_choices.append({ "text": cancel_text, "action": _on_instructions_cancel_button_pressed })
 	if instructions_wild_swing_allowed:
 		button_choices.append({ "text": "Wild Swing", "action": _on_wild_swing_button_pressed })
+	if instructions_face_attack_card:
+		var face_card_name = instructions_face_attack_card.definition['display_name']
+		button_choices.append({ "text": "Strike with %s" % face_card_name, "action": _on_face_attack_button_pressed })
 
 	# Set the Action Menu state
 	var action_menu_hidden = false
@@ -4543,6 +4552,18 @@ func _on_wild_swing_button_pressed():
 		elif ui_sub_state == UISubState.UISubState_SelectCards_StrikeForce:
 			close_popout()
 			success = game_wrapper.submit_pay_strike_cost(Enums.PlayerId.PlayerId_Player, [], true, false, use_free_force)
+	if success:
+		deselect_all_cards()
+		change_ui_state(UIState.UIState_WaitForGameServer)
+	_update_buttons()
+
+func _on_face_attack_button_pressed():
+	var success = false
+	if ui_state == UIState.UIState_SelectCards:
+		if ui_sub_state == UISubState.UISubState_SelectCards_StrikeCard or ui_sub_state == UISubState.UISubState_SelectCards_StrikeResponseCard:
+			success = game_wrapper.submit_strike(Enums.PlayerId.PlayerId_Player, -1, false, -1, false, true)
+		elif ui_sub_state == UISubState.UISubState_SelectCards_OpponentSetsFirst_StrikeCard or ui_sub_state == UISubState.UISubState_SelectCards_OpponentSetsFirst_StrikeResponseCard:
+			success = game_wrapper.submit_strike(Enums.PlayerId.PlayerId_Player, -1, false, -1, true, true)
 	if success:
 		deselect_all_cards()
 		change_ui_state(UIState.UIState_WaitForGameServer)
