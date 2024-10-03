@@ -1015,6 +1015,12 @@ class Player:
 		if 'on_exceed' in deck_def:
 			var effect = deck_def['on_exceed']
 			events += parent.do_effect_if_condition_met(self, -1, effect, null)
+		# check for weird mid-strike exceed effects
+		# TODO: probably need to step through UAs and make sure this works properly
+		if parent.active_strike:
+			for exceed_ability_effect in deck_def['exceed_ability_effects']:
+				if exceed_ability_effect['timing'] == "during_strike":
+					events += parent.do_effect_if_condition_met(self, -1, exceed_ability_effect, null)
 		return events
 
 	func revert_exceed():
@@ -5458,6 +5464,9 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 			performing_player.exceed_at_end_of_turn = true
 		"exceed_now":
 			events += performing_player.exceed()
+		"exceed_opponent_now":
+			events += opposing_player.exceed()
+			# hoping for the best here
 		"extra_trigger_resolutions":
 			_append_log_full(Enums.LogType.LogType_Effect, performing_player, "'s before/hit/after effects will resolve %s additional time(s)!" % effect['amount'])
 			duplicate_attack_triggers(performing_player, effect['amount'])
@@ -7665,7 +7674,7 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 			amount = min(maximum, amount)
 			performing_player.life = amount
 			events += [create_event(Enums.EventType.EventType_Strike_GainLife, performing_player.my_id, amount, "", performing_player.life)]
-			_append_log_full(Enums.LogType.LogType_Health, performing_player, "gains %s life, bringing them to %s!" % [str(amount), str(performing_player.life)])
+			_append_log_full(Enums.LogType.LogType_Health, performing_player, "has their life set to %s!" % [str(performing_player.life)])
 		"shuffle_deck":
 			performing_player.random_shuffle_deck()
 			_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "shuffled their deck.")
@@ -7926,7 +7935,7 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 			decision_info.clear()
 			decision_info.type = Enums.DecisionType.DecisionType_StrikeNow
 			decision_info.player = performing_player.my_id
-			performing_player.nexte_strike_random_gauge = true
+			performing_player.next_strike_random_gauge = true
 		"strike_response_reading":
 			var card = effect['card_id']
 			var ex_card = -1
@@ -7941,9 +7950,10 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 			}
 			events += [create_event(Enums.EventType.EventType_Strike_EffectDoStrike, performing_player.my_id, 0, "", strike_info)]
 		"strike_with_deus_ex_machina":
-			change_game_state(Enums.GameState.GameState_AutoStrike)
-			decision_info.clear()
-			decision_info.effect_type = "happychaos_deusexmachina"
+			if not active_strike:
+				change_game_state(Enums.GameState.GameState_AutoStrike)
+				decision_info.clear()
+				decision_info.effect_type = "happychaos_deusexmachina"
 		"strike_with_ex":
 			if performing_player.can_ex_strike_with_something():
 				change_game_state(Enums.GameState.GameState_WaitForStrike)
