@@ -1984,7 +1984,7 @@ class Player:
 
 		for zone in valid_zones:
 			for card in zone_map[zone]:
-				if card.definition['boost']['boost_type'] in ["transform", "overload"]:
+				if card.definition['boost']['boost_type'] in ["transform", "overload"] and limitation != "transform":
 					continue
 
 				var meets_limitation = true
@@ -10446,8 +10446,11 @@ func do_boost(performing_player : Player, card_id : int, payment_card_ids : Arra
 	var card = card_db.get_card(card_id)
 	# Redirection to transform handler
 	if card.definition['boost']['boost_type'] == "transform":
-		if len(payment_card_ids) == 1:
-			return do_ex_transform(performing_player, card_id, payment_card_ids[0])
+		if len(payment_card_ids) == 1 or decision_info.limitation == "transform":
+			var ex_card_id = -1
+			if len(payment_card_ids) > 0:
+				ex_card_id = payment_card_ids[0]
+			return do_ex_transform(performing_player, card_id, ex_card_id)
 		else:
 			printlog("ERROR: Tried to transform as action without a second copy")
 			assert(false)
@@ -10494,22 +10497,29 @@ func do_boost(performing_player : Player, card_id : int, payment_card_ids : Arra
 
 func do_ex_transform(performing_player : Player, card_id : int, ex_card_id : int):
 	printlog("Redirected to EX Transform")
-	if game_state != Enums.GameState.GameState_PickAction or performing_player.my_id != active_turn_player:
+	if not (game_state == Enums.GameState.GameState_PickAction or decision_info.limitation == "transform") \
+			or performing_player.my_id != active_turn_player:
 		printlog("ERROR: Tried to EX transform but not your turn")
 		assert(false)
 		return false
 
 	var card = card_db.get_card(card_id)
-	var ex_card = card_db.get_card(ex_card_id)
 	if card.definition['boost']['boost_type'] != "transform":
 		printlog("ERROR: Tried to transform a card without a transform")
 		assert(false)
 		return false
 
-	if card.definition['display_name'] != ex_card.definition['display_name']:
-		printlog("ERROR: Tried to EX transform with mismatching cards")
-		assert(false)
-		return false
+	if ex_card_id == -1:
+		if decision_info.limitation != "transform":
+			printlog("ERROR: Tried to transform without a second card with invalid effect")
+			assert(false)
+			return false
+	else:
+		var ex_card = card_db.get_card(ex_card_id)
+		if card.definition['display_name'] != ex_card.definition['display_name']:
+			printlog("ERROR: Tried to EX transform with mismatching cards")
+			assert(false)
+			return false
 
 	if performing_player.has_card_name_transformed(card):
 		printlog("ERROR: Tried to transform a previously-transformed card")
@@ -10522,8 +10532,9 @@ func do_ex_transform(performing_player : Player, card_id : int, ex_card_id : int
 
 	var events = []
 	var card_name = card.definition['display_name']
-	_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "discards another copy of %s." % _log_card_name(card_name))
-	events += performing_player.discard([ex_card_id])
+	if ex_card_id != -1:
+		_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "discards another copy of %s." % _log_card_name(card_name))
+		events += performing_player.discard([ex_card_id])
 
 	performing_player.remove_card_from_hand(card_id, true, false)
 	events += [create_event(Enums.EventType.EventType_Boost_Played, performing_player.my_id, card_id, "Transform")]

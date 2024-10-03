@@ -412,7 +412,7 @@ func can_player_boost(player_id : Enums.PlayerId,
 			return false
 	if card.definition['type'] == "decree_glorious" and not is_player_exceeded(player_id):
 		return false
-	if card.definition['boost']['boost_type'] in ["transform", "overload"]:
+	if card.definition['boost']['boost_type'] in ["transform", "overload"] and limitation != "transform":
 		return false
 
 	if ignore_costs:

@@ -1152,7 +1152,8 @@ func can_select_card(card):
 			var logic_card = card_db.get_card(card.card_id)
 
 			var valid_card = false
-			if logic_card.definition['boost']['boost_type'] == "transform":
+			# Checks if it's the EX transform action
+			if logic_card.definition['boost']['boost_type'] == "transform" and select_boost_limitation != "transform":
 				# Currently assumes that transforms can only be selected for the ex transform action
 				if game_wrapper.can_do_ex_transform(Enums.PlayerId.PlayerId_Player): # checks timing
 					valid_card = game_wrapper.can_player_ex_transform(Enums.PlayerId.PlayerId_Player, card.card_id)
@@ -1704,7 +1705,7 @@ func _on_boost_played(event):
 
 	var boost_text = "Boost!"
 	if is_transform:
-		boost_text = "EX Transform!"
+		boost_text = "Transform!"
 	spawn_damage_popup(boost_text, player)
 	return BoostDelay
 
@@ -2670,7 +2671,7 @@ func begin_boost_choosing(can_cancel : bool, valid_zones : Array, limitation : S
 		"boost_amount": boost_amount
 	}
 	var limitation_str = "card%s" % plural
-	if limitation:
+	if limitation and limitation != "transform":
 		limitation_str = limitation + " boost%s" % plural
 	var character_action_str = ""
 	if preparing_character_action:
@@ -2683,6 +2684,8 @@ func begin_boost_choosing(can_cancel : bool, valid_zones : Array, limitation : S
 	if game_wrapper.can_do_ex_transform(Enums.PlayerId.PlayerId_Player):
 		available_boost_actions.append("transform")
 	var available_boost_action_str = '/'.join(available_boost_actions)
+	if limitation == "transform":
+		available_boost_action_str = "transform"
 
 	var instructions = "Select %s %s to %s from %s%s." % [count_str, limitation_str, available_boost_action_str, zone_str, character_action_str]
 	if 'gauge' in valid_zones:
@@ -4408,7 +4411,9 @@ func _on_instructions_ok_button_pressed(index : int):
 			UISubState.UISubState_SelectCards_PlayBoost:
 				var logic_card = game_wrapper.get_card_database().get_card(single_card_id)
 				if logic_card.definition['boost']['boost_type'] == "transform":
-					var ex_transform_id = game_wrapper.get_ex_transform_copy(Enums.PlayerId.PlayerId_Player, single_card_id)
+					var ex_transform_id = -1
+					if select_boost_options['limitation'] != "transform": # makes sure it's an EX transform action
+						ex_transform_id = game_wrapper.get_ex_transform_copy(Enums.PlayerId.PlayerId_Player, single_card_id)
 					success = game_wrapper.submit_boost(Enums.PlayerId.PlayerId_Player, single_card_id, [ex_transform_id], false, [])
 				else:
 					var force_cost = game_wrapper.get_card_database().get_card_boost_force_cost(single_card_id)

@@ -9984,17 +9984,29 @@
 	{
 		"id": "galdred_bloodfrenzy",
 		"type": "special",
-		"display_name": "Ink Splash",
+		"display_name": "Blood Frenzy",
 		"force_cost": 0,
 		"gauge_cost": 0,
 		"range_min": 1,
 		"range_max": 3,
-		"speed": "CARDS_IN_HAND",
-		"max_base_speed": 7,
-		"power": 4,
+		"speed": 5,
+		"power": 2,
 		"armor": 0,
 		"guard": 0,
 		"effects": [
+			{
+				"timing": "hit",
+				"effect_type": "choice",
+				"choice": [
+					{
+						"effect_type": "boost_then_sustain",
+						"valid_zones": [ "hand" ],
+						"limitation": "transform",
+						"sustain": false
+					},
+					{ "effect_type": "pass" }
+				]
+			}
 		],
 		"boost": {
 			"boost_type": "transform",
