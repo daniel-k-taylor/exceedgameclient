@@ -544,6 +544,8 @@ class StrikeStatBoosts:
 	var rangeup_max_per_boost_modifier : int = 0
 	var rangeup_per_boost_modifier_all_boosts : bool = false
 	var guardup_per_two_cards_in_hand : bool = false
+	var passive_powerup_per_card_in_hand : int = 0
+	var passive_speedup_per_card_in_hand : int = 0
 	var active_character_effects = []
 	var added_attack_effects = []
 	var ex_count : int = 0
@@ -647,6 +649,8 @@ class StrikeStatBoosts:
 		rangeup_max_per_boost_modifier = 0
 		rangeup_per_boost_modifier_all_boosts = false
 		guardup_per_two_cards_in_hand = false
+		passive_powerup_per_card_in_hand = 0
+		passive_speedup_per_card_in_hand = 0
 		active_character_effects = []
 		added_attack_effects = []
 		ex_count = 0
@@ -3928,6 +3932,9 @@ func get_total_speed(check_player, ignore_swap : bool = false):
 			boosts_in_play += opposing_player.continuous_boosts.size()
 		if boosts_in_play > 0:
 			bonus_speed += check_player.strike_stat_boosts.speedup_per_boost_modifier * boosts_in_play
+	if check_player.strike_stat_boosts.passive_speedup_per_card_in_hand != 0:
+		var hand_size = len(check_player.hand)
+		bonus_speed += hand_size * check_player.strike_stat_boosts.passive_speedup_per_card_in_hand
 	var speed = get_card_stat(check_player, check_card, 'speed') + bonus_speed
 	if active_strike and active_strike.extra_attack_in_progress:
 		# If an extra attack character has ways to get speed multipliers, deal with that then.
@@ -6920,6 +6927,20 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 				events += [create_event(Enums.EventType.EventType_ChooseArenaLocationForEffect, performing_player.my_id, 0)]
 			else:
 				assert(false, "Unexpected called move_any_buddy but can't.")
+		"passive_powerup_per_card_in_hand":
+			var amount_per_hand = effect['amount']
+			performing_player.strike_stat_boosts.passive_powerup_per_card_in_hand = amount_per_hand
+			var hand_size = performing_player.hand.size()
+			var total_powerup = amount_per_hand * hand_size
+			if total_powerup != 0:
+				events += [create_event(Enums.EventType.EventType_Strike_PowerUp, performing_player.my_id, total_powerup)]
+		"passive_speedup_per_card_in_hand":
+			var amount_per_hand = effect['amount']
+			performing_player.strike_stat_boosts.passive_speedup_per_card_in_hand = amount_per_hand
+			var hand_size = performing_player.hand.size()
+			var total_speedup = amount_per_hand * hand_size
+			if total_speedup != 0:
+				events += [create_event(Enums.EventType.EventType_Strike_SpeedUp, performing_player.my_id, total_speedup)]
 		"play_attack_from_hand":
 			# Implement the choice via discard effect.
 			var discard_effect = {
@@ -8956,17 +8977,26 @@ func get_total_power(performing_player : Player, ignore_swap : bool = false, car
 	assert(performing_player.strike_stat_boosts.power_bonus_multiplier == 1 or performing_player.strike_stat_boosts.power_bonus_multiplier_positive_only == 1)
 
 	var boosted_power = performing_player.strike_stat_boosts.power
+	var positive_boosted_power = performing_player.strike_stat_boosts.power_positive_only
 	if performing_player.strike_stat_boosts.power_modify_per_buddy_between:
 		# NOTE: This does not interact with the positive power multiplier.
 		# If someone ever needs that, this needs to be updated.
 		var buddy_count = performing_player.count_buddies_between_opponent()
 		boosted_power += buddy_count * performing_player.strike_stat_boosts.power_modify_per_buddy_between
 
+	# account for passive bonus from hand size
+	if performing_player.strike_stat_boosts.passive_powerup_per_card_in_hand != 0:
+		var hand_size = len(performing_player.hand)
+		var hand_size_power_bonus = hand_size * performing_player.strike_stat_boosts.passive_powerup_per_card_in_hand
+		boosted_power += hand_size_power_bonus
+		if hand_size_power_bonus > 0:
+			positive_boosted_power += hand_size_power_bonus
+
 	# Multiply all power bonuses.
 	var power_modifier = boosted_power * performing_player.strike_stat_boosts.power_bonus_multiplier
 
 	# Multiply positive power bonuses and add that in.
-	var positive_multiplier_bonus = performing_player.strike_stat_boosts.power_positive_only
+	var positive_multiplier_bonus = positive_boosted_power
 	positive_multiplier_bonus *= (performing_player.strike_stat_boosts.power_bonus_multiplier_positive_only - 1)
 	power_modifier += positive_multiplier_bonus
 

@@ -8401,7 +8401,7 @@
 	{
 		"NOTE": "HAPPYCHAOS CARDS END",
 		"id": "happychaos_deusexmachina",
-		"type": "special",
+		"type": "faceattack",
 		"display_name": "Deus Ex Machina",
 		"force_cost": 0,
 		"gauge_cost": 0,
@@ -10230,24 +10230,29 @@
 	{
 		"NOTE": "GALDRED CARDS END",
 		"id": "galdred_thebeastwithin",
-		"type": "special",
+		"type": "faceattack",
 		"display_name": "The Beast Within",
 		"force_cost": 0,
 		"gauge_cost": 0,
 		"range_min": 1,
-		"range_max": 5,
-		"speed": 4,
-		"power": 4,
+		"range_max": 2,
+		"speed": 6,
+		"power": 6,
 		"armor": 0,
-		"guard": 5,
+		"guard": 0,
 		"effects": [
 			{
-				"timing": "hit",
-				"effect_type": "shuffle_sealed_to_deck",
+				"timing": "during_strike",
+				"effect_type": "passive_powerup_per_card_in_hand",
+				"amount": -1,
 				"and": {
-					"effect_type": "draw",
-					"amount": 3
+					"effect_type": "passive_speedup_per_card_in_hand",
+					"amount": -1
 				}
+			},
+			{
+				"timing": "hit",
+				"effect_type": "add_bottom_discard_to_gauge"
 			}
 		],
 		"boost": {
