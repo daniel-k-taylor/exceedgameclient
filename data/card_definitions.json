@@ -9935,19 +9935,17 @@
 			"boost_type": "immediate",
 			"force_cost": 0,
 			"cancel_cost": -1,
-			"display_name": "Ancient Ambition",
+			"display_name": "Obsessive Research",
 			"effects": [
 				{
 					"timing": "immediate",
-					"effect_type": "choice",
-					"choice": [
-						{ "effect_type": "draw", "amount": 1 },
-						{ "effect_type": "draw", "amount": 2 },
-						{ "effect_type": "draw", "amount": 3 },
-						{ "effect_type": "draw", "amount": 4 },
-						{ "effect_type": "draw", "amount": 5 },
-						{ "effect_type": "pass" }
-					]
+					"effect_type": "boost_additional",
+					"limitation": "transform",
+					"valid_zones": [ "hand" ]
+				},
+				{
+					"timing": "immediate",
+					"effect_type": "discard_hand"
 				}
 			]
 		}
@@ -9975,25 +9973,22 @@
 			}
 		],
 		"boost": {
-			"boost_type": "continuous",
-			"force_cost": 1,
+			"boost_type": "immediate",
+			"force_cost": 0,
 			"cancel_cost": -1,
-			"display_name": "Heart of the Mountain",
+			"display_name": "Inhuman Speed",
 			"effects": [
 				{
-					"timing": "during_strike",
-					"effect_type": "stun_immunity",
-					"and": {
-						"effect_type": "opponent_cant_move_past"
-					}
+					"timing": "immediate",
+					"effect_type": "choice",
+					"choice": [
+						{ "effect_type": "advance", "amount": 2 },
+						{ "effect_type": "retreat", "amount": 2 }
+					]
 				},
 				{
-					"timing": "now",
-					"effect_type": "opponent_cant_move_past"
-				},
-				{
-					"timing": "discarded",
-					"effect_type": "remove_opponent_cant_move_past"
+					"timing": "immediate",
+					"effect_type": "bonus_action"
 				}
 			]
 		}

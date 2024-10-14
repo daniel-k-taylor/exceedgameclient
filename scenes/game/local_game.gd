@@ -10594,8 +10594,8 @@ func do_boost(performing_player : Player, card_id : int, payment_card_ids : Arra
 
 func do_ex_transform(performing_player : Player, card_id : int, ex_card_id : int):
 	printlog("Redirected to EX Transform")
-	if not (game_state == Enums.GameState.GameState_PickAction or decision_info.limitation == "transform") \
-			or performing_player.my_id != active_turn_player:
+	if not (game_state == Enums.GameState.GameState_PickAction and performing_player.my_id == active_turn_player) and \
+	   not (decision_info.limitation == "transform" and performing_player.my_id == decision_info.player):
 		printlog("ERROR: Tried to EX transform but not your turn")
 		assert(false)
 		return false
@@ -10636,7 +10636,12 @@ func do_ex_transform(performing_player : Player, card_id : int, ex_card_id : int
 	performing_player.remove_card_from_hand(card_id, true, false)
 	events += [create_event(Enums.EventType.EventType_Boost_Played, performing_player.my_id, card_id, "Transform")]
 	events += performing_player.add_to_transforms(card)
-	events += check_hand_size_advance_turn(performing_player)
+
+	if game_state == Enums.GameState.GameState_PickAction:
+		events += check_hand_size_advance_turn(performing_player)
+	else:
+		change_game_state(Enums.GameState.GameState_Boost_Processing)
+		events = continue_player_action_resolution(events, performing_player)
 
 	event_queue += events
 	return true
