@@ -42,18 +42,22 @@
 		{
 			"character_effect": true,
 			"timing": "set_strike",
-			"effect_type": "rangeup",
-			"amount": 0,
-			"amount2": 4,
-			"and": {
-				"effect_type": "add_attack_effect",
-				"added_effect": {
-					"timing": "hit",
-					"effect_type": "choice",
-					"choice": [
-						{ "effect_type": "advance", "amount": 3 },
-						{ "effect_type": "pass" }
-					]
+			"effect_type": "add_attack_effect",
+			"added_effect": {
+				"timing": "during_strike",
+				"effect_type": "rangeup",
+				"amount": 0,
+				"amount2": 4,
+				"and": {
+					"effect_type": "add_attack_effect",
+					"added_effect": {
+						"timing": "hit",
+						"effect_type": "choice",
+						"choice": [
+							{ "effect_type": "advance", "amount": 3 },
+							{ "effect_type": "pass" }
+						]
+					}
 				}
 			}
 		}

@@ -11,8 +11,12 @@
 			"character_effect": true,
 			"timing": "set_strike",
 			"condition": "canceled_this_turn",
-			"effect_type": "powerup",
-			"amount": 1
+			"effect_type": "add_attack_effect",
+			"added_effect": {
+				"timing": "during_strike",
+				"effect_type": "powerup",
+				"amount": 1
+			}
 		}
 	],
 	"exceed_ability_effects": [
@@ -20,8 +24,12 @@
 			"character_effect": true,
 			"timing": "set_strike",
 			"condition": "canceled_this_turn",
-			"effect_type": "powerup",
-			"amount": 2
+			"effect_type": "add_attack_effect",
+			"added_effect": {
+				"timing": "during_strike",
+				"effect_type": "powerup",
+				"amount": 2
+			}
 		}
 	],
 	"image_resources": {

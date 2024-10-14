@@ -2074,6 +2074,7 @@ func _on_exceed_event(event):
 			$PlayerCharacter.set_exceed(true)
 		player_character_card.exceed(true)
 		player_buddy_character_card.exceed(true)
+		player_bonus_panel.visible = false
 
 	else:
 		if 'exceed_animation' in opponent_deck:
@@ -2083,6 +2084,7 @@ func _on_exceed_event(event):
 			$OpponentCharacter.set_exceed(true)
 		opponent_character_card.exceed(true)
 		opponent_buddy_character_card.exceed(true)
+		opponent_bonus_panel.visible = false
 
 	spawn_damage_popup("Exceed!", player)
 	return SmallNoticeDelay

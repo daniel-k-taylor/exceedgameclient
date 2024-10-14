@@ -47,16 +47,20 @@
 			"character_effect": true,
 			"effect_type": "add_attack_effect",
 			"added_effect": {
-				"timing": "hit",
-				"effect_type": "opponent_discard_choose",
-				"amount": 1
-			},
-			"and": {
+				"timing": "during_strike",
 				"effect_type": "add_attack_effect",
 				"added_effect": {
-					"timing": "after",
-					"effect_type": "draw",
+					"timing": "hit",
+					"effect_type": "opponent_discard_choose",
 					"amount": 1
+				},
+				"and": {
+					"effect_type": "add_attack_effect",
+					"added_effect": {
+						"timing": "after",
+						"effect_type": "draw",
+						"amount": 1
+					}
 				}
 			}
 		}

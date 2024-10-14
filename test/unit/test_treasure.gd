@@ -395,17 +395,17 @@ func test_treasure_diving_suit_hit():
 	advance_turn(player2)
 
 func test_treasure_diving_suit_plus_block():
-	position_players(player1, 3, player2, 6)
+	position_players(player1, 3, player2, 7)
 	var chest_id = give_player_specific_card(player1, "treasure_maelstromchest")
 
 	assert_true(game_logic.do_boost(player1, chest_id, [player1.hand[0].id]))
 	advance_turn(player2)
 
-	execute_strike(player1, player2, "standard_normal_block", "standard_normal_sweep",
+	execute_strike(player1, player2, "standard_normal_block", "standard_normal_dive",
 			false, true, [[player1.hand[0].id, true], [true]], [])
-	# Blocking 7 damage from EX Sweep with 3 Armor from Boost (for 1 + 1 free Force) and
+	# Blocking 6 damage from EX Dive with 3 Armor from Boost (for 1 + 1 free Force) and
 	# 2 + 2 Armor from Block (for 0 + 1 free Force).
 	# Unlike other simultaneous trigger situations, no reordering decision is offered.
-	validate_positions(player1, 3, player2, 6)
+	validate_positions(player1, 3, player2, 4)
 	validate_life(player1, 30, player2, 30)
 	advance_turn(player2)

@@ -18,8 +18,12 @@
 			"timing": "set_strike",
 			"condition": "is_critical",
 			"character_effect": true,
-			"effect_type": "powerup_both_players",
-			"amount": 2
+			"effect_type": "add_attack_effect",
+			"added_effect": {
+				"timing": "during_strike",
+				"effect_type": "powerup_both_players",
+				"amount": 2
+			}
 		}
 	],
 	"exceed_ability_effects": [
@@ -37,8 +41,12 @@
 			"timing": "set_strike",
 			"condition": "is_critical",
 			"character_effect": true,
-			"effect_type": "powerup_both_players",
-			"amount": 3
+			"effect_type": "add_attack_effect",
+			"added_effect": {
+				"timing": "during_strike",
+				"effect_type": "powerup_both_players",
+				"amount": 3
+			}
 		}
 	],
 	"image_resources": {

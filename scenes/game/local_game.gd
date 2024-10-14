@@ -1012,15 +1012,52 @@ class Player:
 		parent._append_log_full(Enums.LogType.LogType_Effect, self, "Exceeds!")
 		events += [parent.create_event(Enums.EventType.EventType_Exceed, my_id, 0)]
 
+		# check for weird mid-strike exceed effects
+		if parent.active_strike:
+			events = handle_mid_strike_exceed(events)
+
 		if 'on_exceed' in deck_def:
 			var effect = deck_def['on_exceed']
 			events += parent.do_effect_if_condition_met(self, -1, effect, null)
-		# check for weird mid-strike exceed effects
-		# TODO: probably need to step through UAs and make sure this works properly
-		if parent.active_strike:
-			for exceed_ability_effect in deck_def['exceed_ability_effects']:
-				if exceed_ability_effect['timing'] == "during_strike":
-					events += parent.do_effect_if_condition_met(self, -1, exceed_ability_effect, null)
+
+		return events
+
+	func handle_mid_strike_exceed(events):
+		# Assumes that exceeding was due to a before/hit/after effect, and so set_strike/during_strike
+		# effects have already been processed
+
+		var base_effects = deck_def['ability_effects']
+		var exceed_effects = deck_def['exceed_ability_effects']
+
+		# need to revert certain default effects
+		for ability_effect in base_effects:
+			# Unwrap added effects
+			if ability_effect['timing'] == "set_strike" and ability_effect['effect_type'] == "add_attack_effect":
+				# If an effect was added by an action strike, it shouldn't be removed
+				if 'condition' in ability_effect and ability_effect['condition'] == 'used_character_action':
+					continue
+
+				if parent.is_effect_condition_met(self, ability_effect, null):
+					var character_effect_tag = 'character_effect' in ability_effect and ability_effect['character_effect']
+					ability_effect = ability_effect['added_effect'].duplicate()
+					ability_effect['character_effect'] = character_effect_tag
+
+			if ability_effect['timing'] == "during_strike":
+				if parent.is_effect_condition_met(self, ability_effect, null):
+					_revert_strike_bonus_effect(ability_effect, -1, true)
+
+		# Apply any permanent during_strike exceeds bonuses
+		for exceed_ability_effect in exceed_effects:
+			# Unwrap added effects
+			if exceed_ability_effect['timing'] == "set_strike" and exceed_ability_effect['effect_type'] == "add_attack_effect":
+				if parent.is_effect_condition_met(self, exceed_ability_effect, null):
+					var character_effect_tag = 'character_effect' in exceed_ability_effect and exceed_ability_effect['character_effect']
+					exceed_ability_effect = exceed_ability_effect['added_effect'].duplicate()
+					exceed_ability_effect['character_effect'] = character_effect_tag
+
+			if exceed_ability_effect['timing'] == "during_strike":
+				events += parent.do_effect_if_condition_met(self, -1, exceed_ability_effect, null)
+
 		return events
 
 	func revert_exceed():
@@ -2496,7 +2533,7 @@ class Player:
 				events += discard([random_card_id])
 		var discarded_names = parent.card_db.get_card_names(discarded_ids)
 		if discarded_names:
-			parent._append_log_full(Enums.LogType.LogType_CardInfo, self, "discards random card(s): %s." % discarded_names)
+			parent._append_log_full(Enums.LogType.LogType_CardInfo, self, "discards random card(s): %s." % parent._log_card_name(discarded_names))
 		return events
 
 	func invalidate_card(card : GameCard):
@@ -3002,8 +3039,6 @@ class Player:
 						opposing_player.strike_stat_boosts.max_range += effect['amount2']
 
 	func disable_boost_effects(card : GameCard, buddy_ignore_condition : bool = false, being_discarded : bool = true):
-		var opposing_player = parent._get_player(parent.get_other_player(my_id))
-
 		# Undo timing effects and passive bonuses.
 		var current_timing = parent.get_current_strike_timing()
 		for effect in card.definition['boost']['effects']:
@@ -3031,43 +3066,52 @@ class Player:
 				if not buddy_ignore_condition and not parent.is_effect_condition_met(self, effect, null):
 					# Only undo effects that were given in the first place.
 					continue
+				_revert_strike_bonus_effect(effect, card.id, false)
 
-				parent.remove_remaining_effect(effect, card.id)
-				match effect['effect_type']:
-					"attack_is_ex":
-						strike_stat_boosts.remove_ex()
-					"dodge_at_range":
-						if 'special_range' in effect:
-							var current_range = str(overdrive.size())
-							strike_stat_boosts.dodge_at_range_late_calculate_with = ""
-							parent._append_log_full(Enums.LogType.LogType_Effect, self, "will no longer dodge attacks from range %s!" % current_range)
-						else:
-							var dodge_range = str(strike_stat_boosts.dodge_at_range_min[card.id])
-							if strike_stat_boosts.dodge_at_range_min[card.id] != strike_stat_boosts.dodge_at_range_max[card.id]:
-								dodge_range += "-%s" % strike_stat_boosts.dodge_at_range_max[card.id]
-							parent._append_log_full(Enums.LogType.LogType_Effect, self, "will no longer dodge attacks from range %s." % dodge_range)
-							strike_stat_boosts.dodge_at_range_min.erase(card.id)
-							strike_stat_boosts.dodge_at_range_max.erase(card.id)
-							strike_stat_boosts.dodge_at_range_from_buddy = false
-					"powerup":
-						remove_power_bonus(effect['amount'])
-					"powerup_both_players":
-						remove_power_bonus(effect['amount'])
-						opposing_player.remove_power_bonus(effect['amount'])
-					"speedup":
-						strike_stat_boosts.speed -= effect['amount']
-					"armorup":
-						strike_stat_boosts.armor -= effect['amount']
-					"guardup":
-						strike_stat_boosts.guard -= effect['amount']
-					"rangeup":
-						strike_stat_boosts.min_range -= effect['amount']
-						strike_stat_boosts.max_range -= effect['amount2']
-					"rangeup_both_players":
-						strike_stat_boosts.min_range -= effect['amount']
-						strike_stat_boosts.max_range -= effect['amount2']
-						opposing_player.strike_stat_boosts.min_range -= effect['amount']
-						opposing_player.strike_stat_boosts.max_range -= effect['amount2']
+	func _revert_strike_bonus_effect(effect, card_id : int, check_and_effects : bool):
+		var opposing_player = parent._get_player(parent.get_other_player(my_id))
+		parent.remove_remaining_effect(effect, card_id)
+
+		match effect['effect_type']:
+			"attack_is_ex":
+				strike_stat_boosts.remove_ex()
+			"dodge_at_range":
+				if 'special_range' in effect:
+					var current_range = str(overdrive.size())
+					strike_stat_boosts.dodge_at_range_late_calculate_with = ""
+					parent._append_log_full(Enums.LogType.LogType_Effect, self, "will no longer dodge attacks from range %s!" % current_range)
+				else:
+					var dodge_range = str(strike_stat_boosts.dodge_at_range_min[card_id])
+					if strike_stat_boosts.dodge_at_range_min[card_id] != strike_stat_boosts.dodge_at_range_max[card_id]:
+						dodge_range += "-%s" % strike_stat_boosts.dodge_at_range_max[card_id]
+					parent._append_log_full(Enums.LogType.LogType_Effect, self, "will no longer dodge attacks from range %s." % dodge_range)
+					strike_stat_boosts.dodge_at_range_min.erase(card_id)
+					strike_stat_boosts.dodge_at_range_max.erase(card_id)
+					strike_stat_boosts.dodge_at_range_from_buddy = false
+			"powerup":
+				remove_power_bonus(effect['amount'])
+			"powerup_both_players":
+				remove_power_bonus(effect['amount'])
+				opposing_player.remove_power_bonus(effect['amount'])
+			"speedup":
+				strike_stat_boosts.speed -= effect['amount']
+			"armorup":
+				strike_stat_boosts.armor -= effect['amount']
+			"guardup":
+				strike_stat_boosts.guard -= effect['amount']
+			"rangeup":
+				strike_stat_boosts.min_range -= effect['amount']
+				strike_stat_boosts.max_range -= effect['amount2']
+			"rangeup_both_players":
+				strike_stat_boosts.min_range -= effect['amount']
+				strike_stat_boosts.max_range -= effect['amount2']
+				opposing_player.strike_stat_boosts.min_range -= effect['amount']
+				opposing_player.strike_stat_boosts.max_range -= effect['amount2']
+			"guardup_per_two_cards_in_hand":
+				strike_stat_boosts.guardup_per_two_cards_in_hand = false
+
+		if check_and_effects and "and" in effect:
+			_revert_strike_bonus_effect(effect['and'], card_id, check_and_effects)
 
 	func remove_from_continuous_boosts(card : GameCard, destination : String = "discard"):
 		var events = []
@@ -4420,12 +4464,14 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 	match effect['effect_type']:
 		"add_attack_effect":
 			var current_timing = get_current_strike_timing()
+			var is_current_timing_player = true
+			if current_timing in ['before', 'hit', 'after', 'cleanup']:
+				is_current_timing_player = get_current_strike_timing_player_id() == performing_player.my_id
 			var effect_to_add = effect['added_effect']
 			var to_add_timing = effect['added_effect']['timing']
 			effect_to_add['card_id'] = card_id
-			if current_timing == to_add_timing:
+			if current_timing == to_add_timing and is_current_timing_player:
 				# Add it into the current remaining effects list.
-				# Assumption! There is no way to add stuff during the opponent's timings.
 				add_remaining_effect(effect_to_add)
 			else:
 				performing_player.strike_stat_boosts.added_attack_effects.append(effect_to_add)
@@ -5448,7 +5494,7 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 			var discard_ids = performing_player.pick_random_cards_from_hand(effect['amount'])
 			if discard_ids.size() > 0:
 				var discarded_names = card_db.get_card_names(discard_ids)
-				_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "discards random card(s): %s." % discarded_names)
+				_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "discards random card(s): %s." % _log_card_name(discarded_names))
 				events += performing_player.discard(discard_ids)
 		"discard_random_and_add_triggers":
 			var cards_to_discard = performing_player.pick_random_cards_from_hand(1)
@@ -5457,7 +5503,7 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 				events += add_attack_triggers(performing_player, cards_to_discard, true)
 				var discarded_name = card_db.get_card_name(cards_to_discard[0])
 				performing_player.plague_knight_discard_names.append(discarded_name)
-				_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "discards random card: %s." % discarded_name)
+				_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "discards random card: %s." % _log_card_name(discarded_name))
 		"enable_end_of_turn_draw":
 			performing_player.draw_at_end_of_turn = true
 		"exceed_end_of_turn":
@@ -6344,11 +6390,11 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 			if discard_ids.size() > 0:
 				var discarded_names = card_db.get_card_names(discard_ids)
 				if 'destination' in effect and effect['destination'] == "overdrive":
-					_append_log_full(Enums.LogType.LogType_CardInfo, opposing_player, "discards random card(s) to opponent's overdrive: %s." % discarded_names)
+					_append_log_full(Enums.LogType.LogType_CardInfo, opposing_player, "discards random card(s) to opponent's overdrive: %s." % _log_card_name(discarded_names))
 					events += opposing_player.discard(discard_ids)
 					events += performing_player.move_cards_to_overdrive(discard_ids, "opponent_discard")
 				else:
-					_append_log_full(Enums.LogType.LogType_CardInfo, opposing_player, "discards random card(s): %s." % discarded_names)
+					_append_log_full(Enums.LogType.LogType_CardInfo, opposing_player, "discards random card(s): %s." % _log_card_name(discarded_names))
 					events += opposing_player.discard(discard_ids)
 		"pass":
 			# Do nothing.
@@ -8222,6 +8268,8 @@ func handle_player_draw_or_discard_to_effect(performing_player : Player, card_id
 			"effect_type": "self_discard_choose",
 			"amount": amount_to_discard
 		}
+		if 'and' in effect:
+			discard_effect['discard_effect'] = effect['and']
 		_append_log_full(Enums.LogType.LogType_Effect, performing_player, "must discard %s card(s) to reach a hand size of %s." % [amount_to_discard, target_hand_size])
 		events += handle_strike_effect(card_id, discard_effect, performing_player)
 	else:
@@ -9824,8 +9872,6 @@ func begin_resolve_boost(performing_player : Player, card_id : int, additional_b
 	while more_boosts_to_play:
 		var new_boost = Boost.new()
 		if active_boost:
-			if active_strike:
-				assert(false, "No current support for boosts that play other boosts mid-strike")
 			new_boost.parent_boost = active_boost
 
 		active_boost = new_boost
@@ -9964,6 +10010,9 @@ func boost_play_cleanup(events, performing_player : Player):
 	decision_info.clear()
 	# Account for boosts that played other boosts
 	if active_boost.parent_boost:
+		if active_strike:
+			_boost_play_cleanup_update_effects(performing_player)
+
 		# Pass on any relevant fields.
 		active_boost.parent_boost.action_after_boost = active_boost.parent_boost.action_after_boost or active_boost.action_after_boost
 		active_boost.parent_boost.strike_after_boost = active_boost.parent_boost.strike_after_boost or active_boost.strike_after_boost
@@ -10017,18 +10066,7 @@ func boost_play_cleanup(events, performing_player : Player):
 		active_boost = null
 	else:
 		if active_strike:
-			# If this strike is mid-before effects or mid-after effects, add this boost's effects to the list.
-			# Assumption here is that you cannot add effects with a boost during your opponent's timing.
-			if active_strike.strike_state == StrikeState.StrikeState_Card1_Before or active_strike.strike_state == StrikeState.StrikeState_Card2_Before:
-				for effect in active_boost.card.definition['boost']['effects']:
-					if effect['timing'] == "before" or effect['timing'] == "both_players_before":
-						effect['card_id'] = active_boost.card.id
-						active_strike.remaining_effect_list.append(effect)
-			elif active_strike.strike_state == StrikeState.StrikeState_Card1_After or active_strike.strike_state == StrikeState.StrikeState_Card2_After:
-				for effect in active_boost.card.definition['boost']['effects']:
-					if effect['timing'] == "after" or effect['timing'] == "both_players_after":
-						effect['card_id'] = active_boost.card.id
-						active_strike.remaining_effect_list.append(effect)
+			_boost_play_cleanup_update_effects(performing_player)
 
 			# Continue resolving the strike (or doing another boost if you're doing Faust things...)
 			var handled_weird_boost = false
@@ -10057,6 +10095,25 @@ func boost_play_cleanup(events, performing_player : Player):
 			if not preparing_strike and not active_overdrive:
 				events += check_hand_size_advance_turn(performing_player)
 	return events
+
+func _boost_play_cleanup_update_effects(performing_player : Player):
+	# Add this boost's effects to the current effect list if the taming matches.
+	var current_strike_timing = get_current_strike_timing()
+	var is_current_timing_player = true
+	if current_strike_timing in ['before', 'hit', 'after', 'cleanup']:
+		is_current_timing_player = performing_player.my_id == get_current_strike_timing_player_id()
+	for effect in active_boost.card.definition['boost']['effects']:
+		var matches_timing = false
+		if effect['timing'] == current_strike_timing and is_current_timing_player:
+			matches_timing = true
+		elif current_strike_timing == "before" and effect['timing'] == "both_players_before":
+			matches_timing = true
+		elif current_strike_timing == "after" and effect['timing'] == "both_players_after":
+			matches_timing = true
+
+		if matches_timing:
+			effect['card_id'] = active_boost.card.id
+			active_strike.remaining_effect_list.append(effect)
 
 func can_do_prepare(performing_player : Player):
 	if game_state != Enums.GameState.GameState_PickAction:
