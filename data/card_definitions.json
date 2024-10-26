@@ -10071,22 +10071,19 @@
 			"boost_type": "transform",
 			"force_cost": -1,
 			"cancel_cost": -1,
-			"display_name": "Meddlesome",
+			"display_name": "Faster Than The Eye",
 			"effects": [
 				{
-					"timing": "counter_boost",
-					"effect_type": "choice",
-					"choice": [
-						{
-							"condition": "same_card_as_boost_in_hand",
-							"effect_type": "discard_same_card_as_boost",
-							"and": {
-								"effect_type": "negate_boost"
-							}
-						},
-						{ "effect_type": "pass" }
-					],
-					"override_description": "On opponent boost, discard copy to negate"
+					"timing": "set_strike",
+					"effect_type": "force_for_effect",
+					"per_force_effect": null,
+					"overall_effect": {
+						"character_effect": true,
+						"effect_type": "speedup",
+						"amount": 1
+					},
+					"force_max": 1,
+					"override_description": "On set, spend 1F for +1 SPD"
 				}
 			]
 		}
@@ -10119,20 +10116,13 @@
 			"boost_type": "transform",
 			"force_cost": -1,
 			"cancel_cost": -1,
-			"display_name": "Kitsune's Pride",
+			"display_name": "Hidden Strength",
 			"effects": [
 				{
-					"timing": "set_strike",
-					"effect_type": "force_for_effect",
-					"per_force_effect": null,
-					"overall_effect": {
-						"character_effect": true,
-						"effect_type": "rangeup",
-						"amount": 0,
-						"amount2": 1
-					},
-					"force_max": 2,
-					"override_description": "On set, spend 2F for +0~1 RNG"
+					"timing": "immediate",
+					"effect_type": "can_spend_life_for_force",
+					"amount": 1,
+					"override_description": "Can spend 1 life for 1 Force"
 				}
 			]
 		}
