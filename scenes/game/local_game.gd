@@ -8185,12 +8185,14 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 			decision_info.player = performing_player.my_id
 			events += [create_event(Enums.EventType.EventType_Boost_ZeroVector, performing_player.my_id, 0)]
 		"zero_vector_internal":
-			var named_card = card_db.get_card(effect['card_id'])
-			# named_card is the individual card but
-			# this should match "by name", so instead of using that
-			# match on the display name, because Dive hits all Dives but Dust doesn't hit Spike.
-			performing_player.cards_invalid_during_strike.append(named_card.definition['display_name'])
-			opposing_player.cards_invalid_during_strike.append(named_card.definition['display_name'])
+			var named_id = effect['card_id']
+			if named_id != -1:
+				var named_card = card_db.get_card(named_id)
+				# named_card is the individual card but
+				# this should match "by name", so instead of using that
+				# match on the display name, because Dive hits all Dives but Dust doesn't hit Spike.
+				performing_player.cards_invalid_during_strike.append(named_card.definition['display_name'])
+				opposing_player.cards_invalid_during_strike.append(named_card.definition['display_name'])
 		"zero_vector_dialogue":
 			# this exists purely for ui, no-op here
 			pass

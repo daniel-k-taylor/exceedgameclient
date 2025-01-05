@@ -1663,11 +1663,17 @@ func _on_name_opponent_card_begin(event):
 	var player = event['event_player']
 	spawn_damage_popup("Naming Card", player)
 	var normal_only = event['event_type'] == Enums.EventType.EventType_ReadingNormal or event['event_type'] == Enums.EventType.EventType_Boost_Sidestep
-	var can_name_fake_card = event['event_type'] == Enums.EventType.EventType_Boost_NameCardOpponentDiscards
+	var can_name_fake_card = event['event_type'] == Enums.EventType.EventType_Boost_NameCardOpponentDiscards or event['event_type'] == Enums.EventType.EventType_Boost_ZeroVector
+
+	var cancel_text = "Reveal Hand"
+	if event['event_type'] == Enums.EventType.EventType_Boost_ZeroVector:
+		cancel_text = "Name Nonexistent Card"
+
 	if game_wrapper.get_decision_info().bonus_effect:
 		select_card_name_card_both_players = game_wrapper.get_decision_info().bonus_effect
 	else:
 		select_card_name_card_both_players = false
+
 	if player == Enums.PlayerId.PlayerId_Player and not observer_mode:
 		var instruction_text = "Name an opponent card."
 		if select_card_name_card_both_players:
@@ -1681,12 +1687,12 @@ func _on_name_opponent_card_begin(event):
 			"popout_type": CardPopoutType.CardPopoutType_ReferenceOpponent,
 			"instruction_text": instruction_text,
 			"ok_text": "OK",
-			"cancel_text": "Reveal Hand",
+			"cancel_text": cancel_text,
 			"ok_enabled": true,
 			"cancel_visible": cancel_allowed,
 			"normal_only": normal_only,
 		}
-		enable_instructions_ui("Name opponent card.", true, cancel_allowed, false)
+		enable_instructions_ui(instruction_text, true, cancel_allowed, false)
 		change_ui_state(UIState.UIState_SelectCards, UISubState.UISubState_SelectCards_DiscardFromReference)
 		_on_opponent_reference_button_pressed(false, true)
 	else:
@@ -2629,6 +2635,10 @@ func begin_strike_choosing(strike_response : bool, cancel_allowed : bool,
 	if cards_that_will_not_hit.size() > 0:
 		for card in cards_that_will_not_hit:
 			dialogue += "\n" + card + " will not hit."
+	var cards_invalid_during_strike = game_wrapper.get_invalid_card_names(Enums.PlayerId.PlayerId_Player)
+	if cards_invalid_during_strike.size() > 0:
+		for card in cards_invalid_during_strike:
+			dialogue += "\n" + card + " is invalid."
 	var plague_knight_discard_names = game_wrapper.get_plague_knight_discard_names(Enums.PlayerId.PlayerId_Opponent)
 	if plague_knight_discard_names.size() > 0:
 		for card in plague_knight_discard_names:
