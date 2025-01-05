@@ -467,6 +467,7 @@ class Strike:
 class Boost:
 	var playing_player : Player
 	var card : GameCard
+	var boosted_from_gauge = false
 	var effects_resolved = 0
 	var action_after_boost = false
 	var strike_after_boost = false
@@ -798,6 +799,7 @@ class Player:
 	var strike_action_disabled : bool
 	var face_attack_id : String
 	var spend_life_for_force_amount : int
+	var can_boost_from_gauge : bool
 
 	func _init(id, player_name, parent_ref, card_db_ref, chosen_deck, card_start_id):
 		my_id = id
@@ -912,6 +914,7 @@ class Player:
 		strike_action_disabled = false
 		face_attack_id = ""
 		spend_life_for_force_amount = -1
+		can_boost_from_gauge = false
 
 		if "buddy_cards" in deck_def:
 			var buddy_index = 0
@@ -3321,12 +3324,17 @@ class Player:
 		if exceeded:
 			ability_label = "exceed_ability_effects"
 		var is_continuous_boost = boost_card.definition['boost']['boost_type'] == "continuous"
-		for effect in deck_def[ability_label]:
-			if effect['timing'] == "on_continuous_boost" and is_continuous_boost:
-				effects.append(effect)
-		for effect in deck_def[ability_label]:
-			if effect['timing'] == "on_any_boost":
-				effects.append(effect)
+
+		var effect_sets = [deck_def[ability_label]]
+		for card in get_continuous_boosts_and_transforms():
+			effect_sets.append(card.definition['boost']['effects'])
+		for effect_set in effect_sets:
+			for effect in effect_set:
+				if effect['timing'] == "on_continuous_boost" and is_continuous_boost:
+					effects.append(effect)
+			for effect in effect_set:
+				if effect['timing'] == "on_any_boost":
+					effects.append(effect)
 		return effects
 
 	func get_counter_boost_effects():
@@ -4445,6 +4453,9 @@ func is_effect_condition_met(performing_player : Player, effect, local_condition
 		elif condition == "same_card_as_boost_in_hand":
 			assert(active_boost)
 			return performing_player.is_card_in_hand_match_normals(active_boost.card)
+		elif condition == "boosted_from_gauge":
+			assert(active_boost)
+			return active_boost.boosted_from_gauge
 		else:
 			assert(false, "Unimplemented condition")
 		# Unmet condition
@@ -5524,6 +5535,8 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 				var discarded_name = card_db.get_card_name(cards_to_discard[0])
 				performing_player.plague_knight_discard_names.append(discarded_name)
 				_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "discards random card: %s." % _log_card_name(discarded_name))
+		"enable_boost_from_gauge":
+			performing_player.can_boost_from_gauge = true
 		"enable_end_of_turn_draw":
 			performing_player.draw_at_end_of_turn = true
 		"exceed_end_of_turn":
@@ -9930,6 +9943,8 @@ func begin_resolve_boost(performing_player : Player, card_id : int, additional_b
 		active_boost.playing_player = performing_player
 		active_boost.card = card_db.get_card(card_id)
 		active_boost.shuffle_discard_on_cleanup = shuffle_discard_after
+		active_boost.boosted_from_gauge = performing_player.is_card_in_gauge(card_id)
+
 		performing_player.remove_card_from_hand(card_id, true, false)
 		performing_player.remove_card_from_gauge(card_id)
 		performing_player.remove_card_from_discards(card_id)

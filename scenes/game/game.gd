@@ -3683,6 +3683,9 @@ func _update_buttons(no_number_picker_update : bool = false):
 			elif only_set_aside:
 				if len(selected_cards) == 1 and player_can_boost_from_extra:
 					can_boost = game_wrapper.can_player_boost(Enums.PlayerId.PlayerId_Player, selected_cards[0].card_id, ['extra'], "", false)
+			elif only_in_gauge:
+				if len(selected_cards) == 1 and game_wrapper.can_player_boost_from_gauge(Enums.PlayerId.PlayerId_Player):
+					can_boost = game_wrapper.can_player_boost(Enums.PlayerId.PlayerId_Player, selected_cards[0].card_id, ['gauge'], "", false)
 
 			if can_strike:
 				card_name = card_db.get_card(selected_cards[0].card_id).definition['display_name']
@@ -4199,6 +4202,8 @@ func _on_boost_button_pressed():
 	var valid_zones = ['hand']
 	if player_can_boost_from_extra:
 		valid_zones.append('extra')
+	if game_wrapper.can_player_boost_from_gauge(Enums.PlayerId.PlayerId_Player):
+		valid_zones.append('gauge')
 	begin_boost_choosing(true, valid_zones, "", false, 1)
 
 func _on_strike_button_pressed():
@@ -4469,7 +4474,7 @@ func _on_instructions_ok_button_pressed(index : int):
 						begin_generate_force_selection(force_cost)
 					else:
 						var additional_boost_ids = selected_card_ids.slice(1)
-						success = game_wrapper.submit_boost(Enums.PlayerId.PlayerId_Player, single_card_id, [], use_free_force, additional_boost_ids)
+						success = game_wrapper.submit_boost(Enums.PlayerId.PlayerId_Player, single_card_id, [], use_free_force, spent_life_for_force, additional_boost_ids)
 			UISubState.UISubState_SelectCards_ForceForBoost:
 				success = game_wrapper.submit_boost(Enums.PlayerId.PlayerId_Player, selected_boost_to_pay_for, selected_card_ids, use_free_force, spent_life_for_force)
 			UISubState.UISubState_PickNumberFromRange:

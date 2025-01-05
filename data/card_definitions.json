@@ -10024,21 +10024,17 @@
 			"boost_type": "transform",
 			"force_cost": -1,
 			"cancel_cost": -1,
-			"display_name": "Watchful Guardian",
+			"display_name": "Secret Formula",
 			"effects": [
 				{
-					"timing": "on_prepare",
-					"effect_type": "force_for_effect",
-					"per_force_effect": null,
-					"overall_effect": {
-						"effect_type": "choice",
-						"choice": [
-							{ "effect_type": "advance", "amount": 1 },
-							{ "effect_type": "retreat", "amount": 1 }
-						]
-					},
-					"force_max": 1,
-					"override_description": "After prepare, spend 1F to move 1"
+					"timing": "now",
+					"effect_type": "enable_boost_from_gauge"
+				},
+				{
+					"timing": "on_any_boost",
+					"condition": "boosted_from_gauge",
+					"effect_type": "add_top_deck_to_gauge",
+					"override_description": "Can boost from gauge, then add top deck to gauge"
 				}
 			]
 		}

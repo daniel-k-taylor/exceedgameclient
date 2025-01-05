@@ -389,6 +389,9 @@ func get_player_extra_attack_card_options(player_id : Enums.PlayerId) -> Array:
 		card_ids.append(card.id)
 	return card_ids
 
+func can_player_boost_from_gauge(player_id : Enums.PlayerId):
+	return _get_player(player_id).can_boost_from_gauge
+
 func can_player_boost(player_id : Enums.PlayerId,
 		card_id : int,
 		valid_zones : Array,
