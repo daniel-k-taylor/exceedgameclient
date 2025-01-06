@@ -1154,8 +1154,7 @@ func can_select_card(card):
 
 			var valid_card = false
 			# Checks if it's the EX transform action
-			if logic_card.definition['boost']['boost_type'] == "transform" and select_boost_limitation != "transform":
-				# Currently assumes that transforms can only be selected for the ex transform action
+			if logic_card.definition['boost']['boost_type'] == "transform" and !select_boost_limitation:
 				if game_wrapper.can_do_ex_transform(Enums.PlayerId.PlayerId_Player): # checks timing
 					valid_card = game_wrapper.can_player_ex_transform(Enums.PlayerId.PlayerId_Player, card.card_id)
 			else:

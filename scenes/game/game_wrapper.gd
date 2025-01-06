@@ -426,6 +426,9 @@ func can_player_boost(player_id : Enums.PlayerId,
 	if card.definition['boost']['boost_type'] in ["transform", "overload"] and limitation != "transform":
 		return false
 
+	if limitation == "transform" and _get_player(player_id).has_card_name_transformed(card):
+		return false
+
 	if ignore_costs:
 		return true
 	var force_cost = card_db.get_card_boost_force_cost(card_id)

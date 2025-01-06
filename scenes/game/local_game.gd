@@ -2061,6 +2061,9 @@ class Player:
 				if not meets_limitation:
 					continue
 
+				if limitation == "transform" and has_card_name_transformed(card):
+					continue
+
 				if ignore_costs:
 					return true
 				var force_available_when_boosting_this = force_available - parent.card_db.get_card_force_value(card.id)
