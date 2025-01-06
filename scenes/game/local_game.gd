@@ -65,6 +65,7 @@ var active_prepare : bool = false
 var active_overdrive_boost_top_discard_on_cleanup : bool = false
 var active_change_cards : bool = false
 var active_special_draw_effect : bool = false
+var active_post_action_effect : bool = false
 var active_start_of_turn_effects : bool = false
 var active_end_of_turn_effects : bool = false
 var remaining_overdrive_effects = []
@@ -72,6 +73,8 @@ var remaining_character_action_effects = []
 var remaining_start_of_turn_effects = []
 var remaining_end_of_turn_effects = []
 var prepare_effects_resolved : int = 0
+var post_action_effects_resolved : int = 0
+var post_action_interruption : bool = false
 
 var decision_info : DecisionInfo = DecisionInfo.new()
 var active_boost : Boost = null
@@ -800,6 +803,7 @@ class Player:
 	var face_attack_id : String
 	var spend_life_for_force_amount : int
 	var can_boost_from_gauge : bool
+	var checked_post_action_effects : bool
 
 	func _init(id, player_name, parent_ref, card_db_ref, chosen_deck, card_start_id):
 		my_id = id
@@ -852,6 +856,7 @@ class Player:
 		exceeded = false
 		did_end_of_turn_draw = false
 		did_strike_this_turn = false
+		checked_post_action_effects = false
 		bonus_actions = 0
 		canceled_this_turn = false
 		cancel_blocked_this_turn = false
@@ -3593,6 +3598,8 @@ func advance_to_next_turn():
 	opponent.plague_knight_discard_names = []
 	player.strike_action_disabled = false
 	opponent.strike_action_disabled = false
+	player.checked_post_action_effects = false
+	opponent.checked_post_action_effects = false
 
 	# Update strike turn tracking
 	last_turn_was_strike = strike_happened_this_turn
@@ -7948,6 +7955,8 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 					pass
 				else:
 					events += [create_event(Enums.EventType.EventType_ForceStartStrike, performing_player.my_id, 0)]
+					if active_post_action_effect:
+						post_action_interruption = true
 		"strike_effect_after_setting":
 			if not active_boost:
 				events += [create_event(Enums.EventType.EventType_ForceStartStrike, performing_player.my_id, 0)]
@@ -10281,11 +10290,55 @@ func can_do_strike(performing_player : Player):
 
 	return true
 
+func check_post_action_effects(performing_player : Player):
+	var events = []
+
+	# Queue any end of turn character effects
+	var post_action_effects = performing_player.get_character_effects_at_timing("after_non_strike_action")
+	# Queue any end of turn boost effects.
+	var boost_list = performing_player.get_continuous_boosts_and_transforms()
+	for i in range(len(boost_list) - 1, -1, -1):
+		var card = boost_list[i]
+		for effect in card.definition['boost']['effects']:
+			if effect['timing'] == "after_non_strike_action":
+				effect['card_id'] = card.id
+				post_action_effects.append(effect)
+
+	# process effects, break if in choice state
+	while true:
+		if post_action_effects_resolved < len(post_action_effects):
+			var effect = post_action_effects[post_action_effects_resolved]
+			events += do_effect_if_condition_met(performing_player, -1, effect, null)
+			if game_state == Enums.GameState.GameState_PlayerDecision:
+				break
+			post_action_effects_resolved += 1
+		else:
+			active_post_action_effect = false
+			performing_player.checked_post_action_effects = true
+			if not post_action_interruption:
+				events += check_hand_size_advance_turn(performing_player)
+			break
+
+		if game_over:
+			break
+
+	# after out of effects
+	return events
+
 func check_hand_size_advance_turn(performing_player : Player):
 	var events = []
+
+	if not performing_player.checked_post_action_effects:
+		active_post_action_effect = true
+		post_action_effects_resolved = 0
+		post_action_interruption = false
+		events += check_post_action_effects(performing_player)
+		return events
+
 	if performing_player.bonus_actions > 0:
 		change_game_state(Enums.GameState.GameState_PickAction)
 		performing_player.bonus_actions -= 1
+		performing_player.checked_post_action_effects = false
 		if performing_player.bonus_actions == 0:
 			_append_log_full(Enums.LogType.LogType_Action, performing_player, "takes an additional action!")
 		else:
@@ -11221,7 +11274,8 @@ func do_choice(performing_player : Player, choice_index : int) -> bool:
 
 func set_player_action_processing_state():
 	if active_start_of_turn_effects or active_end_of_turn_effects or active_overdrive or active_boost \
-	or active_character_action or active_exceed or active_change_cards or active_prepare or active_special_draw_effect:
+	or active_character_action or active_exceed or active_change_cards or active_prepare \
+	or active_special_draw_effect or active_post_action_effect:
 		game_state = Enums.GameState.GameState_Boost_Processing
 	elif active_strike:
 		game_state = Enums.GameState.GameState_Strike_Processing
@@ -11248,6 +11302,9 @@ func continue_player_action_resolution(events, performing_player : Player):
 		if game_state != Enums.GameState.GameState_PlayerDecision:
 			if active_special_draw_effect:
 				events += check_hand_size_advance_turn(performing_player)
+			elif active_post_action_effect:
+				post_action_effects_resolved += 1
+				events += check_post_action_effects(performing_player)
 			elif active_end_of_turn_effects:
 				events += continue_end_turn()
 			elif active_start_of_turn_effects:

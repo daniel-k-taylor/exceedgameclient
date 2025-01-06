@@ -10193,16 +10193,18 @@
 			"boost_type": "transform",
 			"force_cost": -1,
 			"cancel_cost": -1,
-			"display_name": "Ninth Tail",
+			"display_name": "Instinctive Response",
 			"effects": [
 				{
-					"timing": "action",
-					"text": "Name Card & Strike",
-					"effect_type": "zero_vector",
-					"and": {
-						"effect_type": "strike"
-					},
-					"override_description": "Can name card & strike; card invalid for both players"
+					"timing": "after_non_strike_action",
+					"condition": "max_cards_in_hand",
+					"condition_amount": 0,
+					"effect_type": "choice",
+					"choice": [
+						{ "effect_type": "strike" },
+						{ "effect_type": "pass" }
+					],
+					"override_description": "After action, if hand is empty, can Strike"
 				}
 			]
 		},

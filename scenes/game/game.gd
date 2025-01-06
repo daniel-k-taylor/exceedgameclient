@@ -4451,7 +4451,7 @@ func _on_instructions_ok_button_pressed(index : int):
 			UISubState.UISubState_SelectCards_Exceed:
 				success = game_wrapper.submit_exceed(Enums.PlayerId.PlayerId_Player, selected_card_ids)
 			UISubState.UISubState_SelectCards_ForceForEffect:
-				success = game_wrapper.submit_force_for_effect(Enums.PlayerId.PlayerId_Player, selected_card_ids, treat_ultras_as_single_force, false, use_free_force)
+				success = game_wrapper.submit_force_for_effect(Enums.PlayerId.PlayerId_Player, selected_card_ids, treat_ultras_as_single_force, false, use_free_force, spent_life_for_force)
 			UISubState.UISubState_SelectCards_GaugeForEffect:
 				success = game_wrapper.submit_gauge_for_effect(Enums.PlayerId.PlayerId_Player, selected_card_ids)
 			UISubState.UISubState_SelectCards_MoveActionGenerateForce:
