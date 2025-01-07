@@ -296,7 +296,6 @@ func get_force_to_move_to(player_id : Enums.PlayerId, location : int):
 	return _get_player(player_id).get_force_to_move_to(location)
 
 func get_invalid_card_names(player_id : Enums.PlayerId) -> Array:
-	var card_names = []
 	var player = _get_player(player_id)
 	return player.cards_invalid_during_strike
 

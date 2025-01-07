@@ -660,3 +660,6 @@ func test_seijun_100():
 
 func test_carlswangee_100():
 	run_iterations_with_deck("carlswangee")
+
+func test_galdred_100():
+	run_iterations_with_deck("galdred")
