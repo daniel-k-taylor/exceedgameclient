@@ -98,7 +98,7 @@ func before_all():
 func after_all():
 	gut.p("ran run teardown", 2)
 
-func do_and_validate_strike(player, card_id, ex_card_id = -1):
+func do_and_validate_strike(player, card_id, ex_card_id = -1, use_face_attack = false):
 	assert_true(game_logic.can_do_strike(player),
 			"Player %s is unable to perform a strike" % player)
 	if card_id != -1:
@@ -106,6 +106,11 @@ func do_and_validate_strike(player, card_id, ex_card_id = -1):
 				"Unsuccessful attempt to initiate strike with %s%s" % [
 						"EX " if ex_card_id >= 0 else "",
 						game_logic.get_card_database().get_card_name(card_id)])
+	elif use_face_attack:
+		var face_card_id = player.face_attack_id
+		assert_true(game_logic.do_strike(player, -1, false, -1, false, true),
+				"Unsuccessful attempt to initiate with face attack (%s)" % [face_card_id])
+		card_id = face_card_id
 	else:
 		var ws_card_id = player.deck[0].id
 		assert_true(game_logic.do_strike(player, card_id, true, ex_card_id),
@@ -348,7 +353,8 @@ func process_remaining_decisions(initiator, defender, init_choices, def_choices)
 func execute_strike(initiator: LocalGame.Player, defender: LocalGame.Player,
 		init_card: Variant, def_card: Variant, init_ex = false, def_ex = false,
 		init_choices = [], def_choices = [], exit_after_validation = false,
-		init_alt_ex_card: Variant = "", def_alt_ex_card: Variant = ""):
+		init_alt_ex_card: Variant = "", def_alt_ex_card: Variant = "",
+		init_use_face_attack: bool = false, def_use_face_attack: bool = false):
 	var init_card_id = -1
 	var init_card_ex_id = -1
 	var def_card_id = -1
@@ -370,6 +376,8 @@ func execute_strike(initiator: LocalGame.Player, defender: LocalGame.Player,
 				init_card_def_id = init_alt_ex_card
 			init_card_ex_id = give_player_specific_card(initiator, init_card_def_id)
 		do_and_validate_strike(initiator, init_card_id, init_card_ex_id)
+	elif init_use_face_attack:
+		init_card_id = do_and_validate_strike(initiator, -1, -1, true) # face attack
 	else:
 		init_card_id = do_and_validate_strike(initiator, -1)  # wild swing
 	process_decisions(initiator, game_logic.StrikeState.StrikeState_Initiator_SetEffects, init_choices)
@@ -390,6 +398,8 @@ func execute_strike(initiator: LocalGame.Player, defender: LocalGame.Player,
 				def_card_def_id = def_alt_ex_card
 			def_card_ex_id = give_player_specific_card(defender, def_card_def_id)
 		do_strike_response(defender, def_card_id, def_card_ex_id)
+	elif def_use_face_attack:
+		def_card_id = do_and_validate_strike(defender, -1, -1, true) # face attack
 	else:
 		def_card_id = do_strike_response(defender, -1)  # wild swing
 	process_decisions(defender, game_logic.StrikeState.StrikeState_Defender_SetEffects, def_choices)

@@ -2,7 +2,7 @@
 	"id": "galdred",
 	"season": 2,
 	"display_name": "Galdred",
-	"exceed_cost": 1,
+	"exceed_cost": 6,
 	"disable_end_of_turn_draw": true,
 	"exceed_cost_reduced_by": "transform_discount",
 	"exceed_animation": "galdred_exceed",
