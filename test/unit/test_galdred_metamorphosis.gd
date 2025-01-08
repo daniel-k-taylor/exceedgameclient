@@ -721,18 +721,324 @@ func test_galdred_metamorphosis_nu13_hit():
 	assert_eq(len(player2.hand), initial_hand_size + 2)
 	advance_turn(player2)
 
+# Platinum - changes cleanup effect
+func test_galdred_metamorphosis_platinum():
+	_setup_metamorphosis_test("platinum")
+	advance_turn(player1)
+	player2.discard_hand()
 
+	var defend_boost = give_player_specific_card(player2, "standard_normal_spike")
+	var fierce_boost = give_player_specific_card(player2, "standard_normal_grasp")
+	game_logic.do_boost(player2, defend_boost)
+	player2.move_card_from_hand_to_deck(fierce_boost)
 
-# for copypaste reference
-func test_galdred_metamorphosis_():
-	_setup_metamorphosis_test("galdred")
+	execute_strike(player1, player2, "galdred_metamorphosis", "standard_normal_sweep", false, false,
+		[get_cards_from_gauge(player1, 2)], [], true)
+	game_logic.do_choice(player2, 0) # reveal and play fierce
+	assert_true(player2.is_card_in_continuous_boosts(defend_boost))
+	assert_true(player2.is_card_in_continuous_boosts(fierce_boost))
+	game_logic.do_choose_from_boosts(player2, [defend_boost]) # choose to sustain defend
+
+	assert_false(player2.exceeded) # revert from empty overdrive
+	validate_life(player1, 24, player2, 24)
+	validate_positions(player1, 4, player2, 5)
+	assert_true(player2.is_card_in_continuous_boosts(defend_boost))
+	assert_true(player2.is_card_in_discards(fierce_boost))
+	advance_turn(player2)
+
+# Polar Knight - places ice spikes on 3 spaces, hit effect upgraded
+func test_galdred_metamorphosis_polar():
+	_setup_metamorphosis_test("polar")
+
+	execute_strike(player1, player2, "galdred_metamorphosis", "standard_normal_focus", false, false,
+		[get_cards_from_gauge(player1, 2)], [], true)
+	# place spikes in 3, 4, and 5
+	game_logic.do_choice(player2, select_space(3))
+	game_logic.do_choice(player2, select_space(4))
+	game_logic.do_choice(player2, select_space(5))
+	# remove spike on 4 for +3 power
+	game_logic.do_choice(player2, 0)
+	# arbitrarily resolve draw after first
+	game_logic.do_choice(player2, 0)
+	# place new ice spike on far right (7)
+	game_logic.do_choice(player2, 0)
+	game_logic.do_choice(player2, select_space(7))
+
+	assert_true(player2.exceeded)
+	validate_life(player1, 23, player2, 25)
+	validate_positions(player1, 4, player2, 5)
+	var ice_spike_locations = []
+	for location in player2.buddy_locations:
+		if location != -1:
+			ice_spike_locations.append(location)
+	assert_true(3 in ice_spike_locations)
+	assert_true(5 in ice_spike_locations)
+	assert_true(7 in ice_spike_locations)
+	assert_eq(len(ice_spike_locations), 3)
+	advance_turn(player2)
+
+# Potemkin - Closes 2, UA bonus doesn't change
+func test_galdred_metamorphosis_potemkin():
+	_setup_metamorphosis_test("potemkin")
+	advance_turn(player1)
+
+	execute_strike(player2, player1, "standard_normal_focus", "galdred_metamorphosis", false, false,
+		[], [get_cards_from_gauge(player1, 2)])
+
+	assert_true(player2.exceeded)
+	validate_life(player1, 25, player2, 26)
+	validate_positions(player1, 4, player2, 5)
+	advance_turn(player1)
+
+# Propellor Knight - Advance or Retreat up to 2
+func test_galdred_metamorphosis_propeller():
+	_setup_metamorphosis_test("propeller")
+
+	execute_strike(player1, player2, "galdred_metamorphosis", "propeller_propellerpull", false, true,
+		[get_cards_from_gauge(player1, 2)], [2, 1]) # Retreat 1, decline pull
+	# metamorphosis does 7 - 1, doesn't stun 7 guard
+	# ex pull with tipper does 6 + 1
+
+	assert_true(player2.exceeded)
+	validate_life(player1, 23, player2, 24)
+	validate_positions(player1, 4, player2, 6)
+	advance_turn(player2)
+
+# Ragna - Draws 1 and closes up to 1, upgrades hit effect
+func test_galdred_metamorphosis_ragna():
+	_setup_metamorphosis_test("ragna")
 	var initial_hand_size = len(player2.hand)
+	player2.life = 20
+
+	execute_strike(player1, player2, "galdred_metamorphosis", "standard_normal_focus", false, false,
+		[get_cards_from_gauge(player1, 2)], [0]) # close 1 i guess
+
+	assert_false(player2.exceeded) # revert from empty overdrive
+	validate_life(player1, 25, player2, 17)
+	validate_positions(player1, 4, player2, 5)
+	assert_eq(len(player2.hand), initial_hand_size + 2)
+	advance_turn(player2)
+
+# Ramlethal - draws 3, does not upgrade frontside bonus
+func test_galdred_metamorphosis_ramlethal():
+	_setup_metamorphosis_test("ramlethal")
+	var initial_hand_size = len(player2.hand)
+
+	execute_strike(player1, player2, "galdred_metamorphosis", "standard_normal_focus", false, false,
+		[get_cards_from_gauge(player1, 2)], [get_cards_from_hand(player2, 2)])
+	# spent 2 cards as force, drew 3 + 1
+
+	assert_true(player2.exceeded)
+	validate_life(player1, 26, player2, 25)
+	validate_positions(player1, 4, player2, 5)
+	assert_eq(len(player2.hand), initial_hand_size + 2)
+	advance_turn(player2)
+
+# Sagat - draws 2 and retreats up to 2; does not gain power on face-up attacks
+func test_galdred_metamorphosis_sagat():
+	_setup_metamorphosis_test("sagat")
+	advance_turn(player1)
+	var initial_hand_size = len(player2.hand)
+
+	execute_strike(player2, player1, "standard_normal_focus", "galdred_metamorphosis", false, false,
+		[0, 0], # set face-up, retreat 1
+		[get_cards_from_gauge(player1, 2)])
+	# draws 2 + 1
+
+	assert_true(player2.exceeded)
+	validate_life(player1, 26, player2, 25)
+	validate_positions(player1, 4, player2, 6)
+	assert_eq(len(player2.hand), initial_hand_size + 3)
+	advance_turn(player1)
+
+# Seijun - draws 3, loses bonus guard
+func test_galdred_metamorphosis_seijun():
+	_setup_metamorphosis_test("seijun")
+	var initial_hand_size = len(player2.hand)
+	assert(initial_hand_size >= 2) # would have at least 1 extra guard, but loses it and gets stunned
+
+	execute_strike(player1, player2, "galdred_metamorphosis", "standard_normal_sweep", false, false,
+		[get_cards_from_gauge(player1, 2)])
+
+	assert_true(player2.exceeded)
+	validate_life(player1, 30, player2, 23)
+	validate_positions(player1, 4, player2, 5)
+	assert_eq(len(player2.hand), initial_hand_size + 4) # drew one more at start of turn
+	advance_turn(player2)
+
+# Shovel/Shield - place shield knight in any space
+func test_galdred_metamorphosis_shovelshield():
+	_setup_metamorphosis_test("shovelshield")
+	player2.set_buddy_location("shieldknight", 8)
+
+	execute_strike(player1, player2, "galdred_metamorphosis", "shovelshield_shieldgong", false, true,
+		[get_cards_from_gauge(player1, 2)], [get_cards_from_hand(player2, 1), 5])
+	# metamorphosis does 7 - 3, ex gong does 5 and pushes 2
+
+	assert_true(player2.exceeded)
+	validate_life(player1, 25, player2, 26)
+	validate_positions(player1, 2, player2, 5)
+	assert_eq(player2.get_buddy_location("shieldknight"), 5)
+	advance_turn(player2)
+
+# Sol - power bonus upgrades
+func test_galdred_metamorphosis_solbadguy():
+	_setup_metamorphosis_test("solbadguy")
+	advance_turn(player1)
+
+	give_gauge(player2, 1)
+	var fd_boost = give_player_specific_card(player2, "gg_normal_dust")
+	game_logic.do_boost(player2, fd_boost)
+	game_logic.do_boost_cancel(player2, get_cards_from_gauge(player2, 1), true)
+
+	execute_strike(player2, player1, "standard_normal_sweep", "galdred_metamorphosis", false, false,
+		[], [get_cards_from_gauge(player1, 2)])
+	# sol gets +2 power
+
+	assert_true(player2.exceeded)
+	validate_life(player1, 22, player2, 23)
+	validate_positions(player1, 4, player2, 5)
+	advance_turn(player1)
+
+# Specter Knight - can swap deck and sealed, does not get power bonus
+func test_galdred_metamorphosis_specter():
+	_setup_metamorphosis_test("specter")
+	advance_turn(player1)
+	var deck_size = len(player2.deck)
+
+	var sealcards = get_cards_from_hand(player2, 2)
+
+	var sweep1 = give_player_specific_card(player2, "standard_normal_sweep")
+	var sweep2 = give_player_specific_card(player2, "standard_normal_sweep")
+	game_logic.do_strike(player2, sweep1, false, sweep2)
+	game_logic.do_choose_to_discard(player2, sealcards) # seal for advance
+
+	var metamorphosis = give_player_specific_card(player1, "galdred_metamorphosis")
+	game_logic.do_strike(player1, metamorphosis, false, -1)
+	game_logic.do_pay_strike_cost(player1, get_cards_from_gauge(player1, 2), false)
+
+	game_logic.do_choice(player2, 0) # accept sealed/deck swap
+
+	assert_true(player2.exceeded)
+	validate_life(player1, 23, player2, 24)
+	validate_positions(player1, 4, player2, 2)
+	for card in player2.deck:
+		assert_true(card.id in sealcards)
+	assert_eq(len(player2.deck), 2)
+	assert_eq(len(player2.sealed), deck_size)
+	advance_turn(player1)
+
+# Testament - upgrades normal hit effect
+func test_galdred_metamorphosis_testament():
+	_setup_metamorphosis_test("testament")
+	var initial_hand_size = len(player2.hand)
+
+	execute_strike(player1, player2, "galdred_metamorphosis", "standard_normal_focus", false, false,
+		[get_cards_from_gauge(player1, 2)], [0]) # push 1
+
+	assert_true(player2.exceeded)
+	validate_life(player1, 26, player2, 25)
+	validate_positions(player1, 3, player2, 5)
+	assert_eq(len(player2.hand), initial_hand_size + 2)
+	advance_turn(player2)
+
+# Tinker Knight - life updated at hit timing, specials/ultras gain bonuses
+func test_galdred_metamorphosis_tinker_dieinstantly():
+	_setup_metamorphosis_test("tinker")
 
 	execute_strike(player1, player2, "galdred_metamorphosis", "standard_normal_focus", false, false,
 		[get_cards_from_gauge(player1, 2)])
 
 	assert_true(player2.exceeded)
+	validate_positions(player1, 4, player2, 5)
+	assert_true(game_logic.game_over)
+	assert_eq(game_logic.game_over_winning_player, player1)
+
+func test_galdred_metamorphosis_tinker_survive():
+	_setup_metamorphosis_test("tinker")
+	give_gauge(player2, 2)
+
+	execute_strike(player1, player2, "galdred_metamorphosis", "tinker_mobilegear", false, true,
+		[get_cards_from_gauge(player1, 2)])
+	# Metamorphosis sets tinker life to 8; does 7 - 1 damage, does not stun 6 guard
+	# gear does 3 + 2 + 1 back (in range for advancing through)
+	# resets positions afterwards
+
+	assert_true(player2.exceeded)
+	validate_life(player1, 24, player2, 2)
+	validate_positions(player1, 3, player2, 7)
+	assert_eq(player2.extra_width, 1)
+	advance_turn(player2)
+
+# Treasure Knight - pulls up to 3
+func test_galdred_metamorphosis_treasure():
+	_setup_metamorphosis_test("treasure")
+
+	execute_strike(player1, player2, "galdred_metamorphosis", "standard_normal_focus", false, false,
+		[get_cards_from_gauge(player1, 2)], [1]) # pull 2
+
+	assert_true(player2.exceeded)
+	validate_life(player1, 26, player2, 25)
+	validate_positions(player1, 7, player2, 5)
+	advance_turn(player2)
+
+# Vega - ua does not upgrade
+func test_galdred_metamorphosis_vega():
+	_setup_metamorphosis_test("vega")
+	advance_turn(player1)
+	position_players(player1, 4, player2, 1)
+
+	give_gauge(player2, 1)
+	var boost_card = give_player_specific_card(player2, "vega_scarletterror")
+	game_logic.do_boost(player2, boost_card, get_cards_from_hand(player2, 2))
+	game_logic.do_choice(player2, select_space(5))
+
+	execute_strike(player2, player1, "standard_normal_focus", "galdred_metamorphosis", false, false,
+		[[]], [get_cards_from_gauge(player1, 2)])
+	# vega gets +2 power
+
+	assert_true(player2.exceeded)
+	validate_life(player1, 24, player2, 25)
+	validate_positions(player1, 4, player2, 5)
+	advance_turn(player1)
+
+# Yuzuriha - gains cleanup effect
+func test_galdred_metamorphosis_yuzu():
+	_setup_metamorphosis_test("yuzu")
+
+	var strike_cards = execute_strike(player1, player2, "galdred_metamorphosis", "standard_normal_focus",
+		false, false, [get_cards_from_gauge(player1, 2)])
+
+	assert_true(player2.exceeded)
 	validate_life(player1, 26, player2, 25)
 	validate_positions(player1, 4, player2, 5)
-	assert_eq(len(player2.hand), initial_hand_size + 4)
+	assert_eq(len(player2.gauge), 0)
+	assert_true(player2.is_card_in_discards(strike_cards[1]))
+	advance_turn(player2)
+
+# Zangief - Pulls up to 2, keeps original critical effect
+func test_galdred_metamorphosis_zangief():
+	_setup_metamorphosis_test("zangief")
+	give_gauge(player2, 1)
+
+	execute_strike(player1, player2, "galdred_metamorphosis", "standard_normal_focus", false, false,
+		[get_cards_from_gauge(player1, 2)], [get_cards_from_gauge(player2, 1), 1]) # pulls 2
+
+	assert_true(player2.exceeded)
+	validate_life(player1, 25, player2, 25)
+	validate_positions(player1, 7, player2, 5)
+	advance_turn(player2)
+
+# Zato - upgrades normal after effect
+func test_galdred_metamorphosis_zato():
+	_setup_metamorphosis_test("zato")
+	position_players(player1, 4, player2, 3)
+
+	execute_strike(player1, player2, "galdred_metamorphosis", "gg_normal_focus", false, false,
+		[get_cards_from_gauge(player1, 2)], [0, 7])
+
+	assert_true(player2.exceeded)
+	validate_life(player1, 26, player2, 25)
+	validate_positions(player1, 4, player2, 3)
+	assert_eq(player2.get_buddy_location(), 7)
 	advance_turn(player2)

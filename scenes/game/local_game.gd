@@ -1042,6 +1042,7 @@ class Player:
 
 		var base_effects = deck_def['ability_effects']
 		var exceed_effects = deck_def['exceed_ability_effects']
+		var attack_effects = parent.active_strike.get_player_card(self).definition["effects"]
 
 		# need to revert certain default effects
 		for ability_effect in base_effects:
@@ -1071,6 +1072,12 @@ class Player:
 
 			if exceed_ability_effect['timing'] == "during_strike":
 				events += parent.do_effect_if_condition_met(self, -1, exceed_ability_effect, null)
+
+		# Check attack for exceed-conditioned during strike effects
+		for attack_effect in attack_effects:
+			if attack_effect['timing'] == "during_strike" and 'condition' in attack_effect and \
+					attack_effect['condition'] == "exceeded":
+				events += parent.do_effect_if_condition_met(self, -1, attack_effect, null)
 
 		return events
 
