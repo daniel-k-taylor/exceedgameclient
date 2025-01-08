@@ -10824,6 +10824,7 @@ func do_strike(performing_player : Player, card_id : int, wild_strike: bool, ex_
 		if face_attack_card:
 			card_id = face_attack_card.id
 			events += performing_player.add_to_hand(face_attack_card, false)
+			performing_player.next_strike_faceup = true
 		else:
 			printlog("ERROR: Could not find face attack to strike with.")
 			return false
