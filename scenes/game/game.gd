@@ -4409,7 +4409,6 @@ func _on_instructions_ok_button_pressed(index : int):
 			instructions_number_picker_min = -1
 			instructions_number_picker_max = -1
 			can_spend_life_for_force = false
-			# TODO: might need to save value somewhere here
 
 		if preparing_character_action:
 			finish_preparing_character_action(selected_card_ids)
