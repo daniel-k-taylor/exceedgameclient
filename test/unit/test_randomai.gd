@@ -225,7 +225,7 @@ func handle_decisions(game: LocalGame):
 				assert_true(game.do_boost_name_card_choice_effect(decision_player, decision_action.card_id), "do discard opponent gauge failed")
 			Enums.DecisionType.DecisionType_BoostNow:
 				var boostnow_action = decision_ai.take_boost(game.decision_info.valid_zones, game.decision_info.limitation, game.decision_info.ignore_costs, game.decision_info.amount)
-				assert_true(game.do_boost(decision_player, boostnow_action.card_id, boostnow_action.payment_card_ids, boostnow_action.use_free_force, boostnow_action.additional_boost_ids), "do boost now failed")
+				assert_true(game.do_boost(decision_player, boostnow_action.card_id, boostnow_action.payment_card_ids, boostnow_action.use_free_force, 0, boostnow_action.additional_boost_ids), "do boost now failed")
 			Enums.DecisionType.DecisionType_ChooseFromTopDeck:
 				var decision_info = game.decision_info
 				var action_choices = decision_info.action
@@ -660,3 +660,6 @@ func test_seijun_100():
 
 func test_carlswangee_100():
 	run_iterations_with_deck("carlswangee")
+
+func test_galdred_100():
+	run_iterations_with_deck("galdred")

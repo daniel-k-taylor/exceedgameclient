@@ -575,6 +575,8 @@ func get_boost_actions(valid_zones : Array, limitation : String, ignore_costs : 
 			if card.definition['type'] == "decree_glorious" and not game_player.exceeded:
 				continue
 			if card.definition['boost']['boost_type'] in ["transform", "overload"]:
+				if card.definition['boost']['boost_type'] == limitation: # if effect wants a transform
+					possible_actions.append(BoostAction.new(card.id, [], false, []))
 				continue
 			if limitation:
 				if card.definition['boost']['boost_type'] != limitation and card.definition['type'] != limitation:

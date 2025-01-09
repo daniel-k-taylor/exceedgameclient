@@ -977,4 +977,3 @@ func test_polar_snowslash_boost_gaugeblock_with_block_card():
 	assert_eq(player1.gauge.size(), 3)
 	assert_eq(player2.gauge.size(), 1)
 	advance_turn(player2)
-

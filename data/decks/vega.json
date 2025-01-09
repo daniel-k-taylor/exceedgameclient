@@ -34,12 +34,15 @@
 		{
 			"timing": "set_strike",
 			"condition": "used_character_bonus",
-			"character_effect": true,
-			"effect_type": "add_attack_effect",
-			"added_effect": {
-				"timing": "during_strike",
-				"effect_type": "powerup",
-				"amount": 2
+			"effect_type": "pass", "NOTE": "buffer added to handle metamorphosis",
+			"and": {
+				"character_effect": true,
+				"effect_type": "add_attack_effect",
+				"added_effect": {
+					"timing": "during_strike",
+					"effect_type": "powerup",
+					"amount": 2
+				}
 			}
 		}
 	],
@@ -78,15 +81,18 @@
 		{
 			"timing": "set_strike",
 			"condition": "used_character_bonus",
-			"character_effect": true,
-			"effect_type": "add_attack_effect",
-			"added_effect": {
-				"timing": "during_strike",
-				"effect_type": "powerup",
-				"amount": 3,
-				"and": {
-					"effect_type": "speedup",
-					"amount": 1
+			"effect_type": "pass", "NOTE": "buffer added to handle metamorphosis",
+			"and": {
+				"character_effect": true,
+				"effect_type": "add_attack_effect",
+				"added_effect": {
+					"timing": "during_strike",
+					"effect_type": "powerup",
+					"amount": 3,
+					"and": {
+						"effect_type": "speedup",
+						"amount": 1
+					}
 				}
 			}
 		}

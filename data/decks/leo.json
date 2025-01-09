@@ -10,22 +10,6 @@
 			"effect_type": "exceed_now"
 		}
 	],
-	"on_exceed": {
-		"condition": "not_used_character_bonus",
-		"effect_type": "pass",
-		"and": {
-			"condition": "was_wild_swing",
-			"effect_type": "powerup",
-			"amount": 1,
-			"and": {
-				"effect_type": "speedup",
-				"amount": 1,
-				"and": {
-					"effect_type": "set_used_character_bonus"
-				}
-			}
-		}
-	},
 	"exceed_ability_effects": [
 		{
 			"character_effect": true,

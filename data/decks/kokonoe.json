@@ -13,8 +13,14 @@
 		"effect_type": "take_bonus_actions",
 		"amount": 1,
 		"and": {
-			"effect_type": "place_buddy_in_any_space",
-			"buddy_name": "Gravitron"
+			"effect_type": "may_generate_gauge_with_force",
+			"and": {
+				"effect_type": "may_invalidate_ultras",
+				"and": {
+					"effect_type": "place_buddy_in_any_space",
+					"buddy_name": "Gravitron"
+				}
+			}
 		}
 	},
 	"overdrive_effect": {

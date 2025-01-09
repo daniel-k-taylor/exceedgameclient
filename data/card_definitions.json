@@ -8401,7 +8401,7 @@
 	{
 		"NOTE": "HAPPYCHAOS CARDS END",
 		"id": "happychaos_deusexmachina",
-		"type": "special",
+		"type": "faceattack",
 		"display_name": "Deus Ex Machina",
 		"force_cost": 0,
 		"gauge_cost": 0,
@@ -9904,6 +9904,348 @@
 			]
 		},
 		"NOTEEND": "HYDE CARDS END"
+	},
+
+	{
+		"NOTE": "GALDRED CARDS START",
+		"id": "galdred_hydrahelix",
+		"type": "ultra",
+		"display_name": "Hydra Helix",
+		"force_cost": 0,
+		"gauge_cost": 2,
+		"range_min": 1,
+		"range_max": 3,
+		"speed": 6,
+		"power": 2,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "hit",
+				"effect_type": "discard_hand",
+				"and": {
+					"effect_type": "opponent_discard_hand",
+					"and": {
+						"effect_type": "gain_advantage"
+					}
+				}
+			}
+		],
+		"boost": {
+			"boost_type": "immediate",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Obsessive Research",
+			"effects": [
+				{
+					"timing": "immediate",
+					"effect_type": "boost_additional",
+					"limitation": "transform",
+					"valid_zones": [ "hand" ]
+				},
+				{
+					"timing": "immediate",
+					"effect_type": "discard_hand"
+				}
+			]
+		}
+	},
+	{
+		"id": "galdred_metamorphosis",
+		"type": "ultra",
+		"display_name": "Metamorphosis",
+		"force_cost": 0,
+		"gauge_cost": 2,
+		"range_min": 1,
+		"range_max": 1,
+		"speed": 6,
+		"power": 7,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "during_strike",
+				"effect_type": "stun_immunity"
+			},
+			{
+				"timing": "hit",
+				"effect_type": "exceed_opponent_now"
+			}
+		],
+		"boost": {
+			"boost_type": "immediate",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Inhuman Speed",
+			"effects": [
+				{
+					"timing": "immediate",
+					"effect_type": "choice",
+					"choice": [
+						{ "effect_type": "advance", "amount": 2 },
+						{ "effect_type": "retreat", "amount": 2 }
+					]
+				},
+				{
+					"timing": "immediate",
+					"effect_type": "bonus_action"
+				}
+			]
+		}
+	},
+	{
+		"id": "galdred_bloodfrenzy",
+		"type": "special",
+		"display_name": "Blood Frenzy",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 3,
+		"speed": 5,
+		"power": 2,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "hit",
+				"effect_type": "choice",
+				"choice": [
+					{
+						"effect_type": "boost_then_sustain",
+						"valid_zones": [ "hand" ],
+						"limitation": "transform",
+						"sustain": false
+					},
+					{ "effect_type": "pass" }
+				]
+			}
+		],
+		"boost": {
+			"boost_type": "transform",
+			"force_cost": -1,
+			"cancel_cost": -1,
+			"display_name": "Secret Formula",
+			"effects": [
+				{
+					"timing": "now",
+					"effect_type": "enable_boost_from_gauge"
+				},
+				{
+					"timing": "on_any_boost",
+					"condition": "boosted_from_gauge",
+					"effect_type": "add_top_deck_to_gauge",
+					"override_description": "Can boost from gauge, then add top deck to gauge"
+				}
+			]
+		}
+	},
+	{
+		"id": "galdred_violenttransgression",
+		"type": "special",
+		"display_name": "Violent Transgression",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 2,
+		"range_max": 3,
+		"speed": 5,
+		"power": 4,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "during_strike",
+				"effect_type": "ignore_armor"
+			},
+			{
+				"timing": "hit",
+				"condition": "max_cards_in_hand",
+				"condition_amount": 1,
+				"effect_type": "gain_advantage"
+			}
+		],
+		"boost": {
+			"boost_type": "transform",
+			"force_cost": -1,
+			"cancel_cost": -1,
+			"display_name": "Faster Than The Eye",
+			"effects": [
+				{
+					"timing": "set_strike",
+					"effect_type": "force_for_effect",
+					"per_force_effect": null,
+					"overall_effect": {
+						"character_effect": true,
+						"effect_type": "speedup",
+						"amount": 1
+					},
+					"force_max": 1,
+					"override_description": "On set, spend 1F for +1 SPD"
+				}
+			]
+		}
+	},
+	{
+		"id": "galdred_explosivecocktail",
+		"type": "special",
+		"display_name": "Explosive Cocktail",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 3,
+		"range_max": 6,
+		"speed": 3,
+		"power": 6,
+		"armor": 0,
+		"guard": 5,
+		"effects": [
+			{
+				"timing": "hit",
+				"effect_type": "opponent_discard_random",
+				"amount": 1
+			},
+			{
+				"timing": "after",
+				"effect_type": "close",
+				"amount": 3
+			}
+		],
+		"boost": {
+			"boost_type": "transform",
+			"force_cost": -1,
+			"cancel_cost": -1,
+			"display_name": "Hidden Strength",
+			"effects": [
+				{
+					"timing": "immediate",
+					"effect_type": "can_spend_life_for_force",
+					"amount": 1,
+					"override_description": "Can spend 1 life for 1 Force"
+				}
+			]
+		}
+	},
+	{
+		"id": "galdred_witheringtoxin",
+		"type": "special",
+		"display_name": "Withering Toxin",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 2,
+		"speed": 3,
+		"power": 3,
+		"armor": 0,
+		"guard": 5,
+		"effects": [
+			{
+				"timing": "during_strike",
+				"effect_type": "ignore_armor",
+				"and": {
+					"effect_type": "ignore_guard"
+				}
+			}
+		],
+		"boost": {
+			"boost_type": "transform",
+			"force_cost": -1,
+			"cancel_cost": -1,
+			"display_name": "No Escape",
+			"effects": [
+				{
+					"timing": "action",
+					"text": "Name Card & Strike",
+					"effect_type": "zero_vector",
+					"and": {
+						"effect_type": "strike"
+					},
+					"override_description": "Can name card & strike; card invalid for both players"
+				}
+			]
+		}
+	},
+	{
+		"id": "galdred_eviscerate",
+		"type": "special",
+		"display_name": "Eviscerate",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 2,
+		"speed": 0,
+		"power": 5,
+		"armor": 2,
+		"guard": 5,
+		"effects": [
+			{
+				"timing": "during_strike",
+				"effect_type": "ignore_push_and_pull"
+			},
+			{
+				"timing": "hit",
+				"effect_type": "draw_or_discard_to",
+				"amount": 3,
+				"and": {
+					"effect_type": "opponent_draw_or_discard_to",
+					"amount": 3
+				}
+			}
+		],
+		"boost": {
+			"boost_type": "transform",
+			"force_cost": -1,
+			"cancel_cost": -1,
+			"display_name": "Instinctive Response",
+			"effects": [
+				{
+					"timing": "after_non_strike_action",
+					"condition": "max_cards_in_hand",
+					"condition_amount": 0,
+					"effect_type": "choice",
+					"choice": [
+						{ "effect_type": "strike" },
+						{ "effect_type": "pass" }
+					],
+					"override_description": "After action, if hand is empty, can Strike"
+				}
+			]
+		},
+	},
+	{
+		"NOTE": "GALDRED CARDS END",
+		"id": "galdred_thebeastwithin",
+		"type": "faceattack",
+		"display_name": "The Beast Within",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 2,
+		"speed": 6,
+		"power": 6,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "during_strike",
+				"effect_type": "passive_powerup_per_card_in_hand",
+				"amount": -1,
+				"and": {
+					"effect_type": "passive_speedup_per_card_in_hand",
+					"amount": -1
+				}
+			},
+			{
+				"timing": "hit",
+				"effect_type": "add_bottom_discard_to_gauge"
+			}
+		],
+		"boost": {
+			"boost_type": "immediate",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Nothing",
+			"effects": [
+			]
+		},
+		"NOTEEND": "GALDRED CARDS END"
 	},
 
 	{

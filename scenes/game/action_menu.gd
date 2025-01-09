@@ -5,6 +5,7 @@ signal choice_selected(choice_index : int)
 signal ultra_force_toggled(new_value : bool)
 signal discard_ex_first_toggled(new_value : bool)
 signal free_force_toggled(new_value : bool)
+signal number_picker_updated(new_value : int)
 
 @onready var instructions_label : RichTextLabel = $OuterMargin/MainVBox/PanelContainer/InstructionHBox/InstructionsLabel
 @onready var show_image : TextureRect = $OuterMargin/MainVBox/PanelContainer/ShowHideHBox/MarginContainer/MarginContainer/ShowImage
@@ -24,7 +25,8 @@ func set_choices(instructions_text : String,
 		number_picker_min : int,
 		number_picker_max : int,
 		ex_discard_order_toggle : bool,
-		free_force_toggle : bool):
+		free_force_toggle : bool,
+		no_number_picker_update : bool):
 	$OuterMargin/MainVBox/CheckHBox/UltrasForceOptionCheck.visible = ultra_force_toggle
 	$OuterMargin/MainVBox/CheckHBox2/ExDiscardOrderCheck.visible = ex_discard_order_toggle
 	$OuterMargin/MainVBox/CheckHBox3/FreeForceOptionCheck.visible = free_force_toggle
@@ -57,7 +59,8 @@ func set_choices(instructions_text : String,
 	reset_size()
 
 	if number_picker_min != -1 and number_picker_max != -1:
-		number_panel_current_number = 0
+		if not no_number_picker_update:
+			number_panel_current_number = 0
 		number_panel_min = number_picker_min
 		number_panel_max = number_picker_max
 		number_panel.visible = true
@@ -94,6 +97,7 @@ func _on_number_picker_update():
 	number_panel_current_number = max(number_panel_current_number, number_panel_min)
 	number_panel_current_number = min(number_panel_current_number, number_panel_max)
 	number_panel_label.text = str(number_panel_current_number)
+	number_picker_updated.emit(number_panel_current_number)
 
 func _on_minus_button_pressed():
 	number_panel_current_number -= 1

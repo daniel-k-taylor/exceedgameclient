@@ -7,15 +7,15 @@
 	"starting_life": 15,
 	"on_death": {
 		"condition": "not_exceeded",
-		"effect_type": "exceed_now",
-		"and": {
-			"effect_type": "set_used_character_bonus"
-		}
+		"effect_type": "exceed_now"
 	},
 	"on_exceed": {
 		"effect_type": "set_life_per_gauge",
 		"amount": 4,
-		"maximum": 20
+		"maximum": 20,
+		"and": {
+			"effect_type": "set_used_character_bonus"
+		}
 	},
 	"ability_effects": [
 	],
