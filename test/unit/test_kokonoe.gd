@@ -806,7 +806,7 @@ func test_kokonoe_extraattack_gainarmor():
 	assert_true(game_logic.do_boost(player1, TestCardId4))
 	assert_true(game_logic.do_choice(player1, 5))
 	assert_eq(player1.get_buddy_location(), 5)
-	
+
 	player2.discard_hand()
 	give_player_specific_card(player2, "standard_normal_spike", TestCardId6)
 	assert_true(game_logic.do_boost(player2, TestCardId6))
@@ -864,7 +864,7 @@ func test_kokonoe_extraattack_blockfirst_works():
 	assert_true(game_logic.do_choice(player1, 0)) # Choose block first.
 	validate_life(player1, 30, player2, 30)
 	validate_positions(player1, 4, player2, 8)
-	
+
 	# Now range 4, extra attack goes off.
 	# Player flame cage
 	give_player_specific_card(player1, "kokonoe_flamecage", TestCardId5)
@@ -872,7 +872,7 @@ func test_kokonoe_extraattack_blockfirst_works():
 	# After push/pull
 	assert_true(game_logic.do_choice(player1, 1)) # pull
 	validate_positions(player1, 4, player2, 7)
-	
+
 	# P2 took full damage
 	validate_life(player1, 30, player2, 25)
 	assert_eq(player1.gauge.size(), 2) # Block and flame cage should end up in gauge
@@ -902,7 +902,7 @@ func test_kokonoe_extraattack_blockfirst_works2():
 	assert_true(game_logic.do_choice(player1, 1)) # Extra attack first
 	validate_life(player1, 30, player2, 30)
 	validate_positions(player1, 4, player2, 8)
-	
+
 	# Now range 4, extra attack goes off.
 	# Player flame cage
 	give_player_specific_card(player1, "kokonoe_flamecage", TestCardId5)
@@ -910,7 +910,7 @@ func test_kokonoe_extraattack_blockfirst_works2():
 	# After push/pull
 	assert_true(game_logic.do_choice(player1, 1)) # pull
 	validate_positions(player1, 4, player2, 7)
-	
+
 	# P2 took full damage
 	validate_life(player1, 30, player2, 25)
 	assert_eq(player1.gauge.size(), 2) # Block and flame cage should end up in gauge
@@ -938,13 +938,13 @@ func test_kokonoe_extraattack_blocksecond_gauged():
 	assert_true(game_logic.do_strike(player2, TestCardId2, false, -1))
 	validate_life(player1, 30, player2, 30)
 	validate_positions(player1, 4, player2, 8)
-	
+
 	# Now range 4, extra attack goes off.
 	# Player block
 	give_player_specific_card(player1, "standard_normal_block", TestCardId5)
 	assert_true(game_logic.do_choose_to_discard(player1, [TestCardId5]))
 	validate_positions(player1, 4, player2, 8)
-	
+
 	validate_life(player1, 30, player2, 30)
 	assert_eq(player1.gauge.size(), 1) # First sweep missed, 2nd block should go to gauge.
 	assert_eq(player2.gauge.size(), 0)

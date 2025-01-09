@@ -611,7 +611,10 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 				sustain_str = ""
 			var limitation_str = "boost"
 			if 'limitation' in effect and effect['limitation']:
-				limitation_str = effect['limitation'] + " boost"
+				if effect['limitation'] == "transform":
+					limitation_str = "transformation"
+				else:
+					limitation_str = effect['limitation'] + " boost"
 			var ignore_costs_str = ""
 			if 'ignore_costs' in effect and effect['ignore_costs']:
 				ignore_costs_str = " (ignoring costs)"

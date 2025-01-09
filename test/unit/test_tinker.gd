@@ -389,4 +389,3 @@ func test_tinker_within_my_reach_exceed():
 	assert_true(game_logic.do_boost(player1, TestCardId3, []))
 
 	assert_true(player1.is_card_in_continuous_boosts(TestCardId3))
-

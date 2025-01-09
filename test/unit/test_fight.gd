@@ -228,7 +228,7 @@ func test_fight_exceed_free_discard_boost():
 
 	assert_true(game_logic.do_exceed(player1, [player1.gauge[0].id, player1.gauge[1].id, player1.gauge[2].id]))
 	assert_true(game_logic.do_choice(player1, 0))
-	assert_true(game_logic.do_boost(player1, TestCardId3, [], false, []))
+	assert_true(game_logic.do_boost(player1, TestCardId3, [], false, 0, []))
 
 	assert_true(player1.is_card_in_continuous_boosts(TestCardId3))
 	advance_turn(player2)
@@ -242,7 +242,7 @@ func test_fight_exceed_double_boost():
 
 	assert_true(game_logic.do_exceed(player1, [player1.gauge[0].id, player1.gauge[1].id, player1.gauge[2].id]))
 	assert_true(game_logic.do_choice(player1, 0))
-	assert_true(game_logic.do_boost(player1, TestCardId3, [], false, [TestCardId4]))
+	assert_true(game_logic.do_boost(player1, TestCardId3, [], false, 0, [TestCardId4]))
 
 	assert_true(player1.is_card_in_continuous_boosts(TestCardId3))
 	assert_true(player1.is_card_in_continuous_boosts(TestCardId4))

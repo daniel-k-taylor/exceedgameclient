@@ -32,6 +32,7 @@
 			"character_effect": true,
 			"timing": "set_strike",
 			"condition": "used_character_action",
+			"condition_details": ["exceed", 0],
 			"effect_type": "powerup",
 			"amount": 1
 		}

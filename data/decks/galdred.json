@@ -1,61 +1,38 @@
 {
-	"id": "akuma",
-	"season": 3,
-	"display_name": "Akuma",
-	"exceed_cost": 2,
+	"id": "galdred",
+	"season": 2,
+	"display_name": "Galdred",
+	"exceed_cost": 6,
+	"disable_end_of_turn_draw": true,
+	"exceed_cost_reduced_by": "transform_discount",
+	"exceed_animation": "galdred_exceed",
+	"on_exceed": {
+		"effect_type": "enable_end_of_turn_draw",
+		"and": {
+			"effect_type": "set_face_attack",
+			"card_id": "galdred_thebeastwithin",
+			"and": {
+				"effect_type": "strike"
+			}
+		}
+	},
 	"ability_effects": [
 		{
-			"timing": "set_strike",
-			"effect_type": "gauge_for_effect",
-			"per_gauge_effect": null,
-			"overall_effect": {
-				"effect_type": "critical",
-				"character_effect": true
-			},
-			"gauge_max": 1
-		},
-		{
-			"timing": "set_strike",
-			"condition": "is_critical",
-			"character_effect": true,
-			"effect_type": "add_attack_effect",
-			"added_effect": {
-				"timing": "during_strike",
-				"effect_type": "powerup_both_players",
-				"amount": 2
-			}
+			"timing": "end_of_turn",
+			"condition": "did_end_of_turn_draw",
+			"effect_type": "draw_or_discard_to",
+			"amount": 3
 		}
 	],
 	"exceed_ability_effects": [
-		{
-			"timing": "set_strike",
-			"effect_type": "gauge_for_effect",
-			"per_gauge_effect": null,
-			"overall_effect": {
-				"effect_type": "critical",
-				"character_effect": true
-			},
-			"gauge_max": 1
-		},
-		{
-			"timing": "set_strike",
-			"condition": "is_critical",
-			"character_effect": true,
-			"effect_type": "add_attack_effect",
-			"added_effect": {
-				"timing": "during_strike",
-				"effect_type": "powerup_both_players",
-				"amount": 3
-			}
-		}
 	],
 	"image_resources": {
 		"character_default": {
-			"url": "https://i.imgur.com/crrqVvH.jpeg",
+			"url": "https://i.imgur.com/5NF4GDg.jpeg",
 			"multiple_cards": false
 		},
 		"character_exceeded": {
-			"url": "https://i.imgur.com/rfrBEIx.jpeg",
+			"url": "https://i.imgur.com/Ft58Zdk.jpeg",
 			"multiple_cards": false
 		},
 		"cardback": {
@@ -63,84 +40,91 @@
 			"multiple_cards": false
 		},
 		"specials": {
-			"url": "https://i.imgur.com/TTbuUIL.jpeg",
+			"url": "https://i.imgur.com/djSzinK.jpeg",
 			"multiple_cards": true
 		},
 		"normals": {
-			"url": "https://i.imgur.com/tXuqP40.jpeg",
+			"url": "https://i.imgur.com/1pnJnEb.jpeg",
 			"multiple_cards": true
 		}
 	},
 	"cards": [
 		{
-			"definition_id": "akuma_demonarmageddon",
+			"set_aside": true,
+			"hide_from_reference": true,
+			"definition_id": "galdred_thebeastwithin",
+			"image_name": "character_exceeded",
+			"image_index": 0
+		},
+		{
+			"definition_id": "galdred_hydrahelix",
 			"image_name": "specials",
 			"image_index": 5
 		},
 		{
-			"definition_id": "akuma_demonarmageddon",
+			"definition_id": "galdred_hydrahelix",
 			"image_name": "specials",
 			"image_index": 5
 		},
 		{
-			"definition_id": "akuma_wrathoftheragingdemon",
+			"definition_id": "galdred_metamorphosis",
 			"image_name": "specials",
 			"image_index": 6
 		},
 		{
-			"definition_id": "akuma_wrathoftheragingdemon",
+			"definition_id": "galdred_metamorphosis",
 			"image_name": "specials",
 			"image_index": 6
 		},
 		{
-			"definition_id": "akuma_gohadoken",
-			"image_name": "specials",
-			"image_index": 2
-		},
-		{
-			"definition_id": "akuma_gohadoken",
-			"image_name": "specials",
-			"image_index": 2
-		},
-		{
-			"definition_id": "akuma_goshoryuken",
+			"definition_id": "galdred_bloodfrenzy",
 			"image_name": "specials",
 			"image_index": 0
 		},
 		{
-			"definition_id": "akuma_goshoryuken",
+			"definition_id": "galdred_bloodfrenzy",
 			"image_name": "specials",
 			"image_index": 0
 		},
 		{
-			"definition_id": "akuma_hyakkishu",
-			"image_name": "specials",
-			"image_index": 4
-		},
-		{
-			"definition_id": "akuma_hyakkishu",
-			"image_name": "specials",
-			"image_index": 4
-		},
-		{
-			"definition_id": "akuma_tatsumakizankukyaku",
-			"image_name": "specials",
-			"image_index": 3
-		},
-		{
-			"definition_id": "akuma_tatsumakizankukyaku",
-			"image_name": "specials",
-			"image_index": 3
-		},
-		{
-			"definition_id": "akuma_zugaihasatsu",
+			"definition_id": "galdred_violenttransgression",
 			"image_name": "specials",
 			"image_index": 1
 		},
 		{
-			"definition_id": "akuma_zugaihasatsu",
+			"definition_id": "galdred_violenttransgression",
 			"image_name": "specials",
 			"image_index": 1
+		},
+		{
+			"definition_id": "galdred_explosivecocktail",
+			"image_name": "specials",
+			"image_index": 2
+		},
+		{
+			"definition_id": "galdred_explosivecocktail",
+			"image_name": "specials",
+			"image_index": 2
+		},
+		{
+			"definition_id": "galdred_witheringtoxin",
+			"image_name": "specials",
+			"image_index": 3
+		},
+		{
+			"definition_id": "galdred_witheringtoxin",
+			"image_name": "specials",
+			"image_index": 3
+		},
+		{
+			"definition_id": "galdred_eviscerate",
+			"image_name": "specials",
+			"image_index": 4
+		},
+		{
+			"definition_id": "galdred_eviscerate",
+			"image_name": "specials",
+			"image_index": 4
 		},
 		{
 			"definition_id": "standard_normal_grasp",
