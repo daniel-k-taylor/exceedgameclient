@@ -4408,11 +4408,8 @@ func is_effect_condition_met(performing_player : Player, effect, local_condition
 			return decision_info.action == effect["condition_details"]
 		elif condition == "total_powerup_greater_or_equal":
 			var amount = effect["condition_amount"]
-			var strike_card = active_strike.get_player_card(performing_player)
-			var power = get_card_stat(performing_player, strike_card, 'power')
-			var total_power = get_total_power(performing_player)
-			var total_powerup = total_power - power
-			return total_powerup >= amount
+			var positive_boosted_power = performing_player.strike_stat_boosts.power_positive_only
+			return positive_boosted_power >= amount
 		elif condition == "opponent_total_guard_greater_or_equal":
 			var amount = effect["condition_amount"]
 			var total_guard = get_total_guard(other_player)
