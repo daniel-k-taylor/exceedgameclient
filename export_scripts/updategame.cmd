@@ -5,8 +5,8 @@ REM NOTES:
 REM Requires Butler, logging into itch io for butler, 7zip, and setting up the right directory paths.
 REM TODO: Make this more easily runnable straight from the project.
 
-set "DirectoryPath=E:\Projects\godot\cardgame\export"
-set "WindowsNativePath=E:\Projects\godot\cardgame\export_native\windows"
+set "DirectoryPath=..\export"
+set "WindowsNativePath=..\export_native\windows"
 
 REM Delete the existing game.zip if it exists
 if exist "%DirectoryPath%\game.zip" (
@@ -20,6 +20,7 @@ if exist "%WindowsNativePath%\exceedgg_windows.zip" (
 )
 
 REM Zip all the contents of the directory into game.zip
+move %WindowsNativePath%\index.exe %WindowsNativePath%\exceedgg.exe
 powershell -command "Compress-Archive -Path '%DirectoryPath%\*' -DestinationPath '%DirectoryPath%\game.zip'"
 
 if errorlevel 1 (
@@ -28,7 +29,7 @@ if errorlevel 1 (
 )
 
 REM Call butler.exe with the path to game.zip
-set "butlerCommand=butler.exe"
+set "butlerCommand=.\butler.exe"
 if not exist "%butlerCommand%" (
     echo butler.exe not found. Please make sure it is in the current directory or provide the full path.
     exit /b 1
