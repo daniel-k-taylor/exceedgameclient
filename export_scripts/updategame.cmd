@@ -5,8 +5,8 @@ REM NOTES:
 REM Requires Butler, logging into itch io for butler, 7zip, and setting up the right directory paths.
 REM TODO: Make this more easily runnable straight from the project.
 
-set "DirectoryPath=D:\Projects\godot\cardgame\export"
-set "WindowsNativePath=D:\Projects\godot\cardgame\export_native\windows"
+set "DirectoryPath=E:\Projects\godot\cardgame\export"
+set "WindowsNativePath=E:\Projects\godot\cardgame\export_native\windows"
 
 REM Delete the existing game.zip if it exists
 if exist "%DirectoryPath%\game.zip" (
@@ -37,7 +37,6 @@ if not exist "%butlerCommand%" (
 "%butlerCommand%" push "%DirectoryPath%\game.zip" daktagames/exceedgg:html5
 
 REM Now for the Native versions
-move %WindowsNativePath%\index.exe %WindowsNativePath%\exceedgg.exe
 powershell -command "Compress-Archive -Path '%WindowsNativePath%\exceedgg.exe' -DestinationPath '%WindowsNativePath%\exceedgg_windows.zip'"
 if errorlevel 1 (
     echo Error occurred while creating exceedgg_windows.zip.
