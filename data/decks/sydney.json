@@ -15,7 +15,7 @@
 		"Serena"
 	],
 	"buddy_starting_offset": 2,
-	"buddy_starting_id": "serena",
+	"buddy_starting_id": "serena_default",
 	"exceed_cost": 7,
 	"exceed_cost_reduced_by": [
 		{ "reduction_type": "transform_discount" },
@@ -124,32 +124,32 @@
 		{
 			"definition_id": "sydney_blossomhaze",
 			"image_name": "specials",
-			"image_index": 0
+			"image_index": 1
 		},
 		{
 			"definition_id": "sydney_blossomhaze",
 			"image_name": "specials",
+			"image_index": 1
+		},
+		{
+			"definition_id": "sydney_chokingthorns",
+			"image_name": "specials",
+			"image_index": 4
+		},
+		{
+			"definition_id": "sydney_chokingthorns",
+			"image_name": "specials",
+			"image_index": 4
+		},
+		{
+			"definition_id": "sydney_peashooter",
+			"image_name": "specials",
 			"image_index": 0
 		},
 		{
-			"definition_id": "sydney_chokingthorns",
-			"image_name": "specials",
-			"image_index": 1
-		},
-		{
-			"definition_id": "sydney_chokingthorns",
-			"image_name": "specials",
-			"image_index": 1
-		},
-		{
 			"definition_id": "sydney_peashooter",
 			"image_name": "specials",
-			"image_index": 2
-		},
-		{
-			"definition_id": "sydney_peashooter",
-			"image_name": "specials",
-			"image_index": 2
+			"image_index": 0
 		},
 		{
 			"definition_id": "sydney_sporeburst",
@@ -164,12 +164,12 @@
 		{
 			"definition_id": "sydney_venomlash",
 			"image_name": "specials",
-			"image_index": 4
+			"image_index": 2
 		},
 		{
 			"definition_id": "sydney_venomlash",
 			"image_name": "specials",
-			"image_index": 4
+			"image_index": 2
 		},
 		{
 			"definition_id": "standard_normal_grasp",

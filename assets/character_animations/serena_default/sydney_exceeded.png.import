@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://c85ctgd28epee"
-path="res://.godot/imported/serena_default.jpeg-334cdfa1592e98aa901ed1839e65bd32.ctex"
+uid="uid://cjmcrq2xgvde3"
+path="res://.godot/imported/sydney_exceeded.png-21069d416d292e0a4995ea345a85ec11.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/character_animations/serena_default/serena_default.jpeg"
-dest_files=["res://.godot/imported/serena_default.jpeg-334cdfa1592e98aa901ed1839e65bd32.ctex"]
+source_file="res://assets/character_animations/serena_default/sydney_exceeded.png"
+dest_files=["res://.godot/imported/sydney_exceeded.png-21069d416d292e0a4995ea345a85ec11.ctex"]
 
 [params]
 

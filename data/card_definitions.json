@@ -25418,12 +25418,12 @@
 			},
 			{
 				"timing": "during_strike",
-				"effect_type": "bonus_guard_equal_to_gauge"
+				"effect_type": "guardup_per_gauge"
 			},
 			{
 				"timing": "before",
 				"effect_type": "repeat_effect_optionally",
-				"amount": "gauge",
+				"amount": "GAUGE_COUNT",
 				"not_optional": true,
 				"linked_effect": {
 					"effect_type": "pull_from_source",
@@ -25501,8 +25501,8 @@
 							{ "effect_type": "pull", "amount": 1 },
 							{ "effect_type": "pass" }
 						]
-					}
-
+					},
+					"override_description": "Cleanup: If not stunned and spent Gauge, Push/Pull up to 1"
 				}
 			]
 		}
@@ -25515,8 +25515,8 @@
 		"gauge_cost": 0,
 		"range_min": 0,
 		"range_max": 1,
-		"speed": 6,
-		"power": 0,
+		"speed": 0,
+		"power": 6,
 		"armor": 2,
 		"guard": 0,
 		"effects": [
@@ -25558,8 +25558,8 @@
 		"gauge_cost": 0,
 		"range_min": 3,
 		"range_max": 5,
-		"speed": 1,
-		"power": 6,
+		"speed": 6,
+		"power": 1,
 		"armor": 0,
 		"guard": 0,
 		"effects": [
@@ -25697,6 +25697,7 @@
 				{
 					"timing": "hit",
 					"condition": "is_special_or_ultra_attack",
+					"effect_type": "choice",
 					"choice": [
 						{ "effect_type": "spend_life", "amount": 1, "and": {
 							"effect_type": "gauge_from_hand",

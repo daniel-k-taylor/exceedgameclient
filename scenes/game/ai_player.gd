@@ -1062,6 +1062,8 @@ func pick_choose_from_discard(choose_count : int) -> ChooseFromDiscardAction:
 		source_cards = game_player.sealed
 	elif source == "overdrive":
 		source_cards = game_player.overdrive
+	elif source == "gauge":
+		source_cards = game_player.gauge
 	for card in source_cards:
 		var can_choose = false
 		match limitation:

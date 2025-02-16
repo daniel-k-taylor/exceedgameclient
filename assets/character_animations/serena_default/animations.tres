@@ -1,16 +1,16 @@
 [gd_resource type="SpriteFrames" load_steps=2 format=3 uid="uid://btd1w7nlnstsr"]
 
-[ext_resource type="Texture2D" uid="uid://c85ctgd28epee" path="res://assets/character_animations/serena_default/serena_default.jpeg" id="1_oswu0"]
+[ext_resource type="Texture2D" uid="uid://cjmcrq2xgvde3" path="res://assets/character_animations/serena_default/sydney_exceeded.png" id="1_vfb2u"]
 
 [resource]
 animations = [{
 "frames": [{
 "duration": 1.0,
-"texture": ExtResource("1_oswu0")
+"texture": ExtResource("1_vfb2u")
 }],
 "loop": true,
 "name": &"idle",
 "speed": 5.0
 }]
 metadata/flip = true
-metadata/scaling = 0.3
+metadata/scaling = 1.5

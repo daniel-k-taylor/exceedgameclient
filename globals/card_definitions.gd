@@ -261,6 +261,8 @@ func get_condition_text(effect, amount, amount2, detail):
 			text += "If last turn was not a strike, "
 		"life_equals":
 			text += "If your life is exactly %s, " % amount
+		"life_equal_or_below":
+			text += "If your life is %s or less, " % amount
 		"not_canceled_this_turn":
 			text += "If not canceled this turn, "
 		"not_full_push":
@@ -414,6 +416,8 @@ func get_condition_text(effect, amount, amount2, detail):
 			text += "If attack is EX, "
 		"same_card_as_boost_in_hand":
 			text += ""
+		"spent_gauge_this_strike":
+			text += "If you spent gauge this strike, "
 		_:
 			text += "MISSING CONDITION"
 	return text
@@ -678,6 +682,8 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 					effect_str += "Choose a %s card from %s to move to %s" % [effect['limitation'], source, destination_str]
 				else:
 					effect_str += "Choose a card from %s to move to %s" % [source, destination]
+				if effect.get("opponent"):
+					effect_str = "Opponent must: " + effect_str
 		"choose_opponent_card_to_discard":
 			var opponent = effect['opponent'] if 'opponent' in effect else false
 			var use_discarded_card_ids = effect['use_discarded_card_ids'] if 'use_discarded_card_ids' in effect else false
@@ -800,8 +806,10 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 			var amount = effect['amount']
 			var amount_str = str(amount)
 			var bottom_str = ""
-			if amount is String and amount == "strike_x":
+			if amount_str == "strike_x":
 				amount_str = "X"
+			elif amount_str == "GAUGE_COUNT":
+				amount_str = "equal to your Gauge"
 			if 'from_bottom' in effect:
 				bottom_str = " from bottom of deck"
 			if 'opponent' in effect and effect['opponent']:
@@ -858,6 +866,8 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 			effect_str += "+" + str(effect['amount']) + " Guard per force spent this turn."
 		"guardup_per_two_cards_in_hand":
 			effect_str += "+1 Guard per 2 cards in hand"
+		"guardup_per_gauge":
+			effect_str += "+" + str(effect['amount']) + " Guard per card in gauge."
 		"ignore_armor":
 			if 'opponent' in effect and effect['opponent']:
 				effect_str += "Opponent ignores armor"
@@ -1075,6 +1085,10 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 				effect_str += "Push " + str(effect['amount']) + extra_info
 		"push_from_source":
 			effect_str += "Push " + str(effect['amount']) + " from attack source"
+		"pull_from_source":
+			effect_str += "Pull " + str(effect['amount']) + " towards attack source"
+			if effect.get("skip_if_on_source"):
+				effect_str += " (skip if on source)"
 		"push_or_pull_to_any_space":
 			effect_str += "Push or pull to any space."
 		"push_or_pull_to_space":
@@ -1152,6 +1166,8 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 			if repeats != '0':
 				if repeats == "every_two_sealed_normals":
 					repeats = "once for every 2 sealed normals"
+				elif repeats == "GAUGE_COUNT":
+					repeats = "once for each gauge"
 				else:
 					repeats += " time(s)"
 				effect_str += "; you may repeat this %s." % repeats
