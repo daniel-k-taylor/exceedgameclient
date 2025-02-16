@@ -632,3 +632,30 @@ func test_rachel_spikedrop_george():
 	validate_positions(player1, 7, player2, 5)
 	validate_life(player1, 25, player2, 25)
 	advance_turn(player2)
+
+func test_rachel_lightningrod_stuns_even_when_at_1():
+	position_players(player1, 2, player2, 5)
+	player1.discard_hand()
+	give_player_specific_card(player1, "rachel_spikedrop", TestCardId1)
+	assert_true(game_logic.do_boost(player1, TestCardId1))
+	var discard_id = player1.discards[2].id
+	assert_true(game_logic.do_choose_from_discard(player1, [discard_id]))
+	assert_true(game_logic.do_choice(player1, get_choice_index_for_position(5)))
+	advance_turn(player2)
+	give_player_specific_card(player1, "standard_normal_grasp", TestCardId4)
+	assert_true(game_logic.do_boost(player1, TestCardId4))
+	advance_turn(player2)
+	player2.life = 7
+	give_player_specific_card(player1, "standard_normal_assault", TestCardId2)
+	give_player_specific_card(player2, "standard_normal_sweep", TestCardId3)
+	assert_true(game_logic.do_strike(player1, TestCardId2, false, -1))
+	assert_true(game_logic.do_strike(player2, TestCardId3, false, -1))
+	# P1 hits for 6, bringing p2 to 1, has choice for lightning rod.
+	validate_positions(player1, 4, player2, 5)
+	validate_life(player1, 30, player2, 1)
+	assert_true(game_logic.do_choice(player1, 0))
+	# Use rod, still at 1 life but is stunned.
+	validate_life(player1, 30, player2, 1)
+	assert_eq(player1.hand[-1].id, discard_id)
+	advance_turn(player1)
+	
