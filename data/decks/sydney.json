@@ -1,46 +1,98 @@
 {
-	"id": "galdred",
+	"id": "sydney",
 	"season": 2,
-	"display_name": "Galdred",
-	"exceed_cost": 6,
-	"disable_end_of_turn_draw": true,
-	"exceed_cost_reduced_by": [{ "reduction_type": "transform_discount" }],
-	"exceed_animation": "galdred_exceed",
-	"on_exceed": {
-		"effect_type": "enable_end_of_turn_draw",
-		"and": {
-			"effect_type": "set_face_attack",
-			"card_id": "galdred_thebeastwithin",
+	"display_name": "Sydney & Serena",
+	"buddy_cards": [
+		"serena_default",
+		"serena_exceed"
+	],
+	"buddy_card_graphics_id": [
+		"serena_default",
+		"serena_exceed"
+	],
+	"buddy_display_names": [
+		"Serena",
+		"Serena"
+	],
+	"buddy_starting_offset": 2,
+	"buddy_starting_id": "serena",
+	"exceed_cost": 7,
+	"exceed_cost_reduced_by": [
+		{ "reduction_type": "transform_discount" },
+		{ "reduction_type": "in_arena_center", "amount": 3 }
+	],
+	"exceed_animation": "sydney_exceed",
+	"ability_effects": [
+	],
+	"character_action_default": [{
+		"gauge_cost": 0,
+		"force_cost": 0,
+		"shortcut_effect_type": "spend_life",
+		"effect": {
+			"effect_type": "spend_life",
+			"amount": 1,
 			"and": {
-				"effect_type": "strike"
+				"effect_type": "add_top_deck_to_gauge"
 			}
 		}
-	},
-	"ability_effects": [
-		{
-			"timing": "end_of_turn",
-			"condition": "did_end_of_turn_draw",
-			"effect_type": "draw_or_discard_to",
-			"amount": 3
+	}],
+	"character_action_exceeded": [],
+	"on_exceed": {
+		"effect_type": "remove_buddy",
+		"buddy_id": "serena_default",
+		"buddy_name": "Serena",
+		"and": {
+			"condition": "life_equal_or_below",
+			"condition_amount": 10,
+			"effect_type": "gain_life",
+			"amount": 5
 		}
-	],
+	},
 	"exceed_ability_effects": [
+		{
+			"timing": "set_strike",
+			"effect_type": "gauge_for_effect",
+			"per_gauge_effect": {
+				"effect_type": "add_attack_effect",
+				"added_effect": {
+					"timing": "during_strike",
+					"condition": "is_special_or_ultra_attack",
+					"effect_type": "powerup",
+					"amount": 1,
+					"and": {
+						"effect_type": "rangeup",
+						"amount": 1,
+						"amount2": 1
+					}
+				}
+			},
+			"overall_effect": null,
+			"gauge_max": 2
+		}
 	],
 	"image_resources": {
 		"character_default": {
-			"url": "https://i.imgur.com/5NF4GDg.jpeg",
+			"url": "https://i.imgur.com/CRhSSVT.jpeg",
 			"multiple_cards": false
 		},
 		"character_exceeded": {
-			"url": "https://i.imgur.com/Ft58Zdk.jpeg",
+			"url": "https://i.imgur.com/8G8bmN2.jpeg",
 			"multiple_cards": false
 		},
 		"cardback": {
 			"url": "https://i.imgur.com/s6wpKBq.jpeg",
 			"multiple_cards": false
 		},
+		"serena_default": {
+			"url": "https://i.imgur.com/9owz7Sk.jpeg",
+			"multiple_cards": false
+		},
+		"serena_exceed": {
+			"url": "https://i.imgur.com/hi9RUq0.jpeg",
+			"multiple_cards": false
+		},
 		"specials": {
-			"url": "https://i.imgur.com/djSzinK.jpeg",
+			"url": "https://i.imgur.com/o6dmp2Y.jpeg",
 			"multiple_cards": true
 		},
 		"normals": {
@@ -50,79 +102,72 @@
 	},
 	"cards": [
 		{
-			"set_aside": true,
-			"hide_from_reference": true,
-			"definition_id": "galdred_thebeastwithin",
-			"image_name": "character_exceeded",
-			"image_index": 0
-		},
-		{
-			"definition_id": "galdred_hydrahelix",
+			"definition_id": "sydney_alurauneskiss",
 			"image_name": "specials",
 			"image_index": 5
 		},
 		{
-			"definition_id": "galdred_hydrahelix",
+			"definition_id": "sydney_alurauneskiss",
 			"image_name": "specials",
 			"image_index": 5
 		},
 		{
-			"definition_id": "galdred_metamorphosis",
+			"definition_id": "sydney_verdantslaughter",
 			"image_name": "specials",
 			"image_index": 6
 		},
 		{
-			"definition_id": "galdred_metamorphosis",
+			"definition_id": "sydney_verdantslaughter",
 			"image_name": "specials",
 			"image_index": 6
 		},
 		{
-			"definition_id": "galdred_bloodfrenzy",
+			"definition_id": "sydney_blossomhaze",
 			"image_name": "specials",
 			"image_index": 0
 		},
 		{
-			"definition_id": "galdred_bloodfrenzy",
+			"definition_id": "sydney_blossomhaze",
 			"image_name": "specials",
 			"image_index": 0
 		},
 		{
-			"definition_id": "galdred_violenttransgression",
+			"definition_id": "sydney_chokingthorns",
 			"image_name": "specials",
 			"image_index": 1
 		},
 		{
-			"definition_id": "galdred_violenttransgression",
+			"definition_id": "sydney_chokingthorns",
 			"image_name": "specials",
 			"image_index": 1
 		},
 		{
-			"definition_id": "galdred_explosivecocktail",
+			"definition_id": "sydney_peashooter",
 			"image_name": "specials",
 			"image_index": 2
 		},
 		{
-			"definition_id": "galdred_explosivecocktail",
+			"definition_id": "sydney_peashooter",
 			"image_name": "specials",
 			"image_index": 2
 		},
 		{
-			"definition_id": "galdred_witheringtoxin",
+			"definition_id": "sydney_sporeburst",
 			"image_name": "specials",
 			"image_index": 3
 		},
 		{
-			"definition_id": "galdred_witheringtoxin",
+			"definition_id": "sydney_sporeburst",
 			"image_name": "specials",
 			"image_index": 3
 		},
 		{
-			"definition_id": "galdred_eviscerate",
+			"definition_id": "sydney_venomlash",
 			"image_name": "specials",
 			"image_index": 4
 		},
 		{
-			"definition_id": "galdred_eviscerate",
+			"definition_id": "sydney_venomlash",
 			"image_name": "specials",
 			"image_index": 4
 		},

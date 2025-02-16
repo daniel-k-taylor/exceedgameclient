@@ -979,10 +979,15 @@ class Player:
 	func get_exceed_cost():
 		var cost = exceed_cost
 		if 'exceed_cost_reduced_by' in deck_def:
-			if deck_def['exceed_cost_reduced_by'] == "overdrive_count":
-				cost -= len(overdrive)
-			elif deck_def['exceed_cost_reduced_by'] == "transform_discount":
-				cost -= 2 * len(transforms)
+			for reduction_effect in deck_def['exceed_cost_reduced_by']:
+				match reduction_effect["reduction_type"]:
+					"in_arena_center":
+						if arena_location == CenterArenaLocation:
+							cost -= reduction_effect["amount"]
+					"overdrive_count":
+						cost -= len(overdrive)
+					"transform_discount":
+						cost -= 2 * len(transforms)
 			cost = max(0, cost)
 		return cost
 

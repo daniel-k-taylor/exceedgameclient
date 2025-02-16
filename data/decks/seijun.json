@@ -5,7 +5,7 @@
 	"alt_hand_size": 9,
 	"bonus_starting_hand": 2,
 	"exceed_cost": 5,
-	"exceed_cost_reduced_by": "transform_discount",
+	"exceed_cost_reduced_by": [{ "reduction_type": "transform_discount" }],
 	"exceed_animation": "seijun_exceed",
 	"ability_effects": [
 		{

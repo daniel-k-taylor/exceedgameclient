@@ -1,5 +1,27 @@
+Sydney:
+    ☐ Make buddy and exceed not look bad
 
+    ☐ "effect_type": "choose_discard",
+					"opponent": true,
+					"source": "gauge",
+					"limitation": "",
+					"destination": "discard",
+					"amount": 1
+    ☐ "effect_type": "bonus_guard_equal_to_gauge"
+    ☐ "effect_type": "repeat_effect_optionally",
+        "amount": "gauge",
+        "not_optional": true,
+        "linked_effect": {
+            "effect_type": "pull_from_source",
+            "amount": 1
+            "skip_if_on_source": true
+        }
+    ☐ "effect_type": "draw",
+        "amount": "GAUGE_COUNT"
 
+    ☐ "condition": "spent_gauge_this_strike",
+
+    ☐ "condition": "life_equal_or_below",
 In progress:
 
 Bug:
