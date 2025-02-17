@@ -224,6 +224,10 @@ enum StrikeState {
 	StrikeState_Cleanup_Player1Effects,
 	StrikeState_Cleanup_Player1EffectsComplete,
 	StrikeState_Cleanup_Player2Effects,
+	StrikeState_EndOfStrike,
+	StrikeState_EndOfStrike_Player1Effects,
+	StrikeState_EndOfStrike_Player1EffectsComplete,
+	StrikeState_EndOfStrike_Player2Effects,
 	StrikeState_Cleanup_Complete
 }
 
@@ -9645,6 +9649,17 @@ func continue_resolve_strike(events):
 				active_strike.remaining_effect_list = get_all_effects_for_timing("cleanup", active_strike.defender, active_strike.defender_card)
 				strike_add_transform_option(active_strike.defender, active_strike.defender_card)
 			StrikeState.StrikeState_Cleanup_Player2Effects:
+				events += do_remaining_effects(active_strike.defender, StrikeState.StrikeState_EndOfStrike)
+			StrikeState.StrikeState_EndOfStrike:
+				_append_log_full(Enums.LogType.LogType_Strike, null, "Starting end of strike effects.")
+				active_strike.strike_state = StrikeState.StrikeState_EndOfStrike_Player1Effects
+				active_strike.remaining_effect_list = get_all_effects_for_timing("endofstrike", active_strike.initiator, active_strike.initiator_card)
+			StrikeState.StrikeState_EndOfStrike_Player1Effects:
+				events += do_remaining_effects(active_strike.initiator, StrikeState.StrikeState_EndOfStrike_Player1EffectsComplete)
+			StrikeState.StrikeState_EndOfStrike_Player1EffectsComplete:
+				active_strike.strike_state = StrikeState.StrikeState_EndOfStrike_Player2Effects
+				active_strike.remaining_effect_list = get_all_effects_for_timing("endofstrike", active_strike.defender, active_strike.defender_card)
+			StrikeState.StrikeState_EndOfStrike_Player2Effects:
 				events += do_remaining_effects(active_strike.defender, StrikeState.StrikeState_Cleanup_Complete)
 			StrikeState.StrikeState_Cleanup_Complete:
 				# Handle cleanup effects that cause attack cards to leave play before the standard timing

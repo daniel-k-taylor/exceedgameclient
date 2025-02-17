@@ -663,3 +663,6 @@ func test_carlswangee_100():
 
 func test_galdred_100():
 	run_iterations_with_deck("galdred")
+	
+func test_sydney_100():
+	run_iterations_with_deck("sydney")

@@ -11,6 +11,7 @@ const TestCardId4 = 50004
 const TestCardId5 = 50005
 const TestCardId6 = 50006
 const TestCardId7 = 50007
+const TestCardId8 = 50008
 
 var player1 : LocalGame.Player
 var player2 : LocalGame.Player
@@ -543,6 +544,10 @@ func test_platinum_exceed_ua_overdrive():
 	assert_eq(player1.continuous_boosts.size(), 1)
 	assert_eq(player1.continuous_boosts[0].id, TestCardId6)
 
+	# Prime topdeck
+	give_player_specific_card(player1, "standard_normal_cross", TestCardId8)
+	player1.move_card_from_hand_to_deck(TestCardId8, 0)
+
 	# Strike again.
 	player1.move_card_from_gauge_to_hand(TestCardId1)
 	give_player_specific_card(player2, "standard_normal_cross", TestCardId7)
@@ -550,15 +555,19 @@ func test_platinum_exceed_ua_overdrive():
 	assert_true(game_logic.do_strike(player2, TestCardId7, false, -1))
 	validate_positions(player1, 4, player2, 5)
 	validate_life(player1, 30, player2, 20)
-	# Cleanup choice, both pass, don't get to sustain.
-	assert_true(game_logic.do_choice(player1, 1))
+	# Cleanup choice, p1 will try but see cross, still gets to sustain.
+	assert_true(game_logic.do_choice(player1, 0))
+	# Cross is not played, but we still get to sustain.
+	assert_true(game_logic.do_choose_from_boosts(player1, [TestCardId6]))
+
+	# P2 passes
 	assert_true(game_logic.do_choice(player2, 1))
-	assert_eq(player1.continuous_boosts.size(), 0)
+	assert_eq(player1.continuous_boosts.size(), 1) # Still has sweep.
 
 	# Overdrive again.
 	assert_true(game_logic.do_choose_from_discard(player1, [TestCardId5]))
-	assert_eq(player1.continuous_boosts.size(), 1)
-	assert_eq(player1.continuous_boosts[0].id, TestCardId5)
+	assert_eq(player1.continuous_boosts.size(), 2)
+	assert_eq(player1.continuous_boosts[1].id, TestCardId5)
 	assert_false(player1.exceeded)
 	advance_turn(player1)
 
