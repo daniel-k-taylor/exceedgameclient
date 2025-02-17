@@ -1019,6 +1019,8 @@ func on_card_lowered(card):
 	if card.saved_hand_index != -1:
 		# Move card back to its saved position.
 		var parent = card.get_parent()
+		if card.saved_hand_index >= parent.get_child_count():
+			card.saved_hand_index = parent.get_child_count() - 1
 		parent.move_child(card, card.saved_hand_index)
 		card.saved_hand_index = -1
 
@@ -1211,6 +1213,8 @@ func can_select_card(card):
 			match source:
 				"discard":
 					in_correct_source = in_discard
+				"gauge":
+					in_correct_source = in_gauge
 				"sealed":
 					in_correct_source = in_sealed
 				"overdrive":
@@ -1756,6 +1760,8 @@ func _on_choose_from_discard(event):
 		# Show the correct popout window.
 		if source == "discard":
 			_on_player_discard_button_pressed()
+		elif source == "gauge":
+			_on_player_gauge_gauge_clicked()
 		elif source == "sealed":
 			_on_player_sealed_clicked()
 		elif source == "overdrive":
@@ -1773,7 +1779,10 @@ func _on_choose_from_discard(event):
 		var destination_str = destination
 		if destination == "deck_noshuffle":
 			destination_str = "top deck"
-		var instruction = "Select %s to move to %s." % [card_select_count_str, destination_str]
+		var special_from_str = ""
+		if source == "gauge":
+			special_from_str = " from Gauge"
+		var instruction = "Select %s to move to %s%s." % [card_select_count_str, destination_str, special_from_str]
 		if destination == "lightningrod_any_space":
 			instruction = "Select a card from your discard pile to place as a Lightning Rod."
 		var popout_type = CardPopoutType.CardPopoutType_DiscardPlayer
@@ -1781,6 +1790,8 @@ func _on_choose_from_discard(event):
 			popout_type = CardPopoutType.CardPopoutType_SealedPlayer
 		elif source == "overdrive":
 			popout_type = CardPopoutType.CardPopoutType_OverdrivePlayer
+		elif source == "gauge":
+			popout_type = CardPopoutType.CardPopoutType_GaugePlayer
 		var action = game_wrapper.get_decision_info().action
 		if action and action == "overdrive_action":
 			# Special text instruction fo rthe overdrive effect.

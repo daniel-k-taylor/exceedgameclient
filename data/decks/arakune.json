@@ -3,7 +3,7 @@
 	"season": 5,
 	"display_name": "Arakune",
 	"exceed_cost": 8,
-	"exceed_cost_reduced_by": "overdrive_count",
+	"exceed_cost_reduced_by": [{ "reduction_type": "overdrive_count" }],
 	"has_sealed_area": true,
 	"sealed_area_is_secret": true,
 	"exceed_to_overdrive": true,

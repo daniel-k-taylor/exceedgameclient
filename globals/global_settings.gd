@@ -5,7 +5,7 @@ signal settings_loaded
 const ReleaseLoggingEnabled = false # If true, log even on release builds.
 const UseAzureServerAlways = true # If true, always defaults to the azure server.
 var MuteEmotes = false
-const ClientVersionString : String = "250123.2000" # YYMMDD.HHMM
+const ClientVersionString : String = "250216.1530" # YYMMDD.HHMM
 
 const CharacterBanlist = ['carmine']
 # All times are in seconds

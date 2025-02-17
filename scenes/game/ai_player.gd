@@ -576,6 +576,8 @@ func get_boost_actions(valid_zones : Array, limitation : String, ignore_costs : 
 				continue
 			if card.definition['boost']['boost_type'] in ["transform", "overload"]:
 				if card.definition['boost']['boost_type'] == limitation: # if effect wants a transform
+					if limitation == "transform" and game_player.has_card_name_transformed(card):
+						continue
 					possible_actions.append(BoostAction.new(card.id, [], false, []))
 				continue
 			if limitation:
@@ -1062,6 +1064,8 @@ func pick_choose_from_discard(choose_count : int) -> ChooseFromDiscardAction:
 		source_cards = game_player.sealed
 	elif source == "overdrive":
 		source_cards = game_player.overdrive
+	elif source == "gauge":
+		source_cards = game_player.gauge
 	for card in source_cards:
 		var can_choose = false
 		match limitation:
