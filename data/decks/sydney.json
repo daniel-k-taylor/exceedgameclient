@@ -27,7 +27,6 @@
 	"character_action_default": [{
 		"gauge_cost": 0,
 		"force_cost": 0,
-		"shortcut_effect_type": "spend_life",
 		"effect": {
 			"effect_type": "spend_life",
 			"amount": 1,
