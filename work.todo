@@ -1,3 +1,28 @@
+Celinka:
+    ☐ Portrait
+    ☐ Char select
+    ☐ char animation
+    ☐ card urls
+    ☐ deck
+
+    ☐ "effect_type": "choose_discard",
+        "source": "sealed",
+        "limitation": "normal/special",
+    ☐ "effect_type": "speedup_unique_sealed_normals"
+    ☐ "effect_type": "armorup_per_continuous_boost",
+        "amount": 2,
+        "and": {
+    ☐ "effect_type": "seal_continuous_boosts"
+    ☐ "effect_type": "seal_attack",
+    ☐ "condition": "copy_of_of_opponent_attack_in_sealed",
+    ☐ "effect_type": "power_armor_up_if_sealed_copy_of_attack",
+
+    ☐ "destination": "boost_as_hidden_powerup_and_seal"
+    ☐ "effect_type": "seal_discard"
+    ☐ "effect_type": "seal_instead_of_discarding"
+    ☐ "effect_type": "powerup_per_sealed_amount",
+
+
 In progress:
 
 Bug:

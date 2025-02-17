@@ -3419,6 +3419,339 @@
 	},
 
 
+
+
+	{
+		"NOTE": "CELINKA CARDS START",
+		"id": "celinka_moonritualdance",
+		"type": "ultra",
+		"display_name": "Moon Ritual Dance",
+		"force_cost": 0,
+		"gauge_cost": 2,
+		"range_min": 1,
+		"range_max": 2,
+		"speed": 7,
+		"power": 2,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "hit",
+				"effect_type": "choose_discard",
+				"source": "sealed",
+				"limitation": "normal/special",
+				"destination": "hand",
+				"amount": 1,
+				"amount_min": 0
+			}
+		],
+		"boost": {
+			"boost_type": "immediate",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Preta Memory",
+			"effects": [
+				{
+					"timing": "immediate",
+					"condition": "min_cards_in_hand",
+					"condition_amount": 2,
+					"effect_type": "choice",
+					"choice": [
+						{
+							"effect_type": "seal_this",
+							"and": {
+								"effect_type": "self_discard_choose",
+								"amount": 2,
+								"limitation": "",
+								"destination": "sealed",
+								"discard_effect": {
+									"effect_type": "boost_additional",
+									"limitation": "transform",
+									"valid_zones": [ "hand" ]
+								}
+							}
+						},
+						{ "effect_type": "pass" }
+					]
+
+				}
+			]
+		}
+	},
+	{
+		"id": "celinka_purifyingroar",
+		"type": "ultra",
+		"display_name": "Purifying Roar",
+		"force_cost": 0,
+		"gauge_cost": 3,
+		"range_min": 2,
+		"range_max": 3,
+		"speed": 2,
+		"power": 3,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "during_strike",
+				"effect_type": "speedup_unique_sealed_normals"
+			}
+		],
+		"boost": {
+			"boost_type": "immediate",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Fortune's Roar",
+			"effects": [
+				{
+					"timing": "immediate",
+					"effect_type": "draw",
+					"amount": 4
+				}
+			]
+		}
+	},
+	{
+		"id": "celinka_dispellinghorn",
+		"type": "special",
+		"display_name": "Dispelling Horn",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 2,
+		"speed": 6,
+		"power": 3,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "after",
+				"effect_type": "armorup_per_continuous_boost",
+				"amount": 2,
+				"and": {
+					"effect_type": "seal_continuous_boosts"
+				}
+			}
+		],
+		"boost": {
+			"boost_type": "immediate",
+			"force_cost": 1,
+			"cancel_cost": -1,
+			"display_name": "Feral Leap",
+			"effects": [
+				{
+					"timing": "immediate",
+					"effect_type": "advance",
+					"amount": 3
+				},
+				{
+					"timing": "immediate",
+					"effect_type": "strike"
+				}
+			]
+		}
+	},
+	{
+		"id": "celinka_moonfall",
+		"type": "special",
+		"display_name": "Moon Fall",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 1,
+		"speed": 5,
+		"power": 3,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "before",
+				"effect_type": "advance",
+				"amount": 3
+			},
+			{
+				"timing": "hit",
+				"effect_type": "self_discard_choose",
+				"optional": true,
+				"amount": 1,
+				"limitation": "",
+				"destination": "sealed",
+				"discard_effect": {
+					"character_effect": true,
+					"effect_type": "sustain_all_boosts"
+				}
+			}
+		],
+		"boost": {
+			"boost_type": "transform",
+			"force_cost": -1,
+			"cancel_cost": -1,
+			"display_name": "Devour My Own Tail",
+			"effects": [
+				{
+					"timing": "endofstrike",
+					"condition": "hit_opponent",
+					"effect_type": "choice",
+					"choice": [
+						{
+							"effect_type": "seal_attack",
+							"and": {
+								"effect_type": "draw",
+								"amount": 2,
+								"and": {
+									"effect_type": "self_discard_choose",
+									"amount": 1
+								}
+							}
+						},
+						{ "effect_type": "pass" }
+					],
+					"override_description": "End of Strike: If you hit, you may seal attack to draw 2 and discard 1"
+				}
+			]
+		}
+	},
+	{
+		"id": "celinka_moonflare",
+		"type": "special",
+		"display_name": "Moon Flare",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 5,
+		"speed": 3,
+		"power": 4,
+		"armor": 0,
+		"guard": 3,
+		"effects": [
+			{
+				"timing": "hit",
+				"effect_type": "draw",
+				"amount": 1
+			},
+			{
+				"timing": "after",
+				"effect_type": "draw",
+				"amount": 1
+			}
+		],
+		"boost": {
+			"boost_type": "transform",
+			"force_cost": -1,
+			"cancel_cost": -1,
+			"display_name": "A Familiar Taste",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"condition": "copy_of_of_opponent_attack_in_sealed",
+					"effect_type": "guardup",
+					"amount": 3,
+					"override_description": "+3 Guard if a copy of opponent's attack is in your sealed area"
+				}
+			]
+		}
+	},
+	{
+		"id": "celinka_swiftexorcism",
+		"type": "special",
+		"display_name": "Swift Exorcism",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 1,
+		"speed": 7,
+		"power": 2,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "hit",
+				"effect_type": "push",
+				"amount": 2
+			},
+			{
+				"timing": "after",
+				"condition": "boost_in_play",
+				"effect_type": "gain_advantage",
+				"and": {
+					"effect_type": "choice",
+					"choice": [
+						{ "effect_type": "advance", "amount": 1 },
+						{ "effect_type": "retreat", "amount": 1 }
+					]
+				}
+			}
+		],
+		"boost": {
+			"boost_type": "transform",
+			"force_cost": -1,
+			"cancel_cost": -1,
+			"display_name": "Good to the Last Bite",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "power_armor_up_if_sealed_copy_of_attack",
+					"override_description": "If copy of attack is sealed, +1 Power/+1 Armor"
+				}
+			]
+		}
+	},
+	{
+		"NOTE": "CELINKA CARDS END",
+		"id": "wishingward",
+		"type": "special",
+		"display_name": "Wishing Ward",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 3,
+		"speed": 2,
+		"power": 5,
+		"armor": 0,
+		"guard": 6,
+		"effects": [
+			{
+				"timing": "hit",
+				"effect_type": "self_discard_choose",
+				"optional": true,
+				"amount": 3,
+				"limitation": "",
+				"destination": "sealed",
+				"discard_effect": {
+					"per_discard": true,
+					"effect_type": "powerup",
+					"amount": 1,
+					"and": {
+						"effect_type": "draw",
+						"amount": 1
+					}
+				}
+			}
+		],
+		"boost": {
+			"boost_type": "immediate",
+			"force_cost": 1,
+			"cancel_cost": -1,
+			"display_name": "Endless Hunger",
+			"effects": [
+				{
+					"timing": "immediate",
+					"effect_type": "seal_hand"
+				},
+				{
+					"timing": "immediate",
+					"effect_type": "draw",
+					"amount": 4
+				},
+				{
+					"timing": "immediate",
+					"effect_type": "strike"
+				}
+			]
+		},
+		"NOTEEND": "CELINKA CARDS END"
+	},
+
+
 	{
 		"NOTE": "CHUNLI CARDS START",
 		"id": "chunli_hosenka",
