@@ -25333,6 +25333,389 @@
 	},
 
 
+
+	{
+		"NOTE": "SYDNEY AND SERENA CARDS START",
+		"id": "sydney_alurauneskiss",
+		"type": "ultra",
+		"display_name": "Aluraune's Kiss",
+		"force_cost": 0,
+		"gauge_cost": 2,
+		"range_min": 0,
+		"range_max": 1,
+		"speed": 7,
+		"power": 4,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "during_strike",
+				"condition": "not_exceeded",
+				"effect_type": "calculate_range_from_buddy",
+				"buddy_id": "serena_default",
+				"buddy_name": "Serena"
+			},
+			{
+				"timing": "hit",
+				"effect_type": "add_top_discard_to_gauge",
+				"amount": 2,
+				"and": {
+					"effect_type": "choose_discard",
+					"opponent": true,
+					"source": "gauge",
+					"limitation": "",
+					"destination": "discard",
+					"amount": 1
+				}
+			}
+		],
+		"boost": {
+			"boost_type": "immediate",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Feed Me",
+			"effects": [
+				{
+					"timing": "immediate",
+					"effect_type": "choice",
+					"choice": [
+						{ "effect_type": "spend_life", "amount": 1, "and": { "effect_type": "gauge_from_hand",
+							"min_amount": 1,
+							"max_amount": 1
+						} },
+						{ "effect_type": "spend_life", "amount": 2, "and": { "effect_type": "gauge_from_hand",
+							"min_amount": 2,
+							"max_amount": 2
+						} },
+						{ "effect_type": "spend_life", "amount": 3, "and": { "effect_type": "gauge_from_hand",
+							"min_amount": 3,
+							"max_amount": 3
+						} }
+					]
+				}
+			]
+		}
+	},
+	{
+		"id": "sydney_verdantslaughter",
+		"type": "ultra",
+		"display_name": "Verdant Slaughter",
+		"force_cost": 0,
+		"gauge_cost": 2,
+		"range_min": 0,
+		"range_max": 1,
+		"speed": 1,
+		"power": 8,
+		"armor": 0,
+		"guard": 3,
+		"effects": [
+			{
+				"timing": "during_strike",
+				"condition": "not_exceeded",
+				"effect_type": "calculate_range_from_buddy",
+				"buddy_id": "serena_default",
+				"buddy_name": "Serena"
+			},
+			{
+				"timing": "during_strike",
+				"effect_type": "guardup_per_gauge"
+			},
+			{
+				"timing": "before",
+				"effect_type": "repeat_effect_optionally",
+				"amount": "GAUGE_COUNT",
+				"not_optional": true,
+				"linked_effect": {
+					"effect_type": "pull_from_source",
+					"amount": 1,
+					"skip_if_on_source": true
+				}
+			}
+		],
+		"boost": {
+			"boost_type": "immediate",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Saphrophyte",
+			"effects": [
+				{
+					"timing": "immediate",
+					"effect_type": "draw",
+					"amount": "GAUGE_COUNT"
+				},
+				{
+					"timing": "immediate",
+					"effect_type": "gauge_for_effect",
+					"per_gauge_effect": null,
+					"overall_effect": {
+						"effect_type": "boost_additional",
+						"limitation": "transform",
+						"valid_zones": [ "hand" ]
+					},
+					"gauge_max": 1
+				}
+			]
+		}
+	},
+	{
+		"id": "sydney_blossomhaze",
+		"type": "special",
+		"display_name": "Blossom Haze",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 3,
+		"speed": 5,
+		"power": 3,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "during_strike",
+				"condition": "not_exceeded",
+				"effect_type": "calculate_range_from_buddy",
+				"buddy_id": "serena_default",
+				"buddy_name": "Serena"
+			},
+			{
+				"timing": "after",
+				"effect_type": "armorup",
+				"amount": 3
+			}
+		],
+		"boost": {
+			"boost_type": "transform",
+			"force_cost": -1,
+			"cancel_cost": -1,
+			"display_name": "Enthralling Toxins",
+			"effects": [
+				{
+					"timing": "endofstrike",
+					"effect_type": "pass",
+					"condition": "not_stunned",
+					"and": {
+						"condition": "spent_gauge_this_strike",
+						"effect_type": "choice",
+						"choice": [
+							{ "effect_type": "push", "amount": 1 },
+							{ "effect_type": "pull", "amount": 1 },
+							{ "effect_type": "pass" }
+						]
+					},
+					"override_description": "End of Strike: If not stunned and spent Gauge, Push/Pull up to 1"
+				}
+			]
+		}
+	},
+	{
+		"id": "sydney_chokingthorns",
+		"type": "special",
+		"display_name": "Choking Thorns",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 0,
+		"range_max": 1,
+		"speed": 0,
+		"power": 6,
+		"armor": 2,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "during_strike",
+				"condition": "not_exceeded",
+				"effect_type": "calculate_range_from_buddy",
+				"buddy_id": "serena_default",
+				"buddy_name": "Serena"
+			},
+			{
+				"timing": "during_strike",
+				"effect_type": "stun_immunity"
+			},
+			{
+				"timing": "after",
+				"effect_type": "add_top_discard_to_gauge"
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 1,
+			"cancel_cost": -1,
+			"display_name": "Barkskin",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "armorup",
+					"amount": 4
+				}
+			]
+		}
+	},
+	{
+		"id": "sydney_peashooter",
+		"type": "special",
+		"display_name": "Pea Shooter",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 3,
+		"range_max": 5,
+		"speed": 6,
+		"power": 1,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "during_strike",
+				"condition": "not_exceeded",
+				"effect_type": "calculate_range_from_buddy",
+				"buddy_id": "serena_default",
+				"buddy_name": "Serena"
+			},
+			{
+				"timing": "after",
+				"condition": "opponent_stunned",
+				"effect_type": "choice",
+				"choice": [
+					{ "effect_type": "pull_from_source", "amount": 1 },
+					{ "effect_type": "pull_from_source", "amount": 2 },
+					{ "effect_type": "pull_from_source", "amount": 3 },
+					{ "effect_type": "pass" }
+				]
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 1,
+			"cancel_cost": -1,
+			"display_name": "Vine Snare",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "block_opponent_move"
+				},
+				{
+					"timing": "now",
+					"effect_type": "block_opponent_move"
+				},
+				{
+					"timing": "discarded",
+					"effect_type": "remove_block_opponent_move"
+				}
+			]
+		}
+	},
+	{
+		"id": "sydney_sporeburst",
+		"type": "special",
+		"display_name": "Spore Burst",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 0,
+		"range_max": 2,
+		"speed": 2,
+		"power": 5,
+		"armor": 0,
+		"guard": 6,
+		"effects": [
+			{
+				"timing": "during_strike",
+				"condition": "not_exceeded",
+				"effect_type": "calculate_range_from_buddy",
+				"buddy_id": "serena_default",
+				"buddy_name": "Serena"
+			},
+			{
+				"timing": "hit",
+				"effect_type": "push",
+				"amount": 3,
+				"bonus_effect": {
+					"condition": "not_full_push",
+					"effect_type": "add_top_discard_to_gauge",
+					"amount": 1
+				}
+			}
+		],
+		"boost": {
+			"boost_type": "transform",
+			"force_cost": -1,
+			"cancel_cost": -1,
+			"display_name": "Reinforcement",
+			"effects": [
+				{
+					"timing": "set_strike",
+					"effect_type": "gauge_for_effect",
+					"per_gauge_effect": {
+						"effect_type": "add_attack_effect",
+						"added_effect": {
+							"timing": "during_strike",
+							"condition": "is_special_or_ultra_attack",
+							"effect_type": "armorup",
+							"amount": 1
+						}
+					},
+					"overall_effect": null,
+					"gauge_max": 2,
+					"override_description": "When setting Special/Ultra: Spend up to 2 gauge for +1 Armor each"
+				}
+			]
+		}
+	},
+	{
+		"NOTE": "SYDNEY AND SERENA CARDS END",
+
+		"id": "sydney_venomlash",
+		"type": "special",
+		"display_name": "Venom Lash",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 2,
+		"range_max": 4,
+		"speed": 4,
+		"power": 3,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "during_strike",
+				"condition": "not_exceeded",
+				"effect_type": "calculate_range_from_buddy",
+				"buddy_id": "serena_default",
+				"buddy_name": "Serena"
+			},
+			{
+				"timing": "hit",
+				"effect_type": "choice",
+				"choice": [
+					{ "effect_type": "push", "amount": 1, "and": { "effect_type": "add_top_discard_to_gauge", "amount": 1 } },
+					{ "effect_type": "pull", "amount": 1, "and": { "effect_type": "add_top_discard_to_gauge", "amount": 1 } }
+				]
+			}
+		],
+		"boost": {
+			"boost_type": "transform",
+			"force_cost": -1,
+			"cancel_cost": -1,
+			"display_name": "Metabolism",
+			"effects": [
+				{
+					"timing": "hit",
+					"condition": "is_special_or_ultra_attack",
+					"effect_type": "choice",
+					"choice": [
+						{ "effect_type": "spend_life", "amount": 1, "and": {
+							"effect_type": "gauge_from_hand",
+							"min_amount": 1,
+							"max_amount": 1
+						}},
+						{ "effect_type": "pass" }
+					],
+					"override_description": "Special/Ultra Hit: Spend 1 Life, add 1 from Hand to Gauge"
+				}
+			]
+		},
+		"NOTEEND": "SYDNEY AND SERENA CARDS END"
+	},
+
+
 	{
 		"NOTE": "TAGER CARDS START",
 		"id": "tager_kingoftager",

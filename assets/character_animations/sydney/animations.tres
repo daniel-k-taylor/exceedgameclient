@@ -1,0 +1,16 @@
+[gd_resource type="SpriteFrames" load_steps=2 format=3 uid="uid://cmwl74acls13t"]
+
+[ext_resource type="Texture2D" uid="uid://dypjcgxalprfr" path="res://assets/character_animations/sydney/sydney_default.jpeg" id="1_0wr1k"]
+
+[resource]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("1_0wr1k")
+}],
+"loop": true,
+"name": &"idle",
+"speed": 5.0
+}]
+metadata/flip = true
+metadata/scaling = 0.3

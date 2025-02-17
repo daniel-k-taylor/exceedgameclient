@@ -259,6 +259,9 @@ func process_remaining_decisions(initiator, defender, init_choices, def_choices)
 				Enums.DecisionType.DecisionType_ChooseToDiscard:
 					assert_true(game_logic.do_choose_to_discard(player, choice),
 							"%s failed to discard cards %s" % [player, choice])
+				Enums.DecisionType.DecisionType_ChooseFromDiscard:
+					assert_true(game_logic.do_choose_from_discard(player, [choice]),
+							"%s failed to discard cards %s" % [player, choice])
 				Enums.DecisionType.DecisionType_ForceForEffect:
 					# In cases where optional booleans are provided at the end
 					# of `choice`, interpret them as optional boolean arguments
