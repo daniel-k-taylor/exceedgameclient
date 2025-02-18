@@ -3493,7 +3493,8 @@
 		"effects": [
 			{
 				"timing": "during_strike",
-				"effect_type": "speedup_unique_sealed_normals"
+				"effect_type": "speedup_per_unique_sealed_normals",
+				"amount": 1
 			}
 		],
 		"boost": {
@@ -3593,7 +3594,7 @@
 					"effect_type": "choice",
 					"choice": [
 						{
-							"effect_type": "seal_attack",
+							"effect_type": "seal_attack_on_cleanup",
 							"and": {
 								"effect_type": "draw",
 								"amount": 2,
@@ -3642,8 +3643,7 @@
 			"effects": [
 				{
 					"timing": "during_strike",
-					"condition": "copy_of_of_opponent_attack_in_sealed",
-					"effect_type": "guardup",
+					"effect_type": "guardup_if_copy_of_opponent_attack_in_sealed",
 					"amount": 3,
 					"override_description": "+3 Guard if a copy of opponent's attack is in your sealed area"
 				}

@@ -1075,6 +1075,8 @@ func pick_choose_from_discard(choose_count : int) -> ChooseFromDiscardAction:
 				can_choose = card.definition['type'] == "special"
 			"ultra":
 				can_choose = card.definition['type'] == "ultra"
+			"normal/special":
+				can_choose = card.definition['type'] in ["normal", "special"]
 			"special/ultra":
 				can_choose = card.definition['type'] in ["special", "ultra"]
 			"continuous":

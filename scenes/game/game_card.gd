@@ -11,7 +11,7 @@ var image_index = 0
 
 func _init(card_id, card_def, owning_player_id, card_image_atlas = {}, card_image_index = 0):
 	id = card_id
-	definition = card_def
+	definition = card_def.duplicate(true)
 	owner_id = owning_player_id
 	set_aside = false
 	hide_from_reference = false

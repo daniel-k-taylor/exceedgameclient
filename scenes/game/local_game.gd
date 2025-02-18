@@ -137,8 +137,12 @@ func _card_list_to_string(cards):
 
 func _get_boost_and_card_name(card):
 	var card_name = card.definition['display_name']
+	var facedown = card.definition['boost'].get("facedown")
 	var boost_name = card.definition['boost']['display_name']
-	return _log_card_name("%s (%s)" % [boost_name, card_name])
+	if facedown:
+		return _log_card_name("a facedown card")
+	else:
+		return _log_card_name("%s (%s)" % [boost_name, card_name])
 
 func teardown():
 	card_db.teardown()
@@ -544,15 +548,20 @@ class StrikeStatBoosts:
 	var seal_attack_on_cleanup : bool = false
 	var power_bonus_multiplier : int = 1
 	var power_bonus_multiplier_positive_only : int = 1
+	var powerup_per_sealed_amount_divisor : int = 0
+	var powerup_per_sealed_amount_max : int = 0
 	var speed_bonus_multiplier : int = 1
 	var speedup_by_spaces_modifier : int = 0
 	var speedup_per_boost_modifier : int = 0
 	var speedup_per_boost_modifier_all_boosts : bool = false
+	var speedup_per_unique_sealed_normals_modifier : int = 0
 	var rangeup_min_per_boost_modifier : int = 0
 	var rangeup_max_per_boost_modifier : int = 0
 	var rangeup_per_boost_modifier_all_boosts : bool = false
+	var guardup_if_copy_of_opponent_attack_in_sealed_modifier : int = 0
 	var guardup_per_two_cards_in_hand : bool = false
 	var guardup_per_gauge : bool = false
+	var power_armor_up_if_sealed_copy_of_attack : bool = false
 	var passive_powerup_per_card_in_hand : int = 0
 	var passive_speedup_per_card_in_hand : int = 0
 	var active_character_effects = []
@@ -650,15 +659,20 @@ class StrikeStatBoosts:
 		seal_attack_on_cleanup = false
 		power_bonus_multiplier = 1
 		power_bonus_multiplier_positive_only = 1
+		powerup_per_sealed_amount_divisor = 0
+		powerup_per_sealed_amount_max = 0
 		speed_bonus_multiplier = 1
 		speedup_by_spaces_modifier = 0
 		speedup_per_boost_modifier = 0
 		speedup_per_boost_modifier_all_boosts = false
+		speedup_per_unique_sealed_normals_modifier = 0
 		rangeup_min_per_boost_modifier = 0
 		rangeup_max_per_boost_modifier = 0
 		rangeup_per_boost_modifier_all_boosts = false
+		guardup_if_copy_of_opponent_attack_in_sealed_modifier = 0
 		guardup_per_two_cards_in_hand = false
 		guardup_per_gauge = false
+		power_armor_up_if_sealed_copy_of_attack = false
 		passive_powerup_per_card_in_hand = 0
 		passive_speedup_per_card_in_hand = 0
 		active_character_effects = []
@@ -811,6 +825,7 @@ class Player:
 	var spend_life_for_force_amount : int
 	var can_boost_from_gauge : bool
 	var checked_post_action_effects : bool
+	var seal_instead_of_discarding : bool
 
 	func _init(id, player_name, parent_ref, card_db_ref, chosen_deck, card_start_id):
 		my_id = id
@@ -928,6 +943,7 @@ class Player:
 		face_attack_id = ""
 		spend_life_for_force_amount = -1
 		can_boost_from_gauge = false
+		seal_instead_of_discarding = false
 
 		if "buddy_cards" in deck_def:
 			var buddy_index = 0
@@ -1616,9 +1632,14 @@ class Player:
 				return card.id
 		return -1
 
-	func get_count_of_type_from_zone(limitation : String, zone):
+	func get_count_of_type_from_zone(limitation : String, zone, unique_only : bool = false):
 		var count = 0
+		var seen_card_names = []
 		for card in zone:
+			if unique_only:
+				if card.definition['id'] in seen_card_names:
+					continue
+				seen_card_names.append(card.definition['id'])
 			match limitation:
 				"normal":
 					if card.definition['type'] == "normal":
@@ -1628,6 +1649,9 @@ class Player:
 						count += 1
 				"ultra":
 					if card.definition['type'] == "ultra":
+						count += 1
+				"normal/special":
+					if card.definition['type'] == "normal" or card.definition['type'] == "special":
 						count += 1
 				"special/ultra":
 					if card.definition['type'] == "special" or card.definition['type'] == "ultra":
@@ -1645,8 +1669,8 @@ class Player:
 	func get_gauge_count_of_type(limitation : String):
 		return get_count_of_type_from_zone(limitation, gauge)
 
-	func get_sealed_count_of_type(limitation : String):
-		return get_count_of_type_from_zone(limitation, sealed)
+	func get_sealed_count_of_type(limitation : String, unique_only : bool = false):
+		return get_count_of_type_from_zone(limitation, sealed, unique_only)
 
 	func get_cards_in_hand_of_type(limitation : String):
 		var cards = []
@@ -1660,6 +1684,9 @@ class Player:
 						cards.append(card)
 				"ultra":
 					if card.definition['type'] == "ultra":
+						cards.append(card)
+				"normal/special":
+					if card.definition['type'] == "normal" or card.definition['type'] == "special":
 						cards.append(card)
 				"special/ultra":
 					if card.definition['type'] == "special" or card.definition['type'] == "ultra":
@@ -1983,6 +2010,21 @@ class Player:
 			events += remove_buddy(buddy_id)
 		return events
 
+	func play_replacement_boosts(card_ids : Array, replacement_boost):
+		# Set active_overdrive to prevent the turn from ending after the boost.
+		parent.active_overdrive = true
+		for card_id in card_ids:
+			var card : GameCard = parent.card_db.get_card(card_id)
+			if replacement_boost:
+				card.definition["replaced_boost"] = card.definition["boost"]
+				card.definition["boost"] = replacement_boost
+
+			# Prep gamestate so we can boost.
+			parent.change_game_state(Enums.GameState.GameState_PlayerDecision)
+			parent.decision_info.type = Enums.DecisionType.DecisionType_BoostNow
+			parent.do_boost(self, card.id, [])
+		parent.active_overdrive = false
+
 	func get_force_with_cards(card_ids : Array, reason : String, treat_ultras_as_single_force : bool, use_free_force : bool):
 		var force_generated = force_cost_reduction
 		if use_free_force:
@@ -2084,6 +2126,12 @@ class Player:
 	func has_card_name_transformed(card : GameCard):
 		for transformed_card in transforms:
 			if transformed_card.definition['display_name'] == card.definition['display_name']:
+				return true
+		return false
+
+	func has_card_name_sealed(card : GameCard):
+		for sealed_card in sealed:
+			if sealed_card.definition['display_name'] == card.definition['display_name']:
 				return true
 		return false
 
@@ -2402,6 +2450,21 @@ class Player:
 				break
 		return events
 
+	func seal_discard():
+		var events = []
+		var card_ids = []
+		for card in discards:
+			card_ids.append(card.id)
+		var card_names = parent.card_db.get_card_names(card_ids)
+		if card_names:
+			if sealed_area_is_secret:
+				parent._append_log_full(Enums.LogType.LogType_CardInfo, self, "seals their discards face-down.")
+			else:
+				parent._append_log_full(Enums.LogType.LogType_CardInfo, self, "seals their discards, containing %s." % parent._log_card_name(card_names))
+		for card_id in card_ids:
+			events += parent.do_seal_effect(self, card_id, "discard")
+		return events
+
 	func seal_hand():
 		var events = []
 		var card_ids = []
@@ -2632,7 +2695,12 @@ class Player:
 			else:
 				# Insert it from_top from the end.
 				discards.insert(len(discards) - from_top, card)
-			return [parent.create_event(Enums.EventType.EventType_AddToDiscard, my_id, card.id, "", from_top)]
+
+			var events = []
+			events.append(parent.create_event(Enums.EventType.EventType_AddToDiscard, my_id, card.id, "", from_top))
+			if seal_instead_of_discarding:
+				events += seal_from_location(card.id, "discard")
+			return events
 		else:
 			# Card belongs to the other player, so discard it there.
 			return parent._get_player(parent.get_other_player(my_id)).add_to_discards(card, from_top)
@@ -2980,7 +3048,8 @@ class Player:
 			if boost_card.id == card.id:
 				assert(false, "Should not have boost already here.")
 		continuous_boosts.append(card)
-		events += [parent.create_event(Enums.EventType.EventType_Boost_Continuous_Added, my_id, card.id)]
+		var facedown = card.definition["boost"].get("facedown")
+		events += [parent.create_event(Enums.EventType.EventType_Boost_Continuous_Added, my_id, card.id, "", facedown)]
 		return events
 
 	func add_to_transforms(card : GameCard):
@@ -3152,9 +3221,13 @@ class Player:
 
 	func remove_from_continuous_boosts(card : GameCard, destination : String = "discard"):
 		var events = []
+
 		disable_boost_effects(card)
 
-		# Do any discarded effects
+		var discards_to_sealed = card.definition["boost"].get("discards_to_sealed")
+		if discards_to_sealed:
+			destination = "sealed"
+
 		events += do_discarded_effects_for_boost(card)
 
 		# Update internal boost arrays
@@ -3255,6 +3328,10 @@ class Player:
 				var owner_player = parent._get_player(card.owner_id)
 				events += parent.do_effect_if_condition_met(owner_player, card.id, effect, null)
 
+		if card.definition.get("replaced_boost"):
+			card.definition["boost"] = card.definition["replaced_boost"]
+			card.definition.erase("replaced_boost")
+
 		# Remove it from boost locations if it is in the arena.
 		events += remove_boost_in_location(card.id)
 
@@ -3275,7 +3352,11 @@ class Player:
 					sustained = true
 					sustained_cards.append(boost_card)
 				else:
-					events += add_to_discards(boost_card)
+					var discards_to_sealed = boost_card.definition["boost"].get("discards_to_sealed")
+					if discards_to_sealed:
+						events += add_to_sealed(boost_card)
+					else:
+						events += add_to_discards(boost_card)
 					parent._append_log_full(Enums.LogType.LogType_CardInfo, self, "discards their continuous boost %s from play." % boost_name)
 			for boost_array in [boosts_to_gauge_on_move, on_buddy_boosts]:
 				var card_idx = boost_array.find(boost_card.id)
@@ -3977,6 +4058,9 @@ func get_total_speed(check_player, ignore_swap : bool = false):
 	if check_player.strike_stat_boosts.passive_speedup_per_card_in_hand != 0:
 		var hand_size = len(check_player.hand)
 		bonus_speed += hand_size * check_player.strike_stat_boosts.passive_speedup_per_card_in_hand
+	if check_player.strike_stat_boosts.speedup_per_unique_sealed_normals_modifier != 0:
+		var unique_normals = check_player.get_sealed_count_of_type("normal", true)
+		bonus_speed += unique_normals * check_player.strike_stat_boosts.speedup_per_unique_sealed_normals_modifier
 	var speed = get_card_stat(check_player, check_card, 'speed') + bonus_speed
 	if active_strike and active_strike.extra_attack_in_progress:
 		# If an extra attack character has ways to get speed multipliers, deal with that then.
@@ -4728,6 +4812,10 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 			var amount = performing_player.total_force_spent_this_turn * effect['amount']
 			opposing_player.strike_stat_boosts.armor += amount
 			events += [create_event(Enums.EventType.EventType_Strike_ArmorUp, opposing_player.my_id, amount)]
+		"armorup_per_continuous_boost":
+			var amount = effect["amount"] * performing_player.continuous_boosts.size()
+			performing_player.strike_stat_boosts.armor += amount
+			events += [create_event(Enums.EventType.EventType_Strike_ArmorUp, performing_player.my_id, amount)]
 		"attack_does_not_hit":
 			var affected_player = performing_player
 			if 'opponent' in effect and effect['opponent']:
@@ -5740,6 +5828,13 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 			events += [create_event(Enums.EventType.EventType_Strike_GuardUp, performing_player.my_id, guard_boost)]
 		"guardup_per_gauge":
 			performing_player.strike_stat_boosts.guardup_per_gauge = true
+		"guardup_if_copy_of_opponent_attack_in_sealed":
+			performing_player.strike_stat_boosts.guardup_if_copy_of_opponent_attack_in_sealed_modifier = effect["amount"]
+			var opponent_attack = active_strike.get_player_card(opposing_player)
+			if performing_player.has_card_name_sealed(opponent_attack):
+				# Even though this is a passive, show an event now to cover most cases.
+				var guard_boost = effect["amount"]
+				events += [create_event(Enums.EventType.EventType_Strike_GuardUp, performing_player.my_id, guard_boost)]
 		"higher_speed_misses":
 			performing_player.strike_stat_boosts.higher_speed_misses = true
 			if 'dodge_at_speed_greater_or_equal' in effect:
@@ -7079,6 +7174,10 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 					bonus_power = min(bonus_power, effect['maximum'])
 				performing_player.add_power_bonus(bonus_power)
 				events += [create_event(Enums.EventType.EventType_Strike_PowerUp, performing_player.my_id, bonus_power)]
+		"powerup_per_sealed_amount":
+			performing_player.strike_stat_boosts.powerup_per_sealed_amount_divisor = effect['divisor']
+			performing_player.strike_stat_boosts.powerup_per_sealed_amount_max = effect['max']
+			events += [create_event(Enums.EventType.EventType_Strike_PowerUp, performing_player.my_id, 5, "powerup_per_sealed_amount")]
 		"powerup_per_spent_gauge_matching_range_to_opponent":
 			var amount_per_gauge = effect['amount']
 			var matching_count = 0
@@ -7120,6 +7219,12 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 		"powerup_opponent":
 			opposing_player.add_power_bonus(effect['amount'])
 			events += [create_event(Enums.EventType.EventType_Strike_PowerUp, opposing_player.my_id, effect['amount'])]
+		"power_armor_up_if_sealed_copy_of_attack":
+			performing_player.strike_stat_boosts.power_armor_up_if_sealed_copy_of_attack = true
+			var attack_card = active_strike.get_player_card(performing_player)
+			if performing_player.has_card_name_sealed(attack_card):
+				events += [create_event(Enums.EventType.EventType_Strike_PowerUp, performing_player.my_id, 1)]
+				events += [create_event(Enums.EventType.EventType_Strike_ArmorUp, performing_player.my_id, 1)]
 		"pull":
 			var previous_location = opposing_player.arena_location
 			var amount = effect['amount']
@@ -7705,6 +7810,14 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 				events += performing_player.seal_from_location(card.id, effect['source'], silent)
 			else:
 				events += performing_player.add_to_sealed(card, silent)
+		"seal_continuous_boosts":
+			var player_boosts = performing_player.continuous_boosts.duplicate()
+			for boost_card in player_boosts:
+				var card_name = card_db.get_card_name(boost_card.id)
+				_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "seals the boosted card %s." % _log_card_name(card_name))
+				events += performing_player.remove_from_continuous_boosts(boost_card, "sealed")
+		"seal_instead_of_discarding":
+			performing_player.seal_instead_of_discarding = true
 		"seal_this":
 			if active_boost:
 				# Part of a boost.
@@ -7720,6 +7833,8 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 			events += opposing_player.remove_from_continuous_boosts(card, "sealed")
 		"seal_topdeck":
 			events += performing_player.seal_topdeck()
+		"seal_discard":
+			events += performing_player.seal_discard()
 		"seal_hand":
 			events += performing_player.seal_hand()
 		"self_discard_choose":
@@ -7832,6 +7947,23 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 				if card_ids.size() == 1:
 					# Intentional events = because events are passed in.
 					events = begin_extra_attack(events, performing_player, card_ids[0])
+			elif effect['destination'] == "boost_as_hidden_powerup_and_seal":
+				var replacement_boost = {
+					"boost_type": "continuous",
+					"facedown": true,
+					"discards_to_sealed": true,
+					"force_cost": 0,
+					"cancel_cost": -1,
+					"display_name": "The Gaki Boost",
+					"effects": [
+						{
+							"timing": "during_strike",
+							"effect_type": "powerup",
+							"amount": 1
+						}
+					]
+				}
+				performing_player.play_replacement_boosts(card_ids, replacement_boost)
 			else:
 				# Nothing else implemented.
 				assert(false)
@@ -7971,6 +8103,11 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 			var amount = performing_player.total_force_spent_this_turn * effect['amount']
 			performing_player.strike_stat_boosts.speed += amount
 			events += [create_event(Enums.EventType.EventType_Strike_SpeedUp, performing_player.my_id, amount)]
+		"speedup_per_unique_sealed_normals":
+			performing_player.strike_stat_boosts.speedup_per_unique_sealed_normals_modifier = effect['amount']
+			var unique_sealed_normals = performing_player.get_sealed_count_of_type("normal", true)
+			if unique_sealed_normals > 0:
+				events += [create_event(Enums.EventType.EventType_Strike_SpeedUp, performing_player.my_id, effect['amount'] * unique_sealed_normals)]
 		"spend_all_force_and_save_amount":
 			var force_amount = performing_player.get_available_force()
 			var card_names = ""
@@ -9098,6 +9235,21 @@ func get_total_power(performing_player : Player, ignore_swap : bool = false, car
 		var buddy_count = performing_player.count_buddies_between_opponent()
 		boosted_power += buddy_count * performing_player.strike_stat_boosts.power_modify_per_buddy_between
 
+	if performing_player.strike_stat_boosts.power_armor_up_if_sealed_copy_of_attack:
+		var opposing_player = _get_player(get_other_player(performing_player.my_id))
+		var opposing_attack = active_strike.get_player_card(opposing_player)
+		if performing_player.has_card_name_sealed(opposing_attack):
+			boosted_power += 1
+			positive_boosted_power += 1
+
+	if performing_player.strike_stat_boosts.powerup_per_sealed_amount_divisor:
+		var sealed_count : int = performing_player.sealed.size()
+		@warning_ignore('integer_division')
+		var sealed_powerup : int = sealed_count / performing_player.strike_stat_boosts.powerup_per_sealed_amount_divisor
+		sealed_powerup = min(sealed_powerup, performing_player.strike_stat_boosts.powerup_per_sealed_amount_max)
+		boosted_power += sealed_powerup
+		positive_boosted_power += sealed_powerup
+
 	# account for passive bonus from hand size
 	if performing_player.strike_stat_boosts.passive_powerup_per_card_in_hand != 0:
 		var hand_size = len(performing_player.hand)
@@ -9126,6 +9278,13 @@ func get_total_armor(performing_player : Player):
 	var card = active_strike.get_player_card(performing_player)
 	var armor = card.definition['armor']
 	var armor_modifier = performing_player.strike_stat_boosts.armor - performing_player.strike_stat_boosts.consumed_armor
+
+	if performing_player.strike_stat_boosts.power_armor_up_if_sealed_copy_of_attack:
+		var opposing_player = _get_player(get_other_player(performing_player.my_id))
+		var opposing_attack = active_strike.get_player_card(opposing_player)
+		if performing_player.has_card_name_sealed(opposing_attack):
+			armor_modifier += 1
+
 	return max(0, armor + armor_modifier)
 
 func get_total_guard(performing_player : Player):
@@ -9142,6 +9301,12 @@ func get_total_guard(performing_player : Player):
 	if performing_player.strike_stat_boosts.guardup_per_two_cards_in_hand:
 		var hand_size = len(performing_player.hand)
 		guard_modifier += floor(hand_size / 2.0)
+
+	if performing_player.strike_stat_boosts.guardup_if_copy_of_opponent_attack_in_sealed_modifier:
+		var opposing_player = _get_player(get_other_player(performing_player.my_id))
+		var opponent_attack = active_strike.get_player_card(opposing_player)
+		if performing_player.has_card_name_sealed(opponent_attack):
+			guard_modifier += performing_player.strike_stat_boosts.guardup_if_copy_of_opponent_attack_in_sealed_modifier
 
 	return guard + guard_modifier
 
@@ -10046,7 +10211,8 @@ func begin_resolve_boost(performing_player : Player, card_id : int, additional_b
 		performing_player.remove_card_from_gauge(card_id)
 		performing_player.remove_card_from_discards(card_id)
 		performing_player.remove_card_from_set_aside(card_id)
-		events += [create_event(Enums.EventType.EventType_Boost_Played, performing_player.my_id, card_id)]
+		var facedown = active_boost.card.definition["boost"].get("facedown")
+		events += [create_event(Enums.EventType.EventType_Boost_Played, performing_player.my_id, card_id, "", facedown)]
 
 		if additional_boost_ids:
 			card_id = additional_boost_ids.pop_front()
@@ -10779,6 +10945,7 @@ func do_boost(performing_player : Player, card_id : int, payment_card_ids : Arra
 
 	if game_state == Enums.GameState.GameState_PickAction:
 		_append_log_full(Enums.LogType.LogType_Action, performing_player, "Turn Action: Boost")
+
 	_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "boosts %s." % _get_boost_and_card_name(card))
 
 	var events = []
@@ -11535,6 +11702,10 @@ func do_choose_from_discard(performing_player : Player, card_ids : Array) -> boo
 			"ultra":
 				if card.definition['type'] != "ultra":
 					printlog("ERROR: Tried to choose from discard with card that doesn't meet limitation ultra.")
+					return false
+			"normal/special":
+				if card.definition['type'] not in ["normal", "special"]:
+					printlog("ERROR: Tried to choose from discard with card that doesn't meet limitation normal/special.")
 					return false
 			"special/ultra":
 				if card.definition['type'] not in ["special", "ultra"]:

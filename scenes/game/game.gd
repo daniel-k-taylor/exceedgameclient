@@ -1079,6 +1079,8 @@ func can_select_card(card):
 					meets_limitation = card_type == "ultra"
 				"special":
 					meets_limitation = card_type == "special"
+				"normal/special":
+					meets_limitation = card_type in ["normal", "special"]
 				"special/ultra":
 					meets_limitation = card_type in ["special", "ultra"]
 				"from_array":
@@ -1201,6 +1203,8 @@ func can_select_card(card):
 					meets_limitation = card_type == "special"
 				"ultra":
 					meets_limitation = card_type == "ultra"
+				"normal/special":
+					meets_limitation = card_type in ["normal", "special"]
 				"special/ultra":
 					meets_limitation = card_type in ["special", "ultra"]
 				"continuous":
@@ -1446,9 +1450,12 @@ func _stat_notice_event(event):
 			notice_text = "Blocking %s!" % movement_text
 		Enums.EventType.EventType_Strike_PowerUp:
 			var text = ""
-			if number > 0:
-				text += "+"
-			notice_text = "%s%s Power" % [text, number]
+			if event['reason'] == "powerup_per_sealed_amount":
+				notice_text  = "+1 Power per %s Sealed" % number
+			else:
+				if number > 0:
+					text += "+"
+				notice_text = "%s%s Power" % [text, number]
 		Enums.EventType.EventType_Strike_RandomGaugeStrike:
 			notice_text = "Strike From Gauge!"
 		Enums.EventType.EventType_Strike_RangeUp:
@@ -1566,7 +1573,9 @@ func _on_boost_canceled(event):
 func _on_continuous_boost_added(event):
 	var player = event['event_player']
 	var card = find_card_on_board(event['number'])
-	make_card_revealed(card)
+	var is_facedown = event["extra_info"]
+	if not is_facedown:
+		make_card_revealed(card)
 	var boost_zone = $PlayerBoostZone
 	var boost_card_loc = $AllCards/PlayerBoosts
 
@@ -1706,7 +1715,9 @@ func _on_boost_played(event):
 	var player = event['event_player']
 	var card = find_card_on_board(event['number'])
 	var is_transform = event['reason'] == "Transform"
-	make_card_revealed(card)
+	var is_facedown = event["extra_info"]
+	if not is_facedown:
+		make_card_revealed(card)
 	var target_zone = $PlayerStrike/StrikeZone
 	var is_player = player == Enums.PlayerId.PlayerId_Player
 	if not is_player:
@@ -2361,16 +2372,19 @@ func update_discard_selection_message_choose():
 	if destination == "play_attack":
 		set_instructions("Select a card from your hand to move to play as an extra attack.")
 	else:
+		var destination_str = destination
+		if destination == "boost_as_hidden_powerup_and_seal":
+			destination_str = "continuous boosts facedown as: +1 Power and Seal when discarded"
 		var optional_string = ""
 		if select_card_require_min == 0:
 			optional_string = "up to "
 		if decision_info.limitation and not preparing_character_action:
 			if decision_info.limitation == "from_array":
-				set_instructions("Select %s%s more card(s) that %s from your hand to move to %s." % [optional_string, num_remaining, decision_info.extra_info, destination])
+				set_instructions("Select %s%s more card(s) that %s from your hand to move to %s." % [optional_string, num_remaining, decision_info.extra_info, destination_str])
 			else:
-				set_instructions("Select %s%s more %s card(s) from your hand to move to %s%s." % [optional_string, num_remaining, decision_info.limitation, destination, bonus])
+				set_instructions("Select %s%s more %s card(s) from your hand to move to %s%s." % [optional_string, num_remaining, decision_info.limitation, destination_str, bonus])
 		else:
-			set_instructions("Select %s%s more card(s) from your hand to move to %s%s." % [optional_string, num_remaining, destination, bonus])
+			set_instructions("Select %s%s more card(s) from your hand to move to %s%s." % [optional_string, num_remaining, destination_str, bonus])
 
 func update_discard_selection_message():
 	var num_remaining = select_card_require_min - len(selected_cards)
