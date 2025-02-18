@@ -1375,6 +1375,8 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 			effect_str += "Strike with EX"
 		"stun_immunity":
 			effect_str += "Stun Immunity"
+		"sustain_all_boosts":
+			effect_str += "Sustain all boosts"
 		"sustain_this":
 			if card_name_source:
 				effect_str += "Sustain %s" % card_name_source
