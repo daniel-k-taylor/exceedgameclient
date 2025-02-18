@@ -3989,6 +3989,10 @@ func update_boost_summary(boosts_card_holder, boost_box):
 	for card_id in card_ids:
 		var card = card_db.get_card(card_id)
 		var add_to_effects = normal_effects
+		if card.definition['boost']['boost_type'] == "immediate":
+			# Immediate boosts can be here because of facedown,
+			# but ignore them as we don't want that text to show.
+			continue
 		if card.definition['boost']['boost_type'] == "transform":
 			add_to_effects = transform_effects
 

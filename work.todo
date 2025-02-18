@@ -10,9 +10,9 @@ Celinka:
     ☐ guardup_if_copy_of_opponent_attack_in_sealed @started(25-02-17 11:56)
     ☐ "effect_type": "power_armor_up_if_sealed_copy_of_attack", @started(25-02-17 12:18)
 
-    ☐ "destination": "boost_as_hidden_powerup_and_seal" @started(25-02-17 14:20)
-    ☐ "effect_type": "seal_discard" @started(25-02-17 12:20)
-    ☐ "effect_type": "seal_instead_of_discarding" @started(25-02-17 12:59)
+    ✔ "destination": "boost_as_hidden_powerup_and_seal" @started(25-02-17 14:20) @done(25-02-17 18:24) @lasted(4h4m35s)
+    ✔ "effect_type": "seal_discard" @started(25-02-17 12:20) @done(25-02-17 18:24) @lasted(6h4m37s)
+    ✔ "effect_type": "seal_instead_of_discarding" @started(25-02-17 12:59) @done(25-02-17 18:24) @lasted(5h25m38s)
     ☐ "effect_type": "powerup_per_sealed_amount", @started(25-02-17 12:52)
 
 
