@@ -2373,8 +2373,8 @@ func update_discard_selection_message_choose():
 		set_instructions("Select a card from your hand to move to play as an extra attack.")
 	else:
 		var destination_str = destination
-		if destination == "boost_as_hidden_powerup_and_seal":
-			destination_str = "continuous boosts facedown as: +1 Power and Seal when discarded"
+		if destination == "replacement_boost":
+			destination_str = game_wrapper.get_replacement_boost_description(Enums.PlayerId.PlayerId_Player)
 		var optional_string = ""
 		if select_card_require_min == 0:
 			optional_string = "up to "

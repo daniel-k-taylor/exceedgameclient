@@ -5,13 +5,29 @@
 	"has_sealed_area": true,
 	"exceed_cost": 5,
 	"exceed_cost_reduced_by": [{ "reduction_type": "transform_discount" }],
+	"replacement_boost_definition": {
+		"boost_type": "continuous",
+		"facedown": true,
+		"discards_to_sealed": true,
+		"force_cost": 0,
+		"cancel_cost": -1,
+		"display_name": "The Gaki Boost",
+		"effects": [
+			{
+				"timing": "during_strike",
+				"effect_type": "powerup",
+				"amount": 1
+			}
+		],
+		"description": "continuous boosts facedown as: +1 Power and Seal when discarded"
+	},
 	"ability_effects": [
 		{
 			"timing": "on_prepare",
 			"effect_type": "self_discard_choose",
 			"optional": true,
 			"amount": 3,
-			"destination": "boost_as_hidden_powerup_and_seal"
+			"destination": "replacement_boost"
 		}
 	],
 	"on_exceed": {

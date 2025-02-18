@@ -1015,6 +1015,9 @@ class Player:
 			cost = max(0, cost)
 		return cost
 
+	func get_replacement_boost_definition():
+		return deck_def['replacement_boost_definition'].duplicate(true)
+
 	func get_set_aside_card(card_str_id : String, remove : bool = false):
 		for i in range(set_aside_cards.size()):
 			var card = set_aside_cards[i]
@@ -2689,7 +2692,7 @@ class Player:
 		return [parent.create_event(Enums.EventType.EventType_AddToGauge, my_id, card.id)]
 
 	func add_to_discards(card : GameCard, from_top : int = 0):
-		if card.owner_id == my_id:
+		if card.owner_id == my_id or seal_instead_of_discarding:
 			if from_top == 0:
 				discards.append(card)
 			else:
@@ -7947,22 +7950,8 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 				if card_ids.size() == 1:
 					# Intentional events = because events are passed in.
 					events = begin_extra_attack(events, performing_player, card_ids[0])
-			elif effect['destination'] == "boost_as_hidden_powerup_and_seal":
-				var replacement_boost = {
-					"boost_type": "continuous",
-					"facedown": true,
-					"discards_to_sealed": true,
-					"force_cost": 0,
-					"cancel_cost": -1,
-					"display_name": "The Gaki Boost",
-					"effects": [
-						{
-							"timing": "during_strike",
-							"effect_type": "powerup",
-							"amount": 1
-						}
-					]
-				}
+			elif effect['destination'] == "replacement_boost":
+				var replacement_boost = performing_player.get_replacement_boost_definition()
 				performing_player.play_replacement_boosts(card_ids, replacement_boost)
 			else:
 				# Nothing else implemented.

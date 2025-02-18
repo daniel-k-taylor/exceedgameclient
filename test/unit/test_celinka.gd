@@ -298,3 +298,41 @@ func test_celinka_moonritualdance_returnnormalspecial():
 	validate_life(player1, 30, player2, 28)
 	assert_eq(player1.hand[-1].id, return_id)
 	assert_eq(player1.sealed.size(), 2)
+
+
+
+func test_celinka_dispellinghorn_vs_snipsnipsnip():
+	position_players(player1, 3, player2, 4)
+	execute_strike(player1, player2, "faust_snipsnipsnip", "standard_normal_assault", false, false,
+		[], [])
+	validate_positions(player1, 3, player2, 4)
+	validate_life(player1, 30, player2, 27)
+
+	# P2's turn, they have snip in play as a boost.
+	var snip_id = player2.continuous_boosts[0].id
+	assert_eq(player2.continuous_boosts.size(), 1)
+	execute_strike(player2, player1, "celinka_dispellinghorn", "standard_normal_sweep", false, false,
+		[], [])
+
+	validate_life(player1, 27, player2, 23)
+	assert_eq(player2.continuous_boosts.size(), 0)
+	assert_eq(player1.continuous_boosts.size(), 0)
+	assert_eq(player1.discards.size(), 0)
+	assert_eq(player2.discards.size(), 2) # The assault and a sweep card
+	assert_eq(player2.sealed.size(), 1) # Snip
+	assert_eq(snip_id, player2.sealed[0].id)
+	
+	# P1's turn again
+	var p2gauge = give_gauge(player2, 2)
+	execute_strike(player1, player2, "standard_normal_assault", "celinka_moonritualdance", false, false,
+		[], [p2gauge, snip_id])
+	validate_life(player1, 25, player2, 23)
+	assert_eq(player2.hand[-1].id, snip_id)
+	
+	# P2's turn
+	execute_strike(player2, player1, snip_id, "standard_normal_focus", false, false,
+		[], [])
+	validate_life(player1, 24, player2, 23)
+	assert_eq(player1.continuous_boosts[0].id, snip_id)
+	
+	
