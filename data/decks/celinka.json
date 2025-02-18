@@ -1,0 +1,221 @@
+{
+	"id": "celinka",
+	"season": 2,
+	"display_name": "Celinka",
+	"has_sealed_area": true,
+	"exceed_cost": 5,
+	"exceed_cost_reduced_by": [{ "reduction_type": "transform_discount" }],
+	"replacement_boost_definition": {
+		"boost_type": "continuous",
+		"facedown": true,
+		"discards_to_sealed": true,
+		"force_cost": 0,
+		"cancel_cost": -1,
+		"display_name": "The Gaki Boost",
+		"effects": [
+			{
+				"timing": "during_strike",
+				"effect_type": "powerup",
+				"amount": 1
+			}
+		],
+		"description": "continuous boosts facedown as: +1 Power and Seal when discarded"
+	},
+	"ability_effects": [
+		{
+			"timing": "on_prepare",
+			"effect_type": "self_discard_choose",
+			"optional": true,
+			"amount": 3,
+			"destination": "replacement_boost"
+		}
+	],
+	"on_exceed": {
+		"effect_type": "seal_discard",
+		"and": {
+			"effect_type": "seal_instead_of_discarding"
+		}
+	},
+	"exceed_ability_effects": [
+		{
+			"timing": "during_strike",
+			"effect_type": "powerup_per_sealed_amount",
+			"divisor": 5,
+			"max": 3
+		}
+	],
+	"image_resources": {
+		"character_default": {
+			"url": "https://i.imgur.com/ae7yFLM.jpeg",
+			"multiple_cards": false
+		},
+		"character_exceeded": {
+			"url": "https://i.imgur.com/VujuYUu.jpeg",
+			"multiple_cards": false
+		},
+		"cardback": {
+			"url": "https://i.imgur.com/s6wpKBq.jpeg",
+			"multiple_cards": false
+		},
+		"specials": {
+			"url": "https://i.imgur.com/F8XIAfT.jpeg",
+			"multiple_cards": true
+		},
+		"normals": {
+			"url": "https://i.imgur.com/1pnJnEb.jpeg",
+			"multiple_cards": true
+		}
+	},
+	"cards": [
+		{
+			"definition_id": "celinka_moonritualdance",
+			"image_name": "specials",
+			"image_index": 5
+		},
+		{
+			"definition_id": "celinka_moonritualdance",
+			"image_name": "specials",
+			"image_index": 5
+		},
+		{
+			"definition_id": "celinka_purifyingroar",
+			"image_name": "specials",
+			"image_index": 6
+		},
+		{
+			"definition_id": "celinka_purifyingroar",
+			"image_name": "specials",
+			"image_index": 6
+		},
+		{
+			"definition_id": "celinka_dispellinghorn",
+			"image_name": "specials",
+			"image_index": 1
+		},
+		{
+			"definition_id": "celinka_dispellinghorn",
+			"image_name": "specials",
+			"image_index": 1
+		},
+		{
+			"definition_id": "celinka_moonfall",
+			"image_name": "specials",
+			"image_index": 2
+		},
+		{
+			"definition_id": "celinka_moonfall",
+			"image_name": "specials",
+			"image_index": 2
+		},
+		{
+			"definition_id": "celinka_moonflare",
+			"image_name": "specials",
+			"image_index": 3
+		},
+		{
+			"definition_id": "celinka_moonflare",
+			"image_name": "specials",
+			"image_index": 3
+		},
+		{
+			"definition_id": "celinka_swiftexorcism",
+			"image_name": "specials",
+			"image_index": 0
+		},
+		{
+			"definition_id": "celinka_swiftexorcism",
+			"image_name": "specials",
+			"image_index": 0
+		},
+		{
+			"definition_id": "wishingward",
+			"image_name": "specials",
+			"image_index": 4
+		},
+		{
+			"definition_id": "wishingward",
+			"image_name": "specials",
+			"image_index": 4
+		},
+		{
+			"definition_id": "standard_normal_grasp",
+			"image_name": "normals",
+			"image_index": 0
+		},
+		{
+			"definition_id": "standard_normal_grasp",
+			"image_name": "normals",
+			"image_index": 0
+		},
+		{
+			"definition_id": "standard_normal_cross",
+			"image_name": "normals",
+			"image_index": 1
+		},
+		{
+			"definition_id": "standard_normal_cross",
+			"image_name": "normals",
+			"image_index": 1
+		},
+		{
+			"definition_id": "standard_normal_assault",
+			"image_name": "normals",
+			"image_index": 2
+		},
+		{
+			"definition_id": "standard_normal_assault",
+			"image_name": "normals",
+			"image_index": 2
+		},
+		{
+			"definition_id": "standard_normal_dive",
+			"image_name": "normals",
+			"image_index": 3
+		},
+		{
+			"definition_id": "standard_normal_dive",
+			"image_name": "normals",
+			"image_index": 3
+		},
+		{
+			"definition_id": "standard_normal_spike",
+			"image_name": "normals",
+			"image_index": 4
+		},
+		{
+			"definition_id": "standard_normal_spike",
+			"image_name": "normals",
+			"image_index": 4
+		},
+		{
+			"definition_id": "standard_normal_sweep",
+			"image_name": "normals",
+			"image_index": 5
+		},
+		{
+			"definition_id": "standard_normal_sweep",
+			"image_name": "normals",
+			"image_index": 5
+		},
+		{
+			"definition_id": "standard_normal_focus",
+			"image_name": "normals",
+			"image_index": 6
+		},
+		{
+			"definition_id": "standard_normal_focus",
+			"image_name": "normals",
+			"image_index": 6
+		},
+		{
+			"definition_id": "standard_normal_block",
+			"image_name": "normals",
+			"image_index": 7
+		},
+		{
+			"definition_id": "standard_normal_block",
+			"image_name": "normals",
+			"image_index": 7
+		}
+	]
+}
