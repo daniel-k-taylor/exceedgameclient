@@ -561,7 +561,7 @@ class StrikeStatBoosts:
 	var guardup_if_copy_of_opponent_attack_in_sealed_modifier : int = 0
 	var guardup_per_two_cards_in_hand : bool = false
 	var guardup_per_gauge : bool = false
-	var power_armor_up_if_sealed_copy_of_attack : bool = false
+	var power_armor_up_if_sealed_or_transformed_copy_of_attack : bool = false
 	var passive_powerup_per_card_in_hand : int = 0
 	var passive_speedup_per_card_in_hand : int = 0
 	var active_character_effects = []
@@ -672,7 +672,7 @@ class StrikeStatBoosts:
 		guardup_if_copy_of_opponent_attack_in_sealed_modifier = 0
 		guardup_per_two_cards_in_hand = false
 		guardup_per_gauge = false
-		power_armor_up_if_sealed_copy_of_attack = false
+		power_armor_up_if_sealed_or_transformed_copy_of_attack = false
 		passive_powerup_per_card_in_hand = 0
 		passive_speedup_per_card_in_hand = 0
 		active_character_effects = []
@@ -7219,10 +7219,10 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 		"powerup_opponent":
 			opposing_player.add_power_bonus(effect['amount'])
 			events += [create_event(Enums.EventType.EventType_Strike_PowerUp, opposing_player.my_id, effect['amount'])]
-		"power_armor_up_if_sealed_copy_of_attack":
-			performing_player.strike_stat_boosts.power_armor_up_if_sealed_copy_of_attack = true
+		"power_armor_up_if_sealed_or_transformed_copy_of_attack":
+			performing_player.strike_stat_boosts.power_armor_up_if_sealed_or_transformed_copy_of_attack = true
 			var attack_card = active_strike.get_player_card(performing_player)
-			if performing_player.has_card_name_sealed(attack_card):
+			if performing_player.has_card_name_sealed(attack_card) or performing_player.has_card_name_transformed(attack_card):
 				events += [create_event(Enums.EventType.EventType_Strike_PowerUp, performing_player.my_id, 1)]
 				events += [create_event(Enums.EventType.EventType_Strike_ArmorUp, performing_player.my_id, 1)]
 		"pull":
@@ -9235,10 +9235,8 @@ func get_total_power(performing_player : Player, ignore_swap : bool = false, car
 		var buddy_count = performing_player.count_buddies_between_opponent()
 		boosted_power += buddy_count * performing_player.strike_stat_boosts.power_modify_per_buddy_between
 
-	if performing_player.strike_stat_boosts.power_armor_up_if_sealed_copy_of_attack:
-		var opposing_player = _get_player(get_other_player(performing_player.my_id))
-		var opposing_attack = active_strike.get_player_card(opposing_player)
-		if performing_player.has_card_name_sealed(opposing_attack):
+	if performing_player.strike_stat_boosts.power_armor_up_if_sealed_or_transformed_copy_of_attack:
+		if performing_player.has_card_name_sealed(card) or performing_player.has_card_name_transformed(card):
 			boosted_power += 1
 			positive_boosted_power += 1
 
@@ -9279,10 +9277,8 @@ func get_total_armor(performing_player : Player):
 	var armor = card.definition['armor']
 	var armor_modifier = performing_player.strike_stat_boosts.armor - performing_player.strike_stat_boosts.consumed_armor
 
-	if performing_player.strike_stat_boosts.power_armor_up_if_sealed_copy_of_attack:
-		var opposing_player = _get_player(get_other_player(performing_player.my_id))
-		var opposing_attack = active_strike.get_player_card(opposing_player)
-		if performing_player.has_card_name_sealed(opposing_attack):
+	if performing_player.strike_stat_boosts.power_armor_up_if_sealed_or_transformed_copy_of_attack:
+		if performing_player.has_card_name_sealed(card) or performing_player.has_card_name_transformed(card):
 			armor_modifier += 1
 
 	return max(0, armor + armor_modifier)

@@ -3689,8 +3689,8 @@
 			"effects": [
 				{
 					"timing": "during_strike",
-					"effect_type": "power_armor_up_if_sealed_copy_of_attack",
-					"override_description": "If copy of attack is sealed, +1 Power/+1 Armor"
+					"effect_type": "power_armor_up_if_sealed_or_transformed_copy_of_attack",
+					"override_description": "If copy of attack is sealed/transformed, +1 Power/+1 Armor"
 				}
 			]
 		}
