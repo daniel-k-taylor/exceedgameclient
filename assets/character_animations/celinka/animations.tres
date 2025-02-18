@@ -1,0 +1,16 @@
+[gd_resource type="SpriteFrames" load_steps=2 format=3 uid="uid://xpp7k780aegg"]
+
+[ext_resource type="Texture2D" uid="uid://bgl8qkqgrfxq5" path="res://assets/character_animations/celinka/celinka.png" id="1_ytitk"]
+
+[resource]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("1_ytitk")
+}],
+"loop": true,
+"name": &"idle",
+"speed": 5.0
+}]
+metadata/flip = true
+metadata/scaling = 0.07

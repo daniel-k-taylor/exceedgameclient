@@ -162,6 +162,9 @@ func get_player_character_action_shortcut_effect(id, action_idx = 0):
 func get_player_character_action_count(id):
 	return _get_player(id).get_character_action_count()
 
+func get_replacement_boost_description(id):
+	return _get_player(id).get_replacement_boost_definition()["description"]
+
 func get_bonus_actions(id):
 	return _get_player(id).get_bonus_actions()
 
