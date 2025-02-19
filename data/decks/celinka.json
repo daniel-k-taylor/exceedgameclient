@@ -25,6 +25,7 @@
 		{
 			"timing": "on_prepare",
 			"effect_type": "self_discard_choose",
+			"allow_fewer": true,
 			"optional": true,
 			"amount": 3,
 			"destination": "replacement_boost"
