@@ -4171,6 +4171,10 @@ func is_effect_condition_met(performing_player : Player, effect, local_condition
 		elif condition == "attack_still_in_play":
 			var card = active_strike.get_player_card(performing_player)
 			return card in active_strike.cards_in_play
+		elif condition == "attacks_match_printed_speed":
+			var card = active_strike.get_player_card(performing_player)
+			var opposing_card = active_strike.get_player_card(other_player)
+			return card.definition['speed'] == opposing_card.definition['speed']
 		elif condition == "boost_in_play":
 			return performing_player.continuous_boosts.size() > 0
 		elif condition == "no_boost_in_play":
@@ -4620,6 +4624,9 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 				add_remaining_effect(effect_to_add)
 			else:
 				performing_player.strike_stat_boosts.added_attack_effects.append(effect_to_add)
+		"add_attack_triggers":
+			var card_ids = effect["discarded_card_ids"]
+			events += add_attack_triggers(performing_player, card_ids, true)
 		"add_boost_to_gauge_on_strike_cleanup":
 			if card_id == -1:
 				assert(false, "ERROR: Unimplemented path to add_boost_to_gauge_on_strike_cleanup")
