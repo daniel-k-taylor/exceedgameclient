@@ -2302,6 +2302,9 @@ class Player:
 		var unknown_cards = hand + deck
 		if sealed_area_is_secret:
 			unknown_cards += sealed
+		for card in continuous_boosts:
+			if card.definition['boost'].get("facedown"):
+				unknown_cards.append(card)
 		if parent.active_strike:
 			var strike_card = parent.active_strike.get_player_card(self)
 			if strike_card:
@@ -3334,6 +3337,7 @@ class Player:
 		if card.definition.get("replaced_boost"):
 			card.definition["boost"] = card.definition["replaced_boost"]
 			card.definition.erase("replaced_boost")
+			on_hand_remove_public_card(card.id)
 
 		# Remove it from boost locations if it is in the arena.
 		events += remove_boost_in_location(card.id)
@@ -7851,6 +7855,7 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 			var discard_effect = null
 			if 'discard_effect' in effect:
 				discard_effect = effect['discard_effect']
+			var allow_fewer = effect.get("allow_fewer", false)
 			var cards_available = performing_player.get_cards_in_hand_of_type(limitation)
 
 			var this_effect = effect.duplicate()
@@ -7871,7 +7876,7 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 				decision_info.limitation = limitation
 				decision_info.bonus_effect = discard_effect
 				decision_info.can_pass = optional
-				events += [create_event(Enums.EventType.EventType_Strike_ChooseToDiscard, performing_player.my_id, this_effect['amount'])]
+				events += [create_event(Enums.EventType.EventType_Strike_ChooseToDiscard, performing_player.my_id, this_effect['amount'], "", allow_fewer)]
 			else:
 				if not optional and cards_available.size() > 0:
 					events += [create_event(Enums.EventType.EventType_Strike_ChooseToDiscard_Info, performing_player.my_id, this_effect['amount'])]
@@ -10192,7 +10197,8 @@ func begin_resolve_boost(performing_player : Player, card_id : int, additional_b
 		active_boost.shuffle_discard_on_cleanup = shuffle_discard_after
 		active_boost.boosted_from_gauge = performing_player.is_card_in_gauge(card_id)
 
-		performing_player.remove_card_from_hand(card_id, true, false)
+		var secret = active_boost.card.definition["boost"].get("facedown", false)
+		performing_player.remove_card_from_hand(card_id, not secret, false)
 		performing_player.remove_card_from_gauge(card_id)
 		performing_player.remove_card_from_discards(card_id)
 		performing_player.remove_card_from_set_aside(card_id)

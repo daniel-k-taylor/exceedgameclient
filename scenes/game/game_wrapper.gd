@@ -202,11 +202,22 @@ func count_cards_in_deck_and_hand(player_id : Enums.PlayerId,
 			for card in player.sealed:
 				if card.definition['id'] == card_str_id:
 					count += 1
+		for card in player.continuous_boosts:
+			if card.definition['id'] == card_str_id and card.definition["boost"].get("facedown"):
+				count += 1
+
 		var striking_card_ids = current_game.get_striking_card_ids_for_player(player)
 		for striking_id in striking_card_ids:
 			if striking_id == card_str_id:
 				count += 1
 	return count
+
+func has_facedown_boosts(player_id : Enums.PlayerId):
+	var player = _get_player(player_id)
+	for card in player.continuous_boosts:
+		if card.definition["boost"].get("facedown"):
+			return true
+	return false
 
 func is_card_in_gauge(player_id : Enums.PlayerId, card_id : int):
 	var player = _get_player(player_id)

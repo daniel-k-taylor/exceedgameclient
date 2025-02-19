@@ -3711,6 +3711,7 @@
 			{
 				"timing": "hit",
 				"effect_type": "self_discard_choose",
+				"allow_fewer": true,
 				"optional": true,
 				"amount": 3,
 				"limitation": "",

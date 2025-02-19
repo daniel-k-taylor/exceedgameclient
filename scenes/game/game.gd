@@ -3887,8 +3887,8 @@ func _update_buttons(no_number_picker_update : bool = false):
 		arena_button.visible = (ui_state == UIState.UIState_SelectArenaLocation and i in arena_locations_clickable)
 
 	# Update boost zones
-	update_boost_summary($AllCards/PlayerBoosts, $PlayerBoostZone)
-	update_boost_summary($AllCards/OpponentBoosts, $OpponentBoostZone)
+	update_boost_summary(Enums.PlayerId.PlayerId_Player, $AllCards/PlayerBoosts, $PlayerBoostZone)
+	update_boost_summary(Enums.PlayerId.PlayerId_Opponent, $AllCards/OpponentBoosts, $OpponentBoostZone)
 
 	choice_popout_button.visible = ui_sub_state in [UISubState.UISubState_SelectCards_ChooseFromTopdeck, UISubState.UISubState_SelectCards_ChooseOpponentCardToDiscard]
 
@@ -3979,7 +3979,7 @@ func _update_buttons(no_number_picker_update : bool = false):
 func _choice_text_without_tags(choice_text):
 	return ChoiceTagRegex.sub(choice_text, "", true)
 
-func update_boost_summary(boosts_card_holder, boost_box):
+func update_boost_summary(player_id, boosts_card_holder, boost_box):
 	var card_ids = []
 	var card_db = game_wrapper.get_card_database()
 	for card in boosts_card_holder.get_children():
@@ -3988,6 +3988,9 @@ func update_boost_summary(boosts_card_holder, boost_box):
 	var normal_effects = []
 	for card_id in card_ids:
 		var card = card_db.get_card(card_id)
+		if game_wrapper.is_card_in_sealed(player_id, card_id):
+			# Skip cards that are moving out of the boost area.
+			continue
 		var add_to_effects = normal_effects
 		if card.definition['boost']['boost_type'] == "immediate":
 			# Immediate boosts can be here because of facedown,
@@ -5294,6 +5297,8 @@ func _on_player_reference_button_pressed():
 	var reference_title = "YOUR DECK REFERENCE (showing remaining card counts in deck+hand"
 	if game_wrapper.is_player_sealed_area_secret(Enums.PlayerId.PlayerId_Player):
 		reference_title += "+sealed"
+	if game_wrapper.has_facedown_boosts(Enums.PlayerId.PlayerId_Player):
+		reference_title += "+facedown"
 	reference_title += ")"
 	show_popout(CardPopoutType.CardPopoutType_ReferencePlayer, reference_title, $AllCards/PlayerAllCopy, false)
 
@@ -5332,8 +5337,10 @@ func _on_opponent_reference_button_pressed(switch_toggle : bool = false, hide_re
 	var popout_title = "THEIR DECK REFERENCE (showing remaining card counts in deck+hand"
 	if reference_popout_toggle:
 		popout_title = "THEIR CARDS BEFORE RESHUFFLE (remained in deck+hand"
-	if game_wrapper.is_player_sealed_area_secret(Enums.PlayerId.PlayerId_Player):
+	if game_wrapper.is_player_sealed_area_secret(Enums.PlayerId.PlayerId_Opponent):
 		popout_title += "+sealed"
+	if game_wrapper.has_facedown_boosts(Enums.PlayerId.PlayerId_Opponent):
+		popout_title += "+facedown"
 	popout_title += ")"
 	show_popout(CardPopoutType.CardPopoutType_ReferenceOpponent, popout_title, $AllCards/OpponentAllCopy, false, hide_reshuffle)
 
