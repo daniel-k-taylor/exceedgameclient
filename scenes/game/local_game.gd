@@ -826,6 +826,7 @@ class Player:
 	var can_boost_from_gauge : bool
 	var checked_post_action_effects : bool
 	var seal_instead_of_discarding : bool
+	var passive_effects : Dictionary
 
 	func _init(id, player_name, parent_ref, card_db_ref, chosen_deck, card_start_id):
 		my_id = id
@@ -944,6 +945,7 @@ class Player:
 		spend_life_for_force_amount = -1
 		can_boost_from_gauge = false
 		seal_instead_of_discarding = false
+		passive_effects = {}
 
 		if "buddy_cards" in deck_def:
 			var buddy_index = 0
@@ -1622,6 +1624,9 @@ class Player:
 		events += [parent.create_event(Enums.EventType.EventType_SwapSealedAndDeck, my_id, 0)]
 		random_shuffle_deck()
 		return events
+
+	func has_passive(passive_name : String):
+		return passive_name in passive_effects
 
 	func is_card_in_gauge(id : int):
 		for card in gauge:
@@ -3156,6 +3161,12 @@ class Player:
 		for effect in card.definition['boost']['effects']:
 			if effect['timing'] == "now":
 				match effect['effect_type']:
+					"add_passive":
+						if effect['passive'] in passive_effects:
+							passive_effects[effect['passive']] -= 1
+							if passive_effects[effect['passive']] == 0:
+								passive_effects.erase(effect['passive'])
+								parent._append_log_full(Enums.LogType.LogType_Effect, self, "no longer %s." % effect['description'])
 					"ignore_push_and_pull_passive_bonus":
 						# ensure this won't be doubly-undone by a discard effect
 						if not being_discarded:
@@ -4651,6 +4662,19 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 			events += performing_player.remove_from_continuous_boosts(card, "overdrive")
 		"add_hand_to_gauge":
 			events += performing_player.add_hand_to_gauge()
+		"add_passive":
+			var passive_name = effect["passive"]
+			if performing_player.passive_effects.get(passive_name):
+				performing_player.passive_effects[passive_name] += 1
+			else:
+				performing_player.passive_effects[passive_name] = 1
+				_append_log_full(Enums.LogType.LogType_Effect, performing_player, "now %s." % effect['description'])
+		"add_recursive_choice_for_opponent":
+			var recursive_effect = effect["recursive_effect"].duplicate(true)
+			for choice in recursive_effect['choice']:
+				if choice.get("recursive"):
+					choice["and"] = effect.duplicate(true)
+			events += handle_strike_effect(card_id, recursive_effect, opposing_player)
 		"add_set_aside_card_to_deck":
 			var card_name = performing_player.get_set_aside_card(effect['id']).definition['display_name']
 			_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "will draw the set-aside card %s." % _log_card_name(card_name))
@@ -5986,6 +6010,34 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 				decision_info.choice = choice
 				decision_info.choice_card_id = card_id
 				events += [create_event(Enums.EventType.EventType_Strike_EffectChoice, performing_player.my_id, 0, "EffectOption")]
+		"move_random_cards":
+			var card_count = effect['amount']
+			var from_zone = effect['from_zone']
+			var to_zone = effect['to_zone']
+			var target_player = performing_player
+			var effecting_player = performing_player
+			if effect.get("opponent", false):
+				target_player = opposing_player
+			if from_zone == "hand" and to_zone == "discard":
+				card_count -= target_player.strike_stat_boosts.reduce_discard_effects_by
+				if card_count < 0:
+					card_count = 0
+
+			var card_ids = target_player.pick_random_cards_from_hand(card_count)
+			if card_ids.size() > 0:
+				var card_names = card_db.get_card_names(card_ids)
+				if from_zone == "hand" and to_zone == "overdrive":
+					_append_log_full(Enums.LogType.LogType_CardInfo, target_player, "discards random card(s) to opponent's Overdrive: %s." % _log_card_name(card_names))
+					events += target_player.discard(card_ids)
+					events += effecting_player.move_cards_to_overdrive(card_ids, "opponent_discard")
+				else:
+					var action_word = "discards"
+					var destination_str = ""
+					if to_zone == "gauge":
+						action_word = "moves"
+						destination_str = "to Gauge"
+					_append_log_full(Enums.LogType.LogType_CardInfo, target_player, "%s random card(s)%s: %s." % [action_word, destination_str, _log_card_name(card_ids)])
+					events += target_player.discard(card_ids)
 		"move_to_space":
 			var space = effect['amount']
 			var remove_buddies_encountered = effect['remove_buddies_encountered']
@@ -10615,7 +10667,7 @@ func check_hand_size_advance_turn(performing_player : Player):
 		events += handle_strike_effect(-1, choice_effect, performing_player)
 		active_special_draw_effect = true
 	else:
-		if performing_player.skip_end_of_turn_draw:
+		if performing_player.skip_end_of_turn_draw or performing_player.has_passive("skip_eot_draw_and_discard"):
 			performing_player.skip_end_of_turn_draw = false
 			_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "skips drawing for end of turn. Their hand size is %s." % len(performing_player.hand))
 		else:
@@ -10631,7 +10683,7 @@ func check_hand_size_advance_turn(performing_player : Player):
 				_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "draws %sfor end of turn. Their hand size is now %s." % [from_bottom_str, len(performing_player.hand)])
 
 		active_special_draw_effect = false
-		if len(performing_player.hand) > performing_player.max_hand_size:
+		if len(performing_player.hand) > performing_player.max_hand_size and not performing_player.has_passive("skip_eot_draw_and_discard"):
 			change_game_state(Enums.GameState.GameState_DiscardDownToMax)
 			events += [create_event(Enums.EventType.EventType_HandSizeExceeded, performing_player.my_id, len(performing_player.hand) - performing_player.max_hand_size)]
 		else:

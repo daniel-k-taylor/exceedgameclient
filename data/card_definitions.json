@@ -10276,13 +10276,9 @@
 				},
 				{
 					"timing": "now",
-					"effect_type": "passive_add",
-					"passive": "skip_eot_draw_and_discard"
-				},
-				{
-					"timing": "discarded",
-					"effect_type": "passive_remove",
-					"passive": "skip_eot_draw_and_discard"
+					"effect_type": "add_passive",
+					"passive": "skip_eot_draw_and_discard",
+					"description": "skips end of turn draw and discard"
 				}
 			]
 		}
@@ -10365,7 +10361,7 @@
 					"max_amount": 1,
 					"and": {
 						"effect_type": "add_recursive_choice_for_opponent",
-						"effect": {
+						"recursive_effect": {
 							"effect_type": "choice",
 							"condition": "min_cards_in_hand",
 							"condition_amount": 1,

@@ -1,9 +1,8 @@
 Iaquis:
-    ☐ "effect_type": "passive_add",
-        "effect_type": "passive_remove",
+    ☐ "effect_type": "add_passive", @started(25-02-19 22:20)
         "passive": "skip_eot_draw_and_discard"
-    ☐ "effect_type": "move_random_cards",
-    ☐ "effect_type": "add_recursive_choice_for_opponent",
+    ☐ "effect_type": "move_random_cards", @started(25-02-19 22:45)
+    ☐ "effect_type": "add_recursive_choice_for_opponent", @started(25-02-19 22:55)
     ☐ "condition": "attacks_match_printed_speed", @started(25-02-19 00:48)
 
     ☐ "add_attack_triggers": true, to self_discard_choose @started(25-02-19 00:52)

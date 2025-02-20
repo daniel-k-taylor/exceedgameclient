@@ -464,6 +464,8 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 					effect_str += get_effect_text(effect['added_effect'], false, false, false, card_name_source, false)
 				else:
 					effect_str += "Add effect - " + get_effect_text(effect['added_effect'], false, false, false, card_name_source, false)
+		"add_attack_triggers":
+			effect_str += "Add Before/Hit/After effects on that card to attack"
 		"add_boost_to_gauge_on_strike_cleanup":
 			if card_name_source:
 				effect_str += "Add %s to gauge" % card_name_source
@@ -521,6 +523,11 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 				effect_str += "Add %s from top of discard pile to overdrive" % effect['card_name']
 			else:
 				effect_str += "Add top card of discard pile to overdrive"
+		"add_passive":
+			var passive_id = effect['passive']
+			match passive_id:
+				"skip_eot_draw_and_discard":
+					effect_str += "Skip end of turn draw and discard"
 		"advance":
 			if 'description' in effect:
 				effect_str += effect['description']
@@ -930,6 +937,26 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 				effect_str += "Advance or Retreat %s-%s" % [move_min, move_max]
 			else:
 				effect_str += "Move to any space."
+		"move_random_cards":
+			var card_count = effect['amount']
+			var from_zone = effect['from_zone']
+			var to_zone = effect['to_zone']
+			var opponent_str = ""
+			if effect.get("opponent", false):
+				opponent_str = "Opponent: "
+			var action_word = "Discard"
+			var destination_str = ""
+			match to_zone:
+				"gauge":
+					action_word = "Move"
+					destination_str = " to Gauge"
+				# Add other zones here when refactoring other effects.
+			var from_str = ""
+			match from_zone:
+				"gauge":
+					from_str = " from Gauge"
+				# Add other zones here when refactoring other effects.
+			effect_str += "%s%s %s random card(s)%s%s" % [opponent_str, action_word, card_count, from_str, destination_str]
 		"multiply_power_bonuses":
 			if effect['amount'] == 2:
 				effect_str += "Double power bonuses"
