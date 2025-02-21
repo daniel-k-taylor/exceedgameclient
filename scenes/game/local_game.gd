@@ -4673,8 +4673,8 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 			var recursive_effect = effect["recursive_effect"].duplicate(true)
 			for choice in recursive_effect['choice']:
 				if choice.get("recursive"):
-					choice["and"] = effect.duplicate(true)
-			events += handle_strike_effect(card_id, recursive_effect, opposing_player)
+					choice["per_card_effect"] = effect.duplicate(true)
+			events += do_effect_if_condition_met(opposing_player, card_id, recursive_effect, null)
 		"add_set_aside_card_to_deck":
 			var card_name = performing_player.get_set_aside_card(effect['id']).definition['display_name']
 			_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "will draw the set-aside card %s." % _log_card_name(card_name))
@@ -11490,8 +11490,8 @@ func do_relocate_card_from_hand(performing_player : Player, card_ids : Array) ->
 
 	if decision_info.bonus_effect and card_ids.size() > 0:
 		var per_card_effect = decision_info.bonus_effect.duplicate()
-		per_card_effect['amount'] = card_ids.size() * per_card_effect['amount']
-		events += handle_strike_effect(decision_info.choice_card_id, per_card_effect, performing_player)
+		per_card_effect['amount'] = card_ids.size() * per_card_effect.get("amount", 1)
+		events += do_effect_if_condition_met(performing_player, decision_info.choice_card_id, per_card_effect, null)
 
 	# Intentional events = because events are passed in.
 	events = continue_player_action_resolution(events, performing_player)

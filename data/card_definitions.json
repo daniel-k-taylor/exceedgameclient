@@ -10359,7 +10359,7 @@
 					"effect_type": "gauge_from_hand",
 					"min_amount": 1,
 					"max_amount": 1,
-					"and": {
+					"per_card_effect": {
 						"effect_type": "add_recursive_choice_for_opponent",
 						"recursive_effect": {
 							"effect_type": "choice",
