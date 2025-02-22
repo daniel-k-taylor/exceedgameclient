@@ -106,7 +106,7 @@ func get_choice_summary(choice, card_name_source : String):
 		var effect_summary = effect_summaries[i]
 		if i > 0:
 			summary_text += " or "
-		if effect_summary.min_value != null and effect_summary.effect['effect_type'] not in ["spend_life"]:
+		if effect_summary.min_value != null and effect_summary.effect['effect_type'] not in ["spend_life", "move_random_cards"]:
 			if effect_summary.min_value == effect_summary.max_value:
 				if str(effect_summary.min_value) == "strike_x":
 					effect_summary.min_value = "X"
@@ -247,6 +247,9 @@ func get_condition_text(effect, amount, amount2, detail):
 			text += "If a boost is in play, "
 		"canceled_this_turn":
 			text += "If canceled this turn, "
+		"copy_of_attack_in_zone":
+			var zones = effect['condition_zones'].join("/")
+			text += "If copy of attack in %s, " % zones
 		"discarded_matches_attack_speed":
 			text += "If discarded card matches attack speed, "
 		"initiated_strike":

@@ -10341,9 +10341,11 @@
 						"from_zone": "hand",
 						"to_zone": "gauge",
 						"and": {
-							"effect_type": "return_attack_to_hand",
-							"card_name": "Dragon's Fire"
+							"effect_type": "return_attack_to_hand"
 						}
+					},
+					{
+						"effect_type": "pass"
 					}
 				]
 			}

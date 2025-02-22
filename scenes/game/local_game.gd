@@ -2120,7 +2120,7 @@ class Player:
 				if not meets_limitation:
 					continue
 
-				if limitation == "transform" and has_card_name_transformed(card):
+				if limitation == "transform" and has_card_name_in_zone(card, "transform"):
 					continue
 
 				if ignore_costs:
@@ -2131,16 +2131,32 @@ class Player:
 					return true
 		return false
 
-	func has_card_name_transformed(card : GameCard):
-		for transformed_card in transforms:
-			if transformed_card.definition['display_name'] == card.definition['display_name']:
-				return true
-		return false
-
-	func has_card_name_sealed(card : GameCard):
-		for sealed_card in sealed:
-			if sealed_card.definition['display_name'] == card.definition['display_name']:
-				return true
+	func has_card_name_in_zone(card : GameCard, zone : String):
+		match zone:
+			"boost":
+				for boost_card in continuous_boosts:
+					if boost_card.definition['display_name'] == card.definition['display_name']:
+						return true
+			"discard":
+				for discard_card in discards:
+					if discard_card.definition['display_name'] == card.definition['display_name']:
+						return true
+			"gauge":
+				for gauge_card in gauge:
+					if gauge_card.definition['display_name'] == card.definition['display_name']:
+						return true
+			"hand":
+				for hand_card in hand:
+					if hand_card.definition['display_name'] == card.definition['display_name']:
+						return true
+			"sealed":
+				for sealed_card in sealed:
+					if sealed_card.definition['display_name'] == card.definition['display_name']:
+						return true
+			"transform":
+				for transform_card in transforms:
+					if transform_card.definition['display_name'] == card.definition['display_name']:
+						return true
 		return false
 
 	func can_cancel(card : GameCard):
@@ -3161,12 +3177,6 @@ class Player:
 		for effect in card.definition['boost']['effects']:
 			if effect['timing'] == "now":
 				match effect['effect_type']:
-					"add_passive":
-						if effect['passive'] in passive_effects:
-							passive_effects[effect['passive']] -= 1
-							if passive_effects[effect['passive']] == 0:
-								passive_effects.erase(effect['passive'])
-								parent._append_log_full(Enums.LogType.LogType_Effect, self, "no longer %s." % effect['description'])
 					"ignore_push_and_pull_passive_bonus":
 						# ensure this won't be doubly-undone by a discard effect
 						if not being_discarded:
@@ -3344,7 +3354,14 @@ class Player:
 			if effect['timing'] == "discarded":
 				var owner_player = parent._get_player(card.owner_id)
 				events += parent.do_effect_if_condition_met(owner_player, card.id, effect, null)
-
+			elif effect['timing'] == "now":
+				match effect['effect_type']:
+					"add_passive":
+						if effect['passive'] in passive_effects:
+							passive_effects[effect['passive']] -= 1
+							if passive_effects[effect['passive']] == 0:
+								passive_effects.erase(effect['passive'])
+								parent._append_log_full(Enums.LogType.LogType_Effect, self, "no longer %s." % effect['description'])
 		if card.definition.get("replaced_boost"):
 			card.definition["boost"] = card.definition["replaced_boost"]
 			card.definition.erase("replaced_boost")
@@ -4194,6 +4211,13 @@ func is_effect_condition_met(performing_player : Player, effect, local_condition
 			return performing_player.canceled_this_turn
 		elif condition == "not_canceled_this_turn":
 			return not performing_player.canceled_this_turn
+		elif condition == "copy_of_attack_in_zones":
+			var zones = effect["condition_zones"]
+			var card = active_strike.get_player_card(performing_player)
+			for zone in zones:
+				if performing_player.has_card_name_in_zone(card, zone):
+					return true
+			return false
 		elif condition == "used_character_action":
 			if not performing_player.used_character_action:
 				return false
@@ -5869,7 +5893,7 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 		"guardup_if_copy_of_opponent_attack_in_sealed":
 			performing_player.strike_stat_boosts.guardup_if_copy_of_opponent_attack_in_sealed_modifier = effect["amount"]
 			var opponent_attack = active_strike.get_player_card(opposing_player)
-			if performing_player.has_card_name_sealed(opponent_attack):
+			if performing_player.has_card_name_in_zone(opponent_attack, "sealed"):
 				# Even though this is a passive, show an event now to cover most cases.
 				var guard_boost = effect["amount"]
 				events += [create_event(Enums.EventType.EventType_Strike_GuardUp, performing_player.my_id, guard_boost)]
@@ -6036,8 +6060,12 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 					if to_zone == "gauge":
 						action_word = "moves"
 						destination_str = "to Gauge"
+						for to_gauge_card in card_ids:
+							events += performing_player.move_card_from_hand_to_gauge(to_gauge_card)
+					else:
+						events += target_player.discard(card_ids)
+
 					_append_log_full(Enums.LogType.LogType_CardInfo, target_player, "%s random card(s)%s: %s." % [action_word, destination_str, _log_card_name(card_ids)])
-					events += target_player.discard(card_ids)
 		"move_to_space":
 			var space = effect['amount']
 			var remove_buddies_encountered = effect['remove_buddies_encountered']
@@ -7288,7 +7316,7 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 		"power_armor_up_if_sealed_or_transformed_copy_of_attack":
 			performing_player.strike_stat_boosts.power_armor_up_if_sealed_or_transformed_copy_of_attack = true
 			var attack_card = active_strike.get_player_card(performing_player)
-			if performing_player.has_card_name_sealed(attack_card) or performing_player.has_card_name_transformed(attack_card):
+			if performing_player.has_card_name_in_zone(attack_card, "sealed") or performing_player.has_card_name_in_zone(attack_card, "transform"):
 				events += [create_event(Enums.EventType.EventType_Strike_PowerUp, performing_player.my_id, 1)]
 				events += [create_event(Enums.EventType.EventType_Strike_ArmorUp, performing_player.my_id, 1)]
 		"pull":
@@ -9289,7 +9317,7 @@ func get_total_power(performing_player : Player, ignore_swap : bool = false, car
 		boosted_power += buddy_count * performing_player.strike_stat_boosts.power_modify_per_buddy_between
 
 	if performing_player.strike_stat_boosts.power_armor_up_if_sealed_or_transformed_copy_of_attack:
-		if performing_player.has_card_name_sealed(card) or performing_player.has_card_name_transformed(card):
+		if performing_player.has_card_name_in_zone(card, "sealed") or performing_player.has_card_name_in_zone(card, "transform"):
 			boosted_power += 1
 			positive_boosted_power += 1
 
@@ -9331,7 +9359,7 @@ func get_total_armor(performing_player : Player):
 	var armor_modifier = performing_player.strike_stat_boosts.armor - performing_player.strike_stat_boosts.consumed_armor
 
 	if performing_player.strike_stat_boosts.power_armor_up_if_sealed_or_transformed_copy_of_attack:
-		if performing_player.has_card_name_sealed(card) or performing_player.has_card_name_transformed(card):
+		if performing_player.has_card_name_in_zone(card, "sealed") or performing_player.has_card_name_in_zone(card, "transform"):
 			armor_modifier += 1
 
 	return max(0, armor + armor_modifier)
@@ -9354,7 +9382,7 @@ func get_total_guard(performing_player : Player):
 	if performing_player.strike_stat_boosts.guardup_if_copy_of_opponent_attack_in_sealed_modifier:
 		var opposing_player = _get_player(get_other_player(performing_player.my_id))
 		var opponent_attack = active_strike.get_player_card(opposing_player)
-		if performing_player.has_card_name_sealed(opponent_attack):
+		if performing_player.has_card_name_in_zone(opponent_attack, "sealed"):
 			guard_modifier += performing_player.strike_stat_boosts.guardup_if_copy_of_opponent_attack_in_sealed_modifier
 
 	return guard + guard_modifier
@@ -9924,7 +9952,7 @@ func continue_resolve_strike(events):
 func strike_add_transform_option(performing_player : Player, card : GameCard):
 	assert(active_strike)
 
-	if performing_player.has_card_name_transformed(card):
+	if performing_player.has_card_name_in_zone(card, "transform"):
 		return
 
 	var hit = active_strike.player1_hit
@@ -11047,7 +11075,7 @@ func do_ex_transform(performing_player : Player, card_id : int, ex_card_id : int
 			assert(false)
 			return false
 
-	if performing_player.has_card_name_transformed(card):
+	if performing_player.has_card_name_in_zone(card, "transform"):
 		printlog("ERROR: Tried to transform a previously-transformed card")
 		assert(false)
 		return false

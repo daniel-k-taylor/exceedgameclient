@@ -51,6 +51,11 @@ func give_specific_cards(p1, id1, p2, id2):
 		test_ids.append(give_player_specific_card(p2, id2))
 	return test_ids
 
+func add_transform(player, card_id):
+	give_player_specific_card(player, card_id)
+	player.add_to_transforms(player.hand[-1])
+	player.hand.remove_at(player1.hand.size() - 1)
+
 func position_players(p1, loc1, p2, loc2):
 	p1.arena_location = loc1
 	p2.arena_location = loc2
@@ -187,6 +192,9 @@ func process_decisions(player, strike_state, decisions):
 					LocalGame.StrikeState.keys()[strike_state]])
 			return
 		match game_logic.decision_info.type:
+			Enums.DecisionType.DecisionType_ChooseToDiscard:
+				assert_true(game_logic.do_choose_to_discard(player1, content),
+					"%s failed to choose_to_discard using %s" % [player, content])
 			Enums.DecisionType.DecisionType_ForceForEffect:
 				# In cases where optional booleans are provided at the end of
 				# `content`, interpret them as optional boolean arguments to

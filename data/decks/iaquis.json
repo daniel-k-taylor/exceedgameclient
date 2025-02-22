@@ -24,7 +24,6 @@
 			"limitation": "",
 			"destination": "discard",
 			"discard_effect": {
-				"character_effect": true,
 				"effect_type": "add_attack_triggers"
 			}
 		}
