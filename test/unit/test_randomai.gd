@@ -669,3 +669,6 @@ func test_sydney_100():
 
 func test_celinka_100():
 	run_iterations_with_deck("celinka")
+
+func test_iaquis_100():
+	run_iterations_with_deck("iaquis")

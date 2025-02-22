@@ -1,0 +1,16 @@
+[gd_resource type="SpriteFrames" load_steps=2 format=3 uid="uid://b66jt2q7cji5a"]
+
+[ext_resource type="Texture2D" uid="uid://gx3fy7b52t81" path="res://assets/character_animations/iaquis/iaquis.png" id="1_jrla3"]
+
+[resource]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("1_jrla3")
+}],
+"loop": true,
+"name": &"idle",
+"speed": 5.0
+}]
+metadata/flip = true
+metadata/scaling = 0.07

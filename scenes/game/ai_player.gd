@@ -576,7 +576,7 @@ func get_boost_actions(valid_zones : Array, limitation : String, ignore_costs : 
 				continue
 			if card.definition['boost']['boost_type'] in ["transform", "overload"]:
 				if card.definition['boost']['boost_type'] == limitation: # if effect wants a transform
-					if limitation == "transform" and game_player.has_card_name_transformed(card):
+					if limitation == "transform" and game_player.has_card_name_in_zone(card, "transform"):
 						continue
 					possible_actions.append(BoostAction.new(card.id, [], false, []))
 				continue
