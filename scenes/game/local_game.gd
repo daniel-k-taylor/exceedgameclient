@@ -826,6 +826,7 @@ class Player:
 	var can_boost_from_gauge : bool
 	var checked_post_action_effects : bool
 	var seal_instead_of_discarding : bool
+	var passive_effects : Dictionary
 
 	func _init(id, player_name, parent_ref, card_db_ref, chosen_deck, card_start_id):
 		my_id = id
@@ -944,6 +945,7 @@ class Player:
 		spend_life_for_force_amount = -1
 		can_boost_from_gauge = false
 		seal_instead_of_discarding = false
+		passive_effects = {}
 
 		if "buddy_cards" in deck_def:
 			var buddy_index = 0
@@ -1623,6 +1625,9 @@ class Player:
 		random_shuffle_deck()
 		return events
 
+	func has_passive(passive_name : String):
+		return passive_name in passive_effects
+
 	func is_card_in_gauge(id : int):
 		for card in gauge:
 			if card.id == id:
@@ -2115,7 +2120,7 @@ class Player:
 				if not meets_limitation:
 					continue
 
-				if limitation == "transform" and has_card_name_transformed(card):
+				if limitation == "transform" and has_card_name_in_zone(card, "transform"):
 					continue
 
 				if ignore_costs:
@@ -2126,15 +2131,23 @@ class Player:
 					return true
 		return false
 
-	func has_card_name_transformed(card : GameCard):
-		for transformed_card in transforms:
-			if transformed_card.definition['display_name'] == card.definition['display_name']:
-				return true
-		return false
-
-	func has_card_name_sealed(card : GameCard):
-		for sealed_card in sealed:
-			if sealed_card.definition['display_name'] == card.definition['display_name']:
+	func has_card_name_in_zone(card : GameCard, zone : String):
+		var zone_cards = []
+		match zone:
+			"boost":
+				zone_cards = continuous_boosts
+			"discard":
+				zone_cards = discards
+			"gauge":
+				zone_cards = gauge
+			"hand":
+				zone_cards = hand
+			"sealed":
+				zone_cards = sealed
+			"transform":
+				zone_cards = transforms
+		for check_card in zone_cards:
+			if check_card.definition['display_name'] == card.definition['display_name']:
 				return true
 		return false
 
@@ -3333,7 +3346,14 @@ class Player:
 			if effect['timing'] == "discarded":
 				var owner_player = parent._get_player(card.owner_id)
 				events += parent.do_effect_if_condition_met(owner_player, card.id, effect, null)
-
+			elif effect['timing'] == "now":
+				match effect['effect_type']:
+					"add_passive":
+						if effect['passive'] in passive_effects:
+							passive_effects[effect['passive']] -= 1
+							if passive_effects[effect['passive']] == 0:
+								passive_effects.erase(effect['passive'])
+								parent._append_log_full(Enums.LogType.LogType_Effect, self, "no longer %s." % effect['description'])
 		if card.definition.get("replaced_boost"):
 			card.definition["boost"] = card.definition["replaced_boost"]
 			card.definition.erase("replaced_boost")
@@ -4171,6 +4191,10 @@ func is_effect_condition_met(performing_player : Player, effect, local_condition
 		elif condition == "attack_still_in_play":
 			var card = active_strike.get_player_card(performing_player)
 			return card in active_strike.cards_in_play
+		elif condition == "attacks_match_printed_speed":
+			var card = active_strike.get_player_card(performing_player)
+			var opposing_card = active_strike.get_player_card(other_player)
+			return card.definition['speed'] == opposing_card.definition['speed']
 		elif condition == "boost_in_play":
 			return performing_player.continuous_boosts.size() > 0
 		elif condition == "no_boost_in_play":
@@ -4179,6 +4203,13 @@ func is_effect_condition_met(performing_player : Player, effect, local_condition
 			return performing_player.canceled_this_turn
 		elif condition == "not_canceled_this_turn":
 			return not performing_player.canceled_this_turn
+		elif condition == "copy_of_attack_in_zones":
+			var zones = effect["condition_zones"]
+			var card = active_strike.get_player_card(performing_player)
+			for zone in zones:
+				if performing_player.has_card_name_in_zone(card, zone):
+					return true
+			return false
 		elif condition == "used_character_action":
 			if not performing_player.used_character_action:
 				return false
@@ -4620,6 +4651,9 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 				add_remaining_effect(effect_to_add)
 			else:
 				performing_player.strike_stat_boosts.added_attack_effects.append(effect_to_add)
+		"add_attack_triggers":
+			var card_ids = effect["discarded_card_ids"]
+			events += add_attack_triggers(performing_player, card_ids, true)
 		"add_boost_to_gauge_on_strike_cleanup":
 			if card_id == -1:
 				assert(false, "ERROR: Unimplemented path to add_boost_to_gauge_on_strike_cleanup")
@@ -4644,6 +4678,19 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 			events += performing_player.remove_from_continuous_boosts(card, "overdrive")
 		"add_hand_to_gauge":
 			events += performing_player.add_hand_to_gauge()
+		"add_passive":
+			var passive_name = effect["passive"]
+			if performing_player.passive_effects.get(passive_name):
+				performing_player.passive_effects[passive_name] += 1
+			else:
+				performing_player.passive_effects[passive_name] = 1
+				_append_log_full(Enums.LogType.LogType_Effect, performing_player, "now %s." % effect['description'])
+		"add_recursive_choice_for_opponent":
+			var recursive_effect = effect["recursive_effect"].duplicate(true)
+			for choice in recursive_effect['choice']:
+				if choice.get("recursive"):
+					choice["per_card_effect"] = effect.duplicate(true)
+			events += do_effect_if_condition_met(opposing_player, card_id, recursive_effect, null)
 		"add_set_aside_card_to_deck":
 			var card_name = performing_player.get_set_aside_card(effect['id']).definition['display_name']
 			_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "will draw the set-aside card %s." % _log_card_name(card_name))
@@ -5838,7 +5885,7 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 		"guardup_if_copy_of_opponent_attack_in_sealed":
 			performing_player.strike_stat_boosts.guardup_if_copy_of_opponent_attack_in_sealed_modifier = effect["amount"]
 			var opponent_attack = active_strike.get_player_card(opposing_player)
-			if performing_player.has_card_name_sealed(opponent_attack):
+			if performing_player.has_card_name_in_zone(opponent_attack, "sealed"):
 				# Even though this is a passive, show an event now to cover most cases.
 				var guard_boost = effect["amount"]
 				events += [create_event(Enums.EventType.EventType_Strike_GuardUp, performing_player.my_id, guard_boost)]
@@ -5979,6 +6026,38 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 				decision_info.choice = choice
 				decision_info.choice_card_id = card_id
 				events += [create_event(Enums.EventType.EventType_Strike_EffectChoice, performing_player.my_id, 0, "EffectOption")]
+		"move_random_cards":
+			var card_count = effect['amount']
+			var from_zone = effect['from_zone']
+			var to_zone = effect['to_zone']
+			var target_player = performing_player
+			var effecting_player = performing_player
+			if effect.get("opponent", false):
+				target_player = opposing_player
+			if from_zone == "hand" and to_zone == "discard":
+				card_count -= target_player.strike_stat_boosts.reduce_discard_effects_by
+				if card_count < 0:
+					card_count = 0
+
+			var card_ids = target_player.pick_random_cards_from_hand(card_count)
+			if card_ids.size() > 0:
+				var card_names = card_db.get_card_names(card_ids)
+				if from_zone == "hand" and to_zone == "overdrive":
+					_append_log_full(Enums.LogType.LogType_CardInfo, target_player, "discards random card(s) to opponent's Overdrive: %s." % _log_card_name(card_names))
+					events += target_player.discard(card_ids)
+					events += effecting_player.move_cards_to_overdrive(card_ids, "opponent_discard")
+				else:
+					var action_word = "discards"
+					var destination_str = ""
+					if to_zone == "gauge":
+						action_word = "moves"
+						destination_str = "to Gauge"
+						for to_gauge_card in card_ids:
+							events += performing_player.move_card_from_hand_to_gauge(to_gauge_card)
+					else:
+						events += target_player.discard(card_ids)
+
+					_append_log_full(Enums.LogType.LogType_CardInfo, target_player, "%s random card(s)%s: %s." % [action_word, destination_str, _log_card_name(card_ids)])
 		"move_to_space":
 			var space = effect['amount']
 			var remove_buddies_encountered = effect['remove_buddies_encountered']
@@ -7229,7 +7308,7 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 		"power_armor_up_if_sealed_or_transformed_copy_of_attack":
 			performing_player.strike_stat_boosts.power_armor_up_if_sealed_or_transformed_copy_of_attack = true
 			var attack_card = active_strike.get_player_card(performing_player)
-			if performing_player.has_card_name_sealed(attack_card) or performing_player.has_card_name_transformed(attack_card):
+			if performing_player.has_card_name_in_zone(attack_card, "sealed") or performing_player.has_card_name_in_zone(attack_card, "transform"):
 				events += [create_event(Enums.EventType.EventType_Strike_PowerUp, performing_player.my_id, 1)]
 				events += [create_event(Enums.EventType.EventType_Strike_ArmorUp, performing_player.my_id, 1)]
 		"pull":
@@ -9230,7 +9309,7 @@ func get_total_power(performing_player : Player, ignore_swap : bool = false, car
 		boosted_power += buddy_count * performing_player.strike_stat_boosts.power_modify_per_buddy_between
 
 	if performing_player.strike_stat_boosts.power_armor_up_if_sealed_or_transformed_copy_of_attack:
-		if performing_player.has_card_name_sealed(card) or performing_player.has_card_name_transformed(card):
+		if performing_player.has_card_name_in_zone(card, "sealed") or performing_player.has_card_name_in_zone(card, "transform"):
 			boosted_power += 1
 			positive_boosted_power += 1
 
@@ -9272,7 +9351,7 @@ func get_total_armor(performing_player : Player):
 	var armor_modifier = performing_player.strike_stat_boosts.armor - performing_player.strike_stat_boosts.consumed_armor
 
 	if performing_player.strike_stat_boosts.power_armor_up_if_sealed_or_transformed_copy_of_attack:
-		if performing_player.has_card_name_sealed(card) or performing_player.has_card_name_transformed(card):
+		if performing_player.has_card_name_in_zone(card, "sealed") or performing_player.has_card_name_in_zone(card, "transform"):
 			armor_modifier += 1
 
 	return max(0, armor + armor_modifier)
@@ -9295,7 +9374,7 @@ func get_total_guard(performing_player : Player):
 	if performing_player.strike_stat_boosts.guardup_if_copy_of_opponent_attack_in_sealed_modifier:
 		var opposing_player = _get_player(get_other_player(performing_player.my_id))
 		var opponent_attack = active_strike.get_player_card(opposing_player)
-		if performing_player.has_card_name_sealed(opponent_attack):
+		if performing_player.has_card_name_in_zone(opponent_attack, "sealed"):
 			guard_modifier += performing_player.strike_stat_boosts.guardup_if_copy_of_opponent_attack_in_sealed_modifier
 
 	return guard + guard_modifier
@@ -9865,7 +9944,7 @@ func continue_resolve_strike(events):
 func strike_add_transform_option(performing_player : Player, card : GameCard):
 	assert(active_strike)
 
-	if performing_player.has_card_name_transformed(card):
+	if performing_player.has_card_name_in_zone(card, "transform"):
 		return
 
 	var hit = active_strike.player1_hit
@@ -10608,7 +10687,7 @@ func check_hand_size_advance_turn(performing_player : Player):
 		events += handle_strike_effect(-1, choice_effect, performing_player)
 		active_special_draw_effect = true
 	else:
-		if performing_player.skip_end_of_turn_draw:
+		if performing_player.skip_end_of_turn_draw or performing_player.has_passive("skip_eot_draw_and_discard"):
 			performing_player.skip_end_of_turn_draw = false
 			_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "skips drawing for end of turn. Their hand size is %s." % len(performing_player.hand))
 		else:
@@ -10624,7 +10703,7 @@ func check_hand_size_advance_turn(performing_player : Player):
 				_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "draws %sfor end of turn. Their hand size is now %s." % [from_bottom_str, len(performing_player.hand)])
 
 		active_special_draw_effect = false
-		if len(performing_player.hand) > performing_player.max_hand_size:
+		if len(performing_player.hand) > performing_player.max_hand_size and not performing_player.has_passive("skip_eot_draw_and_discard"):
 			change_game_state(Enums.GameState.GameState_DiscardDownToMax)
 			events += [create_event(Enums.EventType.EventType_HandSizeExceeded, performing_player.my_id, len(performing_player.hand) - performing_player.max_hand_size)]
 		else:
@@ -10988,7 +11067,7 @@ func do_ex_transform(performing_player : Player, card_id : int, ex_card_id : int
 			assert(false)
 			return false
 
-	if performing_player.has_card_name_transformed(card):
+	if performing_player.has_card_name_in_zone(card, "transform"):
 		printlog("ERROR: Tried to transform a previously-transformed card")
 		assert(false)
 		return false
@@ -11431,8 +11510,8 @@ func do_relocate_card_from_hand(performing_player : Player, card_ids : Array) ->
 
 	if decision_info.bonus_effect and card_ids.size() > 0:
 		var per_card_effect = decision_info.bonus_effect.duplicate()
-		per_card_effect['amount'] = card_ids.size() * per_card_effect['amount']
-		events += handle_strike_effect(decision_info.choice_card_id, per_card_effect, performing_player)
+		per_card_effect['amount'] = card_ids.size() * per_card_effect.get("amount", 1)
+		events += do_effect_if_condition_met(performing_player, decision_info.choice_card_id, per_card_effect, null)
 
 	# Intentional events = because events are passed in.
 	events = continue_player_action_resolution(events, performing_player)

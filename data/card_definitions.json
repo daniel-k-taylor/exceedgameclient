@@ -3696,7 +3696,7 @@
 	},
 	{
 		"NOTE": "CELINKA CARDS END",
-		"id": "wishingward",
+		"id": "celinka_wishingward",
 		"type": "special",
 		"display_name": "Wishing Ward",
 		"force_cost": 0,
@@ -10238,6 +10238,325 @@
 		},
 		"NOTEEND": "HYDE CARDS END"
 	},
+
+
+
+	{
+		"NOTE": "IAQUIS CARDS START",
+		"id": "iaquis_dragonsdescent",
+		"type": "ultra",
+		"display_name": "Dragon's Descent",
+		"force_cost": 0,
+		"gauge_cost": 3,
+		"range_min": 2,
+		"range_max": 6,
+		"speed": 4,
+		"power": 7,
+		"armor": 0,
+		"guard": 4,
+		"effects": [
+			{
+				"timing": "hit",
+				"condition": "copy_of_attack_in_zones",
+				"condition_zones": ["boost", "gauge", "transform"],
+				"effect_type": "powerup",
+				"amount": 4
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Dragon's Roar",
+			"effects": [
+				{
+					"timing": "now",
+					"effect_type": "draw",
+					"amount": 5
+				},
+				{
+					"timing": "now",
+					"effect_type": "add_passive",
+					"passive": "skip_eot_draw_and_discard",
+					"description": "skips end of turn draw and discard"
+				}
+			]
+		}
+	},
+	{
+		"id": "iaquis_dragonsheart",
+		"type": "ultra",
+		"display_name": "Dragon's Heart",
+		"force_cost": 0,
+		"gauge_cost": 2,
+		"range_min": 1,
+		"range_max": 1,
+		"speed": 6,
+		"power": 7,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "hit",
+				"effect_type": "push",
+				"amount": 3
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 1,
+			"cancel_cost": -1,
+			"display_name": "Swift Destruction",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "speedup",
+					"amount": 4
+				}
+			]
+		}
+	},
+	{
+		"id": "iaquis_dragonsfire",
+		"type": "special",
+		"display_name": "Dragon's Fire",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 2,
+		"range_max": 5,
+		"speed": 4,
+		"power": 3,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "hit",
+				"condition": "min_cards_in_hand",
+				"condition_amount": 1,
+				"effect_type": "choice",
+				"choice": [
+					{
+						"effect_type": "move_random_cards",
+						"amount": 1,
+						"from_zone": "hand",
+						"to_zone": "gauge",
+						"and": {
+							"effect_type": "return_attack_to_hand"
+						}
+					},
+					{
+						"effect_type": "pass"
+					}
+				]
+			}
+		],
+		"boost": {
+			"boost_type": "immediate",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Martial Challenge",
+			"effects": [
+				{
+					"timing": "immediate",
+					"effect_type": "gauge_from_hand",
+					"min_amount": 1,
+					"max_amount": 1,
+					"per_card_effect": {
+						"effect_type": "add_recursive_choice_for_opponent",
+						"recursive_effect": {
+							"effect_type": "choice",
+							"condition": "min_cards_in_hand",
+							"condition_amount": 1,
+							"choice": [
+								{
+									"effect_type": "gauge_from_hand",
+									"min_amount": 1,
+									"max_amount": 1,
+									"recursive": true
+								},
+								{
+									"effect_type": "pass"
+								}
+							]
+						}
+					}
+				}
+			]
+		}
+	},
+	{
+		"id": "iaquis_dragonsflight",
+		"type": "special",
+		"display_name": "Dragon's Flight",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 2,
+		"speed": 4,
+		"power": 3,
+		"armor": 0,
+		"guard": 5,
+		"effects": [
+			{
+				"timing": "before",
+				"effect_type": "advance",
+				"amount": 3,
+				"bonus_effect": {
+					"condition": "not_advanced_through",
+					"effect_type": "powerup",
+					"amount": 2
+				}
+			}
+		],
+		"boost": {
+			"boost_type": "transform",
+			"force_cost": -1,
+			"cancel_cost": -1,
+			"display_name": "Dragon's Force",
+			"effects": [
+				{
+					"timing": "after",
+					"effect_type": "choice",
+					"choice": [
+						{ "effect_type": "add_strike_to_gauge_after_cleanup" },
+						{ "effect_type": "pass" }
+					],
+					"override_description": "After: You may add attack to Gauge"
+				}
+			]
+		}
+	},
+	{
+		"id": "iaquis_dragonsspine",
+		"type": "special",
+		"display_name": "Dragon's Spine",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 2,
+		"range_max": 6,
+		"speed": 2,
+		"power": 5,
+		"armor": 0,
+		"guard": 6,
+		"effects": [
+			{
+				"timing": "after",
+				"effect_type": "gain_advantage"
+			}
+		],
+		"boost": {
+			"boost_type": "transform",
+			"force_cost": -1,
+			"cancel_cost": -1,
+			"display_name": "Growing Hatred",
+			"effects": [
+				{
+					"timing": "endofstrike",
+					"condition": "not_hit_opponent",
+					"effect_type": "choice",
+					"choice": [
+						{ "effect_type": "draw", "amount": 1 },
+						{ "effect_type": "pass" }
+					],
+					"override_description": "End of Strike: If attack did not hit, you may draw 1"
+				}
+			]
+		}
+	},
+	{
+		"id": "iaquis_dragonstail",
+		"type": "special",
+		"display_name": "Dragon's Tail",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 2,
+		"speed": 3,
+		"power": 4,
+		"armor": 0,
+		"guard": 5,
+		"effects": [
+			{
+				"timing": "before",
+				"effect_type": "powerup",
+				"amount": 2
+			},
+			{
+				"timing": "after",
+				"effect_type": "retreat",
+				"amount": 1
+			}
+		],
+		"boost": {
+			"boost_type": "transform",
+			"force_cost": -1,
+			"cancel_cost": -1,
+			"display_name": "Single-Minded",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"condition": "attacks_match_printed_speed",
+					"effect_type": "stun_immunity",
+					"and": {
+						"effect_type": "powerup",
+						"amount": 2
+					},
+					"override_description": "If attacks match printed speed, Stun Immunity and +2 Power"
+				}
+			]
+		}
+	},
+	{
+		"NOTE": "IAQUIS CARDS END",
+		"id": "iaquis_dragonstongue",
+		"type": "special",
+		"display_name": "Dragon's Tongue",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 3,
+		"speed": 5,
+		"power": 3,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "hit",
+				"effect_type": "powerup",
+				"amount": 1,
+				"and": {
+					"effect_type": "draw",
+					"amount": 1
+				}
+			}
+		],
+		"boost": {
+			"boost_type": "immediate",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Dragon's Scorn",
+			"effects": [
+				{
+					"timing": "immediate",
+					"condition": "range",
+					"condition_amount": 1,
+					"effect_type": "push",
+					"amount": 2
+				},
+				{
+					"timing": "immediate",
+					"effect_type": "force_for_effect",
+					"per_force_effect": null,
+					"overall_effect": {
+						"effect_type": "bonus_action"
+					},
+					"force_max": 1
+				}
+			]
+		},
+		"NOTEEND": "IAQUIS CARDS END"
+	},
+
 
 	{
 		"NOTE": "GALDRED CARDS START",

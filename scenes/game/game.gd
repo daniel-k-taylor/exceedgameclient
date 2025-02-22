@@ -4004,7 +4004,7 @@ func update_boost_summary(player_id, boosts_card_holder, boost_box):
 			stop_on_space_effect['timing'] = "on_stop_on_space"
 			add_to_effects.append(stop_on_space_effect)
 		for effect in card.definition['boost']['effects']:
-			if effect['timing'] != "now" or effect['effect_type'] in ["force_costs_reduced_passive", "ignore_push_and_pull_passive_bonus"]:
+			if effect['timing'] != "now" or effect['effect_type'] in ["force_costs_reduced_passive", "ignore_push_and_pull_passive_bonus", "add_passive"]:
 				if effect['timing'] != "discarded":
 					add_to_effects.append(effect)
 
