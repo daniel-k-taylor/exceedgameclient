@@ -2132,31 +2132,23 @@ class Player:
 		return false
 
 	func has_card_name_in_zone(card : GameCard, zone : String):
+		var zone_cards = []
 		match zone:
 			"boost":
-				for boost_card in continuous_boosts:
-					if boost_card.definition['display_name'] == card.definition['display_name']:
-						return true
+				zone_cards = continuous_boosts
 			"discard":
-				for discard_card in discards:
-					if discard_card.definition['display_name'] == card.definition['display_name']:
-						return true
+				zone_cards = discards
 			"gauge":
-				for gauge_card in gauge:
-					if gauge_card.definition['display_name'] == card.definition['display_name']:
-						return true
+				zone_cards = gauge
 			"hand":
-				for hand_card in hand:
-					if hand_card.definition['display_name'] == card.definition['display_name']:
-						return true
+				zone_cards = hand
 			"sealed":
-				for sealed_card in sealed:
-					if sealed_card.definition['display_name'] == card.definition['display_name']:
-						return true
+				zone_cards = sealed
 			"transform":
-				for transform_card in transforms:
-					if transform_card.definition['display_name'] == card.definition['display_name']:
-						return true
+				zone_cards = transforms
+		for check_card in zone_cards:
+			if check_card.definition['display_name'] == card.definition['display_name']:
+				return true
 		return false
 
 	func can_cancel(card : GameCard):
