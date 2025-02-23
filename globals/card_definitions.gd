@@ -874,7 +874,7 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 			var amount = effect['amount']
 			if str(amount) == "LAST_SPENT_LIFE":
 				amount = "that much"
-			effect_str += "Gain " + amount + " life"
+			effect_str += "Gain " + str(amount) + " life"
 		"gauge_from_hand":
 			effect_str += "Add a card from hand to gauge"
 		"generate_free_force":

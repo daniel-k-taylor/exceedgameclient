@@ -11113,7 +11113,7 @@ func do_boost(performing_player : Player, card_id : int, payment_card_ids : Arra
 		for i in range(1, payment_card_ids.size()):
 			card_names += ", " + card_db.get_card_name(payment_card_ids[i])
 		_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "discards cards to pay for the boost: %s." % _log_card_name(card_names))
-		events += performing_player.discard(payment_card_ids)
+		events += performing_player.discard(payment_card_ids, 0, true)
 	if not handle_spend_life_for_force(performing_player, spent_life_for_force, events):
 		return false
 	if game_over:
@@ -11567,7 +11567,7 @@ func do_boost_cancel(performing_player : Player, gauge_card_ids : Array, doing_c
 		for i in range(1, gauge_card_ids.size()):
 			card_names += ", " + card_db.get_card_name(gauge_card_ids[i])
 		_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "spends gauge to Cancel, discarding %s." % _log_card_name(card_names))
-		events += performing_player.discard(gauge_card_ids)
+		events += performing_player.discard(gauge_card_ids, 0, true)
 		events += performing_player.on_cancel_boost()
 		active_boost.action_after_boost = true
 

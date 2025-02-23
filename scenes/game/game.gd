@@ -5343,16 +5343,22 @@ func _on_popout_close_window():
 
 func _on_player_reference_button_pressed():
 	var topdeck_seen_card_id = game_wrapper.get_player_seen_topdeck(Enums.PlayerId.PlayerId_Player)
+	var topdeck_seen_card_name = ""
+	if topdeck_seen_card_id != -1:
+		topdeck_seen_card_name = game_wrapper.get_card_database().get_card_name(topdeck_seen_card_id)
 	for card in $AllCards/PlayerAllCopy.get_children():
 		if card.card_id < 0:
 			continue
 		var id = card.card_id - ReferenceScreenIdRangeStart
 		var logic_card = game_wrapper.get_card_database().get_card(id)
 		var card_str_id = logic_card.definition['id']
+		var card_name = logic_card.definition['display_name']
 		var count = game_wrapper.count_cards_in_deck_and_hand(Enums.PlayerId.PlayerId_Player, card_str_id)
 		card.set_remaining_count(count)
-		if topdeck_seen_card_id == id:
+		if topdeck_seen_card_name and topdeck_seen_card_name == card_name:
 			card.update_hand_icons(0, 0, true, false)
+		else:
+			card.update_hand_icons(0, 0, false, false)
 	var reference_title = "YOUR DECK REFERENCE (showing remaining card counts in deck+hand"
 	if game_wrapper.is_player_sealed_area_secret(Enums.PlayerId.PlayerId_Player):
 		reference_title += "+sealed"

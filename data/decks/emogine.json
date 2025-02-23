@@ -4,6 +4,7 @@
 	"display_name": "Emogine",
 	"exceed_cost": 6,
 	"exceed_cost_reduced_by": [{ "reduction_type": "transform_discount" }],
+	"exceed_animation": "emogine_exceed",
 	"ability_effects": [
 		{
 			"timing": "set_strike",
@@ -11,6 +12,8 @@
 			"effect_type": "reveal_strike",
 			"and": {
 				"effect_type": "choice",
+				"condition": "min_cards_in_deck",
+				"condition_amount": 1,
 				"choice": [
 					{ "effect_type": "spend_life", "amount": 1, "and": {
 						"effect_type": "replace_wild_swing",

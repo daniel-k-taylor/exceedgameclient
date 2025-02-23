@@ -101,6 +101,16 @@ func test_emogine_holywarding_transform_move_gain_life():
 	advance_turn(player2)
 
 
+func test_emogine_holywarding_transform_payboost_gain_life():
+	position_players(player1, 3, player2, 6)
+	add_transform(player1, "emogine_holywarding")
+	player1.life = 20
+	player1.discard_hand()
+	var gauge = give_gauge(player1, 2)
+	give_player_specific_card(player1, "emogine_martyrslash")
+	assert_true(game_logic.do_boost(player1, player1.hand[-1].id, [gauge[0]]))
+	validate_life(player1, 21, player2, 30)
+
 func test_emogine_holywarding_transform_guiltypaean_transform_gain_life():
 	position_players(player1, 3, player2, 6)
 	add_transform(player1, "emogine_holywarding")

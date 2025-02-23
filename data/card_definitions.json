@@ -7197,7 +7197,8 @@
 					"timing": "set_strike",
 					"condition": "was_wild_swing",
 					"effect_type": "gain_life",
-					"amount": 1
+					"amount": 1,
+					"override_description": "WS: +1 Life"
 				},
 				{
 					"timing": "opponent_set_strike",
@@ -7205,7 +7206,8 @@
 					"condition": "was_wild_swing",
 					"effect_type": "powerup_opponent",
 					"amount": 1,
-					"describe_as_self": true
+					"describe_as_self": true,
+					"override_description": "Opponent WS: +1 Power"
 				}
 			]
 		}
@@ -7253,7 +7255,7 @@
 						},
 						"gauge_max": 1
 					},
-					"override_description": "When Wild Swing set, Hit: May spend 1 Gauge for +2 Power"
+					"override_description": "WS: Hit: May spend 1 Gauge for +2 Power"
 				}
 			]
 		}
@@ -7293,7 +7295,7 @@
 					"timing": "on_spend_gauge",
 					"effect_type": "gain_life",
 					"amount": 1,
-					"override_description": "When you spend Gauge, gain 1 Life"
+					"override_description": "Spend Gauge: +1 Life"
 				}
 			]
 		}
@@ -7325,7 +7327,8 @@
 					{
 						"effect_type": "close",
 						"amount": 2
-					}
+					},
+					{ "effect_type": "pass" }
 				]
 			}
 		],
@@ -7391,7 +7394,7 @@
 						"effect_type": "gain_life",
 						"amount": 2
 					},
-					"override_description": "When Wild Swing set, Hit: If less Life, gain 2 Life"
+					"override_description": "WS: Hit: If less Life, +2 Life"
 				}
 			]
 		},
