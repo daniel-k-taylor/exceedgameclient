@@ -82,6 +82,7 @@ var selected_boost_to_pay_for = -1
 var instructions_ok_allowed = false
 var instructions_cancel_allowed = false
 var instructions_wild_swing_allowed = false
+var instructions_pay_alternative_life_cost = 0
 var instructions_ex_allowed = false
 var instructions_ex_required = false
 var instructions_face_attack_card = null
@@ -1851,8 +1852,8 @@ func get_string_for_action_choice(choice):
 			return "Add to Overdrive"
 		"add_to_topdeck_under":
 			return "Add to deck 2nd from top"
-		"return_to_topdeck":
-			return "Return to top of deck"
+		"add_to_topdeck_under_2":
+			return "Add to deck 3rd from top"
 	return ""
 
 func begin_choose_from_topdeck(action_choices, look_amount, can_pass):
@@ -2574,12 +2575,24 @@ func update_force_generation_message():
 			effect_str += "\n%s" % [force_generated_str]
 			set_instructions(effect_str)
 
-func enable_instructions_ui(message, can_ok, can_cancel, can_wild_swing : bool = false, can_ex : bool = true,
-		choices = [], show_number_picker : bool  = false, extra_choice_text = [], require_ex = false, face_attack_card = null):
+func enable_instructions_ui(
+	message,
+	can_ok,
+	can_cancel,
+	can_wild_swing : bool = false,
+	can_ex : bool = true,
+	choices = [],
+	show_number_picker : bool = false,
+	extra_choice_text = [],
+	require_ex = false,
+	face_attack_card = null,
+	alternative_life_cost : int = 0
+	):
 	set_instructions(message)
 	instructions_ok_allowed = can_ok
 	instructions_cancel_allowed = can_cancel
 	instructions_wild_swing_allowed = can_wild_swing
+	instructions_pay_alternative_life_cost = alternative_life_cost
 	instructions_ex_allowed = can_ex
 	instructions_ex_required = require_ex
 	current_effect_choices = choices
@@ -2617,7 +2630,14 @@ func begin_generate_force_selection(amount, can_cancel : bool = true, wild_swing
 
 	change_ui_state(UIState.UIState_SelectCards)
 
-func begin_gauge_selection(amount : int, wild_swing_allowed : bool, sub_state : UISubState, enable_reminder : bool = false, ex_discard_order_checkbox : bool = false):
+func begin_gauge_selection(
+	amount : int,
+	wild_swing_allowed : bool,
+	sub_state : UISubState,
+	enable_reminder : bool = false,
+	ex_discard_order_checkbox : bool = false,
+	alternative_life_cost : int = 0
+	):
 	# Show the gauge window.
 	_on_player_gauge_gauge_clicked()
 	selected_cards = []
@@ -2634,7 +2654,19 @@ func begin_gauge_selection(amount : int, wild_swing_allowed : bool, sub_state : 
 			cancel_allowed = true
 		UISubState.UISubState_SelectCards_GaugeForEffect:
 			cancel_allowed = select_card_require_min == 0 or preparing_character_action
-	enable_instructions_ui("", true, cancel_allowed, wild_swing_allowed)
+	enable_instructions_ui(
+		"",
+		true,
+		cancel_allowed,
+		wild_swing_allowed,
+		true,
+		[],
+		false,
+		[],
+		false,
+		null,
+		alternative_life_cost
+	)
 
 	change_ui_state(UIState.UIState_SelectCards, sub_state)
 
@@ -3092,12 +3124,20 @@ func _on_pay_cost_gauge(event):
 	var player = event['event_player']
 	var enable_reminder = event['extra_info']
 	var is_ex = event['extra_info2']
+	var alternative_life_cost = event['extra_info3']
 	var gauge_cost = game_wrapper.get_decision_info().cost
 	if player == Enums.PlayerId.PlayerId_Player and not observer_mode:
 		var wild_swing_allowed = game_wrapper.get_decision_info().type == Enums.DecisionType.DecisionType_PayStrikeCost_CanWild
-		begin_gauge_selection(gauge_cost, wild_swing_allowed, UISubState.UISubState_SelectCards_StrikeGauge, enable_reminder, is_ex)
+		begin_gauge_selection(
+			gauge_cost,
+			wild_swing_allowed,
+			UISubState.UISubState_SelectCards_StrikeGauge,
+			enable_reminder,
+			is_ex,
+			alternative_life_cost
+		)
 	else:
-		ai_pay_cost(gauge_cost, false)
+		ai_pay_cost(gauge_cost, false, alternative_life_cost)
 
 func _on_pay_cost_force(event):
 	var player = event['event_player']
@@ -3622,6 +3662,7 @@ func _update_buttons(no_number_picker_update : bool = false):
 			instructions_ok_allowed = false
 			instructions_cancel_allowed = false
 			instructions_wild_swing_allowed = false
+			instructions_pay_alternative_life_cost = 0
 			instructions_face_attack_card = null
 			button_choices.append({ "text": "Move", "action": _on_move_button_pressed, "disabled": not game_wrapper.can_do_move(Enums.PlayerId.PlayerId_Player) })
 			button_choices.append({ "text": "Prepare", "action": _on_prepare_button_pressed, "disabled": not game_wrapper.can_do_prepare(Enums.PlayerId.PlayerId_Player) })
@@ -3732,6 +3773,7 @@ func _update_buttons(no_number_picker_update : bool = false):
 			instructions_ok_allowed = false
 			instructions_cancel_allowed = false
 			instructions_wild_swing_allowed = false
+			instructions_pay_alternative_life_cost = 0
 			instructions_face_attack_card = null
 			button_choices.append({ "text": strike_text, "action": _on_shortcut_strike_pressed, "disabled": not can_strike or not game_wrapper.can_do_strike(Enums.PlayerId.PlayerId_Player) })
 			button_choices.append({ "text": boost_text, "action": _on_shortcut_boost_pressed,
@@ -3954,6 +3996,8 @@ func _update_buttons(no_number_picker_update : bool = false):
 		button_choices.append({ "text": cancel_text, "action": _on_instructions_cancel_button_pressed })
 	if instructions_wild_swing_allowed:
 		button_choices.append({ "text": "Wild Swing", "action": _on_wild_swing_button_pressed })
+	if instructions_pay_alternative_life_cost:
+		button_choices.append({ "text": "Pay %s Life" % instructions_pay_alternative_life_cost, "action": _on_pay_alternative_life_cost_button_pressed })
 	if instructions_face_attack_card:
 		var face_card_name = instructions_face_attack_card.definition['display_name']
 		button_choices.append({ "text": "Strike with %s" % face_card_name, "action": _on_face_attack_button_pressed })
@@ -4475,9 +4519,9 @@ func _on_instructions_ok_button_pressed(index : int):
 			UISubState.UISubState_SelectCards_DiscardCardsToGauge:
 				success = game_wrapper.submit_relocate_card_from_hand(Enums.PlayerId.PlayerId_Player, selected_card_ids)
 			UISubState.UISubState_SelectCards_StrikeForce:
-				success = game_wrapper.submit_pay_strike_cost(Enums.PlayerId.PlayerId_Player, selected_card_ids, false, discard_ex_first_for_strike, use_free_force, spent_life_for_force)
+				success = game_wrapper.submit_pay_strike_cost(Enums.PlayerId.PlayerId_Player, selected_card_ids, false, discard_ex_first_for_strike, use_free_force, spent_life_for_force, false)
 			UISubState.UISubState_SelectCards_StrikeGauge:
-				success = game_wrapper.submit_pay_strike_cost(Enums.PlayerId.PlayerId_Player, selected_card_ids, false, discard_ex_first_for_strike, false, 0)
+				success = game_wrapper.submit_pay_strike_cost(Enums.PlayerId.PlayerId_Player, selected_card_ids, false, discard_ex_first_for_strike, false, 0, false)
 			UISubState.UISubState_SelectCards_Exceed:
 				success = game_wrapper.submit_exceed(Enums.PlayerId.PlayerId_Player, selected_card_ids)
 			UISubState.UISubState_SelectCards_ForceForEffect:
@@ -4648,10 +4692,22 @@ func _on_wild_swing_button_pressed():
 			success = game_wrapper.submit_strike(Enums.PlayerId.PlayerId_Player, -1, true, -1, true)
 		elif ui_sub_state == UISubState.UISubState_SelectCards_StrikeGauge:
 			close_popout()
-			success = game_wrapper.submit_pay_strike_cost(Enums.PlayerId.PlayerId_Player, [], true, false, false, 0)
+			success = game_wrapper.submit_pay_strike_cost(Enums.PlayerId.PlayerId_Player, [], true, false, false, 0, false)
 		elif ui_sub_state == UISubState.UISubState_SelectCards_StrikeForce:
 			close_popout()
-			success = game_wrapper.submit_pay_strike_cost(Enums.PlayerId.PlayerId_Player, [], true, false, false, 0)
+			success = game_wrapper.submit_pay_strike_cost(Enums.PlayerId.PlayerId_Player, [], true, false, false, 0, false)
+	if success:
+		deselect_all_cards()
+		change_ui_state(UIState.UIState_WaitForGameServer)
+	_update_buttons()
+
+func _on_pay_alternative_life_cost_button_pressed():
+	var success = false
+	if ui_state == UIState.UIState_SelectCards:
+		if ui_sub_state == UISubState.UISubState_SelectCards_StrikeGauge:
+			close_popout()
+			success = game_wrapper.submit_pay_strike_cost(Enums.PlayerId.PlayerId_Player, [], true, false, false, 0, true)
+
 	if success:
 		deselect_all_cards()
 		change_ui_state(UIState.UIState_WaitForGameServer)
@@ -4878,16 +4934,16 @@ func ai_do_boost(valid_zones : Array, limitation : String, ignore_costs : bool =
 	else:
 		print("FAILED AI DO BOOST")
 
-func ai_pay_cost(cost, is_force_cost : bool):
+func ai_pay_cost(cost, is_force_cost : bool, alternative_life_cost : int = 0):
 	change_ui_state(UIState.UIState_WaitForGameServer)
 	if not game_wrapper.is_ai_game(): return
 	var can_wild = game_wrapper.get_decision_info().type == Enums.DecisionType.DecisionType_PayStrikeCost_CanWild
 	var pay_action
 	if is_force_cost:
-		pay_action = ai_player.pay_strike_force_cost(cost, can_wild)
+		pay_action = ai_player.pay_strike_force_cost(cost, can_wild, alternative_life_cost)
 	else:
-		pay_action = ai_player.pay_strike_gauge_cost(cost, can_wild)
-	var success = game_wrapper.submit_pay_strike_cost(Enums.PlayerId.PlayerId_Opponent, pay_action.card_ids, pay_action.wild_swing, false, pay_action.use_free_force, 0)
+		pay_action = ai_player.pay_strike_gauge_cost(cost, can_wild, alternative_life_cost)
+	var success = game_wrapper.submit_pay_strike_cost(Enums.PlayerId.PlayerId_Opponent, pay_action.card_ids, pay_action.wild_swing, false, pay_action.use_free_force, 0, false)
 	if success:
 		change_ui_state(UIState.UIState_WaitForGameServer)
 	else:
@@ -5286,14 +5342,23 @@ func _on_popout_close_window():
 	close_popout()
 
 func _on_player_reference_button_pressed():
+	var topdeck_seen_card_id = game_wrapper.get_player_seen_topdeck(Enums.PlayerId.PlayerId_Player)
+	var topdeck_seen_card_name = ""
+	if topdeck_seen_card_id != -1:
+		topdeck_seen_card_name = game_wrapper.get_card_database().get_card_name(topdeck_seen_card_id)
 	for card in $AllCards/PlayerAllCopy.get_children():
 		if card.card_id < 0:
 			continue
 		var id = card.card_id - ReferenceScreenIdRangeStart
 		var logic_card = game_wrapper.get_card_database().get_card(id)
 		var card_str_id = logic_card.definition['id']
+		var card_name = logic_card.definition['display_name']
 		var count = game_wrapper.count_cards_in_deck_and_hand(Enums.PlayerId.PlayerId_Player, card_str_id)
 		card.set_remaining_count(count)
+		if topdeck_seen_card_name and topdeck_seen_card_name == card_name:
+			card.update_hand_icons(0, 0, true, false)
+		else:
+			card.update_hand_icons(0, 0, false, false)
 	var reference_title = "YOUR DECK REFERENCE (showing remaining card counts in deck+hand"
 	if game_wrapper.is_player_sealed_area_secret(Enums.PlayerId.PlayerId_Player):
 		reference_title += "+sealed"

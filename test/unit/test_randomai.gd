@@ -160,9 +160,9 @@ func handle_decisions(game: LocalGame):
 				var is_gauge = game.decision_info.limitation == "gauge"
 				var pay_action
 				if is_gauge:
-					pay_action = decision_ai.pay_strike_gauge_cost(cost, can_wild)
+					pay_action = decision_ai.pay_strike_gauge_cost(cost, can_wild, 0)
 				else:
-					pay_action = decision_ai.pay_strike_force_cost(cost, can_wild)
+					pay_action = decision_ai.pay_strike_force_cost(cost, can_wild, 0)
 				assert_true(game.do_pay_strike_cost(decision_player, pay_action.card_ids, pay_action.wild_swing, true, pay_action.use_free_force), "do pay failed")
 			Enums.DecisionType.DecisionType_EffectChoice, Enums.DecisionType.DecisionType_ChooseSimultaneousEffect:
 				var effect_action = decision_ai.pick_effect_choice()
@@ -672,3 +672,6 @@ func test_celinka_100():
 
 func test_iaquis_100():
 	run_iterations_with_deck("iaquis")
+
+func test_emogine_100():
+	run_iterations_with_deck("emogine")

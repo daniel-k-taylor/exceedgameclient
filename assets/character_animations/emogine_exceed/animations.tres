@@ -1,0 +1,16 @@
+[gd_resource type="SpriteFrames" load_steps=2 format=3 uid="uid://c518avvxekp17"]
+
+[ext_resource type="Texture2D" uid="uid://cor3gj8odtv1g" path="res://assets/character_animations/emogine_exceed/emogine_exceed.jpeg" id="1_wyftw"]
+
+[resource]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("1_wyftw")
+}],
+"loop": true,
+"name": &"idle",
+"speed": 5.0
+}]
+metadata/flip = true
+metadata/scaling = 1.0

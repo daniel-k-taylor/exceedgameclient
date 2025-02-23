@@ -1,0 +1,218 @@
+{
+	"id": "emogine",
+	"season": 2,
+	"display_name": "Emogine",
+	"exceed_cost": 6,
+	"exceed_cost_reduced_by": [{ "reduction_type": "transform_discount" }],
+	"exceed_animation": "emogine_exceed",
+	"ability_effects": [
+		{
+			"timing": "set_strike",
+			"condition": "was_wild_swing",
+			"effect_type": "reveal_strike",
+			"and": {
+				"effect_type": "choice",
+				"condition": "min_cards_in_deck",
+				"condition_amount": 1,
+				"choice": [
+					{ "effect_type": "spend_life", "amount": 1, "and": {
+						"effect_type": "replace_wild_swing",
+						"previous_attack_to": "gauge"
+					} },
+					{ "effect_type": "pass" }
+				]
+			}
+		}
+	],
+	"on_exceed": {
+		"effect_type": "add_passive",
+		"passive": "topdeck_visible_to_self",
+		"description": "sees their top deck anytime"
+	},
+	"exceed_ability_effects": [
+		{
+			"timing": "start_of_next_turn",
+			"effect_type": "choice",
+			"choice": [
+				{ "effect_type": "spend_life", "amount": 1, "and": {
+					"effect_type": "add_top_deck_to_bottom"
+				} },
+				{ "effect_type": "pass" }
+			]
+		}
+	],
+	"image_resources": {
+		"character_default": {
+			"url": "https://i.imgur.com/7xgPm2g.jpeg",
+			"multiple_cards": false
+		},
+		"character_exceeded": {
+			"url": "https://i.imgur.com/pUhZJcQ.jpeg",
+			"multiple_cards": false
+		},
+		"cardback": {
+			"url": "https://i.imgur.com/s6wpKBq.jpeg",
+			"multiple_cards": false
+		},
+		"specials": {
+			"url": "https://i.imgur.com/Csu4Avc.jpeg",
+			"multiple_cards": true
+		},
+		"normals": {
+			"url": "https://i.imgur.com/1pnJnEb.jpeg",
+			"multiple_cards": true
+		}
+	},
+	"cards": [
+		{
+			"definition_id": "emogine_handofjudgment",
+			"image_name": "specials",
+			"image_index": 5
+		},
+		{
+			"definition_id": "emogine_handofjudgment",
+			"image_name": "specials",
+			"image_index": 5
+		},
+		{
+			"definition_id": "emogine_touchofdivinity",
+			"image_name": "specials",
+			"image_index": 6
+		},
+		{
+			"definition_id": "emogine_touchofdivinity",
+			"image_name": "specials",
+			"image_index": 6
+		},
+		{
+			"definition_id": "emogine_bloodforblood",
+			"image_name": "specials",
+			"image_index": 3
+		},
+		{
+			"definition_id": "emogine_bloodforblood",
+			"image_name": "specials",
+			"image_index": 3
+		},
+		{
+			"definition_id": "emogine_guiltypaean",
+			"image_name": "specials",
+			"image_index": 2
+		},
+		{
+			"definition_id": "emogine_guiltypaean",
+			"image_name": "specials",
+			"image_index": 2
+		},
+		{
+			"definition_id": "emogine_holywarding",
+			"image_name": "specials",
+			"image_index": 1
+		},
+		{
+			"definition_id": "emogine_holywarding",
+			"image_name": "specials",
+			"image_index": 1
+		},
+		{
+			"definition_id": "emogine_martyrslash",
+			"image_name": "specials",
+			"image_index": 4
+		},
+		{
+			"definition_id": "emogine_martyrslash",
+			"image_name": "specials",
+			"image_index": 4
+		},
+		{
+			"definition_id": "emogine_purifyingchime",
+			"image_name": "specials",
+			"image_index": 0
+		},
+		{
+			"definition_id": "emogine_purifyingchime",
+			"image_name": "specials",
+			"image_index": 0
+		},
+		{
+			"definition_id": "standard_normal_grasp",
+			"image_name": "normals",
+			"image_index": 0
+		},
+		{
+			"definition_id": "standard_normal_grasp",
+			"image_name": "normals",
+			"image_index": 0
+		},
+		{
+			"definition_id": "standard_normal_cross",
+			"image_name": "normals",
+			"image_index": 1
+		},
+		{
+			"definition_id": "standard_normal_cross",
+			"image_name": "normals",
+			"image_index": 1
+		},
+		{
+			"definition_id": "standard_normal_assault",
+			"image_name": "normals",
+			"image_index": 2
+		},
+		{
+			"definition_id": "standard_normal_assault",
+			"image_name": "normals",
+			"image_index": 2
+		},
+		{
+			"definition_id": "standard_normal_dive",
+			"image_name": "normals",
+			"image_index": 3
+		},
+		{
+			"definition_id": "standard_normal_dive",
+			"image_name": "normals",
+			"image_index": 3
+		},
+		{
+			"definition_id": "standard_normal_spike",
+			"image_name": "normals",
+			"image_index": 4
+		},
+		{
+			"definition_id": "standard_normal_spike",
+			"image_name": "normals",
+			"image_index": 4
+		},
+		{
+			"definition_id": "standard_normal_sweep",
+			"image_name": "normals",
+			"image_index": 5
+		},
+		{
+			"definition_id": "standard_normal_sweep",
+			"image_name": "normals",
+			"image_index": 5
+		},
+		{
+			"definition_id": "standard_normal_focus",
+			"image_name": "normals",
+			"image_index": 6
+		},
+		{
+			"definition_id": "standard_normal_focus",
+			"image_name": "normals",
+			"image_index": 6
+		},
+		{
+			"definition_id": "standard_normal_block",
+			"image_name": "normals",
+			"image_index": 7
+		},
+		{
+			"definition_id": "standard_normal_block",
+			"image_name": "normals",
+			"image_index": 7
+		}
+	]
+}

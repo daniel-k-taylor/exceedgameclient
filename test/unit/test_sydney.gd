@@ -176,6 +176,14 @@ func test_sydney_spentgauge_transform():
 		false, false, [[p1gauge[0], p1gauge[1]], 2, 0]) # Pay for spore transform to add armor, pull pea shooter, then push transform
 	validate_positions(player1, 3, player2, 6) # Pea shooter pulls 3 to 5, then push 1 to go to 6
 	validate_life(player1, 30, player2, 29)
+	advance_turn(player2)
+	
+	# Do it again but don't spend gauge
+	position_players(player1, 3, player2, 8)
+	execute_strike(player1, player2, "sydney_peashooter", "standard_normal_assault",
+		false, false, [[], 2]) # Don't paypull pea shooter, then push transform
+	validate_positions(player1, 3, player2, 5) # Pea shooter pulls 3 to 5, then push 1 to go to 6
+	validate_life(player1, 30, player2, 28)
 
 
 func test_sydney_spentgauge_transform_dontspend():
