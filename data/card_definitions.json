@@ -7062,7 +7062,7 @@
 
 	{
 		"NOTE": "EMOGINE CARDS START",
-		"id": "emogine_handofjudgement",
+		"id": "emogine_handofjudgment",
 		"type": "ultra",
 		"display_name": "Hand of Judgment",
 		"force_cost": 0,
@@ -7204,7 +7204,8 @@
 					"NOTE": "processed from opponent's perspective",
 					"condition": "was_wild_swing",
 					"effect_type": "powerup_opponent",
-					"amount": 1
+					"amount": 1,
+					"describe_as_self": true
 				}
 			]
 		}
@@ -7316,9 +7317,10 @@
 				"effect_type": "choice",
 				"choice": [
 					{
-						"effect_type": "boost_additional",
+						"effect_type": "boost_then_sustain",
+						"valid_zones": [ "hand" ],
 						"limitation": "transform",
-						"valid_zones": [ "hand" ]
+						"sustain": false
 					},
 					{
 						"effect_type": "close",

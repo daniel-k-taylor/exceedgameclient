@@ -215,6 +215,8 @@ func get_timing_text(timing):
 			text += "When hit, "
 		"on_stop_on_space":
 			text += "When boost entered during strike, stop movement; "
+		"on_spend_life":
+			text += "When you spend life, "
 		_:
 			text += "MISSING TIMING"
 	return text
@@ -288,6 +290,8 @@ func get_condition_text(effect, amount, amount2, detail):
 			text += "If you moved at least %s space(s) this strike, " % amount
 		"moved_past":
 			text += "If you moved past the opponent, "
+		"min_cards_in_deck":
+			text += "If you have at least %s card(s) in deck, " % amount
 		"min_cards_in_discard":
 			text += "If you have at least %s card(s) in discard, " % amount
 		"min_cards_in_hand":
@@ -394,7 +398,10 @@ func get_condition_text(effect, amount, amount2, detail):
 		"opponent_speed_less_or_equal":
 			text += "If the opponent's speed is %s or lower, " % amount
 		"was_wild_swing":
-			text += "If this was a wild swing, "
+			if effect["timing"] == "opponent_set_strike":
+				text += "If opponent wild swung, "
+			else:
+				text += "If this was a wild swing, "
 		"was_strike_from_gauge":
 			text += "If set from gauge, "
 		"was_set_from_boosts":
@@ -864,7 +871,10 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 		"gain_advantage":
 			effect_str += "Gain Advantage"
 		"gain_life":
-			effect_str += "Gain " + str(effect['amount']) + " life"
+			var amount = effect['amount']
+			if str(amount) == "LAST_SPENT_LIFE":
+				amount = "that much"
+			effect_str += "Gain " + amount + " life"
 		"gauge_from_hand":
 			effect_str += "Add a card from hand to gauge"
 		"generate_free_force":
@@ -1205,6 +1215,12 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 				else:
 					repeats += " time(s)"
 				effect_str += "; you may repeat this %s." % repeats
+		"replace_wild_swing":
+			var previous_attack_to = effect.get("previous_attack_to", "discard")
+			if previous_attack_to == "gauge":
+				effect_str += "Add to Gauge and wild swing next card"
+			else:
+				effect_str += "Discard and wild swing next card"
 		"reshuffle_discard_into_deck":
 			effect_str += "Reshuffle discard pile into deck"
 		"retreat":

@@ -2374,6 +2374,7 @@ class Player:
 
 	func discard(card_ids : Array, from_top : int = 0, count_as_spent : bool = false):
 		var events = []
+		var spent_any_gauge = false
 		for discard_id in card_ids:
 			var found_card = false
 
@@ -2394,14 +2395,13 @@ class Player:
 				if card.id == discard_id:
 					gauge.remove_at(i)
 					if count_as_spent:
-						gauge_spent_this_strike += 1
-						var on_spend_gauge_effects = parent.get_all_effects_for_timing("on_spend_gauge", self, null)
-						# Assumption: No choices at this timing.
-						for effect in on_spend_gauge_effects:
-							events += parent.do_effect_if_condition_met(self, -1, effect, null)
+						spent_any_gauge = true
+						if parent.active_strike:
+							gauge_spent_this_strike += 1
 					events += add_to_discards(card, from_top)
 					found_card = true
 					break
+
 			if found_card: continue
 
 			# From overdrive
@@ -2415,6 +2415,13 @@ class Player:
 
 			if not found_card:
 				assert(false, "ERROR: card to discard not found")
+
+
+		if spent_any_gauge:
+			var on_spend_gauge_effects = parent.get_all_effects_for_timing("on_spend_gauge", self, null)
+			# Assumption: No choices at this timing.
+			for effect in on_spend_gauge_effects:
+				events += parent.do_effect_if_condition_met(self, effect['card_id'], effect, null)
 
 		return events
 
@@ -2695,7 +2702,7 @@ class Player:
 			var on_spend_life_effects = parent.get_all_effects_for_timing("on_spend_life", self, null)
 			# Assumption: No choices at this timing.
 			for effect in on_spend_life_effects:
-				events += parent.do_effect_if_condition_met(self, -1, effect, null)
+				events += parent.do_effect_if_condition_met(self, effect["card_id"], effect, null)
 		return events
 
 	func invalidate_card(card : GameCard):
@@ -4341,6 +4348,9 @@ func is_effect_condition_met(performing_player : Player, effect, local_condition
 		elif condition == "matches_named_card":
 			var player_card = active_strike.get_player_card(performing_player)
 			return player_card.definition['id'] == effect['condition_card_id']
+		elif condition == "min_cards_in_deck":
+			var amount = effect['condition_amount']
+			return performing_player.deck.size() >= amount
 		elif condition == "min_cards_in_discard":
 			var amount = effect['condition_amount']
 			return performing_player.discards.size() >= amount
@@ -9607,7 +9617,7 @@ func get_gauge_cost(performing_player : Player, card, check_if_card_in_hand = fa
 	return gauge_cost
 
 func get_alternative_life_cost(performing_player : Player, card):
-	var alternative_life_cost = card.definition.get("alternative_life_cost")
+	var alternative_life_cost = card.definition.get("alternative_life_cost", 0)
 	if alternative_life_cost:
 		var alternative_cost_requirement = card.definition.get("alternative_cost_requirement")
 		if alternative_cost_requirement:
@@ -9993,6 +10003,8 @@ func continue_resolve_strike(events):
 				# Remove all stat boosts.
 				player.strike_stat_boosts.clear()
 				opponent.strike_stat_boosts.clear()
+				player.gauge_spent_this_strike = 0
+				opponent.gauge_spent_this_strike = 0
 
 				# Cleanup UI
 				events.append(create_event(Enums.EventType.EventType_Strike_Cleanup, player1.my_id, -1))
@@ -10832,7 +10844,7 @@ func handle_spend_life_for_force(performing_player : Player, spent_life : int, e
 		return false
 
 	if spent_life > 0:
-		events.extend(performing_player.spend_life(spent_life))
+		events.append_array(performing_player.spend_life(spent_life))
 		#if active_strike:
 			#active_strike.add_damage_taken(damaged_player, unmitigated_damage)
 			#events += check_for_stun(damaged_player, false)
@@ -10844,7 +10856,7 @@ func handle_spend_life_cost(performing_player : Player, spent_life : int, events
 		return false
 
 	if spent_life > 0:
-		events.extend(performing_player.spend_life(spent_life))
+		events.append_array(performing_player.spend_life(spent_life))
 	return true
 
 func do_discard_to_max(performing_player : Player, card_ids) -> bool:
@@ -10917,7 +10929,7 @@ func do_move(performing_player : Player, card_ids, new_arena_location, use_free_
 		return false
 	performing_player.total_force_spent_this_turn += required_force
 
-	var events = performing_player.discard(card_ids)
+	var events = performing_player.discard(card_ids, 0, true)
 	if not handle_spend_life_for_force(performing_player, spent_life_for_force, events):
 		return false
 	if game_over:
@@ -10960,7 +10972,7 @@ func do_change(performing_player : Player, card_ids, treat_ultras_as_single_forc
 	var events = []
 	events += [create_event(Enums.EventType.EventType_ChangeCards, performing_player.my_id, 0)]
 	var force_generated = performing_player.get_force_with_cards(card_ids, "CHANGE_CARDS", treat_ultras_as_single_force, use_free_force)
-	events += performing_player.discard(card_ids)
+	events += performing_player.discard(card_ids, 0, true)
 
 	force_generated += performing_player.get_force_from_spent_life(spent_life_for_force)
 	if not handle_spend_life_for_force(performing_player, spent_life_for_force, events):
@@ -11030,7 +11042,7 @@ func do_exceed(performing_player : Player, card_ids : Array) -> bool:
 	else:
 		var card_names = card_db.get_card_names(card_ids)
 		_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "spends %s card(s) from gauge: %s" % [len(card_ids), _log_card_name(card_names)])
-		events += performing_player.discard(card_ids)
+		events += performing_player.discard(card_ids, 0, true)
 
 	events += performing_player.exceed()
 	if game_state == Enums.GameState.GameState_AutoStrike:

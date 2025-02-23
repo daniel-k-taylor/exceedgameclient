@@ -5352,7 +5352,6 @@ func _on_player_reference_button_pressed():
 		var count = game_wrapper.count_cards_in_deck_and_hand(Enums.PlayerId.PlayerId_Player, card_str_id)
 		card.set_remaining_count(count)
 		if topdeck_seen_card_id == id:
-			card.set_topdeck_seen(true)
 			card.update_hand_icons(0, 0, true, false)
 	var reference_title = "YOUR DECK REFERENCE (showing remaining card counts in deck+hand"
 	if game_wrapper.is_player_sealed_area_secret(Enums.PlayerId.PlayerId_Player):
