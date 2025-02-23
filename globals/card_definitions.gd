@@ -266,6 +266,8 @@ func get_condition_text(effect, amount, amount2, detail):
 			text += "If your life is exactly %s, " % amount
 		"life_equal_or_below":
 			text += "If your life is %s or less, " % amount
+		"life_less_than_opponent":
+			text += "If your life is less than opponent's, "
 		"not_canceled_this_turn":
 			text += "If not canceled this turn, "
 		"not_full_push":
@@ -516,6 +518,8 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 			if 'card_name' in effect:
 				topdeck_card = "([color=%s]%s[/color]) " % [CardHighlightColor, effect['card_name']]
 			effect_str += "%s %s of deck %sto gauge" % [player_str, amount_str, topdeck_card]
+		"add_top_deck_to_bottom":
+			effect_str = "Move top card of deck to bottom of deck"
 		"add_top_discard_to_gauge":
 			if 'amount' in effect:
 				effect_str += "Add top %s card(s) of discard pile to gauge" % effect['amount']

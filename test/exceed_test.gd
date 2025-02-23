@@ -56,6 +56,11 @@ func add_transform(player, card_id):
 	player.add_to_transforms(player.hand[-1])
 	player.hand.remove_at(player1.hand.size() - 1)
 
+func set_player_topdeck(player, card_id):
+	give_player_specific_card(player, card_id)
+	player.deck.insert(0, player.hand[-1])
+	player.hand.remove_at(player1.hand.size() - 1)
+
 func position_players(p1, loc1, p2, loc2):
 	p1.arena_location = loc1
 	p2.arena_location = loc2

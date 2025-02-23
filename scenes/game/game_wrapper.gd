@@ -138,6 +138,9 @@ func get_player_exceed_cost(id):
 func is_player_exceeded(id):
 	return _get_player(id).exceeded
 
+func get_player_seen_topdeck(id):
+	return _get_player(id).get_seen_topdeck()
+
 func get_player_mulligan_complete(id):
 	return _get_player(id).mulligan_complete
 
@@ -531,10 +534,17 @@ func submit_relocate_card_from_hand(player : Enums.PlayerId, card_ids : Array) -
 	var game_player = _get_player(player)
 	return current_game.do_relocate_card_from_hand(game_player, card_ids)
 
-func submit_pay_strike_cost(player : Enums.PlayerId, card_ids : Array, wild_strike : bool, discard_ex_first : bool,
-		use_free_force : bool, spent_life_for_force : int) -> bool:
+func submit_pay_strike_cost(
+	player : Enums.PlayerId,
+	card_ids : Array,
+	wild_strike : bool,
+	discard_ex_first : bool,
+	use_free_force : bool,
+	spent_life_for_force : int,
+	pay_alternative_life_cost : bool
+	) -> bool:
 	var game_player = _get_player(player)
-	return current_game.do_pay_strike_cost(game_player, card_ids, wild_strike, discard_ex_first, use_free_force, spent_life_for_force)
+	return current_game.do_pay_strike_cost(game_player, card_ids, wild_strike, discard_ex_first, use_free_force, spent_life_for_force, pay_alternative_life_cost)
 
 func submit_exceed(player : Enums.PlayerId, card_ids : Array) -> bool:
 	var game_player = _get_player(player)

@@ -827,6 +827,7 @@ class Player:
 	var checked_post_action_effects : bool
 	var seal_instead_of_discarding : bool
 	var passive_effects : Dictionary
+	var last_spent_life : int
 
 	func _init(id, player_name, parent_ref, card_db_ref, chosen_deck, card_start_id):
 		my_id = id
@@ -946,6 +947,7 @@ class Player:
 		can_boost_from_gauge = false
 		seal_instead_of_discarding = false
 		passive_effects = {}
+		last_spent_life = 0
 
 		if "buddy_cards" in deck_def:
 			var buddy_index = 0
@@ -1548,6 +1550,15 @@ class Player:
 		deck.remove_at(0)
 		update_public_hand_if_deck_empty()
 
+	func add_top_deck_to_bottom():
+		var events = []
+		if deck.size() > 0:
+			var card = deck[0]
+			deck.append(card)
+			deck.remove_at(0)
+		parent._append_log_full(Enums.LogType.LogType_CardInfo, self, "moves the top card of their deck to the bottom of their deck.")
+		return events
+
 	func add_top_deck_to_gauge(amount : int):
 		var events = []
 		for i in range(amount):
@@ -2058,7 +2069,9 @@ class Player:
 			return spent_life_for_force * spend_life_for_force_amount
 		return 0
 
-	func can_pay_cost_with(card_ids : Array, force_cost : int, gauge_cost : int, use_free_force : bool, spent_life_for_force : int):
+	func can_pay_cost_with(card_ids : Array, force_cost : int, gauge_cost : int, use_free_force : bool, spent_life_for_force : int, alternative_life_cost : int = 0):
+		if alternative_life_cost and life > alternative_life_cost and card_ids.size() == 0:
+			return true
 		if force_cost and gauge_cost:
 			# UNEXPECTED - NOT IMPLEMENTED
 			assert(false)
@@ -2088,7 +2101,9 @@ class Player:
 		# No cost.
 		return true
 
-	func can_pay_cost(force_cost : int, gauge_cost : int):
+	func can_pay_cost(force_cost : int, gauge_cost : int, alternative_life_cost : int = 0):
+		if alternative_life_cost and life > alternative_life_cost:
+			return true
 		var available_force = get_available_force()
 		var available_gauge = get_available_gauge()
 		if available_gauge < gauge_cost:
@@ -2380,6 +2395,10 @@ class Player:
 					gauge.remove_at(i)
 					if count_as_spent:
 						gauge_spent_this_strike += 1
+						var on_spend_gauge_effects = parent.get_all_effects_for_timing("on_spend_gauge", self, null)
+						# Assumption: No choices at this timing.
+						for effect in on_spend_gauge_effects:
+							events += parent.do_effect_if_condition_met(self, -1, effect, null)
 					events += add_to_discards(card, from_top)
 					found_card = true
 					break
@@ -2570,6 +2589,15 @@ class Player:
 			events += parent.do_seal_effect(self, card.id, "deck")
 		return events
 
+	func can_see_topdeck():
+		return has_passive("topdeck_visible_to_self")
+
+	func get_seen_topdeck():
+		if can_see_topdeck():
+			if deck.size() > 0:
+				return deck[0].id
+		return -1
+
 	func next_strike_with_or_reveal(card_definition_id : String) -> void:
 		reading_card_id = card_definition_id
 
@@ -2652,6 +2680,22 @@ class Player:
 		var discarded_names = parent.card_db.get_card_names(discarded_ids)
 		if discarded_names:
 			parent._append_log_full(Enums.LogType.LogType_CardInfo, self, "discards random card(s): %s." % parent._log_card_name(discarded_names))
+		return events
+
+	func spend_life(amount):
+		var events = []
+		life -= amount
+		last_spent_life = amount
+		events += [parent.create_event(Enums.EventType.EventType_Strike_TookDamage, my_id, amount, "spend", life)]
+		parent._append_log_full(Enums.LogType.LogType_Health, self, "spends %s life, bringing them to %s!" % [str(amount), str(life)])
+		if life <= 0:
+			parent._append_log_full(Enums.LogType.LogType_Default, self, "has no life remaining!")
+			events += parent.on_death(self)
+		if not parent.game_over:
+			var on_spend_life_effects = parent.get_all_effects_for_timing("on_spend_life", self, null)
+			# Assumption: No choices at this timing.
+			for effect in on_spend_life_effects:
+				events += parent.do_effect_if_condition_met(self, -1, effect, null)
 		return events
 
 	func invalidate_card(card : GameCard):
@@ -4103,7 +4147,8 @@ func strike_determine_order():
 
 func do_effect_if_condition_met(
 	performing_player : Player,
-	card_id : int, effect,
+	card_id : int,
+	effect,
 	local_conditions : LocalStrikeConditions,
 	recorded_failed_effects = null
 	):
@@ -4251,6 +4296,8 @@ func is_effect_condition_met(performing_player : Player, effect, local_condition
 		elif condition == "life_equal_or_below":
 			var amount = effect['condition_amount']
 			return performing_player.life <= amount
+		elif condition == "life_less_than_opponent":
+			return performing_player.life < other_player.life
 		elif condition == "did_end_of_turn_draw":
 			return performing_player.did_end_of_turn_draw
 		elif condition == "discarded_matches_attack_speed":
@@ -4745,6 +4792,8 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 				events += performing_player.add_top_discard_to_gauge(amount, true, "hand")
 			else:
 				_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "has no cards in their discard pile to add to hand.")
+		"add_top_deck_to_bottom":
+			events += performing_player.add_top_deck_to_bottom()
 		"add_top_deck_to_gauge":
 			var target_player = performing_player
 			if 'opponent' in effect and effect['opponent']:
@@ -5821,6 +5870,8 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 			_append_log_full(Enums.LogType.LogType_Effect, performing_player, "gains Advantage!")
 		"gain_life":
 			var amount = effect['amount']
+			if str(amount) == "LAST_SPENT_LIFE":
+				amount = performing_player.last_spent_life
 			performing_player.life = min(MaxLife, performing_player.life + amount)
 			events += [create_event(Enums.EventType.EventType_Strike_GainLife, performing_player.my_id, amount, "", performing_player.life)]
 			_append_log_full(Enums.LogType.LogType_Health, performing_player, "gains %s life, bringing them to %s!" % [str(amount), str(performing_player.life)])
@@ -6401,6 +6452,16 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 					})
 				change_game_state(Enums.GameState.GameState_PlayerDecision)
 				events += [create_event(Enums.EventType.EventType_ChooseArenaLocationForEffect, performing_player.my_id, 0)]
+		"replace_wild_swing":
+			# Assumption: this is still before any meaningful strike stats have happened.
+			var attack_card = active_strike.get_player_card(performing_player)
+			var previous_attack_goes_to = effect.get("previous_attack_to", "discard")
+			match previous_attack_goes_to:
+				"gauge":
+					events += performing_player.add_to_gauge(attack_card)
+				"discard":
+					events += performing_player.add_to_discards(attack_card)
+			events += performing_player.wild_strike(true)
 		"reveal_copy_for_advantage":
 			var copy_id = effect['copy_id']
 			# The player has selected to reveal a copy if they have one.
@@ -8212,12 +8273,7 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 			performing_player.gauge_spent_before_strike = gauge_amount
 		"spend_life":
 			var amount = effect['amount']
-			performing_player.life -= amount
-			events += [create_event(Enums.EventType.EventType_Strike_TookDamage, performing_player.my_id, amount, "spend", performing_player.life)]
-			_append_log_full(Enums.LogType.LogType_Health, performing_player, "spends %s life, bringing them to %s!" % [str(amount), str(performing_player.life)])
-			if performing_player.life <= 0:
-				_append_log_full(Enums.LogType.LogType_Default, performing_player, "has no life remaining!")
-				events += on_death(performing_player)
+			events += performing_player.spend_life(amount)
 		"start_of_turn_strike":
 			performing_player.start_of_turn_strike = true
 			performing_player.effect_on_turn_start = { "effect_type": "strike" }
@@ -8710,13 +8766,17 @@ func get_boost_effects_at_timing(timing_name : String, performing_player : Playe
 	return effects
 
 func get_all_effects_for_timing(timing_name : String, performing_player : Player, card : GameCard, ignore_condition : bool = true, only_card_and_bonus_effects : bool = false) -> Array:
-	var card_effects = card_db.get_card_effects_at_timing(card, timing_name)
-	for effect in card_effects:
-		effect['card_id'] = card.id
+	var card_effects = []
+	var card_id = -1
+	if card:
+		card_id = card.id
+		card_effects = card_db.get_card_effects_at_timing(card, timing_name)
+		for effect in card_effects:
+			effect['card_id'] = card_id
 	var boost_effects = get_boost_effects_at_timing(timing_name, performing_player)
 	var character_effects = performing_player.get_character_effects_at_timing(timing_name)
 	for effect in character_effects:
-		effect['card_id'] = card.id
+		effect['card_id'] = card_id
 	var bonus_effects = performing_player.get_bonus_effects_at_timing(timing_name)
 
 	var both_players_boost_effects = []
@@ -8763,9 +8823,9 @@ func get_all_effects_for_timing(timing_name : String, performing_player : Player
 
 	for effect in all_effects:
 		if not 'card_id' in effect:
-			effect['card_id'] = card.id
+			effect['card_id'] = card_id
 		if 'negative_condition_effect' in effect:
-			effect['negative_condition_effect']['card_id'] = card.id
+			effect['negative_condition_effect']['card_id'] = card_id
 	return all_effects
 
 func get_remaining_effect_count():
@@ -9546,10 +9606,22 @@ func get_gauge_cost(performing_player : Player, card, check_if_card_in_hand = fa
 
 	return gauge_cost
 
+func get_alternative_life_cost(performing_player : Player, card):
+	var alternative_life_cost = card.definition.get("alternative_life_cost")
+	if alternative_life_cost:
+		var alternative_cost_requirement = card.definition.get("alternative_cost_requirement")
+		if alternative_cost_requirement:
+			match alternative_cost_requirement:
+				"was_wild_swing":
+					if not active_strike.get_player_wild_strike(performing_player):
+						alternative_life_cost = 0
+	return alternative_life_cost
+
 func ask_for_cost(performing_player, card, next_state):
 	var events = []
 	var gauge_cost = get_gauge_cost(performing_player, card)
 	var force_cost = card.definition['force_cost']
+	var alternative_life_cost = get_alternative_life_cost(performing_player, card)
 	var card_has_printed_cost = card.definition['gauge_cost'] > 0 or force_cost > 0
 	var is_special = card.definition['type'] == "special"
 	var is_ultra = card.definition['type'] == "ultra"
@@ -9600,7 +9672,7 @@ func ask_for_cost(performing_player, card, next_state):
 		else:
 			active_strike.strike_state = next_state
 	else:
-		if not card_forced_invalid and performing_player.can_pay_cost(force_cost, gauge_cost):
+		if not card_forced_invalid and performing_player.can_pay_cost(force_cost, gauge_cost, alternative_life_cost):
 			change_game_state(Enums.GameState.GameState_PlayerDecision)
 			decision_info.player = performing_player.my_id
 			if was_wild_swing or can_invalidate_anyway:
@@ -9612,7 +9684,7 @@ func ask_for_cost(performing_player, card, next_state):
 			if gauge_cost > 0 or still_use_gauge:
 				decision_info.limitation = "gauge"
 				decision_info.cost = gauge_cost
-				events += [create_event(Enums.EventType.EventType_Strike_PayCost_Gauge, performing_player.my_id, card.id, "", gauge_discard_reminder, is_ex)]
+				events += [create_event(Enums.EventType.EventType_Strike_PayCost_Gauge, performing_player.my_id, card.id, "", gauge_discard_reminder, is_ex, alternative_life_cost)]
 			elif force_cost > 0:
 				decision_info.limitation = "force"
 				decision_info.cost = force_cost
@@ -10760,14 +10832,19 @@ func handle_spend_life_for_force(performing_player : Player, spent_life : int, e
 		return false
 
 	if spent_life > 0:
-		performing_player.life -= spent_life
-		events.append(create_event(Enums.EventType.EventType_Strike_TookDamage, performing_player.my_id, spent_life, "", performing_player.life))
-		_append_log_full(Enums.LogType.LogType_Health, performing_player, "spends %s life, bringing them to %s life!" % [str(spent_life), str(performing_player.life)])
+		events.extend(performing_player.spend_life(spent_life))
 		#if active_strike:
 			#active_strike.add_damage_taken(damaged_player, unmitigated_damage)
 			#events += check_for_stun(damaged_player, false)
-		if performing_player.life <= 0:
-			events.append(trigger_game_over(performing_player.my_id, Enums.GameOverReason.GameOverReason_Life)[0])
+	return true
+
+func handle_spend_life_cost(performing_player : Player, spent_life : int, events) -> bool:
+	if spent_life > performing_player.life:
+		printlog("ERROR: Tried to spend more life than player had.")
+		return false
+
+	if spent_life > 0:
+		events.extend(performing_player.spend_life(spent_life))
 	return true
 
 func do_discard_to_max(performing_player : Player, card_ids) -> bool:
@@ -11294,7 +11371,15 @@ func do_strike(performing_player : Player, card_id : int, wild_strike: bool, ex_
 	event_queue += events
 	return true
 
-func do_pay_strike_cost(performing_player : Player, card_ids : Array, wild_strike : bool, discard_ex_first : bool = true, use_free_force = false, spent_life_for_force : int = 0) -> bool:
+func do_pay_strike_cost(
+	performing_player : Player,
+	card_ids : Array,
+	wild_strike : bool,
+	discard_ex_first : bool = true,
+	use_free_force = false,
+	spent_life_for_force : int = 0,
+	pay_alternative_life_cost : bool = false
+	) -> bool:
 	printlog("SubAction: PAY_STRIKE by %s cards %s wild %s" % [performing_player.name, card_ids, str(wild_strike)])
 	if game_state != Enums.GameState.GameState_PlayerDecision:
 		printlog("ERROR: Tried to pay costs but not in decision state.")
@@ -11326,24 +11411,41 @@ func do_pay_strike_cost(performing_player : Player, card_ids : Array, wild_strik
 	else:
 		var force_cost = card.definition['force_cost']
 		var gauge_cost = get_gauge_cost(performing_player, card)
+		var alternative_life_cost = get_alternative_life_cost(performing_player, card)
+		if alternative_life_cost == 0 and pay_alternative_life_cost:
+			printlog("ERROR: Tried to pay alternative cost but there isn't one.")
+			return false
 		if performing_player.strike_stat_boosts.may_generate_gauge_with_force:
 			# Convert the gauge cost to a force cost.
 			force_cost = gauge_cost
 			gauge_cost = 0
 
-		if performing_player.can_pay_cost_with(card_ids, force_cost, gauge_cost, use_free_force, spent_life_for_force):
+		if not pay_alternative_life_cost:
+			# If they aren't paying the alternate cost, zero it out so it isn't considered.
+			alternative_life_cost = 0
+
+		if performing_player.can_pay_cost_with(
+			card_ids,
+			force_cost,
+			gauge_cost,
+			use_free_force,
+			spent_life_for_force,
+			alternative_life_cost
+			):
 			performing_player.strike_stat_boosts.strike_payment_card_ids = card_ids
-			var card_names = ""
 			if card_ids.size() > 0:
-				card_names = card_db.get_card_name(card_ids[0])
+				var card_names = card_db.get_card_name(card_ids[0])
 				for i in range(1, card_ids.size()):
 					card_names += ", " + card_db.get_card_name(card_ids[i])
+				_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "validates by discarding %s." % _log_card_name(card_names))
 			else:
-				card_names = "passive bonus"
-			_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "validates by discarding %s." % _log_card_name(card_names))
+				_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "validates with passive bonus.")
 
 			if not handle_spend_life_for_force(performing_player, spent_life_for_force, events):
 				return false
+			if pay_alternative_life_cost and not handle_spend_life_cost(performing_player, alternative_life_cost, events):
+				return false
+
 			if game_over:
 				event_queue += events
 				return true
@@ -12296,16 +12398,17 @@ func do_choose_from_topdeck(performing_player : Player, chosen_card_id : int, ac
 			else:
 				_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "adds one of the cards to sealed: %s." % _log_card_name(card_db.get_card_name(chosen_card_id)))
 			event_queue += events
-		"return_to_topdeck":
+		"add_to_topdeck_under":
 			assert(leftover_card_ids.size() == 1 or leftover_card_ids.size() == 0)
 			# If this was the last card in deck, leftover_card_ids.size is 0, so this card goes on top.
 			var destination_index = leftover_card_ids.size()
 			events += performing_player.move_card_from_hand_to_deck(chosen_card_id, destination_index)
 			_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "adds the remaining cards back to the top of their deck.")
 			event_queue += events
-		"add_to_topdeck_under":
-			assert(leftover_card_ids.size() == 1 or leftover_card_ids.size() == 0)
-			# If this was the last card in deck, leftover_card_ids.size is 0, so this card goes on top.
+		"add_to_topdeck_under_2":
+			# The assumption for this ability is that the player returned 2 cards
+			# to the top of their deck and this goes under them.
+			assert(leftover_card_ids.size() == 2)
 			var destination_index = leftover_card_ids.size()
 			events += performing_player.move_card_from_hand_to_deck(chosen_card_id, destination_index)
 			_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "adds the remaining cards back to the top of their deck.")

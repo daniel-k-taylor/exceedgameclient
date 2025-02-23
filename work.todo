@@ -1,3 +1,18 @@
+Emogine:
+    ☐ add_to_topdeck_under_2 @started(25-02-22 11:53)
+    ☐ alternative_life_cost - finish implementing UI and implementation @started(25-02-22 16:03)
+    ☐ blood ministration @started(25-02-22 13:17)
+    ☐ life_less_than_opponent @started(25-02-22 13:23)
+    ☐ "timing": "on_spend_gauge", @started(25-02-22 14:31)
+    ☐ "timing": "on_spend_life", @started(25-02-22 14:37)
+        "effect_type": "gain_life",
+        "amount": "LAST_SPENT_LIFE",
+
+    ☐ "effect_type": "replace_wild_swing", @started(25-02-22 15:36)
+        "previous_attack_to": "gauge"
+    ☐ "effect_type": "add_top_deck_to_bottom" @started(25-02-22 14:45)
+    ☐ "passive": "topdeck_visible_to_self" @started(25-02-22 15:44)
+
 Bug:
     Breaking:
         Treasure:

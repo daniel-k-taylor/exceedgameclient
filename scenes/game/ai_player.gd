@@ -720,14 +720,14 @@ func get_character_action_actions():
 				possible_actions.append(CharacterActionAction.new([], action_idx, false))
 	return possible_actions
 
-func pay_strike_force_cost(force_cost : int, wild_swing_allowed : bool) -> PayStrikeCostAction:
-	# Decide which action makes the most sense to take.
+func pay_strike_force_cost(force_cost : int, wild_swing_allowed : bool, _alternative_life_cost : int) -> PayStrikeCostAction:
+	# AI should consider alternative_life_cost at some point, but for now never chooses it.
 	game_state.update()
 	var possible_actions = determine_pay_strike_force_cost_actions(force_cost, wild_swing_allowed)
 	return ai_policy.pick_pay_strike_force_cost(possible_actions, game_state)
 
-func pay_strike_gauge_cost(gauge_cost : int, wild_swing_allowed : bool) -> PayStrikeCostAction:
-	# Decide which action makes the most sense to take.
+func pay_strike_gauge_cost(gauge_cost : int, wild_swing_allowed : bool, _alternative_life_cost : int) -> PayStrikeCostAction:
+	# AI should consider alternative_life_cost at some point, but for now never chooses it.
 	game_state.update()
 	var possible_actions = determine_pay_strike_gauge_cost_actions(gauge_cost, wild_swing_allowed)
 	return ai_policy.pick_pay_strike_gauge_cost(possible_actions, game_state)

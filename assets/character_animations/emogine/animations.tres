@@ -1,0 +1,16 @@
+[gd_resource type="SpriteFrames" load_steps=2 format=3 uid="uid://b616vrwwgb4sa"]
+
+[ext_resource type="Texture2D" uid="uid://chelk1hke01sl" path="res://assets/character_animations/emogine/emogine_default.jpeg" id="1_qjd7n"]
+
+[resource]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("1_qjd7n")
+}],
+"loop": true,
+"name": &"idle",
+"speed": 5.0
+}]
+metadata/flip = true
+metadata/scaling = 0.3

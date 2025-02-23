@@ -7059,6 +7059,345 @@
 	},
 
 
+
+	{
+		"NOTE": "EMOGINE CARDS START",
+		"id": "emogine_handofjudgement",
+		"type": "ultra",
+		"display_name": "Hand of Judgment",
+		"force_cost": 0,
+		"gauge_cost": 2,
+		"alternative_life_cost": 3,
+		"alternative_cost_requirement": "was_wild_swing",
+		"range_min": 2,
+		"range_max": 2,
+		"speed": 6,
+		"power": 7,
+		"armor": 0,
+		"guard": 4,
+		"effects": [
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 2,
+			"cancel_cost": -1,
+			"display_name": "Evil Within",
+			"effects": [
+				{
+					"timing": "after",
+					"effect_type": "gain_advantage"
+				},
+				{
+					"timing": "on_initiate_strike",
+					"effect_type": "opponent_wild_swings"
+				},
+				{
+					"timing": "now",
+					"effect_type": "strike"
+				}
+			]
+		}
+	},
+	{
+		"id": "emogine_touchofdivinity",
+		"type": "ultra",
+		"display_name": "Touch of Divinity",
+		"force_cost": 0,
+		"gauge_cost": 4,
+		"range_min": 2,
+		"range_max": 4,
+		"speed": 2,
+		"power": 10,
+		"armor": 3,
+		"guard": 0,
+		"on_invalid": {
+			"effect_type": "powerup",
+			"amount": 3
+		},
+		"effects": [
+			{
+				"timing": "during_strike",
+				"effect_type": "stun_immunity"
+			}
+		],
+		"boost": {
+			"boost_type": "immediate",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Desperate Prayer",
+			"effects": [
+				{
+					"timing": "immediate",
+					"condition": "min_cards_in_deck",
+					"condition_amount": 3,
+					"effect_type": "choose_cards_from_top_deck",
+					"look_amount": 3,
+					"action_choices": [
+						"add_to_topdeck_under_2"
+					],
+					"can_pass": false,
+					"destination_unchosen": "topdeck"
+				},
+				{
+					"timing": "immediate",
+					"condition": "min_cards_in_deck",
+					"condition_amount": 2,
+					"effect_type": "choose_cards_from_top_deck",
+					"look_amount": 2,
+					"action_choices": [
+						"add_to_topdeck_under"
+					],
+					"can_pass": false,
+					"destination_unchosen": "topdeck"
+				},
+				{
+					"timing": "immediate",
+					"effect_type": "boost_additional",
+					"limitation": "transform",
+					"valid_zones": [ "gauge" ]
+				}
+			]
+		}
+	},
+	{
+		"id": "emogine_bloodforblood",
+		"type": "special",
+		"display_name": "Blood for Blood",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 3,
+		"speed": 2,
+		"power": 1,
+		"armor": 0,
+		"guard": 6,
+		"effects": [
+			{
+				"timing": "before",
+				"effect_type": "powerup_damagetaken",
+				"amount": 1
+			},
+			{
+				"timing": "hit",
+				"effect_type": "choice",
+				"choice": [
+					{ "effect_type": "spend_life", "amount": 1, "and": { "effect_type": "powerup", "amount": 1 } },
+					{ "effect_type": "spend_life", "amount": 2, "and": { "effect_type": "powerup", "amount": 2 } },
+					{ "effect_type": "pass" }
+				]
+			}
+		],
+		"boost": {
+			"boost_type": "transform",
+			"force_cost": -1,
+			"cancel_cost": -1,
+			"display_name": "Blood Ministration",
+			"effects": [
+				{
+					"timing": "set_strike",
+					"condition": "was_wild_swing",
+					"effect_type": "gain_life",
+					"amount": 1
+				},
+				{
+					"timing": "opponent_set_strike",
+					"NOTE": "processed from opponent's perspective",
+					"condition": "was_wild_swing",
+					"effect_type": "powerup_opponent",
+					"amount": 1
+				}
+			]
+		}
+	},
+	{
+		"id": "emogine_guiltypaean",
+		"type": "special",
+		"display_name": "Guilty Paean",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 3,
+		"speed": 4,
+		"power": 6,
+		"armor": 0,
+		"guard": 5,
+		"effects": [
+			{
+				"timing": "before",
+				"effect_type": "choice",
+				"choice": [
+					{ "effect_type": "spend_life", "amount": 3 },
+					{ "effect_type": "attack_does_not_hit" }
+				]
+			}
+		],
+		"boost": {
+			"boost_type": "transform",
+			"force_cost": -1,
+			"cancel_cost": -1,
+			"display_name": "Intercessor's Prayer",
+			"effects": [
+				{
+					"timing": "set_strike",
+					"condition": "was_wild_swing",
+					"effect_type": "add_attack_effect",
+					"added_effect": {
+						"character_effect": true,
+						"timing": "hit",
+						"effect_type": "gauge_for_effect",
+						"per_gauge_effect": null,
+						"overall_effect": {
+							"effect_type": "powerup",
+							"amount": 2
+						},
+						"gauge_max": 1
+					},
+					"override_description": "When Wild Swing set, Hit: May spend 1 Gauge for +2 Power"
+				}
+			]
+		}
+	},
+	{
+		"id": "emogine_holywarding",
+		"type": "special",
+		"display_name": "Holy Warding",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 2,
+		"range_max": 4,
+		"speed": 4,
+		"power": 4,
+		"armor": 1,
+		"guard": 4,
+		"effects": [
+			{
+				"timing": "hit",
+				"condition": "life_less_than_opponent",
+				"effect_type": "powerup",
+				"amount": 2
+			},
+			{
+				"timing": "after",
+				"effect_type": "draw",
+				"amount": 1
+			}
+		],
+		"boost": {
+			"boost_type": "transform",
+			"force_cost": -1,
+			"cancel_cost": -1,
+			"display_name": "Corrupted Power",
+			"effects": [
+				{
+					"timing": "on_spend_gauge",
+					"effect_type": "gain_life",
+					"amount": 1,
+					"override_description": "When you spend Gauge, gain 1 Life"
+				}
+			]
+		}
+	},
+	{
+		"id": "emogine_martyrslash",
+		"type": "special",
+		"display_name": "Martyr's Lash",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 2,
+		"speed": 2,
+		"power": 5,
+		"armor": 0,
+		"guard": 6,
+		"effects": [
+			{
+				"timing": "before",
+				"condition": "was_hit",
+				"effect_type": "choice",
+				"choice": [
+					{
+						"effect_type": "boost_additional",
+						"limitation": "transform",
+						"valid_zones": [ "hand" ]
+					},
+					{
+						"effect_type": "close",
+						"amount": 2
+					}
+				]
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 1,
+			"cancel_cost": -1,
+			"display_name": "Bloodletting",
+			"effects": [
+				{
+					"timing": "now",
+					"effect_type": "choice",
+					"choice": [
+						{ "effect_type": "advance", "amount": 3 },
+						{ "effect_type": "advance", "amount": 4 }
+					]
+				},
+				{
+					"timing": "on_spend_life",
+					"effect_type": "gain_life",
+					"amount": "LAST_SPENT_LIFE",
+					"and": {
+						"effect_type": "discard_this"
+					}
+				}
+			]
+		}
+	},
+	{
+		"NOTE": "EMOGINE CARDS END",
+		"id": "emogine_purifyingchime",
+		"type": "special",
+		"display_name": "Purifying Chime",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 2,
+		"speed": 6,
+		"power": 4,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "hit",
+				"effect_type": "opponent_discard_random",
+				"amount": 1
+			}
+		],
+		"boost": {
+			"boost_type": "transform",
+			"force_cost": -1,
+			"cancel_cost": -1,
+			"display_name": "Blood Frenzy",
+			"effects": [
+				{
+					"timing": "set_strike",
+					"condition": "was_wild_swing",
+					"effect_type": "add_attack_effect",
+					"added_effect": {
+						"character_effect": true,
+						"timing": "hit",
+						"condition": "life_less_than_opponent",
+						"effect_type": "gain_life",
+						"amount": 2
+					},
+					"override_description": "When Wild Swing set, Hit: If less Life, gain 2 Life"
+				}
+			]
+		},
+		"NOTEEND": "EMOGINE CARDS END"
+	},
+
+
+
 	{
 		"NOTE": "ENCHANTRESS CARDS START",
 		"id": "enchantress_rapidbeam",
