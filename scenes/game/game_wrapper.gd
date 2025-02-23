@@ -544,7 +544,15 @@ func submit_pay_strike_cost(
 	pay_alternative_life_cost : bool
 	) -> bool:
 	var game_player = _get_player(player)
-	return current_game.do_pay_strike_cost(game_player, card_ids, wild_strike, discard_ex_first, use_free_force, spent_life_for_force, pay_alternative_life_cost)
+	return current_game.do_pay_strike_cost(
+		game_player,
+		card_ids,
+		wild_strike,
+		discard_ex_first,
+		use_free_force,
+		spent_life_for_force,
+		pay_alternative_life_cost
+	)
 
 func submit_exceed(player : Enums.PlayerId, card_ids : Array) -> bool:
 	var game_player = _get_player(player)

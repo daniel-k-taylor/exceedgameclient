@@ -232,9 +232,15 @@ func process_decisions(player, strike_state, decisions):
 				if str(content) == "alt_cost":
 					pay_alternate_life_cost = true
 					content = []
-				assert_true(game_logic.do_pay_strike_cost(player, content,
-								wild_strike, discard_ex_first, use_free_force, 0, pay_alternate_life_cost),
-						"%s failed to pay a Strike cost using %s" % [player, content])
+				assert_true(game_logic.do_pay_strike_cost(
+					player,
+					content,
+					wild_strike,
+					discard_ex_first,
+					use_free_force,
+					0,
+					pay_alternate_life_cost
+					), "%s failed to pay a Strike cost using %s" % [player, content])
 			Enums.DecisionType.DecisionType_ChooseArenaLocationForEffect:
 				# Find the index in decision_info.limitation that maps to
 				# the (1-based) arena location `content`. (If content is 0,

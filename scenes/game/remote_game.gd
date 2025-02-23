@@ -258,8 +258,15 @@ func process_relocate_card_from_hand(action_message) -> void:
 	var card_ids = action_message['card_ids']
 	local_game.do_relocate_card_from_hand(game_player, card_ids)
 
-func do_pay_strike_cost(player : LocalGame.Player, card_ids : Array, wild_strike : bool, discard_ex_first : bool,
-		use_free_force : bool = false, spent_life_for_force : int = 0) -> bool:
+func do_pay_strike_cost(
+	player : LocalGame.Player,
+	card_ids : Array,
+	wild_strike : bool,
+	discard_ex_first : bool,
+	use_free_force : bool = false,
+	spent_life_for_force : int = 0,
+	pay_alternative_life_cost : bool = false
+	) -> bool:
 	var action_message = {
 		'action_type': 'action_pay_strike_cost',
 		'player_id': _get_player_remote_id(player),
@@ -267,7 +274,8 @@ func do_pay_strike_cost(player : LocalGame.Player, card_ids : Array, wild_strike
 		'wild_strike': wild_strike,
 		'discard_ex_first': discard_ex_first,
 		'use_free_force': use_free_force,
-		'spent_life_for_force': spent_life_for_force
+		'spent_life_for_force': spent_life_for_force,
+		'pay_alternative_life_cost': pay_alternative_life_cost
 	}
 	_submit_game_message(action_message)
 	return true
@@ -279,7 +287,8 @@ func process_pay_strike_cost(action_message) -> void:
 	var discard_ex_first = action_message['discard_ex_first']
 	var use_free_force = action_message['use_free_force']
 	var spent_life_for_force = action_message['spent_life_for_force']
-	local_game.do_pay_strike_cost(game_player, card_ids, wild_strike, discard_ex_first, use_free_force, spent_life_for_force)
+	var pay_alternative_life_cost = action_message['pay_alternative_life_cost']
+	local_game.do_pay_strike_cost(game_player, card_ids, wild_strike, discard_ex_first, use_free_force, spent_life_for_force, pay_alternative_life_cost)
 
 func do_exceed(player : LocalGame.Player, card_ids : Array) -> bool:
 	var action_message = {

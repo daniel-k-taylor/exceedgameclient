@@ -185,7 +185,15 @@ func _on_observe_game_started(data, is_replay = false):
 
 	# Observe games pass in the full message log up to this point.
 	# The first message is the game_start message.
-	var message_log = data['messages']
+	var message_log = data.get('messages')
+	if not message_log:
+		var json = JSON.new()
+		var error = json.parse(data.get('MatchLog'))
+		if error == OK:
+			message_log = json.data
+		else:
+			assert(false, "Unexpected data")
+			return
 	var start_data = message_log[0]
 
 	# The observer will view from player 1's perspective.
