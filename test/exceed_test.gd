@@ -56,6 +56,12 @@ func add_transform(player, card_id):
 	player.add_to_transforms(player.hand[-1])
 	player.hand.remove_at(player1.hand.size() - 1)
 
+func set_player_topdeck(player, card_id):
+	var new_id = give_player_specific_card(player, card_id)
+	player.deck.insert(0, player.hand[-1])
+	player.hand.remove_at(player1.hand.size() - 1)
+	return new_id
+
 func position_players(p1, loc1, p2, loc2):
 	p1.arena_location = loc1
 	p2.arena_location = loc2
@@ -220,8 +226,14 @@ func process_decisions(player, strike_state, decisions):
 				var use_free_force = pop_trailing_boolean(content, false)
 				var discard_ex_first = pop_trailing_boolean(content, true)
 				var wild_strike = pop_trailing_boolean(content, false)
+
+				# Alternatively, a string param can be used to specify pay alternative life cost.
+				var pay_alternate_life_cost = false
+				if str(content) == "alt_cost":
+					pay_alternate_life_cost = true
+					content = []
 				assert_true(game_logic.do_pay_strike_cost(player, content,
-								wild_strike, discard_ex_first, use_free_force),
+								wild_strike, discard_ex_first, use_free_force, 0, pay_alternate_life_cost),
 						"%s failed to pay a Strike cost using %s" % [player, content])
 			Enums.DecisionType.DecisionType_ChooseArenaLocationForEffect:
 				# Find the index in decision_info.limitation that maps to

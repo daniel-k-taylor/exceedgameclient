@@ -215,6 +215,8 @@ func get_timing_text(timing):
 			text += "When hit, "
 		"on_stop_on_space":
 			text += "When boost entered during strike, stop movement; "
+		"on_spend_life":
+			text += "When you spend life, "
 		_:
 			text += "MISSING TIMING"
 	return text
@@ -266,6 +268,8 @@ func get_condition_text(effect, amount, amount2, detail):
 			text += "If your life is exactly %s, " % amount
 		"life_equal_or_below":
 			text += "If your life is %s or less, " % amount
+		"life_less_than_opponent":
+			text += "If your life is less than opponent's, "
 		"not_canceled_this_turn":
 			text += "If not canceled this turn, "
 		"not_full_push":
@@ -286,6 +290,8 @@ func get_condition_text(effect, amount, amount2, detail):
 			text += "If you moved at least %s space(s) this strike, " % amount
 		"moved_past":
 			text += "If you moved past the opponent, "
+		"min_cards_in_deck":
+			text += "If you have at least %s card(s) in deck, " % amount
 		"min_cards_in_discard":
 			text += "If you have at least %s card(s) in discard, " % amount
 		"min_cards_in_hand":
@@ -392,7 +398,10 @@ func get_condition_text(effect, amount, amount2, detail):
 		"opponent_speed_less_or_equal":
 			text += "If the opponent's speed is %s or lower, " % amount
 		"was_wild_swing":
-			text += "If this was a wild swing, "
+			if effect["timing"] == "opponent_set_strike":
+				text += "If opponent wild swung, "
+			else:
+				text += "If this was a wild swing, "
 		"was_strike_from_gauge":
 			text += "If set from gauge, "
 		"was_set_from_boosts":
@@ -516,6 +525,8 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 			if 'card_name' in effect:
 				topdeck_card = "([color=%s]%s[/color]) " % [CardHighlightColor, effect['card_name']]
 			effect_str += "%s %s of deck %sto gauge" % [player_str, amount_str, topdeck_card]
+		"add_top_deck_to_bottom":
+			effect_str = "Move top card of deck to bottom of deck"
 		"add_top_discard_to_gauge":
 			if 'amount' in effect:
 				effect_str += "Add top %s card(s) of discard pile to gauge" % effect['amount']
@@ -860,7 +871,10 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 		"gain_advantage":
 			effect_str += "Gain Advantage"
 		"gain_life":
-			effect_str += "Gain " + str(effect['amount']) + " life"
+			var amount = effect['amount']
+			if str(amount) == "LAST_SPENT_LIFE":
+				amount = "that much"
+			effect_str += "Gain " + str(amount) + " life"
 		"gauge_from_hand":
 			effect_str += "Add a card from hand to gauge"
 		"generate_free_force":
@@ -1201,6 +1215,12 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 				else:
 					repeats += " time(s)"
 				effect_str += "; you may repeat this %s." % repeats
+		"replace_wild_swing":
+			var previous_attack_to = effect.get("previous_attack_to", "discard")
+			if previous_attack_to == "gauge":
+				effect_str += "Add to Gauge and wild swing next card"
+			else:
+				effect_str += "Discard and wild swing next card"
 		"reshuffle_discard_into_deck":
 			effect_str += "Reshuffle discard pile into deck"
 		"retreat":

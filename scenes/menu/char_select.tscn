@@ -1,4 +1,4 @@
-[gd_scene load_steps=96 format=3 uid="uid://cqs72exlwm6at"]
+[gd_scene load_steps=97 format=3 uid="uid://cqs72exlwm6at"]
 
 [ext_resource type="Script" path="res://scenes/menu/char_select.gd" id="1_f3x24"]
 [ext_resource type="PackedScene" uid="uid://nwqxp8pdh1jk" path="res://scenes/menu/char_select_button.tscn" id="6_3lmwy"]
@@ -94,6 +94,7 @@
 [ext_resource type="Texture2D" uid="uid://l3xlrjfhuw8" path="res://assets/portraits/sydney.png" id="88_jh43h"]
 [ext_resource type="Texture2D" uid="uid://ddjv6kqk6agqh" path="res://assets/portraits/celinka.png" id="89_d1xn5"]
 [ext_resource type="Texture2D" uid="uid://creamdhv1nosx" path="res://assets/portraits/iaquis.png" id="90_3yjud"]
+[ext_resource type="Texture2D" uid="uid://dva0ketlsolj1" path="res://assets/portraits/emogine.png" id="90_ik8rg"]
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_8u80i"]
 
@@ -787,6 +788,11 @@ layout_mode = 2
 char_id = "celinka"
 portrait_texture = ExtResource("89_d1xn5")
 
+[node name="Emogine" parent="CenterContainer/SCCharacterSelect/Rows/Row1" instance=ExtResource("6_3lmwy")]
+layout_mode = 2
+char_id = "emogine"
+portrait_texture = ExtResource("90_ik8rg")
+
 [node name="Iaquis" parent="CenterContainer/SCCharacterSelect/Rows/Row1" instance=ExtResource("6_3lmwy")]
 layout_mode = 2
 char_id = "iaquis"
@@ -1039,6 +1045,8 @@ portrait_texture = ExtResource("32_iutun")
 [connection signal="on_pressed" from="CenterContainer/SCCharacterSelect/Rows/Row1/Sydney" to="." method="_on_char_button_on_pressed"]
 [connection signal="on_hover" from="CenterContainer/SCCharacterSelect/Rows/Row1/Celinka" to="." method="_on_char_hover"]
 [connection signal="on_pressed" from="CenterContainer/SCCharacterSelect/Rows/Row1/Celinka" to="." method="_on_char_button_on_pressed"]
+[connection signal="on_hover" from="CenterContainer/SCCharacterSelect/Rows/Row1/Emogine" to="." method="_on_char_hover"]
+[connection signal="on_pressed" from="CenterContainer/SCCharacterSelect/Rows/Row1/Emogine" to="." method="_on_char_button_on_pressed"]
 [connection signal="on_hover" from="CenterContainer/SCCharacterSelect/Rows/Row1/Iaquis" to="." method="_on_char_hover"]
 [connection signal="on_pressed" from="CenterContainer/SCCharacterSelect/Rows/Row1/Iaquis" to="." method="_on_char_button_on_pressed"]
 [connection signal="on_hover" from="CenterContainer/SCCharacterSelect/Rows/Row1/Galdred" to="." method="_on_char_hover"]
