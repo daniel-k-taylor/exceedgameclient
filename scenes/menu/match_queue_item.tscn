@@ -1,0 +1,33 @@
+[gd_scene load_steps=2 format=3 uid="uid://dy60rn4avbtbt"]
+
+[ext_resource type="Script" path="res://scenes/menu/match_queue_item.gd" id="1_emp6n"]
+
+[node name="QueueItem" type="MarginContainer"]
+script = ExtResource("1_emp6n")
+
+[node name="QueueVBox" type="VBoxContainer" parent="."]
+custom_minimum_size = Vector2(140, 0)
+layout_mode = 2
+
+[node name="QueueLabel" type="Label" parent="QueueVBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 30
+text = "Anything
+Goes"
+horizontal_alignment = 1
+
+[node name="JoinButton" type="Button" parent="QueueVBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 30
+text = "Join
+Queue"
+
+[node name="PlayButton" type="Button" parent="QueueVBox"]
+visible = false
+layout_mode = 2
+theme_override_font_sizes/font_size = 30
+text = "Play
+Now!"
+
+[connection signal="pressed" from="QueueVBox/JoinButton" to="." method="_on_join_button_pressed"]
+[connection signal="pressed" from="QueueVBox/PlayButton" to="." method="_on_play_button_pressed"]

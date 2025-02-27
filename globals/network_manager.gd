@@ -18,7 +18,7 @@ enum NetworkState {
 var network_state = NetworkState.NetworkState_NotConnected
 var cached_players = []
 var cached_matches = []
-var cached_match_available : bool = false
+var cached_queues = []
 
 const azure_url = "wss://fightingcardslinux.azurewebsites.net"
 const local_url = "ws://localhost:8080"
@@ -160,7 +160,7 @@ func get_stripped_room_name(room_name : String):
 func _handle_players_update(message):
 	var players = message["players"]
 	var rooms = message["rooms"]
-	var match_available = message['match_available']
+	var queues = message['queues']
 	var player_list = []
 	for player in players:
 		var id = player["player_id"]
@@ -177,7 +177,7 @@ func _handle_players_update(message):
 			"room_name": room_name,
 		})
 	cached_players = player_list
-	cached_match_available = match_available
+	cached_queues = queues
 
 	# Process rooms
 	var match_list = []
@@ -213,7 +213,7 @@ func _handle_players_update(message):
 		match_list.append(match_info)
 	cached_matches = match_list
 
-	players_update.emit(player_list, match_list, match_available)
+	players_update.emit(player_list, match_list, queues)
 
 
 ### Commands ###
@@ -245,11 +245,12 @@ func observe_room(player_name, room_name):
 	var json = JSON.stringify(observe_room_message)
 	_socket.send_text(json)
 
-func join_matchmaking(player_name, deck_id_str : String):
+func join_matchmaking(player_name, deck_id_str : String, queue_id : String):
 	if not _socket: return
 	var message = {
 		"version": GlobalSettings.get_client_version(),
 		"type": "join_matchmaking",
+		"queue_id": queue_id,
 		"player_name": player_name,
 		"deck_id": deck_id_str,
 		"starting_timer": GlobalSettings.MatchmakingStartingTimer,
@@ -289,5 +290,5 @@ func get_player_list():
 func get_match_list():
 	return cached_matches
 
-func get_match_available():
-	return cached_match_available
+func get_queue_list():
+	return cached_queues

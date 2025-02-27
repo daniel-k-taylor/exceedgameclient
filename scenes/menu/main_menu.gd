@@ -7,6 +7,8 @@ signal start_remote_game(vs_info, data)
 const RoomMaxLen = 12
 const PlayerNameMaxLen = 12
 
+const MatchQueueItemScene = preload("res://scenes/menu/match_queue_item.tscn")
+
 #These only get set and used if run on web
 var window
 var file_load_callback
@@ -22,7 +24,6 @@ var file_load_callback
 @onready var room_select : LineEdit = $MenuList/JoinBox/RoomNameBox
 @onready var join_room_button = $MenuList/JoinBox/JoinButton
 @onready var join_box = $MenuList/JoinBox
-@onready var matchmake_button = $MenuList/MatchmakeButton
 @onready var settings_button = $SettingsButton
 @onready var settings_window = $PreferencesWindow
 @onready var file_dialog = $FileDialog
@@ -41,6 +42,9 @@ var file_load_callback
 @onready var player_list_button = $PlayerListContainer/PlayerListHBox/PlayersButton
 @onready var match_list_button = $RoomListContainer/RoomListHBox/MatchesButton
 
+@onready var cancel_button = $CancelButton
+@onready var match_queues = $Queues
+
 @onready var label_font_normal = 32
 @onready var label_font_small = 18
 @onready var label_length_threshold = 15
@@ -58,15 +62,16 @@ func _ready():
 	NetworkManager.connect("observe_started", _on_observe_game_started)
 	NetworkManager.connect("players_update", _on_players_update)
 	NetworkManager.connect("room_join_failed", _on_join_failed)
-	$MenuList/CancelButton.visible = false
+	cancel_button.visible = false
 	$ReconnectToServerButton.visible = false
-	_on_players_update(NetworkManager.get_player_list(), NetworkManager.get_match_list(), NetworkManager.get_match_available())
+	_on_players_update(NetworkManager.get_player_list(), NetworkManager.get_match_list(), NetworkManager.get_queue_list())
 	selecting_player = false
 	just_clicked_matchmake = false
 	_on_char_select_select_character(opponent_selected_character)
 	modal_dialog.visible = false
 	modal_list.visible = false
 	file_dialog.visible = false
+	update_queues(true)
 
 	# Initialize settings window
 	settings_window.visible = false
@@ -100,7 +105,7 @@ func start_music():
 		$BGM.stop()
 
 func returned_from_game():
-	_on_players_update(NetworkManager.get_player_list(), NetworkManager.get_match_list(), NetworkManager.get_match_available())
+	_on_players_update(NetworkManager.get_player_list(), NetworkManager.get_match_list(), NetworkManager.get_queue_list())
 	update_buttons(false)
 	just_clicked_matchmake = false
 	start_music()
@@ -128,12 +133,8 @@ func _on_start_button_pressed():
 		opponent_random_tag,
 		GlobalSettings.RandomizeFirstVsAI))
 
-func _on_quit_button_pressed():
-	get_tree().quit()
-
 func _on_connected(player_name):
 	join_room_button.disabled = false
-	matchmake_button.disabled = false
 	player_list_button.disabled = false
 	match_list_button.disabled = false
 	player_name_box.editable = true
@@ -149,14 +150,14 @@ func _on_connected(player_name):
 func _on_disconnected():
 	update_buttons(false)
 	join_room_button.disabled = true
-	matchmake_button.disabled = true
+	update_queues(false)
 	player_list_button.disabled = true
 	match_list_button.disabled = true
 	$ReconnectToServerButton.visible = true
 	$ReconnectToServerButton.disabled = false
 	$ServerStatusLabel.text = "Disconnected from server."
 	just_clicked_matchmake = false
-	_on_players_update([], [], false)
+	_on_players_update([], [], [])
 
 func get_vs_info(player_name, player_deck, player_random_tag, opponent_name,
 		opponent_deck, opponent_random_tag, randomize_first_vs_ai = false):
@@ -255,7 +256,7 @@ func _on_remote_game_started(data):
 	start_remote_game.emit(get_vs_info(player_name, player_deck_object,
 		player_random_tag, opponent_name, opponent_deck_object, opponent_random_tag), data)
 
-func _on_players_update(players, matches, match_available : bool):
+func _on_players_update(players, matches, queues : Array):
 	player_list.clear()
 	for player in players:
 		player_list.add_item(player['player_name'] + " - " + player['room_name'])
@@ -265,15 +266,26 @@ func _on_players_update(players, matches, match_available : bool):
 	$PlayerListContainer/PlayerListHBox/PlayerCount.text = str(player_count)
 	$RoomListContainer/RoomListHBox/MatchCount.text = str(match_count)
 
-	if match_available:
-		matchmake_button.text = "Join Match Now"
-		if not was_match_available and not just_clicked_matchmake:
-			if visible:
+	var queue_items = match_queues.get_children()
+	if queue_items.size() != queues.size():
+		while match_queues.get_child_Count() > 0:
+			match_queues.remove_child(match_queues.get_child(0))
+		for queue_info in queues:
+			var new_queue = MatchQueueItemScene.instantiate()
+			match_queues.add_child(new_queue)
+			new_queue.initialize_queue(queue_info.id, queue_info.name, queue_info.match_available)
+			new_queue.on_join_queue.connect(_on_queue_join_clicked)
+	
+	var played_audio = false
+	for i in range(queues.size()):
+		var queue_info = queues[i]
+		var queue : MatchQueueItem = match_queues.get_child(i)
+		var was_available = queue.get_match_available()
+		queue.set_match_available(queue_info.match_available)
+		if not was_available and not just_clicked_matchmake:
+			if visible and not played_audio:
+				played_audio = true
 				$MatchAvailableAudio.play()
-	else:
-		matchmake_button.text = "Start Matchmaking"
-
-	was_match_available = match_available
 
 func _on_join_failed(error_message : String):
 	modal_dialog.set_text_fields(error_message, "OK", "")
@@ -303,10 +315,26 @@ func update_buttons(joining : bool):
 	change_player_character_button.disabled = joining
 	room_select.editable = not joining
 	join_box.visible = not joining
-	matchmake_button.visible = not joining
-	$MenuList/CancelButton.visible = joining
+	cancel_button.visible = joining
 	player_list_button.disabled = joining
 	match_list_button.disabled = joining
+	update_queues(not joining)
+
+func update_queues(enabled : bool):
+	for child in match_queues.get_children():
+		var queue_item : MatchQueueItem = child
+		queue_item.set_enabled(enabled)
+
+func _on_queue_join_clicked(queue_id):
+	just_clicked_matchmake = true
+	var player_name = get_player_name()
+	var chosen_deck = CardDefinitions.get_deck_from_str_id(player_selected_character)
+	var chosen_deck_id = chosen_deck['id']
+	if player_selected_character.begins_with("random"):
+		chosen_deck_id = player_selected_character + "#" + chosen_deck_id
+	if not _is_banned_character(chosen_deck_id):
+		NetworkManager.join_matchmaking(player_name, chosen_deck_id, queue_id)
+		update_buttons(true)
 
 func _on_cancel_button_pressed():
 	NetworkManager.leave_room()
@@ -322,17 +350,6 @@ func _on_reconnect_to_server_button_pressed():
 	$ServerStatusLabel.text = "Reconnecting to server..."
 	NetworkManager.connect_to_server()
 	$ReconnectToServerButton.disabled = true
-
-func _on_matchmake_button_pressed():
-	just_clicked_matchmake = true
-	var player_name = get_player_name()
-	var chosen_deck = CardDefinitions.get_deck_from_str_id(player_selected_character)
-	var chosen_deck_id = chosen_deck['id']
-	if player_selected_character.begins_with("random"):
-		chosen_deck_id = player_selected_character + "#" + chosen_deck_id
-	if not _is_banned_character(chosen_deck_id):
-		NetworkManager.join_matchmaking(player_name, chosen_deck_id)
-		update_buttons(true)
 
 func _on_char_select_close_character_select():
 	char_select.visible = false
