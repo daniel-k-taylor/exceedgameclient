@@ -114,6 +114,8 @@ func _handle_room_join_failed(failed_message):
 	var reason = failed_message["reason"]
 	var error_message = "ERROR: Failed to join room:\n"
 	match reason:
+		"invalid_deck_for_queue":
+			error_message += "Invalid deck for queue."
 		"room_full":
 			error_message += "Room is full."
 		"version_mismatch":
