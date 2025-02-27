@@ -4706,7 +4706,7 @@ func _on_pay_alternative_life_cost_button_pressed():
 	if ui_state == UIState.UIState_SelectCards:
 		if ui_sub_state == UISubState.UISubState_SelectCards_StrikeGauge:
 			close_popout()
-			success = game_wrapper.submit_pay_strike_cost(Enums.PlayerId.PlayerId_Player, [], true, false, false, 0, true)
+			success = game_wrapper.submit_pay_strike_cost(Enums.PlayerId.PlayerId_Player, [], false, false, false, 0, true)
 
 	if success:
 		deselect_all_cards()
