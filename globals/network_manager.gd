@@ -7,7 +7,8 @@ signal game_started(data)
 signal game_message_received(message)
 signal observe_started(data)
 signal other_player_quit(is_disconnect)
-signal players_update(players, matches, match_available)
+signal players_update(players, matches, queues, newly_available_match)
+signal name_update(name)
 
 enum NetworkState {
 	NetworkState_NotConnected,
@@ -18,7 +19,7 @@ enum NetworkState {
 var network_state = NetworkState.NetworkState_NotConnected
 var cached_players = []
 var cached_matches = []
-var cached_match_available : bool = false
+var cached_queues = []
 
 const azure_url = "wss://fightingcardslinux.azurewebsites.net"
 const local_url = "ws://localhost:8080"
@@ -73,6 +74,9 @@ func _handle_sockets():
 				print("WebSocket closed with code: %d, reason %s. Clean: %s" % [code, reason, code != -1])
 				_socket = null
 
+func _is_socket_open():
+	return _socket and _socket.get_ready_state() == WebSocketPeer.STATE_OPEN
+
 func _handle_server_response(data):
 	var parser = JSON.new()
 	var result = parser.parse(data)
@@ -93,6 +97,8 @@ func _handle_server_response(data):
 			_handle_game_start(data_obj)
 		"game_message":
 			_handle_game_message(data_obj)
+		"name_update":
+			_handle_name_update(data_obj)
 		"observe_start":
 			_handle_observe_start(data_obj)
 		"player_disconnect":
@@ -113,7 +119,11 @@ func _handle_room_waiting_for_opponent(_waiting_message):
 func _handle_room_join_failed(failed_message):
 	var reason = failed_message["reason"]
 	var error_message = "ERROR: Failed to join room:\n"
+	var invalid_deck = false
 	match reason:
+		"invalid_deck_for_queue":
+			error_message = "Character not allowed in this queue."
+			invalid_deck = true
 		"room_full":
 			error_message += "Room is full."
 		"version_mismatch":
@@ -121,7 +131,7 @@ func _handle_room_join_failed(failed_message):
 		_:
 			error_message += "Join Error\n" + reason
 	print(error_message)
-	room_join_failed.emit(error_message)
+	room_join_failed.emit(error_message, invalid_deck)
 
 # Accepts a message from the game server indicating a game started.
 # Rebroadcasts the message to our scripts.
@@ -132,6 +142,10 @@ func _handle_game_start(game_start_message):
 	var player2_name = game_start_message["player2_name"]
 	print("Game started between [%s] %s and [%s] %s" % [player1_id, player1_name, player2_id, player2_name])
 	game_started.emit(game_start_message)
+
+func _handle_name_update(name_update_message):
+	var new_name = name_update_message["name"]
+	name_update.emit(new_name)
 
 func _handle_observe_start(observe_start_message):
 	observe_started.emit(observe_start_message)
@@ -160,7 +174,7 @@ func get_stripped_room_name(room_name : String):
 func _handle_players_update(message):
 	var players = message["players"]
 	var rooms = message["rooms"]
-	var match_available = message['match_available']
+	var queues = message['queues']
 	var player_list = []
 	for player in players:
 		var id = player["player_id"]
@@ -177,7 +191,17 @@ func _handle_players_update(message):
 			"room_name": room_name,
 		})
 	cached_players = player_list
-	cached_match_available = match_available
+	var newly_available_match = false
+	for old_queue in cached_queues:
+		var new_queue = null
+		for queue in queues:
+			if old_queue['id'] == queue['id']:
+				new_queue = queue
+				break
+		if new_queue and new_queue['match_available'] and not old_queue['match_available']:
+			newly_available_match = true
+			break
+	cached_queues = queues
 
 	# Process rooms
 	var match_list = []
@@ -213,14 +237,14 @@ func _handle_players_update(message):
 		match_list.append(match_info)
 	cached_matches = match_list
 
-	players_update.emit(player_list, match_list, match_available)
+	players_update.emit(player_list, match_list, queues, newly_available_match)
 
 
 ### Commands ###
 
 func join_room(player_name, room_name, deck_id_str : String,
 		starting_timer : int, enforce_timer : bool, minimum_time_per_choice : int):
-	if not _socket: return
+	if not _is_socket_open(): return
 	var join_room_message = {
 		"version": GlobalSettings.get_client_version(),
 		"value": "join_room",
@@ -236,7 +260,7 @@ func join_room(player_name, room_name, deck_id_str : String,
 	_socket.send_text(json)
 
 func observe_room(player_name, room_name):
-	if not _socket: return
+	if not _is_socket_open(): return
 	var observe_room_message = {
 		"version": GlobalSettings.get_client_version(),
 		"type": "observe_room",
@@ -246,12 +270,13 @@ func observe_room(player_name, room_name):
 	var json = JSON.stringify(observe_room_message)
 	_socket.send_text(json)
 
-func join_matchmaking(player_name, deck_id_str : String):
-	if not _socket: return
+func join_matchmaking(player_name, deck_id_str : String, queue_id : String):
+	if not _is_socket_open(): return
 	var message = {
 		"version": GlobalSettings.get_client_version(),
 		"value": "join_room",
 		"type": "join_matchmaking",
+		"queue_id": queue_id,
 		"player_name": player_name,
 		"deck_id": deck_id_str,
 		"starting_timer": GlobalSettings.MatchmakingStartingTimer,
@@ -262,7 +287,7 @@ func join_matchmaking(player_name, deck_id_str : String):
 	_socket.send_text(json)
 
 func leave_room():
-	if not _socket: return
+	if not _is_socket_open(): return
 	var leave_room_message = {
 		"type": "leave_room",
 	}
@@ -270,17 +295,26 @@ func leave_room():
 	_socket.send_text(json)
 
 func submit_game_message(message):
-	if not _socket: return
+	if not _is_socket_open(): return
 	message['type'] = "game_message"
 	var json = JSON.stringify(message)
 	_socket.send_text(json)
 
 func set_player_name(player_name):
-	if not _socket: return
+	if not _is_socket_open(): return
 	var message = {
 		"version": GlobalSettings.get_client_version(),
 		"type": "set_name",
 		"player_name": player_name,
+	}
+	var json = JSON.stringify(message)
+	_socket.send_text(json)
+
+func set_lobby_state(lobby_state : String):
+	if not _is_socket_open(): return
+	var message = {
+		"type": "set_lobby_state",
+		"lobby_state": lobby_state,
 	}
 	var json = JSON.stringify(message)
 	_socket.send_text(json)
@@ -291,5 +325,11 @@ func get_player_list():
 func get_match_list():
 	return cached_matches
 
-func get_match_available():
-	return cached_match_available
+func get_queue_list():
+	return cached_queues
+
+func any_available_match():
+	for queue in cached_queues:
+		if queue['match_available']:
+			return true
+	return false
