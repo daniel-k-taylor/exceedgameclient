@@ -18480,6 +18480,334 @@
 
 
 	{
+		"NOTE": "MORATHI CARDS START",
+		"id": "morathi_godofwar",
+		"type": "ultra",
+		"display_name": "God of War",
+		"force_cost": 0,
+		"gauge_cost": 3,
+		"range_min": 1,
+		"range_max": 2,
+		"speed": 4,
+		"power": 7,
+		"armor": 0,
+		"guard": 6,
+		"effects": [
+			{
+				"timing": "before",
+				"effect_type": "close",
+				"amount": 2
+			},
+			{
+				"timing": "hit",
+				"effect_type": "discard_random",
+				"amount": 3,
+				"and": {
+					"effect_type": "opponent_discard_random",
+					"amount": 3,
+					"opponent": true
+				}
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 3,
+			"cancel_cost": -1,
+			"display_name": "Power Overwhelming",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "powerup",
+					"amount": 3
+				},
+				{
+					"timing": "during_strike",
+					"effect_type": "speedup",
+					"amount": 2
+				}
+			]
+		}
+	},
+	{
+		"id": "morathi_shadowofdeath",
+		"type": "ultra",
+		"display_name": "Shadow of Death",
+		"force_cost": 0,
+		"gauge_cost": 8,
+		"range_min": 1,
+		"range_max": 1,
+		"speed": 8,
+		"power": 15,
+		"armor": 0,
+		"guard": 0,
+		"on_invalid": {
+			"condition": "was_wild_swing",
+			"effect_type": "replace_wild_swing",
+			"previous_attack_to": "hand",
+			"and": {
+				"effect_type": "add_top_discard_to_gauge",
+				"amount": 2
+			}
+		},
+		"effects": [
+		],
+		"boost": {
+			"boost_type": "immediate",
+			"force_cost": 4,
+			"cancel_cost": -1,
+			"display_name": "Intimidation",
+			"effects": [
+				{
+					"timing": "immediate",
+					"condition": "range",
+					"condition_amount": 1,
+					"effect_type": "discard_hand",
+					"and": {
+						"effect_type": "opponent_discard_hand"
+					}
+				}
+			]
+		}
+	},
+	{
+		"id": "morathi_gyrochaingash",
+		"type": "special",
+		"display_name": "Gyro Chain Gash",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 1,
+		"speed": 3,
+		"power": 2,
+		"armor": 0,
+		"guard": 5,
+		"effects": [
+			{
+				"timing": "before",
+				"effect_type": "close",
+				"amount": 2
+			},
+			{
+				"timing": "hit",
+				"effect_type": "discard_random",
+				"allow_fewer": true,
+				"optional": true,
+				"amount": 3,
+				"limitation": "",
+				"discard_effect": {
+					"per_discard": true,
+					"effect_type": "powerup",
+					"amount": 1,
+					"and": {
+						"effect_type": "opponent_discard_choose",
+						"amount": 1
+					}
+				}
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 2,
+			"cancel_cost": -1,
+			"display_name": "Casting Bones",
+			"effects": [
+				{
+					"timing": "now",
+					"condition": "min_cards_in_deck",
+					"condition_amount": 3,
+					"effect_type": "choose_cards_from_top_deck",
+					"look_amount": 3,
+					"action_choices": [
+						"add_to_topdeck_under_2"
+					],
+					"can_pass": false,
+					"destination_unchosen": "topdeck"
+				},
+				{
+					"timing": "now",
+					"condition": "min_cards_in_deck",
+					"condition_amount": 2,
+					"effect_type": "choose_cards_from_top_deck",
+					"look_amount": 2,
+					"action_choices": [
+						"add_to_topdeck_under"
+					],
+					"can_pass": false,
+					"destination_unchosen": "topdeck"
+				},
+				{
+					"timing": "during_strike",
+					"effect_type": "powerup",
+					"amount": 1
+				},
+
+				{
+					"timing": "during_strike",
+					"effect_type": "speedup",
+					"amount": 1
+				}
+			]
+		}
+	},
+	{
+		"id": "morathi_ivoryghostcharge",
+		"type": "special",
+		"display_name": "Ivory Ghost Charge",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 2,
+		"speed": 3,
+		"power": 5,
+		"armor": 0,
+		"guard": 5,
+		"effects": [
+			{
+				"timing": "before",
+				"condition": "was_hit",
+				"effect_type": "close",
+				"amount": 3
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Ruby Pact",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "powerup",
+					"amount": 2
+				}
+			]
+		}
+	},
+	{
+		"id": "morathi_ivoeryghostimpalement",
+		"type": "special",
+		"display_name": "Ivory Ghost Impalement",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 3,
+		"speed": 2,
+		"power": 4,
+		"armor": 0,
+		"guard": 5,
+		"effects": [
+			{
+				"timing": "before",
+				"condition": "was_hit",
+				"effect_type": "powerup",
+				"amount": 3
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Obsidian Pact",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "speedup",
+					"amount": 2
+				}
+			]
+		}
+	},
+	{
+		"id": "morathi_necksnapper",
+		"type": "special",
+		"display_name": "Neck Snapper",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 1,
+		"speed": 5,
+		"power": 4,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "before",
+				"effect_type": "discard_random",
+				"allow_fewer": true,
+				"optional": true,
+				"amount": 3,
+				"limitation": "",
+				"discard_effect": {
+					"per_discard": true,
+					"effect_type": "close",
+					"amount": 1
+				}
+			},
+			{
+				"timing": "hit",
+				"effect_type": "opponent_discard_choose",
+				"amount": "DISCARDED_THIS_STRIKE"
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 1,
+			"cancel_cost": -1,
+			"display_name": "Crushing Might",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "powerup",
+					"amount": 1
+				},
+				{
+					"timing": "during_strike",
+					"effect_type": "speedup",
+					"amount": 1
+				}
+			]
+		}
+	},
+	{
+		"id": "morathi_revenger",
+		"type": "special",
+		"display_name": "Revenger",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 3,
+		"speed": 1,
+		"power": 5,
+		"armor": 0,
+		"guard": 7,
+		"effects": [
+			{
+				"timing": "hit",
+				"effect_type": "opponent_discard_random",
+				"amount": 2,
+				"and": {
+					"effect_type": "add_top_discard_to_gauge"
+				}
+			}
+		],
+		"boost": {
+			"boost_type": "immediate",
+			"force_cost": 3,
+			"cancel_cost": -1,
+			"display_name": "Fates Crossing",
+			"effects": [
+				{
+					"timing": "immediate",
+					"effect_type": "strike",
+					"forced_wild_both_players": true
+				}
+			]
+		},
+		"NOTEND": "MORATHI CARDS END"
+	},
+
+
+	{
 		"NOTE": "NAGO CARDS START",
 		"id": "nago_wasureyuki",
 		"type": "ultra",

@@ -1,3 +1,13 @@
+Morathi:
+    ☐ on_invalid - replace wild swing
+        to hand
+    ☐ discard_random - discard_effect - need to make opponent choice during it work, or sum them all up or something.
+    ☐ "effect_type": "opponent_discard_choose",
+        "amount": "DISCARDED_THIS_STRIKE"
+    ☐ immediate strike - "forced_wild_both_players": true
+
+    ☐ "effect_type": "reveal_strike_to_self",
+
 Bug:
     Breaking:
         Treasure:
