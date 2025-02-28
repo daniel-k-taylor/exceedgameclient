@@ -18,13 +18,13 @@ horizontal_alignment = 1
 autowrap_mode = 2
 
 [node name="JoinButton" type="Button" parent="QueueVBox"]
-visible = false
 layout_mode = 2
 theme_override_font_sizes/font_size = 30
 text = "Enter
 Queue"
 
 [node name="PlayButton" type="Button" parent="QueueVBox"]
+visible = false
 layout_mode = 2
 theme_override_font_sizes/font_size = 30
 text = "Play

@@ -172,22 +172,28 @@ select_all_on_focus = true
 
 [node name="CancelButton" type="Button" parent="."]
 layout_mode = 2
-offset_left = 353.0
-offset_top = 259.0
-offset_right = 934.0
-offset_bottom = 345.0
+offset_left = 354.0
+offset_top = 235.0
+offset_right = 935.0
+offset_bottom = 321.0
 theme_override_font_sizes/font_size = 60
 text = "Cancel"
 
 [node name="Queues" type="HBoxContainer" parent="."]
 layout_mode = 2
-offset_left = 109.0
-offset_top = 363.0
-offset_right = 576.0
-offset_bottom = 534.0
+offset_left = 378.0
+offset_top = 387.0
+offset_right = 908.0
+offset_bottom = 558.0
 theme_override_constants/separation = 40
 
 [node name="QueueItem" parent="Queues" instance=ExtResource("9_ngekl")]
+layout_mode = 2
+
+[node name="QueueItem2" parent="Queues" instance=ExtResource("9_ngekl")]
+layout_mode = 2
+
+[node name="QueueItem3" parent="Queues" instance=ExtResource("9_ngekl")]
 layout_mode = 2
 
 [node name="PlayerChooser" type="PanelContainer" parent="."]
@@ -274,9 +280,9 @@ text = "Load Replay"
 [node name="PlayerList" type="ItemList" parent="."]
 layout_mode = 0
 offset_left = 968.0
-offset_top = 304.0
-offset_right = 1256.0
-offset_bottom = 640.0
+offset_top = 193.0
+offset_right = 1272.0
+offset_bottom = 529.0
 theme_override_font_sizes/font_size = 24
 item_count = 2
 item_0/text = "Player"
@@ -285,9 +291,9 @@ item_1/text = "Player 2"
 [node name="PlayerListLabel" type="Label" parent="."]
 layout_mode = 0
 offset_left = 968.0
-offset_top = 248.0
+offset_top = 137.0
 offset_right = 1256.0
-offset_bottom = 295.0
+offset_bottom = 184.0
 theme_override_font_sizes/font_size = 34
 text = "Player  -  Room"
 

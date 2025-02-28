@@ -62,6 +62,7 @@ func _ready():
 	NetworkManager.connect("observe_started", _on_observe_game_started)
 	NetworkManager.connect("players_update", _on_players_update)
 	NetworkManager.connect("room_join_failed", _on_join_failed)
+	NetworkManager.connect("name_update", _on_name_update)
 	cancel_button.visible = false
 	$ReconnectToServerButton.visible = false
 	_on_players_update(NetworkManager.get_player_list(), NetworkManager.get_match_list(), NetworkManager.get_queue_list(), NetworkManager.any_available_match())
@@ -108,6 +109,7 @@ func returned_from_game():
 	_on_players_update(NetworkManager.get_player_list(), NetworkManager.get_match_list(), NetworkManager.get_queue_list(), NetworkManager.any_available_match())
 	update_buttons(false)
 	just_clicked_matchmake = false
+	NetworkManager.set_lobby_state("Lobby")
 	start_music()
 	if OS.has_feature("web"):
 		window.setupFileLoad(file_load_callback)
@@ -125,6 +127,7 @@ func _on_start_button_pressed():
 	var opponent_deck = CardDefinitions.get_deck_from_str_id(opponent_selected_character)
 	var player_name = get_player_name()
 	var opponent_name = "CPU"
+	NetworkManager.set_lobby_state("AI")
 	start_game.emit(get_vs_info(player_name,
 		player_deck,
 		player_random_tag,
@@ -255,6 +258,10 @@ func _on_remote_game_started(data):
 	var opponent_deck_object = CardDefinitions.get_deck_from_str_id(opponent_deck_no_random)
 	start_remote_game.emit(get_vs_info(player_name, player_deck_object,
 		player_random_tag, opponent_name, opponent_deck_object, opponent_random_tag), data)
+
+func _on_name_update(new_name):
+	player_name_box.text = new_name
+	GlobalSettings.set_player_name(new_name)
 
 func _on_players_update(players, matches, queues : Array, newly_available_match : bool):
 	player_list.clear()
@@ -441,7 +448,7 @@ func _check_banned():
 		if not $SpecialSelectAudio.playing:
 			$SpecialSelectAudio.play()
 		modal_dialog.set_text_fields(
-			"\"Weaklings should stay away...\"\n(This character is banned\nfrom public matchmaking.)",
+			"\"Weaklings should stay away...\"\n(This character is banned\nfrom standard matchmaking.)",
 			"OK", "")
 		update_buttons(false)
 

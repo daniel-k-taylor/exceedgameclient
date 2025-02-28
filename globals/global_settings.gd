@@ -3,9 +3,9 @@ extends Node
 signal settings_loaded
 
 const ReleaseLoggingEnabled = false # If true, log even on release builds.
-const UseAzureServerAlways = false # If true, always defaults to the azure server.
+const UseAzureServerAlways = true # If true, always defaults to the azure server.
 var MuteEmotes = false
-const ClientVersionString : String = "250226.2230" # YYMMDD.HHMM
+const ClientVersionString : String = "250227.2330" # YYMMDD.HHMM
 const ReplayVersion : int = 1
 
 const CharacterBanlist = ['carmine']

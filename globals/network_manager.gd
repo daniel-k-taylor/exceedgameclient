@@ -8,6 +8,7 @@ signal game_message_received(message)
 signal observe_started(data)
 signal other_player_quit(is_disconnect)
 signal players_update(players, matches, queues, newly_available_match)
+signal name_update(name)
 
 enum NetworkState {
 	NetworkState_NotConnected,
@@ -93,6 +94,8 @@ func _handle_server_response(data):
 			_handle_game_start(data_obj)
 		"game_message":
 			_handle_game_message(data_obj)
+		"name_update":
+			_handle_name_update(data_obj)
 		"observe_start":
 			_handle_observe_start(data_obj)
 		"player_disconnect":
@@ -136,6 +139,10 @@ func _handle_game_start(game_start_message):
 	var player2_name = game_start_message["player2_name"]
 	print("Game started between [%s] %s and [%s] %s" % [player1_id, player1_name, player2_id, player2_name])
 	game_started.emit(game_start_message)
+
+func _handle_name_update(name_update_message):
+	var new_name = name_update_message["name"]
+	name_update.emit(new_name)
 
 func _handle_observe_start(observe_start_message):
 	observe_started.emit(observe_start_message)
@@ -294,6 +301,15 @@ func set_player_name(player_name):
 		"version": GlobalSettings.get_client_version(),
 		"type": "set_name",
 		"player_name": player_name,
+	}
+	var json = JSON.stringify(message)
+	_socket.send_text(json)
+
+func set_lobby_state(lobby_state : String):
+	if not _socket: return
+	var message = {
+		"type": "set_lobby_state",
+		"lobby_state": lobby_state,
 	}
 	var json = JSON.stringify(message)
 	_socket.send_text(json)
