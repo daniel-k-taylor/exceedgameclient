@@ -7,7 +7,7 @@ signal game_started(data)
 signal game_message_received(message)
 signal observe_started(data)
 signal other_player_quit(is_disconnect)
-signal players_update(players, matches, match_available)
+signal players_update(players, matches, queues, newly_available_match)
 
 enum NetworkState {
 	NetworkState_NotConnected,
@@ -113,9 +113,11 @@ func _handle_room_waiting_for_opponent(_waiting_message):
 func _handle_room_join_failed(failed_message):
 	var reason = failed_message["reason"]
 	var error_message = "ERROR: Failed to join room:\n"
+	var invalid_deck = false
 	match reason:
 		"invalid_deck_for_queue":
-			error_message += "Invalid deck for queue."
+			error_message = "Character not allowed in this queue."
+			invalid_deck = true
 		"room_full":
 			error_message += "Room is full."
 		"version_mismatch":
@@ -123,7 +125,7 @@ func _handle_room_join_failed(failed_message):
 		_:
 			error_message += "Join Error\n" + reason
 	print(error_message)
-	room_join_failed.emit(error_message)
+	room_join_failed.emit(error_message, invalid_deck)
 
 # Accepts a message from the game server indicating a game started.
 # Rebroadcasts the message to our scripts.
@@ -179,6 +181,16 @@ func _handle_players_update(message):
 			"room_name": room_name,
 		})
 	cached_players = player_list
+	var newly_available_match = false
+	for old_queue in cached_queues:
+		var new_queue = null
+		for queue in queues:
+			if old_queue['id'] == queue['id']:
+				new_queue = queue
+				break
+		if new_queue and new_queue['match_available'] and not old_queue['match_available']:
+			newly_available_match = true
+			break
 	cached_queues = queues
 
 	# Process rooms
@@ -215,7 +227,7 @@ func _handle_players_update(message):
 		match_list.append(match_info)
 	cached_matches = match_list
 
-	players_update.emit(player_list, match_list, queues)
+	players_update.emit(player_list, match_list, queues, newly_available_match)
 
 
 ### Commands ###
@@ -294,3 +306,9 @@ func get_match_list():
 
 func get_queue_list():
 	return cached_queues
+
+func any_available_match():
+	for queue in cached_queues:
+		if queue['match_available']:
+			return true
+	return false

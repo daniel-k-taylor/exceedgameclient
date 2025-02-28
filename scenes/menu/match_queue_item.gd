@@ -8,11 +8,11 @@ signal on_join_queue(id)
 @onready var play_button = $QueueVBox/PlayButton
 
 var	queue_id : String
-var queue_name : String
+var _queue_name : String
 
-func initialize_queue(id : String, name : String, match_available : bool):
+func initialize_queue(id : String, queue_name : String, match_available : bool):
 	queue_id = id
-	queue_name = name
+	_queue_name = queue_name
 	queue_label.text = queue_name
 	
 	set_match_available(match_available)
