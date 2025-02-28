@@ -74,6 +74,9 @@ func _handle_sockets():
 				print("WebSocket closed with code: %d, reason %s. Clean: %s" % [code, reason, code != -1])
 				_socket = null
 
+func _is_socket_open():
+	return _socket and _socket.get_ready_state() == WebSocketPeer.STATE_OPEN
+
 func _handle_server_response(data):
 	var parser = JSON.new()
 	var result = parser.parse(data)
@@ -241,7 +244,7 @@ func _handle_players_update(message):
 
 func join_room(player_name, room_name, deck_id_str : String,
 		starting_timer : int, enforce_timer : bool, minimum_time_per_choice : int):
-	if not _socket: return
+	if not _is_socket_open(): return
 	var join_room_message = {
 		"version": GlobalSettings.get_client_version(),
 		"type": "join_room",
@@ -256,7 +259,7 @@ func join_room(player_name, room_name, deck_id_str : String,
 	_socket.send_text(json)
 
 func observe_room(player_name, room_name):
-	if not _socket: return
+	if not _is_socket_open(): return
 	var observe_room_message = {
 		"version": GlobalSettings.get_client_version(),
 		"type": "observe_room",
@@ -267,7 +270,7 @@ func observe_room(player_name, room_name):
 	_socket.send_text(json)
 
 func join_matchmaking(player_name, deck_id_str : String, queue_id : String):
-	if not _socket: return
+	if not _is_socket_open(): return
 	var message = {
 		"version": GlobalSettings.get_client_version(),
 		"type": "join_matchmaking",
@@ -282,7 +285,7 @@ func join_matchmaking(player_name, deck_id_str : String, queue_id : String):
 	_socket.send_text(json)
 
 func leave_room():
-	if not _socket: return
+	if not _is_socket_open(): return
 	var leave_room_message = {
 		"type": "leave_room",
 	}
@@ -290,13 +293,13 @@ func leave_room():
 	_socket.send_text(json)
 
 func submit_game_message(message):
-	if not _socket: return
+	if not _is_socket_open(): return
 	message['type'] = "game_message"
 	var json = JSON.stringify(message)
 	_socket.send_text(json)
 
 func set_player_name(player_name):
-	if not _socket: return
+	if not _is_socket_open(): return
 	var message = {
 		"version": GlobalSettings.get_client_version(),
 		"type": "set_name",
@@ -306,7 +309,7 @@ func set_player_name(player_name):
 	_socket.send_text(json)
 
 func set_lobby_state(lobby_state : String):
-	if not _socket: return
+	if not _is_socket_open(): return
 	var message = {
 		"type": "set_lobby_state",
 		"lobby_state": lobby_state,
