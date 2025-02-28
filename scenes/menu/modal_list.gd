@@ -17,7 +17,7 @@ var show_list_state : ShowListState = ShowListState.ShowListState_None
 func _ready():
 	NetworkManager.connect("players_update", _on_players_update)
 
-func _on_players_update(_players, _matches, _match_available):
+func _on_players_update(_players, _matches, _queues, _newly_available_match):
 	if visible:
 		match show_list_state:
 			ShowListState.ShowListState_Players:
