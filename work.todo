@@ -1,5 +1,4 @@
 Next Feature:
-    ☐ Match available notification while you're observing
     ☐ Customs
         - Portrait/char animations downloadable from web
         - json file from disk
@@ -46,6 +45,7 @@ Bug:
 Tasks:
     Main Features:
         ☐ Search for match while observing/playing AI
+        ☐ Match available notification while you're observing/AI
         ☐ Rematch button
         ☐ Rejoin after disconnect
         ☐ Improve replay feature - autoplay, easier to navigate to specific turns/quicker (maybe a timeline of strikes or something)
