@@ -90,3 +90,217 @@ func test_morathi_ua_fakeout_option2():
 	validate_positions(player1, 6, player2, 7)
 	validate_life(player1, 30, player2, 26)
 	advance_turn(player1)
+
+
+func test_morathi_gyrochaingash_discard_3():
+	position_players(player1, 4, player2, 7)
+
+	assert_eq(player1.hand.size(), 5)
+	assert_eq(player2.hand.size(), 6)
+
+	var p2discards = [
+		player2.hand[0].id,
+		player2.hand[1].id,
+		player2.hand[2].id,
+	]
+	execute_strike(player1, player2, "morathi_gyrochaingash", "standard_normal_spike", false, false,
+		[2], [p2discards])
+	validate_life(player1, 30, player2, 25)
+	validate_positions(player1, 6, player2, 7)
+
+	assert_eq(player1.hand.size(), 2)
+	assert_eq(player2.hand.size(), 3)
+
+	assert_eq(player2.discards.size(), 4)
+	assert_eq(player2.discards[0].id, p2discards[0])
+	assert_eq(player2.discards[1].id, p2discards[1])
+	assert_eq(player2.discards[2].id, p2discards[2])
+
+	advance_turn(player2)
+
+
+func test_morathi_gyrochaingash_discard_3_opponent_has_1():
+	position_players(player1, 4, player2, 7)
+
+	assert_eq(player1.hand.size(), 5)
+	assert_eq(player2.hand.size(), 6)
+	player2.hand = player2.hand.slice(0, 1)
+
+	var p2discards = [
+		player2.hand[0].id,
+	]
+	execute_strike(player1, player2, "morathi_gyrochaingash", "standard_normal_spike", false, false,
+		[2], [])
+	validate_life(player1, 30, player2, 25)
+	validate_positions(player1, 6, player2, 7)
+
+	assert_eq(player1.hand.size(), 2)
+	assert_eq(player2.hand.size(), 0)
+
+	assert_eq(player2.discards.size(), 2)
+	assert_eq(player2.discards[0].id, p2discards[0])
+
+	advance_turn(player2)
+
+
+
+func test_morathi_gyrochaingash_discard_onlyhas_2_pass():
+	position_players(player1, 4, player2, 7)
+
+	player1.hand = player1.hand.slice(0, 2)
+	assert_eq(player1.hand.size(), 2)
+	assert_eq(player2.hand.size(), 6)
+
+	execute_strike(player1, player2, "morathi_gyrochaingash", "standard_normal_spike", false, false,
+		[2], [])
+	validate_life(player1, 30, player2, 28)
+	validate_positions(player1, 6, player2, 7)
+
+	assert_eq(player1.hand.size(), 2)
+	assert_eq(player2.hand.size(), 6)
+
+	assert_eq(player2.discards.size(), 1)
+
+	advance_turn(player2)
+
+
+func test_morathi_gyrochaingash_discard_onlyhas_2_doit():
+	position_players(player1, 4, player2, 7)
+
+	player1.hand = player1.hand.slice(0, 2)
+	assert_eq(player1.hand.size(), 2)
+	assert_eq(player2.hand.size(), 6)
+
+	var p2discards = [
+		player2.hand[0].id,
+		player2.hand[1].id,
+	]
+	execute_strike(player1, player2, "morathi_gyrochaingash", "standard_normal_spike", false, false,
+		[1], [p2discards])
+	validate_life(player1, 30, player2, 26)
+	validate_positions(player1, 6, player2, 7)
+
+	assert_eq(player1.hand.size(), 0)
+	assert_eq(player2.hand.size(), 4)
+
+	assert_eq(player2.discards.size(), 3)
+
+	advance_turn(player2)
+
+
+func test_morathi_necksnapper_discard_3():
+	position_players(player1, 4, player2, 7)
+
+	assert_eq(player1.hand.size(), 5)
+	assert_eq(player2.hand.size(), 6)
+
+	var p2discards = [
+		player2.hand[0].id,
+		player2.hand[1].id,
+		player2.hand[2].id,
+	]
+	execute_strike(player1, player2, "morathi_necksnapper", "standard_normal_assault", false, false,
+		[2], [p2discards])
+	validate_life(player1, 30, player2, 26)
+	validate_positions(player1, 6, player2, 7)
+
+	assert_eq(player1.hand.size(), 2)
+	assert_eq(player2.hand.size(), 3)
+
+	assert_eq(player2.discards.size(), 4)
+	assert_eq(player2.discards[0].id, p2discards[0])
+	assert_eq(player2.discards[1].id, p2discards[1])
+	assert_eq(player2.discards[2].id, p2discards[2])
+
+	advance_turn(player2)
+
+
+func test_morathi_necksnapper_discard_3_force_special_up_discards():
+	position_players(player1, 3, player2, 7)
+
+	assert_eq(player1.hand.size(), 5)
+	assert_eq(player2.hand.size(), 6)
+
+	var p2discards = [
+		player2.hand[0].id,
+		player2.hand[1].id,
+		player2.hand[2].id,
+		player2.hand[3].id,
+	]
+	execute_strike(player1, player2, "morathi_necksnapper", "hazama_fallingfang", false, false,
+		[2], [[player2.hand[4].id], p2discards])
+	validate_life(player1, 30, player2, 26)
+	validate_positions(player1, 6, player2, 7)
+
+	assert_eq(player1.hand.size(), 2)
+	assert_eq(player2.hand.size(), 1)
+
+	assert_eq(player2.discards.size(), 6)
+	assert_eq(player2.discards[1].id, p2discards[0])
+	assert_eq(player2.discards[2].id, p2discards[1])
+	assert_eq(player2.discards[3].id, p2discards[2])
+	assert_eq(player2.discards[4].id, p2discards[3])
+
+	advance_turn(player2)
+
+
+func test_morathi_shadowofdeath_invalid():
+	position_players(player1, 5, player2, 7)
+	give_gauge(player1, 7)
+	player1.discard_hand()
+	assert_eq(player1.hand.size(), 0)
+	set_player_topdeck(player1, "standard_normal_assault")
+	set_player_topdeck(player1, "morathi_shadowofdeath")
+	execute_strike(player1, player2, -1, "standard_normal_assault", false, false,
+		[1], [])
+	assert_eq(player1.hand.size(), 1)
+	assert_eq(player1.gauge.size(), 10)
+	validate_positions(player1, 6, player2, 7)
+	validate_life(player1, 30, player2, 26)
+	advance_turn(player1)
+
+
+func test_morathi_shadowofdeath_not_invalid_ws_anyway():
+	position_players(player1, 6, player2, 7)
+	give_gauge(player1, 8)
+	player1.discard_hand()
+	assert_eq(player1.hand.size(), 0)
+	set_player_topdeck(player1, "standard_normal_assault")
+	set_player_topdeck(player1, "morathi_shadowofdeath")
+	execute_strike(player1, player2, -1, "standard_normal_assault", false, false,
+		[1, [true, true, false]], [])
+	assert_eq(player1.hand.size(), 0)
+	assert_eq(player1.gauge.size(), 9)
+	validate_positions(player1, 6, player2, 7)
+	validate_life(player1, 30, player2, 26)
+	advance_turn(player1)
+
+
+func test_morathi_shadowofdeath_not_invalid_pay():
+	position_players(player1, 6, player2, 7)
+	var p1gauge = give_gauge(player1, 8)
+	player1.discard_hand()
+	assert_eq(player1.hand.size(), 0)
+	set_player_topdeck(player1, "standard_normal_assault")
+	set_player_topdeck(player1, "morathi_shadowofdeath")
+	execute_strike(player1, player2, -1, "standard_normal_grasp", false, false,
+		[1, p1gauge], [])
+	assert_eq(player1.hand.size(), 0)
+	assert_eq(player1.gauge.size(), 1)
+	validate_positions(player1, 6, player2, 7)
+	validate_life(player1, 30, player2, 15)
+	advance_turn(player2)
+
+func test_morathi_revenger_boost():
+	position_players(player1, 4, player2, 7)
+	give_player_specific_card(player1, "morathi_revenger")
+	set_player_topdeck(player1, "standard_normal_assault")
+	set_player_topdeck(player2, "standard_normal_sweep")
+	assert_true(game_logic.do_boost(player1, player1.hand[-1].id, [player1.hand[0].id,player1.hand[1].id, player1.hand[2].id]))
+	assert_true(game_logic.do_strike(player1, -1, true, -1))
+	assert_true(game_logic.do_choice(player1, 1))
+	assert_true(game_logic.do_strike(player2, -1, true, -1))
+	assert_true(game_logic.do_choice(player2, 1))
+	validate_positions(player1, 6, player2, 7)
+	validate_life(player1, 24, player2, 26)
+	advance_turn(player1)

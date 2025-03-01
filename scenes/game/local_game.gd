@@ -2726,11 +2726,15 @@ class Player:
 				events += parent.do_effect_if_condition_met(self, effect["card_id"], effect, null)
 		return events
 
-	func invalidate_card(card : GameCard):
+	func invalidate_card(card : GameCard, invalid_by_choice : bool = false):
 		var events = []
+
 		if 'on_invalid' in card.definition:
+			var local_conditions = LocalStrikeConditions.new()
+			local_conditions.invalid_by_choice = invalid_by_choice
+
 			var invalid_effect = card.definition['on_invalid']
-			events += parent.do_effect_if_condition_met(self, -1, invalid_effect, null)
+			events += parent.do_effect_if_condition_met(self, -1, invalid_effect, local_conditions)
 		if 'on_invalid_add_to_gauge' in card.definition and card.definition['on_invalid_add_to_gauge']:
 			events += add_to_gauge(card)
 		else:
@@ -4642,6 +4646,10 @@ func is_effect_condition_met(performing_player : Player, effect, local_condition
 			return performing_player.strike_stat_boosts.was_hit
 		elif condition == "was_wild_swing":
 			if active_strike:
+				var detail = effect.get("condition_detail", false)
+				var ignore_if_invalid_by_choice = detail and detail == "ignore_if_invalid_by_choice"
+				if local_conditions and ignore_if_invalid_by_choice and local_conditions.invalid_by_choice:
+					return false
 				return active_strike.get_player_wild_strike(performing_player)
 			return false
 		elif condition == "was_not_wild_swing":
@@ -4740,6 +4748,7 @@ class LocalStrikeConditions:
 	var pulled_past : bool = false
 	var manual_reshuffle : bool = false
 	var movement_amount : int = 0
+	var invalid_by_choice : bool = false
 
 func wait_for_mid_strike_boost():
 	return game_state == Enums.GameState.GameState_PlayerDecision and decision_info.type == Enums.DecisionType.DecisionType_BoostNow
@@ -11497,10 +11506,11 @@ func do_pay_strike_cost(
 
 	var events = []
 	if wild_strike:
+		var invalid_by_choice = decision_info.type == Enums.DecisionType.DecisionType_PayStrikeCost_CanWild
 		_append_log_full(Enums.LogType.LogType_Strike, performing_player, "chooses to wild swing instead of validating %s." % card.definition['display_name'])
 		# Replace existing card with a wild strike
 		var current_card = active_strike.get_player_card(performing_player)
-		events += performing_player.invalidate_card(current_card)
+		events += performing_player.invalidate_card(current_card, invalid_by_choice)
 		events += performing_player.wild_strike(true)
 		var new_card = active_strike.get_player_card(performing_player)
 		_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "wild swings %s!" % new_card.definition['display_name'])

@@ -18542,6 +18542,7 @@
 		"guard": 0,
 		"on_invalid": {
 			"condition": "was_wild_swing",
+			"condition_detail": "ignore_if_invalid_by_choice",
 			"effect_type": "replace_wild_swing",
 			"previous_attack_to": "hand",
 			"and": {

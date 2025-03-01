@@ -9,12 +9,15 @@ Morathi:
         ✔ test with opponent strike first effects @started(25-03-01 00:28) @done(25-03-01 00:28) @lasted(23s)
         ☐ Test exceed with no/limited deck left
 
-    ☐ Test gyro chain discard random with limited deck size
-    ☐ Test neck snapper discarded cards count
-    ☐ Test shadow of death invalid thing
-    ☐ Test both wild swing thing
+    ✔ Test gyro chain discard random with limited deck size @done(25-03-01 09:46)
+    ✔ Test neck snapper discarded cards count @done(25-03-01 09:56)
+    ✔ Test shadow of death invalid thing @done(25-03-01 10:17)
+    ✔ Test both wild swing thing @done(25-03-01 10:27)
 
 Next Feature:
+    ☐ Sort sealed area
+    ☐ Sort Arakune OD by speed
+    ☐ Match button lights up on main menu
     ☐ Match available notification while you're observing
     ☐ Customs
         - Portrait/char animations downloadable from web
