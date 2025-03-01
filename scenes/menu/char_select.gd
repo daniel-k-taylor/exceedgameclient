@@ -51,6 +51,9 @@ func update_hover(char_id):
 	elif char_id == "random_s2":
 		hover_label.text = "Random (S2)"
 		hover_portrait.texture = load("res://assets/portraits/sclogo.png")
+	elif char_id == "random_s1":
+		hover_label.text = "Random (S1)"
+		hover_portrait.texture = load("res://assets/portraits/redhorizon.png")
 	elif char_id == "random":
 		hover_label.text = "Random (All)"
 		hover_portrait.texture = load("res://assets/portraits/exceedrandom.png")
@@ -72,6 +75,7 @@ func _on_background_button_pressed():
 	close_character_select.emit()
 
 func show_season(node, selector_button):
+	charselect_s1.visible = false
 	charselect_s2.visible = false
 	charselect_s3.visible = false
 	charselect_s4.visible = false
@@ -80,6 +84,7 @@ func show_season(node, selector_button):
 	charselect_s7.visible = false
 	node.visible = true
 
+	season_button_s1.set_selected(false)
 	season_button_s2.set_selected(false)
 	season_button_s3.set_selected(false)
 	season_button_s4.set_selected(false)

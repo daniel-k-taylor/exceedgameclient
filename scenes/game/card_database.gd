@@ -30,7 +30,7 @@ func list_all_cards():
 
 ## Actual lookup utilities
 
-func get_card_sort_key(card_id : int):
+func get_card_sort_key(card_id : int, mix_ultras : bool = false, speed_only : bool = false):
 	var gamecard = get_card(card_id)
 	var card_type = gamecard.definition['type']
 	var speed = gamecard.definition['speed']
@@ -38,12 +38,18 @@ func get_card_sort_key(card_id : int):
 		speed = 20
 	var display_name = gamecard.definition['display_name']
 	var sort_key = 0
-	if card_type == "normal":
+	if speed_only:
 		sort_key = 100
-	elif card_type == "special":
-		sort_key = 200
-	elif card_type == "ultra":
-		sort_key = 300
+	else:
+		if card_type == "normal":
+			sort_key = 100
+		elif card_type == "special":
+			sort_key = 200
+		elif card_type == "ultra":
+			if mix_ultras:
+				sort_key = 200
+			else:
+				sort_key = 300
 
 	# Use inverse speed so that higher speed cards are sorted first.
 	# Because we want to use the display name as alpha sort.

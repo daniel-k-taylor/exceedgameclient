@@ -1270,6 +1270,19 @@ func _on_card_popout_card_clicked(card_id : int):
 	if card:
 		on_card_clicked(card)
 
+func sort_cards(cards, mix_ultras : bool, speed_only : bool):
+	cards.sort_custom(
+		# For descending order use > 0
+		func(a: Node, b: Node):
+			assert(a is CardBase)
+			assert(b is CardBase)
+			var card_a = a as CardBase
+			var card_b = b as CardBase
+			var sort_key_a = game_wrapper.get_card_database().get_card_sort_key(card_a.card_id, mix_ultras, speed_only)
+			var sort_key_b = game_wrapper.get_card_database().get_card_sort_key(card_b.card_id, mix_ultras, speed_only)
+			return sort_key_a < sort_key_b
+	)
+
 func sort_player_hand(hand_zone):
 	# Only intended to be called for the player, not opponent.
 	var sorted_nodes = hand_zone.get_children()
@@ -5295,6 +5308,15 @@ func show_popout(popout_type : CardPopoutType, popout_title : String, card_node,
 					continue
 			filtered_cards.append(card)
 		cards = filtered_cards
+
+	# Do any sorting of cards for specific zones.
+	# Overdrive - speed only sort
+	# Sealed - sort but mix ultras/specials
+	match popout_type:
+		CardPopoutType.CardPopoutType_OverdrivePlayer, CardPopoutType.CardPopoutType_OverdrivePlayer:
+			sort_cards(cards, false, true)
+		CardPopoutType.CardPopoutType_SealedPlayer, CardPopoutType.CardPopoutType_SealedOpponent:
+			sort_cards(cards, true, false)
 
 	var filtering_allowed = popout_type == CardPopoutType.CardPopoutType_ReferenceOpponent
 	_update_popout_cards(cards, filtering_allowed, show_amount)

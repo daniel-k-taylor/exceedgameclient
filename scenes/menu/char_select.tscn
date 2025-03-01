@@ -775,21 +775,6 @@ alignment = 1
 layout_mode = 2
 alignment = 1
 
-[node name="Seijun" parent="CenterContainer/SCCharacterSelect/Rows/Row1" instance=ExtResource("6_3lmwy")]
-layout_mode = 2
-char_id = "seijun"
-portrait_texture = ExtResource("87_4uyi6")
-
-[node name="Sydney" parent="CenterContainer/SCCharacterSelect/Rows/Row1" instance=ExtResource("6_3lmwy")]
-layout_mode = 2
-char_id = "sydney"
-portrait_texture = ExtResource("88_jh43h")
-
-[node name="Celinka" parent="CenterContainer/SCCharacterSelect/Rows/Row1" instance=ExtResource("6_3lmwy")]
-layout_mode = 2
-char_id = "celinka"
-portrait_texture = ExtResource("89_d1xn5")
-
 [node name="Emogine" parent="CenterContainer/SCCharacterSelect/Rows/Row1" instance=ExtResource("6_3lmwy")]
 layout_mode = 2
 char_id = "emogine"
@@ -810,7 +795,26 @@ layout_mode = 2
 char_id = "carlswangee"
 portrait_texture = ExtResource("88_6oc13")
 
-[node name="RandomSC" parent="CenterContainer/SCCharacterSelect/Rows/Row1" instance=ExtResource("6_3lmwy")]
+[node name="Row2" type="HBoxContainer" parent="CenterContainer/SCCharacterSelect/Rows"]
+layout_mode = 2
+alignment = 1
+
+[node name="Seijun" parent="CenterContainer/SCCharacterSelect/Rows/Row2" instance=ExtResource("6_3lmwy")]
+layout_mode = 2
+char_id = "seijun"
+portrait_texture = ExtResource("87_4uyi6")
+
+[node name="Sydney" parent="CenterContainer/SCCharacterSelect/Rows/Row2" instance=ExtResource("6_3lmwy")]
+layout_mode = 2
+char_id = "sydney"
+portrait_texture = ExtResource("88_jh43h")
+
+[node name="Celinka" parent="CenterContainer/SCCharacterSelect/Rows/Row2" instance=ExtResource("6_3lmwy")]
+layout_mode = 2
+char_id = "celinka"
+portrait_texture = ExtResource("89_d1xn5")
+
+[node name="RandomSC" parent="CenterContainer/SCCharacterSelect/Rows/Row2" instance=ExtResource("6_3lmwy")]
 layout_mode = 2
 char_id = "random_s2"
 portrait_texture = ExtResource("88_687x2")
@@ -1070,12 +1074,6 @@ portrait_texture = ExtResource("32_iutun")
 [connection signal="on_pressed" from="CenterContainer/SFCharacterSelect/Rows/Row3/C_Viper" to="." method="_on_char_button_on_pressed"]
 [connection signal="on_hover" from="CenterContainer/SFCharacterSelect/Rows/Row3/Vega" to="." method="_on_char_hover"]
 [connection signal="on_pressed" from="CenterContainer/SFCharacterSelect/Rows/Row3/Vega" to="." method="_on_char_button_on_pressed"]
-[connection signal="on_hover" from="CenterContainer/SCCharacterSelect/Rows/Row1/Seijun" to="." method="_on_char_hover"]
-[connection signal="on_pressed" from="CenterContainer/SCCharacterSelect/Rows/Row1/Seijun" to="." method="_on_char_button_on_pressed"]
-[connection signal="on_hover" from="CenterContainer/SCCharacterSelect/Rows/Row1/Sydney" to="." method="_on_char_hover"]
-[connection signal="on_pressed" from="CenterContainer/SCCharacterSelect/Rows/Row1/Sydney" to="." method="_on_char_button_on_pressed"]
-[connection signal="on_hover" from="CenterContainer/SCCharacterSelect/Rows/Row1/Celinka" to="." method="_on_char_hover"]
-[connection signal="on_pressed" from="CenterContainer/SCCharacterSelect/Rows/Row1/Celinka" to="." method="_on_char_button_on_pressed"]
 [connection signal="on_hover" from="CenterContainer/SCCharacterSelect/Rows/Row1/Emogine" to="." method="_on_char_hover"]
 [connection signal="on_pressed" from="CenterContainer/SCCharacterSelect/Rows/Row1/Emogine" to="." method="_on_char_button_on_pressed"]
 [connection signal="on_hover" from="CenterContainer/SCCharacterSelect/Rows/Row1/Iaquis" to="." method="_on_char_hover"]
@@ -1084,8 +1082,14 @@ portrait_texture = ExtResource("32_iutun")
 [connection signal="on_pressed" from="CenterContainer/SCCharacterSelect/Rows/Row1/Galdred" to="." method="_on_char_button_on_pressed"]
 [connection signal="on_hover" from="CenterContainer/SCCharacterSelect/Rows/Row1/Swangee" to="." method="_on_char_hover"]
 [connection signal="on_pressed" from="CenterContainer/SCCharacterSelect/Rows/Row1/Swangee" to="." method="_on_char_button_on_pressed"]
-[connection signal="on_hover" from="CenterContainer/SCCharacterSelect/Rows/Row1/RandomSC" to="." method="_on_char_hover"]
-[connection signal="on_pressed" from="CenterContainer/SCCharacterSelect/Rows/Row1/RandomSC" to="." method="_on_char_button_on_pressed"]
+[connection signal="on_hover" from="CenterContainer/SCCharacterSelect/Rows/Row2/Seijun" to="." method="_on_char_hover"]
+[connection signal="on_pressed" from="CenterContainer/SCCharacterSelect/Rows/Row2/Seijun" to="." method="_on_char_button_on_pressed"]
+[connection signal="on_hover" from="CenterContainer/SCCharacterSelect/Rows/Row2/Sydney" to="." method="_on_char_hover"]
+[connection signal="on_pressed" from="CenterContainer/SCCharacterSelect/Rows/Row2/Sydney" to="." method="_on_char_button_on_pressed"]
+[connection signal="on_hover" from="CenterContainer/SCCharacterSelect/Rows/Row2/Celinka" to="." method="_on_char_hover"]
+[connection signal="on_pressed" from="CenterContainer/SCCharacterSelect/Rows/Row2/Celinka" to="." method="_on_char_button_on_pressed"]
+[connection signal="on_hover" from="CenterContainer/SCCharacterSelect/Rows/Row2/RandomSC" to="." method="_on_char_hover"]
+[connection signal="on_pressed" from="CenterContainer/SCCharacterSelect/Rows/Row2/RandomSC" to="." method="_on_char_button_on_pressed"]
 [connection signal="on_hover" from="CenterContainer/S1CharacterSelect/Rows/Row1/Morathi" to="." method="_on_char_hover"]
 [connection signal="on_pressed" from="CenterContainer/S1CharacterSelect/Rows/Row1/Morathi" to="." method="_on_char_button_on_pressed"]
 [connection signal="on_hover" from="CenterContainer/S1CharacterSelect/Rows/Row1/RandomS1" to="." method="_on_char_hover"]

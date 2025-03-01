@@ -22,6 +22,10 @@ func load_portrait_texture(texture_rect : TextureRect, random_tag : String, deck
 	match random_tag:
 		"random":
 			texture_rect.texture = load("res://assets/portraits/exceedrandom.png")
+		"random_s1":
+			texture_rect.texture = load("res://assets/portraits/redhorizon.png")
+		"random_s2":
+			texture_rect.texture = load("res://assets/portraits/sclogo.png")
 		"random_s3":
 			texture_rect.texture = load("res://assets/portraits/sflogo.png")
 		"random_s4":
