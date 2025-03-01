@@ -91,6 +91,113 @@ func test_morathi_ua_fakeout_option2():
 	validate_life(player1, 30, player2, 26)
 	advance_turn(player1)
 
+func test_morathi_exceed_ua():
+	position_players(player1, 5, player2, 7)
+	player1.exceeded = true
+	var t3 = set_player_topdeck(player1, "standard_normal_assault")
+	var t2 = set_player_topdeck(player1, "standard_normal_dive")
+	var t1 = set_player_topdeck(player1, "standard_normal_spike")
+	execute_strike(player1, player2, -1, "standard_normal_assault", false, false,
+		[t1, "discard", t2, "add_to_hand"], [])
+	validate_positions(player1, 6, player2, 7)
+	validate_life(player1, 30, player2, 26)
+	assert_eq(player1.hand[-1].id, t2)
+	assert_eq(player1.discards[0].id, t1)
+	assert_eq(player1.gauge[0].id, t3)
+	advance_turn(player1)
+
+
+func test_morathi_exceed_ua_no_deck():
+	position_players(player1, 5, player2, 7)
+	player1.exceeded = true
+	var assault = give_player_specific_card(player1, "standard_normal_assault")
+	player1.discard([assault])
+	assert_eq(player1.discards[0].id, assault)
+	assert_eq(player1.discards.size(), 1)
+	assert_eq(player1.hand.size(), 5)
+	player1.deck = []
+	assert_eq(player1.deck.size(), 0)
+	execute_strike(player1, player2, -1, "standard_normal_assault", false, false,
+		[], [])
+	validate_positions(player1, 6, player2, 7)
+	validate_life(player1, 30, player2, 26)
+	assert_eq(player1.hand.size(), 5)
+	assert_eq(player1.discards.size(), 0)
+	assert_eq(player1.gauge[0].id, assault)
+
+
+func test_morathi_exceed_ua_no_deck_gameover():
+	position_players(player1, 5, player2, 7)
+	player1.exceeded = true
+	player1.reshuffle_remaining = 0
+	var assault = give_player_specific_card(player1, "standard_normal_assault")
+	player1.discard([assault])
+	assert_eq(player1.discards[0].id, assault)
+	assert_eq(player1.discards.size(), 1)
+	assert_eq(player1.hand.size(), 5)
+	player1.deck = []
+	assert_eq(player1.deck.size(), 0)
+	execute_strike(player1, player2, -1, "standard_normal_assault", false, false,
+		[], [])
+	assert_true(game_logic.game_over)
+	validate_positions(player1, 5, player2, 7)
+
+func test_morathi_exceed_ua_no_deck_1_left():
+	position_players(player1, 5, player2, 7)
+	player1.exceeded = true
+	assert_eq(player1.discards.size(), 0)
+	assert_eq(player1.hand.size(), 5)
+	player1.deck = []
+	var t3 = set_player_topdeck(player1, "standard_normal_assault")
+	assert_eq(player1.deck.size(), 1)
+	execute_strike(player1, player2, -1, "standard_normal_assault", false, false,
+		[], [])
+	validate_positions(player1, 6, player2, 7)
+	validate_life(player1, 30, player2, 26)
+	assert_eq(player1.hand.size(), 5)
+	assert_eq(player1.discards.size(), 0)
+	assert_eq(player1.gauge[0].id, t3)
+
+
+func test_morathi_exceed_ua_no_deck_2_left():
+	position_players(player1, 5, player2, 7)
+	player1.exceeded = true
+	assert_eq(player1.discards.size(), 0)
+	assert_eq(player1.hand.size(), 5)
+	player1.deck = []
+	var t3 = set_player_topdeck(player1, "standard_normal_assault")
+	var t2 = set_player_topdeck(player1, "standard_normal_dive")
+	assert_eq(player1.deck.size(), 2)
+	execute_strike(player1, player2, -1, "standard_normal_assault", false, false,
+		[t2, "add_to_hand"], [])
+	validate_positions(player1, 6, player2, 7)
+	validate_life(player1, 30, player2, 26)
+	assert_eq(player1.hand.size(), 6)
+	assert_eq(player1.hand[-1].id, t2)
+	assert_eq(player1.discards.size(), 0)
+	assert_eq(player1.gauge[0].id, t3)
+	
+
+func test_morathi_exceed_ua_no_deck_3_left():
+	position_players(player1, 5, player2, 7)
+	player1.exceeded = true
+	assert_eq(player1.discards.size(), 0)
+	assert_eq(player1.hand.size(), 5)
+	player1.deck = []
+	var t3 = set_player_topdeck(player1, "standard_normal_assault")
+	var t2 = set_player_topdeck(player1, "standard_normal_dive")
+	var t1 = set_player_topdeck(player1, "standard_normal_dive")
+	assert_eq(player1.deck.size(), 3)
+	execute_strike(player1, player2, -1, "standard_normal_assault", false, false,
+		[t1, "discard", t2, "add_to_hand"], [])
+	validate_positions(player1, 6, player2, 7)
+	validate_life(player1, 30, player2, 26)
+	assert_eq(player1.hand.size(), 6)
+	assert_eq(player1.hand[-1].id, t2)
+	assert_eq(player1.discards.size(), 1)
+	assert_eq(player1.discards[0].id, t1)
+	assert_eq(player1.gauge[0].id, t3)
+	assert_eq(player1.deck.size(), 0)
 
 func test_morathi_gyrochaingash_discard_3():
 	position_players(player1, 4, player2, 7)

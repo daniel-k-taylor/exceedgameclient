@@ -123,7 +123,12 @@ func do_and_validate_strike(player, card_id, ex_card_id = -1, use_face_attack = 
 				"Unsuccessful attempt to initiate with face attack (%s)" % [face_card_id])
 		card_id = face_card_id
 	else:
-		var ws_card_id = player.deck[0].id
+		var ws_card_id = -1
+		if player.deck.size() == 0:
+			# Assume this test is going to use the discard for the ws card.
+			ws_card_id = player.discards[0].id
+		else:
+			ws_card_id = player.deck[0].id
 		assert_true(game_logic.do_strike(player, card_id, true, ex_card_id),
 				"Unsuccessful attempt to initiate with wild swing (%s)" % [
 						game_logic.get_card_database().get_card_name(ws_card_id)])
@@ -133,8 +138,9 @@ func do_and_validate_strike(player, card_id, ex_card_id = -1, use_face_attack = 
 			game_logic.game_state == Enums.GameState.GameState_PlayerDecision:
 		pass
 	else:
-		fail_test("Unexpected game state after initiating strike")
-		## TODO: Figure out if the test should terminate early here
+		if game_logic.game_state != Enums.GameState.GameState_GameOver:
+			fail_test("Unexpected game state after initiating strike")
+			## TODO: Figure out if the test should terminate early here
 	return card_id
 
 func do_strike_response(player, card_id, ex_card_id = -1):
@@ -201,6 +207,14 @@ func process_decisions(player, strike_state, decisions):
 			Enums.DecisionType.DecisionType_ChooseToDiscard:
 				assert_true(game_logic.do_choose_to_discard(player1, content),
 					"%s failed to choose_to_discard using %s" % [player, content])
+			Enums.DecisionType.DecisionType_ChooseFromTopDeck:
+				var action = decisions.pop_front()
+				if action == null:
+					fail_test("Player %s needed to provide action for choice from topdeck" % [
+						player.my_id + 1])
+					return
+				assert_true(game_logic.do_choose_from_topdeck(player, content, action),
+					"%s failed to choose_from_topdeck using %s %s" % [player, content, action])
 			Enums.DecisionType.DecisionType_ForceForEffect:
 				# In cases where optional booleans are provided at the end of
 				# `content`, interpret them as optional boolean arguments to
