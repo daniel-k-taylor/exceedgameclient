@@ -5,7 +5,8 @@ signal on_join_queue(id)
 
 @onready var queue_label = $QueueVBox/QueueLabel
 @onready var join_button = $QueueVBox/JoinButton
-@onready var play_button = $QueueVBox/PlayButton
+@onready var play_button = $QueueVBox/PlayContainer/PlayButton
+@onready var play_container = $QueueVBox/PlayContainer
 
 var	queue_id : String
 var _queue_name : String
@@ -27,6 +28,7 @@ func get_match_available() -> bool:
 func set_match_available(match_available : bool):
 	join_button.visible = not match_available
 	play_button.visible = match_available
+	play_container.visible = match_available
 
 func _on_join_button_pressed() -> void:
 	on_join_queue.emit(queue_id)
