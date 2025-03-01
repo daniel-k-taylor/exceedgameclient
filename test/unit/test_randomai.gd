@@ -675,3 +675,6 @@ func test_iaquis_100():
 
 func test_emogine_100():
 	run_iterations_with_deck("emogine")
+
+func test_morathi_100():
+	run_iterations_with_deck("morathi")

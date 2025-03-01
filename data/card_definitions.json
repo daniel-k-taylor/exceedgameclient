@@ -18550,6 +18550,21 @@
 			}
 		},
 		"effects": [
+			{
+				"timing": "on_strike_reveal",
+				"condition": "was_wild_swing",
+				"effect_type": "pass",
+				"and": {
+					"condition": "max_cards_in_gauge",
+					"condition_amount": 7,
+					"effect_type": "replace_wild_swing",
+					"previous_attack_to": "hand",
+					"and": {
+						"effect_type": "add_top_discard_to_gauge",
+						"amount": 2
+					}
+				}
+			}
 		],
 		"boost": {
 			"boost_type": "immediate",
@@ -18589,18 +18604,35 @@
 			},
 			{
 				"timing": "hit",
-				"effect_type": "discard_random",
-				"allow_fewer": true,
-				"optional": true,
-				"amount": 3,
-				"limitation": "",
-				"discard_effect": {
-					"per_discard": true,
-					"effect_type": "powerup",
-					"amount": 1,
-					"and": {
-						"effect_type": "opponent_discard_choose",
-						"amount": 1
+				"override_description": "Discard up to 3 random cards, +1 Power and opponent discards 1 for each.",
+				"condition": "min_cards_in_hand",
+				"condition_amount": 3,
+				"effect_type": "choice",
+				"choice": [
+					{ "effect_type": "discard_random", "amount": 1, "and": { "effect_type": "powerup", "amount": 1, "and": { "effect_type": "opponent_discard_choose", "amount": 1 }}},
+					{ "effect_type": "discard_random", "amount": 2, "and": { "effect_type": "powerup", "amount": 2, "and": { "effect_type": "opponent_discard_choose", "amount": 2 }}},
+					{ "effect_type": "discard_random", "amount": 3, "and": { "effect_type": "powerup", "amount": 3, "and": { "effect_type": "opponent_discard_choose", "amount": 3 }}},
+					{ "effect_type": "pass" }
+				],
+				"negative_condition_effect": {
+					"is_negative_effect": true,
+					"condition": "min_cards_in_hand",
+					"condition_amount": 2,
+					"effect_type": "choice",
+					"choice": [
+						{ "effect_type": "discard_random", "amount": 1, "and": { "effect_type": "powerup", "amount": 1, "and": { "effect_type": "opponent_discard_choose", "amount": 1 }}},
+						{ "effect_type": "discard_random", "amount": 2, "and": { "effect_type": "powerup", "amount": 2, "and": { "effect_type": "opponent_discard_choose", "amount": 2 }}},
+						{ "effect_type": "pass" }
+					],
+					"negative_condition_effect": {
+						"is_negative_effect": true,
+						"condition": "min_cards_in_hand",
+						"condition_amount": 1,
+						"effect_type": "choice",
+						"choice": [
+							{ "effect_type": "discard_random", "amount": 1, "and": { "effect_type": "powerup", "amount": 1, "and": { "effect_type": "opponent_discard_choose", "amount": 1 }}},
+							{ "effect_type": "pass" }
+						]
 					}
 				}
 			}
@@ -18732,21 +18764,41 @@
 		"effects": [
 			{
 				"timing": "before",
-				"effect_type": "discard_random",
-				"allow_fewer": true,
-				"optional": true,
-				"amount": 3,
-				"limitation": "",
-				"discard_effect": {
-					"per_discard": true,
-					"effect_type": "close",
-					"amount": 1
+				"override_description": "Discard up to 3 random cards, Close 1 for each.",
+				"condition": "min_cards_in_hand",
+				"condition_amount": 3,
+				"effect_type": "choice",
+				"choice": [
+					{ "effect_type": "discard_random", "amount": 1, "and": { "effect_type": "close", "amount": 1 } },
+					{ "effect_type": "discard_random", "amount": 2, "and": { "effect_type": "close", "amount": 2 } },
+					{ "effect_type": "discard_random", "amount": 3, "and": { "effect_type": "close", "amount": 3 } },
+					{ "effect_type": "pass" }
+				],
+				"negative_condition_effect": {
+					"is_negative_effect": true,
+					"condition": "min_cards_in_hand",
+					"condition_amount": 2,
+					"effect_type": "choice",
+					"choice": [
+						{ "effect_type": "discard_random", "amount": 1, "and": { "effect_type": "close", "amount": 1 } },
+						{ "effect_type": "discard_random", "amount": 2, "and": { "effect_type": "close", "amount": 2 } }
+					],
+					"negative_condition_effect": {
+						"is_negative_effect": true,
+						"condition": "min_cards_in_hand",
+						"condition_amount": 1,
+						"effect_type": "choice",
+						"choice": [
+							{ "effect_type": "discard_random", "amount": 1, "and": { "effect_type": "close", "amount": 1 } },
+							{ "effect_type": "pass" }
+						]
+					}
 				}
 			},
 			{
 				"timing": "hit",
 				"effect_type": "opponent_discard_choose",
-				"amount": "DISCARDED_THIS_STRIKE"
+				"amount": "CARDS_DISCARDED_THIS_STRIKE"
 			}
 		],
 		"boost": {
@@ -18798,8 +18850,8 @@
 			"effects": [
 				{
 					"timing": "immediate",
-					"effect_type": "strike",
-					"forced_wild_both_players": true
+					"effect_type": "strike_wild",
+					"opponent_forced_wild": true
 				}
 			]
 		},

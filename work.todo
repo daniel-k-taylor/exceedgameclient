@@ -1,15 +1,17 @@
 Morathi:
-    ☐ on_invalid - replace wild swing
+    ☐ on_invalid - replace wild swing @started(25-02-28 22:02)
         to hand
-    ☐ discard_random - discard_effect - need to make opponent choice during it work, or sum them all up or something.
-    ☐ "effect_type": "opponent_discard_choose",
-        "amount": "DISCARDED_THIS_STRIKE"
-    ☐ immediate strike - "forced_wild_both_players": true
+    ☐ "effect_type": "opponent_discard_choose", @started(25-02-28 21:43)
+        "amount": "CARDS_DISCARDED_THIS_STRIKE"
+    ☐ immediate strike - "forced_wild_both_players": true @started(25-02-28 21:49)
 
-    ☐ "effect_type": "reveal_strike_to_self",
+    ☐ Implement UA @started(25-02-28 22:52)
+        ☐ test with opponent strike first effects
 
 Bug:
     Breaking:
+        Mika:
+            ☐ Ability with no deck? What happens, is this broken?
         Treasure:
             ☐ Things in chest don't show up in deck counts on dive charge, so you know stuff is in there.
         ☐ Review mid-strike Tech interactions:

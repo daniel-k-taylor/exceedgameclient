@@ -301,6 +301,11 @@ func get_condition_text(effect, amount, amount2, detail):
 			if amount == 0:
 				amount_str = "no"
 			text += "If you have %s card(s) in hand, " % amount_str
+		"max_cards_in_gauge":
+			var amount_str = "%s or fewer" % amount
+			if amount == 0:
+				amount_str = "no"
+			text += "If you have %s card(s) in Gauge, " % amount_str
 		"min_cards_in_gauge":
 			text += "If you have at least %s card(s) in gauge, " % amount
 		"min_spaces_behind_opponent":
@@ -1001,15 +1006,19 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 				if effect['destination'] == "reveal":
 					destination_str = "reveals"
 
+			var cards_str = " card(s)"
 			var amount_str = str(effect['amount'])
 			if amount_str == "force_spent_before_strike":
 				amount_str = "that many"
+			elif amount_str == "CARDS_DISCARDED_THIS_STRIKE":
+				amount_str = "1 card per card discarded this strike"
+				cards_str = ""
 
 			var allow_fewer = 'allow_fewer' in effect and effect['allow_fewer']
 			var up_to_text = ""
 			if allow_fewer:
 				up_to_text = " up to"
-			effect_str += "Opponent " + destination_str + up_to_text + " " + amount_str + " card(s)"
+			effect_str += "Opponent " + destination_str + up_to_text + " " + amount_str + cards_str
 			if 'smaller_discard_effect' in effect:
 				effect_str += "\nIf they discard less: " + get_effect_text(effect['smaller_discard_effect'], false, false, false)
 		"opponent_discard_random":

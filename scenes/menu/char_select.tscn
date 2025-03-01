@@ -1,4 +1,4 @@
-[gd_scene load_steps=97 format=3 uid="uid://cqs72exlwm6at"]
+[gd_scene load_steps=99 format=3 uid="uid://cqs72exlwm6at"]
 
 [ext_resource type="Script" path="res://scenes/menu/char_select.gd" id="1_f3x24"]
 [ext_resource type="PackedScene" uid="uid://nwqxp8pdh1jk" path="res://scenes/menu/char_select_button.tscn" id="6_3lmwy"]
@@ -95,6 +95,8 @@
 [ext_resource type="Texture2D" uid="uid://ddjv6kqk6agqh" path="res://assets/portraits/celinka.png" id="89_d1xn5"]
 [ext_resource type="Texture2D" uid="uid://creamdhv1nosx" path="res://assets/portraits/iaquis.png" id="90_3yjud"]
 [ext_resource type="Texture2D" uid="uid://dva0ketlsolj1" path="res://assets/portraits/emogine.png" id="90_ik8rg"]
+[ext_resource type="Texture2D" uid="uid://cnc7oeex364at" path="res://assets/portraits/morathi.png" id="95_kaa4r"]
+[ext_resource type="Texture2D" uid="uid://c8w72yxu3kiqx" path="res://assets/portraits/redhorizon.png" id="96_lp3xr"]
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_8u80i"]
 
@@ -813,6 +815,30 @@ layout_mode = 2
 char_id = "random_s2"
 portrait_texture = ExtResource("88_687x2")
 
+[node name="S1CharacterSelect" type="PanelContainer" parent="CenterContainer"]
+layout_mode = 2
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxEmpty_8u80i")
+
+[node name="Rows" type="VBoxContainer" parent="CenterContainer/S1CharacterSelect"]
+layout_mode = 2
+mouse_filter = 2
+alignment = 1
+
+[node name="Row1" type="HBoxContainer" parent="CenterContainer/S1CharacterSelect/Rows"]
+layout_mode = 2
+alignment = 1
+
+[node name="Morathi" parent="CenterContainer/S1CharacterSelect/Rows/Row1" instance=ExtResource("6_3lmwy")]
+layout_mode = 2
+char_id = "morathi"
+portrait_texture = ExtResource("95_kaa4r")
+
+[node name="RandomS1" parent="CenterContainer/S1CharacterSelect/Rows/Row1" instance=ExtResource("6_3lmwy")]
+layout_mode = 2
+char_id = "random_s1"
+portrait_texture = ExtResource("96_lp3xr")
+
 [node name="TabSelect" type="VBoxContainer" parent="."]
 layout_mode = 1
 anchors_preset = 5
@@ -1055,6 +1081,10 @@ portrait_texture = ExtResource("32_iutun")
 [connection signal="on_pressed" from="CenterContainer/SCCharacterSelect/Rows/Row1/Swangee" to="." method="_on_char_button_on_pressed"]
 [connection signal="on_hover" from="CenterContainer/SCCharacterSelect/Rows/Row1/RandomSC" to="." method="_on_char_hover"]
 [connection signal="on_pressed" from="CenterContainer/SCCharacterSelect/Rows/Row1/RandomSC" to="." method="_on_char_button_on_pressed"]
+[connection signal="on_hover" from="CenterContainer/S1CharacterSelect/Rows/Row1/Morathi" to="." method="_on_char_hover"]
+[connection signal="on_pressed" from="CenterContainer/S1CharacterSelect/Rows/Row1/Morathi" to="." method="_on_char_button_on_pressed"]
+[connection signal="on_hover" from="CenterContainer/S1CharacterSelect/Rows/Row1/RandomS1" to="." method="_on_char_hover"]
+[connection signal="on_pressed" from="CenterContainer/S1CharacterSelect/Rows/Row1/RandomS1" to="." method="_on_char_button_on_pressed"]
 [connection signal="on_hover" from="TabSelect/CategoriesHBox/Season2" to="." method="_on_char_hover"]
 [connection signal="on_pressed" from="TabSelect/CategoriesHBox/Season2" to="." method="_on_char_button_on_pressed"]
 [connection signal="on_hover" from="TabSelect/CategoriesHBox/Season3" to="." method="_on_char_hover"]

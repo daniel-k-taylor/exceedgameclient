@@ -1,0 +1,16 @@
+[gd_resource type="SpriteFrames" load_steps=2 format=3 uid="uid://bokx433v61j5w"]
+
+[ext_resource type="Texture2D" uid="uid://cnc7oeex364at" path="res://assets/portraits/morathi.png" id="1_1qmb1"]
+
+[resource]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("1_1qmb1")
+}],
+"loop": true,
+"name": &"idle",
+"speed": 6.0
+}]
+metadata/flip = true
+metadata/scaling = 1.0

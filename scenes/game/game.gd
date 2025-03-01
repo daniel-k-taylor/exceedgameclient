@@ -1854,6 +1854,8 @@ func get_string_for_action_choice(choice):
 			return "Add to deck 2nd from top"
 		"add_to_topdeck_under_2":
 			return "Add to deck 3rd from top"
+		"discard":
+			return "Discard"
 	return ""
 
 func begin_choose_from_topdeck(action_choices, look_amount, can_pass):

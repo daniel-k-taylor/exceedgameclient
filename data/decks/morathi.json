@@ -3,26 +3,56 @@
 	"season": 1,
 	"display_name": "Morathi",
 	"exceed_cost": 3,
+	"delayed_wild_strike": true,
 	"ability_effects": [
 		{
 			"timing": "set_strike",
 			"condition": "was_wild_swing",
-			"effect_type": "reveal_strike_to_self",
+			"effect_type": "pass",
 			"and": {
+				"condition": "min_cards_in_deck",
+				"condition_amount": 1,
 				"effect_type": "choice",
+				"add_topdeck_card_name_to_choices": [1],
 				"choice": [
-					{
-						"effect_type": "replace_wild_swing",
-						"previous_attack_to": "hand"
-					},
-					{ "effect_type": "pass" }
+					{ "effect_type": "draw", "amount": 1, "and": { "effect_type": "strike_wild", "auto_delayed_strike": true } },
+					{ "effect_type": "strike_wild", "auto_delayed_strike": true }
 				]
 			}
 		}
 	],
 	"exceed_ability_effects": [
 		{
-
+			"timing": "set_strike",
+			"condition": "was_wild_swing",
+			"effect_type": "pass",
+			"and": {
+				"condition": "min_cards_in_deck",
+				"condition_amount": 3,
+				"effect_type": "choose_cards_from_top_deck",
+				"look_amount": 3,
+				"action_choices": [
+					"discard"
+				],
+				"can_pass": false,
+				"destination_unchosen": "topdeck"
+			}
+		},
+		{
+			"timing": "set_strike",
+			"condition": "was_wild_swing",
+			"effect_type": "pass",
+			"and": {
+				"condition": "min_cards_in_deck",
+				"condition_amount": 2,
+				"effect_type": "choose_cards_from_top_deck",
+				"look_amount": 2,
+				"action_choices": [
+					"add_to_hand"
+				],
+				"can_pass": false,
+				"destination_unchosen": "topdeck"
+			}
 		}
 	],
 	"image_resources": {

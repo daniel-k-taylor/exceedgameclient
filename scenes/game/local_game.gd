@@ -370,6 +370,7 @@ class Strike:
 	var cards_in_play: Array[GameCard] = []
 	var when_hit_effects_processed = []
 	var queued_stop_on_space_boosts = []
+	var cards_discarded_this_strike = 0
 
 	var extra_attack_in_progress = false
 	var extra_attack_data : ExtraAttackData = ExtraAttackData.new()
@@ -828,6 +829,8 @@ class Player:
 	var seal_instead_of_discarding : bool
 	var passive_effects : Dictionary
 	var last_spent_life : int
+	var opponent_next_strike_forced_wild_swing : bool
+	var delayed_wild_strike : bool
 
 	func _init(id, player_name, parent_ref, card_db_ref, chosen_deck, card_start_id):
 		my_id = id
@@ -948,6 +951,8 @@ class Player:
 		seal_instead_of_discarding = false
 		passive_effects = {}
 		last_spent_life = 0
+		opponent_next_strike_forced_wild_swing = false
+		delayed_wild_strike = false
 
 		if "buddy_cards" in deck_def:
 			var buddy_index = 0
@@ -986,6 +991,9 @@ class Player:
 
 		if 'guile_change_cards_bonus' in deck_def:
 			guile_change_cards_bonus = deck_def['guile_change_cards_bonus']
+
+		if 'delayed_wild_strike' in deck_def:
+			delayed_wild_strike = deck_def['delayed_wild_strike']
 
 	func initial_shuffle():
 		if ShuffleEnabled:
@@ -2375,6 +2383,8 @@ class Player:
 	func discard(card_ids : Array, from_top : int = 0, count_as_spent : bool = false):
 		var events = []
 		var spent_any_gauge = false
+		if parent.active_strike:
+			parent.active_strike.cards_discarded_this_strike += card_ids.size()
 		for discard_id in card_ids:
 			var found_card = false
 
@@ -2410,6 +2420,17 @@ class Player:
 				if card.id == discard_id:
 					overdrive.remove_at(i)
 					events += add_to_discards(card, from_top)
+					found_card = true
+					break
+
+			# From deck
+			for i in range(len(deck)-1, -1, -1):
+				var card = deck[i]
+				if card.id == discard_id:
+					deck.remove_at(i)
+					events += add_to_discards(card, from_top)
+					if i == 0:
+						public_topdeck_id = -1
 					found_card = true
 					break
 
@@ -2733,6 +2754,12 @@ class Player:
 			public_topdeck_id = -1
 			events += [parent.create_event(Enums.EventType.EventType_Strike_WildStrike, my_id, card_id, "", is_immediate_reveal)]
 		return events
+
+	func wild_strike_delayed():
+		if parent.active_strike.initiator == self:
+			parent.active_strike.initiator_wild_strike = true
+		else:
+			parent.active_strike.defender_wild_strike = true
 
 	func random_gauge_strike():
 		var events = []
@@ -3448,6 +3475,10 @@ class Player:
 		return events
 
 	func force_opponent_respond_wild_swing() -> bool:
+		if opponent_next_strike_forced_wild_swing:
+			opponent_next_strike_forced_wild_swing = false
+			return true
+
 		for boost_card in continuous_boosts:
 			for effect in boost_card.definition['boost']['effects']:
 				if effect['effect_type'] == "opponent_wild_swings":
@@ -3940,6 +3971,21 @@ func continue_setup_strike(events):
 
 		# All effects resolved, move to next state.
 		active_strike.effects_resolved_in_timing = 0
+		if active_strike.initiator_wild_strike and active_strike.initiator.delayed_wild_strike:
+			# Do the wild swing now.
+			events += active_strike.initiator.wild_strike()
+			if game_over:
+				return events
+
+			events += [create_event(
+				Enums.EventType.EventType_Strike_Started,
+				active_strike.initiator.my_id,
+				active_strike.initiator_card.id,
+				"",
+				false,
+				false
+			)]
+
 		if active_strike.opponent_sets_first:
 			# Intentional events = because events are passed in.
 			events = begin_resolve_strike(events)
@@ -3966,6 +4012,21 @@ func continue_setup_strike(events):
 
 		# All effects resolved, move to next state.
 		active_strike.effects_resolved_in_timing = 0
+		if active_strike.defender_wild_strike and active_strike.defender.delayed_wild_strike:
+			# Do the wild swing now.
+			events += active_strike.defender.wild_strike()
+			if game_over:
+				return events
+
+			events += [create_event(
+				Enums.EventType.EventType_Strike_Response,
+				active_strike.defender.my_id,
+				active_strike.defender_card.id,
+				"",
+				false,
+				false
+			)]
+
 		if active_strike.opponent_sets_first:
 			# Intentional events = because events are passed in.
 			events = strike_setup_initiator_response(events)
@@ -4342,6 +4403,9 @@ func is_effect_condition_met(performing_player : Player, effect, local_condition
 			return other_player.exceeded
 		elif condition == "opponent_not_exceeded":
 			return not other_player.exceeded
+		elif condition == "max_cards_in_gauge":
+			var amount = effect['condition_amount']
+			return performing_player.gauge.size() <= amount
 		elif condition == "max_cards_in_hand":
 			var amount = effect['condition_amount']
 			return performing_player.hand.size() <= amount
@@ -6469,6 +6533,8 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 			match previous_attack_goes_to:
 				"gauge":
 					events += performing_player.add_to_gauge(attack_card)
+				"hand":
+					events += performing_player.add_to_hand(attack_card, true)
 				"discard":
 					events += performing_player.add_to_discards(attack_card)
 			events += performing_player.wild_strike(true)
@@ -6633,6 +6699,9 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 			if str(this_effect['amount']) == "force_spent_before_strike":
 				# intentionally performing_player, rather than choice_player
 				this_effect['amount'] = performing_player.force_spent_before_strike
+			elif str(this_effect['amount']) == "CARDS_DISCARDED_THIS_STRIKE":
+				this_effect['amount'] = active_strike.cards_discarded_this_strike
+
 			var discard_amount = this_effect['amount']
 			if not allow_fewer:
 				discard_amount -= opposing_player.strike_stat_boosts.reduce_discard_effects_by
@@ -8417,13 +8486,18 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 					var disable_wild_swing = true
 					events += [create_event(Enums.EventType.EventType_ForceStartStrike, performing_player.my_id, 0, "", disable_wild_swing)]
 		"strike_wild":
-			change_game_state(Enums.GameState.GameState_WaitForStrike)
-			var strike_info = {
-				"card_id": -1,
-				"wild_swing": true,
-				"ex_card_id": -1
-			}
-			events += [create_event(Enums.EventType.EventType_Strike_EffectDoStrike, performing_player.my_id, 0, "", strike_info)]
+			# If a character has delayed wild strikes, they use this for the choices
+			# but the strike will automatically occur after the set strike effects finish.
+			if not effect.get("auto_delayed_strike", false):
+				var opponent_forced_wild = effect.get("opponent_forced_wild", false)
+				performing_player.opponent_next_strike_forced_wild_swing = opponent_forced_wild
+				change_game_state(Enums.GameState.GameState_WaitForStrike)
+				var strike_info = {
+					"card_id": -1,
+					"wild_swing": true,
+					"ex_card_id": -1
+				}
+				events += [create_event(Enums.EventType.EventType_Strike_EffectDoStrike, performing_player.my_id, 0, "", strike_info)]
 		"stun_immunity":
 			performing_player.strike_stat_boosts.stun_immunity = true
 		"sustain_all_boosts":
@@ -11274,6 +11348,7 @@ func do_strike(performing_player : Player, card_id : int, wild_strike: bool, ex_
 			return false
 
 	# Begin the strike
+	var delayed_wild_strike = wild_strike and performing_player.delayed_wild_strike
 
 	# Lay down the strike
 	match game_state:
@@ -11285,12 +11360,15 @@ func do_strike(performing_player : Player, card_id : int, wild_strike: bool, ex_
 				_append_log_full(Enums.LogType.LogType_Strike, performing_player, "initiates a strike!")
 
 			if wild_strike:
-				_append_log_full(Enums.LogType.LogType_Strike, performing_player, "wild swings!")
-				events += performing_player.wild_strike()
-				if game_over:
-					event_queue += events
-					return true
-				card_id = active_strike.initiator_card.id
+				if delayed_wild_strike:
+					performing_player.wild_strike_delayed()
+				else:
+					_append_log_full(Enums.LogType.LogType_Strike, performing_player, "wild swings!")
+					events += performing_player.wild_strike()
+					if game_over:
+						event_queue += events
+						return true
+					card_id = active_strike.initiator_card.id
 			elif performing_player.next_strike_random_gauge:
 				events += performing_player.random_gauge_strike()
 				performing_player.next_strike_random_gauge = false
@@ -11331,9 +11409,10 @@ func do_strike(performing_player : Player, card_id : int, wild_strike: bool, ex_
 				_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "sets %s as a face-up attack!" % _log_card_name(card_name))
 
 			# Send the EX first as that is visual and logic is triggered off the regular one.
-			if ex_strike:
-				events += [create_event(Enums.EventType.EventType_Strike_Started_Ex, performing_player.my_id, ex_card_id, "", reveal_immediately)]
-			events += [create_event(Enums.EventType.EventType_Strike_Started, performing_player.my_id, card_id, "", reveal_immediately, ex_strike)]
+			if not delayed_wild_strike:
+				if ex_strike:
+					events += [create_event(Enums.EventType.EventType_Strike_Started_Ex, performing_player.my_id, ex_card_id, "", reveal_immediately)]
+				events += [create_event(Enums.EventType.EventType_Strike_Started, performing_player.my_id, card_id, "", reveal_immediately, ex_strike)]
 			# Intentional events = because events are passed in
 			events = continue_setup_strike(events)
 
@@ -11352,12 +11431,15 @@ func do_strike(performing_player : Player, card_id : int, wild_strike: bool, ex_
 				active_strike.effects_resolved_in_timing = 0
 
 			if wild_strike:
-				_append_log_full(Enums.LogType.LogType_Strike, performing_player, "wild swings!")
-				events += performing_player.wild_strike()
-				if game_over:
-					event_queue += events
-					return true
-				card_id = active_strike.defender_card.id
+				if delayed_wild_strike:
+					performing_player.wild_strike_delayed()
+				else:
+					_append_log_full(Enums.LogType.LogType_Strike, performing_player, "wild swings!")
+					events += performing_player.wild_strike()
+					if game_over:
+						event_queue += events
+						return true
+					card_id = active_strike.defender_card.id
 			else:
 				active_strike.defender_card = card_db.get_card(card_id)
 				if strike_from_boosts:
@@ -11374,10 +11456,12 @@ func do_strike(performing_player : Player, card_id : int, wild_strike: bool, ex_
 					performing_player.remove_card_from_hand(ex_card_id, false, true)
 				else:
 					_append_log_full(Enums.LogType.LogType_Strike, performing_player, "sets their attack.")
-			# Send the EX first as that is visual and logic is triggered off the regular one.
-			if ex_strike:
-				events += [create_event(Enums.EventType.EventType_Strike_Response_Ex, performing_player.my_id, ex_card_id)]
-			events += [create_event(Enums.EventType.EventType_Strike_Response, performing_player.my_id, card_id, "", strike_from_boosts, ex_strike)]
+
+			if not delayed_wild_strike:
+				# Send the EX first as that is visual and logic is triggered off the regular one.
+				if ex_strike:
+					events += [create_event(Enums.EventType.EventType_Strike_Response_Ex, performing_player.my_id, ex_card_id)]
+				events += [create_event(Enums.EventType.EventType_Strike_Response, performing_player.my_id, card_id, "", strike_from_boosts, ex_strike)]
 			# Intentional events = because events are passed in.
 			events = continue_setup_strike(events)
 	event_queue += events
@@ -12424,6 +12508,10 @@ func do_choose_from_topdeck(performing_player : Player, chosen_card_id : int, ac
 			var destination_index = leftover_card_ids.size()
 			events += performing_player.move_card_from_hand_to_deck(chosen_card_id, destination_index)
 			_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "adds the remaining cards back to the top of their deck.")
+			event_queue += events
+		"discard":
+			events += performing_player.discard([chosen_card_id])
+			_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "discards one of the cards: %s." % _log_card_name(card_db.get_card_name(chosen_card_id)))
 			event_queue += events
 		"pass":
 			events += check_hand_size_advance_turn(performing_player)
