@@ -5,8 +5,14 @@ Morathi:
         "amount": "CARDS_DISCARDED_THIS_STRIKE"
     ☐ immediate strike - "forced_wild_both_players": true @started(25-02-28 21:49)
 
-    ☐ Implement UA @started(25-02-28 22:52)
-        ☐ test with opponent strike first effects
+    ✔ Implement UA @started(25-02-28 22:52) @done(25-03-01 00:28) @lasted(1h36m24s)
+        ✔ test with opponent strike first effects @started(25-03-01 00:28) @done(25-03-01 00:28) @lasted(23s)
+        ☐ Test exceed with no/limited deck left
+
+    ☐ Test gyro chain discard random with limited deck size
+    ☐ Test neck snapper discarded cards count
+    ☐ Test shadow of death invalid thing
+    ☐ Test both wild swing thing
 
 Next Feature:
     ☐ Match available notification while you're observing

@@ -7,6 +7,7 @@ signal close_character_select
 @onready var hover_label : Label = $HoverBox/HBoxContainer/VBoxContainer/Label
 @onready var hover_portrait : TextureRect = $HoverBox/HBoxContainer/VBoxContainer/Portrait
 
+@onready var charselect_s1 = $CenterContainer/S1CharacterSelect
 @onready var charselect_s2 = $CenterContainer/SCCharacterSelect
 @onready var charselect_s3 = $CenterContainer/SFCharacterSelect
 @onready var charselect_s4 = $CenterContainer/SKCharacterSelect
@@ -14,6 +15,7 @@ signal close_character_select
 @onready var charselect_s6 = $CenterContainer/UNICharacterSelect
 @onready var charselect_s7 = $CenterContainer/GGCharacterSelect
 
+@onready var season_button_s1 = $TabSelect/CategoriesHBox/Season1
 @onready var season_button_s2 = $TabSelect/CategoriesHBox/Season2
 @onready var season_button_s3 = $TabSelect/CategoriesHBox/Season3
 @onready var season_button_s4 = $TabSelect/CategoriesHBox/Season4
@@ -89,18 +91,21 @@ func show_season(node, selector_button):
 func _on_char_button_on_pressed(character_id : String):
 	if character_id.begins_with("season"):
 		# Get the int season from the last character of the str.
-		if character_id == "season2":
-			show_season(charselect_s2, season_button_s2)
-		if character_id == "season3":
-			show_season(charselect_s3, season_button_s3)
-		if character_id == "season4":
-			show_season(charselect_s4, season_button_s4)
-		if character_id == "season5":
-			show_season(charselect_s5, season_button_s5)
-		elif character_id == "season6":
-			show_season(charselect_s6, season_button_s6)
-		elif character_id == "season7":
-			show_season(charselect_s7, season_button_s7)
+		match character_id:
+			"season1":
+				show_season(charselect_s1, season_button_s1)
+			"season2":
+				show_season(charselect_s2, season_button_s2)
+			"season3":
+				show_season(charselect_s3, season_button_s3)
+			"season4":
+				show_season(charselect_s4, season_button_s4)
+			"season5":
+				show_season(charselect_s5, season_button_s5)
+			"season6":
+				show_season(charselect_s6, season_button_s6)
+			"season7":
+				show_season(charselect_s7, season_button_s7)
 	else:
 		select_character.emit(character_id)
 

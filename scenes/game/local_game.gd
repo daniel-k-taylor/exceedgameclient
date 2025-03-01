@@ -11360,10 +11360,10 @@ func do_strike(performing_player : Player, card_id : int, wild_strike: bool, ex_
 				_append_log_full(Enums.LogType.LogType_Strike, performing_player, "initiates a strike!")
 
 			if wild_strike:
+				_append_log_full(Enums.LogType.LogType_Strike, performing_player, "wild swings!")
 				if delayed_wild_strike:
 					performing_player.wild_strike_delayed()
 				else:
-					_append_log_full(Enums.LogType.LogType_Strike, performing_player, "wild swings!")
 					events += performing_player.wild_strike()
 					if game_over:
 						event_queue += events
@@ -11431,10 +11431,10 @@ func do_strike(performing_player : Player, card_id : int, wild_strike: bool, ex_
 				active_strike.effects_resolved_in_timing = 0
 
 			if wild_strike:
+				_append_log_full(Enums.LogType.LogType_Strike, performing_player, "wild swings!")
 				if delayed_wild_strike:
 					performing_player.wild_strike_delayed()
 				else:
-					_append_log_full(Enums.LogType.LogType_Strike, performing_player, "wild swings!")
 					events += performing_player.wild_strike()
 					if game_over:
 						event_queue += events

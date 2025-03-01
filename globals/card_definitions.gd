@@ -760,7 +760,7 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 			else:
 				effect_str += "Discard a card from the top of your deck"
 		"discard_random":
-			effect_str += "Discard %s at random from your hand " % effect['amount']
+			effect_str += "Discard %s at random" % effect['amount']
 		"discard_random_and_add_triggers":
 			effect_str += "Discard a random card; add before/hit/after triggers to attack"
 		"dodge_at_range":
