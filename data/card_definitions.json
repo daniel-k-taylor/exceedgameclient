@@ -18540,16 +18540,6 @@
 		"power": 15,
 		"armor": 0,
 		"guard": 0,
-		"on_invalid": {
-			"condition": "was_wild_swing",
-			"condition_detail": "ignore_if_invalid_by_choice",
-			"effect_type": "replace_wild_swing",
-			"previous_attack_to": "hand",
-			"and": {
-				"effect_type": "add_top_discard_to_gauge",
-				"amount": 2
-			}
-		},
 		"effects": [
 			{
 				"timing": "on_strike_reveal",
@@ -19546,7 +19536,7 @@
 			"boost_type": "immediate",
 			"force_cost": 0,
 			"cancel_cost": -1,
-			"display_name": "Begon!",
+			"display_name": "Begone!",
 			"effects": [
 				{
 					"timing": "immediate",
@@ -19793,7 +19783,7 @@
 				{
 					"timing": "during_strike",
 					"effect_type": "speedup",
-					"amount": 2
+					"amount": 4
 				}
 			]
 		},

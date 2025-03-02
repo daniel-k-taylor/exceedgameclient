@@ -251,7 +251,7 @@ func get_condition_text(effect, amount, amount2, detail):
 			text += "If a boost is in play, "
 		"canceled_this_turn":
 			text += "If canceled this turn, "
-		"copy_of_attack_in_zone":
+		"copy_of_attack_in_zones":
 			var zones = effect['condition_zones'].join("/")
 			text += "If copy of attack in %s, " % zones
 		"discarded_matches_attack_speed":
