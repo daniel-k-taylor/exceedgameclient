@@ -1,0 +1,201 @@
+{
+	"id": "remiliss",
+	"season": 2,
+	"display_name": "Remiliss",
+	"exceed_cost": 6,
+	"exceed_cost_reduced_by": [{ "reduction_type": "transform_discount" }],
+	"ability_effects": [
+		{
+			"timing": "set_strike",
+			"effect_type": "force_for_effect",
+			"per_force_effect": null,
+			"overall_effect": {
+				"character_effect": true,
+				"effect_type": "attack_is_ex"
+			},
+			"force_max": 3
+		}
+	],
+	"exceed_ability_effects": [
+		{
+			"character_effect": true,
+			"timing": "during_strike",
+			"effect_type": "repeat_printed_triggers_on_ex_attack",
+			"amount": 2
+		}
+	],
+	"image_resources": {
+		"character_default": {
+			"url": "https://i.imgur.com/OxYCC6b.jpeg",
+			"multiple_cards": false
+		},
+		"character_exceeded": {
+			"url": "https://i.imgur.com/KINCHUc.jpeg",
+			"multiple_cards": false
+		},
+		"cardback": {
+			"url": "https://i.imgur.com/s6wpKBq.jpeg",
+			"multiple_cards": false
+		},
+		"specials": {
+			"url": "https://i.imgur.com/Ktzgp0F.jpeg",
+			"multiple_cards": true
+		},
+		"normals": {
+			"url": "https://i.imgur.com/1pnJnEb.jpeg",
+			"multiple_cards": true
+		}
+	},
+	"cards": [
+		{
+			"definition_id": "remiliss_consumption",
+			"image_name": "specials",
+			"image_index": 5
+		},
+		{
+			"definition_id": "remiliss_consumption",
+			"image_name": "specials",
+			"image_index": 5
+		},
+		{
+			"definition_id": "remiliss_nuclearoption",
+			"image_name": "specials",
+			"image_index": 6
+		},
+		{
+			"definition_id": "remiliss_nuclearoption",
+			"image_name": "specials",
+			"image_index": 6
+		},
+		{
+			"definition_id": "remiliss_causticvent",
+			"image_name": "specials",
+			"image_index": 0
+		},
+		{
+			"definition_id": "remiliss_causticvent",
+			"image_name": "specials",
+			"image_index": 0
+		},
+		{
+			"definition_id": "remiliss_groundzero",
+			"image_name": "specials",
+			"image_index": 3
+		},
+		{
+			"definition_id": "remiliss_groundzero",
+			"image_name": "specials",
+			"image_index": 3
+		},
+		{
+			"definition_id": "remiliss_irradiate",
+			"image_name": "specials",
+			"image_index": 2
+		},
+		{
+			"definition_id": "remiliss_irradiate",
+			"image_name": "specials",
+			"image_index": 2
+		},
+		{
+			"definition_id": "remiliss_napalmstream",
+			"image_name": "specials",
+			"image_index": 4
+		},
+		{
+			"definition_id": "remiliss_napalmstream",
+			"image_name": "specials",
+			"image_index": 4
+		},
+		{
+			"definition_id": "remiliss_toxictendrils",
+			"image_name": "specials",
+			"image_index": 1
+		},
+		{
+			"definition_id": "remiliss_toxictendrils",
+			"image_name": "specials",
+			"image_index": 1
+		},
+		{
+			"definition_id": "standard_normal_grasp",
+			"image_name": "normals",
+			"image_index": 0
+		},
+		{
+			"definition_id": "standard_normal_grasp",
+			"image_name": "normals",
+			"image_index": 0
+		},
+		{
+			"definition_id": "standard_normal_cross",
+			"image_name": "normals",
+			"image_index": 1
+		},
+		{
+			"definition_id": "standard_normal_cross",
+			"image_name": "normals",
+			"image_index": 1
+		},
+		{
+			"definition_id": "standard_normal_assault",
+			"image_name": "normals",
+			"image_index": 2
+		},
+		{
+			"definition_id": "standard_normal_assault",
+			"image_name": "normals",
+			"image_index": 2
+		},
+		{
+			"definition_id": "standard_normal_dive",
+			"image_name": "normals",
+			"image_index": 3
+		},
+		{
+			"definition_id": "standard_normal_dive",
+			"image_name": "normals",
+			"image_index": 3
+		},
+		{
+			"definition_id": "standard_normal_spike",
+			"image_name": "normals",
+			"image_index": 4
+		},
+		{
+			"definition_id": "standard_normal_spike",
+			"image_name": "normals",
+			"image_index": 4
+		},
+		{
+			"definition_id": "standard_normal_sweep",
+			"image_name": "normals",
+			"image_index": 5
+		},
+		{
+			"definition_id": "standard_normal_sweep",
+			"image_name": "normals",
+			"image_index": 5
+		},
+		{
+			"definition_id": "standard_normal_focus",
+			"image_name": "normals",
+			"image_index": 6
+		},
+		{
+			"definition_id": "standard_normal_focus",
+			"image_name": "normals",
+			"image_index": 6
+		},
+		{
+			"definition_id": "standard_normal_block",
+			"image_name": "normals",
+			"image_index": 7
+		},
+		{
+			"definition_id": "standard_normal_block",
+			"image_name": "normals",
+			"image_index": 7
+		}
+	]
+}

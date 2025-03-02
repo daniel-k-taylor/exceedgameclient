@@ -5454,6 +5454,7 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 				decision_info.can_pass = effect['can_pass']
 				decision_info.destination = effect['destination_unchosen']
 				decision_info.amount = look_amount
+				decision_info.bonus_effect = effect.get('and_not_passed', null)
 				events += [create_event(Enums.EventType.EventType_ChooseFromTopDeck, performing_player.my_id, 0)]
 
 				if 'strike_after' in effect and effect['strike_after']:
@@ -12459,7 +12460,9 @@ func do_choose_from_topdeck(performing_player : Player, chosen_card_id : int, ac
 	var destination = decision_info.destination
 	var look_amount = decision_info.amount
 
+	var passed = false
 	if action == "pass":
+		passed = true
 		chosen_card_id = -1
 
 	var leftover_card_ids = []
@@ -12563,6 +12566,10 @@ func do_choose_from_topdeck(performing_player : Player, chosen_card_id : int, ac
 	else:
 		# If this choose started a strike or boost, don't try to continue the player action resolution.
 		if not did_strike_or_boost:
+			if not passed:
+				if decision_info.bonus_effect:
+					events += handle_strike_effect(decision_info.choice_card_id, decision_info.bonus_effect, performing_player)
+
 			# Came from somewhere else (maybe exceed or character action?)
 			# Events were already queued earlier, so just pass in empty [] for the current events,
 			# and use events =.
