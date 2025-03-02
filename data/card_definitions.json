@@ -22980,7 +22980,10 @@
 			"display_name": "Power Cycle",
 			"effects": [
 				{
-					"override_description": "Change Cards: May draw 1 more"
+					"override_description": "Change Cards: May draw 1 more",
+					"timing": "now",
+					"effect_type": "generate_free_force_cc_only",
+					"amount": 1
 				}
 			]
 		}

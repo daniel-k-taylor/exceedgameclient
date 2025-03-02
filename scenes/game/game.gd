@@ -2549,7 +2549,10 @@ func update_force_generation_message():
 	var force_selected = get_force_in_selected_cards()
 	var force_from_free_bonus = game_wrapper.get_player_force_cost_reduction(Enums.PlayerId.PlayerId_Player)
 	if use_free_force:
-		force_from_free_bonus += game_wrapper.get_player_free_force(Enums.PlayerId.PlayerId_Player)
+		var reason = ""
+		if ui_sub_state == UISubState.UISubState_SelectCards_ForceForChange:
+			reason = "CHANGE_CARDS"
+		force_from_free_bonus += game_wrapper.get_player_free_force(Enums.PlayerId.PlayerId_Player, reason)
 
 	var extra_force_source_strings = []
 	if force_from_free_bonus > 0:
@@ -2649,7 +2652,10 @@ func begin_generate_force_selection(amount, can_cancel : bool = true, wild_swing
 	_on_player_gauge_gauge_clicked()
 	treat_ultras_as_single_force = false
 	discard_ex_first_for_strike = true
-	use_free_force = game_wrapper.get_player_free_force(Enums.PlayerId.PlayerId_Player) > 0
+	var reason = ""
+	if ui_sub_state == UISubState.UISubState_SelectCards_ForceForChange:
+		reason = "CHANGE_CARDS"
+	use_free_force = game_wrapper.get_player_free_force(Enums.PlayerId.PlayerId_Player, reason) > 0
 	can_spend_life_for_force = game_wrapper.get_life_for_force_amount(Enums.PlayerId.PlayerId_Player) > 0
 	current_pay_costs_is_ex = ex_discard_order_checkbox
 	action_menu.set_force_ultra_toggle(false)
@@ -3926,7 +3932,7 @@ func _update_buttons(no_number_picker_update : bool = false):
 				update_force_generation_message()
 			UISubState.UISubState_SelectCards_ForceForChange:
 				ultra_force_toggle = true
-				free_force_toggle = game_wrapper.get_player_free_force(Enums.PlayerId.PlayerId_Player) > 0
+				free_force_toggle = game_wrapper.get_player_free_force(Enums.PlayerId.PlayerId_Player, "CHANGE_CARDS") > 0
 				show_life_for_force_counter = true
 				update_force_generation_message()
 			UISubState.UISubState_SelectCards_ForceForArmor:
@@ -4145,6 +4151,8 @@ func can_press_ok():
 				return can_selected_cards_pay_force(select_card_require_force)
 			UISubState.UISubState_SelectCards_ForceForChange:
 				var force_selected = get_force_in_selected_cards()
+				if use_free_force and game_wrapper.does_free_force_require_card_spent(Enums.PlayerId.PlayerId_Player):
+					return force_selected >= 2
 				return force_selected >= 1
 			UISubState.UISubState_SelectCards_StrikeCard, UISubState.UISubState_SelectCards_StrikeResponseCard, UISubState.UISubState_SelectCards_OpponentSetsFirst_StrikeCard, UISubState.UISubState_SelectCards_OpponentSetsFirst_StrikeResponseCard:
 				# As a special exception, allow 2 cards if exactly 2 cards and they're the same card.
@@ -4818,7 +4826,7 @@ func _on_shortcut_change_pressed():
 	select_card_require_force = -1
 
 	treat_ultras_as_single_force = false
-	use_free_force = game_wrapper.get_player_free_force(Enums.PlayerId.PlayerId_Player) > 0
+	use_free_force = game_wrapper.get_player_free_force(Enums.PlayerId.PlayerId_Player, "CHANGE_CARDS") > 0
 	can_spend_life_for_force = game_wrapper.get_life_for_force_amount(Enums.PlayerId.PlayerId_Player) > 0
 	action_menu.set_force_ultra_toggle(false)
 	action_menu.set_free_force_toggle(use_free_force)

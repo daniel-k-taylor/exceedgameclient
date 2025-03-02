@@ -293,8 +293,13 @@ func get_player_sustained_boosts(player_id : Enums.PlayerId) -> Array:
 func get_player_available_force(player_id : Enums.PlayerId):
 	return _get_player(player_id).get_available_force()
 
-func get_player_free_force(player_id : Enums.PlayerId):
+func get_player_free_force(player_id : Enums.PlayerId, reason : String = ""):
+	if reason == "CHANGE_CARDS" and _get_player(player_id).free_force_cc_only:
+		return _get_player(player_id).free_force_cc_only
 	return _get_player(player_id).free_force
+
+func does_free_force_require_card_spent(player_id : Enums.PlayerId):
+	return _get_player(player_id).free_force_cc_only
 
 func get_player_force_cost_reduction(player_id : Enums.PlayerId):
 	return _get_player(player_id).force_cost_reduction

@@ -818,6 +818,7 @@ class Player:
 	var movement_limit_optional_exceeded : bool
 	var force_cost_reduction : int
 	var free_force : int
+	var free_force_cc_only : int
 	var free_gauge : int
 	var guile_change_cards_bonus : bool
 	var cards_that_will_not_hit : Array[String]
@@ -942,6 +943,7 @@ class Player:
 		saved_power = 0
 		force_cost_reduction = 0
 		free_force = 0
+		free_force_cc_only = 0
 		free_gauge = 0
 		guile_change_cards_bonus = false
 		cards_that_will_not_hit = []
@@ -2072,6 +2074,8 @@ class Player:
 		var force_generated = force_cost_reduction
 		if use_free_force:
 			force_generated += free_force
+			if reason == "CHANGE_CARDS":
+				force_generated += free_force_cc_only
 
 		var has_card_in_gauge = false
 		for card_id in card_ids:
@@ -6036,6 +6040,8 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 		"remove_generate_free_force":
 			_append_log_full(Enums.LogType.LogType_Effect, performing_player, "no longer generates free force.")
 			performing_player.free_force = 0
+		"generate_free_force_cc_only":
+			performing_player.free_force_cc_only = effect['amount']
 		"give_to_player":
 			performing_player.strike_stat_boosts.move_strike_to_opponent_boosts = true
 			events += handle_strike_attack_immediate_removal(performing_player)
