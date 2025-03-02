@@ -23013,8 +23013,17 @@
 			"display_name": "Sequence",
 			"effects": [
 				{
+					"NOTE": "This extra tracking is needed because ex-ness can affect things at pay costs time.",
 					"timing": "on_strike_reveal",
 					"effect_type": "attack_copy_gauge_or_transform_becomes_ex",
+					"hide_effect": true
+				},
+				{
+					"NOTE": "This timing is when the stat boosts are updated so it is actually EX",
+					"timing": "during_strike",
+					"condition": "copy_of_attack_in_zones",
+					"condition_zones": ["gauge", "transform"],
+					"effect_type": "attack_is_ex",
 					"override_description": "If copy of attack is in Gauge/Transform, attack is EX"
 				}
 			]

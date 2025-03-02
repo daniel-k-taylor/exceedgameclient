@@ -463,6 +463,12 @@ class Strike:
 	func will_be_ex(performing_player : Player) -> bool:
 		if extra_attack_in_progress and performing_player == extra_attack_data.extra_attack_player:
 			return false
+		if performing_player.strike_stat_boosts.attack_copy_gauge_or_transform_becomes_ex:
+			var player_card = get_player_card(performing_player)
+			if performing_player.has_card_name_in_zone(player_card, "transform"):
+				return true
+			if performing_player.has_card_name_in_zone(player_card, "gauge"):
+				return true
 
 		for boost_card in performing_player.continuous_boosts:
 			var effects = boost_card.definition['boost']['effects']
@@ -558,6 +564,8 @@ class StrikeStatBoosts:
 	var speedup_per_unique_sealed_normals_modifier : int = 0
 	var rangeup_min_per_boost_modifier : int = 0
 	var rangeup_max_per_boost_modifier : int = 0
+	var rangeup_min_if_ex_modifier : int = 0
+	var rangeup_max_if_ex_modifier : int = 0
 	var rangeup_per_boost_modifier_all_boosts : bool = false
 	var guardup_if_copy_of_opponent_attack_in_sealed_modifier : int = 0
 	var guardup_per_two_cards_in_hand : bool = false
@@ -591,6 +599,8 @@ class StrikeStatBoosts:
 	var swap_power_speed : bool = false
 	var invert_range : bool = false
 	var strike_payment_card_ids : Array = []
+	var cap_attack_damage_taken : int = -1
+	var attack_copy_gauge_or_transform_becomes_ex = false
 
 	func _to_string():
 		# TODO: Handle all properties
@@ -669,6 +679,8 @@ class StrikeStatBoosts:
 		speedup_per_unique_sealed_normals_modifier = 0
 		rangeup_min_per_boost_modifier = 0
 		rangeup_max_per_boost_modifier = 0
+		rangeup_min_if_ex_modifier = 0
+		rangeup_max_if_ex_modifier = 0
 		rangeup_per_boost_modifier_all_boosts = false
 		guardup_if_copy_of_opponent_attack_in_sealed_modifier = 0
 		guardup_per_two_cards_in_hand = false
@@ -702,6 +714,8 @@ class StrikeStatBoosts:
 		swap_power_speed = false
 		invert_range = false
 		strike_payment_card_ids = []
+		cap_attack_damage_taken = -1
+		attack_copy_gauge_or_transform_becomes_ex = false
 
 	func set_ex():
 		ex_count += 1
@@ -3319,6 +3333,9 @@ class Player:
 				strike_stat_boosts.max_range -= effect['amount2']
 				opposing_player.strike_stat_boosts.min_range -= effect['amount']
 				opposing_player.strike_stat_boosts.max_range -= effect['amount2']
+			"rangeup_if_ex_modifier":
+				strike_stat_boosts.rangeup_min_if_ex_modifier -= effect['amount']
+				strike_stat_boosts.rangeup_max_if_ex_modifier -= effect['amount2']
 			"guardup_per_two_cards_in_hand":
 				strike_stat_boosts.guardup_per_two_cards_in_hand = false
 
@@ -5014,6 +5031,8 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 			var amount = effect["amount"] * performing_player.continuous_boosts.size()
 			performing_player.strike_stat_boosts.armor += amount
 			events += [create_event(Enums.EventType.EventType_Strike_ArmorUp, performing_player.my_id, amount)]
+		"attack_copy_gauge_or_transform_becomes_ex":
+			performing_player.strike_stat_boosts.attack_copy_gauge_or_transform_becomes_ex = true
 		"attack_does_not_hit":
 			var affected_player = performing_player
 			if 'opponent' in effect and effect['opponent']:
@@ -5340,6 +5359,8 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 			performing_player.strike_stat_boosts.cannot_go_below_life = effect['amount']
 		"cannot_stun":
 			performing_player.strike_stat_boosts.cannot_stun = true
+		"cap_attack_damage_taken":
+			performing_player.strike_stat_boosts.cap_attack_damage_taken = effect['amount']
 		"choice":
 			var multiple = 1
 			if 'multiple_amount' in effect:
@@ -7824,6 +7845,11 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 			opposing_player.strike_stat_boosts.min_range += effect['amount']
 			opposing_player.strike_stat_boosts.max_range += effect['amount2']
 			events += [create_event(Enums.EventType.EventType_Strike_RangeUp, opposing_player.my_id, effect['amount'], "", effect['amount2'])]
+		"rangeup_if_ex_modifier":
+			performing_player.strike_stat_boosts.rangeup_min_if_ex_modifier = effect['amount']
+			performing_player.strike_stat_boosts.rangeup_max_if_ex_modifier = effect['amount2']
+			if active_strike.will_be_ex(performing_player):
+				events += [create_event(Enums.EventType.EventType_Strike_RangeUp, performing_player.my_id, effect['amount'], "", effect['amount2'])]
 		"rangeup_per_boost_in_play":
 			var boosts_in_play = performing_player.continuous_boosts.size()
 			if 'all_boosts' in effect and effect['all_boosts']:
@@ -9572,6 +9598,9 @@ func get_total_min_range(performing_player : Player):
 			boosts_in_play += opposing_player.continuous_boosts.size()
 		if boosts_in_play > 0:
 			min_range_modifier += performing_player.strike_stat_boosts.rangeup_min_per_boost_modifier * boosts_in_play
+	if performing_player.strike_stat_boosts.rangeup_min_if_ex_modifier > 0:
+		if active_strike.will_be_ex(performing_player):
+			min_range_modifier += performing_player.strike_stat_boosts.rangeup_min_if_ex_modifier
 	return min_range + min_range_modifier
 
 func get_total_max_range(performing_player : Player):
@@ -9589,6 +9618,9 @@ func get_total_max_range(performing_player : Player):
 			boosts_in_play += opposing_player.continuous_boosts.size()
 		if boosts_in_play > 0:
 			max_range_modifier += performing_player.strike_stat_boosts.rangeup_max_per_boost_modifier * boosts_in_play
+	if performing_player.strike_stat_boosts.rangeup_max_if_ex_modifier > 0:
+		if active_strike.will_be_ex(performing_player):
+			max_range_modifier += performing_player.strike_stat_boosts.rangeup_max_if_ex_modifier
 	return max_range + max_range_modifier
 
 func get_attack_origin(performing_player : Player, target_location : int):
@@ -9656,6 +9688,9 @@ func apply_damage(offense_player : Player, defense_player : Player):
 	if offense_player.strike_stat_boosts.deal_nonlethal_damage:
 		_append_log_full(Enums.LogType.LogType_Health, offense_player, "'s attack does nonlethal damage.")
 		damage_after_armor = min(damage_after_armor, defense_player.life-1)
+	if defense_player.strike_stat_boosts.cap_attack_damage_taken != -1:
+		_append_log_full(Enums.LogType.LogType_Health, offense_player, "'s attack capped at %s damage." % [str(defense_player.strike_stat_boosts.cap_attack_damage_taken)])
+		damage_after_armor = min(damage_after_armor, defense_player.strike_stat_boosts.cap_attack_damage_taken)
 	defense_player.life -= damage_after_armor
 	if defense_player.strike_stat_boosts.cannot_go_below_life > 0:
 		defense_player.life = max(defense_player.life, defense_player.strike_stat_boosts.cannot_go_below_life)
@@ -9703,6 +9738,9 @@ func get_gauge_cost(performing_player : Player, card, check_if_card_in_hand = fa
 					if gauge_card.definition['id'] == card_id:
 						gauge_cost -= 1
 				gauge_cost = max(0, gauge_cost)
+			"free_if_ex":
+				if is_ex:
+					gauge_cost = 0
 			"free_if_no_cards_in_hand":
 				var hand_size = performing_player.hand.size()
 				if check_if_card_in_hand and card in performing_player.hand:

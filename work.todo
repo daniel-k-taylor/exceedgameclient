@@ -1,11 +1,11 @@
 Remiliss:
     ☐ remiliss_consumption - hit effect @started(25-03-02 01:09)
-    ☐ "gauge_cost_reduction": "free_if_ex",
+    ☐ "gauge_cost_reduction": "free_if_ex", @started(25-03-02 12:42)
     ☐ remiliss_groundzero - transform - bonus CC draw optional
-    ☐ "effect_type": "attack_copy_gauge_or_transform_becomes_ex",
-    ☐ "effect_type": "cap_attack_damage_taken",
+    ☐ "effect_type": "attack_copy_gauge_or_transform_becomes_ex", @started(25-03-02 12:56)
+    ☐ "effect_type": "cap_attack_damage_taken", @started(25-03-02 12:40)
     ☐ remiliss_napalmstream - boost to reveal/discard
-    ☐ "effect_type": "rangeup_if_ex_modifier",
+    ☐ "effect_type": "rangeup_if_ex_modifier", @started(25-03-02 13:17)
 
     ☐ "effect_type": "repeat_printed_triggers_on_ex_attack",
 
