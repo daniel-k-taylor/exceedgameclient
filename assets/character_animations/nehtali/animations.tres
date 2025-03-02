@@ -1,0 +1,16 @@
+[gd_resource type="SpriteFrames" load_steps=2 format=3 uid="uid://bqaufl8mvrqft"]
+
+[ext_resource type="Texture2D" uid="uid://cu1rjxk8qdpwy" path="res://assets/portraits/nehtali.png" id="1_p44sh"]
+
+[resource]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("1_p44sh")
+}],
+"loop": true,
+"name": &"idle",
+"speed": 6.0
+}]
+metadata/flip = true
+metadata/scaling = 1.0

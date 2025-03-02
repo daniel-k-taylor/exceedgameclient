@@ -1,8 +1,16 @@
+Next Feature:
+    ☐ Customs
+        - Portrait/char animations downloadable from web
+        - json file from disk
+        - pass to server, pass down to player
+
 Bug:
     Breaking:
+        Mika:
+            ☐ Ability with no deck? What happens, is this broken?
         Treasure:
             ☐ Things in chest don't show up in deck counts on dive charge, so you know stuff is in there.
-        ☐ Review mid-strike Tech interactions:
+        Review mid-strike Tech interactions:
             - Faust remove boost effects needs to be reviewed, stuff like powerup_opponent and other random effects that Faust can remove mid-strike
             - probably any during_strike ability?
             - Relevant for Bang too
@@ -37,10 +45,9 @@ Bug:
 Tasks:
     Main Features:
         ☐ Search for match while observing/playing AI
-        ☐ Match available notification while you're observing
+        ☐ Match available notification while you're observing/AI
         ☐ Rematch button
         ☐ Rejoin after disconnect
-        ☐ Are you sure when playing tech effect boost that does nothing
         ☐ Improve replay feature - autoplay, easier to navigate to specific turns/quicker (maybe a timeline of strikes or something)
     High Pri UI Improvements:
         ☐ Background image + life panel backgrounds
@@ -53,7 +60,7 @@ Tasks:
         ☐ Tweak timings on animation lengths
         ☐ Make card ref an icon button
         ☐ Range indicator between players
-    ☐ Only connect to server if you enter Multiplayer
+        ☐ Are you sure when playing tech effect boost that does nothing
     ☐ Reorder opponent hand in a way that you can't keep track with effort
     ☐ Add a info screen after character select on the main menu you can click to show all card for the character.
     ☐ Combat Log always on screen?

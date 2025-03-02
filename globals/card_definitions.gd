@@ -35,6 +35,8 @@ func get_deck_from_str_id(str_id : String) -> Dictionary:
 		return get_random_deck(3)
 	if str_id == "random_s2":
 		return get_random_deck(2)
+	if str_id == "random_s1":
+		return get_random_deck(1)
 	if str_id == "random":
 		return get_random_deck(-1)
 	return decks.get(str_id)
@@ -249,7 +251,7 @@ func get_condition_text(effect, amount, amount2, detail):
 			text += "If a boost is in play, "
 		"canceled_this_turn":
 			text += "If canceled this turn, "
-		"copy_of_attack_in_zone":
+		"copy_of_attack_in_zones":
 			var zones = effect['condition_zones'].join("/")
 			text += "If copy of attack in %s, " % zones
 		"discarded_matches_attack_speed":
@@ -301,8 +303,16 @@ func get_condition_text(effect, amount, amount2, detail):
 			if amount == 0:
 				amount_str = "no"
 			text += "If you have %s card(s) in hand, " % amount_str
+		"max_cards_in_gauge":
+			var amount_str = "%s or fewer" % amount
+			if amount == 0:
+				amount_str = "no"
+			text += "If you have %s card(s) in Gauge, " % amount_str
 		"min_cards_in_gauge":
-			text += "If you have at least %s card(s) in gauge, " % amount
+			if effect.get("condition_opponent"):
+				text += "If your opponent has at least %s card(s) in gauge, " % amount
+			else:
+				text += "If you have at least %s card(s) in gauge, " % amount
 		"min_spaces_behind_opponent":
 			text += "If there are %s or more spaces behind the opponent, " % amount
 		"no_strike_caused":
@@ -755,7 +765,7 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 			else:
 				effect_str += "Discard a card from the top of your deck"
 		"discard_random":
-			effect_str += "Discard %s at random from your hand " % effect['amount']
+			effect_str += "Discard %s at random" % effect['amount']
 		"discard_random_and_add_triggers":
 			effect_str += "Discard a random card; add before/hit/after triggers to attack"
 		"dodge_at_range":
@@ -876,7 +886,10 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 				amount = "that much"
 			effect_str += "Gain " + str(amount) + " life"
 		"gauge_from_hand":
-			effect_str += "Add a card from hand to gauge"
+			var last_cards_req = ""
+			if effect.get("from_last_cards"):
+				last_cards_req = " from the last %s drawn cards" % effect['from_last_cards']
+			effect_str += "Add a card from hand to gauge%s" % last_cards_req
 		"generate_free_force":
 			effect_str += "Generate %s force for free" % effect['amount']
 		"guardup":
@@ -1001,15 +1014,19 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 				if effect['destination'] == "reveal":
 					destination_str = "reveals"
 
+			var cards_str = " card(s)"
 			var amount_str = str(effect['amount'])
 			if amount_str == "force_spent_before_strike":
 				amount_str = "that many"
+			elif amount_str == "CARDS_DISCARDED_THIS_STRIKE":
+				amount_str = "1 card per card discarded this strike"
+				cards_str = ""
 
 			var allow_fewer = 'allow_fewer' in effect and effect['allow_fewer']
 			var up_to_text = ""
 			if allow_fewer:
 				up_to_text = " up to"
-			effect_str += "Opponent " + destination_str + up_to_text + " " + amount_str + " card(s)"
+			effect_str += "Opponent " + destination_str + up_to_text + " " + amount_str + cards_str
 			if 'smaller_discard_effect' in effect:
 				effect_str += "\nIf they discard less: " + get_effect_text(effect['smaller_discard_effect'], false, false, false)
 		"opponent_discard_random":
@@ -1081,7 +1098,10 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 				max_text = " (max %s)" % effect['maximum']
 			effect_str += "+" + str(effect['amount']) + " Power per guard%s." % max_text
 		"powerup_per_gauge":
-			effect_str += "+" + str(effect['amount']) + " Power per card in gauge up to " + str(effect['amount_max']) + "."
+			var opponent_str = ""
+			if effect.get("count_opponent"):
+				opponent_str = "opponent's "
+			effect_str += "+" + str(effect['amount']) + " Power per card in " + opponent_str + "gauge up to " + str(effect['amount_max']) + "."
 		"powerup_per_spent_gauge_matching_range_to_opponent":
 			effect_str += "+" + str(effect['amount']) + " Power per spent gauge matching range to opponent."
 		"powerup_per_sealed_normal":

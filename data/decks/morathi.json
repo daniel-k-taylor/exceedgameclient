@@ -1,0 +1,232 @@
+{
+	"id": "morathi",
+	"season": 1,
+	"display_name": "Morathi",
+	"exceed_cost": 3,
+	"delayed_wild_strike": true,
+	"ability_effects": [
+		{
+			"timing": "set_strike",
+			"condition": "was_wild_swing",
+			"effect_type": "pass",
+			"and": {
+				"condition": "min_cards_in_deck",
+				"condition_amount": 1,
+				"effect_type": "choice",
+				"add_topdeck_card_name_to_choices": [1],
+				"choice": [
+					{ "effect_type": "draw", "amount": 1, "and": { "effect_type": "strike_wild", "auto_delayed_strike": true } },
+					{ "effect_type": "strike_wild", "auto_delayed_strike": true }
+				]
+			}
+		}
+	],
+	"exceed_ability_effects": [
+		{
+			"timing": "set_strike",
+			"condition": "was_wild_swing",
+			"effect_type": "pass",
+			"and": {
+				"condition": "min_cards_in_deck",
+				"condition_amount": 3,
+				"effect_type": "choose_cards_from_top_deck",
+				"look_amount": 3,
+				"action_choices": [
+					"discard"
+				],
+				"can_pass": false,
+				"destination_unchosen": "topdeck"
+			}
+		},
+		{
+			"timing": "set_strike",
+			"condition": "was_wild_swing",
+			"effect_type": "pass",
+			"and": {
+				"condition": "min_cards_in_deck",
+				"condition_amount": 2,
+				"effect_type": "choose_cards_from_top_deck",
+				"look_amount": 2,
+				"action_choices": [
+					"add_to_hand"
+				],
+				"can_pass": false,
+				"destination_unchosen": "topdeck"
+			}
+		}
+	],
+	"image_resources": {
+		"character_default": {
+			"url": "https://i.imgur.com/1ujQSuL.jpeg",
+			"multiple_cards": false
+		},
+		"character_exceeded": {
+			"url": "https://i.imgur.com/vcNTmIU.jpeg",
+			"multiple_cards": false
+		},
+		"cardback": {
+			"url": "https://i.imgur.com/s6wpKBq.jpeg",
+			"multiple_cards": false
+		},
+		"specials": {
+			"url": "https://i.imgur.com/pOSETzG.jpeg",
+			"multiple_cards": true
+		},
+		"normals": {
+			"url": "https://i.imgur.com/tXuqP40.jpeg",
+			"multiple_cards": true
+		}
+	},
+	"cards": [
+		{
+			"definition_id": "morathi_godofwar",
+			"image_name": "specials",
+			"image_index": 6
+		},
+		{
+			"definition_id": "morathi_godofwar",
+			"image_name": "specials",
+			"image_index": 6
+		},
+		{
+			"definition_id": "morathi_shadowofdeath",
+			"image_name": "specials",
+			"image_index": 5
+		},
+		{
+			"definition_id": "morathi_shadowofdeath",
+			"image_name": "specials",
+			"image_index": 5
+		},
+		{
+			"definition_id": "morathi_gyrochaingash",
+			"image_name": "specials",
+			"image_index": 2
+		},
+		{
+			"definition_id": "morathi_gyrochaingash",
+			"image_name": "specials",
+			"image_index": 2
+		},
+		{
+			"definition_id": "morathi_ivoryghostcharge",
+			"image_name": "specials",
+			"image_index": 1
+		},
+		{
+			"definition_id": "morathi_ivoryghostcharge",
+			"image_name": "specials",
+			"image_index": 1
+		},
+		{
+			"definition_id": "morathi_ivoeryghostimpalement",
+			"image_name": "specials",
+			"image_index": 3
+		},
+		{
+			"definition_id": "morathi_ivoeryghostimpalement",
+			"image_name": "specials",
+			"image_index": 3
+		},
+		{
+			"definition_id": "morathi_necksnapper",
+			"image_name": "specials",
+			"image_index": 0
+		},
+		{
+			"definition_id": "morathi_necksnapper",
+			"image_name": "specials",
+			"image_index": 0
+		},
+		{
+			"definition_id": "morathi_revenger",
+			"image_name": "specials",
+			"image_index": 4
+		},
+		{
+			"definition_id": "morathi_revenger",
+			"image_name": "specials",
+			"image_index": 4
+		},
+		{
+			"definition_id": "standard_normal_grasp",
+			"image_name": "normals",
+			"image_index": 0
+		},
+		{
+			"definition_id": "standard_normal_grasp",
+			"image_name": "normals",
+			"image_index": 0
+		},
+		{
+			"definition_id": "standard_normal_cross",
+			"image_name": "normals",
+			"image_index": 1
+		},
+		{
+			"definition_id": "standard_normal_cross",
+			"image_name": "normals",
+			"image_index": 1
+		},
+		{
+			"definition_id": "standard_normal_assault",
+			"image_name": "normals",
+			"image_index": 2
+		},
+		{
+			"definition_id": "standard_normal_assault",
+			"image_name": "normals",
+			"image_index": 2
+		},
+		{
+			"definition_id": "standard_normal_dive",
+			"image_name": "normals",
+			"image_index": 3
+		},
+		{
+			"definition_id": "standard_normal_dive",
+			"image_name": "normals",
+			"image_index": 3
+		},
+		{
+			"definition_id": "standard_normal_spike",
+			"image_name": "normals",
+			"image_index": 4
+		},
+		{
+			"definition_id": "standard_normal_spike",
+			"image_name": "normals",
+			"image_index": 4
+		},
+		{
+			"definition_id": "standard_normal_sweep",
+			"image_name": "normals",
+			"image_index": 5
+		},
+		{
+			"definition_id": "standard_normal_sweep",
+			"image_name": "normals",
+			"image_index": 5
+		},
+		{
+			"definition_id": "standard_normal_focus",
+			"image_name": "normals",
+			"image_index": 6
+		},
+		{
+			"definition_id": "standard_normal_focus",
+			"image_name": "normals",
+			"image_index": 6
+		},
+		{
+			"definition_id": "standard_normal_block",
+			"image_name": "normals",
+			"image_index": 7
+		},
+		{
+			"definition_id": "standard_normal_block",
+			"image_name": "normals",
+			"image_index": 7
+		}
+	]
+}

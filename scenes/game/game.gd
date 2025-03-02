@@ -68,6 +68,7 @@ var first_run_done = false
 var first_run_in_progress = false
 var select_card_require_min = 0
 var select_card_require_max = 0
+var select_card_restriction_ids = []
 var select_card_name_card_both_players = false
 var select_card_must_be_max_or_min = false
 var select_card_require_force = 0
@@ -1063,6 +1064,8 @@ func can_select_card(card):
 		return in_hand or in_gauge
 	match ui_sub_state:
 		UISubState.UISubState_SelectCards_DiscardCards, UISubState.UISubState_SelectCards_DiscardCardsToGauge:
+			if select_card_restriction_ids and not card.card_id in select_card_restriction_ids:
+				return false
 			return in_hand and len(selected_cards) < select_card_require_max
 		UISubState.UISubState_SelectCards_DiscardCards_Choose:
 			var limitation = game_wrapper.get_decision_info().limitation
@@ -1269,6 +1272,19 @@ func _on_card_popout_card_clicked(card_id : int):
 	var card = find_card_on_board(card_id)
 	if card:
 		on_card_clicked(card)
+
+func sort_cards(cards, mix_ultras : bool, speed_only : bool):
+	cards.sort_custom(
+		# For descending order use > 0
+		func(a: Node, b: Node):
+			assert(a is CardBase)
+			assert(b is CardBase)
+			var card_a = a as CardBase
+			var card_b = b as CardBase
+			var sort_key_a = game_wrapper.get_card_database().get_card_sort_key(card_a.card_id, mix_ultras, speed_only)
+			var sort_key_b = game_wrapper.get_card_database().get_card_sort_key(card_b.card_id, mix_ultras, speed_only)
+			return sort_key_a < sort_key_b
+	)
 
 func sort_player_hand(hand_zone):
 	# Only intended to be called for the player, not opponent.
@@ -1735,6 +1751,8 @@ func _on_choose_card_hand_to_gauge(event):
 	var player = event['event_player']
 	var min_amount = event['number']
 	var max_amount = event['extra_info']
+	var restricted_to_card_ids = event['extra_info2']
+
 	select_card_destination = game_wrapper.get_decision_info().destination
 	if player == Enums.PlayerId.PlayerId_Player and not observer_mode:
 		if prepared_character_action_data_available('gauge_from_hand'):
@@ -1744,9 +1762,9 @@ func _on_choose_card_hand_to_gauge(event):
 				prepared_character_action_data = {}
 				change_ui_state(UIState.UIState_WaitForGameServer)
 		else:
-			begin_discard_cards_selection(min_amount, max_amount, UISubState.UISubState_SelectCards_DiscardCardsToGauge, false)
+			begin_discard_cards_selection(min_amount, max_amount, UISubState.UISubState_SelectCards_DiscardCardsToGauge, false, restricted_to_card_ids)
 	else:
-		ai_choose_card_hand_to_gauge(min_amount, max_amount)
+		ai_choose_card_hand_to_gauge(min_amount, max_amount, restricted_to_card_ids)
 
 func _on_choose_from_boosts(event):
 	var player = event['event_player']
@@ -1854,6 +1872,8 @@ func get_string_for_action_choice(choice):
 			return "Add to deck 2nd from top"
 		"add_to_topdeck_under_2":
 			return "Add to deck 3rd from top"
+		"discard":
+			return "Discard"
 	return ""
 
 func begin_choose_from_topdeck(action_choices, look_amount, can_pass):
@@ -2409,6 +2429,11 @@ func update_discard_to_gauge_selection_message():
 		phrase = "into your deck"
 	if preparing_character_action:
 		phrase += " for %s" % prepared_character_action_data['action_name']
+	if select_card_restriction_ids:
+		var cardnames = []
+		for card_id in select_card_restriction_ids:
+			cardnames.append(game_wrapper.get_card_database().get_card_name(card_id))
+		phrase += ".\nOptions: %s" % '/'.join(cardnames)
 	if select_card_require_min == select_card_require_max:
 		var num_remaining = select_card_require_min - len(selected_cards)
 		set_instructions("Select %s more card(s) from your hand to put %s." % [num_remaining, phrase])
@@ -2604,10 +2629,17 @@ func enable_instructions_ui(
 		instructions_number_picker_min = game_wrapper.get_decision_info().amount_min
 		instructions_number_picker_max = game_wrapper.get_decision_info().amount
 
-func begin_discard_cards_selection(number_to_discard_min, number_to_discard_max, next_sub_state, can_cancel_always : bool = false):
+func begin_discard_cards_selection(
+	number_to_discard_min,
+	number_to_discard_max,
+	next_sub_state,
+	can_cancel_always : bool = false,
+	restricted_to_card_ids = []
+	):
 	selected_cards = []
 	select_card_require_min = number_to_discard_min
 	select_card_require_max = number_to_discard_max
+	select_card_restriction_ids = restricted_to_card_ids
 	var cancel_allowed = number_to_discard_min == 0 or can_cancel_always
 	enable_instructions_ui("", true, cancel_allowed)
 	change_ui_state(UIState.UIState_SelectCards, next_sub_state)
@@ -5089,10 +5121,10 @@ func ai_name_opponent_card(normal_only : bool, can_use_own_reference : bool):
 	else:
 		print("FAILED AI NAME OPPONENT CARD")
 
-func ai_choose_card_hand_to_gauge(min_amount, max_amount):
+func ai_choose_card_hand_to_gauge(min_amount, max_amount, restricted_to_card_ids):
 	change_ui_state(UIState.UIState_WaitForGameServer)
 	if not game_wrapper.is_ai_game(): return
-	var cardfromhandtogauge_action = ai_player.pick_card_hand_to_gauge(min_amount, max_amount)
+	var cardfromhandtogauge_action = ai_player.pick_card_hand_to_gauge(min_amount, max_amount, restricted_to_card_ids)
 	var success = game_wrapper.submit_relocate_card_from_hand(Enums.PlayerId.PlayerId_Opponent, cardfromhandtogauge_action.card_ids)
 	if success:
 		change_ui_state(UIState.UIState_WaitForGameServer)
@@ -5293,6 +5325,15 @@ func show_popout(popout_type : CardPopoutType, popout_title : String, card_node,
 					continue
 			filtered_cards.append(card)
 		cards = filtered_cards
+
+	# Do any sorting of cards for specific zones.
+	# Overdrive - speed only sort
+	# Sealed - sort but mix ultras/specials
+	match popout_type:
+		CardPopoutType.CardPopoutType_OverdrivePlayer, CardPopoutType.CardPopoutType_OverdrivePlayer:
+			sort_cards(cards, false, true)
+		CardPopoutType.CardPopoutType_SealedPlayer, CardPopoutType.CardPopoutType_SealedOpponent:
+			sort_cards(cards, true, false)
 
 	var filtering_allowed = popout_type == CardPopoutType.CardPopoutType_ReferenceOpponent
 	_update_popout_cards(cards, filtering_allowed, show_amount)
