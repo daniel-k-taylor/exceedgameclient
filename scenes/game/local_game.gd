@@ -831,6 +831,7 @@ class Player:
 	var last_spent_life : int
 	var opponent_next_strike_forced_wild_swing : bool
 	var delayed_wild_strike : bool
+	var invalid_card_moved_elsewhere : bool
 
 	func _init(id, player_name, parent_ref, card_db_ref, chosen_deck, card_start_id):
 		my_id = id
@@ -953,6 +954,7 @@ class Player:
 		last_spent_life = 0
 		opponent_next_strike_forced_wild_swing = false
 		delayed_wild_strike = false
+		invalid_card_moved_elsewhere = false
 
 		if "buddy_cards" in deck_def:
 			var buddy_index = 0
@@ -2729,17 +2731,19 @@ class Player:
 	func invalidate_card(card : GameCard, invalid_by_choice : bool = false):
 		var events = []
 
+		invalid_card_moved_elsewhere = false
 		var local_conditions = LocalStrikeConditions.new()
 		if 'on_invalid' in card.definition:
 			local_conditions.invalid_by_choice = invalid_by_choice
 
 			var invalid_effect = card.definition['on_invalid']
 			events += parent.do_effect_if_condition_met(self, -1, invalid_effect, local_conditions)
-		if not local_conditions.invalid_card_moved_elsewhere:
+		if not invalid_card_moved_elsewhere:
 			if 'on_invalid_add_to_gauge' in card.definition and card.definition['on_invalid_add_to_gauge']:
 				events += add_to_gauge(card)
 			else:
 				events += add_to_discards(card)
+		invalid_card_moved_elsewhere = false
 		return events
 
 	func wild_strike(is_immediate_reveal : bool = false):
@@ -4753,7 +4757,6 @@ class LocalStrikeConditions:
 	var manual_reshuffle : bool = false
 	var movement_amount : int = 0
 	var invalid_by_choice : bool = false
-	var invalid_card_moved_elsewhere : bool = false
 
 func wait_for_mid_strike_boost():
 	return game_state == Enums.GameState.GameState_PlayerDecision and decision_info.type == Enums.DecisionType.DecisionType_BoostNow
@@ -6554,8 +6557,7 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 			# Assumption: this is still before any meaningful strike stats have happened.
 			var attack_card = active_strike.get_player_card(performing_player)
 			var previous_attack_goes_to = effect.get("previous_attack_to", "discard")
-			if local_conditions:
-				local_conditions.invalid_card_moved_elsewhere = true
+			performing_player.invalid_card_moved_elsewhere = true
 			match previous_attack_goes_to:
 				"gauge":
 					events += performing_player.add_to_gauge(attack_card)

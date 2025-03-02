@@ -176,7 +176,7 @@ func test_morathi_exceed_ua_no_deck_2_left():
 	assert_eq(player1.hand[-1].id, t2)
 	assert_eq(player1.discards.size(), 0)
 	assert_eq(player1.gauge[0].id, t3)
-	
+
 
 func test_morathi_exceed_ua_no_deck_3_left():
 	position_players(player1, 5, player2, 7)
@@ -357,10 +357,13 @@ func test_morathi_shadowofdeath_invalid():
 	player1.discard_hand()
 	assert_eq(player1.hand.size(), 0)
 	set_player_topdeck(player1, "standard_normal_assault")
-	set_player_topdeck(player1, "morathi_shadowofdeath")
+	var shadow = set_player_topdeck(player1, "morathi_shadowofdeath")
 	execute_strike(player1, player2, -1, "standard_normal_assault", false, false,
 		[1], [])
 	assert_eq(player1.hand.size(), 1)
+	assert_eq(player1.hand[0].id, shadow)
+	for card in player1.discards:
+		assert_ne(card.id, shadow)
 	assert_eq(player1.gauge.size(), 10)
 	validate_positions(player1, 6, player2, 7)
 	validate_life(player1, 30, player2, 26)
