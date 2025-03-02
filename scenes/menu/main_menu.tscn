@@ -317,9 +317,6 @@ theme_override_font_sizes/font_size = 32
 text = "Connecting to server."
 horizontal_alignment = 1
 
-[node name="CharSelect" parent="." instance=ExtResource("2_6qq11")]
-visible = false
-
 [node name="MatchAvailableAudio" type="AudioStreamPlayer" parent="."]
 stream = ExtResource("6_6ru3f")
 
@@ -375,6 +372,9 @@ text = "Matches"
 layout_mode = 2
 theme_override_font_sizes/font_size = 32
 text = "10"
+
+[node name="CharSelect" parent="." instance=ExtResource("2_6qq11")]
+visible = false
 
 [node name="ModalList" parent="." instance=ExtResource("9_ro6xo")]
 visible = false
@@ -443,10 +443,10 @@ access = 2
 [connection signal="pressed" from="UpdateNameButton" to="." method="_on_update_name_button_pressed"]
 [connection signal="pressed" from="LoadReplayButton" to="." method="_on_load_replay_button_pressed"]
 [connection signal="pressed" from="ReconnectToServerButton" to="." method="_on_reconnect_to_server_button_pressed"]
-[connection signal="close_character_select" from="CharSelect" to="." method="_on_char_select_close_character_select"]
-[connection signal="select_character" from="CharSelect" to="." method="_on_char_select_select_character"]
 [connection signal="pressed" from="PlayerListContainer/PlayerListHBox/PlayersButton" to="." method="_on_players_button_pressed"]
 [connection signal="pressed" from="RoomListContainer/RoomListHBox/MatchesButton" to="." method="_on_matches_button_pressed"]
+[connection signal="close_character_select" from="CharSelect" to="." method="_on_char_select_close_character_select"]
+[connection signal="select_character" from="CharSelect" to="." method="_on_char_select_select_character"]
 [connection signal="join_match_pressed" from="ModalList" to="." method="_on_modal_list_join_match_pressed"]
 [connection signal="observe_match_pressed" from="ModalList" to="." method="_on_modal_list_observe_match_pressed"]
 [connection signal="file_selected" from="FileDialog" to="." method="_on_file_dialog_file_selected"]

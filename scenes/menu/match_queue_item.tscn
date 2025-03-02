@@ -1,6 +1,7 @@
-[gd_scene load_steps=2 format=3 uid="uid://dy60rn4avbtbt"]
+[gd_scene load_steps=3 format=3 uid="uid://dy60rn4avbtbt"]
 
 [ext_resource type="Script" path="res://scenes/menu/match_queue_item.gd" id="1_emp6n"]
+[ext_resource type="Texture2D" uid="uid://b08j76upbucvr" path="res://assets/cards/arena_border_highlight_selected.png" id="2_5hinv"]
 
 [node name="QueueItem" type="MarginContainer"]
 custom_minimum_size = Vector2(150, 0)
@@ -23,12 +24,21 @@ theme_override_font_sizes/font_size = 30
 text = "Enter
 Queue"
 
-[node name="PlayButton" type="Button" parent="QueueVBox"]
+[node name="PlayContainer" type="MarginContainer" parent="QueueVBox"]
 visible = false
+layout_mode = 2
+
+[node name="PlayButton" type="Button" parent="QueueVBox/PlayContainer"]
 layout_mode = 2
 theme_override_font_sizes/font_size = 30
 text = "Play
 Now!"
 
+[node name="AvailableHighlight" type="TextureRect" parent="QueueVBox/PlayContainer"]
+layout_mode = 2
+mouse_filter = 2
+texture = ExtResource("2_5hinv")
+expand_mode = 1
+
 [connection signal="pressed" from="QueueVBox/JoinButton" to="." method="_on_join_button_pressed"]
-[connection signal="pressed" from="QueueVBox/PlayButton" to="." method="_on_play_button_pressed"]
+[connection signal="pressed" from="QueueVBox/PlayContainer/PlayButton" to="." method="_on_play_button_pressed"]

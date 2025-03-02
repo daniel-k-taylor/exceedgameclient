@@ -379,6 +379,10 @@ func update_char(char_id: String, is_player: bool) -> void:
 		portrait_id = "sklogo"
 	elif char_id == "random_s3":
 		portrait_id = "sflogo"
+	elif char_id == "random_s2":
+		portrait_id = "sclogo"
+	elif char_id == "random_s1":
+		portrait_id = "redhorizon"
 	elif char_id == "random":
 		portrait_id = "exceedrandom"
 	else:

@@ -172,7 +172,8 @@ func handle_decisions(game: LocalGame):
 				var forceforarmor_action = decision_ai.pick_force_for_armor(use_gauge_instead)
 				assert_true(game.do_force_for_armor(decision_ai.game_player, forceforarmor_action.card_ids, forceforarmor_action.use_free_force), "do force armor failed")
 			Enums.DecisionType.DecisionType_CardFromHandToGauge:
-				var cardfromhandtogauge_action = decision_ai.pick_card_hand_to_gauge(game.decision_info.effect['min_amount'], game.decision_info.effect['max_amount'])
+				var restricted_to_card_ids = game.decision_info.effect.get('restricted_to_card_ids', [])
+				var cardfromhandtogauge_action = decision_ai.pick_card_hand_to_gauge(game.decision_info.effect['min_amount'], game.decision_info.effect['max_amount'], restricted_to_card_ids)
 				assert_true(game.do_relocate_card_from_hand(decision_ai.game_player, cardfromhandtogauge_action.card_ids), "do card hand strike failed")
 			Enums.DecisionType.DecisionType_ForceForEffect:
 				var effect = game.decision_info.effect
@@ -675,3 +676,9 @@ func test_iaquis_100():
 
 func test_emogine_100():
 	run_iterations_with_deck("emogine")
+
+func test_morathi_100():
+	run_iterations_with_deck("morathi")
+	
+func test_nehtali_100():
+	run_iterations_with_deck("nehtali")

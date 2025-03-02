@@ -18480,6 +18480,377 @@
 
 
 	{
+		"NOTE": "MORATHI CARDS START",
+		"id": "morathi_godofwar",
+		"type": "ultra",
+		"display_name": "God of War",
+		"force_cost": 0,
+		"gauge_cost": 3,
+		"range_min": 1,
+		"range_max": 2,
+		"speed": 4,
+		"power": 7,
+		"armor": 0,
+		"guard": 6,
+		"effects": [
+			{
+				"timing": "before",
+				"effect_type": "close",
+				"amount": 2
+			},
+			{
+				"timing": "hit",
+				"effect_type": "discard_random",
+				"amount": 3,
+				"and": {
+					"effect_type": "opponent_discard_random",
+					"amount": 3,
+					"opponent": true
+				}
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 3,
+			"cancel_cost": -1,
+			"display_name": "Power Overwhelming",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "powerup",
+					"amount": 3
+				},
+				{
+					"timing": "during_strike",
+					"effect_type": "speedup",
+					"amount": 2
+				}
+			]
+		}
+	},
+	{
+		"id": "morathi_shadowofdeath",
+		"type": "ultra",
+		"display_name": "Shadow of Death",
+		"force_cost": 0,
+		"gauge_cost": 8,
+		"range_min": 1,
+		"range_max": 1,
+		"speed": 8,
+		"power": 15,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "on_strike_reveal",
+				"condition": "was_wild_swing",
+				"effect_type": "pass",
+				"and": {
+					"condition": "max_cards_in_gauge",
+					"condition_amount": 7,
+					"effect_type": "replace_wild_swing",
+					"previous_attack_to": "hand",
+					"and": {
+						"effect_type": "add_top_discard_to_gauge",
+						"amount": 2
+					}
+				}
+			}
+		],
+		"boost": {
+			"boost_type": "immediate",
+			"force_cost": 4,
+			"cancel_cost": -1,
+			"display_name": "Intimidation",
+			"effects": [
+				{
+					"timing": "immediate",
+					"condition": "range",
+					"condition_amount": 1,
+					"effect_type": "discard_hand",
+					"and": {
+						"effect_type": "opponent_discard_hand"
+					}
+				}
+			]
+		}
+	},
+	{
+		"id": "morathi_gyrochaingash",
+		"type": "special",
+		"display_name": "Gyro Chain Gash",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 1,
+		"speed": 3,
+		"power": 2,
+		"armor": 0,
+		"guard": 5,
+		"effects": [
+			{
+				"timing": "before",
+				"effect_type": "close",
+				"amount": 2
+			},
+			{
+				"timing": "hit",
+				"override_description": "Discard up to 3 random cards, +1 Power and opponent discards 1 for each.",
+				"condition": "min_cards_in_hand",
+				"condition_amount": 3,
+				"effect_type": "choice",
+				"choice": [
+					{ "effect_type": "discard_random", "amount": 1, "and": { "effect_type": "powerup", "amount": 1, "and": { "effect_type": "opponent_discard_choose", "amount": 1 }}},
+					{ "effect_type": "discard_random", "amount": 2, "and": { "effect_type": "powerup", "amount": 2, "and": { "effect_type": "opponent_discard_choose", "amount": 2 }}},
+					{ "effect_type": "discard_random", "amount": 3, "and": { "effect_type": "powerup", "amount": 3, "and": { "effect_type": "opponent_discard_choose", "amount": 3 }}},
+					{ "effect_type": "pass" }
+				],
+				"negative_condition_effect": {
+					"is_negative_effect": true,
+					"condition": "min_cards_in_hand",
+					"condition_amount": 2,
+					"effect_type": "choice",
+					"choice": [
+						{ "effect_type": "discard_random", "amount": 1, "and": { "effect_type": "powerup", "amount": 1, "and": { "effect_type": "opponent_discard_choose", "amount": 1 }}},
+						{ "effect_type": "discard_random", "amount": 2, "and": { "effect_type": "powerup", "amount": 2, "and": { "effect_type": "opponent_discard_choose", "amount": 2 }}},
+						{ "effect_type": "pass" }
+					],
+					"negative_condition_effect": {
+						"is_negative_effect": true,
+						"condition": "min_cards_in_hand",
+						"condition_amount": 1,
+						"effect_type": "choice",
+						"choice": [
+							{ "effect_type": "discard_random", "amount": 1, "and": { "effect_type": "powerup", "amount": 1, "and": { "effect_type": "opponent_discard_choose", "amount": 1 }}},
+							{ "effect_type": "pass" }
+						]
+					}
+				}
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 2,
+			"cancel_cost": -1,
+			"display_name": "Casting Bones",
+			"effects": [
+				{
+					"timing": "now",
+					"condition": "min_cards_in_deck",
+					"condition_amount": 3,
+					"effect_type": "choose_cards_from_top_deck",
+					"look_amount": 3,
+					"action_choices": [
+						"add_to_topdeck_under_2"
+					],
+					"can_pass": false,
+					"destination_unchosen": "topdeck"
+				},
+				{
+					"timing": "now",
+					"condition": "min_cards_in_deck",
+					"condition_amount": 2,
+					"effect_type": "choose_cards_from_top_deck",
+					"look_amount": 2,
+					"action_choices": [
+						"add_to_topdeck_under"
+					],
+					"can_pass": false,
+					"destination_unchosen": "topdeck"
+				},
+				{
+					"timing": "during_strike",
+					"effect_type": "powerup",
+					"amount": 1
+				},
+
+				{
+					"timing": "during_strike",
+					"effect_type": "speedup",
+					"amount": 1
+				}
+			]
+		}
+	},
+	{
+		"id": "morathi_ivoryghostcharge",
+		"type": "special",
+		"display_name": "Ivory Ghost Charge",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 2,
+		"speed": 3,
+		"power": 5,
+		"armor": 0,
+		"guard": 5,
+		"effects": [
+			{
+				"timing": "before",
+				"condition": "was_hit",
+				"effect_type": "close",
+				"amount": 3
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Ruby Pact",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "powerup",
+					"amount": 2
+				}
+			]
+		}
+	},
+	{
+		"id": "morathi_ivoeryghostimpalement",
+		"type": "special",
+		"display_name": "Ivory Ghost Impalement",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 3,
+		"speed": 2,
+		"power": 4,
+		"armor": 0,
+		"guard": 5,
+		"effects": [
+			{
+				"timing": "before",
+				"condition": "was_hit",
+				"effect_type": "powerup",
+				"amount": 3
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Obsidian Pact",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "speedup",
+					"amount": 2
+				}
+			]
+		}
+	},
+	{
+		"id": "morathi_necksnapper",
+		"type": "special",
+		"display_name": "Neck Snapper",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 1,
+		"speed": 5,
+		"power": 4,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "before",
+				"override_description": "Discard up to 3 random cards, Close 1 for each.",
+				"condition": "min_cards_in_hand",
+				"condition_amount": 3,
+				"effect_type": "choice",
+				"choice": [
+					{ "effect_type": "discard_random", "amount": 1, "and": { "effect_type": "close", "amount": 1 } },
+					{ "effect_type": "discard_random", "amount": 2, "and": { "effect_type": "close", "amount": 2 } },
+					{ "effect_type": "discard_random", "amount": 3, "and": { "effect_type": "close", "amount": 3 } },
+					{ "effect_type": "pass" }
+				],
+				"negative_condition_effect": {
+					"is_negative_effect": true,
+					"condition": "min_cards_in_hand",
+					"condition_amount": 2,
+					"effect_type": "choice",
+					"choice": [
+						{ "effect_type": "discard_random", "amount": 1, "and": { "effect_type": "close", "amount": 1 } },
+						{ "effect_type": "discard_random", "amount": 2, "and": { "effect_type": "close", "amount": 2 } }
+					],
+					"negative_condition_effect": {
+						"is_negative_effect": true,
+						"condition": "min_cards_in_hand",
+						"condition_amount": 1,
+						"effect_type": "choice",
+						"choice": [
+							{ "effect_type": "discard_random", "amount": 1, "and": { "effect_type": "close", "amount": 1 } },
+							{ "effect_type": "pass" }
+						]
+					}
+				}
+			},
+			{
+				"timing": "hit",
+				"effect_type": "opponent_discard_choose",
+				"amount": "CARDS_DISCARDED_THIS_STRIKE"
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 1,
+			"cancel_cost": -1,
+			"display_name": "Crushing Might",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "powerup",
+					"amount": 1
+				},
+				{
+					"timing": "during_strike",
+					"effect_type": "speedup",
+					"amount": 1
+				}
+			]
+		}
+	},
+	{
+		"id": "morathi_revenger",
+		"type": "special",
+		"display_name": "Revenger",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 3,
+		"speed": 1,
+		"power": 5,
+		"armor": 0,
+		"guard": 7,
+		"effects": [
+			{
+				"timing": "hit",
+				"effect_type": "opponent_discard_random",
+				"amount": 2,
+				"and": {
+					"effect_type": "add_top_discard_to_gauge"
+				}
+			}
+		],
+		"boost": {
+			"boost_type": "immediate",
+			"force_cost": 3,
+			"cancel_cost": -1,
+			"display_name": "Fates Crossing",
+			"effects": [
+				{
+					"timing": "immediate",
+					"effect_type": "strike_wild",
+					"opponent_forced_wild": true
+				}
+			]
+		},
+		"NOTEND": "MORATHI CARDS END"
+	},
+
+
+	{
 		"NOTE": "NAGO CARDS START",
 		"id": "nago_wasureyuki",
 		"type": "ultra",
@@ -19128,6 +19499,295 @@
 			]
 		},
 		"NOTEEND": "NANASE CARDS END"
+	},
+
+
+
+	{
+		"NOTE": "NEHTALI CARDS START",
+		"id": "nehtali_heavenspunishment",
+		"type": "ultra",
+		"display_name": "Heaven's Punishment",
+		"force_cost": 0,
+		"gauge_cost": 3,
+		"range_min": 3,
+		"range_max": 5,
+		"speed": 5,
+		"power": 0,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "before",
+				"effect_type": "powerup_per_gauge",
+				"count_opponent": true,
+				"amount": 2
+			},
+			{
+				"timing": "after",
+				"effect_type": "choice",
+				"choice": [
+					{ "effect_type": "advance", "amount": 1 },
+					{ "effect_type": "retreat", "amount": 1 }
+				]
+			}
+		],
+		"boost": {
+			"boost_type": "immediate",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Begone!",
+			"effects": [
+				{
+					"timing": "immediate",
+					"condition": "range",
+					"condition_amount": 1,
+					"effect_type": "push",
+					"amount": 3
+				}
+			]
+		}
+	},
+	{
+		"id": "nehtali_hellssalvation",
+		"type": "ultra",
+		"display_name": "Hell's Salvation",
+		"force_cost": 0,
+		"gauge_cost": 5,
+		"range_min": 2,
+		"range_max": 2,
+		"speed": 7,
+		"power": 12,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+		],
+		"boost": {
+			"boost_type": "immediate",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Building Power",
+			"effects": [
+				{
+					"timing": "immediate",
+					"effect_type": "draw",
+					"amount": 2,
+					"and": {
+						"effect_type": "gauge_from_hand",
+						"min_amount": 1,
+						"max_amount": 1,
+						"from_last_cards": 2
+					}
+				}
+			]
+		}
+	},
+	{
+		"id": "nehtali_azazelstorment",
+		"type": "special",
+		"display_name": "Azazel's Torment",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 2,
+		"speed": 5,
+		"power": 3,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "before",
+				"condition": "min_cards_in_gauge",
+				"condition_amount": 3,
+				"condition_opponent": true,
+				"effect_type": "powerup",
+				"amount": 3
+			},
+			{
+				"timing": "hit",
+				"effect_type": "push",
+				"amount": 3
+			}
+		],
+		"boost": {
+			"boost_type": "immediate",
+			"force_cost": 2,
+			"cancel_cost": -1,
+			"display_name": "Divine Harvester",
+			"effects": [
+				{
+					"timing": "immediate",
+					"effect_type": "retreat",
+					"amount": 2
+				},
+				{
+					"timing": "immediate",
+					"effect_type": "strike"
+				}
+			]
+		}
+	},
+	{
+		"id": "nehtali_darknessbarrier",
+		"type": "special",
+		"display_name": "Darkness Barrier",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 3,
+		"range_max": 5,
+		"speed": 1,
+		"power": 5,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "during_strike",
+				"effect_type": "dodge_at_range",
+				"range_min": 4,
+				"range_max": 4
+			}
+		],
+		"boost": {
+			"boost_type": "immediate",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Soul Exchange",
+			"effects": [
+				{
+					"timing": "immediate",
+					"condition": "min_cards_in_gauge",
+					"condition_amount": 1,
+					"condition_opponent": true,
+					"effect_type": "add_to_gauge_boost_play_cleanup",
+					"and": {
+						"effect_type": "choose_discard",
+						"opponent": true,
+						"source": "gauge",
+						"limitation": "",
+						"destination": "discard",
+						"amount": 1
+					}
+				}
+			]
+		}
+	},
+	{
+		"id": "nehtali_hellfire",
+		"type": "special",
+		"display_name": "Hellfire",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 3,
+		"speed": 4,
+		"power": 0,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "hit",
+				"effect_type": "powerup_per_gauge",
+				"amount": 1
+			}
+		],
+		"boost": {
+			"boost_type": "immediate",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Gauge Boost",
+			"effects": [
+				{
+					"timing": "immediate",
+					"effect_type": "add_to_gauge_boost_play_cleanup"
+				}
+			]
+		}
+	},
+	{
+		"id": "nehtali_soulthresher",
+		"type": "special",
+		"display_name": "Soul Thresher",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 7,
+		"speed": 7,
+		"power": 0,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "before",
+				"effect_type": "gauge_for_effect",
+				"per_gauge_effect": null,
+				"overall_effect": {
+					"effect_type": "powerup",
+					"amount": 2
+				},
+				"gauge_max": 1
+			},
+			{
+				"timing": "after",
+				"effect_type": "choice",
+				"choice": [
+					{ "effect_type": "advance", "amount": 1 },
+					{ "effect_type": "retreat", "amount": 1 }
+				]
+			}
+		],
+		"boost": {
+			"boost_type": "immediate",
+			"force_cost": 1,
+			"cancel_cost": -1,
+			"display_name": "Clutch of Evil",
+			"effects": [
+				{
+					"timing": "immediate",
+					"effect_type": "choice",
+					"choice": [
+						{ "effect_type": "push", "amount": 1 },
+						{ "effect_type": "pull", "amount": 1 }
+					]
+				},
+				{
+					"timing": "immediate",
+					"effect_type": "strike"
+				}
+			]
+		}
+	},
+	{
+		"id": "nehtali_voltdamnation",
+		"type": "special",
+		"display_name": "Volt Damnation",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 2,
+		"speed": 1,
+		"power": 5,
+		"armor": 0,
+		"guard": 6,
+		"effects": [
+			{
+				"timing": "during_strike",
+				"effect_type": "ignore_armor"
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 2,
+			"cancel_cost": -1,
+			"display_name": "Swift Destruction",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "speedup",
+					"amount": 4
+				}
+			]
+		},
+		"NOTEND": "NEHTALI CARDS END"
 	},
 
 
