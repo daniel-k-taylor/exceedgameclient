@@ -1717,7 +1717,7 @@ class Player:
 	func get_sealed_count_of_type(limitation : String, unique_only : bool = false):
 		return get_count_of_type_from_zone(limitation, sealed, unique_only)
 
-	func get_cards_in_hand_of_type(limitation : String):
+	func get_cards_in_hand_of_type(limitation : String, limitation_amount : int = 0):
 		var cards = []
 		for card in hand:
 			match limitation:
@@ -1753,6 +1753,8 @@ class Player:
 								force_cost += 1
 					if can_pay_cost(force_cost, gauge_cost):
 						cards.append(card)
+				"last_drawn_cards":
+					cards = hand.slice(-limitation_amount, hand.size())
 				_:
 					cards.append(card)
 		return cards
@@ -5738,12 +5740,14 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 				from_bottom_string = " from bottom of deck"
 
 			if amount > 0:
-				if 'opponent' in effect and effect['opponent']:
-					events += opposing_player.draw(amount, false, from_bottom)
-					_append_log_full(Enums.LogType.LogType_CardInfo, opposing_player, "draws %s card(s)%s." % [amount, from_bottom_string])
-				else:
-					events += performing_player.draw(amount, false, from_bottom)
-					_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "draws %s card(s)%s." % [amount, from_bottom_string])
+				var target_player = performing_player
+				if effect.get("opponent"):
+					target_player = opposing_player
+				events += target_player.draw(amount, false, from_bottom)
+				_append_log_full(Enums.LogType.LogType_CardInfo, target_player, "draws %s card(s)%s." % [amount, from_bottom_string])
+				var drawn_card_ids = target_player.hand.slice(-amount, target_player.hand.size()).map(func(item): return item.id)
+				if effect.get("reveal"):
+					target_player.reveal_card_ids(drawn_card_ids)
 		"draw_any_number":
 			var max_user_can_draw = performing_player.deck.size()
 			if performing_player.reshuffle_remaining > 0:
@@ -8131,17 +8135,12 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 			events += performing_player.seal_hand()
 		"self_discard_choose":
 			var optional = 'optional' in effect and effect['optional']
-			var limitation = ""
-			if 'limitation' in effect:
-				limitation = effect['limitation']
-			var destination = "discard"
-			if 'destination' in effect:
-				destination = effect['destination']
-			var discard_effect = null
-			if 'discard_effect' in effect:
-				discard_effect = effect['discard_effect']
+			var limitation = effect.get("limitation", "")
+			var limitation_amount = effect.get("limitation_amount", 0)
+			var destination = effect.get("destination", "discard")
+			var discard_effect = effect.get("discard_effect", null)
 			var allow_fewer = effect.get("allow_fewer", false)
-			var cards_available = performing_player.get_cards_in_hand_of_type(limitation)
+			var cards_available = performing_player.get_cards_in_hand_of_type(limitation, limitation_amount)
 
 			var this_effect = effect.duplicate()
 			if str(this_effect['amount']) == "force_spent_before_strike":
@@ -8161,6 +8160,12 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 				decision_info.limitation = limitation
 				decision_info.bonus_effect = discard_effect
 				decision_info.can_pass = optional
+
+				if limitation == "last_drawn_cards":
+					decision_info.limitation = "from_array"
+					decision_info.extra_info = "card_names"
+					decision_info.choice = cards_available.map(func(item): return item.id)
+
 				events += [create_event(Enums.EventType.EventType_Strike_ChooseToDiscard, performing_player.my_id, this_effect['amount'], "", allow_fewer)]
 			else:
 				if not optional and cards_available.size() > 0:

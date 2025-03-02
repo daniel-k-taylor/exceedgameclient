@@ -23069,6 +23069,16 @@
 				{
 					"timing": "immediate",
 					"effect_type": "draw",
+					"amount": 4,
+					"reveal": true
+				},
+				{
+					"timing": "immediate",
+					"effect_type": "self_discard_choose",
+					"allow_fewer": true,
+					"optional": true,
+					"limitation": "last_drawn_cards",
+					"limitation_amount": 4,
 					"amount": 4
 				}
 			]

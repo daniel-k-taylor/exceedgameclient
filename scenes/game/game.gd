@@ -2401,7 +2401,24 @@ func update_discard_selection_message_choose():
 			optional_string = "up to "
 		if decision_info.limitation and not preparing_character_action:
 			if decision_info.limitation == "from_array":
-				set_instructions("Select %s%s more card(s) that %s from your hand to move to %s." % [optional_string, num_remaining, decision_info.extra_info, destination_str])
+				if decision_info.extra_info == "card_names":
+					var card_names = []
+					for card_id in decision_info.choice:
+						card_names.append(game_wrapper.get_card_database().get_card_name(card_id))
+					var card_names_str = '/'.join(card_names)
+					if card_names.size() > 2:
+						card_names_str = ""
+						for i in range(card_names.size()):
+							card_names_str += card_names[i]
+							if i == card_names.size() - 1:
+								break
+							if i % 2 == 0:
+								card_names_str += "/"
+							else:
+								card_names_str += "\n"
+					set_instructions("Select %s%s more card(s) from your hand to move to %s.\nOptions: %s" % [optional_string, num_remaining, destination_str, card_names_str])
+				else:
+					set_instructions("Select %s%s more card(s) that %s from your hand to move to %s." % [optional_string, num_remaining, decision_info.extra_info, destination_str])
 			else:
 				set_instructions("Select %s%s more %s card(s) from your hand to move to %s%s." % [optional_string, num_remaining, decision_info.limitation, destination_str, bonus])
 		else:

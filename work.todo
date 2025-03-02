@@ -4,7 +4,7 @@ Remiliss:
     ☐ remiliss_groundzero - transform - bonus CC draw optional @started(25-03-02 14:10)
     ☐ "effect_type": "attack_copy_gauge_or_transform_becomes_ex", @started(25-03-02 12:56)
     ☐ "effect_type": "cap_attack_damage_taken", @started(25-03-02 12:40)
-    ☐ remiliss_napalmstream - boost to reveal/discard
+    ☐ remiliss_napalmstream - boost to reveal/discard @started(25-03-02 15:27)
     ☐ "effect_type": "rangeup_if_ex_modifier", @started(25-03-02 13:17)
 
     ☐ "effect_type": "repeat_printed_triggers_on_ex_attack",
