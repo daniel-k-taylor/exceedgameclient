@@ -1,0 +1,209 @@
+{
+	"id": "nehtali",
+	"season": 1,
+	"display_name": "Nehtali",
+	"exceed_cost": 3,
+	"character_action_default": [{
+		"gauge_cost": 0,
+		"force_cost": 0,
+		"effect": {
+			"effect_type": "add_top_discard_to_gauge",
+			"and": {
+				"effect_type": "add_top_discard_to_gauge",
+				"opponent": true
+			}
+		}
+	}],
+	"character_action_exceeded": [
+		{
+			"gauge_cost": 0,
+			"force_cost": 0,
+			"effect": {
+				"effect_type": "add_top_discard_to_gauge",
+				"amount": 2,
+				"and": {
+					"effect_type": "add_top_discard_to_gauge",
+					"opponent": true
+				}
+			}
+		}
+	],
+	"ability_effects": [
+	],
+	"exceed_ability_effects": [
+	],
+	"image_resources": {
+		"character_default": {
+			"url": "https://i.imgur.com/NgiSPct.jpeg",
+			"multiple_cards": false
+		},
+		"character_exceeded": {
+			"url": "https://i.imgur.com/kxmRNbS.jpeg",
+			"multiple_cards": false
+		},
+		"cardback": {
+			"url": "https://i.imgur.com/s6wpKBq.jpeg",
+			"multiple_cards": false
+		},
+		"specials": {
+			"url": "https://i.imgur.com/qkiVEvB.jpeg",
+			"multiple_cards": true
+		},
+		"normals": {
+			"url": "https://i.imgur.com/tXuqP40.jpeg",
+			"multiple_cards": true
+		}
+	},
+	"cards": [
+		{
+			"definition_id": "nehtali_heavenspunishment",
+			"image_name": "specials",
+			"image_index": 6
+		},
+		{
+			"definition_id": "nehtali_heavenspunishment",
+			"image_name": "specials",
+			"image_index": 6
+		},
+		{
+			"definition_id": "nehtali_hellssalvation",
+			"image_name": "specials",
+			"image_index": 5
+		},
+		{
+			"definition_id": "nehtali_hellssalvation",
+			"image_name": "specials",
+			"image_index": 5
+		},
+		{
+			"definition_id": "nehtali_azazelstorment",
+			"image_name": "specials",
+			"image_index": 1
+		},
+		{
+			"definition_id": "nehtali_azazelstorment",
+			"image_name": "specials",
+			"image_index": 1
+		},
+		{
+			"definition_id": "nehtali_darknessbarrier",
+			"image_name": "specials",
+			"image_index": 3
+		},
+		{
+			"definition_id": "nehtali_darknessbarrier",
+			"image_name": "specials",
+			"image_index": 3
+		},
+		{
+			"definition_id": "nehtali_hellfire",
+			"image_name": "specials",
+			"image_index": 2
+		},
+		{
+			"definition_id": "nehtali_hellfire",
+			"image_name": "specials",
+			"image_index": 2
+		},
+		{
+			"definition_id": "nehtali_soulthresher",
+			"image_name": "specials",
+			"image_index": 0
+		},
+		{
+			"definition_id": "nehtali_soulthresher",
+			"image_name": "specials",
+			"image_index": 0
+		},
+		{
+			"definition_id": "nehtali_voltdamnation",
+			"image_name": "specials",
+			"image_index": 4
+		},
+		{
+			"definition_id": "nehtali_voltdamnation",
+			"image_name": "specials",
+			"image_index": 4
+		},
+		{
+			"definition_id": "standard_normal_grasp",
+			"image_name": "normals",
+			"image_index": 0
+		},
+		{
+			"definition_id": "standard_normal_grasp",
+			"image_name": "normals",
+			"image_index": 0
+		},
+		{
+			"definition_id": "standard_normal_cross",
+			"image_name": "normals",
+			"image_index": 1
+		},
+		{
+			"definition_id": "standard_normal_cross",
+			"image_name": "normals",
+			"image_index": 1
+		},
+		{
+			"definition_id": "standard_normal_assault",
+			"image_name": "normals",
+			"image_index": 2
+		},
+		{
+			"definition_id": "standard_normal_assault",
+			"image_name": "normals",
+			"image_index": 2
+		},
+		{
+			"definition_id": "standard_normal_dive",
+			"image_name": "normals",
+			"image_index": 3
+		},
+		{
+			"definition_id": "standard_normal_dive",
+			"image_name": "normals",
+			"image_index": 3
+		},
+		{
+			"definition_id": "standard_normal_spike",
+			"image_name": "normals",
+			"image_index": 4
+		},
+		{
+			"definition_id": "standard_normal_spike",
+			"image_name": "normals",
+			"image_index": 4
+		},
+		{
+			"definition_id": "standard_normal_sweep",
+			"image_name": "normals",
+			"image_index": 5
+		},
+		{
+			"definition_id": "standard_normal_sweep",
+			"image_name": "normals",
+			"image_index": 5
+		},
+		{
+			"definition_id": "standard_normal_focus",
+			"image_name": "normals",
+			"image_index": 6
+		},
+		{
+			"definition_id": "standard_normal_focus",
+			"image_name": "normals",
+			"image_index": 6
+		},
+		{
+			"definition_id": "standard_normal_block",
+			"image_name": "normals",
+			"image_index": 7
+		},
+		{
+			"definition_id": "standard_normal_block",
+			"image_name": "normals",
+			"image_index": 7
+		}
+	]
+}

@@ -309,7 +309,10 @@ func get_condition_text(effect, amount, amount2, detail):
 				amount_str = "no"
 			text += "If you have %s card(s) in Gauge, " % amount_str
 		"min_cards_in_gauge":
-			text += "If you have at least %s card(s) in gauge, " % amount
+			if effect.get("condition_opponent"):
+				text += "If your opponent has at least %s card(s) in gauge, " % amount
+			else:
+				text += "If you have at least %s card(s) in gauge, " % amount
 		"min_spaces_behind_opponent":
 			text += "If there are %s or more spaces behind the opponent, " % amount
 		"no_strike_caused":
@@ -883,7 +886,10 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 				amount = "that much"
 			effect_str += "Gain " + str(amount) + " life"
 		"gauge_from_hand":
-			effect_str += "Add a card from hand to gauge"
+			var last_cards_req = ""
+			if effect.get("from_last_cards"):
+				last_cards_req = " from the last %s drawn cards" % effect['from_last_cards']
+			effect_str += "Add a card from hand to gauge%s" % last_cards_req
 		"generate_free_force":
 			effect_str += "Generate %s force for free" % effect['amount']
 		"guardup":
@@ -1092,7 +1098,10 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 				max_text = " (max %s)" % effect['maximum']
 			effect_str += "+" + str(effect['amount']) + " Power per guard%s." % max_text
 		"powerup_per_gauge":
-			effect_str += "+" + str(effect['amount']) + " Power per card in gauge up to " + str(effect['amount_max']) + "."
+			var opponent_str = ""
+			if effect.get("count_opponent"):
+				opponent_str = "opponent's "
+			effect_str += "+" + str(effect['amount']) + " Power per card in " + opponent_str + "gauge up to " + str(effect['amount_max']) + "."
 		"powerup_per_spent_gauge_matching_range_to_opponent":
 			effect_str += "+" + str(effect['amount']) + " Power per spent gauge matching range to opponent."
 		"powerup_per_sealed_normal":

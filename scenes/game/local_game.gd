@@ -4427,7 +4427,10 @@ func is_effect_condition_met(performing_player : Player, effect, local_condition
 			return performing_player.hand.size() >= amount
 		elif condition == "min_cards_in_gauge":
 			var amount = effect['condition_amount']
-			return performing_player.gauge.size() >= amount
+			if effect.get("condition_opponent"):
+				return other_player.gauge.size() >= amount
+			else:
+				return performing_player.gauge.size() >= amount
 		elif condition == "min_spaces_behind_opponent":
 			var amount = effect['condition_amount']
 			var spaces_behind = 0
@@ -4901,16 +4904,20 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 			if 'amount' in effect:
 				amount = effect['amount']
 
-			var actual_amount = min(amount, len(performing_player.discards))
+			var target_player = performing_player
+			if effect.get("opponent"):
+				target_player = opposing_player
+
+			var actual_amount = min(amount, len(target_player.discards))
 			if actual_amount > 0:
 				var card_ids = []
-				for i in range(performing_player.discards.size() - 1, performing_player.discards.size() - 1 - actual_amount, -1):
-					card_ids.append(performing_player.discards[i].id)
+				for i in range(target_player.discards.size() - 1, target_player.discards.size() - 1 - actual_amount, -1):
+					card_ids.append(target_player.discards[i].id)
 				var card_names = card_db.get_card_names(card_ids)
-				_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "adds the top %s card(s) of their discards to gauge: %s." % [amount, _log_card_name(card_names)])
-				events += performing_player.add_top_discard_to_gauge(amount)
+				_append_log_full(Enums.LogType.LogType_CardInfo, target_player, "adds the top %s card(s) of their discards to gauge: %s." % [amount, _log_card_name(card_names)])
+				events += target_player.add_top_discard_to_gauge(amount)
 			else:
-				_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "has no cards in their discard pile to add to gauge.")
+				_append_log_full(Enums.LogType.LogType_CardInfo, target_player, "has no cards in their discard pile to add to gauge.")
 		"add_top_discard_to_overdrive":
 			var amount = 1
 			if 'amount' in effect:
@@ -5976,9 +5983,15 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 				if 'amount_is_gauge_spent' in effect and effect['amount_is_gauge_spent']:
 					min_amount = effect_player.gauge_spent_before_strike
 					max_amount = effect_player.gauge_spent_before_strike
+				var restricted_to_card_ids = []
+				var from_last_cards = effect.get("from_last_cards")
+				if from_last_cards:
+					for i in range(from_last_cards):
+						restricted_to_card_ids.append(effect_player.hand[effect_player.hand.size() - 1 - i].id)
 				decision_info.effect = {
 					"min_amount": min_amount,
 					"max_amount": max_amount,
+					"restricted_to_card_ids": restricted_to_card_ids,
 				}
 
 				if min_amount > effect_player.hand.size():
@@ -5987,7 +6000,7 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 				decision_info.bonus_effect = {}
 				if 'per_card_effect' in effect and effect['per_card_effect']:
 					decision_info.bonus_effect = effect['per_card_effect']
-				events += [create_event(Enums.EventType.EventType_CardFromHandToGauge_Choice, effect_player.my_id, min_amount, "", max_amount)]
+				events += [create_event(Enums.EventType.EventType_CardFromHandToGauge_Choice, effect_player.my_id, min_amount, "", max_amount, restricted_to_card_ids)]
 			else:
 				_append_log_full(Enums.LogType.LogType_Effect, effect_player, "has no cards in hand to put in gauge.")
 		"generate_free_force":
@@ -7395,9 +7408,13 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 			events += [create_event(Enums.EventType.EventType_Strike_PowerUp, performing_player.my_id, amount)]
 		"powerup_per_gauge":
 			var amount_per_gauge = effect['amount']
-			var gauge_size = performing_player.gauge.size()
+			var count_player = performing_player
+			if effect.get("count_opponent"):
+				count_player = opposing_player
+			var gauge_size = count_player.gauge.size()
 			var total_powerup = amount_per_gauge * gauge_size
-			total_powerup = min(total_powerup, effect['amount_max'])
+			var amount_max = effect.get("amount_max", 999)
+			total_powerup = min(total_powerup, amount_max)
 			if total_powerup > 0:
 				performing_player.add_power_bonus(total_powerup)
 				events += [create_event(Enums.EventType.EventType_Strike_PowerUp, performing_player.my_id, total_powerup)]
@@ -11685,6 +11702,11 @@ func do_relocate_card_from_hand(performing_player : Player, card_ids : Array) ->
 		printlog("ERROR: Tried to do_relocate_card_from_hand but not in decision state.")
 		return false
 	for card_id in card_ids:
+		var restricted_to_card_ids = decision_info.effect.get("restricted_to_card_ids", [])
+		if restricted_to_card_ids:
+			if not card_id in restricted_to_card_ids:
+				printlog("ERROR: Tried to do_relocate_card_from_hand with card not in restricted list.")
+				return false
 		if not performing_player.is_card_in_hand(card_id):
 			printlog("ERROR: Tried to do_relocate_card_from_hand with card not in hand.")
 			return false

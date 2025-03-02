@@ -1,4 +1,4 @@
-[gd_scene load_steps=99 format=3 uid="uid://cqs72exlwm6at"]
+[gd_scene load_steps=100 format=3 uid="uid://cqs72exlwm6at"]
 
 [ext_resource type="Script" path="res://scenes/menu/char_select.gd" id="1_f3x24"]
 [ext_resource type="PackedScene" uid="uid://nwqxp8pdh1jk" path="res://scenes/menu/char_select_button.tscn" id="6_3lmwy"]
@@ -90,6 +90,7 @@
 [ext_resource type="Texture2D" uid="uid://d0320c0pak5br" path="res://assets/portraits/seijun.png" id="87_4uyi6"]
 [ext_resource type="Texture2D" uid="uid://ca8pnggqdlwsb" path="res://assets/portraits/galdred.png" id="88_3w5cl"]
 [ext_resource type="Texture2D" uid="uid://bfwravq6yoq3" path="res://assets/portraits/carlswangee.png" id="88_6oc13"]
+[ext_resource type="Texture2D" uid="uid://cu1rjxk8qdpwy" path="res://assets/portraits/nehtali.png" id="88_8vkww"]
 [ext_resource type="Texture2D" uid="uid://5nai1cf4dcy" path="res://assets/portraits/sclogo.png" id="88_687x2"]
 [ext_resource type="Texture2D" uid="uid://l3xlrjfhuw8" path="res://assets/portraits/sydney.png" id="88_jh43h"]
 [ext_resource type="Texture2D" uid="uid://ddjv6kqk6agqh" path="res://assets/portraits/celinka.png" id="89_d1xn5"]
@@ -780,6 +781,11 @@ layout_mode = 2
 char_id = "emogine"
 portrait_texture = ExtResource("90_ik8rg")
 
+[node name="Nehtali" parent="CenterContainer/SCCharacterSelect/Rows/Row1" instance=ExtResource("6_3lmwy")]
+layout_mode = 2
+char_id = "nehtali"
+portrait_texture = ExtResource("88_8vkww")
+
 [node name="Iaquis" parent="CenterContainer/SCCharacterSelect/Rows/Row1" instance=ExtResource("6_3lmwy")]
 layout_mode = 2
 char_id = "iaquis"
@@ -837,6 +843,11 @@ alignment = 1
 layout_mode = 2
 char_id = "morathi"
 portrait_texture = ExtResource("95_kaa4r")
+
+[node name="Nehtali" parent="CenterContainer/S1CharacterSelect/Rows/Row1" instance=ExtResource("6_3lmwy")]
+layout_mode = 2
+char_id = "nehtali"
+portrait_texture = ExtResource("88_8vkww")
 
 [node name="RandomS1" parent="CenterContainer/S1CharacterSelect/Rows/Row1" instance=ExtResource("6_3lmwy")]
 layout_mode = 2
@@ -1076,6 +1087,8 @@ portrait_texture = ExtResource("32_iutun")
 [connection signal="on_pressed" from="CenterContainer/SFCharacterSelect/Rows/Row3/Vega" to="." method="_on_char_button_on_pressed"]
 [connection signal="on_hover" from="CenterContainer/SCCharacterSelect/Rows/Row1/Emogine" to="." method="_on_char_hover"]
 [connection signal="on_pressed" from="CenterContainer/SCCharacterSelect/Rows/Row1/Emogine" to="." method="_on_char_button_on_pressed"]
+[connection signal="on_hover" from="CenterContainer/SCCharacterSelect/Rows/Row1/Nehtali" to="." method="_on_char_hover"]
+[connection signal="on_pressed" from="CenterContainer/SCCharacterSelect/Rows/Row1/Nehtali" to="." method="_on_char_button_on_pressed"]
 [connection signal="on_hover" from="CenterContainer/SCCharacterSelect/Rows/Row1/Iaquis" to="." method="_on_char_hover"]
 [connection signal="on_pressed" from="CenterContainer/SCCharacterSelect/Rows/Row1/Iaquis" to="." method="_on_char_button_on_pressed"]
 [connection signal="on_hover" from="CenterContainer/SCCharacterSelect/Rows/Row1/Galdred" to="." method="_on_char_hover"]
@@ -1092,6 +1105,8 @@ portrait_texture = ExtResource("32_iutun")
 [connection signal="on_pressed" from="CenterContainer/SCCharacterSelect/Rows/Row2/RandomSC" to="." method="_on_char_button_on_pressed"]
 [connection signal="on_hover" from="CenterContainer/S1CharacterSelect/Rows/Row1/Morathi" to="." method="_on_char_hover"]
 [connection signal="on_pressed" from="CenterContainer/S1CharacterSelect/Rows/Row1/Morathi" to="." method="_on_char_button_on_pressed"]
+[connection signal="on_hover" from="CenterContainer/S1CharacterSelect/Rows/Row1/Nehtali" to="." method="_on_char_hover"]
+[connection signal="on_pressed" from="CenterContainer/S1CharacterSelect/Rows/Row1/Nehtali" to="." method="_on_char_button_on_pressed"]
 [connection signal="on_hover" from="CenterContainer/S1CharacterSelect/Rows/Row1/RandomS1" to="." method="_on_char_hover"]
 [connection signal="on_pressed" from="CenterContainer/S1CharacterSelect/Rows/Row1/RandomS1" to="." method="_on_char_button_on_pressed"]
 [connection signal="on_hover" from="TabSelect/CategoriesHBox/Season1" to="." method="_on_char_hover"]
