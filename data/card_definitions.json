@@ -18540,22 +18540,18 @@
 		"power": 15,
 		"armor": 0,
 		"guard": 0,
-		"effects": [
-			{
-				"timing": "on_strike_reveal",
-				"condition": "was_wild_swing",
-				"effect_type": "pass",
-				"and": {
-					"condition": "max_cards_in_gauge",
-					"condition_amount": 7,
-					"effect_type": "replace_wild_swing",
-					"previous_attack_to": "hand",
-					"and": {
-						"effect_type": "add_top_discard_to_gauge",
-						"amount": 2
-					}
-				}
+		"on_invalid": {
+			"condition": "was_wild_swing",
+			"condition_detail": "ignore_if_invalid_by_choice",
+			"effect_type": "replace_wild_swing",
+			"skip_swing": true,
+			"previous_attack_to": "hand",
+			"and": {
+				"effect_type": "add_top_discard_to_gauge",
+				"amount": 2
 			}
+		},
+		"effects": [
 		],
 		"boost": {
 			"boost_type": "immediate",
