@@ -367,6 +367,23 @@ func test_morathi_shadowofdeath_invalid():
 	advance_turn(player1)
 
 
+func test_morathi_shadowofdeath_invalid_after_other_ws():
+	position_players(player1, 5, player2, 7)
+	give_gauge(player1, 7)
+	player1.discard_hand()
+	assert_eq(player1.hand.size(), 0)
+	set_player_topdeck(player1, "standard_normal_assault")
+	var sod_inhand = set_player_topdeck(player1, "morathi_shadowofdeath")
+	set_player_topdeck(player1, "morathi_godofwar")
+	execute_strike(player1, player2, -1, "standard_normal_assault", false, false,
+		[1, [true, true, false]], [])
+	assert_eq(player1.hand.size(), 1)
+	assert_eq(player1.hand[0].id, sod_inhand)
+	assert_eq(player1.gauge.size(), 10)
+	validate_positions(player1, 6, player2, 7)
+	validate_life(player1, 30, player2, 26)
+	advance_turn(player1)
+
 func test_morathi_shadowofdeath_not_invalid_ws_anyway():
 	position_players(player1, 6, player2, 7)
 	give_gauge(player1, 8)
