@@ -271,6 +271,84 @@ func test_morathi_gyrochaingash_discard_onlyhas_2_pass():
 	advance_turn(player2)
 
 
+func test_morathi_gyrochaingash_nohand():
+	position_players(player1, 4, player2, 7)
+	player1.discard_hand()
+	var gash = give_player_specific_card(player1, "morathi_gyrochaingash")
+	var p2strike = give_player_specific_card(player2, "standard_normal_spike")
+	assert_true(game_logic.do_strike(player1, gash, false, -1))
+	assert_true(game_logic.do_strike(player2, p2strike, false, -1))
+	# Choice should not come up because no cards!
+	validate_positions(player1, 6, player2, 7)
+	validate_life(player1, 30, player2, 28)
+	advance_turn(player2)
+
+func test_morathi_gyrochaingash_1hand_pass():
+	position_players(player1, 4, player2, 7)
+	player1.discard_hand()
+	give_player_specific_card(player1, "standard_normal_assault")
+	var gash = give_player_specific_card(player1, "morathi_gyrochaingash")
+	var p2strike = give_player_specific_card(player2, "standard_normal_spike")
+	assert_true(game_logic.do_strike(player1, gash, false, -1))
+	assert_true(game_logic.do_strike(player2, p2strike, false, -1))
+	# P1 has choice between discard 1 and pass.
+	assert_true(game_logic.do_choice(player1, 1))
+	assert_eq(player1.hand.size(), 1)
+	validate_positions(player1, 6, player2, 7)
+	validate_life(player1, 30, player2, 28)
+	advance_turn(player2)
+
+
+func test_morathi_gyrochaingash_2hand_pass():
+	position_players(player1, 4, player2, 7)
+	player1.discard_hand()
+	give_player_specific_card(player1, "standard_normal_assault")
+	give_player_specific_card(player1, "standard_normal_assault")
+	var gash = give_player_specific_card(player1, "morathi_gyrochaingash")
+	var p2strike = give_player_specific_card(player2, "standard_normal_spike")
+	assert_true(game_logic.do_strike(player1, gash, false, -1))
+	assert_true(game_logic.do_strike(player2, p2strike, false, -1))
+	# P1 has choice between discard 1 and pass.
+	assert_true(game_logic.do_choice(player1, 2))
+	assert_eq(player1.hand.size(), 2)
+	validate_positions(player1, 6, player2, 7)
+	validate_life(player1, 30, player2, 28)
+	advance_turn(player2)
+
+func test_morathi_gyrochaingash_1hand_discard():
+	position_players(player1, 4, player2, 7)
+	player1.discard_hand()
+	give_player_specific_card(player1, "standard_normal_assault")
+	var gash = give_player_specific_card(player1, "morathi_gyrochaingash")
+	var p2strike = give_player_specific_card(player2, "standard_normal_spike")
+	assert_true(game_logic.do_strike(player1, gash, false, -1))
+	assert_true(game_logic.do_strike(player2, p2strike, false, -1))
+	# P1 has choice between discard 1 and pass.
+	assert_true(game_logic.do_choice(player1, 0))
+	assert_eq(player1.hand.size(), 0)
+	assert_true(game_logic.do_choose_to_discard(player2, [player2.hand[0].id]))
+	validate_positions(player1, 6, player2, 7)
+	validate_life(player1, 30, player2, 27)
+	advance_turn(player2)
+	
+	
+func test_morathi_gyrochaingash_2hand_discard():
+	position_players(player1, 4, player2, 7)
+	player1.discard_hand()
+	give_player_specific_card(player1, "standard_normal_assault")
+	give_player_specific_card(player1, "standard_normal_assault")
+	var gash = give_player_specific_card(player1, "morathi_gyrochaingash")
+	var p2strike = give_player_specific_card(player2, "standard_normal_spike")
+	assert_true(game_logic.do_strike(player1, gash, false, -1))
+	assert_true(game_logic.do_strike(player2, p2strike, false, -1))
+	# P1 has choice between discard 1 and pass.
+	assert_true(game_logic.do_choice(player1, 1))
+	assert_eq(player1.hand.size(), 0)
+	assert_true(game_logic.do_choose_to_discard(player2, [player2.hand[0].id, player2.hand[1].id]))
+	validate_positions(player1, 6, player2, 7)
+	validate_life(player1, 30, player2, 26)
+	advance_turn(player2)
+	
 func test_morathi_gyrochaingash_discard_onlyhas_2_doit():
 	position_players(player1, 4, player2, 7)
 

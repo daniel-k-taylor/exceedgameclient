@@ -4264,7 +4264,7 @@ func do_effect_if_condition_met(
 		events += handle_strike_effect(card_id, effect, performing_player)
 	elif 'negative_condition_effect' in effect:
 		var negative_condition_effect = effect['negative_condition_effect']
-		events += handle_strike_effect(card_id, negative_condition_effect, performing_player)
+		events += do_effect_if_condition_met(performing_player, card_id, negative_condition_effect, local_conditions)
 	elif recorded_failed_effects != null:
 		recorded_failed_effects.append(effect)
 	return events
