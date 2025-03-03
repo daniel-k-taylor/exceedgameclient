@@ -22814,6 +22814,7 @@
 				],
 				"can_pass": true,
 				"destination_unchosen": "topdeck",
+				"shuffle_after": true,
 				"and_not_passed": {
 					"timing": "hit",
 					"effect_type": "choose_cards_from_top_deck",
@@ -22823,6 +22824,7 @@
 					],
 					"can_pass": true,
 					"destination_unchosen": "topdeck",
+					"shuffle_after": true,
 					"and_not_passed": {
 						"timing": "hit",
 						"effect_type": "choose_cards_from_top_deck",
@@ -22831,7 +22833,8 @@
 							"add_to_hand"
 						],
 						"can_pass": true,
-						"destination_unchosen": "topdeck"
+						"destination_unchosen": "topdeck",
+						"shuffle_after": true
 					}
 				}
 			}
