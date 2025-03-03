@@ -302,6 +302,14 @@ func process_remaining_decisions(initiator, defender, init_choices, def_choices)
 				Enums.DecisionType.DecisionType_ChooseFromDiscard:
 					assert_true(game_logic.do_choose_from_discard(player, [choice]),
 							"%s failed to discard cards %s" % [player, choice])
+				Enums.DecisionType.DecisionType_ChooseFromTopDeck:
+					var action = player_choices.pop_front()
+					if action == null:
+						fail_test("Player %s needed to provide action for choice from topdeck" % [
+							player.my_id + 1])
+						return
+					assert_true(game_logic.do_choose_from_topdeck(player, choice, action),
+						"%s failed to choose_from_topdeck using %s %s" % [player, choice, action])
 				Enums.DecisionType.DecisionType_ForceForEffect:
 					# In cases where optional booleans are provided at the end
 					# of `choice`, interpret them as optional boolean arguments

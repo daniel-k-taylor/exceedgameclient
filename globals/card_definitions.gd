@@ -1189,6 +1189,8 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 			if effect['amount2'] >= 0:
 				effect_str += "+"
 			effect_str += str(effect['amount2']) + " Range"
+		"rangeup_if_ex_modifier":
+			effect_str += "If EX, +" + str(effect['amount']) + "-" + str(effect['amount2']) + " Range."
 		"rangeup_per_boost_in_play":
 			if 'all_boosts' in effect and effect['all_boosts']:
 				effect_str += "+" + str(effect['amount']) + "-" + str(effect['amount2']) + " Range per EVERY boost in play."
@@ -1358,9 +1360,14 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 				effect_str += "Seal the top card of your deck"
 		"self_discard_choose":
 			var destination = effect['destination'] if 'destination' in effect else "discard"
-			var limitation = ""
-			if 'limitation' in effect and effect['limitation']:
-				limitation = " " + effect['limitation']
+			var limitation_str = ""
+			var limitation = effect.get("limitation")
+			if limitation:
+				match limitation:
+					"last_drawn_cards":
+						limitation_str = " from last drawn"
+					_:
+						limitation_str = " " + effect['limitation']
 			var bonus = ""
 			var optional = 'optional' in effect and effect['optional']
 			var optional_text = ""
@@ -1375,13 +1382,13 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 				if 'per_discard' in effect['discard_effect'] and effect['discard_effect']['per_discard']:
 					bonus += " for each"
 			if destination == "sealed":
-				effect_str += optional_text + "Seal " + amount_str + limitation + " card(s)" + bonus
+				effect_str += optional_text + "Seal " + amount_str + limitation_str + " card(s)" + bonus
 			elif destination == "reveal":
-				effect_str += optional_text + "Reveal " + amount_str + limitation + " card(s)" + bonus
+				effect_str += optional_text + "Reveal " + amount_str + limitation_str + " card(s)" + bonus
 			elif destination == "opponent_overdrive":
-				effect_str += optional_text + "Add " + amount_str + limitation + " card(s) from hand to your opponent's overdrive" + bonus
+				effect_str += optional_text + "Add " + amount_str + limitation_str + " card(s) from hand to your opponent's overdrive" + bonus
 			else:
-				effect_str += optional_text + "Discard " + amount_str + limitation + " card(s)" + bonus
+				effect_str += optional_text + "Discard " + amount_str + limitation_str + " card(s)" + bonus
 		"set_used_character_bonus":
 			if 'linked_effect' in effect:
 				effect_str += ": " + get_effect_text(effect['linked_effect'], false, false, false)
