@@ -5490,6 +5490,7 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 				decision_info.action = effect['action_choices']
 				decision_info.can_pass = effect['can_pass']
 				decision_info.destination = effect['destination_unchosen']
+				decision_info.effect = effect
 				decision_info.amount = look_amount
 				decision_info.bonus_effect = effect.get('and_not_passed', null)
 				events += [create_event(Enums.EventType.EventType_ChooseFromTopDeck, performing_player.my_id, 0)]
@@ -12564,6 +12565,8 @@ func do_choose_from_topdeck(performing_player : Player, chosen_card_id : int, ac
 		"topdeck":
 			for card_id in leftover_card_ids:
 				events += performing_player.move_card_from_hand_to_deck(card_id)
+			if decision_info.effect and decision_info.effect.get("shuffle_after"):
+				performing_player.random_shuffle_deck()
 			performing_player.update_public_hand_if_deck_empty()
 		_:
 			printlog("ERROR: Choose from topdeck destination not implemented.")
@@ -12650,6 +12653,7 @@ func do_choose_from_topdeck(performing_player : Player, chosen_card_id : int, ac
 			if not passed:
 				if decision_info.bonus_effect:
 					events += handle_strike_effect(decision_info.choice_card_id, decision_info.bonus_effect, performing_player)
+					event_queue += events
 
 			# Came from somewhere else (maybe exceed or character action?)
 			# Events were already queued earlier, so just pass in empty [] for the current events,
