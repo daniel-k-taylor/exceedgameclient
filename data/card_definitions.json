@@ -19721,14 +19721,6 @@
 					"amount": 2
 				},
 				"gauge_max": 1
-			},
-			{
-				"timing": "after",
-				"effect_type": "choice",
-				"choice": [
-					{ "effect_type": "advance", "amount": 1 },
-					{ "effect_type": "retreat", "amount": 1 }
-				]
 			}
 		],
 		"boost": {
