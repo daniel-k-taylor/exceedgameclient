@@ -10902,6 +10902,8 @@ func check_post_action_effects(performing_player : Player):
 func check_hand_size_advance_turn(performing_player : Player):
 	var events = []
 
+	assert(not active_strike)
+
 	if not performing_player.checked_post_action_effects:
 		active_post_action_effect = true
 		post_action_effects_resolved = 0
@@ -11848,7 +11850,7 @@ func do_choice(performing_player : Player, choice_index : int) -> bool:
 	if game_state != Enums.GameState.GameState_PlayerDecision:
 		printlog("ERROR: Tried to make a choice but not in decision state.")
 		return false
-	if choice_index >= len(decision_info.choice):
+	if decision_info.choice == null or choice_index >= len(decision_info.choice):
 		printlog("ERROR: Tried to make a choice that doesn't exist.")
 		return false
 
@@ -12616,8 +12618,9 @@ func do_choose_from_topdeck(performing_player : Player, chosen_card_id : int, ac
 			_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "discards one of the cards: %s." % _log_card_name(card_db.get_card_name(chosen_card_id)))
 			event_queue += events
 		"pass":
-			events += check_hand_size_advance_turn(performing_player)
-			event_queue += events
+			if not active_strike:
+				events += check_hand_size_advance_turn(performing_player)
+				event_queue += events
 		_:
 			assert(false, "Unknown action for choose from topdeck.")
 
