@@ -784,6 +784,7 @@ class Player:
 	var force_spent_before_strike : int
 	var gauge_spent_before_strike : int
 	var gauge_spent_this_strike : int
+	var gauge_cards_spent_this_strike : Array
 	var exceed_at_end_of_turn : bool
 	var specials_invalid : bool
 	var mulligan_complete : bool
@@ -912,6 +913,7 @@ class Player:
 		force_spent_before_strike = 0
 		gauge_spent_before_strike = 0
 		gauge_spent_this_strike = 0
+		gauge_cards_spent_this_strike = []
 		exceed_at_end_of_turn = false
 		specials_invalid = false
 		cleanup_boost_to_gauge_cards = []
@@ -2187,6 +2189,8 @@ class Player:
 				zone_cards = discards
 			"gauge":
 				zone_cards = gauge
+			"gauge_spent":
+				zone_cards = gauge_cards_spent_this_strike
 			"hand":
 				zone_cards = hand
 			"sealed":
@@ -2430,6 +2434,7 @@ class Player:
 						spent_any_gauge = true
 						if parent.active_strike:
 							gauge_spent_this_strike += 1
+							gauge_cards_spent_this_strike.append(card)
 					events += add_to_discards(card, from_top)
 					found_card = true
 					break
@@ -3820,6 +3825,8 @@ func advance_to_next_turn():
 	opponent.gauge_spent_before_strike = 0
 	player.gauge_spent_this_strike = 0
 	opponent.gauge_spent_this_strike = 0
+	player.gauge_cards_spent_this_strike = []
+	opponent.gauge_cards_spent_this_strike = []
 	player.moved_self_this_strike = false
 	opponent.moved_self_this_strike = false
 	player.moved_past_this_strike = false
@@ -10180,6 +10187,8 @@ func continue_resolve_strike(events):
 				opponent.strike_stat_boosts.clear()
 				player.gauge_spent_this_strike = 0
 				opponent.gauge_spent_this_strike = 0
+				player.gauge_cards_spent_this_strike = []
+				opponent.gauge_cards_spent_this_strike = []
 
 				# Cleanup UI
 				events.append(create_event(Enums.EventType.EventType_Strike_Cleanup, player1.my_id, -1))

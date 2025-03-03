@@ -23031,7 +23031,7 @@
 					"NOTE": "This timing is when the stat boosts are updated so it is actually EX",
 					"timing": "during_strike",
 					"condition": "copy_of_attack_in_zones",
-					"condition_zones": ["gauge", "transform"],
+					"condition_zones": ["gauge", "gauge_spent", "transform"],
 					"effect_type": "attack_is_ex",
 					"override_description": "If copy of attack is in Gauge/Transform, attack is EX"
 				}

@@ -125,6 +125,24 @@ func test_remiliss_groundzero_cc_transform_dontuse():
 	advance_turn(player2)
 
 
+func test_remiliss_irradiate_ex_even_spend_gauge():
+	position_players(player1, 5, player2, 7)
+	add_transform(player1, "remiliss_irradiate")
+	var consumptiongauge = give_player_specific_card(player1, "remiliss_consumption")
+	var p1gauge = give_gauge(player1, 3)
+	player1.move_card_from_hand_to_gauge(consumptiongauge)
+	p1gauge.append(consumptiongauge)
+	
+	execute_strike(player1, player2, "remiliss_consumption", "standard_normal_dive", false, false,
+		[[], p1gauge,
+		-1, "pass"],
+		[[]]
+	)
+	validate_positions(player1, 5, player2, 7)
+	validate_life(player1, 30, player2, 25)
+	advance_turn(player2)
+
+
 func test_remiliss_irradiate_and_toxic_tendrils_transform():
 	position_players(player1, 1, player2, 7)
 	add_transform(player1, "remiliss_irradiate")
