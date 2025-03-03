@@ -18756,9 +18756,9 @@
 				"condition_amount": 3,
 				"effect_type": "choice",
 				"choice": [
-					{ "effect_type": "discard_random", "amount": 1, "and": { "effect_type": "close", "amount": 1 } },
-					{ "effect_type": "discard_random", "amount": 2, "and": { "effect_type": "close", "amount": 2 } },
-					{ "effect_type": "discard_random", "amount": 3, "and": { "effect_type": "close", "amount": 3 } },
+					{ "effect_type": "discard_random", "record_discarded_amount": true, "amount": 1, "and": { "effect_type": "close", "amount": 1 } },
+					{ "effect_type": "discard_random", "record_discarded_amount": true, "amount": 2, "and": { "effect_type": "close", "amount": 2 } },
+					{ "effect_type": "discard_random", "record_discarded_amount": true, "amount": 3, "and": { "effect_type": "close", "amount": 3 } },
 					{ "effect_type": "pass" }
 				],
 				"negative_condition_effect": {
@@ -18767,8 +18767,8 @@
 					"condition_amount": 2,
 					"effect_type": "choice",
 					"choice": [
-						{ "effect_type": "discard_random", "amount": 1, "and": { "effect_type": "close", "amount": 1 } },
-						{ "effect_type": "discard_random", "amount": 2, "and": { "effect_type": "close", "amount": 2 } }
+						{ "effect_type": "discard_random", "record_discarded_amount": true, "amount": 1, "and": { "effect_type": "close", "amount": 1 } },
+						{ "effect_type": "discard_random", "record_discarded_amount": true, "amount": 2, "and": { "effect_type": "close", "amount": 2 } }
 					],
 					"negative_condition_effect": {
 						"is_negative_effect": true,
@@ -18776,7 +18776,7 @@
 						"condition_amount": 1,
 						"effect_type": "choice",
 						"choice": [
-							{ "effect_type": "discard_random", "amount": 1, "and": { "effect_type": "close", "amount": 1 } },
+							{ "effect_type": "discard_random", "record_discarded_amount": true, "amount": 1, "and": { "effect_type": "close", "amount": 1 } },
 							{ "effect_type": "pass" }
 						]
 					}
@@ -19721,14 +19721,6 @@
 					"amount": 2
 				},
 				"gauge_max": 1
-			},
-			{
-				"timing": "after",
-				"effect_type": "choice",
-				"choice": [
-					{ "effect_type": "advance", "amount": 1 },
-					{ "effect_type": "retreat", "amount": 1 }
-				]
 			}
 		],
 		"boost": {
@@ -22795,6 +22787,349 @@
 		},
 		"NOTEEND": "RAMLETHAL CARDS END"
 	},
+
+
+	{
+		"NOTE": "REMILISS CARDS START",
+		"id": "remiliss_consumption",
+		"type": "ultra",
+		"display_name": "Consumption",
+		"force_cost": 0,
+		"gauge_cost": 4,
+		"range_min": 1,
+		"range_max": 2,
+		"speed": 6,
+		"power": 4,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"override_description": "Search deck for up to 3 cards to add to hand.",
+				"timing": "hit",
+				"effect_type": "choose_cards_from_top_deck",
+				"look_amount": 30,
+				"action_choices": [
+					"add_to_hand"
+				],
+				"can_pass": true,
+				"destination_unchosen": "topdeck",
+				"and_not_passed": {
+					"timing": "hit",
+					"effect_type": "choose_cards_from_top_deck",
+					"look_amount": 30,
+					"action_choices": [
+						"add_to_hand"
+					],
+					"can_pass": true,
+					"destination_unchosen": "topdeck",
+					"and_not_passed": {
+						"timing": "hit",
+						"effect_type": "choose_cards_from_top_deck",
+						"look_amount": 30,
+						"action_choices": [
+							"add_to_hand"
+						],
+						"can_pass": true,
+						"destination_unchosen": "topdeck"
+					}
+				}
+			}
+		],
+		"boost": {
+			"boost_type": "immediate",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Aftershock",
+			"effects": [
+				{
+					"timing": "immediate",
+					"effect_type": "gauge_for_effect",
+					"per_gauge_effect": null,
+					"overall_effect": {
+						"effect_type": "return_all_copies_of_top_discard_to_hand"
+					},
+					"gauge_max": 1
+				}
+			]
+		}
+	},
+	{
+		"id": "remiliss_nuclearoption",
+		"type": "ultra",
+		"display_name": "Nuclear Option",
+		"force_cost": 0,
+		"gauge_cost": 1,
+		"gauge_cost_reduction": "free_if_ex",
+		"range_min": 1,
+		"range_max": 4,
+		"speed": 2,
+		"power": 4,
+		"armor": 0,
+		"guard": 4,
+		"effects": [
+			{
+				"timing": "hit",
+				"effect_type": "add_top_discard_to_gauge",
+				"amount": 2
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Initiate Launch",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "attack_is_ex"
+				},
+				{
+					"timing": "after",
+					"effect_type": "gauge_for_effect",
+					"per_gauge_effect": null,
+					"overall_effect": {
+						"effect_type": "return_this_boost_to_hand_strike_effect",
+						"card_name": "Nuclear Option"
+					},
+					"gauge_max": 1
+				}
+			]
+		}
+	},
+	{
+		"id": "remiliss_causticvent",
+		"type": "special",
+		"display_name": "Caustic Vent",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 1,
+		"speed": 5,
+		"power": 3,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "before",
+				"effect_type": "close",
+				"amount": 2
+			},
+			{
+				"timing": "hit",
+				"effect_type": "draw",
+				"amount": 2,
+				"and": {
+					"effect_type": "self_discard_choose",
+					"amount": 1
+				}
+			}
+		],
+		"boost": {
+			"boost_type": "immediate",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Reclamation",
+			"effects": [
+				{
+					"timing": "immediate",
+					"effect_type": "choose_discard",
+					"limitation": "",
+					"destination": "hand",
+					"amount": 1
+				}
+			]
+		}
+	},
+	{
+		"id": "remiliss_groundzero",
+		"type": "special",
+		"display_name": "Ground Zero",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 3,
+		"speed": 3,
+		"power": 4,
+		"armor": 0,
+		"guard": 5,
+		"effects": [
+			{
+				"timing": "hit",
+				"condition": "range",
+				"condition_amount": 1,
+				"effect_type": "powerup",
+				"amount": 3,
+				"negative_condition_effect": {
+					"is_negative_effect": true,
+					"effect_type": "pull",
+					"amount": 1
+				}
+			}
+		],
+		"boost": {
+			"boost_type": "transform",
+			"force_cost": -1,
+			"cancel_cost": -1,
+			"display_name": "Power Cycle",
+			"effects": [
+				{
+					"timing": "now",
+					"effect_type": "generate_free_force_cc_only",
+					"amount": 1
+				},
+				{
+					"NOTE": "This is strictly for the UI",
+					"override_description": "Change Cards: May draw 1 more",
+					"timing": "on_change_cards",
+					"effect_type": "pass"
+				}
+			]
+		}
+	},
+	{
+		"id": "remiliss_irradiate",
+		"type": "special",
+		"display_name": "Irradiate",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 2,
+		"range_max": 5,
+		"speed": 3,
+		"power": 3,
+		"armor": 0,
+		"guard": 3,
+		"effects": [
+			{
+				"timing": "before",
+				"condition": "range_greater_or_equal",
+				"condition_amount": 4,
+				"effect_type": "powerup",
+				"amount": 2
+			}
+		],
+		"boost": {
+			"boost_type": "transform",
+			"force_cost": -1,
+			"cancel_cost": -1,
+			"display_name": "Sequence",
+			"effects": [
+				{
+					"NOTE": "This extra tracking is needed because ex-ness can affect things at pay costs time.",
+					"timing": "on_strike_reveal",
+					"effect_type": "attack_copy_gauge_or_transform_becomes_ex",
+					"hide_effect": true
+				},
+				{
+					"NOTE": "This timing is when the stat boosts are updated so it is actually EX",
+					"timing": "during_strike",
+					"condition": "copy_of_attack_in_zones",
+					"condition_zones": ["gauge", "gauge_spent", "transform"],
+					"effect_type": "attack_is_ex",
+					"override_description": "If copy of attack is in Gauge/Transform, attack is EX"
+				}
+			]
+		}
+	},
+	{
+		"id": "remiliss_napalmstream",
+		"type": "special",
+		"display_name": "Napalm Stream",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 2,
+		"speed": 1,
+		"power": 3,
+		"armor": 0,
+		"guard": 4,
+		"effects": [
+			{
+				"timing": "during_strike",
+				"effect_type": "cap_attack_damage_taken",
+				"amount": 5
+			},
+			{
+				"timing": "hit",
+				"effect_type": "choice",
+				"add_topdeck_card_name_to_choices": [1],
+				"choice": [
+					{ "effect_type": "draw", "amount": 1 },
+					{ "effect_type": "discard_topdeck", "and": { "effect_type": "powerup", "amount": 2 } }
+				]
+			}
+		],
+		"boost": {
+			"boost_type": "immediate",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Engineered Destruction",
+			"effects": [
+				{
+					"timing": "immediate",
+					"effect_type": "set_strike_x",
+					"source": "amount_or_cards_left_in_deck",
+					"extra_info": 4,
+					"silent": true
+				},
+				{
+					"timing": "immediate",
+					"effect_type": "draw",
+					"amount": "strike_x",
+					"reveal": true
+				},
+				{
+					"timing": "immediate",
+					"effect_type": "self_discard_choose",
+					"allow_fewer": true,
+					"optional": true,
+					"limitation": "last_drawn_cards",
+					"limitation_amount": "strike_x",
+					"amount": "strike_x"
+				}
+			]
+		}
+	},
+	{
+		"NOTE": "REMILISS CARDS END",
+		"id": "remiliss_toxictendrils",
+		"type": "special",
+		"display_name": "Toxic Tendrils",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 2,
+		"speed": 4,
+		"power": 4,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "before",
+				"effect_type": "advance",
+				"amount": 2,
+				"bonus_effect": {
+					"effect_type": "dodge_attacks",
+					"condition": "advanced_through"
+				}
+			}
+		],
+		"boost": {
+			"boost_type": "transform",
+			"force_cost": -1,
+			"cancel_cost": -1,
+			"display_name": "Radiation",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "rangeup_if_ex_modifier",
+					"amount": 0,
+					"amount2": 1
+				}
+			]
+		},
+		"NOTEEND": "REMILISS CARDS END"
+	},
+
 
 	{
 		"NOTE": "RYU CARDS START",

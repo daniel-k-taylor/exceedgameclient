@@ -679,6 +679,9 @@ func test_emogine_100():
 
 func test_morathi_100():
 	run_iterations_with_deck("morathi")
-	
+
 func test_nehtali_100():
 	run_iterations_with_deck("nehtali")
+
+func test_remiliss_100():
+	run_iterations_with_deck("remiliss")
