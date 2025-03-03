@@ -1010,7 +1010,7 @@ func generate_distinct_opponent_card_ids(the_game_state, normal_only: bool, can_
 			possible_actions[card.definition['id']] = card.id
 	return possible_actions.values()
 
-func pick_card_hand_to_gauge(min_amount : int, max_amount : int, restricted_to_card_ids : Array) -> HandToGaugeAction:
+func pick_card_hand_to_gauge(min_amount : int, max_amount : int, restricted_to_card_ids) -> HandToGaugeAction:
 	game_state.update()
 	var possible_actions = []
 	for i in range(min_amount, max_amount + 1):
