@@ -18756,9 +18756,9 @@
 				"condition_amount": 3,
 				"effect_type": "choice",
 				"choice": [
-					{ "effect_type": "discard_random", "amount": 1, "and": { "effect_type": "close", "amount": 1 } },
-					{ "effect_type": "discard_random", "amount": 2, "and": { "effect_type": "close", "amount": 2 } },
-					{ "effect_type": "discard_random", "amount": 3, "and": { "effect_type": "close", "amount": 3 } },
+					{ "effect_type": "discard_random", "record_discarded_amount": true, "amount": 1, "and": { "effect_type": "close", "amount": 1 } },
+					{ "effect_type": "discard_random", "record_discarded_amount": true, "amount": 2, "and": { "effect_type": "close", "amount": 2 } },
+					{ "effect_type": "discard_random", "record_discarded_amount": true, "amount": 3, "and": { "effect_type": "close", "amount": 3 } },
 					{ "effect_type": "pass" }
 				],
 				"negative_condition_effect": {
@@ -18767,8 +18767,8 @@
 					"condition_amount": 2,
 					"effect_type": "choice",
 					"choice": [
-						{ "effect_type": "discard_random", "amount": 1, "and": { "effect_type": "close", "amount": 1 } },
-						{ "effect_type": "discard_random", "amount": 2, "and": { "effect_type": "close", "amount": 2 } }
+						{ "effect_type": "discard_random", "record_discarded_amount": true, "amount": 1, "and": { "effect_type": "close", "amount": 1 } },
+						{ "effect_type": "discard_random", "record_discarded_amount": true, "amount": 2, "and": { "effect_type": "close", "amount": 2 } }
 					],
 					"negative_condition_effect": {
 						"is_negative_effect": true,
@@ -18776,7 +18776,7 @@
 						"condition_amount": 1,
 						"effect_type": "choice",
 						"choice": [
-							{ "effect_type": "discard_random", "amount": 1, "and": { "effect_type": "close", "amount": 1 } },
+							{ "effect_type": "discard_random", "record_discarded_amount": true, "amount": 1, "and": { "effect_type": "close", "amount": 1 } },
 							{ "effect_type": "pass" }
 						]
 					}

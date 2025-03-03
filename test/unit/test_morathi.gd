@@ -400,7 +400,7 @@ func test_morathi_necksnapper_discard_3():
 	advance_turn(player2)
 
 
-func test_morathi_necksnapper_discard_3_force_special_up_discards():
+func test_morathi_necksnapper_discard_3_force_special_not_up_discards():
 	position_players(player1, 3, player2, 7)
 
 	assert_eq(player1.hand.size(), 5)
@@ -410,7 +410,6 @@ func test_morathi_necksnapper_discard_3_force_special_up_discards():
 		player2.hand[0].id,
 		player2.hand[1].id,
 		player2.hand[2].id,
-		player2.hand[3].id,
 	]
 	execute_strike(player1, player2, "morathi_necksnapper", "hazama_fallingfang", false, false,
 		[2], [[player2.hand[4].id], p2discards])
@@ -418,13 +417,12 @@ func test_morathi_necksnapper_discard_3_force_special_up_discards():
 	validate_positions(player1, 6, player2, 7)
 
 	assert_eq(player1.hand.size(), 2)
-	assert_eq(player2.hand.size(), 1)
+	assert_eq(player2.hand.size(), 2)
 
-	assert_eq(player2.discards.size(), 6)
+	assert_eq(player2.discards.size(), 5)
 	assert_eq(player2.discards[1].id, p2discards[0])
 	assert_eq(player2.discards[2].id, p2discards[1])
 	assert_eq(player2.discards[3].id, p2discards[2])
-	assert_eq(player2.discards[4].id, p2discards[3])
 
 	advance_turn(player2)
 

@@ -2407,8 +2407,6 @@ class Player:
 	func discard(card_ids : Array, from_top : int = 0, count_as_spent : bool = false):
 		var events = []
 		var spent_any_gauge = false
-		if parent.active_strike:
-			parent.active_strike.cards_discarded_this_strike += card_ids.size()
 		for discard_id in card_ids:
 			var found_card = false
 
@@ -5874,6 +5872,8 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 		"discard_random":
 			var discard_ids = performing_player.pick_random_cards_from_hand(effect['amount'])
 			if discard_ids.size() > 0:
+				if effect.get("record_discarded_amount"):
+					active_strike.cards_discarded_this_strike += discard_ids.size()
 				var discarded_names = card_db.get_card_names(discard_ids)
 				_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "discards random card(s): %s." % _log_card_name(discarded_names))
 				events += performing_player.discard(discard_ids)
