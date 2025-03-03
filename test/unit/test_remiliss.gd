@@ -179,3 +179,17 @@ func test_remiliss_napalmstream_cap_attack_damage_taken_drawchoice():
 	validate_positions(player1, 5, player2, 7)
 	validate_life(player1, 25, player2, 27)
 	advance_turn(player2)
+
+func test_remiliss_remiliss_napalmstream_boost_limited_deck_size():
+	position_players(player1, 5, player2, 7)
+	player1.discard_hand()
+	player1.deck = player1.deck.slice(0,3)
+	give_player_specific_card(player1, "remiliss_napalmstream")
+	assert_true(game_logic.do_boost(player1, player1.hand[-1].id, []))
+	assert_eq(player1.hand.size(), 3)
+	assert_eq(player1.deck.size(), 0)
+	assert_true(game_logic.do_choose_to_discard(player1, []))
+	assert_eq(player1.hand.size(), 4)
+	advance_turn(player2)
+	
+	

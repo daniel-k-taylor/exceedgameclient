@@ -8141,6 +8141,8 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 			var optional = 'optional' in effect and effect['optional']
 			var limitation = effect.get("limitation", "")
 			var limitation_amount = effect.get("limitation_amount", 0)
+			if str(limitation_amount) == "strike_x":
+				limitation_amount = performing_player.strike_stat_boosts.strike_x
 			var destination = effect.get("destination", "discard")
 			var discard_effect = effect.get("discard_effect", null)
 			var allow_fewer = effect.get("allow_fewer", false)
@@ -8150,6 +8152,8 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 			if str(this_effect['amount']) == "force_spent_before_strike":
 				# intentionally performing_player, rather than choice_player
 				this_effect['amount'] = performing_player.force_spent_before_strike
+			elif str(this_effect['amount']) == "strike_x":
+				this_effect['amount'] = performing_player.strike_stat_boosts.strike_x
 			# Even if #cards == effect amount, still do the choosing manually because of all the additional
 			# functionality that has been added to this besides discarding.
 			if cards_available.size() >= this_effect['amount'] or (optional and cards_available.size() > 0):
@@ -9219,6 +9223,9 @@ func do_set_strike_x(performing_player : Player, source : String, extra_info):
 
 	var value = 0
 	match source:
+		"amount_or_cards_left_in_deck":
+			var amount = min(extra_info, performing_player.deck.size())
+			value = amount
 		"random_gauge_power":
 			if len(performing_player.gauge) > 0:
 				var random_gauge_idx = get_random_int() % len(performing_player.gauge)

@@ -23074,8 +23074,15 @@
 			"effects": [
 				{
 					"timing": "immediate",
+					"effect_type": "set_strike_x",
+					"source": "amount_or_cards_left_in_deck",
+					"extra_info": 4,
+					"silent": true
+				},
+				{
+					"timing": "immediate",
 					"effect_type": "draw",
-					"amount": 4,
+					"amount": "strike_x",
 					"reveal": true
 				},
 				{
@@ -23084,8 +23091,8 @@
 					"allow_fewer": true,
 					"optional": true,
 					"limitation": "last_drawn_cards",
-					"limitation_amount": 4,
-					"amount": 4
+					"limitation_amount": "strike_x",
+					"amount": "strike_x"
 				}
 			]
 		}
