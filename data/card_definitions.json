@@ -22896,7 +22896,8 @@
 					"effect_type": "gauge_for_effect",
 					"per_gauge_effect": null,
 					"overall_effect": {
-						"effect_type": "return_this_boost_to_hand_strike_effect"
+						"effect_type": "return_this_boost_to_hand_strike_effect",
+						"card_name": "Nuclear Option"
 					},
 					"gauge_max": 1
 				}
@@ -22980,10 +22981,15 @@
 			"display_name": "Power Cycle",
 			"effects": [
 				{
-					"override_description": "Change Cards: May draw 1 more",
 					"timing": "now",
 					"effect_type": "generate_free_force_cc_only",
 					"amount": 1
+				},
+				{
+					"NOTE": "This is strictly for the UI",
+					"override_description": "Change Cards: May draw 1 more",
+					"timing": "on_change_cards",
+					"effect_type": "pass"
 				}
 			]
 		}

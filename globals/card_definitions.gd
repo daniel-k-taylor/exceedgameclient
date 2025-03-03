@@ -1189,6 +1189,8 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 			if effect['amount2'] >= 0:
 				effect_str += "+"
 			effect_str += str(effect['amount2']) + " Range"
+		"rangeup_if_ex_modifier":
+			effect_str += "If EX, +" + str(effect['amount']) + "-" + str(effect['amount2']) + " Range."
 		"rangeup_per_boost_in_play":
 			if 'all_boosts' in effect and effect['all_boosts']:
 				effect_str += "+" + str(effect['amount']) + "-" + str(effect['amount2']) + " Range per EVERY boost in play."

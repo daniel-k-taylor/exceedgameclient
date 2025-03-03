@@ -601,6 +601,7 @@ class StrikeStatBoosts:
 	var strike_payment_card_ids : Array = []
 	var cap_attack_damage_taken : int = -1
 	var attack_copy_gauge_or_transform_becomes_ex = false
+	var repeat_printed_triggers_on_ex_attack : int = 0
 
 	func _to_string():
 		# TODO: Handle all properties
@@ -716,6 +717,7 @@ class StrikeStatBoosts:
 		strike_payment_card_ids = []
 		cap_attack_damage_taken = -1
 		attack_copy_gauge_or_transform_becomes_ex = false
+		repeat_printed_triggers_on_ex_attack = 0
 
 	func set_ex():
 		ex_count += 1
@@ -8025,6 +8027,8 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 					add_remaining_effect(repeat_effect)
 				if not first_not_automatic:
 					events += handle_strike_effect(card_id, linked_effect, performing_player)
+		"repeat_printed_triggers_on_ex_attack":
+			performing_player.strike_stat_boosts.repeat_printed_triggers_on_ex_attack = effect.get("amount")
 		"reset_character_positions":
 			events += performing_player.move_to(performing_player.starting_location, true)
 			events += opposing_player.move_to(opposing_player.starting_location, true)
@@ -8923,9 +8927,16 @@ func get_boost_effects_at_timing(timing_name : String, performing_player : Playe
 func get_all_effects_for_timing(timing_name : String, performing_player : Player, card : GameCard, ignore_condition : bool = true, only_card_and_bonus_effects : bool = false) -> Array:
 	var card_effects = []
 	var card_id = -1
+	var duplicate_card_effects = 0
+	if performing_player.strike_stat_boosts.repeat_printed_triggers_on_ex_attack and active_strike.will_be_ex(performing_player):
+		if timing_name in ["before", "hit", "after"]:
+			duplicate_card_effects = performing_player.strike_stat_boosts.repeat_printed_triggers_on_ex_attack
 	if card:
 		card_id = card.id
 		card_effects = card_db.get_card_effects_at_timing(card, timing_name)
+		if duplicate_card_effects:
+			for i in range(duplicate_card_effects):
+				card_effects += card_db.get_card_effects_at_timing(card, timing_name)
 		for effect in card_effects:
 			effect['card_id'] = card_id
 	var boost_effects = get_boost_effects_at_timing(timing_name, performing_player)

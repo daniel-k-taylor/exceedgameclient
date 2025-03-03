@@ -18,7 +18,6 @@
 	],
 	"exceed_ability_effects": [
 		{
-			"character_effect": true,
 			"timing": "during_strike",
 			"effect_type": "repeat_printed_triggers_on_ex_attack",
 			"amount": 2
