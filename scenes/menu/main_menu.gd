@@ -9,6 +9,9 @@ const PlayerNameMaxLen = 12
 
 const MatchQueueItemScene = preload("res://scenes/menu/match_queue_item.tscn")
 
+var _dialog_handler : Callable
+var _custom_deck_definition
+
 #These only get set and used if run on web
 var window
 var file_load_callback
@@ -80,9 +83,9 @@ func _ready():
 
 	if OS.has_feature("web"):
 		#setupFileLoad defined in the HTML5 export header
-		#calls load_replay when file gets user-selected by window.input.click()
+		#calls _dialog_handler when file gets user-selected by window.input.click()
 		window = JavaScriptBridge.get_interface("window")
-		file_load_callback = JavaScriptBridge.create_callback(load_replay)
+		file_load_callback = JavaScriptBridge.create_callback(_dialog_handler)
 		window.setupFileLoad(file_load_callback)
 
 func settings_loaded():
@@ -123,8 +126,8 @@ func _on_start_button_pressed():
 	if opponent_selected_character.begins_with("random"):
 		opponent_random_tag = opponent_selected_character
 
-	var player_deck = CardDefinitions.get_deck_from_str_id(player_selected_character)
-	var opponent_deck = CardDefinitions.get_deck_from_str_id(opponent_selected_character)
+	var player_deck = _get_deck(player_selected_character)
+	var opponent_deck = _get_deck(opponent_selected_character)
 	var player_name = get_player_name()
 	var opponent_name = "CPU"
 	NetworkManager.set_lobby_state("AI")
@@ -219,10 +222,17 @@ func _on_observe_game_started(data, is_replay = false):
 	start_data['replay_mode'] = is_replay
 	start_data['observer_log'] = message_log.slice(1)
 
-	var player_deck_object = CardDefinitions.get_deck_from_str_id(player_deck_no_random)
-	var opponent_deck_object = CardDefinitions.get_deck_from_str_id(opponent_deck_no_random)
+	var player_deck_object = _get_deck_object(player_deck, start_data.get('player1_custom_deck'))
+	var opponent_deck_object = _get_deck_object(opponent_deck, start_data.get('player2_custom_deck'))
 	start_remote_game.emit(get_vs_info(player_name, player_deck_object,
 		player_random_tag, opponent_name, opponent_deck_object, opponent_random_tag), start_data)
+
+func _get_deck_object(deck, custom_deck):
+	var deck_no_random = get_deck_id_without_random_tag(deck)
+	if deck_no_random.begins_with("custom_"):
+		return custom_deck
+	else:
+		return CardDefinitions.get_deck_from_str_id(deck_no_random)
 
 # Handles a signal from _handle_game_start in network manager
 func _on_remote_game_started(data):
@@ -231,14 +241,18 @@ func _on_remote_game_started(data):
 	var player1_is_me = true
 	var player_deck = data['player1_deck_id']
 	var player_name = data['player1_name']
+	var player_custom_deck = data.get('player1_custom_deck')
 	var opponent_deck = data['player2_deck_id']
 	var opponent_name = data['player2_name']
+	var opponent_custom_deck = data.get('player2_custom_deck')
 	if data['your_player_id'] != data['player1_id']:
 		player1_is_me = false
 		player_deck = data['player2_deck_id']
 		player_name = data['player2_name']
+		player_custom_deck = data.get('player2_custom_deck')
 		opponent_deck = data['player1_deck_id']
 		opponent_name = data['player1_name']
+		opponent_custom_deck = data.get('player1_custom_deck')
 
 	# For remote play, random was decided locally first
 	# and the deck id is random#deck_id.
@@ -254,8 +268,8 @@ func _on_remote_game_started(data):
 		data['player1_deck_id'] = opponent_deck_no_random
 		data['player2_deck_id'] = player_deck_no_random
 
-	var player_deck_object = CardDefinitions.get_deck_from_str_id(player_deck_no_random)
-	var opponent_deck_object = CardDefinitions.get_deck_from_str_id(opponent_deck_no_random)
+	var player_deck_object = _get_deck_object(opponent_deck_no_random, player_custom_deck)
+	var opponent_deck_object = _get_deck_object(opponent_deck_no_random, opponent_custom_deck)
 	start_remote_game.emit(get_vs_info(player_name, player_deck_object,
 		player_random_tag, opponent_name, opponent_deck_object, opponent_random_tag), data)
 
@@ -304,7 +318,7 @@ func get_player_name() -> String:
 func _on_join_button_pressed():
 	var player_name = get_player_name()
 	var room_name = room_select.text
-	var chosen_deck = CardDefinitions.get_deck_from_str_id(player_selected_character)
+	var chosen_deck = _get_deck(player_selected_character)
 	var chosen_deck_id = chosen_deck['id']
 	if player_selected_character.begins_with("random"):
 		chosen_deck_id = player_selected_character + "#" + chosen_deck_id
@@ -334,7 +348,8 @@ func update_queues(enabled : bool):
 func _on_queue_join_clicked(queue_id):
 	just_clicked_matchmake = true
 	var player_name = get_player_name()
-	var chosen_deck = CardDefinitions.get_deck_from_str_id(player_selected_character)
+
+	var chosen_deck = _get_deck(player_selected_character)
 	var chosen_deck_id = chosen_deck['id']
 	if player_selected_character.begins_with("random"):
 		chosen_deck_id = player_selected_character + "#" + chosen_deck_id
@@ -386,18 +401,31 @@ func update_char(char_id: String, is_player: bool) -> void:
 	elif char_id == "random":
 		portrait_id = "exceedrandom"
 	else:
-		var deck = CardDefinitions.get_deck_from_str_id(char_id)
+		var deck
+		if char_id.begins_with("custom_"):
+			deck = _custom_deck_definition
+		else:
+			deck = CardDefinitions.get_deck_from_str_id(char_id)
 		display_name = deck['display_name']
 		portrait_id = char_id
 	label.text = display_name
-	portrait.texture = load("res://assets/portraits/" + portrait_id + ".png")
+	if not char_id.begins_with("custom_"):
+		portrait.texture = load("res://assets/portraits/" + portrait_id + ".png")
 	if len(display_name) <= label_length_threshold:
 		label.set("theme_override_font_sizes/font_size", label_font_normal)
 	else:
 		label.set("theme_override_font_sizes/font_size", label_font_small)
 
 func _on_char_select_select_character(char_id):
-	update_char(char_id, selecting_player)
+	if char_id == "custom":
+		# Show UI to select a file from disk.
+		if not selecting_player:
+			modal_dialog.set_text_fields("AI Custom Not Supported Yet", "OK", "")
+			update_buttons(false)
+		else:
+			_show_file_dialog(load_custom)
+	else:
+		update_char(char_id, selecting_player)
 	_on_char_select_close_character_select()
 
 func _on_change_player_character_button_pressed(is_player : bool):
@@ -480,6 +508,10 @@ func _on_modal_list_observe_match_pressed(row_index):
 	update_buttons(true)
 
 func _on_load_replay_button_pressed():
+	_show_file_dialog(load_replay)
+
+func _show_file_dialog(dialog_hander : Callable):
+	_dialog_handler = dialog_hander
 	if OS.has_feature("web"):
 		window.input.click()
 	else:
@@ -508,4 +540,21 @@ func load_replay(data):
 		update_buttons(false)
 
 func _on_file_dialog_file_selected(path):
-	load_replay([FileAccess.get_file_as_string(path)])
+	_dialog_handler.call([FileAccess.get_file_as_string(path)])
+
+func load_custom(data):
+	var json = JSON.new()
+	if json.parse(data[0]) == OK:
+		_custom_deck_definition = json.data
+		var deck_id = "custom_" + _custom_deck_definition["id"]
+		update_char(deck_id, true)
+	else:
+		var error_message = "JSON Parse Error: " + json.get_error_message()
+		modal_dialog.set_text_fields(error_message, "OK", "")
+		update_buttons(false)
+
+func _get_deck(char_id):
+	if char_id.begins_with("custom_"):
+		return _custom_deck_definition
+	else:
+		return CardDefinitions.get_deck_from_str_id(char_id)

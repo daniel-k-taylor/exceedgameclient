@@ -122,8 +122,9 @@ func set_player_name(value : String):
 	save_persistent_settings()
 
 func set_player_character(value: String):
-	PlayerCharacter = value
-	save_persistent_settings()
+	if not value.begins_with("custom_"):
+		PlayerCharacter = value
+		save_persistent_settings()
 
 func set_combat_log_setting(setting : String, value):
 	CombatLogSettings[setting] = value

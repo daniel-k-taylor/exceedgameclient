@@ -873,6 +873,15 @@ layout_mode = 2
 [node name="CategoriesHBox" type="HBoxContainer" parent="TabSelect"]
 layout_mode = 2
 
+[node name="Custom" parent="TabSelect/CategoriesHBox" instance=ExtResource("6_3lmwy")]
+layout_mode = 2
+char_id = "custom"
+portrait_texture = ExtResource("32_iutun")
+
+[node name="Buffer2" type="HBoxContainer" parent="TabSelect/CategoriesHBox"]
+custom_minimum_size = Vector2(25, 0)
+layout_mode = 2
+
 [node name="Season1" parent="TabSelect/CategoriesHBox" instance=ExtResource("6_3lmwy")]
 layout_mode = 2
 char_id = "season1"
@@ -1110,6 +1119,8 @@ portrait_texture = ExtResource("32_iutun")
 [connection signal="on_pressed" from="CenterContainer/S1CharacterSelect/Rows/Row1/Nehtali" to="." method="_on_char_button_on_pressed"]
 [connection signal="on_hover" from="CenterContainer/S1CharacterSelect/Rows/Row1/RandomS1" to="." method="_on_char_hover"]
 [connection signal="on_pressed" from="CenterContainer/S1CharacterSelect/Rows/Row1/RandomS1" to="." method="_on_char_button_on_pressed"]
+[connection signal="on_hover" from="TabSelect/CategoriesHBox/Custom" to="." method="_on_char_hover"]
+[connection signal="on_pressed" from="TabSelect/CategoriesHBox/Custom" to="." method="_on_char_button_on_pressed"]
 [connection signal="on_hover" from="TabSelect/CategoriesHBox/Season1" to="." method="_on_char_hover"]
 [connection signal="on_pressed" from="TabSelect/CategoriesHBox/Season1" to="." method="_on_char_button_on_pressed"]
 [connection signal="on_hover" from="TabSelect/CategoriesHBox/Season2" to="." method="_on_char_hover"]

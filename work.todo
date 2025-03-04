@@ -1,7 +1,7 @@
 Next Feature:
     ☐ Customs
         - Portrait/char animations downloadable from web
-        - json file from disk
+        ✔ json file from disk @done(25-03-03 22:38)
         - pass to server, pass down to player
 
 Bug:

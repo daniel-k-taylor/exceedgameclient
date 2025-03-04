@@ -57,6 +57,9 @@ func update_hover(char_id):
 	elif char_id == "random":
 		hover_label.text = "Random (All)"
 		hover_portrait.texture = load("res://assets/portraits/exceedrandom.png")
+	elif char_id == "custom":
+		hover_label.text = "Custom"
+		hover_portrait.texture = load("res://assets/portraits/exceedrandom.png")
 	else:
 		var deck = CardDefinitions.get_deck_from_str_id(char_id)
 		hover_label.text = deck['display_name']

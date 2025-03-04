@@ -380,19 +380,32 @@ func begin_remote_game(game_start_message):
 	if observer_mode:
 		starting_message_queue = game_start_message['observer_log']
 
+	var p1deck
+	if game_start_message.get('player1_custom_deck'):
+		p1deck = game_start_message['player1_custom_deck']
+	else:
+		p1deck = CardDefinitions.get_deck_from_str_id(game_start_message['player1_deck_id'])
+	var p2deck
+	if game_start_message.get('player2_custom_deck'):
+		p2deck = game_start_message['player2_custom_deck']
+	else:
+		p2deck = CardDefinitions.get_deck_from_str_id(game_start_message['player2_deck_id'])
+
 	var player1_info = {
 		'name': game_start_message['player1_name'],
 		'id': game_start_message['player1_id'],
 		'deck_id': game_start_message['player1_deck_id'],
-		'deck': CardDefinitions.get_deck_from_str_id(game_start_message['player1_deck_id']),
+		'deck': p1deck,
 		'player_number': 1,
+		'custom_deck': game_start_message['player1_custom_deck'],
 	}
 	var player2_info = {
 		'name': game_start_message['player2_name'],
 		'id': game_start_message['player2_id'],
 		'deck_id': game_start_message['player2_deck_id'],
-		'deck': CardDefinitions.get_deck_from_str_id(game_start_message['player2_deck_id']),
+		'deck': p2deck,
 		'player_number': 2,
+		'custom_deck': game_start_message['player2_custom_deck'],
 	}
 	var seed_value = game_start_message['seed_value']
 	var starting_player = Enums.PlayerId.PlayerId_Player
