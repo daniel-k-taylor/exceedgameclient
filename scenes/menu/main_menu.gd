@@ -83,9 +83,9 @@ func _ready():
 
 	if OS.has_feature("web"):
 		#setupFileLoad defined in the HTML5 export header
-		#calls _dialog_handler when file gets user-selected by window.input.click()
+		#calls window_file_load_handler when file gets user-selected by window.input.click()
 		window = JavaScriptBridge.get_interface("window")
-		file_load_callback = JavaScriptBridge.create_callback(_dialog_handler)
+		file_load_callback = JavaScriptBridge.create_callback(window_file_load_handler)
 		window.setupFileLoad(file_load_callback)
 
 func settings_loaded():
@@ -420,7 +420,7 @@ func update_char(char_id: String, is_player: bool) -> void:
 		portrait.texture = load("res://assets/portraits/exceedrandom.png")
 	else:
 		portrait.texture = load("res://assets/portraits/" + portrait_id + ".png")
-		
+
 	if len(display_name) <= label_length_threshold:
 		label.set("theme_override_font_sizes/font_size", label_font_normal)
 	else:
@@ -529,6 +529,9 @@ func _show_file_dialog(dialog_hander : Callable):
 
 func _on_settings_button_pressed():
 	settings_window.visible = true
+
+func window_file_load_handler(data):
+	_dialog_handler.call(data)
 
 func load_replay(data):
 	var json = JSON.new()
