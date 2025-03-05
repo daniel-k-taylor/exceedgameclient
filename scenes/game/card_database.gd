@@ -133,3 +133,8 @@ func get_card_boost_effects_now_immediate(card : GameCard):
 		if effect['timing'] == "now" or effect['timing'] == "immediate":
 			relevant_effects.append(effect)
 	return relevant_effects
+
+func load_deck_if_custom(deck_definition):
+	var custom_cards = deck_definition.get("custom_card_definitions")
+	if custom_cards:
+		CardDefinitions.load_custom_cards(custom_cards)

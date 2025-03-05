@@ -65,6 +65,9 @@ func _ready():
 func load_character(char_id : String):
 	var path = "res://assets/character_animations/" + char_id + "/animations.tres"
 	animation.sprite_frames = load(path)
+	if not animation.sprite_frames:
+		path = "res://assets/character_animations/custom/animations.tres"
+		animation.sprite_frames = load(path)
 	play_animation("idle")
 	if animation.sprite_frames.has_meta("scaling"):
 		var scaling = animation.sprite_frames.get_meta("scaling")

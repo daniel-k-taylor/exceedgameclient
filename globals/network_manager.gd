@@ -121,6 +121,9 @@ func _handle_room_join_failed(failed_message):
 	var error_message = "ERROR: Failed to join room:\n"
 	var invalid_deck = false
 	match reason:
+		"invalid_custom_deck":
+			error_message += "Custom deck is invalid."
+			invalid_deck = true
 		"invalid_deck_for_queue":
 			error_message = "Character not allowed in this queue."
 			invalid_deck = true
@@ -243,7 +246,7 @@ func _handle_players_update(message):
 ### Commands ###
 
 func join_room(player_name, room_name, deck_id_str : String,
-		starting_timer : int, enforce_timer : bool, minimum_time_per_choice : int):
+		starting_timer : int, enforce_timer : bool, minimum_time_per_choice : int, custom_deck_definition):
 	if not _is_socket_open(): return
 	var join_room_message = {
 		"version": GlobalSettings.get_client_version(),
@@ -253,7 +256,8 @@ func join_room(player_name, room_name, deck_id_str : String,
 		"deck_id": deck_id_str,
 		"starting_timer": starting_timer,
 		"enforce_timer": enforce_timer,
-		"minimum_time_per_choice": minimum_time_per_choice
+		"minimum_time_per_choice": minimum_time_per_choice,
+		"custom_deck_definition": custom_deck_definition
 	}
 	var json = JSON.stringify(join_room_message)
 	_socket.send_text(json)
@@ -269,7 +273,7 @@ func observe_room(player_name, room_name):
 	var json = JSON.stringify(observe_room_message)
 	_socket.send_text(json)
 
-func join_matchmaking(player_name, deck_id_str : String, queue_id : String):
+func join_matchmaking(player_name, deck_id_str : String, queue_id : String, custom_deck_definition):
 	if not _is_socket_open(): return
 	var message = {
 		"version": GlobalSettings.get_client_version(),
@@ -279,7 +283,8 @@ func join_matchmaking(player_name, deck_id_str : String, queue_id : String):
 		"deck_id": deck_id_str,
 		"starting_timer": GlobalSettings.MatchmakingStartingTimer,
 		"enforce_timer": GlobalSettings.MatchmakingEnforceTimer,
-		"minimum_time_per_choice": GlobalSettings.MatchmakingMinimumTimePerChoice
+		"minimum_time_per_choice": GlobalSettings.MatchmakingMinimumTimePerChoice,
+		"custom_deck_definition": custom_deck_definition
 	}
 	var json = JSON.stringify(message)
 	_socket.send_text(json)

@@ -38,6 +38,8 @@ func load_portrait_texture(texture_rect : TextureRect, random_tag : String, deck
 			texture_rect.texture = load("res://assets/portraits/random.png")
 		_:
 			texture_rect.texture = load("res://assets/portraits/" + deck_id + ".png")
+			if not texture_rect.texture:
+				texture_rect.texture = load("res://assets/portraits/exceedrandom.png")
 
 func set_info(vs_info):
 	var my_char_name = vs_info['player_deck']['display_name']

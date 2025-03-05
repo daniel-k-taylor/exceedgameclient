@@ -5,7 +5,7 @@ signal settings_loaded
 const ReleaseLoggingEnabled = false # If true, log even on release builds.
 const UseAzureServerAlways = true # If true, always defaults to the azure server.
 var MuteEmotes = false
-const ClientVersionString : String = "250303.0130" # YYMMDD.HHMM
+const ClientVersionString : String = "250304.2330" # YYMMDD.HHMM
 const ReplayVersion : int = 1
 
 const CharacterBanlist = ['carmine']
@@ -122,8 +122,9 @@ func set_player_name(value : String):
 	save_persistent_settings()
 
 func set_player_character(value: String):
-	PlayerCharacter = value
-	save_persistent_settings()
+	if not value.begins_with("custom_"):
+		PlayerCharacter = value
+		save_persistent_settings()
 
 func set_combat_log_setting(setting : String, value):
 	CombatLogSettings[setting] = value
