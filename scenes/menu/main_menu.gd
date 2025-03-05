@@ -10,7 +10,7 @@ const PlayerNameMaxLen = 12
 const MatchQueueItemScene = preload("res://scenes/menu/match_queue_item.tscn")
 
 var _dialog_handler : Callable
-var _custom_deck_definition
+var _custom_deck_definition = null
 
 #These only get set and used if run on web
 var window
@@ -268,7 +268,7 @@ func _on_remote_game_started(data):
 		data['player1_deck_id'] = opponent_deck_no_random
 		data['player2_deck_id'] = player_deck_no_random
 
-	var player_deck_object = _get_deck_object(opponent_deck_no_random, player_custom_deck)
+	var player_deck_object = _get_deck_object(player_deck_no_random, player_custom_deck)
 	var opponent_deck_object = _get_deck_object(opponent_deck_no_random, opponent_custom_deck)
 	start_remote_game.emit(get_vs_info(player_name, player_deck_object,
 		player_random_tag, opponent_name, opponent_deck_object, opponent_random_tag), data)
@@ -327,7 +327,9 @@ func _on_join_button_pressed():
 		chosen_deck_id,
 		GlobalSettings.CustomStartingTimer,
 		GlobalSettings.CustomEnforceTimer,
-		GlobalSettings.CustomMinimumTimePerChoice)
+		GlobalSettings.CustomMinimumTimePerChoice,
+		_custom_deck_definition
+	)
 	update_buttons(true)
 
 func update_buttons(joining : bool):
@@ -353,7 +355,12 @@ func _on_queue_join_clicked(queue_id):
 	var chosen_deck_id = chosen_deck['id']
 	if player_selected_character.begins_with("random"):
 		chosen_deck_id = player_selected_character + "#" + chosen_deck_id
-	NetworkManager.join_matchmaking(player_name, chosen_deck_id, queue_id)
+	NetworkManager.join_matchmaking(
+		player_name,
+		chosen_deck_id,
+		queue_id,
+		_custom_deck_definition
+	)
 	update_buttons(true)
 
 func _on_cancel_button_pressed():
@@ -409,8 +416,11 @@ func update_char(char_id: String, is_player: bool) -> void:
 		display_name = deck['display_name']
 		portrait_id = char_id
 	label.text = display_name
-	if not char_id.begins_with("custom_"):
+	if char_id.begins_with("custom_"):
+		portrait.texture = load("res://assets/portraits/exceedrandom.png")
+	else:
 		portrait.texture = load("res://assets/portraits/" + portrait_id + ".png")
+		
 	if len(display_name) <= label_length_threshold:
 		label.set("theme_override_font_sizes/font_size", label_font_normal)
 	else:
@@ -474,7 +484,7 @@ func _on_matches_button_pressed():
 	modal_list.show_match_list()
 
 func _check_banned():
-	var chosen_deck = CardDefinitions.get_deck_from_str_id(player_selected_character)
+	var chosen_deck = _get_deck(player_selected_character)
 	var chosen_deck_id = chosen_deck['id']
 	if chosen_deck_id in GlobalSettings.CharacterBanlist:
 		if not $SpecialSelectAudio.playing:
@@ -547,6 +557,7 @@ func load_custom(data):
 	if json.parse(data[0]) == OK:
 		_custom_deck_definition = json.data
 		var deck_id = "custom_" + _custom_deck_definition["id"]
+		_custom_deck_definition["id"] = deck_id
 		update_char(deck_id, true)
 	else:
 		var error_message = "JSON Parse Error: " + json.get_error_message()

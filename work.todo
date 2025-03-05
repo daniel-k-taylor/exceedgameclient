@@ -1,9 +1,3 @@
-Next Feature:
-    ☐ Customs
-        - Portrait/char animations downloadable from web
-        ✔ json file from disk @done(25-03-03 22:38)
-        - pass to server, pass down to player
-
 Bug:
     Breaking:
         Mika:
@@ -46,6 +40,8 @@ Bug:
 
 Tasks:
     Main Features:
+        ☐ Customs
+            - Portrait/char animations downloadable from web
         ☐ Search for match while observing/playing AI
         ☐ Match available notification while you're observing/AI
         ☐ Rematch button
