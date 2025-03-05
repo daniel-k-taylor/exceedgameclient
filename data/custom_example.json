@@ -1,0 +1,537 @@
+{
+	"id": "customer",
+	"season": -1,
+	"display_name": "Customer",
+	"exceed_cost": 2,
+	"ability_effects": [
+		{
+			"timing": "set_strike",
+			"effect_type": "gauge_for_effect",
+			"per_gauge_effect": null,
+			"overall_effect": {
+				"effect_type": "critical",
+				"character_effect": true
+			},
+			"gauge_max": 1
+		},
+		{
+			"timing": "set_strike",
+			"condition": "is_critical",
+			"character_effect": true,
+			"effect_type": "add_attack_effect",
+			"added_effect": {
+				"timing": "during_strike",
+				"effect_type": "powerup_both_players",
+				"amount": 2
+			}
+		}
+	],
+	"exceed_ability_effects": [
+		{
+			"timing": "set_strike",
+			"effect_type": "gauge_for_effect",
+			"per_gauge_effect": null,
+			"overall_effect": {
+				"effect_type": "critical",
+				"character_effect": true
+			},
+			"gauge_max": 1
+		},
+		{
+			"timing": "set_strike",
+			"condition": "is_critical",
+			"character_effect": true,
+			"effect_type": "add_attack_effect",
+			"added_effect": {
+				"timing": "during_strike",
+				"effect_type": "powerup_both_players",
+				"amount": 3
+			}
+		}
+	],
+	"image_resources": {
+		"character_default": {
+			"url": "https://i.imgur.com/crrqVvH.jpeg",
+			"multiple_cards": false
+		},
+		"character_exceeded": {
+			"url": "https://i.imgur.com/rfrBEIx.jpeg",
+			"multiple_cards": false
+		},
+		"cardback": {
+			"url": "https://i.imgur.com/s6wpKBq.jpeg",
+			"multiple_cards": false
+		},
+		"specials": {
+			"url": "https://i.imgur.com/TTbuUIL.jpeg",
+			"multiple_cards": true
+		},
+		"normals": {
+			"url": "https://i.imgur.com/tXuqP40.jpeg",
+			"multiple_cards": true
+		}
+	},
+	"cards": [
+		{
+			"definition_id": "customer_demonarmageddon",
+			"image_name": "specials",
+			"image_index": 5
+		},
+		{
+			"definition_id": "customer_demonarmageddon",
+			"image_name": "specials",
+			"image_index": 5
+		},
+		{
+			"definition_id": "customer_wrathoftheragingdemon",
+			"image_name": "specials",
+			"image_index": 6
+		},
+		{
+			"definition_id": "customer_wrathoftheragingdemon",
+			"image_name": "specials",
+			"image_index": 6
+		},
+		{
+			"definition_id": "customer_gohadoken",
+			"image_name": "specials",
+			"image_index": 2
+		},
+		{
+			"definition_id": "customer_gohadoken",
+			"image_name": "specials",
+			"image_index": 2
+		},
+		{
+			"definition_id": "customer_goshoryuken",
+			"image_name": "specials",
+			"image_index": 0
+		},
+		{
+			"definition_id": "customer_goshoryuken",
+			"image_name": "specials",
+			"image_index": 0
+		},
+		{
+			"definition_id": "customer_hyakkishu",
+			"image_name": "specials",
+			"image_index": 4
+		},
+		{
+			"definition_id": "customer_hyakkishu",
+			"image_name": "specials",
+			"image_index": 4
+		},
+		{
+			"definition_id": "customer_tatsumakizankukyaku",
+			"image_name": "specials",
+			"image_index": 3
+		},
+		{
+			"definition_id": "customer_tatsumakizankukyaku",
+			"image_name": "specials",
+			"image_index": 3
+		},
+		{
+			"definition_id": "customer_zugaihasatsu",
+			"image_name": "specials",
+			"image_index": 1
+		},
+		{
+			"definition_id": "customer_zugaihasatsu",
+			"image_name": "specials",
+			"image_index": 1
+		},
+		{
+			"definition_id": "standard_normal_grasp",
+			"image_name": "normals",
+			"image_index": 0
+		},
+		{
+			"definition_id": "standard_normal_grasp",
+			"image_name": "normals",
+			"image_index": 0
+		},
+		{
+			"definition_id": "standard_normal_cross",
+			"image_name": "normals",
+			"image_index": 1
+		},
+		{
+			"definition_id": "standard_normal_cross",
+			"image_name": "normals",
+			"image_index": 1
+		},
+		{
+			"definition_id": "standard_normal_assault",
+			"image_name": "normals",
+			"image_index": 2
+		},
+		{
+			"definition_id": "standard_normal_assault",
+			"image_name": "normals",
+			"image_index": 2
+		},
+		{
+			"definition_id": "standard_normal_dive",
+			"image_name": "normals",
+			"image_index": 3
+		},
+		{
+			"definition_id": "standard_normal_dive",
+			"image_name": "normals",
+			"image_index": 3
+		},
+		{
+			"definition_id": "standard_normal_spike",
+			"image_name": "normals",
+			"image_index": 4
+		},
+		{
+			"definition_id": "standard_normal_spike",
+			"image_name": "normals",
+			"image_index": 4
+		},
+		{
+			"definition_id": "standard_normal_sweep",
+			"image_name": "normals",
+			"image_index": 5
+		},
+		{
+			"definition_id": "standard_normal_sweep",
+			"image_name": "normals",
+			"image_index": 5
+		},
+		{
+			"definition_id": "standard_normal_focus",
+			"image_name": "normals",
+			"image_index": 6
+		},
+		{
+			"definition_id": "standard_normal_focus",
+			"image_name": "normals",
+			"image_index": 6
+		},
+		{
+			"definition_id": "standard_normal_block",
+			"image_name": "normals",
+			"image_index": 7
+		},
+		{
+			"definition_id": "standard_normal_block",
+			"image_name": "normals",
+			"image_index": 7
+		}
+	],
+	"custom_card_definitions": [
+		{
+			"id": "customer_demonarmageddon",
+			"type": "ultra",
+			"display_name": "Demon Armageddon",
+			"force_cost": 0,
+			"gauge_cost": 4,
+			"range_min": 1,
+			"range_max": 1,
+			"speed": 5,
+			"power": 6,
+			"armor": 0,
+			"guard": 0,
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "multiply_positive_power_bonuses",
+					"amount": 2
+				}
+			],
+			"boost": {
+				"boost_type": "continuous",
+				"force_cost": 0,
+				"cancel_cost": -1,
+				"display_name": "Die One Thousand Deaths!",
+				"effects": [
+					{
+						"timing": "during_strike",
+						"effect_type": "multiply_positive_power_bonuses",
+						"amount": 2
+					}
+				]
+			}
+		},
+		{
+			"id": "customer_wrathoftheragingdemon",
+			"type": "ultra",
+			"display_name": "Wrath of the Raging Demon",
+			"force_cost": 0,
+			"gauge_cost": 3,
+			"range_min": 1,
+			"range_max": 1,
+			"speed": 3,
+			"power": 11,
+			"armor": 0,
+			"guard": 0,
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "ignore_armor"
+				},
+				{
+					"timing": "before",
+					"effect_type": "close",
+					"amount": 2
+				}
+			],
+			"boost": {
+				"boost_type": "continuous",
+				"force_cost": 0,
+				"cancel_cost": -1,
+				"display_name": "Instant Hell Murder",
+				"effects": [
+					{
+						"timing": "during_strike",
+						"condition": "total_powerup_greater_or_equal",
+						"condition_amount": 3,
+						"effect_type": "speedup",
+						"amount": 3
+					}
+				]
+			}
+		},
+		{
+			"id": "customer_gohadoken",
+			"type": "special",
+			"display_name": "Gohadoken",
+			"force_cost": 0,
+			"gauge_cost": 0,
+			"range_min": 2,
+			"range_max": 6,
+			"speed": 4,
+			"power": 5,
+			"armor": 0,
+			"guard": 0,
+			"effects": [
+				{
+					"timing": "during_strike",
+					"condition": "is_critical",
+					"effect_type": "speedup",
+					"amount": 1,
+					"and": {
+						"effect_type": "powerup",
+						"amount": -2
+					}
+				}
+			],
+			"boost": {
+				"boost_type": "continuous",
+				"force_cost": 0,
+				"cancel_cost": -1,
+				"display_name": "Demon Illusion",
+				"effects": [
+					{
+						"timing": "now",
+						"effect_type": "choice",
+						"choice": [
+							{ "effect_type": "spend_life", "amount": 1, "and": { "effect_type": "draw", "amount": 1 } },
+							{ "effect_type": "spend_life", "amount": 2, "and": { "effect_type": "draw", "amount": 2 } },
+							{ "effect_type": "spend_life", "amount": 3, "and": { "effect_type": "draw", "amount": 3 } },
+							{ "effect_type": "spend_life", "amount": 4, "and": { "effect_type": "draw", "amount": 4 } },
+							{ "effect_type": "spend_life", "amount": 5, "and": { "effect_type": "draw", "amount": 5 } },
+							{ "effect_type": "pass" }
+						]
+					},
+					{
+						"timing": "during_strike",
+						"effect_type": "powerup",
+						"amount": 1
+					}
+				]
+			}
+		},
+		{
+			"id": "customer_goshoryuken",
+			"type": "special",
+			"display_name": "Goshoryuken",
+			"force_cost": 0,
+			"gauge_cost": 0,
+			"range_min": 1,
+			"range_max": 1,
+			"speed": 7,
+			"power": 3,
+			"armor": 0,
+			"guard": 0,
+			"effects": [
+				{
+					"timing": "before",
+					"effect_type": "close",
+					"amount": 1
+				},
+				{
+					"timing": "hit",
+					"effect_type": "push",
+					"amount": 2
+				}
+			],
+			"boost": {
+				"boost_type": "immediate",
+				"force_cost": 1,
+				"cancel_cost": -1,
+				"display_name": "Ashura Senku",
+				"effects": [
+					{
+						"timing": "immediate",
+						"effect_type": "choice",
+						"choice": [
+							{ "effect_type": "add_to_gauge_boost_play_cleanup" },
+							{ "effect_type": "advance", "amount": 1 },
+							{ "effect_type": "retreat", "amount": 1 }
+						]
+					},
+					{
+						"timing": "immediate",
+						"effect_type": "bonus_action"
+					}
+				]
+			}
+		},
+		{
+			"id": "customer_hyakkishu",
+			"type": "special",
+			"display_name": "Hyakkishu",
+			"force_cost": 0,
+			"gauge_cost": 0,
+			"range_min": 1,
+			"range_max": 1,
+			"speed": 4,
+			"power": 4,
+			"armor": 0,
+			"guard": 0,
+			"effects": [
+				{
+					"timing": "during_strike",
+					"condition": "is_critical",
+					"effect_type": "ignore_armor"
+				},
+				{
+					"timing": "before",
+					"effect_type": "close",
+					"amount": 2
+				},
+				{
+					"timing": "after",
+					"effect_type": "dodge_at_range",
+					"range_min": 1,
+					"range_max": 1
+				}
+			],
+			"boost": {
+				"boost_type": "continuous",
+				"force_cost": 0,
+				"cancel_cost": -1,
+				"display_name": "Fakeout",
+				"effects": [
+					{
+						"timing": "now",
+						"effect_type": "strike_opponent_sets_first"
+					},
+					{
+						"timing": "after",
+						"effect_type": "add_boost_to_gauge_on_strike_cleanup",
+						"card_name": "Hyakkishu"
+					}
+				]
+			}
+		},
+		{
+			"id": "customer_tatsumakizankukyaku",
+			"type": "special",
+			"display_name": "Tatsumaki Zankukyaku",
+			"force_cost": 0,
+			"gauge_cost": 0,
+			"range_min": 1,
+			"range_max": 2,
+			"speed": 4,
+			"power": 4,
+			"armor": 0,
+			"guard": 0,
+			"effects": [
+				{
+					"timing": "before",
+					"effect_type": "advance",
+					"amount": 2,
+					"and": {
+						"condition": "advanced_through",
+						"effect_type": "add_attack_effect",
+						"added_effect": {
+							"timing": "hit",
+							"effect_type": "opponent_discard_random",
+							"amount": 1
+						}
+					}
+				}
+			],
+			"boost": {
+				"boost_type": "continuous",
+				"force_cost": 0,
+				"cancel_cost": -1,
+				"display_name": "Spite",
+				"effects": [
+					{
+						"timing": "during_strike",
+						"effect_type": "speedup",
+						"amount": 1
+					},
+					{
+						"timing": "hit",
+						"effect_type": "add_boost_to_gauge_on_strike_cleanup",
+						"card_name": "Tatsumaki Zankukyaku"
+					}
+				]
+			}
+		},
+		{
+			"id": "customer_zugaihasatsu",
+			"type": "special",
+			"display_name": "Zugaihasatsu",
+			"force_cost": 0,
+			"gauge_cost": 0,
+			"range_min": 1,
+			"range_max": 2,
+			"speed": 5,
+			"power": 3,
+			"armor": 0,
+			"guard": 0,
+			"effects": [
+				{
+					"timing": "hit",
+					"condition": "is_critical",
+					"effect_type": "gain_advantage"
+				},
+				{
+					"timing": "hit",
+					"condition": "opponent_total_guard_greater_or_equal",
+					"condition_amount": 4,
+					"effect_type": "powerup",
+					"amount": 2
+				}
+			],
+			"boost": {
+				"boost_type": "continuous",
+				"force_cost": 0,
+				"cancel_cost": -1,
+				"display_name": "Power of Hatred",
+				"effects": [
+					{
+						"timing": "during_strike",
+						"effect_type": "powerup",
+						"amount": 2
+					},
+					{
+						"timing": "after",
+						"condition": "hit_opponent",
+						"effect_type": "add_boost_to_gauge_on_strike_cleanup",
+						"card_name": "Zugaihasatsu"
+					}
+				]
+			}
+		}
+	]
+}

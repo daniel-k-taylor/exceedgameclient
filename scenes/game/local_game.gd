@@ -3655,14 +3655,18 @@ func get_random_int() -> int:
 func get_random_int_range(from : int, to : int) -> int:
 	return random_number_generator.randi_range(from, to)
 
-func initialize_game(player_deck,
-		opponent_deck,
-		player_name : String,
-		opponent_name : String,
-		first_player : Enums.PlayerId,
-		seed_value : int):
+func initialize_game(
+	player_deck,
+	opponent_deck,
+	player_name : String,
+	opponent_name : String,
+	first_player : Enums.PlayerId,
+	seed_value : int
+):
 	random_number_generator.seed = seed_value
 	card_db = CardDatabase.new(image_loader)
+	card_db.load_deck_if_custom(player_deck)
+	card_db.load_deck_if_custom(opponent_deck)
 	var player_card_id_start = 100
 	var opponent_card_id_start = 200
 	if first_player == Enums.PlayerId.PlayerId_Opponent:

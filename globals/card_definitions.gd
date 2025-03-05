@@ -74,6 +74,15 @@ func get_card(definition_id):
 	assert(false, "Missing card definition: " + definition_id)
 	return null
 
+func load_custom_cards(custom_cards):
+	if custom_cards == null:
+		return
+	for card in custom_cards:
+		if card['id'] in card_data:
+			# Possible if mirror custom match?
+			continue
+		card_data.append(card)
+
 class EffectSummary:
 	var effect
 	var min_value = null
