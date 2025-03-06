@@ -387,3 +387,19 @@ func test_linne_diviner3():
 	game_logic.do_boost(player2, TestCardId4)
 	execute_strike(player1, player2, "linne_thediviner", "uni_normal_cross", [], [])
 	validate_life(player1, 30, player2, 30)
+
+func test_linne_diviner_vs_beheaded():
+	position_players(player1, 2, player2, 6)
+	give_gauge(player1, 2)
+	
+	# P2 gets beheaded stuff.
+	give_player_specific_card(player2, "beheaded_trait_tactics", TestCardId5)
+	player2.add_to_continuous_boosts(player2.hand[-1])
+	player2.hand = player2.hand.slice(0, player2.hand.size() - 2)
+	
+	execute_strike(player1, player2, "linne_thediviner", "beheaded_infantrybow", [], [], true)
+	# EX diviner is speed 4, vs bow, speed 4.
+	# But at range 4, diviner misses and bow hits.
+	validate_positions(player1, 2, player2, 6)
+	validate_life(player1, 27, player2, 30)
+	advance_turn(player2)

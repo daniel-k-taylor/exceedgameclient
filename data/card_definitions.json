@@ -2196,6 +2196,7 @@
 			"cancel_cost": -1,
 			"display_name": "Brutality",
 			"cannot_discard": true,
+			"placeholder_boost": true,
 			"effects": [
 				{
 					"timing": "during_strike",
@@ -2233,6 +2234,7 @@
 			"cancel_cost": -1,
 			"display_name": "Survival",
 			"cannot_discard": true,
+			"placeholder_boost": true,
 			"effects": [
 				{
 					"timing": "during_strike",
@@ -2274,6 +2276,7 @@
 			"cancel_cost": -1,
 			"display_name": "Tactics",
 			"cannot_discard": true,
+			"placeholder_boost": true,
 			"effects": [
 				{
 					"timing": "during_strike",
