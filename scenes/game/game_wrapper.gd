@@ -118,7 +118,7 @@ func get_player_overdrive_size(id):
 	return _get_player(id).overdrive.size()
 
 func get_player_discardable_boost_count(id):
-	return _get_player(id).get_discardable_continuous_boosts().size()
+	return _get_player(id).get_boosts(true).size()
 
 func get_player_discards_size(id):
 	return _get_player(id).discards.size()

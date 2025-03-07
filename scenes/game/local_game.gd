@@ -542,6 +542,7 @@ class StrikeStatBoosts:
 	var move_strike_to_boosts_sustain : bool = true
 	var move_strike_to_transforms : bool = false
 	var move_strike_to_opponent_boosts : bool = false
+	var move_strike_to_opponent_gauge : bool = false
 	var when_hit_force_for_armor : String = ""
 	var stun_immunity : bool = false
 	var was_hit : bool = false
@@ -658,6 +659,7 @@ class StrikeStatBoosts:
 		move_strike_to_boosts_sustain = true
 		move_strike_to_transforms = false
 		move_strike_to_opponent_boosts = false
+		move_strike_to_opponent_gauge = false
 		when_hit_force_for_armor = ""
 		stun_immunity = false
 		was_hit = false
@@ -1224,16 +1226,18 @@ class Player:
 				return true
 		return false
 
-	func get_overdrive_effect():
-		return deck_def['overdrive_effect']
-
-	func get_discardable_continuous_boosts():
+	func get_boosts(only_discardable : bool = false, include_placeholder_boosts : bool = false):
 		var valid_boosts = []
 		for boost in continuous_boosts:
-			if 'cannot_discard' in boost.definition['boost'] and boost.definition['boost']['cannot_discard']:
+			if not include_placeholder_boosts and boost.definition['boost'].get("placeholder_boost"):
+				continue
+			if only_discardable and boost.definition['boost'].get("cannot_discard"):
 				continue
 			valid_boosts.append(boost)
 		return valid_boosts
+
+	func get_overdrive_effect():
+		return deck_def['overdrive_effect']
 
 	func remove_card_from_hand(id : int, is_revealed : bool, is_revealed_on_strike_reveal : bool):
 		for i in range(len(hand)):
@@ -4231,10 +4235,10 @@ func get_total_speed(check_player, ignore_swap : bool = false):
 		bonus_speed += empty_spaces_between * check_player.strike_stat_boosts.speedup_by_spaces_modifier
 	if check_player.strike_stat_boosts.speedup_per_boost_modifier > 0:
 		# same note on speed multipliers
-		var boosts_in_play = check_player.continuous_boosts.size()
+		var boosts_in_play = check_player.get_boosts().size()
 		if check_player.strike_stat_boosts.speedup_per_boost_modifier_all_boosts:
 			var opposing_player = _get_player(get_other_player(check_player.my_id))
-			boosts_in_play += opposing_player.continuous_boosts.size()
+			boosts_in_play += opposing_player.get_boosts().size()
 		if boosts_in_play > 0:
 			bonus_speed += check_player.strike_stat_boosts.speedup_per_boost_modifier * boosts_in_play
 	if check_player.strike_stat_boosts.passive_speedup_per_card_in_hand != 0:
@@ -4352,9 +4356,9 @@ func is_effect_condition_met(performing_player : Player, effect, local_condition
 			var opposing_card = active_strike.get_player_card(other_player)
 			return card.definition['speed'] == opposing_card.definition['speed']
 		elif condition == "boost_in_play":
-			return performing_player.continuous_boosts.size() > 0
+			return performing_player.get_boosts().size() > 0
 		elif condition == "no_boost_in_play":
-			return performing_player.continuous_boosts.size() == 0
+			return performing_player.get_boosts().size() == 0
 		elif condition == "canceled_this_turn":
 			return performing_player.canceled_this_turn
 		elif condition == "not_canceled_this_turn":
@@ -4424,6 +4428,9 @@ func is_effect_condition_met(performing_player : Player, effect, local_condition
 		elif condition == "moved_less_than":
 			var amount = effect['condition_amount']
 			return local_conditions.movement_amount < amount
+		elif condition == "moved_at_least":
+			var amount = effect['condition_amount']
+			return local_conditions.movement_amount >= amount
 		elif condition == "advanced_through":
 			return local_conditions.advanced_through
 		elif condition == "not_advanced_through":
@@ -4434,6 +4441,8 @@ func is_effect_condition_met(performing_player : Player, effect, local_condition
 			return not local_conditions.advanced_through_buddy
 		elif condition == "not_full_push":
 			return not local_conditions.fully_pushed
+		elif condition == "not_full_pull":
+			return not local_conditions.fully_pulled
 		elif condition == "pushed_min_spaces":
 			return local_conditions.push_amount >= effect['condition_amount']
 		elif condition == "pulled_past":
@@ -4784,6 +4793,7 @@ class LocalStrikeConditions:
 	var fully_closed : bool = false
 	var fully_retreated : bool = false
 	var fully_pushed : bool = false
+	var fully_pulled : bool = false
 	var push_amount : int = 0
 	var advanced_through : bool = false
 	var advanced_through_buddy : bool = false
@@ -4850,6 +4860,9 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 			events += performing_player.remove_from_continuous_boosts(card, "overdrive")
 		"add_hand_to_gauge":
 			events += performing_player.add_hand_to_gauge()
+		"add_opponent_strike_to_gauge":
+			opposing_player.strike_stat_boosts.move_strike_to_opponent_gauge = true
+			events += handle_strike_attack_immediate_removal(opposing_player)
 		"add_passive":
 			var passive_name = effect["passive"]
 			if performing_player.passive_effects.get(passive_name):
@@ -5045,7 +5058,7 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 			opposing_player.strike_stat_boosts.armor += amount
 			events += [create_event(Enums.EventType.EventType_Strike_ArmorUp, opposing_player.my_id, amount)]
 		"armorup_per_continuous_boost":
-			var amount = effect["amount"] * performing_player.continuous_boosts.size()
+			var amount = effect["amount"] * performing_player.get_boosts().size()
 			performing_player.strike_stat_boosts.armor += amount
 			events += [create_event(Enums.EventType.EventType_Strike_ArmorUp, performing_player.my_id, amount)]
 		"attack_copy_gauge_or_transform_becomes_ex":
@@ -5174,8 +5187,24 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 				decision_info.valid_zones = ['hand']
 				decision_info.limitation = effect['limitation']
 			else:
-				_append_log_full(Enums.LogType.LogType_Effect, performing_player, "has no valid cards in hand to boost with.")
-				events += performing_player.reveal_hand()
+				if "strike_instead_of_reveal" in effect and effect["strike_instead_of_reveal"]:
+					change_game_state(Enums.GameState.GameState_WaitForStrike)
+					decision_info.clear()
+					decision_info.type = Enums.DecisionType.DecisionType_StrikeNow
+					decision_info.player = performing_player.my_id
+					if active_boost:
+						# Don't send the event now, we're processing a boost.
+						# That has code to set flags on the active_boost to strike after the boost.
+						# There could be more effects before the strike occurs, so wait on the event until then
+						# and we don't want to send it twice.
+						pass
+					else:
+						events += [create_event(Enums.EventType.EventType_ForceStartStrike, performing_player.my_id, 0)]
+						if active_post_action_effect:
+							post_action_interruption = true
+				else:
+					_append_log_full(Enums.LogType.LogType_Effect, performing_player, "has no valid cards in hand to boost with.")
+					events += performing_player.reveal_hand()
 		"boost_specific_card":
 			var boost_name = effect['boost_name']
 			var boost_card_id = -1
@@ -5579,7 +5608,7 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 			_append_log_full(Enums.LogType.LogType_CardInfo, opposing_player, "has card(s) discarded by %s: %s." % [performing_player.name, _log_card_name(card_names)])
 			events += opposing_player.discard(card_ids)
 		"choose_sustain_boost":
-			var choice_count = performing_player.continuous_boosts.size()
+			var choice_count = performing_player.get_boosts().size()
 			choice_count -= performing_player.sustained_boosts.size()
 			if choice_count > 0:
 				change_game_state(Enums.GameState.GameState_PlayerDecision)
@@ -5629,6 +5658,10 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 			if 'save_spaces_as_strike_x' in effect and effect['save_spaces_as_strike_x']:
 				_append_log_full(Enums.LogType.LogType_Strike, performing_player, "'s X for this strike is set to the number of spaces closed, %s." % close_amount)
 				events += performing_player.set_strike_x(close_amount)
+			elif 'save_spaces_not_closed_as_strike_x' in effect and effect['save_spaces_not_closed_as_strike_x']:
+				var not_closed = amount - close_amount
+				_append_log_full(Enums.LogType.LogType_Strike, performing_player, "'s X for this strike is set to the number of spaces not closed, %s." % not_closed)
+				events += performing_player.set_strike_x(not_closed)
 			local_conditions.movement_amount = close_amount
 		"copy_other_hit_effect":
 			var card = active_strike.get_player_card(performing_player)
@@ -5796,7 +5829,7 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 				decision_info.effect = null
 
 			var valid_boosts = []
-			for boost in performing_player.get_discardable_continuous_boosts():
+			for boost in performing_player.get_boosts(true):
 				if boost_name and boost.definition['boost']['display_name'] != boost_name:
 					continue
 				var boost_location = performing_player.get_boost_location(boost.id)
@@ -5821,8 +5854,8 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 				decision_info.extra_info = boost_name
 				events += [create_event(Enums.EventType.EventType_Boost_DiscardContinuousChoice, performing_player.my_id, 1, "", boost_name)]
 		"discard_continuous_boost":
-			var my_boosts = performing_player.get_discardable_continuous_boosts()
-			var opponent_boosts = opposing_player.get_discardable_continuous_boosts()
+			var my_boosts = performing_player.get_boosts(true)
+			var opponent_boosts = opposing_player.get_boosts(true)
 			decision_info.clear()
 			decision_info.limitation = ""
 			if 'limitation' in effect:
@@ -7433,7 +7466,7 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 			performing_player.add_power_bonus(power_change)
 			events += [create_event(Enums.EventType.EventType_Strike_PowerUp, performing_player.my_id, power_change)]
 		"powerup_per_boost_in_play":
-			var boosts_in_play = performing_player.continuous_boosts.size()
+			var boosts_in_play = performing_player.get_boosts().size()
 			if boosts_in_play > 0:
 				var amount = effect['amount'] * boosts_in_play
 				performing_player.add_power_bonus(amount)
@@ -7536,9 +7569,13 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 			amount += performing_player.strike_stat_boosts.increase_move_opponent_effects_by
 
 			events += performing_player.pull(amount)
+
 			var new_location = opposing_player.arena_location
+			var pull_amount = opposing_player.movement_distance_between(other_start, new_location)
+			local_conditions.fully_pulled = pull_amount == effect['amount']
 			if (other_start < performing_start and new_location > performing_start) or (other_start > performing_start and new_location < performing_start):
 				local_conditions.pulled_past = true
+
 			_append_log_full(Enums.LogType.LogType_CharacterMovement, opposing_player, "is pulled %s, moving from space %s to %s." % [str(amount), str(previous_location), str(new_location)])
 		"pull_any_number_of_spaces_and_gain_power":
 			decision_info.clear()
@@ -7614,6 +7651,7 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 				events += performing_player.pull(distance)
 				var new_location = opposing_player.arena_location
 				var pull_amount = opposing_player.movement_distance_between(previous_location, new_location)
+				local_conditions.fully_pulled = pull_amount == effect['amount']
 				if (other_start < performing_start and new_location > performing_start) or (other_start > performing_start and new_location < performing_start):
 					local_conditions.pulled_past = true
 				performing_player.add_power_bonus(pull_amount)
@@ -7811,6 +7849,8 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 			or space > previous_location and performing_player.arena_location > previous_location:
 				events += performing_player.pull(distance)
 				var new_location = opposing_player.arena_location
+				var pull_amount = opposing_player.movement_distance_between(other_start, new_location)
+				local_conditions.fully_pulled = pull_amount == effect['amount']
 				if (other_start < performing_start and new_location > performing_start) or (other_start > performing_start and new_location < performing_start):
 					local_conditions.pulled_past = true
 				_append_log_full(Enums.LogType.LogType_CharacterMovement, opposing_player, "is pulled %s, moving from space %s to %s." % [str(distance), str(previous_location), str(new_location)])
@@ -7875,9 +7915,9 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 			if active_strike.will_be_ex(performing_player):
 				events += [create_event(Enums.EventType.EventType_Strike_RangeUp, performing_player.my_id, effect['amount'], "", effect['amount2'])]
 		"rangeup_per_boost_in_play":
-			var boosts_in_play = performing_player.continuous_boosts.size()
+			var boosts_in_play = performing_player.get_boosts().size()
 			if 'all_boosts' in effect and effect['all_boosts']:
-				boosts_in_play += opposing_player.continuous_boosts.size()
+				boosts_in_play += opposing_player.get_boosts().size()
 			if boosts_in_play > 0:
 				performing_player.strike_stat_boosts.min_range += effect['amount'] * boosts_in_play
 				performing_player.strike_stat_boosts.max_range += effect['amount2'] * boosts_in_play
@@ -7886,10 +7926,10 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 			performing_player.strike_stat_boosts.rangeup_min_per_boost_modifier = effect['amount']
 			performing_player.strike_stat_boosts.rangeup_max_per_boost_modifier = effect['amount2']
 			performing_player.strike_stat_boosts.rangeup_per_boost_modifier_all_boosts = false
-			var boosts_in_play = performing_player.continuous_boosts.size()
+			var boosts_in_play = performing_player.get_boosts().size()
 			if 'all_boosts' in effect and effect['all_boosts']:
 				performing_player.strike_stat_boosts.rangeup_per_boost_modifier_all_boosts = true
-				boosts_in_play += opposing_player.continuous_boosts.size()
+				boosts_in_play += opposing_player.get_boosts().size()
 			if boosts_in_play > 0:
 				events += [create_event(Enums.EventType.EventType_Strike_RangeUp, performing_player.my_id, effect['amount'] * boosts_in_play, "", effect['amount2'] * boosts_in_play)]
 		"rangeup_per_card_in_hand":
@@ -8390,16 +8430,16 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 		"speedup_per_boost_modifier":
 			performing_player.strike_stat_boosts.speedup_per_boost_modifier = effect['amount']
 			performing_player.strike_stat_boosts.speedup_per_boost_modifier_all_boosts = false
-			var boosts_in_play = performing_player.continuous_boosts.size()
+			var boosts_in_play = performing_player.get_boosts().size()
 			if 'all_boosts' in effect and effect['all_boosts']:
 				performing_player.strike_stat_boosts.speedup_per_boost_modifier_all_boosts = true
-				boosts_in_play += opposing_player.continuous_boosts.size()
+				boosts_in_play += opposing_player.get_boosts().size()
 			if boosts_in_play > 0:
 				events += [create_event(Enums.EventType.EventType_Strike_SpeedUp, performing_player.my_id, effect['amount'] * boosts_in_play)]
 		"speedup_per_boost_in_play":
-			var boosts_in_play = performing_player.continuous_boosts.size()
+			var boosts_in_play = performing_player.get_boosts().size()
 			if 'all_boosts' in effect and effect['all_boosts']:
-				boosts_in_play += opposing_player.continuous_boosts.size()
+				boosts_in_play += opposing_player.get_boosts().size()
 			if boosts_in_play > 0:
 				performing_player.strike_stat_boosts.speed += effect['amount'] * boosts_in_play
 				events += [create_event(Enums.EventType.EventType_Strike_SpeedUp, performing_player.my_id, effect['amount'] * boosts_in_play)]
@@ -9633,10 +9673,10 @@ func get_total_min_range(performing_player : Player):
 	var min_range = get_card_stat(performing_player, card, 'range_min')
 	var min_range_modifier = performing_player.strike_stat_boosts.min_range
 	if performing_player.strike_stat_boosts.rangeup_min_per_boost_modifier > 0:
-		var boosts_in_play = performing_player.continuous_boosts.size()
+		var boosts_in_play = performing_player.get_boosts().size()
 		if performing_player.strike_stat_boosts.rangeup_per_boost_modifier_all_boosts:
 			var opposing_player = _get_player(get_other_player(performing_player.my_id))
-			boosts_in_play += opposing_player.continuous_boosts.size()
+			boosts_in_play += opposing_player.get_boosts().size()
 		if boosts_in_play > 0:
 			min_range_modifier += performing_player.strike_stat_boosts.rangeup_min_per_boost_modifier * boosts_in_play
 	if performing_player.strike_stat_boosts.rangeup_min_if_ex_modifier > 0:
@@ -9653,10 +9693,10 @@ func get_total_max_range(performing_player : Player):
 	var max_range = get_card_stat(performing_player, card, 'range_max')
 	var max_range_modifier = performing_player.strike_stat_boosts.max_range
 	if performing_player.strike_stat_boosts.rangeup_max_per_boost_modifier > 0:
-		var boosts_in_play = performing_player.continuous_boosts.size()
+		var boosts_in_play = performing_player.get_boosts().size()
 		if performing_player.strike_stat_boosts.rangeup_per_boost_modifier_all_boosts:
 			var opposing_player = _get_player(get_other_player(performing_player.my_id))
-			boosts_in_play += opposing_player.continuous_boosts.size()
+			boosts_in_play += opposing_player.get_boosts().size()
 		if boosts_in_play > 0:
 			max_range_modifier += performing_player.strike_stat_boosts.rangeup_max_per_boost_modifier * boosts_in_play
 	if performing_player.strike_stat_boosts.rangeup_max_if_ex_modifier > 0:
@@ -9970,18 +10010,20 @@ func do_hit_response_effects(offense_player : Player, defense_player : Player, i
 
 func log_boosts_in_play():
 	var card_names = "None"
-	if len(active_strike.initiator.continuous_boosts) > 0:
-		card_names = card_db.get_card_name(active_strike.initiator.continuous_boosts[0].id)
-		for i in range(1, active_strike.initiator.continuous_boosts.size()):
-			var card = active_strike.initiator.continuous_boosts[i]
+	var initiator_boosts = active_strike.initiator.get_boosts(false, true)
+	if initiator_boosts.size() > 0:
+		card_names = card_db.get_card_name(initiator_boosts[0].id)
+		for i in range(1, initiator_boosts.size()):
+			var card = initiator_boosts[i]
 			card_names += ", " + card_db.get_card_name(card.id)
 		_append_log_full(Enums.LogType.LogType_Strike, active_strike.initiator, "has active continuous boosts: %s" % _log_card_name(card_names))
 
 	card_names = "None"
-	if len(active_strike.defender.continuous_boosts) > 0:
-		card_names = card_db.get_card_name(active_strike.defender.continuous_boosts[0].id)
-		for i in range(1, active_strike.defender.continuous_boosts.size()):
-			var card = active_strike.defender.continuous_boosts[i]
+	var defender_boosts = active_strike.defender.get_boosts(false, true)
+	if defender_boosts.size() > 0:
+		card_names = card_db.get_card_name(defender_boosts[0].id)
+		for i in range(1, defender_boosts.size()):
+			var card = defender_boosts[i]
 			card_names += ", " + card_db.get_card_name(card.id)
 		_append_log_full(Enums.LogType.LogType_Strike, active_strike.defender, "has active continuous boosts: %s" % _log_card_name(card_names))
 
@@ -10256,6 +10298,10 @@ func handle_strike_attack_immediate_removal(performing_player : Player):
 	if performing_player.strike_stat_boosts.discard_attack_now_for_lightningrod:
 		# No logline since there will be a log about this in the lightning rod effect.
 		events += performing_player.add_to_discards(card)
+		active_strike.cards_in_play.erase(card)
+	elif performing_player.strike_stat_boosts.move_strike_to_opponent_gauge:
+		_append_log_full(Enums.LogType.LogType_CardInfo, other_player, "adds the opponent's attack %s to their Gauge!" % _log_card_name(card_name))
+		events += other_player.add_to_gauge(card)
 		active_strike.cards_in_play.erase(card)
 	elif performing_player.strike_stat_boosts.return_attack_to_hand:
 		_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "returns their attack %s to their hand." % _log_card_name(card_name))

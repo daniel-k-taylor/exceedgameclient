@@ -232,8 +232,8 @@
 			"gauge_cost": 4,
 			"range_min": 1,
 			"range_max": 1,
-			"speed": 5,
 			"power": 6,
+			"speed": 5,
 			"armor": 0,
 			"guard": 0,
 			"effects": [
@@ -265,8 +265,8 @@
 			"gauge_cost": 3,
 			"range_min": 1,
 			"range_max": 1,
-			"speed": 3,
 			"power": 11,
+			"speed": 3,
 			"armor": 0,
 			"guard": 0,
 			"effects": [
@@ -304,8 +304,8 @@
 			"gauge_cost": 0,
 			"range_min": 2,
 			"range_max": 6,
-			"speed": 4,
 			"power": 5,
+			"speed": 4,
 			"armor": 0,
 			"guard": 0,
 			"effects": [
@@ -354,8 +354,8 @@
 			"gauge_cost": 0,
 			"range_min": 1,
 			"range_max": 1,
-			"speed": 7,
 			"power": 3,
+			"speed": 7,
 			"armor": 0,
 			"guard": 0,
 			"effects": [
@@ -400,8 +400,8 @@
 			"gauge_cost": 0,
 			"range_min": 1,
 			"range_max": 1,
-			"speed": 4,
 			"power": 4,
+			"speed": 4,
 			"armor": 0,
 			"guard": 0,
 			"effects": [
@@ -448,8 +448,8 @@
 			"gauge_cost": 0,
 			"range_min": 1,
 			"range_max": 2,
-			"speed": 4,
 			"power": 4,
+			"speed": 4,
 			"armor": 0,
 			"guard": 0,
 			"effects": [
@@ -495,8 +495,8 @@
 			"gauge_cost": 0,
 			"range_min": 1,
 			"range_max": 2,
-			"speed": 5,
 			"power": 3,
+			"speed": 5,
 			"armor": 0,
 			"guard": 0,
 			"effects": [
