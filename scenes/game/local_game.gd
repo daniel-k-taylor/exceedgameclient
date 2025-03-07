@@ -542,6 +542,7 @@ class StrikeStatBoosts:
 	var move_strike_to_boosts_sustain : bool = true
 	var move_strike_to_transforms : bool = false
 	var move_strike_to_opponent_boosts : bool = false
+	var move_strike_to_opponent_gauge : bool = false
 	var when_hit_force_for_armor : String = ""
 	var stun_immunity : bool = false
 	var was_hit : bool = false
@@ -658,6 +659,7 @@ class StrikeStatBoosts:
 		move_strike_to_boosts_sustain = true
 		move_strike_to_transforms = false
 		move_strike_to_opponent_boosts = false
+		move_strike_to_opponent_gauge = false
 		when_hit_force_for_armor = ""
 		stun_immunity = false
 		was_hit = false
@@ -4852,6 +4854,10 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 			events += performing_player.remove_from_continuous_boosts(card, "overdrive")
 		"add_hand_to_gauge":
 			events += performing_player.add_hand_to_gauge()
+		"add_opponent_strike_to_gauge":
+			# please only do this if the opponent is stunned
+			opposing_player.strike_stat_boosts.move_strike_to_opponent_gauge = true
+			events += handle_strike_attack_immediate_removal(opposing_player)
 		"add_passive":
 			var passive_name = effect["passive"]
 			if performing_player.passive_effects.get(passive_name):
@@ -10260,6 +10266,10 @@ func handle_strike_attack_immediate_removal(performing_player : Player):
 	if performing_player.strike_stat_boosts.discard_attack_now_for_lightningrod:
 		# No logline since there will be a log about this in the lightning rod effect.
 		events += performing_player.add_to_discards(card)
+		active_strike.cards_in_play.erase(card)
+	elif performing_player.strike_stat_boosts.move_strike_to_opponent_gauge:
+		_append_log_full(Enums.LogType.LogType_CardInfo, other_player, "adds the opponent's attack %s to their Gauge!" % _log_card_name(card_name))
+		events += other_player.add_to_gauge(card)
 		active_strike.cards_in_play.erase(card)
 	elif performing_player.strike_stat_boosts.return_attack_to_hand:
 		_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "returns their attack %s to their hand." % _log_card_name(card_name))

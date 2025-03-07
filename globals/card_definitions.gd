@@ -509,6 +509,8 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 				effect_str += "Add card to overdrive"
 		"add_hand_to_gauge":
 			effect_str += "Add your hand to your gauge"
+		"add_opponent_strike_to_gauge":
+			effect_str += "Add opponent's attack to gauge"
 		"add_strike_to_gauge_after_cleanup":
 			effect_str += "Add card to gauge after strike."
 		"add_strike_to_overdrive_after_cleanup":
