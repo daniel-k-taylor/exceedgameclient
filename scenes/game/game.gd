@@ -427,6 +427,9 @@ func begin_remote_game(game_start_message):
 		if game_start_message['starting_player_id'] == game_start_message['player1_id']:
 			starting_player = Enums.PlayerId.PlayerId_Opponent
 
+	player_deck = CardDefinitions.convert_floats_to_ints(player_deck)
+	opponent_deck = CardDefinitions.convert_floats_to_ints(opponent_deck)
+
 	game_wrapper.initialize_remote_game(my_player_info,
 		opponent_player_info,
 		starting_player,

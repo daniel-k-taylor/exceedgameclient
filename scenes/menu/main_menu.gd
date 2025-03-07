@@ -558,7 +558,7 @@ func _on_file_dialog_file_selected(path):
 func load_custom(data):
 	var json = JSON.new()
 	if json.parse(data[0]) == OK:
-		_custom_deck_definition = json.data
+		_custom_deck_definition = CardDefinitions.convert_floats_to_ints(json.data)
 		var deck_id = "custom_" + _custom_deck_definition["id"]
 		_custom_deck_definition["id"] = deck_id
 		update_char(deck_id, true)
