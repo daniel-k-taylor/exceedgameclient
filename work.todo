@@ -9,6 +9,7 @@ Bug:
             - probably any during_strike ability?
             - Relevant for Bang too
     Nice to have:
+        ☐ Random selection from server-side to match your queue
         ☐ Clean up choose from topdeck for searching library
         ☐ Add Generic ChooseCardsFromZoneToZone
         ☐ Load replays from the server via match id - display match id to user, load from blob storage via id, simplify id from guid
