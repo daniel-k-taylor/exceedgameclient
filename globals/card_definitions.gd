@@ -51,10 +51,22 @@ func get_portrait_asset_path(deck_id : String) -> String:
 func load_json_file(file_path : String):
 	if FileAccess.file_exists(file_path):
 		var data = FileAccess.open(file_path, FileAccess.READ)
-		var json = JSON.parse_string(data.get_as_text())
+		var json = convert_floats_to_ints(JSON.parse_string(data.get_as_text()))
 		return json
 	else:
 		print("Card definitions file doesn't exist")
+
+func convert_floats_to_ints(data):
+	if typeof(data) == TYPE_DICTIONARY:
+		for key in data:
+			data[key] = convert_floats_to_ints(data[key])
+	elif typeof(data) == TYPE_ARRAY:
+		for i in range(data.size()):
+			data[i] = convert_floats_to_ints(data[i])
+	elif typeof(data) == TYPE_FLOAT:
+		if data == int(data):
+			return int(data)
+	return data
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
