@@ -1,6 +1,6 @@
 [gd_scene load_steps=101 format=3 uid="uid://cqs72exlwm6at"]
 
-[ext_resource type="Script" path="res://scenes/menu/char_select.gd" id="1_f3x24"]
+[ext_resource type="Script" uid="uid://ctx04u4b0tnwj" path="res://scenes/menu/char_select.gd" id="1_f3x24"]
 [ext_resource type="PackedScene" uid="uid://nwqxp8pdh1jk" path="res://scenes/menu/char_select_button.tscn" id="6_3lmwy"]
 [ext_resource type="Texture2D" uid="uid://dckqq8p1ihy7o" path="res://assets/portraits/anji.png" id="6_h5jn6"]
 [ext_resource type="Texture2D" uid="uid://8pvgp7ipunso" path="res://assets/portraits/solbadguy.png" id="7_3jr2w"]

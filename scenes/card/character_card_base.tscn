@@ -1,8 +1,8 @@
 [gd_scene load_steps=12 format=3 uid="uid://dvan4a8ftuplj"]
 
-[ext_resource type="Script" path="res://scenes/card/character_card_base.gd" id="1_mmbsg"]
+[ext_resource type="Script" uid="uid://ctd4ka4ss64ix" path="res://scenes/card/character_card_base.gd" id="1_mmbsg"]
 [ext_resource type="Texture2D" uid="uid://8pvgp7ipunso" path="res://assets/portraits/solbadguy.png" id="2_g8did"]
-[ext_resource type="Texture2D" uid="uid://cwlap1h8ius6o" path="res://assets/cards/solbadguy/character_default.jpg" id="3_wh1pl"]
+[ext_resource type="Texture2D" uid="uid://cwlap1h8ius6o" path="res://assets/cards/sol_badguy.jpg" id="3_wh1pl"]
 [ext_resource type="Texture2D" uid="uid://kwcp6d7oulcg" path="res://assets/cards/border_thin_hover.png" id="4_7csga"]
 [ext_resource type="Texture2D" uid="uid://cy0pcorknc8op" path="res://assets/cards/border_thin_pressed.png" id="4_vb7wr"]
 

@@ -1,6 +1,6 @@
 [gd_scene load_steps=3 format=3 uid="uid://dy60rn4avbtbt"]
 
-[ext_resource type="Script" path="res://scenes/menu/match_queue_item.gd" id="1_emp6n"]
+[ext_resource type="Script" uid="uid://ctort7v4cx13v" path="res://scenes/menu/match_queue_item.gd" id="1_emp6n"]
 [ext_resource type="Texture2D" uid="uid://b08j76upbucvr" path="res://assets/cards/arena_border_highlight_selected.png" id="2_5hinv"]
 
 [node name="QueueItem" type="MarginContainer"]

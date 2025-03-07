@@ -1,6 +1,6 @@
 [gd_scene load_steps=4 format=3 uid="uid://ckjlv124xttrc"]
 
-[ext_resource type="Script" path="res://scenes/game/character.gd" id="2_e6ero"]
+[ext_resource type="Script" uid="uid://d06dr2jj3sina" path="res://scenes/game/character.gd" id="2_e6ero"]
 [ext_resource type="Texture2D" uid="uid://qad4c2lno0m5" path="res://assets/icons/exceedgear.png" id="2_tnqi4"]
 [ext_resource type="SpriteFrames" uid="uid://r2pne3sp7vsf" path="res://assets/character_animations/solbadguy/animations.tres" id="3_1twh3"]
 

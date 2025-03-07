@@ -1,6 +1,6 @@
 [gd_scene load_steps=6 format=3 uid="uid://belqon3ac2y7a"]
 
-[ext_resource type="Script" path="res://scenes/game/emote_display.gd" id="1_shkld"]
+[ext_resource type="Script" uid="uid://d2gu0mnankhqe" path="res://scenes/game/emote_display.gd" id="1_shkld"]
 
 [sub_resource type="Animation" id="Animation_vjj5c"]
 length = 0.001
@@ -49,8 +49,8 @@ tracks/2/keys = {
 
 [sub_resource type="AnimationLibrary" id="AnimationLibrary_di8xa"]
 _data = {
-"RESET": SubResource("Animation_vjj5c"),
-"Rise and Fade": SubResource("Animation_msa8o")
+&"RESET": SubResource("Animation_vjj5c"),
+&"Rise and Fade": SubResource("Animation_msa8o")
 }
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_282n0"]

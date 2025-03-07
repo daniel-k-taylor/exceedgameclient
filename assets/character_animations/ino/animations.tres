@@ -1,4 +1,4 @@
-[gd_resource type="SpriteFrames" load_steps=2 format=3 uid="uid://dlyvw6svoc0th"]
+[gd_resource type="SpriteFrames" load_steps=2 format=3 ]
 
 [ext_resource type="Texture2D" uid="uid://f255xkibjfan" path="res://assets/character_animations/ino/idle/idle.png" id="1_2sy6a"]
 

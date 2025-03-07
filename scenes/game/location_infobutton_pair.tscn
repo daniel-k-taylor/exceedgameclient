@@ -1,7 +1,7 @@
 [gd_scene load_steps=6 format=3 uid="uid://b517dmna12xv3"]
 
 [ext_resource type="Texture2D" uid="uid://buj7ym24l65c3" path="res://assets/icons/lightning.png" id="1_otylp"]
-[ext_resource type="Script" path="res://scenes/game/location_infobutton_pair.gd" id="1_r0cc3"]
+[ext_resource type="Script" uid="uid://ckx1bbewe75qw" path="res://scenes/game/location_infobutton_pair.gd" id="1_r0cc3"]
 [ext_resource type="Texture2D" uid="uid://bpdpb3e74d2cu" path="res://assets/cards/arena_border_highlight_pressed.png" id="2_f21if"]
 [ext_resource type="Texture2D" uid="uid://b08j76upbucvr" path="res://assets/cards/arena_border_highlight_selected.png" id="3_757qa"]
 

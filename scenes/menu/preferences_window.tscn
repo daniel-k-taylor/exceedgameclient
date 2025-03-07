@@ -1,6 +1,6 @@
 [gd_scene load_steps=2 format=3 uid="uid://dx5u3h8ppeab0"]
 
-[ext_resource type="Script" path="res://scenes/menu/preferences_window.gd" id="1_ttn5r"]
+[ext_resource type="Script" uid="uid://bvm0bgcwmfdpn" path="res://scenes/menu/preferences_window.gd" id="1_ttn5r"]
 
 [node name="PreferencesWindow" type="PopupPanel"]
 title = "Settings"

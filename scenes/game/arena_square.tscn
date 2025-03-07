@@ -1,6 +1,6 @@
 [gd_scene load_steps=8 format=3 uid="uid://u7pf7tbgppmh"]
 
-[ext_resource type="Script" path="res://scenes/game/arena_square.gd" id="1_xqmar"]
+[ext_resource type="Script" uid="uid://dfmullc0uedpd" path="res://scenes/game/arena_square.gd" id="1_xqmar"]
 
 [sub_resource type="Gradient" id="Gradient_einub"]
 offsets = PackedFloat32Array(0, 0.883721, 1)

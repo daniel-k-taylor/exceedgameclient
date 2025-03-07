@@ -1,6 +1,6 @@
 [gd_scene load_steps=8 format=3 uid="uid://1624xgdxrrg5"]
 
-[ext_resource type="Script" path="res://scenes/game/life_scene.gd" id="1_y33ag"]
+[ext_resource type="Script" uid="uid://cpqycd3ma2c2v" path="res://scenes/game/life_scene.gd" id="1_y33ag"]
 [ext_resource type="Texture2D" uid="uid://bejcxblku7j3f" path="res://assets/icons/turnindicator.png" id="2_i7ud7"]
 [ext_resource type="PackedScene" uid="uid://e4xwxbolj4qq" path="res://scenes/game/health_bar.tscn" id="3_oy06u"]
 [ext_resource type="Texture2D" uid="uid://d4h7c1xe0swhb" path="res://assets/icons/deck.png" id="4_klaii"]

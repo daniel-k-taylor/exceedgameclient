@@ -116,7 +116,7 @@ func test_custom_opponent_strike_to_gauge():
 func test_custom_not_full_pull_fail():
 	position_players(player1, 1, player2, 4)
 
-	var strike_cards = execute_strike(player1, player2, "custom_notfullpull", "standard_normal_sweep")
+	execute_strike(player1, player2, "custom_notfullpull", "standard_normal_sweep")
 
 	validate_positions(player1, 1, player2, 3)
 	validate_life(player1, 24, player2, 28)
@@ -125,7 +125,7 @@ func test_custom_not_full_pull_fail():
 func test_custom_not_full_pull_succeed():
 	position_players(player1, 1, player2, 2)
 
-	var strike_cards = execute_strike(player1, player2, "custom_notfullpull", "standard_normal_sweep")
+	execute_strike(player1, player2, "custom_notfullpull", "standard_normal_sweep")
 
 	validate_positions(player1, 1, player2, 2)
 	validate_life(player1, 30, player2, 23)
@@ -138,7 +138,7 @@ func test_custom_bonus_per_not_closed_no_power():
 	var boost_id = give_player_specific_card(player1, "custom_stealgauge")
 	game_logic.do_boost(player1, boost_id)
 
-	var strike_cards = execute_strike(player1, player2, "standard_normal_grasp", "standard_normal_sweep",
+	execute_strike(player1, player2, "standard_normal_grasp", "standard_normal_sweep",
 		false, false, [0])
 
 	validate_positions(player1, 6, player2, 8)
@@ -151,7 +151,7 @@ func test_custom_bonus_per_not_closed_some_power():
 	var boost_id = give_player_specific_card(player1, "custom_stealgauge")
 	game_logic.do_boost(player1, boost_id)
 
-	var strike_cards = execute_strike(player1, player2, "standard_normal_grasp", "standard_normal_sweep",
+	execute_strike(player1, player2, "standard_normal_grasp", "standard_normal_sweep",
 		false, false, [0])
 
 	validate_positions(player1, 6, player2, 8)
@@ -164,7 +164,7 @@ func test_custom_bonus_per_not_closed_big_power():
 	var boost_id = give_player_specific_card(player1, "custom_stealgauge")
 	game_logic.do_boost(player1, boost_id)
 
-	var strike_cards = execute_strike(player1, player2, "standard_normal_grasp", "standard_normal_sweep",
+	execute_strike(player1, player2, "standard_normal_grasp", "standard_normal_sweep",
 		false, false, [0])
 
 	validate_positions(player1, 6, player2, 8)

@@ -1,6 +1,6 @@
 [gd_scene load_steps=22 format=3 uid="uid://o8vjxrpicjsm"]
 
-[ext_resource type="Script" path="res://scenes/menu/main_menu.gd" id="1_bk4ch"]
+[ext_resource type="Script" uid="uid://160pq47v64dn" path="res://scenes/menu/main_menu.gd" id="1_bk4ch"]
 [ext_resource type="Texture2D" uid="uid://c3qodhvhxwf2v" path="res://assets/cards/arena_border_highlight.png" id="2_1a5y0"]
 [ext_resource type="PackedScene" uid="uid://cqs72exlwm6at" path="res://scenes/menu/char_select.tscn" id="2_6qq11"]
 [ext_resource type="Texture2D" uid="uid://ci2dh7hdi1ye4" path="res://assets/icons/gear.png" id="2_141tj"]
@@ -337,10 +337,12 @@ offset_left = 968.0
 offset_top = 10.0
 offset_right = 1256.0
 offset_bottom = 63.0
+mouse_filter = 2
 theme_override_styles/panel = SubResource("StyleBoxEmpty_22gnv")
 
 [node name="PlayerListHBox" type="HBoxContainer" parent="PlayerListContainer"]
 layout_mode = 2
+mouse_filter = 2
 
 [node name="PlayersButton" type="Button" parent="PlayerListContainer/PlayerListHBox"]
 layout_mode = 2
@@ -358,10 +360,12 @@ offset_left = 968.0
 offset_top = 70.0
 offset_right = 1256.0
 offset_bottom = 123.0
+mouse_filter = 2
 theme_override_styles/panel = SubResource("StyleBoxEmpty_22gnv")
 
 [node name="RoomListHBox" type="HBoxContainer" parent="RoomListContainer"]
 layout_mode = 2
+mouse_filter = 2
 
 [node name="MatchesButton" type="Button" parent="RoomListContainer/RoomListHBox"]
 layout_mode = 2
