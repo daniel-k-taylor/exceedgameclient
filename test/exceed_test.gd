@@ -13,11 +13,19 @@ var player2 : LocalGame.Player
 func who_am_i():
 	return "override-who_am_i()-with-a-character-name-pls"
 
+# Can override this as well to define custom cards
+func get_custom_cards():
+	return null
+
 func next_id():
 	next_test_card_id += 1
 	return next_test_card_id - 1
 
 func default_game_setup(alt_opponent : String = ""):
+	var custom_cards_definition = get_custom_cards()
+	if custom_cards_definition != null:
+		CardDefinitions.load_custom_cards(custom_cards_definition)
+
 	var default_deck = CardDefinitions.get_deck_from_str_id(who_am_i())
 	var opponent_deck = default_deck
 	if alt_opponent:

@@ -4861,7 +4861,6 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 		"add_hand_to_gauge":
 			events += performing_player.add_hand_to_gauge()
 		"add_opponent_strike_to_gauge":
-			# please only do this if the opponent is stunned
 			opposing_player.strike_stat_boosts.move_strike_to_opponent_gauge = true
 			events += handle_strike_attack_immediate_removal(opposing_player)
 		"add_passive":
