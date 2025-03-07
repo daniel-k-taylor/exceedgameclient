@@ -285,12 +285,16 @@ func get_condition_text(effect, amount, amount2, detail):
 			text += "If not canceled this turn, "
 		"not_full_push":
 			text += "If not full push, "
+		"not_full_pull":
+			text += "If not full pull, "
 		"pushed_min_spaces":
 			text += "If pushed %s or more spaces, " % amount
 		"not_full_close":
 			text += "If not full close, "
 		"moved_less_than":
 			text += "If moved fewer than %s spaces, " % amount
+		"moved_at_least":
+			text += "If moved at least %s spaces," % amount
 		"not_initiated_strike":
 			text += "If opponent initiated strike, "
 		"not_moved_self_this_strike":

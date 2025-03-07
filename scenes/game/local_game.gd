@@ -4428,6 +4428,9 @@ func is_effect_condition_met(performing_player : Player, effect, local_condition
 		elif condition == "moved_less_than":
 			var amount = effect['condition_amount']
 			return local_conditions.movement_amount < amount
+		elif condition == "moved_at_least":
+			var amount = effect['condition_amount']
+			return local_conditions.movement_amount >= amount
 		elif condition == "advanced_through":
 			return local_conditions.advanced_through
 		elif condition == "not_advanced_through":
@@ -4438,6 +4441,8 @@ func is_effect_condition_met(performing_player : Player, effect, local_condition
 			return not local_conditions.advanced_through_buddy
 		elif condition == "not_full_push":
 			return not local_conditions.fully_pushed
+		elif condition == "not_full_pull":
+			return not local_conditions.fully_pulled
 		elif condition == "pushed_min_spaces":
 			return local_conditions.push_amount >= effect['condition_amount']
 		elif condition == "pulled_past":
@@ -4788,6 +4793,7 @@ class LocalStrikeConditions:
 	var fully_closed : bool = false
 	var fully_retreated : bool = false
 	var fully_pushed : bool = false
+	var fully_pulled : bool = false
 	var push_amount : int = 0
 	var advanced_through : bool = false
 	var advanced_through_buddy : bool = false
@@ -5637,6 +5643,10 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 			if 'save_spaces_as_strike_x' in effect and effect['save_spaces_as_strike_x']:
 				_append_log_full(Enums.LogType.LogType_Strike, performing_player, "'s X for this strike is set to the number of spaces closed, %s." % close_amount)
 				events += performing_player.set_strike_x(close_amount)
+			elif 'save_spaces_not_closed_as_strike_x' in effect and effect['save_spaces_not_closed_as_strike_x']:
+				var not_closed = amount - close_amount
+				_append_log_full(Enums.LogType.LogType_Strike, performing_player, "'s X for this strike is set to the number of spaces not closed, %s." % not_closed)
+				events += performing_player.set_strike_x(not_closed)
 			local_conditions.movement_amount = close_amount
 		"copy_other_hit_effect":
 			var card = active_strike.get_player_card(performing_player)
@@ -7544,9 +7554,13 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 			amount += performing_player.strike_stat_boosts.increase_move_opponent_effects_by
 
 			events += performing_player.pull(amount)
+
 			var new_location = opposing_player.arena_location
+			var pull_amount = opposing_player.movement_distance_between(other_start, new_location)
+			local_conditions.fully_pulled = pull_amount == effect['amount']
 			if (other_start < performing_start and new_location > performing_start) or (other_start > performing_start and new_location < performing_start):
 				local_conditions.pulled_past = true
+
 			_append_log_full(Enums.LogType.LogType_CharacterMovement, opposing_player, "is pulled %s, moving from space %s to %s." % [str(amount), str(previous_location), str(new_location)])
 		"pull_any_number_of_spaces_and_gain_power":
 			decision_info.clear()
@@ -7622,6 +7636,7 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 				events += performing_player.pull(distance)
 				var new_location = opposing_player.arena_location
 				var pull_amount = opposing_player.movement_distance_between(previous_location, new_location)
+				local_conditions.fully_pulled = pull_amount == effect['amount']
 				if (other_start < performing_start and new_location > performing_start) or (other_start > performing_start and new_location < performing_start):
 					local_conditions.pulled_past = true
 				performing_player.add_power_bonus(pull_amount)
@@ -7819,6 +7834,8 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 			or space > previous_location and performing_player.arena_location > previous_location:
 				events += performing_player.pull(distance)
 				var new_location = opposing_player.arena_location
+				var pull_amount = opposing_player.movement_distance_between(other_start, new_location)
+				local_conditions.fully_pulled = pull_amount == effect['amount']
 				if (other_start < performing_start and new_location > performing_start) or (other_start > performing_start and new_location < performing_start):
 					local_conditions.pulled_past = true
 				_append_log_full(Enums.LogType.LogType_CharacterMovement, opposing_player, "is pulled %s, moving from space %s to %s." % [str(distance), str(previous_location), str(new_location)])
