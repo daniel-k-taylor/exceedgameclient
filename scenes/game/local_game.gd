@@ -5188,8 +5188,24 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 				decision_info.valid_zones = ['hand']
 				decision_info.limitation = effect['limitation']
 			else:
-				_append_log_full(Enums.LogType.LogType_Effect, performing_player, "has no valid cards in hand to boost with.")
-				events += performing_player.reveal_hand()
+				if "strike_instead_of_reveal" in effect and effect["strike_instead_of_reveal"]:
+					change_game_state(Enums.GameState.GameState_WaitForStrike)
+					decision_info.clear()
+					decision_info.type = Enums.DecisionType.DecisionType_StrikeNow
+					decision_info.player = performing_player.my_id
+					if active_boost:
+						# Don't send the event now, we're processing a boost.
+						# That has code to set flags on the active_boost to strike after the boost.
+						# There could be more effects before the strike occurs, so wait on the event until then
+						# and we don't want to send it twice.
+						pass
+					else:
+						events += [create_event(Enums.EventType.EventType_ForceStartStrike, performing_player.my_id, 0)]
+						if active_post_action_effect:
+							post_action_interruption = true
+				else:
+					_append_log_full(Enums.LogType.LogType_Effect, performing_player, "has no valid cards in hand to boost with.")
+					events += performing_player.reveal_hand()
 		"boost_specific_card":
 			var boost_name = effect['boost_name']
 			var boost_card_id = -1

@@ -640,6 +640,11 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 				effect_str += "Play %s %s from %s%s." % [amount_str, limitation_str, zone_string, ignore_costs_str]
 			else:
 				effect_str += "Play %s %s from hand%s." % [amount_str, limitation_str, ignore_costs_str]
+		'boost_or_reveal_hand':
+			var alternative = "Reveal hand"
+			if 'strike_instead_of_reveal' in effect and effect['strike_instead_of_reveal']:
+				alternative = "Strike"
+			effect_str += "Boost (%s if you cannot)" % alternative
 		'boost_specific_card':
 			effect_str += "Play a \"%s\" boost from hand" % effect['boost_name']
 		'boost_then_strike':
