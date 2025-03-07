@@ -1,6 +1,6 @@
 [gd_scene load_steps=3 format=3 uid="uid://i2fmgsopd4xp"]
 
-[ext_resource type="Script" path="res://scenes/game/emote_dialog.gd" id="1_4a0rs"]
+[ext_resource type="Script" uid="uid://ccgcjso1is00d" path="res://scenes/game/emote_dialog.gd" id="1_4a0rs"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_0ipmd"]
 bg_color = Color(0.141176, 0.141176, 0.141176, 0.580392)

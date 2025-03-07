@@ -1,6 +1,6 @@
 [gd_scene load_steps=4 format=3 uid="uid://b7ip37tv4588b"]
 
-[ext_resource type="Script" path="res://scenes/game/boost_infobutton.gd" id="1_bu7ns"]
+[ext_resource type="Script" uid="uid://bff75cjutfptf" path="res://scenes/game/boost_infobutton.gd" id="1_bu7ns"]
 [ext_resource type="Texture2D" uid="uid://cwp618cwyofhm" path="res://assets/icons/treasure_chest.png" id="2_dbs6t"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_dsyau"]

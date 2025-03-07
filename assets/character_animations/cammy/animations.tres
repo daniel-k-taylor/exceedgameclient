@@ -1,4 +1,4 @@
-[gd_resource type="SpriteFrames" load_steps=49 format=3 uid="uid://c2iok11psmgiu"]
+[gd_resource type="SpriteFrames" load_steps=49 format=3 uid="uid://dljahpu3xo2v6"]
 
 [ext_resource type="Texture2D" uid="uid://ckxg5ckjtsljd" path="res://assets/character_animations/cammy/cammyhit.png" id="1_qamn5"]
 [ext_resource type="Texture2D" uid="uid://cjb1xrrfx674i" path="res://assets/character_animations/cammy/cammyidle.png" id="2_yxfy2"]

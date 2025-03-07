@@ -1,6 +1,6 @@
 [gd_scene load_steps=11 format=3 uid="uid://dal56iqk5k8rh"]
 
-[ext_resource type="Script" path="res://scenes/game/action_menu.gd" id="1_lxy8k"]
+[ext_resource type="Script" uid="uid://cxeq7pacqen40" path="res://scenes/game/action_menu.gd" id="1_lxy8k"]
 [ext_resource type="Texture2D" uid="uid://dbohb8bxokjln" path="res://assets/icons/eye_show.png" id="2_f4rxt"]
 [ext_resource type="Texture2D" uid="uid://pdiyhalge6ju" path="res://assets/icons/eye_hide.png" id="3_87etl"]
 [ext_resource type="Texture2D" uid="uid://bpdpb3e74d2cu" path="res://assets/cards/arena_border_highlight_pressed.png" id="4_m7dp2"]

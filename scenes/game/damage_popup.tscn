@@ -1,6 +1,6 @@
 [gd_scene load_steps=5 format=3 uid="uid://v3tliqj7gecb"]
 
-[ext_resource type="Script" path="res://scenes/game/damage_popup.gd" id="1_6hnty"]
+[ext_resource type="Script" uid="uid://dr8ukpfv6ucjl" path="res://scenes/game/damage_popup.gd" id="1_6hnty"]
 
 [sub_resource type="Animation" id="Animation_f5l4v"]
 length = 0.001
@@ -72,8 +72,8 @@ tracks/2/keys = {
 
 [sub_resource type="AnimationLibrary" id="AnimationLibrary_jbijr"]
 _data = {
-"RESET": SubResource("Animation_f5l4v"),
-"Rise and Fade": SubResource("Animation_66f43")
+&"RESET": SubResource("Animation_f5l4v"),
+&"Rise and Fade": SubResource("Animation_66f43")
 }
 
 [node name="DamagePopup" type="Node2D"]

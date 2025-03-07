@@ -1,6 +1,6 @@
 [gd_scene load_steps=4 format=3 uid="uid://bf0ji4vayvdal"]
 
-[ext_resource type="Script" path="res://scenes/menu/versus_splash.gd" id="1_nqrdh"]
+[ext_resource type="Script" uid="uid://c5v85doxi2258" path="res://scenes/menu/versus_splash.gd" id="1_nqrdh"]
 
 [sub_resource type="Gradient" id="Gradient_dq67u"]
 colors = PackedColorArray(0.279825, 0, 0.0278985, 1, 4.33177e-07, 0.274201, 0.395359, 1)
