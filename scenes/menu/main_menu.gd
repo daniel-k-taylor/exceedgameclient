@@ -14,6 +14,7 @@ const CardBaseScene = preload("res://scenes/card/card_base.tscn")
 
 var _dialog_handler : Callable
 var _custom_deck_definition = null
+var _custom_buffer = null
 var image_loader : CardImageLoader
 
 #These only get set and used if run on web
@@ -444,7 +445,7 @@ func _on_char_select_select_character(char_id):
 			modal_dialog.set_text_fields("AI Custom Not Supported Yet", "OK", "")
 			update_buttons(false)
 		else:
-			_show_file_dialog(load_custom)
+			_show_file_dialog(load_custom, true)
 	else:
 		update_char(char_id, selecting_player)
 	_on_char_select_close_character_select()
@@ -529,13 +530,19 @@ func _on_modal_list_observe_match_pressed(row_index):
 	update_buttons(true)
 
 func _on_load_replay_button_pressed():
-	_show_file_dialog(load_replay)
+	_show_file_dialog(load_replay, true)
 
-func _show_file_dialog(dialog_hander : Callable):
+func _show_file_dialog(dialog_hander : Callable, loading_file : bool, file_name : String = ""):
 	_dialog_handler = dialog_hander
 	if OS.has_feature("web"):
 		window.input.click()
 	else:
+		if loading_file:
+			file_dialog.file_mode = FileDialog.FileMode.FILE_MODE_OPEN_FILE
+		else:
+			file_dialog.file_mode = FileDialog.FileMode.FILE_MODE_SAVE_FILE
+		if file_name:
+			file_dialog.current_file = file_name
 		file_dialog.visible = true
 
 func _on_settings_button_pressed():
@@ -564,7 +571,10 @@ func load_replay(data):
 		update_buttons(false)
 
 func _on_file_dialog_file_selected(path):
-	_dialog_handler.call([FileAccess.get_file_as_string(path)])
+	if file_dialog.file_mode == FileDialog.FileMode.FILE_MODE_SAVE_FILE:
+		_dialog_handler.call(path)
+	else:
+		_dialog_handler.call([FileAccess.get_file_as_string(path)])
 
 func load_custom(data):
 	var json = JSON.new()
@@ -590,21 +600,22 @@ func _on_view_cards_button_pressed() -> void:
 		var error_message = "Cannot view Random"
 		modal_dialog.set_text_fields(error_message, "OK", "")
 	else:
-		close_popout_button.visible = true
-		var deck = _get_deck(player_selected_character)
-		CardDefinitions.load_deck_if_custom(deck)
-		var card_popout = CardPopoutScene.instantiate()
-		card_popout_parent.add_child(card_popout)
-		card_popout.close_window.connect(_on_popout_close_window)
-		card_popout.set_amount("")
-		card_popout.set_title("Downloading Cards...")
-		card_popout.set_instructions(null)
-		card_popout.set_reference_toggle("", false)
-		var cards = await spawn_deck(deck)
-		if close_popout_button.visible:
-			card_popout.set_title("DECK REFERENCE")
-			card_popout.show_cards(cards)
+		_show_popout_for_deck(player_selected_character)
 
+func _show_popout_for_deck(deck):
+	close_popout_button.visible = true
+	CardDefinitions.load_deck_if_custom(deck)
+	var card_popout = CardPopoutScene.instantiate()
+	card_popout_parent.add_child(card_popout)
+	card_popout.close_window.connect(_on_popout_close_window)
+	card_popout.set_amount("")
+	card_popout.set_title("Downloading Cards...")
+	card_popout.set_instructions(null)
+	card_popout.set_reference_toggle("", false)
+	var cards = await spawn_deck(deck)
+	if close_popout_button.visible:
+		card_popout.set_title("DECK REFERENCE")
+		card_popout.show_cards(cards)
 
 func spawn_deck(
 	deck_def
@@ -741,3 +752,30 @@ func _on_popout_close_window() -> void:
 
 func _on_close_popout_button_pressed() -> void:
 	_on_popout_close_window()
+
+func _on_customs_browser_button_pressed() -> void:
+	modal_list.show_customs_list()
+
+func _on_modal_list_view_custom_pressed(row_index: int) -> void:
+	var customs = NetworkManager.get_customs_dict()
+	var keys = customs.keys()
+	var custom_chosen = customs[keys[row_index]]
+	_show_popout_for_deck(custom_chosen)
+
+func save_custom(path):
+	var file_access = FileAccess.open(path, FileAccess.WRITE)
+	file_access.store_buffer(_custom_buffer)
+	file_access.close()
+
+func _on_modal_list_download_custom_pressed(row_index: int) -> void:
+	var customs = NetworkManager.get_customs_dict()
+	var keys = customs.keys()
+	var custom_chosen = customs[keys[row_index]]
+
+	var filename = custom_chosen["id"] + ".json"
+	var custom_as_str = JSON.stringify(custom_chosen, "\t", false)
+	_custom_buffer = custom_as_str.to_utf8_buffer()
+	if OS.has_feature("web"):
+		JavaScriptBridge.download_buffer(_custom_buffer, filename, "text/plain")
+	else:
+		_show_file_dialog(save_custom, false, filename)

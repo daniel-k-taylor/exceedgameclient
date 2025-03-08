@@ -277,6 +277,16 @@ offset_bottom = 381.0
 theme_override_font_sizes/font_size = 32
 text = "View Cards"
 
+[node name="CustomsBrowserButton" type="Button" parent="."]
+layout_mode = 0
+offset_left = 13.0
+offset_top = 400.0
+offset_right = 317.0
+offset_bottom = 453.0
+theme_override_font_sizes/font_size = 32
+text = "Community
+Customs"
+
 [node name="LoadReplayButton" type="Button" parent="."]
 layout_mode = 0
 offset_left = 13.0
@@ -469,13 +479,16 @@ access = 2
 [connection signal="text_changed" from="PlayerNameBox" to="." method="_on_player_name_box_text_changed"]
 [connection signal="pressed" from="UpdateNameButton" to="." method="_on_update_name_button_pressed"]
 [connection signal="pressed" from="ViewCardsButton" to="." method="_on_view_cards_button_pressed"]
+[connection signal="pressed" from="CustomsBrowserButton" to="." method="_on_customs_browser_button_pressed"]
 [connection signal="pressed" from="LoadReplayButton" to="." method="_on_load_replay_button_pressed"]
 [connection signal="pressed" from="ReconnectToServerButton" to="." method="_on_reconnect_to_server_button_pressed"]
 [connection signal="pressed" from="PlayerListContainer/PlayerListHBox/PlayersButton" to="." method="_on_players_button_pressed"]
 [connection signal="pressed" from="RoomListContainer/RoomListHBox/MatchesButton" to="." method="_on_matches_button_pressed"]
 [connection signal="close_character_select" from="CharSelect" to="." method="_on_char_select_close_character_select"]
 [connection signal="select_character" from="CharSelect" to="." method="_on_char_select_select_character"]
+[connection signal="download_custom_pressed" from="ModalList" to="." method="_on_modal_list_download_custom_pressed"]
 [connection signal="join_match_pressed" from="ModalList" to="." method="_on_modal_list_join_match_pressed"]
 [connection signal="observe_match_pressed" from="ModalList" to="." method="_on_modal_list_observe_match_pressed"]
+[connection signal="view_custom_pressed" from="ModalList" to="." method="_on_modal_list_view_custom_pressed"]
 [connection signal="pressed" from="ClosePopoutButton" to="." method="_on_close_popout_button_pressed"]
 [connection signal="file_selected" from="FileDialog" to="." method="_on_file_dialog_file_selected"]
