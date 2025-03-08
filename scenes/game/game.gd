@@ -1709,9 +1709,10 @@ func _on_name_opponent_card_begin(event):
 	spawn_damage_popup("Naming Card", player)
 	var normal_only = event['event_type'] == Enums.EventType.EventType_ReadingNormal or event['event_type'] == Enums.EventType.EventType_Boost_Sidestep
 	var can_name_fake_card = event['event_type'] == Enums.EventType.EventType_Boost_NameCardOpponentDiscards or event['event_type'] == Enums.EventType.EventType_Boost_ZeroVector
+	var amount = event.get('number', 1)
 
 	var cancel_text = "Reveal Hand"
-	if event['event_type'] == Enums.EventType.EventType_Boost_ZeroVector:
+	if event['event_type'] == Enums.EventType.EventType_Boost_ZeroVector or amount > 1:
 		cancel_text = "Name Nonexistent Card"
 
 	if game_wrapper.get_decision_info().bonus_effect:

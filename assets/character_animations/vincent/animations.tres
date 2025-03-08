@@ -1,0 +1,16 @@
+[gd_resource type="SpriteFrames" load_steps=2 format=3 uid="uid://ttp2wiomfrdq"]
+
+[ext_resource type="Texture2D" uid="uid://to8px4da80u7" path="res://assets/portraits/vincent.png" id="1_pymtk"]
+
+[resource]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("1_pymtk")
+}],
+"loop": true,
+"name": &"idle",
+"speed": 6.0
+}]
+metadata/flip = true
+metadata/scaling = 0.75

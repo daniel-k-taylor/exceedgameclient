@@ -1,0 +1,210 @@
+{
+	"id": "vincent",
+	"season": 1,
+	"display_name": "Vincent",
+	"exceed_cost": 3,
+	"ability_effects": [
+		{
+			"timing": "set_strike",
+			"effect_type": "force_for_effect",
+			"per_force_effect": {
+				"combine_multiple_into_one": true,
+				"effect_type": "guardup",
+				"amount": 2
+			},
+			"overall_effect": null,
+			"force_max": 3
+		}
+	],
+	"exceed_ability_effects": [
+		{
+			"timing": "set_strike",
+			"effect_type": "force_for_effect",
+			"per_force_effect": {
+				"combine_multiple_into_one": true,
+				"effect_type": "armorup",
+				"amount": 1,
+				"and": {
+					"effect_type": "guardup",
+					"amount": 2
+				}
+			},
+			"overall_effect": null,
+			"force_max": 3
+		}
+	],
+	"image_resources": {
+		"character_default": {
+			"url": "https://i.imgur.com/lBhpIdN.jpeg",
+			"multiple_cards": false
+		},
+		"character_exceeded": {
+			"url": "https://i.imgur.com/I62m84v.jpeg",
+			"multiple_cards": false
+		},
+		"cardback": {
+			"url": "https://i.imgur.com/s6wpKBq.jpeg",
+			"multiple_cards": false
+		},
+		"specials": {
+			"url": "https://i.imgur.com/rfKHeXL.jpeg",
+			"multiple_cards": true
+		},
+		"normals": {
+			"url": "https://i.imgur.com/PFHTq9B.jpeg",
+			"multiple_cards": true
+		}
+	},
+	"cards": [
+		{
+			"definition_id": "vincent_ballotfixing",
+			"image_name": "specials",
+			"image_index": 5
+		},
+		{
+			"definition_id": "vincent_ballotfixing",
+			"image_name": "specials",
+			"image_index": 5
+		},
+		{
+			"definition_id": "vincent_phoenixrevival",
+			"image_name": "specials",
+			"image_index": 6
+		},
+		{
+			"definition_id": "vincent_phoenixrevival",
+			"image_name": "specials",
+			"image_index": 6
+		},
+		{
+			"definition_id": "vincent_crimsonbarrage",
+			"image_name": "specials",
+			"image_index": 4
+		},
+		{
+			"definition_id": "vincent_crimsonbarrage",
+			"image_name": "specials",
+			"image_index": 4
+		},
+		{
+			"definition_id": "vincent_gatlingpunch",
+			"image_name": "specials",
+			"image_index": 1
+		},
+		{
+			"definition_id": "vincent_gatlingpunch",
+			"image_name": "specials",
+			"image_index": 1
+		},
+		{
+			"definition_id": "vincent_majoritywhip",
+			"image_name": "specials",
+			"image_index": 2
+		},
+		{
+			"definition_id": "vincent_majoritywhip",
+			"image_name": "specials",
+			"image_index": 2
+		},
+		{
+			"definition_id": "vincent_nationalguard",
+			"image_name": "specials",
+			"image_index": 3
+		},
+		{
+			"definition_id": "vincent_nationalguard",
+			"image_name": "specials",
+			"image_index": 3
+		},
+		{
+			"definition_id": "vincent_phoenixascent",
+			"image_name": "specials",
+			"image_index": 0
+		},
+		{
+			"definition_id": "vincent_phoenixascent",
+			"image_name": "specials",
+			"image_index": 0
+		},
+		{
+			"definition_id": "standard_normal_grasp",
+			"image_name": "normals",
+			"image_index": 0
+		},
+		{
+			"definition_id": "standard_normal_grasp",
+			"image_name": "normals",
+			"image_index": 0
+		},
+		{
+			"definition_id": "standard_normal_cross",
+			"image_name": "normals",
+			"image_index": 1
+		},
+		{
+			"definition_id": "standard_normal_cross",
+			"image_name": "normals",
+			"image_index": 1
+		},
+		{
+			"definition_id": "standard_normal_assault",
+			"image_name": "normals",
+			"image_index": 2
+		},
+		{
+			"definition_id": "standard_normal_assault",
+			"image_name": "normals",
+			"image_index": 2
+		},
+		{
+			"definition_id": "standard_normal_dive",
+			"image_name": "normals",
+			"image_index": 3
+		},
+		{
+			"definition_id": "standard_normal_dive",
+			"image_name": "normals",
+			"image_index": 3
+		},
+		{
+			"definition_id": "standard_normal_spike",
+			"image_name": "normals",
+			"image_index": 4
+		},
+		{
+			"definition_id": "standard_normal_spike",
+			"image_name": "normals",
+			"image_index": 4
+		},
+		{
+			"definition_id": "standard_normal_sweep",
+			"image_name": "normals",
+			"image_index": 5
+		},
+		{
+			"definition_id": "standard_normal_sweep",
+			"image_name": "normals",
+			"image_index": 5
+		},
+		{
+			"definition_id": "standard_normal_focus",
+			"image_name": "normals",
+			"image_index": 6
+		},
+		{
+			"definition_id": "standard_normal_focus",
+			"image_name": "normals",
+			"image_index": 6
+		},
+		{
+			"definition_id": "standard_normal_block",
+			"image_name": "normals",
+			"image_index": 7
+		},
+		{
+			"definition_id": "standard_normal_block",
+			"image_name": "normals",
+			"image_index": 7
+		}
+	]
+}

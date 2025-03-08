@@ -772,6 +772,8 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 				effect_str += "Close that much."
 			else:
 				effect_str += "Close " + str(effect['amount'])
+		"close_damagetaken":
+			effect_str += "Close %s per damage taken this strike" % effect['amount']
 		"close_INTERNAL":
 			effect_str += "Close " + str(effect['amount'])
 		"copy_other_hit_effect":
