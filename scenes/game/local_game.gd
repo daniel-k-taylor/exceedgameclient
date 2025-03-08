@@ -3669,8 +3669,8 @@ func initialize_game(
 ):
 	random_number_generator.seed = seed_value
 	card_db = CardDatabase.new(image_loader)
-	card_db.load_deck_if_custom(player_deck)
-	card_db.load_deck_if_custom(opponent_deck)
+	CardDefinitions.load_deck_if_custom(player_deck)
+	CardDefinitions.load_deck_if_custom(opponent_deck)
 	var player_card_id_start = 100
 	var opponent_card_id_start = 200
 	if first_player == Enums.PlayerId.PlayerId_Opponent:

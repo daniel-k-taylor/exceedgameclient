@@ -1,6 +1,6 @@
 extends Node
 
-var card_data = []
+var card_data = {}
 
 var card_definitions_path = "res://data/card_definitions.json"
 var decks_path = "res://data/decks"
@@ -70,7 +70,10 @@ func convert_floats_to_ints(data):
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
-	card_data = load_json_file(card_definitions_path)
+	card_data = {}
+	var all_cards = load_json_file(card_definitions_path)
+	for card in all_cards:
+		card_data[card['id']] = card
 	var deck_files = DirAccess.get_files_at(decks_path)
 	for deck_file in deck_files:
 		if deck_file[0] == "_":
@@ -80,20 +83,22 @@ func _ready():
 			decks[deck_data['id']] = deck_data
 
 func get_card(definition_id):
-	for card in card_data:
-		if card['id'] == definition_id:
-			return card
+	var card = card_data.get(definition_id)
+	if card:
+		return card
 	assert(false, "Missing card definition: " + definition_id)
 	return null
+
+func load_deck_if_custom(deck_definition):
+	var custom_cards = deck_definition.get("custom_card_definitions")
+	if custom_cards:
+		load_custom_cards(custom_cards)
 
 func load_custom_cards(custom_cards):
 	if custom_cards == null:
 		return
 	for card in custom_cards:
-		if card['id'] in card_data:
-			# Possible if mirror custom match?
-			continue
-		card_data.append(card)
+		card_data[card['id']] = card
 
 class EffectSummary:
 	var effect

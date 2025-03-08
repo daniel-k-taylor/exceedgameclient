@@ -6,11 +6,15 @@ signal start_remote_game(vs_info, data)
 
 const RoomMaxLen = 12
 const PlayerNameMaxLen = 12
+const OffScreen = Vector2(-1000, -1000)
 
 const MatchQueueItemScene = preload("res://scenes/menu/match_queue_item.tscn")
+const CardPopoutScene = preload("res://scenes/game/card_popout.tscn")
+const CardBaseScene = preload("res://scenes/card/card_base.tscn")
 
 var _dialog_handler : Callable
 var _custom_deck_definition = null
+var image_loader : CardImageLoader
 
 #These only get set and used if run on web
 var window
@@ -48,6 +52,10 @@ var file_load_callback
 @onready var cancel_button = $CancelButton
 @onready var match_queues : HBoxContainer = $Queues
 
+@onready var card_popout_parent : Node2D = $CardPopoutParent
+@onready var card_zone : Node2D = $CardZone
+@onready var close_popout_button : Button = $ClosePopoutButton
+
 @onready var label_font_normal = 32
 @onready var label_font_small = 18
 @onready var label_length_threshold = 15
@@ -58,6 +66,9 @@ var file_load_callback
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
+	image_loader = CardImageLoader.new()
+	add_child(image_loader)
+
 	$VersionContainer/MarginContainer/HBoxContainer/ClientVersion.text = GlobalSettings.get_client_version()
 	NetworkManager.connect("connected_to_server", _on_connected)
 	NetworkManager.connect("disconnected_from_server", _on_disconnected)
@@ -572,3 +583,161 @@ func _get_deck(char_id):
 		return _custom_deck_definition
 	else:
 		return CardDefinitions.get_deck_from_str_id(char_id)
+
+
+func _on_view_cards_button_pressed() -> void:
+	if player_selected_character.begins_with("random"):
+		var error_message = "Cannot view Random"
+		modal_dialog.set_text_fields(error_message, "OK", "")
+	else:
+		close_popout_button.visible = true
+		var deck = _get_deck(player_selected_character)
+		CardDefinitions.load_deck_if_custom(deck)
+		var card_popout = CardPopoutScene.instantiate()
+		card_popout_parent.add_child(card_popout)
+		card_popout.close_window.connect(_on_popout_close_window)
+		card_popout.set_amount("")
+		card_popout.set_title("Downloading Cards...")
+		card_popout.set_instructions(null)
+		card_popout.set_reference_toggle("", false)
+		var cards = await spawn_deck(deck)
+		if close_popout_button.visible:
+			card_popout.set_title("DECK REFERENCE")
+			card_popout.show_cards(cards)
+
+
+func spawn_deck(
+	deck_def
+):
+	var image_resources = deck_def['image_resources']
+	var cards = []
+	var deck_list = []
+	for deck_card_def in deck_def['cards']:
+		var card_def = CardDefinitions.get_card(deck_card_def['definition_id'])
+		var image_atlas = image_resources[deck_card_def['image_name']]
+		var image_index = deck_card_def['image_index']
+		var card = GameCard.new(-1, card_def, -1, image_atlas, image_index)
+		image_loader.load_image_page(card.image_atlas)
+		deck_list.append(card)
+
+	cards.append(await create_character_reference_card(false, card_zone, image_resources))
+	cards.append(await create_character_reference_card(true, card_zone, image_resources))
+
+	# Setup buddy if they have one.
+	var buddy_graphics = []
+	if not deck_def.get('hide_buddy_reference'):
+		if 'buddy_card' in deck_def:
+			buddy_graphics.append(deck_def['buddy_card'])
+			if 'buddy_exceeds' in deck_def and deck_def['buddy_exceeds']:
+				buddy_graphics.append(deck_def['buddy_card'] + "_exceeded")
+		elif 'buddy_card_graphic_override' in deck_def:
+			for buddy_card in deck_def['buddy_card_graphic_override']:
+				buddy_graphics.append(buddy_card)
+		elif 'buddy_cards' in deck_def:
+			for buddy_card in deck_def['buddy_cards']:
+				buddy_graphics.append(buddy_card)
+				if 'buddy_exceeds' in deck_def and deck_def['buddy_exceeds']:
+					buddy_graphics.append(buddy_card + "_exceeded")
+
+	var created_buddy_cards = []
+	for buddy_id in buddy_graphics:
+		if buddy_id in created_buddy_cards:
+			# Skip any that share graphics.
+			continue
+		created_buddy_cards.append(buddy_id)
+		var buddy_card_id = CardBase.BuddyCardReferenceId
+		var new_card = await create_buddy_reference_card(buddy_id, false, card_zone, buddy_card_id, image_resources)
+		cards.append(new_card)
+
+	var previous_def_id = ""
+	var card_num = 1
+	for card in deck_list:
+		if previous_def_id != card.definition['id']:
+			var copy_card = await create_card(
+				card_num,
+				card.get_image_url_index_data(),
+				card_zone,
+				card.definition['display_name'],
+				card.definition['boost']['display_name']
+			)
+			card_num += 1
+			copy_card.set_card_and_focus(OffScreen, 0, CardBase.ReferenceCardScale)
+			copy_card.resting_scale = CardBase.ReferenceCardScale
+			copy_card.change_state(CardBase.CardState.CardState_Offscreen)
+			copy_card.flip_card_to_front(true)
+			previous_def_id = card.definition['id']
+			cards.append(copy_card)
+	return cards
+
+func get_card_node_name(id):
+	return "Card_" + str(id)
+
+func create_card(id, image_url_index, parent, card_name, boost_name) -> CardBase:
+	var new_card : CardBase = CardBaseScene.instantiate()
+	parent.add_child(new_card)
+
+	var url_loaded_image = null
+	if image_url_index:
+		url_loaded_image = await image_loader.get_card_image(image_url_index["url"], image_url_index["index"])
+
+	new_card.initialize_card(
+		id,
+		url_loaded_image,
+		null,
+		false,
+		card_name,
+		boost_name
+	)
+
+	new_card.name = get_card_node_name(id)
+	return new_card
+
+
+func create_character_reference_card(exceeded : bool, zone, image_resources):
+	var image_url = image_resources['character_default']['url']
+	if exceeded:
+		image_url = image_resources['character_exceeded']['url']
+	return await _create_reference_card(image_url, "Character Card", zone, CardBase.CharacterCardReferenceId)
+
+func create_buddy_reference_card(buddy_id, exceeded : bool, zone, click_buddy_id, image_resources):
+	var image_url = image_resources[buddy_id]['url']
+	if exceeded:
+		image_url = image_resources[buddy_id + '_exceeded']['url']
+	return await _create_reference_card(image_url, "Extra Card", zone, click_buddy_id)
+
+func _create_reference_card(
+	image_url : String,
+	card_name : String,
+	zone,
+	card_id : int
+):
+	var new_card : CardBase = CardBaseScene.instantiate()
+	zone.add_child(new_card)
+
+	var url_loaded_image = await image_loader.get_card_image(image_url, 0)
+
+	new_card.initialize_card(
+		card_id,
+		url_loaded_image,
+		"",
+		false,
+		card_name,
+		""
+	)
+	new_card.name = card_name
+
+	new_card.set_card_and_focus(OffScreen, 0, CardBase.ReferenceCardScale)
+	new_card.resting_scale = CardBase.ReferenceCardScale
+	new_card.change_state(CardBase.CardState.CardState_Offscreen)
+	new_card.flip_card_to_front(true)
+	return new_card
+
+func _on_popout_close_window() -> void:
+	while card_popout_parent.get_child_count() > 0:
+		var child = card_popout_parent.get_child(0)
+		card_popout_parent.remove_child(child)
+		child.queue_free()
+	close_popout_button.visible = false
+
+func _on_close_popout_button_pressed() -> void:
+	_on_popout_close_window()

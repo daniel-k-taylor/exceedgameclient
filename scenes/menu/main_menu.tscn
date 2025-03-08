@@ -268,6 +268,15 @@ offset_bottom = 309.0
 theme_override_font_sizes/font_size = 32
 text = "Update Name"
 
+[node name="ViewCardsButton" type="Button" parent="."]
+layout_mode = 0
+offset_left = 13.0
+offset_top = 328.0
+offset_right = 317.0
+offset_bottom = 381.0
+theme_override_font_sizes/font_size = 32
+text = "View Cards"
+
 [node name="LoadReplayButton" type="Button" parent="."]
 layout_mode = 0
 offset_left = 13.0
@@ -377,27 +386,6 @@ layout_mode = 2
 theme_override_font_sizes/font_size = 32
 text = "10"
 
-[node name="CharSelect" parent="." instance=ExtResource("2_6qq11")]
-visible = false
-
-[node name="ModalList" parent="." instance=ExtResource("9_ro6xo")]
-visible = false
-layout_mode = 0
-anchors_preset = 0
-anchor_right = 0.0
-anchor_bottom = 0.0
-grow_horizontal = 1
-grow_vertical = 1
-
-[node name="ModalDialog" parent="." instance=ExtResource("10_stodf")]
-visible = false
-layout_mode = 0
-anchors_preset = 0
-anchor_right = 0.0
-anchor_bottom = 0.0
-grow_horizontal = 1
-grow_vertical = 1
-
 [node name="VersionContainer" type="PanelContainer" parent="."]
 layout_mode = 0
 offset_left = 16.0
@@ -424,6 +412,41 @@ text = "Build:"
 layout_mode = 2
 text = "##"
 
+[node name="CharSelect" parent="." instance=ExtResource("2_6qq11")]
+visible = false
+
+[node name="ModalList" parent="." instance=ExtResource("9_ro6xo")]
+visible = false
+layout_mode = 0
+anchors_preset = 0
+anchor_right = 0.0
+anchor_bottom = 0.0
+grow_horizontal = 1
+grow_vertical = 1
+
+[node name="ModalDialog" parent="." instance=ExtResource("10_stodf")]
+visible = false
+layout_mode = 0
+anchors_preset = 0
+anchor_right = 0.0
+anchor_bottom = 0.0
+grow_horizontal = 1
+grow_vertical = 1
+
+[node name="ClosePopoutButton" type="Button" parent="."]
+visible = false
+modulate = Color(1, 1, 1, 0)
+custom_minimum_size = Vector2(1280, 720)
+layout_mode = 0
+offset_right = 1280.0
+offset_bottom = 720.0
+
+[node name="CardZone" type="Node2D" parent="."]
+visible = false
+position = Vector2(16, 664)
+
+[node name="CardPopoutParent" type="Node2D" parent="."]
+
 [node name="PreferencesWindow" parent="." instance=ExtResource("12_7sva6")]
 visible = false
 
@@ -445,6 +468,7 @@ access = 2
 [connection signal="focus_entered" from="PlayerNameBox" to="." method="_on_player_name_box_focus_entered"]
 [connection signal="text_changed" from="PlayerNameBox" to="." method="_on_player_name_box_text_changed"]
 [connection signal="pressed" from="UpdateNameButton" to="." method="_on_update_name_button_pressed"]
+[connection signal="pressed" from="ViewCardsButton" to="." method="_on_view_cards_button_pressed"]
 [connection signal="pressed" from="LoadReplayButton" to="." method="_on_load_replay_button_pressed"]
 [connection signal="pressed" from="ReconnectToServerButton" to="." method="_on_reconnect_to_server_button_pressed"]
 [connection signal="pressed" from="PlayerListContainer/PlayerListHBox/PlayersButton" to="." method="_on_players_button_pressed"]
@@ -453,4 +477,5 @@ access = 2
 [connection signal="select_character" from="CharSelect" to="." method="_on_char_select_select_character"]
 [connection signal="join_match_pressed" from="ModalList" to="." method="_on_modal_list_join_match_pressed"]
 [connection signal="observe_match_pressed" from="ModalList" to="." method="_on_modal_list_observe_match_pressed"]
+[connection signal="pressed" from="ClosePopoutButton" to="." method="_on_close_popout_button_pressed"]
 [connection signal="file_selected" from="FileDialog" to="." method="_on_file_dialog_file_selected"]
