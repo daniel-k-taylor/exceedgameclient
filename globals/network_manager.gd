@@ -8,6 +8,7 @@ signal game_message_received(message)
 signal observe_started(data)
 signal other_player_quit(is_disconnect)
 signal players_update(players, matches, queues, newly_available_match)
+signal customs_update(customs)
 signal name_update(name)
 
 enum NetworkState {
@@ -20,6 +21,7 @@ var network_state = NetworkState.NetworkState_NotConnected
 var cached_players = []
 var cached_matches = []
 var cached_queues = []
+var cached_customs = {}
 
 const azure_url = "wss://fightingcardslinux.azurewebsites.net"
 const local_url = "ws://localhost:8080"
@@ -107,6 +109,8 @@ func _handle_server_response(data):
 			_handle_player_quit(data_obj)
 		"players_update":
 			_handle_players_update(data_obj)
+		"customs_update":
+			_handle_customs_update(data_obj)
 
 func _handle_server_hello(hello_message):
 	var player_name = hello_message["player_name"]
@@ -242,6 +246,9 @@ func _handle_players_update(message):
 
 	players_update.emit(player_list, match_list, queues, newly_available_match)
 
+func _handle_customs_update(message):
+	cached_customs = CardDefinitions.convert_floats_to_ints(message["customs"])
+	customs_update.emit(cached_customs)
 
 ### Commands ###
 
@@ -324,6 +331,16 @@ func set_lobby_state(lobby_state : String):
 	var json = JSON.stringify(message)
 	_socket.send_text(json)
 
+func get_customs():
+	if not _is_socket_open(): return
+	var message = {
+		"type": "get_customs",
+	}
+	var json = JSON.stringify(message)
+	_socket.send_text(json)
+
+### Getters ###
+
 func get_player_list():
 	return cached_players
 
@@ -332,6 +349,9 @@ func get_match_list():
 
 func get_queue_list():
 	return cached_queues
+
+func get_customs_dict():
+	return cached_customs
 
 func any_available_match():
 	for queue in cached_queues:
