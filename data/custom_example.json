@@ -1,6 +1,8 @@
 {
 	"id": "customer",
 	"season": -1,
+	"author": "DT",
+	"difficulty": "***",
 	"display_name": "Customer",
 	"exceed_cost": 2,
 	"ability_effects": [

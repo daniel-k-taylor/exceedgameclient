@@ -3,6 +3,8 @@ extends CenterContainer
 
 signal join_match_pressed(row_index : int)
 signal observe_match_pressed(row_index : int)
+signal view_custom_pressed(row_index : int)
+signal download_custom_pressed(row_index : int)
 
 @onready var table : Table = $PanelContainer/Margin/Table
 
@@ -10,12 +12,14 @@ enum ShowListState {
 	ShowListState_None,
 	ShowListState_Players,
 	ShowListState_Matches,
+	ShowListState_Customs,
 }
 
 var show_list_state : ShowListState = ShowListState.ShowListState_None
 
 func _ready():
 	NetworkManager.connect("players_update", _on_players_update)
+	NetworkManager.connect("customs_update", _on_customs_update)
 
 func _on_players_update(_players, _matches, _queues, _newly_available_match):
 	if visible:
@@ -24,6 +28,12 @@ func _on_players_update(_players, _matches, _queues, _newly_available_match):
 				update_players()
 			ShowListState.ShowListState_Matches:
 				update_matches()
+
+func _on_customs_update(_customs):
+	if visible:
+		match show_list_state:
+			ShowListState.ShowListState_Customs:
+				update_customs()
 
 func update_players():
 	var players = NetworkManager.get_player_list()
@@ -78,6 +88,41 @@ func update_matches():
 	}
 	update_table(list_data)
 
+func update_customs():
+	var customs = NetworkManager.get_customs_dict()
+	var rows = []
+	var rows_buttons_enabled = []
+	var rows_icons = []
+	for key in customs:
+		var custom_info = customs[key]
+		var buttons_enabled = []
+		var view_str = "View"
+		var download_str = "Download"
+		buttons_enabled.append(0)
+		buttons_enabled.append(1)
+		var row = [
+			custom_info["display_name"],
+			custom_info.get("author", "???"),
+			custom_info.get("difficulty", "*"),
+			"",
+			view_str,
+			download_str
+		]
+		rows.append(row)
+		rows_buttons_enabled.append(buttons_enabled)
+
+		var row_icons = []
+		rows_icons.append(row_icons)
+
+	var list_data = {
+		"title": "Community Customs",
+		"headers": ["Name", "Author", "Difficulty", "", "View Deck", "Download"],
+		"rows": rows,
+		"rows_icons": rows_icons,
+		"rows_buttons_enabled": rows_buttons_enabled,
+	}
+	update_table(list_data)
+
 func update_table(data : Dictionary):
 	table.set_title(data['title'])
 	table.set_headers(data['headers'])
@@ -94,6 +139,13 @@ func show_match_list():
 	update_matches()
 	visible = true
 
+func show_customs_list():
+	NetworkManager.get_customs()
+	show_list_state = ShowListState.ShowListState_Customs
+	update_customs()
+	visible = true
+
+
 func _on_table_row_button_clicked(row_index, button_index):
 	visible = false
 	match show_list_state:
@@ -105,6 +157,12 @@ func _on_table_row_button_clicked(row_index, button_index):
 					join_match_pressed.emit(row_index)
 				1:
 					observe_match_pressed.emit(row_index)
+		ShowListState.ShowListState_Customs:
+			match button_index:
+				0:
+					view_custom_pressed.emit(row_index)
+				1:
+					download_custom_pressed.emit(row_index)
 
 func _on_close_outer_click_pressed():
 	visible = false
