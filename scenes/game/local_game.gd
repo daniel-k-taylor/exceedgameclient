@@ -2609,7 +2609,7 @@ class Player:
 			events += move_card_from_hand_to_gauge(card_id)
 		return events
 
-	func discard_matching_or_reveal(card_definition_id : String, discard_all_copies : bool = false):
+	func discard_matching_or_reveal(card_definition_id : String, discard_all_copies : bool = false, skip_reveal : bool = false):
 		var events = []
 		var cards_to_discard = []
 		for card in hand:
@@ -2627,8 +2627,9 @@ class Player:
 			return events
 
 		# Not found
-		parent._append_log_full(Enums.LogType.LogType_Effect, self, "does not have the named card.")
-		events += reveal_hand()
+		if not skip_reveal:
+			parent._append_log_full(Enums.LogType.LogType_Effect, self, "does not have the named card.")
+			events += reveal_hand()
 		return events
 
 	func discard_topdeck():
@@ -6438,14 +6439,19 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 			else:
 				var before_discard_count = opposing_player.discards.size()
 				var effect_copy = decision_info.effect
+				var reveal_hand_after = effect_copy.get("reveal_hand_after")
 				var discard_all_copies = effect_copy.get("discard_all_copies", false)
 				for discard_name in decision_info.extra_info:
-					events += opposing_player.discard_matching_or_reveal(discard_name, discard_all_copies)
+					events += opposing_player.discard_matching_or_reveal(
+						discard_name,
+						discard_all_copies,
+						reveal_hand_after # skip_reveal=true if we're revealing the hand afterwards.
+					)
 
 				var discarded_card = before_discard_count < opposing_player.discards.size()
 				if discarded_card and decision_info.bonus_effect:
 					events += handle_strike_effect(decision_info.choice_card_id, decision_info.bonus_effect, performing_player)
-				if effect_copy.get("reveal_hand_after"):
+				if reveal_hand_after:
 					events += opposing_player.reveal_hand()
 		"name_range":
 			decision_info.clear()
