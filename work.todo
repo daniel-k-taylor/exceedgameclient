@@ -1,7 +1,5 @@
 Bug:
     Breaking:
-        Treasure:
-            ☐ Things in chest don't show up in deck counts on dive charge, so you know stuff is in there.
         Review mid-strike Tech interactions:
             - Faust remove boost effects needs to be reviewed, stuff like powerup_opponent and other random effects that Faust can remove mid-strike
             - probably any during_strike ability?
