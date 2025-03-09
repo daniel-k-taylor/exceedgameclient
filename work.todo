@@ -9,12 +9,11 @@ Bug:
         ☐ Clean up choose from topdeck for searching library
         ☐ Add Generic ChooseCardsFromZoneToZone
         ☐ Load replays from the server via match id - display match id to user, load from blob storage via id, simplify id from guid
-        ☐ Palchelbel Cannon and other min_amount=0 shouldn't have an OK button and pass button for 0.
-        ☐ Highlight zone that you need popout selection
+        ☐ Pachelbel Cannon and other min_amount=0 shouldn't have an OK button and pass button for 0.
+        ☐ Draw a highlight on the zone that you need popout selection, or otherwise have a button to bring up the right zone.
         ☐ Some characters default to character action for strike and have a way to turn it off?
-        ☐ Move action buttons around
         ☐ Hilda Condensity/Happy Chaos Steady Aim - played not faceup is obvious which card it is due to delay while player decides choice
-        ☐ cpu tech brutality/beheaded cards
+    AI bugs:
         ☐ Shadaloo Intelligence from AI hangs
         ☐ AI Akuma Fakout asks for a 2nd card afterwards and forces wild swing?
  Write tests for:
@@ -57,7 +56,6 @@ Tasks:
         ☐ Range indicator between players
         ☐ Are you sure when playing tech effect boost that does nothing
     ☐ Reorder opponent hand in a way that you can't keep track with effort
-    ☐ Add a info screen after character select on the main menu you can click to show all card for the character.
     ☐ Combat Log always on screen?
 
     ☐ Add combat log preferences to saved data
