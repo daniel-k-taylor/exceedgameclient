@@ -6439,7 +6439,7 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 			else:
 				var before_discard_count = opposing_player.discards.size()
 				var effect_copy = decision_info.effect
-				var reveal_hand_after = effect_copy.get("reveal_hand_after")
+				var reveal_hand_after = effect_copy.get("reveal_hand_after", false)
 				var discard_all_copies = effect_copy.get("discard_all_copies", false)
 				for discard_name in decision_info.extra_info:
 					events += opposing_player.discard_matching_or_reveal(
