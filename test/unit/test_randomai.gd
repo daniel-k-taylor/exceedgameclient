@@ -685,3 +685,6 @@ func test_nehtali_100():
 
 func test_remiliss_100():
 	run_iterations_with_deck("remiliss")
+
+func test_vincent_100():
+	run_iterations_with_deck("vincent")

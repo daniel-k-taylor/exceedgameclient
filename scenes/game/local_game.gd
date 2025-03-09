@@ -2609,18 +2609,27 @@ class Player:
 			events += move_card_from_hand_to_gauge(card_id)
 		return events
 
-	func discard_matching_or_reveal(card_definition_id : String):
+	func discard_matching_or_reveal(card_definition_id : String, discard_all_copies : bool = false, skip_reveal : bool = false):
 		var events = []
+		var cards_to_discard = []
 		for card in hand:
 			if card.definition['id'] == card_definition_id:
+				cards_to_discard.append(card)
+				if not discard_all_copies:
+					break
+
+		if cards_to_discard:
+			parent._append_log_full(Enums.LogType.LogType_Effect, self, "has the named card!")
+			for card in cards_to_discard:
 				var card_name = parent.card_db.get_card_name(card.id)
-				parent._append_log_full(Enums.LogType.LogType_Effect, self, "has the named card!")
 				parent._append_log_full(Enums.LogType.LogType_CardInfo, self, "discards %s." % parent._log_card_name(card_name))
 				events += discard([card.id])
-				return events
+			return events
+
 		# Not found
-		parent._append_log_full(Enums.LogType.LogType_Effect, self, "does not have the named card.")
-		events += reveal_hand()
+		if not skip_reveal:
+			parent._append_log_full(Enums.LogType.LogType_Effect, self, "does not have the named card.")
+			events += reveal_hand()
 		return events
 
 	func discard_topdeck():
@@ -5645,6 +5654,16 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 				events += handle_strike_effect(card_id, close_effect, performing_player)
 				# and/bonus_effect should be handled by internal version
 				ignore_extra_effects = true
+		"close_damagetaken":
+			var close_per = effect['amount']
+			var damage_taken = active_strike.get_damage_taken(performing_player)
+			var total_close = close_per * damage_taken
+			if total_close > 0:
+				var close_effect = {
+					"effect_type": "close",
+					"amount": total_close,
+				}
+				events += handle_strike_effect(card_id, close_effect, performing_player)
 		"close_INTERNAL":
 			var amount = effect['amount']
 			amount += performing_player.strike_stat_boosts.increase_movement_effects_by
@@ -6388,15 +6407,20 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 				_append_log_full(Enums.LogType.LogType_CharacterMovement, performing_player, "has no spaces to move to!")
 				events += [create_event(Enums.EventType.EventType_BlockMovement, performing_player.my_id, 0)]
 		"name_card_opponent_discards":
+			var amount = effect.get("amount", 1)
 			change_game_state(Enums.GameState.GameState_PlayerDecision)
 			decision_info.clear()
 			decision_info.type = Enums.DecisionType.DecisionType_NameCard_OpponentDiscards
 			decision_info.effect_type = "name_card_opponent_discards_internal"
 			decision_info.choice_card_id = card_id
 			decision_info.player = performing_player.my_id
+			decision_info.amount = amount
+			decision_info.effect = effect
+			decision_info.extra_info = []
+
 			if 'discard_effect' in effect:
 				decision_info.bonus_effect = effect['discard_effect']
-			events += [create_event(Enums.EventType.EventType_Boost_NameCardOpponentDiscards, performing_player.my_id, 1)]
+			events += [create_event(Enums.EventType.EventType_Boost_NameCardOpponentDiscards, performing_player.my_id, decision_info.amount)]
 		"name_card_opponent_discards_internal":
 			var named_card_name = NullNamedCard
 			if effect['card_id'] > 0:
@@ -6405,11 +6429,30 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 				# this should discard "by name", so instead of using that
 				# match card.definition['id']'s instead.
 				named_card_name = named_card.definition['id']
-			var before_discard_count = opposing_player.discards.size()
-			events += opposing_player.discard_matching_or_reveal(named_card_name)
-			var discarded_card = before_discard_count < opposing_player.discards.size()
-			if discarded_card and decision_info.bonus_effect:
-				handle_strike_effect(decision_info.choice_card_id, decision_info.bonus_effect, performing_player)
+			decision_info.extra_info.append(named_card_name)
+			if decision_info.amount > 1:
+				# Naming multiple cards, so queue up another name card
+				# and save this one in the extra info.
+				change_game_state(Enums.GameState.GameState_PlayerDecision)
+				decision_info.amount -= 1
+				events += [create_event(Enums.EventType.EventType_Boost_NameCardOpponentDiscards, performing_player.my_id, decision_info.amount)]
+			else:
+				var before_discard_count = opposing_player.discards.size()
+				var effect_copy = decision_info.effect
+				var reveal_hand_after = effect_copy.get("reveal_hand_after", false)
+				var discard_all_copies = effect_copy.get("discard_all_copies", false)
+				for discard_name in decision_info.extra_info:
+					events += opposing_player.discard_matching_or_reveal(
+						discard_name,
+						discard_all_copies,
+						reveal_hand_after # skip_reveal=true if we're revealing the hand afterwards.
+					)
+
+				var discarded_card = before_discard_count < opposing_player.discards.size()
+				if discarded_card and decision_info.bonus_effect:
+					events += handle_strike_effect(decision_info.choice_card_id, decision_info.bonus_effect, performing_player)
+				if reveal_hand_after:
+					events += opposing_player.reveal_hand()
 		"name_range":
 			decision_info.clear()
 			decision_info.type = Enums.DecisionType.DecisionType_PickNumberFromRange
@@ -12313,10 +12356,14 @@ func do_force_for_effect(performing_player : Player, card_ids : Array, treat_ult
 			if 'force_effect_interval' in decision_info.effect:
 				interval = decision_info.effect['force_effect_interval']
 			effect_times = floor(force_generated / interval)
-			if force_generated > 0 and 'combine_multiple_into_one' in decision_effect and decision_effect['combine_multiple_into_one']:
-				# This assumes this effect has no "and" effects.
-				decision_effect = decision_effect.duplicate()
+			if force_generated > 0 and decision_effect.get('combine_multiple_into_one'):
+				# This will work on a single nested "and" that has an amount.
+				# If it doesn't have an amount, this won't work as expected.
+				decision_effect = decision_effect.duplicate(true)
 				decision_effect['amount'] = effect_times * decision_effect['amount']
+				var and_effect = decision_effect.get('and')
+				if and_effect and and_effect.get("amount"):
+					and_effect['amount'] = effect_times * and_effect['amount']
 				effect_times = 1
 		elif decision_info.effect['overall_effect']:
 			decision_effect = decision_info.effect['overall_effect']

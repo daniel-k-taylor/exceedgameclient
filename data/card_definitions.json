@@ -20913,6 +20913,7 @@
 				"timing": "hit",
 				"effect_type": "force_for_effect",
 				"per_force_effect": {
+					"combine_multiple_into_one": true,
 					"effect_type": "powerup",
 					"amount": 1
 				},
@@ -30292,6 +30293,280 @@
 		"NOTEEND": "VEGA CARDS END"
 	},
 
+
+
+
+	{
+		"NOTE": "VINCENT CARDS START",
+		"id": "vincent_ballotfixing",
+		"type": "ultra",
+		"display_name": "Ballot Fixing",
+		"force_cost": 0,
+		"gauge_cost": 2,
+		"range_min": 1,
+		"range_max": 2,
+		"power": 4,
+		"speed": 8,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "during_strike",
+				"effect_type": "ignore_guard"
+			},
+			{
+				"timing": "hit",
+				"effect_type": "gain_advantage"
+			}
+		],
+		"boost": {
+			"boost_type": "immediate",
+			"force_cost": 2,
+			"cancel_cost": -1,
+			"display_name": "Natioanl Scar",
+			"effects": [
+				{
+					"timing": "immediate",
+					"effect_type": "draw_to",
+					"amount": 5
+				}
+			]
+		}
+	},
+	{
+		"id": "vincent_phoenixrevival",
+		"type": "ultra",
+		"display_name": "Phoenix Revival",
+		"force_cost": 0,
+		"gauge_cost": 3,
+		"range_min": 1,
+		"range_max": 3,
+		"power": 6,
+		"speed": 1,
+		"armor": 4,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "hit",
+				"effect_type": "gain_life",
+				"amount": 4
+			}
+		],
+		"boost": {
+			"boost_type": "immediate",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "A Moment of Reflection",
+			"effects": [
+				{
+					"timing": "immediate",
+					"effect_type": "force_for_effect",
+					"per_force_effect": {
+						"combine_multiple_into_one": true,
+						"effect_type": "gain_life",
+						"amount": 1
+					},
+					"overall_effect": null,
+					"force_max": 5
+				}
+			]
+		}
+	},
+	{
+		"id": "vincent_crimsonbarrage",
+		"type": "special",
+		"display_name": "Crimson Barrage",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 2,
+		"range_max": 5,
+		"power": 4,
+		"speed": 1,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "hit",
+				"effect_type": "name_card_opponent_discards",
+				"reveal_hand_after": true,
+				"discard_all_copies": true,
+				"amount": 2
+			}
+		],
+		"boost": {
+			"boost_type": "immediate",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "National Debt",
+			"effects": [
+				{
+					"timing": "immediate",
+					"effect_type": "draw_to",
+					"amount": 3
+				}
+			]
+		}
+	},
+	{
+		"id": "vincent_gatlingpunch",
+		"type": "special",
+		"display_name": "Gatling Punch",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 2,
+		"power": 2,
+		"speed": 5,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "hit",
+				"effect_type": "force_for_effect",
+				"per_force_effect": {
+					"combine_multiple_into_one": true,
+					"effect_type": "powerup",
+					"amount": 1
+				},
+				"overall_effect": null,
+				"force_max": 7
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 1,
+			"cancel_cost": -1,
+			"display_name": "Fortress Frame",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "guardup",
+					"amount": 5
+				},
+				{
+					"timing": "now",
+					"effect_type": "strike"
+				}
+			]
+		}
+	},
+	{
+		"id": "vincent_majoritywhip",
+		"type": "special",
+		"display_name": "Majority Whip",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 2,
+		"power": 3,
+		"speed": 5,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "hit",
+				"effect_type": "push",
+				"amount": 8
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Rushdown",
+			"effects": [
+				{
+					"timing": "now",
+					"effect_type": "close",
+					"amount": 2
+				},
+				{
+					"timing": "during_strike",
+					"effect_type": "speedup",
+					"amount": 2
+				}
+			]
+		}
+	},
+	{
+		"id": "vincent_nationalguard",
+		"type": "special",
+		"display_name": "National Guard",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 1,
+		"power": 6,
+		"speed": 3,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "before",
+				"effect_type": "close_damagetaken",
+				"amount": 1
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Bunker Buster",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "ignore_guard"
+				},
+				{
+					"timing": "now",
+					"effect_type": "draw",
+					"amount": 1
+				}
+			]
+		}
+	},
+	{
+		"id": "vincent_phoenixascent",
+		"type": "special",
+		"display_name": "Phoenix Ascent",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 2,
+		"power": 3,
+		"speed": 6,
+		"armor": 0,
+		"guard": 2,
+		"effects": [
+			{
+				"timing": "hit",
+				"effect_type": "push",
+				"amount": 1
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Foundation",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "armorup",
+					"amount": 2
+				},
+				{
+					"timing": "now",
+					"effect_type": "ignore_push_and_pull_passive_bonus"
+				},
+				{
+					"timing": "discarded",
+					"effect_type": "remove_ignore_push_and_pull_passive_bonus"
+				}
+			]
+		},
+		"NOTEND": "VINCENT CARDS END"
+	},
 
 	{
 		"NOTE": "WAGNER CARDS START",

@@ -301,6 +301,9 @@ func process_remaining_decisions(initiator, defender, init_choices, def_choices)
 						player.my_id, Enums.DecisionType.keys()[game_logic.decision_info.type]])
 				return
 			match game_logic.decision_info.type:
+				Enums.DecisionType.DecisionType_NameCard_OpponentDiscards:
+					assert_true(game_logic.do_boost_name_card_choice_effect(player, choice),
+							"%s failed to do_boost_name_card_choice_effect card %s" % [player, choice])
 				Enums.DecisionType.DecisionType_ChooseSimultaneousEffect:
 					assert_true(game_logic.do_choice(player, choice),
 							"%s failed to perform a choice with value %s" % [player, choice])
