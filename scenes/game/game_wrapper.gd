@@ -208,6 +208,12 @@ func count_cards_in_deck_and_hand(player_id : Enums.PlayerId,
 		for card in player.continuous_boosts:
 			if card.definition['id'] == card_str_id and card.definition["boost"].get("facedown"):
 				count += 1
+		for key in player.underboost_map.keys():
+			# Cards hidden under a boost are also counted as "in the deck".
+			var cards_under_boost = player.get_cards_under_boost(key)
+			for card in cards_under_boost:
+				if card.definition['id'] == card_str_id:
+					count += 1
 
 		var striking_card_ids = current_game.get_striking_card_ids_for_player(player)
 		for striking_id in striking_card_ids:

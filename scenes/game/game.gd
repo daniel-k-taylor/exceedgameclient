@@ -3486,6 +3486,7 @@ func _on_place_underboost(event):
 		# Move the card to the set aside zone.
 		var is_player = player == Enums.PlayerId.PlayerId_Player
 		var card = find_card_on_board(new_card_id)
+		card.flip_card_to_front(false)
 		var deck_position = get_deck_button_position(is_player)
 		card.discard_to(deck_position, CardBase.CardState.CardState_InDeck)
 		reparent_to_zone(card, get_set_aside_zone(is_player))

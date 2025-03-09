@@ -871,6 +871,7 @@ offset_left = -50.0
 offset_right = 50.0
 offset_bottom = 100.0
 grow_horizontal = 2
+mouse_filter = 2
 alignment = 1
 
 [node name="Buffer" type="HBoxContainer" parent="TabSelect"]
@@ -878,15 +879,6 @@ custom_minimum_size = Vector2(0, 10)
 layout_mode = 2
 
 [node name="CategoriesHBox" type="HBoxContainer" parent="TabSelect"]
-layout_mode = 2
-
-[node name="Custom" parent="TabSelect/CategoriesHBox" instance=ExtResource("6_3lmwy")]
-layout_mode = 2
-char_id = "custom"
-portrait_texture = ExtResource("100_dtwln")
-
-[node name="Buffer2" type="HBoxContainer" parent="TabSelect/CategoriesHBox"]
-custom_minimum_size = Vector2(25, 0)
 layout_mode = 2
 
 [node name="Season1" parent="TabSelect/CategoriesHBox" instance=ExtResource("6_3lmwy")]
@@ -932,6 +924,17 @@ layout_mode = 2
 layout_mode = 2
 char_id = "random"
 portrait_texture = ExtResource("32_iutun")
+
+[node name="CategoriesHBox2" type="HBoxContainer" parent="TabSelect"]
+layout_mode = 2
+size_flags_horizontal = 8
+mouse_filter = 2
+alignment = 2
+
+[node name="Custom" parent="TabSelect/CategoriesHBox2" instance=ExtResource("6_3lmwy")]
+layout_mode = 2
+char_id = "custom"
+portrait_texture = ExtResource("100_dtwln")
 
 [connection signal="pressed" from="CenterContainer/BackgroundButton" to="." method="_on_background_button_pressed"]
 [connection signal="on_hover" from="CenterContainer/GGCharacterSelect/Rows/Row1/Testament" to="." method="_on_char_hover"]
@@ -1128,8 +1131,6 @@ portrait_texture = ExtResource("32_iutun")
 [connection signal="on_pressed" from="CenterContainer/S1CharacterSelect/Rows/Row1/Vincent" to="." method="_on_char_button_on_pressed"]
 [connection signal="on_hover" from="CenterContainer/S1CharacterSelect/Rows/Row1/RandomS1" to="." method="_on_char_hover"]
 [connection signal="on_pressed" from="CenterContainer/S1CharacterSelect/Rows/Row1/RandomS1" to="." method="_on_char_button_on_pressed"]
-[connection signal="on_hover" from="TabSelect/CategoriesHBox/Custom" to="." method="_on_char_hover"]
-[connection signal="on_pressed" from="TabSelect/CategoriesHBox/Custom" to="." method="_on_char_button_on_pressed"]
 [connection signal="on_hover" from="TabSelect/CategoriesHBox/Season1" to="." method="_on_char_hover"]
 [connection signal="on_pressed" from="TabSelect/CategoriesHBox/Season1" to="." method="_on_char_button_on_pressed"]
 [connection signal="on_hover" from="TabSelect/CategoriesHBox/Season2" to="." method="_on_char_hover"]
@@ -1146,3 +1147,5 @@ portrait_texture = ExtResource("32_iutun")
 [connection signal="on_pressed" from="TabSelect/CategoriesHBox/Season7" to="." method="_on_char_button_on_pressed"]
 [connection signal="on_hover" from="TabSelect/CategoriesHBox/RandomAll" to="." method="_on_char_hover"]
 [connection signal="on_pressed" from="TabSelect/CategoriesHBox/RandomAll" to="." method="_on_char_button_on_pressed"]
+[connection signal="on_hover" from="TabSelect/CategoriesHBox2/Custom" to="." method="_on_char_hover"]
+[connection signal="on_pressed" from="TabSelect/CategoriesHBox2/Custom" to="." method="_on_char_button_on_pressed"]
