@@ -62,7 +62,10 @@ var buddy_id : String = ""
 func _ready():
 	exceed_icon.visible = false
 
-func load_character(char_id : String):
+func load_character(image_loader: CardImageLoader, character_data: Dictionary, char_id: String):
+	if 'custom_animations' in character_data:
+		return await load_character_custom_anims(image_loader, character_data['custom_animations'])
+
 	var path = "res://assets/character_animations/" + char_id + "/animations.tres"
 	animation.sprite_frames = load(path)
 	if not animation.sprite_frames:
@@ -82,6 +85,39 @@ func load_character(char_id : String):
 	if animation.sprite_frames.has_meta("horizontal_offset_buddy"):
 		horizontal_offset_buddy = animation.sprite_frames.get_meta("horizontal_offset_buddy")
 
+func load_character_custom_anims(image_loader : CardImageLoader, animation_data):
+	var path = "res://assets/character_animations/custom/animations.tres";
+	var sprite_frames = load(path);
+
+	# TODO: accept animation_id from other method to handle buddy cards
+
+	for anim in animation_data:
+		var animation_name = anim["animation_name"]
+		var image_url = anim["url"]
+		var frame_count = anim["frame_count"] if "frame_count" in anim else 1
+		var sprite_offset_x = anim["sprite_offset_x"] if "sprite_offset_x" in anim else 0
+		var sprite_offset_y = anim["sprite_offset_y"] if "sprite_offset_y" in anim else 0
+		var sprite_region_width = anim["sprite_region_width"] if "sprite_region_width" in anim else -1
+		var sprite_region_height = anim["sprite_region_height"] if "sprite_region_height" in anim else -1
+		var sprite_count_width = anim["sprite_count_width"] if "sprite_count_width" in anim else frame_count
+		var sprite_count_height = anim["sprite_count_height"] if "sprite_count_height" in anim else 1
+
+		var animation_images = await image_loader.get_animation_images(
+			image_url, sprite_offset_x, sprite_offset_y, sprite_region_width,
+			sprite_region_height, sprite_count_width, sprite_count_height
+		)
+
+		if animation_images:
+			sprite_frames.remove_animation(animation_name)
+			sprite_frames.add_animation(animation_name)
+			for i in range(frame_count):
+				sprite_frames.add_frame(animation_name, animation_images[i])
+
+	animation.sprite_frames = sprite_frames
+
+	play_animation("idle")
+	# todo: scaling and stuff
+
 func set_facing(to_left : bool):
 	animation.flip_h = to_left
 	if animation.sprite_frames.has_meta("flip") and animation.sprite_frames.get_meta("flip"):
@@ -89,10 +125,11 @@ func set_facing(to_left : bool):
 	var offset_sign = 1 if to_left else -1
 	animation.offset.x = horizontal_offset * offset_sign
 
-func set_exceed(is_exceed : bool, new_animation : String = ""):
+func set_exceed(is_exceed : bool,
+		image_loader: CardImageLoader = null, character_data: Dictionary = {}, new_animation : String = ""):
 	exceed_icon.visible = is_exceed
 	if new_animation:
-		load_character(new_animation)
+		load_character(image_loader, character_data, new_animation)
 
 func get_size():
 	return animation.sprite_frames.get_frame_texture("idle", 0).get_size()
