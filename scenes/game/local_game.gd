@@ -5888,14 +5888,15 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 				if from_last_cards:
 					for i in range(from_last_cards):
 						restricted_to_card_ids.append(effect_player.hand[effect_player.hand.size() - 1 - i].id)
+
+				if min_amount > effect_player.hand.size():
+					min_amount = effect_player.hand.size()
+
 				decision_info.effect = {
 					"min_amount": min_amount,
 					"max_amount": max_amount,
 					"restricted_to_card_ids": restricted_to_card_ids,
 				}
-
-				if min_amount > effect_player.hand.size():
-					min_amount = effect_player.hand.size()
 
 				decision_info.bonus_effect = {}
 				if 'per_card_effect' in effect and effect['per_card_effect']:

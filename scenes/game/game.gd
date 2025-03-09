@@ -5076,7 +5076,9 @@ func ai_gauge_for_effect(effect):
 		if not 'required' in effect or not effect['required']:
 			options.append(0)
 		options.append(effect['gauge_max'])
-	var gauge_action = ai_player.pick_gauge_for_effect(options)
+	var require_specific_card_id = effect.get("require_specific_card_id", "")
+	var valid_card_types = effect.get("valid_card_types", [])
+	var gauge_action = ai_player.pick_gauge_for_effect(options, require_specific_card_id, valid_card_types)
 	var success = game_wrapper.submit_gauge_for_effect(Enums.PlayerId.PlayerId_Opponent, gauge_action.card_ids)
 	if success:
 		change_ui_state(UIState.UIState_WaitForGameServer)
