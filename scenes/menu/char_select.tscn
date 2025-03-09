@@ -871,6 +871,7 @@ offset_left = -50.0
 offset_right = 50.0
 offset_bottom = 100.0
 grow_horizontal = 2
+mouse_filter = 2
 alignment = 1
 
 [node name="Buffer" type="HBoxContainer" parent="TabSelect"]
@@ -926,6 +927,8 @@ portrait_texture = ExtResource("32_iutun")
 
 [node name="CategoriesHBox2" type="HBoxContainer" parent="TabSelect"]
 layout_mode = 2
+size_flags_horizontal = 8
+mouse_filter = 2
 alignment = 2
 
 [node name="Custom" parent="TabSelect/CategoriesHBox2" instance=ExtResource("6_3lmwy")]

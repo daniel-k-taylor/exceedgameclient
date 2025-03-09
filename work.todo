@@ -1,7 +1,5 @@
 Bug:
     Breaking:
-        Mika:
-            ☐ Ability with no deck? What happens, is this broken?
         Treasure:
             ☐ Things in chest don't show up in deck counts on dive charge, so you know stuff is in there.
         Review mid-strike Tech interactions:
