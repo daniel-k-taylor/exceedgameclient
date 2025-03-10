@@ -90,8 +90,7 @@ func load_character(image_loader: CardImageLoader, character_data: Dictionary, c
 		horizontal_offset_buddy = animation.sprite_frames.get_meta("horizontal_offset_buddy")
 
 func load_character_custom_anims(image_loader : CardImageLoader, animation_data):
-	var path = "res://assets/character_animations/custom/animations.tres";
-	var sprite_frames = load(path);
+	var sprite_frames = SpriteFrames.new();
 
 	var anim_metadata = {}
 
@@ -140,6 +139,11 @@ func load_character_custom_anims(image_loader : CardImageLoader, animation_data)
 		if "flip" in anim_metadata:
 			sprite_frames.set_meta("flip", anim_metadata["flip"])
 			set_facing(animation.flip_h)
+
+	# default
+	if !sprite_frames.has_animation("idle"):
+		sprite_frames.add_animation("idle")
+		sprite_frames.add_frame("idle", load("res://assets/portraits/custom.png"))
 
 	play_animation("idle")
 	# todo: scaling and stuff

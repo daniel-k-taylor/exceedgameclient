@@ -441,7 +441,7 @@ func update_char(char_id: String, is_player: bool) -> void:
 					ImageCache.loaded_portraits[char_id] = portrait_texture[0]
 					portrait.texture = portrait_texture[0]
 			if !set_texture:
-				portrait.texture = load("res://assets/portraits/exceedrandom.png")
+				portrait.texture = load("res://assets/portraits/custom.png")
 	else:
 		portrait.texture = load("res://assets/portraits/" + portrait_id + ".png")
 
