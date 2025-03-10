@@ -475,15 +475,16 @@ func add_buddy_to_zone(player : Enums.PlayerId, buddy : Node2D, buddy_id):
 			child_index += 1
 
 func setup_characters():
-	$PlayerCharacter.load_character(player_deck['id'])
-	$OpponentCharacter.load_character(opponent_deck['id'])
+	await $PlayerCharacter.load_character(image_loader, player_deck, player_deck['id'])
+	await $OpponentCharacter.load_character(image_loader, opponent_deck, opponent_deck['id'])
+
 	if 'buddy_card' in player_deck:
 		player_buddies[0].visible = false
-		player_buddies[0].load_character(player_deck['buddy_card'])
+		player_buddies[0].load_character(image_loader, player_deck, player_deck['buddy_card'])
 		player_buddies[0].set_buddy_id(player_deck['buddy_card'])
 	if 'buddy_card' in opponent_deck:
 		opponent_buddies[0].visible = false
-		opponent_buddies[0].load_character(opponent_deck['buddy_card'])
+		opponent_buddies[0].load_character(image_loader, opponent_deck, opponent_deck['buddy_card'])
 		opponent_buddies[0].set_buddy_id(opponent_deck['buddy_card'])
 	if 'buddy_cards' in player_deck:
 		if 'no_buddy_card_graphics' in player_deck and player_deck['no_buddy_card_graphics']:
@@ -491,7 +492,7 @@ func setup_characters():
 		else:
 			for i in range(0, player_deck['buddy_cards'].size()):
 				player_buddies[i].visible = false
-				player_buddies[i].load_character(player_deck['buddy_card_graphics_id'][i])
+				player_buddies[i].load_character(image_loader, player_deck, player_deck['buddy_card_graphics_id'][i])
 				player_buddies[i].set_buddy_id(player_deck['buddy_cards'][i])
 	if 'buddy_cards' in opponent_deck:
 		if 'no_buddy_card_graphics' in opponent_deck and opponent_deck['no_buddy_card_graphics']:
@@ -499,7 +500,7 @@ func setup_characters():
 		else:
 			for i in range(0, opponent_deck['buddy_cards'].size()):
 				opponent_buddies[i].visible = false
-				opponent_buddies[i].load_character(opponent_deck['buddy_card_graphics_id'][i])
+				opponent_buddies[i].load_character(image_loader, opponent_deck, opponent_deck['buddy_card_graphics_id'][i])
 				opponent_buddies[i].set_buddy_id(opponent_deck['buddy_cards'][i])
 	if player_deck['id'] == opponent_deck['id']:
 		$OpponentCharacter.modulate = Color(1, 0.38, 0.55)
@@ -2134,7 +2135,7 @@ func _on_exceed_event(event):
 	var player = event['event_player']
 	if player == Enums.PlayerId.PlayerId_Player:
 		if 'exceed_animation' in player_deck:
-			$PlayerCharacter.set_exceed(true, player_deck['exceed_animation'])
+			$PlayerCharacter.set_exceed(true, image_loader, player_deck, player_deck['exceed_animation'])
 			move_character_to_arena_square($PlayerCharacter, game_wrapper.get_player_location(Enums.PlayerId.PlayerId_Player), true, Character.CharacterAnim.CharacterAnim_None)
 		else:
 			$PlayerCharacter.set_exceed(true)
@@ -2144,7 +2145,7 @@ func _on_exceed_event(event):
 
 	else:
 		if 'exceed_animation' in opponent_deck:
-			$OpponentCharacter.set_exceed(true, opponent_deck['exceed_animation'])
+			$OpponentCharacter.set_exceed(true, image_loader, opponent_deck, opponent_deck['exceed_animation'])
 			move_character_to_arena_square($OpponentCharacter, game_wrapper.get_player_location(Enums.PlayerId.PlayerId_Opponent), true, Character.CharacterAnim.CharacterAnim_None)
 		else:
 			$OpponentCharacter.set_exceed(true)
@@ -2159,7 +2160,7 @@ func _on_exceed_revert_event(event):
 	var player = event['event_player']
 	if player == Enums.PlayerId.PlayerId_Player:
 		if 'exceed_animation' in player_deck:
-			$PlayerCharacter.set_exceed(true, player_deck['id'])
+			$PlayerCharacter.set_exceed(true, image_loader, player_deck, player_deck['id'])
 			move_character_to_arena_square($PlayerCharacter, game_wrapper.get_player_location(Enums.PlayerId.PlayerId_Player), true, Character.CharacterAnim.CharacterAnim_None)
 		else:
 			$PlayerCharacter.set_exceed(false)
@@ -2168,7 +2169,7 @@ func _on_exceed_revert_event(event):
 
 	else:
 		if 'exceed_animation' in opponent_deck:
-			$OpponentCharacter.set_exceed(true, opponent_deck['id'])
+			$OpponentCharacter.set_exceed(true, image_loader, opponent_deck, opponent_deck['id'])
 			move_character_to_arena_square($OpponentCharacter, game_wrapper.get_player_location(Enums.PlayerId.PlayerId_Opponent), true, Character.CharacterAnim.CharacterAnim_None)
 		else:
 			$OpponentCharacter.set_exceed(false)
@@ -2191,7 +2192,7 @@ func _on_become_wide(event):
 
 	character_object.is_wide = true
 	if 'wide_animation' in deck_def:
-		character_object.load_character(deck_def['wide_animation'])
+		character_object.load_character(image_loader, deck_def, deck_def['wide_animation'])
 
 		var parent = character_object.get_parent()
 		var target_idx = parent.get_children().find($WideCharacterMarker)
@@ -3380,7 +3381,7 @@ func add_lightning_rod(rod_parent, rod_tracking, location, card_id):
 		# Create a new character for this and add it to rod_parent.
 		var new_character = CharacterScene.instantiate()
 		rod_parent.add_child(new_character)
-		new_character.load_character("rachel_lightningrod")
+		new_character.load_character(image_loader, {}, "rachel_lightningrod")
 		rods_at_location['character'] = new_character
 		var immediate = true
 		move_character_to_arena_square(new_character, location, immediate, Character.CharacterAnim.CharacterAnim_WalkForward, -1)
