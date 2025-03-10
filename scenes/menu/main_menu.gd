@@ -65,8 +65,6 @@ var file_load_callback
 @onready var was_match_available : bool = true
 @onready var just_clicked_matchmake : bool = false
 
-@onready var image_loader = CardImageLoader.new()
-
 # Called when the node enters the scene tree for the first time.
 func _ready():
 	image_loader = CardImageLoader.new()
@@ -90,8 +88,6 @@ func _ready():
 	modal_list.visible = false
 	file_dialog.visible = false
 	update_queues(true)
-
-	add_child(image_loader)
 
 	# Initialize settings window
 	settings_window.visible = false
@@ -618,8 +614,9 @@ func _on_view_cards_button_pressed() -> void:
 	else:
 		_show_popout_for_deck(player_selected_character)
 
-func _show_popout_for_deck(deck):
+func _show_popout_for_deck(selected_character):
 	close_popout_button.visible = true
+	var deck = _get_deck(selected_character)
 	CardDefinitions.load_deck_if_custom(deck)
 	var card_popout = CardPopoutScene.instantiate()
 	card_popout_parent.add_child(card_popout)
