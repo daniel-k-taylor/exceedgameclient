@@ -64,7 +64,7 @@ func _ready():
 
 func load_character(image_loader: CardImageLoader, character_data: Dictionary, char_id: String):
 	var check_ids = [char_id]
-	if char_id.begins_with("custom"):
+	if char_id.begins_with("custom_"):
 		check_ids.append(char_id.substr(7))
 	for check_id in check_ids:
 		if 'custom_animations' in character_data and check_id in character_data['custom_animations']:

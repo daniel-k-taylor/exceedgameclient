@@ -73,6 +73,21 @@
 			"multiple_cards": true
 		}
 	},
+	"custom_animations": {
+		"customer": [
+			{
+				"animation_name": "idle",
+				"url": "https://i.imgur.com/cdScg5Q.png",
+				"frame_count": 10
+			},
+			{
+				"metadata_block": true,
+				"scaling": 1.8,
+				"flip": true
+			}
+		]
+	},
+	"portrait_image_url": "https://i.imgur.com/5rSjQlB.png",
 	"cards": [
 		{
 			"definition_id": "customer_demonarmageddon",
