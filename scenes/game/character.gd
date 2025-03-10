@@ -63,8 +63,12 @@ func _ready():
 	exceed_icon.visible = false
 
 func load_character(image_loader: CardImageLoader, character_data: Dictionary, char_id: String):
-	if 'custom_animations' in character_data:
-		return await load_character_custom_anims(image_loader, character_data['custom_animations'])
+	var check_ids = [char_id]
+	if char_id.begins_with("custom"):
+		check_ids.append(char_id.substr(7))
+	for check_id in check_ids:
+		if 'custom_animations' in character_data and check_id in character_data['custom_animations']:
+			return await load_character_custom_anims(image_loader, character_data['custom_animations'][check_id])
 
 	var path = "res://assets/character_animations/" + char_id + "/animations.tres"
 	animation.sprite_frames = load(path)
@@ -89,9 +93,13 @@ func load_character_custom_anims(image_loader : CardImageLoader, animation_data)
 	var path = "res://assets/character_animations/custom/animations.tres";
 	var sprite_frames = load(path);
 
-	# TODO: accept animation_id from other method to handle buddy cards
+	var anim_metadata = {}
 
 	for anim in animation_data:
+		if "metadata_block" in anim and anim["metadata_block"]:
+			anim_metadata = anim
+			continue
+
 		var animation_name = anim["animation_name"]
 		var image_url = anim["url"]
 		var frame_count = anim["frame_count"] if "frame_count" in anim else 1
@@ -114,6 +122,24 @@ func load_character_custom_anims(image_loader : CardImageLoader, animation_data)
 				sprite_frames.add_frame(animation_name, animation_images[i])
 
 	animation.sprite_frames = sprite_frames
+	if anim_metadata:
+		if "scaling" in anim_metadata:
+			sprite_frames.set_meta("scaling", anim_metadata["scaling"])
+			scale = scale * anim_metadata["scaling"]
+			$ExceedIcon.scale = $ExceedIcon.scale / anim_metadata["scaling"]
+		if "vertical_offset" in anim_metadata:
+			sprite_frames.set_meta("vertical_offset", anim_metadata["vertical_offset"])
+			vertical_offset = anim_metadata["vertical_offset"]
+		if "horizontal_offset" in anim_metadata:
+			sprite_frames.set_meta("horizontal_offset", anim_metadata["horizontal_offset"])
+			horizontal_offset = anim_metadata["horizontal_offset"]
+			animation.offset.x = horizontal_offset
+		if "horizontal_offset_buddy" in anim_metadata:
+			sprite_frames.set_meta("horizontal_offset_buddy", anim_metadata["horizontal_offset_buddy"])
+			horizontal_offset_buddy = anim_metadata["horizontal_offset_buddy"]
+		if "flip" in anim_metadata:
+			sprite_frames.set_meta("flip", anim_metadata["flip"])
+			set_facing(animation.flip_h)
 
 	play_animation("idle")
 	# todo: scaling and stuff

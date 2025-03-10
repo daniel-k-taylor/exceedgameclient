@@ -37,7 +37,11 @@ func load_portrait_texture(texture_rect : TextureRect, random_tag : String, deck
 		"random_s7":
 			texture_rect.texture = load("res://assets/portraits/random.png")
 		_:
-			texture_rect.texture = load("res://assets/portraits/" + deck_id + ".png")
+			if deck_id.begins_with("custom_") and deck_id in ImageCache.loaded_portraits:
+				texture_rect.texture = ImageCache.loaded_portraits[deck_id]
+			else:
+				texture_rect.texture = load("res://assets/portraits/" + deck_id + ".png")
+			# fallback
 			if not texture_rect.texture:
 				texture_rect.texture = load("res://assets/portraits/exceedrandom.png")
 

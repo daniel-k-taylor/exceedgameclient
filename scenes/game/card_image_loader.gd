@@ -159,8 +159,4 @@ func get_animation_images(image_url, sprite_offset_x, sprite_offset_y,
 			}
 		await image_queue_advanced
 
-	var image_set = loaded_images[image_url]
-	if image_set:
-		return image_set
-	else:
-		return null
+	return loaded_images[image_url]

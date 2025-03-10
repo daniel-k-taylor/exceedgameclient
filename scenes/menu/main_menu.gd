@@ -65,6 +65,8 @@ var file_load_callback
 @onready var was_match_available : bool = true
 @onready var just_clicked_matchmake : bool = false
 
+@onready var image_loader = CardImageLoader.new()
+
 # Called when the node enters the scene tree for the first time.
 func _ready():
 	image_loader = CardImageLoader.new()
@@ -88,6 +90,8 @@ func _ready():
 	modal_list.visible = false
 	file_dialog.visible = false
 	update_queues(true)
+
+	add_child(image_loader)
 
 	# Initialize settings window
 	settings_window.visible = false
@@ -429,7 +433,19 @@ func update_char(char_id: String, is_player: bool) -> void:
 		portrait_id = char_id
 	label.text = display_name
 	if char_id.begins_with("custom_"):
-		portrait.texture = load("res://assets/portraits/exceedrandom.png")
+		if char_id in ImageCache.loaded_portraits:
+			portrait.texture = ImageCache.loaded_portraits[char_id]
+		else:
+			var set_texture = false;
+			if 'portrait_image_url' in _custom_deck_definition:
+				var portrait_texture = await image_loader.get_animation_images(_custom_deck_definition['portrait_image_url'],
+					0, 0, -1, -1, 1, 1)
+				if portrait_texture:
+					set_texture = true
+					ImageCache.loaded_portraits[char_id] = portrait_texture[0]
+					portrait.texture = portrait_texture[0]
+			if !set_texture:
+				portrait.texture = load("res://assets/portraits/exceedrandom.png")
 	else:
 		portrait.texture = load("res://assets/portraits/" + portrait_id + ".png")
 
