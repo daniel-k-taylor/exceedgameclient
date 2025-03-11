@@ -94,24 +94,29 @@ func load_character_custom_anims(image_loader : CardImageLoader, animation_data)
 
 	var anim_metadata = {}
 
-	for anim in animation_data:
-		if "metadata_block" in anim and anim["metadata_block"]:
-			anim_metadata = anim
+	for animation_name in animation_data:
+		if animation_name == "metadata":
+			anim_metadata = animation_data[animation_name]
 			continue
+		var anim = animation_data[animation_name]
 
-		var animation_name = anim["animation_name"]
 		var image_url = anim["url"]
-		var frame_count = anim["frame_count"] if "frame_count" in anim else 1
-		var sprite_offset_x = anim["sprite_offset_x"] if "sprite_offset_x" in anim else 0
-		var sprite_offset_y = anim["sprite_offset_y"] if "sprite_offset_y" in anim else 0
-		var sprite_region_width = anim["sprite_region_width"] if "sprite_region_width" in anim else -1
-		var sprite_region_height = anim["sprite_region_height"] if "sprite_region_height" in anim else -1
-		var sprite_count_width = anim["sprite_count_width"] if "sprite_count_width" in anim else frame_count
-		var sprite_count_height = anim["sprite_count_height"] if "sprite_count_height" in anim else 1
+		var frame_count = anim.get("frame_count", 1)
+		var sprite_offset_x = anim.get("sprite_offset_x", 0)
+		var sprite_offset_y = anim.get("sprite_offset_y", 0)
+		var sprite_region_width = anim.get("sprite_region_width", -1)
+		var sprite_region_height = anim.get("sprite_region_height", -1)
+		var sprite_count_width = anim.get("sprite_count_width", frame_count)
+		var sprite_count_height = anim.get("sprite_count_height", 1)
 
 		var animation_images = await image_loader.get_animation_images(
-			image_url, sprite_offset_x, sprite_offset_y, sprite_region_width,
-			sprite_region_height, sprite_count_width, sprite_count_height
+			image_url,
+			sprite_offset_x,
+			sprite_offset_y,
+			sprite_region_width,
+			sprite_region_height,
+			sprite_count_width,
+			sprite_count_height
 		)
 
 		if animation_images:
@@ -122,31 +127,29 @@ func load_character_custom_anims(image_loader : CardImageLoader, animation_data)
 
 	animation.sprite_frames = sprite_frames
 	if anim_metadata:
-		if "scaling" in anim_metadata:
-			sprite_frames.set_meta("scaling", anim_metadata["scaling"])
-			scale = scale * anim_metadata["scaling"]
-			$ExceedIcon.scale = $ExceedIcon.scale / anim_metadata["scaling"]
-		if "vertical_offset" in anim_metadata:
-			sprite_frames.set_meta("vertical_offset", anim_metadata["vertical_offset"])
-			vertical_offset = anim_metadata["vertical_offset"]
-		if "horizontal_offset" in anim_metadata:
-			sprite_frames.set_meta("horizontal_offset", anim_metadata["horizontal_offset"])
-			horizontal_offset = anim_metadata["horizontal_offset"]
-			animation.offset.x = horizontal_offset
-		if "horizontal_offset_buddy" in anim_metadata:
-			sprite_frames.set_meta("horizontal_offset_buddy", anim_metadata["horizontal_offset_buddy"])
-			horizontal_offset_buddy = anim_metadata["horizontal_offset_buddy"]
-		if "flip" in anim_metadata:
-			sprite_frames.set_meta("flip", anim_metadata["flip"])
-			set_facing(animation.flip_h)
+		sprite_frames.set_meta("scaling", anim_metadata.get("scaling", 1))
+		scale = scale * anim_metadata.get("scaling", 1)
+		$ExceedIcon.scale = $ExceedIcon.scale / anim_metadata.get("scaling", 1)
+
+		sprite_frames.set_meta("vertical_offset", anim_metadata.get("vertical_offset", 0))
+		vertical_offset = anim_metadata.get("vertical_offset", 0)
+
+		sprite_frames.set_meta("horizontal_offset", anim_metadata.get("horizontal_offset", 0))
+		horizontal_offset = anim_metadata.get("horizontal_offset", 0)
+		animation.offset.x = horizontal_offset
+
+		sprite_frames.set_meta("horizontal_offset_buddy", anim_metadata.get("horizontal_offset_buddy", 0))
+		horizontal_offset_buddy = anim_metadata.get("horizontal_offset_buddy", 0)
+
+		sprite_frames.set_meta("flip", anim_metadata.get("flip", false))
+		set_facing(animation.flip_h)
 
 	# default
 	if !sprite_frames.has_animation("idle"):
 		sprite_frames.add_animation("idle")
-		sprite_frames.add_frame("idle", load("res://assets/portraits/custom.png"))
+		sprite_frames.add_frame("idle", load("res://assets/portraits/custom.png").duplicate())
 
 	play_animation("idle")
-	# todo: scaling and stuff
 
 func set_facing(to_left : bool):
 	animation.flip_h = to_left
@@ -155,8 +158,11 @@ func set_facing(to_left : bool):
 	var offset_sign = 1 if to_left else -1
 	animation.offset.x = horizontal_offset * offset_sign
 
-func set_exceed(is_exceed : bool,
-		image_loader: CardImageLoader = null, character_data: Dictionary = {}, new_animation : String = ""):
+func set_exceed(
+		is_exceed : bool,
+		image_loader: CardImageLoader = null,
+		character_data: Dictionary = {},
+		new_animation : String = ""):
 	exceed_icon.visible = is_exceed
 	if new_animation:
 		load_character(image_loader, character_data, new_animation)

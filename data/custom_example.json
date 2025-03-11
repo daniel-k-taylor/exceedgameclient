@@ -74,18 +74,16 @@
 		}
 	},
 	"custom_animations": {
-		"customer": [
-			{
-				"animation_name": "idle",
-				"url": "https://i.imgur.com/cdScg5Q.png",
-				"frame_count": 10
-			},
-			{
-				"metadata_block": true,
+		"customer": {
+			"metadata": {
 				"scaling": 1.8,
 				"flip": true
+			},
+			"idle": {
+				"url": "https://i.imgur.com/cdScg5Q.png",
+				"frame_count": 10
 			}
-		]
+		}
 	},
 	"portrait_image_url": "https://i.imgur.com/5rSjQlB.png",
 	"cards": [

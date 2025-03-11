@@ -3,6 +3,7 @@ class_name Game
 extends Node2D
 
 signal returning_from_game
+signal load_characters_complete
 
 const UseHugeCard = false
 
@@ -608,6 +609,7 @@ func first_run():
 	await finish_initialization()
 	change_ui_state(UIState.UIState_WaitForGameServer)
 	first_run_done = true
+	load_characters_complete.emit()
 
 func create_character_reference_card(exceeded : bool, zone, image_resources):
 	var image_url = image_resources['character_default']['url']
