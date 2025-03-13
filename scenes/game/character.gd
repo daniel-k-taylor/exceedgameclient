@@ -90,8 +90,7 @@ func load_character(image_loader: CardImageLoader, character_data: Dictionary, c
 		horizontal_offset_buddy = animation.sprite_frames.get_meta("horizontal_offset_buddy")
 
 func load_character_custom_anims(image_loader : CardImageLoader, animation_data):
-	var sprite_frames = SpriteFrames.new();
-
+	var sprite_frames = SpriteFrames.new()
 	var anim_metadata = {}
 
 	for animation_name in animation_data:
@@ -120,10 +119,15 @@ func load_character_custom_anims(image_loader : CardImageLoader, animation_data)
 		)
 
 		if animation_images:
-			sprite_frames.remove_animation(animation_name)
+			#sprite_frames.remove_animation(animation_name)
 			sprite_frames.add_animation(animation_name)
 			for i in range(frame_count):
 				sprite_frames.add_frame(animation_name, animation_images[i])
+
+	# default
+	if !sprite_frames.has_animation("idle"):
+		sprite_frames.add_animation("idle")
+		sprite_frames.add_frame("idle", load("res://assets/portraits/custom.png").duplicate())
 
 	animation.sprite_frames = sprite_frames
 	if anim_metadata:
@@ -143,11 +147,6 @@ func load_character_custom_anims(image_loader : CardImageLoader, animation_data)
 
 		sprite_frames.set_meta("flip", anim_metadata.get("flip", false))
 		set_facing(animation.flip_h)
-
-	# default
-	if !sprite_frames.has_animation("idle"):
-		sprite_frames.add_animation("idle")
-		sprite_frames.add_frame("idle", load("res://assets/portraits/custom.png").duplicate())
 
 	play_animation("idle")
 
