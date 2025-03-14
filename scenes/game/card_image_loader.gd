@@ -38,7 +38,8 @@ func load_image_page(image_atlas):
 func _process_request_queue():
 	processing_queue = true
 	var image_url = image_load_queue[0]
-	var is_multiple = image_load_atlas_map[image_url]['multiple_cards']
+	var image_atlas_details = image_load_atlas_map[image_url]
+	var is_multiple = image_atlas_details['multiple_cards']
 
 	var loaded_image = ImageCache.load_image(image_url)
 	if not loaded_image: # not found in cache; send http request
@@ -53,14 +54,31 @@ func _process_request_queue():
 	if loaded_image:
 		var image_texture = ImageTexture.create_from_image(loaded_image)
 		if is_multiple:
-			var grid_width = image_texture.get_width() / CARD_WIDTH
-			var grid_height = image_texture.get_height() / CARD_HEIGHT
+			var card_width = CARD_WIDTH
+			var card_height = CARD_HEIGHT
+			var region_width = image_texture.get_width()
+			var region_height = image_texture.get_height()
+			if image_atlas_details.get('recalculate_card_sizes', false):
+				if image_atlas_details['sprite_region_width'] > 0:
+					region_width = image_atlas_details['sprite_region_width']
+				if image_atlas_details['sprite_region_height'] > 0:
+					region_height = image_atlas_details['sprite_region_height']
+				card_width = region_width / image_atlas_details['sprite_count_width']
+				card_height = region_height / image_atlas_details['sprite_count_height']
+
+			var grid_width = region_width / card_width
+			var grid_height = region_height / card_height
+			var offset_x = image_atlas_details.get('sprite_offset_x', 0)
+			var offset_y = image_atlas_details.get('sprite_offset_y', 0)
+
 			var image_grid = []
 			for y in range(grid_height):
 				for x in range(grid_width):
 					var atlas_texture = AtlasTexture.new()
 					atlas_texture.atlas = image_texture
-					atlas_texture.region = Rect2(x * CARD_WIDTH, y * CARD_HEIGHT, CARD_WIDTH, CARD_HEIGHT)
+					atlas_texture.region = Rect2(
+						offset_x + (x * card_width), offset_y + (y * card_height),
+						card_width, card_height)
 					image_grid.append(atlas_texture)
 			loaded_images[image_url] = image_grid
 		else:
@@ -115,3 +133,32 @@ func get_card_image(image_url, image_index):
 		return image_set[image_index]
 	else:
 		return null
+
+func get_animation_images(
+		image_url,
+		sprite_offset_x,
+		sprite_offset_y,
+		sprite_region_width,
+		sprite_region_height,
+		sprite_count_width,
+		sprite_count_height):
+	if test_mode:
+		return []
+
+	while image_url not in loaded_images:
+		if image_url not in image_load_queue:
+			image_load_queue.append(image_url)
+			image_load_atlas_map[image_url] = {
+				"url": image_url,
+				"multiple_cards": true,
+				"recalculate_card_sizes": true,
+				"sprite_offset_x": sprite_offset_x,
+				"sprite_offset_y": sprite_offset_y,
+				"sprite_region_width": sprite_region_width,
+				"sprite_region_height": sprite_region_height,
+				"sprite_count_width": sprite_count_width,
+				"sprite_count_height": sprite_count_height
+			}
+		await image_queue_advanced
+
+	return loaded_images[image_url]
