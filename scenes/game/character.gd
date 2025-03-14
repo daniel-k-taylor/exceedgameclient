@@ -66,9 +66,9 @@ func load_character(image_loader: CardImageLoader, character_data: Dictionary, c
 	var check_ids = [char_id]
 	if char_id.begins_with("custom_"):
 		check_ids.append(char_id.substr(7))
-	for check_id in check_ids:
-		if 'custom_animations' in character_data and check_id in character_data['custom_animations']:
-			return await load_character_custom_anims(image_loader, character_data['custom_animations'][check_id])
+		for check_id in check_ids:
+			if 'custom_animations' in character_data and check_id in character_data['custom_animations']:
+				return await load_character_custom_anims(image_loader, character_data['custom_animations'][check_id])
 
 	var path = "res://assets/character_animations/" + char_id + "/animations.tres"
 	animation.sprite_frames = load(path)
@@ -131,9 +131,10 @@ func load_character_custom_anims(image_loader : CardImageLoader, animation_data)
 
 	animation.sprite_frames = sprite_frames
 	if anim_metadata:
-		sprite_frames.set_meta("scaling", anim_metadata.get("scaling", 1))
-		scale = scale * anim_metadata.get("scaling", 1)
-		$ExceedIcon.scale = $ExceedIcon.scale / anim_metadata.get("scaling", 1)
+		var scaling = anim_metadata.get("scaling", 1)
+		sprite_frames.set_meta("scaling", scaling)
+		scale = scale * scaling
+		$ExceedIcon.scale = $ExceedIcon.scale / scaling
 
 		sprite_frames.set_meta("vertical_offset", anim_metadata.get("vertical_offset", 0))
 		vertical_offset = anim_metadata.get("vertical_offset", 0)
