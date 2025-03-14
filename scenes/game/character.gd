@@ -66,9 +66,9 @@ func load_character(image_loader: CardImageLoader, character_data: Dictionary, c
 	var check_ids = [char_id]
 	if char_id.begins_with("custom_"):
 		check_ids.append(char_id.substr(7))
-		for check_id in check_ids:
-			if 'custom_animations' in character_data and check_id in character_data['custom_animations']:
-				return await load_character_custom_anims(image_loader, character_data['custom_animations'][check_id])
+	for check_id in check_ids:
+		if 'custom_animations' in character_data and check_id in character_data['custom_animations']:
+			return await load_character_custom_anims(image_loader, character_data['custom_animations'][check_id])
 
 	var path = "res://assets/character_animations/" + char_id + "/animations.tres"
 	animation.sprite_frames = load(path)
@@ -119,7 +119,6 @@ func load_character_custom_anims(image_loader : CardImageLoader, animation_data)
 		)
 
 		if animation_images:
-			#sprite_frames.remove_animation(animation_name)
 			sprite_frames.add_animation(animation_name)
 			for i in range(frame_count):
 				sprite_frames.add_frame(animation_name, animation_images[i])
