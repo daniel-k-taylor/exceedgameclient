@@ -67,6 +67,7 @@ var ChoiceTagRegex = RegEx.new()
 
 var first_run_done = false
 var first_run_in_progress = false
+var setup_characters_complete = false
 var select_card_require_min = 0
 var select_card_require_max = 0
 var select_card_restriction_ids = []
@@ -517,6 +518,8 @@ func setup_characters():
 	setup_character_card(opponent_character_card, opponent_deck, opponent_buddy_character_card)
 	player_can_boost_from_extra = 'can_boost_from_extra' in player_deck and player_deck['can_boost_from_extra']
 
+	setup_characters_complete = true
+
 func setup_character_card(character_card, deck, buddy_character_card):
 	character_card.set_name_text(deck['display_name'])
 
@@ -779,7 +782,8 @@ func move_character_to_arena_square(character,
 		arena_location,
 		immediate: bool,
 		move_anim : Character.CharacterAnim,
-		buddy_offset : int = 0):
+		buddy_offset : int = 0
+):
 	var target_square = arena_layout.get_child(arena_location - 1)
 	var target_position = target_square.global_position + target_square.size/2
 	var offset_y = $ArenaNode/RowButtons.position.y
@@ -818,6 +822,9 @@ func _process(delta):
 		return
 	if not first_run_done:
 		if not first_run_in_progress:
+			if not setup_characters_complete:
+				# Wait for the characters to finish loading.
+				return
 			first_run_in_progress = true
 			await first_run()
 		return
