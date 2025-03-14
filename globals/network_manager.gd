@@ -216,7 +216,7 @@ func _handle_players_update(message):
 		var room_name = room['room_name']
 		var room_version = room['room_version']
 		room_name = get_stripped_room_name(room_name)
-		var observer_count = room['observer_count']
+		var observer_count = int(room['observer_count'])
 		var started = room['game_started']
 		var host = "<EMPTY>"
 		var opponent = "<EMPTY>"

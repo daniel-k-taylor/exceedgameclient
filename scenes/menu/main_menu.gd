@@ -429,7 +429,19 @@ func update_char(char_id: String, is_player: bool) -> void:
 		portrait_id = char_id
 	label.text = display_name
 	if char_id.begins_with("custom_"):
-		portrait.texture = load("res://assets/portraits/exceedrandom.png")
+		if char_id in ImageCache.loaded_portraits:
+			portrait.texture = ImageCache.loaded_portraits[char_id]
+		else:
+			var set_texture = false;
+			if 'portrait_image_url' in _custom_deck_definition:
+				var portrait_texture = await image_loader.get_animation_images(_custom_deck_definition['portrait_image_url'],
+					0, 0, -1, -1, 1, 1)
+				if portrait_texture:
+					set_texture = true
+					ImageCache.loaded_portraits[char_id] = portrait_texture[0]
+					portrait.texture = portrait_texture[0]
+			if !set_texture:
+				portrait.texture = load("res://assets/portraits/custom.png")
 	else:
 		portrait.texture = load("res://assets/portraits/" + portrait_id + ".png")
 
@@ -602,8 +614,9 @@ func _on_view_cards_button_pressed() -> void:
 	else:
 		_show_popout_for_deck(player_selected_character)
 
-func _show_popout_for_deck(deck):
+func _show_popout_for_deck(selected_character):
 	close_popout_button.visible = true
+	var deck = _get_deck(selected_character)
 	CardDefinitions.load_deck_if_custom(deck)
 	var card_popout = CardPopoutScene.instantiate()
 	card_popout_parent.add_child(card_popout)

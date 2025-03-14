@@ -199,8 +199,17 @@ func handle_decisions(game: LocalGame):
 				var required_card_id = ""
 				if 'require_specific_card_id' in effect:
 					required_card_id = effect['require_specific_card_id']
-				var gauge_action = decision_ai.pick_gauge_for_effect(options, required_card_id)
-				assert_true(game.do_gauge_for_effect(decision_ai.game_player, gauge_action.card_ids), "do gauge effect failed")
+				var valid_card_types = []
+				if 'valid_card_types' in effect:
+					valid_card_types = effect['valid_card_types']
+				var gauge_action = decision_ai.pick_gauge_for_effect(options, required_card_id, valid_card_types)
+				var result = game.do_gauge_for_effect(decision_ai.game_player, gauge_action.card_ids)
+				if not result:
+					# Handy for debugging.
+					breakpoint
+					gauge_action = decision_ai.pick_gauge_for_effect(options, required_card_id)
+					result = game.do_gauge_for_effect(decision_ai.game_player, gauge_action.card_ids)
+				assert_true(result, "do gauge effect failed")
 			Enums.DecisionType.DecisionType_ChooseFromBoosts:
 				var chooseaction = decision_ai.pick_choose_from_boosts(game.decision_info.amount)
 				assert_true(game.do_choose_from_boosts(decision_ai.game_player, chooseaction.card_ids), "do choose from boosts failed")

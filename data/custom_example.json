@@ -73,6 +73,19 @@
 			"multiple_cards": true
 		}
 	},
+	"custom_animations": {
+		"customer": {
+			"metadata": {
+				"scaling": 1.8,
+				"flip": true
+			},
+			"idle": {
+				"url": "https://i.imgur.com/cdScg5Q.png",
+				"frame_count": 10
+			}
+		}
+	},
+	"portrait_image_url": "https://i.imgur.com/5rSjQlB.png",
 	"cards": [
 		{
 			"definition_id": "customer_demonarmageddon",

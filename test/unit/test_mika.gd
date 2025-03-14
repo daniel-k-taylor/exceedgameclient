@@ -233,6 +233,43 @@ func test_mika_ua_boost_strike():
 	validate_positions(player1, 3, player2, 4)
 	validate_life(player1, 26, player2, 28)
 
+func test_mika_ua_deck_empty():
+	position_players(player1, 3, player2, 4)
+	give_player_specific_card(player1, "uni_normal_sweep", TestCardId3)
+	player1.discards = player1.deck
+
+	assert_true(game_logic.do_character_action(player1, []))
+	assert_true(game_logic.do_choose_to_discard(player1, [player1.hand[0].id]))
+	assert_true(game_logic.do_choice(player1, 0))
+	assert_true(game_logic.do_boost(player1, TestCardId3))
+	# expect normal strike to begin
+	execute_strike(player1, player2, "uni_normal_focus", "uni_normal_focus", [], [])
+
+	validate_positions(player1, 3, player2, 4)
+	validate_life(player1, 26, player2, 28)
+
+
+func test_mika_ua_deck_empty_wild():
+	position_players(player1, 1, player2, 4)
+	give_player_specific_card(player1, "uni_normal_cross", TestCardId3)
+	player1.discards = []
+	player1.deck = []
+	give_player_specific_card(player1, "uni_normal_assault", TestCardId4)
+
+	assert_true(game_logic.do_character_action(player1, []))
+	assert_true(game_logic.do_choose_to_discard(player1, [TestCardId4]))
+	# Discard the assault then boost a non-strike so wild swing which will shuffle and that is the only card.
+	assert_true(game_logic.do_choice(player1, 0))
+	assert_true(game_logic.do_boost(player1, TestCardId3))
+	# Now the player is wild swinging automatically.
+	assert_true(game_logic.do_strike(player1, -1, true, -1))
+	give_player_specific_card(player2, "uni_normal_focus", TestCardId2)
+	assert_true(game_logic.do_strike(player2, TestCardId2, false, -1))
+
+	# P1 attacks with ex assault
+	validate_positions(player1, 3, player2, 4)
+	validate_life(player1, 27, player2, 27)
+
 func test_mika_cannon_miss():
 	position_players(player1, 3, player2, 5)
 	execute_strike(player1, player2, "mika_cannon", "uni_normal_focus", [], [])

@@ -6,7 +6,8 @@ const VersusSplashScene = preload("res://scenes/menu/versus_splash.tscn")
 const GameScene = preload("res://scenes/game/game.tscn")
 
 const VersusSplashTimeout = 3.0
-
+var versus_splash_timer_ready = false
+var versus_splash_load_ready = false
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
@@ -24,19 +25,34 @@ func _on_return_from_game():
 
 func _on_splash_timeout():
 	print("Timeout finished!")
-	remove_child(splash)
-	splash = null
+	versus_splash_timer_ready = true
+	if versus_splash_load_ready:
+		remove_child(splash)
+		splash = null
+
+func _on_loading_complete():
+	print("Images loaded!")
+	versus_splash_load_ready = true
+	if versus_splash_timer_ready:
+		remove_child(splash)
+		splash = null
 
 func create_versus_splash(vs_info):
 	splash = VersusSplashScene.instantiate()
 	add_child(splash)
 	splash.set_info(vs_info)
+
+	versus_splash_timer_ready = false
+	versus_splash_load_ready = false
+
 	var timer := Timer.new()
 	timer.wait_time = VersusSplashTimeout
 	timer.one_shot = true
 	timer.connect("timeout", _on_splash_timeout)
 	add_child(timer)
 	timer.start()
+
+	game.load_characters_complete.connect(_on_loading_complete)
 
 
 func _on_main_menu_start_game(vs_info):

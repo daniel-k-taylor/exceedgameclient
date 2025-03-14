@@ -850,13 +850,21 @@ func determine_force_for_effect_actions(options : Array):
 			possible_actions.append(ForceForEffectAction.new(combo, use_free_force))
 	return possible_actions
 
-func determine_gauge_for_effect_actions(options : Array, specific_card_id : String):
+func determine_gauge_for_effect_actions(options : Array, specific_card_id : String, valid_card_types = []):
 	var possible_actions = []
 	var available_gauge = game_player.gauge.size() + game_player.free_gauge
+	if game_player.free_gauge == 99:
+		# Hakumen, never spend gauge cards.
+		possible_actions.append(GaugeForEffectAction.new([]))
+		return possible_actions
 	var all_option_ids = []
 	for card in game_player.gauge:
 		if specific_card_id and card.definition['id'] != specific_card_id:
 			continue
+		if valid_card_types:
+			if card.definition['type'] not in valid_card_types:
+				continue
+
 		all_option_ids.append(card.id)
 
 	var max_gauge = game_logic.decision_info.effect['gauge_max']
@@ -866,7 +874,7 @@ func determine_gauge_for_effect_actions(options : Array, specific_card_id : Stri
 		if target_gauge > max_gauge:
 			continue
 		# Generate an action for every possible combination of cards that can get here.
-		var combinations = get_combinations_to_pay_gauge(target_gauge)
+		var combinations = generate_card_count_combinations(all_option_ids, target_gauge)
 		for combo in combinations:
 			possible_actions.append(GaugeForEffectAction.new(combo))
 	return possible_actions
@@ -1100,9 +1108,9 @@ func pick_force_for_effect(options : Array) -> ForceForEffectAction:
 	var possible_actions = determine_force_for_effect_actions(options)
 	return ai_policy.pick_force_for_effect(possible_actions, game_state)
 
-func pick_gauge_for_effect(options : Array, specific_card_id : String = "") -> GaugeForEffectAction:
+func pick_gauge_for_effect(options : Array, specific_card_id : String = "", valid_card_types = []) -> GaugeForEffectAction:
 	game_state.update()
-	var possible_actions = determine_gauge_for_effect_actions(options, specific_card_id)
+	var possible_actions = determine_gauge_for_effect_actions(options, specific_card_id, valid_card_types)
 	return ai_policy.pick_gauge_for_effect(possible_actions, game_state)
 
 func pick_choose_to_discard(to_discard_count : int, limitation : String, can_pass : bool, allow_fewer : bool = false) -> ChooseToDiscardAction:

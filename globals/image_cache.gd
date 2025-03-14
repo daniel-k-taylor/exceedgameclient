@@ -7,6 +7,7 @@ const characters = "abcdefghijklmnopqrstuvwxyz1234567890-"
 const random_filename_length = 10
 
 var image_cache_map = {}
+var loaded_portraits = {}
 var rng = RandomNumberGenerator.new()
 
 func load_image_cache() -> bool:  # returns success code
