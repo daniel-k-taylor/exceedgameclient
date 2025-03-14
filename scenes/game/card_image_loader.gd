@@ -92,7 +92,8 @@ func _process_request_queue():
 func _image_request_completed(_result, _response_code, headers, body):
 	var image_type = "jpg"
 	for header in headers:
-		if header.begins_with("Content-Type"):
+		header = header.to_lower()
+		if header.begins_with("content-type"):
 			# The header should look something like "Content-Type: image/png"
 			if header.split("/")[-1] == "png":
 				image_type = "png"
@@ -112,7 +113,6 @@ func _image_request_completed(_result, _response_code, headers, body):
 	if load_success:
 		finished_loading_image.emit(image)
 	else:
-		push_error("Error loading card image")
 		finished_loading_image.emit(null)
 
 func get_card_image(image_url, image_index):
