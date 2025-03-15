@@ -75,11 +75,29 @@ func get_custom_cards():
 				}
 			],
 			"boost": {
-				"boost_type": "immediate",
+				"boost_type": "continuous",
 				"force_cost": 0,
 				"cancel_cost": -1,
-				"display_name": "vibing",
+				"display_name": "i promise these stats are real",
 				"effects": [
+					{
+						"timing": "now",
+						"effect_type": "strike"
+					},
+					{
+						"timing": "during_strike",
+						"effect_type": "powerup",
+						"amount": 3,
+						"and": {
+							"effect_type": "armorup",
+							"amount": 3
+						}
+					},
+					{
+						"timing": "hit",
+						"effect_type": "add_boost_to_gauge_on_strike_cleanup",
+						"not_immediate": true
+					}
 				]
 			}
 		}
@@ -170,3 +188,18 @@ func test_custom_bonus_per_not_closed_big_power():
 	validate_positions(player1, 6, player2, 8)
 	validate_life(player1, 30, player2, 23)
 	advance_turn(player2)
+
+# Testing boosts not adding themselves to gauge immediately
+func test_custom_boost_add_to_gauge_at_strike_end():
+	position_players(player1, 3, player2, 6)
+
+	var boost_id = give_player_specific_card(player1, "custom_notfullpull")
+	game_logic.do_boost(player1, boost_id)
+
+	execute_strike(player1, player2, "standard_normal_assault", "standard_normal_focus",
+		false, false, [0])
+
+	validate_positions(player1, 5, player2, 6)
+	validate_life(player1, 29, player2, 25)
+	assert_true(player1.is_card_in_gauge(boost_id))
+	advance_turn(player1)

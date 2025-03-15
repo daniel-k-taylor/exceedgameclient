@@ -612,11 +612,11 @@ func _on_view_cards_button_pressed() -> void:
 		var error_message = "Cannot view Random"
 		modal_dialog.set_text_fields(error_message, "OK", "")
 	else:
-		_show_popout_for_deck(player_selected_character)
+		var deck = _get_deck(player_selected_character)
+		_show_popout_for_deck(deck)
 
-func _show_popout_for_deck(selected_character):
+func _show_popout_for_deck(deck):
 	close_popout_button.visible = true
-	var deck = _get_deck(selected_character)
 	CardDefinitions.load_deck_if_custom(deck)
 	var card_popout = CardPopoutScene.instantiate()
 	card_popout_parent.add_child(card_popout)

@@ -94,7 +94,7 @@ func _image_request_completed(_result, _response_code, headers, body):
 	for header in headers:
 		header = header.to_lower()
 		if header.begins_with("content-type"):
-			# The header should look something like "Content-Type: image/png"
+			# The header should look something like "content-type: image/png"
 			if header.split("/")[-1] == "png":
 				image_type = "png"
 				break
