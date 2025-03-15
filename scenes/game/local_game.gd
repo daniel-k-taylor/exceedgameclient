@@ -4647,12 +4647,17 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 		"add_boost_to_gauge_on_strike_cleanup":
 			if card_id == -1:
 				assert(false, "ERROR: Unimplemented path to add_boost_to_gauge_on_strike_cleanup")
-			#performing_player.add_boost_to_gauge_on_strike_cleanup(card_id)
-			# Switching to doing it immediately
-			var card = card_db.get_card(card_id)
-			var card_name = card_db.get_card_name(card.id)
-			_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "adds boosted card %s to gauge." % _log_card_name(card_name))
-			performing_player.remove_from_continuous_boosts(card, "gauge")
+			if 'not_immediate' in effect and effect['not_immediate']:
+				var card = card_db.get_card(card_id)
+				var card_name = card_db.get_card_name(card.id)
+				performing_player.add_boost_to_gauge_on_strike_cleanup(card_id)
+				_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "'s boosted card %s will go to gauge." % _log_card_name(card_name))
+			else:
+				# Most effects that use this expect it to be added to gauge immediately
+				var card = card_db.get_card(card_id)
+				var card_name = card_db.get_card_name(card.id)
+				_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "adds boosted card %s to gauge." % _log_card_name(card_name))
+				performing_player.remove_from_continuous_boosts(card, "gauge")
 		"add_boost_to_gauge_on_move":
 			if card_id == -1:
 				assert(false)

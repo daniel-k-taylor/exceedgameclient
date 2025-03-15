@@ -646,6 +646,8 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 				effect_str += "Play a %s from hand%s." % [limitation_str, ignore_costs_str]
 		'boost_multiple':
 			var amount_str = "1-%s" % effect['amount']
+			if effect['amount'] == 1:
+				amount_str = 1
 			var limitation_str = "boost(s)"
 			if 'limitation' in effect and effect['limitation']:
 				limitation_str = effect['limitation'] + " boost(s)"
