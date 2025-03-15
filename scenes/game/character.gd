@@ -8,6 +8,8 @@ enum AnimationState {
 
 @onready var animation : AnimatedSprite2D = $Animation
 @onready var exceed_icon = $ExceedIcon
+@onready var base_scale = scale
+@onready var base_exceed_icon_scale = exceed_icon.scale
 
 var animation_state = AnimationState.AnimationState_Idle
 var current_position
@@ -132,8 +134,8 @@ func load_character_custom_anims(image_loader : CardImageLoader, animation_data)
 	if anim_metadata:
 		var scaling = anim_metadata.get("scaling", 1)
 		sprite_frames.set_meta("scaling", scaling)
-		scale = scale * scaling
-		$ExceedIcon.scale = $ExceedIcon.scale / scaling
+		scale = base_scale * scaling
+		exceed_icon.scale = base_exceed_icon_scale / scaling
 
 		sprite_frames.set_meta("vertical_offset", anim_metadata.get("vertical_offset", 0))
 		vertical_offset = anim_metadata.get("vertical_offset", 0)
