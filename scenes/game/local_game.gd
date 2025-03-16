@@ -7032,7 +7032,7 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 			var num_buddies = effect['amount']
 			var valid_new_positions = [1,2,3,4,5,6,7,8,9]
 			var already_removed_buddy = 'already_removed_buddy' in effect and effect['already_removed_buddy']
-			if already_removed_buddy:
+			if already_removed_buddy and effect.get("valid_new_positions"):
 				valid_new_positions = effect['valid_new_positions']
 			else:
 				# Filter based on destination requirements.
@@ -7119,7 +7119,6 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 								"already_removed_buddy": true,
 								"require_unoccupied": require_unoccupied,
 								"destination": destination,
-								"valid_new_positions": valid_new_positions,
 								"and": and_effect
 							}
 						})
@@ -7229,8 +7228,9 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 				var buddy_id = performing_player.get_buddy_id_at_location(location)
 				var valid_new_positions = []
 				for i in range(MinArenaLocation, MaxArenaLocation + 1):
-					if performing_player.get_buddy_id_at_location(i) != "":
-						# Skip if there is already a buddy here, including self.
+					var buddy_at_location = performing_player.get_buddy_id_at_location(i)
+					if buddy_at_location != "" and buddy_at_location != buddy_id:
+						# Skip if there is already a buddy here, but allow self.
 						continue
 					if move_to_opponent and opposing_player.is_in_location(i):
 						valid_new_positions.append(i)
