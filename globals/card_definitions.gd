@@ -1351,6 +1351,8 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 			effect_str += "Your printed power is the revealed card's power"
 		"use_top_discard_as_printed_power":
 			effect_str += "Your printed power is the top discard's power"
+		"say":
+			pass
 		"set_dan_draw_choice_INTERNAL":
 			if effect['from_bottom']:
 				effect_str += "Draw from bottom of deck"
