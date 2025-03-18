@@ -377,7 +377,11 @@
 				{
 					"timing": "before",
 					"effect_type": "close",
-					"amount": 1
+					"amount": 1,
+					"and": {
+						"effect_type": "say",
+						"text": "Goshoryuken!!\nHAHAHA!"
+					}
 				},
 				{
 					"timing": "hit",

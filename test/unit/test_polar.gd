@@ -242,7 +242,7 @@ func test_polar_exceed_empty_board():
 	assert_eq(game_logic.decision_info.choice.size(), 9) # All 9 options because you can move them too.
 	assert_true(game_logic.do_choice(player1, get_choice_index_for_position(3)))
 	validate_spikes([-1,4,-1,-1,-1])
-	assert_eq(game_logic.decision_info.choice.size(), 7) # Only 7 options because you can't put it back and 4 is full.
+	assert_eq(game_logic.decision_info.choice.size(), 8) # Only 8 options because you can put it back and 4 is full.
 	assert_true(game_logic.do_choice(player1, get_choice_index_for_position(2)))
 	validate_spikes([2,4,-1,-1,-1])
 	advance_turn(player2)
@@ -259,13 +259,13 @@ func test_polar_exceed_mostlyfull_board():
 	assert_eq(game_logic.decision_info.choice.size(), 5) # Must remove a spike first
 	assert_true(game_logic.do_choice(player1, get_choice_index_for_position(4)))
 	validate_spikes([1,2,3,6,-1])
-	assert_eq(game_logic.decision_info.choice.size(), 4) # Only 4 locations to place it
+	assert_eq(game_logic.decision_info.choice.size(), 5) # Only 5 locations to place it because you can put it back
 	assert_true(game_logic.do_choice(player1, get_choice_index_for_position(8)))
 	validate_spikes([1,2,3,6,8])
 	assert_eq(game_logic.decision_info.choice.size(), 5) # Remove a spike again.
 	assert_true(game_logic.do_choice(player1, get_choice_index_for_position(2)))
 	validate_spikes([1,3,6,8,-1])
-	assert_eq(game_logic.decision_info.choice.size(), 4) # Only 4 locations to place it.
+	assert_eq(game_logic.decision_info.choice.size(), 5) # Only 5 locations to place it.
 	assert_true(game_logic.do_choice(player1, get_choice_index_for_position(5)))
 	validate_spikes([1,3,6,8,5])
 	advance_turn(player2)
@@ -369,7 +369,7 @@ func test_polar_stomp_no_adjacent_move_spike_at_end():
 	# After effect ot place spike, options should be  1,2, 4(move it), 5 for positions.
 	assert_eq(game_logic.decision_info.choice.size(), 4)
 	assert_true(game_logic.do_choice(player1, get_choice_index_for_position(4))) # Move spike 4
-	assert_eq(game_logic.decision_info.choice.size(), 3) # Can place it at 1,2,5
+	assert_eq(game_logic.decision_info.choice.size(), 4) # Can place it at 1,2,4,5
 	assert_true(game_logic.do_choice(player1, get_choice_index_for_position(2))) # Place at 2
 	validate_spikes([-1,-1,-1,-1,2])
 	advance_turn(player2)
@@ -617,7 +617,11 @@ func test_polar_polarplow_edgebonus_get():
 	validate_spikes([-1,-1,-1,-1,8], player2)
 	# Before effect lets us move a spike
 	assert_eq(game_logic.decision_info.limitation.size(), 5) # Pass or any spike
-	assert_true(game_logic.do_choice(player1, get_choice_index_for_position(6))) # Move out of the way at 6 to 9
+	assert_true(game_logic.do_choice(player1, get_choice_index_for_position(6))) # Remove spike at position 6
+	# Since we can replace it in the same spot, we have to say where to put it.
+	# Put it in position 9.
+	assert_eq(game_logic.decision_info.limitation.size(), 2)
+	assert_true(game_logic.do_choice(player1, get_choice_index_for_position(9)))
 	validate_spikes([-1,9,8,2,4]) # Moved 6 to 9
 	# Hit effect, go ahead and remove the ice
 	assert_true(game_logic.do_choice(player1, 0)) # Remove 9 for +2 power
@@ -704,8 +708,8 @@ func test_polar_shoveldrop_boost_move_onto_player():
 	assert_eq(game_logic.decision_info.limitation.size(), 3)
 	assert_true(game_logic.do_choice(player1, get_choice_index_for_position(5)))
 	validate_spikes([2,-1,-1,-1,-1])
-	# Options are 3,4,6,7,8
-	assert_eq(game_logic.decision_info.limitation.size(), 5)
+	# Options are 3,4,5,6,7,8
+	assert_eq(game_logic.decision_info.limitation.size(), 6)
 	assert_true(game_logic.do_choice(player1, get_choice_index_for_position(8)))
 	validate_spikes([2,8,-1,-1,-1])
 	assert_eq(player1.hand.size(), 5)
@@ -721,8 +725,8 @@ func test_polar_shoveldrop_boost_move_other_gauge_action():
 	assert_eq(game_logic.decision_info.limitation.size(), 3)
 	assert_true(game_logic.do_choice(player1, get_choice_index_for_position(2)))
 	validate_spikes([5,-1,-1,-1,-1])
-	# Options are 1,3,4
-	assert_eq(game_logic.decision_info.limitation.size(), 3)
+	# Options are 1,2,3,4
+	assert_eq(game_logic.decision_info.limitation.size(), 4)
 	assert_true(game_logic.do_choice(player1, get_choice_index_for_position(4)))
 	validate_spikes([4,5,-1,-1,-1])
 	assert_true(game_logic.do_gauge_for_effect(player1, [player1.gauge[0].id]))

@@ -50,15 +50,10 @@ func _ready():
 	_config_gui = GutConfigGui.new(_ctrls.settings_vbox)
 
 	_ctrls.test_tree.hide_root = true
-	# Stop tests from kicking off when the runner is "ready" and
-	# prevents it from writing results file that is used by
-	# the panel.
-	_gut_runner.set_cmdln_mode(true)
 	add_child(_gut_runner)
 
-	# Becuase of the janky _utils psuedo-global script, we cannot
-	# do all this in _ready.  If we do this in _ready, it generates
-	# a bunch of errors.  The errors don't matter, but it looks bad.
+	# TODO This might not need to be called deferred after changing GutUtils to
+	# an all static class.
 	call_deferred('_post_ready')
 
 
@@ -206,8 +201,6 @@ func _populate_tree():
 
 
 func _refresh_tree_and_settings():
-	if(_config.options.has('panel_options')):
-		_config_gui.set_options(_config.options)
 	_config.apply_options(_gut_runner.get_gut())
 	_gut_runner.set_gut_config(_config)
 	_populate_tree()
@@ -295,17 +288,18 @@ func run_selected():
 
 
 func load_config_file(path):
-	_config.load_panel_options(path)
+	_config.load_options(path)
 	_config.options.selected = ''
 	_config.options.inner_class_name = ''
 	_config.options.unit_test_name = ''
+	_config_gui.load_file(path)
 
 
 # ##############################################################################
 # The MIT License (MIT)
 # =====================
 #
-# Copyright (c) 2023 Tom "Butch" Wesley
+# Copyright (c) 2025 Tom "Butch" Wesley
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal

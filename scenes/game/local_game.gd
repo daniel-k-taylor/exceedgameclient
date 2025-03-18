@@ -170,12 +170,15 @@ func printlog(text):
 func is_number(test_value):
 	return test_value is int or test_value is float
 
-func create_event(event_type : Enums.EventType,
-		event_player : Enums.PlayerId,
-		num : int, reason: String = "",
-		extra_info = null,
-		extra_info2 = null,
-		extra_info3 = null):
+func create_event(
+	event_type : Enums.EventType,
+	event_player : Enums.PlayerId,
+	num : int,
+	reason: String = "",
+	extra_info = null,
+	extra_info2 = null,
+	extra_info3 = null
+):
 	var card_name = card_db.get_card_name(num)
 	var playerstr = "Player"
 	if event_player == Enums.PlayerId.PlayerId_Opponent:
@@ -7032,7 +7035,7 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 			var num_buddies = effect['amount']
 			var valid_new_positions = [1,2,3,4,5,6,7,8,9]
 			var already_removed_buddy = 'already_removed_buddy' in effect and effect['already_removed_buddy']
-			if already_removed_buddy:
+			if already_removed_buddy and effect.get("valid_new_positions"):
 				valid_new_positions = effect['valid_new_positions']
 			else:
 				# Filter based on destination requirements.
@@ -7119,7 +7122,6 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 								"already_removed_buddy": true,
 								"require_unoccupied": require_unoccupied,
 								"destination": destination,
-								"valid_new_positions": valid_new_positions,
 								"and": and_effect
 							}
 						})
@@ -7229,8 +7231,9 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 				var buddy_id = performing_player.get_buddy_id_at_location(location)
 				var valid_new_positions = []
 				for i in range(MinArenaLocation, MaxArenaLocation + 1):
-					if performing_player.get_buddy_id_at_location(i) != "":
-						# Skip if there is already a buddy here, including self.
+					var buddy_at_location = performing_player.get_buddy_id_at_location(i)
+					if buddy_at_location != "" and buddy_at_location != buddy_id:
+						# Skip if there is already a buddy here, but allow self.
 						continue
 					if move_to_opponent and opposing_player.is_in_location(i):
 						valid_new_positions.append(i)
@@ -7986,6 +7989,9 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 				performing_player.strike_stat_boosts.overwritten_printed_power = 0
 				_append_log_full(Enums.LogType.LogType_Effect, performing_player, "has no discards, their attack's printed power is set to 0.")
 			performing_player.strike_stat_boosts.overwrite_printed_power = true
+		"say":
+			var say_text = effect["text"]
+			create_event(Enums.EventType.EventType_Say, performing_player.my_id, 0, "", say_text)
 		"seal_attack_on_cleanup":
 			performing_player.strike_stat_boosts.seal_attack_on_cleanup = true
 		"seal_card_INTERNAL":
