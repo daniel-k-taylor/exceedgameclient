@@ -123,6 +123,7 @@ enum EventType {
 	EventType_RevealRandomGauge,
 	EventType_RevealStrike_OnePlayer,
 	EventType_RevealTopDeck,
+	EventType_Say,
 	EventType_Seal,
 	EventType_SetCardAside,
 	EventType_Strike_ArmorUp,

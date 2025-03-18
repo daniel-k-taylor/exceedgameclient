@@ -730,10 +730,14 @@ func get_damage_popup() -> DamagePopup:
 			func():damage_popup_pool.append(new_popup))
 		return new_popup
 
-func spawn_emote(player_id : Enums.PlayerId,
-		is_image_emote : bool,
-		emote : String,
-		emote_display : EmoteDisplay):
+func spawn_emote(
+	player_id : Enums.PlayerId,
+	is_image_emote : bool,
+	emote : String
+):
+	var emote_display = opponent_emote
+	if player_id == Enums.PlayerId.PlayerId_Player:
+		emote_display = player_emote
 	var pos = get_notice_position(player_id)
 	pos.y -= NoticeOffsetY
 	if game_wrapper.get_player_location(player_id) > 5:
@@ -1532,6 +1536,12 @@ func _stat_notice_event(event):
 			notice_text = "Swap Sealed and Deck"
 
 	spawn_damage_popup(notice_text, player)
+	return SmallNoticeDelay
+
+func _on_say(event):
+	var player = event['event_player']
+	var text = event['extra_info']
+	spawn_emote(player, false, text)
 	return SmallNoticeDelay
 
 func _set_card_bonus(card_id, bonus, value=true):
@@ -3307,10 +3317,7 @@ func _on_emote(event):
 	if GlobalSettings.MuteEmotes:
 		return
 
-	if player == Enums.PlayerId.PlayerId_Player:
-		spawn_emote(player, is_image_emote, emote, player_emote)
-	else:
-		spawn_emote(player, is_image_emote, emote, opponent_emote)
+	spawn_emote(player, is_image_emote, emote)
 
 func _on_damage(event):
 	var player = event['event_player']
@@ -3622,6 +3629,8 @@ func _handle_events(events):
 				delay = _on_reveal_random_gauge(event)
 			Enums.EventType.EventType_RevealTopDeck:
 				delay = _on_reveal_topdeck(event)
+			Enums.EventType.EventType_Say:
+				delay = _on_say(event)
 			Enums.EventType.EventType_Seal:
 				delay = _on_add_to_sealed(event)
 			Enums.EventType.EventType_SetCardAside:

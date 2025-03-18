@@ -170,12 +170,15 @@ func printlog(text):
 func is_number(test_value):
 	return test_value is int or test_value is float
 
-func create_event(event_type : Enums.EventType,
-		event_player : Enums.PlayerId,
-		num : int, reason: String = "",
-		extra_info = null,
-		extra_info2 = null,
-		extra_info3 = null):
+func create_event(
+	event_type : Enums.EventType,
+	event_player : Enums.PlayerId,
+	num : int,
+	reason: String = "",
+	extra_info = null,
+	extra_info2 = null,
+	extra_info3 = null
+):
 	var card_name = card_db.get_card_name(num)
 	var playerstr = "Player"
 	if event_player == Enums.PlayerId.PlayerId_Opponent:
@@ -7986,6 +7989,9 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 				performing_player.strike_stat_boosts.overwritten_printed_power = 0
 				_append_log_full(Enums.LogType.LogType_Effect, performing_player, "has no discards, their attack's printed power is set to 0.")
 			performing_player.strike_stat_boosts.overwrite_printed_power = true
+		"say":
+			var say_text = effect["text"]
+			create_event(Enums.EventType.EventType_Say, performing_player.my_id, 0, "", say_text)
 		"seal_attack_on_cleanup":
 			performing_player.strike_stat_boosts.seal_attack_on_cleanup = true
 		"seal_card_INTERNAL":
