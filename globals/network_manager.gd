@@ -86,7 +86,7 @@ func _handle_server_response(data):
 		print("Error parsing JSON from server: ", data)
 		return
 
-	var data_obj = parser.get_data()
+	var data_obj = CardDefinitions.convert_floats_to_ints(parser.get_data())
 	var type = data_obj["type"]
 	match type:
 		"server_hello":
