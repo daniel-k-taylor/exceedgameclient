@@ -1,0 +1,285 @@
+{
+	"id": "djanette",
+	"season": 2,
+	"display_name": "D'Janette",
+	"buddy_exceeds": true,
+	"buddy_card": "djanette_spellcircle",
+	"buddy_display_name": "Spell Circle",
+	"link_extra_cards_to_buddies": true,
+	"exceed_cost": 5,
+	"exceed_cost_reduced_by": [{ "reduction_type": "transform_discount" }],
+	"character_action_default": [{
+		"gauge_cost": 0,
+		"force_cost": 0,
+		"shortcut_effect_type": "choose_card_from_zone",
+		"effect": {
+			"effect_type": "choose_card_from_zone",
+			"zone": "hand",
+			"destination": "stored_cards",
+			"min_amount": 1,
+			"max_amount": 1,
+			"and": {
+				"effect_type": "place_buddy_in_any_space",
+				"buddy_id": "djanette_spellcircle",
+				"buddy_name": "Spell Circle",
+				"and": {
+					"effect_type": "draw",
+					"amount": 1
+				}
+			}
+		}
+	}],
+	"character_action_exceeded": [{
+		"gauge_cost": 0,
+		"force_cost": 0,
+		"shortcut_effect_type": "choose_card_from_zone",
+		"effect": {
+			"effect_type": "choose_card_from_zone",
+			"zone": "hand",
+			"destination": "stored_cards",
+			"min_amount": 1,
+			"max_amount": 1,
+			"and": {
+				"effect_type": "draw",
+				"amount": 1
+			}
+		}
+	}],
+	"ability_effects": [
+		{
+			"timing": "extra_strike_option",
+			"condition": "buddy_in_play",
+			"buddy_name": "Spell Circle",
+			"option": "strike_with_buddy_card",
+			"special_effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "calculate_range_from_buddy",
+					"buddy_id": "djanette_spellcircle",
+					"buddy_name": "Spell Circle"
+				}
+			]
+		},
+		{
+			"timing": "start_of_next_turn",
+			"condition": "buddy_in_play",
+			"buddy_id": "djanette_spellcircle",
+			"buddy_name": "Spell Circle",
+			"effect_type": "start_of_turn_strike"
+		},
+		{
+			"timing": "end_of_turn",
+			"effect_type": "remove_buddy",
+			"buddy_id": "djanette_spellcircle",
+			"buddy_name": "Spell Circle",
+			"silent": true,
+			"and": {
+				"effect_type": "discard_stored_cards"
+			}
+		}
+	],
+	"on_exceed": {
+		"effect_type": "remove_buddy",
+		"buddy_id": "djanette_spellcircle",
+		"buddy_name": "Spell Circle",
+		"silent": true,
+		"and": {
+			"effect_type": "discard_stored_cards"
+		}
+	},
+	"exceed_ability_effects": [
+		{
+			"timing": "hit",
+			"effect_type": "powerup_per_card_in_zone",
+			"zone": "stored_cards",
+			"limitation": "range_to_opponent",
+			"amount": 3
+		},
+		{
+			"timing": "cleanup",
+			"effect_type": "discard_stored_cards"
+		}
+	],
+	"image_resources": {
+		"character_default": {
+			"url": "https://i.imgur.com/LPNNmWj.jpeg",
+			"multiple_cards": false
+		},
+		"character_exceeded": {
+			"url": "https://i.imgur.com/67GKRVX.jpeg",
+			"multiple_cards": false
+		},
+		"djanette_spellcircle": {
+			"url": "https://i.imgur.com/ANkj0Gu.jpeg",
+			"multiple_cards": false
+		},
+		"djanette_spellcircle_exceeded": {
+			"url": "https://i.imgur.com/gk4GgA0.jpeg",
+			"multiple_cards": false
+		},
+		"cardback": {
+			"url": "https://i.imgur.com/s6wpKBq.jpeg",
+			"multiple_cards": false
+		},
+		"specials": {
+			"url": "https://i.imgur.com/8i1Tf8s.jpeg",
+			"multiple_cards": true
+		},
+		"normals": {
+			"url": "https://i.imgur.com/1pnJnEb.jpeg",
+			"multiple_cards": true
+		}
+	},
+	"cards": [
+		{
+			"definition_id": "djanette_carmineoffering",
+			"image_name": "specials",
+			"image_index": 5
+		},
+		{
+			"definition_id": "djanette_carmineoffering",
+			"image_name": "specials",
+			"image_index": 5
+		},
+		{
+			"definition_id": "djanette_deathknell",
+			"image_name": "specials",
+			"image_index": 6
+		},
+		{
+			"definition_id": "djanette_deathknell",
+			"image_name": "specials",
+			"image_index": 6
+		},
+		{
+			"definition_id": "djanette_affliction",
+			"image_name": "specials",
+			"image_index": 1
+		},
+		{
+			"definition_id": "djanette_affliction",
+			"image_name": "specials",
+			"image_index": 1
+		},
+		{
+			"definition_id": "djanette_blackdeath",
+			"image_name": "specials",
+			"image_index": 3
+		},
+		{
+			"definition_id": "djanette_blackdeath",
+			"image_name": "specials",
+			"image_index": 3
+		},
+		{
+			"definition_id": "djanette_bloodthorns",
+			"image_name": "specials",
+			"image_index": 2
+		},
+		{
+			"definition_id": "djanette_bloodthorns",
+			"image_name": "specials",
+			"image_index": 2
+		},
+		{
+			"definition_id": "djanette_charnelblast",
+			"image_name": "specials",
+			"image_index": 4
+		},
+		{
+			"definition_id": "djanette_charnelblast",
+			"image_name": "specials",
+			"image_index": 4
+		},
+		{
+			"definition_id": "djanette_profanesanctuary",
+			"image_name": "specials",
+			"image_index": 0
+		},
+		{
+			"definition_id": "djanette_profanesanctuary",
+			"image_name": "specials",
+			"image_index": 0
+		},
+		{
+			"definition_id": "standard_normal_grasp",
+			"image_name": "normals",
+			"image_index": 0
+		},
+		{
+			"definition_id": "standard_normal_grasp",
+			"image_name": "normals",
+			"image_index": 0
+		},
+		{
+			"definition_id": "standard_normal_cross",
+			"image_name": "normals",
+			"image_index": 1
+		},
+		{
+			"definition_id": "standard_normal_cross",
+			"image_name": "normals",
+			"image_index": 1
+		},
+		{
+			"definition_id": "standard_normal_assault",
+			"image_name": "normals",
+			"image_index": 2
+		},
+		{
+			"definition_id": "standard_normal_assault",
+			"image_name": "normals",
+			"image_index": 2
+		},
+		{
+			"definition_id": "standard_normal_dive",
+			"image_name": "normals",
+			"image_index": 3
+		},
+		{
+			"definition_id": "standard_normal_dive",
+			"image_name": "normals",
+			"image_index": 3
+		},
+		{
+			"definition_id": "standard_normal_spike",
+			"image_name": "normals",
+			"image_index": 4
+		},
+		{
+			"definition_id": "standard_normal_spike",
+			"image_name": "normals",
+			"image_index": 4
+		},
+		{
+			"definition_id": "standard_normal_sweep",
+			"image_name": "normals",
+			"image_index": 5
+		},
+		{
+			"definition_id": "standard_normal_sweep",
+			"image_name": "normals",
+			"image_index": 5
+		},
+		{
+			"definition_id": "standard_normal_focus",
+			"image_name": "normals",
+			"image_index": 6
+		},
+		{
+			"definition_id": "standard_normal_focus",
+			"image_name": "normals",
+			"image_index": 6
+		},
+		{
+			"definition_id": "standard_normal_block",
+			"image_name": "normals",
+			"image_index": 7
+		},
+		{
+			"definition_id": "standard_normal_block",
+			"image_name": "normals",
+			"image_index": 7
+		}
+	]
+}

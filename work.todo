@@ -1,3 +1,26 @@
+DJanette:
+    ☐ rangeup "all_zones": true
+        - don't forget removing the effect on discard
+    ☐ rangeup "opponent": true,
+        - test negative max range
+        - also discard check
+    ☐ rangeup "special_only": true,
+    ☐ "effect_type": "effect_per_card_in_zone",
+
+    ☐ djanette_profanesanctuary - action - needs to check that you can do this before activating.
+        ☐ "condition": "has_card_with_range_to_opponent", - check this when listing the actions
+    ☐ djanette_blackdeath - diabolic aura ability needs to check this transform
+
+
+    ☐ "effect_type": "draw", after place_buddy_in_any_space
+
+    ☐ extra strike option
+    ☐ "effect_type": "discard_stored_cards"
+
+    ☐ "effect_type": "powerup_per_card_in_zone",
+
+    ☐ stored zone hidden when not exceeded
+
 Bug:
     Breaking:
         Review mid-strike Tech interactions:

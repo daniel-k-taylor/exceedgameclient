@@ -1,0 +1,17 @@
+[gd_resource type="SpriteFrames" load_steps=2 format=3 uid="uid://cw6agr07ejd5a"]
+
+[ext_resource type="Texture2D" uid="uid://c4ns67ni3eg4e" path="res://assets/character_animations/djanette_spellcircle/spellcircle.png" id="1_7gavw"]
+
+[resource]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("1_7gavw")
+}],
+"loop": true,
+"name": &"idle",
+"speed": 5.0
+}]
+metadata/flip = true
+metadata/scaling = 1.5
+metadata/vertical_offset = 50.0

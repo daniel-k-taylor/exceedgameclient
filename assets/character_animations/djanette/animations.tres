@@ -1,0 +1,16 @@
+[gd_resource type="SpriteFrames" load_steps=2 format=3 uid="uid://b3pgl1vj8gg5w"]
+
+[ext_resource type="Texture2D" uid="uid://covneidetm0i2" path="res://assets/character_animations/djanette/djanette.png" id="1_w8ul4"]
+
+[resource]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("1_w8ul4")
+}],
+"loop": true,
+"name": &"idle",
+"speed": 5.0
+}]
+metadata/flip = true
+metadata/scaling = 0.07
