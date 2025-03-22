@@ -214,6 +214,11 @@ func count_cards_in_deck_and_hand(player_id : Enums.PlayerId,
 			for card in cards_under_boost:
 				if card.definition['id'] == card_str_id:
 					count += 1
+		if player.is_stored_zone_facedown():
+			# The player has a secret stored zone, these hidden cards should be counted.
+			for card in player.set_aside_cards:
+				if card.definition['id'] == card_str_id:
+					count += 1
 
 		var striking_card_ids = current_game.get_striking_card_ids_for_player(player)
 		for striking_id in striking_card_ids:

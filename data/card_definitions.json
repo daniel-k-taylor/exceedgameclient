@@ -6690,7 +6690,8 @@
 					"effect_type": "rangeup",
 					"amount": 0,
 					"amount2": 2,
-					"all_zones": true
+					"affected_zones": ["attack", "stored_cards"],
+					"zone_name": "Diabolic Aura"
 				}
 			]
 		}
@@ -6779,7 +6780,8 @@
 					"timing": "during_strike",
 					"effect_type": "rangeup",
 					"special_only": true,
-					"all_zones": true,
+					"affected_zones": ["attack", "stored_cards"],
+					"zone_name": "Diabolic Aura",
 					"amount": 0,
 					"amount2": 1
 				}
@@ -6888,11 +6890,11 @@
 				"timing": "during_strike",
 				"effect_type": "effect_per_card_in_zone",
 				"per_card_effect": {
+					"combine_multiple_into_one": true,
 					"effect_type": "armorup",
 					"amount": 1
 				},
-				"zone": "transform",
-				"amount": 1
+				"zone": "transform"
 			}
 		],
 		"boost": {

@@ -74,6 +74,7 @@ enum EventType {
 	EventType_AddToDeck,
 	EventType_AddToHand,
 	EventType_AddToOverdrive,
+	EventType_AddToStored,
 	EventType_AdvanceTurn,
 	EventType_BecomeWide,
 	EventType_BlockMovement,

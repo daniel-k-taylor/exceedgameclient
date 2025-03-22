@@ -1,25 +1,27 @@
 DJanette:
-    ☐ rangeup "all_zones": true
+    ☐ rangeup "all_zones": true @started(25-03-21 21:39)
         - don't forget removing the effect on discard
-    ☐ rangeup "opponent": true,
+    ☐ rangeup "opponent": true, @started(25-03-21 21:05)
         - test negative max range
         - also discard check
-    ☐ rangeup "special_only": true,
-    ☐ "effect_type": "effect_per_card_in_zone",
+    ☐ rangeup "special_only": true, @started(25-03-21 21:39)
+    ☐ "effect_type": "effect_per_card_in_zone", @started(25-03-21 21:51)
 
-    ☐ djanette_profanesanctuary - action - needs to check that you can do this before activating.
-        ☐ "condition": "has_card_with_range_to_opponent", - check this when listing the actions
-    ☐ djanette_blackdeath - diabolic aura ability needs to check this transform
+    ☐ djanette_profanesanctuary - action - needs to check that you can do this before activating. @started(25-03-21 22:07)
+        ☐ "condition": "has_card_with_range_to_opponent", - check this when listing the actions @started(25-03-21 22:07)
+    ☐ djanette_blackdeath - diabolic aura ability needs to check this transform @started(25-03-21 22:13)
 
+    ☐ "effect_type": "draw", after place_buddy_in_any_space @started(25-03-21 22:15)
 
-    ☐ "effect_type": "draw", after place_buddy_in_any_space
+    ☐ extra strike option to strike from spell circle
 
-    ☐ extra strike option
-    ☐ "effect_type": "discard_stored_cards"
+    ☐ "effect_type": "discard_stored_cards" @started(25-03-21 23:29)
 
-    ☐ "effect_type": "powerup_per_card_in_zone",
+    ☐ "effect_type": "powerup_per_card_in_zone", @started(25-03-21 22:29)
 
-    ☐ stored zone hidden when not exceeded
+    ☐ stored zone hidden when not exceeded @started(25-03-21 23:21)
+
+    ☐ Make stored cards go to the right spot in the UI
 
 Bug:
     Breaking:

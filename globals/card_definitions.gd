@@ -907,6 +907,15 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 			effect_str += "Opponent draws or discards until they have %s" % amount_str
 			if 'per_draw_effect' in effect:
 				effect_str += "\nIf they draw: per card drawn, " + get_effect_text(effect['per_draw_effect'], false, false, false)
+		"effect_per_card_in_zone":
+			var per_effect = get_effect_text(effect["per_card_effect"], false, false, false)
+			var limitation_str = ""
+			var zone_name = effect['zone']
+			if effect.get("zone_name"):
+				zone_name = effect['zone_name']
+			if effect.get("limitation") == "range_to_opponent":
+				limitation_str = " with Range to Opponent"
+			effect_str += "%s per card in %s%s" % [per_effect, zone_name, limitation_str]
 		"exceed_now":
 			effect_str += "Exceed"
 		"extra_trigger_resolutions":
@@ -928,9 +937,12 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 			effect_str += "Gain " + str(amount) + " life"
 		"gauge_from_hand":
 			var last_cards_req = ""
+			var destination = "Gauge"
+			if effect.get("destination_name"):
+				destination = effect['destination_name']
 			if effect.get("from_last_cards"):
 				last_cards_req = " from the last %s drawn cards" % effect['from_last_cards']
-			effect_str += "Add a card from hand to gauge%s" % last_cards_req
+			effect_str += "Add a card from hand to %s%s" % [destination, last_cards_req]
 		"generate_free_force":
 			effect_str += "Generate %s force for free" % effect['amount']
 		"guardup":
@@ -1205,6 +1217,10 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 		"range_includes_if_moved_past":
 			effect_str += "If you move past the opponent, your range includes them"
 		"rangeup":
+			if effect.get("opponent"):
+				effect_str += = "Opponent "
+			if effect.get("special_only"):
+				effect_str += "Specials "
 			if str(effect['amount']) != str(effect['amount2']):
 				# Skip the first one if they're the same.
 				if str(effect['amount']) == "strike_x":
@@ -1220,6 +1236,8 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 					effect_str += "+"
 				effect_str += str(effect['amount2'])
 			effect_str += " Range"
+			if effect.get("zone_name"):
+				effect_str += " (+ " + effect['zone_name'] + ") "
 		"rangeup_both_players":
 			effect_str += "Both players "
 			if effect['amount'] != effect['amount2']:

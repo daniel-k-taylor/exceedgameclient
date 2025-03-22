@@ -2099,6 +2099,18 @@ func _on_add_to_overdrive(event):
 	spawn_damage_popup("+ Overdrive", player)
 	return SmallNoticeDelay
 
+func _on_add_to_stored(event):
+	var player = event['event_player']
+	var card = find_card_on_board(event['number'])
+	var facedown = event['extra_info']
+	if not facedown:
+		make_card_revealed(card)
+
+	var deck_position = get_deck_button_position(is_player)
+	card.discard_to(deck_position, CardBase.CardState.CardState_InDeck)
+	reparent_to_zone(card, get_set_aside_zone(is_player))
+	layout_player_hand(is_player)
+
 func get_deck_zone(is_player : bool):
 	if is_player:
 		return $AllCards/PlayerDeck
@@ -3527,6 +3539,8 @@ func _handle_events(events):
 				_on_add_to_hand(event)
 			Enums.EventType.EventType_AddToOverdrive:
 				delay = _on_add_to_overdrive(event)
+			Enums.EventType.EventType_AddToStored:
+				_on_add_to_stored(event)
 			Enums.EventType.EventType_AdvanceTurn:
 				delay = _on_advance_turn()
 			Enums.EventType.EventType_BecomeWide:

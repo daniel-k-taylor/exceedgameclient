@@ -6,23 +6,31 @@
 	"buddy_card": "djanette_spellcircle",
 	"buddy_display_name": "Spell Circle",
 	"link_extra_cards_to_buddies": true,
+	"stored_zone_info": {
+		"name": "Spell Circle",
+		"facedown": true
+	},
+	"stored_zone_info_exceeded": {
+		"name": "Diabolic Aura",
+		"facedown": false
+	},
 	"exceed_cost": 5,
 	"exceed_cost_reduced_by": [{ "reduction_type": "transform_discount" }],
 	"character_action_default": [{
 		"gauge_cost": 0,
 		"force_cost": 0,
-		"shortcut_effect_type": "choose_card_from_zone",
+		"shortcut_effect_type": "gauge_from_hand",
 		"effect": {
-			"effect_type": "choose_card_from_zone",
-			"zone": "hand",
+			"effect_type": "gauge_from_hand",
 			"destination": "stored_cards",
+			"destination_name": "Spell Circle",
 			"min_amount": 1,
 			"max_amount": 1,
 			"and": {
 				"effect_type": "place_buddy_in_any_space",
 				"buddy_id": "djanette_spellcircle",
 				"buddy_name": "Spell Circle",
-				"and": {
+				"additional_effect": {
 					"effect_type": "draw",
 					"amount": 1
 				}
@@ -32,16 +40,26 @@
 	"character_action_exceeded": [{
 		"gauge_cost": 0,
 		"force_cost": 0,
-		"shortcut_effect_type": "choose_card_from_zone",
+		"shortcut_effect_type": "gauge_from_hand",
 		"effect": {
-			"effect_type": "choose_card_from_zone",
-			"zone": "hand",
+			"effect_type": "gauge_from_hand",
 			"destination": "stored_cards",
+			"destination_name": "Diabolic Aura",
 			"min_amount": 1,
 			"max_amount": 1,
 			"and": {
 				"effect_type": "draw",
-				"amount": 1
+				"amount": 1,
+				"and": {
+					"condition": "has_transform",
+					"required_transform_card": "djanette_blackdeath",
+					"effect_type": "force_for_effect",
+					"per_force_effect": null,
+					"overall_effect": {
+						"effect_type": "strike"
+					},
+					"force_max": 1
+				}
 			}
 		}
 	}],
@@ -90,10 +108,15 @@
 	"exceed_ability_effects": [
 		{
 			"timing": "hit",
-			"effect_type": "powerup_per_card_in_zone",
-			"zone": "stored_cards",
+			"effect_type": "effect_per_card_in_zone",
 			"limitation": "range_to_opponent",
-			"amount": 3
+			"per_card_effect": {
+				"combine_multiple_into_one": true,
+				"effect_type": "powerup",
+				"amount": 3
+			},
+			"zone": "stored_cards",
+			"zone_name": "Diabolic Aura"
 		},
 		{
 			"timing": "cleanup",
