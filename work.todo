@@ -3,18 +3,6 @@ DJanette:
     ☐ New graphic for spell circle
 
 
-    ☐ rangeup "all_zones": true @started(25-03-21 21:39)
-        - don't forget removing the effect on discard
-    ☐ rangeup "opponent": true, @started(25-03-21 21:05)
-        - test negative max range
-        - also discard check
-    ☐ rangeup "special_only": true, @started(25-03-21 21:39)
-
-    ☐ Test various diabolic aura range boosts
-    ☐ Test profane transform range boost (in UI)
-
-
-
 Bug:
     Breaking:
         Review mid-strike Tech interactions:

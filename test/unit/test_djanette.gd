@@ -168,7 +168,7 @@ func test_djanette_diabolic_many_in_range():
 	give_player_specific_card(player1, "standard_normal_spike")
 	player1.set_aside_cards = player1.hand.slice(5)
 	player1.hand = player1.hand.slice(0, 6)
-	
+
 	position_players(player1, 3, player2, 7)
 	execute_strike(player1, player2, "standard_normal_dive", "standard_normal_sweep", false, false,
 		[], [])
@@ -184,7 +184,7 @@ func test_djanette_charnelblast_transform_armor():
 	add_transform(player1, "djanette_blackdeath")
 	add_transform(player1, "djanette_bloodthorns")
 	add_transform(player1, "djanette_profanesanctuary")
-	
+
 	execute_strike(player1, player2, "djanette_charnelblast", "standard_normal_assault", false, false,
 		[], [])
 	validate_positions(player1, 4, player2, 5)
@@ -202,3 +202,148 @@ func test_djanette_profanesanctuary_transform():
 	validate_life(player1, 30, player2, 29)
 	assert_eq(player1.hand.size(), 2)
 	advance_turn(player2)
+
+
+func test_djanette_rangeup_transforms_special_attack():
+	position_players(player1, 3, player2, 7)
+	add_transform(player1, "djanette_affliction")
+	add_transform(player1, "djanette_carmineoffering")
+	player1.discard_hand()
+	execute_strike(player1, player2, "djanette_affliction", "standard_normal_assault", false, false,
+		[1], [])
+	# At range 4, 0-1 special will hit 0-4.
+	validate_positions(player1, 3, player2, 7)
+	validate_life(player1, 30, player2, 27)
+	advance_turn(player1)
+
+
+func test_djanette_rangeup_transforms_normal_attack_miss():
+	position_players(player1, 3, player2, 7)
+	add_transform(player1, "djanette_affliction")
+	add_transform(player1, "djanette_carmineoffering")
+	player1.discard_hand()
+	execute_strike(player1, player2, "standard_normal_grasp", "standard_normal_assault", false, false,
+		[], [])
+	# At range 4, 1 normal is 1-3.
+	validate_positions(player1, 3, player2, 5)
+	validate_life(player1, 30, player2, 30)
+	advance_turn(player2)
+
+func test_djanette_rangeup_transforms_normal_attack_hit():
+	position_players(player1, 4, player2, 7)
+	add_transform(player1, "djanette_affliction")
+	add_transform(player1, "djanette_carmineoffering")
+	player1.discard_hand()
+	execute_strike(player1, player2, "standard_normal_grasp", "standard_normal_assault", false, false,
+		[0], [])
+	# At range 3, 1 normal is 1-3.
+	validate_positions(player1, 4, player2, 8)
+	validate_life(player1, 30, player2, 27)
+	advance_turn(player2)
+
+
+func test_djanette_rangeup_transforms_diabolic():
+	player1.exceed()
+	# Range 4 for htis test with 0-2 all and 0-1 for specials (so 3 total)
+	give_player_specific_card(player1, "djanette_affliction")
+	give_player_specific_card(player1, "standard_normal_grasp")
+	player1.set_aside_cards = player1.hand.slice(5)
+	player1.hand = player1.hand.slice(0, 5)
+	
+	position_players(player1, 3, player2, 7)
+	add_transform(player1, "djanette_affliction")
+	add_transform(player1, "djanette_carmineoffering")
+	player1.discard_hand()
+	execute_strike(player1, player2, "djanette_affliction", "standard_normal_assault", false, false,
+		[0, 1], [])
+	# At range 4, 0-1 special will hit 0-4.
+	validate_positions(player1, 3, player2, 7)
+	validate_life(player1, 30, player2, 24)
+	advance_turn(player1)
+
+
+func test_djanette_rangeup_transforms_diabolic_veryclose():
+	player1.exceed()
+	# Range 4 for htis test with 0-2 all and 0-1 for specials (so 3 total)
+	give_player_specific_card(player1, "djanette_affliction")
+	give_player_specific_card(player1, "standard_normal_grasp")
+	give_player_specific_card(player1, "djanette_blackdeath")
+	player1.set_aside_cards = player1.hand.slice(5)
+	player1.hand = player1.hand.slice(0, 5)
+	
+	position_players(player1, 6, player2, 7)
+	add_transform(player1, "djanette_affliction")
+	add_transform(player1, "djanette_carmineoffering")
+	player1.discard_hand()
+	execute_strike(player1, player2, "djanette_affliction", "standard_normal_assault", false, false,
+		[0, 1], [])
+	# At range 4, 0-1 special will hit 0-4.
+	validate_positions(player1, 6, player2, 7)
+	validate_life(player1, 30, player2, 21)
+	advance_turn(player1)
+
+
+func test_djanette_deathknell_boost():
+	position_players(player1, 6, player2, 7)
+	give_player_specific_card(player1, "djanette_deathknell")
+	give_player_specific_card(player1, "djanette_deathknell")
+	assert_true(game_logic.do_boost(player1, player1.hand[-1].id, [player1.hand[-2].id]))
+	execute_strike(player2, player1, "standard_normal_grasp", "standard_normal_grasp", false, false,
+		[], [1])
+	validate_positions(player1, 6, player2, 9)
+	validate_life(player1, 30, player2, 27)
+	advance_turn(player1)
+
+
+func test_djanette_deathknell_boost_diabolic():
+	position_players(player1, 5, player2, 7)
+	give_player_specific_card(player1, "djanette_deathknell")
+	give_player_specific_card(player1, "djanette_deathknell")
+	assert_true(game_logic.do_boost(player1, player1.hand[-1].id, [player1.hand[-2].id]))
+	
+	# P2 is going to have -1 min and max range, so range 2 diabolic black death still helps +damage
+	player2.exceed()
+	give_player_specific_card(player2, "djanette_blackdeath")
+	player2.set_aside_cards = player2.hand.slice(6)
+	player2.hand = player2.hand.slice(0, 6)
+	
+	execute_strike(player2, player1, "standard_normal_spike", "standard_normal_sweep", false, false,
+		[], [])
+	validate_positions(player1, 5, player2, 7)
+	validate_life(player1, 22, player2, 30)
+	advance_turn(player1)
+
+
+func test_djanette_deathknell_boost_profaneability():
+	position_players(player1, 6, player2, 7)
+	player2.discard_hand()
+	give_player_specific_card(player1, "djanette_deathknell")
+	give_player_specific_card(player1, "djanette_deathknell")
+	assert_true(game_logic.do_boost(player1, player1.hand[-1].id, [player1.hand[-2].id]))
+	
+	# P2 has profane transform to deal damage
+	add_transform(player2, "djanette_profanesanctuary")
+	give_player_specific_card(player2, "standard_normal_spike")
+	# Spike works because -1 range.
+	assert_true(game_logic.do_bonus_turn_action(player2, 0))
+	assert_true(game_logic.do_choose_to_discard(player2, [player2.hand[-1].id]))
+	validate_positions(player1, 6, player2, 7)
+	validate_life(player1, 29, player2, 30)
+	advance_turn(player1)
+
+
+func test_djanette_deathknell_boost_profaneability_rangeup_both_players():
+	position_players(player1, 3, player2, 7)
+	player2.discard_hand()
+	give_player_specific_card(player1, "arakune_ytwodash")
+	assert_true(game_logic.do_boost(player1, player1.hand[-1].id))
+	
+	# P2 has profane transform to deal damage
+	add_transform(player2, "djanette_profanesanctuary")
+	give_player_specific_card(player2, "standard_normal_spike")
+	# Spike works because +1 range.
+	assert_true(game_logic.do_bonus_turn_action(player2, 0))
+	assert_true(game_logic.do_choose_to_discard(player2, [player2.hand[-1].id]))
+	validate_positions(player1, 3, player2, 7)
+	validate_life(player1, 29, player2, 30)
+	advance_turn(player1)

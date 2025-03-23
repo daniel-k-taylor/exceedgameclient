@@ -6820,7 +6820,8 @@
 			{
 				"timing": "hit",
 				"effect_type": "pull_from_source",
-				"amount": 3
+				"amount": 3,
+				"skip_if_on_source": true
 			}
 		],
 		"boost": {
@@ -6858,7 +6859,8 @@
 			{
 				"timing": "hit",
 				"effect_type": "pull_from_source",
-				"amount": 1
+				"amount": 1,
+				"skip_if_on_source": true
 			},
 			{
 				"timing": "after",
@@ -27912,9 +27914,9 @@
 				"condition": "opponent_stunned",
 				"effect_type": "choice",
 				"choice": [
-					{ "effect_type": "pull_from_source", "amount": 1 },
-					{ "effect_type": "pull_from_source", "amount": 2 },
-					{ "effect_type": "pull_from_source", "amount": 3 },
+					{ "effect_type": "pull_from_source", "amount": 1, "skip_if_on_source": true },
+					{ "effect_type": "pull_from_source", "amount": 2, "skip_if_on_source": true },
+					{ "effect_type": "pull_from_source", "amount": 3, "skip_if_on_source": true },
 					{ "effect_type": "pass" }
 				]
 			}

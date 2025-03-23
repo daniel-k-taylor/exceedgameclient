@@ -3214,10 +3214,66 @@ class Player:
 		}
 		strike_stat_boosts.range_effects.append(range_effect)
 
+	func build_outside_strike_range_effect_list():
+		var opposing_player = parent._get_player(parent.get_other_player(my_id))
+		var effect_list = []
+		# Check my boosts
+		for card in continuous_boosts:
+			for effect in card.definition["boost"]["effects"]:
+				if effect["timing"] == "during_strike":
+					match effect["type"]:
+						"rangeup":
+							if effect.get("opponent"):
+								# Ignore opponent effects.
+								continue
+							var min_bonus = effect['amount']
+							var max_bonus = effect['amount2']
+							var affected_zones = effect.get("affected_zones", false)
+							var special_only = effect.get("special_only", false)
+							var range_effect = {
+								"min_range": min_bonus,
+								"max_range": max_bonus,
+								"affected_zones": affected_zones,
+								"special_only": special_only
+							}
+							effect_list.append(range_effect)
+							
+		# Check opponent boosts.
+		for card in opposing_player.continuous_boosts:
+			for effect in card.definition["boost"]["effects"]:
+				if effect["timing"] == "during_strike":
+					match effect["effect_type"]:
+						"rangeup":
+							if not effect.get("opponent"):
+								# Only care about opponent effects.
+								continue
+							var min_bonus = effect['amount']
+							var max_bonus = effect['amount2']
+							var affected_zones = effect.get("affected_zones", false)
+							var special_only = effect.get("special_only", false)
+							var range_effect = {
+								"min_range": min_bonus,
+								"max_range": max_bonus,
+								"affected_zones": affected_zones,
+								"special_only": special_only
+							}
+							effect_list.append(range_effect)
+						"rangeup_both_players":
+							var range_effect = {
+									"min_range": effect['amount'],
+									"max_range": effect['amount2'],
+									"affected_zones": ["attack", "hand", "stored_cards"],
+									"special_only": false
+								}
+							effect_list.append(range_effect)
+		return effect_list
+
 	func get_total_min_range_bonus(zone : String, card : GameCard, alt_effect_list = []):
 		var is_special = card.definition["type"] == "special"
 		var total_min_range = 0
 		var effect_list = strike_stat_boosts.range_effects
+		if not parent.active_strike:
+			effect_list = build_outside_strike_range_effect_list()
 		if alt_effect_list:
 			effect_list = alt_effect_list
 		for effect in effect_list:
@@ -3230,6 +3286,8 @@ class Player:
 		var is_special = card.definition["type"] == "special"
 		var total_max_range = 0
 		var effect_list = strike_stat_boosts.range_effects
+		if not parent.active_strike:
+			effect_list = build_outside_strike_range_effect_list()
 		if alt_effect_list:
 			effect_list = alt_effect_list
 		for effect in effect_list:
