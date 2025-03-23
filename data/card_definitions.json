@@ -6828,6 +6828,7 @@
 			"effects": [
 				{
 					"timing": "on_any_boost",
+					"condition": "no_active_strike",
 					"effect_type": "force_for_effect",
 					"per_force_effect": null,
 					"overall_effect": {

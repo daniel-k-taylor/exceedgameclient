@@ -4521,6 +4521,8 @@ func is_effect_condition_met(performing_player : Player, effect, local_condition
 			return active_strike.is_player_stunned(performing_player)
 		elif condition == "not_stunned":
 			return not active_strike.is_player_stunned(performing_player)
+		elif condition == "no_active_strike":
+			return active_strike == null
 		elif condition == "any_buddy_in_opponent_space":
 			var buddies = performing_player.get_buddies_on_opponent()
 			return buddies.size() > 0

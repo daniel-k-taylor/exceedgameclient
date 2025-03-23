@@ -351,6 +351,8 @@ func get_condition_text(effect, amount, amount2, detail):
 			text += "If stunned, "
 		"not_stunned":
 			text += "If not stunned, "
+		"no_active_strike":
+			text += ""
 		"opponent_stunned":
 			text += "If opponent stunned, "
 		"pulled_past":
