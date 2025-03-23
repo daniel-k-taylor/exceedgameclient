@@ -1,9 +1,6 @@
 DJanette:
 
-    ☐ Spell circle card not popping out to strike zone on forced strike version?
-    ☐ Click buddy should show set aside cards
-    ☐ Make stored cards go to the right spot in the UI
-
+    ☐ New graphic for spell circle
 
 
     ☐ rangeup "all_zones": true @started(25-03-21 21:39)
@@ -12,19 +9,10 @@ DJanette:
         - test negative max range
         - also discard check
     ☐ rangeup "special_only": true, @started(25-03-21 21:39)
-    ☐ "effect_type": "effect_per_card_in_zone", @started(25-03-21 21:51)
 
-    ☐ djanette_profanesanctuary - action - needs to check that you can do this before activating. @started(25-03-21 22:07)
-        ☐ "condition": "has_card_with_range_to_opponent", - check this when listing the actions @started(25-03-21 22:07)
-    ☐ djanette_blackdeath - diabolic aura ability needs to check this transform @started(25-03-21 22:13)
+    ☐ Test various diabolic aura range boosts
+    ☐ Test profane transform range boost (in UI)
 
-    ✔ extra strike option to strike from spell circle @started(25-03-22 12:50) @done(25-03-22 20:57) @lasted(8h7m57s)
-
-    ☐ "effect_type": "discard_stored_cards" @started(25-03-21 23:29)
-
-    ☐ "effect_type": "powerup_per_card_in_zone", @started(25-03-21 22:29)
-
-    ☐ stored zone hidden when not exceeded @started(25-03-21 23:21)
 
 
 Bug:

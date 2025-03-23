@@ -6,6 +6,7 @@
 	"buddy_card": "djanette_spellcircle",
 	"buddy_display_name": "Spell Circle",
 	"link_extra_cards_to_buddies": true,
+	"buddy_link_to_zone": "set_aside",
 	"stored_zone_info": {
 		"name": "Spell Circle",
 		"facedown": true
@@ -45,7 +46,9 @@
 	"character_action_exceeded": [{
 		"gauge_cost": 0,
 		"force_cost": 0,
+		"min_hand_size": 1,
 		"shortcut_effect_type": "gauge_from_hand",
+		"shortcut_destination_name": "Diabolic Aura",
 		"effect": {
 			"effect_type": "gauge_from_hand",
 			"destination": "stored_cards",

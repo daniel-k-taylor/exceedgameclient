@@ -767,8 +767,8 @@ func spawn_all_cards():
 				if 'buddy_exceeds' in deck and deck['buddy_exceeds']:
 					graphic_list.append(buddy_card + "_exceeded")
 
-	var player_can_click_buddy = 'link_extra_cards_to_buddies' in player_deck and player_deck['link_extra_cards_to_buddies']
-	var opponent_can_click_buddy = 'link_extra_cards_to_buddies' in opponent_deck and opponent_deck['link_extra_cards_to_buddies']
+	var player_can_click_buddy = player_deck.get("link_extra_cards_to_buddies", false)
+	var opponent_can_click_buddy = opponent_deck.get("link_extra_cards_to_buddies", false)
 
 	var player_image_resources = player_deck['image_resources']
 	var opponent_image_resources = opponent_deck['image_resources']
@@ -953,6 +953,12 @@ func get_deck_button_position(is_player : bool):
 	var button = get_deck_button(is_player)
 	var deck_position = button.position + (button.size * button.scale)/2
 	return deck_position
+
+func get_stored_card_position(is_player : bool):
+	var stored_zone = player_bonus_panel
+	if not is_player:
+		stored_zone = opponent_bonus_panel
+	return stored_zone.global_position + (stored_zone.size * stored_zone.scale)/2
 
 func get_hand_zone(is_player : bool):
 	if is_player:
@@ -2119,8 +2125,8 @@ func _on_add_to_stored(event):
 		make_card_revealed(card)
 
 	var is_player = player == Enums.PlayerId.PlayerId_Player
-	var deck_position = get_deck_button_position(is_player)
-	card.discard_to(deck_position, CardBase.CardState.CardState_InDeck)
+	var stored_pos = get_stored_card_position(is_player)
+	card.discard_to(stored_pos, CardBase.CardState.CardState_InDeck)
 	reparent_to_zone(card, get_set_aside_zone(is_player))
 	layout_player_hand(is_player)
 
@@ -5628,10 +5634,30 @@ func _on_opponent_reference_button_pressed(switch_toggle : bool = false, hide_re
 	show_popout(CardPopoutType.CardPopoutType_ReferenceOpponent, popout_title, $AllCards/OpponentAllCopy, false, hide_reshuffle)
 
 func _on_player_buddy_button_pressed(only_show_boosts = false):
-	show_popout(CardPopoutType.CardPopoutType_BuddyPlayer, "YOUR EXTRA CARDS", $AllCards/PlayerBuddyCopy, true, false, only_show_boosts)
+	var card_zone = $AllCards/PlayerBuddyCopy
+	var zone_header = "YOUR EXTRA CARDS"
+	if player_deck.get("buddy_link_to_zone"):
+		match player_deck.get("buddy_link_to_zone"):
+			"set_aside":
+				card_zone = $AllCards/PlayerSetAside
+				var stored_zone_info = player_deck["stored_zone_info"]
+				if game_wrapper.is_player_exceeded(Enums.PlayerId.PlayerId_Player):
+					stored_zone_info = player_deck["stored_zone_info_exceeded"]
+				zone_header = stored_zone_info["name"]
+	show_popout(CardPopoutType.CardPopoutType_BuddyPlayer, zone_header, card_zone, true, false, only_show_boosts)
 
 func _on_opponent_buddy_button_pressed():
-	show_popout(CardPopoutType.CardPopoutType_BuddyOpponent, "THEIR EXTRA CARDS", $AllCards/OpponentBuddyCopy)
+	var card_zone = $AllCards/OpponentBuddyCopy
+	var zone_header = "THEIR EXTRA CARDS"
+	if opponent_deck.get("buddy_link_to_zone"):
+		match opponent_deck.get("buddy_link_to_zone"):
+			"set_aside":
+				card_zone = $AllCards/OpponentSetAside
+				var stored_zone_info = opponent_deck["stored_zone_info"]
+				if game_wrapper.is_player_exceeded(Enums.PlayerId.PlayerId_Player):
+					stored_zone_info = opponent_deck["stored_zone_info_exceeded"]
+				zone_header = stored_zone_info["name"]
+	show_popout(CardPopoutType.CardPopoutType_BuddyOpponent, zone_header, card_zone)
 
 func _on_exit_to_menu_pressed():
 	modal_dialog.set_text_fields("Are you sure you want to quit?", "QUIT TO\nMENU", "CANCEL")

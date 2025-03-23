@@ -5932,7 +5932,7 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 				"sealed":
 					cards = performing_player.sealed
 				"stored_cards":
-					cards = performing_player.stored_cards
+					cards = performing_player.set_aside_cards
 				"overdrive":
 					cards = performing_player.overdrive
 			match limitation:
@@ -11603,7 +11603,7 @@ func do_strike(
 						for effect in strike_option["special_effects"]:
 							handle_strike_effect(-1, effect, performing_player)
 						performing_player.strike_with_set_aside_card(0)
-						card_id = active_strike.initiator_card.id
+						card_id = active_strike.defender_card.id
 			elif wild_strike:
 				_append_log_full(Enums.LogType.LogType_Strike, performing_player, "wild swings!")
 				if delayed_wild_strike:

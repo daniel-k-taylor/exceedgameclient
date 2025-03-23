@@ -6777,6 +6777,7 @@
 					{
 						"effect_type": "boost_then_sustain",
 						"valid_zones": [ "hand" ],
+						"limitation": "",
 						"sustain": false
 					},
 					{
@@ -6864,6 +6865,7 @@
 				"effect_type": "block_opponent_move"
 			},
 			{
+				"resolve_before_simultaneous_effects": true,
 				"timing": "cleanup",
 				"effect_type": "remove_block_opponent_move"
 			}
