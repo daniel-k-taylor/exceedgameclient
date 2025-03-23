@@ -2218,7 +2218,7 @@ class Player:
 		return usable_actions
 
 	func get_character_action(i : int = 0) -> Variant:
-		if i > get_character_action_count():
+		if i >= get_character_action_count():
 			parent.printlog("ERROR: Character action index out of range")
 			return null
 
@@ -2299,8 +2299,7 @@ class Player:
 			null,
 			false
 		)
-		if i > effects.size():
-			parent.printlog("ERROR: Extra strike option index out of range")
+		if i >= effects.size():
 			return null
 
 		# Add a card to the effect.
@@ -2308,6 +2307,8 @@ class Player:
 		match effect["effect_type"]:
 			"strike_with_buddy_card":
 				# This effect assumes there is 1 card in the set aside zone.
+				if set_aside_cards.size() == 0:
+					return null
 				var card = set_aside_cards[0]
 				var card_name = parent.card_db.get_card_name(card.id)
 				effect["card_name"] = card_name

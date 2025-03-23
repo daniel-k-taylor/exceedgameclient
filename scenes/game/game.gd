@@ -4116,8 +4116,9 @@ func _update_buttons(no_number_picker_update : bool = false):
 	if instructions_strike_options.get("extra_strike_options_count"):
 		for i in range(instructions_strike_options["extra_strike_options_count"]):
 			var strike_option = game_wrapper.get_player_extra_strike_option(Enums.PlayerId.PlayerId_Player, i)
-			var button_text = get_effect_text_with_card_name(strike_option, "", true)
-			button_choices.append({ "text": button_text, "action": func(): _on_extra_strike_button_pressed(i) })
+			if strike_option:
+				var button_text = get_effect_text_with_card_name(strike_option, "", true)
+				button_choices.append({ "text": button_text, "action": func(): _on_extra_strike_button_pressed(i) })
 	if instructions_pay_alternative_life_cost:
 		button_choices.append({ "text": "Pay %s Life" % instructions_pay_alternative_life_cost, "action": _on_pay_alternative_life_cost_button_pressed })
 	if instructions_face_attack_card:
@@ -4903,7 +4904,6 @@ func _on_extra_strike_button_pressed(index : int):
 		elif ui_sub_state == UISubState.UISubState_SelectCards_OpponentSetsFirst_StrikeCard or ui_sub_state == UISubState.UISubState_SelectCards_OpponentSetsFirst_StrikeResponseCard:
 			success = game_wrapper.submit_strike(Enums.PlayerId.PlayerId_Player, -1, true, index, true)
 	if success:
-		instructions_strike_options = {}
 		deselect_all_cards()
 		change_ui_state(UIState.UIState_WaitForGameServer)
 	_update_buttons()

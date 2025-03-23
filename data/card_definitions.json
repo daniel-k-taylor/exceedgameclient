@@ -6661,6 +6661,13 @@
 		"speed": 7,
 		"armor": 0,
 		"guard": 0,
+		"on_invalid": {
+			"condition": "buddy_in_play",
+			"condition_buddy_id": "djanette_spellcircle",
+			"effect_type": "remove_buddy",
+			"buddy_id": "djanette_spellcircle",
+			"buddy_name": "Spell Circle"
+		},
 		"effects": [
 			{
 				"timing": "during_strike",
@@ -6708,6 +6715,13 @@
 		"speed": 3,
 		"armor": 0,
 		"guard": 0,
+		"on_invalid": {
+			"condition": "buddy_in_play",
+			"condition_buddy_id": "djanette_spellcircle",
+			"effect_type": "remove_buddy",
+			"buddy_id": "djanette_spellcircle",
+			"buddy_name": "Spell Circle"
+		},
 		"effects": [
 			{
 				"timing": "during_strike",

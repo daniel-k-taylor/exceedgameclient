@@ -81,6 +81,8 @@
 					"effect_type": "add_attack_effect",
 					"added_effect": {
 						"timing": "during_strike",
+						"condition": "buddy_in_play",
+						"condition_buddy_id": "djanette_spellcircle",
 						"effect_type": "calculate_range_from_buddy",
 						"buddy_id": "djanette_spellcircle",
 						"buddy_name": "Spell Circle"
