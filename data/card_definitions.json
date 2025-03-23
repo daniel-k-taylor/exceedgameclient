@@ -6696,6 +6696,7 @@
 				{
 					"timing": "during_strike",
 					"effect_type": "rangeup",
+					"works_outside_strike": true,
 					"amount": 0,
 					"amount2": 2
 				}
@@ -6748,6 +6749,7 @@
 				{
 					"timing": "during_strike",
 					"effect_type": "rangeup",
+					"works_outside_strike": true,
 					"opponent": true,
 					"amount": -1,
 					"amount2": -1
@@ -6793,6 +6795,7 @@
 				{
 					"timing": "during_strike",
 					"effect_type": "rangeup",
+					"works_outside_strike": true,
 					"special_only": true,
 					"amount": 0,
 					"amount2": 1

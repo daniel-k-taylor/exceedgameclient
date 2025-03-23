@@ -341,9 +341,5 @@ func test_djanette_deathknell_boost_profaneability_rangeup_both_players():
 	# P2 has profane transform to deal damage
 	add_transform(player2, "djanette_profanesanctuary")
 	give_player_specific_card(player2, "standard_normal_spike")
-	# Spike works because +1 range.
-	assert_true(game_logic.do_bonus_turn_action(player2, 0))
-	assert_true(game_logic.do_choose_to_discard(player2, [player2.hand[-1].id]))
-	validate_positions(player1, 3, player2, 7)
-	validate_life(player1, 29, player2, 30)
-	advance_turn(player1)
+	# Spike does not work because this is not an affect that works outside strikes.
+	assert_eq(player1.get_bonus_actions().size(), 0)

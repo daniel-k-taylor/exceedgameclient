@@ -1405,22 +1405,13 @@ class Player:
 				gauge.remove_at(i)
 				break
 
-	func get_card_zone(card_id : int):
-		for i in range(len(hand)):
-			var card = hand[i]
-			if card.id == card_id:
-				return "hand"
-
-		# No other zones really matter for this for now.
-		return "attack"
-
 	func does_card_contain_range_to_opponent(card_id : int):
 		var range_to_opponent = distance_to_opponent()
 		var card = parent.card_db.get_card(card_id)
 		var printed_min = parent.get_card_stat(self, card, 'range_min')
 		var printed_max = parent.get_card_stat(self, card, 'range_max')
-		var total_min = printed_min + get_total_min_range_bonus(get_card_zone(card_id), card)
-		var total_max = printed_max + get_total_max_range_bonus(get_card_zone(card_id), card)
+		var total_min = printed_min + get_total_min_range_bonus(card)
+		var total_max = printed_max + get_total_max_range_bonus(card)
 		if total_min <= range_to_opponent and total_max >= range_to_opponent:
 			return true
 		return false
@@ -3218,7 +3209,7 @@ class Player:
 		# Check my boosts
 		for card in continuous_boosts:
 			for effect in card.definition["boost"]["effects"]:
-				if effect["timing"] == "during_strike":
+				if effect["timing"] == "during_strike" and effect.get("works_outside_strike"):
 					match effect["type"]:
 						"rangeup":
 							if effect.get("opponent"):
@@ -3237,7 +3228,7 @@ class Player:
 		# Check opponent boosts.
 		for card in opposing_player.continuous_boosts:
 			for effect in card.definition["boost"]["effects"]:
-				if effect["timing"] == "during_strike":
+				if effect["timing"] == "during_strike" and effect.get("works_outside_strike"):
 					match effect["effect_type"]:
 						"rangeup":
 							if not effect.get("opponent"):
@@ -3261,7 +3252,7 @@ class Player:
 							effect_list.append(range_effect)
 		return effect_list
 
-	func get_total_min_range_bonus(zone : String, card : GameCard, alt_effect_list = []):
+	func get_total_min_range_bonus(card : GameCard, alt_effect_list = []):
 		var is_special = card.definition["type"] == "special"
 		var total_min_range = 0
 		var effect_list = strike_stat_boosts.range_effects
@@ -3274,7 +3265,7 @@ class Player:
 				total_min_range += effect['min_range']
 		return total_min_range
 
-	func get_total_max_range_bonus(zone : String, card : GameCard, alt_effect_list = []):
+	func get_total_max_range_bonus(card : GameCard, alt_effect_list = []):
 		var is_special = card.definition["type"] == "special"
 		var total_max_range = 0
 		var effect_list = strike_stat_boosts.range_effects
@@ -5986,8 +5977,8 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 					for card in cards:
 						var min_range = get_card_stat(performing_player, card, 'range_min')
 						var max_range = get_card_stat(performing_player, card, 'range_max')
-						min_range += performing_player.get_total_min_range_bonus(zone, card)
-						max_range += performing_player.get_total_max_range_bonus(zone, card)
+						min_range += performing_player.get_total_min_range_bonus(card)
+						max_range += performing_player.get_total_max_range_bonus(card)
 						var range_to_opponent = performing_player.distance_to_opponent()
 						if min_range <= range_to_opponent and max_range >= range_to_opponent:
 							effect_times += 1
@@ -9598,8 +9589,8 @@ func in_range(attacking_player, defending_player, card, combat_logging=false):
 		var min_range = get_total_min_range(attacking_player)
 		var max_range = get_total_max_range(attacking_player)
 		if active_strike.extra_attack_in_progress:
-			min_range -= attacking_player.get_total_min_range_bonus("attack", card, active_strike.extra_attack_data.extra_attack_previous_attack_range_effects)
-			max_range -= attacking_player.get_total_max_range_bonus("attack", card, active_strike.extra_attack_data.extra_attack_previous_attack_range_effects)
+			min_range -= attacking_player.get_total_min_range_bonus(card, active_strike.extra_attack_data.extra_attack_previous_attack_range_effects)
+			max_range -= attacking_player.get_total_max_range_bonus(card, active_strike.extra_attack_data.extra_attack_previous_attack_range_effects)
 		var range_string = str(min_range)
 		if min_range != max_range:
 			range_string += "-%s" % str(max_range)
@@ -9764,7 +9755,7 @@ func get_total_min_range(performing_player : Player):
 		card = active_strike.extra_attack_data.extra_attack_card
 
 	var min_range = get_card_stat(performing_player, card, 'range_min')
-	var min_range_modifier = performing_player.get_total_min_range_bonus("attack", card)
+	var min_range_modifier = performing_player.get_total_min_range_bonus(card)
 	if performing_player.strike_stat_boosts.rangeup_min_per_boost_modifier > 0:
 		var boosts_in_play = performing_player.get_boosts().size()
 		if performing_player.strike_stat_boosts.rangeup_per_boost_modifier_all_boosts:
@@ -9784,7 +9775,7 @@ func get_total_max_range(performing_player : Player):
 		card = active_strike.extra_attack_data.extra_attack_card
 
 	var max_range = get_card_stat(performing_player, card, 'range_max')
-	var max_range_modifier = performing_player.get_total_max_range_bonus("attack", card)
+	var max_range_modifier = performing_player.get_total_max_range_bonus(card)
 	if performing_player.strike_stat_boosts.rangeup_max_per_boost_modifier > 0:
 		var boosts_in_play = performing_player.get_boosts().size()
 		if performing_player.strike_stat_boosts.rangeup_per_boost_modifier_all_boosts:
