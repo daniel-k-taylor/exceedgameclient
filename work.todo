@@ -1,7 +1,9 @@
 DJanette:
 
     ☐ Spell circle card not popping out to strike zone on forced strike version?
-    ☐ Special Range boosts should affect hand too
+    ☐ Click buddy should show set aside cards
+    ☐ Make stored cards go to the right spot in the UI
+
 
 
     ☐ rangeup "all_zones": true @started(25-03-21 21:39)
@@ -16,9 +18,7 @@ DJanette:
         ☐ "condition": "has_card_with_range_to_opponent", - check this when listing the actions @started(25-03-21 22:07)
     ☐ djanette_blackdeath - diabolic aura ability needs to check this transform @started(25-03-21 22:13)
 
-    ☐ "effect_type": "draw", after place_buddy_in_any_space @started(25-03-21 22:15)
-
-    ☐ extra strike option to strike from spell circle @started(25-03-22 12:50)
+    ✔ extra strike option to strike from spell circle @started(25-03-22 12:50) @done(25-03-22 20:57) @lasted(8h7m57s)
 
     ☐ "effect_type": "discard_stored_cards" @started(25-03-21 23:29)
 
@@ -26,7 +26,6 @@ DJanette:
 
     ☐ stored zone hidden when not exceeded @started(25-03-21 23:21)
 
-    ☐ Make stored cards go to the right spot in the UI
 
 Bug:
     Breaking:

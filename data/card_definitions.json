@@ -6697,7 +6697,7 @@
 					"effect_type": "rangeup",
 					"amount": 0,
 					"amount2": 2,
-					"affected_zones": ["attack", "stored_cards"],
+					"affected_zones": ["hand", "attack", "stored_cards"],
 					"zone_name": "Diabolic Aura"
 				}
 			]
@@ -6750,6 +6750,7 @@
 					"timing": "during_strike",
 					"effect_type": "rangeup",
 					"opponent": true,
+					"affected_zones": ["hand", "attack", "stored_cards"],
 					"amount": -1,
 					"amount2": -1
 				}
@@ -6794,7 +6795,7 @@
 					"timing": "during_strike",
 					"effect_type": "rangeup",
 					"special_only": true,
-					"affected_zones": ["attack", "stored_cards"],
+					"affected_zones": ["hand", "attack", "stored_cards"],
 					"zone_name": "Diabolic Aura",
 					"amount": 0,
 					"amount2": 1

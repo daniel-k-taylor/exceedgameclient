@@ -1405,12 +1405,23 @@ class Player:
 				gauge.remove_at(i)
 				break
 
+	func get_card_zone(card_id : int):
+		for i in range(len(hand)):
+			var card = hand[i]
+			if card.id == card_id:
+				return "hand"
+
+		# No other zones really matter for this for now.
+		return "attack"
+
 	func does_card_contain_range_to_opponent(card_id : int):
 		var range_to_opponent = distance_to_opponent()
 		var card = parent.card_db.get_card(card_id)
 		var printed_min = parent.get_card_stat(self, card, 'range_min')
 		var printed_max = parent.get_card_stat(self, card, 'range_max')
-		if printed_min <= range_to_opponent and printed_max >= range_to_opponent:
+		var total_min = printed_min + get_total_min_range_bonus(get_card_zone(card_id), card)
+		var total_max = printed_max + get_total_max_range_bonus(get_card_zone(card_id), card)
+		if total_min <= range_to_opponent and total_max >= range_to_opponent:
 			return true
 		return false
 
