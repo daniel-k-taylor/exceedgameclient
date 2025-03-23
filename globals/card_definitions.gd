@@ -1236,8 +1236,6 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 					effect_str += "+"
 				effect_str += str(effect['amount2'])
 			effect_str += " Range"
-			if effect.get("zone_name"):
-				effect_str += " (+ " + effect['zone_name'] + ") "
 		"rangeup_both_players":
 			effect_str += "Both players "
 			if effect['amount'] != effect['amount2']:

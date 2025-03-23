@@ -3196,20 +3196,18 @@ class Player:
 		if amount > 0:
 			strike_stat_boosts.power_positive_only -= amount
 
-	func add_range_bonus(min_bonus : int, max_bonus : int, affected_zones : Array, special_only : bool = false):
+	func add_range_bonus(min_bonus : int, max_bonus : int, special_only : bool = false):
 		var range_effect = {
 			"min_range": min_bonus,
 			"max_range": max_bonus,
-			"affected_zones": affected_zones,
 			"special_only": special_only
 		}
 		strike_stat_boosts.range_effects.append(range_effect)
 
-	func remove_range_bonus(min_bonus : int, max_bonus : int, affected_zones : Array, special_only : bool = false):
+	func remove_range_bonus(min_bonus : int, max_bonus : int, special_only : bool = false):
 		var range_effect = {
 			"min_range": -min_bonus,
 			"max_range": -max_bonus,
-			"affected_zones": affected_zones,
 			"special_only": special_only
 		}
 		strike_stat_boosts.range_effects.append(range_effect)
@@ -3228,16 +3226,14 @@ class Player:
 								continue
 							var min_bonus = effect['amount']
 							var max_bonus = effect['amount2']
-							var affected_zones = effect.get("affected_zones", false)
 							var special_only = effect.get("special_only", false)
 							var range_effect = {
 								"min_range": min_bonus,
 								"max_range": max_bonus,
-								"affected_zones": affected_zones,
 								"special_only": special_only
 							}
 							effect_list.append(range_effect)
-							
+
 		# Check opponent boosts.
 		for card in opposing_player.continuous_boosts:
 			for effect in card.definition["boost"]["effects"]:
@@ -3249,12 +3245,10 @@ class Player:
 								continue
 							var min_bonus = effect['amount']
 							var max_bonus = effect['amount2']
-							var affected_zones = effect.get("affected_zones", false)
 							var special_only = effect.get("special_only", false)
 							var range_effect = {
 								"min_range": min_bonus,
 								"max_range": max_bonus,
-								"affected_zones": affected_zones,
 								"special_only": special_only
 							}
 							effect_list.append(range_effect)
@@ -3262,7 +3256,6 @@ class Player:
 							var range_effect = {
 									"min_range": effect['amount'],
 									"max_range": effect['amount2'],
-									"affected_zones": ["attack", "hand", "stored_cards"],
 									"special_only": false
 								}
 							effect_list.append(range_effect)
@@ -3277,9 +3270,8 @@ class Player:
 		if alt_effect_list:
 			effect_list = alt_effect_list
 		for effect in effect_list:
-			if zone in effect["affected_zones"]:
-				if not effect["special_only"] or is_special:
-					total_min_range += effect['min_range']
+			if not effect["special_only"] or is_special:
+				total_min_range += effect['min_range']
 		return total_min_range
 
 	func get_total_max_range_bonus(zone : String, card : GameCard, alt_effect_list = []):
@@ -3291,9 +3283,8 @@ class Player:
 		if alt_effect_list:
 			effect_list = alt_effect_list
 		for effect in effect_list:
-			if zone in effect["affected_zones"]:
-				if not effect["special_only"] or is_special:
-					total_max_range += effect['max_range']
+			if not effect["special_only"] or is_special:
+				total_max_range += effect['max_range']
 		return total_max_range
 
 	func reenable_boost_effects(card : GameCard):
@@ -3346,12 +3337,11 @@ class Player:
 						var target_player = self
 						if effect.get("opponent"):
 							target_player = opposing_player
-						var affected_zones = effect.get("affected_zones", false)
 						var special_only = effect.get("special_only", false)
-						target_player.add_range_bonus(effect['amount'], effect['amount2'], affected_zones, special_only)
+						target_player.add_range_bonus(effect['amount'], effect['amount2'], special_only)
 					"rangeup_both_players":
-						add_range_bonus(effect['amount'], effect['amount2'], ["attack"], false)
-						opposing_player.add_range_bonus(effect['amount'], effect['amount2'], ["attack"], false)
+						add_range_bonus(effect['amount'], effect['amount2'], false)
+						opposing_player.add_range_bonus(effect['amount'], effect['amount2'], false)
 
 	func disable_boost_effects(card : GameCard, buddy_ignore_condition : bool = false, being_discarded : bool = true):
 		# Undo timing effects and passive bonuses.
@@ -3418,12 +3408,11 @@ class Player:
 				var target_player = self
 				if effect.get("opponent"):
 					target_player = opposing_player
-				var affected_zones = effect.get("affected_zones", ["attack"])
 				var special_only = effect.get("special_only", false)
-				target_player.remove_range_bonus(effect['amount'], effect['amount2'], affected_zones, special_only)
+				target_player.remove_range_bonus(effect['amount'], effect['amount2'], special_only)
 			"rangeup_both_players":
-				remove_range_bonus(effect['amount'], effect['amount2'], ["attack"], false)
-				opposing_player.remove_range_bonus(effect['amount'], effect['amount2'], ["attack"], false)
+				remove_range_bonus(effect['amount'], effect['amount2'], false)
+				opposing_player.remove_range_bonus(effect['amount'], effect['amount2'], false)
 			"rangeup_if_ex_modifier":
 				strike_stat_boosts.rangeup_min_if_ex_modifier -= effect['amount']
 				strike_stat_boosts.rangeup_max_if_ex_modifier -= effect['amount2']
@@ -8011,7 +8000,6 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 			var target_player = performing_player
 			if effect.get("opponent"):
 				target_player = opposing_player
-			var affected_zones = effect.get("affected_zones", ["attack"])
 			var special_only = effect.get("special_only", false)
 			var min_amount = effect['amount']
 			if str(min_amount) == "strike_x":
@@ -8020,12 +8008,12 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 			if str(max_amount) == "strike_x":
 				max_amount = target_player.strike_stat_boosts.strike_x
 
-			target_player.add_range_bonus(min_amount, max_amount, affected_zones, special_only)
+			target_player.add_range_bonus(min_amount, max_amount, special_only)
 			create_event(Enums.EventType.EventType_Strike_RangeUp, target_player.my_id, min_amount, "", max_amount)
 		"rangeup_both_players":
-			performing_player.add_range_bonus(effect['amount'], effect['amount2'], ["attack"], false)
+			performing_player.add_range_bonus(effect['amount'], effect['amount2'], false)
 			create_event(Enums.EventType.EventType_Strike_RangeUp, performing_player.my_id, effect['amount'], "", effect['amount2'])
-			opposing_player.add_range_bonus(effect['amount'], effect['amount2'], ["attack"], false)
+			opposing_player.add_range_bonus(effect['amount'], effect['amount2'], false)
 			create_event(Enums.EventType.EventType_Strike_RangeUp, opposing_player.my_id, effect['amount'], "", effect['amount2'])
 		"rangeup_if_ex_modifier":
 			performing_player.strike_stat_boosts.rangeup_min_if_ex_modifier = effect['amount']
@@ -8039,7 +8027,7 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 			if boosts_in_play > 0:
 				var min_bonus = effect['amount'] * boosts_in_play
 				var max_bonus = effect['amount2'] * boosts_in_play
-				performing_player.add_range_bonus(min_bonus, max_bonus, ["attack"], false)
+				performing_player.add_range_bonus(min_bonus, max_bonus, false)
 				create_event(Enums.EventType.EventType_Strike_RangeUp, performing_player.my_id, min_bonus, "", max_bonus)
 		"rangeup_per_boost_modifier":
 			performing_player.strike_stat_boosts.rangeup_min_per_boost_modifier = effect['amount']
@@ -8056,19 +8044,19 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 			if hand_size > 0:
 				var min_bonus = effect['amount'] * hand_size
 				var max_bonus = effect['amount2'] * hand_size
-				performing_player.add_range_bonus(min_bonus, max_bonus, ["attack"], false)
+				performing_player.add_range_bonus(min_bonus, max_bonus, false)
 				create_event(Enums.EventType.EventType_Strike_RangeUp, performing_player.my_id, min_bonus, "", max_bonus)
 		"rangeup_per_force_spent_this_turn":
 			var min_bonus = performing_player.total_force_spent_this_turn * effect['amount']
 			var max_bonus = performing_player.total_force_spent_this_turn * effect['amount2']
-			performing_player.add_range_bonus(min_bonus, max_bonus, ["attack"], false)
+			performing_player.add_range_bonus(min_bonus, max_bonus, false)
 			create_event(Enums.EventType.EventType_Strike_RangeUp, performing_player.my_id, min_bonus, "", max_bonus)
 		"rangeup_per_sealed_normal":
 			var sealed_normals = performing_player.get_sealed_count_of_type("normal")
 			if sealed_normals > 0:
 				var min_bonus = effect['amount'] * sealed_normals
 				var max_bonus = effect['amount2'] * sealed_normals
-				performing_player.add_range_bonus(min_bonus, max_bonus, ["attack"], false)
+				performing_player.add_range_bonus(min_bonus, max_bonus, false)
 				create_event(Enums.EventType.EventType_Strike_RangeUp, performing_player.my_id, min_bonus, "", max_bonus)
 		"reading_normal":
 			# Cannot do Reading during a strike.
