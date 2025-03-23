@@ -6945,9 +6945,10 @@
 			"display_name": "Blood Ritual",
 			"effects": [
 				{
+					"override_description": "Discard in range: 1 non-lethal Damage, Draw 1",
 					"timing": "action",
 					"condition": "has_card_with_range_to_opponent",
-					"text": "Discard in range: 1 non-lethal Damage",
+					"text": "Discard in range: 1 non-lethal Damage, Draw 1",
 					"effect_type": "self_discard_choose",
 					"allow_fewer": false,
 					"optional": false,

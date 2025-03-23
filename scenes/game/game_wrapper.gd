@@ -165,6 +165,12 @@ func get_player_character_action_shortcut_effect(id, action_idx = 0):
 func get_player_character_action_count(id):
 	return _get_player(id).get_character_action_count()
 
+func get_player_extra_strike_option(id, action_idx = 0):
+	return _get_player(id).get_extra_strike_option(action_idx)
+
+func get_player_extra_strike_options_count(id):
+	return _get_player(id).get_extra_strike_options_count()
+
 func get_replacement_boost_description(id):
 	return _get_player(id).get_replacement_boost_definition()["description"]
 
@@ -426,6 +432,12 @@ func get_player_extra_attack_card_options(player_id : Enums.PlayerId) -> Array:
 		card_ids.append(card.id)
 	return card_ids
 
+func get_player_cards_in_hand_matching_types(player_id : Enums.PlayerId, types : Array) -> Array:
+	return _get_player(player_id).get_cards_in_hand_matching_types(types)
+
+func does_card_contain_range_to_opponent(player_id : Enums.PlayerId, card_id : int) -> bool:
+	return _get_player(player_id).does_card_contain_range_to_opponent(card_id)
+
 func can_player_boost_from_gauge(player_id : Enums.PlayerId):
 	return _get_player(player_id).can_boost_from_gauge
 
@@ -584,8 +596,14 @@ func submit_change(player : Enums.PlayerId, card_ids : Array, treat_ultras_as_si
 	var game_player = _get_player(player)
 	return current_game.do_change(game_player, card_ids, treat_ultras_as_single_force, use_free_force, spent_life_for_force)
 
-func submit_strike(player : Enums.PlayerId, card_id : int, wild_strike: bool, ex_card_id : int,
-		opponent_sets_first : bool = false, use_face_attack : bool = false) -> bool:
+func submit_strike(
+	player : Enums.PlayerId,
+	card_id : int,
+	wild_strike: bool,
+	ex_card_id : int,
+	opponent_sets_first : bool = false,
+	use_face_attack : bool = false
+) -> bool:
 	var game_player = _get_player(player)
 	return current_game.do_strike(game_player, card_id, wild_strike, ex_card_id, opponent_sets_first, use_face_attack)
 

@@ -1,4 +1,9 @@
 DJanette:
+
+    ☐ Spell circle card not popping out to strike zone on forced strike version?
+
+
+
     ☐ rangeup "all_zones": true @started(25-03-21 21:39)
         - don't forget removing the effect on discard
     ☐ rangeup "opponent": true, @started(25-03-21 21:05)
@@ -13,7 +18,7 @@ DJanette:
 
     ☐ "effect_type": "draw", after place_buddy_in_any_space @started(25-03-21 22:15)
 
-    ☐ extra strike option to strike from spell circle
+    ☐ extra strike option to strike from spell circle @started(25-03-22 12:50)
 
     ☐ "effect_type": "discard_stored_cards" @started(25-03-21 23:29)
 

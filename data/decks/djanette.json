@@ -19,9 +19,14 @@
 	"character_action_default": [{
 		"gauge_cost": 0,
 		"force_cost": 0,
+		"min_hand_size": 1,
+		"min_hand_size_types": ["special", "ultra"],
 		"shortcut_effect_type": "gauge_from_hand",
+		"shortcut_destination_name": "Spell Circle",
+		"card_type_limitation": ["special", "ultra"],
 		"effect": {
 			"effect_type": "gauge_from_hand",
+			"card_type_limitation": ["special", "ultra"],
 			"destination": "stored_cards",
 			"destination_name": "Spell Circle",
 			"min_amount": 1,
@@ -66,27 +71,33 @@
 	"ability_effects": [
 		{
 			"timing": "extra_strike_option",
+			"effect_type": "strike_with_buddy_card",
 			"condition": "buddy_in_play",
+			"condition_buddy_id": "djanette_spellcircle",
 			"buddy_name": "Spell Circle",
-			"option": "strike_with_buddy_card",
+			"option_name": "Spell Circle",
 			"special_effects": [
 				{
-					"timing": "during_strike",
-					"effect_type": "calculate_range_from_buddy",
-					"buddy_id": "djanette_spellcircle",
-					"buddy_name": "Spell Circle"
+					"effect_type": "add_attack_effect",
+					"added_effect": {
+						"timing": "during_strike",
+						"effect_type": "calculate_range_from_buddy",
+						"buddy_id": "djanette_spellcircle",
+						"buddy_name": "Spell Circle"
+					}
 				}
 			]
 		},
 		{
 			"timing": "start_of_next_turn",
 			"condition": "buddy_in_play",
+			"condition_buddy_id": "djanette_spellcircle",
 			"buddy_id": "djanette_spellcircle",
 			"buddy_name": "Spell Circle",
 			"effect_type": "start_of_turn_strike"
 		},
 		{
-			"timing": "end_of_turn",
+			"timing": "endofstrike",
 			"effect_type": "remove_buddy",
 			"buddy_id": "djanette_spellcircle",
 			"buddy_name": "Spell Circle",
@@ -119,7 +130,7 @@
 			"zone_name": "Diabolic Aura"
 		},
 		{
-			"timing": "cleanup",
+			"timing": "endofstrike",
 			"effect_type": "discard_stored_cards"
 		}
 	],

@@ -1218,7 +1218,7 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 			effect_str += "If you move past the opponent, your range includes them"
 		"rangeup":
 			if effect.get("opponent"):
-				effect_str += = "Opponent "
+				effect_str += "Opponent "
 			if effect.get("special_only"):
 				effect_str += "Specials "
 			if str(effect['amount']) != str(effect['amount2']):
@@ -1496,6 +1496,8 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 			effect_str += "Wild swing"
 			if 'card_name' in effect:
 				effect_str += " ([color=%s]%s[/color] on top of deck)" % [CardHighlightColor, effect['card_name']]
+		"strike_with_buddy_card":
+			effect_str += "%s ([color=%s]%s[/color])" % [effect["buddy_name"], CardHighlightColor, effect.get('card_name', "")]
 		"strike_faceup":
 			effect_str += "Strike face-up"
 		"strike_opponent_sets_first":
