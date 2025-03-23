@@ -6675,6 +6675,7 @@
 			},
 			{
 				"timing": "hit",
+				"effect_type": "choice",
 				"choice": [
 					{
 						"effect_type": "boost_then_sustain",
@@ -6698,7 +6699,7 @@
 					"amount": 0,
 					"amount2": 2,
 					"affected_zones": ["hand", "attack", "stored_cards"],
-					"zone_name": "Diabolic Aura"
+					"zone_name": "DA"
 				}
 			]
 		}
@@ -6797,7 +6798,7 @@
 					"effect_type": "rangeup",
 					"special_only": true,
 					"affected_zones": ["hand", "attack", "stored_cards"],
-					"zone_name": "Diabolic Aura",
+					"zone_name": "DA",
 					"amount": 0,
 					"amount2": 1
 				}
@@ -6838,7 +6839,7 @@
 						"effect_type": "strike"
 					},
 					"force_max": 1,
-					"override_description": "After boost or +Diabolic Aura, spend 1F to Strike"
+					"override_description": "After boost or +DA, spend 1F to Strike"
 				}
 			]
 		}

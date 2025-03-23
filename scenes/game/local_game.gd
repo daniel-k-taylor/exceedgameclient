@@ -3961,9 +3961,6 @@ func start_begin_turn():
 	# Iterate in reverse as items can be removed.
 	var starting_turn_player = _get_player(active_turn_player)
 	remaining_start_of_turn_effects = get_all_effects_for_timing("start_of_next_turn", starting_turn_player, null)
-
-	var other_player = _get_player(get_other_player(starting_turn_player.my_id))
-	remaining_start_of_turn_effects += get_all_effects_for_timing("opponent_start_of_next_turn", other_player, null)
 	return continue_begin_turn()
 
 func continue_begin_turn():
