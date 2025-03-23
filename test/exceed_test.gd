@@ -515,3 +515,12 @@ func pop_trailing_boolean(list, default_value):
 		return default_value
 	else:
 		return list.pop_back()
+
+func get_choice_index_for_position(pos):
+	for i in range(game_logic.decision_info.limitation.size()):
+		var choice_pos = game_logic.decision_info.limitation[i]
+		if pos == choice_pos:
+			return i
+	assert(false, "Unable to find choice index")
+	fail_test("Unable to find choice index")
+	return 0
