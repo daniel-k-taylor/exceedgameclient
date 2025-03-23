@@ -309,8 +309,7 @@ class ExtraAttackData:
 	var extra_attack_player : Player = null
 	var extra_attack_previous_attack_power_bonus = 0
 	var extra_attack_previous_attack_speed_bonus = 0
-	var extra_attack_previous_attack_min_range_bonus = 0
-	var extra_attack_previous_attack_max_range_bonus = 0
+	var extra_attack_previous_attack_range_effects = []
 	var extra_attack_state = ExtraAttackState.ExtraAttackState_None
 	var extra_attack_hit = false
 	var extra_attack_hit_response_state = {}
@@ -325,8 +324,7 @@ class ExtraAttackData:
 		extra_attack_player = null
 		extra_attack_previous_attack_power_bonus = 0
 		extra_attack_previous_attack_speed_bonus = 0
-		extra_attack_previous_attack_min_range_bonus = 0
-		extra_attack_previous_attack_max_range_bonus = 0
+		extra_attack_previous_attack_range_effects = []
 		extra_attack_state = ExtraAttackState.ExtraAttackState_None
 		extra_attack_hit = false
 		extra_attack_remaining_effects = []
@@ -513,8 +511,7 @@ class StrikeStatBoosts:
 	var guard : int = 0
 	var speed : int = 0
 	var strike_x : int = 0
-	var min_range : int = 0
-	var max_range : int = 0
+	var range_effects : Array = []
 	var attack_does_not_hit : bool = false
 	var only_hits_if_opponent_on_any_buddy : bool = false
 	var cannot_go_below_life : int = 0
@@ -630,8 +627,7 @@ class StrikeStatBoosts:
 		guard = 0
 		speed = 0
 		strike_x = 0
-		min_range = 0
-		max_range = 0
+		range_effects = []
 		attack_does_not_hit = false
 		only_hits_if_opponent_on_any_buddy = false
 		cannot_go_below_life = 0
@@ -1371,6 +1367,19 @@ class Player:
 				parent.create_event(Enums.EventType.EventType_AddToDeck, my_id, card.id)
 				break
 
+	func move_card_from_hand_to_stored_cards(id : int, secret : bool):
+		for i in range(len(hand)):
+			var card = hand[i]
+			if card.id == id:
+				set_aside_cards.append(card)
+				parent.create_event(Enums.EventType.EventType_AddToStored, my_id, card.id, "", secret)
+				hand.remove_at(i)
+				if secret:
+					on_hand_remove_secret_card()
+				else:
+					on_hand_remove_public_card(id)
+				break
+
 	func move_card_from_hand_to_gauge(id : int):
 		for i in range(len(hand)):
 			var card = hand[i]
@@ -1395,6 +1404,17 @@ class Player:
 				add_to_sealed(card)
 				gauge.remove_at(i)
 				break
+
+	func does_card_contain_range_to_opponent(card_id : int):
+		var range_to_opponent = distance_to_opponent()
+		var card = parent.card_db.get_card(card_id)
+		var printed_min = parent.get_card_stat(self, card, 'range_min')
+		var printed_max = parent.get_card_stat(self, card, 'range_max')
+		var total_min = printed_min + get_total_min_range_bonus(card)
+		var total_max = printed_max + get_total_max_range_bonus(card)
+		if total_min <= range_to_opponent and total_max >= range_to_opponent:
+			return true
+		return false
 
 	func get_lightningrod_zone_for_location(location : int):
 		return lightningrod_zones[location - 1]
@@ -1671,6 +1691,13 @@ class Player:
 
 	func get_sealed_count_of_type(limitation : String, unique_only : bool = false):
 		return get_count_of_type_from_zone(limitation, sealed, unique_only)
+
+	func get_cards_in_hand_matching_types(types : Array):
+		var cards = []
+		for card in hand:
+			if card.definition['type'] in types:
+				cards.append(card)
+		return cards
 
 	func get_cards_in_hand_of_type(limitation : String, limitation_amount : int = 0):
 		var cards = []
@@ -2185,10 +2212,15 @@ class Player:
 		var actions = parent.get_boost_effects_at_timing("action", self)
 		var other_player = parent._get_player(parent.get_other_player(my_id))
 		actions += parent.get_boost_effects_at_timing("opponent_action", other_player)
-		return actions
+
+		var usable_actions = []
+		for action in actions:
+			if not action.get("condition") or parent.is_effect_condition_met(self, action, null):
+				usable_actions.append(action)
+		return usable_actions
 
 	func get_character_action(i : int = 0) -> Variant:
-		if i > get_character_action_count():
+		if i >= get_character_action_count():
 			parent.printlog("ERROR: Character action index out of range")
 			return null
 
@@ -2233,7 +2265,12 @@ class Player:
 			if not can_boost_something(['gauge'], 'ultra'): return false
 
 		if 'min_hand_size' in action:
-			if len(hand) < action['min_hand_size']: return false
+			var types = action.get("min_hand_size_types", ["normal", "special", "ultra"])
+			var count = 0
+			for card in hand:
+				if card.definition['type'] in types:
+					count += 1
+			if count < action['min_hand_size']: return false
 
 		if 'requires_buddy_in_play' in action and action['requires_buddy_in_play']:
 			var buddy_id = ""
@@ -2256,6 +2293,38 @@ class Player:
 				return false
 
 		return true
+
+	func get_extra_strike_option(i : int = 0) -> Variant:
+		var effects = parent.get_all_effects_for_timing(
+			"extra_strike_option",
+			self,
+			null,
+			false
+		)
+		if i >= effects.size():
+			return null
+
+		# Add a card to the effect.
+		var effect = effects[i]
+		match effect["effect_type"]:
+			"strike_with_buddy_card":
+				# This effect assumes there is 1 card in the set aside zone.
+				if set_aside_cards.size() == 0:
+					return null
+				var card = set_aside_cards[0]
+				var card_name = parent.card_db.get_card_name(card.id)
+				effect["card_name"] = card_name
+
+		return effect
+
+	func get_extra_strike_options_count():
+		var effects = parent.get_all_effects_for_timing(
+			"extra_strike_option",
+			self,
+			null,
+			false
+		)
+		return effects.size()
 
 	func draw(num_to_draw : int, is_fake_draw : bool = false, from_bottom: bool = false, update_if_empty : bool = true):
 		if num_to_draw > 0:
@@ -2312,6 +2381,22 @@ class Player:
 				unknown_cards.append(strike_ex_card)
 		unknown_cards.sort_custom(func(c1, c2) : return c1.id < c2.id)
 		return unknown_cards
+
+	func get_stored_zone_name():
+		var zone_info = deck_def.get("stored_zone_info")
+		if not zone_info:
+			return "Set Aside"
+		if exceeded:
+			zone_info = deck_def["stored_zone_info_exceeded"]
+		return zone_info["name"]
+
+	func is_stored_zone_facedown():
+		var zone_info = deck_def.get("stored_zone_info")
+		if not zone_info:
+			return false
+		if exceeded:
+			zone_info = deck_def["stored_zone_info_exceeded"]
+		return zone_info["facedown"]
 
 	func reshuffle_discard(manual : bool, free : bool = false):
 		if reshuffle_remaining == 0 and not free:
@@ -2389,6 +2474,15 @@ class Player:
 					add_to_discards(card, from_top)
 					if i == 0:
 						public_topdeck_id = -1
+					found_card = true
+					break
+
+			# From set aside
+			for i in range(len(set_aside_cards)-1, -1, -1):
+				var card = set_aside_cards[i]
+				if card.id == discard_id:
+					set_aside_cards.remove_at(i)
+					add_to_discards(card, from_top)
 					found_card = true
 					break
 
@@ -2698,6 +2792,14 @@ class Player:
 		else:
 			parent.active_strike.defender_wild_strike = true
 
+	func strike_with_set_aside_card(index):
+		var card = set_aside_cards[index]
+		set_aside_cards.remove_at(index)
+		if parent.active_strike.initiator == self:
+			parent.active_strike.initiator_card = card
+		else:
+			parent.active_strike.defender_card = card
+
 	func random_gauge_strike():
 		if len(gauge) == 0:
 			parent._append_log_full(Enums.LogType.LogType_Strike, self, "has no gauge to strike with and wild swings instead.")
@@ -2718,7 +2820,7 @@ class Player:
 
 	func add_to_gauge(card: GameCard):
 		gauge.append(card)
-		return [parent.create_event(Enums.EventType.EventType_AddToGauge, my_id, card.id)]
+		parent.create_event(Enums.EventType.EventType_AddToGauge, my_id, card.id)
 
 	func add_to_discards(card : GameCard, from_top : int = 0):
 		if card.owner_id == my_id or seal_instead_of_discarding:
@@ -3085,6 +3187,97 @@ class Player:
 		if amount > 0:
 			strike_stat_boosts.power_positive_only -= amount
 
+	func add_range_bonus(min_bonus : int, max_bonus : int, special_only : bool = false):
+		var range_effect = {
+			"min_range": min_bonus,
+			"max_range": max_bonus,
+			"special_only": special_only
+		}
+		strike_stat_boosts.range_effects.append(range_effect)
+
+	func remove_range_bonus(min_bonus : int, max_bonus : int, special_only : bool = false):
+		var range_effect = {
+			"min_range": -min_bonus,
+			"max_range": -max_bonus,
+			"special_only": special_only
+		}
+		strike_stat_boosts.range_effects.append(range_effect)
+
+	func build_outside_strike_range_effect_list():
+		var opposing_player = parent._get_player(parent.get_other_player(my_id))
+		var effect_list = []
+		# Check my boosts
+		for card in continuous_boosts:
+			for effect in card.definition["boost"]["effects"]:
+				if effect["timing"] == "during_strike" and effect.get("works_outside_strike"):
+					match effect["type"]:
+						"rangeup":
+							if effect.get("opponent"):
+								# Ignore opponent effects.
+								continue
+							var min_bonus = effect['amount']
+							var max_bonus = effect['amount2']
+							var special_only = effect.get("special_only", false)
+							var range_effect = {
+								"min_range": min_bonus,
+								"max_range": max_bonus,
+								"special_only": special_only
+							}
+							effect_list.append(range_effect)
+
+		# Check opponent boosts.
+		for card in opposing_player.continuous_boosts:
+			for effect in card.definition["boost"]["effects"]:
+				if effect["timing"] == "during_strike" and effect.get("works_outside_strike"):
+					match effect["effect_type"]:
+						"rangeup":
+							if not effect.get("opponent"):
+								# Only care about opponent effects.
+								continue
+							var min_bonus = effect['amount']
+							var max_bonus = effect['amount2']
+							var special_only = effect.get("special_only", false)
+							var range_effect = {
+								"min_range": min_bonus,
+								"max_range": max_bonus,
+								"special_only": special_only
+							}
+							effect_list.append(range_effect)
+						"rangeup_both_players":
+							var range_effect = {
+									"min_range": effect['amount'],
+									"max_range": effect['amount2'],
+									"special_only": false
+								}
+							effect_list.append(range_effect)
+		return effect_list
+
+	func get_total_min_range_bonus(card : GameCard, alt_effect_list = []):
+		var is_special = card.definition["type"] == "special"
+		var total_min_range = 0
+		var effect_list = strike_stat_boosts.range_effects
+		if not parent.active_strike:
+			effect_list = build_outside_strike_range_effect_list()
+		if alt_effect_list:
+			effect_list = alt_effect_list
+		for effect in effect_list:
+			if not effect["special_only"] or is_special:
+				total_min_range += effect['min_range']
+		return total_min_range
+
+	func get_total_max_range_bonus(card : GameCard, alt_effect_list = []):
+		var is_special = card.definition["type"] == "special"
+		var total_max_range = 0
+		var effect_list = strike_stat_boosts.range_effects
+		if not parent.active_strike:
+			effect_list = build_outside_strike_range_effect_list()
+		if alt_effect_list:
+			effect_list = alt_effect_list
+		for effect in effect_list:
+			if not effect["special_only"] or is_special:
+				total_max_range += effect['max_range']
+		return total_max_range
+
 	func reenable_boost_effects(card : GameCard):
 		var opposing_player = parent._get_player(parent.get_other_player(my_id))
 		# Redo boost properties
@@ -3132,13 +3325,14 @@ class Player:
 					"guardup":
 						strike_stat_boosts.guard += effect['amount']
 					"rangeup":
-						strike_stat_boosts.min_range += effect['amount']
-						strike_stat_boosts.max_range += effect['amount2']
+						var target_player = self
+						if effect.get("opponent"):
+							target_player = opposing_player
+						var special_only = effect.get("special_only", false)
+						target_player.add_range_bonus(effect['amount'], effect['amount2'], special_only)
 					"rangeup_both_players":
-						strike_stat_boosts.min_range += effect['amount']
-						strike_stat_boosts.max_range += effect['amount2']
-						opposing_player.strike_stat_boosts.min_range += effect['amount']
-						opposing_player.strike_stat_boosts.max_range += effect['amount2']
+						add_range_bonus(effect['amount'], effect['amount2'], false)
+						opposing_player.add_range_bonus(effect['amount'], effect['amount2'], false)
 
 	func disable_boost_effects(card : GameCard, buddy_ignore_condition : bool = false, being_discarded : bool = true):
 		# Undo timing effects and passive bonuses.
@@ -3202,13 +3396,14 @@ class Player:
 			"guardup":
 				strike_stat_boosts.guard -= effect['amount']
 			"rangeup":
-				strike_stat_boosts.min_range -= effect['amount']
-				strike_stat_boosts.max_range -= effect['amount2']
+				var target_player = self
+				if effect.get("opponent"):
+					target_player = opposing_player
+				var special_only = effect.get("special_only", false)
+				target_player.remove_range_bonus(effect['amount'], effect['amount2'], special_only)
 			"rangeup_both_players":
-				strike_stat_boosts.min_range -= effect['amount']
-				strike_stat_boosts.max_range -= effect['amount2']
-				opposing_player.strike_stat_boosts.min_range -= effect['amount']
-				opposing_player.strike_stat_boosts.max_range -= effect['amount2']
+				remove_range_bonus(effect['amount'], effect['amount2'], false)
+				opposing_player.remove_range_bonus(effect['amount'], effect['amount2'], false)
 			"rangeup_if_ex_modifier":
 				strike_stat_boosts.rangeup_min_if_ex_modifier -= effect['amount']
 				strike_stat_boosts.rangeup_max_if_ex_modifier -= effect['amount2']
@@ -3745,26 +3940,7 @@ func start_begin_turn():
 	# Handle any start of turn boost effects.
 	# Iterate in reverse as items can be removed.
 	var starting_turn_player = _get_player(active_turn_player)
-	var starting_player_boost_list = starting_turn_player.get_continuous_boosts_and_transforms()
-	for i in range(len(starting_player_boost_list) - 1, -1, -1):
-		var card = starting_player_boost_list[i]
-		for effect in card.definition['boost']['effects']:
-			if effect['timing'] == "start_of_next_turn":
-				var effect_with_id = effect.duplicate()
-				effect_with_id['card_id'] = card.id
-				remaining_start_of_turn_effects.append(effect_with_id)
-
-	var other_player = _get_player(get_other_player(starting_turn_player.my_id))
-	var other_player_boost_list = other_player.get_continuous_boosts_and_transforms()
-	for i in range(len(other_player_boost_list) - 1, -1, -1):
-		var card = other_player_boost_list[i]
-		for effect in card.definition['boost']['effects']:
-			if effect['timing'] == "opponent_start_of_next_turn":
-				var effect_with_id = effect.duplicate()
-				effect_with_id['card_id'] = card.id
-				remaining_start_of_turn_effects.append(effect_with_id)
-
-	remaining_start_of_turn_effects += starting_turn_player.get_character_effects_at_timing("start_of_next_turn")
+	remaining_start_of_turn_effects = get_all_effects_for_timing("start_of_next_turn", starting_turn_player, null)
 	return continue_begin_turn()
 
 func continue_begin_turn():
@@ -4182,6 +4358,17 @@ func is_effect_condition_met(performing_player : Player, effect, local_condition
 				if performing_player.has_card_name_in_zone(card, zone):
 					return true
 			return false
+		elif condition == "has_card_with_range_to_opponent":
+			for card in performing_player.hand:
+				if performing_player.does_card_contain_range_to_opponent(card.id):
+					return true
+			return false
+		elif condition == "has_transform":
+			var required_card = effect.get("required_transform_card")
+			for card in performing_player.transforms:
+				if card.definition["id"] == required_card:
+					return true
+			return false
 		elif condition == "used_character_action":
 			if not performing_player.used_character_action:
 				return false
@@ -4325,6 +4512,8 @@ func is_effect_condition_met(performing_player : Player, effect, local_condition
 			return active_strike.is_player_stunned(performing_player)
 		elif condition == "not_stunned":
 			return not active_strike.is_player_stunned(performing_player)
+		elif condition == "no_active_strike":
+			return active_strike == null
 		elif condition == "any_buddy_in_opponent_space":
 			var buddies = performing_player.get_buddies_on_opponent()
 			return buddies.size() > 0
@@ -5202,6 +5391,7 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 				decision_info.player = performing_player.my_id
 				decision_info.choice_card_id = card_id
 				decision_info.destination = "bottomdeck"
+				decision_info.valid_zones = ["hand"]
 				var min_amount = effect['min_amount']
 				var max_amount = effect['max_amount']
 				if max_amount == -1:
@@ -5529,6 +5719,11 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 			var boost_copy_id = performing_player.get_copy_in_hand_match_normals(active_boost.card)
 			_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "discards a copy of the boosted card %s." % [_log_card_name(active_boost.card.definition['display_name'])])
 			performing_player.discard([boost_copy_id])
+		"discard_stored_cards":
+			var card_ids = []
+			for card in performing_player.set_aside_cards:
+				card_ids.append(card.id)
+			performing_player.discard(card_ids)
 		"discard_strike_after_cleanup":
 			performing_player.strike_stat_boosts.discard_attack_on_cleanup = true
 		"discard_opponent_topdeck":
@@ -5756,6 +5951,47 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 				var discarded_name = card_db.get_card_name(cards_to_discard[0])
 				performing_player.plague_knight_discard_names.append(discarded_name)
 				_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "discards random card: %s." % _log_card_name(discarded_name))
+		"effect_per_card_in_zone":
+			var zone = effect['zone']
+			var per_effect = effect['per_card_effect'].duplicate(true)
+			var limitation = effect.get('limitation', "")
+			var effect_times = 0
+			var cards = []
+			match zone:
+				"transform":
+					cards = performing_player.transforms
+				"gauge":
+					cards = performing_player.gauge
+				"hand":
+					cards = performing_player.hand
+				"discard":
+					cards = performing_player.discards
+				"sealed":
+					cards = performing_player.sealed
+				"stored_cards":
+					cards = performing_player.set_aside_cards
+				"overdrive":
+					cards = performing_player.overdrive
+			match limitation:
+				"range_to_opponent":
+					for card in cards:
+						var min_range = get_card_stat(performing_player, card, 'range_min')
+						var max_range = get_card_stat(performing_player, card, 'range_max')
+						min_range += performing_player.get_total_min_range_bonus(card)
+						max_range += performing_player.get_total_max_range_bonus(card)
+						var range_to_opponent = performing_player.distance_to_opponent()
+						if min_range <= range_to_opponent and max_range >= range_to_opponent:
+							effect_times += 1
+				_:
+					effect_times = cards.size()
+
+			if effect_times > 0:
+				if per_effect.get("combine_multiple_into_one"):
+					per_effect["amount"] *= effect_times
+					effect_times = 1
+				for i in range(effect_times):
+					# Assumes no decisions.
+					do_effect_if_condition_met(performing_player, card_id, per_effect, null)
 		"enable_boost_from_gauge":
 			performing_player.can_boost_from_gauge = true
 		"enable_end_of_turn_draw":
@@ -5878,22 +6114,32 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 			if 'opponent' in effect and effect['opponent']:
 				effect_player = opposing_player
 
-			if len(effect_player.hand) > 0:
+			var card_type_limitation = effect.get("card_type_limitation", ["normal", "special", "ultra"])
+			var valid_cards = effect_player.get_cards_in_hand_matching_types(card_type_limitation)
+			var valid_ids = []
+			for card in valid_cards:
+				valid_ids.append(card.id)
+
+			if len(valid_ids) > 0:
 				change_game_state(Enums.GameState.GameState_PlayerDecision)
 				decision_info.clear()
 				decision_info.type = Enums.DecisionType.DecisionType_CardFromHandToGauge
 				decision_info.player = effect_player.my_id
 				decision_info.choice_card_id = card_id
-				decision_info.destination = "gauge"
+				decision_info.destination = effect.get("destination", "gauge")
+				decision_info.valid_zones = ["hand"]
 
 				var min_amount = effect['min_amount']
 				var max_amount = effect['max_amount']
 				if 'amount_is_gauge_spent' in effect and effect['amount_is_gauge_spent']:
 					min_amount = effect_player.gauge_spent_before_strike
 					max_amount = effect_player.gauge_spent_before_strike
-				var restricted_to_card_ids = []
+				var restricted_to_card_ids = valid_ids
+				var show_restriction_list_ui = false
 				var from_last_cards = effect.get("from_last_cards")
 				if from_last_cards:
+					restricted_to_card_ids = []
+					show_restriction_list_ui = true
 					for i in range(from_last_cards):
 						restricted_to_card_ids.append(effect_player.hand[effect_player.hand.size() - 1 - i].id)
 
@@ -5904,6 +6150,7 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 					"min_amount": min_amount,
 					"max_amount": max_amount,
 					"restricted_to_card_ids": restricted_to_card_ids,
+					"show_restriction_list_ui": show_restriction_list_ui,
 				}
 
 				decision_info.bonus_effect = {}
@@ -7743,22 +7990,23 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 		"range_includes_lightningrods":
 			performing_player.strike_stat_boosts.range_includes_lightningrods = true
 		"rangeup":
+			var target_player = performing_player
+			if effect.get("opponent"):
+				target_player = opposing_player
+			var special_only = effect.get("special_only", false)
 			var min_amount = effect['amount']
 			if str(min_amount) == "strike_x":
-				min_amount = performing_player.strike_stat_boosts.strike_x
+				min_amount = target_player.strike_stat_boosts.strike_x
 			var max_amount = effect['amount2']
 			if str(max_amount) == "strike_x":
-				max_amount = performing_player.strike_stat_boosts.strike_x
+				max_amount = target_player.strike_stat_boosts.strike_x
 
-			performing_player.strike_stat_boosts.min_range += min_amount
-			performing_player.strike_stat_boosts.max_range += max_amount
-			create_event(Enums.EventType.EventType_Strike_RangeUp, performing_player.my_id, min_amount, "", max_amount)
+			target_player.add_range_bonus(min_amount, max_amount, special_only)
+			create_event(Enums.EventType.EventType_Strike_RangeUp, target_player.my_id, min_amount, "", max_amount)
 		"rangeup_both_players":
-			performing_player.strike_stat_boosts.min_range += effect['amount']
-			performing_player.strike_stat_boosts.max_range += effect['amount2']
+			performing_player.add_range_bonus(effect['amount'], effect['amount2'], false)
 			create_event(Enums.EventType.EventType_Strike_RangeUp, performing_player.my_id, effect['amount'], "", effect['amount2'])
-			opposing_player.strike_stat_boosts.min_range += effect['amount']
-			opposing_player.strike_stat_boosts.max_range += effect['amount2']
+			opposing_player.add_range_bonus(effect['amount'], effect['amount2'], false)
 			create_event(Enums.EventType.EventType_Strike_RangeUp, opposing_player.my_id, effect['amount'], "", effect['amount2'])
 		"rangeup_if_ex_modifier":
 			performing_player.strike_stat_boosts.rangeup_min_if_ex_modifier = effect['amount']
@@ -7770,9 +8018,10 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 			if 'all_boosts' in effect and effect['all_boosts']:
 				boosts_in_play += opposing_player.get_boosts().size()
 			if boosts_in_play > 0:
-				performing_player.strike_stat_boosts.min_range += effect['amount'] * boosts_in_play
-				performing_player.strike_stat_boosts.max_range += effect['amount2'] * boosts_in_play
-				create_event(Enums.EventType.EventType_Strike_RangeUp, performing_player.my_id, effect['amount'] * boosts_in_play, "", effect['amount2'] * boosts_in_play)
+				var min_bonus = effect['amount'] * boosts_in_play
+				var max_bonus = effect['amount2'] * boosts_in_play
+				performing_player.add_range_bonus(min_bonus, max_bonus, false)
+				create_event(Enums.EventType.EventType_Strike_RangeUp, performing_player.my_id, min_bonus, "", max_bonus)
 		"rangeup_per_boost_modifier":
 			performing_player.strike_stat_boosts.rangeup_min_per_boost_modifier = effect['amount']
 			performing_player.strike_stat_boosts.rangeup_max_per_boost_modifier = effect['amount2']
@@ -7786,21 +8035,22 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 		"rangeup_per_card_in_hand":
 			var hand_size = performing_player.hand.size()
 			if hand_size > 0:
-				performing_player.strike_stat_boosts.min_range += effect['amount'] * hand_size
-				performing_player.strike_stat_boosts.max_range += effect['amount2'] * hand_size
-				create_event(Enums.EventType.EventType_Strike_RangeUp, performing_player.my_id, effect['amount'] * hand_size, "", effect['amount2'] * hand_size)
+				var min_bonus = effect['amount'] * hand_size
+				var max_bonus = effect['amount2'] * hand_size
+				performing_player.add_range_bonus(min_bonus, max_bonus, false)
+				create_event(Enums.EventType.EventType_Strike_RangeUp, performing_player.my_id, min_bonus, "", max_bonus)
 		"rangeup_per_force_spent_this_turn":
-			var amount_min = performing_player.total_force_spent_this_turn * effect['amount']
-			var amount_max = performing_player.total_force_spent_this_turn * effect['amount2']
-			performing_player.strike_stat_boosts.min_range += amount_min
-			performing_player.strike_stat_boosts.max_range += amount_max
-			create_event(Enums.EventType.EventType_Strike_RangeUp, performing_player.my_id, amount_min, "", amount_max)
+			var min_bonus = performing_player.total_force_spent_this_turn * effect['amount']
+			var max_bonus = performing_player.total_force_spent_this_turn * effect['amount2']
+			performing_player.add_range_bonus(min_bonus, max_bonus, false)
+			create_event(Enums.EventType.EventType_Strike_RangeUp, performing_player.my_id, min_bonus, "", max_bonus)
 		"rangeup_per_sealed_normal":
 			var sealed_normals = performing_player.get_sealed_count_of_type("normal")
 			if sealed_normals > 0:
-				performing_player.strike_stat_boosts.min_range += effect['amount'] * sealed_normals
-				performing_player.strike_stat_boosts.max_range += effect['amount2'] * sealed_normals
-				create_event(Enums.EventType.EventType_Strike_RangeUp, performing_player.my_id, effect['amount'] * sealed_normals, "", effect['amount2'] * sealed_normals)
+				var min_bonus = effect['amount'] * sealed_normals
+				var max_bonus = effect['amount2'] * sealed_normals
+				performing_player.add_range_bonus(min_bonus, max_bonus, false)
+				create_event(Enums.EventType.EventType_Strike_RangeUp, performing_player.my_id, min_bonus, "", max_bonus)
 		"reading_normal":
 			# Cannot do Reading during a strike.
 			if not active_strike:
@@ -8191,6 +8441,7 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 				decision_info.player = performing_player.my_id
 				decision_info.choice_card_id = card_id
 				decision_info.destination = "deck"
+				decision_info.valid_zones = ["hand"]
 				var min_amount = effect['min_amount']
 				var max_amount = effect['max_amount']
 				decision_info.effect = {
@@ -8563,6 +8814,7 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 				decision_info.player = performing_player.my_id
 				decision_info.choice_card_id = card_id
 				decision_info.destination = "topdeck"
+				decision_info.valid_zones = ["hand"]
 				var min_amount = effect['min_amount']
 				var max_amount = effect['max_amount']
 				decision_info.effect = {
@@ -8822,7 +9074,13 @@ func get_boost_effects_at_timing(timing_name : String, performing_player : Playe
 				effects.append(effect_with_id)
 	return effects
 
-func get_all_effects_for_timing(timing_name : String, performing_player : Player, card : GameCard, ignore_condition : bool = true, only_card_and_bonus_effects : bool = false) -> Array:
+func get_all_effects_for_timing(
+	timing_name : String,
+	performing_player : Player,
+	card : GameCard,
+	ignore_condition : bool = true,
+	only_card_and_bonus_effects : bool = false
+) -> Array:
 	var card_effects = []
 	var card_id = -1
 	var duplicate_card_effects = 0
@@ -9331,8 +9589,8 @@ func in_range(attacking_player, defending_player, card, combat_logging=false):
 		var min_range = get_total_min_range(attacking_player)
 		var max_range = get_total_max_range(attacking_player)
 		if active_strike.extra_attack_in_progress:
-			min_range -= active_strike.extra_attack_data.extra_attack_previous_attack_min_range_bonus
-			max_range -= active_strike.extra_attack_data.extra_attack_previous_attack_max_range_bonus
+			min_range -= attacking_player.get_total_min_range_bonus(card, active_strike.extra_attack_data.extra_attack_previous_attack_range_effects)
+			max_range -= attacking_player.get_total_max_range_bonus(card, active_strike.extra_attack_data.extra_attack_previous_attack_range_effects)
 		var range_string = str(min_range)
 		if min_range != max_range:
 			range_string += "-%s" % str(max_range)
@@ -9497,7 +9755,7 @@ func get_total_min_range(performing_player : Player):
 		card = active_strike.extra_attack_data.extra_attack_card
 
 	var min_range = get_card_stat(performing_player, card, 'range_min')
-	var min_range_modifier = performing_player.strike_stat_boosts.min_range
+	var min_range_modifier = performing_player.get_total_min_range_bonus(card)
 	if performing_player.strike_stat_boosts.rangeup_min_per_boost_modifier > 0:
 		var boosts_in_play = performing_player.get_boosts().size()
 		if performing_player.strike_stat_boosts.rangeup_per_boost_modifier_all_boosts:
@@ -9517,7 +9775,7 @@ func get_total_max_range(performing_player : Player):
 		card = active_strike.extra_attack_data.extra_attack_card
 
 	var max_range = get_card_stat(performing_player, card, 'range_max')
-	var max_range_modifier = performing_player.strike_stat_boosts.max_range
+	var max_range_modifier = performing_player.get_total_max_range_bonus(card)
 	if performing_player.strike_stat_boosts.rangeup_max_per_boost_modifier > 0:
 		var boosts_in_play = performing_player.get_boosts().size()
 		if performing_player.strike_stat_boosts.rangeup_per_boost_modifier_all_boosts:
@@ -10216,8 +10474,7 @@ func begin_extra_attack(performing_player : Player, card_id : int):
 	active_strike.extra_attack_data.extra_attack_player = performing_player
 	active_strike.extra_attack_data.extra_attack_previous_attack_power_bonus = performing_player.strike_stat_boosts.power
 	active_strike.extra_attack_data.extra_attack_previous_attack_speed_bonus = performing_player.strike_stat_boosts.speed
-	active_strike.extra_attack_data.extra_attack_previous_attack_min_range_bonus = performing_player.strike_stat_boosts.min_range
-	active_strike.extra_attack_data.extra_attack_previous_attack_max_range_bonus = performing_player.strike_stat_boosts.max_range
+	active_strike.extra_attack_data.extra_attack_previous_attack_range_effects = performing_player.strike_stat_boosts.range_effects
 	active_strike.extra_attack_data.extra_attack_state = ExtraAttackState.ExtraAttackState_PayCosts
 	active_strike.extra_attack_data.extra_attack_hit = false
 
@@ -11186,8 +11443,14 @@ func do_ex_transform(performing_player : Player, card_id : int, ex_card_id : int
 
 	return true
 
-func do_strike(performing_player : Player, card_id : int, wild_strike: bool, ex_card_id : int,
-		opponent_sets_first : bool = false, use_face_attack : bool = false) -> bool:
+func do_strike(
+	performing_player : Player,
+	card_id : int,
+	wild_strike: bool,
+	ex_card_id : int,
+	opponent_sets_first : bool = false,
+	use_face_attack : bool = false
+) -> bool:
 	printlog("MainAction: STRIKE by %s card %s wild %s" % [get_player_name(performing_player.my_id), card_db.get_card_id(card_id), str(wild_strike)])
 	if game_state == Enums.GameState.GameState_PickAction:
 		if performing_player.my_id != active_turn_player:
@@ -11209,7 +11472,8 @@ func do_strike(performing_player : Player, card_id : int, wild_strike: bool, ex_
 			printlog("ERROR: Strike response from wrong player.")
 			return false
 
-	var ex_strike = ex_card_id != -1
+	# ex_card_id being non -1 means it is an extra strike option.
+	var ex_strike = not wild_strike and ex_card_id != -1
 	if str(decision_info.limitation) == "EX":
 		if not ex_strike and not performing_player.has_ex_boost():
 			printlog("ERROR: Tried to strike without an EX when one was required.")
@@ -11244,7 +11508,12 @@ func do_strike(performing_player : Player, card_id : int, wild_strike: bool, ex_
 			printlog("ERROR: Tried to ex strike from sealed.")
 			return false
 	else:
-		if not wild_strike and not performing_player.is_card_in_hand(card_id):
+		if wild_strike and ex_card_id != -1:
+			# This is an extra strike option and the id is the extra strike index.
+			if ex_card_id >= performing_player.get_extra_strike_options_count():
+				printlog("ERROR: Tried to strike with an invalid extra strike id.")
+				return false
+		elif not wild_strike and not performing_player.is_card_in_hand(card_id):
 			if performing_player.is_card_in_continuous_boosts(card_id):
 				strike_from_boosts = true
 				var card = card_db.get_card(card_id)
@@ -11280,7 +11549,19 @@ func do_strike(performing_player : Player, card_id : int, wild_strike: bool, ex_
 					_append_log_full(Enums.LogType.LogType_Action, performing_player, "Turn Action: Strike")
 				_append_log_full(Enums.LogType.LogType_Strike, performing_player, "initiates a strike!")
 
-			if wild_strike:
+			if wild_strike and ex_card_id != -1:
+				# This is striking with an extra strike option.
+				var strike_option = performing_player.get_extra_strike_option(ex_card_id)
+				_append_log_full(Enums.LogType.LogType_Strike, performing_player,
+					"sets their attack from %s." % [strike_option["option_name"]])
+				match strike_option["effect_type"]:
+					"strike_with_buddy_card":
+						# This effect assumes there is 1 card in the set aside zone.
+						for effect in strike_option["special_effects"]:
+							handle_strike_effect(-1, effect, performing_player)
+						performing_player.strike_with_set_aside_card(0)
+						card_id = active_strike.initiator_card.id
+			elif wild_strike:
 				_append_log_full(Enums.LogType.LogType_Strike, performing_player, "wild swings!")
 				if delayed_wild_strike:
 					performing_player.wild_strike_delayed()
@@ -11347,7 +11628,19 @@ func do_strike(performing_player : Player, card_id : int, wild_strike: bool, ex_
 				# Reset effect counter due to reading card choice
 				active_strike.effects_resolved_in_timing = 0
 
-			if wild_strike:
+			if wild_strike and ex_card_id != -1:
+				# This is striking with an extra strike option.
+				var strike_option = performing_player.get_extra_strike_option(ex_card_id)
+				_append_log_full(Enums.LogType.LogType_Strike, performing_player,
+					"sets their attack from %s." % [strike_option["option_name"]])
+				match strike_option["effect_type"]:
+					"strike_with_buddy_card":
+						# This effect assumes there is 1 card in the set aside zone.
+						for effect in strike_option["special_effects"]:
+							handle_strike_effect(-1, effect, performing_player)
+						performing_player.strike_with_set_aside_card(0)
+						card_id = active_strike.defender_card.id
+			elif wild_strike:
 				_append_log_full(Enums.LogType.LogType_Strike, performing_player, "wild swings!")
 				if delayed_wild_strike:
 					performing_player.wild_strike_delayed()
@@ -11597,6 +11890,9 @@ func do_relocate_card_from_hand(performing_player : Player, card_ids : Array) ->
 				performing_player.move_card_from_hand_to_deck(card_id, 0, true)
 			elif decision_info.destination == "deck":
 				performing_player.shuffle_card_from_hand_to_deck(card_id)
+			elif decision_info.destination == "stored_cards":
+				var secret = performing_player.is_stored_zone_facedown()
+				performing_player.move_card_from_hand_to_stored_cards(card_id, secret)
 			else:
 				assert(false, "Unhandled destination %s for do_relocate_card_from_hand" % decision_info.destination)
 
@@ -11610,6 +11906,9 @@ func do_relocate_card_from_hand(performing_player : Player, card_ids : Array) ->
 		_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "moves %s card(s) from hand to bottom of deck." % str(card_ids.size()))
 	elif decision_info.destination == "deck":
 		_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "shuffles %s card(s) from hand into deck." % str(card_ids.size()))
+	elif decision_info.destination == "stored_cards":
+		var stored_zone_name = performing_player.get_stored_zone_name()
+		_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "moves %s card(s) from hand to %s." % [str(card_ids.size()), stored_zone_name])
 
 	set_player_action_processing_state()
 
@@ -12169,7 +12468,7 @@ func do_choose_to_discard(performing_player : Player, card_ids):
 				printlog("ERROR: Tried to discard opponent card not in their hand.")
 				return false
 
-		if decision_info.limitation and decision_info.limitation not in ["can_pay_cost", "from_array", "same-named"]:
+		if decision_info.limitation and decision_info.limitation not in ["can_pay_cost", "from_array", "same-named", "range_to_opponent"]:
 			var card = card_db.get_card(card_id)
 			if card.definition['type'] != decision_info.limitation:
 				printlog("ERROR: Tried to choose to discard with card that doesn't meet limitation.")

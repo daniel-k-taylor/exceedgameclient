@@ -6646,6 +6646,350 @@
 	},
 
 
+
+
+	{
+		"NOTE": "DJANETTE CARDS START",
+		"id": "djanette_carmineoffering",
+		"type": "ultra",
+		"display_name": "Carmine Offering",
+		"force_cost": 0,
+		"gauge_cost": 1,
+		"range_min": 0,
+		"range_max": 2,
+		"power": 2,
+		"speed": 7,
+		"armor": 0,
+		"guard": 0,
+		"on_invalid": {
+			"condition": "buddy_in_play",
+			"condition_buddy_id": "djanette_spellcircle",
+			"effect_type": "remove_buddy",
+			"buddy_id": "djanette_spellcircle",
+			"buddy_name": "Spell Circle"
+		},
+		"effects": [
+			{
+				"timing": "during_strike",
+				"effect_type": "ignore_guard"
+			},
+			{
+				"timing": "hit",
+				"effect_type": "choice",
+				"choice": [
+					{
+						"effect_type": "boost_then_sustain",
+						"valid_zones": [ "hand" ],
+						"limitation": "transform",
+						"sustain": false
+					},
+					{ "effect_type": "pass" }
+				]
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Dominion Over the Earth",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "rangeup",
+					"works_outside_strike": true,
+					"amount": 0,
+					"amount2": 2
+				}
+			]
+		}
+	},
+	{
+		"id": "djanette_deathknell",
+		"type": "ultra",
+		"display_name": "Death Knell",
+		"force_cost": 0,
+		"gauge_cost": 1,
+		"range_min": 0,
+		"range_max": 0,
+		"power": 10,
+		"speed": 3,
+		"armor": 0,
+		"guard": 0,
+		"on_invalid": {
+			"condition": "buddy_in_play",
+			"condition_buddy_id": "djanette_spellcircle",
+			"effect_type": "remove_buddy",
+			"buddy_id": "djanette_spellcircle",
+			"buddy_name": "Spell Circle"
+		},
+		"effects": [
+			{
+				"timing": "during_strike",
+				"condition": "exceeded",
+				"effect_type": "stun_immunity"
+			},
+			{
+				"timing": "before",
+				"effect_type": "gauge_for_effect",
+				"per_gauge_effect": {
+					"effect_type": "rangeup",
+					"amount": 0,
+					"amount2": 1
+				},
+				"overall_effect": null,
+				"gauge_max": 3
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 2,
+			"cancel_cost": -1,
+			"display_name": "Enervation",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "rangeup",
+					"works_outside_strike": true,
+					"opponent": true,
+					"amount": -1,
+					"amount2": -1
+				}
+			]
+		}
+	},
+	{
+		"id": "djanette_affliction",
+		"type": "special",
+		"display_name": "Affliction",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 0,
+		"range_max": 1,
+		"power": 3,
+		"speed": 6,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "hit",
+				"effect_type": "choice",
+				"choice": [
+					{
+						"effect_type": "boost_then_sustain",
+						"valid_zones": [ "hand" ],
+						"limitation": "",
+						"sustain": false
+					},
+					{
+						"effect_type": "gain_advantage"
+					}
+				]
+			}
+		],
+		"boost": {
+			"boost_type": "transform",
+			"force_cost": -1,
+			"cancel_cost": -1,
+			"display_name": "Curse the Earth",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "rangeup",
+					"works_outside_strike": true,
+					"special_only": true,
+					"amount": 0,
+					"amount2": 1
+				}
+			]
+		}
+	},
+	{
+		"id": "djanette_blackdeath",
+		"type": "special",
+		"display_name": "Black Death",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 3,
+		"range_max": 6,
+		"power": 6,
+		"speed": 3,
+		"armor": 0,
+		"guard": 5,
+		"effects": [
+			{
+				"timing": "hit",
+				"effect_type": "pull_from_source",
+				"amount": 3,
+				"skip_if_on_source": true
+			}
+		],
+		"boost": {
+			"boost_type": "transform",
+			"force_cost": -1,
+			"cancel_cost": -1,
+			"display_name": "Ritual Magic",
+			"effects": [
+				{
+					"timing": "on_any_boost",
+					"condition": "no_active_strike",
+					"effect_type": "force_for_effect",
+					"per_force_effect": null,
+					"overall_effect": {
+						"effect_type": "strike"
+					},
+					"force_max": 1,
+					"override_description": "After boost or +DA, spend 1F to Strike"
+				}
+			]
+		}
+	},
+	{
+		"id": "djanette_bloodthorns",
+		"type": "special",
+		"display_name": "Blood Thorns",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 0,
+		"range_max": 3,
+		"power": 3,
+		"speed": 5,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "hit",
+				"effect_type": "pull_from_source",
+				"amount": 1,
+				"skip_if_on_source": true
+			},
+			{
+				"timing": "after",
+				"effect_type": "block_opponent_move"
+			},
+			{
+				"resolve_before_simultaneous_effects": true,
+				"timing": "cleanup",
+				"effect_type": "remove_block_opponent_move"
+			}
+		],
+		"boost": {
+			"boost_type": "transform",
+			"force_cost": -1,
+			"cancel_cost": -1,
+			"display_name": "Leylines",
+			"effects": [
+				{
+					"timing": "now",
+					"effect_type": "generate_free_force_cc_only",
+					"amount": 1
+				},
+				{
+					"NOTE": "This is strictly for the UI",
+					"override_description": "Change Cards: May draw 1 more",
+					"timing": "on_change_cards",
+					"effect_type": "pass"
+				}
+			]
+		}
+	},
+	{
+		"id": "djanette_charnelblast",
+		"type": "special",
+		"display_name": "Charnel Blast",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 3,
+		"power": 6,
+		"speed": 1,
+		"armor": 0,
+		"guard": 4,
+		"effects": [
+			{
+				"timing": "during_strike",
+				"effect_type": "effect_per_card_in_zone",
+				"per_card_effect": {
+					"combine_multiple_into_one": true,
+					"effect_type": "armorup",
+					"amount": 1
+				},
+				"zone": "transform"
+			}
+		],
+		"boost": {
+			"boost_type": "immediate",
+			"force_cost": 2,
+			"cancel_cost": -1,
+			"display_name": "Summoning Portal",
+			"effects": [
+				{
+					"timing": "immediate",
+					"effect_type": "choose_discard",
+					"limitation": "",
+					"destination": "hand",
+					"amount": 2,
+					"amount_min": 0
+				}
+			]
+		}
+	},
+	{
+		"NOTE": "DJANETTE CARDS END",
+		"id": "djanette_profanesanctuary",
+		"type": "special",
+		"display_name": "Profane Sanctuary",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 0,
+		"range_max": 2,
+		"power": 3,
+		"speed": 6,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "after",
+				"effect_type": "armorup",
+				"amount": 3,
+				"and": {
+					"effect_type": "draw",
+					"amount": 1
+				}
+			}
+		],
+		"boost": {
+			"boost_type": "transform",
+			"force_cost": -1,
+			"cancel_cost": -1,
+			"display_name": "Blood Ritual",
+			"effects": [
+				{
+					"override_description": "Discard in range: 1 non-lethal Damage, Draw 1",
+					"timing": "action",
+					"condition": "has_card_with_range_to_opponent",
+					"text": "Discard in range: 1 non-lethal Damage, Draw 1",
+					"effect_type": "self_discard_choose",
+					"allow_fewer": false,
+					"optional": false,
+					"limitation": "range_to_opponent",
+					"amount": 1,
+					"discard_effect": {
+						"effect_type": "take_damage",
+						"opponent": true,
+						"nonlethal": true,
+						"amount": 1,
+						"and": {
+							"effect_type": "draw",
+							"amount": 1
+						}
+					}
+				}
+			]
+		},
+		"NOTEEND": "DJANETTE CARDS END"
+	},
+
+
 	{
 		"NOTE": "DAN CARDS START",
 		"id": "dan_shissoburaiken",
@@ -27570,9 +27914,9 @@
 				"condition": "opponent_stunned",
 				"effect_type": "choice",
 				"choice": [
-					{ "effect_type": "pull_from_source", "amount": 1 },
-					{ "effect_type": "pull_from_source", "amount": 2 },
-					{ "effect_type": "pull_from_source", "amount": 3 },
+					{ "effect_type": "pull_from_source", "amount": 1, "skip_if_on_source": true },
+					{ "effect_type": "pull_from_source", "amount": 2, "skip_if_on_source": true },
+					{ "effect_type": "pull_from_source", "amount": 3, "skip_if_on_source": true },
 					{ "effect_type": "pass" }
 				]
 			}
