@@ -11021,13 +11021,14 @@
 		"guard": 0,
 		"effects": [
 			{
-				"timing": "hit",
-				"condition": "min_cards_in_hand",
-				"condition_amount": 1,
+				"timing": "after",
+				"condition": "hit_opponent",
 				"effect_type": "choice",
 				"choice": [
 					{
 						"effect_type": "move_random_cards",
+						"condition": "min_cards_in_hand",
+						"condition_amount": 1,
 						"amount": 1,
 						"from_zone": "hand",
 						"to_zone": "gauge",
