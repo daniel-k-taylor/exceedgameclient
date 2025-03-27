@@ -12725,9 +12725,7 @@
 				"timing": "after",
 				"effect_type": "choice",
 				"choice": [
-					{ "effect_type": "advance", "amount": 1 },
 					{ "effect_type": "advance", "amount": 2 },
-					{ "effect_type": "retreat", "amount": 1 },
 					{ "effect_type": "retreat", "amount": 2 }
 				]
 			}
