@@ -239,6 +239,8 @@ func get_timing_text(timing):
 			text += "When you set a strike, "
 		"opponent_set_strike":
 			text += ""
+		"opponent_moved_past":
+			text += "If opponent moves past you, "
 		"when_hit":
 			text += "When hit, "
 		"on_stop_on_space":
@@ -584,6 +586,8 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 		"add_passive":
 			var passive_id = effect['passive']
 			match passive_id:
+				"discard_2x_topdeck_instead_of_damage":
+					effect_str += "Ignore damage, instead discard 2x that from top of deck"
 				"skip_eot_draw_and_discard":
 					effect_str += "Skip end of turn draw and discard"
 		"advance":
