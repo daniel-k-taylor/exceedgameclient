@@ -83,7 +83,7 @@ func test_iaquis_dragonsfire_hit_no_cards():
 	player1.discard_hand()
 	assert_eq(player1.hand.size(), 0)
 	execute_strike(player1, player2, "iaquis_dragonsfire", "standard_normal_grasp", false, false,
-		[0], []) # Set face up
+		[0, 0], []) # Set face up and choice to try to put rnadom card.
 	validate_life(player1, 30, player2, 25)
 	assert_eq(player1.hand.size(), 0)
 	assert_eq(player1.gauge.size(), 1)
@@ -94,7 +94,7 @@ func test_iaquis_dragonsfire_hit_return_attack():
 	assert_eq(player1.hand.size(), 5)
 	execute_strike(player1, player2, "iaquis_dragonsfire", "standard_normal_grasp", false, false,
 		[0, 0], []) # Set face up, do random card to gauge
-	validate_life(player1, 30, player2, 30)
+	validate_life(player1, 30, player2, 25)
 	assert_eq(player1.hand.size(), 5)
 	assert_eq(player1.gauge.size(), 1)
 	assert_eq(player1.hand[-1].definition["id"], "iaquis_dragonsfire")

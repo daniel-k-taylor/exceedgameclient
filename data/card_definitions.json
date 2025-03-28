@@ -11021,13 +11021,14 @@
 		"guard": 0,
 		"effects": [
 			{
-				"timing": "hit",
-				"condition": "min_cards_in_hand",
-				"condition_amount": 1,
+				"timing": "after",
+				"condition": "hit_opponent",
 				"effect_type": "choice",
 				"choice": [
 					{
 						"effect_type": "move_random_cards",
+						"condition": "min_cards_in_hand",
+						"condition_amount": 1,
 						"amount": 1,
 						"from_zone": "hand",
 						"to_zone": "gauge",
@@ -12724,9 +12725,7 @@
 				"timing": "after",
 				"effect_type": "choice",
 				"choice": [
-					{ "effect_type": "advance", "amount": 1 },
 					{ "effect_type": "advance", "amount": 2 },
-					{ "effect_type": "retreat", "amount": 1 },
 					{ "effect_type": "retreat", "amount": 2 }
 				]
 			}
@@ -19050,7 +19049,7 @@
 		}
 	},
 	{
-		"id": "morathi_ivoeryghostimpalement",
+		"id": "morathi_ivoryghostimpalement",
 		"type": "special",
 		"display_name": "Ivory Ghost Impalement",
 		"force_cost": 0,
@@ -26647,6 +26646,367 @@
 
 
 	{
+		"NOTE": "SHOVEL KNIGHT SOLO CARDS START",
+		"id": "shovelknight_propellerdagger",
+		"type": "ultra",
+		"display_name": "Propeller Dagger",
+		"force_cost": 0,
+		"gauge_cost": 1,
+		"range_min": 1,
+		"range_max": 2,
+		"power": 4,
+		"speed": 6,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "hit",
+				"effect_type": "gauge_for_effect",
+				"per_gauge_effect": null,
+				"overall_effect": {
+					"effect_type": "add_attack_effect",
+					"added_effect": {
+						"timing": "cleanup",
+						"effect_type": "return_attack_to_hand"
+					}
+
+				},
+				"gauge_max": 1
+			},
+			{
+				"timing": "after",
+				"effect_type": "gauge_for_effect",
+				"per_gauge_effect": null,
+				"overall_effect": {
+					"effect_type": "choice",
+					"choice": [
+						{
+							"effect_type": "advance",
+							"amount": 3
+						},
+						{
+							"effect_type": "retreat",
+							"amount": 3
+						}
+					]
+				},
+				"gauge_max": 1
+			}
+		],
+		"boost": {
+			"boost_type": "immediate",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "For Shovelry",
+			"effects": [
+				{
+					"timing": "immediate",
+					"effect_type": "discard_continuous_boost",
+					"required": true,
+					"limitation": "mine",
+					"amount": 1,
+					"overall_effect": {
+						"effect_type": "draw",
+						"amount": 3,
+						"and": {
+							"effect_type": "gain_life",
+							"amount": 3
+						}
+					}
+				}
+			]
+		}
+	},
+	{
+		"id": "shovelknight_troupplechalice",
+		"type": "ultra",
+		"display_name": "Troupple Chalice",
+		"force_cost": 0,
+		"gauge_cost": 3,
+		"range_min": 2,
+		"range_max": 4,
+		"power": 5,
+		"speed": 1,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "during_strike",
+				"effect_type": "stun_immunity"
+			},
+			{
+				"timing": "hit",
+				"effect_type": "draw",
+				"amount": 2,
+				"and": {
+					"effect_type": "force_for_effect",
+					"per_force_effect": {
+						"combine_multiple_into_one": true,
+						"effect_type": "gain_life",
+						"amount": 1
+					},
+					"overall_effect": null,
+					"force_max": 5
+				}
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Justice in Spades",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "powerup",
+					"amount": 3,
+					"and": {
+						"effect_type": "speedup",
+						"amount": 3,
+						"and": {
+							"effect_type": "armorup",
+							"amount": 3
+						}
+					}
+				},
+				{
+					"timing": "now",
+					"effect_type": "discard_continuous_boost",
+					"required": true,
+					"limitation": "mine",
+					"amount": 1,
+					"and": {
+						"effect_type": "draw",
+						"amount": 1
+					}
+				}
+			]
+		}
+	},
+	{
+		"id": "shovelknight_flarewand",
+		"type": "special",
+		"display_name": "Flare Wand",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 2,
+		"power": 0,
+		"speed": 7,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "before",
+				"effect_type": "force_for_effect",
+				"per_force_effect": {
+					"combine_multiple_into_one": true,
+					"effect_type": "powerup",
+					"amount": 1
+				},
+				"overall_effect": null,
+				"force_max": 2
+			},
+			{
+				"timing": "after",
+				"effect_type": "retreat",
+				"amount": 2
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 1,
+			"cancel_cost": -1,
+			"display_name": "Dig In",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "armorup",
+					"amount": 3
+				}
+			]
+		}
+	},
+	{
+		"id": "shovelknight_mobilegear",
+		"type": "special",
+		"display_name": "Mobile Gear",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": "INCLUDE_OPPONENT_IF_MOVED_PAST",
+		"range_max": "INCLUDE_OPPONENT_IF_MOVED_PAST",
+		"power": 3,
+		"speed": 5,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "before",
+				"effect_type": "range_includes_if_moved_past",
+				"and": {
+					"effect_type": "advance",
+					"amount": 4
+				}
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Dig Tirelessly",
+			"effects": [
+				{
+					"timing": "hit",
+					"effect_type": "force_for_effect",
+					"per_force_effect": {
+						"combine_multiple_into_one": true,
+						"effect_type": "powerup",
+						"amount": 1
+					},
+					"overall_effect": null,
+					"force_max": 4
+				}
+			]
+		}
+	},
+	{
+		"id": "shovelknight_warhorn",
+		"type": "special",
+		"display_name": "War Horn",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 2,
+		"power": 5,
+		"speed": 5,
+		"armor": 0,
+		"guard": 3,
+		"effects": [
+			{
+				"timing": "hit",
+				"effect_type": "push",
+				"amount": 2
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Get Digging",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "powerup",
+					"amount": 1
+				},
+				{
+					"timing": "now",
+					"effect_type": "choice",
+					"choice": [
+						{
+							"effect_type": "advance",
+							"amount": 3
+						},
+						{
+							"effect_type": "retreat",
+							"amount": 3
+						}
+					]
+				}
+			]
+		}
+	},
+	{
+		"id": "shovelknight_chaossphere",
+		"type": "special",
+		"display_name": "Chaos Sphere",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 2,
+		"power": 4,
+		"speed": 4,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "before",
+				"effect_type": "force_for_effect",
+				"per_force_effect": {
+					"effect_type": "rangeup",
+					"amount": 0,
+					"amount2": 1
+				},
+				"overall_effect": null,
+				"force_max": 4
+			},
+			{
+				"timing": "hit",
+				"effect_type": "choice",
+				"choice": [
+					{
+						"effect_type": "push",
+						"amount": 2
+					},
+					{
+						"effect_type": "pull",
+						"amount": 2
+					}
+				]
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 1,
+			"cancel_cost": -1,
+			"display_name": "Sharpen Thy Shovel",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "speedup",
+					"amount": 3
+				}
+			]
+		}
+	},
+	{
+		"NOTE": "SHOVEL KNIGHT SOLO CARDS END",
+		"id": "shovelknight_alchemycoin",
+		"type": "special",
+		"display_name": "Alchemy Coin",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 5,
+		"power": 4,
+		"speed": 1,
+		"armor": 0,
+		"guard": 5,
+		"effects": [
+			{
+				"timing": "hit",
+				"effect_type": "draw",
+				"amount": "SPACES_BETWEEN"
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 1,
+			"cancel_cost": -1,
+			"display_name": "Slash Mercilessly",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "powerup",
+					"amount": 3
+				}
+			]
+		},
+		"NOTEEND": "SHOVEL KNIGHT SOLO CARDS END"
+	},
+
+
+	{
 		"NOTE": "SHOVEL/SHIELD CARDS START",
 		"id": "shovelshield_tandemattack",
 		"type": "ultra",
@@ -27359,6 +27719,330 @@
 		},
 		"NOTEEND": "SOL BADGUY CARDS END"
 	},
+
+
+
+	{
+		"NOTE": "SUPERSKULLMAN CARDS START",
+		"id": "superskullman_kaplow",
+		"type": "ultra",
+		"display_name": "Kaplow!!!!",
+		"force_cost": 0,
+		"gauge_cost": 4,
+		"range_min": 1,
+		"range_max": 2,
+		"power": 10,
+		"speed": 6,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "before",
+				"condition": "was_wild_swing",
+				"effect_type": "close",
+				"amount": 2
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Burning Justice",
+			"effects": [
+				{
+					"timing": "now",
+					"effect_type": "add_passive",
+					"passive": "discard_2x_topdeck_instead_of_damage",
+					"description": "discards 2x from top deck instead of taking damage"
+				}
+			]
+		}
+	},
+	{
+		"id": "superskullman_zingzingzing",
+		"type": "ultra",
+		"display_name": "Zing! Zing! Zing!",
+		"force_cost": 0,
+		"gauge_cost": 2,
+		"range_min": 1,
+		"range_max": 1,
+		"power": 7,
+		"speed": 5,
+		"armor": 0,
+		"guard": 0,
+		"gauge_cost_reduction": "free_if_wild",
+		"effects": [
+			{
+				"timing": "hit",
+				"effect_type": "choice",
+				"choice": [
+					{ "effect_type": "push", "amount": 1 },
+					{ "effect_type": "push", "amount": 2 },
+					{ "effect_type": "pull", "amount": 1 },
+					{ "effect_type": "pull", "amount": 2 }
+				]
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 1,
+			"cancel_cost": -1,
+			"display_name": "Lucky Dodge",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "dodge_at_range",
+					"range_min": 2,
+					"range_max": 2
+				},
+				{
+					"timing": "now",
+					"effect_type": "strike"
+				}
+			]
+		}
+	},
+	{
+		"id": "superskullman_bangbangbang",
+		"type": "special",
+		"display_name": "Bang! Bang! Bang!",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 2,
+		"power": 3,
+		"speed": 6,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "after",
+				"condition": "hit_opponent",
+				"effect_type": "choice",
+				"choice": [
+					{
+						"effect_type": "return_attack_to_top_of_deck",
+						"and": {
+							"effect_type": "add_top_discard_to_gauge"
+						}
+					},
+					{ "effect_type": "pass" }
+				]
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 1,
+			"cancel_cost": -1,
+			"display_name": "I'm Sure I'll Hit Something",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"condition": "was_wild_swing",
+					"effect_type": "powerup",
+					"amount": 2,
+					"and": {
+						"effect_type": "speedup",
+						"amount": 1
+					}
+				}
+			]
+		}
+	},
+	{
+		"id": "superskullman_bingbong",
+		"type": "special",
+		"display_name": "Bing Bong!",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 1,
+		"power": 3,
+		"speed": 5,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "before",
+				"condition": "was_wild_swing",
+				"effect_type": "powerup",
+				"amount": 1,
+				"and": {
+					"effect_type": "close",
+					"amount": 2
+				}
+			}
+		],
+		"boost": {
+			"boost_type": "immediate",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "This is Just Like that Issue...",
+			"effects": [
+				{
+					"timing": "immediate",
+					"effect_type": "choice",
+					"add_topdeck_card_name_to_choices": [0],
+					"choice": [
+						{ "effect_type": "discard_topdeck" },
+						{ "effect_type": "pass" }
+					]
+				},
+				{
+					"timing": "immediate",
+					"effect_type": "choice",
+					"choice": [
+						{ "effect_type": "strike" },
+						{ "effect_type": "pass" }
+					]
+				}
+			]
+		}
+	},
+	{
+		"id": "superskullman_slamevil",
+		"type": "special",
+		"display_name": "Slam Evil",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 2,
+		"range_max": 3,
+		"power": 4,
+		"speed": 4,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "during_strike",
+				"effect_type": "ignore_guard"
+			},
+			{
+				"timing": "after",
+				"effect_type": "armorup",
+				"amount": 4
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Fear Not, Citizen!",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "armorup",
+					"amount": 3
+				},
+				{
+					"timing": "during_strike",
+					"effect_type": "guardup",
+					"amount": 3
+				},
+				{
+					"timing": "opponent_moved_past",
+					"effect_type": "discard_this",
+					"ignore_active_boost": true
+				}
+			]
+		}
+	},
+	{
+		"id": "superskullman_splam",
+		"type": "special",
+		"display_name": "Splam!",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 2,
+		"power": 2,
+		"speed": 4,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "before",
+				"effect_type": "advance",
+				"amount": 1,
+				"bonus_effect": {
+					"condition": "not_advanced_through",
+					"effect_type": "powerup",
+					"amount": 3
+				}
+			}
+		],
+		"boost": {
+			"boost_type": "immediate",
+			"force_cost": 1,
+			"cancel_cost": -1,
+			"display_name": "Hold it, Villain!",
+			"effects": [
+				{
+					"timing": "immediate",
+					"effect_type": "choice",
+					"choice": [
+						{ "effect_type": "advance", "amount": 1 },
+						{ "effect_type": "retreat", "amount": 1 }
+					]
+				},
+				{
+					"timing": "immediate",
+					"effect_type": "strike"
+				}
+			]
+		}
+	},
+	{
+		"id": "superskullman_zap",
+		"type": "special",
+		"display_name": "Zaaaap!!!",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 3,
+		"range_max": 5,
+		"power": 1,
+		"speed": 6,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "during_strike",
+				"effect_type": "ignore_armor"
+			},
+			{
+				"timing": "hit",
+				"effect_type": "close",
+				"amount": 3,
+				"and": {
+					"effect_type": "gain_advantage"
+				}
+			}
+		],
+		"boost": {
+			"boost_type": "immediate",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Quick Change",
+			"effects": [
+				{
+					"timing": "immediate",
+					"effect_type": "draw",
+					"amount": 3
+				},
+				{
+					"timing": "immediate",
+					"effect_type": "topdeck_from_hand",
+					"min_amount": 1,
+					"max_amount": 1
+				},
+				{
+					"timing": "immediate",
+					"effect_type": "skip_end_of_turn_draw"
+				}
+			]
+		},
+		"NOTEND": "SUPERSKULLMAN33 CARDS END"
+	},
+
 
 	{
 		"NOTE": "SPECTER CARDS START",
