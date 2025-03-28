@@ -1,4 +1,4 @@
-[gd_scene load_steps=105 format=3 uid="uid://cqs72exlwm6at"]
+[gd_scene load_steps=106 format=3 uid="uid://cqs72exlwm6at"]
 
 [ext_resource type="Script" uid="uid://ctx04u4b0tnwj" path="res://scenes/menu/char_select.gd" id="1_f3x24"]
 [ext_resource type="PackedScene" uid="uid://nwqxp8pdh1jk" path="res://scenes/menu/char_select_button.tscn" id="6_3lmwy"]
@@ -100,6 +100,7 @@
 [ext_resource type="Texture2D" uid="uid://b3drbqhflbn61" path="res://assets/portraits/djanette.png" id="93_0n3x7"]
 [ext_resource type="Texture2D" uid="uid://cnc7oeex364at" path="res://assets/portraits/morathi.png" id="95_kaa4r"]
 [ext_resource type="Texture2D" uid="uid://c8w72yxu3kiqx" path="res://assets/portraits/redhorizon.png" id="96_lp3xr"]
+[ext_resource type="Texture2D" uid="uid://crypdta100jf0" path="res://assets/portraits/shovelknight.png" id="97_ge8et"]
 [ext_resource type="Texture2D" uid="uid://to8px4da80u7" path="res://assets/portraits/vincent.png" id="98_cm8c8"]
 [ext_resource type="Texture2D" uid="uid://warig7ych2dg" path="res://assets/portraits/superskullman.png" id="99_p76bl"]
 [ext_resource type="Texture2D" uid="uid://owqopn05anbn" path="res://assets/portraits/custom.png" id="100_dtwln"]
@@ -835,6 +836,15 @@ layout_mode = 2
 char_id = "random_s2"
 portrait_texture = ExtResource("88_687x2")
 
+[node name="Row3" type="HBoxContainer" parent="CenterContainer/SCCharacterSelect/Rows"]
+layout_mode = 2
+alignment = 1
+
+[node name="ShovelKnight" parent="CenterContainer/SCCharacterSelect/Rows/Row3" instance=ExtResource("6_3lmwy")]
+layout_mode = 2
+char_id = "shovelknight"
+portrait_texture = ExtResource("97_ge8et")
+
 [node name="S1CharacterSelect" type="PanelContainer" parent="CenterContainer"]
 layout_mode = 2
 mouse_filter = 2
@@ -1137,6 +1147,8 @@ portrait_texture = ExtResource("100_dtwln")
 [connection signal="on_pressed" from="CenterContainer/SCCharacterSelect/Rows/Row2/Celinka" to="." method="_on_char_button_on_pressed"]
 [connection signal="on_hover" from="CenterContainer/SCCharacterSelect/Rows/Row2/RandomSC" to="." method="_on_char_hover"]
 [connection signal="on_pressed" from="CenterContainer/SCCharacterSelect/Rows/Row2/RandomSC" to="." method="_on_char_button_on_pressed"]
+[connection signal="on_hover" from="CenterContainer/SCCharacterSelect/Rows/Row3/ShovelKnight" to="." method="_on_char_hover"]
+[connection signal="on_pressed" from="CenterContainer/SCCharacterSelect/Rows/Row3/ShovelKnight" to="." method="_on_char_button_on_pressed"]
 [connection signal="on_hover" from="CenterContainer/S1CharacterSelect/Rows/Row1/Morathi" to="." method="_on_char_hover"]
 [connection signal="on_pressed" from="CenterContainer/S1CharacterSelect/Rows/Row1/Morathi" to="." method="_on_char_button_on_pressed"]
 [connection signal="on_hover" from="CenterContainer/S1CharacterSelect/Rows/Row1/Nehtali" to="." method="_on_char_hover"]
