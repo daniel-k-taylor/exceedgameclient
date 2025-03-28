@@ -1,4 +1,4 @@
-[gd_scene load_steps=104 format=3 uid="uid://cqs72exlwm6at"]
+[gd_scene load_steps=105 format=3 uid="uid://cqs72exlwm6at"]
 
 [ext_resource type="Script" uid="uid://ctx04u4b0tnwj" path="res://scenes/menu/char_select.gd" id="1_f3x24"]
 [ext_resource type="PackedScene" uid="uid://nwqxp8pdh1jk" path="res://scenes/menu/char_select_button.tscn" id="6_3lmwy"]
@@ -101,6 +101,7 @@
 [ext_resource type="Texture2D" uid="uid://cnc7oeex364at" path="res://assets/portraits/morathi.png" id="95_kaa4r"]
 [ext_resource type="Texture2D" uid="uid://c8w72yxu3kiqx" path="res://assets/portraits/redhorizon.png" id="96_lp3xr"]
 [ext_resource type="Texture2D" uid="uid://to8px4da80u7" path="res://assets/portraits/vincent.png" id="98_cm8c8"]
+[ext_resource type="Texture2D" uid="uid://warig7ych2dg" path="res://assets/portraits/superskullman.png" id="99_p76bl"]
 [ext_resource type="Texture2D" uid="uid://owqopn05anbn" path="res://assets/portraits/custom.png" id="100_dtwln"]
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_8u80i"]
@@ -858,6 +859,11 @@ layout_mode = 2
 char_id = "nehtali"
 portrait_texture = ExtResource("88_8vkww")
 
+[node name="SuperSkullMan33" parent="CenterContainer/S1CharacterSelect/Rows/Row1" instance=ExtResource("6_3lmwy")]
+layout_mode = 2
+char_id = "superskullman"
+portrait_texture = ExtResource("99_p76bl")
+
 [node name="Vincent" parent="CenterContainer/S1CharacterSelect/Rows/Row1" instance=ExtResource("6_3lmwy")]
 layout_mode = 2
 char_id = "vincent"
@@ -1135,6 +1141,8 @@ portrait_texture = ExtResource("100_dtwln")
 [connection signal="on_pressed" from="CenterContainer/S1CharacterSelect/Rows/Row1/Morathi" to="." method="_on_char_button_on_pressed"]
 [connection signal="on_hover" from="CenterContainer/S1CharacterSelect/Rows/Row1/Nehtali" to="." method="_on_char_hover"]
 [connection signal="on_pressed" from="CenterContainer/S1CharacterSelect/Rows/Row1/Nehtali" to="." method="_on_char_button_on_pressed"]
+[connection signal="on_hover" from="CenterContainer/S1CharacterSelect/Rows/Row1/SuperSkullMan33" to="." method="_on_char_hover"]
+[connection signal="on_pressed" from="CenterContainer/S1CharacterSelect/Rows/Row1/SuperSkullMan33" to="." method="_on_char_button_on_pressed"]
 [connection signal="on_hover" from="CenterContainer/S1CharacterSelect/Rows/Row1/Vincent" to="." method="_on_char_hover"]
 [connection signal="on_pressed" from="CenterContainer/S1CharacterSelect/Rows/Row1/Vincent" to="." method="_on_char_button_on_pressed"]
 [connection signal="on_hover" from="CenterContainer/S1CharacterSelect/Rows/Row1/RandomS1" to="." method="_on_char_hover"]

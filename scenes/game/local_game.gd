@@ -3072,6 +3072,8 @@ class Player:
 		if arena_location == new_location:
 			return
 
+		var other_player = parent._get_player(parent.get_other_player(my_id))
+		var right_of_other = other_player.arena_location < arena_location
 		var distance = movement_distance_between(arena_location, new_location)
 		if ignore_restrictions:
 			var previous_location = arena_location
@@ -3081,7 +3083,6 @@ class Player:
 				on_position_changed(previous_location, get_buddy_location(), true)
 				# This is used for resetting positions; don't process remove-on-move boosts, since it's not an advance/retreat
 		else:
-			var other_player = parent._get_player(parent.get_other_player(my_id))
 			if arena_location < new_location:
 				if other_player.is_in_location(new_location):
 					new_location = other_player.get_closest_occupied_space_to(arena_location) - 1
@@ -3092,6 +3093,11 @@ class Player:
 					new_location = other_player.get_closest_occupied_space_to(arena_location) + 1
 					distance = movement_distance_between(arena_location, new_location)
 				move_in_direction_by_amount(true, distance, false, -1, "move", true, remove_buddies_encountered)
+
+		var now_right_of_other = other_player.arena_location < arena_location
+		var advanced_through = right_of_other != now_right_of_other
+		if advanced_through:
+			parent.handle_advanced_through(self, other_player)
 
 	func close(amount):
 		if not (exceeded and movement_limit_optional_exceeded):
@@ -5034,6 +5040,7 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 				# The opponent's space doesn't count as one you move through
 				advance_amount -= 1
 				local_conditions.advanced_through = true
+				handle_advanced_through(performing_player, opposing_player)
 				performing_player.moved_past_this_strike = true
 				if performing_player.strike_stat_boosts.range_includes_if_moved_past:
 					performing_player.strike_stat_boosts.range_includes_opponent = true
@@ -5706,7 +5713,7 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 			var strike_card = active_strike.get_player_card(performing_player)
 			create_event(Enums.EventType.EventType_Strike_Critical, performing_player.my_id, strike_card.id)
 		"discard_this":
-			if active_boost:
+			if active_boost and not effect.get("ignore_active_boost"):
 				active_boost.discard_on_cleanup = true
 			else:
 				var card = card_db.get_card(card_id)
@@ -6374,6 +6381,7 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 			if (performing_start < other_start and new_location > other_start) or (performing_start > other_start and new_location < other_start):
 				# The opponent's space doesn't count as one you move through
 				local_conditions.advanced_through = true
+				handle_advanced_through(performing_player, opposing_player)
 				performing_player.moved_past_this_strike = true
 				if performing_player.strike_stat_boosts.range_includes_if_moved_past:
 					performing_player.strike_stat_boosts.range_includes_opponent = true
@@ -8792,6 +8800,12 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 			var used_armor = damage - unmitigated_damage
 			if active_strike:
 				damaged_player.strike_stat_boosts.consumed_armor += used_armor
+			if damaged_player.has_passive("discard_2x_topdeck_instead_of_damage"):
+				var cards_to_discard = 2 * unmitigated_damage
+				unmitigated_damage = 0
+				for i in range(cards_to_discard):
+					damaged_player.discard_topdeck()
+
 			var actual_damage_taken = unmitigated_damage
 			if nonlethal and unmitigated_damage >= damaged_player.life:
 				actual_damage_taken = damaged_player.life - 1
@@ -9651,6 +9665,17 @@ func in_range(attacking_player, defending_player, card, combat_logging=false):
 
 	return opponent_in_range
 
+func handle_advanced_through(performing_player : Player, other_player : Player):
+	var effects = get_all_effects_for_timing("moved_past", performing_player, null, false)
+	# Assume no decisions.
+	for effect in effects:
+		if effect['timing'] == "moved_past":
+			if is_effect_condition_met(performing_player, effect, null):
+				do_effect_if_condition_met(performing_player, effect["card_id"], effect, null)
+		elif effect['timing'] == "opponent_moved_past":
+			if is_effect_condition_met(other_player, effect, null):
+				do_effect_if_condition_met(other_player, effect["card_id"], effect, null)
+
 func get_total_power(performing_player : Player, ignore_swap : bool = false, card : GameCard = null):
 	if performing_player.strike_stat_boosts.swap_power_speed and not ignore_swap:
 		return get_total_speed(performing_player, true)
@@ -9852,11 +9877,20 @@ func apply_damage(offense_player : Player, defense_player : Player):
 	if defense_player.strike_stat_boosts.cap_attack_damage_taken != -1:
 		_append_log_full(Enums.LogType.LogType_Health, offense_player, "'s attack capped at %s damage." % [str(defense_player.strike_stat_boosts.cap_attack_damage_taken)])
 		damage_after_armor = min(damage_after_armor, defense_player.strike_stat_boosts.cap_attack_damage_taken)
+
+	var consumed_armor = power - damage_after_armor
+	if defense_player.has_passive("discard_2x_topdeck_instead_of_damage"):
+		var cards_to_discard = 2 * damage_after_armor
+		damage_after_armor = 0
+		for i in range(cards_to_discard):
+			defense_player.discard_topdeck()
+
+	# Decrease life.
 	defense_player.life -= damage_after_armor
 	if defense_player.strike_stat_boosts.cannot_go_below_life > 0:
 		defense_player.life = max(defense_player.life, defense_player.strike_stat_boosts.cannot_go_below_life)
 	if armor > 0:
-		defense_player.strike_stat_boosts.consumed_armor += (power - damage_after_armor)
+		defense_player.strike_stat_boosts.consumed_armor += consumed_armor
 	create_event(Enums.EventType.EventType_Strike_TookDamage, defense_player.my_id, damage_after_armor, "", defense_player.life)
 
 	_append_log_full(Enums.LogType.LogType_Health, defense_player, "takes %s damage, bringing them to %s life!" % [str(damage_after_armor), str(defense_player.life)])
@@ -9913,6 +9947,9 @@ func get_gauge_cost(performing_player : Player, card, check_if_card_in_hand = fa
 						different_special_count += 1
 						found_specials.append(overdrive_card.definition['id'])
 				if different_special_count == 4:
+					gauge_cost = 0
+			"free_if_wild":
+				if active_strike.get_player_wild_strike(performing_player):
 					gauge_cost = 0
 			"set_to_range_to_opponent":
 				var range_to_opponent = performing_player.distance_to_opponent()

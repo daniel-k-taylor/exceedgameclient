@@ -700,3 +700,6 @@ func test_vincent_100():
 	
 func test_djanette_100():
 	run_iterations_with_deck("djanette")
+	
+func test_superskullman_100():
+	run_iterations_with_deck("superskullman")
