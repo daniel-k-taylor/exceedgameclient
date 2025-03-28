@@ -888,6 +888,8 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 				amount_str = "X"
 			elif amount_str == "GAUGE_COUNT":
 				amount_str = "equal to your Gauge"
+			elif amount_str == "SPACES_BETWEEN":
+				amount_str = "1 for each space between you and the opponent"
 			if 'from_bottom' in effect:
 				bottom_str = " from bottom of deck"
 			if 'opponent' in effect and effect['opponent']:

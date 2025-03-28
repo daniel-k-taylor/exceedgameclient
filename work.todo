@@ -1,14 +1,3 @@
-Skullman:
-    ✔ "passive": "discard_2x_topdeck_instead_of_damage", @started(25-03-26 21:54) @done(25-03-26 22:33) @lasted(39m37s)
-        ✔ test strike damage @started(25-03-26 22:33) @done(25-03-26 22:33) @lasted(35s)
-        ✔ test take_damage effect damage like djanette action @done(25-03-26 22:33)
-    ✔ "gauge_cost_reduction":"free_if_wild", @started(25-03-26 21:55) @done(25-03-26 22:39) @lasted(44m44s)
-    ✔ "timing": "opponent_moves_past", @started(25-03-26 22:09) @done(25-03-26 22:47) @lasted(38m6s)
-    ✔ "effect_type": "discard_this", @started(25-03-26 22:09)   "ignore_active_boost": true @done(25-03-26 22:47) @lasted(38m7s)
-         ✔ test advance mid strike @done(25-03-26 22:47)
-          ✔ test immediate boost past @done(25-03-26 22:47)
-          ✔ test continuous boost advance @done(25-03-26 22:47)
-          ✔ test move action @done(25-03-26 22:47)
 
 Bug:
     Breaking:

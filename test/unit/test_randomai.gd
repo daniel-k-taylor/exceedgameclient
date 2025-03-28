@@ -697,9 +697,12 @@ func test_remiliss_100():
 
 func test_vincent_100():
 	run_iterations_with_deck("vincent")
-	
+
 func test_djanette_100():
 	run_iterations_with_deck("djanette")
-	
+
 func test_superskullman_100():
 	run_iterations_with_deck("superskullman")
+
+func test_shovelknight_100():
+	run_iterations_with_deck("shovelknight")

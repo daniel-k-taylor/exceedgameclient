@@ -5804,6 +5804,8 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 				amount = performing_player.strike_stat_boosts.strike_x
 			elif str(amount) == "GAUGE_COUNT":
 				amount = performing_player.gauge.size()
+			elif str(amount) == "SPACES_BETWEEN":
+				amount = performing_player.distance_to_opponent() - 1
 			amount += performing_player.strike_stat_boosts.increase_draw_effects_by
 
 			var from_bottom = false
@@ -11240,8 +11242,11 @@ func do_move(performing_player : Player, card_ids, new_arena_location, use_free_
 	if game_over:
 		return true
 
+	# Move the player.
 	var old_location = performing_player.arena_location
 	performing_player.move_to(new_arena_location)
+
+	# Logging.
 	var card_names = ""
 	if card_ids.size() > 0:
 		card_names = card_db.get_card_name(card_ids[0])
@@ -11253,7 +11258,12 @@ func do_move(performing_player : Player, card_ids, new_arena_location, use_free_
 	if len(card_ids) > 0:
 		_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "generates force to move by discarding %s." % _log_card_name(card_names))
 	_append_log_full(Enums.LogType.LogType_CharacterMovement, performing_player, "moves from space %s to %s." % [str(old_location), str(new_arena_location)])
-	check_hand_size_advance_turn(performing_player)
+
+	# On move effects, treat same as character action.
+	var effects = get_all_effects_for_timing("on_move_action", performing_player, null)
+	remaining_character_action_effects = effects
+	active_character_action = true
+	continue_player_action_resolution(performing_player)
 	return true
 
 func do_change(performing_player : Player, card_ids, treat_ultras_as_single_force : bool, use_free_force : bool = false, spent_life_for_force : int = 0) -> bool:

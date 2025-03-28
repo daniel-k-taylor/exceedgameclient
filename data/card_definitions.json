@@ -26646,6 +26646,367 @@
 
 
 	{
+		"NOTE": "SHOVEL KNIGHT SOLO CARDS START",
+		"id": "shovelknight_propellerdagger",
+		"type": "ultra",
+		"display_name": "Propeller Dagger",
+		"force_cost": 0,
+		"gauge_cost": 1,
+		"range_min": 1,
+		"range_max": 2,
+		"power": 4,
+		"speed": 6,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "hit",
+				"effect_type": "gauge_for_effect",
+				"per_gauge_effect": null,
+				"overall_effect": {
+					"effect_type": "add_attack_effect",
+					"added_effect": {
+						"timing": "cleanup",
+						"effect_type": "return_attack_to_hand"
+					}
+
+				},
+				"gauge_max": 1
+			},
+			{
+				"timing": "after",
+				"effect_type": "gauge_for_effect",
+				"per_gauge_effect": null,
+				"overall_effect": {
+					"effect_type": "choice",
+					"choice": [
+						{
+							"effect_type": "advance",
+							"amount": 3
+						},
+						{
+							"effect_type": "retreat",
+							"amount": 3
+						}
+					]
+				},
+				"gauge_max": 1
+			}
+		],
+		"boost": {
+			"boost_type": "immediate",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "For Shovelry",
+			"effects": [
+				{
+					"timing": "immediate",
+					"effect_type": "discard_continuous_boost",
+					"required": true,
+					"limitation": "mine",
+					"amount": 1,
+					"overall_effect": {
+						"effect_type": "draw",
+						"amount": 3,
+						"and": {
+							"effect_type": "gain_life",
+							"amount": 3
+						}
+					}
+				}
+			]
+		}
+	},
+	{
+		"id": "shovelknight_troupplechalice",
+		"type": "ultra",
+		"display_name": "Troupple Chalice",
+		"force_cost": 0,
+		"gauge_cost": 3,
+		"range_min": 2,
+		"range_max": 4,
+		"power": 5,
+		"speed": 1,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "during_strike",
+				"effect_type": "stun_immunity"
+			},
+			{
+				"timing": "hit",
+				"effect_type": "draw",
+				"amount": 2,
+				"and": {
+					"effect_type": "force_for_effect",
+					"per_force_effect": {
+						"combine_multiple_into_one": true,
+						"effect_type": "gain_life",
+						"amount": 1
+					},
+					"overall_effect": null,
+					"force_max": 5
+				}
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Justice in Spades",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "powerup",
+					"amount": 3,
+					"and": {
+						"effect_type": "speedup",
+						"amount": 3,
+						"and": {
+							"effect_type": "armorup",
+							"amount": 3
+						}
+					}
+				},
+				{
+					"timing": "now",
+					"effect_type": "discard_continuous_boost",
+					"required": true,
+					"limitation": "mine",
+					"amount": 1,
+					"and": {
+						"effect_type": "draw",
+						"amount": 1
+					}
+				}
+			]
+		}
+	},
+	{
+		"id": "shovelknight_flarewand",
+		"type": "special",
+		"display_name": "Flare Wand",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 2,
+		"power": 0,
+		"speed": 7,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "before",
+				"effect_type": "force_for_effect",
+				"per_force_effect": {
+					"combine_multiple_into_one": true,
+					"effect_type": "powerup",
+					"amount": 1
+				},
+				"overall_effect": null,
+				"force_max": 2
+			},
+			{
+				"timing": "after",
+				"effect_type": "retreat",
+				"amount": 2
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 1,
+			"cancel_cost": -1,
+			"display_name": "Dig In",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "armorup",
+					"amount": 3
+				}
+			]
+		}
+	},
+	{
+		"id": "shovelknight_mobilegear",
+		"type": "special",
+		"display_name": "Mobile Gear",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": "INCLUDE_OPPONENT_IF_MOVED_PAST",
+		"range_max": "INCLUDE_OPPONENT_IF_MOVED_PAST",
+		"power": 3,
+		"speed": 5,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "before",
+				"effect_type": "range_includes_if_moved_past",
+				"and": {
+					"effect_type": "advance",
+					"amount": 4
+				}
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Dig Tirelessly",
+			"effects": [
+				{
+					"timing": "hit",
+					"effect_type": "force_for_effect",
+					"per_force_effect": {
+						"combine_multiple_into_one": true,
+						"effect_type": "powerup",
+						"amount": 1
+					},
+					"overall_effect": null,
+					"force_max": 4
+				}
+			]
+		}
+	},
+	{
+		"id": "shovelknight_warhorn",
+		"type": "special",
+		"display_name": "War Horn",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 2,
+		"power": 5,
+		"speed": 5,
+		"armor": 0,
+		"guard": 3,
+		"effects": [
+			{
+				"timing": "hit",
+				"effect_type": "push",
+				"amount": 2
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Get Digging",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "powerup",
+					"amount": 1
+				},
+				{
+					"timing": "now",
+					"effect_type": "choice",
+					"choice": [
+						{
+							"effect_type": "advance",
+							"amount": 3
+						},
+						{
+							"effect_type": "retreat",
+							"amount": 3
+						}
+					]
+				}
+			]
+		}
+	},
+	{
+		"id": "shovelknight_chaossphere",
+		"type": "special",
+		"display_name": "Chaos Sphere",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 2,
+		"power": 4,
+		"speed": 4,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "before",
+				"effect_type": "force_for_effect",
+				"per_force_effect": {
+					"effect_type": "rangeup",
+					"amount": 0,
+					"amount2": 1
+				},
+				"overall_effect": null,
+				"force_max": 4
+			},
+			{
+				"timing": "hit",
+				"effect_type": "choice",
+				"choice": [
+					{
+						"effect_type": "push",
+						"amount": 2
+					},
+					{
+						"effect_type": "pull",
+						"amount": 2
+					}
+				]
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 1,
+			"cancel_cost": -1,
+			"display_name": "Sharpen Thy Shovel",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "speedup",
+					"amount": 3
+				}
+			]
+		}
+	},
+	{
+		"NOTE": "SHOVEL KNIGHT SOLO CARDS END",
+		"id": "shovelknight_alchemycoin",
+		"type": "special",
+		"display_name": "Alchemy Coin",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 5,
+		"power": 4,
+		"speed": 1,
+		"armor": 0,
+		"guard": 5,
+		"effects": [
+			{
+				"timing": "hit",
+				"effect_type": "draw",
+				"amount": "SPACES_BETWEEN"
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 1,
+			"cancel_cost": -1,
+			"display_name": "Slash Mercilessly",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "powerup",
+					"amount": 3
+				}
+			]
+		},
+		"NOTEEND": "SHOVEL KNIGHT SOLO CARDS END"
+	},
+
+
+	{
 		"NOTE": "SHOVEL/SHIELD CARDS START",
 		"id": "shovelshield_tandemattack",
 		"type": "ultra",
