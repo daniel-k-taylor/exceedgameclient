@@ -247,7 +247,11 @@ func _handle_players_update(message):
 	players_update.emit(player_list, match_list, queues, newly_available_match)
 
 func _handle_customs_update(message):
-	cached_customs = CardDefinitions.convert_floats_to_ints(message["customs"])
+	# Read the new customs dict from the message.
+	var new_customs = message["customs"]
+	# Update all keys in cached_customs.
+	for key in new_customs.keys():
+		cached_customs[key] = CardDefinitions.convert_floats_to_ints(new_customs[key])
 	customs_update.emit(cached_customs)
 
 ### Commands ###
