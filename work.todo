@@ -15,9 +15,6 @@ Bug:
         ☐ Some characters default to character action for strike and have a way to turn it off?
         ☐ Hilda Condensity/Happy Chaos Steady Aim - played not faceup is obvious which card it is due to delay while player decides choice
         ☐ Make is_negative_effect=true auto-added for negative_condition_effect somewhere - probably after cards are loaded
-    AI bugs:
-        ☐ Shadaloo Intelligence from AI hangs
-        ☐ AI Akuma Fakout asks for a 2nd card afterwards and forces wild swing?
  Write tests for:
     Axl:
     Testament:
