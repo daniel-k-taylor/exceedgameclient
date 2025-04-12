@@ -2811,8 +2811,14 @@ func begin_effect_choice(choices, instruction_text : String, extra_choice_text, 
 	enable_instructions_ui(instruction_text, false, can_cancel, {}, false, choices, false, extra_choice_text)
 	change_ui_state(UIState.UIState_MakeChoice, UISubState.UISubState_None)
 
-func begin_strike_choosing(strike_response : bool, cancel_allowed : bool,
-		opponent_sets_first : bool = false, disable_wild_swing : bool = false, disable_ex : bool = false, require_ex = false):
+func begin_strike_choosing(
+	strike_response : bool,
+	cancel_allowed : bool,
+	opponent_sets_first : bool = false,
+	disable_wild_swing : bool = false,
+	disable_ex : bool = false,
+	require_ex = false
+):
 	selected_cards = []
 	select_card_require_min = 1
 	select_card_require_max = 1
@@ -3146,7 +3152,8 @@ func _on_strike_opponent_sets_first_initiator_set(event):
 	if player == Enums.PlayerId.PlayerId_Player and not observer_mode:
 		begin_strike_choosing(true, false, true)
 	else:
-		ai_strike_response()
+		# Pass flag to indicate this is the initiator setting after opponent.
+		ai_strike_response(true)
 
 func make_card_revealed(card):
 	card.flip_card_to_front(true)
@@ -5223,11 +5230,17 @@ func ai_gauge_for_effect(effect):
 	else:
 		print("FAILED AI GAUGE FOR EFFECT")
 
-func ai_strike_response():
+func ai_strike_response(opponent_set_first_flag : bool = false):
 	change_ui_state(UIState.UIState_WaitForGameServer)
 	if not game_wrapper.is_ai_game(): return
 	var response_action = ai_player.pick_strike_response()
-	var success = game_wrapper.submit_strike(Enums.PlayerId.PlayerId_Opponent, response_action.card_id, response_action.wild_swing, response_action.ex_card_id)
+	var success = game_wrapper.submit_strike(
+		Enums.PlayerId.PlayerId_Opponent,
+		response_action.card_id,
+		response_action.wild_swing,
+		response_action.ex_card_id,
+		opponent_set_first_flag
+	)
 	if success:
 		change_ui_state(UIState.UIState_WaitForGameServer)
 	else:
