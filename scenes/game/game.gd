@@ -1745,7 +1745,7 @@ func _on_name_opponent_card_begin(event):
 		cancel_text = "Name Nonexistent Card"
 
 	if game_wrapper.get_decision_info().bonus_effect:
-		select_card_name_card_both_players = game_wrapper.get_decision_info().bonus_effect
+		select_card_name_card_both_players = true
 	else:
 		select_card_name_card_both_players = false
 
