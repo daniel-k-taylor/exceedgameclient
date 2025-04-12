@@ -83,6 +83,7 @@ func get_locations_after_effect(effect, my_location, opponent_location, buddy_lo
 			for i in range(effect['amount']):
 				my_location += direction
 				if my_location == opponent_location:
+					my_location -= direction
 					break
 		'pull':
 			for i in range(effect['amount']):

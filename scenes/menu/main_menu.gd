@@ -453,11 +453,7 @@ func update_char(char_id: String, is_player: bool) -> void:
 func _on_char_select_select_character(char_id):
 	if char_id == "custom":
 		# Show UI to select a file from disk.
-		if not selecting_player:
-			modal_dialog.set_text_fields("AI Custom Not Supported Yet", "OK", "")
-			update_buttons(false)
-		else:
-			_show_file_dialog(load_custom, true)
+		_show_file_dialog(load_custom, true, "")
 	else:
 		update_char(char_id, selecting_player)
 	_on_char_select_close_character_select()
@@ -594,7 +590,7 @@ func load_custom(data):
 		_custom_deck_definition = CardDefinitions.convert_floats_to_ints(json.data)
 		var deck_id = "custom_" + _custom_deck_definition["id"]
 		_custom_deck_definition["id"] = deck_id
-		update_char(deck_id, true)
+		update_char(deck_id, selecting_player)
 	else:
 		var error_message = "JSON Parse Error: " + json.get_error_message()
 		modal_dialog.set_text_fields(error_message, "OK", "")

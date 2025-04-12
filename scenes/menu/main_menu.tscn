@@ -146,9 +146,9 @@ theme_override_styles/normal = SubResource("StyleBoxEmpty_0f2dl")
 
 [node name="MenuList" type="VBoxContainer" parent="."]
 layout_mode = 0
-offset_left = 354.0
+offset_left = 340.0
 offset_top = 141.0
-offset_right = 935.0
+offset_right = 921.0
 offset_bottom = 621.0
 
 [node name="JoinBox" type="HBoxContainer" parent="MenuList"]
@@ -172,20 +172,20 @@ select_all_on_focus = true
 
 [node name="CancelButton" type="Button" parent="."]
 layout_mode = 2
-offset_left = 354.0
+offset_left = 340.0
 offset_top = 235.0
-offset_right = 935.0
+offset_right = 921.0
 offset_bottom = 321.0
 theme_override_font_sizes/font_size = 60
 text = "Cancel"
 
 [node name="Queues" type="HBoxContainer" parent="."]
 layout_mode = 2
-offset_left = 378.0
+offset_left = 340.0
 offset_top = 387.0
-offset_right = 908.0
+offset_right = 870.0
 offset_bottom = 558.0
-theme_override_constants/separation = 40
+theme_override_constants/separation = 30
 
 [node name="QueueItem" parent="Queues" instance=ExtResource("9_ngekl")]
 layout_mode = 2

@@ -4,18 +4,18 @@
 [ext_resource type="Texture2D" uid="uid://b08j76upbucvr" path="res://assets/cards/arena_border_highlight_selected.png" id="2_5hinv"]
 
 [node name="QueueItem" type="MarginContainer"]
-custom_minimum_size = Vector2(150, 0)
 script = ExtResource("1_emp6n")
 
 [node name="QueueVBox" type="VBoxContainer" parent="."]
 layout_mode = 2
 
 [node name="QueueLabel" type="Label" parent="QueueVBox"]
-custom_minimum_size = Vector2(150, 0)
+custom_minimum_size = Vector2(130, 80)
 layout_mode = 2
-theme_override_font_sizes/font_size = 30
+theme_override_font_sizes/font_size = 24
 text = "All Seasons"
 horizontal_alignment = 1
+vertical_alignment = 1
 autowrap_mode = 2
 
 [node name="JoinButton" type="Button" parent="QueueVBox"]
