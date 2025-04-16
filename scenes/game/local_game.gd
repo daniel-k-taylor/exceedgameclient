@@ -9932,6 +9932,9 @@ func get_gauge_cost(performing_player : Player, card, check_if_card_in_hand = fa
 					if gauge_card.definition['id'] == card_id:
 						gauge_cost -= 1
 				gauge_cost = max(0, gauge_cost)
+			"per_boost_in_play":
+				var boosts_in_play = performing_player.get_boosts().size()
+				gauge_cost = max(0, gauge_cost - boosts_in_play)
 			"free_if_ex":
 				if is_ex:
 					gauge_cost = 0
