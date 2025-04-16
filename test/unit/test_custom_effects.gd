@@ -100,6 +100,39 @@ func get_custom_cards():
 					}
 				]
 			}
+		},
+		{
+			"id": "custom_reducecostperboost",
+			"type": "ultra",
+			"display_name": "Cheapskate",
+			"force_cost": 0,
+			"gauge_cost": 3,
+			"gauge_cost_reduction": "per_boost_in_play",
+			"range_min": 1,
+			"range_max": 8,
+			"power": 5,
+			"speed": 6,
+			"armor": 0,
+			"guard": 0,
+			"effects": [
+				{
+					"timing": "before",
+					"effect_type": "close",
+					"amount": 1
+				}
+			],
+			"boost": {
+				"boost_type": "continuous",
+				"force_cost": 0,
+				"cancel_cost": -1,
+				"display_name": "what if i just don't care",
+				"effects": [
+					{
+						"timing": "during_strike",
+						"effect_type": "stun_immunity"
+					}
+				]
+			}
 		}
 	]
 
@@ -203,3 +236,18 @@ func test_custom_boost_add_to_gauge_at_strike_end():
 	validate_life(player1, 29, player2, 25)
 	assert_true(player1.is_card_in_gauge(boost_id))
 	advance_turn(player1)
+	
+# Testing gauge cost reduction per boosts in play
+func test_custom_gauge_reduction_per_boost_in_play():
+	position_players(player1, 3, player2, 6)
+
+	# Give 3 gauge to Player 1.
+	var gauge_ids = give_gauge(player1, 2)
+	# Player 1 boosts Fierce
+	var boost_id = give_player_specific_card (player1, "standard_normal_grasp")
+	game_logic.do_boost(player1, boost_id)
+
+	# Player 1 strikes with an ultra that reducces cost by boost in play - should only need to pay 2 gauge here despite 3 gauge cost.
+	execute_strike (player2, player1, "standard_normal_assault", "custom_reducecostperboost", false, false, [], [[], gauge_ids])
+
+	advance_turn(player1) 
