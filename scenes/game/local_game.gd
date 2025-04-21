@@ -7620,6 +7620,30 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 					bonus_power = min(bonus_power, effect['maximum'])
 				performing_player.add_power_bonus(bonus_power)
 				create_event(Enums.EventType.EventType_Strike_PowerUp, performing_player.my_id, bonus_power)
+		"powerup_per_armor":
+			var armor = get_total_armor(performing_player)
+			if armor > 0:
+				var bonus_power = effect['amount'] * armor
+				if 'maximum' in effect:
+					bonus_power = min(bonus_power, effect['maximum'])
+				performing_player.add_power_bonus(bonus_power)
+				create_event(Enums.EventType.EventType_Strike_PowerUp, performing_player.my_id, bonus_power)
+		"powerup_per_speed":
+			var speed = get_total_speed(performing_player)
+			if speed > 0:
+				var bonus_power = effect['amount'] * speed
+				if 'maximum' in effect:
+					bonus_power = min(bonus_power, effect['maximum'])
+				performing_player.add_power_bonus(bonus_power)
+				create_event(Enums.EventType.EventType_Strike_PowerUp, performing_player.my_id, bonus_power)
+		"powerup_per_power":
+			var power = get_total_power(performing_player)
+			if power > 0:
+				var bonus_power = effect['amount'] * power
+				if 'maximum' in effect:
+					bonus_power = min(bonus_power, effect['maximum'])
+				performing_player.add_power_bonus(bonus_power)
+				create_event(Enums.EventType.EventType_Strike_PowerUp, performing_player.my_id, bonus_power)
 		"powerup_per_sealed_amount":
 			performing_player.strike_stat_boosts.powerup_per_sealed_amount_divisor = effect['divisor']
 			performing_player.strike_stat_boosts.powerup_per_sealed_amount_max = effect['max']
