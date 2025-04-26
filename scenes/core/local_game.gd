@@ -10,8 +10,6 @@ extends Node2D
 
 const NullNamedCard = "_"
 
-
-
 # Conditions that shouldn't change during a strike
 const StrikeStaticConditions = [
 	"is_critical", "is_not_critical",
