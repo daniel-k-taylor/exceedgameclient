@@ -39,10 +39,10 @@ var game_state : AIGameState
 var ai_policy
 
 # TODO: Remove these once they're being passed into functions as part of AIGameState.
-var game_player: LocalGame.Player
-var game_opponent: LocalGame.Player
+var game_player: Player
+var game_opponent: Player
 
-func _init(local_game: LocalGame, player: LocalGame.Player, policy = null):
+func _init(local_game: LocalGame, player: Player, policy = null):
 	game_logic = local_game
 	game_player = player
 	game_opponent = local_game._get_player(local_game.get_other_player(player.my_id))
@@ -82,7 +82,7 @@ class AIPlayerState extends CopyableResource:
 	var exceeded
 	var reshuffle_remaining
 
-	func _init(player: LocalGame.Player = null, do_update: bool = false):
+	func _init(player: Player = null, do_update: bool = false):
 		self.original = player
 		if do_update:
 			self.update(true)
@@ -142,8 +142,8 @@ class AIStrikeState extends CopyableResource:
 
 
 class AIGameState extends CopyableResource:
-	var player: LocalGame.Player
-	var opponent: LocalGame.Player
+	var player: Player
+	var opponent: Player
 	var my_state: AIPlayerState
 	var opponent_state: AIPlayerState
 	var active_strike: AIStrikeState
@@ -152,8 +152,8 @@ class AIGameState extends CopyableResource:
 
 	func _init(
 			game_logic: LocalGame = null,
-			the_player: LocalGame.Player = null,
-			the_opponent: LocalGame.Player = null,
+			the_player: Player = null,
+			the_opponent: Player = null,
 			do_update: bool = false):
 		self.original = game_logic
 		if game_logic:

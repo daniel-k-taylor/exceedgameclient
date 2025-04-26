@@ -1,5 +1,16 @@
 class_name Enums
-extends Node
+
+# Game Settings
+const BuddyStartsOutOfArena = -10
+const StartingHandFirstPlayer = 5
+const StartingHandSecondPlayer = 6
+const MaxHandSize = 7
+const MaxLife = 30
+const MaxReshuffle = 1
+const MinArenaLocation = 1
+const CenterArenaLocation = 5
+const MaxArenaLocation = 9
+const ShuffleEnabled = true
 
 enum PlayerId {
 	PlayerId_Player,

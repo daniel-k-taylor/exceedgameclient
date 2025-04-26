@@ -37,7 +37,7 @@ func get_message_history() -> Array:
 func _get_player(id):
 	return local_game._get_player(id)
 
-func _get_player_remote_id(player : LocalGame.Player) -> int:
+func _get_player_remote_id(player : Player) -> int:
 	if player.my_id == Enums.PlayerId.PlayerId_Player:
 		return _player_info['id']
 	else:
@@ -49,7 +49,7 @@ func _get_player_from_remote_id(remote_id : int):
 	else:
 		return _get_player(Enums.PlayerId.PlayerId_Opponent)
 
-func get_striking_card_ids_for_player(player : LocalGame.Player) -> Array:
+func get_striking_card_ids_for_player(player : Player) -> Array:
 	return local_game.get_striking_card_ids_for_player(player)
 
 func initialize_game(player_info,
@@ -129,31 +129,31 @@ func get_decision_info() -> DecisionInfo:
 func get_card_database() -> CardDatabase:
 	return local_game.get_card_database()
 
-func can_do_prepare(player : LocalGame.Player) -> bool:
+func can_do_prepare(player : Player) -> bool:
 	return local_game.can_do_prepare(player)
 
-func can_do_move(player : LocalGame.Player) -> bool:
+func can_do_move(player : Player) -> bool:
 	return local_game.can_do_move(player)
 
-func can_do_change(player : LocalGame.Player) -> bool:
+func can_do_change(player : Player) -> bool:
 	return local_game.can_do_change(player)
 
-func can_do_exceed(player : LocalGame.Player) -> bool:
+func can_do_exceed(player : Player) -> bool:
 	return local_game.can_do_exceed(player)
 
-func can_do_reshuffle(player : LocalGame.Player) -> bool:
+func can_do_reshuffle(player : Player) -> bool:
 	return local_game.can_do_reshuffle(player)
 
-func can_do_boost(player : LocalGame.Player) -> bool:
+func can_do_boost(player : Player) -> bool:
 	return local_game.can_do_boost(player)
 
-func can_do_ex_transform(player : LocalGame.Player) -> bool:
+func can_do_ex_transform(player : Player) -> bool:
 	return local_game.can_do_ex_transform(player)
 
-func can_do_strike(player : LocalGame.Player) -> bool:
+func can_do_strike(player : Player) -> bool:
 	return local_game.can_do_strike(player)
 
-func can_move_to(player : LocalGame.Player, location : int) -> bool:
+func can_move_to(player : Player, location : int) -> bool:
 	var ignore_force_req = false
 	return player.can_move_to(location, ignore_force_req)
 
@@ -162,7 +162,7 @@ func can_move_to(player : LocalGame.Player, location : int) -> bool:
 func _submit_game_message(action_message):
 	NetworkManager.submit_game_message(action_message)
 
-func do_prepare(player : LocalGame.Player) -> bool:
+func do_prepare(player : Player) -> bool:
 	var action_message = {
 		'action_type': 'action_prepare',
 		'player_id': _get_player_remote_id(player),
@@ -174,7 +174,7 @@ func process_prepare(action_message) -> void:
 	var game_player = _get_player_from_remote_id(action_message['player_id'])
 	local_game.do_prepare(game_player)
 
-func do_reshuffle(player : LocalGame.Player) -> bool:
+func do_reshuffle(player : Player) -> bool:
 	var action_message = {
 		'action_type': 'action_reshuffle',
 		'player_id': _get_player_remote_id(player),
@@ -186,7 +186,7 @@ func process_reshuffle(action_message) -> void:
 	var game_player = _get_player_from_remote_id(action_message['player_id'])
 	local_game.do_reshuffle(game_player)
 
-func do_choice(player : LocalGame.Player, choice_index : int) -> bool:
+func do_choice(player : Player, choice_index : int) -> bool:
 	var action_message = {
 		'action_type': 'action_choice',
 		'player_id': _get_player_remote_id(player),
@@ -200,7 +200,7 @@ func process_choice(action_message) -> void:
 	var choice_index = action_message['choice_index']
 	local_game.do_choice(game_player, choice_index)
 
-func do_boost_cancel(player : LocalGame.Player, gauge_card_ids : Array, doing_cancel : bool) -> bool:
+func do_boost_cancel(player : Player, gauge_card_ids : Array, doing_cancel : bool) -> bool:
 	var action_message = {
 		'action_type': 'action_boost_cancel',
 		'player_id': _get_player_remote_id(player),
@@ -216,7 +216,7 @@ func process_boost_cancel(action_message) -> void:
 	var doing_cancel = action_message['doing_cancel']
 	local_game.do_boost_cancel(game_player, gauge_card_ids, doing_cancel)
 
-func do_boost_name_card_choice_effect(player : LocalGame.Player, card_id : int) -> bool:
+func do_boost_name_card_choice_effect(player : Player, card_id : int) -> bool:
 	var action_message = {
 		'action_type': 'action_boost_name_card_choice_effect',
 		'player_id': _get_player_remote_id(player),
@@ -230,7 +230,7 @@ func process_boost_name_card_choice_effect(action_message) -> void:
 	var card_id = action_message['card_id']
 	local_game.do_boost_name_card_choice_effect(game_player, card_id)
 
-func do_discard_to_max(player : LocalGame.Player, card_ids : Array) -> bool:
+func do_discard_to_max(player : Player, card_ids : Array) -> bool:
 	var action_message = {
 		'action_type': 'action_discard_to_max',
 		'player_id': _get_player_remote_id(player),
@@ -244,7 +244,7 @@ func process_discard_to_max(action_message) -> void:
 	var card_ids = action_message['card_ids']
 	local_game.do_discard_to_max(game_player, card_ids)
 
-func do_relocate_card_from_hand(player : LocalGame.Player, card_ids : Array) -> bool:
+func do_relocate_card_from_hand(player : Player, card_ids : Array) -> bool:
 	var action_message = {
 		'action_type': 'action_relocate_card_from_hand',
 		'player_id': _get_player_remote_id(player),
@@ -259,7 +259,7 @@ func process_relocate_card_from_hand(action_message) -> void:
 	local_game.do_relocate_card_from_hand(game_player, card_ids)
 
 func do_pay_strike_cost(
-	player : LocalGame.Player,
+	player : Player,
 	card_ids : Array,
 	wild_strike : bool,
 	discard_ex_first : bool,
@@ -290,7 +290,7 @@ func process_pay_strike_cost(action_message) -> void:
 	var pay_alternative_life_cost = action_message['pay_alternative_life_cost']
 	local_game.do_pay_strike_cost(game_player, card_ids, wild_strike, discard_ex_first, use_free_force, spent_life_for_force, pay_alternative_life_cost)
 
-func do_exceed(player : LocalGame.Player, card_ids : Array) -> bool:
+func do_exceed(player : Player, card_ids : Array) -> bool:
 	var action_message = {
 		'action_type': 'action_exceed',
 		'player_id': _get_player_remote_id(player),
@@ -304,7 +304,7 @@ func process_exceed(action_message) -> void:
 	var card_ids = action_message['card_ids']
 	local_game.do_exceed(game_player, card_ids)
 
-func do_move(player : LocalGame.Player, card_ids : Array, new_arena_location : int, use_free_force : bool = false, spent_life_for_force : int = 0) -> bool:
+func do_move(player : Player, card_ids : Array, new_arena_location : int, use_free_force : bool = false, spent_life_for_force : int = 0) -> bool:
 	var action_message = {
 		'action_type': 'action_move',
 		'player_id': _get_player_remote_id(player),
@@ -324,7 +324,7 @@ func process_move(action_message) -> void:
 	var spent_life_for_force = action_message['spent_life_for_force']
 	local_game.do_move(game_player, card_ids, new_arena_location, use_free_force, spent_life_for_force)
 
-func do_change(player : LocalGame.Player, card_ids : Array, treat_ultras_as_single_force : bool,
+func do_change(player : Player, card_ids : Array, treat_ultras_as_single_force : bool,
 		use_free_force : bool = false, spent_life_for_force : int = 0) -> bool:
 	var action_message = {
 		'action_type': 'action_change',
@@ -345,7 +345,7 @@ func process_change(action_message) -> void:
 	var spent_life_for_force = action_message['spent_life_for_force']
 	local_game.do_change(game_player, card_ids, treat_ultras_as_single_force, use_free_force, spent_life_for_force)
 
-func do_strike(player : LocalGame.Player, card_id : int, wild_strike: bool, ex_card_id : int,
+func do_strike(player : Player, card_id : int, wild_strike: bool, ex_card_id : int,
 		opponent_sets_first : bool = false, use_face_attack : bool = false) -> bool:
 	var action_message = {
 		'action_type': 'action_strike',
@@ -368,7 +368,7 @@ func process_strike(action_message) -> void:
 	var use_face_attack = action_message['use_face_attack']
 	local_game.do_strike(game_player, card_id, wild_strike, ex_card_id, opponent_sets_first, use_face_attack)
 
-func do_force_for_armor(player : LocalGame.Player, card_ids : Array, use_free_force : bool = false, spent_life_for_force : int = 0) -> bool:
+func do_force_for_armor(player : Player, card_ids : Array, use_free_force : bool = false, spent_life_for_force : int = 0) -> bool:
 	var action_message = {
 		'action_type': 'action_force_for_armor',
 		'player_id': _get_player_remote_id(player),
@@ -386,7 +386,7 @@ func process_force_for_armor(action_message) -> void:
 	var spent_life_for_force = action_message['spent_life_for_force']
 	local_game.do_force_for_armor(game_player, card_ids, use_free_force, spent_life_for_force)
 
-func do_mulligan(player : LocalGame.Player, card_ids : Array) -> bool:
+func do_mulligan(player : Player, card_ids : Array) -> bool:
 	var action_message = {
 		'action_type': 'action_mulligan',
 		'player_id': _get_player_remote_id(player),
@@ -400,7 +400,7 @@ func process_mulligan(action_message) -> void:
 	var card_ids = action_message['card_ids']
 	local_game.do_mulligan(game_player, card_ids)
 
-func do_boost(player : LocalGame.Player, card_id : int, payment_card_ids = [],
+func do_boost(player : Player, card_id : int, payment_card_ids = [],
 		use_free_force : bool = false, spent_life_for_force : int = 0, additional_boost_ids = []) -> bool:
 	var action_message = {
 		'action_type': 'action_boost',
@@ -423,7 +423,7 @@ func process_boost(action_message) -> void:
 	var additional_boost_ids = action_message['additional_boost_ids']
 	local_game.do_boost(game_player, card_id, payment_card_ids, use_free_force, spent_life_for_force, additional_boost_ids)
 
-func do_choose_from_boosts(player : LocalGame.Player, card_ids : Array) -> bool:
+func do_choose_from_boosts(player : Player, card_ids : Array) -> bool:
 	var action_message = {
 		'action_type': 'action_choose_from_boosts',
 		'player_id': _get_player_remote_id(player),
@@ -437,7 +437,7 @@ func process_choose_from_boosts(action_message) -> void:
 	var card_ids = action_message['card_ids']
 	local_game.do_choose_from_boosts(game_player, card_ids)
 
-func do_choose_from_discard(player : LocalGame.Player, card_ids : Array) -> bool:
+func do_choose_from_discard(player : Player, card_ids : Array) -> bool:
 	var action_message = {
 		'action_type': 'action_choose_from_discard',
 		'player_id': _get_player_remote_id(player),
@@ -451,7 +451,7 @@ func process_choose_from_discard(action_message) -> void:
 	var card_ids = action_message['card_ids']
 	local_game.do_choose_from_discard(game_player, card_ids)
 
-func do_force_for_effect(player : LocalGame.Player, card_ids : Array, treat_ultras_as_single_force : bool, cancel : bool,
+func do_force_for_effect(player : Player, card_ids : Array, treat_ultras_as_single_force : bool, cancel : bool,
 		use_free_force : bool = false, spent_life_for_force : int = 0) -> bool:
 	var action_message = {
 		'action_type': 'action_force_for_effect',
@@ -474,7 +474,7 @@ func process_force_for_effect(action_message) -> void:
 	var spent_life_for_force = action_message['spent_life_for_force']
 	local_game.do_force_for_effect(game_player, card_ids, treat_ultras_as_single_force, cancel, use_free_force, spent_life_for_force)
 
-func do_gauge_for_effect(player : LocalGame.Player, card_ids : Array) -> bool:
+func do_gauge_for_effect(player : Player, card_ids : Array) -> bool:
 	var action_message = {
 		'action_type': 'action_gauge_for_effect',
 		'player_id': _get_player_remote_id(player),
@@ -488,7 +488,7 @@ func process_gauge_for_effect(action_message) -> void:
 	var card_ids = action_message['card_ids']
 	local_game.do_gauge_for_effect(game_player, card_ids)
 
-func do_choose_to_discard(player : LocalGame.Player, card_ids : Array) -> bool:
+func do_choose_to_discard(player : Player, card_ids : Array) -> bool:
 	var action_message = {
 		'action_type': 'action_choose_to_discard',
 		'player_id': _get_player_remote_id(player),
@@ -502,7 +502,7 @@ func process_choose_to_discard(action_message) -> void:
 	var card_ids = action_message['card_ids']
 	local_game.do_choose_to_discard(game_player, card_ids)
 
-func do_character_action(player : LocalGame.Player, card_ids : Array, action_idx : int = 0,
+func do_character_action(player : Player, card_ids : Array, action_idx : int = 0,
 		use_free_force : bool = false, spent_life_for_force : int = 0) -> bool:
 	var action_message = {
 		'action_type': 'action_character_action',
@@ -523,7 +523,7 @@ func process_character_action(action_message) -> void:
 	var spent_life_for_force = action_message['spent_life_for_force']
 	local_game.do_character_action(game_player, card_ids, action_idx, use_free_force, spent_life_for_force)
 
-func do_bonus_turn_action(player : LocalGame.Player, action_index : int) -> bool:
+func do_bonus_turn_action(player : Player, action_index : int) -> bool:
 	var action_message = {
 		'action_type': 'action_bonus_action',
 		'player_id': _get_player_remote_id(player),
@@ -537,7 +537,7 @@ func process_bonus_action(action_message) -> void:
 	var action_index = action_message['action_index']
 	local_game.do_bonus_turn_action(game_player, action_index)
 
-func do_choose_from_topdeck(player : LocalGame.Player, card_id : int, action : String) -> bool:
+func do_choose_from_topdeck(player : Player, card_id : int, action : String) -> bool:
 	var action_message = {
 		'action_type': 'action_choose_from_topdeck',
 		'player_id': _get_player_remote_id(player),
@@ -553,7 +553,7 @@ func process_choose_from_topdeck(action_message) -> void:
 	var action = action_message['action']
 	local_game.do_choose_from_topdeck(game_player, card_id, action)
 
-func do_emote(player : LocalGame.Player, is_image_emote : bool, emote : String):
+func do_emote(player : Player, is_image_emote : bool, emote : String):
 	var action_message = {
 		'action_type': 'action_emote',
 		'player_id': _get_player_remote_id(player),

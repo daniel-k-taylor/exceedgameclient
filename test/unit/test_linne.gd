@@ -10,8 +10,8 @@ const TestCardId3 = 50003
 const TestCardId4 = 50004
 const TestCardId5 = 50005
 
-var player1 : LocalGame.Player
-var player2 : LocalGame.Player
+var player1 : Player
+var player2 : Player
 
 var simul_choice = 0
 
@@ -206,13 +206,13 @@ func validate_life(p1, l1, p2, l2):
 	assert_eq(p1.life, l1)
 	assert_eq(p2.life, l2)
 
-func get_cards_from_hand(player : LocalGame.Player, amount : int):
+func get_cards_from_hand(player : Player, amount : int):
 	var card_ids = []
 	for i in range(amount):
 		card_ids.append(player.hand[i].id)
 	return card_ids
 
-func get_cards_from_gauge(player : LocalGame.Player, amount : int):
+func get_cards_from_gauge(player : Player, amount : int):
 	var card_ids = []
 	for i in range(amount):
 		card_ids.append(player.gauge[i].id)
@@ -391,12 +391,12 @@ func test_linne_diviner3():
 func test_linne_diviner_vs_beheaded():
 	position_players(player1, 2, player2, 6)
 	give_gauge(player1, 2)
-	
+
 	# P2 gets beheaded stuff.
 	give_player_specific_card(player2, "beheaded_trait_tactics", TestCardId5)
 	player2.add_to_continuous_boosts(player2.hand[-1])
 	player2.hand = player2.hand.slice(0, player2.hand.size() - 2)
-	
+
 	execute_strike(player1, player2, "linne_thediviner", "beheaded_infantrybow", [], [], true)
 	# EX diviner is speed 4, vs bow, speed 4.
 	# But at range 4, diviner misses and bow hits.

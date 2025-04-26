@@ -12,8 +12,8 @@ const TestCardId5 = 50005
 
 var TestCardSealedIds = [50010, 50011, 50012, 50013, 50014, 50015, 50016, 50017]
 
-var player1 : LocalGame.Player
-var player2 : LocalGame.Player
+var player1 : Player
+var player2 : Player
 
 func default_game_setup():
 	image_loader = CardImageLoader.new(true)

@@ -10,8 +10,8 @@ const TestCardId3 = 50003
 const TestCardId4 = 50004
 const TestCardId5 = 50005
 
-var player1 : LocalGame.Player
-var player2 : LocalGame.Player
+var player1 : Player
+var player2 : Player
 
 func default_game_setup():
 	image_loader = CardImageLoader.new(true)
@@ -229,7 +229,7 @@ func test_tager_exceed_movement_limit_dive():
 	validate_positions(player1, 6, player2, 7)
 	validate_life(player1, 30, player2, 24)
 	advance_turn(player2)
-	
+
 func test_tager_exceed_movement_limit_dive_limit():
 	player1.exceeded = true
 	position_players(player1, 3, player2, 7)
@@ -238,7 +238,7 @@ func test_tager_exceed_movement_limit_dive_limit():
 	validate_positions(player1, 5, player2, 7)
 	validate_life(player1, 25, player2, 30)
 	advance_turn(player2)
-	
+
 func test_tager_exceed_movement_limit_cross():
 	player1.exceeded = true
 	position_players(player1, 6, player2, 7)
