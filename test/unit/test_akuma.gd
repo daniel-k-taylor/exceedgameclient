@@ -10,8 +10,8 @@ const TestCardId3 = 50003
 const TestCardId4 = 50004
 const TestCardId5 = 50005
 
-var player1 : LocalGame.Player
-var player2 : LocalGame.Player
+var player1 : Player
+var player2 : Player
 
 func default_game_setup(alt_opponent : String = ""):
 	var opponent_deck = default_deck
@@ -394,7 +394,7 @@ func test_akuma_instanthellmurder_positive_only():
 	validate_life(player1, 30, player2, 24)
 	validate_positions(player1, 3, player2, 5)
 	advance_turn(player2)
-	
+
 func test_akuma_vs_arakune_positive_bonus_check():
 	game_logic.teardown()
 	game_logic.free()

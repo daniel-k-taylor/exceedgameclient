@@ -133,6 +133,102 @@ func get_custom_cards():
 					}
 				]
 			}
+		},
+		{
+			"id": "custom_powerupperarmor",
+			"type": "special",
+			"display_name": "Offense and Defense in Equal Measures",
+			"force_cost": 0,
+			"gauge_cost": 0,
+			"range_min": 1,
+			"range_max": 8,
+			"power": 2,
+			"speed": 6,
+			"armor": 3,
+			"guard": 0,
+			"effects": [
+				{
+					"timing": "before",
+					"effect_type": "powerup_per_armor",
+					"amount": 1
+				}
+			],
+			"boost": {
+				"boost_type": "continuous",
+				"force_cost": 0,
+				"cancel_cost": -1,
+				"display_name": "what if i just don't care",
+				"effects": [
+					{
+						"timing": "during_strike",
+						"effect_type": "stun_immunity"
+					}
+				]
+			}
+		},
+		{
+			"id": "custom_powerupperspeed",
+			"type": "special",
+			"display_name": "Where I'm from, Speed Equals Strength",
+			"force_cost": 0,
+			"gauge_cost": 0,
+			"range_min": 1,
+			"range_max": 8,
+			"power": 2,
+			"speed": 8,
+			"armor": 0,
+			"guard": 0,
+			"effects": [
+				{
+					"timing": "before",
+					"effect_type": "powerup_per_speed",
+					"amount": 1
+				}
+			],
+			"boost": {
+				"boost_type": "continuous",
+				"force_cost": 0,
+				"cancel_cost": -1,
+				"display_name": "what if i just don't care",
+				"effects": [
+					{
+						"timing": "during_strike",
+						"effect_type": "stun_immunity"
+					}
+				]
+			}
+		},
+		{
+			"id": "custom_powerupperpower",
+			"type": "special",
+			"display_name": "double it and give it to the next person",
+			"force_cost": 0,
+			"gauge_cost": 0,
+			"range_min": 1,
+			"range_max": 8,
+			"power": 5,
+			"speed": 6,
+			"armor": 0,
+			"guard": 0,
+			"effects": [
+				{
+					"timing": "before",
+					"effect_type": "powerup_per_power",
+					"amount": 1
+				}
+			],
+			"boost": {
+				"boost_type": "continuous",
+				"force_cost": 0,
+				"cancel_cost": -1,
+				"display_name": "what if i just don't care",
+				"effects": [
+					{
+						"timing": "during_strike",
+						"effect_type": "stun_immunity"
+					}
+				]
+			}
 		}
 	]
 
@@ -251,3 +347,33 @@ func test_custom_gauge_reduction_per_boost_in_play():
 	execute_strike (player2, player1, "standard_normal_assault", "custom_reducecostperboost", false, false, [], [[], gauge_ids])
 
 	advance_turn(player1) 
+
+# Testing powerup per armor
+func test_custom_powerup_per_armor():
+	position_players(player1, 3, player2, 6)
+
+	# Player 1 strikes with an special with 2 power, 3 armor, and before: powerup_per_armor, amount: 1.
+	execute_strike (player1, player2, "custom_powerupperarmor", "standard_normal_dive", false, false, [], [])
+
+	# Validate that player 1 is still at max life, and player 2 is at 25.
+	validate_life(player1, 30, player2, 25)
+	
+# Testing powerup per speed
+func test_custom_powerup_per_speed():
+	position_players(player1, 3, player2, 6)
+
+	# Player 1 strikes with an special with 2 power, 8 speed, and before: powerup_per_speed, amount: 1.
+	execute_strike (player1, player2, "custom_powerupperspeed", "standard_normal_dive", false, false, [], [])
+
+	# Validate that player 1 is still at max life, and player 2 is at 20.
+	validate_life(player1, 30, player2, 20)
+
+# Testing powerup per power
+func test_custom_powerup_per_power():
+	position_players(player1, 3, player2, 6)
+
+	# Player 1 strikes with an special with 5 power and before: powerup_per_power, amount: 1.
+	execute_strike (player1, player2, "custom_powerupperpower", "standard_normal_dive", false, false, [], [])
+
+	# Validate that player 1 is still at max life, and player 2 is at 20.
+	validate_life(player1, 30, player2, 20)

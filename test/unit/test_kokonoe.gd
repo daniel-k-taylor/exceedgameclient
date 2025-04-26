@@ -11,8 +11,8 @@ const TestCardId4 = 50004
 const TestCardId5 = 50005
 const TestCardId6 = 50006
 
-var player1 : LocalGame.Player
-var player2 : LocalGame.Player
+var player1 : Player
+var player2 : Player
 
 func default_game_setup(alt_opponent : String = ""):
 	var opponent_deck = default_deck

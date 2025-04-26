@@ -8,8 +8,8 @@ var game_logic : LocalGame
 var image_loader : CardImageLoader
 var default_deck = CardDefinitions.get_deck_from_str_id("solbadguy")
 
-var player1 : LocalGame.Player
-var player2 : LocalGame.Player
+var player1 : Player
+var player2 : Player
 var ai1 : AIPlayer
 var ai2 : AIPlayer
 

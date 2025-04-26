@@ -10,8 +10,8 @@ var image_loader : CardImageLoader
 var default_deck = CardDefinitions.get_deck_from_str_id("solbadguy")
 var opponent_deck = CardDefinitions.get_deck_from_str_id("solbadguy")
 
-var player1 : LocalGame.Player
-var player2 : LocalGame.Player
+var player1 : Player
+var player2 : Player
 var ai1 : AIPlayer
 var ai2 : AIPlayer
 
@@ -75,7 +75,7 @@ func get_event(events, event_type):
 	fail_test("Get Event not found: %s" % str(event_type))
 	assert(false, "Get Event not found: %s" % str(event_type))
 
-func handle_discard_event(events, game : LocalGame, aiplayer : AIPlayer, gameplayer : LocalGame.Player):
+func handle_discard_event(events, game : LocalGame, aiplayer : AIPlayer, gameplayer : Player):
 	if game.game_state == Enums.GameState.GameState_DiscardDownToMax:
 		var event = get_event(events, Enums.EventType.EventType_HandSizeExceeded)
 		var discard_required_count = event['number']
@@ -83,24 +83,24 @@ func handle_discard_event(events, game : LocalGame, aiplayer : AIPlayer, gamepla
 		assert_true(game.do_discard_to_max(gameplayer, discard_action.card_ids), "do discard failed")
 		events += game.get_latest_events()
 
-func handle_prepare(game : LocalGame, gameplayer : LocalGame.Player):
+func handle_prepare(game : LocalGame, gameplayer : Player):
 	assert_true(game.do_prepare(gameplayer), "do prepare failed")
 	return game.get_latest_events()
 
-func handle_move(game: LocalGame, gameplayer : LocalGame.Player, action : AIPlayer.MoveAction):
+func handle_move(game: LocalGame, gameplayer : Player, action : AIPlayer.MoveAction):
 	var location = action.location
 	var card_ids = action.force_card_ids
 	var use_free_force = action.use_free_force
 	assert_true(game.do_move(gameplayer, card_ids, location, use_free_force), "do move failed")
 	return game.get_latest_events()
 
-func handle_change_cards(game: LocalGame, gameplayer : LocalGame.Player, action : AIPlayer.ChangeCardsAction):
+func handle_change_cards(game: LocalGame, gameplayer : Player, action : AIPlayer.ChangeCardsAction):
 	var card_ids = action.card_ids
 	var use_free_force = action.use_free_force
 	assert_true(game.do_change(gameplayer, card_ids, false, use_free_force), "do change failed")
 	return game.get_latest_events()
 
-func handle_exceed(game: LocalGame, otherai, gameplayer : LocalGame.Player, action : AIPlayer.ExceedAction):
+func handle_exceed(game: LocalGame, otherai, gameplayer : Player, action : AIPlayer.ExceedAction):
 	var card_ids = action.card_ids
 	var events = []
 	assert_true(game.do_exceed(gameplayer, card_ids), "do exceed failed")
@@ -114,11 +114,11 @@ func handle_exceed(game: LocalGame, otherai, gameplayer : LocalGame.Player, acti
 	events += handle_decisions(game)
 	return events
 
-func handle_reshuffle(game: LocalGame, gameplayer : LocalGame.Player):
+func handle_reshuffle(game: LocalGame, gameplayer : Player):
 	assert_true(game.do_reshuffle(gameplayer), "do reshuffle failed")
 	return game.get_latest_events()
 
-func handle_boost(game: LocalGame, aiplayer : AIPlayer, otherai : AIPlayer, gameplayer : LocalGame.Player, action : AIPlayer.BoostAction):
+func handle_boost(game: LocalGame, aiplayer : AIPlayer, otherai : AIPlayer, gameplayer : Player, action : AIPlayer.BoostAction):
 	var events = []
 	var card_id = action.card_id
 	assert_true(game.do_boost(gameplayer, card_id, action.payment_card_ids, action.use_free_force), "do boost failed")

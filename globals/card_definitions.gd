@@ -1158,6 +1158,21 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 			if 'maximum' in effect:
 				max_text = " (max %s)" % effect['maximum']
 			effect_str += "+" + str(effect['amount']) + " Power per guard%s." % max_text
+		"powerup_per_armor":
+			var max_text = ""
+			if 'maximum' in effect:
+				max_text = " (max %s)" % effect['maximum']
+			effect_str += "+" + str(effect['amount']) + " Power per armor%s." % max_text
+		"powerup_per_speed":
+			var max_text = ""
+			if 'maximum' in effect:
+				max_text = " (max %s)" % effect['maximum']
+			effect_str += "+" + str(effect['amount']) + " Power per speed%s." % max_text
+		"powerup_per_power":
+			var max_text = ""
+			if 'maximum' in effect:
+				max_text = " (max %s)" % effect['maximum']
+			effect_str += "+" + str(effect['amount']) + " Power per power%s." % max_text
 		"powerup_per_gauge":
 			var opponent_str = ""
 			if effect.get("count_opponent"):
