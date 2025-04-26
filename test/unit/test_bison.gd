@@ -10,8 +10,8 @@ const TestCardId3 = 50003
 const TestCardId4 = 50004
 const TestCardId5 = 50005
 
-var player1 : LocalGame.Player
-var player2 : LocalGame.Player
+var player1 : Player
+var player2 : Player
 
 func default_game_setup():
 	image_loader = CardImageLoader.new(true)
@@ -326,7 +326,7 @@ func test_bison_shadaloo():
 	validate_has_no_event(events, Enums.EventType.EventType_RevealHand, player2)
 	assert_eq(player2.hand.size(), 1)
 	assert_eq(player2.get_top_discard_card().id, TestCardId3)
-	
+
 	give_player_specific_card(player1, "standard_normal_assault", TestCardId4)
 	assert_true(game_logic.do_strike(player1, TestCardId4, false, -1))
 	assert_true(game_logic.do_strike(player2, TestCardId2, false, -1))

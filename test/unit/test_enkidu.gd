@@ -14,8 +14,8 @@ const TestCardId7 = 50007
 const TestCardId8 = 50008
 const TestCardId9 = 50009
 
-var player1 : LocalGame.Player
-var player2 : LocalGame.Player
+var player1 : Player
+var player2 : Player
 
 func default_game_setup():
 	image_loader = CardImageLoader.new(true)

@@ -10,8 +10,8 @@ const TestCardId3 = 50003
 const TestCardId4 = 50004
 const TestCardId5 = 50005
 
-var player1 : LocalGame.Player
-var player2 : LocalGame.Player
+var player1 : Player
+var player2 : Player
 
 func default_game_setup():
 	image_loader = CardImageLoader.new(true)
@@ -185,13 +185,13 @@ func validate_life(p1, l1, p2, l2):
 	assert_eq(p1.life, l1, "player 1 life wrong")
 	assert_eq(p2.life, l2, "player 2 life wrong")
 
-func get_cards_from_hand(player : LocalGame.Player, amount : int):
+func get_cards_from_hand(player : Player, amount : int):
 	var card_ids = []
 	for i in range(amount):
 		card_ids.append(player.hand[i].id)
 	return card_ids
 
-func get_cards_from_gauge(player : LocalGame.Player, amount : int):
+func get_cards_from_gauge(player : Player, amount : int):
 	var card_ids = []
 	for i in range(amount):
 		card_ids.append(player.gauge[i].id)

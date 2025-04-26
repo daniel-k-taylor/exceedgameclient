@@ -5,8 +5,8 @@ var game_logic : LocalGame
 var image_loader : CardImageLoader
 var next_test_card_id = 50000
 
-var player1 : LocalGame.Player
-var player2 : LocalGame.Player
+var player1 : Player
+var player2 : Player
 
 ### !!! IMPORTANT
 # Subclasses must override this function to return a character name
@@ -412,7 +412,7 @@ func process_remaining_decisions(initiator, defender, init_choices, def_choices)
 ##     useful if you need to check certain game states in the middle of a
 ##     strike.
 
-func execute_strike(initiator: LocalGame.Player, defender: LocalGame.Player,
+func execute_strike(initiator: Player, defender: Player,
 		init_card: Variant, def_card: Variant, init_ex = false, def_ex = false,
 		init_choices = [], def_choices = [], exit_after_validation = false,
 		init_alt_ex_card: Variant = "", def_alt_ex_card: Variant = "",
@@ -484,13 +484,13 @@ func validate_life(p1, l1, p2, l2):
 	assert_eq(p1.life, l1, "Player 1 has %s life instead of %s" % [p1.life, l1])
 	assert_eq(p2.life, l2, "Player 2 has %s life instead of %s" % [p2.life, l2])
 
-func get_cards_from_hand(player : LocalGame.Player, amount : int):
+func get_cards_from_hand(player : Player, amount : int):
 	var card_ids = []
 	for i in range(amount):
 		card_ids.append(player.hand[i].id)
 	return card_ids
 
-func get_cards_from_gauge(player : LocalGame.Player, amount : int):
+func get_cards_from_gauge(player : Player, amount : int):
 	var card_ids = []
 	for i in range(amount):
 		card_ids.append(player.gauge[i].id)
@@ -506,7 +506,7 @@ func select_space(num: int):
 	# explicitly for *_choices content.
 	return game_logic.decision_info.limitation.find(num)
 
-func show_player_data(player: LocalGame.Player):
+func show_player_data(player: Player):
 	print(" >>>> Player %s continuous boosts: %s" % [player.my_id, player.continuous_boosts])
 	print(" >>>> Player %s strike stat boosts: %s" % [player.my_id, player.strike_stat_boosts])
 

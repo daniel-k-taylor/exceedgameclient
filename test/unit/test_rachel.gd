@@ -10,8 +10,8 @@ const TestCardId3 = 50003
 const TestCardId4 = 50004
 const TestCardId5 = 50005
 
-var player1 : LocalGame.Player
-var player2 : LocalGame.Player
+var player1 : Player
+var player2 : Player
 
 func default_game_setup(alt_opponent : String = ""):
 	var opponent_deck = default_deck
@@ -217,7 +217,7 @@ func get_choice_index_for_position(pos):
 	assert(false, "Unable to find choice index")
 	fail_test("Unable to find choice index")
 	return 0
-	
+
 ##
 ## Tests start here
 ##
@@ -243,7 +243,7 @@ func test_rachel_ua_exceed_overdrive():
 	assert_true(game_logic.do_choice(player1, 0)) # Do it
 	var events = game_logic.get_latest_events()
 	validate_has_event(events, Enums.EventType.EventType_ForceStartBoost, player1)
-	
+
 	assert_true(game_logic.do_boost(player1, TestCardId1))
 	assert_eq(game_logic.game_state, Enums.GameState.GameState_PickAction)
 	advance_turn(player1)
@@ -617,7 +617,7 @@ func test_rachel_badenbadenlily_boost_cantmove_past():
 
 func test_rachel_spikedrop_george():
 	position_players(player1, 7, player2, 5)
-	
+
 	give_player_specific_card(player1, "rachel_tempestdahlia", TestCardId2)
 	assert_true(game_logic.do_boost(player1, TestCardId2, [player1.hand[0].id]))
 	assert_true(game_logic.do_choice(player1, get_choice_index_for_position(5)))
@@ -658,4 +658,3 @@ func test_rachel_lightningrod_stuns_even_when_at_1():
 	validate_life(player1, 30, player2, 1)
 	assert_eq(player1.hand[-1].id, discard_id)
 	advance_turn(player1)
-	

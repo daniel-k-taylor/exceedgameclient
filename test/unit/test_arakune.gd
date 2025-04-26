@@ -10,8 +10,8 @@ const TestCardId3 = 50003
 const TestCardId4 = 50004
 const TestCardId5 = 50005
 
-var player1 : LocalGame.Player
-var player2 : LocalGame.Player
+var player1 : Player
+var player2 : Player
 
 func default_game_setup(alt_opponent : String = ""):
 	var opponent_deck = default_deck
@@ -260,7 +260,7 @@ func test_arakune_exceed_revert_on_last_card():
 	assert_eq(player1.hand.size(), 5)
 	assert_true(game_logic.do_exceed(player1, card_ids_gauge))
 	assert_eq(player1.hand.size(), 7)
-	
+
 	# Remove all but the first overdrive cards to test the final strike.
 	player1.discard([
 		player1.overdrive[1].id,
@@ -271,7 +271,7 @@ func test_arakune_exceed_revert_on_last_card():
 		player1.overdrive[6].id,
 		player1.overdrive[7].id,
 	])
-	
+
 	execute_strike(player1, player2, "standard_normal_assault", "standard_normal_cross", [], [], false, false, [], [], 0, [])
 	# Reveal effect
 	assert_true(game_logic.do_choose_from_discard(player1, [TestCardId3]))
@@ -284,7 +284,7 @@ func test_arakune_exceed_revert_on_last_card():
 	assert_false(player1.exceeded)
 	# Check that I can end my turn from assault.
 	advance_turn(player1)
-	
+
 func test_arakune_exceed_revert_on_last_card_nomatch():
 	position_players(player1, 3, player2, 4)
 	give_gauge(player1, 3)
@@ -301,7 +301,7 @@ func test_arakune_exceed_revert_on_last_card_nomatch():
 	assert_eq(player1.hand.size(), 5)
 	assert_true(game_logic.do_exceed(player1, card_ids_gauge))
 	assert_eq(player1.hand.size(), 7)
-	
+
 	# Remove all but the first overdrive cards to test the final strike.
 	player1.discard([
 		player1.overdrive[1].id,
@@ -312,7 +312,7 @@ func test_arakune_exceed_revert_on_last_card_nomatch():
 		player1.overdrive[6].id,
 		player1.overdrive[7].id,
 	])
-	
+
 	execute_strike(player1, player2, "standard_normal_cross", "standard_normal_cross", [], [], false, false, [], [], 0, [])
 	# Reveal effect
 	assert_true(game_logic.do_choose_from_discard(player1, [TestCardId3]))
