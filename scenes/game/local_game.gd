@@ -12331,7 +12331,7 @@ func do_choose_from_discard(performing_player : Player, card_ids : Array) -> boo
 	set_player_action_processing_state()
 
 	# Do any bonus effect.
-	if decision_info.bonus_effect:
+	if card_ids.size() > 0 and decision_info.bonus_effect:
 		var effect = decision_info.bonus_effect
 		effect['discarded_card_ids'] = card_ids
 		do_effect_if_condition_met(performing_player, decision_info.choice_card_id, effect, null)
