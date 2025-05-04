@@ -26770,7 +26770,7 @@
 					}
 				},
 				{
-					"timing": "now",
+					"timing": "end_of_turn",
 					"effect_type": "discard_continuous_boost",
 					"required": true,
 					"limitation": "mine",
@@ -26778,7 +26778,8 @@
 					"and": {
 						"effect_type": "draw",
 						"amount": 1
-					}
+					},
+					"override_description": "Now: Discard a Continuous Boost, then Draw 1"
 				}
 			]
 		}
