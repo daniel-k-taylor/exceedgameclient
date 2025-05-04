@@ -1,5 +1,8 @@
 extends ExceedGutTest
 
+const TestCardId1 = 50001
+const TestCardId2 = 50002
+
 func who_am_i():
 	return "shovelknight"
 
@@ -78,3 +81,40 @@ func test_shovelknight_propellerdagger_skip_returntohand():
 	assert_eq(player1.gauge.size(), 2)
 	assert_ne(player1.hand[-1].id, attack)
 	advance_turn(player2)
+
+func test_shovelknight_justiceinspades_auto_discard_self():
+	position_players(player1, 3, player2, 6)
+	assert_eq(player1.hand.size(), 5)
+	var boost = give_player_specific_card(player1, "shovelknight_troupplechalice")
+	assert_true(game_logic.do_boost(player1, boost, []))
+	assert_eq(player1.hand.size(), 7)
+	
+func test_shovelknight_justiceinspades_choice_discard_self():
+	position_players(player1, 3, player2, 6)
+	assert_eq(player1.hand.size(), 5)
+	var boost1 = give_player_specific_card(player1, "standard_normal_grasp")
+	var boost2 = give_player_specific_card(player1, "shovelknight_troupplechalice")
+	assert_true(game_logic.do_boost(player1, boost1, []))
+	assert_true(player1.is_card_in_continuous_boosts(boost1))
+	advance_turn(player2)
+	assert_true(game_logic.do_boost(player1, boost2, []))
+	assert_true(game_logic.do_choice(player1, 0))
+	assert_true(player1.is_card_in_continuous_boosts(boost1))
+	assert_false(player1.is_card_in_continuous_boosts(boost2))
+	assert_eq(player1.hand.size(), 8)
+
+func test_shovelknight_justiceinspades_choice_discard_other():
+	position_players(player1, 3, player2, 6)
+	assert_eq(player1.hand.size(), 5)
+	var boost1 = give_player_specific_card(player1, "standard_normal_grasp")
+	var boost2 = give_player_specific_card(player1, "shovelknight_troupplechalice")
+	assert_true(game_logic.do_boost(player1, boost1, []))
+	assert_true(player1.is_card_in_continuous_boosts(boost1))
+	advance_turn(player2)
+	assert_true(game_logic.do_boost(player1, boost2, []))
+	assert_true(game_logic.do_choice(player1, 1))
+	assert_true(game_logic.do_boost_name_card_choice_effect(player1, boost1))
+	assert_false(player1.is_card_in_continuous_boosts(boost1))
+	assert_true(player1.is_card_in_continuous_boosts(boost2))
+	assert_eq(player1.hand.size(), 8)
+	
