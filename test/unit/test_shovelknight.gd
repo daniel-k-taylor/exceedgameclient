@@ -1,8 +1,5 @@
 extends ExceedGutTest
 
-const TestCardId1 = 50001
-const TestCardId2 = 50002
-
 func who_am_i():
 	return "shovelknight"
 
