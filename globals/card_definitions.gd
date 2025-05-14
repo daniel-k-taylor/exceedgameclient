@@ -275,6 +275,12 @@ func get_condition_text(effect, amount, amount2, detail):
 			text += "If at arena edge, "
 		"attack_still_in_play":
 			text += "If your attack is still in play, "
+		"attacks_match_printed_speed":
+			text += "If your attack's printed speed matches the printed speed of the opponent's attack, "
+		"opponent_printed_speed_greater":
+			text += "If the printed speed of the opponent's attack is greater than the printed speed of your attack, "
+		"opponent_printed_speed_less":
+			text += "If the printed speed of the opponent's attack is less than the printed speed of your attack, "
 		"boost_in_play":
 			text += "If a boost is in play, "
 		"canceled_this_turn":
