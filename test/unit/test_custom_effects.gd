@@ -229,6 +229,138 @@ func get_custom_cards():
 					}
 				]
 			}
+		},
+		{
+			"id": "custom_opponentprintedspeedgreater",
+			"type": "special",
+			"display_name": "Patience is a virtue",
+			"force_cost": 0,
+			"gauge_cost": 0,
+			"range_min": 1,
+			"range_max": 8,
+			"power": 5,
+			"speed": 2,
+			"armor": 0,
+			"guard": 0,
+			"effects": [
+				{
+					"timing": "during_strike",
+					"condition": "opponent_printed_speed_greater",
+					"effect_type": "powerup",
+					"amount": 5
+				}
+			],
+			"boost": {
+				"boost_type": "continuous",
+				"force_cost": 0,
+				"cancel_cost": -1,
+				"display_name": "what if i just don't care",
+				"effects": [
+					{
+						"timing": "during_strike",
+						"effect_type": "stun_immunity"
+					}
+				]
+			}
+		},
+		{
+			"id": "custom_opponentprintedspeedless",
+			"type": "special",
+			"display_name": "Patience? What's that",
+			"force_cost": 0,
+			"gauge_cost": 0,
+			"range_min": 1,
+			"range_max": 8,
+			"power": 5,
+			"speed": 8,
+			"armor": 0,
+			"guard": 0,
+			"effects": [
+				{
+					"timing": "during_strike",
+					"condition": "opponent_printed_speed_less",
+					"effect_type": "powerup",
+					"amount": 5
+				}
+			],
+			"boost": {
+				"boost_type": "continuous",
+				"force_cost": 0,
+				"cancel_cost": -1,
+				"display_name": "what if i just don't care",
+				"effects": [
+					{
+						"timing": "during_strike",
+						"effect_type": "stun_immunity"
+					}
+				]
+			}
+		},
+		{
+			"id": "custom_opponentprintedspeedgreater",
+			"type": "special",
+			"display_name": "Patience is a virtue",
+			"force_cost": 0,
+			"gauge_cost": 0,
+			"range_min": 1,
+			"range_max": 8,
+			"power": 5,
+			"speed": 2,
+			"armor": 0,
+			"guard": 0,
+			"effects": [
+				{
+					"timing": "during_strike",
+					"condition": "opponent_printed_speed_greater",
+					"effect_type": "powerup",
+					"amount": 5
+				}
+			],
+			"boost": {
+				"boost_type": "continuous",
+				"force_cost": 0,
+				"cancel_cost": -1,
+				"display_name": "what if i just don't care",
+				"effects": [
+					{
+						"timing": "during_strike",
+						"effect_type": "stun_immunity"
+					}
+				]
+			}
+		},
+		{
+			"id": "custom_opponentprintedspeedless",
+			"type": "special",
+			"display_name": "Patience? What's that",
+			"force_cost": 0,
+			"gauge_cost": 0,
+			"range_min": 1,
+			"range_max": 8,
+			"power": 5,
+			"speed": 8,
+			"armor": 0,
+			"guard": 0,
+			"effects": [
+				{
+					"timing": "during_strike",
+					"condition": "opponent_printed_speed_less",
+					"effect_type": "powerup",
+					"amount": 5
+				}
+			],
+			"boost": {
+				"boost_type": "continuous",
+				"force_cost": 0,
+				"cancel_cost": -1,
+				"display_name": "what if i just don't care",
+				"effects": [
+					{
+						"timing": "during_strike",
+						"effect_type": "stun_immunity"
+					}
+				]
+			}
 		}
 	]
 
@@ -374,6 +506,28 @@ func test_custom_powerup_per_power():
 
 	# Player 1 strikes with an special with 5 power and before: powerup_per_power, amount: 1.
 	execute_strike (player1, player2, "custom_powerupperpower", "standard_normal_dive", false, false, [], [])
+
+	# Validate that player 1 is still at max life, and player 2 is at 20.
+	validate_life(player1, 30, player2, 20)
+
+# Testing opponent printed speed greater
+func test_custom_opponent_printed_speed_greater():
+	position_players(player1, 3, player2, 6)
+
+	# Player 1 strikes with an special with 5 power, 2 speed, and +5 power if opponent's attack has greater printed speed.
+	# Player 2 responds with a printed Speed 7 Grasp.
+	execute_strike (player1, player2, "custom_opponentprintedspeedgreater", "standard_normal_grasp", false, false, [], [])
+
+	# Validate that player 1 is still at max life, and player 2 is at 20.
+	validate_life(player1, 30, player2, 20)
+
+# Testing opponent printed speed less
+func test_custom_opponent_printed_speed_less():
+	position_players(player1, 3, player2, 6)
+
+	# Player 1 strikes with an special with 5 power, 8 speed, and +5 power if opponent's attack has less printed speed.
+	# Player 2 responds with a printed Speed 7 Grasp.
+	execute_strike (player1, player2, "custom_opponentprintedspeedless", "standard_normal_grasp", false, false, [], [])
 
 	# Validate that player 1 is still at max life, and player 2 is at 20.
 	validate_life(player1, 30, player2, 20)
