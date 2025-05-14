@@ -1173,6 +1173,14 @@ func is_effect_condition_met(performing_player : Player, effect, local_condition
 			var card = active_strike.get_player_card(performing_player)
 			var opposing_card = active_strike.get_player_card(other_player)
 			return card.definition['speed'] == opposing_card.definition['speed']
+		elif condition == "opponent_printed_speed_greater":
+			var card = active_strike.get_player_card(performing_player)
+			var opposing_card = active_strike.get_player_card(other_player)
+			return card.definition['speed'] < opposing_card.definition['speed']
+		elif condition == "opponent_printed_speed_less":
+			var card = active_strike.get_player_card(performing_player)
+			var opposing_card = active_strike.get_player_card(other_player)
+			return card.definition['speed'] > opposing_card.definition['speed']
 		elif condition == "boost_in_play":
 			return performing_player.get_boosts().size() > 0
 		elif condition == "no_boost_in_play":
