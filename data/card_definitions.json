@@ -26771,13 +26771,36 @@
 				},
 				{
 					"timing": "now",
-					"effect_type": "discard_continuous_boost",
-					"required": true,
-					"limitation": "mine",
-					"amount": 1,
+					"condition": "no_boost_in_play",
+					"effect_type": "discard_this",
 					"and": {
 						"effect_type": "draw",
 						"amount": 1
+					},
+					"negative_condition_effect": {
+						"is_negative_effect": true,
+						"effect_type": "choice",
+						"choice": [
+							{
+								"effect_type": "discard_this",
+								"and": {
+									"effect_type": "draw",
+									"amount": 1
+								},
+								"override_description": "Discard Troupple Chalice"
+							},
+							{
+								"effect_type": "discard_continuous_boost",
+								"required": true,
+								"limitation": "mine",
+								"amount": 1,
+								"overall_effect": {
+									"effect_type": "draw",
+									"amount": 1
+								},
+								"override_description": "Discard a different Continuous Boost you have in play"
+							}
+						]
 					}
 				}
 			]
