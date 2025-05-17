@@ -287,8 +287,8 @@ func _ready():
 	if started_directly:
 		# Started this scene directly.
 		var vs_info = {
-			'player_deck': CardDefinitions.get_deck_test_deck(),
-			'opponent_deck': CardDefinitions.get_deck_test_deck(),
+			'player_deck': CardDataManager.get_deck_test_deck(),
+			'opponent_deck': CardDataManager.get_deck_test_deck(),
 			'randomize_first_vs_ai': false
 		}
 		begin_local_game(vs_info)
@@ -387,12 +387,12 @@ func begin_remote_game(game_start_message):
 	if game_start_message.get('player1_custom_deck'):
 		p1deck = game_start_message['player1_custom_deck']
 	else:
-		p1deck = CardDefinitions.get_deck_from_str_id(game_start_message['player1_deck_id'])
+		p1deck = CardDataManager.get_deck_from_str_id(game_start_message['player1_deck_id'])
 	var p2deck
 	if game_start_message.get('player2_custom_deck'):
 		p2deck = game_start_message['player2_custom_deck']
 	else:
-		p2deck = CardDefinitions.get_deck_from_str_id(game_start_message['player2_deck_id'])
+		p2deck = CardDataManager.get_deck_from_str_id(game_start_message['player2_deck_id'])
 
 	var player1_info = {
 		'name': game_start_message['player1_name'],
@@ -430,8 +430,8 @@ func begin_remote_game(game_start_message):
 		if game_start_message['starting_player_id'] == game_start_message['player1_id']:
 			starting_player = Enums.PlayerId.PlayerId_Opponent
 
-	player_deck = CardDefinitions.convert_floats_to_ints(player_deck)
-	opponent_deck = CardDefinitions.convert_floats_to_ints(opponent_deck)
+	player_deck = CardDataManager.convert_floats_to_ints(player_deck)
+	opponent_deck = CardDataManager.convert_floats_to_ints(opponent_deck)
 
 	game_wrapper.initialize_remote_game(my_player_info,
 		opponent_player_info,
@@ -532,9 +532,9 @@ func setup_character_card(character_card, deck, buddy_character_card):
 
 	var on_exceed_text = ""
 	if 'on_exceed' in deck:
-		on_exceed_text = CardDefinitions.get_on_exceed_text(deck['on_exceed'])
-	var effect_text = on_exceed_text + CardDefinitions.get_effects_text(deck['ability_effects'])
-	var exceed_text = CardDefinitions.get_effects_text(deck['exceed_ability_effects'])
+		on_exceed_text = GameStrings.get_on_exceed_text(deck['on_exceed'])
+	var effect_text = on_exceed_text + GameStrings.get_effects_text(deck['ability_effects'])
+	var exceed_text = GameStrings.get_effects_text(deck['exceed_ability_effects'])
 	character_card.set_effect(effect_text, exceed_text)
 	character_card.set_cost(deck['exceed_cost'])
 
@@ -2454,7 +2454,7 @@ func update_discard_selection_message_choose():
 		num_remaining = select_card_require_max - len(selected_cards)
 	var bonus = ""
 	if decision_info.bonus_effect and not preparing_character_action:
-		var effect_text = CardDefinitions.get_effect_text(decision_info.bonus_effect, false, false, false, "")
+		var effect_text = GameStrings.get_effect_text(decision_info.bonus_effect, false, false, false, "")
 		bonus = "\nfor %s" % effect_text
 		if 'per_discard' in decision_info.bonus_effect and decision_info.bonus_effect['per_discard']:
 			bonus += " for each"
@@ -2570,14 +2570,14 @@ func update_gauge_for_effect_message():
 
 	if decision_effect['per_gauge_effect']:
 		var effect = decision_effect['per_gauge_effect']
-		var effect_text = CardDefinitions.get_effect_text(effect, false, false, false, source_card_name)
+		var effect_text = GameStrings.get_effect_text(effect, false, false, false, source_card_name)
 		if to_hand:
 			effect_str = "Return up to %s %s to your hand for %s per card." % [decision_effect['gauge_max'], gauge_name_str, effect_text]
 		else:
 			effect_str = "Spend up to %s %s for %s per card." % [decision_effect['gauge_max'], gauge_name_str, effect_text]
 	elif decision_effect['overall_effect']:
 		var effect = decision_effect['overall_effect']
-		var effect_text = CardDefinitions.get_effect_text(effect, false, false, false, source_card_name)
+		var effect_text = GameStrings.get_effect_text(effect, false, false, false, source_card_name)
 		if to_hand:
 			if effect_text:
 				effect_str = "Return %s %s to your hand for %s." % [decision_effect['gauge_max'], gauge_name_str, effect_text]
@@ -2677,7 +2677,7 @@ func update_force_generation_message():
 			var source_card_name = game_wrapper.get_card_database().get_card_name(game_wrapper.get_decision_info().choice_card_id)
 			if decision_effect['per_force_effect']:
 				var effect = decision_effect['per_force_effect']
-				var effect_text = CardDefinitions.get_effect_text(effect, false, false, false, source_card_name)
+				var effect_text = GameStrings.get_effect_text(effect, false, false, false, source_card_name)
 				var force_str = "up to %s" % decision_effect['force_max']
 				if decision_effect['force_max'] == -1:
 					force_str = "any amount of"
@@ -2687,7 +2687,7 @@ func update_force_generation_message():
 				effect_str = "Generate %s force for %s per %s." % [force_str, effect_text, per_force_str]
 			elif decision_effect['overall_effect']:
 				var effect = decision_effect['overall_effect']
-				var effect_text = CardDefinitions.get_effect_text(effect, false, false, false, source_card_name)
+				var effect_text = GameStrings.get_effect_text(effect, false, false, false, source_card_name)
 				effect_str = "Generate %s force for %s." % [decision_effect['force_max'], effect_text]
 			if 'force_discard_reminder' in decision_effect and decision_effect['force_discard_reminder']:
 				effect_str += "\nThe last card(s) selected will be on top of the discard pile."
@@ -3191,7 +3191,7 @@ func _on_strike_character_effect(event):
 	var player = event['event_player']
 	var effect = event['extra_info']
 	var label_text : String = ""
-	label_text += CardDefinitions.get_effect_text(effect, false, true, true, "", true)
+	label_text += GameStrings.get_effect_text(effect, false, true, true, "", true)
 	_add_bonus_label_text(player, label_text)
 
 func _add_bonus_label_text(player, new_text : String):
@@ -4168,7 +4168,7 @@ func get_effect_text_with_card_name(effect, current_text, skip_condition : bool 
 	var card_text = current_text
 	if 'card_name' in effect:
 		card_name = effect['card_name']
-	card_text += CardDefinitions.get_effect_text(effect, false, true, skip_condition, card_name)
+	card_text += GameStrings.get_effect_text(effect, false, true, skip_condition, card_name)
 	if len(_choice_text_without_tags(card_text)) > ChoiceTextLengthSoftCap:
 		var real_break_idx = 0
 		var visible_break_idx = 0
@@ -4238,10 +4238,10 @@ func update_boost_summary(player_id, boosts_card_holder, boost_box):
 	var boost_summary = ""
 	for effect in normal_effects:
 		if 'hide_effect' not in effect or not effect['hide_effect']:
-			boost_summary += CardDefinitions.get_effect_text(effect) + "\n"
+			boost_summary += GameStrings.get_effect_text(effect) + "\n"
 	for effect in transform_effects:
 		if 'hide_effect' not in effect or not effect['hide_effect']:
-			boost_summary += "[color=purple][TF][/color] " + CardDefinitions.get_effect_text(effect) + "\n"
+			boost_summary += "[color=purple][TF][/color] " + GameStrings.get_effect_text(effect) + "\n"
 
 	for card_id in card_ids:
 		var card = card_db.get_card(card_id)

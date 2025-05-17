@@ -244,7 +244,7 @@ func _get_deck_object(deck, custom_deck):
 	if deck_no_random.begins_with("custom_"):
 		return custom_deck
 	else:
-		return CardDefinitions.get_deck_from_str_id(deck_no_random)
+		return CardDataManager.get_deck_from_str_id(deck_no_random)
 
 # Handles a signal from _handle_game_start in network manager
 func _on_remote_game_started(data):
@@ -424,7 +424,7 @@ func update_char(char_id: String, is_player: bool) -> void:
 		if char_id.begins_with("custom_"):
 			deck = _custom_deck_definition
 		else:
-			deck = CardDefinitions.get_deck_from_str_id(char_id)
+			deck = CardDataManager.get_deck_from_str_id(char_id)
 		display_name = deck['display_name']
 		portrait_id = char_id
 	label.text = display_name
@@ -522,7 +522,7 @@ func _on_modal_list_join_match_pressed(row_index):
 	var selected_match = matches[row_index]
 	room_select.text = selected_match['name']
 
-	var chosen_deck = CardDefinitions.get_deck_from_str_id(player_selected_character)
+	var chosen_deck = CardDataManager.get_deck_from_str_id(player_selected_character)
 	var chosen_deck_id = chosen_deck['id']
 	if player_selected_character.begins_with("random"):
 		chosen_deck_id = player_selected_character + "#" + chosen_deck_id
@@ -587,7 +587,7 @@ func _on_file_dialog_file_selected(path):
 func load_custom(data):
 	var json = JSON.new()
 	if json.parse(data[0]) == OK:
-		_custom_deck_definition = CardDefinitions.convert_floats_to_ints(json.data)
+		_custom_deck_definition = CardDataManager.convert_floats_to_ints(json.data)
 		var deck_id = "custom_" + _custom_deck_definition["id"]
 		_custom_deck_definition["id"] = deck_id
 		update_char(deck_id, selecting_player)
@@ -600,7 +600,7 @@ func _get_deck(char_id):
 	if char_id.begins_with("custom_"):
 		return _custom_deck_definition
 	else:
-		return CardDefinitions.get_deck_from_str_id(char_id)
+		return CardDataManager.get_deck_from_str_id(char_id)
 
 
 func _on_view_cards_button_pressed() -> void:
@@ -613,7 +613,7 @@ func _on_view_cards_button_pressed() -> void:
 
 func _show_popout_for_deck(deck):
 	close_popout_button.visible = true
-	CardDefinitions.load_deck_if_custom(deck)
+	CardDataManager.load_deck_if_custom(deck)
 	var card_popout = CardPopoutScene.instantiate()
 	card_popout_parent.add_child(card_popout)
 	card_popout.close_window.connect(_on_popout_close_window)
@@ -633,7 +633,7 @@ func spawn_deck(
 	var cards = []
 	var deck_list = []
 	for deck_card_def in deck_def['cards']:
-		var card_def = CardDefinitions.get_card(deck_card_def['definition_id'])
+		var card_def = CardDataManager.get_card(deck_card_def['definition_id'])
 		var image_atlas = image_resources[deck_card_def['image_name']]
 		var image_index = deck_card_def['image_index']
 		var card = GameCard.new(-1, card_def, -1, image_atlas, image_index)

@@ -6,7 +6,7 @@ extends GutTest
 
 var game_logic : LocalGame
 var image_loader : CardImageLoader
-var default_deck = CardDefinitions.get_deck_from_str_id("solbadguy")
+var default_deck = CardDataManager.get_deck_from_str_id("solbadguy")
 
 var player1 : Player
 var player2 : Player
@@ -50,7 +50,7 @@ func after_all():
 ### Actual tests
 
 func test_list_cards():
-	default_deck = CardDefinitions.get_deck_from_str_id('ryu')
+	default_deck = CardDataManager.get_deck_from_str_id('ryu')
 	game_setup()
 	ai1.game_state.update()
 	var card_ids = ai1.generate_distinct_opponent_card_ids(ai1.game_state, false, false)
@@ -66,7 +66,7 @@ func test_list_cards():
 	game_teardown()
 
 func test_list_cards_chaos():
-	default_deck = CardDefinitions.get_deck_from_str_id('happychaos')
+	default_deck = CardDataManager.get_deck_from_str_id('happychaos')
 	game_setup()
 	ai1.game_state.update()
 	var card_ids = ai1.generate_distinct_opponent_card_ids(ai1.game_state, false, false)
@@ -82,7 +82,7 @@ func test_list_cards_chaos():
 	game_teardown()
 
 func test_name_opponent_card():
-	default_deck = CardDefinitions.get_deck_from_str_id('happychaos')
+	default_deck = CardDataManager.get_deck_from_str_id('happychaos')
 	game_setup()
 	ai1.game_state.update()
 	var name_card_action = ai1.pick_name_opponent_card(false, false)
@@ -90,7 +90,7 @@ func test_name_opponent_card():
 	game_teardown()
 
 func test_duplicate_game_state():
-	default_deck = CardDefinitions.get_deck_from_str_id('ryu')
+	default_deck = CardDataManager.get_deck_from_str_id('ryu')
 	game_setup()
 	ai1.game_state.update()
 

@@ -370,7 +370,7 @@ func _init(id, player_name, parent_ref, card_db_ref, chosen_deck, card_start_id)
 	set_aside_cards = []
 	sealed = []
 	for deck_card_def in deck_def['cards']:
-		var card_def = CardDefinitions.get_card(deck_card_def['definition_id'])
+		var card_def = CardDataManager.get_card(deck_card_def['definition_id'])
 		var image_atlas = deck_def['image_resources'][deck_card_def['image_name']]
 		var image_index = deck_card_def['image_index']
 		var card = GameCard.new(card_start_id, card_def, id, image_atlas, image_index)

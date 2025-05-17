@@ -3,7 +3,7 @@ extends GutTest
 
 var game_logic : LocalGame
 var image_loader : CardImageLoader
-var default_deck = CardDefinitions.get_deck_from_str_id("linne")
+var default_deck = CardDataManager.get_deck_from_str_id("linne")
 const TestCardId1 = 50001
 const TestCardId2 = 50002
 const TestCardId3 = 50003
@@ -28,14 +28,14 @@ func default_game_setup():
 	game_logic.get_latest_events()
 
 func give_player_specific_card(player, def_id, card_id):
-	var card_def = CardDefinitions.get_card(def_id)
+	var card_def = CardDataManager.get_card(def_id)
 	var card = GameCard.new(card_id, card_def, player.my_id)
 	var card_db = game_logic.get_card_database()
 	card_db._test_insert_card(card)
 	player.hand.append(card)
 
 func give_player_specific_gauge_card(player, def_id, card_id):
-	var card_def = CardDefinitions.get_card(def_id)
+	var card_def = CardDataManager.get_card(def_id)
 	var card = GameCard.new(card_id, card_def, player.my_id)
 	var card_db = game_logic.get_card_database()
 	card_db._test_insert_card(card)

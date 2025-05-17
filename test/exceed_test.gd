@@ -24,12 +24,12 @@ func next_id():
 func default_game_setup(alt_opponent : String = ""):
 	var custom_cards_definition = get_custom_cards()
 	if custom_cards_definition != null:
-		CardDefinitions.load_custom_cards(custom_cards_definition)
+		CardDataManager.load_custom_cards(custom_cards_definition)
 
-	var default_deck = CardDefinitions.get_deck_from_str_id(who_am_i())
+	var default_deck = CardDataManager.get_deck_from_str_id(who_am_i())
 	var opponent_deck = default_deck
 	if alt_opponent:
-		opponent_deck = CardDefinitions.get_deck_from_str_id(alt_opponent)
+		opponent_deck = CardDataManager.get_deck_from_str_id(alt_opponent)
 	image_loader = CardImageLoader.new(true)
 	game_logic = LocalGame.new(image_loader)
 	var seed_value = randi()
@@ -43,7 +43,7 @@ func default_game_setup(alt_opponent : String = ""):
 	game_logic.get_latest_events()  # just to clear the event queue
 
 func give_player_specific_card(player, def_id):
-	var card_def = CardDefinitions.get_card(def_id)
+	var card_def = CardDataManager.get_card(def_id)
 	var card_id = next_id()
 	var card = GameCard.new(card_id, card_def, player.my_id)
 	var card_db = game_logic.get_card_database()
