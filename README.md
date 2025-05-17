@@ -12,9 +12,10 @@ This project is paired with a game server written in nodeJS.
 - globals - global code scripts
 - scenes - all godot scenes and script files
     - card - card related scenes
-    - menu - menu related scenes
-    - game - everything else
+    - core - all core engine
         - ai - ai related scripts
+    - menu - menu related scenes
+    - game - all game UX focused scenes
 - test - GUT automated tests
 
 # Server
