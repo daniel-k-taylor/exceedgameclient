@@ -350,7 +350,7 @@ func get_condition_text(effect, amount, amount2, detail):
 		"opponent_speed_less_or_equal":
 			text += "If the opponent's speed is %s or lower, " % amount
 		"was_wild_swing":
-			if effect["timing"] == "opponent_set_strike":
+			if effect.get("timing") == "opponent_set_strike":
 				text += "If opponent wild swung, "
 			else:
 				text += "If this was a wild swing, "
