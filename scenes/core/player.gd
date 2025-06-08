@@ -304,6 +304,8 @@ var spaces_moved_this_strike : int
 var spaces_moved_or_forced_this_strike : int
 var sustained_boosts : Array
 var sustain_next_boost : bool
+var set_starting_face_attack : bool
+var starting_face_attack_id : String
 var buddy_starting_offset : int
 var buddy_starting_id : String
 var buddy_locations : Array[int]
@@ -432,6 +434,8 @@ func _init(id, player_name, parent_ref, card_db_ref, chosen_deck, card_start_id)
 	spaces_moved_or_forced_this_strike = 0
 	sustained_boosts = []
 	sustain_next_boost = false
+	set_starting_face_attack = false
+	starting_face_attack_id = ""
 	buddy_starting_offset = Enums.BuddyStartsOutOfArena
 	buddy_starting_id = ""
 	buddy_locations = []
@@ -504,6 +508,12 @@ func _init(id, player_name, parent_ref, card_db_ref, chosen_deck, card_start_id)
 	draw_at_end_of_turn = true
 	if 'disable_end_of_turn_draw' in deck_def:
 		draw_at_end_of_turn = not deck_def['disable_end_of_turn_draw']
+
+
+	if 'set_starting_face_attack' in deck_def:
+		set_starting_face_attack = deck_def['set_starting_face_attack']
+		if 'starting_face_attack_id' in deck_def:
+			starting_face_attack_id = deck_def['starting_face_attack_id']
 
 	if 'buddy_starting_offset' in deck_def:
 		buddy_starting_offset = deck_def['buddy_starting_offset']
