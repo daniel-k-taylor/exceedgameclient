@@ -327,6 +327,8 @@ func get_condition_text(effect, amount, amount2, detail):
 			text += "If opponent is at %s, " % detail
 		"opponent_at_max_range":
 			text += "If opponent at attack's max range, "
+		"opponent_at_min_range":
+			text += "If opponent at attack's min range, "
 		"opponent_between_buddy":
 			if 'include_buddy_space' in effect and effect['include_buddy_space']:
 				text += "If opponent is on %s or between you, " % detail
