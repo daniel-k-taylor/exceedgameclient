@@ -299,6 +299,8 @@ var starting_hand_size_bonus : int
 var draw_at_end_of_turn : int
 var pre_strike_movement : int
 var moved_self_this_strike : bool
+var was_pushed_or_pulled_this_strike : bool
+var spaces_forced_moved_this_strike : int
 var moved_past_this_strike : bool
 var spaces_moved_this_strike : int
 var spaces_moved_or_forced_this_strike : int
@@ -2431,6 +2433,9 @@ func on_position_changed(old_pos, buddy_old_pos, is_self_move):
 		if is_self_move:
 			moved_self_this_strike = true
 			spaces_moved_this_strike += spaces_moved
+		else:
+			was_pushed_or_pulled_this_strike = true
+			spaces_forced_moved_this_strike += spaces_moved
 
 	var buddy_location = get_buddy_location()
 	if is_in_location(buddy_location):

@@ -716,10 +716,14 @@ func advance_to_next_turn():
 	opponent.gauge_cards_spent_this_strike = []
 	player.moved_self_this_strike = false
 	opponent.moved_self_this_strike = false
+	player.was_pushed_or_pulled_this_strike = false
+	opponent.was_pushed_or_pulled_this_strike = false
 	player.moved_past_this_strike = false
 	opponent.moved_past_this_strike = false
 	player.spaces_moved_this_strike = 0
 	opponent.spaces_moved_this_strike = 0
+	player.spaces_forced_moved_this_strike = 0
+	opponent.spaces_forced_moved_this_strike = 0
 	player.spaces_moved_or_forced_this_strike = 0
 	opponent.spaces_moved_or_forced_this_strike = 0
 	player.cards_that_will_not_hit = []
@@ -1130,6 +1134,10 @@ func is_effect_condition_met(performing_player : Player, effect, local_condition
 			return not performing_player.moved_self_this_strike
 		elif condition == "opponent_not_moved_this_strike":
 			return not other_player.moved_self_this_strike
+		elif condition == "was_pushed_or_pulled_this_strike":
+			return performing_player.was_pushed_or_pulled_this_strike
+		elif condition == "opponent_was_pushed_or_pulled_this_strike":
+			return other_player.was_pushed_or_pulled_this_strike
 		elif condition == "initiated_at_range":
 			var range_min = effect['range_min']
 			var range_max = effect['range_max']
@@ -1150,6 +1158,12 @@ func is_effect_condition_met(performing_player : Player, effect, local_condition
 		elif condition == "moved_during_strike":
 			var required_amount = effect['condition_amount']
 			return performing_player.spaces_moved_this_strike >= required_amount
+		elif condition == "was_moved":
+			var required_amount = effect['condition_amount']
+			return performing_player.spaces_forced_moved_this_strike >= required_amount
+		elif condition == "opponent_was_moved":
+			var required_amount = effect['condition_amount']
+			return other_player.spaces_forced_moved_this_strike >= required_amount
 		elif condition == "opponent_moved_or_was_moved":
 			var required_amount = effect['condition_amount']
 			return other_player.spaces_moved_or_forced_this_strike >= required_amount

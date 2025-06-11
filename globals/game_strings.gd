@@ -226,6 +226,10 @@ func get_condition_text(effect, amount, amount2, detail):
 			text += "If opponent initiated strike, "
 		"not_moved_self_this_strike":
 			text += "If you have not moved yourself this strike, "
+		"was_pushed_or_pulled_this_strike":
+			text += "If you were moved by the opponent this strike, "
+		"opponent_was_pushed_or_pulled_this_strike":
+			text += "If you moved the opponent this strike, "
 		"opponent_not_moved_this_strike":
 			text += "If the opponent did not move themselves this strike, "
 		"moved_during_strike":
