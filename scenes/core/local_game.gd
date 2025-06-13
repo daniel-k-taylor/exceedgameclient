@@ -1158,10 +1158,10 @@ func is_effect_condition_met(performing_player : Player, effect, local_condition
 		elif condition == "moved_during_strike":
 			var required_amount = effect['condition_amount']
 			return performing_player.spaces_moved_this_strike >= required_amount
-		elif condition == "was_moved":
+		elif condition == "was_moved_during_strike":
 			var required_amount = effect['condition_amount']
 			return performing_player.spaces_forced_moved_this_strike >= required_amount
-		elif condition == "opponent_was_moved":
+		elif condition == "opponent_was_moved_during_strike":
 			var required_amount = effect['condition_amount']
 			return other_player.spaces_forced_moved_this_strike >= required_amount
 		elif condition == "opponent_moved_or_was_moved":

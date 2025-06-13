@@ -234,6 +234,10 @@ func get_condition_text(effect, amount, amount2, detail):
 			text += "If the opponent did not move themselves this strike, "
 		"moved_during_strike":
 			text += "If you moved at least %s space(s) this strike, " % amount
+		"was_moved_during_strike":
+			text += "If you were moved at least %s space(s) this strike, " % amount
+		"opponent_was_moved_during_strike":
+			text += "If the opponent was moved at least %s space(s) this strike, "  % amount
 		"moved_past":
 			text += "If you moved past the opponent, "
 		"min_cards_in_deck":
