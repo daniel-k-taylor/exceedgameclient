@@ -5,14 +5,6 @@ Some of these conditions may require additional sibling fields in the same JSON 
 The conditions listed in this document will contain conditions that are used by base game characters, as well as ones that are only used by custom characters.
 This list is currently incomplete and will be gradually updated.
 
-`was_pushed_or_pulled_this_strike`
-Returns true if your character had been pushed or pulled during this strike.
-(Does not count if the you did not move from being pushed/pulled)
-
-`opponent_was_pushed_or_pulled_this_strike`
-Returns true if the opponent had been pushed or pulled during this strike.
-(Does not count if the opponent did not move from being pushed/pulled)
-
 `was_moved_during_strike`
 Required fields: `condition_amount`
 Returns true if your character had been pushed or pulled at least `condition_amount` spaces during this strike.
