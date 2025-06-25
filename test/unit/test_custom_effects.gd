@@ -400,6 +400,79 @@ func get_custom_cards():
 					}
 				]
 			}
+		},
+		{
+			"id": "custom_opponentpushedorpulled",
+			"type": "special",
+			"display_name": "Opponent push or pull checker",
+			"force_cost": 0,
+			"gauge_cost": 0,
+			"range_min": 1,
+			"range_max": 8,
+			"power": 5,
+			"speed": 7,
+			"armor": 0,
+			"guard": 0,
+			"effects": [
+				{
+					"timing": "hit",
+					"effect_type": "push",
+					"amount": 8,
+					"and": 
+					{
+						"condition": "opponent_was_moved_during_strike",
+						"condition_amount": 4,
+						"effect_type": "draw",
+						"amount": 8
+					}
+				}
+			],
+			"boost": {
+				"boost_type": "continuous",
+				"force_cost": 0,
+				"cancel_cost": -1,
+				"display_name": "whatever",
+				"effects": [
+					{
+						"timing": "during_strike",
+						"effect_type": "stun_immunity"
+					}
+				]
+			}
+		},
+		{
+			"id": "custom_playerpushedorpulled",
+			"type": "special",
+			"display_name": "Player push or pull checker",
+			"force_cost": 0,
+			"gauge_cost": 0,
+			"range_min": 1,
+			"range_max": 8,
+			"power": 5,
+			"speed": 1,
+			"armor": 0,
+			"guard": 9,
+			"effects": [
+				{
+					"timing": "hit",
+					"condition": "was_moved_during_strike",
+					"condition_amount": 3,
+					"effect_type": "draw",
+					"amount": 8
+				}
+			],
+			"boost": {
+				"boost_type": "continuous",
+				"force_cost": 0,
+				"cancel_cost": -1,
+				"display_name": "whatever",
+				"effects": [
+					{
+						"timing": "during_strike",
+						"effect_type": "stun_immunity"
+					}
+				]
+			}
 		}
 	]
 
@@ -581,6 +654,19 @@ func test_custom_opponent_at_min_range():
 
 	# Validate that player 1 is still at max life, and player 2 is at 25.
 	validate_life(player1, 30, player2, 25)
+
+# Testing condition that checks if opponent / player was pushed or pulled by the other player.
+func test_custom_condition_opponent_was_moved():
+	position_players(player1, 1, player2, 4)
+
+	# P1 strikes with an attack that pushes 8.  If P2 was pushed, P1 draws 8.
+	# P2 responds with an attack that draws 8 if they were pushed.
+	execute_strike(player1, player2, "custom_opponentpushedorpulled", "custom_playerpushedorpulled")
+
+	validate_positions(player1, 1, player2, 9)
+	assert_eq(player1.hand.size(), 13)
+	assert_eq(player2.hand.size(), 14)
+	validate_life(player1, 25, player2, 25)
 
 ## Testing of name_speed + opponent_discard_speed_or_reveal boost:
 ## The below 6 tests are modified from the Zangief tests for his Intimidate boost.
