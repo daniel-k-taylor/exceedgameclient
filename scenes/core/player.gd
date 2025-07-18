@@ -299,11 +299,14 @@ var starting_hand_size_bonus : int
 var draw_at_end_of_turn : int
 var pre_strike_movement : int
 var moved_self_this_strike : bool
+var spaces_forced_moved_this_strike : int
 var moved_past_this_strike : bool
 var spaces_moved_this_strike : int
 var spaces_moved_or_forced_this_strike : int
 var sustained_boosts : Array
 var sustain_next_boost : bool
+var set_starting_face_attack : bool
+var starting_face_attack_id : String
 var buddy_starting_offset : int
 var buddy_starting_id : String
 var buddy_locations : Array[int]
@@ -370,7 +373,7 @@ func _init(id, player_name, parent_ref, card_db_ref, chosen_deck, card_start_id)
 	set_aside_cards = []
 	sealed = []
 	for deck_card_def in deck_def['cards']:
-		var card_def = CardDefinitions.get_card(deck_card_def['definition_id'])
+		var card_def = CardDataManager.get_card(deck_card_def['definition_id'])
 		var image_atlas = deck_def['image_resources'][deck_card_def['image_name']]
 		var image_index = deck_card_def['image_index']
 		var card = GameCard.new(card_start_id, card_def, id, image_atlas, image_index)
@@ -432,6 +435,8 @@ func _init(id, player_name, parent_ref, card_db_ref, chosen_deck, card_start_id)
 	spaces_moved_or_forced_this_strike = 0
 	sustained_boosts = []
 	sustain_next_boost = false
+	set_starting_face_attack = false
+	starting_face_attack_id = ""
 	buddy_starting_offset = Enums.BuddyStartsOutOfArena
 	buddy_starting_id = ""
 	buddy_locations = []
@@ -504,6 +509,12 @@ func _init(id, player_name, parent_ref, card_db_ref, chosen_deck, card_start_id)
 	draw_at_end_of_turn = true
 	if 'disable_end_of_turn_draw' in deck_def:
 		draw_at_end_of_turn = not deck_def['disable_end_of_turn_draw']
+
+
+	if 'set_starting_face_attack' in deck_def:
+		set_starting_face_attack = deck_def['set_starting_face_attack']
+		if 'starting_face_attack_id' in deck_def:
+			starting_face_attack_id = deck_def['starting_face_attack_id']
 
 	if 'buddy_starting_offset' in deck_def:
 		buddy_starting_offset = deck_def['buddy_starting_offset']
@@ -2421,6 +2432,8 @@ func on_position_changed(old_pos, buddy_old_pos, is_self_move):
 		if is_self_move:
 			moved_self_this_strike = true
 			spaces_moved_this_strike += spaces_moved
+		else:
+			spaces_forced_moved_this_strike += spaces_moved
 
 	var buddy_location = get_buddy_location()
 	if is_in_location(buddy_location):

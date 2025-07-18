@@ -4,7 +4,7 @@ extends GutTest
 
 var game_logic : LocalGame
 var image_loader : CardImageLoader
-var default_deck = CardDefinitions.get_deck_from_str_id("solbadguy")
+var default_deck = CardDataManager.get_deck_from_str_id("solbadguy")
 
 func default_game_setup():
 	image_loader = CardImageLoader.new(true)

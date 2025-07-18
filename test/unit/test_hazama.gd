@@ -3,7 +3,7 @@ extends GutTest
 
 var game_logic : LocalGame
 var image_loader : CardImageLoader
-var default_deck = CardDefinitions.get_deck_from_str_id("hazama")
+var default_deck = CardDataManager.get_deck_from_str_id("hazama")
 const TestCardId1 = 50001
 const TestCardId2 = 50002
 const TestCardId3 = 50003
@@ -16,7 +16,7 @@ var player2 : Player
 func default_game_setup(alt_opponent : String = ""):
 	var opponent_deck = default_deck
 	if alt_opponent:
-		opponent_deck = CardDefinitions.get_deck_from_str_id(alt_opponent)
+		opponent_deck = CardDataManager.get_deck_from_str_id(alt_opponent)
 	image_loader = CardImageLoader.new(true)
 	game_logic = LocalGame.new(image_loader)
 	var seed_value = randi()
@@ -29,7 +29,7 @@ func default_game_setup(alt_opponent : String = ""):
 	game_logic.get_latest_events()
 
 func give_player_specific_card(player, def_id, card_id):
-	var card_def = CardDefinitions.get_card(def_id)
+	var card_def = CardDataManager.get_card(def_id)
 	var card = GameCard.new(card_id, card_def, player.my_id)
 	var card_db = game_logic.get_card_database()
 	card_db._test_insert_card(card)

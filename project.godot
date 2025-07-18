@@ -18,7 +18,8 @@ config/windows_native_icon="res://assets/icons/windows_icon/icon.ico"
 
 [autoload]
 
-CardDefinitions="*res://globals/card_definitions.gd"
+CardDataManager="*res://globals/card_data_manager.gd"
+GameStrings="*res://globals/game_strings.gd"
 NetworkManager="*res://globals/network_manager.gd"
 GlobalSettings="*res://globals/global_settings.gd"
 ImageCache="*res://globals/image_cache.gd"
@@ -71,3 +72,4 @@ texture={
 
 renderer/rendering_method="gl_compatibility"
 renderer/rendering_method.mobile="gl_compatibility"
+textures/vram_compression/import_etc2_astc=true

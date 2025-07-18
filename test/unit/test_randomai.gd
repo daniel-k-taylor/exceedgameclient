@@ -7,8 +7,8 @@ const RandomIterations = 1
 
 var game_logic : LocalGame
 var image_loader : CardImageLoader
-var default_deck = CardDefinitions.get_deck_from_str_id("solbadguy")
-var opponent_deck = CardDefinitions.get_deck_from_str_id("solbadguy")
+var default_deck = CardDataManager.get_deck_from_str_id("solbadguy")
+var opponent_deck = CardDataManager.get_deck_from_str_id("solbadguy")
 
 var player1 : Player
 var player2 : Player
@@ -418,9 +418,9 @@ func test_random_ai_players():
 	game_teardown()
 
 func run_iterations_with_deck(deck_id : String):
-	default_deck = CardDefinitions.get_deck_from_str_id(deck_id)
+	default_deck = CardDataManager.get_deck_from_str_id(deck_id)
 	for i in range(RandomIterations):
-		opponent_deck = CardDefinitions.get_deck_from_str_id(
+		opponent_deck = CardDataManager.get_deck_from_str_id(
 				"random" if i > 0 else deck_id)
 		game_setup()
 		print("==== RUNNING TEST %d vs %s ====" % [i + 1, opponent_deck['id']])

@@ -1,0 +1,1 @@
+..\Godot_v4.4.1-stable_win64.exe -s addons/gut/gut_cmdln.gd -gdir=res://test\unit -gexit

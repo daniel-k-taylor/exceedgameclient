@@ -540,8 +540,8 @@ func initialize_game(
 ):
 	random_number_generator.seed = seed_value
 	card_db = CardDatabase.new(image_loader)
-	CardDefinitions.load_deck_if_custom(player_deck)
-	CardDefinitions.load_deck_if_custom(opponent_deck)
+	CardDataManager.load_deck_if_custom(player_deck)
+	CardDataManager.load_deck_if_custom(opponent_deck)
 	var player_card_id_start = 100
 	var opponent_card_id_start = 200
 	if first_player == Enums.PlayerId.PlayerId_Opponent:
@@ -566,12 +566,28 @@ func initialize_game(
 	var second_player = _get_player(next_turn_player)
 	starting_player.arena_location = 3
 	starting_player.starting_location = 3
+	if (starting_player.set_starting_face_attack) && (starting_player.starting_face_attack_id != ""):
+		handle_strike_effect(
+			-1, 
+			{
+				"effect_type": "set_face_attack",
+				"card_id": starting_player.starting_face_attack_id
+			},
+			starting_player)
 	if starting_player.buddy_starting_offset != Enums.BuddyStartsOutOfArena:
 		var buddy_space = 3 + starting_player.buddy_starting_offset
 		starting_player.place_buddy(buddy_space,
 			starting_player.buddy_starting_id, true)
 	second_player.arena_location = 7
 	second_player.starting_location = 7
+	if (second_player.set_starting_face_attack) && (second_player.starting_face_attack_id != ""):
+		handle_strike_effect(
+			-1, 
+			{
+				"effect_type": "set_face_attack",
+				"card_id": second_player.starting_face_attack_id
+			},
+			second_player)
 	if second_player.buddy_starting_offset != Enums.BuddyStartsOutOfArena:
 		var buddy_space = 7 - second_player.buddy_starting_offset
 		second_player.place_buddy(buddy_space, second_player.buddy_starting_id, true)
@@ -704,6 +720,8 @@ func advance_to_next_turn():
 	opponent.moved_past_this_strike = false
 	player.spaces_moved_this_strike = 0
 	opponent.spaces_moved_this_strike = 0
+	player.spaces_forced_moved_this_strike = 0
+	opponent.spaces_forced_moved_this_strike = 0
 	player.spaces_moved_or_forced_this_strike = 0
 	opponent.spaces_moved_or_forced_this_strike = 0
 	player.cards_that_will_not_hit = []
@@ -1134,6 +1152,12 @@ func is_effect_condition_met(performing_player : Player, effect, local_condition
 		elif condition == "moved_during_strike":
 			var required_amount = effect['condition_amount']
 			return performing_player.spaces_moved_this_strike >= required_amount
+		elif condition == "was_moved_during_strike":
+			var required_amount = effect['condition_amount']
+			return performing_player.spaces_forced_moved_this_strike >= required_amount
+		elif condition == "opponent_was_moved_during_strike":
+			var required_amount = effect['condition_amount']
+			return other_player.spaces_forced_moved_this_strike >= required_amount
 		elif condition == "opponent_moved_or_was_moved":
 			var required_amount = effect['condition_amount']
 			return other_player.spaces_moved_or_forced_this_strike >= required_amount
@@ -1506,6 +1530,11 @@ func is_effect_condition_met(performing_player : Player, effect, local_condition
 			var max_range = get_total_max_range(performing_player)
 			var origin = get_attack_origin(performing_player, other_player.arena_location)
 			return other_player.is_in_range_of_location(origin, max_range, max_range)
+		elif condition == "opponent_at_min_range":
+			assert(active_strike)
+			var min_range = get_total_min_range(performing_player)
+			var origin = get_attack_origin(performing_player, other_player.arena_location)
+			return other_player.is_in_range_of_location(origin, min_range, min_range)
 		elif condition == "opponent_stunned":
 			return active_strike.is_player_stunned(other_player)
 		elif condition == "overdrive_empty":
@@ -3372,6 +3401,38 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 			else:
 				assert(false, "Target effect for name_range not found.")
 				decision_info.clear()
+		"name_speed":
+			decision_info.clear()
+			decision_info.type = Enums.DecisionType.DecisionType_PickNumberFromRange
+			decision_info.player = performing_player.my_id
+			decision_info.choice_card_id = card_id
+			decision_info.choice = []
+			decision_info.limitation = []
+			if effect['target_effect'] == "opponent_discard_speed_or_reveal":
+				decision_info.amount_min = 0	
+				decision_info.amount = 10
+				decision_info.valid_zones = ["Speed X"]
+				decision_info.effect_type = "have opponent discard a card including that Speed or reveal their hand"
+				for i in range(decision_info.amount + 1):
+					decision_info.limitation.append(i)
+					decision_info.choice.append({
+						"effect_type": "opponent_discard_speed_or_reveal",
+						"target_speed": i,
+						"amount": 1
+					})
+				var next_num = decision_info.amount + 1
+				for i in range(1):
+					decision_info.limitation.append(next_num)
+					decision_info.choice.append({
+						"effect_type": "opponent_discard_speed_or_reveal",
+						"target_speed": decision_info.valid_zones[i],
+						"amount": 1
+					})
+				change_game_state(Enums.GameState.GameState_PlayerDecision)
+				create_event(Enums.EventType.EventType_PickNumberFromRange, performing_player.my_id, 0)
+			else:
+				assert(false, "Target effect for name_range not found.")
+				decision_info.clear()
 		"negate_boost":
 			assert(active_boost)
 			_append_log_full(Enums.LogType.LogType_Effect, active_boost.playing_player, "'s boost effect is negated.")
@@ -3409,7 +3470,6 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 				decision_info.choice_card_id = card_id
 				decision_info.player = opposing_player.my_id
 				create_event(Enums.EventType.EventType_Strike_ChooseToDiscard, opposing_player.my_id, amount)
-
 		"opponent_discard_range_or_reveal":
 			var target_range = effect['target_range']
 			var range_name_str = target_range
@@ -3461,10 +3521,57 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 					decision_info.extra_info = "include Range %s" % target_range
 				decision_info.choice = card_ids_in_range
 				decision_info.can_pass = false
-
 				decision_info.choice_card_id = card_id
 				decision_info.player = opposing_player.my_id
 				create_event(Enums.EventType.EventType_Strike_ChooseToDiscard, opposing_player.my_id, amount)
+			else:
+				# Didn't have any that matched, so forced to reveal hand.
+				_append_log_full(Enums.LogType.LogType_Effect, opposing_player, "has no matching cards so their hand is revealed.")
+				opposing_player.reveal_hand()
+		"opponent_discard_speed_or_reveal":
+			var target_speed = effect['target_speed']
+			var speed_name_str = target_speed
+			if not target_speed is String:
+				speed_name_str = "Speed %s" % target_speed
+			_append_log_full(Enums.LogType.LogType_Effect, performing_player, "names %s." % speed_name_str)
+			var card_ids_in_range = []
+			if target_speed is String:
+				if target_speed == "Speed X":
+					# If the speed is a string like "CARDS_IN_HAND".
+					for card in opposing_player.hand:
+						if card.definition['speed'] is String:
+							card_ids_in_range.append(card.id)
+				else:
+					assert(false, "Unknown target range")
+			else:
+				# If the range is an actual number.
+				for card in opposing_player.hand:
+					# Evaluate any special ranges via get_card_stat.
+					var card_speed = get_card_stat(opposing_player, card, 'speed')
+					if is_number(card_speed):
+						if target_speed == card_speed:
+							card_ids_in_range.append(card.id)
+			if card_ids_in_range.size() > 0:
+				# Opponent must choose one of these cards to discard.
+				var amount = effect['amount']
+				change_game_state(Enums.GameState.GameState_PlayerDecision)
+				decision_info.clear()
+				decision_info.type = Enums.DecisionType.DecisionType_ChooseToDiscard
+				decision_info.effect_type = "opponent_discard_choose_internal"
+				decision_info.effect = effect
+				decision_info.bonus_effect = null
+				decision_info.destination = "discard"
+				decision_info.limitation = "from_array"
+				if target_speed is String:
+					decision_info.extra_info = "include %s" % target_speed
+				else:
+					decision_info.extra_info = "include Speed %s" % target_speed
+				decision_info.choice = card_ids_in_range
+				decision_info.can_pass = false
+				decision_info.choice_card_id = card_id
+				decision_info.player = opposing_player.my_id
+				create_event(Enums.EventType.EventType_Strike_ChooseToDiscard, opposing_player.my_id, amount)
+				
 			else:
 				# Didn't have any that matched, so forced to reveal hand.
 				_append_log_full(Enums.LogType.LogType_Effect, opposing_player, "has no matching cards so their hand is revealed.")

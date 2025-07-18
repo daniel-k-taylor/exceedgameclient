@@ -86,7 +86,7 @@ func _handle_server_response(data):
 		print("Error parsing JSON from server: ", data)
 		return
 
-	var data_obj = CardDefinitions.convert_floats_to_ints(parser.get_data())
+	var data_obj = CardDataManager.convert_floats_to_ints(parser.get_data())
 	var type = data_obj["type"]
 	match type:
 		"server_hello":
@@ -227,9 +227,9 @@ func _handle_players_update(message):
 		var host_deck_icon_path = ""
 		var opponent_deck_icon_path = ""
 		if decks[0]:
-			host_deck_icon_path = CardDefinitions.get_portrait_asset_path(decks[0])
+			host_deck_icon_path = CardDataManager.get_portrait_asset_path(decks[0])
 		if decks[1]:
-			opponent_deck_icon_path = CardDefinitions.get_portrait_asset_path(decks[1])
+			opponent_deck_icon_path = CardDataManager.get_portrait_asset_path(decks[1])
 		var match_info = {
 			"name": room_name,
 			"host": host,
@@ -251,7 +251,7 @@ func _handle_customs_update(message):
 	var new_customs = message["customs"]
 	# Update all keys in cached_customs.
 	for key in new_customs.keys():
-		cached_customs[key] = CardDefinitions.convert_floats_to_ints(new_customs[key])
+		cached_customs[key] = CardDataManager.convert_floats_to_ints(new_customs[key])
 	customs_update.emit(cached_customs)
 
 ### Commands ###
