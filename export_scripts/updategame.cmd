@@ -7,6 +7,7 @@ REM TODO: Make this more easily runnable straight from the project.
 
 set "DirectoryPath=..\export"
 set "WindowsNativePath=..\export_native\windows"
+set "AndroidNativePath=..\export_native\android"
 
 REM Delete the existing game.zip if it exists
 if exist "%DirectoryPath%\game.zip" (
@@ -45,5 +46,12 @@ if errorlevel 1 (
 )
 
 "%butlerCommand%" push "%WindowsNativePath%\exceedgg_windows.zip" daktagames/exceedgg:windows
+
+REM Now for the Android version
+if exist "%AndroidNativePath%\exceedgg.apk" (
+    "%butlerCommand%" push "%AndroidNativePath%\exceedgg.apk" daktagames/exceedgg:android
+) else (
+    echo Warning: Android APK not found at %AndroidNativePath%\exceedgg.apk
+)
 
 endlocal
