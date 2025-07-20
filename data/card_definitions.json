@@ -17006,7 +17006,7 @@
 				"effect_type": "place_boost_in_space",
 				"in_attack_range": true,
 				"optional": true,
-				"and": {
+				"if_placed_effect": {
 					"effect_type": "boost_this_then_sustain",
 					"dont_sustain": true
 				}
