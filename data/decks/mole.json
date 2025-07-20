@@ -73,7 +73,8 @@
 						"condition_detail": "Burrow",
 						"effect_type": "move_to_buddy",
 						"buddy_name": "Burrow",
-						"bonus_effect": {
+						"use_semicolon_for_and": true,
+						"and": {
 							"condition": "on_buddy_space",
 							"condition_detail": "Burrow",
 							"effect_type": "powerup",

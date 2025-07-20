@@ -415,7 +415,8 @@
 				"timing": "before",
 				"effect_type": "close",
 				"amount": 2,
-				"bonus_effect": {
+				"use_semicolon_for_and": true,
+				"and": {
 					"condition": "was_hit",
 					"effect_type": "powerup",
 					"amount": 2
@@ -515,7 +516,8 @@
 				"timing": "before",
 				"effect_type": "advance",
 				"amount": 3,
-				"bonus_effect": {
+				"use_semicolon_for_and": true,
+				"and": {
 					"condition": "was_hit",
 					"effect_type": "powerup",
 					"amount": 2
@@ -1250,7 +1252,8 @@
 				"timing": "hit",
 				"effect_type": "push",
 				"amount": 1,
-				"bonus_effect": {
+				"use_semicolon_for_and": true,
+				"and": {
 					"condition": "not_full_push",
 					"effect_type": "powerup",
 					"amount": 2
@@ -2160,7 +2163,8 @@
 					"timing": "immediate",
 					"effect_type": "advance",
 					"amount": 3,
-					"bonus_effect": {
+					"use_semicolon_for_and": true,
+					"and": {
 						"condition": "advanced_through",
 						"effect_type": "choice",
 						"choice": [
@@ -5406,7 +5410,8 @@
 					"timing": "immediate",
 					"effect_type": "advance",
 					"amount": 2,
-					"bonus_effect": {
+					"use_semicolon_for_and": true,
+					"and": {
 						"condition": "advanced_through",
 						"effect_type": "opponent_discard_random",
 						"amount": 1
@@ -5812,7 +5817,8 @@
 				"move_in_attack_range": true,
 				"advance_only": true,
 				"optional": true,
-				"bonus_effect": {
+				"use_semicolon_for_and": true,
+				"and": {
 					"condition": "advanced_through",
 					"effect_type": "gain_advantage"
 				}
@@ -5985,7 +5991,8 @@
 					"timing": "immediate",
 					"effect_type": "advance",
 					"amount": 4,
-					"bonus_effect": {
+					"use_semicolon_for_and": true,
+					"and": {
 						"condition": "advanced_through",
 						"effect_type": "choice",
 						"choice": [
@@ -6474,7 +6481,8 @@
 				"timing": "before",
 				"effect_type": "advance",
 				"amount": 3,
-				"bonus_effect": {
+				"use_semicolon_for_and": true,
+				"and": {
 					"condition": "advanced_through",
 					"effect_type": "powerup",
 					"amount": 3
@@ -7164,7 +7172,8 @@
 				"timing": "before",
 				"effect_type": "advance",
 				"amount": 3,
-				"bonus_effect": {
+				"use_semicolon_for_and": true,
+				"and": {
 					"condition": "advanced_through",
 					"effect_type": "attack_does_not_hit"
 				}
@@ -7869,19 +7878,23 @@
 					"effect_type": "choice",
 					"opponent": true,
 					"choice": [
-						{ "effect_type": "advance", "amount": 1, "bonus_effect": {
+						{ "effect_type": "advance", "amount": 1, "use_semicolon_for_and": true,
+						  "and": {
 							"condition": "moved_less_than", "condition_amount": 2,
 							"effect_type": "take_damage", "nonlethal": true, "amount": 5
 						} },
-						{ "effect_type": "advance", "amount": 2, "bonus_effect": {
+						{ "effect_type": "advance", "amount": 2, "use_semicolon_for_and": true,
+						  "and": {
 							"condition": "moved_less_than", "condition_amount": 2,
 							"effect_type": "take_damage", "nonlethal": true, "amount": 5
 						} },
-						{ "effect_type": "retreat", "amount": 1, "bonus_effect": {
+						{ "effect_type": "retreat", "amount": 1, "use_semicolon_for_and": true,
+						  "and": {
 							"condition": "moved_less_than", "condition_amount": 2,
 							"effect_type": "take_damage", "nonlethal": true, "amount": 5
 						} },
-						{ "effect_type": "retreat", "amount": 2, "bonus_effect": {
+						{ "effect_type": "retreat", "amount": 2, "use_semicolon_for_and": true,
+						  "and": {
 							"condition": "moved_less_than", "condition_amount": 2,
 							"effect_type": "take_damage", "nonlethal": true, "amount": 5
 						} },
@@ -9079,7 +9092,8 @@
 						{
 							"effect_type": "advance",
 							"amount": 2,
-							"bonus_effect": {
+							"use_semicolon_for_and": true,
+							"and": {
 								"condition": "not_advanced_through",
 								"effect_type": "add_to_gauge_boost_play_cleanup"
 							}
@@ -9303,7 +9317,8 @@
 					"timing": "immediate",
 					"effect_type": "advance",
 					"amount": 3,
-					"bonus_effect": {
+					"use_semicolon_for_and": true,
+					"and": {
 						"condition": "advanced_through",
 						"effect_type": "bonus_action"
 					}
@@ -10718,7 +10733,8 @@
 					{
 						"effect_type": "advance",
 						"amount": 2,
-						"bonus_effect": {
+						"use_semicolon_for_and": true,
+						"and": {
 							"condition": "advanced_through",
 							"effect_type": "draw",
 							"amount": 1
@@ -10902,7 +10918,8 @@
 				"timing": "hit",
 				"effect_type": "pull",
 				"amount": 2,
-				"bonus_effect": {
+				"use_semicolon_for_and": true,
+				"and": {
 					"condition": "range",
 					"condition_amount": 1,
 					"effect_type": "gain_advantage"
@@ -11093,7 +11110,8 @@
 				"timing": "before",
 				"effect_type": "advance",
 				"amount": 3,
-				"bonus_effect": {
+				"use_semicolon_for_and": true,
+				"and": {
 					"condition": "not_advanced_through",
 					"effect_type": "powerup",
 					"amount": 2
@@ -11817,7 +11835,8 @@
 				"timing": "before",
 				"effect_type": "advance",
 				"amount": 1,
-				"bonus_effect": {
+				"use_semicolon_for_and": true,
+				"and": {
 					"condition": "advanced_through",
 					"effect_type": "ignore_guard"
 				}
@@ -13260,7 +13279,8 @@
 				"timing": "before",
 				"effect_type": "close",
 				"amount": 2,
-				"bonus_effect": {
+				"use_semicolon_for_and": true,
+				"and": {
 					"condition": "not_full_close",
 					"effect_type": "ignore_guard"
 				}
@@ -14024,7 +14044,8 @@
 				"timing": "hit",
 				"effect_type": "push",
 				"amount": 2,
-				"bonus_effect": {
+				"use_semicolon_for_and": true,
+				"and": {
 					"condition": "opponent_at_edge_of_arena",
 					"effect_type": "gain_advantage"
 				}
@@ -14079,7 +14100,8 @@
 				"timing": "before",
 				"effect_type": "advance",
 				"amount": 2,
-				"bonus_effect": {
+				"use_semicolon_for_and": true,
+				"and": {
 					"condition": "not_advanced_through",
 					"effect_type": "powerup",
 					"amount": 3
@@ -14973,7 +14995,8 @@
 				"timing": "hit",
 				"effect_type": "push",
 				"amount": 3,
-				"bonus_effect": {
+				"use_semicolon_for_and": true,
+				"and": {
 					"condition": "range",
 					"condition_amount": 4,
 					"effect_type": "draw_any_number"
@@ -15557,7 +15580,8 @@
 				"timing": "before",
 				"effect_type": "advance",
 				"amount": 3,
-				"bonus_effect": {
+				"use_semicolon_for_and": true,
+				"and": {
 					"condition": "not_advanced_through",
 					"effect_type": "draw",
 					"amount": 1
@@ -15603,7 +15627,8 @@
 				"timing": "hit",
 				"effect_type": "push",
 				"amount": 2,
-				"bonus_effect": {
+				"use_semicolon_for_and": true,
+				"and": {
 					"condition": "not_full_push",
 					"effect_type": "draw",
 					"amount": 2
@@ -15785,7 +15810,8 @@
 				"timing": "before",
 				"effect_type": "advance",
 				"amount": 2,
-				"bonus_effect": {
+				"use_semicolon_for_and": true,
+				"and": {
 					"condition": "advanced_through",
 					"effect_type": "exceed_now"
 				}
@@ -17304,7 +17330,8 @@
 				"timing": "before",
 				"effect_type": "close",
 				"amount": 2,
-				"bonus_effect": {
+				"use_semicolon_for_and": true,
+				"and": {
 					"condition": "not_full_close",
 					"effect_type": "powerup",
 					"amount": 2
@@ -18066,7 +18093,8 @@
 				"timing": "after",
 				"effect_type": "close",
 				"amount": 1,
-				"bonus_effect": {
+				"use_semicolon_for_and": true,
+				"and": {
 					"condition": "opponent_at_edge_of_arena",
 					"effect_type": "gain_advantage"
 				}
@@ -18114,7 +18142,8 @@
 				"timing": "before",
 				"effect_type": "advance",
 				"amount": 2,
-				"bonus_effect": {
+				"use_semicolon_for_and": true,
+				"and": {
 					"condition": "advanced_through",
 					"effect_type": "attack_does_not_hit"
 				}
@@ -18372,7 +18401,8 @@
 				"timing": "before",
 				"effect_type": "advance",
 				"amount": 2,
-				"bonus_effect": {
+				"use_semicolon_for_and": true,
+				"and": {
 					"condition": "advanced_through",
 					"effect_type": "ignore_guard"
 				}
@@ -18438,7 +18468,8 @@
 					"timing": "immediate",
 					"effect_type": "choice",
 					"choice": [
-						{ "effect_type": "advance", "amount": 2, "bonus_effect": {
+						{ "effect_type": "advance", "amount": 2, "use_semicolon_for_and": true,
+						  "and": {
 							"condition": "advanced_through",
 							"effect_type": "draw",
 							"amount": 1,
@@ -18576,7 +18607,8 @@
 					"choice": [
 						{
 							"effect_type": "discard_this",
-							"bonus_effect": {
+							"use_semicolon_for_and": true,
+							"and": {
 								"condition": "opponent_on_buddy_space",
 								"condition_detail": "Burrow",
 								"effect_type": "take_damage",
@@ -20504,7 +20536,8 @@
 				"timing": "hit",
 				"effect_type": "push",
 				"amount": 2,
-				"bonus_effect": {
+				"use_semicolon_for_and": true,
+				"and": {
 					"condition": "pushed_min_spaces",
 					"condition_amount": 1,
 					"effect_type": "gain_advantage"
@@ -20939,7 +20972,8 @@
 				"timing": "before",
 				"effect_type": "advance",
 				"amount": 2,
-				"bonus_effect": {
+				"use_semicolon_for_and": true,
+				"and": {
 					"effect_type": "dodge_attacks",
 					"condition": "advanced_through"
 				}
@@ -21129,7 +21163,8 @@
 					"timing": "immediate",
 					"effect_type": "retreat",
 					"amount": 2,
-					"bonus_effect": {
+					"use_semicolon_for_and": true,
+					"and": {
 						"condition": "range_multiple",
 						"condition_amount_min": 4,
 						"condition_amount_max": 5,
@@ -21517,7 +21552,8 @@
 					"timing": "immediate",
 					"effect_type": "advance",
 					"amount": 4,
-					"bonus_effect": {
+					"use_semicolon_for_and": true,
+					"and": {
 						"condition": "advanced_through",
 						"effect_type": "choice",
 						"choice": [
@@ -22739,8 +22775,10 @@
 				"timing": "before",
 				"effect_type": "choice",
 				"choice": [
-					{ "effect_type": "advance", "amount": 1, "bonus_effect": { "condition": "advanced_through", "effect_type": "attack_does_not_hit" } },
-					{ "effect_type": "advance", "amount": 2, "bonus_effect": { "condition": "advanced_through", "effect_type": "attack_does_not_hit" } }
+					{ "effect_type": "advance", "amount": 1, "use_semicolon_for_and": true,
+					   "and": { "condition": "advanced_through", "effect_type": "attack_does_not_hit" } },
+					{ "effect_type": "advance", "amount": 2, "use_semicolon_for_and": true,
+					  "and": { "condition": "advanced_through", "effect_type": "attack_does_not_hit" } }
 				]
 			}
 		],
@@ -22952,7 +22990,8 @@
 				"timing": "hit",
 				"effect_type": "push",
 				"amount": 2,
-				"bonus_effect": {
+				"use_semicolon_for_and": true,
+				"and": {
 					"condition": "not_full_push",
 					"effect_type": "powerup",
 					"amount": 2
@@ -23031,7 +23070,8 @@
 					"timing": "hit",
 					"effect_type": "push",
 					"amount": 1,
-					"bonus_effect": {
+					"use_semicolon_for_and": true,
+					"and": {
 						"condition": "not_full_push",
 						"effect_type": "powerup",
 						"amount": 2
@@ -23104,7 +23144,8 @@
 				"timing": "hit",
 				"effect_type": "push",
 				"amount": 1,
-				"bonus_effect": {
+				"use_semicolon_for_and": true,
+				"and": {
 					"condition": "not_full_push",
 					"effect_type": "powerup",
 					"amount": 2,
@@ -23458,7 +23499,8 @@
 				"timing": "before",
 				"effect_type": "advance",
 				"amount": 2,
-				"bonus_effect": {
+				"use_semicolon_for_and": true,
+				"and": {
 					"effect_type": "dodge_attacks",
 					"condition": "advanced_through"
 				}
@@ -24324,7 +24366,8 @@
 				"timing": "before",
 				"effect_type": "advance",
 				"amount": 3,
-				"bonus_effect": {
+				"use_semicolon_for_and": true,
+				"and": {
 					"condition": "advanced_through",
 					"effect_type": "ignore_armor"
 				}
@@ -27050,7 +27093,8 @@
 					{
 						"effect_type": "advance",
 						"amount": 1,
-						"bonus_effect": {
+						"use_semicolon_for_and": true,
+						"and": {
 							"condition": "not_advanced_through_buddy",
 							"condition_detail": "Shield Knight",
 							"effect_type": "attack_does_not_hit"
@@ -27059,7 +27103,8 @@
 					{
 						"effect_type": "advance",
 						"amount": 2,
-						"bonus_effect": {
+						"use_semicolon_for_and": true,
+						"and": {
 							"condition": "not_advanced_through_buddy",
 							"condition_detail": "Shield Knight",
 							"effect_type": "attack_does_not_hit"
@@ -27258,7 +27303,8 @@
 				"timing": "before",
 				"effect_type": "advance",
 				"amount": 2,
-				"bonus_effect": {
+				"use_semicolon_for_and": true,
+				"and": {
 					"condition": "advanced_through",
 					"effect_type": "powerup",
 					"amount": 2
@@ -27434,7 +27480,8 @@
 				"timing": "hit",
 				"effect_type": "push",
 				"amount": 2,
-				"bonus_effect": {
+				"use_semicolon_for_and": true,
+				"and": {
 					"effect_type": "powerup",
 					"condition": "not_full_push",
 					"amount": 2
@@ -27451,7 +27498,8 @@
 					"timing": "before",
 					"effect_type": "close",
 					"amount": 1,
-					"bonus_effect": {
+					"use_semicolon_for_and": true,
+					"and": {
 						"effect_type": "powerup",
 						"condition": "not_full_close",
 						"amount": 2
@@ -27622,7 +27670,8 @@
 				"timing": "before",
 				"effect_type": "close",
 				"amount": 3,
-				"bonus_effect": {
+				"use_semicolon_for_and": true,
+				"and": {
 					"effect_type": "draw",
 					"condition": "not_full_close",
 					"amount": 1
@@ -27986,7 +28035,8 @@
 				"timing": "before",
 				"effect_type": "advance",
 				"amount": 1,
-				"bonus_effect": {
+				"use_semicolon_for_and": true,
+				"and": {
 					"condition": "not_advanced_through",
 					"effect_type": "powerup",
 					"amount": 3
@@ -28275,7 +28325,8 @@
 					"timing": "before",
 					"effect_type": "advance",
 					"amount": 3,
-					"bonus_effect": {
+					"use_semicolon_for_and": true,
+					"and": {
 						"condition": "advanced_through",
 						"effect_type": "armorup",
 						"amount": 3
@@ -28673,7 +28724,8 @@
 				"timing": "hit",
 				"effect_type": "push",
 				"amount": 3,
-				"bonus_effect": {
+				"use_semicolon_for_and": true,
+				"and": {
 					"condition": "not_full_push",
 					"effect_type": "add_top_discard_to_gauge",
 					"amount": 1
@@ -29143,7 +29195,8 @@
 				"timing": "hit",
 				"effect_type": "push",
 				"amount": 2,
-				"bonus_effect": {
+				"use_semicolon_for_and": true,
+				"and": {
 					"condition": "not_full_push",
 					"effect_type": "powerup",
 					"amount": 2
@@ -30790,7 +30843,8 @@
 					},
 					"overall_effect": null,
 					"gauge_max": 6,
-					"bonus_effect": {
+					"use_semicolon_for_and": true,
+					"and": {
 						"effect_type": "add_boost_to_gauge_on_strike_cleanup",
 						"card_name": "Lateus Orbis"
 					}
@@ -31227,7 +31281,8 @@
 					"timing": "immediate",
 					"effect_type": "choice",
 					"choice": [
-						{ "effect_type": "advance", "amount": 3, "bonus_effect": {
+						{ "effect_type": "advance", "amount": 3, "use_semicolon_for_and": true,
+						  "and": {
 							"condition": "advanced_through",
 							"effect_type": "boost_additional",
 							"limitation": "continuous",
@@ -31332,7 +31387,8 @@
 					"timing": "immediate",
 					"effect_type": "choice",
 					"choice": [
-						{ "effect_type": "advance", "amount": 3, "bonus_effect": {
+						{ "effect_type": "advance", "amount": 3, "use_semicolon_for_and": true,
+						  "and": {
 							"condition": "advanced_through",
 							"effect_type": "add_to_gauge_boost_play_cleanup"
 						} },
@@ -31786,7 +31842,8 @@
 					"timing": "immediate",
 					"effect_type": "choice",
 					"choice": [
-						{ "effect_type": "advance", "amount": 1, "suppress_and_description": true, "bonus_effect": {
+						{ "effect_type": "advance", "amount": 1, "suppress_and_description": true, "use_semicolon_for_and": true,
+						  "and": {
 							"condition": "advanced_through",
 							"effect_type": "choose_discard",
 							"limitation": "special/ultra",
@@ -31794,7 +31851,8 @@
 							"amount": 1,
 							"amount_min": 1
 						}},
-						{ "effect_type": "advance", "amount": 2, "suppress_and_description": true, "bonus_effect": {
+						{ "effect_type": "advance", "amount": 2, "suppress_and_description": true, "use_semicolon_for_and": true,
+						  "and": {
 							"condition": "advanced_through",
 							"effect_type": "choose_discard",
 							"limitation": "special/ultra",
@@ -31802,7 +31860,8 @@
 							"amount": 1,
 							"amount_min": 1
 						}},
-						{ "effect_type": "advance", "amount": 3, "suppress_and_description": true, "bonus_effect": {
+						{ "effect_type": "advance", "amount": 3, "suppress_and_description": true, "use_semicolon_for_and": true,
+						  "and": {
 							"condition": "advanced_through",
 							"effect_type": "choose_discard",
 							"limitation": "special/ultra",
@@ -33439,7 +33498,8 @@
 						{
 							"effect_type": "pull",
 							"amount": 2,
-							"bonus_effect": {
+							"use_semicolon_for_and": true,
+							"and": {
 								"condition": "pulled_past",
 								"effect_type": "add_to_gauge_boost_play_cleanup"
 							}
@@ -33503,7 +33563,8 @@
 				"timing": "before",
 				"effect_type": "advance",
 				"amount": 3,
-				"bonus_effect": {
+				"use_semicolon_for_and": true,
+				"and": {
 					"effect_type": "dodge_attacks",
 					"condition": "advanced_through"
 				}
@@ -33820,7 +33881,8 @@
 				"timing": "before",
 				"effect_type": "advance",
 				"amount": 3,
-				"bonus_effect": {
+				"use_semicolon_for_and": true,
+				"and": {
 					"effect_type": "dodge_attacks",
 					"condition": "advanced_through"
 				}
@@ -34161,7 +34223,8 @@
 				"timing": "before",
 				"effect_type": "advance",
 				"amount": 3,
-				"bonus_effect": {
+				"use_semicolon_for_and": true,
+				"and": {
 					"effect_type": "dodge_attacks",
 					"condition": "advanced_through"
 				}

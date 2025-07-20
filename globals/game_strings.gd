@@ -48,8 +48,8 @@ func get_choice_summary(choice, card_name_source : String):
 		else:
 			# No amount, so just use the full effect text
 			summary_text += get_effect_type_text(effect_summary.effect, card_name_source)
-		if 'bonus_effect' in effect_summary.effect:
-			summary_text += "; " + get_effect_text(effect_summary.effect['bonus_effect'], false, false, false, card_name_source)
+		if "and" in effect_summary.effect:
+			summary_text += "; " + get_effect_text(effect_summary.effect["and"], false, false, false, card_name_source)
 	return summary_text
 
 func get_force_for_effect_summary(effect, card_name_source : String) -> String:
@@ -1533,11 +1533,12 @@ func get_effect_text(effect, short = false, skip_timing = false, skip_condition 
 		effect_str += get_effect_type_text(effect, card_name_source, char_effect_panel)
 
 	var suppress_and_description = 'suppress_and_description' in effect and effect['suppress_and_description']
-	if not short and 'bonus_effect' in effect and not suppress_and_description:
-		effect_str += "; " + get_effect_text(effect['bonus_effect'], false, false, false, card_name_source, char_effect_panel)
 	if 'and' in effect and effect['and'] and not suppress_and_description:
 		if effect_str != "":
-			effect_str += effect_separator
+			if "use_semicolon_for_and" in effect and effect['use_semicolon_for_and']:
+				effect_str += "; "
+			else:
+				effect_str += effect_separator
 		effect_str += get_effect_text(effect['and'], short, false, false, card_name_source, char_effect_panel)
 	if 'negative_condition_effect' in effect:
 		if not 'suppress_negative_description' in effect or not effect['suppress_negative_description']:

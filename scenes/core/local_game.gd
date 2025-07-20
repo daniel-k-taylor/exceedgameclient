@@ -568,7 +568,7 @@ func initialize_game(
 	starting_player.starting_location = 3
 	if (starting_player.set_starting_face_attack) && (starting_player.starting_face_attack_id != ""):
 		handle_strike_effect(
-			-1, 
+			-1,
 			{
 				"effect_type": "set_face_attack",
 				"card_id": starting_player.starting_face_attack_id
@@ -582,7 +582,7 @@ func initialize_game(
 	second_player.starting_location = 7
 	if (second_player.set_starting_face_attack) && (second_player.starting_face_attack_id != ""):
 		handle_strike_effect(
-			-1, 
+			-1,
 			{
 				"effect_type": "set_face_attack",
 				"card_id": second_player.starting_face_attack_id
@@ -1850,11 +1850,9 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 			decision_info.clear()
 			decision_info.source = "advance"
 			decision_info.amount = effect['amount']
-			decision_info.limitation = { 'and': null, 'bonus_effect': null }
+			decision_info.limitation = { 'and': null }
 			if 'and' in effect:
 				decision_info.limitation['and'] = effect['and']
-			if 'bonus_effect' in effect:
-				decision_info.limitation['bonus_effect'] = effect['bonus_effect']
 
 			var stop_on_space = -1
 			if 'stop_on_buddy_space' in effect:
@@ -1870,7 +1868,7 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 				advance_effect['effect_type'] = "advance_INTERNAL"
 				advance_effect['stop_on_space'] = stop_on_space
 				handle_strike_effect(card_id, advance_effect, performing_player)
-				# and/bonus_effect should be handled by internal version
+				# and should be handled by internal version
 				ignore_extra_effects = true
 		"advance_INTERNAL":
 			var amount = effect['amount']
@@ -2493,11 +2491,9 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 			decision_info.clear()
 			decision_info.source = "close"
 			decision_info.amount = effect['amount']
-			decision_info.limitation = { 'and': null, 'bonus_effect': null }
+			decision_info.limitation = { 'and': null }
 			if 'and' in effect:
 				decision_info.limitation['and'] = effect['and']
-			if 'bonus_effect' in effect:
-				decision_info.limitation['bonus_effect'] = effect['bonus_effect']
 
 			var effects = performing_player.get_character_effects_at_timing("on_advance_or_close")
 			for sub_effect in effects:
@@ -2506,7 +2502,7 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 				var close_effect = effect.duplicate()
 				close_effect['effect_type'] = "close_INTERNAL"
 				handle_strike_effect(card_id, close_effect, performing_player)
-				# and/bonus_effect should be handled by internal version
+				# and should be handled by internal version
 				ignore_extra_effects = true
 		"close_damagetaken":
 			var close_per = effect['amount']
@@ -2946,8 +2942,8 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 					can_do_something = true
 				elif effect['overall_effect'] and available_gauge >= effect['gauge_max']:
 					can_do_something = true
-				if 'bonus_effect' in effect:
-					bonus_effect = effect['bonus_effect']
+				if 'and' in effect:
+					bonus_effect = effect['and']
 				if can_do_something:
 					change_game_state(Enums.GameState.GameState_PlayerDecision)
 					decision_info.clear()
@@ -3143,9 +3139,6 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 			if followups['and']:
 				choice[0]['and'] = followups['and']
 				choice[1]['and'] = followups['and']
-			if followups['bonus_effect']:
-				choice[0]['bonus_effect'] = followups['bonus_effect']
-				choice[1]['bonus_effect'] = followups['bonus_effect']
 
 			_append_log_full(Enums.LogType.LogType_Effect, performing_player, "may %s %s extra space(s)!" % [movement_type, movement_amount])
 			change_game_state(Enums.GameState.GameState_PlayerDecision)
@@ -3178,9 +3171,6 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 				if followups['and']:
 					choice[0]['and'] = followups['and']
 					choice[1]['and'] = followups['and']
-				if followups['bonus_effect']:
-					choice[0]['bonus_effect'] = followups['bonus_effect']
-					choice[1]['bonus_effect'] = followups['bonus_effect']
 
 				_append_log_full(Enums.LogType.LogType_Effect, performing_player, "may ignore the movement limit!")
 				change_game_state(Enums.GameState.GameState_PlayerDecision)
@@ -3266,11 +3256,8 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 			var advance_only = 'advance_only' in effect and effect['advance_only']
 
 			var and_effect = null
-			var bonus_effect = null
 			if 'and' in effect:
 				and_effect = effect['and']
-			if 'bonus_effect' in effect:
-				bonus_effect = effect['bonus_effect']
 
 			decision_info.limitation = []
 			# If not moving is an option, enable "pass" button
@@ -3311,7 +3298,6 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 						"amount": i,
 						"remove_buddies_encountered": remove_buddies_encountered,
 						"and": and_effect,
-						"bonus_effect": bonus_effect
 					})
 					nowhere_to_move = false
 
@@ -3409,7 +3395,7 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 			decision_info.choice = []
 			decision_info.limitation = []
 			if effect['target_effect'] == "opponent_discard_speed_or_reveal":
-				decision_info.amount_min = 0	
+				decision_info.amount_min = 0
 				decision_info.amount = 10
 				decision_info.valid_zones = ["Speed X"]
 				decision_info.effect_type = "have opponent discard a card including that Speed or reveal their hand"
@@ -3571,7 +3557,7 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 				decision_info.choice_card_id = card_id
 				decision_info.player = opposing_player.my_id
 				create_event(Enums.EventType.EventType_Strike_ChooseToDiscard, opposing_player.my_id, amount)
-				
+
 			else:
 				# Didn't have any that matched, so forced to reveal hand.
 				_append_log_full(Enums.LogType.LogType_Effect, opposing_player, "has no matching cards so their hand is revealed.")
@@ -4741,8 +4727,6 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 					for choice in choice_effect['choice']:
 						if 'and' in choice:
 							choice['and'] = effect['and']
-						if 'bonus_effect' in choice:
-							choice['bonus_effect'] = effect['bonus_effect']
 					handle_strike_effect(card_id, choice_effect, performing_player)
 				# else: do nothing
 			else:
@@ -4786,8 +4770,6 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 				for choice in choice_effect['choice']:
 					if 'and' in choice:
 						choice['and'] = effect['and']
-					if 'bonus_effect' in choice:
-						choice['bonus_effect'] = effect['bonus_effect']
 				handle_strike_effect(card_id, choice_effect, performing_player)
 			else:
 				# Convert this to a regular push or pull.
@@ -4842,8 +4824,6 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 				for choice in choice_effect['choice']:
 					if 'and' in choice:
 						choice['and'] = effect['and']
-					if 'bonus_effect' in choice:
-						choice['bonus_effect'] = effect['bonus_effect']
 				handle_strike_effect(card_id, choice_effect, performing_player)
 			else:
 				var previous_location = opposing_player.arena_location
@@ -5080,11 +5060,9 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 			decision_info.clear()
 			decision_info.source = "retreat"
 			decision_info.amount = effect['amount']
-			decision_info.limitation = { 'and': null, 'bonus_effect': null }
+			decision_info.limitation = { 'and': null }
 			if 'and' in effect:
 				decision_info.limitation['and'] = effect['and']
-			if 'bonus_effect' in effect:
-				decision_info.limitation['bonus_effect'] = effect['bonus_effect']
 
 			var effects = performing_player.get_character_effects_at_timing("on_retreat")
 			for sub_effect in effects:
@@ -5093,7 +5071,7 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 				var retreat_effect = effect.duplicate()
 				retreat_effect['effect_type'] = "retreat_INTERNAL"
 				handle_strike_effect(card_id, retreat_effect, performing_player)
-				# and/bonus_effect should be handled by internal version
+				# and should be handled by internal version
 				ignore_extra_effects = true
 		"retreat_INTERNAL":
 			var amount = effect['amount']
@@ -5219,7 +5197,7 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 			if 'silent' in effect:
 				seal_effect['silent'] = effect['silent']
 			handle_strike_effect(card_id, seal_effect, performing_player)
-			# and/bonus_effect should be handled by internal version
+			# and should be handled by internal version
 			ignore_extra_effects = true
 		"seal_card_complete_INTERNAL":
 			var card = card_db.get_card(effect['seal_card_id'])
@@ -5841,13 +5819,6 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 				do_effect_if_condition_met(performing_player, card_id, and_effect, local_conditions)
 			elif active_character_action:
 				remaining_character_action_effects.append(effect['and'])
-
-		if "bonus_effect" in effect and effect['bonus_effect']:
-			if not game_state == Enums.GameState.GameState_PlayerDecision:
-				var bonus_effect = effect['bonus_effect']
-				do_effect_if_condition_met(performing_player, card_id, bonus_effect, local_conditions)
-			elif active_character_action:
-				remaining_character_action_effects.append(effect['bonus_effect'])
 
 func change_stats_when_attack_leaves_play(performing_player : Player):
 	# Set total power and speed to invalid (0).

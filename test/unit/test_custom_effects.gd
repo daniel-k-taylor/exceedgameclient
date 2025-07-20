@@ -67,7 +67,8 @@ func get_custom_cards():
 					"timing": "before",
 					"effect_type": "pull",
 					"amount": 1,
-					"bonus_effect": {
+					"use_semicolon_for_and": true,
+					"and": {
 						"condition": "not_full_pull",
 						"effect_type": "powerup",
 						"amount": 5
@@ -418,7 +419,7 @@ func get_custom_cards():
 					"timing": "hit",
 					"effect_type": "push",
 					"amount": 8,
-					"and": 
+					"and":
 					{
 						"condition": "opponent_was_moved_during_strike",
 						"condition_amount": 4,
@@ -576,7 +577,7 @@ func test_custom_boost_add_to_gauge_at_strike_end():
 	validate_life(player1, 29, player2, 25)
 	assert_true(player1.is_card_in_gauge(boost_id))
 	advance_turn(player1)
-	
+
 # Testing gauge cost reduction per boosts in play
 func test_custom_gauge_reduction_per_boost_in_play():
 	position_players(player1, 3, player2, 6)
@@ -590,7 +591,7 @@ func test_custom_gauge_reduction_per_boost_in_play():
 	# Player 1 strikes with an ultra that reducces cost by boost in play - should only need to pay 2 gauge here despite 3 gauge cost.
 	execute_strike (player2, player1, "standard_normal_assault", "custom_reducecostperboost", false, false, [], [[], gauge_ids])
 
-	advance_turn(player1) 
+	advance_turn(player1)
 
 # Testing powerup per armor
 func test_custom_powerup_per_armor():
@@ -601,7 +602,7 @@ func test_custom_powerup_per_armor():
 
 	# Validate that player 1 is still at max life, and player 2 is at 25.
 	validate_life(player1, 30, player2, 25)
-	
+
 # Testing powerup per speed
 func test_custom_powerup_per_speed():
 	position_players(player1, 3, player2, 6)
