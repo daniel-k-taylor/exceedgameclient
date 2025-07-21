@@ -1,6 +1,6 @@
 # Complete Effect Documentation Checklist
 
-## Progress Overview: 138/342 effects completed (40.4%)
+## Progress Overview: 157/342 effects completed (45.9%)
 
 ### Movement Effects (33/33 completed - 100.0%) ✅ COMPLETE
 
@@ -202,28 +202,28 @@
 - [x] 11. NameRange ✅ `name_range.md`
 - [x] 12. NameSpeed ✅ `name_speed.md`
 
-### Boost Effects (1/20 completed - 5.0%)
+### Boost Effects (20/20 completed - 100.0%) ✅ COMPLETE
 
 - [x] 1. BoostAdditional ✅ `boost_additional.md`
-- [ ] 2. BoostAppliesIfOnBuddy
-- [ ] 3. BoostFromExtra
-- [ ] 4. BoostFromGauge
-- [ ] 5. BoostDiscardedOverdrive
-- [ ] 6. BoostMultiple
-- [ ] 7. BoostOrRevealHand
-- [ ] 8. BoostSpecificCard
-- [ ] 9. BoostThisThenSustain
-- [ ] 10. BoostThenSustain
-- [ ] 11. BoostThenSustainTopdeck
-- [ ] 12. BoostThenSustainTopdiscard
-- [ ] 13. BoostThenStrike
-- [ ] 14. BoostAsOverdrive
-- [ ] 15. BoostAsOverdriveInternal
-- [ ] 16. EnableBoostFromGauge
-- [ ] 17. SustainAllBoosts
-- [ ] 18. SustainThis
-- [ ] 19. NegateBoost
-- [ ] 20. ChooseSustainBoost
+- [x] 2. BoostAppliesIfOnBuddy ✅ `boost_applies_if_on_buddy.md`
+- [x] 3. BoostFromExtra ✅ `boost_from_extra.md`
+- [x] 4. BoostFromGauge ✅ `boost_from_gauge.md`
+- [x] 5. BoostDiscardedOverdrive ✅ `boost_discarded_overdrive.md`
+- [x] 6. BoostMultiple ✅ `boost_multiple.md`
+- [x] 7. BoostOrRevealHand ✅ `boost_or_reveal_hand.md`
+- [x] 8. BoostSpecificCard ✅ `boost_specific_card.md`
+- [x] 9. BoostThisThenSustain ✅ `boost_this_then_sustain.md`
+- [x] 10. BoostThenSustain ✅ `boost_then_sustain.md`
+- [x] 11. BoostThenSustainTopdeck ✅ `boost_then_sustain_topdeck.md`
+- [x] 12. BoostThenSustainTopdiscard ✅ `boost_then_sustain_topdiscard.md`
+- [x] 13. BoostThenStrike ✅ `boost_then_strike.md`
+- [x] 14. BoostAsOverdrive ✅ `boost_as_overdrive.md`
+- [x] 15. BoostAsOverdriveInternal ✅ `boost_as_overdrive_internal.md`
+- [x] 16. EnableBoostFromGauge ✅ `enable_boost_from_gauge.md`
+- [x] 17. SustainAllBoosts ✅ `sustain_all_boosts.md`
+- [x] 18. SustainThis ✅ `sustain_this.md`
+- [x] 19. NegateBoost ✅ `negate_boost.md`
+- [x] 20. ChooseSustainBoost ✅ `choose_sustain_boost.md`
 
 ### Gauge and Force Effects (13/31 completed - 41.9%)
 
@@ -398,11 +398,11 @@
 - Choice: 12/12 (100.0%) - ✅ COMPLETE
 - Life: 8/8 (100.0%) - ✅ COMPLETE
 - Seal: 15/15 (100.0%) - ✅ COMPLETE
+- Boost: 20/20 (100.0%) - ✅ COMPLETE
 - Gauge/Force: 13/31 (41.9%) - Core mechanics covered
 - Stats: 10/57 (17.5%) - Good core coverage
 - Special: 3/25 (12.0%) - Basic utilities
 - Cards: 6/58 (10.3%) - Basic operations covered
-- Boost: 1/20 (5.0%) - Minimal coverage
 - Buddy: 0/30 (0.0%) - No coverage yet
 - Protection: 0/20 (0.0%) - No coverage yet
 - Utility: 15/15 (100.0%) - ✅ COMPLETE
@@ -410,7 +410,7 @@
 **Next Priority Areas:**
 1. Complete essential Stats effects (47 remaining)
 2. Add Buddy system effects (30 remaining)
-3. Add Boost system effects (19 remaining)
-4. Add remaining Card management (52 remaining)
+3. Add remaining Card management (52 remaining)
+4. Add remaining Gauge/Force effects (18 remaining)
 
-**Total Remaining: 204 effects**
+**Total Remaining: 185 effects**
