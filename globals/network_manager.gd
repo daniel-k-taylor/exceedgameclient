@@ -261,6 +261,7 @@ func join_room(player_name, room_name, deck_id_str : String,
 	if not _is_socket_open(): return
 	var join_room_message = {
 		"version": GlobalSettings.get_client_version(),
+		"value": "join_room",
 		"type": "join_room",
 		"player_name": player_name,
 		"room_id": room_name,
@@ -288,6 +289,7 @@ func join_matchmaking(player_name, deck_id_str : String, queue_id : String, cust
 	if not _is_socket_open(): return
 	var message = {
 		"version": GlobalSettings.get_client_version(),
+		"value": "join_room",
 		"type": "join_matchmaking",
 		"queue_id": queue_id,
 		"player_name": player_name,

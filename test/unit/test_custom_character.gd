@@ -134,7 +134,7 @@ func test_set_starting_face_attack():
 	player1.discard_hand()
 	player2.discard_hand()
 
-	var strike_cards = execute_strike(player1, player2, -1, "standard_normal_grasp", false, false,
+	execute_strike(player1, player2, -1, "standard_normal_grasp", false, false,
 		[], [], false, "", "", true, false) # Player 1 strikes with face attack
 
 	validate_positions(player1, 6, player2, 7)

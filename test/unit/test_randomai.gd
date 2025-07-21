@@ -84,14 +84,24 @@ func handle_discard_event(events, game : LocalGame, aiplayer : AIPlayer, gamepla
 		events += game.get_latest_events()
 
 func handle_prepare(game : LocalGame, gameplayer : Player):
-	assert_true(game.do_prepare(gameplayer), "do prepare failed")
+	var do_prepare = game.do_prepare(gameplayer)
+	if not do_prepare:
+		# This is here just to help debug if this issue becomes more common.
+		assert_true(do_prepare, "do prepare failed")
+		do_prepare = game.do_prepare(gameplayer)
+	assert_true(do_prepare, "do prepare failed")
 	return game.get_latest_events()
 
 func handle_move(game: LocalGame, gameplayer : Player, action : AIPlayer.MoveAction):
 	var location = action.location
 	var card_ids = action.force_card_ids
 	var use_free_force = action.use_free_force
-	assert_true(game.do_move(gameplayer, card_ids, location, use_free_force), "do move failed")
+	var do_move = game.do_move(gameplayer, card_ids, location, use_free_force)
+	if not do_move:
+		# This is here just to help debug if this issue becomes more common.
+		assert_true(do_move, "do move failed")
+		do_move = game.do_move(gameplayer, card_ids, location, use_free_force)
+	assert_true(do_move, "do move failed")
 	return game.get_latest_events()
 
 func handle_change_cards(game: LocalGame, gameplayer : Player, action : AIPlayer.ChangeCardsAction):
