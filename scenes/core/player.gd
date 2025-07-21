@@ -620,7 +620,7 @@ func handle_mid_strike_exceed():
 	# need to revert certain default effects
 	for ability_effect in base_effects:
 		# Unwrap added effects
-		if ability_effect['timing'] == "set_strike" and ability_effect['effect_type'] == "add_attack_effect":
+		if ability_effect['timing'] == "set_strike" and ability_effect['effect_type'] == StrikeEffects.AddAttackEffect:
 			# If an effect was added by an action strike, it shouldn't be removed
 			if 'condition' in ability_effect and ability_effect['condition'] == 'used_character_action':
 				continue
@@ -637,7 +637,7 @@ func handle_mid_strike_exceed():
 	# Apply any permanent during_strike exceeds bonuses
 	for exceed_ability_effect in exceed_effects:
 		# Unwrap added effects
-		if exceed_ability_effect['timing'] == "set_strike" and exceed_ability_effect['effect_type'] == "add_attack_effect":
+		if exceed_ability_effect['timing'] == "set_strike" and exceed_ability_effect['effect_type'] == StrikeEffects.AddAttackEffect:
 			if parent.is_effect_condition_met(self, exceed_ability_effect, null):
 				var character_effect_tag = 'character_effect' in exceed_ability_effect and exceed_ability_effect['character_effect']
 				exceed_ability_effect = exceed_ability_effect['added_effect'].duplicate()
@@ -1714,7 +1714,7 @@ func has_ex_boost():
 	# May need more thorough effect scanning if anyone other than Byakuya uses this
 	for card in continuous_boosts:
 		for effect in card.definition['boost']['effects']:
-			if effect['effect_type'] == "attack_is_ex":
+			if effect['effect_type'] == StrikeEffects.AttackIsEx:
 				return true
 	return false
 
@@ -2616,51 +2616,51 @@ func close(amount):
 		amount = min(amount, movement_limit)
 	var other_location = parent._get_player(parent.get_other_player(my_id)).arena_location
 	if arena_location < other_location:
-		move_in_direction_by_amount(false, amount, true, -1, "close")
+		move_in_direction_by_amount(false, amount, true, -1, StrikeEffects.Close)
 	else:
-		move_in_direction_by_amount(true, amount, true, -1, "close")
+		move_in_direction_by_amount(true, amount, true, -1, StrikeEffects.Close)
 
 func advance(amount, stop_on_space):
 	if not (exceeded and movement_limit_optional_exceeded):
 		amount = min(amount, movement_limit)
 	var other_location = parent._get_player(parent.get_other_player(my_id)).arena_location
 	if arena_location < other_location:
-		move_in_direction_by_amount(false, amount, false, stop_on_space, "advance")
+		move_in_direction_by_amount(false, amount, false, stop_on_space, StrikeEffects.Advance)
 	else:
-		move_in_direction_by_amount(true, amount, false, stop_on_space, "advance")
+		move_in_direction_by_amount(true, amount, false, stop_on_space, StrikeEffects.Advance)
 
 func retreat(amount):
 	if not (exceeded and movement_limit_optional_exceeded):
 		amount = min(amount, movement_limit)
 	var other_location = parent._get_player(parent.get_other_player(my_id)).arena_location
 	if arena_location < other_location:
-		move_in_direction_by_amount(true, amount, false, -1, "retreat")
+		move_in_direction_by_amount(true, amount, false, -1, StrikeEffects.Retreat)
 	else:
-		move_in_direction_by_amount(false, amount, false, -1, "retreat")
+		move_in_direction_by_amount(false, amount, false, -1, StrikeEffects.Retreat)
 
 func push(amount, set_x_to_buddy_spaces_entered : bool = false):
 	var other_player = parent._get_player(parent.get_other_player(my_id))
 	var other_location = other_player.arena_location
 	if arena_location < other_location:
-		other_player.move_in_direction_by_amount(false, amount, false, -1, "push", false, 0, set_x_to_buddy_spaces_entered)
+		other_player.move_in_direction_by_amount(false, amount, false, -1, StrikeEffects.Push, false, 0, set_x_to_buddy_spaces_entered)
 	else:
-		other_player.move_in_direction_by_amount(true, amount, false, -1, "push", false, 0, set_x_to_buddy_spaces_entered)
+		other_player.move_in_direction_by_amount(true, amount, false, -1, StrikeEffects.Push, false, 0, set_x_to_buddy_spaces_entered)
 
 func pull(amount):
 	var other_player = parent._get_player(parent.get_other_player(my_id))
 	var other_location = other_player.arena_location
 	if arena_location < other_location:
-		other_player.move_in_direction_by_amount(true, amount, false, -1, "pull", false)
+		other_player.move_in_direction_by_amount(true, amount, false, -1, StrikeEffects.Pull, false)
 	else:
-		other_player. move_in_direction_by_amount(false, amount, false, -1, "pull", false)
+		other_player. move_in_direction_by_amount(false, amount, false, -1, StrikeEffects.Pull, false)
 
 func pull_not_past(amount):
 	var other_player = parent._get_player(parent.get_other_player(my_id))
 	var other_location = other_player.arena_location
 	if arena_location < other_location:
-		other_player.move_in_direction_by_amount(true, amount, true, -1, "pull", false)
+		other_player.move_in_direction_by_amount(true, amount, true, -1, StrikeEffects.Pull, false)
 	else:
-		other_player.move_in_direction_by_amount(false, amount, true, -1, "pull", false)
+		other_player.move_in_direction_by_amount(false, amount, true, -1, StrikeEffects.Pull, false)
 
 func add_to_continuous_boosts(card : GameCard):
 	for boost_card in continuous_boosts:
@@ -2729,7 +2729,7 @@ func build_outside_strike_range_effect_list():
 		for effect in card.definition["boost"]["effects"]:
 			if effect["timing"] == "during_strike" and effect.get("works_outside_strike"):
 				match effect["type"]:
-					"rangeup":
+					StrikeEffects.Rangeup:
 						if effect.get("opponent"):
 							# Ignore opponent effects.
 							continue
@@ -2748,7 +2748,7 @@ func build_outside_strike_range_effect_list():
 		for effect in card.definition["boost"]["effects"]:
 			if effect["timing"] == "during_strike" and effect.get("works_outside_strike"):
 				match effect["effect_type"]:
-					"rangeup":
+					StrikeEffects.Rangeup:
 						if not effect.get("opponent"):
 							# Only care about opponent effects.
 							continue
@@ -2761,7 +2761,7 @@ func build_outside_strike_range_effect_list():
 							"special_only": special_only
 						}
 						effect_list.append(range_effect)
-					"rangeup_both_players":
+					StrikeEffects.RangeupBothPlayers:
 						var range_effect = {
 								"min_range": effect['amount'],
 								"max_range": effect['amount2'],
@@ -2802,7 +2802,7 @@ func reenable_boost_effects(card : GameCard):
 	for effect in card.definition['boost']['effects']:
 		if effect['timing'] == "now":
 			match effect['effect_type']:
-				"ignore_push_and_pull_passive_bonus":
+				StrikeEffects.IgnorePushAndPullPassiveBonus:
 					ignore_push_and_pull += 1
 					if ignore_push_and_pull == 1:
 						parent._append_log_full(Enums.LogType.LogType_Effect, self, "cannot be pushed or pulled!")
@@ -2815,9 +2815,9 @@ func reenable_boost_effects(card : GameCard):
 
 			# May want a "add_remaining_effects" if something using this has before/hit/after triggers
 			match effect['effect_type']:
-				"attack_is_ex":
+				StrikeEffects.AttackIsEx:
 					strike_stat_boosts.set_ex()
-				"dodge_at_range":
+				StrikeEffects.DodgeAtRange:
 					if 'special_range' in effect and effect['special_range']:
 						var current_range = str(overdrive.size())
 						strike_stat_boosts.dodge_at_range_late_calculate_with = effect['special_range']
@@ -2831,24 +2831,24 @@ func reenable_boost_effects(card : GameCard):
 						if strike_stat_boosts.dodge_at_range_min[card.id] != strike_stat_boosts.dodge_at_range_max[card.id]:
 							dodge_range += "-%s" % strike_stat_boosts.dodge_at_range_max[card.id]
 						parent._append_log_full(Enums.LogType.LogType_Effect, self, "will dodge attacks from range %s!" % dodge_range)
-				"powerup":
+				StrikeEffects.Powerup:
 					add_power_bonus(effect['amount'])
-				"powerup_both_players":
+				StrikeEffects.PowerupBothPlayers:
 					add_power_bonus(effect['amount'])
 					opposing_player.add_power_bonus(effect['amount'])
-				"speedup":
+				StrikeEffects.Speedup:
 					strike_stat_boosts.speed += effect['amount']
-				"armorup":
+				StrikeEffects.Armorup:
 					strike_stat_boosts.armor += effect['amount']
-				"guardup":
+				StrikeEffects.Guardup:
 					strike_stat_boosts.guard += effect['amount']
-				"rangeup":
+				StrikeEffects.Rangeup:
 					var target_player = self
 					if effect.get("opponent"):
 						target_player = opposing_player
 					var special_only = effect.get("special_only", false)
 					target_player.add_range_bonus(effect['amount'], effect['amount2'], special_only)
-				"rangeup_both_players":
+				StrikeEffects.RangeupBothPlayers:
 					add_range_bonus(effect['amount'], effect['amount2'], false)
 					opposing_player.add_range_bonus(effect['amount'], effect['amount2'], false)
 
@@ -2858,7 +2858,7 @@ func disable_boost_effects(card : GameCard, buddy_ignore_condition : bool = fals
 	for effect in card.definition['boost']['effects']:
 		if effect['timing'] == "now":
 			match effect['effect_type']:
-				"ignore_push_and_pull_passive_bonus":
+				StrikeEffects.IgnorePushAndPullPassiveBonus:
 					# ensure this won't be doubly-undone by a discard effect
 					if not being_discarded:
 						ignore_push_and_pull -= 1
@@ -2887,9 +2887,9 @@ func _revert_strike_bonus_effect(effect, card_id : int, check_and_effects : bool
 	parent.remove_remaining_effect(effect, card_id)
 
 	match effect['effect_type']:
-		"attack_is_ex":
+		StrikeEffects.AttackIsEx:
 			strike_stat_boosts.remove_ex()
-		"dodge_at_range":
+		StrikeEffects.DodgeAtRange:
 			if 'special_range' in effect:
 				var current_range = str(overdrive.size())
 				strike_stat_boosts.dodge_at_range_late_calculate_with = ""
@@ -2902,30 +2902,30 @@ func _revert_strike_bonus_effect(effect, card_id : int, check_and_effects : bool
 				strike_stat_boosts.dodge_at_range_min.erase(card_id)
 				strike_stat_boosts.dodge_at_range_max.erase(card_id)
 				strike_stat_boosts.dodge_at_range_from_buddy = false
-		"powerup":
+		StrikeEffects.Powerup:
 			remove_power_bonus(effect['amount'])
-		"powerup_both_players":
+		StrikeEffects.PowerupBothPlayers:
 			remove_power_bonus(effect['amount'])
 			opposing_player.remove_power_bonus(effect['amount'])
-		"speedup":
+		StrikeEffects.Speedup:
 			strike_stat_boosts.speed -= effect['amount']
-		"armorup":
+		StrikeEffects.Armorup:
 			strike_stat_boosts.armor -= effect['amount']
-		"guardup":
+		StrikeEffects.Guardup:
 			strike_stat_boosts.guard -= effect['amount']
-		"rangeup":
+		StrikeEffects.Rangeup:
 			var target_player = self
 			if effect.get("opponent"):
 				target_player = opposing_player
 			var special_only = effect.get("special_only", false)
 			target_player.remove_range_bonus(effect['amount'], effect['amount2'], special_only)
-		"rangeup_both_players":
+		StrikeEffects.RangeupBothPlayers:
 			remove_range_bonus(effect['amount'], effect['amount2'], false)
 			opposing_player.remove_range_bonus(effect['amount'], effect['amount2'], false)
-		"rangeup_if_ex_modifier":
+		StrikeEffects.RangeupIfExModifier:
 			strike_stat_boosts.rangeup_min_if_ex_modifier -= effect['amount']
 			strike_stat_boosts.rangeup_max_if_ex_modifier -= effect['amount2']
-		"guardup_per_two_cards_in_hand":
+		StrikeEffects.GuardupPerTwoCardsInHand:
 			strike_stat_boosts.guardup_per_two_cards_in_hand = false
 
 	if check_and_effects and "and" in effect:
@@ -2959,7 +2959,7 @@ func remove_from_continuous_boosts(card : GameCard, destination : String = "disc
 				add_to_overdrive(card)
 			elif destination == "sealed":
 				add_to_sealed(card)
-			elif destination == "strike":
+			elif destination == StrikeEffects.Strike:
 				pass
 			else:
 				add_to_discards(card)
@@ -3032,7 +3032,7 @@ func do_discarded_effects_for_boost(card : GameCard):
 			parent.do_effect_if_condition_met(owner_player, card.id, effect, null)
 		elif effect['timing'] == "now":
 			match effect['effect_type']:
-				"add_passive":
+				StrikeEffects.AddPassive:
 					if effect['passive'] in passive_effects:
 						passive_effects[effect['passive']] -= 1
 						if passive_effects[effect['passive']] == 0:
@@ -3108,15 +3108,15 @@ func get_character_effects_at_timing(timing_name : String):
 					"condition": "opponent_at_location",
 					"condition_detail": location,
 					"special_choice_name": "Lightning Rod (%s)" % [card_name],
-					"effect_type": "choice",
-					"choice": [
+					"effect_type": StrikeEffects.Choice,
+					StrikeEffects.Choice: [
 						{
-							"effect_type": "lightningrod_strike",
+							"effect_type": StrikeEffects.LightningrodStrike,
 							"card_name": card_name,
 							"card_id": card.id,
 							"location": location,
 						},
-						{ "effect_type": "pass" }
+						{ "effect_type": StrikeEffects.Pass }
 					]
 				}
 				effects.append(lightning_effect)

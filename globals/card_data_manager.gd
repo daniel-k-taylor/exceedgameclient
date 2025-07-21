@@ -92,8 +92,46 @@ func load_deck_if_custom(deck_definition):
 	if custom_cards:
 		load_custom_cards(custom_cards)
 
+	# Sanitize deck definition fields
+	sanitize_bonus_effects_in_data(deck_definition.get("on_exceed"))
+	sanitize_bonus_effects_in_data(deck_definition.get("ability_effects"))
+	sanitize_bonus_effects_in_data(deck_definition.get("exceed_ability_effects"))
+	sanitize_bonus_effects_in_data(deck_definition.get("overdrive_effect"))
+	sanitize_bonus_effects_in_data(deck_definition.get("character_action_default"))
+	sanitize_bonus_effects_in_data(deck_definition.get("character_action_exceeded"))
+
 func load_custom_cards(custom_cards):
 	if custom_cards == null:
 		return
 	for card in custom_cards:
+		# Sanitize card effects and boost fields
+		sanitize_bonus_effects_in_data(card.get("effects"))
+		sanitize_bonus_effects_in_data(card.get("boost"))
 		card_data[card['id']] = card
+
+func sanitize_bonus_effects_in_data(data):
+	if data == null:
+		return
+
+	if typeof(data) == TYPE_DICTIONARY:
+		sanitize_bonus_effects_in_dict(data)
+	elif typeof(data) == TYPE_ARRAY:
+		for item in data:
+			sanitize_bonus_effects_in_data(item)
+
+func sanitize_bonus_effects_in_dict(dict_data):
+	if dict_data == null:
+		return
+
+	# Check if this dictionary has a bonus_effect field
+	if dict_data.has("bonus_effect"):
+		# Replace bonus_effect with and
+		dict_data["and"] = dict_data["bonus_effect"]
+		dict_data.erase("bonus_effect")
+		# Add the use_semicolon_for_and flag
+		dict_data["use_semicolon_for_and"] = true
+
+	# Recursively process all values in the dictionary
+	for key in dict_data.keys():
+		var value = dict_data[key]
+		sanitize_bonus_effects_in_data(value)
