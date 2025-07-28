@@ -663,15 +663,16 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 				effect_str += "Choose a card from your discard pile to place as a Lightning Rod"
 			else:
 				var destination_str = destination
+				var amount_str = str(effect.get("amount", "1"))
 				if destination == "deck_noshuffle":
 					destination_str = "top deck"
 				var source = "discard"
 				if 'source' in effect:
 					source = effect['source']
 				if effect['limitation']:
-					effect_str += "Choose a %s card from %s to move to %s" % [effect['limitation'], source, destination_str]
+					effect_str += "Choose %s %s card(s) from %s to move to %s" % [amount_str, effect['limitation'], source, destination_str]
 				else:
-					effect_str += "Choose a card from %s to move to %s" % [source, destination]
+					effect_str += "Choose %s card(s) from %s to move to %s" % [amount_str, source, destination]
 				if effect.get("opponent"):
 					effect_str = "Opponent must: " + effect_str
 		StrikeEffects.ChooseOpponentCardToDiscard:
