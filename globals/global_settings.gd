@@ -32,6 +32,8 @@ var CustomEnforceTimer : bool = DefaultEnforceTimer
 var CustomMinimumTimePerChoice : int = DefaultMinimumTimePerChoice
 var RandomizeFirstVsAI : bool = DefaultRandomizeFirstVsAi
 var ReplayShowOpponentHand : bool = false
+var RandomHistory = []
+const RandomHistoryMaxSize = 10
 
 const user_settings_file = "user://settings.json"
 
@@ -85,6 +87,8 @@ func load_persistent_settings() -> bool:  # returns success code
 		ReplayShowOpponentHand = json['ReplayShowOpponentHand']
 	if 'PlayerCharacter' in json and json['PlayerCharacter'] is String and not json['PlayerCharacter'].is_empty():
 		PlayerCharacter = json['PlayerCharacter']
+	if 'RandomHistory' in json and json['RandomHistory'] is Array:
+		RandomHistory = json['RandomHistory']
 	else:
 		PlayerCharacter = 'solbadguy'
 	settings_loaded.emit()
@@ -104,6 +108,7 @@ func save_persistent_settings():
 		"CustomMinimumTimePerChoice": CustomMinimumTimePerChoice,
 		"RandomizeFirstVsAI": RandomizeFirstVsAI,
 		"ReplayShowOpponentHand": ReplayShowOpponentHand,
+		"RandomHistory": RandomHistory,
 	}
 
 	var file = FileAccess.open(user_settings_file, FileAccess.WRITE)
@@ -148,4 +153,10 @@ func set_enforce_timers(value : bool):
 
 func set_minimum_time_per_choice(value : int):
 	CustomMinimumTimePerChoice = value
+	save_persistent_settings()
+
+func append_random_history(value : String):
+	if RandomHistory.size() >= RandomHistoryMaxSize:
+		RandomHistory.pop_front()
+	RandomHistory.append(value)
 	save_persistent_settings()

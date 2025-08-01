@@ -20,7 +20,7 @@ func get_random_deck(season : int) -> Dictionary:
 				return deck['season'] == season)
 		return season_decks.pick_random()
 
-func get_deck_from_str_id(str_id : String) -> Dictionary:
+func get_deck(str_id : String) -> Dictionary:
 	if str_id == "random_s7":
 		return get_random_deck(7)
 	if str_id == "random_s6":
@@ -38,6 +38,13 @@ func get_deck_from_str_id(str_id : String) -> Dictionary:
 	if str_id == "random":
 		return get_random_deck(-1)
 	return decks.get(str_id)
+
+func get_deck_from_str_id(str_id : String, exclude_ids : Array = []) -> Dictionary:
+	var deck = get_deck(str_id)
+	while deck in exclude_ids:
+		deck = get_deck(str_id)
+
+	return deck
 
 func get_portrait_asset_path(deck_id : String) -> String:
 	# Only take part after # if there is one.

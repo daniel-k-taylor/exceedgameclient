@@ -138,7 +138,8 @@ func _on_start_button_pressed():
 	if opponent_selected_character.begins_with("random"):
 		opponent_random_tag = opponent_selected_character
 
-	var player_deck = _get_deck(player_selected_character)
+	var player_deck = _get_deck(player_selected_character, GlobalSettings.RandomHistory)
+	GlobalSettings.append_random_history(player_deck['id'])
 	var opponent_deck = _get_deck(opponent_selected_character)
 	var player_name = get_player_name()
 	var opponent_name = "CPU"
@@ -272,6 +273,9 @@ func _on_remote_game_started(data):
 	var player_deck_no_random = get_deck_id_without_random_tag(player_deck)
 	var opponent_random_tag = get_random_tag(opponent_deck)
 	var opponent_deck_no_random = get_deck_id_without_random_tag(opponent_deck)
+
+	if player_random_tag:
+		GlobalSettings.append_random_history(player_deck_no_random)
 
 	if player1_is_me:
 		data['player1_deck_id'] = player_deck_no_random
@@ -522,7 +526,7 @@ func _on_modal_list_join_match_pressed(row_index):
 	var selected_match = matches[row_index]
 	room_select.text = selected_match['name']
 
-	var chosen_deck = CardDataManager.get_deck_from_str_id(player_selected_character)
+	var chosen_deck = CardDataManager.get_deck_from_str_id(player_selected_character, GlobalSettings.RandomHistory)
 	var chosen_deck_id = chosen_deck['id']
 	if player_selected_character.begins_with("random"):
 		chosen_deck_id = player_selected_character + "#" + chosen_deck_id
@@ -596,11 +600,11 @@ func load_custom(data):
 		modal_dialog.set_text_fields(error_message, "OK", "")
 		update_buttons(false)
 
-func _get_deck(char_id):
+func _get_deck(char_id, exclude_ids = []):
 	if char_id.begins_with("custom_"):
 		return _custom_deck_definition
 	else:
-		return CardDataManager.get_deck_from_str_id(char_id)
+		return CardDataManager.get_deck_from_str_id(char_id, exclude_ids)
 
 
 func _on_view_cards_button_pressed() -> void:
