@@ -1,4 +1,4 @@
-[gd_scene load_steps=27 format=3 uid="uid://dh7wmx6cbb55x"]
+[gd_scene load_steps=28 format=3 uid="uid://dh7wmx6cbb55x"]
 
 [ext_resource type="Script" uid="uid://bwvw3tck6lsiq" path="res://scenes/game/game.gd" id="1_4f5jr"]
 [ext_resource type="Texture2D" uid="uid://dh8tat2r8ttx1" path="res://assets/cards/card_border_highlight.png" id="4_5y76h"]
@@ -24,6 +24,7 @@
 [ext_resource type="Texture2D" uid="uid://hj14gadm15wr" path="res://assets/icons/speechbubble.png" id="21_86687"]
 [ext_resource type="PackedScene" uid="uid://b8kmmrd5jmqdd" path="res://scenes/game/modal_dialog.tscn" id="21_qe5we"]
 [ext_resource type="PackedScene" uid="uid://belqon3ac2y7a" path="res://scenes/game/emote_display.tscn" id="21_sd8mp"]
+[ext_resource type="PackedScene" uid="uid://c47nl3bxunebq" path="res://scenes/game/slideout_dialog.tscn" id="22_h48ew"]
 [ext_resource type="PackedScene" uid="uid://i2fmgsopd4xp" path="res://scenes/game/emote_dialog.tscn" id="23_rqqoa"]
 [ext_resource type="AudioStream" uid="uid://bthgiipjqcob5" path="res://assets/sounds/turnstart.wav" id="27_aidi8"]
 
@@ -820,6 +821,12 @@ texture_hover = ExtResource("21_86687")
 ignore_texture_size = true
 stretch_mode = 0
 
+[node name="SlideoutDialog" parent="." instance=ExtResource("22_h48ew")]
+offset_left = -395.0
+offset_top = -124.0
+offset_right = -52.0
+offset_bottom = 88.0
+
 [node name="CombatLog" parent="." instance=ExtResource("18_k7mnw")]
 visible = false
 offset_right = 1280.0
@@ -888,6 +895,7 @@ access = 2
 [connection signal="ultra_force_toggled" from="AllCards/ActionContainer/ActionMenu" to="." method="_on_action_menu_ultra_force_toggled"]
 [connection signal="pressed" from="ExitToMenu" to="." method="_on_exit_to_menu_pressed"]
 [connection signal="pressed" from="EmoteButton" to="." method="_on_emote_button_pressed"]
+[connection signal="action_pressed" from="SlideoutDialog" to="." method="_on_slideout_dialog_action_pressed"]
 [connection signal="close_button_pressed" from="CombatLog" to="." method="_on_combat_log_close_button_pressed"]
 [connection signal="filter_toggle_update" from="CombatLog" to="." method="_on_combat_log_button_pressed"]
 [connection signal="close_button_pressed" from="EmoteDialog" to="." method="_on_emote_dialog_close_button_pressed"]

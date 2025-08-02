@@ -28,11 +28,15 @@ const CharacterScene = preload("res://scenes/game/character.tscn")
 @onready var save_replay_button = $PlayerZones/SaveReplayButton
 @onready var file_dialog = $FileDialog
 
+@onready var slideout_dialog : SlideoutDialog = $SlideoutDialog
+
 const OffScreen = Vector2(-1000, -1000)
 const ChoiceCopyIdRangeStart = 70000
 const RevealCopyIdRangestart = 80000
 const ReferenceScreenIdRangeStart = 90000
 const NoticeOffsetY = 50
+
+const SlideoutStartPosition = Vector2(1280, 380)
 
 var starting_timer : float = GlobalSettings.DefaultStartingTimer
 var player_clock_remaining : float = GlobalSettings.DefaultStartingTimer
@@ -62,6 +66,7 @@ var damage_popup_pool:Array[DamagePopup] = []
 
 var insert_ai_pause = false
 var popout_instruction_info = null
+var ignore_queue_notifications = false
 
 var ChoiceTagRegex = RegEx.new()
 
@@ -284,6 +289,8 @@ func _ready():
 	image_loader = CardImageLoader.new()
 	add_child(image_loader)
 
+	NetworkManager.connect("players_update", _on_players_update)
+
 	if started_directly:
 		# Started this scene directly.
 		var vs_info = {
@@ -344,6 +351,26 @@ func initialization_after_begin_game():
 	ChoiceTagRegex.compile("\\[.*\\]")
 
 	setup_characters()
+
+func _on_players_update(_players, _matches, _queues : Array, newly_available_match : bool):
+	if (game_wrapper.is_ai_game() or observer_mode) and newly_available_match:
+		# Let the player know there is a match they could join.
+		show_match_available_notification()
+
+func show_match_available_notification():
+	if not ignore_queue_notifications:
+		slideout_dialog.position = SlideoutStartPosition
+		slideout_dialog.visible = true
+		slideout_dialog.set_fields(
+			"A match is available!",
+			"Exit to Menu",
+			"Ignore",
+			"Don't show this again"
+		)
+		# Start a tween to slide it in to view by moving it left by its width.
+		var tween = create_tween()
+		tween.tween_property(slideout_dialog, "position", slideout_dialog.position - Vector2(slideout_dialog.size.x, 0), 0.5)
+		tween.play()
 
 func _on_locationinfobuttonpair_pressed(player, location):
 	var rod_tracking = player_lightningrod_tracking
@@ -5839,3 +5866,11 @@ func get_spent_life_for_force() -> int:
 		return action_menu.number_panel_current_number
 	else:
 		return 0
+
+func _on_slideout_dialog_action_pressed(accept: bool, optional: bool) -> void:
+	if accept:
+		_quit_to_menu()
+	else:
+		slideout_dialog.visible = false
+		if optional:
+			ignore_queue_notifications = true
