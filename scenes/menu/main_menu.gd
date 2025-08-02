@@ -334,7 +334,7 @@ func get_player_name() -> String:
 func _on_join_button_pressed():
 	var player_name = get_player_name()
 	var room_name = room_select.text
-	var chosen_deck = _get_deck(player_selected_character)
+	var chosen_deck = _get_deck(player_selected_character, GlobalSettings.RandomHistory)
 	var chosen_deck_id = chosen_deck['id']
 	if player_selected_character.begins_with("random"):
 		chosen_deck_id = player_selected_character + "#" + chosen_deck_id
@@ -367,7 +367,7 @@ func _on_queue_join_clicked(queue_id):
 	just_clicked_matchmake = true
 	var player_name = get_player_name()
 
-	var chosen_deck = _get_deck(player_selected_character)
+	var chosen_deck = _get_deck(player_selected_character, GlobalSettings.RandomHistory)
 	var chosen_deck_id = chosen_deck['id']
 	if player_selected_character.begins_with("random"):
 		chosen_deck_id = player_selected_character + "#" + chosen_deck_id

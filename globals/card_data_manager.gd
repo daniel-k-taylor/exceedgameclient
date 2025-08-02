@@ -41,8 +41,13 @@ func get_deck(str_id : String) -> Dictionary:
 
 func get_deck_from_str_id(str_id : String, exclude_ids : Array = []) -> Dictionary:
 	var deck = get_deck(str_id)
-	while deck in exclude_ids:
+	var max_attempts = 10
+	while deck["id"] in exclude_ids:
 		deck = get_deck(str_id)
+		max_attempts -= 1
+		if max_attempts <= 0:
+			# If you can't get it after 10 tries, just deal with it.
+			break
 
 	return deck
 
