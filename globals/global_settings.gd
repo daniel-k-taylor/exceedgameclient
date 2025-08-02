@@ -34,6 +34,7 @@ var RandomizeFirstVsAI : bool = DefaultRandomizeFirstVsAi
 var ReplayShowOpponentHand : bool = false
 var RandomHistory = []
 const RandomHistoryMaxSize = 10
+var IgnoreRandomHistory = false
 
 const user_settings_file = "user://settings.json"
 
@@ -89,6 +90,8 @@ func load_persistent_settings() -> bool:  # returns success code
 		PlayerCharacter = json['PlayerCharacter']
 	if 'RandomHistory' in json and json['RandomHistory'] is Array:
 		RandomHistory = json['RandomHistory']
+	if 'IgnoreRandomHistory' in json and json['IgnoreRandomHistory'] is bool:
+		IgnoreRandomHistory = json['IgnoreRandomHistory']
 	else:
 		PlayerCharacter = 'solbadguy'
 	settings_loaded.emit()
@@ -109,6 +112,7 @@ func save_persistent_settings():
 		"RandomizeFirstVsAI": RandomizeFirstVsAI,
 		"ReplayShowOpponentHand": ReplayShowOpponentHand,
 		"RandomHistory": RandomHistory,
+		"IgnoreRandomHistory": IgnoreRandomHistory,
 	}
 
 	var file = FileAccess.open(user_settings_file, FileAccess.WRITE)
@@ -159,4 +163,8 @@ func append_random_history(value : String):
 	if RandomHistory.size() >= RandomHistoryMaxSize:
 		RandomHistory.pop_front()
 	RandomHistory.append(value)
+	save_persistent_settings()
+
+func set_ignore_random_history(value : bool):
+	IgnoreRandomHistory = value
 	save_persistent_settings()
