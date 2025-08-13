@@ -617,3 +617,60 @@ func test_platinum_miraclejeanne_add_mystique_momo_pull():
 	assert_true(game_logic.do_choice(player2, 1))
 
 	advance_turn(player2)
+
+
+func test_platinum_exceed_ua_overdrive_mamicircular_variant():
+	position_players(player1, 3, player2, 7)
+
+	# p1 boost mamicircular, pass turn, then boost mystiquemomo, pass turn again
+	give_player_specific_card(player1, "platinum_mamicircular", TestCardId3)
+	assert_true(game_logic.do_boost(player1, TestCardId3))
+	advance_turn(player2)
+	give_player_specific_card(player1, "platinum_mystiquemomo", TestCardId4)
+	assert_true(game_logic.do_boost(player1, TestCardId4))
+	advance_turn(player2)
+
+	# Give p1 4 gauge and exceed (use first 3 to pay)
+	give_gauge(player1, 4)
+	var ex_ids = []
+	for i in range(3):
+		ex_ids.append(player1.gauge[i].id)
+	assert_true(game_logic.do_exceed(player1, ex_ids))
+	assert_true(game_logic.do_discard_to_max(player1, [player1.hand[0].id]))
+
+	# Prime topdeck with Dive before the opponent strikes
+	give_player_specific_card(player1, "standard_normal_dive", TestCardId6)
+	player1.move_card_from_hand_to_deck(TestCardId6, 0)
+
+	# p2 initiates strike with Focus; p1 responds with Block
+	give_player_specific_card(player2, "standard_normal_focus", TestCardId1)
+	give_player_specific_card(player1, "standard_normal_block", TestCardId2)
+	assert_true(game_logic.do_strike(player2, TestCardId1, false, -1))
+	assert_true(game_logic.do_strike(player1, TestCardId2, false, -1))
+
+	validate_positions(player1, 3, player2, 7)
+	validate_life(player1, 30, player2, 30)
+	# Cleanup choices: p2 passes (1), p1 plays topdeck boost (0)
+	assert_true(game_logic.do_choice(player2, 1))
+	assert_true(game_logic.do_choice(player1, 0))
+
+	# Verify Dive was played and is now the top of p1's discard
+	assert_eq(player1.discards[player1.discards.size() - 1].id, TestCardId6) 
+
+	# Choose which boost to sustain; pick mamicircular
+	assert_true(game_logic.do_choose_from_boosts(player1, [TestCardId3]))
+
+	# It should be p1's next turn; Overdrive: choose a card from discard (pick Dive again)
+	var expected_boosts = 1
+	if player1.overdrive[0].definition["boost"]["boost_type"] == "continuous":
+		expected_boosts = 2
+	assert_true(game_logic.do_choose_from_discard(player1, [player1.overdrive[0].id]))
+
+	# End p1 turn and verify it's p2's turn (heuristic: p2 can strike, p1 cannot)
+	advance_turn(player1)
+	assert_true(game_logic.can_do_strike(player2))
+	assert_false(game_logic.can_do_strike(player1))
+
+	# Verify the correct sustained boost remains (mamicircular)
+	assert_eq(player1.continuous_boosts.size(), expected_boosts)
+	assert_eq(player1.continuous_boosts[0].id, TestCardId3)
