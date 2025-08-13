@@ -22022,8 +22022,6 @@
 
 					"negative_condition_effect": {
 						"is_negative_effect": true,
-						"condition": "choose_cards_from_top_deck_action",
-						"condition_details": "add_to_hand",
 						"effect_type": "choose_cards_from_top_deck",
 						"look_amount": 2,
 						"action_choices": [
