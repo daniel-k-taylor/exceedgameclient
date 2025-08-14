@@ -268,10 +268,14 @@ func get_current_strike_timing_player_id():
 				StrikeState.StrikeState_DuringStrikeBonuses:
 					assert(false, "Unexpected call to get_current_strike_timing_player_id, investigate further.")
 					return active_strike.initiator.my_id
-				StrikeState.StrikeState_Card1_Before, StrikeState.StrikeState_Card1_Hit, StrikeState.StrikeState_Card1_After, StrikeState.StrikeState_Cleanup_Player1Effects:
+				StrikeState.StrikeState_Card1_Before, StrikeState.StrikeState_Card1_Hit, StrikeState.StrikeState_Card1_After:
 					return active_strike.get_player(1).my_id
-				StrikeState.StrikeState_Card2_Before, StrikeState.StrikeState_Card2_Hit, StrikeState.StrikeState_Card2_After, StrikeState.StrikeState_Cleanup_Player2Effects:
+				StrikeState.StrikeState_Card2_Before, StrikeState.StrikeState_Card2_Hit, StrikeState.StrikeState_Card2_After:
 					return active_strike.get_player(2).my_id
+				StrikeState.StrikeState_Cleanup_Player1Effects:
+					return active_strike.initiator.my_id
+				StrikeState.StrikeState_Cleanup_Player2Effects:
+					return active_strike.defender.my_id
 				_:
 					assert(false, "Unexpected call to get_current_strike_timing_player_id, investigate further.")
 					return active_strike.get_player(1).my_id

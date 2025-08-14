@@ -619,7 +619,7 @@ func test_platinum_miraclejeanne_add_mystique_momo_pull():
 	advance_turn(player2)
 
 
-func test_platinum_exceed_ua_overdrive_mamicircular_variant():
+func test_platinum_exceed_ua_overdrive_variant():
 	game_logic.teardown()
 	game_logic.free()
 	default_game_setup("arakune") # Just pick some random non Platinum character.
@@ -645,13 +645,13 @@ func test_platinum_exceed_ua_overdrive_mamicircular_variant():
 	give_player_specific_card(player1, "standard_normal_dive", TestCardId6)
 	player1.move_card_from_hand_to_deck(TestCardId6, 0)
 
-	# p2 initiates strike with Focus; p1 responds with Block
+	# p2 initiates strike with Focus; p1 responds with Cross
 	give_player_specific_card(player2, "standard_normal_focus", TestCardId1)
-	give_player_specific_card(player1, "standard_normal_block", TestCardId2)
+	give_player_specific_card(player1, "standard_normal_cross", TestCardId2)
 	assert_true(game_logic.do_strike(player2, TestCardId1, false, -1))
 	assert_true(game_logic.do_strike(player1, TestCardId2, false, -1))
 
-	validate_positions(player1, 3, player2, 7)
+	validate_positions(player1, 1, player2, 7)
 	validate_life(player1, 30, player2, 30)
 	# Cleanup choices: p2 has nothing since they aren't Platinum
 	# P1 plays topdeck boost
