@@ -353,7 +353,64 @@ func test_platinum_dreamsally_returnattack_losearmor():
 	assert_eq(player1.continuous_boosts[0].id, TestCardId1)
 	advance_turn(player2)
 
+func test_platinum_dreamsally_returnattack_focusfirst():
+	position_players(player1, 3, player2, 5)
+	assert_eq(player1.hand.size(), 5)
+	give_player_specific_card(player1, "platinum_dreamsally", TestCardId3)
+	assert_true(game_logic.do_boost(player1, TestCardId3))
+	advance_turn(player2)
+	assert_eq(player1.hand.size(), 6)
+	give_player_specific_card(player1, "standard_normal_focus", TestCardId1)
+	give_player_specific_card(player2, "standard_normal_assault", TestCardId2)
 
+	assert_true(game_logic.do_strike(player1, TestCardId1, false, -1))
+	assert_true(game_logic.do_strike(player2, TestCardId2, false, -1))
+	# P2 hits with assault for 2, gets hit for 4.
+	validate_positions(player1, 3, player2, 4)
+	validate_life(player1, 28, player2, 26)
+	
+	# P1 gets a choice to do focus first or sally first or put focus on top deck.
+	# Do focus first and go to 8.
+	assert_true(game_logic.do_choice(player1, 0))
+	assert_eq(player1.hand.size(), 8)
+
+	# Cleanup choice, pass both.
+	assert_true(game_logic.do_choice(player1, 1))
+	assert_true(game_logic.do_choice(player2, 1))
+	
+	# Focus is on p1 top deck.
+	assert_eq(player1.deck[0].id, TestCardId1)
+	advance_turn(player2)
+
+func test_platinum_dreamsally_returnattack_losefocusdraw():
+	position_players(player1, 3, player2, 5)
+	assert_eq(player1.hand.size(), 5)
+	give_player_specific_card(player1, "platinum_dreamsally", TestCardId3)
+	assert_true(game_logic.do_boost(player1, TestCardId3))
+	advance_turn(player2)
+	assert_eq(player1.hand.size(), 6)
+	give_player_specific_card(player1, "standard_normal_focus", TestCardId1)
+	give_player_specific_card(player2, "standard_normal_assault", TestCardId2)
+
+	assert_true(game_logic.do_strike(player1, TestCardId1, false, -1))
+	assert_true(game_logic.do_strike(player2, TestCardId2, false, -1))
+	# P2 hits with assault for 2, gets hit for 4.
+	validate_positions(player1, 3, player2, 4)
+	validate_life(player1, 28, player2, 26)
+	
+	# P1 gets a choice to do focus first or sally first or put focus on top deck.
+	# Do sally, expect to stay at 7.
+	assert_true(game_logic.do_choice(player1, 1))
+	assert_eq(player1.hand.size(), 7)
+
+	# Cleanup choice, pass both.
+	assert_true(game_logic.do_choice(player1, 1))
+	assert_true(game_logic.do_choice(player2, 1))
+	
+	# Focus is on p1 top deck.
+	assert_eq(player1.deck[0].id, TestCardId1)
+	advance_turn(player2)
+	
 func test_platinum_miracle_jeanne_and_boost_sustain_all():
 	position_players(player1, 3, player2, 5)
 

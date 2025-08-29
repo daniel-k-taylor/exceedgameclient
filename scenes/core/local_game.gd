@@ -5853,6 +5853,15 @@ func change_stats_when_attack_leaves_play(performing_player : Player):
 	# This currently assumes that this would always from the played attack
 	performing_player.strike_stat_boosts.higher_speed_misses = false
 
+	# For Platinum, she can remove an attack in the After step that also has an After effect
+	# still in remaining effects.
+	# Try to find any of this card effects at this timing still in remaining effects and remove them.
+	var current_timing = get_current_strike_timing()
+	var card_effects = card_db.get_card_effects_at_timing(card, current_timing)
+	for effect in active_strike.remaining_effect_list:
+		if effect in card_effects:
+			active_strike.remaining_effect_list.erase(effect)
+
 	# If a character that can do this has Cleanup effects on the strike,
 	# this needs to be added here somehow as well.
 
