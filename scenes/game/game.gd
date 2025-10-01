@@ -1501,7 +1501,7 @@ func _stat_notice_event(event):
 		Enums.EventType.EventType_CharacterAction:
 			notice_text = "Character Action"
 		Enums.EventType.EventType_Strike_Critical:
-			notice_text = "Critical!"
+			notice_text = "%s!" % event['reason']
 		Enums.EventType.EventType_Strike_DodgeAttacks:
 			notice_text = "Dodge Attacks!"
 		Enums.EventType.EventType_Strike_DodgeAttacksAtRange:

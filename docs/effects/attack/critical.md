@@ -37,8 +37,8 @@ None - this effect has no parameters.
   "timing": "during_strike",
   "effect_type": "critical",
   "and": {
-    "effect_type": "powerup",
-    "amount": 2
+	"effect_type": "powerup",
+	"amount": 2
   }
 }
 ```

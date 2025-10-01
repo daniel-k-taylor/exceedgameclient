@@ -352,6 +352,7 @@ var last_spent_life : int
 var opponent_next_strike_forced_wild_swing : bool
 var delayed_wild_strike : bool
 var invalid_card_moved_elsewhere : bool
+var once_per_game_resource : int
 
 func _init(id, player_name, parent_ref, card_db_ref, chosen_deck, card_start_id):
 	my_id = id
@@ -479,6 +480,7 @@ func _init(id, player_name, parent_ref, card_db_ref, chosen_deck, card_start_id)
 	opponent_next_strike_forced_wild_swing = false
 	delayed_wild_strike = false
 	invalid_card_moved_elsewhere = false
+	once_per_game_resource = 1
 
 	if "buddy_cards" in deck_def:
 		var buddy_index = 0
