@@ -366,6 +366,8 @@ func get_condition_text(effect, amount, amount2, detail):
 			text += "If set from boosts, "
 		"was_hit":
 			text += "If you were hit, "
+		"was_not_hit":
+			text += "If you were not hit, "
 		"matches_named_card":
 			text += "If your next attack is %s, " % detail
 		"is_critical":
