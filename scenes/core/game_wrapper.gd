@@ -176,6 +176,12 @@ func get_replacement_boost_description(id):
 
 func get_bonus_actions(id):
 	return _get_player(id).get_bonus_actions()
+	
+func get_once_per_game_mechanic_name(id):
+	return _get_player(id).once_per_game_resource_name
+	
+func get_once_per_game_mechanic_available(id):
+	return _get_player(id).once_per_game_resource > 0
 
 func is_player_in_overdrive(id):
 	var player = _get_player(id)
