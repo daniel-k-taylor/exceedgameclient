@@ -6949,6 +6949,14 @@ func get_gauge_cost(performing_player : Player, card, check_if_card_in_hand = fa
 				gauge_cost = range_to_opponent
 
 	return gauge_cost
+	
+	
+func get_force_cost(performing_player : Player, card):
+	var force_cost = card.definition['force_cost']
+	if 'force_cost_crit' in card.definition and performing_player.strike_stat_boosts.critical:
+		force_cost = card.definition['force_cost_crit']
+		
+	return force_cost
 
 func get_alternative_life_cost(performing_player : Player, card):
 	var alternative_life_cost = card.definition.get("alternative_life_cost", 0)
@@ -6963,7 +6971,7 @@ func get_alternative_life_cost(performing_player : Player, card):
 
 func ask_for_cost(performing_player, card, next_state):
 	var gauge_cost = get_gauge_cost(performing_player, card)
-	var force_cost = card.definition['force_cost']
+	var force_cost = get_force_cost(performing_player, card)
 	var alternative_life_cost = get_alternative_life_cost(performing_player, card)
 	var card_has_printed_cost = card.definition['gauge_cost'] > 0 or force_cost > 0
 	var is_special = card.definition['type'] == "special"
@@ -8732,7 +8740,7 @@ func do_pay_strike_cost(
 	var card = active_strike.get_player_card(performing_player)
 	if decision_info.type == Enums.DecisionType.DecisionType_PayStrikeCost_Required and wild_strike:
 		# Only allowed if you can't pay the cost.
-		var force_cost = card.definition['force_cost']
+		var force_cost = get_force_cost(performing_player, card)
 		var gauge_cost = get_gauge_cost(performing_player, card)
 		if performing_player.can_pay_cost(force_cost, gauge_cost):
 			printlog("ERROR: Tried to wild strike when not allowed.")
@@ -8751,7 +8759,7 @@ func do_pay_strike_cost(
 		var new_card = active_strike.get_player_card(performing_player)
 		_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "wild swings %s!" % new_card.definition['display_name'])
 	else:
-		var force_cost = card.definition['force_cost']
+		var force_cost = get_force_cost(performing_player, card)
 		var gauge_cost = get_gauge_cost(performing_player, card)
 		var alternative_life_cost = get_alternative_life_cost(performing_player, card)
 		if alternative_life_cost == 0 and pay_alternative_life_cost:

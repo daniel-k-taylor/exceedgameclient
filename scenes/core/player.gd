@@ -1232,7 +1232,7 @@ func get_cards_in_hand_of_type(limitation : String, limitation_amount : int = 0)
 					cards.append(card)
 			"can_pay_cost":
 				var gauge_cost = parent.get_gauge_cost(self, card, true)
-				var force_cost = card.definition['force_cost']
+				var force_cost = parent.get_force_cost(self, card)
 				if strike_stat_boosts.may_generate_gauge_with_force:
 					# Convert the gauge cost to a force cost.
 					force_cost = gauge_cost
