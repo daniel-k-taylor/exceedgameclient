@@ -6973,7 +6973,7 @@ func ask_for_cost(performing_player, card, next_state):
 	var gauge_cost = get_gauge_cost(performing_player, card)
 	var force_cost = get_force_cost(performing_player, card)
 	var alternative_life_cost = get_alternative_life_cost(performing_player, card)
-	var card_has_printed_cost = card.definition['gauge_cost'] > 0 or force_cost > 0
+	var card_has_printed_cost = card.definition['gauge_cost'] > 0 or card.definition['force_cost'] > 0
 	var is_special = card.definition['type'] == "special"
 	var is_ultra = card.definition['type'] == "ultra"
 	var is_ex = active_strike.get_player_ex_card(performing_player) != null
@@ -7032,11 +7032,12 @@ func ask_for_cost(performing_player, card, next_state):
 				decision_info.type = Enums.DecisionType.DecisionType_PayStrikeCost_Required
 
 			var still_use_gauge = card.definition['gauge_cost'] > 0 and not performing_player.strike_stat_boosts.may_generate_gauge_with_force
+			var still_use_force = card.definition['force_cost'] > 0
 			if gauge_cost > 0 or still_use_gauge:
 				decision_info.limitation = "gauge"
 				decision_info.cost = gauge_cost
 				create_event(Enums.EventType.EventType_Strike_PayCost_Gauge, performing_player.my_id, card.id, "", gauge_discard_reminder, is_ex, alternative_life_cost)
-			elif force_cost > 0:
+			elif force_cost > 0 or still_use_force:
 				decision_info.limitation = "force"
 				decision_info.cost = force_cost
 				create_event(Enums.EventType.EventType_Strike_PayCost_Force, performing_player.my_id, card.id, "", false, is_ex)
