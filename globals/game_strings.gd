@@ -990,6 +990,11 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 				effect_str += effect['description']
 			else:
 				effect_str += ""
+		StrikeEffects.RegainOncePerGameResource:
+			var resource_name = "1PG Mechanic"
+			if 'resource_name' in effect:
+				resource_name = effect['resource_name']
+			effect_str += "Regain %s usage" % resource_name
 		StrikeEffects.OpponentCantMovePast:
 			effect_str += "Opponent cannot Advance past you"
 		StrikeEffects.RemoveOpponentCantMovePast:

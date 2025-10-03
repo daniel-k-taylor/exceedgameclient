@@ -1802,6 +1802,9 @@ func can_do_character_action(action_index : int) -> bool:
 			buddy_id = action['buddy_id']
 		if not is_buddy_in_play(buddy_id): return false
 
+	if 'requires_once_per_game_resource' in action and action['requires_once_per_game_resource']:
+		if once_per_game_resource <= 0: return false
+
 	if 'per_turn_limit' in action:
 		var limit = action['per_turn_limit']
 		var used = 0
