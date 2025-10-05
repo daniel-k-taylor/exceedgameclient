@@ -474,6 +474,76 @@ func get_custom_cards():
 					}
 				]
 			}
+		},
+		{
+			"id": "custom_oncepergamedraw",
+			"type": "special",
+			"display_name": "You Only Money Once",
+			"force_cost": 0,
+			"gauge_cost": 0,
+			"range_min": 1,
+			"range_max": 3,
+			"power": 4,
+			"speed": 5,
+			"armor": 0,
+			"guard": 0,
+			"effects": [
+				{
+					"timing": "hit",
+					"condition": "has_once_per_game_resource",
+					"effect_type": "draw",
+					"amount": 7,
+					"and": {
+						"effect_type": "use_once_per_game_resource"
+					}
+				}
+			],
+			"boost": {
+				"boost_type": "immediate",
+				"force_cost": 0,
+				"cancel_cost": -1,
+				"display_name": "Rewind Time",
+				"effects": [
+					{
+						"timing": "immediate",
+						"effect_type": "regain_once_per_game_resource"
+					},
+					{
+						"timing": "immediate",
+						"effect_type": "strike"
+					},
+				]
+			}
+		},
+		{
+			"id": "custom_freeifcrit",
+			"type": "special",
+			"display_name": "1 dollar or 1 cent",
+			"force_cost": 1,
+			"force_cost_crit": 0,
+			"gauge_cost": 0,
+			"range_min": 5,
+			"range_max": 5,
+			"power": 9,
+			"speed": 4,
+			"armor": 0,
+			"guard": 0,
+			"effects": [
+			],
+			"boost": {
+				"boost_type": "immediate",
+				"force_cost": 0,
+				"cancel_cost": -1,
+				"display_name": "A Vision",
+				"effects": [
+					{
+						"timing": "immediate",
+						"effect_type": "opponent_discard_range_or_reveal",
+						"target_range": "range_from_opponent",
+						"amount": 1
+					},
+				]
+			}
 		}
 	]
 
@@ -743,4 +813,104 @@ func test_name_speed_opponent_discard_speed_boost_discard_3():
 	# Name the speed 0-9 are real speeds, 10 is a valid choice but doesn't exist, 11 is X
 	assert_true(game_logic.do_choice(player1, 3))
 	assert_true(game_logic.do_choose_to_discard(player2, [spike_id]))
+	advance_turn(player2)
+
+# Testing once-per-game effects
+func test_custom_once_per_game_effect():
+	position_players(player1, 4, player2, 7)
+	var initial_cards = len(player1.hand)
+
+	# first time used - draw 7
+	execute_strike(player1, player2, "custom_oncepergamedraw", "standard_normal_assault")
+
+	validate_life(player1, 30, player2, 26)
+	assert_eq(len(player1.hand), initial_cards + 7)
+	advance_turn(player2)
+	
+	# second time used - do not draw
+	execute_strike(player1, player2, "custom_oncepergamedraw", "standard_normal_assault",
+		false, false, [[]])
+
+	validate_life(player1, 30, player2, 22)
+	assert_eq(len(player1.hand), initial_cards + 7)
+	advance_turn(player2)
+	
+func test_custom_once_per_game_effect_refresh():
+	position_players(player1, 4, player2, 7)
+	var initial_cards = len(player1.hand)
+
+	# first time used - draw 7
+	execute_strike(player1, player2, "custom_oncepergamedraw", "standard_normal_assault")
+
+	validate_life(player1, 30, player2, 26)
+	assert_eq(len(player1.hand), initial_cards + 7)
+	advance_turn(player2)
+	
+	# second time used - do not draw
+	var boost_id = give_player_specific_card(player1, "custom_oncepergamedraw")
+	assert_true(game_logic.do_boost(player1, boost_id))
+	execute_strike(player1, player2, "custom_oncepergamedraw", "standard_normal_assault",
+		false, false, [[]])
+
+	validate_life(player1, 30, player2, 22)
+	assert_eq(len(player1.hand), initial_cards + 14)
+	advance_turn(player2)
+
+# Testing force special discount on crit
+func test_custom_force_special_crit_discount():
+	position_players(player1, 3, player2, 8)
+	var gauge_ids = give_gauge(player1, 1)
+
+	execute_strike(player1, player2, "custom_freeifcrit", "standard_normal_sweep",
+		false, false, [gauge_ids])
+
+	validate_life(player1, 30, player2, 21)
+	advance_turn(player2)
+
+func test_custom_force_special_crit_discount_invalidate():
+	position_players(player1, 3, player2, 8)
+	var gauge_ids = give_gauge(player1, 1)
+	
+	var strike_card = give_player_specific_card(player1, "standard_normal_sweep")
+	player1.move_card_from_hand_to_deck(strike_card)
+	var invalidatable_card = give_player_specific_card(player1, "custom_freeifcrit")
+	player1.move_card_from_hand_to_deck(invalidatable_card)
+	
+	var response_card = give_player_specific_card(player2, "standard_normal_assault")
+
+	game_logic.do_strike(player1, -1, true, -1) # wild swing
+	game_logic.do_gauge_for_effect(player1, gauge_ids) # spend for crit
+	game_logic.do_strike(player2, response_card, false, -1) # respond with assault
+	game_logic.do_pay_strike_cost(player1, [], true) # wild swing into special; should be able to invalidate
+
+	validate_life(player1, 30, player2, 24)
+	validate_positions(player1, 3, player2, 6)
+	assert_true(player1.is_card_in_discards(invalidatable_card))
+	advance_turn(player2)
+
+# Testing current-range parry
+func test_custom_current_range_parry_success():
+	position_players(player1, 3, player2, 5)
+	
+	player2.discard_hand()
+	var target_id = give_player_specific_card(player2, "standard_normal_sweep")
+	
+	var boost_id = give_player_specific_card(player1, "custom_freeifcrit")
+	assert_true(game_logic.do_boost(player1, boost_id))
+	assert_true(game_logic.do_choose_to_discard(player2, [target_id]))
+
+	assert_true(player2.is_card_in_discards(target_id))
+	advance_turn(player2)
+
+func test_custom_current_range_parry_fail():
+	position_players(player1, 3, player2, 7)
+	
+	player2.discard_hand()
+	var target_id = give_player_specific_card(player2, "standard_normal_sweep")
+	
+	var boost_id = give_player_specific_card(player1, "custom_freeifcrit")
+	assert_true(game_logic.do_boost(player1, boost_id))
+
+	assert_true(player2.is_card_in_hand(target_id))
+	assert_true("standard_normal_sweep" in player2.get_public_hand_info()["known"])
 	advance_turn(player2)

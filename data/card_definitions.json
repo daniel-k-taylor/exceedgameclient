@@ -34405,5 +34405,30 @@
 			]
 		},
 		"NOTEEND": "STANDARD NORMALS END"
+	},
+	
+	
+	{
+		"id": "null_reference",
+		"type": "none",
+		"display_name": "Reference",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 0,
+		"range_max": 0,
+		"power": 0,
+		"speed": 0,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+		],
+		"boost": {
+			"boost_type": "immediate",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Nothing",
+			"effects": [
+			]
+		}
 	}
 ]

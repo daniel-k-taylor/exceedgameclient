@@ -35,8 +35,8 @@ None - this effect has no parameters.
   "timing": "during_strike",
   "effect_type": "invert_range",
   "and": {
-    "effect_type": "attack_includes_range",
-    "amount": 1
+	"effect_type": "attack_includes_range",
+	"amount": 1
   }
 }
 ```

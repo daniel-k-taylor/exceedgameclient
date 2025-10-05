@@ -1582,6 +1582,8 @@ func is_effect_condition_met(performing_player : Player, effect, local_condition
 			return performing_player.strike_stat_boosts.strike_x > amount
 		elif condition == "was_hit":
 			return performing_player.strike_stat_boosts.was_hit
+		elif condition == "was_not_hit":
+			return not performing_player.strike_stat_boosts.was_hit
 		elif condition == "was_wild_swing":
 			if active_strike:
 				var detail = effect.get("condition_detail", false)
@@ -1670,6 +1672,8 @@ func is_effect_condition_met(performing_player : Player, effect, local_condition
 		elif condition == "boosted_from_gauge":
 			assert(active_boost)
 			return active_boost.boosted_from_gauge
+		elif condition == "has_once_per_game_resource":
+			return performing_player.once_per_game_resource > 0
 		else:
 			assert(false, "Unimplemented condition")
 		# Unmet condition
@@ -2573,10 +2577,14 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 			else:
 				_append_log_full(Enums.LogType.LogType_Effect, performing_player, "has no other hit effects to copy.")
 		StrikeEffects.Critical:
+			var crit_name = "Critical"
+			if 'alt_crit_name' in effect:
+				crit_name = effect['alt_crit_name']
+			
 			performing_player.strike_stat_boosts.critical = true
-			_append_log_full(Enums.LogType.LogType_Effect, performing_player, "'s strike is Critical!")
+			_append_log_full(Enums.LogType.LogType_Effect, performing_player, "'s strike is %s!" % crit_name)
 			var strike_card = active_strike.get_player_card(performing_player)
-			create_event(Enums.EventType.EventType_Strike_Critical, performing_player.my_id, strike_card.id)
+			create_event(Enums.EventType.EventType_Strike_Critical, performing_player.my_id, strike_card.id, crit_name)
 		StrikeEffects.DiscardThis:
 			if active_boost and not effect.get("ignore_active_boost"):
 				active_boost.discard_on_cleanup = true
@@ -3474,6 +3482,9 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 				create_event(Enums.EventType.EventType_Strike_ChooseToDiscard, opposing_player.my_id, amount)
 		StrikeEffects.OpponentDiscardRangeOrReveal:
 			var target_range = effect['target_range']
+			if target_range is String and target_range == "range_from_opponent":
+				target_range = opposing_player.distance_to_opponent()
+			
 			var range_name_str = target_range
 			if not target_range is String:
 				range_name_str = "Range %s" % target_range
@@ -3769,6 +3780,10 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 			performing_player.strike_stat_boosts.speed_bonus_multiplier = max(effect['amount'], performing_player.strike_stat_boosts.speed_bonus_multiplier)
 		StrikeEffects.NonlethalAttack:
 			performing_player.strike_stat_boosts.deal_nonlethal_damage = true
+		StrikeEffects.RegainOncePerGameResource:
+			performing_player.once_per_game_resource = 1
+		StrikeEffects.UseOncePerGameResource:
+			performing_player.once_per_game_resource = 0
 		StrikeEffects.OpponentCantMoveIfInRange:
 			opposing_player.strike_stat_boosts.cannot_move_if_in_opponents_range = true
 			_append_log_full(Enums.LogType.LogType_Effect, opposing_player, "is prevented from moving while in %s's range." % performing_player.name)
@@ -5550,86 +5565,100 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 					if active_post_action_effect:
 						post_action_interruption = true
 		StrikeEffects.StrikeEffectAfterSetting:
-			if not active_boost:
-				create_event(Enums.EventType.EventType_ForceStartStrike, performing_player.my_id, 0)
-			change_game_state(Enums.GameState.GameState_WaitForStrike)
-			decision_info.clear()
-			decision_info.type = Enums.DecisionType.DecisionType_StrikeNow
-			decision_info.player = performing_player.my_id
-			performing_player.extra_effect_after_set_strike = effect['after_set_effect']
+			# Cannot strike during a strike.
+			if not active_strike:
+				if not active_boost:
+					create_event(Enums.EventType.EventType_ForceStartStrike, performing_player.my_id, 0)
+				change_game_state(Enums.GameState.GameState_WaitForStrike)
+				decision_info.clear()
+				decision_info.type = Enums.DecisionType.DecisionType_StrikeNow
+				decision_info.player = performing_player.my_id
+				performing_player.extra_effect_after_set_strike = effect['after_set_effect']
 		StrikeEffects.StrikeEffectAfterOpponentSets:
-			if not active_boost:
-				create_event(Enums.EventType.EventType_ForceStartStrike, performing_player.my_id, 0)
-			change_game_state(Enums.GameState.GameState_WaitForStrike)
-			decision_info.clear()
-			decision_info.type = Enums.DecisionType.DecisionType_StrikeNow
-			decision_info.player = performing_player.my_id
-			opposing_player.extra_effect_after_set_strike = effect['after_set_effect']
+			# Cannot strike during a strike.
+			if not active_strike:
+				if not active_boost:
+					create_event(Enums.EventType.EventType_ForceStartStrike, performing_player.my_id, 0)
+				change_game_state(Enums.GameState.GameState_WaitForStrike)
+				decision_info.clear()
+				decision_info.type = Enums.DecisionType.DecisionType_StrikeNow
+				decision_info.player = performing_player.my_id
+				opposing_player.extra_effect_after_set_strike = effect['after_set_effect']
 		StrikeEffects.StrikeFaceup:
-			var disable_wild_swing = 'disable_wild_swing' in effect and effect['disable_wild_swing']
-			var disable_ex = 'disable_ex' in effect and effect['disable_ex']
-			if not active_boost:
-				create_event(Enums.EventType.EventType_ForceStartStrike, performing_player.my_id, 0, "", disable_wild_swing, disable_ex)
-			change_game_state(Enums.GameState.GameState_WaitForStrike)
-			decision_info.clear()
-			decision_info.type = Enums.DecisionType.DecisionType_StrikeNow
-			decision_info.player = performing_player.my_id
-			performing_player.next_strike_faceup = true
-		StrikeEffects.StrikeFromGauge:
-			decision_info.clear()
-			decision_info.type = Enums.DecisionType.DecisionType_StrikeNow
-			decision_info.player = performing_player.my_id
-			decision_info.source = "gauge"
-			if len(performing_player.gauge) > 0:
-				if not active_boost: # Boosts will send strikes on their own
-					create_event(Enums.EventType.EventType_Strike_FromGauge, performing_player.my_id, 0)
+			# Cannot strike during a strike.
+			if not active_strike:
+				var disable_wild_swing = 'disable_wild_swing' in effect and effect['disable_wild_swing']
+				var disable_ex = 'disable_ex' in effect and effect['disable_ex']
+				if not active_boost:
+					create_event(Enums.EventType.EventType_ForceStartStrike, performing_player.my_id, 0, "", disable_wild_swing, disable_ex)
 				change_game_state(Enums.GameState.GameState_WaitForStrike)
+				decision_info.clear()
+				decision_info.type = Enums.DecisionType.DecisionType_StrikeNow
+				decision_info.player = performing_player.my_id
 				performing_player.next_strike_faceup = true
-				performing_player.next_strike_from_gauge = true
-			else:
-				change_game_state(Enums.GameState.GameState_WaitForStrike)
-				var strike_info = {
-					"card_id": -1,
-					"wild_swing": true,
-					"ex_card_id": -1
-				}
-				_append_log_full(Enums.LogType.LogType_Effect, performing_player, "has no gauge to strike with.")
-				if not active_boost: # Boosts will send strikes on their own
-					create_event(Enums.EventType.EventType_Strike_EffectDoStrike, performing_player.my_id, 0, "", strike_info)
+		StrikeEffects.StrikeFromGauge:
+			# Cannot strike during a strike.
+			if not active_strike:
+				decision_info.clear()
+				decision_info.type = Enums.DecisionType.DecisionType_StrikeNow
+				decision_info.player = performing_player.my_id
+				decision_info.source = "gauge"
+				if len(performing_player.gauge) > 0:
+					if not active_boost: # Boosts will send strikes on their own
+						create_event(Enums.EventType.EventType_Strike_FromGauge, performing_player.my_id, 0)
+					change_game_state(Enums.GameState.GameState_WaitForStrike)
+					performing_player.next_strike_faceup = true
+					performing_player.next_strike_from_gauge = true
+				else:
+					change_game_state(Enums.GameState.GameState_WaitForStrike)
+					var strike_info = {
+						"card_id": -1,
+						"wild_swing": true,
+						"ex_card_id": -1
+					}
+					_append_log_full(Enums.LogType.LogType_Effect, performing_player, "has no gauge to strike with.")
+					if not active_boost: # Boosts will send strikes on their own
+						create_event(Enums.EventType.EventType_Strike_EffectDoStrike, performing_player.my_id, 0, "", strike_info)
 		StrikeEffects.StrikeFromSealed:
-			decision_info.clear()
-			decision_info.type = Enums.DecisionType.DecisionType_StrikeNow
-			decision_info.player = performing_player.my_id
-			decision_info.source = "sealed"
-			if len(performing_player.sealed) > 0:
-				change_game_state(Enums.GameState.GameState_WaitForStrike)
-				performing_player.next_strike_faceup = not performing_player.sealed_area_is_secret
-				performing_player.next_strike_from_sealed = true
-				if not active_boost: # Boosts will send strikes on their own
-					create_event(Enums.EventType.EventType_Strike_FromGauge, performing_player.my_id, 0)
-			else:
-				change_game_state(Enums.GameState.GameState_WaitForStrike)
-				var strike_info = {
-					"card_id": -1,
-					"wild_swing": true,
-					"ex_card_id": -1
-				}
-				_append_log_full(Enums.LogType.LogType_Effect, performing_player, "has no sealed cards to strike with.")
-				if not active_boost: # Boosts will send strikes on their own
-					create_event(Enums.EventType.EventType_Strike_EffectDoStrike, performing_player.my_id, 0, "", strike_info)
+			# Cannot strike during a strike.
+			if not active_strike:
+				decision_info.clear()
+				decision_info.type = Enums.DecisionType.DecisionType_StrikeNow
+				decision_info.player = performing_player.my_id
+				decision_info.source = "sealed"
+				if len(performing_player.sealed) > 0:
+					change_game_state(Enums.GameState.GameState_WaitForStrike)
+					performing_player.next_strike_faceup = not performing_player.sealed_area_is_secret
+					performing_player.next_strike_from_sealed = true
+					if not active_boost: # Boosts will send strikes on their own
+						create_event(Enums.EventType.EventType_Strike_FromGauge, performing_player.my_id, 0)
+				else:
+					change_game_state(Enums.GameState.GameState_WaitForStrike)
+					var strike_info = {
+						"card_id": -1,
+						"wild_swing": true,
+						"ex_card_id": -1
+					}
+					_append_log_full(Enums.LogType.LogType_Effect, performing_player, "has no sealed cards to strike with.")
+					if not active_boost: # Boosts will send strikes on their own
+						create_event(Enums.EventType.EventType_Strike_EffectDoStrike, performing_player.my_id, 0, "", strike_info)
 		StrikeEffects.StrikeOpponentSetsFirst:
-			create_event(Enums.EventType.EventType_Strike_OpponentSetsFirst, performing_player.my_id, 0)
-			change_game_state(Enums.GameState.GameState_Strike_Opponent_Set_First)
-			decision_info.clear()
-			decision_info.type = Enums.DecisionType.DecisionType_StrikeNow
-			decision_info.player = performing_player.my_id
+			# Cannot strike during a strike.
+			if not active_strike:
+				create_event(Enums.EventType.EventType_Strike_OpponentSetsFirst, performing_player.my_id, 0)
+				change_game_state(Enums.GameState.GameState_Strike_Opponent_Set_First)
+				decision_info.clear()
+				decision_info.type = Enums.DecisionType.DecisionType_StrikeNow
+				decision_info.player = performing_player.my_id
 		StrikeEffects.StrikeRandomFromGauge:
-			create_event(Enums.EventType.EventType_Strike_OpponentSetsFirst, performing_player.my_id, 0)
-			change_game_state(Enums.GameState.GameState_Strike_Opponent_Set_First)
-			decision_info.clear()
-			decision_info.type = Enums.DecisionType.DecisionType_StrikeNow
-			decision_info.player = performing_player.my_id
-			performing_player.next_strike_random_gauge = true
+			# Cannot strike during a strike.
+			if not active_strike:
+				create_event(Enums.EventType.EventType_Strike_OpponentSetsFirst, performing_player.my_id, 0)
+				change_game_state(Enums.GameState.GameState_Strike_Opponent_Set_First)
+				decision_info.clear()
+				decision_info.type = Enums.DecisionType.DecisionType_StrikeNow
+				decision_info.player = performing_player.my_id
+				performing_player.next_strike_random_gauge = true
 		StrikeEffects.StrikeResponseReading:
 			var card = effect['card_id']
 			var ex_card = -1
@@ -5649,18 +5678,20 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 				decision_info.clear()
 				decision_info.effect_type = "happychaos_deusexmachina"
 		StrikeEffects.StrikeWithEx:
-			if performing_player.can_ex_strike_with_something():
-				change_game_state(Enums.GameState.GameState_WaitForStrike)
-				decision_info.clear()
-				decision_info.type = Enums.DecisionType.DecisionType_StrikeNow
-				decision_info.player = performing_player.my_id
-				if performing_player.has_ex_boost():
-					# Then any attack would be a valid EX
-					create_event(Enums.EventType.EventType_ForceStartStrike, performing_player.my_id, 0)
-				else:
-					decision_info.limitation = "EX"
-					var disable_wild_swing = true
-					create_event(Enums.EventType.EventType_ForceStartStrike, performing_player.my_id, 0, "", disable_wild_swing)
+			# Cannot strike during a strike.
+			if not active_strike:
+				if performing_player.can_ex_strike_with_something():
+					change_game_state(Enums.GameState.GameState_WaitForStrike)
+					decision_info.clear()
+					decision_info.type = Enums.DecisionType.DecisionType_StrikeNow
+					decision_info.player = performing_player.my_id
+					if performing_player.has_ex_boost():
+						# Then any attack would be a valid EX
+						create_event(Enums.EventType.EventType_ForceStartStrike, performing_player.my_id, 0)
+					else:
+						decision_info.limitation = "EX"
+						var disable_wild_swing = true
+						create_event(Enums.EventType.EventType_ForceStartStrike, performing_player.my_id, 0, "", disable_wild_swing)
 		StrikeEffects.StrikeWild:
 			# If a character has delayed wild strikes, they use this for the choices
 			# but the strike will automatically occur after the set strike effects finish.
@@ -6918,6 +6949,14 @@ func get_gauge_cost(performing_player : Player, card, check_if_card_in_hand = fa
 				gauge_cost = range_to_opponent
 
 	return gauge_cost
+	
+	
+func get_force_cost(performing_player : Player, card):
+	var force_cost = card.definition['force_cost']
+	if 'force_cost_crit' in card.definition and performing_player.strike_stat_boosts.critical:
+		force_cost = card.definition['force_cost_crit']
+		
+	return force_cost
 
 func get_alternative_life_cost(performing_player : Player, card):
 	var alternative_life_cost = card.definition.get("alternative_life_cost", 0)
@@ -6932,9 +6971,9 @@ func get_alternative_life_cost(performing_player : Player, card):
 
 func ask_for_cost(performing_player, card, next_state):
 	var gauge_cost = get_gauge_cost(performing_player, card)
-	var force_cost = card.definition['force_cost']
+	var force_cost = get_force_cost(performing_player, card)
 	var alternative_life_cost = get_alternative_life_cost(performing_player, card)
-	var card_has_printed_cost = card.definition['gauge_cost'] > 0 or force_cost > 0
+	var card_has_printed_cost = card.definition['gauge_cost'] > 0 or card.definition['force_cost'] > 0
 	var is_special = card.definition['type'] == "special"
 	var is_ultra = card.definition['type'] == "ultra"
 	var is_ex = active_strike.get_player_ex_card(performing_player) != null
@@ -6993,11 +7032,12 @@ func ask_for_cost(performing_player, card, next_state):
 				decision_info.type = Enums.DecisionType.DecisionType_PayStrikeCost_Required
 
 			var still_use_gauge = card.definition['gauge_cost'] > 0 and not performing_player.strike_stat_boosts.may_generate_gauge_with_force
+			var still_use_force = card.definition['force_cost'] > 0
 			if gauge_cost > 0 or still_use_gauge:
 				decision_info.limitation = "gauge"
 				decision_info.cost = gauge_cost
 				create_event(Enums.EventType.EventType_Strike_PayCost_Gauge, performing_player.my_id, card.id, "", gauge_discard_reminder, is_ex, alternative_life_cost)
-			elif force_cost > 0:
+			elif force_cost > 0 or still_use_force:
 				decision_info.limitation = "force"
 				decision_info.cost = force_cost
 				create_event(Enums.EventType.EventType_Strike_PayCost_Force, performing_player.my_id, card.id, "", false, is_ex)
@@ -8701,7 +8741,7 @@ func do_pay_strike_cost(
 	var card = active_strike.get_player_card(performing_player)
 	if decision_info.type == Enums.DecisionType.DecisionType_PayStrikeCost_Required and wild_strike:
 		# Only allowed if you can't pay the cost.
-		var force_cost = card.definition['force_cost']
+		var force_cost = get_force_cost(performing_player, card)
 		var gauge_cost = get_gauge_cost(performing_player, card)
 		if performing_player.can_pay_cost(force_cost, gauge_cost):
 			printlog("ERROR: Tried to wild strike when not allowed.")
@@ -8720,7 +8760,7 @@ func do_pay_strike_cost(
 		var new_card = active_strike.get_player_card(performing_player)
 		_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "wild swings %s!" % new_card.definition['display_name'])
 	else:
-		var force_cost = card.definition['force_cost']
+		var force_cost = get_force_cost(performing_player, card)
 		var gauge_cost = get_gauge_cost(performing_player, card)
 		var alternative_life_cost = get_alternative_life_cost(performing_player, card)
 		if alternative_life_cost == 0 and pay_alternative_life_cost:

@@ -83,6 +83,7 @@ var manual_flip_needed = false
 var skip_flip_when_drawing = false
 var remaining_count = -1
 var hand_icon_state = {}
+var hide_count = false
 
 var follow_mouse = false
 var saved_hand_index = -1
@@ -127,6 +128,9 @@ func _ready():
 	topdeck_texture = load("res://assets/icons/topdeck.png")
 
 func set_remaining_count(count : int):
+	if hide_count:
+		return
+		
 	remaining_count_obj.visible = true
 	remaining_count = count
 	if count == 0:

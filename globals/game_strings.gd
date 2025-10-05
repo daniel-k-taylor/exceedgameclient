@@ -366,10 +366,15 @@ func get_condition_text(effect, amount, amount2, detail):
 			text += "If set from boosts, "
 		"was_hit":
 			text += "If you were hit, "
+		"was_not_hit":
+			text += "If you were not hit, "
 		"matches_named_card":
 			text += "If your next attack is %s, " % detail
 		"is_critical":
-			text += "Crit: "
+			var crit_name = "Crit"
+			if 'alt_crit_name' in condition:
+				crit_name = condition['alt_crit_name']
+			text += "%s: " % crit_name
 		"no_sealed_copy_of_attack":
 			text += "If there is no sealed copy of your attack, "
 		"total_powerup_greater_or_equal":
@@ -388,6 +393,8 @@ func get_condition_text(effect, amount, amount2, detail):
 			text += ""
 		"spent_gauge_this_strike":
 			text += "If you spent gauge this strike, "
+		"has_once_per_game_resource":
+			text += ""
 		_:
 			text += "MISSING CONDITION"
 	return text
@@ -702,7 +709,10 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 		StrikeEffects.CopyOtherHitEffect:
 			effect_str += "Copy another Hit effect"
 		StrikeEffects.Critical:
-			effect_str += "Critical Strike"
+			var crit_name = "Critical"
+			if 'alt_crit_name' in effect:
+				crit_name = effect['alt_crit_name']
+			effect_str += "%s Strike" % crit_name
 		StrikeEffects.DiscardThis:
 			effect_str += "Discard this"
 		StrikeEffects.DiscardSameCardAsBoost:
@@ -980,6 +990,11 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 				effect_str += effect['description']
 			else:
 				effect_str += ""
+		StrikeEffects.RegainOncePerGameResource:
+			var resource_name = "1PG Mechanic"
+			if 'resource_name' in effect:
+				resource_name = effect['resource_name']
+			effect_str += "Regain %s usage" % resource_name
 		StrikeEffects.OpponentCantMovePast:
 			effect_str += "Opponent cannot Advance past you"
 		StrikeEffects.RemoveOpponentCantMovePast:

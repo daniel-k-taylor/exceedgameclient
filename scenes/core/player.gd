@@ -352,6 +352,8 @@ var last_spent_life : int
 var opponent_next_strike_forced_wild_swing : bool
 var delayed_wild_strike : bool
 var invalid_card_moved_elsewhere : bool
+var once_per_game_resource : int
+var once_per_game_resource_name : String
 
 func _init(id, player_name, parent_ref, card_db_ref, chosen_deck, card_start_id):
 	my_id = id
@@ -373,11 +375,19 @@ func _init(id, player_name, parent_ref, card_db_ref, chosen_deck, card_start_id)
 	set_aside_cards = []
 	sealed = []
 	for deck_card_def in deck_def['cards']:
-		var card_def = CardDataManager.get_card(deck_card_def['definition_id'])
+		var reference_only = 'reference_only' in deck_card_def and deck_card_def['reference_only']
+		var definition_id = ""
+		if reference_only:
+			definition_id = 'null_reference'
+		else:
+			definition_id = deck_card_def['definition_id']
+		
+		var card_def = CardDataManager.get_card(definition_id)
 		var image_atlas = deck_def['image_resources'][deck_card_def['image_name']]
 		var image_index = deck_card_def['image_index']
 		var card = GameCard.new(card_start_id, card_def, id, image_atlas, image_index)
 		card_database.add_card(card)
+		card.reference_only = reference_only
 		if 'set_aside' in deck_card_def and deck_card_def['set_aside']:
 			card.set_aside = true
 			card.hide_from_reference = 'hide_from_reference' in deck_card_def and deck_card_def['hide_from_reference']
@@ -385,7 +395,7 @@ func _init(id, player_name, parent_ref, card_db_ref, chosen_deck, card_start_id)
 		elif 'start_sealed' in deck_card_def and deck_card_def['start_sealed']:
 			sealed.append(card)
 			parent.create_event(Enums.EventType.EventType_Seal, my_id, card.id, "", false)
-		else:
+		elif not reference_only:
 			deck.append(card)
 		deck_list.append(card)
 		card_start_id += 1
@@ -479,6 +489,10 @@ func _init(id, player_name, parent_ref, card_db_ref, chosen_deck, card_start_id)
 	opponent_next_strike_forced_wild_swing = false
 	delayed_wild_strike = false
 	invalid_card_moved_elsewhere = false
+	once_per_game_resource = 1
+	once_per_game_resource_name = ""
+	if "once_per_game_mechanic" in deck_def:
+		once_per_game_resource_name = deck_def['once_per_game_mechanic']
 
 	if "buddy_cards" in deck_def:
 		var buddy_index = 0
@@ -1230,7 +1244,7 @@ func get_cards_in_hand_of_type(limitation : String, limitation_amount : int = 0)
 					cards.append(card)
 			"can_pay_cost":
 				var gauge_cost = parent.get_gauge_cost(self, card, true)
-				var force_cost = card.definition['force_cost']
+				var force_cost = parent.get_force_cost(self, card)
 				if strike_stat_boosts.may_generate_gauge_with_force:
 					# Convert the gauge cost to a force cost.
 					force_cost = gauge_cost
@@ -1787,6 +1801,9 @@ func can_do_character_action(action_index : int) -> bool:
 		if 'buddy_id' in action:
 			buddy_id = action['buddy_id']
 		if not is_buddy_in_play(buddy_id): return false
+
+	if 'requires_once_per_game_resource' in action and action['requires_once_per_game_resource']:
+		if once_per_game_resource <= 0: return false
 
 	if 'per_turn_limit' in action:
 		var limit = action['per_turn_limit']

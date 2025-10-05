@@ -695,6 +695,10 @@ func spawn_deck(deck_list,
 
 	for card in deck_list:
 		var logic_card : GameCard = card_db.get_card(card.id)
+		
+		if logic_card.reference_only:
+			continue
+		
 		var new_card = await create_card(card.id, logic_card.definition, logic_card.get_image_url_index_data(), card_back_url,
 			deck_card_zone, is_opponent, logic_card.definition['display_name'], logic_card.definition['boost']['display_name'])
 		if observer_mode and not replay_mode:
@@ -718,10 +722,12 @@ func spawn_deck(deck_list,
 
 		if logic_card.hide_from_reference:
 			continue
-		if previous_def_id != logic_card.definition['id']:
+		if previous_def_id != logic_card.definition['id'] or logic_card.reference_only:
 			var copy_card = await create_card(card.id + ReferenceScreenIdRangeStart, logic_card.definition,
 				logic_card.get_image_url_index_data(), card_back_url, copy_zone, is_opponent,
 				logic_card.definition['display_name'], logic_card.definition['boost']['display_name'])
+			if logic_card.reference_only:
+				copy_card.hide_count = true
 			copy_card.set_card_and_focus(OffScreen, 0, CardBase.ReferenceCardScale)
 			copy_card.resting_scale = CardBase.ReferenceCardScale
 			copy_card.change_state(CardBase.CardState.CardState_Offscreen)
@@ -1501,7 +1507,7 @@ func _stat_notice_event(event):
 		Enums.EventType.EventType_CharacterAction:
 			notice_text = "Character Action"
 		Enums.EventType.EventType_Strike_Critical:
-			notice_text = "Critical!"
+			notice_text = "%s!" % event['reason']
 		Enums.EventType.EventType_Strike_DodgeAttacks:
 			notice_text = "Dodge Attacks!"
 		Enums.EventType.EventType_Strike_DodgeAttacksAtRange:
@@ -4263,6 +4269,15 @@ func update_boost_summary(player_id, boosts_card_holder, boost_box):
 					add_to_effects.append(effect)
 
 	var boost_summary = ""
+	# Head with once-per-game mechanic tracking
+	var once_per_game_mechanic = game_wrapper.get_once_per_game_mechanic_name(player_id)
+	if once_per_game_mechanic:
+		var once_per_game_mechanic_available = game_wrapper.get_once_per_game_mechanic_available(player_id)
+		if once_per_game_mechanic_available:
+			boost_summary += "[color=gold](%s Available!)[/color]\n" % once_per_game_mechanic
+		else:
+			boost_summary += "[color=gray](%s Used)[/color]\n" % once_per_game_mechanic
+	
 	for effect in normal_effects:
 		if 'hide_effect' not in effect or not effect['hide_effect']:
 			boost_summary += GameStrings.get_effect_text(effect) + "\n"
