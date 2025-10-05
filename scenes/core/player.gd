@@ -395,7 +395,7 @@ func _init(id, player_name, parent_ref, card_db_ref, chosen_deck, card_start_id)
 		elif 'start_sealed' in deck_card_def and deck_card_def['start_sealed']:
 			sealed.append(card)
 			parent.create_event(Enums.EventType.EventType_Seal, my_id, card.id, "", false)
-		elif !reference_only:
+		elif not reference_only:
 			deck.append(card)
 		deck_list.append(card)
 		card_start_id += 1

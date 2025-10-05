@@ -1583,7 +1583,7 @@ func is_effect_condition_met(performing_player : Player, effect, local_condition
 		elif condition == "was_hit":
 			return performing_player.strike_stat_boosts.was_hit
 		elif condition == "was_not_hit":
-			return !performing_player.strike_stat_boosts.was_hit
+			return not performing_player.strike_stat_boosts.was_hit
 		elif condition == "was_wild_swing":
 			if active_strike:
 				var detail = effect.get("condition_detail", false)
