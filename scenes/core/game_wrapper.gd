@@ -188,6 +188,10 @@ func is_player_in_overdrive(id):
 	if 'always_show_overdrive' in player.deck_def and player.deck_def['always_show_overdrive']:
 		return true
 	return _get_player(id).overdrive.size() > 0
+	
+func non_exceed_overdrive_active(id):
+	var player = _get_player(id)
+	return player.non_exceed_overdrive_active
 
 func get_all_non_immediate_continuous_boost_effects(id):
 	var game_player = _get_player(id)

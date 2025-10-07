@@ -1576,6 +1576,8 @@ func _stat_notice_event(event):
 			notice_text = "Wild Swing!"
 		Enums.EventType.EventType_SwapSealedAndDeck:
 			notice_text = "Swap Sealed and Deck"
+		Enums.EventType.EventType_EndOverdrive:
+			notice_text = "Overdrive Ends"
 
 	spawn_damage_popup(notice_text, player)
 	return SmallNoticeDelay
@@ -2707,6 +2709,8 @@ func update_force_generation_message():
 		UISubState.UISubState_SelectCards_ForceForEffect:
 			var effect_str = ""
 			var decision_effect = game_wrapper.get_decision_info().effect
+			if preparing_character_action:
+				decision_effect = prepared_character_action_data['effect']
 			var source_card_name = game_wrapper.get_card_database().get_card_name(game_wrapper.get_decision_info().choice_card_id)
 			if decision_effect['per_force_effect']:
 				var effect = decision_effect['per_force_effect']
@@ -3356,6 +3360,15 @@ func _on_force_for_effect(event):
 	var player = event['event_player']
 	var effect = game_wrapper.get_decision_info().effect
 	if player == Enums.PlayerId.PlayerId_Player  and not observer_mode:
+		if prepared_character_action_data_available("force_for_effect"):
+			var card_ids = prepared_character_action_data['force_ids']
+			var ultras_as_single = prepared_character_action_data['treat_ultras_as_single_force']
+			var success = game_wrapper.submit_force_for_effect(Enums.PlayerId.PlayerId_Player, card_ids, ultras_as_single)
+			if success:
+				prepared_character_action_data = {}
+				change_ui_state(UIState.UIState_WaitForGameServer)
+			return
+			
 		change_ui_state(null, UISubState.UISubState_SelectCards_ForceForEffect)
 		select_card_up_to_force = effect['force_max']
 		var require_max = -1
@@ -3667,6 +3680,8 @@ func _handle_events(events):
 				_on_emote(event)
 			Enums.EventType.EventType_EffectDoBoost:
 				_on_effect_do_boost(event)
+			Enums.EventType.EventType_EndOverdrive:
+				delay = _stat_notice_event(event)
 			Enums.EventType.EventType_Exceed:
 				delay = _on_exceed_event(event)
 			Enums.EventType.EventType_ExceedRevert:
@@ -3890,15 +3905,25 @@ func _update_buttons(no_number_picker_update : bool = false):
 			var can_ex_transform = false
 			var only_in_hand = true
 			var only_in_gauge = true
+			var only_in_hand_or_gauge = true
 			var only_in_boosts = true
 			var only_set_aside = true
 			var allow_change_cards = true
 			for card in selected_cards:
+				var not_hand_or_gauge = false
+				
 				if not game_wrapper.is_card_in_hand(Enums.PlayerId.PlayerId_Player, card.card_id):
 					only_in_hand = false
+				else:
+					not_hand_or_gauge = true
 
 				if not game_wrapper.is_card_in_gauge(Enums.PlayerId.PlayerId_Player, card.card_id):
 					only_in_gauge = false
+				else:
+					not_hand_or_gauge = true
+					
+				if not_hand_or_gauge:
+					only_in_hand_or_gauge = false
 
 				if not game_wrapper.is_card_set_aside(Enums.PlayerId.PlayerId_Player, card.card_id):
 					only_set_aside = false
@@ -4023,6 +4048,11 @@ func _update_buttons(no_number_picker_update : bool = false):
 						var max_cards = shortcut_effect['gauge_max']
 						var valid_card_count = min_cards <= len(selected_cards) and len(selected_cards) <= max_cards
 						shortcut_condition_met = valid_card_count and only_in_gauge
+					elif char_action['shortcut_effect_type'] == "force_for_effect":
+						action_has_shortcut = true
+						action_name = "Spend for "
+						var required_force = shortcut_effect['force_max']
+						shortcut_condition_met = only_in_hand_or_gauge and can_selected_cards_pay_force(required_force)
 
 				if action_has_shortcut:
 					var action_possible = game_wrapper.can_do_character_action(Enums.PlayerId.PlayerId_Player, i)
@@ -4270,6 +4300,10 @@ func update_boost_summary(player_id, boosts_card_holder, boost_box):
 
 	var boost_summary = ""
 	# Head with once-per-game mechanic tracking
+	var non_exceed_overdrive_active = game_wrapper.non_exceed_overdrive_active(player_id)
+	if non_exceed_overdrive_active:
+		boost_summary += "[color=cyan]Overdrive Active![/color]\n"
+	
 	var once_per_game_mechanic = game_wrapper.get_once_per_game_mechanic_name(player_id)
 	if once_per_game_mechanic:
 		var once_per_game_mechanic_available = game_wrapper.get_once_per_game_mechanic_available(player_id)
@@ -4633,6 +4667,13 @@ func _on_character_action_pressed(action_idx : int = 0):
 					if 'valid_card_types' in shortcut_effect:
 						select_gauge_valid_card_types = shortcut_effect['valid_card_types']
 					begin_gauge_selection(-1, false, UISubState.UISubState_SelectCards_GaugeForEffect)
+				"force_for_effect":
+					prepared_character_action_data['effect'] = shortcut_effect
+					change_ui_state(null, UISubState.UISubState_SelectCards_ForceForEffect)
+					select_card_up_to_force = shortcut_effect['force_max']
+					if 'per_force_effect' in shortcut_effect and shortcut_effect['per_force_effect']:
+						assert(false, "Per-Force effect action shortcuts not supported")
+					begin_generate_force_selection(select_card_up_to_force, true)
 				_:
 					assert(false, "Unexpected shortcut character action type")
 					return
@@ -4682,6 +4723,9 @@ func finish_preparing_character_action(selections):
 			prepared_character_action_data['effect_type'] = 'place_buddy_effect'
 		"gauge_for_effect":
 			prepared_character_action_data['gauge_ids'] = selections
+		"force_for_effect":
+			prepared_character_action_data['force_ids'] = selections
+			prepared_character_action_data['treat_ultras_as_single_force'] = treat_ultras_as_single_force
 		_:
 			assert(false, "Unexpected prepared character action type")
 			return

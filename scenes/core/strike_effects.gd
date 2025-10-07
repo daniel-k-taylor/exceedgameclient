@@ -1,5 +1,6 @@
 class_name StrikeEffects
 
+const ActivateNonExceedOverdrive = "activate_non_exceed_overdrive"
 const AddAttackEffect = "add_attack_effect"
 const AddAttackTriggers = "add_attack_triggers"
 const AddBoostToGaugeOnStrikeCleanup = "add_boost_to_gauge_on_strike_cleanup"
@@ -100,6 +101,7 @@ const DiscardRandomAndAddTriggers = "discard_random_and_add_triggers"
 const EffectPerCardInZone = "effect_per_card_in_zone"
 const EnableBoostFromGauge = "enable_boost_from_gauge"
 const EnableEndOfTurnDraw = "enable_end_of_turn_draw"
+const EndOverdrive = "end_overdrive"
 const ExceedEndOfTurn = "exceed_end_of_turn"
 const ExceedNow = "exceed_now"
 const ExceedOpponentNow = "exceed_opponent_now"

@@ -762,7 +762,7 @@ func advance_to_next_turn():
 		change_game_state(Enums.GameState.GameState_GameOver)
 	else:
 		var starting_turn_player = _get_player(active_turn_player)
-		if starting_turn_player.exceeded and starting_turn_player.overdrive.size() > 0:
+		if starting_turn_player.is_overdrive_active() and starting_turn_player.overdrive.size() > 0:
 			# Do overdrive effect.
 			var overdrive_effects = [{
 				"overdrive_action": true,
@@ -776,15 +776,15 @@ func advance_to_next_turn():
 			overdrive_effects.append(starting_turn_player.get_overdrive_effect())
 			overdrive_effects.append({
 				"condition": "overdrive_empty",
-				"effect_type": StrikeEffects.Revert
+				"effect_type": StrikeEffects.EndOverdrive
 			})
 			active_overdrive = true
 			remaining_overdrive_effects = overdrive_effects
 			_append_log_full(Enums.LogType.LogType_Default, starting_turn_player, "'s Overdrive Effects!")
 			do_remaining_overdrive(starting_turn_player)
-		elif starting_turn_player.exceeded and starting_turn_player.has_overdrive and starting_turn_player.overdrive.size() == 0:
+		elif starting_turn_player.is_overdrive_active() and starting_turn_player.overdrive.size() == 0:
 			# Overdrive is empty, so revert to normal.
-			starting_turn_player.revert_exceed()
+			starting_turn_player.end_overdrive()
 			start_begin_turn()
 		else:
 			start_begin_turn()
@@ -1699,6 +1699,8 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 	var buddy_start = performing_player.get_buddy_location()
 	var and_handled_elsewhere = false
 	match effect['effect_type']:
+		StrikeEffects.ActivateNonExceedOverdrive:
+			performing_player.non_exceed_overdrive_active = true
 		StrikeEffects.AddAttackEffect:
 			var current_timing = get_current_strike_timing()
 			var is_current_timing_player = true
@@ -2878,6 +2880,8 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 			performing_player.can_boost_from_gauge = true
 		StrikeEffects.EnableEndOfTurnDraw:
 			performing_player.draw_at_end_of_turn = true
+		StrikeEffects.EndOverdrive:
+			performing_player.end_overdrive()
 		StrikeEffects.ExceedEndOfTurn:
 			performing_player.exceed_at_end_of_turn = true
 		StrikeEffects.ExceedNow:
@@ -9401,8 +9405,24 @@ func do_force_for_effect(performing_player : Player, card_ids : Array, treat_ult
 			decision_effect = decision_info.effect['overall_effect']
 			effect_times = 1
 
-		_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "generates force by discarding %s." % _log_card_name(card_names))
-		performing_player.discard(card_ids)
+		var to_overdrive = 'spent_cards_to_overdrive' in decision_effect and decision_effect['spent_cards_to_overdrive']
+		if to_overdrive:
+			var hand_cards = []
+			var gauge_cards = []
+			for card_id in card_ids:
+				if performing_player.is_card_in_hand(card_id):
+					hand_cards.append(card_id)
+				elif performing_player.is_card_in_gauge(card_id):
+					gauge_cards.append(card_id)
+				else:
+					assert(false)
+					printlog("ERROR: Unexpected source for force sent to overdrive: card id %s" % card_id)
+			performing_player.move_cards_to_overdrive(hand_cards, "hand")
+			performing_player.move_cards_to_overdrive(gauge_cards, "gauge")
+		else:
+			_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "generates force by discarding %s." % _log_card_name(card_names))
+			performing_player.discard(card_ids)
+			
 		for i in range(0, effect_times):
 			handle_strike_effect(decision_info.choice_card_id, decision_effect, performing_player)
 
@@ -9474,8 +9494,11 @@ func do_gauge_for_effect(performing_player : Player, card_ids : Array) -> bool:
 			effect_times = 1
 
 		var to_hand = 'spent_cards_to_hand' in decision_effect and decision_effect['spent_cards_to_hand']
+		var to_overdrive = 'spent_cards_to_overdrive' in decision_effect and decision_effect['spent_cards_to_overdrive']
 		if to_hand:
 			_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "returns card(s) from gauge to hand: %s." % _log_card_name(card_names))
+		elif to_overdrive:
+			_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "adds card(s) from gauge to overdrive: %s." % _log_card_name(card_names))
 		else:
 			_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "spends %s gauge, discarding %s." % [str(gauge_generated), _log_card_name(card_names)])
 
@@ -9483,6 +9506,8 @@ func do_gauge_for_effect(performing_player : Player, card_ids : Array) -> bool:
 		if to_hand:
 			for card_id in card_ids:
 				performing_player.move_card_from_gauge_to_hand(card_id)
+		elif to_overdrive:
+			performing_player.move_cards_to_overdrive(card_ids, "gauge")
 		else:
 			performing_player.discard(card_ids, 0, true)
 		for i in range(0, effect_times):

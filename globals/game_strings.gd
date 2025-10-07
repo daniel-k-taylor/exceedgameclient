@@ -433,6 +433,8 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 	var effect_str = ""
 	var effect_type = effect['effect_type']
 	match effect_type:
+		StrikeEffects.ActivateNonExceedOverdrive:
+			effect_str += "Activate Overdrive"
 		StrikeEffects.AddAttackEffect:
 			if 'description' in effect:
 				effect_str += effect['description']
