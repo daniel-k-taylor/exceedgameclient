@@ -345,6 +345,7 @@ var strike_action_disabled : bool
 var face_attack_id : String
 var spend_life_for_force_amount : int
 var can_boost_from_gauge : bool
+var can_boost_from_extra : bool
 var checked_post_action_effects : bool
 var seal_instead_of_discarding : bool
 var passive_effects : Dictionary
@@ -356,6 +357,7 @@ var once_per_game_resource : int
 var once_per_game_resource_name : String
 var has_non_exceed_overdrive : bool
 var non_exceed_overdrive_active : bool
+var spent_gauge_this_turn : bool
 
 func _init(id, player_name, parent_ref, card_db_ref, chosen_deck, card_start_id):
 	my_id = id
@@ -485,6 +487,9 @@ func _init(id, player_name, parent_ref, card_db_ref, chosen_deck, card_start_id)
 	face_attack_id = ""
 	spend_life_for_force_amount = -1
 	can_boost_from_gauge = false
+	can_boost_from_extra = false
+	if "can_boost_from_extra" in deck_def:
+		can_boost_from_extra = deck_def['can_boost_from_extra']
 	seal_instead_of_discarding = false
 	passive_effects = {}
 	last_spent_life = 0
@@ -499,6 +504,7 @@ func _init(id, player_name, parent_ref, card_db_ref, chosen_deck, card_start_id)
 	if "has_non_exceed_overdrive" in deck_def:
 		has_non_exceed_overdrive = deck_def['has_non_exceed_overdrive']
 	non_exceed_overdrive_active = false
+	spent_gauge_this_turn = false
 
 	if "buddy_cards" in deck_def:
 		var buddy_index = 0
@@ -2028,9 +2034,19 @@ func discard(card_ids : Array, from_top : int = 0, count_as_spent : bool = false
 
 	if spent_any_gauge:
 		var on_spend_gauge_effects = parent.get_all_effects_for_timing("on_spend_gauge", self, null)
-		# Assumption: No choices at this timing.
+		# Choice effects kind of work, but should likely set after_resolution to true
 		for effect in on_spend_gauge_effects:
-			parent.do_effect_if_condition_met(self, effect['card_id'], effect, null)
+			if 'not_during_strike' in effect and effect['not_during_strike'] and parent.active_strike:
+				continue
+			if 'first_time_only' in effect and effect['first_time_only'] and spent_gauge_this_turn:
+				continue
+			
+			var queue_effect = 'after_resolution' in effect and effect['after_resolution']
+			if queue_effect:
+				parent.add_queued_effect(effect)
+			else:
+				parent.do_effect_if_condition_met(self, effect['card_id'], effect, null)
+		spent_gauge_this_turn = true
 
 func move_cards_to_overdrive(card_ids : Array, source : String):
 	var opposing_player = parent._get_player(parent.get_other_player(my_id))
@@ -2357,6 +2373,9 @@ func random_gauge_strike():
 func add_to_gauge(card: GameCard):
 	gauge.append(card)
 	parent.create_event(Enums.EventType.EventType_AddToGauge, my_id, card.id)
+	
+func add_to_set_aside(card: GameCard):
+	set_aside_cards.append(card)
 
 func add_to_discards(card : GameCard, from_top : int = 0):
 	if card.owner_id == my_id or seal_instead_of_discarding:

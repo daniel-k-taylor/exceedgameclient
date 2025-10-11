@@ -415,6 +415,8 @@ func get_effect_type_heading(effect):
 			effect_str += ""
 		StrikeEffects.Pull:
 			effect_str += "Pull "
+		StrikeEffects.Powerup:
+			effect_str += "Gain Power +"
 		StrikeEffects.PullNotPast:
 			effect_str += "Pull without pulling past "
 		StrikeEffects.Push:

@@ -319,6 +319,9 @@ func get_player_sustained_boosts(player_id : Enums.PlayerId) -> Array:
 
 func get_player_available_force(player_id : Enums.PlayerId):
 	return _get_player(player_id).get_available_force()
+	
+func get_player_available_gauge(player_id : Enums.PlayerId):
+	return _get_player(player_id).get_available_gauge()
 
 func get_player_free_force(player_id : Enums.PlayerId, reason : String = ""):
 	if reason == "CHANGE_CARDS" and _get_player(player_id).free_force_cc_only:
@@ -450,6 +453,9 @@ func does_card_contain_range_to_opponent(player_id : Enums.PlayerId, card_id : i
 
 func can_player_boost_from_gauge(player_id : Enums.PlayerId):
 	return _get_player(player_id).can_boost_from_gauge
+	
+func can_player_boost_from_extra(player_id : Enums.PlayerId):
+	return _get_player(player_id).can_boost_from_extra
 
 func can_player_boost(player_id : Enums.PlayerId,
 		card_id : int,
@@ -485,10 +491,18 @@ func can_player_boost(player_id : Enums.PlayerId,
 
 	if ignore_costs:
 		return true
+	var gauge_cost = card_db.get_card_boost_gauge_cost(card_id)
 	var force_cost = card_db.get_card_boost_force_cost(card_id)
-	var boosting_card_force_value = card_db.get_card_force_value(card_id)
-	var force_available = get_player_available_force(player_id) - boosting_card_force_value
-	return force_cost <= force_available
+	if gauge_cost > 0:
+		var boosting_card_gauge_value = 0
+		if is_card_in_gauge(player_id, card_id):
+			boosting_card_gauge_value = 1
+		var gauge_available = get_player_available_gauge(player_id) - boosting_card_gauge_value
+		return gauge_cost <= gauge_available
+	else:
+		var boosting_card_force_value = card_db.get_card_force_value(card_id)
+		var force_available = get_player_available_force(player_id) - boosting_card_force_value
+		return force_cost <= force_available
 
 func can_player_ex_transform(player_id : Enums.PlayerId, card_id : int) -> bool:
 	if not is_card_in_hand(player_id, card_id):
