@@ -741,6 +741,12 @@ func is_card_in_discards(id : int):
 			return true
 	return false
 
+func is_card_in_deck(id : int):
+	for card in deck:
+		if card.id == id:
+			return true
+	return false
+
 func get_copy_in_discards(definition_id : String):
 	for card in discards:
 		if card.definition['id'] == definition_id:

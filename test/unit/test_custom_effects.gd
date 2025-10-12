@@ -544,6 +544,103 @@ func get_custom_cards():
 					},
 				]
 			}
+		},
+		{
+			"id": "custom_tooverdrive",
+			"type": "special",
+			"display_name": "Forceverdrive",
+			"force_cost": 0,
+			"gauge_cost": 0,
+			"range_min": 1,
+			"range_max": 2,
+			"power": 3,
+			"speed": 7,
+			"armor": 0,
+			"guard": 0,
+			"effects": [
+				{
+					"timing": "hit",
+					"effect_type": "force_for_effect",
+					"per_force_effect": null,
+					"overall_effect": {
+						"effect_type": "pass",
+						"spent_cards_to_overdrive": true
+					},
+					"force_max": 4
+				}
+			],
+			"boost": {
+				"boost_type": "immediate",
+				"force_cost": 0,
+				"cancel_cost": -1,
+				"display_name": "Gaugeverdrive",
+				"effects": [
+					{
+						"timing": "immediate",
+						"effect_type": "gauge_for_effect",
+						"per_gauge_effect": null,
+						"overall_effect": {
+							"effect_type": "pass",
+							"spent_cards_to_overdrive": true
+						},
+						"gauge_max": 3
+					}
+				]
+			}
+		},
+		{
+			"id": "custom_kriseffect",
+			"type": "special",
+			"display_name": "Delayed Explosions",
+			"force_cost": 0,
+			"gauge_cost": 0,
+			"range_min": 1,
+			"range_max": 2,
+			"power": 3,
+			"speed": 7,
+			"armor": 0,
+			"guard": 0,
+			"effects": [
+			],
+			"boost": {
+				"boost_type": "immediate",
+				"force_cost": 0,
+				"cancel_cost": -1,
+				"display_name": "delature",
+				"effects": [
+					{
+						"timing": "immediate",
+						"effect_type": "choose_cards_from_top_deck",
+						"look_amount": 5,
+						"action_choices": [
+							"boost_after_current"
+						],
+						"can_pass": false,
+						"destination_unchosen": "topdeck"
+					},
+					{
+						"timing": "immediate",
+						"effect_type": "choose_cards_from_top_deck",
+						"look_amount": 4,
+						"action_choices": [
+							"add_to_hand"
+						],
+						"can_pass": false,
+						"destination_unchosen": "topdeck"
+					},
+					{
+						"timing": "immediate",
+						"effect_type": "choose_cards_from_top_deck",
+						"look_amount": 3,
+						"action_choices": [
+							"strike_after_current"
+						],
+						"can_pass": false,
+						"destination_unchosen": "topdeck",
+						"shuffle_after": true
+					}
+				]
+			}
 		}
 	]
 
@@ -913,4 +1010,73 @@ func test_custom_current_range_parry_fail():
 
 	assert_true(player2.is_card_in_hand(target_id))
 	assert_true("standard_normal_sweep" in player2.get_public_hand_info()["known"])
+	advance_turn(player2)
+	
+# Testing force/gauge for overdrive
+func test_custom_force_to_overdrive():
+	position_players(player1, 3, player2, 5)
+	
+	var force_ids = get_cards_from_hand(player1, 4)
+	
+	execute_strike(player1, player2, "custom_tooverdrive", "standard_normal_assault",
+		false, false, [force_ids])
+	
+	for card_id in force_ids:
+		assert_true(player1.is_card_in_overdrive(card_id))
+		
+	validate_life(player1, 30, player2, 27)
+	validate_positions(player1, 3, player2, 5)
+	advance_turn(player2)
+	
+func test_custom_gauge_to_overdrive():
+	position_players(player1, 3, player2, 5)
+	
+	var gauge_ids = give_gauge(player1, 3)
+	var boost_id = give_player_specific_card(player1, "custom_tooverdrive")
+	
+	assert_true(game_logic.do_boost(player1, boost_id))
+	assert_true(game_logic.do_gauge_for_effect(player1, gauge_ids))
+	
+	for card_id in gauge_ids:
+		assert_true(player1.is_card_in_overdrive(card_id))
+		
+	advance_turn(player2)
+
+# Testing delayed boosting and striking from topdeck
+func test_custom_topdeck_after_current():
+	position_players(player1, 1, player2, 7)
+	
+	var response_id = give_player_specific_card(player2, "standard_normal_grasp")
+	
+	var boost_id = give_player_specific_card(player1, "custom_kriseffect")
+	var topdeck_ids = []
+	for topdeck_card in [
+			"standard_normal_grasp",
+			"standard_normal_cross",
+			"standard_normal_assault",
+			"standard_normal_sweep",
+			"standard_normal_block"]:
+		topdeck_ids.append(give_player_specific_card(player1, topdeck_card))
+		player1.move_card_from_hand_to_deck(topdeck_ids[-1])
+	
+	assert_true(game_logic.do_boost(player1, boost_id))
+	# Queue cross to boost
+	assert_true(game_logic.do_choose_from_topdeck(player1, topdeck_ids[1], "boost_after_current"))
+	# Add assault to hand
+	assert_true(game_logic.do_choose_from_topdeck(player1, topdeck_ids[2], "add_to_hand"))
+	# Queue sweep to strike
+	assert_true(game_logic.do_choose_from_topdeck(player1, topdeck_ids[3], "strike_after_current"))
+	# Use cross boost to advance 3
+	assert_true(game_logic.do_choice(player1, 2))
+	
+	# Strike initiated with sweep, player 2 responds
+	assert_true(game_logic.do_strike(player2, response_id, false, -1))
+		
+	validate_life(player1, 30, player2, 24)
+	validate_positions(player1, 4, player2, 7)
+	assert_true(player1.is_card_in_deck(topdeck_ids[0]))
+	assert_true(player1.is_card_in_discards(topdeck_ids[1]))
+	assert_true(player1.is_card_in_hand(topdeck_ids[2]))
+	assert_true(player1.is_card_in_gauge(topdeck_ids[3]))
+	assert_true(player1.is_card_in_deck(topdeck_ids[4]))
 	advance_turn(player2)
