@@ -369,7 +369,7 @@ func determine_possible_turn_actions():
 	var possible_actions = []
 
 	var boost_zones = ['hand']
-	if 'can_boost_from_extra' in game_player.deck_def and game_player.deck_def['can_boost_from_extra']:
+	if game_player.can_boost_from_extra:
 		boost_zones.append('extra')
 
 	possible_actions += get_prepare_actions()
@@ -584,19 +584,29 @@ func get_boost_actions(valid_zones : Array, limitation : String, ignore_costs : 
 				if card.definition['boost']['boost_type'] != limitation and card.definition['type'] != limitation:
 					continue
 			if does_boost_work(card.id):
+				var gauge_cost = false
 				var cost = card.definition['boost']['force_cost']
+				if 'gauge_cost' in card.definition['boost']:
+					gauge_cost = true
+					cost = card.definition['boost']['gauge_cost']
 				if not ignore_costs and cost > 0:
 					assert(boost_amount <= 1)
-					var all_force_option_ids = []
-					for payment_card in game_player.hand:
-						all_force_option_ids.append(payment_card.id)
-					for payment_card in game_player.gauge:
-						all_force_option_ids.append(payment_card.id)
-					all_force_option_ids.erase(card.id)
-					var combinations = generate_force_combinations(all_force_option_ids, cost, free_force_available)
+					var combinations = []
+					
+					if not gauge_cost:
+						var all_force_option_ids = []
+						for payment_card in game_player.hand:
+							all_force_option_ids.append(payment_card.id)
+						for payment_card in game_player.gauge:
+							all_force_option_ids.append(payment_card.id)
+						all_force_option_ids.erase(card.id)
+						combinations = generate_force_combinations(all_force_option_ids, cost, free_force_available)
+					else:
+						combinations = get_combinations_to_pay_gauge(cost)
+						
 					for combo_result in combinations:
-						var combo = combo_result[0]
-						var use_free_force = combo_result[1]
+						var combo = combo_result if gauge_cost else combo_result[0]
+						var use_free_force = false if gauge_cost else combo_result[1]
 						possible_actions.append(BoostAction.new(card.id, combo, use_free_force, []))
 				else:
 					if boost_amount <= 1:

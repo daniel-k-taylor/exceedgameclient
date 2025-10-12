@@ -110,6 +110,7 @@ enum EventType {
 	EventType_Draw,
 	EventType_Emote,
 	EventType_EffectDoBoost,
+	EventType_EndOverdrive,
 	EventType_Exceed,
 	EventType_ExceedRevert,
 	EventType_ForceForEffect,

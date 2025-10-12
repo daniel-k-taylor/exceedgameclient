@@ -345,6 +345,7 @@ var strike_action_disabled : bool
 var face_attack_id : String
 var spend_life_for_force_amount : int
 var can_boost_from_gauge : bool
+var can_boost_from_extra : bool
 var checked_post_action_effects : bool
 var seal_instead_of_discarding : bool
 var passive_effects : Dictionary
@@ -354,6 +355,9 @@ var delayed_wild_strike : bool
 var invalid_card_moved_elsewhere : bool
 var once_per_game_resource : int
 var once_per_game_resource_name : String
+var has_non_exceed_overdrive : bool
+var non_exceed_overdrive_active : bool
+var spent_gauge_this_turn : bool
 
 func _init(id, player_name, parent_ref, card_db_ref, chosen_deck, card_start_id):
 	my_id = id
@@ -483,6 +487,7 @@ func _init(id, player_name, parent_ref, card_db_ref, chosen_deck, card_start_id)
 	face_attack_id = ""
 	spend_life_for_force_amount = -1
 	can_boost_from_gauge = false
+	can_boost_from_extra = deck_def.get('can_boost_from_extra', false)
 	seal_instead_of_discarding = false
 	passive_effects = {}
 	last_spent_life = 0
@@ -490,9 +495,10 @@ func _init(id, player_name, parent_ref, card_db_ref, chosen_deck, card_start_id)
 	delayed_wild_strike = false
 	invalid_card_moved_elsewhere = false
 	once_per_game_resource = 1
-	once_per_game_resource_name = ""
-	if "once_per_game_mechanic" in deck_def:
-		once_per_game_resource_name = deck_def['once_per_game_mechanic']
+	once_per_game_resource_name = deck_def.get('once_per_game_mechanic', "")
+	has_non_exceed_overdrive = deck_def.get('has_non_exceed_overdrive', false)
+	non_exceed_overdrive_active = false
+	spent_gauge_this_turn = false
 
 	if "buddy_cards" in deck_def:
 		var buddy_index = 0
@@ -673,6 +679,18 @@ func revert_exceed():
 	if 'on_revert' in deck_def:
 		var effect = deck_def['on_revert']
 		parent.handle_strike_effect(-1, effect, self)
+		
+func end_overdrive():
+	# Cleans up Overdrive states; called when OD area is empty at the start of a turn.
+	# Handled differently depending on whether or not it's tied to the character's exceed mode.
+	if has_overdrive:
+		# If the character has an Overdrive exceed, just revert
+		revert_exceed()
+	else:
+		# Otherwise, disable the appropriate toggle and send messages
+		parent._append_log_full(Enums.LogType.LogType_Effect, self, "'s Overdrive ends.")
+		parent.create_event(Enums.EventType.EventType_EndOverdrive, my_id, 0)
+		non_exceed_overdrive_active = false
 
 func mulligan(card_ids : Array):
 	draw(len(card_ids))
@@ -717,6 +735,12 @@ func get_copy_in_hand_match_normals(compare_card : GameCard):
 
 func is_card_in_discards(id : int):
 	for card in discards:
+		if card.id == id:
+			return true
+	return false
+
+func is_card_in_deck(id : int):
+	for card in deck:
 		if card.id == id:
 			return true
 	return false
@@ -1742,41 +1766,36 @@ func get_bonus_actions():
 		if not action.get("condition") or parent.is_effect_condition_met(self, action, null):
 			usable_actions.append(action)
 	return usable_actions
+	
+func _get_all_character_actions():
+	var actions = []
+
+	if exceeded and 'character_action_exceeded' in deck_def:
+		actions = deck_def['character_action_exceeded']
+	elif not exceeded and 'character_action_default' in deck_def:
+		actions = deck_def['character_action_default']
+	
+	if has_non_exceed_overdrive and 'non_exceed_overdrive_actions' in deck_def:
+		actions += deck_def['non_exceed_overdrive_actions']
+		
+	return actions
 
 func get_character_action(i : int = 0) -> Variant:
 	if i >= get_character_action_count():
 		parent.printlog("ERROR: Character action index out of range")
 		return null
 
-	if exceeded and 'character_action_exceeded' in deck_def:
-		var actions = deck_def['character_action_exceeded']
-		return actions[i]
-	elif not exceeded and 'character_action_default' in deck_def:
-		var actions = deck_def['character_action_default']
-		return actions[i]
-	return null
+	return _get_all_character_actions()[i]
 
 func get_character_action_count():
-	if exceeded and 'character_action_exceeded' in deck_def:
-		var actions = deck_def['character_action_exceeded']
-		return len(actions)
-	elif not exceeded and 'character_action_default' in deck_def:
-		var actions = deck_def['character_action_default']
-		return len(actions)
-	return 0
+	return len(_get_all_character_actions())
 
 func can_do_character_action(action_index : int) -> bool:
 	if action_index >= get_character_action_count():
 		parent.printlog("ERROR: Character action index out of range")
 		return false
 
-	var action = null
-	if exceeded and 'character_action_exceeded' in deck_def:
-		action = deck_def['character_action_exceeded'][action_index]
-	elif not exceeded and 'character_action_default' in deck_def:
-		action = deck_def['character_action_default'][action_index]
-	else:
-		return false
+	var action = _get_all_character_actions()[action_index]
 
 	var gauge_cost = action['gauge_cost']
 	var force_cost = action['force_cost']
@@ -2019,9 +2038,19 @@ func discard(card_ids : Array, from_top : int = 0, count_as_spent : bool = false
 
 	if spent_any_gauge:
 		var on_spend_gauge_effects = parent.get_all_effects_for_timing("on_spend_gauge", self, null)
-		# Assumption: No choices at this timing.
+		# Choice effects kind of work, but should likely set after_resolution to true
 		for effect in on_spend_gauge_effects:
-			parent.do_effect_if_condition_met(self, effect['card_id'], effect, null)
+			if effect.get('not_during_strike', false) and parent.active_strike:
+				continue
+			if effect.get('first_time_only', false) and spent_gauge_this_turn:
+				continue
+			
+			var queue_effect = effect.get('after_resolution', false)
+			if queue_effect:
+				parent.add_queued_effect(effect)
+			else:
+				parent.do_effect_if_condition_met(self, effect['card_id'], effect, null)
+		spent_gauge_this_turn = true
 
 func move_cards_to_overdrive(card_ids : Array, source : String):
 	var opposing_player = parent._get_player(parent.get_other_player(my_id))
@@ -2348,6 +2377,9 @@ func random_gauge_strike():
 func add_to_gauge(card: GameCard):
 	gauge.append(card)
 	parent.create_event(Enums.EventType.EventType_AddToGauge, my_id, card.id)
+	
+func add_to_set_aside(card: GameCard):
+	set_aside_cards.append(card)
 
 func add_to_discards(card : GameCard, from_top : int = 0):
 	if card.owner_id == my_id or seal_instead_of_discarding:
@@ -3113,6 +3145,12 @@ func get_character_effects_at_timing(timing_name : String):
 	for effect in deck_def[ability_label]:
 		if effect['timing'] == timing_name:
 			effects.append(effect)
+	
+	# special overdrive handling
+	if non_exceed_overdrive_active and 'non_exceed_overdrive_effects' in deck_def:
+		for effect in deck_def["non_exceed_overdrive_effects"]:
+			if effect['timing'] == timing_name:
+				effects.append(effect)
 
 	# Check for lightning rods.
 	if timing_name == "after":
@@ -3154,6 +3192,8 @@ func get_on_boost_effects(boost_card : GameCard):
 	var is_continuous_boost = boost_card.definition['boost']['boost_type'] == "continuous"
 
 	var effect_sets = [deck_def[ability_label]]
+	if non_exceed_overdrive_active and 'non_exceed_overdrive_effects' in deck_def:
+		effect_sets.append(deck_def["non_exceed_overdrive_effects"])
 	for card in get_continuous_boosts_and_transforms():
 		effect_sets.append(card.definition['boost']['effects'])
 	for effect_set in effect_sets:
@@ -3170,9 +3210,14 @@ func get_counter_boost_effects():
 	var ability_label = "ability_effects"
 	if exceeded:
 		ability_label = "exceed_ability_effects"
+		
 	for effect in deck_def[ability_label]:
 		if effect['timing'] == "counter_boost":
 			effects.append(effect)
+	if non_exceed_overdrive_active and 'non_exceed_overdrive_effects' in deck_def:
+		for effect in deck_def["non_exceed_overdrive_effects"]:
+			if effect['timing'] == "counter_boost":
+				effects.append(effect)
 	for card in get_continuous_boosts_and_transforms():
 		for effect in card.definition['boost']['effects']:
 			if effect['timing'] == "counter_boost":
@@ -3195,3 +3240,9 @@ func get_set_strike_effects(card : GameCard) -> Array:
 		effects.append(extra_effect_after_set_strike)
 
 	return effects
+
+func is_overdrive_active() -> bool:
+	if has_overdrive:
+		return exceeded
+	else:
+		return non_exceed_overdrive_active

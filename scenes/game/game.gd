@@ -116,7 +116,6 @@ var can_spend_life_for_force = false
 var current_pay_costs_is_ex = false
 var preparing_character_action = false
 var prepared_character_action_data = {}
-var player_can_boost_from_extra = false
 var choice_popout_title = ""
 
 var player_deck
@@ -199,6 +198,7 @@ enum UISubState {
 	UISubState_SelectArena_MoveResponse,
 	UISubState_SelectArena_EffectChoice,
 	UISubState_PickNumberFromRange,
+	UISubState_SelectCards_GaugeForBoost
 }
 
 var ui_state : UIState = UIState.UIState_Initializing
@@ -544,7 +544,6 @@ func setup_characters():
 	$OpponentZones/OpponentOverdrive.visible = is_player_overdrive_visible(Enums.PlayerId.PlayerId_Opponent)
 	setup_character_card(player_character_card, player_deck, player_buddy_character_card)
 	setup_character_card(opponent_character_card, opponent_deck, opponent_buddy_character_card)
-	player_can_boost_from_extra = 'can_boost_from_extra' in player_deck and player_deck['can_boost_from_extra']
 
 	setup_characters_complete = true
 
@@ -1129,7 +1128,7 @@ func can_select_card(card):
 			if 'may_set_from_boost' in logic_card.definition and logic_card.definition['may_set_from_boost']:
 				return true
 			return false
-		elif in_set_aside and player_can_boost_from_extra:
+		elif in_set_aside and game_wrapper.can_player_boost_from_extra(Enums.PlayerId.PlayerId_Player):
 			return game_wrapper.can_player_boost(Enums.PlayerId.PlayerId_Player, card.card_id, ['extra'], "", true)
 		return in_hand or in_gauge
 	match ui_sub_state:
@@ -1242,6 +1241,8 @@ func can_select_card(card):
 			return valid_amount and valid_card
 		UISubState.UISubState_SelectCards_ForceForBoost:
 			return (in_gauge or in_hand) and selected_boost_to_pay_for != card.card_id
+		UISubState.UISubState_SelectCards_GaugeForBoost:
+			return in_gauge and selected_boost_to_pay_for != card.card_id
 		UISubState.UISubState_SelectCards_DiscardContinuousBoost:
 			var limitation = game_wrapper.get_decision_info().limitation
 			if limitation in ["mine", "in_opponent_space"] and in_opponent_boosts:
@@ -1576,6 +1577,8 @@ func _stat_notice_event(event):
 			notice_text = "Wild Swing!"
 		Enums.EventType.EventType_SwapSealedAndDeck:
 			notice_text = "Swap Sealed and Deck"
+		Enums.EventType.EventType_EndOverdrive:
+			notice_text = "Overdrive Ends"
 
 	spawn_damage_popup(notice_text, player)
 	return SmallNoticeDelay
@@ -1946,8 +1949,12 @@ func get_string_for_action_choice(choice):
 	match choice:
 		"strike":
 			return "Strike"
+		"strike_after_current":
+			return "Strike (after current Boost(s))"
 		"boost":
 			return "Boost"
+		"boost_after_current":
+			return "Boost (after current Boost(s))"
 		"add_to_hand":
 			return "Add to Hand"
 		"add_to_gauge":
@@ -2707,6 +2714,8 @@ func update_force_generation_message():
 		UISubState.UISubState_SelectCards_ForceForEffect:
 			var effect_str = ""
 			var decision_effect = game_wrapper.get_decision_info().effect
+			if preparing_character_action:
+				decision_effect = prepared_character_action_data['effect']
 			var source_card_name = game_wrapper.get_card_database().get_card_name(game_wrapper.get_decision_info().choice_card_id)
 			if decision_effect['per_force_effect']:
 				var effect = decision_effect['per_force_effect']
@@ -2817,7 +2826,7 @@ func begin_gauge_selection(
 		select_card_require_max = amount
 	var cancel_allowed = false
 	match sub_state:
-		UISubState.UISubState_SelectCards_Exceed, UISubState.UISubState_SelectCards_BoostCancel, UISubState.UISubState_SelectCards_CharacterAction_Gauge:
+		UISubState.UISubState_SelectCards_Exceed, UISubState.UISubState_SelectCards_BoostCancel, UISubState.UISubState_SelectCards_CharacterAction_Gauge, UISubState.UISubState_SelectCards_GaugeForBoost:
 			cancel_allowed = true
 		UISubState.UISubState_SelectCards_GaugeForEffect:
 			cancel_allowed = select_card_require_min == 0 or preparing_character_action
@@ -3356,6 +3365,15 @@ func _on_force_for_effect(event):
 	var player = event['event_player']
 	var effect = game_wrapper.get_decision_info().effect
 	if player == Enums.PlayerId.PlayerId_Player  and not observer_mode:
+		if prepared_character_action_data_available("force_for_effect"):
+			var card_ids = prepared_character_action_data['force_ids']
+			var ultras_as_single = prepared_character_action_data['treat_ultras_as_single_force']
+			var success = game_wrapper.submit_force_for_effect(Enums.PlayerId.PlayerId_Player, card_ids, ultras_as_single)
+			if success:
+				prepared_character_action_data = {}
+				change_ui_state(UIState.UIState_WaitForGameServer)
+			return
+			
 		change_ui_state(null, UISubState.UISubState_SelectCards_ForceForEffect)
 		select_card_up_to_force = effect['force_max']
 		var require_max = -1
@@ -3667,6 +3685,8 @@ func _handle_events(events):
 				_on_emote(event)
 			Enums.EventType.EventType_EffectDoBoost:
 				_on_effect_do_boost(event)
+			Enums.EventType.EventType_EndOverdrive:
+				delay = _stat_notice_event(event)
 			Enums.EventType.EventType_Exceed:
 				delay = _on_exceed_event(event)
 			Enums.EventType.EventType_ExceedRevert:
@@ -3890,15 +3910,25 @@ func _update_buttons(no_number_picker_update : bool = false):
 			var can_ex_transform = false
 			var only_in_hand = true
 			var only_in_gauge = true
+			var only_in_hand_or_gauge = true
 			var only_in_boosts = true
 			var only_set_aside = true
 			var allow_change_cards = true
 			for card in selected_cards:
+				var not_hand_or_gauge = false
+				
 				if not game_wrapper.is_card_in_hand(Enums.PlayerId.PlayerId_Player, card.card_id):
 					only_in_hand = false
+				else:
+					not_hand_or_gauge = true
 
 				if not game_wrapper.is_card_in_gauge(Enums.PlayerId.PlayerId_Player, card.card_id):
 					only_in_gauge = false
+				else:
+					not_hand_or_gauge = true
+					
+				if not_hand_or_gauge:
+					only_in_hand_or_gauge = false
 
 				if not game_wrapper.is_card_set_aside(Enums.PlayerId.PlayerId_Player, card.card_id):
 					only_set_aside = false
@@ -3940,7 +3970,7 @@ func _update_buttons(no_number_picker_update : bool = false):
 					var may_set_from_boost = 'may_set_from_boost' in logic_card.definition and logic_card.definition['may_set_from_boost']
 					can_strike = must_set_from_boost or may_set_from_boost
 			elif only_set_aside:
-				if len(selected_cards) == 1 and player_can_boost_from_extra:
+				if len(selected_cards) == 1 and game_wrapper.can_player_boost_from_extra(Enums.PlayerId.PlayerId_Player):
 					can_boost = game_wrapper.can_player_boost(Enums.PlayerId.PlayerId_Player, selected_cards[0].card_id, ['extra'], "", false)
 			elif only_in_gauge:
 				if len(selected_cards) == 1 and game_wrapper.can_player_boost_from_gauge(Enums.PlayerId.PlayerId_Player):
@@ -4023,6 +4053,11 @@ func _update_buttons(no_number_picker_update : bool = false):
 						var max_cards = shortcut_effect['gauge_max']
 						var valid_card_count = min_cards <= len(selected_cards) and len(selected_cards) <= max_cards
 						shortcut_condition_met = valid_card_count and only_in_gauge
+					elif char_action['shortcut_effect_type'] == "force_for_effect":
+						action_has_shortcut = true
+						action_name = "Spend for "
+						var required_force = shortcut_effect['force_max']
+						shortcut_condition_met = only_in_hand_or_gauge and can_selected_cards_pay_force(required_force)
 
 				if action_has_shortcut:
 					var action_possible = game_wrapper.can_do_character_action(Enums.PlayerId.PlayerId_Player, i)
@@ -4118,7 +4153,7 @@ func _update_buttons(no_number_picker_update : bool = false):
 				update_gauge_for_effect_message()
 			UISubState.UISubState_SelectCards_BoostCancel:
 				update_gauge_selection_for_cancel_message()
-			UISubState.UISubState_SelectCards_Exceed, UISubState.UISubState_SelectCards_CharacterAction_Gauge:
+			UISubState.UISubState_SelectCards_Exceed, UISubState.UISubState_SelectCards_CharacterAction_Gauge, UISubState.UISubState_SelectCards_GaugeForBoost:
 				update_gauge_selection_message()
 
 	# Update arena location selection buttons
@@ -4270,6 +4305,10 @@ func update_boost_summary(player_id, boosts_card_holder, boost_box):
 
 	var boost_summary = ""
 	# Head with once-per-game mechanic tracking
+	var non_exceed_overdrive_active = game_wrapper.non_exceed_overdrive_active(player_id)
+	if non_exceed_overdrive_active:
+		boost_summary += "[color=cyan]Overdrive Active![/color]\n"
+	
 	var once_per_game_mechanic = game_wrapper.get_once_per_game_mechanic_name(player_id)
 	if once_per_game_mechanic:
 		var once_per_game_mechanic_available = game_wrapper.get_once_per_game_mechanic_available(player_id)
@@ -4387,6 +4426,8 @@ func can_press_ok():
 				return selected_cards_between_min_and_max()
 			UISubState.UISubState_SelectCards_ForceForBoost:
 				return can_selected_cards_pay_force(select_card_require_force)
+			UISubState.UISubState_SelectCards_GaugeForBoost:
+				return can_selected_cards_pay_force(select_card_require_max)
 	else: # Some other non-select cards state.
 		match ui_sub_state:
 			UISubState.UISubState_PickNumberFromRange:
@@ -4520,7 +4561,7 @@ func _on_reshuffle_button_pressed():
 
 func _on_boost_button_pressed():
 	var valid_zones = ['hand']
-	if player_can_boost_from_extra:
+	if game_wrapper.can_player_boost_from_extra(Enums.PlayerId.PlayerId_Player):
 		valid_zones.append('extra')
 	if game_wrapper.can_player_boost_from_gauge(Enums.PlayerId.PlayerId_Player):
 		valid_zones.append('gauge')
@@ -4633,6 +4674,13 @@ func _on_character_action_pressed(action_idx : int = 0):
 					if 'valid_card_types' in shortcut_effect:
 						select_gauge_valid_card_types = shortcut_effect['valid_card_types']
 					begin_gauge_selection(-1, false, UISubState.UISubState_SelectCards_GaugeForEffect)
+				"force_for_effect":
+					prepared_character_action_data['effect'] = shortcut_effect
+					change_ui_state(null, UISubState.UISubState_SelectCards_ForceForEffect)
+					select_card_up_to_force = shortcut_effect['force_max']
+					if 'per_force_effect' in shortcut_effect and shortcut_effect['per_force_effect']:
+						assert(false, "Per-Force effect action shortcuts not supported")
+					begin_generate_force_selection(select_card_up_to_force, true)
 				_:
 					assert(false, "Unexpected shortcut character action type")
 					return
@@ -4663,7 +4711,14 @@ func finish_preparing_character_action(selections):
 			else:
 				prepared_character_action_data['boost_card'] = single_card_id
 				prepared_character_action_data['boost_force'] = []
+				var gauge_cost = game_wrapper.get_card_database().get_card_boost_gauge_cost(single_card_id)
 				var force_cost = game_wrapper.get_card_database().get_card_boost_force_cost(single_card_id)
+				if gauge_cost > 0:
+					selected_boost_to_pay_for = single_card_id
+					change_ui_state(null, UISubState.UISubState_SelectCards_GaugeForBoost)
+					begin_gauge_selection(gauge_cost, false, UISubState.UISubState_SelectCards_GaugeForBoost)
+					_update_buttons()
+					return
 				if force_cost > 0:
 					selected_boost_to_pay_for = single_card_id
 					change_ui_state(null, UISubState.UISubState_SelectCards_ForceForBoost)
@@ -4682,6 +4737,9 @@ func finish_preparing_character_action(selections):
 			prepared_character_action_data['effect_type'] = 'place_buddy_effect'
 		"gauge_for_effect":
 			prepared_character_action_data['gauge_ids'] = selections
+		"force_for_effect":
+			prepared_character_action_data['force_ids'] = selections
+			prepared_character_action_data['treat_ultras_as_single_force'] = treat_ultras_as_single_force
 		_:
 			assert(false, "Unexpected prepared character action type")
 			return
@@ -4800,8 +4858,14 @@ func _on_instructions_ok_button_pressed(index : int):
 						ex_transform_id = game_wrapper.get_ex_transform_copy(Enums.PlayerId.PlayerId_Player, single_card_id)
 					success = game_wrapper.submit_boost(Enums.PlayerId.PlayerId_Player, single_card_id, [ex_transform_id], false, spent_life_for_force, [])
 				else:
+					var gauge_cost = game_wrapper.get_card_database().get_card_boost_gauge_cost(single_card_id)
 					var force_cost = game_wrapper.get_card_database().get_card_boost_force_cost(single_card_id)
-					if not select_boost_options['ignore_costs'] and force_cost > 0:
+					if not select_boost_options['ignore_costs'] and gauge_cost > 0:
+						assert(select_boost_options['boost_amount'] <= 1, "WARNING: Can't currently handle gauge costs for multiple boosts")
+						selected_boost_to_pay_for = single_card_id
+						change_ui_state(null, UISubState.UISubState_SelectCards_GaugeForBoost)
+						begin_gauge_selection(gauge_cost, false, UISubState.UISubState_SelectCards_GaugeForBoost)
+					elif not select_boost_options['ignore_costs'] and force_cost > 0:
 						assert(select_boost_options['boost_amount'] <= 1, "WARNING: Can't currently handle force costs for multiple boosts")
 						selected_boost_to_pay_for = single_card_id
 						change_ui_state(null, UISubState.UISubState_SelectCards_ForceForBoost)
@@ -4811,6 +4875,8 @@ func _on_instructions_ok_button_pressed(index : int):
 						success = game_wrapper.submit_boost(Enums.PlayerId.PlayerId_Player, single_card_id, [], use_free_force, spent_life_for_force, additional_boost_ids)
 			UISubState.UISubState_SelectCards_ForceForBoost:
 				success = game_wrapper.submit_boost(Enums.PlayerId.PlayerId_Player, selected_boost_to_pay_for, selected_card_ids, use_free_force, spent_life_for_force)
+			UISubState.UISubState_SelectCards_GaugeForBoost:
+				success = game_wrapper.submit_boost(Enums.PlayerId.PlayerId_Player, selected_boost_to_pay_for, selected_card_ids, false, false)
 			UISubState.UISubState_PickNumberFromRange:
 				success = handle_pick_range_ok()
 
@@ -4894,6 +4960,18 @@ func _on_instructions_cancel_button_pressed():
 			close_popout()
 			success = game_wrapper.submit_boost_name_card_choice_effect(Enums.PlayerId.PlayerId_Player, -1)
 		UISubState.UISubState_SelectCards_ForceForBoost:
+			deselect_all_cards()
+			close_popout()
+			if select_boost_options:
+				var can_cancel = select_boost_options["can_cancel"]
+				var valid_zones = select_boost_options["valid_zones"]
+				var limitation = select_boost_options["limitation"]
+				var ignore_costs = select_boost_options["ignore_costs"]
+				var boost_amount = select_boost_options["boost_amount"]
+				begin_boost_choosing(can_cancel, valid_zones, limitation, ignore_costs, boost_amount)
+			else:
+				change_ui_state(UIState.UIState_PickTurnAction, UISubState.UISubState_None)
+		UISubState.UISubState_SelectCards_GaugeForBoost:
 			deselect_all_cards()
 			close_popout()
 			if select_boost_options:
@@ -5017,8 +5095,14 @@ func _on_shortcut_boost_pressed():
 			ex_transform_id = game_wrapper.get_ex_transform_copy(Enums.PlayerId.PlayerId_Player, card_id)
 		success = game_wrapper.submit_boost(Enums.PlayerId.PlayerId_Player, card_id, [ex_transform_id], false, 0)
 	else:
+		var gauge_cost = game_wrapper.get_card_database().get_card_boost_gauge_cost(card_id)
 		var force_cost = game_wrapper.get_card_database().get_card_boost_force_cost(card_id)
-		if force_cost > 0:
+		if gauge_cost > 0:
+			select_boost_options = {}
+			selected_boost_to_pay_for = card_id
+			change_ui_state(null, UISubState.UISubState_SelectCards_GaugeForBoost)
+			begin_gauge_selection(gauge_cost, false, UISubState.UISubState_SelectCards_GaugeForBoost)
+		elif force_cost > 0:
 			select_boost_options = {}
 			selected_boost_to_pay_for = card_id
 			change_ui_state(null, UISubState.UISubState_SelectCards_ForceForBoost)
