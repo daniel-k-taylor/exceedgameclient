@@ -487,9 +487,7 @@ func _init(id, player_name, parent_ref, card_db_ref, chosen_deck, card_start_id)
 	face_attack_id = ""
 	spend_life_for_force_amount = -1
 	can_boost_from_gauge = false
-	can_boost_from_extra = false
-	if "can_boost_from_extra" in deck_def:
-		can_boost_from_extra = deck_def['can_boost_from_extra']
+	can_boost_from_extra = deck_def.get('can_boost_from_extra', false)
 	seal_instead_of_discarding = false
 	passive_effects = {}
 	last_spent_life = 0
@@ -497,12 +495,8 @@ func _init(id, player_name, parent_ref, card_db_ref, chosen_deck, card_start_id)
 	delayed_wild_strike = false
 	invalid_card_moved_elsewhere = false
 	once_per_game_resource = 1
-	once_per_game_resource_name = ""
-	if "once_per_game_mechanic" in deck_def:
-		once_per_game_resource_name = deck_def['once_per_game_mechanic']
-	has_non_exceed_overdrive = false
-	if "has_non_exceed_overdrive" in deck_def:
-		has_non_exceed_overdrive = deck_def['has_non_exceed_overdrive']
+	once_per_game_resource_name = deck_def.get('once_per_game_mechanic', "")
+	has_non_exceed_overdrive = deck_def.get('has_non_exceed_overdrive', false)
 	non_exceed_overdrive_active = false
 	spent_gauge_this_turn = false
 
@@ -687,9 +681,13 @@ func revert_exceed():
 		parent.handle_strike_effect(-1, effect, self)
 		
 func end_overdrive():
+	# Cleans up Overdrive states; called when OD area is empty at the start of a turn.
+	# Handled differently depending on whether or not it's tied to the character's exceed mode.
 	if has_overdrive:
+		# If the character has an Overdrive exceed, just revert
 		revert_exceed()
 	else:
+		# Otherwise, disable the appropriate toggle and send messages
 		parent._append_log_full(Enums.LogType.LogType_Effect, self, "'s Overdrive ends.")
 		parent.create_event(Enums.EventType.EventType_EndOverdrive, my_id, 0)
 		non_exceed_overdrive_active = false
@@ -2042,12 +2040,12 @@ func discard(card_ids : Array, from_top : int = 0, count_as_spent : bool = false
 		var on_spend_gauge_effects = parent.get_all_effects_for_timing("on_spend_gauge", self, null)
 		# Choice effects kind of work, but should likely set after_resolution to true
 		for effect in on_spend_gauge_effects:
-			if 'not_during_strike' in effect and effect['not_during_strike'] and parent.active_strike:
+			if effect.get('not_during_strike', false) and parent.active_strike:
 				continue
-			if 'first_time_only' in effect and effect['first_time_only'] and spent_gauge_this_turn:
+			if effect.get('first_time_only', false) and spent_gauge_this_turn:
 				continue
 			
-			var queue_effect = 'after_resolution' in effect and effect['after_resolution']
+			var queue_effect = effect.get('after_resolution', false)
 			if queue_effect:
 				parent.add_queued_effect(effect)
 			else:

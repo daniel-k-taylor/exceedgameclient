@@ -7806,7 +7806,7 @@ func continue_resolve_boost():
 					create_event(Enums.EventType.EventType_Boost_CancelDecision, active_boost.playing_player.my_id, cancel_cost)
 					break
 		else:
-			if !active_boost.parent_boost:
+			if not active_boost.parent_boost:
 				resolving_boost_before_queue = false
 				do_queued_effects(active_boost.playing_player)
 			if game_state == Enums.GameState.GameState_PlayerDecision:

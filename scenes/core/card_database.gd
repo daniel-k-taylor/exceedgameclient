@@ -105,9 +105,7 @@ func does_card_have_cost(id : int) -> bool:
 
 func get_card_boost_gauge_cost(id : int) -> int:
 	var card = get_card(id)
-	if 'gauge_cost' in card.definition['boost']:
-		return card.definition['boost']['gauge_cost']
-	return 0
+	return card.definition['boost'].get('gauge_cost', 0)
 
 func get_card_boost_force_cost(id : int) -> int:
 	var card = get_card(id)
