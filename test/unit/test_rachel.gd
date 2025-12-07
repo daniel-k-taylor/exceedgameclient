@@ -658,3 +658,121 @@ func test_rachel_lightningrod_stuns_even_when_at_1():
 	validate_life(player1, 30, player2, 1)
 	assert_eq(player1.hand[-1].id, discard_id)
 	advance_turn(player1)
+
+func test_rachel_badenbadenlily_with_adjacent_rods():
+	position_players(player1, 3, player2, 8)
+	player1.discard_hand()
+
+	# First turn: boost spikedrop to place rod at position 7
+	give_player_specific_card(player1, "rachel_spikedrop", TestCardId1)
+	assert_true(game_logic.do_boost(player1, TestCardId1))
+	var discard_id1 = player1.discards[0].id
+	assert_true(game_logic.do_choose_from_discard(player1, [discard_id1]))
+	assert_true(game_logic.do_choice(player1, get_choice_index_for_position(7)))
+	assert_eq(player1.lightningrod_zones[6].size(), 1)
+	advance_turn(player2)
+
+	# Second turn: boost spikedrop to place rod at position 8
+	give_player_specific_card(player1, "rachel_spikedrop", TestCardId2)
+	assert_true(game_logic.do_boost(player1, TestCardId2))
+	var discard_id2 = player1.discards[0].id
+	assert_true(game_logic.do_choose_from_discard(player1, [discard_id2]))
+	assert_true(game_logic.do_choice(player1, get_choice_index_for_position(8)))
+	assert_eq(player1.lightningrod_zones[7].size(), 1)
+	advance_turn(player2)
+
+	# Third turn: boost Baden Baden Lily and verify only position 7 is available
+	# (Position 8 has opponent, so can't move there)
+	give_player_specific_card(player1, "rachel_badenbadenlily", TestCardId3)
+	give_player_specific_card(player1, "rachel_badenbadenlily", TestCardId4)
+	assert_true(game_logic.do_boost(player1, TestCardId3, [TestCardId4]))
+
+	# Verify only position 7 is offered as a valid choice
+	assert_eq(game_logic.decision_info.limitation.size(), 1)
+	assert_true(7 in game_logic.decision_info.limitation)
+	assert_false(6 in game_logic.decision_info.limitation)
+	assert_false(8 in game_logic.decision_info.limitation)
+
+	assert_true(game_logic.do_choice(player1, get_choice_index_for_position(7)))
+	validate_positions(player1, 7, player2, 8)
+	advance_turn(player1)
+
+func test_rachel_badenbadenlily_vs_exceeded_tinker_on_rod():
+	default_game_setup("tinker")
+	position_players(player1, 3, player2, 7)
+	player1.discard_hand()
+
+	# Turn into tank
+	give_gauge(player2, 5)
+	player2.life = 1
+	execute_strike(player1, player2, "standard_normal_dive", "standard_normal_grasp", [], [], false, false)
+
+	assert_eq(player2.extra_width, 1)
+	advance_turn(player2)
+
+	# Place a lightning rod at position 7 (where tinker will be after exceeding)
+	give_player_specific_card(player1, "rachel_spikedrop", TestCardId5)
+	assert_true(game_logic.do_boost(player1, TestCardId5))
+	var discard_id1 = player1.discards[0].id
+	assert_true(game_logic.do_choose_from_discard(player1, [discard_id1]))
+	assert_true(game_logic.do_choice(player1, get_choice_index_for_position(7)))
+	assert_eq(player1.lightningrod_zones[6].size(), 1)
+	advance_turn(player2)
+
+	# Now boost Baden Baden Lily - should only offer position 5
+	# (can't move to 7 because opponent is there, so finds closest space toward player)
+	give_player_specific_card(player1, "rachel_badenbadenlily", TestCardId3)
+	give_player_specific_card(player1, "rachel_badenbadenlily", TestCardId4)
+	assert_true(game_logic.do_boost(player1, TestCardId3, [TestCardId4]))
+
+	# Verify only position 5 is offered as valid
+	# (Position 7 has opponent, position 6 has no rod, position 5 is nearest valid space)
+	assert_eq(game_logic.decision_info.limitation.size(), 1)
+	assert_true(5 in game_logic.decision_info.limitation)
+	assert_false(6 in game_logic.decision_info.limitation)
+	assert_false(7 in game_logic.decision_info.limitation)
+
+	assert_true(game_logic.do_choice(player1, get_choice_index_for_position(5)))
+	validate_positions(player1, 5, player2, 7)
+	advance_turn(player1)
+
+
+func test_rachel_badenbadenlily_alt_rod_scenario():
+	position_players(player1, 4, player2, 5)
+	player1.discard_hand()
+
+	# First turn: boost spikedrop to place rod at position 5
+	give_player_specific_card(player1, "rachel_spikedrop", TestCardId1)
+	assert_true(game_logic.do_boost(player1, TestCardId1))
+	var discard_id1 = player1.discards[0].id
+	assert_true(game_logic.do_choose_from_discard(player1, [discard_id1]))
+	assert_true(game_logic.do_choice(player1, get_choice_index_for_position(5)))
+	assert_eq(player1.lightningrod_zones[4].size(), 1)
+	advance_turn(player2)
+
+	# Second turn: boost spikedrop to place rod at position 8
+	give_player_specific_card(player1, "rachel_spikedrop", TestCardId2)
+	assert_true(game_logic.do_boost(player1, TestCardId2))
+	var discard_id2 = player1.discards[0].id
+	assert_true(game_logic.do_choose_from_discard(player1, [discard_id2]))
+	assert_true(game_logic.do_choice(player1, get_choice_index_for_position(8)))
+	assert_eq(player1.lightningrod_zones[7].size(), 1)
+	advance_turn(player2)
+
+	# Third turn: boost Baden Baden Lily and verify only position 4 and 8 are available.
+	# (Position 5 has opponent so it should be treated as a close and position 4 should be available (p1 current location)
+	give_player_specific_card(player1, "rachel_badenbadenlily", TestCardId3)
+	give_player_specific_card(player1, "rachel_badenbadenlily", TestCardId4)
+	assert_true(game_logic.do_boost(player1, TestCardId3, [TestCardId4]))
+
+	# Verify only position 4 and 8 is offered as a valid choice
+	assert_eq(game_logic.decision_info.limitation.size(), 2)
+	assert_true(4 in game_logic.decision_info.limitation)
+	assert_true(8 in game_logic.decision_info.limitation)
+	assert_false(3 in game_logic.decision_info.limitation)
+	assert_false(5 in game_logic.decision_info.limitation)
+	assert_false(6 in game_logic.decision_info.limitation)
+
+	assert_true(game_logic.do_choice(player1, get_choice_index_for_position(4)))
+	validate_positions(player1, 4, player2, 5)
+	advance_turn(player1)
