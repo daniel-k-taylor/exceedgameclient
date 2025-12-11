@@ -2588,7 +2588,7 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 			var crit_name = "Critical"
 			if 'alt_crit_name' in effect:
 				crit_name = effect['alt_crit_name']
-			
+
 			performing_player.strike_stat_boosts.critical = true
 			_append_log_full(Enums.LogType.LogType_Effect, performing_player, "'s strike is %s!" % crit_name)
 			var strike_card = active_strike.get_player_card(performing_player)
@@ -3496,7 +3496,7 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 			var target_range = effect['target_range']
 			if target_range is String and target_range == "range_from_opponent":
 				target_range = opposing_player.distance_to_opponent()
-			
+
 			var range_name_str = target_range
 			if not target_range is String:
 				range_name_str = "Range %s" % target_range
@@ -4030,11 +4030,16 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 
 						# Include the next available space closest to the opponent.
 						# Loop from i towards the player.
-						for test_location in range(i, performing_player.arena_location, direction):
-							if performing_player.can_move_to(test_location, true):
+						# The player's current space should be usable if they're adjacent to the opponent.
+						for test_location in range(i, performing_player.arena_location + direction, direction):
+							if performing_player.is_overlapping_opponent(test_location):
+								continue
+							if performing_player.can_move_to(test_location, true) or test_location == performing_player.arena_location:
+								if performing_player.cannot_move:
+									break
 								if test_location not in valid_locations:
 									valid_locations.append(test_location)
-									break
+								break
 
 			if len(valid_locations) > 0:
 				# Let the player choose where to go.
@@ -6372,13 +6377,13 @@ func do_queued_effects(performing_player : Player):
 		var effect = queued_effect_chain["effect"]
 		var chain = queued_effect_chain["chain"]
 		var local_conditions = queued_effect_chain["local_conditions"]
-		
+
 		var after_resolution = false
 		if 'after_resolution' in effect:
 			after_resolution = effect['after_resolution']
 		if after_resolution and resolving_boost_before_queue:
 			break
-		
+
 		if chain:
 			queued_effect_chain = chain
 		else:
@@ -6976,13 +6981,13 @@ func get_gauge_cost(performing_player : Player, card, check_if_card_in_hand = fa
 				gauge_cost = range_to_opponent
 
 	return gauge_cost
-	
-	
+
+
 func get_force_cost(performing_player : Player, card):
 	var force_cost = card.definition['force_cost']
 	if 'force_cost_crit' in card.definition and performing_player.strike_stat_boosts.critical:
 		force_cost = card.definition['force_cost_crit']
-		
+
 	return force_cost
 
 func get_alternative_life_cost(performing_player : Player, card):
@@ -7791,7 +7796,7 @@ func continue_resolve_boost():
 				break
 
 			active_boost.effects_resolved += 1
-			
+
 		elif active_boost.effects_resolved < len(effects) + len(character_effects) + 1:
 			# After all effects are resolved, discard/move the card then check for cancel.
 			boost_finish_resolving_card(active_boost.playing_player)
@@ -7811,7 +7816,7 @@ func continue_resolve_boost():
 				do_queued_effects(active_boost.playing_player)
 			if game_state == Enums.GameState.GameState_PlayerDecision:
 				break
-				
+
 			boost_play_cleanup(active_boost.playing_player)
 			break
 
@@ -7879,7 +7884,7 @@ func boost_play_cleanup(performing_player : Player):
 		active_boost.effects_resolved += 1
 		continue_resolve_boost()
 		return
-		
+
 	if active_boost.queued_boosts:
 		var next_boost_id = active_boost.queued_boosts.pop_front()
 		begin_resolve_boost(performing_player, next_boost_id, [], active_boost.shuffle_discard_on_cleanup, true)
@@ -7919,7 +7924,7 @@ func boost_play_cleanup(performing_player : Player):
 				change_game_state(Enums.GameState.GameState_PickAction)
 				performing_player.next_strike_faceup = true
 				do_strike(performing_player, card.id, false, -1)
-				
+
 				#change_game_state(Enums.GameState.GameState_AutoStrike)
 				#decision_info.type = Enums.DecisionType.DecisionType_StrikeNow
 				#decision_info.player = performing_player.my_id
@@ -9510,7 +9515,7 @@ func do_force_for_effect(performing_player : Player, card_ids : Array, treat_ult
 		else:
 			_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "generates force by discarding %s." % _log_card_name(card_names))
 			performing_player.discard(card_ids)
-			
+
 		for i in range(0, effect_times):
 			handle_strike_effect(decision_info.choice_card_id, decision_effect, performing_player)
 
