@@ -31,18 +31,18 @@
 	"exceed_ability_effects": [
 		{
 			"timing": "on_continuous_boost",
-			"effect_type": "set_used_character_bonus",
-			"linked_effect": {
-				"timing": "set_strike",
-				"effect_type": "critical"
-			},
-			"and": {
-				"effect_type": "choice",
-				"choice": [
-					{ "effect_type": "strike" },
-					{ "effect_type": "pass" }
+			"effect_type": "choice",
+			"choice": [
+				{
+					"effect_type": "set_used_character_bonus",
+					"linked_effect": {
+						"timing": "set_strike",
+						"effect_type": "critical"
+					},
+					"and": { "effect_type": "strike" }
+				},
+				{ "effect_type": "pass" }
 			]
-			}
 		},
 		{
 			"character_effect": true,
