@@ -8172,6 +8172,7 @@ func check_hand_size_advance_turn(performing_player : Player):
 		handle_strike_effect(-1, choice_effect, performing_player)
 		active_special_draw_effect = true
 	else:
+		var skip_eot_discard = performing_player.skip_end_of_turn_draw or performing_player.has_passive("skip_eot_draw_and_discard")
 		if performing_player.skip_end_of_turn_draw or performing_player.has_passive("skip_eot_draw_and_discard"):
 			performing_player.skip_end_of_turn_draw = false
 			_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "skips drawing for end of turn. Their hand size is %s." % len(performing_player.hand))
@@ -8188,7 +8189,7 @@ func check_hand_size_advance_turn(performing_player : Player):
 				_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "draws %sfor end of turn. Their hand size is now %s." % [from_bottom_str, len(performing_player.hand)])
 
 		active_special_draw_effect = false
-		if len(performing_player.hand) > performing_player.max_hand_size and not performing_player.has_passive("skip_eot_draw_and_discard"):
+		if len(performing_player.hand) > performing_player.max_hand_size and not skip_eot_discard:
 			change_game_state(Enums.GameState.GameState_DiscardDownToMax)
 			create_event(Enums.EventType.EventType_HandSizeExceeded, performing_player.my_id, len(performing_player.hand) - performing_player.max_hand_size)
 		else:

@@ -92,3 +92,38 @@ func test_superskullman_slamevil_boost_move_with_strike():
 	assert_eq(player1.continuous_boosts.size(), 0)
 	assert_eq(player1.discards.size(), 2) 
 	advance_turn(player1)
+
+
+func test_superskullman_zap_boost_skips_discard():
+	# Bug report: Zaaaap boost draws 3, topdecks 1, and skips end of turn draw.
+	# According to FAQ, it should also skip discarding down to max hand size.
+	position_players(player1, 4, player2, 7)
+	
+	# Player1 starts with 5 cards (first player)
+	# Give extra cards to end up over max after boost
+	# Boost: draw 3, topdeck 1 = net +2 cards
+	# If we give 2 extra cards: 5 + 2 = 7, then +2 from boost = 9, topdeck 1 = 8 (over max of 7)
+	give_player_specific_card(player1, "standard_normal_grasp")
+	give_player_specific_card(player1, "standard_normal_grasp")
+	var zap_id = give_player_specific_card(player1, "superskullman_zap")
+	assert_eq(player1.hand.size(), 8) # 5 starting + 3 given
+	
+	# Boost Zaaaap (goes to discard, not counted in hand)
+	assert_true(game_logic.do_boost(player1, zap_id))
+	# Hand is now 7 (boost card went to processing)
+	# Draw 3 cards = 10 cards
+	# Topdeck 1 card = 9 cards (over max of 7)
+	assert_true(game_logic.do_relocate_card_from_hand(player1, [player1.hand[0].id]))
+	
+	# Hand should be 9 cards now (over max of 7)
+	assert_eq(player1.hand.size(), 9)
+	
+	# The boost should skip discarding, so it should be opponent's turn now
+	# BUG: Currently the game asks to discard down to max
+	assert_eq(game_logic.game_state, Enums.GameState.GameState_PickAction,
+		"BUG: Zaaaap boost should skip discard to max, but game is asking to discard")
+	assert_eq(game_logic.active_turn_player, player2.my_id,
+		"Should be player2's turn after Zaaaap boost")
+	
+	# Verify hand is still over max (wasn't forced to discard)
+	assert_eq(player1.hand.size(), 9)
