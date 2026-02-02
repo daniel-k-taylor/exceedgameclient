@@ -267,3 +267,51 @@ func test_cviper_cheater_boost_choose_strike():
 	validate_positions(player1, 7, player2, 8)
 	validate_life(player1, 23, player2, 28)
 	advance_turn(player1)
+
+func test_cviper_exceed_boost_pass_then_focus_not_critical():
+	# Bug report: In exceed mode, boost Burning Dance (continuous), choose to pass,
+	# then strike. The strike should NOT be critical because we didn't choose
+	# to strike from the continuous boost - we chose pass instead.
+	position_players(player1, 3, player2, 5)
+
+	# Exceed C.Viper (draws 5 cards on exceed)
+	give_gauge(player1, 3)
+	assert_true(game_logic.do_exceed(player1, [player1.gauge[0].id, player1.gauge[1].id, player1.gauge[2].id]))
+	assert_true(player1.exceeded)
+
+	# Discard down to max hand size (6 starting + 5 from exceed = 11, need to discard 4)
+	var discard_ids = []
+	for i in range(player1.hand.size() - 7):
+		discard_ids.append(player1.hand[i].id)
+	assert_true(game_logic.do_discard_to_max(player1, discard_ids))
+
+	# Exceed uses p1's turn, now p2 takes a turn
+	advance_turn(player2)
+
+	# Give Burning Dance card
+	give_player_specific_card(player1, "cviper_burningdance", TestCardId3)
+
+	# Boost Burning Dance (continuous boost)
+	# This draws 3 cards and gives bonus action
+	# In exceed mode, this also gives a choice: strike or pass
+	assert_true(game_logic.do_boost(player1, TestCardId3))
+
+	# Choose to PASS (index 1), not strike
+	# This should NOT grant the critical bonus for the next strike
+	assert_true(game_logic.do_choice(player1, 1))
+
+	# Now strike with the bonus action - this should NOT be critical
+	give_player_specific_card(player1, "standard_normal_assault", TestCardId1)
+	give_player_specific_card(player2, "standard_normal_grasp", TestCardId2)
+	assert_true(game_logic.do_strike(player1, TestCardId1, false, -1))
+	var events = game_logic.get_latest_events()
+
+	# BUG: The strike incorrectly becomes critical when we chose to pass
+	# This assertion should PASS (no critical event) but currently FAILS due to the bug
+	for event in events:
+		if event['event_type'] == Enums.EventType.EventType_Strike_Critical:
+			if event['event_player'] == player1.my_id:
+				fail_test("BUG: Strike became critical when it should not have! Player chose PASS, not strike, from the continuous boost.")
+
+	assert_true(game_logic.do_strike(player2, TestCardId2, false, -1))
+	validate_life(player1, 30, player2, 26)
