@@ -1505,7 +1505,7 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 		StrikeEffects.TopdeckFromHand:
 			effect_str += "Put a card from your hand on top of your deck"
 		StrikeEffects.WhenHitForceForArmor:
-			effect_str += ("When hit, generate %s for %s armor each." % [
+			effect_str += ("When hit, spend %s for %s armor each." % [
 					"gauge" if effect.get("use_gauge_instead", false) else "force",
 					effect["amount"]])
 		StrikeEffects.ZeroVectorDialogue:
