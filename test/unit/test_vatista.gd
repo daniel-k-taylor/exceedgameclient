@@ -385,6 +385,30 @@ func test_vatista_curse_commandment_empty_gauge():
 	validate_life(player1, 30, player2, 24)
 	advance_turn(player2)
 
+func test_vatista_curse_commandment_no_gauge_with_hand_forces_wild_swing():
+	# Bug: When boosting Zahhishio with empty gauge but cards in hand, player
+	# could incorrectly strike from hand instead of being forced to wild swing.
+	position_players(player1, 3, player2, 4)
+	var boost_id = give_player_specific_card(player1, "vatista_zahhishio")
+	var grasp_id = give_player_specific_card(player1, "uni_normal_grasp")
+	player1.move_card_from_hand_to_deck(grasp_id)
+
+	# Player has hand cards but empty gauge
+	assert_true(len(player1.hand) > 0)
+	assert_eq(len(player1.gauge), 0)
+
+	assert_true(game_logic.do_boost(player1, boost_id, []))
+
+	# With empty gauge, player must wild swing - striking from hand should fail
+	assert_false(game_logic.do_strike(player1, player1.hand[0].id, false, -1),
+		"Should not be able to strike from hand when strike_from_gauge has empty gauge")
+
+	# Wild swing succeeds - uses the grasp placed on top of deck
+	execute_strike(player1, player2, "", "uni_normal_grasp", false, false, [0], [])
+	validate_positions(player1, 3, player2, 5)
+	validate_life(player1, 30, player2, 24)
+	advance_turn(player2)
+
 ## Armabellum and Transvoranse boosts have "When you advance or retreat, add
 ##     this to your Gauge."
 	
