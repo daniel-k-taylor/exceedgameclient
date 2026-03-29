@@ -5628,13 +5628,15 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 					performing_player.next_strike_from_gauge = true
 				else:
 					change_game_state(Enums.GameState.GameState_WaitForStrike)
-					var strike_info = {
-						"card_id": -1,
-						"wild_swing": true,
-						"ex_card_id": -1
-					}
 					_append_log_full(Enums.LogType.LogType_Effect, performing_player, "has no gauge to strike with.")
-					if not active_boost: # Boosts will send strikes on their own
+					if active_boost:
+						performing_player.next_strike_from_gauge = true
+					else:
+						var strike_info = {
+							"card_id": -1,
+							"wild_swing": true,
+							"ex_card_id": -1
+						}
 						create_event(Enums.EventType.EventType_Strike_EffectDoStrike, performing_player.my_id, 0, "", strike_info)
 		StrikeEffects.StrikeFromSealed:
 			# Cannot strike during a strike.
@@ -7943,8 +7945,16 @@ func boost_play_cleanup(performing_player : Player):
 					decision_info.source = "sealed"
 					create_event(Enums.EventType.EventType_Strike_FromGauge, performing_player.my_id, 0)
 				elif performing_player.next_strike_from_gauge:
-					decision_info.source = "gauge"
-					create_event(Enums.EventType.EventType_Strike_FromGauge, performing_player.my_id, 0)
+					if len(performing_player.gauge) > 0:
+						decision_info.source = "gauge"
+						create_event(Enums.EventType.EventType_Strike_FromGauge, performing_player.my_id, 0)
+					else:
+						var strike_info = {
+							"card_id": -1,
+							"wild_swing": true,
+							"ex_card_id": -1
+						}
+						create_event(Enums.EventType.EventType_Strike_EffectDoStrike, performing_player.my_id, 0, "", strike_info)
 				else:
 					create_event(Enums.EventType.EventType_ForceStartStrike, performing_player.my_id, 0)
 		active_boost = null
@@ -8709,6 +8719,7 @@ func do_strike(
 						card_id = active_strike.initiator_card.id
 			elif wild_strike:
 				_append_log_full(Enums.LogType.LogType_Strike, performing_player, "wild swings!")
+				performing_player.next_strike_from_gauge = false
 				if delayed_wild_strike:
 					performing_player.wild_strike_delayed()
 				else:
