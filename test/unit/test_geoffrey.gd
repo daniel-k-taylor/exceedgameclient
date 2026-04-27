@@ -318,42 +318,28 @@ func test_inviolability_draw():
 	handle_discard_to_max(player1)
 
 func test_inviolability_block_opponent_close():
-	position_players(player1, 3, player2, 7)
-	var card_id = give_player_specific_card(player1, "geoffrey_solemnexorcism")
-	assert_true(game_logic.do_boost(player1, card_id, []))
-	# Boost done → end of p1's turn → advance to p2's turn
-	handle_discard_to_max(player1)
-	advance_turn(player2)
-	advance_turn(player1)
-	# Now it's p2's turn
-
-	# p2 uses Assault (before: close 2) vs p1 Grasp. Inviolability blocks p2's close.
-	# p2 at 7, p1 at 3. Dist 4. Without close, Assault R1 misses (dist 4).
-	# p2 ability: opp S7 > my S5 → no. p1 ability: opp S5 < my S7 → no.
-	# Wait - printed S: Grasp=7, Assault=5. p2 ability: opp S7>S5 → Assault A1, G1.
-	# p1 ability: opp S5<S7 → no bonus.
-	# p2 Assault(S5) vs Grasp(S7). p1 Grasp faster.
-	# Grasp: R1, dist 4, MISS. p2 Assault: Before close 2 → BLOCKED (cannot_move).
-	# Assault: R1, dist 4, MISS. Nobody takes damage.
-	execute_strike(player2, player1, "standard_normal_assault", "standard_normal_grasp")
-	validate_life(player1, 30, player2, 30)
-	validate_positions(player1, 3, player2, 7)
-
-func test_inviolability_blocks_outside_strike():
 	position_players(player1, 4, player2, 5)
 	var card_id = give_player_specific_card(player1, "geoffrey_solemnexorcism")
 	assert_true(game_logic.do_boost(player1, card_id, []))
-	# "now" timing sets p2.cannot_move immediately (outside of strike)
-	assert_true(player2.cannot_move)
 	handle_discard_to_max(player1)
 	advance_turn(player2)
 	advance_turn(player1)
-	# p2's turn. Boost Backstep (Assault boost): retreat 1-4 or pass.
-	var assault_id = give_player_specific_card(player2, "standard_normal_assault")
-	assert_true(game_logic.do_boost(player2, assault_id, []))
-	# p2 chooses retreat 1 → blocked by cannot_move
-	assert_true(game_logic.do_choice(player2, 0))
-	validate_positions(player1, 4, player2, 5) # p2 didn't move
+	# p2's turn. Strike: p2 Grasp(S7) vs p1 Assault(S5).
+	# Grasp first. R1, dist 1. P3. Hit: push 1 → blocked by ignore_push_and_pull!
+	# p1 ability: opp S7>S5 → Assault A1, G1. P3 vs A1=2. G1<2→stunned.
+	execute_strike(player2, player1, "standard_normal_grasp", "standard_normal_assault",
+		false, false,
+		[0]) # p2 Grasp hit: push 1 (will be blocked)
+	validate_life(player1, 28, player2, 30)
+	validate_positions(player1, 4, player2, 5) # p1 NOT pushed
+
+func test_inviolability_blocks_outside_strike():
+	position_players(player1, 2, player2, 7)
+	var card_id = give_player_specific_card(player1, "geoffrey_solemnexorcism")
+	assert_true(game_logic.do_boost(player1, card_id, []))
+	# "now" timing sets ignore_push_and_pull_passive_bonus on p1
+	assert_true(player1.ignore_push_and_pull > 0)
+	handle_discard_to_max(player1)
 
 ## ===== CRUSADER'S OATH: R1-2 P4 S3 A0 G0 (gauge 2) =====
 ## During: higher_speed_misses. Hit: gain_advantage.

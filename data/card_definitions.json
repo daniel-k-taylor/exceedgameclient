@@ -12104,15 +12104,15 @@
 			"effects": [
 				{
 					"timing": "during_strike",
-					"effect_type": "block_opponent_move"
+					"effect_type": "ignore_push_and_pull"
 				},
 				{
 					"timing": "now",
-					"effect_type": "block_opponent_move"
+					"effect_type": "ignore_push_and_pull_passive_bonus"
 				},
 				{
 					"timing": "discarded",
-					"effect_type": "remove_block_opponent_move"
+					"effect_type": "remove_ignore_push_and_pull_passive_bonus"
 				},
 				{
 					"timing": "now",
