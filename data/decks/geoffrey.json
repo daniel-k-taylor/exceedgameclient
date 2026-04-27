@@ -38,37 +38,37 @@
 	],
 	"image_resources": {
 		"character_default": {
-			"url": "https://i.imgur.com/placeholder_geoffrey.jpeg",
+			"url": "https://i.imgur.com/inXtmWK.jpeg",
 			"multiple_cards": false
 		},
 		"character_exceeded": {
-			"url": "https://i.imgur.com/placeholder_geoffrey_ex.jpeg",
+			"url": "https://i.imgur.com/HkkBf2X.jpeg",
 			"multiple_cards": false
 		},
 		"cardback": {
-			"url": "https://i.imgur.com/placeholder_geoffrey_back.jpeg",
+			"url": "https://i.imgur.com/s6wpKBq.jpeg",
 			"multiple_cards": false
 		},
 		"specials": {
-			"url": "https://i.imgur.com/placeholder_geoffrey_specials.jpeg",
+			"url": "https://i.imgur.com/FgLSx1r.jpeg",
 			"multiple_cards": true
 		},
 		"normals": {
-			"url": "https://i.imgur.com/placeholder_geoffrey_normals.jpeg",
+			"url": "https://i.imgur.com/1pnJnEb.jpeg",
 			"multiple_cards": true
 		}
 	},
 	"cards": [
-		{ "definition_id": "geoffrey_bastionstance", "image_name": "specials", "image_index": 0 },
-		{ "definition_id": "geoffrey_bastionstance", "image_name": "specials", "image_index": 0 },
-		{ "definition_id": "geoffrey_goldenarrow", "image_name": "specials", "image_index": 1 },
-		{ "definition_id": "geoffrey_goldenarrow", "image_name": "specials", "image_index": 1 },
-		{ "definition_id": "geoffrey_inquisition", "image_name": "specials", "image_index": 2 },
-		{ "definition_id": "geoffrey_inquisition", "image_name": "specials", "image_index": 2 },
-		{ "definition_id": "geoffrey_sacramentofblades", "image_name": "specials", "image_index": 3 },
-		{ "definition_id": "geoffrey_sacramentofblades", "image_name": "specials", "image_index": 3 },
-		{ "definition_id": "geoffrey_solemnexorcism", "image_name": "specials", "image_index": 4 },
-		{ "definition_id": "geoffrey_solemnexorcism", "image_name": "specials", "image_index": 4 },
+		{ "definition_id": "geoffrey_goldenarrow", "image_name": "specials", "image_index": 0 },
+		{ "definition_id": "geoffrey_goldenarrow", "image_name": "specials", "image_index": 0 },
+		{ "definition_id": "geoffrey_inquisition", "image_name": "specials", "image_index": 1 },
+		{ "definition_id": "geoffrey_inquisition", "image_name": "specials", "image_index": 1 },
+		{ "definition_id": "geoffrey_sacramentofblades", "image_name": "specials", "image_index": 2 },
+		{ "definition_id": "geoffrey_sacramentofblades", "image_name": "specials", "image_index": 2 },
+		{ "definition_id": "geoffrey_solemnexorcism", "image_name": "specials", "image_index": 3 },
+		{ "definition_id": "geoffrey_solemnexorcism", "image_name": "specials", "image_index": 3 },
+		{ "definition_id": "geoffrey_bastionstance", "image_name": "specials", "image_index": 4 },
+		{ "definition_id": "geoffrey_bastionstance", "image_name": "specials", "image_index": 4 },
 		{ "definition_id": "geoffrey_crusadersoath", "image_name": "specials", "image_index": 5 },
 		{ "definition_id": "geoffrey_crusadersoath", "image_name": "specials", "image_index": 5 },
 		{ "definition_id": "geoffrey_inviolablejudgment", "image_name": "specials", "image_index": 6 },
