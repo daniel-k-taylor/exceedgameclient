@@ -11910,6 +11910,314 @@
 
 
 	{
+		"NOTE": "GEOFFREY CARDS START",
+		"id": "geoffrey_bastionstance",
+		"type": "special",
+		"display_name": "Bastion Stance",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 2,
+		"power": 3,
+		"speed": 1,
+		"armor": 1,
+		"guard": 5,
+		"effects": [
+			{
+				"timing": "before",
+				"condition": "was_hit",
+				"effect_type": "powerup",
+				"amount": 2
+			},
+			{
+				"timing": "after",
+				"effect_type": "retreat",
+				"amount": 2
+			}
+		],
+		"boost": {
+			"boost_type": "transform",
+			"force_cost": -1,
+			"cancel_cost": -1,
+			"display_name": "Untainted",
+			"effects": [
+				{
+					"timing": "now",
+					"effect_type": "add_passive",
+					"passive": "geoffrey_untainted_passive",
+					"description": "may gain 1 life instead of drawing"
+				}
+			]
+		}
+	},
+	{
+		"id": "geoffrey_goldenarrow",
+		"type": "special",
+		"display_name": "Golden Arrow",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 3,
+		"range_max": 7,
+		"power": 5,
+		"speed": 4,
+		"armor": 0,
+		"guard": 3,
+		"effects": [
+			{
+				"timing": "hit",
+				"effect_type": "push",
+				"amount": 1
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 1,
+			"cancel_cost": -1,
+			"display_name": "Golden Chains",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "speedup",
+					"amount": -2,
+					"and": {
+						"effect_type": "armorup",
+						"amount": 2
+					}
+				},
+				{
+					"timing": "now",
+					"effect_type": "draw",
+					"amount": 2
+				}
+			]
+		}
+	},
+	{
+		"id": "geoffrey_inquisition",
+		"type": "special",
+		"display_name": "Inquisition",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 1,
+		"power": 5,
+		"speed": 4,
+		"armor": 0,
+		"guard": 1,
+		"effects": [
+			{
+				"timing": "during_strike",
+				"effect_type": "ignore_armor"
+			},
+			{
+				"timing": "hit",
+				"effect_type": "armorup",
+				"amount": 2
+			}
+		],
+		"boost": {
+			"boost_type": "transform",
+			"force_cost": -1,
+			"cancel_cost": -1,
+			"display_name": "Compulsive Purification",
+			"effects": [
+				{
+					"timing": "counter_boost",
+					"effect_type": "force_for_effect",
+					"per_force_effect": null,
+					"overall_effect": {
+						"effect_type": "negate_boost"
+					},
+					"force_max": 2
+				}
+			]
+		}
+	},
+	{
+		"id": "geoffrey_sacramentofblades",
+		"type": "special",
+		"display_name": "Sacrament of Blades",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 2,
+		"range_max": 6,
+		"power": 3,
+		"speed": 3,
+		"armor": 0,
+		"guard": 4,
+		"effects": [
+			{
+				"timing": "hit",
+				"effect_type": "gain_life",
+				"amount": 2
+			}
+		],
+		"boost": {
+			"boost_type": "transform",
+			"force_cost": -1,
+			"cancel_cost": -1,
+			"display_name": "Ministry of Saints",
+			"effects": [
+				{
+					"timing": "set_strike",
+					"effect_type": "force_for_effect",
+					"per_force_effect": null,
+					"overall_effect": {
+						"character_effect": true,
+						"effect_type": "add_attack_effect",
+						"added_effect": {
+							"timing": "during_strike",
+							"effect_type": "guardup",
+							"amount": 2
+						}
+					},
+					"force_max": 1
+				}
+			]
+		}
+	},
+	{
+		"id": "geoffrey_solemnexorcism",
+		"type": "special",
+		"display_name": "Solemn Exorcism",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 1,
+		"power": 4,
+		"speed": 3,
+		"armor": 0,
+		"guard": 4,
+		"effects": [
+			{
+				"timing": "before",
+				"condition": "was_hit",
+				"effect_type": "close",
+				"amount": 3
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Inviolability",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "ignore_push_and_pull"
+				},
+				{
+					"timing": "now",
+					"effect_type": "ignore_push_and_pull_passive_bonus"
+				},
+				{
+					"timing": "discarded",
+					"effect_type": "remove_ignore_push_and_pull_passive_bonus"
+				},
+				{
+					"timing": "now",
+					"effect_type": "draw",
+					"amount": 1
+				}
+			]
+		}
+	},
+	{
+		"id": "geoffrey_crusadersoath",
+		"type": "ultra",
+		"display_name": "Crusader's Oath",
+		"force_cost": 0,
+		"gauge_cost": 2,
+		"range_min": 1,
+		"range_max": 2,
+		"power": 4,
+		"speed": 3,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "during_strike",
+				"effect_type": "higher_speed_misses"
+			},
+			{
+				"timing": "hit",
+				"effect_type": "gain_advantage"
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Solemn Oath",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "armorup",
+					"amount": 5
+				},
+				{
+					"timing": "now",
+					"effect_type": "choice",
+					"choice": [
+						{ "effect_type": "spend_life", "amount": 5, "and": { "effect_type": "boost_additional", "limitation": "transform", "valid_zones": ["hand"] } },
+						{ "effect_type": "discard_this" }
+					]
+				}
+			]
+		}
+	},
+	{
+		"id": "geoffrey_inviolablejudgment",
+		"type": "ultra",
+		"display_name": "Inviolable Judgment",
+		"force_cost": 0,
+		"gauge_cost": 3,
+		"range_min": 1,
+		"range_max": 1,
+		"power": 10,
+		"speed": 0,
+		"armor": 2,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "during_strike",
+				"effect_type": "stun_immunity"
+			},
+			{
+				"timing": "during_strike",
+				"effect_type": "opponent_cant_move_past"
+			},
+			{
+				"timing": "cleanup",
+				"effect_type": "remove_opponent_cant_move_past"
+			}
+		],
+		"boost": {
+			"boost_type": "immediate",
+			"force_cost": 1,
+			"cancel_cost": -1,
+			"display_name": "Holy Wings",
+			"effects": [
+				{
+					"timing": "now",
+					"effect_type": "move_to_any_space"
+				},
+				{
+					"timing": "now",
+					"effect_type": "gauge_for_effect",
+					"per_gauge_effect": null,
+					"overall_effect": {
+						"effect_type": "return_this_to_hand_immediate_boost"
+					},
+					"gauge_max": 1
+				}
+			]
+		},
+		"NOTEEND": "GEOFFREY CARDS END"
+	},
+
+
+	{
 		"NOTE": "GOLDLEWIS CARDS START",
 		"id": "goldlewis_downwiththesystem",
 		"type": "ultra",

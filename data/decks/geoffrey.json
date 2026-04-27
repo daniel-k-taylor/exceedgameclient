@@ -1,0 +1,93 @@
+{
+	"id": "geoffrey",
+	"season": 2,
+	"display_name": "Geoffrey",
+	"exceed_cost": 5,
+	"exceed_cost_reduced_by": [{ "reduction_type": "transform_discount" }],
+	"ability_effects": [
+		{
+			"character_effect": true,
+			"timing": "during_strike",
+			"condition": "opponent_printed_speed_greater",
+			"effect_type": "armorup",
+			"amount": 1,
+			"and": {
+				"effect_type": "guardup",
+				"amount": 1
+			}
+		}
+	],
+	"exceed_ability_effects": [
+		{
+			"timing": "when_hit",
+			"first_time_only": true,
+			"character_effect": true,
+			"effect_type": "draw",
+			"amount": 1,
+			"and": {
+				"effect_type": "force_for_effect",
+				"per_force_effect": null,
+				"overall_effect": {
+					"character_effect": true,
+					"effect_type": "powerup",
+					"amount": 2
+				},
+				"force_max": 1
+			}
+		}
+	],
+	"image_resources": {
+		"character_default": {
+			"url": "https://i.imgur.com/inXtmWK.jpeg",
+			"multiple_cards": false
+		},
+		"character_exceeded": {
+			"url": "https://i.imgur.com/HkkBf2X.jpeg",
+			"multiple_cards": false
+		},
+		"cardback": {
+			"url": "https://i.imgur.com/s6wpKBq.jpeg",
+			"multiple_cards": false
+		},
+		"specials": {
+			"url": "https://i.imgur.com/FgLSx1r.jpeg",
+			"multiple_cards": true
+		},
+		"normals": {
+			"url": "https://i.imgur.com/1pnJnEb.jpeg",
+			"multiple_cards": true
+		}
+	},
+	"cards": [
+		{ "definition_id": "geoffrey_goldenarrow", "image_name": "specials", "image_index": 0 },
+		{ "definition_id": "geoffrey_goldenarrow", "image_name": "specials", "image_index": 0 },
+		{ "definition_id": "geoffrey_inquisition", "image_name": "specials", "image_index": 1 },
+		{ "definition_id": "geoffrey_inquisition", "image_name": "specials", "image_index": 1 },
+		{ "definition_id": "geoffrey_sacramentofblades", "image_name": "specials", "image_index": 2 },
+		{ "definition_id": "geoffrey_sacramentofblades", "image_name": "specials", "image_index": 2 },
+		{ "definition_id": "geoffrey_solemnexorcism", "image_name": "specials", "image_index": 3 },
+		{ "definition_id": "geoffrey_solemnexorcism", "image_name": "specials", "image_index": 3 },
+		{ "definition_id": "geoffrey_bastionstance", "image_name": "specials", "image_index": 4 },
+		{ "definition_id": "geoffrey_bastionstance", "image_name": "specials", "image_index": 4 },
+		{ "definition_id": "geoffrey_crusadersoath", "image_name": "specials", "image_index": 5 },
+		{ "definition_id": "geoffrey_crusadersoath", "image_name": "specials", "image_index": 5 },
+		{ "definition_id": "geoffrey_inviolablejudgment", "image_name": "specials", "image_index": 6 },
+		{ "definition_id": "geoffrey_inviolablejudgment", "image_name": "specials", "image_index": 6 },
+		{ "definition_id": "standard_normal_grasp", "image_name": "normals", "image_index": 0 },
+		{ "definition_id": "standard_normal_grasp", "image_name": "normals", "image_index": 0 },
+		{ "definition_id": "standard_normal_cross", "image_name": "normals", "image_index": 1 },
+		{ "definition_id": "standard_normal_cross", "image_name": "normals", "image_index": 1 },
+		{ "definition_id": "standard_normal_assault", "image_name": "normals", "image_index": 2 },
+		{ "definition_id": "standard_normal_assault", "image_name": "normals", "image_index": 2 },
+		{ "definition_id": "standard_normal_dive", "image_name": "normals", "image_index": 3 },
+		{ "definition_id": "standard_normal_dive", "image_name": "normals", "image_index": 3 },
+		{ "definition_id": "standard_normal_spike", "image_name": "normals", "image_index": 4 },
+		{ "definition_id": "standard_normal_spike", "image_name": "normals", "image_index": 4 },
+		{ "definition_id": "standard_normal_sweep", "image_name": "normals", "image_index": 5 },
+		{ "definition_id": "standard_normal_sweep", "image_name": "normals", "image_index": 5 },
+		{ "definition_id": "standard_normal_focus", "image_name": "normals", "image_index": 6 },
+		{ "definition_id": "standard_normal_focus", "image_name": "normals", "image_index": 6 },
+		{ "definition_id": "standard_normal_block", "image_name": "normals", "image_index": 7 },
+		{ "definition_id": "standard_normal_block", "image_name": "normals", "image_index": 7 }
+	]
+}

@@ -8181,6 +8181,16 @@ func check_hand_size_advance_turn(performing_player : Player):
 		}
 		handle_strike_effect(-1, choice_effect, performing_player)
 		active_special_draw_effect = true
+	elif performing_player.has_passive("geoffrey_untainted_passive") and performing_player.life <= 5 and not performing_player.did_strike_this_turn and not active_special_draw_effect and not performing_player.skip_end_of_turn_draw:
+		var choice_effect = {
+			"effect_type": StrikeEffects.Choice,
+			StrikeEffects.Choice: [
+				{ "effect_type": StrikeEffects.GainLife, "amount": 1, "and": { "effect_type": StrikeEffects.SkipEndOfTurnDraw } },
+				{ "effect_type": StrikeEffects.Pass }
+			]
+		}
+		handle_strike_effect(-1, choice_effect, performing_player)
+		active_special_draw_effect = true
 	else:
 		var skip_eot_discard = performing_player.skip_end_of_turn_draw or performing_player.has_passive("skip_eot_draw_and_discard")
 		if performing_player.skip_end_of_turn_draw or performing_player.has_passive("skip_eot_draw_and_discard"):
