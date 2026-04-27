@@ -7,17 +7,13 @@
 	"ability_effects": [
 		{
 			"character_effect": true,
-			"timing": "set_strike",
-			"effect_type": "add_attack_effect",
-			"added_effect": {
-				"timing": "during_strike",
-				"condition": "opponent_printed_speed_greater",
-				"effect_type": "armorup",
-				"amount": 1,
-				"and": {
-					"effect_type": "guardup",
-					"amount": 1
-				}
+			"timing": "during_strike",
+			"condition": "opponent_printed_speed_greater",
+			"effect_type": "armorup",
+			"amount": 1,
+			"and": {
+				"effect_type": "guardup",
+				"amount": 1
 			}
 		}
 	],

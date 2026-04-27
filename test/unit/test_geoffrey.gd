@@ -339,6 +339,22 @@ func test_inviolability_block_opponent_close():
 	validate_life(player1, 30, player2, 30)
 	validate_positions(player1, 3, player2, 7)
 
+func test_inviolability_blocks_outside_strike():
+	position_players(player1, 4, player2, 5)
+	var card_id = give_player_specific_card(player1, "geoffrey_solemnexorcism")
+	assert_true(game_logic.do_boost(player1, card_id, []))
+	# "now" timing sets p2.cannot_move immediately (outside of strike)
+	assert_true(player2.cannot_move)
+	handle_discard_to_max(player1)
+	advance_turn(player2)
+	advance_turn(player1)
+	# p2's turn. Boost Backstep (Assault boost): retreat 1-4 or pass.
+	var assault_id = give_player_specific_card(player2, "standard_normal_assault")
+	assert_true(game_logic.do_boost(player2, assault_id, []))
+	# p2 chooses retreat 1 → blocked by cannot_move
+	assert_true(game_logic.do_choice(player2, 0))
+	validate_positions(player1, 4, player2, 5) # p2 didn't move
+
 ## ===== CRUSADER'S OATH: R1-2 P4 S3 A0 G0 (gauge 2) =====
 ## During: higher_speed_misses. Hit: gain_advantage.
 
@@ -468,7 +484,7 @@ func test_holy_wings_move_no_gauge():
 func test_untainted_gain_life():
 	position_players(player1, 4, player2, 5)
 	add_transform(player1, "geoffrey_bastionstance")
-	player1.passive_effects["gain_life_instead_of_draw"] = 1
+	player1.passive_effects["geoffrey_untainted_passive"] = 1
 	advance_turn(player1) # p1 turn done, p2's turn
 	advance_turn(player2) # p2 turn done, p1's turn
 	player1.life = 5
@@ -482,7 +498,7 @@ func test_untainted_gain_life():
 func test_untainted_choose_draw():
 	position_players(player1, 4, player2, 5)
 	add_transform(player1, "geoffrey_bastionstance")
-	player1.passive_effects["gain_life_instead_of_draw"] = 1
+	player1.passive_effects["geoffrey_untainted_passive"] = 1
 	advance_turn(player1)
 	advance_turn(player2)
 	player1.life = 5
@@ -497,14 +513,14 @@ func test_untainted_high_life_no_choice():
 	position_players(player1, 4, player2, 5)
 	player1.life = 10
 	add_transform(player1, "geoffrey_bastionstance")
-	player1.passive_effects["gain_life_instead_of_draw"] = 1
+	player1.passive_effects["geoffrey_untainted_passive"] = 1
 	advance_turn(player1) # Untainted doesn't fire (life 10 > 5)
 	assert_eq(player1.life, 10)
 
 func test_untainted_after_strike_no_trigger():
 	position_players(player1, 4, player2, 5)
 	add_transform(player1, "geoffrey_bastionstance")
-	player1.passive_effects["gain_life_instead_of_draw"] = 1
+	player1.passive_effects["geoffrey_untainted_passive"] = 1
 	player1.life = 4
 
 	# Strike → did_strike_this_turn is true → Untainted doesn't trigger

@@ -11944,7 +11944,7 @@
 				{
 					"timing": "now",
 					"effect_type": "add_passive",
-					"passive": "gain_life_instead_of_draw",
+					"passive": "geoffrey_untainted_passive",
 					"description": "may gain 1 life instead of drawing"
 				}
 			]
@@ -12024,11 +12024,10 @@
 				{
 					"timing": "counter_boost",
 					"effect_type": "force_for_effect",
-					"per_force_effect": {
+					"per_force_effect": null,
+					"overall_effect": {
 						"effect_type": "negate_boost"
 					},
-					"overall_effect": null,
-					"force_effect_interval": 2,
 					"force_max": 2
 				}
 			]
@@ -12108,7 +12107,11 @@
 					"effect_type": "block_opponent_move"
 				},
 				{
-					"timing": "cleanup",
+					"timing": "now",
+					"effect_type": "block_opponent_move"
+				},
+				{
+					"timing": "discarded",
 					"effect_type": "remove_block_opponent_move"
 				},
 				{
