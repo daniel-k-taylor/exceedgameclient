@@ -11,9 +11,9 @@ func who_am_i():
 ## Standard normals (for damage math):
 ## Grasp: R1 P3 S7 G0. Hit: choice[push1, push2, pull1, pull2].
 ## Cross: R1-2 P3 S6 G0. After: retreat 3.
-## Assault: R1 P4 S5 G0. Before: close 2.
-## Dive: R1 P5 S4 G0. Before: advance 3.
-## Spike: R2-3 P5 S3 G4. Ignore armor.
+## Assault: R1 P4 S5 G0. Before: close 2. Hit: gain_advantage.
+## Dive: R1 P5 S4 G0. Before: advance 3 (dodge if advanced through).
+## Spike: R2-3 P5 S3 G4. Ignore armor and guard.
 ## Sweep: R1-3 P6 S2 G6. Hit: opponent_discard_random 1.
 ## Block: R-1(miss) P0 S0 A2 G3. During: when_hit_force_for_armor(2).
 ##
@@ -140,7 +140,8 @@ func test_golden_chains_speed_armor_effect():
 func test_inquisition_ignore_armor():
 	position_players(player1, 4, player2, 5)
 	# Inquisition(S4) vs Spike(S3). p2 ability: opp S4>S3 → Spike A1, G5.
-	# Inq first(S4>S3). R1 dist1, P5, ignore armor→p2 takes 5. 5>G5→stunned.
+	# Inq first(S4>S3). R1 dist1, P5, ignore armor→p2 takes 5.
+	# G5: 5 not > 5 so not stunned, but Spike R2-3 misses at dist 1 anyway.
 	execute_strike(player1, player2, "geoffrey_inquisition", "standard_normal_spike",
 		false, false,
 		[0]) # accept transform
@@ -163,8 +164,7 @@ func test_inquisition_hit_gives_armor():
 	validate_life(player1, 30, player2, 25)
 
 ## ===== COMPULSIVE PURIFICATION TRANSFORM: counter_boost =====
-## force_for_effect with force_effect_interval:2, force_max:2
-## per_force_effect: negate_boost (spend 2 cards → negate)
+## overall_effect: spend 2 force to negate the boost (all or nothing)
 
 func test_compulsive_purification_negate_boost():
 	position_players(player1, 4, player2, 6)
@@ -304,7 +304,7 @@ func test_solemn_exorcism_not_hit():
 		[[]]) # p2 ForceForArmor
 	validate_life(player1, 30, player2, 29)
 
-## ===== INVIOLABILITY BOOST: [+0] Continuous. Block opponent move. Now: draw 1. =====
+## ===== INVIOLABILITY BOOST: [+0] Continuous. Opponents cannot move you. Now: draw 1. =====
 
 func test_inviolability_draw():
 	position_players(player1, 4, player2, 5)
@@ -317,7 +317,7 @@ func test_inviolability_draw():
 	assert_eq(player1.hand.size(), hand_before + 1)
 	handle_discard_to_max(player1)
 
-func test_inviolability_block_opponent_close():
+func test_inviolability_block_opponent_push():
 	position_players(player1, 4, player2, 5)
 	var card_id = give_player_specific_card(player1, "geoffrey_solemnexorcism")
 	assert_true(game_logic.do_boost(player1, card_id, []))
@@ -358,7 +358,8 @@ func test_crusaders_oath_higher_speed_misses():
 func test_crusaders_oath_same_speed_hits():
 	position_players(player1, 4, player2, 5)
 	var p1_gauge = give_gauge(player1, 2)
-	# CO(S3) vs Spike(S3). Same speed, initiator first. P4 stuns p2.
+	# CO(S3) vs Spike(S3). Same speed, initiator first.
+	# P4 vs Spike G4: 4 not > 4 so not stunned, but Spike R2-3 misses at dist 1.
 	execute_strike(player1, player2, "geoffrey_crusadersoath", "standard_normal_spike",
 		false, false,
 		[p1_gauge])
@@ -415,13 +416,15 @@ func test_solemn_oath_discard():
 func test_inviolable_judgment_stun_immunity():
 	position_players(player1, 4, player2, 5)
 	var p1_gauge = give_gauge(player1, 3)
-	# IJ(S0) vs Assault(S5). p1 ability: opp S5>S0 → IJ A3, G1.
-	# Assault first. P4 vs A3=1. G1≥1, not stunned (+stun_immunity).
+	# IJ(S0) vs Sweep(S2). p1 ability: opp S2>S0 → IJ A3, G1.
+	# Sweep faster(S2). R1-3 dist1, P6 vs A3=3. G1: 3>1 → would stun, but stun_immunity!
 	# IJ: R1 dist1, P10→p2 takes 10.
-	execute_strike(player1, player2, "geoffrey_inviolablejudgment", "standard_normal_assault",
+	# Life: p1=30-3=27, p2=30-10=20.
+	execute_strike(player1, player2, "geoffrey_inviolablejudgment", "standard_normal_sweep",
 		false, false,
 		[p1_gauge])
-	validate_life(player1, 29, player2, 20)
+	validate_life(player1, 27, player2, 20)
+	validate_positions(player1, 4, player2, 5)
 
 func test_inviolable_judgment_vs_block():
 	position_players(player1, 4, player2, 5)
@@ -433,6 +436,21 @@ func test_inviolable_judgment_vs_block():
 		[p1_gauge],
 		[[]]) # p2 ForceForArmor
 	validate_life(player1, 30, player2, 22)
+
+func test_inviolable_judgment_opponent_cant_move_past():
+	position_players(player1, 4, player2, 6)
+	var p1_gauge = give_gauge(player1, 3)
+	# IJ(S0) vs Dive(S4). p1 ability: opp S4>S0 → IJ A3, G1.
+	# During: stun_immunity, opponent_cant_move_past.
+	# Dive faster(S4). Before: advance 3. From 6 toward 4: stops at 5 (can't move past).
+	# NOT advanced_through → no dodge. Dive R1 dist1, P5 vs A3=2. G1: 2>1 → stun (but p1 stun immune).
+	# IJ: R1 dist1, P10→p2 takes 10.
+	# Life: p1=30-2=28, p2=30-10=20.
+	execute_strike(player1, player2, "geoffrey_inviolablejudgment", "standard_normal_dive",
+		false, false,
+		[p1_gauge])
+	validate_life(player1, 28, player2, 20)
+	validate_positions(player1, 4, player2, 5)
 
 ## ===== HOLY WINGS BOOST: [+1] Immediate. Move to any space. Gauge(1)→return to hand. =====
 
