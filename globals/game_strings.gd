@@ -539,6 +539,8 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 			effect_str += "+" + str(effect['amount']) + " Armor"
 		StrikeEffects.ArmorupDamageDealt:
 			effect_str += "+ Armor per damage dealt"
+		StrikeEffects.ArmorupBonusArmorCounters:
+			effect_str += "+ Armor per counter on this card"
 		StrikeEffects.ArmorupCurrentPower:
 			effect_str += "+ Armor equal to power"
 		StrikeEffects.ArmorupOpponentPerForceSpentThisTurn:
@@ -646,6 +648,8 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 			effect_str += "Overdrive Effect: Play a continuous boost from hand."
 		StrikeEffects.CannotGoBelowLife:
 			effect_str += "Life cannot go below %s" % effect['amount']
+		StrikeEffects.CanSpendLifeForGauge:
+			effect_str += "May spend %s life to generate 1 gauge" % effect['amount']
 		StrikeEffects.CannotStun:
 			effect_str += "Attack does not stun"
 		StrikeEffects.Choice:
@@ -857,6 +861,8 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 			effect_str += "%s per card in %s%s" % [per_effect, zone_name, limitation_str]
 		StrikeEffects.ExceedNow:
 			effect_str += "Exceed"
+		StrikeEffects.MayExceedNowWithCost:
+			effect_str += "May Exceed (paying costs)"
 		StrikeEffects.ExtraTriggerResolutions:
 			effect_str += "Before/Hit/After triggers resolve %s extra time(s)" % effect['amount']
 		StrikeEffects.FlipBuddyMissGetGauge:
@@ -874,6 +880,8 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 			if str(amount) == "LAST_SPENT_LIFE":
 				amount = "that much"
 			effect_str += "Gain " + str(amount) + " life"
+		StrikeEffects.GainLifeDamageDealt:
+			effect_str += "Gain life equal to damage dealt"
 		StrikeEffects.GaugeFromHand:
 			var last_cards_req = ""
 			var destination = "Gauge"
@@ -919,6 +927,8 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 			effect_str += "Increase advance/retreat effects by %s" % effect['amount']
 		StrikeEffects.IncreaseMove_OpponentEffects:
 			effect_str += "Increase push/pull effects by %s" % effect['amount']
+		StrikeEffects.IncrementBonusArmorCounters:
+			effect_str += "Add a counter to this card"
 		StrikeEffects.InvertRange:
 			effect_str += "Attack Range is inverted"
 		StrikeEffects.LightningrodStrike:
@@ -1031,6 +1041,8 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 			if 'destination' in effect:
 				dest_str = " to your " + effect['destination']
 			effect_str += "Opponent discards " + str(effect['amount']) + " random cards" + dest_str + "."
+		StrikeEffects.OpponentPowerup:
+			effect_str += "Opponent's attack +" + str(effect['amount']) + " Power"
 		"opponent_wild_swings":
 			effect_str += "Opponent wild swings."
 		StrikeEffects.Pass:
@@ -1261,6 +1273,8 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 				effect_str += "Discard and wild swing next card"
 		StrikeEffects.ReshuffleDiscardIntoDeck:
 			effect_str += "Reshuffle discard pile into deck"
+		StrikeEffects.ResetBonusArmorCounters:
+			effect_str += "Remove all counters"
 		StrikeEffects.Retreat:
 			if 'combine_multiple_into_one' in effect and effect['combine_multiple_into_one']:
 				effect_str += "Retreat that much."
@@ -1445,6 +1459,8 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 			effect_str += "Discard all cards in gauge"
 		StrikeEffects.SpendLife:
 			effect_str += "Spend " + str(effect['amount']) + " life"
+		StrikeEffects.SetLife:
+			effect_str += "Set life to " + str(effect['amount'])
 		StrikeEffects.StartOfTurnStrike:
 			effect_str += "Strike"
 		StrikeEffects.Strike:

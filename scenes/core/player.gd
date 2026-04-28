@@ -344,6 +344,8 @@ var effect_on_turn_start
 var strike_action_disabled : bool
 var face_attack_id : String
 var spend_life_for_force_amount : int
+var spend_life_for_gauge_amount : int
+var bonus_armor_counters : int
 var can_boost_from_gauge : bool
 var can_boost_from_extra : bool
 var checked_post_action_effects : bool
@@ -486,6 +488,8 @@ func _init(id, player_name, parent_ref, card_db_ref, chosen_deck, card_start_id)
 	strike_action_disabled = false
 	face_attack_id = ""
 	spend_life_for_force_amount = -1
+	spend_life_for_gauge_amount = -1
+	bonus_armor_counters = 0
 	can_boost_from_gauge = false
 	can_boost_from_extra = deck_def.get('can_boost_from_extra', false)
 	seal_instead_of_discarding = false
@@ -744,6 +748,12 @@ func is_card_in_deck(id : int):
 		if card.id == id:
 			return true
 	return false
+
+func remove_card_from_deck(id : int):
+	for i in range(len(deck)):
+		if deck[i].id == id:
+			deck.remove_at(i)
+			return
 
 func get_copy_in_discards(definition_id : String):
 	for card in discards:
@@ -1617,7 +1627,12 @@ func get_force_from_spent_life(spent_life_for_force : int):
 		return spent_life_for_force * spend_life_for_force_amount
 	return 0
 
-func can_pay_cost_with(card_ids : Array, force_cost : int, gauge_cost : int, use_free_force : bool, spent_life_for_force : int, alternative_life_cost : int = 0):
+func get_gauge_from_spent_life(spent_life_for_gauge : int):
+	if spend_life_for_gauge_amount > 0:
+		return spent_life_for_gauge * spend_life_for_gauge_amount
+	return 0
+
+func can_pay_cost_with(card_ids : Array, force_cost : int, gauge_cost : int, use_free_force : bool, spent_life_for_force : int, alternative_life_cost : int = 0, spent_life_for_gauge : int = 0):
 	if alternative_life_cost and life > alternative_life_cost and card_ids.size() == 0:
 		return true
 	if force_cost and gauge_cost:
@@ -1644,7 +1659,8 @@ func can_pay_cost_with(card_ids : Array, force_cost : int, gauge_cost : int, use
 				assert(false)
 				parent.printlog("ERROR: Card not in gauge")
 				return false
-		return gauge_generated == gauge_cost
+		gauge_generated += get_gauge_from_spent_life(spent_life_for_gauge)
+		return gauge_generated >= gauge_cost
 
 	# No cost.
 	return true
@@ -1654,6 +1670,11 @@ func can_pay_cost(force_cost : int, gauge_cost : int, alternative_life_cost : in
 		return true
 	var available_force = get_available_force()
 	var available_gauge = get_available_gauge()
+	if spend_life_for_gauge_amount > 0 and gauge_cost > available_gauge:
+		var gauge_shortfall = gauge_cost - available_gauge
+		var life_needed = gauge_shortfall * spend_life_for_gauge_amount
+		if life > life_needed:
+			available_gauge = gauge_cost
 	if available_gauge < gauge_cost:
 		return false
 	if available_force < force_cost:
@@ -1666,7 +1687,8 @@ func can_boost_something(valid_zones : Array, limitation : String, ignore_costs 
 		"hand": hand,
 		"gauge": gauge,
 		"discard": discards,
-		"extra": set_aside_cards
+		"extra": set_aside_cards,
+		"deck": deck
 	}
 
 	for zone in valid_zones:

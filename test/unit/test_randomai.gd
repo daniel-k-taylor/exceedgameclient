@@ -711,6 +711,9 @@ func test_vincent_100():
 func test_geoffrey_100():
 	run_iterations_with_deck("geoffrey")
 
+func test_taisei_100():
+	run_iterations_with_deck("taisei")
+
 func test_djanette_100():
 	run_iterations_with_deck("djanette")
 
