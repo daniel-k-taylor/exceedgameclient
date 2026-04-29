@@ -520,6 +520,31 @@ func test_demonblood_transform_from_hand():
 			break
 	assert_true(found_transform, "Anathema Surge should be a transform")
 
+func test_demonblood_transform_from_deck():
+	position_players(player1, 4, player2, 5)
+	# Ensure a transform card is in the deck (Dust to Dust transforms to Demonheart).
+	# Find a taisei_dusttodust card in the deck.
+	var deck_transform_id = -1
+	for card in player1.deck:
+		if card.definition['id'] == "taisei_dusttodust":
+			deck_transform_id = card.id
+			break
+	assert_ne(deck_transform_id, -1, "Should have a Dust to Dust in deck")
+
+	var boost_id = give_player_specific_card(player1, "taisei_chaosscissors")
+	assert_true(game_logic.do_boost(player1, boost_id))
+	# Now choice: spend 3 life + transform from hand/deck (0).
+	assert_true(game_logic.do_choice(player1, 0)) # spend 3 life
+	# Pick transform card from deck.
+	assert_true(game_logic.do_boost(player1, deck_transform_id))
+	validate_life(player1, 12, player2, 15) # 15-3=12
+	var found_transform = false
+	for card in player1.transforms:
+		if card.definition['id'] == "taisei_dusttodust":
+			found_transform = true
+			break
+	assert_true(found_transform, "Dust to Dust should be a transform (Demonheart)")
+
 func test_demonblood_hit_gain_life():
 	position_players(player1, 4, player2, 5)
 	player1.life = 10
