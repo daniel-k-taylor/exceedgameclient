@@ -29607,7 +29607,7 @@
 					"amount": 3
 				},
 				{
-					"timing": "after",
+					"timing": "cleanup",
 					"effect_type": "choice",
 					"choice": [
 						{

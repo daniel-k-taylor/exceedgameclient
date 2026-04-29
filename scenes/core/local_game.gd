@@ -1937,9 +1937,10 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 			performing_player.strike_stat_boosts.armor += damage_dealt
 			create_event(Enums.EventType.EventType_Strike_ArmorUp, performing_player.my_id, damage_dealt)
 		StrikeEffects.ArmorupBonusArmorCounters:
+			# Armor from bonus_armor_counters is now calculated dynamically in get_total_armor.
+			# This effect only creates the event for UI feedback.
 			var counter_amount = performing_player.bonus_armor_counters
 			if counter_amount > 0:
-				performing_player.strike_stat_boosts.armor += counter_amount
 				create_event(Enums.EventType.EventType_Strike_ArmorUp, performing_player.my_id, counter_amount)
 		StrikeEffects.ArmorupCurrentPower:
 			var current_power = get_total_power(performing_player)
@@ -6807,6 +6808,9 @@ func get_total_armor(performing_player : Player):
 	if performing_player.strike_stat_boosts.power_armor_up_if_sealed_or_transformed_copy_of_attack:
 		if performing_player.has_card_name_in_zone(card, "sealed") or performing_player.has_card_name_in_zone(card, "transform"):
 			armor_modifier += 1
+
+	# Demonheart: bonus_armor_counters provides live armor throughout the strike
+	armor_modifier += performing_player.bonus_armor_counters
 
 	return max(0, armor + armor_modifier)
 

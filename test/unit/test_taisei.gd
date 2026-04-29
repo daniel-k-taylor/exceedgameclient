@@ -623,36 +623,36 @@ func test_demonheart_with_ability_counters():
 	assert_eq(player1.bonus_armor_counters, 0) # reset at cleanup
 
 func test_demonhide_with_demonheart():
-	# Demonhide after: spend 2 life triggers Demonheart on_spend_life.
-	# Counter increments but armor already applied. Resets at cleanup.
+	# Demonhide cleanup: spend 2 life triggers Demonheart on_spend_life.
+	# Ability spend at set_strike also increments counter → provides armor dynamically.
 	position_players(player1, 4, player2, 5)
 	add_transform(player1, "taisei_dusttodust") # Demonheart
 	var boost_id = give_player_specific_card(player1, "taisei_blackvolt")
 	assert_true(game_logic.do_boost(player1, boost_id))
 	advance_turn(player2)
 
-	# p1 ability: spend 1 life → +1P. Demonheart: +1 counter.
-	# During: Demonhide +3A + Demonheart +1A (counter) = +4A total.
-	# Sweep(S2) vs Assault(S5). Assault first. Before: close 2 (adj).
-	# P4 vs A4=0 damage. Stun: 0>G6? No. Not stunned.
-	# Sweep: R1-3, dist1. P6+1=7 hit. p2: 15-7=8.
-	# Demonhide after: return to hand (choice 0, spend 2 life).
-	# p1: 15-1(ability)-0(Assault blocked)-2(Demonhide return)=12.
+	# p1 ability: spend 1 life → +1P. Demonheart: +1 counter. p1: 15-1=14.
+	# During: Demonhide +3A + Demonheart dynamic +1A (counter) = +4A total.
+	# Sweep(S2) vs Assault(S5). Assault first (Card1=p2).
+	# Card1 (p2 Assault): Before close 2 (adj). P4 vs A4=0 damage. Not stunned.
+	# Card2 (p1 Sweep): R1-3, dist1. P6+1=7 hit. p2: 15-7=8.
+	# Cleanup: simultaneous effects ordering (Demonhide+Demonheart both at cleanup),
+	#   then Demonhide return (spend 2 life). p1: 14-2=12.
 	execute_strike(player1, player2, "standard_normal_sweep", "standard_normal_assault",
 		false, false,
-		[1, 0], # ability: spend 1 life, Demonhide after: return to hand
+		[1, 0, 0], # ability: spend 1 life, cleanup ordering, Demonhide cleanup: return to hand
 		[0])    # ability pass
 	validate_life(player1, 12, player2, 8)
 	assert_eq(player1.bonus_armor_counters, 0) # reset at cleanup
 
-## ===== DEMONHIDE ARMOR REVERTED ON RETURN =====
-## When Demonhide is returned to hand, the during_strike armorup is reverted
-## (disable_boost_effects undoes it). Card2 hits without armor protection.
+## ===== DEMONHIDE ARMOR PERSISTS THROUGH STRIKE =====
+## With cleanup timing, Demonhide's +3A protects through the entire strike.
+## The return-to-hand choice fires at cleanup (after all damage resolved).
 
 func test_demonhide_return_reverts_armor():
 	# p1 is Card1 (faster). Demonhide gives +3A during_strike.
-	# p1 returns Demonhide during Card1_After → armor reverted to 0.
-	# Card2 (p2 Sweep) hits without armor.
+	# Demonhide returns at CLEANUP (after all damage resolved).
+	# So armor protects during Card2. Return/life-spend at cleanup doesn't matter for damage.
 	position_players(player1, 4, player2, 5)
 	var boost_id = give_player_specific_card(player1, "taisei_blackvolt")
 	assert_true(game_logic.do_boost(player1, boost_id))
@@ -661,14 +661,13 @@ func test_demonhide_return_reverts_armor():
 	# Assault(S5) vs Sweep(S2). Assault faster → p1 is Card1.
 	# Card1 (p1 Assault): Before close 2 (adj). R1, dist1, hits.
 	#   P4 vs A0 = 4 dmg. p2: 15-4=11. Stun: 4>G6? No.
-	# Card1_After: Demonhide after: return (0, spend 2 life). p1: 15-2=13.
-	#   Armor reverted: strike_stat_boosts.armor back to 0.
-	# Card2 (p2 Sweep): R1-3, dist1. P6 vs A0 = 6 dmg. p1: 13-6=7.
+	# Card2 (p2 Sweep): R1-3, dist1. P6 vs A3 = 3 dmg. p1: 15-3=12.
+	# Cleanup: Demonhide choice → return (spend 2 life). p1: 12-2=10.
 	execute_strike(player1, player2, "standard_normal_assault", "standard_normal_sweep",
 		false, false,
-		[0, 0], # ability pass, Demonhide after: return to hand
+		[0, 0], # ability pass, Demonhide cleanup: return to hand
 		[0])    # ability pass
-	validate_life(player1, 7, player2, 11)
+	validate_life(player1, 10, player2, 11)
 	var found = false
 	for card in player1.hand:
 		if card.definition['id'] == "taisei_blackvolt":
@@ -697,11 +696,11 @@ func test_exceeded_no_ability_choice():
 	validate_life(player1, 25, player2, 11)
 
 ## ===== DEMONHEART LATE SPEND: ARMOR REVERTED ON RETURN =====
-## The Demonhide return reverts its during_strike armorup. Meanwhile,
-## Demonheart counter increments from life spend but was already 0 at DuringStrikeBonuses.
-## Net result: no armor protects Card2's damage.
+## Demonheart counter increments from life spend at cleanup (Demonhide return),
+## but this happens AFTER all damage is resolved. Armor still protects during strike
+## from Demonhide's +3A.
 
-func test_demonheart_late_spend_no_retroactive_armor():
+func test_demonheart_cleanup_spend_no_armor_help():
 	position_players(player1, 4, player2, 5)
 	add_transform(player1, "taisei_dusttodust") # Demonheart
 	var boost_id = give_player_specific_card(player1, "taisei_blackvolt")
@@ -709,16 +708,36 @@ func test_demonheart_late_spend_no_retroactive_armor():
 	advance_turn(player2)
 
 	# p1 ability: pass (0 life spent). No Demonheart counter.
-	# During: Demonhide +3A, Demonheart +0A. Total A=3.
+	# During: Demonhide +3A, Demonheart +0A (counters=0). Total A=3.
 	# Assault(S5) vs Sweep(S2). Assault faster (p1 is Card1).
-	# Card1: P4 vs A0 = 4 dmg. p2: 15-4=11. Not stunned (4<G6).
-	# Card1_After: Demonhide return (choice 0, spend 2 life). p1: 15-2=13.
-	#   Armor reverted: A3 → A0 (disable_boost_effects reverses armorup).
-	#   on_spend_life → Demonheart counter = 1 (but armor already reverted).
-	# Card2 (Sweep): P6 vs A0 = 6 dmg. p1: 13-6=7.
+	# Card1: P4 vs A0 = 4 dmg. p2: 15-4=11. Not stunned (4<6).
+	# Card2 (Sweep): P6 vs A3 = 3 dmg. p1: 15-3=12.
+	# Cleanup: simultaneous ordering, then Demonhide return (spend 2 life). p1: 12-2=10.
+	#   on_spend_life → Demonheart counter = 1 (but damage already resolved).
 	execute_strike(player1, player2, "standard_normal_assault", "standard_normal_sweep",
 		false, false,
-		[0, 0], # ability pass, Demonhide after: return
+		[0, 0, 0], # ability pass, cleanup ordering, Demonhide cleanup: return
 		[0])    # ability pass
-	validate_life(player1, 7, player2, 11)
+	validate_life(player1, 10, player2, 11)
+	assert_eq(player1.bonus_armor_counters, 0) # reset at cleanup
+
+## ===== DEMONHEART DYNAMIC ARMOR: ABILITY SPEND PROVIDES ARMOR =====
+## When Taisei spends life via his ability at set_strike timing, Demonheart
+## counters increment immediately and provide live armor during the strike.
+
+func test_demonheart_ability_spend_provides_armor():
+	# p1 spends 2 life via ability → +1 Demonheart counter (1 spend event) → +1 dynamic armor.
+	position_players(player1, 4, player2, 5)
+	add_transform(player1, "taisei_dusttodust") # Demonheart
+
+	# Assault(S5) vs Sweep(S2). Assault faster → p1 is Card1.
+	# p1 ability: spend 2 life → +2P. Demonheart counter = 1 (one on_spend_life event). p1: 15-2=13.
+	# No Demonhide, so only armor from Demonheart counters = 1.
+	# Card1 (p1 Assault): Before close 2 (adj). R1, dist1. P4+2=6. p2: 15-6=9. Stun: 6>G6? No.
+	# Card2 (p2 Sweep): R1-3, dist1. P6 vs A1 = 5 dmg. p1: 13-5=8.
+	execute_strike(player1, player2, "standard_normal_assault", "standard_normal_sweep",
+		false, false,
+		[2], # ability: spend 2 life
+		[0]) # ability pass
+	validate_life(player1, 8, player2, 9)
 	assert_eq(player1.bonus_armor_counters, 0) # reset at cleanup

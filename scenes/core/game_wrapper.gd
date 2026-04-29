@@ -295,6 +295,13 @@ func is_card_set_aside(player_id : Enums.PlayerId, card_id : int):
 			return true
 	return false
 
+func is_card_in_deck(player_id : Enums.PlayerId, card_id : int):
+	var player = _get_player(player_id)
+	for card in player.deck:
+		if card.id == card_id:
+			return true
+	return false
+
 func is_card_in_overdrive(player_id : Enums.PlayerId, card_id : int):
 	var player = _get_player(player_id)
 	for card in player.overdrive:
@@ -313,6 +320,19 @@ func get_player_top_cards(player_id : Enums.PlayerId, count : int) -> Array:
 		if player.deck.size() > i:
 			top_cards.append(player.deck[i].id)
 	return top_cards
+
+func get_player_deck_card_ids_for_boost(player_id : Enums.PlayerId, limitation : String) -> Array:
+	var player = _get_player(player_id)
+	var card_ids : Array = []
+	for card in player.deck:
+		if limitation:
+			if card.definition['boost']['boost_type'] == limitation or card.definition['type'] == limitation:
+				if limitation == "transform" and player.has_card_name_in_zone(card, "transform"):
+					continue
+				card_ids.append(card.id)
+		else:
+			card_ids.append(card.id)
+	return card_ids
 
 func get_player_sustained_boosts(player_id : Enums.PlayerId) -> Array:
 	return _get_player(player_id).sustained_boosts
@@ -469,7 +489,8 @@ func can_player_boost(player_id : Enums.PlayerId,
 		"hand": is_card_in_hand,
 		"gauge": is_card_in_gauge,
 		"discard": is_card_in_discards,
-		"extra": is_card_set_aside
+		"extra": is_card_set_aside,
+		"deck": is_card_in_deck
 	}
 
 	var in_valid_zone = false

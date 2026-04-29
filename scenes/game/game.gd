@@ -2976,6 +2976,15 @@ func begin_boost_choosing(can_cancel : bool, valid_zones : Array, limitation : S
 		_on_player_discard_button_pressed()
 	elif 'extra' in valid_zones:
 		_on_player_buddy_button_pressed(true)
+	elif 'deck' in valid_zones:
+		var deck_card_ids = game_wrapper.get_player_deck_card_ids_for_boost(Enums.PlayerId.PlayerId_Player, limitation)
+		for card_id in deck_card_ids:
+			var card = find_card_on_board(card_id)
+			if card:
+				card.flip_card_to_front(true)
+				reparent_to_zone(card, choice_zone_parent)
+		choice_popout_title = "DECK"
+		_on_choice_popout_show_button_pressed()
 
 	enable_instructions_ui(instructions, true, can_cancel)
 	change_ui_state(UIState.UIState_SelectCards, UISubState.UISubState_SelectCards_PlayBoost)
