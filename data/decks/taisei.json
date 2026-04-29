@@ -36,25 +36,14 @@
 			]
 		}
 	],
-	"exceed_ability_effects": [
-		{
-			"timing": "set_strike",
-			"character_effect": true,
-			"effect_type": "choice",
-			"choice": [
-				{ "effect_type": "pass" },
-				{ "effect_type": "spend_life", "amount": 1, "and": { "effect_type": "powerup", "amount": 1 } },
-				{ "effect_type": "spend_life", "amount": 2, "and": { "effect_type": "powerup", "amount": 2 } }
-			]
-		}
-	],
+	"exceed_ability_effects": [],
 	"image_resources": {
 		"character_default": {
-			"url": "https://i.imgur.com/placeholder_taisei.jpeg",
+			"url": "https://i.imgur.com/OnAQb7s.jpeg",
 			"multiple_cards": false
 		},
 		"character_exceeded": {
-			"url": "https://i.imgur.com/placeholder_taisei_ex.jpeg",
+			"url": "https://i.imgur.com/37F1Gxo.jpeg",
 			"multiple_cards": false
 		},
 		"cardback": {
@@ -62,7 +51,7 @@
 			"multiple_cards": false
 		},
 		"specials": {
-			"url": "https://i.imgur.com/placeholder_taisei_specials.jpeg",
+			"url": "https://i.imgur.com/nzhlxRs.jpeg",
 			"multiple_cards": true
 		},
 		"normals": {

@@ -122,8 +122,8 @@ func test_on_death_already_exceeded():
 	position_players(player1, 4, player2, 5)
 	execute_strike(player1, player2, "standard_normal_block", "standard_normal_sweep",
 		false, false,
-		[0, []], # ability pass, ForceForArmor
-		[0])     # ability pass
+		[[]], # ForceForArmor with no cards (no ability choice when exceeded)
+		[0])  # ability pass
 	assert_eq(game_logic.game_state, Enums.GameState.GameState_GameOver)
 	assert_eq(game_logic.game_over_winning_player, player2)
 
@@ -170,8 +170,8 @@ func test_exceed_can_spend_life_for_gauge():
 	# CS hit: self-damage 3. p1: 25-3=22.
 	execute_strike(player1, player2, cs_id, "standard_normal_assault",
 		false, false,
-		[0, gauge_for_cs], # ability pass, pay gauge cost
-		[0])               # ability pass
+		[gauge_for_cs], # pay gauge cost (no ability choice when exceeded)
+		[0])            # ability pass
 	validate_life(player1, 22, player2, 7)
 
 ## ===== ANATHEMA SURGE TESTS =====
@@ -234,7 +234,7 @@ func test_edge_of_death_exceeded():
 	# Assault S5+1=6 vs Cross S6. Same speed, initiator first.
 	# Assault P4+1=5. Before: close 2 (adj). R1, dist1. Hit. p2: 15-5=10. Stunned.
 	execute_strike(player1, player2, "standard_normal_assault", "standard_normal_cross",
-		false, false, [0], [0])
+		false, false, [], [0]) # no ability choice when exceeded; p2 pass
 	validate_life(player1, 5, player2, 10)
 
 ## ===== ASHEN CLAWS TESTS =====
@@ -643,4 +643,82 @@ func test_demonhide_with_demonheart():
 		[1, 0], # ability: spend 1 life, Demonhide after: return to hand
 		[0])    # ability pass
 	validate_life(player1, 12, player2, 8)
+	assert_eq(player1.bonus_armor_counters, 0) # reset at cleanup
+
+## ===== DEMONHIDE ARMOR REVERTED ON RETURN =====
+## When Demonhide is returned to hand, the during_strike armorup is reverted
+## (disable_boost_effects undoes it). Card2 hits without armor protection.
+
+func test_demonhide_return_reverts_armor():
+	# p1 is Card1 (faster). Demonhide gives +3A during_strike.
+	# p1 returns Demonhide during Card1_After → armor reverted to 0.
+	# Card2 (p2 Sweep) hits without armor.
+	position_players(player1, 4, player2, 5)
+	var boost_id = give_player_specific_card(player1, "taisei_blackvolt")
+	assert_true(game_logic.do_boost(player1, boost_id))
+	advance_turn(player2)
+
+	# Assault(S5) vs Sweep(S2). Assault faster → p1 is Card1.
+	# Card1 (p1 Assault): Before close 2 (adj). R1, dist1, hits.
+	#   P4 vs A0 = 4 dmg. p2: 15-4=11. Stun: 4>G6? No.
+	# Card1_After: Demonhide after: return (0, spend 2 life). p1: 15-2=13.
+	#   Armor reverted: strike_stat_boosts.armor back to 0.
+	# Card2 (p2 Sweep): R1-3, dist1. P6 vs A0 = 6 dmg. p1: 13-6=7.
+	execute_strike(player1, player2, "standard_normal_assault", "standard_normal_sweep",
+		false, false,
+		[0, 0], # ability pass, Demonhide after: return to hand
+		[0])    # ability pass
+	validate_life(player1, 7, player2, 11)
+	var found = false
+	for card in player1.hand:
+		if card.definition['id'] == "taisei_blackvolt":
+			found = true
+			break
+	assert_true(found, "Blackvolt should be back in hand")
+
+## ===== EXCEEDED TAISEI LOSES STARTING ABILITY =====
+
+func test_exceeded_no_ability_choice():
+	# When exceeded, Taisei should NOT get the spend-life-for-power choice.
+	position_players(player1, 4, player2, 5)
+	var gauge = give_gauge(player1, 5)
+	assert_true(game_logic.do_exceed(player1, gauge))
+	assert_true(game_logic.do_choice(player1, 0)) # gain 10 life → 25
+	advance_turn(player2)
+
+	# Strike with no ability choice. If ability still fires, init_choices
+	# would need [0] for the choice, and the test would fail.
+	execute_strike(player1, player2, "standard_normal_assault", "standard_normal_assault",
+		false, false,
+		[], # NO ability choice — exceeded Taisei has no set_strike ability
+		[0]) # p2 ability pass
+	# p1 Assault(S5) vs p2 Assault(S5). Same speed, p1 initiator = Card1.
+	# P4 hits p2: 15-4=11. Stun: 4>G0? Yes, stunned.
+	validate_life(player1, 25, player2, 11)
+
+## ===== DEMONHEART LATE SPEND: ARMOR REVERTED ON RETURN =====
+## The Demonhide return reverts its during_strike armorup. Meanwhile,
+## Demonheart counter increments from life spend but was already 0 at DuringStrikeBonuses.
+## Net result: no armor protects Card2's damage.
+
+func test_demonheart_late_spend_no_retroactive_armor():
+	position_players(player1, 4, player2, 5)
+	add_transform(player1, "taisei_dusttodust") # Demonheart
+	var boost_id = give_player_specific_card(player1, "taisei_blackvolt")
+	assert_true(game_logic.do_boost(player1, boost_id))
+	advance_turn(player2)
+
+	# p1 ability: pass (0 life spent). No Demonheart counter.
+	# During: Demonhide +3A, Demonheart +0A. Total A=3.
+	# Assault(S5) vs Sweep(S2). Assault faster (p1 is Card1).
+	# Card1: P4 vs A0 = 4 dmg. p2: 15-4=11. Not stunned (4<G6).
+	# Card1_After: Demonhide return (choice 0, spend 2 life). p1: 15-2=13.
+	#   Armor reverted: A3 → A0 (disable_boost_effects reverses armorup).
+	#   on_spend_life → Demonheart counter = 1 (but armor already reverted).
+	# Card2 (Sweep): P6 vs A0 = 6 dmg. p1: 13-6=7.
+	execute_strike(player1, player2, "standard_normal_assault", "standard_normal_sweep",
+		false, false,
+		[0, 0], # ability pass, Demonhide after: return
+		[0])    # ability pass
+	validate_life(player1, 7, player2, 11)
 	assert_eq(player1.bonus_armor_counters, 0) # reset at cleanup

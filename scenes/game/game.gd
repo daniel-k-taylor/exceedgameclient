@@ -113,6 +113,7 @@ var treat_ultras_as_single_force = false
 var discard_ex_first_for_strike = false
 var use_free_force = false
 var can_spend_life_for_force = false
+var can_spend_life_for_gauge = false
 var current_pay_costs_is_ex = false
 var preparing_character_action = false
 var prepared_character_action_data = {}
@@ -2576,6 +2577,7 @@ func get_gauge_generated():
 	var gauge_from_free_bonus = game_wrapper.get_player_free_gauge(Enums.PlayerId.PlayerId_Player)
 	var gauge_generated = min(gauge_from_free_bonus, select_card_require_max)
 	gauge_generated += len(selected_cards)
+	gauge_generated += get_gauge_from_spent_life()
 	return gauge_generated
 
 func update_gauge_selection_message():
@@ -2589,11 +2591,15 @@ func update_gauge_selection_message():
 			ignore_armor_str = "Armor Ignored! "
 		set_instructions("Spend Gauge for +%s Armor each.\n%s\n%sYou will take %s damage." % [force_for_armor_amount, force_generated_str, ignore_armor_str, damage_after_armor])
 	else:
+		var gauge_from_life = get_gauge_from_spent_life()
 		var num_remaining = select_card_require_min - get_gauge_generated()
 		var discard_reminder = ""
 		if enabled_reminder_text:
 			discard_reminder = "\nThe last card selected will be on top of the discard pile."
-		set_instructions("Select %s more gauge card(s).%s" % [num_remaining, discard_reminder])
+		var life_info = ""
+		if can_spend_life_for_gauge and gauge_from_life > 0:
+			life_info = " (%s from spent life)" % gauge_from_life
+		set_instructions("Select %s more gauge card(s).%s%s" % [max(0, num_remaining), life_info, discard_reminder])
 
 func update_gauge_for_effect_message():
 	var effect_str = ""
@@ -3318,6 +3324,7 @@ func _on_pay_cost_gauge(event):
 	var alternative_life_cost = event['extra_info3']
 	var gauge_cost = game_wrapper.get_decision_info().cost
 	if player == Enums.PlayerId.PlayerId_Player and not observer_mode:
+		can_spend_life_for_gauge = game_wrapper.get_life_for_gauge_amount(Enums.PlayerId.PlayerId_Player) > 0
 		var wild_swing_allowed = game_wrapper.get_decision_info().type == Enums.DecisionType.DecisionType_PayStrikeCost_CanWild
 		begin_gauge_selection(
 			gauge_cost,
@@ -4210,6 +4217,10 @@ func _update_buttons(no_number_picker_update : bool = false):
 		instructions_number_picker_min = 0
 		instructions_number_picker_max = game_wrapper.get_player_life(Enums.PlayerId.PlayerId_Player)
 
+	if can_spend_life_for_gauge and ui_sub_state in [UISubState.UISubState_SelectCards_StrikeGauge, UISubState.UISubState_SelectCards_Exceed]:
+		instructions_number_picker_min = 0
+		instructions_number_picker_max = game_wrapper.get_player_life(Enums.PlayerId.PlayerId_Player)
+
 	# Set the Action Menu state
 	var action_menu_hidden = false
 	match ui_state:
@@ -4794,6 +4805,11 @@ func _on_instructions_ok_button_pressed(index : int):
 			instructions_number_picker_max = -1
 			can_spend_life_for_force = false
 
+		if can_spend_life_for_gauge:
+			instructions_number_picker_min = -1
+			instructions_number_picker_max = -1
+			can_spend_life_for_gauge = false
+
 		if preparing_character_action:
 			finish_preparing_character_action(selected_card_ids)
 			return
@@ -4829,9 +4845,9 @@ func _on_instructions_ok_button_pressed(index : int):
 			UISubState.UISubState_SelectCards_StrikeForce:
 				success = game_wrapper.submit_pay_strike_cost(Enums.PlayerId.PlayerId_Player, selected_card_ids, false, discard_ex_first_for_strike, use_free_force, spent_life_for_force, false)
 			UISubState.UISubState_SelectCards_StrikeGauge:
-				success = game_wrapper.submit_pay_strike_cost(Enums.PlayerId.PlayerId_Player, selected_card_ids, false, discard_ex_first_for_strike, false, 0, false)
+				success = game_wrapper.submit_pay_strike_cost(Enums.PlayerId.PlayerId_Player, selected_card_ids, false, discard_ex_first_for_strike, false, 0, false, get_spent_life_for_gauge())
 			UISubState.UISubState_SelectCards_Exceed:
-				success = game_wrapper.submit_exceed(Enums.PlayerId.PlayerId_Player, selected_card_ids)
+				success = game_wrapper.submit_exceed(Enums.PlayerId.PlayerId_Player, selected_card_ids, get_spent_life_for_gauge())
 			UISubState.UISubState_SelectCards_ForceForEffect:
 				success = game_wrapper.submit_force_for_effect(Enums.PlayerId.PlayerId_Player, selected_card_ids, treat_ultras_as_single_force, false, use_free_force, spent_life_for_force)
 			UISubState.UISubState_SelectCards_GaugeForEffect:
@@ -4895,6 +4911,11 @@ func _on_instructions_cancel_button_pressed():
 		instructions_number_picker_min = -1
 		instructions_number_picker_max = -1
 		can_spend_life_for_force = false
+
+	if can_spend_life_for_gauge:
+		instructions_number_picker_min = -1
+		instructions_number_picker_max = -1
+		can_spend_life_for_gauge = false
 
 	if preparing_character_action:
 		deselect_all_cards()
@@ -5957,7 +5978,7 @@ func _on_observer_play_to_live_pressed():
 		observer_play_to_live_button.text = "Pause"
 
 func _on_action_menu_number_picker_updated(_new_value: int) -> void:
-	if can_spend_life_for_force:
+	if can_spend_life_for_force or can_spend_life_for_gauge:
 		_update_buttons(true)
 
 func get_spent_life_for_force() -> int:
@@ -5965,6 +5986,19 @@ func get_spent_life_for_force() -> int:
 		return action_menu.number_panel_current_number
 	else:
 		return 0
+
+func get_spent_life_for_gauge() -> int:
+	if can_spend_life_for_gauge:
+		return action_menu.number_panel_current_number
+	else:
+		return 0
+
+func get_gauge_from_spent_life() -> int:
+	if can_spend_life_for_gauge:
+		var life_per_gauge = game_wrapper.get_life_for_gauge_amount(Enums.PlayerId.PlayerId_Player)
+		if life_per_gauge > 0:
+			return action_menu.get_current_number_picker_value() / life_per_gauge
+	return 0
 
 func _on_slideout_dialog_action_pressed(accept: bool, optional: bool) -> void:
 	if accept:
