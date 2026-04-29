@@ -2657,7 +2657,9 @@ func get_force_in_selected_cards():
 
 func get_force_from_spent_life():
 	if can_spend_life_for_force:
-		return action_menu.get_current_number_picker_value() * game_wrapper.get_life_for_force_amount(Enums.PlayerId.PlayerId_Player)
+		var life_per_force = game_wrapper.get_life_for_force_amount(Enums.PlayerId.PlayerId_Player)
+		if life_per_force > 0:
+			return action_menu.get_current_number_picker_value() / life_per_force
 	return 0
 
 func can_selected_cards_pay_force(force_cost : int, bonus_card_force_value : int = 0):

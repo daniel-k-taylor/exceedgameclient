@@ -174,6 +174,37 @@ func test_exceed_can_spend_life_for_gauge():
 		[0])            # ability pass
 	validate_life(player1, 22, player2, 7)
 
+func test_exceed_spend_life_for_gauge_pay_cost():
+	# After exceeding, verify the life-for-gauge conversion math.
+	# spend_life_for_gauge_amount=2 means 2 life per 1 gauge.
+	position_players(player1, 4, player2, 5)
+	var gauge = give_gauge(player1, 5)
+	assert_true(game_logic.do_exceed(player1, gauge))
+	assert_true(game_logic.do_choice(player1, 0)) # gain 10 → 25
+	advance_turn(player2)
+
+	# Verify the conversion math (division, not multiplication)
+	assert_eq(player1.get_gauge_from_spent_life(2), 1, "2 life should give 1 gauge")
+	assert_eq(player1.get_gauge_from_spent_life(4), 2, "4 life should give 2 gauge")
+	assert_eq(player1.get_gauge_from_spent_life(3), 1, "3 life should give 1 gauge (floor)")
+	assert_eq(player1.get_gauge_from_spent_life(1), 0, "1 life should give 0 gauge (floor)")
+	assert_eq(player1.get_gauge_from_spent_life(6), 3, "6 life should give 3 gauge")
+	# Verify can_pay_cost sees life as potential gauge
+	assert_true(player1.can_pay_cost(0, 2)) # can pay gauge cost 2 with life
+
+func test_exceed_spend_life_for_force_math():
+	# After exceeding, verify life-for-force conversion.
+	# spend_life_for_force_amount=1 means 1 life per 1 force.
+	position_players(player1, 4, player2, 5)
+	var gauge = give_gauge(player1, 5)
+	assert_true(game_logic.do_exceed(player1, gauge))
+	assert_true(game_logic.do_choice(player1, 0)) # gain 10 → 25
+	advance_turn(player2)
+
+	assert_eq(player1.get_force_from_spent_life(1), 1, "1 life should give 1 force")
+	assert_eq(player1.get_force_from_spent_life(3), 3, "3 life should give 3 force")
+	assert_eq(player1.get_force_from_spent_life(0), 0, "0 life should give 0 force")
+
 ## ===== ANATHEMA SURGE TESTS =====
 ## R1-2 P2 S6 A0 G0. Hit: gain 2 life. After: +3 armor.
 ## Transform: Edge of Death.

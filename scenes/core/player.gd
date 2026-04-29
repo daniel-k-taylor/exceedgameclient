@@ -1624,12 +1624,12 @@ func get_force_with_cards(card_ids : Array, reason : String, treat_ultras_as_sin
 
 func get_force_from_spent_life(spent_life_for_force : int):
 	if spend_life_for_force_amount > 0:
-		return spent_life_for_force * spend_life_for_force_amount
+		return spent_life_for_force / spend_life_for_force_amount
 	return 0
 
 func get_gauge_from_spent_life(spent_life_for_gauge : int):
 	if spend_life_for_gauge_amount > 0:
-		return spent_life_for_gauge * spend_life_for_gauge_amount
+		return spent_life_for_gauge / spend_life_for_gauge_amount
 	return 0
 
 func can_pay_cost_with(card_ids : Array, force_cost : int, gauge_cost : int, use_free_force : bool, spent_life_for_force : int, alternative_life_cost : int = 0, spent_life_for_gauge : int = 0):
