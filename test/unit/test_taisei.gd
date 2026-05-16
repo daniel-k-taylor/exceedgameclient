@@ -1,5 +1,14 @@
 extends ExceedGutTest
 
+class CaptureRemoteGame extends RemoteGame:
+	var last_action_message = {}
+
+	func _init():
+		super(null)
+
+	func _submit_game_message(action_message):
+		last_action_message = action_message
+
 func who_am_i():
 	return "taisei"
 
@@ -782,18 +791,54 @@ func test_demonheart_cleanup_spend_no_armor_help():
 ## counters increment immediately and provide live armor during the strike.
 
 func test_demonheart_ability_spend_provides_armor():
-	# p1 spends 2 life via ability → +1 Demonheart counter (1 spend event) → +1 dynamic armor.
+	# p1 spends 2 life via ability → +2 Demonheart counters → +2 dynamic armor.
 	position_players(player1, 4, player2, 5)
 	add_transform(player1, "taisei_dusttodust") # Demonheart
 
 	# Assault(S5) vs Sweep(S2). Assault faster → p1 is Card1.
-	# p1 ability: spend 2 life → +2P. Demonheart counter = 1 (one on_spend_life event). p1: 15-2=13.
-	# No Demonhide, so only armor from Demonheart counters = 1.
+	# p1 ability: spend 2 life → +2P. Demonheart counters = 2. p1: 15-2=13.
+	# No Demonhide, so only armor from Demonheart counters = 2.
 	# Card1 (p1 Assault): Before close 2 (adj). R1, dist1. P4+2=6. p2: 15-6=9. Stun: 6>G6? No.
-	# Card2 (p2 Sweep): R1-3, dist1. P6 vs A1 = 5 dmg. p1: 13-5=8.
+	# Card2 (p2 Sweep): R1-3, dist1. P6 vs A2 = 4 dmg. p1: 13-4=9.
 	execute_strike(player1, player2, "standard_normal_assault", "standard_normal_sweep",
 		false, false,
 		[2], # ability: spend 2 life
 		[0]) # ability pass
-	validate_life(player1, 8, player2, 9)
+	validate_life(player1, 9, player2, 9)
 	assert_eq(player1.bonus_armor_counters, 0) # reset at cleanup
+
+func test_exceeded_nightmare_tares_pay_gauge_cost_with_gauge_and_life():
+	position_players(player1, 3, player2, 5)
+	add_transform(player1, "taisei_dusttodust") # Demonheart
+	var exceed_gauge = give_gauge(player1, 5)
+	assert_true(game_logic.do_exceed(player1, exceed_gauge))
+	assert_true(game_logic.do_choice(player1, 1)) # set life to 10
+	advance_turn(player2)
+
+	player1.life = 10
+	var gauge_ids = give_gauge(player1, 4)
+	var nt_id = give_player_specific_card(player1, "taisei_nightmaretares")
+	do_and_validate_strike(player1, nt_id)
+
+	var sweep_id = give_player_specific_card(player2, "standard_normal_sweep")
+	do_strike_response(player2, sweep_id)
+	process_decisions(player2, game_logic.StrikeState.StrikeState_Defender_SetEffects, [0])
+
+	assert_eq(game_logic.decision_info.type, Enums.DecisionType.DecisionType_PayStrikeCost_Required)
+	assert_true(game_logic.do_pay_strike_cost(player1, [gauge_ids[0]], false, true, false, 0, false, 2))
+	process_remaining_decisions(player1, player2, [], [])
+
+	validate_life(player1, 11, player2, 10)
+	assert_false(player1.is_card_in_gauge(gauge_ids[0]))
+	assert_eq(player1.bonus_armor_counters, 0)
+
+func test_remote_pay_strike_cost_sends_spent_life_for_gauge():
+	var remote_game = CaptureRemoteGame.new()
+	remote_game.local_game = game_logic
+	remote_game._player_info = {'id': 1}
+	remote_game._opponent_info = {'id': 2}
+
+	assert_true(remote_game.do_pay_strike_cost(player1, [123], false, true, false, 0, false, 2))
+	assert_eq(remote_game.last_action_message['spent_life_for_gauge'], 2)
+
+	remote_game.free()

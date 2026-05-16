@@ -1,6 +1,6 @@
 [gd_resource type="SpriteFrames" load_steps=2 format=3]
 
-[ext_resource type="Texture2D" path="res://assets/character_animations/taisei/taisei.png" id="1_taisei"]
+[ext_resource type="Texture2D" path="res://assets/character_animations/taisei/taisei_default.jpeg" id="1_taisei"]
 
 [resource]
 animations = [{
@@ -10,7 +10,7 @@ animations = [{
 }],
 "loop": true,
 "name": &"idle",
-"speed": 6.0
+"speed": 5.0
 }]
 metadata/flip = true
-metadata/scaling = 0.07
+metadata/scaling = 0.3

@@ -5592,7 +5592,7 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 			create_event(Enums.EventType.EventType_Strike_GainLife, performing_player.my_id, 0, "", performing_player.life)
 			_append_log_full(Enums.LogType.LogType_Health, performing_player, "sets life to %s!" % [str(performing_player.life)])
 		StrikeEffects.IncrementBonusArmorCounters:
-			performing_player.bonus_armor_counters += 1
+			performing_player.bonus_armor_counters += performing_player.last_spent_life
 		StrikeEffects.ResetBonusArmorCounters:
 			performing_player.bonus_armor_counters = 0
 		StrikeEffects.OpponentPowerup:

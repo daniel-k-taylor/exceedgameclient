@@ -265,7 +265,8 @@ func do_pay_strike_cost(
 	discard_ex_first : bool,
 	use_free_force : bool = false,
 	spent_life_for_force : int = 0,
-	pay_alternative_life_cost : bool = false
+	pay_alternative_life_cost : bool = false,
+	spent_life_for_gauge : int = 0
 	) -> bool:
 	var action_message = {
 		'action_type': 'action_pay_strike_cost',
@@ -275,7 +276,8 @@ func do_pay_strike_cost(
 		'discard_ex_first': discard_ex_first,
 		'use_free_force': use_free_force,
 		'spent_life_for_force': spent_life_for_force,
-		'pay_alternative_life_cost': pay_alternative_life_cost
+		'pay_alternative_life_cost': pay_alternative_life_cost,
+		'spent_life_for_gauge': spent_life_for_gauge
 	}
 	_submit_game_message(action_message)
 	return true
@@ -288,13 +290,15 @@ func process_pay_strike_cost(action_message) -> void:
 	var use_free_force = action_message['use_free_force']
 	var spent_life_for_force = action_message['spent_life_for_force']
 	var pay_alternative_life_cost = action_message['pay_alternative_life_cost']
-	local_game.do_pay_strike_cost(game_player, card_ids, wild_strike, discard_ex_first, use_free_force, spent_life_for_force, pay_alternative_life_cost)
+	var spent_life_for_gauge = action_message.get('spent_life_for_gauge', 0)
+	local_game.do_pay_strike_cost(game_player, card_ids, wild_strike, discard_ex_first, use_free_force, spent_life_for_force, pay_alternative_life_cost, spent_life_for_gauge)
 
-func do_exceed(player : Player, card_ids : Array) -> bool:
+func do_exceed(player : Player, card_ids : Array, spent_life_for_gauge : int = 0) -> bool:
 	var action_message = {
 		'action_type': 'action_exceed',
 		'player_id': _get_player_remote_id(player),
 		'card_ids': card_ids,
+		'spent_life_for_gauge': spent_life_for_gauge,
 	}
 	_submit_game_message(action_message)
 	return true
@@ -302,7 +306,8 @@ func do_exceed(player : Player, card_ids : Array) -> bool:
 func process_exceed(action_message) -> void:
 	var game_player = _get_player_from_remote_id(action_message['player_id'])
 	var card_ids = action_message['card_ids']
-	local_game.do_exceed(game_player, card_ids)
+	var spent_life_for_gauge = action_message.get('spent_life_for_gauge', 0)
+	local_game.do_exceed(game_player, card_ids, spent_life_for_gauge)
 
 func do_move(player : Player, card_ids : Array, new_arena_location : int, use_free_force : bool = false, spent_life_for_force : int = 0) -> bool:
 	var action_message = {
