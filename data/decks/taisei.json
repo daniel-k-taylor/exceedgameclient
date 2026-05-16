@@ -1,0 +1,94 @@
+{
+	"id": "taisei",
+	"season": 2,
+	"display_name": "Taisei",
+	"starting_life": 15,
+	"exceed_cost": 5,
+	"exceed_cost_reduced_by": [{ "reduction_type": "transform_discount" }],
+	"on_death": {
+		"condition": "not_exceeded",
+		"effect_type": "may_exceed_now_with_cost"
+	},
+	"on_exceed": {
+		"effect_type": "can_spend_life_for_force",
+		"amount": 1,
+		"and": {
+			"effect_type": "can_spend_life_for_gauge",
+			"amount": 2,
+			"and": {
+				"effect_type": "choice",
+				"choice": [
+					{ "effect_type": "gain_life", "amount": 10 },
+					{ "effect_type": "set_life", "amount": 10 }
+				]
+			}
+		}
+	},
+	"ability_effects": [
+		{
+			"timing": "set_strike",
+			"character_effect": true,
+			"effect_type": "choice",
+			"choice": [
+				{ "effect_type": "pass" },
+				{ "effect_type": "spend_life", "amount": 1, "and": { "effect_type": "powerup", "amount": 1 } },
+				{ "effect_type": "spend_life", "amount": 2, "and": { "effect_type": "powerup", "amount": 2 } }
+			]
+		}
+	],
+	"exceed_ability_effects": [],
+	"image_resources": {
+		"character_default": {
+			"url": "https://i.imgur.com/OnAQb7s.jpeg",
+			"multiple_cards": false
+		},
+		"character_exceeded": {
+			"url": "https://i.imgur.com/37F1Gxo.jpeg",
+			"multiple_cards": false
+		},
+		"cardback": {
+			"url": "https://i.imgur.com/s6wpKBq.jpeg",
+			"multiple_cards": false
+		},
+		"specials": {
+			"url": "https://i.imgur.com/nzhlxRs.jpeg",
+			"multiple_cards": true
+		},
+		"normals": {
+			"url": "https://i.imgur.com/1pnJnEb.jpeg",
+			"multiple_cards": true
+		}
+	},
+	"cards": [
+		{ "definition_id": "taisei_dusttodust", "image_name": "specials", "image_index": 0 },
+		{ "definition_id": "taisei_dusttodust", "image_name": "specials", "image_index": 0 },
+		{ "definition_id": "taisei_anathemasurge", "image_name": "specials", "image_index": 1 },
+		{ "definition_id": "taisei_anathemasurge", "image_name": "specials", "image_index": 1 },
+		{ "definition_id": "taisei_bloodthirst", "image_name": "specials", "image_index": 2 },
+		{ "definition_id": "taisei_bloodthirst", "image_name": "specials", "image_index": 2 },
+		{ "definition_id": "taisei_ashenclaws", "image_name": "specials", "image_index": 3 },
+		{ "definition_id": "taisei_ashenclaws", "image_name": "specials", "image_index": 3 },
+		{ "definition_id": "taisei_blackvolt", "image_name": "specials", "image_index": 4 },
+		{ "definition_id": "taisei_blackvolt", "image_name": "specials", "image_index": 4 },
+		{ "definition_id": "taisei_chaosscissors", "image_name": "specials", "image_index": 5 },
+		{ "definition_id": "taisei_chaosscissors", "image_name": "specials", "image_index": 5 },
+		{ "definition_id": "taisei_nightmaretares", "image_name": "specials", "image_index": 6 },
+		{ "definition_id": "taisei_nightmaretares", "image_name": "specials", "image_index": 6 },
+		{ "definition_id": "standard_normal_grasp", "image_name": "normals", "image_index": 0 },
+		{ "definition_id": "standard_normal_grasp", "image_name": "normals", "image_index": 0 },
+		{ "definition_id": "standard_normal_cross", "image_name": "normals", "image_index": 1 },
+		{ "definition_id": "standard_normal_cross", "image_name": "normals", "image_index": 1 },
+		{ "definition_id": "standard_normal_assault", "image_name": "normals", "image_index": 2 },
+		{ "definition_id": "standard_normal_assault", "image_name": "normals", "image_index": 2 },
+		{ "definition_id": "standard_normal_dive", "image_name": "normals", "image_index": 3 },
+		{ "definition_id": "standard_normal_dive", "image_name": "normals", "image_index": 3 },
+		{ "definition_id": "standard_normal_spike", "image_name": "normals", "image_index": 4 },
+		{ "definition_id": "standard_normal_spike", "image_name": "normals", "image_index": 4 },
+		{ "definition_id": "standard_normal_sweep", "image_name": "normals", "image_index": 5 },
+		{ "definition_id": "standard_normal_sweep", "image_name": "normals", "image_index": 5 },
+		{ "definition_id": "standard_normal_focus", "image_name": "normals", "image_index": 6 },
+		{ "definition_id": "standard_normal_focus", "image_name": "normals", "image_index": 6 },
+		{ "definition_id": "standard_normal_block", "image_name": "normals", "image_index": 7 },
+		{ "definition_id": "standard_normal_block", "image_name": "normals", "image_index": 7 }
+	]
+}

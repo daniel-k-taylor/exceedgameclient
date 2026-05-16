@@ -295,6 +295,13 @@ func is_card_set_aside(player_id : Enums.PlayerId, card_id : int):
 			return true
 	return false
 
+func is_card_in_deck(player_id : Enums.PlayerId, card_id : int):
+	var player = _get_player(player_id)
+	for card in player.deck:
+		if card.id == card_id:
+			return true
+	return false
+
 func is_card_in_overdrive(player_id : Enums.PlayerId, card_id : int):
 	var player = _get_player(player_id)
 	for card in player.overdrive:
@@ -313,6 +320,19 @@ func get_player_top_cards(player_id : Enums.PlayerId, count : int) -> Array:
 		if player.deck.size() > i:
 			top_cards.append(player.deck[i].id)
 	return top_cards
+
+func get_player_deck_card_ids_for_boost(player_id : Enums.PlayerId, limitation : String) -> Array:
+	var player = _get_player(player_id)
+	var card_ids : Array = []
+	for card in player.deck:
+		if limitation:
+			if card.definition['boost']['boost_type'] == limitation or card.definition['type'] == limitation:
+				if limitation == "transform" and player.has_card_name_in_zone(card, "transform"):
+					continue
+				card_ids.append(card.id)
+		else:
+			card_ids.append(card.id)
+	return card_ids
 
 func get_player_sustained_boosts(player_id : Enums.PlayerId) -> Array:
 	return _get_player(player_id).sustained_boosts
@@ -376,6 +396,9 @@ func get_face_attack_card(player_id : Enums.PlayerId):
 
 func get_life_for_force_amount(player_id : Enums.PlayerId):
 	return _get_player(player_id).spend_life_for_force_amount
+
+func get_life_for_gauge_amount(player_id : Enums.PlayerId):
+	return _get_player(player_id).spend_life_for_gauge_amount
 
 func get_valid_locations_for_buddy_effect(player_id : Enums.PlayerId, effect : Dictionary):
 	var MinArenaLocation = 1
@@ -466,7 +489,8 @@ func can_player_boost(player_id : Enums.PlayerId,
 		"hand": is_card_in_hand,
 		"gauge": is_card_in_gauge,
 		"discard": is_card_in_discards,
-		"extra": is_card_set_aside
+		"extra": is_card_set_aside,
+		"deck": is_card_in_deck
 	}
 
 	var in_valid_zone = false
@@ -593,7 +617,8 @@ func submit_pay_strike_cost(
 	discard_ex_first : bool,
 	use_free_force : bool,
 	spent_life_for_force : int,
-	pay_alternative_life_cost : bool
+	pay_alternative_life_cost : bool,
+	spent_life_for_gauge : int = 0
 	) -> bool:
 	var game_player = _get_player(player)
 	return current_game.do_pay_strike_cost(
@@ -603,12 +628,13 @@ func submit_pay_strike_cost(
 		discard_ex_first,
 		use_free_force,
 		spent_life_for_force,
-		pay_alternative_life_cost
+		pay_alternative_life_cost,
+		spent_life_for_gauge
 	)
 
-func submit_exceed(player : Enums.PlayerId, card_ids : Array) -> bool:
+func submit_exceed(player : Enums.PlayerId, card_ids : Array, spent_life_for_gauge : int = 0) -> bool:
 	var game_player = _get_player(player)
-	return current_game.do_exceed(game_player, card_ids)
+	return current_game.do_exceed(game_player, card_ids, spent_life_for_gauge)
 
 func submit_move(player : Enums.PlayerId, card_ids : Array, new_arena_location : int,
 		use_free_force : bool, spent_life_for_force : int) -> bool:

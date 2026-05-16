@@ -105,6 +105,7 @@
 [ext_resource type="Texture2D" uid="uid://warig7ych2dg" path="res://assets/portraits/superskullman.png" id="99_p76bl"]
 [ext_resource type="Texture2D" uid="uid://owqopn05anbn" path="res://assets/portraits/custom.png" id="100_dtwln"]
 [ext_resource type="Texture2D" path="res://assets/portraits/geoffrey.png" id="106_geoff"]
+[ext_resource type="Texture2D" path="res://assets/portraits/taisei.png" id="107_taisei"]
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_8u80i"]
 
@@ -851,6 +852,11 @@ layout_mode = 2
 char_id = "geoffrey"
 portrait_texture = ExtResource("106_geoff")
 
+[node name="Taisei" parent="CenterContainer/SCCharacterSelect/Rows/Row3" instance=ExtResource("6_3lmwy")]
+layout_mode = 2
+char_id = "taisei"
+portrait_texture = ExtResource("107_taisei")
+
 [node name="S1CharacterSelect" type="PanelContainer" parent="CenterContainer"]
 layout_mode = 2
 mouse_filter = 2
@@ -1157,6 +1163,8 @@ portrait_texture = ExtResource("100_dtwln")
 [connection signal="on_pressed" from="CenterContainer/SCCharacterSelect/Rows/Row3/ShovelKnight" to="." method="_on_char_button_on_pressed"]
 [connection signal="on_hover" from="CenterContainer/SCCharacterSelect/Rows/Row3/Geoffrey" to="." method="_on_char_hover"]
 [connection signal="on_pressed" from="CenterContainer/SCCharacterSelect/Rows/Row3/Geoffrey" to="." method="_on_char_button_on_pressed"]
+[connection signal="on_hover" from="CenterContainer/SCCharacterSelect/Rows/Row3/Taisei" to="." method="_on_char_hover"]
+[connection signal="on_pressed" from="CenterContainer/SCCharacterSelect/Rows/Row3/Taisei" to="." method="_on_char_button_on_pressed"]
 [connection signal="on_hover" from="CenterContainer/S1CharacterSelect/Rows/Row1/Morathi" to="." method="_on_char_hover"]
 [connection signal="on_pressed" from="CenterContainer/S1CharacterSelect/Rows/Row1/Morathi" to="." method="_on_char_button_on_pressed"]
 [connection signal="on_hover" from="CenterContainer/S1CharacterSelect/Rows/Row1/Nehtali" to="." method="_on_char_hover"]

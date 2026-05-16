@@ -1936,6 +1936,12 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 			var damage_dealt = active_strike.get_damage_taken(opposing_player)
 			performing_player.strike_stat_boosts.armor += damage_dealt
 			create_event(Enums.EventType.EventType_Strike_ArmorUp, performing_player.my_id, damage_dealt)
+		StrikeEffects.ArmorupBonusArmorCounters:
+			# Armor from bonus_armor_counters is now calculated dynamically in get_total_armor.
+			# This effect only creates the event for UI feedback.
+			var counter_amount = performing_player.bonus_armor_counters
+			if counter_amount > 0:
+				create_event(Enums.EventType.EventType_Strike_ArmorUp, performing_player.my_id, counter_amount)
 		StrikeEffects.ArmorupCurrentPower:
 			var current_power = get_total_power(performing_player)
 			performing_player.strike_stat_boosts.armor += current_power
@@ -2293,6 +2299,8 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 			performing_player.strike_stat_boosts.buddy_immune_to_flip = true
 		StrikeEffects.CanSpendLifeForForce:
 			performing_player.spend_life_for_force_amount = effect['amount']
+		StrikeEffects.CanSpendLifeForGauge:
+			performing_player.spend_life_for_gauge_amount = effect['amount']
 		StrikeEffects.CannotGoBelowLife:
 			performing_player.strike_stat_boosts.cannot_go_below_life = effect['amount']
 		StrikeEffects.CannotStun:
@@ -2894,6 +2902,17 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 			performing_player.exceed_at_end_of_turn = true
 		StrikeEffects.ExceedNow:
 			performing_player.exceed()
+		StrikeEffects.MayExceedNowWithCost:
+			var exceed_cost = performing_player.get_exceed_cost()
+			if len(performing_player.gauge) >= exceed_cost:
+				# Auto-select gauge cards to pay cost and exceed
+				var cards_to_spend = []
+				for i in range(exceed_cost):
+					cards_to_spend.append(performing_player.gauge[i].id)
+				for gauge_card_id in cards_to_spend:
+					performing_player.remove_card_from_gauge(gauge_card_id)
+				_append_log_full(Enums.LogType.LogType_Effect, performing_player, "exceeds on death, paying %s gauge!" % [str(exceed_cost)])
+				performing_player.exceed()
 		StrikeEffects.ExceedOpponentNow:
 			opposing_player.exceed()
 			# hoping for the best here
@@ -2999,6 +3018,12 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 			performing_player.life = min(Enums.MaxLife, performing_player.life + amount)
 			create_event(Enums.EventType.EventType_Strike_GainLife, performing_player.my_id, amount, "", performing_player.life)
 			_append_log_full(Enums.LogType.LogType_Health, performing_player, "gains %s life, bringing them to %s!" % [str(amount), str(performing_player.life)])
+		StrikeEffects.GainLifeDamageDealt:
+			var damage_dealt = active_strike.get_damage_taken(opposing_player)
+			if damage_dealt > 0:
+				performing_player.life = min(Enums.MaxLife, performing_player.life + damage_dealt)
+				create_event(Enums.EventType.EventType_Strike_GainLife, performing_player.my_id, damage_dealt, "", performing_player.life)
+				_append_log_full(Enums.LogType.LogType_Health, performing_player, "gains %s life equal to damage dealt, bringing them to %s!" % [str(damage_dealt), str(performing_player.life)])
 		StrikeEffects.GaugeFromHand:
 			var effect_player = performing_player
 			if 'opponent' in effect and effect['opponent']:
@@ -5561,6 +5586,18 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 		StrikeEffects.SpendLife:
 			var amount = effect['amount']
 			performing_player.spend_life(amount)
+		StrikeEffects.SetLife:
+			var amount = effect['amount']
+			performing_player.life = min(Enums.MaxLife, amount)
+			create_event(Enums.EventType.EventType_Strike_GainLife, performing_player.my_id, 0, "", performing_player.life)
+			_append_log_full(Enums.LogType.LogType_Health, performing_player, "sets life to %s!" % [str(performing_player.life)])
+		StrikeEffects.IncrementBonusArmorCounters:
+			performing_player.bonus_armor_counters += performing_player.last_spent_life
+		StrikeEffects.ResetBonusArmorCounters:
+			performing_player.bonus_armor_counters = 0
+		StrikeEffects.OpponentPowerup:
+			opposing_player.strike_stat_boosts.power += effect['amount']
+			create_event(Enums.EventType.EventType_Strike_PowerUp, opposing_player.my_id, effect['amount'])
 		StrikeEffects.StartOfTurnStrike:
 			performing_player.start_of_turn_strike = true
 			performing_player.effect_on_turn_start = { "effect_type": StrikeEffects.Strike }
@@ -6772,6 +6809,9 @@ func get_total_armor(performing_player : Player):
 		if performing_player.has_card_name_in_zone(card, "sealed") or performing_player.has_card_name_in_zone(card, "transform"):
 			armor_modifier += 1
 
+	# Demonheart: bonus_armor_counters provides live armor throughout the strike
+	armor_modifier += performing_player.bonus_armor_counters
+
 	return max(0, armor + armor_modifier)
 
 func get_total_guard(performing_player : Player):
@@ -6933,6 +6973,10 @@ func on_death(performing_player):
 	if 'on_death' in performing_player.deck_def:
 		do_effect_if_condition_met(performing_player, -1, performing_player.deck_def['on_death'], null)
 	if performing_player.life <= 0:
+		# If the player just exceeded (e.g., via may_exceed_now_with_cost), they may have
+		# a pending on_exceed choice to restore life. Defer game over until that resolves.
+		if performing_player.exceeded and game_state == Enums.GameState.GameState_PlayerDecision:
+			return
 		trigger_game_over(performing_player.my_id, Enums.GameOverReason.GameOverReason_Life)
 
 func get_gauge_cost(performing_player : Player, card, check_if_card_in_hand = false):
@@ -8059,7 +8103,18 @@ func can_do_exceed(performing_player : Player):
 		return false
 
 	var gauge_available = len(performing_player.gauge)
-	return gauge_available >= performing_player.get_exceed_cost()
+	var exceed_cost = performing_player.get_exceed_cost()
+	if gauge_available >= exceed_cost:
+		return true
+
+	# Check if life can supplement gauge
+	if performing_player.spend_life_for_gauge_amount > 0:
+		var gauge_shortfall = exceed_cost - gauge_available
+		var life_needed = gauge_shortfall * performing_player.spend_life_for_gauge_amount
+		if performing_player.life > life_needed:
+			return true
+
+	return false
 
 func can_do_reshuffle(performing_player : Player):
 	if game_state != Enums.GameState.GameState_PickAction:
@@ -8438,7 +8493,7 @@ func do_change(performing_player : Player, card_ids, treat_ultras_as_single_forc
 
 	return true
 
-func do_exceed(performing_player : Player, card_ids : Array) -> bool:
+func do_exceed(performing_player : Player, card_ids : Array, spent_life_for_gauge : int = 0) -> bool:
 	printlog("MainAction: EXCEED by %s - %s" % [performing_player.name, card_ids])
 	if game_state != Enums.GameState.GameState_PickAction:
 		printlog("ERROR: Tried to exceed but not in correct game state.")
@@ -8451,9 +8506,15 @@ func do_exceed(performing_player : Player, card_ids : Array) -> bool:
 			# Card not found, error
 			printlog("ERROR: Tried to exceed with cards that not in gauge.")
 			return false
-	if len(card_ids) < performing_player.get_exceed_cost():
+
+	var gauge_from_life = performing_player.get_gauge_from_spent_life(spent_life_for_gauge)
+	if len(card_ids) + gauge_from_life < performing_player.get_exceed_cost():
 		printlog("ERROR: Tried to exceed with too few cards.")
 		return false
+
+	if spent_life_for_gauge > 0:
+		performing_player.spend_life(spent_life_for_gauge)
+		_append_log_full(Enums.LogType.LogType_Health, performing_player, "spends %s life to generate %s gauge for exceed!" % [str(spent_life_for_gauge), str(gauge_from_life)])
 
 	_append_log_full(Enums.LogType.LogType_Action, performing_player, "Turn Action: Exceed")
 	if performing_player.has_overdrive:
@@ -8592,7 +8653,10 @@ func do_ex_transform(performing_player : Player, card_id : int, ex_card_id : int
 		_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "discards another copy of %s." % _log_card_name(card_name))
 		performing_player.discard([ex_card_id])
 
-	performing_player.remove_card_from_hand(card_id, true, false)
+	if performing_player.is_card_in_hand(card_id):
+		performing_player.remove_card_from_hand(card_id, true, false)
+	elif performing_player.is_card_in_deck(card_id):
+		performing_player.remove_card_from_deck(card_id)
 	create_event(Enums.EventType.EventType_Boost_Played, performing_player.my_id, card_id, "Transform")
 	performing_player.add_to_transforms(card)
 
@@ -8848,7 +8912,8 @@ func do_pay_strike_cost(
 	discard_ex_first : bool = true,
 	use_free_force = false,
 	spent_life_for_force : int = 0,
-	pay_alternative_life_cost : bool = false
+	pay_alternative_life_cost : bool = false,
+	spent_life_for_gauge : int = 0
 	) -> bool:
 	printlog("SubAction: PAY_STRIKE by %s cards %s wild %s" % [performing_player.name, card_ids, str(wild_strike)])
 	if game_state != Enums.GameState.GameState_PlayerDecision:
@@ -8900,7 +8965,8 @@ func do_pay_strike_cost(
 			gauge_cost,
 			use_free_force,
 			spent_life_for_force,
-			alternative_life_cost
+			alternative_life_cost,
+			spent_life_for_gauge
 			):
 			performing_player.strike_stat_boosts.strike_payment_card_ids = card_ids
 			if card_ids.size() > 0:
@@ -8913,6 +8979,9 @@ func do_pay_strike_cost(
 
 			if not handle_spend_life_for_force(performing_player, spent_life_for_force):
 				return false
+			if spent_life_for_gauge > 0:
+				performing_player.spend_life(spent_life_for_gauge)
+				_append_log_full(Enums.LogType.LogType_Health, performing_player, "spends %s life to generate gauge!" % [str(spent_life_for_gauge)])
 			if pay_alternative_life_cost and not handle_spend_life_cost(performing_player, alternative_life_cost):
 				return false
 

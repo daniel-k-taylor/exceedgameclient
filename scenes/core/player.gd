@@ -344,6 +344,8 @@ var effect_on_turn_start
 var strike_action_disabled : bool
 var face_attack_id : String
 var spend_life_for_force_amount : int
+var spend_life_for_gauge_amount : int
+var bonus_armor_counters : int
 var can_boost_from_gauge : bool
 var can_boost_from_extra : bool
 var checked_post_action_effects : bool
@@ -385,7 +387,7 @@ func _init(id, player_name, parent_ref, card_db_ref, chosen_deck, card_start_id)
 			definition_id = 'null_reference'
 		else:
 			definition_id = deck_card_def['definition_id']
-		
+
 		var card_def = CardDataManager.get_card(definition_id)
 		var image_atlas = deck_def['image_resources'][deck_card_def['image_name']]
 		var image_index = deck_card_def['image_index']
@@ -486,6 +488,8 @@ func _init(id, player_name, parent_ref, card_db_ref, chosen_deck, card_start_id)
 	strike_action_disabled = false
 	face_attack_id = ""
 	spend_life_for_force_amount = -1
+	spend_life_for_gauge_amount = -1
+	bonus_armor_counters = 0
 	can_boost_from_gauge = false
 	can_boost_from_extra = deck_def.get('can_boost_from_extra', false)
 	seal_instead_of_discarding = false
@@ -679,7 +683,7 @@ func revert_exceed():
 	if 'on_revert' in deck_def:
 		var effect = deck_def['on_revert']
 		parent.handle_strike_effect(-1, effect, self)
-		
+
 func end_overdrive():
 	# Cleans up Overdrive states; called when OD area is empty at the start of a turn.
 	# Handled differently depending on whether or not it's tied to the character's exceed mode.
@@ -744,6 +748,12 @@ func is_card_in_deck(id : int):
 		if card.id == id:
 			return true
 	return false
+
+func remove_card_from_deck(id : int):
+	for i in range(len(deck)):
+		if deck[i].id == id:
+			deck.remove_at(i)
+			return
 
 func get_copy_in_discards(definition_id : String):
 	for card in discards:
@@ -1614,10 +1624,17 @@ func get_force_with_cards(card_ids : Array, reason : String, treat_ultras_as_sin
 
 func get_force_from_spent_life(spent_life_for_force : int):
 	if spend_life_for_force_amount > 0:
-		return spent_life_for_force * spend_life_for_force_amount
+		@warning_ignore("integer_division")
+		return spent_life_for_force / spend_life_for_force_amount
 	return 0
 
-func can_pay_cost_with(card_ids : Array, force_cost : int, gauge_cost : int, use_free_force : bool, spent_life_for_force : int, alternative_life_cost : int = 0):
+func get_gauge_from_spent_life(spent_life_for_gauge : int):
+	if spend_life_for_gauge_amount > 0:
+		@warning_ignore("integer_division")
+		return spent_life_for_gauge / spend_life_for_gauge_amount
+	return 0
+
+func can_pay_cost_with(card_ids : Array, force_cost : int, gauge_cost : int, use_free_force : bool, spent_life_for_force : int, alternative_life_cost : int = 0, spent_life_for_gauge : int = 0):
 	if alternative_life_cost and life > alternative_life_cost and card_ids.size() == 0:
 		return true
 	if force_cost and gauge_cost:
@@ -1644,7 +1661,8 @@ func can_pay_cost_with(card_ids : Array, force_cost : int, gauge_cost : int, use
 				assert(false)
 				parent.printlog("ERROR: Card not in gauge")
 				return false
-		return gauge_generated == gauge_cost
+		gauge_generated += get_gauge_from_spent_life(spent_life_for_gauge)
+		return gauge_generated >= gauge_cost
 
 	# No cost.
 	return true
@@ -1654,6 +1672,11 @@ func can_pay_cost(force_cost : int, gauge_cost : int, alternative_life_cost : in
 		return true
 	var available_force = get_available_force()
 	var available_gauge = get_available_gauge()
+	if spend_life_for_gauge_amount > 0 and gauge_cost > available_gauge:
+		var gauge_shortfall = gauge_cost - available_gauge
+		var life_needed = gauge_shortfall * spend_life_for_gauge_amount
+		if life > life_needed:
+			available_gauge = gauge_cost
 	if available_gauge < gauge_cost:
 		return false
 	if available_force < force_cost:
@@ -1666,7 +1689,8 @@ func can_boost_something(valid_zones : Array, limitation : String, ignore_costs 
 		"hand": hand,
 		"gauge": gauge,
 		"discard": discards,
-		"extra": set_aside_cards
+		"extra": set_aside_cards,
+		"deck": deck
 	}
 
 	for zone in valid_zones:
@@ -1766,7 +1790,7 @@ func get_bonus_actions():
 		if not action.get("condition") or parent.is_effect_condition_met(self, action, null):
 			usable_actions.append(action)
 	return usable_actions
-	
+
 func _get_all_character_actions():
 	var actions = []
 
@@ -1774,10 +1798,10 @@ func _get_all_character_actions():
 		actions = deck_def['character_action_exceeded']
 	elif not exceeded and 'character_action_default' in deck_def:
 		actions = deck_def['character_action_default']
-	
+
 	if has_non_exceed_overdrive and 'non_exceed_overdrive_actions' in deck_def:
 		actions += deck_def['non_exceed_overdrive_actions']
-		
+
 	return actions
 
 func get_character_action(i : int = 0) -> Variant:
@@ -2044,7 +2068,7 @@ func discard(card_ids : Array, from_top : int = 0, count_as_spent : bool = false
 				continue
 			if effect.get('first_time_only', false) and spent_gauge_this_turn:
 				continue
-			
+
 			var queue_effect = effect.get('after_resolution', false)
 			if queue_effect:
 				parent.add_queued_effect(effect)
@@ -2377,7 +2401,7 @@ func random_gauge_strike():
 func add_to_gauge(card: GameCard):
 	gauge.append(card)
 	parent.create_event(Enums.EventType.EventType_AddToGauge, my_id, card.id)
-	
+
 func add_to_set_aside(card: GameCard):
 	set_aside_cards.append(card)
 
@@ -3145,7 +3169,7 @@ func get_character_effects_at_timing(timing_name : String):
 	for effect in deck_def[ability_label]:
 		if effect['timing'] == timing_name:
 			effects.append(effect)
-	
+
 	# special overdrive handling
 	if non_exceed_overdrive_active and 'non_exceed_overdrive_effects' in deck_def:
 		for effect in deck_def["non_exceed_overdrive_effects"]:
@@ -3210,7 +3234,7 @@ func get_counter_boost_effects():
 	var ability_label = "ability_effects"
 	if exceeded:
 		ability_label = "exceed_ability_effects"
-		
+
 	for effect in deck_def[ability_label]:
 		if effect['timing'] == "counter_boost":
 			effects.append(effect)
