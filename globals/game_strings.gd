@@ -514,7 +514,7 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 				"discard_2x_topdeck_instead_of_damage":
 					effect_str += "Ignore damage, instead discard 2x that from top of deck"
 				"geoffrey_untainted_passive":
-					effect_str += "When you would draw at end of turn (at 5 or less life), gain 2 life instead"
+					effect_str += "When you would draw at end of turn (at 5 or less life), gain 1 life instead"
 				"skip_eot_draw_and_discard":
 					effect_str += "Skip end of turn draw and discard"
 		StrikeEffects.Advance:
