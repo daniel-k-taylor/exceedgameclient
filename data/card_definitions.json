@@ -29709,7 +29709,7 @@
 	},
 	{
 		"id": "taisei_chaosscissors",
-		"type": "special",
+		"type": "ultra",
 		"display_name": "Chaos Scissors",
 		"force_cost": 0,
 		"gauge_cost": 2,
@@ -29762,7 +29762,7 @@
 	},
 	{
 		"id": "taisei_nightmaretares",
-		"type": "special",
+		"type": "ultra",
 		"display_name": "Nightmare Tares",
 		"force_cost": 0,
 		"gauge_cost": 2,
