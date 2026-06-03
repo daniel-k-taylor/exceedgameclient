@@ -2904,15 +2904,21 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 			performing_player.exceed()
 		StrikeEffects.MayExceedNowWithCost:
 			var exceed_cost = performing_player.get_exceed_cost()
-			if len(performing_player.gauge) >= exceed_cost:
-				# Auto-select gauge cards to pay cost and exceed
-				var cards_to_spend = []
-				for i in range(exceed_cost):
-					cards_to_spend.append(performing_player.gauge[i].id)
-				for gauge_card_id in cards_to_spend:
-					performing_player.remove_card_from_gauge(gauge_card_id)
-				_append_log_full(Enums.LogType.LogType_Effect, performing_player, "exceeds on death, paying %s gauge!" % [str(exceed_cost)])
-				performing_player.exceed()
+			if performing_player.get_available_gauge() >= exceed_cost:
+				# Prompt the player to select which gauge cards to spend to exceed.
+				change_game_state(Enums.GameState.GameState_PlayerDecision)
+				decision_info.clear()
+				decision_info.player = performing_player.my_id
+				decision_info.type = Enums.DecisionType.DecisionType_GaugeForEffect
+				decision_info.choice_card_id = -1
+				decision_info.effect = {
+					"effect_type": StrikeEffects.GaugeForEffect,
+					"gauge_max": exceed_cost,
+					"min_gauge": exceed_cost,
+					"per_gauge_effect": null,
+					"overall_effect": {"effect_type": StrikeEffects.ExceedNow},
+				}
+				create_event(Enums.EventType.EventType_GaugeForEffect, performing_player.my_id, 0)
 		StrikeEffects.ExceedOpponentNow:
 			opposing_player.exceed()
 			# hoping for the best here
@@ -6973,9 +6979,13 @@ func on_death(performing_player):
 	if 'on_death' in performing_player.deck_def:
 		do_effect_if_condition_met(performing_player, -1, performing_player.deck_def['on_death'], null)
 	if performing_player.life <= 0:
-		# If the player just exceeded (e.g., via may_exceed_now_with_cost), they may have
-		# a pending on_exceed choice to restore life. Defer game over until that resolves.
-		if performing_player.exceeded and game_state == Enums.GameState.GameState_PlayerDecision:
+		# Defer game over if there's a pending decision that may restore life:
+		# 1) Player exceeded and is choosing an on_exceed effect (e.g., gain life).
+		# 2) Player is selecting gauge cards to pay the exceed cost on death (not yet exceeded).
+		if game_state == Enums.GameState.GameState_PlayerDecision and \
+				(performing_player.exceeded or \
+				(decision_info.type == Enums.DecisionType.DecisionType_GaugeForEffect and \
+				decision_info.player == performing_player.my_id)):
 			return
 		trigger_game_over(performing_player.my_id, Enums.GameOverReason.GameOverReason_Life)
 
@@ -9650,6 +9660,10 @@ func do_gauge_for_effect(performing_player : Player, card_ids : Array) -> bool:
 
 	if gauge_generated > decision_info.effect['gauge_max']:
 		printlog("ERROR: Tried to gauge for effect with too many cards.")
+		return false
+
+	if 'min_gauge' in decision_info.effect and gauge_generated < decision_info.effect['min_gauge']:
+		printlog("ERROR: Tried to gauge for effect with too few cards (required %s, got %s)." % [decision_info.effect['min_gauge'], gauge_generated])
 		return false
 
 	set_player_action_processing_state()

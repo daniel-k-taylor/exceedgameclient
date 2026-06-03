@@ -80,16 +80,16 @@ func test_ability_spend_2_life():
 func test_on_death_exceed_with_gauge():
 	position_players(player1, 4, player2, 5)
 	player1.life = 3
-	give_gauge(player1, 5)
+	var gauge_ids = give_gauge(player1, 5)
 	# p1=Block(S0), p2=Sweep(S2). Sweep first. R1-3, dist1. P6 vs A2=4 damage.
-	# p1: 3-4=-1 → on_death → auto-exceed (5 gauge) → on_exceed choice.
+	# p1: 3-4=-1 → on_death → prompted to select 5 gauge to exceed → on_exceed choice.
 	# Block during: ForceForArmor.
-	# Choices flow: ability pass, ForceForArmor [], on_exceed: gain 10 life (0).
+	# Choices flow: ability pass, ForceForArmor [], select gauge to exceed, on_exceed: gain 10 life (0).
 	# p1 life: -1+10=9.
 	execute_strike(player1, player2, "standard_normal_block", "standard_normal_sweep",
 		false, false,
-		[0, [], 0], # ability pass, ForceForArmor 0 cards, on_exceed: gain 10 life
-		[0],         # ability pass
+		[0, [], gauge_ids, 0], # ability pass, ForceForArmor 0 cards, spend gauge to exceed, on_exceed: gain 10 life
+		[0],                   # ability pass
 		false)
 	validate_life(player1, 9, player2, 15)
 	assert_true(player1.exceeded)
@@ -97,11 +97,11 @@ func test_on_death_exceed_with_gauge():
 func test_on_death_exceed_set_life():
 	position_players(player1, 4, player2, 5)
 	player1.life = 3
-	give_gauge(player1, 5)
+	var gauge_ids = give_gauge(player1, 5)
 	# Same as above but choose set life to 10 (choice 1).
 	execute_strike(player1, player2, "standard_normal_block", "standard_normal_sweep",
 		false, false,
-		[0, [], 1], # ability pass, ForceForArmor 0, on_exceed: set life to 10
+		[0, [], gauge_ids, 1], # ability pass, ForceForArmor 0, spend gauge to exceed, on_exceed: set life to 10
 		[0],
 		false)
 	validate_life(player1, 10, player2, 15)
@@ -147,6 +147,38 @@ func test_exceed_with_transforms_discount():
 	assert_true(game_logic.do_choice(player1, 0)) # gain 10 life
 	validate_life(player1, 25, player2, 15)
 	assert_true(player1.exceeded)
+
+func test_on_death_exceed_1_transform_pays_correct_gauge():
+	# Bug fix: 1 transform + 3 gauge, player now must select gauge to exceed on death.
+	# Expected: exceed cost = 5 - 2*1 = 3, player is prompted to select 3 gauge cards.
+	position_players(player1, 4, player2, 5)
+	add_transform(player1, "taisei_anathemasurge") # 1 transform → exceed cost = 3
+	player1.life = 3
+	var gauge_ids = give_gauge(player1, 3) # Exactly 3 gauge
+	assert_eq(player1.get_exceed_cost(), 3)
+	# Sweep(S2) first. P6 vs A2=4 damage → p1: 3-4=-1 → on_death → prompted to select 3 gauge → exceed.
+	execute_strike(player1, player2, "standard_normal_block", "standard_normal_sweep",
+		false, false,
+		[0, [], gauge_ids, 0], # ability pass, ForceForArmor 0 cards, spend 3 gauge to exceed, on_exceed: gain 10 life
+		[0],                   # ability pass
+		false)
+	assert_true(player1.exceeded, "Player1 should have exceeded")
+	validate_life(player1, 9, player2, 15) # -1 + 10 = 9
+	assert_eq(player1.gauge.size(), 0, "All 3 gauge should have been spent to exceed")
+
+func test_on_death_exceed_1_transform_insufficient_gauge_game_over():
+	# With 1 transform, exceed cost = 3. If only 2 gauge, can't exceed → game over.
+	position_players(player1, 4, player2, 5)
+	add_transform(player1, "taisei_anathemasurge") # 1 transform → exceed cost = 3
+	player1.life = 3
+	give_gauge(player1, 2) # Only 2 gauge - not enough to pay cost of 3
+	# Sweep first. P6 vs A2=4 → p1: 3-4=-1 → on_death → can't exceed → game over.
+	execute_strike(player1, player2, "standard_normal_block", "standard_normal_sweep",
+		false, false,
+		[0, []], # ability pass, ForceForArmor 0 cards
+		[0])     # ability pass
+	assert_eq(game_logic.game_state, Enums.GameState.GameState_GameOver)
+	assert_eq(game_logic.game_over_winning_player, player2)
 
 ## ===== EXCEED ABILITY TESTS =====
 
