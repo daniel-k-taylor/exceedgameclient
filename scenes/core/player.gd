@@ -1,4 +1,4 @@
-class_name Player
+﻿class_name Player
 
 
 class StrikeStatBoosts:
@@ -260,6 +260,9 @@ var continuous_boosts : Array[GameCard]
 var transforms : Array[GameCard]
 var lightningrod_zones : Array
 var underboost_map : Dictionary
+var zsolt_war_symphony_drew : bool
+var zsolt_extra_attack_count : int
+var zsolt_awaken_offered : bool
 var cleanup_boost_to_gauge_cards : Array
 var boosts_to_gauge_on_move : Array
 var on_buddy_boosts : Array
@@ -324,6 +327,7 @@ var movement_limit_optional_exceeded : bool
 var force_cost_reduction : int
 var free_force : int
 var free_force_cc_only : int
+var zsolt_force_pool : int
 var free_gauge : int
 var guile_change_cards_bonus : bool
 var cards_that_will_not_hit : Array[String]
@@ -334,6 +338,8 @@ var public_hand_questionable : Array[String]
 var public_hand_tracked_topdeck : Array[int]
 var public_topdeck_id : int
 var skip_end_of_turn_draw : bool
+var reduce_opponent_prepare_draw : bool
+var eugenia_normal_passive_used_this_turn : bool
 var dan_draw_choice : bool
 var dan_draw_choice_from_bottom : bool
 var enchantress_draw_choice : bool
@@ -437,6 +443,8 @@ func _init(id, player_name, parent_ref, card_db_ref, chosen_deck, card_start_id)
 	cleanup_boost_to_gauge_cards = []
 	boosts_to_gauge_on_move = []
 	on_buddy_boosts = []
+	zsolt_war_symphony_drew = false
+	zsolt_extra_attack_count = 0
 	mulligan_complete = false
 	reading_card_id = ""
 	next_strike_faceup = false
@@ -468,6 +476,7 @@ func _init(id, player_name, parent_ref, card_db_ref, chosen_deck, card_start_id)
 	force_cost_reduction = 0
 	free_force = 0
 	free_force_cc_only = 0
+	zsolt_force_pool = 0
 	free_gauge = 0
 	guile_change_cards_bonus = false
 	cards_that_will_not_hit = []
@@ -478,6 +487,7 @@ func _init(id, player_name, parent_ref, card_db_ref, chosen_deck, card_start_id)
 	public_hand_tracked_topdeck = []
 	public_topdeck_id = -1
 	skip_end_of_turn_draw = false
+	eugenia_normal_passive_used_this_turn = false
 	dan_draw_choice = false
 	dan_draw_choice_from_bottom = false
 	enchantress_draw_choice = false
@@ -581,7 +591,9 @@ func get_exceed_cost():
 				"transform_discount":
 					cost -= 2 * len(transforms)
 		cost = max(0, cost)
-	return cost
+	# Battle Instinct free_gauge applies to exceed too
+	cost -= free_gauge
+	return max(0, cost)
 
 func get_replacement_boost_definition():
 	return deck_def['replacement_boost_definition'].duplicate(true)
@@ -716,6 +728,20 @@ func get_copy_in_hand(definition_id : String):
 		if card.definition['id'] == definition_id:
 			return card.id
 	return -1
+
+func is_card_in_set_aside(id : int):
+	for card in set_aside_cards:
+		if card.id == id:
+			return true
+	return false
+
+func remove_from_set_aside(id : int):
+	for i in range(len(set_aside_cards)):
+		if set_aside_cards[i].id == id:
+			var removed = set_aside_cards[i]
+			set_aside_cards.remove_at(i)
+			return removed
+	return null
 
 func is_card_in_hand_match_normals(compare_card : GameCard):
 	var is_normal = compare_card.definition['type'] == "normal"
@@ -1261,6 +1287,8 @@ func get_cards_in_hand_of_type(limitation : String, limitation_amount : int = 0)
 	var cards = []
 	for card in hand:
 		match limitation:
+			"":
+				cards.append(card)
 			"normal":
 				if card.definition['type'] == "normal":
 					cards.append(card)
@@ -1410,7 +1438,15 @@ func get_buddy_name(buddy_id : String = ""):
 
 func get_face_attack_card():
 	if face_attack_id:
-		return get_set_aside_card(face_attack_id)
+		if set_aside_cards.size() == 0:
+			return null
+		# Only show face attack if there's a real card (not the wonderland placeholder)
+		var card = get_set_aside_card(face_attack_id)
+		if card and set_aside_cards.size() <= 1:
+			return null  # Only placeholder wonderland card, no real card yet
+		if not card:
+			card = set_aside_cards[0]
+		return card
 	return null
 
 func is_buddy_in_play(buddy_id : String = ""):
@@ -2076,6 +2112,10 @@ func discard(card_ids : Array, from_top : int = 0, count_as_spent : bool = false
 				parent.do_effect_if_condition_met(self, effect['card_id'], effect, null)
 		spent_gauge_this_turn = true
 
+	# Notify parent game about discard for passive ability triggers (e.g. Eugenia)
+	if parent and parent.has_method("_on_player_discard"):
+		parent._on_player_discard(self, card_ids)
+
 func move_cards_to_overdrive(card_ids : Array, source : String):
 	var opposing_player = parent._get_player(parent.get_other_player(my_id))
 	var card_names = parent.card_db.get_card_names(card_ids)
@@ -2740,17 +2780,28 @@ func add_to_continuous_boosts(card : GameCard):
 		if boost_card.id == card.id:
 			assert(false, "Should not have boost already here.")
 	continuous_boosts.append(card)
+	_recalc_zsolt_pool()
 	var facedown = card.definition["boost"].get("facedown")
 	parent.create_event(Enums.EventType.EventType_Boost_Continuous_Added, my_id, card.id, "", facedown)
 
-func add_to_transforms(card : GameCard):
+func add_to_transforms(card : GameCard) -> bool:
+	# Eugenia: don't allow opponent's cards in her transform zone - discard instead
+	if deck_def.get("id") == "eugenia" and exceeded:
+		var def_id = card.definition.get("id", "")
+		if not def_id.begins_with("eugenia_") and not def_id.begins_with("standard_"):
+			var opponent = parent._get_player(parent.get_other_player(my_id))
+			opponent.add_to_discards(card)
+			parent.create_event(Enums.EventType.EventType_AddToDiscard, opponent.my_id, card.id, "", 0)
+			return true
 	for boost_card in transforms:
 		if boost_card.id == card.id:
 			assert(false, "Should not have transform already here.")
 		elif boost_card.definition['display_name'] == card.definition['display_name']:
-			assert(false, "Should not be able to transform two cards with same name.")
+			parent._append_log_full(Enums.LogType.LogType_CardInfo, self, "cannot transform %s, duplicate name in transforms." % card.definition['display_name'])
+			return false
 	transforms.append(card)
 	parent.create_event(Enums.EventType.EventType_Transform_Added, my_id, card.id)
+	return true
 
 func get_continuous_boosts_and_transforms():
 	return continuous_boosts + transforms
@@ -2875,6 +2926,8 @@ func reenable_boost_effects(card : GameCard):
 	for effect in card.definition['boost']['effects']:
 		if effect['timing'] == "now":
 			match effect['effect_type']:
+				StrikeEffects.ReduceOpponentPrepareDraw:
+					self.reduce_opponent_prepare_draw = true
 				StrikeEffects.IgnorePushAndPullPassiveBonus:
 					ignore_push_and_pull += 1
 					if ignore_push_and_pull == 1:
@@ -2937,6 +2990,28 @@ func disable_boost_effects(card : GameCard, buddy_ignore_condition : bool = fals
 						ignore_push_and_pull -= 1
 						if ignore_push_and_pull == 0:
 							parent._append_log_full(Enums.LogType.LogType_Effect, self, "no longer ignores pushes and pulls.")
+				StrikeEffects.ForceCostsReducedPassive:
+					force_cost_reduction -= effect['amount']
+					if force_cost_reduction < 0:
+						force_cost_reduction = 0
+					if force_cost_reduction == 0:
+						parent._append_log_full(Enums.LogType.LogType_Effect, self, "no longer has their force costs reduced.")
+				StrikeEffects.GenerateFreeForce:
+					free_force -= effect['amount']
+					if free_force < 0:
+						free_force = 0
+					if free_force == 0:
+						parent._append_log_full(Enums.LogType.LogType_Effect, self, "no longer generates free force.")
+					if effect.get('zsolt_force_pool', false):
+						zsolt_force_pool -= effect['amount']
+						if zsolt_force_pool < 0:
+							zsolt_force_pool = 0
+						if zsolt_force_pool == 0:
+							free_force = 0
+				StrikeEffects.GaugeCostsReducedPassive:
+					free_gauge -= effect['amount']
+					if free_gauge < 0:
+						free_gauge = 0
 		elif effect['timing'] == current_timing:
 			# Need to remove these effects from the remaining effects.
 			# Only if the current timing belongs to the player who has this in their continuous boosts.
@@ -3006,7 +3081,11 @@ func _revert_strike_bonus_effect(effect, card_id : int, check_and_effects : bool
 
 func remove_from_continuous_boosts(card : GameCard, destination : String = "discard"):
 	disable_boost_effects(card)
-
+	
+	for effect in card.definition['boost']['effects']:
+		if effect.get('effect_type') == 'reduce_opponent_prepare_draw':
+			self.reduce_opponent_prepare_draw = false
+	
 	var discards_to_sealed = card.definition["boost"].get("discards_to_sealed")
 	if discards_to_sealed:
 		destination = "sealed"
@@ -3038,6 +3117,19 @@ func remove_from_continuous_boosts(card : GameCard, destination : String = "disc
 				add_to_discards(card)
 			continuous_boosts.remove_at(i)
 			break
+	_recalc_zsolt_pool()
+
+func _recalc_zsolt_pool():
+	# Recalculate zsolt_force_pool from active continuous boosts.
+	# This is more reliable than tracking +=/-= which can drift.
+	var new_pool = 0
+	for boost in continuous_boosts:
+		for effect in boost.definition.get('boost', {}).get('effects', []):
+			if effect.get('zsolt_force_pool', false):
+				new_pool += effect['amount']
+	zsolt_force_pool = new_pool
+	if zsolt_force_pool == 0:
+		free_force = 0
 
 func get_all_non_immediate_continuous_boost_effects():
 	var effects = []

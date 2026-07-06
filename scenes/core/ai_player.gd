@@ -565,7 +565,8 @@ func get_boost_actions(valid_zones : Array, limitation : String, ignore_costs : 
 		"hand": game_player.hand,
 		"gauge": game_player.gauge,
 		"discard": game_player.discards,
-		"extra": game_player.set_aside_cards
+		"extra": game_player.set_aside_cards,
+		"deck": game_player.deck
 	}
 	var free_force_available = game_player.free_force
 
