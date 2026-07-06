@@ -260,6 +260,7 @@ var current_instruction_text : String = ""
 var current_action_menu_choices : Array = []
 var current_effect_choices : Array = []
 var current_effect_extra_choice_text : Array = []
+var current_topdeck_choosing_player = Enums.PlayerId.PlayerId_Player
 var instructions_number_picker_min = -1
 var instructions_number_picker_max = -1
 var show_thinking_spinner_in : float = 0
@@ -570,7 +571,10 @@ func setup_character_card(character_card, deck, buddy_character_card):
 	if 'hide_buddy_reference' in deck and deck['hide_buddy_reference']:
 		buddy_character_card.visible = false
 	elif 'buddy_card' in deck:
-		buddy_character_card.visible = true
+		if deck.get('buddy_exceeds'):
+			buddy_character_card.visible = false
+		else:
+			buddy_character_card.visible = true
 		buddy_character_card.hide_focus()
 		var buddy_card_id = deck['buddy_card']
 
@@ -1212,7 +1216,7 @@ func can_select_card(card):
 				if 'may_set_from_boost' in logic_card.definition and logic_card.definition['may_set_from_boost']:
 					return true
 				return false
-			return in_hand
+			return in_hand or in_set_aside
 		UISubState.UISubState_SelectCards_StrikeCard_FromGauge:
 			return in_gauge
 		UISubState.UISubState_SelectCards_StrikeCard_FromSealed:
@@ -1941,9 +1945,12 @@ func _on_choose_from_topdeck(event):
 	var action_choices = decision_info.action
 	var can_pass = decision_info.can_pass
 	var look_amount = decision_info.amount
-	if player == Enums.PlayerId.PlayerId_Player and not observer_mode:
-		begin_choose_from_topdeck(action_choices, look_amount, can_pass)
+	if player == Enums.PlayerId.PlayerId_Player or not game_wrapper.is_ai_game():
+		# Online: each client maps itself as Player, only shows own choices
+		# Local hotseat / AI: show interface for both players
+		begin_choose_from_topdeck(action_choices, look_amount, can_pass, player)
 	else:
+		# AI opponent picks randomly
 		ai_choose_from_topdeck(action_choices, look_amount, can_pass)
 
 func get_string_for_action_choice(choice):
@@ -1972,8 +1979,9 @@ func get_string_for_action_choice(choice):
 			return "Discard"
 	return ""
 
-func begin_choose_from_topdeck(action_choices, look_amount, can_pass):
-	var card_ids = game_wrapper.get_player_top_cards(Enums.PlayerId.PlayerId_Player, look_amount)
+func begin_choose_from_topdeck(action_choices, look_amount, can_pass, player = Enums.PlayerId.PlayerId_Player):
+	current_topdeck_choosing_player = player
+	var card_ids = game_wrapper.get_player_top_cards(player, look_amount)
 	for card_id in card_ids:
 		var card = find_card_on_board(card_id)
 		card.flip_card_to_front(true)
@@ -2013,6 +2021,7 @@ func _on_choose_opponent_card_to_discard(event):
 		ai_choose_opponent_card_to_discard(card_ids)
 
 func begin_choose_opponent_card_to_discard(card_ids):
+	clear_choice_zone()
 	var card_db = game_wrapper.get_card_database()
 	for card_id in card_ids:
 		var logic_card : GameCard = card_db.get_card(card_id)
@@ -2232,6 +2241,8 @@ func _on_exceed_event(event):
 			$PlayerCharacter.set_exceed(true)
 		player_character_card.exceed(true)
 		player_buddy_character_card.exceed(true)
+		if player_deck.get('buddy_exceeds'):
+			player_buddy_character_card.visible = true
 		player_bonus_panel.visible = false
 
 	else:
@@ -2242,6 +2253,8 @@ func _on_exceed_event(event):
 			$OpponentCharacter.set_exceed(true)
 		opponent_character_card.exceed(true)
 		opponent_buddy_character_card.exceed(true)
+		if opponent_deck.get('buddy_exceeds'):
+			opponent_buddy_character_card.visible = true
 		opponent_bonus_panel.visible = false
 
 	spawn_damage_popup("Exceed!", player)
@@ -2257,6 +2270,8 @@ func _on_exceed_revert_event(event):
 			$PlayerCharacter.set_exceed(false)
 		player_character_card.exceed(false)
 		player_buddy_character_card.exceed(false)
+		if player_deck.get('buddy_exceeds'):
+			player_buddy_character_card.visible = false
 
 	else:
 		if 'exceed_animation' in opponent_deck:
@@ -2266,6 +2281,8 @@ func _on_exceed_revert_event(event):
 			$OpponentCharacter.set_exceed(false)
 		opponent_character_card.exceed(false)
 		opponent_buddy_character_card.exceed(false)
+		if opponent_deck.get('buddy_exceeds'):
+			opponent_buddy_character_card.visible = false
 
 	spawn_damage_popup("Revert!", player)
 	return SmallNoticeDelay
@@ -2663,23 +2680,31 @@ func get_force_from_spent_life():
 	return 0
 
 func can_selected_cards_pay_force(force_cost : int, bonus_card_force_value : int = 0):
-	var max_force_selected = game_wrapper.get_player_force_cost_reduction(Enums.PlayerId.PlayerId_Player)
+	# Calculate how much force we actually need from the cards themselves
+	var force_needed_from_cards = force_cost
+	force_needed_from_cards -= game_wrapper.get_player_force_cost_reduction(Enums.PlayerId.PlayerId_Player)
 	if use_free_force:
-		max_force_selected += game_wrapper.get_player_free_force(Enums.PlayerId.PlayerId_Player)
-	max_force_selected += get_spent_life_for_force()
+		force_needed_from_cards -= game_wrapper.get_player_free_force(Enums.PlayerId.PlayerId_Player)
+	force_needed_from_cards -= get_spent_life_for_force()
+	force_needed_from_cards = max(0, force_needed_from_cards)
+
+	# Sum up force from selected cards
+	var card_force = 0
 	var ultras = 0
 	var card_db = game_wrapper.get_card_database()
 	for card in selected_cards:
 		var value_of_card = card_db.get_card_force_value(card.card_id)
-		max_force_selected += value_of_card
+		card_force += value_of_card
 		if value_of_card == 2:
 			ultras += 1
 	if bonus_card_force_value == 2:
 		ultras += 1
-	max_force_selected += bonus_card_force_value
-	var min_force_selected = max_force_selected - ultras
-	for i in range(min_force_selected, max_force_selected + 1):
-		if i == force_cost:
+	card_force += bonus_card_force_value
+
+	# Ultras can count as 1 or 2, so the exact force is in [card_force - ultras, card_force]
+	var min_force = card_force - ultras
+	for i in range(min_force, card_force + 1):
+		if i == force_needed_from_cards:
 			return true
 	return false
 
@@ -2790,7 +2815,7 @@ func begin_discard_cards_selection(
 	enable_instructions_ui("", true, cancel_allowed)
 	change_ui_state(UIState.UIState_SelectCards, next_sub_state)
 
-func begin_generate_force_selection(amount, can_cancel : bool = true, wild_swing_allowed : bool = false, ex_discard_order_checkbox : bool = false):
+func begin_generate_force_selection(amount, can_cancel : bool = true, wild_swing_allowed : bool = false, ex_discard_order_checkbox : bool = false, skip_zsolt_popup : bool = false):
 	# Show the gauge window.
 	_on_player_gauge_gauge_clicked()
 	treat_ultras_as_single_force = false
@@ -2798,13 +2823,39 @@ func begin_generate_force_selection(amount, can_cancel : bool = true, wild_swing
 	var reason = ""
 	if ui_sub_state == UISubState.UISubState_SelectCards_ForceForChange:
 		reason = "CHANGE_CARDS"
+	# Zsolt Battle Instinct: let player choose how much free force to use
+	var p = game_wrapper._get_player(Enums.PlayerId.PlayerId_Player)
+	# During strike resolution, auto-use the pool to avoid await freeze
+	# But skip if caller already set free_force (skip_zsolt_popup = true)
+	var in_strike = game_wrapper.current_game and game_wrapper.current_game.active_strike != null
+	if p.zsolt_force_pool > 0 and in_strike and not skip_zsolt_popup:
+		p.free_force = p.zsolt_force_pool if amount <= 0 else min(p.zsolt_force_pool, amount)
+	if p.zsolt_force_pool > 0 and not skip_zsolt_popup and not in_strike:
+		p.free_force = 0
+		var pool_amount = p.zsolt_force_pool
+		current_action_menu_choices = []
+		for i in range(pool_amount + 1):
+			current_action_menu_choices.append({"action": func(): pass})
+		_on_player_gauge_gauge_clicked()
+		var options = []
+		for i in range(pool_amount + 1):
+			options.append({"text": str(i)})
+		action_menu.set_choices("Use how much free force?", options, false, -1, -1, false, false, false)
+		action_menu.visible = true
+		var idx = await action_menu.choice_selected
+		close_popout()
+		p.free_force = idx
+		# Re-clear button choices: callers may have run _update_buttons()
+		# while we were awaiting, overwriting our dummy entries.
+		current_action_menu_choices = []
+		for j in range(pool_amount + 1):
+			current_action_menu_choices.append({"action": func(): pass})
 	use_free_force = game_wrapper.get_player_free_force(Enums.PlayerId.PlayerId_Player, reason) > 0
 	can_spend_life_for_force = game_wrapper.get_life_for_force_amount(Enums.PlayerId.PlayerId_Player) > 0
 	current_pay_costs_is_ex = ex_discard_order_checkbox
 	action_menu.set_force_ultra_toggle(false)
 	action_menu.set_discard_ex_first_toggle(true)
 	action_menu.set_free_force_toggle(use_free_force)
-
 	selected_cards = []
 	select_card_require_force = amount
 	var strike_options = {
@@ -2813,6 +2864,7 @@ func begin_generate_force_selection(amount, can_cancel : bool = true, wild_swing
 	enable_instructions_ui("", true, can_cancel, strike_options)
 
 	change_ui_state(UIState.UIState_SelectCards)
+	update_force_generation_message()
 
 func begin_gauge_selection(
 	amount : int,
@@ -3391,7 +3443,11 @@ func _on_force_for_effect(event):
 				prepared_character_action_data = {}
 				change_ui_state(UIState.UIState_WaitForGameServer)
 			return
-			
+		
+		# Zsolt: auto-use free force up to force_max (no popup during ForceForEffect)
+		var p = game_wrapper._get_player(Enums.PlayerId.PlayerId_Player)
+		if p.zsolt_force_pool > 0:
+			p.free_force = min(p.zsolt_force_pool, effect['force_max'])
 		change_ui_state(null, UISubState.UISubState_SelectCards_ForceForEffect)
 		select_card_up_to_force = effect['force_max']
 		var require_max = -1
@@ -3400,7 +3456,7 @@ func _on_force_for_effect(event):
 		var can_cancel = true
 		if 'required' in effect and effect['required']:
 			can_cancel = false
-		begin_generate_force_selection(require_max, can_cancel)
+		begin_generate_force_selection(require_max, can_cancel, false, false, true)
 	else:
 		ai_force_for_effect(effect)
 
@@ -4109,7 +4165,7 @@ func _update_buttons(no_number_picker_update : bool = false):
 	var cancel_text = "Cancel"
 	if not preparing_character_action:
 		match ui_sub_state:
-			UISubState.UISubState_SelectCards_BoostCancel, UISubState.UISubState_SelectCards_Mulligan, UISubState.UISubState_SelectCards_ForceForEffect, UISubState.UISubState_SelectCards_DiscardCardsToGauge, UISubState.UISubState_SelectCards_ChooseDiscardToDestination:
+			UISubState.UISubState_SelectCards_BoostCancel, UISubState.UISubState_SelectCards_Mulligan, UISubState.UISubState_SelectCards_DiscardCardsToGauge, UISubState.UISubState_SelectCards_ChooseDiscardToDestination:
 				cancel_text = "Pass"
 			UISubState.UISubState_SelectCards_ChooseBoostsToSustain, UISubState.UISubState_SelectCards_ChooseFromTopdeck, UISubState.UISubState_SelectCards_ChooseOpponentCardToDiscard:
 				cancel_text = "Pass"
@@ -4220,6 +4276,10 @@ func _update_buttons(no_number_picker_update : bool = false):
 				button_choices.append({ "text": button_text, "action": func(): _on_extra_strike_button_pressed(i) })
 	if instructions_pay_alternative_life_cost:
 		button_choices.append({ "text": "Pay %s Life" % instructions_pay_alternative_life_cost, "action": _on_pay_alternative_life_cost_button_pressed })
+	if ui_state == UIState.UIState_SelectCards and ui_sub_state in [UISubState.UISubState_SelectCards_StrikeCard, UISubState.UISubState_SelectCards_StrikeResponseCard, UISubState.UISubState_SelectCards_OpponentSetsFirst_StrikeCard, UISubState.UISubState_SelectCards_OpponentSetsFirst_StrikeResponseCard]:
+		instructions_face_attack_card = game_wrapper.get_face_attack_card(Enums.PlayerId.PlayerId_Player)
+	else:
+		instructions_face_attack_card = null
 	if instructions_face_attack_card:
 		var face_card_name = instructions_face_attack_card.definition['display_name']
 		button_choices.append({ "text": "Strike with %s" % face_card_name, "action": _on_face_attack_button_pressed })
@@ -4321,7 +4381,7 @@ func update_boost_summary(player_id, boosts_card_holder, boost_box):
 			stop_on_space_effect['timing'] = "on_stop_on_space"
 			add_to_effects.append(stop_on_space_effect)
 		for effect in card.definition['boost']['effects']:
-			if effect['timing'] != "now" or effect['effect_type'] in ["force_costs_reduced_passive", "ignore_push_and_pull_passive_bonus", "add_passive"]:
+			if effect['timing'] != "now" or effect['effect_type'] in ["force_costs_reduced_passive", "ignore_push_and_pull_passive_bonus", "add_passive", "reduce_opponent_prepare_draw", "generate_free_force", "gauge_costs_reduced_passive"]:
 				if effect['timing'] != "discarded":
 					add_to_effects.append(effect)
 
@@ -4741,10 +4801,26 @@ func finish_preparing_character_action(selections):
 					begin_gauge_selection(gauge_cost, false, UISubState.UISubState_SelectCards_GaugeForBoost)
 					_update_buttons()
 					return
+				# Zsolt Battle Instinct: let player choose how much free force to use
+				var zsolt_p = game_wrapper._get_player(Enums.PlayerId.PlayerId_Player)
+				if zsolt_p.zsolt_force_pool > 0:
+					zsolt_p.free_force = 0
+					var pool_amount = zsolt_p.zsolt_force_pool
+					current_action_menu_choices = []
+					for i in range(pool_amount + 1):
+						current_action_menu_choices.append({"action": func(): pass})
+					var options = []
+					for i in range(pool_amount + 1):
+						options.append({"text": str(i)})
+					action_menu.set_choices("Use how much free force?", options, false, -1, -1, false, false, false)
+					action_menu.visible = true
+					var idx = await action_menu.choice_selected
+					close_popout()
+					zsolt_p.free_force = idx
 				if force_cost > 0:
 					selected_boost_to_pay_for = single_card_id
 					change_ui_state(null, UISubState.UISubState_SelectCards_ForceForBoost)
-					begin_generate_force_selection(force_cost)
+					begin_generate_force_selection(force_cost, true, false, false, true)
 					_update_buttons()
 					return
 		"self_discard_choose":
@@ -4831,7 +4907,7 @@ func _on_instructions_ok_button_pressed(index : int):
 			UISubState.UISubState_SelectCards_ChooseFromTopdeck:
 				var action_choices = game_wrapper.get_decision_info().action
 				var chosen_action = action_choices[index]
-				success = game_wrapper.submit_choose_from_topdeck(Enums.PlayerId.PlayerId_Player, single_card_id, chosen_action)
+				success = game_wrapper.submit_choose_from_topdeck(current_topdeck_choosing_player, single_card_id, chosen_action)
 			UISubState.UISubState_SelectCards_ChooseOpponentCardToDiscard:
 				var adjusted_id = single_card_id - ChoiceCopyIdRangeStart
 				success = game_wrapper.submit_choose_to_discard(Enums.PlayerId.PlayerId_Player, [adjusted_id])
@@ -4894,9 +4970,25 @@ func _on_instructions_ok_button_pressed(index : int):
 						begin_gauge_selection(gauge_cost, false, UISubState.UISubState_SelectCards_GaugeForBoost)
 					elif not select_boost_options['ignore_costs'] and force_cost > 0:
 						assert(select_boost_options['boost_amount'] <= 1, "WARNING: Can't currently handle force costs for multiple boosts")
+						# Zsolt Battle Instinct: let player choose how much free force to use
+						var zsolt_p = game_wrapper._get_player(Enums.PlayerId.PlayerId_Player)
+						if zsolt_p.zsolt_force_pool > 0:
+							zsolt_p.free_force = 0
+							var pool_amount = zsolt_p.zsolt_force_pool
+							current_action_menu_choices = []
+							for i in range(pool_amount + 1):
+								current_action_menu_choices.append({"action": func(): pass})
+							var options = []
+							for i in range(pool_amount + 1):
+								options.append({"text": str(i)})
+							action_menu.set_choices("Use how much free force?", options, false, -1, -1, false, false, false)
+							action_menu.visible = true
+							var idx = await action_menu.choice_selected
+							close_popout()
+							zsolt_p.free_force = idx
 						selected_boost_to_pay_for = single_card_id
 						change_ui_state(null, UISubState.UISubState_SelectCards_ForceForBoost)
-						begin_generate_force_selection(force_cost)
+						begin_generate_force_selection(force_cost, true, false, false, true)
 					else:
 						var additional_boost_ids = selected_card_ids.slice(1)
 						success = game_wrapper.submit_boost(Enums.PlayerId.PlayerId_Player, single_card_id, [], use_free_force, spent_life_for_force, additional_boost_ids)
@@ -4950,6 +5042,11 @@ func _on_instructions_cancel_button_pressed():
 			deselect_all_cards()
 			close_popout()
 			success = game_wrapper.submit_force_for_effect(Enums.PlayerId.PlayerId_Player, [], false, true, false)
+			if success:
+				popout_instruction_info = null
+				change_ui_state(UIState.UIState_PickTurnAction, UISubState.UISubState_None)
+				_update_buttons()
+				return
 		UISubState.UISubState_SelectCards_GaugeForArmor:
 			deselect_all_cards()
 			close_popout()
@@ -4982,7 +5079,7 @@ func _on_instructions_cancel_button_pressed():
 		UISubState.UISubState_SelectCards_ChooseFromTopdeck:
 			deselect_all_cards()
 			close_popout()
-			success = game_wrapper.submit_choose_from_topdeck(Enums.PlayerId.PlayerId_Player, -1, "pass")
+			success = game_wrapper.submit_choose_from_topdeck(current_topdeck_choosing_player, -1, "pass")
 		UISubState.UISubState_SelectCards_DiscardCards_Choose:
 			deselect_all_cards()
 			close_popout()
@@ -5135,10 +5232,26 @@ func _on_shortcut_boost_pressed():
 			change_ui_state(null, UISubState.UISubState_SelectCards_GaugeForBoost)
 			begin_gauge_selection(gauge_cost, false, UISubState.UISubState_SelectCards_GaugeForBoost)
 		elif force_cost > 0:
+			# Zsolt Battle Instinct: let player choose how much free force to use
+			var zsolt_p = game_wrapper._get_player(Enums.PlayerId.PlayerId_Player)
+			if zsolt_p.zsolt_force_pool > 0:
+				zsolt_p.free_force = 0
+				var pool_amount = zsolt_p.zsolt_force_pool
+				current_action_menu_choices = []
+				for i in range(pool_amount + 1):
+					current_action_menu_choices.append({"action": func(): pass})
+				var options = []
+				for i in range(pool_amount + 1):
+					options.append({"text": str(i)})
+				action_menu.set_choices("Use how much free force?", options, false, -1, -1, false, false, false)
+				action_menu.visible = true
+				var idx = await action_menu.choice_selected
+				close_popout()
+				zsolt_p.free_force = idx
 			select_boost_options = {}
 			selected_boost_to_pay_for = card_id
 			change_ui_state(null, UISubState.UISubState_SelectCards_ForceForBoost)
-			begin_generate_force_selection(force_cost)
+			begin_generate_force_selection(force_cost, true, false, false, true)
 		else:
 			success = game_wrapper.submit_boost(Enums.PlayerId.PlayerId_Player, card_id, [], use_free_force, 0)
 
@@ -5160,6 +5273,25 @@ func _on_shortcut_character_action_pressed(action_idx : int = 0):
 	finish_preparing_character_action(selected_card_ids)
 
 func _on_shortcut_change_pressed():
+	# Zsolt Battle Instinct: let player choose how much free force to use
+	var p = game_wrapper._get_player(Enums.PlayerId.PlayerId_Player)
+	if p.zsolt_force_pool > 0:
+		p.free_force = 0
+		var pool_amount = p.zsolt_force_pool
+		# Clear old button choices to prevent _on_action_menu_choice_selected
+		# from running a stale action when the popup choice is made
+		current_action_menu_choices = []
+		for i in range(pool_amount + 1):
+			current_action_menu_choices.append({"action": func(): pass})
+		var options = []
+		for i in range(pool_amount + 1):
+			options.append({"text": str(i)})
+		action_menu.set_choices("Use how much free force?", options, false, -1, -1, false, false, false)
+		action_menu.visible = true
+		var idx = await action_menu.choice_selected
+		close_popout()
+		p.free_force = idx
+
 	change_ui_state(null, UISubState.UISubState_SelectCards_ForceForChange)
 	select_card_require_force = -1
 
