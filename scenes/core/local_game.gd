@@ -9706,6 +9706,11 @@ func do_choice(performing_player : Player, choice_index : int) -> bool:
 			# Remove this effect from the remaining effects.
 			erase_remaining_effect(get_base_remaining_effect(effect))
 
+	# Carry forward the original effect source to sub-effects so that
+	# effects like discard_random (for Eugenia's passive) can correctly
+	# identify who caused them, even when the choice is made by the opponent.
+	if '_source_player_id' not in effect:
+		effect['_source_player_id'] = _last_effect_source_player_id
 	var saved_source = _last_effect_source_player_id
 	do_effect_if_condition_met(performing_player, card_id, effect, null)
 	_last_effect_source_player_id = saved_source
