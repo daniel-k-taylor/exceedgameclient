@@ -38038,7 +38038,7 @@
 					"opponent": true,
 					"choice": [
 						{ "effect_type": "discard_random", "amount": 2 },
-						{ "effect_type": "push", "amount": 3 }
+						{ "effect_type": "push", "amount": 3, "for_other_player": true }
 					]
 				}
 			]
