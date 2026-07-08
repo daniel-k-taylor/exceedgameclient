@@ -7665,13 +7665,6 @@
 		"speed": 4,
 		"armor": 1,
 		"guard": 5,
-		"boost": {
-			"boost_type": "none",
-			"force_cost": 0,
-			"cancel_cost": -1,
-			"display_name": "None",
-			"effects": []
-		},
 		"effects": [
 			{
 				"timing": "before",
@@ -9299,6 +9292,490 @@
 			]
 		},
 		"NOTEEND": "ENKIDU CARDS END"
+	},
+	{
+		"NOTE": "EUGENIA CARDS START",
+		"id": "eugenia_shimmer_of_madness",
+		"type": "special",
+		"display_name": "Shimmer of Madness",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 2,
+		"power": 2,
+		"speed": 6,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "hit",
+				"effect_type": "reveal_hand",
+				"opponent": true,
+				"and": {
+					"effect_type": "choose_opponent_card_to_discard"
+				}
+			}
+		],
+		"boost": {
+			"boost_type": "transform",
+			"force_cost": -1,
+			"cancel_cost": -1,
+			"display_name": "Hanging by a Thread",
+			"effects": [
+				{
+					"timing": "set_strike",
+					"effect_type": "add_attack_effect",
+					"added_effect": {
+						"timing": "hit",
+						"NOTE_ENGINE": "NEED condition opponent_max_cards_in_hand",
+						"condition": "opponent_max_cards_in_hand",
+						"condition_amount": 2,
+						"effect_type": "powerup",
+						"amount": 2
+					}
+				}
+			]
+		}
+	},
+	{
+		"id": "eugenia_absinthin_arrow",
+		"type": "special",
+		"display_name": "Absinthin Arrow",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 3,
+		"range_max": 6,
+		"power": 2,
+		"speed": 5,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "hit",
+				"effect_type": "draw",
+				"opponent": true,
+				"amount": 1,
+				"and": {
+					"effect_type": "opponent_discard_random",
+					"amount": 2
+				}
+			}
+		],
+		"boost": {
+			"boost_type": "immediate",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "We're All Mad Here",
+			"effects": [
+				{
+					"timing": "now",
+					"effect_type": "choice",
+					"choice": [
+						{
+							"_choice_text": "Draw 0",
+							"effect_type": "draw",
+							"amount": 0,
+							"and": {
+								"effect_type": "discard_random",
+								"amount": 1
+							}
+						},
+						{
+							"_choice_text": "Draw 1",
+							"effect_type": "draw",
+							"amount": 1,
+							"and": {
+								"effect_type": "discard_random",
+								"amount": 1
+							}
+						},
+						{
+							"_choice_text": "Draw 2",
+							"effect_type": "draw",
+							"amount": 2,
+							"and": {
+								"effect_type": "discard_random",
+								"amount": 1
+							}
+						},
+						{
+							"_choice_text": "Draw 3",
+							"effect_type": "draw",
+							"amount": 3,
+							"and": {
+								"effect_type": "discard_random",
+								"amount": 1
+							}
+						},
+						{
+							"_choice_text": "Draw 4",
+							"effect_type": "draw",
+							"amount": 4,
+							"and": {
+								"effect_type": "discard_random",
+								"amount": 1
+							}
+						}
+					]
+				},
+				{
+					"timing": "now",
+					"effect_type": "choice",
+					"opponent": true,
+					"choice": [
+						{
+							"_choice_text": "Draw 0",
+							"effect_type": "draw",
+							"amount": 0,
+							"and": {
+								"effect_type": "discard_random",
+								"amount": 1
+							}
+						},
+						{
+							"_choice_text": "Draw 1",
+							"effect_type": "draw",
+							"amount": 1,
+							"and": {
+								"effect_type": "discard_random",
+								"amount": 1
+							}
+						},
+						{
+							"_choice_text": "Draw 2",
+							"effect_type": "draw",
+							"amount": 2,
+							"and": {
+								"effect_type": "discard_random",
+								"amount": 1
+							}
+						},
+						{
+							"_choice_text": "Draw 3",
+							"effect_type": "draw",
+							"amount": 3,
+							"and": {
+								"effect_type": "discard_random",
+								"amount": 1
+							}
+						},
+						{
+							"_choice_text": "Draw 4",
+							"effect_type": "draw",
+							"amount": 4,
+							"and": {
+								"effect_type": "discard_random",
+								"amount": 1
+							}
+						}
+					]
+				}
+			]
+		}
+	},
+	{
+		"id": "eugenia_plot_hook",
+		"type": "special",
+		"display_name": "Plot Hook",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 5,
+		"power": 3,
+		"speed": 4,
+		"armor": 0,
+		"guard": 3,
+		"effects": [
+			{
+				"timing": "hit",
+				"effect_type": "gain_advantage",
+				"and": {
+					"effect_type": "pull",
+					"amount": 5
+				}
+			}
+		],
+		"boost": {
+			"boost_type": "transform",
+			"force_cost": -1,
+			"cancel_cost": -1,
+			"display_name": "Time for Tea",
+			"effects": [
+				{
+					"timing": "action",
+					"text": "Pay 1 Force: Opponent discards 1 random",
+					"effect_type": "force_for_effect",
+					"force_max": 1,
+					"per_force_effect": null,
+					"overall_effect": {
+						"effect_type": "opponent_discard_random",
+						"amount": 1,
+						"and": {
+							"condition": "exceeded",
+							"effect_type": "skip_end_of_turn_draw"
+						}
+					}
+				}
+			]
+		}
+	},
+	{
+		"id": "eugenia_werelight",
+		"type": "special",
+		"display_name": "Werelight",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 2,
+		"range_max": 4,
+		"power": 4,
+		"speed": 3,
+		"armor": 0,
+		"guard": 5,
+		"effects": [
+			{
+				"timing": "hit",
+				"effect_type": "choice",
+				"opponent": true,
+				"choice": [
+					{
+						"effect_type": "discard_random",
+						"amount": 2
+					},
+					{
+						"effect_type": "reveal_hand",
+						"and": {
+							"effect_type": "choose_opponent_card_to_discard",
+							"opponent": true
+						}
+					}
+				]
+			}
+		],
+		"boost": {
+			"boost_type": "immediate",
+			"force_cost": -1,
+			"cancel_cost": -1,
+			"display_name": "Off With Her Head",
+			"effects": [
+				{
+					"timing": "immediate",
+					"condition": "range",
+					"condition_amount": 1,
+					"effect_type": "choice",
+					"opponent": true,
+					"choice": [
+						{
+							"effect_type": "discard_random",
+							"amount": 2
+						},
+						{
+							"effect_type": "push",
+							"amount": 3,
+							"for_other_player": true
+						}
+					]
+				}
+			]
+		}
+	},
+	{
+		"id": "eugenia_color_spray",
+		"type": "special",
+		"display_name": "Color Spray",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 3,
+		"power": 6,
+		"speed": 2,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "during_strike",
+				"NOTE_ENGINE": "NEED condition opponent_max_cards_in_hand (currently uses own hand)",
+				"condition": "max_cards_in_hand",
+				"condition_amount": 2,
+				"effect_type": "stun_immunity"
+			},
+			{
+				"timing": "hit",
+				"effect_type": "opponent_draw_or_discard_to",
+				"amount": 2,
+				"random_discard": true
+			}
+		],
+		"boost": {
+			"boost_type": "transform",
+			"force_cost": -1,
+			"cancel_cost": -1,
+			"display_name": "Unhinged",
+			"effects": [
+				{
+					"timing": "set_strike",
+					"condition": "is_ex_strike",
+					"effect_type": "add_attack_effect",
+					"added_effect": {
+						"timing": "hit",
+						"effect_type": "opponent_discard_random",
+						"amount": 1
+					}
+				},
+				{
+					"timing": "set_strike",
+					"condition": "was_wild_swing",
+					"effect_type": "add_attack_effect",
+					"added_effect": {
+						"timing": "hit",
+						"effect_type": "opponent_discard_random",
+						"amount": 1
+					}
+				}
+			]
+		}
+	},
+	{
+		"id": "eugenia_queen_of_hearts",
+		"type": "ultra",
+		"display_name": "Queen of Hearts",
+		"force_cost": 0,
+		"gauge_cost": 3,
+		"range_min": 1,
+		"range_max": 1,
+		"power": 1,
+		"speed": 7,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "hit",
+				"effect_type": "opponent_discard_hand",
+				"and": {
+					"effect_type": "draw",
+					"opponent": true,
+					"amount": 1,
+					"NOTE_ENGINE": "NEED powerup per discarded card amount",
+					"and": {
+						"effect_type": "powerup",
+						"amount": "strike_x"
+					}
+				}
+			}
+		],
+		"boost": {
+			"boost_type": "immediate",
+			"force_cost": 1,
+			"cancel_cost": -1,
+			"display_name": "Wanderlust",
+			"effects": [
+				{
+					"timing": "now",
+					"effect_type": "boost_additional",
+					"limitation": "transform",
+					"valid_zones": [
+						"deck"
+					]
+				},
+				{
+					"timing": "now",
+					"effect_type": "choose_cards_from_top_deck",
+					"look_amount": 30,
+					"action_choices": [
+						"add_to_hand"
+					],
+					"can_pass": true,
+					"destination_unchosen": "topdeck",
+					"shuffle_after": true,
+					"_target_other": true
+				}
+			]
+		}
+	},
+	{
+		"id": "eugenia_cats_cradle",
+		"type": "ultra",
+		"display_name": "Cat's Cradle",
+		"force_cost": 0,
+		"gauge_cost": 3,
+		"range_min": 1,
+		"range_max": 3,
+		"power": 9,
+		"speed": 1,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "during_strike",
+				"effect_type": "stun_immunity"
+			},
+			{
+				"timing": "during_strike",
+				"NOTE_ENGINE": "NEED power_minus_per_opponent_hand (negative amount is hack)",
+				"effect_type": "powerup_per_card_in_opponent_hand",
+				"amount": -1
+			},
+			{
+				"timing": "hit",
+				"effect_type": "draw",
+				"opponent": true,
+				"amount": 1,
+				"and": {
+					"effect_type": "opponent_discard_random",
+					"amount": 2
+				}
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Edge of Sanity",
+			"effects": [
+				{
+					"timing": "now",
+					"effect_type": "opponent_discard_random",
+					"amount": 1
+				},
+				{
+					"timing": "now",
+					"effect_type": "reduce_opponent_prepare_draw"
+				}
+			]
+		}
+	},
+	{
+		"id": "wonderland",
+		"type": "special",
+		"display_name": "Wonderland",
+		"NOTE": "EUGENIA WONDERLAND MARKER - +1P/+1S",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 3,
+		"power": 0,
+		"speed": 0,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "during_strike",
+				"effect_type": "powerup",
+				"amount": 1
+			},
+			{
+				"timing": "during_strike",
+				"effect_type": "speedup",
+				"amount": 1
+			}
+		],
+		"boost": {
+			"boost_type": "none",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "None",
+			"effects": []
+		},
+		"NOTEEND": "EUGENIA CARDS END"
 	},
 	{
 		"NOTE": "FAUST CARDS START",
@@ -31989,7 +32466,6 @@
 					"effect_type": "powerup",
 					"amount": 1
 				},
-				"overall_effect": null,
 				"force_max": 2
 			}
 		],
@@ -36673,6 +37149,515 @@
 		"NOTEEND": "ZATO CARDS END"
 	},
 	{
+		"id": "zsolt_fatal_eye",
+		"type": "special",
+		"display_name": "Fatal Eye",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 3,
+		"power": 1,
+		"speed": 7,
+		"guard": 0,
+		"armor": 0,
+		"effects": [
+			{
+				"timing": "before",
+				"effect_type": "powerup_per_transform",
+				"amount": 1,
+				"amount_max": 5
+			},
+			{
+				"timing": "hit",
+				"effect_type": "gain_advantage"
+			}
+		],
+		"boost": {
+			"boost_type": "immediate",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Somersault",
+			"effects": [
+				{
+					"timing": "immediate",
+					"effect_type": "choice",
+					"choice": [
+						{
+							"effect_type": "advance",
+							"amount": 2
+						},
+						{
+							"effect_type": "retreat",
+							"amount": 2
+						}
+					],
+					"and": {
+						"effect_type": "draw",
+						"amount": 1
+					}
+				}
+			]
+		},
+		"NOTE": "ZSOLT CARDS START"
+	},
+	{
+		"id": "zsolt_cross_up",
+		"type": "special",
+		"display_name": "Cross Up",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 2,
+		"power": 4,
+		"speed": 6,
+		"guard": 0,
+		"armor": 0,
+		"effects": [
+			{
+				"timing": "after",
+				"effect_type": "advance",
+				"amount": 4
+			}
+		],
+		"boost": {
+			"boost_type": "transform",
+			"force_cost": -1,
+			"cancel_cost": -1,
+			"display_name": "Battle Fugue",
+			"effects": [
+				{
+					"timing": "set_strike",
+					"effect_type": "nothing",
+					"override_description": "First time you gain Advantage each combat: Draw 1"
+				}
+			]
+		}
+	},
+	{
+		"id": "zsolt_blaze_of_fervour",
+		"type": "special",
+		"display_name": "Blaze of Fervour",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 2,
+		"range_max": 4,
+		"power": 4,
+		"speed": 5,
+		"guard": 0,
+		"armor": 0,
+		"effects": [
+			{
+				"timing": "hit",
+				"effect_type": "advance",
+				"amount": 3,
+				"use_semicolon_for_and": true,
+				"and": {
+					"condition": "advanced_through",
+					"effect_type": "gain_advantage"
+				}
+			}
+		],
+		"boost": {
+			"boost_type": "transform",
+			"force_cost": -1,
+			"cancel_cost": -1,
+			"display_name": "Mad Dog",
+			"effects": [
+				{
+					"timing": "set_strike",
+					"condition": "initiated_strike",
+					"effect_type": "force_for_effect",
+					"amount": 1,
+					"per_force_effect": {
+						"effect_type": "powerup",
+						"amount": 1
+					},
+					"overall_effect": null,
+					"force_max": 1
+				}
+			]
+		}
+	},
+	{
+		"id": "zsolt_whip_crack",
+		"type": "special",
+		"display_name": "Whip Crack",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 2,
+		"range_max": 4,
+		"power": 3,
+		"speed": 4,
+		"guard": 0,
+		"armor": 0,
+		"effects": [
+			{
+				"timing": "hit",
+				"effect_type": "choice",
+				"choice": [
+					{
+						"effect_type": "push",
+						"amount": 1
+					},
+					{
+						"effect_type": "pull",
+						"amount": 1
+					}
+				]
+			},
+			{
+				"timing": "after",
+				"effect_type": "choice",
+				"choice": [
+					{
+						"effect_type": "advance",
+						"amount": 1
+					},
+					{
+						"effect_type": "retreat",
+						"amount": 1
+					}
+				]
+			}
+		],
+		"boost": {
+			"boost_type": "transform",
+			"force_cost": -1,
+			"cancel_cost": -1,
+			"display_name": "Press the Attack",
+			"effects": [
+				{
+					"timing": "set_strike",
+					"condition": "initiated_strike",
+					"effect_type": "force_for_effect",
+					"amount": 1,
+					"per_force_effect": {
+						"effect_type": "speedup",
+						"amount": 1
+					},
+					"overall_effect": null,
+					"force_max": 1
+				}
+			]
+		}
+	},
+	{
+		"id": "zsolt_gunblaze",
+		"type": "special",
+		"display_name": "Gunblaze",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 4,
+		"power": 3,
+		"speed": 2,
+		"guard": 6,
+		"armor": 0,
+		"effects": [
+			{
+				"timing": "before",
+				"condition": "was_hit",
+				"effect_type": "choice",
+				"choice": [
+					{
+						"effect_type": "powerup",
+						"amount": 2
+					},
+					{
+						"effect_type": "draw",
+						"amount": 2
+					}
+				]
+			},
+			{
+				"timing": "hit",
+				"effect_type": "close",
+				"amount": 3
+			}
+		],
+		"boost": {
+			"boost_type": "immediate",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Seeing Red",
+			"effects": [
+				{
+					"condition": "life_equals",
+					"condition_amount": 1,
+					"timing": "immediate",
+					"effect_type": "draw",
+					"amount": 6
+				},
+				{
+					"condition": "life_equals",
+					"condition_amount": 2,
+					"timing": "immediate",
+					"effect_type": "draw",
+					"amount": 6
+				},
+				{
+					"condition": "life_equals",
+					"condition_amount": 3,
+					"timing": "immediate",
+					"effect_type": "draw",
+					"amount": 6
+				},
+				{
+					"condition": "life_equals",
+					"condition_amount": 4,
+					"timing": "immediate",
+					"effect_type": "draw",
+					"amount": 5
+				},
+				{
+					"condition": "life_equals",
+					"condition_amount": 5,
+					"timing": "immediate",
+					"effect_type": "draw",
+					"amount": 5
+				},
+				{
+					"condition": "life_equals",
+					"condition_amount": 6,
+					"timing": "immediate",
+					"effect_type": "draw",
+					"amount": 5
+				},
+				{
+					"condition": "life_equals",
+					"condition_amount": 7,
+					"timing": "immediate",
+					"effect_type": "draw",
+					"amount": 5
+				},
+				{
+					"condition": "life_equals",
+					"condition_amount": 8,
+					"timing": "immediate",
+					"effect_type": "draw",
+					"amount": 4
+				},
+				{
+					"condition": "life_equals",
+					"condition_amount": 9,
+					"timing": "immediate",
+					"effect_type": "draw",
+					"amount": 4
+				},
+				{
+					"condition": "life_equals",
+					"condition_amount": 10,
+					"timing": "immediate",
+					"effect_type": "draw",
+					"amount": 4
+				},
+				{
+					"condition": "life_equals",
+					"condition_amount": 11,
+					"timing": "immediate",
+					"effect_type": "draw",
+					"amount": 4
+				},
+				{
+					"condition": "life_equals",
+					"condition_amount": 12,
+					"timing": "immediate",
+					"effect_type": "draw",
+					"amount": 3
+				},
+				{
+					"condition": "life_equals",
+					"condition_amount": 13,
+					"timing": "immediate",
+					"effect_type": "draw",
+					"amount": 3
+				},
+				{
+					"condition": "life_equals",
+					"condition_amount": 14,
+					"timing": "immediate",
+					"effect_type": "draw",
+					"amount": 3
+				},
+				{
+					"condition": "life_equals",
+					"condition_amount": 15,
+					"timing": "immediate",
+					"effect_type": "draw",
+					"amount": 3
+				},
+				{
+					"condition": "life_equals",
+					"condition_amount": 16,
+					"timing": "immediate",
+					"effect_type": "draw",
+					"amount": 2
+				},
+				{
+					"condition": "life_equals",
+					"condition_amount": 17,
+					"timing": "immediate",
+					"effect_type": "draw",
+					"amount": 2
+				},
+				{
+					"condition": "life_equals",
+					"condition_amount": 18,
+					"timing": "immediate",
+					"effect_type": "draw",
+					"amount": 2
+				},
+				{
+					"condition": "life_equals",
+					"condition_amount": 19,
+					"timing": "immediate",
+					"effect_type": "draw",
+					"amount": 2
+				},
+				{
+					"condition": "life_equals",
+					"condition_amount": 20,
+					"timing": "immediate",
+					"effect_type": "draw",
+					"amount": 1
+				},
+				{
+					"condition": "life_equals",
+					"condition_amount": 21,
+					"timing": "immediate",
+					"effect_type": "draw",
+					"amount": 1
+				},
+				{
+					"condition": "life_equals",
+					"condition_amount": 22,
+					"timing": "immediate",
+					"effect_type": "draw",
+					"amount": 1
+				},
+				{
+					"condition": "life_equals",
+					"condition_amount": 23,
+					"timing": "immediate",
+					"effect_type": "draw",
+					"amount": 1
+				},
+				{
+					"condition": "life_equal_or_below",
+					"condition_amount": 5,
+					"timing": "immediate",
+					"effect_type": "bonus_action"
+				}
+			]
+		}
+	},
+	{
+		"id": "zsolt_fanatical_purification",
+		"type": "ultra",
+		"display_name": "Fanatical Purification",
+		"force_cost": 0,
+		"gauge_cost": 3,
+		"range_min": 1,
+		"range_max": 1,
+		"power": 6,
+		"speed": 4,
+		"guard": 0,
+		"armor": 0,
+		"effects": [
+			{
+				"timing": "before",
+				"effect_type": "close",
+				"amount": 3
+			},
+			{
+				"timing": "hit",
+				"effect_type": "push",
+				"amount": 2,
+				"use_semicolon_for_and": true,
+				"and": {
+					"effect_type": "gain_advantage"
+				}
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 1,
+			"cancel_cost": -1,
+			"display_name": "Battle Instinct",
+			"effects": [
+				{
+					"timing": "now",
+					"effect_type": "generate_free_force",
+					"amount": 2,
+					"zsolt_force_pool": true,
+					"override_description": "Reduce all costs by 2"
+				},
+				{
+					"timing": "now",
+					"effect_type": "gauge_costs_reduced_passive",
+					"amount": 2
+				}
+			]
+		}
+	},
+	{
+		"id": "zsolt_wild_hunt",
+		"type": "ultra",
+		"display_name": "Wild Hunt",
+		"force_cost": 0,
+		"gauge_cost": 3,
+		"range_min": 1,
+		"range_max": 1,
+		"power": 5,
+		"speed": 3,
+		"guard": 0,
+		"armor": 0,
+		"effects": [
+			{
+				"timing": "before",
+				"effect_type": "close",
+				"amount": 8,
+				"save_spaces_as_strike_x": true,
+				"and": {
+					"effect_type": "powerup",
+					"amount": "strike_x"
+				}
+			},
+			{
+				"timing": "after",
+				"effect_type": "advance",
+				"amount": 9
+			}
+		],
+		"boost": {
+			"boost_type": "immediate",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Heightened Reflexes",
+			"effects": [
+				{
+					"timing": "immediate",
+					"effect_type": "choice",
+					"choice": [
+						{
+							"effect_type": "advance",
+							"amount": 1
+						},
+						{
+							"effect_type": "retreat",
+							"amount": 1
+						}
+					]
+				},
+				{
+					"timing": "immediate",
+					"effect_type": "bonus_action"
+				}
+			]
+		},
+		"NOTEEND": "ZSOLT CARDS END"
+	},
+	{
 		"NOTE": "GG NORMALS START",
 		"id": "gg_normal_grasp",
 		"type": "normal",
@@ -37763,482 +38748,6 @@
 			"force_cost": 0,
 			"cancel_cost": -1,
 			"display_name": "Nothing",
-			"effects": []
-		}
-	},
-	{
-		"NOTE": "EUGENIA CARDS START",
-		"id": "eugenia_frenzied_glimmer",
-		"type": "special",
-		"display_name": "Shimmer of Madness",
-		"force_cost": 0,
-		"gauge_cost": 0,
-		"range_min": 1,
-		"range_max": 2,
-		"power": 2,
-		"speed": 6,
-		"armor": 0,
-		"guard": 0,
-		"effects": [
-			{
-				"timing": "hit",
-				"effect_type": "reveal_hand",
-				"opponent": true,
-				"and": {
-					"effect_type": "choose_opponent_card_to_discard"
-				}
-			}
-		],
-		"boost": {
-			"boost_type": "transform",
-			"force_cost": -1,
-			"cancel_cost": -1,
-			"display_name": "Hanging by a Thread",
-			"effects": [
-				{
-					"timing": "set_strike",
-					"effect_type": "add_attack_effect",
-					"added_effect": {
-						"timing": "hit",
-						"NOTE_ENGINE": "NEED condition opponent_max_cards_in_hand",
-						"condition": "opponent_max_cards_in_hand",
-						"condition_amount": 2,
-						"effect_type": "powerup",
-						"amount": 2
-					}
-				}
-			]
-		}
-	},
-	{
-		"id": "eugenia_wormwood_arrow",
-		"type": "special",
-		"display_name": "Absinthin Arrow",
-		"force_cost": 0,
-		"gauge_cost": 0,
-		"range_min": 3,
-		"range_max": 6,
-		"power": 2,
-		"speed": 5,
-		"armor": 0,
-		"guard": 0,
-		"effects": [
-			{
-				"timing": "hit",
-				"effect_type": "draw",
-				"opponent": true,
-				"amount": 1,
-				"and": {
-					"effect_type": "opponent_discard_random",
-					"amount": 2
-				}
-			}
-		],
-		"boost": {
-			"boost_type": "immediate",
-			"force_cost": 0,
-			"cancel_cost": -1,
-			"display_name": "We're All Mad Here",
-			"effects": [
-				{
-					"timing": "now",
-					"effect_type": "choice",
-					"choice": [
-						{
-							"_choice_text": "Draw 0",
-							"effect_type": "draw",
-							"amount": 0,
-							"and": {
-								"effect_type": "discard_random",
-								"amount": 1
-							}
-						},
-						{
-							"_choice_text": "Draw 1",
-							"effect_type": "draw",
-							"amount": 1,
-							"and": {
-								"effect_type": "discard_random",
-								"amount": 1
-							}
-						},
-						{
-							"_choice_text": "Draw 2",
-							"effect_type": "draw",
-							"amount": 2,
-							"and": {
-								"effect_type": "discard_random",
-								"amount": 1
-							}
-						},
-						{
-							"_choice_text": "Draw 3",
-							"effect_type": "draw",
-							"amount": 3,
-							"and": {
-								"effect_type": "discard_random",
-								"amount": 1
-							}
-						},
-						{
-							"_choice_text": "Draw 4",
-							"effect_type": "draw",
-							"amount": 4,
-							"and": {
-								"effect_type": "discard_random",
-								"amount": 1
-							}
-						}
-					]
-				},
-				{
-					"timing": "now",
-					"effect_type": "choice",
-					"opponent": true,
-					"choice": [
-						{
-							"_choice_text": "Draw 0",
-							"effect_type": "draw",
-							"amount": 0,
-							"and": {
-								"effect_type": "discard_random",
-								"amount": 1
-							}
-						},
-						{
-							"_choice_text": "Draw 1",
-							"effect_type": "draw",
-							"amount": 1,
-							"and": {
-								"effect_type": "discard_random",
-								"amount": 1
-							}
-						},
-						{
-							"_choice_text": "Draw 2",
-							"effect_type": "draw",
-							"amount": 2,
-							"and": {
-								"effect_type": "discard_random",
-								"amount": 1
-							}
-						},
-						{
-							"_choice_text": "Draw 3",
-							"effect_type": "draw",
-							"amount": 3,
-							"and": {
-								"effect_type": "discard_random",
-								"amount": 1
-							}
-						},
-						{
-							"_choice_text": "Draw 4",
-							"effect_type": "draw",
-							"amount": 4,
-							"and": {
-								"effect_type": "discard_random",
-								"amount": 1
-							}
-						}
-					]
-				}
-			]
-		}
-	},
-	{
-		"id": "eugenia_illusion_bind",
-		"type": "special",
-		"display_name": "Plot Hook",
-		"force_cost": 0,
-		"gauge_cost": 0,
-		"range_min": 1,
-		"range_max": 5,
-		"power": 3,
-		"speed": 4,
-		"armor": 0,
-		"guard": 3,
-		"effects": [
-			{
-				"timing": "hit",
-				"effect_type": "gain_advantage",
-				"and": {
-					"effect_type": "pull",
-					"amount": 5
-				}
-			}
-		],
-		"boost": {
-			"boost_type": "transform",
-			"force_cost": -1,
-			"cancel_cost": -1,
-			"display_name": "Time for Tea",
-			"effects": [
-				{
-					"timing": "action",
-					"text": "Pay 1 Force: Opponent discards 1 random",
-					"effect_type": "force_for_effect",
-					"force_max": 1,
-					"per_force_effect": null,
-					"overall_effect": {
-						"effect_type": "opponent_discard_random",
-						"amount": 1,
-						"and": {
-							"condition": "exceeded",
-							"effect_type": "skip_end_of_turn_draw"
-						}
-					}
-				}
-			]
-		}
-	},
-	{
-		"id": "eugenia_light_of_bygone",
-		"type": "special",
-		"display_name": "Werelight",
-		"force_cost": 0,
-		"gauge_cost": 0,
-		"range_min": 2,
-		"range_max": 4,
-		"power": 4,
-		"speed": 3,
-		"armor": 0,
-		"guard": 5,
-		"effects": [
-			{
-				"timing": "hit",
-				"effect_type": "choice",
-				"opponent": true,
-				"choice": [
-					{
-						"effect_type": "discard_random",
-						"amount": 2
-					},
-					{
-						"effect_type": "reveal_hand",
-						"and": {
-							"effect_type": "choose_opponent_card_to_discard",
-							"opponent": true
-						}
-					}
-				]
-			}
-		],
-		"boost": {
-			"boost_type": "immediate",
-			"force_cost": -1,
-			"cancel_cost": -1,
-			"display_name": "Off With Her Head",
-			"effects": [
-				{
-					"timing": "immediate",
-					"condition": "range",
-					"condition_amount": 1,
-					"effect_type": "choice",
-					"opponent": true,
-					"choice": [
-						{ "effect_type": "discard_random", "amount": 2 },
-						{ "effect_type": "push", "amount": 3, "for_other_player": true }
-					]
-				}
-			]
-		}
-	},
-	{
-		"id": "eugenia_colorful_mist",
-		"type": "special",
-		"display_name": "Color Spray",
-		"force_cost": 0,
-		"gauge_cost": 0,
-		"range_min": 1,
-		"range_max": 3,
-		"power": 6,
-		"speed": 2,
-		"armor": 0,
-		"guard": 0,
-		"effects": [
-			{
-				"timing": "during_strike",
-				"NOTE_ENGINE": "NEED condition opponent_max_cards_in_hand (currently uses own hand)",
-				"condition": "max_cards_in_hand",
-				"condition_amount": 2,
-				"effect_type": "stun_immunity"
-			},
-			{
-				"timing": "hit",
-				"effect_type": "opponent_draw_or_discard_to",
-				"amount": 2,
-				"random_discard": true
-			}
-		],
-		"boost": {
-			"boost_type": "transform",
-			"force_cost": -1,
-			"cancel_cost": -1,
-			"display_name": "Unhinged",
-			"effects": [
-				{
-					"timing": "set_strike",
-					"condition": "is_ex_strike",
-					"effect_type": "add_attack_effect",
-					"added_effect": {
-						"timing": "hit",
-						"effect_type": "opponent_discard_random",
-						"amount": 1
-					}
-				},
-				{
-					"timing": "set_strike",
-					"condition": "was_wild_swing",
-					"effect_type": "add_attack_effect",
-					"added_effect": {
-						"timing": "hit",
-						"effect_type": "opponent_discard_random",
-						"amount": 1
-					}
-				}
-			]
-		}
-	},
-	{
-		"id": "eugenia_queen_of_hearts",
-		"type": "ultra",
-		"display_name": "Queen of Hearts",
-		"force_cost": 0,
-		"gauge_cost": 3,
-		"range_min": 1,
-		"range_max": 1,
-		"power": 1,
-		"speed": 7,
-		"armor": 0,
-		"guard": 0,
-		"effects": [
-			{
-				"timing": "hit",
-				"effect_type": "opponent_discard_hand",
-				"and": {
-					"effect_type": "draw",
-					"opponent": true,
-					"amount": 1,
-					"NOTE_ENGINE": "NEED powerup per discarded card amount",
-					"and": {
-						"effect_type": "powerup",
-						"amount": "strike_x"
-					}
-				}
-			}
-		],
-		"boost": {
-			"boost_type": "immediate",
-			"force_cost": 1,
-			"cancel_cost": -1,
-			"display_name": "Wanderlust",
-			"effects": [
-				{
-					"timing": "now",
-					"effect_type": "boost_additional",
-					"limitation": "transform",
-					"valid_zones": [
-						"deck"
-					]
-				},
-				{
-					"timing": "now",
-					"effect_type": "choose_cards_from_top_deck",
-					"look_amount": 30,
-					"action_choices": [
-						"add_to_hand"
-					],
-					"can_pass": true,
-					"destination_unchosen": "topdeck",
-					"shuffle_after": true,
-					"_target_other": true
-				}
-			]
-		}
-	},
-	{
-		"id": "eugenia_cats_cradle",
-		"type": "ultra",
-		"display_name": "Cat's Cradle",
-		"force_cost": 0,
-		"gauge_cost": 3,
-		"range_min": 1,
-		"range_max": 3,
-		"power": 9,
-		"speed": 1,
-		"armor": 0,
-		"guard": 0,
-		"effects": [
-			{
-				"timing": "during_strike",
-				"effect_type": "stun_immunity"
-			},
-			{
-				"timing": "during_strike",
-				"NOTE_ENGINE": "NEED power_minus_per_opponent_hand (negative amount is hack)",
-				"effect_type": "powerup_per_card_in_opponent_hand",
-				"amount": -1
-			},
-			{
-				"timing": "hit",
-				"effect_type": "draw",
-				"opponent": true,
-				"amount": 1,
-				"and": {
-					"effect_type": "opponent_discard_random",
-					"amount": 2
-				}
-			}
-		],
-		"boost": {
-			"boost_type": "continuous",
-			"force_cost": 0,
-			"cancel_cost": -1,
-			"display_name": "Edge of Sanity",
-			"effects": [
-				{
-					"timing": "now",
-					"effect_type": "opponent_discard_random",
-					"amount": 1
-				},
-				{
-					"timing": "now",
-					"effect_type": "reduce_opponent_prepare_draw"
-				}
-			]
-		}
-	},
-	{
-		"id": "wonderland",
-		"type": "special",
-		"display_name": "Wonderland",
-		"NOTE": "EUGENIA WONDERLAND MARKER - +1P/+1S",
-		"force_cost": 0,
-		"gauge_cost": 0,
-		"range_min": 1,
-		"range_max": 3,
-		"power": 0,
-		"speed": 0,
-		"armor": 0,
-		"guard": 0,
-		"effects": [
-			{
-				"timing": "during_strike",
-				"effect_type": "powerup",
-				"amount": 1
-			},
-			{
-				"timing": "during_strike",
-				"effect_type": "speedup",
-				"amount": 1
-			}
-		],
-		"boost": {
-			"boost_type": "none",
-			"force_cost": 0,
-			"cancel_cost": -1,
-			"display_name": "None",
 			"effects": []
 		}
 	}
