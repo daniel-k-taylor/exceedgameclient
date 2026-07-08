@@ -260,7 +260,7 @@ var continuous_boosts : Array[GameCard]
 var transforms : Array[GameCard]
 var lightningrod_zones : Array
 var underboost_map : Dictionary
-var zsolt_war_symphony_drew : bool
+var zsolt_battle_fugue_drew : bool
 var zsolt_extra_attack_count : int
 var zsolt_awaken_offered : bool
 var cleanup_boost_to_gauge_cards : Array
@@ -443,7 +443,7 @@ func _init(id, player_name, parent_ref, card_db_ref, chosen_deck, card_start_id)
 	cleanup_boost_to_gauge_cards = []
 	boosts_to_gauge_on_move = []
 	on_buddy_boosts = []
-	zsolt_war_symphony_drew = false
+	zsolt_battle_fugue_drew = false
 	zsolt_extra_attack_count = 0
 	mulligan_complete = false
 	reading_card_id = ""
@@ -3148,6 +3148,12 @@ func is_card_in_continuous_boosts(id : int):
 func is_card_in_transforms(id : int):
 	for card in transforms:
 		if card.id == id:
+			return true
+	return false
+
+func has_transform(definition_id: String) -> bool:
+	for card in transforms:
+		if card.definition.get("id", "") == definition_id:
 			return true
 	return false
 

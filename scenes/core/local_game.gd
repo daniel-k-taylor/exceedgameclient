@@ -10,6 +10,17 @@ extends Node2D
 
 const NullNamedCard = "_"
 
+# Zsolt normal passive: advance/retreat/pass choice (defined once, 3 usages)
+const ZsoltNormalChoice = [
+	{ "effect_type": StrikeEffects.Advance, "amount": 1 },
+	{ "effect_type": StrikeEffects.Retreat, "amount": 1 },
+	{ "effect_type": StrikeEffects.Pass, "amount": 0 }
+]
+
+# Eugenia wonderland face attack bonus: +1P/+1S (defined once, 2 usages: initiator + defender)
+const WonderlandPowerBonus = {"effect_type": StrikeEffects.Powerup, "amount": 1, "character_effect": true}
+const WonderlandSpeedBonus = {"effect_type": StrikeEffects.Speedup, "amount": 1, "character_effect": true}
+
 # Conditions that shouldn't change during a strike
 const StrikeStaticConditions = [
 	"is_critical", "is_not_critical",
@@ -885,8 +896,8 @@ func initialize_new_strike(performing_player : Player, opponent_sets_first : boo
 
 	active_strike.starting_distance = player.distance_to_opponent()
 
-	player.zsolt_war_symphony_drew = false
-	opponent.zsolt_war_symphony_drew = false
+	player.zsolt_battle_fugue_drew = false
+	opponent.zsolt_battle_fugue_drew = false
 
 	active_strike.initiator = performing_player
 	active_strike.defender = _get_player(get_other_player(performing_player.my_id))
@@ -1274,10 +1285,7 @@ func is_effect_condition_met(performing_player : Player, effect, local_condition
 			return false
 		elif condition == "has_transform":
 			var required_card = effect.get("required_transform_card")
-			for card in performing_player.transforms:
-				if card.definition["id"] == required_card:
-					return true
-			return false
+			return performing_player.has_transform(required_card)
 		elif condition == "used_character_action":
 			if not performing_player.used_character_action:
 				return false
@@ -3088,14 +3096,11 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 			next_turn_player = performing_player.my_id
 			create_event(Enums.EventType.EventType_Strike_GainAdvantage, performing_player.my_id, 0)
 			_append_log_full(Enums.LogType.LogType_Effect, performing_player, "gains Advantage!")
-			# Zsolt transform 战争变奏曲: first time gaining advantage per battle, draw 1
-			if performing_player.deck_def.get("id") == "zsolt" and not performing_player.zsolt_war_symphony_drew:
-				for c in performing_player.transforms:
-					if c.definition.get("id", "").find("zsolt_crossghostslash") >= 0:
-						performing_player.zsolt_war_symphony_drew = true
-						performing_player.draw(1, false, false)
-						_append_log_full(Enums.LogType.LogType_Effect, performing_player, "draws 1 from 战争变奏曲.")
-						break
+			# Zsolt transform Battle Fugue: first time gaining advantage per battle, draw 1
+			if performing_player.has_transform("zsolt_cross_up") and not performing_player.zsolt_battle_fugue_drew:
+				performing_player.zsolt_battle_fugue_drew = true
+				performing_player.draw(1, false, false)
+				_append_log_full(Enums.LogType.LogType_Effect, performing_player, "draws 1 from Battle Fugue.")
 		StrikeEffects.GainLife:
 			var amount = effect['amount']
 			if str(amount) == "LAST_SPENT_LIFE":
@@ -4065,41 +4070,26 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 			# Move card from discard or sealed to Wonderland, replacing old card
 			var found = false
 			for search_player in [opposing_player, performing_player]:
-				# Search discards first
-				for i in range(search_player.discards.size()):
-					if search_player.discards[i].id == wc_id:
-						var card = search_player.discards[i]
-						search_player.discards.remove_at(i)
-						if performing_player.set_aside_cards.size() > 0:
-							var old = performing_player.set_aside_cards[0]
-							performing_player.set_aside_cards.clear()
-							opposing_player.discards.append(old)
-							# Only create visual event if old card was a real board card (not wonderland placeholder)
-							if old.definition.get("id") != "wonderland":
-								create_event(Enums.EventType.EventType_AddToDiscard, opposing_player.my_id, old.id, "", 0)
-						performing_player.add_to_set_aside(card)
-						create_event(Enums.EventType.EventType_AddToStored, performing_player.my_id, card.id)
-						_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "adds %s to Wonderland!" % _log_card_name(card.definition['display_name']))
-						found = true
-						break
 				if found: break
-				# Search sealed area (e.g. Celinka seal instead of discard)
-				for i in range(search_player.sealed.size()):
-					if search_player.sealed[i].id == wc_id:
-						var card = search_player.sealed[i]
-						search_player.sealed.remove_at(i)
-						if performing_player.set_aside_cards.size() > 0:
-							var old = performing_player.set_aside_cards[0]
-							performing_player.set_aside_cards.clear()
-							opposing_player.discards.append(old)
-							if old.definition.get("id") != "wonderland":
-								create_event(Enums.EventType.EventType_AddToDiscard, opposing_player.my_id, old.id, "", 0)
-						performing_player.add_to_set_aside(card)
-						create_event(Enums.EventType.EventType_AddToStored, performing_player.my_id, card.id)
-						_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "adds %s to Wonderland!" % _log_card_name(card.definition['display_name']))
-						found = true
-						break
-				if found: break
+				if not search_player.is_card_in_discards(wc_id) and not search_player.is_card_in_sealed(wc_id):
+					continue
+				if search_player.is_card_in_discards(wc_id):
+					search_player.remove_card_from_discards(wc_id)
+				else:
+					search_player.remove_card_from_sealed(wc_id)
+				var card = card_db.get_card(wc_id)
+				if not card: continue
+				found = true
+				# Replace current Wonderland card (if any) with the chosen card
+				if performing_player.set_aside_cards.size() > 0:
+					var old = performing_player.set_aside_cards[0]
+					performing_player.set_aside_cards.clear()
+					opposing_player.discards.append(old)
+					if old.definition.get("id") != "wonderland":
+						create_event(Enums.EventType.EventType_AddToDiscard, opposing_player.my_id, old.id, "", 0)
+				performing_player.add_to_set_aside(card)
+				create_event(Enums.EventType.EventType_AddToStored, performing_player.my_id, card.id)
+				_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "adds %s to Wonderland!" % _log_card_name(card.definition['display_name']))
 		StrikeEffects.Pass:
 			# Do nothing.
 			pass
@@ -6071,11 +6061,7 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 				if check_card.definition.get("type") == "normal":
 					var choice_effect = {
 						"effect_type": StrikeEffects.Choice,
-						"choice": [
-							{ "effect_type": StrikeEffects.Advance, "amount": 1 },
-							{ "effect_type": StrikeEffects.Retreat, "amount": 1 },
-							{ "effect_type": StrikeEffects.Pass, "amount": 0 }
-						],
+						"choice": ZsoltNormalChoice,
 						"character_effect": true,
 						"hide_effect": false
 					}
@@ -7555,11 +7541,7 @@ func continue_resolve_strike():
 						active_strike.remaining_effect_list.append({
 							"effect_type": StrikeEffects.Choice,
 							"card_id": card1.id,
-							"choice": [
-								{ "effect_type": StrikeEffects.Advance, "amount": 1 },
-								{ "effect_type": StrikeEffects.Retreat, "amount": 1 },
-								{ "effect_type": StrikeEffects.Pass, "amount": 0 }
-							],
+							"choice": ZsoltNormalChoice,
 							"character_effect": true,
 							"hide_effect": false
 						})
@@ -7601,11 +7583,7 @@ func continue_resolve_strike():
 						active_strike.remaining_effect_list.append({
 							"effect_type": StrikeEffects.Choice,
 							"card_id": card2.id,
-							"choice": [
-								{ "effect_type": StrikeEffects.Advance, "amount": 1 },
-								{ "effect_type": StrikeEffects.Retreat, "amount": 1 },
-								{ "effect_type": StrikeEffects.Pass, "amount": 0 }
-							],
+							"choice": ZsoltNormalChoice,
 							"character_effect": true,
 							"hide_effect": false
 						})
@@ -8624,7 +8602,7 @@ func _on_player_discard(discarding_player, card_ids : Array):
 	if not other_player:
 		return
 	
-	# Eugenia Normal Passive: ターン1回 - あなたが相手にカードを捨てさせた時
+	# Eugenia Normal Passive: Once per turn, when you make opponent discard
 	# "Once per turn, when you make opponent discard"
 	if other_player.deck_def.get("id") == "eugenia" and not other_player.eugenia_normal_passive_used_this_turn and not other_player.exceeded:
 		# Must be: opponent (not Eugenia) discarding
@@ -8635,19 +8613,35 @@ func _on_player_discard(discarding_player, card_ids : Array):
 			return
 		if card_ids.size() > 0 and card_db:
 			other_player.eugenia_normal_passive_used_this_turn = true
-			# Collect all hand cards with matching speed
+			# Collect all hand cards with matching printed speed
+			# Printed speed is the raw definition value. For X-speed cards
+			# (e.g. "CARDS_IN_HAND"), resolve to current numeric value for
+			# comparison, but don't include strike-stat boosts.
 			var match_cards = []
 			var matched_speeds = {}
 			for discard_id in card_ids:
 				var discarded_card = card_db.get_card(discard_id)
 				if not discarded_card:
 					continue
+				# Printed speed from definition
 				var discarded_speed = discarded_card.definition.get("speed", -1)
+				# Resolve special printed speed values (e.g. X = "CARDS_IN_HAND")
+				if str(discarded_speed) == "CARDS_IN_HAND":
+					discarded_speed = discarding_player.hand.size()
+				elif str(discarded_speed) == "CARDS_IN_HAND_MAX_7":
+					discarded_speed = min(discarding_player.hand.size(), 7)
 				if discarded_speed in matched_speeds:
 					continue
 				matched_speeds[discarded_speed] = true
 				for hand_card in other_player.hand:
-					if hand_card.definition.get("speed", -2) == discarded_speed:
+					# Hand card's printed speed (raw definition value)
+					var hand_speed = hand_card.definition.get("speed", -2)
+					# Resolve X-speed hand cards the same way
+					if str(hand_speed) == "CARDS_IN_HAND":
+						hand_speed = other_player.hand.size()
+					elif str(hand_speed) == "CARDS_IN_HAND_MAX_7":
+						hand_speed = min(other_player.hand.size(), 7)
+					if hand_speed == discarded_speed:
 						match_cards.append(hand_card)
 			
 			# Build choice: each matching card + Pass
@@ -9306,12 +9300,10 @@ func do_strike(
 				var card_name = card_db.get_card_name(card_id)
 				_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "sets %s as a face-up attack!" % _log_card_name(card_name))
 
-			# Eugenia wonderland bonus: +1 Power and +1 Speed (applied after initialize_new_strike cleared boosts)
+			# Eugenia wonderland bonus: +1P/+1S for face attack (applied after initialize_new_strike cleared boosts)
 			if use_face_attack and performing_player.deck_def.get("id") == "eugenia" and performing_player.exceeded:
-				var power_effect = {"effect_type": StrikeEffects.Powerup, "amount": 1, "character_effect": true}
-				var speed_effect = {"effect_type": StrikeEffects.Speedup, "amount": 1, "character_effect": true}
-				handle_strike_effect(-1, power_effect, performing_player)
-				handle_strike_effect(-1, speed_effect, performing_player)
+				handle_strike_effect(-1, WonderlandPowerBonus, performing_player)
+				handle_strike_effect(-1, WonderlandSpeedBonus, performing_player)
 
 			# Send the EX first as that is visual and logic is triggered off the regular one.
 			if not delayed_wild_strike:
@@ -9378,10 +9370,8 @@ func do_strike(
 				create_event(Enums.EventType.EventType_Strike_Response, performing_player.my_id, card_id, "", strike_from_boosts, ex_strike)
 			# Eugenia wonderland bonus: defender face attack
 			if use_face_attack and performing_player.deck_def.get("id") == "eugenia" and performing_player.exceeded:
-				var power_effect = {"effect_type": StrikeEffects.Powerup, "amount": 1, "character_effect": true}
-				var speed_effect = {"effect_type": StrikeEffects.Speedup, "amount": 1, "character_effect": true}
-				handle_strike_effect(-1, power_effect, performing_player)
-				handle_strike_effect(-1, speed_effect, performing_player)
+				handle_strike_effect(-1, WonderlandPowerBonus, performing_player)
+				handle_strike_effect(-1, WonderlandSpeedBonus, performing_player)
 			continue_setup_strike()
 	return true
 
