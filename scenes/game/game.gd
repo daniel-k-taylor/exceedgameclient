@@ -1,4 +1,4 @@
-# This is an instance of the game.
+﻿# This is an instance of the game.
 class_name Game
 extends Node2D
 
@@ -5227,7 +5227,6 @@ func _on_shortcut_boost_pressed():
 		var gauge_cost = game_wrapper.get_card_database().get_card_boost_gauge_cost(card_id)
 		var force_cost = game_wrapper.get_card_database().get_card_boost_force_cost(card_id)
 		if gauge_cost > 0:
-			select_boost_options = {}
 			selected_boost_to_pay_for = card_id
 			change_ui_state(null, UISubState.UISubState_SelectCards_GaugeForBoost)
 			begin_gauge_selection(gauge_cost, false, UISubState.UISubState_SelectCards_GaugeForBoost)
@@ -5248,7 +5247,6 @@ func _on_shortcut_boost_pressed():
 				var idx = await action_menu.choice_selected
 				close_popout()
 				zsolt_p.free_force = idx
-			select_boost_options = {}
 			selected_boost_to_pay_for = card_id
 			change_ui_state(null, UISubState.UISubState_SelectCards_ForceForBoost)
 			begin_generate_force_selection(force_cost, true, false, false, true)
