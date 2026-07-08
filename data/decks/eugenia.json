@@ -1,0 +1,238 @@
+﻿{
+	"id": "eugenia",
+	"season": 2,
+	"author": "User",
+	"difficulty": "***",
+	"display_name": "Eugenia",
+	"buddy_exceeds": true,
+	"buddy_card": "wonderland",
+	"buddy_display_name": "Wonderland",
+	"link_extra_cards_to_buddies": true,
+	"buddy_link_to_zone": "set_aside",
+	"stored_zone_info": {
+		"name": "Wonderland",
+		"facedown": false
+	},
+	"stored_zone_info_exceeded": {
+		"name": "Wonderland",
+		"facedown": false
+	},
+	"exceed_cost": 6,
+	"exceed_cost_reduced_by": [
+		{
+			"reduction_type": "transform_discount"
+		}
+	],
+	"ability_effects": [
+		{
+			"timing": "set_strike",
+			"character_effect": true,
+			"effect_type": "pass",
+			"hide_effect": true,
+			"NOTE": "Eugenia normal passive handled in _on_player_discard via deck_def check"
+		}
+	],
+	"exceed_ability_effects": [
+		{
+			"timing": "set_strike",
+			"character_effect": true,
+			"effect_type": "pass",
+			"hide_effect": true,
+			"NOTE": "Eugenia exceeded passive handled in _on_player_discard via deck_def check"
+		}
+	],
+	"on_exceed": {
+		"effect_type": "add_to_set_aside_immediately",
+		"card_id": "wonderland",
+		"stored_zone_info": {
+			"name": "Wonderland",
+			"facedown": false
+		},
+		"and": {
+			"effect_type": "set_face_attack",
+			"card_id": "wonderland"
+		}
+	},
+	"image_resources": {
+		"character_default": {
+			"url": "https://i.imgur.com/vz3LBax.jpeg",
+			"multiple_cards": false
+		},
+		"character_exceeded": {
+			"url": "https://i.imgur.com/DgLVaAm.jpeg",
+			"multiple_cards": false
+		},
+		"cardback": {
+			"url": "https://i.imgur.com/s6wpKBq.jpeg",
+			"multiple_cards": false
+		},
+		"specials": {
+			"url": "https://i.imgur.com/9eqZmm9.jpeg",
+			"multiple_cards": true
+		},
+		"normals": {
+			"url": "https://i.imgur.com/1pnJnEb.jpeg",
+			"multiple_cards": true
+		},
+		"wonderland": {
+			"url": "https://i.imgur.com/yu6ycF0.jpeg",
+			"multiple_cards": false
+		},
+		"wonderland_exceeded": {
+			"url": "https://i.imgur.com/yu6ycF0.jpeg",
+			"multiple_cards": false
+		}
+	},
+	"cards": [
+		{
+			"definition_id": "eugenia_shimmer_of_madness",
+			"image_name": "specials",
+			"image_index": 0
+		},
+		{
+			"definition_id": "eugenia_shimmer_of_madness",
+			"image_name": "specials",
+			"image_index": 0
+		},
+		{
+			"definition_id": "eugenia_absinthin_arrow",
+			"image_name": "specials",
+			"image_index": 1
+		},
+		{
+			"definition_id": "eugenia_absinthin_arrow",
+			"image_name": "specials",
+			"image_index": 1
+		},
+		{
+			"definition_id": "eugenia_plot_hook",
+			"image_name": "specials",
+			"image_index": 2
+		},
+		{
+			"definition_id": "eugenia_plot_hook",
+			"image_name": "specials",
+			"image_index": 2
+		},
+		{
+			"definition_id": "eugenia_werelight",
+			"image_name": "specials",
+			"image_index": 3
+		},
+		{
+			"definition_id": "eugenia_werelight",
+			"image_name": "specials",
+			"image_index": 3
+		},
+		{
+			"definition_id": "eugenia_color_spray",
+			"image_name": "specials",
+			"image_index": 4
+		},
+		{
+			"definition_id": "eugenia_color_spray",
+			"image_name": "specials",
+			"image_index": 4
+		},
+		{
+			"definition_id": "eugenia_queen_of_hearts",
+			"image_name": "specials",
+			"image_index": 5
+		},
+		{
+			"definition_id": "eugenia_queen_of_hearts",
+			"image_name": "specials",
+			"image_index": 5
+		},
+		{
+			"definition_id": "eugenia_cats_cradle",
+			"image_name": "specials",
+			"image_index": 6
+		},
+		{
+			"definition_id": "eugenia_cats_cradle",
+			"image_name": "specials",
+			"image_index": 6
+		},
+		{
+			"definition_id": "standard_normal_grasp",
+			"image_name": "normals",
+			"image_index": 0
+		},
+		{
+			"definition_id": "standard_normal_grasp",
+			"image_name": "normals",
+			"image_index": 0
+		},
+		{
+			"definition_id": "standard_normal_cross",
+			"image_name": "normals",
+			"image_index": 1
+		},
+		{
+			"definition_id": "standard_normal_cross",
+			"image_name": "normals",
+			"image_index": 1
+		},
+		{
+			"definition_id": "standard_normal_assault",
+			"image_name": "normals",
+			"image_index": 2
+		},
+		{
+			"definition_id": "standard_normal_assault",
+			"image_name": "normals",
+			"image_index": 2
+		},
+		{
+			"definition_id": "standard_normal_dive",
+			"image_name": "normals",
+			"image_index": 3
+		},
+		{
+			"definition_id": "standard_normal_dive",
+			"image_name": "normals",
+			"image_index": 3
+		},
+		{
+			"definition_id": "standard_normal_spike",
+			"image_name": "normals",
+			"image_index": 4
+		},
+		{
+			"definition_id": "standard_normal_spike",
+			"image_name": "normals",
+			"image_index": 4
+		},
+		{
+			"definition_id": "standard_normal_sweep",
+			"image_name": "normals",
+			"image_index": 5
+		},
+		{
+			"definition_id": "standard_normal_sweep",
+			"image_name": "normals",
+			"image_index": 5
+		},
+		{
+			"definition_id": "standard_normal_focus",
+			"image_name": "normals",
+			"image_index": 6
+		},
+		{
+			"definition_id": "standard_normal_focus",
+			"image_name": "normals",
+			"image_index": 6
+		},
+		{
+			"definition_id": "standard_normal_block",
+			"image_name": "normals",
+			"image_index": 7
+		},
+		{
+			"definition_id": "standard_normal_block",
+			"image_name": "normals",
+			"image_index": 7
+		}
+	]
+}
