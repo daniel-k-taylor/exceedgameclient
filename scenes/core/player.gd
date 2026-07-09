@@ -3012,6 +3012,9 @@ func disable_boost_effects(card : GameCard, buddy_ignore_condition : bool = fals
 					free_gauge -= effect['amount']
 					if free_gauge < 0:
 						free_gauge = 0
+				StrikeEffects.ReduceOpponentPrepareDraw:
+					self.reduce_opponent_prepare_draw = false
+					parent._append_log_full(Enums.LogType.LogType_Effect, self, "no longer reduces opponent's prepare draw.")
 		elif effect['timing'] == current_timing:
 			# Need to remove these effects from the remaining effects.
 			# Only if the current timing belongs to the player who has this in their continuous boosts.
@@ -3242,6 +3245,7 @@ func cleanup_continuous_boosts():
 			if card_idx != -1 and boost_card.id not in sustained_boosts:
 				boost_array.remove_at(card_idx)
 		if not sustained:
+			disable_boost_effects(boost_card)
 			do_discarded_effects_for_boost(boost_card)
 	continuous_boosts = sustained_cards
 	sustained_boosts = []
