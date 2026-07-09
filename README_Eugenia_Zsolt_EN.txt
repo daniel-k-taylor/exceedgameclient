@@ -238,6 +238,7 @@ v3.4 - Color Spray passive fix, Edge of Sanity direction fix
 v3.5 - Werelight source tracking fix, Boost push direction fix
 v3.6 - Normal passive X-speed card matching
 v4.0 - Migrated from custom_card_definitions to core card_definitions
+v4.1 - Edge of Sanity cleanup fix (disable_boost_effects in cleanup_continuous_boosts; ReduceOpponentPrepareDraw branch in disable_boost_effects)
 
 ================================================================================
   End of README
