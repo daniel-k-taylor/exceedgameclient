@@ -1,4 +1,4 @@
-﻿[
+[
 	{
 		"NOTE": "AKUMA CARDS START",
 		"id": "akuma_demonarmageddon",
@@ -106,49 +106,12 @@
 					"timing": "now",
 					"effect_type": "choice",
 					"choice": [
-						{
-							"effect_type": "spend_life",
-							"amount": 1,
-							"and": {
-								"effect_type": "draw",
-								"amount": 1
-							}
-						},
-						{
-							"effect_type": "spend_life",
-							"amount": 2,
-							"and": {
-								"effect_type": "draw",
-								"amount": 2
-							}
-						},
-						{
-							"effect_type": "spend_life",
-							"amount": 3,
-							"and": {
-								"effect_type": "draw",
-								"amount": 3
-							}
-						},
-						{
-							"effect_type": "spend_life",
-							"amount": 4,
-							"and": {
-								"effect_type": "draw",
-								"amount": 4
-							}
-						},
-						{
-							"effect_type": "spend_life",
-							"amount": 5,
-							"and": {
-								"effect_type": "draw",
-								"amount": 5
-							}
-						},
-						{
-							"effect_type": "pass"
-						}
+						{ "effect_type": "spend_life", "amount": 1, "and": { "effect_type": "draw", "amount": 1 } },
+						{ "effect_type": "spend_life", "amount": 2, "and": { "effect_type": "draw", "amount": 2 } },
+						{ "effect_type": "spend_life", "amount": 3, "and": { "effect_type": "draw", "amount": 3 } },
+						{ "effect_type": "spend_life", "amount": 4, "and": { "effect_type": "draw", "amount": 4 } },
+						{ "effect_type": "spend_life", "amount": 5, "and": { "effect_type": "draw", "amount": 5 } },
+						{ "effect_type": "pass" }
 					]
 				},
 				{
@@ -193,17 +156,9 @@
 					"timing": "immediate",
 					"effect_type": "choice",
 					"choice": [
-						{
-							"effect_type": "add_to_gauge_boost_play_cleanup"
-						},
-						{
-							"effect_type": "advance",
-							"amount": 1
-						},
-						{
-							"effect_type": "retreat",
-							"amount": 1
-						}
+						{ "effect_type": "add_to_gauge_boost_play_cleanup" },
+						{ "effect_type": "advance", "amount": 1 },
+						{ "effect_type": "retreat", "amount": 1 }
 					]
 				},
 				{
@@ -491,14 +446,8 @@
 					"timing": "now",
 					"effect_type": "choice",
 					"choice": [
-						{
-							"effect_type": "push",
-							"amount": 1
-						},
-						{
-							"effect_type": "pull",
-							"amount": 1
-						}
+						{ "effect_type": "push", "amount": 1 },
+						{ "effect_type": "pull", "amount": 1 }
 					]
 				}
 			]
@@ -543,13 +492,8 @@
 					"timing": "immediate",
 					"effect_type": "choice",
 					"choice": [
-						{
-							"effect_type": "draw",
-							"amount": 1
-						},
-						{
-							"effect_type": "strike"
-						}
+						{ "effect_type": "draw", "amount": 1 },
+						{ "effect_type": "strike" }
 					]
 				}
 			]
@@ -595,14 +539,8 @@
 					"timing": "hit",
 					"effect_type": "choice",
 					"choice": [
-						{
-							"effect_type": "push",
-							"amount": 1
-						},
-						{
-							"effect_type": "push",
-							"amount": 2
-						}
+						{ "effect_type": "push", "amount": 1 },
+						{ "effect_type": "push", "amount": 2 }
 					]
 				}
 			]
@@ -654,14 +592,8 @@
 					"timing": "now",
 					"effect_type": "choice",
 					"choice": [
-						{
-							"effect_type": "advance",
-							"amount": 1
-						},
-						{
-							"effect_type": "retreat",
-							"amount": 1
-						}
+						{ "effect_type": "advance", "amount": 1 },
+						{ "effect_type": "retreat", "amount": 1 }
 					]
 				}
 			]
@@ -692,17 +624,9 @@
 				"and": {
 					"effect_type": "choice",
 					"choice": [
-						{
-							"effect_type": "advance",
-							"amount": 1
-						},
-						{
-							"effect_type": "retreat",
-							"amount": 1
-						},
-						{
-							"effect_type": "pass"
-						}
+						{ "effect_type": "advance", "amount": 1 },
+						{ "effect_type": "retreat", "amount": 1 },
+						{ "effect_type": "pass" }
 					]
 				}
 			}
@@ -726,6 +650,8 @@
 		},
 		"NOTEEND": "ANJI CARDS END"
 	},
+
+
 	{
 		"NOTE": "ARAKUNE CARDS START",
 		"id": "arakune_ntoinfinity",
@@ -803,22 +729,10 @@
 				"timing": "after",
 				"effect_type": "choice",
 				"choice": [
-					{
-						"effect_type": "push",
-						"amount": 1
-					},
-					{
-						"effect_type": "push",
-						"amount": 2
-					},
-					{
-						"effect_type": "pull",
-						"amount": 1
-					},
-					{
-						"effect_type": "pull",
-						"amount": 2
-					}
+					{ "effect_type": "push", "amount": 1 },
+					{ "effect_type": "push", "amount": 2 },
+					{ "effect_type": "pull", "amount": 1 },
+					{ "effect_type": "pull", "amount": 2 }
 				]
 			}
 		],
@@ -926,17 +840,9 @@
 				"condition_amount": 1,
 				"effect_type": "choice",
 				"choice": [
-					{
-						"effect_type": "push",
-						"amount": 3
-					},
-					{
-						"effect_type": "push",
-						"amount": 4
-					},
-					{
-						"effect_type": "pass"
-					}
+					{ "effect_type": "push", "amount": 3 },
+					{ "effect_type": "push", "amount": 4 },
+					{ "effect_type": "pass" }
 				]
 			},
 			{
@@ -993,25 +899,16 @@
 				"timing": "before",
 				"effect_type": "choice",
 				"choice": [
-					{
-						"effect_type": "advance",
-						"amount": 3
-					},
-					{
-						"effect_type": "pass"
-					}
+					{ "effect_type": "advance", "amount": 3 },
+					{ "effect_type": "pass" }
 				]
 			},
 			{
 				"timing": "after",
 				"effect_type": "choice",
 				"choice": [
-					{
-						"effect_type": "add_strike_to_overdrive_after_cleanup"
-					},
-					{
-						"effect_type": "pass"
-					}
+					{ "effect_type": "add_strike_to_overdrive_after_cleanup" },
+					{ "effect_type": "pass" }
 				]
 			}
 		],
@@ -1056,24 +953,16 @@
 				"timing": "before",
 				"effect_type": "choice",
 				"choice": [
-					{
-						"effect_type": "advance",
-						"amount": 2,
-						"and": {
-							"condition": "advanced_through",
-							"effect_type": "powerup",
-							"amount": 2
-						}
-					},
-					{
-						"effect_type": "advance",
-						"amount": 3,
-						"and": {
-							"condition": "advanced_through",
-							"effect_type": "powerup",
-							"amount": 2
-						}
-					}
+					{ "effect_type": "advance", "amount": 2, "and": {
+						"condition": "advanced_through",
+						"effect_type": "powerup",
+						"amount": 2
+					} },
+					{ "effect_type": "advance", "amount": 3, "and": {
+						"condition": "advanced_through",
+						"effect_type": "powerup",
+						"amount": 2
+					} }
 				]
 			}
 		],
@@ -1144,9 +1033,7 @@
 							"amount": 1,
 							"destination": "opponent_overdrive"
 						},
-						{
-							"effect_type": "reveal_hand_and_topdeck"
-						}
+						{ "effect_type": "reveal_hand_and_topdeck" }
 					]
 				}
 			]
@@ -1181,14 +1068,8 @@
 				"timing": "after",
 				"effect_type": "choice",
 				"choice": [
-					{
-						"effect_type": "advance",
-						"amount": 2
-					},
-					{
-						"effect_type": "retreat",
-						"amount": 2
-					}
+					{ "effect_type": "advance", "amount": 2 },
+					{ "effect_type": "retreat", "amount": 2 }
 				]
 			}
 		],
@@ -1219,6 +1100,8 @@
 		},
 		"NOTEEND": "ARAKUNE CARDS END"
 	},
+
+
 	{
 		"NOTE": "AXL CARDS START",
 		"id": "axl_onevision",
@@ -1345,14 +1228,8 @@
 					"timing": "immediate",
 					"effect_type": "choice",
 					"choice": [
-						{
-							"effect_type": "advance",
-							"amount": 2
-						},
-						{
-							"effect_type": "advance",
-							"amount": 3
-						}
+						{ "effect_type": "advance", "amount": 2 },
+						{ "effect_type": "advance", "amount": 3 }
 					]
 				}
 			]
@@ -1393,14 +1270,8 @@
 					"timing": "immediate",
 					"effect_type": "choice",
 					"choice": [
-						{
-							"effect_type": "retreat",
-							"amount": 2
-						},
-						{
-							"effect_type": "retreat",
-							"amount": 3
-						}
+						{ "effect_type": "retreat", "amount": 2 },
+						{ "effect_type": "retreat", "amount": 3 }
 					]
 				}
 			]
@@ -1423,13 +1294,8 @@
 				"timing": "before",
 				"effect_type": "choice",
 				"choice": [
-					{
-						"effect_type": "retreat",
-						"amount": 1
-					},
-					{
-						"effect_type": "pass"
-					}
+					{ "effect_type": "retreat", "amount": 1 },
+					{ "effect_type": "pass" }
 				]
 			},
 			{
@@ -1453,14 +1319,8 @@
 					"timing": "now",
 					"effect_type": "choice",
 					"choice": [
-						{
-							"effect_type": "advance",
-							"amount": 1
-						},
-						{
-							"effect_type": "retreat",
-							"amount": 1
-						}
+						{ "effect_type": "advance", "amount": 1 },
+						{ "effect_type": "retreat", "amount": 1 }
 					]
 				}
 			]
@@ -1576,6 +1436,8 @@
 		},
 		"NOTEEND": "AXL CARDS END"
 	},
+
+
 	{
 		"NOTE": "Baiken CARDS START",
 		"id": "baiken_kenjyu",
@@ -1679,17 +1541,8 @@
 				"and": {
 					"effect_type": "choice",
 					"choice": [
-						{
-							"effect_type": "advance",
-							"amount": 2,
-							"and": {
-								"effect_type": "gain_advantage"
-							}
-						},
-						{
-							"effect_type": "powerup",
-							"amount": 2
-						}
+						{ "effect_type": "advance", "amount": 2, "and": { "effect_type": "gain_advantage" } },
+						{ "effect_type": "powerup", "amount": 2 }
 					]
 				}
 			}
@@ -1798,17 +1651,9 @@
 					"timing": "immediate",
 					"effect_type": "choice",
 					"choice": [
-						{
-							"effect_type": "close",
-							"amount": 1
-						},
-						{
-							"effect_type": "close",
-							"amount": 2
-						},
-						{
-							"effect_type": "pass"
-						}
+						{ "effect_type": "close", "amount": 1 },
+						{ "effect_type": "close", "amount": 2 },
+						{ "effect_type": "pass" }
 					]
 				},
 				{
@@ -1913,17 +1758,9 @@
 					"timing": "immediate",
 					"effect_type": "choice",
 					"choice": [
-						{
-							"effect_type": "retreat",
-							"amount": 1
-						},
-						{
-							"effect_type": "retreat",
-							"amount": 2
-						},
-						{
-							"effect_type": "pass"
-						}
+						{ "effect_type": "retreat", "amount": 1 },
+						{ "effect_type": "retreat", "amount": 2 },
+						{ "effect_type": "pass" }
 					]
 				},
 				{
@@ -1935,6 +1772,7 @@
 		},
 		"NOTEEND": "Baiken CARDS END"
 	},
+
 	{
 		"NOTE": "BANG CARDS START",
 		"id": "bang_theultimatebang",
@@ -1953,13 +1791,8 @@
 				"timing": "before",
 				"effect_type": "choice",
 				"choice": [
-					{
-						"effect_type": "retreat",
-						"amount": 1
-					},
-					{
-						"effect_type": "pass"
-					}
+					{ "effect_type": "retreat", "amount": 1	},
+					{ "effect_type": "pass" }
 				]
 			},
 			{
@@ -2035,7 +1868,7 @@
 					"timing": "after",
 					"condition": "exceeded",
 					"effect_type": "return_this_boost_to_hand_strike_effect",
-					"card_name": "Infinite Chaos-Fist of the Void"
+					"card_name":  "Infinite Chaos-Fist of the Void"
 				}
 			]
 		}
@@ -2123,17 +1956,9 @@
 					"timing": "before",
 					"effect_type": "choice",
 					"choice": [
-						{
-							"effect_type": "advance",
-							"amount": 2
-						},
-						{
-							"effect_type": "retreat",
-							"amount": 2
-						},
-						{
-							"effect_type": "pass"
-						}
+						{ "effect_type": "advance", "amount": 2 },
+						{ "effect_type": "retreat", "amount": 2 },
+						{ "effect_type": "pass" }
 					]
 				}
 			]
@@ -2161,16 +1986,12 @@
 					"choice": [
 						{
 							"effect_type": "boost_then_sustain",
-							"valid_zones": [
-								"hand"
-							],
+							"valid_zones": [ "hand" ],
 							"limitation": "",
 							"sustain": false,
 							"ignore_costs": true
 						},
-						{
-							"effect_type": "pass"
-						}
+						{ "effect_type": "pass" }
 					]
 				}
 			}
@@ -2192,13 +2013,8 @@
 					"timing": "immediate",
 					"effect_type": "choice",
 					"choice": [
-						{
-							"effect_type": "draw",
-							"amount": 1
-						},
-						{
-							"effect_type": "bonus_action"
-						}
+						{ "effect_type": "draw", "amount": 1 },
+						{ "effect_type": "bonus_action"  }
 					]
 				}
 			]
@@ -2230,13 +2046,8 @@
 				"condition": "opponent_stunned",
 				"effect_type": "choice",
 				"choice": [
-					{
-						"effect_type": "close",
-						"amount": 2
-					},
-					{
-						"effect_type": "pass"
-					}
+					{ "effect_type": "close", "amount": 2 },
+					{ "effect_type": "pass" }
 				]
 			}
 		],
@@ -2255,14 +2066,8 @@
 					"timing": "after",
 					"effect_type": "choice",
 					"choice": [
-						{
-							"effect_type": "advance",
-							"amount": 1
-						},
-						{
-							"effect_type": "retreat",
-							"amount": 1
-						}
+						{ "effect_type": "advance", "amount": 1 },
+						{ "effect_type": "retreat", "amount": 1 }
 					]
 				}
 			]
@@ -2340,25 +2145,11 @@
 				"condition": "was_hit",
 				"effect_type": "choice",
 				"choice": [
-					{
-						"effect_type": "advance",
-						"amount": 1
-					},
-					{
-						"effect_type": "advance",
-						"amount": 2
-					},
-					{
-						"effect_type": "retreat",
-						"amount": 1
-					},
-					{
-						"effect_type": "retreat",
-						"amount": 2
-					},
-					{
-						"effect_type": "pass"
-					}
+					{ "effect_type": "advance", "amount": 1 },
+					{ "effect_type": "advance", "amount": 2 },
+					{ "effect_type": "retreat", "amount": 1 },
+					{ "effect_type": "retreat", "amount": 2 },
+					{ "effect_type": "pass" }
 				]
 			}
 		],
@@ -2377,22 +2168,8 @@
 						"condition": "advanced_through",
 						"effect_type": "choice",
 						"choice": [
-							{
-								"effect_type": "advance",
-								"amount": 1,
-								"and": {
-									"effect_type": "draw",
-									"amount": 1
-								}
-							},
-							{
-								"effect_type": "retreat",
-								"amount": 1,
-								"and": {
-									"effect_type": "draw",
-									"amount": 1
-								}
-							}
+							{ "effect_type": "advance", "amount": 1, "and": { "effect_type": "draw", "amount": 1 } },
+							{ "effect_type": "retreat", "amount": 1, "and": { "effect_type": "draw", "amount": 1 } }
 						]
 					}
 				}
@@ -2400,6 +2177,8 @@
 		},
 		"NOTEEND": "BANG CARDS END"
 	},
+
+
 	{
 		"NOTE": "BEHEADED CARDS START",
 		"id": "beheaded_trait_brutality",
@@ -2413,7 +2192,8 @@
 		"speed": 0,
 		"armor": 0,
 		"guard": 0,
-		"effects": [],
+		"effects": [
+		],
 		"boost": {
 			"boost_type": "continuous",
 			"force_cost": 0,
@@ -2450,7 +2230,8 @@
 		"speed": 0,
 		"armor": 0,
 		"guard": 0,
-		"effects": [],
+		"effects": [
+		],
 		"boost": {
 			"boost_type": "continuous",
 			"force_cost": 0,
@@ -2491,7 +2272,8 @@
 		"speed": 0,
 		"armor": 0,
 		"guard": 0,
-		"effects": [],
+		"effects": [
+		],
 		"boost": {
 			"boost_type": "continuous",
 			"force_cost": 0,
@@ -2698,14 +2480,8 @@
 					"timing": "now",
 					"effect_type": "choice",
 					"choice": [
-						{
-							"effect_type": "advance",
-							"amount": 1
-						},
-						{
-							"effect_type": "retreat",
-							"amount": 1
-						}
+						{ "effect_type": "advance", "amount": 1 },
+						{ "effect_type": "retreat", "amount": 1 }
 					]
 				}
 			]
@@ -2728,14 +2504,8 @@
 				"timing": "hit",
 				"effect_type": "choice",
 				"choice": [
-					{
-						"effect_type": "push",
-						"amount": 1
-					},
-					{
-						"effect_type": "pull",
-						"amount": 1
-					}
+					{ "effect_type": "push", "amount": 1 },
+					{ "effect_type": "pull", "amount": 1 }
 				]
 			}
 		],
@@ -2749,14 +2519,8 @@
 					"timing": "immediate",
 					"effect_type": "choice",
 					"choice": [
-						{
-							"effect_type": "advance",
-							"amount": 3
-						},
-						{
-							"effect_type": "retreat",
-							"amount": 3
-						}
+						{ "effect_type": "advance", "amount": 3 },
+						{ "effect_type": "retreat", "amount": 3 }
 					]
 				}
 			]
@@ -2853,6 +2617,8 @@
 		},
 		"NOTEEND": "BEHEADED CARDS END"
 	},
+
+
 	{
 		"NOTE": "BISON CARDS START",
 		"id": "bison_nightmarebooster",
@@ -2880,14 +2646,8 @@
 				"timing": "after",
 				"effect_type": "choice",
 				"choice": [
-					{
-						"effect_type": "close",
-						"amount": 1
-					},
-					{
-						"effect_type": "close",
-						"amount": 2
-					}
+					{ "effect_type": "close", "amount": 1 },
+					{ "effect_type": "close", "amount": 2 }
 				]
 			}
 		],
@@ -2988,25 +2748,11 @@
 					"condition": "opponent_stunned",
 					"effect_type": "choice",
 					"choice": [
-						{
-							"effect_type": "push",
-							"amount": 1
-						},
-						{
-							"effect_type": "push",
-							"amount": 2
-						},
-						{
-							"effect_type": "pull",
-							"amount": 1
-						},
-						{
-							"effect_type": "pull",
-							"amount": 2
-						},
-						{
-							"effect_type": "pass"
-						}
+						{ "effect_type": "push", "amount": 1 },
+						{ "effect_type": "push", "amount": 2 },
+						{ "effect_type": "pull", "amount": 1 },
+						{ "effect_type": "pull", "amount": 2 },
+						{ "effect_type": "pass" }
 					]
 				}
 			}
@@ -3047,31 +2793,17 @@
 				"condition": "is_critical",
 				"effect_type": "choice",
 				"choice": [
-					{
-						"effect_type": "advance",
-						"amount": 3
-					},
-					{
-						"effect_type": "retreat",
-						"amount": 3
-					}
+					{ "effect_type": "advance", "amount": 3 },
+					{ "effect_type": "retreat", "amount": 3 }
 				]
 			},
 			{
 				"timing": "after",
 				"effect_type": "choice",
 				"choice": [
-					{
-						"effect_type": "retreat",
-						"amount": 1
-					},
-					{
-						"effect_type": "retreat",
-						"amount": 2
-					},
-					{
-						"effect_type": "pass"
-					}
+					{ "effect_type": "retreat", "amount": 1 },
+					{ "effect_type": "retreat", "amount": 2 },
+					{ "effect_type": "pass" }
 				]
 			}
 		],
@@ -3166,22 +2898,8 @@
 				"condition": "is_critical",
 				"effect_type": "choice",
 				"choice": [
-					{
-						"effect_type": "advance",
-						"amount": 3,
-						"and": {
-							"effect_type": "draw",
-							"amount": 1
-						}
-					},
-					{
-						"effect_type": "retreat",
-						"amount": 3,
-						"and": {
-							"effect_type": "draw",
-							"amount": 1
-						}
-					}
+					{ "effect_type": "advance", "amount": 3, "and": { "effect_type": "draw", "amount": 1 } },
+					{ "effect_type": "retreat", "amount": 3, "and": { "effect_type": "draw", "amount": 1 } }
 				]
 			}
 		],
@@ -3231,14 +2949,8 @@
 				"timing": "before",
 				"effect_type": "choice",
 				"choice": [
-					{
-						"effect_type": "advance",
-						"amount": 1
-					},
-					{
-						"effect_type": "advance",
-						"amount": 2
-					}
+					{ "effect_type": "advance", "amount": 1 },
+					{ "effect_type": "advance", "amount": 2 }
 				]
 			},
 			{
@@ -3264,6 +2976,8 @@
 		},
 		"NOTEEND": "BISON CARDS END"
 	},
+
+
 	{
 		"NOTE": "BYAKUYA CARDS START",
 		"id": "byakuya_becomeapartofme",
@@ -3283,25 +2997,11 @@
 				"timing": "hit",
 				"effect_type": "choice",
 				"choice": [
-					{
-						"effect_type": "push",
-						"amount": 1
-					},
-					{
-						"effect_type": "push",
-						"amount": 2
-					},
-					{
-						"effect_type": "pull",
-						"amount": 1
-					},
-					{
-						"effect_type": "pull",
-						"amount": 2
-					},
-					{
-						"effect_type": "pass"
-					}
+					{ "effect_type": "push", "amount": 1 },
+					{ "effect_type": "push", "amount": 2 },
+					{ "effect_type": "pull", "amount": 1 },
+					{ "effect_type": "pull", "amount": 2 },
+					{ "effect_type": "pass" }
 				]
 			},
 			{
@@ -3316,9 +3016,7 @@
 							"stop_on_space_effect": true
 						}
 					},
-					{
-						"effect_type": "pass"
-					}
+					{ "effect_type": "pass" }
 				]
 			}
 		],
@@ -3346,17 +3044,9 @@
 				"and": {
 					"effect_type": "choice",
 					"choice": [
-						{
-							"effect_type": "push",
-							"amount": 1
-						},
-						{
-							"effect_type": "pull",
-							"amount": 1
-						},
-						{
-							"effect_type": "gain_advantage"
-						}
+						{ "effect_type": "push", "amount": 1 },
+						{ "effect_type": "pull", "amount": 1 },
+						{ "effect_type": "gain_advantage" }
 					]
 				}
 			}
@@ -3396,9 +3086,7 @@
 							}
 						}
 					},
-					{
-						"effect_type": "pass"
-					}
+					{ "effect_type": "pass" }
 				]
 			}
 		],
@@ -3426,17 +3114,9 @@
 				"and": {
 					"effect_type": "choice",
 					"choice": [
-						{
-							"effect_type": "push",
-							"amount": 1
-						},
-						{
-							"effect_type": "pull",
-							"amount": 1
-						},
-						{
-							"effect_type": "gain_advantage"
-						}
+						{ "effect_type": "push", "amount": 1 },
+						{ "effect_type": "pull", "amount": 1 },
+						{ "effect_type": "gain_advantage" }
 					]
 				}
 			}
@@ -3476,21 +3156,10 @@
 					"timing": "now",
 					"effect_type": "choice",
 					"choice": [
-						{
-							"effect_type": "retreat",
-							"amount": 1
-						},
-						{
-							"effect_type": "retreat",
-							"amount": 2
-						},
-						{
-							"effect_type": "retreat",
-							"amount": 3
-						},
-						{
-							"effect_type": "pass"
-						}
+						{ "effect_type": "retreat", "amount": 1 },
+						{ "effect_type": "retreat", "amount": 2 },
+						{ "effect_type": "retreat", "amount": 3 },
+						{ "effect_type": "pass" }
 					]
 				},
 				{
@@ -3539,14 +3208,8 @@
 					"timing": "now",
 					"effect_type": "choice",
 					"choice": [
-						{
-							"effect_type": "advance",
-							"amount": 1
-						},
-						{
-							"effect_type": "retreat",
-							"amount": 1
-						}
+						{ "effect_type": "advance", "amount": 1 },
+						{ "effect_type": "retreat", "amount": 1 }
 					]
 				},
 				{
@@ -3562,13 +3225,8 @@
 					"negative_condition_effect": {
 						"effect_type": "choice",
 						"choice": [
-							{
-								"effect_type": "boost_specific_card",
-								"boost_name": "Predator"
-							},
-							{
-								"effect_type": "pass"
-							}
+							{ "effect_type": "boost_specific_card", "boost_name": "Predator" },
+							{ "effect_type": "pass" }
 						]
 					}
 				},
@@ -3620,41 +3278,15 @@
 					"timing": "before",
 					"effect_type": "choice",
 					"choice": [
-						{
-							"effect_type": "advance",
-							"amount": 1,
-							"and": {
-								"effect_type": "seal_this_boost",
-								"card_name": "How Shall I Cook You?"
-							}
-						},
-						{
-							"effect_type": "retreat",
-							"amount": 1,
-							"and": {
-								"effect_type": "seal_this_boost",
-								"card_name": "How Shall I Cook You?"
-							}
-						},
-						{
-							"effect_type": "push",
-							"amount": 1,
-							"and": {
-								"effect_type": "seal_this_boost",
-								"card_name": "How Shall I Cook You?"
-							}
-						},
-						{
-							"effect_type": "pull",
-							"amount": 1,
-							"and": {
-								"effect_type": "seal_this_boost",
-								"card_name": "How Shall I Cook You?"
-							}
-						},
-						{
-							"effect_type": "pass"
-						}
+						{ "effect_type": "advance", "amount": 1, "and":
+							{ "effect_type": "seal_this_boost", "card_name": "How Shall I Cook You?" } },
+						{ "effect_type": "retreat", "amount": 1, "and":
+							{ "effect_type": "seal_this_boost", "card_name": "How Shall I Cook You?"  } },
+						{ "effect_type": "push", "amount": 1, "and":
+							{ "effect_type": "seal_this_boost", "card_name": "How Shall I Cook You?"  } },
+						{ "effect_type": "pull", "amount": 1, "and":
+							{ "effect_type": "seal_this_boost", "card_name": "How Shall I Cook You?"  } },
+						{ "effect_type": "pass" }
 					]
 				},
 				{
@@ -3670,9 +3302,7 @@
 								"card_name": "How Shall I Cook You?"
 							}
 						},
-						{
-							"effect_type": "pass"
-						}
+						{ "effect_type": "pass" }
 					]
 				}
 			]
@@ -3695,14 +3325,8 @@
 				"timing": "hit",
 				"effect_type": "choice",
 				"choice": [
-					{
-						"effect_type": "push",
-						"amount": 1
-					},
-					{
-						"effect_type": "pull",
-						"amount": 1
-					}
+					{ "effect_type": "push", "amount": 1 },
+					{ "effect_type": "pull", "amount": 1 }
 				]
 			},
 			{
@@ -3711,19 +3335,14 @@
 				"choice": [
 					{
 						"effect_type": "boost_then_sustain",
-						"valid_zones": [
-							"hand",
-							"gauge"
-						],
+						"valid_zones": [ "hand", "gauge" ],
 						"sustain": false,
 						"limitation": "ultra",
 						"play_boost_effect": {
 							"effect_type": "gain_advantage"
 						}
 					},
-					{
-						"effect_type": "pass"
-					}
+					{ "effect_type": "pass" }
 				]
 			}
 		],
@@ -3791,13 +3410,8 @@
 					"negative_condition_effect": {
 						"effect_type": "choice",
 						"choice": [
-							{
-								"effect_type": "boost_specific_card",
-								"boost_name": "Menace"
-							},
-							{
-								"effect_type": "pass"
-							}
+							{ "effect_type": "boost_specific_card", "boost_name": "Menace" },
+							{ "effect_type": "pass" }
 						]
 					}
 				},
@@ -3810,6 +3424,10 @@
 		},
 		"NOTEEND": "BYAKUYA CARDS END"
 	},
+
+
+
+
 	{
 		"NOTE": "CELINKA CARDS START",
 		"id": "celinka_moonritualdance",
@@ -3856,16 +3474,13 @@
 								"discard_effect": {
 									"effect_type": "boost_additional",
 									"limitation": "transform",
-									"valid_zones": [
-										"hand"
-									]
+									"valid_zones": [ "hand" ]
 								}
 							}
 						},
-						{
-							"effect_type": "pass"
-						}
+						{ "effect_type": "pass" }
 					]
+
 				}
 			]
 		}
@@ -3995,9 +3610,7 @@
 								}
 							}
 						},
-						{
-							"effect_type": "pass"
-						}
+						{ "effect_type": "pass" }
 					],
 					"override_description": "End of Strike: If you hit, you may seal attack to draw 2 and discard 1"
 				}
@@ -4068,14 +3681,8 @@
 				"and": {
 					"effect_type": "choice",
 					"choice": [
-						{
-							"effect_type": "advance",
-							"amount": 1
-						},
-						{
-							"effect_type": "retreat",
-							"amount": 1
-						}
+						{ "effect_type": "advance", "amount": 1 },
+						{ "effect_type": "retreat", "amount": 1 }
 					]
 				}
 			}
@@ -4150,6 +3757,8 @@
 		},
 		"NOTEEND": "CELINKA CARDS END"
 	},
+
+
 	{
 		"NOTE": "CHUNLI CARDS START",
 		"id": "chunli_hosenka",
@@ -4271,9 +3880,7 @@
 								"amount": 1
 							}
 						},
-						{
-							"effect_type": "pass"
-						}
+						{ "effect_type": "pass"}
 					]
 				}
 			}
@@ -4296,9 +3903,7 @@
 								"card_name": "Lightning Legs"
 							}
 						},
-						{
-							"effect_type": "pass"
-						}
+						{ "effect_type": "pass"}
 					]
 				}
 			]
@@ -4427,14 +4032,8 @@
 				"condition": "moved_past",
 				"effect_type": "choice",
 				"choice": [
-					{
-						"effect_type": "push",
-						"amount": 2
-					},
-					{
-						"effect_type": "pull",
-						"amount": 2
-					}
+					{ "effect_type": "push", "amount": 2 },
+					{ "effect_type": "pull", "amount": 2 }
 				]
 			}
 		],
@@ -4485,14 +4084,8 @@
 				"and": {
 					"effect_type": "choice",
 					"choice": [
-						{
-							"effect_type": "advance",
-							"amount": 1
-						},
-						{
-							"effect_type": "retreat",
-							"amount": 1
-						}
+						{ "effect_type": "advance", "amount": 1 },
+						{ "effect_type": "retreat", "amount": 1 }
 					]
 				}
 			}
@@ -4519,6 +4112,7 @@
 		},
 		"NOTEEND": "CHUNLI CARDS END"
 	},
+
 	{
 		"NOTE": "C.VIPER CARDS START",
 		"id": "cviper_burningdance",
@@ -4716,25 +4310,11 @@
 				"timing": "after",
 				"effect_type": "choice",
 				"choice": [
-					{
-						"effect_type": "advance",
-						"amount": 1
-					},
-					{
-						"effect_type": "advance",
-						"amount": 2
-					},
-					{
-						"effect_type": "retreat",
-						"amount": 1
-					},
-					{
-						"effect_type": "retreat",
-						"amount": 2
-					},
-					{
-						"effect_type": "pass"
-					}
+					{ "effect_type": "advance", "amount": 1 },
+					{ "effect_type": "advance", "amount": 2 },
+					{ "effect_type": "retreat", "amount": 1 },
+					{ "effect_type": "retreat", "amount": 2 },
+					{ "effect_type": "pass" }
 				]
 			}
 		],
@@ -4796,9 +4376,7 @@
 					"timing": "immediate",
 					"effect_type": "boost_additional",
 					"limitation": "continuous",
-					"valid_zones": [
-						"discard"
-					]
+					"valid_zones": [ "discard" ]
 				}
 			]
 		}
@@ -4847,6 +4425,7 @@
 		},
 		"NOTEEND": "C.VIPER CARDS END"
 	},
+
 	{
 		"NOTE": "CAMMY CARDS START",
 		"id": "cammy_cqc",
@@ -4934,21 +4513,10 @@
 					"timing": "immediate",
 					"effect_type": "choice",
 					"choice": [
-						{
-							"effect_type": "retreat",
-							"amount": 1
-						},
-						{
-							"effect_type": "retreat",
-							"amount": 2
-						},
-						{
-							"effect_type": "retreat",
-							"amount": 3
-						},
-						{
-							"effect_type": "pass"
-						}
+						{ "effect_type": "retreat", "amount": 1 },
+						{ "effect_type": "retreat", "amount": 2 },
+						{ "effect_type": "retreat", "amount": 3 },
+						{ "effect_type": "pass" }
 					]
 				},
 				{
@@ -4975,14 +4543,8 @@
 				"timing": "hit",
 				"effect_type": "choice",
 				"choice": [
-					{
-						"effect_type": "push",
-						"amount": 3
-					},
-					{
-						"effect_type": "pull",
-						"amount": 3
-					}
+					{ "effect_type": "push", "amount": 3 },
+					{ "effect_type": "pull", "amount": 3 }
 				]
 			}
 		],
@@ -4996,25 +4558,11 @@
 					"timing": "immediate",
 					"effect_type": "choice",
 					"choice": [
-						{
-							"effect_type": "retreat",
-							"amount": 1
-						},
-						{
-							"effect_type": "retreat",
-							"amount": 2
-						},
-						{
-							"effect_type": "retreat",
-							"amount": 3
-						},
-						{
-							"effect_type": "retreat",
-							"amount": 4
-						},
-						{
-							"effect_type": "pass"
-						}
+						{ "effect_type": "retreat", "amount": 1 },
+						{ "effect_type": "retreat", "amount": 2 },
+						{ "effect_type": "retreat", "amount": 3 },
+						{ "effect_type": "retreat", "amount": 4 },
+						{ "effect_type": "pass" }
 					]
 				}
 			]
@@ -5116,13 +4664,8 @@
 					"condition": "is_special_or_ultra_attack",
 					"effect_type": "choice",
 					"choice": [
-						{
-							"effect_type": "sustain_this",
-							"card_name": "Dive Kick"
-						},
-						{
-							"effect_type": "pass"
-						}
+						{ "effect_type": "sustain_this", "card_name": "Dive Kick" },
+						{ "effect_type": "pass" }
 					]
 				}
 			]
@@ -5170,14 +4713,8 @@
 					"timing": "immediate",
 					"effect_type": "choice",
 					"choice": [
-						{
-							"effect_type": "retreat",
-							"amount": 3
-						},
-						{
-							"effect_type": "advance",
-							"amount": 3
-						}
+						{ "effect_type": "retreat", "amount": 3 },
+						{ "effect_type": "advance", "amount": 3 }
 					]
 				}
 			]
@@ -5230,6 +4767,7 @@
 		},
 		"NOTEEND": "CAMMY CARDS END"
 	},
+
 	{
 		"NOTE": "CARLCLOVER CARDS START",
 		"id": "carlclover_deusexmachina",
@@ -5319,25 +4857,11 @@
 				"timing": "after",
 				"effect_type": "choice",
 				"choice": [
-					{
-						"effect_type": "advance",
-						"amount": 1
-					},
-					{
-						"effect_type": "advance",
-						"amount": 2
-					},
-					{
-						"effect_type": "retreat",
-						"amount": 1
-					},
-					{
-						"effect_type": "retreat",
-						"amount": 2
-					},
-					{
-						"effect_type": "pass"
-					}
+					{ "effect_type": "advance", "amount": 1 },
+					{ "effect_type": "advance", "amount": 2 },
+					{ "effect_type": "retreat", "amount": 1 },
+					{ "effect_type": "retreat", "amount": 2 },
+					{ "effect_type": "pass" }
 				]
 			}
 		],
@@ -5511,30 +5035,22 @@
 				"timing": "hit",
 				"effect_type": "choice",
 				"choice": [
-					{
-						"effect_type": "pull",
+					{ "effect_type": "pull", "amount": 1, "and": {
+						"condition": "initiated_strike",
+						"effect_type": "draw",
 						"amount": 1,
 						"and": {
-							"condition": "initiated_strike",
-							"effect_type": "draw",
-							"amount": 1,
-							"and": {
-								"effect_type": "gain_advantage"
-							}
+							"effect_type": "gain_advantage"
 						}
-					},
-					{
-						"effect_type": "pull",
-						"amount": 2,
+					} },
+					{ "effect_type": "pull", "amount": 2, "and": {
+						"condition": "initiated_strike",
+						"effect_type": "draw",
+						"amount": 1,
 						"and": {
-							"condition": "initiated_strike",
-							"effect_type": "draw",
-							"amount": 1,
-							"and": {
-								"effect_type": "gain_advantage"
-							}
+							"effect_type": "gain_advantage"
 						}
-					}
+					 } }
 				]
 			},
 			{
@@ -5630,22 +5146,14 @@
 					"timing": "immediate",
 					"effect_type": "choice",
 					"choice": [
-						{
-							"effect_type": "advance",
-							"amount": 1,
-							"and": {
-								"condition": "advanced_through",
-								"effect_type": "strike"
-							}
-						},
-						{
-							"effect_type": "advance",
-							"amount": 2,
-							"and": {
-								"condition": "advanced_through",
-								"effect_type": "strike"
-							}
-						}
+						{ "effect_type": "advance", "amount": 1, "and": {
+							"condition": "advanced_through",
+							"effect_type": "strike"
+						} },
+						{ "effect_type": "advance", "amount": 2, "and": {
+							"condition": "advanced_through",
+							"effect_type": "strike"
+						} }
 					]
 				}
 			]
@@ -5744,16 +5252,11 @@
 				"timing": "after",
 				"effect_type": "choice",
 				"choice": [
-					{
-						"effect_type": "advance",
-						"amount": 1
-					},
-					{
-						"effect_type": "advance",
-						"amount": 2
-					}
+					{ "effect_type": "advance", "amount": 1 },
+					{ "effect_type": "advance", "amount": 2 }
 				]
 			}
+
 		],
 		"boost": {
 			"boost_type": "continuous",
@@ -5770,20 +5273,15 @@
 					"timing": "after",
 					"effect_type": "choice",
 					"choice": [
-						{
-							"effect_type": "advance",
-							"amount": 1
-						},
-						{
-							"effect_type": "retreat",
-							"amount": 1
-						}
+						{ "effect_type": "advance", "amount": 1 },
+						{ "effect_type": "retreat", "amount": 1 }
 					]
 				}
 			]
 		},
 		"NOTEEND": "CARLCLOVER CARDS END"
 	},
+
 	{
 		"NOTE": "CARLSWANGEE CARDS START",
 		"id": "carlswangee_authorizedforce",
@@ -5797,13 +5295,15 @@
 		"speed": 6,
 		"armor": 0,
 		"guard": 0,
-		"effects": [],
+		"effects": [
+		],
 		"boost": {
 			"boost_type": "overload",
 			"force_cost": -1,
 			"cancel_cost": -1,
 			"display_name": "Overload",
-			"effects": []
+			"effects": [
+			]
 		}
 	},
 	{
@@ -5829,7 +5329,8 @@
 			"force_cost": -1,
 			"cancel_cost": -1,
 			"display_name": "Overload",
-			"effects": []
+			"effects": [
+			]
 		}
 	},
 	{
@@ -5850,7 +5351,7 @@
 				"condition": "not_initiated_strike",
 				"effect_type": "return_attack_to_hand",
 				"not_immediate": true,
-				"card_name": "Improvised Weapon",
+				"card_name": "Improvised Weapon" ,
 				"negative_condition_effect": {
 					"effect_type": "gain_advantage"
 				}
@@ -5991,33 +5492,13 @@
 					"timing": "immediate",
 					"effect_type": "choice",
 					"choice": [
-						{
-							"effect_type": "close",
-							"amount": 1
-						},
-						{
-							"effect_type": "close",
-							"amount": 2
-						},
-						{
-							"effect_type": "close",
-							"amount": 3
-						},
-						{
-							"effect_type": "close",
-							"amount": 4
-						},
-						{
-							"effect_type": "close",
-							"amount": 5
-						},
-						{
-							"effect_type": "close",
-							"amount": 6
-						},
-						{
-							"effect_type": "pass"
-						}
+						{ "effect_type": "close", "amount": 1 },
+						{ "effect_type": "close", "amount": 2 },
+						{ "effect_type": "close", "amount": 3 },
+						{ "effect_type": "close", "amount": 4 },
+						{ "effect_type": "close", "amount": 5 },
+						{ "effect_type": "close", "amount": 6 },
+						{ "effect_type": "pass" }
 					]
 				}
 			]
@@ -6060,9 +5541,7 @@
 				{
 					"timing": "immediate",
 					"effect_type": "gauge_for_effect",
-					"valid_card_types": [
-						"normal"
-					],
+					"valid_card_types": ["normal"],
 					"per_gauge_effect": null,
 					"overall_effect": {
 						"effect_type": "add_to_gauge_boost_play_cleanup",
@@ -6075,6 +5554,7 @@
 		},
 		"NOTEEND": "CARLSWANGEE CARDS END"
 	},
+
 	{
 		"NOTE": "CARMINE CARDS START",
 		"id": "carmine_twist",
@@ -6103,9 +5583,7 @@
 								"effect_type": "place_boost_in_space"
 							}
 						},
-						{
-							"effect_type": "pass"
-						}
+						{ "effect_type": "pass" }
 					]
 				}
 			}
@@ -6360,23 +5838,15 @@
 					"and": {
 						"effect_type": "boost_additional",
 						"limitation": "ultra",
-						"valid_zones": [
-							"discard"
-						]
+						"valid_zones": [ "discard" ]
 					}
 				},
 				{
 					"timing": "immediate",
 					"effect_type": "choice",
 					"choice": [
-						{
-							"effect_type": "advance",
-							"amount": 2
-						},
-						{
-							"effect_type": "retreat",
-							"amount": 2
-						}
+						{ "effect_type": "advance", "amount": 2 },
+						{ "effect_type": "retreat", "amount": 2 }
 					]
 				}
 			]
@@ -6449,14 +5919,8 @@
 				"and": {
 					"effect_type": "choice",
 					"choice": [
-						{
-							"effect_type": "push",
-							"amount": 2
-						},
-						{
-							"effect_type": "pull",
-							"amount": 2
-						}
+						{ "effect_type": "push", "amount": 2 },
+						{ "effect_type": "pull", "amount": 2 }
 					]
 				}
 			}
@@ -6480,14 +5944,8 @@
 						"and": {
 							"effect_type": "choice",
 							"choice": [
-								{
-									"effect_type": "push",
-									"amount": 1
-								},
-								{
-									"effect_type": "pull",
-									"amount": 1
-								}
+								{ "effect_type": "push", "amount": 1 },
+								{ "effect_type": "pull", "amount": 1 }
 							]
 						}
 					}
@@ -6496,6 +5954,7 @@
 		},
 		"NOTEEND": "CARMINE CARDS END"
 	},
+
 	{
 		"NOTE": "CHAOS CARDS START",
 		"id": "chaos_dissectbarrage",
@@ -6537,12 +5996,8 @@
 						"condition": "advanced_through",
 						"effect_type": "choice",
 						"choice": [
-							{
-								"effect_type": "strike"
-							},
-							{
-								"effect_type": "pass"
-							}
+							{ "effect_type": "strike" },
+							{ "effect_type": "pass" }
 						]
 					}
 				}
@@ -6678,14 +6133,8 @@
 				"timing": "after",
 				"effect_type": "choice",
 				"choice": [
-					{
-						"effect_type": "advance",
-						"amount": 1
-					},
-					{
-						"effect_type": "retreat",
-						"amount": 1
-					}
+					{ "effect_type": "advance", "amount": 1 },
+					{ "effect_type": "retreat", "amount": 1 }
 				]
 			}
 		],
@@ -6704,14 +6153,8 @@
 					"timing": "now",
 					"effect_type": "choice",
 					"choice": [
-						{
-							"effect_type": "advance",
-							"amount": 1
-						},
-						{
-							"effect_type": "retreat",
-							"amount": 1
-						}
+						{ "effect_type": "advance", "amount": 1 },
+						{ "effect_type": "retreat", "amount": 1 }
 					]
 				}
 			]
@@ -6883,6 +6326,7 @@
 		},
 		"NOTEEND": "CHAOS CARDS END"
 	},
+
 	{
 		"NOTE": "CHIPP CARDS START",
 		"id": "chipp_zanseirouga",
@@ -7090,13 +6534,8 @@
 				"timing": "after",
 				"effect_type": "choice",
 				"choice": [
-					{
-						"effect_type": "gain_advantage"
-					},
-					{
-						"effect_type": "return_attack_to_hand",
-						"card_name": "Resshou"
-					}
+					{ "effect_type": "gain_advantage" },
+					{ "effect_type": "return_attack_to_hand", "card_name": "Resshou" }
 				]
 			}
 		],
@@ -7144,13 +6583,8 @@
 				"timing": "after",
 				"effect_type": "choice",
 				"choice": [
-					{
-						"effect_type": "advance",
-						"amount": 3
-					},
-					{
-						"effect_type": "pass"
-					}
+					{ "effect_type": "advance", "amount": 3 },
+					{ "effect_type": "pass" }
 				]
 			}
 		],
@@ -7218,6 +6652,10 @@
 		},
 		"NOTEEND": "CHIPP CARDS END"
 	},
+
+
+
+
 	{
 		"NOTE": "DJANETTE CARDS START",
 		"id": "djanette_carmineoffering",
@@ -7249,15 +6687,11 @@
 				"choice": [
 					{
 						"effect_type": "boost_then_sustain",
-						"valid_zones": [
-							"hand"
-						],
+						"valid_zones": [ "hand" ],
 						"limitation": "transform",
 						"sustain": false
 					},
-					{
-						"effect_type": "pass"
-					}
+					{ "effect_type": "pass" }
 				]
 			}
 		],
@@ -7350,9 +6784,7 @@
 				"choice": [
 					{
 						"effect_type": "boost_then_sustain",
-						"valid_zones": [
-							"hand"
-						],
+						"valid_zones": [ "hand" ],
 						"limitation": "",
 						"sustain": false
 					},
@@ -7564,6 +6996,8 @@
 		},
 		"NOTEEND": "DJANETTE CARDS END"
 	},
+
+
 	{
 		"NOTE": "DAN CARDS START",
 		"id": "dan_shissoburaiken",
@@ -7605,12 +7039,8 @@
 					"timing": "immediate",
 					"effect_type": "choice",
 					"choice": [
-						{
-							"effect_type": "skip_end_of_turn_draw"
-						},
-						{
-							"effect_type": "pass"
-						}
+						{ "effect_type": "skip_end_of_turn_draw" },
+						{ "effect_type": "pass" }
 					]
 				}
 			]
@@ -7670,85 +7100,22 @@
 				"timing": "before",
 				"effect_type": "choice",
 				"choice": [
-					{
-						"effect_type": "advance",
-						"amount": 1,
-						"suppress_and_description": true,
-						"and": {
-							"effect_type": "choice",
-							"choice": [
-								{
-									"effect_type": "draw",
-									"amount": 1,
-									"and": {
-										"effect_type": "play_attack_from_hand"
-									}
-								},
-								{
-									"effect_type": "play_attack_from_hand"
-								}
-							]
-						}
-					},
-					{
-						"effect_type": "advance",
-						"amount": 2,
-						"suppress_and_description": true,
-						"and": {
-							"effect_type": "choice",
-							"choice": [
-								{
-									"effect_type": "draw",
-									"amount": 1,
-									"and": {
-										"effect_type": "play_attack_from_hand"
-									}
-								},
-								{
-									"effect_type": "play_attack_from_hand"
-								}
-							]
-						}
-					},
-					{
-						"effect_type": "advance",
-						"amount": 3,
-						"suppress_and_description": true,
-						"and": {
-							"effect_type": "choice",
-							"choice": [
-								{
-									"effect_type": "draw",
-									"amount": 1,
-									"and": {
-										"effect_type": "play_attack_from_hand"
-									}
-								},
-								{
-									"effect_type": "play_attack_from_hand"
-								}
-							]
-						}
-					},
-					{
-						"effect_type": "pass",
-						"suppress_and_description": true,
-						"and": {
-							"effect_type": "choice",
-							"choice": [
-								{
-									"effect_type": "draw",
-									"amount": 1,
-									"and": {
-										"effect_type": "play_attack_from_hand"
-									}
-								},
-								{
-									"effect_type": "play_attack_from_hand"
-								}
-							]
-						}
-					}
+					{ "effect_type": "advance", "amount": 1, "suppress_and_description": true, "and": { "effect_type": "choice", "choice": [
+						{ "effect_type": "draw", "amount": 1, "and": { "effect_type": "play_attack_from_hand" } },
+						{ "effect_type": "play_attack_from_hand" }
+					] } },
+					{ "effect_type": "advance", "amount": 2, "suppress_and_description": true, "and": { "effect_type": "choice", "choice": [
+						{ "effect_type": "draw", "amount": 1, "and": { "effect_type": "play_attack_from_hand" } },
+						{ "effect_type": "play_attack_from_hand" }
+					] } },
+					{ "effect_type": "advance", "amount": 3, "suppress_and_description": true, "and": { "effect_type": "choice", "choice": [
+						{ "effect_type": "draw", "amount": 1, "and": { "effect_type": "play_attack_from_hand" } },
+						{ "effect_type": "play_attack_from_hand" }
+					] } },
+					{ "effect_type": "pass", "suppress_and_description": true, "and": { "effect_type": "choice", "choice": [
+						{ "effect_type": "draw", "amount": 1, "and": { "effect_type": "play_attack_from_hand" } },
+						{ "effect_type": "play_attack_from_hand" }
+					] } }
 				]
 			}
 		],
@@ -7781,12 +7148,8 @@
 					"timing": "immediate",
 					"effect_type": "choice",
 					"choice": [
-						{
-							"effect_type": "skip_end_of_turn_draw"
-						},
-						{
-							"effect_type": "pass"
-						}
+						{ "effect_type": "skip_end_of_turn_draw" },
+						{ "effect_type": "pass" }
 					]
 				}
 			]
@@ -7832,14 +7195,8 @@
 					"timing": "immediate",
 					"effect_type": "choice",
 					"choice": [
-						{
-							"effect_type": "advance",
-							"amount": 3
-						},
-						{
-							"effect_type": "retreat",
-							"amount": 3
-						}
+						{ "effect_type": "advance", "amount": 3 },
+						{ "effect_type": "retreat", "amount": 3 }
 					]
 				},
 				{
@@ -7877,9 +7234,7 @@
 							"max_amount": 1
 						}
 					},
-					{
-						"effect_type": "pass"
-					}
+					{ "effect_type": "pass" }
 				]
 			}
 		],
@@ -7953,9 +7308,7 @@
 							"effect_type": "sustain_this",
 							"card_name": "Koryuken"
 						},
-						{
-							"effect_type": "pass"
-						}
+						{ "effect_type": "pass" }
 					]
 				}
 			]
@@ -8037,9 +7390,7 @@
 							}
 						}
 					},
-					{
-						"effect_type": "pass"
-					}
+					{ "effect_type": "pass" }
 				]
 			}
 		],
@@ -8052,22 +7403,19 @@
 				{
 					"timing": "immediate",
 					"effect_type": "choice",
-					"add_topdeck_card_name_to_choices": [
-						1
-					],
+					"add_topdeck_card_name_to_choices": [1],
 					"choice": [
-						{
-							"effect_type": "strike"
-						},
-						{
-							"effect_type": "add_top_deck_to_gauge"
-						}
+						{ "effect_type": "strike" },
+						{ "effect_type": "add_top_deck_to_gauge" }
 					]
 				}
 			]
 		},
 		"NOTEEND": "DAN CARDS END"
 	},
+
+
+
 	{
 		"NOTE": "EMOGINE CARDS START",
 		"id": "emogine_handofjudgment",
@@ -8083,7 +7431,8 @@
 		"speed": 6,
 		"armor": 0,
 		"guard": 4,
-		"effects": [],
+		"effects": [
+		],
 		"boost": {
 			"boost_type": "continuous",
 			"force_cost": 2,
@@ -8161,9 +7510,7 @@
 					"timing": "immediate",
 					"effect_type": "boost_additional",
 					"limitation": "transform",
-					"valid_zones": [
-						"gauge"
-					]
+					"valid_zones": [ "gauge" ]
 				}
 			]
 		}
@@ -8190,25 +7537,9 @@
 				"timing": "hit",
 				"effect_type": "choice",
 				"choice": [
-					{
-						"effect_type": "spend_life",
-						"amount": 1,
-						"and": {
-							"effect_type": "powerup",
-							"amount": 1
-						}
-					},
-					{
-						"effect_type": "spend_life",
-						"amount": 2,
-						"and": {
-							"effect_type": "powerup",
-							"amount": 2
-						}
-					},
-					{
-						"effect_type": "pass"
-					}
+					{ "effect_type": "spend_life", "amount": 1, "and": { "effect_type": "powerup", "amount": 1 } },
+					{ "effect_type": "spend_life", "amount": 2, "and": { "effect_type": "powerup", "amount": 2 } },
+					{ "effect_type": "pass" }
 				]
 			}
 		],
@@ -8254,13 +7585,8 @@
 				"timing": "before",
 				"effect_type": "choice",
 				"choice": [
-					{
-						"effect_type": "spend_life",
-						"amount": 3
-					},
-					{
-						"effect_type": "attack_does_not_hit"
-					}
+					{ "effect_type": "spend_life", "amount": 3 },
+					{ "effect_type": "attack_does_not_hit" }
 				]
 			}
 		],
@@ -8350,9 +7676,7 @@
 				"choice": [
 					{
 						"effect_type": "boost_then_sustain",
-						"valid_zones": [
-							"hand"
-						],
+						"valid_zones": [ "hand" ],
 						"limitation": "transform",
 						"sustain": false
 					},
@@ -8360,9 +7684,7 @@
 						"effect_type": "close",
 						"amount": 2
 					},
-					{
-						"effect_type": "pass"
-					}
+					{ "effect_type": "pass" }
 				]
 			}
 		],
@@ -8376,14 +7698,8 @@
 					"timing": "now",
 					"effect_type": "choice",
 					"choice": [
-						{
-							"effect_type": "advance",
-							"amount": 3
-						},
-						{
-							"effect_type": "advance",
-							"amount": 4
-						}
+						{ "effect_type": "advance", "amount": 3 },
+						{ "effect_type": "advance", "amount": 4 }
 					]
 				},
 				{
@@ -8440,6 +7756,9 @@
 		},
 		"NOTEEND": "EMOGINE CARDS END"
 	},
+
+
+
 	{
 		"NOTE": "ENCHANTRESS CARDS START",
 		"id": "enchantress_rapidbeam",
@@ -8475,33 +7794,13 @@
 					"timing": "immediate",
 					"effect_type": "choice",
 					"choice": [
-						{
-							"effect_type": "draw",
-							"amount": 1
-						},
-						{
-							"effect_type": "draw",
-							"amount": 2
-						},
-						{
-							"effect_type": "draw",
-							"amount": 3
-						},
-						{
-							"effect_type": "self_discard_choose",
-							"amount": 1
-						},
-						{
-							"effect_type": "self_discard_choose",
-							"amount": 2
-						},
-						{
-							"effect_type": "self_discard_choose",
-							"amount": 3
-						},
-						{
-							"effect_type": "pass"
-						}
+						{ "effect_type": "draw", "amount": 1 },
+						{ "effect_type": "draw", "amount": 2 },
+						{ "effect_type": "draw", "amount": 3 },
+						{ "effect_type": "self_discard_choose", "amount": 1 },
+						{ "effect_type": "self_discard_choose", "amount": 2 },
+						{ "effect_type": "self_discard_choose", "amount": 3 },
+						{ "effect_type": "pass" }
 					]
 				}
 			]
@@ -8563,14 +7862,8 @@
 				"timing": "hit",
 				"effect_type": "choice",
 				"choice": [
-					{
-						"effect_type": "push",
-						"amount": 1
-					},
-					{
-						"effect_type": "pull",
-						"amount": 1
-					}
+					{ "effect_type": "push", "amount": 1 },
+					{ "effect_type": "pull", "amount": 1 }
 				]
 			}
 		],
@@ -8585,59 +7878,27 @@
 					"effect_type": "choice",
 					"opponent": true,
 					"choice": [
-						{
-							"effect_type": "advance",
-							"amount": 1,
-							"use_semicolon_for_and": true,
-							"and": {
-								"condition": "moved_less_than",
-								"condition_amount": 2,
-								"effect_type": "take_damage",
-								"nonlethal": true,
-								"amount": 5
-							}
-						},
-						{
-							"effect_type": "advance",
-							"amount": 2,
-							"use_semicolon_for_and": true,
-							"and": {
-								"condition": "moved_less_than",
-								"condition_amount": 2,
-								"effect_type": "take_damage",
-								"nonlethal": true,
-								"amount": 5
-							}
-						},
-						{
-							"effect_type": "retreat",
-							"amount": 1,
-							"use_semicolon_for_and": true,
-							"and": {
-								"condition": "moved_less_than",
-								"condition_amount": 2,
-								"effect_type": "take_damage",
-								"nonlethal": true,
-								"amount": 5
-							}
-						},
-						{
-							"effect_type": "retreat",
-							"amount": 2,
-							"use_semicolon_for_and": true,
-							"and": {
-								"condition": "moved_less_than",
-								"condition_amount": 2,
-								"effect_type": "take_damage",
-								"nonlethal": true,
-								"amount": 5
-							}
-						},
-						{
-							"effect_type": "take_damage",
-							"nonlethal": true,
-							"amount": 5
-						}
+						{ "effect_type": "advance", "amount": 1, "use_semicolon_for_and": true,
+						  "and": {
+							"condition": "moved_less_than", "condition_amount": 2,
+							"effect_type": "take_damage", "nonlethal": true, "amount": 5
+						} },
+						{ "effect_type": "advance", "amount": 2, "use_semicolon_for_and": true,
+						  "and": {
+							"condition": "moved_less_than", "condition_amount": 2,
+							"effect_type": "take_damage", "nonlethal": true, "amount": 5
+						} },
+						{ "effect_type": "retreat", "amount": 1, "use_semicolon_for_and": true,
+						  "and": {
+							"condition": "moved_less_than", "condition_amount": 2,
+							"effect_type": "take_damage", "nonlethal": true, "amount": 5
+						} },
+						{ "effect_type": "retreat", "amount": 2, "use_semicolon_for_and": true,
+						  "and": {
+							"condition": "moved_less_than", "condition_amount": 2,
+							"effect_type": "take_damage", "nonlethal": true, "amount": 5
+						} },
+						{ "effect_type": "take_damage", "nonlethal": true, "amount": 5 }
 					]
 				}
 			]
@@ -8721,25 +7982,11 @@
 					"timing": "immediate",
 					"effect_type": "choice",
 					"choice": [
-						{
-							"effect_type": "draw",
-							"amount": 1
-						},
-						{
-							"effect_type": "draw",
-							"amount": 2
-						},
-						{
-							"effect_type": "self_discard_choose",
-							"amount": 1
-						},
-						{
-							"effect_type": "self_discard_choose",
-							"amount": 2
-						},
-						{
-							"effect_type": "pass"
-						}
+						{ "effect_type": "draw", "amount": 1 },
+						{ "effect_type": "draw", "amount": 2 },
+						{ "effect_type": "self_discard_choose", "amount": 1 },
+						{ "effect_type": "self_discard_choose", "amount": 2 },
+						{ "effect_type": "pass" }
 					]
 				},
 				{
@@ -8778,8 +8025,7 @@
 				"effect_type": "set_strike_x",
 				"source": "cards_in_hand",
 				"and": {
-					"effect_type": "advance",
-					"amount": "strike_x"
+					"effect_type": "advance", "amount": "strike_x"
 				}
 			}
 		],
@@ -8811,8 +8057,7 @@
 					"destination": "reveal",
 					"discard_effect": {
 						"effect_type": "choose_opponent_card_to_discard",
-						"opponent": true,
-						"NOTE": "need to transfer control back to enchantress",
+						"opponent": true, "NOTE": "need to transfer control back to enchantress",
 						"use_discarded_card_ids": true
 					}
 				}
@@ -8837,42 +8082,20 @@
 				"timing": "hit",
 				"effect_type": "choice",
 				"choice": [
-					{
-						"effect_type": "draw",
-						"amount": 1
-					},
-					{
-						"effect_type": "draw",
-						"amount": 2
-					},
-					{
-						"effect_type": "self_discard_choose",
-						"amount": 1
-					},
-					{
-						"effect_type": "self_discard_choose",
-						"amount": 2
-					},
-					{
-						"effect_type": "pass"
-					}
+					{ "effect_type": "draw", "amount": 1 },
+					{ "effect_type": "draw", "amount": 2 },
+					{ "effect_type": "self_discard_choose", "amount": 1 },
+					{ "effect_type": "self_discard_choose", "amount": 2 },
+					{ "effect_type": "pass" }
 				]
 			},
 			{
 				"timing": "after",
 				"effect_type": "choice",
 				"choice": [
-					{
-						"effect_type": "draw",
-						"amount": 1
-					},
-					{
-						"effect_type": "self_discard_choose",
-						"amount": 1
-					},
-					{
-						"effect_type": "pass"
-					}
+					{ "effect_type": "draw", "amount": 1 },
+					{ "effect_type": "self_discard_choose", "amount": 1 },
+					{ "effect_type": "pass" }
 				]
 			}
 		],
@@ -8897,6 +8120,8 @@
 		},
 		"NOTEEND": "ENCHANTRESS CARDS END"
 	},
+
+
 	{
 		"NOTE": "ENKIDU CARDS START",
 		"id": "enkidu_spiraldualpalmstrike",
@@ -9050,14 +8275,8 @@
 					"timing": "now",
 					"effect_type": "choice",
 					"choice": [
-						{
-							"effect_type": "advance",
-							"amount": 1
-						},
-						{
-							"effect_type": "retreat",
-							"amount": 1
-						}
+						{ "effect_type": "advance", "amount": 1 },
+						{ "effect_type": "retreat", "amount": 1 }
 					]
 				}
 			]
@@ -9100,13 +8319,8 @@
 				"and": {
 					"effect_type": "choice",
 					"choice": [
-						{
-							"effect_type": "reveal_copy_for_advantage",
-							"copy_id": "enkidu_threepreceptstrike"
-						},
-						{
-							"effect_type": "pass"
-						}
+						{ "effect_type": "reveal_copy_for_advantage", "copy_id": "enkidu_threepreceptstrike" },
+						{ "effect_type": "pass" }
 					]
 				}
 			}
@@ -9777,6 +8991,8 @@
 		},
 		"NOTEEND": "EUGENIA CARDS END"
 	},
+
+
 	{
 		"NOTE": "FAUST CARDS START",
 		"id": "faust_whatcouldthisbe",
@@ -9807,14 +9023,8 @@
 					"timing": "immediate",
 					"effect_type": "choice",
 					"choice": [
-						{
-							"effect_type": "advance",
-							"amount": 2
-						},
-						{
-							"effect_type": "retreat",
-							"amount": 2
-						}
+						{ "effect_type": "advance", "amount": 2 },
+						{ "effect_type": "retreat", "amount": 2 }
 					]
 				},
 				{
@@ -10085,28 +9295,16 @@
 				"timing": "before",
 				"effect_type": "choice",
 				"choice": [
-					{
-						"effect_type": "advance",
-						"amount": 2
-					},
-					{
-						"effect_type": "retreat",
-						"amount": 2
-					}
+					{ "effect_type": "advance", "amount": 2 },
+					{ "effect_type": "retreat", "amount": 2 }
 				]
 			},
 			{
 				"timing": "after",
 				"effect_type": "choice",
 				"choice": [
-					{
-						"effect_type": "advance",
-						"amount": 2
-					},
-					{
-						"effect_type": "retreat",
-						"amount": 2
-					}
+					{ "effect_type": "advance", "amount": 2 },
+					{ "effect_type": "retreat", "amount": 2 }
 				]
 			}
 		],
@@ -10135,6 +9333,8 @@
 		},
 		"NOTEEND": "FAUST CARDS END"
 	},
+
+
 	{
 		"NOTE": "FIGHT CARDS START",
 		"id": "fight_lightninggun",
@@ -10170,14 +9370,8 @@
 					"timing": "now",
 					"effect_type": "choice",
 					"choice": [
-						{
-							"effect_type": "advance",
-							"amount": 1
-						},
-						{
-							"effect_type": "retreat",
-							"amount": 1
-						}
+						{ "effect_type": "advance", "amount": 1 },
+						{ "effect_type": "retreat", "amount": 1 }
 					]
 				}
 			]
@@ -10250,14 +9444,8 @@
 					"timing": "now",
 					"effect_type": "choice",
 					"choice": [
-						{
-							"effect_type": "advance",
-							"amount": 2
-						},
-						{
-							"effect_type": "retreat",
-							"amount": 2
-						}
+						{ "effect_type": "advance", "amount": 2 },
+						{ "effect_type": "retreat", "amount": 2 }
 					]
 				},
 				{
@@ -10344,14 +9532,8 @@
 					"timing": "now",
 					"effect_type": "choice",
 					"choice": [
-						{
-							"effect_type": "advance",
-							"amount": 1
-						},
-						{
-							"effect_type": "retreat",
-							"amount": 1
-						}
+						{ "effect_type": "advance", "amount": 1 },
+						{ "effect_type": "retreat", "amount": 1 }
 					]
 				}
 			]
@@ -10456,6 +9638,9 @@
 		},
 		"NOTEEND": "FIGHT CARDS END"
 	},
+
+
+
 	{
 		"NOTE": "HAPPYCHAOS CARDS START",
 		"id": "happychaos_cheapshot",
@@ -10474,14 +9659,8 @@
 				"timing": "hit",
 				"effect_type": "choice",
 				"choice": [
-					{
-						"effect_type": "push",
-						"amount": 1
-					},
-					{
-						"effect_type": "pull",
-						"amount": 1
-					}
+					{ "effect_type": "push", "amount": 1 },
+					{ "effect_type": "pull", "amount": 1 }
 				]
 			},
 			{
@@ -10551,14 +9730,8 @@
 					"timing": "now",
 					"effect_type": "choice",
 					"choice": [
-						{
-							"effect_type": "retreat",
-							"amount": 1
-						},
-						{
-							"effect_type": "retreat",
-							"amount": 2
-						}
+						{ "effect_type": "retreat", "amount": 1 },
+						{ "effect_type": "retreat", "amount": 2 }
 					]
 				},
 				{
@@ -10599,12 +9772,8 @@
 					"condition": "was_not_wild_swing",
 					"effect_type": "choice",
 					"choice": [
-						{
-							"effect_type": "reveal_strike"
-						},
-						{
-							"effect_type": "pass"
-						}
+						{ "effect_type": "reveal_strike" },
+						{ "effect_type": "pass" }
 					]
 				}
 			},
@@ -10662,10 +9831,7 @@
 				"timing": "hit",
 				"effect_type": "choice",
 				"choice": [
-					{
-						"effect_type": "draw",
-						"amount": 2
-					},
+					{ "effect_type": "draw", "amount": 2 },
 					{
 						"UI_skip_summary": true,
 						"effect_type": "choose_discard",
@@ -10746,33 +9912,10 @@
 					"timing": "now",
 					"effect_type": "choice",
 					"choice": [
-						{
-							"effect_type": "spend_life",
-							"amount": 1,
-							"and": {
-								"effect_type": "draw",
-								"amount": 1
-							}
-						},
-						{
-							"effect_type": "spend_life",
-							"amount": 2,
-							"and": {
-								"effect_type": "draw",
-								"amount": 2
-							}
-						},
-						{
-							"effect_type": "spend_life",
-							"amount": 3,
-							"and": {
-								"effect_type": "draw",
-								"amount": 3
-							}
-						},
-						{
-							"effect_type": "pass"
-						}
+						{ "effect_type": "spend_life", "amount": 1, "and": { "effect_type": "draw", "amount": 1 } },
+						{ "effect_type": "spend_life", "amount": 2, "and": { "effect_type": "draw", "amount": 2 } },
+						{ "effect_type": "spend_life", "amount": 3, "and": { "effect_type": "draw", "amount": 3 } },
+						{ "effect_type": "pass" }
 					]
 				}
 			]
@@ -10806,10 +9949,14 @@
 			"force_cost": 0,
 			"cancel_cost": -1,
 			"display_name": "Nothing",
-			"effects": []
+			"effects": [
+			]
 		},
 		"NOTEEND": "HAPPYCHAOS CARDS END"
 	},
+
+
+
 	{
 		"NOTE": "HAKUMEN CARDS START",
 		"id": "hakumen_akumetsu",
@@ -10841,6 +9988,7 @@
 				"range_min": 1,
 				"range_max": 1
 			}
+
 		],
 		"boost": {
 			"boost_type": "immediate",
@@ -11046,14 +10194,8 @@
 					"and": {
 						"effect_type": "choice",
 						"choice": [
-							{
-								"effect_type": "close",
-								"amount": 1
-							},
-							{
-								"effect_type": "close",
-								"amount": 2
-							}
+							{ "effect_type": "close", "amount": 1 },
+							{ "effect_type": "close", "amount": 2 }
 						]
 					}
 				},
@@ -11100,14 +10242,8 @@
 				"overall_effect": {
 					"effect_type": "choice",
 					"choice": [
-						{
-							"effect_type": "push",
-							"amount": 1
-						},
-						{
-							"effect_type": "push",
-							"amount": 2
-						}
+						{ "effect_type": "push", "amount": 1 },
+						{ "effect_type": "push", "amount": 2 }
 					]
 				},
 				"gauge_max": 1
@@ -11174,18 +10310,8 @@
 					"effect_type": "choice",
 					"special_choice_name": "Advance up to 1 and opponent discards a card at random.",
 					"choice": [
-						{
-							"effect_type": "advance",
-							"amount": 1,
-							"and": {
-								"effect_type": "opponent_discard_random",
-								"amount": 1
-							}
-						},
-						{
-							"effect_type": "opponent_discard_random",
-							"amount": 1
-						}
+						{ "effect_type": "advance", "amount": 1, "and": { "effect_type": "opponent_discard_random", "amount": 1 } },
+						{ "effect_type": "opponent_discard_random", "amount": 1 }
 					]
 				}
 			]
@@ -11247,6 +10373,8 @@
 		},
 		"NOTEEND": "HAKUMEN CARDS END"
 	},
+
+
 	{
 		"NOTE": "HAZAMA CARDS START",
 		"id": "hazama_hungrydarkness",
@@ -11318,7 +10446,8 @@
 		"speed": 8,
 		"armor": 0,
 		"guard": 0,
-		"effects": [],
+		"effects": [
+		],
 		"boost": {
 			"boost_type": "immediate",
 			"force_cost": 0,
@@ -11385,12 +10514,8 @@
 					"timing": "immediate",
 					"effect_type": "choice",
 					"choice": [
-						{
-							"effect_type": "strike"
-						},
-						{
-							"effect_type": "pass"
-						}
+						{ "effect_type": "strike" },
+						{ "effect_type": "pass" }
 					]
 				}
 			]
@@ -11415,13 +10540,8 @@
 				"and": {
 					"effect_type": "choice",
 					"choice": [
-						{
-							"effect_type": "push",
-							"amount": 1
-						},
-						{
-							"effect_type": "pass"
-						}
+						{ "effect_type": "push", "amount": 1 },
+						{ "effect_type": "pass" }
 					]
 				}
 			}
@@ -11436,22 +10556,10 @@
 					"timing": "immediate",
 					"effect_type": "choice",
 					"choice": [
-						{
-							"effect_type": "advance",
-							"amount": 1
-						},
-						{
-							"effect_type": "advance",
-							"amount": 2
-						},
-						{
-							"effect_type": "retreat",
-							"amount": 1
-						},
-						{
-							"effect_type": "retreat",
-							"amount": 2
-						}
+						{ "effect_type": "advance", "amount": 1 },
+						{ "effect_type": "advance", "amount": 2 },
+						{ "effect_type": "retreat", "amount": 1 },
+						{ "effect_type": "retreat", "amount": 2 }
 					]
 				},
 				{
@@ -11509,12 +10617,8 @@
 					"timing": "now",
 					"effect_type": "choice",
 					"choice": [
-						{
-							"effect_type": "strike_opponent_sets_first"
-						},
-						{
-							"effect_type": "pass"
-						}
+						{ "effect_type": "strike_opponent_sets_first" },
+						{ "effect_type": "pass" }
 					]
 				}
 			]
@@ -11563,14 +10667,8 @@
 					"timing": "now",
 					"effect_type": "choice",
 					"choice": [
-						{
-							"effect_type": "advance",
-							"amount": 2
-						},
-						{
-							"effect_type": "retreat",
-							"amount": 2
-						}
+						{ "effect_type": "advance", "amount": 2 },
+						{ "effect_type": "retreat", "amount": 2 }
 					]
 				}
 			]
@@ -11647,6 +10745,7 @@
 					"effect_type": "lose_all_armor"
 				}
 			}
+
 		],
 		"boost": {
 			"boost_type": "continuous",
@@ -11664,15 +10763,14 @@
 							"limitation": "continuous",
 							"amount": 1
 						},
-						{
-							"effect_type": "pass"
-						}
+						{ "effect_type": "pass" }
 					]
 				}
 			]
 		},
 		"NOTEEND": "HAZAMA CARDS END"
 	},
+
 	{
 		"NOTE": "HILDA CARDS START",
 		"id": "hilda_inthedarkness",
@@ -11693,24 +10791,8 @@
 				"and": {
 					"effect_type": "choice",
 					"choice": [
-						{
-							"effect_type": "push",
-							"amount": 2,
-							"suppress_and_description": true,
-							"and": {
-								"effect_type": "draw",
-								"amount": 3
-							}
-						},
-						{
-							"effect_type": "pull",
-							"amount": 2,
-							"suppress_and_description": true,
-							"and": {
-								"effect_type": "draw",
-								"amount": 3
-							}
-						}
+						{ "effect_type": "push", "amount": 2, "suppress_and_description": true, "and": { "effect_type": "draw", "amount": 3 } },
+						{ "effect_type": "pull", "amount": 2, "suppress_and_description": true, "and": { "effect_type": "draw", "amount": 3 } }
 					]
 				}
 			}
@@ -11786,18 +10868,9 @@
 				"timing": "hit",
 				"effect_type": "choice",
 				"choice": [
-					{
-						"effect_type": "push",
-						"amount": 1
-					},
-					{
-						"effect_type": "pull",
-						"amount": 1
-					},
-					{
-						"effect_type": "draw",
-						"amount": 1
-					}
+					{ "effect_type": "push", "amount": 1 },
+					{ "effect_type": "pull", "amount": 1 },
+					{ "effect_type": "draw", "amount": 1 }
 				]
 			}
 		],
@@ -11845,17 +10918,10 @@
 			{
 				"timing": "hit",
 				"effect_type": "choice",
-				"add_bottomdiscard_card_name_to_choices": [
-					0,
-					1
-				],
+				"add_bottomdiscard_card_name_to_choices": [0,1],
 				"choice": [
-					{
-						"effect_type": "add_bottom_discard_to_gauge"
-					},
-					{
-						"effect_type": "add_bottom_discard_to_hand"
-					}
+					{ "effect_type": "add_bottom_discard_to_gauge" },
+					{ "effect_type": "add_bottom_discard_to_hand" }
 				]
 			}
 		],
@@ -11898,25 +10964,11 @@
 				"timing": "hit",
 				"effect_type": "choice",
 				"choice": [
-					{
-						"effect_type": "push",
-						"amount": 1
-					},
-					{
-						"effect_type": "pull",
-						"amount": 1
-					},
-					{
-						"effect_type": "draw",
-						"amount": 1
-					},
-					{
-						"effect_type": "opponent_discard_random",
-						"amount": 1
-					},
-					{
-						"effect_type": "gain_advantage"
-					}
+					{ "effect_type": "push", "amount": 1 },
+					{ "effect_type": "pull", "amount": 1 },
+					{ "effect_type": "draw", "amount": 1 },
+					{ "effect_type": "opponent_discard_random", "amount": 1 },
+					{ "effect_type": "gain_advantage" }
 				],
 				"multiple_amount": 2
 			}
@@ -12021,13 +11073,8 @@
 					"condition_detail": "Condensity Gloom",
 					"effect_type": "choice",
 					"choice": [
-						{
-							"effect_type": "move_to_buddy",
-							"buddy_name": "Condensity Gloom"
-						},
-						{
-							"effect_type": "pass"
-						}
+						{ "effect_type": "move_to_buddy", "buddy_name": "Condensity Gloom" },
+						{ "effect_type": "pass" }
 					]
 				}
 			},
@@ -12057,6 +11104,7 @@
 		},
 		"NOTEEND": "HILDA CARDS END"
 	},
+
 	{
 		"NOTE": "HYDE CARDS START",
 		"id": "hyde_gyrovortex",
@@ -12176,10 +11224,7 @@
 							"amount": 1
 						}
 					},
-					{
-						"effect_type": "retreat",
-						"amount": 2
-					}
+					{ "effect_type": "retreat", "amount": 2 }
 				]
 			}
 		],
@@ -12193,14 +11238,8 @@
 					"timing": "immediate",
 					"effect_type": "choice",
 					"choice": [
-						{
-							"effect_type": "advance",
-							"amount": 1
-						},
-						{
-							"effect_type": "retreat",
-							"amount": 1
-						}
+						{ "effect_type": "advance", "amount": 1 },
+						{ "effect_type": "retreat", "amount": 1 }
 					]
 				},
 				{
@@ -12276,14 +11315,8 @@
 				"timing": "after",
 				"effect_type": "choice",
 				"choice": [
-					{
-						"effect_type": "close",
-						"amount": 2
-					},
-					{
-						"effect_type": "retreat",
-						"amount": 2
-					}
+					{ "effect_type": "close", "amount": 2 },
+					{ "effect_type": "retreat", "amount": 2 }
 				]
 			}
 		],
@@ -12397,6 +11430,9 @@
 		},
 		"NOTEEND": "HYDE CARDS END"
 	},
+
+
+
 	{
 		"NOTE": "IAQUIS CARDS START",
 		"id": "iaquis_dragonsdescent",
@@ -12414,11 +11450,7 @@
 			{
 				"timing": "hit",
 				"condition": "copy_of_attack_in_zones",
-				"condition_zones": [
-					"boost",
-					"gauge",
-					"transform"
-				],
+				"condition_zones": ["boost", "gauge", "transform"],
 				"effect_type": "powerup",
 				"amount": 4
 			}
@@ -12580,12 +11612,8 @@
 					"timing": "after",
 					"effect_type": "choice",
 					"choice": [
-						{
-							"effect_type": "add_strike_to_gauge_after_cleanup"
-						},
-						{
-							"effect_type": "pass"
-						}
+						{ "effect_type": "add_strike_to_gauge_after_cleanup" },
+						{ "effect_type": "pass" }
 					],
 					"override_description": "After: You may add attack to Gauge"
 				}
@@ -12621,13 +11649,8 @@
 					"condition": "not_hit_opponent",
 					"effect_type": "choice",
 					"choice": [
-						{
-							"effect_type": "draw",
-							"amount": 1
-						},
-						{
-							"effect_type": "pass"
-						}
+						{ "effect_type": "draw", "amount": 1 },
+						{ "effect_type": "pass" }
 					],
 					"override_description": "End of Strike: If attack did not hit, you may draw 1"
 				}
@@ -12727,6 +11750,8 @@
 		},
 		"NOTEEND": "IAQUIS CARDS END"
 	},
+
+
 	{
 		"NOTE": "GALDRED CARDS START",
 		"id": "galdred_hydrahelix",
@@ -12762,9 +11787,7 @@
 					"timing": "immediate",
 					"effect_type": "boost_additional",
 					"limitation": "transform",
-					"valid_zones": [
-						"hand"
-					]
+					"valid_zones": [ "hand" ]
 				},
 				{
 					"timing": "immediate",
@@ -12805,14 +11828,8 @@
 					"timing": "immediate",
 					"effect_type": "choice",
 					"choice": [
-						{
-							"effect_type": "advance",
-							"amount": 2
-						},
-						{
-							"effect_type": "retreat",
-							"amount": 2
-						}
+						{ "effect_type": "advance", "amount": 2 },
+						{ "effect_type": "retreat", "amount": 2 }
 					]
 				},
 				{
@@ -12841,15 +11858,11 @@
 				"choice": [
 					{
 						"effect_type": "boost_then_sustain",
-						"valid_zones": [
-							"hand"
-						],
+						"valid_zones": [ "hand" ],
 						"limitation": "transform",
 						"sustain": false
 					},
-					{
-						"effect_type": "pass"
-					}
+					{ "effect_type": "pass" }
 				]
 			}
 		],
@@ -13034,12 +12047,8 @@
 					"condition_amount": 0,
 					"effect_type": "choice",
 					"choice": [
-						{
-							"effect_type": "strike"
-						},
-						{
-							"effect_type": "pass"
-						}
+						{ "effect_type": "strike" },
+						{ "effect_type": "pass" }
 					],
 					"override_description": "After action, if hand is empty, can Strike"
 				}
@@ -13079,10 +12088,12 @@
 			"force_cost": 0,
 			"cancel_cost": -1,
 			"display_name": "Nothing",
-			"effects": []
+			"effects": [
+			]
 		},
 		"NOTEEND": "GALDRED CARDS END"
 	},
+
 	{
 		"NOTE": "GIOVANNA CARDS START",
 		"id": "giovanna_ventania",
@@ -13176,14 +12187,8 @@
 				"timing": "after",
 				"effect_type": "choice",
 				"choice": [
-					{
-						"effect_type": "advance",
-						"amount": 1
-					},
-					{
-						"effect_type": "retreat",
-						"amount": 1
-					}
+					{ "effect_type": "advance", "amount": 1 },
+					{ "effect_type": "retreat", "amount": 1 }
 				]
 			}
 		],
@@ -13270,14 +12275,8 @@
 				"timing": "after",
 				"effect_type": "choice",
 				"choice": [
-					{
-						"effect_type": "close",
-						"amount": 1
-					},
-					{
-						"effect_type": "retreat",
-						"amount": 1
-					}
+					{ "effect_type": "close", "amount": 1 },
+					{ "effect_type": "retreat", "amount": 1 }
 				]
 			}
 		],
@@ -13291,14 +12290,8 @@
 					"timing": "immediate",
 					"effect_type": "choice",
 					"choice": [
-						{
-							"effect_type": "advance",
-							"amount": 1
-						},
-						{
-							"effect_type": "retreat",
-							"amount": 1
-						}
+						{ "effect_type": "advance", "amount": 1 },
+						{ "effect_type": "retreat", "amount": 1 }
 					]
 				},
 				{
@@ -13398,6 +12391,8 @@
 		},
 		"NOTEEND": "GIOVANNA CARDS END"
 	},
+
+
 	{
 		"NOTE": "GEOFFREY CARDS START",
 		"id": "geoffrey_bastionstance",
@@ -13648,20 +12643,8 @@
 					"timing": "now",
 					"effect_type": "choice",
 					"choice": [
-						{
-							"effect_type": "spend_life",
-							"amount": 5,
-							"and": {
-								"effect_type": "boost_additional",
-								"limitation": "transform",
-								"valid_zones": [
-									"hand"
-								]
-							}
-						},
-						{
-							"effect_type": "discard_this"
-						}
+						{ "effect_type": "spend_life", "amount": 5, "and": { "effect_type": "boost_additional", "limitation": "transform", "valid_zones": ["hand"] } },
+						{ "effect_type": "discard_this" }
 					]
 				}
 			]
@@ -13716,6 +12699,8 @@
 		},
 		"NOTEEND": "GEOFFREY CARDS END"
 	},
+
+
 	{
 		"NOTE": "GOLDLEWIS CARDS START",
 		"id": "goldlewis_downwiththesystem",
@@ -13793,14 +12778,8 @@
 					"timing": "immediate",
 					"effect_type": "choice",
 					"choice": [
-						{
-							"effect_type": "advance",
-							"amount": 1
-						},
-						{
-							"effect_type": "retreat",
-							"amount": 1
-						}
+						{ "effect_type": "advance", "amount": 1 },
+						{ "effect_type": "retreat", "amount": 1 }
 					]
 				},
 				{
@@ -13930,14 +12909,8 @@
 				"timing": "hit",
 				"effect_type": "choice",
 				"choice": [
-					{
-						"effect_type": "push",
-						"amount": 1
-					},
-					{
-						"effect_type": "pull",
-						"amount": 1
-					}
+					{ "effect_type": "push", "amount": 1 },
+					{ "effect_type": "pull", "amount": 1 }
 				]
 			},
 			{
@@ -14135,14 +13108,8 @@
 				"and": {
 					"effect_type": "choice",
 					"choice": [
-						{
-							"effect_type": "push",
-							"amount": 2
-						},
-						{
-							"effect_type": "pull",
-							"amount": 2
-						}
+						{ "effect_type": "push", "amount": 2 },
+						{ "effect_type": "pull", "amount": 2 }
 					]
 				}
 			}
@@ -14212,20 +13179,16 @@
 					"timing": "hit",
 					"effect_type": "choice",
 					"choice": [
-						{
-							"effect_type": "push",
-							"amount": 1
-						},
-						{
-							"effect_type": "pull",
-							"amount": 1
-						}
+						{ "effect_type": "push", "amount": 1 },
+						{ "effect_type": "pull", "amount": 1 }
 					]
 				}
 			]
 		},
 		"NOTEEND": "GOLDLEWIS CARDS END"
 	},
+
+
 	{
 		"NOTE": "GORDEAU CARDS START",
 		"id": "gordeau_soulexodus",
@@ -14249,8 +13212,7 @@
 					"discard_effect": {
 						"effect_type": "add_top_deck_to_gauge",
 						"amount": "num_discarded_card_ids",
-						"opponent": true,
-						"NOTE": "need to transfer control back to gordeau"
+						"opponent": true, "NOTE": "need to transfer control back to gordeau"
 					}
 				}
 			}
@@ -14299,14 +13261,8 @@
 				"condition": "opponent_stunned",
 				"effect_type": "choice",
 				"choice": [
-					{
-						"effect_type": "advance",
-						"amount": 2
-					},
-					{
-						"effect_type": "retreat",
-						"amount": 2
-					}
+					{ "effect_type": "advance", "amount": 2 },
+					{ "effect_type": "retreat", "amount": 2 }
 				]
 			}
 		],
@@ -14320,14 +13276,8 @@
 					"timing": "immediate",
 					"effect_type": "choice",
 					"choice": [
-						{
-							"effect_type": "advance",
-							"amount": 2
-						},
-						{
-							"effect_type": "retreat",
-							"amount": 2
-						}
+						{ "effect_type": "advance", "amount": 2 },
+						{ "effect_type": "retreat", "amount": 2 }
 					]
 				},
 				{
@@ -14457,14 +13407,8 @@
 					"timing": "now",
 					"effect_type": "choice",
 					"choice": [
-						{
-							"effect_type": "advance",
-							"amount": 1
-						},
-						{
-							"effect_type": "retreat",
-							"amount": 1
-						}
+						{ "effect_type": "advance", "amount": 1 },
+						{ "effect_type": "retreat", "amount": 1 }
 					]
 				}
 			]
@@ -14560,14 +13504,8 @@
 					"condition_amount": 1,
 					"effect_type": "choice",
 					"choice": [
-						{
-							"effect_type": "push",
-							"amount": 1
-						},
-						{
-							"effect_type": "push",
-							"amount": 2
-						}
+						{ "effect_type": "push", "amount": 1 },
+						{ "effect_type": "push", "amount": 2 }
 					],
 					"and": {
 						"effect_type": "strike"
@@ -14577,6 +13515,7 @@
 		},
 		"NOTEEND": "GORDEAU CARDS END"
 	},
+
 	{
 		"NOTE": "GUILE CARDS START",
 		"id": "guile_flashexplosion",
@@ -14600,14 +13539,8 @@
 				"timing": "after",
 				"effect_type": "choice",
 				"choice": [
-					{
-						"effect_type": "advance",
-						"amount": 2
-					},
-					{
-						"effect_type": "retreat",
-						"amount": 2
-					}
+					{ "effect_type": "advance", "amount": 2 },
+					{ "effect_type": "retreat", "amount": 2 }
 				]
 			}
 		],
@@ -14653,33 +13586,13 @@
 				"timing": "after",
 				"effect_type": "choice",
 				"choice": [
-					{
-						"effect_type": "advance",
-						"amount": 1
-					},
-					{
-						"effect_type": "advance",
-						"amount": 2
-					},
-					{
-						"effect_type": "advance",
-						"amount": 3
-					},
-					{
-						"effect_type": "retreat",
-						"amount": 1
-					},
-					{
-						"effect_type": "retreat",
-						"amount": 2
-					},
-					{
-						"effect_type": "retreat",
-						"amount": 3
-					},
-					{
-						"effect_type": "pass"
-					}
+						{ "effect_type": "advance", "amount": 1 },
+						{ "effect_type": "advance", "amount": 2 },
+						{ "effect_type": "advance", "amount": 3 },
+						{ "effect_type": "retreat", "amount": 1 },
+						{ "effect_type": "retreat", "amount": 2 },
+						{ "effect_type": "retreat", "amount": 3 },
+						{ "effect_type": "pass" }
 				]
 			}
 		],
@@ -14701,6 +13614,7 @@
 			]
 		}
 	},
+
 	{
 		"id": "guile_doublesweepkick",
 		"type": "special",
@@ -14775,14 +13689,8 @@
 				"timing": "after",
 				"effect_type": "choice",
 				"choice": [
-					{
-						"effect_type": "advance",
-						"amount": 1
-					},
-					{
-						"effect_type": "retreat",
-						"amount": 1
-					}
+					{ "effect_type": "advance", "amount": 1 },
+					{ "effect_type": "retreat", "amount": 1 }
 				]
 			}
 		],
@@ -14881,22 +13789,10 @@
 				"timing": "after",
 				"effect_type": "choice",
 				"choice": [
-					{
-						"effect_type": "advance",
-						"amount": 1
-					},
-					{
-						"effect_type": "advance",
-						"amount": 2
-					},
-					{
-						"effect_type": "retreat",
-						"amount": 1
-					},
-					{
-						"effect_type": "retreat",
-						"amount": 2
-					}
+					{ "effect_type": "advance", "amount": 1 },
+					{ "effect_type": "advance", "amount": 2 },
+					{ "effect_type": "retreat", "amount": 1 },
+					{ "effect_type": "retreat", "amount": 2 }
 				]
 			}
 		],
@@ -14944,23 +13840,9 @@
 			{
 				"timing": "hit",
 				"effect_type": "choice",
-				"choice": [
-					{
-						"effect_type": "advance",
-						"amount": 1,
-						"and": {
-							"effect_type": "opponent_discard_random",
-							"amount": 1
-						}
-					},
-					{
-						"effect_type": "retreat",
-						"amount": 1,
-						"and": {
-							"effect_type": "opponent_discard_random",
-							"amount": 1
-						}
-					}
+				"choice":[
+					{ "effect_type": "advance", "amount": 1, "and": { "effect_type": "opponent_discard_random", "amount": 1 } },
+					{ "effect_type": "retreat", "amount": 1, "and": { "effect_type": "opponent_discard_random", "amount": 1 } }
 				]
 			}
 		],
@@ -14985,6 +13867,7 @@
 		},
 		"NOTEEND": "GUILE CARDS END"
 	},
+
 	{
 		"NOTE": "INO CARDS START",
 		"id": "ino_megalomania",
@@ -15115,14 +13998,8 @@
 					"timing": "immediate",
 					"effect_type": "choice",
 					"choice": [
-						{
-							"effect_type": "advance",
-							"amount": 2
-						},
-						{
-							"effect_type": "retreat",
-							"amount": 2
-						}
+						{ "effect_type": "advance", "amount": 2 },
+						{ "effect_type": "retreat", "amount": 2 }
 					]
 				},
 				{
@@ -15253,14 +14130,8 @@
 				"and": {
 					"effect_type": "choice",
 					"choice": [
-						{
-							"effect_type": "advance",
-							"amount": 1
-						},
-						{
-							"effect_type": "retreat",
-							"amount": 1
-						}
+						{ "effect_type": "advance", "amount": 1 },
+						{ "effect_type": "retreat", "amount": 1 }
 					]
 				}
 			}
@@ -15330,6 +14201,7 @@
 		},
 		"NOTEEND": "INO CARDS END"
 	},
+
 	{
 		"NOTE": "JACKO CARDS START",
 		"id": "jacko_cheerservanton",
@@ -15442,13 +14314,8 @@
 					"timing": "hit",
 					"effect_type": "choice",
 					"choice": [
-						{
-							"effect_type": "add_boost_to_gauge_on_strike_cleanup",
-							"card_name": "Iron Pumpkin"
-						},
-						{
-							"effect_type": "pass"
-						}
+						{ "effect_type": "add_boost_to_gauge_on_strike_cleanup", "card_name": "Iron Pumpkin" },
+						{ "effect_type": "pass" }
 					]
 				}
 			]
@@ -15471,14 +14338,8 @@
 				"timing": "after",
 				"effect_type": "choice",
 				"choice": [
-					{
-						"effect_type": "advance",
-						"amount": 1
-					},
-					{
-						"effect_type": "retreat",
-						"amount": 1
-					}
+					{ "effect_type": "advance", "amount": 1 },
+					{ "effect_type": "retreat", "amount": 1 }
 				]
 			}
 		],
@@ -15503,13 +14364,8 @@
 					"and": {
 						"effect_type": "choice",
 						"choice": [
-							{
-								"effect_type": "add_boost_to_gauge_on_strike_cleanup",
-								"card_name": "Chain of Chiron"
-							},
-							{
-								"effect_type": "pass"
-							}
+							{ "effect_type": "add_boost_to_gauge_on_strike_cleanup", "card_name": "Chain of Chiron" },
+							{ "effect_type": "pass" }
 						]
 					}
 				}
@@ -15576,15 +14432,10 @@
 				"choice": [
 					{
 						"effect_type": "boost_then_sustain",
-						"valid_zones": [
-							"hand",
-							"gauge"
-						],
+						"valid_zones": [ "hand", "gauge" ],
 						"limitation": "continuous"
 					},
-					{
-						"effect_type": "pass"
-					}
+					{ "effect_type": "pass" }
 				]
 			}
 		],
@@ -15653,6 +14504,7 @@
 		},
 		"NOTEEND": "JACKO CARDS END"
 	},
+
 	{
 		"NOTE": "JIN CARDS START",
 		"id": "jin_arcticdungeon",
@@ -15757,18 +14609,9 @@
 				"timing": "hit",
 				"effect_type": "choice",
 				"choice": [
-					{
-						"effect_type": "close",
-						"amount": 1
-					},
-					{
-						"effect_type": "close",
-						"amount": 2
-					},
-					{
-						"effect_type": "close",
-						"amount": 3
-					}
+					{ "effect_type": "close", "amount": 1 },
+					{ "effect_type": "close", "amount": 2 },
+					{ "effect_type": "close", "amount": 3 }
 				]
 			}
 		],
@@ -15830,17 +14673,9 @@
 						"and": {
 							"effect_type": "choice",
 							"choice": [
-								{
-									"effect_type": "advance",
-									"amount": 1
-								},
-								{
-									"effect_type": "retreat",
-									"amount": 1
-								},
-								{
-									"effect_type": "pass"
-								}
+								{ "effect_type": "advance", "amount": 1 },
+								{ "effect_type": "retreat", "amount": 1 },
+								{ "effect_type": "pass" }
 							]
 						}
 					}
@@ -15958,26 +14793,9 @@
 				"timing": "hit",
 				"effect_type": "choice",
 				"choice": [
-					{
-						"effect_type": "close",
-						"amount": 1,
-						"and": {
-							"effect_type": "draw",
-							"amount": 1
-						}
-					},
-					{
-						"effect_type": "close",
-						"amount": 2,
-						"and": {
-							"effect_type": "draw",
-							"amount": 1
-						}
-					},
-					{
-						"effect_type": "draw",
-						"amount": 1
-					}
+					{ "effect_type": "close", "amount": 1, "and": { "effect_type": "draw", "amount": 1 } },
+					{ "effect_type": "close", "amount": 2, "and": { "effect_type": "draw", "amount": 1 } },
+					{ "effect_type": "draw", "amount": 1 }
 				]
 			}
 		],
@@ -16058,6 +14876,7 @@
 		},
 		"NOTEEND": "JIN CARDS END"
 	},
+
 	{
 		"NOTE": "KEN CARDS START",
 		"id": "ken_gurensenpukyaku",
@@ -16302,9 +15121,7 @@
 							"effect_type": "add_top_discard_to_gauge"
 						}
 					},
-					{
-						"effect_type": "pass"
-					}
+					{ "effect_type": "pass" }
 				]
 			}
 		],
@@ -16373,6 +15190,8 @@
 		},
 		"NOTEEND": "KEN CARDS END"
 	},
+
+
 	{
 		"NOTE": "KING CARDS START",
 		"id": "king_decree_kinglystrut",
@@ -16386,7 +15205,8 @@
 		"speed": 0,
 		"armor": 0,
 		"guard": 0,
-		"effects": [],
+		"effects": [
+		],
 		"boost": {
 			"boost_type": "continuous",
 			"force_cost": 3,
@@ -16407,14 +15227,8 @@
 					"timing": "now",
 					"effect_type": "choice",
 					"choice": [
-						{
-							"effect_type": "close",
-							"amount": 1
-						},
-						{
-							"effect_type": "close",
-							"amount": 2
-						}
+						{ "effect_type": "close", "amount": 1 },
+						{ "effect_type": "close", "amount": 2 }
 					]
 				},
 				{
@@ -16439,7 +15253,8 @@
 		"speed": 0,
 		"armor": 0,
 		"guard": 0,
-		"effects": [],
+		"effects": [
+		],
 		"boost": {
 			"boost_type": "continuous",
 			"force_cost": 3,
@@ -16478,7 +15293,8 @@
 		"speed": 0,
 		"armor": 0,
 		"guard": 0,
-		"effects": [],
+		"effects": [
+		],
 		"boost": {
 			"boost_type": "continuous",
 			"force_cost": 4,
@@ -16499,21 +15315,10 @@
 					"timing": "now",
 					"effect_type": "choice",
 					"choice": [
-						{
-							"effect_type": "close",
-							"amount": 1
-						},
-						{
-							"effect_type": "close",
-							"amount": 2
-						},
-						{
-							"effect_type": "close",
-							"amount": 3
-						},
-						{
-							"effect_type": "pass"
-						}
+						{ "effect_type": "close", "amount": 1 },
+						{ "effect_type": "close", "amount": 2 },
+						{ "effect_type": "close", "amount": 3 },
+						{ "effect_type": "pass" }
 					]
 				},
 				{
@@ -16538,7 +15343,8 @@
 		"speed": 0,
 		"armor": 0,
 		"guard": 0,
-		"effects": [],
+		"effects": [
+		],
 		"boost": {
 			"boost_type": "continuous",
 			"force_cost": 4,
@@ -16673,14 +15479,9 @@
 							"effect_type": "boost_additional",
 							"discard_this_first": true,
 							"limitation": "",
-							"valid_zones": [
-								"hand",
-								"extra"
-							]
+							"valid_zones": [ "hand", "extra" ]
 						},
-						{
-							"effect_type": "pass"
-						}
+						{ "effect_type": "pass" }
 					]
 				}
 			]
@@ -16715,9 +15516,7 @@
 							}
 						}
 					},
-					{
-						"effect_type": "pass"
-					}
+					{ "effect_type": "pass" }
 				]
 			}
 		],
@@ -16736,22 +15535,10 @@
 					"timing": "now",
 					"effect_type": "choice",
 					"choice": [
-						{
-							"effect_type": "advance",
-							"amount": 1
-						},
-						{
-							"effect_type": "advance",
-							"amount": 2
-						},
-						{
-							"effect_type": "retreat",
-							"amount": 1
-						},
-						{
-							"effect_type": "retreat",
-							"amount": 2
-						}
+						{ "effect_type": "advance", "amount": 1 },
+						{ "effect_type": "advance", "amount": 2 },
+						{ "effect_type": "retreat", "amount": 1 },
+						{ "effect_type": "retreat", "amount": 2 }
 					]
 				}
 			]
@@ -16796,22 +15583,10 @@
 					"timing": "immediate",
 					"effect_type": "choice",
 					"choice": [
-						{
-							"effect_type": "push",
-							"amount": 1
-						},
-						{
-							"effect_type": "push",
-							"amount": 2
-						},
-						{
-							"effect_type": "pull",
-							"amount": 1
-						},
-						{
-							"effect_type": "pull",
-							"amount": 2
-						}
+						{ "effect_type": "push", "amount": 1 },
+						{ "effect_type": "push", "amount": 2 },
+						{ "effect_type": "pull", "amount": 1 },
+						{ "effect_type": "pull", "amount": 2 }
 					]
 				},
 				{
@@ -16855,42 +15630,30 @@
 				"effect_type": "choice",
 				"choice": [
 					{
-						"effect_type": "advance",
-						"amount": 3,
-						"suppress_and_description": true,
+						"effect_type": "advance", "amount": 3, "suppress_and_description": true,
 						"and": {
 							"effect_type": "choice",
 							"choice": [
 								{
 									"effect_type": "boost_then_sustain",
-									"valid_zones": [
-										"hand"
-									],
+									"valid_zones": [ "hand" ],
 									"limitation": "continuous"
 								},
-								{
-									"effect_type": "pass"
-								}
+								{ "effect_type": "pass" }
 							]
 						}
 					},
 					{
-						"effect_type": "advance",
-						"amount": 4,
-						"suppress_and_description": true,
+						"effect_type": "advance", "amount": 4, "suppress_and_description": true,
 						"and": {
 							"effect_type": "choice",
 							"choice": [
 								{
 									"effect_type": "boost_then_sustain",
-									"valid_zones": [
-										"hand"
-									],
+									"valid_zones": [ "hand" ],
 									"limitation": "continuous"
 								},
-								{
-									"effect_type": "pass"
-								}
+								{ "effect_type": "pass" }
 							]
 						}
 					}
@@ -16973,17 +15736,9 @@
 				"timing": "after",
 				"effect_type": "choice",
 				"choice": [
-					{
-						"effect_type": "advance",
-						"amount": 1
-					},
-					{
-						"effect_type": "advance",
-						"amount": 2
-					},
-					{
-						"effect_type": "pass"
-					}
+					{ "effect_type": "advance", "amount": 1 },
+					{ "effect_type": "advance", "amount": 2 },
+					{ "effect_type": "pass"}
 				]
 			}
 		],
@@ -17015,6 +15770,7 @@
 		},
 		"NOTEEND": "KING CARDS END"
 	},
+
 	{
 		"NOTE": "KOKONOE CARDS START",
 		"id": "kokonoe_ultimateimpact",
@@ -17210,6 +15966,7 @@
 					"effect_type": "rangeup",
 					"amount": 2,
 					"amount2": 2
+
 				}
 			]
 		}
@@ -17297,14 +16054,8 @@
 				"timing": "after",
 				"effect_type": "choice",
 				"choice": [
-					{
-						"effect_type": "push",
-						"amount": 1
-					},
-					{
-						"effect_type": "pull",
-						"amount": 1
-					}
+					{ "effect_type": "push", "amount": 1 },
+					{ "effect_type": "pull", "amount": 1 }
 				]
 			}
 		],
@@ -17353,14 +16104,8 @@
 				"timing": "after",
 				"effect_type": "choice",
 				"choice": [
-					{
-						"effect_type": "advance",
-						"amount": 1
-					},
-					{
-						"effect_type": "retreat",
-						"amount": 1
-					}
+					{ "effect_type": "advance", "amount": 1 },
+					{ "effect_type": "retreat", "amount": 1 }
 				]
 			}
 		],
@@ -17383,14 +16128,8 @@
 						"is_negative_effect": true,
 						"effect_type": "choice",
 						"choice": [
-							{
-								"effect_type": "advance",
-								"amount": 4
-							},
-							{
-								"effect_type": "advance",
-								"amount": 5
-							}
+							{ "effect_type": "advance", "amount": 4 },
+							{ "effect_type": "advance", "amount": 5 }
 						]
 					}
 				}
@@ -17444,6 +16183,7 @@
 		},
 		"NOTEEND": "KOKONOE CARDS END"
 	},
+
 	{
 		"NOTE": "KY KISUKE CARDS START",
 		"id": "kykisuke_ridethelightning",
@@ -17509,25 +16249,11 @@
 				"timing": "hit",
 				"effect_type": "choice",
 				"choice": [
-					{
-						"effect_type": "close",
-						"amount": 1
-					},
-					{
-						"effect_type": "close",
-						"amount": 2
-					},
-					{
-						"effect_type": "close",
-						"amount": 3
-					},
-					{
-						"effect_type": "close",
-						"amount": 4
-					},
-					{
-						"effect_type": "pass"
-					}
+					{ "effect_type": "close", "amount": 1 },
+					{ "effect_type": "close", "amount": 2 },
+					{ "effect_type": "close", "amount": 3 },
+					{ "effect_type": "close", "amount": 4 },
+					{ "effect_type": "pass" }
 				]
 			},
 			{
@@ -17750,17 +16476,9 @@
 				"timing": "after",
 				"effect_type": "choice",
 				"choice": [
-					{
-						"effect_type": "advance",
-						"amount": 1
-					},
-					{
-						"effect_type": "advance",
-						"amount": 2
-					},
-					{
-						"effect_type": "pass"
-					}
+					{ "effect_type": "advance", "amount": 1 },
+					{ "effect_type": "advance", "amount": 2 },
+					{ "effect_type": "pass" }
 				]
 			}
 		],
@@ -17785,6 +16503,8 @@
 		},
 		"NOTEEND": "KY KISUKE CARDS END"
 	},
+
+
 	{
 		"NOTE": "LEO CARDS START",
 		"id": "leo_stahlwirbel",
@@ -17952,22 +16672,10 @@
 					"timing": "immediate",
 					"effect_type": "choice",
 					"choice": [
-						{
-							"effect_type": "advance",
-							"amount": 1
-						},
-						{
-							"effect_type": "advance",
-							"amount": 2
-						},
-						{
-							"effect_type": "retreat",
-							"amount": 1
-						},
-						{
-							"effect_type": "retreat",
-							"amount": 2
-						}
+						{ "effect_type": "advance", "amount": 1 },
+						{ "effect_type": "advance", "amount": 2 },
+						{ "effect_type": "retreat", "amount": 1 },
+						{ "effect_type": "retreat", "amount": 2 }
 					]
 				}
 			]
@@ -18047,6 +16755,7 @@
 				"and": {
 					"effect_type": "revert"
 				}
+
 			}
 		],
 		"boost": {
@@ -18099,17 +16808,9 @@
 				"condition": "was_hit",
 				"effect_type": "choice",
 				"choice": [
-					{
-						"effect_type": "close",
-						"amount": 1
-					},
-					{
-						"effect_type": "close",
-						"amount": 2
-					},
-					{
-						"effect_type": "pass"
-					}
+					{ "effect_type": "close", "amount": 1 },
+					{ "effect_type": "close", "amount": 2 },
+					{ "effect_type": "pass" }
 				]
 			}
 		],
@@ -18132,6 +16833,7 @@
 		},
 		"NOTEEND": "LEO CARDS END"
 	},
+
 	{
 		"NOTE": "LINNE CARDS START",
 		"id": "linne_divineblaze",
@@ -18311,9 +17013,7 @@
 							"amount": 2
 						}
 					},
-					{
-						"effect_type": "pass"
-					}
+					{ "effect_type": "pass" }
 				]
 			},
 			{
@@ -18341,14 +17041,8 @@
 					"timing": "now",
 					"effect_type": "choice",
 					"choice": [
-						{
-							"effect_type": "advance",
-							"amount": 1
-						},
-						{
-							"effect_type": "retreat",
-							"amount": 1
-						}
+						{ "effect_type": "advance", "amount": 1 },
+						{ "effect_type": "retreat", "amount": 1 }
 					]
 				},
 				{
@@ -18494,6 +17188,7 @@
 		},
 		"NOTEEND": "LINNE CARDS END"
 	},
+
 	{
 		"NOTE": "LITCHI CARDS START",
 		"id": "litchi_ninegatesofheaven",
@@ -18572,14 +17267,8 @@
 					"timing": "immediate",
 					"effect_type": "choice",
 					"choice": [
-						{
-							"effect_type": "retreat",
-							"amount": 1
-						},
-						{
-							"effect_type": "retreat",
-							"amount": 2
-						}
+						{ "effect_type": "retreat", "amount": 1 },
+						{ "effect_type": "retreat", "amount": 2 }
 					]
 				},
 				{
@@ -18611,14 +17300,8 @@
 				"timing": "hit",
 				"effect_type": "choice",
 				"choice": [
-					{
-						"effect_type": "push",
-						"amount": 1
-					},
-					{
-						"effect_type": "pull",
-						"amount": 1
-					}
+					{ "effect_type": "push", "amount": 1 },
+					{ "effect_type": "pull", "amount": 1 }
 				]
 			}
 		],
@@ -18817,22 +17500,8 @@
 				"timing": "hit",
 				"effect_type": "choice",
 				"choice": [
-					{
-						"effect_type": "push",
-						"amount": 1,
-						"and": {
-							"effect_type": "draw",
-							"amount": 1
-						}
-					},
-					{
-						"effect_type": "pull",
-						"amount": 1,
-						"and": {
-							"effect_type": "draw",
-							"amount": 1
-						}
-					}
+					{ "effect_type": "push", "amount": 1, "and": { "effect_type": "draw", "amount": 1 } },
+					{ "effect_type": "pull", "amount": 1, "and": { "effect_type": "draw", "amount": 1 } }
 				]
 			}
 		],
@@ -18860,14 +17529,8 @@
 					"timing": "hit",
 					"effect_type": "choice",
 					"choice": [
-						{
-							"effect_type": "push",
-							"amount": 1
-						},
-						{
-							"effect_type": "push",
-							"amount": 2
-						}
+						{ "effect_type": "push", "amount": 1 },
+						{ "effect_type": "push", "amount": 2 }
 					]
 				}
 			]
@@ -18903,6 +17566,7 @@
 				"effect_type": "advance",
 				"amount": 4
 			}
+
 		],
 		"boost": {
 			"boost_type": "immediate",
@@ -18928,6 +17592,8 @@
 		},
 		"NOTEEND": "LITCHI CARDS END"
 	},
+
+
 	{
 		"NOTE": "LONDREKIA CARDS START",
 		"id": "londrekia_hailstorm",
@@ -19032,30 +17698,12 @@
 				"timing": "after",
 				"effect_type": "choice",
 				"choice": [
-					{
-						"effect_type": "advance",
-						"amount": 1,
-						"suppress_and_description": true,
-						"and": {
-							"effect_type": "draw",
-							"amount": 2,
-							"and": {
-								"effect_type": "gain_advantage"
-							}
-						}
-					},
-					{
-						"effect_type": "retreat",
-						"amount": 1,
-						"suppress_and_description": true,
-						"and": {
-							"effect_type": "draw",
-							"amount": 2,
-							"and": {
-								"effect_type": "gain_advantage"
-							}
-						}
-					}
+					{ "effect_type": "advance", "amount": 1, "suppress_and_description": true, "and": {
+						"effect_type": "draw", "amount": 2, "and": { "effect_type": "gain_advantage" }
+					} },
+					{ "effect_type": "retreat", "amount": 1, "suppress_and_description": true, "and": {
+						"effect_type": "draw", "amount": 2, "and": { "effect_type": "gain_advantage" }
+					} }
 				]
 			},
 			{
@@ -19111,13 +17759,8 @@
 				"and": {
 					"effect_type": "choice",
 					"choice": [
-						{
-							"effect_type": "reveal_copy_for_advantage",
-							"copy_id": "londrekia_circularstep"
-						},
-						{
-							"effect_type": "pass"
-						}
+						{ "effect_type": "reveal_copy_for_advantage", "copy_id": "londrekia_circularstep" },
+						{ "effect_type": "pass" }
 					]
 				}
 			}
@@ -19279,6 +17922,7 @@
 		},
 		"NOTEEND": "LONDREKIA CARDS END"
 	},
+
 	{
 		"NOTE": "MAY CARDS START",
 		"id": "may_goshogawara",
@@ -19590,14 +18234,8 @@
 					"timing": "now",
 					"effect_type": "choice",
 					"choice": [
-						{
-							"effect_type": "advance",
-							"amount": 2
-						},
-						{
-							"effect_type": "retreat",
-							"amount": 2
-						}
+						{ "effect_type": "advance", "amount": 2 },
+						{ "effect_type": "retreat", "amount": 2 }
 					]
 				},
 				{
@@ -19609,6 +18247,7 @@
 		},
 		"NOTEEND": "MAY CARDS END"
 	},
+
 	{
 		"NOTE": "MERKAVA CARDS START",
 		"id": "merkava_idefile",
@@ -19623,7 +18262,8 @@
 		"speed": 8,
 		"armor": 0,
 		"guard": 0,
-		"effects": [],
+		"effects": [
+		],
 		"boost": {
 			"boost_type": "continuous",
 			"force_cost": 0,
@@ -19664,12 +18304,8 @@
 				"timing": "after",
 				"effect_type": "choice",
 				"choice": [
-					{
-						"effect_type": "return_attack_to_top_of_deck"
-					},
-					{
-						"effect_type": "pass"
-					}
+					{ "effect_type": "return_attack_to_top_of_deck" },
+					{ "effect_type": "pass" }
 				]
 			}
 		],
@@ -19727,14 +18363,8 @@
 					"timing": "before",
 					"effect_type": "choice",
 					"choice": [
-						{
-							"effect_type": "advance",
-							"amount": 1
-						},
-						{
-							"effect_type": "retreat",
-							"amount": 1
-						}
+						{ "effect_type": "advance", "amount": 1 },
+						{ "effect_type": "retreat", "amount": 1 }
 					]
 				}
 			]
@@ -19760,12 +18390,8 @@
 				"and": {
 					"effect_type": "choice",
 					"choice": [
-						{
-							"effect_type": "return_attack_to_top_of_deck"
-						},
-						{
-							"effect_type": "pass"
-						}
+						{ "effect_type": "return_attack_to_top_of_deck" },
+						{ "effect_type": "pass" }
 					]
 				}
 			}
@@ -19786,14 +18412,8 @@
 						"and": {
 							"effect_type": "choice_altered_values",
 							"choice": [
-								{
-									"effect_type": "advance",
-									"amount": "strike_x"
-								},
-								{
-									"effect_type": "retreat",
-									"amount": "strike_x"
-								}
+								{ "effect_type": "advance", "amount": "strike_x" },
+								{ "effect_type": "retreat", "amount": "strike_x" }
 							]
 						}
 					}
@@ -19871,26 +18491,16 @@
 				"timing": "hit",
 				"effect_type": "choice",
 				"choice": [
-					{
-						"effect_type": "push",
-						"amount": 1
-					},
-					{
-						"effect_type": "pull",
-						"amount": 1
-					}
+					{ "effect_type": "push", "amount": 1 },
+					{ "effect_type": "pull", "amount": 1 }
 				]
 			},
 			{
 				"timing": "after",
 				"effect_type": "choice",
 				"choice": [
-					{
-						"effect_type": "return_attack_to_top_of_deck"
-					},
-					{
-						"effect_type": "pass"
-					}
+					{ "effect_type": "return_attack_to_top_of_deck" },
+					{ "effect_type": "pass" }
 				]
 			}
 		],
@@ -19935,14 +18545,8 @@
 					"and": {
 						"effect_type": "choice_altered_values",
 						"choice": [
-							{
-								"effect_type": "push",
-								"amount": "strike_x"
-							},
-							{
-								"effect_type": "pull",
-								"amount": "strike_x"
-							}
+							{ "effect_type": "push", "amount": "strike_x" },
+							{ "effect_type": "pull", "amount": "strike_x" }
 						]
 					}
 				}
@@ -20026,20 +18630,15 @@
 					"timing": "now",
 					"effect_type": "choice",
 					"choice": [
-						{
-							"effect_type": "advance",
-							"amount": 1
-						},
-						{
-							"effect_type": "retreat",
-							"amount": 1
-						}
+						{ "effect_type": "advance", "amount": 1 },
+						{ "effect_type": "retreat", "amount": 1 }
 					]
 				}
 			]
 		},
 		"NOTEEND": "MERKAVA CARDS END"
 	},
+
 	{
 		"NOTE": "MIKA CARDS START",
 		"id": "mika_revolution",
@@ -20113,14 +18712,10 @@
 				"condition": "was_wild_swing",
 				"effect_type": "choice",
 				"choice": [
-					{
-						"effect_type": "push",
-						"amount": 2
-					},
-					{
-						"effect_type": "pass"
-					}
+					{ "effect_type": "push", "amount": 2 },
+					{ "effect_type": "pass" }
 				]
+
 			}
 		],
 		"boost": {
@@ -20218,14 +18813,8 @@
 					"timing": "immediate",
 					"effect_type": "choice",
 					"choice": [
-						{
-							"effect_type": "advance",
-							"amount": 1
-						},
-						{
-							"effect_type": "retreat",
-							"amount": 1
-						}
+						{ "effect_type": "advance", "amount": 1 },
+						{ "effect_type": "retreat", "amount": 1 }
 					]
 				},
 				{
@@ -20378,6 +18967,7 @@
 		},
 		"NOTEEND": "MIKA CARDS END"
 	},
+
 	{
 		"NOTE": "MILLIA CARDS START",
 		"id": "millia_septemvoices",
@@ -20438,22 +19028,8 @@
 					"timing": "hit",
 					"effect_type": "choice",
 					"choice": [
-						{
-							"effect_type": "push",
-							"amount": 1,
-							"and": {
-								"effect_type": "opponent_discard_random",
-								"amount": 1
-							}
-						},
-						{
-							"effect_type": "pull",
-							"amount": 1,
-							"and": {
-								"effect_type": "opponent_discard_random",
-								"amount": 1
-							}
-						}
+						{ "effect_type": "push", "amount": 1, "and": { "effect_type": "opponent_discard_random", "amount": 1 } },
+						{ "effect_type": "pull", "amount": 1, "and": { "effect_type": "opponent_discard_random", "amount": 1 } }
 					]
 				}
 			]
@@ -20500,13 +19076,8 @@
 					"timing": "hit",
 					"effect_type": "choice",
 					"choice": [
-						{
-							"effect_type": "draw",
-							"amount": 1
-						},
-						{
-							"effect_type": "gain_advantage"
-						}
+						{ "effect_type": "draw", "amount": 1 },
+						{ "effect_type": "gain_advantage" }
 					]
 				}
 			]
@@ -20575,14 +19146,8 @@
 				"timing": "before",
 				"effect_type": "choice",
 				"choice": [
-					{
-						"effect_type": "advance",
-						"amount": 1
-					},
-					{
-						"effect_type": "advance",
-						"amount": 2
-					}
+					{ "effect_type": "advance", "amount": 1 },
+					{ "effect_type": "advance", "amount": 2 }
 				]
 			}
 		],
@@ -20653,13 +19218,8 @@
 					"timing": "now",
 					"effect_type": "choice",
 					"choice": [
-						{
-							"effect_type": "pull",
-							"amount": 1
-						},
-						{
-							"effect_type": "pass"
-						}
+						{ "effect_type": "pull", "amount": 1 },
+						{ "effect_type": "pass" }
 					]
 				}
 			]
@@ -20687,17 +19247,9 @@
 				"timing": "after",
 				"effect_type": "choice",
 				"choice": [
-					{
-						"effect_type": "advance",
-						"amount": 2
-					},
-					{
-						"effect_type": "retreat",
-						"amount": 2
-					},
-					{
-						"effect_type": "pass"
-					}
+					{ "effect_type": "advance", "amount": 2 },
+					{ "effect_type": "retreat", "amount": 2 },
+					{ "effect_type": "pass" }
 				]
 			}
 		],
@@ -20711,24 +19263,17 @@
 					"timing": "immediate",
 					"effect_type": "choice",
 					"choice": [
-						{
-							"effect_type": "advance",
-							"amount": 2,
-							"use_semicolon_for_and": true,
+						{ "effect_type": "advance", "amount": 2, "use_semicolon_for_and": true,
+						  "and": {
+							"condition": "advanced_through",
+							"effect_type": "draw",
+							"amount": 1,
 							"and": {
-								"condition": "advanced_through",
-								"effect_type": "draw",
-								"amount": 1,
-								"and": {
-									"effect_type": "return_this_to_hand_immediate_boost",
-									"card_name": "Tandem Top"
-								}
+								"effect_type": "return_this_to_hand_immediate_boost",
+								"card_name": "Tandem Top"
 							}
-						},
-						{
-							"effect_type": "retreat",
-							"amount": 2
-						}
+						}},
+						{ "effect_type": "retreat", "amount": 2 }
 					]
 				}
 			]
@@ -20770,14 +19315,8 @@
 					"timing": "before",
 					"effect_type": "choice",
 					"choice": [
-						{
-							"effect_type": "advance",
-							"amount": 1
-						},
-						{
-							"effect_type": "retreat",
-							"amount": 1
-						}
+						{ "effect_type": "advance", "amount": 1 },
+						{ "effect_type": "retreat", "amount": 1 }
 					]
 				},
 				{
@@ -20788,6 +19327,8 @@
 		},
 		"NOTEEND": "MILLIA CARDS END"
 	},
+
+
 	{
 		"NOTE": "MOLE CARDS START",
 		"id": "mole_erupt",
@@ -20801,7 +19342,8 @@
 		"speed": 1,
 		"armor": 2,
 		"guard": 5,
-		"effects": [],
+		"effects": [
+		],
 		"boost": {
 			"boost_type": "continuous",
 			"force_cost": 1,
@@ -20949,10 +19491,7 @@
 				"and": {
 					"effect_type": "choice",
 					"choice": [
-						{
-							"effect_type": "retreat",
-							"amount": 1
-						},
+						{ "effect_type": "retreat", "amount": 1 },
 						{
 							"effect_type": "advance",
 							"amount": 2,
@@ -21111,6 +19650,8 @@
 		},
 		"NOTEEND": "MOLE CARDS END"
 	},
+
+
 	{
 		"NOTE": "MORATHI CARDS START",
 		"id": "morathi_godofwar",
@@ -21183,7 +19724,8 @@
 				"amount": 2
 			}
 		},
-		"effects": [],
+		"effects": [
+		],
 		"boost": {
 			"boost_type": "immediate",
 			"force_cost": 4,
@@ -21227,45 +19769,10 @@
 				"condition_amount": 3,
 				"effect_type": "choice",
 				"choice": [
-					{
-						"effect_type": "discard_random",
-						"amount": 1,
-						"and": {
-							"effect_type": "powerup",
-							"amount": 1,
-							"and": {
-								"effect_type": "opponent_discard_choose",
-								"amount": 1
-							}
-						}
-					},
-					{
-						"effect_type": "discard_random",
-						"amount": 2,
-						"and": {
-							"effect_type": "powerup",
-							"amount": 2,
-							"and": {
-								"effect_type": "opponent_discard_choose",
-								"amount": 2
-							}
-						}
-					},
-					{
-						"effect_type": "discard_random",
-						"amount": 3,
-						"and": {
-							"effect_type": "powerup",
-							"amount": 3,
-							"and": {
-								"effect_type": "opponent_discard_choose",
-								"amount": 3
-							}
-						}
-					},
-					{
-						"effect_type": "pass"
-					}
+					{ "effect_type": "discard_random", "amount": 1, "and": { "effect_type": "powerup", "amount": 1, "and": { "effect_type": "opponent_discard_choose", "amount": 1 }}},
+					{ "effect_type": "discard_random", "amount": 2, "and": { "effect_type": "powerup", "amount": 2, "and": { "effect_type": "opponent_discard_choose", "amount": 2 }}},
+					{ "effect_type": "discard_random", "amount": 3, "and": { "effect_type": "powerup", "amount": 3, "and": { "effect_type": "opponent_discard_choose", "amount": 3 }}},
+					{ "effect_type": "pass" }
 				],
 				"negative_condition_effect": {
 					"is_negative_effect": true,
@@ -21273,33 +19780,9 @@
 					"condition_amount": 2,
 					"effect_type": "choice",
 					"choice": [
-						{
-							"effect_type": "discard_random",
-							"amount": 1,
-							"and": {
-								"effect_type": "powerup",
-								"amount": 1,
-								"and": {
-									"effect_type": "opponent_discard_choose",
-									"amount": 1
-								}
-							}
-						},
-						{
-							"effect_type": "discard_random",
-							"amount": 2,
-							"and": {
-								"effect_type": "powerup",
-								"amount": 2,
-								"and": {
-									"effect_type": "opponent_discard_choose",
-									"amount": 2
-								}
-							}
-						},
-						{
-							"effect_type": "pass"
-						}
+						{ "effect_type": "discard_random", "amount": 1, "and": { "effect_type": "powerup", "amount": 1, "and": { "effect_type": "opponent_discard_choose", "amount": 1 }}},
+						{ "effect_type": "discard_random", "amount": 2, "and": { "effect_type": "powerup", "amount": 2, "and": { "effect_type": "opponent_discard_choose", "amount": 2 }}},
+						{ "effect_type": "pass" }
 					],
 					"negative_condition_effect": {
 						"is_negative_effect": true,
@@ -21307,21 +19790,8 @@
 						"condition_amount": 1,
 						"effect_type": "choice",
 						"choice": [
-							{
-								"effect_type": "discard_random",
-								"amount": 1,
-								"and": {
-									"effect_type": "powerup",
-									"amount": 1,
-									"and": {
-										"effect_type": "opponent_discard_choose",
-										"amount": 1
-									}
-								}
-							},
-							{
-								"effect_type": "pass"
-							}
+							{ "effect_type": "discard_random", "amount": 1, "and": { "effect_type": "powerup", "amount": 1, "and": { "effect_type": "opponent_discard_choose", "amount": 1 }}},
+							{ "effect_type": "pass" }
 						]
 					}
 				}
@@ -21362,6 +19832,7 @@
 					"effect_type": "powerup",
 					"amount": 1
 				},
+
 				{
 					"timing": "during_strike",
 					"effect_type": "speedup",
@@ -21458,36 +19929,10 @@
 				"condition_amount": 3,
 				"effect_type": "choice",
 				"choice": [
-					{
-						"effect_type": "discard_random",
-						"record_discarded_amount": true,
-						"amount": 1,
-						"and": {
-							"effect_type": "close",
-							"amount": 1
-						}
-					},
-					{
-						"effect_type": "discard_random",
-						"record_discarded_amount": true,
-						"amount": 2,
-						"and": {
-							"effect_type": "close",
-							"amount": 2
-						}
-					},
-					{
-						"effect_type": "discard_random",
-						"record_discarded_amount": true,
-						"amount": 3,
-						"and": {
-							"effect_type": "close",
-							"amount": 3
-						}
-					},
-					{
-						"effect_type": "pass"
-					}
+					{ "effect_type": "discard_random", "record_discarded_amount": true, "amount": 1, "and": { "effect_type": "close", "amount": 1 } },
+					{ "effect_type": "discard_random", "record_discarded_amount": true, "amount": 2, "and": { "effect_type": "close", "amount": 2 } },
+					{ "effect_type": "discard_random", "record_discarded_amount": true, "amount": 3, "and": { "effect_type": "close", "amount": 3 } },
+					{ "effect_type": "pass" }
 				],
 				"negative_condition_effect": {
 					"is_negative_effect": true,
@@ -21495,27 +19940,9 @@
 					"condition_amount": 2,
 					"effect_type": "choice",
 					"choice": [
-						{
-							"effect_type": "discard_random",
-							"record_discarded_amount": true,
-							"amount": 1,
-							"and": {
-								"effect_type": "close",
-								"amount": 1
-							}
-						},
-						{
-							"effect_type": "discard_random",
-							"record_discarded_amount": true,
-							"amount": 2,
-							"and": {
-								"effect_type": "close",
-								"amount": 2
-							}
-						},
-						{
-							"effect_type": "pass"
-						}
+						{ "effect_type": "discard_random", "record_discarded_amount": true, "amount": 1, "and": { "effect_type": "close", "amount": 1 } },
+						{ "effect_type": "discard_random", "record_discarded_amount": true, "amount": 2, "and": { "effect_type": "close", "amount": 2 } },
+						{ "effect_type": "pass" }
 					],
 					"negative_condition_effect": {
 						"is_negative_effect": true,
@@ -21523,18 +19950,8 @@
 						"condition_amount": 1,
 						"effect_type": "choice",
 						"choice": [
-							{
-								"effect_type": "discard_random",
-								"record_discarded_amount": true,
-								"amount": 1,
-								"and": {
-									"effect_type": "close",
-									"amount": 1
-								}
-							},
-							{
-								"effect_type": "pass"
-							}
+							{ "effect_type": "discard_random", "record_discarded_amount": true, "amount": 1, "and": { "effect_type": "close", "amount": 1 } },
+							{ "effect_type": "pass" }
 						]
 					}
 				}
@@ -21601,6 +20018,8 @@
 		},
 		"NOTEND": "MORATHI CARDS END"
 	},
+
+
 	{
 		"NOTE": "NAGO CARDS START",
 		"id": "nago_wasureyuki",
@@ -21861,14 +20280,8 @@
 					"timing": "immediate",
 					"effect_type": "choice",
 					"choice": [
-						{
-							"effect_type": "advance",
-							"amount": 2
-						},
-						{
-							"effect_type": "retreat",
-							"amount": 2
-						}
+						{ "effect_type": "advance", "amount": 2 },
+						{ "effect_type": "retreat", "amount": 2 }
 					]
 				},
 				{
@@ -21939,6 +20352,8 @@
 		},
 		"NOTEEND": "NAGO CARDS END"
 	},
+
+
 	{
 		"NOTE": "NANASE CARDS START",
 		"id": "nanase_atmosphereoftheaether",
@@ -22138,14 +20553,8 @@
 				"timing": "hit",
 				"effect_type": "choice",
 				"choice": [
-					{
-						"effect_type": "push",
-						"amount": 1
-					},
-					{
-						"effect_type": "pull",
-						"amount": 1
-					}
+					{ "effect_type": "push", "amount": 1 },
+					{ "effect_type": "pull", "amount": 1 }
 				]
 			}
 		],
@@ -22187,20 +20596,10 @@
 				"effect_type": "choice",
 				"choice": [
 					{
-						"effect_type": "advance",
-						"amount": 2,
-						"and": {
-							"effect_type": "draw",
-							"amount": 2
-						}
+						"effect_type": "advance", "amount": 2 , "and": { "effect_type": "draw", "amount": 2 }
 					},
 					{
-						"effect_type": "retreat",
-						"amount": 2,
-						"and": {
-							"effect_type": "draw",
-							"amount": 2
-						}
+						"effect_type": "retreat", "amount": 2 , "and": { "effect_type": "draw", "amount": 2 }
 					}
 				]
 			}
@@ -22271,6 +20670,9 @@
 		},
 		"NOTEEND": "NANASE CARDS END"
 	},
+
+
+
 	{
 		"NOTE": "NEHTALI CARDS START",
 		"id": "nehtali_heavenspunishment",
@@ -22295,14 +20697,8 @@
 				"timing": "after",
 				"effect_type": "choice",
 				"choice": [
-					{
-						"effect_type": "advance",
-						"amount": 1
-					},
-					{
-						"effect_type": "retreat",
-						"amount": 1
-					}
+					{ "effect_type": "advance", "amount": 1 },
+					{ "effect_type": "retreat", "amount": 1 }
 				]
 			}
 		],
@@ -22334,7 +20730,8 @@
 		"speed": 7,
 		"armor": 0,
 		"guard": 0,
-		"effects": [],
+		"effects": [
+		],
 		"boost": {
 			"boost_type": "immediate",
 			"force_cost": 0,
@@ -22510,14 +20907,8 @@
 					"timing": "immediate",
 					"effect_type": "choice",
 					"choice": [
-						{
-							"effect_type": "push",
-							"amount": 1
-						},
-						{
-							"effect_type": "pull",
-							"amount": 1
-						}
+						{ "effect_type": "push", "amount": 1 },
+						{ "effect_type": "pull", "amount": 1 }
 					]
 				},
 				{
@@ -22560,6 +20951,8 @@
 		},
 		"NOTEND": "NEHTALI CARDS END"
 	},
+
+
 	{
 		"NOTE": "NINE CARDS START",
 		"id": "nine_colorlessvoid",
@@ -22574,7 +20967,8 @@
 		"speed": 9,
 		"armor": 0,
 		"guard": 0,
-		"effects": [],
+		"effects": [
+		],
 		"boost": {
 			"boost_type": "immediate",
 			"force_cost": 0,
@@ -22629,14 +21023,8 @@
 					"timing": "immediate",
 					"effect_type": "choice",
 					"choice": [
-						{
-							"effect_type": "advance",
-							"amount": 2
-						},
-						{
-							"effect_type": "retreat",
-							"amount": 2
-						}
+						{ "effect_type": "advance", "amount": 2 },
+						{ "effect_type": "retreat", "amount": 2 }
 					]
 				},
 				{
@@ -22714,9 +21102,7 @@
 						"limitation": "",
 						"destination": "sealed"
 					},
-					{
-						"effect_type": "pass"
-					}
+					{ "effect_type": "pass" }
 				]
 			},
 			{
@@ -22726,14 +21112,8 @@
 				"linked_effect": {
 					"effect_type": "choice",
 					"choice": [
-						{
-							"effect_type": "advance",
-							"amount": 1
-						},
-						{
-							"effect_type": "retreat",
-							"amount": 1
-						}
+						{ "effect_type": "advance", "amount": 1 },
+						{ "effect_type": "retreat", "amount": 1 }
 					]
 				}
 			}
@@ -22885,14 +21265,8 @@
 					"timing": "hit",
 					"effect_type": "choice",
 					"choice": [
-						{
-							"effect_type": "advance",
-							"amount": 2
-						},
-						{
-							"effect_type": "retreat",
-							"amount": 2
-						}
+						{ "effect_type": "advance", "amount": 2 },
+						{ "effect_type": "retreat", "amount": 2 }
 					]
 				}
 			]
@@ -23017,9 +21391,7 @@
 							"effect_type": "add_top_discard_to_gauge"
 						}
 					},
-					{
-						"effect_type": "pass"
-					}
+					{ "effect_type": "pass" }
 				]
 			}
 		],
@@ -23048,6 +21420,7 @@
 		},
 		"NOTEEND": "NINE CARDS END"
 	},
+
 	{
 		"NOTE": "NOEL CARDS START",
 		"id": "noel_valkyrieveil",
@@ -23074,22 +21447,10 @@
 				"and": {
 					"effect_type": "choice",
 					"choice": [
-						{
-							"effect_type": "draw",
-							"amount": 1
-						},
-						{
-							"effect_type": "draw",
-							"amount": 2
-						},
-						{
-							"effect_type": "draw",
-							"amount": 3
-						},
-						{
-							"effect_type": "draw",
-							"amount": 4
-						}
+						{ "effect_type": "draw", "amount": 1 },
+						{ "effect_type": "draw", "amount": 2 },
+						{ "effect_type": "draw", "amount": 3 },
+						{ "effect_type": "draw", "amount": 4 }
 					]
 				}
 			}
@@ -23116,6 +21477,7 @@
 			]
 		}
 	},
+
 	{
 		"id": "noel_bulletstorm",
 		"type": "ultra",
@@ -23152,6 +21514,7 @@
 			]
 		}
 	},
+
 	{
 		"id": "noel_zerogunfenrir",
 		"type": "ultra",
@@ -23193,6 +21556,7 @@
 			]
 		}
 	},
+
 	{
 		"id": "noel_assaultthrough",
 		"type": "special",
@@ -23238,6 +21602,7 @@
 			]
 		}
 	},
+
 	{
 		"id": "noel_muzzleflitter",
 		"type": "special",
@@ -23284,6 +21649,7 @@
 			]
 		}
 	},
+
 	{
 		"id": "noel_opticbarrel",
 		"type": "special",
@@ -23312,13 +21678,8 @@
 				"timing": "after",
 				"effect_type": "choice",
 				"choice": [
-					{
-						"effect_type": "advance",
-						"amount": 2
-					},
-					{
-						"effect_type": "pass"
-					}
+					{ "effect_type": "advance", "amount": 2 },
+					{ "effect_type": "pass" }
 				]
 			}
 		],
@@ -23340,6 +21701,7 @@
 			]
 		}
 	},
+
 	{
 		"id": "noel_springraid",
 		"type": "special",
@@ -23386,6 +21748,7 @@
 			]
 		}
 	},
+
 	{
 		"NOTE": "NOEL CARDS END",
 		"id": "noel_typeone",
@@ -23434,6 +21797,7 @@
 		},
 		"NOTEEND": "NOEL CARDS END"
 	},
+
 	{
 		"NOTE": "NU13 CARDS START",
 		"id": "nu13_swordofdestruction",
@@ -23490,7 +21854,8 @@
 		"speed": 7,
 		"armor": 0,
 		"guard": 0,
-		"effects": [],
+		"effects": [
+		],
 		"boost": {
 			"boost_type": "immediate",
 			"force_cost": 2,
@@ -23621,13 +21986,8 @@
 				"timing": "before",
 				"effect_type": "choice",
 				"choice": [
-					{
-						"effect_type": "retreat",
-						"amount": 1
-					},
-					{
-						"effect_type": "pass"
-					}
+					{ "effect_type": "retreat", "amount": 1 },
+					{ "effect_type": "pass" }
 				]
 			},
 			{
@@ -23646,14 +22006,8 @@
 					"timing": "immediate",
 					"effect_type": "choice",
 					"choice": [
-						{
-							"effect_type": "advance",
-							"amount": 3
-						},
-						{
-							"effect_type": "retreat",
-							"amount": 3
-						}
+						{ "effect_type": "advance", "amount": 3 },
+						{ "effect_type": "retreat", "amount": 3 }
 					]
 				}
 			]
@@ -23681,14 +22035,8 @@
 					"is_negative_effect": true,
 					"effect_type": "choice",
 					"choice": [
-						{
-							"effect_type": "push",
-							"amount": 2
-						},
-						{
-							"effect_type": "pull",
-							"amount": 2
-						}
+						{ "effect_type": "push", "amount": 2 },
+						{ "effect_type": "pull", "amount": 2 }
 					]
 				}
 			}
@@ -23708,17 +22056,9 @@
 					"timing": "hit",
 					"effect_type": "choice",
 					"choice": [
-						{
-							"effect_type": "push",
-							"amount": 1
-						},
-						{
-							"effect_type": "pull",
-							"amount": 1
-						},
-						{
-							"effect_type": "pass"
-						}
+						{ "effect_type": "push", "amount": 1 },
+						{ "effect_type": "pull", "amount": 1 },
+						{ "effect_type": "pass" }
 					]
 				}
 			]
@@ -23809,6 +22149,7 @@
 				"effect_type": "retreat",
 				"amount": 2
 			}
+
 		],
 		"boost": {
 			"boost_type": "continuous",
@@ -23831,6 +22172,8 @@
 		},
 		"NOTEEND": "NU13 CARDS END"
 	},
+
+
 	{
 		"NOTE": "ORIE CARDS START",
 		"id": "orie_luminousembrace",
@@ -23955,14 +22298,8 @@
 					"timing": "now",
 					"effect_type": "choice",
 					"choice": [
-						{
-							"effect_type": "advance",
-							"amount": 1
-						},
-						{
-							"effect_type": "retreat",
-							"amount": 1
-						}
+						{ "effect_type": "advance", "amount": 1 },
+						{ "effect_type": "retreat", "amount": 1 }
 					]
 				}
 			]
@@ -23994,14 +22331,8 @@
 				"and": {
 					"effect_type": "choice",
 					"choice": [
-						{
-							"effect_type": "advance",
-							"amount": 1
-						},
-						{
-							"effect_type": "retreat",
-							"amount": 1
-						}
+						{ "effect_type": "advance", "amount": 1 },
+						{ "effect_type": "retreat", "amount": 1 }
 					]
 				}
 			}
@@ -24021,12 +22352,8 @@
 						"condition": "advanced_through",
 						"effect_type": "choice",
 						"choice": [
-							{
-								"effect_type": "strike"
-							},
-							{
-								"effect_type": "pass"
-							}
+							{ "effect_type": "strike" },
+							{ "effect_type": "pass" }
 						]
 					}
 				}
@@ -24059,14 +22386,8 @@
 				"and": {
 					"effect_type": "choice",
 					"choice": [
-						{
-							"effect_type": "advance",
-							"amount": 1
-						},
-						{
-							"effect_type": "retreat",
-							"amount": 1
-						}
+						{ "effect_type": "advance", "amount": 1 },
+						{ "effect_type": "retreat", "amount": 1 }
 					]
 				}
 			}
@@ -24087,14 +22408,8 @@
 					"timing": "now",
 					"effect_type": "choice",
 					"choice": [
-						{
-							"effect_type": "advance",
-							"amount": 1
-						},
-						{
-							"effect_type": "retreat",
-							"amount": 1
-						}
+						{ "effect_type": "advance", "amount": 1 },
+						{ "effect_type": "retreat", "amount": 1 }
 					]
 				}
 			]
@@ -24145,14 +22460,8 @@
 					"timing": "now",
 					"effect_type": "choice",
 					"choice": [
-						{
-							"effect_type": "advance",
-							"amount": 1
-						},
-						{
-							"effect_type": "retreat",
-							"amount": 1
-						}
+						{ "effect_type": "advance", "amount": 1 },
+						{ "effect_type": "retreat", "amount": 1 }
 					]
 				}
 			]
@@ -24193,20 +22502,15 @@
 					"timing": "now",
 					"effect_type": "choice",
 					"choice": [
-						{
-							"effect_type": "advance",
-							"amount": 1
-						},
-						{
-							"effect_type": "retreat",
-							"amount": 1
-						}
+						{ "effect_type": "advance", "amount": 1 },
+						{ "effect_type": "retreat", "amount": 1 }
 					]
 				}
 			]
 		},
 		"NOTEEND": "ORIE CARDS END"
 	},
+
 	{
 		"NOTE": "PLAGUE CARDS START",
 		"id": "plague_castlecrasher",
@@ -24309,7 +22613,8 @@
 					"timing": "during_strike",
 					"effect_type": "set_strike_x",
 					"source": "force_spent_before_strike",
-					"and": {
+					"and":
+					{
 						"effect_type": "powerup",
 						"amount": "strike_x"
 					}
@@ -24350,14 +22655,8 @@
 					"timing": "immediate",
 					"effect_type": "choice",
 					"choice": [
-						{
-							"effect_type": "advance",
-							"amount": 3
-						},
-						{
-							"effect_type": "retreat",
-							"amount": 3
-						}
+						{ "effect_type": "advance", "amount": 3 },
+						{ "effect_type": "retreat", "amount": 3 }
 					]
 				}
 			]
@@ -24443,14 +22742,8 @@
 					"timing": "now",
 					"effect_type": "choice",
 					"choice": [
-						{
-							"effect_type": "advance",
-							"amount": 2
-						},
-						{
-							"effect_type": "retreat",
-							"amount": 2
-						}
+						{ "effect_type": "advance", "amount": 2 },
+						{ "effect_type": "retreat", "amount": 2 }
 					]
 				},
 				{
@@ -24508,6 +22801,7 @@
 				{
 					"timing": "immediate",
 					"NOTE": "do the one that wasn't chosen",
+
 					"condition": "choose_cards_from_top_deck_action",
 					"condition_details": "add_to_hand",
 					"effect_type": "choose_cards_from_top_deck",
@@ -24517,6 +22811,7 @@
 					],
 					"can_pass": false,
 					"destination_unchosen": "topdeck",
+
 					"negative_condition_effect": {
 						"is_negative_effect": true,
 						"effect_type": "choose_cards_from_top_deck",
@@ -24549,14 +22844,8 @@
 				"timing": "after",
 				"effect_type": "choice",
 				"choice": [
-					{
-						"effect_type": "advance",
-						"amount": 1
-					},
-					{
-						"effect_type": "retreat",
-						"amount": 1
-					}
+					{ "effect_type": "advance", "amount": 1 },
+					{ "effect_type": "retreat", "amount": 1 }
 				]
 			}
 		],
@@ -24574,6 +22863,7 @@
 		},
 		"NOTEEND": "PLAGUE CARDS END"
 	},
+
 	{
 		"NOTE": "RACHEL CARDS START",
 		"id": "rachel_clownishcalendula",
@@ -24587,7 +22877,8 @@
 		"speed": 3,
 		"armor": 0,
 		"guard": 6,
-		"effects": [],
+		"effects": [
+		],
 		"boost": {
 			"boost_type": "immediate",
 			"force_cost": 0,
@@ -24633,26 +22924,9 @@
 				"timing": "after",
 				"effect_type": "choice",
 				"choice": [
-					{
-						"effect_type": "push",
-						"amount": 1,
-						"and": {
-							"effect_type": "close",
-							"amount": 2
-						}
-					},
-					{
-						"effect_type": "push",
-						"amount": 2,
-						"and": {
-							"effect_type": "close",
-							"amount": 2
-						}
-					},
-					{
-						"effect_type": "close",
-						"amount": 2
-					}
+					{ "effect_type": "push", "amount": 1, "and": { "effect_type": "close", "amount": 2 } },
+					{ "effect_type": "push", "amount": 2, "and": { "effect_type": "close", "amount": 2 }  },
+					{ "effect_type": "close", "amount": 2 }
 				]
 			}
 		],
@@ -24777,17 +23051,9 @@
 					"and": {
 						"effect_type": "choice",
 						"choice": [
-							{
-								"effect_type": "push",
-								"amount": 1
-							},
-							{
-								"effect_type": "pull",
-								"amount": 1
-							},
-							{
-								"effect_type": "pass"
-							}
+							{ "effect_type": "push", "amount": 1 },
+							{ "effect_type": "pull", "amount": 1 },
+							{ "effect_type": "pass" }
 						]
 					}
 				}
@@ -24821,9 +23087,7 @@
 						"source": "top_discard",
 						"limitation": "attack_range"
 					},
-					{
-						"effect_type": "pass"
-					}
+					{ "effect_type": "pass" }
 				]
 			}
 		],
@@ -24837,14 +23101,8 @@
 					"timing": "before",
 					"effect_type": "choice",
 					"choice": [
-						{
-							"effect_type": "push",
-							"amount": 1
-						},
-						{
-							"effect_type": "push",
-							"amount": 2
-						}
+						{ "effect_type": "push", "amount": 1 },
+						{ "effect_type": "push", "amount": 2 }
 					]
 				}
 			]
@@ -24920,9 +23178,7 @@
 						"source": "this_attack_card",
 						"limitation": "attack_range"
 					},
-					{
-						"effect_type": "pass"
-					}
+					{ "effect_type": "pass" }
 				]
 			}
 		],
@@ -24941,13 +23197,8 @@
 					"timing": "hit",
 					"effect_type": "choice",
 					"choice": [
-						{
-							"effect_type": "draw",
-							"amount": 1
-						},
-						{
-							"effect_type": "gain_advantage"
-						}
+						{ "effect_type": "draw", "amount": 1 },
+						{ "effect_type": "gain_advantage" }
 					]
 				}
 			]
@@ -25004,6 +23255,7 @@
 		},
 		"NOTEEND": "RACHEL CARDS END"
 	},
+
 	{
 		"NOTE": "RAGNA CARDS START",
 		"id": "ragna_blackonslaught",
@@ -25088,49 +23340,12 @@
 					"timing": "immediate",
 					"effect_type": "choice",
 					"choice": [
-						{
-							"effect_type": "spend_life",
-							"amount": 1,
-							"and": {
-								"effect_type": "draw",
-								"amount": 1
-							}
-						},
-						{
-							"effect_type": "spend_life",
-							"amount": 2,
-							"and": {
-								"effect_type": "draw",
-								"amount": 2
-							}
-						},
-						{
-							"effect_type": "spend_life",
-							"amount": 3,
-							"and": {
-								"effect_type": "draw",
-								"amount": 3
-							}
-						},
-						{
-							"effect_type": "spend_life",
-							"amount": 4,
-							"and": {
-								"effect_type": "draw",
-								"amount": 4
-							}
-						},
-						{
-							"effect_type": "spend_life",
-							"amount": 5,
-							"and": {
-								"effect_type": "draw",
-								"amount": 5
-							}
-						},
-						{
-							"effect_type": "pass"
-						}
+						{ "effect_type": "spend_life", "amount": 1, "and": { "effect_type": "draw", "amount": 1 } },
+						{ "effect_type": "spend_life", "amount": 2, "and": { "effect_type": "draw", "amount": 2 } },
+						{ "effect_type": "spend_life", "amount": 3, "and": { "effect_type": "draw", "amount": 3 } },
+						{ "effect_type": "spend_life", "amount": 4, "and": { "effect_type": "draw", "amount": 4 } },
+						{ "effect_type": "spend_life", "amount": 5, "and": { "effect_type": "draw", "amount": 5 } },
+						{ "effect_type": "pass" }
 					]
 				},
 				{
@@ -25276,17 +23491,8 @@
 					"timing": "now",
 					"effect_type": "choice",
 					"choice": [
-						{
-							"effect_type": "spend_life",
-							"amount": 2,
-							"and": {
-								"effect_type": "draw",
-								"amount": 1
-							}
-						},
-						{
-							"effect_type": "pass"
-						}
+						{ "effect_type": "spend_life", "amount": 2, "and": { "effect_type": "draw", "amount": 1 } },
+						{ "effect_type": "pass" }
 					]
 				}
 			]
@@ -25314,14 +23520,8 @@
 				"timing": "after",
 				"effect_type": "choice",
 				"choice": [
-					{
-						"effect_type": "close",
-						"amount": 1
-					},
-					{
-						"effect_type": "close",
-						"amount": 2
-					}
+					{ "effect_type": "close", "amount": 1 },
+					{ "effect_type": "close", "amount": 2 }
 				]
 			}
 		],
@@ -25340,14 +23540,8 @@
 					"timing": "hit",
 					"effect_type": "choice",
 					"choice": [
-						{
-							"effect_type": "push",
-							"amount": 1
-						},
-						{
-							"effect_type": "push",
-							"amount": 2
-						}
+						{ "effect_type": "push", "amount": 1 },
+						{ "effect_type": "push", "amount": 2 }
 					]
 				}
 			]
@@ -25374,24 +23568,10 @@
 				"timing": "before",
 				"effect_type": "choice",
 				"choice": [
-					{
-						"effect_type": "advance",
-						"amount": 1,
-						"use_semicolon_for_and": true,
-						"and": {
-							"condition": "advanced_through",
-							"effect_type": "attack_does_not_hit"
-						}
-					},
-					{
-						"effect_type": "advance",
-						"amount": 2,
-						"use_semicolon_for_and": true,
-						"and": {
-							"condition": "advanced_through",
-							"effect_type": "attack_does_not_hit"
-						}
-					}
+					{ "effect_type": "advance", "amount": 1, "use_semicolon_for_and": true,
+					   "and": { "condition": "advanced_through", "effect_type": "attack_does_not_hit" } },
+					{ "effect_type": "advance", "amount": 2, "use_semicolon_for_and": true,
+					  "and": { "condition": "advanced_through", "effect_type": "attack_does_not_hit" } }
 				]
 			}
 		],
@@ -25461,6 +23641,8 @@
 		},
 		"NOTEEND": "RAGNA CARDS END"
 	},
+
+
 	{
 		"NOTE": "RAMLETHAL CARDS START",
 		"id": "ramlethal_mortobato",
@@ -25474,7 +23656,8 @@
 		"speed": 7,
 		"armor": 0,
 		"guard": 0,
-		"effects": [],
+		"effects": [
+		],
 		"boost": {
 			"boost_type": "immediate",
 			"force_cost": 0,
@@ -25707,20 +23890,8 @@
 				"timing": "hit",
 				"effect_type": "choice",
 				"choice": [
-					{
-						"effect_type": "close",
-						"amount": 1,
-						"and": {
-							"effect_type": "add_top_deck_to_gauge"
-						}
-					},
-					{
-						"effect_type": "retreat",
-						"amount": 1,
-						"and": {
-							"effect_type": "add_top_deck_to_gauge"
-						}
-					}
+					{ "effect_type": "close", "amount": 1, "and": { "effect_type": "add_top_deck_to_gauge" } },
+					{ "effect_type": "retreat", "amount": 1, "and": { "effect_type": "add_top_deck_to_gauge" } }
 				]
 			}
 		],
@@ -25798,6 +23969,8 @@
 		},
 		"NOTEEND": "RAMLETHAL CARDS END"
 	},
+
+
 	{
 		"NOTE": "REMILISS CARDS START",
 		"id": "remiliss_consumption",
@@ -26035,11 +24208,7 @@
 					"NOTE": "This timing is when the stat boosts are updated so it is actually EX",
 					"timing": "during_strike",
 					"condition": "copy_of_attack_in_zones",
-					"condition_zones": [
-						"gauge",
-						"gauge_spent",
-						"transform"
-					],
+					"condition_zones": ["gauge", "gauge_spent", "transform"],
 					"effect_type": "attack_is_ex",
 					"override_description": "If copy of attack is in Gauge/Transform, attack is EX"
 				}
@@ -26067,21 +24236,10 @@
 			{
 				"timing": "hit",
 				"effect_type": "choice",
-				"add_topdeck_card_name_to_choices": [
-					1
-				],
+				"add_topdeck_card_name_to_choices": [1],
 				"choice": [
-					{
-						"effect_type": "draw",
-						"amount": 1
-					},
-					{
-						"effect_type": "discard_topdeck",
-						"and": {
-							"effect_type": "powerup",
-							"amount": 2
-						}
-					}
+					{ "effect_type": "draw", "amount": 1 },
+					{ "effect_type": "discard_topdeck", "and": { "effect_type": "powerup", "amount": 2 } }
 				]
 			}
 		],
@@ -26157,6 +24315,8 @@
 		},
 		"NOTEEND": "REMILISS CARDS END"
 	},
+
+
 	{
 		"NOTE": "RYU CARDS START",
 		"id": "ryu_metsuhadoken",
@@ -26175,25 +24335,11 @@
 				"timing": "after",
 				"effect_type": "choice",
 				"choice": [
-					{
-						"effect_type": "advance",
-						"amount": 1
-					},
-					{
-						"effect_type": "advance",
-						"amount": 2
-					},
-					{
-						"effect_type": "retreat",
-						"amount": 1
-					},
-					{
-						"effect_type": "retreat",
-						"amount": 2
-					},
-					{
-						"effect_type": "pass"
-					}
+					{ "effect_type": "advance", "amount": 1 },
+					{ "effect_type": "advance", "amount": 2 },
+					{ "effect_type": "retreat", "amount": 1 },
+					{ "effect_type": "retreat", "amount": 2 },
+					{ "effect_type": "pass" }
 				]
 			}
 		],
@@ -26245,14 +24391,8 @@
 					"timing": "immediate",
 					"effect_type": "choice",
 					"choice": [
-						{
-							"effect_type": "advance",
-							"amount": 2
-						},
-						{
-							"effect_type": "retreat",
-							"amount": 2
-						}
+						{ "effect_type": "advance", "amount": 2 },
+						{ "effect_type": "retreat", "amount": 2 }
 					]
 				},
 				{
@@ -26336,14 +24476,8 @@
 					"timing": "immediate",
 					"effect_type": "choice",
 					"choice": [
-						{
-							"effect_type": "advance",
-							"amount": 1
-						},
-						{
-							"effect_type": "retreat",
-							"amount": 1
-						}
+						{ "effect_type": "advance", "amount": 1 },
+						{ "effect_type": "retreat", "amount": 1 }
 					]
 				},
 				{
@@ -26428,9 +24562,7 @@
 							"effect_type": "add_top_discard_to_gauge"
 						}
 					},
-					{
-						"effect_type": "pass"
-					}
+					{ "effect_type": "pass" }
 				]
 			}
 		],
@@ -26501,6 +24633,7 @@
 		},
 		"NOTEEND": "RYU CARDS END"
 	},
+
 	{
 		"NOTE": "PHONON CARDS START",
 		"id": "phonon_completeservitude",
@@ -26566,13 +24699,8 @@
 				"timing": "after",
 				"effect_type": "choice",
 				"choice": [
-					{
-						"effect_type": "return_attack_to_hand",
-						"card_name": "Binding Beatitude"
-					},
-					{
-						"effect_type": "pass"
-					}
+					{ "effect_type": "return_attack_to_hand", "card_name": "Binding Beatitude" },
+					{ "effect_type": "pass" }
 				]
 			}
 		],
@@ -26596,13 +24724,8 @@
 					"timing": "after",
 					"effect_type": "choice",
 					"choice": [
-						{
-							"effect_type": "return_this_boost_to_hand_strike_effect",
-							"card_name": "Binding Beatitude"
-						},
-						{
-							"effect_type": "pass"
-						}
+						{ "effect_type": "return_this_boost_to_hand_strike_effect", "card_name": "Binding Beatitude" },
+						{ "effect_type": "pass" }
 					]
 				}
 			]
@@ -26665,13 +24788,8 @@
 				"and": {
 					"effect_type": "choice",
 					"choice": [
-						{
-							"effect_type": "reveal_copy_for_advantage",
-							"copy_id": "phonon_turningsatisfaction"
-						},
-						{
-							"effect_type": "pass"
-						}
+						{ "effect_type": "reveal_copy_for_advantage", "copy_id": "phonon_turningsatisfaction" },
+						{ "effect_type": "pass" }
 					]
 				}
 			}
@@ -26750,20 +24868,8 @@
 				"condition_amount": 4,
 				"effect_type": "choice",
 				"choice": [
-					{
-						"effect_type": "push",
-						"amount": 2,
-						"and": {
-							"effect_type": "gain_advantage"
-						}
-					},
-					{
-						"effect_type": "pull",
-						"amount": 2,
-						"and": {
-							"effect_type": "gain_advantage"
-						}
-					}
+					{ "effect_type": "push", "amount": 2, "and": { "effect_type": "gain_advantage" } },
+					{ "effect_type": "pull", "amount": 2, "and": { "effect_type": "gain_advantage" } }
 				]
 			}
 		],
@@ -26789,13 +24895,8 @@
 					"timing": "hit",
 					"effect_type": "choice",
 					"choice": [
-						{
-							"effect_type": "return_this_boost_to_hand_strike_effect",
-							"card_name": "Sliding Affliction"
-						},
-						{
-							"effect_type": "pass"
-						}
+						{ "effect_type": "return_this_boost_to_hand_strike_effect", "card_name": "Sliding Affliction" },
+						{ "effect_type": "pass" }
 					]
 				}
 			]
@@ -26819,22 +24920,8 @@
 				"timing": "after",
 				"effect_type": "choice_altered_values",
 				"choice": [
-					{
-						"effect_type": "push",
-						"amount": "TOTAL_POWER",
-						"and": {
-							"effect_type": "draw",
-							"amount": 2
-						}
-					},
-					{
-						"effect_type": "pull",
-						"amount": "TOTAL_POWER",
-						"and": {
-							"effect_type": "draw",
-							"amount": 2
-						}
-					}
+					{ "effect_type": "push", "amount": "TOTAL_POWER", "and": { "effect_type": "draw", "amount": 2 } },
+					{ "effect_type": "pull", "amount": "TOTAL_POWER", "and": { "effect_type": "draw", "amount": 2 } }
 				]
 			}
 		],
@@ -26850,26 +24937,16 @@
 					"condition_amount": 1,
 					"effect_type": "choice",
 					"choice": [
-						{
-							"effect_type": "push",
-							"amount": 1,
-							"and": {
-								"effect_type": "strike"
-							}
-						},
-						{
-							"effect_type": "push",
-							"amount": 2,
-							"and": {
-								"effect_type": "strike"
-							}
-						}
+						{ "effect_type": "push", "amount": 1, "and": { "effect_type": "strike" } },
+						{ "effect_type": "push", "amount": 2, "and": { "effect_type": "strike" } }
 					]
 				}
 			]
 		},
 		"NOTEEND": "PHONON CARDS END"
 	},
+
+
 	{
 		"NOTE": "PLATINUM CARDS START",
 		"id": "platinum_shininglayeredforce",
@@ -26888,14 +24965,8 @@
 				"timing": "before",
 				"effect_type": "choice",
 				"choice": [
-					{
-						"effect_type": "push",
-						"amount": 2
-					},
-					{
-						"effect_type": "pull",
-						"amount": 2
-					}
+					{ "effect_type": "push", "amount": 2 },
+					{ "effect_type": "pull", "amount": 2 }
 				]
 			},
 			{
@@ -26943,14 +25014,8 @@
 				"timing": "before",
 				"effect_type": "choice",
 				"choice": [
-					{
-						"effect_type": "advance",
-						"amount": 1
-					},
-					{
-						"effect_type": "advance",
-						"amount": 2
-					}
+					{ "effect_type": "advance", "amount": 1 },
+					{ "effect_type": "advance", "amount": 2 }
 				]
 			},
 			{
@@ -27143,14 +25208,8 @@
 				"timing": "before",
 				"effect_type": "choice",
 				"choice": [
-					{
-						"effect_type": "advance",
-						"amount": 1
-					},
-					{
-						"effect_type": "advance",
-						"amount": 2
-					}
+					{ "effect_type": "advance", "amount": 1},
+					{ "effect_type": "advance", "amount": 2}
 				]
 			},
 			{
@@ -27258,6 +25317,8 @@
 		},
 		"NOTEEND": "PLATINUM CARDS END"
 	},
+
+
 	{
 		"NOTE": "POLAR CARDS START",
 		"id": "polar_icicledrop",
@@ -27285,21 +25346,10 @@
 				"timing": "after",
 				"effect_type": "choice",
 				"choice": [
-					{
-						"effect_type": "advance",
-						"amount": 1
-					},
-					{
-						"effect_type": "advance",
-						"amount": 2
-					},
-					{
-						"effect_type": "advance",
-						"amount": 3
-					},
-					{
-						"effect_type": "pass"
-					}
+					{ "effect_type": "advance", "amount": 1},
+					{ "effect_type": "advance", "amount": 2},
+					{ "effect_type": "advance", "amount": 3},
+					{ "effect_type": "pass" }
 				]
 			}
 		],
@@ -27467,9 +25517,7 @@
 								"amount": "strike_x"
 							}
 						},
-						{
-							"effect_type": "pass"
-						}
+						{ "effect_type": "pass" }
 					]
 				}
 			}
@@ -27516,14 +25564,8 @@
 				"if_removed_effect": {
 					"effect_type": "choice",
 					"choice": [
-						{
-							"effect_type": "push",
-							"amount": 1
-						},
-						{
-							"effect_type": "pull",
-							"amount": 1
-						}
+						{ "effect_type": "push", "amount": 1 },
+						{ "effect_type": "pull", "amount": 1 }
 					]
 				}
 			},
@@ -27646,14 +25688,8 @@
 				"and": {
 					"effect_type": "choice",
 					"choice": [
-						{
-							"effect_type": "advance",
-							"amount": 2
-						},
-						{
-							"effect_type": "advance",
-							"amount": 3
-						}
+						{ "effect_type": "advance", "amount": 2 },
+						{ "effect_type": "advance", "amount": 3 }
 					]
 				}
 			},
@@ -27661,14 +25697,8 @@
 				"timing": "hit",
 				"effect_type": "choice",
 				"choice": [
-					{
-						"effect_type": "push",
-						"amount": 1
-					},
-					{
-						"effect_type": "pull",
-						"amount": 1
-					}
+					{ "effect_type": "push", "amount": 1 },
+					{ "effect_type": "pull", "amount": 1 }
 				]
 			}
 		],
@@ -27700,6 +25730,7 @@
 		},
 		"NOTEEND": "POLAR CARDS END"
 	},
+
 	{
 		"NOTE": "POTEMKIN CARDS START",
 		"id": "potemkin_giganterkai",
@@ -27810,14 +25841,8 @@
 				"timing": "before",
 				"effect_type": "choice",
 				"choice": [
-					{
-						"effect_type": "advance",
-						"amount": 1
-					},
-					{
-						"effect_type": "advance",
-						"amount": 2
-					}
+					{ "effect_type": "advance", "amount": 1 },
+					{ "effect_type": "advance", "amount": 2 }
 				]
 			},
 			{
@@ -27876,7 +25901,7 @@
 					"timing": "immediate",
 					"effect_type": "close",
 					"amount": 1,
-					"and": {
+					"and": 	{
 						"effect_type": "draw",
 						"amount": 1
 					}
@@ -27961,14 +25986,8 @@
 					"timing": "hit",
 					"effect_type": "choice",
 					"choice": [
-						{
-							"effect_type": "push",
-							"amount": 1
-						},
-						{
-							"effect_type": "pull",
-							"amount": 1
-						}
+						{ "effect_type": "push", "amount": 1 },
+						{ "effect_type": "pull", "amount": 1 }
 					]
 				}
 			]
@@ -28069,6 +26088,8 @@
 		},
 		"NOTEEND": "POTEMKIN CARDS END"
 	},
+
+
 	{
 		"NOTE": "PROPELLER CARDS START",
 		"id": "propeller_fullbroadside",
@@ -28092,33 +26113,13 @@
 				"condition": "opponent_not_moved_this_strike",
 				"effect_type": "choice",
 				"choice": [
-					{
-						"effect_type": "push",
-						"amount": 1
-					},
-					{
-						"effect_type": "push",
-						"amount": 2
-					},
-					{
-						"effect_type": "push",
-						"amount": 3
-					},
-					{
-						"effect_type": "pull",
-						"amount": 1
-					},
-					{
-						"effect_type": "pull",
-						"amount": 2
-					},
-					{
-						"effect_type": "pull",
-						"amount": 3
-					},
-					{
-						"effect_type": "pass"
-					}
+					{ "effect_type": "push", "amount": 1 },
+					{ "effect_type": "push", "amount": 2 },
+					{ "effect_type": "push", "amount": 3 },
+					{ "effect_type": "pull", "amount": 1 },
+					{ "effect_type": "pull", "amount": 2 },
+					{ "effect_type": "pull", "amount": 3 },
+					{ "effect_type": "pass"}
 				]
 			}
 		],
@@ -28132,9 +26133,7 @@
 					"timing": "immediate",
 					"effect_type": "boost_additional",
 					"limitation": "continuous",
-					"valid_zones": [
-						"discard"
-					]
+					"valid_zones": [ "discard" ]
 				},
 				{
 					"timing": "immediate",
@@ -28202,29 +26201,18 @@
 					{
 						"effect_type": "push",
 						"amount": 1,
-						"and": {
-							"effect_type": "draw",
-							"amount": 1
-						}
+						"and":
+							{ "effect_type": "draw", "amount": 1}
 					},
-					{
-						"effect_type": "draw",
-						"amount": 1
-					}
+					{ "effect_type": "draw", "amount": 1}
 				]
 			},
 			{
 				"timing": "after",
 				"effect_type": "choice",
 				"choice": [
-					{
-						"effect_type": "advance",
-						"amount": 1
-					},
-					{
-						"effect_type": "advance",
-						"amount": 2
-					}
+					{ "effect_type": "advance", "amount": 1},
+					{ "effect_type": "advance", "amount": 2}
 				]
 			}
 		],
@@ -28238,14 +26226,8 @@
 					"timing": "immediate",
 					"effect_type": "choice",
 					"choice": [
-						{
-							"effect_type": "advance",
-							"amount": 1
-						},
-						{
-							"effect_type": "retreat",
-							"amount": 1
-						}
+						{ "effect_type": "advance", "amount": 1 },
+						{ "effect_type": "retreat", "amount": 1 }
 					]
 				},
 				{
@@ -28296,14 +26278,8 @@
 					"timing": "before",
 					"effect_type": "choice",
 					"choice": [
-						{
-							"effect_type": "push",
-							"amount": 1
-						},
-						{
-							"effect_type": "push",
-							"amount": 2
-						}
+						{ "effect_type": "push", "amount": 1 },
+						{ "effect_type": "push", "amount": 2 }
 					]
 				}
 			]
@@ -28335,9 +26311,7 @@
 							"amount": 1
 						}
 					},
-					{
-						"effect_type": "pass"
-					}
+					{ "effect_type": "pass" }
 				]
 			}
 		],
@@ -28356,14 +26330,8 @@
 					"timing": "before",
 					"effect_type": "choice",
 					"choice": [
-						{
-							"effect_type": "pull",
-							"amount": 1
-						},
-						{
-							"effect_type": "pull",
-							"amount": 2
-						}
+						{ "effect_type": "pull", "amount": 1 },
+						{ "effect_type": "pull", "amount": 2 }
 					]
 				}
 			]
@@ -28390,9 +26358,7 @@
 				"and": {
 					"effect_type": "choice",
 					"choice": [
-						{
-							"effect_type": "gain_advantage"
-						},
+						{ "effect_type": "gain_advantage" },
 						{
 							"effect_type": "add_attack_effect",
 							"added_effect": {
@@ -28448,21 +26414,10 @@
 				"timing": "after",
 				"effect_type": "choice",
 				"choice": [
-					{
-						"effect_type": "advance",
-						"amount": 1
-					},
-					{
-						"effect_type": "advance",
-						"amount": 2
-					},
-					{
-						"effect_type": "advance",
-						"amount": 3
-					},
-					{
-						"effect_type": "pass"
-					}
+					{ "effect_type": "advance", "amount": 1 },
+					{ "effect_type": "advance", "amount": 2 },
+					{ "effect_type": "advance", "amount": 3 },
+					{ "effect_type": "pass"}
 				]
 			},
 			{
@@ -28500,6 +26455,8 @@
 		},
 		"NOTEEND": "PROPELLER CARDS END"
 	},
+
+
 	{
 		"NOTE": "SAGAT CARDS START",
 		"id": "sagat_tigerdestruction",
@@ -28714,7 +26671,7 @@
 			},
 			{
 				"timing": "hit",
-				"effect_type": "push",
+				"effect_type":  "push",
 				"amount": 1
 			},
 			{
@@ -28728,9 +26685,7 @@
 							"effect_type": "add_top_discard_to_gauge"
 						}
 					},
-					{
-						"effect_type": "pass"
-					}
+					{ "effect_type": "pass" }
 				]
 			}
 		],
@@ -28752,7 +26707,7 @@
 					"effect_type": "bonus_action"
 				}
 			]
-		}
+	}
 	},
 	{
 		"id": "sagat_tigerknee",
@@ -28804,7 +26759,7 @@
 					"card_name": "Tiger Knee"
 				}
 			]
-		}
+	}
 	},
 	{
 		"id": "sagat_tigeruppercut",
@@ -28818,7 +26773,7 @@
 		"speed": 4,
 		"armor": 3,
 		"guard": 3,
-		"effects": [
+		"effects":[
 			{
 				"timing": "before",
 				"effect_type": "close",
@@ -28856,6 +26811,7 @@
 		},
 		"NOTEEND": "SAGAT CARDS END"
 	},
+
 	{
 		"NOTE": "SEIJUN CARDS START",
 		"id": "seijun_taleofninesorrows",
@@ -28869,7 +26825,8 @@
 		"speed": 4,
 		"armor": 0,
 		"guard": 4,
-		"effects": [],
+		"effects": [
+		],
 		"boost": {
 			"boost_type": "immediate",
 			"force_cost": 0,
@@ -28880,29 +26837,12 @@
 					"timing": "immediate",
 					"effect_type": "choice",
 					"choice": [
-						{
-							"effect_type": "draw",
-							"amount": 1
-						},
-						{
-							"effect_type": "draw",
-							"amount": 2
-						},
-						{
-							"effect_type": "draw",
-							"amount": 3
-						},
-						{
-							"effect_type": "draw",
-							"amount": 4
-						},
-						{
-							"effect_type": "draw",
-							"amount": 5
-						},
-						{
-							"effect_type": "pass"
-						}
+						{ "effect_type": "draw", "amount": 1 },
+						{ "effect_type": "draw", "amount": 2 },
+						{ "effect_type": "draw", "amount": 3 },
+						{ "effect_type": "draw", "amount": 4 },
+						{ "effect_type": "draw", "amount": 5 },
+						{ "effect_type": "pass" }
 					]
 				}
 			]
@@ -28921,7 +26861,8 @@
 		"max_base_power": 15,
 		"armor": 0,
 		"guard": 0,
-		"effects": [],
+		"effects": [
+		],
 		"boost": {
 			"boost_type": "continuous",
 			"force_cost": 1,
@@ -28959,7 +26900,8 @@
 		"power": 4,
 		"armor": 0,
 		"guard": 0,
-		"effects": [],
+		"effects": [
+		],
 		"boost": {
 			"boost_type": "transform",
 			"force_cost": -1,
@@ -28973,14 +26915,8 @@
 					"overall_effect": {
 						"effect_type": "choice",
 						"choice": [
-							{
-								"effect_type": "advance",
-								"amount": 1
-							},
-							{
-								"effect_type": "retreat",
-								"amount": 1
-							}
+							{ "effect_type": "advance", "amount": 1 },
+							{ "effect_type": "retreat", "amount": 1 }
 						]
 					},
 					"force_max": 1,
@@ -29010,14 +26946,8 @@
 				"linked_effect": {
 					"effect_type": "choice",
 					"choice": [
-						{
-							"effect_type": "draw",
-							"amount": 1
-						},
-						{
-							"effect_type": "push",
-							"amount": 1
-						}
+						{ "effect_type": "draw", "amount": 1 },
+						{ "effect_type": "push", "amount": 1 }
 					]
 				}
 			}
@@ -29039,9 +26969,7 @@
 								"effect_type": "negate_boost"
 							}
 						},
-						{
-							"effect_type": "pass"
-						}
+						{ "effect_type": "pass" }
 					],
 					"override_description": "On opponent boost, discard copy to negate"
 				}
@@ -29065,13 +26993,8 @@
 				"timing": "before",
 				"effect_type": "choice",
 				"choice": [
-					{
-						"effect_type": "advance",
-						"amount": 9
-					},
-					{
-						"effect_type": "pass"
-					}
+					{ "effect_type": "advance", "amount": 9 },
+					{ "effect_type": "pass" }
 				]
 			}
 		],
@@ -29110,7 +27033,8 @@
 		"max_base_power": 7,
 		"armor": 0,
 		"guard": 0,
-		"effects": [],
+		"effects": [
+		],
 		"boost": {
 			"boost_type": "transform",
 			"force_cost": -1,
@@ -29169,6 +27093,8 @@
 		},
 		"NOTEEND": "SEIJUN CARDS END"
 	},
+
+
 	{
 		"NOTE": "SETH CARDS START",
 		"id": "seth_abyssalgeometry",
@@ -29210,14 +27136,8 @@
 					"and": {
 						"effect_type": "choice",
 						"choice": [
-							{
-								"effect_type": "push",
-								"amount": 1
-							},
-							{
-								"effect_type": "pull",
-								"amount": 1
-							}
+							{ "effect_type": "push", "amount": 1 },
+							{ "effect_type": "pull", "amount": 1 }
 						]
 					}
 				},
@@ -29228,42 +27148,14 @@
 					"and": {
 						"effect_type": "choice",
 						"choice": [
-							{
-								"effect_type": "push",
-								"amount": 1,
-								"suppress_and_description": true,
-								"and": {
-									"effect_type": "take_bonus_actions",
-									"amount": 1
-								}
-							},
-							{
-								"effect_type": "push",
-								"amount": 2,
-								"suppress_and_description": true,
-								"and": {
-									"effect_type": "take_bonus_actions",
-									"amount": 1
-								}
-							},
-							{
-								"effect_type": "pull",
-								"amount": 1,
-								"suppress_and_description": true,
-								"and": {
-									"effect_type": "take_bonus_actions",
-									"amount": 1
-								}
-							},
-							{
-								"effect_type": "pull",
-								"amount": 2,
-								"suppress_and_description": true,
-								"and": {
-									"effect_type": "take_bonus_actions",
-									"amount": 1
-								}
-							}
+							{ "effect_type": "push", "amount": 1, "suppress_and_description": true,
+								"and": { "effect_type": "take_bonus_actions", "amount": 1 } },
+							{ "effect_type": "push", "amount": 2, "suppress_and_description": true,
+								"and": { "effect_type": "take_bonus_actions", "amount": 1 } },
+							{ "effect_type": "pull", "amount": 1, "suppress_and_description": true,
+								"and": { "effect_type": "take_bonus_actions", "amount": 1 } },
+							{ "effect_type": "pull", "amount": 2, "suppress_and_description": true,
+								"and": { "effect_type": "take_bonus_actions", "amount": 1 } }
 						]
 					}
 				}
@@ -29311,14 +27203,8 @@
 					"and": {
 						"effect_type": "choice",
 						"choice": [
-							{
-								"effect_type": "push",
-								"amount": 1
-							},
-							{
-								"effect_type": "pull",
-								"amount": 1
-							}
+							{ "effect_type": "push", "amount": 1 },
+							{ "effect_type": "pull", "amount": 1 }
 						]
 					}
 				},
@@ -29329,42 +27215,14 @@
 					"and": {
 						"effect_type": "choice",
 						"choice": [
-							{
-								"effect_type": "push",
-								"amount": 1,
-								"suppress_and_description": true,
-								"and": {
-									"effect_type": "take_bonus_actions",
-									"amount": 1
-								}
-							},
-							{
-								"effect_type": "push",
-								"amount": 2,
-								"suppress_and_description": true,
-								"and": {
-									"effect_type": "take_bonus_actions",
-									"amount": 1
-								}
-							},
-							{
-								"effect_type": "pull",
-								"amount": 1,
-								"suppress_and_description": true,
-								"and": {
-									"effect_type": "take_bonus_actions",
-									"amount": 1
-								}
-							},
-							{
-								"effect_type": "pull",
-								"amount": 2,
-								"suppress_and_description": true,
-								"and": {
-									"effect_type": "take_bonus_actions",
-									"amount": 1
-								}
-							}
+							{ "effect_type": "push", "amount": 1, "suppress_and_description": true,
+								"and": { "effect_type": "take_bonus_actions", "amount": 1 } },
+							{ "effect_type": "push", "amount": 2, "suppress_and_description": true,
+								"and": { "effect_type": "take_bonus_actions", "amount": 1 } },
+							{ "effect_type": "pull", "amount": 1, "suppress_and_description": true,
+								"and": { "effect_type": "take_bonus_actions", "amount": 1 } },
+							{ "effect_type": "pull", "amount": 2, "suppress_and_description": true,
+								"and": { "effect_type": "take_bonus_actions", "amount": 1 } }
 						]
 					}
 				}
@@ -29390,14 +27248,10 @@
 				"choice": [
 					{
 						"effect_type": "boost_then_sustain",
-						"valid_zones": [
-							"hand"
-						],
+						"valid_zones": [ "hand" ],
 						"limitation": "ultra"
 					},
-					{
-						"effect_type": "pass"
-					}
+					{ "effect_type": "pass" }
 				]
 			},
 			{
@@ -29499,41 +27353,15 @@
 					"timing": "before",
 					"effect_type": "choice",
 					"choice": [
-						{
-							"effect_type": "advance",
-							"amount": 1,
-							"and": {
-								"effect_type": "seal_this_boost",
-								"card_name": "Vanishing Confusion"
-							}
-						},
-						{
-							"effect_type": "retreat",
-							"amount": 1,
-							"and": {
-								"effect_type": "seal_this_boost",
-								"card_name": "Vanishing Confusion"
-							}
-						},
-						{
-							"effect_type": "push",
-							"amount": 1,
-							"and": {
-								"effect_type": "seal_this_boost",
-								"card_name": "Vanishing Confusion"
-							}
-						},
-						{
-							"effect_type": "pull",
-							"amount": 1,
-							"and": {
-								"effect_type": "seal_this_boost",
-								"card_name": "Vanishing Confusion"
-							}
-						},
-						{
-							"effect_type": "pass"
-						}
+						{ "effect_type": "advance", "amount": 1, "and":
+							{ "effect_type": "seal_this_boost", "card_name": "Vanishing Confusion" } },
+						{ "effect_type": "retreat", "amount": 1, "and":
+							{ "effect_type": "seal_this_boost", "card_name": "Vanishing Confusion"  } },
+						{ "effect_type": "push", "amount": 1, "and":
+							{ "effect_type": "seal_this_boost", "card_name": "Vanishing Confusion"  } },
+						{ "effect_type": "pull", "amount": 1, "and":
+							{ "effect_type": "seal_this_boost", "card_name": "Vanishing Confusion"  } },
+						{ "effect_type": "pass" }
 					]
 				},
 				{
@@ -29549,9 +27377,7 @@
 								"card_name": "Vanishing Confusion"
 							}
 						},
-						{
-							"effect_type": "pass"
-						}
+						{ "effect_type": "pass" }
 					]
 				}
 			]
@@ -29583,14 +27409,8 @@
 				"and": {
 					"effect_type": "choice",
 					"choice": [
-						{
-							"effect_type": "push",
-							"amount": 1
-						},
-						{
-							"effect_type": "pull",
-							"amount": 1
-						}
+						{ "effect_type": "push", "amount": 1 },
+						{ "effect_type": "pull", "amount": 1 }
 					]
 				}
 			}
@@ -29605,22 +27425,10 @@
 					"timing": "before",
 					"effect_type": "choice",
 					"choice": [
-						{
-							"effect_type": "advance",
-							"amount": 1
-						},
-						{
-							"effect_type": "advance",
-							"amount": 2
-						},
-						{
-							"effect_type": "retreat",
-							"amount": 1
-						},
-						{
-							"effect_type": "retreat",
-							"amount": 2
-						}
+						{ "effect_type": "advance", "amount": 1 },
+						{ "effect_type": "advance", "amount": 2 },
+						{ "effect_type": "retreat", "amount": 1 },
+						{ "effect_type": "retreat", "amount": 2 }
 					]
 				}
 			]
@@ -29671,6 +27479,8 @@
 		},
 		"NOTEEND": "SETH CARDS END"
 	},
+
+
 	{
 		"NOTE": "SHOVEL KNIGHT SOLO CARDS START",
 		"id": "shovelknight_propellerdagger",
@@ -29695,6 +27505,7 @@
 						"timing": "cleanup",
 						"effect_type": "return_attack_to_hand"
 					}
+
 				},
 				"gauge_max": 1
 			},
@@ -30052,6 +27863,8 @@
 		},
 		"NOTEEND": "SHOVEL KNIGHT SOLO CARDS END"
 	},
+
+
 	{
 		"NOTE": "SHOVEL/SHIELD CARDS START",
 		"id": "shovelshield_tandemattack",
@@ -30255,14 +28068,8 @@
 					"timing": "immediate",
 					"effect_type": "choice",
 					"choice": [
-						{
-							"effect_type": "advance",
-							"amount": 1
-						},
-						{
-							"effect_type": "retreat",
-							"amount": 1
-						}
+						{ "effect_type": "advance", "amount": 1 },
+						{ "effect_type": "retreat", "amount": 1 }
 					]
 				},
 				{
@@ -30403,6 +28210,8 @@
 		},
 		"NOTEEND": "SHOVEL/SHIELD CARDS END"
 	},
+
+
 	{
 		"NOTE": "SOL BADGUY CARDS START",
 		"id": "solbadguy_heavymobcemetery",
@@ -30577,7 +28386,7 @@
 					"timing": "hit",
 					"effect_type": "powerup",
 					"amount": 1,
-					"and": {
+					"and": 	{
 						"effect_type": "draw",
 						"amount": 1
 					}
@@ -30714,25 +28523,11 @@
 					"timing": "immediate",
 					"effect_type": "choice",
 					"choice": [
-						{
-							"effect_type": "advance",
-							"amount": 1
-						},
-						{
-							"effect_type": "advance",
-							"amount": 2
-						},
-						{
-							"effect_type": "retreat",
-							"amount": 1
-						},
-						{
-							"effect_type": "retreat",
-							"amount": 2
-						},
-						{
-							"effect_type": "pass"
-						}
+						{ "effect_type": "advance", "amount": 1 },
+						{ "effect_type": "advance", "amount": 2 },
+						{ "effect_type": "retreat", "amount": 1 },
+						{ "effect_type": "retreat", "amount": 2 },
+						{ "effect_type": "pass" }
 					]
 				}
 			]
@@ -30789,6 +28584,9 @@
 		},
 		"NOTEEND": "SOL BADGUY CARDS END"
 	},
+
+
+
 	{
 		"NOTE": "SUPERSKULLMAN CARDS START",
 		"id": "superskullman_kaplow",
@@ -30843,22 +28641,10 @@
 				"timing": "hit",
 				"effect_type": "choice",
 				"choice": [
-					{
-						"effect_type": "push",
-						"amount": 1
-					},
-					{
-						"effect_type": "push",
-						"amount": 2
-					},
-					{
-						"effect_type": "pull",
-						"amount": 1
-					},
-					{
-						"effect_type": "pull",
-						"amount": 2
-					}
+					{ "effect_type": "push", "amount": 1 },
+					{ "effect_type": "push", "amount": 2 },
+					{ "effect_type": "pull", "amount": 1 },
+					{ "effect_type": "pull", "amount": 2 }
 				]
 			}
 		],
@@ -30905,9 +28691,7 @@
 							"effect_type": "add_top_discard_to_gauge"
 						}
 					},
-					{
-						"effect_type": "pass"
-					}
+					{ "effect_type": "pass" }
 				]
 			}
 		],
@@ -30963,28 +28747,18 @@
 				{
 					"timing": "immediate",
 					"effect_type": "choice",
-					"add_topdeck_card_name_to_choices": [
-						0
-					],
+					"add_topdeck_card_name_to_choices": [0],
 					"choice": [
-						{
-							"effect_type": "discard_topdeck"
-						},
-						{
-							"effect_type": "pass"
-						}
+						{ "effect_type": "discard_topdeck" },
+						{ "effect_type": "pass" }
 					]
 				},
 				{
 					"timing": "immediate",
 					"effect_type": "choice",
 					"choice": [
-						{
-							"effect_type": "strike"
-						},
-						{
-							"effect_type": "pass"
-						}
+						{ "effect_type": "strike" },
+						{ "effect_type": "pass" }
 					]
 				}
 			]
@@ -31072,14 +28846,8 @@
 					"timing": "immediate",
 					"effect_type": "choice",
 					"choice": [
-						{
-							"effect_type": "advance",
-							"amount": 1
-						},
-						{
-							"effect_type": "retreat",
-							"amount": 1
-						}
+						{ "effect_type": "advance", "amount": 1 },
+						{ "effect_type": "retreat", "amount": 1 }
 					]
 				},
 				{
@@ -31140,6 +28908,8 @@
 		},
 		"NOTEND": "SUPERSKULLMAN33 CARDS END"
 	},
+
+
 	{
 		"NOTE": "SPECTER CARDS START",
 		"id": "specter_barrierlantern",
@@ -31164,14 +28934,8 @@
 				"timing": "after",
 				"effect_type": "choice",
 				"choice": [
-					{
-						"effect_type": "advance",
-						"amount": 1
-					},
-					{
-						"effect_type": "retreat",
-						"amount": 1
-					}
+					{ "effect_type": "advance", "amount": 1 },
+					{ "effect_type": "retreat", "amount": 1 }
 				]
 			}
 		],
@@ -31259,14 +29023,8 @@
 				"timing": "hit",
 				"effect_type": "choice",
 				"choice": [
-					{
-						"effect_type": "push",
-						"amount": 1
-					},
-					{
-						"effect_type": "pull",
-						"amount": 1
-					}
+					{ "effect_type": "push", "amount": 1 },
+					{ "effect_type": "pull", "amount": 1 }
 				]
 			}
 		],
@@ -31320,22 +29078,10 @@
 					"timing": "immediate",
 					"effect_type": "choice",
 					"choice": [
-						{
-							"effect_type": "advance",
-							"amount": 2
-						},
-						{
-							"effect_type": "advance",
-							"amount": 3
-						},
-						{
-							"effect_type": "retreat",
-							"amount": 2
-						},
-						{
-							"effect_type": "retreat",
-							"amount": 3
-						}
+						{ "effect_type": "advance", "amount": 2 },
+						{ "effect_type": "advance", "amount": 3 },
+						{ "effect_type": "retreat", "amount": 2 },
+						{ "effect_type": "retreat", "amount": 3 }
 					]
 				}
 			]
@@ -31462,14 +29208,8 @@
 					"timing": "now",
 					"effect_type": "choice",
 					"choice": [
-						{
-							"effect_type": "advance",
-							"amount": 2
-						},
-						{
-							"effect_type": "retreat",
-							"amount": 2
-						}
+						{ "effect_type": "advance", "amount": 2 },
+						{ "effect_type": "retreat", "amount": 2 }
 					]
 				},
 				{
@@ -31481,6 +29221,9 @@
 		},
 		"NOTEEND": "SPECTER CARDS END"
 	},
+
+
+
 	{
 		"NOTE": "SYDNEY AND SERENA CARDS START",
 		"id": "sydney_alurauneskiss",
@@ -31526,33 +29269,18 @@
 					"timing": "immediate",
 					"effect_type": "choice",
 					"choice": [
-						{
-							"effect_type": "spend_life",
-							"amount": 1,
-							"and": {
-								"effect_type": "gauge_from_hand",
-								"min_amount": 1,
-								"max_amount": 1
-							}
-						},
-						{
-							"effect_type": "spend_life",
-							"amount": 2,
-							"and": {
-								"effect_type": "gauge_from_hand",
-								"min_amount": 2,
-								"max_amount": 2
-							}
-						},
-						{
-							"effect_type": "spend_life",
-							"amount": 3,
-							"and": {
-								"effect_type": "gauge_from_hand",
-								"min_amount": 3,
-								"max_amount": 3
-							}
-						}
+						{ "effect_type": "spend_life", "amount": 1, "and": { "effect_type": "gauge_from_hand",
+							"min_amount": 1,
+							"max_amount": 1
+						} },
+						{ "effect_type": "spend_life", "amount": 2, "and": { "effect_type": "gauge_from_hand",
+							"min_amount": 2,
+							"max_amount": 2
+						} },
+						{ "effect_type": "spend_life", "amount": 3, "and": { "effect_type": "gauge_from_hand",
+							"min_amount": 3,
+							"max_amount": 3
+						} }
 					]
 				}
 			]
@@ -31612,9 +29340,7 @@
 					"overall_effect": {
 						"effect_type": "boost_additional",
 						"limitation": "transform",
-						"valid_zones": [
-							"hand"
-						]
+						"valid_zones": [ "hand" ]
 					},
 					"gauge_max": 1
 				}
@@ -31661,17 +29387,9 @@
 						"condition": "spent_gauge_this_strike",
 						"effect_type": "choice",
 						"choice": [
-							{
-								"effect_type": "push",
-								"amount": 1
-							},
-							{
-								"effect_type": "pull",
-								"amount": 1
-							},
-							{
-								"effect_type": "pass"
-							}
+							{ "effect_type": "push", "amount": 1 },
+							{ "effect_type": "pull", "amount": 1 },
+							{ "effect_type": "pass" }
 						]
 					},
 					"override_description": "End of Strike: If not stunned and spent Gauge, Push/Pull up to 1"
@@ -31747,24 +29465,10 @@
 				"condition": "opponent_stunned",
 				"effect_type": "choice",
 				"choice": [
-					{
-						"effect_type": "pull_from_source",
-						"amount": 1,
-						"skip_if_on_source": true
-					},
-					{
-						"effect_type": "pull_from_source",
-						"amount": 2,
-						"skip_if_on_source": true
-					},
-					{
-						"effect_type": "pull_from_source",
-						"amount": 3,
-						"skip_if_on_source": true
-					},
-					{
-						"effect_type": "pass"
-					}
+					{ "effect_type": "pull_from_source", "amount": 1, "skip_if_on_source": true },
+					{ "effect_type": "pull_from_source", "amount": 2, "skip_if_on_source": true },
+					{ "effect_type": "pull_from_source", "amount": 3, "skip_if_on_source": true },
+					{ "effect_type": "pass" }
 				]
 			}
 		],
@@ -31848,6 +29552,7 @@
 	},
 	{
 		"NOTE": "SYDNEY AND SERENA CARDS END",
+
 		"id": "sydney_venomlash",
 		"type": "special",
 		"display_name": "Venom Lash",
@@ -31871,22 +29576,8 @@
 				"timing": "hit",
 				"effect_type": "choice",
 				"choice": [
-					{
-						"effect_type": "push",
-						"amount": 1,
-						"and": {
-							"effect_type": "add_top_discard_to_gauge",
-							"amount": 1
-						}
-					},
-					{
-						"effect_type": "pull",
-						"amount": 1,
-						"and": {
-							"effect_type": "add_top_discard_to_gauge",
-							"amount": 1
-						}
-					}
+					{ "effect_type": "push", "amount": 1, "and": { "effect_type": "add_top_discard_to_gauge", "amount": 1 } },
+					{ "effect_type": "pull", "amount": 1, "and": { "effect_type": "add_top_discard_to_gauge", "amount": 1 } }
 				]
 			}
 		],
@@ -31901,18 +29592,12 @@
 					"condition": "is_special_or_ultra_attack",
 					"effect_type": "choice",
 					"choice": [
-						{
-							"effect_type": "spend_life",
-							"amount": 1,
-							"and": {
-								"effect_type": "gauge_from_hand",
-								"min_amount": 1,
-								"max_amount": 1
-							}
-						},
-						{
-							"effect_type": "pass"
-						}
+						{ "effect_type": "spend_life", "amount": 1, "and": {
+							"effect_type": "gauge_from_hand",
+							"min_amount": 1,
+							"max_amount": 1
+						}},
+						{ "effect_type": "pass" }
 					],
 					"override_description": "Special/Ultra Hit: Spend 1 Life, add 1 from Hand to Gauge"
 				}
@@ -31920,6 +29605,8 @@
 		},
 		"NOTEEND": "SYDNEY AND SERENA CARDS END"
 	},
+
+
 	{
 		"NOTE": "TAGER CARDS START",
 		"id": "tager_kingoftager",
@@ -31938,14 +29625,8 @@
 				"timing": "before",
 				"effect_type": "choice",
 				"choice": [
-					{
-						"effect_type": "pull",
-						"amount": 1
-					},
-					{
-						"effect_type": "pull",
-						"amount": 2
-					}
+					{ "effect_type": "pull", "amount": 1 },
+					{ "effect_type": "pull", "amount": 2 }
 				]
 			},
 			{
@@ -32168,14 +29849,8 @@
 				"timing": "hit",
 				"effect_type": "choice",
 				"choice": [
-					{
-						"effect_type": "pull",
-						"amount": 1
-					},
-					{
-						"effect_type": "pull",
-						"amount": 2
-					}
+					{ "effect_type": "pull", "amount": 1 },
+					{ "effect_type": "pull", "amount": 2 }
 				]
 			}
 		],
@@ -32272,6 +29947,7 @@
 				"effect_type": "close",
 				"amount": 1
 			}
+
 		],
 		"boost": {
 			"boost_type": "continuous",
@@ -32293,6 +29969,7 @@
 		},
 		"NOTEEND": "TAGER CARDS END"
 	},
+
 	{
 		"NOTE": "TAISEI CARDS START",
 		"id": "taisei_anathemasurge",
@@ -32356,25 +30033,11 @@
 				"timing": "after",
 				"effect_type": "choice",
 				"choice": [
-					{
-						"effect_type": "push",
-						"amount": 1
-					},
-					{
-						"effect_type": "push",
-						"amount": 2
-					},
-					{
-						"effect_type": "pull",
-						"amount": 1
-					},
-					{
-						"effect_type": "pull",
-						"amount": 2
-					},
-					{
-						"effect_type": "pass"
-					}
+					{ "effect_type": "push", "amount": 1 },
+					{ "effect_type": "push", "amount": 2 },
+					{ "effect_type": "pull", "amount": 1 },
+					{ "effect_type": "pull", "amount": 2 },
+					{ "effect_type": "pass" }
 				]
 			}
 		],
@@ -32438,9 +30101,7 @@
 								"effect_type": "return_this_boost_to_hand_strike_effect"
 							}
 						},
-						{
-							"effect_type": "pass"
-						}
+						{ "effect_type": "pass" }
 					]
 				}
 			]
@@ -32466,6 +30127,7 @@
 					"effect_type": "powerup",
 					"amount": 1
 				},
+				"overall_effect": null,
 				"force_max": 2
 			}
 		],
@@ -32500,14 +30162,8 @@
 				"timing": "hit",
 				"effect_type": "choice",
 				"choice": [
-					{
-						"effect_type": "push",
-						"amount": 1
-					},
-					{
-						"effect_type": "pull",
-						"amount": 1
-					}
+					{ "effect_type": "push", "amount": 1 },
+					{ "effect_type": "pull", "amount": 1 }
 				],
 				"and": {
 					"effect_type": "gain_life",
@@ -32575,15 +30231,10 @@
 							"and": {
 								"effect_type": "boost_additional",
 								"limitation": "transform",
-								"valid_zones": [
-									"hand",
-									"deck"
-								]
+								"valid_zones": ["hand", "deck"]
 							}
 						},
-						{
-							"effect_type": "pass"
-						}
+						{ "effect_type": "pass" }
 					]
 				},
 				{
@@ -32644,6 +30295,7 @@
 		},
 		"NOTEEND": "TAISEI CARDS END"
 	},
+
 	{
 		"NOTE": "TESTAMENT CARDS START",
 		"id": "testament_nostrovia",
@@ -32732,17 +30384,9 @@
 						"for_other_player": true,
 						"effect_type": "choice",
 						"choice": [
-							{
-								"effect_type": "draw",
-								"amount": 1
-							},
-							{
-								"effect_type": "advance",
-								"amount": 2
-							},
-							{
-								"effect_type": "pass"
-							}
+							{ "effect_type": "draw", "amount": 1 },
+							{ "effect_type": "advance", "amount": 2 },
+							{ "effect_type": "pass" }
 						]
 					}
 				}
@@ -32773,20 +30417,12 @@
 						"boost_effect": {
 							"effect_type": "choice",
 							"choice": [
-								{
-									"effect_type": "advance",
-									"amount": 1
-								},
-								{
-									"effect_type": "retreat",
-									"amount": 1
-								}
+								{ "effect_type": "advance", "amount": 1 },
+								{ "effect_type": "retreat", "amount": 1 }
 							]
 						}
-					},
-					{
-						"effect_type": "pass"
-					}
+				 	},
+					{ "effect_type": "pass" }
 				]
 			}
 		],
@@ -32800,14 +30436,8 @@
 					"timing": "now",
 					"effect_type": "choice",
 					"choice": [
-						{
-							"effect_type": "advance",
-							"amount": 1
-						},
-						{
-							"effect_type": "retreat",
-							"amount": 1
-						}
+						{ "effect_type": "advance", "amount": 1 },
+						{ "effect_type": "retreat", "amount": 1 }
 					]
 				},
 				{
@@ -32916,17 +30546,9 @@
 					"timing": "now",
 					"effect_type": "choice",
 					"choice": [
-						{
-							"effect_type": "retreat",
-							"amount": 1
-						},
-						{
-							"effect_type": "retreat",
-							"amount": 2
-						},
-						{
-							"effect_type": "pass"
-						}
+						{ "effect_type": "retreat", "amount": 1 },
+						{ "effect_type": "retreat", "amount": 2 },
+						{ "effect_type": "pass" }
 					]
 				}
 			]
@@ -32973,12 +30595,8 @@
 					"and": {
 						"effect_type": "choice",
 						"choice": [
-							{
-								"effect_type": "discard_opponent_topdeck"
-							},
-							{
-								"effect_type": "pass"
-							}
+							{ "effect_type": "discard_opponent_topdeck" },
+							{ "effect_type": "pass" }
 						]
 					}
 				}
@@ -33003,28 +30621,16 @@
 				"timing": "hit",
 				"effect_type": "choice",
 				"choice": [
-					{
-						"effect_type": "push",
-						"amount": 1
-					},
-					{
-						"effect_type": "pull",
-						"amount": 1
-					}
+					{ "effect_type": "push", "amount": 1 },
+					{ "effect_type": "pull", "amount": 1 }
 				]
 			},
 			{
 				"timing": "after",
 				"effect_type": "choice",
 				"choice": [
-					{
-						"effect_type": "close",
-						"amount": 1
-					},
-					{
-						"effect_type": "retreat",
-						"amount": 1
-					}
+					{ "effect_type": "close", "amount": 1 },
+					{ "effect_type": "retreat", "amount": 1 }
 				]
 			}
 		],
@@ -33049,9 +30655,7 @@
 									"card_name": "Scythe Swing"
 								}
 							},
-							{
-								"effect_type": "pass"
-							}
+							{ "effect_type": "pass" }
 						]
 					}
 				}
@@ -33059,6 +30663,7 @@
 		},
 		"NOTEEND": "TESTAMENT CARDS END"
 	},
+
 	{
 		"NOTE": "TAOKAKA CARDS START",
 		"id": "taokaka_attackmeowpow",
@@ -33179,14 +30784,8 @@
 					"timing": "hit",
 					"effect_type": "choice",
 					"choice": [
-						{
-							"effect_type": "advance",
-							"amount": 3
-						},
-						{
-							"effect_type": "retreat",
-							"amount": 3
-						}
+						{ "effect_type": "advance", "amount": 3 },
+						{ "effect_type": "retreat", "amount": 3 }
 					]
 				}
 			]
@@ -33276,20 +30875,8 @@
 					"timing": "immediate",
 					"effect_type": "choice",
 					"choice": [
-						{
-							"effect_type": "advance",
-							"amount": 1,
-							"and": {
-								"effect_type": "strike"
-							}
-						},
-						{
-							"effect_type": "retreat",
-							"amount": 1,
-							"and": {
-								"effect_type": "strike"
-							}
-						}
+						{ "effect_type": "advance", "amount": 1, "and": { "effect_type": "strike" } },
+						{ "effect_type": "retreat", "amount": 1, "and": { "effect_type": "strike" } }
 					]
 				}
 			]
@@ -33377,19 +30964,10 @@
 				{
 					"timing": "immediate",
 					"effect_type": "choice",
-					"add_topdeck_card_name_to_choices": [
-						0
-					],
+					"add_topdeck_card_name_to_choices": [0],
 					"choice": [
-						{
-							"effect_type": "discard_topdeck",
-							"and": {
-								"effect_type": "strike_wild"
-							}
-						},
-						{
-							"effect_type": "strike_wild"
-						}
+						{ "effect_type": "discard_topdeck", "and": { "effect_type": "strike_wild" } },
+						{ "effect_type": "strike_wild" }
 					]
 				}
 			]
@@ -33419,6 +30997,7 @@
 				"effect_type": "close",
 				"amount": 3
 			}
+
 		],
 		"boost": {
 			"boost_type": "immediate",
@@ -33440,6 +31019,7 @@
 		},
 		"NOTEEND": "TAOKAKA CARDS END"
 	},
+
 	{
 		"NOTE": "TINKER CARDS START",
 		"id": "tinker_mechcharge",
@@ -33463,6 +31043,7 @@
 					"amount": 4
 				}
 			},
+
 			{
 				"NOTE": "Boost Effects",
 				"condition": "exceeded",
@@ -33511,6 +31092,7 @@
 				"timing": "during_strike",
 				"effect_type": "ignore_armor"
 			},
+
 			{
 				"NOTE": "Boost Effects",
 				"condition": "exceeded",
@@ -33540,10 +31122,7 @@
 					"condition": "not_exceeded",
 					"effect_type": "boost_additional",
 					"limitation": "continuous",
-					"valid_zones": [
-						"hand",
-						"gauge"
-					],
+					"valid_zones": [ "hand", "gauge" ],
 					"ignore_costs": true
 				},
 				{
@@ -33577,6 +31156,7 @@
 				"effect_type": "advance",
 				"amount": 2
 			},
+
 			{
 				"NOTE": "Boost Effects",
 				"condition": "exceeded",
@@ -33638,6 +31218,7 @@
 				"effect_type": "advance",
 				"amount": 3
 			},
+
 			{
 				"NOTE": "Boost Effects",
 				"condition": "exceeded",
@@ -33693,6 +31274,7 @@
 				"effect_type": "push",
 				"amount": 1
 			},
+
 			{
 				"NOTE": "Boost Effects",
 				"condition": "exceeded",
@@ -33755,6 +31337,7 @@
 				"effect_type": "powerup",
 				"amount": 2
 			},
+
 			{
 				"NOTE": "Boost Effects",
 				"condition": "exceeded",
@@ -33806,24 +31389,13 @@
 				"timing": "after",
 				"effect_type": "choice",
 				"choice": [
-					{
-						"effect_type": "push",
-						"amount": 1
-					},
-					{
-						"effect_type": "push",
-						"amount": 2
-					},
-					{
-						"effect_type": "pull",
-						"amount": 1
-					},
-					{
-						"effect_type": "pull",
-						"amount": 2
-					}
+					{ "effect_type": "push", "amount": 1 },
+					{ "effect_type": "push", "amount": 2 },
+					{ "effect_type": "pull", "amount": 1 },
+					{ "effect_type": "pull", "amount": 2 }
 				]
 			},
+
 			{
 				"NOTE": "Boost Effects",
 				"condition": "exceeded",
@@ -33868,6 +31440,8 @@
 		},
 		"NOTEEND": "TINKER CARDS END"
 	},
+
+
 	{
 		"NOTE": "TREASURE CARDS START",
 		"id": "treasure_maelstromchest",
@@ -34165,18 +31739,9 @@
 				"condition": "not_hit_opponent",
 				"effect_type": "choice",
 				"choice": [
-					{
-						"effect_type": "advance",
-						"amount": 4
-					},
-					{
-						"effect_type": "advance",
-						"amount": 5
-					},
-					{
-						"effect_type": "advance",
-						"amount": 6
-					}
+					{ "effect_type": "advance", "amount": 4 },
+					{ "effect_type": "advance", "amount": 5 },
+					{ "effect_type": "advance", "amount": 6 }
 				]
 			}
 		],
@@ -34257,6 +31822,8 @@
 		},
 		"NOTEEND": "TREASURE CARDS END"
 	},
+
+
 	{
 		"NOTE": "VATISTA CARDS START",
 		"id": "vatista_zahhishio",
@@ -34431,14 +31998,8 @@
 				"timing": "after",
 				"effect_type": "choice",
 				"choice": [
-					{
-						"effect_type": "close",
-						"amount": 1
-					},
-					{
-						"effect_type": "retreat",
-						"amount": 1
-					}
+					{ "effect_type": "close", "amount": 1 },
+					{ "effect_type": "retreat", "amount": 1 }
 				]
 			}
 		],
@@ -34482,13 +32043,8 @@
 				"timing": "after",
 				"effect_type": "choice",
 				"choice": [
-					{
-						"effect_type": "advance",
-						"amount": 4
-					},
-					{
-						"effect_type": "pass"
-					}
+					{ "effect_type": "advance", "amount": 4 },
+					{ "effect_type": "pass" }
 				]
 			}
 		],
@@ -34502,14 +32058,8 @@
 					"timing": "hit",
 					"effect_type": "choice",
 					"choice": [
-						{
-							"effect_type": "push",
-							"amount": 1
-						},
-						{
-							"effect_type": "pull",
-							"amount": 1
-						}
+						{ "effect_type": "push", "amount": 1 },
+						{ "effect_type": "pull", "amount": 1 }
 					]
 				},
 				{
@@ -34605,14 +32155,8 @@
 						"and": {
 							"effect_type": "choice_altered_values",
 							"choice": [
-								{
-									"effect_type": "advance",
-									"amount": "strike_x"
-								},
-								{
-									"effect_type": "retreat",
-									"amount": "strike_x"
-								}
+								{ "effect_type": "advance", "amount": "strike_x" },
+								{ "effect_type": "retreat", "amount": "strike_x" }
 							]
 						}
 					}
@@ -34621,6 +32165,8 @@
 		},
 		"NOTEEND": "VATISTA CARDS END"
 	},
+
+
 	{
 		"NOTE": "VEGA CARDS START",
 		"id": "vega_bloodyhighclaw",
@@ -34854,24 +32400,15 @@
 					"timing": "immediate",
 					"effect_type": "choice",
 					"choice": [
-						{
-							"effect_type": "advance",
-							"amount": 3,
-							"use_semicolon_for_and": true,
-							"and": {
-								"condition": "advanced_through",
-								"effect_type": "boost_additional",
-								"limitation": "continuous",
-								"valid_zones": [
-									"discard"
-								],
-								"ignore_costs": true
-							}
-						},
-						{
-							"effect_type": "retreat",
-							"amount": 3
-						}
+						{ "effect_type": "advance", "amount": 3, "use_semicolon_for_and": true,
+						  "and": {
+							"condition": "advanced_through",
+							"effect_type": "boost_additional",
+							"limitation": "continuous",
+							"valid_zones": [ "discard" ],
+							"ignore_costs": true
+						} },
+						{ "effect_type": "retreat", "amount": 3 }
 					]
 				}
 			]
@@ -34917,17 +32454,9 @@
 					"timing": "immediate",
 					"effect_type": "choice",
 					"choice": [
-						{
-							"effect_type": "retreat",
-							"amount": 1
-						},
-						{
-							"effect_type": "retreat",
-							"amount": 2
-						},
-						{
-							"effect_type": "pass"
-						}
+						{ "effect_type": "retreat", "amount": 1 },
+						{ "effect_type": "retreat", "amount": 2 },
+						{ "effect_type": "pass" }
 					]
 				},
 				{
@@ -34977,25 +32506,22 @@
 					"timing": "immediate",
 					"effect_type": "choice",
 					"choice": [
-						{
-							"effect_type": "advance",
-							"amount": 3,
-							"use_semicolon_for_and": true,
-							"and": {
-								"condition": "advanced_through",
-								"effect_type": "add_to_gauge_boost_play_cleanup"
-							}
-						},
-						{
-							"effect_type": "retreat",
-							"amount": 3
-						}
+						{ "effect_type": "advance", "amount": 3, "use_semicolon_for_and": true,
+						  "and": {
+							"condition": "advanced_through",
+							"effect_type": "add_to_gauge_boost_play_cleanup"
+						} },
+						{ "effect_type": "retreat", "amount": 3 }
 					]
 				}
 			]
 		},
 		"NOTEEND": "VEGA CARDS END"
 	},
+
+
+
+
 	{
 		"NOTE": "VINCENT CARDS START",
 		"id": "vincent_ballotfixing",
@@ -35267,6 +32793,7 @@
 		},
 		"NOTEND": "VINCENT CARDS END"
 	},
+
 	{
 		"NOTE": "WAGNER CARDS START",
 		"id": "wagner_megiddo",
@@ -35377,9 +32904,7 @@
 							}
 						}
 					},
-					{
-						"effect_type": "pass"
-					}
+					{ "effect_type": "pass" }
 				]
 			}
 		],
@@ -35436,51 +32961,34 @@
 					"timing": "immediate",
 					"effect_type": "choice",
 					"choice": [
-						{
-							"effect_type": "advance",
+						{ "effect_type": "advance", "amount": 1, "suppress_and_description": true, "use_semicolon_for_and": true,
+						  "and": {
+							"condition": "advanced_through",
+							"effect_type": "choose_discard",
+							"limitation": "special/ultra",
+							"destination": "hand",
 							"amount": 1,
-							"suppress_and_description": true,
-							"use_semicolon_for_and": true,
-							"and": {
-								"condition": "advanced_through",
-								"effect_type": "choose_discard",
-								"limitation": "special/ultra",
-								"destination": "hand",
-								"amount": 1,
-								"amount_min": 1
-							}
-						},
-						{
-							"effect_type": "advance",
-							"amount": 2,
-							"suppress_and_description": true,
-							"use_semicolon_for_and": true,
-							"and": {
-								"condition": "advanced_through",
-								"effect_type": "choose_discard",
-								"limitation": "special/ultra",
-								"destination": "hand",
-								"amount": 1,
-								"amount_min": 1
-							}
-						},
-						{
-							"effect_type": "advance",
-							"amount": 3,
-							"suppress_and_description": true,
-							"use_semicolon_for_and": true,
-							"and": {
-								"condition": "advanced_through",
-								"effect_type": "choose_discard",
-								"limitation": "special/ultra",
-								"destination": "hand",
-								"amount": 1,
-								"amount_min": 1
-							}
-						},
-						{
-							"effect_type": "pass"
-						}
+							"amount_min": 1
+						}},
+						{ "effect_type": "advance", "amount": 2, "suppress_and_description": true, "use_semicolon_for_and": true,
+						  "and": {
+							"condition": "advanced_through",
+							"effect_type": "choose_discard",
+							"limitation": "special/ultra",
+							"destination": "hand",
+							"amount": 1,
+							"amount_min": 1
+						}},
+						{ "effect_type": "advance", "amount": 3, "suppress_and_description": true, "use_semicolon_for_and": true,
+						  "and": {
+							"condition": "advanced_through",
+							"effect_type": "choose_discard",
+							"limitation": "special/ultra",
+							"destination": "hand",
+							"amount": 1,
+							"amount_min": 1
+						}},
+						{ "effect_type": "pass" }
 					]
 				}
 			]
@@ -35512,12 +33020,8 @@
 					"condition": "not_hit_opponent",
 					"effect_type": "choice",
 					"choice": [
-						{
-							"effect_type": "boost_this_then_sustain"
-						},
-						{
-							"effect_type": "pass"
-						}
+						{ "effect_type": "boost_this_then_sustain" },
+						{ "effect_type": "pass" }
 					]
 				}
 			}
@@ -35615,21 +33119,13 @@
 							"and": {
 								"effect_type": "choice",
 								"choice": [
-									{
-										"effect_type": "advance",
-										"amount": 1
-									},
-									{
-										"effect_type": "retreat",
-										"amount": 1
-									}
+									{ "effect_type": "advance", "amount": 1 },
+									{ "effect_type": "retreat", "amount": 1 }
 								]
 							}
 						}
 					},
-					{
-						"effect_type": "pass"
-					}
+					{ "effect_type": "pass" }
 				]
 			}
 		],
@@ -35648,20 +33144,16 @@
 					"timing": "now",
 					"effect_type": "choice",
 					"choice": [
-						{
-							"effect_type": "advance",
-							"amount": 1
-						},
-						{
-							"effect_type": "retreat",
-							"amount": 1
-						}
+						{ "effect_type": "advance", "amount": 1 },
+						{ "effect_type": "retreat", "amount": 1 }
 					]
 				}
 			]
 		},
 		"NOTEEND": "WAGNER CARDS END"
 	},
+
+
 	{
 		"NOTE": "WALDSTEIN CARDS START",
 		"id": "waldstein_katastrophe",
@@ -35763,13 +33255,8 @@
 				"condition": "was_not_wild_swing",
 				"effect_type": "choice",
 				"choice": [
-					{
-						"effect_type": "reveal_strike"
-					},
-					{
-						"effect_type": "pass",
-						"description": "will be invalid"
-					}
+					{ "effect_type": "reveal_strike" },
+					{ "effect_type": "pass", "description": "will be invalid" }
 				]
 			},
 			{
@@ -35792,17 +33279,9 @@
 					"timing": "now",
 					"effect_type": "choice",
 					"choice": [
-						{
-							"effect_type": "advance",
-							"amount": 1
-						},
-						{
-							"effect_type": "advance",
-							"amount": 2
-						},
-						{
-							"effect_type": "pass"
-						}
+						{ "effect_type": "advance", "amount": 1 },
+						{ "effect_type": "advance", "amount": 2 },
+						{ "effect_type": "pass" }
 					]
 				},
 				{
@@ -35854,20 +33333,8 @@
 					"condition_amount": 1,
 					"effect_type": "choice",
 					"choice": [
-						{
-							"effect_type": "push",
-							"amount": 1,
-							"and": {
-								"effect_type": "strike"
-							}
-						},
-						{
-							"effect_type": "push",
-							"amount": 2,
-							"and": {
-								"effect_type": "strike"
-							}
-						}
+						{ "effect_type": "push", "amount": 1, "and": { "effect_type": "strike" } },
+						{ "effect_type": "push", "amount": 2, "and": { "effect_type": "strike" } }
 					]
 				}
 			]
@@ -35890,14 +33357,8 @@
 				"timing": "hit",
 				"effect_type": "choice",
 				"choice": [
-					{
-						"effect_type": "push",
-						"amount": 1
-					},
-					{
-						"effect_type": "pull",
-						"amount": 1
-					}
+					{ "effect_type": "push", "amount": 1 },
+					{ "effect_type": "pull", "amount": 1 }
 				]
 			},
 			{
@@ -35950,14 +33411,8 @@
 				"timing": "hit",
 				"effect_type": "choice",
 				"choice": [
-					{
-						"effect_type": "push",
-						"amount": 3
-					},
-					{
-						"effect_type": "pull",
-						"amount": 3
-					}
+					{ "effect_type": "push", "amount": 3 },
+					{ "effect_type": "pull", "amount": 3 }
 				]
 			}
 		],
@@ -36044,6 +33499,8 @@
 		},
 		"NOTEEND": "WALDSTEIN CARDS END"
 	},
+
+
 	{
 		"NOTE": "YUZURIHA CARDS START",
 		"id": "yuzu_kashou",
@@ -36093,18 +33550,12 @@
 							"and": {
 								"effect_type": "choice",
 								"choice": [
-									{
-										"effect_type": "add_top_deck_to_gauge"
-									},
-									{
-										"effect_type": "pass"
-									}
+									{ "effect_type": "add_top_deck_to_gauge" },
+									{ "effect_type": "pass" }
 								]
 							}
 						},
-						{
-							"effect_type": "pass"
-						}
+						{ "effect_type": "pass" }
 					]
 				},
 				{
@@ -36134,12 +33585,8 @@
 				"condition": "stunned",
 				"effect_type": "choice",
 				"choice": [
-					{
-						"effect_type": "boost_this_then_sustain"
-					},
-					{
-						"effect_type": "pass"
-					}
+					{ "effect_type": "boost_this_then_sustain" },
+					{ "effect_type": "pass" }
 				]
 			}
 		],
@@ -36199,14 +33646,8 @@
 					"timing": "immediate",
 					"effect_type": "choice",
 					"choice": [
-						{
-							"effect_type": "advance",
-							"amount": 2
-						},
-						{
-							"effect_type": "retreat",
-							"amount": 2
-						}
+						{ "effect_type": "advance", "amount": 2 },
+						{ "effect_type": "retreat", "amount": 2 }
 					]
 				},
 				{
@@ -36239,14 +33680,8 @@
 					"and": {
 						"effect_type": "choice_altered_values",
 						"choice": [
-							{
-								"effect_type": "advance",
-								"amount": "strike_x"
-							},
-							{
-								"effect_type": "retreat",
-								"amount": "strike_x"
-							}
+							{ "effect_type": "advance", "amount": "strike_x" },
+							{ "effect_type": "retreat", "amount": "strike_x" }
 						]
 					}
 				}
@@ -36403,6 +33838,8 @@
 		},
 		"NOTEEND": "YUZURIHA CARDS END"
 	},
+
+
 	{
 		"NOTE": "ZANGIEF CARDS START",
 		"id": "zangief_ultimateatomicbuster",
@@ -36653,22 +34090,10 @@
 				"condition": "is_critical",
 				"effect_type": "choice",
 				"choice": [
-					{
-						"effect_type": "advance",
-						"amount": 1
-					},
-					{
-						"effect_type": "advance",
-						"amount": 2
-					},
-					{
-						"effect_type": "retreat",
-						"amount": 1
-					},
-					{
-						"effect_type": "retreat",
-						"amount": 2
-					}
+					{ "effect_type": "advance", "amount": 1 },
+					{ "effect_type": "advance", "amount": 2 },
+					{ "effect_type": "retreat", "amount": 1 },
+					{ "effect_type": "retreat", "amount": 2 }
 				]
 			}
 		],
@@ -36725,6 +34150,7 @@
 		},
 		"NOTEEND": "ZANGIEF CARDS END"
 	},
+
 	{
 		"NOTE": "ZATO CARDS START",
 		"id": "zato_sunvoid",
@@ -36832,14 +34258,8 @@
 				"timing": "hit",
 				"effect_type": "choice",
 				"choice": [
-					{
-						"effect_type": "push",
-						"amount": 1
-					},
-					{
-						"effect_type": "pull",
-						"amount": 1
-					}
+					{ "effect_type": "push", "amount": 1 },
+					{ "effect_type": "pull", "amount": 1 }
 				]
 			},
 			{
@@ -36864,13 +34284,8 @@
 					"timing": "now",
 					"effect_type": "choice",
 					"choice": [
-						{
-							"effect_type": "push",
-							"amount": 1
-						},
-						{
-							"effect_type": "pass"
-						}
+						{ "effect_type": "push", "amount": 1 },
+						{ "effect_type": "pass" }
 					]
 				}
 			]
@@ -36917,14 +34332,8 @@
 					"and": {
 						"effect_type": "choice",
 						"choice": [
-							{
-								"effect_type": "advance",
-								"amount": 2
-							},
-							{
-								"effect_type": "retreat",
-								"amount": 2
-							}
+							{ "effect_type": "advance", "amount": 2 },
+							{ "effect_type": "retreat", "amount": 2 }
 						]
 					}
 				}
@@ -36992,17 +34401,9 @@
 				"timing": "after",
 				"effect_type": "choice",
 				"choice": [
-					{
-						"effect_type": "advance",
-						"amount": 1
-					},
-					{
-						"effect_type": "advance",
-						"amount": 2
-					},
-					{
-						"effect_type": "pass"
-					}
+					{ "effect_type": "advance", "amount": 1 },
+					{ "effect_type": "advance", "amount": 2 },
+					{ "effect_type": "pass" }
 				]
 			}
 		],
@@ -37025,22 +34426,10 @@
 					"timing": "after",
 					"effect_type": "choice",
 					"choice": [
-						{
-							"effect_type": "advance",
-							"amount": 1
-						},
-						{
-							"effect_type": "advance",
-							"amount": 2
-						},
-						{
-							"effect_type": "retreat",
-							"amount": 1
-						},
-						{
-							"effect_type": "retreat",
-							"amount": 2
-						}
+						{ "effect_type": "advance", "amount": 1 },
+						{ "effect_type": "advance", "amount": 2 },
+						{ "effect_type": "retreat", "amount": 1 },
+						{ "effect_type": "retreat", "amount": 2 }
 					]
 				}
 			]
@@ -37128,14 +34517,8 @@
 					"timing": "immediate",
 					"effect_type": "choice",
 					"choice": [
-						{
-							"effect_type": "advance",
-							"amount": 1
-						},
-						{
-							"effect_type": "retreat",
-							"amount": 1
-						}
+						{ "effect_type": "advance", "amount": 1 },
+						{ "effect_type": "retreat", "amount": 1 }
 					]
 				},
 				{
@@ -37657,6 +35040,8 @@
 		},
 		"NOTEEND": "ZSOLT CARDS END"
 	},
+
+
 	{
 		"NOTE": "GG NORMALS START",
 		"id": "gg_normal_grasp",
@@ -37675,22 +35060,10 @@
 				"timing": "hit",
 				"effect_type": "choice",
 				"choice": [
-					{
-						"effect_type": "push",
-						"amount": 1
-					},
-					{
-						"effect_type": "push",
-						"amount": 2
-					},
-					{
-						"effect_type": "pull",
-						"amount": 1
-					},
-					{
-						"effect_type": "pull",
-						"amount": 2
-					}
+					{ "effect_type": "push", "amount": 1 },
+					{ "effect_type": "push", "amount": 2 },
+					{ "effect_type": "pull", "amount": 1 },
+					{ "effect_type": "pull", "amount": 2 }
 				]
 			}
 		],
@@ -37994,6 +35367,7 @@
 		},
 		"NOTEEND": "GG NORMALS END"
 	},
+
 	{
 		"NOTE": "UNI NORMALS START",
 		"id": "uni_normal_grasp",
@@ -38012,22 +35386,10 @@
 				"timing": "hit",
 				"effect_type": "choice",
 				"choice": [
-					{
-						"effect_type": "push",
-						"amount": 1
-					},
-					{
-						"effect_type": "push",
-						"amount": 2
-					},
-					{
-						"effect_type": "pull",
-						"amount": 1
-					},
-					{
-						"effect_type": "pull",
-						"amount": 2
-					}
+					{ "effect_type": "push", "amount": 1 },
+					{ "effect_type": "push", "amount": 2 },
+					{ "effect_type": "pull", "amount": 1 },
+					{ "effect_type": "pull", "amount": 2 }
 				]
 			}
 		],
@@ -38041,21 +35403,10 @@
 					"timing": "now",
 					"effect_type": "choice",
 					"choice": [
-						{
-							"effect_type": "advance",
-							"amount": 1
-						},
-						{
-							"effect_type": "advance",
-							"amount": 2
-						},
-						{
-							"effect_type": "advance",
-							"amount": 3
-						},
-						{
-							"effect_type": "pass"
-						}
+						{ "effect_type": "advance", "amount": 1 },
+						{ "effect_type": "advance", "amount": 2 },
+						{ "effect_type": "advance", "amount": 3 },
+						{ "effect_type": "pass" }
 					]
 				},
 				{
@@ -38134,14 +35485,8 @@
 					"timing": "immediate",
 					"effect_type": "choice",
 					"choice": [
-						{
-							"effect_type": "close",
-							"amount": 3
-						},
-						{
-							"effect_type": "retreat",
-							"amount": 3
-						}
+						{ "effect_type": "close", "amount": 3 },
+						{ "effect_type": "retreat", "amount": 3 }
 					]
 				}
 			]
@@ -38219,14 +35564,8 @@
 					"timing": "immediate",
 					"effect_type": "choice",
 					"choice": [
-						{
-							"effect_type": "close",
-							"amount": 1
-						},
-						{
-							"effect_type": "retreat",
-							"amount": 1
-						}
+						{ "effect_type": "close", "amount": 1 },
+						{ "effect_type": "retreat", "amount": 1 }
 					]
 				},
 				{
@@ -38374,6 +35713,7 @@
 		},
 		"NOTEEND": "UNI NORMALS END"
 	},
+
 	{
 		"NOTE": "STANDARD NORMALS START",
 		"id": "standard_normal_grasp",
@@ -38392,22 +35732,10 @@
 				"timing": "hit",
 				"effect_type": "choice",
 				"choice": [
-					{
-						"effect_type": "push",
-						"amount": 1
-					},
-					{
-						"effect_type": "push",
-						"amount": 2
-					},
-					{
-						"effect_type": "pull",
-						"amount": 1
-					},
-					{
-						"effect_type": "pull",
-						"amount": 2
-					}
+					{ "effect_type": "push", "amount": 1 },
+					{ "effect_type": "push", "amount": 2 },
+					{ "effect_type": "pull", "amount": 1 },
+					{ "effect_type": "pull", "amount": 2 }
 				]
 			}
 		],
@@ -38454,21 +35782,10 @@
 					"timing": "immediate",
 					"effect_type": "choice",
 					"choice": [
-						{
-							"effect_type": "advance",
-							"amount": 1
-						},
-						{
-							"effect_type": "advance",
-							"amount": 2
-						},
-						{
-							"effect_type": "advance",
-							"amount": 3
-						},
-						{
-							"effect_type": "pass"
-						}
+						{ "effect_type": "advance", "amount": 1 },
+						{ "effect_type": "advance", "amount": 2 },
+						{ "effect_type": "advance", "amount": 3 },
+						{ "effect_type": "pass" }
 					]
 				}
 			]
@@ -38507,25 +35824,11 @@
 					"timing": "immediate",
 					"effect_type": "choice",
 					"choice": [
-						{
-							"effect_type": "retreat",
-							"amount": 1
-						},
-						{
-							"effect_type": "retreat",
-							"amount": 2
-						},
-						{
-							"effect_type": "retreat",
-							"amount": 3
-						},
-						{
-							"effect_type": "retreat",
-							"amount": 4
-						},
-						{
-							"effect_type": "pass"
-						}
+						{ "effect_type": "retreat", "amount": 1 },
+						{ "effect_type": "retreat", "amount": 2 },
+						{ "effect_type": "retreat", "amount": 3 },
+						{ "effect_type": "retreat", "amount": 4 },
+						{ "effect_type": "pass" }
 					]
 				}
 			]
@@ -38730,6 +36033,8 @@
 		},
 		"NOTEEND": "STANDARD NORMALS END"
 	},
+	
+	
 	{
 		"id": "null_reference",
 		"type": "none",
@@ -38742,13 +36047,15 @@
 		"speed": 0,
 		"armor": 0,
 		"guard": 0,
-		"effects": [],
+		"effects": [
+		],
 		"boost": {
 			"boost_type": "immediate",
 			"force_cost": 0,
 			"cancel_cost": -1,
 			"display_name": "Nothing",
-			"effects": []
+			"effects": [
+			]
 		}
 	}
 ]

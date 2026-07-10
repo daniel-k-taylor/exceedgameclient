@@ -141,6 +141,8 @@ func _card_list_to_string(cards):
 	return ""
 
 func _get_boost_and_card_name(card):
+	if card == null:
+		return _log_card_name("a card")
 	var card_name = card.definition['display_name']
 	var facedown = card.definition['boost'].get("facedown")
 	var boost_name = card.definition['boost']['display_name']
@@ -1812,7 +1814,7 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 			var card_def = CardDataManager.get_card(card_definition_id)
 			if card_def:
 				var next_id = randi() % 100000 + 1000000
-				var new_card = GameCard.new(next_id, card_def, next_id, {}, 0)
+				var new_card = GameCard.new(next_id, card_def, performing_player.my_id, {}, 0)
 				card_db.add_card(new_card)
 				performing_player.add_to_set_aside(new_card)
 				_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "adds %s to set-aside (Wonderland)." % _log_card_name(new_card.definition['display_name']))
@@ -7779,8 +7781,11 @@ func handle_strike_attack_cleanup(performing_player : Player, card):
 		# Already removed from play mid-strike
 		return
 
-	if performing_player.is_set_aside_card(card.id):
+	if performing_player.is_set_aside_card(card.id) or card.id == performing_player.face_attack_set_aside_return_card_id:
 		_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "sets aside their attack %s." % _log_card_name(card_name))
+		if not performing_player.is_set_aside_card(card.id):
+			performing_player.add_to_set_aside(card)
+		performing_player.face_attack_set_aside_return_card_id = -1
 		create_event(Enums.EventType.EventType_SetCardAside, performing_player.my_id, card.id)
 		active_strike.cards_in_play.erase(card)
 	elif performing_player.strike_stat_boosts.seal_attack_on_cleanup:
@@ -8184,8 +8189,13 @@ func continue_resolve_boost():
 	# do_queued_effects PlayerDecision break above AND action_after_boost
 	# not set), and active_boost is somehow still dangling, detach it to
 	# prevent parent_boost nesting in subsequent do_boost calls.
-	if active_boost and not active_boost.parent_boost and not active_boost.action_after_boost:
-		if not active_strike and game_state != Enums.GameState.GameState_PlayerDecision:
+	# Never run while paused for a player decision: the pending decision will
+	# re-enter continue_resolve_boost() and clean up the boost normally. Forcing
+	# cleanup / a state change here would discard the pending decision and leave
+	# the game unable to resolve it (e.g. a boost with a choice played mid-strike).
+	if active_boost and not active_boost.parent_boost and not active_boost.action_after_boost \
+			and game_state != Enums.GameState.GameState_PlayerDecision:
+		if not active_strike:
 			boost_play_cleanup(active_boost.playing_player)
 		elif active_strike:
 			active_boost = null
@@ -9157,13 +9167,25 @@ func do_strike(
 			printlog("ERROR: Tried to strike without an EX when one was required.")
 			return false
 
+	# Reset this player's set-aside face-attack tracking for the new strike. This is
+	# per-Player, so resetting the performing player's field never clears the other
+	# player's pending value.
+	performing_player.face_attack_set_aside_return_card_id = -1
+
 	if use_face_attack:
 		# Find the face attack and update the card id
 		var face_attack_card = performing_player.get_face_attack_card()
 		if face_attack_card:
 			card_id = face_attack_card.id
-			# Remove from set_aside first so zone check later doesn't double-process
+			# Remove from set_aside first so the card isn't in two zones at once
+			# (being in both hand and set-aside miscounts hand-size effects and can
+			# stun the attack). Remember its set-aside origin so a normal face attack
+			# is returned to set-aside on cleanup instead of going to gauge/discard.
+			# The Eugenia (Wonderland) buddy placeholder is excluded: it is not a real
+			# persistent set-aside attack.
 			performing_player.remove_from_set_aside(card_id)
+			if not (performing_player.face_attack_id in performing_player.buddy_id_to_index):
+				performing_player.face_attack_set_aside_return_card_id = card_id
 			performing_player.add_to_hand(face_attack_card, false)
 			performing_player.next_strike_faceup = true
 		else:
@@ -9273,7 +9295,12 @@ func do_strike(
 						active_strike.initiator_set_from_boost_space = performing_player.get_boost_location(card_id)
 					performing_player.remove_from_continuous_boosts(card_db.get_card(card_id), StrikeEffects.Strike)
 					active_strike.initiator_set_from_boosts = true
-				elif performing_player.is_card_in_set_aside(card_id):
+				elif performing_player.is_card_in_set_aside(card_id) and performing_player.deck_def.get("id") == "eugenia":
+					# Eugenia strikes with a real card directly from Wonderland (set-aside).
+					# This branch is Eugenia-specific: for other characters a card that lives
+					# in set-aside is copied into hand first (e.g. Happy Chaos "Deus Ex Machina")
+					# and must remain in set-aside so it returns there after the strike and can
+					# be reused on a later exceed. Gating to Eugenia restores that behavior.
 					performing_player.remove_from_set_aside(card_id)
 					active_strike.initiator.next_strike_faceup = true
 					_append_log_full(Enums.LogType.LogType_Strike, performing_player, "sets their attack from Wonderland!")

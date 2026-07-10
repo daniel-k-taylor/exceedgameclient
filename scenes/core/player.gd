@@ -294,6 +294,9 @@ var reading_card_id : String
 var next_strike_faceup : bool
 var next_strike_from_gauge : bool
 var next_strike_from_sealed : bool
+# Card id of a face-attack struck from the set-aside zone that should be returned
+# there on strike cleanup (-1 when none). Excludes buddy placeholder face attacks.
+var face_attack_set_aside_return_card_id : int = -1
 var next_strike_random_gauge : bool
 var strike_on_boost_cleanup : bool
 var wild_strike_on_boost_cleanup : bool
@@ -450,6 +453,7 @@ func _init(id, player_name, parent_ref, card_db_ref, chosen_deck, card_start_id)
 	next_strike_faceup = false
 	next_strike_from_gauge = false
 	next_strike_random_gauge = false
+	face_attack_set_aside_return_card_id = -1
 	strike_on_boost_cleanup = false
 	wild_strike_on_boost_cleanup = false
 	pre_strike_movement = 0
@@ -1438,14 +1442,20 @@ func get_buddy_name(buddy_id : String = ""):
 
 func get_face_attack_card():
 	if face_attack_id:
-		if set_aside_cards.size() == 0:
-			return null
-		# Only show face attack if there's a real card (not the wonderland placeholder)
 		var card = get_set_aside_card(face_attack_id)
-		if card and set_aside_cards.size() <= 1:
-			return null  # Only placeholder wonderland card, no real card yet
-		if not card:
-			card = set_aside_cards[0]
+		# Eugenia (Wonderland): the face attack points at a buddy placeholder card
+		# rather than a real attack. The placeholder only becomes a usable face
+		# attack once at least one real card has been added to set-aside, so the
+		# lone placeholder is never returned. For normal characters the face attack
+		# is a real set-aside card and must be returned even when it is the only one.
+		if face_attack_id in buddy_id_to_index:
+			if set_aside_cards.size() == 0:
+				return null
+			if card and set_aside_cards.size() <= 1:
+				return null  # Only placeholder wonderland card, no real card yet
+			if not card:
+				card = set_aside_cards[0]
+			return card
 		return card
 	return null
 
@@ -2458,7 +2468,13 @@ func add_to_discards(card : GameCard, from_top : int = 0):
 			seal_from_location(card.id, "discard")
 	else:
 		# Card belongs to the other player, so discard it there.
-		parent._get_player(parent.get_other_player(my_id)).add_to_discards(card, from_top)
+		var other_player = parent._get_player(parent.get_other_player(my_id))
+		if other_player == null or card.owner_id != other_player.my_id:
+			# Owner matches neither player (should not happen); discard here to avoid infinite recursion.
+			discards.append(card)
+			parent.create_event(Enums.EventType.EventType_AddToDiscard, my_id, card.id, "", from_top)
+			return
+		other_player.add_to_discards(card, from_top)
 
 func add_to_hand(card : GameCard, public : bool):
 	hand.append(card)
