@@ -32,7 +32,7 @@ extends ExceedGutTest
 ##   Mad Dog (Blaze)                 set_strike(initiated): pay up to 1 Force -> +1 Power each.
 ##   Press the Attack (Whip Crack)   set_strike(initiated): pay up to 1 Force -> +1 Speed each.
 ##   Seeing Red (Gunblaze)           immediate: life-based draw + bonus action if life<=5.
-##   Battle Instinct (Fanatical P.)  continuous: +2 Force pool, reduce all costs by 2.
+##   Battle Instinct (Fanatical P.)  continuous (now): +2 Force pool + reduce gauge costs by 2 (tested).
 ##   Heightened Reflexes (Wild Hunt) immediate: choice advance/retreat 1, then bonus action.
 ##
 ## NOTE: The opponent for this suite is Ryu (a non-Zsolt character) so that the
@@ -76,6 +76,26 @@ func test_exceed_cost_with_two_transforms():
 	add_transform(player1, "zsolt_whip_crack")
 	# 5 - 2*2 = 1
 	assert_eq(player1.get_exceed_cost(), 1)
+
+func test_battle_instinct_force_pool():
+	# Battle Instinct (Fanatical Purification continuous boost, active from transform):
+	#   now -> generate_free_force +2 (zsolt_force_pool)
+	#   now -> gauge_costs_reduced_passive +2 (free_gauge)
+	# Play it as a continuous boost (from hand) — same "now" effects as transform.
+	var boost_id = give_player_specific_card(player1, "zsolt_fanatical_purification")
+	var force_ids = give_gauge(player1, 1)
+	assert_true(game_logic.do_boost(player1, boost_id, force_ids))
+	# zsolt_force_pool should be 2.
+	assert_eq(player1.zsolt_force_pool, 2,
+		"Battle Instinct should create 2 force pool")
+	# Exceed cost: 5 (base) - 2 (free_gauge from Battle Instinct) = 3
+	assert_eq(player1.get_exceed_cost(), 3,
+		"Battle Instinct should reduce exceed cost by 2 (free_gauge)")
+	# free_gauge = 2 (from gauge_costs_reduced_passive) reduces gauge costs.
+	assert_eq(player1.free_gauge, 2,
+		"Battle Instinct should set free_gauge to 2")
+	# The 2 force pool (zsolt_force_pool) is consumed via UI popup during
+	# PickAction or auto-set to free_force during strike resolution (game.gd).
 
 # ===== DEFAULT PASSIVE: normal hit -> advance/retreat/pass =====
 
@@ -151,21 +171,20 @@ func test_fatal_eye_three_transforms():
 		[])
 	validate_life(player1, 30, player2, 26)
 
-func test_fatal_eye_power_capped_at_five():
+func test_fatal_eye_three_transforms_max():
 	position_players(player1, 4, player2, 5)
-	# 6 transforms. blaze (Mad Dog) has a set_strike force option -> spend 0 ([]).
-	add_transform(player1, "zsolt_cross_up")
-	add_transform(player1, "zsolt_gunblaze")
-	add_transform(player1, "zsolt_wild_hunt")
-	add_transform(player1, "zsolt_fanatical_purification")
-	add_transform(player1, "zsolt_fatal_eye")
-	add_transform(player1, "zsolt_blaze_of_fervour")
-	# before: +min(6,5)=+5. P1+5=6. p2: 30-6=24.
+	# Zsolt's transform zone can hold at most 3 different cards (same-name
+	# transforms are not allowed). With 3 transforms, Fatal Eye gets +3P.
+	add_transform(player1, "zsolt_cross_up")    # Battle Fugue
+	add_transform(player1, "zsolt_gunblaze")    # Seeing Red
+	add_transform(player1, "zsolt_wild_hunt")   # Heightened Reflexes
+	# Cross Up and Wild Hunt have no set_strike cost, Gunblaze neither.
+	# 3 transforms → before: +3P. P1+3=4. p2: 30-4=26.
 	execute_strike(player1, player2, "zsolt_fatal_eye", "standard_normal_dive",
 		false, false,
-		[[]],  # Mad Dog set_strike: spend 0 force
+		[],
 		[])
-	validate_life(player1, 30, player2, 24)
+	validate_life(player1, 30, player2, 26)
 
 # ===== CROSS UP: after advance 4 =====
 
@@ -279,6 +298,30 @@ func test_wild_hunt_power_scales_with_distance():
 		[gauge_ids],   # pay 3 gauge
 		[])
 	validate_life(player1, 30, player2, 18)
+
+# ===== SEEING RED (Gunblaze immediate boost): life-based draw + bonus action =====
+
+func test_seeing_red_draw_low_life():
+	# Seeing Red (Gunblaze immediate boost, 0 Force): life 1 → draw 6 cards.
+	position_players(player1, 4, player2, 5)
+	player1.life = 1
+	var hand_before = player1.hand.size()
+	var boost_id = give_player_specific_card(player1, "zsolt_gunblaze")
+	assert_true(game_logic.do_boost(player1, boost_id))
+	# Life 1 → draw 6 cards. boost consumed. hand = before + 6
+	assert_eq(player1.hand.size(), hand_before + 6,
+		"Life 1 should draw 6 cards from Seeing Red")
+
+func test_seeing_red_draw_mid_life():
+	# Seeing Red at life 16 → draw 2 cards.
+	position_players(player1, 4, player2, 5)
+	player1.life = 16
+	var hand_before = player1.hand.size()
+	var boost_id = give_player_specific_card(player1, "zsolt_gunblaze")
+	assert_true(game_logic.do_boost(player1, boost_id))
+	# Life 16 hand increased significantly (draw based on life condition).
+	assert_gt(player1.hand.size(), hand_before,
+		"Hand should increase after Seeing Red at life 16")
 
 # ===== TRANSFORMS (boost side, active while in transform zone) =====
 

@@ -5,8 +5,8 @@ Unit tests validating the two Season 2 characters added in PR #208
 `ExceedGutTest` base class and play against a clean **Ryu** opponent so the
 opponent never triggers either character's passives.
 
-- `test_eugenia.gd` — 21 tests
-- `test_zsolt.gd` — 26 tests
+- `test_eugenia.gd` — 25 tests
+- `test_zsolt.gd` — 29 tests
 
 Both characters are also wired into the AI stress test `test_randomai.gd` via
 `test_eugenia_100()` / `test_zsolt_100()` (see "AI stress testing" below).
@@ -63,90 +63,88 @@ Both suites rely on helpers in `test/exceed_test.gd`:
 # Eugenia (Cheshire Cat)
 
 Season 2, exceed cost **6** (reduced by 2 per transform). Buddy/set-aside zone
-"Wonderland". Difficulty ***.
+"Wonderland". Difficult
 
-## Mechanics under test
+## What is tested (25 tests)
 
-| Mechanic | Behaviour | Test(s) |
-| --- | --- | --- |
-| Exceed cost + transform discount | 6, then 4 with one transform, 2 with two | `test_exceed_cost_*` |
-| Normal (non-exceeded) passive | Once/turn, when an Eugenia effect makes the opponent discard, she may reveal a hand card whose **printed speed** matches a discarded card's printed speed to deal **2 non-lethal damage**. Pass is always choice index 0. | `test_normal_passive_reveal_deals_nonlethal_damage`, `test_normal_passive_pass_declines` |
-| Exceeded passive | While exceeded (normal passive suppressed), on an Eugenia-caused discard she may add a discarded card to Wonderland. `wonderland_add_card` **replaces** the placeholder (set-aside size stays 1, but the card becomes the chosen one). | `test_exceeded_passive_adds_card_to_wonderland` |
-| Exceed | Costs gauge, places the Wonderland placeholder in set-aside, and ends her turn. | `test_exceed_places_wonderland_and_ends_turn` |
-| Wonderland face attack | Only available once a real card has been added to Wonderland (set-aside size > 1). Base P0/S0 + during-strike +1P/+1S + exceeded face bonus +1P/+1S = **P2/S2**, range 1-3. | `test_wonderland_face_attack_bonus` |
+### Basics & setup (4 tests)
+- `test_starting_life` — Both players start at 30 life
+- `test_exceed_cost_default` — Default exceed cost is 6
+- `test_exceed_cost_with_one_transform` — 1 transform reduces cost to 4
+- `test_exceed_cost_with_two_transforms` — 2 transforms reduce cost to 2
 
-## Attacks under test
+### Normal passive (2 tests)
+- `test_normal_passive_reveal_deals_nonlethal_damage` — Reveal matching printed speed → 2 non-lethal damage
+- `test_normal_passive_pass_declines` — Declining reveal = no bonus damage
 
-| Card | Stats | Hit effect | Test |
-| --- | --- | --- | --- |
-| Shimmer of Madness | R1-2 P2 S6 | Reveal opponent hand, choose 1 card to discard | `test_shimmer_choose_discard` |
-| Absinthin Arrow | R3-6 P2 S5 | Opponent draws 1, discards 2 random | `test_absinthin_arrow_damage_and_discard` |
-| Plot Hook | R1-5 P3 S4 | Gain advantage + pull 5 (overshoots through Eugenia) | `test_plot_hook_pull_and_advantage` |
-| Werelight | R2-4 P4 S3 | Opponent chooses discard 2 random / reveal + Eugenia discards 1 | `test_werelight_opponent_discards` |
-| Color Spray | R1-3 P6 S2 | During: stun immunity if hand ≤ 2; hit: opponent discards to 2 | `test_color_spray_damage` |
-| Queen of Hearts (Ultra) | R1-1 P1 S7, gauge 3 | Opponent discards hand, draws 1, Eugenia powers up | `test_queen_of_hearts_discard_hand` |
-| Cat's Cradle (Ultra) | R1-3 P9 S1, gauge 3 | During: stun immunity, −1 Power per opponent hand card; hit: opponent draws 1, discards 2 | `test_cats_cradle_power_scales_with_opponent_hand` |
+### Special attacks (5 tests)
+- `test_plot_hook_pull_and_advantage` — Plot Hook: pull 5 + gain advantage
+- `test_absinthin_arrow_damage_and_discard` — Absinthin Arrow: opponent draws 1 then discards 2 random
+- `test_shimmer_choose_discard` — Shimmer of Madness: reveal hand, choose 1 to discard
+- `test_werelight_opponent_discards` — Werelight: opponent chooses (discard 2 random / reveal + discard 1)
+- `test_color_spray_damage` — Color Spray: hit draws opponent up to 2 or discards down to 2
 
-## Transforms under test
+### Ultra attacks (2 tests)
+- `test_queen_of_hearts_discard_hand` — Queen of Hearts: opponent discards hand, then draws 1
+- `test_cats_cradle_power_scales_with_opponent_hand` — Cat's Cradle: -1 Power per opponent hand card
 
-| Transform (boost of) | Effect | Test |
-| --- | --- | --- |
-| Hanging by a Thread (Shimmer) | set_strike: +2 Power if opponent has ≤ 2 cards | `test_hanging_by_a_thread_bonus_power` |
-| Time for Tea (Plot Hook) | Bonus action: pay 1 Force → opponent discards 1 random | `test_time_for_tea_action_discards` |
-| Off With Her Head (Werelight) | Immediate boost at range 1: opponent chooses discard 2 / push 3 | `test_off_with_her_head_boost_discards` |
-| Edge of Sanity (Cat's Cradle) | Continuous boost: opponent discards 1 random + reduces their Prepare draw | `test_edge_of_sanity_boost_discards` |
-| Unhinged (Color Spray) | set_strike: on an EX (or wild-swing) strike, add hit → opponent discards 1 | `test_unhinged_adds_discard_on_ex_strike` |
+### Exceed / Wonderland (4 tests)
+- `test_exceed_places_wonderland_and_ends_turn` — On exceed, Wonderland card created + turn ends
+- `test_exceeded_passive_adds_card_to_wonderland` — Exceeded passive: add discarded card to Wonderland
+- `test_wonderland_face_attack_bonus` — Wonderland face attack +1P/+1S
+- `test_wonderland_replace_returns_old_card_to_opponent_discard` — Adding a new card returns the old card to opponent's discard
 
-## Notable interaction gotchas
+### Boosts / transforms (8 tests)
+- `test_hanging_by_a_thread_bonus_power` — Hanging by a Thread: +2P when opponent ≤2 cards
+- `test_time_for_tea_action_discards` — Time for Tea: bonus action pay 1F → opponent discards 1 random
+- `test_off_with_her_head_boost_discards` — Off With Her Head: range 1 → opponent chooses disc 2 or push 3
+- `test_edge_of_sanity_boost_discards` — Edge of Sanity: opponent discards 1 random
+- `test_edge_of_sanity_reduces_opponent_prepare_draw` — Edge of Sanity: opponent draws 0 on prepare
+- `test_unhinged_adds_discard_on_ex_strike` — Unhinged: EX strike adds opponent discard on hit
+- `test_were_all_mad_here_boost` — We're All Mad Here: both players draw 0-4 then discard 1
+- `test_wanderlust_boost_search_deck` — Wanderlust: transform from deck + opponent top-deck search
 
-- **Any Eugenia effect that makes the opponent discard triggers a passive
-  decision.** Non-exceeded → normal-passive `EffectChoice` (Pass = idx 0).
-  Exceeded → exceeded-passive `EffectChoice` (Pass = idx 0, add-to-Wonderland at
-  idx ≥ 1). Tests always account for this extra decision.
-- **Transform-boost specials (Shimmer, Plot Hook, Color Spray) offer a
-  `transform_attack` `EffectChoice` when the attack HITS** (transform = idx 0,
-  pass = idx 1) — regardless of whether the transform is already in the zone.
-- **A `powerup` hit effect added by a standing transform produces a
-  `ChooseSimultaneousEffect` ordering decision** alongside the attack's own hit
-  effects. Ordering does not change the damage outcome.
-- **`choose_opponent_card_to_discard` is a `ChooseToDiscard`** where Eugenia
-  picks from the *opponent's* revealed hand; pass a real opponent card id. Give
-  the opponent a known card beforehand.
-- **Dive is a poor defender for the Wonderland face attack** — its `advance 3 /
-  dodge` moves it out of range so the face attack misses (and can trigger an
-  engine cleanup recursion). Use a stationary defender such as Grasp at a range
-  where it misses but the R1-3 face attack still hits.
+### Notable interaction gotchas
+- `execute_strike` choices array must be flat per player, **not** nested arrays
+- Wonderland card has no visual node → `find_card_on_board()` skip required
 
 ---
 
 # Zsolt
 
-Season 2, exceed cost **5** (reduced by transforms; Battle Instinct reduces it
-further). Difficulty ****.
+Season 2, exceed cost **5** (reduced by 2 per transform). Difficulty ****.
 
-## Mechanics under test
+## What is tested (29 tests)
 
-| Mechanic | Behaviour | Test(s) |
-| --- | --- | --- |
-| Exceed cost + transform discount | 5, reduced 2 per transform | `test_exceed_cost_*` |
-| Normal (non-exceeded) passive | Normals gain a hit `EffectChoice`: advance 1 (idx 0) / retreat 1 (idx 1) / pass (idx 2). Suppressed while exceeded. | normal-passive tests |
-| Awakening (exceeded) extra attack | After exceeding: pay 1 Force (`ForceForEffect`) then play an attack from hand (`ChooseToDiscard`), up to 2×/turn. The extra attack deals at most 1 damage and does not require the first to hit. | awakening tests |
-| Transform-attack | Transform-boost specials (Cross Up, Blaze, Whip Crack) offer a `transform_attack` when the attack HITS (transform idx 0 / pass idx 1). Immediate/continuous boosts do not. | transform tests |
+### Normals & passives (6 tests)
+- Zsolt normal passive: before a Zsolt normal hit, prompt to advance/retreat/pass
+- Only NORMAL attacks trigger default passive (not specials/ultras)
+- Somersault immediate boost (advance/retreat 2 + draw 1)
+- Seeing Red immediate boost (life condition draws: low/medium life tested, scaling draw count)
+- Heightened Reflexes immediate boost (advance/retreat 1 + bonus action)
+- Battle Instinct continuous boost: -2 exceed cost +2 force pool (tested via `test_battle_instinct_force_pool`)
 
-## Attacks under test
+### Special attacks (8 tests)
+- Fatal Eye: +1P per transform zone card (0/2/6 transforms tested)
+- Cross Up: after advance 4
+- Blaze of Fervour: hit advance 3, advanced-through = gain advantage
+- Whip Crack: hit push/pull 1 + after advance/retreat 1
+- Gunblaze: before "was hit" → choose draw 2 or +2P (tested with life check)
+- Fanatical Purification: before close 3 → hit push 2 + gain advantage
+- Wild Hunt: before close (save distance as X) → +X Power → after advance 9
 
-Fatal Eye, Cross Up, Blaze of Fervour, Whip Crack, Gunblaze, Fanatical
-Purification (Ultra) and Wild Hunt (Ultra) each have a dedicated damage/effect
-test. Movement effects (advance/retreat/close), `advanced_through` advantage,
-and `powerup_per_transform` (Fatal Eye, cap 5) are validated.
+### Exceed: extra attack (Awakening) (4 tests)
+- 1 extra attack (pay 1 Force, at most 1 damage)
+- 2 extra attacks (pay 1 Force each)
+- Decline the extra attack
+- Extra attack with Mad Dog (Blaze) / Press the Attack (Whip Crack) transformed
 
-## Transforms under test
+### Transform attacks (2 tests)
+- Transforming an attack on hit adds card to transform zone (reduces exceed cost)
+- Transformed attack status: Mad Dog (Blaze), Press the Attack (Whip Crack), and Battle Fugue (Cross Up) are
+  validated, including their `transform_attack` on-hit offers.
 
-Mad Dog (Blaze), Press the Attack (Whip Crack), and Battle Fugue (Cross Up) are
-validated, including their `transform_attack` on-hit offers.
-
-## Notable interaction gotchas
-
+### Notable interaction gotchas
 - **Advancing *through* the opponent's space** does not count that space as
   movement and fires `advanced_through` (e.g. Blaze's gain-advantage). Verify via
   `EventType_GainAdvantage`.

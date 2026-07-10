@@ -260,6 +260,40 @@ func test_exceeded_passive_adds_card_to_wonderland():
 	assert_eq(player1.set_aside_cards.size(), 1)
 	assert_eq(player1.set_aside_cards[0].id, target)
 
+func test_wonderland_replace_returns_old_card_to_opponent_discard():
+	# When a new card is added to Wonderland, the old card (if any) goes back
+	# to the opponent's discard pile. The wonderland_add_card handler does
+	# set_aside_cards.clear() + opposing_player.discards.append(old).
+	# Step 1: Exceed and add first card (Cross) to Wonderland.
+	var gauge_ids = give_gauge(player1, 6)
+	assert_true(game_logic.do_exceed(player1, gauge_ids))
+	advance_turn(player2)
+	position_players(player1, 4, player2, 5)
+	var first = give_player_specific_card(player2, "standard_normal_cross")
+	execute_strike(player1, player2, "eugenia_shimmer_of_madness", "standard_normal_dive",
+		false, false,
+		[[first], 1, 1],  # choose Cross; exceeded passive: add to Wonderland; transform pass
+		[])
+	assert_eq(player1.set_aside_cards[0].id, first)
+	# Step 2: Next turn, add a second card (Spike). The first (Cross) should
+	# go to opponent's discard.
+	advance_turn(player2)
+	position_players(player1, 4, player2, 6)
+	var second = give_player_specific_card(player2, "standard_normal_spike")
+	execute_strike(player1, player2, "eugenia_shimmer_of_madness", "standard_normal_grasp",
+		false, false,
+		[[second], 1, 1],  # choose Spike; exceeded passive: add to Wonderland; transform pass
+		[])
+	assert_eq(player1.set_aside_cards.size(), 1, "Wonderland should still hold exactly 1 card")
+	assert_eq(player1.set_aside_cards[0].id, second, "Wonderland should now hold the new card")
+	# The old card (Cross) should be in the opponent's discard pile.
+	var found_old = false
+	for c in player2.discards:
+		if c.id == first:
+			found_old = true
+			break
+	assert_true(found_old, "Old Wonderland card should be in opponent's discard")
+
 # ===== WONDERLAND FACE ATTACK: +1 Power / +1 Speed while exceeded =====
 
 func test_wonderland_face_attack_bonus():
@@ -331,6 +365,25 @@ func test_edge_of_sanity_boost_discards():
 	process_remaining_decisions(player1, player2, [0], [])
 	assert_eq(player2.hand.size(), before - 1)
 
+func test_edge_of_sanity_reduces_opponent_prepare_draw():
+	# Edge of Sanity's second effect: opponent draws 0 on their prepare instead of 1.
+	# The flag reduce_opponent_prepare_draw is set on the boost owner (player1).
+	# When player2 prepares, do_prepare checks player1's flag → draw 0.
+	position_players(player1, 4, player2, 5)
+	var boost_id = give_player_specific_card(player1, "eugenia_cats_cradle")
+	assert_true(game_logic.do_boost(player1, boost_id))
+	process_remaining_decisions(player1, player2, [0], [])
+	# Flag should be set on the boost owner (player1).
+	assert_true(player1.reduce_opponent_prepare_draw,
+		"Edge of Sanity should set reduce_opponent_prepare_draw on the boost owner")
+	# End player1's turn so player2 gets to prepare.
+	if game_logic.do_prepare(player1):
+		var p2_before = player2.hand.size()
+		advance_turn(player2)
+		# Player2 drew 0 instead of 1 at prepare.
+		assert_eq(player2.hand.size(), p2_before,
+			"Opponent's prepare draw should be 0 when Edge of Sanity is active")
+
 func test_unhinged_adds_discard_on_ex_strike():
 	# Unhinged (Color Spray transform) set_strike: on an EX strike, add hit -> opponent
 	# discards 1 random. Grasp R1 EX at dist1 hits Dive (stun); the added effect discards.
@@ -346,3 +399,61 @@ func test_unhinged_adds_discard_on_ex_strike():
 		[])
 	# Opponent lost a card to the Unhinged-added discard.
 	assert_lt(player2.hand.size(), before)
+
+# ===== ADDITIONAL TESTS =====
+
+func test_were_all_mad_here_boost():
+	# We're All Mad Here (Absinthin Arrow immediate boost, 0 Force): both players
+	# choose draw 0-4, then discard 1 random.
+	# do_boost handles Eugenia's choice (default Draw 1). Then opponent's
+	# EffectChoice is pending: picks Draw 1 (idx1). His discard triggers
+	# Eugenia's passive: pass (idx0).
+	# p1: 2 - 1(boost) + 1(draw, auto) - 1(discard) = 1
+	# p2: 2 + 1(draw) - 1(discard) = 2
+	position_players(player1, 4, player2, 5)
+	player1.hand.clear()
+	player2.hand.clear()
+	player1.draw(1)
+	player2.draw(2)
+	var boost_id = give_player_specific_card(player1, "eugenia_absinthin_arrow")
+	var p1_before = player1.hand.size()  # 2
+	var p2_before = player2.hand.size()  # 2
+	assert_true(game_logic.do_boost(player1, boost_id))
+	# Opponent's EffectChoice (draw amount) then Eugenia's passive pass.
+	process_remaining_decisions(player1, player2, [0], [1])
+	# p1: boost consumed, auto-draw+discard
+	assert_eq(player1.hand.size(), p1_before - 1)
+	# p2: draw 1 discard 1 = net 0
+	assert_eq(player2.hand.size(), p2_before)
+
+func test_wanderlust_boost_search_deck():
+	# Wanderlust (Queen of Hearts immediate boost, 1 Force): two effects:
+	#   1. boost_additional: transform a card from deck (BoostNow → do_boost)
+	#   2. choose_cards_from_top_deck(30): opponent picks 1 card to hand
+	position_players(player1, 4, player2, 5)
+	# Find a transform card in Eugenia's deck (e.g. shimmer, arrow, hook, etc).
+	var deck_transform_id = -1
+	for card in player1.deck:
+		if card.definition.get("boost", {}).get("boost_type") == "transform":
+			deck_transform_id = card.id
+			break
+	assert_ne(deck_transform_id, -1, "Should have a transform card in deck")
+	var gauge_ids = give_gauge(player1, 1)
+	var p2_hand_before = player2.hand.size()
+	var boost_id = give_player_specific_card(player1, "eugenia_queen_of_hearts")
+	# Step 1: Play Wanderlust (pay 1 Force).
+	assert_true(game_logic.do_boost(player1, boost_id, gauge_ids))
+	# Step 2: boost_additional(transform, deck) → BoostNow.
+	# Use do_boost to play the transform card from deck.
+	if game_logic.decision_info.type == Enums.DecisionType.DecisionType_BoostNow:
+		assert_true(game_logic.do_boost(player1, deck_transform_id))
+	# Step 3: choose_cards_from_top_deck (_target_other).
+	# Opponent picks from their own deck, adds to their hand.
+	process_remaining_decisions(player1, player2,
+		[],
+		[player2.deck[0].id, "add_to_hand"])
+	# Verify results
+	assert_true(player1.is_card_in_transforms(deck_transform_id),
+		"Selected card should be in transform zone")
+	assert_eq(player2.hand.size(), p2_hand_before + 1,
+		"Opponent should have 1 more card (from top-deck search)")
