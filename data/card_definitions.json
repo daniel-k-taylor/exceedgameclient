@@ -8507,6 +8507,7 @@
 		},
 		"NOTEEND": "ENKIDU CARDS END"
 	},
+
 	{
 		"NOTE": "EUGENIA CARDS START",
 		"id": "eugenia_shimmer_of_madness",
@@ -34531,7 +34532,10 @@
 		},
 		"NOTEEND": "ZATO CARDS END"
 	},
+
 	{
+		"NOTE": "ZSOLT CARDS START",
+
 		"id": "zsolt_fatal_eye",
 		"type": "special",
 		"display_name": "Fatal Eye",
@@ -34580,8 +34584,7 @@
 					}
 				}
 			]
-		},
-		"NOTE": "ZSOLT CARDS START"
+		}
 	},
 	{
 		"id": "zsolt_cross_up",
@@ -36033,8 +36036,8 @@
 		},
 		"NOTEEND": "STANDARD NORMALS END"
 	},
-	
-	
+
+
 	{
 		"id": "null_reference",
 		"type": "none",
