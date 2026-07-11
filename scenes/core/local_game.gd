@@ -7368,6 +7368,9 @@ func ask_for_cost(performing_player, card, next_state):
 			create_event(Enums.EventType.EventType_Strike_PayCost_Unable, performing_player.my_id, new_wild_card.id)
 
 func do_hit_response_effects(offense_player : Player, defense_player : Player, incoming_damage : int, hit_response_state : Dictionary, next_state):
+	# Reset effect source tracking - when_hit effects (e.g. block force for armor)
+	# should not inherit the source from earlier hit effects.
+	_last_effect_source_player_id = -1
 	# If more of these are added, need to sequence them to ensure all handled correctly.
 
 	var defender_card = active_strike.get_player_card(defense_player)
