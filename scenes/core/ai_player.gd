@@ -604,7 +604,7 @@ func get_boost_actions(valid_zones : Array, limitation : String, ignore_costs : 
 				if not ignore_costs and cost > 0:
 					assert(boost_amount <= 1)
 					var combinations = []
-					
+
 					if not gauge_cost:
 						var all_force_option_ids = []
 						for payment_card in game_player.hand:
@@ -615,7 +615,7 @@ func get_boost_actions(valid_zones : Array, limitation : String, ignore_costs : 
 						combinations = generate_force_combinations(all_force_option_ids, cost, free_force_available)
 					else:
 						combinations = get_combinations_to_pay_gauge(cost)
-						
+
 					for combo_result in combinations:
 						var combo = combo_result if gauge_cost else combo_result[0]
 						var use_free_force = false if gauge_cost else combo_result[1]
@@ -662,6 +662,10 @@ func get_strike_actions(alternate_source : String = "", disable_wild_swing : boo
 				continue
 
 			possible_actions.append(StrikeAction.new(card.id, -1, false))
+		if possible_actions.size() == 0:
+			# If you have to strike from gauge and can't, then wild swing.
+			possible_actions.append(StrikeAction.new(-1, -1, true))
+
 	elif alternate_source == "sealed":
 		for card in game_player.sealed:
 			if card.definition['gauge_cost'] > game_player.gauge.size():
