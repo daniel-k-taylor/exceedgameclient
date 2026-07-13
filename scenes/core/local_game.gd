@@ -10,6 +10,17 @@ extends Node2D
 
 const NullNamedCard = "_"
 
+# Zsolt normal passive: advance/retreat/pass choice (defined once, 3 usages)
+const ZsoltNormalChoice = [
+	{ "effect_type": StrikeEffects.Advance, "amount": 1 },
+	{ "effect_type": StrikeEffects.Retreat, "amount": 1 },
+	{ "effect_type": StrikeEffects.Pass, "amount": 0 }
+]
+
+# Eugenia wonderland face attack bonus: +1P/+1S (defined once, 2 usages: initiator + defender)
+const WonderlandPowerBonus = {"effect_type": StrikeEffects.Powerup, "amount": 1, "character_effect": true}
+const WonderlandSpeedBonus = {"effect_type": StrikeEffects.Speedup, "amount": 1, "character_effect": true}
+
 # Conditions that shouldn't change during a strike
 const StrikeStaticConditions = [
 	"is_critical", "is_not_critical",
@@ -56,6 +67,8 @@ var active_special_draw_effect : bool = false
 var active_post_action_effect : bool = false
 var active_start_of_turn_effects : bool = false
 var active_end_of_turn_effects : bool = false
+var _last_effect_source_player_id : int = -1
+var _exceeded_wonderland_active = false
 var remaining_overdrive_effects = []
 var queued_effect_chain = {
 	"effect": null,
@@ -128,6 +141,8 @@ func _card_list_to_string(cards):
 	return ""
 
 func _get_boost_and_card_name(card):
+	if card == null:
+		return _log_card_name("a card")
 	var card_name = card.definition['display_name']
 	var facedown = card.definition['boost'].get("facedown")
 	var boost_name = card.definition['boost']['display_name']
@@ -313,6 +328,8 @@ class ExtraAttackData:
 	var extra_attack_parent = null
 	var extra_attack_always_miss = false
 	var extra_attack_always_go_to_gauge = false
+	var zsolt_max_damage_1 = false
+	var zsolt_extra_transform = false
 
 	func reset():
 		extra_attack_in_progress = false
@@ -327,6 +344,8 @@ class ExtraAttackData:
 		extra_attack_parent = null
 		extra_attack_always_miss = false
 		extra_attack_always_go_to_gauge = false
+		zsolt_max_damage_1 = false
+		zsolt_extra_transform = false
 
 class Strike:
 	var initiator : Player
@@ -364,6 +383,7 @@ class Strike:
 	var remaining_forced_boosts_player_id = Enums.PlayerId.PlayerId_Player
 	var remaining_forced_boosts_sustaining = false
 	var cards_in_play: Array[GameCard] = []
+	var deferred_extra_attack_cards: Array[Dictionary] = []
 	var when_hit_effects_processed = []
 	var queued_stop_on_space_boosts = []
 	var cards_discarded_this_strike = 0
@@ -690,7 +710,9 @@ func continue_end_turn():
 		advance_to_next_turn()
 
 func advance_to_next_turn():
-
+	# Reset effect source tracking for new turn
+	_last_effect_source_player_id = -1
+	
 	var player_ending_turn = _get_player(active_turn_player)
 	var other_player = _get_player(get_other_player(active_turn_player))
 
@@ -797,6 +819,10 @@ func advance_to_next_turn():
 
 func start_begin_turn():
 	active_start_of_turn_effects = true
+	player.zsolt_extra_attack_count = 0
+	player.zsolt_awaken_offered = false
+	opponent.zsolt_extra_attack_count = 0
+	opponent.zsolt_awaken_offered = false
 
 	# Handle any start of turn boost effects.
 	# Iterate in reverse as items can be removed.
@@ -832,6 +858,9 @@ func continue_begin_turn():
 
 		# Transition to the pick action state, the player can now make their action for the turn.
 		_append_log_full(Enums.LogType.LogType_Default, starting_turn_player, "'s Turn Start!")
+		# Reset per-turn passive flags
+		starting_turn_player.eugenia_normal_passive_used_this_turn = false
+		other_player.eugenia_normal_passive_used_this_turn = false
 		change_game_state(Enums.GameState.GameState_PickAction)
 		decision_info.clear()
 		create_event(Enums.EventType.EventType_AdvanceTurn, active_turn_player, 0)
@@ -868,6 +897,9 @@ func initialize_new_strike(performing_player : Player, opponent_sets_first : boo
 	opponent.bonus_actions = 0
 
 	active_strike.starting_distance = player.distance_to_opponent()
+
+	player.zsolt_battle_fugue_drew = false
+	opponent.zsolt_battle_fugue_drew = false
 
 	active_strike.initiator = performing_player
 	active_strike.defender = _get_player(get_other_player(performing_player.my_id))
@@ -1016,6 +1048,9 @@ func strike_setup_initiator_response():
 func begin_resolve_strike():
 	# Strike is beginning, setup has been completed.
 	active_strike.in_setup = false
+	# Reset effect source tracking - set_strike effects (e.g. Eugenia's pass) may have
+	# set it, but cost payment discards should not trigger Eugenia's passive.
+	_last_effect_source_player_id = -1
 
 	# Handle known cards, don't include wild swings.
 	# However, wild swings do get removed from known cards if they were being tracked
@@ -1252,10 +1287,7 @@ func is_effect_condition_met(performing_player : Player, effect, local_condition
 			return false
 		elif condition == "has_transform":
 			var required_card = effect.get("required_transform_card")
-			for card in performing_player.transforms:
-				if card.definition["id"] == required_card:
-					return true
-			return false
+			return performing_player.has_transform(required_card)
 		elif condition == "used_character_action":
 			if not performing_player.used_character_action:
 				return false
@@ -1347,6 +1379,9 @@ func is_effect_condition_met(performing_player : Player, effect, local_condition
 		elif condition == "max_cards_in_hand":
 			var amount = effect['condition_amount']
 			return performing_player.hand.size() <= amount
+		elif condition == "opponent_max_cards_in_hand":
+			var amount = effect['condition_amount']
+			return other_player.hand.size() <= amount
 		elif condition == "matches_named_card":
 			var player_card = active_strike.get_player_card(performing_player)
 			return player_card.definition['id'] == effect['condition_card_id']
@@ -1695,6 +1730,8 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 	printlog("STRIKE: Handling effect %s" % [effect])
 	if 'for_other_player' in effect:
 		performing_player = _get_player(get_other_player(performing_player.my_id))
+	# Track who caused this effect for discard source checking (e.g. Eugenia passive)
+	_last_effect_source_player_id = performing_player.my_id
 	if 'character_effect' in effect and effect['character_effect']:
 		performing_player.strike_stat_boosts.active_character_effects.append(effect)
 		create_event(Enums.EventType.EventType_Strike_CharacterEffect, performing_player.my_id, card_id, "", effect)
@@ -1772,6 +1809,15 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 			var card_name = performing_player.get_set_aside_card(effect['id']).definition['display_name']
 			_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "will draw the set-aside card %s." % _log_card_name(card_name))
 			performing_player.add_set_aside_card_to_deck(effect['id'])
+		StrikeEffects.AddToSetAsideImmediately:
+			var card_definition_id = effect['card_id']
+			var card_def = CardDataManager.get_card(card_definition_id)
+			if card_def:
+				var next_id = randi() % 100000 + 1000000
+				var new_card = GameCard.new(next_id, card_def, performing_player.my_id, {}, 0)
+				card_db.add_card(new_card)
+				performing_player.add_to_set_aside(new_card)
+				_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "adds %s to set-aside (Wonderland)." % _log_card_name(new_card.definition['display_name']))
 		StrikeEffects.AddStrikeToGaugeAfterCleanup:
 			if active_strike.extra_attack_in_progress:
 				active_strike.extra_attack_data.extra_attack_always_go_to_gauge = true
@@ -2402,9 +2448,13 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 			else:
 				assert(false, "Unexpected called choose_calculate_range_from_buddy but can't.")
 		StrikeEffects.ChooseCardsFromTopDeck:
-			var look_amount = min(effect['look_amount'], performing_player.deck.size())
+			# Manual swap for opponent-targeted effects (avoids double-swap with global for_other_player)
+			var target_player = performing_player
+			if effect.get('_target_other', false):
+				target_player = opposing_player
+			var look_amount = min(effect['look_amount'], target_player.deck.size())
 			if look_amount == 0:
-				_append_log_full(Enums.LogType.LogType_Effect, performing_player, "has no cards in their deck to look at.")
+				_append_log_full(Enums.LogType.LogType_Effect, target_player, "has no cards in their deck to look at.")
 				if 'strike_after' in effect and effect['strike_after']:
 					if not active_boost:
 						create_event(Enums.EventType.EventType_ForceStartStrike, performing_player.my_id, 0)
@@ -2413,12 +2463,12 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 					decision_info.type = Enums.DecisionType.DecisionType_StrikeNow
 					decision_info.player = performing_player.my_id
 			elif look_amount > 0:
-				_append_log_full(Enums.LogType.LogType_Effect, performing_player, "looks at the top %s cards of their deck." % look_amount)
-				performing_player.cancel_blocked_this_turn = true
+				_append_log_full(Enums.LogType.LogType_Effect, target_player, "looks at the top %s cards of their deck." % look_amount)
+				target_player.cancel_blocked_this_turn = true
 				change_game_state(Enums.GameState.GameState_PlayerDecision)
 				decision_info.clear()
 				decision_info.type = Enums.DecisionType.DecisionType_ChooseFromTopDeck
-				decision_info.player = performing_player.my_id
+				decision_info.player = target_player.my_id
 				decision_info.choice_card_id = card_id
 				decision_info.action = effect['action_choices']
 				decision_info.can_pass = effect['can_pass']
@@ -2426,7 +2476,7 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 				decision_info.effect = effect
 				decision_info.amount = look_amount
 				decision_info.bonus_effect = effect.get('and_not_passed', null)
-				create_event(Enums.EventType.EventType_ChooseFromTopDeck, performing_player.my_id, 0)
+				create_event(Enums.EventType.EventType_ChooseFromTopDeck, target_player.my_id, 0)
 
 				if 'strike_after' in effect and effect['strike_after']:
 					performing_player.strike_on_boost_cleanup = true
@@ -2506,7 +2556,13 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 			var card_ids = effect['card_ids']
 			var card_names = card_db.get_card_names(card_ids)
 			_append_log_full(Enums.LogType.LogType_CardInfo, opposing_player, "has card(s) discarded by %s: %s." % [performing_player.name, _log_card_name(card_names)])
+			# Save/restore _last_effect_source_player_id so _on_player_discard
+			# sees the original source (e.g. Eugenia) instead of the intermediate
+			# performing_player (the one who chose, not the one who caused the effect).
+			var _saved_source = _last_effect_source_player_id
+			_last_effect_source_player_id = effect.get("_source_player_id", _last_effect_source_player_id)
 			opposing_player.discard(card_ids)
+			_last_effect_source_player_id = _saved_source
 		StrikeEffects.ChooseSustainBoost:
 			var choice_count = performing_player.get_boosts().size()
 			choice_count -= performing_player.sustained_boosts.size()
@@ -2662,6 +2718,13 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 				handle_strike_effect(card_id, discard_effect, performing_player)
 		StrikeEffects.OpponentDrawOrDiscardTo:
 			handle_player_draw_or_discard_to_effect(opposing_player, card_id, effect)
+		StrikeEffects.OpponentDrawTo:
+			var target_hand_size = effect['amount']
+			var hand_size = opposing_player.hand.size()
+			if hand_size < target_hand_size:
+				var amount_to_draw = target_hand_size - hand_size
+				_append_log_full(Enums.LogType.LogType_CardInfo, opposing_player, "draws %s card(s) to reach a hand size of %s." % [amount_to_draw, target_hand_size])
+				opposing_player.draw(amount_to_draw)
 		StrikeEffects.DodgeAtRange:
 			if 'special_range' in effect and effect['special_range'] == "OVERDRIVE_COUNT":
 				var current_range = performing_player.overdrive.size()
@@ -2842,7 +2905,14 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 					active_strike.cards_discarded_this_strike += discard_ids.size()
 				var discarded_names = card_db.get_card_names(discard_ids)
 				_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "discards random card(s): %s." % _log_card_name(discarded_names))
+				# Save/restore source so _on_player_discard sees the original
+				# effect source (e.g. Eugenia) instead of the performing_player
+				# (the one executing the discard).
+				var _saved_source = _last_effect_source_player_id
+				if '_source_player_id' in effect:
+					_last_effect_source_player_id = effect['_source_player_id']
 				performing_player.discard(discard_ids)
+				_last_effect_source_player_id = _saved_source
 		StrikeEffects.DiscardRandomAndAddTriggers:
 			var cards_to_discard = performing_player.pick_random_cards_from_hand(1)
 			if cards_to_discard.size() > 0:
@@ -2968,12 +3038,23 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 			if 'other_player' in effect and effect['other_player']:
 				force_player = opposing_player
 			var available_force = force_player.get_available_force()
+			# Zsolt awaken: check hit and limit 2 per turn
+			if effect.get("is_zsolt_awaken"):
+				if force_player == active_strike.get_player(1) and not active_strike.player1_hit:
+					return
+				if force_player == active_strike.get_player(2) and not active_strike.player2_hit:
+					return
+				if force_player.zsolt_extra_attack_count >= 2:
+					return
 			var can_do_something = false
 			if effect['per_force_effect'] and available_force > 0:
 				can_do_something = true
 			elif effect['overall_effect'] and available_force >= effect['force_max']:
 				can_do_something = true
 			if can_do_something:
+				# Zsolt awaken: mark offered only when actually showing the decision
+				if effect.get("is_zsolt_awaken"):
+					force_player.zsolt_awaken_offered = true
 				change_game_state(Enums.GameState.GameState_PlayerDecision)
 				decision_info.clear()
 				decision_info.player = force_player.my_id
@@ -3017,6 +3098,11 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 			next_turn_player = performing_player.my_id
 			create_event(Enums.EventType.EventType_Strike_GainAdvantage, performing_player.my_id, 0)
 			_append_log_full(Enums.LogType.LogType_Effect, performing_player, "gains Advantage!")
+			# Zsolt transform Battle Fugue: first time gaining advantage per battle, draw 1
+			if performing_player.has_transform("zsolt_cross_up") and not performing_player.zsolt_battle_fugue_drew:
+				performing_player.zsolt_battle_fugue_drew = true
+				performing_player.draw(1, false, false)
+				_append_log_full(Enums.LogType.LogType_Effect, performing_player, "draws 1 from Battle Fugue.")
 		StrikeEffects.GainLife:
 			var amount = effect['amount']
 			if str(amount) == "LAST_SPENT_LIFE":
@@ -3082,7 +3168,10 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 				_append_log_full(Enums.LogType.LogType_Effect, effect_player, "has no cards in hand to put in gauge.")
 		StrikeEffects.GenerateFreeForce:
 			performing_player.free_force = effect['amount']
-			_append_log_full(Enums.LogType.LogType_Effect, performing_player, "can generate %s force for free!" % performing_player.free_force)
+			if effect.get('zsolt_force_pool', false):
+				performing_player.zsolt_force_pool += effect['amount']
+				performing_player.free_force = 0
+			_append_log_full(Enums.LogType.LogType_Effect, performing_player, "can generate %s force for free!" % effect['amount'])
 		StrikeEffects.RemoveGenerateFreeForce:
 			_append_log_full(Enums.LogType.LogType_Effect, performing_player, "no longer generates free force.")
 			performing_player.free_force = 0
@@ -3740,6 +3829,11 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 				opposing_player.reveal_hand()
 			else:
 				performing_player.reveal_hand()
+		StrikeEffects.RevealSingleCard:
+			var card_id_to_reveal = effect['card_id']
+			performing_player.reveal_card_ids([card_id_to_reveal])
+			var card_name = card_db.get_card_name(card_id_to_reveal)
+			_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "reveals %s from hand." % _log_card_name(card_name))
 		StrikeEffects.RevealHandAndTopdeck:
 			if 'opponent' in effect and effect['opponent']:
 				opposing_player.reveal_hand_and_topdeck()
@@ -3972,6 +4066,32 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 				else:
 					_append_log_full(Enums.LogType.LogType_CardInfo, opposing_player, "discards random card(s): %s." % _log_card_name(discarded_names))
 					opposing_player.discard(discard_ids)
+		"wonderland_add_card":
+			_exceeded_wonderland_active = false
+			var wc_id = effect['card_id']
+			# Move card from discard or sealed to Wonderland, replacing old card
+			var found = false
+			for search_player in [opposing_player, performing_player]:
+				if found: break
+				if not search_player.is_card_in_discards(wc_id) and not search_player.is_card_in_sealed(wc_id):
+					continue
+				if search_player.is_card_in_discards(wc_id):
+					search_player.remove_card_from_discards(wc_id)
+				else:
+					search_player.remove_card_from_sealed(wc_id)
+				var card = card_db.get_card(wc_id)
+				if not card: continue
+				found = true
+				# Replace current Wonderland card (if any) with the chosen card
+				if performing_player.set_aside_cards.size() > 0:
+					var old = performing_player.set_aside_cards[0]
+					performing_player.set_aside_cards.clear()
+					opposing_player.discards.append(old)
+					if old.definition.get("id") != "wonderland":
+						create_event(Enums.EventType.EventType_AddToDiscard, opposing_player.my_id, old.id, "", 0)
+				performing_player.add_to_set_aside(card)
+				create_event(Enums.EventType.EventType_AddToStored, performing_player.my_id, card.id)
+				_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "adds %s to Wonderland!" % _log_card_name(card.definition['display_name']))
 		StrikeEffects.Pass:
 			# Do nothing.
 			pass
@@ -4517,14 +4637,20 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 			if total_speedup != 0:
 				create_event(Enums.EventType.EventType_Strike_SpeedUp, performing_player.my_id, total_speedup)
 		StrikeEffects.PlayAttackFromHand:
+			# Zsolt awaken: mark max damage 1 and count
+			if effect.get("is_zsolt_awaken") and active_strike:
+				active_strike.extra_attack_data.zsolt_max_damage_1 = true
+				performing_player.zsolt_extra_attack_count += 1
 			# Implement the choice via discard effect.
 			var discard_effect = {
 				"effect_type": StrikeEffects.SelfDiscardChoose,
 				"optional": true,
 				"amount": 1,
-				"limitation": "can_pay_cost",
 				"destination": "play_attack",
 			}
+			# Non-Zsolt: only show cards the player can afford to pay for
+			if not effect.get("is_zsolt_awaken"):
+				discard_effect["limitation"] = "can_pay_cost"
 			handle_strike_effect(card_id, discard_effect, performing_player)
 		StrikeEffects.PowerModifyPerBuddyBetween:
 			performing_player.strike_stat_boosts.power_modify_per_buddy_between += effect['amount']
@@ -4571,7 +4697,7 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 			if 'per_card' in effect:
 				hand_size = floor(hand_size / effect['per_card'])
 			var total_powerup = amount_per_hand * hand_size
-			if total_powerup > 0:
+			if total_powerup != 0:
 				performing_player.add_power_bonus(total_powerup)
 				create_event(Enums.EventType.EventType_Strike_PowerUp, performing_player.my_id, total_powerup)
 		StrikeEffects.PowerupPerForceSpentThisTurn:
@@ -4585,6 +4711,18 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 				count_player = opposing_player
 			var gauge_size = count_player.gauge.size()
 			var total_powerup = amount_per_gauge * gauge_size
+			var amount_max = effect.get("amount_max", 999)
+			total_powerup = min(total_powerup, amount_max)
+			if total_powerup > 0:
+				performing_player.add_power_bonus(total_powerup)
+				create_event(Enums.EventType.EventType_Strike_PowerUp, performing_player.my_id, total_powerup)
+		StrikeEffects.PowerupPerTransform:
+			var amount_per_transform = effect['amount']
+			var count_player = performing_player
+			if effect.get("count_opponent"):
+				count_player = opposing_player
+			var transform_size = count_player.transforms.size()
+			var total_powerup = amount_per_transform * transform_size
 			var amount_max = effect.get("amount_max", 999)
 			total_powerup = min(total_powerup, amount_max)
 			if total_powerup > 0:
@@ -5387,7 +5525,12 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 			var card_names = card_db.get_card_names(card_ids)
 			if effect['destination'] == "discard":
 				_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "discards the chosen card(s): %s." % _log_card_name(card_names))
+				# Save/restore source for passive triggers (e.g. Eugenia Wonderland)
+				var _saved_source = _last_effect_source_player_id
+				if '_source_player_id' in effect:
+					_last_effect_source_player_id = effect['_source_player_id']
 				performing_player.discard(card_ids)
+				_last_effect_source_player_id = _saved_source
 			elif effect['destination'] == "sealed":
 				if performing_player.sealed_area_is_secret:
 					_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "seals %s card(s) face-down." % str(len(card_ids)))
@@ -5481,6 +5624,8 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 			opposing_player.cards_that_will_not_hit.append(named_card.definition['id'])
 		StrikeEffects.SkipEndOfTurnDraw:
 			performing_player.skip_end_of_turn_draw = true
+		StrikeEffects.ReduceOpponentPrepareDraw:
+			performing_player.reduce_opponent_prepare_draw = true
 		StrikeEffects.SpecialsInvalid:
 			performing_player.specials_invalid = effect['enabled']
 		StrikeEffects.SpecificCardDiscardToHand:
@@ -5911,6 +6056,29 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 		StrikeEffects.ZeroVectorDialogue:
 			# this exists purely for ui, no-op here
 			pass
+		StrikeEffects.ZsoltNormalPassive:
+			# Zsolt normal passive: normals gain "hit: advance or retreat up to 1"
+			var check_card = active_strike.get_player_card(performing_player) if active_strike else null
+			if check_card and performing_player.deck_def.get("id") == "zsolt":
+				if check_card.definition.get("type") == "normal":
+					var choice_effect = {
+						"effect_type": StrikeEffects.Choice,
+						"choice": ZsoltNormalChoice,
+						"character_effect": true,
+						"hide_effect": false
+					}
+					do_effect_if_condition_met(performing_player, card_id, choice_effect, null)
+				else:
+					# Remove from display for non-normals
+					var idx = performing_player.strike_stat_boosts.added_attack_effects.find(effect)
+					if idx >= 0:
+						performing_player.strike_stat_boosts.added_attack_effects.remove_at(idx)
+		StrikeEffects.ZsoltTransformExtra:
+			# Zsolt: mark extra attack card for transform (per-extra-attack flag)
+			if active_strike and active_strike.extra_attack_in_progress:
+				var ea_card_name = effect.get("card_name", card_db.get_card_name(card_id))
+				_append_log_full(Enums.LogType.LogType_Effect, performing_player, "will transform extra attack %s." % [_log_card_name(ea_card_name)])
+				active_strike.extra_attack_data.zsolt_extra_transform = true
 		_:
 			assert(false, "ERROR: Unhandled effect type: %s" % effect['effect_type'])
 
@@ -5924,7 +6092,9 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 		if game_state == Enums.GameState.GameState_PlayerDecision:
 			add_queued_effect(and_effect, local_conditions)
 		else:
+			var saved_source = _last_effect_source_player_id
 			do_effect_if_condition_met(performing_player, card_id, and_effect, local_conditions)
+			_last_effect_source_player_id = saved_source
 
 func change_stats_when_attack_leaves_play(performing_player : Player):
 	# Set total power and speed to invalid (0).
@@ -6031,10 +6201,21 @@ func handle_player_draw_or_discard_to_effect(performing_player : Player, card_id
 			handle_strike_effect(card_id, per_draw_effect, performing_player)
 	elif hand_size > target_hand_size:
 		var amount_to_discard = hand_size - target_hand_size
-		var discard_effect = {
-			"effect_type": StrikeEffects.SelfDiscardChoose,
-			"amount": amount_to_discard
-		}
+		var discard_effect = {}
+		if effect.get('random_discard', false):
+			discard_effect = {
+				"effect_type": StrikeEffects.DiscardRandom,
+				"amount": amount_to_discard
+			}
+		else:
+			discard_effect = {
+				"effect_type": StrikeEffects.SelfDiscardChoose,
+				"amount": amount_to_discard
+			}
+		# Carry the effect source for passive triggers (e.g. Eugenia Wonderland)
+		# so _on_player_discard sees the original source, not the intermediate
+		# performing_player (who executes the discard, not who caused it).
+		discard_effect['_source_player_id'] = _last_effect_source_player_id
 		if 'and' in effect:
 			discard_effect['discard_effect'] = effect['and']
 		_append_log_full(Enums.LogType.LogType_Effect, performing_player, "must discard %s card(s) to reach a hand size of %s." % [amount_to_discard, target_hand_size])
@@ -6357,6 +6538,28 @@ func do_remaining_effects(performing_player : Player, next_state):
 
 	if not active_strike.queued_stop_on_space_boosts and get_remaining_effect_count() == 0 and not game_state == Enums.GameState.GameState_PlayerDecision:
 		active_strike.effects_resolved_in_timing = 0
+		# Zsolt awaken: trigger after all after effects
+		if next_state in [StrikeState.StrikeState_Card2_Activation, StrikeState.StrikeState_Cleanup] \
+				and performing_player.deck_def.get("id") == "zsolt" and performing_player.exceeded:
+			var is_hit = (performing_player == active_strike.get_player(1) and active_strike.player1_hit) \
+					or (performing_player == active_strike.get_player(2) and active_strike.player2_hit)
+			if is_hit and performing_player.zsolt_extra_attack_count < 2 and not performing_player.zsolt_awaken_offered \
+					and (performing_player.zsolt_extra_attack_count == 0 or active_strike.extra_attack_data.extra_attack_hit):
+				var awaken_effect = {
+					"effect_type": StrikeEffects.ForceForEffect,
+					"is_zsolt_awaken": true,
+					"overall_effect": null,
+					"force_max": 1,
+					"per_force_effect": {
+						"effect_type": StrikeEffects.PlayAttackFromHand,
+						"is_zsolt_awaken": true,
+						"override_description": "execute an attack from your hand"
+					}
+				}
+				handle_strike_effect(-1, awaken_effect, performing_player)
+				# Only prevent state advancement if a decision was actually shown
+				if game_state == Enums.GameState.GameState_PlayerDecision:
+					return
 		if active_strike.extra_attack_in_progress:
 			active_strike.extra_attack_data.extra_attack_state = next_state
 		else:
@@ -6893,6 +7096,9 @@ func get_attack_origin(performing_player : Player, target_location : int):
 
 func calculate_damage(offense_player : Player, defense_player : Player) -> int:
 	var power = get_total_power(offense_player)
+	# Zsolt awaken: extra attack power is capped at 1 (before armor)
+	if active_strike.extra_attack_in_progress and active_strike.extra_attack_data.zsolt_max_damage_1:
+		power = min(power, 1)
 	var armor = get_total_armor(defense_player)
 	if offense_player.strike_stat_boosts.ignore_armor:
 		armor = 0
@@ -7162,6 +7368,9 @@ func ask_for_cost(performing_player, card, next_state):
 			create_event(Enums.EventType.EventType_Strike_PayCost_Unable, performing_player.my_id, new_wild_card.id)
 
 func do_hit_response_effects(offense_player : Player, defense_player : Player, incoming_damage : int, hit_response_state : Dictionary, next_state):
+	# Reset effect source tracking - when_hit effects (e.g. block force for armor)
+	# should not inherit the source from earlier hit effects.
+	_last_effect_source_player_id = -1
 	# If more of these are added, need to sequence them to ensure all handled correctly.
 
 	var defender_card = active_strike.get_player_card(defense_player)
@@ -7333,6 +7542,14 @@ func continue_resolve_strike():
 					active_strike.player1_hit = true
 					active_strike.strike_state = StrikeState.StrikeState_Card1_Hit
 					active_strike.remaining_effect_list = get_all_effects_for_timing("hit", player1, card1)
+					if player1.deck_def.get("id") == "zsolt" and card1.definition.get("type") == "normal" and not player1.exceeded:
+						active_strike.remaining_effect_list.append({
+							"effect_type": StrikeEffects.Choice,
+							"card_id": card1.id,
+							"choice": ZsoltNormalChoice,
+							"character_effect": true,
+							"hide_effect": false
+						})
 				else:
 					active_strike.strike_state = StrikeState.StrikeState_Card1_After
 					active_strike.remaining_effect_list = get_all_effects_for_timing("after", player1, card1)
@@ -7367,6 +7584,14 @@ func continue_resolve_strike():
 					active_strike.player2_hit = true
 					active_strike.strike_state = StrikeState.StrikeState_Card2_Hit
 					active_strike.remaining_effect_list = get_all_effects_for_timing("hit", player2, card2)
+					if player2.deck_def.get("id") == "zsolt" and card2.definition.get("type") == "normal" and not player2.exceeded:
+						active_strike.remaining_effect_list.append({
+							"effect_type": StrikeEffects.Choice,
+							"card_id": card2.id,
+							"choice": ZsoltNormalChoice,
+							"character_effect": true,
+							"hide_effect": false
+						})
 				else:
 					active_strike.strike_state = StrikeState.StrikeState_Card2_After
 					active_strike.remaining_effect_list = get_all_effects_for_timing("after", player2, card2)
@@ -7425,6 +7650,33 @@ func continue_resolve_strike():
 					strike_send_attack_to_discard_or_gauge(active_strike.initiator, active_strike.initiator_card)
 				if active_strike.defender_card in active_strike.cards_in_play:
 					strike_send_attack_to_discard_or_gauge(active_strike.defender, active_strike.defender_card)
+				
+				# Process any deferred extra attack cards
+				for deferred in active_strike.deferred_extra_attack_cards:
+					var ea_card = deferred["card"]
+					var ea_player = deferred["player"]
+					var ea_hit = deferred["hit"]
+					if ea_card not in active_strike.cards_in_play:
+						continue
+					# Only allow transform for cards with transform boost
+					var ea_transform = false
+					if ea_card.definition.get("boost", {}).get("boost_type") == "transform":
+						ea_transform = active_strike.extra_attack_data.zsolt_extra_transform \
+								or ea_player.strike_stat_boosts.move_strike_to_transforms
+					if ea_transform:
+						_append_log_full(Enums.LogType.LogType_CardInfo, ea_player, "transforms extra attack %s." % _log_card_name(ea_card.definition['display_name']))
+						if not ea_player.add_to_transforms(ea_card):
+							if ea_hit or active_strike.extra_attack_data.extra_attack_always_go_to_gauge:
+								ea_player.add_to_gauge(ea_card)
+							else:
+								ea_player.add_to_discards(ea_card)
+					elif ea_hit or active_strike.extra_attack_data.extra_attack_always_go_to_gauge:
+						ea_player.add_to_gauge(ea_card)
+					else:
+						ea_player.add_to_discards(ea_card)
+					active_strike.cards_in_play.erase(ea_card)
+				active_strike.deferred_extra_attack_cards.clear()
+
 				assert(active_strike.cards_in_play.size() == 0,
 						"ERROR: %s still in play after strike should have been cleaned up" %
 								", ".join(active_strike.cards_in_play.map(
@@ -7532,8 +7784,11 @@ func handle_strike_attack_cleanup(performing_player : Player, card):
 		# Already removed from play mid-strike
 		return
 
-	if performing_player.is_set_aside_card(card.id):
+	if performing_player.is_set_aside_card(card.id) or card.id == performing_player.face_attack_set_aside_return_card_id:
 		_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "sets aside their attack %s." % _log_card_name(card_name))
+		if not performing_player.is_set_aside_card(card.id):
+			performing_player.add_to_set_aside(card)
+		performing_player.face_attack_set_aside_return_card_id = -1
 		create_event(Enums.EventType.EventType_SetCardAside, performing_player.my_id, card.id)
 		active_strike.cards_in_play.erase(card)
 	elif performing_player.strike_stat_boosts.seal_attack_on_cleanup:
@@ -7554,11 +7809,18 @@ func strike_send_attack_to_discard_or_gauge(performing_player : Player, card):
 	var stat_boosts = performing_player.strike_stat_boosts
 	if active_strike.get_player(2) == performing_player:
 		hit = active_strike.player2_hit
+	# Extra attack card: use extra_attack_hit
+	if active_strike.extra_attack_data and active_strike.extra_attack_data.extra_attack_card == card:
+		hit = active_strike.extra_attack_data.extra_attack_hit
 	var card_name = card.definition['display_name']
 
 	if performing_player.strike_stat_boosts.move_strike_to_transforms:
 		_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "transforms their attack %s." % _log_card_name(card_name))
-		performing_player.add_to_transforms(card)
+		if not performing_player.add_to_transforms(card):
+			if hit or stat_boosts.always_add_to_gauge:
+				performing_player.add_to_gauge(card)
+			else:
+				performing_player.add_to_discards(card)
 	elif hit or stat_boosts.always_add_to_gauge:
 		_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "adds their attack %s to gauge." % _log_card_name(card_name))
 		performing_player.add_to_gauge(card)
@@ -7596,13 +7858,21 @@ func begin_extra_attack(performing_player : Player, card_id : int):
 		active_strike.extra_attack_data = new_extra_attack_data
 	else:
 		active_strike.extra_attack_in_progress = true
+		# Save zsolt_max_damage before reset (PlayAttackFromHand may have set it)
+		# Don't save zsolt_extra_transform — each extra attack's transform choice is independent
+		var saved_zsolt_max_damage = active_strike.extra_attack_data.zsolt_max_damage_1
 		active_strike.extra_attack_data.reset()
+		active_strike.extra_attack_data.zsolt_max_damage_1 = saved_zsolt_max_damage
 	active_strike.extra_attack_data.extra_attack_card = card_db.get_card(card_id)
 	active_strike.extra_attack_data.extra_attack_player = performing_player
 	active_strike.extra_attack_data.extra_attack_previous_attack_power_bonus = performing_player.strike_stat_boosts.power
 	active_strike.extra_attack_data.extra_attack_previous_attack_speed_bonus = performing_player.strike_stat_boosts.speed
 	active_strike.extra_attack_data.extra_attack_previous_attack_range_effects = performing_player.strike_stat_boosts.range_effects
-	active_strike.extra_attack_data.extra_attack_state = ExtraAttackState.ExtraAttackState_PayCosts
+	# Zsolt awaken: skip cost payment
+	if active_strike.extra_attack_data.zsolt_max_damage_1:
+		active_strike.extra_attack_data.extra_attack_state = ExtraAttackState.ExtraAttackState_DuringStrikeBonuses
+	else:
+		active_strike.extra_attack_data.extra_attack_state = ExtraAttackState.ExtraAttackState_PayCosts
 	active_strike.extra_attack_data.extra_attack_hit = false
 
 	# Other relevant passives that need to be undone.
@@ -7690,16 +7960,48 @@ func continue_extra_attack():
 			ExtraAttackState.ExtraAttackState_Cleanup:
 				active_strike.extra_attack_data.extra_attack_state = ExtraAttackState.ExtraAttackState_CleanupEffects
 				active_strike.extra_attack_data.extra_attack_remaining_effects = get_all_effects_for_timing("cleanup", attacker_player, attacker_card, true, true)
+				# Extra attack transform option (skip if transform zone already has same name)
+				if attacker_card.definition['boost']['boost_type'] == "transform" \
+						and active_strike.extra_attack_data.extra_attack_hit \
+						and not attacker_player.has_card_name_in_zone(attacker_card, "transform"):
+					var added_effect = {
+						"card_id": -1,
+						"effect_type": StrikeEffects.Choice,
+						"choice": [
+							{ "effect_type": StrikeEffects.ZsoltTransformExtra, "card_name": attacker_card.definition['display_name'], "card_id": attacker_card.id, "_choice_text": "Transform" },
+							{ "effect_type": StrikeEffects.Pass }
+						]
+					}
+					active_strike.extra_attack_data.extra_attack_remaining_effects.append(added_effect)
 			ExtraAttackState.ExtraAttackState_CleanupEffects:
 				do_remaining_effects(attacker_player, ExtraAttackState.ExtraAttackState_Complete)
 			ExtraAttackState.ExtraAttackState_Complete:
 				var card_name = attacker_card.definition['display_name']
-				if active_strike.extra_attack_data.extra_attack_hit or active_strike.extra_attack_data.extra_attack_always_go_to_gauge:
-					_append_log_full(Enums.LogType.LogType_CardInfo, attacker_player, "adds their extra attack %s to gauge." % _log_card_name(card_name))
-					attacker_player.add_to_gauge(attacker_card)
+				# Zsolt: defer to main strike cleanup (needed for transform choice)
+				if active_strike.extra_attack_data.zsolt_max_damage_1:
+					if attacker_card not in active_strike.cards_in_play:
+						active_strike.cards_in_play.append(attacker_card)
+					if attacker_player.strike_stat_boosts.move_strike_to_transforms:
+						_append_log_full(Enums.LogType.LogType_CardInfo, attacker_player, "will transform their extra attack %s." % _log_card_name(card_name))
+					_append_log_full(Enums.LogType.LogType_CardInfo, attacker_player, "extra attack deals max 1 damage.")
+					# Clear awaken offered flag so second extra attack can trigger
+					attacker_player.zsolt_awaken_offered = false
+					# Record for cleanup processing (handles multiple extra attacks)
+					var deferred_entry = {
+						"card": attacker_card,
+						"player": attacker_player,
+						"hit": active_strike.extra_attack_data.extra_attack_hit
+					}
+					active_strike.deferred_extra_attack_cards.append(deferred_entry)
 				else:
-					_append_log_full(Enums.LogType.LogType_CardInfo, attacker_player, "discards their extra attack %s." % _log_card_name(card_name))
-					attacker_player.add_to_discards(attacker_card)
+					# Non-Zsolt: immediate cleanup (original behavior)
+					if active_strike.extra_attack_data.extra_attack_hit or active_strike.extra_attack_data.extra_attack_always_go_to_gauge:
+						_append_log_full(Enums.LogType.LogType_CardInfo, attacker_player, "adds their extra attack %s to gauge." % _log_card_name(card_name))
+						attacker_player.add_to_gauge(attacker_card)
+					else:
+						_append_log_full(Enums.LogType.LogType_CardInfo, attacker_player, "discards their extra attack %s." % _log_card_name(card_name))
+						attacker_player.add_to_discards(attacker_card)
+					active_strike.cards_in_play.erase(attacker_card)
 
 				# Finally, resume the original strike (unless there was another extra attack to deal with).
 				if game_over:
@@ -7786,6 +8088,7 @@ func begin_resolve_boost(performing_player : Player, card_id : int, additional_b
 		performing_player.remove_card_from_gauge(card_id)
 		performing_player.remove_card_from_discards(card_id)
 		performing_player.remove_card_from_set_aside(card_id)
+		performing_player.remove_card_from_deck(card_id)
 		var facedown = active_boost.card.definition["boost"].get("facedown")
 		create_event(Enums.EventType.EventType_Boost_Played, performing_player.my_id, card_id, "", facedown)
 
@@ -7870,6 +8173,12 @@ func continue_resolve_boost():
 			if not active_boost.parent_boost:
 				resolving_boost_before_queue = false
 				do_queued_effects(active_boost.playing_player)
+			# If do_queued_effects put us in PlayerDecision, the caller
+			# (e.g. do_choose_from_topdeck with "boost"/"strike") needs the
+			# boost cleaned up before proceeding. Force cleanup here so
+			# active_boost doesn't leak into the next action.
+			if game_state == Enums.GameState.GameState_PlayerDecision and active_boost.action_after_boost:
+				boost_play_cleanup(active_boost.playing_player)
 			if game_state == Enums.GameState.GameState_PlayerDecision:
 				break
 
@@ -7879,7 +8188,25 @@ func continue_resolve_boost():
 		if game_over:
 			break
 
+	# Safety net: if the loop exited without boost_play_cleanup (e.g. via
+	# do_queued_effects PlayerDecision break above AND action_after_boost
+	# not set), and active_boost is somehow still dangling, detach it to
+	# prevent parent_boost nesting in subsequent do_boost calls.
+	# Never run while paused for a player decision: the pending decision will
+	# re-enter continue_resolve_boost() and clean up the boost normally. Forcing
+	# cleanup / a state change here would discard the pending decision and leave
+	# the game unable to resolve it (e.g. a boost with a choice played mid-strike).
+	if active_boost and not active_boost.parent_boost and not active_boost.action_after_boost \
+			and game_state != Enums.GameState.GameState_PlayerDecision:
+		if not active_strike:
+			boost_play_cleanup(active_boost.playing_player)
+		elif active_strike:
+			active_boost = null
+			change_game_state(Enums.GameState.GameState_Strike_Processing)
+
 func boost_finish_resolving_card(performing_player : Player):
+	# Reset effect source tracking for next action
+	_last_effect_source_player_id = -1
 	# All boost immediate/now effects are done.
 	# If continuous, add to player.
 	# If immediate, add to discard.
@@ -8280,6 +8607,126 @@ func check_hand_size_advance_turn(performing_player : Player):
 		else:
 			start_end_turn()
 
+# Called by player.gd after any discard to trigger passive abilities (e.g. Eugenia)
+func _on_player_discard(discarding_player, card_ids : Array):
+	if not discarding_player or card_ids.size() == 0:
+		return
+	var other_player = _get_player(get_other_player(discarding_player.my_id))
+	if not other_player:
+		return
+	
+	# Eugenia Normal Passive: Once per turn, when you make opponent discard
+	# "Once per turn, when you make opponent discard"
+	if other_player.deck_def.get("id") == "eugenia" and not other_player.eugenia_normal_passive_used_this_turn and not other_player.exceeded:
+		# Must be: opponent (not Eugenia) discarding
+		if discarding_player.my_id == other_player.my_id:
+			return
+		# Must be: Eugenia's effect causing the discard
+		if _last_effect_source_player_id != other_player.my_id:
+			return
+		if card_ids.size() > 0 and card_db:
+			other_player.eugenia_normal_passive_used_this_turn = true
+			# Collect all hand cards with matching printed speed
+			# Printed speed is the raw definition value. For X-speed cards
+			# (e.g. "CARDS_IN_HAND"), resolve to current numeric value for
+			# comparison, but don't include strike-stat boosts.
+			var match_cards = []
+			var matched_speeds = {}
+			for discard_id in card_ids:
+				var discarded_card = card_db.get_card(discard_id)
+				if not discarded_card:
+					continue
+				# Printed speed from definition
+				var discarded_speed = discarded_card.definition.get("speed", -1)
+				# Resolve special printed speed values (e.g. X = "CARDS_IN_HAND")
+				if str(discarded_speed) == "CARDS_IN_HAND":
+					discarded_speed = discarding_player.hand.size()
+				elif str(discarded_speed) == "CARDS_IN_HAND_MAX_7":
+					discarded_speed = min(discarding_player.hand.size(), 7)
+				if discarded_speed in matched_speeds:
+					continue
+				matched_speeds[discarded_speed] = true
+				for hand_card in other_player.hand:
+					# Hand card's printed speed (raw definition value)
+					var hand_speed = hand_card.definition.get("speed", -2)
+					# Resolve X-speed hand cards the same way
+					if str(hand_speed) == "CARDS_IN_HAND":
+						hand_speed = other_player.hand.size()
+					elif str(hand_speed) == "CARDS_IN_HAND_MAX_7":
+						hand_speed = min(other_player.hand.size(), 7)
+					if hand_speed == discarded_speed:
+						match_cards.append(hand_card)
+			
+			# Build choice: each matching card + Pass
+			var choices = [{"_choice_text": "Pass (don't reveal)", "effect_type": StrikeEffects.Pass}]
+			for hc in match_cards:
+				var card_name = card_db.get_card_name(hc.id)
+				choices.append({
+					"_choice_text": card_name + " (S" + str(hc.definition.get("speed","?")) + ")",
+					"effect_type": StrikeEffects.RevealSingleCard,
+					"card_id": hc.id,
+					"and": {
+						"effect_type": StrikeEffects.TakeDamage,
+						"opponent": true,
+						"amount": 2,
+						"nonlethal": true
+					}
+				})
+			
+			if match_cards.size() > 0:
+				_append_log_full(Enums.LogType.LogType_Effect, other_player, "may reveal a matching card to deal 2 non-lethal damage!")
+			
+			if game_state != Enums.GameState.GameState_PlayerDecision:
+				var choice_effect = {
+					"effect_type": StrikeEffects.Choice,
+					StrikeEffects.Choice: choices
+				}
+				handle_strike_effect(-1, choice_effect, other_player)
+			else:
+				# Mid-decision: just log and auto-trigger first match if any
+				if match_cards.size() > 0:
+					var hc = match_cards[0]
+					var card_name = card_db.get_card_name(hc.id)
+					_append_log_full(Enums.LogType.LogType_Effect, other_player, "reveals %s and deals 2 non-lethal damage!" % _log_card_name(card_name))
+					var damage_effect = {
+						"effect_type": StrikeEffects.TakeDamage,
+						"opponent": true,
+						"amount": 2,
+						"nonlethal": true
+					}
+					handle_strike_effect(-1, damage_effect, other_player)
+	
+	# Eugenia Exceeded Passive: When opponent discards by effect,
+	# you may choose one to put into your set_aside (Wonderland).
+	if other_player.deck_def.get("id") == "eugenia" and other_player.exceeded:
+		if card_ids.size() > 0:
+			# Must be: opponent (not Eugenia) discarding
+			if discarding_player.my_id == other_player.my_id:
+				return
+			# Must be: Eugenia's effect causing the discard
+			if _last_effect_source_player_id != other_player.my_id:
+				# _source_player_id in ChooseOpponentCardToDiscardInternal
+				# should have already restored the correct source before
+				# discard(). If it didn't, the source doesn't match → reject.
+				return
+			
+			# Build choice to pick a card to add to Wonderland, or pass
+			var choices = [{"_choice_text": "Pass", "effect_type": StrikeEffects.Pass}]
+			for cid in card_ids:
+				var cname = card_db.get_card_name(cid)
+				if cname:
+					choices.append({
+						"_choice_text": cname,
+						"effect_type": "wonderland_add_card",
+						"card_id": cid
+					})
+			if game_state != Enums.GameState.GameState_PlayerDecision:
+				var choice_effect = {
+					"effect_type": StrikeEffects.Choice,
+					StrikeEffects.Choice: choices
+				}
+				handle_strike_effect(-1, choice_effect, other_player)
+
 func do_prepare(performing_player) -> bool:
 	printlog("MainAction: PREPARE by %s" % [performing_player.name])
 	if not can_do_prepare(performing_player):
@@ -8289,7 +8736,11 @@ func do_prepare(performing_player) -> bool:
 	create_event(Enums.EventType.EventType_Prepare, performing_player.my_id, 0)
 	_append_log_full(Enums.LogType.LogType_Action, performing_player, "Turn Action: Prepare")
 	_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "draws a card.")
-	performing_player.draw(1)
+	var draw_amount = 1
+	var other_player = _get_player(get_other_player(performing_player.my_id))
+	if other_player.reduce_opponent_prepare_draw:
+		draw_amount = 0
+	performing_player.draw(draw_amount)
 
 	active_prepare = true
 	prepare_effects_resolved = 0
@@ -8719,11 +9170,25 @@ func do_strike(
 			printlog("ERROR: Tried to strike without an EX when one was required.")
 			return false
 
+	# Reset this player's set-aside face-attack tracking for the new strike. This is
+	# per-Player, so resetting the performing player's field never clears the other
+	# player's pending value.
+	performing_player.face_attack_set_aside_return_card_id = -1
+
 	if use_face_attack:
 		# Find the face attack and update the card id
 		var face_attack_card = performing_player.get_face_attack_card()
 		if face_attack_card:
 			card_id = face_attack_card.id
+			# Remove from set_aside first so the card isn't in two zones at once
+			# (being in both hand and set-aside miscounts hand-size effects and can
+			# stun the attack). Remember its set-aside origin so a normal face attack
+			# is returned to set-aside on cleanup instead of going to gauge/discard.
+			# The Eugenia (Wonderland) buddy placeholder is excluded: it is not a real
+			# persistent set-aside attack.
+			performing_player.remove_from_set_aside(card_id)
+			if not (performing_player.face_attack_id in performing_player.buddy_id_to_index):
+				performing_player.face_attack_set_aside_return_card_id = card_id
 			performing_player.add_to_hand(face_attack_card, false)
 			performing_player.next_strike_faceup = true
 		else:
@@ -8754,7 +9219,9 @@ func do_strike(
 				printlog("ERROR: Tried to strike with an invalid extra strike id.")
 				return false
 		elif not wild_strike and not performing_player.is_card_in_hand(card_id):
-			if performing_player.is_card_in_continuous_boosts(card_id):
+			if performing_player.is_card_in_set_aside(card_id):
+				pass
+			elif performing_player.is_card_in_continuous_boosts(card_id):
 				strike_from_boosts = true
 				var card = card_db.get_card(card_id)
 				var must_set_from_boost = 'must_set_from_boost' in card.definition and card.definition['must_set_from_boost']
@@ -8831,6 +9298,20 @@ func do_strike(
 						active_strike.initiator_set_from_boost_space = performing_player.get_boost_location(card_id)
 					performing_player.remove_from_continuous_boosts(card_db.get_card(card_id), StrikeEffects.Strike)
 					active_strike.initiator_set_from_boosts = true
+				elif performing_player.is_card_in_set_aside(card_id) and performing_player.deck_def.get("id") == "eugenia":
+					# Eugenia strikes with a real card directly from Wonderland (set-aside).
+					# This branch is Eugenia-specific: for other characters a card that lives
+					# in set-aside is copied into hand first (e.g. Happy Chaos "Deus Ex Machina")
+					# and must remain in set-aside so it returns there after the strike and can
+					# be reused on a later exceed. Gating to Eugenia restores that behavior.
+					performing_player.remove_from_set_aside(card_id)
+					active_strike.initiator.next_strike_faceup = true
+					_append_log_full(Enums.LogType.LogType_Strike, performing_player, "sets their attack from Wonderland!")
+					if performing_player.deck_def.get("id") == "eugenia" and performing_player.exceeded:
+						var power_effect = {"effect_type": StrikeEffects.Powerup, "amount": 1, "character_effect": true}
+						var speed_effect = {"effect_type": StrikeEffects.Speedup, "amount": 1, "character_effect": true}
+						handle_strike_effect(-1, power_effect, performing_player)
+						handle_strike_effect(-1, speed_effect, performing_player)
 				else:
 					performing_player.remove_card_from_hand(card_id, false, true)
 
@@ -8848,6 +9329,11 @@ func do_strike(
 				active_strike.initiator.next_strike_faceup = false
 				var card_name = card_db.get_card_name(card_id)
 				_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "sets %s as a face-up attack!" % _log_card_name(card_name))
+
+			# Eugenia wonderland bonus: +1P/+1S for face attack (applied after initialize_new_strike cleared boosts)
+			if use_face_attack and performing_player.deck_def.get("id") == "eugenia" and performing_player.exceeded:
+				handle_strike_effect(-1, WonderlandPowerBonus, performing_player)
+				handle_strike_effect(-1, WonderlandSpeedBonus, performing_player)
 
 			# Send the EX first as that is visual and logic is triggered off the regular one.
 			if not delayed_wild_strike:
@@ -8912,6 +9398,10 @@ func do_strike(
 				if ex_strike:
 					create_event(Enums.EventType.EventType_Strike_Response_Ex, performing_player.my_id, ex_card_id)
 				create_event(Enums.EventType.EventType_Strike_Response, performing_player.my_id, card_id, "", strike_from_boosts, ex_strike)
+			# Eugenia wonderland bonus: defender face attack
+			if use_face_attack and performing_player.deck_def.get("id") == "eugenia" and performing_player.exceeded:
+				handle_strike_effect(-1, WonderlandPowerBonus, performing_player)
+				handle_strike_effect(-1, WonderlandSpeedBonus, performing_player)
 			continue_setup_strike()
 	return true
 
@@ -9236,7 +9726,14 @@ func do_choice(performing_player : Player, choice_index : int) -> bool:
 			# Remove this effect from the remaining effects.
 			erase_remaining_effect(get_base_remaining_effect(effect))
 
+	# Carry forward the original effect source to sub-effects so that
+	# effects like discard_random (for Eugenia's passive) can correctly
+	# identify who caused them, even when the choice is made by the opponent.
+	if '_source_player_id' not in effect:
+		effect['_source_player_id'] = _last_effect_source_player_id
+	var saved_source = _last_effect_source_player_id
 	do_effect_if_condition_met(performing_player, card_id, effect, null)
+	_last_effect_source_player_id = saved_source
 	continue_player_action_resolution(performing_player)
 	return true
 
@@ -9541,6 +10038,13 @@ func do_force_for_effect(performing_player : Player, card_ids : Array, treat_ult
 	force_generated += performing_player.get_force_from_spent_life(spent_life_for_force)
 	if cancel:
 		force_generated = 0
+		if decision_info.effect.get("cancel_resume_strike") or active_strike:
+			change_game_state(Enums.GameState.GameState_Strike_Processing)
+		else:
+			change_game_state(Enums.GameState.GameState_PickAction)
+		active_character_action = false
+		continue_player_action_resolution(performing_player)
+		return true
 	var ultras = 0
 	# If not treating ultras as a single force, count them
 	# to allow overpaying.
@@ -9618,7 +10122,7 @@ func do_force_for_effect(performing_player : Player, card_ids : Array, treat_ult
 			performing_player.discard(card_ids)
 
 		for i in range(0, effect_times):
-			handle_strike_effect(decision_info.choice_card_id, decision_effect, performing_player)
+			do_effect_if_condition_met(performing_player, decision_info.choice_card_id, decision_effect, null)
 
 		if not handle_spend_life_for_force(performing_player, spent_life_for_force):
 			return false
@@ -9709,7 +10213,7 @@ func do_gauge_for_effect(performing_player : Player, card_ids : Array) -> bool:
 		else:
 			performing_player.discard(card_ids, 0, true)
 		for i in range(0, effect_times):
-			handle_strike_effect(decision_info.choice_card_id, decision_effect, performing_player)
+			do_effect_if_condition_met(performing_player, decision_info.choice_card_id, decision_effect, null)
 
 	if decision_info.bonus_effect:
 		handle_strike_effect(decision_info.choice_card_id, decision_info.bonus_effect, performing_player)
@@ -9764,7 +10268,8 @@ func do_choose_to_discard(performing_player : Player, card_ids):
 	var effect = {
 		"effect_type": decision_info.effect_type,
 		"card_ids": card_ids,
-		"destination": decision_info.destination
+		"destination": decision_info.destination,
+		"_source_player_id": _last_effect_source_player_id
 	}
 	var repeat_bonus_times = 0
 	var repeat_bonus_effect = null
@@ -9875,6 +10380,11 @@ func do_choose_from_topdeck(performing_player : Player, chosen_card_id : int, ac
 		printlog("ERROR: Tried to choose from topdeck but not in correct game state.")
 		return false
 
+	# Support for_other_player: use the actual player who made the choice
+	var target_player = performing_player
+	if decision_info.player != performing_player.my_id:
+		target_player = _get_player(decision_info.player)
+
 	var destination = decision_info.destination
 	var look_amount = decision_info.amount
 
@@ -9885,25 +10395,25 @@ func do_choose_from_topdeck(performing_player : Player, chosen_card_id : int, ac
 
 	var leftover_card_ids = []
 	for i in range(look_amount):
-		var id = performing_player.deck[i].id
+		var id = target_player.deck[i].id
 		if chosen_card_id != id:
 			leftover_card_ids.append(id)
 
 	var will_replace_leftovers = false
 	if destination == "topdeck":
 		will_replace_leftovers = true
-	performing_player.draw(look_amount, false, false, not will_replace_leftovers)
+	target_player.draw(look_amount, false, false, not will_replace_leftovers)
 	var leftover_card_names = card_db.get_card_names(leftover_card_ids)
 	match destination:
 		"discard":
-			performing_player.discard(leftover_card_ids)
-			_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "discards the unchosen cards: %s." % _log_card_name(leftover_card_names))
+			target_player.discard(leftover_card_ids)
+			_append_log_full(Enums.LogType.LogType_CardInfo, target_player, "discards the unchosen cards: %s." % _log_card_name(leftover_card_names))
 		"topdeck":
 			for card_id in leftover_card_ids:
-				performing_player.move_card_from_hand_to_deck(card_id)
+				target_player.move_card_from_hand_to_deck(card_id)
 			if decision_info.effect and decision_info.effect.get("shuffle_after"):
-				performing_player.random_shuffle_deck()
-			performing_player.update_public_hand_if_deck_empty()
+				target_player.random_shuffle_deck()
+			target_player.update_public_hand_if_deck_empty()
 		_:
 			printlog("ERROR: Choose from topdeck destination not implemented.")
 			assert(false, "Choose from topdeck destination not implemented.")
@@ -9925,55 +10435,55 @@ func do_choose_from_topdeck(performing_player : Player, chosen_card_id : int, ac
 		"boost":
 			change_game_state(Enums.GameState.GameState_PlayerDecision)
 			decision_info.type = Enums.DecisionType.DecisionType_BoostNow
-			do_boost(performing_player, chosen_card_id)
+			do_boost(target_player, chosen_card_id)
 			did_strike_or_boost = true
 		"boost_after_current":
 			assert(active_boost, "ERROR: Expected a boost to be active for boost_after_current.")
 			active_boost.queued_boosts.append(chosen_card_id)
 			# Set aside to avoid it being spent for something else
-			performing_player.move_card_from_hand_to_stored_cards(chosen_card_id, false)
+			target_player.move_card_from_hand_to_stored_cards(chosen_card_id, false)
 		StrikeEffects.Strike:
 			change_game_state(Enums.GameState.GameState_PickAction)
-			do_strike(performing_player, chosen_card_id, false, -1)
+			do_strike(target_player, chosen_card_id, false, -1)
 			did_strike_or_boost = true
 		"strike_after_current":
 			assert(active_boost, "ERROR: Expected a boost to be active for boost_after_current.")
 			change_game_state(Enums.GameState.GameState_WaitForStrike)
 			decision_info.clear()
 			decision_info.type = Enums.DecisionType.DecisionType_StrikeNow
-			decision_info.player = performing_player.my_id
+			decision_info.player = target_player.my_id
 			active_boost.strike_after_boost_stored_id = chosen_card_id
 		"add_to_hand":
 			# We've already drawn the cards we looked at
-			_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "adds one of the cards to their hand.")
+			_append_log_full(Enums.LogType.LogType_CardInfo, target_player, "adds one of the cards to their hand.")
 		"add_to_gauge":
-			performing_player.move_card_from_hand_to_gauge(chosen_card_id)
-			_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "adds one of the cards to gauge: %s." % _log_card_name(card_db.get_card_name(chosen_card_id)))
+			target_player.move_card_from_hand_to_gauge(chosen_card_id)
+			_append_log_full(Enums.LogType.LogType_CardInfo, target_player, "adds one of the cards to gauge: %s." % _log_card_name(card_db.get_card_name(chosen_card_id)))
 		"add_to_overdrive":
-			performing_player.move_cards_to_overdrive([chosen_card_id], "hand")
-			_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "adds one of the cards to overdrive: %s." % _log_card_name(card_db.get_card_name(chosen_card_id)))
+			target_player.move_cards_to_overdrive([chosen_card_id], "hand")
+			_append_log_full(Enums.LogType.LogType_CardInfo, target_player, "adds one of the cards to overdrive: %s." % _log_card_name(card_db.get_card_name(chosen_card_id)))
 		"add_to_sealed":
-			do_seal_effect(performing_player, chosen_card_id, "hand")
-			if performing_player.sealed_area_is_secret:
-				_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "adds one of the cards to sealed facedown.")
+			do_seal_effect(target_player, chosen_card_id, "hand")
+			if target_player.sealed_area_is_secret:
+				_append_log_full(Enums.LogType.LogType_CardInfo, target_player, "adds one of the cards to sealed facedown.")
 			else:
-				_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "adds one of the cards to sealed: %s." % _log_card_name(card_db.get_card_name(chosen_card_id)))
+				_append_log_full(Enums.LogType.LogType_CardInfo, target_player, "adds one of the cards to sealed: %s." % _log_card_name(card_db.get_card_name(chosen_card_id)))
 		"add_to_topdeck_under":
 			assert(leftover_card_ids.size() == 1 or leftover_card_ids.size() == 0)
 			# If this was the last card in deck, leftover_card_ids.size is 0, so this card goes on top.
 			var destination_index = leftover_card_ids.size()
-			performing_player.move_card_from_hand_to_deck(chosen_card_id, destination_index)
-			_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "adds the remaining cards back to the top of their deck.")
+			target_player.move_card_from_hand_to_deck(chosen_card_id, destination_index)
+			_append_log_full(Enums.LogType.LogType_CardInfo, target_player, "adds the remaining cards back to the top of their deck.")
 		"add_to_topdeck_under_2":
 			# The assumption for this ability is that the player returned 2 cards
 			# to the top of their deck and this goes under them.
 			assert(leftover_card_ids.size() == 2)
 			var destination_index = leftover_card_ids.size()
-			performing_player.move_card_from_hand_to_deck(chosen_card_id, destination_index)
-			_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "adds the remaining cards back to the top of their deck.")
+			target_player.move_card_from_hand_to_deck(chosen_card_id, destination_index)
+			_append_log_full(Enums.LogType.LogType_CardInfo, target_player, "adds the remaining cards back to the top of their deck.")
 		"discard":
-			performing_player.discard([chosen_card_id])
-			_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "discards one of the cards: %s." % _log_card_name(card_db.get_card_name(chosen_card_id)))
+			target_player.discard([chosen_card_id])
+			_append_log_full(Enums.LogType.LogType_CardInfo, target_player, "discards one of the cards: %s." % _log_card_name(card_db.get_card_name(chosen_card_id)))
 		StrikeEffects.Pass:
 			if not active_strike:
 				check_hand_size_advance_turn(performing_player)

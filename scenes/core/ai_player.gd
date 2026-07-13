@@ -516,7 +516,18 @@ func get_exceed_actions():
 	if exceed_cost == -1 or exceed_cost > game_player.gauge.size():
 		return []
 
-	var combinations = get_combinations_to_pay_gauge(game_player.get_exceed_cost())
+	# get_exceed_cost() already accounts for free_gauge/discounts and do_exceed
+	# expects exactly this many gauge cards, so build combinations directly here
+	# instead of routing through get_combinations_to_pay_gauge (which would subtract
+	# free_gauge a second time and underpay).
+	var combinations
+	if exceed_cost == 0:
+		combinations = [[]]
+	else:
+		var gauge_card_options = []
+		for card in game_player.gauge:
+			gauge_card_options.append(card.id)
+		combinations = generate_card_count_combinations(gauge_card_options, exceed_cost)
 	for combination in combinations:
 		possible_actions.append(ExceedAction.new(combination))
 	return possible_actions
@@ -565,7 +576,8 @@ func get_boost_actions(valid_zones : Array, limitation : String, ignore_costs : 
 		"hand": game_player.hand,
 		"gauge": game_player.gauge,
 		"discard": game_player.discards,
-		"extra": game_player.set_aside_cards
+		"extra": game_player.set_aside_cards,
+		"deck": game_player.deck
 	}
 	var free_force_available = game_player.free_force
 

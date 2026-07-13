@@ -1,4 +1,4 @@
-[gd_scene load_steps=107 format=3 uid="uid://cqs72exlwm6at"]
+[gd_scene load_steps=109 format=3 uid="uid://cqs72exlwm6at"]
 
 [ext_resource type="Script" uid="uid://ctx04u4b0tnwj" path="res://scenes/menu/char_select.gd" id="1_f3x24"]
 [ext_resource type="PackedScene" uid="uid://nwqxp8pdh1jk" path="res://scenes/menu/char_select_button.tscn" id="6_3lmwy"]
@@ -106,6 +106,8 @@
 [ext_resource type="Texture2D" uid="uid://owqopn05anbn" path="res://assets/portraits/custom.png" id="100_dtwln"]
 [ext_resource type="Texture2D" path="res://assets/portraits/geoffrey.png" id="106_geoff"]
 [ext_resource type="Texture2D" path="res://assets/portraits/taisei.png" id="107_taisei"]
+[ext_resource type="Texture2D" uid="uid://c7ev388g36ih8" path="res://assets/portraits/eugenia.png" id="108_eugenia"]
+[ext_resource type="Texture2D" path="res://assets/portraits/zsolt.png" id="109_zsolt"]
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_8u80i"]
 
@@ -857,6 +859,16 @@ layout_mode = 2
 char_id = "taisei"
 portrait_texture = ExtResource("107_taisei")
 
+[node name="Eugenia" parent="CenterContainer/SCCharacterSelect/Rows/Row3" instance=ExtResource("6_3lmwy")]
+layout_mode = 2
+char_id = "eugenia"
+portrait_texture = ExtResource("108_eugenia")
+
+[node name="Zsolt" parent="CenterContainer/SCCharacterSelect/Rows/Row3" instance=ExtResource("6_3lmwy")]
+layout_mode = 2
+char_id = "zsolt"
+portrait_texture = ExtResource("109_zsolt")
+
 [node name="S1CharacterSelect" type="PanelContainer" parent="CenterContainer"]
 layout_mode = 2
 mouse_filter = 2
@@ -1165,6 +1177,10 @@ portrait_texture = ExtResource("100_dtwln")
 [connection signal="on_pressed" from="CenterContainer/SCCharacterSelect/Rows/Row3/Geoffrey" to="." method="_on_char_button_on_pressed"]
 [connection signal="on_hover" from="CenterContainer/SCCharacterSelect/Rows/Row3/Taisei" to="." method="_on_char_hover"]
 [connection signal="on_pressed" from="CenterContainer/SCCharacterSelect/Rows/Row3/Taisei" to="." method="_on_char_button_on_pressed"]
+[connection signal="on_hover" from="CenterContainer/SCCharacterSelect/Rows/Row3/Eugenia" to="." method="_on_char_hover"]
+[connection signal="on_pressed" from="CenterContainer/SCCharacterSelect/Rows/Row3/Eugenia" to="." method="_on_char_button_on_pressed"]
+[connection signal="on_hover" from="CenterContainer/SCCharacterSelect/Rows/Row3/Zsolt" to="." method="_on_char_hover"]
+[connection signal="on_pressed" from="CenterContainer/SCCharacterSelect/Rows/Row3/Zsolt" to="." method="_on_char_button_on_pressed"]
 [connection signal="on_hover" from="CenterContainer/S1CharacterSelect/Rows/Row1/Morathi" to="." method="_on_char_hover"]
 [connection signal="on_pressed" from="CenterContainer/S1CharacterSelect/Rows/Row1/Morathi" to="." method="_on_char_button_on_pressed"]
 [connection signal="on_hover" from="CenterContainer/S1CharacterSelect/Rows/Row1/Nehtali" to="." method="_on_char_hover"]
@@ -1193,3 +1209,4 @@ portrait_texture = ExtResource("100_dtwln")
 [connection signal="on_pressed" from="TabSelect/CategoriesHBox/RandomAll" to="." method="_on_char_button_on_pressed"]
 [connection signal="on_hover" from="TabSelect/CategoriesHBox2/Custom" to="." method="_on_char_hover"]
 [connection signal="on_pressed" from="TabSelect/CategoriesHBox2/Custom" to="." method="_on_char_button_on_pressed"]
+

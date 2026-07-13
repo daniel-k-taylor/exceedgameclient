@@ -1,0 +1,208 @@
+﻿{
+	"id": "zsolt",
+	"season": 2,
+	"author": "Custom",
+	"difficulty": "****",
+	"display_name": "Zsolt",
+	"exceed_cost": 5,
+	"exceed_cost_reduced_by": [
+		{
+			"reduction_type": "transform_discount"
+		}
+	],
+	"ability_effects": [
+		{
+			"timing": "set_strike",
+			"character_effect": true,
+			"effect_type": "pass",
+			"hide_effect": true
+		}
+	],
+	"exceed_ability_effects": [
+		{
+			"timing": "set_strike",
+			"character_effect": true,
+			"effect_type": "pass",
+			"hide_effect": true,
+			"NOTE": "Zsolt awaken extra strike handled in local_game.gd via deck_def check"
+		}
+	],
+	"on_exceed": {
+		"effect_type": "pass",
+		"hide_effect": true
+	},
+	"image_resources": {
+		"character_default": {
+			"url": "https://i.imgur.com/ME5uNhV.jpeg",
+			"multiple_cards": false
+		},
+		"character_exceeded": {
+			"url": "https://i.imgur.com/onUs573.jpeg",
+			"multiple_cards": false
+		},
+		"cardback": {
+			"url": "https://i.imgur.com/s6wpKBq.jpeg",
+			"multiple_cards": false
+		},
+		"normals": {
+			"url": "https://i.imgur.com/1pnJnEb.jpeg",
+			"multiple_cards": true
+		},
+		"specials": {
+			"url": "https://i.imgur.com/GP8goQi.jpeg",
+			"multiple_cards": true
+		}
+	},
+	"cards": [
+		{
+			"definition_id": "zsolt_fatal_eye",
+			"image_name": "specials",
+			"image_index": 0
+		},
+		{
+			"definition_id": "zsolt_fatal_eye",
+			"image_name": "specials",
+			"image_index": 0
+		},
+		{
+			"definition_id": "zsolt_cross_up",
+			"image_name": "specials",
+			"image_index": 1
+		},
+		{
+			"definition_id": "zsolt_cross_up",
+			"image_name": "specials",
+			"image_index": 1
+		},
+		{
+			"definition_id": "zsolt_blaze_of_fervour",
+			"image_name": "specials",
+			"image_index": 2
+		},
+		{
+			"definition_id": "zsolt_blaze_of_fervour",
+			"image_name": "specials",
+			"image_index": 2
+		},
+		{
+			"definition_id": "zsolt_whip_crack",
+			"image_name": "specials",
+			"image_index": 3
+		},
+		{
+			"definition_id": "zsolt_whip_crack",
+			"image_name": "specials",
+			"image_index": 3
+		},
+		{
+			"definition_id": "zsolt_gunblaze",
+			"image_name": "specials",
+			"image_index": 4
+		},
+		{
+			"definition_id": "zsolt_gunblaze",
+			"image_name": "specials",
+			"image_index": 4
+		},
+		{
+			"definition_id": "zsolt_fanatical_purification",
+			"image_name": "specials",
+			"image_index": 5
+		},
+		{
+			"definition_id": "zsolt_fanatical_purification",
+			"image_name": "specials",
+			"image_index": 5
+		},
+		{
+			"definition_id": "zsolt_wild_hunt",
+			"image_name": "specials",
+			"image_index": 6
+		},
+		{
+			"definition_id": "zsolt_wild_hunt",
+			"image_name": "specials",
+			"image_index": 6
+		},
+		{
+			"definition_id": "standard_normal_grasp",
+			"image_name": "normals",
+			"image_index": 0
+		},
+		{
+			"definition_id": "standard_normal_grasp",
+			"image_name": "normals",
+			"image_index": 0
+		},
+		{
+			"definition_id": "standard_normal_cross",
+			"image_name": "normals",
+			"image_index": 1
+		},
+		{
+			"definition_id": "standard_normal_cross",
+			"image_name": "normals",
+			"image_index": 1
+		},
+		{
+			"definition_id": "standard_normal_assault",
+			"image_name": "normals",
+			"image_index": 2
+		},
+		{
+			"definition_id": "standard_normal_assault",
+			"image_name": "normals",
+			"image_index": 2
+		},
+		{
+			"definition_id": "standard_normal_dive",
+			"image_name": "normals",
+			"image_index": 3
+		},
+		{
+			"definition_id": "standard_normal_dive",
+			"image_name": "normals",
+			"image_index": 3
+		},
+		{
+			"definition_id": "standard_normal_spike",
+			"image_name": "normals",
+			"image_index": 4
+		},
+		{
+			"definition_id": "standard_normal_spike",
+			"image_name": "normals",
+			"image_index": 4
+		},
+		{
+			"definition_id": "standard_normal_sweep",
+			"image_name": "normals",
+			"image_index": 5
+		},
+		{
+			"definition_id": "standard_normal_sweep",
+			"image_name": "normals",
+			"image_index": 5
+		},
+		{
+			"definition_id": "standard_normal_focus",
+			"image_name": "normals",
+			"image_index": 6
+		},
+		{
+			"definition_id": "standard_normal_focus",
+			"image_name": "normals",
+			"image_index": 6
+		},
+		{
+			"definition_id": "standard_normal_block",
+			"image_name": "normals",
+			"image_index": 7
+		},
+		{
+			"definition_id": "standard_normal_block",
+			"image_name": "normals",
+			"image_index": 7
+		}
+	]
+}
