@@ -247,6 +247,9 @@ func get_condition_text(effect, amount, amount2, detail):
 			if amount == 0:
 				amount_str = "no"
 			text += "If you have %s card(s) in hand, " % amount_str
+		"opponent_max_cards_in_hand":
+			var amount_str = "<=%s" % amount
+			text += "If opp hand %s, " % amount_str
 		"max_cards_in_gauge":
 			var amount_str = "%s or fewer" % amount
 			if amount == 0:
@@ -427,6 +430,8 @@ func get_effect_type_heading(effect):
 			effect_str += "Move %s " % effect['buddy_name']
 		StrikeEffects.OpponentDiscardRandom:
 			effect_str += "Opponent randomly discards "
+		StrikeEffects.ReduceOpponentPrepareDraw:
+			effect_str += "Opponent draws 1 fewer on Prepare"
 		_:
 			effect_str += "MISSING EFFECT HEADING"
 	return effect_str
@@ -465,6 +470,8 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 			effect_str += "Add card to gauge after strike."
 		StrikeEffects.AddStrikeToOverdriveAfterCleanup:
 			effect_str += "Add card to overdrive after strike."
+		StrikeEffects.AddToSetAsideImmediately:
+			effect_str += "Add card to set aside zone."
 		StrikeEffects.AddToGaugeBoostPlayCleanup:
 			effect_str += "Add card to gauge"
 		StrikeEffects.AddToGaugeImmediately:
@@ -869,6 +876,8 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 			effect_str += effect['description']
 		StrikeEffects.ForceCostsReducedPassive:
 			effect_str += "Force costs reduced by %s" % effect['amount']
+		StrikeEffects.GaugeCostsReducedPassive:
+			effect_str += "Gauge costs reduced by %s" % effect['amount']
 		StrikeEffects.ForceForEffect:
 			effect_str += get_force_for_effect_summary(effect, card_name_source)
 		StrikeEffects.GaugeForEffect:
@@ -1041,6 +1050,8 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 			if 'destination' in effect:
 				dest_str = " to your " + effect['destination']
 			effect_str += "Opponent discards " + str(effect['amount']) + " random cards" + dest_str + "."
+		StrikeEffects.OpponentDiscardHand:
+			effect_str += "Opponent discards entire hand."
 		StrikeEffects.OpponentPowerup:
 			effect_str += "Opponent's attack +" + str(effect['amount']) + " Power"
 		"opponent_wild_swings":
@@ -1336,6 +1347,8 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 			effect_str += "Your printed power becomes its Power"
 		StrikeEffects.SkipEndOfTurnDraw:
 			effect_str += "Skip your end of turn draw"
+		StrikeEffects.ReduceOpponentPrepareDraw:
+			effect_str += "Opponent draws 1 fewer on Prepare"
 		StrikeEffects.UseSavedPowerAsPrintedPower:
 			effect_str += "Your printed power is the revealed card's power"
 		StrikeEffects.UseTopDiscardAsPrintedPower:
@@ -1528,6 +1541,8 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 					effect["amount"]])
 		StrikeEffects.ZeroVectorDialogue:
 			effect_str += "Named card is invalid for both players."
+		StrikeEffects.ZsoltNormalPassive:
+			effect_str += "advance or retreat up to 1"
 		_:
 			effect_str += "MISSING EFFECT"
 	return effect_str

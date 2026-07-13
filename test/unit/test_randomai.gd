@@ -15,6 +15,11 @@ var player2 : Player
 var ai1 : AIPlayer
 var ai2 : AIPlayer
 
+# Stuck-game detection state (reset at the start of each game).
+var _stuck_last_signature : String = ""
+var _stuck_repeat_count : int = 0
+const _STUCK_REPEAT_LIMIT = 300
+
 func game_setup(policy_type = AIPolicyRules):
 	image_loader = CardImageLoader.new(true)
 	game_logic = LocalGame.new(image_loader)
@@ -338,8 +343,27 @@ func handle_character_action(game: LocalGame, aiplayer : AIPlayer, _otherai : AI
 
 	return events
 
+func _detect_stuck_game() -> bool:
+	# Build a signature of the observable game state. If it stays identical for
+	# many consecutive outer-loop iterations, the game is wedged (no progress).
+	var signature = "%s|%s|%s|%s|%s|%s|%s|%s" % [
+		str(game_logic.game_state),
+		str(game_logic.active_turn_player),
+		str(player1.life), str(player2.life),
+		str(player1.hand.size()), str(player2.hand.size()),
+		str(player1.arena_location), str(player2.arena_location),
+	]
+	if signature == _stuck_last_signature:
+		_stuck_repeat_count += 1
+	else:
+		_stuck_last_signature = signature
+		_stuck_repeat_count = 0
+	return _stuck_repeat_count >= _STUCK_REPEAT_LIMIT
+
 func run_ai_game():
 	var events = []
+	_stuck_last_signature = ""
+	_stuck_repeat_count = 0
 
 	var mulligan_action = ai1.pick_mulligan()
 	assert_true(game_logic.do_mulligan(player1, mulligan_action.card_ids), "mull failed")
@@ -349,6 +373,14 @@ func run_ai_game():
 	events += game_logic.get_latest_events()
 
 	while not game_logic.game_over:
+		# Safety guard: if the game gets wedged in a non-actionable state (e.g. a
+		# strike that never resumes), bail out with a failure instead of looping
+		# forever. Progress is measured by turn count changing; if it stalls for
+		# many iterations we abort this game.
+		if _detect_stuck_game():
+			fail_test("Game appears stuck (no progress) in state %s" % str(game_logic.game_state))
+			break
+
 		var current_ai = ai1
 		var other_ai = ai2
 		var current_player = game_logic._get_player(game_logic.active_turn_player)
@@ -722,3 +754,9 @@ func test_superskullman_100():
 
 func test_shovelknight_100():
 	run_iterations_with_deck("shovelknight")
+
+func test_eugenia_100():
+	run_iterations_with_deck("eugenia")
+
+func test_zsolt_100():
+	run_iterations_with_deck("zsolt")
