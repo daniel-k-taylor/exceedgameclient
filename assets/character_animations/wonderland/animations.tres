@@ -1,0 +1,16 @@
+[gd_resource type="SpriteFrames" load_steps=2 format=3 uid="uid://da03yk2sfp8mv"]
+
+[ext_resource type="Texture2D" uid="uid://eq7xq41l0obw" path="res://assets/character_animations/eugenia_wonderland/wonderland.jpeg" id="1_55874"]
+
+[resource]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("1_55874")
+}],
+"loop": true,
+"name": &"idle",
+"speed": 5.0
+}]
+metadata/flip = true
+metadata/scaling = 0.07

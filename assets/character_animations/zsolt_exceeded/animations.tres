@@ -1,0 +1,16 @@
+[gd_resource type="SpriteFrames" load_steps=2 format=3 uid="uid://q1y3bwkqlty2"]
+
+[ext_resource type="Texture2D" uid="uid://do0670ow63jvq" path="res://assets/character_animations/zsolt_exceeded/exceed.jpeg" id="1_1jtm4"]
+
+[resource]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("1_1jtm4")
+}],
+"loop": true,
+"name": &"idle",
+"speed": 5.0
+}]
+metadata/flip = true
+metadata/scaling = 0.3

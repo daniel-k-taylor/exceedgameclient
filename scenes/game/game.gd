@@ -1,4 +1,4 @@
-﻿# This is an instance of the game.
+# This is an instance of the game.
 class_name Game
 extends Node2D
 

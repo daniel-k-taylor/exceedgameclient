@@ -5,6 +5,7 @@
 	"difficulty": "****",
 	"display_name": "Zsolt",
 	"exceed_cost": 5,
+	"exceed_animation": "zsolt_exceed",
 	"exceed_cost_reduced_by": [
 		{
 			"reduction_type": "transform_discount"

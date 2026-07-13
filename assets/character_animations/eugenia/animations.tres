@@ -1,0 +1,16 @@
+[gd_resource type="SpriteFrames" load_steps=2 format=3 uid="uid://codjk336mhfak"]
+
+[ext_resource type="Texture2D" uid="uid://brs866vxlusjd" path="res://assets/character_animations/eugenia/eugenia.png" id="1_lwqe1"]
+
+[resource]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("1_lwqe1")
+}],
+"loop": true,
+"name": &"idle",
+"speed": 5.0
+}]
+metadata/flip = true
+metadata/scaling = 0.07
