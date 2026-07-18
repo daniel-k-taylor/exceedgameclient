@@ -111,6 +111,22 @@ func test_treasure_exceed_change_cards_discard():
 	assert_eq(len(player1.hand), 2)
 	advance_turn(player2)
 
+func test_treasure_exceed_discount_survives_continuous_boost_cleanup():
+	setup_exceeded_treasure_knight()
+	position_players(player1, 3, player2, 7)
+
+	var dive_charge_id = give_player_specific_card(player1, "treasure_divecharge")
+	assert_true(game_logic.do_boost(player1, dive_charge_id, [], true))
+	advance_turn(player2)
+
+	execute_strike(player1, player2, "standard_normal_grasp", "standard_normal_grasp")
+	assert_true(player1.is_card_in_discards(dive_charge_id))
+	assert_eq(player1.free_force, 1)
+
+	advance_turn(player2)
+	assert_true(game_logic.do_move(player1, [], 4, true))
+	validate_positions(player1, 4, player2, 7)
+
 ## Anchor Launch (3~6/6/2|2/5) -- (1 Force) Hit: The opponent discards a card at
 ##     random. Then, pull until they're at range 2.
 ##     After: If this attack did not hit, advance 4, 5, or 6.

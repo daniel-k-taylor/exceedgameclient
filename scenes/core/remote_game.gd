@@ -49,6 +49,15 @@ func _get_player_from_remote_id(remote_id : int):
 	else:
 		return _get_player(Enums.PlayerId.PlayerId_Opponent)
 
+func _get_zsolt_free_force_amount(player : Player, use_free_force : bool) -> int:
+	if use_free_force and player.zsolt_force_pool > 0:
+		return player.get_free_force_for_payment()
+	return 0
+
+func _apply_zsolt_free_force_amount(player : Player, action_message) -> void:
+	if player.zsolt_force_pool > 0 and action_message.has('zsolt_free_force_amount'):
+		player.free_force = action_message['zsolt_free_force_amount']
+
 func get_striking_card_ids_for_player(player : Player) -> Array:
 	return local_game.get_striking_card_ids_for_player(player)
 
@@ -275,6 +284,7 @@ func do_pay_strike_cost(
 		'wild_strike': wild_strike,
 		'discard_ex_first': discard_ex_first,
 		'use_free_force': use_free_force,
+		'zsolt_free_force_amount': _get_zsolt_free_force_amount(player, use_free_force),
 		'spent_life_for_force': spent_life_for_force,
 		'pay_alternative_life_cost': pay_alternative_life_cost,
 		'spent_life_for_gauge': spent_life_for_gauge
@@ -288,6 +298,7 @@ func process_pay_strike_cost(action_message) -> void:
 	var wild_strike = action_message['wild_strike']
 	var discard_ex_first = action_message['discard_ex_first']
 	var use_free_force = action_message['use_free_force']
+	_apply_zsolt_free_force_amount(game_player, action_message)
 	var spent_life_for_force = action_message['spent_life_for_force']
 	var pay_alternative_life_cost = action_message['pay_alternative_life_cost']
 	var spent_life_for_gauge = action_message.get('spent_life_for_gauge', 0)
@@ -316,6 +327,7 @@ func do_move(player : Player, card_ids : Array, new_arena_location : int, use_fr
 		'card_ids': card_ids,
 		'new_arena_location': new_arena_location,
 		'use_free_force': use_free_force,
+		'zsolt_free_force_amount': _get_zsolt_free_force_amount(player, use_free_force),
 		'spent_life_for_force': spent_life_for_force,
 	}
 	_submit_game_message(action_message)
@@ -326,6 +338,7 @@ func process_move(action_message) -> void:
 	var card_ids = action_message['card_ids']
 	var new_arena_location = action_message['new_arena_location']
 	var use_free_force = action_message['use_free_force']
+	_apply_zsolt_free_force_amount(game_player, action_message)
 	var spent_life_for_force = action_message['spent_life_for_force']
 	local_game.do_move(game_player, card_ids, new_arena_location, use_free_force, spent_life_for_force)
 
@@ -337,6 +350,7 @@ func do_change(player : Player, card_ids : Array, treat_ultras_as_single_force :
 		'card_ids': card_ids,
 		'treat_ultras_as_single_force': treat_ultras_as_single_force,
 		'use_free_force': use_free_force,
+		'zsolt_free_force_amount': _get_zsolt_free_force_amount(player, use_free_force),
 		'spent_life_for_force': spent_life_for_force,
 	}
 	_submit_game_message(action_message)
@@ -347,6 +361,7 @@ func process_change(action_message) -> void:
 	var card_ids = action_message['card_ids']
 	var treat_ultras_as_single_force = action_message['treat_ultras_as_single_force']
 	var use_free_force = action_message['use_free_force']
+	_apply_zsolt_free_force_amount(game_player, action_message)
 	var spent_life_for_force = action_message['spent_life_for_force']
 	local_game.do_change(game_player, card_ids, treat_ultras_as_single_force, use_free_force, spent_life_for_force)
 
@@ -379,6 +394,7 @@ func do_force_for_armor(player : Player, card_ids : Array, use_free_force : bool
 		'player_id': _get_player_remote_id(player),
 		'card_ids': card_ids,
 		'use_free_force': use_free_force,
+		'zsolt_free_force_amount': _get_zsolt_free_force_amount(player, use_free_force),
 		'spent_life_for_force': spent_life_for_force,
 	}
 	_submit_game_message(action_message)
@@ -388,6 +404,7 @@ func process_force_for_armor(action_message) -> void:
 	var game_player = _get_player_from_remote_id(action_message['player_id'])
 	var card_ids = action_message['card_ids']
 	var use_free_force = action_message['use_free_force']
+	_apply_zsolt_free_force_amount(game_player, action_message)
 	var spent_life_for_force = action_message['spent_life_for_force']
 	local_game.do_force_for_armor(game_player, card_ids, use_free_force, spent_life_for_force)
 
@@ -413,6 +430,7 @@ func do_boost(player : Player, card_id : int, payment_card_ids = [],
 		'card_id': card_id,
 		'payment_card_ids': payment_card_ids,
 		'use_free_force': use_free_force,
+		'zsolt_free_force_amount': _get_zsolt_free_force_amount(player, use_free_force),
 		'spent_life_for_force': spent_life_for_force,
 		'additional_boost_ids': additional_boost_ids
 	}
@@ -424,6 +442,7 @@ func process_boost(action_message) -> void:
 	var card_id = action_message['card_id']
 	var payment_card_ids = action_message['payment_card_ids']
 	var use_free_force = action_message['use_free_force']
+	_apply_zsolt_free_force_amount(game_player, action_message)
 	var spent_life_for_force = action_message['spent_life_for_force']
 	var additional_boost_ids = action_message['additional_boost_ids']
 	local_game.do_boost(game_player, card_id, payment_card_ids, use_free_force, spent_life_for_force, additional_boost_ids)
@@ -465,6 +484,7 @@ func do_force_for_effect(player : Player, card_ids : Array, treat_ultras_as_sing
 		'treat_ultras_as_single_force': treat_ultras_as_single_force,
 		'cancel': cancel,
 		'use_free_force': use_free_force,
+		'zsolt_free_force_amount': _get_zsolt_free_force_amount(player, use_free_force),
 		'spent_life_for_force': spent_life_for_force,
 	}
 	_submit_game_message(action_message)
@@ -476,6 +496,7 @@ func process_force_for_effect(action_message) -> void:
 	var treat_ultras_as_single_force = action_message['treat_ultras_as_single_force']
 	var cancel = action_message['cancel']
 	var use_free_force = action_message['use_free_force']
+	_apply_zsolt_free_force_amount(game_player, action_message)
 	var spent_life_for_force = action_message['spent_life_for_force']
 	local_game.do_force_for_effect(game_player, card_ids, treat_ultras_as_single_force, cancel, use_free_force, spent_life_for_force)
 
@@ -515,6 +536,7 @@ func do_character_action(player : Player, card_ids : Array, action_idx : int = 0
 		'card_ids': card_ids,
 		'action_idx': action_idx,
 		'use_free_force': use_free_force,
+		'zsolt_free_force_amount': _get_zsolt_free_force_amount(player, use_free_force),
 		'spent_life_for_force': spent_life_for_force,
 	}
 	_submit_game_message(action_message)
@@ -525,6 +547,7 @@ func process_character_action(action_message) -> void:
 	var card_ids = action_message['card_ids']
 	var action_idx = action_message['action_idx']
 	var use_free_force = action_message['use_free_force']
+	_apply_zsolt_free_force_amount(game_player, action_message)
 	var spent_life_for_force = action_message['spent_life_for_force']
 	local_game.do_character_action(game_player, card_ids, action_idx, use_free_force, spent_life_for_force)
 

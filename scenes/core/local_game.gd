@@ -7656,21 +7656,18 @@ func continue_resolve_strike():
 					var ea_card = deferred["card"]
 					var ea_player = deferred["player"]
 					var ea_hit = deferred["hit"]
+					var ea_transform = deferred["transform"]
+					var ea_always_to_gauge = deferred["always_to_gauge"]
 					if ea_card not in active_strike.cards_in_play:
 						continue
-					# Only allow transform for cards with transform boost
-					var ea_transform = false
-					if ea_card.definition.get("boost", {}).get("boost_type") == "transform":
-						ea_transform = active_strike.extra_attack_data.zsolt_extra_transform \
-								or ea_player.strike_stat_boosts.move_strike_to_transforms
 					if ea_transform:
 						_append_log_full(Enums.LogType.LogType_CardInfo, ea_player, "transforms extra attack %s." % _log_card_name(ea_card.definition['display_name']))
 						if not ea_player.add_to_transforms(ea_card):
-							if ea_hit or active_strike.extra_attack_data.extra_attack_always_go_to_gauge:
+							if ea_hit or ea_always_to_gauge:
 								ea_player.add_to_gauge(ea_card)
 							else:
 								ea_player.add_to_discards(ea_card)
-					elif ea_hit or active_strike.extra_attack_data.extra_attack_always_go_to_gauge:
+					elif ea_hit or ea_always_to_gauge:
 						ea_player.add_to_gauge(ea_card)
 					else:
 						ea_player.add_to_discards(ea_card)
@@ -7990,7 +7987,11 @@ func continue_extra_attack():
 					var deferred_entry = {
 						"card": attacker_card,
 						"player": attacker_player,
-						"hit": active_strike.extra_attack_data.extra_attack_hit
+						"hit": active_strike.extra_attack_data.extra_attack_hit,
+						"transform": attacker_card.definition.get("boost", {}).get("boost_type") == "transform" \
+								and (active_strike.extra_attack_data.zsolt_extra_transform \
+								or attacker_player.strike_stat_boosts.move_strike_to_transforms),
+						"always_to_gauge": active_strike.extra_attack_data.extra_attack_always_go_to_gauge
 					}
 					active_strike.deferred_extra_attack_cards.append(deferred_entry)
 				else:
