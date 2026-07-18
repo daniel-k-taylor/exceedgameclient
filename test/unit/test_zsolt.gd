@@ -94,8 +94,59 @@ func test_battle_instinct_force_pool():
 	# free_gauge = 2 (from gauge_costs_reduced_passive) reduces gauge costs.
 	assert_eq(player1.free_gauge, 2,
 		"Battle Instinct should set free_gauge to 2")
-	# The 2 force pool (zsolt_force_pool) is consumed via UI popup during
-	# PickAction or auto-set to free_force during strike resolution (game.gd).
+	# The UI selects how much of this reusable reduction applies to each payment.
+
+func test_battle_instinct_force_is_available_without_cards():
+	var boost_id = give_player_specific_card(player1, "zsolt_fanatical_purification")
+	var force_ids = give_gauge(player1, 1)
+	assert_true(game_logic.do_boost(player1, boost_id, force_ids))
+
+	player1.hand = []
+	player1.gauge = []
+	assert_eq(player1.get_available_force(), 2)
+	assert_eq(player1.get_force_with_cards([], "FORCE_FOR_EFFECT", false, true), 2)
+	assert_true(player1.can_pay_cost_with([], 2, 0, true, 0))
+
+func test_battle_instinct_cleanup_clears_its_reductions():
+	var boost_id = give_player_specific_card(player1, "zsolt_fanatical_purification")
+	var force_ids = give_gauge(player1, 1)
+	assert_true(game_logic.do_boost(player1, boost_id, force_ids))
+
+	player1.free_force = 1
+	player1.remove_from_continuous_boosts(game_logic.get_card_database().get_card(boost_id))
+	assert_eq(player1.zsolt_force_pool, 0)
+	assert_eq(player1.free_force, 0)
+	assert_eq(player1.free_gauge, 0)
+
+func test_battle_instinct_stacked_copy_survives_partial_cleanup():
+	var boost1_id = give_player_specific_card(player1, "zsolt_fanatical_purification")
+	var force_ids = give_gauge(player1, 1)
+	assert_true(game_logic.do_boost(player1, boost1_id, force_ids))
+	advance_turn(player2)
+
+	var boost2_id = give_player_specific_card(player1, "zsolt_fanatical_purification")
+	assert_true(game_logic.do_boost(player1, boost2_id, [], true))
+	assert_eq(player1.zsolt_force_pool, 4)
+	assert_eq(player1.free_gauge, 4)
+
+	player1.remove_from_continuous_boosts(game_logic.get_card_database().get_card(boost1_id))
+	assert_eq(player1.zsolt_force_pool, 2)
+	assert_eq(player1.get_available_free_force(), 2)
+	assert_eq(player1.free_gauge, 2)
+
+func test_battle_instinct_strike_cleanup_clears_its_reductions():
+	var boost_id = give_player_specific_card(player1, "zsolt_fanatical_purification")
+	var force_ids = give_gauge(player1, 1)
+	assert_true(game_logic.do_boost(player1, boost_id, force_ids))
+	advance_turn(player2)
+
+	position_players(player1, 4, player2, 5)
+	execute_strike(player1, player2, "standard_normal_grasp", "standard_normal_grasp",
+		false, false, [0, 0, 2], [])
+	assert_true(player1.is_card_in_discards(boost_id))
+	assert_eq(player1.zsolt_force_pool, 0)
+	assert_eq(player1.free_force, 0)
+	assert_eq(player1.free_gauge, 0)
 
 # ===== DEFAULT PASSIVE: normal hit -> advance/retreat/pass =====
 
@@ -383,6 +434,7 @@ func test_exceed_extra_attack_hits():
 		[[gauge_ids[0]], [extra_atk], []],  # awaken1 pay force, choose Cross, awaken2 decline
 		[])
 	validate_life(player1, 30, player2, 25)
+	assert_true(player1.is_card_in_gauge(extra_atk))
 
 func test_exceed_two_extra_attacks():
 	position_players(player1, 4, player2, 5)
@@ -408,6 +460,49 @@ func test_exceed_extra_attack_declined():
 		[[]],  # awaken: decline
 		[])
 	validate_life(player1, 30, player2, 26)
+
+func test_exceed_extra_block_uses_its_gauge_effect_on_miss():
+	position_players(player1, 4, player2, 5)
+	player1.exceeded = true
+	var extra_atk = give_player_specific_card(player1, "standard_normal_block")
+	var gauge_ids = give_gauge(player1, 1)
+
+	execute_strike(player1, player2, "standard_normal_assault", "standard_normal_dive",
+		false, false,
+		[[gauge_ids[0]], [extra_atk]],
+		[])
+	validate_life(player1, 30, player2, 26)
+	assert_true(player1.is_card_in_gauge(extra_atk))
+
+func test_exceed_extra_attack_defenses_are_cumulative():
+	position_players(player1, 4, player2, 5)
+	player1.exceeded = true
+	var focus_id = give_player_specific_card(player1, "standard_normal_focus")
+	var block_id = give_player_specific_card(player1, "standard_normal_block")
+	var gauge_ids = give_gauge(player1, 2)
+
+	execute_strike(player1, player2, "standard_normal_assault", "standard_normal_sweep",
+		false, false,
+		[[gauge_ids[0]], [focus_id], [gauge_ids[1]], [block_id], []],
+		[])
+	validate_life(player1, 28, player2, 25)
+	assert_true(player1.is_card_in_gauge(focus_id))
+	assert_true(player1.is_card_in_gauge(block_id))
+
+func test_exceed_extra_attack_transform_choices_are_independent():
+	position_players(player1, 4, player2, 5)
+	player1.exceeded = true
+	var cross_up_id = give_player_specific_card(player1, "zsolt_cross_up")
+	var blaze_id = give_player_specific_card(player1, "zsolt_blaze_of_fervour")
+	var gauge_ids = give_gauge(player1, 2)
+
+	execute_strike(player1, player2, "standard_normal_assault", "standard_normal_dive",
+		false, false,
+		[[gauge_ids[0]], [cross_up_id], 0, [gauge_ids[1]], [blaze_id], 1],
+		[])
+	validate_life(player1, 30, player2, 24)
+	assert_true(player1.is_card_in_transforms(cross_up_id))
+	assert_true(player1.is_card_in_gauge(blaze_id))
 
 # ===== TRANSFORMING AN ATTACK (choosing transform_attack) =====
 

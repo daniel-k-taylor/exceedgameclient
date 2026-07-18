@@ -392,7 +392,7 @@ func get_prepare_actions():
 func get_move_actions():
 	var possible_move_actions = []
 	var available_force = game_player.get_available_force()
-	var free_force_available = game_player.free_force
+	var free_force_available = game_player.get_available_free_force()
 	if game_player.cannot_move:
 		return possible_move_actions
 
@@ -472,7 +472,7 @@ func get_change_cards_actions():
 	var possible_actions = []
 	var total_change_card_options = len(game_player.hand) + len(game_player.gauge)
 	possible_actions.append(ChangeCardsAction.new([], false))
-	var free_force_available = game_player.free_force
+	var free_force_available = game_player.get_available_free_force()
 	if free_force_available > 0:
 		possible_actions.append(ChangeCardsAction.new([], true))
 
@@ -579,7 +579,7 @@ func get_boost_actions(valid_zones : Array, limitation : String, ignore_costs : 
 		"extra": game_player.set_aside_cards,
 		"deck": game_player.deck
 	}
-	var free_force_available = game_player.free_force
+	var free_force_available = game_player.get_available_free_force()
 
 	var multiple_boost_options = []
 	for zone in valid_zones:
@@ -720,7 +720,7 @@ func get_strike_actions(alternate_source : String = "", disable_wild_swing : boo
 
 func get_character_action_actions():
 	var possible_actions = []
-	var free_force_available = game_player.free_force
+	var free_force_available = game_player.get_available_free_force()
 	for action_idx in range(game_player.get_character_action_count()):
 		if game_player.can_do_character_action(action_idx):
 			var action = game_player.get_character_action(action_idx)
@@ -764,7 +764,7 @@ func determine_pay_strike_force_cost_actions(force_cost : int, wild_swing_allowe
 		possible_actions.append(PayStrikeCostAction.new([], true, false))
 
 	var all_force_option_ids = []
-	var free_force_available = game_player.free_force
+	var free_force_available = game_player.get_available_free_force()
 	for card in game_player.hand:
 		all_force_option_ids.append(card.id)
 	for card in game_player.gauge:
@@ -831,7 +831,7 @@ func determine_force_for_armor_actions():
 		# Considering every possible option takes way too long.
 		# You're never going to need more than +8 armor AI.
 		available_force = 4
-	var free_force_available = game_player.free_force
+	var free_force_available = game_player.get_available_free_force()
 	var all_force_option_ids = []
 
 	for card in game_player.hand:
@@ -850,7 +850,7 @@ func determine_force_for_armor_actions():
 func determine_force_for_effect_actions(options : Array):
 	var possible_actions = []
 	var available_force = game_player.get_available_force()
-	var free_force_available = game_player.free_force
+	var free_force_available = game_player.get_available_free_force()
 	var all_force_option_ids = []
 	for card in game_player.hand:
 		all_force_option_ids.append(card.id)

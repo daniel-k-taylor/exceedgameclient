@@ -1649,7 +1649,7 @@ func play_replacement_boosts(card_ids : Array, replacement_boost):
 func get_force_with_cards(card_ids : Array, reason : String, treat_ultras_as_single_force : bool, use_free_force : bool):
 	var force_generated = force_cost_reduction
 	if use_free_force:
-		force_generated += free_force
+		force_generated += get_free_force_for_payment()
 		if reason == "CHANGE_CARDS":
 			force_generated += free_force_cc_only
 
@@ -2495,13 +2495,19 @@ func add_to_top_of_deck(card : GameCard, public : bool):
 	return [parent.create_event(Enums.EventType.EventType_AddToDeck, my_id, card.id)]
 
 func get_available_force():
-	var force = force_cost_reduction + free_force
+	var force = force_cost_reduction + get_available_free_force()
 	for card in hand:
 		force += card_database.get_card_force_value(card.id)
 	for card in gauge:
 		force += card_database.get_card_force_value(card.id)
 	force += get_force_from_spent_life(life)
 	return force
+
+func get_available_free_force():
+	return max(free_force, zsolt_force_pool)
+
+func get_free_force_for_payment():
+	return free_force if free_force > 0 else zsolt_force_pool
 
 func get_available_gauge():
 	var available_gauge = free_gauge
@@ -3013,17 +3019,19 @@ func disable_boost_effects(card : GameCard, buddy_ignore_condition : bool = fals
 					if force_cost_reduction == 0:
 						parent._append_log_full(Enums.LogType.LogType_Effect, self, "no longer has their force costs reduced.")
 				StrikeEffects.GenerateFreeForce:
-					free_force -= effect['amount']
-					if free_force < 0:
-						free_force = 0
-					if free_force == 0:
-						parent._append_log_full(Enums.LogType.LogType_Effect, self, "no longer generates free force.")
 					if effect.get('zsolt_force_pool', false):
 						zsolt_force_pool -= effect['amount']
 						if zsolt_force_pool < 0:
 							zsolt_force_pool = 0
+						free_force = 0
 						if zsolt_force_pool == 0:
+							parent._append_log_full(Enums.LogType.LogType_Effect, self, "no longer generates free force.")
+					else:
+						free_force -= effect['amount']
+						if free_force < 0:
 							free_force = 0
+						if free_force == 0:
+							parent._append_log_full(Enums.LogType.LogType_Effect, self, "no longer generates free force.")
 				StrikeEffects.GaugeCostsReducedPassive:
 					free_gauge -= effect['amount']
 					if free_gauge < 0:
@@ -3147,8 +3155,6 @@ func _recalc_zsolt_pool():
 			if effect.get('zsolt_force_pool', false):
 				new_pool += effect['amount']
 	zsolt_force_pool = new_pool
-	if zsolt_force_pool == 0:
-		free_force = 0
 
 func get_all_non_immediate_continuous_boost_effects():
 	var effects = []
