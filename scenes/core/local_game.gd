@@ -3018,7 +3018,7 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 			performing_player.force_cost_reduction += effect['amount']
 			_append_log_full(Enums.LogType.LogType_Effect, performing_player, "now has their force costs reduced by %s!" % performing_player.force_cost_reduction)
 		StrikeEffects.RemoveForceCostsReducedPassive:
-			performing_player.force_cost_reduction -= effect['amount']
+			performing_player.force_cost_reduction = max(0, performing_player.force_cost_reduction - effect['amount'])
 			if performing_player.force_cost_reduction == 0:
 				_append_log_full(Enums.LogType.LogType_Effect, performing_player, "no longer has their force costs reduced.")
 			else:

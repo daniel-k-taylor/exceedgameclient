@@ -10610,11 +10610,6 @@
 					"amount": 1
 				},
 				{
-					"timing": "discarded",
-					"effect_type": "remove_force_costs_reduced_passive",
-					"amount": 1
-				},
-				{
 					"timing": "now",
 					"effect_type": "choice",
 					"choice": [
@@ -10657,11 +10652,6 @@
 				{
 					"timing": "now",
 					"effect_type": "force_costs_reduced_passive",
-					"amount": 1
-				},
-				{
-					"timing": "discarded",
-					"effect_type": "remove_force_costs_reduced_passive",
 					"amount": 1
 				},
 				{
