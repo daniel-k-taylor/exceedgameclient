@@ -401,6 +401,22 @@ func test_hazama_hungrycoils_force_reduce_dont_strike_move():
 	assert_true(game_logic.do_move(player1, [], 4))
 	advance_turn(player2)
 
+func test_hazama_force_reduction_cleanup_does_not_increase_ua_cost():
+	give_player_specific_card(player1, "hazama_hungrycoils", TestCardId3)
+	assert_true(game_logic.do_boost(player1, TestCardId3))
+	assert_true(game_logic.do_choice(player1, 1)) # Skip striking
+	assert_eq(player1.force_cost_reduction, 1)
+
+	var boost = game_logic.get_card_database().get_card(TestCardId3)
+	player1.remove_from_continuous_boosts(boost)
+	assert_eq(player1.force_cost_reduction, 0)
+
+	advance_turn(player2)
+	give_specific_cards(player1, "standard_normal_assault", player2, "standard_normal_assault")
+	do_and_validate_strike(player1, TestCardId1)
+	assert_eq(game_logic.decision_info.type, Enums.DecisionType.DecisionType_ForceForEffect)
+	assert_true(game_logic.do_force_for_effect(player1, [player1.hand[0].id], false))
+
 func test_hazama_hungrycoils_force_reduce_dont_strike_move_2():
 	position_players(player1, 3, player2, 7)
 	give_player_specific_card(player1, "hazama_hungrycoils", TestCardId3)
@@ -549,4 +565,3 @@ func test_hazama_v_sagat_crit_mid_opponent_sets_first():
 	# Attack should now play out, because devouring fang is free
 	validate_positions(player1, 4, player2, 5)
 	validate_life(player1, 28, player2, 30)
-
