@@ -1207,7 +1207,9 @@ func can_select_card(card):
 			if select_gauge_valid_card_types:
 				valid_type = logic_card.definition['type'] in select_gauge_valid_card_types
 			return in_gauge and valid_id and valid_type and len(selected_cards) < select_card_require_max
-		UISubState.UISubState_SelectCards_StrikeCard, UISubState.UISubState_SelectCards_StrikeResponseCard, UISubState.UISubState_SelectCards_OpponentSetsFirst_StrikeCard, UISubState.UISubState_SelectCards_OpponentSetsFirst_StrikeResponseCard, UISubState.UISubState_SelectCards_Mulligan:
+		UISubState.UISubState_SelectCards_Mulligan:
+			return in_hand
+		UISubState.UISubState_SelectCards_StrikeCard, UISubState.UISubState_SelectCards_StrikeResponseCard, UISubState.UISubState_SelectCards_OpponentSetsFirst_StrikeCard, UISubState.UISubState_SelectCards_OpponentSetsFirst_StrikeResponseCard:
 			if in_player_boosts:
 				var card_db = game_wrapper.get_card_database()
 				var logic_card = card_db.get_card(card.card_id)
@@ -1216,7 +1218,11 @@ func can_select_card(card):
 				if 'may_set_from_boost' in logic_card.definition and logic_card.definition['may_set_from_boost']:
 					return true
 				return false
-			return in_hand or in_set_aside
+			var face_attack_card = game_wrapper.get_face_attack_card(Enums.PlayerId.PlayerId_Player)
+			var is_eugenia_wonderland_card = in_set_aside and \
+				game_wrapper.get_player_deck_definition(Enums.PlayerId.PlayerId_Player).get("id") == "eugenia" and \
+				face_attack_card and face_attack_card.id == card.card_id
+			return in_hand or is_eugenia_wonderland_card
 		UISubState.UISubState_SelectCards_StrikeCard_FromGauge:
 			return in_gauge
 		UISubState.UISubState_SelectCards_StrikeCard_FromSealed:
@@ -1945,12 +1951,9 @@ func _on_choose_from_topdeck(event):
 	var action_choices = decision_info.action
 	var can_pass = decision_info.can_pass
 	var look_amount = decision_info.amount
-	if player == Enums.PlayerId.PlayerId_Player or not game_wrapper.is_ai_game():
-		# Online: each client maps itself as Player, only shows own choices
-		# Local hotseat / AI: show interface for both players
+	if player == Enums.PlayerId.PlayerId_Player and not observer_mode:
 		begin_choose_from_topdeck(action_choices, look_amount, can_pass, player)
-	else:
-		# AI opponent picks randomly
+	elif game_wrapper.is_ai_game():
 		ai_choose_from_topdeck(action_choices, look_amount, can_pass)
 
 func get_string_for_action_choice(choice):
@@ -2827,7 +2830,7 @@ func begin_generate_force_selection(amount, can_cancel : bool = true, wild_swing
 	var p = game_wrapper._get_player(Enums.PlayerId.PlayerId_Player)
 	# During strike resolution, auto-use the pool to avoid await freeze
 	# But skip if caller already set free_force (skip_zsolt_popup = true)
-	var in_strike = game_wrapper.current_game and game_wrapper.current_game.active_strike != null
+	var in_strike = game_wrapper.has_active_strike()
 	if p.zsolt_force_pool > 0 and in_strike and not skip_zsolt_popup:
 		p.free_force = p.zsolt_force_pool if amount <= 0 else min(p.zsolt_force_pool, amount)
 	if p.zsolt_force_pool > 0 and not skip_zsolt_popup and not in_strike:
@@ -4165,7 +4168,7 @@ func _update_buttons(no_number_picker_update : bool = false):
 	var cancel_text = "Cancel"
 	if not preparing_character_action:
 		match ui_sub_state:
-			UISubState.UISubState_SelectCards_BoostCancel, UISubState.UISubState_SelectCards_Mulligan, UISubState.UISubState_SelectCards_DiscardCardsToGauge, UISubState.UISubState_SelectCards_ChooseDiscardToDestination:
+			UISubState.UISubState_SelectCards_BoostCancel, UISubState.UISubState_SelectCards_Mulligan, UISubState.UISubState_SelectCards_ForceForEffect, UISubState.UISubState_SelectCards_DiscardCardsToGauge, UISubState.UISubState_SelectCards_ChooseDiscardToDestination:
 				cancel_text = "Pass"
 			UISubState.UISubState_SelectCards_ChooseBoostsToSustain, UISubState.UISubState_SelectCards_ChooseFromTopdeck, UISubState.UISubState_SelectCards_ChooseOpponentCardToDiscard:
 				cancel_text = "Pass"
@@ -5042,11 +5045,6 @@ func _on_instructions_cancel_button_pressed():
 			deselect_all_cards()
 			close_popout()
 			success = game_wrapper.submit_force_for_effect(Enums.PlayerId.PlayerId_Player, [], false, true, false)
-			if success:
-				popout_instruction_info = null
-				change_ui_state(UIState.UIState_PickTurnAction, UISubState.UISubState_None)
-				_update_buttons()
-				return
 		UISubState.UISubState_SelectCards_GaugeForArmor:
 			deselect_all_cards()
 			close_popout()

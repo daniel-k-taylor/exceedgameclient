@@ -296,6 +296,14 @@ func test_wonderland_replace_returns_old_card_to_opponent_discard():
 
 # ===== WONDERLAND FACE ATTACK: +1 Power / +1 Speed while exceeded =====
 
+func test_wonderland_placeholder_cannot_strike():
+	var gauge_ids = give_gauge(player1, 6)
+	assert_true(game_logic.do_exceed(player1, gauge_ids))
+	advance_turn(player2)
+	var placeholder_id = player1.set_aside_cards[0].id
+	assert_false(game_logic.do_strike(player1, placeholder_id, false, -1))
+	assert_true(player1.is_card_in_set_aside(placeholder_id))
+
 func test_wonderland_face_attack_bonus():
 	var gauge_ids = give_gauge(player1, 6)
 	assert_true(game_logic.do_exceed(player1, gauge_ids))
