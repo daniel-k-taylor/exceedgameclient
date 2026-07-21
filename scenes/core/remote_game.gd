@@ -126,6 +126,9 @@ func _on_remote_player_quit(_is_disconnect : bool):
 func get_game_state() -> Enums.GameState:
 	return local_game.get_game_state()
 
+func has_active_strike() -> bool:
+	return local_game.has_active_strike()
+
 func get_active_player() -> Enums.PlayerId:
 	return local_game.get_active_player()
 

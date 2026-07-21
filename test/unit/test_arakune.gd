@@ -70,6 +70,12 @@ func after_each():
 	game_logic.free()
 	gut.p("ran teardown", 2)
 
+func test_cannot_strike_with_set_aside_card():
+	assert_gt(player1.set_aside_cards.size(), 0)
+	var set_aside_card_id = player1.set_aside_cards[0].id
+	assert_false(game_logic.do_strike(player1, set_aside_card_id, false, -1))
+	assert_true(player1.is_card_in_set_aside(set_aside_card_id))
+
 func before_all():
 	gut.p("ran run setup", 2)
 

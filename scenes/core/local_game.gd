@@ -167,6 +167,9 @@ func change_game_state(new_state : Enums.GameState):
 func get_game_state() -> Enums.GameState:
 	return game_state
 
+func has_active_strike() -> bool:
+	return active_strike != null
+
 func get_decision_info() -> DecisionInfo:
 	return decision_info
 
@@ -9221,7 +9224,11 @@ func do_strike(
 				return false
 		elif not wild_strike and not performing_player.is_card_in_hand(card_id):
 			if performing_player.is_card_in_set_aside(card_id):
-				pass
+				var face_attack_card = performing_player.get_face_attack_card()
+				if performing_player.deck_def.get("id") != "eugenia" or \
+						not face_attack_card or face_attack_card.id != card_id:
+					printlog("ERROR: Tried to strike with a set-aside card.")
+					return false
 			elif performing_player.is_card_in_continuous_boosts(card_id):
 				strike_from_boosts = true
 				var card = card_db.get_card(card_id)

@@ -78,6 +78,9 @@ func _get_player(id):
 func get_game_state() -> Enums.GameState:
 	return current_game.get_game_state()
 
+func has_active_strike() -> bool:
+	return current_game != null and current_game.has_active_strike()
+
 func get_active_player() -> Enums.PlayerId:
 	return current_game.get_active_player()
 
