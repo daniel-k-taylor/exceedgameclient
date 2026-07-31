@@ -157,18 +157,35 @@ func test_color_spray_damage():
 		[])
 	validate_life(player1, 30, player2, 24)
 
+func test_color_spray_stun_immunity_vs_assault():
+	position_players(player1, 2, player2, 3)
+	# Opponent hand: exactly 1 card (<= 2) so Color Spray's during_strike stun
+	# immunity (opponent_max_cards_in_hand) is active.
+	player2.hand.clear()
+	give_player_specific_card(player2, "standard_normal_sweep")
+	# Assault R1 P4 S5: before close 2, hit gain advantage. Color Spray R1-3 P6 S2.
+	# Dist=1. Assault S5 > S2 resolves first: P4 vs G0 would stun Color Spray, but
+	# stun immunity (opp hand 1 <= 2) prevents it. Color Spray then resolves:
+	# R1-3 at dist1 -> hits for P6. Color Spray hit: opp draws to 2 (no discard,
+	# so no passive choice).
+	execute_strike(player1, player2, "eugenia_color_spray", "standard_normal_assault",
+		false, false,
+		[1],  # transform offer: pass
+		[])
+	validate_life(player1, 26, player2, 24)
+
 # ===== QUEEN OF HEARTS (ultra): opp discards hand =====
 
 func test_queen_of_hearts_discard_hand():
 	position_players(player1, 4, player2, 5)
 	var gauge_ids = give_gauge(player1, 3)
-	# Queen R1-1 P1 S7 (gauge 3) vs Dive(S4). Queen faster. dist1 hit. P1 vs G0 -> stun. p2: 30-1=29.
+	# Queen R1-1 P1 S7 (gauge 3) vs Dive(S4). Queen faster. dist1 hit. P1 vs G0 -> stun. p2: 30-7=23. (+6P from discarded 6 cards)
 	# hit: opp discards hand -> passive fires: pass (idx0). Queen boost is immediate (no transform offer).
 	execute_strike(player1, player2, "eugenia_queen_of_hearts", "standard_normal_dive",
 		false, false,
 		[gauge_ids, 0],  # pay gauge; passive pass
 		[])
-	validate_life(player1, 30, player2, 29)
+	validate_life(player1, 30, player2, 23)  # 30 - (1 base + 6 from discarded hand)
 	# The hit discards the opponent's hand (they then draw 1 fresh card).
 	var events = game_logic.get_latest_events()
 	validate_has_event(events, Enums.EventType.EventType_AddToDiscard, player2)
@@ -295,6 +312,14 @@ func test_wonderland_replace_returns_old_card_to_opponent_discard():
 	assert_true(found_old, "Old Wonderland card should be in opponent's discard")
 
 # ===== WONDERLAND FACE ATTACK: +1 Power / +1 Speed while exceeded =====
+
+func test_wonderland_placeholder_cannot_strike():
+	var gauge_ids = give_gauge(player1, 6)
+	assert_true(game_logic.do_exceed(player1, gauge_ids))
+	advance_turn(player2)
+	var placeholder_id = player1.set_aside_cards[0].id
+	assert_false(game_logic.do_strike(player1, placeholder_id, false, -1))
+	assert_true(player1.is_card_in_set_aside(placeholder_id))
 
 func test_wonderland_face_attack_bonus():
 	var gauge_ids = give_gauge(player1, 6)
