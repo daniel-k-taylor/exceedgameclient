@@ -6079,6 +6079,14 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 				var ea_card_name = effect.get("card_name", card_db.get_card_name(card_id))
 				_append_log_full(Enums.LogType.LogType_Effect, performing_player, "will transform extra attack %s." % [_log_card_name(ea_card_name)])
 				active_strike.extra_attack_data.zsolt_extra_transform = true
+
+		"eugenia_passive_mark_used":
+			# Eugenia normal passive: a matching card was actually revealed (not Pass),
+			# so the once-per-turn chance is consumed for this turn. Choosing "Pass"
+			# in the reveal choice does NOT consume the chance.
+			if performing_player.deck_def.get("id") == "eugenia":
+				performing_player.eugenia_normal_passive_used_this_turn = true
+
 		_:
 			assert(false, "ERROR: Unhandled effect type: %s" % effect['effect_type'])
 
@@ -8625,7 +8633,6 @@ func _on_player_discard(discarding_player, card_ids : Array):
 		if _last_effect_source_player_id != other_player.my_id:
 			return
 		if card_ids.size() > 0 and card_db:
-			other_player.eugenia_normal_passive_used_this_turn = true
 			# Collect all hand cards with matching printed speed
 			# Printed speed is the raw definition value. For X-speed cards
 			# (e.g. "CARDS_IN_HAND"), resolve to current numeric value for
@@ -8666,10 +8673,13 @@ func _on_player_discard(discarding_player, card_ids : Array):
 					"effect_type": StrikeEffects.RevealSingleCard,
 					"card_id": hc.id,
 					"and": {
-						"effect_type": StrikeEffects.TakeDamage,
-						"opponent": true,
-						"amount": 2,
-						"nonlethal": true
+						"effect_type": "eugenia_passive_mark_used",
+						"and": {
+							"effect_type": StrikeEffects.TakeDamage,
+							"opponent": true,
+							"amount": 2,
+							"nonlethal": true
+						}
 					}
 				})
 			
@@ -8688,6 +8698,9 @@ func _on_player_discard(discarding_player, card_ids : Array):
 					var hc = match_cards[0]
 					var card_name = card_db.get_card_name(hc.id)
 					_append_log_full(Enums.LogType.LogType_Effect, other_player, "reveals %s and deals 2 non-lethal damage!" % _log_card_name(card_name))
+					# Actually reveal the card and consume the once-per-turn chance.
+					other_player.eugenia_normal_passive_used_this_turn = true
+					other_player.reveal_card_ids([hc.id])
 					var damage_effect = {
 						"effect_type": StrikeEffects.TakeDamage,
 						"opponent": true,
