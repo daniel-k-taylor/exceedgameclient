@@ -8808,8 +8808,7 @@
 		"effects": [
 			{
 				"timing": "during_strike",
-				"NOTE_ENGINE": "NEED condition opponent_max_cards_in_hand (currently uses own hand)",
-				"condition": "max_cards_in_hand",
+				"condition": "opponent_max_cards_in_hand",
 				"condition_amount": 2,
 				"effect_type": "stun_immunity"
 			},
@@ -8865,14 +8864,14 @@
 			{
 				"timing": "hit",
 				"effect_type": "opponent_discard_hand",
+				"save_num_discarded_as_strike_x": true,
 				"and": {
-					"effect_type": "draw",
-					"opponent": true,
-					"amount": 1,
-					"NOTE_ENGINE": "NEED powerup per discarded card amount",
+					"effect_type": "powerup",
+					"amount": "strike_x",
 					"and": {
-						"effect_type": "powerup",
-						"amount": "strike_x"
+						"effect_type": "draw",
+						"opponent": true,
+						"amount": 1
 					}
 				}
 			}
