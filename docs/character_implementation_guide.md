@@ -58,6 +58,30 @@ Before writing any new engine code, check if the effects you need already exist:
 - `on_spend_life` — When this player spends life (not damage taken)
 - `end_of_turn` — At end of turn
 
+### Dynamic `during_strike` effects
+By default, a `during_strike` effect on a continuous boost or transform is evaluated once,
+when during-strike bonuses are applied, and the resulting stat boost lasts the whole strike.
+
+Add `"dynamic": true` to a `during_strike` effect when its condition is supposed to resolve
+in real time, so the bonus is applied and reverted as the condition flips mid-strike (for
+example a life threshold that is crossed by healing on hit):
+
+```json
+{
+    "timing": "during_strike",
+    "dynamic": true,
+    "condition": "life_equal_or_below",
+    "condition_amount": 6,
+    "effect_type": "powerup",
+    "amount": 1
+}
+```
+
+Each link of an `and` chain is re-evaluated independently, but is only active while every
+condition above it in the chain also holds. Dynamic effects support the same stat bonuses
+that can be reverted when a boost leaves play (`powerup`, `speedup`, `armorup`, `guardup`,
+`rangeup`, `attack_is_ex`, `dodge_at_range`, and their variants).
+
 ## Step 3: Create the Deck JSON
 
 **File**: `data/decks/<charname>.json`

@@ -309,6 +309,55 @@ func test_edge_of_death_exceeded():
 		false, false, [], [0]) # no ability choice when exceeded; p2 pass
 	validate_life(player1, 5, player2, 10)
 
+## Edge of Death resolves dynamically: the bonus must be recalculated as life changes
+## mid-strike, not locked in when during_strike bonuses are first applied.
+
+func test_edge_of_death_lost_when_healed_above_threshold_mid_strike():
+	position_players(player1, 4, player2, 5)
+	add_transform(player1, "taisei_anathemasurge") # Edge of Death
+	player1.life = 5
+	# Life 5 ≤ 6 → +1P. Anathema Surge P2+1=3, S6 vs Cross S6, initiator first.
+	# R1-2, dist1. Hit → gain 2 life → p1: 7. Life is now above 6, so the +1P must be
+	# removed before damage is applied: p2 takes 2, not 3. p2: 15-2=13. Stunned (2>G0).
+	execute_strike(player1, player2, "taisei_anathemasurge", "standard_normal_cross",
+		false, false,
+		[0], # ability pass (no transform choice; Edge of Death is already transformed)
+		[0]) # ability pass
+	validate_life(player1, 7, player2, 13)
+
+func test_edge_of_death_gained_when_damaged_below_threshold_mid_strike():
+	position_players(player1, 8, player2, 9)
+	add_transform(player1, "taisei_anathemasurge") # Edge of Death
+	player1.life = 9
+	# Life 9 > 6 → no bonus initially. Cross(S6) beats Sweep(S2), so p2 goes first.
+	# Cross R1-2, dist1. P3. p1: 9-3=6. Sweep G6 > 3, not stunned.
+	# Cross After: retreat 3, but p2 is already against the wall at 9 and cannot move.
+	# p1's life is now ≤ 6, so Sweep must gain +1P before it resolves: P6+1=7.
+	# Sweep R1-3, dist1. Hit. p2: 15-7=8.
+	execute_strike(player1, player2, "standard_normal_sweep", "standard_normal_cross",
+		false, false,
+		[0], # ability pass
+		[0]) # ability pass
+	validate_life(player1, 6, player2, 8)
+
+func test_edge_of_death_exceeded_speed_and_power_reverted_mid_strike():
+	position_players(player1, 4, player2, 5)
+	add_transform(player1, "taisei_anathemasurge") # Edge of Death
+	var gauge = give_gauge(player1, 5)
+	assert_true(game_logic.do_exceed(player1, gauge))
+	assert_true(game_logic.do_choice(player1, 1)) # set life to 10
+	advance_turn(player2)
+
+	player1.life = 5
+	# Exceeded + life 5 ≤ 6 → +1P and +1S. Anathema Surge S6+1=7 beats Cross S6.
+	# R1-2, dist1. Hit → gain 2 life → p1: 7. Both the +1P and the chained +1S must be
+	# reverted, so damage is P2: p2: 15-2=13. Stunned (2>G0).
+	execute_strike(player1, player2, "taisei_anathemasurge", "standard_normal_cross",
+		false, false,
+		[],  # no ability choice when exceeded; Edge of Death is already transformed
+		[0]) # p2 ability pass
+	validate_life(player1, 7, player2, 13)
+
 ## ===== ASHEN CLAWS TESTS =====
 ## R2-4 P4 S4 A0 G0. After: choice [push1, push2, pull1, pull2, pass].
 ## Transform: Deathless.

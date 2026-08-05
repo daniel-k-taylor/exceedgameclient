@@ -896,6 +896,8 @@ func initialize_new_strike(performing_player : Player, opponent_sets_first : boo
 
 	player.strike_stat_boosts.clear()
 	opponent.strike_stat_boosts.clear()
+	player.active_dynamic_strike_effects.clear()
+	opponent.active_dynamic_strike_effects.clear()
 	player.bonus_actions = 0
 	opponent.bonus_actions = 0
 
@@ -6315,6 +6317,9 @@ func get_boost_effects_at_timing(timing_name : String, performing_player : Playe
 	for boost_card in performing_player.get_continuous_boosts_and_transforms():
 		for effect in boost_card.definition['boost']['effects']:
 			if effect['timing'] == timing_name:
+				if timing_name == "during_strike" and effect.get('dynamic', false):
+					# Dynamic effects are applied/reverted continuously instead of once.
+					continue
 				var effect_with_id = effect.duplicate(true)
 				effect_with_id['card_id'] = boost_card.id
 				effects.append(effect_with_id)
@@ -7473,6 +7478,11 @@ func continue_resolve_strike():
 			break
 
 		printlog("STRIKE: processing state %s " % [StrikeState.keys()[active_strike.strike_state]])
+		if active_strike.strike_state >= StrikeState.StrikeState_DuringStrikeBonuses:
+			# Dynamic during_strike effects resolve continuously, so re-evaluate their
+			# conditions before each step in case life/position/etc changed.
+			active_strike.initiator.update_dynamic_during_strike_effects()
+			active_strike.defender.update_dynamic_during_strike_effects()
 		match active_strike.strike_state:
 			StrikeState.StrikeState_Initiator_RevealEffects:
 				do_remaining_effects(active_strike.initiator, StrikeState.StrikeState_Defender_RevealEffects)
@@ -7537,6 +7547,10 @@ func continue_resolve_strike():
 							check_failed_effects = true
 
 				active_strike.strike_state = StrikeState.StrikeState_Card1_Activation
+
+				# Apply dynamic effects before speed is used to determine strike order.
+				active_strike.initiator.update_dynamic_during_strike_effects()
+				active_strike.defender.update_dynamic_during_strike_effects()
 
 				strike_determine_order()
 			StrikeState.StrikeState_Card1_Activation:
@@ -7693,6 +7707,8 @@ func continue_resolve_strike():
 				# Remove all stat boosts.
 				player.strike_stat_boosts.clear()
 				opponent.strike_stat_boosts.clear()
+				player.active_dynamic_strike_effects.clear()
+				opponent.active_dynamic_strike_effects.clear()
 				player.gauge_spent_this_strike = 0
 				opponent.gauge_spent_this_strike = 0
 				player.gauge_cards_spent_this_strike = []
@@ -8227,8 +8243,9 @@ func boost_finish_resolving_card(performing_player : Player):
 		if active_strike:
 			# Do the during_strike effects and add any before effects to the remaining effects list.
 			for effect in active_boost.card.definition['boost']['effects']:
-				if effect['timing'] == "during_strike":
+				if effect['timing'] == "during_strike" and not effect.get('dynamic', false):
 					do_effect_if_condition_met(performing_player, active_boost.card.id, effect, null)
+			performing_player.update_dynamic_during_strike_effects()
 
 		if performing_player.sustain_next_boost:
 			performing_player.sustained_boosts.append(active_boost.card.id)

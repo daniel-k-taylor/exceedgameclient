@@ -29993,6 +29993,7 @@
 			"effects": [
 				{
 					"timing": "during_strike",
+					"dynamic": true,
 					"condition": "life_equal_or_below",
 					"condition_amount": 6,
 					"effect_type": "powerup",

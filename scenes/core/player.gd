@@ -355,6 +355,9 @@ var face_attack_id : String
 var spend_life_for_force_amount : int
 var spend_life_for_gauge_amount : int
 var bonus_armor_counters : int
+# Dynamic during_strike boost/transform effects that are currently applied.
+# Keyed by "<card_id>|<effect path>", value is the effect definition that was applied.
+var active_dynamic_strike_effects : Dictionary = {}
 var can_boost_from_gauge : bool
 var can_boost_from_extra : bool
 var checked_post_action_effects : bool
@@ -504,6 +507,7 @@ func _init(id, player_name, parent_ref, card_db_ref, chosen_deck, card_start_id)
 	spend_life_for_force_amount = -1
 	spend_life_for_gauge_amount = -1
 	bonus_armor_counters = 0
+	active_dynamic_strike_effects = {}
 	can_boost_from_gauge = false
 	can_boost_from_extra = deck_def.get('can_boost_from_extra', false)
 	seal_instead_of_discarding = false
@@ -2828,10 +2832,13 @@ func add_to_transforms(card : GameCard) -> bool:
 func get_continuous_boosts_and_transforms():
 	return continuous_boosts + transforms
 
-func _find_during_strike_effects(card : GameCard):
+func _find_during_strike_effects(card : GameCard, include_dynamic : bool = false):
 	var found_effects = []
 	for effect in card.definition['boost']['effects']:
 		if effect['timing'] == "during_strike":
+			if not include_dynamic and effect.get('dynamic', false):
+				# Dynamic effects are managed by update_dynamic_during_strike_effects().
+				continue
 			found_effects.append(effect)
 	var i = 0
 	while i < len(found_effects):
@@ -2943,7 +2950,6 @@ func get_total_max_range_bonus(card : GameCard, alt_effect_list = []):
 	return total_max_range
 
 func reenable_boost_effects(card : GameCard):
-	var opposing_player = parent._get_player(parent.get_other_player(my_id))
 	# Redo boost properties
 	for effect in card.definition['boost']['effects']:
 		if effect['timing'] == "now":
@@ -2962,43 +2968,96 @@ func reenable_boost_effects(card : GameCard):
 				continue
 
 			# May want a "add_remaining_effects" if something using this has before/hit/after triggers
-			match effect['effect_type']:
-				StrikeEffects.AttackIsEx:
-					strike_stat_boosts.set_ex()
-				StrikeEffects.DodgeAtRange:
-					if 'special_range' in effect and effect['special_range']:
-						var current_range = str(overdrive.size())
-						strike_stat_boosts.dodge_at_range_late_calculate_with = effect['special_range']
-						parent._append_log_full(Enums.LogType.LogType_Effect, self, "will dodge attacks from range %s!" % current_range)
-					else:
-						strike_stat_boosts.dodge_at_range_min[card.id] = effect['amount']
-						strike_stat_boosts.dodge_at_range_max[card.id] = effect['amount2']
-						if effect['from_buddy']:
-							strike_stat_boosts.dodge_at_range_from_buddy = effect['from_buddy']
-						var dodge_range = str(strike_stat_boosts.dodge_at_range_min[card.id])
-						if strike_stat_boosts.dodge_at_range_min[card.id] != strike_stat_boosts.dodge_at_range_max[card.id]:
-							dodge_range += "-%s" % strike_stat_boosts.dodge_at_range_max[card.id]
-						parent._append_log_full(Enums.LogType.LogType_Effect, self, "will dodge attacks from range %s!" % dodge_range)
-				StrikeEffects.Powerup:
-					add_power_bonus(effect['amount'])
-				StrikeEffects.PowerupBothPlayers:
-					add_power_bonus(effect['amount'])
-					opposing_player.add_power_bonus(effect['amount'])
-				StrikeEffects.Speedup:
-					strike_stat_boosts.speed += effect['amount']
-				StrikeEffects.Armorup:
-					strike_stat_boosts.armor += effect['amount']
-				StrikeEffects.Guardup:
-					strike_stat_boosts.guard += effect['amount']
-				StrikeEffects.Rangeup:
-					var target_player = self
-					if effect.get("opponent"):
-						target_player = opposing_player
-					var special_only = effect.get("special_only", false)
-					target_player.add_range_bonus(effect['amount'], effect['amount2'], special_only)
-				StrikeEffects.RangeupBothPlayers:
-					add_range_bonus(effect['amount'], effect['amount2'], false)
-					opposing_player.add_range_bonus(effect['amount'], effect['amount2'], false)
+			_apply_strike_bonus_effect(effect, card.id)
+
+func _apply_strike_bonus_effect(effect, card_id : int):
+	var opposing_player = parent._get_player(parent.get_other_player(my_id))
+
+	match effect['effect_type']:
+		StrikeEffects.AttackIsEx:
+			strike_stat_boosts.set_ex()
+		StrikeEffects.DodgeAtRange:
+			if 'special_range' in effect and effect['special_range']:
+				var current_range = str(overdrive.size())
+				strike_stat_boosts.dodge_at_range_late_calculate_with = effect['special_range']
+				parent._append_log_full(Enums.LogType.LogType_Effect, self, "will dodge attacks from range %s!" % current_range)
+			else:
+				strike_stat_boosts.dodge_at_range_min[card_id] = effect['amount']
+				strike_stat_boosts.dodge_at_range_max[card_id] = effect['amount2']
+				if effect['from_buddy']:
+					strike_stat_boosts.dodge_at_range_from_buddy = effect['from_buddy']
+				var dodge_range = str(strike_stat_boosts.dodge_at_range_min[card_id])
+				if strike_stat_boosts.dodge_at_range_min[card_id] != strike_stat_boosts.dodge_at_range_max[card_id]:
+					dodge_range += "-%s" % strike_stat_boosts.dodge_at_range_max[card_id]
+				parent._append_log_full(Enums.LogType.LogType_Effect, self, "will dodge attacks from range %s!" % dodge_range)
+		StrikeEffects.Powerup:
+			add_power_bonus(effect['amount'])
+		StrikeEffects.PowerupBothPlayers:
+			add_power_bonus(effect['amount'])
+			opposing_player.add_power_bonus(effect['amount'])
+		StrikeEffects.Speedup:
+			strike_stat_boosts.speed += effect['amount']
+		StrikeEffects.Armorup:
+			strike_stat_boosts.armor += effect['amount']
+		StrikeEffects.Guardup:
+			strike_stat_boosts.guard += effect['amount']
+		StrikeEffects.Rangeup:
+			var target_player = self
+			if effect.get("opponent"):
+				target_player = opposing_player
+			var special_only = effect.get("special_only", false)
+			target_player.add_range_bonus(effect['amount'], effect['amount2'], special_only)
+		StrikeEffects.RangeupBothPlayers:
+			add_range_bonus(effect['amount'], effect['amount2'], false)
+			opposing_player.add_range_bonus(effect['amount'], effect['amount2'], false)
+		StrikeEffects.RangeupIfExModifier:
+			strike_stat_boosts.rangeup_min_if_ex_modifier += effect['amount']
+			strike_stat_boosts.rangeup_max_if_ex_modifier += effect['amount2']
+		StrikeEffects.GuardupPerTwoCardsInHand:
+			strike_stat_boosts.guardup_per_two_cards_in_hand = true
+
+## Re-evaluates every during_strike effect flagged with "dynamic": true on this player's
+## continuous boosts and transforms, applying or reverting them so that their conditions
+## resolve in real time as the strike plays out (e.g. life totals changing mid-strike).
+func update_dynamic_during_strike_effects():
+	if not parent.active_strike or parent.active_strike.in_setup:
+		return
+	if parent.active_strike.extra_attack_in_progress:
+		return
+	for card in get_continuous_boosts_and_transforms():
+		var effect_index = 0
+		for effect in card.definition['boost']['effects']:
+			if effect['timing'] == "during_strike" and effect.get('dynamic', false):
+				_update_dynamic_strike_effect(card, effect, str(effect_index), true)
+			effect_index += 1
+
+func _update_dynamic_strike_effect(card : GameCard, effect, path : String, parent_condition_met : bool):
+	# An effect in an "and" chain is only active while every ancestor's condition also holds.
+	var should_be_active = parent_condition_met and parent.is_effect_condition_met(self, effect, null)
+	var key = "%d|%s" % [card.id, path]
+	var is_active = key in active_dynamic_strike_effects
+	if should_be_active and not is_active:
+		_apply_strike_bonus_effect(effect, card.id)
+		active_dynamic_strike_effects[key] = effect
+		parent._append_log_full(Enums.LogType.LogType_Effect, self,
+			"gains the effects of %s." % parent._get_boost_and_card_name(card))
+	elif is_active and not should_be_active:
+		_revert_strike_bonus_effect(effect, card.id, false)
+		active_dynamic_strike_effects.erase(key)
+		parent._append_log_full(Enums.LogType.LogType_Effect, self,
+			"no longer has the effects of %s." % parent._get_boost_and_card_name(card))
+
+	if 'and' in effect:
+		_update_dynamic_strike_effect(card, effect['and'], path + ".and", should_be_active)
+
+## Reverts any dynamic during_strike effects currently applied by this card, e.g. because
+## the boost/transform is leaving play mid-strike.
+func revert_dynamic_during_strike_effects(card_id : int):
+	var prefix = "%d|" % card_id
+	for key in active_dynamic_strike_effects.keys():
+		if key.begins_with(prefix):
+			_revert_strike_bonus_effect(active_dynamic_strike_effects[key], card_id, false)
+			active_dynamic_strike_effects.erase(key)
 
 func disable_boost_effects(card : GameCard, buddy_ignore_condition : bool = false, being_discarded : bool = true):
 	# Undo timing effects and passive bonuses.
@@ -3056,6 +3115,7 @@ func disable_boost_effects(card : GameCard, buddy_ignore_condition : bool = fals
 				# Only undo effects that were given in the first place.
 				continue
 			_revert_strike_bonus_effect(effect, card.id, false)
+		revert_dynamic_during_strike_effects(card.id)
 
 func _revert_strike_bonus_effect(effect, card_id : int, check_and_effects : bool):
 	var opposing_player = parent._get_player(parent.get_other_player(my_id))
