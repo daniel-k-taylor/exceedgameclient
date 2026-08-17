@@ -24,6 +24,14 @@ theme_override_font_sizes/font_size = 30
 text = "Enter
 Queue"
 
+[node name="WaitingCharacterLabel" type="Label" parent="QueueVBox"]
+visible = false
+layout_mode = 2
+theme_override_font_sizes/font_size = 16
+text = "Waiting:"
+horizontal_alignment = 1
+autowrap_mode = 2
+
 [node name="PlayContainer" type="MarginContainer" parent="QueueVBox"]
 visible = false
 layout_mode = 2

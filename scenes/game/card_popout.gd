@@ -16,6 +16,7 @@ const MinSeparation = -120
 
 var used_slots = 0
 var total_cols = 0
+var close_on_outside_click : bool = true
 
 const CardBaseScene = preload("res://scenes/card/card_base.tscn")
 
@@ -32,10 +33,15 @@ const CardBaseScene = preload("res://scenes/card/card_base.tscn")
 @onready var popout_container = $PopoutContainer
 
 func _input(event):
+	if not close_on_outside_click:
+		return
 	if (event is InputEventMouseButton) and event.pressed:
 		var evLocal = make_input_local(event)
 		if !Rect2(Vector2(0,0),popout_container.size).has_point(evLocal.position):
 			close_window.emit()
+
+func set_close_on_outside_click(enabled : bool):
+	close_on_outside_click = enabled
 
 func set_title(text : String):
 	title_label.text = text
@@ -75,14 +81,27 @@ func set_reference_toggle(toggle_text, toggle_visible):
 		toggle_button.text = toggle_text
 		toggle_button.disabled = false
 
-func show_cards(cards : Array):
+func show_cards(cards : Array, total_slot_count : int = -1):
+	_clear_card_slots()
+	rows.visible = true
 	var total_cards = len(cards)
+	if total_slot_count > 0:
+		total_cards = total_slot_count
 	used_slots = total_cards
 	total_cols = min(ceil(total_cards / 2.0), MaxCols)
+	var slot_size = CardBase.ReferenceCardScale * CardBase.ActualCardSize
 	for i in range(total_cards):
+		var slot = get_spot(i)
+		slot.custom_minimum_size = slot_size
+
+	var rendered_cards : Array[CardBase] = []
+	for i in range(cards.size()):
 		var card = cards[i]
 		var new_card = CardBaseScene.instantiate()
-		new_card.clicked_card.connect(on_card_clicked)
+		rendered_cards.append(new_card)
+		# Character card and buddy placeholder reference cards are display-only and must never be clickable.
+		if card.card_id not in [CardBase.CharacterCardReferenceId, CardBase.BuddyCardReferenceId]:
+			new_card.clicked_card.connect(on_card_clicked)
 		var spot = get_spot(i)
 		spot.add_child(new_card)
 		new_card.initialize_simple(card.card_id, card.card_url_loaded_image, card.card_url_loaded_cardback, card.card_attack_name, card.card_boost_name)
@@ -103,14 +122,25 @@ func show_cards(cards : Array):
 	adjust_spacing()
 	popout_container.reset_size()
 
-	for i in range(total_cards):
-		var spot = get_spot(i)
-		var card : CardBase = spot.get_child(0)
+	for card in rendered_cards:
 		var pos = Vector2(0,0)
 		var adjusted_pos = pos + CardBase.ReferenceCardScale * CardBase.ActualCardSize / 2
 		card.set_card_and_focus(adjusted_pos, null, null)
 		card.change_state(CardBase.CardState.CardState_InPopout)
 		card.set_resting_position(adjusted_pos, 0)
+
+func _clear_card_slots():
+	used_slots = 0
+	total_cols = 0
+	for row in rows.get_children():
+		row.add_theme_constant_override("separation", DefaultSeparation)
+		for col in row.get_children():
+			while col.get_child_count() > 0:
+				var child = col.get_child(0)
+				col.remove_child(child)
+				child.queue_free()
+			col.visible = false
+			col.custom_minimum_size = Vector2.ZERO
 
 func modify_card_selection(card_id, selected):
 	for row in rows.get_children():

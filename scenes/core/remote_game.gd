@@ -17,6 +17,8 @@ var _observer_mode : bool
 var _replay_mode : bool
 var _game_message_queue : Array
 var _game_message_history : Array
+var _pending_minato_sealed_force : int
+var _pending_minato_sealed_gauge : int
 
 var image_loader : CardImageLoader
 func _init(card_image_loader):
@@ -61,6 +63,18 @@ func _apply_zsolt_free_force_amount(player : Player, action_message) -> void:
 func get_striking_card_ids_for_player(player : Player) -> Array:
 	return local_game.get_striking_card_ids_for_player(player)
 
+func get_other_player(test_player : Enums.PlayerId) -> Enums.PlayerId:
+	return local_game.get_other_player(test_player)
+
+# Observer message drain helpers used by spectator UI to peek/step the queue.
+func get_pending_observer_messages() -> Array:
+	return _game_message_queue.duplicate(true)
+
+func get_next_observer_message() -> Dictionary:
+	if _game_message_queue.is_empty():
+		return {}
+	return _game_message_queue[0]
+
 func initialize_game(player_info,
 		opponent_info,
 		starting_player : Enums.PlayerId,
@@ -103,10 +117,25 @@ func observer_process_next_message_from_queue():
 
 func _process_game_message(game_message):
 	_save_game_message(game_message)
+	var sealed_force = int(game_message.get('minato_sealed_force', 0))
+	var sealed_gauge = int(game_message.get('minato_sealed_gauge', 0))
+	var seal_player = null
+	if sealed_force > 0 or sealed_gauge > 0:
+		seal_player = _get_player_from_remote_id(game_message['player_id'])
+		var sealed_card_count = sealed_force + sealed_gauge * 3
+		if seal_player.deck_def.get("id") != "minato" or seal_player.exceeded or sealed_card_count > seal_player.discards.size():
+			local_game.printlog("ERROR: Invalid Minato sealed-discard payment in remote action.")
+			return
+		seal_player.seal_top_n_discards(sealed_card_count)
+		seal_player.seal_force_bonus_tmp = sealed_force
+		seal_player.free_gauge += sealed_gauge
 	var action_type = game_message['action_type']
 	var action_function_name = action_type.replace("action_", "process_")
 	var action_function = Callable(self, action_function_name)
 	action_function.call(game_message)
+	if seal_player:
+		seal_player.seal_force_bonus_tmp = 0
+		seal_player.free_gauge = max(seal_player.free_gauge - sealed_gauge, 0)
 
 func _save_game_message(game_message):
 	var updated_game_message = game_message.duplicate()
@@ -172,7 +201,23 @@ func can_move_to(player : Player, location : int) -> bool:
 ### Action Functions ###
 
 func _submit_game_message(action_message):
+	_add_pending_minato_seal_payment(action_message)
 	NetworkManager.submit_game_message(action_message)
+
+func _add_pending_minato_seal_payment(action_message : Dictionary) -> void:
+	if _pending_minato_sealed_force > 0:
+		action_message['minato_sealed_force'] = _pending_minato_sealed_force
+	if _pending_minato_sealed_gauge > 0:
+		action_message['minato_sealed_gauge'] = _pending_minato_sealed_gauge
+	clear_pending_minato_seal_payment()
+
+func set_pending_minato_seal_payment(force_amount : int, gauge_amount : int) -> void:
+	_pending_minato_sealed_force += force_amount
+	_pending_minato_sealed_gauge += gauge_amount
+
+func clear_pending_minato_seal_payment() -> void:
+	_pending_minato_sealed_force = 0
+	_pending_minato_sealed_gauge = 0
 
 func do_prepare(player : Player) -> bool:
 	var action_message = {
@@ -583,6 +628,24 @@ func process_choose_from_topdeck(action_message) -> void:
 	var card_id = action_message['card_id']
 	var action = action_message['action']
 	local_game.do_choose_from_topdeck(game_player, card_id, action)
+
+func do_quit(player_id : Enums.PlayerId, reason : Enums.GameOverReason):
+	var remote_player_id = _player_info['id']
+	if player_id == Enums.PlayerId.PlayerId_Opponent:
+		remote_player_id = _opponent_info['id']
+	var action_message = {
+		'action_type': 'action_quit',
+		'player_id': remote_player_id,
+		'reason': reason,
+	}
+	_submit_game_message(action_message)
+	return true
+
+func process_quit(action_message):
+	var player_id = Enums.PlayerId.PlayerId_Player
+	if _player_info['id'] != action_message['player_id']:
+		player_id = Enums.PlayerId.PlayerId_Opponent
+	local_game.do_quit(player_id, action_message['reason'])
 
 func do_emote(player : Player, is_image_emote : bool, emote : String):
 	var action_message = {

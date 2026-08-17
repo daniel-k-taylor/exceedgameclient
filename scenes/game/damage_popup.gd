@@ -10,6 +10,9 @@ func remove():
 	if is_inside_tree():
 		get_parent().remove_child(self)
 
+func pause_for_rotation_layout():
+	remove()
+
 func set_values_and_animate(value:String, start_pos: Vector2, height:float):
 	label.text = value
 	animation_player.play("Rise and Fade")

@@ -565,3 +565,15 @@ func test_hazama_v_sagat_crit_mid_opponent_sets_first():
 	# Attack should now play out, because devouring fang is free
 	validate_positions(player1, 4, player2, 5)
 	validate_life(player1, 28, player2, 30)
+
+func test_hazama_hungrycoils_discard_clamps_force_reduction():
+	position_players(player1, 3, player2, 7)
+	give_player_specific_card(player1, "hazama_hungrycoils", TestCardId3)
+	assert_true(game_logic.do_boost(player1, TestCardId3))
+	assert_true(game_logic.do_choice(player1, 1))
+	assert_eq(player1.force_cost_reduction, 1)
+
+	var boost_card = player1.continuous_boosts[0]
+	player1.remove_from_continuous_boosts(boost_card)
+
+	assert_eq(player1.force_cost_reduction, 0)

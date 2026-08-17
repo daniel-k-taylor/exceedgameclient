@@ -1,0 +1,88 @@
+{
+	"id": "tournelouse",
+	"season": 2,
+	"display_name": "Tournelouse",
+	"has_sealed_area": true,
+	"exceed_cost": 0,
+	"exceed_cost_reduced_by": [
+		{
+			"reduction_type": "transform_discount"
+		}
+	],
+	"exceed_ability_effects": [
+		{
+			"timing": "set_strike",
+			"character_effect": true,
+			"effect_type": "choice",
+			"choice": [
+				{ "effect_type": "pass" },
+				{
+					"effect_type": "seal_transform_for_powerup",
+					"amount": 2
+				},
+				{
+					"effect_type": "seal_transform_for_armorup",
+					"amount": 2
+				}
+			]
+		}
+	],
+	"ability_effects": [],
+	"on_exceed": {
+		"effect_type": "pass"
+	},
+	"image_resources": {
+		"character_default": {
+			"url": "https://i.imgur.com/cqBoFa6.jpeg",
+			"multiple_cards": false
+		},
+		"character_exceeded": {
+			"url": "https://i.imgur.com/pX2fSSA.jpeg",
+			"multiple_cards": false
+		},
+		"cardback": {
+			"url": "https://i.imgur.com/s6wpKBq.jpeg",
+			"multiple_cards": false
+		},
+		"specials": {
+			"url": "https://i.imgur.com/x88VcfA.jpeg",
+			"multiple_cards": true
+		},
+		"normals": {
+			"url": "https://i.imgur.com/1pnJnEb.jpeg",
+			"multiple_cards": true
+		}
+	},
+	"cards": [
+		{ "definition_id": "tournelouse_evil_eye", "image_name": "specials", "image_index": 0 },
+		{ "definition_id": "tournelouse_evil_eye", "image_name": "specials", "image_index": 0 },
+		{ "definition_id": "tournelouse_southpaw", "image_name": "specials", "image_index": 1 },
+		{ "definition_id": "tournelouse_southpaw", "image_name": "specials", "image_index": 1 },
+		{ "definition_id": "tournelouse_death_omen", "image_name": "specials", "image_index": 2 },
+		{ "definition_id": "tournelouse_death_omen", "image_name": "specials", "image_index": 2 },
+		{ "definition_id": "tournelouse_grim_thundercalling", "image_name": "specials", "image_index": 3 },
+		{ "definition_id": "tournelouse_grim_thundercalling", "image_name": "specials", "image_index": 3 },
+		{ "definition_id": "tournelouse_lightning_spike", "image_name": "specials", "image_index": 4 },
+		{ "definition_id": "tournelouse_lightning_spike", "image_name": "specials", "image_index": 4 },
+		{ "definition_id": "tournelouse_bargeist_fang", "image_name": "specials", "image_index": 5 },
+		{ "definition_id": "tournelouse_bargeist_fang", "image_name": "specials", "image_index": 5 },
+		{ "definition_id": "tournelouse_netherstorm", "image_name": "specials", "image_index": 6 },
+		{ "definition_id": "tournelouse_netherstorm", "image_name": "specials", "image_index": 6 },
+		{ "definition_id": "standard_normal_grasp", "image_name": "normals", "image_index": 0 },
+		{ "definition_id": "standard_normal_grasp", "image_name": "normals", "image_index": 0 },
+		{ "definition_id": "standard_normal_cross", "image_name": "normals", "image_index": 1 },
+		{ "definition_id": "standard_normal_cross", "image_name": "normals", "image_index": 1 },
+		{ "definition_id": "standard_normal_assault", "image_name": "normals", "image_index": 2 },
+		{ "definition_id": "standard_normal_assault", "image_name": "normals", "image_index": 2 },
+		{ "definition_id": "standard_normal_dive", "image_name": "normals", "image_index": 3 },
+		{ "definition_id": "standard_normal_dive", "image_name": "normals", "image_index": 3 },
+		{ "definition_id": "standard_normal_spike", "image_name": "normals", "image_index": 4 },
+		{ "definition_id": "standard_normal_spike", "image_name": "normals", "image_index": 4 },
+		{ "definition_id": "standard_normal_sweep", "image_name": "normals", "image_index": 5 },
+		{ "definition_id": "standard_normal_sweep", "image_name": "normals", "image_index": 5 },
+		{ "definition_id": "standard_normal_focus", "image_name": "normals", "image_index": 6 },
+		{ "definition_id": "standard_normal_focus", "image_name": "normals", "image_index": 6 },
+		{ "definition_id": "standard_normal_block", "image_name": "normals", "image_index": 7 },
+		{ "definition_id": "standard_normal_block", "image_name": "normals", "image_index": 7 }
+	]
+}

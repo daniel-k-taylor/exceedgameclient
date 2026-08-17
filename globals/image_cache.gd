@@ -2,6 +2,9 @@ extends Node
 
 const image_cache_dir = "user://exceedcache/"
 const image_cache_map_file = "user://exceedcache_dir.json"
+const local_portrait_overrides = {
+	"meilian": "meilien",
+}
 
 const characters = "abcdefghijklmnopqrstuvwxyz1234567890-"
 const random_filename_length = 10
@@ -37,6 +40,10 @@ func load_image(url : String):
 	if url not in image_cache_map:
 		return null
 	return Image.load_from_file(image_cache_map[url])
+
+func get_local_portrait_path(character_id : String) -> String:
+	var portrait_id = local_portrait_overrides.get(character_id, character_id)
+	return "res://assets/portraits/%s.png" % portrait_id
 
 func _generate_image_filename():
 	var random_filename = ""

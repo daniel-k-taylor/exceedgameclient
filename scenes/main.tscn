@@ -8,5 +8,73 @@ script = ExtResource("1_28q6k")
 
 [node name="MainMenu" parent="." instance=ExtResource("2_x1b8u")]
 
+[node name="ReconnectOverlay" type="Control" parent="."]
+visible = false
+z_index = 100
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 0
+
+[node name="CloseBlocker" type="ColorRect" parent="ReconnectOverlay"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+color = Color(0, 0, 0, 0.6)
+
+[node name="PanelContainer" type="PanelContainer" parent="ReconnectOverlay"]
+custom_minimum_size = Vector2(520, 220)
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -260.0
+offset_top = -110.0
+offset_right = 260.0
+offset_bottom = 110.0
+
+[node name="MarginContainer" type="MarginContainer" parent="ReconnectOverlay/PanelContainer"]
+layout_mode = 2
+theme_override_constants/margin_left = 24
+theme_override_constants/margin_top = 24
+theme_override_constants/margin_right = 24
+theme_override_constants/margin_bottom = 24
+
+[node name="VBoxContainer" type="VBoxContainer" parent="ReconnectOverlay/PanelContainer/MarginContainer"]
+layout_mode = 2
+theme_override_constants/separation = 16
+alignment = 1
+
+[node name="MessageLabel" type="Label" parent="ReconnectOverlay/PanelContainer/MarginContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 26
+text = "Reconnecting to server..."
+horizontal_alignment = 1
+autowrap_mode = 2
+
+[node name="TimerLabel" type="Label" parent="ReconnectOverlay/PanelContainer/MarginContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 30
+horizontal_alignment = 1
+
+[node name="ButtonRow" type="HBoxContainer" parent="ReconnectOverlay/PanelContainer/MarginContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_constants/separation = 16
+alignment = 1
+
+[node name="ReconnectButton" type="Button" parent="ReconnectOverlay/PanelContainer/MarginContainer/VBoxContainer/ButtonRow"]
+visible = false
+layout_mode = 2
+theme_override_font_sizes/font_size = 24
+text = "Reconnect"
+
+[node name="CancelButton" type="Button" parent="ReconnectOverlay/PanelContainer/MarginContainer/VBoxContainer/ButtonRow"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 24
+text = "Cancel"
+
 [connection signal="start_game" from="MainMenu" to="." method="_on_main_menu_start_game"]
 [connection signal="start_remote_game" from="MainMenu" to="." method="_on_main_menu_start_remote_game"]
+[connection signal="pressed" from="ReconnectOverlay/PanelContainer/MarginContainer/VBoxContainer/ButtonRow/ReconnectButton" to="." method="_on_reconnect_button_pressed"]
+[connection signal="pressed" from="ReconnectOverlay/PanelContainer/MarginContainer/VBoxContainer/ButtonRow/CancelButton" to="." method="_on_reconnect_cancel_button_pressed"]

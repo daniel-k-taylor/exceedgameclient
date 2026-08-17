@@ -644,12 +644,9 @@ func test_demonblood_transform_from_hand():
 func test_demonblood_transform_from_deck():
 	position_players(player1, 4, player2, 5)
 	# Ensure a transform card is in the deck (Dust to Dust transforms to Demonheart).
-	# Find a taisei_dusttodust card in the deck.
-	var deck_transform_id = -1
-	for card in player1.deck:
-		if card.definition['id'] == "taisei_dusttodust":
-			deck_transform_id = card.id
-			break
+	# Put one on top of the deck explicitly: both copies can otherwise be dealt
+	# into the opening hand on some RNG seeds, which left this test flaky.
+	var deck_transform_id = set_player_topdeck(player1, "taisei_dusttodust")
 	assert_ne(deck_transform_id, -1, "Should have a Dust to Dust in deck")
 
 	var boost_id = give_player_specific_card(player1, "taisei_chaosscissors")

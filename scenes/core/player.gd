@@ -20,6 +20,7 @@ class StrikeStatBoosts:
 	var dodge_at_range_late_calculate_with : String = ""
 	var dodge_at_range_from_buddy : bool = false
 	var dodge_at_speed_greater_or_equal : int = -1
+	var dodge_at_speed_lower_or_equal : int = -1
 	var dodge_from_opposite_buddy : bool = false
 	var dodge_normals : bool = false
 	var range_includes_opponent : bool = false
@@ -44,8 +45,10 @@ class StrikeStatBoosts:
 	var when_hit_force_for_armor : String = ""
 	var stun_immunity : bool = false
 	var was_hit : bool = false
+	var pooky_normals_get_bonus : bool = false
 	var is_ex : bool = false
 	var higher_speed_misses : bool = false
+	var lower_speed_misses : bool = false
 	var calculate_range_from_space : int = -1
 	var calculate_range_from_buddy : bool = false
 	var calculate_range_from_buddy_id : String = ""
@@ -136,6 +139,7 @@ class StrikeStatBoosts:
 		dodge_at_range_late_calculate_with = ""
 		dodge_at_range_from_buddy = false
 		dodge_at_speed_greater_or_equal = -1
+		dodge_at_speed_lower_or_equal = -1
 		dodge_normals = false
 		dodge_from_opposite_buddy = false
 		range_includes_opponent = false
@@ -162,6 +166,7 @@ class StrikeStatBoosts:
 		was_hit = false
 		is_ex = false
 		higher_speed_misses = false
+		lower_speed_misses = false
 		calculate_range_from_space = -1
 		calculate_range_from_buddy = false
 		calculate_range_from_buddy_id = ""
@@ -258,6 +263,8 @@ var deck_def : Dictionary
 var gauge : Array[GameCard]
 var continuous_boosts : Array[GameCard]
 var transforms : Array[GameCard]
+var tournelouse_allow_duplicate_transform : bool
+var tournelouse_may_seal_for_gauge : bool
 var lightningrod_zones : Array
 var underboost_map : Dictionary
 var zsolt_battle_fugue_drew : bool
@@ -311,6 +318,25 @@ var spaces_moved_this_strike : int
 var spaces_moved_or_forced_this_strike : int
 var sustained_boosts : Array
 var sustain_next_boost : bool
+var syrus_reckless_greed_used : bool
+var syrus_dredge_fury_spent_ids : Array
+var pooky_drunken_fury_used : bool = false
+var pooky_zols_target_id : int = -1
+var pooky_zols_used : bool = false
+var renea_pre_strike_effects : Array = []
+var renea_pre_strike_index : int = 0
+var renea_pre_strike_needs_fss : bool = false
+var renea_pre_strike_response : bool = false
+var renea_exceed_revealing : bool = false
+var renea_boost_from_briefcase_used : bool = false
+var renea_facedown_revealed : bool = false
+var renea_fd_pending : Array = []
+var umina_dreamlands_facedown : bool = false
+var umina_revealed_dreamlands_ids : Array = []
+var umina_shadow_chorus_restore : Dictionary = {}
+var seal_force_bonus_tmp : int = 0
+var minato_seal_power_bonus : int = 0
+var minato_outrun_triggered_before_strike : bool = false
 var set_starting_face_attack : bool
 var starting_face_attack_id : String
 var buddy_starting_offset : int
@@ -319,6 +345,7 @@ var buddy_locations : Array[int]
 var buddy_id_to_index : Dictionary
 var do_not_cleanup_buddy_this_turn : bool
 var cannot_move : bool
+var cannot_advance_or_close : bool
 var cannot_move_past_opponent : bool
 var cannot_move_past_opponent_buddy_id : Variant
 var ignore_push_and_pull : int
@@ -466,6 +493,20 @@ func _init(id, player_name, parent_ref, card_db_ref, chosen_deck, card_start_id)
 	spaces_moved_or_forced_this_strike = 0
 	sustained_boosts = []
 	sustain_next_boost = false
+	syrus_reckless_greed_used = false
+	syrus_dredge_fury_spent_ids = []
+	pooky_drunken_fury_used = false
+	pooky_zols_target_id = -1
+	pooky_zols_used = false
+	renea_boost_from_briefcase_used = false
+	renea_facedown_revealed = false
+	seal_force_bonus_tmp = 0
+	minato_seal_power_bonus = 0
+	minato_outrun_triggered_before_strike = false
+	renea_fd_pending = []
+	umina_dreamlands_facedown = false
+	umina_revealed_dreamlands_ids = []
+	umina_shadow_chorus_restore = {}
 	set_starting_face_attack = false
 	starting_face_attack_id = ""
 	buddy_starting_offset = Enums.BuddyStartsOutOfArena
@@ -474,6 +515,7 @@ func _init(id, player_name, parent_ref, card_db_ref, chosen_deck, card_start_id)
 	buddy_id_to_index = {}
 	do_not_cleanup_buddy_this_turn = false
 	cannot_move = false
+	cannot_advance_or_close = false
 	cannot_move_past_opponent = false
 	cannot_move_past_opponent_buddy_id = null
 	ignore_push_and_pull = 0
@@ -605,6 +647,11 @@ func get_exceed_cost():
 
 func get_replacement_boost_definition():
 	return deck_def['replacement_boost_definition'].duplicate(true)
+
+func get_exceeded_replacement_boost_definition():
+	if deck_def.has("exceeded_replacement_boost_definition"):
+		return deck_def['exceeded_replacement_boost_definition'].duplicate(true)
+	return get_replacement_boost_definition()
 
 func get_set_aside_card(card_str_id : String, remove : bool = false):
 	for i in range(set_aside_cards.size()):
@@ -742,6 +789,19 @@ func is_card_in_set_aside(id : int):
 		if card.id == id:
 			return true
 	return false
+
+func add_to_briefcase(card : GameCard):
+	set_aside_cards.append(card)
+	parent.create_event(Enums.EventType.EventType_SetCardAside, my_id, card.id)
+
+func remove_card_from_briefcase(id : int):
+	for i in range(len(set_aside_cards)):
+		if set_aside_cards[i].id == id:
+			set_aside_cards.remove_at(i)
+			return
+
+func is_card_in_briefcase(id : int):
+	return is_card_in_set_aside(id)
 
 func remove_from_set_aside(id : int):
 	for i in range(len(set_aside_cards)):
@@ -1229,6 +1289,14 @@ func swap_deck_and_sealed():
 	parent.create_event(Enums.EventType.EventType_SwapSealedAndDeck, my_id, 0)
 	random_shuffle_deck()
 
+func swap_deck_and_discard():
+	var old_discards = discards.duplicate()
+	var old_deck = deck.duplicate()
+	discards = old_deck
+	deck = old_discards
+	random_shuffle_deck()
+	parent._append_log_full(Enums.LogType.LogType_CardInfo, self, "swaps their deck and discard pile!")
+
 func has_passive(passive_name : String):
 	return passive_name in passive_effects
 
@@ -1656,6 +1724,9 @@ func get_force_with_cards(card_ids : Array, reason : String, treat_ultras_as_sin
 		force_generated += get_free_force_for_payment()
 		if reason == "CHANGE_CARDS":
 			force_generated += free_force_cc_only
+	if seal_force_bonus_tmp > 0:
+		force_generated += seal_force_bonus_tmp
+		seal_force_bonus_tmp = 0
 
 	var has_card_in_gauge = false
 	for card_id in card_ids:
@@ -1671,6 +1742,18 @@ func get_force_with_cards(card_ids : Array, reason : String, treat_ultras_as_sin
 		force_generated += 2
 
 	return force_generated
+
+func seal_top_discard():
+	if discards.size() == 0:
+		return
+	var card = discards[discards.size() - 1]
+	parent.do_seal_effect(self, card.id, "discard")
+
+func seal_top_n_discards(amount : int):
+	for _i in range(amount):
+		if discards.size() == 0:
+			break
+		seal_top_discard()
 
 func get_force_from_spent_life(spent_life_for_force : int):
 	if spend_life_for_force_amount > 0:
@@ -1704,12 +1787,15 @@ func can_pay_cost_with(card_ids : Array, force_cost : int, gauge_cost : int, use
 	elif gauge_cost:
 		# Cap free gauge to the max gauge cost of the effect.
 		var gauge_generated = min(free_gauge, gauge_cost)
+		var can_seal_transforms = tournelouse_may_seal_for_gauge
 		for card_id in card_ids:
 			if is_card_in_gauge(card_id):
 				gauge_generated += 1
+			elif can_seal_transforms and is_card_in_transforms(card_id):
+				gauge_generated += 1
 			else:
 				assert(false)
-				parent.printlog("ERROR: Card not in gauge")
+				parent.printlog("ERROR: Card not in gauge or approved transform")
 				return false
 		gauge_generated += get_gauge_from_spent_life(spent_life_for_gauge)
 		return gauge_generated >= gauge_cost
@@ -1722,6 +1808,10 @@ func can_pay_cost(force_cost : int, gauge_cost : int, alternative_life_cost : in
 		return true
 	var available_force = get_available_force()
 	var available_gauge = get_available_gauge()
+	if deck_def.get("id") == "minato" and not exceeded:
+		available_gauge += int(discards.size() / 3.0)
+	if tournelouse_may_seal_for_gauge:
+		available_gauge += transforms.size()
 	if spend_life_for_gauge_amount > 0 and gauge_cost > available_gauge:
 		var gauge_shortfall = gauge_cost - available_gauge
 		var life_needed = gauge_shortfall * spend_life_for_gauge_amount
@@ -1752,10 +1842,24 @@ func can_boost_something(valid_zones : Array, limitation : String, ignore_costs 
 			if limitation:
 				if card.definition['boost']['boost_type'] == limitation or card.definition['type'] == limitation:
 					meets_limitation = true
+				elif deck_def.get("id") == "tournelouse" and card.definition['type'] == "normal" and limitation == "transform" and not exceeded:
+					meets_limitation = true
 				else:
 					meets_limitation = false
 			if not meets_limitation:
 				continue
+
+			if zone == "gauge" and deck_def.get("id") == "syrus":
+				var syrus_has_memories = false
+				for syrus_tf in transforms:
+					if syrus_tf.definition.get("id") == "syrus_albatross_talon":
+						syrus_has_memories = true
+						break
+				if syrus_has_memories:
+					var syrus_is_ok = card.definition['boost']['boost_type'] == "immediate"
+					syrus_is_ok = syrus_is_ok or ("replaced_boost" in card.definition and card.definition["replaced_boost"]["boost_type"] == "immediate")
+					if not syrus_is_ok:
+						continue
 
 			if limitation == "transform" and has_card_name_in_zone(card, "transform"):
 				continue
@@ -1785,10 +1889,21 @@ func has_card_name_in_zone(card : GameCard, zone : String):
 			zone_cards = sealed
 		"transform":
 			zone_cards = transforms
+	var match_count = 0
 	for check_card in zone_cards:
 		if check_card.definition['display_name'] == card.definition['display_name']:
-			return true
-	return false
+			match_count += 1
+	if zone == "transform":
+		var threshold = 0
+		var has_bargeist_transform = false
+		for transform_card in transforms:
+			if transform_card.definition.get("id") == "tournelouse_bargeist_fang":
+				has_bargeist_transform = true
+				break
+		if (tournelouse_allow_duplicate_transform or has_bargeist_transform) and deck_def.get("id") == "tournelouse" and card.definition['type'] == "normal":
+			threshold = 1
+		return match_count > threshold
+	return match_count > 0
 
 func can_cancel(card : GameCard):
 	if strike_on_boost_cleanup or wild_strike_on_boost_cleanup or cancel_blocked_this_turn:
@@ -2011,12 +2126,24 @@ func get_stored_zone_name():
 	return zone_info["name"]
 
 func is_stored_zone_facedown():
+	# Umina The Sleeper Wakes: dynamic facedown via transform effect
+	if deck_def.get("id") == "umina" and umina_dreamlands_facedown:
+		return true
 	var zone_info = deck_def.get("stored_zone_info")
 	if not zone_info:
 		return false
 	if exceeded:
 		zone_info = deck_def["stored_zone_info_exceeded"]
 	return zone_info["facedown"]
+
+func get_umina_spiraling_target() -> String:
+	if deck_def.get("id") != "umina":
+		return ""
+	if set_aside_cards.size() == 0:
+		return ""
+	if umina_dreamlands_facedown:
+		return ""
+	return set_aside_cards[0].definition.get("id", "")
 
 func reshuffle_discard(manual : bool, free : bool = false):
 	if reshuffle_remaining == 0 and not free:
@@ -2071,7 +2198,22 @@ func discard(card_ids : Array, from_top : int = 0, count_as_spent : bool = false
 					if parent.active_strike:
 						gauge_spent_this_strike += 1
 						gauge_cards_spent_this_strike.append(card)
-				add_to_discards(card, from_top)
+				if count_as_spent and exceeded and deck_def.get("id") == "luciya" and deck_def.has("replacement_boost_definition"):
+					# Luciya (Seventh Cross): while exceeded, spent gauge cards become
+					# facedown "+1 Power" continuous boosts instead of going to discard.
+					parent.active_overdrive = true
+					card.definition["replaced_boost"] = card.definition["boost"]
+					card.definition["boost"] = get_replacement_boost_definition()
+					var facedown = card.definition["boost"].get("facedown", false)
+					parent.create_event(Enums.EventType.EventType_Boost_Played, my_id, card.id, "", facedown)
+					add_to_continuous_boosts(card)
+					if parent.active_strike and parent.active_strike.strike_state > parent.StrikeState.StrikeState_DuringStrikeBonuses:
+						for effect in card.definition["boost"]["effects"]:
+							if effect["timing"] == "during_strike":
+								parent.do_effect_if_condition_met(self, card.id, effect, null)
+					parent.active_overdrive = false
+				else:
+					add_to_discards(card, from_top)
 				found_card = true
 				break
 
@@ -2185,6 +2327,8 @@ func seal_from_location(card_id : int, source : String, silent : bool = false):
 			source_array = deck
 			# Assuming this coming from the topdeck.
 			public_topdeck_id = -1
+		"set_aside":
+			source_array = set_aside_cards
 		"_":
 			assert(false)
 			parent.printlog("ERROR: Unexpected source of card going to sealed area: %s" % source)
@@ -2499,11 +2643,13 @@ func add_to_top_of_deck(card : GameCard, public : bool):
 	return [parent.create_event(Enums.EventType.EventType_AddToDeck, my_id, card.id)]
 
 func get_available_force():
-	var force = force_cost_reduction + get_available_free_force()
+	var force = force_cost_reduction + get_available_free_force() + seal_force_bonus_tmp
 	for card in hand:
 		force += card_database.get_card_force_value(card.id)
 	for card in gauge:
 		force += card_database.get_card_force_value(card.id)
+	if deck_def.get("id") == "minato" and not exceeded:
+		force += discards.size()
 	force += get_force_from_spent_life(life)
 	return force
 
@@ -2584,7 +2730,7 @@ func on_position_changed(old_pos, buddy_old_pos, is_self_move):
 
 func move_in_direction_by_amount(go_left : bool, amount : int, stop_at_opponent : bool, stop_on_space : int,
 	movement_type : String, is_self_move : bool = true, remove_my_buddies_encountered : int = 0,
-	set_x_to_buddy_spaces_entered : bool = false
+	set_x_to_buddy_spaces_entered : bool = false, stop_after_passing_opponent : bool = false
 ):
 	var direction = -1 if go_left else 1
 	var other_player = parent._get_player(parent.get_other_player(my_id))
@@ -2594,6 +2740,9 @@ func move_in_direction_by_amount(go_left : bool, amount : int, stop_at_opponent 
 		if parent.active_strike and strike_stat_boosts.cannot_move_if_in_opponents_range:
 			if parent.in_range(other_player, self, parent.active_strike.get_player_card(other_player)):
 				movement_blocked = true
+
+		if not movement_blocked and cannot_advance_or_close and (movement_type == StrikeEffects.Advance or movement_type == StrikeEffects.Close):
+			movement_blocked = true
 
 		if movement_blocked:
 			parent._append_log_full(Enums.LogType.LogType_CharacterMovement, self, "cannot move!")
@@ -2658,6 +2807,14 @@ func move_in_direction_by_amount(go_left : bool, amount : int, stop_at_opponent 
 		else:
 			# at edge of arena
 			break
+
+		if stop_after_passing_opponent:
+			var opp_location = other_player.arena_location
+			var started_left = previous_location < opp_location
+			var now_left = new_location < opp_location
+			if started_left != now_left and new_location != opp_location:
+				# We have just passed the opponent; stop here.
+				break
 
 		if new_location == stop_on_space and not i == amount-1:
 			# If stop_on_space is this location, the space is
@@ -2747,7 +2904,9 @@ func move_to(new_location, ignore_restrictions=false, remove_buddies_encountered
 
 	var now_right_of_other = other_player.arena_location < arena_location
 	var advanced_through = right_of_other != now_right_of_other
-	if advanced_through:
+	if advanced_through and not parent.active_strike:
+		# During a strike, the MoveToSpace effect handler triggers moved_past effects instead,
+		# so guard here to avoid firing them twice.
 		parent.handle_advanced_through(self, other_player)
 
 func close(amount):
@@ -2759,14 +2918,14 @@ func close(amount):
 	else:
 		move_in_direction_by_amount(true, amount, true, -1, StrikeEffects.Close)
 
-func advance(amount, stop_on_space):
+func advance(amount, stop_on_space, stop_after_passing_opponent : bool = false):
 	if not (exceeded and movement_limit_optional_exceeded):
 		amount = min(amount, movement_limit)
 	var other_location = parent._get_player(parent.get_other_player(my_id)).arena_location
 	if arena_location < other_location:
-		move_in_direction_by_amount(false, amount, false, stop_on_space, StrikeEffects.Advance)
+		move_in_direction_by_amount(false, amount, false, stop_on_space, StrikeEffects.Advance, true, 0, false, stop_after_passing_opponent)
 	else:
-		move_in_direction_by_amount(true, amount, false, stop_on_space, StrikeEffects.Advance)
+		move_in_direction_by_amount(true, amount, false, stop_on_space, StrikeEffects.Advance, true, 0, false, stop_after_passing_opponent)
 
 func retreat(amount):
 	if not (exceeded and movement_limit_optional_exceeded):
@@ -2823,11 +2982,35 @@ func add_to_transforms(card : GameCard) -> bool:
 		if boost_card.id == card.id:
 			assert(false, "Should not have transform already here.")
 		elif boost_card.definition['display_name'] == card.definition['display_name']:
+			var has_bargeist_transform = false
+			for transform_card in transforms:
+				if transform_card.definition.get("id") == "tournelouse_bargeist_fang":
+					has_bargeist_transform = true
+					break
+			if (tournelouse_allow_duplicate_transform or has_bargeist_transform) and deck_def.get("id") == "tournelouse" and card.definition['type'] == "normal":
+				var dup_count = 0
+				for transform_card in transforms:
+					if transform_card.definition['display_name'] == card.definition['display_name']:
+						dup_count += 1
+				if dup_count < 2:
+					continue
 			parent._append_log_full(Enums.LogType.LogType_CardInfo, self, "cannot transform %s, duplicate name in transforms." % card.definition['display_name'])
 			return false
 	transforms.append(card)
 	parent.create_event(Enums.EventType.EventType_Transform_Added, my_id, card.id)
 	return true
+
+func remove_from_transforms(card : GameCard):
+	for i in range(len(transforms)):
+		if transforms[i].id == card.id:
+			transforms.remove_at(i)
+			if card.definition.get("boost", {}).get("display_name") == "Heart of Darkness":
+				tournelouse_allow_duplicate_transform = false
+			do_discarded_effects_for_boost(card)
+			if card.definition.has("replaced_boost"):
+				card.definition["boost"] = card.definition["replaced_boost"]
+				card.definition.erase("replaced_boost")
+			break
 
 func get_continuous_boosts_and_transforms():
 	return continuous_boosts + transforms
@@ -2932,7 +3115,7 @@ func get_total_min_range_bonus(card : GameCard, alt_effect_list = []):
 	if alt_effect_list:
 		effect_list = alt_effect_list
 	for effect in effect_list:
-		if not effect["special_only"] or is_special:
+		if not effect.get("special_only", false) or is_special:
 			total_min_range += effect['min_range']
 	return total_min_range
 
@@ -2945,7 +3128,7 @@ func get_total_max_range_bonus(card : GameCard, alt_effect_list = []):
 	if alt_effect_list:
 		effect_list = alt_effect_list
 	for effect in effect_list:
-		if not effect["special_only"] or is_special:
+		if not effect.get("special_only", false) or is_special:
 			total_max_range += effect['max_range']
 	return total_max_range
 
@@ -3030,6 +3213,30 @@ func update_dynamic_during_strike_effects():
 			if effect['timing'] == "during_strike" and effect.get('dynamic', false):
 				_update_dynamic_strike_effect(card, effect, str(effect_index), true)
 			effect_index += 1
+
+	# Character ability dynamic during_strike effects (e.g. Meilian's max-range bonus).
+	var ability_label = "ability_effects"
+	if exceeded:
+		ability_label = "exceed_ability_effects"
+	var ability_index = 0
+	for effect in deck_def[ability_label]:
+		if effect['timing'] == "during_strike" and effect.get('dynamic', false):
+			_update_dynamic_character_strike_effect(effect, "char_ability|%d" % ability_index, true)
+		ability_index += 1
+
+func _update_dynamic_character_strike_effect(effect, path : String, parent_condition_met : bool):
+	var should_be_active = parent_condition_met and parent.is_effect_condition_met(self, effect, null)
+	var key = path
+	var is_active = key in active_dynamic_strike_effects
+	if should_be_active and not is_active:
+		_apply_strike_bonus_effect(effect, -1)
+		active_dynamic_strike_effects[key] = effect
+	elif is_active and not should_be_active:
+		_revert_strike_bonus_effect(effect, -1, false)
+		active_dynamic_strike_effects.erase(key)
+
+	if 'and' in effect:
+		_update_dynamic_character_strike_effect(effect['and'], path + ".and", should_be_active)
 
 func _update_dynamic_strike_effect(card : GameCard, effect, path : String, parent_condition_met : bool):
 	# An effect in an "and" chain is only active while every ancestor's condition also holds.
@@ -3352,6 +3559,9 @@ func get_character_effects_at_timing(timing_name : String):
 
 	for effect in deck_def[ability_label]:
 		if effect['timing'] == timing_name:
+			if timing_name == "during_strike" and effect.get('dynamic', false):
+				# Dynamic effects are applied/reverted continuously via update_dynamic_during_strike_effects.
+				continue
 			effects.append(effect)
 
 	# special overdrive handling

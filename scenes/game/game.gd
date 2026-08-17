@@ -12,6 +12,7 @@ const Test_StartWithGauge = false
 const CardBaseScene = preload("res://scenes/card/card_base.tscn")
 const CardPopoutScene = preload("res://scenes/game/card_popout.tscn")
 const CharacterScene = preload("res://scenes/game/character.tscn")
+const BackgroundManager = preload("res://globals/game_background_manager.gd")
 
 @onready var player_emote : EmoteDisplay = $PlayerEmote
 @onready var opponent_emote : EmoteDisplay = $OpponentEmote
@@ -19,6 +20,15 @@ const CharacterScene = preload("res://scenes/game/character.tscn")
 @onready var damage_popup_template = preload("res://scenes/game/damage_popup.tscn")
 @onready var arena_layout = $ArenaNode/RowButtons
 @onready var arena_graphics = $ArenaNode/RowPlatforms
+@onready var friend_track_layer : TextureRect = $FriendTrackLayer
+@onready var enemy_track_layer : TextureRect = $EnemyTrackLayer
+@onready var background_image : TextureRect = $BackgroundImage
+
+# Extra track overlay layers for wide characters when a non-classic background
+# is active. Built lazily in _initialize_track_overlay_layers().
+var friend_track_overlay_layers : Array[TextureRect] = []
+var enemy_track_overlay_layers : Array[TextureRect] = []
+var resolved_arena_style : String = BackgroundManager.DEFAULT_BACKGROUND_ID
 
 @onready var huge_card : Sprite2D = $HugeCard
 
@@ -30,11 +40,20 @@ const CharacterScene = preload("res://scenes/game/character.tscn")
 
 @onready var slideout_dialog : SlideoutDialog = $SlideoutDialog
 
+# Rotation reflow + runtime health debug overlay nodes (added in game.tscn).
+# Fetched defensively so game.gd still works if the nodes are absent.
+@onready var rotation_layout_overlay : Control = get_node_or_null("RotationLayoutOverlay")
+@onready var runtime_health_debug_panel : Control = get_node_or_null("RuntimeHealthDebugPanel")
+@onready var runtime_health_debug_label : Label = get_node_or_null("RuntimeHealthDebugPanel/MarginContainer/RuntimeHealthDebugLabel")
+@onready var runtime_health_debug_toggle_button : Button = get_node_or_null("RuntimeHealthDebugToggleButton")
+
 const OffScreen = Vector2(-1000, -1000)
 const ChoiceCopyIdRangeStart = 70000
 const RevealCopyIdRangestart = 80000
 const ReferenceScreenIdRangeStart = 90000
 const NoticeOffsetY = 50
+# Layout is authored against this fixed base size and scaled to the live viewport.
+const BaseViewportSize = Vector2(1280.0, 720.0)
 
 const SlideoutStartPosition = Vector2(1280, 380)
 
@@ -59,8 +78,78 @@ const StrikeRevealDelay : float = 2.0
 const MoveDelay : float = 1.0
 const BoostDelay : float = 2.0
 const SmallNoticeDelay : float = 1.0
+
+# --- Web-runtime health governor tuning (all no-op when not running on web) ---
+const WebRuntimeAnimationBacklogThreshold : int = 8
+const WebRuntimeAnimationBacklogScale : float = 0.25
+const WebRuntimeAnimationMinimumDelay : float = 0.1
+const WebRuntimeLoadYieldBatchSize : int = 4
+const WebRuntimeArenaVisualYieldFrames : int = 1
+const WebRuntimeEventYieldBatchSize : int = 6
+const WebRuntimeEventYieldDelay : float = 0.05
+const WebRuntimeRotationSettleFrames : int = 2
+const WebRuntimeMinimumViewportSize := Vector2(320.0, 240.0)
+const WebRuntimeMaximumInvalidViewportRetries : int = 8
+const WebRuntimeBacklogThresholdModerate : int = 12
+const WebRuntimeBacklogThresholdSevere : int = 24
+const WebRuntimeEventBudgetUnlimited : int = -1
+const WebRuntimeEventBudgetModerate : int = 8
+const WebRuntimeEventBudgetSevere : int = 4
+const WebRuntimeSlowFrameWarningDelta : float = 0.05
+const WebRuntimeSlowFrameSevereDelta : float = 0.085
+const WebRuntimeSlowFrameWarningCount : int = 1
+const WebRuntimeSlowFrameSevereCount : int = 3
+const WebRuntimeRecoveryStableFrames : int = 45
+const ShowRuntimeHealthDebugOverlay : bool = true
+const CombatLogVisibleEntryLimit = 500
+
+enum RuntimeBacklogLevel {
+	RuntimeBacklogLevel_None,
+	RuntimeBacklogLevel_Moderate,
+	RuntimeBacklogLevel_Severe,
+}
+
+enum RuntimeFramePressureLevel {
+	RuntimeFramePressureLevel_None,
+	RuntimeFramePressureLevel_Warning,
+	RuntimeFramePressureLevel_Severe,
+}
+
+enum RuntimeHealthState {
+	RuntimeHealthState_Healthy,
+	RuntimeHealthState_Warning,
+	RuntimeHealthState_Backlogged,
+	RuntimeHealthState_Recovery,
+}
+
 var remaining_delay = 0
+# RESERVED HOOK (a) reconnect restore fast-forward: the reconnect workstream drives
+# these two flags. The health governor already consults `restore_fast_forwarding`
+# so replay fast-forward stays "Healthy". Left defaulted so game.gd compiles today.
+var restore_fast_forward_pending := false
+var restore_fast_forwarding := false
 var events_to_process = []
+
+# Web-runtime health governor state (all inert off web).
+var runtime_health_debug_overlay_enabled : bool = false
+var runtime_backlog_level : int = RuntimeBacklogLevel.RuntimeBacklogLevel_None
+var runtime_health_state : int = RuntimeHealthState.RuntimeHealthState_Healthy
+var runtime_pending_event_pressure_count : int = 0
+var runtime_slow_frame_count : int = 0
+var runtime_stable_frame_count : int = WebRuntimeRecoveryStableFrames
+var runtime_last_frame_delta : float = 0.0
+var runtime_event_batch_in_progress : bool = false
+var deferred_player_hand_layout : bool = false
+var deferred_opponent_hand_layout : bool = false
+var deferred_card_count_refresh : bool = false
+
+# Responsive layout + rotation reflow state.
+var _viewport_layout_ready : bool = false
+var _viewport_layout_generation : int = 0
+var _rotation_layout_in_progress : bool = false
+var _last_stable_viewport_size : Vector2 = BaseViewportSize
+var _responsive_position_nodes : Array = []
+var _responsive_anchor_roots : Array = []
 
 var damage_popup_pool:Array[DamagePopup] = []
 
@@ -114,6 +203,10 @@ var discard_ex_first_for_strike = false
 var use_free_force = false
 var can_spend_life_for_force = false
 var can_spend_life_for_gauge = false
+# Minato "seal cards to pay costs": while true, the number picker seals top
+# discards to generate Force / Gauge for the current payment.
+var can_seal_for_force = false
+var can_seal_for_gauge = false
 var current_pay_costs_is_ex = false
 var preparing_character_action = false
 var prepared_character_action_data = {}
@@ -291,6 +384,13 @@ func _ready():
 	image_loader = CardImageLoader.new()
 	add_child(image_loader)
 
+	resolved_arena_style = BackgroundManager.resolve_background_id(GlobalSettings.ArenaStyle)
+	_initialize_track_overlay_layers()
+
+	_initialize_responsive_layout_state()
+	if get_viewport():
+		get_viewport().size_changed.connect(_on_viewport_size_changed)
+
 	NetworkManager.connect("players_update", _on_players_update)
 
 	if started_directly:
@@ -307,7 +407,13 @@ func initialization_after_begin_game():
 	if not game_wrapper.is_ai_game():
 		$AIMoveButton.visible = false
 	else:
-		ai_player = AIPlayer.new(game_wrapper.current_game, game_wrapper.current_game.opponent)
+		# AI difficulty is a persistent local preference. Default is the fair
+		# "rules" policy; "omniscient" is an opt-in cheating (hard) AI that reads
+		# hidden information.
+		var ai_policy : Node = AIPolicyRules.new()
+		if GlobalSettings.AIMode == "omniscient":
+			ai_policy = AIPolicyOmniscient.new()
+		ai_player = AIPlayer.new(game_wrapper.current_game, game_wrapper.current_game.opponent, ai_policy)
 
 	$PlayerLife.set_life(game_wrapper.get_player_life(Enums.PlayerId.PlayerId_Player))
 	$OpponentLife.set_life(game_wrapper.get_player_life(Enums.PlayerId.PlayerId_Opponent))
@@ -353,6 +459,8 @@ func initialization_after_begin_game():
 	ChoiceTagRegex.compile("\\[.*\\]")
 
 	setup_characters()
+	_viewport_layout_ready = true
+	_refresh_viewport_layout_metrics(true)
 
 func _on_players_update(_players, _matches, _queues : Array, newly_available_match : bool):
 	if (game_wrapper.is_ai_game() or observer_mode) and newly_available_match:
@@ -409,8 +517,15 @@ func begin_remote_game(game_start_message):
 	opponent_clock_remaining = starting_timer
 
 	var starting_message_queue = []
+	restore_fast_forward_pending = false
+	restore_fast_forwarding = false
 	if observer_mode:
 		starting_message_queue = game_start_message['observer_log']
+	elif game_start_message.has('restore_log'):
+		# Resuming a dropped remote game: replay the server-provided log with
+		# zero animation delay, then resume live play.
+		starting_message_queue = game_start_message['restore_log']
+		restore_fast_forward_pending = true
 
 	var p1deck
 	if game_start_message.get('player1_custom_deck'):
@@ -638,6 +753,7 @@ func first_run():
 	move_character_to_arena_square($OpponentCharacter, game_wrapper.get_player_location(Enums.PlayerId.PlayerId_Opponent), true, Character.CharacterAnim.CharacterAnim_None)
 	cached_player_location = game_wrapper.get_player_location(Enums.PlayerId.PlayerId_Player)
 	cached_opponent_location = game_wrapper.get_player_location(Enums.PlayerId.PlayerId_Opponent)
+	await _prepare_initial_arena_visuals()
 	update_arena_squares()
 	_update_buttons()
 
@@ -773,6 +889,8 @@ func spawn_emote(
 	is_image_emote : bool,
 	emote : String
 ):
+	if restore_fast_forwarding:
+		return
 	var emote_display = opponent_emote
 	if player_id == Enums.PlayerId.PlayerId_Player:
 		emote_display = player_emote
@@ -862,6 +980,7 @@ func update_character_facing():
 func _process(delta):
 	if exiting:
 		return
+	_update_runtime_frame_health(delta)
 	if not first_run_done:
 		if not first_run_in_progress:
 			if not setup_characters_complete:
@@ -894,6 +1013,8 @@ func _process(delta):
 
 		if events.size() == 0 and observer_live:
 			game_wrapper.observer_process_next_message_from_queue()
+		elif events.size() == 0 and (restore_fast_forwarding or restore_fast_forward_pending):
+			_advance_restore_fast_forward()
 
 	# Update opponent thinking spinner
 	if ui_state == UIState.UIState_WaitingOnOpponent or ui_state == UIState.UIState_WaitForGameServer:
@@ -965,8 +1086,498 @@ func begin_delay(delay : float, remaining_events : Array):
 		previous_ui_state = ui_state
 		previous_ui_sub_state = ui_sub_state
 	change_ui_state(UIState.UIState_PlayingAnimation, UISubState.UISubState_None)
-	remaining_delay = delay
+	remaining_delay = get_runtime_animation_delay(delay, remaining_events.size(), _is_web_runtime())
+	if restore_fast_forwarding:
+		# While replaying a reconnect restore log, apply everything with no delay.
+		remaining_delay = 0
 	events_to_process = remaining_events
+
+# Drains the reconnect restore log one message at a time with zero animation
+# delay. Once the log is fully replayed, live play resumes normally.
+func _advance_restore_fast_forward():
+	if restore_fast_forward_pending:
+		restore_fast_forward_pending = false
+		restore_fast_forwarding = true
+	var processed_something = game_wrapper.observer_process_next_message_from_queue()
+	if not processed_something:
+		restore_fast_forwarding = false
+
+# --- Web-runtime detection --------------------------------------------------
+
+func _is_web_runtime() -> bool:
+	return OS.has_feature("web")
+
+func _is_mobile_web_runtime() -> bool:
+	return _is_web_runtime() and (
+		OS.has_feature("mobile")
+		or OS.has_feature("web_android")
+		or OS.has_feature("web_ios")
+	)
+
+# --- Web-runtime health governor (pure helpers; safe to unit test) -----------
+
+static func get_runtime_animation_delay(delay : float, pending_event_count : int, web_runtime : bool) -> float:
+	if not web_runtime or pending_event_count <= WebRuntimeAnimationBacklogThreshold:
+		return delay
+	return maxf(WebRuntimeAnimationMinimumDelay, delay * WebRuntimeAnimationBacklogScale)
+
+static func get_runtime_backlog_level(pending_event_count : int, web_runtime : bool) -> int:
+	if not web_runtime or pending_event_count < WebRuntimeBacklogThresholdModerate:
+		return RuntimeBacklogLevel.RuntimeBacklogLevel_None
+	if pending_event_count >= WebRuntimeBacklogThresholdSevere:
+		return RuntimeBacklogLevel.RuntimeBacklogLevel_Severe
+	return RuntimeBacklogLevel.RuntimeBacklogLevel_Moderate
+
+static func get_runtime_event_budget(pending_event_count : int, web_runtime : bool) -> int:
+	match get_runtime_backlog_level(pending_event_count, web_runtime):
+		RuntimeBacklogLevel.RuntimeBacklogLevel_Moderate:
+			return WebRuntimeEventBudgetModerate
+		RuntimeBacklogLevel.RuntimeBacklogLevel_Severe:
+			return WebRuntimeEventBudgetSevere
+		_:
+			return WebRuntimeEventBudgetUnlimited
+
+static func get_runtime_frame_pressure_level(slow_frame_count : int, web_runtime : bool) -> int:
+	if not web_runtime:
+		return RuntimeFramePressureLevel.RuntimeFramePressureLevel_None
+	if slow_frame_count >= WebRuntimeSlowFrameSevereCount:
+		return RuntimeFramePressureLevel.RuntimeFramePressureLevel_Severe
+	if slow_frame_count >= WebRuntimeSlowFrameWarningCount:
+		return RuntimeFramePressureLevel.RuntimeFramePressureLevel_Warning
+	return RuntimeFramePressureLevel.RuntimeFramePressureLevel_None
+
+static func get_runtime_backlog_level_name(level : int) -> String:
+	match level:
+		RuntimeBacklogLevel.RuntimeBacklogLevel_Moderate:
+			return "Moderate"
+		RuntimeBacklogLevel.RuntimeBacklogLevel_Severe:
+			return "Severe"
+		_:
+			return "None"
+
+static func get_runtime_frame_pressure_level_name(level : int) -> String:
+	match level:
+		RuntimeFramePressureLevel.RuntimeFramePressureLevel_Warning:
+			return "Warning"
+		RuntimeFramePressureLevel.RuntimeFramePressureLevel_Severe:
+			return "Severe"
+		_:
+			return "None"
+
+static func get_runtime_health_state_name(state : int) -> String:
+	match state:
+		RuntimeHealthState.RuntimeHealthState_Warning:
+			return "Warning"
+		RuntimeHealthState.RuntimeHealthState_Backlogged:
+			return "Backlogged"
+		RuntimeHealthState.RuntimeHealthState_Recovery:
+			return "Recovery"
+		_:
+			return "Healthy"
+
+static func get_runtime_event_budget_name(budget : int) -> String:
+	if budget == WebRuntimeEventBudgetUnlimited:
+		return "Unlimited"
+	return str(budget)
+
+static func get_runtime_health_debug_color(state : int) -> Color:
+	match state:
+		RuntimeHealthState.RuntimeHealthState_Warning:
+			return Color("ffd54f")
+		RuntimeHealthState.RuntimeHealthState_Backlogged:
+			return Color("ff8a65")
+		RuntimeHealthState.RuntimeHealthState_Recovery:
+			return Color("80deea")
+		_:
+			return Color("c5e1a5")
+
+static func get_runtime_health_state(current_state : int, pending_event_count : int, slow_frame_count : int, stable_frame_count : int, web_runtime : bool) -> int:
+	if not web_runtime:
+		return RuntimeHealthState.RuntimeHealthState_Healthy
+	var backlog_level = get_runtime_backlog_level(pending_event_count, true)
+	var frame_pressure_level = get_runtime_frame_pressure_level(slow_frame_count, true)
+	var pressure_level = maxi(backlog_level, frame_pressure_level)
+	if pressure_level >= RuntimeBacklogLevel.RuntimeBacklogLevel_Severe:
+		return RuntimeHealthState.RuntimeHealthState_Backlogged
+	if pressure_level >= RuntimeBacklogLevel.RuntimeBacklogLevel_Moderate:
+		return RuntimeHealthState.RuntimeHealthState_Warning
+	if current_state != RuntimeHealthState.RuntimeHealthState_Healthy:
+		if stable_frame_count < WebRuntimeRecoveryStableFrames:
+			return RuntimeHealthState.RuntimeHealthState_Recovery
+	return RuntimeHealthState.RuntimeHealthState_Healthy
+
+static func get_runtime_event_budget_for_health_state(health_state : int) -> int:
+	match health_state:
+		RuntimeHealthState.RuntimeHealthState_Backlogged:
+			return WebRuntimeEventBudgetSevere
+		RuntimeHealthState.RuntimeHealthState_Warning, RuntimeHealthState.RuntimeHealthState_Recovery:
+			return WebRuntimeEventBudgetModerate
+		_:
+			return WebRuntimeEventBudgetUnlimited
+
+static func should_yield_runtime_batch(processed_count : int, batch_size : int, web_runtime : bool) -> bool:
+	return web_runtime and batch_size > 0 and processed_count > 0 and processed_count % batch_size == 0
+
+func runtime_yield_for_loading_batch(processed_count : int):
+	if should_yield_runtime_batch(processed_count, WebRuntimeLoadYieldBatchSize, _is_web_runtime()):
+		await get_tree().process_frame
+
+func _update_runtime_frame_health(delta : float):
+	runtime_last_frame_delta = delta
+	if not _is_web_runtime() or restore_fast_forwarding:
+		runtime_pending_event_pressure_count = 0
+		runtime_health_state = RuntimeHealthState.RuntimeHealthState_Healthy
+		runtime_slow_frame_count = 0
+		runtime_stable_frame_count = WebRuntimeRecoveryStableFrames
+		_request_runtime_health_debug_overlay_refresh()
+		return
+	if delta >= WebRuntimeSlowFrameSevereDelta:
+		runtime_slow_frame_count += 2
+		runtime_stable_frame_count = 0
+	elif delta >= WebRuntimeSlowFrameWarningDelta:
+		runtime_slow_frame_count += 1
+		runtime_stable_frame_count = 0
+	else:
+		runtime_slow_frame_count = maxi(0, runtime_slow_frame_count - 1)
+		runtime_stable_frame_count += 1
+	_update_runtime_health_state(events_to_process.size())
+
+func _update_runtime_health_state(pending_event_count : int):
+	runtime_pending_event_pressure_count = pending_event_count
+	if restore_fast_forwarding:
+		runtime_backlog_level = RuntimeBacklogLevel.RuntimeBacklogLevel_None
+		runtime_health_state = RuntimeHealthState.RuntimeHealthState_Healthy
+		_request_runtime_health_debug_overlay_refresh()
+		return
+	runtime_backlog_level = get_runtime_backlog_level(pending_event_count, _is_web_runtime())
+	runtime_health_state = get_runtime_health_state(runtime_health_state, pending_event_count, runtime_slow_frame_count, runtime_stable_frame_count, _is_web_runtime())
+	_request_runtime_health_debug_overlay_refresh()
+
+func _begin_runtime_event_batch(batch_event_count : int):
+	runtime_event_batch_in_progress = true
+	_update_runtime_health_state(batch_event_count + events_to_process.size())
+
+func _end_runtime_event_batch():
+	_flush_deferred_ui_updates()
+	runtime_event_batch_in_progress = false
+	_update_runtime_health_state(events_to_process.size())
+
+func _flush_deferred_ui_updates():
+	# Placeholder for deferred hand/card-count refreshes coalesced during a backlog.
+	# The batching hooks above no-op off web; wire concrete refreshes here as needed.
+	deferred_player_hand_layout = false
+	deferred_opponent_hand_layout = false
+	deferred_card_count_refresh = false
+
+func _should_defer_runtime_ui_refreshes() -> bool:
+	return _is_web_runtime() and runtime_event_batch_in_progress and runtime_health_state != RuntimeHealthState.RuntimeHealthState_Healthy
+
+func _should_skip_low_priority_visuals() -> bool:
+	return _rotation_layout_in_progress or (_is_web_runtime() and not restore_fast_forwarding and runtime_health_state == RuntimeHealthState.RuntimeHealthState_Backlogged)
+
+func _should_skip_bonus_label_visuals() -> bool:
+	return _is_web_runtime() and not restore_fast_forwarding and runtime_health_state != RuntimeHealthState.RuntimeHealthState_Healthy
+
+func _should_show_runtime_health_debug_overlay() -> bool:
+	return ShowRuntimeHealthDebugOverlay and _is_web_runtime() and runtime_health_debug_overlay_enabled
+
+func _update_runtime_health_debug_toggle_button():
+	if runtime_health_debug_toggle_button == null:
+		return
+	runtime_health_debug_toggle_button.visible = ShowRuntimeHealthDebugOverlay and _is_web_runtime()
+	runtime_health_debug_toggle_button.text = "Hide\nPerf" if runtime_health_debug_overlay_enabled else "Show\nPerf"
+
+func _request_runtime_health_debug_overlay_refresh():
+	if not _should_show_runtime_health_debug_overlay():
+		return
+	_refresh_runtime_health_debug_overlay()
+
+func _refresh_runtime_health_debug_overlay():
+	if runtime_health_debug_panel == null or runtime_health_debug_label == null:
+		return
+	var should_show = _should_show_runtime_health_debug_overlay()
+	runtime_health_debug_panel.visible = should_show
+	_update_runtime_health_debug_toggle_button()
+	if not should_show:
+		return
+	var frame_pressure_level = get_runtime_frame_pressure_level(runtime_slow_frame_count, true)
+	var event_budget = get_runtime_event_budget_for_health_state(runtime_health_state)
+	runtime_health_debug_label.modulate = get_runtime_health_debug_color(runtime_health_state)
+	runtime_health_debug_label.text = "Runtime Health\nState: %s\nEvent pressure: %s (%d)\nFrame pressure: %s (%.1fms)\nSlow frames: %d\nStable frames: %d/%d\nEvent budget: %s\nBatching: %s\nDeferred queue: %d\nFast-forward: %s" % [
+		get_runtime_health_state_name(runtime_health_state),
+		get_runtime_backlog_level_name(runtime_backlog_level),
+		runtime_pending_event_pressure_count,
+		get_runtime_frame_pressure_level_name(frame_pressure_level),
+		runtime_last_frame_delta * 1000.0,
+		runtime_slow_frame_count,
+		runtime_stable_frame_count,
+		WebRuntimeRecoveryStableFrames,
+		get_runtime_event_budget_name(event_budget),
+		"Yes" if runtime_event_batch_in_progress else "No",
+		events_to_process.size(),
+		"Yes" if restore_fast_forwarding else "No",
+	]
+
+func _on_runtime_health_debug_toggle_button_pressed():
+	runtime_health_debug_overlay_enabled = not runtime_health_debug_overlay_enabled
+	_refresh_runtime_health_debug_overlay()
+
+# --- Responsive layout engine ------------------------------------------------
+
+func _initialize_responsive_layout_state():
+	if _responsive_position_nodes.size() > 0 or _responsive_anchor_roots.size() > 0:
+		return
+
+	var tracked_node_paths := [
+		"ArenaNode", "OpponentLife", "PlayerLife", "PlayerZones", "OpponentZones",
+		"PlayerBoostZone", "OpponentBoostZone", "ChoicePopoutShowButton",
+		"ObserverNextButton", "ObserverPreviousButton", "ObserverPlayToLive",
+		"ExitToMenu", "HugeCard", "EmoteButton",
+		"AllCards/PlayerDiscardButton", "AllCards/OpponentDiscardButton",
+	]
+	for node_path in tracked_node_paths:
+		var node = get_node_or_null(node_path)
+		if node == null:
+			continue
+		_responsive_position_nodes.append({
+			"node": node,
+			"base_position": node.position,
+		})
+
+	var anchor_pairs := [
+		["PlayerDeck", "PlayerDeck/DeckButton"],
+		["OpponentDeck", "OpponentDeck/DeckButton"],
+		["PlayerStrike", "PlayerStrike/StrikeZone"],
+		["OpponentStrike", "OpponentStrike/StrikeZone"],
+		["OpponentHand", "OpponentHand/HandSpawn"],
+	]
+	for pair in anchor_pairs:
+		var root = get_node_or_null(pair[0])
+		var anchor = get_node_or_null(pair[1])
+		if root == null or anchor == null:
+			continue
+		_responsive_anchor_roots.append({
+			"root": root,
+			"base_anchor_position": anchor.position,
+		})
+
+func _scale_base_position(base_position : Vector2, viewport_scale : Vector2) -> Vector2:
+	return Vector2(base_position.x * viewport_scale.x, base_position.y * viewport_scale.y)
+
+static func get_rotation_safe_position(target_position : Vector2, node_size : Vector2, viewport_size : Vector2) -> Vector2:
+	return Vector2(
+		clampf(target_position.x, -node_size.x, viewport_size.x),
+		clampf(target_position.y, -node_size.y, viewport_size.y))
+
+func _apply_responsive_root_layout(viewport_size : Vector2):
+	var viewport_scale = Vector2(
+		viewport_size.x / BaseViewportSize.x,
+		viewport_size.y / BaseViewportSize.y
+	)
+
+	for entry in _responsive_position_nodes:
+		var node = entry["node"]
+		var scaled_position := _scale_base_position(entry["base_position"], viewport_scale)
+		var node_size : Vector2 = node.size if node is Control else Vector2.ZERO
+		node.position = get_rotation_safe_position(scaled_position, node_size, viewport_size)
+
+	for entry in _responsive_anchor_roots:
+		var root = entry["root"]
+		var base_anchor_position : Vector2 = entry["base_anchor_position"]
+		var scaled_anchor_position := _scale_base_position(base_anchor_position, viewport_scale) - base_anchor_position
+		var root_size : Vector2 = root.size if root is Control else Vector2.ZERO
+		root.position = get_rotation_safe_position(scaled_anchor_position, root_size, viewport_size)
+
+	var background_node = get_node_or_null("Background")
+	if background_node:
+		background_node.size = viewport_size
+	var row_buttons = get_node_or_null("ArenaNode/RowButtons")
+	if row_buttons:
+		row_buttons.size.x = viewport_size.x
+	var row_platforms = get_node_or_null("ArenaNode/RowPlatforms")
+	if row_platforms:
+		row_platforms.custom_minimum_size.x = viewport_size.x
+		row_platforms.size.x = viewport_size.x
+	var row_lightning = get_node_or_null("ArenaNode/RowLightningInfoButtons")
+	if row_lightning:
+		row_lightning.custom_minimum_size.x = viewport_size.x
+		row_lightning.size.x = viewport_size.x
+	var action_container = get_node_or_null("AllCards/ActionContainer")
+	if action_container:
+		action_container.size.x = viewport_size.x
+	if rotation_layout_overlay:
+		rotation_layout_overlay.size = viewport_size
+
+func _refresh_world_positions_after_layout():
+	if not first_run_done:
+		return
+
+	if cached_player_location > 0:
+		move_character_to_arena_square($PlayerCharacter, cached_player_location, true, Character.CharacterAnim.CharacterAnim_None)
+	if cached_opponent_location > 0:
+		move_character_to_arena_square($OpponentCharacter, cached_opponent_location, true, Character.CharacterAnim.CharacterAnim_None)
+
+	var player_logic = game_wrapper.current_game.player if game_wrapper.current_game else null
+	var opponent_logic = game_wrapper.current_game.opponent if game_wrapper.current_game else null
+
+	for buddy in player_buddies:
+		if buddy.visible and player_logic:
+			var buddy_location = player_logic.get_buddy_location(buddy.get_buddy_id())
+			if buddy_location != -1:
+				move_character_to_arena_square(buddy, buddy_location, true, Character.CharacterAnim.CharacterAnim_None, -1)
+
+	for buddy in opponent_buddies:
+		if buddy.visible and opponent_logic:
+			var buddy_location = opponent_logic.get_buddy_location(buddy.get_buddy_id())
+			if buddy_location != -1:
+				move_character_to_arena_square(buddy, buddy_location, true, Character.CharacterAnim.CharacterAnim_None, -1)
+
+	for location in range(1, 10):
+		var player_rod = player_lightningrod_tracking.get(location, {}).get("character")
+		if player_rod != null:
+			move_character_to_arena_square(player_rod, location, true, Character.CharacterAnim.CharacterAnim_None, -1)
+		var opponent_rod = opponent_lightningrod_tracking.get(location, {}).get("character")
+		if opponent_rod != null:
+			move_character_to_arena_square(opponent_rod, location, true, Character.CharacterAnim.CharacterAnim_None, -1)
+
+	update_character_facing()
+	update_arena_squares()
+
+func _refresh_viewport_layout_metrics(relayout_hands := false):
+	if not is_inside_tree() or get_viewport() == null:
+		return
+
+	var viewport_size = Vector2(get_viewport().content_scale_size)
+	if viewport_size.x <= 0 or viewport_size.y <= 0:
+		return
+
+	_apply_responsive_root_layout(viewport_size)
+
+	CenterCardOval = viewport_size * Vector2(0.5, 1.35)
+	HorizontalRadius = viewport_size.x * 0.55
+	VerticalRadius = viewport_size.y * 0.4
+
+	if not relayout_hands or not _viewport_layout_ready:
+		return
+
+	layout_player_hand(true)
+	layout_player_hand(false)
+	_refresh_world_positions_after_layout()
+
+# --- Rotation reflow pipeline (web only; desktop keeps canvas_items scaling) --
+
+func _on_viewport_size_changed():
+	if not _is_web_runtime():
+		# Off web, canvas_items stretch already scales the whole scene; leave it be.
+		return
+	if not _viewport_layout_ready:
+		_refresh_viewport_layout_metrics(false)
+		return
+	_schedule_rotation_layout_refresh()
+
+func _schedule_rotation_layout_refresh():
+	_viewport_layout_generation += 1
+	var layout_generation := _viewport_layout_generation
+	if not _rotation_layout_in_progress:
+		_rotation_layout_in_progress = true
+		if rotation_layout_overlay:
+			rotation_layout_overlay.visible = true
+		GlobalSettings.set_web_rotation_render_scale(_is_mobile_web_runtime())
+		_begin_rotation_layout_visual_pause()
+		_run_rotation_layout_refresh(layout_generation)
+
+static func is_rotation_layout_request_current(request_generation : int, current_generation : int) -> bool:
+	return request_generation == current_generation
+
+static func is_rotation_viewport_size_valid(viewport_size : Vector2) -> bool:
+	return viewport_size.x >= WebRuntimeMinimumViewportSize.x and viewport_size.y >= WebRuntimeMinimumViewportSize.y
+
+func _begin_rotation_layout_visual_pause():
+	$OpponentDeck/ThinkingIndicator.visible = false
+	_finish_all_card_animations()
+	_finish_all_character_animations()
+	for popup in find_children("*", "DamagePopup", true, false):
+		popup.pause_for_rotation_layout()
+	if player_emote.has_method("pause_for_rotation_layout"):
+		player_emote.pause_for_rotation_layout()
+	if opponent_emote.has_method("pause_for_rotation_layout"):
+		opponent_emote.pause_for_rotation_layout()
+
+func _run_rotation_layout_refresh(layout_generation : int, invalid_viewport_retries := 0):
+	for _frame in range(WebRuntimeRotationSettleFrames):
+		await get_tree().process_frame
+	if not is_rotation_layout_request_current(layout_generation, _viewport_layout_generation):
+		_run_rotation_layout_refresh(_viewport_layout_generation)
+		return
+
+	var viewport_size := Vector2(get_viewport().content_scale_size)
+	if not is_rotation_viewport_size_valid(viewport_size):
+		if invalid_viewport_retries >= WebRuntimeMaximumInvalidViewportRetries:
+			_apply_responsive_root_layout(_last_stable_viewport_size)
+			_finish_rotation_layout_refresh()
+			return
+		await get_tree().process_frame
+		_run_rotation_layout_refresh(_viewport_layout_generation, invalid_viewport_retries + 1)
+		return
+	await get_tree().process_frame
+	if not is_rotation_layout_request_current(layout_generation, _viewport_layout_generation):
+		_run_rotation_layout_refresh(_viewport_layout_generation)
+		return
+	var confirmed_viewport_size := Vector2(get_viewport().content_scale_size)
+	if confirmed_viewport_size != viewport_size:
+		_run_rotation_layout_refresh(_viewport_layout_generation)
+		return
+	if not is_rotation_viewport_size_valid(confirmed_viewport_size):
+		_finish_rotation_layout_refresh()
+		return
+	_last_stable_viewport_size = confirmed_viewport_size
+
+	_apply_responsive_root_layout(_last_stable_viewport_size)
+	CenterCardOval = _last_stable_viewport_size * Vector2(0.5, 1.35)
+	HorizontalRadius = _last_stable_viewport_size.x * 0.55
+	VerticalRadius = _last_stable_viewport_size.y * 0.4
+	await get_tree().process_frame
+	if not is_rotation_layout_request_current(layout_generation, _viewport_layout_generation):
+		_run_rotation_layout_refresh(_viewport_layout_generation)
+		return
+
+	layout_player_hand(true)
+	layout_player_hand(false)
+	_finish_all_card_animations()
+	await get_tree().process_frame
+	if not is_rotation_layout_request_current(layout_generation, _viewport_layout_generation):
+		_run_rotation_layout_refresh(_viewport_layout_generation)
+		return
+
+	_refresh_world_positions_after_layout()
+	_finish_all_character_animations()
+	_finish_rotation_layout_refresh()
+
+func _finish_rotation_layout_refresh():
+	GlobalSettings.set_web_rotation_render_scale(false)
+	if rotation_layout_overlay:
+		rotation_layout_overlay.visible = false
+	_rotation_layout_in_progress = false
+
+func _finish_all_card_animations():
+	for card in find_children("*", "CardBase", true, false):
+		card.finish_animation_immediately()
+
+func _finish_all_character_animations():
+	$PlayerCharacter.finish_movement()
+	$OpponentCharacter.finish_movement()
+	for buddy in player_buddies:
+		buddy.finish_movement()
+	for buddy in opponent_buddies:
+		buddy.finish_movement()
+	for location in range(1, 10):
+		var player_rod = player_lightningrod_tracking.get(location, {}).get("character")
+		if player_rod != null:
+			player_rod.finish_movement()
+		var opponent_rod = opponent_lightningrod_tracking.get(location, {}).get("character")
+		if opponent_rod != null:
+			opponent_rod.finish_movement()
+
 
 func get_discard_location(discard_node):
 	var discard_pos = discard_node.global_position + discard_node.size * discard_node.scale /2
@@ -1106,8 +1717,14 @@ func is_card_in_player_reference(reference_cards, card_id):
 			return true
 	return false
 
+func _should_open_or_refresh_popout(open_popout : bool, popout_type : CardPopoutType) -> bool:
+	return open_popout or (card_popout_parent.get_child_count() > 0 and popout_type_showing == popout_type)
+
 func can_select_card(card):
 	if observer_mode:
+		return false
+
+	if card.card_id in [CardBase.CharacterCardReferenceId, CardBase.BuddyCardReferenceId]:
 		return false
 
 	var in_gauge = game_wrapper.is_card_in_gauge(Enums.PlayerId.PlayerId_Player, card.card_id)
@@ -1327,6 +1944,13 @@ func modify_card_selection(card, selected):
 	if card_popout_parent.get_child_count() > 0:
 		var popout = card_popout_parent.get_child(0)
 		popout.modify_card_selection(card.card_id, selected)
+
+func get_selected_card_ids() -> Array:
+	var selected_card_ids : Array = []
+	for card in selected_cards:
+		if is_instance_valid(card):
+			selected_card_ids.append(card.card_id)
+	return selected_card_ids
 
 func on_card_clicked(card : CardBase):
 	if observer_mode:
@@ -1892,6 +2516,8 @@ func _on_choose_from_discard(event):
 		# Show the correct popout window.
 		if source == "discard":
 			_on_player_discard_button_pressed()
+		elif source == "outrun_seal":
+			_on_player_discard_button_pressed()
 		elif source == "gauge":
 			_on_player_gauge_gauge_clicked()
 		elif source == "sealed":
@@ -2408,6 +3034,10 @@ func _on_force_wild_swing(event):
 
 func _on_game_over(event):
 	printlog("GAME OVER for %s" % game_wrapper.get_player_name(event['event_player']))
+	if not observer_mode and not replay_mode:
+		# Let NetworkManager know the match ended normally so a post-game
+		# opponent disconnect does not trigger the reconnect-waiting overlay.
+		NetworkManager.set_active_remote_match_finished(true)
 	game_over_stuff.visible = true
 	save_replay_button.visible = replay_saving_enabled
 	change_ui_state(UIState.UIState_GameOver, UISubState.UISubState_None)
@@ -2598,6 +3228,8 @@ func get_gauge_generated():
 	var gauge_generated = min(gauge_from_free_bonus, select_card_require_max)
 	gauge_generated += len(selected_cards)
 	gauge_generated += get_gauge_from_spent_life()
+	if can_seal_for_gauge:
+		gauge_generated += int(action_menu.number_panel_current_number / 3.0)
 	return gauge_generated
 
 func update_gauge_selection_message():
@@ -2673,7 +3305,13 @@ func get_force_in_selected_cards():
 
 	var total_force = game_wrapper.get_player_force_for_cards(Enums.PlayerId.PlayerId_Player, card_ids, reason, treat_ultras_as_single_force, use_free_force)
 	total_force += get_force_from_spent_life()
+	total_force += get_force_from_sealed()
 	return total_force
+
+func get_force_from_sealed() -> int:
+	if can_seal_for_force:
+		return action_menu.number_panel_current_number
+	return 0
 
 func get_force_from_spent_life():
 	if can_spend_life_for_force:
@@ -2689,6 +3327,7 @@ func can_selected_cards_pay_force(force_cost : int, bonus_card_force_value : int
 	if use_free_force:
 		force_needed_from_cards -= game_wrapper.get_player_free_force(Enums.PlayerId.PlayerId_Player)
 	force_needed_from_cards -= get_spent_life_for_force()
+	force_needed_from_cards -= get_force_from_sealed()
 	force_needed_from_cards = max(0, force_needed_from_cards)
 
 	# Sum up force from selected cards
@@ -2855,6 +3494,8 @@ func begin_generate_force_selection(amount, can_cancel : bool = true, wild_swing
 			current_action_menu_choices.append({"action": func(): pass})
 	use_free_force = game_wrapper.get_player_free_force(Enums.PlayerId.PlayerId_Player, reason) > 0
 	can_spend_life_for_force = game_wrapper.get_life_for_force_amount(Enums.PlayerId.PlayerId_Player) > 0
+	can_seal_for_gauge = false
+	can_seal_for_force = p.deck_def.get("id") == "minato" and not p.exceeded and p.discards.size() > 0
 	current_pay_costs_is_ex = ex_discard_order_checkbox
 	action_menu.set_force_ultra_toggle(false)
 	action_menu.set_discard_ex_first_toggle(true)
@@ -2880,6 +3521,9 @@ func begin_gauge_selection(
 	# Show the gauge window.
 	_on_player_gauge_gauge_clicked()
 	selected_cards = []
+	var seal_gauge_p = game_wrapper._get_player(Enums.PlayerId.PlayerId_Player)
+	can_seal_for_force = false
+	can_seal_for_gauge = seal_gauge_p.deck_def.get("id") == "minato" and not seal_gauge_p.exceeded and seal_gauge_p.discards.size() >= 3
 	current_pay_costs_is_ex = ex_discard_order_checkbox
 	discard_ex_first_for_strike = true
 	action_menu.set_discard_ex_first_toggle(true)
@@ -3483,6 +4127,12 @@ func _on_gauge_for_effect(event):
 			select_card_must_be_max_or_min = true
 		else:
 			select_card_must_be_max_or_min = false
+		if effect.get('allow_partial_gauge_selection', false):
+			# Optional effect (e.g. syrus_dredge_fury_keep_choice): any amount in
+			# [min_gauge, gauge_max] is a legal selection.
+			select_card_must_be_max_or_min = false
+			if 'min_gauge' in effect:
+				select_card_require_min = effect['min_gauge']
 		select_gauge_require_card_id = ""
 		select_gauge_require_card_name = ""
 		select_gauge_valid_card_types = []
@@ -3496,6 +4146,8 @@ func _on_gauge_for_effect(event):
 		ai_gauge_for_effect(effect)
 
 func _on_emote(event):
+	if restore_fast_forwarding:
+		return
 	var player = event['event_player']
 	var is_image_emote = event['number']
 	var emote = event['reason']
@@ -4295,6 +4947,22 @@ func _update_buttons(no_number_picker_update : bool = false):
 		instructions_number_picker_min = 0
 		instructions_number_picker_max = game_wrapper.get_player_life(Enums.PlayerId.PlayerId_Player)
 
+	# Minato seal-to-pay: the number picker seals top discards. One discard = one
+	# Force; three discards = one Gauge (step of 3).
+	action_menu.number_picker_step = 1
+	if can_seal_for_force and show_life_for_force_counter:
+		var seal_force_player = game_wrapper._get_player(Enums.PlayerId.PlayerId_Player)
+		var force_reduction = game_wrapper.get_player_force_cost_reduction(Enums.PlayerId.PlayerId_Player)
+		var force_limit = max(0, select_card_require_force - force_reduction) if select_card_require_force > 0 else 99
+		instructions_number_picker_min = 0
+		instructions_number_picker_max = mini(seal_force_player.discards.size(), force_limit)
+	if can_seal_for_gauge and ui_sub_state in [UISubState.UISubState_SelectCards_StrikeGauge, UISubState.UISubState_SelectCards_GaugeForBoost, UISubState.UISubState_SelectCards_GaugeForEffect, UISubState.UISubState_SelectCards_CharacterAction_Gauge, UISubState.UISubState_SelectCards_BoostCancel, UISubState.UISubState_SelectCards_Exceed]:
+		var seal_gauge_player = game_wrapper._get_player(Enums.PlayerId.PlayerId_Player)
+		var gauge_want = select_card_require_max if select_card_require_max > 0 else 99
+		instructions_number_picker_min = 0
+		instructions_number_picker_max = mini(seal_gauge_player.discards.size(), gauge_want * 3)
+		action_menu.number_picker_step = 3
+
 	# Set the Action Menu state
 	var action_menu_hidden = false
 	match ui_state:
@@ -4362,10 +5030,15 @@ func _choice_text_without_tags(choice_text):
 func update_boost_summary(player_id, boosts_card_holder, boost_box):
 	var card_ids = []
 	var card_db = game_wrapper.get_card_database()
+	var summary_player = game_wrapper._get_player(player_id)
 	for card in boosts_card_holder.get_children():
 		card_ids.append(card.card_id)
 	var transform_effects = []
 	var normal_effects = []
+	if summary_player.deck_def.get("id") == "minato" and summary_player.exceeded and summary_player.minato_seal_power_bonus > 0:
+		normal_effects.append({
+			"override_description": "Awakening: gains +%d Power on next attack." % int(summary_player.minato_seal_power_bonus)
+		})
 	for card_id in card_ids:
 		var card = card_db.get_card(card_id)
 		if game_wrapper.is_card_in_sealed(player_id, card_id):
@@ -4419,6 +5092,10 @@ func update_boost_summary(player_id, boosts_card_holder, boost_box):
 	boost_box.set_text(boost_summary)
 
 func update_arena_squares():
+	var arena_style := resolved_arena_style
+	var uses_classic_arena := BackgroundManager.uses_classic_arena(arena_style)
+	arena_graphics.visible = uses_classic_arena
+	background_image.texture = BackgroundManager.get_background_texture(arena_style)
 	for i in range(1, 10):
 		var square : ArenaSquare = arena_graphics.get_child(i - 1)
 		var player_extra_width = 0
@@ -4434,6 +5111,106 @@ func update_arena_squares():
 		else:
 			square.set_empty()
 
+	var player_center_width = 0
+	if $PlayerCharacter.is_wide:
+		player_center_width = game_wrapper.get_player_extra_width(Enums.PlayerId.PlayerId_Player)
+	var opponent_center_width = 0
+	if $OpponentCharacter.is_wide:
+		opponent_center_width = game_wrapper.get_player_extra_width(Enums.PlayerId.PlayerId_Opponent)
+	friend_track_layer.texture = null if uses_classic_arena else BackgroundManager.get_arena_texture(
+		arena_style, "B", 10 - cached_player_location)
+	enemy_track_layer.texture = null if uses_classic_arena else BackgroundManager.get_arena_texture(
+		arena_style, "R", 10 - cached_opponent_location)
+	_update_track_overlays_for_character(
+		friend_track_overlay_layers, arena_style, "B",
+		cached_player_location, player_center_width, uses_classic_arena)
+	_update_track_overlays_for_character(
+		enemy_track_overlay_layers, arena_style, "R",
+		cached_opponent_location, opponent_center_width, uses_classic_arena)
+
+func _initialize_track_overlay_layers():
+	if not friend_track_overlay_layers.is_empty() or not enemy_track_overlay_layers.is_empty():
+		return
+	for i in range(2):
+		var friend_overlay = _create_track_overlay_layer(friend_track_layer, "FriendTrackLayerExtra%d" % [i + 1])
+		add_child(friend_overlay)
+		move_child(friend_overlay, friend_track_layer.get_index() + i + 1)
+		friend_track_overlay_layers.append(friend_overlay)
+	for i in range(2):
+		var enemy_overlay = _create_track_overlay_layer(enemy_track_layer, "EnemyTrackLayerExtra%d" % [i + 1])
+		add_child(enemy_overlay)
+		move_child(enemy_overlay, enemy_track_layer.get_index() + i + 1)
+		enemy_track_overlay_layers.append(enemy_overlay)
+
+func _create_track_overlay_layer(template_layer : TextureRect, layer_name : String) -> TextureRect:
+	var track_layer := TextureRect.new()
+	track_layer.name = layer_name
+	track_layer.offset_left = template_layer.offset_left
+	track_layer.offset_top = template_layer.offset_top
+	track_layer.offset_right = template_layer.offset_right
+	track_layer.offset_bottom = template_layer.offset_bottom
+	track_layer.mouse_filter = template_layer.mouse_filter
+	track_layer.expand_mode = template_layer.expand_mode
+	track_layer.stretch_mode = template_layer.stretch_mode
+	track_layer.visible = false
+	return track_layer
+
+func _clear_track_overlays(layers : Array[TextureRect]):
+	for layer in layers:
+		layer.texture = null
+		layer.visible = false
+
+func _update_track_overlays_for_character(
+		layers : Array[TextureRect],
+		arena_style : String,
+		prefix : String,
+		center_location : int,
+		extra_width : int,
+		uses_classic_arena : bool):
+	if uses_classic_arena or extra_width <= 0:
+		_clear_track_overlays(layers)
+		return
+	var overlay_index = 0
+	for offset in range(-extra_width, extra_width + 1):
+		if offset == 0:
+			continue
+		if overlay_index >= layers.size():
+			break
+		var board_location = center_location + offset
+		var overlay_texture : Texture2D = null
+		if board_location >= 1 and board_location <= 9:
+			overlay_texture = BackgroundManager.get_arena_texture(arena_style, prefix, 10 - board_location)
+		layers[overlay_index].texture = overlay_texture
+		layers[overlay_index].visible = overlay_texture != null
+		overlay_index += 1
+	for i in range(overlay_index, layers.size()):
+		layers[i].texture = null
+		layers[i].visible = false
+
+func _prepare_initial_arena_visuals():
+	var arena_style := resolved_arena_style
+	var uses_classic_arena := BackgroundManager.uses_classic_arena(arena_style)
+	arena_graphics.visible = uses_classic_arena
+	background_image.texture = BackgroundManager.get_background_texture(arena_style)
+
+	var player_extra_width = 0
+	if $PlayerCharacter.is_wide:
+		player_extra_width = game_wrapper.get_player_extra_width(Enums.PlayerId.PlayerId_Player)
+	var opponent_extra_width = 0
+	if $OpponentCharacter.is_wide:
+		opponent_extra_width = game_wrapper.get_player_extra_width(Enums.PlayerId.PlayerId_Opponent)
+
+	friend_track_layer.texture = null if uses_classic_arena else BackgroundManager.get_arena_texture(
+		arena_style, "B", 10 - cached_player_location)
+	enemy_track_layer.texture = null if uses_classic_arena else BackgroundManager.get_arena_texture(
+		arena_style, "R", 10 - cached_opponent_location)
+	_update_track_overlays_for_character(
+		friend_track_overlay_layers, arena_style, "B",
+		cached_player_location, player_extra_width, uses_classic_arena)
+	_update_track_overlays_for_character(
+		enemy_track_overlay_layers, arena_style, "R",
+		cached_opponent_location, opponent_extra_width, uses_classic_arena)
+
 func selected_cards_between_min_and_max() -> bool:
 	var selected_count = len(selected_cards)
 	return selected_count >= select_card_require_min && selected_count <= select_card_require_max
@@ -4444,9 +5221,9 @@ func can_press_ok():
 
 	if ui_state == UIState.UIState_SelectCards:
 		match ui_sub_state:
-			UISubState.UISubState_SelectCards_StrikeGauge:
+			UISubState.UISubState_SelectCards_StrikeGauge, UISubState.UISubState_SelectCards_Exceed:
 				return get_gauge_generated() >= select_card_require_min and get_gauge_generated() <= select_card_require_max
-			UISubState.UISubState_SelectCards_DiscardCards, UISubState.UISubState_SelectCards_Exceed:
+			UISubState.UISubState_SelectCards_DiscardCards:
 				return selected_cards_between_min_and_max()
 			UISubState.UISubState_SelectCards_BoostCancel, UISubState.UISubState_SelectCards_DiscardContinuousBoost, UISubState.UISubState_SelectCards_DiscardFromReference:
 				return selected_cards_between_min_and_max()
@@ -4653,7 +5430,73 @@ func _on_boost_button_pressed():
 	begin_boost_choosing(true, valid_zones, "", false, 1)
 
 func _on_strike_button_pressed():
+	# Minato: "Outrun the Past" (from the Flight transform) triggers before attack
+	# selection, letting the player seal a discard to draw a card.
+	var minato_p = game_wrapper._get_player(Enums.PlayerId.PlayerId_Player)
+	if minato_p.deck_def.get("id") == "minato" and not minato_p.minato_outrun_triggered_before_strike:
+		for minato_tf in minato_p.transforms:
+			if minato_tf.definition.get("id") == "minato_flight_13":
+				minato_p.minato_outrun_triggered_before_strike = true
+				game_wrapper.current_game.handle_strike_effect(-1, {"effect_type": "minato_outrun_the_past", "minato_otp_sealed": 0}, minato_p)
+				return
 	begin_strike_choosing(false, true)
+
+# Re-opens the correct local interaction UI after a reconnect restore, when the
+# game is sitting in a decision but the UI is parked in a wait state.
+func _sync_ui_state_after_restore():
+	if ui_state == UIState.UIState_GameOver:
+		return
+	if ui_state in [UIState.UIState_SelectCards, UIState.UIState_MakeChoice, UIState.UIState_SelectArenaLocation]:
+		_update_buttons()
+		return
+
+	var game_state = game_wrapper.get_game_state()
+	if game_state == Enums.GameState.GameState_PickAction:
+		if game_wrapper.get_active_player() == Enums.PlayerId.PlayerId_Player and not observer_mode:
+			change_ui_state(UIState.UIState_PickTurnAction, UISubState.UISubState_None)
+		else:
+			change_ui_state(UIState.UIState_WaitingOnOpponent, UISubState.UISubState_None)
+		return
+
+	if game_state == Enums.GameState.GameState_PlayerDecision:
+		var decision_info = game_wrapper.get_decision_info()
+		if decision_info.player == Enums.PlayerId.PlayerId_Player and not observer_mode:
+			if _restore_local_player_decision_ui(decision_info):
+				return
+		else:
+			change_ui_state(UIState.UIState_WaitingOnOpponent, UISubState.UISubState_None)
+			return
+
+	change_ui_state(UIState.UIState_WaitForGameServer, UISubState.UISubState_None)
+
+# Dispatches to the matching decision handler for the local player. Returns true
+# when the decision type is handled. Types not covered here fall back to a wait
+# state (the engine re-drives them via events on the next poll).
+func _restore_local_player_decision_ui(decision_info) -> bool:
+	var event = {"event_player": decision_info.player}
+	match decision_info.type:
+		Enums.DecisionType.DecisionType_ChooseFromDiscard:
+			_on_choose_from_discard(event)
+			return true
+		Enums.DecisionType.DecisionType_ChooseFromBoosts:
+			_on_choose_from_boosts(event)
+			return true
+		Enums.DecisionType.DecisionType_ChooseFromTopDeck:
+			_on_choose_from_topdeck(event)
+			return true
+		Enums.DecisionType.DecisionType_ForceForEffect:
+			_on_force_for_effect(event)
+			return true
+		Enums.DecisionType.DecisionType_GaugeForEffect:
+			_on_gauge_for_effect(event)
+			return true
+		Enums.DecisionType.DecisionType_ChooseDiscardOpponentGauge:
+			_on_discard_opponent_gauge(event)
+			return true
+		Enums.DecisionType.DecisionType_ChooseArenaLocationForEffect:
+			_on_choose_arena_location_for_effect(event)
+			return true
+	return false
 
 func _on_bonus_action_pressed(index : int):
 	game_wrapper.submit_bonus_turn_action(Enums.PlayerId.PlayerId_Player, index)
@@ -4873,8 +5716,64 @@ func _on_choice_pressed(choice):
 			change_ui_state(UIState.UIState_WaitForGameServer)
 	_update_buttons()
 
+func _apply_minato_seal_payment() -> int:
+	# Seals top discards to generate Force / Gauge for the current payment and
+	# returns the amount of local "free gauge" it granted (so the caller can clear
+	# it after submitting, since do_gauge_for_effect reads but does not consume it).
+	if not can_seal_for_force and not can_seal_for_gauge:
+		return 0
+	var seal_player = game_wrapper._get_player(Enums.PlayerId.PlayerId_Player)
+	var using_remote_game = game_wrapper.current_game is RemoteGame
+	var is_minato = seal_player.deck_def.get("id") == "minato" and not seal_player.exceeded
+	var force_sub_states = [
+		UISubState.UISubState_SelectCards_ForceForBoost,
+		UISubState.UISubState_SelectCards_StrikeForce,
+		UISubState.UISubState_SelectCards_ForceForEffect,
+		UISubState.UISubState_SelectCards_ForceForChange,
+		UISubState.UISubState_SelectCards_ForceForArmor,
+		UISubState.UISubState_SelectCards_MoveActionGenerateForce,
+		UISubState.UISubState_SelectCards_CharacterAction_Force,
+	]
+	var gauge_sub_states = [
+		UISubState.UISubState_SelectCards_StrikeGauge,
+		UISubState.UISubState_SelectCards_GaugeForBoost,
+		UISubState.UISubState_SelectCards_GaugeForEffect,
+		UISubState.UISubState_SelectCards_CharacterAction_Gauge,
+		UISubState.UISubState_SelectCards_BoostCancel,
+		UISubState.UISubState_SelectCards_Exceed,
+	]
+	var minato_sealed_force = 0
+	var minato_sealed_gauge = 0
+	var local_free_gauge_added = 0
+	if can_seal_for_force and is_minato and ui_sub_state in force_sub_states:
+		var seal_ct = mini(action_menu.number_panel_current_number, seal_player.discards.size())
+		if seal_ct > 0:
+			minato_sealed_force = seal_ct
+			if not using_remote_game:
+				seal_player.seal_top_n_discards(seal_ct)
+				seal_player.seal_force_bonus_tmp = minato_sealed_force
+	elif can_seal_for_gauge and is_minato and ui_sub_state in gauge_sub_states:
+		var seal_ct_gauge = int(action_menu.number_panel_current_number / 3.0) * 3
+		if seal_ct_gauge > 0 and seal_player.discards.size() >= seal_ct_gauge:
+			minato_sealed_gauge = int(seal_ct_gauge / 3.0)
+			if not using_remote_game:
+				seal_player.seal_top_n_discards(seal_ct_gauge)
+				if not preparing_character_action:
+					seal_player.free_gauge += minato_sealed_gauge
+					local_free_gauge_added = minato_sealed_gauge
+	if using_remote_game and (minato_sealed_force > 0 or minato_sealed_gauge > 0):
+		game_wrapper.current_game.set_pending_minato_seal_payment(minato_sealed_force, minato_sealed_gauge)
+	can_seal_for_force = false
+	can_seal_for_gauge = false
+	instructions_number_picker_min = -1
+	instructions_number_picker_max = -1
+	return local_free_gauge_added
+
 func _on_instructions_ok_button_pressed(index : int):
 	if can_press_ok():
+		# Minato seal-to-pay: seal top discards to generate Force / Gauge for this
+		# payment before submitting. One discard = one Force; three = one Gauge.
+		var seal_gauge_granted = _apply_minato_seal_payment()
 		var selected_card_ids : Array = []
 		for card in selected_cards:
 			selected_card_ids.append(card.card_id)
@@ -5003,6 +5902,11 @@ func _on_instructions_ok_button_pressed(index : int):
 				success = handle_pick_range_ok()
 
 		if success:
+			if seal_gauge_granted > 0:
+				# do_gauge_for_effect reads free_gauge but does not consume it, so
+				# clear the seal-granted portion here to keep the payment one-shot.
+				var seal_gauge_player = game_wrapper._get_player(Enums.PlayerId.PlayerId_Player)
+				seal_gauge_player.free_gauge = max(0, seal_gauge_player.free_gauge - seal_gauge_granted)
 			popout_instruction_info = null
 			change_ui_state(UIState.UIState_WaitForGameServer)
 		_update_buttons()
@@ -5022,6 +5926,12 @@ func _on_instructions_cancel_button_pressed():
 		instructions_number_picker_min = -1
 		instructions_number_picker_max = -1
 		can_spend_life_for_gauge = false
+
+	if can_seal_for_force or can_seal_for_gauge:
+		instructions_number_picker_min = -1
+		instructions_number_picker_max = -1
+		can_seal_for_force = false
+		can_seal_for_gauge = false
 
 	if preparing_character_action:
 		deselect_all_cards()
@@ -5294,6 +6204,8 @@ func _on_shortcut_change_pressed():
 	treat_ultras_as_single_force = false
 	use_free_force = game_wrapper.get_player_free_force(Enums.PlayerId.PlayerId_Player, "CHANGE_CARDS") > 0
 	can_spend_life_for_force = game_wrapper.get_life_for_force_amount(Enums.PlayerId.PlayerId_Player) > 0
+	can_seal_for_gauge = false
+	can_seal_for_force = p.deck_def.get("id") == "minato" and not p.exceeded and p.discards.size() > 0
 	action_menu.set_force_ultra_toggle(false)
 	action_menu.set_free_force_toggle(use_free_force)
 
@@ -5968,6 +6880,38 @@ func _quit_to_menu():
 	NetworkManager.leave_room()
 	returning_from_game.emit()
 	queue_free()
+
+# Called by main.gd (guarded by has_method) when a reconnect fails terminally
+# or the surviving player cancels the waiting-for-opponent overlay. Tears the
+# match down and returns to the main menu.
+func abandon_match_after_disconnect():
+	if exiting:
+		return
+	exiting = true
+	NetworkManager.set_active_remote_match_finished(true)
+	game_wrapper.end_game()
+	returning_from_game.emit()
+	queue_free()
+
+var resources_released : bool = false
+
+func _exit_tree():
+	_release_match_resources()
+
+func _release_match_resources():
+	# Frees per-match memory (image loader textures/HTTP) on leaving a game.
+	# RESERVED HOOK (c) background system: add
+	#   BackgroundManager.clear_match_texture_cache()
+	# here once the background/skin workstream lands.
+	# RESERVED HOOK (a) reconnect: add NetworkManager reconnect signal disconnects here.
+	if resources_released:
+		return
+	resources_released = true
+	BackgroundManager.clear_match_texture_cache()
+	if image_loader:
+		image_loader.teardown()
+		image_loader.queue_free()
+		image_loader = null
 
 func _on_revealed_cards_button_pressed():
 	reset_revealed_cards()

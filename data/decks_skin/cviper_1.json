@@ -1,0 +1,239 @@
+{
+	"id": "cviper",
+	"season": 3,
+	"display_name": "C. Viper",
+	"exceed_cost": 3,
+	"on_exceed": {
+		"effect_type": "draw",
+		"amount": 5
+	},
+	"ability_effects": [
+		{
+			"timing": "on_continuous_boost",
+			"effect_type": "choice",
+			"choice": [
+				{ "effect_type": "strike" },
+				{ "effect_type": "pass"}
+			]
+		},
+		{
+			"timing": "set_strike",
+			"condition": "is_not_critical",
+			"effect_type": "gauge_for_effect",
+			"per_gauge_effect": null,
+			"overall_effect": {
+				"effect_type": "critical",
+				"character_effect": true
+			},
+			"gauge_max": 1
+		}
+	],
+	"exceed_ability_effects": [
+		{
+			"timing": "on_continuous_boost",
+			"effect_type": "choice",
+			"choice": [
+				{
+					"effect_type": "set_used_character_bonus",
+					"linked_effect": {
+						"timing": "set_strike",
+						"effect_type": "critical"
+					},
+					"and": { "effect_type": "strike" }
+				},
+				{ "effect_type": "pass" }
+			]
+		},
+		{
+			"character_effect": true,
+			"timing": "set_strike",
+			"condition": "used_character_bonus",
+			"effect_type": "critical"
+		},
+		{
+			"timing": "set_strike",
+			"condition": "is_not_critical",
+			"effect_type": "gauge_for_effect",
+			"per_gauge_effect": null,
+			"overall_effect": {
+				"effect_type": "critical",
+				"character_effect": true
+			},
+			"gauge_max": 1
+		}
+	],
+	"image_resources": {
+		"character_default": {
+			"url": "https://i.imgur.com/9pcVdvS.jpeg",
+			"multiple_cards": false
+		},
+		"character_exceeded": {
+			"url": "https://i.imgur.com/d6gdFhu.jpeg",
+			"multiple_cards": false
+		},
+		"cardback": {
+			"url": "https://i.imgur.com/s6wpKBq.jpeg",
+			"multiple_cards": false
+		},
+		"specials": {
+			"url": "https://i.imgur.com/L7bHwNe.jpeg",
+			"multiple_cards": true
+		},
+		"normals": {
+			"url": "https://i.imgur.com/tXuqP40.jpeg",
+			"multiple_cards": true
+		}
+	},
+	"cards": [
+		{
+			"definition_id": "cviper_burningdance",
+			"image_name": "specials",
+			"image_index": 5
+		},
+		{
+			"definition_id": "cviper_burningdance",
+			"image_name": "specials",
+			"image_index": 5
+		},
+		{
+			"definition_id": "cviper_bursttime",
+			"image_name": "specials",
+			"image_index": 6
+		},
+		{
+			"definition_id": "cviper_bursttime",
+			"image_name": "specials",
+			"image_index": 6
+		},
+		{
+			"definition_id": "cviper_burningkick",
+			"image_name": "specials",
+			"image_index": 1
+		},
+		{
+			"definition_id": "cviper_burningkick",
+			"image_name": "specials",
+			"image_index": 1
+		},
+		{
+			"definition_id": "cviper_emergencycombination",
+			"image_name": "specials",
+			"image_index": 0
+		},
+		{
+			"definition_id": "cviper_emergencycombination",
+			"image_name": "specials",
+			"image_index": 0
+		},
+		{
+			"definition_id": "cviper_seismichammer",
+			"image_name": "specials",
+			"image_index": 4
+		},
+		{
+			"definition_id": "cviper_seismichammer",
+			"image_name": "specials",
+			"image_index": 4
+		},
+		{
+			"definition_id": "cviper_templemassage",
+			"image_name": "specials",
+			"image_index": 3
+		},
+		{
+			"definition_id": "cviper_templemassage",
+			"image_name": "specials",
+			"image_index": 3
+		},
+		{
+			"definition_id": "cviper_thunderknuckle",
+			"image_name": "specials",
+			"image_index": 2
+		},
+		{
+			"definition_id": "cviper_thunderknuckle",
+			"image_name": "specials",
+			"image_index": 2
+		},
+		{
+			"definition_id": "standard_normal_grasp",
+			"image_name": "normals",
+			"image_index": 0
+		},
+		{
+			"definition_id": "standard_normal_grasp",
+			"image_name": "normals",
+			"image_index": 0
+		},
+		{
+			"definition_id": "standard_normal_cross",
+			"image_name": "normals",
+			"image_index": 1
+		},
+		{
+			"definition_id": "standard_normal_cross",
+			"image_name": "normals",
+			"image_index": 1
+		},
+		{
+			"definition_id": "standard_normal_assault",
+			"image_name": "normals",
+			"image_index": 2
+		},
+		{
+			"definition_id": "standard_normal_assault",
+			"image_name": "normals",
+			"image_index": 2
+		},
+		{
+			"definition_id": "standard_normal_dive",
+			"image_name": "normals",
+			"image_index": 3
+		},
+		{
+			"definition_id": "standard_normal_dive",
+			"image_name": "normals",
+			"image_index": 3
+		},
+		{
+			"definition_id": "standard_normal_spike",
+			"image_name": "normals",
+			"image_index": 4
+		},
+		{
+			"definition_id": "standard_normal_spike",
+			"image_name": "normals",
+			"image_index": 4
+		},
+		{
+			"definition_id": "standard_normal_sweep",
+			"image_name": "normals",
+			"image_index": 5
+		},
+		{
+			"definition_id": "standard_normal_sweep",
+			"image_name": "normals",
+			"image_index": 5
+		},
+		{
+			"definition_id": "standard_normal_focus",
+			"image_name": "normals",
+			"image_index": 6
+		},
+		{
+			"definition_id": "standard_normal_focus",
+			"image_name": "normals",
+			"image_index": 6
+		},
+		{
+			"definition_id": "standard_normal_block",
+			"image_name": "normals",
+			"image_index": 7
+		},
+		{
+			"definition_id": "standard_normal_block",
+			"image_name": "normals",
+			"image_index": 7
+		}
+	]
+}

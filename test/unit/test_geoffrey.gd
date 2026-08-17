@@ -173,15 +173,42 @@ func test_compulsive_purification_negate_boost():
 
 	var force1 = give_player_specific_card(player1, "standard_normal_sweep")
 	var force2 = give_player_specific_card(player1, "standard_normal_cross")
-	var boost_id = give_player_specific_card(player2, "standard_normal_grasp")
+	var gauge_id = give_gauge(player2, 1)[0]
+	var boost_id = give_player_specific_card(player2, "goldlewis_rise")
 	assert_true(game_logic.do_boost(player2, boost_id, []))
 	# Counter fires: ForceForEffect for p1
 	assert_eq(game_logic.decision_info.type, Enums.DecisionType.DecisionType_ForceForEffect)
 	assert_true(game_logic.do_force_for_effect(player1, [force1, force2], false))
+	assert_true(game_logic.active_boost.checked_counter)
+	# allow_cancel_after_negate keeps the opponent's cancel window open even though the boost is negated.
+	assert_eq(game_logic.decision_info.type, Enums.DecisionType.DecisionType_BoostCancel)
+	assert_true(game_logic.do_boost_cancel(player2, [gauge_id], true))
 	# Boost should be negated. Card should end up in discard (not continuous boosts).
 	assert_true(player2.is_card_in_discards(boost_id))
 	assert_eq(player2.get_boosts(false, true).size(), 0)
+	assert_true(player2.canceled_this_turn)
+	assert_eq(game_logic.game_state, Enums.GameState.GameState_PickAction)
+	assert_eq(game_logic.get_active_player(), player2.my_id)
+
+func test_compulsive_purification_negate_boost_decline_cancel():
+	position_players(player1, 4, player2, 6)
+	add_transform(player1, "geoffrey_inquisition")
 	advance_turn(player1)
+
+	var force1 = give_player_specific_card(player1, "standard_normal_sweep")
+	var force2 = give_player_specific_card(player1, "standard_normal_cross")
+	give_gauge(player2, 1)
+	var boost_id = give_player_specific_card(player2, "goldlewis_rise")
+	assert_true(game_logic.do_boost(player2, boost_id, []))
+	assert_true(game_logic.do_force_for_effect(player1, [force1, force2], false))
+
+	# The cancel prompt remains available even though the boost was negated; declining it works.
+	assert_eq(game_logic.decision_info.type, Enums.DecisionType.DecisionType_BoostCancel)
+	assert_true(game_logic.do_boost_cancel(player2, [], false))
+	assert_true(player2.is_card_in_discards(boost_id))
+	assert_false(player2.canceled_this_turn)
+	assert_eq(game_logic.game_state, Enums.GameState.GameState_PickAction)
+	assert_eq(game_logic.get_active_player(), player1.my_id)
 
 func test_compulsive_purification_decline():
 	position_players(player1, 4, player2, 6)

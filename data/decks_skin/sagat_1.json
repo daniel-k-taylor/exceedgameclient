@@ -1,0 +1,241 @@
+{
+	"id": "sagat",
+	"season": 3,
+	"display_name": "Sagat",
+	"exceed_cost": 3,
+	"on_exceed": {
+		"effect_type": "draw",
+		"amount": 2,
+		"and": {
+			"effect_type": "choice",
+			"choice": [
+				{ "effect_type": "retreat", "amount": 1 },
+				{ "effect_type": "retreat", "amount": 2 },
+				{ "effect_type": "pass" }
+			]
+		}
+	},
+	"ability_effects": [
+		{
+			"timing": "set_strike",
+			"condition": "is_not_critical",
+			"effect_type": "gauge_for_effect",
+			"per_gauge_effect": null,
+			"overall_effect": {
+				"effect_type": "critical",
+				"character_effect": true
+			},
+			"gauge_max": 1
+		},
+		{
+			"timing": "set_strike",
+			"condition": "initiated_strike",
+			"effect_type": "choice",
+			"choice": [
+				{ "effect_type": "reveal_strike", "and": { "character_effect": true, "effect_type": "speedup", "amount": 1 } },
+				{ "effect_type": "pass" }
+			]
+		}
+	],
+	"exceed_ability_effects": [
+		{
+			"timing": "set_strike",
+			"condition": "is_not_critical",
+			"effect_type": "gauge_for_effect",
+			"per_gauge_effect": null,
+			"overall_effect": {
+				"effect_type": "critical",
+				"character_effect": true
+			},
+			"gauge_max": 1
+		},
+		{
+			"timing": "set_strike",
+			"condition": "initiated_strike",
+			"effect_type": "choice",
+			"choice": [
+				{ "effect_type": "reveal_strike", "and": {
+					"character_effect": true,
+					"effect_type": "speedup",
+					"amount": 1,
+					"and": { "effect_type": "powerup", "amount": 1 }
+				} },
+				{ "effect_type": "pass" }
+			]
+		}
+	],
+	"image_resources": {
+		"character_default": {
+			"url": "https://i.imgur.com/H3qjEPI.jpeg",
+			"multiple_cards": false
+		},
+		"character_exceeded": {
+			"url": "https://i.imgur.com/fjAeC1W.jpeg",
+			"multiple_cards": false
+		},
+		"cardback": {
+			"url": "https://i.imgur.com/s6wpKBq.jpeg",
+			"multiple_cards": false
+		},
+		"specials": {
+			"url": "https://i.imgur.com/Pr9qd0K.jpeg",
+			"multiple_cards": true
+		},
+		"normals": {
+			"url": "https://i.imgur.com/tXuqP40.jpeg",
+			"multiple_cards": true
+		}
+	},
+	"cards": [
+		{
+			"definition_id": "sagat_tigerdestruction",
+			"image_name": "specials",
+			"image_index": 6
+		},
+		{
+			"definition_id": "sagat_tigerdestruction",
+			"image_name": "specials",
+			"image_index": 6
+		},
+		{
+			"definition_id": "sagat_tigercannon",
+			"image_name": "specials",
+			"image_index": 5
+		},
+		{
+			"definition_id": "sagat_tigercannon",
+			"image_name": "specials",
+			"image_index": 5
+		},
+		{
+			"definition_id": "sagat_tigershot",
+			"image_name": "specials",
+			"image_index": 1
+		},
+		{
+			"definition_id": "sagat_tigershot",
+			"image_name": "specials",
+			"image_index": 1
+		},
+		{
+			"definition_id": "sagat_lowstepkick",
+			"image_name": "specials",
+			"image_index": 0
+		},
+		{
+			"definition_id": "sagat_lowstepkick",
+			"image_name": "specials",
+			"image_index": 0
+		},
+		{
+			"definition_id": "sagat_lowtigershot",
+			"image_name": "specials",
+			"image_index": 4
+		},
+		{
+			"definition_id": "sagat_lowtigershot",
+			"image_name": "specials",
+			"image_index": 4
+		},
+		{
+			"definition_id": "sagat_tigerknee",
+			"image_name": "specials",
+			"image_index": 3
+		},
+		{
+			"definition_id": "sagat_tigerknee",
+			"image_name": "specials",
+			"image_index": 3
+		},
+		{
+			"definition_id": "sagat_tigeruppercut",
+			"image_name": "specials",
+			"image_index": 2
+		},
+		{
+			"definition_id": "sagat_tigeruppercut",
+			"image_name": "specials",
+			"image_index": 2
+		},
+		{
+			"definition_id": "standard_normal_grasp",
+			"image_name": "normals",
+			"image_index": 0
+		},
+		{
+			"definition_id": "standard_normal_grasp",
+			"image_name": "normals",
+			"image_index": 0
+		},
+		{
+			"definition_id": "standard_normal_cross",
+			"image_name": "normals",
+			"image_index": 1
+		},
+		{
+			"definition_id": "standard_normal_cross",
+			"image_name": "normals",
+			"image_index": 1
+		},
+		{
+			"definition_id": "standard_normal_assault",
+			"image_name": "normals",
+			"image_index": 2
+		},
+		{
+			"definition_id": "standard_normal_assault",
+			"image_name": "normals",
+			"image_index": 2
+		},
+		{
+			"definition_id": "standard_normal_dive",
+			"image_name": "normals",
+			"image_index": 3
+		},
+		{
+			"definition_id": "standard_normal_dive",
+			"image_name": "normals",
+			"image_index": 3
+		},
+		{
+			"definition_id": "standard_normal_spike",
+			"image_name": "normals",
+			"image_index": 4
+		},
+		{
+			"definition_id": "standard_normal_spike",
+			"image_name": "normals",
+			"image_index": 4
+		},
+		{
+			"definition_id": "standard_normal_sweep",
+			"image_name": "normals",
+			"image_index": 5
+		},
+		{
+			"definition_id": "standard_normal_sweep",
+			"image_name": "normals",
+			"image_index": 5
+		},
+		{
+			"definition_id": "standard_normal_focus",
+			"image_name": "normals",
+			"image_index": 6
+		},
+		{
+			"definition_id": "standard_normal_focus",
+			"image_name": "normals",
+			"image_index": 6
+		},
+		{
+			"definition_id": "standard_normal_block",
+			"image_name": "normals",
+			"image_index": 7
+		},
+		{
+			"definition_id": "standard_normal_block",
+			"image_name": "normals",
+			"image_index": 7
+		}
+	]
+}

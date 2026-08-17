@@ -23,6 +23,7 @@ GameStrings="*res://globals/game_strings.gd"
 NetworkManager="*res://globals/network_manager.gd"
 GlobalSettings="*res://globals/global_settings.gd"
 ImageCache="*res://globals/image_cache.gd"
+CharSkinManager="*res://globals/char_skin_manager.gd"
 
 [debug]
 

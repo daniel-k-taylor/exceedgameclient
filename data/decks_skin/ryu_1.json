@@ -1,0 +1,232 @@
+{
+	"id": "ryu",
+	"season": 3,
+	"display_name": "Ryu",
+	"exceed_cost": 2,
+	"character_action_default": [{
+		"gauge_cost": 0,
+		"force_cost": 0,
+		"shortcut_effect_type": "choice",
+		"effect": {
+			"effect_type": "choice",
+			"choice": [
+				{ "effect_type": "advance", "amount": 1 },
+				{ "effect_type": "retreat", "amount": 1 }
+			]
+		}
+	}],
+	"character_action_exceeded": [{
+		"gauge_cost": 0,
+		"force_cost": 0,
+		"shortcut_effect_type": "choice",
+		"effect": {
+			"effect_type": "choice",
+			"choice": [
+				{ "effect_type": "advance", "amount": 1 },
+				{ "effect_type": "retreat", "amount": 1 }
+			],
+			"and": {
+				"effect_type": "draw",
+				"amount": 1
+			}
+		}
+	}],
+	"ability_effects": [
+		{
+			"timing": "set_strike",
+			"effect_type": "gauge_for_effect",
+			"per_gauge_effect": null,
+			"overall_effect": {
+				"effect_type": "critical",
+				"character_effect": true
+			},
+			"gauge_max": 1
+		}
+	],
+	"exceed_ability_effects": [
+		{
+			"timing": "set_strike",
+			"effect_type": "gauge_for_effect",
+			"per_gauge_effect": null,
+			"overall_effect": {
+				"effect_type": "critical",
+				"character_effect": true
+			},
+			"gauge_max": 1
+		}
+	],
+	"image_resources": {
+		"character_default": {
+			"url": "https://i.imgur.com/dQLfmLi.jpeg",
+			"multiple_cards": false
+		},
+		"character_exceeded": {
+			"url": "https://i.imgur.com/rD09jP6.jpeg",
+			"multiple_cards": false
+		},
+		"cardback": {
+			"url": "https://i.imgur.com/s6wpKBq.jpeg",
+			"multiple_cards": false
+		},
+		"specials": {
+			"url": "https://i.imgur.com/cvpfwj1.jpeg",
+			"multiple_cards": true
+		},
+		"normals": {
+			"url": "https://i.imgur.com/tXuqP40.jpeg",
+			"multiple_cards": true
+		}
+	},
+	"cards": [
+		{
+			"definition_id": "ryu_metsuhadoken",
+			"image_name": "specials",
+			"image_index": 5
+		},
+		{
+			"definition_id": "ryu_metsuhadoken",
+			"image_name": "specials",
+			"image_index": 5
+		},
+		{
+			"definition_id": "ryu_metsushoryuken",
+			"image_name": "specials",
+			"image_index": 6
+		},
+		{
+			"definition_id": "ryu_metsushoryuken",
+			"image_name": "specials",
+			"image_index": 6
+		},
+		{
+			"definition_id": "ryu_donkeykick",
+			"image_name": "specials",
+			"image_index": 2
+		},
+		{
+			"definition_id": "ryu_donkeykick",
+			"image_name": "specials",
+			"image_index": 2
+		},
+		{
+			"definition_id": "ryu_oneinchpunch",
+			"image_name": "specials",
+			"image_index": 4
+		},
+		{
+			"definition_id": "ryu_oneinchpunch",
+			"image_name": "specials",
+			"image_index": 4
+		},
+		{
+			"definition_id": "ryu_tatsumakisenpukyaku",
+			"image_name": "specials",
+			"image_index": 3
+		},
+		{
+			"definition_id": "ryu_tatsumakisenpukyaku",
+			"image_name": "specials",
+			"image_index": 3
+		},
+		{
+			"definition_id": "ryu_hadoken",
+			"image_name": "specials",
+			"image_index": 1
+		},
+		{
+			"definition_id": "ryu_hadoken",
+			"image_name": "specials",
+			"image_index": 1
+		},
+		{
+			"definition_id": "ryu_shoryuken",
+			"image_name": "specials",
+			"image_index": 0
+		},
+		{
+			"definition_id": "ryu_shoryuken",
+			"image_name": "specials",
+			"image_index": 0
+		},
+		{
+			"definition_id": "standard_normal_grasp",
+			"image_name": "normals",
+			"image_index": 0
+		},
+		{
+			"definition_id": "standard_normal_grasp",
+			"image_name": "normals",
+			"image_index": 0
+		},
+		{
+			"definition_id": "standard_normal_cross",
+			"image_name": "normals",
+			"image_index": 1
+		},
+		{
+			"definition_id": "standard_normal_cross",
+			"image_name": "normals",
+			"image_index": 1
+		},
+		{
+			"definition_id": "standard_normal_assault",
+			"image_name": "normals",
+			"image_index": 2
+		},
+		{
+			"definition_id": "standard_normal_assault",
+			"image_name": "normals",
+			"image_index": 2
+		},
+		{
+			"definition_id": "standard_normal_dive",
+			"image_name": "normals",
+			"image_index": 3
+		},
+		{
+			"definition_id": "standard_normal_dive",
+			"image_name": "normals",
+			"image_index": 3
+		},
+		{
+			"definition_id": "standard_normal_spike",
+			"image_name": "normals",
+			"image_index": 4
+		},
+		{
+			"definition_id": "standard_normal_spike",
+			"image_name": "normals",
+			"image_index": 4
+		},
+		{
+			"definition_id": "standard_normal_sweep",
+			"image_name": "normals",
+			"image_index": 5
+		},
+		{
+			"definition_id": "standard_normal_sweep",
+			"image_name": "normals",
+			"image_index": 5
+		},
+		{
+			"definition_id": "standard_normal_focus",
+			"image_name": "normals",
+			"image_index": 6
+		},
+		{
+			"definition_id": "standard_normal_focus",
+			"image_name": "normals",
+			"image_index": 6
+		},
+		{
+			"definition_id": "standard_normal_block",
+			"image_name": "normals",
+			"image_index": 7
+		},
+		{
+			"definition_id": "standard_normal_block",
+			"image_name": "normals",
+			"image_index": 7
+		}
+	]
+}

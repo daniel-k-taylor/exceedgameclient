@@ -4,6 +4,7 @@ var card_data = {}
 
 var card_definitions_path = "res://data/card_definitions.json"
 var decks_path = "res://data/decks"
+var skin_decks_path = "res://data/decks_skin"
 var decks = {}  # A dictionary of (JSON) dictionaries
 
 func get_deck_test_deck():
@@ -12,13 +13,24 @@ func get_deck_test_deck():
 func get_random_deck(season : int) -> Dictionary:
 	# Randomize
 	var unbanned_decks = decks.values().filter(func (deck):
-			return deck['id'] not in GlobalSettings.CharacterBanlist)
+			return deck['id'] not in GlobalSettings.CharacterBanlist and _is_random_selectable_deck(deck))
 	if season == -1:
 		return unbanned_decks.pick_random()
 	else:
 		var season_decks = unbanned_decks.filter(func (deck):
 				return deck['season'] == season)
 		return season_decks.pick_random()
+
+func _is_random_selectable_deck(deck: Dictionary) -> bool:
+	var deck_id = str(deck.get('id', ""))
+	if deck_id.is_empty():
+		return false
+
+	var skin_manager = get_node_or_null("/root/CharSkinManager")
+	if skin_manager:
+		return skin_manager.get_base_character_id(deck_id) == deck_id
+
+	return not deck_id.contains("_") or FileAccess.file_exists("%s/%s.json" % [decks_path, deck_id])
 
 func get_deck(str_id : String) -> Dictionary:
 	if str_id == "random_s7":
@@ -52,11 +64,18 @@ func get_deck_from_str_id(str_id : String, exclude_ids : Array = []) -> Dictiona
 	return deck
 
 func get_portrait_asset_path(deck_id : String) -> String:
-	# Only take part after # if there is one.
+	var skin_manager = get_node_or_null("/root/CharSkinManager")
+	if skin_manager:
+		return skin_manager.get_portrait_path_for_deck_id(deck_id)
+	# Fallback when the skin manager isn't available: only take the part after
+	# '#' if there is one, then use the base portrait directory.
 	var split_index = deck_id.find("#")
 	if split_index != -1:
 		deck_id = deck_id.substr(split_index + 1)
-	return "res://assets/portraits/" + deck_id + ".png"
+	var portrait_path = "res://assets/portraits/" + deck_id + ".png"
+	if ResourceLoader.exists(portrait_path, "Texture2D"):
+		return portrait_path
+	return "res://assets/portraits/custom.png"
 
 func load_json_file(file_path : String):
 	if FileAccess.file_exists(file_path):
@@ -83,14 +102,58 @@ func _ready():
 	card_data = {}
 	var all_cards = load_json_file(card_definitions_path)
 	for card in all_cards:
-		card_data[card['id']] = card
-	var deck_files = DirAccess.get_files_at(decks_path)
+		_load_card_definition(card, card_definitions_path)
+	_load_decks_from_path(decks_path, false)
+	_load_decks_from_path(skin_decks_path, true)
+
+func _load_decks_from_path(path: String, use_file_name_as_id: bool) -> void:
+	var deck_files = DirAccess.get_files_at(path)
 	for deck_file in deck_files:
 		if deck_file[0] == "_":
 			continue
-		var deck_data = load_json_file(decks_path + "/" + deck_file)
+		var deck_data = load_json_file(path + "/" + deck_file)
 		if deck_data:
+			if use_file_name_as_id:
+				if not _is_valid_skin_deck_file(deck_file, deck_data):
+					continue
+				deck_data = deck_data.duplicate(true)
+				deck_data['base_id'] = str(deck_data.get('id', ""))
+				deck_data['id'] = deck_file.get_basename()
+			else:
+				deck_data['base_id'] = str(deck_data.get('id', ""))
 			decks[deck_data['id']] = deck_data
+
+func _is_valid_skin_deck_file(deck_file: String, deck_data: Dictionary, report_error: bool = true) -> bool:
+	var base_character_id = str(deck_data.get('id', ""))
+	var skin_file_id = deck_file.get_basename()
+	var expected_prefix = base_character_id + "_"
+	if base_character_id.is_empty() or not skin_file_id.begins_with(expected_prefix):
+		_report_skin_deck_error("Skin deck filename '%s' must begin with its JSON id '%s_'." % [deck_file, base_character_id], report_error)
+		return false
+
+	var skin_index_text = skin_file_id.trim_prefix(expected_prefix)
+	if not skin_index_text.is_valid_int() or int(skin_index_text) < 1 or str(int(skin_index_text)) != skin_index_text:
+		_report_skin_deck_error("Skin deck filename '%s' must end with a positive integer skin index." % deck_file, report_error)
+		return false
+
+	var original_deck_path = decks_path + "/" + base_character_id + ".json"
+	if not FileAccess.file_exists(original_deck_path):
+		_report_skin_deck_error("Skin deck '%s' requires original deck file '%s'." % [deck_file, original_deck_path], report_error)
+		return false
+	var original_deck_data = load_json_file(original_deck_path)
+	if not original_deck_data or str(original_deck_data.get('id', "")) != base_character_id:
+		_report_skin_deck_error("Skin deck '%s' requires '%s' with matching JSON id '%s'." % [deck_file, original_deck_path, base_character_id], report_error)
+		return false
+
+	if not decks.has(base_character_id):
+		_report_skin_deck_error("Skin deck '%s' references unloaded original character id '%s'." % [deck_file, base_character_id], report_error)
+		return false
+
+	return true
+
+func _report_skin_deck_error(message: String, report_error: bool) -> void:
+	if report_error:
+		push_error(message)
 
 func get_card(definition_id):
 	var card = card_data.get(definition_id)
@@ -119,7 +182,16 @@ func load_custom_cards(custom_cards):
 		# Sanitize card effects and boost fields
 		sanitize_bonus_effects_in_data(card.get("effects"))
 		sanitize_bonus_effects_in_data(card.get("boost"))
-		card_data[card['id']] = card
+		_load_card_definition(card, "custom_card_definitions")
+
+func _load_card_definition(card, source_name : String):
+	if typeof(card) != TYPE_DICTIONARY:
+		push_warning("Skipping non-dictionary card definition from %s." % source_name)
+		return
+	if not card.has('id'):
+		push_warning("Skipping card definition without id from %s." % source_name)
+		return
+	card_data[card['id']] = card
 
 func sanitize_bonus_effects_in_data(data):
 	if data == null:

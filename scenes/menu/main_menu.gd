@@ -11,6 +11,7 @@ const OffScreen = Vector2(-1000, -1000)
 const MatchQueueItemScene = preload("res://scenes/menu/match_queue_item.tscn")
 const CardPopoutScene = preload("res://scenes/game/card_popout.tscn")
 const CardBaseScene = preload("res://scenes/card/card_base.tscn")
+const GameBackgroundManager = preload("res://globals/game_background_manager.gd")
 
 var _dialog_handler : Callable
 var _custom_deck_definition = null
@@ -38,6 +39,13 @@ var file_load_callback
 
 @onready var char_select = $CharSelect
 @onready var change_player_character_button : Button = $PlayerChooser/ChangePlayerCharacterButton
+@onready var player_skin_selection : OptionButton = $PlayerChooser/MarginContainer/VBoxContainer/PlayerSkinSelection
+@onready var menu_background_image : TextureRect = $MenuBackgroundImage
+
+# Cosmetic skin (alternate costume) selection for the local player. Index 0 is
+# the base character; 1+ selects a skin. The resolved deck id ("<char>_<index>")
+# flows through the game-start payload, so skins sync with no protocol change.
+var player_selected_skin_index : int = 0
 @onready var player_char_label : Label = $PlayerChooser/MarginContainer/VBoxContainer/HBoxContainer/CharName
 @onready var player_char_portrait : TextureRect = $PlayerChooser/MarginContainer/VBoxContainer/HBoxContainer/CharPortrait
 
@@ -78,6 +86,9 @@ func _ready():
 	NetworkManager.connect("players_update", _on_players_update)
 	NetworkManager.connect("room_join_failed", _on_join_failed)
 	NetworkManager.connect("name_update", _on_name_update)
+	NetworkManager.connect("session_restore_succeeded", _on_session_restore_succeeded)
+	NetworkManager.connect("session_restore_failed", _on_session_restore_failed)
+	NetworkManager.connect("request_failed", _on_network_request_failed)
 	cancel_button.visible = false
 	$ReconnectToServerButton.visible = false
 	_on_players_update(NetworkManager.get_player_list(), NetworkManager.get_match_list(), NetworkManager.get_queue_list(), NetworkManager.any_available_match())
@@ -92,6 +103,8 @@ func _ready():
 	# Initialize settings window
 	settings_window.visible = false
 	settings_window.bgm_check_toggled.connect(_on_bgm_check_toggled)
+	settings_window.main_menu_background_changed.connect(_apply_main_menu_background)
+	_apply_main_menu_background()
 
 	if OS.has_feature("web"):
 		#setupFileLoad defined in the HTML5 export header
@@ -138,7 +151,7 @@ func _on_start_button_pressed():
 	if opponent_selected_character.begins_with("random"):
 		opponent_random_tag = opponent_selected_character
 
-	var player_deck = _get_deck(player_selected_character, GlobalSettings.RandomHistory)
+	var player_deck = _get_deck(_get_effective_player_character_id(player_selected_character), GlobalSettings.RandomHistory)
 	GlobalSettings.append_random_history(player_deck['id'])
 	var opponent_deck = _get_deck(opponent_selected_character)
 	var player_name = get_player_name()
@@ -293,6 +306,31 @@ func _on_name_update(new_name):
 	player_name_box.text = new_name
 	GlobalSettings.set_player_name(new_name)
 
+# When the server restores a dropped session, either rebuild the in-progress
+# game from its replay log or simply return the menu to a clean lobby state.
+func _on_session_restore_succeeded(data):
+	if not data.get("in_game", false):
+		return
+	var message_log = data.get("messages", [])
+	if message_log.is_empty():
+		return
+	var start_data = message_log[0].duplicate(true)
+	if start_data.get("type", "") != "game_start":
+		return
+	start_data["your_player_id"] = data.get("player_id",
+		data.get("restored_player_id", data.get("old_player_id", start_data.get("player1_id", 0))))
+	# Everything after game_start is the log to fast-forward through.
+	start_data["restore_log"] = message_log.slice(1)
+	_on_remote_game_started(start_data)
+
+func _on_session_restore_failed(_reason):
+	# The stored session could not be reclaimed; make sure the lobby is usable.
+	update_buttons(false)
+	just_clicked_matchmake = false
+
+func _on_network_request_failed(error_message : String):
+	print("Network request failed: ", error_message)
+
 func _on_players_update(players, matches, queues : Array, newly_available_match : bool):
 	player_list.clear()
 	for player in players:
@@ -310,15 +348,17 @@ func _on_players_update(players, matches, queues : Array, newly_available_match 
 		for queue_info in queues:
 			var new_queue = MatchQueueItemScene.instantiate()
 			match_queues.add_child(new_queue)
-			new_queue.initialize_queue(queue_info["id"], queue_info["name"], queue_info["match_available"])
+			new_queue.initialize_queue(queue_info["id"], queue_info["name"], queue_info["match_available"],
+				MatchQueueItem.get_waiting_character_display(queue_info))
 			new_queue.on_join_queue.connect(_on_queue_join_clicked)
 
 	for i in range(queues.size()):
 		var queue_info = queues[i]
 		var queue : MatchQueueItem = match_queues.get_child(i)
-		queue.set_match_available(queue_info["match_available"])
+		queue.initialize_queue(queue_info["id"], queue_info["name"], queue_info["match_available"],
+			MatchQueueItem.get_waiting_character_display(queue_info))
 
-	if visible and newly_available_match and not just_clicked_matchmake:
+	if visible and newly_available_match and not just_clicked_matchmake and MatchQueueItem.can_send_queue_notification():
 		$MatchAvailableAudio.play()
 
 func _on_join_failed(error_message : String, invalid_deck : bool):
@@ -334,7 +374,7 @@ func get_player_name() -> String:
 func _on_join_button_pressed():
 	var player_name = get_player_name()
 	var room_name = room_select.text
-	var chosen_deck = _get_deck(player_selected_character, GlobalSettings.RandomHistory)
+	var chosen_deck = _get_deck(_get_effective_player_character_id(player_selected_character), GlobalSettings.RandomHistory)
 	var chosen_deck_id = chosen_deck['id']
 	if player_selected_character.begins_with("random"):
 		chosen_deck_id = player_selected_character + "#" + chosen_deck_id
@@ -367,7 +407,7 @@ func _on_queue_join_clicked(queue_id):
 	just_clicked_matchmake = true
 	var player_name = get_player_name()
 
-	var chosen_deck = _get_deck(player_selected_character, GlobalSettings.RandomHistory)
+	var chosen_deck = _get_deck(_get_effective_player_character_id(player_selected_character), GlobalSettings.RandomHistory)
 	var chosen_deck_id = chosen_deck['id']
 	if player_selected_character.begins_with("random"):
 		chosen_deck_id = player_selected_character + "#" + chosen_deck_id
@@ -391,7 +431,8 @@ func _on_update_name_button_pressed():
 
 func _on_reconnect_to_server_button_pressed():
 	$ServerStatusLabel.text = "Reconnecting to server..."
-	NetworkManager.connect_to_server()
+	if not NetworkManager.attempt_manual_reconnect():
+		NetworkManager.connect_to_server()
 	$ReconnectToServerButton.disabled = true
 
 func _on_char_select_close_character_select():
@@ -403,6 +444,7 @@ func update_char(char_id: String, is_player: bool) -> void:
 	var display_name = "Random"
 	if is_player:
 		player_selected_character = char_id
+		player_selected_skin_index = 0
 		GlobalSettings.set_player_character(char_id)
 	else:
 		opponent_selected_character = char_id
@@ -454,6 +496,58 @@ func update_char(char_id: String, is_player: bool) -> void:
 	else:
 		label.set("theme_override_font_sizes/font_size", label_font_small)
 
+	if is_player:
+		_refresh_player_skin_selection()
+
+func _apply_main_menu_background():
+	var texture = GameBackgroundManager.get_main_menu_background_texture(GlobalSettings.MainMenuBackgroundStyle)
+	menu_background_image.texture = texture
+	menu_background_image.visible = texture != null
+
+# Resolves the deck id to send in the game-start payload, honoring the selected
+# cosmetic skin. Base characters and random/custom selections resolve to the
+# character id unchanged.
+func _get_effective_player_character_id(char_id : String) -> String:
+	var skin_manager = get_node_or_null("/root/CharSkinManager")
+	if skin_manager == null:
+		return char_id
+	return skin_manager.get_skin_deck_id(char_id, player_selected_skin_index)
+
+func _refresh_player_skin_selection():
+	if player_skin_selection == null:
+		return
+	var skin_manager = get_node_or_null("/root/CharSkinManager")
+	var skin_count = 0
+	if skin_manager != null:
+		skin_count = skin_manager.get_skin_count(player_selected_character)
+	if skin_count <= 0:
+		player_skin_selection.visible = false
+		player_skin_selection.clear()
+		return
+	player_skin_selection.clear()
+	# One entry per costume: index 0 is the base look, 1..skin_count are skins.
+	for i in range(skin_manager.get_total_button_count(player_selected_character)):
+		player_skin_selection.add_item(skin_manager.get_button_label(player_selected_character, i))
+		player_skin_selection.set_item_metadata(i, i)
+	if player_selected_skin_index >= player_skin_selection.item_count:
+		player_selected_skin_index = 0
+	player_skin_selection.select(player_selected_skin_index)
+	player_skin_selection.visible = true
+
+func _on_player_skin_selection_item_selected(index : int):
+	var metadata = player_skin_selection.get_item_metadata(index)
+	player_selected_skin_index = int(metadata) if metadata != null else 0
+	_update_player_skin_portrait()
+
+func _update_player_skin_portrait():
+	var skin_manager = get_node_or_null("/root/CharSkinManager")
+	if skin_manager == null:
+		return
+	var skin_deck_id = skin_manager.get_skin_deck_id(player_selected_character, player_selected_skin_index)
+	var texture = skin_manager.load_portrait_texture_for_deck_id(skin_deck_id)
+	if texture != null:
+		player_char_portrait.texture = texture
+
 func _on_char_select_select_character(char_id):
 	if char_id == "custom":
 		# Show UI to select a file from disk.
@@ -464,9 +558,11 @@ func _on_char_select_select_character(char_id):
 
 func _on_change_player_character_button_pressed(is_player : bool):
 	var char_id = player_selected_character
+	var skin_index = player_selected_skin_index
 	if not is_player:
 		char_id = opponent_selected_character
-	char_select.show_char_select(char_id)
+		skin_index = 0
+	char_select.show_char_select(char_id, skin_index)
 	char_select.visible = true
 	selecting_player = is_player
 

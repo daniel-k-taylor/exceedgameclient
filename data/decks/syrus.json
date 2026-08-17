@@ -1,0 +1,129 @@
+{
+	"id": "syrus",
+	"season": 2,
+	"has_sealed_area": true,
+	"display_name": "Syrus",
+	"exceed_cost": 6,
+	"exceed_cost_reduced_by": [
+		{
+			"reduction_type": "transform_discount"
+		}
+	],
+	"ability_effects": [
+		{
+			"timing": "set_strike",
+			"character_effect": true,
+			"effect_type": "pass",
+			"hide_effect": true,
+			"NOTE": "Syrus passive handled in local_game.gd boost_finish_resolving_card"
+		}
+	],
+	"exceed_ability_effects": [
+		{
+			"timing": "set_strike",
+			"character_effect": true,
+			"effect_type": "pass",
+			"hide_effect": true,
+			"NOTE": "Syrus exceeded passive handled in local_game.gd boost_finish_resolving_card"
+		}
+	],
+	"replacement_boost_definition": {
+		"boost_type": "continuous",
+		"facedown": true,
+		"force_cost": 0,
+		"cancel_cost": -1,
+		"display_name": "Syrus Boost",
+		"effects": [
+			{
+				"timing": "hit",
+				"effect_type": "add_to_gauge_immediately",
+				"override_description": "Hit: Add this card to your gauge."
+			}
+		],
+		"description": "Facedown continuous boost: Hit: Add this card to your gauge."
+	},
+	"exceeded_replacement_boost_definition": {
+		"boost_type": "continuous",
+		"facedown": true,
+		"force_cost": 0,
+		"cancel_cost": -1,
+		"display_name": "Syrus Boost",
+		"effects": [
+			{
+				"timing": "now",
+				"effect_type": "choice",
+				"choice": [
+					{ "effect_type": "advance", "amount": 1 },
+					{ "effect_type": "retreat", "amount": 1 },
+					{ "effect_type": "pass" }
+				],
+				"override_description": "Now: Move up to 1."
+			},
+			{
+				"timing": "during_strike",
+				"effect_type": "powerup",
+				"amount": 1,
+				"override_description": "+1 Power"
+			}
+		],
+		"description": "Facedown continuous boost: +1 Power. Now: Move up to 1."
+	},
+	"on_exceed": {
+		"effect_type": "syrus_exceed_boost_to_gauge",
+		"hide_effect": true
+	},
+	"image_resources": {
+		"character_default": {
+			"url": "https://i.imgur.com/dBlUanM.jpeg",
+			"multiple_cards": false
+		},
+		"character_exceeded": {
+			"url": "https://i.imgur.com/v9ktYxx.jpeg",
+			"multiple_cards": false
+		},
+		"cardback": {
+			"url": "https://i.imgur.com/s6wpKBq.jpeg",
+			"multiple_cards": false
+		},
+		"specials": {
+			"url": "https://i.imgur.com/WOFFNc9.jpeg",
+			"multiple_cards": true
+		},
+		"normals": {
+			"url": "https://i.imgur.com/1pnJnEb.jpeg",
+			"multiple_cards": true
+		}
+	},
+	"cards": [
+		{ "definition_id": "syrus_tidal_whirl", "image_name": "specials", "image_index": 0 },
+		{ "definition_id": "syrus_tidal_whirl", "image_name": "specials", "image_index": 0 },
+		{ "definition_id": "syrus_aria_of_the_winds", "image_name": "specials", "image_index": 1 },
+		{ "definition_id": "syrus_aria_of_the_winds", "image_name": "specials", "image_index": 1 },
+		{ "definition_id": "syrus_siren_call", "image_name": "specials", "image_index": 2 },
+		{ "definition_id": "syrus_siren_call", "image_name": "specials", "image_index": 2 },
+		{ "definition_id": "syrus_treasure_hunter", "image_name": "specials", "image_index": 3 },
+		{ "definition_id": "syrus_treasure_hunter", "image_name": "specials", "image_index": 3 },
+		{ "definition_id": "syrus_albatross_talon", "image_name": "specials", "image_index": 4 },
+		{ "definition_id": "syrus_albatross_talon", "image_name": "specials", "image_index": 4 },
+		{ "definition_id": "syrus_symphony_of_the_deep", "image_name": "specials", "image_index": 5 },
+		{ "definition_id": "syrus_symphony_of_the_deep", "image_name": "specials", "image_index": 5 },
+		{ "definition_id": "syrus_dredge_fury", "image_name": "specials", "image_index": 6 },
+		{ "definition_id": "syrus_dredge_fury", "image_name": "specials", "image_index": 6 },
+		{ "definition_id": "standard_normal_grasp", "image_name": "normals", "image_index": 0 },
+		{ "definition_id": "standard_normal_grasp", "image_name": "normals", "image_index": 0 },
+		{ "definition_id": "standard_normal_cross", "image_name": "normals", "image_index": 1 },
+		{ "definition_id": "standard_normal_cross", "image_name": "normals", "image_index": 1 },
+		{ "definition_id": "standard_normal_assault", "image_name": "normals", "image_index": 2 },
+		{ "definition_id": "standard_normal_assault", "image_name": "normals", "image_index": 2 },
+		{ "definition_id": "standard_normal_dive", "image_name": "normals", "image_index": 3 },
+		{ "definition_id": "standard_normal_dive", "image_name": "normals", "image_index": 3 },
+		{ "definition_id": "standard_normal_spike", "image_name": "normals", "image_index": 4 },
+		{ "definition_id": "standard_normal_spike", "image_name": "normals", "image_index": 4 },
+		{ "definition_id": "standard_normal_sweep", "image_name": "normals", "image_index": 5 },
+		{ "definition_id": "standard_normal_sweep", "image_name": "normals", "image_index": 5 },
+		{ "definition_id": "standard_normal_focus", "image_name": "normals", "image_index": 6 },
+		{ "definition_id": "standard_normal_focus", "image_name": "normals", "image_index": 6 },
+		{ "definition_id": "standard_normal_block", "image_name": "normals", "image_index": 7 },
+		{ "definition_id": "standard_normal_block", "image_name": "normals", "image_index": 7 }
+	]
+}

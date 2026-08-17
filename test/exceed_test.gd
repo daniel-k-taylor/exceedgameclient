@@ -176,7 +176,16 @@ func advance_turn(player):
 	assert_true(game_logic.do_prepare(player),
 			"Player %s tried to prepare but could not (%s)." % [
 					player.my_id + 1, game_or_decision_state_string()])
-	if player.hand.size() > player.max_hand_size:
+	if game_logic.game_state == Enums.GameState.GameState_PlayerDecision and \
+			game_logic.decision_info.type == Enums.DecisionType.DecisionType_ChooseToDiscard and \
+			game_logic.decision_info.player == player.my_id:
+		var cards = []
+		if not game_logic.decision_info.can_pass:
+			var amount = game_logic.decision_info.effect.get("amount", 0)
+			for i in range(min(amount, player.hand.size())):
+				cards.append(player.hand[i].id)
+		assert_true(game_logic.do_choose_to_discard(player, cards))
+	elif player.hand.size() > player.max_hand_size:
 		var cards = []
 		var to_discard = player.hand.size() - player.max_hand_size
 		for i in range(to_discard):

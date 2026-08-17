@@ -1,0 +1,210 @@
+{
+	"id": "minato",
+	"season": 2,
+	"has_sealed_area": true,
+	"display_name": "Minato",
+	"exceed_cost": 5,
+	"exceed_cost_reduced_by": [
+		{
+			"reduction_type": "transform_discount"
+		}
+	],
+	"ability_effects": [
+		{
+			"timing": "set_strike",
+			"effect_type": "can_seal_for_force",
+			"amount": 1,
+			"and": {
+				"effect_type": "can_seal_for_gauge",
+				"amount": 3
+			}
+		}
+	],
+	"exceed_ability_effects": [
+		{
+			"timing": "set_strike",
+			"character_effect": true,
+			"effect_type": "pass",
+			"hide_effect": true,
+			"NOTE": "Minato exceed passive implemented in start_begin_turn"
+		}
+	],
+	"on_exceed": {
+		"effect_type": "pass",
+		"hide_effect": true
+	},
+	"image_resources": {
+		"character_default": {
+			"url": "https://i.imgur.com/1aaPuUA.jpeg",
+			"multiple_cards": false
+		},
+		"character_exceeded": {
+			"url": "https://i.imgur.com/ZkxbFko.jpeg",
+			"multiple_cards": false
+		},
+		"cardback": {
+			"url": "https://i.imgur.com/s6wpKBq.jpeg",
+			"multiple_cards": false
+		},
+		"specials": {
+			"url": "https://i.imgur.com/HjyWn47.jpeg",
+			"multiple_cards": true
+		},
+		"normals": {
+			"url": "https://i.imgur.com/1pnJnEb.jpeg",
+			"multiple_cards": true
+		}
+	},
+	"cards": [
+		{
+			"definition_id": "minato_jump_the_shark",
+			"image_name": "specials",
+			"image_index": 0
+		},
+		{
+			"definition_id": "minato_jump_the_shark",
+			"image_name": "specials",
+			"image_index": 0
+		},
+		{
+			"definition_id": "minato_barnstorming",
+			"image_name": "specials",
+			"image_index": 1
+		},
+		{
+			"definition_id": "minato_barnstorming",
+			"image_name": "specials",
+			"image_index": 1
+		},
+		{
+			"definition_id": "minato_cabstand",
+			"image_name": "specials",
+			"image_index": 2
+		},
+		{
+			"definition_id": "minato_cabstand",
+			"image_name": "specials",
+			"image_index": 2
+		},
+		{
+			"definition_id": "minato_flight_13",
+			"image_name": "specials",
+			"image_index": 3
+		},
+		{
+			"definition_id": "minato_flight_13",
+			"image_name": "specials",
+			"image_index": 3
+		},
+		{
+			"definition_id": "minato_bus_stop",
+			"image_name": "specials",
+			"image_index": 4
+		},
+		{
+			"definition_id": "minato_bus_stop",
+			"image_name": "specials",
+			"image_index": 4
+		},
+		{
+			"definition_id": "minato_streetcar_disaster",
+			"image_name": "specials",
+			"image_index": 5
+		},
+		{
+			"definition_id": "minato_streetcar_disaster",
+			"image_name": "specials",
+			"image_index": 5
+		},
+		{
+			"definition_id": "minato_hellward_bound",
+			"image_name": "specials",
+			"image_index": 6
+		},
+		{
+			"definition_id": "minato_hellward_bound",
+			"image_name": "specials",
+			"image_index": 6
+		},
+		{
+			"definition_id": "standard_normal_grasp",
+			"image_name": "normals",
+			"image_index": 0
+		},
+		{
+			"definition_id": "standard_normal_grasp",
+			"image_name": "normals",
+			"image_index": 0
+		},
+		{
+			"definition_id": "standard_normal_cross",
+			"image_name": "normals",
+			"image_index": 1
+		},
+		{
+			"definition_id": "standard_normal_cross",
+			"image_name": "normals",
+			"image_index": 1
+		},
+		{
+			"definition_id": "standard_normal_assault",
+			"image_name": "normals",
+			"image_index": 2
+		},
+		{
+			"definition_id": "standard_normal_assault",
+			"image_name": "normals",
+			"image_index": 2
+		},
+		{
+			"definition_id": "standard_normal_dive",
+			"image_name": "normals",
+			"image_index": 3
+		},
+		{
+			"definition_id": "standard_normal_dive",
+			"image_name": "normals",
+			"image_index": 3
+		},
+		{
+			"definition_id": "standard_normal_spike",
+			"image_name": "normals",
+			"image_index": 4
+		},
+		{
+			"definition_id": "standard_normal_spike",
+			"image_name": "normals",
+			"image_index": 4
+		},
+		{
+			"definition_id": "standard_normal_sweep",
+			"image_name": "normals",
+			"image_index": 5
+		},
+		{
+			"definition_id": "standard_normal_sweep",
+			"image_name": "normals",
+			"image_index": 5
+		},
+		{
+			"definition_id": "standard_normal_focus",
+			"image_name": "normals",
+			"image_index": 6
+		},
+		{
+			"definition_id": "standard_normal_focus",
+			"image_name": "normals",
+			"image_index": 6
+		},
+		{
+			"definition_id": "standard_normal_block",
+			"image_name": "normals",
+			"image_index": 7
+		},
+		{
+			"definition_id": "standard_normal_block",
+			"image_name": "normals",
+			"image_index": 7
+		}
+	]
+}

@@ -2,6 +2,35 @@ extends Node
 
 const CardHighlightColor = "#7DF9FF" # Light blue
 
+func get_speed_description(card_definition) -> String:
+	if not card_definition:
+		return ""
+
+	var speed = card_definition.get("speed")
+	var card_type = card_definition.get("type", "")
+	if speed == null or card_type == "":
+		return ""
+
+	var speed_prefix = ""
+	match card_type:
+		"normal":
+			speed_prefix = "N"
+		"special":
+			speed_prefix = "S"
+		"ultra":
+			speed_prefix = "U"
+		_:
+			return ""
+
+	return " (%s%s)" % [speed_prefix, str(speed)]
+
+func get_display_name_with_speed(card_definition) -> String:
+	if not card_definition:
+		return "MISSING CARD"
+
+	var display_name = card_definition.get("display_name", "MISSING CARD")
+	return "%s%s" % [display_name, get_speed_description(card_definition)]
+
 class EffectSummary:
 	var effect
 	var min_value = null
@@ -139,6 +168,16 @@ func get_timing_text(timing):
 			text += "At start of opponent's turn: "
 		"set_strike":
 			text += "When you set a strike, "
+		"begin_turn":
+			text += "At the start of your turn, "
+		"after_non_strike_action":
+			text += "After a non-strike action, "
+		"on_any_boost":
+			text += "When you boost, "
+		"on_strike_reveal":
+			text += "[b]On reveal:[/b] "
+		"on_stunned":
+			text += "When you are stunned, "
 		"opponent_set_strike":
 			text += ""
 		"opponent_moved_past":
@@ -272,6 +311,18 @@ func get_condition_text(effect, amount, amount2, detail):
 			text += ""
 		"opponent_stunned":
 			text += "If opponent stunned, "
+		"has_continuous_boost":
+			text += "If you have a continuous boost, "
+		"has_continuous_boost_attack":
+			text += "If you have a continuous boost, "
+		"min_continuous_boosts":
+			text += "If you have %s or more continuous boosts, " % amount
+		"min_continuous_boosts_attack":
+			text += "If you have %s or more continuous boosts, " % amount
+		"pooky_gambling_normals":
+			text += ""
+		"min_gauge":
+			text += "If you have %s or more cards in gauge, " % amount
 		"pulled_past":
 			text += "If pulled opponent past you, "
 		"used_character_action":
@@ -298,6 +349,8 @@ func get_condition_text(effect, amount, amount2, detail):
 			text += ""
 		"is_special_or_ultra_attack":
 			text += "For specials/ultras, "
+		"has_any_transform":
+			text += "If you have a transform, "
 		"opponent_is_special_attack":
 			text += "If opponent strikes with a special, "
 		"is_normal_attack":
@@ -420,6 +473,10 @@ func get_effect_type_heading(effect):
 			effect_str += "Pull "
 		StrikeEffects.Powerup:
 			effect_str += "Power +"
+		StrikeEffects.SealTransformForPowerup:
+			effect_str += "Power +"
+		StrikeEffects.SealTransformForArmorup:
+			effect_str += "Armor +"
 		StrikeEffects.PullNotPast:
 			effect_str += "Pull without pulling past "
 		StrikeEffects.Push:
@@ -548,6 +605,10 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 			effect_str += "+ Armor per damage dealt"
 		StrikeEffects.ArmorupBonusArmorCounters:
 			effect_str += "+ Armor per counter on this card"
+		StrikeEffects.PowerupBonusMovePowerCounters:
+			effect_str += "+ Power per movement counter on your continuous boosts"
+		StrikeEffects.ArmorupBonusMoveArmorCounters:
+			effect_str += "+ Armor per movement counter on your continuous boosts"
 		StrikeEffects.ArmorupCurrentPower:
 			effect_str += "+ Armor equal to power"
 		StrikeEffects.ArmorupOpponentPerForceSpentThisTurn:
@@ -571,6 +632,10 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 		StrikeEffects.BlockOpponentMove:
 			effect_str += "Opponent cannot move"
 		StrikeEffects.RemoveBlockOpponentMove:
+			effect_str += ""
+		StrikeEffects.BlockOpponentAdvanceClose:
+			effect_str += "Opponent cannot advance or close"
+		StrikeEffects.RemoveBlockOpponentAdvanceClose:
 			effect_str += ""
 		StrikeEffects.BonusAction:
 			effect_str += "Take another action"
@@ -938,6 +1003,12 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 			effect_str += "Increase push/pull effects by %s" % effect['amount']
 		StrikeEffects.IncrementBonusArmorCounters:
 			effect_str += "Add a counter to this card"
+		StrikeEffects.IncrementBonusMovePowerCounters:
+			effect_str += "Add a power counter for each space moved"
+		StrikeEffects.IncrementBonusMoveArmorCounters:
+			effect_str += "Add an armor counter for each space moved"
+		StrikeEffects.LowerSpeedMisses:
+			effect_str += "Attacks with equal or lower Speed miss"
 		StrikeEffects.InvertRange:
 			effect_str += "Attack Range is inverted"
 		StrikeEffects.LightningrodStrike:
@@ -1184,6 +1255,8 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 				effect_str += "Push " + str(effect['amount']) + extra_info
 		StrikeEffects.PushFromSource:
 			effect_str += "Push " + str(effect['amount']) + " from attack source"
+		StrikeEffects.PushSelf:
+			effect_str += "Get pushed " + str(effect['amount'])
 		StrikeEffects.PullFromSource:
 			effect_str += "Pull " + str(effect['amount']) + " towards attack source"
 			if effect.get("skip_if_on_source"):
@@ -1286,6 +1359,10 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 			effect_str += "Reshuffle discard pile into deck"
 		StrikeEffects.ResetBonusArmorCounters:
 			effect_str += "Remove all counters"
+		StrikeEffects.ResetBonusMovePowerCounters:
+			effect_str += "Remove all movement power counters"
+		StrikeEffects.ResetBonusMoveArmorCounters:
+			effect_str += "Remove all movement armor counters"
 		StrikeEffects.Retreat:
 			if 'combine_multiple_into_one' in effect and effect['combine_multiple_into_one']:
 				effect_str += "Retreat that much."
@@ -1512,6 +1589,8 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 			effect_str += effect['description']
 		StrikeEffects.SwapDeckAndSealed:
 			effect_str += "Swap all sealed cards with deck"
+		StrikeEffects.SwapDeckAndDiscard:
+			effect_str += "Swap your deck and discard pile"
 		StrikeEffects.SwapPowerSpeed:
 			effect_str += "Swap Power and Speed"
 		StrikeEffects.TakeBonusActions:
@@ -1533,6 +1612,18 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 				effect_str += "Transform %s" % effect['card_name']
 			else:
 				effect_str += "Transform attack"
+		StrikeEffects.AllowDuplicateNormalTransform:
+			effect_str += "This turn you may hold a second transform of the same-named normal"
+		StrikeEffects.MaySealTransformForGauge:
+			effect_str += "You may seal transforms to pay gauge costs"
+		StrikeEffects.SealTransformForPowerup:
+			effect_str += "Seal a transform, Power +%s" % effect.get("amount", 2)
+		StrikeEffects.SealTransformForArmorup:
+			effect_str += "Seal a transform, Armor +%s" % effect.get("amount", 2)
+		StrikeEffects.TournelouseTransformAnyFromHand:
+			effect_str += "You may transform any number of cards from hand, then draw 3"
+		StrikeEffects.TournelouseOuroboros:
+			effect_str += "Spend 1 force to swap a card in hand with a transform"
 		StrikeEffects.TopdeckFromHand:
 			effect_str += "Put a card from your hand on top of your deck"
 		StrikeEffects.WhenHitForceForArmor:
@@ -1543,6 +1634,132 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 			effect_str += "Named card is invalid for both players."
 		StrikeEffects.ZsoltNormalPassive:
 			effect_str += "advance or retreat up to 1"
+		StrikeEffects.SyrusAddHandToGauge:
+			effect_str += "Add a card from your hand to your gauge"
+		StrikeEffects.SyrusDredgeFuryKeepChoice:
+			effect_str += "Choose one spent gauge card to add to your hand"
+		StrikeEffects.SyrusExceedBoostToGauge:
+			effect_str += "Add all your continuous boosts to your gauge"
+		StrikeEffects.SyrusPullToRange2:
+			effect_str += "Pull the opponent to range 2"
+		StrikeEffects.SyrusRecklessGreed:
+			effect_str += "You may discard a boost from play to strike"
+		StrikeEffects.SyrusReturnToHandUntil7:
+			effect_str += "Randomly return cards from your discards to your hand until you have 7, then shuffle your discards"
+		StrikeEffects.SyrusSilverShadow:
+			effect_str += "Move to any space at range 3 from the opponent"
+		StrikeEffects.PookyStunnedDraw:
+			effect_str += "When you are stunned, draw a card"
+		StrikeEffects.PookyGamblingReveal:
+			effect_str += "Set this as a continuous boost and replace this attack with a Wild Swing"
+		StrikeEffects.PookyRangePerCb:
+			effect_str += "+0-1 Range for each of your continuous boosts"
+		StrikeEffects.PookyPowerPerCb:
+			effect_str += "+2 Power for each of your continuous boosts"
+		StrikeEffects.PookyDrunkenFuryOnBoost:
+			effect_str += "The first time you resolve an immediate boost each turn, you may pay 1 force to strike"
+		StrikeEffects.PookyDrunkenFuryStrike:
+			effect_str += "Strike"
+		StrikeEffects.PookyZolsOnBoost:
+			effect_str += "The first time you use an immediate boost each turn, you may pay 1 force to place it into play as a facedown continuous boost"
+		StrikeEffects.PookySetZolsTarget:
+			effect_str += "Place this into play as a facedown continuous boost"
+		"renea_briefcase_hit":
+			effect_str += "Put the bottom card of the opponent's discard pile with a Boost into your Briefcase"
+		"renea_conspiracy_unearthed":
+			effect_str += "The opponent reveals their hand; choose a card to add to their gauge"
+		"renea_conspiracy_unearthed_do":
+			effect_str += "Add the chosen card to the opponent's gauge"
+		"renea_discard_opponent_gauge":
+			effect_str += "The opponent discards cards from their gauge"
+		"renea_discard_opponent_gauge_do":
+			effect_str += "Discard the chosen card from gauge"
+		"renea_fd_order_first":
+			effect_str += "Resolve this facedown boost's effect first"
+		"renea_mimetism_sustain":
+			effect_str += "You may spend 2 Force to sustain a continuous boost"
+		"renea_mimetism_sustain_do":
+			effect_str += "Sustain the chosen continuous boost"
+		"renea_on_exceed":
+			effect_str += "Put up to 3 cards with Boosts from the opponent's discard pile into your Briefcase"
+		"renea_pakout":
+			effect_str += "Return this card to your hand, then draw a card"
+		"renea_polling_leads":
+			effect_str += "After resolving a boost, you may spend 1 Force to move 1"
+		"renea_pre_strike_done":
+			effect_str += ""
+		"renea_pre_strike_reveal":
+			effect_str += "Reveal your facedown continuous boosts and resolve their immediate effects"
+		"renea_retreat_if_boost":
+			effect_str += "If you have a continuous boost in play, retreat 1"
+		"renea_return_normals_from_discard":
+			effect_str += "Return up to 2 normal attacks from your discard pile to your hand"
+		"renea_called_shot":
+			effect_str += "Name a card; the opponent discards a copy or reveals their hand"
+		"renea_reveal_facedown_boosts":
+			effect_str += "Reveal your facedown continuous boosts"
+		"renea_reveal_fd_do":
+			effect_str += "Resolve this facedown boost first"
+		"umina_place_hand_to_dreamlands":
+			effect_str += "Place a card from your hand into your Dreamlands"
+		"umina_place_hand_to_dreamlands_do":
+			effect_str += "Place a card into your Dreamlands"
+		"umina_begin_turn_dreamlands":
+			effect_str += "Look at the top card of your deck; put it into your Dreamlands or discard it"
+		"umina_begin_turn_dreamlands_put":
+			effect_str += "Put the top card into your Dreamlands"
+		"umina_begin_turn_dreamlands_discard":
+			effect_str += "Discard the top card"
+		"umina_flip_dreamlands":
+			effect_str += "Flip Dreamlands to its exceeded side"
+		"umina_place_discard_to_dreamlands":
+			effect_str += "Put a card from your discard pile into your Dreamlands"
+		"umina_out_of_mind_hit":
+			effect_str += "If a card is in your Dreamlands, add it to gauge and gain its power (up to +5); otherwise add your hand to gauge and draw 3"
+		"umina_slipping_away":
+			effect_str += "When you place a card into your Dreamlands, you may spend 1 force to move 1 space"
+		"umina_slipping_away_move":
+			effect_str += "Move 1 space"
+		"range_1_immunity":
+			effect_str += "Immune to attacks at range 1"
+		"umina_dark_reflections":
+			effect_str += "Name a card; the opponent discards a copy or reveals their hand, then place it into your Dreamlands"
+		"umina_dark_reflections_place":
+			effect_str += "Place the discarded card into your Dreamlands"
+		"umina_dark_thoughts_hit":
+			effect_str += "The opponent discards a card at random; you may put it into your Dreamlands"
+		"umina_dark_thoughts_place":
+			effect_str += "Put the discarded card into your Dreamlands"
+		"umina_spiraling_descent":
+			effect_str += "While a card is in your Dreamlands, the opponent cannot boost or strike with a copy of it"
+		"umina_shadow_chorus_copy":
+			effect_str += "Copy a card from your Dreamlands"
+		"umina_whispers_in_the_dark":
+			effect_str += "Draw 1, then perform the immediate boost of a card in your Dreamlands, ignoring its force cost"
+		"umina_unknown_khadath":
+			effect_str += "Swallow the opponent's attack into your Dreamlands; this card gains its force as gauge"
+		"umina_dream_telling_power":
+			effect_str += "Gain power equal to a card in your Dreamlands (up to +5)"
+		"umina_call_of_dreamlands_hit":
+			effect_str += "Reveal both hands; +1 power for each special and ultra revealed"
+		"umina_sleeper_wakes":
+			effect_str += "Cards enter your Dreamlands face-down"
+		"umina_terror_whispers_action":
+			effect_str += "Spend 2 gauge to initiate a strike; the opponent wild swings"
+		"umina_terror_whispers_start_strike":
+			effect_str += "Initiate a strike; the opponent wild swings"
+		"umina_seal_dreamlands_for_triggers":
+			effect_str += "Seal a card from your Dreamlands to add its effects to this attack"
+		"umina_do_seal_dreamlands":
+			effect_str += "Seal the Dreamlands card and add its effects to this attack"
+		StrikeEffects.CanSealForForce:
+			effect_str += "You may seal cards from your discard pile to generate Force"
+		StrikeEffects.CanSealForGauge:
+			effect_str += "You may seal 3 cards from your discard pile to generate 1 Gauge"
+		"minato_outrun_the_past":
+			effect_str += "Seal up to 4 cards from your discard or gauge; draw 1 for every 2 sealed"
+		"minato_power_per_sealed":
+			effect_str += "+1 Power for every 4 cards in your sealed area (up to +5)"
 		_:
 			effect_str += "MISSING EFFECT"
 	return effect_str
