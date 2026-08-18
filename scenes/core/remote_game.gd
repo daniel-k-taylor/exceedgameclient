@@ -39,14 +39,16 @@ func get_message_history() -> Array:
 func _get_player(id):
 	return local_game._get_player(id)
 
-func _get_player_remote_id(player : Player) -> int:
+# Remote player ids are assigned by the server. They used to be ints but are now
+# GUID strings, so these stay untyped and compare stringified for safety.
+func _get_player_remote_id(player : Player):
 	if player.my_id == Enums.PlayerId.PlayerId_Player:
 		return _player_info['id']
 	else:
 		return _opponent_info['id']
 
-func _get_player_from_remote_id(remote_id : int):
-	if remote_id == _player_info['id']:
+func _get_player_from_remote_id(remote_id):
+	if str(remote_id) == str(_player_info['id']):
 		return _get_player(Enums.PlayerId.PlayerId_Player)
 	else:
 		return _get_player(Enums.PlayerId.PlayerId_Opponent)
@@ -643,7 +645,7 @@ func do_quit(player_id : Enums.PlayerId, reason : Enums.GameOverReason):
 
 func process_quit(action_message):
 	var player_id = Enums.PlayerId.PlayerId_Player
-	if _player_info['id'] != action_message['player_id']:
+	if str(_player_info['id']) != str(action_message['player_id']):
 		player_id = Enums.PlayerId.PlayerId_Opponent
 	local_game.do_quit(player_id, action_message['reason'])
 
@@ -697,7 +699,7 @@ func do_clock_ran_out():
 	_submit_game_message(action_message)
 
 func process_clock_ran_out(action_message):
-	if _player_info['id'] == action_message['clock_ran_out_player']:
+	if str(_player_info['id']) == str(action_message['clock_ran_out_player']):
 		local_game.do_clock_ran_out(Enums.PlayerId.PlayerId_Player)
 	else:
 		local_game.do_clock_ran_out(Enums.PlayerId.PlayerId_Opponent)

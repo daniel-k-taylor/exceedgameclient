@@ -9,11 +9,11 @@ const VersusSplashTimeout = 3.0
 var versus_splash_timer_ready = false
 var versus_splash_load_ready = false
 
-@onready var reconnect_overlay : Control = $ReconnectOverlay
-@onready var reconnect_message_label : Label = $ReconnectOverlay/PanelContainer/MarginContainer/VBoxContainer/MessageLabel
-@onready var reconnect_timer_label : Label = $ReconnectOverlay/PanelContainer/MarginContainer/VBoxContainer/TimerLabel
-@onready var reconnect_button : Button = $ReconnectOverlay/PanelContainer/MarginContainer/VBoxContainer/ButtonRow/ReconnectButton
-@onready var reconnect_cancel_button : Button = $ReconnectOverlay/PanelContainer/MarginContainer/VBoxContainer/ButtonRow/CancelButton
+@onready var reconnect_overlay : Control = $ReconnectLayer/ReconnectOverlay
+@onready var reconnect_message_label : Label = $ReconnectLayer/ReconnectOverlay/PanelContainer/MarginContainer/VBoxContainer/MessageLabel
+@onready var reconnect_timer_label : Label = $ReconnectLayer/ReconnectOverlay/PanelContainer/MarginContainer/VBoxContainer/TimerLabel
+@onready var reconnect_button : Button = $ReconnectLayer/ReconnectOverlay/PanelContainer/MarginContainer/VBoxContainer/ButtonRow/ReconnectButton
+@onready var reconnect_cancel_button : Button = $ReconnectLayer/ReconnectOverlay/PanelContainer/MarginContainer/VBoxContainer/ButtonRow/CancelButton
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
@@ -22,6 +22,7 @@ func _ready():
 	NetworkManager.connect("reconnect_state_changed", _on_reconnect_state_changed)
 	NetworkManager.connect("waiting_for_opponent_reconnect_changed", _on_waiting_for_opponent_reconnect_changed)
 	NetworkManager.connect("session_restore_failed", _on_session_restore_failed)
+	NetworkManager.connect("session_replaced", _on_session_replaced)
 	$MainMenu.settings_loaded()
 	NetworkManager.connect_to_server()
 	_on_reconnect_state_changed(NetworkManager.get_reconnect_state())
@@ -105,7 +106,9 @@ func _on_main_menu_start_remote_game(vs_info, data):
 
 func _on_reconnect_state_changed(state : Dictionary):
 	if state["is_waiting_for_opponent_reconnect"]:
-		_show_waiting_for_opponent_overlay(state["waiting_for_opponent_reconnect_seconds"])
+		_show_waiting_for_opponent_overlay(
+			state["waiting_for_opponent_reconnect_seconds"],
+			state.get("waiting_for_opponent_reconnect_remaining_seconds", -1))
 		return
 	if state["is_manual_reconnect"]:
 		_show_manual_reconnect_overlay()
@@ -117,7 +120,9 @@ func _on_reconnect_state_changed(state : Dictionary):
 
 func _on_waiting_for_opponent_reconnect_changed(is_waiting : bool, seconds : int):
 	if is_waiting:
-		_show_waiting_for_opponent_overlay(seconds)
+		var state = NetworkManager.get_reconnect_state()
+		_show_waiting_for_opponent_overlay(
+			seconds, state.get("waiting_for_opponent_reconnect_remaining_seconds", -1))
 	else:
 		_on_reconnect_state_changed(NetworkManager.get_reconnect_state())
 
@@ -127,10 +132,19 @@ func _on_session_restore_failed(reason : String):
 	if game and game.has_method("abandon_match_after_disconnect"):
 		game.abandon_match_after_disconnect()
 
+# The session is now owned by another window or tab. There is nothing to
+# reconnect to, so drop out of any match and let the player carry on with a
+# fresh session rather than leaving them staring at a reconnect spinner.
+func _on_session_replaced(reason : String):
+	print("Session replaced by another connection, returning to menu: ", reason)
+	reconnect_overlay.visible = false
+	if game and game.has_method("abandon_match_after_disconnect"):
+		game.abandon_match_after_disconnect()
+
 func _show_auto_reconnect_overlay(seconds : int):
 	reconnect_overlay.visible = true
 	reconnect_message_label.text = "Reconnecting to server..."
-	reconnect_timer_label.text = str(max(seconds, 1))
+	reconnect_timer_label.text = "Retrying for %s" % _format_duration(max(seconds, 1))
 	reconnect_button.visible = false
 	reconnect_cancel_button.visible = true
 	reconnect_cancel_button.text = "Cancel"
@@ -144,13 +158,23 @@ func _show_manual_reconnect_overlay():
 	reconnect_button.disabled = NetworkManager.network_state == NetworkManager.NetworkState.NetworkState_Connecting
 	reconnect_cancel_button.visible = false
 
-func _show_waiting_for_opponent_overlay(seconds : int):
+func _show_waiting_for_opponent_overlay(seconds : int, remaining_seconds : int = -1):
 	reconnect_overlay.visible = true
 	reconnect_message_label.text = "Opponent disconnected. Waiting for them to reconnect..."
-	reconnect_timer_label.text = str(max(seconds, 1))
+	if remaining_seconds >= 0:
+		reconnect_timer_label.text = "%s left" % _format_duration(remaining_seconds)
+	else:
+		reconnect_timer_label.text = "Waiting %s" % _format_duration(max(seconds, 1))
 	reconnect_button.visible = false
 	reconnect_cancel_button.visible = true
-	reconnect_cancel_button.text = "Cancel"
+	reconnect_cancel_button.text = "Leave Match"
+
+func _format_duration(seconds : int) -> String:
+	if seconds < 60:
+		return "%ds" % seconds
+	@warning_ignore("integer_division")
+	var minutes := seconds / 60
+	return "%d:%02d" % [minutes, seconds % 60]
 
 func _on_reconnect_button_pressed():
 	NetworkManager.attempt_manual_reconnect()

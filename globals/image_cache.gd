@@ -3,7 +3,7 @@ extends Node
 const image_cache_dir = "user://exceedcache/"
 const image_cache_map_file = "user://exceedcache_dir.json"
 const local_portrait_overrides = {
-	"meilian": "meilien",
+	"meilien": "meilien",
 }
 
 const characters = "abcdefghijklmnopqrstuvwxyz1234567890-"

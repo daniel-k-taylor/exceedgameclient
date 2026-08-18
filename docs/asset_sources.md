@@ -48,7 +48,7 @@ These are referenced by many decks — do not duplicate or re-upload them.
 | --- | --- | --- |
 | Card back (all decks) | <https://i.imgur.com/s6wpKBq.jpeg> | 39 decks |
 | Street Fighter normals | <https://i.imgur.com/tXuqP40.jpeg> | 12 decks (ryu, ken, akuma, ...) |
-| Season 1 normals | <https://i.imgur.com/PFHTq9B.jpeg> | 6 decks (meilian, morathi, nehtali, superskullman, ulrik, vincent) |
+| Season 1 normals | <https://i.imgur.com/PFHTq9B.jpeg> | 6 decks (meilien, morathi, nehtali, superskullman, ulrik, vincent) |
 | Season 2 normals | <https://i.imgur.com/1pnJnEb.jpeg> | 18 decks |
 
 ## Per-character sources
@@ -63,13 +63,13 @@ All URLs below were fetched and confirmed to return a valid image.
 | | character_exceeded | <https://i.imgur.com/Cw8fInX.jpeg> |
 | | specials | <https://i.imgur.com/2IDXwgA.jpeg> |
 | | normals | S1 normals (shared) |
-| Mei Lien (`meilian`) | character_default | <https://i.imgur.com/k10cQcW.jpeg> |
+| Mei Lien (`meilien`) | character_default | <https://i.imgur.com/k10cQcW.jpeg> |
 | | character_exceeded | <https://i.imgur.com/Vdg324i.jpeg> |
 | | specials | <https://i.imgur.com/ij6Tz5n.jpeg> |
 | | normals | S1 normals (shared) |
 
-> The official spelling is **Mei Lien**. The deck id stays `meilian` because it must match the
-> `meilian_*` card `definition_id` prefix.
+> The official spelling is **Mei Lien**. The deck id stays `meilien` because it must match the
+> `meilien_*` card `definition_id` prefix.
 
 ### Season 2 — album `3mwGlqK`
 

@@ -16,6 +16,7 @@ signal waiting_for_opponent_reconnect_changed(is_waiting, seconds)
 signal session_restore_requested(context)
 signal session_restore_succeeded(data)
 signal session_restore_failed(reason)
+signal session_replaced(reason)
 
 enum NetworkState {
 	NetworkState_NotConnected,
@@ -33,6 +34,8 @@ var cached_customs = {}
 const AUTO_RECONNECT_INTERVAL_SECONDS = 5.0
 const AUTO_RECONNECT_MANUAL_THRESHOLD_SECONDS = 100
 const SERVER_KEEPALIVE_TIMEOUT_SECONDS = 30.0
+# Guards the opponent reconnect countdown against client/server clock skew.
+const MaxReasonableReconnectGraceSeconds = 30 * 60
 
 # Where the identity triple is persisted so a cold app/browser restart can
 # reclaim the seat. On HTML5 web exports user:// maps to localStorage.
@@ -57,6 +60,9 @@ var reconnect_state = {
 	"was_in_game": false,
 	"is_waiting_for_opponent_reconnect": false,
 	"waiting_for_opponent_reconnect_seconds": 0,
+	# Seconds left before the server gives the opponent's seat away, or -1 when
+	# the server did not tell us a deadline.
+	"waiting_for_opponent_reconnect_remaining_seconds": -1,
 	"user_cancelled": false,
 	"disconnect_reason": "",
 }
@@ -66,6 +72,8 @@ var _next_auto_reconnect_in := AUTO_RECONNECT_INTERVAL_SECONDS
 var _is_expected_disconnect := false
 var _pending_restore_context = {}
 var _waiting_for_opponent_reconnect_elapsed := 0.0
+# Absolute server deadline (unix ms) for the opponent's held seat, 0 if unknown.
+var _waiting_for_opponent_reconnect_deadline_ms := 0.0
 var _last_connected_server_name := ""
 var _restore_request_sent := false
 var _awaiting_name_sync := false
@@ -83,6 +91,9 @@ var _active_remote_match_finished := false
 # Cold-restart restore: a stored token loaded at boot that we try once against
 # the first server_hello of a brand new connection.
 var _cold_restore_pending := false
+# Set once the server tells us another connection owns our session. The stored
+# identity is gone, so this client must never try to reclaim it again.
+var _session_replaced := false
 
 var _socket = null
 
@@ -165,21 +176,51 @@ func clear_restore_context(clear_game_flag := true):
 		reconnect_state["was_in_game"] = false
 	_emit_reconnect_state_changed()
 
-func begin_waiting_for_opponent_reconnect():
+func begin_waiting_for_opponent_reconnect(deadline_unix_ms : float = 0.0):
 	if reconnect_state["is_waiting_for_opponent_reconnect"]:
 		return
 	reconnect_state["is_waiting_for_opponent_reconnect"] = true
 	reconnect_state["waiting_for_opponent_reconnect_seconds"] = 1
 	_waiting_for_opponent_reconnect_elapsed = 0.0
+	_waiting_for_opponent_reconnect_deadline_ms = deadline_unix_ms
+	reconnect_state["waiting_for_opponent_reconnect_remaining_seconds"] = _remaining_opponent_reconnect_seconds()
 	waiting_for_opponent_reconnect_changed.emit(true, 1)
 	_emit_reconnect_state_changed()
+
+# Converts the server's absolute deadline into seconds remaining. Returns -1
+# when there is no usable deadline so callers fall back to counting elapsed
+# time. The result is sanity checked because it depends on the client and
+# server clocks roughly agreeing.
+func _remaining_opponent_reconnect_seconds() -> int:
+	if _waiting_for_opponent_reconnect_deadline_ms <= 0.0:
+		return -1
+	var now_ms = Time.get_unix_time_from_system() * 1000.0
+	var remaining_seconds = (_waiting_for_opponent_reconnect_deadline_ms - now_ms) / 1000.0
+	if remaining_seconds < 0.0:
+		return 0
+	if remaining_seconds > MaxReasonableReconnectGraceSeconds:
+		return -1
+	return int(ceil(remaining_seconds))
+
+# The server sends null for the deadline whenever a seat is not actually being
+# held, so this cannot assume a number is present.
+func _parse_reconnect_deadline_ms(raw) -> float:
+	if raw == null:
+		return 0.0
+	if raw is float or raw is int:
+		return float(raw)
+	if raw is String and raw.is_valid_float():
+		return float(raw)
+	return 0.0
 
 func end_waiting_for_opponent_reconnect():
 	if not reconnect_state["is_waiting_for_opponent_reconnect"]:
 		return
 	reconnect_state["is_waiting_for_opponent_reconnect"] = false
 	reconnect_state["waiting_for_opponent_reconnect_seconds"] = 0
+	reconnect_state["waiting_for_opponent_reconnect_remaining_seconds"] = -1
 	_waiting_for_opponent_reconnect_elapsed = 0.0
+	_waiting_for_opponent_reconnect_deadline_ms = 0.0
 	waiting_for_opponent_reconnect_changed.emit(false, 0)
 	_emit_reconnect_state_changed()
 
@@ -203,6 +244,15 @@ func _abort_reconnect_socket():
 
 func quit_waiting_for_opponent():
 	end_waiting_for_opponent_reconnect()
+	# The player asked to leave, so the match must be abandoned even if the
+	# socket is already gone. Recording the lobby context first means any
+	# later reconnect drops them in the lobby instead of restoring them into
+	# the match they just walked away from.
+	_active_remote_match_finished = false
+	set_restore_context(RestoreContextType.RestoreContextType_Lobby, {
+		"player_name": _get_preferred_player_name(),
+		"lobby_state": "Lobby",
+	})
 	leave_room()
 
 func _emit_reconnect_state_changed():
@@ -288,6 +338,8 @@ func _request_session_restore():
 	_send_socket_text(JSON.stringify(restore_message), "restore session")
 
 func _has_previous_restore_identity() -> bool:
+	if _session_replaced:
+		return false
 	return _previous_server_player_id != null or _previous_server_session_id != "" or _previous_server_session_token != ""
 
 func _apply_server_identity(message : Dictionary):
@@ -337,6 +389,13 @@ func _restore_context_from_server(data):
 	_end_reconnect_flow(true)
 
 func _apply_restore_waiting_state(data : Dictionary):
+	# There is only somebody to wait for if the restore actually put us back
+	# into a live match alongside a named opponent. Without these guards a
+	# finished or abandoned match restores straight into a reconnect overlay
+	# for an opponent who already quit, which the player cannot escape.
+	if not _restore_snapshot_has_live_opponent(data):
+		end_waiting_for_opponent_reconnect()
+		return
 	var has_authoritative_waiting_state = data.has("opponent_disconnected") \
 		or data.has("opponent_waiting_for_reconnect") \
 		or data.has("opponent_connected")
@@ -351,7 +410,35 @@ func _apply_restore_waiting_state(data : Dictionary):
 	if data.has("opponent_waiting_for_reconnect"):
 		should_wait_for_opponent = _message_flag_is_true(data.get("opponent_waiting_for_reconnect", false))
 	if should_wait_for_opponent:
-		begin_waiting_for_opponent_reconnect()
+		begin_waiting_for_opponent_reconnect(_parse_reconnect_deadline_ms(data.get("opponent_reconnect_deadline", null)))
+	else:
+		end_waiting_for_opponent_reconnect()
+
+# A snapshot only describes a seat worth waiting for when the match is still
+# running and an opponent still occupies it. The server reports a null
+# opponent when they have left for good, which must not be confused with an
+# opponent who is merely disconnected.
+func _restore_snapshot_has_live_opponent(data : Dictionary) -> bool:
+	if data.has("in_game") and not _message_flag_is_true(data.get("in_game", false)):
+		return false
+	if _message_flag_is_true(data.get("game_over", false)):
+		return false
+	if data.has("room_id") and data.get("room_id") == null:
+		return false
+	if data.has("opponent_name") and not data.get("opponent_name"):
+		return false
+	if data.has("opponent_connected") and data.get("opponent_connected") == null:
+		return false
+	return true
+	var should_wait_for_opponent = false
+	if data.has("opponent_connected"):
+		should_wait_for_opponent = not _message_flag_is_true(data.get("opponent_connected", true))
+	if data.has("opponent_disconnected"):
+		should_wait_for_opponent = _message_flag_is_true(data.get("opponent_disconnected", false))
+	if data.has("opponent_waiting_for_reconnect"):
+		should_wait_for_opponent = _message_flag_is_true(data.get("opponent_waiting_for_reconnect", false))
+	if should_wait_for_opponent:
+		begin_waiting_for_opponent_reconnect(_parse_reconnect_deadline_ms(data.get("opponent_reconnect_deadline", null)))
 	else:
 		end_waiting_for_opponent_reconnect()
 
@@ -467,8 +554,11 @@ func _update_reconnect_timers(delta):
 	if reconnect_state["is_waiting_for_opponent_reconnect"]:
 		_waiting_for_opponent_reconnect_elapsed += delta
 		var waiting_seconds = int(floor(_waiting_for_opponent_reconnect_elapsed)) + 1
-		if reconnect_state["waiting_for_opponent_reconnect_seconds"] != waiting_seconds:
+		var remaining_seconds = _remaining_opponent_reconnect_seconds()
+		var remaining_changed = reconnect_state["waiting_for_opponent_reconnect_remaining_seconds"] != remaining_seconds
+		if reconnect_state["waiting_for_opponent_reconnect_seconds"] != waiting_seconds or remaining_changed:
 			reconnect_state["waiting_for_opponent_reconnect_seconds"] = waiting_seconds
+			reconnect_state["waiting_for_opponent_reconnect_remaining_seconds"] = remaining_seconds
 			waiting_for_opponent_reconnect_changed.emit(true, waiting_seconds)
 			_emit_reconnect_state_changed()
 
@@ -595,6 +685,8 @@ func _handle_server_response(data):
 			_handle_session_restored(data_obj)
 		"session_restore_failed":
 			_handle_session_restore_failed(data_obj)
+		"session_replaced":
+			_handle_session_replaced(data_obj)
 
 func _handle_server_keepalive(_message):
 	_record_server_keepalive()
@@ -618,6 +710,9 @@ func _handle_server_hello(hello_message):
 		# the old seat once. Failure clears the stored session.
 		_cold_restore_pending = false
 		_request_session_restore()
+	else:
+		# A clean identity from the server means the takeover is behind us.
+		_session_replaced = false
 
 func _handle_room_waiting_for_opponent(_waiting_message):
 	print("Waiting for opponent in room")
@@ -711,7 +806,7 @@ func _handle_player_disconnect_pending(message):
 	var id = _get_message_player_id(message)
 	var player_name = _get_message_player_name(message)
 	print("Player [%s] %s disconnected, holding seat for reconnect" % [id, player_name])
-	begin_waiting_for_opponent_reconnect()
+	begin_waiting_for_opponent_reconnect(_parse_reconnect_deadline_ms(message.get("reconnect_deadline", null)))
 
 # player_disconnect is terminal: either the reconnect grace expired
 # (reason == reconnect_timeout) or the game was never a live reconnectable game.
@@ -758,6 +853,25 @@ func _handle_session_restored(message):
 func _handle_session_restore_failed(message):
 	var reason = message.get("reason", "restore_failed")
 	_handle_restore_failed(reason)
+
+# Another connection took ownership of this session, so this client no longer
+# owns the stored identity. It must forget it, otherwise the two clients would
+# take turns reclaiming the session and disconnecting each other forever.
+func _handle_session_replaced(message):
+	var reason = str(message.get("reason", "opened_elsewhere"))
+	print("Session was taken over by another connection: ", reason)
+	_session_replaced = true
+	_is_expected_disconnect = true
+	end_waiting_for_opponent_reconnect()
+	_clear_persisted_identity()
+	_previous_server_player_id = null
+	_previous_server_session_id = ""
+	_previous_server_session_token = ""
+	_current_server_session_token = ""
+	clear_restore_context()
+	_clear_lobby_cache()
+	_end_reconnect_flow(false)
+	session_replaced.emit(reason)
 
 func _handle_game_message(game_message):
 	game_message_received.emit(game_message)

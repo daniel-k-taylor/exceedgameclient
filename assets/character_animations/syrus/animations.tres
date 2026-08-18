@@ -1,0 +1,16 @@
+[gd_resource type="SpriteFrames" load_steps=2 format=3]
+
+[ext_resource type="Texture2D" path="res://assets/portraits/syrus.png" id="1_syrus"]
+
+[resource]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("1_syrus")
+}],
+"loop": true,
+"name": &"idle",
+"speed": 6.0
+}]
+metadata/flip = true
+metadata/scaling = 1.0

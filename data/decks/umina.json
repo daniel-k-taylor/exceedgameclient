@@ -4,6 +4,7 @@
 	"display_name": "Umina",
 	"has_sealed_area": true,
 	"buddy_exceeds": true,
+	"buddy_visible_before_exceed": true,
 	"buddy_card": "umina_dreamlands",
 	"buddy_display_name": "Dreamlands",
 	"link_extra_cards_to_buddies": true,

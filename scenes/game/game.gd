@@ -559,19 +559,19 @@ func begin_remote_game(game_start_message):
 	var my_player_info
 	var opponent_player_info
 
-	if game_start_message['your_player_id'] == game_start_message['player1_id']:
+	if str(game_start_message['your_player_id']) == str(game_start_message['player1_id']):
 		my_player_info = player1_info
 		player_deck = player1_info['deck']
 		opponent_player_info = player2_info
 		opponent_deck = player2_info['deck']
-		if game_start_message['starting_player_id'] == game_start_message['player2_id']:
+		if str(game_start_message['starting_player_id']) == str(game_start_message['player2_id']):
 			starting_player = Enums.PlayerId.PlayerId_Opponent
 	else:
 		my_player_info = player2_info
 		player_deck = player2_info['deck']
 		opponent_player_info = player1_info
 		opponent_deck = player1_info['deck']
-		if game_start_message['starting_player_id'] == game_start_message['player1_id']:
+		if str(game_start_message['starting_player_id']) == str(game_start_message['player1_id']):
 			starting_player = Enums.PlayerId.PlayerId_Opponent
 
 	player_deck = CardDataManager.convert_floats_to_ints(player_deck)
@@ -686,7 +686,10 @@ func setup_character_card(character_card, deck, buddy_character_card):
 	if 'hide_buddy_reference' in deck and deck['hide_buddy_reference']:
 		buddy_character_card.visible = false
 	elif 'buddy_card' in deck:
-		if deck.get('buddy_exceeds'):
+		# buddy_exceeds only means the buddy has separate exceeded art. Some
+		# buddies (Umina's Dreamlands) are a zone the player uses from turn
+		# one, and this card doubles as the button that opens that zone.
+		if deck.get('buddy_exceeds') and not deck.get('buddy_visible_before_exceed', false):
 			buddy_character_card.visible = false
 		else:
 			buddy_character_card.visible = true
@@ -2899,7 +2902,7 @@ func _on_exceed_revert_event(event):
 			$PlayerCharacter.set_exceed(false)
 		player_character_card.exceed(false)
 		player_buddy_character_card.exceed(false)
-		if player_deck.get('buddy_exceeds'):
+		if player_deck.get('buddy_exceeds') and not player_deck.get('buddy_visible_before_exceed', false):
 			player_buddy_character_card.visible = false
 
 	else:
@@ -2910,7 +2913,7 @@ func _on_exceed_revert_event(event):
 			$OpponentCharacter.set_exceed(false)
 		opponent_character_card.exceed(false)
 		opponent_buddy_character_card.exceed(false)
-		if opponent_deck.get('buddy_exceeds'):
+		if opponent_deck.get('buddy_exceeds') and not opponent_deck.get('buddy_visible_before_exceed', false):
 			opponent_buddy_character_card.visible = false
 
 	spawn_damage_popup("Revert!", player)

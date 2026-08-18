@@ -3214,7 +3214,7 @@ func update_dynamic_during_strike_effects():
 				_update_dynamic_strike_effect(card, effect, str(effect_index), true)
 			effect_index += 1
 
-	# Character ability dynamic during_strike effects (e.g. Meilian's max-range bonus).
+	# Character ability dynamic during_strike effects (e.g. Meilien's max-range bonus).
 	var ability_label = "ability_effects"
 	if exceeded:
 		ability_label = "exceed_ability_effects"

@@ -1,7 +1,7 @@
 extends ExceedGutTest
 
 func who_am_i():
-	return "meilian"
+	return "meilien"
 
 func _zone_has_card(zone, card_id: int) -> bool:
 	return zone.any(func(card): return card.id == card_id)
@@ -11,7 +11,7 @@ func test_kuangfengbaoyu_swaps_deck_and_discard():
 	var discard_id_2 = give_player_specific_card(player1, "standard_normal_dive")
 	player1.discard([discard_id_1, discard_id_2])
 
-	var boost_id = give_player_specific_card(player1, "meilian_fujingu")
+	var boost_id = give_player_specific_card(player1, "meilien_fujingu")
 	var pay_id = give_player_specific_card(player1, "standard_normal_grasp")
 	assert_true(game_logic.do_boost(player1, boost_id, [pay_id]))
 
@@ -32,8 +32,8 @@ func test_jiji_blocks_opponent_advance_and_close():
 	execute_strike(
 		player1,
 		player2,
-		"meilian_jiji",
-		"meilian_yunqishi"
+		"meilien_jiji",
+		"meilien_yunqishi"
 	)
 
 	validate_positions(player1, 3, player2, 5)
@@ -48,8 +48,8 @@ func test_jiji_block_does_not_persist_into_later_strikes():
 	execute_strike(
 		player1,
 		player2,
-		"meilian_jiji",
-		"meilian_yunqishi"
+		"meilien_jiji",
+		"meilien_yunqishi"
 	)
 
 	assert_false(player2.cannot_advance_or_close)
@@ -65,7 +65,7 @@ func test_liuxingzhiyuan_supports_topdeck_choice():
 	set_player_topdeck(player1, "standard_normal_dive")
 	set_player_topdeck(player1, "standard_normal_assault")
 
-	var boost_id = give_player_specific_card(player1, "meilian_leishenshiyan")
+	var boost_id = give_player_specific_card(player1, "meilien_leishenshiyan")
 	var pay_id = give_player_specific_card(player1, "standard_normal_cross")
 	assert_true(game_logic.do_boost(player1, boost_id, [pay_id]))
 	assert_eq(game_logic.decision_info.type, Enums.DecisionType.DecisionType_ChooseFromTopDeck)
@@ -79,7 +79,7 @@ func test_liuxingzhiyuan_supports_topdeck_choice():
 
 func test_yunqishi_boost_draws_and_discards_for_each_card_in_hand():
 	player1.discard_hand()
-	var boost_id = give_player_specific_card(player1, "meilian_yunqishi")
+	var boost_id = give_player_specific_card(player1, "meilien_yunqishi")
 	give_player_specific_card(player1, "standard_normal_assault")
 	give_player_specific_card(player1, "standard_normal_cross")
 	give_player_specific_card(player1, "standard_normal_dive")
@@ -95,7 +95,7 @@ func test_yunqishi_boost_draws_and_discards_for_each_card_in_hand():
 	assert_eq(game_logic.game_state, Enums.GameState.GameState_PickAction)
 	assert_eq(game_logic.get_active_player(), player2.my_id)
 
-func test_meilian_ua_rechecks_range_after_sweep_discards_same_name():
+func test_meilien_ua_rechecks_range_after_sweep_discards_same_name():
 	game_logic.teardown()
 	game_logic.free()
 	default_game_setup("solbadguy")
@@ -112,7 +112,7 @@ func test_meilian_ua_rechecks_range_after_sweep_discards_same_name():
 	assert_eq(game_logic.game_state, Enums.GameState.GameState_PickAction)
 	assert_eq(game_logic.get_active_player(), player2.my_id)
 
-func test_meilian_opening_turn_prepare_move_and_strike_flow():
+func test_meilien_opening_turn_prepare_move_and_strike_flow():
 	position_players(player1, 3, player2, 7)
 
 	var initial_hand_size = player1.hand.size()

@@ -39408,7 +39408,7 @@
 		}
 	},
 	{
-		"id": "meilian_fujingu",
+		"id": "meilien_fujingu",
 		"type": "special",
 		"display_name": "Fortune Drum",
 		"force_cost": 0,
@@ -39444,7 +39444,7 @@
 		}
 	},
 	{
-		"id": "meilian_jiji",
+		"id": "meilien_jiji",
 		"type": "special",
 		"display_name": "Halberd Strike",
 		"force_cost": 0,
@@ -39491,7 +39491,7 @@
 		}
 	},
 	{
-		"id": "meilian_leishendao",
+		"id": "meilien_leishendao",
 		"type": "special",
 		"display_name": "Thunder God Blade",
 		"force_cost": 0,
@@ -39529,7 +39529,7 @@
 		}
 	},
 	{
-		"id": "meilian_leishenshiyan",
+		"id": "meilien_leishenshiyan",
 		"type": "ultra",
 		"display_name": "Thunder God's Oath",
 		"force_cost": 0,
@@ -39569,7 +39569,7 @@
 		}
 	},
 	{
-		"id": "meilian_shenlongfengbao",
+		"id": "meilien_shenlongfengbao",
 		"type": "ultra",
 		"display_name": "Divine Dragon Storm",
 		"force_cost": 0,
@@ -39624,7 +39624,7 @@
 		}
 	},
 	{
-		"id": "meilian_shenlongpo",
+		"id": "meilien_shenlongpo",
 		"type": "special",
 		"display_name": "Divine Dragon Break",
 		"force_cost": 0,
@@ -39676,7 +39676,7 @@
 		}
 	},
 	{
-		"id": "meilian_yunqishi",
+		"id": "meilien_yunqishi",
 		"type": "special",
 		"display_name": "Cloud Rider",
 		"force_cost": 0,

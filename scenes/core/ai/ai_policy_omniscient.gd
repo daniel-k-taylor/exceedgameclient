@@ -1423,11 +1423,6 @@ func pick_strike_response(possible_actions: Array, ai_game_state: AIPlayer.AIGam
 	var opp_power: int = opp_strike["power"]
 	var opp_guard: int = opp_strike["guard"]
 
-	var opp_card_name: String = "??"
-	if opp_strike["has_strike"] and opp_strike["defn"] != null:
-		opp_card_name = opp_strike["defn"].get("display_name", opp_strike["id_str"])
-
-
 	if valid_strikes.size() == 0:
 		# No card can hit opponent at this distance
 		# Analyze opponent's strike to try retreat dodge
@@ -1493,7 +1488,6 @@ func pick_strike_response(possible_actions: Array, ai_game_state: AIPlayer.AIGam
 		opp_def["guard"] = opp_strike["guard"]
 		var best_counter = null
 		var best_counter_score: float = -99999.0
-		var best_counter_exchange: int = 0
 		var best_counter_stunned: bool = false
 		for action in possible_actions:
 			if not (action is AIPlayer.StrikeAction) or action.wild_swing: continue
@@ -1526,7 +1520,6 @@ func pick_strike_response(possible_actions: Array, ai_game_state: AIPlayer.AIGam
 			# On ties prefer first-strike stun (approach 3) over dodging (approach 4): stun voids the opponent's whole card
 			if score > best_counter_score or (score == best_counter_score and sim["stunned"] and not best_counter_stunned):
 				best_counter_score = score
-				best_counter_exchange = sim["exchange"]
 				best_counter = action
 				best_counter_stunned = sim["stunned"]
 		if best_counter != null:
@@ -2211,9 +2204,6 @@ func pick_name_opponent_card(possible_actions: Array, ai_game_state: AIPlayer.AI
 
 	if scored.size() > 0: scored.sort_custom(_sort_by_score_desc)
 	if scored.size() > 0 and scored[0]['score'] > 0:
-		if is_reading_context:
-			var top_defn = _get_def(scored[0]['action'].card_id, state)
-			var top_name = top_defn.get("id", "?") if top_defn else "?"
 		return scored[0]['action']
 	return possible_actions[randi() % possible_actions.size()]
 
@@ -2347,13 +2337,6 @@ func _pick_name_inferred(possible_actions: Array, state: AIPlayer.AIGameState, i
 			if e["score"] > 0.0:
 				roll -= e["score"] * e["score"]
 				if roll <= 0.0:
-					if is_reading_context:
-						var top_defn = _get_def(e['action'].card_id, state)
-						var top_name = top_defn.get("id", "?") if top_defn else "?"
-						var _chance: float = 0.0
-						var _tid = top_defn.get("id", "") if top_defn else ""
-						if total_by_id.has(_tid):
-							_chance = float(max(int(total_by_id[_tid]) - int(seen_by_id.get(_tid, 0)), 0)) / float(int(total_by_id[_tid]))
 					return e['action']
 	return possible_actions[randi() % possible_actions.size()]
 
@@ -3604,7 +3587,6 @@ func _try_reading_combo(state: AIPlayer.AIGameState, boost_actions: Array, strik
 	var best_strike = null
 	var best_strike_score: float = -999.0
 	var best_strike_defn = null
-	var best_strike_speed: int = 0
 
 	for sa in strike_actions:
 		if sa is AIPlayer.StrikeAction:
@@ -3661,7 +3643,6 @@ func _try_reading_combo(state: AIPlayer.AIGameState, boost_actions: Array, strik
 				best_strike_score = sc
 				best_strike = sa
 				best_strike_defn = defn
-				best_strike_speed = spd
 
 	# ================================================================
 	# SAFETY CHECK 1: AI's best strike must actually be VIABLE
@@ -3678,7 +3659,6 @@ func _try_reading_combo(state: AIPlayer.AIGameState, boost_actions: Array, strik
 	var best_target_score: float = -999.0
 	var best_target_defn = null
 	var best_target_can_hit: bool = false
-	var best_target_speed: int = 0
 	for cid in _visible_opponent_hand(state):
 		var defn = _get_def(cid, state)
 		if not defn: continue
@@ -3694,7 +3674,6 @@ func _try_reading_combo(state: AIPlayer.AIGameState, boost_actions: Array, strik
 			var trmax = defn.get("range_max", trmin + 3)
 			if trmax is String: trmax = trmin + 3
 			best_target_can_hit = trmin <= distance and distance <= trmax
-			best_target_speed = defn.get("speed", 0)
 
 	# ================================================================
 	# SAFETY CHECK 2: Named target must not let opponent hit us freely

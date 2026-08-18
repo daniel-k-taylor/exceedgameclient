@@ -1,5 +1,5 @@
 {
-	"id": "meilian",
+	"id": "meilien",
 	"season": 1,
 	"display_name": "Mei Lien",
 	"exceed_cost": 3,
@@ -77,72 +77,72 @@
 	},
 	"cards": [
 		{
-			"definition_id": "meilian_leishendao",
+			"definition_id": "meilien_leishendao",
 			"image_name": "specials",
 			"image_index": 0
 		},
 		{
-			"definition_id": "meilian_leishendao",
+			"definition_id": "meilien_leishendao",
 			"image_name": "specials",
 			"image_index": 0
 		},
 		{
-			"definition_id": "meilian_yunqishi",
+			"definition_id": "meilien_yunqishi",
 			"image_name": "specials",
 			"image_index": 1
 		},
 		{
-			"definition_id": "meilian_yunqishi",
+			"definition_id": "meilien_yunqishi",
 			"image_name": "specials",
 			"image_index": 1
 		},
 		{
-			"definition_id": "meilian_fujingu",
+			"definition_id": "meilien_fujingu",
 			"image_name": "specials",
 			"image_index": 2
 		},
 		{
-			"definition_id": "meilian_fujingu",
+			"definition_id": "meilien_fujingu",
 			"image_name": "specials",
 			"image_index": 2
 		},
 		{
-			"definition_id": "meilian_jiji",
+			"definition_id": "meilien_jiji",
 			"image_name": "specials",
 			"image_index": 3
 		},
 		{
-			"definition_id": "meilian_jiji",
+			"definition_id": "meilien_jiji",
 			"image_name": "specials",
 			"image_index": 3
 		},
 		{
-			"definition_id": "meilian_shenlongpo",
+			"definition_id": "meilien_shenlongpo",
 			"image_name": "specials",
 			"image_index": 4
 		},
 		{
-			"definition_id": "meilian_shenlongpo",
+			"definition_id": "meilien_shenlongpo",
 			"image_name": "specials",
 			"image_index": 4
 		},
 		{
-			"definition_id": "meilian_shenlongfengbao",
+			"definition_id": "meilien_shenlongfengbao",
 			"image_name": "specials",
 			"image_index": 5
 		},
 		{
-			"definition_id": "meilian_shenlongfengbao",
+			"definition_id": "meilien_shenlongfengbao",
 			"image_name": "specials",
 			"image_index": 5
 		},
 		{
-			"definition_id": "meilian_leishenshiyan",
+			"definition_id": "meilien_leishenshiyan",
 			"image_name": "specials",
 			"image_index": 6
 		},
 		{
-			"definition_id": "meilian_leishenshiyan",
+			"definition_id": "meilien_leishenshiyan",
 			"image_name": "specials",
 			"image_index": 6
 		},

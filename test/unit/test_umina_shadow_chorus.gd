@@ -192,12 +192,11 @@ func test_cross_season_normals_match_by_speed_for_stun_immunity():
 	validate_has_event(events, Enums.EventType.EventType_Strike_Stun_Immunity, player1)
 
 func test_is_spiraling_match_cross_season_rules():
-	var slash_id = give_player_specific_card(player1, "gg_normal_slash")
+	give_player_specific_card(player1, "gg_normal_slash")
 	var assault_id = give_player_specific_card(player1, "uni_normal_assault")
 	var dive_id = give_player_specific_card(player1, "uni_normal_dive")
 	var shadow_id = give_player_specific_card(player1, "umina_shadow_chorus")
 	var card_db = game_logic.get_card_database()
-	var slash_card = card_db.get_card(slash_id)
 	var assault_card = card_db.get_card(assault_id)
 	var dive_card = card_db.get_card(dive_id)
 	var shadow_card = card_db.get_card(shadow_id)

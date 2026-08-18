@@ -271,7 +271,7 @@ func _on_remote_game_started(data):
 	var opponent_deck = data['player2_deck_id']
 	var opponent_name = data['player2_name']
 	var opponent_custom_deck = data.get('player2_custom_deck')
-	if data['your_player_id'] != data['player1_id']:
+	if str(data['your_player_id']) != str(data['player1_id']):
 		player1_is_me = false
 		player_deck = data['player2_deck_id']
 		player_name = data['player2_name']
