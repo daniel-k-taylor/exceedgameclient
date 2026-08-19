@@ -3,20 +3,29 @@
 ## Build & Test Commands
 
 **Run all tests:**
-```bash
-..\Godot_v4.4.1-stable_win64.exe -s addons/gut/gut_cmdln.gd -gdir=res://test\unit -gexit
+```powershell
+.\run_tests.ps1
 ```
 
-Running all tests takes a long time! So only run individual tests when developing unless feature hits many parts of the codebase.
+`run_tests.ps1` wraps GUT and additionally **fails the run on any runtime script error**. This matters: a GDScript runtime error (e.g. a String reaching a typed `int` parameter) aborts the test method but GUT still reports the test as passing, just with fewer asserts. Always prefer this wrapper over calling GUT directly.
+
+Running all tests takes a long time (~8 min)! So only run individual tests when developing unless the feature hits many parts of the codebase.
 
 **Run a single test file:**
-```bash
-..\Godot_v4.4.1-stable_win64.exe -s addons/gut/gut_cmdln.gd -gdir=res://test\unit -gexit -gtest=test_ryu.gd
+```powershell
+.\run_tests.ps1 -Select test_ryu.gd
 ```
 
+**Raw GUT invocation** (no script-error gate):
+```powershell
+.\godotexe\Godot_v4.4.1-stable_win64_console.exe -s addons/gut/gut_cmdln.gd -gdir=res://test/unit -gexit "-gselect=test_ryu.gd"
+```
+
+Note: the filter flag is `-gselect` (a filename glob) - `-gtest` does **not** filter by file. In PowerShell the flag must be quoted.
+
 **Run the game:**
-```bash
-..\Godot_v4.4.1-stable_win64.exe
+```powershell
+.\godotexe\Godot_v4.4.1-stable_win64.exe
 ```
 
 Tests use the [GUT (Godot Unit Test)](https://github.com/bitwes/Gut) framework. Test output is verbose - pipe through `Select-String` to filter.

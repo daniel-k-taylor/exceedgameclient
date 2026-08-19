@@ -99,3 +99,32 @@ func test_leaving_while_waiting_targets_the_lobby_on_any_later_reconnect():
 	assert_eq(NetworkManager.get_reconnect_state()["pre_disconnect_state"],
 		NetworkManager.RestoreContextType.RestoreContextType_Lobby,
 		"leaving must not restore the player back into the match they left")
+
+# --- Rejoining a match from a restore snapshot ---
+# The user's report: closing every client mid match and relaunching dropped
+# them straight back into a ghost match against an absent opponent.
+
+func _game_start_log() -> Array:
+	return [{"type": "game_start", "player1_id": "p1", "player2_id": "p2"}]
+
+func test_a_live_match_is_rejoined():
+	var data = {"in_game": true, "game_over": false, "messages": _game_start_log()}
+	assert_true(MainMenu.should_rejoin_restored_match(data))
+
+func test_a_finished_match_is_not_rejoined():
+	# The seat can still be held after the room ended, so in_game stays true.
+	var data = {"in_game": true, "game_over": true, "messages": _game_start_log()}
+	assert_false(MainMenu.should_rejoin_restored_match(data),
+		"rejoining a dead match traps the player in a game they cannot leave")
+
+func test_a_lobby_restore_is_not_rejoined():
+	var data = {"in_game": false, "game_over": false, "messages": []}
+	assert_false(MainMenu.should_rejoin_restored_match(data))
+
+func test_a_match_without_a_replay_log_is_not_rejoined():
+	var data = {"in_game": true, "game_over": false, "messages": []}
+	assert_false(MainMenu.should_rejoin_restored_match(data))
+
+func test_a_log_that_does_not_start_with_game_start_is_not_rejoined():
+	var data = {"in_game": true, "game_over": false, "messages": [{"type": "game_message"}]}
+	assert_false(MainMenu.should_rejoin_restored_match(data))

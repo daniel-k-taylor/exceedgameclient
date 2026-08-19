@@ -5349,11 +5349,7 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 		StrikeEffects.PowerModifyPerBuddyBetween:
 			performing_player.strike_stat_boosts.power_modify_per_buddy_between += effect['amount']
 		StrikeEffects.Powerup:
-			var amount = effect['amount']
-			if str(amount) == "strike_x":
-				amount = performing_player.strike_stat_boosts.strike_x
-			elif str(amount) == "DISCARDED_COUNT":
-				amount = performing_player.discards.size()
+			var amount = performing_player.resolve_effect_amount(effect)
 			var multiplier = 1
 			if 'multiplier' in effect:
 				multiplier = effect['multiplier']
@@ -7864,6 +7860,12 @@ func erase_remaining_effect(effect):
 		active_strike.remaining_effect_list.erase(effect)
 
 func remove_remaining_effect(effect, card_id):
+	# Remaining effects only exist while a strike is resolving. Revert paths can
+	# run outside one (for example when a boost is cleaned up after the strike
+	# has already ended), so bail out rather than dereferencing a null strike.
+	if not active_strike:
+		return
+
 	# This function is not intended to be called from extra attacks.
 	assert(not active_strike.extra_attack_in_progress)
 	if active_strike.extra_attack_in_progress:

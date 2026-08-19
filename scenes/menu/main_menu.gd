@@ -308,15 +308,24 @@ func _on_name_update(new_name):
 
 # When the server restores a dropped session, either rebuild the in-progress
 # game from its replay log or simply return the menu to a clean lobby state.
-func _on_session_restore_succeeded(data):
+static func should_rejoin_restored_match(data : Dictionary) -> bool:
 	if not data.get("in_game", false):
-		return
+		return false
+	# A finished match must not be re-entered. The seat can still be held (so
+	# in_game stays true) after the room ended, and rejoining drops the player
+	# into a dead game they cannot leave.
+	if data.get("game_over", false):
+		return false
 	var message_log = data.get("messages", [])
 	if message_log.is_empty():
+		return false
+	return message_log[0].get("type", "") == "game_start"
+
+func _on_session_restore_succeeded(data):
+	if not should_rejoin_restored_match(data):
 		return
+	var message_log = data.get("messages", [])
 	var start_data = message_log[0].duplicate(true)
-	if start_data.get("type", "") != "game_start":
-		return
 	start_data["your_player_id"] = data.get("player_id",
 		data.get("restored_player_id", data.get("old_player_id", start_data.get("player1_id", 0))))
 	# Everything after game_start is the log to fast-forward through.

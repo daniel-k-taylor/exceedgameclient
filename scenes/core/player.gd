@@ -3068,6 +3068,18 @@ func remove_power_bonus(amount : int):
 	if amount > 0:
 		strike_stat_boosts.power_positive_only -= amount
 
+# An effect amount can be a token that is only resolved when the effect is
+# applied. Every path that consumes one has to resolve it the same way, or it
+# passes a String into a typed int and the effect silently fails to apply or
+# to come back off.
+func resolve_effect_amount(effect, key : String = "amount") -> int:
+	var amount = effect[key]
+	if str(amount) == "strike_x":
+		amount = strike_stat_boosts.strike_x
+	elif str(amount) == "DISCARDED_COUNT":
+		amount = discards.size()
+	return int(amount)
+
 func add_range_bonus(min_bonus : int, max_bonus : int, special_only : bool = false):
 	var range_effect = {
 		"min_range": min_bonus,
@@ -3208,28 +3220,30 @@ func _apply_strike_bonus_effect(effect, card_id : int):
 					dodge_range += "-%s" % strike_stat_boosts.dodge_at_range_max[card_id]
 				parent._append_log_full(Enums.LogType.LogType_Effect, self, "will dodge attacks from range %s!" % dodge_range)
 		StrikeEffects.Powerup:
-			add_power_bonus(effect['amount'])
+			add_power_bonus(resolve_effect_amount(effect))
 		StrikeEffects.PowerupBothPlayers:
-			add_power_bonus(effect['amount'])
-			opposing_player.add_power_bonus(effect['amount'])
+			add_power_bonus(resolve_effect_amount(effect))
+			opposing_player.add_power_bonus(resolve_effect_amount(effect))
 		StrikeEffects.Speedup:
-			strike_stat_boosts.speed += effect['amount']
+			strike_stat_boosts.speed += resolve_effect_amount(effect)
 		StrikeEffects.Armorup:
-			strike_stat_boosts.armor += effect['amount']
+			strike_stat_boosts.armor += resolve_effect_amount(effect)
 		StrikeEffects.Guardup:
-			strike_stat_boosts.guard += effect['amount']
+			strike_stat_boosts.guard += resolve_effect_amount(effect)
 		StrikeEffects.Rangeup:
 			var target_player = self
 			if effect.get("opponent"):
 				target_player = opposing_player
 			var special_only = effect.get("special_only", false)
-			target_player.add_range_bonus(effect['amount'], effect['amount2'], special_only)
+			target_player.add_range_bonus(
+				resolve_effect_amount(effect), resolve_effect_amount(effect, "amount2"), special_only)
 		StrikeEffects.RangeupBothPlayers:
-			add_range_bonus(effect['amount'], effect['amount2'], false)
-			opposing_player.add_range_bonus(effect['amount'], effect['amount2'], false)
+			add_range_bonus(resolve_effect_amount(effect), resolve_effect_amount(effect, "amount2"), false)
+			opposing_player.add_range_bonus(
+				resolve_effect_amount(effect), resolve_effect_amount(effect, "amount2"), false)
 		StrikeEffects.RangeupIfExModifier:
-			strike_stat_boosts.rangeup_min_if_ex_modifier += effect['amount']
-			strike_stat_boosts.rangeup_max_if_ex_modifier += effect['amount2']
+			strike_stat_boosts.rangeup_min_if_ex_modifier += resolve_effect_amount(effect)
+			strike_stat_boosts.rangeup_max_if_ex_modifier += resolve_effect_amount(effect, "amount2")
 		StrikeEffects.GuardupPerTwoCardsInHand:
 			strike_stat_boosts.guardup_per_two_cards_in_hand = true
 
@@ -3379,28 +3393,34 @@ func _revert_strike_bonus_effect(effect, card_id : int, check_and_effects : bool
 				strike_stat_boosts.dodge_at_range_max.erase(card_id)
 				strike_stat_boosts.dodge_at_range_from_buddy = false
 		StrikeEffects.Powerup:
-			remove_power_bonus(effect['amount'])
+			var powerup_amount = resolve_effect_amount(effect)
+			if 'multiplier' in effect:
+				powerup_amount *= int(effect['multiplier'])
+			remove_power_bonus(powerup_amount)
 		StrikeEffects.PowerupBothPlayers:
-			remove_power_bonus(effect['amount'])
-			opposing_player.remove_power_bonus(effect['amount'])
+			var powerup_amount = resolve_effect_amount(effect)
+			remove_power_bonus(powerup_amount)
+			opposing_player.remove_power_bonus(powerup_amount)
 		StrikeEffects.Speedup:
-			strike_stat_boosts.speed -= effect['amount']
+			strike_stat_boosts.speed -= resolve_effect_amount(effect)
 		StrikeEffects.Armorup:
-			strike_stat_boosts.armor -= effect['amount']
+			strike_stat_boosts.armor -= resolve_effect_amount(effect)
 		StrikeEffects.Guardup:
-			strike_stat_boosts.guard -= effect['amount']
+			strike_stat_boosts.guard -= resolve_effect_amount(effect)
 		StrikeEffects.Rangeup:
 			var target_player = self
 			if effect.get("opponent"):
 				target_player = opposing_player
 			var special_only = effect.get("special_only", false)
-			target_player.remove_range_bonus(effect['amount'], effect['amount2'], special_only)
+			target_player.remove_range_bonus(
+				resolve_effect_amount(effect), resolve_effect_amount(effect, "amount2"), special_only)
 		StrikeEffects.RangeupBothPlayers:
-			remove_range_bonus(effect['amount'], effect['amount2'], false)
-			opposing_player.remove_range_bonus(effect['amount'], effect['amount2'], false)
+			remove_range_bonus(resolve_effect_amount(effect), resolve_effect_amount(effect, "amount2"), false)
+			opposing_player.remove_range_bonus(
+				resolve_effect_amount(effect), resolve_effect_amount(effect, "amount2"), false)
 		StrikeEffects.RangeupIfExModifier:
-			strike_stat_boosts.rangeup_min_if_ex_modifier -= effect['amount']
-			strike_stat_boosts.rangeup_max_if_ex_modifier -= effect['amount2']
+			strike_stat_boosts.rangeup_min_if_ex_modifier -= resolve_effect_amount(effect)
+			strike_stat_boosts.rangeup_max_if_ex_modifier -= resolve_effect_amount(effect, "amount2")
 		StrikeEffects.GuardupPerTwoCardsInHand:
 			strike_stat_boosts.guardup_per_two_cards_in_hand = false
 
