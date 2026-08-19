@@ -1723,6 +1723,12 @@ func is_card_in_player_reference(reference_cards, card_id):
 func _should_open_or_refresh_popout(open_popout : bool, popout_type : CardPopoutType) -> bool:
 	return open_popout or (card_popout_parent.get_child_count() > 0 and popout_type_showing == popout_type)
 
+func _selection_contains_stored_zone_strike_card() -> bool:
+	for selected in selected_cards:
+		if game_wrapper.is_card_set_aside(Enums.PlayerId.PlayerId_Player, selected.card_id):
+			return true
+	return false
+
 func can_select_card(card):
 	if observer_mode:
 		return false
@@ -1753,8 +1759,12 @@ func can_select_card(card):
 			if 'may_set_from_boost' in logic_card.definition and logic_card.definition['may_set_from_boost']:
 				return true
 			return false
-		elif in_set_aside and game_wrapper.can_player_boost_from_extra(Enums.PlayerId.PlayerId_Player):
-			return game_wrapper.can_player_boost(Enums.PlayerId.PlayerId_Player, card.card_id, ['extra'], "", true)
+		elif in_set_aside:
+			if game_wrapper.can_player_boost_from_extra(Enums.PlayerId.PlayerId_Player):
+				return game_wrapper.can_player_boost(Enums.PlayerId.PlayerId_Player, card.card_id, ['extra'], "", true)
+			# Lets the player pick the card first and then choose Strike, the
+			# same way a card in hand works.
+			return game_wrapper.can_strike_with_set_aside_card(Enums.PlayerId.PlayerId_Player, card.card_id)
 		return in_hand or in_gauge
 	match ui_sub_state:
 		UISubState.UISubState_SelectCards_DiscardCards, UISubState.UISubState_SelectCards_DiscardCardsToGauge:
@@ -1838,11 +1848,15 @@ func can_select_card(card):
 				if 'may_set_from_boost' in logic_card.definition and logic_card.definition['may_set_from_boost']:
 					return true
 				return false
-			var face_attack_card = game_wrapper.get_face_attack_card(Enums.PlayerId.PlayerId_Player)
-			var is_eugenia_wonderland_card = in_set_aside and \
-				game_wrapper.get_player_deck_definition(Enums.PlayerId.PlayerId_Player).get("id") == "eugenia" and \
-				face_attack_card and face_attack_card.id == card.card_id
-			return in_hand or is_eugenia_wonderland_card
+			var can_strike_from_stored_zone = in_set_aside and \
+				game_wrapper.can_strike_with_set_aside_card(Enums.PlayerId.PlayerId_Player, card.card_id)
+			if can_strike_from_stored_zone:
+				# A stored-zone card cannot be EXed, so it is only selectable
+				# on its own.
+				return len(selected_cards) == 0 or (len(selected_cards) == 1 and selected_cards[0].card_id == card.card_id)
+			if _selection_contains_stored_zone_strike_card():
+				return false
+			return in_hand
 		UISubState.UISubState_SelectCards_StrikeCard_FromGauge:
 			return in_gauge
 		UISubState.UISubState_SelectCards_StrikeCard_FromSealed:
@@ -4702,8 +4716,11 @@ func _update_buttons(no_number_picker_update : bool = false):
 					var may_set_from_boost = 'may_set_from_boost' in logic_card.definition and logic_card.definition['may_set_from_boost']
 					can_strike = must_set_from_boost or may_set_from_boost
 			elif only_set_aside:
-				if len(selected_cards) == 1 and game_wrapper.can_player_boost_from_extra(Enums.PlayerId.PlayerId_Player):
-					can_boost = game_wrapper.can_player_boost(Enums.PlayerId.PlayerId_Player, selected_cards[0].card_id, ['extra'], "", false)
+				if len(selected_cards) == 1:
+					can_strike = game_wrapper.can_strike_with_set_aside_card(
+						Enums.PlayerId.PlayerId_Player, selected_cards[0].card_id)
+					if game_wrapper.can_player_boost_from_extra(Enums.PlayerId.PlayerId_Player):
+						can_boost = game_wrapper.can_player_boost(Enums.PlayerId.PlayerId_Player, selected_cards[0].card_id, ['extra'], "", false)
 			elif only_in_gauge:
 				if len(selected_cards) == 1 and game_wrapper.can_player_boost_from_gauge(Enums.PlayerId.PlayerId_Player):
 					can_boost = game_wrapper.can_player_boost(Enums.PlayerId.PlayerId_Player, selected_cards[0].card_id, ['gauge'], "", false)
@@ -5250,6 +5267,9 @@ func can_press_ok():
 				# EX attacks can't be set from boosts, however.
 				if len(selected_cards) == 2:
 					if not instructions_ex_allowed:
+						return false
+					# EX strikes cannot be made from the stored zone.
+					if _selection_contains_stored_zone_strike_card():
 						return false
 					if (game_wrapper.is_card_in_boosts(Enums.PlayerId.PlayerId_Player, selected_cards[0].card_id) or
 						game_wrapper.is_card_in_boosts(Enums.PlayerId.PlayerId_Player, selected_cards[1].card_id)):

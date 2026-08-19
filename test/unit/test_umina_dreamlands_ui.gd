@@ -42,6 +42,88 @@ func _setup_buddy_card(deck_id : String):
 	await game_ui.setup_character_card(game_ui.player_character_card, deck, buddy_card)
 	return buddy_card
 
+func _find_ui_card(card_id : int):
+	for node in game_ui.get_tree().get_nodes_in_group("cards"):
+		if node.card_id == card_id:
+			return node
+	return null
+
+# Puts a real card into the Dreamlands (set_aside) and returns its id.
+func _put_in_dreamlands(def_id : String) -> int:
+	var player = game_ui.game_wrapper._get_player(Enums.PlayerId.PlayerId_Player)
+	var card_def = CardDataManager.get_card(def_id)
+	var card_id = 71000 + player.set_aside_cards.size()
+	var card = GameCard.new(card_id, card_def, player.my_id)
+	game_ui.game_wrapper.current_game.get_card_database()._test_insert_card(card)
+	player.set_aside_cards.append(card)
+	return card_id
+
+func _begin_strike_selection():
+	game_ui.ui_state = game_ui.UIState.UIState_SelectCards
+	game_ui.ui_sub_state = game_ui.UISubState.UISubState_SelectCards_StrikeCard
+	game_ui.selected_cards = []
+
+func test_a_dreamlands_card_can_be_selected_when_setting_a_strike():
+	setup_game_ui("umina")
+	var dreamlands_id = _put_in_dreamlands("standard_normal_sweep")
+	_begin_strike_selection()
+
+	assert_true(game_ui.game_wrapper.can_strike_with_set_aside_card(
+		Enums.PlayerId.PlayerId_Player, dreamlands_id),
+		"the engine already allows striking from the Dreamlands")
+	assert_true(game_ui.can_select_card(_FakeCard.new(dreamlands_id)),
+		"so the card must be clickable when picking a strike")
+
+func test_a_selected_dreamlands_card_can_be_confirmed():
+	setup_game_ui("umina")
+	var dreamlands_id = _put_in_dreamlands("standard_normal_sweep")
+	_begin_strike_selection()
+	game_ui.selected_cards = [_FakeCard.new(dreamlands_id)]
+	assert_true(game_ui.can_press_ok(),
+		"one Dreamlands card is a complete strike")
+
+func test_a_dreamlands_card_cannot_be_paired_into_an_ex_strike():
+	# FAQ: a Dreamlands card may not be EXed with a copy from hand.
+	setup_game_ui("umina")
+	var dreamlands_id = _put_in_dreamlands("standard_normal_sweep")
+	_begin_strike_selection()
+	game_ui.instructions_ex_allowed = true
+
+	var player = game_ui.game_wrapper._get_player(Enums.PlayerId.PlayerId_Player)
+	var hand_copy_id = player.hand[0].id
+	game_ui.selected_cards = [_FakeCard.new(dreamlands_id)]
+	assert_false(game_ui.can_select_card(_FakeCard.new(hand_copy_id)),
+		"nothing may be added alongside a Dreamlands card")
+
+	game_ui.selected_cards = [_FakeCard.new(dreamlands_id), _FakeCard.new(hand_copy_id)]
+	assert_false(game_ui.can_press_ok(),
+		"an EX strike from the Dreamlands is illegal")
+
+func test_hand_cards_are_still_selectable_for_strikes():
+	setup_game_ui("umina")
+	_put_in_dreamlands("standard_normal_sweep")
+	_begin_strike_selection()
+	var player = game_ui.game_wrapper._get_player(Enums.PlayerId.PlayerId_Player)
+	assert_true(game_ui.can_select_card(_FakeCard.new(player.hand[0].id)),
+		"the normal case must keep working")
+
+func test_a_character_without_a_stored_zone_cannot_strike_from_set_aside():
+	# Galdred stages his face attack in set-aside but has no stored zone, so
+	# those cards must not become selectable strike targets.
+	setup_game_ui("galdred")
+	var player = game_ui.game_wrapper._get_player(Enums.PlayerId.PlayerId_Player)
+	if player.set_aside_cards.is_empty():
+		pass_test("Galdred has no set-aside cards at game start")
+		return
+	assert_false(game_ui.game_wrapper.can_strike_with_set_aside_card(
+		Enums.PlayerId.PlayerId_Player, player.set_aside_cards[0].id))
+
+# can_select_card only reads card_id, so this stands in for a real card node.
+class _FakeCard:
+	var card_id : int
+	func _init(id : int):
+		card_id = id
+
 func test_umina_deck_declares_a_dreamlands_buddy_visible_before_exceeding():
 	var deck = CardDataManager.get_deck_from_str_id("umina")
 	assert_eq(deck.get("buddy_card"), "umina_dreamlands")

@@ -19,6 +19,19 @@ class TestMobileCharacter extends Character:
 	func _is_mobile_web() -> bool:
 		return true
 
+# Character is normally instantiated from character.tscn. Constructing the
+# script bare leaves its @onready $Animation/$ExceedIcon lookups null, so give
+# it the two children it needs before it enters the tree.
+func _make_test_mobile_character() -> TestMobileCharacter:
+	var character := TestMobileCharacter.new()
+	var animation := AnimatedSprite2D.new()
+	animation.name = "Animation"
+	character.add_child(animation)
+	var exceed_icon := Sprite2D.new()
+	exceed_icon.name = "ExceedIcon"
+	character.add_child(exceed_icon)
+	return character
+
 func _make_test_shared_atlas(columns: int, rows: int, cell_size: int) -> Image:
 	var atlas = Image.create(columns * cell_size, rows * cell_size, false, Image.FORMAT_RGBA8)
 	for y in range(rows):
@@ -88,7 +101,7 @@ func test_runtime_batch_yield_only_on_web_runtime_thresholds():
 		Vector2(300, 200))
 
 func test_mobile_character_sprite_frames_scale_shared_atlas_and_preserve_animation():
-	var character := TestMobileCharacter.new()
+	var character := _make_test_mobile_character()
 	add_child_autofree(character)
 	var source_image := Image.create(200, 100, false, Image.FORMAT_RGBA8)
 	source_image.fill(Color.WHITE)
@@ -193,6 +206,7 @@ func test_card_popout_partial_fill_uses_final_slot_layout():
 
 func test_guided_selection_refreshes_matching_existing_popout():
 	var game_ui : Game = GameScene.instantiate()
+	game_ui.set_not_started_directly()
 	add_child_autofree(game_ui)
 	await get_tree().process_frame
 
@@ -227,6 +241,7 @@ func test_card_popout_does_not_connect_click_for_character_and_buddy_reference_c
 
 func test_can_select_card_rejects_character_and_buddy_reference_cards():
 	var game_ui : Game = GameScene.instantiate()
+	game_ui.set_not_started_directly()
 	add_child_autofree(game_ui)
 	await get_tree().process_frame
 

@@ -248,10 +248,17 @@ func test_moved_past_outside_strike_cannot_stun():
 	validate_positions(player1, 6, player2, 5)
 	# The crossing dealt the passive's nonlethal damage...
 	assert_eq(player2.life, 29)
-	# ...but outside a strike it must not apply a stun.
-	assert_false(player2.strike_stat_boosts.stunned, "damage outside a strike cannot stun")
-	assert_true(game_logic.get_latest_events() != null)
+	# ...but outside a strike there is no strike to be stunned in, so no stun
+	# is ever reported. (Stun state lives on active_strike, not on the player.)
+	assert_null(game_logic.active_strike, "the move happened outside a strike")
+	validate_not_has_event(game_logic.get_latest_events(), Enums.EventType.EventType_Strike_Stun, player2)
 	advance_turn(player2)
+
+	# The damage also must not carry over to stun them in the next strike: a
+	# no-guard attack from the opponent still resolves normally.
+	position_players(player1, 3, player2, 5)
+	execute_strike(player1, player2, "standard_normal_grasp", "standard_normal_focus")
+	validate_not_has_event(game_logic.get_latest_events(), Enums.EventType.EventType_Strike_Stun, player2)
 
 
 # ============================================================================

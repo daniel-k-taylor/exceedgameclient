@@ -430,17 +430,6 @@ func _restore_snapshot_has_live_opponent(data : Dictionary) -> bool:
 	if data.has("opponent_connected") and data.get("opponent_connected") == null:
 		return false
 	return true
-	var should_wait_for_opponent = false
-	if data.has("opponent_connected"):
-		should_wait_for_opponent = not _message_flag_is_true(data.get("opponent_connected", true))
-	if data.has("opponent_disconnected"):
-		should_wait_for_opponent = _message_flag_is_true(data.get("opponent_disconnected", false))
-	if data.has("opponent_waiting_for_reconnect"):
-		should_wait_for_opponent = _message_flag_is_true(data.get("opponent_waiting_for_reconnect", false))
-	if should_wait_for_opponent:
-		begin_waiting_for_opponent_reconnect(_parse_reconnect_deadline_ms(data.get("opponent_reconnect_deadline", null)))
-	else:
-		end_waiting_for_opponent_reconnect()
 
 func _handle_restore_failed(reason):
 	print("Session restore failed: ", reason)

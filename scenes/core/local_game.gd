@@ -10948,12 +10948,7 @@ func do_strike(
 				return false
 		elif not wild_strike and not performing_player.is_card_in_hand(card_id):
 			if performing_player.is_card_in_set_aside(card_id):
-				var face_attack_card = performing_player.get_face_attack_card()
-				var can_strike_from_dreamlands = performing_player.deck_def.get("id") == "umina" and \
-						performing_player.deck_def.get("dreamlands_config", {}).get("allow_strike", false)
-				var can_strike_from_wonderland = performing_player.deck_def.get("id") == "eugenia" and \
-						face_attack_card and face_attack_card.id == card_id
-				if not can_strike_from_dreamlands and not can_strike_from_wonderland:
+				if not performing_player.can_strike_with_set_aside_card(card_id):
 					printlog("ERROR: Tried to strike with a set-aside card.")
 					return false
 				if ex_strike:

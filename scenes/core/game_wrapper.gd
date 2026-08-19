@@ -397,6 +397,9 @@ func get_buddy_name(player_id : Enums.PlayerId, buddy_id : String):
 func get_face_attack_card(player_id : Enums.PlayerId):
 	return _get_player(player_id).get_face_attack_card()
 
+func can_strike_with_set_aside_card(player_id : Enums.PlayerId, card_id : int) -> bool:
+	return _get_player(player_id).can_strike_with_set_aside_card(card_id)
+
 func get_life_for_force_amount(player_id : Enums.PlayerId):
 	return _get_player(player_id).spend_life_for_force_amount
 

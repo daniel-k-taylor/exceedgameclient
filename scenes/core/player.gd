@@ -2125,6 +2125,33 @@ func get_stored_zone_name():
 		zone_info = deck_def["stored_zone_info_exceeded"]
 	return zone_info["name"]
 
+func get_stored_zone_info() -> Dictionary:
+	var zone_info = deck_def.get("stored_zone_info")
+	if not zone_info:
+		return {}
+	if exceeded and deck_def.has("stored_zone_info_exceeded"):
+		zone_info = deck_def["stored_zone_info_exceeded"]
+	return zone_info
+
+# Whether a card sitting in the stored zone may be set as this player's attack.
+# Characters opt in with stored_zone_info.can_set_for_attack (Umina's
+# Dreamlands, where any card there is playable). Eugenia's Wonderland is
+# narrower: only the single card currently turned face up can be struck with.
+# The UI and the engine both call this so a card can never look selectable
+# without being legal, or be legal without looking selectable.
+func can_strike_with_set_aside_card(card_id : int) -> bool:
+	if not is_card_in_set_aside(card_id):
+		return false
+	var zone_info = get_stored_zone_info()
+	if zone_info.is_empty():
+		# No named stored zone, so set-aside cards are staging for effects
+		# (Galdred's face attack) rather than a zone the player strikes from.
+		return false
+	if zone_info.get("can_set_for_attack", false):
+		return true
+	var face_attack_card = get_face_attack_card()
+	return face_attack_card != null and face_attack_card.id == card_id
+
 func is_stored_zone_facedown():
 	# Umina The Sleeper Wakes: dynamic facedown via transform effect
 	if deck_def.get("id") == "umina" and umina_dreamlands_facedown:
@@ -3064,7 +3091,7 @@ func build_outside_strike_range_effect_list():
 	for card in continuous_boosts:
 		for effect in card.definition["boost"]["effects"]:
 			if effect["timing"] == "during_strike" and effect.get("works_outside_strike"):
-				match effect["type"]:
+				match effect["effect_type"]:
 					StrikeEffects.Rangeup:
 						if effect.get("opponent"):
 							# Ignore opponent effects.
@@ -3076,6 +3103,13 @@ func build_outside_strike_range_effect_list():
 							"min_range": min_bonus,
 							"max_range": max_bonus,
 							"special_only": special_only
+						}
+						effect_list.append(range_effect)
+					StrikeEffects.RangeupBothPlayers:
+						var range_effect = {
+							"min_range": effect['amount'],
+							"max_range": effect['amount2'],
+							"special_only": false
 						}
 						effect_list.append(range_effect)
 
