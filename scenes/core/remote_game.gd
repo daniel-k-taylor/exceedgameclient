@@ -473,7 +473,8 @@ func process_mulligan(action_message) -> void:
 	local_game.do_mulligan(game_player, card_ids)
 
 func do_boost(player : Player, card_id : int, payment_card_ids = [],
-		use_free_force : bool = false, spent_life_for_force : int = 0, additional_boost_ids = []) -> bool:
+		use_free_force : bool = false, spent_life_for_force : int = 0, additional_boost_ids = [],
+		facedown_override = null) -> bool:
 	var action_message = {
 		'action_type': 'action_boost',
 		'player_id': _get_player_remote_id(player),
@@ -482,7 +483,9 @@ func do_boost(player : Player, card_id : int, payment_card_ids = [],
 		'use_free_force': use_free_force,
 		'zsolt_free_force_amount': _get_zsolt_free_force_amount(player, use_free_force),
 		'spent_life_for_force': spent_life_for_force,
-		'additional_boost_ids': additional_boost_ids
+		'additional_boost_ids': additional_boost_ids,
+		# Renea places continuous boosts face-down; null means "use the default".
+		'facedown_override': facedown_override
 	}
 	_submit_game_message(action_message)
 	return true
@@ -495,7 +498,56 @@ func process_boost(action_message) -> void:
 	_apply_zsolt_free_force_amount(game_player, action_message)
 	var spent_life_for_force = action_message['spent_life_for_force']
 	var additional_boost_ids = action_message['additional_boost_ids']
-	local_game.do_boost(game_player, card_id, payment_card_ids, use_free_force, spent_life_for_force, additional_boost_ids)
+	var facedown_override = action_message.get('facedown_override')
+	local_game.do_boost(game_player, card_id, payment_card_ids, use_free_force, spent_life_for_force,
+		additional_boost_ids, facedown_override)
+
+func do_cancel_tournelouse_transform_bonus_choice(player : Player) -> bool:
+	_submit_game_message({
+		'action_type': 'action_cancel_tournelouse_transform_bonus_choice',
+		'player_id': _get_player_remote_id(player),
+	})
+	return true
+
+func process_cancel_tournelouse_transform_bonus_choice(action_message) -> void:
+	var game_player = _get_player_from_remote_id(action_message['player_id'])
+	local_game.do_cancel_tournelouse_transform_bonus_choice(game_player)
+
+func do_cancel_tournelouse_ouroboros_hand_choice(player : Player) -> bool:
+	_submit_game_message({
+		'action_type': 'action_cancel_tournelouse_ouroboros_hand_choice',
+		'player_id': _get_player_remote_id(player),
+	})
+	return true
+
+func process_cancel_tournelouse_ouroboros_hand_choice(action_message) -> void:
+	var game_player = _get_player_from_remote_id(action_message['player_id'])
+	local_game.do_cancel_tournelouse_ouroboros_hand_choice(game_player)
+
+func do_cancel_tournelouse_ouroboros_transform_choice(player : Player) -> bool:
+	_submit_game_message({
+		'action_type': 'action_cancel_tournelouse_ouroboros_transform_choice',
+		'player_id': _get_player_remote_id(player),
+	})
+	return true
+
+func process_cancel_tournelouse_ouroboros_transform_choice(action_message) -> void:
+	var game_player = _get_player_from_remote_id(action_message['player_id'])
+	local_game.do_cancel_tournelouse_ouroboros_transform_choice(game_player)
+
+func do_renea_pre_strike_reveal(player : Player, strike_response : bool = false) -> bool:
+	var action_message = {
+		'action_type': 'action_renea_pre_strike_reveal',
+		'player_id': _get_player_remote_id(player),
+		'strike_response': strike_response,
+	}
+	_submit_game_message(action_message)
+	return true
+
+func process_renea_pre_strike_reveal(action_message) -> void:
+	var game_player = _get_player_from_remote_id(action_message['player_id'])
+	var strike_response = action_message.get('strike_response', false)
+	local_game._renea_begin_pre_strike_reveal(game_player, not strike_response, strike_response)
 
 func do_choose_from_boosts(player : Player, card_ids : Array) -> bool:
 	var action_message = {

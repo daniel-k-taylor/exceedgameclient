@@ -791,6 +791,10 @@ layout_mode = 2
 mouse_filter = 2
 alignment = 1
 
+[node name="Buffer" type="HBoxContainer" parent="CenterContainer/SCCharacterSelect/Rows"]
+custom_minimum_size = Vector2(0, 50)
+layout_mode = 2
+
 [node name="Row1" type="HBoxContainer" parent="CenterContainer/SCCharacterSelect/Rows"]
 layout_mode = 2
 alignment = 1
@@ -873,14 +877,14 @@ layout_mode = 2
 char_id = "zsolt"
 portrait_texture = ExtResource("109_zsolt")
 
-[node name="Luciya" parent="CenterContainer/SCCharacterSelect/Rows/Row3" instance=ExtResource("6_3lmwy")]
-layout_mode = 2
-char_id = "luciya"
-portrait_texture = ExtResource("112_luciya")
-
 [node name="Row4" type="HBoxContainer" parent="CenterContainer/SCCharacterSelect/Rows"]
 layout_mode = 2
 alignment = 1
+
+[node name="Luciya" parent="CenterContainer/SCCharacterSelect/Rows/Row4" instance=ExtResource("6_3lmwy")]
+layout_mode = 2
+char_id = "luciya"
+portrait_texture = ExtResource("112_luciya")
 
 [node name="Minato" parent="CenterContainer/SCCharacterSelect/Rows/Row4" instance=ExtResource("6_3lmwy")]
 layout_mode = 2
@@ -897,19 +901,19 @@ layout_mode = 2
 char_id = "renea"
 portrait_texture = ExtResource("115_renea")
 
-[node name="Syrus" parent="CenterContainer/SCCharacterSelect/Rows/Row4" instance=ExtResource("6_3lmwy")]
+[node name="Row5" type="HBoxContainer" parent="CenterContainer/SCCharacterSelect/Rows"]
+layout_mode = 2
+alignment = 1
+
+[node name="Syrus" parent="CenterContainer/SCCharacterSelect/Rows/Row5" instance=ExtResource("6_3lmwy")]
 layout_mode = 2
 char_id = "syrus"
 portrait_texture = ExtResource("116_syrus")
 
-[node name="Tournelouse" parent="CenterContainer/SCCharacterSelect/Rows/Row4" instance=ExtResource("6_3lmwy")]
+[node name="Tournelouse" parent="CenterContainer/SCCharacterSelect/Rows/Row5" instance=ExtResource("6_3lmwy")]
 layout_mode = 2
 char_id = "tournelouse"
 portrait_texture = ExtResource("117_tournelouse")
-
-[node name="Row5" type="HBoxContainer" parent="CenterContainer/SCCharacterSelect/Rows"]
-layout_mode = 2
-alignment = 1
 
 [node name="Umina" parent="CenterContainer/SCCharacterSelect/Rows/Row5" instance=ExtResource("6_3lmwy")]
 layout_mode = 2
@@ -1275,18 +1279,18 @@ portrait_texture = ExtResource("100_dtwln")
 [connection signal="on_pressed" from="TabSelect/CategoriesHBox/RandomAll" to="." method="_on_char_button_on_pressed"]
 [connection signal="on_hover" from="TabSelect/CategoriesHBox2/Custom" to="." method="_on_char_hover"]
 [connection signal="on_pressed" from="TabSelect/CategoriesHBox2/Custom" to="." method="_on_char_button_on_pressed"]
-[connection signal="on_hover" from="CenterContainer/SCCharacterSelect/Rows/Row3/Luciya" to="." method="_on_char_hover"]
-[connection signal="on_pressed" from="CenterContainer/SCCharacterSelect/Rows/Row3/Luciya" to="." method="_on_char_button_on_pressed"]
+[connection signal="on_hover" from="CenterContainer/SCCharacterSelect/Rows/Row4/Luciya" to="." method="_on_char_hover"]
+[connection signal="on_pressed" from="CenterContainer/SCCharacterSelect/Rows/Row4/Luciya" to="." method="_on_char_button_on_pressed"]
 [connection signal="on_hover" from="CenterContainer/SCCharacterSelect/Rows/Row4/Minato" to="." method="_on_char_hover"]
 [connection signal="on_pressed" from="CenterContainer/SCCharacterSelect/Rows/Row4/Minato" to="." method="_on_char_button_on_pressed"]
 [connection signal="on_hover" from="CenterContainer/SCCharacterSelect/Rows/Row4/Pooky" to="." method="_on_char_hover"]
 [connection signal="on_pressed" from="CenterContainer/SCCharacterSelect/Rows/Row4/Pooky" to="." method="_on_char_button_on_pressed"]
 [connection signal="on_hover" from="CenterContainer/SCCharacterSelect/Rows/Row4/Renea" to="." method="_on_char_hover"]
 [connection signal="on_pressed" from="CenterContainer/SCCharacterSelect/Rows/Row4/Renea" to="." method="_on_char_button_on_pressed"]
-[connection signal="on_hover" from="CenterContainer/SCCharacterSelect/Rows/Row4/Syrus" to="." method="_on_char_hover"]
-[connection signal="on_pressed" from="CenterContainer/SCCharacterSelect/Rows/Row4/Syrus" to="." method="_on_char_button_on_pressed"]
-[connection signal="on_hover" from="CenterContainer/SCCharacterSelect/Rows/Row4/Tournelouse" to="." method="_on_char_hover"]
-[connection signal="on_pressed" from="CenterContainer/SCCharacterSelect/Rows/Row4/Tournelouse" to="." method="_on_char_button_on_pressed"]
+[connection signal="on_hover" from="CenterContainer/SCCharacterSelect/Rows/Row5/Syrus" to="." method="_on_char_hover"]
+[connection signal="on_pressed" from="CenterContainer/SCCharacterSelect/Rows/Row5/Syrus" to="." method="_on_char_button_on_pressed"]
+[connection signal="on_hover" from="CenterContainer/SCCharacterSelect/Rows/Row5/Tournelouse" to="." method="_on_char_hover"]
+[connection signal="on_pressed" from="CenterContainer/SCCharacterSelect/Rows/Row5/Tournelouse" to="." method="_on_char_button_on_pressed"]
 [connection signal="on_hover" from="CenterContainer/SCCharacterSelect/Rows/Row5/Umina" to="." method="_on_char_hover"]
 [connection signal="on_pressed" from="CenterContainer/SCCharacterSelect/Rows/Row5/Umina" to="." method="_on_char_button_on_pressed"]
 [connection signal="on_hover" from="CenterContainer/S1CharacterSelect/Rows/Row1/MeiLien" to="." method="_on_char_hover"]

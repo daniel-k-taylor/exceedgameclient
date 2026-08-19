@@ -177,6 +177,9 @@ var select_gauge_valid_card_types = []
 var select_boost_options = {}
 var select_card_name_boost_restriction = ""
 var selected_boost_to_pay_for = -1
+# Renea: face-up (false) / face-down (true) placement chosen for a continuous
+# boost whose cost is still being paid. null means "use the card's default".
+var selected_boost_facedown_override = null
 var instructions_ok_allowed = false
 var instructions_cancel_allowed = false
 var instructions_strike_options = {}
@@ -372,6 +375,76 @@ var exiting = false
 func printlog(text):
 	if GlobalSettings.is_logging_enabled():
 		print("UI: %s" % text)
+
+# --- Tournelouse transform choices ---
+# All of Tournelouse's transform-related decisions are optional and select cards
+# from the transform zone rather than the boost zone, so the UI needs to detect
+# them to offer a Cancel button and to allow selecting the right cards.
+
+func is_tournelouse_transform_bonus_choice() -> bool:
+	if not game_wrapper:
+		return false
+	var decision_effect = game_wrapper.get_decision_info().effect
+	return decision_effect != null and decision_effect.get("effect_type") in [StrikeEffects.SealTransformForPowerup, StrikeEffects.SealTransformForArmorup]
+
+func is_tournelouse_transform_zone_choice() -> bool:
+	if not game_wrapper:
+		return false
+	var decision_effect = game_wrapper.get_decision_info().effect
+	return decision_effect != null and (is_tournelouse_transform_bonus_choice() or decision_effect.get("tournelouse_ouroboros") or decision_effect.get("tournelouse_ouroboros_return_transform"))
+
+func is_tournelouse_ouroboros_force_choice() -> bool:
+	if not game_wrapper:
+		return false
+	var decision_effect = game_wrapper.get_decision_info().effect
+	return decision_effect != null and decision_effect.get("tournelouse_ouroboros_force")
+
+func is_tournelouse_ouroboros_hand_choice() -> bool:
+	if not game_wrapper:
+		return false
+	var decision_effect = game_wrapper.get_decision_info().effect
+	return decision_effect != null and decision_effect.get("tournelouse_ouroboros_select_hand")
+
+func is_tournelouse_ouroboros_transform_return_choice() -> bool:
+	if not game_wrapper:
+		return false
+	var decision_effect = game_wrapper.get_decision_info().effect
+	return decision_effect != null and decision_effect.get("tournelouse_ouroboros_return_transform")
+
+func is_tournelouse_ouroboros_legal_hand_transform(card_id : int) -> bool:
+	if not game_wrapper:
+		return false
+	var decision_info = game_wrapper.get_decision_info()
+	return decision_info.choice != null and card_id in decision_info.choice
+
+func is_tournelouse_ouroboros_paid_card(card_id : int) -> bool:
+	if not game_wrapper:
+		return false
+	var decision_effect = game_wrapper.get_decision_info().effect
+	return decision_effect != null and card_id in decision_effect.get("paid_card_ids", [])
+
+# Bargeist Fang can't be returned when doing so would leave a duplicate of the
+# normal card being transformed already in the transform zone.
+func is_tournelouse_ouroboros_bargeist_return_blocked(card_id : int) -> bool:
+	if not game_wrapper:
+		return false
+	var decision_effect = game_wrapper.get_decision_info().effect
+	if decision_effect == null or not decision_effect.get("tournelouse_ouroboros_return_transform"):
+		return false
+	if game_wrapper.get_card_database().get_card(card_id).definition.get("id") != "tournelouse_bargeist_fang":
+		return false
+	var hand_card_id = decision_effect.get("hand_card_id", -1)
+	if hand_card_id == -1:
+		return false
+	var hand_card = game_wrapper.get_card_database().get_card(hand_card_id)
+	if hand_card.definition['type'] != "normal":
+		return false
+	for boost_card in $AllCards/PlayerBoosts.get_children():
+		if boost_card.card_id != card_id and game_wrapper.is_card_in_transforms(Enums.PlayerId.PlayerId_Player, boost_card.card_id):
+			var transform_card = game_wrapper.get_card_database().get_card(boost_card.card_id)
+			if transform_card.definition['display_name'] == hand_card.definition['display_name']:
+				return true
+	return false
 
 # Called when the node enters the scene tree for the first time.
 var started_directly : bool = true
@@ -771,11 +844,12 @@ func create_character_reference_card(exceeded : bool, zone, image_resources):
 		image_url = image_resources['character_exceeded']['url']
 	_create_reference_card(image_url, "Character Card", zone, CardBase.CharacterCardReferenceId)
 
-func create_buddy_reference_card(buddy_id, exceeded : bool, zone, click_buddy_id, image_resources):
+func create_buddy_reference_card(buddy_id, exceeded : bool, zone, click_buddy_id, image_resources,
+		card_name : String = "Extra Card"):
 	var image_url = image_resources[buddy_id]['url']
 	if exceeded:
 		image_url = image_resources[buddy_id + '_exceeded']['url']
-	_create_reference_card(image_url, "Extra Card", zone, click_buddy_id)
+	_create_reference_card(image_url, card_name, zone, click_buddy_id)
 
 func _create_reference_card(image_url : String, card_name : String, zone,
 		card_id : int):
@@ -812,7 +886,8 @@ func spawn_deck(deck_list,
 		allow_click_buddy,
 		set_aside_zone,
 		is_opponent,
-		image_resources):
+		image_resources,
+		buddy_reference_name : String = ""):
 	var card_db = game_wrapper.get_card_database()
 	var card_back_url = image_resources['cardback']['url']
 
@@ -832,6 +907,16 @@ func spawn_deck(deck_list,
 
 	create_character_reference_card(false, copy_zone, image_resources)
 	create_character_reference_card(true, copy_zone, image_resources)
+
+	# Characters whose extra-cards popout is redirected to another zone (Renea's
+	# Briefcase, Umina's Dreamlands, Eugenia's Wonderland, Djanette's Spell
+	# Circle) would otherwise never display their marker card anywhere, because
+	# that popout shows the stored cards instead. Put it in the deck reference
+	# alongside the character card.
+	if buddy_reference_name:
+		for buddy_id in buddy_graphic_list:
+			create_buddy_reference_card(buddy_id, false, copy_zone,
+				CardBase.BuddyCardReferenceId, image_resources, buddy_reference_name)
 
 	var previous_def_id = ""
 	var buddy_card_id_links = {}
@@ -928,13 +1013,24 @@ func spawn_all_cards():
 	var player_can_click_buddy = player_deck.get("link_extra_cards_to_buddies", false)
 	var opponent_can_click_buddy = opponent_deck.get("link_extra_cards_to_buddies", false)
 
+	# Only decks whose buddy popout is redirected elsewhere need their marker
+	# card surfaced in the deck reference list.
+	var player_buddy_reference_name = ""
+	if player_deck.get("buddy_link_to_zone"):
+		player_buddy_reference_name = player_deck.get("buddy_display_name", "Extra Card")
+	var opponent_buddy_reference_name = ""
+	if opponent_deck.get("buddy_link_to_zone"):
+		opponent_buddy_reference_name = opponent_deck.get("buddy_display_name", "Extra Card")
+
 	var player_image_resources = player_deck['image_resources']
 	var opponent_image_resources = opponent_deck['image_resources']
 
 	await spawn_deck(game_wrapper.get_player_deck_list(Enums.PlayerId.PlayerId_Player), $AllCards/PlayerDeck, $AllCards/PlayerAllCopy,
-		player_buddy_graphics, $AllCards/PlayerBuddyCopy, player_can_click_buddy, $AllCards/PlayerSetAside, false, player_image_resources)
+		player_buddy_graphics, $AllCards/PlayerBuddyCopy, player_can_click_buddy, $AllCards/PlayerSetAside, false, player_image_resources,
+		player_buddy_reference_name)
 	await spawn_deck(game_wrapper.get_player_deck_list(Enums.PlayerId.PlayerId_Opponent), $AllCards/OpponentDeck, $AllCards/OpponentAllCopy,
-		opponent_buddy_graphics, $AllCards/OpponentBuddyCopy, opponent_can_click_buddy, $AllCards/OpponentSetAside, true, opponent_image_resources)
+		opponent_buddy_graphics, $AllCards/OpponentBuddyCopy, opponent_can_click_buddy, $AllCards/OpponentSetAside, true, opponent_image_resources,
+		opponent_buddy_reference_name)
 
 func get_arena_location_button(arena_location):
 	var target_square = arena_layout.get_child(arena_location - 1)
@@ -1744,6 +1840,7 @@ func can_select_card(card):
 	var in_set_aside = game_wrapper.is_card_set_aside(Enums.PlayerId.PlayerId_Player, card.card_id)
 	var in_overdrive = game_wrapper.is_card_in_overdrive(Enums.PlayerId.PlayerId_Player, card.card_id)
 	var in_player_boosts = game_wrapper.is_card_in_boosts(Enums.PlayerId.PlayerId_Player, card.card_id)
+	var in_player_transforms = game_wrapper.is_card_in_transforms(Enums.PlayerId.PlayerId_Player, card.card_id)
 	var is_sustained = game_wrapper.is_card_sustained(Enums.PlayerId.PlayerId_Player, card.card_id)
 	var in_opponent_boosts = game_wrapper.is_card_in_boosts(Enums.PlayerId.PlayerId_Opponent, card.card_id)
 	var in_player_reference = is_card_in_player_reference($AllCards/PlayerAllCopy.get_children(), card.card_id)
@@ -1761,6 +1858,11 @@ func can_select_card(card):
 			return false
 		elif in_set_aside:
 			if game_wrapper.can_player_boost_from_extra(Enums.PlayerId.PlayerId_Player):
+				# Renea: the Briefcase may only be boosted from once per turn, so
+				# gray the cards out instead of offering a doomed selection.
+				var renea_sa = game_wrapper._get_player(Enums.PlayerId.PlayerId_Player)
+				if renea_sa.deck_def.get("id") == "renea" and renea_sa.exceeded and renea_sa.renea_boost_from_briefcase_used:
+					return false
 				return game_wrapper.can_player_boost(Enums.PlayerId.PlayerId_Player, card.card_id, ['extra'], "", true)
 			# Lets the player pick the card first and then choose Strike, the
 			# same way a card in hand works.
@@ -1772,6 +1874,10 @@ func can_select_card(card):
 				return false
 			return in_hand and len(selected_cards) < select_card_require_max
 		UISubState.UISubState_SelectCards_DiscardCards_Choose:
+			# Tournelouse Ouroboros: only the normals the engine offered may be
+			# chosen from hand, and a card already spent as payment can't be reused.
+			if is_tournelouse_ouroboros_hand_choice():
+				return in_hand and not is_tournelouse_ouroboros_paid_card(card.card_id) and is_tournelouse_ouroboros_legal_hand_transform(card.card_id) and len(selected_cards) < select_card_require_max
 			var limitation = game_wrapper.get_decision_info().limitation
 			var meets_limitation = true
 			var game_card = game_wrapper.get_card_database().get_card(card.card_id)
@@ -1815,6 +1921,10 @@ func can_select_card(card):
 		UISubState.UISubState_SelectCards_StrikeForce:
 			return in_gauge or in_hand
 		UISubState.UISubState_SelectCards_ChooseBoostsToSustain:
+			# Tournelouse's transform choices reuse this sub-state but pick from
+			# the transform zone, and already-paid cards can't be picked twice.
+			if is_tournelouse_transform_zone_choice():
+				return in_player_transforms and not is_tournelouse_ouroboros_paid_card(card.card_id) and len(selected_cards) < select_card_require_max
 			return in_player_boosts and not is_sustained and len(selected_cards) < select_card_require_max
 		UISubState.UISubState_SelectCards_CharacterAction_Force:
 			var new_force = game_wrapper.get_card_database().get_card_force_value(card.card_id)
@@ -1822,6 +1932,10 @@ func can_select_card(card):
 		UISubState.UISubState_SelectCards_CharacterAction_Gauge:
 			return in_gauge and len(selected_cards) < select_card_require_max
 		UISubState.UISubState_SelectCards_ForceForEffect:
+			# Tournelouse Ouroboros: paying force from hand would leave no card to
+			# transform, so block it when it is the player's last card.
+			if is_tournelouse_ouroboros_force_choice() and in_hand and game_wrapper.get_player_hand_size(Enums.PlayerId.PlayerId_Player) <= 1:
+				return false
 			var force_selected = get_force_in_selected_cards()
 			var new_force = game_wrapper.get_card_database().get_card_force_value(card.card_id)
 			var total_force = force_selected + new_force
@@ -1917,6 +2031,10 @@ func can_select_card(card):
 			var card_type = logic_card.definition['type']
 			var limitation = game_wrapper.get_decision_info().limitation
 			var source = game_wrapper.get_decision_info().source
+			# Umina "Terror Whispers": Shadow Chorus may not enter the Dreamlands.
+			if source == "discard" and game_wrapper.get_decision_info().destination == "umina_dreamlands":
+				if logic_card.definition.get("id") == "umina_shadow_chorus":
+					return false
 			var meets_limitation = false
 			match limitation:
 				"normal":
@@ -2517,7 +2635,8 @@ func _on_choose_from_boosts(event):
 		_on_player_boost_zone_clicked_zone()
 		selected_cards = []
 		var cancel_allowed = false
-		if select_card_require_min == 0:
+		# Tournelouse's transform bonus / Ouroboros return are always optional.
+		if select_card_require_min == 0 or is_tournelouse_transform_bonus_choice() or is_tournelouse_ouroboros_transform_return_choice():
 			cancel_allowed = true
 		enable_instructions_ui("", true, cancel_allowed)
 		change_ui_state(UIState.UIState_SelectCards, UISubState.UISubState_SelectCards_ChooseBoostsToSustain)
@@ -2628,10 +2747,33 @@ func get_string_for_action_choice(choice):
 func begin_choose_from_topdeck(action_choices, look_amount, can_pass, player = Enums.PlayerId.PlayerId_Player):
 	current_topdeck_choosing_player = player
 	var card_ids = game_wrapper.get_player_top_cards(player, look_amount)
+	var card_db = game_wrapper.get_card_database()
+	# Eugenia's Wanderlust looks at effectively the whole deck, so sort the
+	# revealed cards into deck-reference order and show remaining counts.
+	var is_wanderlust_choose = _is_wanderlust_choose_from_topdeck()
+	if is_wanderlust_choose:
+		var reference_order = _get_deck_reference_order_for_player(player)
+		card_ids.sort_custom(func(a, b):
+			var card_a = card_db.get_card(a)
+			var card_b = card_db.get_card(b)
+			var id_a = card_a.definition.get("id", "") if card_a else ""
+			var id_b = card_b.definition.get("id", "") if card_b else ""
+			var order_a = reference_order.get(id_a, 9999)
+			var order_b = reference_order.get(id_b, 9999)
+			if order_a == order_b:
+				return a < b
+			return order_a < order_b
+		)
 	for card_id in card_ids:
 		var card = find_card_on_board(card_id)
 		card.flip_card_to_front(true)
 		reparent_to_zone(card, choice_zone_parent)
+		if is_wanderlust_choose:
+			var logic_card = card_db.get_card(card_id)
+			if logic_card:
+				var card_str_id = logic_card.definition.get("id", "")
+				if card_str_id != "":
+					card.set_remaining_count(game_wrapper.count_cards_in_deck_and_hand(player, card_str_id))
 
 	var button1 = get_string_for_action_choice(action_choices[0])
 	var button2 = ""
@@ -2696,6 +2838,34 @@ func begin_choose_opponent_card_to_discard(card_ids):
 	_on_choice_popout_show_button_pressed()
 
 	change_ui_state(UIState.UIState_SelectCards, UISubState.UISubState_SelectCards_ChooseOpponentCardToDiscard)
+
+func _is_wanderlust_choose_from_topdeck() -> bool:
+	if game_wrapper == null:
+		return false
+	var decision_info = game_wrapper.get_decision_info()
+	if decision_info == null or decision_info.type != Enums.DecisionType.DecisionType_ChooseFromTopDeck:
+		return false
+	if decision_info.choice_card_id < 0:
+		return false
+	var source_card = game_wrapper.get_card_database().get_card(decision_info.choice_card_id)
+	if source_card == null:
+		return false
+	return source_card.definition.get("id", "") == "eugenia_queen_of_hearts"
+
+func _get_deck_reference_order_for_player(player : Enums.PlayerId) -> Dictionary:
+	var order_map = {}
+	var deck_list = game_wrapper.get_player_deck_list(player)
+	var card_db = game_wrapper.get_card_database()
+	var order_index = 0
+	for card in deck_list:
+		var logic_card = card_db.get_card(card.id)
+		if logic_card == null:
+			continue
+		var card_str_id = logic_card.definition.get("id", "")
+		if card_str_id != "" and not order_map.has(card_str_id):
+			order_map[card_str_id] = order_index
+			order_index += 1
+	return order_map
 
 func _on_discard_event(event):
 	var player = event['event_player']
@@ -2817,6 +2987,10 @@ func _on_add_to_stored(event):
 	var player = event['event_player']
 	var card = find_card_on_board(event['number'])
 	var facedown = event['extra_info']
+	# Umina's "The Sleeper Wakes" flips the Dreamlands face-down dynamically, so
+	# fall back to the player's current stored-zone config when the event is silent.
+	if facedown == null:
+		facedown = game_wrapper._get_player(player).is_stored_zone_facedown()
 	if not facedown:
 		make_card_revealed(card)
 
@@ -3153,6 +3327,10 @@ func set_instructions(text):
 	current_instruction_text = text
 
 func update_discard_selection_message_choose():
+	if is_tournelouse_ouroboros_hand_choice():
+		set_instructions("Select a card from your hand to transform.")
+		return
+
 	var decision_info = game_wrapper.get_decision_info()
 	var destination = decision_info.destination
 	if preparing_character_action:
@@ -3210,7 +3388,12 @@ func update_discard_selection_message():
 func update_sustain_selection_message():
 	if select_card_require_min == select_card_require_max:
 		var num_remaining = select_card_require_min - len(selected_cards)
-		set_instructions("Select %s more card(s) from your boosts to sustain." % num_remaining)
+		if is_tournelouse_transform_bonus_choice():
+			set_instructions("Select %s more card(s) from your transforms to seal." % num_remaining)
+		elif is_tournelouse_ouroboros_transform_return_choice():
+			set_instructions("Select a transform card to return to your hand.")
+		else:
+			set_instructions("Select %s more card(s) from your boosts to sustain." % num_remaining)
 	else:
 		var num_remaining = select_card_require_max - len(selected_cards)
 		set_instructions("Select up to %s more card(s) from your boosts to sustain." % [num_remaining])
@@ -3654,6 +3837,7 @@ func begin_gauge_strike_choosing(strike_response : bool, cancel_allowed : bool, 
 
 func begin_boost_choosing(can_cancel : bool, valid_zones : Array, limitation : String, ignore_costs : bool, boost_amount : int):
 	selected_cards = []
+	selected_boost_facedown_override = null
 	var count_str = "a"
 	var plural = ""
 	select_card_require_min = 1
@@ -3843,6 +4027,15 @@ func add_revealed_card(card_id : int):
 
 func _on_reveal_card_from_hand(event):
 	var player = event['event_player']
+	# Renea: when a face-down boost is revealed, flip its visual face-up. Hand
+	# reveals stay hidden in the hand zone because the engine already tracks them
+	# as known cards for the public hand display.
+	var reveal_card = find_card_on_board(event['number'])
+	if reveal_card:
+		var parent_zone = reveal_card.get_parent()
+		var in_hand_zone = parent_zone == $AllCards/PlayerHand or parent_zone == $AllCards/OpponentHand
+		if not in_hand_zone:
+			make_card_revealed(reveal_card)
 	spawn_damage_popup("Card Revealed!", player)
 	if player == Enums.PlayerId.PlayerId_Player:
 		update_eyes_on_hand_icons()
@@ -4040,7 +4233,13 @@ func _on_effect_do_boost(event):
 	var player = event['event_player']
 	var card_id = event['number']
 	if player == Enums.PlayerId.PlayerId_Player and not observer_mode:
-		game_wrapper.submit_boost(player, card_id, [], false, 0)
+		var facedown_override = null
+		var placement_choice = await _get_renea_boost_placement_choice(player, card_id)
+		if placement_choice == -1:
+			return
+		if placement_choice >= 0:
+			facedown_override = placement_choice == 1
+		game_wrapper.submit_boost(player, card_id, [], false, 0, [], facedown_override)
 	else:
 		ai_effect_do_boost(card_id)
 
@@ -4120,6 +4319,9 @@ func _on_force_for_effect(event):
 		var can_cancel = true
 		if 'required' in effect and effect['required']:
 			can_cancel = false
+		# Tournelouse Ouroboros: paying the force is always optional.
+		if is_tournelouse_ouroboros_force_choice():
+			can_cancel = true
 		begin_generate_force_selection(require_max, can_cancel, false, false, true)
 	else:
 		ai_force_for_effect(effect)
@@ -4841,9 +5043,9 @@ func _update_buttons(no_number_picker_update : bool = false):
 	if not preparing_character_action:
 		match ui_sub_state:
 			UISubState.UISubState_SelectCards_BoostCancel, UISubState.UISubState_SelectCards_Mulligan, UISubState.UISubState_SelectCards_ForceForEffect, UISubState.UISubState_SelectCards_DiscardCardsToGauge, UISubState.UISubState_SelectCards_ChooseDiscardToDestination:
-				cancel_text = "Pass"
+				cancel_text = "Cancel" if is_tournelouse_ouroboros_force_choice() else "Pass"
 			UISubState.UISubState_SelectCards_ChooseBoostsToSustain, UISubState.UISubState_SelectCards_ChooseFromTopdeck, UISubState.UISubState_SelectCards_ChooseOpponentCardToDiscard:
-				cancel_text = "Pass"
+				cancel_text = "Cancel" if is_tournelouse_transform_bonus_choice() or is_tournelouse_ouroboros_transform_return_choice() else "Pass"
 			UISubState.UISubState_SelectArena_EffectChoice:
 				cancel_text = "Pass"
 			UISubState.UISubState_SelectCards_GaugeForEffect:
@@ -4887,7 +5089,10 @@ func _update_buttons(no_number_picker_update : bool = false):
 				ultra_force_toggle = true
 				free_force_toggle = game_wrapper.get_player_free_force(Enums.PlayerId.PlayerId_Player) > 0
 				show_life_for_force_counter = true
-				update_force_generation_message()
+				if is_tournelouse_ouroboros_force_choice():
+					set_instructions("Select a card to pay 1 force.")
+				else:
+					update_force_generation_message()
 			UISubState.UISubState_SelectCards_StrikeForce:
 				ex_discard_order_toggle = current_pay_costs_is_ex
 				free_force_toggle = game_wrapper.get_player_free_force(Enums.PlayerId.PlayerId_Player) > 0
@@ -5059,6 +5264,14 @@ func update_boost_summary(player_id, boosts_card_holder, boost_box):
 		normal_effects.append({
 			"override_description": "Awakening: gains +%d Power on next attack." % int(summary_player.minato_seal_power_bonus)
 		})
+	# Tournelouse can stack several copies of the same normal as transforms; show
+	# their shared text once with a count instead of repeating it per copy.
+	var tournelouse_normal_transform_total = 0
+	for card_id in card_ids:
+		var card = card_db.get_card(card_id)
+		if card.definition['type'] == "normal" and card.definition.has("replaced_boost") and card.definition['boost']['boost_type'] == "transform":
+			tournelouse_normal_transform_total += 1
+	var tournelouse_normal_transform_count = 0
 	for card_id in card_ids:
 		var card = card_db.get_card(card_id)
 		if game_wrapper.is_card_in_sealed(player_id, card_id):
@@ -5072,16 +5285,48 @@ func update_boost_summary(player_id, boosts_card_holder, boost_box):
 		if card.definition['boost']['boost_type'] == "transform":
 			add_to_effects = transform_effects
 
+		# Renea: a face-down boost's contents are hidden until she reveals it.
+		if card.definition['boost'].get("facedown"):
+			continue
+
+		var is_tournelouse_normal_transform = card.definition['type'] == "normal" and card.definition.has("replaced_boost") and card.definition['boost']['boost_type'] == "transform"
+		if is_tournelouse_normal_transform:
+			tournelouse_normal_transform_count += 1
+
 		if 'stop_on_space_effect' in card.definition['boost']:
 			var stop_on_space_effect = card.definition['boost']['stop_on_space_effect'].duplicate()
 			stop_on_space_effect['timing'] = "on_stop_on_space"
 			add_to_effects.append(stop_on_space_effect)
+		# Minato's Streetcar Disaster accumulates speed each time it triggers.
+		if card.definition['id'] == "minato_streetcar_disaster" and card.has_meta("minato_dd_count"):
+			add_to_effects.append({
+				"effect_type": StrikeEffects.Speedup,
+				"amount": int(card.get_meta("minato_dd_count"))
+			})
 		for effect in card.definition['boost']['effects']:
 			if effect['timing'] != "now" or effect['effect_type'] in ["force_costs_reduced_passive", "ignore_push_and_pull_passive_bonus", "add_passive", "reduce_opponent_prepare_draw", "generate_free_force", "gauge_costs_reduced_passive"]:
 				if effect['timing'] != "discarded":
-					add_to_effects.append(effect)
+					if is_tournelouse_normal_transform and tournelouse_normal_transform_count != tournelouse_normal_transform_total:
+						continue
+					var effect_to_add = effect
+					if is_tournelouse_normal_transform:
+						effect_to_add = effect.duplicate(true)
+						effect_to_add["and"] = {
+							"condition": "count_numbers",
+							"condition_amount": tournelouse_normal_transform_count,
+							"effect_type": StrikeEffects.Nothing
+						}
+					add_to_effects.append(effect_to_add)
 
 	var boost_summary = ""
+	# Renea: show how many hidden boosts are in play without revealing them.
+	var renea_facedown_count = 0
+	for card_id in card_ids:
+		var renea_fd_card = card_db.get_card(card_id)
+		if renea_fd_card and renea_fd_card.definition['boost'].get("facedown"):
+			renea_facedown_count += 1
+	if renea_facedown_count > 0:
+		boost_summary += "[color=gray]? Face-down boost x %d[/color]\n" % renea_facedown_count
 	# Head with once-per-game mechanic tracking
 	var non_exceed_overdrive_active = game_wrapper.non_exceed_overdrive_active(player_id)
 	if non_exceed_overdrive_active:
@@ -5100,7 +5345,13 @@ func update_boost_summary(player_id, boosts_card_holder, boost_box):
 			boost_summary += GameStrings.get_effect_text(effect) + "\n"
 	for effect in transform_effects:
 		if 'hide_effect' not in effect or not effect['hide_effect']:
-			boost_summary += "[color=purple][TF][/color] " + GameStrings.get_effect_text(effect) + "\n"
+			var transform_text = GameStrings.get_effect_text(effect)
+			# Umina "Spiraling Descent" does nothing while The Sleeper Wakes has
+			# flipped the Dreamlands face-down.
+			if effect.get('effect_type', "") == "umina_spiraling_descent":
+				if summary_player.umina_dreamlands_facedown:
+					transform_text += " [color=gray](Invalid)[/color]"
+			boost_summary += "[color=purple][TF][/color] " + transform_text + "\n"
 
 	for card_id in card_ids:
 		var card = card_db.get_card(card_id)
@@ -5248,10 +5499,14 @@ func can_press_ok():
 			UISubState.UISubState_SelectCards_BoostCancel, UISubState.UISubState_SelectCards_DiscardContinuousBoost, UISubState.UISubState_SelectCards_DiscardFromReference:
 				return selected_cards_between_min_and_max()
 			UISubState.UISubState_SelectCards_ChooseDiscardToDestination, UISubState.UISubState_SelectCards_DiscardCards_Choose, UISubState.UISubState_SelectCards_DiscardOpponentGauge:
+				if is_tournelouse_ouroboros_hand_choice() and selected_cards.size() == 1 and is_tournelouse_ouroboros_paid_card(selected_cards[0].card_id):
+					return false
 				return selected_cards_between_min_and_max()
 			UISubState.UISubState_SelectCards_DiscardCardsToGauge, UISubState.UISubState_SelectCards_Mulligan, UISubState.UISubState_SelectCards_CharacterAction_Gauge:
 				return selected_cards_between_min_and_max()
 			UISubState.UISubState_SelectCards_ChooseBoostsToSustain:
+				if is_tournelouse_ouroboros_transform_return_choice() and selected_cards.size() == 1:
+					return not is_tournelouse_ouroboros_paid_card(selected_cards[0].card_id) and not is_tournelouse_ouroboros_bargeist_return_blocked(selected_cards[0].card_id)
 				return selected_cards_between_min_and_max()
 			UISubState.UISubState_SelectCards_ChooseFromTopdeck, UISubState.UISubState_SelectCards_ChooseOpponentCardToDiscard:
 				return selected_cards_between_min_and_max()
@@ -5296,6 +5551,20 @@ func can_press_ok():
 				return true
 			UISubState.UISubState_SelectCards_ForceForEffect:
 				var force_selected = get_force_in_selected_cards()
+				# Tournelouse Ouroboros: exactly one card pays the force, and it
+				# must leave at least one other hand card to transform.
+				if is_tournelouse_ouroboros_force_choice():
+					if force_selected < 1 or selected_cards.size() != 1:
+						return false
+					var selected_card_id = selected_cards[0].card_id
+					if game_wrapper.is_card_in_hand(Enums.PlayerId.PlayerId_Player, selected_card_id) and game_wrapper.get_player_hand_size(Enums.PlayerId.PlayerId_Player) <= 1:
+						return false
+					var decision_choice = game_wrapper.get_decision_info().choice
+					if decision_choice != null:
+						for hand_option in decision_choice:
+							if hand_option != selected_card_id:
+								return true
+					return not game_wrapper.is_card_in_hand(Enums.PlayerId.PlayerId_Player, selected_card_id)
 				if select_card_require_force == -1:
 					var within_force_limit = select_card_up_to_force == -1 or force_selected <= select_card_up_to_force
 					return within_force_limit or can_selected_cards_pay_force(select_card_up_to_force)
@@ -5447,10 +5716,55 @@ func _on_reshuffle_button_pressed():
 func _on_boost_button_pressed():
 	var valid_zones = ['hand']
 	if game_wrapper.can_player_boost_from_extra(Enums.PlayerId.PlayerId_Player):
-		valid_zones.append('extra')
+		# Renea: the Briefcase may only be boosted from once per turn.
+		var renea_bp = game_wrapper._get_player(Enums.PlayerId.PlayerId_Player)
+		if renea_bp.deck_def.get("id") != "renea" or not renea_bp.exceeded or not renea_bp.renea_boost_from_briefcase_used:
+			valid_zones.append('extra')
 	if game_wrapper.can_player_boost_from_gauge(Enums.PlayerId.PlayerId_Player):
 		valid_zones.append('gauge')
 	begin_boost_choosing(true, valid_zones, "", false, 1)
+
+# Renea's non-exceeded ability lets her place any continuous boost face-down
+# instead of resolving it now. Returns the chosen index (0 face-up, 1 face-down),
+# -1 if the player backed out, or -2 if the choice doesn't apply.
+func _show_boost_placement_choice():
+	current_action_menu_choices = [
+		{"action": func(): pass},
+		{"action": func(): pass}
+	]
+	action_menu.set_choices("Place boost:", [
+		{"text": "Face-up (normal)"},
+		{"text": "Face-down (hidden)"}
+	], false, -1, -1, false, false, true)
+	action_menu.visible = true
+	var idx = await action_menu.choice_selected
+	close_popout()
+	return idx
+
+func _get_renea_boost_placement_choice(player_id : Enums.PlayerId, card_id : int) -> int:
+	var renea_player = game_wrapper._get_player(player_id)
+	if renea_player == null or renea_player.deck_def.get("id") != "renea" or renea_player.exceeded:
+		return -2
+	var logic_card = game_wrapper.get_card_database().get_card(card_id)
+	if logic_card == null or logic_card.definition['boost']['boost_type'] != "continuous":
+		return -2
+	return await _show_boost_placement_choice()
+
+func _renea_has_facedown_boosts() -> bool:
+	var renea_p = game_wrapper._get_player(Enums.PlayerId.PlayerId_Player)
+	if renea_p == null or renea_p.deck_def.get("id") != "renea":
+		return false
+	for bc in renea_p.continuous_boosts:
+		if bc.definition["boost"].get("facedown"):
+			return true
+	return false
+
+func _renea_process_facedown_boosts(strike_response : bool = false):
+	deselect_all_cards()
+	# Sent as its own action in online games so both engines resolve the same
+	# face-down effects before the attack card is selected.
+	if game_wrapper.submit_renea_pre_strike_reveal(Enums.PlayerId.PlayerId_Player, strike_response):
+		change_ui_state(UIState.UIState_WaitForGameServer)
 
 func _on_strike_button_pressed():
 	# Minato: "Outrun the Past" (from the Flight transform) triggers before attack
@@ -5462,6 +5776,11 @@ func _on_strike_button_pressed():
 				minato_p.minato_outrun_triggered_before_strike = true
 				game_wrapper.current_game.handle_strike_effect(-1, {"effect_type": "minato_outrun_the_past", "minato_otp_sealed": 0}, minato_p)
 				return
+	# Renea reveals her face-down boosts (and resolves their Now effects) before
+	# choosing an attack; the strike UI opens once that finishes.
+	if _renea_has_facedown_boosts():
+		_renea_process_facedown_boosts()
+		return
 	begin_strike_choosing(false, true)
 
 # Re-opens the correct local interaction UI after a reconnect restore, when the
@@ -5880,6 +6199,13 @@ func _on_instructions_ok_button_pressed(index : int):
 				success = game_wrapper.submit_mulligan(Enums.PlayerId.PlayerId_Player, selected_card_ids)
 			UISubState.UISubState_SelectCards_PlayBoost:
 				var logic_card = game_wrapper.get_card_database().get_card(single_card_id)
+				var facedown_override = null
+				if logic_card.definition['boost']['boost_type'] != "transform":
+					var placement_choice = await _get_renea_boost_placement_choice(Enums.PlayerId.PlayerId_Player, single_card_id)
+					if placement_choice == -1:
+						return
+					if placement_choice >= 0:
+						facedown_override = placement_choice == 1
 				if logic_card.definition['boost']['boost_type'] == "transform":
 					var ex_transform_id = -1
 					if select_boost_options['limitation'] != "transform": # makes sure it's an EX transform action
@@ -5891,6 +6217,7 @@ func _on_instructions_ok_button_pressed(index : int):
 					if not select_boost_options['ignore_costs'] and gauge_cost > 0:
 						assert(select_boost_options['boost_amount'] <= 1, "WARNING: Can't currently handle gauge costs for multiple boosts")
 						selected_boost_to_pay_for = single_card_id
+						selected_boost_facedown_override = facedown_override
 						change_ui_state(null, UISubState.UISubState_SelectCards_GaugeForBoost)
 						begin_gauge_selection(gauge_cost, false, UISubState.UISubState_SelectCards_GaugeForBoost)
 					elif not select_boost_options['ignore_costs'] and force_cost > 0:
@@ -5912,15 +6239,16 @@ func _on_instructions_ok_button_pressed(index : int):
 							close_popout()
 							zsolt_p.free_force = idx
 						selected_boost_to_pay_for = single_card_id
+						selected_boost_facedown_override = facedown_override
 						change_ui_state(null, UISubState.UISubState_SelectCards_ForceForBoost)
 						begin_generate_force_selection(force_cost, true, false, false, true)
 					else:
 						var additional_boost_ids = selected_card_ids.slice(1)
-						success = game_wrapper.submit_boost(Enums.PlayerId.PlayerId_Player, single_card_id, [], use_free_force, spent_life_for_force, additional_boost_ids)
+						success = game_wrapper.submit_boost(Enums.PlayerId.PlayerId_Player, single_card_id, [], use_free_force, spent_life_for_force, additional_boost_ids, facedown_override)
 			UISubState.UISubState_SelectCards_ForceForBoost:
-				success = game_wrapper.submit_boost(Enums.PlayerId.PlayerId_Player, selected_boost_to_pay_for, selected_card_ids, use_free_force, spent_life_for_force)
+				success = game_wrapper.submit_boost(Enums.PlayerId.PlayerId_Player, selected_boost_to_pay_for, selected_card_ids, use_free_force, spent_life_for_force, [], selected_boost_facedown_override)
 			UISubState.UISubState_SelectCards_GaugeForBoost:
-				success = game_wrapper.submit_boost(Enums.PlayerId.PlayerId_Player, selected_boost_to_pay_for, selected_card_ids, false, false)
+				success = game_wrapper.submit_boost(Enums.PlayerId.PlayerId_Player, selected_boost_to_pay_for, selected_card_ids, false, false, [], selected_boost_facedown_override)
 			UISubState.UISubState_PickNumberFromRange:
 				success = handle_pick_range_ok()
 
@@ -5937,6 +6265,8 @@ func _on_instructions_ok_button_pressed(index : int):
 func _on_instructions_cancel_button_pressed():
 	if observer_mode:
 		return
+	# Discard any seal-to-pay amount staged by a previous (unsent) submission.
+	game_wrapper.clear_pending_minato_seal_payment()
 
 	var success = false
 
@@ -5997,7 +6327,12 @@ func _on_instructions_cancel_button_pressed():
 		UISubState.UISubState_SelectCards_ChooseBoostsToSustain:
 			deselect_all_cards()
 			close_popout()
-			success = game_wrapper.submit_choose_from_boosts(Enums.PlayerId.PlayerId_Player, [])
+			if is_tournelouse_ouroboros_transform_return_choice():
+				success = game_wrapper.submit_cancel_tournelouse_ouroboros_transform_choice(Enums.PlayerId.PlayerId_Player)
+			elif is_tournelouse_transform_bonus_choice():
+				success = game_wrapper.submit_cancel_tournelouse_transform_bonus_choice(Enums.PlayerId.PlayerId_Player)
+			else:
+				success = game_wrapper.submit_choose_from_boosts(Enums.PlayerId.PlayerId_Player, [])
 		UISubState.UISubState_SelectCards_ChooseDiscardToDestination:
 			deselect_all_cards()
 			close_popout()
@@ -6014,7 +6349,10 @@ func _on_instructions_cancel_button_pressed():
 		UISubState.UISubState_SelectCards_DiscardCards_Choose:
 			deselect_all_cards()
 			close_popout()
-			success = game_wrapper.submit_choose_to_discard(Enums.PlayerId.PlayerId_Player, [])
+			if is_tournelouse_ouroboros_hand_choice():
+				success = game_wrapper.submit_cancel_tournelouse_ouroboros_hand_choice(Enums.PlayerId.PlayerId_Player)
+			else:
+				success = game_wrapper.submit_choose_to_discard(Enums.PlayerId.PlayerId_Player, [])
 		UISubState.UISubState_SelectCards_DiscardFromReference:
 			deselect_all_cards()
 			close_popout()
@@ -6126,6 +6464,11 @@ func _on_face_attack_button_pressed():
 	_update_buttons()
 
 func _on_shortcut_strike_pressed():
+	# Renea must reveal her face-down boosts before an attack is set; the player
+	# re-picks their card once those resolve.
+	if _renea_has_facedown_boosts():
+		_renea_process_facedown_boosts()
+		return
 	var selected_card_ids : Array = []
 	for card in selected_cards:
 		selected_card_ids.append(card.card_id)
@@ -6144,9 +6487,22 @@ func _on_shortcut_boost_pressed():
 	var card_id : int = selected_cards[0].card_id
 	deselect_all_cards()
 
+	# Renea: the Briefcase may only be boosted from once per turn.
+	var renea_p = game_wrapper._get_player(Enums.PlayerId.PlayerId_Player)
+	if renea_p.deck_def.get("id") == "renea" and renea_p.exceeded and renea_p.renea_boost_from_briefcase_used and renea_p.is_card_in_set_aside(card_id):
+		spawn_damage_popup("Briefcase already used this turn!", Enums.PlayerId.PlayerId_Player)
+		return
+
 	var success = false
 
 	var logic_card = game_wrapper.get_card_database().get_card(card_id)
+	var facedown_override = null
+	if logic_card.definition['boost']['boost_type'] != "transform":
+		var placement_choice = await _get_renea_boost_placement_choice(Enums.PlayerId.PlayerId_Player, card_id)
+		if placement_choice == -1:
+			return
+		if placement_choice >= 0:
+			facedown_override = placement_choice == 1
 	if logic_card.definition['boost']['boost_type'] == "transform":
 		var ex_transform_id = -1
 		if len(selected_cards) > 0:
@@ -6159,6 +6515,7 @@ func _on_shortcut_boost_pressed():
 		var force_cost = game_wrapper.get_card_database().get_card_boost_force_cost(card_id)
 		if gauge_cost > 0:
 			selected_boost_to_pay_for = card_id
+			selected_boost_facedown_override = facedown_override
 			change_ui_state(null, UISubState.UISubState_SelectCards_GaugeForBoost)
 			begin_gauge_selection(gauge_cost, false, UISubState.UISubState_SelectCards_GaugeForBoost)
 		elif force_cost > 0:
@@ -6179,10 +6536,11 @@ func _on_shortcut_boost_pressed():
 				close_popout()
 				zsolt_p.free_force = idx
 			selected_boost_to_pay_for = card_id
+			selected_boost_facedown_override = facedown_override
 			change_ui_state(null, UISubState.UISubState_SelectCards_ForceForBoost)
 			begin_generate_force_selection(force_cost, true, false, false, true)
 		else:
-			success = game_wrapper.submit_boost(Enums.PlayerId.PlayerId_Player, card_id, [], use_free_force, 0)
+			success = game_wrapper.submit_boost(Enums.PlayerId.PlayerId_Player, card_id, [], use_free_force, 0, [], facedown_override)
 
 	if success:
 		change_ui_state(UIState.UIState_WaitForGameServer)

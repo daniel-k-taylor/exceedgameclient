@@ -305,6 +305,9 @@ func is_card_in_deck(player_id : Enums.PlayerId, card_id : int):
 			return true
 	return false
 
+func is_card_in_transforms(player_id : Enums.PlayerId, card_id : int):
+	return _get_player(player_id).is_card_in_transforms(card_id)
+
 func is_card_in_overdrive(player_id : Enums.PlayerId, card_id : int):
 	var player = _get_player(player_id)
 	for card in player.overdrive:
@@ -672,13 +675,39 @@ func submit_mulligan(player : Enums.PlayerId, card_ids : Array) -> bool:
 	return current_game.do_mulligan(game_player, card_ids)
 
 func submit_boost(player : Enums.PlayerId, card_id : int, payment_card_ids,
-		use_free_force : bool, spent_life_for_force : int, additional_boost_ids : Array = []) -> bool:
+		use_free_force : bool, spent_life_for_force : int, additional_boost_ids : Array = [],
+		facedown_override = null) -> bool:
 	var game_player = _get_player(player)
-	return current_game.do_boost(game_player, card_id, payment_card_ids, use_free_force, spent_life_for_force, additional_boost_ids)
+	return current_game.do_boost(game_player, card_id, payment_card_ids, use_free_force,
+		spent_life_for_force, additional_boost_ids, facedown_override)
+
+# Renea reveals her face-down continuous boosts (and resolves their Now effects)
+# right before she sets her attack. In online games this has to travel as its own
+# action so both engines resolve the same effects in the same order.
+func submit_renea_pre_strike_reveal(player : Enums.PlayerId, strike_response : bool = false) -> bool:
+	if current_game is LocalGame:
+		current_game._renea_begin_pre_strike_reveal(_get_player(player), not strike_response, strike_response)
+		return true
+	return current_game.do_renea_pre_strike_reveal(_get_player(player), strike_response)
 
 func submit_choose_from_boosts(player: Enums.PlayerId, card_ids : Array) -> bool:
 	var game_player = _get_player(player)
 	return current_game.do_choose_from_boosts(game_player, card_ids)
+
+# Tournelouse's transform choices are all optional, so the UI needs a way to
+# decline them without submitting a selection.
+func clear_pending_minato_seal_payment() -> void:
+	if current_game is RemoteGame:
+		current_game.clear_pending_minato_seal_payment()
+
+func submit_cancel_tournelouse_transform_bonus_choice(player: Enums.PlayerId) -> bool:
+	return current_game.do_cancel_tournelouse_transform_bonus_choice(_get_player(player))
+
+func submit_cancel_tournelouse_ouroboros_hand_choice(player: Enums.PlayerId) -> bool:
+	return current_game.do_cancel_tournelouse_ouroboros_hand_choice(_get_player(player))
+
+func submit_cancel_tournelouse_ouroboros_transform_choice(player: Enums.PlayerId) -> bool:
+	return current_game.do_cancel_tournelouse_ouroboros_transform_choice(_get_player(player))
 
 func submit_choose_from_discard(player: Enums.PlayerId, card_ids : Array) -> bool:
 	var game_player = _get_player(player)

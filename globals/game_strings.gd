@@ -351,6 +351,10 @@ func get_condition_text(effect, amount, amount2, detail):
 			text += "For specials/ultras, "
 		"has_any_transform":
 			text += "If you have a transform, "
+		"count_numbers":
+			# Used by the boost summary to collapse duplicate Tournelouse normal
+			# transforms into a single line with a copy count.
+			text += "x%s " % amount
 		"opponent_is_special_attack":
 			text += "If opponent strikes with a special, "
 		"is_normal_attack":

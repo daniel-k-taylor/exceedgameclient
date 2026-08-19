@@ -238,3 +238,32 @@ func test_faq_r2_defender_flips_after_opponent_sets_attack():
 	# Now Renea (the defender) is being asked to set her response.
 	assert_eq(game_logic.game_state, Enums.GameState.GameState_Strike_Opponent_Response)
 	assert_eq(game_logic.decision_info.player, player1.my_id)
+
+# --- Face-down placement restrictions (UI offers the choice only where legal) ---
+
+func test_immediate_boost_cannot_be_forced_facedown():
+	var boost_id = give_player_specific_card(player1, "standard_normal_dive")
+	var card = game_logic.get_card_database().get_card(boost_id)
+	assert_ne(card.definition["boost"]["boost_type"], "continuous",
+			"this test needs a non-continuous boost")
+
+	assert_true(game_logic.do_boost(player1, boost_id, [], false, 0, [], true))
+	assert_false(card.definition["boost"].get("facedown", false),
+			"only continuous boosts may be placed face-down")
+
+func test_facedown_override_is_per_card_and_does_not_leak_to_copies():
+	var first_id = give_player_specific_card(player1, "renea_called_shot")
+	var second_id = give_player_specific_card(player1, "renea_called_shot")
+	var card_db = game_logic.get_card_database()
+
+	assert_true(game_logic.do_boost(player1, first_id, [], false, 0, [], true))
+	assert_true(card_db.get_card(first_id).definition["boost"].get("facedown", false))
+	assert_false(card_db.get_card(second_id).definition["boost"].get("facedown", false),
+			"marking one copy face-down must not affect other copies")
+
+func test_exceeded_renea_places_boosts_faceup():
+	player1.exceeded = true
+	var boost_id = give_player_specific_card(player1, "renea_called_shot")
+
+	assert_true(game_logic.do_boost(player1, boost_id, [], false, 0, [], false))
+	assert_false(game_logic.get_card_database().get_card(boost_id).definition["boost"].get("facedown", false))
