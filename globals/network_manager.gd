@@ -39,7 +39,24 @@ const MaxReasonableReconnectGraceSeconds = 30 * 60
 
 # Where the identity triple is persisted so a cold app/browser restart can
 # reclaim the seat. On HTML5 web exports user:// maps to localStorage.
+#
+# Each running instance owns its own slot. Without this, two clients sharing a
+# storage location (two Godot debug windows, or two browser tabs on the same
+# origin - localStorage is per-origin, not per-tab) both persist into one file
+# and then both replay the *same* token on the next launch. They take turns
+# reclaiming the one seat, kicking each other off with session_replaced in a
+# loop. A slot keeps each instance's identity separate while still being stable
+# across a restart, so restore still works.
 const SESSION_PERSIST_PATH = "user://session.cfg"
+const SESSION_SLOT_PATH_FORMAT = "user://session_slot_%d.cfg"
+const SESSION_SLOT_LOCK_FORMAT = "user://session_slot_%d.lock"
+const MAX_SESSION_SLOTS = 8
+# A slot whose owner has not refreshed its lock within this window is treated as
+# abandoned (the process was killed) and may be reclaimed. Kept short so a
+# relaunch after a hard kill does not have to wait long, but comfortably above
+# the heartbeat interval so a busy frame cannot expire a live slot.
+const SESSION_SLOT_STALE_SECONDS = 8.0
+const SESSION_SLOT_HEARTBEAT_SECONDS = 2.0
 
 enum RestoreContextType {
 	RestoreContextType_None,
@@ -91,6 +108,11 @@ var _active_remote_match_finished := false
 # Cold-restart restore: a stored token loaded at boot that we try once against
 # the first server_hello of a brand new connection.
 var _cold_restore_pending := false
+# Which persisted-identity slot this instance owns. -1 means no slot was free,
+# in which case the instance simply runs without persisting an identity.
+var _session_slot := -1
+var _session_slot_instance_id := ""
+var _session_slot_heartbeat_timer := 0.0
 # Set once the server tells us another connection owns our session. The stored
 # identity is gone, so this client must never try to reclaim it again.
 var _session_replaced := false
@@ -98,6 +120,7 @@ var _session_replaced := false
 var _socket = null
 
 func _ready():
+	_claim_session_slot()
 	_load_persisted_identity()
 
 func _clear_lobby_cache(emit_update := true):
@@ -447,26 +470,160 @@ func _handle_restore_failed(reason):
 
 ### Identity persistence (user:// -> localStorage on web) ###
 
+# Claims the lowest slot whose lock is free or stale. Each instance writes a
+# unique id into its lock and re-reads it, so two instances starting at the same
+# moment cannot both believe they own the same slot.
+func _claim_session_slot():
+	if _session_slot != -1:
+		return
+	var instance_id = "%d_%d" % [Time.get_ticks_usec(), randi()]
+	for slot in range(MAX_SESSION_SLOTS):
+		if not _session_slot_is_available(slot):
+			continue
+		if not _write_session_slot_lock(slot, instance_id):
+			continue
+		# Re-read to resolve a race with another instance claiming the same slot.
+		if _read_session_slot_lock(slot).get("instance_id", "") != instance_id:
+			continue
+		_session_slot = slot
+		_session_slot_instance_id = instance_id
+		_session_slot_heartbeat_timer = 0.0
+		_migrate_legacy_session_file()
+		return
+	# Every slot is live. Run without persistence rather than stealing an
+	# identity that another instance is actively using.
+	_session_slot = -1
+
+func _session_slot_is_available(slot : int) -> bool:
+	var lock = _read_session_slot_lock(slot)
+	if lock.is_empty():
+		return true
+	# Process-id liveness is not usable here: OS.is_process_running() only knows
+	# about processes this instance spawned, so it reports every unrelated
+	# client as dead and two live instances would share a slot.
+	var age = _get_unix_time_seconds() - lock.get("heartbeat", 0)
+	# A heartbeat in the future means a clock change; treat it as live rather
+	# than stealing a slot that may still be in use.
+	if age < 0:
+		return false
+	return age > SESSION_SLOT_STALE_SECONDS
+
+# Unix time is stored as an int: ConfigFile serialises large floats in
+# scientific notation, which rounds a timestamp to the nearest few thousand
+# seconds and makes staleness comparisons meaningless.
+func _get_unix_time_seconds() -> int:
+	return int(Time.get_unix_time_from_system())
+
+func _read_session_slot_lock(slot : int) -> Dictionary:
+	var lock_path = SESSION_SLOT_LOCK_FORMAT % slot
+	if not FileAccess.file_exists(lock_path):
+		return {}
+	var config = ConfigFile.new()
+	if config.load(lock_path) != OK:
+		return {}
+	return {
+		"instance_id": str(config.get_value("lock", "instance_id", "")),
+		"heartbeat": int(config.get_value("lock", "heartbeat", 0)),
+	}
+
+func _write_session_slot_lock(slot : int, instance_id : String) -> bool:
+	var config = ConfigFile.new()
+	config.set_value("lock", "instance_id", instance_id)
+	config.set_value("lock", "heartbeat", _get_unix_time_seconds())
+	return config.save(SESSION_SLOT_LOCK_FORMAT % slot) == OK
+
+# Free the slot on a clean shutdown so the next launch reuses it right away and
+# keeps its identity. A hard kill leaves the lock behind to expire instead.
+func _release_session_slot():
+	if _session_slot == -1:
+		return
+	var lock_name = (SESSION_SLOT_LOCK_FORMAT % _session_slot).get_file()
+	var dir = DirAccess.open("user://")
+	if dir and dir.file_exists(lock_name):
+		dir.remove(lock_name)
+	_session_slot = -1
+
+func _exit_tree():
+	_release_session_slot()
+
+func _update_session_slot_heartbeat(delta : float):
+	if _session_slot == -1:
+		return
+	_session_slot_heartbeat_timer -= delta
+	if _session_slot_heartbeat_timer > 0.0:
+		return
+	_session_slot_heartbeat_timer = SESSION_SLOT_HEARTBEAT_SECONDS
+
+	# If this instance stalled long enough for its lock to look abandoned,
+	# another instance may have taken the slot. Re-validating before writing
+	# stops two clients from sharing a slot and then fighting over one seat.
+	var lock = _read_session_slot_lock(_session_slot)
+	var owner_id = str(lock.get("instance_id", ""))
+	if not lock.is_empty() and owner_id != _session_slot_instance_id:
+		_handle_session_slot_lost()
+		return
+	_write_session_slot_lock(_session_slot, _session_slot_instance_id)
+
+# Another instance owns our slot now. Drop the identity that came with it and
+# move to a slot of our own rather than replaying a token someone else is using.
+func _handle_session_slot_lost():
+	_session_slot = -1
+	_session_slot_instance_id = ""
+	_previous_server_player_id = null
+	_previous_server_session_id = ""
+	_previous_server_session_token = ""
+	_cold_restore_pending = false
+	_claim_session_slot()
+
+func _get_session_persist_path() -> String:
+	if _session_slot == -1:
+		return ""
+	return SESSION_SLOT_PATH_FORMAT % _session_slot
+
+# Upgrade path for clients that stored an identity before slots existed. Only
+# slot 0 adopts it, so a second instance cannot inherit the same token.
+func _migrate_legacy_session_file():
+	if _session_slot != 0:
+		return
+	if not FileAccess.file_exists(SESSION_PERSIST_PATH):
+		return
+	var slot_path = _get_session_persist_path()
+	if not FileAccess.file_exists(slot_path):
+		var config = ConfigFile.new()
+		if config.load(SESSION_PERSIST_PATH) == OK:
+			config.save(slot_path)
+	var dir = DirAccess.open("user://")
+	if dir and dir.file_exists("session.cfg"):
+		dir.remove("session.cfg")
+
 func _persist_identity():
 	if _current_server_session_token == "":
+		return
+	var path = _get_session_persist_path()
+	if path == "":
 		return
 	var config = ConfigFile.new()
 	config.set_value("session", "player_id", _current_server_player_id)
 	config.set_value("session", "session_id", _current_server_session_id)
 	config.set_value("session", "session_token", _current_server_session_token)
 	config.set_value("session", "player_name", _last_connected_server_name)
-	config.save(SESSION_PERSIST_PATH)
+	config.save(path)
 
 func _clear_persisted_identity():
+	var path = _get_session_persist_path()
+	if path == "":
+		return
 	var dir = DirAccess.open("user://")
-	if dir and dir.file_exists("session.cfg"):
-		dir.remove("session.cfg")
+	var file_name = path.get_file()
+	if dir and dir.file_exists(file_name):
+		dir.remove(file_name)
 
 func _load_persisted_identity():
-	if not FileAccess.file_exists(SESSION_PERSIST_PATH):
+	var path = _get_session_persist_path()
+	if path == "" or not FileAccess.file_exists(path):
 		return
 	var config = ConfigFile.new()
-	if config.load(SESSION_PERSIST_PATH) != OK:
+	if config.load(path) != OK:
 		return
 	var token = str(config.get_value("session", "session_token", ""))
 	if token == "":
@@ -483,6 +640,7 @@ func _load_persisted_identity():
 ### Frame update ###
 
 func _process(_delta):
+	_update_session_slot_heartbeat(_delta)
 	_update_reconnect_timers(_delta)
 	_update_server_keepalive_timeout()
 	_handle_sockets()

@@ -324,14 +324,14 @@ func test_session_restore_failed_clears_stored_identity():
 	NetworkManager._current_server_session_token = "tok-1"
 	NetworkManager._last_connected_server_name = "Alice"
 	NetworkManager._persist_identity()
-	assert_true(FileAccess.file_exists(NetworkManager.SESSION_PERSIST_PATH))
+	assert_true(FileAccess.file_exists(NetworkManager._get_session_persist_path()))
 
 	NetworkManager._handle_session_restore_failed({
 		"type": "session_restore_failed",
 		"reason": "no_matching_session",
 	})
 
-	assert_false(FileAccess.file_exists(NetworkManager.SESSION_PERSIST_PATH))
+	assert_false(FileAccess.file_exists(NetworkManager._get_session_persist_path()))
 	assert_eq(NetworkManager._previous_server_session_token, "")
 
 
@@ -354,4 +354,4 @@ func test_persisted_identity_round_trips_for_cold_restart():
 
 	# Clean up the file so it does not leak into other runs.
 	NetworkManager._clear_persisted_identity()
-	assert_false(FileAccess.file_exists(NetworkManager.SESSION_PERSIST_PATH))
+	assert_false(FileAccess.file_exists(NetworkManager._get_session_persist_path()))
