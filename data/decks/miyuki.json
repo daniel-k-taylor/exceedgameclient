@@ -6,13 +6,11 @@
 	"character_action_default": [{
 		"gauge_cost": 0,
 		"force_cost": 0,
-		"shortcut_effect_type": "choice",
+		"can_boost_from_gauge": true,
+		"shortcut_effect_type": "boost_from_gauge",
 		"effect": {
-			"effect_type": "choice",
-			"choice": [
-				{ "effect_type": "advance", "amount": 1 },
-				{ "effect_type": "retreat", "amount": 1 }
-			]
+			"effect_type": "boost_from_gauge",
+			"limitation": ""
 		}
 	}, {
 		"gauge_cost": 1,
@@ -31,16 +29,20 @@
 	"character_action_exceeded": [{
 		"gauge_cost": 0,
 		"force_cost": 0,
-		"shortcut_effect_type": "choice",
+		"can_boost_from_gauge": true,
+		"shortcut_effect_type": "boost_from_gauge",
 		"effect": {
-			"effect_type": "choice",
-			"choice": [
-				{ "effect_type": "advance", "amount": 1 },
-				{ "effect_type": "retreat", "amount": 1 }
-			],
+			"effect_type": "boost_from_gauge",
+			"limitation": "",
 			"and": {
-				"effect_type": "draw",
-				"amount": 1
+				"effect_type": "infused",
+				"and": {
+					"effect_type": "choice",
+					"choice": [
+						{ "effect_type": "strike" },
+						{ "effect_type": "pass" }
+					]
+				}
 			}
 		}
 	}, {
@@ -95,7 +97,7 @@
 			"multiple_cards": false
 		},
 		"specials": {
-			"url": "https://i.imgur.com/cvpfwj1.jpeg",
+			"url": "https://i.imgur.com/Am8BD3K.jpeg",
 			"multiple_cards": true
 		},
 		"normals": {
@@ -105,74 +107,74 @@
 	},
 	"cards": [
 		{
-			"definition_id": "ryu_metsuhadoken",
-			"image_name": "specials",
-			"image_index": 5
-		},
-		{
-			"definition_id": "ryu_metsuhadoken",
-			"image_name": "specials",
-			"image_index": 5
-		},
-		{
-			"definition_id": "ryu_metsushoryuken",
+			"definition_id": "miyuki_uncagedsoul",
 			"image_name": "specials",
 			"image_index": 6
 		},
 		{
-			"definition_id": "ryu_metsushoryuken",
+			"definition_id": "miyuki_uncagedsoul",
 			"image_name": "specials",
 			"image_index": 6
 		},
 		{
-			"definition_id": "ryu_donkeykick",
+			"definition_id": "miyuki_spiritheal",
 			"image_name": "specials",
-			"image_index": 2
+			"image_index": 5
 		},
 		{
-			"definition_id": "ryu_donkeykick",
+			"definition_id": "miyuki_spiritheal",
 			"image_name": "specials",
-			"image_index": 2
+			"image_index": 5
 		},
 		{
-			"definition_id": "ryu_oneinchpunch",
-			"image_name": "specials",
-			"image_index": 4
-		},
-		{
-			"definition_id": "ryu_oneinchpunch",
-			"image_name": "specials",
-			"image_index": 4
-		},
-		{
-			"definition_id": "ryu_tatsumakisenpukyaku",
-			"image_name": "specials",
-			"image_index": 3
-		},
-		{
-			"definition_id": "ryu_tatsumakisenpukyaku",
-			"image_name": "specials",
-			"image_index": 3
-		},
-		{
-			"definition_id": "ryu_hadoken",
-			"image_name": "specials",
-			"image_index": 1
-		},
-		{
-			"definition_id": "ryu_hadoken",
-			"image_name": "specials",
-			"image_index": 1
-		},
-		{
-			"definition_id": "ryu_shoryuken",
+			"definition_id": "miyuki_cripplingsparks",
 			"image_name": "specials",
 			"image_index": 0
 		},
 		{
-			"definition_id": "ryu_shoryuken",
+			"definition_id": "miyuki_cripplingsparks",
 			"image_name": "specials",
 			"image_index": 0
+		},
+		{
+			"definition_id": "miyuki_cleansingflame",
+			"image_name": "specials",
+			"image_index": 1
+		},
+		{
+			"definition_id": "miyuki_cleansingflame",
+			"image_name": "specials",
+			"image_index": 1
+		},
+		{
+			"definition_id": "miyuki_lifestealtouch",
+			"image_name": "specials",
+			"image_index": 2
+		},
+		{
+			"definition_id": "miyuki_lifestealtouch",
+			"image_name": "specials",
+			"image_index": 2
+		},
+		{
+			"definition_id": "miyuki_firelight",
+			"image_name": "specials",
+			"image_index": 3
+		},
+		{
+			"definition_id": "miyuki_firelight",
+			"image_name": "specials",
+			"image_index": 3
+		},
+		{
+			"definition_id": "miyuki_radiantwarmth",
+			"image_name": "specials",
+			"image_index": 4
+		},
+		{
+			"definition_id": "miyuki_radiantwarmth",
+			"image_name": "specials",
+			"image_index": 4
 		},
 		{
 			"definition_id": "standard_normal_grasp",

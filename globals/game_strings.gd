@@ -434,6 +434,8 @@ func get_effect_type_heading(effect):
 			effect_str += "Opponent randomly discards "
 		StrikeEffects.ReduceOpponentPrepareDraw:
 			effect_str += "Opponent draws 1 fewer on Prepare"
+		StrikeEffects.GainLife:
+			effect_str += "Heal "
 		_:
 			effect_str += "MISSING EFFECT HEADING"
 	return effect_str

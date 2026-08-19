@@ -2027,6 +2027,7 @@ func _on_choose_opponent_card_to_discard(event):
 
 func begin_choose_opponent_card_to_discard(card_ids):
 	clear_choice_zone()
+	var decision_info = game_wrapper.get_decision_info()
 	var card_db = game_wrapper.get_card_database()
 	for card_id in card_ids:
 		var logic_card : GameCard = card_db.get_card(card_id)
@@ -2037,6 +2038,10 @@ func begin_choose_opponent_card_to_discard(card_ids):
 		copy_card.resting_scale = CardBase.ReferenceCardScale
 		copy_card.change_state(CardBase.CardState.CardState_Offscreen)
 		copy_card.flip_card_to_front(true)
+		
+	var confirm_text = "Discard"
+	if decision_info.destination == 'gauge':
+		confirm_text = "Add to their Gauge"
 
 	selected_cards = []
 	select_card_require_min = 1
@@ -2044,7 +2049,7 @@ func begin_choose_opponent_card_to_discard(card_ids):
 	popout_instruction_info = {
 		"popout_type": CardPopoutType.CardPopoutType_ChoiceZone,
 		"instruction_text": "Choose a card:",
-		"ok_text": "Discard",
+		"ok_text": confirm_text,
 		"ok2_text": "",
 		"cancel_text": "",
 		"ok_enabled": true,
@@ -4816,6 +4821,7 @@ func finish_preparing_character_action(selections):
 				var gauge_cost = game_wrapper.get_card_database().get_card_boost_gauge_cost(single_card_id)
 				var force_cost = game_wrapper.get_card_database().get_card_boost_force_cost(single_card_id)
 				if gauge_cost > 0:
+					preparing_character_action = true
 					selected_boost_to_pay_for = single_card_id
 					change_ui_state(null, UISubState.UISubState_SelectCards_GaugeForBoost)
 					begin_gauge_selection(gauge_cost, false, UISubState.UISubState_SelectCards_GaugeForBoost)
@@ -4838,6 +4844,7 @@ func finish_preparing_character_action(selections):
 					close_popout()
 					zsolt_p.free_force = idx
 				if force_cost > 0:
+					preparing_character_action = true
 					selected_boost_to_pay_for = single_card_id
 					change_ui_state(null, UISubState.UISubState_SelectCards_ForceForBoost)
 					begin_generate_force_selection(force_cost, true, false, false, true)

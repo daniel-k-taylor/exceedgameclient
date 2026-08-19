@@ -2560,6 +2560,9 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 			if 'opponent' in effect and effect['opponent']:
 				choice_player = opposing_player
 				choice_other_player = performing_player
+			var destination = 'discard'
+			if 'destination' in effect:
+				destination = effect['destination']
 
 			var cards_available = choice_other_player.get_card_ids_in_hand()
 			if 'use_discarded_card_ids' in effect and effect['use_discarded_card_ids']:
@@ -2576,19 +2579,27 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 				decision_info.player = choice_player.my_id
 				decision_info.choice = cards_available
 				decision_info.limitation = ""
+				decision_info.destination = destination
 				create_event(Enums.EventType.EventType_ChooseOpponentCardToDiscard, choice_player.my_id, 0)
 			else:
 				_append_log_full(Enums.LogType.LogType_Effect, choice_other_player, "has no cards in hand to discard.")
 		StrikeEffects.ChooseOpponentCardToDiscardInternal:
 			var card_ids = effect['card_ids']
 			var card_names = card_db.get_card_names(card_ids)
-			_append_log_full(Enums.LogType.LogType_CardInfo, opposing_player, "has card(s) discarded by %s: %s." % [performing_player.name, _log_card_name(card_names)])
 			# Save/restore _last_effect_source_player_id so _on_player_discard
 			# sees the original source (e.g. Eugenia) instead of the intermediate
 			# performing_player (the one who chose, not the one who caused the effect).
 			var _saved_source = _last_effect_source_player_id
 			_last_effect_source_player_id = effect.get("_source_player_id", _last_effect_source_player_id)
-			opposing_player.discard(card_ids)
+			if 'destination' in effect and effect['destination'] == 'gauge':
+				if card_ids.size() > 0:
+					for card in card_ids:
+						if decision_info.destination == "gauge":
+							opposing_player.move_card_from_hand_to_gauge(card)
+					_append_log_full(Enums.LogType.LogType_CardInfo, opposing_player, "has %s card(s) moved to gauge by %s: %s" % [str(card_ids.size()), performing_player.name, _log_card_name(card_names)])
+			else:
+				_append_log_full(Enums.LogType.LogType_CardInfo, opposing_player, "has card(s) discarded by %s: %s." % [performing_player.name, _log_card_name(card_names)])
+				opposing_player.discard(card_ids)
 			_last_effect_source_player_id = _saved_source
 		StrikeEffects.ChooseSustainBoost:
 			var choice_count = performing_player.get_boosts().size()
@@ -3292,9 +3303,10 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 			performing_player.strike_stat_boosts.increase_move_opponent_effects_by += amount
 			_append_log_full(Enums.LogType.LogType_Effect, performing_player, "'s push and pull effects are increased by %s!" % amount)
 		StrikeEffects.Infused:
-			performing_player.infused = true
-			_append_log_full(Enums.LogType.LogType_Effect, performing_player, "is Infused!")
-			create_event(Enums.EventType.EventType_Strike_Infuse, performing_player.my_id, -1, "Infused")
+			if not performing_player.is_infused():
+				performing_player.infused = true
+				_append_log_full(Enums.LogType.LogType_Effect, performing_player, "is Infused!")
+				create_event(Enums.EventType.EventType_Strike_Infuse, performing_player.my_id, -1, "Infused")
 		StrikeEffects.InvertRange:
 			performing_player.strike_stat_boosts.invert_range = true
 			_append_log_full(Enums.LogType.LogType_Effect, performing_player, "inverts their range!")
@@ -8236,7 +8248,8 @@ func continue_resolve_boost():
 			if game_state == Enums.GameState.GameState_PlayerDecision:
 				break
 
-			boost_play_cleanup(active_boost.playing_player)
+			if active_boost:
+				boost_play_cleanup(active_boost.playing_player)
 			break
 
 		if game_over:
@@ -8303,7 +8316,6 @@ func boost_finish_resolving_card(performing_player : Player):
 			active_boost.strike_after_boost_auto_strike = true
 
 func boost_play_cleanup(performing_player : Player):
-	decision_info.clear()
 	# Account for boosts that played other boosts
 	if active_boost.parent_boost:
 		if active_strike:
@@ -8342,6 +8354,7 @@ func boost_play_cleanup(performing_player : Player):
 			# event creation handled below
 		active_character_action = false
 		preparing_strike = true
+		decision_info.clear()
 		decision_info.type = Enums.DecisionType.DecisionType_StrikeNow
 		decision_info.player = performing_player.my_id
 	performing_player.strike_on_boost_cleanup = false
@@ -8375,6 +8388,7 @@ func boost_play_cleanup(performing_player : Player):
 				#create_event(Enums.EventType.EventType_Strike_EffectDoStrike, performing_player.my_id, 0, "", strike_info)
 			else:
 				change_game_state(Enums.GameState.GameState_WaitForStrike)
+				decision_info.clear()
 				decision_info.type = Enums.DecisionType.DecisionType_StrikeNow
 				decision_info.player = performing_player.my_id
 				if performing_player.next_strike_from_sealed:
@@ -8396,9 +8410,14 @@ func boost_play_cleanup(performing_player : Player):
 		active_boost = null
 		preparing_strike = true
 	elif active_boost.action_after_boost and not active_strike:
-		_append_log_full(Enums.LogType.LogType_Action, performing_player, "takes an additional action!")
-		create_event(Enums.EventType.EventType_Boost_ActionAfterBoost, performing_player.my_id, 0)
-		change_game_state(Enums.GameState.GameState_PickAction)
+		if game_state == Enums.GameState.GameState_PlayerDecision:
+			# save the bonus action for later if there's more to resolve
+			performing_player.bonus_actions += 1
+		
+		else:
+			_append_log_full(Enums.LogType.LogType_Action, performing_player, "takes an additional action!")
+			create_event(Enums.EventType.EventType_Boost_ActionAfterBoost, performing_player.my_id, 0)
+			change_game_state(Enums.GameState.GameState_PickAction)
 		active_boost = null
 	else:
 		if active_strike:

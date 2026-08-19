@@ -1878,6 +1878,8 @@ func can_do_character_action(action_index : int) -> bool:
 	if get_available_gauge() < gauge_cost: return false
 	if get_available_force() < force_cost: return false
 
+	if 'can_boost_from_gauge' in action and action['can_boost_from_gauge']:
+		if not can_boost_something(['gauge'], ''): return false
 	if 'can_boost_continuous_boost_from_gauge' in action and action['can_boost_continuous_boost_from_gauge']:
 		if not can_boost_something(['gauge'], 'continuous'): return false
 	if 'can_boost_ultra_boost_from_gauge' in action and action['can_boost_ultra_boost_from_gauge']:
