@@ -36,6 +36,8 @@ func load_portrait_texture(texture_rect : TextureRect, random_tag : String, deck
 			texture_rect.texture = load("res://assets/portraits/unilogo.png")
 		"random_s7":
 			texture_rect.texture = load("res://assets/portraits/random.png")
+		"random_s8":
+			texture_rect.texture = load("res://assets/portraits/random.png") # todo: update
 		_:
 			if deck_id.begins_with("custom_") and deck_id in ImageCache.loaded_portraits:
 				texture_rect.texture = ImageCache.loaded_portraits[deck_id]

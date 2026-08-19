@@ -24,6 +24,7 @@ const WonderlandSpeedBonus = {"effect_type": StrikeEffects.Speedup, "amount": 1,
 # Conditions that shouldn't change during a strike
 const StrikeStaticConditions = [
 	"is_critical", "is_not_critical",
+	"is_infused", "is_not_infused",
 	"was_hit",
 	"initiated_strike", "not_initiated_strike",
 	"exceeded", "not_exceeded",
@@ -772,6 +773,8 @@ func advance_to_next_turn():
 	opponent.checked_post_action_effects = false
 	player.spent_gauge_this_turn = false
 	opponent.spent_gauge_this_turn = false
+	player.infused = false
+	opponent.infused = false
 
 	# Update strike turn tracking
 	last_turn_was_strike = strike_happened_this_turn
@@ -920,8 +923,10 @@ func continue_setup_strike():
 
 			active_strike.effects_resolved_in_timing += 1
 
+				
 		# All effects resolved, move to next state.
 		active_strike.effects_resolved_in_timing = 0
+		
 		if active_strike.initiator_wild_strike and active_strike.initiator.delayed_wild_strike:
 			# Do the wild swing now.
 			active_strike.initiator.wild_strike()
@@ -936,6 +941,12 @@ func continue_setup_strike():
 				false,
 				false
 			)
+			
+		if active_strike.initiator.is_infused():
+			create_event(
+				Enums.EventType.EventType_MarkInfused,
+				active_strike.initiator.my_id,
+				active_strike.initiator_card.id)
 
 		if active_strike.opponent_sets_first:
 			begin_resolve_strike()
@@ -960,6 +971,7 @@ func continue_setup_strike():
 
 		# All effects resolved, move to next state.
 		active_strike.effects_resolved_in_timing = 0
+				
 		if active_strike.defender_wild_strike and active_strike.defender.delayed_wild_strike:
 			# Do the wild swing now.
 			active_strike.defender.wild_strike()
@@ -974,6 +986,12 @@ func continue_setup_strike():
 				false,
 				false
 			)
+		
+		if active_strike.defender.is_infused():
+			create_event(
+				Enums.EventType.EventType_MarkInfused,
+				active_strike.defender.my_id,
+				active_strike.defender_card.id)
 
 		if active_strike.opponent_sets_first:
 			strike_setup_initiator_response()
@@ -1650,6 +1668,10 @@ func is_effect_condition_met(performing_player : Player, effect, local_condition
 			return performing_player.strike_stat_boosts.critical
 		elif condition == "is_not_critical":
 			return not performing_player.strike_stat_boosts.critical
+		elif condition == "is_infused":
+			return performing_player.is_infused()
+		elif condition == "is_not_infused":
+			return not performing_player.is_infused()
 		elif condition == "choose_cards_from_top_deck_action":
 			return decision_info.action == effect["condition_details"]
 		elif condition == "total_powerup_greater_or_equal":
@@ -3269,6 +3291,10 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 			var amount = effect['amount']
 			performing_player.strike_stat_boosts.increase_move_opponent_effects_by += amount
 			_append_log_full(Enums.LogType.LogType_Effect, performing_player, "'s push and pull effects are increased by %s!" % amount)
+		StrikeEffects.Infused:
+			performing_player.infused = true
+			_append_log_full(Enums.LogType.LogType_Effect, performing_player, "is Infused!")
+			create_event(Enums.EventType.EventType_Strike_Infuse, performing_player.my_id, -1, "Infused")
 		StrikeEffects.InvertRange:
 			performing_player.strike_stat_boosts.invert_range = true
 			_append_log_full(Enums.LogType.LogType_Effect, performing_player, "inverts their range!")

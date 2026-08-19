@@ -1,4 +1,4 @@
-[gd_scene load_steps=109 format=3 uid="uid://cqs72exlwm6at"]
+[gd_scene load_steps=110 format=3 uid="uid://cqs72exlwm6at"]
 
 [ext_resource type="Script" uid="uid://ctx04u4b0tnwj" path="res://scenes/menu/char_select.gd" id="1_f3x24"]
 [ext_resource type="PackedScene" uid="uid://nwqxp8pdh1jk" path="res://scenes/menu/char_select_button.tscn" id="6_3lmwy"]
@@ -104,10 +104,10 @@
 [ext_resource type="Texture2D" uid="uid://to8px4da80u7" path="res://assets/portraits/vincent.png" id="98_cm8c8"]
 [ext_resource type="Texture2D" uid="uid://warig7ych2dg" path="res://assets/portraits/superskullman.png" id="99_p76bl"]
 [ext_resource type="Texture2D" uid="uid://owqopn05anbn" path="res://assets/portraits/custom.png" id="100_dtwln"]
-[ext_resource type="Texture2D" path="res://assets/portraits/geoffrey.png" id="106_geoff"]
-[ext_resource type="Texture2D" path="res://assets/portraits/taisei.png" id="107_taisei"]
+[ext_resource type="Texture2D" uid="uid://dvn3oov3xpdu" path="res://assets/portraits/geoffrey.png" id="106_geoff"]
+[ext_resource type="Texture2D" uid="uid://du7fqsj7nh3rb" path="res://assets/portraits/taisei.png" id="107_taisei"]
 [ext_resource type="Texture2D" uid="uid://c7ev388g36ih8" path="res://assets/portraits/eugenia.png" id="108_eugenia"]
-[ext_resource type="Texture2D" path="res://assets/portraits/zsolt.png" id="109_zsolt"]
+[ext_resource type="Texture2D" uid="uid://cq6bj64ssovi3" path="res://assets/portraits/zsolt.png" id="109_zsolt"]
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_8u80i"]
 
@@ -174,6 +174,35 @@ offset_bottom = 40.0
 modulate = Color(1, 1, 1, 0)
 custom_minimum_size = Vector2(1280, 720)
 layout_mode = 2
+
+[node name="STCharacterSelect" type="PanelContainer" parent="CenterContainer"]
+layout_mode = 2
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxEmpty_8u80i")
+
+[node name="Rows" type="VBoxContainer" parent="CenterContainer/STCharacterSelect"]
+layout_mode = 2
+mouse_filter = 2
+alignment = 1
+
+[node name="Buffer" type="HBoxContainer" parent="CenterContainer/STCharacterSelect/Rows"]
+custom_minimum_size = Vector2(0, 50)
+layout_mode = 2
+
+[node name="Row1" type="HBoxContainer" parent="CenterContainer/STCharacterSelect/Rows"]
+layout_mode = 2
+size_flags_horizontal = 4
+alignment = 1
+
+[node name="Miyuki" parent="CenterContainer/STCharacterSelect/Rows/Row1" instance=ExtResource("6_3lmwy")]
+layout_mode = 2
+char_id = "miyuki"
+portrait_texture = ExtResource("7_3jr2w")
+
+[node name="Random" parent="CenterContainer/STCharacterSelect/Rows/Row1" instance=ExtResource("6_3lmwy")]
+layout_mode = 2
+char_id = "random_s8"
+portrait_texture = ExtResource("8_vlgsf")
 
 [node name="GGCharacterSelect" type="PanelContainer" parent="CenterContainer"]
 layout_mode = 2
@@ -962,6 +991,11 @@ layout_mode = 2
 char_id = "season7"
 portrait_texture = ExtResource("8_vlgsf")
 
+[node name="Season8" parent="TabSelect/CategoriesHBox" instance=ExtResource("6_3lmwy")]
+layout_mode = 2
+char_id = "season8"
+portrait_texture = ExtResource("8_vlgsf")
+
 [node name="Buffer" type="HBoxContainer" parent="TabSelect/CategoriesHBox"]
 custom_minimum_size = Vector2(25, 0)
 layout_mode = 2
@@ -983,6 +1017,10 @@ char_id = "custom"
 portrait_texture = ExtResource("100_dtwln")
 
 [connection signal="pressed" from="CenterContainer/BackgroundButton" to="." method="_on_background_button_pressed"]
+[connection signal="on_hover" from="CenterContainer/STCharacterSelect/Rows/Row1/Miyuki" to="." method="_on_char_hover"]
+[connection signal="on_pressed" from="CenterContainer/STCharacterSelect/Rows/Row1/Miyuki" to="." method="_on_char_button_on_pressed"]
+[connection signal="on_hover" from="CenterContainer/STCharacterSelect/Rows/Row1/Random" to="." method="_on_char_hover"]
+[connection signal="on_pressed" from="CenterContainer/STCharacterSelect/Rows/Row1/Random" to="." method="_on_char_button_on_pressed"]
 [connection signal="on_hover" from="CenterContainer/GGCharacterSelect/Rows/Row1/Testament" to="." method="_on_char_hover"]
 [connection signal="on_pressed" from="CenterContainer/GGCharacterSelect/Rows/Row1/Testament" to="." method="_on_char_button_on_pressed"]
 [connection signal="on_hover" from="CenterContainer/GGCharacterSelect/Rows/Row1/Nago" to="." method="_on_char_hover"]
@@ -1205,8 +1243,9 @@ portrait_texture = ExtResource("100_dtwln")
 [connection signal="on_pressed" from="TabSelect/CategoriesHBox/Season6" to="." method="_on_char_button_on_pressed"]
 [connection signal="on_hover" from="TabSelect/CategoriesHBox/Season7" to="." method="_on_char_hover"]
 [connection signal="on_pressed" from="TabSelect/CategoriesHBox/Season7" to="." method="_on_char_button_on_pressed"]
+[connection signal="on_hover" from="TabSelect/CategoriesHBox/Season8" to="." method="_on_char_hover"]
+[connection signal="on_pressed" from="TabSelect/CategoriesHBox/Season8" to="." method="_on_char_button_on_pressed"]
 [connection signal="on_hover" from="TabSelect/CategoriesHBox/RandomAll" to="." method="_on_char_hover"]
 [connection signal="on_pressed" from="TabSelect/CategoriesHBox/RandomAll" to="." method="_on_char_button_on_pressed"]
 [connection signal="on_hover" from="TabSelect/CategoriesHBox2/Custom" to="." method="_on_char_hover"]
 [connection signal="on_pressed" from="TabSelect/CategoriesHBox2/Custom" to="." method="_on_char_button_on_pressed"]
-

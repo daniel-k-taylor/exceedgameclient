@@ -378,6 +378,8 @@ func get_condition_text(effect, amount, amount2, detail):
 			if 'alt_crit_name' in condition:
 				crit_name = condition['alt_crit_name']
 			text += "%s: " % crit_name
+		"is_infused":
+			text += "Infused: "
 		"no_sealed_copy_of_attack":
 			text += "If there is no sealed copy of your attack, "
 		"total_powerup_greater_or_equal":
@@ -938,6 +940,8 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 			effect_str += "Increase push/pull effects by %s" % effect['amount']
 		StrikeEffects.IncrementBonusArmorCounters:
 			effect_str += "Add a counter to this card"
+		StrikeEffects.Infused:
+			effect_str += "Infusion"
 		StrikeEffects.InvertRange:
 			effect_str += "Attack Range is inverted"
 		StrikeEffects.LightningrodStrike:

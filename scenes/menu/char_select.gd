@@ -14,6 +14,7 @@ signal close_character_select
 @onready var charselect_s5 = $CenterContainer/BBCharacterSelect
 @onready var charselect_s6 = $CenterContainer/UNICharacterSelect
 @onready var charselect_s7 = $CenterContainer/GGCharacterSelect
+@onready var charselect_s8 = $CenterContainer/STCharacterSelect
 
 @onready var season_button_s1 = $TabSelect/CategoriesHBox/Season1
 @onready var season_button_s2 = $TabSelect/CategoriesHBox/Season2
@@ -22,6 +23,7 @@ signal close_character_select
 @onready var season_button_s5 = $TabSelect/CategoriesHBox/Season5
 @onready var season_button_s6 = $TabSelect/CategoriesHBox/Season6
 @onready var season_button_s7 = $TabSelect/CategoriesHBox/Season7
+@onready var season_button_s8 = $TabSelect/CategoriesHBox/Season8
 
 var default_char_id : String = "random"
 
@@ -33,6 +35,9 @@ func _ready():
 	show_season(charselect_s7, season_button_s7)
 
 func update_hover(char_id):
+	if char_id == "random_s8":
+		hover_label.text = "Random (S8)"
+		hover_portrait.texture = load("res://assets/portraits/random.png") #TODO: replace
 	if char_id == "random_s7":
 		hover_label.text = "Random (S7)"
 		hover_portrait.texture = load("res://assets/portraits/random.png")
@@ -85,6 +90,7 @@ func show_season(node, selector_button):
 	charselect_s5.visible = false
 	charselect_s6.visible = false
 	charselect_s7.visible = false
+	charselect_s8.visible = false
 	node.visible = true
 
 	season_button_s1.set_selected(false)
@@ -94,6 +100,7 @@ func show_season(node, selector_button):
 	season_button_s5.set_selected(false)
 	season_button_s6.set_selected(false)
 	season_button_s7.set_selected(false)
+	season_button_s8.set_selected(false)
 	selector_button.set_selected(true)
 
 func _on_char_button_on_pressed(character_id : String):
@@ -114,6 +121,8 @@ func _on_char_button_on_pressed(character_id : String):
 				show_season(charselect_s6, season_button_s6)
 			"season7":
 				show_season(charselect_s7, season_button_s7)
+			"season8":
+				show_season(charselect_s8, season_button_s8)
 	else:
 		select_character.emit(character_id)
 

@@ -1,4 +1,4 @@
-﻿class_name Player
+class_name Player
 
 
 class StrikeStatBoosts:
@@ -372,6 +372,7 @@ var once_per_game_resource_name : String
 var has_non_exceed_overdrive : bool
 var non_exceed_overdrive_active : bool
 var spent_gauge_this_turn : bool
+var infused : bool
 
 func _init(id, player_name, parent_ref, card_db_ref, chosen_deck, card_start_id):
 	my_id = id
@@ -521,6 +522,7 @@ func _init(id, player_name, parent_ref, card_db_ref, chosen_deck, card_start_id)
 	has_non_exceed_overdrive = deck_def.get('has_non_exceed_overdrive', false)
 	non_exceed_overdrive_active = false
 	spent_gauge_this_turn = false
+	infused = false
 
 	if "buddy_cards" in deck_def:
 		var buddy_index = 0
@@ -1911,6 +1913,9 @@ func can_do_character_action(action_index : int) -> bool:
 				used += 1
 		if used >= limit:
 			return false
+			
+	if 'requires_not_infused' in action and action['requires_not_infused']:
+		if is_infused(): return false
 
 	return true
 
@@ -3454,3 +3459,9 @@ func is_overdrive_active() -> bool:
 		return exceeded
 	else:
 		return non_exceed_overdrive_active
+
+func is_infused() -> bool:
+	for card in get_continuous_boosts_and_transforms():
+		if 'passively_infuse' in card.definition['boost'] and card.definition['boost']['passively_infuse']:
+			return true
+	return infused

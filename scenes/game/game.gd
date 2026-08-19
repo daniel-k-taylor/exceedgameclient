@@ -1520,6 +1520,8 @@ func _stat_notice_event(event):
 			notice_text = "Character Action"
 		Enums.EventType.EventType_Strike_Critical:
 			notice_text = "%s!" % event['reason']
+		Enums.EventType.EventType_Strike_Infuse:
+			notice_text = "%s!" % event['reason']
 		Enums.EventType.EventType_Strike_DodgeAttacks:
 			notice_text = "Dodge Attacks!"
 		Enums.EventType.EventType_Strike_DodgeAttacksAtRange:
@@ -3841,6 +3843,9 @@ func _handle_events(events):
 			Enums.EventType.EventType_Strike_Critical:
 				_set_card_bonus(event['number'], "critical")
 				delay = _stat_notice_event(event)
+			Enums.EventType.EventType_MarkInfused:
+				_set_card_bonus(event['number'], "critical")
+				_add_bonus_label_text(event['event_player'], "[color=sky_blue]Infused![/color]\n")
 			Enums.EventType.EventType_Strike_DodgeAttacks, Enums.EventType.EventType_Strike_DodgeAttacksAtRange, Enums.EventType.EventType_Strike_DodgeFromOppositeBuddy:
 				delay = _stat_notice_event(event)
 			Enums.EventType.EventType_Strike_DoResponseNow:
@@ -3860,6 +3865,10 @@ func _handle_events(events):
 			Enums.EventType.EventType_Strike_GuardUp:
 				delay = _stat_notice_event(event)
 			Enums.EventType.EventType_Strike_IgnoredPushPull:
+				delay = _stat_notice_event(event)
+			Enums.EventType.EventType_Strike_Infuse:
+				update_boost_summary(Enums.PlayerId.PlayerId_Player, $AllCards/PlayerBoosts, $PlayerBoostZone)
+				update_boost_summary(Enums.PlayerId.PlayerId_Opponent, $AllCards/OpponentBoosts, $OpponentBoostZone)
 				delay = _stat_notice_event(event)
 			Enums.EventType.EventType_Strike_Miss:
 				delay = _stat_notice_event(event)
@@ -4389,7 +4398,9 @@ func update_boost_summary(player_id, boosts_card_holder, boost_box):
 					add_to_effects.append(effect)
 
 	var boost_summary = ""
-	# Head with once-per-game mechanic tracking
+	# Head with special mechanic tracking
+	
+	# Once-per-game resources
 	var non_exceed_overdrive_active = game_wrapper.non_exceed_overdrive_active(player_id)
 	if non_exceed_overdrive_active:
 		boost_summary += "[color=cyan]Overdrive Active![/color]\n"
@@ -4401,6 +4412,12 @@ func update_boost_summary(player_id, boosts_card_holder, boost_box):
 			boost_summary += "[color=gold](%s Available!)[/color]\n" % once_per_game_mechanic
 		else:
 			boost_summary += "[color=gray](%s Used)[/color]\n" % once_per_game_mechanic
+			
+	# Infusion
+	if game_wrapper.is_player_infused(player_id):
+		boost_summary += "[color=sky_blue]Infused![/color]\n"
+	
+	# normal effects / transforms
 	
 	for effect in normal_effects:
 		if 'hide_effect' not in effect or not effect['hide_effect']:

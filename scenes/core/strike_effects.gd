@@ -1,4 +1,4 @@
-﻿class_name StrikeEffects
+class_name StrikeEffects
 
 const ActivateNonExceedOverdrive = "activate_non_exceed_overdrive"
 const AddAttackEffect = "add_attack_effect"
@@ -142,6 +142,7 @@ const IncreaseGaugeSpentBeforeStrike = "increase_gauge_spent_before_strike"
 const IncreaseMovementEffects = "increase_movement_effects"
 const IncreaseMove_OpponentEffects = "increase_move_opponent_effects"
 const IncrementBonusArmorCounters = "increment_bonus_armor_counters"
+const Infused = "infused"
 const InvertRange = "invert_range"
 const RemoveIgnorePushAndPullPassiveBonus = "remove_ignore_push_and_pull_passive_bonus"
 const LoseAllArmor = "lose_all_armor"
@@ -361,4 +362,3 @@ const ZeroVectorInternal = "zero_vector_internal"
 const ZeroVectorDialogue = "zero_vector_dialogue"
 const ZsoltNormalPassive = "zsolt_normal_passive"
 const ZsoltTransformExtra = "zsolt_transform_extra"
-

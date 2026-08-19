@@ -21,6 +21,8 @@ func get_random_deck(season : int) -> Dictionary:
 		return season_decks.pick_random()
 
 func get_deck(str_id : String) -> Dictionary:
+	if str_id == "random_s8":
+		return get_random_deck(8)
 	if str_id == "random_s7":
 		return get_random_deck(7)
 	if str_id == "random_s6":
