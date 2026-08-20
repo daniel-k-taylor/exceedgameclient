@@ -760,3 +760,6 @@ func test_eugenia_100():
 
 func test_zsolt_100():
 	run_iterations_with_deck("zsolt")
+
+func test_miyuki_100():
+	run_iterations_with_deck("miyuki")

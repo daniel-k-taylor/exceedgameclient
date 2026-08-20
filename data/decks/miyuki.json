@@ -1,7 +1,7 @@
 {
 	"id": "miyuki",
 	"season": 8,
-	"display_name": "Miyuki",
+	"display_name": "Miyuki (playtesting)",
 	"exceed_cost": 3,
 	"character_action_default": [{
 		"gauge_cost": 0,
