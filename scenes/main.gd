@@ -156,7 +156,11 @@ func _show_manual_reconnect_overlay():
 	reconnect_button.visible = true
 	reconnect_button.text = "Reconnect"
 	reconnect_button.disabled = NetworkManager.network_state == NetworkManager.NetworkState.NetworkState_Connecting
-	reconnect_cancel_button.visible = false
+	# Without a way out this dialog is a dead end: the player could neither
+	# reach the menu nor start a single player game. Dismissing it drops them
+	# back to the menu, which has its own Reconnect to Server button.
+	reconnect_cancel_button.visible = true
+	reconnect_cancel_button.text = "Continue Offline"
 
 func _show_waiting_for_opponent_overlay(seconds : int, remaining_seconds : int = -1):
 	reconnect_overlay.visible = true
@@ -177,7 +181,8 @@ func _format_duration(seconds : int) -> String:
 	return "%d:%02d" % [minutes, seconds % 60]
 
 func _on_reconnect_button_pressed():
-	NetworkManager.attempt_manual_reconnect()
+	if not NetworkManager.attempt_manual_reconnect():
+		NetworkManager.connect_to_server()
 	_on_reconnect_state_changed(NetworkManager.get_reconnect_state())
 
 func _on_reconnect_cancel_button_pressed():
@@ -188,4 +193,9 @@ func _on_reconnect_cancel_button_pressed():
 			game.abandon_match_after_disconnect()
 		return
 	NetworkManager.cancel_reconnect()
+	# Giving up on reconnecting means the match cannot be resumed, so leave it
+	# rather than dropping the player back into a game that can no longer
+	# receive any updates.
+	if game and game.has_method("abandon_match_after_disconnect"):
+		game.abandon_match_after_disconnect()
 	_on_reconnect_state_changed(NetworkManager.get_reconnect_state())

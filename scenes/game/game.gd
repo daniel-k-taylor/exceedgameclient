@@ -851,6 +851,23 @@ func create_buddy_reference_card(buddy_id, exceeded : bool, zone, click_buddy_id
 		image_url = image_resources[buddy_id + '_exceeded']['url']
 	_create_reference_card(image_url, card_name, zone, click_buddy_id)
 
+# Some buddies reuse a single piece of art for their base and exceeded forms
+# (Renea's Briefcase, for example). Those are distinct ids pointing at the same
+# picture, so listing them by id shows the same card twice. Collapse the list
+# down to one entry per distinct artwork.
+func _unique_buddy_graphics(buddy_graphic_list, image_resources) -> Array:
+	var unique_ids = []
+	var seen_urls = []
+	for buddy_id in buddy_graphic_list:
+		var buddy_graphic = buddy_id
+		if buddy_id in image_resources and 'url' in image_resources[buddy_id]:
+			buddy_graphic = image_resources[buddy_id]['url']
+		if buddy_graphic in seen_urls:
+			continue
+		seen_urls.append(buddy_graphic)
+		unique_ids.append(buddy_id)
+	return unique_ids
+
 func _create_reference_card(image_url : String, card_name : String, zone,
 		card_id : int):
 	var new_card : CardBase = CardBaseScene.instantiate()
@@ -914,7 +931,7 @@ func spawn_deck(deck_list,
 	# that popout shows the stored cards instead. Put it in the deck reference
 	# alongside the character card.
 	if buddy_reference_name:
-		for buddy_id in buddy_graphic_list:
+		for buddy_id in _unique_buddy_graphics(buddy_graphic_list, image_resources):
 			create_buddy_reference_card(buddy_id, false, copy_zone,
 				CardBase.BuddyCardReferenceId, image_resources, buddy_reference_name)
 
@@ -943,15 +960,10 @@ func spawn_deck(deck_list,
 			previous_def_id = card.definition['id']
 
 	# Setup buddy if they have one.
-	var created_buddy_cards = []
 	if buddy_graphic_list:
-		for buddy_id in buddy_graphic_list:
-			if buddy_id in created_buddy_cards:
-				# Skip any that share graphics.
-				continue
-			created_buddy_cards.append(buddy_id)
+		for buddy_id in _unique_buddy_graphics(buddy_graphic_list, image_resources):
 			var buddy_card_id = CardBase.BuddyCardReferenceId
-			if allow_click_buddy and buddy_card_id_links:
+			if allow_click_buddy and buddy_id in buddy_card_id_links:
 				buddy_card_id = buddy_card_id_links[buddy_id]
 			create_buddy_reference_card(buddy_id, false, buddy_copy_zone, buddy_card_id, image_resources)
 

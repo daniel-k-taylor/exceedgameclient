@@ -182,12 +182,40 @@ func get_timing_text(timing):
 			text += ""
 		"opponent_moved_past":
 			text += "If opponent moves past you, "
+		"moved_past":
+			text += "If you move past opponent, "
 		"when_hit":
 			text += "When hit, "
 		"on_stop_on_space":
 			text += "When boost entered during strike, stop movement; "
 		"on_spend_life":
 			text += "When you spend life, "
+		"on_reshuffle":
+			text += "When you shuffle your discards into your deck, "
+		"counter_boost":
+			text += "When your opponent boosts, "
+		"endofstrike":
+			text += "At the end of the strike, "
+		"on_cancel_boost":
+			text += "When you cancel, "
+		"on_change_cards":
+			text += "When you change cards, "
+		"on_continuous_boost":
+			text += "When you play a continuous boost, "
+		"on_move_action":
+			text += "When you take a move action, "
+		"on_prepare":
+			text += "When you prepare, "
+		"on_retreat":
+			text += "When you retreat, "
+		"on_spend_gauge":
+			text += "When you spend gauge, "
+		"opponent_before":
+			text += "Before your opponent's attack, "
+		"extra_strike_option", "never":
+			# Not player-facing triggers: "extra_strike_option" is surfaced as a
+			# strike choice in the UI and "never" marks effects that never fire.
+			text += ""
 		_:
 			text += "MISSING TIMING"
 	return text
@@ -227,7 +255,7 @@ func get_condition_text(effect, amount, amount2, detail):
 		"canceled_this_turn":
 			text += "If canceled this turn, "
 		"copy_of_attack_in_zones":
-			var zones = effect['condition_zones'].join("/")
+			var zones = "/".join(effect['condition_zones'])
 			text += "If copy of attack in %s, " % zones
 		"discarded_matches_attack_speed":
 			text += "If discarded card matches attack speed, "
@@ -455,6 +483,51 @@ func get_condition_text(effect, amount, amount2, detail):
 			text += "If you spent gauge this strike, "
 		"has_once_per_game_resource":
 			text += ""
+		"manual_reshuffle":
+			text += "if you reshuffled as your action, "
+		"during_strike":
+			text += "during a strike, "
+		"boosted_from_gauge":
+			text += "If you boosted from gauge, "
+		"can_continuous_boost_from_gauge":
+			text += "If you can boost a continuous boost from gauge, "
+		"choose_cards_from_top_deck_action":
+			text += "If you chose to %s, " % effect.get('condition_details', detail)
+		"did_end_of_turn_draw":
+			text += "If you drew at end of turn, "
+		"has_card_with_range_to_opponent":
+			text += "If you have a card in hand with range to the opponent, "
+		"has_transform":
+			text += "If you have a transform in play, "
+		"initiated_after_moving":
+			text += "If you initiated after moving at least %s space(s), " % amount
+		"initiated_face_up":
+			text += "If you initiated face up, "
+		"is_not_critical":
+			text += "If not critical, "
+		"no_boost_in_play":
+			text += "If you have no boosts in play, "
+		"no_strike_this_turn":
+			text += "If you haven't struck this turn, "
+		"not_buddy_in_play":
+			var absent_buddy = detail
+			if absent_buddy == "":
+				absent_buddy = effect.get('condition_buddy_id', "your buddy")
+			text += "If %s is not in play, " % absent_buddy
+		"initiated_at_range":
+			text += "If you initiated at range %s-%s, " % [effect.get('range_min', 0), effect.get('range_max', 0)]
+		"not_discarding_boost":
+			text += "If this boost isn't being discarded, "
+		"not_exceeded":
+			text += "If not exceeded, "
+		"opponent_top_discard_is_special":
+			text += "If the top card of opponent's discard pile is a special, "
+		"strike_x_greater_than":
+			text += "If X is greater than %s, " % amount
+		"top_discard_is_continous_boost":
+			text += "If the top card of your discard pile is a continuous boost, "
+		"was_not_wild_swing":
+			text += "If your attack wasn't a wild swing, "
 		_:
 			text += "MISSING CONDITION"
 	return text
@@ -533,6 +606,12 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 			effect_str += "Add card to overdrive after strike."
 		StrikeEffects.AddToSetAsideImmediately:
 			effect_str += "Add card to set aside zone."
+		StrikeEffects.AddSetAsideCardToDeck:
+			var set_aside_card = CardDataManager.card_data.get(effect.get('id', ''))
+			var set_aside_name = effect.get('id', "a set aside card")
+			if set_aside_card:
+				set_aside_name = set_aside_card.get('display_name', set_aside_name)
+			effect_str += "Add %s from your set aside zone to your deck." % set_aside_name
 		StrikeEffects.AddToGaugeBoostPlayCleanup:
 			effect_str += "Add card to gauge"
 		StrikeEffects.AddToGaugeImmediately:
@@ -884,9 +963,9 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 		StrikeEffects.PlayAttackFromHand:
 			effect_str += "Play an attack from your hand, paying its costs."
 		StrikeEffects.CalculateRangeFromBuddy:
-			effect_str += "Calculate range from %s." % effect['buddy_name']
+			effect_str += "Calculate range from %s." % effect.get('buddy_name', "your buddy")
 		StrikeEffects.CalculateRangeFromBuddyCurrentLocation:
-			effect_str += "Calculate range from %s's current location" % effect['buddy_name']
+			effect_str += "Calculate range from %s's current location" % effect.get('buddy_name', "your buddy")
 		StrikeEffects.CalculateRangeFromCenter:
 			effect_str += "Calculate range from the center of the arena."
 		StrikeEffects.CalculateRangeFromSetFromBoostSpace:
@@ -982,7 +1061,9 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 		StrikeEffects.GuardupPerTwoCardsInHand:
 			effect_str += "+1 Guard per 2 cards in hand"
 		StrikeEffects.GuardupPerGauge:
-			effect_str += "+" + str(effect['amount']) + " Guard per card in gauge."
+			# The engine adds exactly one guard per gauge card and never reads
+			# an "amount" here, so quoting one would misrepresent the card.
+			effect_str += "+1 Guard per card in gauge."
 		StrikeEffects.IgnoreArmor:
 			if 'opponent' in effect and effect['opponent']:
 				effect_str += "Opponent ignores armor"
@@ -1211,7 +1292,12 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 			var opponent_str = ""
 			if effect.get("count_opponent"):
 				opponent_str = "opponent's "
-			effect_str += "+" + str(effect['amount']) + " Power per card in " + opponent_str + "gauge up to " + str(effect['amount_max']) + "."
+			# amount_max is optional in the engine (it defaults to no cap), so
+			# only mention a ceiling when the card actually has one.
+			var cap_str = ""
+			if 'amount_max' in effect:
+				cap_str = " up to %s" % str(effect['amount_max'])
+			effect_str += "+" + str(effect['amount']) + " Power per card in " + opponent_str + "gauge" + cap_str + "."
 		StrikeEffects.PowerupPerSpentGaugeMatchingRangeToOpponent:
 			effect_str += "+" + str(effect['amount']) + " Power per spent gauge matching range to opponent."
 		StrikeEffects.PowerupPerSealedNormal:

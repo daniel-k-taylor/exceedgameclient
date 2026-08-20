@@ -5,14 +5,17 @@ extends GutTest
 # of covering the screen, which makes the reconnect UI unreadable.
 
 var main_scene : Node
+var _saved_has_ever_connected : bool
 
 func before_each():
+	_saved_has_ever_connected = NetworkManager._has_ever_connected
 	main_scene = load("res://scenes/main.tscn").instantiate()
 	add_child_autofree(main_scene)
 
 func after_each():
 	# main.gd opens a socket in _ready; make sure we do not leave it dialing.
 	NetworkManager.cancel_reconnect()
+	NetworkManager._has_ever_connected = _saved_has_ever_connected
 
 func _overlay() -> Control:
 	return main_scene.get_node("ReconnectLayer/ReconnectOverlay")
@@ -139,6 +142,54 @@ func test_reconnect_countdown_ignores_an_implausible_deadline():
 	assert_eq(NetworkManager.get_reconnect_state()["waiting_for_opponent_reconnect_remaining_seconds"], -1,
 		"an implausible deadline should fall back to elapsed counting")
 	NetworkManager.end_waiting_for_opponent_reconnect()
+
+# Cancelling used to flip the flow into the manual state, whose overlay has no
+# cancel button. That trapped the player: they could not reach the menu and so
+# could not even start a single player game.
+func test_cancelling_reconnect_dismisses_the_overlay_entirely():
+	NetworkManager._has_ever_connected = true
+	NetworkManager._begin_unexpected_disconnect("test disconnect")
+	assert_true(NetworkManager.is_reconnect_active(), "the flow should be running before we cancel")
+
+	NetworkManager.cancel_reconnect()
+
+	var state = NetworkManager.get_reconnect_state()
+	assert_false(state["is_manual_reconnect"], "cancelling must not fall through to the manual dialog")
+	assert_false(state["is_auto_reconnecting"], "cancelling must stop the retry loop")
+	assert_false(state["auto_retry_enabled"], "cancelling must stop automatic retries")
+	assert_true(state["user_cancelled"], "the cancel should be remembered")
+
+	main_scene._on_reconnect_state_changed(state)
+	await wait_frames(2)
+	assert_false(_overlay().visible, "cancelling should leave the player free to use the menu")
+
+func test_manual_reconnect_overlay_can_be_dismissed():
+	# Reached when auto reconnect gives up. It must still offer a way out.
+	main_scene._show_manual_reconnect_overlay()
+	await wait_frames(2)
+	var cancel = _overlay().get_node("PanelContainer/MarginContainer/VBoxContainer/ButtonRow/CancelButton")
+	assert_true(cancel.visible, "the manual reconnect dialog must not be a dead end")
+	assert_eq(cancel.text, "Continue Offline")
+
+# Launching while the server happens to be down is not a reconnect: there is no
+# session to reclaim, so the menu should just report being disconnected.
+func test_failing_the_very_first_connection_does_not_open_the_overlay():
+	NetworkManager._has_ever_connected = false
+	NetworkManager._begin_unexpected_disconnect("connection refused")
+
+	var state = NetworkManager.get_reconnect_state()
+	assert_false(state["is_auto_reconnecting"], "a cold connect failure should not start the retry loop")
+	assert_false(state["is_manual_reconnect"], "a cold connect failure should not show the manual dialog")
+
+	main_scene._on_reconnect_state_changed(state)
+	await wait_frames(2)
+	assert_false(_overlay().visible, "the player should still be able to reach the menu and play locally")
+
+func test_manual_reconnect_is_refused_before_any_connection_succeeds():
+	NetworkManager._has_ever_connected = false
+	assert_false(NetworkManager.attempt_manual_reconnect(),
+		"with no prior session the caller should dial the server normally instead")
+	assert_false(NetworkManager.get_reconnect_state()["is_auto_reconnecting"])
 
 func test_reconnect_countdown_clamps_to_zero_once_the_deadline_passes():
 	NetworkManager.end_waiting_for_opponent_reconnect()

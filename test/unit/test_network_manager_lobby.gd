@@ -51,6 +51,7 @@ func _reset_network_manager_state():
 	NetworkManager._waiting_for_opponent_reconnect_elapsed = 0.0
 	NetworkManager._active_remote_match_finished = false
 	NetworkManager._cold_restore_pending = false
+	NetworkManager._has_ever_connected = false
 
 
 func test_players_update_replaces_cached_lobby_snapshot():
@@ -203,6 +204,9 @@ func test_server_keepalive_message_updates_keepalive_tracking():
 
 func test_server_keepalive_timeout_starts_reconnect_flow():
 	NetworkManager.network_state = NetworkManager.NetworkState.NetworkState_Connected
+	# A live session implies the handshake already completed; without that the
+	# manager treats a drop as "never reached the server" and stays quiet.
+	NetworkManager._has_ever_connected = true
 	NetworkManager._server_keepalive_tracking = true
 	NetworkManager._last_server_keepalive_time = Time.get_ticks_msec() / 1000.0 - NetworkManager.SERVER_KEEPALIVE_TIMEOUT_SECONDS - 1.0
 
@@ -324,14 +328,14 @@ func test_session_restore_failed_clears_stored_identity():
 	NetworkManager._current_server_session_token = "tok-1"
 	NetworkManager._last_connected_server_name = "Alice"
 	NetworkManager._persist_identity()
-	assert_true(FileAccess.file_exists(NetworkManager._get_session_persist_path()))
+	assert_false(NetworkManager._store_read(NetworkManager._get_session_store_key(), "session").is_empty())
 
 	NetworkManager._handle_session_restore_failed({
 		"type": "session_restore_failed",
 		"reason": "no_matching_session",
 	})
 
-	assert_false(FileAccess.file_exists(NetworkManager._get_session_persist_path()))
+	assert_true(NetworkManager._store_read(NetworkManager._get_session_store_key(), "session").is_empty())
 	assert_eq(NetworkManager._previous_server_session_token, "")
 
 
@@ -354,4 +358,4 @@ func test_persisted_identity_round_trips_for_cold_restart():
 
 	# Clean up the file so it does not leak into other runs.
 	NetworkManager._clear_persisted_identity()
-	assert_false(FileAccess.file_exists(NetworkManager._get_session_persist_path()))
+	assert_true(NetworkManager._store_read(NetworkManager._get_session_store_key(), "session").is_empty())

@@ -47,7 +47,6 @@ func _ready():
 func hide_focus():
 	$MainPanelContainer/Focus.texture_pressed = null
 	$MainPanelContainer/Focus.texture_hover = null
-	$MainPanelContainer/Focus.tooltip_text = ""
 
 func exceed(is_exceed : bool):
 	#$MainPanelContainer/MainContainer/VerticalLayout/ImageMarginContainer/ImageHBox/CharacterImage.visible = not is_exceed

@@ -81,7 +81,7 @@ func test_second_concurrent_instance_claims_a_different_slot():
 func test_concurrent_instances_persist_to_separate_files():
 	var first = _make_manager()
 	var second = _make_manager()
-	assert_ne(first._get_session_persist_path(), second._get_session_persist_path())
+	assert_ne(first._get_session_store_key(), second._get_session_store_key())
 
 # The original bug: the last writer won, so both instances reloaded one token.
 func test_concurrent_instances_do_not_share_a_stored_token():
@@ -205,6 +205,52 @@ func test_clearing_identity_only_removes_this_instances_file():
 	_persist(second, "token_b", "Anon_2")
 
 	first._clear_persisted_identity()
-	assert_false(FileAccess.file_exists(first._get_session_persist_path()))
-	assert_true(FileAccess.file_exists(second._get_session_persist_path()),
+	assert_true(first._store_read(first._get_session_store_key(), "session").is_empty())
+	assert_false(second._store_read(second._get_session_store_key(), "session").is_empty(),
 		"one instance logging out must not wipe the other's identity")
+
+# Closing a browser tab does not run _exit_tree, so the lock keeps a heartbeat
+# that is only a second or two old. A tab reopened straight away used to skip
+# that slot, take a fresh identity, and silently abandon the seat the server was
+# still holding open. Releasing the slot on unload is what makes the reopened
+# tab land back on its own identity.
+func test_relaunch_after_a_released_slot_reclaims_the_same_identity():
+	var first = _make_manager()
+	var slot = first._session_slot
+	_persist(first, "held_token", "Anon_held")
+
+	# Simulate the tab going away: the unload hook clears the lock.
+	first._release_session_slot()
+
+	var relaunched = _make_manager()
+	assert_eq(relaunched._session_slot, slot,
+		"a reopened client should land back on the freed slot")
+	relaunched._load_persisted_identity()
+	assert_eq(relaunched._previous_server_session_token, "held_token",
+		"the reopened client must replay the token so it can reclaim its seat")
+	assert_true(relaunched._cold_restore_pending,
+		"a stored token should queue a restore on the next server hello")
+
+# The failure the player hit: without the unload hook the lock still looks live,
+# so the relaunch lands on a different slot with no token and never asks to
+# restore, leaving the held seat stranded.
+func test_relaunch_while_the_lock_still_looks_live_gets_a_different_slot():
+	var first = _make_manager()
+	var slot = first._session_slot
+	_persist(first, "held_token", "Anon_held")
+
+	var relaunched = _make_manager()
+	assert_ne(relaunched._session_slot, slot)
+	relaunched._load_persisted_identity()
+	assert_eq(relaunched._previous_server_session_token, "",
+		"this is why the seat was stranded: no token to replay")
+
+func test_releasing_a_slot_leaves_the_stored_identity_alone():
+	var first = _make_manager()
+	var slot = first._session_slot
+	_persist(first, "keep_me", "Anon_keep")
+
+	first._release_session_slot()
+
+	assert_false(first._store_read(first._session_slot_store_key(slot), "session").is_empty(),
+		"releasing the lock must not discard the identity we want to restore with")

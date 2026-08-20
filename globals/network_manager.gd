@@ -50,6 +50,12 @@ const MaxReasonableReconnectGraceSeconds = 30 * 60
 const SESSION_PERSIST_PATH = "user://session.cfg"
 const SESSION_SLOT_PATH_FORMAT = "user://session_slot_%d.cfg"
 const SESSION_SLOT_LOCK_FORMAT = "user://session_slot_%d.lock"
+# On web, user:// lives in IndexedDB through IDBFS, which only flushes on an
+# explicit sync or during page unload. Closing a tab routinely loses the last
+# writes, which meant a reopened tab had no token to replay and silently gave
+# up its held seat. localStorage is synchronous and durable, so identities and
+# slot locks go there instead. Desktop keeps using ConfigFile under user://.
+const WEB_STORAGE_PREFIX = "exceed_"
 const MAX_SESSION_SLOTS = 8
 # A slot whose owner has not refreshed its lock within this window is treated as
 # abandoned (the process was killed) and may be reclaimed. Kept short so a
@@ -116,6 +122,11 @@ var _session_slot_heartbeat_timer := 0.0
 # Set once the server tells us another connection owns our session. The stored
 # identity is gone, so this client must never try to reclaim it again.
 var _session_replaced := false
+# True once a connection has actually completed a handshake this run. Until it
+# does there is no session to reconnect to, so a failed connect is an ordinary
+# "server unreachable" case that belongs on the main menu, not behind a
+# blocking reconnect overlay that stops the player from starting a local game.
+var _has_ever_connected := false
 
 var _socket = null
 
@@ -160,6 +171,10 @@ func connect_to_server():
 
 func attempt_manual_reconnect():
 	if _socket != null or network_state == NetworkState.NetworkState_Connecting:
+		return false
+	if not _has_ever_connected:
+		# Nothing to reconnect to yet; the caller should just dial the server
+		# normally rather than putting up the reconnect overlay.
 		return false
 	if reconnect_state["user_cancelled"]:
 		reconnect_state["user_cancelled"] = false
@@ -248,15 +263,26 @@ func end_waiting_for_opponent_reconnect():
 	_emit_reconnect_state_changed()
 
 func cancel_reconnect():
+	# Cancelling means "stop trying and let me carry on offline", so the whole
+	# flow ends and the overlay goes away. The main menu still offers a
+	# Reconnect to Server button, and single player stays available. Leaving
+	# is_manual_reconnect set here would swap the spinner for a dialog whose
+	# only action is Reconnect, which the player cannot dismiss.
 	_abort_reconnect_socket()
+	_reconnect_elapsed = 0.0
+	_restore_request_sent = false
+	_cold_restore_pending = false
 	reconnect_state["user_cancelled"] = true
 	reconnect_state["is_auto_reconnecting"] = false
 	reconnect_state["auto_retry_enabled"] = false
-	reconnect_state["is_manual_reconnect"] = true
+	reconnect_state["is_manual_reconnect"] = false
+	reconnect_state["reconnect_seconds"] = 0
 	reconnect_state["last_reconnect_attempt_time"] = -1.0
 	_next_auto_reconnect_in = AUTO_RECONNECT_INTERVAL_SECONDS
 	_awaiting_name_sync = false
+	_waiting_for_restore_name_sync = false
 	_emit_reconnect_state_changed()
+
 
 func _abort_reconnect_socket():
 	if _socket:
@@ -292,6 +318,14 @@ func _begin_unexpected_disconnect(reason := ""):
 		_is_expected_disconnect = false
 		return
 	if reconnect_state["is_auto_reconnecting"] or reconnect_state["is_manual_reconnect"]:
+		return
+	if not _has_ever_connected:
+		# The very first connection attempt of this run never completed, so
+		# there is no session to reclaim. Report it as a plain failure and let
+		# the main menu show its Reconnect to Server button; the player can
+		# still play locally in the meantime.
+		reconnect_state["disconnect_reason"] = reason
+		request_failed.emit(reason if reason else "Failed to connect to server.")
 		return
 	_reconnect_elapsed = 0.0
 	_next_auto_reconnect_in = 0.0
@@ -473,6 +507,91 @@ func _handle_restore_failed(reason):
 # Claims the lowest slot whose lock is free or stale. Each instance writes a
 # unique id into its lock and re-reads it, so two instances starting at the same
 # moment cannot both believe they own the same slot.
+### Persisted session storage ###
+#
+# Two backends behind one key/value API. Web uses localStorage because IDBFS
+# can drop the most recent writes when a tab closes, which is exactly when the
+# session token matters most. Desktop keeps ConfigFile so existing installs
+# keep their identity.
+
+func _use_web_storage() -> bool:
+	return OS.has_feature("web")
+
+func _web_storage_key(store_key : String) -> String:
+	return WEB_STORAGE_PREFIX + store_key
+
+func _store_read(store_key : String, section : String) -> Dictionary:
+	if _use_web_storage():
+		var raw = JavaScriptBridge.eval(
+			"window.localStorage.getItem('%s');" % _web_storage_key(store_key), true)
+		if raw == null:
+			return {}
+		var parsed = JSON.parse_string(str(raw))
+		if parsed is Dictionary:
+			return parsed
+		return {}
+	var path = "user://%s" % store_key
+	if not FileAccess.file_exists(path):
+		return {}
+	var config = ConfigFile.new()
+	if config.load(path) != OK:
+		return {}
+	var values = {}
+	if not config.has_section(section):
+		return {}
+	for key in config.get_section_keys(section):
+		values[key] = config.get_value(section, key)
+	return values
+
+func _store_write(store_key : String, section : String, values : Dictionary) -> bool:
+	if _use_web_storage():
+		var payload = JSON.stringify(values).c_escape()
+		JavaScriptBridge.eval("window.localStorage.setItem('%s', \"%s\");" % [
+			_web_storage_key(store_key), payload], true)
+		return true
+	var config = ConfigFile.new()
+	for key in values:
+		config.set_value(section, key, values[key])
+	return config.save("user://%s" % store_key) == OK
+
+func _store_erase(store_key : String):
+	if _use_web_storage():
+		JavaScriptBridge.eval(
+			"window.localStorage.removeItem('%s');" % _web_storage_key(store_key), true)
+		return
+	var dir = DirAccess.open("user://")
+	if dir and dir.file_exists(store_key):
+		dir.remove(store_key)
+
+# Closing a browser tab never runs _exit_tree, so without this the lock keeps a
+# fresh heartbeat and the next tab skips past the slot - taking a brand new
+# identity and abandoning the seat the server is still holding. A plain JS
+# listener clears the key during unload without needing the engine to still be
+# alive. localStorage writes are synchronous, so this completes.
+func _update_web_slot_release_hook(lock_store_key : String):
+	if not _use_web_storage():
+		return
+	var key = "" if lock_store_key == "" else _web_storage_key(lock_store_key)
+	JavaScriptBridge.eval("""
+		window.__exceedSlotLockKey = '%s';
+		if (!window.__exceedSlotHookInstalled) {
+			window.__exceedSlotHookInstalled = true;
+			var releaseExceedSlot = function() {
+				if (window.__exceedSlotLockKey) {
+					try { window.localStorage.removeItem(window.__exceedSlotLockKey); } catch (e) {}
+				}
+			};
+			window.addEventListener('pagehide', releaseExceedSlot);
+			window.addEventListener('beforeunload', releaseExceedSlot);
+		}
+	""" % key, true)
+
+func _session_slot_lock_store_key(slot : int) -> String:
+	return (SESSION_SLOT_LOCK_FORMAT % slot).get_file()
+
+func _session_slot_store_key(slot : int) -> String:
+	return (SESSION_SLOT_PATH_FORMAT % slot).get_file()
+
 func _claim_session_slot():
 	if _session_slot != -1:
 		return
@@ -488,6 +607,7 @@ func _claim_session_slot():
 		_session_slot = slot
 		_session_slot_instance_id = instance_id
 		_session_slot_heartbeat_timer = 0.0
+		_update_web_slot_release_hook(_session_slot_lock_store_key(slot))
 		_migrate_legacy_session_file()
 		return
 	# Every slot is live. Run without persistence rather than stealing an
@@ -515,32 +635,27 @@ func _get_unix_time_seconds() -> int:
 	return int(Time.get_unix_time_from_system())
 
 func _read_session_slot_lock(slot : int) -> Dictionary:
-	var lock_path = SESSION_SLOT_LOCK_FORMAT % slot
-	if not FileAccess.file_exists(lock_path):
-		return {}
-	var config = ConfigFile.new()
-	if config.load(lock_path) != OK:
+	var lock = _store_read(_session_slot_lock_store_key(slot), "lock")
+	if lock.is_empty():
 		return {}
 	return {
-		"instance_id": str(config.get_value("lock", "instance_id", "")),
-		"heartbeat": int(config.get_value("lock", "heartbeat", 0)),
+		"instance_id": str(lock.get("instance_id", "")),
+		"heartbeat": int(lock.get("heartbeat", 0)),
 	}
 
 func _write_session_slot_lock(slot : int, instance_id : String) -> bool:
-	var config = ConfigFile.new()
-	config.set_value("lock", "instance_id", instance_id)
-	config.set_value("lock", "heartbeat", _get_unix_time_seconds())
-	return config.save(SESSION_SLOT_LOCK_FORMAT % slot) == OK
+	return _store_write(_session_slot_lock_store_key(slot), "lock", {
+		"instance_id": instance_id,
+		"heartbeat": _get_unix_time_seconds(),
+	})
 
 # Free the slot on a clean shutdown so the next launch reuses it right away and
 # keeps its identity. A hard kill leaves the lock behind to expire instead.
 func _release_session_slot():
 	if _session_slot == -1:
 		return
-	var lock_name = (SESSION_SLOT_LOCK_FORMAT % _session_slot).get_file()
-	var dir = DirAccess.open("user://")
-	if dir and dir.file_exists(lock_name):
-		dir.remove(lock_name)
+	_store_erase(_session_slot_lock_store_key(_session_slot))
+	_update_web_slot_release_hook("")
 	_session_slot = -1
 
 func _exit_tree():
@@ -575,10 +690,10 @@ func _handle_session_slot_lost():
 	_cold_restore_pending = false
 	_claim_session_slot()
 
-func _get_session_persist_path() -> String:
+func _get_session_store_key() -> String:
 	if _session_slot == -1:
 		return ""
-	return SESSION_SLOT_PATH_FORMAT % _session_slot
+	return _session_slot_store_key(_session_slot)
 
 # Upgrade path for clients that stored an identity before slots existed. Only
 # slot 0 adopts it, so a second instance cannot inherit the same token.
@@ -587,11 +702,15 @@ func _migrate_legacy_session_file():
 		return
 	if not FileAccess.file_exists(SESSION_PERSIST_PATH):
 		return
-	var slot_path = _get_session_persist_path()
-	if not FileAccess.file_exists(slot_path):
+	if _store_read(_get_session_store_key(), "session").is_empty():
 		var config = ConfigFile.new()
 		if config.load(SESSION_PERSIST_PATH) == OK:
-			config.save(slot_path)
+			var values = {}
+			if config.has_section("session"):
+				for key in config.get_section_keys("session"):
+					values[key] = config.get_value("session", key)
+			if not values.is_empty():
+				_store_write(_get_session_store_key(), "session", values)
 	var dir = DirAccess.open("user://")
 	if dir and dir.file_exists("session.cfg"):
 		dir.remove("session.cfg")
@@ -599,39 +718,36 @@ func _migrate_legacy_session_file():
 func _persist_identity():
 	if _current_server_session_token == "":
 		return
-	var path = _get_session_persist_path()
-	if path == "":
+	var store_key = _get_session_store_key()
+	if store_key == "":
 		return
-	var config = ConfigFile.new()
-	config.set_value("session", "player_id", _current_server_player_id)
-	config.set_value("session", "session_id", _current_server_session_id)
-	config.set_value("session", "session_token", _current_server_session_token)
-	config.set_value("session", "player_name", _last_connected_server_name)
-	config.save(path)
+	_store_write(store_key, "session", {
+		"player_id": _current_server_player_id,
+		"session_id": _current_server_session_id,
+		"session_token": _current_server_session_token,
+		"player_name": _last_connected_server_name,
+	})
 
 func _clear_persisted_identity():
-	var path = _get_session_persist_path()
-	if path == "":
+	var store_key = _get_session_store_key()
+	if store_key == "":
 		return
-	var dir = DirAccess.open("user://")
-	var file_name = path.get_file()
-	if dir and dir.file_exists(file_name):
-		dir.remove(file_name)
+	_store_erase(store_key)
 
 func _load_persisted_identity():
-	var path = _get_session_persist_path()
-	if path == "" or not FileAccess.file_exists(path):
+	var store_key = _get_session_store_key()
+	if store_key == "":
 		return
-	var config = ConfigFile.new()
-	if config.load(path) != OK:
+	var values = _store_read(store_key, "session")
+	if values.is_empty():
 		return
-	var token = str(config.get_value("session", "session_token", ""))
+	var token = str(values.get("session_token", ""))
 	if token == "":
 		return
-	_previous_server_player_id = config.get_value("session", "player_id", null)
-	_previous_server_session_id = str(config.get_value("session", "session_id", ""))
+	_previous_server_player_id = values.get("player_id", null)
+	_previous_server_session_id = str(values.get("session_id", ""))
 	_previous_server_session_token = token
-	var stored_name = str(config.get_value("session", "player_name", ""))
+	var stored_name = str(values.get("player_name", ""))
 	if stored_name != "":
 		_last_connected_server_name = stored_name
 		_pending_restore_context["player_name"] = stored_name
@@ -840,6 +956,7 @@ func _handle_server_keepalive(_message):
 
 func _handle_server_hello(hello_message):
 	var player_name = hello_message["player_name"]
+	_has_ever_connected = true
 	_apply_server_identity(hello_message)
 	_last_connected_server_name = player_name
 	print("Connected to server as : ", player_name)

@@ -768,12 +768,18 @@ func spawn_deck(
 				if 'buddy_exceeds' in deck_def and deck_def['buddy_exceeds']:
 					buddy_graphics.append(buddy_card + "_exceeded")
 
-	var created_buddy_cards = []
+	var created_buddy_graphics = []
 	for buddy_id in buddy_graphics:
-		if buddy_id in created_buddy_cards:
-			# Skip any that share graphics.
+		# Some buddies reuse one piece of art for their base and exceeded
+		# forms (Renea's Briefcase, for example). Those are distinct ids but
+		# the same picture, so keying on the id would list the same card
+		# twice. Compare the resolved artwork instead.
+		var buddy_graphic = buddy_id
+		if buddy_id in image_resources and 'url' in image_resources[buddy_id]:
+			buddy_graphic = image_resources[buddy_id]['url']
+		if buddy_graphic in created_buddy_graphics:
 			continue
-		created_buddy_cards.append(buddy_id)
+		created_buddy_graphics.append(buddy_graphic)
 		var buddy_card_id = CardBase.BuddyCardReferenceId
 		var new_card = await create_buddy_reference_card(buddy_id, false, card_zone, buddy_card_id, image_resources)
 		cards.append(new_card)

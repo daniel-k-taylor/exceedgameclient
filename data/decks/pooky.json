@@ -75,7 +75,7 @@
 			"multiple_cards": true
 		},
 		"normals": {
-			"url": "https://i.imgur.com/WCBeoio.jpeg",
+			"url": "https://i.imgur.com/1pnJnEb.jpeg",
 			"multiple_cards": true
 		}
 	},
@@ -83,72 +83,72 @@
 		{
 			"definition_id": "pooky_gamblingimin",
 			"image_name": "specials",
-			"image_index": 8
+			"image_index": 0
 		},
 		{
 			"definition_id": "pooky_gamblingimin",
 			"image_name": "specials",
-			"image_index": 8
+			"image_index": 0
 		},
 		{
 			"definition_id": "pooky_snackattack",
 			"image_name": "specials",
-			"image_index": 9
+			"image_index": 1
 		},
 		{
 			"definition_id": "pooky_snackattack",
 			"image_name": "specials",
-			"image_index": 9
+			"image_index": 1
 		},
 		{
 			"definition_id": "pooky_pookycheats",
 			"image_name": "specials",
-			"image_index": 10
+			"image_index": 2
 		},
 		{
 			"definition_id": "pooky_pookycheats",
 			"image_name": "specials",
-			"image_index": 10
+			"image_index": 2
 		},
 		{
 			"definition_id": "pooky_longintooth",
 			"image_name": "specials",
-			"image_index": 11
+			"image_index": 3
 		},
 		{
 			"definition_id": "pooky_longintooth",
 			"image_name": "specials",
-			"image_index": 11
+			"image_index": 3
 		},
 		{
 			"definition_id": "pooky_pookydrinks",
 			"image_name": "specials",
-			"image_index": 12
+			"image_index": 4
 		},
 		{
 			"definition_id": "pooky_pookydrinks",
 			"image_name": "specials",
-			"image_index": 12
+			"image_index": 4
 		},
 		{
 			"definition_id": "pooky_hattrick",
 			"image_name": "specials",
-			"image_index": 14
+			"image_index": 6
 		},
 		{
 			"definition_id": "pooky_hattrick",
 			"image_name": "specials",
-			"image_index": 14
+			"image_index": 6
 		},
 		{
 			"definition_id": "pooky_drunkenrampage",
 			"image_name": "specials",
-			"image_index": 13
+			"image_index": 5
 		},
 		{
 			"definition_id": "pooky_drunkenrampage",
 			"image_name": "specials",
-			"image_index": 13
+			"image_index": 5
 		},
 		{
 			"definition_id": "standard_normal_grasp",

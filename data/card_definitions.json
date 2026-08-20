@@ -12009,7 +12009,8 @@
 				"condition_detail": "Condensity Gloom",
 				"effect_type": "reveal_strike",
 				"and": {
-					"effect_type": "calculate_range_from_buddy"
+					"effect_type": "calculate_range_from_buddy",
+					"buddy_name": "your attack"
 				}
 			},
 			{
@@ -19996,7 +19997,8 @@
 				"condition_detail": "I, Persistently Cling",
 				"effect_type": "reveal_strike",
 				"and": {
-					"effect_type": "calculate_range_from_buddy"
+					"effect_type": "calculate_range_from_buddy",
+					"buddy_name": "your attack"
 				}
 			},
 			{

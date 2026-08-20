@@ -130,3 +130,59 @@ func test_ported_character_textures_stay_within_a_reasonable_size():
 		if size.x > max_dimension or size.y > max_dimension:
 			oversized.append("%s is %dx%d" % [animation_id, size.x, size.y])
 	assert_eq(oversized, [], "character art larger than %dpx" % max_dimension)
+
+# Card art is distributed as separate atlases: an 8-cell "normals" sheet and a
+# per-character "specials" sheet whose cells start at 0. Pooky was ported from a
+# fork that used one combined normals+specials sheet, so its specials indices
+# started at 8 and ran off the end of the atlas, and CardImageLoader indexed past
+# the end of the sliced image array at runtime.
+func _multi_card_atlas_usage(deck : Dictionary) -> Dictionary:
+	# atlas url -> { "indices": { index: true }, "names": { image_name: true } }
+	var usage = {}
+	var resources = deck.get('image_resources', {})
+	for card in deck.get('cards', []):
+		var image_name = card.get('image_name', '')
+		if not resources.has(image_name):
+			continue
+		var resource = resources[image_name]
+		if not resource.get('multiple_cards', false):
+			continue
+		var url = resource.get('url', '')
+		if not usage.has(url):
+			usage[url] = { "indices": {}, "names": {} }
+		usage[url]["indices"][int(card.get('image_index', 0))] = true
+		usage[url]["names"][image_name] = true
+	return usage
+
+func _multi_card_decks() -> Array:
+	var decks = []
+	for deck_id in CardDataManager.decks:
+		var deck = CardDataManager.decks[deck_id]
+		if deck is Dictionary and 'cards' in deck and 'image_resources' in deck:
+			decks.append(deck)
+	return decks
+
+func test_no_deck_points_two_card_groups_at_one_atlas():
+	var offenders = []
+	for deck in _multi_card_decks():
+		for url in _multi_card_atlas_usage(deck):
+			var names = _multi_card_atlas_usage(deck)[url]["names"].keys()
+			if names.size() > 1:
+				names.sort()
+				offenders.append("%s: %s share %s" % [deck['id'], str(names), url])
+	assert_eq(offenders, [], "a deck reusing one atlas for two card groups was authored against a combined sheet and its indices will overflow")
+
+func test_card_image_indices_are_contiguous_from_zero():
+	# Each atlas is sliced into a grid and addressed by index, so the indices a
+	# deck uses must cover 0..n-1 with no holes. A gap means art is misaligned;
+	# a non-zero start means the indices are offset into a different sheet.
+	var offenders = []
+	for deck in _multi_card_decks():
+		var usage = _multi_card_atlas_usage(deck)
+		for url in usage:
+			var indices = usage[url]["indices"].keys()
+			indices.sort()
+			var expected = range(indices.size())
+			if indices != expected:
+				offenders.append("%s %s uses %s, expected %s" % [deck['id'], url, str(indices), str(expected)])
+	assert_eq(offenders, [], "card image indices must be contiguous starting at 0")
