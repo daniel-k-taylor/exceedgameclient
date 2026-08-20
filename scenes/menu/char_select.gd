@@ -37,8 +37,8 @@ func _ready():
 func update_hover(char_id):
 	if char_id == "random_s8":
 		hover_label.text = "Random (S8)"
-		hover_portrait.texture = load("res://assets/portraits/random.png") #TODO: replace
-	if char_id == "random_s7":
+		hover_portrait.texture = load("res://assets/portraits/stlogo.png")
+	elif char_id == "random_s7":
 		hover_label.text = "Random (S7)"
 		hover_portrait.texture = load("res://assets/portraits/random.png")
 	elif char_id == "random_s6":
