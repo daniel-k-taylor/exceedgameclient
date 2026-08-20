@@ -19509,7 +19509,7 @@
 					"amount": 2,
 					"and": {
 						"effect_type": "draw",
-						"opponent": true,
+						"NOTE": "opponent_discard_choose swaps to opponent perspective already",
 						"amount": 1
 					}
 				}
