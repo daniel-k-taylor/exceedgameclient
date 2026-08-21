@@ -225,3 +225,22 @@ func test_siren_call_does_not_pull_when_opponent_is_not_stunned():
 	execute_strike(player1, player2, "syrus_siren_call", "standard_normal_focus", false, false, [1], [])
 
 	validate_positions(player1, 1, player2, 6)
+
+func test_treasure_hunter_boost_moves_a_chosen_card_from_hand_to_gauge():
+	var boost_id = give_player_specific_card(player1, "syrus_treasure_hunter")
+	var gauge_target = give_player_specific_card(player1, "standard_normal_cross")
+	var gauge_before = player1.gauge.size()
+	var hand_before = player1.hand.size()
+
+	assert_true(game_logic.do_boost(player1, boost_id, []))
+	assert_eq(game_logic.game_state, Enums.GameState.GameState_PlayerDecision)
+	assert_eq(game_logic.decision_info.type, Enums.DecisionType.DecisionType_CardFromHandToGauge)
+	assert_true(game_logic.do_relocate_card_from_hand(player1, [gauge_target]))
+
+	assert_eq(player1.gauge.size(), gauge_before + 1)
+	assert_true(player1.is_card_in_gauge(gauge_target))
+	assert_false(player1.is_card_in_hand(gauge_target))
+	assert_false(player1.is_card_in_hand(boost_id))
+	# Boosting ends the turn, so the two cards that left hand are offset by the
+	# end-of-turn draw.
+	assert_eq(player1.hand.size(), hand_before - 1)

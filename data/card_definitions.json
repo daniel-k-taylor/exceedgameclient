@@ -40547,12 +40547,9 @@
 			"effects": [
 				{
 					"timing": "immediate",
-					"effect_type": "choose_discard",
-					"source": "hand",
-					"destination": "gauge",
-					"amount": 1,
-					"limitation": "",
-					"override_description": "Add a card from your hand to your gauge."
+					"effect_type": "gauge_from_hand",
+					"min_amount": 1,
+					"max_amount": 1
 				}
 			]
 		}

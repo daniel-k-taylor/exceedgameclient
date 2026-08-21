@@ -300,3 +300,50 @@ func test_lethal_force_does_not_retreat_without_a_continuous_boost():
 	# Opponent still pushed 5 -> 7, but Renea holds her ground.
 	validate_positions(player1, 3, player2, 7)
 	validate_life(player1, 30, player2, 25)
+
+func test_neutralizer_hit_makes_exceeded_opponent_discard_two_gauge():
+	position_players(player1, 4, player2, 5)
+	player2.exceeded = true
+	give_gauge(player2, 3)
+	var gauge_before = player2.gauge.size()
+
+	give_gauge(player1, 2)
+	var attack_id = give_player_specific_card(player1, "renea_neutralizer")
+	assert_true(game_logic.do_strike(player1, attack_id, false, -1))
+	var response_id = give_player_specific_card(player2, "standard_normal_focus")
+	assert_true(game_logic.do_strike(player2, response_id, false, -1))
+
+	# Ryu declines to spend gauge for a critical.
+	assert_eq(game_logic.decision_info.type, Enums.DecisionType.DecisionType_GaugeForEffect)
+	assert_true(game_logic.do_gauge_for_effect(player2, []))
+	# Neutralizer is an ultra; pay its gauge cost.
+	assert_eq(game_logic.decision_info.type, Enums.DecisionType.DecisionType_PayStrikeCost_Required)
+	assert_true(game_logic.do_pay_strike_cost(player1, get_cards_from_gauge(player1, 2), false))
+
+	assert_eq(game_logic.game_state, Enums.GameState.GameState_PlayerDecision)
+	assert_eq(game_logic.decision_info.type, Enums.DecisionType.DecisionType_ChooseFromDiscard)
+	assert_eq(game_logic.decision_info.player, player2.my_id)
+	assert_eq(game_logic.decision_info.amount, 2)
+	var to_discard = [player2.gauge[0].id, player2.gauge[1].id]
+	assert_true(game_logic.do_choose_from_discard(player2, to_discard))
+
+	assert_eq(player2.gauge.size(), gauge_before - 2)
+
+func test_neutralizer_does_not_touch_gauge_when_opponent_is_not_exceeded():
+	position_players(player1, 4, player2, 5)
+	give_gauge(player2, 3)
+	var gauge_before = player2.gauge.size()
+
+	give_gauge(player1, 2)
+	var attack_id = give_player_specific_card(player1, "renea_neutralizer")
+	assert_true(game_logic.do_strike(player1, attack_id, false, -1))
+	var response_id = give_player_specific_card(player2, "standard_normal_focus")
+	assert_true(game_logic.do_strike(player2, response_id, false, -1))
+
+	assert_eq(game_logic.decision_info.type, Enums.DecisionType.DecisionType_GaugeForEffect)
+	assert_true(game_logic.do_gauge_for_effect(player2, []))
+	assert_eq(game_logic.decision_info.type, Enums.DecisionType.DecisionType_PayStrikeCost_Required)
+	assert_true(game_logic.do_pay_strike_cost(player1, get_cards_from_gauge(player1, 2), false))
+
+	assert_ne(game_logic.decision_info.type, Enums.DecisionType.DecisionType_ChooseFromDiscard)
+	assert_eq(player2.gauge.size(), gauge_before)
