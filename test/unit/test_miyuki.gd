@@ -202,3 +202,42 @@ func test_miyuki_healing_light():
 	assert_eq(player1.hand.size(), 6)
 	assert_eq(player1.life, 21)
 	advance_turn(player2)
+
+
+## Replicating weird bug involving the wrong player having control after declining to negate a boost
+
+func test_miyuki_exceed_vs_meddlesome():
+	position_players(player1, 3, player2, 5)
+	
+	give_player_specific_card(player2, "seijun_yokaibanishing")
+	player2.add_to_transforms(player2.hand[-1])
+	
+	var gauge_cards = give_gauge(player1, 3)
+	assert_true(game_logic.do_exceed(player1, gauge_cards))
+	advance_turn(player2)
+	player1.discard_hand()
+	player2.discard_hand()
+	
+	var fierce_card = give_player_specific_card(player1, "standard_normal_grasp")
+	player1.move_card_from_hand_to_gauge(fierce_card)
+
+	# Boost Fierce from Gauge
+	assert_true(game_logic.do_character_action(player1, [], 0))
+	assert_true(game_logic.do_boost(player1, fierce_card, []))
+	
+	# p2's hand is empty, so they can't match the grasp
+	# the UI still shows up so that information isn't revealed to the opponent
+	assert_true(game_logic.do_choice(player2, 0)) # attempt to use countering, but fail
+	
+	# Accept option to Strike
+	assert_true(game_logic.do_choice(player1, 0))
+	
+	# Strike; should be infused and ignore guard
+	var strike_cards = execute_strike(player1, player2, "miyuki_cripplingsparks", "standard_normal_sweep",
+		false, false, [1]) # Pull 2
+		
+	validate_positions(player1, 3, player2, 2)
+	validate_life(player1, 30, player2, 24)
+
+	advance_turn(player2)
+	

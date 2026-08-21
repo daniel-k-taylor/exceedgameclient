@@ -8203,6 +8203,7 @@ func continue_resolve_boost():
 			else:
 				active_boost.checked_counter = true
 		if active_boost.boost_negated and active_boost.effects_resolved < len(effects) + len(character_effects):
+			active_boost.checked_counter = true
 			active_boost.effects_resolved = len(effects) + len(character_effects)
 
 		if active_boost.effects_resolved < len(effects):
@@ -9853,7 +9854,12 @@ func continue_player_action_resolution(performing_player : Player):
 			Enums.GameState.GameState_DiscardDownToMax,
 			Enums.GameState.GameState_WaitForStrike,
 		]:
-			do_queued_effects(performing_player)
+			if active_boost and not active_boost.checked_counter:
+				# If we're in the middle of resolving a counter-boost effect, control was turned
+				# to the other player at a weird timing; queued effects shouldn't be resolved yet
+				pass
+			else:
+				do_queued_effects(performing_player)
 
 		if game_state != Enums.GameState.GameState_PlayerDecision:
 			if active_special_draw_effect:
