@@ -98,6 +98,7 @@ func test_character_flags_are_present_on_expected_decks():
 		"luciya": ["spent_gauge_becomes_boost_when_exceeded"],
 		"bison": ["ai_skip_character_action_above_gauge"],
 		"umina": ["dreamlands_config"],
+		"chaos": ["warn_when_striking_without_character_action"],
 	}
 	for deck_id in expected_flags:
 		var deck = CardDataManager.get_deck(deck_id)

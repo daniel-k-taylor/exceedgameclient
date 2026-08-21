@@ -4831,17 +4831,20 @@ func _update_buttons(no_number_picker_update : bool = false):
 			instructions_pay_alternative_life_cost = 0
 			instructions_face_attack_card = null
 			button_choices.append({ "text": "Move", "action": _on_move_button_pressed, "disabled": not game_wrapper.can_do_move(Enums.PlayerId.PlayerId_Player) })
-			button_choices.append({ "text": "Prepare", "action": _on_prepare_button_pressed, "disabled": not game_wrapper.can_do_prepare(Enums.PlayerId.PlayerId_Player) })
+			button_choices.append({ "text": "Prepare", "action": _wrap_with_confirmation("Prepare", _on_prepare_button_pressed), "disabled": not game_wrapper.can_do_prepare(Enums.PlayerId.PlayerId_Player) })
 			button_choices.append({ "text": "Change Cards", "action": _on_change_button_pressed, "disabled": not game_wrapper.can_do_change(Enums.PlayerId.PlayerId_Player) })
 			var exceed_cost = game_wrapper.get_player_exceed_cost(Enums.PlayerId.PlayerId_Player)
 			if exceed_cost >= 0 and not game_wrapper.is_player_exceeded(Enums.PlayerId.PlayerId_Player):
 				button_choices.append({ "text": "Exceed (%s Gauge)" % exceed_cost, "action": _on_exceed_button_pressed, "disabled": not game_wrapper.can_do_exceed(Enums.PlayerId.PlayerId_Player) })
 			if game_wrapper.can_do_reshuffle(Enums.PlayerId.PlayerId_Player):
-				button_choices.append({ "text": "Manual Reshuffle", "action": _on_reshuffle_button_pressed, "disabled": false })
+				button_choices.append({ "text": "Manual Reshuffle", "action": _wrap_with_confirmation("Manual Reshuffle", _on_reshuffle_button_pressed), "disabled": false })
 			var ex_transform_available = game_wrapper.can_do_ex_transform(Enums.PlayerId.PlayerId_Player)
 			var ex_transform_text = "/Transform" if ex_transform_available else ""
-			button_choices.append({ "text": "Boost" + ex_transform_text, "action": _on_boost_button_pressed, "disabled": not (game_wrapper.can_do_boost(Enums.PlayerId.PlayerId_Player) or ex_transform_available) })
-			button_choices.append({ "text": "Strike", "action": _on_strike_button_pressed, "disabled": not game_wrapper.can_do_strike(Enums.PlayerId.PlayerId_Player) })
+			button_choices.append({ "text": "Boost" + ex_transform_text, "action": _wrap_with_confirmation("Boost", _on_boost_button_pressed), "disabled": not (game_wrapper.can_do_boost(Enums.PlayerId.PlayerId_Player) or ex_transform_available) })
+			var turn_strike_action : Callable = _on_strike_button_pressed
+			if _should_warn_about_skipping_strike_character_action():
+				turn_strike_action = _wrap_with_skipped_character_action_confirmation(_on_strike_button_pressed)
+			button_choices.append({ "text": "Strike", "action": turn_strike_action, "disabled": not game_wrapper.can_do_strike(Enums.PlayerId.PlayerId_Player) })
 			for i in range(game_wrapper.get_player_character_action_count(Enums.PlayerId.PlayerId_Player)):
 				var char_action = game_wrapper.get_player_character_action(Enums.PlayerId.PlayerId_Player, i)
 				var action_possible = game_wrapper.can_do_character_action(Enums.PlayerId.PlayerId_Player, i)
@@ -4954,8 +4957,11 @@ func _update_buttons(no_number_picker_update : bool = false):
 			instructions_strike_options = {}
 			instructions_pay_alternative_life_cost = 0
 			instructions_face_attack_card = null
-			button_choices.append({ "text": strike_text, "action": _on_shortcut_strike_pressed, "disabled": not can_strike or not game_wrapper.can_do_strike(Enums.PlayerId.PlayerId_Player) })
-			button_choices.append({ "text": boost_text, "action": _on_shortcut_boost_pressed,
+			var shortcut_strike_action : Callable = _wrap_with_confirmation(strike_text, _on_shortcut_strike_pressed)
+			if _should_warn_about_skipping_strike_character_action():
+				shortcut_strike_action = _wrap_with_skipped_character_action_confirmation(_on_shortcut_strike_pressed)
+			button_choices.append({ "text": strike_text, "action": shortcut_strike_action, "disabled": not can_strike or not game_wrapper.can_do_strike(Enums.PlayerId.PlayerId_Player) })
+			button_choices.append({ "text": boost_text, "action": _wrap_with_confirmation(boost_text, _on_shortcut_boost_pressed),
 				"disabled": (not can_boost or not game_wrapper.can_do_boost(Enums.PlayerId.PlayerId_Player)) and (not can_ex_transform or not game_wrapper.can_do_ex_transform(Enums.PlayerId.PlayerId_Player)) })
 
 			# Check for character actions with card-related shortcuts
@@ -5705,6 +5711,57 @@ func handle_pick_range_ok():
 ##
 ## Button Handlers
 ##
+
+func _wrap_with_confirmation(action_text: String, action: Callable) -> Callable:
+	if GlobalSettings.ActionConfirmationEnabled:
+		return func(): _show_action_confirmation(action_text, action)
+	return action
+
+func _show_action_confirmation(action_text: String, action: Callable) -> void:
+	var on_confirm = func(): action.call()
+	var on_cancel = func(): _update_buttons()
+	var confirm_choices = [
+		{ "text": "Confirm", "action": on_confirm },
+		{ "text": "Cancel", "action": on_cancel },
+	]
+	current_action_menu_choices = confirm_choices
+	action_menu.set_choices(
+		"Are you sure you want to %s?" % action_text,
+		confirm_choices,
+		false, -1, -1, false, false, false, 2
+	)
+	action_menu.visible = true
+
+func _should_warn_about_skipping_strike_character_action() -> bool:
+	if ui_state != UIState.UIState_PickTurnAction:
+		return false
+	if game_wrapper.get_active_player() != Enums.PlayerId.PlayerId_Player:
+		return false
+	var current_player = game_wrapper._get_player(Enums.PlayerId.PlayerId_Player)
+	if not current_player or not current_player.deck_flag("warn_when_striking_without_character_action"):
+		return false
+	for i in range(game_wrapper.get_player_character_action_count(Enums.PlayerId.PlayerId_Player)):
+		if game_wrapper.can_do_character_action(Enums.PlayerId.PlayerId_Player, i):
+			return true
+	return false
+
+func _wrap_with_skipped_character_action_confirmation(action: Callable) -> Callable:
+	return func(): _show_skipped_character_action_confirmation(action)
+
+func _show_skipped_character_action_confirmation(action: Callable) -> void:
+	var on_confirm = func(): action.call()
+	var on_cancel = func(): _update_buttons()
+	var confirm_choices = [
+		{ "text": "Confirm", "action": on_confirm },
+		{ "text": "Cancel", "action": on_cancel },
+	]
+	current_action_menu_choices = confirm_choices
+	action_menu.set_choices(
+		"Strike without using your character action?",
+		confirm_choices,
+		false, -1, -1, false, false, false, 2
+	)
+	action_menu.visible = true
 
 func _on_prepare_button_pressed():
 	var success = game_wrapper.submit_prepare(Enums.PlayerId.PlayerId_Player)
