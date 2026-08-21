@@ -4,6 +4,13 @@
 	"author": "User",
 	"difficulty": "***",
 	"display_name": "Eugenia",
+	"opponent_discard_passive": true,
+	"face_attack_bonus_when_exceeded": {
+		"power": 1,
+		"speed": 1
+	},
+	"face_attack_forbids_ex": true,
+	"transform_zone_rejects_opponent_cards_when_exceeded": true,
 	"buddy_exceeds": true,
 	"buddy_card": "wonderland",
 	"buddy_display_name": "Wonderland",

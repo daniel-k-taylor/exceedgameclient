@@ -38,27 +38,17 @@ func _get_target_card_size() -> Vector2i:
 		int(round(CARD_HEIGHT * scale_factor))
 	)
 
-func _should_resize_single_card_for_runtime(image_atlas_details, loaded_image: Image) -> bool:
-	var is_season7 = image_atlas_details.get('season', 0) == 7
-	var is_season6 = image_atlas_details.get('season', 0) == 6
-	var is_season1 = image_atlas_details.get('season', 0) == 1
-	if is_season1 or is_season6 or is_season7:
-		return true
+func _should_resize_single_card_for_runtime(loaded_image: Image) -> bool:
 	if not _is_mobile_web():
 		return false
 	var target_card_size = _get_target_card_size()
 	return loaded_image.get_width() > target_card_size.x or loaded_image.get_height() > target_card_size.y
 
 func _should_avoid_full_atlas_texture(image_atlas_details, loaded_image: Image) -> bool:
-	var is_season7 = image_atlas_details.get('season', 0) == 7
-	var is_season6 = image_atlas_details.get('season', 0) == 6
-	var is_season1 = image_atlas_details.get('season', 0) == 1
 	if _is_mobile_web() and image_atlas_details.get('multiple_cards', false):
 		# On mobile web, always skip the "upload the whole atlas as one GPU texture"
 		# path for multi-card atlases. Crop each sub-card first to reduce the risk of
 		# crashes on large atlases.
-		return true
-	if is_season1 or is_season6 or is_season7:
 		return true
 	if image_atlas_details.get('recalculate_card_sizes', false):
 		return true
@@ -235,11 +225,8 @@ func _process_request_queue():
 
 	var image_texture = null
 	if loaded_image:
-		var is_season7 = image_atlas_details.get('season', 0) == 7
-		var is_season6 = image_atlas_details.get('season', 0) == 6
-		var is_season1 = image_atlas_details.get('season', 0) == 1
 		var target_card_size = _get_target_card_size()
-		if not is_multiple and _should_resize_single_card_for_runtime(image_atlas_details, loaded_image):
+		if not is_multiple and _should_resize_single_card_for_runtime(loaded_image):
 			loaded_image = ImageResizer.resize_in_place(loaded_image, target_card_size.x, target_card_size.y)
 		if is_multiple:
 			var card_width = CARD_WIDTH
@@ -253,39 +240,23 @@ func _process_request_queue():
 					region_height = image_atlas_details['sprite_region_height']
 				card_width = region_width / image_atlas_details['sprite_count_width']
 				card_height = region_height / image_atlas_details['sprite_count_height']
-			elif is_season7:
-				# Season 7: derive per-card size from the atlas using fixed columns/rows.
-				const S7_3ROW_CHARS = ["happychaos", "jacko", "may", "nago", "testament"]
-				var deck_id = image_atlas_details.get('deck_id', '')
-				var s7_rows = 3 if deck_id in S7_3ROW_CHARS else 4
-				card_width = float(region_width) / 6.0
-				card_height = float(region_height) / float(s7_rows)
-			elif is_season6:
-				# Season 6: fixed 2 rows x 4 columns.
-				card_width = float(region_width) / 4.0
-				card_height = float(region_height) / 2.0
-			elif is_season1:
-				# Season 1: fixed 2 rows x 4 columns.
-				card_width = float(region_width) / 4.0
-				card_height = float(region_height) / 2.0
 
 			var grid_width = region_width / card_width
 			var grid_height = region_height / card_height
 			var offset_x = image_atlas_details.get('sprite_offset_x', 0)
 			var offset_y = image_atlas_details.get('sprite_offset_y', 0)
-			if not (is_season7 or is_season6 or is_season1):
-				var rounded_grid_width = int(round(grid_width))
-				var rounded_grid_height = int(round(grid_height))
-				var width_difference = abs(region_width - rounded_grid_width * card_width)
-				var height_difference = abs(region_height - rounded_grid_height * card_height)
-				if rounded_grid_width > 0 and width_difference > 0 and width_difference <= ATLAS_DIMENSION_TOLERANCE:
-					card_width = float(region_width) / rounded_grid_width
-					grid_width = rounded_grid_width
-				if rounded_grid_height > 0 and height_difference > 0 and height_difference <= ATLAS_DIMENSION_TOLERANCE:
-					card_height = float(region_height) / rounded_grid_height
-					grid_height = rounded_grid_height
+			var rounded_grid_width = int(round(grid_width))
+			var rounded_grid_height = int(round(grid_height))
+			var width_difference = abs(region_width - rounded_grid_width * card_width)
+			var height_difference = abs(region_height - rounded_grid_height * card_height)
+			if rounded_grid_width > 0 and width_difference > 0 and width_difference <= ATLAS_DIMENSION_TOLERANCE:
+				card_width = float(region_width) / rounded_grid_width
+				grid_width = rounded_grid_width
+			if rounded_grid_height > 0 and height_difference > 0 and height_difference <= ATLAS_DIMENSION_TOLERANCE:
+				card_height = float(region_height) / rounded_grid_height
+				grid_height = rounded_grid_height
 
-			if not (is_season7 or is_season6 or is_season1) and (grid_width <= 0 or grid_height <= 0 or int(grid_width) != grid_width or int(grid_height) != grid_height):
+			if grid_width <= 0 or grid_height <= 0 or int(grid_width) != grid_width or int(grid_height) != grid_height:
 				push_error("[CardImageLoader] Atlas size (%dx%d) not divisible by card size (%.1fx%.1f); slicing will be wrong. URL: %s" % [region_width, region_height, card_width, card_height, image_url])
 
 			var grid_w = int(round(grid_width))
@@ -328,7 +299,7 @@ func _process_request_queue():
 						var rw = int(round(card_width))
 						var rh = int(round(card_height))
 						var cropped = loaded_image.get_region(Rect2i(rx, ry, rw, rh))
-						if is_season7 or is_season6 or is_season1 or _is_mobile_web():
+						if _is_mobile_web():
 							image_grid.append(_create_card_texture_from_image(cropped))
 						else:
 							image_grid.append(ImageTexture.create_from_image(cropped))

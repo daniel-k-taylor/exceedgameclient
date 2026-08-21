@@ -2,6 +2,7 @@
 	"id": "luciya",
 	"season": 2,
 	"display_name": "Luciya",
+	"spent_gauge_becomes_boost_when_exceeded": true,
 	"exceed_cost": 5,
 	"exceed_cost_reduced_by": [
 		{

@@ -344,7 +344,7 @@ func test_daredevil_multiple_boosts_stack_per_card_instance():
 	assert_eq(game_logic.game_state, Enums.GameState.GameState_PlayerDecision)
 	assert_true(game_logic.do_choice(player1, 1))
 	assert_eq(player1.continuous_boosts.size(), 1)
-	assert_eq(int(player1.continuous_boosts[0].get_meta("minato_dd_count")), 2)
+	assert_eq(int(player1.continuous_boosts[0].get_meta("speedup_counter", 0)), 2)
 
 	game_logic.game_state = Enums.GameState.GameState_PickAction
 	game_logic.active_turn_player = player1.my_id
@@ -353,7 +353,7 @@ func test_daredevil_multiple_boosts_stack_per_card_instance():
 	assert_eq(game_logic.game_state, Enums.GameState.GameState_PlayerDecision)
 	assert_true(game_logic.do_choice(player1, 3))
 	assert_eq(player1.continuous_boosts.size(), 2)
-	assert_eq(int(player1.continuous_boosts[1].get_meta("minato_dd_count")), 4)
+	assert_eq(int(player1.continuous_boosts[1].get_meta("speedup_counter", 0)), 4)
 	assert_eq(player1.sealed.size(), 6)
 
 	var attack_id = give_player_specific_card(player1, "standard_normal_sweep")
@@ -559,3 +559,55 @@ func test_faq_m1_cannot_double_count_discarded_force_card_as_sealed():
 	spawn_card_to_zone(player1, "standard_normal_cross", "discard")
 	assert_true(player1.can_pay_cost(2, 0),
 			"distinct cards each counted once can legitimately pay a Force cost of 2")
+
+func test_jump_the_shark_powerup_scales_per_four_sealed():
+	# Jump the Shark (power 2) at distance 3. Grasp is faster but only reaches
+	# range 1, so it whiffs and cannot retaliate, isolating the power bonus.
+	# 8 sealed -> +2 Power -> 4 damage.
+	position_players(player1, 1, player2, 4)
+	for i in range(8):
+		spawn_card_to_zone(player1, "standard_normal_focus", "sealed")
+
+	execute_strike(player1, player2, "minato_jump_the_shark", "standard_normal_grasp")
+
+	validate_life(player1, 30, player2, 26)
+
+func test_jump_the_shark_powerup_rounds_down_and_caps_at_five():
+	# 23 sealed -> 23/4 rounds down to 5, which is also the cap -> 7 damage.
+	position_players(player1, 1, player2, 4)
+	for i in range(23):
+		spawn_card_to_zone(player1, "standard_normal_focus", "sealed")
+
+	execute_strike(player1, player2, "minato_jump_the_shark", "standard_normal_grasp")
+
+	validate_life(player1, 30, player2, 23)
+
+func test_jump_the_shark_no_powerup_below_four_sealed():
+	# 3 sealed -> no bonus, so only the base power 2 lands.
+	position_players(player1, 1, player2, 4)
+	for i in range(3):
+		spawn_card_to_zone(player1, "standard_normal_focus", "sealed")
+
+	execute_strike(player1, player2, "minato_jump_the_shark", "standard_normal_grasp")
+
+	validate_life(player1, 30, player2, 28)
+
+func test_flight_13_discards_topdeck_and_retreats_one_per_card():
+	position_players(player1, 5, player2, 6)
+	var deck_before = player1.deck.size()
+
+	# Choice index 2 discards 3 cards from the top of the deck and retreats 3.
+	execute_strike(player1, player2, "minato_flight_13", "standard_normal_sweep", false, false, [2], [])
+
+	assert_eq(player1.deck.size(), deck_before - 3)
+	validate_positions(player1, 2, player2, 6)
+
+func test_flight_13_can_decline_the_topdeck_discard():
+	position_players(player1, 5, player2, 6)
+	var deck_before = player1.deck.size()
+
+	# Choice index 3 is the Pass option.
+	execute_strike(player1, player2, "minato_flight_13", "standard_normal_sweep", false, false, [3], [])
+
+	assert_eq(player1.deck.size(), deck_before)
+	validate_positions(player1, 5, player2, 6)

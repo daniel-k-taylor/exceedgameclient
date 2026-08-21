@@ -1,8 +1,9 @@
-{
+﻿{
 	"id": "syrus",
 	"season": 2,
 	"has_sealed_area": true,
 	"display_name": "Syrus",
+	"immediate_boosts_become_replacement": true,
 	"exceed_cost": 6,
 	"exceed_cost_reduced_by": [
 		{
@@ -69,7 +70,8 @@
 		"description": "Facedown continuous boost: +1 Power. Now: Move up to 1."
 	},
 	"on_exceed": {
-		"effect_type": "syrus_exceed_boost_to_gauge",
+		"effect_type": "move_continuous_boosts",
+			"destination": "gauge",
 		"hide_effect": true
 	},
 	"image_resources": {

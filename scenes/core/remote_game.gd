@@ -124,9 +124,11 @@ func _process_game_message(game_message):
 	var seal_player = null
 	if sealed_force > 0 or sealed_gauge > 0:
 		seal_player = _get_player_from_remote_id(game_message['player_id'])
-		var sealed_card_count = sealed_force + sealed_gauge * 3
-		if seal_player.deck_def.get("id") != "minato" or seal_player.exceeded or sealed_card_count > seal_player.discards.size():
-			local_game.printlog("ERROR: Invalid Minato sealed-discard payment in remote action.")
+		var discards_per_gauge = seal_player.deck_flag("discards_per_gauge_until_exceed", 0)
+		var sealed_card_count = sealed_force + sealed_gauge * discards_per_gauge
+		if not seal_player.deck_flag("can_seal_discards_for_resources") or seal_player.exceeded \
+				or discards_per_gauge <= 0 or sealed_card_count > seal_player.discards.size():
+			local_game.printlog("ERROR: Invalid sealed-discard payment in remote action.")
 			return
 		seal_player.seal_top_n_discards(sealed_card_count)
 		seal_player.seal_force_bonus_tmp = sealed_force

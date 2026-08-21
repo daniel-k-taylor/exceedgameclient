@@ -207,3 +207,21 @@ func test_faq_s1_memories_from_the_deep_seals_boost_despite_character_ability():
 			"the boost cannot be kept in play face-down instead of sealing it")
 	assert_false(player1.is_card_in_discards(immediate_boost_id))
 	assert_false(boosted_card.definition.has("replaced_boost"))
+
+func test_siren_call_pulls_stunned_opponent_to_range_2():
+	position_players(player1, 1, player2, 6)
+
+	# Grasp is faster but whiffs at range 5, so Siren Call hits a 0-guard card and stuns it.
+	# [1] declines Siren Call's transform-attack offer.
+	execute_strike(player1, player2, "syrus_siren_call", "standard_normal_grasp", false, false, [1], [])
+
+	# Stunned, so the opponent is pulled to exactly range 2.
+	validate_positions(player1, 1, player2, 3)
+
+func test_siren_call_does_not_pull_when_opponent_is_not_stunned():
+	position_players(player1, 1, player2, 6)
+
+	# Focus has 2 armor and 5 guard, so 4 power leaves only 2 damage and no stun.
+	execute_strike(player1, player2, "syrus_siren_call", "standard_normal_focus", false, false, [1], [])
+
+	validate_positions(player1, 1, player2, 6)

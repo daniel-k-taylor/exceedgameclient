@@ -267,3 +267,36 @@ func test_exceeded_renea_places_boosts_faceup():
 
 	assert_true(game_logic.do_boost(player1, boost_id, [], false, 0, [], false))
 	assert_false(game_logic.get_card_database().get_card(boost_id).definition["boost"].get("facedown", false))
+
+func _add_continuous_boost(player, def_id):
+	var boost_id = give_player_specific_card(player, def_id)
+	var boost_card = game_logic.get_card_database().get_card(boost_id)
+	player.add_to_continuous_boosts(boost_card)
+	player.hand.erase(boost_card)
+	return boost_id
+
+func test_lethal_force_retreats_when_a_continuous_boost_is_in_play():
+	# Lethal Force hit: push 2, then retreat 1 only if a continuous boost is in play.
+	# Grasp is faster but whiffs at distance 2, so it cannot interfere.
+	position_players(player1, 3, player2, 5)
+	_add_continuous_boost(player1, "renea_anticipation")
+
+	# [1] declines Lethal Force's transform-attack offer.
+	execute_strike(player1, player2, "renea_lethal_force", "standard_normal_grasp",
+		false, false, [1], [])
+
+	# Opponent pushed 5 -> 7, then Renea retreats 3 -> 2.
+	validate_positions(player1, 2, player2, 7)
+	# Power 5 + 1 from Jujitsu (Anticipation's continuous boost) = 6.
+	validate_life(player1, 30, player2, 24)
+
+func test_lethal_force_does_not_retreat_without_a_continuous_boost():
+	position_players(player1, 3, player2, 5)
+
+	# [1] declines Lethal Force's transform-attack offer.
+	execute_strike(player1, player2, "renea_lethal_force", "standard_normal_grasp",
+		false, false, [1], [])
+
+	# Opponent still pushed 5 -> 7, but Renea holds her ground.
+	validate_positions(player1, 3, player2, 7)
+	validate_life(player1, 30, player2, 25)

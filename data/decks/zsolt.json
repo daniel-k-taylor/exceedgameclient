@@ -4,6 +4,7 @@
 	"author": "Custom",
 	"difficulty": "****",
 	"display_name": "Zsolt",
+	"exceed_extra_attack_limit": 2,
 	"exceed_cost": 5,
 	"exceed_animation": "zsolt_exceeded",
 	"exceed_cost_reduced_by": [
@@ -17,6 +18,25 @@
 			"character_effect": true,
 			"effect_type": "pass",
 			"hide_effect": true
+		},
+		{
+			"timing": "hit",
+			"condition": "is_normal_attack",
+			"character_effect": true,
+			"effect_type": "choice",
+			"choice": [
+				{
+					"effect_type": "advance",
+					"amount": 1
+				},
+				{
+					"effect_type": "retreat",
+					"amount": 1
+				},
+				{
+					"effect_type": "pass"
+				}
+			]
 		}
 	],
 	"exceed_ability_effects": [
@@ -24,8 +44,7 @@
 			"timing": "set_strike",
 			"character_effect": true,
 			"effect_type": "pass",
-			"hide_effect": true,
-			"NOTE": "Zsolt awaken extra strike handled in local_game.gd via deck_def check"
+			"hide_effect": true
 		}
 	],
 	"on_exceed": {

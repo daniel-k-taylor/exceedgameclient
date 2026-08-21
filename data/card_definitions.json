@@ -1,4 +1,4 @@
-[
+﻿[
 	{
 		"NOTE": "AKUMA CARDS START",
 		"id": "akuma_demonarmageddon",
@@ -3922,7 +3922,7 @@
 				"effect_type": "armorup_per_continuous_boost",
 				"amount": 2,
 				"and": {
-					"effect_type": "seal_continuous_boosts"
+					"effect_type": "move_continuous_boosts"
 				}
 			}
 		],
@@ -40109,7 +40109,8 @@
 			},
 			{
 				"timing": "after",
-				"effect_type": "minato_advance_max",
+				"effect_type": "advance",
+				"amount": 99,
 				"override_description": "After: Advance as far as possible."
 			}
 		],
@@ -40121,7 +40122,17 @@
 			"effects": [
 				{
 					"timing": "cleanup",
-					"effect_type": "minato_return_attack_to_hand",
+					"condition": "not_hit_opponent",
+					"effect_type": "choice",
+					"choice": [
+						{
+							"effect_type": "return_attack_to_hand",
+							"not_immediate": true
+						},
+						{
+							"effect_type": "pass"
+						}
+					],
 					"override_description": "At the end of each strike, if your attack did not hit the opponent, you may return it to your hand instead of discarding it."
 				}
 			]
@@ -40237,8 +40248,14 @@
 		"effects": [
 			{
 				"timing": "before",
-				"effect_type": "minato_discard_topdeck_retreat",
-				"gauge_max": 3,
+				"effect_type": "topdeck_for_effect",
+				"destination": "discard",
+				"amount_max": 3,
+				"choice_text": "Discard %d (retreat %d)",
+				"per_card_effect": {
+					"effect_type": "retreat",
+					"amount": 1
+				},
 				"description": "Before: You may discard up to 3 cards from the top of your deck. Retreat 1 space for each card discarded this way."
 			}
 		],
@@ -40294,7 +40311,9 @@
 		"effects": [
 			{
 				"timing": "hit",
-				"effect_type": "minato_power_per_sealed",
+				"effect_type": "powerup_per_sealed_amount",
+				"divisor": 4,
+				"max": 5,
 				"override_description": "Hit: +1 Power for every 4 cards in your sealed area (up to +5)."
 			}
 		],
@@ -40342,7 +40361,14 @@
 			"effects": [
 				{
 					"timing": "now",
-					"effect_type": "minato_daredevil",
+					"effect_type": "topdeck_for_effect",
+					"destination": "sealed",
+					"amount_max": 4,
+					"choice_text": "Seal %d (+%d Speed)",
+					"per_card_effect": {
+						"effect_type": "speedup_counter_on_boost",
+						"amount": 1
+					},
 					"override_description": "Immediately: Seal up to 4 cards from the top of your deck. +1 Speed for each card sealed this way."
 				}
 			]
@@ -40460,7 +40486,8 @@
 			{
 				"timing": "after",
 				"condition": "opponent_stunned",
-				"effect_type": "syrus_pull_to_range_2",
+				"effect_type": "pull_to_range",
+				"amount": 2,
 				"override_description": "If the opponent is stunned, pull them to range 2."
 			}
 		],
@@ -40520,7 +40547,11 @@
 			"effects": [
 				{
 					"timing": "immediate",
-					"effect_type": "syrus_add_hand_to_gauge",
+					"effect_type": "choose_discard",
+					"source": "hand",
+					"destination": "gauge",
+					"amount": 1,
+					"limitation": "",
 					"override_description": "Add a card from your hand to your gauge."
 				}
 			]
@@ -40599,7 +40630,8 @@
 			"effects": [
 				{
 					"timing": "immediate",
-					"effect_type": "syrus_silver_shadow",
+					"effect_type": "move_to_range",
+					"amount": 3,
 					"override_description": "Move to any space at range 3 from the opponent."
 				}
 			]
@@ -40861,7 +40893,9 @@
 		"effects": [
 			{
 				"timing": "during_strike",
-				"effect_type": "pooky_range_per_cb"
+				"effect_type": "rangeup_per_boost_in_play",
+				"amount": 0,
+				"amount2": 1
 			}
 		],
 		"boost": {
@@ -40992,7 +41026,8 @@
 			},
 			{
 				"timing": "hit",
-				"effect_type": "pooky_power_per_cb",
+				"effect_type": "powerup_per_boost_in_play",
+				"amount": 2,
 				"override_description": "+2 Power for each of your continuous boosts."
 			}
 		],
@@ -41158,7 +41193,9 @@
 				"effect_type": "push",
 				"amount": 2,
 				"and": {
-					"effect_type": "renea_retreat_if_boost",
+					"effect_type": "retreat",
+					"amount": 1,
+					"condition": "boost_in_play",
 					"override_description": "If you have a continuous boost in play, retreat 1."
 				}
 			}
@@ -41242,8 +41279,12 @@
 			{
 				"timing": "hit",
 				"condition": "opponent_exceeded",
-				"effect_type": "renea_discard_opponent_gauge",
+				"effect_type": "choose_discard",
+				"opponent": true,
+				"source": "gauge",
+				"destination": "discard",
 				"amount": 2,
+				"limitation": "",
 				"override_description": "Hit: if the opponent is exceeded, they discard 2 cards from their gauge."
 			}
 		],

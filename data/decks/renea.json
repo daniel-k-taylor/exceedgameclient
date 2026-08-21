@@ -2,6 +2,8 @@
 	"id": "renea",
 	"season": 2,
 	"display_name": "Renea",
+	"facedown_boosts_delay_effects": true,
+	"boost_from_stored_zone_grants_action_when_exceeded": true,
 	"buddy_exceeds": true,
 	"buddy_card": "briefcase",
 	"buddy_display_name": "Briefcase",

@@ -3,6 +3,7 @@
 	"season": 2,
 	"display_name": "Tournelouse",
 	"has_sealed_area": true,
+	"normals_are_transforms_until_exceed": true,
 	"exceed_cost": 0,
 	"exceed_cost_reduced_by": [
 		{

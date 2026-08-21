@@ -1803,13 +1803,29 @@ func can_pay_cost_with(card_ids : Array, force_cost : int, gauge_cost : int, use
 	# No cost.
 	return true
 
+# Gameplay flags live on the deck definition rather than being keyed off the
+# character id, so skins and future characters can reuse the same mechanics.
+func deck_flag(flag_name : String, default_value = false):
+	return deck_def.get(flag_name, default_value)
+
+func treats_normals_as_transforms() -> bool:
+	return deck_flag("normals_are_transforms_until_exceed") and not exceeded
+
+func can_treat_card_as_transform(card : GameCard) -> bool:
+	return treats_normals_as_transforms() and card.definition['type'] == "normal"
+
+func get_discards_as_bonus_gauge() -> int:
+	var per_gauge = deck_flag("discards_per_gauge_until_exceed", 0)
+	if per_gauge <= 0 or exceeded:
+		return 0
+	return int(discards.size() / float(per_gauge))
+
 func can_pay_cost(force_cost : int, gauge_cost : int, alternative_life_cost : int = 0):
 	if alternative_life_cost and life > alternative_life_cost:
 		return true
 	var available_force = get_available_force()
 	var available_gauge = get_available_gauge()
-	if deck_def.get("id") == "minato" and not exceeded:
-		available_gauge += int(discards.size() / 3.0)
+	available_gauge += get_discards_as_bonus_gauge()
 	if tournelouse_may_seal_for_gauge:
 		available_gauge += transforms.size()
 	if spend_life_for_gauge_amount > 0 and gauge_cost > available_gauge:
@@ -1842,14 +1858,16 @@ func can_boost_something(valid_zones : Array, limitation : String, ignore_costs 
 			if limitation:
 				if card.definition['boost']['boost_type'] == limitation or card.definition['type'] == limitation:
 					meets_limitation = true
-				elif deck_def.get("id") == "tournelouse" and card.definition['type'] == "normal" and limitation == "transform" and not exceeded:
+				elif deck_flag("normals_are_transforms_until_exceed") and card.definition['type'] == "normal" and limitation == "transform" and not exceeded:
 					meets_limitation = true
 				else:
 					meets_limitation = false
 			if not meets_limitation:
 				continue
 
-			if zone == "gauge" and deck_def.get("id") == "syrus":
+			if zone == "gauge":
+				# Boosting from gauge is unlocked by the Albatross Talon transform,
+				# which is character-unique, so no deck check is needed.
 				var syrus_has_memories = false
 				for syrus_tf in transforms:
 					if syrus_tf.definition.get("id") == "syrus_albatross_talon":
@@ -1900,7 +1918,7 @@ func has_card_name_in_zone(card : GameCard, zone : String):
 			if transform_card.definition.get("id") == "tournelouse_bargeist_fang":
 				has_bargeist_transform = true
 				break
-		if (tournelouse_allow_duplicate_transform or has_bargeist_transform) and deck_def.get("id") == "tournelouse" and card.definition['type'] == "normal":
+		if (tournelouse_allow_duplicate_transform or has_bargeist_transform) and deck_flag("normals_are_transforms_until_exceed") and card.definition['type'] == "normal":
 			threshold = 1
 		return match_count > threshold
 	return match_count > 0
@@ -2154,7 +2172,7 @@ func can_strike_with_set_aside_card(card_id : int) -> bool:
 
 func is_stored_zone_facedown():
 	# Umina The Sleeper Wakes: dynamic facedown via transform effect
-	if deck_def.get("id") == "umina" and umina_dreamlands_facedown:
+	if deck_flag("dreamlands_config", null) != null and umina_dreamlands_facedown:
 		return true
 	var zone_info = deck_def.get("stored_zone_info")
 	if not zone_info:
@@ -2164,7 +2182,7 @@ func is_stored_zone_facedown():
 	return zone_info["facedown"]
 
 func get_umina_spiraling_target() -> String:
-	if deck_def.get("id") != "umina":
+	if deck_flag("dreamlands_config", null) == null:
 		return ""
 	if set_aside_cards.size() == 0:
 		return ""
@@ -2225,7 +2243,7 @@ func discard(card_ids : Array, from_top : int = 0, count_as_spent : bool = false
 					if parent.active_strike:
 						gauge_spent_this_strike += 1
 						gauge_cards_spent_this_strike.append(card)
-				if count_as_spent and exceeded and deck_def.get("id") == "luciya" and deck_def.has("replacement_boost_definition"):
+				if count_as_spent and exceeded and deck_flag("spent_gauge_becomes_boost_when_exceeded") and deck_def.has("replacement_boost_definition"):
 					# Luciya (Seventh Cross): while exceeded, spent gauge cards become
 					# facedown "+1 Power" continuous boosts instead of going to discard.
 					parent.active_overdrive = true
@@ -2675,7 +2693,7 @@ func get_available_force():
 		force += card_database.get_card_force_value(card.id)
 	for card in gauge:
 		force += card_database.get_card_force_value(card.id)
-	if deck_def.get("id") == "minato" and not exceeded:
+	if deck_flag("discards_count_as_force_until_exceed") and not exceeded:
 		force += discards.size()
 	force += get_force_from_spent_life(life)
 	return force
@@ -2998,9 +3016,10 @@ func add_to_continuous_boosts(card : GameCard):
 
 func add_to_transforms(card : GameCard) -> bool:
 	# Eugenia: don't allow opponent's cards in her transform zone - discard instead
-	if deck_def.get("id") == "eugenia" and exceeded:
+	if deck_flag("transform_zone_rejects_opponent_cards_when_exceeded") and exceeded:
 		var def_id = card.definition.get("id", "")
-		if not def_id.begins_with("eugenia_") and not def_id.begins_with("standard_"):
+		var own_card_prefix = str(deck_def.get("base_id", deck_def.get("id", ""))) + "_"
+		if not def_id.begins_with(own_card_prefix) and not def_id.begins_with("standard_"):
 			var opponent = parent._get_player(parent.get_other_player(my_id))
 			opponent.add_to_discards(card)
 			parent.create_event(Enums.EventType.EventType_AddToDiscard, opponent.my_id, card.id, "", 0)
@@ -3014,7 +3033,7 @@ func add_to_transforms(card : GameCard) -> bool:
 				if transform_card.definition.get("id") == "tournelouse_bargeist_fang":
 					has_bargeist_transform = true
 					break
-			if (tournelouse_allow_duplicate_transform or has_bargeist_transform) and deck_def.get("id") == "tournelouse" and card.definition['type'] == "normal":
+			if (tournelouse_allow_duplicate_transform or has_bargeist_transform) and deck_flag("normals_are_transforms_until_exceed") and card.definition['type'] == "normal":
 				var dup_count = 0
 				for transform_card in transforms:
 					if transform_card.definition['display_name'] == card.definition['display_name']:

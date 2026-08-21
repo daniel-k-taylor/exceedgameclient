@@ -2,6 +2,10 @@
 	"id": "minato",
 	"season": 2,
 	"has_sealed_area": true,
+	"seal_discards_at_turn_start_when_exceeded": true,
+	"discards_count_as_force_until_exceed": true,
+	"discards_per_gauge_until_exceed": 3,
+	"can_seal_discards_for_resources": true,
 	"display_name": "Minato",
 	"exceed_cost": 5,
 	"exceed_cost_reduced_by": [

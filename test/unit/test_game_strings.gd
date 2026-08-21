@@ -56,12 +56,8 @@ const KNOWN_UNWRITTEN_EFFECTS = [
 	"may_generate_gauge_with_force",
 	"may_ignore_movement_limit",
 	"may_invalidate_ultras",
-	"minato_advance_max",
-	"minato_daredevil",
-	"minato_discard_topdeck_retreat",
 	"minato_hellraiser",
 	"minato_one_more_ride",
-	"minato_return_attack_to_hand",
 	"move_any_boost",
 	"move_to_lightningrods",
 	"multiply_speed_bonuses",
@@ -86,7 +82,6 @@ const KNOWN_UNWRITTEN_EFFECTS = [
 	"remove_opponent_cant_move_past_buddy",
 	"repeat_printed_triggers_on_ex_attack",
 	"return_all_copies_of_top_discard_to_hand",
-	"seal_continuous_boosts",
 	"seal_discard",
 	"seal_hand",
 	"seal_instead_of_discarding",
@@ -216,5 +211,15 @@ func test_unwritten_effect_descriptions_match_the_known_backlog():
 			unwritten.append(effect_type)
 	var expected = KNOWN_UNWRITTEN_EFFECTS.duplicate()
 	expected.sort()
-	assert_eq(unwritten, expected,
-		"effects lacking rules text should match the pinned backlog exactly")
+	var newly_missing = []
+	for effect_type in unwritten:
+		if effect_type not in expected:
+			newly_missing.append(effect_type)
+	var now_written = []
+	for effect_type in expected:
+		if effect_type not in unwritten:
+			now_written.append(effect_type)
+	assert_eq(newly_missing, [],
+		"these effects newly lack rules text and need a GameStrings entry")
+	assert_eq(now_written, [],
+		"these effects now have rules text; remove them from KNOWN_UNWRITTEN_EFFECTS")

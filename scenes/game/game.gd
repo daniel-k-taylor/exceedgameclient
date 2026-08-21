@@ -1873,7 +1873,7 @@ func can_select_card(card):
 				# Renea: the Briefcase may only be boosted from once per turn, so
 				# gray the cards out instead of offering a doomed selection.
 				var renea_sa = game_wrapper._get_player(Enums.PlayerId.PlayerId_Player)
-				if renea_sa.deck_def.get("id") == "renea" and renea_sa.exceeded and renea_sa.renea_boost_from_briefcase_used:
+				if renea_sa.deck_flag("boost_from_stored_zone_grants_action_when_exceeded") and renea_sa.exceeded and renea_sa.renea_boost_from_briefcase_used:
 					return false
 				return game_wrapper.can_player_boost(Enums.PlayerId.PlayerId_Player, card.card_id, ['extra'], "", true)
 			# Lets the player pick the card first and then choose Strike, the
@@ -3707,7 +3707,7 @@ func begin_generate_force_selection(amount, can_cancel : bool = true, wild_swing
 	use_free_force = game_wrapper.get_player_free_force(Enums.PlayerId.PlayerId_Player, reason) > 0
 	can_spend_life_for_force = game_wrapper.get_life_for_force_amount(Enums.PlayerId.PlayerId_Player) > 0
 	can_seal_for_gauge = false
-	can_seal_for_force = p.deck_def.get("id") == "minato" and not p.exceeded and p.discards.size() > 0
+	can_seal_for_force = p.deck_flag("can_seal_discards_for_resources") and not p.exceeded and p.discards.size() > 0
 	current_pay_costs_is_ex = ex_discard_order_checkbox
 	action_menu.set_force_ultra_toggle(false)
 	action_menu.set_discard_ex_first_toggle(true)
@@ -3735,7 +3735,9 @@ func begin_gauge_selection(
 	selected_cards = []
 	var seal_gauge_p = game_wrapper._get_player(Enums.PlayerId.PlayerId_Player)
 	can_seal_for_force = false
-	can_seal_for_gauge = seal_gauge_p.deck_def.get("id") == "minato" and not seal_gauge_p.exceeded and seal_gauge_p.discards.size() >= 3
+	var seal_gauge_per = seal_gauge_p.deck_flag("discards_per_gauge_until_exceed", 0)
+	can_seal_for_gauge = seal_gauge_p.deck_flag("can_seal_discards_for_resources") and not seal_gauge_p.exceeded \
+		and seal_gauge_per > 0 and seal_gauge_p.discards.size() >= seal_gauge_per
 	current_pay_costs_is_ex = ex_discard_order_checkbox
 	discard_ex_first_for_strike = true
 	action_menu.set_discard_ex_first_toggle(true)
@@ -5272,7 +5274,10 @@ func update_boost_summary(player_id, boosts_card_holder, boost_box):
 		card_ids.append(card.card_id)
 	var transform_effects = []
 	var normal_effects = []
-	if summary_player.deck_def.get("id") == "minato" and summary_player.exceeded and summary_player.minato_seal_power_bonus > 0:
+	# Only characters whose face-down boosts delay their effects (Renea) keep
+	# those effects secret; for everyone else face-down only hides card identity.
+	var hides_facedown_boost_effects = summary_player.deck_flag("facedown_boosts_delay_effects")
+	if summary_player.deck_flag("seal_discards_at_turn_start_when_exceeded") and summary_player.exceeded and summary_player.minato_seal_power_bonus > 0:
 		normal_effects.append({
 			"override_description": "Awakening: gains +%d Power on next attack." % int(summary_player.minato_seal_power_bonus)
 		})
@@ -5298,7 +5303,9 @@ func update_boost_summary(player_id, boosts_card_holder, boost_box):
 			add_to_effects = transform_effects
 
 		# Renea: a face-down boost's contents are hidden until she reveals it.
-		if card.definition['boost'].get("facedown"):
+		# Other characters (e.g. Syrus) use face-down purely to hide the card's
+		# identity; their boost effects are public and should still be listed.
+		if hides_facedown_boost_effects and card.definition['boost'].get("facedown"):
 			continue
 
 		var is_tournelouse_normal_transform = card.definition['type'] == "normal" and card.definition.has("replaced_boost") and card.definition['boost']['boost_type'] == "transform"
@@ -5309,11 +5316,11 @@ func update_boost_summary(player_id, boosts_card_holder, boost_box):
 			var stop_on_space_effect = card.definition['boost']['stop_on_space_effect'].duplicate()
 			stop_on_space_effect['timing'] = "on_stop_on_space"
 			add_to_effects.append(stop_on_space_effect)
-		# Minato's Streetcar Disaster accumulates speed each time it triggers.
-		if card.definition['id'] == "minato_streetcar_disaster" and card.has_meta("minato_dd_count"):
+		# Boosts that accumulated a speed counter show it in their effect list.
+		if card.get_meta("speedup_counter", 0) != 0:
 			add_to_effects.append({
 				"effect_type": StrikeEffects.Speedup,
-				"amount": int(card.get_meta("minato_dd_count"))
+				"amount": int(card.get_meta("speedup_counter"))
 			})
 		for effect in card.definition['boost']['effects']:
 			if effect['timing'] != "now" or effect['effect_type'] in ["force_costs_reduced_passive", "ignore_push_and_pull_passive_bonus", "add_passive", "reduce_opponent_prepare_draw", "generate_free_force", "gauge_costs_reduced_passive"]:
@@ -5333,10 +5340,11 @@ func update_boost_summary(player_id, boosts_card_holder, boost_box):
 	var boost_summary = ""
 	# Renea: show how many hidden boosts are in play without revealing them.
 	var renea_facedown_count = 0
-	for card_id in card_ids:
-		var renea_fd_card = card_db.get_card(card_id)
-		if renea_fd_card and renea_fd_card.definition['boost'].get("facedown"):
-			renea_facedown_count += 1
+	if hides_facedown_boost_effects:
+		for card_id in card_ids:
+			var renea_fd_card = card_db.get_card(card_id)
+			if renea_fd_card and renea_fd_card.definition['boost'].get("facedown"):
+				renea_facedown_count += 1
 	if renea_facedown_count > 0:
 		boost_summary += "[color=gray]? Face-down boost x %d[/color]\n" % renea_facedown_count
 	# Head with once-per-game mechanic tracking
@@ -5730,7 +5738,7 @@ func _on_boost_button_pressed():
 	if game_wrapper.can_player_boost_from_extra(Enums.PlayerId.PlayerId_Player):
 		# Renea: the Briefcase may only be boosted from once per turn.
 		var renea_bp = game_wrapper._get_player(Enums.PlayerId.PlayerId_Player)
-		if renea_bp.deck_def.get("id") != "renea" or not renea_bp.exceeded or not renea_bp.renea_boost_from_briefcase_used:
+		if not renea_bp.deck_flag("boost_from_stored_zone_grants_action_when_exceeded") or not renea_bp.exceeded or not renea_bp.renea_boost_from_briefcase_used:
 			valid_zones.append('extra')
 	if game_wrapper.can_player_boost_from_gauge(Enums.PlayerId.PlayerId_Player):
 		valid_zones.append('gauge')
@@ -5755,7 +5763,7 @@ func _show_boost_placement_choice():
 
 func _get_renea_boost_placement_choice(player_id : Enums.PlayerId, card_id : int) -> int:
 	var renea_player = game_wrapper._get_player(player_id)
-	if renea_player == null or renea_player.deck_def.get("id") != "renea" or renea_player.exceeded:
+	if renea_player == null or not renea_player.deck_flag("facedown_boosts_delay_effects") or renea_player.exceeded:
 		return -2
 	var logic_card = game_wrapper.get_card_database().get_card(card_id)
 	if logic_card == null or logic_card.definition['boost']['boost_type'] != "continuous":
@@ -5764,7 +5772,7 @@ func _get_renea_boost_placement_choice(player_id : Enums.PlayerId, card_id : int
 
 func _renea_has_facedown_boosts() -> bool:
 	var renea_p = game_wrapper._get_player(Enums.PlayerId.PlayerId_Player)
-	if renea_p == null or renea_p.deck_def.get("id") != "renea":
+	if renea_p == null or not renea_p.deck_flag("facedown_boosts_delay_effects"):
 		return false
 	for bc in renea_p.continuous_boosts:
 		if bc.definition["boost"].get("facedown"):
@@ -5782,7 +5790,7 @@ func _on_strike_button_pressed():
 	# Minato: "Outrun the Past" (from the Flight transform) triggers before attack
 	# selection, letting the player seal a discard to draw a card.
 	var minato_p = game_wrapper._get_player(Enums.PlayerId.PlayerId_Player)
-	if minato_p.deck_def.get("id") == "minato" and not minato_p.minato_outrun_triggered_before_strike:
+	if minato_p.deck_flag("can_seal_discards_for_resources") and not minato_p.minato_outrun_triggered_before_strike:
 		for minato_tf in minato_p.transforms:
 			if minato_tf.definition.get("id") == "minato_flight_13":
 				minato_p.minato_outrun_triggered_before_strike = true
@@ -6078,7 +6086,7 @@ func _apply_minato_seal_payment() -> int:
 		return 0
 	var seal_player = game_wrapper._get_player(Enums.PlayerId.PlayerId_Player)
 	var using_remote_game = game_wrapper.current_game is RemoteGame
-	var is_minato = seal_player.deck_def.get("id") == "minato" and not seal_player.exceeded
+	var is_minato = seal_player.deck_flag("can_seal_discards_for_resources") and not seal_player.exceeded
 	var force_sub_states = [
 		UISubState.UISubState_SelectCards_ForceForBoost,
 		UISubState.UISubState_SelectCards_StrikeForce,
@@ -6501,7 +6509,7 @@ func _on_shortcut_boost_pressed():
 
 	# Renea: the Briefcase may only be boosted from once per turn.
 	var renea_p = game_wrapper._get_player(Enums.PlayerId.PlayerId_Player)
-	if renea_p.deck_def.get("id") == "renea" and renea_p.exceeded and renea_p.renea_boost_from_briefcase_used and renea_p.is_card_in_set_aside(card_id):
+	if renea_p.deck_flag("boost_from_stored_zone_grants_action_when_exceeded") and renea_p.exceeded and renea_p.renea_boost_from_briefcase_used and renea_p.is_card_in_set_aside(card_id):
 		spawn_damage_popup("Briefcase already used this turn!", Enums.PlayerId.PlayerId_Player)
 		return
 
@@ -6598,7 +6606,7 @@ func _on_shortcut_change_pressed():
 	use_free_force = game_wrapper.get_player_free_force(Enums.PlayerId.PlayerId_Player, "CHANGE_CARDS") > 0
 	can_spend_life_for_force = game_wrapper.get_life_for_force_amount(Enums.PlayerId.PlayerId_Player) > 0
 	can_seal_for_gauge = false
-	can_seal_for_force = p.deck_def.get("id") == "minato" and not p.exceeded and p.discards.size() > 0
+	can_seal_for_force = p.deck_flag("can_seal_discards_for_resources") and not p.exceeded and p.discards.size() > 0
 	action_menu.set_force_ultra_toggle(false)
 	action_menu.set_free_force_toggle(use_free_force)
 

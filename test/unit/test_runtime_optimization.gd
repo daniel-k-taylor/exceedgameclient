@@ -309,7 +309,11 @@ func test_mobile_web_normals_force_cropped_textures_avoid_atlas_texture():
 	loader.load_image_page_indexed({
 		"url": atlas_url,
 		"multiple_cards": true,
-		"season": 1,
+		"recalculate_card_sizes": true,
+		"sprite_count_width": 4,
+		"sprite_count_height": 2,
+		"sprite_region_width": 0,
+		"sprite_region_height": 0,
 		"force_cropped_textures": true
 	}, 0)
 
@@ -339,13 +343,21 @@ func test_shared_url_multi_card_atlas_keeps_correct_textures_across_late_request
 
 	loader.load_image_page_indexed({
 		"url": atlas_url,
-		"multiple_cards": true
+		"multiple_cards": true,
+		"recalculate_card_sizes": true,
+		"sprite_count_width": 6,
+		"sprite_count_height": 4,
+		"sprite_region_width": 0,
+		"sprite_region_height": 0
 	}, 1)
 	loader.load_image_page({
 		"url": atlas_url,
 		"multiple_cards": true,
-		"season": 7,
-		"deck_id": "ino"
+		"recalculate_card_sizes": true,
+		"sprite_count_width": 6,
+		"sprite_count_height": 4,
+		"sprite_region_width": 0,
+		"sprite_region_height": 0
 	})
 
 	await loader._process_request_queue()

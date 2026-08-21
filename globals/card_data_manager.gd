@@ -119,9 +119,20 @@ func _load_decks_from_path(path: String, use_file_name_as_id: bool) -> void:
 				deck_data = deck_data.duplicate(true)
 				deck_data['base_id'] = str(deck_data.get('id', ""))
 				deck_data['id'] = deck_file.get_basename()
+				_inherit_missing_keys(deck_data, decks[deck_data['base_id']])
 			else:
 				deck_data['base_id'] = str(deck_data.get('id', ""))
 			decks[deck_data['id']] = deck_data
+
+func _inherit_missing_keys(skin_deck: Dictionary, base_deck: Dictionary) -> void:
+	# A skin is a full copy of its base deck, so it silently misses any key added
+	# to the base afterwards. Gameplay flags live on the deck definition, and a
+	# skin that lost one would play differently from the character it reskins.
+	for key in base_deck:
+		if key in ["id", "base_id"]:
+			continue
+		if not (key in skin_deck):
+			skin_deck[key] = base_deck[key].duplicate(true) if base_deck[key] is Dictionary or base_deck[key] is Array else base_deck[key]
 
 func _is_valid_skin_deck_file(deck_file: String, deck_data: Dictionary, report_error: bool = true) -> bool:
 	var base_character_id = str(deck_data.get('id', ""))

@@ -1720,32 +1720,32 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 			effect_str += ("When hit, spend %s for %s armor each." % [
 					"gauge" if effect.get("use_gauge_instead", false) else "force",
 					effect["amount"]])
+		StrikeEffects.MoveContinuousBoosts:
+			var boost_destination = effect.get("destination", "sealed")
+			if boost_destination == "sealed":
+				effect_str += "Seal all your continuous boosts"
+			else:
+				effect_str += "Add all your continuous boosts to your %s" % boost_destination
+		StrikeEffects.MoveToRange:
+			effect_str += "Move to any space at range %s from the opponent" % effect["amount"]
+		StrikeEffects.SpeedupCounterOnBoost:
+			effect_str += "+%s Speed while this boost is in play" % effect["amount"]
+		StrikeEffects.TopdeckForEffect:
+			var topdeck_word = "seal" if effect.get("destination", "discard") == "sealed" else "discard"
+			effect_str += "You may %s up to %s cards from the top of your deck; for each one, %s" % [
+				topdeck_word, effect["amount_max"], get_effect_text(effect["per_card_effect"])]
 		StrikeEffects.ZeroVectorDialogue:
 			effect_str += "Named card is invalid for both players."
-		StrikeEffects.ZsoltNormalPassive:
-			effect_str += "advance or retreat up to 1"
-		StrikeEffects.SyrusAddHandToGauge:
-			effect_str += "Add a card from your hand to your gauge"
 		StrikeEffects.SyrusDredgeFuryKeepChoice:
 			effect_str += "Choose one spent gauge card to add to your hand"
-		StrikeEffects.SyrusExceedBoostToGauge:
-			effect_str += "Add all your continuous boosts to your gauge"
-		StrikeEffects.SyrusPullToRange2:
-			effect_str += "Pull the opponent to range 2"
 		StrikeEffects.SyrusRecklessGreed:
 			effect_str += "You may discard a boost from play to strike"
 		StrikeEffects.SyrusReturnToHandUntil7:
 			effect_str += "Randomly return cards from your discards to your hand until you have 7, then shuffle your discards"
-		StrikeEffects.SyrusSilverShadow:
-			effect_str += "Move to any space at range 3 from the opponent"
 		StrikeEffects.PookyStunnedDraw:
 			effect_str += "When you are stunned, draw a card"
 		StrikeEffects.PookyGamblingReveal:
 			effect_str += "Set this as a continuous boost and replace this attack with a Wild Swing"
-		StrikeEffects.PookyRangePerCb:
-			effect_str += "+0-1 Range for each of your continuous boosts"
-		StrikeEffects.PookyPowerPerCb:
-			effect_str += "+2 Power for each of your continuous boosts"
 		StrikeEffects.PookyDrunkenFuryOnBoost:
 			effect_str += "The first time you resolve an immediate boost each turn, you may pay 1 force to strike"
 		StrikeEffects.PookyDrunkenFuryStrike:
@@ -1760,10 +1760,6 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 			effect_str += "The opponent reveals their hand; choose a card to add to their gauge"
 		"renea_conspiracy_unearthed_do":
 			effect_str += "Add the chosen card to the opponent's gauge"
-		"renea_discard_opponent_gauge":
-			effect_str += "The opponent discards cards from their gauge"
-		"renea_discard_opponent_gauge_do":
-			effect_str += "Discard the chosen card from gauge"
 		"renea_fd_order_first":
 			effect_str += "Resolve this facedown boost's effect first"
 		"renea_mimetism_sustain":
@@ -1780,8 +1776,6 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 			effect_str += ""
 		"renea_pre_strike_reveal":
 			effect_str += "Reveal your facedown continuous boosts and resolve their immediate effects"
-		"renea_retreat_if_boost":
-			effect_str += "If you have a continuous boost in play, retreat 1"
 		"renea_return_normals_from_discard":
 			effect_str += "Return up to 2 normal attacks from your discard pile to your hand"
 		"renea_called_shot":
@@ -1848,8 +1842,6 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 			effect_str += "You may seal 3 cards from your discard pile to generate 1 Gauge"
 		"minato_outrun_the_past":
 			effect_str += "Seal up to 4 cards from your discard or gauge; draw 1 for every 2 sealed"
-		"minato_power_per_sealed":
-			effect_str += "+1 Power for every 4 cards in your sealed area (up to +5)"
 		_:
 			effect_str += "MISSING EFFECT"
 	return effect_str
