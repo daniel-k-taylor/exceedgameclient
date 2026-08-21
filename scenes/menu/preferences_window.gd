@@ -113,8 +113,10 @@ func display_loaded_settings():
 	replay_show_opponent_hand_button.set_pressed_no_signal(GlobalSettings.ReplayShowOpponentHand)
 	true_random_checkbutton.set_pressed_no_signal(GlobalSettings.IgnoreRandomHistory)
 	action_confirmation_button.set_pressed_no_signal(GlobalSettings.ActionConfirmationEnabled)
-	_select_background_in_option(arena_style_selection, GlobalSettings.ArenaStyle)
-	_select_background_in_option(menu_background_selection, GlobalSettings.MainMenuBackgroundStyle)
+	_select_background_in_option(arena_style_selection,
+		GameBackgroundManager.get_selectable_background_id(GlobalSettings.ArenaStyle))
+	_select_background_in_option(menu_background_selection,
+		GameBackgroundManager.normalize_main_menu_background_id(GlobalSettings.MainMenuBackgroundStyle))
 	_refresh_fullscreen_button()
 
 func _refresh_fullscreen_button():

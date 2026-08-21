@@ -8,16 +8,26 @@ extends GutTest
 const BackgroundManager = preload("res://globals/game_background_manager.gd")
 
 func test_background_entries_drive_labels_and_order():
-	assert_eq(BackgroundManager.get_background_ids(), ["random", "classic", "BG1", "BG2", "BG3", "BG4", "BG5", "BG6", "BG7", "BG8", "BG9", "BG10", "BG11", "BG22", "BG12", "BG13", "BG14", "BG15", "BG16", "BG17", "BG18", "BG19", "BG20", "BG21"])
+	# Only backgrounds whose art ships are offered; the rest stay registered.
+	assert_eq(BackgroundManager.get_background_ids(), ["random", "classic", "BG1"])
+	assert_eq(BackgroundManager.get_all_background_ids(), ["random", "classic", "BG1", "BG2", "BG3", "BG4", "BG5", "BG6", "BG7", "BG8", "BG9", "BG10", "BG11", "BG22", "BG12", "BG13", "BG14", "BG15", "BG16", "BG17", "BG18", "BG19", "BG20", "BG21"])
 	assert_eq(BackgroundManager.get_background_label("random"), "Random Each Match")
 	assert_eq(BackgroundManager.get_background_label("classic"), "BG0 Classic")
 	assert_eq(BackgroundManager.get_background_label("BG1"), "BG1 Forest")
 	assert_eq(BackgroundManager.get_background_label("BG2"), "BG2 Ruins")
 
-func test_random_background_resolves_to_non_random_background():
-	var resolved_background_id := BackgroundManager.resolve_background_id("random")
-	assert_ne(resolved_background_id, "random")
-	assert_true(BackgroundManager.get_randomizable_background_ids().has(resolved_background_id))
+func test_random_background_only_picks_available_backgrounds():
+	assert_eq(BackgroundManager.get_randomizable_background_ids(), ["classic", "BG1"])
+	for _i in range(20):
+		var resolved_background_id := BackgroundManager.resolve_background_id("random")
+		assert_ne(resolved_background_id, "random")
+		assert_true(BackgroundManager.is_background_available(resolved_background_id), resolved_background_id)
+
+func test_unavailable_saved_background_resolves_to_default():
+	# A background saved before its art was pulled must not render as a blank arena.
+	assert_eq(BackgroundManager.normalize_background_id("BG5"), "BG5")
+	assert_false(BackgroundManager.is_background_available("BG5"))
+	assert_eq(BackgroundManager.resolve_background_id("BG5"), "classic")
 
 func test_background_path_uses_url_and_image_ids():
 	assert_eq(BackgroundManager.get_background_resource_path("BG1"), "res://assets/ui/BG1/BG1.jpg")
@@ -69,6 +79,23 @@ func test_unknown_background_id_uses_default():
 
 func test_unknown_main_menu_background_id_uses_default():
 	assert_eq(BackgroundManager.normalize_main_menu_background_id("missing"), "MP1")
+
+func test_main_menu_offers_only_the_two_solid_colors():
+	assert_eq(BackgroundManager.get_main_menu_background_ids(), ["MP1", "MP7"])
+	assert_eq(BackgroundManager.get_main_menu_background_label("MP1"), "Solid Color 1")
+	assert_eq(BackgroundManager.get_main_menu_background_label("MP7"), "Solid Color 2")
+	# Hidden entries stay registered but fall back to the default.
+	assert_true(BackgroundManager.get_all_main_menu_background_ids().has("MP2"))
+	assert_eq(BackgroundManager.normalize_main_menu_background_id("MP2"), "MP1")
+
+func test_main_menu_backgrounds_are_solid_colors():
+	# Both offered menu backgrounds paint a colour and need no art.
+	assert_eq(BackgroundManager.get_main_menu_background_color("MP1"), Color(0, 0.482353, 0.482353))
+	assert_eq(BackgroundManager.get_main_menu_background_color("MP7"), Color(0.305882, 0.305882, 0.305882))
+	assert_eq(BackgroundManager.get_main_menu_background_resource_path("MP1"), "")
+	assert_eq(BackgroundManager.get_main_menu_background_resource_path("MP7"), "")
+	# An unknown id falls back to the default colour rather than erroring.
+	assert_eq(BackgroundManager.get_main_menu_background_color("missing"), BackgroundManager.DEFAULT_MAIN_MENU_BACKGROUND_COLOR)
 
 func test_missing_main_menu_background_texture_degrades_to_null():
 	# Main-menu pictures are not imported in this project.

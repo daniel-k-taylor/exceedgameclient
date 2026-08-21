@@ -41,6 +41,7 @@ var file_load_callback
 @onready var change_player_character_button : Button = $PlayerChooser/ChangePlayerCharacterButton
 @onready var player_skin_selection : OptionButton = $PlayerChooser/MarginContainer/VBoxContainer/PlayerSkinSelection
 @onready var menu_background_image : TextureRect = $MenuBackgroundImage
+@onready var menu_background_color : ColorRect = $Background
 
 # Cosmetic skin (alternate costume) selection for the local player. Index 0 is
 # the base character; 1+ selects a skin. The resolved deck id ("<char>_<index>")
@@ -509,6 +510,7 @@ func update_char(char_id: String, is_player: bool) -> void:
 		_refresh_player_skin_selection()
 
 func _apply_main_menu_background():
+	menu_background_color.color = GameBackgroundManager.get_main_menu_background_color(GlobalSettings.MainMenuBackgroundStyle)
 	var texture = GameBackgroundManager.get_main_menu_background_texture(GlobalSettings.MainMenuBackgroundStyle)
 	menu_background_image.texture = texture
 	menu_background_image.visible = texture != null

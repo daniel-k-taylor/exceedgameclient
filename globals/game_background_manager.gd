@@ -18,24 +18,26 @@ extends RefCounted
 
 const DEFAULT_BACKGROUND_ID := "classic"
 const DEFAULT_MAIN_MENU_BACKGROUND_ID := "MP1"
+const DEFAULT_MAIN_MENU_BACKGROUND_COLOR := Color(0, 0.482353, 0.482353)
 const STANDARD_ARENA_DIRECTORY := "res://assets/ui/standard_arena"
 const BACKGROUND_ROOT_DIRECTORY := "res://assets/ui"
 const MAIN_MENU_BACKGROUND_ROOT_DIRECTORY := "res://assets/mainmenu_picture"
 
-# NOTE: The main-menu picture assets are not imported into this project. These
-# entries are retained so the system is complete and data-driven; with the art
-# absent, `get_main_menu_background_texture` returns null and the menu degrades
-# to its default look.
+# NOTE: The main-menu picture assets are not imported into this project. Entries
+# without art are retained so the system stays complete and data-driven, but only
+# entries marked `available` are offered in the UI. An entry may render either a
+# full-screen texture (`url_id` + `image_id`) or a flat `color`; solid colours
+# need no art at all, so they are always safe to ship.
 const MainMenu_BACKGROUNDS := {
 	"MP1": {
 		"label": "Solid Color 1",
-		"url_id": "mp1",
-		"image_id": "1.jpg",
+		"color": Color(0, 0.482353, 0.482353),
+		"available": true,
 	},
 	"MP7": {
 		"label": "Solid Color 2",
-		"url_id": "mp7",
-		"image_id": "7.jpg",
+		"color": Color(0.305882, 0.305882, 0.305882),
+		"available": true,
 	},
 	"MP2": {
 		"label": "Capcom Group",
@@ -79,24 +81,28 @@ const MainMenu_BACKGROUNDS := {
 	},
 }
 
-# Only `classic` and `BG1` ship art in this project. The remaining entries are
-# registered for completeness/forward-compatibility; drop the matching art into
-# `res://assets/ui/<url_id>/` to enable them. Missing art degrades gracefully.
+# Only `classic` and `BG1` ship art in this project, so only those (plus `random`)
+# are marked `available` and offered in the UI / picked by Random. The remaining
+# entries are registered for completeness/forward-compatibility; drop the matching
+# art into `res://assets/ui/<url_id>/` and flip `available` to enable them.
 const BACKGROUNDS := {
 	"random": {
 		"label": "Random Each Match",
+		"available": true,
 	},
 	"classic": {
 		"label": "BG0 Classic",
 		"url_id": "",
 		"image_id": "",
 		"standard_arena": false,
+		"available": true,
 	},
 	"BG1": {
 		"label": "BG1 Forest",
 		"url_id": "BG1",
 		"image_id": "BG1.jpg",
 		"standard_arena": false,
+		"available": true,
 	},
 	"BG2": {
 		"label": "BG2 Ruins",
@@ -231,14 +237,26 @@ static var _texture_cache := {}
 static func is_random_background_id(background_id: String) -> bool:
 	return background_id == "random"
 
-static func get_main_menu_background_ids() -> Array[String]:
+static func is_main_menu_background_available(background_id: String) -> bool:
+	var definition: Dictionary = MainMenu_BACKGROUNDS.get(background_id, {})
+	return definition.get("available", false)
+
+static func get_all_main_menu_background_ids() -> Array[String]:
 	var background_ids: Array[String] = []
 	for background_id in MainMenu_BACKGROUNDS:
 		background_ids.append(background_id)
 	return background_ids
 
+static func get_main_menu_background_ids() -> Array[String]:
+	# Only the entries whose assets ship with this project are offered.
+	var background_ids: Array[String] = []
+	for background_id in MainMenu_BACKGROUNDS:
+		if is_main_menu_background_available(background_id):
+			background_ids.append(background_id)
+	return background_ids
+
 static func normalize_main_menu_background_id(background_id: String) -> String:
-	if MainMenu_BACKGROUNDS.has(background_id):
+	if is_main_menu_background_available(background_id):
 		return background_id
 	return DEFAULT_MAIN_MENU_BACKGROUND_ID
 
@@ -252,6 +270,12 @@ static func get_main_menu_background_texture(background_id: String) -> Texture2D
 	var resource_path := get_main_menu_background_resource_path(background_id)
 	return _load_texture(resource_path)
 
+static func get_main_menu_background_color(background_id: String) -> Color:
+	# Solid-colour menu backgrounds need no art; the menu paints this behind the
+	# (optional) texture.
+	var definition := get_main_menu_background_definition(background_id)
+	return definition.get("color", DEFAULT_MAIN_MENU_BACKGROUND_COLOR)
+
 static func get_main_menu_background_resource_path(background_id: String) -> String:
 	var definition := get_main_menu_background_definition(background_id)
 	var url_id: String = definition.get("url_id", "")
@@ -260,11 +284,30 @@ static func get_main_menu_background_resource_path(background_id: String) -> Str
 		return ""
 	return "%s/%s/%s" % [MAIN_MENU_BACKGROUND_ROOT_DIRECTORY, url_id, image_id]
 
-static func get_background_ids() -> Array[String]:
+static func is_background_available(background_id: String) -> bool:
+	var definition: Dictionary = BACKGROUNDS.get(background_id, {})
+	return definition.get("available", false)
+
+static func get_all_background_ids() -> Array[String]:
 	var background_ids: Array[String] = []
 	for background_id in BACKGROUNDS:
 		background_ids.append(background_id)
 	return background_ids
+
+static func get_background_ids() -> Array[String]:
+	# Only the entries whose art ships with this project are offered.
+	var background_ids: Array[String] = []
+	for background_id in BACKGROUNDS:
+		if is_background_available(background_id):
+			background_ids.append(background_id)
+	return background_ids
+
+static func get_selectable_background_id(background_id: String) -> String:
+	# What the settings UI should show for a stored id, which may name a
+	# background that is registered but currently hidden.
+	if is_background_available(background_id):
+		return background_id
+	return DEFAULT_BACKGROUND_ID
 
 static func get_randomizable_background_ids() -> Array[String]:
 	var background_ids: Array[String] = []
@@ -275,6 +318,9 @@ static func get_randomizable_background_ids() -> Array[String]:
 
 static func resolve_background_id(background_id: String) -> String:
 	var normalized_id := normalize_background_id(background_id)
+	if not is_background_available(normalized_id):
+		# A previously-saved background whose art no longer ships.
+		return DEFAULT_BACKGROUND_ID
 	if not is_random_background_id(normalized_id):
 		return normalized_id
 	var randomizable_ids := get_randomizable_background_ids()
@@ -283,6 +329,9 @@ static func resolve_background_id(background_id: String) -> String:
 	return randomizable_ids.pick_random()
 
 static func normalize_background_id(background_id: String) -> String:
+	# Permissive on purpose: metadata for registered-but-hidden backgrounds still
+	# resolves so art can be dropped in later. Availability is enforced by the UI
+	# list and by `resolve_background_id` when a match actually renders.
 	if BACKGROUNDS.has(background_id):
 		return background_id
 	return DEFAULT_BACKGROUND_ID
