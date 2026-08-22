@@ -49,8 +49,12 @@
 			"timing": "on_stunned",
 			"first_time_only": true,
 			"character_effect": true,
-			"effect_type": "pooky_stunned_draw",
-			"override_description": "Whenever you are stunned, draw a card."
+			"effect_type": "choice",
+			"choice": [
+				{ "effect_type": "draw", "amount": 1 },
+				{ "effect_type": "pass" }
+			],
+			"override_description": "Whenever you are stunned, you may draw a card."
 		}
 	],
 	"image_resources": {

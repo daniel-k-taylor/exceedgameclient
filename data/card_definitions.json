@@ -39136,7 +39136,8 @@
 				"per_force_effect": {
 					"effect_type": "powerup",
 					"amount": 1
-				}
+				},
+				"overall_effect": null
 			}
 		],
 		"boost": {
@@ -40211,6 +40212,7 @@
 					"effect_type": "close",
 					"amount": 1
 				},
+				"overall_effect": null,
 				"force_min": 0
 			},
 			{
@@ -41158,12 +41160,15 @@
 			"boost_type": "continuous",
 			"force_cost": 0,
 			"cancel_cost": -1,
-			"display_name": "Pakout",
+			"display_name": "Fakeout",
 			"effects": [
 				{
 					"timing": "now",
-					"effect_type": "renea_pakout",
-					"override_description": "Return this card to your hand, then draw a card."
+					"effect_type": "draw",
+					"amount": 1,
+					"and": {
+					 "effect_type": "return_this_boost_to_hand_strike_effect"
+					}
 				}
 			]
 		}

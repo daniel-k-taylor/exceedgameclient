@@ -3478,14 +3478,14 @@ func update_gauge_for_effect_message():
 	elif select_gauge_valid_card_types:
 		gauge_name_str = "%s(s) from gauge" % '/'.join(select_gauge_valid_card_types)
 
-	if decision_effect['per_gauge_effect']:
+	if decision_effect.get('per_gauge_effect'):
 		var effect = decision_effect['per_gauge_effect']
 		var effect_text = GameStrings.get_effect_text(effect, false, false, false, source_card_name)
 		if to_hand:
 			effect_str = "Return up to %s %s to your hand for %s per card." % [decision_effect['gauge_max'], gauge_name_str, effect_text]
 		else:
 			effect_str = "Spend up to %s %s for %s per card." % [decision_effect['gauge_max'], gauge_name_str, effect_text]
-	elif decision_effect['overall_effect']:
+	elif decision_effect.get('overall_effect'):
 		var effect = decision_effect['overall_effect']
 		var effect_text = GameStrings.get_effect_text(effect, false, false, false, source_card_name)
 		if to_hand:
@@ -3604,7 +3604,7 @@ func update_force_generation_message():
 			if preparing_character_action:
 				decision_effect = prepared_character_action_data['effect']
 			var source_card_name = game_wrapper.get_card_database().get_card_name(game_wrapper.get_decision_info().choice_card_id)
-			if decision_effect['per_force_effect']:
+			if decision_effect.get('per_force_effect'):
 				var effect = decision_effect['per_force_effect']
 				var effect_text = GameStrings.get_effect_text(effect, false, false, false, source_card_name)
 				var force_str = "up to %s" % decision_effect['force_max']
@@ -3614,7 +3614,7 @@ func update_force_generation_message():
 				if 'force_effect_interval' in decision_effect:
 					per_force_str = "%s force" % decision_effect['force_effect_interval']
 				effect_str = "Generate %s force for %s per %s." % [force_str, effect_text, per_force_str]
-			elif decision_effect['overall_effect']:
+			elif decision_effect.get('overall_effect'):
 				var effect = decision_effect['overall_effect']
 				var effect_text = GameStrings.get_effect_text(effect, false, false, false, source_card_name)
 				effect_str = "Generate %s force for %s." % [decision_effect['force_max'], effect_text]
@@ -4328,7 +4328,7 @@ func _on_force_for_effect(event):
 		change_ui_state(null, UISubState.UISubState_SelectCards_ForceForEffect)
 		select_card_up_to_force = effect['force_max']
 		var require_max = -1
-		if effect['overall_effect']:
+		if effect.get('overall_effect'):
 			require_max = select_card_up_to_force
 		var can_cancel = true
 		if 'required' in effect and effect['required']:
@@ -4356,7 +4356,7 @@ func _on_gauge_for_effect(event):
 		if 'required' in effect and effect['required']:
 			select_card_require_min = effect['gauge_max']
 		select_card_require_max = effect['gauge_max']
-		if effect['overall_effect']:
+		if effect.get('overall_effect'):
 			select_card_must_be_max_or_min = true
 		else:
 			select_card_must_be_max_or_min = false
@@ -6008,7 +6008,7 @@ func _on_character_action_pressed(action_idx : int = 0):
 					if 'required' in shortcut_effect and shortcut_effect['required']:
 						select_card_require_min = shortcut_effect['gauge_max']
 					select_card_require_max = shortcut_effect['gauge_max']
-					if shortcut_effect['overall_effect']:
+					if shortcut_effect.get('overall_effect'):
 						select_card_must_be_max_or_min = true
 					else:
 						select_card_must_be_max_or_min = false

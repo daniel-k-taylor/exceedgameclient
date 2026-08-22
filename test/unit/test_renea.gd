@@ -88,12 +88,41 @@ func test_set_strike_reveal_fires_facedown_now_effect():
 
 	assert_true(game_logic.do_strike(player1, attack_id, false, -1))
 
-	# On set_strike, Renea revealed the face-down Flare (Pakout), returning it to
+	# On set_strike, Renea revealed the face-down Flare (Fakeout), returning it to
 	# hand and drawing a card.
 	assert_false(player1.is_card_in_continuous_boosts(flare_id))
 	assert_true(player1.is_card_in_hand(flare_id))
 	var events = game_logic.get_latest_events()
 	validate_has_event(events, Enums.EventType.EventType_RevealCard, player1, flare_id)
+
+func test_flare_faceup_boost_returns_itself_to_hand_and_draws():
+	# Flare is a continuous boost, but its Now effect bounces it back to hand
+	# before it ever settles into the continuous boost zone.
+	var flare_id = give_player_specific_card(player1, "renea_flare")
+	var hand_before = player1.hand.size()
+	var deck_before = player1.deck.size()
+
+	assert_true(game_logic.do_boost(player1, flare_id, [], false, 0, [], false))
+
+	assert_false(player1.is_card_in_continuous_boosts(flare_id))
+	assert_true(player1.is_card_in_hand(flare_id))
+	assert_false(player1.is_card_in_discards(flare_id))
+	# One draw from the boost, one from the normal end-of-turn draw.
+	assert_eq(player1.deck.size(), deck_before - 2)
+	# Flare came back to hand plus both draws.
+	assert_eq(player1.hand.size(), hand_before + 2)
+
+func test_flare_facedown_reveal_returns_to_hand_and_draws_exactly_one():
+	var flare_id = _place_facedown_boost(player1, "renea_flare")
+	var hand_before = player1.hand.size()
+	var deck_before = player1.deck.size()
+
+	game_logic._renea_reveal_facedown(player1)
+
+	assert_false(player1.is_card_in_continuous_boosts(flare_id))
+	assert_true(player1.is_card_in_hand(flare_id))
+	assert_eq(player1.deck.size(), deck_before - 1, "should draw exactly one card")
+	assert_eq(player1.hand.size(), hand_before + 2, "Flare returns to hand plus the drawn card")
 
 func test_defensive_ua_reveals_facedown_before_defender_responds():
 	var flare_id = _place_facedown_boost(player1, "renea_flare")
@@ -197,7 +226,7 @@ func test_faq_r1_exceed_action_flips_facedown_boosts_and_resolves_now():
 	var gauge_ids = give_gauge(player1, player1.get_exceed_cost())
 	assert_true(game_logic.do_exceed(player1, gauge_ids))
 	assert_true(player1.exceeded)
-	# The face-down Pakout was flipped and its Now effect resolved: it returned to
+	# The face-down Fakeout was flipped and its Now effect resolved: it returned to
 	# hand (leaving the continuous boost zone).
 	assert_false(player1.is_card_in_continuous_boosts(flare_id),
 			"exceeding flips face-down boosts and resolves their Now effects")

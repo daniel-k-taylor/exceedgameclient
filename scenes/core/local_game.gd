@@ -715,7 +715,7 @@ func continue_end_turn():
 func advance_to_next_turn():
 	# Reset effect source tracking for new turn
 	_last_effect_source_player_id = -1
-	
+
 	var player_ending_turn = _get_player(active_turn_player)
 	var other_player = _get_player(get_other_player(active_turn_player))
 
@@ -3503,6 +3503,12 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 					reduction_str = "to zero"
 				_append_log_full(Enums.LogType.LogType_Effect, performing_player, "now has their gauge costs reduced %s!" % reduction_str)
 		StrikeEffects.ForceForEffect:
+			# Unlike gauge_for_effect, the force resolution path honours either the
+			# per-force effect or the overall effect, never both, so authoring both
+			# would silently drop the overall one.
+			if effect.get('per_force_effect') != null and effect.get('overall_effect') != null:
+				assert(false, "force_for_effect does not support both per_force_effect and overall_effect")
+				printlog("ERROR: force_for_effect defines both per_force_effect and overall_effect; the overall effect will be ignored.")
 			var force_player = performing_player
 			if 'other_player' in effect and effect['other_player']:
 				force_player = opposing_player
@@ -3536,8 +3542,8 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 				# Convert this to a force_for_effect instead.
 				var changed_effect = {
 					"effect_type": StrikeEffects.ForceForEffect,
-					"per_force_effect": effect['per_gauge_effect'],
-					"overall_effect": effect['overall_effect'],
+					"per_force_effect": effect.get('per_gauge_effect'),
+					"overall_effect": effect.get('overall_effect'),
 					"force_max": effect['gauge_max'],
 					"required": 'required' in effect and effect['required'],
 				}
@@ -4637,20 +4643,6 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 			if renea_ms_id not in performing_player.sustained_boosts:
 				performing_player.sustained_boosts.append(renea_ms_id)
 			_append_log_full(Enums.LogType.LogType_Effect, performing_player, "sustains a Continuous Boost.")
-		"renea_pakout":
-			# Pakout: return this card to hand, then draw a card
-			if card_id == -1:
-				return
-			var renea_pakout_card = null
-			for renea_pc in performing_player.continuous_boosts:
-				if renea_pc.id == card_id:
-					renea_pakout_card = renea_pc
-					break
-			if renea_pakout_card:
-				performing_player.remove_from_continuous_boosts(renea_pakout_card)
-				performing_player.add_to_hand(renea_pakout_card, true)
-				performing_player.draw(1)
-				_append_log_full(Enums.LogType.LogType_Effect, performing_player, "Pakout: returns to hand and draws a card.")
 		"renea_conspiracy_unearthed":
 			# Conspiracy Unearthed: reveal opponent's hand, add your choice to their gauge
 			var renea_cu_opp = _get_player(get_other_player(performing_player.my_id))
@@ -6041,7 +6033,14 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 			var card_name = card_db.get_card_name(card_id)
 			_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "returns boosted card %s to their hand." % _log_card_name(card_name))
 			var card = card_db.get_card(card_id)
-			performing_player.remove_from_continuous_boosts(card, "hand")
+			if performing_player.is_card_in_continuous_boosts(card_id):
+				performing_player.remove_from_continuous_boosts(card, "hand")
+			elif active_boost and active_boost.card.id == card_id:
+				# The boost is still resolving and has not entered play yet, so
+				# hand it off to the cleanup path instead of removing it from a
+				# zone it is not in.
+				active_boost.discard_on_cleanup = true
+				active_boost.cleanup_to_hand_card_ids.append(card_id)
 		StrikeEffects.ReturnThisToHandImmediateBoost:
 			var card_name = card_db.get_card_name(card_id)
 			_append_log_full(Enums.LogType.LogType_CardInfo, performing_player, "returns boosted card %s to their hand." % _log_card_name(card_name))
@@ -7330,10 +7329,6 @@ func handle_strike_effect(card_id : int, effect, performing_player : Player):
 			performing_player.syrus_reckless_greed_used = true
 			do_effect_if_condition_met(performing_player, card_id, {"effect_type": StrikeEffects.Strike}, null)
 
-		StrikeEffects.PookyStunnedDraw:
-			# Exceed passive: when stunned, draw 1 card.
-			performing_player.draw(1)
-			_append_log_full(Enums.LogType.LogType_Effect, performing_player, "draws a card from being stunned.")
 		StrikeEffects.PookyGamblingReveal:
 			# Gambling? I'm In! reveal: move attack card into continuous boosts and
 			# replace it with a Wild Swing (which may chain into another gambling card).
@@ -8553,7 +8548,10 @@ func check_for_stun(check_player : Player, ignore_guard : bool):
 			create_event(Enums.EventType.EventType_Strike_Stun, check_player.my_id, defense_card.id)
 			active_strike.set_player_stunned(check_player)
 
-			# Assumes non-decision effects only
+			# Originally written assuming non-decision effects only. Simple decisions
+			# (e.g. an optional draw) do pause and resume correctly here, but more
+			# complex decision effects at this timing are unverified and may behave
+			# strangely mid stun-check.
 			var effects = check_player.get_character_effects_at_timing("on_stunned")
 			for effect in effects:
 				do_effect_if_condition_met(check_player, -1, effect, null)
@@ -9090,7 +9088,7 @@ func continue_resolve_strike():
 					strike_send_attack_to_discard_or_gauge(active_strike.initiator, active_strike.initiator_card)
 				if active_strike.defender_card in active_strike.cards_in_play:
 					strike_send_attack_to_discard_or_gauge(active_strike.defender, active_strike.defender_card)
-				
+
 				# Process any deferred extra attack cards
 				for deferred in active_strike.deferred_extra_attack_cards:
 					var ea_card = deferred["card"]
@@ -10135,7 +10133,7 @@ func _on_player_discard(discarding_player, card_ids : Array):
 	var other_player = _get_player(get_other_player(discarding_player.my_id))
 	if not other_player:
 		return
-	
+
 	# Eugenia Normal Passive: Once per turn, when you make opponent discard
 	# "Once per turn, when you make opponent discard"
 	if other_player.deck_flag("opponent_discard_passive") and not other_player.eugenia_normal_passive_used_this_turn and not other_player.exceeded:
@@ -10176,7 +10174,7 @@ func _on_player_discard(discarding_player, card_ids : Array):
 						hand_speed = min(other_player.hand.size(), 7)
 					if hand_speed == discarded_speed:
 						match_cards.append(hand_card)
-			
+
 			# Build choice: each matching card + Pass
 			var choices = [{"_choice_text": "Pass (don't reveal)", "effect_type": StrikeEffects.Pass}]
 			for hc in match_cards:
@@ -10195,10 +10193,10 @@ func _on_player_discard(discarding_player, card_ids : Array):
 						}
 					}
 				})
-			
+
 			if match_cards.size() > 0:
 				_append_log_full(Enums.LogType.LogType_Effect, other_player, "may reveal a matching card to deal 2 non-lethal damage!")
-			
+
 			if game_state != Enums.GameState.GameState_PlayerDecision:
 				var choice_effect = {
 					"effect_type": StrikeEffects.Choice,
@@ -10221,7 +10219,7 @@ func _on_player_discard(discarding_player, card_ids : Array):
 						"nonlethal": true
 					}
 					handle_strike_effect(-1, damage_effect, other_player)
-	
+
 	# Eugenia Exceeded Passive: When opponent discards by effect,
 	# you may choose one to put into your set_aside (Wonderland).
 	if other_player.deck_flag("opponent_discard_passive") and other_player.exceeded:
@@ -10235,7 +10233,7 @@ func _on_player_discard(discarding_player, card_ids : Array):
 				# should have already restored the correct source before
 				# discard(). If it didn't, the source doesn't match → reject.
 				return
-			
+
 			# Build choice to pick a card to add to Wonderland, or pass
 			var choices = [{"_choice_text": "Pass", "effect_type": StrikeEffects.Pass}]
 			for cid in card_ids:
@@ -10305,9 +10303,6 @@ func handle_spend_life_for_force(performing_player : Player, spent_life : int) -
 
 	if spent_life > 0:
 		performing_player.spend_life(spent_life)
-		#if active_strike:
-			#active_strike.add_damage_taken(damaged_player, unmitigated_damage)
-			#check_for_stun(damaged_player, false)
 	return true
 
 func handle_spend_life_cost(performing_player : Player, spent_life : int) -> bool:

@@ -611,3 +611,32 @@ func test_flight_13_can_decline_the_topdeck_discard():
 
 	assert_eq(player1.deck.size(), deck_before)
 	validate_positions(player1, 5, player2, 6)
+
+
+func test_cabstand_before_effect_closes_one_per_force_spent():
+	# Cabstand's "before" effect is a force_for_effect whose per_force_effect
+	# closes 1. Its definition omitted the usual "overall_effect": null, which
+	# crashed the UI when the decision was presented.
+	position_players(player1, 4, player2, 6)
+	var force_cards = get_cards_from_hand(player1, 1)
+
+	# Spend 1 force: close 1 (4 -> 5) puts Cabstand's range 1-1 on target, so it
+	# hits for 3 power - 2 Focus armor = 1, then its "after" advance 3 runs.
+	execute_strike(player1, player2, "minato_cabstand", "standard_normal_focus",
+		false, false, [force_cards], [])
+
+	validate_life(player1, 30, player2, 29)
+	validate_positions(player1, 9, player2, 6)
+
+func test_cabstand_before_effect_can_spend_no_force():
+	# Spending no force is legal (force_min is 0); without the close, Cabstand
+	# stays at range 2 and misses.
+	position_players(player1, 4, player2, 6)
+
+	execute_strike(player1, player2, "minato_cabstand", "standard_normal_focus",
+		false, false, [[]], [])
+
+	var events = game_logic.get_latest_events()
+	validate_has_event(events, Enums.EventType.EventType_Strike_Miss, player1)
+	validate_life(player1, 26, player2, 30)
+	validate_positions(player1, 8, player2, 6)

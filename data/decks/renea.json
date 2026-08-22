@@ -25,12 +25,6 @@
 		}
 	],
 	"ability_effects": [
-		{
-			"timing": "set_strike",
-			"character_effect": true,
-			"effect_type": "pass",
-			"override_description": "When you set your attack: reveal all of your facedown continuous boosts and resolve their immediate effects in any order."
-		}
 	],
 	"exceed_ability_effects": [
 		{

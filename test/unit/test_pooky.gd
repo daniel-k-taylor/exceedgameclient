@@ -120,16 +120,36 @@ func test_pooky_exceeded_powerup_armorup_with_two_boosts():
 	validate_life(player1, 28, player2, 23)
 
 func test_pooky_stunned_draw_on_exceed():
-	# Exceed passive: the first time Pooky is stunned each strike, draw a card.
+	# Exceed passive: the first time Pooky is stunned each strike, they may draw a card.
 	position_players(player1, 3, player2, 6)
 	player1.exceeded = true
 	var hand_before = player1.hand.size()
 
 	# Spike (ignore_armor + ignore_guard) strikes first and stuns Pooky Drinks.
-	execute_strike(player1, player2, "pooky_pookydrinks", "standard_normal_spike", false, false, [], [])
+	execute_strike(player1, player2, "pooky_pookydrinks", "standard_normal_spike", false, false, [0], [])
 
 	validate_life(player1, 25, player2, 30)
 	assert_eq(player1.hand.size(), hand_before + 1)
+
+func test_pooky_stunned_draw_may_be_declined():
+	# The stun draw is optional, so Pooky may pass on it.
+	position_players(player1, 3, player2, 6)
+	player1.exceeded = true
+	var hand_before = player1.hand.size()
+
+	execute_strike(player1, player2, "pooky_pookydrinks", "standard_normal_spike", false, false, [1], [])
+
+	validate_life(player1, 25, player2, 30)
+	assert_eq(player1.hand.size(), hand_before)
+
+func test_pooky_stunned_draw_not_offered_when_not_exceeded():
+	# The stun draw is an exceed-only passive.
+	position_players(player1, 3, player2, 6)
+	var hand_before = player1.hand.size()
+
+	execute_strike(player1, player2, "pooky_pookydrinks", "standard_normal_spike", false, false, [], [])
+
+	assert_eq(player1.hand.size(), hand_before)
 
 func test_pooky_drunken_fury_boost_enters_strike():
 	# Drunken Fury transform: first immediate boost each turn, may pay 1 force to strike.

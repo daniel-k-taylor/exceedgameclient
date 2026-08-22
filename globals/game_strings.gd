@@ -1742,8 +1742,6 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 			effect_str += "You may discard a boost from play to strike"
 		StrikeEffects.SyrusReturnToHandUntil7:
 			effect_str += "Randomly return cards from your discards to your hand until you have 7, then shuffle your discards"
-		StrikeEffects.PookyStunnedDraw:
-			effect_str += "When you are stunned, draw a card"
 		StrikeEffects.PookyGamblingReveal:
 			effect_str += "Set this as a continuous boost and replace this attack with a Wild Swing"
 		StrikeEffects.PookyDrunkenFuryOnBoost:
@@ -1768,8 +1766,6 @@ func get_effect_type_text(effect, card_name_source : String = "", char_effect_pa
 			effect_str += "Sustain the chosen continuous boost"
 		"renea_on_exceed":
 			effect_str += "Put up to 3 cards with Boosts from the opponent's discard pile into your Briefcase"
-		"renea_pakout":
-			effect_str += "Return this card to your hand, then draw a card"
 		"renea_polling_leads":
 			effect_str += "After resolving a boost, you may spend 1 Force to move 1"
 		"renea_pre_strike_done":
