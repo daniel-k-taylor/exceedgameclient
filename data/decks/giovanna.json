@@ -3,6 +3,7 @@
 	"season": 7,
 	"display_name": "Giovanna",
 	"exceed_cost": 3,
+	"warn_when_striking_without_character_action": true,
 	"on_exceed": {
 		"effect_type": "gauge_from_hand",
 		"min_amount": 0,
