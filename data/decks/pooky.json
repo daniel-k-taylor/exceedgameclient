@@ -53,10 +53,6 @@
 			"override_description": "Whenever you are stunned, draw a card."
 		}
 	],
-	"on_exceed": {
-		"effect_type": "pass",
-		"hide_effect": true
-	},
 	"image_resources": {
 		"character_default": {
 			"url": "https://i.imgur.com/k10oJQj.jpeg",

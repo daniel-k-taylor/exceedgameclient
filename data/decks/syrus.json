@@ -19,15 +19,8 @@
 			"NOTE": "Syrus passive handled in local_game.gd boost_finish_resolving_card"
 		}
 	],
-	"exceed_ability_effects": [
-		{
-			"timing": "set_strike",
-			"character_effect": true,
-			"effect_type": "pass",
-			"hide_effect": true,
-			"NOTE": "Syrus exceeded passive handled in local_game.gd boost_finish_resolving_card"
-		}
-	],
+	"exceed_ability_effects": [],
+	"NOTE_exceed_ability": "Syrus's exceeded passive is handled in local_game.gd boost_finish_resolving_card (see the immediate_boosts_become_replacement flag).",
 	"replacement_boost_definition": {
 		"boost_type": "continuous",
 		"facedown": true,

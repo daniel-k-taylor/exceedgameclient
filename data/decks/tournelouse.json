@@ -29,9 +29,6 @@
 		}
 	],
 	"ability_effects": [],
-	"on_exceed": {
-		"effect_type": "pass"
-	},
 	"image_resources": {
 		"character_default": {
 			"url": "https://i.imgur.com/cqBoFa6.jpeg",

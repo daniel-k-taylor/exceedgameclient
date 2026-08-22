@@ -39,15 +39,8 @@
 			"NOTE": "Eugenia normal passive handled in _on_player_discard via deck_def check"
 		}
 	],
-	"exceed_ability_effects": [
-		{
-			"timing": "set_strike",
-			"character_effect": true,
-			"effect_type": "pass",
-			"hide_effect": true,
-			"NOTE": "Eugenia exceeded passive handled in _on_player_discard via deck_def check"
-		}
-	],
+	"exceed_ability_effects": [],
+	"NOTE_exceed_ability": "Eugenia's exceeded passive is handled in _on_player_discard (see the opponent_discard_passive flag).",
 	"on_exceed": {
 		"effect_type": "add_to_set_aside_immediately",
 		"card_id": "wonderland",

@@ -39,12 +39,6 @@
 		"description": "facedown continuous boost: +1 Power"
 	},
 	"exceed_ability_effects": [
-		{
-			"timing": "set_strike",
-			"character_effect": true,
-			"effect_type": "pass",
-			"hide_effect": true
-		}
 	],
 	"on_exceed": {
 		"effect_type": "add_hand_to_gauge",

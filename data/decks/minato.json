@@ -24,19 +24,8 @@
 			}
 		}
 	],
-	"exceed_ability_effects": [
-		{
-			"timing": "set_strike",
-			"character_effect": true,
-			"effect_type": "pass",
-			"hide_effect": true,
-			"NOTE": "Minato exceed passive implemented in start_begin_turn"
-		}
-	],
-	"on_exceed": {
-		"effect_type": "pass",
-		"hide_effect": true
-	},
+	"exceed_ability_effects": [],
+	"NOTE_exceed_ability": "Minato's exceed passive is implemented in start_begin_turn (see the seal_discards_at_turn_start_when_exceeded flag).",
 	"image_resources": {
 		"character_default": {
 			"url": "https://i.imgur.com/1aaPuUA.jpeg",

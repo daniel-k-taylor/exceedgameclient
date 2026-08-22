@@ -39,18 +39,7 @@
 			]
 		}
 	],
-	"exceed_ability_effects": [
-		{
-			"timing": "set_strike",
-			"character_effect": true,
-			"effect_type": "pass",
-			"hide_effect": true
-		}
-	],
-	"on_exceed": {
-		"effect_type": "pass",
-		"hide_effect": true
-	},
+	"exceed_ability_effects": [],
 	"image_resources": {
 		"character_default": {
 			"url": "https://i.imgur.com/ME5uNhV.jpeg",
