@@ -19282,6 +19282,381 @@
 		},
 		"NOTEEND": "LONDREKIA CARDS END"
 	},
+
+
+
+	{
+		"NOTE": "LUCIYA CARDS START",
+		"id": "luciya_bug_zapper",
+		"type": "special",
+		"display_name": "Bug Zapper",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 1,
+		"power": 2,
+		"speed": 4,
+		"guard": 0,
+		"armor": 0,
+		"effects": [
+			{
+				"timing": "before",
+				"effect_type": "force_for_effect",
+				"per_force_effect": {
+					"effect_type": "advance",
+					"amount": 2
+				},
+				"overall_effect": null,
+				"force_max": 4
+			}
+		],
+		"boost": {
+			"boost_type": "transform",
+			"force_cost": -1,
+			"cancel_cost": -1,
+			"display_name": "Thunderclap",
+			"effects": [
+				{
+					"timing": "set_strike",
+					"character_effect": true,
+					"effect_type": "add_attack_effect",
+					"override_description": "Your normals gain 'After: If the opponent was stunned, move 2 spaces.'",
+					"added_effect": {
+						"timing": "after",
+						"condition": "is_normal_attack",
+						"effect_type": "pass",
+						"and": {
+							"timing": "after",
+							"condition": "opponent_stunned",
+							"effect_type": "choice",
+							"choice": [
+								{
+									"effect_type": "advance",
+									"amount": 2
+								},
+								{
+									"effect_type": "retreat",
+									"amount": 2
+								}
+							]
+						}
+					}
+				}
+			]
+		}
+	},
+	{
+		"id": "luciya_downburst",
+		"type": "special",
+		"display_name": "Downburst",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 1,
+		"power": 2,
+		"speed": 6,
+		"guard": 0,
+		"armor": 0,
+		"effects": [
+			{
+				"timing": "before",
+				"effect_type": "pull",
+				"amount": 2
+			},
+			{
+				"timing": "after",
+				"effect_type": "advance",
+				"amount": 2
+			}
+		],
+		"boost": {
+			"boost_type": "immediate",
+			"force_cost": 2,
+			"cancel_cost": -1,
+			"display_name": "Chain Climb",
+			"effects": [
+				{
+					"timing": "immediate",
+					"effect_type": "choice",
+					"choice": [
+						{
+							"effect_type": "advance",
+							"amount": 99,
+							"use_semicolon_for_and": true,
+							"and": {
+								"condition": "advanced_through",
+								"effect_type": "add_to_gauge_boost_play_cleanup"
+							}
+						},
+						{
+							"effect_type": "retreat",
+							"amount": 99,
+							"use_semicolon_for_and": true,
+							"and": {
+								"condition": "advanced_through",
+								"effect_type": "add_to_gauge_boost_play_cleanup"
+							}
+						}
+					]
+				}
+			]
+		}
+	},
+	{
+		"id": "luciya_firefly_gunner",
+		"type": "special",
+		"display_name": "Firefly Gunner",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 3,
+		"range_max": 4,
+		"power": 6,
+		"speed": 1,
+		"guard": 0,
+		"armor": 0,
+		"effects": [
+			{
+				"timing": "during_strike",
+				"effect_type": "dodge_at_range",
+				"range_min": 3,
+				"range_max": 4
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "The Whirlwind",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "speedup",
+					"amount": 3
+				},
+				{
+					"timing": "now",
+					"effect_type": "set_end_of_turn_boost_delay"
+				},
+				{
+					"timing": "end_of_turn",
+					"effect_type": "add_to_gauge_immediately"
+				}
+			]
+		}
+	},
+	{
+		"id": "luciya_mantis_strike",
+		"type": "special",
+		"display_name": "Mantis Strike",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 3,
+		"range_max": 5,
+		"power": 4,
+		"speed": 4,
+		"guard": 0,
+		"armor": 0,
+		"effects": [
+			{
+				"timing": "hit",
+				"effect_type": "pull",
+				"amount": 2,
+				"and": {
+					"effect_type": "advance",
+					"amount": 4
+				}
+			}
+		],
+		"boost": {
+			"boost_type": "transform",
+			"force_cost": -1,
+			"cancel_cost": -1,
+			"display_name": "Storm's Fury",
+			"effects": [
+				{
+					"timing": "set_strike",
+					"character_effect": true,
+					"condition": "initiated_strike",
+					"effect_type": "force_for_effect",
+					"per_force_effect": null,
+					"force_max": 2,
+					"force_min": 2,
+					"override_description": "When you initiate a strike, you may spend 2 force. If you do, move 1 space.",
+					"overall_effect": {
+						"effect_type": "choice",
+						"choice": [
+							{
+								"effect_type": "advance",
+								"amount": 1
+							},
+							{
+								"effect_type": "retreat",
+								"amount": 1
+							}
+						]
+					}
+				}
+			]
+		}
+	},
+	{
+		"id": "luciya_ride_the_lightning",
+		"type": "ultra",
+		"display_name": "Ride The Lightning",
+		"force_cost": 0,
+		"gauge_cost": 2,
+		"range_min": 1,
+		"range_max": 1,
+		"power": 1,
+		"speed": 8,
+		"guard": 0,
+		"armor": 0,
+		"effects": [
+			{
+				"timing": "before",
+				"effect_type": "close",
+				"amount": 4
+			},
+			{
+				"timing": "after",
+				"effect_type": "advance",
+				"amount": 4
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Chain Trap",
+			"effects": [
+				{
+					"timing": "now",
+					"effect_type": "block_opponent_move"
+				},
+				{
+					"timing": "during_strike",
+					"effect_type": "block_opponent_move"
+				},
+				{
+					"timing": "discarded",
+					"effect_type": "remove_block_opponent_move"
+				},
+				{
+					"timing": "opponent_action",
+					"text": "Spend 2 force to remove Chain Trap",
+					"effect_type": "force_for_effect",
+					"per_force_effect": null,
+					"overall_effect": {
+						"effect_type": "remove_block_opponent_move",
+						"for_other_player": true,
+						"and": {
+							"effect_type": "add_to_gauge_immediately",
+							"add_card": "this"
+						}
+					},
+					"force_max": 2,
+					"force_min": 2
+				}
+			]
+		}
+	},
+	{
+		"id": "luciya_skies_aflame",
+		"type": "ultra",
+		"display_name": "Skies Aflame",
+		"force_cost": 0,
+		"gauge_cost": 3,
+		"range_min": 3,
+		"range_max": 5,
+		"power": 4,
+		"speed": 5,
+		"guard": 0,
+		"armor": 0,
+		"effects": [
+			{
+				"timing": "hit",
+				"effect_type": "gain_advantage"
+			},
+			{
+				"timing": "after",
+				"effect_type": "move_to_any_space"
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 1,
+			"cancel_cost": -1,
+			"display_name": "Preemptive Attack",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "speedup",
+					"amount": 2
+				},
+				{
+					"timing": "now",
+					"effect_type": "strike"
+				}
+			]
+		}
+	},
+	{
+		"id": "luciya_talon_sweep",
+		"type": "special",
+		"display_name": "Talon Sweep",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 1,
+		"power": 2,
+		"speed": 6,
+		"guard": 0,
+		"armor": 0,
+		"effects": [
+			{
+				"timing": "hit",
+				"effect_type": "advance",
+				"amount": 4,
+				"and": {
+					"effect_type": "force_for_effect",
+					"per_force_effect": null,
+					"force_max": 1,
+					"force_min": 0,
+					"overall_effect": {
+						"effect_type": "powerup",
+						"amount": 1
+					}
+				}
+			}
+		],
+		"boost": {
+			"boost_type": "transform",
+			"force_cost": -1,
+			"cancel_cost": -1,
+			"display_name": "Grandstanding",
+			"effects": [
+				{
+					"timing": "set_strike",
+					"character_effect": true,
+					"effect_type": "force_for_effect",
+					"per_force_effect": null,
+					"force_max": 1,
+					"force_min": 0,
+					"override_description": "After you set your attack, you may spend 1 force. If you do, both players' attacks get +1 Power.",
+					"overall_effect": {
+						"effect_type": "powerup",
+						"amount": 1,
+						"and": {
+							"effect_type": "powerup_opponent",
+							"amount": 1
+						}
+					}
+				}
+			]
+		},
+		"NOTEEND": "LUCIYA CARDS END"
+	},
+
 	{
 		"NOTE": "MAY CARDS START",
 		"id": "may_goshogawara",
@@ -19612,6 +19987,322 @@
 		},
 		"NOTEEND": "MAY CARDS END"
 	},
+
+
+
+	{
+		"NOTE": "MEILIEN CARDS START",
+		"id": "meilien_fujingu",
+		"type": "special",
+		"display_name": "Fortune Drum",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 4,
+		"power": 2,
+		"speed": 5,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "hit",
+				"effect_type": "push",
+				"amount": 2
+			}
+		],
+		"boost": {
+			"boost_type": "immediate",
+			"force_cost": 1,
+			"cancel_cost": -1,
+			"display_name": "Raging Storm",
+			"effects": [
+				{
+					"timing": "immediate",
+					"effect_type": "reveal_hand"
+				},
+				{
+					"timing": "immediate",
+					"effect_type": "swap_deck_and_discard"
+				}
+			]
+		}
+	},
+	{
+		"id": "meilien_jiji",
+		"type": "special",
+		"display_name": "Halberd Strike",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 2,
+		"range_max": 3,
+		"power": 4,
+		"speed": 5,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "during_strike",
+				"effect_type": "block_opponent_advance_close",
+				"override_description": "For the entire strike, the opponent cannot advance or close (they may retreat)."
+			},
+			{
+				"timing": "cleanup",
+				"effect_type": "remove_block_opponent_advance_close"
+			},
+			{
+				"timing": "hit",
+				"effect_type": "push",
+				"amount": 1
+			}
+		],
+		"boost": {
+			"boost_type": "immediate",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "New Horizons",
+			"effects": [
+				{
+					"timing": "immediate",
+					"effect_type": "draw",
+					"amount": 4
+				},
+				{
+					"timing": "immediate",
+					"effect_type": "self_discard_choose",
+					"amount": 2
+				}
+			]
+		}
+	},
+	{
+		"id": "meilien_leishendao",
+		"type": "special",
+		"display_name": "Thunder God Blade",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 1,
+		"power": 1,
+		"speed": 8,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "hit",
+				"effect_type": "push",
+				"amount": 3
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 1,
+			"cancel_cost": -1,
+			"display_name": "Gale Spread",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "rangeup",
+					"amount": 0,
+					"amount2": 1
+				},
+				{
+					"timing": "now",
+					"effect_type": "strike"
+				}
+			]
+		}
+	},
+	{
+		"id": "meilien_leishenshiyan",
+		"type": "ultra",
+		"display_name": "Thunder God's Oath",
+		"force_cost": 0,
+		"gauge_cost": 3,
+		"range_min": 4,
+		"range_max": 4,
+		"power": 10,
+		"speed": 6,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "during_strike",
+				"effect_type": "ignore_armor"
+			}
+		],
+		"boost": {
+			"boost_type": "immediate",
+			"force_cost": 1,
+			"cancel_cost": -1,
+			"display_name": "Meteor's Wish",
+			"effects": [
+				{
+					"timing": "immediate",
+					"effect_type": "choose_cards_from_top_deck",
+					"look_amount": 99,
+					"action_choices": [
+						"discard",
+						"add_to_gauge",
+						"topdeck"
+					],
+					"can_pass": false,
+					"destination_unchosen": "topdeck",
+					"override_description": "Choose 1 card from your deck to place in your discard, gauge, or on top of your deck."
+				}
+			]
+		}
+	},
+	{
+		"id": "meilien_shenlongfengbao",
+		"type": "ultra",
+		"display_name": "Divine Dragon Storm",
+		"force_cost": 0,
+		"gauge_cost": 2,
+		"range_min": 3,
+		"range_max": 3,
+		"power": 3,
+		"speed": 7,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "hit",
+				"effect_type": "push",
+				"amount": 99
+			},
+			{
+				"timing": "after",
+				"effect_type": "choice",
+				"choice": [
+					{
+						"effect_type": "advance",
+						"amount": 1
+					},
+					{
+						"effect_type": "advance",
+						"amount": 2
+					},
+					{
+						"effect_type": "advance",
+						"amount": 3
+					}
+				]
+			}
+		],
+		"boost": {
+			"boost_type": "immediate",
+			"force_cost": 1,
+			"cancel_cost": -1,
+			"display_name": "Tailwind",
+			"effects": [
+				{
+					"timing": "immediate",
+					"effect_type": "close",
+					"amount": 2
+				},
+				{
+					"timing": "immediate",
+					"effect_type": "strike"
+				}
+			]
+		}
+	},
+	{
+		"id": "meilien_shenlongpo",
+		"type": "special",
+		"display_name": "Divine Dragon Break",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 2,
+		"power": 5,
+		"speed": 4,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "during_strike",
+				"effect_type": "dodge_at_range",
+				"range_min": 3,
+				"range_max": 99,
+				"override_description": "The opponent's attacks from range 3 or more cannot hit."
+			},
+			{
+				"timing": "hit",
+				"effect_type": "choice",
+				"choice": [
+					{
+						"effect_type": "push",
+						"amount": 1
+					},
+					{
+						"effect_type": "pull",
+						"amount": 1
+					}
+				]
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Double Thunder Strike",
+			"effects": [
+				{
+					"timing": "after",
+					"effect_type": "return_attack_to_hand",
+					"and": {
+						"effect_type": "add_boost_to_gauge_on_strike_cleanup",
+						"card_name": "Divine Dragon Break"
+					}
+				}
+			]
+		}
+	},
+	{
+		"id": "meilien_yunqishi",
+		"type": "special",
+		"display_name": "Cloud Rider",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 2,
+		"power": 3,
+		"speed": 6,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "after",
+				"effect_type": "advance",
+				"amount": 4,
+				"and": {
+					"effect_type": "draw",
+					"amount": 1
+				}
+			}
+		],
+		"boost": {
+			"boost_type": "immediate",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Shifting Winds",
+			"effects": [
+				{
+					"timing": "immediate",
+					"override_description": "Draw 1 card for each card in your hand, then discard that many cards.",
+					"effect_type": "draw_for_card_in_hand",
+					"and": {
+						"effect_type": "self_discard_choose",
+						"amount": "draw_amount"
+					}
+				}
+			]
+		},
+		"NOTEEND": "MEILIEN CARDS END"
+	},
+
+
 	{
 		"NOTE": "MERKAVA CARDS START",
 		"id": "merkava_idefile",
@@ -20792,6 +21483,299 @@
 		},
 		"NOTEEND": "MILLIA CARDS END"
 	},
+
+
+	{
+		"NOTE": "MINATO CARDS START",
+		"id": "minato_barnstorming",
+		"type": "special",
+		"display_name": "Barnstorming",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 2,
+		"power": 3,
+		"speed": 5,
+		"guard": 0,
+		"armor": 0,
+		"effects": [
+			{
+				"timing": "hit",
+				"effect_type": "reshuffle_discard_into_deck",
+				"and": {
+					"effect_type": "gain_advantage"
+				}
+			},
+			{
+				"timing": "after",
+				"effect_type": "advance",
+				"amount": 99,
+				"override_description": "After: Advance as far as possible."
+			}
+		],
+		"boost": {
+			"boost_type": "transform",
+			"force_cost": -1,
+			"cancel_cost": -1,
+			"display_name": "Weight of Regret",
+			"effects": [
+				{
+					"timing": "cleanup",
+					"condition": "not_hit_opponent",
+					"effect_type": "choice",
+					"choice": [
+						{
+							"effect_type": "return_attack_to_hand",
+							"not_immediate": true
+						},
+						{
+							"effect_type": "pass"
+						}
+					],
+					"override_description": "At the end of each strike, if your attack did not hit the opponent, you may return it to your hand instead of discarding it."
+				}
+			]
+		}
+	},
+	{
+		"id": "minato_bus_stop",
+		"type": "special",
+		"display_name": "Bus Stop",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 2,
+		"power": 4,
+		"speed": 3,
+		"guard": 5,
+		"armor": 0,
+		"effects": [
+			{
+				"timing": "hit",
+				"effect_type": "push",
+				"amount": 2,
+				"and": {
+					"effect_type": "force_for_effect",
+					"per_force_effect": {
+						"effect_type": "powerup",
+						"amount": 1
+					},
+					"overall_effect": null,
+					"force_max": 2
+				}
+			}
+		],
+		"boost": {
+			"boost_type": "transform",
+			"force_cost": -1,
+			"cancel_cost": -1,
+			"display_name": "Fractured Memories",
+			"effects": [
+				{
+					"timing": "on_strike_reveal",
+					"effect_type": "attack_copy_gauge_or_transform_becomes_ex",
+					"hide_effect": true
+				},
+				{
+					"timing": "during_strike",
+					"condition": "copy_of_attack_in_zones",
+					"condition_zones": [
+						"transform",
+						"sealed"
+					],
+					"effect_type": "attack_is_ex",
+					"override_description": "If a copy of this attack is in your transform or sealed area, this attack is EX."
+				}
+			]
+		}
+	},
+	{
+		"id": "minato_cabstand",
+		"type": "special",
+		"display_name": "Cabstand",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 1,
+		"power": 3,
+		"speed": 5,
+		"guard": 0,
+		"armor": 0,
+		"effects": [
+			{
+				"timing": "before",
+				"effect_type": "force_for_effect",
+				"force_max": 3,
+				"per_force_effect": {
+					"effect_type": "close",
+					"amount": 1
+				},
+				"overall_effect": null,
+				"force_min": 0
+			},
+			{
+				"timing": "after",
+				"effect_type": "advance",
+				"amount": 3
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "One More Ride",
+			"effects": [
+				{
+					"timing": "after_non_strike_action",
+					"effect_type": "minato_one_more_ride",
+					"override_description": "At the end of your turn, instead of drawing you may return a card from your sealed area to your hand."
+				}
+			]
+		}
+	},
+	{
+		"id": "minato_flight_13",
+		"type": "special",
+		"display_name": "Flight 13",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 5,
+		"range_max": 7,
+		"power": 3,
+		"speed": 4,
+		"guard": 0,
+		"armor": 0,
+		"effects": [
+			{
+				"timing": "before",
+				"effect_type": "topdeck_for_effect",
+				"destination": "discard",
+				"amount_max": 3,
+				"choice_text": "Discard %d (retreat %d)",
+				"per_card_effect": {
+					"effect_type": "retreat",
+					"amount": 1
+				},
+				"description": "Before: You may discard up to 3 cards from the top of your deck. Retreat 1 space for each card discarded this way."
+			}
+		],
+		"boost": {
+			"boost_type": "transform",
+			"force_cost": -1,
+			"cancel_cost": -1,
+			"display_name": "Outrun the Past",
+			"override_description": "Before setting your attack: Seal up to 4 cards from your discard or gauge. Draw 1 card for every 2 cards sealed.",
+			"effects": []
+		}
+	},
+	{
+		"id": "minato_hellward_bound",
+		"type": "ultra",
+		"display_name": "Hellward Bound",
+		"force_cost": 0,
+		"gauge_cost": 6,
+		"gauge_cost_reduction": "free_if_no_deck_and_discard",
+		"range_min": 1,
+		"range_max": 3,
+		"power": 10,
+		"speed": 3,
+		"guard": 4,
+		"armor": 0,
+		"effects": [],
+		"boost": {
+			"boost_type": "immediate",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Hellraiser",
+			"effects": [
+				{
+					"timing": "immediate",
+					"effect_type": "minato_hellraiser",
+					"override_description": "Each player discards the top 4 cards of their deck. Return up to 2 cards from your sealed area to your hand."
+				}
+			]
+		}
+	},
+	{
+		"id": "minato_jump_the_shark",
+		"type": "special",
+		"display_name": "Jump the Shark",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 3,
+		"range_max": 4,
+		"power": 2,
+		"speed": 6,
+		"guard": 0,
+		"armor": 0,
+		"effects": [
+			{
+				"timing": "hit",
+				"effect_type": "powerup_per_sealed_amount",
+				"divisor": 4,
+				"max": 5,
+				"override_description": "Hit: +1 Power for every 4 cards in your sealed area (up to +5)."
+			}
+		],
+		"boost": {
+			"boost_type": "immediate",
+			"force_cost": 1,
+			"cancel_cost": -1,
+			"display_name": "Jump the Train",
+			"effects": [
+				{
+					"timing": "immediate",
+					"effect_type": "choice",
+					"choice": [
+						{
+							"effect_type": "advance",
+							"amount": 4
+						},
+						{
+							"effect_type": "retreat",
+							"amount": 4
+						}
+					]
+				}
+			]
+		}
+	},
+	{
+		"id": "minato_streetcar_disaster",
+		"type": "ultra",
+		"display_name": "A Streetcar Named Disaster",
+		"force_cost": 0,
+		"gauge_cost": 3,
+		"range_min": 1,
+		"range_max": 3,
+		"power": 10,
+		"speed": 4,
+		"guard": 0,
+		"armor": 0,
+		"effects": [],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Daredevil",
+			"effects": [
+				{
+					"timing": "now",
+					"effect_type": "topdeck_for_effect",
+					"destination": "sealed",
+					"amount_max": 4,
+					"choice_text": "Seal %d (+%d Speed)",
+					"per_card_effect": {
+						"effect_type": "speedup_counter_on_boost",
+						"amount": 1
+					},
+					"override_description": "Immediately: Seal up to 4 cards from the top of your deck. +1 Speed for each card sealed this way."
+				}
+			]
+		},
+		"NOTEEND": "MINATO CARDS END"
+	},
+
 	{
 		"NOTE": "MOLE CARDS START",
 		"id": "mole_erupt",
@@ -24578,6 +25562,322 @@
 		},
 		"NOTEEND": "PLAGUE CARDS END"
 	},
+
+
+
+	{
+		"NOTE": "POOKY CARDS START",
+		"id": "pooky_gamblingimin",
+		"type": "special",
+		"display_name": "Gambling? I'm In!",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 0,
+		"range_max": 0,
+		"power": 0,
+		"speed": 7,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "on_strike_reveal",
+				"effect_type": "pooky_gambling_reveal"
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"facedown": false,
+			"display_name": "Dwarven Firewater",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "powerup",
+					"amount": 1
+				},
+				{
+					"timing": "now",
+					"condition": "life_equal_or_below",
+					"condition_amount": 15,
+					"effect_type": "take_bonus_actions",
+					"amount": 1,
+					"override_description": "Now: If your life is 15 or lower, take a bonus action."
+				}
+			]
+		}
+	},
+	{
+		"id": "pooky_snackattack",
+		"type": "special",
+		"display_name": "Snack Attack",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 2,
+		"power": 3,
+		"speed": 4,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "before",
+				"effect_type": "advance",
+				"amount": 3
+			},
+			{
+				"timing": "hit",
+				"effect_type": "draw",
+				"amount": 2
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"facedown": false,
+			"display_name": "Dragon Breath Ale",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "rangeup",
+					"works_outside_strike": true,
+					"amount": 0,
+					"amount2": 1
+				},
+				{
+					"timing": "now",
+					"condition": "exceeded",
+					"effect_type": "take_bonus_actions",
+					"amount": 1,
+					"override_description": "Now: If you are exceeded, take a bonus action."
+				}
+			]
+		}
+	},
+	{
+		"id": "pooky_pookycheats",
+		"type": "special",
+		"display_name": "Pooky Cheats!",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 3,
+		"power": 3,
+		"speed": 3,
+		"armor": 0,
+		"guard": 3,
+		"effects": [
+			{
+				"timing": "hit",
+				"effect_type": "choice",
+				"choice": [
+					{
+						"effect_type": "boost_then_sustain",
+						"valid_zones": [
+							"discard"
+						],
+						"limitation": "continuous",
+						"sustain": false
+					},
+					{
+						"effect_type": "pass"
+					}
+				]
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"facedown": false,
+			"display_name": "Wizard's Brew",
+			"effects": [
+				{
+					"timing": "now",
+					"condition": "min_gauge",
+					"condition_amount": 1,
+					"effect_type": "take_bonus_actions",
+					"amount": 1,
+					"override_description": "Now: If you have 1 or more cards in gauge, take a bonus action."
+				},
+				{
+					"timing": "after",
+					"effect_type": "add_to_gauge_immediately",
+					"override_description": "After: Add this card to your gauge."
+				}
+			]
+		}
+	},
+	{
+		"id": "pooky_longintooth",
+		"type": "special",
+		"display_name": "Long in the Tooth",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 2,
+		"power": 5,
+		"speed": 2,
+		"armor": 0,
+		"guard": 5,
+		"effects": [
+			{
+				"timing": "during_strike",
+				"effect_type": "rangeup_per_boost_in_play",
+				"amount": 0,
+				"amount2": 1
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"facedown": false,
+			"display_name": "Elven Wine",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "powerup",
+					"amount": 1
+				},
+				{
+					"timing": "now",
+					"condition": "max_cards_in_hand",
+					"condition_amount": 3,
+					"effect_type": "take_bonus_actions",
+					"amount": 1,
+					"override_description": "Now: If you have 3 or fewer cards in hand, take a bonus action."
+				}
+			]
+		}
+	},
+	{
+		"id": "pooky_pookydrinks",
+		"type": "special",
+		"display_name": "Pooky Drinks!",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 0,
+		"range_max": 0,
+		"power": 0,
+		"speed": 0,
+		"armor": 2,
+		"guard": 4,
+		"effects": [
+			{
+				"timing": "after",
+				"effect_type": "draw",
+				"amount": 3,
+				"and": {
+					"effect_type": "gain_life",
+					"amount": 2,
+					"and": {
+						"effect_type": "sustain_all_boosts"
+					}
+				}
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"facedown": false,
+			"display_name": "Troll Swill",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "armorup",
+					"amount": 1,
+					"and": {
+						"effect_type": "guardup",
+						"amount": 1
+					}
+				},
+				{
+					"timing": "now",
+					"condition": "has_any_transform",
+					"effect_type": "take_bonus_actions",
+					"amount": 1,
+					"override_description": "Now: If you have any transform, take a bonus action."
+				}
+			]
+		}
+	},
+	{
+		"id": "pooky_hattrick",
+		"type": "ultra",
+		"display_name": "Hat Trick",
+		"force_cost": 0,
+		"gauge_cost": 1,
+		"range_min": 1,
+		"range_max": 3,
+		"power": 5,
+		"speed": 1,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "during_strike",
+				"effect_type": "lower_speed_misses",
+				"dodge_at_speed_lower_or_equal": 4
+			}
+		],
+		"boost": {
+			"boost_type": "transform",
+			"force_cost": -1,
+			"cancel_cost": -1,
+			"display_name": "Zol's Secret Recipe",
+			"effects": [
+				{
+					"timing": "on_any_boost",
+					"effect_type": "pooky_zols_on_boost",
+					"override_description": "The first time you use an immediate boost each turn, you may pay 1 force. If you do, place it into play as a facedown continuous boost (no effects)."
+				}
+			]
+		}
+	},
+	{
+		"id": "pooky_drunkenrampage",
+		"type": "ultra",
+		"display_name": "Drunken Rampage",
+		"force_cost": 0,
+		"gauge_cost": 2,
+		"range_min": 1,
+		"range_max": 2,
+		"power": 1,
+		"speed": 5,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "before",
+				"effect_type": "advance",
+				"amount": 3
+			},
+			{
+				"timing": "hit",
+				"effect_type": "powerup_per_boost_in_play",
+				"amount": 2,
+				"override_description": "+2 Power for each of your continuous boosts."
+			}
+		],
+		"boost": {
+			"boost_type": "transform",
+			"force_cost": -1,
+			"cancel_cost": -1,
+			"display_name": "Drunken Fury",
+			"effects": [
+				{
+					"timing": "on_any_boost",
+					"effect_type": "pooky_drunken_fury_on_boost",
+					"override_description": "The first time you resolve an immediate boost each turn, you may pay 1 force. If you do, initiate a strike."
+				}
+			]
+		},
+		"NOTEEND": "POOKY CARDS END"
+	},
+
 	{
 		"NOTE": "RACHEL CARDS START",
 		"id": "rachel_clownishcalendula",
@@ -26161,6 +27461,326 @@
 		},
 		"NOTEEND": "REMILISS CARDS END"
 	},
+
+
+	{
+		"NOTE": "RENEA CARDS START",
+		"id": "renea_paranormal_investigation",
+		"type": "special",
+		"display_name": "Paranormal Investigation",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 1,
+		"power": 2,
+		"speed": 7,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "hit",
+				"effect_type": "choose_discard",
+				"source": "discard",
+				"destination": "hand",
+				"amount": 2,
+				"amount_min": 0,
+				"limitation": "normal",
+				"override_description": "Hit: return up to 2 normal attacks from your discard pile to your hand."
+			}
+		],
+		"boost": {
+			"boost_type": "transform",
+			"force_cost": -1,
+			"cancel_cost": -1,
+			"display_name": "Mimetism",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "add_attack_effect",
+					"character_effect": true,
+					"added_effect": {
+						"timing": "after",
+						"effect_type": "renea_mimetism_sustain",
+						"override_description": "After: you may spend 2 Force to sustain a continuous boost."
+					}
+				}
+			],
+			"description": "Your attacks gain \"After: you may spend 2 Force to choose one of your continuous boosts and sustain it.\""
+		}
+	},
+	{
+		"id": "renea_strafe_fire",
+		"type": "special",
+		"display_name": "Strafe Fire",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 2,
+		"range_max": 4,
+		"power": 2,
+		"speed": 6,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "after",
+				"effect_type": "retreat",
+				"amount": 1
+			}
+		],
+		"boost": {
+			"boost_type": "transform",
+			"force_cost": -1,
+			"cancel_cost": -1,
+			"display_name": "Double Clutch",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "add_attack_effect",
+					"character_effect": true,
+					"override_description": "Hit: if you have 2 or more continuous boosts, +2 Power.",
+					"added_effect": {
+						"timing": "hit",
+						"condition": "min_continuous_boosts",
+						"condition_amount": 2,
+						"effect_type": "powerup",
+						"amount": 2,
+						"override_description": "Hit: if you have 2 or more continuous boosts, +2 Power."
+					}
+				}
+			]
+		}
+	},
+	{
+		"id": "renea_flare",
+		"type": "special",
+		"display_name": "Flare",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 4,
+		"power": 3,
+		"speed": 5,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "hit",
+				"effect_type": "dodge_at_range",
+				"range_min": 1,
+				"range_max": 1,
+				"override_description": "For the rest of this strike, attacks at range 1 do not hit you."
+			},
+			{
+				"timing": "after",
+				"effect_type": "close",
+				"amount": 2
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Fakeout",
+			"effects": [
+				{
+					"timing": "now",
+					"effect_type": "draw",
+					"amount": 1,
+					"and": {
+					 "effect_type": "return_this_boost_to_hand_strike_effect"
+					}
+				}
+			]
+		}
+	},
+	{
+		"id": "renea_lethal_force",
+		"type": "special",
+		"display_name": "Lethal Force",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 2,
+		"power": 5,
+		"speed": 4,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "during_strike",
+				"effect_type": "ignore_armor"
+			},
+			{
+				"timing": "hit",
+				"effect_type": "push",
+				"amount": 2,
+				"and": {
+					"effect_type": "retreat",
+					"amount": 1,
+					"condition": "boost_in_play",
+					"override_description": "If you have a continuous boost in play, retreat 1."
+				}
+			}
+		],
+		"boost": {
+			"boost_type": "transform",
+			"force_cost": -1,
+			"cancel_cost": -1,
+			"display_name": "Polling Leads",
+			"effects": [
+				{
+					"timing": "on_any_boost",
+					"effect_type": "renea_polling_leads",
+					"override_description": "After resolving a boost, you may spend 1 Force. If you do, choose one: Advance 1 / Retreat 1."
+				}
+			]
+		}
+	},
+	{
+		"id": "renea_called_shot",
+		"type": "special",
+		"display_name": "Called Shot",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 8,
+		"power": 0,
+		"speed": 3,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "hit",
+				"effect_type": "name_card_opponent_discards",
+				"amount": 1,
+				"discard_effect": {
+					"effect_type": "powerup",
+					"amount": 6
+				},
+				"override_description": "Hit: name a card; the opponent discards a card with that name, or reveals their hand if they cannot. If they discard, +6 Power."
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Tactical Training",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "powerup",
+					"amount": 1,
+					"character_effect": true
+				},
+				{
+					"timing": "during_strike",
+					"effect_type": "speedup",
+					"amount": 1,
+					"character_effect": true
+				}
+			]
+		}
+	},
+	{
+		"id": "renea_neutralizer",
+		"type": "ultra",
+		"display_name": "Neutralizer",
+		"force_cost": 0,
+		"gauge_cost": 2,
+		"range_min": 1,
+		"range_max": 2,
+		"power": 4,
+		"speed": 6,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "during_strike",
+				"effect_type": "ignore_guard"
+			},
+			{
+				"timing": "hit",
+				"condition": "opponent_exceeded",
+				"effect_type": "choose_discard",
+				"opponent": true,
+				"source": "gauge",
+				"destination": "discard",
+				"amount": 2,
+				"limitation": "",
+				"override_description": "Hit: if the opponent is exceeded, they discard 2 cards from their gauge."
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Conspiracy Unearthed",
+			"effects": [
+				{
+					"timing": "now",
+					"effect_type": "renea_conspiracy_unearthed",
+					"override_description": "The opponent reveals their hand; choose a card to add to their gauge."
+				}
+			]
+		}
+	},
+	{
+		"id": "renea_anticipation",
+		"type": "ultra",
+		"display_name": "Anticipation",
+		"force_cost": 0,
+		"gauge_cost": 2,
+		"range_min": 1,
+		"range_max": 3,
+		"power": 3,
+		"speed": 3,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "during_strike",
+				"effect_type": "dodge_at_range",
+				"range_min": 1,
+				"range_max": 1
+			},
+			{
+				"timing": "before",
+				"effect_type": "advance",
+				"amount": 1
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Jujitsu",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "powerup",
+					"amount": 1,
+					"character_effect": true
+				},
+				{
+					"timing": "now",
+					"effect_type": "choice",
+					"choice": [
+						{
+							"effect_type": "advance",
+							"amount": 1
+						},
+						{
+							"effect_type": "retreat",
+							"amount": 1
+						}
+					],
+					"override_description": "Immediate: move 1."
+				}
+			]
+		},
+		"NOTEEND": "RENEA CARDS END"
+	},
+
 	{
 		"NOTE": "RYU CARDS START",
 		"id": "ryu_metsuhadoken",
@@ -31143,7 +32763,7 @@
 				}
 			]
 		},
-		"NOTEND": "SUPERSKULLMAN33 CARDS END"
+		"NOTEND": "SUPERSKULLMAN CARDS END"
 	},
 	{
 		"NOTE": "SPECTER CARDS START",
@@ -31925,6 +33545,367 @@
 		},
 		"NOTEEND": "SYDNEY AND SERENA CARDS END"
 	},
+
+	{
+		"NOTE": "SYRUS CARDS START",
+		"id": "syrus_tidal_whirl",
+		"type": "special",
+		"display_name": "Tidal Whirl",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 2,
+		"range_max": 3,
+		"power": 3,
+		"speed": 6,
+		"guard": 0,
+		"armor": 0,
+		"effects": [
+			{
+				"timing": "hit",
+				"effect_type": "choice",
+				"choice": [
+					{
+						"effect_type": "push",
+						"amount": 1
+					},
+					{
+						"effect_type": "pull",
+						"amount": 1
+					}
+				]
+			}
+		],
+		"boost": {
+			"boost_type": "immediate",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Ebb and Flow",
+			"effects": [
+				{
+					"timing": "immediate",
+					"effect_type": "choice",
+					"choice": [
+						{
+							"effect_type": "advance",
+							"amount": 1,
+							"and": {
+								"effect_type": "draw",
+								"amount": 1
+							}
+						},
+						{
+							"effect_type": "retreat",
+							"amount": 1,
+							"and": {
+								"effect_type": "draw",
+								"amount": 1
+							}
+						}
+					]
+				}
+			]
+		}
+	},
+	{
+		"id": "syrus_aria_of_the_winds",
+		"type": "special",
+		"display_name": "Aria of the Winds",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 2,
+		"range_max": 5,
+		"power": 3,
+		"speed": 5,
+		"guard": 0,
+		"armor": 0,
+		"effects": [
+			{
+				"timing": "after",
+				"effect_type": "choose_discard",
+				"source": "discard",
+				"destination": "hand",
+				"amount": 1,
+				"limitation": "",
+				"override_description": "Return a card from your discards to your hand."
+			}
+		],
+		"boost": {
+			"boost_type": "transform",
+			"force_cost": -1,
+			"cancel_cost": -1,
+			"display_name": "Reckless Greed",
+			"effects": [
+				{
+					"timing": "after_non_strike_action",
+					"effect_type": "syrus_reckless_greed",
+					"override_description": "Once per turn, after resolving an action that does not cause a strike, you may discard one of your boosts in play to strike."
+				}
+			]
+		}
+	},
+	{
+		"id": "syrus_siren_call",
+		"type": "special",
+		"display_name": "Siren Call",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 3,
+		"range_max": 6,
+		"power": 4,
+		"speed": 4,
+		"guard": 4,
+		"armor": 0,
+		"effects": [
+			{
+				"timing": "after",
+				"condition": "opponent_stunned",
+				"effect_type": "pull_to_range",
+				"amount": 2,
+				"override_description": "If the opponent is stunned, pull them to range 2."
+			}
+		],
+		"boost": {
+			"boost_type": "transform",
+			"force_cost": -1,
+			"cancel_cost": -1,
+			"display_name": "Opulence",
+			"effects": [
+				{
+					"timing": "set_strike",
+					"character_effect": true,
+					"effect_type": "add_attack_effect",
+					"override_description": "Your attack gains \"Hit: If you have a continuous boost in play, +1 Power\".",
+					"added_effect": {
+						"timing": "hit",
+						"condition": "has_continuous_boost",
+						"effect_type": "powerup",
+						"amount": 1
+					}
+				}
+			]
+		}
+	},
+	{
+		"id": "syrus_treasure_hunter",
+		"type": "special",
+		"display_name": "Treasure Hunter",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 2,
+		"power": 5,
+		"speed": 4,
+		"guard": 0,
+		"armor": 0,
+		"effects": [
+			{
+				"timing": "hit",
+				"effect_type": "push",
+				"amount": 3,
+				"and": {
+					"effect_type": "choose_discard",
+					"opponent": true,
+					"source": "gauge",
+					"destination": "discard",
+					"amount": 1,
+					"limitation": ""
+				}
+			}
+		],
+		"boost": {
+			"boost_type": "immediate",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Treasure Hoarder",
+			"effects": [
+				{
+					"timing": "immediate",
+					"effect_type": "gauge_from_hand",
+					"min_amount": 1,
+					"max_amount": 1
+				}
+			]
+		}
+	},
+	{
+		"id": "syrus_albatross_talon",
+		"type": "special",
+		"display_name": "Albatross Talon",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 2,
+		"range_max": 5,
+		"power": 5,
+		"speed": 3,
+		"guard": 3,
+		"armor": 0,
+		"effects": [
+			{
+				"timing": "during_strike",
+				"effect_type": "ignore_guard"
+			},
+			{
+				"timing": "hit",
+				"effect_type": "retreat",
+				"amount": 2,
+				"and": {
+					"effect_type": "draw",
+					"amount": 1
+				}
+			}
+		],
+		"boost": {
+			"boost_type": "transform",
+			"force_cost": -1,
+			"cancel_cost": -1,
+			"display_name": "Memories from the Deep",
+			"effects": [
+				{
+					"timing": "now",
+					"effect_type": "enable_boost_from_gauge"
+				},
+				{
+					"timing": "on_any_boost",
+					"condition": "boosted_from_gauge",
+					"effect_type": "seal_this",
+					"override_description": "You may play immediate boosts from your gauge. When you do, seal it after it resolves."
+				}
+			]
+		}
+	},
+	{
+		"id": "syrus_symphony_of_the_deep",
+		"type": "ultra",
+		"display_name": "Symphony of the Deep",
+		"force_cost": 0,
+		"gauge_cost": 2,
+		"range_min": 1,
+		"range_max": 2,
+		"power": 2,
+		"speed": 7,
+		"guard": 0,
+		"armor": 0,
+		"effects": [
+			{
+				"timing": "hit",
+				"effect_type": "syrus_return_to_hand_until_7",
+				"override_description": "Randomly return cards from your discards to your hand until you have 7 cards. Shuffle your discards."
+			}
+		],
+		"boost": {
+			"boost_type": "immediate",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Silver Shadow",
+			"effects": [
+				{
+					"timing": "immediate",
+					"effect_type": "move_to_range",
+					"amount": 3,
+					"override_description": "Move to any space at range 3 from the opponent."
+				}
+			]
+		}
+	},
+	{
+		"id": "syrus_dredge_fury",
+		"type": "ultra",
+		"display_name": "Dredge Fury",
+		"force_cost": 0,
+		"gauge_cost": 1,
+		"range_min": 3,
+		"range_max": 6,
+		"power": 2,
+		"speed": 4,
+		"guard": 0,
+		"armor": 0,
+		"effects": [
+			{
+				"timing": "before",
+				"effect_type": "gauge_for_effect",
+				"gauge_max": 3,
+				"min_gauge": 0,
+				"allow_partial_gauge_selection": true,
+				"per_gauge_effect": {
+					"effect_type": "powerup",
+					"amount": 2,
+					"combine_multiple_into_one": true
+				},
+				"overall_effect": {
+					"effect_type": "syrus_dredge_fury_keep_choice"
+				}
+			}
+		],
+		"boost": {
+			"boost_type": "immediate",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Riptide",
+			"effects": [
+				{
+					"timing": "now",
+					"effect_type": "choice",
+					"choice": [
+						{
+							"_choice_text": "Draw 0",
+							"effect_type": "draw",
+							"amount": 0
+						},
+						{
+							"_choice_text": "Draw 1",
+							"effect_type": "draw",
+							"amount": 1
+						},
+						{
+							"_choice_text": "Draw 2",
+							"effect_type": "draw",
+							"amount": 2
+						},
+						{
+							"_choice_text": "Draw 3",
+							"effect_type": "draw",
+							"amount": 3
+						}
+					]
+				},
+				{
+					"timing": "now",
+					"effect_type": "choice",
+					"opponent": true,
+					"choice": [
+						{
+							"_choice_text": "Draw 0",
+							"effect_type": "draw",
+							"amount": 0
+						},
+						{
+							"_choice_text": "Draw 1",
+							"effect_type": "draw",
+							"amount": 1
+						},
+						{
+							"_choice_text": "Draw 2",
+							"effect_type": "draw",
+							"amount": 2
+						},
+						{
+							"_choice_text": "Draw 3",
+							"effect_type": "draw",
+							"amount": 3
+						}
+					]
+				},
+				{
+					"timing": "now",
+					"effect_type": "bonus_action",
+					"amount": 1,
+					"silent": false
+				}
+			]
+		},
+		"NOTEEND": "SYRUS CARDS END"
+	},
+
 	{
 		"NOTE": "TAGER CARDS START",
 		"id": "tager_kingoftager",
@@ -34618,6 +36599,560 @@
 		},
 		"NOTEEND": "TREASURE CARDS END"
 	},
+
+
+
+	{
+		"NOTE": "ULRIK CARDS START",
+		"id": "ulrik_100millionvolts",
+		"type": "special",
+		"display_name": "100 Million Volts",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 1,
+		"power": 1,
+		"speed": 6,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "during_strike",
+				"effect_type": "ignore_guard"
+			},
+			{
+				"timing": "hit",
+				"effect_type": "force_for_effect",
+				"force_max": 5,
+				"per_force_effect": {
+					"effect_type": "powerup",
+					"amount": 1
+				},
+				"overall_effect": null
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Load Power",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "powerup_per_gauge",
+					"amount": 1,
+					"override_description": "+1 Power for each card in your gauge."
+				}
+			]
+		}
+	},
+	{
+		"id": "ulrik_atomicelectric",
+		"type": "ultra",
+		"display_name": "Atomic Electric",
+		"force_cost": 0,
+		"gauge_cost": 3,
+		"range_min": 1,
+		"range_max": 1,
+		"power": 8,
+		"speed": 5,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "before",
+				"effect_type": "advance",
+				"amount": 9,
+				"stop_after_passing_opponent": true
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 1,
+			"cancel_cost": -1,
+			"display_name": "Static Charge",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "armorup_bonus_move_armor_counters",
+					"hide_effect": true
+				},
+				{
+					"timing": "never",
+					"effect_type": "increment_bonus_move_armor_counters",
+					"amount": 1,
+					"hide_effect": true
+				}
+			]
+		}
+	},
+	{
+		"id": "ulrik_ion",
+		"type": "special",
+		"display_name": "Ion",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 2,
+		"range_max": 4,
+		"power": 5,
+		"speed": 4,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "hit",
+				"effect_type": "retreat",
+				"amount": 9
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 2,
+			"cancel_cost": -1,
+			"display_name": "Speed Force",
+			"effects": [
+				{
+					"timing": "immediate",
+					"effect_type": "move_to_any_space"
+				},
+				{
+					"timing": "during_strike",
+					"effect_type": "speedup",
+					"amount": 2
+				}
+			]
+		}
+	},
+	{
+		"id": "ulrik_lightningjavelin",
+		"type": "special",
+		"display_name": "Lightning Javelin",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 4,
+		"range_max": 6,
+		"power": 3,
+		"speed": 6,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "during_strike",
+				"effect_type": "ignore_armor"
+			},
+			{
+				"timing": "hit",
+				"effect_type": "advance",
+				"amount": 9
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Overcharge",
+			"effects": [
+				{
+					"timing": "hit",
+					"effect_type": "gauge_for_effect",
+					"gauge_max": 3,
+					"can_pass": true,
+					"override_description": "Hit: Pay up to 3 gauge; for each gauge spent, +2 Power.",
+					"overall_effect": null,
+					"per_gauge_effect": {
+						"effect_type": "powerup",
+						"amount": 2
+					}
+				}
+			]
+		}
+	},
+	{
+		"id": "ulrik_noescape",
+		"type": "special",
+		"display_name": "No Escape",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 1,
+		"power": 3,
+		"speed": 1,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "during_strike",
+				"effect_type": "stun_immunity"
+			},
+			{
+				"timing": "during_strike",
+				"effect_type": "ignore_armor"
+			},
+			{
+				"timing": "before",
+				"effect_type": "close",
+				"amount": 8
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 2,
+			"cancel_cost": -1,
+			"display_name": "Arc Pulse",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "dodge_at_range",
+					"range_min": 1,
+					"range_max": 1
+				}
+			]
+		}
+	},
+	{
+		"id": "ulrik_secondstrike",
+		"type": "ultra",
+		"display_name": "Second Strike",
+		"force_cost": 0,
+		"gauge_cost": 2,
+		"range_min": 3,
+		"range_max": 3,
+		"power": 4,
+		"speed": 8,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "during_strike",
+				"effect_type": "ignore_armor"
+			},
+			{
+				"timing": "hit",
+				"effect_type": "gain_advantage"
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 1,
+			"cancel_cost": -1,
+			"display_name": "Thunderclap",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "powerup_bonus_move_power_counters",
+					"hide_effect": true
+				},
+				{
+					"timing": "never",
+					"effect_type": "increment_bonus_move_power_counters",
+					"amount": 1,
+					"hide_effect": true
+				}
+			]
+		}
+	},
+	{
+		"id": "ulrik_thunderhammer",
+		"type": "special",
+		"display_name": "Thunder Hammer",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 1,
+		"power": 3,
+		"speed": 5,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "before",
+				"effect_type": "close",
+				"amount": 2
+			},
+			{
+				"timing": "hit",
+				"effect_type": "choice",
+				"choice": [
+					{
+						"effect_type": "advance",
+						"amount": 2
+					},
+					{
+						"effect_type": "retreat",
+						"amount": 2
+					},
+					{
+						"effect_type": "pass"
+					}
+				]
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Swift Force",
+			"effects": [
+				{
+					"timing": "during_strike",
+					"effect_type": "powerup",
+					"amount": 3
+				}
+			]
+		},
+		"NOTEEND": "ULRIK CARDS END"
+	},
+
+	{
+		"NOTE": "UMINA CARDS START",
+		"id": "umina_terror_whispers",
+		"type": "special",
+		"display_name": "Terror Whispers",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 1,
+		"power": 2,
+		"speed": 7,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "hit",
+				"effect_type": "umina_place_discard_to_dreamlands",
+				"override_description": "Put a card from your discard pile into your Dreamlands."
+			}
+		],
+		"boost": {
+			"boost_type": "transform",
+			"force_cost": -1,
+			"cancel_cost": -1,
+			"display_name": "The Silver Key",
+			"effects": [
+				{
+					"timing": "action",
+					"text": "Spend 2 gauge to initiate a strike (opponent wild swings)",
+					"effect_type": "umina_terror_whispers_action",
+					"gauge_cost": 2,
+					"override_description": "Action: Spend 2 gauge to initiate a strike. Your opponent must wild swing."
+				}
+			]
+		}
+	},
+	{
+		"id": "umina_out_of_mind",
+		"type": "special",
+		"display_name": "Out of Mind",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 2,
+		"power": 1,
+		"speed": 5,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "hit",
+				"effect_type": "umina_out_of_mind_hit",
+				"override_description": "If a card is in your Dreamlands, add it to your gauge and gain its power (up to +5). Otherwise, add your hand to your gauge and draw 3."
+			}
+		],
+		"boost": {
+			"boost_type": "transform",
+			"force_cost": -1,
+			"cancel_cost": -1,
+			"display_name": "Slipping Away",
+			"effects": [
+				{
+					"timing": "now",
+					"effect_type": "umina_slipping_away",
+					"override_description": "When you place a card into your Dreamlands, you may spend 1 force to move 1 space."
+				}
+			]
+		}
+	},
+	{
+		"id": "umina_hollow_space",
+		"type": "special",
+		"display_name": "Hollow Space",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 3,
+		"range_max": 6,
+		"power": 4,
+		"speed": 4,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "during_strike",
+				"effect_type": "dodge_at_range",
+				"range_min": 1,
+				"range_max": 1
+			},
+			{
+				"timing": "after",
+				"effect_type": "choice",
+				"choice": [
+					{ "effect_type": "advance", "amount": 3 },
+					{ "effect_type": "retreat", "amount": 3 }
+				]
+			}
+		],
+		"boost": {
+			"boost_type": "immediate",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Dark Reflections",
+			"effects": [
+				{
+					"timing": "immediate",
+					"effect_type": "umina_dark_reflections",
+					"override_description": "Name a card. Your opponent discards a card with the same name, or reveals their hand. Put the discarded card into your Dreamlands."
+				}
+			]
+		}
+	},
+	{
+		"id": "umina_dark_thoughts",
+		"type": "special",
+		"display_name": "Dark Thoughts",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 2,
+		"range_max": 5,
+		"power": 6,
+		"speed": 2,
+		"armor": 0,
+		"guard": 6,
+		"effects": [
+			{
+				"timing": "hit",
+				"effect_type": "umina_dark_thoughts_hit",
+				"override_description": "Your opponent discards a card at random; you may put it into your Dreamlands."
+			}
+		],
+		"boost": {
+			"boost_type": "transform",
+			"force_cost": -1,
+			"cancel_cost": -1,
+			"display_name": "Spiraling Descent",
+			"effects": [
+				{
+					"timing": "now",
+					"effect_type": "umina_spiraling_descent",
+					"override_description": "While a card is in your Dreamlands, your opponent cannot boost or strike with a card of the same name."
+				}
+			]
+		}
+	},
+	{
+		"id": "umina_shadow_chorus",
+		"type": "special",
+		"display_name": "Shadow Chorus",
+		"force_cost": 0,
+		"gauge_cost": 0,
+		"range_min": 1,
+		"range_max": 1,
+		"power": 1,
+		"speed": 1,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "on_strike_reveal",
+				"effect_type": "umina_shadow_chorus_copy",
+				"override_description": "Copy a card from your Dreamlands. Pay all its costs."
+			}
+		],
+		"boost": {
+			"boost_type": "immediate",
+			"force_cost": 0,
+			"cancel_cost": -1,
+			"display_name": "Whispers in the Dark",
+			"effects": [
+				{
+					"timing": "immediate",
+					"effect_type": "umina_whispers_in_the_dark",
+					"override_description": "Draw 1 card, then perform the immediate boost effect of a card in your Dreamlands, ignoring its force cost."
+				}
+			]
+		}
+	},
+	{
+		"id": "umina_unknown_khadath",
+		"type": "ultra",
+		"display_name": "Unknown Khadath",
+		"force_cost": 0,
+		"gauge_cost": 3,
+		"range_min": 0,
+		"range_max": 0,
+		"power": 0,
+		"speed": 6,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "before",
+				"effect_type": "umina_unknown_khadath",
+				"override_description": "Swallow your opponent's attack card into your Dreamlands, then this card gains its force as gauge."
+			}
+		],
+		"boost": {
+			"boost_type": "continuous",
+			"force_cost": 1,
+			"cancel_cost": -1,
+			"display_name": "Dream Telling",
+			"effects": [
+				{
+					"timing": "set_strike",
+					"effect_type": "umina_dream_telling_power",
+					"override_description": "Before: Gain power equal to a card in your Dreamlands (up to +5)."
+				},
+				{
+					"timing": "after",
+					"effect_type": "add_to_gauge_immediately",
+					"override_description": "After: Add this card to your gauge."
+				}
+			]
+		}
+	},
+	{
+		"id": "umina_call_of_the_dreamlands",
+		"type": "ultra",
+		"display_name": "Call of the Dreamlands",
+		"force_cost": 0,
+		"gauge_cost": 2,
+		"range_min": 2,
+		"range_max": 5,
+		"power": 2,
+		"speed": 5,
+		"armor": 0,
+		"guard": 0,
+		"effects": [
+			{
+				"timing": "hit",
+				"effect_type": "umina_call_of_dreamlands_hit",
+				"override_description": "Reveal both players' hands. +1 power for each special and ultra revealed this way."
+			}
+		],
+		"boost": {
+			"boost_type": "transform",
+			"force_cost": -1,
+			"cancel_cost": -1,
+			"display_name": "The Sleeper Wakes",
+			"effects": [
+				{
+					"timing": "now",
+					"effect_type": "umina_sleeper_wakes",
+					"override_description": "Cards enter your Dreamlands face-down. Reveal them when they are referenced."
+				}
+			]
+		},
+		"NOTEEND": "UMINA CARDS END"
+	},
+
 	{
 		"NOTE": "VATISTA CARDS START",
 		"id": "vatista_zahhishio",
@@ -39111,2501 +41646,5 @@
 			"display_name": "Nothing",
 			"effects": []
 		}
-	},
-	{
-		"id": "ulrik_100millionvolts",
-		"type": "special",
-		"display_name": "100 Million Volts",
-		"force_cost": 0,
-		"gauge_cost": 0,
-		"range_min": 1,
-		"range_max": 1,
-		"power": 1,
-		"speed": 6,
-		"armor": 0,
-		"guard": 0,
-		"effects": [
-			{
-				"timing": "during_strike",
-				"effect_type": "ignore_guard"
-			},
-			{
-				"timing": "hit",
-				"effect_type": "force_for_effect",
-				"force_max": 5,
-				"per_force_effect": {
-					"effect_type": "powerup",
-					"amount": 1
-				},
-				"overall_effect": null
-			}
-		],
-		"boost": {
-			"boost_type": "continuous",
-			"force_cost": 0,
-			"cancel_cost": -1,
-			"display_name": "Load Power",
-			"effects": [
-				{
-					"timing": "during_strike",
-					"effect_type": "powerup_per_gauge",
-					"amount": 1,
-					"override_description": "+1 Power for each card in your gauge."
-				}
-			]
-		}
-	},
-	{
-		"id": "ulrik_atomicelectric",
-		"type": "ultra",
-		"display_name": "Atomic Electric",
-		"force_cost": 0,
-		"gauge_cost": 3,
-		"range_min": 1,
-		"range_max": 1,
-		"power": 8,
-		"speed": 5,
-		"armor": 0,
-		"guard": 0,
-		"effects": [
-			{
-				"timing": "before",
-				"effect_type": "advance",
-				"amount": 9,
-				"stop_after_passing_opponent": true
-			}
-		],
-		"boost": {
-			"boost_type": "continuous",
-			"force_cost": 1,
-			"cancel_cost": -1,
-			"display_name": "Static Charge",
-			"effects": [
-				{
-					"timing": "during_strike",
-					"effect_type": "armorup_bonus_move_armor_counters",
-					"hide_effect": true
-				},
-				{
-					"timing": "never",
-					"effect_type": "increment_bonus_move_armor_counters",
-					"amount": 1,
-					"hide_effect": true
-				}
-			]
-		}
-	},
-	{
-		"id": "ulrik_ion",
-		"type": "special",
-		"display_name": "Ion",
-		"force_cost": 0,
-		"gauge_cost": 0,
-		"range_min": 2,
-		"range_max": 4,
-		"power": 5,
-		"speed": 4,
-		"armor": 0,
-		"guard": 0,
-		"effects": [
-			{
-				"timing": "hit",
-				"effect_type": "retreat",
-				"amount": 9
-			}
-		],
-		"boost": {
-			"boost_type": "continuous",
-			"force_cost": 2,
-			"cancel_cost": -1,
-			"display_name": "Speed Force",
-			"effects": [
-				{
-					"timing": "immediate",
-					"effect_type": "move_to_any_space"
-				},
-				{
-					"timing": "during_strike",
-					"effect_type": "speedup",
-					"amount": 2
-				}
-			]
-		}
-	},
-	{
-		"id": "ulrik_lightningjavelin",
-		"type": "special",
-		"display_name": "Lightning Javelin",
-		"force_cost": 0,
-		"gauge_cost": 0,
-		"range_min": 4,
-		"range_max": 6,
-		"power": 3,
-		"speed": 6,
-		"armor": 0,
-		"guard": 0,
-		"effects": [
-			{
-				"timing": "during_strike",
-				"effect_type": "ignore_armor"
-			},
-			{
-				"timing": "hit",
-				"effect_type": "advance",
-				"amount": 9
-			}
-		],
-		"boost": {
-			"boost_type": "continuous",
-			"force_cost": 0,
-			"cancel_cost": -1,
-			"display_name": "Overcharge",
-			"effects": [
-				{
-					"timing": "hit",
-					"effect_type": "gauge_for_effect",
-					"gauge_max": 3,
-					"can_pass": true,
-					"override_description": "Hit: Pay up to 3 gauge; for each gauge spent, +2 Power.",
-					"overall_effect": null,
-					"per_gauge_effect": {
-						"effect_type": "powerup",
-						"amount": 2
-					}
-				}
-			]
-		}
-	},
-	{
-		"id": "ulrik_noescape",
-		"type": "special",
-		"display_name": "No Escape",
-		"force_cost": 0,
-		"gauge_cost": 0,
-		"range_min": 1,
-		"range_max": 1,
-		"power": 3,
-		"speed": 1,
-		"armor": 0,
-		"guard": 0,
-		"effects": [
-			{
-				"timing": "during_strike",
-				"effect_type": "stun_immunity"
-			},
-			{
-				"timing": "during_strike",
-				"effect_type": "ignore_armor"
-			},
-			{
-				"timing": "before",
-				"effect_type": "close",
-				"amount": 8
-			}
-		],
-		"boost": {
-			"boost_type": "continuous",
-			"force_cost": 2,
-			"cancel_cost": -1,
-			"display_name": "Arc Pulse",
-			"effects": [
-				{
-					"timing": "during_strike",
-					"effect_type": "dodge_at_range",
-					"range_min": 1,
-					"range_max": 1
-				}
-			]
-		}
-	},
-	{
-		"id": "ulrik_secondstrike",
-		"type": "ultra",
-		"display_name": "Second Strike",
-		"force_cost": 0,
-		"gauge_cost": 2,
-		"range_min": 3,
-		"range_max": 3,
-		"power": 4,
-		"speed": 8,
-		"armor": 0,
-		"guard": 0,
-		"effects": [
-			{
-				"timing": "during_strike",
-				"effect_type": "ignore_armor"
-			},
-			{
-				"timing": "hit",
-				"effect_type": "gain_advantage"
-			}
-		],
-		"boost": {
-			"boost_type": "continuous",
-			"force_cost": 1,
-			"cancel_cost": -1,
-			"display_name": "Thunderclap",
-			"effects": [
-				{
-					"timing": "during_strike",
-					"effect_type": "powerup_bonus_move_power_counters",
-					"hide_effect": true
-				},
-				{
-					"timing": "never",
-					"effect_type": "increment_bonus_move_power_counters",
-					"amount": 1,
-					"hide_effect": true
-				}
-			]
-		}
-	},
-	{
-		"id": "ulrik_thunderhammer",
-		"type": "special",
-		"display_name": "Thunder Hammer",
-		"force_cost": 0,
-		"gauge_cost": 0,
-		"range_min": 1,
-		"range_max": 1,
-		"power": 3,
-		"speed": 5,
-		"armor": 0,
-		"guard": 0,
-		"effects": [
-			{
-				"timing": "before",
-				"effect_type": "close",
-				"amount": 2
-			},
-			{
-				"timing": "hit",
-				"effect_type": "choice",
-				"choice": [
-					{
-						"effect_type": "advance",
-						"amount": 2
-					},
-					{
-						"effect_type": "retreat",
-						"amount": 2
-					},
-					{
-						"effect_type": "pass"
-					}
-				]
-			}
-		],
-		"boost": {
-			"boost_type": "continuous",
-			"force_cost": 0,
-			"cancel_cost": -1,
-			"display_name": "Swift Force",
-			"effects": [
-				{
-					"timing": "during_strike",
-					"effect_type": "powerup",
-					"amount": 3
-				}
-			]
-		}
-	},
-	{
-		"id": "meilien_fujingu",
-		"type": "special",
-		"display_name": "Fortune Drum",
-		"force_cost": 0,
-		"gauge_cost": 0,
-		"range_min": 1,
-		"range_max": 4,
-		"power": 2,
-		"speed": 5,
-		"armor": 0,
-		"guard": 0,
-		"effects": [
-			{
-				"timing": "hit",
-				"effect_type": "push",
-				"amount": 2
-			}
-		],
-		"boost": {
-			"boost_type": "immediate",
-			"force_cost": 1,
-			"cancel_cost": -1,
-			"display_name": "Raging Storm",
-			"effects": [
-				{
-					"timing": "immediate",
-					"effect_type": "reveal_hand"
-				},
-				{
-					"timing": "immediate",
-					"effect_type": "swap_deck_and_discard"
-				}
-			]
-		}
-	},
-	{
-		"id": "meilien_jiji",
-		"type": "special",
-		"display_name": "Halberd Strike",
-		"force_cost": 0,
-		"gauge_cost": 0,
-		"range_min": 2,
-		"range_max": 3,
-		"power": 4,
-		"speed": 5,
-		"armor": 0,
-		"guard": 0,
-		"effects": [
-			{
-				"timing": "during_strike",
-				"effect_type": "block_opponent_advance_close",
-				"override_description": "For the entire strike, the opponent cannot advance or close (they may retreat)."
-			},
-			{
-				"timing": "cleanup",
-				"effect_type": "remove_block_opponent_advance_close"
-			},
-			{
-				"timing": "hit",
-				"effect_type": "push",
-				"amount": 1
-			}
-		],
-		"boost": {
-			"boost_type": "immediate",
-			"force_cost": 0,
-			"cancel_cost": -1,
-			"display_name": "New Horizons",
-			"effects": [
-				{
-					"timing": "immediate",
-					"effect_type": "draw",
-					"amount": 4
-				},
-				{
-					"timing": "immediate",
-					"effect_type": "self_discard_choose",
-					"amount": 2
-				}
-			]
-		}
-	},
-	{
-		"id": "meilien_leishendao",
-		"type": "special",
-		"display_name": "Thunder God Blade",
-		"force_cost": 0,
-		"gauge_cost": 0,
-		"range_min": 1,
-		"range_max": 1,
-		"power": 1,
-		"speed": 8,
-		"armor": 0,
-		"guard": 0,
-		"effects": [
-			{
-				"timing": "hit",
-				"effect_type": "push",
-				"amount": 3
-			}
-		],
-		"boost": {
-			"boost_type": "continuous",
-			"force_cost": 1,
-			"cancel_cost": -1,
-			"display_name": "Gale Spread",
-			"effects": [
-				{
-					"timing": "during_strike",
-					"effect_type": "rangeup",
-					"amount": 0,
-					"amount2": 1
-				},
-				{
-					"timing": "now",
-					"effect_type": "strike"
-				}
-			]
-		}
-	},
-	{
-		"id": "meilien_leishenshiyan",
-		"type": "ultra",
-		"display_name": "Thunder God's Oath",
-		"force_cost": 0,
-		"gauge_cost": 3,
-		"range_min": 4,
-		"range_max": 4,
-		"power": 10,
-		"speed": 6,
-		"armor": 0,
-		"guard": 0,
-		"effects": [
-			{
-				"timing": "during_strike",
-				"effect_type": "ignore_armor"
-			}
-		],
-		"boost": {
-			"boost_type": "immediate",
-			"force_cost": 1,
-			"cancel_cost": -1,
-			"display_name": "Meteor's Wish",
-			"effects": [
-				{
-					"timing": "immediate",
-					"effect_type": "choose_cards_from_top_deck",
-					"look_amount": 99,
-					"action_choices": [
-						"discard",
-						"add_to_gauge",
-						"topdeck"
-					],
-					"can_pass": false,
-					"destination_unchosen": "topdeck",
-					"override_description": "Choose 1 card from your deck to place in your discard, gauge, or on top of your deck."
-				}
-			]
-		}
-	},
-	{
-		"id": "meilien_shenlongfengbao",
-		"type": "ultra",
-		"display_name": "Divine Dragon Storm",
-		"force_cost": 0,
-		"gauge_cost": 2,
-		"range_min": 3,
-		"range_max": 3,
-		"power": 3,
-		"speed": 7,
-		"armor": 0,
-		"guard": 0,
-		"effects": [
-			{
-				"timing": "hit",
-				"effect_type": "push",
-				"amount": 99
-			},
-			{
-				"timing": "after",
-				"effect_type": "choice",
-				"choice": [
-					{
-						"effect_type": "advance",
-						"amount": 1
-					},
-					{
-						"effect_type": "advance",
-						"amount": 2
-					},
-					{
-						"effect_type": "advance",
-						"amount": 3
-					}
-				]
-			}
-		],
-		"boost": {
-			"boost_type": "immediate",
-			"force_cost": 1,
-			"cancel_cost": -1,
-			"display_name": "Tailwind",
-			"effects": [
-				{
-					"timing": "immediate",
-					"effect_type": "close",
-					"amount": 2
-				},
-				{
-					"timing": "immediate",
-					"effect_type": "strike"
-				}
-			]
-		}
-	},
-	{
-		"id": "meilien_shenlongpo",
-		"type": "special",
-		"display_name": "Divine Dragon Break",
-		"force_cost": 0,
-		"gauge_cost": 0,
-		"range_min": 1,
-		"range_max": 2,
-		"power": 5,
-		"speed": 4,
-		"armor": 0,
-		"guard": 0,
-		"effects": [
-			{
-				"timing": "during_strike",
-				"effect_type": "dodge_at_range",
-				"range_min": 3,
-				"range_max": 99,
-				"override_description": "The opponent's attacks from range 3 or more cannot hit."
-			},
-			{
-				"timing": "hit",
-				"effect_type": "choice",
-				"choice": [
-					{
-						"effect_type": "push",
-						"amount": 1
-					},
-					{
-						"effect_type": "pull",
-						"amount": 1
-					}
-				]
-			}
-		],
-		"boost": {
-			"boost_type": "continuous",
-			"force_cost": 0,
-			"cancel_cost": -1,
-			"display_name": "Double Thunder Strike",
-			"effects": [
-				{
-					"timing": "after",
-					"effect_type": "return_attack_to_hand",
-					"and": {
-						"effect_type": "add_boost_to_gauge_on_strike_cleanup",
-						"card_name": "Divine Dragon Break"
-					}
-				}
-			]
-		}
-	},
-	{
-		"id": "meilien_yunqishi",
-		"type": "special",
-		"display_name": "Cloud Rider",
-		"force_cost": 0,
-		"gauge_cost": 0,
-		"range_min": 1,
-		"range_max": 2,
-		"power": 3,
-		"speed": 6,
-		"armor": 0,
-		"guard": 0,
-		"effects": [
-			{
-				"timing": "after",
-				"effect_type": "advance",
-				"amount": 4,
-				"and": {
-					"effect_type": "draw",
-					"amount": 1
-				}
-			}
-		],
-		"boost": {
-			"boost_type": "immediate",
-			"force_cost": 0,
-			"cancel_cost": -1,
-			"display_name": "Shifting Winds",
-			"effects": [
-				{
-					"timing": "immediate",
-					"override_description": "Draw 1 card for each card in your hand, then discard that many cards.",
-					"effect_type": "draw_for_card_in_hand",
-					"and": {
-						"effect_type": "self_discard_choose",
-						"amount": "draw_amount"
-					}
-				}
-			]
-		}
-	},
-	{
-		"id": "luciya_bug_zapper",
-		"type": "special",
-		"display_name": "Bug Zapper",
-		"force_cost": 0,
-		"gauge_cost": 0,
-		"range_min": 1,
-		"range_max": 1,
-		"power": 2,
-		"speed": 4,
-		"guard": 0,
-		"armor": 0,
-		"effects": [
-			{
-				"timing": "before",
-				"effect_type": "force_for_effect",
-				"per_force_effect": {
-					"effect_type": "advance",
-					"amount": 2
-				},
-				"overall_effect": null,
-				"force_max": 4
-			}
-		],
-		"boost": {
-			"boost_type": "transform",
-			"force_cost": -1,
-			"cancel_cost": -1,
-			"display_name": "Thunderclap",
-			"effects": [
-				{
-					"timing": "set_strike",
-					"character_effect": true,
-					"effect_type": "add_attack_effect",
-					"override_description": "Your normals gain 'After: If the opponent was stunned, move 2 spaces.'",
-					"added_effect": {
-						"timing": "after",
-						"condition": "is_normal_attack",
-						"effect_type": "pass",
-						"and": {
-							"timing": "after",
-							"condition": "opponent_stunned",
-							"effect_type": "choice",
-							"choice": [
-								{
-									"effect_type": "advance",
-									"amount": 2
-								},
-								{
-									"effect_type": "retreat",
-									"amount": 2
-								}
-							]
-						}
-					}
-				}
-			]
-		}
-	},
-	{
-		"id": "luciya_downburst",
-		"type": "special",
-		"display_name": "Downburst",
-		"force_cost": 0,
-		"gauge_cost": 0,
-		"range_min": 1,
-		"range_max": 1,
-		"power": 2,
-		"speed": 6,
-		"guard": 0,
-		"armor": 0,
-		"effects": [
-			{
-				"timing": "before",
-				"effect_type": "pull",
-				"amount": 2
-			},
-			{
-				"timing": "after",
-				"effect_type": "advance",
-				"amount": 2
-			}
-		],
-		"boost": {
-			"boost_type": "immediate",
-			"force_cost": 2,
-			"cancel_cost": -1,
-			"display_name": "Chain Climb",
-			"effects": [
-				{
-					"timing": "immediate",
-					"effect_type": "choice",
-					"choice": [
-						{
-							"effect_type": "advance",
-							"amount": 99,
-							"use_semicolon_for_and": true,
-							"and": {
-								"condition": "advanced_through",
-								"effect_type": "add_to_gauge_boost_play_cleanup"
-							}
-						},
-						{
-							"effect_type": "retreat",
-							"amount": 99,
-							"use_semicolon_for_and": true,
-							"and": {
-								"condition": "advanced_through",
-								"effect_type": "add_to_gauge_boost_play_cleanup"
-							}
-						}
-					]
-				}
-			]
-		}
-	},
-	{
-		"id": "luciya_firefly_gunner",
-		"type": "special",
-		"display_name": "Firefly Gunner",
-		"force_cost": 0,
-		"gauge_cost": 0,
-		"range_min": 3,
-		"range_max": 4,
-		"power": 6,
-		"speed": 1,
-		"guard": 0,
-		"armor": 0,
-		"effects": [
-			{
-				"timing": "during_strike",
-				"effect_type": "dodge_at_range",
-				"range_min": 3,
-				"range_max": 4
-			}
-		],
-		"boost": {
-			"boost_type": "continuous",
-			"force_cost": 0,
-			"cancel_cost": -1,
-			"display_name": "The Whirlwind",
-			"effects": [
-				{
-					"timing": "during_strike",
-					"effect_type": "speedup",
-					"amount": 3
-				},
-				{
-					"timing": "now",
-					"effect_type": "set_end_of_turn_boost_delay"
-				},
-				{
-					"timing": "end_of_turn",
-					"effect_type": "add_to_gauge_immediately"
-				}
-			]
-		}
-	},
-	{
-		"id": "luciya_mantis_strike",
-		"type": "special",
-		"display_name": "Mantis Strike",
-		"force_cost": 0,
-		"gauge_cost": 0,
-		"range_min": 3,
-		"range_max": 5,
-		"power": 4,
-		"speed": 4,
-		"guard": 0,
-		"armor": 0,
-		"effects": [
-			{
-				"timing": "hit",
-				"effect_type": "pull",
-				"amount": 2,
-				"and": {
-					"effect_type": "advance",
-					"amount": 4
-				}
-			}
-		],
-		"boost": {
-			"boost_type": "transform",
-			"force_cost": -1,
-			"cancel_cost": -1,
-			"display_name": "Storm's Fury",
-			"effects": [
-				{
-					"timing": "set_strike",
-					"character_effect": true,
-					"condition": "initiated_strike",
-					"effect_type": "force_for_effect",
-					"per_force_effect": null,
-					"force_max": 2,
-					"force_min": 2,
-					"override_description": "When you initiate a strike, you may spend 2 force. If you do, move 1 space.",
-					"overall_effect": {
-						"effect_type": "choice",
-						"choice": [
-							{
-								"effect_type": "advance",
-								"amount": 1
-							},
-							{
-								"effect_type": "retreat",
-								"amount": 1
-							}
-						]
-					}
-				}
-			]
-		}
-	},
-	{
-		"id": "luciya_ride_the_lightning",
-		"type": "ultra",
-		"display_name": "Ride The Lightning",
-		"force_cost": 0,
-		"gauge_cost": 2,
-		"range_min": 1,
-		"range_max": 1,
-		"power": 1,
-		"speed": 8,
-		"guard": 0,
-		"armor": 0,
-		"effects": [
-			{
-				"timing": "before",
-				"effect_type": "close",
-				"amount": 4
-			},
-			{
-				"timing": "after",
-				"effect_type": "advance",
-				"amount": 4
-			}
-		],
-		"boost": {
-			"boost_type": "continuous",
-			"force_cost": 0,
-			"cancel_cost": -1,
-			"display_name": "Chain Trap",
-			"effects": [
-				{
-					"timing": "now",
-					"effect_type": "block_opponent_move"
-				},
-				{
-					"timing": "during_strike",
-					"effect_type": "block_opponent_move"
-				},
-				{
-					"timing": "discarded",
-					"effect_type": "remove_block_opponent_move"
-				},
-				{
-					"timing": "opponent_action",
-					"text": "Spend 2 force to remove Chain Trap",
-					"effect_type": "force_for_effect",
-					"per_force_effect": null,
-					"overall_effect": {
-						"effect_type": "remove_block_opponent_move",
-						"for_other_player": true,
-						"and": {
-							"effect_type": "add_to_gauge_immediately",
-							"add_card": "this"
-						}
-					},
-					"force_max": 2,
-					"force_min": 2
-				}
-			]
-		}
-	},
-	{
-		"id": "luciya_skies_aflame",
-		"type": "ultra",
-		"display_name": "Skies Aflame",
-		"force_cost": 0,
-		"gauge_cost": 3,
-		"range_min": 3,
-		"range_max": 5,
-		"power": 4,
-		"speed": 5,
-		"guard": 0,
-		"armor": 0,
-		"effects": [
-			{
-				"timing": "hit",
-				"effect_type": "gain_advantage"
-			},
-			{
-				"timing": "after",
-				"effect_type": "move_to_any_space"
-			}
-		],
-		"boost": {
-			"boost_type": "continuous",
-			"force_cost": 1,
-			"cancel_cost": -1,
-			"display_name": "Preemptive Attack",
-			"effects": [
-				{
-					"timing": "during_strike",
-					"effect_type": "speedup",
-					"amount": 2
-				},
-				{
-					"timing": "now",
-					"effect_type": "strike"
-				}
-			]
-		}
-	},
-	{
-		"id": "luciya_talon_sweep",
-		"type": "special",
-		"display_name": "Talon Sweep",
-		"force_cost": 0,
-		"gauge_cost": 0,
-		"range_min": 1,
-		"range_max": 1,
-		"power": 2,
-		"speed": 6,
-		"guard": 0,
-		"armor": 0,
-		"effects": [
-			{
-				"timing": "hit",
-				"effect_type": "advance",
-				"amount": 4,
-				"and": {
-					"effect_type": "force_for_effect",
-					"per_force_effect": null,
-					"force_max": 1,
-					"force_min": 0,
-					"overall_effect": {
-						"effect_type": "powerup",
-						"amount": 1
-					}
-				}
-			}
-		],
-		"boost": {
-			"boost_type": "transform",
-			"force_cost": -1,
-			"cancel_cost": -1,
-			"display_name": "Grandstanding",
-			"effects": [
-				{
-					"timing": "set_strike",
-					"character_effect": true,
-					"effect_type": "force_for_effect",
-					"per_force_effect": null,
-					"force_max": 1,
-					"force_min": 0,
-					"override_description": "After you set your attack, you may spend 1 force. If you do, both players' attacks get +1 Power.",
-					"overall_effect": {
-						"effect_type": "powerup",
-						"amount": 1,
-						"and": {
-							"effect_type": "powerup_opponent",
-							"amount": 1
-						}
-					}
-				}
-			]
-		}
-	},
-	{
-		"id": "minato_barnstorming",
-		"type": "special",
-		"display_name": "Barnstorming",
-		"force_cost": 0,
-		"gauge_cost": 0,
-		"range_min": 1,
-		"range_max": 2,
-		"power": 3,
-		"speed": 5,
-		"guard": 0,
-		"armor": 0,
-		"effects": [
-			{
-				"timing": "hit",
-				"effect_type": "reshuffle_discard_into_deck",
-				"and": {
-					"effect_type": "gain_advantage"
-				}
-			},
-			{
-				"timing": "after",
-				"effect_type": "advance",
-				"amount": 99,
-				"override_description": "After: Advance as far as possible."
-			}
-		],
-		"boost": {
-			"boost_type": "transform",
-			"force_cost": -1,
-			"cancel_cost": -1,
-			"display_name": "Weight of Regret",
-			"effects": [
-				{
-					"timing": "cleanup",
-					"condition": "not_hit_opponent",
-					"effect_type": "choice",
-					"choice": [
-						{
-							"effect_type": "return_attack_to_hand",
-							"not_immediate": true
-						},
-						{
-							"effect_type": "pass"
-						}
-					],
-					"override_description": "At the end of each strike, if your attack did not hit the opponent, you may return it to your hand instead of discarding it."
-				}
-			]
-		}
-	},
-	{
-		"id": "minato_bus_stop",
-		"type": "special",
-		"display_name": "Bus Stop",
-		"force_cost": 0,
-		"gauge_cost": 0,
-		"range_min": 1,
-		"range_max": 2,
-		"power": 4,
-		"speed": 3,
-		"guard": 5,
-		"armor": 0,
-		"effects": [
-			{
-				"timing": "hit",
-				"effect_type": "push",
-				"amount": 2,
-				"and": {
-					"effect_type": "force_for_effect",
-					"per_force_effect": {
-						"effect_type": "powerup",
-						"amount": 1
-					},
-					"overall_effect": null,
-					"force_max": 2
-				}
-			}
-		],
-		"boost": {
-			"boost_type": "transform",
-			"force_cost": -1,
-			"cancel_cost": -1,
-			"display_name": "Fractured Memories",
-			"effects": [
-				{
-					"timing": "on_strike_reveal",
-					"effect_type": "attack_copy_gauge_or_transform_becomes_ex",
-					"hide_effect": true
-				},
-				{
-					"timing": "during_strike",
-					"condition": "copy_of_attack_in_zones",
-					"condition_zones": [
-						"transform",
-						"sealed"
-					],
-					"effect_type": "attack_is_ex",
-					"override_description": "If a copy of this attack is in your transform or sealed area, this attack is EX."
-				}
-			]
-		}
-	},
-	{
-		"id": "minato_cabstand",
-		"type": "special",
-		"display_name": "Cabstand",
-		"force_cost": 0,
-		"gauge_cost": 0,
-		"range_min": 1,
-		"range_max": 1,
-		"power": 3,
-		"speed": 5,
-		"guard": 0,
-		"armor": 0,
-		"effects": [
-			{
-				"timing": "before",
-				"effect_type": "force_for_effect",
-				"force_max": 3,
-				"per_force_effect": {
-					"effect_type": "close",
-					"amount": 1
-				},
-				"overall_effect": null,
-				"force_min": 0
-			},
-			{
-				"timing": "after",
-				"effect_type": "advance",
-				"amount": 3
-			}
-		],
-		"boost": {
-			"boost_type": "continuous",
-			"force_cost": 0,
-			"cancel_cost": -1,
-			"display_name": "One More Ride",
-			"effects": [
-				{
-					"timing": "after_non_strike_action",
-					"effect_type": "minato_one_more_ride",
-					"override_description": "At the end of your turn, instead of drawing you may return a card from your sealed area to your hand."
-				}
-			]
-		}
-	},
-	{
-		"id": "minato_flight_13",
-		"type": "special",
-		"display_name": "Flight 13",
-		"force_cost": 0,
-		"gauge_cost": 0,
-		"range_min": 5,
-		"range_max": 7,
-		"power": 3,
-		"speed": 4,
-		"guard": 0,
-		"armor": 0,
-		"effects": [
-			{
-				"timing": "before",
-				"effect_type": "topdeck_for_effect",
-				"destination": "discard",
-				"amount_max": 3,
-				"choice_text": "Discard %d (retreat %d)",
-				"per_card_effect": {
-					"effect_type": "retreat",
-					"amount": 1
-				},
-				"description": "Before: You may discard up to 3 cards from the top of your deck. Retreat 1 space for each card discarded this way."
-			}
-		],
-		"boost": {
-			"boost_type": "transform",
-			"force_cost": -1,
-			"cancel_cost": -1,
-			"display_name": "Outrun the Past",
-			"override_description": "Before setting your attack: Seal up to 4 cards from your discard or gauge. Draw 1 card for every 2 cards sealed.",
-			"effects": []
-		}
-	},
-	{
-		"id": "minato_hellward_bound",
-		"type": "ultra",
-		"display_name": "Hellward Bound",
-		"force_cost": 0,
-		"gauge_cost": 6,
-		"gauge_cost_reduction": "free_if_no_deck_and_discard",
-		"range_min": 1,
-		"range_max": 3,
-		"power": 10,
-		"speed": 3,
-		"guard": 4,
-		"armor": 0,
-		"effects": [],
-		"boost": {
-			"boost_type": "immediate",
-			"force_cost": 0,
-			"cancel_cost": -1,
-			"display_name": "Hellraiser",
-			"effects": [
-				{
-					"timing": "immediate",
-					"effect_type": "minato_hellraiser",
-					"override_description": "Each player discards the top 4 cards of their deck. Return up to 2 cards from your sealed area to your hand."
-				}
-			]
-		}
-	},
-	{
-		"id": "minato_jump_the_shark",
-		"type": "special",
-		"display_name": "Jump the Shark",
-		"force_cost": 0,
-		"gauge_cost": 0,
-		"range_min": 3,
-		"range_max": 4,
-		"power": 2,
-		"speed": 6,
-		"guard": 0,
-		"armor": 0,
-		"effects": [
-			{
-				"timing": "hit",
-				"effect_type": "powerup_per_sealed_amount",
-				"divisor": 4,
-				"max": 5,
-				"override_description": "Hit: +1 Power for every 4 cards in your sealed area (up to +5)."
-			}
-		],
-		"boost": {
-			"boost_type": "immediate",
-			"force_cost": 1,
-			"cancel_cost": -1,
-			"display_name": "Jump the Train",
-			"effects": [
-				{
-					"timing": "immediate",
-					"effect_type": "choice",
-					"choice": [
-						{
-							"effect_type": "advance",
-							"amount": 4
-						},
-						{
-							"effect_type": "retreat",
-							"amount": 4
-						}
-					]
-				}
-			]
-		}
-	},
-	{
-		"id": "minato_streetcar_disaster",
-		"type": "ultra",
-		"display_name": "A Streetcar Named Disaster",
-		"force_cost": 0,
-		"gauge_cost": 3,
-		"range_min": 1,
-		"range_max": 3,
-		"power": 10,
-		"speed": 4,
-		"guard": 0,
-		"armor": 0,
-		"effects": [],
-		"boost": {
-			"boost_type": "continuous",
-			"force_cost": 0,
-			"cancel_cost": -1,
-			"display_name": "Daredevil",
-			"effects": [
-				{
-					"timing": "now",
-					"effect_type": "topdeck_for_effect",
-					"destination": "sealed",
-					"amount_max": 4,
-					"choice_text": "Seal %d (+%d Speed)",
-					"per_card_effect": {
-						"effect_type": "speedup_counter_on_boost",
-						"amount": 1
-					},
-					"override_description": "Immediately: Seal up to 4 cards from the top of your deck. +1 Speed for each card sealed this way."
-				}
-			]
-		}
-	},
-	{
-		"id": "syrus_tidal_whirl",
-		"type": "special",
-		"display_name": "Tidal Whirl",
-		"force_cost": 0,
-		"gauge_cost": 0,
-		"range_min": 2,
-		"range_max": 3,
-		"power": 3,
-		"speed": 6,
-		"guard": 0,
-		"armor": 0,
-		"effects": [
-			{
-				"timing": "hit",
-				"effect_type": "choice",
-				"choice": [
-					{
-						"effect_type": "push",
-						"amount": 1
-					},
-					{
-						"effect_type": "pull",
-						"amount": 1
-					}
-				]
-			}
-		],
-		"boost": {
-			"boost_type": "immediate",
-			"force_cost": 0,
-			"cancel_cost": -1,
-			"display_name": "Ebb and Flow",
-			"effects": [
-				{
-					"timing": "immediate",
-					"effect_type": "choice",
-					"choice": [
-						{
-							"effect_type": "advance",
-							"amount": 1,
-							"and": {
-								"effect_type": "draw",
-								"amount": 1
-							}
-						},
-						{
-							"effect_type": "retreat",
-							"amount": 1,
-							"and": {
-								"effect_type": "draw",
-								"amount": 1
-							}
-						}
-					]
-				}
-			]
-		}
-	},
-	{
-		"id": "syrus_aria_of_the_winds",
-		"type": "special",
-		"display_name": "Aria of the Winds",
-		"force_cost": 0,
-		"gauge_cost": 0,
-		"range_min": 2,
-		"range_max": 5,
-		"power": 3,
-		"speed": 5,
-		"guard": 0,
-		"armor": 0,
-		"effects": [
-			{
-				"timing": "after",
-				"effect_type": "choose_discard",
-				"source": "discard",
-				"destination": "hand",
-				"amount": 1,
-				"limitation": "",
-				"override_description": "Return a card from your discards to your hand."
-			}
-		],
-		"boost": {
-			"boost_type": "transform",
-			"force_cost": -1,
-			"cancel_cost": -1,
-			"display_name": "Reckless Greed",
-			"effects": [
-				{
-					"timing": "after_non_strike_action",
-					"effect_type": "syrus_reckless_greed",
-					"override_description": "Once per turn, after resolving an action that does not cause a strike, you may discard one of your boosts in play to strike."
-				}
-			]
-		}
-	},
-	{
-		"id": "syrus_siren_call",
-		"type": "special",
-		"display_name": "Siren Call",
-		"force_cost": 0,
-		"gauge_cost": 0,
-		"range_min": 3,
-		"range_max": 6,
-		"power": 4,
-		"speed": 4,
-		"guard": 4,
-		"armor": 0,
-		"effects": [
-			{
-				"timing": "after",
-				"condition": "opponent_stunned",
-				"effect_type": "pull_to_range",
-				"amount": 2,
-				"override_description": "If the opponent is stunned, pull them to range 2."
-			}
-		],
-		"boost": {
-			"boost_type": "transform",
-			"force_cost": -1,
-			"cancel_cost": -1,
-			"display_name": "Opulence",
-			"effects": [
-				{
-					"timing": "set_strike",
-					"character_effect": true,
-					"effect_type": "add_attack_effect",
-					"override_description": "Your attack gains \"Hit: If you have a continuous boost in play, +1 Power\".",
-					"added_effect": {
-						"timing": "hit",
-						"condition": "has_continuous_boost",
-						"effect_type": "powerup",
-						"amount": 1
-					}
-				}
-			]
-		}
-	},
-	{
-		"id": "syrus_treasure_hunter",
-		"type": "special",
-		"display_name": "Treasure Hunter",
-		"force_cost": 0,
-		"gauge_cost": 0,
-		"range_min": 1,
-		"range_max": 2,
-		"power": 5,
-		"speed": 4,
-		"guard": 0,
-		"armor": 0,
-		"effects": [
-			{
-				"timing": "hit",
-				"effect_type": "push",
-				"amount": 3,
-				"and": {
-					"effect_type": "choose_discard",
-					"opponent": true,
-					"source": "gauge",
-					"destination": "discard",
-					"amount": 1,
-					"limitation": ""
-				}
-			}
-		],
-		"boost": {
-			"boost_type": "immediate",
-			"force_cost": 0,
-			"cancel_cost": -1,
-			"display_name": "Treasure Hoarder",
-			"effects": [
-				{
-					"timing": "immediate",
-					"effect_type": "gauge_from_hand",
-					"min_amount": 1,
-					"max_amount": 1
-				}
-			]
-		}
-	},
-	{
-		"id": "syrus_albatross_talon",
-		"type": "special",
-		"display_name": "Albatross Talon",
-		"force_cost": 0,
-		"gauge_cost": 0,
-		"range_min": 2,
-		"range_max": 5,
-		"power": 5,
-		"speed": 3,
-		"guard": 3,
-		"armor": 0,
-		"effects": [
-			{
-				"timing": "during_strike",
-				"effect_type": "ignore_guard"
-			},
-			{
-				"timing": "hit",
-				"effect_type": "retreat",
-				"amount": 2,
-				"and": {
-					"effect_type": "draw",
-					"amount": 1
-				}
-			}
-		],
-		"boost": {
-			"boost_type": "transform",
-			"force_cost": -1,
-			"cancel_cost": -1,
-			"display_name": "Memories from the Deep",
-			"effects": [
-				{
-					"timing": "now",
-					"effect_type": "enable_boost_from_gauge"
-				},
-				{
-					"timing": "on_any_boost",
-					"condition": "boosted_from_gauge",
-					"effect_type": "seal_this",
-					"override_description": "You may play immediate boosts from your gauge. When you do, seal it after it resolves."
-				}
-			]
-		}
-	},
-	{
-		"id": "syrus_symphony_of_the_deep",
-		"type": "ultra",
-		"display_name": "Symphony of the Deep",
-		"force_cost": 0,
-		"gauge_cost": 2,
-		"range_min": 1,
-		"range_max": 2,
-		"power": 2,
-		"speed": 7,
-		"guard": 0,
-		"armor": 0,
-		"effects": [
-			{
-				"timing": "hit",
-				"effect_type": "syrus_return_to_hand_until_7",
-				"override_description": "Randomly return cards from your discards to your hand until you have 7 cards. Shuffle your discards."
-			}
-		],
-		"boost": {
-			"boost_type": "immediate",
-			"force_cost": 0,
-			"cancel_cost": -1,
-			"display_name": "Silver Shadow",
-			"effects": [
-				{
-					"timing": "immediate",
-					"effect_type": "move_to_range",
-					"amount": 3,
-					"override_description": "Move to any space at range 3 from the opponent."
-				}
-			]
-		}
-	},
-	{
-		"id": "syrus_dredge_fury",
-		"type": "ultra",
-		"display_name": "Dredge Fury",
-		"force_cost": 0,
-		"gauge_cost": 1,
-		"range_min": 3,
-		"range_max": 6,
-		"power": 2,
-		"speed": 4,
-		"guard": 0,
-		"armor": 0,
-		"effects": [
-			{
-				"timing": "before",
-				"effect_type": "gauge_for_effect",
-				"gauge_max": 3,
-				"min_gauge": 0,
-				"allow_partial_gauge_selection": true,
-				"per_gauge_effect": {
-					"effect_type": "powerup",
-					"amount": 2,
-					"combine_multiple_into_one": true
-				},
-				"overall_effect": {
-					"effect_type": "syrus_dredge_fury_keep_choice"
-				}
-			}
-		],
-		"boost": {
-			"boost_type": "immediate",
-			"force_cost": 0,
-			"cancel_cost": -1,
-			"display_name": "Riptide",
-			"effects": [
-				{
-					"timing": "now",
-					"effect_type": "choice",
-					"choice": [
-						{
-							"_choice_text": "Draw 0",
-							"effect_type": "draw",
-							"amount": 0
-						},
-						{
-							"_choice_text": "Draw 1",
-							"effect_type": "draw",
-							"amount": 1
-						},
-						{
-							"_choice_text": "Draw 2",
-							"effect_type": "draw",
-							"amount": 2
-						},
-						{
-							"_choice_text": "Draw 3",
-							"effect_type": "draw",
-							"amount": 3
-						}
-					]
-				},
-				{
-					"timing": "now",
-					"effect_type": "choice",
-					"opponent": true,
-					"choice": [
-						{
-							"_choice_text": "Draw 0",
-							"effect_type": "draw",
-							"amount": 0
-						},
-						{
-							"_choice_text": "Draw 1",
-							"effect_type": "draw",
-							"amount": 1
-						},
-						{
-							"_choice_text": "Draw 2",
-							"effect_type": "draw",
-							"amount": 2
-						},
-						{
-							"_choice_text": "Draw 3",
-							"effect_type": "draw",
-							"amount": 3
-						}
-					]
-				},
-				{
-					"timing": "now",
-					"effect_type": "bonus_action",
-					"amount": 1,
-					"silent": false
-				}
-			]
-		}
-	},
-	{
-		"NOTE": "POOKY CARDS START",
-		"id": "pooky_gamblingimin",
-		"type": "special",
-		"display_name": "Gambling? I'm In!",
-		"force_cost": 0,
-		"gauge_cost": 0,
-		"range_min": 0,
-		"range_max": 0,
-		"power": 0,
-		"speed": 7,
-		"armor": 0,
-		"guard": 0,
-		"effects": [
-			{
-				"timing": "on_strike_reveal",
-				"effect_type": "pooky_gambling_reveal"
-			}
-		],
-		"boost": {
-			"boost_type": "continuous",
-			"force_cost": 0,
-			"cancel_cost": -1,
-			"facedown": false,
-			"display_name": "Dwarven Firewater",
-			"effects": [
-				{
-					"timing": "during_strike",
-					"effect_type": "powerup",
-					"amount": 1
-				},
-				{
-					"timing": "now",
-					"condition": "life_equal_or_below",
-					"condition_amount": 15,
-					"effect_type": "take_bonus_actions",
-					"amount": 1,
-					"override_description": "Now: If your life is 15 or lower, take a bonus action."
-				}
-			]
-		}
-	},
-	{
-		"id": "pooky_snackattack",
-		"type": "special",
-		"display_name": "Snack Attack",
-		"force_cost": 0,
-		"gauge_cost": 0,
-		"range_min": 1,
-		"range_max": 2,
-		"power": 3,
-		"speed": 4,
-		"armor": 0,
-		"guard": 0,
-		"effects": [
-			{
-				"timing": "before",
-				"effect_type": "advance",
-				"amount": 3
-			},
-			{
-				"timing": "hit",
-				"effect_type": "draw",
-				"amount": 2
-			}
-		],
-		"boost": {
-			"boost_type": "continuous",
-			"force_cost": 0,
-			"cancel_cost": -1,
-			"facedown": false,
-			"display_name": "Dragon Breath Ale",
-			"effects": [
-				{
-					"timing": "during_strike",
-					"effect_type": "rangeup",
-					"works_outside_strike": true,
-					"amount": 0,
-					"amount2": 1
-				},
-				{
-					"timing": "now",
-					"condition": "exceeded",
-					"effect_type": "take_bonus_actions",
-					"amount": 1,
-					"override_description": "Now: If you are exceeded, take a bonus action."
-				}
-			]
-		}
-	},
-	{
-		"id": "pooky_pookycheats",
-		"type": "special",
-		"display_name": "Pooky Cheats!",
-		"force_cost": 0,
-		"gauge_cost": 0,
-		"range_min": 1,
-		"range_max": 3,
-		"power": 3,
-		"speed": 3,
-		"armor": 0,
-		"guard": 3,
-		"effects": [
-			{
-				"timing": "hit",
-				"effect_type": "choice",
-				"choice": [
-					{
-						"effect_type": "boost_then_sustain",
-						"valid_zones": [
-							"discard"
-						],
-						"limitation": "continuous",
-						"sustain": false
-					},
-					{
-						"effect_type": "pass"
-					}
-				]
-			}
-		],
-		"boost": {
-			"boost_type": "continuous",
-			"force_cost": 0,
-			"cancel_cost": -1,
-			"facedown": false,
-			"display_name": "Wizard's Brew",
-			"effects": [
-				{
-					"timing": "now",
-					"condition": "min_gauge",
-					"condition_amount": 1,
-					"effect_type": "take_bonus_actions",
-					"amount": 1,
-					"override_description": "Now: If you have 1 or more cards in gauge, take a bonus action."
-				},
-				{
-					"timing": "after",
-					"effect_type": "add_to_gauge_immediately",
-					"override_description": "After: Add this card to your gauge."
-				}
-			]
-		}
-	},
-	{
-		"id": "pooky_longintooth",
-		"type": "special",
-		"display_name": "Long in the Tooth",
-		"force_cost": 0,
-		"gauge_cost": 0,
-		"range_min": 1,
-		"range_max": 2,
-		"power": 5,
-		"speed": 2,
-		"armor": 0,
-		"guard": 5,
-		"effects": [
-			{
-				"timing": "during_strike",
-				"effect_type": "rangeup_per_boost_in_play",
-				"amount": 0,
-				"amount2": 1
-			}
-		],
-		"boost": {
-			"boost_type": "continuous",
-			"force_cost": 0,
-			"cancel_cost": -1,
-			"facedown": false,
-			"display_name": "Elven Wine",
-			"effects": [
-				{
-					"timing": "during_strike",
-					"effect_type": "powerup",
-					"amount": 1
-				},
-				{
-					"timing": "now",
-					"condition": "max_cards_in_hand",
-					"condition_amount": 3,
-					"effect_type": "take_bonus_actions",
-					"amount": 1,
-					"override_description": "Now: If you have 3 or fewer cards in hand, take a bonus action."
-				}
-			]
-		}
-	},
-	{
-		"id": "pooky_pookydrinks",
-		"type": "special",
-		"display_name": "Pooky Drinks!",
-		"force_cost": 0,
-		"gauge_cost": 0,
-		"range_min": 0,
-		"range_max": 0,
-		"power": 0,
-		"speed": 0,
-		"armor": 2,
-		"guard": 4,
-		"effects": [
-			{
-				"timing": "after",
-				"effect_type": "draw",
-				"amount": 3,
-				"and": {
-					"effect_type": "gain_life",
-					"amount": 2,
-					"and": {
-						"effect_type": "sustain_all_boosts"
-					}
-				}
-			}
-		],
-		"boost": {
-			"boost_type": "continuous",
-			"force_cost": 0,
-			"cancel_cost": -1,
-			"facedown": false,
-			"display_name": "Troll Swill",
-			"effects": [
-				{
-					"timing": "during_strike",
-					"effect_type": "armorup",
-					"amount": 1,
-					"and": {
-						"effect_type": "guardup",
-						"amount": 1
-					}
-				},
-				{
-					"timing": "now",
-					"condition": "has_any_transform",
-					"effect_type": "take_bonus_actions",
-					"amount": 1,
-					"override_description": "Now: If you have any transform, take a bonus action."
-				}
-			]
-		}
-	},
-	{
-		"id": "pooky_hattrick",
-		"type": "ultra",
-		"display_name": "Hat Trick",
-		"force_cost": 0,
-		"gauge_cost": 1,
-		"range_min": 1,
-		"range_max": 3,
-		"power": 5,
-		"speed": 1,
-		"armor": 0,
-		"guard": 0,
-		"effects": [
-			{
-				"timing": "during_strike",
-				"effect_type": "lower_speed_misses",
-				"dodge_at_speed_lower_or_equal": 4
-			}
-		],
-		"boost": {
-			"boost_type": "transform",
-			"force_cost": -1,
-			"cancel_cost": -1,
-			"display_name": "Zol's Secret Recipe",
-			"effects": [
-				{
-					"timing": "on_any_boost",
-					"effect_type": "pooky_zols_on_boost",
-					"override_description": "The first time you use an immediate boost each turn, you may pay 1 force. If you do, place it into play as a facedown continuous boost (no effects)."
-				}
-			]
-		}
-	},
-	{
-		"id": "pooky_drunkenrampage",
-		"type": "ultra",
-		"display_name": "Drunken Rampage",
-		"force_cost": 0,
-		"gauge_cost": 2,
-		"range_min": 1,
-		"range_max": 2,
-		"power": 1,
-		"speed": 5,
-		"armor": 0,
-		"guard": 0,
-		"effects": [
-			{
-				"timing": "before",
-				"effect_type": "advance",
-				"amount": 3
-			},
-			{
-				"timing": "hit",
-				"effect_type": "powerup_per_boost_in_play",
-				"amount": 2,
-				"override_description": "+2 Power for each of your continuous boosts."
-			}
-		],
-		"boost": {
-			"boost_type": "transform",
-			"force_cost": -1,
-			"cancel_cost": -1,
-			"display_name": "Drunken Fury",
-			"effects": [
-				{
-					"timing": "on_any_boost",
-					"effect_type": "pooky_drunken_fury_on_boost",
-					"override_description": "The first time you resolve an immediate boost each turn, you may pay 1 force. If you do, initiate a strike."
-				}
-			]
-		}
-	}	,
-	{
-		"id": "renea_paranormal_investigation",
-		"type": "special",
-		"display_name": "Paranormal Investigation",
-		"force_cost": 0,
-		"gauge_cost": 0,
-		"range_min": 1,
-		"range_max": 1,
-		"power": 2,
-		"speed": 7,
-		"armor": 0,
-		"guard": 0,
-		"effects": [
-			{
-				"timing": "hit",
-				"effect_type": "choose_discard",
-				"source": "discard",
-				"destination": "hand",
-				"amount": 2,
-				"amount_min": 0,
-				"limitation": "normal",
-				"override_description": "Hit: return up to 2 normal attacks from your discard pile to your hand."
-			}
-		],
-		"boost": {
-			"boost_type": "transform",
-			"force_cost": -1,
-			"cancel_cost": -1,
-			"display_name": "Mimetism",
-			"effects": [
-				{
-					"timing": "during_strike",
-					"effect_type": "add_attack_effect",
-					"character_effect": true,
-					"added_effect": {
-						"timing": "after",
-						"effect_type": "renea_mimetism_sustain",
-						"override_description": "After: you may spend 2 Force to sustain a continuous boost."
-					}
-				}
-			],
-			"description": "Your attacks gain \"After: you may spend 2 Force to choose one of your continuous boosts and sustain it.\""
-		}
-	},
-	{
-		"id": "renea_strafe_fire",
-		"type": "special",
-		"display_name": "Strafe Fire",
-		"force_cost": 0,
-		"gauge_cost": 0,
-		"range_min": 2,
-		"range_max": 4,
-		"power": 2,
-		"speed": 6,
-		"armor": 0,
-		"guard": 0,
-		"effects": [
-			{
-				"timing": "after",
-				"effect_type": "retreat",
-				"amount": 1
-			}
-		],
-		"boost": {
-			"boost_type": "transform",
-			"force_cost": -1,
-			"cancel_cost": -1,
-			"display_name": "Double Clutch",
-			"effects": [
-				{
-					"timing": "during_strike",
-					"effect_type": "add_attack_effect",
-					"character_effect": true,
-					"override_description": "Hit: if you have 2 or more continuous boosts, +2 Power.",
-					"added_effect": {
-						"timing": "hit",
-						"condition": "min_continuous_boosts",
-						"condition_amount": 2,
-						"effect_type": "powerup",
-						"amount": 2,
-						"override_description": "Hit: if you have 2 or more continuous boosts, +2 Power."
-					}
-				}
-			]
-		}
-	},
-	{
-		"id": "renea_flare",
-		"type": "special",
-		"display_name": "Flare",
-		"force_cost": 0,
-		"gauge_cost": 0,
-		"range_min": 1,
-		"range_max": 4,
-		"power": 3,
-		"speed": 5,
-		"armor": 0,
-		"guard": 0,
-		"effects": [
-			{
-				"timing": "hit",
-				"effect_type": "dodge_at_range",
-				"range_min": 1,
-				"range_max": 1,
-				"override_description": "For the rest of this strike, attacks at range 1 do not hit you."
-			},
-			{
-				"timing": "after",
-				"effect_type": "close",
-				"amount": 2
-			}
-		],
-		"boost": {
-			"boost_type": "continuous",
-			"force_cost": 0,
-			"cancel_cost": -1,
-			"display_name": "Fakeout",
-			"effects": [
-				{
-					"timing": "now",
-					"effect_type": "draw",
-					"amount": 1,
-					"and": {
-					 "effect_type": "return_this_boost_to_hand_strike_effect"
-					}
-				}
-			]
-		}
-	},
-	{
-		"id": "renea_lethal_force",
-		"type": "special",
-		"display_name": "Lethal Force",
-		"force_cost": 0,
-		"gauge_cost": 0,
-		"range_min": 1,
-		"range_max": 2,
-		"power": 5,
-		"speed": 4,
-		"armor": 0,
-		"guard": 0,
-		"effects": [
-			{
-				"timing": "during_strike",
-				"effect_type": "ignore_armor"
-			},
-			{
-				"timing": "hit",
-				"effect_type": "push",
-				"amount": 2,
-				"and": {
-					"effect_type": "retreat",
-					"amount": 1,
-					"condition": "boost_in_play",
-					"override_description": "If you have a continuous boost in play, retreat 1."
-				}
-			}
-		],
-		"boost": {
-			"boost_type": "transform",
-			"force_cost": -1,
-			"cancel_cost": -1,
-			"display_name": "Polling Leads",
-			"effects": [
-				{
-					"timing": "on_any_boost",
-					"effect_type": "renea_polling_leads",
-					"override_description": "After resolving a boost, you may spend 1 Force. If you do, choose one: Advance 1 / Retreat 1."
-				}
-			]
-		}
-	},
-	{
-		"id": "renea_called_shot",
-		"type": "special",
-		"display_name": "Called Shot",
-		"force_cost": 0,
-		"gauge_cost": 0,
-		"range_min": 1,
-		"range_max": 8,
-		"power": 0,
-		"speed": 3,
-		"armor": 0,
-		"guard": 0,
-		"effects": [
-			{
-				"timing": "hit",
-				"effect_type": "name_card_opponent_discards",
-				"amount": 1,
-				"discard_effect": {
-					"effect_type": "powerup",
-					"amount": 6
-				},
-				"override_description": "Hit: name a card; the opponent discards a card with that name, or reveals their hand if they cannot. If they discard, +6 Power."
-			}
-		],
-		"boost": {
-			"boost_type": "continuous",
-			"force_cost": 0,
-			"cancel_cost": -1,
-			"display_name": "Tactical Training",
-			"effects": [
-				{
-					"timing": "during_strike",
-					"effect_type": "powerup",
-					"amount": 1,
-					"character_effect": true
-				},
-				{
-					"timing": "during_strike",
-					"effect_type": "speedup",
-					"amount": 1,
-					"character_effect": true
-				}
-			]
-		}
-	},
-	{
-		"id": "renea_neutralizer",
-		"type": "ultra",
-		"display_name": "Neutralizer",
-		"force_cost": 0,
-		"gauge_cost": 2,
-		"range_min": 1,
-		"range_max": 2,
-		"power": 4,
-		"speed": 6,
-		"armor": 0,
-		"guard": 0,
-		"effects": [
-			{
-				"timing": "during_strike",
-				"effect_type": "ignore_guard"
-			},
-			{
-				"timing": "hit",
-				"condition": "opponent_exceeded",
-				"effect_type": "choose_discard",
-				"opponent": true,
-				"source": "gauge",
-				"destination": "discard",
-				"amount": 2,
-				"limitation": "",
-				"override_description": "Hit: if the opponent is exceeded, they discard 2 cards from their gauge."
-			}
-		],
-		"boost": {
-			"boost_type": "continuous",
-			"force_cost": 0,
-			"cancel_cost": -1,
-			"display_name": "Conspiracy Unearthed",
-			"effects": [
-				{
-					"timing": "now",
-					"effect_type": "renea_conspiracy_unearthed",
-					"override_description": "The opponent reveals their hand; choose a card to add to their gauge."
-				}
-			]
-		}
-	},
-	{
-		"id": "renea_anticipation",
-		"type": "ultra",
-		"display_name": "Anticipation",
-		"force_cost": 0,
-		"gauge_cost": 2,
-		"range_min": 1,
-		"range_max": 3,
-		"power": 3,
-		"speed": 3,
-		"armor": 0,
-		"guard": 0,
-		"effects": [
-			{
-				"timing": "during_strike",
-				"effect_type": "dodge_at_range",
-				"range_min": 1,
-				"range_max": 1
-			},
-			{
-				"timing": "before",
-				"effect_type": "advance",
-				"amount": 1
-			}
-		],
-		"boost": {
-			"boost_type": "continuous",
-			"force_cost": 0,
-			"cancel_cost": -1,
-			"display_name": "Jujitsu",
-			"effects": [
-				{
-					"timing": "during_strike",
-					"effect_type": "powerup",
-					"amount": 1,
-					"character_effect": true
-				},
-				{
-					"timing": "now",
-					"effect_type": "choice",
-					"choice": [
-						{
-							"effect_type": "advance",
-							"amount": 1
-						},
-						{
-							"effect_type": "retreat",
-							"amount": 1
-						}
-					],
-					"override_description": "Immediate: move 1."
-				}
-			]
-		}
-	},
-	{
-		"NOTE": "UMINA CARDS START",
-		"id": "umina_terror_whispers",
-		"type": "special",
-		"display_name": "Terror Whispers",
-		"force_cost": 0,
-		"gauge_cost": 0,
-		"range_min": 1,
-		"range_max": 1,
-		"power": 2,
-		"speed": 7,
-		"armor": 0,
-		"guard": 0,
-		"effects": [
-			{
-				"timing": "hit",
-				"effect_type": "umina_place_discard_to_dreamlands",
-				"override_description": "Put a card from your discard pile into your Dreamlands."
-			}
-		],
-		"boost": {
-			"boost_type": "transform",
-			"force_cost": -1,
-			"cancel_cost": -1,
-			"display_name": "The Silver Key",
-			"effects": [
-				{
-					"timing": "action",
-					"text": "Spend 2 gauge to initiate a strike (opponent wild swings)",
-					"effect_type": "umina_terror_whispers_action",
-					"gauge_cost": 2,
-					"override_description": "Action: Spend 2 gauge to initiate a strike. Your opponent must wild swing."
-				}
-			]
-		}
-	},
-	{
-		"id": "umina_out_of_mind",
-		"type": "special",
-		"display_name": "Out of Mind",
-		"force_cost": 0,
-		"gauge_cost": 0,
-		"range_min": 1,
-		"range_max": 2,
-		"power": 1,
-		"speed": 5,
-		"armor": 0,
-		"guard": 0,
-		"effects": [
-			{
-				"timing": "hit",
-				"effect_type": "umina_out_of_mind_hit",
-				"override_description": "If a card is in your Dreamlands, add it to your gauge and gain its power (up to +5). Otherwise, add your hand to your gauge and draw 3."
-			}
-		],
-		"boost": {
-			"boost_type": "transform",
-			"force_cost": -1,
-			"cancel_cost": -1,
-			"display_name": "Slipping Away",
-			"effects": [
-				{
-					"timing": "now",
-					"effect_type": "umina_slipping_away",
-					"override_description": "When you place a card into your Dreamlands, you may spend 1 force to move 1 space."
-				}
-			]
-		}
-	},
-	{
-		"id": "umina_hollow_space",
-		"type": "special",
-		"display_name": "Hollow Space",
-		"force_cost": 0,
-		"gauge_cost": 0,
-		"range_min": 3,
-		"range_max": 6,
-		"power": 4,
-		"speed": 4,
-		"armor": 0,
-		"guard": 0,
-		"effects": [
-			{
-				"timing": "during_strike",
-				"effect_type": "dodge_at_range",
-				"range_min": 1,
-				"range_max": 1
-			},
-			{
-				"timing": "after",
-				"effect_type": "choice",
-				"choice": [
-					{ "effect_type": "advance", "amount": 3 },
-					{ "effect_type": "retreat", "amount": 3 }
-				]
-			}
-		],
-		"boost": {
-			"boost_type": "immediate",
-			"force_cost": 0,
-			"cancel_cost": -1,
-			"display_name": "Dark Reflections",
-			"effects": [
-				{
-					"timing": "immediate",
-					"effect_type": "umina_dark_reflections",
-					"override_description": "Name a card. Your opponent discards a card with the same name, or reveals their hand. Put the discarded card into your Dreamlands."
-				}
-			]
-		}
-	},
-	{
-		"id": "umina_dark_thoughts",
-		"type": "special",
-		"display_name": "Dark Thoughts",
-		"force_cost": 0,
-		"gauge_cost": 0,
-		"range_min": 2,
-		"range_max": 5,
-		"power": 6,
-		"speed": 2,
-		"armor": 0,
-		"guard": 6,
-		"effects": [
-			{
-				"timing": "hit",
-				"effect_type": "umina_dark_thoughts_hit",
-				"override_description": "Your opponent discards a card at random; you may put it into your Dreamlands."
-			}
-		],
-		"boost": {
-			"boost_type": "transform",
-			"force_cost": -1,
-			"cancel_cost": -1,
-			"display_name": "Spiraling Descent",
-			"effects": [
-				{
-					"timing": "now",
-					"effect_type": "umina_spiraling_descent",
-					"override_description": "While a card is in your Dreamlands, your opponent cannot boost or strike with a card of the same name."
-				}
-			]
-		}
-	},
-	{
-		"id": "umina_shadow_chorus",
-		"type": "special",
-		"display_name": "Shadow Chorus",
-		"force_cost": 0,
-		"gauge_cost": 0,
-		"range_min": 1,
-		"range_max": 1,
-		"power": 1,
-		"speed": 1,
-		"armor": 0,
-		"guard": 0,
-		"effects": [
-			{
-				"timing": "on_strike_reveal",
-				"effect_type": "umina_shadow_chorus_copy",
-				"override_description": "Copy a card from your Dreamlands. Pay all its costs."
-			}
-		],
-		"boost": {
-			"boost_type": "immediate",
-			"force_cost": 0,
-			"cancel_cost": -1,
-			"display_name": "Whispers in the Dark",
-			"effects": [
-				{
-					"timing": "immediate",
-					"effect_type": "umina_whispers_in_the_dark",
-					"override_description": "Draw 1 card, then perform the immediate boost effect of a card in your Dreamlands, ignoring its force cost."
-				}
-			]
-		}
-	},
-	{
-		"id": "umina_unknown_khadath",
-		"type": "ultra",
-		"display_name": "Unknown Khadath",
-		"force_cost": 0,
-		"gauge_cost": 3,
-		"range_min": 0,
-		"range_max": 0,
-		"power": 0,
-		"speed": 6,
-		"armor": 0,
-		"guard": 0,
-		"effects": [
-			{
-				"timing": "before",
-				"effect_type": "umina_unknown_khadath",
-				"override_description": "Swallow your opponent's attack card into your Dreamlands, then this card gains its force as gauge."
-			}
-		],
-		"boost": {
-			"boost_type": "continuous",
-			"force_cost": 1,
-			"cancel_cost": -1,
-			"display_name": "Dream Telling",
-			"effects": [
-				{
-					"timing": "set_strike",
-					"effect_type": "umina_dream_telling_power",
-					"override_description": "Before: Gain power equal to a card in your Dreamlands (up to +5)."
-				},
-				{
-					"timing": "after",
-					"effect_type": "add_to_gauge_immediately",
-					"override_description": "After: Add this card to your gauge."
-				}
-			]
-		}
-	},
-	{
-		"id": "umina_call_of_the_dreamlands",
-		"type": "ultra",
-		"display_name": "Call of the Dreamlands",
-		"force_cost": 0,
-		"gauge_cost": 2,
-		"range_min": 2,
-		"range_max": 5,
-		"power": 2,
-		"speed": 5,
-		"armor": 0,
-		"guard": 0,
-		"effects": [
-			{
-				"timing": "hit",
-				"effect_type": "umina_call_of_dreamlands_hit",
-				"override_description": "Reveal both players' hands. +1 power for each special and ultra revealed this way."
-			}
-		],
-		"boost": {
-			"boost_type": "transform",
-			"force_cost": -1,
-			"cancel_cost": -1,
-			"display_name": "The Sleeper Wakes",
-			"effects": [
-				{
-					"timing": "now",
-					"effect_type": "umina_sleeper_wakes",
-					"override_description": "Cards enter your Dreamlands face-down. Reveal them when they are referenced."
-				}
-			]
-		},
-		"NOTEEND": "UMINA CARDS END"
 	}
 ]
