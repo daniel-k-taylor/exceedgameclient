@@ -27,6 +27,16 @@ const DEFAULT_SKIN_LABEL := "Original"
 const DEFAULT_EXTRA_SKIN_LABEL := "Skin %d"
 const FALLBACK_PORTRAIT_PATH := "res://assets/portraits/custom.png"
 
+# Skin art was deliberately not imported with this port, so every skin currently
+# renders identically to its base character. Offering the picker would only be a
+# no-op with a confusing label, so the selection UI is hidden. The resolution and
+# rendering system below stays fully functional: flip this to true once skin art
+# ships and the picker comes back with no other changes.
+const SKIN_SELECTION_ENABLED := false
+
+func is_skin_selection_enabled() -> bool:
+	return SKIN_SELECTION_ENABLED
+
 # Hand-maintained registry. Only characters whose cosmetic-only skin deck JSON was
 # imported are listed. Skin art is not imported, so these degrade to base visuals.
 var CHARACTER_SKINS := {

@@ -92,6 +92,9 @@ func _load_hover_portrait(char_id : String, skin_index : int) -> Texture2D:
 
 func show_char_select(char_id : String, skin_index : int = 0):
 	default_char_id = char_id
+	var skin_manager = get_node_or_null("/root/CharSkinManager")
+	if skin_manager and not skin_manager.is_skin_selection_enabled():
+		skin_index = 0
 	default_skin_index = skin_index
 	update_hover(char_id, skin_index)
 

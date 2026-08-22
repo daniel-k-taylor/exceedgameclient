@@ -49,3 +49,51 @@ func test_skin_portrait_degrades_to_base_when_art_absent():
 	# and never returns null / crashes.
 	var texture = manager.load_portrait_texture_for_deck_id(manager.get_skin_deck_id("ryu", 1))
 	assert_not_null(texture)
+
+# --- Skin selection UI is hidden until skin art ships ---
+
+func test_skin_selection_is_disabled_while_no_skin_art_is_imported():
+	# Every registered skin currently degrades to its base character art, so
+	# offering the picker would just be a confusing no-op.
+	assert_false(_skin_manager().is_skin_selection_enabled(),
+		"flip SKIN_SELECTION_ENABLED once skin art is imported")
+
+func test_main_menu_hides_the_skin_picker_while_selection_is_disabled():
+	var menu = load("res://scenes/menu/main_menu.tscn").instantiate()
+	add_child_autofree(menu)
+	await wait_frames(2)
+	var picker = menu.get_node("PlayerChooser/MarginContainer/VBoxContainer/PlayerSkinSelection")
+
+	menu.player_selected_character = "ryu"
+	menu.player_selected_skin_index = 1
+	menu._refresh_player_skin_selection()
+	await wait_frames(2)
+
+	assert_false(picker.visible, "the skin picker should stay hidden")
+	assert_eq(picker.item_count, 0, "no skin entries should be populated")
+	assert_eq(menu.player_selected_skin_index, 0, "a stale skin index must be reset")
+
+func test_disabled_skin_selection_never_sends_a_skin_deck_id():
+	var menu = load("res://scenes/menu/main_menu.tscn").instantiate()
+	add_child_autofree(menu)
+	await wait_frames(2)
+
+	# Even with a skin index somehow set, the game-start payload uses the base id.
+	menu.player_selected_skin_index = 1
+	assert_eq(menu._get_effective_player_character_id("ryu"), "ryu")
+
+func test_char_select_ignores_a_skin_index_while_selection_is_disabled():
+	var char_select = load("res://scenes/menu/char_select.tscn").instantiate()
+	add_child_autofree(char_select)
+	await wait_frames(2)
+
+	char_select.show_char_select("ryu", 1)
+	assert_eq(char_select.default_skin_index, 0, "hover art should use the base character")
+
+func test_skin_decks_are_not_offered_as_selectable_characters():
+	# Skin decks share their base character's cards, so they must never show up
+	# as extra entries in the character grid.
+	for deck in CardDataManager.decks.values():
+		if str(deck.get("id", "")).begins_with("ryu_"):
+			assert_false(CardDataManager._is_random_selectable_deck(deck),
+				"skin deck %s must not be selectable" % deck["id"])

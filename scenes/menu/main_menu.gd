@@ -520,7 +520,7 @@ func _apply_main_menu_background():
 # character id unchanged.
 func _get_effective_player_character_id(char_id : String) -> String:
 	var skin_manager = get_node_or_null("/root/CharSkinManager")
-	if skin_manager == null:
+	if skin_manager == null or not skin_manager.is_skin_selection_enabled():
 		return char_id
 	return skin_manager.get_skin_deck_id(char_id, player_selected_skin_index)
 
@@ -529,9 +529,10 @@ func _refresh_player_skin_selection():
 		return
 	var skin_manager = get_node_or_null("/root/CharSkinManager")
 	var skin_count = 0
-	if skin_manager != null:
+	if skin_manager != null and skin_manager.is_skin_selection_enabled():
 		skin_count = skin_manager.get_skin_count(player_selected_character)
 	if skin_count <= 0:
+		player_selected_skin_index = 0
 		player_skin_selection.visible = false
 		player_skin_selection.clear()
 		return
