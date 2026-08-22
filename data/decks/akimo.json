@@ -4,15 +4,6 @@
 	"display_name": "Akimo (playtest)",
 	"exceed_cost": 3,
 	"character_action_default": [{
-		"gauge_cost": 0,
-		"force_cost": 0,
-		"can_boost_from_gauge": true,
-		"shortcut_effect_type": "boost_from_gauge",
-		"effect": {
-			"effect_type": "boost_from_gauge",
-			"limitation": ""
-		}
-	}, {
 		"gauge_cost": 1,
 		"force_cost": 0,
 		"action_name": "Infuse",
@@ -23,29 +14,27 @@
 				"effect_type": "take_bonus_actions",
 				"amount": 1,
 				"silent": true
+			}
+		}
+	}, {
+		"gauge_cost": 0,
+		"force_cost": 0,
+		"action_name": "Infuse (Spend 2 Life)",
+		"requires_not_infused": true,
+		"effect": {
+			"effect_type": "spend_life",
+			"amount": 2,
+			"and": {
+				"effect_type": "infused",
+				"and": {
+					"effect_type": "take_bonus_actions",
+					"amount": 1,
+					"silent": true
+				}
 			}
 		}
 	}],
 	"character_action_exceeded": [{
-		"gauge_cost": 0,
-		"force_cost": 0,
-		"can_boost_from_gauge": true,
-		"shortcut_effect_type": "boost_from_gauge",
-		"effect": {
-			"effect_type": "boost_from_gauge",
-			"limitation": "",
-			"and": {
-				"effect_type": "infused",
-				"and": {
-					"effect_type": "choice",
-					"choice": [
-						{ "effect_type": "strike" },
-						{ "effect_type": "pass" }
-					]
-				}
-			}
-		}
-	}, {
 		"gauge_cost": 1,
 		"force_cost": 0,
 		"action_name": "Infuse",
@@ -56,6 +45,23 @@
 				"effect_type": "take_bonus_actions",
 				"amount": 1,
 				"silent": true
+			}
+		}
+	}, {
+		"gauge_cost": 0,
+		"force_cost": 0,
+		"action_name": "Infuse (Spend 2 Life)",
+		"requires_not_infused": true,
+		"effect": {
+			"effect_type": "spend_life",
+			"amount": 2,
+			"and": {
+				"effect_type": "infused",
+				"and": {
+					"effect_type": "take_bonus_actions",
+					"amount": 1,
+					"silent": true
+				}
 			}
 		}
 	}],
@@ -63,24 +69,72 @@
 		{
 			"timing": "set_strike",
 			"condition": "is_not_infused",
-			"effect_type": "gauge_for_effect",
-			"per_gauge_effect": null,
-			"overall_effect": {
-				"effect_type": "infused"
-			},
-			"gauge_max": 1
+			"effect_type": "choice",
+			"choice": [
+				{
+					"effect_type": "gauge_for_effect",
+					"per_gauge_effect": null,
+					"overall_effect": {
+						"effect_type": "infused"
+					},
+					"gauge_max": 1
+				},
+				{
+					"effect_type": "spend_life",
+					"amount": 2,
+					"and": {
+						"effect_type": "infused",
+					}
+				},
+				{ "effect_type": "pass" }
+			]
+		},
+		{
+			"timing": "set_strike",
+			"condition": "initiated_strike",
+			"effect_type": "pass",
+			"and": {
+				"condition": "is_infused",
+				"effect_type": "powerup",
+				"character_effect": true,
+				"amount": 1
+			}
 		}
 	],
 	"exceed_ability_effects": [
 		{
 			"timing": "set_strike",
 			"condition": "is_not_infused",
-			"effect_type": "gauge_for_effect",
-			"per_gauge_effect": null,
-			"overall_effect": {
-				"effect_type": "infused"
-			},
-			"gauge_max": 1
+			"effect_type": "choice",
+			"choice": [
+				{
+					"effect_type": "gauge_for_effect",
+					"per_gauge_effect": null,
+					"overall_effect": {
+						"effect_type": "infused"
+					},
+					"gauge_max": 1
+				},
+				{
+					"effect_type": "spend_life",
+					"amount": 2,
+					"and": {
+						"effect_type": "infused",
+					}
+				},
+				{ "effect_type": "pass" }
+			]
+		},
+		{
+			"timing": "set_strike",
+			"condition": "initiated_strike",
+			"effect_type": "pass",
+			"and": {
+				"condition": "is_infused",
+				"effect_type": "powerup",
+				"character_effect": true,
+				"amount": 2
+			}
 		}
 	],
 	"image_resources": {
@@ -107,72 +161,72 @@
 	},
 	"cards": [
 		{
-			"definition_id": "miyuki_uncagedsoul",
-			"image_name": "specials",
-			"image_index": 6
-		},
-		{
-			"definition_id": "miyuki_uncagedsoul",
-			"image_name": "specials",
-			"image_index": 6
-		},
-		{
-			"definition_id": "miyuki_spiritheal",
+			"definition_id": "akimo_scourgeofpuido",
 			"image_name": "specials",
 			"image_index": 5
 		},
 		{
-			"definition_id": "miyuki_spiritheal",
+			"definition_id": "akimo_scourgeofpuido",
 			"image_name": "specials",
 			"image_index": 5
 		},
 		{
-			"definition_id": "miyuki_cripplingsparks",
+			"definition_id": "akimo_ishirounleashed",
+			"image_name": "specials",
+			"image_index": 6
+		},
+		{
+			"definition_id": "akimo_ishirounleashed",
+			"image_name": "specials",
+			"image_index": 6
+		},
+		{
+			"definition_id": "akimo_bloodthirst",
 			"image_name": "specials",
 			"image_index": 0
 		},
 		{
-			"definition_id": "miyuki_cripplingsparks",
+			"definition_id": "akimo_bloodthirst",
 			"image_name": "specials",
 			"image_index": 0
 		},
 		{
-			"definition_id": "miyuki_cleansingflame",
+			"definition_id": "akimo_blazingfury",
 			"image_name": "specials",
 			"image_index": 1
 		},
 		{
-			"definition_id": "miyuki_cleansingflame",
+			"definition_id": "akimo_blazingfury",
 			"image_name": "specials",
 			"image_index": 1
 		},
 		{
-			"definition_id": "miyuki_lifestealtouch",
+			"definition_id": "akimo_oathofthesword",
 			"image_name": "specials",
 			"image_index": 2
 		},
 		{
-			"definition_id": "miyuki_lifestealtouch",
+			"definition_id": "akimo_oathofthesword",
 			"image_name": "specials",
 			"image_index": 2
 		},
 		{
-			"definition_id": "miyuki_firelight",
+			"definition_id": "akimo_demonblade",
 			"image_name": "specials",
 			"image_index": 3
 		},
 		{
-			"definition_id": "miyuki_firelight",
+			"definition_id": "akimo_demonblade",
 			"image_name": "specials",
 			"image_index": 3
 		},
 		{
-			"definition_id": "miyuki_radiantwarmth",
+			"definition_id": "akimo_scorchingrush",
 			"image_name": "specials",
 			"image_index": 4
 		},
 		{
-			"definition_id": "miyuki_radiantwarmth",
+			"definition_id": "akimo_scorchingrush",
 			"image_name": "specials",
 			"image_index": 4
 		},
