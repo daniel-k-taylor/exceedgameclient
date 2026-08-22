@@ -763,3 +763,6 @@ func test_zsolt_100():
 
 func test_miyuki_100():
 	run_iterations_with_deck("miyuki")
+
+func test_akimo_100():
+	run_iterations_with_deck("akimo")
