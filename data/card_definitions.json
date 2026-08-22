@@ -35994,12 +35994,12 @@
 				"condition": "has_any_transform",
 				"effect_type": "choice",
 				"choice": [
-					{ "effect_type": "pass", "override_description": "Skip" },
 					{
 						"effect_type": "seal_transform_for_powerup",
 						"amount": 3,
 						"override_description": "Seal a transform for +3 Power."
-					}
+					},
+					{ "effect_type": "pass"}
 				]
 			}
 		],
@@ -36071,18 +36071,13 @@
 					"added_effect": {
 						"timing": "before",
 						"condition": "is_normal_attack",
-						"effect_type": "pass",
-						"override_description": "Before: You may spend 1 force. If you do, close 1.",
-						"and": {
-							"effect_type": "force_for_effect",
-							"per_force_effect": {
-								"effect_type": "close",
-								"amount": 1
-							},
-							"overall_effect": null,
-							"force_max": 1,
-							"override_description": "Before: You may spend 1 force. If you do, close 1."
-						}
+						"effect_type": "force_for_effect",
+						"overall_effect": {
+							"effect_type": "close",
+							"amount": 1
+						},
+						"per_force_effect": null,
+						"force_max": 1
 					}
 				}
 			]
