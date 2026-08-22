@@ -198,3 +198,76 @@ func test_reconnect_countdown_clamps_to_zero_once_the_deadline_passes():
 	assert_eq(NetworkManager.get_reconnect_state()["waiting_for_opponent_reconnect_remaining_seconds"], 0,
 		"an expired deadline should read as zero, never negative")
 	NetworkManager.end_waiting_for_opponent_reconnect()
+
+# --- Offline (AI game / replay) matches must survive losing the server ---
+
+class FakeMatch:
+	extends Node2D
+	var requires_server : bool = true
+	var abandoned : bool = false
+	func match_requires_server() -> bool:
+		return requires_server
+	func abandon_match_after_disconnect():
+		abandoned = true
+
+func _attach_fake_match(requires_server : bool) -> FakeMatch:
+	var fake = FakeMatch.new()
+	fake.requires_server = requires_server
+	main_scene.add_child(fake)
+	main_scene.game = fake
+	return fake
+
+func _disconnected_state() -> Dictionary:
+	return {
+		"is_waiting_for_opponent_reconnect": false,
+		"is_manual_reconnect": false,
+		"is_auto_reconnecting": true,
+		"waiting_for_opponent_reconnect_seconds": 0,
+		"reconnect_seconds": 5,
+	}
+
+func test_reconnect_overlay_never_covers_an_ai_match():
+	var fake = _attach_fake_match(false)
+	main_scene._on_reconnect_state_changed(_disconnected_state())
+	await wait_frames(2)
+	assert_false(_overlay().visible, "an AI match does not need the server, so do not interrupt it")
+	assert_false(fake.abandoned)
+
+func test_reconnect_overlay_still_covers_a_networked_match():
+	_attach_fake_match(true)
+	main_scene._on_reconnect_state_changed(_disconnected_state())
+	await wait_frames(2)
+	assert_true(_overlay().visible, "a networked match cannot continue while disconnected")
+
+func test_cancelling_reconnect_does_not_kick_you_out_of_an_ai_match():
+	var fake = _attach_fake_match(false)
+	main_scene._on_reconnect_cancel_button_pressed()
+	await wait_frames(2)
+	assert_false(fake.abandoned, "cancelling reconnect must not end a local AI match")
+	assert_false(_overlay().visible)
+
+func test_cancelling_reconnect_still_leaves_a_networked_match():
+	var fake = _attach_fake_match(true)
+	main_scene._on_reconnect_cancel_button_pressed()
+	await wait_frames(2)
+	assert_true(fake.abandoned, "a networked match can no longer receive updates")
+
+func test_session_replaced_does_not_end_an_ai_match():
+	var fake = _attach_fake_match(false)
+	main_scene._on_session_replaced("session_replaced")
+	assert_false(fake.abandoned)
+
+func test_session_replaced_still_ends_a_networked_match():
+	var fake = _attach_fake_match(true)
+	main_scene._on_session_replaced("session_replaced")
+	assert_true(fake.abandoned)
+
+func test_session_restore_failed_does_not_end_an_ai_match():
+	var fake = _attach_fake_match(false)
+	main_scene._on_session_restore_failed("no_matching_session")
+	assert_false(fake.abandoned)
+
+func test_a_restore_rebuild_does_not_clobber_an_ai_match():
+	var fake = _attach_fake_match(false)
+	main_scene._on_main_menu_start_remote_game({}, { "restore_log": [] })
+	assert_eq(main_scene.game, fake, "the AI match should still be the active game")

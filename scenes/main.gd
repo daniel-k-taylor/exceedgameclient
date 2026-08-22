@@ -31,6 +31,7 @@ func _ready():
 	add_child(http_request)
 
 func _on_return_from_game():
+	game = null
 	$MainMenu.visible = true
 	$MainMenu.returned_from_game()
 	_on_reconnect_state_changed(NetworkManager.get_reconnect_state())
@@ -81,6 +82,10 @@ func _on_main_menu_start_game(vs_info):
 # Listens for a signal from _start_remote_game in main_menu.
 func _on_main_menu_start_remote_game(vs_info, data):
 	var is_restore_rebuild = data.has("restore_log")
+	# Never tear down an in-progress offline match (AI game or replay) to
+	# rebuild a stale remote match the player already left.
+	if is_instance_valid(game) and not _match_requires_server():
+		return
 	# If a live game already exists and this is NOT a restore rebuild, ignore a
 	# stray game_start (we do not want to clobber the current match).
 	if game and NetworkManager.get_reconnect_state()["was_in_game"] and not is_restore_rebuild:
@@ -104,7 +109,27 @@ func _on_main_menu_start_remote_game(vs_info, data):
 
 ### Reconnect overlay ###
 
+# AI games and replay playback run entirely on this client, so losing the
+# server connection must not interrupt or end them. Reconnect attempts still
+# continue in the background; the main menu has its own Reconnect button.
+func _match_requires_server() -> bool:
+	if not is_instance_valid(game):
+		return false
+	if not game.has_method("match_requires_server"):
+		return true
+	return game.match_requires_server()
+
+func _abandon_match_if_networked():
+	if not _match_requires_server():
+		return
+	if game.has_method("abandon_match_after_disconnect"):
+		game.abandon_match_after_disconnect()
+
 func _on_reconnect_state_changed(state : Dictionary):
+	# Never cover an offline match with the reconnect overlay.
+	if is_instance_valid(game) and not _match_requires_server():
+		reconnect_overlay.visible = false
+		return
 	if state["is_waiting_for_opponent_reconnect"]:
 		_show_waiting_for_opponent_overlay(
 			state["waiting_for_opponent_reconnect_seconds"],
@@ -129,8 +154,7 @@ func _on_waiting_for_opponent_reconnect_changed(is_waiting : bool, seconds : int
 func _on_session_restore_failed(reason : String):
 	print("Session restore failed, returning to menu: ", reason)
 	reconnect_overlay.visible = false
-	if game and game.has_method("abandon_match_after_disconnect"):
-		game.abandon_match_after_disconnect()
+	_abandon_match_if_networked()
 
 # The session is now owned by another window or tab. There is nothing to
 # reconnect to, so drop out of any match and let the player carry on with a
@@ -138,8 +162,7 @@ func _on_session_restore_failed(reason : String):
 func _on_session_replaced(reason : String):
 	print("Session replaced by another connection, returning to menu: ", reason)
 	reconnect_overlay.visible = false
-	if game and game.has_method("abandon_match_after_disconnect"):
-		game.abandon_match_after_disconnect()
+	_abandon_match_if_networked()
 
 func _show_auto_reconnect_overlay(seconds : int):
 	reconnect_overlay.visible = true
@@ -189,13 +212,11 @@ func _on_reconnect_cancel_button_pressed():
 	var reconnect_state = NetworkManager.get_reconnect_state()
 	if reconnect_state["is_waiting_for_opponent_reconnect"]:
 		NetworkManager.quit_waiting_for_opponent()
-		if game and game.has_method("abandon_match_after_disconnect"):
-			game.abandon_match_after_disconnect()
+		_abandon_match_if_networked()
 		return
 	NetworkManager.cancel_reconnect()
-	# Giving up on reconnecting means the match cannot be resumed, so leave it
-	# rather than dropping the player back into a game that can no longer
-	# receive any updates.
-	if game and game.has_method("abandon_match_after_disconnect"):
-		game.abandon_match_after_disconnect()
+	# Giving up on reconnecting means a networked match cannot be resumed, so
+	# leave it rather than dropping the player back into a game that can no
+	# longer receive any updates. Offline matches (AI, replays) are unaffected.
+	_abandon_match_if_networked()
 	_on_reconnect_state_changed(NetworkManager.get_reconnect_state())

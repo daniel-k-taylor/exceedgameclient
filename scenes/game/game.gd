@@ -7339,6 +7339,16 @@ func _quit_to_menu():
 	returning_from_game.emit()
 	queue_free()
 
+# Called by main.gd (guarded by has_method) to decide whether losing the server
+# connection should interrupt this match. AI games and replay playback are
+# driven entirely by this client, so they keep running while offline.
+func match_requires_server() -> bool:
+	if replay_mode:
+		return false
+	if game_wrapper == null or game_wrapper.current_game == null:
+		return false
+	return not game_wrapper.is_ai_game()
+
 # Called by main.gd (guarded by has_method) when a reconnect fails terminally
 # or the surviving player cancels the waiting-for-opponent overlay. Tears the
 # match down and returns to the main menu.
