@@ -19347,7 +19347,7 @@
 			{
 				"timing": "hit",
 				"effect_type": "powerup_per_boost_in_play",
-				"amount": 2
+				"amount": 1
 			}
 		],
 		"boost": {
@@ -19384,10 +19384,10 @@
 		"gauge_cost": 2,
 		"range_min": 2,
 		"range_max": 4,
-		"power": 4,
+		"power": 3,
 		"speed": 3,
 		"armor": 2,
-		"guard": 5,
+		"guard": 3,
 		"effects": [
 			{
 				"timing": "hit",
@@ -19637,7 +19637,7 @@
 					"amount": 1,
 					"and": {
 						"effect_type": "guardup",
-						"amount": 3
+						"amount": 1
 					}
 				}
 			]
